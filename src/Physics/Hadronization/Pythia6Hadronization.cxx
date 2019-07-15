@@ -92,6 +92,9 @@ void Pythia6Hadronization::ProcessEventRecord(GHepRecord * event) const
     return;
    }
 
+  bool is_nucleus = interaction->InitState().Tgt().IsNucleus();
+  GHepStatus_t istfin = is_nucleus ? kIStHadronInTheNucleus : kIStStableFinalState ;
+  
 
   int mom = event->FinalStateHadronicSystemPosition();
   assert(mom!=-1);
@@ -100,15 +103,35 @@ void Pythia6Hadronization::ProcessEventRecord(GHepRecord * event) const
   TIter particle_iter(particle_list);
   while ((p = (GHepParticle *) particle_iter.Next())) 
   {
-     p->SetFirstMother(mom + p->FirstMother());
-     p->SetLastMother(mom + p->LastMother());
-     int ifd = (p->FirstDaughter() == -1) ? -1 : mom + p->FirstDaughter();
-     int ild = (p->LastDaughter()  == -1) ? -1 : mom + p->LastDaughter();
-     p->SetFirstDaughter(ifd);
-     p->SetLastDaughter (ild);
 
-     event->AddParticle(*p);
+    int pdgc = p -> Pdg() ;
+        
+    // set the proper status according to a number of things:
+    // interaction on a nucleaus or nucleon, particle type
+    GHepStatus_t ist = ( p -> Status() ==1 ) ? istfin : kIStDISPreFragmHadronicState;
+    // not that this status here ^ is the pythia state
+
+    // handle gammas, and leptons that might come from internal pythia decays
+    // mark them as final state particles
+    bool not_hadron = ( pdgc == kPdgGamma ||
+			pdg::IsNeutralLepton(pdgc) ||
+			pdg::IsChargedLepton(pdgc) ) ;
+
+    if( not_hadron )  { ist = kIStStableFinalState; }
+    p -> SetStatus( ist ) ;
+    
+    p->SetFirstMother(mom + p->FirstMother());
+    p->SetLastMother(mom + p->LastMother());
+    int ifd = (p->FirstDaughter() == -1) ? -1 : mom + p->FirstDaughter();
+    int ild = (p->LastDaughter()  == -1) ? -1 : mom + p->LastDaughter();
+    p->SetFirstDaughter(ifd);
+    p->SetLastDaughter (ild);
+    
+    event->AddParticle(*p);
   }
+
+  particle_list -> Delete() ; 
+  delete particle_list ;
 }
 //____________________________________________________________________________
 TClonesArray * 
@@ -377,21 +400,23 @@ TClonesArray *
           << " with status = " << particle.Status();
 
      if(particle.Status() == 1) {
-        if( pdg::IsQuark  (particle.Pdg()) || 
-            pdg::IsDiQuark(particle.Pdg()) ) {
-                LOG("Pythia6Had", pERROR)
-                  << "Hadronization failed! Bare quark/di-quarks appear in final state!";
-            particle_list->Delete();
-            delete particle_list;
-            return 0;
-        }
+       if( pdg::IsQuark  (particle.Pdg()) || 
+	   pdg::IsDiQuark(particle.Pdg()) ) {
+	 LOG("Pythia6Had", pERROR)
+	   << "Hadronization failed! Bare quark/di-quarks appear in final state!";
+	 
+	 particle_list->Delete();
+	 delete particle_list;
+	 return 0;
+       }
      }
-
+     
      // insert the particle in the list
      new ( (*particle_list)[i++] ) GHepParticle(particle);
   }
 
   utils::fragmrec::Print(particle_list);
+
   return particle_list;
 }
 //____________________________________________________________________________
