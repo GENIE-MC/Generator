@@ -119,11 +119,13 @@ void Pythia6Hadronization::ProcessEventRecord(GHepRecord * event) const
 
     if( not_hadron )  { ist = kIStStableFinalState; }
     p -> SetStatus( ist ) ;
+ 
+    p->SetFirstMother(mom + p->FirstMother() );
+    p->SetLastMother( -1 );
     
-    p->SetFirstMother(mom + p->FirstMother());
-    p->SetLastMother(mom + p->LastMother());
-    int ifd = (p->FirstDaughter() == -1) ? -1 : mom + p->FirstDaughter();
-    int ild = (p->LastDaughter()  == -1) ? -1 : mom + p->LastDaughter();
+    // In Pythia6 having no daughters means daughter == 0 hnce the following check
+    int ifd = (p->FirstDaughter() <= 0 ) ? -1 : mom  + p->FirstDaughter();
+    int ild = (p->LastDaughter()  <= 0 ) ? -1 : mom  + p->LastDaughter();
     p->SetFirstDaughter(ifd);
     p->SetLastDaughter (ild);
     
