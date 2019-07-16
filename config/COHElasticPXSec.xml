@@ -17,7 +17,7 @@ XSec-Integrator  alg      No
 
     <param type="string" name="CommonParam"> WeakInt </param>
 
-    <param type="alg"  name="XSec-Integrator"> t </param>
+    <param type="alg"  name="XSec-Integrator"> genie::COHElasticXSec/Default </param>
 
   </param_set>
 </alg_conf>

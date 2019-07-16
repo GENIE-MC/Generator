@@ -46,6 +46,7 @@
   <priority msgstream="SmithMoniz">                    WARN   </priority>
   <priority msgstream="SMQELXSec">                     WARN   </priority>
   <priority msgstream="Cache">                         WARN   </priority>
+  <priority msgstream="CEvNS">                         WARN   </priority>
   <priority msgstream="CharmHad">                      WARN   </priority>
   <priority msgstream="CFracTab">                      WARN   </priority>
   <priority msgstream="COHXSec">                       WARN   </priority>

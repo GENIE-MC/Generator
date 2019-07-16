@@ -48,6 +48,7 @@
   <priority msgstream="Cache">                 FATAL </priority>
   <priority msgstream="CharmHad">              FATAL </priority>
   <priority msgstream="CFracTab">              FATAL </priority>
+  <priority msgstream="CEvNS">                 FATAL </priority>
   <priority msgstream="COHXSec">               FATAL </priority>
   <priority msgstream="COHXSecAR">             FATAL </priority>
   <priority msgstream="CLAP">                  FATAL </priority>
