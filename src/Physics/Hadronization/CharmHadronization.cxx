@@ -155,6 +155,9 @@ void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
     event->AddParticle(*particle);
   }
 
+  particle_list -> Delete() ;
+  delete particle_list ; 
+  
   // update the weight of the event
   event -> SetWeight ( Weight() * event->Weight() );
 
