@@ -614,7 +614,6 @@ void Pythia6Hadronization::Configure(string config)
   Algorithm::Configure(config);
   this->LoadConfig();
 }
-
 //____________________________________________________________________________
 void Pythia6Hadronization::LoadConfig(void)
 {
@@ -628,6 +627,20 @@ void Pythia6Hadronization::LoadConfig(void)
   GetParam( "PYTHIA-NonGaussianPt2Tail", fNonGaussianPt2Tail  ) ;
   GetParam( "PYTHIA-RemainingEnergyCutoff", fRemainingECutoff ) ;
 
+  GetParam( "PYTHIA-DiQuarkSuppression", fDiQuarkSuppression ) ;
+  GetParam( "PYTHIA-LightVMesonSuppression", fLightVMesonSuppression ) ;
+  GetParam( "PYTHIA-SVMesonSuppression", fSVMesonSuppression ) ;
+  GetParam( "PYTHIA-Lunda", fLunda ) ;
+  GetParam( "PYTHIA-Lundb", fLundb ) ;
+  GetParam( "PYTHIA-LundaDiq", fLundaDiq ) ;
+
+  fPythia->SetPARJ(1,  fDiQuarkSuppression ) ;
+  fPythia->SetPARJ(11, fLightVMesonSuppression ) ;
+  fPythia->SetPARJ(12, fSVMesonSuppression ) ;
+  fPythia->SetPARJ(41, fLunda ) ;
+  fPythia->SetPARJ(42, fLundb ) ;
+  fPythia->SetPARJ(45, fLundaDiq ) ;
+  
   fPythia->SetPARJ(2,  fSSBarSuppression);
   fPythia->SetPARJ(21, fGaussianPt2);
   fPythia->SetPARJ(23, fNonGaussianPt2Tail);
@@ -647,3 +660,4 @@ void Pythia6Hadronization::LoadConfig(void)
 
   LOG("Pythia6Hadronization", pDEBUG) << GetConfig() ;
 }
+

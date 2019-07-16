@@ -68,6 +68,12 @@ private:
   double fGaussianPt2;        ///< gaussian pt2 distribution width
   double fNonGaussianPt2Tail; ///< non gaussian pt2 tail parameterization
   double fRemainingECutoff;   ///< remaining E cutoff for stopping fragmentation
+  double fDiQuarkSuppression; ///< di-quark suppression parameter
+  double fLightVMesonSuppression; ///< Light vector meon suppression
+  double fSVMesonSuppression ; ///< Strange vector meson suppression
+  double fLunda; ///< Lund a parameter
+  double fLundb; ///< Lund b parameter
+  double fLundaDiq; ///< adjustment of Lund a for di-quark
 };
 
 }         // genie namespace
