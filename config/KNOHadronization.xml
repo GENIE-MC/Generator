@@ -79,7 +79,7 @@ KNO-PhaseSpDec-ReweightParm       double  Yes   parameter controlling the reweig
     <!-- 
 	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 Parameters controlling the probability of producing a strange baryon via associated production.
-	 (paramerers a,b entering in the empirical expression: P_(hyperon) = a + b * lnW^2 )
+	 (paramerers a,b entering in the empirical expression: P_{hyperon} = a + b * lnW^2 )
 	 Determined from a fit to \Lambda production data.
 	 See Nucl.Instrum.Meth.A614:87-104,2010 and Eur.Phys.J.C63:1-10,2009. 
     -->
