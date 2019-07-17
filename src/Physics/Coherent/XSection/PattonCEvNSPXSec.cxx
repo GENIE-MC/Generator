@@ -25,7 +25,7 @@
 #include "Framework/Numerical/GSLUtils.h"
 #include "Physics/NuclearState/NuclearUtils.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
-#include "Physics/Coherent/XSection/COHElasticPXSec.h"
+#include "Physics/Coherent/XSection/PattonCEvNSPXSec.h"
 #include "Physics/Coherent/XSection/NuclDensityMomentIntegrand.h"
 
 using namespace genie;
@@ -33,24 +33,24 @@ using namespace genie::utils;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-COHElasticPXSec::COHElasticPXSec() :
-XSecAlgorithmI("genie::COHElasticPXSec")
+PattonCEvNSPXSec::PattonCEvNSPXSec() :
+XSecAlgorithmI("genie::PattonCEvNSPXSec")
 {
 
 }
 //____________________________________________________________________________
-COHElasticPXSec::COHElasticPXSec(string config) :
-XSecAlgorithmI("genie::COHElasticPXSec", config)
+PattonCEvNSPXSec::PattonCEvNSPXSec(string config) :
+XSecAlgorithmI("genie::PattonCEvNSPXSec", config)
 {
 
 }
 //____________________________________________________________________________
-COHElasticPXSec::~COHElasticPXSec()
+PattonCEvNSPXSec::~PattonCEvNSPXSec()
 {
 
 }
 //____________________________________________________________________________
-double COHElasticPXSec::XSec(
+double PattonCEvNSPXSec::XSec(
   const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
@@ -134,7 +134,7 @@ double COHElasticPXSec::XSec(
   double xsec = const_factor * kinematic_term * F2; // units: GeV^-3 (area/GeV)
 
   LOG("CEvNS", pINFO)
-    << "dsig[vA,COHEl]/dTA (Ev =  "
+    << "dsig[vA,CEvNS]/dTA (Ev =  "
     << E << " GeV, Q2 = "<< Q2 << " GeV^2; TA = " << TA << " GeV) = "
     << xsec/(units::cm2) << " cm^2/GeV";
 
@@ -153,7 +153,7 @@ double COHElasticPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
-double COHElasticPXSec::NuclearDensityMoment(int A, int k) const
+double PattonCEvNSPXSec::NuclearDensityMoment(int A, int k) const
 {
   // Calculate moments of the nuclear density
   // Inputs:
@@ -162,14 +162,9 @@ double COHElasticPXSec::NuclearDensityMoment(int A, int k) const
   // Output:
   //   - nuclear density moment in units of fm^k
   //
-  // THINGS TO DO
-  // 1: The integrator and the required accuracy should be specified in the configuration
-  // 2: The calculation can be stored, as it is required only once per nucleus
-  // 3: The max integration limit (currently 10*R0) should be specified in the configuration
-
-  double abstol   = 1;
-  double reltol   = 1E-3;
-  int    nmaxeval = 10000;
+  // THINGS TO DO:
+  // 1) The calculation can be stored, as it is required only once per nucleus. 
+  //    The calculation is very fast so it doesn't matter.
 
   ROOT::Math::IBaseFunctionOneDim * integrand = new
               utils::gsl::wrap::NuclDensityMomentIntegrand(A,k);
@@ -179,9 +174,13 @@ double COHElasticPXSec::NuclearDensityMoment(int A, int k) const
 
   double R0 = utils::nuclear::Radius(A); // units: fm
   double rmin = 0; // units: fm
-  double rmax = 10*R0; // units: fm
+  double rmax = fNuclDensMomentCalc_UpperIntegrationLimit * R0; // units: fm
 
-  ROOT::Math::Integrator ig(*integrand,ig_type,abstol,reltol,nmaxeval);
+  ROOT::Math::Integrator ig(
+    *integrand,ig_type,
+    fNuclDensMomentCalc_AbsoluteTolerance,
+    fNuclDensMomentCalc_RelativeTolerance,
+    fNuclDensMomentCalc_MaxNumOfEvaluations);
   double moment = 2 * constants::kPi * ig.Integral(rmin, rmax); // units: fm^k
 
   delete integrand;
@@ -189,13 +188,13 @@ double COHElasticPXSec::NuclearDensityMoment(int A, int k) const
   return moment;
 }
 //____________________________________________________________________________
-double COHElasticPXSec::Integral(const Interaction * interaction) const
+double PattonCEvNSPXSec::Integral(const Interaction * interaction) const
 {
   double xsec = fXSecIntegrator->Integrate(this,interaction);
   return xsec;
 }
 //____________________________________________________________________________
-bool COHElasticPXSec::ValidProcess(const Interaction * interaction) const
+bool PattonCEvNSPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
@@ -209,23 +208,40 @@ bool COHElasticPXSec::ValidProcess(const Interaction * interaction) const
   return true;
 }
 //____________________________________________________________________________
-void COHElasticPXSec::Configure(const Registry & config)
+void PattonCEvNSPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void COHElasticPXSec::Configure(string config)
+void PattonCEvNSPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void COHElasticPXSec::LoadConfig(void)
+void PattonCEvNSPXSec::LoadConfig(void)
 {
   double thw = 0.;
   this->GetParam("WeinbergAngle", thw);
-  fSin2thw = TMath::Power(TMath::Sin(thw), 2);
+  fSin2thw = TMath::Power(TMath::Sin(thw), 2.);
+
+  this->GetParamDef(
+          "nuclear-density-moment-gsl-upper-limit", 
+          fNuclDensMomentCalc_UpperIntegrationLimit, 
+          10.);  // in nuclear radii
+  this->GetParamDef(
+          "nuclear-density-moment-gsl-rel-tol",    
+          fNuclDensMomentCalc_RelativeTolerance, 
+          1E-3); 
+  this->GetParamDef(
+          "nuclear-density-moment-gsl-abs-tol",    
+          fNuclDensMomentCalc_AbsoluteTolerance, 
+          1.); 
+  this->GetParamDef(
+          "nuclear-density-moment-gsl-max-eval",  
+          fNuclDensMomentCalc_MaxNumOfEvaluations, 
+          10000); 
 
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));

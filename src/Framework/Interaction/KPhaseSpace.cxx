@@ -520,19 +520,26 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
 
   const ProcessInfo & pi = fInteraction->ProcInfo();
 
-  bool is_em = pi.IsEM();
+  bool is_em    = pi.IsEM();
   bool is_qel   = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay();
   bool is_inel  = pi.IsDeepInelastic() || pi.IsResonant();
   bool is_coh   = pi.IsCoherent();
+  bool is_cevns = pi.IsCoherentElastic();
   bool is_dme   = pi.IsDarkMatterElastic();
   bool is_dmdis = pi.IsDarkMatterDeepInelastic();
 
-  if(!is_qel && !is_inel && !is_coh && !is_dme && !is_dmdis) return Q2l;
+  if(!is_qel && !is_inel && !is_coh && !is_cevns && !is_dme && !is_dmdis) return Q2l;
 
   const InitialState & init_state = fInteraction->InitState();
   double Ev  = init_state.ProbeE(kRfHitNucRest);
   double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
   double ml  = fInteraction->FSPrimLepton()->Mass();
+
+  if(is_cevns) {
+     double Ev_lab  = init_state.ProbeE(kRfLab);
+     Q2l = kinematics::CEvNSQ2Lim(Ev_lab);
+     return Q2l;
+  }
 
   if(is_coh) {
     bool pionIsCharged = pi.IsWeakCC();

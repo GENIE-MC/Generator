@@ -3,7 +3,7 @@
 <alg_conf>
 
 <!--
-Configuration for the COHElasticPXSec xsec algorithm.
+Configuration for the CEvNSXSec xsec algorithm.
 
 Configurable Parameters:
 ........................................................................................................

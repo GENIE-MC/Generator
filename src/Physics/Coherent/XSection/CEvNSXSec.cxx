@@ -19,7 +19,7 @@
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/GSLUtils.h"
-#include "Physics/Coherent/XSection/COHElasticXSec.h"
+#include "Physics/Coherent/XSection/CEvNSXSec.h"
 #include "Physics/XSectionIntegration/GSLXSecFunc.h"
 
 using namespace genie;
@@ -27,24 +27,24 @@ using namespace genie::constants;
 using namespace genie::utils;
 
 //____________________________________________________________________________
-COHElasticXSec::COHElasticXSec() :
-XSecIntegratorI("genie::COHElasticXSec")
+CEvNSXSec::CEvNSXSec() :
+XSecIntegratorI("genie::CEvNSXSec")
 {
 
 }
 //____________________________________________________________________________
-COHElasticXSec::COHElasticXSec(string config) :
-XSecIntegratorI("genie::COHElasticXSec", config)
+CEvNSXSec::CEvNSXSec(string config) :
+XSecIntegratorI("genie::CEvNSXSec", config)
 {
 
 }
 //____________________________________________________________________________
-COHElasticXSec::~COHElasticXSec()
+CEvNSXSec::~CEvNSXSec()
 {
 
 }
 //____________________________________________________________________________
-double COHElasticXSec::Integrate(
+double CEvNSXSec::Integrate(
       const XSecAlgorithmI * model, const Interaction * in) const
 {
   if(! model->ValidProcess(in) ) return 0.;
@@ -54,17 +54,15 @@ double COHElasticXSec::Integrate(
      LOG("CEvNS", pDEBUG)  << "*** Below energy threshold";
      return 0;
   }
-  double E = in->InitState().ProbeE(kRfLab);
-  Range1D_t Q2;
-  Q2.min = 0; // 1E-12; //controls::kASmallNum;
-  Q2.max = 4*E*E;
+
+  Range1D_t Q2 = kps.Q2Lim();
+  LOG("CEvNS", pNOTICE)
+      << "Q2 integration range = [" << Q2.min << ", " << Q2.max << "] GeV^2";
+  assert(Q2.min > 0. && Q2.min < Q2.max);
 
   Interaction * interaction = new Interaction(*in);
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
-
-  LOG("CEvNS", pINFO)
-      << "Q2 integration range = [" << Q2.min << ", " << Q2.max << "] GeV^2";
 
   ROOT::Math::IntegrationOneDim::Type ig_type =
           utils::gsl::Integration1DimTypeFromString(fGSLIntgType);
@@ -79,26 +77,26 @@ double COHElasticXSec::Integrate(
   const InitialState & init_state = in->InitState();
   double Ev = init_state.ProbeE(kRfLab);
   LOG("CEvNS", pINFO)
-    << "XSec[COH] (E = " << Ev << " GeV) = " << xsec/(units::cm2) << " cm^2";
+    << "XSec[CEvNS] (E = " << Ev << " GeV) = " << xsec/(units::cm2) << " cm^2";
 
   delete interaction;
 
   return xsec;
 }
 //____________________________________________________________________________
-void COHElasticXSec::Configure(const Registry & config)
+void CEvNSXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void COHElasticXSec::Configure(string config)
+void CEvNSXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void COHElasticXSec::LoadConfig(void)
+void CEvNSXSec::LoadConfig(void)
 {
   // Get GSL integration type & relative tolerance
   this->GetParamDef("gsl-integration-type",   fGSLIntgType, string("adaptive"));

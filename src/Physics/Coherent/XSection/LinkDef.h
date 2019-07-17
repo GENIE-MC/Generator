@@ -20,8 +20,8 @@
 #pragma link C++ class genie::COHXSec;
 #pragma link C++ class genie::COHXSecAR;
 
-#pragma link C++ class genie::COHElasticXSec;
-#pragma link C++ class genie::COHElasticPXSec;
+#pragma link C++ class genie::PattonCEvNSPXSec;
+#pragma link C++ class genie::CEvNSXSec;
 #pragma link C++ class genie::utils::gsl::wrap::NuclDensityMomentIntegrand;
 
 #endif

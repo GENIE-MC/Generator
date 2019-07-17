@@ -77,13 +77,13 @@ void CEvNSEventGenerator::GenerateKinematics(GHepRecord * event) const
   RandomGen * rnd = RandomGen::Instance();
 
   // Get the kinematical limits
-  //const KPhaseSpace & kps = interaction->PhaseSpace();
-  //Range1D_t y = kps.YLim();
-  //assert(y.min>0. && y.max>0. && y.min<1. && y.max<1. && y.min<y.max);
+  const KPhaseSpace & kps = interaction->PhaseSpace();
+  Range1D_t Q2 = kps.Q2Lim();
+  assert(Q2.min > 0. && Q2.min < Q2.max);
   const InitialState & init_state = interaction -> InitState();
   double E  = init_state.ProbeE(kRfLab);
-  const double Q2min = 0;
-  const double Q2max = 4*TMath::Power(E,2.); // TODO: Get from KPhaseSpace
+  const double Q2min = Q2.min;
+  const double Q2max = Q2.max;
   const double dQ2   = Q2max - Q2min;
 
   // Access cross section algorithm for running thread

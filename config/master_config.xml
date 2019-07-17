@@ -122,7 +122,7 @@
    <config alg="genie::DISXSec">                     DISXSec.xml                     </config>
    <config alg="genie::COHXSec">                     COHXSec.xml                     </config>
    <config alg="genie::COHXSecAR">                   COHXSecAR.xml                   </config>
-   <config alg="genie::COHElasticXSec">              COHElasticXSec.xml              </config>
+   <config alg="genie::CEvNSXSec">                   CEvNSXSec.xml                   </config>
    <config alg="genie::DFRXSec">                     DFRXSec.xml                     </config>
    <config alg="genie::AlamSimoAtharVacasSKXSec">    AlamSimoAtharVacasSKXSec.xml    </config>
    <config alg="genie::IMDXSec">                     IMDXSec.xml                     </config>
@@ -151,7 +151,7 @@
    <config alg="genie::P33PaschosLalakulichPXSec">          P33PaschosLalakulichPXSec.xml          </config>
    <config alg="genie::BardinIMDRadCorPXSec">               BardinIMDRadCorPXSec.xml               </config>
    <config alg="genie::IMDAnnihilationPXSec">               IMDAnnihilationPXSec.xml               </config>
-   <config alg="genie::COHElasticPXSec">                    COHElasticPXSec.xml                    </config>
+   <config alg="genie::PattonCEvNSPXSec">                   PattonCEvNSPXSec.xml                   </config>
    <config alg="genie::NuElectronPXSec">                    NuElectronPXSec.xml                    </config>
    <config alg="genie::GLRESPXSec">                         GLRESPXSec.xml                         </config>
    <config alg="genie::BergerSehgalRESPXSec2014">           BergerSehgalRESPXSec2014.xml           </config>

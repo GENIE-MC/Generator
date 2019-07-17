@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::COHElasticPXSec
+\class    genie::PattonCEvNSPXSec
 
 \brief    Differential cross section for v+As coherent elastic scattering.
           Is a concrete implementation of the XSecAlgorithmI interface. 
@@ -18,8 +18,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _COHERENT_ELASTIC_PXSEC_H_
-#define _COHERENT_ELASTIC_PXSEC_H_
+#ifndef _PATTON_ET_AL_COHERENT_ELASTIC_PXSEC_H_
+#define _PATTON_ET_AL_COHERENT_ELASTIC_PXSEC_H_
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 
@@ -27,12 +27,12 @@ namespace genie {
 
 class XSecIntegratorI;
 
-class COHElasticPXSec : public XSecAlgorithmI {
+class PattonCEvNSPXSec : public XSecAlgorithmI {
 
 public:
-  COHElasticPXSec();
-  COHElasticPXSec(string config);
-  virtual ~COHElasticPXSec();
+  PattonCEvNSPXSec();
+  PattonCEvNSPXSec(string config);
+  virtual ~PattonCEvNSPXSec();
 
   // XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
@@ -46,14 +46,22 @@ public:
 
 private:
 
-  double NuclearDensityMoment(int A, int k) const;
+  void LoadConfig(void);
 
-  void   LoadConfig(void);
+  // Calculate nuclear density moments
+  double NuclearDensityMoment(int A, int k) const;
 
   const XSecIntegratorI * fXSecIntegrator;  ///< cross section integrator
   double fSin2thw;                          ///< sin^2(weinberg angle)
+
+  // Parameters used for the numerical integration yielding nuclear density moments
+  double fNuclDensMomentCalc_UpperIntegrationLimit; // upper integration limit (in units of nuclear radii R0*A^1/3)
+  double fNuclDensMomentCalc_RelativeTolerance;     // relative tolerance for numerical integrator
+  double fNuclDensMomentCalc_AbsoluteTolerance;     // absolute tolerance for numerical integrator
+  int    fNuclDensMomentCalc_MaxNumOfEvaluations;   // maximum number of integran evaluations in numerical integration
+
 };
 
 }       // genie namespace
 
-#endif  // _COHERENT_ELASTIC_PXSEC_H_
+#endif  // _PATTON_ET_AL_COHERENT_ELASTIC_PXSEC_H_

@@ -32,7 +32,7 @@ STFC, Rutherford Appleton Laboratory
  
   <param type="alg" name="XSecModel@genie::EventGenerator/VLE">            genie::IBDXSecMap/Default        </param>
 
-  <param type="alg" name="XSecModel@genie::EventGenerator/CEvNS">          genie::COHElasticPXSec/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/CEvNS">          genie::PattonCEvNSPXSec/Default  </param>
 
  
  <!-- 

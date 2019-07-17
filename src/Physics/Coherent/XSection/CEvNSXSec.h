@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::COHElasticXSec
+\class    genie::CEvNSXSec
 
 \brief    Computes the cross section for coherent elastic scattering.\n
           Is a concrete implementation of the XSecIntegratorI interface.
@@ -16,19 +16,19 @@
 */
 //____________________________________________________________________________
 
-#ifndef _COH_ELASTIC_XSEC_H_
-#define _COH_ELASTIC_XSEC_H_
+#ifndef _COHERENT_ELASTIC_XSEC_H_
+#define _COHERENT_ELASTIC_XSEC_H_
 
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
 namespace genie {
 
-class COHElasticXSec : public XSecIntegratorI {
+class CEvNSXSec : public XSecIntegratorI {
 
 public:
-  COHElasticXSec();
-  COHElasticXSec(string config);
-  virtual ~COHElasticXSec();
+  CEvNSXSec();
+  CEvNSXSec(string config);
+  virtual ~CEvNSXSec();
 
   // XSecIntegratorI interface implementation
   double Integrate(const XSecAlgorithmI * model, const Interaction * i) const;
@@ -41,12 +41,8 @@ public:
  private:
 
    void LoadConfig (void);
-
-//      double fQ2Min;  ///< lower bound of integration for Q^2 in Berger-Sehgal Model
-//      double fQ2Max;  ///< upper bound of integration for Q^2 in Berger-Sehgal Model
-//      double fTMax;   ///< upper bound for t = (q - p_pi)^2
 };
 
 }       // genie namespace
 
-#endif  // _COH_ELASTIC_XSEC_H_
+#endif  // _COHERENT_ELASTIC_XSEC_H_
