@@ -99,6 +99,10 @@ void Pythia6Hadronization::ProcessEventRecord(GHepRecord * event) const
   int mom = event->FinalStateHadronicSystemPosition();
   assert(mom!=-1);
 
+
+  GHepParticle * neutrino  = event->Probe();
+  const TLorentzVector & vtx = *(neutrino->X4());
+
   GHepParticle * p = 0;
   TIter particle_iter(particle_list);
   while ((p = (GHepParticle *) particle_iter.Next())) 
@@ -129,6 +133,9 @@ void Pythia6Hadronization::ProcessEventRecord(GHepRecord * event) const
     p->SetFirstDaughter(ifd);
     p->SetLastDaughter (ild);
     
+    // the Pythia particle position is overridden
+    p -> SetPosition( vtx ) ; 
+
     event->AddParticle(*p);
   }
 

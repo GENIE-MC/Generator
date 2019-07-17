@@ -119,6 +119,9 @@ void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
   const TLorentzVector * had_syst = event -> Particle(mom) -> P4() ;
   TVector3 boost = had_syst -> BoostVector() ;
 
+  GHepParticle * neutrino  = event->Probe();                                                                                                                                                 
+  const TLorentzVector & vtx = *(neutrino->X4());                                                                                                                                            
+
   GHepParticle * particle = 0;
   TIter particle_iter(particle_list);
   while ((particle = (GHepParticle *) particle_iter.Next()))  {
@@ -151,7 +154,9 @@ void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
       particle -> SetLastDaughter( ilc ) ; 
     }
     
-
+    // the Pythia particle position is overridden    
+    particle -> SetPosition( vtx ) ;         
+    
     event->AddParticle(*particle);
   }
 
