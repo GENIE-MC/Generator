@@ -242,6 +242,10 @@ void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
   double Wmin  =  1.88;
   double Wmax  =  3.00;
 
+  const ProcessInfo &  proc_info  = interaction -> ProcInfo();
+
+  if (proc_info.IsEM()) { Q2min = 0.02; }
+
   // Scan phase-space for the maximum differential cross section 
   // at the current neutrino energy
   const int nq=30;
