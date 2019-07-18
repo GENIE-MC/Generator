@@ -69,6 +69,10 @@ private:
   static bool HasEvolvedBRs( int dec_part_pdgc ) ; 
 
   static double PionAngularDist( double * x, double * par ) ;
+  static double MinusPionAngularDist( double * x, double * par ) {  // this is used to find the maxima of the previous function
+    return -1. * BaryonResonanceDecayer::PionAngularDist( x, par ) ; 
+  }
+
 
   mutable TGenPhaseSpace fPhaseSpaceGenerator;
   mutable double         fWeight;
@@ -76,6 +80,8 @@ private:
   bool   fDeltaThetaOnly ;
 
   std::vector<double> fR33, fR31, fR3m1 ;
+  std::vector<double*> fRParams ;  // this contains same parameter as fR33, fR31 and fR3m1 alingned by Q2 bin
+
   std::vector<double> fQ2Thresholds ;
 
   std::vector<double> fW_max ;

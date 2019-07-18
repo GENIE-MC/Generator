@@ -51,6 +51,10 @@ Decayer("genie::BaryonResonanceDecayer", config)
 BaryonResonanceDecayer::~BaryonResonanceDecayer()
 {
 
+  for ( unsigned int i = 0; i < fRParams.size() ; ++i ) {
+    delete fRParams[i] ;
+  }
+
 }
 //____________________________________________________________________________
 void BaryonResonanceDecayer::ProcessEventRecord(GHepRecord * event) const
@@ -618,7 +622,7 @@ bool BaryonResonanceDecayer::AcceptPionDecay( TLorentzVector pion,
   TVector3 pion_dir = pion.Vect().Unit() ;
   TVector3 z_axis = q.Vect().Unit() ;
 
-  double c_t = pion_dir*z_axis; // cos theta
+
 
   unsigned int q2_index = 0 ;
   
@@ -630,13 +634,22 @@ bool BaryonResonanceDecayer::AcceptPionDecay( TLorentzVector pion,
     if ( Q2 < fQ2Thresholds[q2_index] ) ++q2_index ;
     else break ;
   }
-  
-  double w_function = 1. - (fR33[q2_index] - 0.5)*(3.*c_t*c_t - 1.) ;
 
-  if ( ! fDeltaThetaOnly ) {
+  double w_function ; 
 
-    // evaluate sin theta as it appears in the formula
-    double s_t = sqrt(1. - c_t*c_t) ;  //sin theta
+  if ( fDeltaThetaOnly ) {
+    
+    double c_t = pion_dir*z_axis; // cos theta
+    
+    w_function = 1. - (fR33[q2_index] - 0.5)*(3.*c_t*c_t - 1.) ;
+
+  }
+
+  else {
+
+    double x[2] ; // 0 : theta, 1 : phi 
+
+    x[0] = pion_dir.Angle( z_axis ) ; // theta
 
     in_lep_p4.Boost(-delta_p4.BoostVector() ) ;
     out_lep_p4.Boost( -delta_p4.BoostVector() ) ;
@@ -645,10 +658,12 @@ bool BaryonResonanceDecayer::AcceptPionDecay( TLorentzVector pion,
     TVector3 y_axis = in_lep_p4.Vect().Cross( out_lep_p4.Vect() ).Unit() ;
     TVector3 x_axis = y_axis.Cross(z_axis);
 
-    double c_phi = pion_dir*x_axis;
+    TVector3 pion_perp( z_axis.Cross( pion_dir.Cross( z_axis ).Unit() ) ) ;
+    
+    x[1] = pion_perp.Angle( x_axis ) ;  // phi
 
-    double phi_dependency = kSqrt3 *( 2.*fR31[q2_index]*s_t*c_t*c_phi + fR3m1[q2_index]*s_t*(2.*c_phi*c_phi-1.) ) ;
-    w_function -= phi_dependency ;
+    w_function = BaryonResonanceDecayer::PionAngularDist( x, fRParams[q2_index] ) ; 
+    
   }
 
   double aidrnd = fW_max[q2_index] * RandomGen::Instance()-> RndDec().Rndm();
@@ -776,8 +791,16 @@ bool BaryonResonanceDecayer::HasEvolvedBRs( int dec_part_pdgc ) {
 //____________________________________________________________________________
 double BaryonResonanceDecayer::PionAngularDist( double* x, double * par ) {
   
+  double c_t = TMath::Cos( x[0] ) ;
+  double s_t = TMath::Sin( x[0] ) ;
+
+  double c_phi = TMath::Cos( x[1 ] ); 
+
+  double theta_dep_only = 1. - ( par[0] - 0.5 )*( 3.*c_t*c_t - 1. ) ;
+  double phi_dependency = kSqrt3 *( 2.*par[1]*s_t*c_t*c_phi + par[2]*s_t*(2.*c_phi*c_phi-1.) ) ;
   
-  
+  return theta_dep_only - phi_dependency ; 
+
 }
 //____________________________________________________________________________
 void BaryonResonanceDecayer::LoadConfig(void) {
@@ -876,13 +899,20 @@ void BaryonResonanceDecayer::LoadConfig(void) {
       invalid_configuration = true ;
     }
 
+    // fill the container by Q2 bin instead of the parmaeter bin
+    for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
+      fRParams.push_back( new double[3]{ fR33[i], fR31[i], fR3m1[i] } ) ;
+     }
+
+
     // check if they are physical
 
+
     // Set the appropriate maxima
-    fW_max.resize( fR33.size(), 0. ) ;
-    for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
-      fW_max[i] = 1.+(fR33[i]-0.5) + 2.*k1_Sqrt3*fR31[i] + k1_Sqrt3*fR3m1[i];
-    }
+    // fW_max.resize( fR33.size(), 0. ) ;
+    // for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
+    //   fW_max[i] = 1.+(fR33[i]-0.5) + 2.*k1_Sqrt3*fR31[i] + k1_Sqrt3*fR3m1[i];
+    // }
   }
 
   if ( invalid_configuration ) {
