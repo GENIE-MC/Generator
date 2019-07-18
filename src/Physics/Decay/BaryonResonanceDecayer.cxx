@@ -31,6 +31,8 @@
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Decay/BaryonResonanceDecayer.h"
+#include "Math/GSLMinimizer.h"
+#include <Math/WrappedParamFunction.h>
 
 using namespace genie;
 using namespace genie::controls;
@@ -666,6 +668,10 @@ bool BaryonResonanceDecayer::AcceptPionDecay( TLorentzVector pion,
     
   }
 
+  if ( fW_max[q2_index] <= 0. ) {
+    const_cast<genie::BaryonResonanceDecayer*>( this ) -> fW_max[q2_index] = FindDistributionMin( q2_index, true ) ; 
+  }
+
   double aidrnd = fW_max[q2_index] * RandomGen::Instance()-> RndDec().Rndm();
 
   return ( aidrnd <= w_function ) ;
@@ -789,7 +795,7 @@ bool BaryonResonanceDecayer::HasEvolvedBRs( int dec_part_pdgc ) {
             dec_part_pdgc ==  kPdgP33m1232_DeltaP ) ; 
 }
 //____________________________________________________________________________
-double BaryonResonanceDecayer::PionAngularDist( double* x, double * par ) {
+double BaryonResonanceDecayer::PionAngularDist( const double* x, const double * par ) {
   
   double c_t = TMath::Cos( x[0] ) ;
   double s_t = TMath::Sin( x[0] ) ;
@@ -802,6 +808,49 @@ double BaryonResonanceDecayer::PionAngularDist( double* x, double * par ) {
   return theta_dep_only - phi_dependency ; 
 
 }
+//____________________________________________________________________________
+double BaryonResonanceDecayer::FindDistributionMin( unsigned int q2_bin, bool invert_distribution ) const {
+
+  // Choose method upon creation between:
+  // kConjugateFR, kConjugatePR, kVectorBFGS,
+  // kVectorBFGS2, kSteepestDescent
+  ROOT::Math::GSLMinimizer min( ROOT::Math::kVectorBFGS );
+ 
+  min.SetMaxFunctionCalls(1000000);
+  min.SetMaxIterations(100000);
+  min.SetTolerance(0.01);
+ 
+  ROOT::Math::WrappedParamFunction f( ( invert_distribution ? & BaryonResonanceDecayer::MinusPionAngularDist : & BaryonResonanceDecayer::PionAngularDist ), 
+				      2, 3, fRParams[q2_bin] ) ;
+
+  double step[2] = {0.01,0.01};
+  double variable[2] = { kPi/2., kPi };
+ 
+  min.SetFunction(f);
+ 
+  // Set the free variables to be minimized!
+  min.SetVariable(0,"#theta",variable[0], step[0]);
+  min.SetVariable(1,"#varphi",variable[1], step[1]);
+ 
+  min.SetVariableLimits( 0, 0., kPi ) ;
+  min.SetVariableLimits( 0, 0., 2*kPi ) ;
+  
+  min.Minimize(); 
+
+  const double *xs = min.X();
+
+  double result = f( xs ) ;
+
+  LOG("BaryonResonanceDecayer", pINFO) << (invert_distribution ? "Maximum " : "Minimum ")
+				       << "of angular distribution found in ( " 
+				       << xs[0] << ", " << xs[1] << " ): " 
+				       << result ;
+ 
+  return result  ; 
+
+}
+
+
 //____________________________________________________________________________
 void BaryonResonanceDecayer::LoadConfig(void) {
 
@@ -899,20 +948,27 @@ void BaryonResonanceDecayer::LoadConfig(void) {
       invalid_configuration = true ;
     }
 
+    for ( unsigned int i = 0; i < fRParams.size() ; ++i ) {
+      delete fRParams[i] ;
+    }
+    fRParams.clear() ; 
     // fill the container by Q2 bin instead of the parmaeter bin
     for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
       fRParams.push_back( new double[3]{ fR33[i], fR31[i], fR3m1[i] } ) ;
-     }
+    }
 
+    //set dummy maxima
+    fW_max.resize( fR33.size(), 0. ) ;
+    for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
+      fW_max[i] = -1. ; 
+    }
+
+    // the maxima are set as dummy as they are "heavy to configure as they require brute force minimization
+    // hence they are evaluated the first time they are necessary
 
     // check if they are physical
+    // should we check at least if the ditributions are always bigger than 0 ?
 
-
-    // Set the appropriate maxima
-    // fW_max.resize( fR33.size(), 0. ) ;
-    // for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
-    //   fW_max[i] = 1.+(fR33[i]-0.5) + 2.*k1_Sqrt3*fR31[i] + k1_Sqrt3*fR3m1[i];
-    // }
   }
 
   if ( invalid_configuration ) {

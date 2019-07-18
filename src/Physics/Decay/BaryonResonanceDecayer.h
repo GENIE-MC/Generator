@@ -68,10 +68,15 @@ private:
   static bool IsDelta( int dec_part_pdgc ) ; 
   static bool HasEvolvedBRs( int dec_part_pdgc ) ; 
 
-  static double PionAngularDist( double * x, double * par ) ;
-  static double MinusPionAngularDist( double * x, double * par ) {  // this is used to find the maxima of the previous function
+  // utilities for pion angular distribution with phi dependency 
+
+  static double PionAngularDist( const double * x, const double * par ) ;
+  static double MinusPionAngularDist( const double * x, const double * par ) {  // this is used to find the maxima of the previous function
     return -1. * BaryonResonanceDecayer::PionAngularDist( x, par ) ; 
   }
+
+  double FindDistributionMin( unsigned int i /*q2_bin_index*/, 
+			      bool invert_distribution = false /*used to find maximum*/ ) const ;
 
 
   mutable TGenPhaseSpace fPhaseSpaceGenerator;
