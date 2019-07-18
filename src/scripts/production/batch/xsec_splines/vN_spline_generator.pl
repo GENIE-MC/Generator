@@ -198,7 +198,7 @@ foreach $nu ( @nu_list ) {
 	 print PBS "#PBS -p -1 \n" if ( $priority ) ;
          print PBS "source $genie_setup $config_dir \n";
          print PBS "cd $jobs_dir \n";
-         print PBS "$gmkspl_cmd | $grep_pipe &> $filename_template.mkspl.log \n";
+         print PBS "$gmkspl_cmd \n";
          close(PBS);
          $job_submission_command = "qsub";
          if($batch_system eq 'HTCondor_PBS') {
