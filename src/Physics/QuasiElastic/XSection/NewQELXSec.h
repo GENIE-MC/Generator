@@ -47,6 +47,9 @@ namespace utils {
        double DoEval(const double* xin) const;
        ROOT::Math::IBaseFunctionMultiDim* Clone(void) const;
 
+       Interaction* GetInteractionPtr();
+       const Interaction& GetInteraction() const;
+
      private:
        const XSecAlgorithmI* fXSecModel;
        const NuclearModelI* fNuclModel;

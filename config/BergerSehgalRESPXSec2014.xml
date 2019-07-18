@@ -74,6 +74,12 @@ XSec-Integrator             alg     No
    
   </param_set> 
 
-</alg_conf>
+ <param_set name="EM-WithPauliBlock"> 
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/WithPauliBlock    </param>
+  </param_set>
 
+  <param_set name="EM-NoPauliBlock">
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/NoPauliBlock    </param>
+  </param_set>
 
+</alg_conf>  

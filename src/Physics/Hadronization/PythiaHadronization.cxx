@@ -439,11 +439,25 @@ void PythiaHadronization::LoadConfig(void)
   // The defaults are the values used by PYTHIA
   // Use the NUX config set to set the tuned values as used in NUX.
 
-   GetParam( "PYTHIA-SSBarSuppression", fSSBarSuppression ) ;
+  GetParam( "PYTHIA-SSBarSuppression", fSSBarSuppression ) ;
   GetParam( "PYTHIA-GaussianPt2",      fGaussianPt2      ) ;
   GetParam( "PYTHIA-NonGaussianPt2Tail", fNonGaussianPt2Tail  ) ;
   GetParam( "PYTHIA-RemainingEnergyCutoff", fRemainingECutoff ) ;
 
+  GetParam( "PYTHIA-DiQuarkSuppression", fDiQuarkSuppression ) ;
+  GetParam( "PYTHIA-LightVMesonSuppression", fLightVMesonSuppression ) ;
+  GetParam( "PYTHIA-SVMesonSuppression", fSVMesonSuppression ) ;
+  GetParam( "PYTHIA-Lunda", fLunda ) ;
+  GetParam( "PYTHIA-Lundb", fLundb ) ;
+  GetParam( "PYTHIA-LundaDiq", fLundaDiq ) ;
+
+  fPythia->SetPARJ(1,  fDiQuarkSuppression ) ;
+  fPythia->SetPARJ(11, fLightVMesonSuppression ) ;
+  fPythia->SetPARJ(12, fSVMesonSuppression ) ;
+  fPythia->SetPARJ(41, fLunda ) ;
+  fPythia->SetPARJ(42, fLundb ) ;
+  fPythia->SetPARJ(45, fLundaDiq ) ;
+  
   fPythia->SetPARJ(2,  fSSBarSuppression);
   fPythia->SetPARJ(21, fGaussianPt2);
   fPythia->SetPARJ(23, fNonGaussianPt2Tail);
