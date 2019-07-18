@@ -193,6 +193,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          }
 
          // compute W,Q2 for selected x,y
+         bool is_em = interaction->ProcInfo().IsEM();
          kinematics::XYtoWQ2(Ev,M,gW,gQ2,gx,gy);
 
          LOG("DISKinematics", pNOTICE) 

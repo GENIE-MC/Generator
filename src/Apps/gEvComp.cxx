@@ -1799,7 +1799,7 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      //------ number of prim n
      ps->NewPage();
      gst_0->Draw("nin","","");
-     if(gst_1) gst_1->Draw("nfn","","perrsame");
+     if(gst_1) gst_1->Draw("nin","","perrsame");
      ls->Clear();
      ls->SetHeader("Primary Hadronic System: Number of neutrons");
      ls->Draw();
