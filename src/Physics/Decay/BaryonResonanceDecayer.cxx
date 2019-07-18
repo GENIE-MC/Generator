@@ -774,6 +774,12 @@ bool BaryonResonanceDecayer::HasEvolvedBRs( int dec_part_pdgc ) {
             dec_part_pdgc ==  kPdgP33m1232_DeltaP ) ; 
 }
 //____________________________________________________________________________
+double BaryonResonanceDecayer::PionAngularDist( double* x, double * par ) {
+  
+  
+  
+}
+//____________________________________________________________________________
 void BaryonResonanceDecayer::LoadConfig(void) {
 
   Decayer::LoadConfig() ;

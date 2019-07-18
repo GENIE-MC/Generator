@@ -68,6 +68,8 @@ private:
   static bool IsDelta( int dec_part_pdgc ) ; 
   static bool HasEvolvedBRs( int dec_part_pdgc ) ; 
 
+  static double PionAngularDist( double * x, double * par ) ;
+
   mutable TGenPhaseSpace fPhaseSpaceGenerator;
   mutable double         fWeight;
 
