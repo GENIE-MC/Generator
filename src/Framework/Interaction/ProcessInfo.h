@@ -11,14 +11,13 @@
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
-          Changes required to implement the GENIE Boosted Dark Matter module
+         Changes required to implement the GENIE Boosted Dark Matter module
           were installed by Josh Berger (Univ. of Wisconsin)
 
 \created  May 04, 2004
 
 \cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -63,7 +62,7 @@ public:
   bool IsDarkMatterDeepInelastic (void) const;
   bool IsResonant                (void) const;
   bool IsCoherent                (void) const;
-  bool IsCoherentElas            (void) const;
+  bool IsCoherentElastic         (void) const;
   bool IsSingleKaon              (void) const;
   bool IsElectronScattering      (void) const;
   bool IsNuElectronElastic       (void) const;

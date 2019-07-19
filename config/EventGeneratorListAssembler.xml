@@ -52,6 +52,11 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-0">  genie::EventGenerator/AM-NUGAMMA   </param>
   </param_set>
 
+  <param_set name="CEvNS"> 
+     <param type="int" name="NGenerators">  1                                  </param>
+     <param type="alg" name="Generator-0">  genie::EventGenerator/CEvNS        </param>
+  </param_set>
+
   <param_set name="UHE"> 
      <param type="int" name="NGenerators">  4                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES        </param>
