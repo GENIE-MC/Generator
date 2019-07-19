@@ -271,14 +271,15 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
            evrec->SetWeight(evrec->Weight() * radcor_weight);
 	   LOG("RadiativeCorrector", pINFO) << "Applying radiative correction weight "<<evrec->Weight() * radcor_weight;
 	}
-	if (!fISR && radDone && (p->Status() == kIStStableFinalState) && (p->Pdg()==11)) { 
+	/* //code no longer needed now with FSL before and after radiation are keptand PrimaryLeptonPosition method is changed  
+           if (!fISR && radDone && (p->Status() == kIStStableFinalState) && (p->Pdg()==11)) {    
            LOG("RadiativeCorrector", pINFO) <<"FSR stable electron in pos "<<ipos; 
 	   //-- Correct the final state lepton 
            evrec->CorrectProbe()->SetFirstDaughter(ipos);
            evrec->CorrectProbe()->SetLastDaughter(-1);
            LOG("RadiativeCorrector", pINFO) <<"After setting the lepton first and last mother to -1  "<<evrec->FinalStatePrimaryLepton()->P4()->E();
            evrec->Print(); 
-	}
+	}*/
       }
      //if (fISR && (p->Status() ==1)) p->SetStatus(kIStIntermediateState);
      if (fISR && (p->Status() ==1) && (p->Pdg()==11)) {
