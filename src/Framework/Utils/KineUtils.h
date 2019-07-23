@@ -57,6 +57,7 @@ namespace kinematics
   Range1D_t  CohXLim     (void);
   Range1D_t  CohQ2Lim    (double Mn, double mpi, double mlep, double Ev);
   Range1D_t  Cohq2Lim    (double Mn, double mpi, double mlep, double Ev);
+  Range1D_t  CEvNSQ2Lim  (double Ev);
   Range1D_t  DarkWLim    (double Ev, double M, double ml);
   Range1D_t  DarkQ2Lim_W (double Ev, double M, double ml, double W, double Q2min_cut =    controls::kMinQ2Limit);
   Range1D_t  Darkq2Lim_W (double Ev, double M, double ml, double W, double q2min_cut = -1*controls::kMinQ2Limit);

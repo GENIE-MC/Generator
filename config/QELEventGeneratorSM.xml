@@ -9,7 +9,7 @@ Name                      Type    Optional   Comment                            
 .............................................................................................................
 MaxXSec-SafetyFactor      double   Yes       Safety factor for the maximum                              1.2
                                              differential cross section
-MaxDiffv-SafetyFactor     double   Yes       Safety factor for the maximum                              1.1
+MaxDiffv-SafetyFactor     double   Yes       Safety factor for the maximum                              1.2
                                              vmax(Q2)-vmin(Q2)
 MaxXSec-DiffTolerance     double   Yes       Max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)              999999.0
                                              if xsec>xsecmax
@@ -25,13 +25,9 @@ Cache-MinEnergy           double   Yes       min E for which maxxsec is cached -
 <alg_conf>
 
   <param_set name="Default"> 
-      <param type="double" name="MaxXSec-SafetyFactor">    1.2                             </param>
-      <param type="double" name="MaxDiffv-SafetyFactor">   1.2                             </param>
-      <param type="double" name="Threshold-Q2">            2.0                             </param>
-      <param type="bool"   name="IsNucleonInNucleus">      true                            </param>
+
   </param_set>
   
- 
 
 </alg_conf>
 

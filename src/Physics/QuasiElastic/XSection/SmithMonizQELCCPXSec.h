@@ -10,15 +10,13 @@
           [2] K.S. Kuzmin, V.V. Lyubushkin, V.A.Naumov Eur. Phys. J. C54, (2008) 517-538
 
 \author   Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
-          adapted from  fortran code provided by 
-          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>, \n
-          Joint Institute for Nuclear Research,  Institute for Theoretical and Experimental Physics \n
-          Vladimir Lyubushkin, \n
-          Joint Institute for Nuclear Research \n
-          Vadim Naumov <vnaumov@theor.jinr.ru>, \n
-          Joint Institute for Nuclear Research  \n
-          based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk> \n
-          University of Liverpool & STFC Rutherford Appleton Lab
+          adapted from  fortran code provided by \n
+          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>, Joint Institute for Nuclear Research \n
+          Vladimir Lyubushkin, Joint Institute for Nuclear Research \n
+          Vadim Naumov <vnaumov@theor.jinr.ru>, Joint Institute for Nuclear Research  \n
+          based on code of \n
+          Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>, University of Liverpool & STFC Rutherford Appleton Lab
+          
 
 \created  May 05, 2017
 
