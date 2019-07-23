@@ -13,7 +13,7 @@ gsl-max-size-of-subintervals int      Yes        GSL maximum number of sub-inter
                                                  for 1D integrator
 gsl-relative-tolerance       double   Yes        GSL max evaluations for 1D integrator        1e-3
 gsl-rule                     int      Yes        GSL Gauss-Kronrod integration rule           3
-                                                (only for GSL 1D adaptive type)      
+                                                 (only for GSL 1D adaptive type)      
 gsl-integration-type-2D      string   Yes        name of GSL 2D numerical integrator          adaptive
 gsl-max-eval                 int      Yes        required relative tolerance (error)          1000000000
                                                  for 2D integrator

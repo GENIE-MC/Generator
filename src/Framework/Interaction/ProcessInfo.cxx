@@ -99,9 +99,9 @@ bool ProcessInfo::IsCoherent(void) const
   return (fScatteringType == kScCoherent);
 }
 //____________________________________________________________________________
-bool ProcessInfo::IsCoherentElas(void) const
+bool ProcessInfo::IsCoherentElastic(void) const
 {
-  return (fScatteringType == kScCoherentElas);
+  return (fScatteringType == kScCoherentElastic);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsElectronScattering(void) const
