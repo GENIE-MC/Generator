@@ -119,6 +119,9 @@ void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
   const TLorentzVector * had_syst = event -> Particle(mom) -> P4() ;
   TVector3 boost = had_syst -> BoostVector() ;
 
+  // Vector defining rotation from LAB to LAB' (z:= \vec{phad})
+  TVector3 unitvq = had_syst -> Vect().Unit();
+  
   GHepParticle * neutrino  = event->Probe();                                                                                                                                                 
   const TLorentzVector & vtx = *(neutrino->X4());                                                                                                                                            
 
@@ -130,6 +133,7 @@ void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
 
     //  bring the particle in the LAB reference frame
     particle -> P4() -> Boost( boost ) ;
+    particle -> P4() -> RotateUz( unitvq ) ; 
 
     // set the proper status according to a number of things:
     // interaction on a nucleaus or nucleon, particle type
