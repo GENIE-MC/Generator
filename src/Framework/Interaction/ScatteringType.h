@@ -15,7 +15,6 @@
 
 \cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE 
 */
 //____________________________________________________________________________
 
@@ -46,7 +45,7 @@ typedef enum EScatteringType {
   kScInverseMuDecay,
   kScAMNuGamma,
   kScMEC,
-  kScCoherentElas,
+  kScCoherentElastic,
   kScInverseBetaDecay,
   kScGlashowResonance,
   kScIMDAnnihilation,
@@ -74,7 +73,7 @@ public:
       case(kScInverseMuDecay) :          return "IMD";       break;
       case(kScAMNuGamma) :               return "AMNuGamma"; break;
       case(kScMEC) :                     return "MEC";       break;
-      case(kScCoherentElas) :            return "COHEl";     break;
+      case(kScCoherentElastic) :         return "CEvNS";     break;
       case(kScInverseBetaDecay) :        return "IBD";       break;
       case(kScGlashowResonance) :        return "GLR";       break;
       case(kScIMDAnnihilation) :         return "IMDAnh";    break;
