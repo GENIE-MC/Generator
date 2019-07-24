@@ -5,16 +5,13 @@
  or see $GENIE/LICENSE
 
  Author:  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
-          adapted from  fortran code provided by
-          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>,
-          Joint Institute for Nuclear Research,  Institute for Theoretical and Experimental Physics
-          Vladimir Lyubushkin,
-          Joint Institute for Nuclear Research
-          Vadim Naumov <vnaumov@theor.jinr.ru>,
-          Joint Institute for Nuclear Research
-          based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          adapted from  fortran code provided by 
+          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>, Joint Institute for Nuclear Research
+          Vladimir Lyubushkin, Joint Institute for Nuclear Research
+          Vadim Naumov <vnaumov@theor.jinr.ru>, Joint Institute for Nuclear Research
+          based on code of Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
-
+          
  For the class documentation see the corresponding header file.
 
  
@@ -70,52 +67,50 @@ double SmithMonizQELCCXSec::Integrate(
   const Target & target = init_state.Tgt();
   if (target.A()<3)
   {
-	   const KPhaseSpace & kps = in->PhaseSpace();
-	   if(!kps.IsAboveThreshold()) {
-		  LOG("SMQELXSec", pDEBUG)  << "*** Below energy threshold";
-		  return 0;
-	   }
-	   Range1D_t rQ2 = kps.Limits(kKVQ2);
-	   if(rQ2.min<0 || rQ2.max<0) return 0;
-	   Interaction * interaction = new Interaction(*in);
-	   interaction->SetBit(kISkipProcessChk);
-	   interaction->SetBit(kISkipKinematicChk);
-	   ROOT::Math::IBaseFunctionOneDim * func = new utils::gsl::dXSec_dQ2_E(model, interaction);
-	   ROOT::Math::IntegrationOneDim::Type ig_type = utils::gsl::Integration1DimTypeFromString(fGSLIntgType);
-	   double abstol = 0; //We mostly care about relative tolerance
-	   ROOT::Math::Integrator ig(*func,ig_type,abstol,fGSLRelTol,fGSLMaxSizeOfSubintervals, fGSLRule);
-	   double xsec = ig.Integral(rQ2.min, rQ2.max) * (1E-38 * units::cm2);
-	   delete func;
-	   delete interaction;
-	   return xsec;
+     const KPhaseSpace & kps = in->PhaseSpace();
+     if(!kps.IsAboveThreshold()) {
+        LOG("SMQELXSec", pDEBUG)  << "*** Below energy threshold";
+        return 0;
+     }
+     Range1D_t rQ2 = kps.Limits(kKVQ2);
+     if(rQ2.min<0 || rQ2.max<0) return 0;
+     Interaction * interaction = new Interaction(*in);
+     interaction->SetBit(kISkipProcessChk);
+     interaction->SetBit(kISkipKinematicChk);
+     ROOT::Math::IBaseFunctionOneDim * func = new utils::gsl::dXSec_dQ2_E(model, interaction);
+     ROOT::Math::IntegrationOneDim::Type ig_type = utils::gsl::Integration1DimTypeFromString(fGSLIntgType);
+     double abstol = 0; //We mostly care about relative tolerance
+     ROOT::Math::Integrator ig(*func,ig_type,abstol,fGSLRelTol,fGSLMaxSizeOfSubintervals, fGSLRule);
+     double xsec = ig.Integral(rQ2.min, rQ2.max) * (1E-38 * units::cm2);
+     delete func;
+     delete interaction;
+     return xsec;
   }
   else
-  {	   
-	   Interaction * interaction = new Interaction(*in);
-	   sm_utils->SetInteraction(in);
-	   if (interaction->InitState().ProbeE(kRfLab)<sm_utils->E_nu_thr_SM()) return 0;
-	   interaction->SetBit(kISkipProcessChk);
-	   interaction->SetBit(kISkipKinematicChk);
-	   double xsec = 0;
+  {   
+     Interaction * interaction = new Interaction(*in);
+     sm_utils->SetInteraction(in);
+     if (interaction->InitState().ProbeE(kRfLab)<sm_utils->E_nu_thr_SM()) return 0;
+     interaction->SetBit(kISkipProcessChk);
+     interaction->SetBit(kISkipKinematicChk);
+     double xsec = 0;
+     
+     
+     ROOT::Math::IBaseFunctionMultiDim * func = new utils::gsl::d2Xsec_dQ2dv(model, interaction);
+     double kine_min[2] = { 0, 0}; 
+     double kine_max[2] = { 1, 1}; 
+     
+     ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType2D);
+     
+     double abstol = 0; //We mostly care about relative tolerance.
+     ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol2D, fGSLMaxEval);
+     
+     xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+     delete func;
+     delete interaction;
+     
+     return xsec;
 
-	   
-	   ROOT::Math::IBaseFunctionMultiDim * func = new utils::gsl::d2Xsec_dQ2dv(model, interaction);
-	   double kine_min[2] = { 0, 0}; 
-	   double kine_max[2] = { 1, 1}; 
-		
-	   ROOT::Math::IntegrationMultiDim::Type ig_type = 
-			utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType2D);
-			
-	   double abstol = 0; //We mostly care about relative tolerance.
-	   ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol2D, fGSLMaxEval);
-	  
-	   xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
-	   delete func;
-	   delete interaction;
-	   
-	   return xsec;
-	   
-	   
   }
   
 }
@@ -142,8 +137,8 @@ void SmithMonizQELCCXSec::LoadConfig(void)
 {
   
   // Get GSL integration type & relative tolerance
-  GetParamDef( "gsl-integration-type", fGSLIntgType, string("gauss") ) ;
-  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 1e-3 ) ;
+  GetParamDef( "gsl-integration-type", fGSLIntgType, string("gauss") );
+  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 1e-3 );
   int max_size_of_subintervals;
   GetParamDef( "gsl-max-size-of-subintervals", max_size_of_subintervals, 40000);
   fGSLMaxSizeOfSubintervals = (unsigned int) max_size_of_subintervals;
@@ -151,9 +146,9 @@ void SmithMonizQELCCXSec::LoadConfig(void)
   GetParamDef( "gsl-rule", rule, 3);
   fGSLRule = (unsigned int) rule;
   if (fGSLRule>6) fGSLRule=3;
-  GetParamDef( "gsl-integration-type-2D", fGSLIntgType2D, string("adaptive") ) ;
-  GetParamDef( "gsl-relative-tolerance-2D", fGSLRelTol2D, 1e-7 ) ;
-  GetParamDef( "gsl-max-eval", fGSLMaxEval, 1000000000 ) ;
+  GetParamDef( "gsl-integration-type-2D", fGSLIntgType2D, string("adaptive") );
+  GetParamDef( "gsl-relative-tolerance-2D", fGSLRelTol2D, 1e-7);
+  GetParamDef( "gsl-max-eval", fGSLMaxEval, 1000000000);
   
   sm_utils = const_cast<genie::SmithMonizUtils *>(
                dynamic_cast<const genie::SmithMonizUtils *>(
@@ -169,9 +164,9 @@ ROOT::Math::IBaseFunctionMultiDim(),
 fModel(m),
 fInteraction(interaction)
 {
-	AlgFactory * algf = AlgFactory::Instance();
-    sm_utils = const_cast<genie::SmithMonizUtils *>(dynamic_cast<const genie::SmithMonizUtils *>(algf->GetAlgorithm("genie::SmithMonizUtils","Default")));
-	sm_utils->SetInteraction(interaction);
+  AlgFactory * algf = AlgFactory::Instance();
+  sm_utils = const_cast<genie::SmithMonizUtils *>(dynamic_cast<const genie::SmithMonizUtils *>(algf->GetAlgorithm("genie::SmithMonizUtils","Default")));
+  sm_utils->SetInteraction(interaction);
 }
 //____________________________________________________________________________
 genie::utils::gsl::d2Xsec_dQ2dv::~d2Xsec_dQ2dv()
@@ -213,8 +208,7 @@ double genie::utils::gsl::d2Xsec_dQ2dv::DoEval(const double * xin) const
 ROOT::Math::IBaseFunctionMultiDim *
    genie::utils::gsl::d2Xsec_dQ2dv::Clone() const
 {
-  return
-    new genie::utils::gsl::d2Xsec_dQ2dv(fModel,fInteraction);
+  return new genie::utils::gsl::d2Xsec_dQ2dv(fModel, fInteraction);
 }
 
 

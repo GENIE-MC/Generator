@@ -2,7 +2,6 @@
 /*
  Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
@@ -97,6 +96,10 @@ double KPhaseSpace::Threshold(void) const
     double mtot = ml + mk + Mf; // total mass of FS particles
     double Ethresh = (mtot*mtot - Mi*Mi)/(2. * Mf);
     return Ethresh;
+  }
+
+  if(pi.IsCoherentElastic()) {
+    return 0;
   }
 
   if (pi.IsCoherent()) {
@@ -230,9 +233,10 @@ bool KPhaseSpace::IsAboveThreshold(void) const
   const ProcessInfo &  pi         = fInteraction->ProcInfo();
   const InitialState & init_state = fInteraction->InitState();
 
-  if (pi.IsCoherent()       ||
-      pi.IsInverseMuDecay() ||
-      pi.IsIMDAnnihilation() ||
+  if (pi.IsCoherentElastic()   ||
+      pi.IsCoherent()          ||
+      pi.IsInverseMuDecay()    ||
+      pi.IsIMDAnnihilation()   ||
       pi.IsNuElectronElastic() ||
       pi.IsMEC())
   {
@@ -319,6 +323,13 @@ bool KPhaseSpace::IsAllowed(void) const
     double    y  = kine.y();
     bool in_phys = (math::IsWithinLimits(x, xl) && math::IsWithinLimits(y, yl));
     bool allowed = in_phys;
+    return allowed;
+  }
+
+  // CEvNS
+  if (pi.IsCoherentElastic()) {
+    double Q2 = kine.Q2();    
+    bool allowed (Q2 > 0);
     return allowed;
   }
 
@@ -509,19 +520,26 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
 
   const ProcessInfo & pi = fInteraction->ProcInfo();
 
-  bool is_em = pi.IsEM();
+  bool is_em    = pi.IsEM();
   bool is_qel   = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay();
   bool is_inel  = pi.IsDeepInelastic() || pi.IsResonant();
   bool is_coh   = pi.IsCoherent();
+  bool is_cevns = pi.IsCoherentElastic();
   bool is_dme   = pi.IsDarkMatterElastic();
   bool is_dmdis = pi.IsDarkMatterDeepInelastic();
 
-  if(!is_qel && !is_inel && !is_coh && !is_dme && !is_dmdis) return Q2l;
+  if(!is_qel && !is_inel && !is_coh && !is_cevns && !is_dme && !is_dmdis) return Q2l;
 
   const InitialState & init_state = fInteraction->InitState();
   double Ev  = init_state.ProbeE(kRfHitNucRest);
   double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
   double ml  = fInteraction->FSPrimLepton()->Mass();
+
+  if(is_cevns) {
+     double Ev_lab  = init_state.ProbeE(kRfLab);
+     Q2l = kinematics::CEvNSQ2Lim(Ev_lab);
+     return Q2l;
+  }
 
   if(is_coh) {
     bool pionIsCharged = pi.IsWeakCC();
