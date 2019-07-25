@@ -117,7 +117,7 @@ void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
   // retrieve the hadronic blob lorentz boost
   // Because Hadronize() returned particles not in the LAB reference frame
   const TLorentzVector * had_syst = event -> Particle(mom) -> P4() ;
-  TVector3 boost = had_syst -> BoostVector() ;
+  TVector3 beta( 0., 0., had_syst -> P()/ had_syst -> Energy() ) ; 
 
   // Vector defining rotation from LAB to LAB' (z:= \vec{phad})
   TVector3 unitvq = had_syst -> Vect().Unit();
@@ -132,7 +132,7 @@ void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
     int pdgc = particle -> Pdg() ;
 
     //  bring the particle in the LAB reference frame
-    particle -> P4() -> Boost( boost ) ;
+    particle -> P4() -> Boost( beta ) ;
     particle -> P4() -> RotateUz( unitvq ) ; 
 
     // set the proper status according to a number of things:
