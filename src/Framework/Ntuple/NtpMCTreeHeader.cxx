@@ -60,11 +60,13 @@ void NtpMCTreeHeader::PrintToStream(ostream & stream) const
 {
   string sformat = NtpMCFormat::AsString(this->format);
   string scvstag = this->cvstag.GetString().Data();
+  string stune   = this->tune.GetString().Data();
 
   stream << "Tree Header Info:"                     << endl
          << "MC run number     -> " << this->runnu  << endl
          << "NtpRecord Format  -> " << sformat      << endl
          << "GENIE CVS Vrs Nu  -> " << scvstag      << endl
+         << "GENIE tune name   -> " << stune        << endl
          << "File generated at -> " << this->datime << endl;
 }
 //____________________________________________________________________________
@@ -72,6 +74,7 @@ void NtpMCTreeHeader::Copy(const NtpMCTreeHeader & hdr)
 {
   this->format = hdr.format;
   this->cvstag.SetString(hdr.cvstag.GetString().Data());
+  this->tune.SetString(hdr.tune.GetString().Data());
   this->datime.Copy(hdr.datime);
   this->runnu  = hdr.runnu;
 }
@@ -79,7 +82,7 @@ void NtpMCTreeHeader::Copy(const NtpMCTreeHeader & hdr)
 void NtpMCTreeHeader::Init(void)
 {
   string version;
-  string genie_path = gSystem->Getenv("GENIE");   
+  string genie_path = gSystem->Getenv("GENIE");
   string filename   = genie_path + "/VERSION";
   bool vrs_file_found = ! (gSystem->AccessPathName(filename.c_str()));
   if (!vrs_file_found) {
@@ -92,8 +95,11 @@ void NtpMCTreeHeader::Init(void)
     gvinp.close();
   }
 
+  string tunename("unknown");
+
   this->format = kNFUndefined;
   this->cvstag.SetString(version.c_str());
+  this->tune.SetString(tunename.c_str());
   this->datime.Now();
   this->runnu  = 0;
 }

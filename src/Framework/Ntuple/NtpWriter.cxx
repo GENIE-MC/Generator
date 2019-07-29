@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
@@ -37,6 +37,7 @@
 #include "Framework/Ntuple/NtpMCTreeHeader.h"
 #include "Framework/Ntuple/NtpMCJobConfig.h"
 #include "Framework/Ntuple/NtpMCJobEnv.h"
+#include "Framework/Utils/RunOpt.h"
 
 #include "RVersion.h"
 
@@ -100,10 +101,21 @@ void NtpWriter::Initialize()
   this->CreateTree();           // create output tree
 
   //-- create the event branch
-  this->CreateEventBranch(); 
+  this->CreateEventBranch();
 
   //-- create the tree header
   this->CreateTreeHeader();
+  //-- update the tune name from RunOpt (keep header from RunOpt entanglement)
+  string tunename("unknown");
+  TuneId* tune = RunOpt::Instance()->Tune();
+  if ( ! tune ) {
+    LOG("Ntp", pERROR)
+      << "No TuneId is available from RunOpt";
+  } else {
+    tunename = tune->Name();
+  }
+  fNtpMCTreeHeader->tune.SetString(tunename.c_str());
+  //-- write the tree header
   fNtpMCTreeHeader->Write();
 
   //-- save GENIE configuration for this MC Job
@@ -128,7 +140,7 @@ void NtpWriter::CustomizeFilenamePrefix (string prefix)
 void NtpWriter::SetDefaultFilename(string filename_prefix)
 {
   ostringstream fnstr;
-  fnstr << filename_prefix  << "." 
+  fnstr << filename_prefix  << "."
         << fRunNu << "."
         << NtpMCFormat::FilenameTag(fNtpFormat)
         << ".root";
@@ -140,7 +152,7 @@ void NtpWriter::OpenFile(string filename)
 {
   if(fOutFile) delete fOutFile;
 
-  LOG("Ntp", pINFO) 
+  LOG("Ntp", pINFO)
       << "Opening the output ROOT file: " << filename;
 
   // use "TFile::Open()" instead of "new TFile()" so that it can handle
@@ -227,4 +239,3 @@ void NtpWriter::Save(void)
   }
 }
 //____________________________________________________________________________
-

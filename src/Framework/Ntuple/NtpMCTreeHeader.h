@@ -56,10 +56,11 @@ public :
 
   NtpMCFormat_t format;  ///< Event Record format (GENIE support multiple formats)
   TObjString    cvstag;  ///< GENIE CVS Tag (to keep track of GENIE's version)
+  TObjString    tune;    ///< GENIE Tune Name
   NtpMCDTime    datime;  ///< Date and Time that the event ntuple was generated
   Long_t        runnu;   ///< MC Job run number
 
-  ClassDef(NtpMCTreeHeader, 1)
+  ClassDef(NtpMCTreeHeader, 2)
 };
 
 }      // genie namespace
