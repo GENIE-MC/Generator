@@ -949,7 +949,7 @@ void BaryonResonanceDecayer::LoadConfig(void) {
     }
 
     for ( unsigned int i = 0; i < fRParams.size() ; ++i ) {
-      delete fRParams[i] ;
+      delete [] fRParams[i] ;
     }
     fRParams.clear() ; 
     // fill the container by Q2 bin instead of the parmaeter bin
@@ -960,7 +960,23 @@ void BaryonResonanceDecayer::LoadConfig(void) {
     //set dummy maxima
     fW_max.resize( fR33.size(), 0. ) ;
     for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
-      fW_max[i] = -1. ; 
+
+      double temp_min = FindDistributionMin( i, false ) ;
+      if ( temp_min < 0. ) {
+	LOG("BaryonResonanceDecayer", pFATAL) << "pion angular distribution minimum is negative for Q2 bin " << i ;
+	invalid_configuration = true ;
+	break ;
+      }
+
+      double temp_max = FindDistributionMin( i, true ) ;
+      if ( temp_max <= 0. ) {
+	LOG("BaryonResonanceDecayer", pFATAL) << "pion angular distribution maximum is non positive for Q2 bin " << i ;
+	invalid_configuration = true ;
+	break ;
+      }
+
+      fW_max[i] = temp_max ; 
+	
     }
 
     // the maxima are set as dummy as they are "heavy to configure as they require brute force minimization
