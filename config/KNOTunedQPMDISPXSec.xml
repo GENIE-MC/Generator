@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+
+Algorithm Configurable Parameters:
+..........................................................................................................
+Name                        Type    Opt   Comment                             Default
+..........................................................................................................
+XSec-Integrator             alg     yes                                       The default integrator will be same of the pure QPMDISPXSec
+Hadronizer                  alg     no    It must be KNOHadronization         
+DISModel                    alg     no    It must be QPMDISPXSec    
+
+UseCache                    bool    Yes   Cache suppression factors?          true
+Wcut                        double  no                                        CommonParam[NonResBackground]
+-->
+
+<alg_conf>
+
+  <param_set name="Default">
+
+    <param type="string" name="CommonParam"> NonResBackground </param>
+
+    <param type="alg" name="DISModel">   genie::QPMDISPXSec/Default      </param>
+    <param type="alg" name="Hadronizer"> genie::KNOHadronization/Default </param>
+
+  </param_set>
+
+</alg_conf>

@@ -13,22 +13,18 @@ TransMethod                 int     Yes    0: KNO only                          
                                            1: PYTHIA only
                                            2: linear transition from KNO->PYTHIA in
                                            [Wmin,Wmax] invariant mass window
-KNO2PYTHIA-Wmin             double  Yes    relevant only for method=2                  GPL KNO2PYTHIA-Wmin
-KNO2PYTHIA-Wmax             double  Yes    relevant only for method=2                  GPL KNO2PYTHIA-Wmax
+KNO2PYTHIA-Wmin             double  No     relevant only for method=2                  CommonParam[KNO2Pythia]
+KNO2PYTHIA-Wmax             double  No     relevant only for method=2                  CommonParam[KNO2Pythia] 
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
-     <param type="alg" name="KNO-Hadronizer">      genie::KNOHadronization/Default    </param>
-     <param type="alg" name="PYTHIA-Hadronizer">   genie::PythiaHadronization/Default </param>
 
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Invariant mass window for the transition from KNO model to PYTHIA
-  -->
-  <param type="double" name="KNO2PYTHIA-Wmin">  2.30 </param>
-  <param type="double" name="KNO2PYTHIA-Wmax">  3.00 </param>
+    <param type="string" name="CommonParam"> KNO2Pythia </param>
+    
+    <param type="alg" name="KNO-Hadronizer">      genie::KNOHadronization/Default     </param>
+    <param type="alg" name="PYTHIA-Hadronizer">   genie::Pythia6Hadronization/Default </param>
 
   </param_set>
 
