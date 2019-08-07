@@ -823,30 +823,35 @@ double BaryonResonanceDecayer::FindDistributionExtrema( unsigned int q2_bin, boo
   ROOT::Math::WrappedParamFunction f( ( find_maximum ? & BaryonResonanceDecayer::MinusPionAngularDist : & BaryonResonanceDecayer::PionAngularDist ), 
 				      2, 3, fRParams[q2_bin] ) ;
 
-  double step[2] = { 0.001 / 2., 0.001 } ;
-  double variable[2] = { kPi/2., kPi } ;
- 
-  min.SetFunction(f);
- 
-  // Set the free variables to be minimized!
-  min.SetVariable(0,"#theta", variable[0], step[0]);
-  min.SetVariable(1,"#varphi",variable[1], step[1]);
- 
-  min.SetVariableLimits( 0, 0., kPi ) ;
-  min.SetVariableLimits( 1, 0., 2*kPi ) ;
+  // Steps are defined as the same fraction of the range of each variable
+  double step[2] = { 0.00005 * kPi, 0.00005 * 2 * kPi } ;
   
-  min.Minimize(); 
+  min.SetFunction(f);
+
+  do {
+
+    // Set the free variables to be minimized!
+    // it has been observed that some initial values are making the minimization to fail. 
+    // e.g. ( pi/2, pi/2 )
+    // at the same time, the absolute extrema seems very stable with respect to changes of the initial variable
+    // hence the minimization is done inside a loop where the variables a initialized randomly 
+    
+    min.SetLimitedVariable( 0, "theta", kPi * RandomGen::Instance()-> RndDec().Rndm(), step[0], 0.,   kPi );
+    min.SetLimitedVariable( 1, "phi", 2*kPi * RandomGen::Instance()-> RndDec().Rndm(), step[1], 0., 2*kPi );
+
+  } while( ! min.Minimize() ) ;
 
   const double *xs = min.X();
-
+  
   double result = find_maximum ? -1 * f( xs ) : f( xs ) ;
-
+  
   LOG("BaryonResonanceDecayer", pINFO) << (find_maximum ? "Maximum " : "Minimum ")
 				       << "of angular distribution found in ( " 
 				       << xs[0] << ", " << xs[1] << " ): " 
-				       << result 
-				       << " found in " << min.NCalls() << " steps" ;
- 
+				       << result ;
+
+  LOG("BaryonResonanceDecayer", pDEBUG) << "Minimum found in " << min.NCalls() << " calls" ;
+  
   return result  ; 
 
 }
@@ -861,7 +866,7 @@ void BaryonResonanceDecayer::LoadConfig(void) {
 
   this -> GetParamDef( "Delta-ThetaOnly", fDeltaThetaOnly, true ) ;
 
-  this -> GetParamDef( "MaximumTolerance", fMaxTolerance, 0.005 ) ;
+  this -> GetParamDef( "DeltaDecayMaximumTolerance", fMaxTolerance, 0.0005 ) ;
 
   bool invalid_configuration = false ;
 
