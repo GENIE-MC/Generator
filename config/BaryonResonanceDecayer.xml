@@ -46,32 +46,66 @@ Delta-R3m1                    string   Yes        string ; separated of values f
     <param type="bool" name="Delta-ThetaOnly"> true </param>
     <param type="string" name="Delta-R33"> 0.75 </param>
 
+  </param_set>
+  
+  <param_set name="BeforeHadronTransport">
+    <param type="bool" name="RunBeforeHadronTransport"> true  </param>
+  </param_set>
+  
+  <param_set name="AfterHadronTransport">
+    <param type="bool" name="RunBeforeHadronTransport"> false </param>
+  </param_set>
+  
+  <param_set name="BeforeHadronTransport_ANL">
+    
+    <param type="bool" name="RunBeforeHadronTransport"> true  </param>
+    
     <!-- ANL -->
-    <!--
     <param type="bool" name="Delta-ThetaOnly"> false </param>
     <param type="string" name="Delta-R33">    0.523 ;  0.649 ;  0.674 ;  0.748 </param>
     <param type="string" name="Delta-R31">   -0.322 ; -0.128 ; -0.017 ;  0.041 </param>
     <param type="string" name="Delta-R3m1">  -0.138 ;  0.034 ; -0.203 ; -0.162 </param>
     <param type="string" name="Delta-Q2">          0.1  ;   0.3  ;   0.5   </param>
-    -->
+    
+  </param_set>
+
+  <param_set name="AfterHadronTransport_ANL">
+    
+    <param type="bool" name="RunBeforeHadronTransport"> false </param>
+
+    <!-- ANL -->
+    <param type="bool" name="Delta-ThetaOnly"> false </param>
+    <param type="string" name="Delta-R33">    0.523 ;  0.649 ;  0.674 ;  0.748 </param>
+    <param type="string" name="Delta-R31">   -0.322 ; -0.128 ; -0.017 ;  0.041 </param>
+    <param type="string" name="Delta-R3m1">  -0.138 ;  0.034 ; -0.203 ; -0.162 </param>
+    <param type="string" name="Delta-Q2">          0.1  ;   0.3  ;   0.5   </param>
+    
+  </param_set>
+
+  <param_set name="BeforeHadronTransport_BNL">
+    
+    <param type="bool" name="RunBeforeHadronTransport"> true  </param>
 
     <!-- BNL -->
-    <!--
     <param type="bool" name="Delta-ThetaOnly"> false </param>
     <param type="string" name="Delta-R33">    0.661 ;  0.673 ; 0.750 ; 0.800 </param>
     <param type="string" name="Delta-R31">   -0.213 ;  0.025 ; 0.036 ; 0.075 </param>
     <param type="string" name="Delta-R3m1">  -0.133 ; -0.075 ; 0.046 ; 0.004 </param>
     <param type="string" name="Delta-Q2">          0.2   ;  0.4  ;  0.6   </param>
-    -->
-
+    
   </param_set>
 
-  <param_set name="BeforeHadronTransport">
-    <param type="bool" name="RunBeforeHadronTransport"> true  </param>
-  </param_set>
-
-  <param_set name="AfterHadronTransport">
+  <param_set name="AfterHadronTransport_BNL">
+    
     <param type="bool" name="RunBeforeHadronTransport"> false </param>
+
+    <!-- BNL -->
+    <param type="bool" name="Delta-ThetaOnly"> false </param>
+    <param type="string" name="Delta-R33">    0.661 ;  0.673 ; 0.750 ; 0.800 </param>
+    <param type="string" name="Delta-R31">   -0.213 ;  0.025 ; 0.036 ; 0.075 </param>
+    <param type="string" name="Delta-R3m1">  -0.133 ; -0.075 ; 0.046 ; 0.004 </param>
+    <param type="string" name="Delta-Q2">          0.2   ;  0.4  ;  0.6   </param>
+    
   </param_set>
 
 </alg_conf>
