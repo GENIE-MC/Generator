@@ -823,8 +823,8 @@ double BaryonResonanceDecayer::FindDistributionExtrema( unsigned int q2_bin, boo
   ROOT::Math::WrappedParamFunction f( ( find_maximum ? & BaryonResonanceDecayer::MinusPionAngularDist : & BaryonResonanceDecayer::PionAngularDist ), 
 				      2, 3, fRParams[q2_bin] ) ;
 
-  double step[2] = { 0.01, 0.01};
-  double variable[2] = { kPi/2., kPi };
+  double step[2] = { 0.001 / 2., 0.001 } ;
+  double variable[2] = { kPi/2., kPi } ;
  
   min.SetFunction(f);
  
