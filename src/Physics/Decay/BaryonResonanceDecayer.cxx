@@ -669,7 +669,7 @@ bool BaryonResonanceDecayer::AcceptPionDecay( TLorentzVector pion,
   }
 
   if ( fW_max[q2_index] <= 0. ) {
-    const_cast<genie::BaryonResonanceDecayer*>( this ) -> fW_max[q2_index] = FindDistributionMin( q2_index, true ) ; 
+    const_cast<genie::BaryonResonanceDecayer*>( this ) -> fW_max[q2_index] = FindDistributionExtrema( q2_index, true ) ; 
   }
 
   double aidrnd = fW_max[q2_index] * RandomGen::Instance()-> RndDec().Rndm();
@@ -809,18 +809,18 @@ double BaryonResonanceDecayer::PionAngularDist( const double* x, const double * 
 
 }
 //____________________________________________________________________________
-double BaryonResonanceDecayer::FindDistributionMin( unsigned int q2_bin, bool invert_distribution ) const {
+double BaryonResonanceDecayer::FindDistributionExtrema( unsigned int q2_bin, bool find_maximum ) const {
 
   // Choose method upon creation between:
   // kConjugateFR, kConjugatePR, kVectorBFGS,
   // kVectorBFGS2, kSteepestDescent
   ROOT::Math::GSLMinimizer min( ROOT::Math::kVectorBFGS );
  
-  min.SetMaxFunctionCalls(1000000);
-  min.SetMaxIterations(100000);
+  min.SetMaxFunctionCalls(1000);
+  min.SetMaxIterations(1000);
   min.SetTolerance(0.01);
  
-  ROOT::Math::WrappedParamFunction f( ( invert_distribution ? & BaryonResonanceDecayer::MinusPionAngularDist : & BaryonResonanceDecayer::PionAngularDist ), 
+  ROOT::Math::WrappedParamFunction f( ( find_maximum ? & BaryonResonanceDecayer::MinusPionAngularDist : & BaryonResonanceDecayer::PionAngularDist ), 
 				      2, 3, fRParams[q2_bin] ) ;
 
   double step[2] = {0.01,0.01};
@@ -839,9 +839,9 @@ double BaryonResonanceDecayer::FindDistributionMin( unsigned int q2_bin, bool in
 
   const double *xs = min.X();
 
-  double result = f( xs ) ;
+  double result = find_maximum ? -1 * f( xs ) : f( xs ) ;
 
-  LOG("BaryonResonanceDecayer", pINFO) << (invert_distribution ? "Maximum " : "Minimum ")
+  LOG("BaryonResonanceDecayer", pINFO) << (find_maximum ? "Maximum " : "Minimum ")
 				       << "of angular distribution found in ( " 
 				       << xs[0] << ", " << xs[1] << " ): " 
 				       << result ;
@@ -961,14 +961,14 @@ void BaryonResonanceDecayer::LoadConfig(void) {
     fW_max.resize( fR33.size(), 0. ) ;
     for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
 
-      double temp_min = FindDistributionMin( i, false ) ;
+      double temp_min = FindDistributionExtrema( i, false ) ;
       if ( temp_min < 0. ) {
 	LOG("BaryonResonanceDecayer", pFATAL) << "pion angular distribution minimum is negative for Q2 bin " << i ;
 	invalid_configuration = true ;
 	break ;
       }
 
-      double temp_max = FindDistributionMin( i, true ) ;
+      double temp_max = FindDistributionExtrema( i, true ) ;
       if ( temp_max <= 0. ) {
 	LOG("BaryonResonanceDecayer", pFATAL) << "pion angular distribution maximum is non positive for Q2 bin " << i ;
 	invalid_configuration = true ;

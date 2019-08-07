@@ -75,8 +75,8 @@ private:
     return -1. * BaryonResonanceDecayer::PionAngularDist( x, par ) ; 
   }
 
-  double FindDistributionMin( unsigned int i /*q2_bin_index*/, 
-			      bool invert_distribution = false /*used to find maximum*/ ) const ;
+  double FindDistributionExtrema( unsigned int i /*q2_bin_index*/, 
+				  bool find_maximum = false  ) const ;
 
 
   mutable TGenPhaseSpace fPhaseSpaceGenerator;
