@@ -84,6 +84,8 @@ private:
 
   bool   fDeltaThetaOnly ;
 
+  double fMaxTolerance ;
+
   std::vector<double> fR33, fR31, fR3m1 ;
   std::vector<double*> fRParams ;  // this contains same parameter as fR33, fR31 and fR3m1 alingned by Q2 bin
 

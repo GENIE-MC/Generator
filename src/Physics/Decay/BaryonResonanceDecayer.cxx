@@ -818,22 +818,22 @@ double BaryonResonanceDecayer::FindDistributionExtrema( unsigned int q2_bin, boo
  
   min.SetMaxFunctionCalls(1000);
   min.SetMaxIterations(1000);
-  min.SetTolerance(0.01);
+  min.SetTolerance( fMaxTolerance );
  
   ROOT::Math::WrappedParamFunction f( ( find_maximum ? & BaryonResonanceDecayer::MinusPionAngularDist : & BaryonResonanceDecayer::PionAngularDist ), 
 				      2, 3, fRParams[q2_bin] ) ;
 
-  double step[2] = {0.01,0.01};
+  double step[2] = { 0.01, 0.01};
   double variable[2] = { kPi/2., kPi };
  
   min.SetFunction(f);
  
   // Set the free variables to be minimized!
-  min.SetVariable(0,"#theta",variable[0], step[0]);
+  min.SetVariable(0,"#theta", variable[0], step[0]);
   min.SetVariable(1,"#varphi",variable[1], step[1]);
  
   min.SetVariableLimits( 0, 0., kPi ) ;
-  min.SetVariableLimits( 0, 0., 2*kPi ) ;
+  min.SetVariableLimits( 1, 0., 2*kPi ) ;
   
   min.Minimize(); 
 
@@ -844,7 +844,8 @@ double BaryonResonanceDecayer::FindDistributionExtrema( unsigned int q2_bin, boo
   LOG("BaryonResonanceDecayer", pINFO) << (find_maximum ? "Maximum " : "Minimum ")
 				       << "of angular distribution found in ( " 
 				       << xs[0] << ", " << xs[1] << " ): " 
-				       << result ;
+				       << result 
+				       << " found in " << min.NCalls() << " steps" ;
  
   return result  ; 
 
@@ -859,6 +860,8 @@ void BaryonResonanceDecayer::LoadConfig(void) {
   this -> GetParam( "FFScaling", fFFScaling ) ;
 
   this -> GetParamDef( "Delta-ThetaOnly", fDeltaThetaOnly, true ) ;
+
+  this -> GetParamDef( "MaximumTolerance", fMaxTolerance, 0.005 ) ;
 
   bool invalid_configuration = false ;
 
@@ -913,7 +916,7 @@ void BaryonResonanceDecayer::LoadConfig(void) {
     // set appropriate maxima
     fW_max.resize( fR33.size(), 0. ) ;
     for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
-      fW_max[i] = fR33[i] < 0.5 ? 2. * ( 1. - fR33[i] ) : fR33[i] + 0.5 ;
+      fW_max[i] = ( fR33[i] < 0.5 ? 2. * ( 1. - fR33[i] ) : fR33[i] + 0.5 ) + fMaxTolerance ;
     }
   
   } // Delta Theta Only
@@ -975,7 +978,7 @@ void BaryonResonanceDecayer::LoadConfig(void) {
 	break ;
       }
 
-      fW_max[i] = temp_max ; 
+      fW_max[i] = temp_max + fMaxTolerance ; 
 	
     }
 
