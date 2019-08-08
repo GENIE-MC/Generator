@@ -16,13 +16,17 @@ NucRemovalE@Pdg=?  int      Yes       nuclear removal energy for specfic nuclei 
 
   <param_set name="Default"> 
     <param type="string" name="CommonParam"> FermiGas </param>
-    <!--Percentage of high momentum / SRC tail
-        The default one is 0% and corresponds to the Local Fermi Gas
+    <!--Local Fermi Gas Model-->
+    <param type="double" name = "SRC_Fraction">    0.0   </param>  <!--Local Fermi Gas-->
+    <param type="double" name = "PCutOff">    0.7   </param>
+  </param_set>
+
+  <param_set name="Correlated"> 
+    <!--Correlated Fermi Gas Model
+        Percentage of high momentum / SRC tail
         In the Correlated Fermi Gas Model, 20% of our nucleons live under the high momentum tail 
         (K. S. Egiyan et al., Phys. Rev. C 68 (2003) 014313 and Phys. Rev. Lett. 96 (2006) 082501.)-->
-    <param type="double" name = "SRC_Fraction">    0.0   </param>  <!--Local Fermi Gas-->
-    <!--<param type="double" name = "SRC_Fraction">    0.2   </param>--> <!--Correlated Fermi Gas-->
-    <param type="double" name = "PCutOff">    0.7   </param>
+    <param type="double" name = "SRC_Fraction">    0.2   </param>
   </param_set>
 
 </alg_conf>

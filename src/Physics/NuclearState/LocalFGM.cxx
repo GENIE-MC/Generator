@@ -200,6 +200,9 @@ void LocalFGM::LoadConfig(void)
   this->GetParamDef("MomentumMax", fPMax, 1.0);
   assert(fPMax > 0);
 
+  this->GetParamDef("SRC_Fraction", fSRC_Fraction, 0.0);
+  this->GetParamDef("PCutOff", fPCutOff, 0.7);
+
   // Load removal energy for specific nuclei from either the algorithm's
   // configuration file or the UserPhysicsOptions file.
   // If none is used use Wapstra's semi-empirical formula.
