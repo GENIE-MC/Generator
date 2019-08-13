@@ -35,10 +35,15 @@
   <priority msgstream="SKHadron">              DEBUG  </priority>
   <priority msgstream="BardinIMD">             NOTICE </priority>
   <priority msgstream="BaryonResList">         WARN   </priority>
+  <priority msgstream="BaryonResUtils">        WARN   </priority>
+  <priority msgstream="SppChannel">            WARN   </priority>
   <priority msgstream="BaseHad">               NOTICE </priority>
   <priority msgstream="BreitWignet">           INFO   </priority>
   <priority msgstream="Bardin">                INFO   </priority>
   <priority msgstream="BSKLNBaseRESPXSec2014"> NOTICE </priority>
+  <priority msgstream="MKSPPPXSec2014">        NOTICE </priority>
+  <priority msgstream="MKSPPXSec2014">         NOTICE </priority>
+  <priority msgstream="MKSPPCache">            NOTICE </priority>
   <priority msgstream="BodekYang">             INFO   </priority>
   <priority msgstream="BodekRitchie">          WARN   </priority>
   <priority msgstream="SmithMoniz">            WARN   </priority>
@@ -158,6 +163,7 @@
   <priority msgstream="ReinSehgalResCF">       NOTICE </priority>
   <priority msgstream="ReinSehgalSpp">         NOTICE </priority>
   <priority msgstream="RSHAmpl">               WARN   </priority>
+  <priority msgstream="MKHAmpl">               WARN   </priority>
   <priority msgstream="Registry">              WARN   </priority>
   <priority msgstream="ReW">                   DEBUG  </priority>
   <priority msgstream="RESHadronicVtx">        INFO   </priority>

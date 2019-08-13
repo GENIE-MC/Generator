@@ -100,10 +100,13 @@
    <config alg="genie::BBA03ELFormFactorsModel">                 BBA03ELFormFactorsModel.xml                 </config>
    <config alg="genie::BBA05ELFormFactorsModel">                 BBA05ELFormFactorsModel.xml                 </config>
    <config alg="genie::BBA07ELFormFactorsModel">                 BBA07ELFormFactorsModel.xml                 </config>
+   <config alg="genie::GalsterELFormFactorsModel">               GalsterELFormFactorsModel.xml               </config>
    <config alg="genie::DipoleAxialFormFactorModel">              DipoleAxialFormFactorModel.xml              </config>
    <config alg="genie::ZExpAxialFormFactorModel">                ZExpAxialFormFactorModel.xml                </config>
    <config alg="genie::KuzminNaumov2016AxialFormFactorModel">    KuzminNaumov2016AxialFormFactorModel.xml    </config>
    <config alg="genie::LwlynSmithFFCC">                          LwlynSmithFFCC.xml                          </config>
+   <config alg="genie::MKFFEM">                                  MKFFEM.xml                                  </config>
+   <config alg="genie::MKFFCC">                                  MKFFCC.xml                                  </config>
    <config alg="genie::LwlynSmithFFDeltaS">                      LwlynSmithFFDeltaS.xml                      </config>
    <config alg="genie::TransverseEnhancementFFModel">            TransverseEnhancementFFModel.xml            </config>
    <config alg="genie::LwlynSmithFFNC">                          LwlynSmithFFNC.xml                          </config>
@@ -114,6 +117,10 @@
    <config alg="genie::RSHelicityAmplModelNCn">                  RSHelicityAmplModelNCn.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMp">                  RSHelicityAmplModelEMp.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMn">                  RSHelicityAmplModelEMn.xml                  </config>
+   <config alg="genie::MKHelicityAmplModelCC">                   MKHelicityAmplModelCC.xml                   </config>
+   <config alg="genie::MKHelicityAmplModelNCp">                  MKHelicityAmplModelNCp.xml                  </config>
+   <config alg="genie::MKHelicityAmplModelNCn">                  MKHelicityAmplModelNCn.xml                  </config>
+
 
    <!--  ****** CONFIGURATION GENERIC CROSS SECTION INTEGRATORS ****** -->
    <config alg="genie::QELXSec">                     QELXSec.xml                     </config>
@@ -161,6 +168,8 @@
    <config alg="genie::ReinSehgalSPPPXSec">                 ReinSehgalSPPPXSec.xml                 </config>
    <config alg="genie::ReinSehgalRESXSec">                  ReinSehgalRESXSec.xml                  </config>
    <config alg="genie::ReinSehgalSPPXSec">                  ReinSehgalSPPXSec.xml                  </config>
+   <config alg="genie::MKSPPPXSec">                         MKSPPPXSec.xml                         </config>
+   <config alg="genie::MKSPPXSec">                          MKSPPXSec.xml                          </config>
    <config alg="genie::H3AMNuGammaPXSec">                   H3AMNuGammaPXSec.xml                   </config>
    <config alg="genie::EmpiricalMECPXSec2015">              EmpiricalMECPXSec2015.xml              </config>
    <config alg="genie::NievesSimoVacasMECPXSec2016">        NievesSimoVacasMECPXSec2016.xml        </config>

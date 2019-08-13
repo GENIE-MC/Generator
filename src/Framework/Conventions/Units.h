@@ -30,20 +30,13 @@ static const double GeV               = gigaelectronvolt;
 
 //-- Conversion of conventionl [L], [M], [T] units in physical units
 
-static const double meter    = 5.07e+15 / GeV;
-static const double kilogram = 5.61e+26 * GeV;
-static const double second   = 1.52e+24 / GeV;
+static const double kSpeedOfLight = 2.99792458e+08;   // [m/s]
+static const double hbarc         = 1.973269788e-16;  // [GeV*m]
+static const double qe_coulomb    = 1.6021766208e-19; // electron charge magnitude
+static const double meter         = 1. / hbarc / GeV;
+static const double kilogram      = kSpeedOfLight * kSpeedOfLight / qe_coulomb * 10e-9 * GeV;
+static const double second        = meter * kSpeedOfLight / GeV;
 
-// GeV^-2  -> mbarns : x 0.389;
-// mbarns  -> cm^2   : x 1.00E-27;
-// m       -> GeV^-1 : x 5.07E+15;
-// cm      -> GeV^-1 : x 5.07E+13;
-// kgr     -> GeV    : x 5.61E+26;
-// gr      -> GeV    : x 5.61E+23;
-// sec     -> GeV^-1 : x 1.52E+24;
-// gr/cm^3 -> GeV^4  : x 4.30466E-18;
-
-//-- [L: length],[S: area],[V: volume]
 
 static const double kilometer   = 1000.*meter;
 static const double millimeter  = 0.001*meter;
@@ -115,7 +108,6 @@ static const double  GHz = gigahertz;
 //-- [Q: Charge]
 
 static const double qe          = 1.;
-static const double qe_coulomb  = 1.60217733e-19;
 
 //-- [E: Energy]
 

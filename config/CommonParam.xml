@@ -247,8 +247,8 @@ University of Liverpool
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Proton and neutron anomalous magnetic moments
    -->
-   <param type="double" name="AnomMagnMoment-P">   2.7930     </param> <!-- 2.7928473 -->
-   <param type="double" name="AnomMagnMoment-N">  -1.913042   </param>
+   <param type="double" name="AnomMagnMoment-P">    2.7928473446 </param> 
+   <param type="double" name="AnomMagnMoment-N">   -1.9130427    </param>
 
  </param_set>
 
@@ -266,6 +266,7 @@ University of Liverpool
 	- genie::BBA03ELFormFactorsModel, H.Budd, NuINT-02 proceedings
 	- genie::BBA05ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and J.Arrington, hep-ex/0602017
 	- genie::BBA07ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and S.Avvakumov, Euro.Phys.J.C53 (2008);[arXiv:0708.1946 [hep-ex]]
+	- genie::GalsterELFormFactorsModel, S.Galster et al., Nuclear Physics B32 (1971) 221-237
    -->
    <param type="alg" name="ElasticFormFactorsModel"> genie::BBA07ELFormFactorsModel/Default </param>
 

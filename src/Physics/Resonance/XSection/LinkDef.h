@@ -10,6 +10,9 @@
 #pragma link C++ class genie::BSKLNBaseRESPXSec2014;
 #pragma link C++ class genie::BergerSehgalRESPXSec2014;
 #pragma link C++ class genie::KuzminLyubushkinNaumovRESPXSec2014;
+#pragma link C++ class genie::MKSPPPXSec;
+#pragma link C++ class genie::MKSPPXSec;
+#pragma link C++ class genie::MKSPPXSecWithCache;
 //#pragma link C++ class genie::ReinDFRPXSec;
 #pragma link C++ class genie::ReinSehgalRESPXSec;
 #pragma link C++ class genie::ReinSehgalRESXSec;
@@ -27,6 +30,12 @@
 #pragma link C++ class genie::RSHelicityAmplModelNCn;
 #pragma link C++ class genie::RSHelicityAmplModelEMp;
 #pragma link C++ class genie::RSHelicityAmplModelEMn;
+
+#pragma link C++ class genie::MKHelicityAmpl;
+#pragma link C++ class genie::MKHelicityAmplModelI;
+#pragma link C++ class genie::MKHelicityAmplModelCC;
+#pragma link C++ class genie::MKHelicityAmplModelNCp;
+#pragma link C++ class genie::MKHelicityAmplModelNCn;
 
 #pragma link C++ class genie::RESXSec;
 

@@ -37,8 +37,13 @@
   <priority msgstream="SKHadron">              FATAL </priority>
   <priority msgstream="BardinIMD">             FATAL </priority>
   <priority msgstream="BaryonResList">         FATAL </priority>
+  <priority msgstream="BaryonResUtils">        FATAL </priority>
+  <priority msgstream="SppChannel">            FATAL </priority>
   <priority msgstream="BaseHad">               FATAL </priority>
   <priority msgstream="BSKLNBaseRESPXSec2014"> FATAL </priority>
+  <priority msgstream="MKSPPPXSec2014">        FATAL </priority>
+  <priority msgstream="MKSPPXSec2014">         FATAL </priority>
+  <priority msgstream="MKSPPCache">            FATAL </priority>
   <priority msgstream="BreitWignet">           FATAL </priority>
   <priority msgstream="Bardin">                FATAL </priority>
   <priority msgstream="BodekYang">             FATAL </priority>
@@ -164,8 +169,11 @@
   <priority msgstream="ReinSehgalRes">         FATAL </priority>
   <priority msgstream="ReinSehgalResT">        FATAL </priority>
   <priority msgstream="ReinSehgalResC">        FATAL </priority>
+  <priority msgstream="ReinSehgalResTF">       FATAL </priority>
+  <priority msgstream="ReinSehgalResCF">       FATAL </priority>
   <priority msgstream="ReinSehgalSpp">         FATAL </priority>
   <priority msgstream="RSHAmpl">               FATAL </priority>
+  <priority msgstream="MKHAmpl">               FATAL </priority>
   <priority msgstream="Registry">              FATAL </priority>
   <priority msgstream="ReW">                   FATAL </priority>
   <priority msgstream="RESHadronicVtx">        FATAL </priority>

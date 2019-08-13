@@ -281,6 +281,7 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
   interaction->KinePtr()->SetW (gW,  true);
   interaction->KinePtr()->Setx (gx,  true);
   interaction->KinePtr()->Sety (gy,  true);
+  interaction->KinePtr()->SetKV(kKVSelv, v); // energy transfer
   interaction->KinePtr()->ClearRunningValues();
 
   // set the cross section for the selected kinematics

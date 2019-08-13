@@ -5,10 +5,15 @@
 
 \brief    Enumeration of single pion production channels
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\authors   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+           University of Liverpool & STFC Rutherford Appleton Lab \n
+           Igor Kakorin <kakorin@jinr.ru> Joint Institute for Nuclear Research \n
 
 \created  December 16, 2004
+
+\update   November 12, 2019
+          Added extra functions for MK model. \n
+          Branching ratios are looked in particle database now.
 
 \cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -21,13 +26,19 @@
 
 #include <string>
 
+#include <TDecayChannel.h>
+
 #include "Framework/ParticleData/BaryonResonance.h"
 #include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Conventions/Constants.h"
 
 using std::string;
+using namespace genie::constants;
 
 namespace genie {
 
@@ -35,7 +46,7 @@ typedef enum ESppChannel {
 
   kSppNull = 0,
 
-         /* [p,n,pi+,pi0,pi-] */
+  // [p,n,pi+,pi0,pi-]
 
   kSpp_vp_cc_10100,  /* neutrino  CC */
   kSpp_vn_cc_10010,
@@ -198,9 +209,36 @@ public:
     return 0;
   }
   //__________________________________________________________________________
+  static int FinStateIsospin(SppChannel_t channel)
+  {
+    switch (channel) {
+
+      case (kSpp_vp_cc_10100) : return  3;   break;
+      case (kSpp_vn_cc_10010) : return  1;   break;
+      case (kSpp_vn_cc_01100) : return  1;   break;
+                                        
+      case (kSpp_vp_nc_10010) : return  1;   break;
+      case (kSpp_vp_nc_01100) : return  1;   break;
+      case (kSpp_vn_nc_01010) : return  1;   break;
+      case (kSpp_vn_nc_10001) : return  1;   break;
+                                        
+      case (kSpp_vbn_cc_01001): return  3;   break;
+      case (kSpp_vbp_cc_01010): return  1;   break;
+      case (kSpp_vbp_cc_10001): return  1;   break;
+                                        
+      case (kSpp_vbp_nc_10010): return  1;   break;
+      case (kSpp_vbp_nc_01100): return  1;   break;
+      case (kSpp_vbn_nc_01010): return  1;   break;
+      case (kSpp_vbn_nc_10001): return  1;   break;
+
+      default : return 0;  break;
+    }
+    return 0;
+  }
+  //__________________________________________________________________________
   static double IsospinWeight(SppChannel_t channel, Resonance_t res)
   {
-    // return the isospin Glebsch Gordon coefficient for the input resonance
+    // return the square of isospin Glebsch Gordon coefficient for the input resonance
     // contribution to the input exclusive channel
 
     bool is_delta = utils::res::IsDelta(res);
@@ -240,38 +278,126 @@ public:
     return 0;
   }
   //__________________________________________________________________________
-  // The values of resonance branching ratio is taken from 
-  //  K.A. Olive et al. (Particle Data Group), Chin. Phys. C, 38, 090001 (2014)
-  static double BranchingRatio(SppChannel_t /*channel*/, Resonance_t res)
+  static double Isospin3Coefficients(SppChannel_t channel)
+  {
+    // return the isospin coefficients for the channel
+    // with final state isospin = 3/2
+
+    // [p,n,pi+,pi0,pi-]
+    switch (channel) {
+
+      //-- v CC
+      case (kSpp_vp_cc_10100) : return  kSqrt3;
+      case (kSpp_vn_cc_10010) : return -kSqrt2_3;
+      case (kSpp_vn_cc_01100) : return  k1_Sqrt3;
+
+      //-- v NC
+      case (kSpp_vp_nc_10010) : return  kSqrt2_3;
+      case (kSpp_vp_nc_01100) : return -k1_Sqrt3;
+      case (kSpp_vn_nc_01010) : return  kSqrt2_3;
+      case (kSpp_vn_nc_10001) : return  k1_Sqrt3;
+
+
+
+      //-- vbar CC
+      case (kSpp_vbn_cc_01001): return  kSqrt3;
+      case (kSpp_vbp_cc_01010): return -kSqrt2_3;
+      case (kSpp_vbp_cc_10001): return  k1_Sqrt3;
+                                
+      //-- vbar NC              
+      case (kSpp_vbp_nc_10010): return  kSqrt2_3;
+      case (kSpp_vbp_nc_01100): return -k1_Sqrt3;
+      case (kSpp_vbn_nc_01010): return  kSqrt2_3;
+      case (kSpp_vbn_nc_10001): return  k1_Sqrt3;
+
+      default : return 0;
+    }
+
+  }
+  //__________________________________________________________________________
+  static double Isospin1Coefficients(SppChannel_t channel)
+  {
+    // return the isospin coefficients for the channel
+    // with final state isospin = 1/2
+
+    // [p,n,pi+,pi0,pi-]
+    switch (channel) {
+
+      //-- v CC
+      case (kSpp_vp_cc_10100) : return  0.;
+      case (kSpp_vn_cc_10010) : return  k1_Sqrt3;
+      case (kSpp_vn_cc_01100) : return  kSqrt2_3;
+
+      //-- v NC
+      case (kSpp_vp_nc_10010) : return -k1_Sqrt3;
+      case (kSpp_vp_nc_01100) : return -kSqrt2_3;
+      case (kSpp_vn_nc_01010) : return  k1_Sqrt3;
+      case (kSpp_vn_nc_10001) : return -kSqrt2_3;
+
+
+
+      //-- vbar CC
+      case (kSpp_vbn_cc_01001): return  0.;
+      case (kSpp_vbp_cc_01010): return  k1_Sqrt3;
+      case (kSpp_vbp_cc_10001): return  kSqrt2_3;
+                                
+      //-- vbar NC              
+      case (kSpp_vbp_nc_10010): return -k1_Sqrt3;
+      case (kSpp_vbp_nc_01100): return -kSqrt2_3;
+      case (kSpp_vbn_nc_01010): return  k1_Sqrt3;
+      case (kSpp_vbn_nc_10001): return -kSqrt2_3;
+
+      default : return 0;
+    }
+
+  }
+  //__________________________________________________________________________
+  static double BranchingRatio(SppChannel_t channel, Resonance_t res)
   {
     // return the BR for the decay of the input resonance to the final state
     // hadronic system of the input exclusive channel.
 
     // get list of TDecayChannels, match one with the input channel and get
     // the branching ratio.
-
-    switch(res) {
-      case kP33_1232  : return 0.994; break;
-      case kS11_1535  : return 0.450; break;
-      case kD13_1520  : return 0.600; break; // REMOVE HARDCODED DATA FROM
-      case kS11_1650  : return 0.700; break; // HERE AND GET BR's from PDG
-      case kD13_1700  : return 0.120; break; // TABLES via TDatabasePDG
-      case kD15_1675  : return 0.400; break;
-      case kS31_1620  : return 0.250; break;
-      case kD33_1700  : return 0.150; break;
-      case kP11_1440  : return 0.650; break;
-      case kP33_1600  : return 0.175; break;
-      case kP13_1720  : return 0.110; break;
-      case kF15_1680  : return 0.675; break;
-      case kP31_1910  : return 0.225; break;
-      case kP33_1920  : return 0.125; break;
-      case kF35_1905  : return 0.120; break;
-      case kF37_1950  : return 0.400; break;
-      case kP11_1710  : return 0.125; break;
-      case kF17_1970  : return 0.150; break;
-      default: break;
+    static double cache[14][18]; //18 resonances, 14 channels
+    
+    if (channel != kSppNull)
+    {
+      double BR = cache[channel-1][res];
+      if (BR != 0)
+         return BR;
+      
+      PDGLibrary * pdglib = PDGLibrary::Instance();
+      int Q = SppChannel::ResonanceCharge(channel);
+      int pdg = genie::utils::res::PdgCode(res, Q);
+      TParticlePDG * res_pdg = pdglib->Find( pdg );
+      if (res_pdg != 0)
+      {
+        for (int nch = 0; nch < res_pdg->NDecayChannels(); nch++)
+        {
+          TDecayChannel * ch = res_pdg->DecayChannel(nch);
+          if (ch->NDaughters() == 2)
+          {
+            int first_daughter_pdg  = ch->DaughterPdgCode (0);
+            int second_daughter_pdg = ch->DaughterPdgCode (1);
+            if ((first_daughter_pdg == FinStateNucleon(channel) && second_daughter_pdg == FinStatePion(channel)) ||
+                (first_daughter_pdg == FinStatePion(channel) && second_daughter_pdg == FinStateNucleon(channel)))
+            {
+               BR = ch->BranchingRatio();
+               break;
+            }      
+          }
+        }
+        cache[channel-1][res] = BR;
+        return BR;
+      }
     }
-    return 0;
+  
+    // should not be here - meaningless to return anything
+    gAbortingInErr = true;
+    LOG("SppChannel", pFATAL) << "Unknown resonance " << res;
+    exit(1);
+ 
   }
   //__________________________________________________________________________
   static SppChannel_t FromInteraction(const Interaction * interaction)

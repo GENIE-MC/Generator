@@ -8,7 +8,7 @@
 
 \ref      Berger, Sehgal Phys. Rev. D76, 113004 (2007) \n
           Kuzmin, Lyubushkin, Naumov Mod. Phys. Lett. A19 (2004) 2815 \n
-	  D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
+          D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
           and Single Pion Production, Ann.Phys.133, 79 (1981) \n
 
           Modifications based on a MiniBooNE tune courtesy of J. Nowak, S.Dytman
@@ -21,6 +21,10 @@
 
           Gabe Perdue
           Fermilab
+          
+          Igor Kakorin <kakorin@inr.ru>
+          Joint Institute for Nuclear Research 
+          
 
           Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
@@ -43,7 +47,6 @@
 namespace genie {
 
   class RSHelicityAmplModelI;
-  class Spline;
   class XSecIntegratorI;
 
   class BSKLNBaseRESPXSec2014: public XSecAlgorithmI {
@@ -86,7 +89,6 @@ namespace genie {
       double   fSin48w;            ///< sin^4(Weingberg angle)
       double   fVud2;              ///< |Vud|^2(square of magnitude ud-element of CKM-matrix)
       bool     fUsingDisResJoin;   ///< use a DIS/RES joining scheme?
-      bool     fUsingNuTauScaling; ///< use NeuGEN nutau xsec reduction factors?
       double   fWcut;              ///< apply DIS/RES joining scheme < Wcut
       double   fN2ResMaxNWidths;   ///< limits allowed phase space for n=2 res
       double   fN0ResMaxNWidths;   ///< limits allowed phase space for n=0 res

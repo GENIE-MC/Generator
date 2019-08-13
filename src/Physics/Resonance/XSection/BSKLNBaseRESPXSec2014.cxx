@@ -12,6 +12,10 @@
 
           Adi Ashkenazi <adishka \at gmail.com>
           Massachusetts Institute of Technology
+          
+          Igor Kakorin <kakorin@jinr.ru>
+          Joint Institute for Nuclear Research 
+          
 
  @ July 4, 2018 - Afroditi Papadopoulou
    For electromagnetic (EM) interactions, the weak g2 was still used for the
@@ -32,7 +36,6 @@
 #include "Framework/Conventions/KineVar.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/Numerical/Spline.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"

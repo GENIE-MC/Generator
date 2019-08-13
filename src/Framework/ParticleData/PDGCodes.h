@@ -11,6 +11,9 @@
 
           Changes required to implement the GENIE Boosted Dark Matter module
           were installed by Josh Berger (Univ. of Wisconsin)
+          
+          Updates of resonance pdg-codes were made by Igor Kakorin <kakorin@jinr.ru>
+          Joint Institute for Nuclear Research 
 
 \created  May 06, 2004
 
@@ -85,53 +88,58 @@ const int kPdgSigma0c          =  4112; // Sigma0_{c}
 const int kPdgSigmaPc          =  4212; // Sigma+_{c}
 const int kPdgSigmaPPc         =  4222; // Sigma++_{c}
 
-const int kPdgP33m1232_DeltaM  =  1114; // P33(1232) Delta-
-const int kPdgP33m1232_Delta0  =  2114; // P33(1232) Delta0
-const int kPdgP33m1232_DeltaP  =  2214; // P33(1232) Delta+
-const int kPdgP33m1232_DeltaPP =  2224; // P33(1232) Delta++
-const int kPdgS11m1535_N0      = 22112; // S11(1535) N0
-const int kPdgS11m1535_NP      = 22212; // S11(1535) N+
-const int kPdgD13m1520_N0      =  1214; // D13(1520) N0
-const int kPdgD13m1520_NP      =  2124; // D13(1520) N+
-const int kPdgS11m1650_N0      = 32112; // S11(1650) N0
-const int kPdgS11m1650_NP      = 32212; // S11(1650) N+
-const int kPdgD13m1700_N0      = 21214; // D13(1700) N0
-const int kPdgD13m1700_NP      = 22124; // D13(1700) N+
-const int kPdgD15m1675_N0      =  2116; // D15(1675) N0
-const int kPdgD15m1675_NP      =  2216; // D15(1675) N+
-const int kPdgS31m1620_DeltaM  =  1112; // S31(1620) Delta-
-const int kPdgS31m1620_Delta0  =  1212; // S31(1620) Delta0
-const int kPdgS31m1620_DeltaP  =  2122; // S31(1620) Delta+
-const int kPdgS31m1620_DeltaPP =  2222; // S31(1620) Delta++
-const int kPdgD33m1700_DeltaM  = 11114; // D33(1700) Delta-
-const int kPdgD33m1700_Delta0  = 12114; // D33(1700) Delta0
-const int kPdgD33m1700_DeltaP  = 12214; // D33(1700) Delta+
-const int kPdgD33m1700_DeltaPP = 12224; // D33(1700) Delta++
-const int kPdgP11m1440_N0      = 12112; // P11(1440) N0
-const int kPdgP11m1440_NP      = 12212; // P11(1440) N+
-const int kPdgP13m1720_N0      = 31214; // P13(1720) N0
-const int kPdgP13m1720_NP      = 32124; // P13(1720) N+
-const int kPdgF15m1680_N0      = 12116; // F15(1680) N0
-const int kPdgF15m1680_NP      = 12216; // F15(1680) N+
-const int kPdgP31m1910_DeltaM  = 21112; // P31(1910) Delta-
-const int kPdgP31m1910_Delta0  = 21212; // P31(1910) Delta0
-const int kPdgP31m1910_DeltaP  = 22122; // P31(1910) Delta+
-const int kPdgP31m1910_DeltaPP = 22222; // P31(1910) Delta++
-const int kPdgP33m1920_DeltaM  = 21114; // P33(1920) Delta-
-const int kPdgP33m1920_Delta0  = 22114; // P33(1920) Delta0
-const int kPdgP33m1920_DeltaP  = 22214; // P33(1920) Delta+
-const int kPdgP33m1920_DeltaPP = 22224; // P33(1920) Delta++
-const int kPdgF35m1905_DeltaM  =  1116; // F35(1905) Delta-
-const int kPdgF35m1905_Delta0  =  1216; // F35(1905) Delta0
-const int kPdgF35m1905_DeltaP  =  2126; // F35(1905) Delta+
-const int kPdgF35m1905_DeltaPP =  2226; // F35(1905) Delta++
-const int kPdgF37m1950_DeltaM  =  1118; // F37(1950) Delta-
-const int kPdgF37m1950_Delta0  =  2118; // F37(1950) Delta0
-const int kPdgF37m1950_DeltaP  =  2218; // F37(1950) Delta+
-const int kPdgF37m1950_DeltaPP =  2228; // F37(1950) Delta++
-const int kPdgP11m1710_N0      = 42112; // P11(1710) N0
-const int kPdgP11m1710_NP      = 42212; // P11(1710) N+
-
+const int kPdgP33m1232_DeltaM  =   1114; // P33(1232) Delta-(1232)
+const int kPdgP33m1232_Delta0  =   2114; // P33(1232) Delta0(1232)
+const int kPdgP33m1232_DeltaP  =   2214; // P33(1232) Delta+(1232)
+const int kPdgP33m1232_DeltaPP =   2224; // P33(1232) Delta++(1232)
+const int kPdgS11m1535_N0      = 102112; // S11(1535) N0(1535)
+const int kPdgS11m1535_NP      = 102212; // S11(1535) N+(1535)
+const int kPdgD13m1520_N0      = 102114; // D13(1520) N0(1520)
+const int kPdgD13m1520_NP      = 102214; // D13(1520) N+(1520)
+const int kPdgS11m1650_N0      = 132112; // S11(1650) N0(1650)
+const int kPdgS11m1650_NP      = 132212; // S11(1650) N+(1650)
+const int kPdgD13m1700_N0      = 112114; // D13(1700) N0(1700)
+const int kPdgD13m1700_NP      = 112214; // D13(1700) N+(1700)
+const int kPdgD15m1675_N0      = 102116; // D15(1675) N0(1675)
+const int kPdgD15m1675_NP      = 102216; // D15(1675) N+(1675)
+const int kPdgS31m1620_DeltaM  = 111112; // S31(1620) Delta-(1620)
+const int kPdgS31m1620_Delta0  = 112112; // S31(1620) Delta0(1620)
+const int kPdgS31m1620_DeltaP  = 112212; // S31(1620) Delta+(1620)
+const int kPdgS31m1620_DeltaPP = 112222; // S31(1620) Delta++(1620)
+const int kPdgD33m1700_DeltaM  = 121114; // D33(1700) Delta-(1700)
+const int kPdgD33m1700_Delta0  = 122114; // D33(1700) Delta0(1700)
+const int kPdgD33m1700_DeltaP  = 122214; // D33(1700) Delta+(1700)
+const int kPdgD33m1700_DeltaPP = 122224; // D33(1700) Delta++(1700)
+const int kPdgP11m1440_N0      = 202112; // P11(1440) N0(1440)
+const int kPdgP11m1440_NP      = 202212; // P11(1440) N+(1440)
+const int kPdgP33m1600_DeltaM  = 211114; // P33(1600) Delta-(1600) 
+const int kPdgP33m1600_Delta0  = 212114; // P33(1600) Delta0(1600)
+const int kPdgP33m1600_DeltaP  = 212214; // P33(1600) Delta+(1600)
+const int kPdgP33m1600_DeltaPP = 212224; // P33(1600) Delta++(1600)
+const int kPdgP13m1720_N0      = 202114; // P13(1720) N0(1720)
+const int kPdgP13m1720_NP      = 202214; // P13(1720) N+(1720)
+const int kPdgF15m1680_N0      = 202116; // F15(1680) N0(1680)
+const int kPdgF15m1680_NP      = 202216; // F15(1680) N+(1680)
+const int kPdgP31m1910_DeltaM  = 221112; // P31(1910) Delta-(1910)
+const int kPdgP31m1910_Delta0  = 222112; // P31(1910) Delta0(1910)
+const int kPdgP31m1910_DeltaP  = 222212; // P31(1910) Delta+(1910)
+const int kPdgP31m1910_DeltaPP = 222222; // P31(1910) Delta++(1910)
+const int kPdgP33m1920_DeltaM  = 221114; // P33(1920) Delta-(1920)
+const int kPdgP33m1920_Delta0  = 222114; // P33(1920) Delta0(1920)
+const int kPdgP33m1920_DeltaP  = 222214; // P33(1920) Delta+(1920)
+const int kPdgP33m1920_DeltaPP = 222224; // P33(1920) Delta++(1920)
+const int kPdgF35m1905_DeltaM  = 211116; // F35(1905) Delta-(1905)
+const int kPdgF35m1905_Delta0  = 212116; // F35(1905) Delta0(1905)
+const int kPdgF35m1905_DeltaP  = 212216; // F35(1905) Delta+(1905)
+const int kPdgF35m1905_DeltaPP = 212226; // F35(1905) Delta++(1905)
+const int kPdgF37m1950_DeltaM  = 201118; // F37(1950) Delta-(1950)
+const int kPdgF37m1950_Delta0  = 202118; // F37(1950) Delta0(1950)
+const int kPdgF37m1950_DeltaP  = 202218; // F37(1950) Delta+(1950)
+const int kPdgF37m1950_DeltaPP = 202228; // F37(1950) Delta++(1950)
+const int kPdgP11m1710_N0      = 212112; // P11(1710) N0(1710)
+const int kPdgP11m1710_NP      = 212212; // P11(1710) N+(1710)
+const int kPdgF17m1970_N0      = 212118; // F17(1970) N0(1990)
+const int kPdgF17m1970_NP      = 212218; // F17(1970) N+(1990)
 const int kPdgPiP              =   211; // pi+
 const int kPdgPiM              =  -211; // pi-
 const int kPdgPi0              =   111; // pi0
@@ -184,16 +192,19 @@ const int kPdgTgtFe56      = 1000260560;
 //
 // PDG codes for GENIE special particles
 //
-const int kPdgHadronicSyst    = 2000000001; // DIS hadronic system before hadronization
-const int kPdgHadronicBlob    = 2000000002; // Unmodelled fraction of the hadronic system
-const int kPdgBindino         = 2000000101; // Binding energy subtracted from f/s nucleons
-const int kPdgCoulobtron      = 2000000102; // Coulomb energy subtracted from f/s leptons
-const int kPdgClusterNN       = 2000000200; // A nn cluster within a nucleus
-const int kPdgClusterNP       = 2000000201; // A np cluster within a nucleus
-const int kPdgClusterPP       = 2000000202; // A pp cluster within a nucleus
-const int kPdgCompNuclCluster = 2000000300; // Nucleon cluster before phase decay 
-const int kPdgDarkMatter      = 2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
-const int kPdgMediator        = 2000010001; // Mediator particle for GENIE Boosted Dark Matter mode
+const int kPdgHadronicSyst      = 2000000001; // DIS hadronic system before hadronization
+const int kPdgHadronicBlob      = 2000000002; // Unmodelled fraction of the hadronic system
+const int kPdgBindino           = 2000000101; // Binding energy subtracted from f/s nucleons
+const int kPdgCoulobtron        = 2000000102; // Coulomb energy subtracted from f/s leptons
+const int kPdgProbableParticleP = 2000000103; // Quasi-particle with charge +1 to conserve probability in the decay channel
+const int kPdgProbableParticle0 = 2000000104; // Quasi-particle with charge  0 to conserve probability in the decay channel
+const int kPdgProbableParticleM = 2000000105; // Quasi-particle with charge -1 to conserve probability in the decay channel
+const int kPdgClusterNN         = 2000000200; // A nn cluster within a nucleus
+const int kPdgClusterNP         = 2000000201; // A np cluster within a nucleus
+const int kPdgClusterPP         = 2000000202; // A pp cluster within a nucleus
+const int kPdgCompNuclCluster   = 2000000300; // Nucleon cluster before phase decay 
+const int kPdgDarkMatter        = 2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
+const int kPdgMediator          = 2000010001; // Mediator particle for GENIE Boosted Dark Matter mode
 
 //
 // PDG codes for special particles used by external generators interfaced with GENIE
