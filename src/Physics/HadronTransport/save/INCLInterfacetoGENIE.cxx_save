@@ -1,5 +1,3 @@
-#ifdef GOPT_ENABLE_INCL
-
 //#include "G4INCLConfig.hh"
 //#include "G4AblaInterface.hh"
 
@@ -10,9 +8,7 @@
 //#include "G4INCLConfigEnums.hh"
 //#include <vector>
 //#include "G4INCLConfig.hh"
-
-#include "INCLConfigParser.hh"
-
+#include "ConfigParser.hh"
 //#include <iostream>
 //#include <iomanip>
 //#include <string>
@@ -51,26 +47,21 @@ G4INCL::Config *INCLInterfacetoGENIE::setINCLConfig() {
   // can't legally initialize "char *" from string constant
   const char * test[] = {"NULL","-pp","-tFe56","-N100","-E100","-dabla07"};
   int argcc = 6;
-  INCLConfigParser theParser;
+  ConfigParser theParser;
 
   // RWH throw away above const-ness
-  LOG("INCLInterfacetoGENIE", pDEBUG) << "create theConfig";
   G4INCL::Config *aConfig=theParser.parse(argcc,(char**)test);
   theConfig = aConfig;
   return theConfig;
-
 }
 
 G4INCL::INCL *INCLInterfacetoGENIE::GetINCLModel() {
   if ( ! theINCLModel ) {
 
     //   G4INCL::Config *aConfig = new G4INCL::Config(theConfig);
-    LOG("INCLInterfacetoGENIE", pDEBUG) << "GetINCLModel new G4INCL::INCL";
     setINCLConfig();
     theINCLModel = new G4INCL::INCL(theConfig);
     // ownership of the aConfig object is taken over by the INCL model engine
   }
   return theINCLModel;
 }
-
-#endif // __GENIE_INCL_ENABLED__

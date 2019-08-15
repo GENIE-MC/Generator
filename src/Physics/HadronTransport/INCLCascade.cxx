@@ -182,7 +182,8 @@ int INCLCascade::doCascade(int nflags, const char * flags[],
 
   INCLConfigParser theParser;
   // cast away const-ness for the flags
-  std::cerr << "==RWH== INCLCascade::doCascade create theConfig" << std::endl;
+  LOG("INCLCascade", pDEBUG)
+    << "doCascade create theConfig";
   G4INCL::Config *theConfig = theParser.parse(nflags,(char**)flags);
 
   if ( ! theConfig ) return 0;
@@ -192,7 +193,8 @@ int INCLCascade::doCascade(int nflags, const char * flags[],
 #endif
 
   if ( ! theINCLModel ) {
-    std::cerr << "==RWH== INCLCascade::doCascade new G4INCL::INCL" << std::endl;
+    LOG("INCLCascade", pDEBUG)
+      << "doCascade new G4INCL::INCL";
     theINCLModel = new G4INCL::INCL(theConfig);
   }
 
@@ -345,7 +347,8 @@ void INCLCascade::TransportHadrons(GHepRecord * evrec) const{
   int nflags = 6;
   INCLConfigParser theParser;
   // cast away const-ness for the flags
-  std::cerr << "==RWH== INCLCascade::TransportHadrons create theConfig" << std::endl;
+  LOG("INCLCascade", pDEBUG)
+    << "TransportHadrons create theConfig";
   G4INCL::Config *theConfig = theParser.parse(nflags,(char**)flags);
 
 #ifdef INCL_SIGNAL_HANDLING
@@ -354,12 +357,14 @@ void INCLCascade::TransportHadrons(GHepRecord * evrec) const{
 
   // Create the INCL- Model at the first Use.
   if ( ! theINCLModel ) {
-    std::cerr << "==RWH== INCLCascade::TransportHadrons new G4INCL::INCL" << std::endl;
+    LOG("INCLCascade", pDEBUG)
+      << "TransportHadrons new G4INCL::INCL";
     theINCLModel = new G4INCL::INCL(theConfig);
   }
 
   if ( ! theDeExcitation) {
-    std::cerr << "==RWH== INCLCascade::TransportHadrons new ABLA07CXX for DeExcitation" << std::endl;
+    LOG("INCLCascade", pDEBUG)
+      << "TransportHadrons new ABLA07CXX for DeExcitation";
     theDeExcitation = new ABLA07CXX::Abla07Interface(theConfig);
   }
 
@@ -376,7 +381,6 @@ void INCLCascade::TransportHadrons(GHepRecord * evrec) const{
   TLorentzVector p4tgf(p_4->Px(),p_4->Py(),p_4->Pz(),0.0);
 
    // Loop over GHEP and run intranuclear rescattering on handled particles
-  // ?? rwh //
   std::vector<G4INCL::EventInfo>ListeOfINCLresult;
   std::vector<int> Postion_evrec;
   GHepParticle * fsl = evrec->FinalStatePrimaryLepton();  // primary Lepton
