@@ -1,3 +1,6 @@
+#include "Framework/Conventions/GBuild.h"
+#ifdef __GENIE_INCL_ENABLED__
+
 #ifndef INCLConvertParticle_hh
 #define INCLConvertParticle_hh 1
 
@@ -9,7 +12,7 @@
 #include "G4INCLConfig.hh"
 
 // GENIE
-#include "INCLConfigParser.h"
+//#include "INCLConfigParser.h"
 
 #include "G4INCLConfigEnums.hh"
 
@@ -98,3 +101,5 @@ namespace G4INCL {
 
 }
 #endif
+
+#endif // __GENIE_INCL_ENABLED__

@@ -1,12 +1,23 @@
-/** \file ConfigParser.hh
- * \brief A class for parsing input and producing a Config
+#include "Framework/Conventions/GBuild.h"
+#ifdef __GENIE_INCL_ENABLED__
+
+/** \file INCLConfigParser.h
+ * \brief A class for parsing input and producing a INCL++ Config
+ *        Copied from INC++ main
+ *  class name can't be changed from "ConfigParser" to "INCLConfigParser"
+ *  due to code in $INCL_SRC_DIR/utils/include/G4INCLConfig.hh:
+ *       friend class ::ConfigParser;
+ *  and this code needs the access to the private data members
+ *  By default copy of the class isn't compiled into any available INC++ library
+ *  so we're stuck with the name for the class, but we'll leave the
+ *  filename changed to indicate that it references INCL++
  *
  * \date 17th July 2014
  * \author Davide Mancusi
  */
 
-#ifndef CONFIGPARSER_HH_
-#define CONFIGPARSER_HH_
+#ifndef INCLCONFIGPARSER_HH_
+#define INCLCONFIGPARSER_HH_
 
 #ifdef HAS_BOOST_PROGRAM_OPTIONS
 
@@ -22,7 +33,7 @@ namespace po = boost::program_options;
 
 class ConfigParser {
   public:
-    ConfigParser();
+     ConfigParser();
     ~ConfigParser();
 
     G4INCL::Config *parse(int argc, char *argv[]);
@@ -68,6 +79,10 @@ class ConfigParser {
     std::string echoOptionsDescription(const po::options_description &aDesc);
 };
 
+typedef ConfigParser INCLConfigParser;
+
 #endif // HAS_BOOST_PROGRAM_OPTIONS
 
-#endif // CONFIGPARSER_HH_
+#endif // INCLCONFIGPARSER_HH_
+
+#endif // __GENIE_INCL_ENABLED__

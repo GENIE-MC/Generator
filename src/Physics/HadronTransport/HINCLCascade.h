@@ -1,9 +1,13 @@
+#include "Framework/Conventions/GBuild.h"
+#ifdef __GENIE_INCL_ENABLED__
+
 #ifndef _HINCL_test_H_
 #define _HINCL_test_H_
 
+// ROOT
+#include "TGenPhaseSpace.h"
 
-#include <TGenPhaseSpace.h>
-
+// GENIE
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
@@ -32,3 +36,5 @@ public :
 };
 }
 #endif
+
+#endif // __GENIE_INCL_ENABLED__

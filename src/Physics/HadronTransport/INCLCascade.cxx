@@ -1,3 +1,6 @@
+#include "Framework/Conventions/GBuild.h"
+#ifdef __GENIE_INCL_ENABLED__
+
 //---------------------
 #include <iostream>
 #include <iomanip>
@@ -36,6 +39,7 @@
 #include "HINCLCascade.h"
 #include "INCLCascade.h"
 
+// INCL++
 #include "G4INCLVersion.hh"
 #include "G4INCLUnorderedVector.hh"
 #include "G4INCLStore.hh"
@@ -48,6 +52,8 @@
 
 // GENIE
 #include "INCLConfigParser.h"
+// INCL++
+//#include "ConfigParser.hh"
 
 // signal handler (for Linux and GCC)
 #include "G4INCLSignalHandling.hh"
@@ -174,8 +180,9 @@ INCLCascade::~INCLCascade()
 int INCLCascade::doCascade(int nflags, const char * flags[],
                            GHepRecord * evrec) const {
 
-  ConfigParser theParser;
+  INCLConfigParser theParser;
   // cast away const-ness for the flags
+  std::cerr << "==RWH== INCLCascade::doCascade create theConfig" << std::endl;
   G4INCL::Config *theConfig = theParser.parse(nflags,(char**)flags);
 
   if ( ! theConfig ) return 0;
@@ -185,6 +192,7 @@ int INCLCascade::doCascade(int nflags, const char * flags[],
 #endif
 
   if ( ! theINCLModel ) {
+    std::cerr << "==RWH== INCLCascade::doCascade new G4INCL::INCL" << std::endl;
     theINCLModel = new G4INCL::INCL(theConfig);
   }
 
@@ -335,8 +343,9 @@ void INCLCascade::TransportHadrons(GHepRecord * evrec) const{
                            "-E1",
                            "-dabla07" };
   int nflags = 6;
-  ConfigParser theParser;
+  INCLConfigParser theParser;
   // cast away const-ness for the flags
+  std::cerr << "==RWH== INCLCascade::TransportHadrons create theConfig" << std::endl;
   G4INCL::Config *theConfig = theParser.parse(nflags,(char**)flags);
 
 #ifdef INCL_SIGNAL_HANDLING
@@ -344,9 +353,13 @@ void INCLCascade::TransportHadrons(GHepRecord * evrec) const{
 #endif
 
   // Create the INCL- Model at the first Use.
-  if ( ! theINCLModel ) theINCLModel = new G4INCL::INCL(theConfig);
+  if ( ! theINCLModel ) {
+    std::cerr << "==RWH== INCLCascade::TransportHadrons new G4INCL::INCL" << std::endl;
+    theINCLModel = new G4INCL::INCL(theConfig);
+  }
 
   if ( ! theDeExcitation) {
+    std::cerr << "==RWH== INCLCascade::TransportHadrons new ABLA07CXX for DeExcitation" << std::endl;
     theDeExcitation = new ABLA07CXX::Abla07Interface(theConfig);
   }
 
@@ -593,3 +606,4 @@ void INCLCascade::Configure(string param_set) {
   this->LoadConfig();
 }
 
+#endif // __GENIE_INCL_ENABLED__

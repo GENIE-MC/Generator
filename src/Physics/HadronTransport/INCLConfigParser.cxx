@@ -1,12 +1,19 @@
-/** \file ConfigParser.cc
- * \brief A class for parsing input and producing a Config
+#include "Framework/Conventions/GBuild.h"
+#ifdef __GENIE_INCL_ENABLED__
+
+/** \file ConfigParser.cxx
+ * \brief A class for parsing input and producing a INCL++ Config
+ *        Copied from INC++ main
+ * see ConfigParser.h for more information
  *
  * \date 17th July 2014
  * \author Davide Mancusi
  */
 
 #ifdef HAS_BOOST_PROGRAM_OPTIONS
-#include "ConfigParser.hh"
+//#include "ConfigParser.hh"  // this would be INCL copy of header
+#include "INCLConfigParser.h"  // GENIE copy
+
 #include "G4INCLLogger.hh"
 #include "G4INCLParticleTable.hh"
 #include "DatafilePaths.hh"
@@ -36,7 +43,7 @@ const std::string ConfigParser::theABLA07Name = "ABLA07";
 
 const std::string ConfigParser::listSeparator = "\n  \t";
 
-ConfigParser::ConfigParser() : 
+ConfigParser::ConfigParser() :
   runOptDesc("Run options"),
   hiddenOptDesc("Hidden options"),
   genericOptDesc("Generic options"),
@@ -938,3 +945,4 @@ std::string ConfigParser::echoOptionsDescription(const po::options_description &
 }
 #endif
 
+#endif // __GENIE_INCL_ENABLED__

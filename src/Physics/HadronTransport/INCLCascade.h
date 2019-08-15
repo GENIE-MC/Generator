@@ -1,3 +1,6 @@
+#include "Framework/Conventions/GBuild.h"
+#ifdef __GENIE_INCL_ENABLED__
+
 #ifndef _INCL_test_H_
 #define _INCL_test_H_
 
@@ -70,4 +73,4 @@ namespace genie {
 }
 
 #endif
-
+#endif // __GENIE_INCL_ENABLED__

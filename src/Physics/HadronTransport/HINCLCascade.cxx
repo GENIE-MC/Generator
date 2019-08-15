@@ -1,3 +1,6 @@
+#include "Framework/Conventions/GBuild.h"
+#ifdef __GENIE_INCL_ENABLED__
+
 #include <cstdlib>
 #include <sstream>
 
@@ -19,9 +22,8 @@
 #include "G4INCLIAvatar.hh"
 #include "G4INCLCascade.hh"
 #include "G4INCLConfigEnums.hh"
-#include "DatafilePaths.hh" 
+#include "DatafilePaths.hh"
 #include "G4INCLParticle.hh"
-
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Algorithm/AlgFactory.h"
@@ -102,5 +104,7 @@ void HINCLCascade::ProcessEventRecord(GHepRecord * evrec) const{
 
 void HINCLCascade::LoadConfig(void)
 {
-  LOG("HINCLCAscade", pINFO) << "Settings for INCL++ mode: " ;
+  LOG("HINCLCascade", pINFO) << "Settings for INCL++ mode: " ;
  }
+
+#endif // __GENIE_INCL_ENABLED__
