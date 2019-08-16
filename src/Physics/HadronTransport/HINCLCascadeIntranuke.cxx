@@ -36,8 +36,9 @@
 #include "G4INCLKinematicsUtils.hh"
 
 // GENIE
-#include "HINCLCascade.h"
-#include "INCLCascade.h"
+//#include "HINCLCascade.h"
+//#include "INCLCascade.h"
+#include "HINCLCascadeIntranuke.h"
 
 // INCL++
 #include "G4INCLVersion.hh"
@@ -153,39 +154,52 @@ using std::ostringstream;
 using namespace std;
 
 
-INCLCascade::INCLCascade() :
+HINCLCascadeIntranuke::HINCLCascadeIntranuke() :
   EventRecordVisitorI(), theINCLModel(0), theDeExcitation(0)
 {
 
 }
 
 //______________________________________________________________________________
-INCLCascade::INCLCascade(string name) :
+HINCLCascadeIntranuke::HINCLCascadeIntranuke(string name) :
   EventRecordVisitorI(name), theINCLModel(0), theDeExcitation(0)
 {
 
 }
 
 //______________________________________________________________________________
-INCLCascade::INCLCascade(string name, string config) :
+HINCLCascadeIntranuke::HINCLCascadeIntranuke(string name, string config) :
   EventRecordVisitorI(name, config), theINCLModel(0), theDeExcitation(0)
 {
 
 }
 
 //______________________________________________________________________________
-INCLCascade::~INCLCascade()
+HINCLCascadeIntranuke::~HINCLCascadeIntranuke()
 {
 
 }
 
 //______________________________________________________________________________
-int INCLCascade::doCascade(int nflags, const char * flags[],
+void HINCLCascadeIntranuke::LoadConfig(void)
+{
+  LOG("HINCLCascadeIntranuke", pINFO) << "Settings for INCL++ mode: " ;
+
+  std::string pflag;
+  GetParamDef( "INCL-pflag", pflag, std::string("-pdefault"));
+
+  LOG("HINCLCascadeIntranuke", pINFO)
+               << "INCL-pflag returned: '" << pflag << "'";
+
+}
+
+//______________________________________________________________________________
+int HINCLCascadeIntranuke::doCascade(int nflags, const char * flags[],
                            GHepRecord * evrec) const {
 
   INCLConfigParser theParser;
   // cast away const-ness for the flags
-  LOG("INCLCascade", pDEBUG)
+  LOG("HINCLCascadeIntranuke", pDEBUG)
     << "doCascade create theConfig";
   G4INCL::Config *theConfig = theParser.parse(nflags,(char**)flags);
 
@@ -196,7 +210,7 @@ int INCLCascade::doCascade(int nflags, const char * flags[],
 #endif
 
   if ( ! theINCLModel ) {
-    LOG("INCLCascade", pDEBUG)
+    LOG("HINCLCascadeIntranuke", pDEBUG)
       << "doCascade new G4INCL::INCL";
     theINCLModel = new G4INCL::INCL(theConfig);
   }
@@ -265,7 +279,10 @@ int INCLCascade::doCascade(int nflags, const char * flags[],
   return 0;
 }
 
-void INCLCascade::ProcessEventRecord(GHepRecord * evrec) const {
+void HINCLCascadeIntranuke::ProcessEventRecord(GHepRecord * evrec) const {
+
+ LOG("HINCLCascadeIntranuke", pNOTICE)
+     << "************ Running HINCLCascadeIntranuke MODE INTRANUKE ************";
 
   fGMode = evrec->EventGenerationMode();
   if ( fGMode == kGMdHadronNucleus ||
@@ -278,14 +295,15 @@ void INCLCascade::ProcessEventRecord(GHepRecord * evrec) const {
                              "-E1",
                              "-dabla07" };
     int nflags = 6;
-    INCLCascade::doCascade(nflags,flags,evrec);
+    HINCLCascadeIntranuke::doCascade(nflags,flags,evrec);
   } else if ( fGMode == kGMdLeptonNucleus ) {
-    INCLCascade::TransportHadrons(evrec);
+    HINCLCascadeIntranuke::TransportHadrons(evrec);
   }
 
+  LOG("HINCLCascadeIntranuke", pINFO) << "Done with this event";
 }
 
-bool INCLCascade::CanRescatter(const GHepParticle * p) const {
+bool HINCLCascadeIntranuke::CanRescatter(const GHepParticle * p) const {
 
   // checks whether a particle that needs to be rescattered, can in fact be
   // rescattered by this cascade MC
@@ -298,7 +316,7 @@ bool INCLCascade::CanRescatter(const GHepParticle * p) const {
             );
 }
 
-void INCLCascade::TransportHadrons(GHepRecord * evrec) const{
+void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const{
   int inucl = -1;
   if ( fGMode == kGMdHadronNucleus ||
        fGMode == kGMdPhotonNucleus    ) {
@@ -350,7 +368,7 @@ void INCLCascade::TransportHadrons(GHepRecord * evrec) const{
   int nflags = 6;
   INCLConfigParser theParser;
   // cast away const-ness for the flags
-  LOG("INCLCascade", pDEBUG)
+  LOG("HINCLCascadeIntranuke", pDEBUG)
     << "TransportHadrons create theConfig";
   G4INCL::Config *theConfig = theParser.parse(nflags,(char**)flags);
 
@@ -360,13 +378,13 @@ void INCLCascade::TransportHadrons(GHepRecord * evrec) const{
 
   // Create the INCL- Model at the first Use.
   if ( ! theINCLModel ) {
-    LOG("INCLCascade", pDEBUG)
+    LOG("HINCLCascadeIntranuke", pDEBUG)
       << "TransportHadrons new G4INCL::INCL";
     theINCLModel = new G4INCL::INCL(theConfig);
   }
 
   if ( ! theDeExcitation) {
-    LOG("INCLCascade", pDEBUG)
+    LOG("HINCLCascadeIntranuke", pDEBUG)
       << "TransportHadrons new ABLA07CXX for DeExcitation";
     theDeExcitation = new ABLA07CXX::Abla07Interface(theConfig);
   }
@@ -579,14 +597,14 @@ void INCLCascade::TransportHadrons(GHepRecord * evrec) const{
 }
 
 //______________________________________________________________________________
-int INCLCascade::pdgcpiontoA(int pdgc) const {
+int HINCLCascadeIntranuke::pdgcpiontoA(int pdgc) const {
   if      ( pdgc == 2212 || pdgc == 2112 ) return 1;
   else if ( pdgc == 211|| pdgc == -211 || pdgc == 111 ) return 0;
   return 0;  // rwh return something
 }
 
 //______________________________________________________________________________
-int INCLCascade::pdgcpiontoZ(int pdgc) const {
+int HINCLCascadeIntranuke::pdgcpiontoZ(int pdgc) const {
   if      ( pdgc == 2212 || pdgc == 211 ) return 1;
   else if ( pdgc == 2112 || pdgc == 111 ) return 0;
   else if ( pdgc == -211 ) return -1;
@@ -594,7 +612,7 @@ int INCLCascade::pdgcpiontoZ(int pdgc) const {
 }
 
 //______________________________________________________________________________
-bool INCLCascade::NeedsRescattering(const GHepParticle * p) const {
+bool HINCLCascadeIntranuke::NeedsRescattering(const GHepParticle * p) const {
   // checks whether the particle should be rescattered
   assert(p);
   // attempt to rescatter anything marked as 'hadron in the nucleus'
@@ -602,13 +620,13 @@ bool INCLCascade::NeedsRescattering(const GHepParticle * p) const {
 }
 
 //______________________________________________________________________________
-void INCLCascade::Configure(const Registry & config) {
+void HINCLCascadeIntranuke::Configure(const Registry & config) {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 
 //___________________________________________________________________________
-void INCLCascade::Configure(string param_set) {
+void HINCLCascadeIntranuke::Configure(string param_set) {
   Algorithm::Configure(param_set);
   this->LoadConfig();
 }

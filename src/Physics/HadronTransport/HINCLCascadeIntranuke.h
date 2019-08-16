@@ -1,8 +1,8 @@
 #include "Framework/Conventions/GBuild.h"
 #ifdef __GENIE_INCL_ENABLED__
 
-#ifndef _INCLCascade_H_
-#define _INCLCascade_H_
+#ifndef _HINCLCascadeIntranuke_H_
+#define _HINCLCascadeIntranuke_H_
 
 #include <string>
 #include <TGenPhaseSpace.h>
@@ -35,15 +35,14 @@ namespace genie {
   class GHepParticle;
   class INukeHadroData;
   class PDGCodeList;
-  class HINCLCascade;
 
-  class INCLCascade: public EventRecordVisitorI {
+  class HINCLCascadeIntranuke: public EventRecordVisitorI {
 
   public :
-    INCLCascade();
-    INCLCascade(string name);
-    INCLCascade(string name, string config);
-    ~INCLCascade();
+    HINCLCascadeIntranuke();
+    HINCLCascadeIntranuke(string name);
+    HINCLCascadeIntranuke(string name, string config);
+    ~HINCLCascadeIntranuke();
 
     int doCascade(int nflags, const char * flags[], GHepRecord * event_rec) const;
 
@@ -51,6 +50,7 @@ namespace genie {
     int pdgcpiontoZ(int pdgc) const;
 
     // implement the EventRecordVisitorI interface
+    // also the LoadConfig interface
 
     void Configure (const Registry & config);
     void Configure (string param_set);
@@ -58,11 +58,12 @@ namespace genie {
     virtual void ProcessEventRecord(GHepRecord * event_rec) const;
 
   protected:
+    virtual void LoadConfig (void);
+
     bool CanRescatter(const GHepParticle * p) const;
     bool IsInNucleus(const GHepParticle * p) const;
     void TransportHadrons(GHepRecord * evrec) const;
     bool NeedsRescattering(const GHepParticle * p) const;
-    virtual void LoadConfig (void) = 0;
 
     mutable int            fRemnA;         ///< remnant nucleus A
     mutable int            fRemnZ;         ///< remnant nucleus Z
