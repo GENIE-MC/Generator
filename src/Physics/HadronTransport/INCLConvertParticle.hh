@@ -35,8 +35,8 @@ using namespace genie;
 
 namespace G4INCL {
 
-  G4INCL::INCL *theINCLModel;
-  G4INCL::IDeExcitation *theDeExcitation ;
+  // rwh nope-ity-nope // G4INCL::INCL *theINCLModel = 0;
+  // rwh nope-ity-nope //G4INCL::IDeExcitation *theDeExcitation = 0;
 
   // rwh ?? check this
   int INCLpartycleSpecietoPDGCODE(G4INCL::ParticleSpecies theSpecies) {

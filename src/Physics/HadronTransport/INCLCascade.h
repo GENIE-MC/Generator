@@ -1,8 +1,8 @@
 #include "Framework/Conventions/GBuild.h"
 #ifdef __GENIE_INCL_ENABLED__
 
-#ifndef _INCL_test_H_
-#define _INCL_test_H_
+#ifndef _INCLCascade_H_
+#define _INCLCascade_H_
 
 #include <string>
 #include <TGenPhaseSpace.h>
@@ -25,6 +25,10 @@ class TVector3;
 //string kDefOptEvFilePrefix="gntp.inuke";
 
 //using namespace G4INCL;
+namespace G4INCL {
+  class INCL;
+  class IDeExcitation;
+}
 
 namespace genie {
 
@@ -53,7 +57,6 @@ namespace genie {
 
     virtual void ProcessEventRecord(GHepRecord * event_rec) const;
 
-
   protected:
     bool CanRescatter(const GHepParticle * p) const;
     bool IsInNucleus(const GHepParticle * p) const;
@@ -68,6 +71,10 @@ namespace genie {
     mutable GEvGenMode_t   fGMode;
     double       fR0;           ///< effective nuclear size param
     double       fNR;
+
+    mutable G4INCL::INCL *theINCLModel;
+    mutable G4INCL::IDeExcitation *theDeExcitation;
+
   };
 
 }

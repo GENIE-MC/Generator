@@ -154,22 +154,25 @@ using namespace std;
 
 
 INCLCascade::INCLCascade() :
-EventRecordVisitorI()
+  EventRecordVisitorI(), theINCLModel(0), theDeExcitation(0)
 {
 
 }
+
 //______________________________________________________________________________
 INCLCascade::INCLCascade(string name) :
-EventRecordVisitorI(name)
+  EventRecordVisitorI(name), theINCLModel(0), theDeExcitation(0)
 {
 
 }
+
 //______________________________________________________________________________
 INCLCascade::INCLCascade(string name, string config) :
-EventRecordVisitorI(name, config)
+  EventRecordVisitorI(name, config), theINCLModel(0), theDeExcitation(0)
 {
 
 }
+
 //______________________________________________________________________________
 INCLCascade::~INCLCascade()
 {
