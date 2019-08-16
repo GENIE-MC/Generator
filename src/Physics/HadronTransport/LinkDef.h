@@ -23,8 +23,9 @@
 #pragma link C++ class genie::HNIntranuke2018;
 
 #ifdef __GENIE_INCL_ENABLED__
-#pragma link C++ class genie::HINCLCascade;
-#pragma link C++ class genie::INCLCascade;
+//#pragma link C++ class genie::HINCLCascade;
+//#pragma link C++ class genie::INCLCascade;
+#pragma link C++ class genie::HINCLCascadeIntranuke;
 #endif
 
 #endif
