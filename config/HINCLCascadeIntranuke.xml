@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration sets for the HINCLCascadeIntranuke (GENIE-using-INCL++)
+Intranuke EventRecordVisitorI
+-->
+
+  <param_set name="Default">
+
+    <param type="string" name="INCL-infile">  NULL     </param>
+    <param type="string" name="INCL-pflag" > -pp       </param>
+    <param type="string" name="INCL-tflag" > -tFe56    </param>
+    <param type="string" name="INCL-Nflag" > -N1       </param>
+    <param type="string" name="INCL-Eflag" > -E1       </param>
+    <param type="string" name="INCL-dflag" > -dable07  </param>
+
+  </param_set>
+
+</alg_conf>
+

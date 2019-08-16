@@ -40,8 +40,7 @@ namespace genie {
 
   public :
     HINCLCascadeIntranuke();
-    HINCLCascadeIntranuke(string name);
-    HINCLCascadeIntranuke(string name, string config);
+    HINCLCascadeIntranuke(string config);
     ~HINCLCascadeIntranuke();
 
     int doCascade(int nflags, const char * flags[], GHepRecord * event_rec) const;

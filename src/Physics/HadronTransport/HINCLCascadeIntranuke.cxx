@@ -155,23 +155,20 @@ using namespace std;
 
 
 HINCLCascadeIntranuke::HINCLCascadeIntranuke() :
-  EventRecordVisitorI(), theINCLModel(0), theDeExcitation(0)
+  EventRecordVisitorI("genie::HINCLCascadeIntranuke"),
+  theINCLModel(0), theDeExcitation(0)
 {
-
+  LOG("HINCLCascadeIntranuke", pDEBUG)
+    << "default ctor";
 }
 
 //______________________________________________________________________________
-HINCLCascadeIntranuke::HINCLCascadeIntranuke(string name) :
-  EventRecordVisitorI(name), theINCLModel(0), theDeExcitation(0)
+HINCLCascadeIntranuke::HINCLCascadeIntranuke(string config) :
+  EventRecordVisitorI("genie::HINCLCascadeIntranuke", config),
+  theINCLModel(0), theDeExcitation(0)
 {
-
-}
-
-//______________________________________________________________________________
-HINCLCascadeIntranuke::HINCLCascadeIntranuke(string name, string config) :
-  EventRecordVisitorI(name, config), theINCLModel(0), theDeExcitation(0)
-{
-
+  LOG("HINCLCascadeIntranuke", pDEBUG)
+    << "ctor from config " << config;
 }
 
 //______________________________________________________________________________
@@ -186,7 +183,7 @@ void HINCLCascadeIntranuke::LoadConfig(void)
   LOG("HINCLCascadeIntranuke", pINFO) << "Settings for INCL++ mode: " ;
 
   std::string pflag;
-  GetParamDef( "INCL-pflag", pflag, std::string("-pdefault"));
+  GetParamDef( "INCL-pflag", pflag, std::string("-pp"));
 
   LOG("HINCLCascadeIntranuke", pINFO)
                << "INCL-pflag returned: '" << pflag << "'";
@@ -621,12 +618,21 @@ bool HINCLCascadeIntranuke::NeedsRescattering(const GHepParticle * p) const {
 
 //______________________________________________________________________________
 void HINCLCascadeIntranuke::Configure(const Registry & config) {
+
+  LOG("HINCLCascadeIntranuke", pDEBUG)
+    << "Configure from Registry: '" << config.Name() << "'\n"
+    << config;
+
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 
 //___________________________________________________________________________
 void HINCLCascadeIntranuke::Configure(string param_set) {
+
+  LOG("HINCLCascadeIntranuke", pDEBUG)
+    << "Configure from param_set name: " << param_set;
+
   Algorithm::Configure(param_set);
   this->LoadConfig();
 }
