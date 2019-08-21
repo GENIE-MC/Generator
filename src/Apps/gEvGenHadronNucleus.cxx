@@ -259,7 +259,7 @@ const EventRecordVisitorI * GetIntranuke(void)
      sconf = "Default";
 #ifdef __GENIE_INCL_ENABLED__
   } else if ( gOptMode.compare("HINCL") == 0 ) {
-     sname = "genie::HINCLCascade";
+     sname = "genie::HINCLCascadeIntranuke";
      sconf = "Default";
 #endif
   } else {
