@@ -55,9 +55,11 @@ Intranuke EventRecordVisitorI
     <!-- <param type="string" name="INCL-dflag" > -dSMM       </param> -->
     <!-- <param type="string" name="INCL-dflag" > -dnone      </param> -->
 
-
     <!-- pass extra flags the G4INCL::ConfigParser knows about -->
-    <param type="string" name="INCL-extra-flags" >  -v -l xyzzy_extra_flag.log </param>
+    <param type="string" name="INCL-extra-flags" >  </param>
+    <!-- testing purposes
+       <param type="string" name="INCL-extra-flags" >  -v10 -l xyzzy_extra_flag.log </param>
+    -->
 
     <!-- alternative locations for data files that might be needed by models -->
 

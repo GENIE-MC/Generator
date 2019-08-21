@@ -14,8 +14,10 @@
 #include <cstdlib>
 #include <sstream>
 
+// ROOT
 #include "TMath.h"
 
+// INCL++
 #include "G4INCLParticleTable.hh"
 #include "G4INCLGlobals.hh"
 #include "DatafilePaths.hh"
@@ -24,6 +26,7 @@
 // GENIE
 #include "INCLConvertParticle.hh"
 
+// INCL++
 #include "G4INCLCascade.hh"
 #include "G4INCLConfigEnums.hh"
 #include "G4INCLParticle.hh"
@@ -59,7 +62,7 @@
 // signal handler (for Linux and GCC)
 #include "G4INCLSignalHandling.hh"
 
-// For I/O
+// For I/O (INCL++)
 #include "IWriter.hh"
 #include "ASCIIWriter.hh"
 #include "ProtobufWriter.hh"
@@ -140,10 +143,10 @@ namespace bt = boost::timer;
 #include "Framework/ParticleData/PDGCodeList.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/PrintUtils.h"
+#include "Framework/Utils/StringUtils.h"
 #include "Physics/NuclearState/NuclearUtils.h"
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Physics/NuclearState/NuclearModelMap.h"
-
 
 using namespace genie;
 using namespace genie::utils;
@@ -246,6 +249,11 @@ void HINCLCascadeIntranuke::LoadConfig(void)
   // arbitary extra flags, need to be tokenized
   std::string extra_incl_flags;
   GetParamDef( "INCL-extra-flags",  extra_incl_flags,  std::string(""));
+  std::vector<std::string> extraTokens = genie::utils::str::Split(extra_incl_flags," \t\n");
+  for (size_t j=0; j < extraTokens.size(); ++j) {
+    std::string& token = extraTokens[j];
+    flags[nflags] = strdup(token.c_str()); ++nflags;
+  }
 
   LOG("HINCLCascadeIntranuke", pDEBUG)
     << "LoadConfig() create theINCLConfig";
@@ -307,7 +315,7 @@ void HINCLCascadeIntranuke::LoadConfig(void)
          << "########################################################\n";
       INCL_INFO(ss.str());
       LOG("HINCLCascadeIntranuke", pWARN)
-        << ss.str();
+        << '\n' << ss.str();
         //std::cout << ss.str();
       break;
   }
@@ -325,6 +333,15 @@ void HINCLCascadeIntranuke::LoadConfig(void)
 bool HINCLCascadeIntranuke::AddDataPathFlags(size_t& nflags, char** flags) {
 
   // check if the default INCL path works
+
+  std::stringstream ss;
+  for (size_t i=0; i < nflags; ++i) {
+    ss << "[" << setw(3) << i << "] " << flags[i] << '\n';
+  }
+  LOG("HINCLCascadeIntranuke", pNOTICE)
+    << "Initial flags passed to INCLConfigParser"
+    << '\n' << ss.str();
+
 
   /*
 #ifdef INCL_DEEXCITATION_ABLAXX
