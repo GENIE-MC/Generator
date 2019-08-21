@@ -65,9 +65,11 @@ KNO-PhaseSpDec-ReweightParm       double  Yes   parameter controlling the reweig
 	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 Parameters controlling the average charged hadron multiplicities in the AGKY/KNO model
 	 (paramerers a,b entering in the empirical expression: <n> = a + b * lnW^2 )
-	 See Nucl.Instrum.Meth.A614:87-104,2010 and Eur.Phys.J.C63:1-10,2009. 
+	 See Nucl.Instrum.Meth.A614:87-104,2010 and Eur.Phys.J.C63:1-10,2009.
+	 (Note that the value of KNO-Alpha-vp was incorrectly transcribed from the source paper,
+	  Phys. Rev., D27, 47, in the Eur.Phys.J. reference above.  It is corrected here.)
     -->
-    <param type="double" name="KNO-Alpha-vp">  0.40 </param> 
+    <param type="double" name="KNO-Alpha-vp">  0.05 </param>
     <param type="double" name="KNO-Alpha-vn"> -0.20 </param> 
     <param type="double" name="KNO-Alpha-vbp"> 0.02 </param> 
     <param type="double" name="KNO-Alpha-vbn"> 0.80 </param> 
