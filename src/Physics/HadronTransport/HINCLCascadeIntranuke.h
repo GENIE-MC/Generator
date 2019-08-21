@@ -64,6 +64,8 @@ namespace genie {
     int  doCascade(GHepRecord * event_rec) const;
     bool NeedsRescattering(const GHepParticle * p) const;
 
+    bool AddDataPathFlags(size_t& nflags, char** flags);
+
     mutable int            fRemnA;         ///< remnant nucleus A
     mutable int            fRemnZ;         ///< remnant nucleus Z
     mutable TLorentzVector fRemnP4;        ///< P4 of remnant system

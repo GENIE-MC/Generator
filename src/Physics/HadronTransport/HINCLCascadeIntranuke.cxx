@@ -187,13 +187,6 @@ void HINCLCascadeIntranuke::LoadConfig(void)
 {
   LOG("HINCLCascadeIntranuke", pINFO) << "Settings for INCL++ mode: " ;
 
-  std::string pflag;
-  GetParamDef( "INCL-pflag", pflag, std::string("-pp"));
-
-  LOG("HINCLCascadeIntranuke", pINFO)
-               << "INCL-pflag returned: '" << pflag << "'";
-
-
 #ifdef INCL_SIGNAL_HANDLING
   enableSignalHandling();
 #endif
@@ -203,6 +196,9 @@ void HINCLCascadeIntranuke::LoadConfig(void)
   if ( theINCLModel    ) { delete theINCLModel;    theINCLModel=0;    }
   if ( theDeExcitation ) { delete theDeExcitation; theDeExcitation=0; }
 
+  INCLConfigParser theParser;
+
+  /* RWH old code from Marc
   // C++ forbids converting string constant to char*
   const char * flags[] = { "NULL",
                            "-pp",
@@ -211,23 +207,157 @@ void HINCLCascadeIntranuke::LoadConfig(void)
                            "-E1",
                            "-dabla07" };
   int nflags = 6;
-
-  INCLConfigParser theParser;
-
   // cast away const-ness for the flags
   LOG("HINCLCascadeIntranuke", pDEBUG)
     << "LoadConfig() create theINCLConfig";
   theINCLConfig = theParser.parse(nflags,(char**)flags);
 
+  */
+
+
+  size_t maxFlags = 200;
+  size_t nflags   = 0;
+  char * flags[maxFlags] = { 0 };  // note non-const'ness desired by ConfigParser
+
+  std::string infile;
+  GetParamDef( "INCL-infile", infile, std::string("NULL"));
+  flags[nflags] = strdup(infile.c_str()); ++nflags;
+
+  std::string pflag;
+  GetParamDef( "INCL-pflag",  pflag,  std::string("-pp"));
+  flags[nflags] = strdup(pflag.c_str()); ++nflags;
+
+  std::string tflag;
+  GetParamDef( "INCL-tflag",  tflag,  std::string("-tFe56"));
+  flags[nflags] = strdup(tflag.c_str()); ++nflags;
+
+  std::string Nflag;
+  GetParamDef( "INCL-Nflag",  Nflag,  std::string("-N1"));
+  flags[nflags] = strdup(Nflag.c_str()); ++nflags;
+
+  std::string Eflag;
+  GetParamDef( "INCL-Eflag",  Eflag,  std::string("-E1"));
+  flags[nflags] = strdup(Eflag.c_str()); ++nflags;
+
+  std::string dflag;
+  GetParamDef( "INCL-dflag",  dflag,  std::string("-dABLA07"));
+  flags[nflags] = strdup(dflag.c_str()); ++nflags;
+
+  // arbitary extra flags, need to be tokenized
+  std::string extra_incl_flags;
+  GetParamDef( "INCL-extra-flags",  extra_incl_flags,  std::string(""));
+
+  LOG("HINCLCascadeIntranuke", pDEBUG)
+    << "LoadConfig() create theINCLConfig";
+  theINCLConfig = theParser.parse(nflags,flags);
+
+  // there's currently no way to update *all* of the data paths in the Config
+  // after it's been generated, so check whether default file paths "work",
+  // add to the flags if necessary, and then regenerate
+  bool updateNeeded = AddDataPathFlags(nflags,flags);
+  if (updateNeeded) {
+    delete theINCLConfig;
+    theINCLConfig = theParser.parse(nflags,flags);
+  }
+
   LOG("HINCLCascadeIntranuke", pDEBUG)
     << "doCascade new G4INCL::INCL";
   theINCLModel = new G4INCL::INCL(theINCLConfig);
 
-  // this shouold vary with model choice, no?  //rwh
-  LOG("HINCLCascadeIntranuke", pDEBUG)
-    << "TransportHadrons new ABLA07CXX for DeExcitation";
-  theDeExcitation = new ABLA07CXX::Abla07Interface(theINCLConfig);
+  // code copied fomr INCL's main/src/INCLCascade.cc
+  // with additions for GENIE messenger system
+  switch(theINCLConfig->getDeExcitationType()) {
+#ifdef INCL_DEEXCITATION_ABLAXX
+    case G4INCL::DeExcitationABLAv3p:
+      theDeExcitation = new G4INCLAblaInterface(theINCLConfig);
+      LOG("HINCLCascadeIntranuke", pINFO)
+        << "using ABLAv3p for DeExcitation";
+      break;
+#endif
+#ifdef INCL_DEEXCITATION_ABLA07
+    case G4INCL::DeExcitationABLA07:
+      theDeExcitation = new ABLA07CXX::Abla07Interface(theINCLConfig);
+      LOG("HINCLCascadeIntranuke", pINFO)
+        << "using ABLA07CXX for DeExcitation";
+      break;
+#endif
+#ifdef INCL_DEEXCITATION_SMM
+    case G4INCL::DeExcitationSMM:
+      theDeExcitation = new SMMCXX::SMMInterface(theINCLConfig);
+      LOG("HINCLCascadeIntranuke", pINFO)
+        << "using SMMCXX for DeExcitation";
+      break;
+#endif
+#ifdef INCL_DEEXCITATION_GEMINIXX
+    case G4INCL::DeExcitationGEMINIXX:
+      theDeExcitation = new G4INCLGEMINIXXInterface(theINCLConfig);
+      LOG("HINCLCascadeIntranuke", pINFO)
+        << "using GEMINIXX for DeExcitation";
+      break;
+#endif
+    default:
+      std::stringstream ss;
+      ss << "########################################################\n"
+         << "###              WARNING WARNING WARNING             ###\n"
+         << "###                                                  ###\n"
+         << "### You are running the code without any coupling to ###\n"
+         << "###              a de-excitation model!              ###\n"
+         << "###    Results will be INCOMPLETE and UNPHYSICAL!    ###\n"
+         << "###    Are you sure this is what you want to do?     ###\n"
+         << "########################################################\n";
+      INCL_INFO(ss.str());
+      LOG("HINCLCascadeIntranuke", pWARN)
+        << ss.str();
+        //std::cout << ss.str();
+      break;
+  }
 
+  // try not to leak strings
+  for (size_t i=0; i < nflags; ++i) {
+    char * p = flags[i];
+    free(p);
+    flags[i] = 0;
+  }
+
+}
+
+//______________________________________________________________________________
+bool HINCLCascadeIntranuke::AddDataPathFlags(size_t& nflags, char** flags) {
+
+  // check if the default INCL path works
+
+  /*
+#ifdef INCL_DEEXCITATION_ABLAXX
+    case G4INCL::DeExcitationABLAv3p:
+      theDeExcitation = new G4INCLAblaInterface(theINCLConfig);
+      LOG("HINCLCascadeIntranuke", pINFO)
+        << "using ABLAv3p for DeExcitation";
+      break;
+#endif
+#ifdef INCL_DEEXCITATION_ABLA07
+    case G4INCL::DeExcitationABLA07:
+      theDeExcitation = new ABLA07CXX::Abla07Interface(theINCLConfig);
+      LOG("HINCLCascadeIntranuke", pINFO)
+        << "using ABLA07CXX for DeExcitation";
+      break;
+#endif
+#ifdef INCL_DEEXCITATION_SMM
+    case G4INCL::DeExcitationSMM:
+      theDeExcitation = new SMMCXX::SMMInterface(theINCLConfig);
+      LOG("HINCLCascadeIntranuke", pINFO)
+        << "using SMMCXX for DeExcitation";
+      break;
+#endif
+#ifdef INCL_DEEXCITATION_GEMINIXX
+    case G4INCL::DeExcitationGEMINIXX:
+      theDeExcitation = new G4INCLGEMINIXXInterface(theINCLConfig);
+      LOG("HINCLCascadeIntranuke", pINFO)
+        << "using GEMINIXX for DeExcitation";
+      break;
+#endif
+  */
+
+  return false;
 }
 
 //______________________________________________________________________________
@@ -481,7 +611,9 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
       delete sp;
       int nP(0);
       for (size_t it=0; it < ListeOfINCLresult.size(); it++) {
-        theDeExcitation->deExcite(&ListeOfINCLresult.at(it));
+        if ( theDeExcitation != 0 ) {
+          theDeExcitation->deExcite(&ListeOfINCLresult.at(it));
+        }
         Pos = Postion_evrec.at(it);
         if ( nP<ListeOfINCLresult.at(it).nParticles ) {
           GHepParticle *p_outR =
@@ -525,7 +657,9 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
         ListeOfINCLresult.at(it).pxRem[0] += pxRemn*1000;
         ListeOfINCLresult.at(it).pyRem[0] += pyRemn*1000;
         ListeOfINCLresult.at(it).pzRem[0] += 1000*pzRemn;
-        theDeExcitation->deExcite(&ListeOfINCLresult.at(it));
+        if ( theDeExcitation != 0 ) {
+          theDeExcitation->deExcite(&ListeOfINCLresult.at(it));
+        }
 
         for (int nP=0; nP < ListeOfINCLresult.at(it).nParticles; nP++ ) {
           GHepParticle *p_out =INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
@@ -553,7 +687,9 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
           ListeOfINCLresult.at(it).pyRem[0]= the_pyRemn + (pyRemn*1000);
           ListeOfINCLresult.at(it).pzRem[0]= the_pzRemn + (1000*pzRemn);
           ListeOfINCLresult.at(it).EStarRem[0]=ExcitaionE;
-          theDeExcitation->deExcite(&ListeOfINCLresult.at(it));
+          if ( theDeExcitation != 0 ) {
+            theDeExcitation->deExcite(&ListeOfINCLresult.at(it));
+          }
           for (int nP=0; nP < ListeOfINCLresult.at(it).nParticles; nP++ ) {
             A_f+=ListeOfINCLresult.at(it).A[nP];
             Z_f+=ListeOfINCLresult.at(it).Z[nP];
