@@ -105,16 +105,27 @@ void NtpWriter::Initialize()
 
   //-- create the tree header
   this->CreateTreeHeader();
-  //-- update the tune name from RunOpt (keep header from RunOpt entanglement)
+  //-- update the tune name (and associated directories) from RunOpt
+  //   (keep header from RunOpt entanglement)
   string tunename("unknown");
-  TuneId* tune = RunOpt::Instance()->Tune();
-  if ( ! tune ) {
+  string tuneDir("unknown");
+  string customDirs("");
+  TuneId* tuneId = RunOpt::Instance()->Tune();
+  if ( ! tuneId ) {
     LOG("Ntp", pERROR)
       << "No TuneId is available from RunOpt";
   } else {
-    tunename = tune->Name();
+    tunename = tuneId->Name();
+    tuneDir  = tuneId->TuneDirectory();
+    if ( tuneId->IsCustom() ) {
+      tunename += "*"; // flag it as possibly modified
+      customDirs = tuneId->CustomSource();
+    }
   }
   fNtpMCTreeHeader->tune.SetString(tunename.c_str());
+  fNtpMCTreeHeader->tuneDir.SetString(tuneDir.c_str());
+  fNtpMCTreeHeader->customDirs.SetString(customDirs.c_str());
+
   //-- write the tree header
   fNtpMCTreeHeader->Write();
 
