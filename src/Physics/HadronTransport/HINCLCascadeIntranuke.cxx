@@ -156,7 +156,7 @@ using namespace std;
 
 HINCLCascadeIntranuke::HINCLCascadeIntranuke() :
   EventRecordVisitorI("genie::HINCLCascadeIntranuke"),
-  theINCLModel(0), theDeExcitation(0)
+  theINCLConfig(0), theINCLModel(0), theDeExcitation(0)
 {
   LOG("HINCLCascadeIntranuke", pDEBUG)
     << "default ctor";
@@ -165,7 +165,7 @@ HINCLCascadeIntranuke::HINCLCascadeIntranuke() :
 //______________________________________________________________________________
 HINCLCascadeIntranuke::HINCLCascadeIntranuke(string config) :
   EventRecordVisitorI("genie::HINCLCascadeIntranuke", config),
-  theINCLModel(0), theDeExcitation(0)
+  theINCLConfig(0), theINCLModel(0), theDeExcitation(0)
 {
   LOG("HINCLCascadeIntranuke", pDEBUG)
     << "ctor from config " << config;
@@ -174,6 +174,11 @@ HINCLCascadeIntranuke::HINCLCascadeIntranuke(string config) :
 //______________________________________________________________________________
 HINCLCascadeIntranuke::~HINCLCascadeIntranuke()
 {
+
+  // appears Config is owned by model once handed over
+ if ( theINCLConfig   ) { theINCLConfig=0;   }
+ if ( theINCLModel    ) { delete theINCLModel;    theINCLModel=0;    }
+ if ( theDeExcitation ) { delete theDeExcitation; theDeExcitation=0; }
 
 }
 
@@ -188,29 +193,48 @@ void HINCLCascadeIntranuke::LoadConfig(void)
   LOG("HINCLCascadeIntranuke", pINFO)
                << "INCL-pflag returned: '" << pflag << "'";
 
-}
-
-//______________________________________________________________________________
-int HINCLCascadeIntranuke::doCascade(int nflags, const char * flags[],
-                           GHepRecord * evrec) const {
-
-  INCLConfigParser theParser;
-  // cast away const-ness for the flags
-  LOG("HINCLCascadeIntranuke", pDEBUG)
-    << "doCascade create theConfig";
-  G4INCL::Config *theConfig = theParser.parse(nflags,(char**)flags);
-
-  if ( ! theConfig ) return 0;
 
 #ifdef INCL_SIGNAL_HANDLING
   enableSignalHandling();
 #endif
 
-  if ( ! theINCLModel ) {
-    LOG("HINCLCascadeIntranuke", pDEBUG)
-      << "doCascade new G4INCL::INCL";
-    theINCLModel = new G4INCL::INCL(theConfig);
-  }
+  // appear sConfig is owned by model once handed over
+  if ( theINCLConfig   ) { theINCLConfig=0;   }
+  if ( theINCLModel    ) { delete theINCLModel;    theINCLModel=0;    }
+  if ( theDeExcitation ) { delete theDeExcitation; theDeExcitation=0; }
+
+  // C++ forbids converting string constant to char*
+  const char * flags[] = { "NULL",
+                           "-pp",
+                           "-tFe56",
+                           "-N1",
+                           "-E1",
+                           "-dabla07" };
+  int nflags = 6;
+
+  INCLConfigParser theParser;
+
+  // cast away const-ness for the flags
+  LOG("HINCLCascadeIntranuke", pDEBUG)
+    << "LoadConfig() create theINCLConfig";
+  theINCLConfig = theParser.parse(nflags,(char**)flags);
+
+  LOG("HINCLCascadeIntranuke", pDEBUG)
+    << "doCascade new G4INCL::INCL";
+  theINCLModel = new G4INCL::INCL(theINCLConfig);
+
+  // this shouold vary with model choice, no?  //rwh
+  LOG("HINCLCascadeIntranuke", pDEBUG)
+    << "TransportHadrons new ABLA07CXX for DeExcitation";
+  theDeExcitation = new ABLA07CXX::Abla07Interface(theINCLConfig);
+
+}
+
+//______________________________________________________________________________
+int HINCLCascadeIntranuke::doCascade(GHepRecord * evrec) const {
+
+
+  if ( ! theINCLConfig || ! theINCLModel ) return 0;
 
   int tpos = evrec->TargetNucleusPosition();
   GHepParticle * target = evrec->Particle(tpos);
@@ -226,10 +250,6 @@ int HINCLCascadeIntranuke::doCascade(int nflags, const char * flags[],
   theSpecies.theType = theType;
   theSpecies.theA    = pdgcpiontoA(pprobe->Pdg());
   theSpecies.theZ    = pdgcpiontoZ(pprobe->Pdg());
-
-  if ( ! theDeExcitation ) {
-    theDeExcitation = new ABLA07CXX::Abla07Interface(theConfig);
-  }
 
   G4INCL::Random::SeedVector const theInitialSeeds = G4INCL::Random::getSeeds();
   GHepStatus_t    ist1  = kIStStableFinalState;
@@ -284,15 +304,7 @@ void HINCLCascadeIntranuke::ProcessEventRecord(GHepRecord * evrec) const {
   fGMode = evrec->EventGenerationMode();
   if ( fGMode == kGMdHadronNucleus ||
        fGMode == kGMdPhotonNucleus    ) {
-    // C++ forbids converting string constant to char*
-    const char * flags[] = { "NULL",
-                             "-pp",
-                             "-tFe56",
-                             "-N1",
-                             "-E1",
-                             "-dabla07" };
-    int nflags = 6;
-    HINCLCascadeIntranuke::doCascade(nflags,flags,evrec);
+    HINCLCascadeIntranuke::doCascade(evrec);
   } else if ( fGMode == kGMdLeptonNucleus ) {
     HINCLCascadeIntranuke::TransportHadrons(evrec);
   }
@@ -313,7 +325,8 @@ bool HINCLCascadeIntranuke::CanRescatter(const GHepParticle * p) const {
             );
 }
 
-void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const{
+void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
+
   int inucl = -1;
   if ( fGMode == kGMdHadronNucleus ||
        fGMode == kGMdPhotonNucleus    ) {
@@ -354,37 +367,6 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const{
   GHepParticle * p = 0;
 
   int icurr = -1;
-
-  // C++ forbids converting string constant to char*
-  const char * flags[] = { "NULL",
-                           "-pp",
-                           "-tFe56",
-                           "-N1",
-                           "-E1",
-                           "-dabla07" };
-  int nflags = 6;
-  INCLConfigParser theParser;
-  // cast away const-ness for the flags
-  LOG("HINCLCascadeIntranuke", pDEBUG)
-    << "TransportHadrons create theConfig";
-  G4INCL::Config *theConfig = theParser.parse(nflags,(char**)flags);
-
-#ifdef INCL_SIGNAL_HANDLING
-  enableSignalHandling();
-#endif
-
-  // Create the INCL- Model at the first Use.
-  if ( ! theINCLModel ) {
-    LOG("HINCLCascadeIntranuke", pDEBUG)
-      << "TransportHadrons new G4INCL::INCL";
-    theINCLModel = new G4INCL::INCL(theConfig);
-  }
-
-  if ( ! theDeExcitation) {
-    LOG("HINCLCascadeIntranuke", pDEBUG)
-      << "TransportHadrons new ABLA07CXX for DeExcitation";
-    theDeExcitation = new ABLA07CXX::Abla07Interface(theConfig);
-  }
 
   bool is_DIS  = evrec->Summary()->ProcInfo().IsDeepInelastic();
   bool is_RES  = evrec->Summary()->ProcInfo().IsResonant();
@@ -576,7 +558,7 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const{
             A_f+=ListeOfINCLresult.at(it).A[nP];
             Z_f+=ListeOfINCLresult.at(it).Z[nP];
 
-            GHepParticle *p_outR =INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
+            GHepParticle *p_outR = INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
             evrec->AddParticle(*p_outR);
             //}
           } //Add all the result with the correct remnant nucleus
@@ -585,7 +567,7 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const{
     }// Loop over all the result from INCLCascade
   }
   // rwh // delete pincl;
-  // rwh per marc // delete theConfig;
+
   if ( ListeOfINCLresult.size() == 0 ) {
     GHepParticle remnant(pdg_codeTargetRemn, kIStFinalStateNuclearRemnant, inucl,-1,-1,-1, fRemnP4, x4null);
     evrec->AddParticle(remnant);

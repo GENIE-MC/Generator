@@ -26,6 +26,7 @@ class TVector3;
 
 //using namespace G4INCL;
 namespace G4INCL {
+  class Config;
   class INCL;
   class IDeExcitation;
 }
@@ -42,8 +43,6 @@ namespace genie {
     HINCLCascadeIntranuke();
     HINCLCascadeIntranuke(string config);
     ~HINCLCascadeIntranuke();
-
-    int doCascade(int nflags, const char * flags[], GHepRecord * event_rec) const;
 
     int pdgcpiontoA(int pdgc) const;
     int pdgcpiontoZ(int pdgc) const;
@@ -62,17 +61,16 @@ namespace genie {
     bool CanRescatter(const GHepParticle * p) const;
     bool IsInNucleus(const GHepParticle * p) const;
     void TransportHadrons(GHepRecord * evrec) const;
+    int  doCascade(GHepRecord * event_rec) const;
     bool NeedsRescattering(const GHepParticle * p) const;
 
     mutable int            fRemnA;         ///< remnant nucleus A
     mutable int            fRemnZ;         ///< remnant nucleus Z
-    mutable double         fTrackingRadius;
     mutable TLorentzVector fRemnP4;        ///< P4 of remnant system
     mutable GEvGenMode_t   fGMode;
-    double       fR0;           ///< effective nuclear size param
-    double       fNR;
 
-    mutable G4INCL::INCL *theINCLModel;
+    mutable G4INCL::Config        *theINCLConfig;
+    mutable G4INCL::INCL          *theINCLModel;
     mutable G4INCL::IDeExcitation *theDeExcitation;
 
   };
