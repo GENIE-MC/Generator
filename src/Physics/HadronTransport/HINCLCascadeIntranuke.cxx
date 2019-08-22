@@ -144,6 +144,7 @@ namespace bt = boost::timer;
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/Utils/StringUtils.h"
+#include "Framework/Utils/SystemUtils.h"
 #include "Physics/NuclearState/NuclearUtils.h"
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Physics/NuclearState/NuclearModelMap.h"
@@ -252,7 +253,10 @@ void HINCLCascadeIntranuke::LoadConfig(void)
   std::vector<std::string> extraTokens = genie::utils::str::Split(extra_incl_flags," \t\n");
   for (size_t j=0; j < extraTokens.size(); ++j) {
     std::string& token = extraTokens[j];
-    flags[nflags] = strdup(token.c_str()); ++nflags;
+    if ( token != "" ) {
+      // don't add empty strings
+      flags[nflags] = strdup(token.c_str()); ++nflags;
+    }
   }
 
   LOG("HINCLCascadeIntranuke", pDEBUG)
@@ -333,48 +337,159 @@ void HINCLCascadeIntranuke::LoadConfig(void)
 bool HINCLCascadeIntranuke::AddDataPathFlags(size_t& nflags, char** flags) {
 
   // check if the default INCL path works
+  bool needed_update = false;
+  size_t nflags_in = nflags;
 
-  std::stringstream ss;
-  for (size_t i=0; i < nflags; ++i) {
-    ss << "[" << setw(3) << i << "] " << flags[i] << '\n';
-  }
-  LOG("HINCLCascadeIntranuke", pNOTICE)
-    << "Initial flags passed to INCLConfigParser"
-    << '\n' << ss.str();
+  std::string validpath;
+  std::vector<std::string> datapaths;
 
+  LOG("HINCLCascadeIntranuke", pINFO)
+    << "check for data location of INCL";
 
-  /*
+  datapaths.clear();
+  datapaths.push_back(theINCLConfig->getINCLXXDataFilePath());
+  datapaths.push_back("!INCL-incl-data-alt1");
+  datapaths.push_back("!INCL-incl-data-alt2");
+  needed_update |=
+    LookForAndAddValidPath(datapaths,0,"--inclxx-datafile-path",nflags,flags);
+
+  switch(theINCLConfig->getDeExcitationType()) {
 #ifdef INCL_DEEXCITATION_ABLAXX
     case G4INCL::DeExcitationABLAv3p:
-      theDeExcitation = new G4INCLAblaInterface(theINCLConfig);
       LOG("HINCLCascadeIntranuke", pINFO)
-        << "using ABLAv3p for DeExcitation";
+        << "using ABLAv3p for DeExcitation -- check for data location";
+      datapaths.clear();
+      datapaths.push_back(theINCLConfig->getABLAv3pCxxDataFilePath());
+      datapaths.push_back("!INCL-ablav3p-data-alt1");
+      datapaths.push_back("!INCL-ablav3p-data-alt2");
+      needed_update |=
+        LookForAndAddValidPath(datapaths,0,"--ablav3p-cxx-datafile-path",nflags,flags);
       break;
 #endif
 #ifdef INCL_DEEXCITATION_ABLA07
     case G4INCL::DeExcitationABLA07:
-      theDeExcitation = new ABLA07CXX::Abla07Interface(theINCLConfig);
       LOG("HINCLCascadeIntranuke", pINFO)
-        << "using ABLA07CXX for DeExcitation";
+        << "using ABLA07 for DeExcitation -- check for data location";
+      datapaths.clear();
+      datapaths.push_back(theINCLConfig->getABLA07DataFilePath());
+      datapaths.push_back("!INCL-abla07-data-alt1");
+      datapaths.push_back("!INCL-abla07-data-alt2");
+      needed_update |=
+        LookForAndAddValidPath(datapaths,0,"--abla07-datafile-path",nflags,flags);
       break;
 #endif
 #ifdef INCL_DEEXCITATION_SMM
     case G4INCL::DeExcitationSMM:
-      theDeExcitation = new SMMCXX::SMMInterface(theINCLConfig);
       LOG("HINCLCascadeIntranuke", pINFO)
-        << "using SMMCXX for DeExcitation";
+        << "using SMMCXX for DeExcitation -- no data files to check for";
       break;
 #endif
 #ifdef INCL_DEEXCITATION_GEMINIXX
     case G4INCL::DeExcitationGEMINIXX:
-      theDeExcitation = new G4INCLGEMINIXXInterface(theINCLConfig);
       LOG("HINCLCascadeIntranuke", pINFO)
-        << "using GEMINIXX for DeExcitation";
+        << "using GEMINIXX for DeExcitation -- check for data location";
+      datapaths.clear();
+      datapaths.push_back(theINCLConfig->getGEMINIXXDataFilePath());
+      datapaths.push_back("!INCL-gemini-data-alt1");
+      datapaths.push_back("!INCL-gemini-data-alt2");
+      needed_update |=
+        LookForAndAddValidPath(datapaths,0,"--geminixx-datafile-path",nflags,flags);
       break;
 #endif
-  */
+    default:
+      LOG("HINCLCascadeIntranuke", pINFO)
+        << "using no DeExcitation -- no data files to check for";
+      break;
+  }
 
-  return false;
+  // print info
+  std::stringstream ss;
+  for (size_t i=0; i < nflags; ++i) {
+    if ( i == nflags_in ) ss << "---- list prior to AddDataPathFlags()\n";
+    ss << "[" << setw(3) << i << "] " << flags[i] << '\n';
+  }
+  LOG("HINCLCascadeIntranuke", pNOTICE)
+    << "Flags passed to INCLConfigParser"
+    << '\n' << ss.str();
+
+  return needed_update;
+}
+
+//______________________________________________________________________________
+bool HINCLCascadeIntranuke::LookForAndAddValidPath(std::vector<std::string>& datapaths,
+                                                   size_t defaultIndx,
+                                                   const char* optString,
+                                                   size_t& nflags, char** flags) {
+
+  // okay, we have a series of paths _OR_ parameter names ("!" as first char)
+  // loop over possibilities
+  //    convert parameter names to their actual values
+  //    expand string to evaluate ${} env variables
+  //    check if the path exists
+  // first instance that exists is our choice
+  // if it isn't the defaultIndx entry, then we must add to the
+  // flags passed to ConfigParser
+  // add the optString, then the path
+
+  bool needed_update = false;
+
+  LOG("HINCLCascadeIntranuke", pINFO)
+    << "looking for a valid path for " << optString
+    << " (default [" << defaultIndx << "]";
+
+  size_t foundIndx = SIZE_MAX; // flag as unfound
+  size_t npaths = datapaths.size();
+  for (size_t ipath = 0; ipath < npaths; ++ipath) {
+    std::string& apath = datapaths[ipath];
+    LOG("HINCLCascadeIntranuke", pINFO)
+      << "looking at " << apath;
+    if ( apath.at(0) == '!' ) {
+      apath.erase(0,1); // remove the "!"
+      // parameter name, returned value, default value
+      // default if not found is parameter name, just to make clear what failed
+      std::string newpath = "";
+      std::string notfoundvalue = std::string("no-such-param-") + apath;
+      GetParamDef(apath,newpath,notfoundvalue);
+      LOG("HINCLCascadeIntranuke", pINFO)
+        << "fetch param "<< "[" << ipath << "] "<< apath << " got " << newpath;
+      apath = newpath;
+    }
+    const char* expandedPath =  gSystem->ExpandPathName(apath.c_str());
+    if ( ! expandedPath ) {
+        LOG("HINCLCascadeIntranuke", pINFO)
+          << "expandedPath was NULL";
+        continue;
+    }
+    bool valid = utils::system::DirectoryExists(expandedPath);
+    LOG("HINCLCascadeIntranuke", pINFO)
+      << "expandedPath " << expandedPath << " "
+      << ((valid)?"valid":"doesn't exist");
+    if ( valid ) {
+      apath = std::string(expandedPath);
+      foundIndx = ipath;
+      break;
+    }
+  }
+  if ( foundIndx == defaultIndx ) {
+    // nothing to do ... the default works
+  } else if ( foundIndx > npaths-1 ) {
+    // nothing valid found      // yikes
+    std::stringstream ss;
+    for (size_t ipath = 0; ipath < npaths; ++ipath) {
+      std::string& apath = datapaths[ipath];
+      ss << "[" << ipath << "] " << apath << "\n";
+    }
+    LOG("HINCLCascadeIntranuke", pWARN)
+      << "no valid path found for " << optString
+      << ", tried: \n" << ss.str();
+  } else {
+    // add the flag with the valid path
+    flags[nflags] = strdup(optString); ++nflags;
+    flags[nflags] = strdup(datapaths[foundIndx].c_str()); ++nflags;
+    needed_update = true;
+  }
+
+  return needed_update;
 }
 
 //______________________________________________________________________________

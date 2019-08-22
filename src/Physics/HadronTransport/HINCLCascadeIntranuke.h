@@ -65,6 +65,11 @@ namespace genie {
     bool NeedsRescattering(const GHepParticle * p) const;
 
     bool AddDataPathFlags(size_t& nflags, char** flags);
+    bool LookForAndAddValidPath(std::vector<std::string>& datapaths,
+                                size_t defaultIndx,
+                                const char* optString,
+                                size_t& nflags, char** flags);
+
 
     mutable int            fRemnA;         ///< remnant nucleus A
     mutable int            fRemnZ;         ///< remnant nucleus Z
