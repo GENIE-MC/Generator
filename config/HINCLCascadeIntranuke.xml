@@ -39,14 +39,19 @@ Intranuke EventRecordVisitorI
 
   <param_set name="Default">
 
+    <!-- these INCLConfigParser flags are required, but HINCLCascadeIntranuke
+         code provides these values as defaults
+         in general, the code then substitutes the right probe, target,
+         "shots" and energy on an event-by-event basis, so they don't
+         need changing.
+      -->
+    <!--
     <param type="string" name="INCL-infile">  NULL     </param>
     <param type="string" name="INCL-pflag" > -pp       </param>
     <param type="string" name="INCL-tflag" > -tFe56    </param>
     <param type="string" name="INCL-Nflag" > -N1       </param>
     <param type="string" name="INCL-Eflag" > -E1       </param>
-
-    <!-- most of the above won't need changing -->
-    <!-- as they're defaults required by the parser, but overridden later -->
+    -->
 
     <!-- change the de-excitation model -->
     <param type="string" name="INCL-dflag" > -dABLA07    </param>
@@ -57,24 +62,22 @@ Intranuke EventRecordVisitorI
 
     <!-- pass extra flags the G4INCL::ConfigParser knows about -->
     <param type="string" name="INCL-extra-flags" >  </param>
-    <!-- testing purposes
-       <param type="string" name="INCL-extra-flags" >  -v10 -l xyzzy_extra_flag.log </param>
-    -->
+    <!-- next line serves as an example for testing purposes -->
+    <!-- <param type="string" name="INCL-extra-flags" >  -v10 -l xyzzy_extra_flag.log </param> -->
 
     <!-- alternative locations for data files that might be needed by models -->
 
-    <param type="string" name="INCL-incl-data-alt1" > ${INCL_SRC_DIR}/data/ </param>
-    <param type="string" name="INCL-incl-data-alt2" > ${INCL_DATA_DIR}/ </param>
+    <param type="string" name="INCL-incl-data-alt1"    > ${INCL_SRC_DIR}/data/ </param>
+    <param type="string" name="INCL-incl-data-alt2"    > ${INCL_DATA_DIR}/ </param>
 
-    <param type="string" name="INCL-abla07-data-alt1" > ${INCL_SRC_DIR}/de-excitation/abla07/upstream/tables/ </param>
-    <param type="string" name="INCL-abla07-data-alt2" > ${ABLA07_DATA_DIR}/ </param>
+    <param type="string" name="INCL-abla07-data-alt1"  > ${INCL_SRC_DIR}/de-excitation/abla07/upstream/tables/ </param>
+    <param type="string" name="INCL-abla07-data-alt2"  > ${ABLA07_DATA_DIR}/ </param>
 
     <param type="string" name="INCL-ablav3p-data-alt1" > ${INCL_SRC_DIR}/de-excitation/ablaxx/upstream/data/G4ABLA3.0/ </param>
     <param type="string" name="INCL-ablav3p-data-alt2" > ${ABLAV3P_DATA_DIR}/ </param>
 
-    <param type="string" name="INCL-gemini-data-alt1" > ${INCL_SRC_DIR}/de-excitation/geminixx/upstream/ </param>
-    <param type="string" name="INCL-gemini-data-alt2" > ${GEMINI_DATA_DIR}/ </param>
-
+    <param type="string" name="INCL-gemini-data-alt1"  > ${INCL_SRC_DIR}/de-excitation/geminixx/upstream/ </param>
+    <param type="string" name="INCL-gemini-data-alt2"  > ${GEMINIXX_DATA_DIR}/ </param>
 
   </param_set>
 
