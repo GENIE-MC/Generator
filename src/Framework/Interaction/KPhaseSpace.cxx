@@ -107,7 +107,7 @@ double KPhaseSpace::Threshold(void) const
     int tgtpdgc = tgt.Pdg(); // nuclear target PDG code (10LZZZAAAI)
     double MA   = PDGLibrary::Instance()->Find(tgtpdgc)->Mass();
 
-    double m_other  = kASmallNum ; 
+    double m_other  = controls::kASmallNum ; 
     // as a default the mass of hadronic system is the mass of the photon.
     // which is assumed to be a small number to avoid divergences
 
@@ -555,7 +555,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
 
   if(is_coh) {
     
-    double m_other  = kASmallNum ; 
+    double m_other  = controls::kASmallNum ; 
     // as a default the mass of hadronic system is the mass of the photon.
     // which is assumed to be a small number to avoid divergences
 
@@ -818,10 +818,12 @@ Range1D_t KPhaseSpace::YLim(double xsi) const
     double Mn = init_state.Tgt().Mass();
     double mlep = fInteraction->FSPrimLepton()->Mass();
 
-    double m_other  = kASmallNum ; 
+    double m_other  = controls::kASmallNum ; 
     // as a default the mass of hadronic system is the mass of the photon.
     // which is assumed to be a small number to avoid divergences
     
+    const XclsTag & xcls = fInteraction -> ExclTag() ;
+
     if ( xcls.NPions() > 0 ) {
       bool pionIsCharged = pi.IsWeakCC();
       m_other = pionIsCharged ? kPionMass : kPi0Mass;
@@ -871,12 +873,12 @@ Range1D_t KPhaseSpace::TLim(void) const
   //COH
   if(pi.IsCoherent()) {
     
-    double m_other  = kASmallNum ; 
+    double m_other  = controls::kASmallNum ; 
     // as a default the mass of hadronic system is the mass of the photon.
     // which is assumed to be a small number to avoid divergences
 
-    const XclTag & xcls = fInteraction -> ExclTag() ;
-
+    const XclsTag & xcls = fInteraction -> ExclTag() ;
+    
     if ( xcls.NPions() > 0 ) {
       bool pionIsCharged = pi.IsWeakCC();
       m_other = pionIsCharged ? kPionMass : kPi0Mass;
