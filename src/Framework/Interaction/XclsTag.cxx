@@ -174,7 +174,7 @@ void XclsTag::Copy(const XclsTag & xcls)
   fNPi0             = xcls.fNPi0;
   fNPiPlus          = xcls.fNPiPlus;
   fNPiMinus         = xcls.fNPiMinus;
-  fNSingleGammas    = xcls.fNSingleGamma ;
+  fNSingleGammas    = xcls.fNSingleGammas ;
   fNRho0             = xcls.fNRho0;
   fNRhoPlus          = xcls.fNRhoPlus;
   fNRhoMinus         = xcls.fNRhoMinus;

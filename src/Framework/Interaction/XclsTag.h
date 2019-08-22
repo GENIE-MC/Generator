@@ -99,8 +99,8 @@ public:
 private:
 
   // Private data members
-  bool        fIsStrangeEvent : 1 ;   ///< true if we have strange production
-  bool        fIsCharmEvent : 1 ;     ///< true if we have charm production
+  bool        fIsStrangeEvent ;       ///< true if we have strange production
+  bool        fIsCharmEvent ;         ///< true if we have charm production
   int         fStrangeHadronPdg;      ///< strange hadron pdg-code
   int         fCharmedHadronPdg;      ///< charmed hadron pdg-code
   int         fNProtons;              ///< # of p's in the hadronic system after this Xcls reaction (before FSI)
@@ -108,7 +108,7 @@ private:
   int         fNPi0;                  ///< # of pi^0's in the hadronic system after this Xcls reaction (before FSI)
   int         fNPiPlus;               ///< # of pi^+'s in the hadronic system after this Xcls reaction (before FSI)
   int         fNPiMinus;              ///< # of pi^-'s in the hadronic system after this Xcls reaction (before FSI)
-  int         fNSingleGammas          ///< # of single gammas in the hadronic system after this Xcls reaction (before FSI)
+  int         fNSingleGammas;         ///< # of single gammas in the hadronic system after this Xcls reaction (before FSI)
   int         fNRho0;                 ///< # of rho^0's in the hadronic system after this Xcls reaction (before FSI)
   int         fNRhoPlus;              ///< # of rho^+'s in the hadronic system after this Xcls reaction (before FSI)
   int         fNRhoMinus;             ///< # of rho^-'s in the hadronic system after this Xcls reaction (before FSI)
