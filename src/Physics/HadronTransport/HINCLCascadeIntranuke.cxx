@@ -486,15 +486,15 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
     }
   }
 
-  LOG("Intranuke", pNOTICE)
+  LOG("HINCLCascadeIntranuke", pNOTICE)
     << "Propagating hadrons within nucleus found in position = " << inucl;
   int tpos = evrec->TargetNucleusPosition();
   GHepParticle * target = evrec->Particle(tpos);
   GHepParticle * nucl = evrec->Particle(inucl);
   if ( ! nucl ) {
-    LOG("Intranuke", pERROR)
+    LOG("HINCLCascadeIntranuke", pERROR)
       << "No nucleus found in position = " << inucl;
-    LOG("Intranuke", pERROR)
+    LOG("HINCLCascadeIntranuke", pERROR)
       << *evrec;
     return;
   }
@@ -503,7 +503,7 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
   int A_f(0), Z_f(0), Aft(0), A_i(target->A()),Z_i(target->Z());
   // unused // Af_Remn(0), Zf_Remn(0);
 
-  LOG("Intranuke", pNOTICE)
+  LOG("HINCLCascadeIntranuke", pNOTICE)
     << "Nucleus (A,Z) = (" << fRemnA << ", " << fRemnZ << ")";
 
   const TLorentzVector & p4nucl = *(nucl->P4());
@@ -551,7 +551,7 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
     if ( ! this->CanRescatter(sp) ) {
 
       // if I can't rescatter it, I will just take it out of the nucleus
-      LOG("Intranuke", pNOTICE)
+      LOG("HINCLCascadeIntranuke", pNOTICE)
         << "... Current version can't rescatter a " << sp->Name();
       sp->SetFirstMother(icurr);
       sp->SetStatus(kIStStableFinalState);
