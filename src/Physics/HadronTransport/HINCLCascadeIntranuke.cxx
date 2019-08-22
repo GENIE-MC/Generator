@@ -5,75 +5,18 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
-#include <fstream>
-#include <ostream>
-#include <sstream>
-#include <cassert>
-#include <cstdlib>
-#include <map>
-#include <cstdlib>
 #include <sstream>
 
-// ROOT
-#include "TMath.h"
-
-// INCL++
-#include "G4INCLParticleTable.hh"
-#include "G4INCLGlobals.hh"
-#include "DatafilePaths.hh"
-#include "G4INCLSignalHandling.hh"
-
 // GENIE
-#include "INCLConvertParticle.hh"
-
-// INCL++
-#include "G4INCLCascade.hh"
-#include "G4INCLConfigEnums.hh"
-#include "G4INCLParticle.hh"
-#include "G4INCLIAvatar.hh"
-#include "G4INCLIPropagationModel.hh"
-#include "G4INCLStandardPropagationModel.hh"
-#include "G4INCLRandom.hh"
-#include "G4INCLRanecu.hh"
-#include "G4INCLFinalState.hh"
-#include "G4INCLKinematicsUtils.hh"
-
-// GENIE
-//#include "HINCLCascade.h"
-//#include "INCLCascade.h"
 #include "HINCLCascadeIntranuke.h"
 
 // INCL++
-#include "G4INCLVersion.hh"
-#include "G4INCLUnorderedVector.hh"
-#include "G4INCLStore.hh"
-#include "G4INCLIAvatar.hh"
-#include "G4INCLEventInfo.hh"
-#include "G4INCLNucleus.hh"
-// signal handler (for Linux and GCC)
 #include "G4INCLConfig.hh"
-#include "G4INCLVersion.hh"
-
-// GENIE
-#include "INCLConfigParser.h"
-// INCL++
-//#include "ConfigParser.hh"
-
+#include "G4INCLCascade.hh"
+#include "G4INCLConfigEnums.hh"
+#include "G4INCLParticle.hh"
 // signal handler (for Linux and GCC)
 #include "G4INCLSignalHandling.hh"
-
-// For I/O (INCL++)
-#include "IWriter.hh"
-#include "ASCIIWriter.hh"
-#include "ProtobufWriter.hh"
-#include "INCLTree.hh"
-#include "ROOTWriter.hh"
-#include "HDF5Writer.hh"
-
-// For configuration
-
-// For logging
-#include "G4INCLLogger.hh"
 
 // Generic de-excitation interface
 #include "G4INCLIDeExcitation.hh"
@@ -108,51 +51,24 @@
 namespace bt = boost::timer;
 #endif
 
-// ROOT
-#include "TMath.h"
-#include "TRootIOCtor.h"
-#include "TLorentzVector.h"
-#include "TSystem.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "TH1D.h"
-#include "TF1.h"
 
 // --------------------------------------Include for GENIE---------------------
-#include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/Algorithm/AlgFactory.h"
-#include "Framework/Conventions/GBuild.h"
-#include "Framework/Conventions/Constants.h"
-#include "Framework/Conventions/Controls.h"
-//#include "Framework/EventGen/EVGThreadException.h"
-#include "Framework/GHEP/GHepFlags.h"
-#include "Framework/GHEP/GHepStatus.h"
+// GENIE
+#include "INCLConvertParticle.hh"
+#include "INCLConfigParser.h"
+// INCL++
+//#include "ConfigParser.hh"
+
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
-#include "Physics/HadronTransport/INukeException.h"
-//#include "Physics/HadronTransport/Intranuke2018.h"
-//#include "Physics/HadronTransport/HAIntranuke2018.h"
-//#include "Physics/HadronTransport/INukeHadroData2018.h"
-//#include "Physics/HadronTransport/INukeUtils2018.h"
-#include "Framework/Interaction/Interaction.h"
-#include "Framework/Messenger/Messenger.h"
-#include "Framework/Numerical/RandomGen.h"
-#include "Framework/Numerical/Spline.h"
-#include "Framework/ParticleData/PDGLibrary.h"
-#include "Framework/ParticleData/PDGCodes.h"
-#include "Framework/ParticleData/PDGCodeList.h"
-#include "Framework/ParticleData/PDGUtils.h"
-#include "Framework/Utils/PrintUtils.h"
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Utils/SystemUtils.h"
-#include "Physics/NuclearState/NuclearUtils.h"
-#include "Physics/NuclearState/NuclearModelI.h"
-#include "Physics/NuclearState/NuclearModelMap.h"
+
+// ROOT
+#include "TSystem.h"
 
 using namespace genie;
 using namespace genie::utils;
-using namespace genie::constants;
-using namespace genie::controls;
 using namespace G4INCL;
 using std::ostringstream;
 using namespace std;

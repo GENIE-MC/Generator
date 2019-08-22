@@ -5,26 +5,12 @@
 #define _HINCLCascadeIntranuke_H_
 
 #include <string>
-#include <TGenPhaseSpace.h>
-#include <list>
-#include <sstream>
-#include <TFile.h>
-#include <TLorentzVector.h>
-#include <TTree.h>
 
-#include "Physics/NuclearState/NuclearModelI.h"
-
-#include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/Conventions/GMode.h"
-#include "Physics/HadronTransport/INukeMode.h"
-#include "Physics/HadronTransport/INukeHadroFates.h"
 
-class TLorentzVector;
-class TVector3;
-//string kDefOptEvFilePrefix="gntp.inuke";
+#include <TLorentzVector.h>
 
-//using namespace G4INCL;
 namespace G4INCL {
   class Config;
   class INCL;
@@ -34,14 +20,12 @@ namespace G4INCL {
 namespace genie {
 
   class GHepParticle;
-  class INukeHadroData;
-  class PDGCodeList;
 
   class HINCLCascadeIntranuke: public EventRecordVisitorI {
 
   public :
     HINCLCascadeIntranuke();
-    HINCLCascadeIntranuke(string config);
+    HINCLCascadeIntranuke(std::string config);
     ~HINCLCascadeIntranuke();
 
     int pdgcpiontoA(int pdgc) const;

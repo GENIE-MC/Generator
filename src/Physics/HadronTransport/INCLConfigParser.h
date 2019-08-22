@@ -79,6 +79,7 @@ class ConfigParser {
     std::string echoOptionsDescription(const po::options_description &aDesc);
 };
 
+// alias for GENIE
 typedef ConfigParser INCLConfigParser;
 
 #endif // HAS_BOOST_PROGRAM_OPTIONS

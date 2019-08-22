@@ -4,39 +4,19 @@
 #ifndef INCLConvertParticle_hh
 #define INCLConvertParticle_hh 1
 
-#include <list>
-#include <sstream>
-
-#include "G4INCLCascade.hh"
-#include "G4INCLVersion.hh"
-#include "G4INCLConfig.hh"
+// INCL++
+#include "G4INCLParticleSpecies.hh" // includes G4INCLParticleType
+#include "G4INCLParticleTable.hh"
 
 // GENIE
-//#include "INCLConfigParser.h"
-
-#include "G4INCLConfigEnums.hh"
-
-#include "Framework/Conventions/Constants.h"
-#include "Framework/Conventions/Controls.h"
-#include "Framework/GHEP/GHepStatus.h"
-#include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
-#include "Framework/ParticleData/PDGLibrary.h"
-#include "Framework/ParticleData/PDGCodes.h"
-#include "Framework/ParticleData/PDGCodeList.h"
 #include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 
-#include <TFile.h>
-#include <TLorentzVector.h>
-#include <TTree.h>
-
-#include "G4INCLAbla07Interface.hh"
 using namespace genie;
 
 namespace G4INCL {
-
-  // rwh nope-ity-nope // G4INCL::INCL *theINCLModel = 0;
-  // rwh nope-ity-nope //G4INCL::IDeExcitation *theDeExcitation = 0;
 
   // rwh ?? check this
   int INCLpartycleSpecietoPDGCODE(G4INCL::ParticleSpecies theSpecies) {
