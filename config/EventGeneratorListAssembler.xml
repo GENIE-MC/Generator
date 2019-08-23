@@ -212,7 +212,7 @@ Generator-%d                alg     No
 
   <param_set name="COHGAMMA"> 
      <param type="int" name="NGenerators">   1                                   </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/COH-CC-GAMMA  </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/COH-NC-GAMMA  </param>
   </param_set>
 
 
