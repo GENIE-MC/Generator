@@ -193,9 +193,10 @@ Generator-%d                alg     No
   </param_set>
 
   <param_set name="COH"> 
-     <param type="int" name="NGenerators">   2                               </param>
+     <param type="int" name="NGenerators">   3                               </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/COH-CC-PION    </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/COH-NC-PION    </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/COH-NC-GAMMA   </param>
   </param_set>
 
   <param_set name="CCCOH"> 
@@ -204,9 +205,16 @@ Generator-%d                alg     No
   </param_set>
 
   <param_set name="NCCOH"> 
-     <param type="int" name="NGenerators">   1                               </param>
+     <param type="int" name="NGenerators">   2                               </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/COH-NC-PION    </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/COH-NC-GAMMA   </param>
   </param_set>
+
+  <param_set name="COHGAMMA"> 
+     <param type="int" name="NGenerators">   1                                   </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/COH-CC-GAMMA  </param>
+  </param_set>
+
 
   <param_set name="DIS"> 
      <param type="int" name="NGenerators">    2                               </param>
