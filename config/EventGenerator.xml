@@ -527,7 +527,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="Module-3">   genie::COHPrimaryLeptonGenerator/Default            </param>
      <param type="alg"    name="Module-4">   genie::COHHadronicSystemGenerator/Default           </param>
      <param type="alg"    name="Module-5">   genie::UnstableParticleDecayer/AfterHadronTransport </param>
-     <param type="alg"    name="ILstGen">    genie::COHInteractionListGenerator/NC-Default       </param>
+     <param type="alg"    name="ILstGen">    genie::COHInteractionListGenerator/NC-PION-Default       </param>
   </param_set>
 
   <param_set name="COH-CC-PION">
@@ -539,7 +539,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="Module-3">   genie::COHPrimaryLeptonGenerator/Default            </param>
      <param type="alg"    name="Module-4">   genie::COHHadronicSystemGenerator/Default           </param>
      <param type="alg"    name="Module-5">   genie::UnstableParticleDecayer/AfterHadronTransport </param>
-     <param type="alg"    name="ILstGen">    genie::COHInteractionListGenerator/CC-Default       </param>
+     <param type="alg"    name="ILstGen">    genie::COHInteractionListGenerator/CC-PION-Default       </param>
   </param_set>
 
   <!--
