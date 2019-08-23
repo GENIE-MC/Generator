@@ -58,16 +58,15 @@ double AlvarezRusoSaulSalaCOHGammaPXsec::XSec( const Interaction * interaction,
 					       KinePhaseSpace_t kps) const
 {
 
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  // if(! this -> ValidProcess    (interaction) ) return 0.;
-  // if(! this -> ValidKinematics (interaction) ) return 0.;
-
-  // const Kinematics &   kinematics = interaction -> Kine();
-  // const InitialState & init_state = interaction -> InitState();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const InitialState & init_state = interaction -> InitState();
   
-  // int A       = init_state.Tgt().A(); // mass number
-  // int Z       = init_state.Tgt().Z(); // atomic number
-  // double E_nu = init_state.ProbeE(kRfLab); // neutrino energy
+  int A       = init_state.Tgt().A(); // mass number
+  int Z       = init_state.Tgt().Z(); // atomic number
+  double E_nu = init_state.ProbeE(kRfLab); // neutrino energy
   
   // const TLorentzVector p4_lep = kinematics.FSLeptonP4();
   // const TLorentzVector p4_pi  = kinematics.HadSystP4();
@@ -125,6 +124,7 @@ double AlvarezRusoSaulSalaCOHGammaPXsec::XSec( const Interaction * interaction,
   // }
   
   // return (xsec);
+  return 0. ;
 }
 //____________________________________________________________________________
 double AlvarezRusoSaulSalaCOHGammaPXsec::Integral(const Interaction * interaction) const
@@ -135,19 +135,23 @@ double AlvarezRusoSaulSalaCOHGammaPXsec::Integral(const Interaction * interactio
 //____________________________________________________________________________
 bool AlvarezRusoSaulSalaCOHGammaPXsec::ValidProcess(const Interaction * interaction) const
 {
-  // if(interaction->TestBit(kISkipProcessChk)) return true;
+  if(interaction->TestBit(kISkipProcessChk)) return true;
 
-  // const InitialState & init_state = interaction->InitState();
-  // const ProcessInfo &  proc_info  = interaction->ProcInfo();
-  // const Target &       target     = init_state.Tgt();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
+  const Target &       target     = init_state.Tgt();
+  const XclsTag &      xcls       = interaction -> ExclTag() ;
 
-  // int nu = init_state.ProbePdg();
+  int nu = init_state.ProbePdg();
 
-  // if (!proc_info.IsCoherent())  return false;
-  // if (!proc_info.IsWeak())      return false;
-  // if (target.HitNucIsSet())     return false;
-  // if (!(target.A()>1))          return false;
-  // if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
+  if ( ! proc_info.IsCoherent() )  return false;
+  if ( ! proc_info.IsWeak() )      return false;
+  if ( ! proc_info.IsNC() )        return false;
+
+  if ( target.A() <= 1 )          return false;  
+  if ( target.HitNucIsSet() )     return false;
+
+  if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
 
   return true;
 }
@@ -166,19 +170,7 @@ void AlvarezRusoSaulSalaCOHGammaPXsec::Configure(string config)
 //____________________________________________________________________________
 void AlvarezRusoSaulSalaCOHGammaPXsec::LoadConfig(void)
 {
-  //AlgConfigPool * confp = AlgConfigPool::Instance();
-  //const Registry * gc = confp->GlobalParameterList();
-
-  /*fRo      = fConfig->GetDoubleDef("COH-Ro",            gc->GetDouble("COH-Ro"));
-  fMa      = fConfig->GetDoubleDef("Ma",            gc->GetDouble("COH-Ma"));
-  fa4      = fConfig->GetDoubleDef("a4",            gc->GetDouble("COHAR-a4"));
-  fa5      = fConfig->GetDoubleDef("a5",            gc->GetDouble("COHAR-a5"));
-  fb4      = fConfig->GetDoubleDef("b4",            gc->GetDouble("COHAR-b4"));
-  fb5      = fConfig->GetDoubleDef("b5",            gc->GetDouble("COHAR-b5"));
-  ffPi     = fConfig->GetDoubleDef("fPi",           gc->GetDouble("COHAR-fPi"));
-  ffStar   = fConfig->GetDoubleDef("fStar",         gc->GetDouble("COHAR-fStar"));*/
-
-
+  
   //-- load the differential cross section integrator
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
