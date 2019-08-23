@@ -119,6 +119,7 @@
   <priority msgstream="INukeUtils2018">        FATAL </priority>
   <priority msgstream="INukeUtils2019">        FATAL </priority>
   <priority msgstream="HINCLCascadeIntranuke"> FATAL </priority>
+  <priority msgstream="HG4BertCascIntranuke">  FATAL </priority>
   <priority msgstream="ISApp">                 FATAL </priority>
   <priority msgstream="IntGenMap">             FATAL </priority>
   <priority msgstream="KNOHad">                FATAL </priority>
