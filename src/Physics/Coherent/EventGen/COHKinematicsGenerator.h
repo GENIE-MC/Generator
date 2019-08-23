@@ -51,6 +51,7 @@ namespace genie {
     void   CalculateKin_BergerSehgal(GHepRecord * event_rec) const;
     void   CalculateKin_BergerSehgalFM(GHepRecord * event_rec) const;
     void   CalculateKin_AlvarezRuso(GHepRecord * event_rec) const;
+    void   CalculateKin_AlvarezRusoSaulSala(GHepRecord * event_rec) const;
     void SetKinematics(const double E_l, const double theta_l, const double phi_l, 
                        const double theta_pi, const double phi_pi, 
                        const     Interaction* interaction, Kinematics* kinematics) const;
