@@ -617,7 +617,7 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
 //---------------------------------------------------------------------------
  void COHKinematicsGenerator::CalculateKin_AlvarezRusoSaulSala(GHepRecord * evrec) const
   {
-     LOG("COHKinematics", pNOTICE) << "Using AlvarezRuso Model";
+     LOG("COHKinematics", pNOTICE) << "Using AlvarezRusoSaulSala Gamma Model";
     // Get the Primary Interacton object
      Interaction * interaction = evrec->Summary();
      interaction->SetBit(kISkipProcessChk);
@@ -632,7 +632,10 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
     //   value is found.
     //   If the kinematics are generated uniformly over the allowed phase
     //   space the max xsec is irrelevant
-    double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
+    double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);//currently this is an empty method, need to revise for ARSS xsec
+
+    //TODO: set varible limits, throw random values in while loop to accept/reject, add to event record
+
 
     return;
   }
