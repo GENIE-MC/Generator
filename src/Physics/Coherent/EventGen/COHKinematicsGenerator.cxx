@@ -632,7 +632,7 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
     //   value is found.
     //   If the kinematics are generated uniformly over the allowed phase
     //   space the max xsec is irrelevant
-    double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);//currently this is an empty method, need to revise for ARSS xsec
+    double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);//currently this is an untested method, need to confirm that it gives a sensible result
 
     //TODO: set varible limits, throw random values in while loop to accept/reject, add to event record
 
