@@ -998,8 +998,50 @@ double COHKinematicsGenerator::MaxXSec_AlvarezRusoSaulSala(const Interaction * i
   min->SetTolerance(0.05);//not sure what this does....
 
 
-    //TODO: fill this method to compute max xsec
-    return max_xsec;
+    //need min, max, n, and d for all the xsec varables
+    //for COH gamma they are Eg, theta_l theta_gamma, phi_gamma 
+    //then set variables and get min
+  const double min_eg = 0.;
+  const double max_eg = Ev - kPionMass;
+  const unsigned int n_eg = 100;
+  const double d_eg = (max_eg - min_eg) / double(n_eg - 1);
+
+  const double min_thetal = kASmallNum;
+  const double max_thetal = kPi / 4.0; //not sure why this is the max
+  const unsigned int n_thetal = 10; //also just assuming this is an appropriate number of intervals
+  const double d_thetal = (max_thetal - min_thetal) / double(n_thetal - 1);
+
+  const double min_thetag = kASmallNum; 
+  const double max_thetag = kPi / 2.0;//also not sure why this is the max
+  const unsigned int n_thetag = 10;
+  const double d_thetag = (max_thetag - min_thetag) / double(n_thetag - 1);
+
+  const double min_phig = 0.;
+  const double max_phig = 2*kPi;
+  const unsigned int n_phig = 10;
+  const double d_phig = (max_phig - min_phig) / double(n_phig - 1);
+
+  min->SetLimitedVariable ( 0 ,"E_g"    , max_eg     -kASmallNum , d_eg     , min_eg     , max_eg      );
+  min->SetLimitedVariable ( 1 ,"theta_l"  , min_thetal +kASmallNum , d_thetal  , min_thetal , max_thetal  );
+  min->SetLimitedVariable ( 2 ,"theta_g" , min_thetag+kASmallNum , d_thetag , min_thetag, max_thetag );
+  min->SetLimitedVariable ( 3 ,"phi_g"   , min_phig  +kASmallNum , d_phig   , min_phig  , max_phig  );
+
+  min->Minimize();
+  max_xsec = -min->MinValue(); //back to positive xsec
+
+  // Apply safety factor, since value retrieved from the cache might
+  // correspond to a slightly different energy.
+  
+  max_xsec *= fSafetyFactor;//just going to assume this value is ok
+
+
+    #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+    SLOG("COHKinematics", pDEBUG) << in->AsString();
+    SLOG("COHKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
+    SLOG("COHKinematics", pDEBUG) << "Computed using alg = " << fXSecModel->Id();
+    #endif 
+           
+  return max_xsec;
 }
 //___________________________________________________________________________
 double COHKinematicsGenerator::Energy(const Interaction * interaction) const
