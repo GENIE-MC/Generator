@@ -44,4 +44,14 @@ else
 ##  PACKAGE_OBJECTS  = $(addsuffix .$(ObjSuf), $(basename $(PACKAGE_SOURCES)))
 endif
 
+ifeq ($(strip $(GOPT_ENABLE_GEANT4_INTERFACE)),YES)
+  # extra flags, include paths, and libraries to link to
+  CXXFLAGS               += $(GEANT4_FLAGS)
+  CPP_INCLUDES           += $(GEANT4_INCLUDES)
+  ROOT_DICT_GEN_INCLUDES += $(GEANT4_INCLUDES) ${GEANT4_FLAGS}
+  EXTRA_EXT_LIBS         += $(GEANT4_LIBRARIES)
+else
+  $(info $(PACKAGE) not build against Geant4)
+endif
+
 FORCE:
