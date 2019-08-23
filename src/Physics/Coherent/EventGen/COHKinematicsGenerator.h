@@ -65,6 +65,7 @@ namespace genie {
     double MaxXSec_BergerSehgal (const Interaction * in) const;
     double MaxXSec_BergerSehgalFM (const Interaction * in) const;
     double MaxXSec_AlvarezRuso (const Interaction * in) const;
+    double MaxXSec_AlvarezRusoSaulSala(const Interaction * in) const;
 
     // overload KineGeneratorWithCache method to get energy
     double Energy         (const Interaction * in) const;

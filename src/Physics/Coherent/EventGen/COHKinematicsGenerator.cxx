@@ -617,7 +617,24 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
 //---------------------------------------------------------------------------
  void COHKinematicsGenerator::CalculateKin_AlvarezRusoSaulSala(GHepRecord * evrec) const
   {
+     LOG("COHKinematics", pNOTICE) << "Using AlvarezRuso Model";
+    // Get the Primary Interacton object
+     Interaction * interaction = evrec->Summary();
+     interaction->SetBit(kISkipProcessChk);
+     interaction->SetBit(kISkipKinematicChk);
 
+    // Initialise a random number generator 
+    RandomGen * rnd = RandomGen::Instance();
+
+    //-- For the subsequent kinematic selection with the rejection method:
+    //   Calculate the max differential cross section or retrieve it from the
+    //   cache. Throw an exception and quit the evg thread if a non-positive
+    //   value is found.
+    //   If the kinematics are generated uniformly over the allowed phase
+    //   space the max xsec is irrelevant
+    double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
+
+    return;
   }
 
 //___________________________________________________________________________
@@ -714,7 +731,10 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
     max_xsec = MaxXSec_BergerSehgalFM(in);
   } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
     max_xsec = MaxXSec_AlvarezRuso(in);
+  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoSaulSalaCOHGammaPXSec")) {
+    max_xsec = MaxXSec_AlvarezRusoSaulSala(in);
   }
+
   else {
     LOG("COHKinematicsGenerator",pFATAL) <<
       "ComputeMaxXSec >> Cannot calculate max cross-section for " <<
@@ -945,6 +965,11 @@ double COHKinematicsGenerator::MaxXSec_AlvarezRuso(const Interaction * in) const
   delete min;
 
   return max_xsec;
+}
+//___________________________________________________________________________
+double COHKinematicsGenerator::MaxXSec_AlvarezRusoSaulSala(const Interaction * in) const
+{
+    return 0.0;
 }
 //___________________________________________________________________________
 double COHKinematicsGenerator::Energy(const Interaction * interaction) const
