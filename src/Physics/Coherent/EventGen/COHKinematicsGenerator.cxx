@@ -972,7 +972,34 @@ double COHKinematicsGenerator::MaxXSec_AlvarezRuso(const Interaction * in) const
 //___________________________________________________________________________
 double COHKinematicsGenerator::MaxXSec_AlvarezRusoSaulSala(const Interaction * in) const
 {
-    return 0.0;
+  // Computes the maximum differential cross section in the requested phase
+  // space. This method overloads KineGeneratorWithCache::ComputeMaxXSec
+  // method and the value is cached at a circular cache branch for retrieval
+  // during subsequent event generation.
+  //
+  // This is modeled off of the AR pion
+
+  #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  SLOG("COHKinematics", pDEBUG)
+    << "Scanning the allowed phase space {K} for the max(dxsec/d{K})";
+  #endif
+  double max_xsec = 0.;
+  double Ev = in->InitState().ProbeE(kRfLab);
+
+  const KPhaseSpace & kps = in->PhaseSpace();
+  Range1D_t y = kps.YLim();
+
+  ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit2");
+  gsl::d4Xsec_dEldThetaldOmegapi f(fXSecModel,in);
+  f.SetFactor(-1.); // Make it return negative of cross-section so we can minimize
+
+  min->SetFunction( f );
+  min->SetMaxFunctionCalls(10000);
+  min->SetTolerance(0.05);//not sure what this does....
+
+
+    //TODO: fill this method to compute max xsec
+    return max_xsec;
 }
 //___________________________________________________________________________
 double COHKinematicsGenerator::Energy(const Interaction * interaction) const
