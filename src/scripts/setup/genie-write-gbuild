@@ -106,6 +106,13 @@ if(@nret>0)
       { print GBLD   "#define __GENIE_INCL_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_INCL_ENABLED__\n"; }
 
+# Geant4 enabled?
+#
+@nret = `grep 'GOPT_ENABLE_GEANT4_INTERFACE=YES' $GCONF_FILE`;
+if(@nret>0)
+      { print GBLD   "#define __GENIE_GEANT4_INTERFACE_ENABLED__\n"; }
+else  { print GBLD "//#define __GENIE_GEANT4_INTERFACE_ENABLED__\n"; }
+
 
 # grab libxml2 version information
 #
