@@ -103,12 +103,22 @@ double KPhaseSpace::Threshold(void) const
   }
 
   if (pi.IsCoherent()) {
+    
     int tgtpdgc = tgt.Pdg(); // nuclear target PDG code (10LZZZAAAI)
-    double mpi  = pi.IsWeakCC() ? kPionMass : kPi0Mass;
     double MA   = PDGLibrary::Instance()->Find(tgtpdgc)->Mass();
-    double m    = ml + mpi;
+
+    double m_other  = controls::kASmallNum ; 
+    // as a default the mass of hadronic system is the mass of the photon.
+    // which is assumed to be a small number to avoid divergences
+
+    if ( xcls.NPions() > 0 ) {
+      m_other = pi.IsWeakCC() ? kPionMass : kPi0Mass;
+    }
+    
+    double m    = ml + m_other ;
     double m2   = TMath::Power(m,2);
     double Ethr = m + 0.5*m2/MA;
+
     return TMath::Max(0.,Ethr);
   }
 
@@ -541,14 +551,22 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
      return Q2l;
   }
 
+  const XclsTag & xcls = fInteraction->ExclTag();
+
   if(is_coh) {
-    bool pionIsCharged = pi.IsWeakCC();
-    double mpi = pionIsCharged ? kPionMass : kPi0Mass;
-    Q2l = kinematics::CohQ2Lim(M, mpi, ml, Ev);
+    
+    double m_other  = controls::kASmallNum ; 
+    // as a default the mass of hadronic system is the mass of the photon.
+    // which is assumed to be a small number to avoid divergences
+
+    if ( xcls.NPions() > 0 ) {
+      bool pionIsCharged = pi.IsWeakCC();
+      m_other = pionIsCharged ? kPionMass : kPi0Mass;
+    }
+
+    Q2l = kinematics::CohQ2Lim(M, m_other, ml, Ev);
     return Q2l;
   }
-
-  const XclsTag & xcls = fInteraction->ExclTag();
 
   // quasi-elastic
   if(is_qel) {
@@ -797,11 +815,21 @@ Range1D_t KPhaseSpace::YLim(double xsi) const
     const Kinematics & kine = fInteraction->Kine();
     double Ev = init_state.ProbeE(kRfHitNucRest);
     double Q2 = kine.Q2();
-    bool pionIsCharged = pi.IsWeakCC();
     double Mn = init_state.Tgt().Mass();
-    double mpi = pionIsCharged ? kPionMass : kPi0Mass;
     double mlep = fInteraction->FSPrimLepton()->Mass();
-    yl = kinematics::CohYLim(Mn, mpi, mlep, Ev, Q2, xsi);
+
+    double m_other  = controls::kASmallNum ; 
+    // as a default the mass of hadronic system is the mass of the photon.
+    // which is assumed to be a small number to avoid divergences
+    
+    const XclsTag & xcls = fInteraction -> ExclTag() ;
+
+    if ( xcls.NPions() > 0 ) {
+      bool pionIsCharged = pi.IsWeakCC();
+      m_other = pionIsCharged ? kPionMass : kPi0Mass;
+    }
+
+    yl = kinematics::CohYLim(Mn, m_other, mlep, Ev, Q2, xsi);
     return yl;
   } else {
     return this->YLim();
@@ -841,19 +869,36 @@ Range1D_t KPhaseSpace::TLim(void) const
   double Ev = init_state.ProbeE(kRfHitNucRest);
   double Q2 = kine.Q2();
   double nu = Ev * kine.y();
-  bool pionIsCharged = pi.IsWeakCC();
-  double mpi = pionIsCharged ? kPionMass : kPi0Mass;
-  double mpi2 = mpi*mpi;
 
   //COH
   if(pi.IsCoherent()) {
-    tl.min = 1.0 * (Q2 + mpi2)/(2.0 * nu) * (Q2 + mpi2)/(2.0 * nu);
+    
+    double m_other  = controls::kASmallNum ; 
+    // as a default the mass of hadronic system is the mass of the photon.
+    // which is assumed to be a small number to avoid divergences
+
+    const XclsTag & xcls = fInteraction -> ExclTag() ;
+    
+    if ( xcls.NPions() > 0 ) {
+      bool pionIsCharged = pi.IsWeakCC();
+      m_other = pionIsCharged ? kPionMass : kPi0Mass;
+    }
+    
+    double m_other2 = m_other * m_other ;
+    
+    tl.min = 1.0 * (Q2 + m_other2)/(2.0 * nu) * (Q2 + m_other2)/(2.0 * nu);
     tl.max = 0.05;
     return tl;
   }
   // DFR
   else if (pi.IsDiffractive()) {
+    
     // diffractive tmin from Nucl.Phys.B278,61 (1986), eq. 12
+    
+    bool pionIsCharged = pi.IsWeakCC();
+    double mpi = pionIsCharged ? kPionMass : kPi0Mass;
+    double mpi2 = mpi*mpi;
+    
     double M = init_state.Tgt().HitNucMass();
     double M2 = M*M;
     double nuSqPlusQ2 = nu*nu + Q2;
