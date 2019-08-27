@@ -327,11 +327,6 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-EM       </param>
   </param_set>
 
-<param_set name="EMQEradcorr">
-     <param type="int" name="NGenerators">   1                                  </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-EM-radcorr       </param>
-  </param_set>
-
   <param_set name="EMMEC"> 
      <param type="int" name="NGenerators">   1                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/MEC-EM       </param>
@@ -347,11 +342,38 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-0">   genie::EventGenerator/DIS-EM       </param>
   </param_set>
 
+<param_set name="EMQEradcorr">
+     <param type="int" name="NGenerators">   1                                  </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-EM-radcorr       </param>
+  </param_set>
+
+  <param_set name="EMMECradcorr"> 
+     <param type="int" name="NGenerators">   1                                  </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/MEC-EM-radcorr       </param>
+  </param_set>
+
+  <param_set name="EMRESradcorr"> 
+     <param type="int" name="NGenerators">   1                                  </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/RES-EM-radcorr       </param>
+  </param_set>
+
+  <param_set name="EMDISradcorr"> 
+     <param type="int" name="NGenerators">   1                                  </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DIS-EM-radcorr       </param>
+  </param_set>
+
   <param_set name="EM"> 
      <param type="int" name="NGenerators">   3                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-EM       </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/RES-EM       </param>
      <param type="alg" name="Generator-2">   genie::EventGenerator/DIS-EM       </param>
+  </param_set>
+
+  <param_set name="EMradcorr"> 
+     <param type="int" name="NGenerators">   3                                  </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-EM-radcorr       </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/RES-EM-radcorr       </param>
+     <param type="alg" name="Generator-2">   genie::EventGenerator/DIS-EM-radcorr       </param>
   </param_set>
 
   <param_set name="EM+MEC"> 
