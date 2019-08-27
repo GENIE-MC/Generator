@@ -664,7 +664,7 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
     //------ Try to select a valid set of kinematics
     unsigned int iter = 0;
     bool accept=false;
-    double xsec=-1, g_E_g=-1, g_theta_l=-1, g_phi_l=-1, g_theta_g=-1, g_phi_g=-1;
+    double xsec=-1, g_E_g=-1, g_E_l = -1,  g_theta_l=-1, g_phi_l=-1, g_theta_g=-1, g_phi_g=-1;
     double g_ctheta_l, g_ctheta_g;
 
   while(1) {
@@ -673,10 +673,11 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
 
     //Select kinematic point
     g_E_g = E_g_min + d_E_g * rnd->RndKine().Rndm();
+    g_E_l = Ev - g_E_g;
     g_ctheta_l  = ctheta_l_min  + d_ctheta_l  * rnd->RndKine().Rndm();
     g_ctheta_g = ctheta_g_min + d_ctheta_g * rnd->RndKine().Rndm();
-   
-    // random phi is relative to phi_l - taken from AR pion
+
+    // random phi_g is relative to phi_l - taken from AR pion
     g_phi_l = phi_min + d_phi * rnd->RndKine().Rndm(); //the lepton is in any angle
     g_phi_g = g_phi_l + (phi_min + d_phi * rnd->RndKine().Rndm()); //the photon angle is relative to lepton angle
 
@@ -688,33 +689,64 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
      << g_theta_g << ", " << g_phi_g << "),   Lep("<< 
       g_theta_l << ", " << g_phi_l<<")";
 
-    this->SetKinematics(g_E_g, g_theta_l, g_phi_l, g_theta_g, g_phi_g, 
+    //realized this method assumes E_l 
+    this->SetKinematics(g_E_l, g_theta_l, g_phi_l, g_theta_g, g_phi_g, 
                         interaction, interaction->KinePtr());
    
-    //TODO: check xsec
-  }
+    // computing cross section for the current kinematics
+    xsec = fXSecModel->XSec(interaction,kPSEgTlOgfE) / (1E-38 * units::cm2);
+
+    if (!fGenerateUniformly) {
+      //-- decide whether to accept the current kinematics
+      double t   = xsec_max * rnd->RndKine().Rndm();
+
+      LOG("COHKinematics", pINFO) << "Got: xsec = " << xsec << ", t = " << 
+        t << " (max_xsec = " << xsec_max << ")";
+
+      this->AssertXSecLimits(interaction, xsec, xsec_max);
+        
+      #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+      LOG("COHKinematics", pDEBUG)
+        << "xsec= " << xsec << ", J= 1, Rnd= " << t;
+      #endif
+        accept = (t<xsec);
+       }
+      else {
+        accept = (xsec>0);
+      }
+
+      //-- If the generated kinematics are accepted, finish-up module's job
   
+      if(accept) {
+      LOG("COHKinematics", pNOTICE) << "Selected: Lepton(" << 
+        g_phi_l << ", " << g_theta_l << ")   Gamma(" << g_theta_g << ", " << g_phi_g << ")";
+
+
+     }
       return;
+ 
+   }//while
+  return;
   }
 
 //___________________________________________________________________________
 void COHKinematicsGenerator::SetKinematics(const double E_l,
                                            const double theta_l,
                                            const double phi_l,
-                                           const double theta_pi,
-                                           const double phi_pi,
+                                           const double theta_other,
+                                           const double phi_other,
                                            const Interaction* interaction,
                                            Kinematics* kinematics) const
 {
   const TLorentzVector P4_nu = *(interaction->InitStatePtr()->GetProbeP4(kRfLab));
   double E_nu       = P4_nu.E();
-  double E_pi= E_nu-E_l;
+  double E_other= E_nu-E_l;
   double m_l = interaction->FSPrimLepton()->Mass();
-  double m_pi;
+  double m_other;
   if ( interaction->ProcInfo().IsWeakCC() ) {
-    m_pi = constants::kPionMass;
+    m_other = constants::kPionMass;
   } else {
-    m_pi = constants::kPi0Mass;
+    m_other = constants::kPi0Mass;
   }
   double p_l=0.0;
   if (E_l > m_l) {
@@ -724,24 +756,24 @@ void COHKinematicsGenerator::SetKinematics(const double E_l,
   lepton_3vector.SetMagThetaPhi(p_l,theta_l,phi_l);
   TLorentzVector P4_lep    = TLorentzVector(lepton_3vector , E_l );
 
-  double p_pi=0.0;
-  if (E_pi > m_pi) {
-    p_pi = TMath::Sqrt(E_pi*E_pi - m_pi*m_pi);
+  double p_other=0.0;
+  if (E_other > m_other) {
+    p_other = TMath::Sqrt(E_other*E_other - m_other*m_other);
   }
-  TVector3 pion_3vector = TVector3(0,0,0);
-  pion_3vector.SetMagThetaPhi(p_pi,theta_pi,phi_pi);
-  TLorentzVector P4_pion   = TLorentzVector(pion_3vector   , E_pi);
+  TVector3 other_3vector = TVector3(0,0,0);
+  other_3vector.SetMagThetaPhi(p_other,theta_other,phi_other);
+  TLorentzVector P4_other   = TLorentzVector(other_3vector   , E_other);
 
   double Q2 = -(P4_nu-P4_lep).Mag2();
-  double x = Q2/(2*E_pi*constants::kNucleonMass);
-  double y = E_pi/E_nu;
+  double x = Q2/(2*E_other*constants::kNucleonMass);
+  double y = E_other/E_nu;
 
   kinematics->Setx(x);
   kinematics->Sety(y);
   kinematics::UpdateWQ2FromXY(interaction);
 
   kinematics->SetFSLeptonP4(P4_lep );
-  kinematics->SetHadSystP4 (P4_pion); // use Hadronic System variable to store pion momentum
+  kinematics->SetHadSystP4 (P4_other); // use Hadronic System variable to store pion momentum
 }
 //___________________________________________________________________________
 bool COHKinematicsGenerator::CheckKinematics(const double E_l,
