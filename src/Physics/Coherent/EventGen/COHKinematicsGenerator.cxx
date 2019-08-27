@@ -743,7 +743,11 @@ void COHKinematicsGenerator::SetKinematics(const double E_l,
   double E_other= E_nu-E_l;
   double m_l = interaction->FSPrimLepton()->Mass();
   double m_other;
-  if ( interaction->ProcInfo().IsWeakCC() ) {
+  //need to check if photon or pion
+  //if pion, charged or neutral 
+  if(interaction->ExclTagPtr()->NSingleGammas() > 0){
+    m_other = 0.0;
+   } else if( interaction->ProcInfo().IsWeakCC() ) {
     m_other = constants::kPionMass;
   } else {
     m_other = constants::kPi0Mass;
