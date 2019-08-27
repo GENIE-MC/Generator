@@ -29,7 +29,7 @@
 #include "Framework/Utils/HadXSUtils.h"
 #include "Framework/Utils/KineUtils.h"
 
-#include "Physics/Coherent/XSection/AlvarezRusoSaulSalaCOHGammaPXsec.h"
+#include "Physics/Coherent/XSection/AlvarezRusoSaulSalaCOHGammaPXSec.h"
 #include "Physics/Coherent/XSection/NCgamma_Diff_Cross_Section.h" 
 
 using namespace genie;
@@ -38,24 +38,24 @@ using namespace genie::utils;
 using namespace NC_gamma;
 
 //____________________________________________________________________________
-AlvarezRusoSaulSalaCOHGammaPXsec::AlvarezRusoSaulSalaCOHGammaPXsec() :
-XSecAlgorithmI("genie::AlvarezRusoSaulSalaCOHGammaPXsec")
+AlvarezRusoSaulSalaCOHGammaPXSec::AlvarezRusoSaulSalaCOHGammaPXSec() :
+XSecAlgorithmI("genie::AlvarezRusoSaulSalaCOHGammaPXSec")
 {
   ;
 }
 //____________________________________________________________________________
-AlvarezRusoSaulSalaCOHGammaPXsec::AlvarezRusoSaulSalaCOHGammaPXsec(string config) :
-XSecAlgorithmI("genie::AlvarezRusoSaulSalaCOHGammaPXsec", config)
+AlvarezRusoSaulSalaCOHGammaPXSec::AlvarezRusoSaulSalaCOHGammaPXSec(string config) :
+XSecAlgorithmI("genie::AlvarezRusoSaulSalaCOHGammaPXSec", config)
 {
   ;
 }
 //____________________________________________________________________________
-AlvarezRusoSaulSalaCOHGammaPXsec::~AlvarezRusoSaulSalaCOHGammaPXsec()
+AlvarezRusoSaulSalaCOHGammaPXSec::~AlvarezRusoSaulSalaCOHGammaPXSec()
 {
   ;
 }
 //____________________________________________________________________________
-double AlvarezRusoSaulSalaCOHGammaPXsec::XSec( const Interaction * interaction, 
+double AlvarezRusoSaulSalaCOHGammaPXSec::XSec( const Interaction * interaction, 
 					       KinePhaseSpace_t kps) const
 {
 
@@ -114,13 +114,13 @@ double AlvarezRusoSaulSalaCOHGammaPXsec::XSec( const Interaction * interaction,
   return xsec ;
 }
 //____________________________________________________________________________
-double AlvarezRusoSaulSalaCOHGammaPXsec::Integral(const Interaction * interaction) const
+double AlvarezRusoSaulSalaCOHGammaPXSec::Integral(const Interaction * interaction) const
 {
   double xsec = fXSecIntegrator->Integrate(this,interaction);
   return xsec;
 }
 //____________________________________________________________________________
-bool AlvarezRusoSaulSalaCOHGammaPXsec::ValidProcess(const Interaction * interaction) const
+bool AlvarezRusoSaulSalaCOHGammaPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
@@ -148,19 +148,19 @@ bool AlvarezRusoSaulSalaCOHGammaPXsec::ValidProcess(const Interaction * interact
   return true;
 }
 //____________________________________________________________________________
-void AlvarezRusoSaulSalaCOHGammaPXsec::Configure(const Registry & config)
+void AlvarezRusoSaulSalaCOHGammaPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void AlvarezRusoSaulSalaCOHGammaPXsec::Configure(string config)
+void AlvarezRusoSaulSalaCOHGammaPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void AlvarezRusoSaulSalaCOHGammaPXsec::LoadConfig(void)
+void AlvarezRusoSaulSalaCOHGammaPXSec::LoadConfig(void)
 {
   
   //-- load the differential cross section integrator

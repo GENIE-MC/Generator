@@ -31,12 +31,12 @@ namespace genie {
   class XSecIntegratorI; 
   class Interaction;
 
-  class AlvarezRusoSaulSalaCOHGammaPXsec : public XSecAlgorithmI {
+  class AlvarezRusoSaulSalaCOHGammaPXSec : public XSecAlgorithmI {
 
   public:
-    AlvarezRusoSaulSalaCOHGammaPXsec() ;
-    AlvarezRusoSaulSalaCOHGammaPXsec(string config);
-    virtual ~AlvarezRusoSaulSalaCOHGammaPXsec();
+    AlvarezRusoSaulSalaCOHGammaPXSec() ;
+    AlvarezRusoSaulSalaCOHGammaPXSec(string config);
+    virtual ~AlvarezRusoSaulSalaCOHGammaPXSec();
 
     //-- XSecAlgorithmI interface implementation
     double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
