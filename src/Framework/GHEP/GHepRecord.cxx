@@ -541,7 +541,7 @@ int GHepRecord::FinalStatePrimaryLeptonPosition(void) const
   //we can add an if statement - if the fsl status is not final state ////////////
   for(int i = 0 ; i < this->GetEntries(); i++) {
      GHepParticle * p = (GHepParticle *) (*this)[i];
-     if(p->FirstMother() == ifsl && p->Pdg() == probe->Pdg()) {
+     if(p->FirstMother() == ifsl && pdg::IsLepton(p->Pdg()) ) {
 	LOG("GHEP", pINFO) << "The final state lepton radiated and so its position was set to " << i;
 	return i;
      }
