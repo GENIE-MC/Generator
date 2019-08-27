@@ -694,7 +694,7 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
                         interaction, interaction->KinePtr());
    
     // computing cross section for the current kinematics
-    xsec = fXSecModel->XSec(interaction,kPSEgTlOgfE) / (1E-38 * units::cm2);
+    xsec = fXSecModel->XSec(interaction,kPSEgTlTgPgfE) / (1E-38 * units::cm2);
 
     if (!fGenerateUniformly) {
       //-- decide whether to accept the current kinematics
@@ -775,7 +775,7 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
       interaction->KinePtr()->SetQ2(2*kNucleonMass*x*y*E_nu, true);
       interaction->KinePtr()->ClearRunningValues();
       // set the cross section for the selected kinematics
-       evrec->SetDiffXSec(xsec,kPSEgTlOgfE);
+       evrec->SetDiffXSec(xsec,kPSEgTlTgPgfE);
       return;
       }//if accept
   
@@ -1149,7 +1149,7 @@ double COHKinematicsGenerator::MaxXSec_AlvarezRusoSaulSala(const Interaction * i
     //for COH gamma they are Eg, theta_l theta_gamma, phi_gamma 
     //then set variables and get min
   const double min_eg = 0.;
-  const double max_eg = Ev - kPionMass;
+  const double max_eg = Ev ; 
   const unsigned int n_eg = 100;
   const double d_eg = (max_eg - min_eg) / double(n_eg - 1);
 
@@ -1168,10 +1168,10 @@ double COHKinematicsGenerator::MaxXSec_AlvarezRusoSaulSala(const Interaction * i
   const unsigned int n_phig = 10;
   const double d_phig = (max_phig - min_phig) / double(n_phig - 1);
 
-  min->SetLimitedVariable ( 0 ,"E_g"    , max_eg     -kASmallNum , d_eg     , min_eg     , max_eg      );
-  min->SetLimitedVariable ( 1 ,"theta_l"  , min_thetal +kASmallNum , d_thetal  , min_thetal , max_thetal  );
-  min->SetLimitedVariable ( 2 ,"theta_g" , min_thetag+kASmallNum , d_thetag , min_thetag, max_thetag );
-  min->SetLimitedVariable ( 3 ,"phi_g"   , min_phig  +kASmallNum , d_phig   , min_phig  , max_phig  );
+  min->SetLimitedVariable ( 0 ,"E_g"    , max_eg     - kASmallNum, d_eg,     min_eg,     max_eg      );
+  min->SetLimitedVariable ( 1 ,"theta_l", min_thetal + kASmallNum, d_thetal, min_thetal, max_thetal  );
+  min->SetLimitedVariable ( 2 ,"theta_g", min_thetag + kASmallNum, d_thetag, min_thetag, max_thetag );
+  min->SetLimitedVariable ( 3 ,"phi_g",   min_phig   + kASmallNum, d_phig,   min_phig,   max_phig  );
 
   min->Minimize();
   max_xsec = -min->MinValue(); //back to positive xsec
