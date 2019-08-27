@@ -721,11 +721,65 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
       LOG("COHKinematics", pNOTICE) << "Selected: Lepton(" << 
         g_phi_l << ", " << g_theta_l << ")   Gamma(" << g_theta_g << ", " << g_phi_g << ")";
 
+      double E_l = g_E_l;
+      double theta_l = g_theta_l;
+      double theta_g = g_theta_g;
+      double phi_l = g_phi_l;
+      double phi_g = g_phi_g;
+      const  TLorentzVector P4_nu = *(interaction->InitStatePtr()->GetProbeP4(kRfLab));
+      double E_nu       = P4_nu.E();
+      double E_g= g_E_g;
+      double m_l = interaction->FSPrimLepton()->Mass();
+      double m_g = 0.0;
 
-     }
+      double p_l = TMath::Sqrt(E_l*E_l - m_l*m_l);
+      TVector3 lepton_3vector = TVector3(0,0,0);
+      lepton_3vector.SetMagThetaPhi(p_l,theta_l,phi_l);
+      TLorentzVector P4_lep    = TLorentzVector(lepton_3vector , E_l );
+
+      double p_g = E_g;
+      TVector3 gamma_3vector = TVector3(0,0,0);
+      gamma_3vector.SetMagThetaPhi(p_g,theta_g,phi_g);
+      TLorentzVector P4_gamma   = TLorentzVector(gamma_3vector   , E_g);
+
+      TLorentzVector q = P4_nu - P4_lep;
+      double Q2 = -q.Mag2();
+      double x = Q2/(2*E_g*constants::kNucleonMass);
+      double y = E_g/E_nu;
+
+      double t = TMath::Abs( (q - P4_gamma).Mag2() );
+
+      // for uniform kinematics, compute an event weight as
+      // wght = (phase space volume)*(differential xsec)/(event total xsec)
+      if(fGenerateUniformly) {
+        // Phase space volume needs checking
+        double vol     = d_E_g*d_ctheta_l*d_phi*d_ctheta_g*d_phi;
+        double totxsec = evrec->XSec();
+        double wght    = (vol/totxsec)*xsec;
+        LOG("COHKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
+
+        // apply computed weight to the current event weight
+        wght *= evrec->Weight();
+        LOG("COHKinematics", pNOTICE) << "Current event wght = " << wght;
+        evrec->SetWeight(wght);
+      }
+
+      // reset bits
+      interaction->ResetBit(kISkipProcessChk);
+      interaction->ResetBit(kISkipKinematicChk);
+      // lock selected kinematics & clear running values
+      interaction->KinePtr()->Setx(x, true);
+      interaction->KinePtr()->Sety(y, true);
+      interaction->KinePtr()->Sett(t, true);
+      interaction->KinePtr()->SetW(m_g, true);
+      interaction->KinePtr()->SetQ2(2*kNucleonMass*x*y*E_nu, true);
+      interaction->KinePtr()->ClearRunningValues();
+      // set the cross section for the selected kinematics
+       evrec->SetDiffXSec(xsec,kPSEgTlOgfE);
       return;
- 
-   }//while
+      }//if accept
+  
+  }//while still throwing events
   return;
   }
 
