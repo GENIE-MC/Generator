@@ -30,11 +30,12 @@
 #include "Framework/Utils/KineUtils.h"
 
 #include "Physics/Coherent/XSection/AlvarezRusoSaulSalaCOHGammaPXsec.h"
-
+#include "Physics/Coherent/XSection/NCgamma_Diff_Cross_Section.h" 
 
 using namespace genie;
 using namespace genie::constants;
 using namespace genie::utils;
+using namespace NC_gamma;
 
 //____________________________________________________________________________
 AlvarezRusoSaulSalaCOHGammaPXsec::AlvarezRusoSaulSalaCOHGammaPXsec() :
