@@ -61,6 +61,7 @@ typedef enum EKinePhaseSpace {
   kPSTlctl,
   kPSElOlOpifE,
   kPSEgTlOgfE,
+  kPSEgTlTgPgfE,
   kPSElOlTpifE,
   kPSTkTlctl,
   kPSQ2vfE,
@@ -114,6 +115,7 @@ public:
       case(kPSTlctl)      : return "<{Tl,cos(theta_l)}|E>";     break;
       case(kPSElOlOpifE)  : return "<{El,Omega_l,Omega_pi}|E>"; break;
       case(kPSEgTlOgfE)   : return "<{Egamma,Theta_l,Omega_gamma}|E>"; break;
+      case(kPSEgTlTgPgfE) : return "<{Egamma,Theta_l,Theta_gamma,Phi_gamma}|E>"; break;
       case(kPSElOlTpifE)  : return "<{El,Omega_l,Theta_pi}|E>"; break;
       case(kPSTkTlctl)    : return "<{Tk,Tl,cos(theta_l)}|E>";  break;
       case(kPSQ2vfE)      : return "<{Q2,v}|E>"; break;
