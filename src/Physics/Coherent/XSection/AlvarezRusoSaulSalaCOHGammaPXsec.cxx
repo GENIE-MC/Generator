@@ -145,14 +145,19 @@ bool AlvarezRusoSaulSalaCOHGammaPXsec::ValidProcess(const Interaction * interact
   int nu = init_state.ProbePdg();
 
   if ( ! proc_info.IsCoherent() )  return false;
-  if ( ! proc_info.IsWeak() )      return false;
-  if ( ! proc_info.IsNC() )        return false;
+  if ( ! proc_info.IsWeakNC() )    return false;
 
   if ( target.A() <= 1 )          return false;  
   if ( target.HitNucIsSet() )     return false;
-
+  
+  int A = target.A() ;
+  int Z = target.Z() ;
+  
+  // only 12C and 40Ar are implemented at the moment 
+  if ( ( A!=12 || Z!= 6 ) && ( A!=40 || Z!=18 ) ) return false ;
+  
   if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
-
+  
   return true;
 }
 //____________________________________________________________________________
