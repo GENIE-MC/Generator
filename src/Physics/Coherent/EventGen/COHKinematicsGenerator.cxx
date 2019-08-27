@@ -676,8 +676,9 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
     g_ctheta_l  = ctheta_l_min  + d_ctheta_l  * rnd->RndKine().Rndm();
     g_ctheta_g = ctheta_g_min + d_ctheta_g * rnd->RndKine().Rndm();
     g_phi_g = phi_min + d_phi * rnd->RndKine().Rndm();
-    // random phi is relative to phi_l
-//    g_phi_g = g_phi_g + (phi_min + d_phi * rnd->RndKine().Rndm()); 
+    
+    g_phi_l = g_phi_l + (phi_min + d_phi * rnd->RndKine().Rndm()); //TODO: how do you define phi_l???
+  
     g_theta_l = TMath::ACos(g_ctheta_l);
     g_theta_g = TMath::ACos(g_ctheta_g);
 
