@@ -1,10 +1,11 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::QPMDISPXSec
+\class    genie::KNOTunedQPMDISPXSec
 
 \brief    Computes DIS differential cross sections.
           Is a concrete implementation of the XSecAlgorithmI interface.
+
 
 \ref      E.A.Paschos and J.Y.Yu, Phys.Rev.D 65.03300
 
@@ -13,30 +14,30 @@
 
 \created  May 05, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
-#ifndef _DIS_PARTON_MODEL_PARTIAL_XSEC_H_
-#define _DIS_PARTON_MODEL_PARTIAL_XSEC_H_
+#ifndef _KNO_DIS_PARTON_MODEL_PARTIAL_XSEC_H_
+#define _KNO_DIS_PARTON_MODEL_PARTIAL_XSEC_H_
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
-#include "Physics/DeepInelastic/XSection/DISStructureFunc.h"
+#include "Physics/DeepInelastic/XSection/QPMDISPXSec.h"
+#include "Physics/Hadronization/KNOHadronization.h"
+
 
 namespace genie {
 
-class DISStructureFuncModelI;
 class HadronizationModelI;
-class XSecIntegratorI;
 
-class QPMDISPXSec : public XSecAlgorithmI {
+class KNOTunedQPMDISPXSec : public XSecAlgorithmI {
 
 public:
-  QPMDISPXSec();
-  QPMDISPXSec(string config);
-  virtual ~QPMDISPXSec();
+  KNOTunedQPMDISPXSec();
+  KNOTunedQPMDISPXSec(string config);
+  virtual ~KNOTunedQPMDISPXSec();
 
   // XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
@@ -50,18 +51,15 @@ public:
 
 private:
   void   LoadConfig                  (void);
+  double DISRESJoinSuppressionFactor (const Interaction * in) const;
 
-  mutable DISStructureFunc fDISSF;
-  bool                     fInInitPhase;
+  const KNOHadronization *    fHadronizationModel; ///< hadronic multip. model
+  const QPMDISPXSec *         fDISModel ;
+  const XSecIntegratorI *     fXSecIntegrator;     ///< diff. xsec integrator
 
-  const DISStructureFuncModelI * fDISSFModel;         ///< SF model
-  const XSecIntegratorI *        fXSecIntegrator;     ///< diff. xsec integrator
-
-  const XSecAlgorithmI * fCharmProdModel;
-
-  double fScale;            ///< cross section scaling factor
-  double fSin48w;           ///< sin^4(Weingberg angle)
+  bool   fUseCache;         ///< cache reduction factors used in joining scheme
+  double fWcut;             ///< apply DIS/RES joining scheme < Wcut
 };
 
 }       // genie namespace
-#endif  // _DIS_PARTON_MODEL_PARTIAL_XSEC_H_
+#endif  // _KNO_DIS_PARTON_MODEL_PARTIAL_XSEC_H_
