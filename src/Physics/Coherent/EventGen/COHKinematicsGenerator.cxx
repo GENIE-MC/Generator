@@ -632,12 +632,13 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
     //   value is found.
     //   If the kinematics are generated uniformly over the allowed phase
     //   space the max xsec is irrelevant
-    double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);//currently this is an untested method, need to confirm that it gives a sensible result
+    double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);//currently this is an untested method
     double Ev = interaction->InitState().ProbeE(kRfLab);
    
    
     //Set up limits of integration variables
   
+    //TODO: check that these are the appropriate limits for theta_l and theta_g
     //Photon energy
     const double E_g_min = kASmallNum; //min is 0
     const double E_g_max = Ev; //max is neutrino energy
@@ -660,11 +661,37 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
     const double d_ctheta_g = ctheta_g_max - ctheta_g_min;
     const double d_phi = phi_max - phi_min;
 
+    //------ Try to select a valid set of kinematics
+    unsigned int iter = 0;
+    bool accept=false;
+    double xsec=-1, g_E_g=-1, g_theta_l=-1, g_phi_l=-1, g_theta_g=-1, g_phi_g=-1;
+    double g_ctheta_l, g_ctheta_g;
 
-    //TODO: throw random values in while loop to accept/reject, add to event record
+  while(1) {
+    iter++;
+    if(iter > kRjMaxIterations) this->throwOnTooManyIterations(iter,evrec);
 
+    //Select kinematic point
+    g_E_g = E_g_min + d_E_g * rnd->RndKine().Rndm();
+    g_ctheta_l  = ctheta_l_min  + d_ctheta_l  * rnd->RndKine().Rndm();
+    g_ctheta_g = ctheta_g_min + d_ctheta_g * rnd->RndKine().Rndm();
+    g_phi_g = phi_min + d_phi * rnd->RndKine().Rndm();
+    // random phi is relative to phi_l
+    g_phi_g = g_phi_g + (phi_min + d_phi * rnd->RndKine().Rndm()); //need to check this in Eduardo's documentation
+    g_theta_l = TMath::ACos(g_ctheta_l);
+    g_theta_g = TMath::ACos(g_ctheta_g);
 
-    return;
+    LOG("COHKinematics", pINFO) << "Trying: Gamma(" <<g_E_g  << ", "
+     << g_theta_g << ", " << g_phi_g << "),   Lep("<< 
+      g_theta_l << ", " << g_phi_l<<")";
+
+    this->SetKinematics(g_E_g, g_theta_l, g_phi_l, g_theta_g, g_phi_g, 
+                        interaction, interaction->KinePtr());
+   
+    //TODO: check xsec
+  }
+  
+      return;
   }
 
 //___________________________________________________________________________
