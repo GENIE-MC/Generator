@@ -633,8 +633,35 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
     //   If the kinematics are generated uniformly over the allowed phase
     //   space the max xsec is irrelevant
     double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);//currently this is an untested method, need to confirm that it gives a sensible result
+    double Ev = interaction->InitState().ProbeE(kRfLab);
+   
+   
+    //Set up limits of integration variables
+  
+    //Photon energy
+    const double E_g_min = kASmallNum; //min is 0
+    const double E_g_max = Ev; //max is neutrino energy
+  
+    // Primary lepton angle with respect to the beam axis - keeping limits the same as AR pion case for now
+    const double ctheta_l_min = 0.4;
+    const double ctheta_l_max = 1.0 - kASmallNum; 
 
-    //TODO: set varible limits, throw random values in while loop to accept/reject, add to event record
+    // Gamma angle with respect to the beam axis - 
+    // also keeping the limits the same as the AR pion case for now, should be similar since both pi and gamma are forward peaked?
+    const double ctheta_g_min = 0.4;
+    const double ctheta_g_max = 1.0 - kASmallNum;
+
+    // Gamma angle transverse to the beam axis
+    const double phi_min = 0.0;
+    const double phi_max = (2.0 * kPi);
+    // 
+    const double d_E_g = E_g_max - E_g_min;
+    const double d_ctheta_l  = ctheta_l_max  - ctheta_l_min;
+    const double d_ctheta_g = ctheta_g_max - ctheta_g_min;
+    const double d_phi = phi_max - phi_min;
+
+
+    //TODO: throw random values in while loop to accept/reject, add to event record
 
 
     return;
