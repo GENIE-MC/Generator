@@ -66,65 +66,51 @@ double AlvarezRusoSaulSalaCOHGammaPXsec::XSec( const Interaction * interaction,
   
   int A       = init_state.Tgt().A(); // mass number
   int Z       = init_state.Tgt().Z(); // atomic number
+  
+  std::string mode;
+  if ( init_state.ProbePdg() > 0) {
+    mode = "nu";
+  } else {
+    mode = "nubar";
+  }
+  
+  std::string nucleus;
+  if(Z == 6 && A == 12) nucleus = "12C";
+  else if(Z == 18 && A == 40) nucleus = "40Ar";
+  else {
+    LOG( "AlvarezRusoSaulSala",pERROR) << "WARNING: Z = " << Z 
+				       <<" and A = " << A 
+				       << ";  wrong nucleus for NCgamma cross section. " ;
+    return -1. ; 
+  }
+
+  Diff_Cross_Section dxsec(mode, nucleus) ;
+
   double E_nu = init_state.ProbeE(kRfLab); // neutrino energy
   
-  // const TLorentzVector p4_lep = kinematics.FSLeptonP4();
-  // const TLorentzVector p4_pi  = kinematics.HadSystP4();
-  // double E_lep = p4_lep.E();
- 
-  // if (fLastInteraction!=interaction) {
-  //   if (fMultidiff != NULL) {
-  //     delete fMultidiff;
-  //     fMultidiff = NULL;
-  //   }
+  const TLorentzVector p4_lep = kinematics.FSLeptonP4();
+  const TLorentzVector p4_gamma = kinematics.HadSystP4();
+  double E_lep = p4_lep.E();
 
-  //   current_t current;
-  //   if ( interaction->ProcInfo().IsWeakCC() ) {
-  //     current = kCC;
-  //   }
-  //   else if ( interaction->ProcInfo().IsWeakNC() ) {
-  //     current = kNC;
-  //   }
-  //   else {
-  //     LOG("AlvarezRusoCohPi",pDEBUG)<<"Unknown current for AlvarezRuso implementation";
-  //     return 0.;
-  //   }
-    
-  //   flavour_t flavour;
-  //   if ( init_state.ProbePdg() == 12 || init_state.ProbePdg() == -12) {
-  //     flavour=kE;
-  //   }
-  //   else if ( init_state.ProbePdg() == 14 || init_state.ProbePdg() == -14) {
-  //     flavour=kMu;
-  //   }
-  //   else if ( init_state.ProbePdg() == 16 || init_state.ProbePdg() == -16) {
-  //     flavour=kTau;
-  //   }
-  //   else {
-  //     LOG("AlvarezRusoCohPi",pDEBUG)<<"Unknown probe for AlvarezRuso implementation";
-  //     return 0.;
-  //   }
+  double xsec = dxsec.getDiffCrossSection( E_nu, 
+					   E_lep, p4_lep.Theta(), 
+					   p4_gamma.Theta(), p4_gamma.Phi());
 
-  //   nutype_t nutype;
-  //   if ( init_state.ProbePdg() > 0) {
-  //     nutype = kNu;
-  //   } else {
-  //     nutype = kAntiNu;
-  //   }
- 
-  //   fMultidiff = new AlvarezRusoCOHPiPDXSec(Z, A ,current, flavour, nutype);
-  //   fLastInteraction = interaction;
-  // }
-
+  // This cross section is the following
+  //
+  //             d4 sigma
+  // ------------------------------
+  //  dE_g dTheta_l dTheta_g dPhi_g
+  //
+  
   // double xsec = fMultidiff->DXSec(E_nu, E_lep, p4_lep.Theta(), p4_lep.Phi(), p4_pi.Theta(), p4_pi.Phi());
   // xsec = xsec * 1E-38 * units::cm2;
   
-  // if (kps != kPSElOlOpifE) {
-  //   xsec *= utils::kinematics::Jacobian(interaction, kPSElOlOpifE, kps );
-  // }
-  
-  // return (xsec);
-  return 0. ;
+  if (kps != kPSEgTlTgPgfE ) {
+    xsec *= utils::kinematics::Jacobian(interaction, kPSEgTlTgPgfE, kps );
+  }
+
+  return xsec ;
 }
 //____________________________________________________________________________
 double AlvarezRusoSaulSalaCOHGammaPXsec::Integral(const Interaction * interaction) const
