@@ -632,12 +632,69 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
     //   value is found.
     //   If the kinematics are generated uniformly over the allowed phase
     //   space the max xsec is irrelevant
-    double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);//currently this is an untested method, need to confirm that it gives a sensible result
+    double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);//currently this is an untested method
+    double Ev = interaction->InitState().ProbeE(kRfLab);
+   
+   
+    //Set up limits of integration variables
+  
+    //TODO: check that these are the appropriate limits for theta_l and theta_g
+    //Photon energy
+    const double E_g_min = kASmallNum; //min is 0
+    const double E_g_max = Ev; //max is neutrino energy
+  
+    // Primary lepton angle with respect to the beam axis - keeping limits the same as AR pion case for now
+    const double ctheta_l_min = 0.4;
+    const double ctheta_l_max = 1.0 - kASmallNum; 
 
-    //TODO: set varible limits, throw random values in while loop to accept/reject, add to event record
+    // Gamma angle with respect to the beam axis - 
+    // also keeping the limits the same as the AR pion case for now, should be similar since both pi and gamma are forward peaked?
+    const double ctheta_g_min = 0.4;
+    const double ctheta_g_max = 1.0 - kASmallNum;
 
+    // Gamma angle transverse to the beam axis
+    const double phi_min = 0.0;
+    const double phi_max = (2.0 * kPi);
+    // 
+    const double d_E_g = E_g_max - E_g_min;
+    const double d_ctheta_l  = ctheta_l_max  - ctheta_l_min;
+    const double d_ctheta_g = ctheta_g_max - ctheta_g_min;
+    const double d_phi = phi_max - phi_min;
 
-    return;
+    //------ Try to select a valid set of kinematics
+    unsigned int iter = 0;
+    bool accept=false;
+    double xsec=-1, g_E_g=-1, g_theta_l=-1, g_phi_l=-1, g_theta_g=-1, g_phi_g=-1;
+    double g_ctheta_l, g_ctheta_g;
+
+  while(1) {
+    iter++;
+    if(iter > kRjMaxIterations) this->throwOnTooManyIterations(iter,evrec);
+
+    //Select kinematic point
+    g_E_g = E_g_min + d_E_g * rnd->RndKine().Rndm();
+    g_ctheta_l  = ctheta_l_min  + d_ctheta_l  * rnd->RndKine().Rndm();
+    g_ctheta_g = ctheta_g_min + d_ctheta_g * rnd->RndKine().Rndm();
+   
+    // random phi is relative to phi_l - taken from AR pion
+    g_phi_l = phi_min + d_phi * rnd->RndKine().Rndm(); //the lepton is in any angle
+    g_phi_g = g_phi_l + (phi_min + d_phi * rnd->RndKine().Rndm()); //the photon angle is relative to lepton angle
+
+   //for some reason you do theta not cos theta
+    g_theta_l = TMath::ACos(g_ctheta_l);
+    g_theta_g = TMath::ACos(g_ctheta_g);
+
+    LOG("COHKinematics", pINFO) << "Trying: Gamma(" <<g_E_g  << ", "
+     << g_theta_g << ", " << g_phi_g << "),   Lep("<< 
+      g_theta_l << ", " << g_phi_l<<")";
+
+    this->SetKinematics(g_E_g, g_theta_l, g_phi_l, g_theta_g, g_phi_g, 
+                        interaction, interaction->KinePtr());
+   
+    //TODO: check xsec
+  }
+  
+      return;
   }
 
 //___________________________________________________________________________
