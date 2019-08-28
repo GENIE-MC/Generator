@@ -71,7 +71,7 @@ void COHPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
     PrimaryLeptonGenerator::ProcessEventRecord(evrec);
   }
   else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec") || 
-	   (fXSecModel->Id().Name() == "genie::AlvarezRusoSaulSalaCOHGammaPXsec")) {
+	   (fXSecModel->Id().Name() == "genie::AlvarezRusoSaulSalaCOHGammaPXSec")) {
     CalculatePrimaryLepton_AlvarezRuso(evrec);
   }
   else {

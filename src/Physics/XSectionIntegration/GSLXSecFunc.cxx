@@ -744,7 +744,7 @@ double genie::utils::gsl::d4Xsec_dEldThetaldOmegapi::DoEval(const double * xin) 
   if ( x <  xlim.min || x > xlim.max ) {
     return 0.;
   }
-  
+
   kinematics->Setx(x);
   kinematics->Sety(y);
   kinematics::UpdateWQ2FromXY(fInteraction);
@@ -823,6 +823,22 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
   photon_3vector.SetMagThetaPhi(p_g,theta_g,phi_g);
   TLorentzVector P4_photon   = TLorentzVector(photon_3vector   , E_g);
  
+  double Q2 = -(*P4_nu-P4_lep).Mag2();
+  
+  double x = Q2/(2*E_g*constants::kNucleonMass);
+  
+  double y = E_g/E_nu;
+  
+  Range1D_t xlim = fInteraction->PhaseSpace().XLim();
+  
+  if ( x <  xlim.min || x > xlim.max ) {
+    return 0.;
+  }
+  
+  kinematics->Setx(x);
+  kinematics->Sety(y);
+  kinematics::UpdateWQ2FromXY(fInteraction);
+
   kinematics->SetFSLeptonP4(P4_lep );
   kinematics->SetHadSystP4 (P4_photon); // use Hadronic System variable to store photon momentum
   

@@ -717,7 +717,7 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
 
       //-- If the generated kinematics are accepted, finish-up module's job
   
-      if(accept) {
+    if(accept) {
       LOG("COHKinematics", pNOTICE) << "Selected: Lepton(" << 
         g_phi_l << ", " << g_theta_l << ")   Gamma(" << g_theta_g << ", " << g_phi_g << ")";
 
@@ -1137,7 +1137,7 @@ double COHKinematicsGenerator::MaxXSec_AlvarezRusoSaulSala(const Interaction * i
   Range1D_t y = kps.YLim();
 
   ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit2" );
-  min -> SetPrintLevel(3) ;
+  //  min -> SetPrintLevel(3) ;
   gsl::d4Xsec_dEgdThetaldThetagdPhig f(fXSecModel,in);
   f.SetFactor(-1.); // Make it return negative of cross-section so we can minimize
 
