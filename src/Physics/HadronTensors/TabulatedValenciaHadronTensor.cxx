@@ -9,11 +9,9 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/HadronTensors/TabulatedValenciaHadronTensor.h"
 
-// For q3q0 scan verification:
-#include <TH1F.h>
-#include <TFile.h>
-#include "Framework/Conventions/Constants.h"
-
+// For retrieval of CKM-Vud
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Registry/Registry.h"
 
 namespace {
   /// Enumerated type that represents the format used to read in
@@ -450,23 +448,7 @@ double genie::TabulatedValenciaHadronTensor::dSigma_dT_dCosTheta_rosenbluth(int 
 
     //Bug in HT means we Wxx is off by factor of 2
     xsec = (2. * genie::constants::kPi) * mott * (l_part + t_part/2.);
-
-    //std::cout << "Electron debugging: " << std::endl;
-    //std::cout << "xsec(NU) is " << xsec << std::endl;
-    //std::cout << "xsec     is " << xsec/units::cm2 << std::endl;
-    //std::cout << "mott(NU) is " << mott << std::endl;
-    //std::cout << "mott     is " << mott/units::cm2 << std::endl;
-    //std::cout << "c2_half  is " << c2_half  << std::endl;
-    //std::cout << "q2       is " << q2  << std::endl;
-    //std::cout << "W00      is " << entry.W00  << std::endl;
-    //std::cout << "l_part   is " << l_part/entry.W00  << std::endl;
-    //std::cout << "t_part   is " << t_part/entry.Wxx  << std::endl;
-    //std::cout << "W11      is " << entry.Wxx  << std::endl << std::endl;
-
-
   }
-  // This is the double diff cross section dsigma/dcostheta/domega==dsigma/dcostheta/dEl
-
   else if ( abs_probe_pdg == genie::kPdgNuE
     || abs_probe_pdg == genie::kPdgNuMu
     || abs_probe_pdg == genie::kPdgNuTau )
@@ -474,10 +456,15 @@ double genie::TabulatedValenciaHadronTensor::dSigma_dT_dCosTheta_rosenbluth(int 
 
     // sigma_0 (sig0) for neutrinos. Similar to sigma_mott for electrons
     double v0=4.*El*E_probe+q2; // global factor v_0==cos^2(\tilde\theta/2)
-    double Vud = 0.97417; // Cabibbo angle
-    //GetParam("CKM-Vud", Vud); // I don't know what to include to make this work
-    double fVud2 = std::pow(Vud, 2);
-    double sig0 = genie::constants::kGF2 * fVud2 * v0 * k_final / (4. * genie::constants::kPi *  E_probe);
+
+    // CKM matrix element connecting the up and down quarks
+    const genie::Registry* temp_reg = genie::AlgConfigPool::Instance()
+      ->CommonList("Param", "CKM");
+    double Vud = temp_reg->GetDouble( "CKM-Vud" );
+
+    double Vud2 = std::pow(Vud, 2);
+    double sig0 = genie::constants::kGF2 * Vud2 * v0 * k_final
+      / (4. * genie::constants::kPi *  E_probe);
 
     // Definition of dimensionless factors
     double xdelta=ml/sqrt(-q2); // delta
@@ -502,45 +489,17 @@ double genie::TabulatedValenciaHadronTensor::dSigma_dT_dCosTheta_rosenbluth(int 
     if (probe_pdg < 0) RTP *= -1; // THIS IS FOR NUBAR
 
 
-    // Determination of the double differential cross section: dsigma/dcostheta_ldEl. In order to calculate dsigma/dcostheta_ldp_l, the c.s. must be multiplied by k_final/El 
-    xsec= sig0*(VCC*RCC+2.*VCL*RCL+VLL*RLL+VT*RT+2.*VTP*RTP);//*xcorr
+    // Determination of the double differential cross section: dsigma/dcostheta_ldEl.
+    // In order to calculate dsigma/dcostheta_ldp_l, the c.s. must be multiplied by
+    // k_final/El
+    xsec= sig0*(VCC*RCC+2.*VCL*RCL+VLL*RLL+VT*RT+2.*VTP*RTP);
 
 
     // This should never happen using the full SuSAv2-MEC hadron tensors
-    // but can trigger when using the tensors from the parameterisation    
-    if(xsec<0){ 
-      xsec=0.; 
-    } 
-
-    //std::cout << "Interaction kinematics: " << std::endl;
-    //std::cout << " E_probe is: " << E_probe << std::endl;
-    //std::cout << " El      is: " << El      << std::endl;
-    //std::cout << " cos_l   is: " << cos_l   << std::endl;
-    //std::cout << " ml      is: " << ml      << std::endl;
-    //std::cout << " q0      is: " << q0      << std::endl;
-    //std::cout << " q_mag   is: " << q_mag   << std::endl;    
-    //std::cout << "Neutrino debugging: " << std::endl;
-    //std::cout << "xsec is " << xsec/units::cm2 << std::endl;
-    //std::cout << "sig0 is " << sig0/units::cm2 << std::endl;
-    //std::cout << "VCC  is " << VCC  << std::endl;
-    //std::cout << "RCC  is " << RCC  << std::endl;
-    //std::cout << "VCL  is " << VCL  << std::endl;
-    //std::cout << "RCL  is " << RCL  << std::endl;
-    //std::cout << "VLL  is " << VLL  << std::endl;
-    //std::cout << "RLL  is " << RLL  << std::endl;
-    //std::cout << "VT   is " << VT   << std::endl;
-    //std::cout << "RT   is " << RT   << std::endl;
-    //std::cout << "VTP  is " << VTP  << std::endl;
-    //std::cout << "RTP  is " << RTP  << std::endl;
-    //std::cout << "Lepton Factor Components: " << std::endl;
-    //std::cout << "xrho: " <<  xrho << std::endl;
-    //std::cout << "xrhop: " <<  xrhop << std::endl;
-    //std::cout << "tan2th2: " << tan2th2 << std::endl;
-    //std::cout << "xdelta: " << xdelta << std::endl;
-    //std::cout << "q0: " << q0 << std::endl;
-    //std::cout << "q_mag: " << q_mag << std::endl;
-    //std::cout << "q2: " << q2 << std::endl << std::endl;
-
+    // but can trigger when using the tensors from the parameterisation
+    if ( xsec < 0 ) {
+      xsec=0.;
+    }
   }
 
   return xsec;

@@ -9,6 +9,7 @@
 //_________________________________________________________________________
 
 #include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGLibrary.h"
@@ -52,7 +53,6 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   int probe_pdg = interaction->InitState().ProbePdg();
   int tensor_pdg = target_pdg;
   int A_request = pdg::IonPdgCodeToA(target_pdg);
-  int Z_request = pdg::IonPdgCodeToZ(target_pdg);
   bool need_to_scale = false;
 
   HadronTensorType_t tensor_type = kHT_Undefined;
@@ -146,8 +146,6 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   // in Guille's tensors so I'll set it to 0.
   // However, if I want to scale I need to account for the altered
   // binding energy. To first order I can use the Q_value for this
-
-  int nu_pdg = interaction->InitState().ProbePdg();
   double Q_value = Eb_tgt-Eb_ten;
 
   genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
@@ -180,7 +178,6 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
     double KF_ten = kft->FindClosestKF(tensor_pdg, kPdgProton);
     LOG("SuSAv2MEC", pDEBUG) << "KF_tgt = " << KF_tgt;
     LOG("SuSAv2MEC", pDEBUG) << "KF_ten = " << KF_ten;
-    double A_ten  = pdg::IonPdgCodeToA(tensor_pdg);
     double scaleFact = (KF_ten/KF_tgt); // A-scaling already applied in section above
     xsec *= scaleFact;
   }
