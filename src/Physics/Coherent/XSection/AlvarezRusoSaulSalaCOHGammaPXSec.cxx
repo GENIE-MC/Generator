@@ -145,6 +145,8 @@ bool AlvarezRusoSaulSalaCOHGammaPXSec::ValidProcess(const Interaction * interact
   
   if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
   
+  if ( xcls.NSingleGammas != 1 ) return false ;
+
   return true;
 }
 //____________________________________________________________________________
