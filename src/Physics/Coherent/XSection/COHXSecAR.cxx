@@ -244,12 +244,12 @@ void COHXSecAR::LoadConfig(void)
   bool error = false ;
   
   if ( !fHasPion && !fHasPhoton ) {
-    LOG( "COHXSecAR", pERRROR ) << "No pion nor gamma option has been requested" ;
+    LOG( "COHXSecAR", pERROR ) << "No pion nor gamma option has been requested" ;
     error = true ;
   }
 
   if ( fHasPion && fHasPhoton ) {
-    LOG( "COHXSecAR", pERRROR ) << "Pion and Gamma options have been requested at the same time" ;
+    LOG( "COHXSecAR", pERROR ) << "Pion and Gamma options have been requested at the same time" ;
     error = true ;
   }
 
