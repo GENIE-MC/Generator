@@ -1137,7 +1137,7 @@ double COHKinematicsGenerator::MaxXSec_AlvarezRusoSaulSala(const Interaction * i
   Range1D_t y = kps.YLim();
 
   ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit2");
-  gsl::d4Xsec_dEldThetaldOmegapi f(fXSecModel,in);
+  gsl::d4Xsec_dEgdThetaldThetagdPhig f(fXSecModel,in);
   f.SetFactor(-1.); // Make it return negative of cross-section so we can minimize
 
   min->SetFunction( f );
