@@ -338,6 +338,31 @@ private:
 };
 ///.....................................................................................
 ///
+/// genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig
+/// A 4-D cross section function (fixed E_nu)
+/// RODA - for the AlvarezRuso-SaulSala cross-section
+///
+ class d4Xsec_dEgdThetaldThetagdPhig : public ROOT::Math::IBaseFunctionMultiDim
+ {
+ public:
+   d4Xsec_dEgdThetaldThetagdPhig(const XSecAlgorithmI * m, const Interaction * i);
+   ~d4Xsec_dEgdThetaldThetagdPhig();
+
+   // ROOT::Math::IBaseFunctionMultiDim interface
+   unsigned int                        NDim   (void)               const;
+   double                              DoEval (const double * xin) const;
+   ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
+  
+   double                              GetFactor()                 const;
+   void                                SetFactor(double factor);
+
+ private:
+   const XSecAlgorithmI * fModel;
+   const Interaction *    fInteraction;
+   double fFactor;
+ };
+///.....................................................................................
+///
 /// genie::utils::gsl::d3Xsec_dOmegaldThetapi
 /// A 3-D cross section function (fixed E_nu)
 /// Steve Dennis - for the Alvarez-Russo cross-section
