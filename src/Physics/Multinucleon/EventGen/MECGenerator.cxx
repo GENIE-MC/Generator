@@ -881,7 +881,7 @@ void MECGenerator::SelectSuSALeptonKinematics (GHepRecord * event) const
 {
 
   // -- limit the maximum XS for the accept/reject loop -- //
-  // 
+  //
   // MaxXSec parameters.  This whole calculation could be in it's own function?
   // these need to lead to a number that is safely large enough, or crash the run.
   double XSecMaxPar1 = 2.2504;
@@ -911,7 +911,7 @@ void MECGenerator::SelectSuSALeptonKinematics (GHepRecord * event) const
   double Plep = 0.0; // lepton 3 momentum
   double Elep = 0.0; // lepton energy
   double LepMass = interaction->FSPrimLepton()->Mass();
-  
+
   double Q0 = 0.0; // energy component of q four vector
   double Q3 = 0.0; // magnitude of transfered 3 momentum
   double Q2 = 0.0; // properly Q^2 (Q squared) - transfered 4 momentum.
@@ -927,7 +927,7 @@ void MECGenerator::SelectSuSALeptonKinematics (GHepRecord * event) const
   // make the accept/reject loop more efficient by using Min values.
   if(Enu < fQ3Max){
     TMin = 0 ;
-    CosthMin = -1 ; 
+    CosthMin = -1 ;
   } else {
     TMin = TMath::Sqrt(TMath::Power(LepMass, 2) + TMath::Power((Enu - fQ3Max), 2)) - LepMass;
     CosthMin = TMath::Sqrt(1 - TMath::Power((fQ3Max / Enu ), 2));
@@ -942,14 +942,14 @@ void MECGenerator::SelectSuSALeptonKinematics (GHepRecord * event) const
       // This gives additional safety factor.  Remember, we need a safe max, not precise max.
       if (NuclearA < 12) NuclearAfactorXSecMax *= NuclearA / 12.0;
       else NuclearAfactorXSecMax *= TMath::Power(NuclearA/12.0, 1.4);
-    } 
+    }
     else {
       LOG("MEC", pERROR) << "Trying to scale XSecMax for larger nuclei, but "
           << TgtPDG << " isn't a nucleus?";
       assert(false);
     }
   }
-  
+
   // -- Generate and Test the Kinematics----------------------------------//
 
   RandomGen * rnd = RandomGen::Instance();
@@ -970,7 +970,7 @@ void MECGenerator::SelectSuSALeptonKinematics (GHepRecord * event) const
       if(iter > maxIter) {
           // error if try too many times
           LOG("MEC", pWARN)
-              << "Couldn't select a valid Tmu, CosTheta pair after " 
+              << "Couldn't select a valid Tmu, CosTheta pair after "
               << iter << " iterations";
           event->EventFlags()->SetBitNumber(kKineGenErr, true);
           genie::exceptions::EVGThreadException exception;
@@ -1020,25 +1020,25 @@ void MECGenerator::SelectSuSALeptonKinematics (GHepRecord * event) const
           double XSec = fXSecModel->XSec(interaction, kPSTlctl);
 
           if (XSec > XSecMax) {
-              LOG("MEC", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG << " " 
-                                 << XSec << " > " << XSecMax 
+              LOG("MEC", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG << " "
+                                 << XSec << " > " << XSecMax
                                  << " don't let this happen.";
           }
           assert(XSec <= XSecMax);
           accept = XSec > XSecMax*rnd->RndKine().Rndm();
-          LOG("MEC", pINFO) << "Xsec, Max, Accept: " << XSec << ", " 
-              << XSecMax << ", " << accept; 
+          LOG("MEC", pINFO) << "Xsec, Max, Accept: " << XSec << ", "
+              << XSecMax << ", " << accept;
 
           if(accept){
               // If it passes the All cross section we still need to do two things:
               // * Was the initial state pn or not?
-              // No PDD (pionless delta-decay) in SuSA-MEC 
+              // No PDD (pionless delta-decay) in SuSA-MEC
 
               // Find out if we should use a pn initial state
               double myrand = rnd->RndKine().Rndm();
               double pnFraction = ((SuSAv2MECPXSec*)fXSecModel)->PairRatio(interaction);
-              LOG("MEC", pINFO) << "Test for pn: " 
-                  << "; xsec = " << XSec 
+              LOG("MEC", pINFO) << "Test for pn: "
+                  << "; xsec = " << XSec
                   << "; pn_fraction = " << pnFraction
                   << "; random number val = " << myrand;
 
@@ -1058,10 +1058,10 @@ void MECGenerator::SelectSuSALeptonKinematics (GHepRecord * event) const
                   else {
                       event->AddParticle(kPdgClusterPP, kIStNucleonTarget,
                               1, -1, -1, -1, tempp4, v4);
-                      interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterPP); 
+                      interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterPP);
                   }
               }
-              
+
           } // end if accept
       }// end if passes q3 test
   } // end while
@@ -1082,14 +1082,14 @@ void MECGenerator::SelectSuSALeptonKinematics (GHepRecord * event) const
   double PlepX = PlepXY * TMath::Cos(phi);
   double PlepY = PlepXY * TMath::Sin(phi);
 
-  // Rotate lepton momentum vector from the reference frame (x'y'z') where 
+  // Rotate lepton momentum vector from the reference frame (x'y'z') where
   // {z':(neutrino direction), z'x':(theta plane)} to the LAB
   TVector3 unit_nudir = event->Probe()->P4()->Vect().Unit();
   TVector3 p3l(PlepX, PlepY, PlepZ);
   p3l.RotateUz(unit_nudir);
 
   // Lepton 4-momentum in LAB
-  Elep = TMath::Sqrt(LepMass*LepMass + PlepX*PlepX + PlepY*PlepY + PlepZ*PlepZ); 
+  Elep = TMath::Sqrt(LepMass*LepMass + PlepX*PlepX + PlepY*PlepY + PlepZ*PlepZ);
   TLorentzVector p4l(p3l,Elep);
 
   // Figure out the final-state primary lepton PDG code

@@ -1,16 +1,17 @@
 //____________________________________________________________________________
 /*!
 
-NEED TO REWRITE THIS BEFORE COMMITTING
-
 \class    genie::SuSAv2QELPXSec
 
-\brief    Computes the SuSAv2-MEC model differential cross section.
+\brief    Computes the SuSAv2-QE model differential cross section.
           Uses precomputed hadron tensor tables.
           Is a concrete implementation of the XSecAlgorithmI interface.
 
 \author   Steven Gardiner <gardiner \at fnal.gov>
           Fermi National Acclerator Laboratory
+
+          Stephen Dolan <stephen.joseph.dolan \at cern.ch>
+          European Organization for Nuclear Research (CERN)
 
 \ref      G.D. Megias et al., "Meson-exchange currents and quasielastic
           predictions for charged-current neutrino-12C scattering in the
@@ -58,30 +59,15 @@ private:
   /// Load algorithm configuration
   void LoadConfig (void);
 
-  //debugging xsec draw
-  void Scanq0q3 (void);
-  void Scanq0q3_np (void);
-  void Scanq0q3_electron (void);
-
-  //for buildingRWhistograms
-  void buildRWhistos (void);
-
   /// External scaling factor for this cross section
   double fXSecScale;
-
-  /// Value of the CKM matrix element Vud to use when computing
-  /// the differential cross section
-  ///
-  /// This factor is not included in the tabulated SuSAv2-MEC hadron
-  /// tensor elements
-  double fVud2;
 
   const HadronTensorModelI* fHadronTensorModel;
 
   // Fermi momentum table used for scaling
   string fKFTable;
 
-  // Binding energies: 
+  // Binding energies:
   double fEbHe;
   double fEbLi;
   double fEbC;

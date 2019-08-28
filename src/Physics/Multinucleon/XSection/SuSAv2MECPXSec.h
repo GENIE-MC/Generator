@@ -10,6 +10,9 @@
 \author   Steven Gardiner <gardiner \at fnal.gov>
           Fermi National Acclerator Laboratory
 
+          Stephen Dolan <stephen.joseph.dolan \at cern.ch>
+          European Organization for Nuclear Research (CERN)
+
 \ref      G.D. Megias et al., "Meson-exchange currents and quasielastic
           predictions for charged-current neutrino-12C scattering in the
           superscaling approach," PRD 91 (2015) 073004
@@ -59,30 +62,15 @@ private:
   /// Load algorithm configuration
   void LoadConfig (void);
 
-  //debugging xsec draw
-  void Scanq0q3 (void);
-  void Scanq0q3_np (void);
-  void Scanq0q3_electron (void);
-
-  //for buildingRWhistograms
-  void buildRWhistos (void);
-
   /// External scaling factor for this cross section
   double fXSecScale;
-
-  /// Value of the CKM matrix element Vud to use when computing
-  /// the differential cross section
-  ///
-  /// This factor is not included in the tabulated SuSAv2-MEC hadron
-  /// tensor elements
-  double fVud2;
 
   const genie::HadronTensorModelI* fHadronTensorModel;
 
   // Fermi momentum table used for scaling
   string fKFTable;
 
-  // Binding energies: 
+  // Binding energies:
   double fEbHe;
   double fEbLi;
   double fEbC;
@@ -97,7 +85,7 @@ private:
   double fEbPb;
 
   /// GSL numerical integrator
-  const XSecIntegratorI *  fXSecIntegrator;
+  const XSecIntegratorI*  fXSecIntegrator;
 
 };
 

@@ -58,13 +58,6 @@ private:
   // Load algorithm configuration
   void LoadConfig (void);
 
-  //debugging xsec draw
-  void Scanq0q3 (void);
-  void Scanq0q3_np (void);
-
-  //for buildingRWhistograms
-  void buildRWhistos (void);
-
   double fXSecScale; ///< external xsec scaling factor
 
   const HadronTensorModelI* fHadronTensorModel;

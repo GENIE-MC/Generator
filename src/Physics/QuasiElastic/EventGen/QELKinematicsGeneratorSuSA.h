@@ -5,11 +5,10 @@
 
 \brief    Event generator for SuSAv2 1p1h interactions
 
-\author   Stephen Dolan
+\author   Stephen Dolan <stephen.joseph.dolan \at cern.ch>
+          European Organization for Nuclear Research (CERN)
 
-\created  Sep. 22, 2008
-
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -51,7 +50,7 @@ private:
   double  ComputeMaxXSec(const Interaction * in) const;
   double  ComputeMaxXSec_elas(const Interaction * in) const;
 
-  
+
   const NuclearModelI *          fNuclModel;
 
   double fQ3Max;
@@ -62,7 +61,7 @@ private:
 
   // Carbon removal energy - used for scaling
   double fEbC;
-  
+
 };
 
 }      // genie namespace
