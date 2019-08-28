@@ -93,6 +93,8 @@ double AlvarezRusoSaulSalaCOHGammaPXSec::XSec( const Interaction * interaction,
   const TLorentzVector p4_gamma = kinematics.HadSystP4();
   double E_lep = p4_lep.E();
 
+  //LOG( "AlvarezRusoSaulSala",pFATAL ) << "Phase Space. Lepton " << p4_lep << " \t Photon: " << p4_gamma ;
+
   double xsec = dxsec.getDiffCrossSection( E_nu, 
 					   E_lep, p4_lep.Theta(), 
 					   p4_gamma.Theta(), p4_gamma.Phi());
@@ -104,9 +106,13 @@ double AlvarezRusoSaulSalaCOHGammaPXSec::XSec( const Interaction * interaction,
   //  dE_g dTheta_l dTheta_g dPhi_g
   //
   
-  xsec = xsec * 1E-38 * units::cm2 * units::GeV2 ;
+  //xsec *= 1E-38 * units::cm2 * units::GeV2 ;
 
-  LOG( "AlvarezRusoSaulSala",pFATAL) << "XSection :" << xsec ;
+  // LOG( "AlvarezRusoSaulSala",pFATAL) << "XSection " 
+  // 				     << E_lep << ", " <<  p4_lep.Theta() << ", " << p4_gamma.Theta() << ", " <<  p4_gamma.Phi() 
+  // 				     << ": " << xsec ;
+
+  //xsec *= 2*kPi ;
 
   
   if (kps != kPSEgTlTgPgfE ) {

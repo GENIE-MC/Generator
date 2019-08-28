@@ -109,13 +109,13 @@ STFC, Rutherford Appleton Laboratory
   <!-- Berger-Sehgal "as in the paper"  -->
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC-PION">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-PION">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
+  
 
-
-  <!-- Alvarez-Ruso et al COH pion
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC-PION">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-PION">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
-  -->
-
+  <!-- Alvarez-Ruso et al COH pion 
+       <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC-PION">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
+       <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-PION">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
+  --> 
+  
   <!-- Alvarez-Ruso et al COH gamma -->
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-GAMMA">       genie::AlvarezRusoSaulSalaCOHGammaPXSec/Default   </param>
   

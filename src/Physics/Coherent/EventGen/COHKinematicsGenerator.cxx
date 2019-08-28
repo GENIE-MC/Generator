@@ -1136,7 +1136,8 @@ double COHKinematicsGenerator::MaxXSec_AlvarezRusoSaulSala(const Interaction * i
   const KPhaseSpace & kps = in->PhaseSpace();
   Range1D_t y = kps.YLim();
 
-  ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit2");
+  ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit2" );
+  min -> SetPrintLevel(3) ;
   gsl::d4Xsec_dEgdThetaldThetagdPhig f(fXSecModel,in);
   f.SetFactor(-1.); // Make it return negative of cross-section so we can minimize
 
@@ -1168,13 +1169,15 @@ double COHKinematicsGenerator::MaxXSec_AlvarezRusoSaulSala(const Interaction * i
   const unsigned int n_phig = 10;
   const double d_phig = (max_phig - min_phig) / double(n_phig - 1);
 
-  min->SetLimitedVariable ( 0 ,"E_g"    , max_eg     - kASmallNum, d_eg,     min_eg,     max_eg      );
-  min->SetLimitedVariable ( 1 ,"theta_l", min_thetal + kASmallNum, d_thetal, min_thetal, max_thetal  );
-  min->SetLimitedVariable ( 2 ,"theta_g", min_thetag + kASmallNum, d_thetag, min_thetag, max_thetag );
-  min->SetLimitedVariable ( 3 ,"phi_g",   min_phig   + kASmallNum, d_phig,   min_phig,   max_phig  );
+  min->SetLimitedVariable ( 0 ,"E_g"    , 0.5 * (max_eg + min_eg) , d_eg,     min_eg,     max_eg     );
+  min->SetLimitedVariable ( 1 ,"theta_l", 0.5 * (min_thetal + max_thetal), d_thetal, min_thetal, max_thetal );
+  min->SetLimitedVariable ( 2 ,"theta_g", 0.5 * (min_thetag + max_thetag), d_thetag, min_thetag, max_thetag );
+  min->SetLimitedVariable ( 3 ,"phi_g",   0.5 * (min_phig   + max_phig)  , d_phig,   min_phig,   max_phig   );
 
   min->Minimize();
   max_xsec = -min->MinValue(); //back to positive xsec
+
+  std::cerr << "Maximum cross section: " << max_xsec << std::endl ;
 
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy.

@@ -776,7 +776,8 @@ genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::d4Xsec_dEgdThetaldThetagdPhig(
      const XSecAlgorithmI * m, const Interaction * i) :
 ROOT::Math::IBaseFunctionMultiDim(),
 fModel(m),
-fInteraction(i)
+fInteraction(i),
+fFactor(1.) 
 {
   
 }
@@ -812,8 +813,6 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
   double sin_theta_l  = TMath::Sin(theta_l);
   double sin_theta_g  = TMath::Sin(theta_g);
   
-  double y = E_g/E_nu;
-  
   double p_l = E_l ; 
   TVector3 lepton_3vector = TVector3(0,0,0);
   lepton_3vector.SetMagThetaPhi(p_l,theta_l,phi_l);
@@ -823,21 +822,7 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
   TVector3 photon_3vector = TVector3(0,0,0);
   photon_3vector.SetMagThetaPhi(p_g,theta_g,phi_g);
   TLorentzVector P4_photon   = TLorentzVector(photon_3vector   , E_g);
-  
-  double Q2 = -(*P4_nu-P4_lep).Mag2();
-  
-  double x = Q2/(2*E_g*constants::kNucleonMass);
-  
-  Range1D_t xlim = fInteraction->PhaseSpace().XLim();
-  
-  if ( x <  xlim.min || x > xlim.max ) {
-    return 0.;
-  }
-  
-  kinematics->Setx(x);
-  kinematics->Sety(y);
-  kinematics::UpdateWQ2FromXY(fInteraction);
-  
+ 
   kinematics->SetFSLeptonP4(P4_lep );
   kinematics->SetHadSystP4 (P4_photon); // use Hadronic System variable to store photon momentum
   
