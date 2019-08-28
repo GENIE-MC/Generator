@@ -82,8 +82,8 @@ double COHXSecAR::Integrate(
   
   double xsec = 0;
   if (fSplitIntegral) {
-    utils::gsl::dXSec_dElep_AR * func =
-      new utils::gsl::dXSec_dElep_AR(model, interaction, fGSLIntgType, fGSLRelTol, fGSLMaxEval);
+    utils::gsl::dXSec_dElep_AR_pion * func =
+      new utils::gsl::dXSec_dElep_AR_pion(model, interaction, fGSLIntgType, fGSLRelTol, fGSLMaxEval);
     
     //~ ROOT::Math::IntegrationOneDim::Type ig_type = ROOT::Math::IntegrationOneDim::kNONADAPTIVE;
     ROOT::Math::IntegrationOneDim::Type ig_type = ROOT::Math::IntegrationOneDim::kADAPTIVE;
