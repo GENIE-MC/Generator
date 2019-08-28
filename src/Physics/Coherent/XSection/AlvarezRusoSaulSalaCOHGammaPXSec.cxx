@@ -104,8 +104,10 @@ double AlvarezRusoSaulSalaCOHGammaPXSec::XSec( const Interaction * interaction,
   //  dE_g dTheta_l dTheta_g dPhi_g
   //
   
-  // double xsec = fMultidiff->DXSec(E_nu, E_lep, p4_lep.Theta(), p4_lep.Phi(), p4_pi.Theta(), p4_pi.Phi());
-  // xsec = xsec * 1E-38 * units::cm2;
+  xsec = xsec * 1E-38 * units::cm2 * units::GeV2 ;
+
+  LOG( "AlvarezRusoSaulSala",pFATAL) << "XSection :" << xsec ;
+
   
   if (kps != kPSEgTlTgPgfE ) {
     xsec *= utils::kinematics::Jacobian(interaction, kPSEgTlTgPgfE, kps );

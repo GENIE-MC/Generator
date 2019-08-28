@@ -153,11 +153,11 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
   
   // Check this
   double Enu      = init_state.ProbeE(kRfLab);
-  double Elep_min = (1.-y_lim.max) * Enu;
-  double Elep_max = (1.-y_lim.min) * Enu;
+  double Egamma_min  = 0. ; 
+  double Egamma_max = Enu;
   
-  LOG("COHXSecAR", pINFO)
-       << "Lepton energy integration range = [" << Elep_min << ", " << Elep_max << "]";
+  // LOG("COHXSecAR", pINFO)
+  //      << "Lepton energy integration range = [" << Elep_min << ", " << Elep_max << "]";
 
   Interaction * interaction = new Interaction(*in);
   interaction->SetBit(kISkipProcessChk);
@@ -196,8 +196,8 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
     
   ROOT::Math::IBaseFunctionMultiDim * func = 
     new utils::gsl::d4Xsec_dEgdThetaldThetagdPhig(model, interaction);
-  double kine_min[4] = { Elep_min, zero , zero    , zero    };
-  double kine_max[4] = { Elep_max, pi   , pi      , twopi   };
+  double kine_min[4] = { Egamma_min, zero , zero    , zero    };
+  double kine_max[4] = { Egamma_max, pi   , pi      , twopi   };
   
   ROOT::Math::IntegrationMultiDim::Type ig_type = 
     utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
@@ -205,7 +205,7 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
   double abstol = 1; //We mostly care about relative tolerance.
   ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
   
-  xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+  xsec = ig.Integral(kine_min, kine_max) ;
   delete func;
   //  }
 
