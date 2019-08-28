@@ -381,7 +381,7 @@ public:
   // Specific to this class
   void SetE_lep (double E_lepton) const;
   // Yes, it's a const setter
-  // Needed because DoEval must be const, but dXSec_dElep_AR::DoEval() must call this
+  // Needed because DoEval must be const, but dXSec_dElep_AR_pion::DoEval() must call this
 
 private:
   const XSecAlgorithmI * fModel;
@@ -390,21 +390,21 @@ private:
 };
 ///.....................................................................................
 ///
-/// genie::utils::gsl::dXSec_dElep_AR
+/// genie::utils::gsl::dXSec_dElep_AR_pion
 /// A 1-D cross section function: dxsec/dElep
-/// Used for Alvarez-Ruso coherent.
+/// Used for Alvarez-Ruso coherent pion.
 ///
-class dXSec_dElep_AR: public ROOT::Math::IBaseFunctionOneDim
+class dXSec_dElep_AR_pion: public ROOT::Math::IBaseFunctionOneDim
 {
 public:
-  dXSec_dElep_AR(const XSecAlgorithmI * m, const Interaction * i,
+  dXSec_dElep_AR_pion(const XSecAlgorithmI * m, const Interaction * i,
                  string gsl_nd_integrator_type, double gsl_relative_tolerance,
                  unsigned int max_n_calls);
-  dXSec_dElep_AR() {};
- ~dXSec_dElep_AR();
+  dXSec_dElep_AR_pion() {};
+ ~dXSec_dElep_AR_pion();
 
   // ROOT::Math::IBaseFunctionOneDim interface
-  dXSec_dElep_AR *                  Clone  (void)             const;
+  dXSec_dElep_AR_pion *                  Clone  (void)             const;
   double                            DoEval (double xin) const;
 
 private:

@@ -963,7 +963,7 @@ void genie::utils::gsl::d3Xsec_dOmegaldThetapi::SetE_lep(double E_lepton) const
   fElep = E_lepton;
 }
 //____________________________________________________________________________
-genie::utils::gsl::dXSec_dElep_AR::dXSec_dElep_AR(
+genie::utils::gsl::dXSec_dElep_AR_pion::dXSec_dElep_AR_pion(
     const XSecAlgorithmI * m, const Interaction * i,
     string gsl_nd_integrator_type, double gsl_relative_tolerance,
     unsigned int max_n_calls) :
@@ -985,23 +985,23 @@ fGSLMaxCalls(max_n_calls)
   kine_max[0] = kine_max[2] = constants::kPi-controls::kASmallNum;
   kine_max[1] = 2 * constants::kPi-controls::kASmallNum;
 }
-genie::utils::gsl::dXSec_dElep_AR::~dXSec_dElep_AR()
+genie::utils::gsl::dXSec_dElep_AR_pion::~dXSec_dElep_AR_pion()
 {
   delete func;
 }
-double genie::utils::gsl::dXSec_dElep_AR::DoEval(double xin) const
+double genie::utils::gsl::dXSec_dElep_AR_pion::DoEval(double xin) const
 {
   double Elep = xin;
   func->SetE_lep(Elep);
   double xsec = integrator.Integral(&kine_min[0], &kine_max[0]) ;
-  LOG("GSLXSecFunc",pINFO) << "dXSec_dElep_AR >> "<<func->NDim()<<"d integral done. (Elep = " <<Elep<< " , dxsec/dElep = "<<xsec << ")";
+  LOG("GSLXSecFunc",pINFO) << "dXSec_dElep_AR_pion >> "<<func->NDim()<<"d integral done. (Elep = " <<Elep<< " , dxsec/dElep = "<<xsec << ")";
   return xsec;
 }
-genie::utils::gsl::dXSec_dElep_AR *
-   genie::utils::gsl::dXSec_dElep_AR::Clone() const
+genie::utils::gsl::dXSec_dElep_AR_pion *
+   genie::utils::gsl::dXSec_dElep_AR_pion::Clone() const
 {
   return
-    new genie::utils::gsl::dXSec_dElep_AR(fModel,fInteraction, fGSLIntegratorType, fGSLRelTol, fGSLMaxCalls);
+    new genie::utils::gsl::dXSec_dElep_AR_pion(fModel,fInteraction, fGSLIntegratorType, fGSLRelTol, fGSLMaxCalls);
 }
 //____________________________________________________________________________
 genie::utils::gsl::dXSec_Log_Wrapper::dXSec_Log_Wrapper(
