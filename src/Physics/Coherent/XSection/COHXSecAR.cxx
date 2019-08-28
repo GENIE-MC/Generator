@@ -205,7 +205,7 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
   double abstol = 1; //We mostly care about relative tolerance.
   ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
   
-  xsec = ig.Integral(kine_min, kine_max) ;
+  xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2) ;
   delete func;
   //  }
 
