@@ -642,29 +642,34 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
     const double E_g_min = kASmallNum; //min is 0
     const double E_g_max = Ev; //max is neutrino energy
   
-    // Primary lepton angle with respect to the beam axis - keeping limits the same as AR pion case for now
-    const double ctheta_l_min = 0.4;
-    const double ctheta_l_max = 1.0 - kASmallNum; 
+    // Primary lepton angle with respect to the beam axis
+    // keeping limits the same as AR pion case but changing to theta not ctheta
+    //const double ctheta_l_min = 0.4;
+    //const double ctheta_l_max = 1.0 - kASmallNum; 
+    const double theta_l_max = TMath::ACos(0.4); //~1.15
+    const double theta_l_min = TMath::ACos(1.0 - kASmallNum); //not sure if it would be better as TMath::ACos(1.0) + kASmallNu
 
     // Gamma angle with respect to the beam axis - 
-    // also keeping the limits the same as the AR pion case for now, should be similar since both pi and gamma are forward peaked?
-    const double ctheta_g_min = 0.4;
-    const double ctheta_g_max = 1.0 - kASmallNum;
+    // also keeping the limits the same as the AR pion case for now but for theta, should be similar since both pi and gamma are forward peaked?
+    const double theta_g_max = TMath::ACos(0.4);
+    const double theta_g_min = TMath::ACos(1.0 - kASmallNum);
 
     // Gamma angle transverse to the beam axis
     const double phi_min = 0.0;
     const double phi_max = (2.0 * kPi);
     // 
     const double d_E_g = E_g_max - E_g_min;
-    const double d_ctheta_l  = ctheta_l_max  - ctheta_l_min;
-    const double d_ctheta_g = ctheta_g_max - ctheta_g_min;
+    const double d_theta_l  = theta_l_max  - theta_l_min;
+    const double d_theta_g = theta_g_max - theta_g_min;
+    //const double d_ctheta_l  = ctheta_l_max  - ctheta_l_min;
+    //const double d_ctheta_g = ctheta_g_max - ctheta_g_min;
     const double d_phi = phi_max - phi_min;
 
     //------ Try to select a valid set of kinematics
     unsigned int iter = 0;
     bool accept=false;
-    double xsec=-1, g_E_g=-1, g_E_l = -1,  g_theta_l=-1, g_phi_l=-1, g_theta_g=-1, g_phi_g=-1;
-    double g_ctheta_l, g_ctheta_g;
+    double xsec=-1, g_E_g=-1, g_E_l = -1, g_theta_l=-1, g_phi_l=-1, g_theta_g=-1, g_phi_g=-1;
+   // double g_ctheta_l, g_ctheta_g;
 
   while(1) {
     iter++;
@@ -673,16 +678,19 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
     //Select kinematic point
     g_E_g = E_g_min + d_E_g * rnd->RndKine().Rndm();
     g_E_l = Ev - g_E_g;
-    g_ctheta_l  = ctheta_l_min  + d_ctheta_l  * rnd->RndKine().Rndm();
-    g_ctheta_g = ctheta_g_min + d_ctheta_g * rnd->RndKine().Rndm();
+    //g_ctheta_l  = ctheta_l_min  + d_ctheta_l  * rnd->RndKine().Rndm();
+    // g_ctheta_g = ctheta_g_min + d_ctheta_g * rnd->RndKine().Rndm();
+    g_theta_l  = theta_l_min  + d_theta_l  * rnd->RndKine().Rndm();
+    g_theta_g = theta_g_min + d_theta_g * rnd->RndKine().Rndm();
+
 
     // random phi_g is relative to phi_l - taken from AR pion
     g_phi_l = phi_min + d_phi * rnd->RndKine().Rndm(); //the lepton is in any angle
     g_phi_g = g_phi_l + (phi_min + d_phi * rnd->RndKine().Rndm()); //the photon angle is relative to lepton angle
 
-   //for some reason you do theta not cos theta
-    g_theta_l = TMath::ACos(g_ctheta_l);
-    g_theta_g = TMath::ACos(g_ctheta_g);
+   //for some reason you do theta not cos theta - switched now
+  //  g_theta_l = TMath::ACos(g_ctheta_l);
+   // g_theta_g = TMath::ACos(g_ctheta_g);
 
     LOG("COHKinematics", pINFO) << "Trying: Gamma(" <<g_E_g  << ", "
      << g_theta_g << ", " << g_phi_g << "),   Lep("<< 
@@ -752,7 +760,7 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
       // wght = (phase space volume)*(differential xsec)/(event total xsec)
       if(fGenerateUniformly) {
         // Phase space volume needs checking
-        double vol     = d_E_g*d_ctheta_l*d_phi*d_ctheta_g*d_phi;
+        double vol     = d_E_g*d_theta_l*d_phi*d_theta_g*d_phi;
         double totxsec = evrec->XSec();
         double wght    = (vol/totxsec)*xsec;
         LOG("COHKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
