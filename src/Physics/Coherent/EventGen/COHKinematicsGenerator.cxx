@@ -647,13 +647,21 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
     // keeping limits the same as AR pion case but changing to theta not ctheta
     //const double ctheta_l_min = 0.4;
     //const double ctheta_l_max = 1.0 - kASmallNum; 
-    const double theta_l_max = TMath::ACos(0.4); //~1.15
-    const double theta_l_min = TMath::ACos(1.0 - kASmallNum); //not sure if it would be better as TMath::ACos(1.0) + kASmallNu
+    //const double theta_l_max = TMath::ACos(0.4); //~1.15
+    //const double theta_l_min = TMath::ACos(1.0 - kASmallNum); //not sure if it would be better as TMath::ACos(1.0) + kASmallNu
+
+    //setting the full range of angles as a test 
+    const double theta_l_max = kPi; //~1.15
+    const double theta_l_min = 0.;
+
 
     // Gamma angle with respect to the beam axis - 
     // also keeping the limits the same as the AR pion case for now but for theta, should be similar since both pi and gamma are forward peaked?
-    const double theta_g_max = TMath::ACos(0.4);
-    const double theta_g_min = TMath::ACos(1.0 - kASmallNum);
+   // const double theta_g_max = TMath::ACos(0.4);
+    //const double theta_g_min = TMath::ACos(1.0 - kASmallNum);
+   const double theta_g_max = kPi;
+   const double theta_g_min = 0.;
+
 
     // Gamma angle transverse to the beam axis
     const double phi_min = 0.0;
