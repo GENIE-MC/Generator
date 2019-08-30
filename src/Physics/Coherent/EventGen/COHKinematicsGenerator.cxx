@@ -95,10 +95,9 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
     CalculateKin_BergerSehgalFM(evrec);
   } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
     CalculateKin_AlvarezRuso(evrec);
-  }else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoSaulSalaCOHGammaPXSec")) {
+  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoSaulSalaCOHGammaPXSec")) {
     CalculateKin_AlvarezRusoSaulSala(evrec);
   }
-
   else {
     LOG("COHKinematicsGenerator",pFATAL) <<
       "ProcessEventRecord >> Cannot calculate kinematics for " <<
