@@ -42,12 +42,13 @@ public :
   void Configure(const Registry & config);
   void Configure(string config);
 
-private:
-
-  void KickHitNucleon          (GHepRecord * evrec) const; ///< give hit nucleon a momentum
   void Emit2ndNucleonFromSRC   (GHepRecord * evrec,
                                 const int eject_nucleon_pdg) const;
                                 ///^ emit a 2nd nucleon due to short range corellations
+private:
+
+  void KickHitNucleon          (GHepRecord * evrec) const; ///< give hit nucleon a momentum
+
   void AddTargetNucleusRemnant (GHepRecord * evrec) const; ///< add a recoiled nucleus remnant
 
   void LoadConfig (void);
