@@ -8,9 +8,7 @@
 #pragma link C++ namespace genie::utils::frgmfunc;
 #pragma link C++ namespace genie::utils::fragmrec;
 
-#pragma link C++ class genie::HadronizationModelI;
-#pragma link C++ class genie::HadronizationModelBase;
-#pragma link C++ class genie::PythiaHadronization;
+#pragma link C++ class genie::Pythia6Hadronization;
 #pragma link C++ class genie::KNOHadronization;
 #pragma link C++ class genie::KNOPythiaHadronization;
 #pragma link C++ class genie::CharmHadronization;

@@ -38,7 +38,7 @@ namespace gsl   {
 class dXSec_dQ2_E: public ROOT::Math::IBaseFunctionOneDim
 {
 public:
-  dXSec_dQ2_E(const XSecAlgorithmI * m, const Interaction * i);
+  dXSec_dQ2_E(const XSecAlgorithmI * m, const Interaction * i, double scale=1.);
  ~dXSec_dQ2_E();
 
   // ROOT::Math::IBaseFunctionOneDim interface
@@ -49,6 +49,7 @@ public:
 private:
   const XSecAlgorithmI * fModel;
   const Interaction *    fInteraction;
+  double                 fScale; // can set to -1. for use with GSL minimizer
 };
 
 //.....................................................................................

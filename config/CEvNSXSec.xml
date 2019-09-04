@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the CEvNSXSec xsec algorithm.
+
+Configurable Parameters:
+........................................................................................................
+Name                       Type     Optional   Comment                     Default
+........................................................................................................
+gsl-integration-type       string   Yes                                                     "adaptive"
+gsl-relative-tolerance     double   Yes                                                     0.01
+gsl-max-eval               int      Yes                                                     500000
+gsl-min-eval               int      Yes                                                     5000
+
+-->
+
+  <param_set name="Default"> 
+
+  </param_set>
+
+</alg_conf>
+
