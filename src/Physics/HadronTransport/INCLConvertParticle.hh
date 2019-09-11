@@ -63,9 +63,9 @@ namespace G4INCL {
     TLorentzVector x4null(0.,0.,0.,0.);
     double  m_pnP = 0.5*((result.px[nP])*(result.px[nP]) +
                          (result.py[nP])*(result.py[nP]) +
-                         (result.pz[nP])*(result.pz[nP]) +
+                         (result.pz[nP])*(result.pz[nP]) -
                          EKinP*EKinP) / (EKinP);
-    if (m_pnP < 10 && result.A[nP] == 0 && result.Z[nP] == 0) {
+    if (m_pnP < 10 && result.A[nP] == 0 && result.Z[nP] == 0) { // photon
       pdg_codeP = 22;
       E_pnP = TMath::Sqrt((result.px[nP])*(result.px[nP]) +
                           (result.py[nP])*(result.py[nP]) +

@@ -137,7 +137,7 @@ void HINCLCascadeIntranuke::LoadConfig(void)
 
   size_t maxFlags = 200;
   size_t nflags   = 0;
-  char * flags[maxFlags] = { 0 };  // note non-const'ness desired by ConfigParser
+  char * flags[maxFlags];  // note non-const'ness desired by ConfigParser
 
   std::string infile;
   GetParamDef( "INCL-infile", infile, std::string("NULL"));
@@ -197,47 +197,47 @@ void HINCLCascadeIntranuke::LoadConfig(void)
   switch(theINCLConfig->getDeExcitationType()) {
 #ifdef INCL_DEEXCITATION_ABLAXX
     case G4INCL::DeExcitationABLAv3p:
-      theDeExcitation = new G4INCLAblaInterface(theINCLConfig);
-      LOG("HINCLCascadeIntranuke", pINFO)
-        << "using ABLAv3p for DeExcitation";
-      break;
+    theDeExcitation = new G4INCLAblaInterface(theINCLConfig);
+    LOG("HINCLCascadeIntranuke", pINFO)
+      << "using ABLAv3p for DeExcitation";
+    break;
 #endif
 #ifdef INCL_DEEXCITATION_ABLA07
     case G4INCL::DeExcitationABLA07:
-      theDeExcitation = new ABLA07CXX::Abla07Interface(theINCLConfig);
-      LOG("HINCLCascadeIntranuke", pINFO)
-        << "using ABLA07CXX for DeExcitation";
-      break;
+    theDeExcitation = new ABLA07CXX::Abla07Interface(theINCLConfig);
+    LOG("HINCLCascadeIntranuke", pINFO)
+      << "using ABLA07CXX for DeExcitation";
+    break;
 #endif
 #ifdef INCL_DEEXCITATION_SMM
     case G4INCL::DeExcitationSMM:
-      theDeExcitation = new SMMCXX::SMMInterface(theINCLConfig);
-      LOG("HINCLCascadeIntranuke", pINFO)
-        << "using SMMCXX for DeExcitation";
-      break;
+    theDeExcitation = new SMMCXX::SMMInterface(theINCLConfig);
+    LOG("HINCLCascadeIntranuke", pINFO)
+      << "using SMMCXX for DeExcitation";
+    break;
 #endif
 #ifdef INCL_DEEXCITATION_GEMINIXX
     case G4INCL::DeExcitationGEMINIXX:
-      theDeExcitation = new G4INCLGEMINIXXInterface(theINCLConfig);
-      LOG("HINCLCascadeIntranuke", pINFO)
-        << "using GEMINIXX for DeExcitation";
-      break;
+    theDeExcitation = new G4INCLGEMINIXXInterface(theINCLConfig);
+    LOG("HINCLCascadeIntranuke", pINFO)
+      << "using GEMINIXX for DeExcitation";
+    break;
 #endif
     default:
-      std::stringstream ss;
-      ss << "########################################################\n"
-         << "###              WARNING WARNING WARNING             ###\n"
-         << "###                                                  ###\n"
-         << "### You are running the code without any coupling to ###\n"
-         << "###              a de-excitation model!              ###\n"
-         << "###    Results will be INCOMPLETE and UNPHYSICAL!    ###\n"
-         << "###    Are you sure this is what you want to do?     ###\n"
-         << "########################################################\n";
-      INCL_INFO(ss.str());
-      LOG("HINCLCascadeIntranuke", pWARN)
-        << '\n' << ss.str();
+    std::stringstream ss;
+    ss << "########################################################\n"
+       << "###              WARNING WARNING WARNING             ###\n"
+       << "###                                                  ###\n"
+       << "### You are running the code without any coupling to ###\n"
+       << "###              a de-excitation model!              ###\n"
+       << "###    Results will be INCOMPLETE and UNPHYSICAL!    ###\n"
+       << "###    Are you sure this is what you want to do?     ###\n"
+       << "########################################################\n";
+    INCL_INFO(ss.str());
+    LOG("HINCLCascadeIntranuke", pWARN)
+      << '\n' << ss.str();
         //std::cout << ss.str();
-      break;
+    break;
   }
 
   // try not to leak strings
@@ -267,55 +267,55 @@ bool HINCLCascadeIntranuke::AddDataPathFlags(size_t& nflags, char** flags) {
   datapaths.push_back("!INCL-incl-data-alt1");
   datapaths.push_back("!INCL-incl-data-alt2");
   needed_update |=
-    LookForAndAddValidPath(datapaths,0,"--inclxx-datafile-path",nflags,flags);
+  LookForAndAddValidPath(datapaths,0,"--inclxx-datafile-path",nflags,flags);
 
   switch(theINCLConfig->getDeExcitationType()) {
 #ifdef INCL_DEEXCITATION_ABLAXX
     case G4INCL::DeExcitationABLAv3p:
-      LOG("HINCLCascadeIntranuke", pINFO)
-        << "using ABLAv3p for DeExcitation -- check for data location";
-      datapaths.clear();
-      datapaths.push_back(theINCLConfig->getABLAv3pCxxDataFilePath());
-      datapaths.push_back("!INCL-ablav3p-data-alt1");
-      datapaths.push_back("!INCL-ablav3p-data-alt2");
-      needed_update |=
-        LookForAndAddValidPath(datapaths,0,"--ablav3p-cxx-datafile-path",nflags,flags);
-      break;
+    LOG("HINCLCascadeIntranuke", pINFO)
+      << "using ABLAv3p for DeExcitation -- check for data location";
+    datapaths.clear();
+    datapaths.push_back(theINCLConfig->getABLAv3pCxxDataFilePath());
+    datapaths.push_back("!INCL-ablav3p-data-alt1");
+    datapaths.push_back("!INCL-ablav3p-data-alt2");
+    needed_update |=
+    LookForAndAddValidPath(datapaths,0,"--ablav3p-cxx-datafile-path",nflags,flags);
+    break;
 #endif
 #ifdef INCL_DEEXCITATION_ABLA07
     case G4INCL::DeExcitationABLA07:
-      LOG("HINCLCascadeIntranuke", pINFO)
-        << "using ABLA07 for DeExcitation -- check for data location";
-      datapaths.clear();
-      datapaths.push_back(theINCLConfig->getABLA07DataFilePath());
-      datapaths.push_back("!INCL-abla07-data-alt1");
-      datapaths.push_back("!INCL-abla07-data-alt2");
-      needed_update |=
-        LookForAndAddValidPath(datapaths,0,"--abla07-datafile-path",nflags,flags);
-      break;
+    LOG("HINCLCascadeIntranuke", pINFO)
+      << "using ABLA07 for DeExcitation -- check for data location";
+    datapaths.clear();
+    datapaths.push_back(theINCLConfig->getABLA07DataFilePath());
+    datapaths.push_back("!INCL-abla07-data-alt1");
+    datapaths.push_back("!INCL-abla07-data-alt2");
+    needed_update |=
+    LookForAndAddValidPath(datapaths,0,"--abla07-datafile-path",nflags,flags);
+    break;
 #endif
 #ifdef INCL_DEEXCITATION_SMM
     case G4INCL::DeExcitationSMM:
-      LOG("HINCLCascadeIntranuke", pINFO)
-        << "using SMMCXX for DeExcitation -- no data files to check for";
-      break;
+    LOG("HINCLCascadeIntranuke", pINFO)
+      << "using SMMCXX for DeExcitation -- no data files to check for";
+    break;
 #endif
 #ifdef INCL_DEEXCITATION_GEMINIXX
     case G4INCL::DeExcitationGEMINIXX:
-      LOG("HINCLCascadeIntranuke", pINFO)
-        << "using GEMINIXX for DeExcitation -- check for data location";
-      datapaths.clear();
-      datapaths.push_back(theINCLConfig->getGEMINIXXDataFilePath());
-      datapaths.push_back("!INCL-gemini-data-alt1");
-      datapaths.push_back("!INCL-gemini-data-alt2");
-      needed_update |=
-        LookForAndAddValidPath(datapaths,0,"--geminixx-datafile-path",nflags,flags);
-      break;
+    LOG("HINCLCascadeIntranuke", pINFO)
+      << "using GEMINIXX for DeExcitation -- check for data location";
+    datapaths.clear();
+    datapaths.push_back(theINCLConfig->getGEMINIXXDataFilePath());
+    datapaths.push_back("!INCL-gemini-data-alt1");
+    datapaths.push_back("!INCL-gemini-data-alt2");
+    needed_update |=
+    LookForAndAddValidPath(datapaths,0,"--geminixx-datafile-path",nflags,flags);
+    break;
 #endif
     default:
-      LOG("HINCLCascadeIntranuke", pINFO)
-        << "using no DeExcitation -- no data files to check for";
-      break;
+    LOG("HINCLCascadeIntranuke", pINFO)
+      << "using no DeExcitation -- no data files to check for";
+    break;
   }
 
   // print info
@@ -333,9 +333,9 @@ bool HINCLCascadeIntranuke::AddDataPathFlags(size_t& nflags, char** flags) {
 
 //______________________________________________________________________________
 bool HINCLCascadeIntranuke::LookForAndAddValidPath(std::vector<std::string>& datapaths,
-                                                   size_t defaultIndx,
-                                                   const char* optString,
-                                                   size_t& nflags, char** flags) {
+ size_t defaultIndx,
+ const char* optString,
+ size_t& nflags, char** flags) {
 
   // okay, we have a series of paths _OR_ parameter names ("!" as first char)
   // loop over possibilities
@@ -372,9 +372,9 @@ bool HINCLCascadeIntranuke::LookForAndAddValidPath(std::vector<std::string>& dat
     }
     const char* expandedPath =  gSystem->ExpandPathName(apath.c_str());
     if ( ! expandedPath ) {
-        LOG("HINCLCascadeIntranuke", pINFO)
-          << "expandedPath was NULL";
-        continue;
+      LOG("HINCLCascadeIntranuke", pINFO)
+        << "expandedPath was NULL";
+      continue;
     }
     bool valid = utils::system::DirectoryExists(expandedPath);
     LOG("HINCLCascadeIntranuke", pINFO)
@@ -461,12 +461,14 @@ int HINCLCascadeIntranuke::doCascade(GHepRecord * evrec) const {
     for (int nP = 0; nP < result.nParticles; nP++){
       if ( nP == result.nParticles-1 ) {
         GHepParticle *p_outR =
-          INCLtoGenieParticle(result,nP,kIStFinalStateNuclearRemnant,mom,-1);
+        INCLtoGenieParticle(result,nP,kIStFinalStateNuclearRemnant,mom,-1);
         evrec->AddParticle(*p_outR);
+        delete p_outR;
       } else {
         GHepParticle *p_outR =
-          INCLtoGenieParticle(result,nP,kIStStableFinalState,0,-1);
+        INCLtoGenieParticle(result,nP,kIStStableFinalState,0,-1);
         evrec->AddParticle(*p_outR);
+        delete p_outR;
       }
 
     }
@@ -476,8 +478,8 @@ int HINCLCascadeIntranuke::doCascade(GHepRecord * evrec) const {
 
 void HINCLCascadeIntranuke::ProcessEventRecord(GHepRecord * evrec) const {
 
- LOG("HINCLCascadeIntranuke", pNOTICE)
-     << "************ Running HINCLCascadeIntranuke MODE INTRANUKE ************";
+  LOG("HINCLCascadeIntranuke", pNOTICE)
+    << "************ Running HINCLCascadeIntranuke MODE INTRANUKE ************";
 
   fGMode = evrec->EventGenerationMode();
   if ( fGMode == kGMdHadronNucleus ||
@@ -496,11 +498,11 @@ bool HINCLCascadeIntranuke::CanRescatter(const GHepParticle * p) const {
   // rescattered by this cascade MC
   assert(p);
   return  ( p->Pdg() == kPdgPiP     ||
-            p->Pdg() == kPdgPiM     ||
-            p->Pdg() == kPdgPi0     ||
-            p->Pdg() == kPdgProton  ||
-            p->Pdg() == kPdgNeutron
-            );
+    p->Pdg() == kPdgPiM     ||
+    p->Pdg() == kPdgPi0     ||
+    p->Pdg() == kPdgProton  ||
+    p->Pdg() == kPdgNeutron
+    );
 }
 
 void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
@@ -546,19 +548,19 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
 
   int icurr = -1;
 
-  bool is_DIS  = evrec->Summary()->ProcInfo().IsDeepInelastic();
-  bool is_RES  = evrec->Summary()->ProcInfo().IsResonant();
-  // unused // bool is_CCQE = evrec->Summary()->ProcInfo().IsQuasiElastic();
+  //bool is_DIS  = evrec->Summary()->ProcInfo().IsDeepInelastic();
+  //bool is_RES  = evrec->Summary()->ProcInfo().IsResonant();
+  bool is_QE = evrec->Summary()->ProcInfo().IsQuasiElastic();
 
   TLorentzVector * p_4 = nucl->P4();
-   // momentum of the remnant nucleus.
+  // momentum of the remnant nucleus.
   double pxRemn = p_4->Px();
   double pyRemn = p_4->Py();
   double pzRemn = p_4->Pz();
   int pdg_codeTargetRemn= genie::pdg::IonPdgCode(nucl->A(),nucl->Z());
   TLorentzVector p4tgf(p_4->Px(),p_4->Py(),p_4->Pz(),0.0);
 
-   // Loop over GHEP and run intranuclear rescattering on handled particles
+  // Loop over GHEP and run intranuclear rescattering on handled particles
   std::vector<G4INCL::EventInfo>ListeOfINCLresult;
   std::vector<int> Postion_evrec;
   GHepParticle * fsl = evrec->FinalStatePrimaryLepton();  // primary Lepton
@@ -569,8 +571,10 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
   if ( fsl->Charge() == 0. ) Zl =  0;
   if ( fsl->Charge()  < 0. ) Zl = -1;
   if ( fsl->Charge()  > 0. ) Zl =  1;
+  bool has_remnant = false;
   while ( (p = (GHepParticle *) piter.Next() ) ) {
     icurr++;
+
     // Check whether the particle needs rescattering, otherwise skip it
     if( ! this->NeedsRescattering(p) ) continue;
     GHepParticle * sp = new GHepParticle(*p);
@@ -619,11 +623,7 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
 
     double  E    = (p4->Energy())*1000;
     double massp = G4INCL::ParticleTable::getRealMass(theType);
-    /* unused
-    double M4 = momentum.getX()*momentum.getX() +
-                momentum.getY()*momentum.getY() +
-                momentum.getZ()*momentum.getZ();
-    */
+
     double EKin = E - massp;
 
     G4INCL::ParticleSpecies  theSpecies;
@@ -631,25 +631,21 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
     theSpecies.theA=pdgcpiontoA(sp->Pdg());
     theSpecies.theZ=pdgcpiontoZ(sp->Pdg());
 
-
     G4INCL::Particle *pincl =
-      new G4INCL::Particle( theType , E , momentum, thePosition);
-
-    //***********************************************************************
+    new G4INCL::Particle( theType , E , momentum, thePosition);
 
     G4INCL::Random::SeedVector const theInitialSeeds =
-                                            G4INCL::Random::getSeeds();
-    // unused // int i = 0;
+    G4INCL::Random::getSeeds();
+
     G4INCL::Random::saveSeeds();
     G4INCL::EventInfo result;
-    result=theINCLModel->processEvent(theSpecies,pincl,EKin,fRemnA,fRemnZ);
 
-    //if result  give a transparent event FSI=1
-    // Store *sp
+    result=theINCLModel->processEvent(theSpecies,pincl,EKin,fRemnA,fRemnZ,"FSI");
+
     // Exception get remnant with Z and A <0
-    Aresult += (fRemnA + pdgcpiontoA(sp->Pdg())- result.ARem[0]);
+    Aresult += (fRemnA + pdgcpiontoA(sp->Pdg())- result.ARem[0]); // Aresult & Zresult are particles from cascade
     Zresult += (fRemnZ + pdgcpiontoZ(sp->Pdg())- result.ZRem[0]);
-    Aexception = A_i - Aresult;
+    Aexception = A_i - Aresult; // remaining particles in the nucleus
     Zexception = Z_i - Zresult;
     if ( Zexception <= 0 || Aexception <= 0 ) {
       // Make sure that ARemn and Zremn >0
@@ -657,22 +653,43 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
       sp->SetStatus(kIStStableFinalState);
       evrec->AddParticle(*sp);
       delete sp;
-      int nP(0);
-      for (size_t it=0; it < ListeOfINCLresult.size(); it++) {
-        if ( theDeExcitation != 0 ) {
-          theDeExcitation->deExcite(&ListeOfINCLresult.at(it));
-        }
-        Pos = Postion_evrec.at(it);
-        if ( nP<ListeOfINCLresult.at(it).nParticles ) {
-          GHepParticle *p_outR =
-            INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
-          evrec->AddParticle(*p_outR);
-          nP++;
-        }
+      for (size_t it=0; it<ListeOfINCLresult.size();it++){
+         Pos = Postion_evrec.at(it);  // Position of the mother in evrec
+         GHepParticle * pinthenucleus = evrec->Particle(Pos);
+         theA_Remn+= (fRemnA + pdgcpiontoA(pinthenucleus->Pdg())- ListeOfINCLresult.at(it).ARem[0]);
+         theZ_Remn+= (fRemnZ + pdgcpiontoZ(pinthenucleus->Pdg())- ListeOfINCLresult.at(it).ZRem[0]);
+         the_pxRemn+=ListeOfINCLresult.at(it).pxRem[0];
+         the_pyRemn+=ListeOfINCLresult.at(it).pyRem[0];
+         the_pzRemn+=ListeOfINCLresult.at(it).pzRem[0];
+         ExcitaionE+=ListeOfINCLresult.at(it).EStarRem[0];
+         if (it<ListeOfINCLresult.size()-1) {
+           for (int nP=0;nP<ListeOfINCLresult.at(it).nParticles;nP++ ) {
+             GHepParticle *p_outD =INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
+             evrec->AddParticle(*p_outD);
+             delete p_outD;
+           }//Add result without the remnant nucleus
+         } else {
+           ListeOfINCLresult.at(it).ARem[0]=A_i-theA_Remn- Aft;
+           ListeOfINCLresult.at(it).ZRem[0]=Z_i-theZ_Remn- Zl;
+
+           ListeOfINCLresult.at(it).pxRem[0]= the_pxRemn + (pxRemn*1000);
+           ListeOfINCLresult.at(it).pyRem[0]= the_pyRemn + (pyRemn*1000);
+           ListeOfINCLresult.at(it).pzRem[0]= the_pzRemn + (1000*pzRemn);
+           ListeOfINCLresult.at(it).EStarRem[0]=ExcitaionE;
+           theDeExcitation->deExcite(&ListeOfINCLresult.at(it));
+           for (int nP=0;nP<ListeOfINCLresult.at(it).nParticles;nP++ ) {
+             GHepParticle *p_outFinal =INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
+             evrec->AddParticle(*p_outFinal);
+             delete p_outFinal;
+             has_remnant=true;
+           }//Add all the result with the correct remnant nucleus
+         }
       }
       ListeOfINCLresult.clear();
     } else {
-      if ( result.transparent == true ) {
+      //if result  give a transparent event FSI=1
+      // Store *sp
+      if ( result.transparent ) {
         Zl+=pdgcpiontoZ(sp->Pdg());
         Aft+=pdgcpiontoA(sp->Pdg());
         sp->SetFirstMother(icurr);
@@ -682,10 +699,11 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
       } else {
         Postion_evrec.push_back(icurr);
         ListeOfINCLresult.push_back(result);
+        delete sp;
       }
 
     }
-    delete pincl; // rwh added
+
   } //Ghep-entry
 
   if ( ListeOfINCLresult.size() != 0 ) {
@@ -700,33 +718,27 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
 
       ExcitaionE += ListeOfINCLresult.at(it).EStarRem[0];
 
-      if ( is_DIS == false && is_RES == false ) {
+      if ( is_QE) {
         // QE - event
         ListeOfINCLresult.at(it).pxRem[0] += pxRemn*1000;
         ListeOfINCLresult.at(it).pyRem[0] += pyRemn*1000;
         ListeOfINCLresult.at(it).pzRem[0] += 1000*pzRemn;
-        if ( theDeExcitation != 0 ) {
-          theDeExcitation->deExcite(&ListeOfINCLresult.at(it));
-        }
-
+        if ( theDeExcitation != 0 ) theDeExcitation->deExcite(&ListeOfINCLresult.at(it));
         for (int nP=0; nP < ListeOfINCLresult.at(it).nParticles; nP++ ) {
           GHepParticle *p_out =INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
           evrec->AddParticle(*p_out);
+          delete p_out;
         }// Add to evrec the result
-      }
-      if ( is_RES || is_DIS ) {
-        if( it < ListeOfINCLresult.size()-1 ) {
-          /*if(ListeOfINCLresult.at(it).nParticles==0){
-          // Needed to avoid segmfault (pointer to daugther always NULL add protection to this in gntpc app)
-          TLorentzVector gammad(0.,0.,0.,0.);
-          evrec->AddParticle(22, kIStStableFinalState, Pos, inucl,-1,-1,gammad,x4null);
-          }*/
+      } else {
+        if ( it < ListeOfINCLresult.size()-1 ) {
           for (int nP=0; nP < ListeOfINCLresult.at(it).nParticles; nP++ ) {
             A_f+=ListeOfINCLresult.at(it).A[nP];
             Z_f+=ListeOfINCLresult.at(it).Z[nP];
+
             GHepParticle *p_outD =
-              INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
+            INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
             evrec->AddParticle(*p_outD);
+            delete p_outD;
           } //Add result without the remnant nucleus
         } else {
           ListeOfINCLresult.at(it).ARem[0]=A_i-theA_Remn-Aft;
@@ -735,24 +747,21 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
           ListeOfINCLresult.at(it).pyRem[0]= the_pyRemn + (pyRemn*1000);
           ListeOfINCLresult.at(it).pzRem[0]= the_pzRemn + (1000*pzRemn);
           ListeOfINCLresult.at(it).EStarRem[0]=ExcitaionE;
-          if ( theDeExcitation != 0 ) {
-            theDeExcitation->deExcite(&ListeOfINCLresult.at(it));
-          }
+          if ( theDeExcitation != 0 ) theDeExcitation->deExcite(&ListeOfINCLresult.at(it));
           for (int nP=0; nP < ListeOfINCLresult.at(it).nParticles; nP++ ) {
             A_f+=ListeOfINCLresult.at(it).A[nP];
             Z_f+=ListeOfINCLresult.at(it).Z[nP];
-
             GHepParticle *p_outR = INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
             evrec->AddParticle(*p_outR);
-            //}
+            delete p_outR;
           } //Add all the result with the correct remnant nucleus
         }
       }
     }// Loop over all the result from INCLCascade
   }
-  // rwh // delete pincl;
 
-  if ( ListeOfINCLresult.size() == 0 ) {
+
+  if ( ListeOfINCLresult.size() == 0 && !has_remnant) {
     GHepParticle remnant(pdg_codeTargetRemn, kIStFinalStateNuclearRemnant, inucl,-1,-1,-1, fRemnP4, x4null);
     evrec->AddParticle(remnant);
   }
@@ -762,7 +771,7 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
 //______________________________________________________________________________
 int HINCLCascadeIntranuke::pdgcpiontoA(int pdgc) const {
   if      ( pdgc == 2212 || pdgc == 2112 ) return 1;
-  else if ( pdgc == 211|| pdgc == -211 || pdgc == 111 ) return 0;
+  else if ( pdgc ==  211 || pdgc == -211 || pdgc == 111 ) return 0;
   return 0;  // rwh return something
 }
 
