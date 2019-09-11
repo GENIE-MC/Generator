@@ -18,7 +18,6 @@ using namespace genie;
 
 namespace G4INCL {
 
-  // rwh ?? check this
   int INCLpartycleSpecietoPDGCODE(G4INCL::ParticleSpecies theSpecies) {
     if (theSpecies.theType != Composite) {
       if      (ParticleTable::getName(theSpecies.theType) == "pi0") return  111;
@@ -41,7 +40,7 @@ namespace G4INCL {
     }
   }
 
-  G4INCL::ParticleType toINCLparticletype(int pdgc){
+  G4INCL::ParticleType toINCLparticletype(int pdgc) {
 
     if      (pdgc ==       2212) return G4INCL::Proton;
     else if (pdgc ==       2112) return G4INCL::Neutron;
@@ -53,6 +52,7 @@ namespace G4INCL {
     else if (pdgc == 1000020030) return G4INCL::Composite;
     else if (pdgc == 1000020040) return G4INCL::Composite;
     else                         return G4INCL::UnknownParticle;
+
   }
 
   GHepParticle *INCLtoGenieParticle(G4INCL::EventInfo result,
@@ -80,6 +80,7 @@ namespace G4INCL {
   }
 
 }
+
 #endif
 
 #endif // __GENIE_INCL_ENABLED__

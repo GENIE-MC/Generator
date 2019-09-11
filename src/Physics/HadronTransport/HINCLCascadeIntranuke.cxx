@@ -73,7 +73,6 @@ using namespace G4INCL;
 using std::ostringstream;
 using namespace std;
 
-
 HINCLCascadeIntranuke::HINCLCascadeIntranuke() :
   EventRecordVisitorI("genie::HINCLCascadeIntranuke"),
   theINCLConfig(0), theINCLModel(0), theDeExcitation(0)
@@ -95,7 +94,7 @@ HINCLCascadeIntranuke::HINCLCascadeIntranuke(string config) :
 HINCLCascadeIntranuke::~HINCLCascadeIntranuke()
 {
 
-  // appears Config is owned by model once handed over
+  // Config is owned by model once handed over
  if ( theINCLConfig   ) { theINCLConfig=0;   }
  if ( theINCLModel    ) { delete theINCLModel;    theINCLModel=0;    }
  if ( theDeExcitation ) { delete theDeExcitation; theDeExcitation=0; }
@@ -111,29 +110,12 @@ void HINCLCascadeIntranuke::LoadConfig(void)
   enableSignalHandling();
 #endif
 
-  // appear sConfig is owned by model once handed over
+  // Config is owned by model once handed over
   if ( theINCLConfig   ) { theINCLConfig=0;   }
   if ( theINCLModel    ) { delete theINCLModel;    theINCLModel=0;    }
   if ( theDeExcitation ) { delete theDeExcitation; theDeExcitation=0; }
 
   INCLConfigParser theParser;
-
-  /* RWH old code from Marc
-  // C++ forbids converting string constant to char*
-  const char * flags[] = { "NULL",
-                           "-pp",
-                           "-tFe56",
-                           "-N1",
-                           "-E1",
-                           "-dabla07" };
-  int nflags = 6;
-  // cast away const-ness for the flags
-  LOG("HINCLCascadeIntranuke", pDEBUG)
-    << "LoadConfig() create theINCLConfig";
-  theINCLConfig = theParser.parse(nflags,(char**)flags);
-
-  */
-
 
   size_t maxFlags = 200;
   size_t nflags   = 0;
@@ -333,9 +315,9 @@ bool HINCLCascadeIntranuke::AddDataPathFlags(size_t& nflags, char** flags) {
 
 //______________________________________________________________________________
 bool HINCLCascadeIntranuke::LookForAndAddValidPath(std::vector<std::string>& datapaths,
- size_t defaultIndx,
- const char* optString,
- size_t& nflags, char** flags) {
+                                                   size_t defaultIndx,
+                                                   const char* optString,
+                                                   size_t& nflags, char** flags) {
 
   // okay, we have a series of paths _OR_ parameter names ("!" as first char)
   // loop over possibilities
@@ -411,7 +393,6 @@ bool HINCLCascadeIntranuke::LookForAndAddValidPath(std::vector<std::string>& dat
 //______________________________________________________________________________
 int HINCLCascadeIntranuke::doCascade(GHepRecord * evrec) const {
 
-
   if ( ! theINCLConfig || ! theINCLModel ) return 0;
 
   int tpos = evrec->TargetNucleusPosition();
@@ -432,13 +413,10 @@ int HINCLCascadeIntranuke::doCascade(GHepRecord * evrec) const {
   G4INCL::Random::SeedVector const theInitialSeeds = G4INCL::Random::getSeeds();
   GHepStatus_t    ist1  = kIStStableFinalState;
   int pdg_codeProbe = 0;
-  // unused // double m_probe(0), m_pnP(0),E_pnP(0), EKinP(0);
   pdg_codeProbe =  INCLpartycleSpecietoPDGCODE(theSpecies);
 
   G4INCL::EventInfo result;
   result = theINCLModel->processEvent(theSpecies,EKin,target->A(),target->Z());
-
-  // unused // m_probe = ParticleTable::getRealMass(theType);
 
   double m_target = ParticleTable::getTableMass(result.At, result.Zt);
   GHepParticle * fsProbe = evrec->Probe();
@@ -498,11 +476,11 @@ bool HINCLCascadeIntranuke::CanRescatter(const GHepParticle * p) const {
   // rescattered by this cascade MC
   assert(p);
   return  ( p->Pdg() == kPdgPiP     ||
-    p->Pdg() == kPdgPiM     ||
-    p->Pdg() == kPdgPi0     ||
-    p->Pdg() == kPdgProton  ||
-    p->Pdg() == kPdgNeutron
-    );
+            p->Pdg() == kPdgPiM     ||
+            p->Pdg() == kPdgPi0     ||
+            p->Pdg() == kPdgProton  ||
+            p->Pdg() == kPdgNeutron
+            );
 }
 
 void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
@@ -534,7 +512,6 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
   fRemnA = nucl->A();
   fRemnZ = nucl->Z();
   int A_f(0), Z_f(0), Aft(0), A_i(target->A()),Z_i(target->Z());
-  // unused // Af_Remn(0), Zf_Remn(0);
 
   LOG("HINCLCascadeIntranuke", pNOTICE)
     << "Nucleus (A,Z) = (" << fRemnA << ", " << fRemnZ << ")";
@@ -548,8 +525,6 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
 
   int icurr = -1;
 
-  //bool is_DIS  = evrec->Summary()->ProcInfo().IsDeepInelastic();
-  //bool is_RES  = evrec->Summary()->ProcInfo().IsResonant();
   bool is_QE = evrec->Summary()->ProcInfo().IsQuasiElastic();
 
   TLorentzVector * p_4 = nucl->P4();
@@ -566,7 +541,7 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
   GHepParticle * fsl = evrec->FinalStatePrimaryLepton();  // primary Lepton
   double ExcitaionE(0), the_pxRemn(0), the_pyRemn(0), the_pzRemn(0);
   int Zl(0), Aresult(0), Zresult(0), Aexception(0), Zexception(0),
-    Pos(0), theA_Remn(0), theZ_Remn(0);
+      Pos(0), theA_Remn(0), theZ_Remn(0);
 
   if ( fsl->Charge() == 0. ) Zl =  0;
   if ( fsl->Charge()  < 0. ) Zl = -1;
@@ -662,9 +637,10 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
          the_pyRemn+=ListeOfINCLresult.at(it).pyRem[0];
          the_pzRemn+=ListeOfINCLresult.at(it).pzRem[0];
          ExcitaionE+=ListeOfINCLresult.at(it).EStarRem[0];
-         if (it<ListeOfINCLresult.size()-1) {
-           for (int nP=0;nP<ListeOfINCLresult.at(it).nParticles;nP++ ) {
-             GHepParticle *p_outD =INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
+         if ( it < ListeOfINCLresult.size()-1 ) {
+           for (int nP=0; nP < ListeOfINCLresult.at(it).nParticles; nP++ ) {
+             GHepParticle *p_outD = INCLtoGenieParticle(ListeOfINCLresult.at(it),
+                                                        nP,kIStStableFinalState,Pos,inucl);
              evrec->AddParticle(*p_outD);
              delete p_outD;
            }//Add result without the remnant nucleus
@@ -678,7 +654,8 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
            ListeOfINCLresult.at(it).EStarRem[0]=ExcitaionE;
            theDeExcitation->deExcite(&ListeOfINCLresult.at(it));
            for (int nP=0;nP<ListeOfINCLresult.at(it).nParticles;nP++ ) {
-             GHepParticle *p_outFinal =INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
+             GHepParticle *p_outFinal = INCLtoGenieParticle(ListeOfINCLresult.at(it),
+                                                            nP,kIStStableFinalState,Pos,inucl);
              evrec->AddParticle(*p_outFinal);
              delete p_outFinal;
              has_remnant=true;
@@ -725,7 +702,8 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
         ListeOfINCLresult.at(it).pzRem[0] += 1000*pzRemn;
         if ( theDeExcitation != 0 ) theDeExcitation->deExcite(&ListeOfINCLresult.at(it));
         for (int nP=0; nP < ListeOfINCLresult.at(it).nParticles; nP++ ) {
-          GHepParticle *p_out =INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
+          GHepParticle *p_out = INCLtoGenieParticle(ListeOfINCLresult.at(it),
+                                                    nP,kIStStableFinalState,Pos,inucl);
           evrec->AddParticle(*p_out);
           delete p_out;
         }// Add to evrec the result
@@ -751,7 +729,8 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
           for (int nP=0; nP < ListeOfINCLresult.at(it).nParticles; nP++ ) {
             A_f+=ListeOfINCLresult.at(it).A[nP];
             Z_f+=ListeOfINCLresult.at(it).Z[nP];
-            GHepParticle *p_outR = INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
+            GHepParticle *p_outR = INCLtoGenieParticle(ListeOfINCLresult.at(it),
+                                                       nP,kIStStableFinalState,Pos,inucl);
             evrec->AddParticle(*p_outR);
             delete p_outR;
           } //Add all the result with the correct remnant nucleus
@@ -770,25 +749,31 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
 
 //______________________________________________________________________________
 int HINCLCascadeIntranuke::pdgcpiontoA(int pdgc) const {
+
   if      ( pdgc == 2212 || pdgc == 2112 ) return 1;
   else if ( pdgc ==  211 || pdgc == -211 || pdgc == 111 ) return 0;
-  return 0;  // rwh return something
+  return 0;  // return something
+
 }
 
 //______________________________________________________________________________
 int HINCLCascadeIntranuke::pdgcpiontoZ(int pdgc) const {
+
   if      ( pdgc == 2212 || pdgc == 211 ) return 1;
   else if ( pdgc == 2112 || pdgc == 111 ) return 0;
   else if ( pdgc == -211 ) return -1;
-  return 0; // rwh return something
+  return 0; // return something
+
 }
 
 //______________________________________________________________________________
 bool HINCLCascadeIntranuke::NeedsRescattering(const GHepParticle * p) const {
+
   // checks whether the particle should be rescattered
   assert(p);
   // attempt to rescatter anything marked as 'hadron in the nucleus'
   return ( p->Status() == kIStHadronInTheNucleus );
+
 }
 
 //______________________________________________________________________________
@@ -800,6 +785,7 @@ void HINCLCascadeIntranuke::Configure(const Registry & config) {
 
   Algorithm::Configure(config);
   this->LoadConfig();
+
 }
 
 //___________________________________________________________________________
@@ -810,6 +796,7 @@ void HINCLCascadeIntranuke::Configure(string param_set) {
 
   Algorithm::Configure(param_set);
   this->LoadConfig();
+
 }
 
 #endif // __GENIE_INCL_ENABLED__
