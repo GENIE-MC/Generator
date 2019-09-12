@@ -663,7 +663,7 @@ Interaction * Interaction::DFRCC(
 Interaction * Interaction::COHCC(int tgt, int probe, unsigned int other_pdg, double E)
 {
   Interaction * interaction = 
-     Interaction::Create(tgt,probe,kScCoherent, kIntWeakCC);
+     Interaction::Create(tgt,probe,kScCoherentProduction, kIntWeakCC);
 
   XclsTag * xcl = interaction -> ExclTagPtr() ; 
 
@@ -677,7 +677,7 @@ Interaction * Interaction::COHCC(
     int tgt, int probe, unsigned int other_pdg, const TLorentzVector & p4probe)
 {
   Interaction * interaction = 
-     Interaction::Create(tgt,probe,kScCoherent, kIntWeakCC);
+     Interaction::Create(tgt,probe,kScCoherentProduction, kIntWeakCC);
 
   XclsTag * xcl = interaction -> ExclTagPtr() ; 
 
@@ -690,7 +690,7 @@ Interaction * Interaction::COHCC(
 Interaction * Interaction::COHNC(int tgt, int probe, unsigned int other_pdg, double E)
 {
   Interaction * interaction = 
-     Interaction::Create(tgt,probe,kScCoherent, kIntWeakNC);
+     Interaction::Create(tgt,probe,kScCoherentProduction, kIntWeakNC);
 
   XclsTag * xcl = interaction -> ExclTagPtr() ; 
 
@@ -704,7 +704,7 @@ Interaction * Interaction::COHNC(
    int tgt, int probe, unsigned int other_pdg, const TLorentzVector & p4probe)
 {
   Interaction * interaction = 
-     Interaction::Create(tgt,probe,kScCoherent, kIntWeakNC);
+     Interaction::Create(tgt,probe,kScCoherentProduction, kIntWeakNC);
 
   XclsTag * xcl = interaction -> ExclTagPtr() ; 
 

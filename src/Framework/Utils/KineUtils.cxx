@@ -1245,7 +1245,7 @@ void genie::utils::kinematics::UpdateXFromQ2Y(const Interaction * in)
     double M = 0.0;
     double Ev = 0.0;
 
-    if (pi.IsCoherent()) {
+    if (pi.IsCoherentProduction()) {
       M = in->InitState().Tgt().Mass(); // nucleus mass
       Ev = init_state.ProbeE(kRfLab);
     }

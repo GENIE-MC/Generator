@@ -82,7 +82,7 @@ InteractionList * COHInteractionListGenerator::CreateInteractionList(
 
   InteractionList * intlist = new InteractionList;
 
-  ProcessInfo proc_info(kScCoherent, inttype);
+  ProcessInfo proc_info(kScCoherentProduction, inttype);
   Interaction * interaction = new Interaction(init_state, proc_info);
 
   if ( fPionProduction ) { 
