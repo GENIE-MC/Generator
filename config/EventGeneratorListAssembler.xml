@@ -192,18 +192,18 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-0">   genie::EventGenerator/RES-NC    </param>
   </param_set>
 
-  <param_set name="COH"> 
+  <param_set name="COHPION"> 
      <param type="int" name="NGenerators">   2                               </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/COH-CC-PION    </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/COH-NC-PION    </param>
   </param_set>
 
-  <param_set name="CCCOH"> 
+  <param_set name="CCCOHPION"> 
      <param type="int" name="NGenerators">   1                               </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/COH-CC-PION    </param>
   </param_set>
 
-  <param_set name="NCCOH"> 
+  <param_set name="NCCOHPION"> 
      <param type="int" name="NGenerators">   1                               </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/COH-NC-PION    </param>
   </param_set>
