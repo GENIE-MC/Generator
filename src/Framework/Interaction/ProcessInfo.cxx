@@ -94,7 +94,7 @@ bool ProcessInfo::IsResonant(void) const
   return (fScatteringType == kScResonant);
 }
 //____________________________________________________________________________
-bool ProcessInfo::IsCoherent(void) const
+bool ProcessInfo::IsCoherentProduction(void) const
 {
   return (fScatteringType == kScCoherent);
 }
