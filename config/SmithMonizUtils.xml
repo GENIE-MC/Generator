@@ -12,8 +12,6 @@ RFG-NucRemovalE@Pdg=?   double   No         nuclear removal energy for specfic n
 FermiMomentumTable      string   No         Table of Fermi momentum (kF) constants         CommonParam[FermiGas]
 RFG-UseParametrization  bool     No         use parametrization for Fermi momentum and     CommonParam[FermiGas]
                                             binging energy
-FermiMomentumTable      string   Yes        Table of Fermi momentum (kF) constants         CommonParam[FermiGas]
-                                            for various nuclei   
 .....................................................................................................
 -->
 

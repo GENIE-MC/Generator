@@ -793,14 +793,18 @@ Range1D_t genie::utils::kinematics::CohYLim(double EvL, double ml)
   return y;
 }
 //____________________________________________________________________________
-// Helpers for kinematic limits
-//____________________________________________________________________________
 double genie::utils::kinematics::CohW2Min(double Mn, double mpi)
 {
   // These expressions for W^2 min and max appear in PRD 74, 054007 (2006) by
   // Kartavtsev, Paschos, and Gounaris
 
   return (Mn + mpi) * (Mn + mpi);
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::CEvNSQ2Lim(double Ev)
+{
+  Range1D_t Q2(controls::kAVerySmallNum, 4*Ev*Ev);
+  return Q2;
 }
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::DarkWLim(double Ev, double M, double ml)

@@ -390,7 +390,7 @@ void QELEventGenerator::LoadConfig(void)
     // Minimum energy for which max xsec would be cached, forcing explicit
     // calculation for lower eneries
     GetParamDef( "Cache-MinEnergy", fEMin, 1.00 ) ;
-
+    
     // Maximum allowed fractional cross section deviation from maxim cross
     // section used in rejection method
     GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
