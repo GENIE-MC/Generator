@@ -60,13 +60,13 @@ typedef enum EKinePhaseSpace {
   kPSlogQ2logyfE,
   kPSTlctl,
   kPSElOlOpifE,
-  kPSEgTlOgfE,
   kPSElOlTpifE,
   kPSTkTlctl,
   kPSQ2vfE,
   kPSQELEvGen,// Phase space used by genie::QELEventGenerator for sampling kinematic variables
               // TODO: rename this value when the correct variables are identified
-  kPSTAfE
+  kPSTAfE,
+  kPSEgTlOgfE
 } KinePhaseSpace_t;
 
 class KinePhaseSpace
