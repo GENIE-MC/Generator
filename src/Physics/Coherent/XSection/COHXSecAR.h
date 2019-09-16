@@ -38,11 +38,18 @@ public:
   void Configure(const Registry & config);
   void Configure(string config);
 
-protected:
+ protected:
   bool fSplitIntegral;
+
+  double IntegratePion  ( const XSecAlgorithmI * model, const Interaction * i) const; 
+  double IntegratePhoton( const XSecAlgorithmI * model, const Interaction * i) const; 
 
 private:
   void LoadConfig (void);
+
+  bool fHasPion ;
+  bool fHasPhoton ;
+
 };
 
 }       // genie namespace

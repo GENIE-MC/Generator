@@ -95,6 +95,8 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
     CalculateKin_BergerSehgalFM(evrec);
   } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
     CalculateKin_AlvarezRuso(evrec);
+  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoSaulSalaCOHGammaPXSec")) {
+    CalculateKin_AlvarezRusoSaulSala(evrec);
   }
   else {
     LOG("COHKinematicsGenerator",pFATAL) <<
@@ -611,24 +613,213 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
     }
   }//while
 }
+//---------------------------------------------------------------------------
+ void COHKinematicsGenerator::CalculateKin_AlvarezRusoSaulSala(GHepRecord * evrec) const
+  {
+     LOG("COHKinematics", pNOTICE) << "Using AlvarezRusoSaulSala Gamma Model";
+    // Get the Primary Interacton object
+     Interaction * interaction = evrec->Summary();
+     interaction->SetBit(kISkipProcessChk);
+     interaction->SetBit(kISkipKinematicChk);
+
+    // Initialise a random number generator 
+    RandomGen * rnd = RandomGen::Instance();
+
+    //-- For the subsequent kinematic selection with the rejection method:
+    //   Calculate the max differential cross section or retrieve it from the
+    //   cache. Throw an exception and quit the evg thread if a non-positive
+    //   value is found.
+    //   If the kinematics are generated uniformly over the allowed phase
+    //   space the max xsec is irrelevant
+    double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);//currently this is an untested method
+    double Ev = interaction->InitState().ProbeE(kRfLab);
+   
+   
+    //Set up limits of integration variables
+  
+    //TODO: check that these are the appropriate limits for theta_l and theta_g
+    //Photon energy
+    const double E_g_min = kASmallNum; //min is 0
+    const double E_g_max = Ev; //max is neutrino energy
+  
+    // Primary lepton angle with respect to the beam axis
+    // keeping limits the same as AR pion case but changing to theta not ctheta
+    //const double ctheta_l_min = 0.4;
+    //const double ctheta_l_max = 1.0 - kASmallNum; 
+    //const double theta_l_max = TMath::ACos(0.4); //~1.15
+    //const double theta_l_min = TMath::ACos(1.0 - kASmallNum); //not sure if it would be better as TMath::ACos(1.0) + kASmallNu
+
+    //setting the full range of angles as a test 
+    const double theta_l_max = kPi; //~1.15
+    const double theta_l_min = 0.;
+
+
+    // Gamma angle with respect to the beam axis - 
+    // also keeping the limits the same as the AR pion case for now but for theta, should be similar since both pi and gamma are forward peaked?
+   // const double theta_g_max = TMath::ACos(0.4);
+    //const double theta_g_min = TMath::ACos(1.0 - kASmallNum);
+   const double theta_g_max = kPi;
+   const double theta_g_min = 0.;
+
+
+    // Gamma angle transverse to the beam axis
+    const double phi_min = 0.0;
+    const double phi_max = (2.0 * kPi);
+    // 
+    const double d_E_g = E_g_max - E_g_min;
+    const double d_theta_l  = theta_l_max  - theta_l_min;
+    const double d_theta_g = theta_g_max - theta_g_min;
+    //const double d_ctheta_l  = ctheta_l_max  - ctheta_l_min;
+    //const double d_ctheta_g = ctheta_g_max - ctheta_g_min;
+    const double d_phi = phi_max - phi_min;
+
+    //------ Try to select a valid set of kinematics
+    unsigned int iter = 0;
+    bool accept=false;
+    double xsec=-1, g_E_g=-1, g_E_l = -1, g_theta_l=-1, g_phi_l=-1, g_theta_g=-1, g_phi_g=-1;
+   // double g_ctheta_l, g_ctheta_g;
+
+  while(1) {
+    iter++;
+    if(iter > kRjMaxIterations) this->throwOnTooManyIterations(iter,evrec);
+
+    //Select kinematic point
+    g_E_g = E_g_min + d_E_g * rnd->RndKine().Rndm();
+    g_E_l = Ev - g_E_g;
+    //g_ctheta_l  = ctheta_l_min  + d_ctheta_l  * rnd->RndKine().Rndm();
+    // g_ctheta_g = ctheta_g_min + d_ctheta_g * rnd->RndKine().Rndm();
+    g_theta_l  = theta_l_min  + d_theta_l  * rnd->RndKine().Rndm();
+    g_theta_g = theta_g_min + d_theta_g * rnd->RndKine().Rndm();
+
+
+    // random phi_g is relative to phi_l - taken from AR pion
+    g_phi_l = phi_min + d_phi * rnd->RndKine().Rndm(); //the lepton is in any angle
+    g_phi_g = g_phi_l + (phi_min + d_phi * rnd->RndKine().Rndm()); //the photon angle is relative to lepton angle
+
+   //for some reason you do theta not cos theta - switched now
+  //  g_theta_l = TMath::ACos(g_ctheta_l);
+   // g_theta_g = TMath::ACos(g_ctheta_g);
+
+    LOG("COHKinematics", pINFO) << "Trying: Gamma(" <<g_E_g  << ", "
+     << g_theta_g << ", " << g_phi_g << "),   Lep("<< 
+      g_theta_l << ", " << g_phi_l<<")";
+
+    //realized this method assumes E_l 
+    this->SetKinematics(g_E_l, g_theta_l, g_phi_l, g_theta_g, g_phi_g, 
+                        interaction, interaction->KinePtr());
+   
+    // computing cross section for the current kinematics
+    xsec = fXSecModel->XSec(interaction,kPSEgTlTgPgfE) / (1E-38 * units::cm2);
+
+    if (!fGenerateUniformly) {
+      //-- decide whether to accept the current kinematics
+      double t   = xsec_max * rnd->RndKine().Rndm();
+
+      LOG("COHKinematics", pINFO) << "Got: xsec = " << xsec << ", t = " << 
+        t << " (max_xsec = " << xsec_max << ")";
+
+      this->AssertXSecLimits(interaction, xsec, xsec_max);
+        
+      #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+      LOG("COHKinematics", pDEBUG)
+        << "xsec= " << xsec << ", J= 1, Rnd= " << t;
+      #endif
+        accept = (t<xsec);
+       }
+      else {
+        accept = (xsec>0);
+      }
+
+      //-- If the generated kinematics are accepted, finish-up module's job
+  
+    if(accept) {
+      LOG("COHKinematics", pNOTICE) << "Selected: Lepton(" << 
+        g_phi_l << ", " << g_theta_l << ")   Gamma(" << g_theta_g << ", " << g_phi_g << ")";
+
+      double E_l = g_E_l;
+      double theta_l = g_theta_l;
+      double theta_g = g_theta_g;
+      double phi_l = g_phi_l;
+      double phi_g = g_phi_g;
+      const  TLorentzVector P4_nu = *(interaction->InitStatePtr()->GetProbeP4(kRfLab));
+      double E_nu       = P4_nu.E();
+      double E_g= g_E_g;
+      double m_l = interaction->FSPrimLepton()->Mass();
+      double m_g = 0.0;
+
+      double p_l = TMath::Sqrt(E_l*E_l - m_l*m_l);
+      TVector3 lepton_3vector = TVector3(0,0,0);
+      lepton_3vector.SetMagThetaPhi(p_l,theta_l,phi_l);
+      TLorentzVector P4_lep    = TLorentzVector(lepton_3vector , E_l );
+
+      double p_g = E_g;
+      TVector3 gamma_3vector = TVector3(0,0,0);
+      gamma_3vector.SetMagThetaPhi(p_g,theta_g,phi_g);
+      TLorentzVector P4_gamma   = TLorentzVector(gamma_3vector   , E_g);
+
+      TLorentzVector q = P4_nu - P4_lep;
+      double Q2 = -q.Mag2();
+      double x = Q2/(2*E_g*constants::kNucleonMass);
+      double y = E_g/E_nu;
+
+      double t = TMath::Abs( (q - P4_gamma).Mag2() );
+
+      // for uniform kinematics, compute an event weight as
+      // wght = (phase space volume)*(differential xsec)/(event total xsec)
+      if(fGenerateUniformly) {
+        // Phase space volume needs checking
+        double vol     = d_E_g*d_theta_l*d_phi*d_theta_g*d_phi;
+        double totxsec = evrec->XSec();
+        double wght    = (vol/totxsec)*xsec;
+        LOG("COHKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
+
+        // apply computed weight to the current event weight
+        wght *= evrec->Weight();
+        LOG("COHKinematics", pNOTICE) << "Current event wght = " << wght;
+        evrec->SetWeight(wght);
+      }
+
+      // reset bits
+      interaction->ResetBit(kISkipProcessChk);
+      interaction->ResetBit(kISkipKinematicChk);
+      // lock selected kinematics & clear running values
+      interaction->KinePtr()->Setx(x, true);
+      interaction->KinePtr()->Sety(y, true);
+      interaction->KinePtr()->Sett(t, true);
+      interaction->KinePtr()->SetW(m_g, true);
+      interaction->KinePtr()->SetQ2(2*kNucleonMass*x*y*E_nu, true);
+      interaction->KinePtr()->ClearRunningValues();
+      // set the cross section for the selected kinematics
+       evrec->SetDiffXSec(xsec,kPSEgTlTgPgfE);
+      return;
+      }//if accept
+  
+  }//while still throwing events
+  return;
+  }
+
 //___________________________________________________________________________
 void COHKinematicsGenerator::SetKinematics(const double E_l,
                                            const double theta_l,
                                            const double phi_l,
-                                           const double theta_pi,
-                                           const double phi_pi,
+                                           const double theta_other,
+                                           const double phi_other,
                                            const Interaction* interaction,
                                            Kinematics* kinematics) const
 {
   const TLorentzVector P4_nu = *(interaction->InitStatePtr()->GetProbeP4(kRfLab));
   double E_nu       = P4_nu.E();
-  double E_pi= E_nu-E_l;
+  double E_other= E_nu-E_l;
   double m_l = interaction->FSPrimLepton()->Mass();
-  double m_pi;
-  if ( interaction->ProcInfo().IsWeakCC() ) {
-    m_pi = constants::kPionMass;
+  double m_other;
+  //need to check if photon or pion
+  //if pion, charged or neutral 
+  if(interaction->ExclTagPtr()->NSingleGammas() > 0){
+    m_other = 0.0;
+   } else if( interaction->ProcInfo().IsWeakCC() ) {
+    m_other = constants::kPionMass;
   } else {
-    m_pi = constants::kPi0Mass;
+    m_other = constants::kPi0Mass;
   }
   double p_l=0.0;
   if (E_l > m_l) {
@@ -638,24 +829,24 @@ void COHKinematicsGenerator::SetKinematics(const double E_l,
   lepton_3vector.SetMagThetaPhi(p_l,theta_l,phi_l);
   TLorentzVector P4_lep    = TLorentzVector(lepton_3vector , E_l );
 
-  double p_pi=0.0;
-  if (E_pi > m_pi) {
-    p_pi = TMath::Sqrt(E_pi*E_pi - m_pi*m_pi);
+  double p_other=0.0;
+  if (E_other > m_other) {
+    p_other = TMath::Sqrt(E_other*E_other - m_other*m_other);
   }
-  TVector3 pion_3vector = TVector3(0,0,0);
-  pion_3vector.SetMagThetaPhi(p_pi,theta_pi,phi_pi);
-  TLorentzVector P4_pion   = TLorentzVector(pion_3vector   , E_pi);
+  TVector3 other_3vector = TVector3(0,0,0);
+  other_3vector.SetMagThetaPhi(p_other,theta_other,phi_other);
+  TLorentzVector P4_other   = TLorentzVector(other_3vector   , E_other);
 
   double Q2 = -(P4_nu-P4_lep).Mag2();
-  double x = Q2/(2*E_pi*constants::kNucleonMass);
-  double y = E_pi/E_nu;
+  double x = Q2/(2*E_other*constants::kNucleonMass);
+  double y = E_other/E_nu;
 
   kinematics->Setx(x);
   kinematics->Sety(y);
   kinematics::UpdateWQ2FromXY(interaction);
 
   kinematics->SetFSLeptonP4(P4_lep );
-  kinematics->SetHadSystP4 (P4_pion); // use Hadronic System variable to store pion momentum
+  kinematics->SetHadSystP4 (P4_other); // use Hadronic System variable to store pion momentum
 }
 //___________________________________________________________________________
 bool COHKinematicsGenerator::CheckKinematics(const double E_l,
@@ -705,7 +896,10 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
     max_xsec = MaxXSec_BergerSehgalFM(in);
   } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
     max_xsec = MaxXSec_AlvarezRuso(in);
+  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoSaulSalaCOHGammaPXSec")) {
+    max_xsec = MaxXSec_AlvarezRusoSaulSala(in);
   }
+
   else {
     LOG("COHKinematicsGenerator",pFATAL) <<
       "ComputeMaxXSec >> Cannot calculate max cross-section for " <<
@@ -935,6 +1129,83 @@ double COHKinematicsGenerator::MaxXSec_AlvarezRuso(const Interaction * in) const
 
   delete min;
 
+  return max_xsec;
+}
+//___________________________________________________________________________
+double COHKinematicsGenerator::MaxXSec_AlvarezRusoSaulSala(const Interaction * in) const
+{
+  // Computes the maximum differential cross section in the requested phase
+  // space. This method overloads KineGeneratorWithCache::ComputeMaxXSec
+  // method and the value is cached at a circular cache branch for retrieval
+  // during subsequent event generation.
+  //
+  // This is modeled off of the AR pion
+
+  #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  SLOG("COHKinematics", pDEBUG)
+    << "Scanning the allowed phase space {K} for the max(dxsec/d{K})";
+  #endif
+  double max_xsec = 0.;
+  double Ev = in->InitState().ProbeE(kRfLab);
+
+  const KPhaseSpace & kps = in->PhaseSpace();
+  Range1D_t y = kps.YLim();
+
+  ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit2" );
+  //  min -> SetPrintLevel(3) ;
+  gsl::d4Xsec_dEgdThetaldThetagdPhig f(fXSecModel,in);
+  f.SetFactor(-1.); // Make it return negative of cross-section so we can minimize
+
+  min->SetFunction( f );
+  min->SetMaxFunctionCalls(10000);
+  min->SetTolerance(0.05);//not sure what this does....
+
+
+    //need min, max, n, and d for all the xsec varables
+    //for COH gamma they are Eg, theta_l theta_gamma, phi_gamma 
+    //then set variables and get min
+  const double min_eg = 0.;
+  const double max_eg = Ev ; 
+  const unsigned int n_eg = 100;
+  const double d_eg = (max_eg - min_eg) / double(n_eg - 1);
+
+  const double min_thetal = kASmallNum;
+  const double max_thetal = kPi / 4.0; //not sure why this is the max
+  const unsigned int n_thetal = 10; //also just assuming this is an appropriate number of intervals
+  const double d_thetal = (max_thetal - min_thetal) / double(n_thetal - 1);
+
+  const double min_thetag = kASmallNum; 
+  const double max_thetag = kPi / 2.0;//also not sure why this is the max
+  const unsigned int n_thetag = 10;
+  const double d_thetag = (max_thetag - min_thetag) / double(n_thetag - 1);
+
+  const double min_phig = 0.;
+  const double max_phig = 2*kPi;
+  const unsigned int n_phig = 10;
+  const double d_phig = (max_phig - min_phig) / double(n_phig - 1);
+
+  min->SetLimitedVariable ( 0 ,"E_g"    , 0.5 * (max_eg + min_eg) , d_eg,     min_eg,     max_eg     );
+  min->SetLimitedVariable ( 1 ,"theta_l", 0.5 * (min_thetal + max_thetal), d_thetal, min_thetal, max_thetal );
+  min->SetLimitedVariable ( 2 ,"theta_g", 0.5 * (min_thetag + max_thetag), d_thetag, min_thetag, max_thetag );
+  min->SetLimitedVariable ( 3 ,"phi_g",   0.5 * (min_phig   + max_phig)  , d_phig,   min_phig,   max_phig   );
+
+  min->Minimize();
+  max_xsec = -min->MinValue(); //back to positive xsec
+
+  std::cerr << "Maximum cross section: " << max_xsec << std::endl ;
+
+  // Apply safety factor, since value retrieved from the cache might
+  // correspond to a slightly different energy.
+  
+  max_xsec *= fSafetyFactor;//just going to assume this value is ok
+
+
+    #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+    SLOG("COHKinematics", pDEBUG) << in->AsString();
+    SLOG("COHKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
+    SLOG("COHKinematics", pDEBUG) << "Computed using alg = " << fXSecModel->Id();
+    #endif 
+           
   return max_xsec;
 }
 //___________________________________________________________________________
