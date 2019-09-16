@@ -139,8 +139,8 @@ bool AlvarezRusoSaulSalaCOHGammaPXSec::ValidProcess(const Interaction * interact
 
   int nu = init_state.ProbePdg();
 
-  if ( ! proc_info.IsCoherent() )  return false;
-  if ( ! proc_info.IsWeakNC() )    return false;
+  if ( ! proc_info.IsCoherentProduction() )  return false;
+  if ( ! proc_info.IsWeakNC() )              return false;
 
   if ( target.A() <= 1 )          return false;  
   if ( target.HitNucIsSet() )     return false;
