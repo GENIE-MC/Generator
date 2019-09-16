@@ -59,7 +59,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
   bool is_qel   = proc.IsQuasiElastic();
   bool is_dis   = proc.IsDeepInelastic();
   bool is_res   = proc.IsResonant();
-  bool is_cohpi = proc.IsCoherent();
+  bool is_coh_pr = proc.IsCoherentProduction();
   bool is_ve    = proc.IsNuElectronElastic();
   bool is_mec   = proc.IsMEC();
   bool is_imd   = proc.IsInverseMuDecay();
@@ -95,10 +95,10 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
                
   // coherent pi, nc+cc, nu+nubar
   //
-  else if (is_cohpi && is_cc && is_nu   ) evtype =  16;
-  else if (is_cohpi && is_cc && is_nubar) evtype = -16;
-  else if (is_cohpi && is_nc && is_nu   ) evtype =  36;
-  else if (is_cohpi && is_nc && is_nubar) evtype = -36;
+  else if (is_coh_pr && is_cc && is_nu   ) evtype =  16;
+  else if (is_coh_pr && is_cc && is_nubar) evtype = -16;
+  else if (is_coh_pr && is_nc && is_nu   ) evtype =  36;
+  else if (is_coh_pr && is_nc && is_nubar) evtype = -36;
                      
   // dis, W>2, nc+cc, nu+nubar
   // (charm DIS not simulated by NEUT, will bundle GENIE charm DIS into this category)
@@ -297,8 +297,8 @@ int genie::utils::ghep::NuanceReactionCode(const GHepRecord * event)
   else if (proc.IsQuasiElastic()   && proc.IsWeakNC()) evtype =  2;
   else if (proc.IsDeepInelastic()  && proc.IsWeakCC()) evtype = 91;
   else if (proc.IsDeepInelastic()  && proc.IsWeakNC()) evtype = 92;
-  else if (proc.IsCoherent()       && proc.IsWeakNC()) evtype = 96;
-  else if (proc.IsCoherent()       && proc.IsWeakCC()) evtype = 97;
+  else if (proc.IsCoherentProduction() && proc.IsWeakNC()) evtype = 96;
+  else if (proc.IsCoherentProduction() && proc.IsWeakCC()) evtype = 97;
   else if (proc.IsNuElectronElastic())                 evtype = 98;
   else if (proc.IsInverseMuDecay())                    evtype = 99;
   else if (proc.IsResonant()) {

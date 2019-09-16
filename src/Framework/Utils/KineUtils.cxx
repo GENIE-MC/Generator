@@ -670,14 +670,14 @@ Range1D_t genie::utils::kinematics::CohXLim(void)
   return x;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::CohQ2Lim(double Mn, double m_other, double mlep, double Ev)
+Range1D_t genie::utils::kinematics::CohQ2Lim(double Mn, double m_produced, double mlep, double Ev)
 {
   // The expressions for Q^2 min appears in PRD 74, 054007 (2006) by
   // Kartavtsev, Paschos, and Gounaris
 
   // That expression is specified for the case of the pion. 
   // GENIE has also Coherent interaction with Single gamma production and Rho 
-  // so that formula will be adapted for a generic m_other
+  // so that formula will be adapted for a generic m_produced
 
   Range1D_t Q2;
   Q2.min = 0.0;
@@ -686,7 +686,7 @@ Range1D_t genie::utils::kinematics::CohQ2Lim(double Mn, double m_other, double m
   double Mn2 = Mn * Mn;
   double mlep2 = mlep * mlep;
   double s = Mn2 + 2.0 * Mn * Ev;
-  double W2min = CohW2Min(Mn, m_other);
+  double W2min = CohW2Min(Mn, m_produced);
 
   // Looks like Q2min = A * B - C, where A, B, and C are complicated
   double a = 1.0;
@@ -712,16 +712,16 @@ Range1D_t genie::utils::kinematics::CohQ2Lim(double Mn, double m_other, double m
   return Q2;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::Cohq2Lim(double Mn, double m_other, double mlep, double Ev)
+Range1D_t genie::utils::kinematics::Cohq2Lim(double Mn, double m_produced, double mlep, double Ev)
 {
-  Range1D_t Q2 = utils::kinematics::CohQ2Lim(Mn, m_other, mlep, Ev);
+  Range1D_t Q2 = utils::kinematics::CohQ2Lim(Mn, m_produced, mlep, Ev);
   Range1D_t q2;
   q2.min = - Q2.max;
   q2.max = - Q2.min;
   return q2;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::CohW2Lim(double Mn, double m_other, double mlep,
+Range1D_t genie::utils::kinematics::CohW2Lim(double Mn, double m_produced, double mlep,
 					     double Ev, double Q2)
 {
   // These expressions for W^2 min and max appear in PRD 74, 054007 (2006) by
@@ -729,7 +729,7 @@ Range1D_t genie::utils::kinematics::CohW2Lim(double Mn, double m_other, double m
 
   // That expression is specified for the case of the pion. 
   // GENIE has also Coherent interaction with Single gamma production and Rho 
-  // so that formula will be adapted for a generic m_other
+  // so that formula will be adapted for a generic m_produced
 
   Range1D_t W2l;
   W2l.min = -1;
@@ -742,7 +742,7 @@ Range1D_t genie::utils::kinematics::CohW2Lim(double Mn, double m_other, double m
   double T1 = 0.25 * s * s * Mnterm * Mnterm * Mlterm;
   double T2 = Q2 - (0.5 * s * Mnterm) + (0.5 * mlep * mlep * Mnterm);
 
-  W2l.min = CohW2Min(Mn, m_other);
+  W2l.min = CohW2Min(Mn, m_produced);
   W2l.max = (T1 - T2 * T2 ) *
     (1.0 / Mnterm) *
     (1.0 / (Q2 + mlep * mlep));
@@ -767,20 +767,20 @@ Range1D_t genie::utils::kinematics::CohNuLim(double W2min, double W2max,
   return nul;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::CohYLim(double Mn, double m_other, double mlep,
+Range1D_t genie::utils::kinematics::CohYLim(double Mn, double m_produced, double mlep,
     double Ev, double Q2, double xsi)
 {
   Range1D_t ylim;
   ylim.min = -1;
   ylim.max = -1;
 
-  Range1D_t W2lim = genie::utils::kinematics::CohW2Lim(Mn, m_other, mlep, Ev, Q2);
+  Range1D_t W2lim = genie::utils::kinematics::CohW2Lim(Mn, m_produced, mlep, Ev, Q2);
   if (W2lim.min > W2lim.max) {
     LOG("KineLimits", pDEBUG)
       << "Kinematically forbidden region in CohYLim. W2min = " << W2lim.min
       << "; W2max =" << W2lim.max;
     LOG("KineLimits", pDEBUG)
-      << "  Mn = " << Mn << "; m_had_sys = " << m_other << "; mlep = "
+      << "  Mn = " << Mn << "; m_had_sys = " << m_produced << "; mlep = "
       << mlep << "; Ev = " << Ev << "; Q2 = " << Q2;
     return ylim;
   }
@@ -801,16 +801,16 @@ Range1D_t genie::utils::kinematics::CohYLim(double EvL, double ml)
   return y;
 }
 //____________________________________________________________________________
-double genie::utils::kinematics::CohW2Min(double Mn, double m_other)
+double genie::utils::kinematics::CohW2Min(double Mn, double m_produced)
 {
   // These expressions for W^2 min and max appear in PRD 74, 054007 (2006) by
   // Kartavtsev, Paschos, and Gounaris
 
   // That expression is specified for the case of the pion. 
   // GENIE has also Coherent interaction with Single gamma production and Rho 
-  // so that formula will be adapted for a generic m_other
+  // so that formula will be adapted for a generic m_produced
 
-  return (Mn + m_other) * (Mn + m_other);
+  return (Mn + m_produced) * (Mn + m_produced);
 }
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::CEvNSQ2Lim(double Ev)
@@ -1245,7 +1245,7 @@ void genie::utils::kinematics::UpdateXFromQ2Y(const Interaction * in)
     double M = 0.0;
     double Ev = 0.0;
 
-    if (pi.IsCoherent()) {
+    if (pi.IsCoherentProduction()) {
       M = in->InitState().Tgt().Mass(); // nucleus mass
       Ev = init_state.ProbeE(kRfLab);
     }

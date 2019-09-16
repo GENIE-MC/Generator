@@ -415,7 +415,7 @@ void SaveToPsFile(void)
   i=0;
   for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {
     const Interaction * interaction = *ilistiter;
-    if(interaction->ProcInfo().IsCoherent()) {
+    if(interaction->ProcInfo().IsCoherentProduction()) {
         gr[i]->Draw("LP");
         TString spltitle(interaction->AsString());
         spltitle = spltitle.ReplaceAll(";",1," ",1);
@@ -592,7 +592,7 @@ void SaveGraphsToRootFile(void)
     else if (proc.IsResonant()         ) { title << "res";   }
     else if (proc.IsDeepInelastic()    ) { title << "dis";   }
     else if (proc.IsDiffractive()      ) { title << "dfr";   }
-    else if (proc.IsCoherent()         ) { 
+    else if (proc.IsCoherentProduction() ) { 
       title << "coh"; 
       if      ( xcls.NSingleGammas() > 0 ) title << "_gamma" ;
       else if ( xcls.NPions() > 0 )        title << "_pion"  ;
@@ -927,17 +927,19 @@ void SaveGraphsToRootFile(void)
       
       const Spline * spl = evg_driver.XSecSpline(interaction);
       
-      if (proc.IsCoherent() && proc.IsWeakCC()) {
+      if (proc.IsCoherentProduction() && proc.IsWeakCC()) {
 	for(int i=0; i<kNSplineP; i++) {
 	  xscohcc[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
 	}
       }
-      if (proc.IsCoherent() && proc.IsWeakNC()) {
+
+      if (proc.IsCoherentProduction() && proc.IsWeakNC()) {
 	for(int i=0; i<kNSplineP; i++) {
 	  xscohnc[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
 	}
       }
-      if ( proc.IsCoherent() ) {
+
+      if ( proc.IsCoherentProduction() ) {
 	for(int i=0; i<kNSplineP; i++) {
 	  xscohtot[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
 	}

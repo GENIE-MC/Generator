@@ -102,7 +102,7 @@ double KPhaseSpace::Threshold(void) const
     return 0;
   }
 
-  if (pi.IsCoherent()) {
+  if (pi.IsCoherentProduction()) {
     
     int tgtpdgc = tgt.Pdg(); // nuclear target PDG code (10LZZZAAAI)
     double MA   = PDGLibrary::Instance()->Find(tgtpdgc)->Mass();
@@ -243,11 +243,11 @@ bool KPhaseSpace::IsAboveThreshold(void) const
   const ProcessInfo &  pi         = fInteraction->ProcInfo();
   const InitialState & init_state = fInteraction->InitState();
 
-  if (pi.IsCoherentElastic()   ||
-      pi.IsCoherent()          ||
-      pi.IsInverseMuDecay()    ||
-      pi.IsIMDAnnihilation()   ||
-      pi.IsNuElectronElastic() ||
+  if (pi.IsCoherentElastic()    ||
+      pi.IsCoherentProduction() ||
+      pi.IsInverseMuDecay()     ||
+      pi.IsIMDAnnihilation()    ||
+      pi.IsNuElectronElastic()  ||
       pi.IsMEC())
   {
       E = init_state.ProbeE(kRfLab);
@@ -326,7 +326,7 @@ bool KPhaseSpace::IsAllowed(void) const
   }
 
   //COH
-  if (pi.IsCoherent()) {
+  if (pi.IsCoherentProduction()) {
     Range1D_t xl = this->XLim();
     Range1D_t yl = this->YLim();
     double    x  = kine.x();
@@ -477,7 +477,7 @@ Range1D_t KPhaseSpace::Q2Lim_W(void) const
   bool is_em = pi.IsEM();
   bool is_qel   = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay();
   bool is_inel  = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsDiffractive();
-  bool is_coh   = pi.IsCoherent();
+  bool is_coh   = pi.IsCoherentProduction();
   bool is_dme   = pi.IsDarkMatterElastic();
   bool is_dmdis = pi.IsDarkMatterDeepInelastic();
 
@@ -533,7 +533,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
   bool is_em    = pi.IsEM();
   bool is_qel   = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay();
   bool is_inel  = pi.IsDeepInelastic() || pi.IsResonant();
-  bool is_coh   = pi.IsCoherent();
+  bool is_coh   = pi.IsCoherentProduction();
   bool is_cevns = pi.IsCoherentElastic();
   bool is_dme   = pi.IsDarkMatterElastic();
   bool is_dmdis = pi.IsDarkMatterDeepInelastic();
@@ -670,7 +670,7 @@ Range1D_t KPhaseSpace::XLim(void) const
     return xl;
   }
   //COH
-  bool is_coh = pi.IsCoherent();
+  bool is_coh = pi.IsCoherentProduction();
   if(is_coh) {
     xl = kinematics::CohXLim();
     return xl;
@@ -722,7 +722,7 @@ Range1D_t KPhaseSpace::YLim(void) const
     return yl;
   }
   //COH
-  bool is_coh = pi.IsCoherent();
+  bool is_coh = pi.IsCoherentProduction();
   if(is_coh) {
     const InitialState & init_state = fInteraction->InitState();
     double EvL = init_state.ProbeE(kRfLab);
@@ -786,7 +786,7 @@ Range1D_t KPhaseSpace::YLim_X(void) const
     return yl;
   }
   //COH
-  bool is_coh = pi.IsCoherent();
+  bool is_coh = pi.IsCoherentProduction();
   if(is_coh) {
     const InitialState & init_state = fInteraction->InitState();
     double EvL = init_state.ProbeE(kRfLab);
@@ -809,7 +809,7 @@ Range1D_t KPhaseSpace::YLim(double xsi) const
   const ProcessInfo & pi = fInteraction->ProcInfo();
 
   //COH
-  bool is_coh = pi.IsCoherent();
+  bool is_coh = pi.IsCoherentProduction();
   if(is_coh) {
     const InitialState & init_state = fInteraction->InitState();
     const Kinematics & kine = fInteraction->Kine();
@@ -844,7 +844,7 @@ Range1D_t KPhaseSpace::YLim_X(double xsi) const
   const ProcessInfo & pi = fInteraction->ProcInfo();
 
   //COH
-  bool is_coh = pi.IsCoherent();
+  bool is_coh = pi.IsCoherentProduction();
   if(is_coh) {
     return this->YLim(xsi);
   } else {
@@ -871,7 +871,7 @@ Range1D_t KPhaseSpace::TLim(void) const
   double nu = Ev * kine.y();
 
   //COH
-  if(pi.IsCoherent()) {
+  if(pi.IsCoherentProduction()) {
     
     double m_other  = controls::kASmallNum ; 
     // as a default the mass of hadronic system is the mass of the photon.
