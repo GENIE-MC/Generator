@@ -484,7 +484,11 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
   //Set up limits of integration variables
   // Primary lepton energy
   const double E_l_min = interaction->FSPrimLepton()->Mass();
-  const double E_l_max = interaction->InitStatePtr()->GetProbeP4(kRfLab)->E() - kPionMass;
+  const TLorentzVector * P4_nu =  interaction->InitStatePtr()->GetProbeP4(kRfLab) ;
+  const double E_l_max = P4_nu -> E() - kPionMass;
+  delete P4_nu ;
+  P4_nu = nullptr ;
+
   // Primary lepton angle with respect to the beam axis
   const double ctheta_l_min = 0.4;
   const double ctheta_l_max = 1.0 - kASmallNum;
@@ -741,12 +745,13 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
       double theta_g = g_theta_g;
       double phi_l = g_phi_l;
       double phi_g = g_phi_g;
-      const  TLorentzVector P4_nu = *(interaction->InitStatePtr()->GetProbeP4(kRfLab));
-      double E_nu       = P4_nu.E();
+      
+      const  TLorentzVector * P4_nu = interaction->InitStatePtr()->GetProbeP4(kRfLab) ;
+      double E_nu       = P4_nu -> E();
       double E_g= g_E_g;
       double m_l = interaction->FSPrimLepton()->Mass();
       double m_g = 0.0;
-
+      
       double p_l = TMath::Sqrt(E_l*E_l - m_l*m_l);
       TVector3 lepton_3vector = TVector3(0,0,0);
       lepton_3vector.SetMagThetaPhi(p_l,theta_l,phi_l);
@@ -757,12 +762,15 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
       gamma_3vector.SetMagThetaPhi(p_g,theta_g,phi_g);
       TLorentzVector P4_gamma   = TLorentzVector(gamma_3vector   , E_g);
 
-      TLorentzVector q = P4_nu - P4_lep;
+      TLorentzVector q = *P4_nu - P4_lep;
       double Q2 = -q.Mag2();
       double x = Q2/(2*E_g*constants::kNucleonMass);
       double y = E_g/E_nu;
 
       double t = TMath::Abs( (q - P4_gamma).Mag2() );
+      
+      delete P4_nu ;
+      P4_nu = nullptr ;
 
       // for uniform kinematics, compute an event weight as
       // wght = (phase space volume)*(differential xsec)/(event total xsec)
@@ -802,51 +810,57 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
 void COHKinematicsGenerator::SetKinematics(const double E_l,
                                            const double theta_l,
                                            const double phi_l,
-                                           const double theta_other,
-                                           const double phi_other,
+                                           const double theta_prod,
+                                           const double phi_prod,
                                            const Interaction* interaction,
-                                           Kinematics* kinematics) const
-{
-  const TLorentzVector P4_nu = *(interaction->InitStatePtr()->GetProbeP4(kRfLab));
-  double E_nu       = P4_nu.E();
-  double E_other= E_nu-E_l;
+                                           Kinematics* kinematics) const {
+
+  const TLorentzVector * P4_nu = interaction->InitStatePtr()->GetProbeP4(kRfLab) ;
+  double E_nu = P4_nu -> E() ;
+  double E_prod = E_nu - E_l ;
   double m_l = interaction->FSPrimLepton()->Mass();
-  double m_other;
+ 
+  double m_prod = -1. ;
   //need to check if photon or pion
   //if pion, charged or neutral 
   if(interaction->ExclTagPtr()->NSingleGammas() > 0){
-    m_other = 0.0;
+    m_prod = 0.0;
    } else if( interaction->ProcInfo().IsWeakCC() ) {
-    m_other = constants::kPionMass;
+    m_prod = constants::kPionMass;
   } else {
-    m_other = constants::kPi0Mass;
+    m_prod = constants::kPi0Mass;
   }
-  double p_l=0.0;
+
+  double p_l = 0.0;
   if (E_l > m_l) {
     p_l = TMath::Sqrt(E_l*E_l - m_l*m_l);
   }
   TVector3 lepton_3vector = TVector3(0,0,0);
-  lepton_3vector.SetMagThetaPhi(p_l,theta_l,phi_l);
-  TLorentzVector P4_lep    = TLorentzVector(lepton_3vector , E_l );
+  lepton_3vector.SetMagThetaPhi( p_l, theta_l, phi_l ) ;
+  TLorentzVector P4_lep  = TLorentzVector(lepton_3vector , E_l );
 
-  double p_other=0.0;
-  if (E_other > m_other) {
-    p_other = TMath::Sqrt(E_other*E_other - m_other*m_other);
+  double p_prod = 0. ;
+  if (E_prod > m_prod) {
+    p_prod = TMath::Sqrt(E_prod*E_prod - m_prod*m_prod);
   }
-  TVector3 other_3vector = TVector3(0,0,0);
-  other_3vector.SetMagThetaPhi(p_other,theta_other,phi_other);
-  TLorentzVector P4_other   = TLorentzVector(other_3vector   , E_other);
+  TVector3 prod_3vector = TVector3(0,0,0);
+  prod_3vector.SetMagThetaPhi( p_prod, theta_prod, phi_prod ) ;
+  TLorentzVector P4_prod = TLorentzVector( prod_3vector, E_prod ) ; 
 
-  double Q2 = -(P4_nu-P4_lep).Mag2();
-  double x = Q2/(2*E_other*constants::kNucleonMass);
-  double y = E_other/E_nu;
+  double Q2 = -( *P4_nu - P4_lep).Mag2();
+  double x = Q2/(2*E_prod*constants::kNucleonMass);
+  double y = E_prod/E_nu;
 
   kinematics->Setx(x);
   kinematics->Sety(y);
   kinematics::UpdateWQ2FromXY(interaction);
 
-  kinematics->SetFSLeptonP4(P4_lep );
-  kinematics->SetHadSystP4 (P4_other); // use Hadronic System variable to store pion momentum
+  kinematics->SetFSLeptonP4( P4_lep );
+  kinematics->SetHadSystP4 ( P4_prod ); // use Hadronic System variable to store producted particle momentum
+  
+  delete P4_nu ;
+  P4_nu = nullptr ;
+  
 }
 //___________________________________________________________________________
 bool COHKinematicsGenerator::CheckKinematics(const double E_l,
@@ -856,17 +870,22 @@ bool COHKinematicsGenerator::CheckKinematics(const double E_l,
                                              const double /*  phi_pi     */ ,
                                              const Interaction* interaction) const
 {
-  const TLorentzVector P4_nu = *(interaction->InitStatePtr()->GetProbeP4(kRfLab));
-  double E_nu       = P4_nu.E();
-  double E_pi= E_nu-E_l;
+  const TLorentzVector * P4_nu = interaction->InitStatePtr()->GetProbeP4(kRfLab) ;
+  double E_nu       = P4_nu -> E();
+  double E_pi = E_nu - E_l ;
   double m_l = interaction->FSPrimLepton()->Mass();
   double m_pi;
+
+  delete P4_nu ;
+  P4_nu = nullptr ;
+
   if ( interaction->ProcInfo().IsWeakCC() ) {
     m_pi = constants::kPionMass;
   }
   else {
     m_pi = constants::kPi0Mass;
   }
+
   if (E_l <= m_l) {
     return false;
   }
