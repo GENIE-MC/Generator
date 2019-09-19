@@ -563,9 +563,9 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
       double theta_pi = g_theta_pi;
       double phi_l = g_phi_l;
       double phi_pi = g_phi_pi;
-      const TLorentzVector P4_nu = *(interaction->InitStatePtr()->GetProbeP4(kRfLab));
-      double E_nu       = P4_nu.E();
-      double E_pi= E_nu-E_l;
+      P4_nu = interaction->InitStatePtr()->GetProbeP4(kRfLab) ;
+      double E_nu = P4_nu -> E();
+      double E_pi = E_nu - E_l ;
       double m_l = interaction->FSPrimLepton()->Mass();
       double m_pi = this->pionMass(interaction);
 
@@ -579,10 +579,13 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
       pion_3vector.SetMagThetaPhi(p_pi,theta_pi,phi_pi);
       TLorentzVector P4_pion   = TLorentzVector(pion_3vector   , E_pi);
 
-      TLorentzVector q = P4_nu - P4_lep;
+      TLorentzVector q = *P4_nu - P4_lep;
       double Q2 = -q.Mag2();
       double x = Q2/(2*E_pi*constants::kNucleonMass);
       double y = E_pi/E_nu;
+
+      delete P4_nu ;
+      P4_nu = nullptr ;
 
       double t = TMath::Abs( (q - P4_pion).Mag2() );
 
