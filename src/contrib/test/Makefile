@@ -21,7 +21,8 @@ TGT =	gtestAlgorithms 	 \
 	gtestBLI2DUnifGrid       \
 	gtestCmdLnArg		 \
  	gtestConfigPool		 \
- 	gtestDecay		 \
+ 	gtestP6Decay		 \
+ 	gtestP8Decay		 \
  	gtestDISSF		 \
  	gtestElFormFactors	 \
  	gtestEventLoop 		 \
@@ -30,7 +31,8 @@ TGT =	gtestAlgorithms 	 \
  	gtestFluxSimple 	 \
 	gtestFGPauliBlockSuppr   \
         gtestGiBUUData           \
-	gtestHadronization	 \
+	gtestP6Hadronization	 \
+	gtestP8Hadronization	 \
 	gtestINukeHadroData      \
 	gtestMessenger		 \
 	gtestNaturalIsotopes	 \
@@ -67,9 +69,13 @@ gtestConfigPool: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestConfigPool.cxx $(CPP_INCLUDES)
 	$(LD) $(LDFLAGS) gtestConfigPool.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestConfigPool
 
-gtestDecay: FORCE
-	$(CXX) $(CXXFLAGS) -c gtestDecay.cxx $(CPP_INCLUDES)
-	$(LD) $(LDFLAGS) gtestDecay.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestDecay
+gtestP6Decay: FORCE
+	$(CXX) $(CXXFLAGS) -c gtestP6Decay.cxx $(CPP_INCLUDES)
+	$(LD) $(LDFLAGS) gtestP6Decay.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestP6Decay
+
+gtestP8Decay: FORCE
+	$(CXX) $(CXXFLAGS) -c gtestP8Decay.cxx $(CPP_INCLUDES)
+	$(LD) $(LDFLAGS) gtestP8Decay.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestP8Decay
 
 gtestDISSF: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestDISSF.cxx $(CPP_INCLUDES)
@@ -115,9 +121,13 @@ gtestGiBUUData: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestGiBUUData.cxx $(CPP_INCLUDES)
 	$(LD) $(LDFLAGS) gtestGiBUUData.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestGiBUUData
 
-gtestHadronization: FORCE
-	$(CXX) $(CXXFLAGS) -c gtestHadronization.cxx $(CPP_INCLUDES)
-	$(LD) $(LDFLAGS) gtestHadronization.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestHadronization
+gtestP6Hadronization: FORCE
+	$(CXX) $(CXXFLAGS) -c gtestP6Hadronization.cxx $(CPP_INCLUDES)
+	$(LD) $(LDFLAGS) gtestP6Hadronization.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestP6Hadronization
+
+gtestP8Hadronization: FORCE
+	$(CXX) $(CXXFLAGS) -c gtestP8Hadronization.cxx $(CPP_INCLUDES)
+	$(LD) $(LDFLAGS) gtestP8Hadronization.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestP8Hadronization
 
 gtestNucleonDecay: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestNucleonDecay.cxx $(CPP_INCLUDES)
@@ -202,7 +212,8 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestBLI2DUnifGrid	
 	$(RM) $(GENIE_BIN_PATH)/gtestCmdLnArg		
 	$(RM) $(GENIE_BIN_PATH)/gtestConfigPool		
-	$(RM) $(GENIE_BIN_PATH)/gtestDecay		
+	$(RM) $(GENIE_BIN_PATH)/gtestP6Decay		
+	$(RM) $(GENIE_BIN_PATH)/gtestP8Decay		
 	$(RM) $(GENIE_BIN_PATH)/gtestDISSF		
 	$(RM) $(GENIE_BIN_PATH)/gtestElFormFactors
 	$(RM) $(GENIE_BIN_PATH)/gtestEventLoop
@@ -211,7 +222,8 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestFluxSimple
 	$(RM) $(GENIE_BIN_PATH)/gtestFGPauliBlockSuppr
 	$(RM) $(GENIE_BIN_PATH)/gtestGiBUUData
-	$(RM) $(GENIE_BIN_PATH)/gtestHadronization
+	$(RM) $(GENIE_BIN_PATH)/gtestP6Hadronization
+	$(RM) $(GENIE_BIN_PATH)/gtestP8Hadronization
 	$(RM) $(GENIE_BIN_PATH)/gtestNucleonDecay
 	$(RM) $(GENIE_BIN_PATH)/gtestINukeHadroData	
 	$(RM) $(GENIE_BIN_PATH)/gtestMessenger		
@@ -236,7 +248,8 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestBLI2DUnifGrid	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestCmdLnArg		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestConfigPool		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDecay		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestP6Decay		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestP8Decay		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDISSF		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestElFormFactors
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestEventLoop
@@ -245,7 +258,8 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFluxSimple
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFGPauliBlockSuppr
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestGiBUUData
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestHadronization
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestP6Hadronization
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestP8Hadronization
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNucleonDecay
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestINukeHadroData
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMessenger		

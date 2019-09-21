@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::GLRESGenerator
+\class    genie::GLRESP8Generator
 
 \brief    Glashow resonance event generator
 
@@ -16,21 +16,21 @@
 */
 //____________________________________________________________________________
 
-#ifndef _GLASHOW_RESONANCE_GENERATOR_H_
-#define _GLASHOW_RESONANCE_GENERATOR_H_
+#ifndef _GLASHOW_RESONANCE_P8_GENERATOR_H_
+#define _GLASHOW_RESONANCE_P8_GENERATOR_H_
 
-#include <TPythia6.h>
+#include "Physics/Hadronization/Pythia8Singleton.h"
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
 
 namespace genie {
 
-class GLRESGenerator : public EventRecordVisitorI {
+class GLRESP8Generator : public EventRecordVisitorI {
 
 public :
-  GLRESGenerator();
-  GLRESGenerator(string config);
- ~GLRESGenerator();
+  GLRESP8Generator();
+  GLRESP8Generator(string config);
+ ~GLRESP8Generator();
 
   // implement the EventRecordVisitorI interface
   void ProcessEventRecord (GHepRecord * event) const;
@@ -44,8 +44,8 @@ private:
 
   void LoadConfig(void);
 
-  mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
+  mutable Pythia8Singleton * fPythia;   ///< PYTHIA8 wrapper class
 };
 
 }      // genie namespace
-#endif // _GLASHOW_RESONANCE_GENERATOR_H_
+#endif // _GLASHOW_RESONANCE_P8_GENERATOR_H_

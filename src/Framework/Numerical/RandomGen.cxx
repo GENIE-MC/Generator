@@ -19,7 +19,10 @@
 #include <cstdlib>
 
 #include <TSystem.h>
+#ifdef __GENIE_PYTHIA6_ENABLED__
 #include <TPythia6.h>
+#endif
+#include "Physics/Hadronization/Pythia8Singleton.h"
 
 #include "Framework/Conventions/Controls.h"
 #include "Framework/Messenger/Messenger.h"
@@ -112,9 +115,17 @@ void RandomGen::SetSeed(long int seed)
   // Set the seed number for ROOT's gRandom
   gRandom ->SetSeed (seed);
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
   // Set the PYTHIA6 seed number
   TPythia6 * pythia6 = TPythia6::Instance();
   pythia6->SetMRPY(1, seed);
+#endif
+#ifdef __GENIE_PYTHIA8_ENABLED__
+  // Set the PYTHIA8 seed number
+  Pythia8Singleton * pythia8 = Pythia8Singleton::Instance();
+  pythia8->Pythia8()->readString("ProcessLevel:all = off");
+  pythia8->Pythia8()->readString("Print:quiet      = on");
+#endif
 
   LOG("Rndm", pINFO) << "RndKine  seed = " << this->RndKine ().GetSeed();
   LOG("Rndm", pINFO) << "RndHadro seed = " << this->RndHadro().GetSeed();
@@ -128,7 +139,12 @@ void RandomGen::SetSeed(long int seed)
   LOG("Rndm", pINFO) << "RndNum   seed = " << this->RndNum  ().GetSeed();
   LOG("Rndm", pINFO) << "RndGen   seed = " << this->RndGen  ().GetSeed();
   LOG("Rndm", pINFO) << "gRandom  seed = " << gRandom->GetSeed();
+#ifdef __GENIE_PYTHIA6_ENABLED__
   LOG("Rndm", pINFO) << "PYTHIA6  seed = " << pythia6->GetMRPY(1);
+#endif
+#ifdef __GENIE_PYTHIA8_ENABLED__
+  LOG("Rndm", pINFO) << "PYTHIA8  seed = " << pythia8->Pythia8()->settings.mode("Random:seed");
+#endif
 }
 //____________________________________________________________________________
 void RandomGen::InitRandomGenerators(long int seed)

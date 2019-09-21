@@ -6,7 +6,8 @@
 
 #pragma link C++ namespace genie;
 
-#pragma link C++ class genie::GLRESGenerator;
+#pragma link C++ class genie::GLRESP6Generator;
+#pragma link C++ class genie::GLRESP8Generator;
 #pragma link C++ class genie::GLRESInteractionListGenerator;
 
 #endif

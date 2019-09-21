@@ -1,13 +1,16 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::Pythia6Hadronization
+\class    genie::Pythia8Hadronization
 
-\brief    Provides access to the PYTHIA hadronization models. \n
+\brief    Provides access to the PYTHIA8 hadronization models. \n
           Is a concrete implementation of the EventRecordVisitorI interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
+
+          Shivesh Mandalia <s.p.mandalia@qmul.ac.uk>
+          Queen Mary University of London
 
 \created  August 17, 2004
 
@@ -17,12 +20,10 @@
 */
 //____________________________________________________________________________
 
-#ifndef _PYTHIA6_HADRONIZATION_H_
-#define _PYTHIA6_HADRONIZATION_H_
+#ifndef _PYTHIA8_HADRONIZATION_H_
+#define _PYTHIA8_HADRONIZATION_H_
 
-#ifdef __GENIE_PYTHIA6_ENABLED__
-#include <TPythia6.h>
-#endif
+#include "Physics/Hadronization/Pythia8Singleton.h"
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/Interaction/Interaction.h"
@@ -32,12 +33,12 @@ namespace genie {
 
 class GHepParticle;
 
-class Pythia6Hadronization : protected EventRecordVisitorI {
+class Pythia8Hadronization : protected EventRecordVisitorI {
 
 public:
-  Pythia6Hadronization();
-  Pythia6Hadronization(string config);
-  virtual ~Pythia6Hadronization();
+  Pythia8Hadronization();
+  Pythia8Hadronization(string config);
+  virtual ~Pythia8Hadronization();
 
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;
@@ -61,9 +62,7 @@ private:
 
   void LoadConfig                   (void);
 
-#ifdef __GENIE_PYTHIA6_ENABLED__
-  mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
-#endif
+  mutable Pythia8Singleton * fPythia;   ///< PYTHIA8 wrapper class
 
   //-- configuration parameters
   //   Note: additional configuration parameters common to all hadronizers
@@ -82,4 +81,4 @@ private:
 
 }         // genie namespace
 
-#endif    // _PYTHIA6_HADRONIZATION_H_
+#endif    // _PYTHIA8_HADRONIZATION_H_

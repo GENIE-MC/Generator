@@ -52,7 +52,8 @@
   <priority msgstream="SmithMoniz">            WARN   </priority>
   <priority msgstream="SMQELXSec">             NOTICE </priority>
   <priority msgstream="Cache">                 WARN   </priority>
-  <priority msgstream="CharmHad">              NOTICE </priority>
+  <priority msgstream="CharmP6Had">            NOTICE </priority>
+  <priority msgstream="CharmP8Had">            NOTICE </priority>
   <priority msgstream="CFracTab">              INFO   </priority>
   <priority msgstream="CEvNS">                 WARN   </priority>
   <priority msgstream="COHXSec">               NOTICE </priority>
@@ -159,7 +160,9 @@
   <priority msgstream="PaschLal">              INFO   </priority>
   <priority msgstream="PythiaDec">             NOTICE </priority>
   <priority msgstream="Pythia6Decay">          NOTICE </priority>
-  <priority msgstream="PythiaHad">             WARN   </priority>
+  <priority msgstream="Pythia8Decay">          NOTICE </priority>
+  <priority msgstream="Pythia6Had">            WARN   </priority>
+  <priority msgstream="Pythia8Had">            WARN   </priority>
   <priority msgstream="PDG">                   INFO   </priority>
   <priority msgstream="PathL">                 NOTICE </priority>
   <priority msgstream="PhysUtil">              WARN   </priority>

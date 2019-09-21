@@ -15,10 +15,12 @@
 #include <TLorentzVector.h>
 #include <TDecayChannel.h>
 #include <RVersion.h>
+#ifdef __GENIE_PYTHIA6_ENABLED__
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
 #include <TMCParticle.h>
 #else
 #include <TMCParticle6.h>
+#endif
 #endif
 
 #include "Framework/Conventions/Units.h"
@@ -32,35 +34,38 @@
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "Physics/Decay/PythiaDecayer.h"
+#include "Physics/Decay/Pythia6Decayer.h"
 
 using std::vector;
 
 using namespace genie;
 
-// actual PYTHIA calls:
+#ifdef __GENIE_PYTHIA6_ENABLED__
+// actual PYTHIA6 calls:
 extern "C" void py1ent_(int *,  int *, double *, double *, double *);
 extern "C" void pydecy_(int *);
+#endif
 //____________________________________________________________________________
-PythiaDecayer::PythiaDecayer() :
-Decayer("genie::PythiaDecayer")
+Pythia6Decayer::Pythia6Decayer() :
+Decayer("genie::Pythia6Decayer")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-PythiaDecayer::PythiaDecayer(string config) :
-Decayer("genie::PythiaDecayer", config)
+Pythia6Decayer::Pythia6Decayer(string config) :
+Decayer("genie::Pythia6Decayer", config)
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-PythiaDecayer::~PythiaDecayer()
+Pythia6Decayer::~Pythia6Decayer()
 {
 
 }
 //____________________________________________________________________________
-void PythiaDecayer::ProcessEventRecord(GHepRecord * event) const
+void Pythia6Decayer::ProcessEventRecord(GHepRecord * event) const
 {
+#ifdef __GENIE_PYTHIA6_ENABLED__
   LOG("ResonanceDecay", pINFO)
     << "Running PYTHIA6 particle decayer "
     << ((fRunBefHadroTransp) ? "*before*" : "*after*") << " FSI";
@@ -90,10 +95,12 @@ void PythiaDecayer::ProcessEventRecord(GHepRecord * event) const
 
   LOG("Pythia6Decay", pNOTICE)
      << "Done finding & decaying unstable particles";
+#endif
 }
 //____________________________________________________________________________
-bool PythiaDecayer::Decay(int decay_particle_id, GHepRecord * event) const
+bool Pythia6Decayer::Decay(int decay_particle_id, GHepRecord * event) const
 {
+#ifdef __GENIE_PYTHIA6_ENABLED__
   fWeight = 1.; // reset previous decay weight
 
   // Get particle to be decayed
@@ -201,19 +208,22 @@ bool PythiaDecayer::Decay(int decay_particle_id, GHepRecord * event) const
   // Mark input particle as a 'decayed state' & add its daughter links
   decay_particle->SetStatus(kIStDecayedState);
 
+#endif
   return true;
 }
 //____________________________________________________________________________
-void PythiaDecayer::Initialize(void) const
+void Pythia6Decayer::Initialize(void) const
 {
+#ifdef __GENIE_PYTHIA6_ENABLED__
   fPythia = TPythia6::Instance();
   fWeight = 1.;
 
   // sync GENIE/PYTHIA6 seeds
   RandomGen::Instance();
+#endif
 }
 //____________________________________________________________________________
-bool PythiaDecayer::IsHandled(int pdg_code) const
+bool Pythia6Decayer::IsHandled(int pdg_code) const
 {
 // does not handle requests to decay baryon resonances
 
@@ -226,8 +236,9 @@ bool PythiaDecayer::IsHandled(int pdg_code) const
   return is_handled;
 }
 //____________________________________________________________________________
-void PythiaDecayer::InhibitDecay(int pdg_code, TDecayChannel * dc) const
+void Pythia6Decayer::InhibitDecay(int pdg_code, TDecayChannel * dc) const
 {
+#ifdef __GENIE_PYTHIA6_ENABLED__
   if(! this->IsHandled(pdg_code)) return;
 
   int kc = fPythia->Pycomp(pdg_code);
@@ -247,10 +258,12 @@ void PythiaDecayer::InhibitDecay(int pdg_code, TDecayChannel * dc) const
   if(ichannel != -1) {
     fPythia->SetMDME(ichannel,1,0); // switch-off
   }
+#endif
 }
 //____________________________________________________________________________
-void PythiaDecayer::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
+void Pythia6Decayer::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
 {
+#ifdef __GENIE_PYTHIA6_ENABLED__
   if(! this->IsHandled(pdg_code)) return;
 
   int kc = fPythia->Pycomp(pdg_code);
@@ -279,14 +292,16 @@ void PythiaDecayer::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
   if(ichannel != -1) {
     fPythia->SetMDME(ichannel,1,1); // switch-on
   }
+#endif
 }
 //____________________________________________________________________________
-double PythiaDecayer::SumOfBranchingRatios(int kc) const
+double Pythia6Decayer::SumOfBranchingRatios(int kc) const
 {
 // Sum of branching ratios for enabled channels
 //
   double sumbr=0.;
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
   int first_channel = fPythia->GetMDCY(kc,2);
   int last_channel  = fPythia->GetMDCY(kc,2) + fPythia->GetMDCY(kc,3) - 1;
 
@@ -306,14 +321,16 @@ double PythiaDecayer::SumOfBranchingRatios(int kc) const
 
   if(!has_inhibited_channels) return 1.;
   LOG("Pythia6Decay", pINFO) << "Sum{BR} = " << sumbr;
+#endif
 
   return sumbr;
 }
 //____________________________________________________________________________
-int PythiaDecayer::FindPythiaDecayChannel(int kc, TDecayChannel* dc) const
+int Pythia6Decayer::FindPythiaDecayChannel(int kc, TDecayChannel* dc) const
 {
   if(!dc) return -1;
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
   int first_channel = fPythia->GetMDCY(kc,2);
   int last_channel  = fPythia->GetMDCY(kc,2) + fPythia->GetMDCY(kc,3) - 1;
 
@@ -341,11 +358,13 @@ int PythiaDecayer::FindPythiaDecayChannel(int kc, TDecayChannel* dc) const
      << " ** No PYTHIA6 decay channel match found for "
      << "TDecayChannel id = " << dc->Number();
 
+#endif
   return -1;
 }
 //____________________________________________________________________________
-bool PythiaDecayer::MatchDecayChannels(int ichannel, TDecayChannel* dc) const
+bool Pythia6Decayer::MatchDecayChannels(int ichannel, TDecayChannel* dc) const
 {
+#ifdef __GENIE_PYTHIA6_ENABLED__
   // num. of daughters in the input TDecayChannel & the input PYTHIA ichannel
   int nd = dc->NDaughters();
 
@@ -386,6 +405,7 @@ bool PythiaDecayer::MatchDecayChannels(int ichannel, TDecayChannel* dc) const
   for(int i = 0; i < nd; i++) {
     if(dc_daughter[i] != py_daughter[i]) return false;
   }
+#endif
   return true;
 }
 //____________________________________________________________________________

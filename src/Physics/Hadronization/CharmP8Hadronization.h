@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::CharmHadronization
+\class    genie::CharmP8Hadronization
 
-\brief    Provides access to the PYTHIA hadronization models. \n
+\brief    Provides access to the PYTHIA6 hadronization models. \n
           Is a concrete implementation of the EventRecordVisitorI interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
@@ -11,6 +11,9 @@
 
           Hugh Gallagher <gallag@minos.phy.tufts.edu>
           Tufts University
+
+          Shivesh Mandalia <s.p.mandalia@qmul.ac.uk>
+          Queen Mary University of London
 
 \created  August 17, 2004
 
@@ -20,15 +23,15 @@
 */
 //____________________________________________________________________________
 
-#ifndef _CHARM_HADRONIZATION_H_
-#define _CHARM_HADRONIZATION_H_
+#ifndef _CHARM_P8_HADRONIZATION_H_
+#define _CHARM_P8_HADRONIZATION_H_
 
 #include <TGenPhaseSpace.h>
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/Interaction/Interaction.h"
 
-class TPythia6;
+#include "Physics/Hadronization/Pythia8Singleton.h"
 class TF1;
 
 namespace genie {
@@ -36,12 +39,12 @@ namespace genie {
 class Spline;
 class FragmentationFunctionI;
 
-class CharmHadronization : public EventRecordVisitorI {
+class CharmP8Hadronization : public EventRecordVisitorI {
 
 public:
-  CharmHadronization();
-  CharmHadronization(string config);
-  virtual ~CharmHadronization();
+  CharmP8Hadronization();
+  CharmP8Hadronization(string config);
+  virtual ~CharmP8Hadronization();
 
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;
@@ -74,10 +77,10 @@ private:
   Spline *                       fDsFracSpl;   ///< nu charm fraction vs Ev: Ds+
   double                         fD0BarFrac;   ///< nubar \bar{D0} charm fraction
   double                         fDmFrac;      ///< nubar D- charm fraction
-  mutable TPythia6 *             fPythia;      ///< remnant (non-charm) hadronizer
+  mutable Pythia8Singleton *     fPythia;      ///< remnant (non-charm) hadronizer
 };
 
 }         // genie namespace
 
-#endif    // _CHARM_HADRONIZATION__H_
+#endif    // _CHARM_P8_HADRONIZATION_H_
 

@@ -33,31 +33,32 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGLibrary.h"
-#include "Physics/GlashowResonance/EventGen/GLRESGenerator.h"
+#include "Physics/GlashowResonance/EventGen/GLRESP6Generator.h"
 
 using namespace genie;
 using namespace genie::constants;
 
 //___________________________________________________________________________
-GLRESGenerator::GLRESGenerator() :
-EventRecordVisitorI("genie::GLRESGenerator")
+GLRESP6Generator::GLRESP6Generator() :
+EventRecordVisitorI("genie::GLRESP6Generator")
 {
 
 }
 //___________________________________________________________________________
-GLRESGenerator::GLRESGenerator(string config) :
-EventRecordVisitorI("genie::GLRESGenerator", config)
+GLRESP6Generator::GLRESP6Generator(string config) :
+EventRecordVisitorI("genie::GLRESP6Generator", config)
 {
 
 }
 //___________________________________________________________________________
-GLRESGenerator::~GLRESGenerator()
+GLRESP6Generator::~GLRESP6Generator()
 {
 
 }
 //___________________________________________________________________________
-void GLRESGenerator::ProcessEventRecord(GHepRecord * event) const
+void GLRESP6Generator::ProcessEventRecord(GHepRecord * event) const
 {
+#ifdef __GENIE_PYTHIA6_ENABLED__
   GHepParticle * nu = event -> Probe();
   GHepParticle * el = event -> HitElectron();
   assert(nu);
@@ -136,27 +137,30 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord * event) const
         event->AddParticle(pdgc, kIStStableFinalState, 4,-1,-1,-1, p4, x4);
      }
   }
+#endif
 
 }
 //___________________________________________________________________________
-void GLRESGenerator::Configure(const Registry & config)
+void GLRESP6Generator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void GLRESGenerator::Configure(string config)
+void GLRESP6Generator::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void GLRESGenerator::LoadConfig(void)
+void GLRESP6Generator::LoadConfig(void)
 {
+#ifdef __GENIE_PYTHIA6_ENABLED__
  fPythia = TPythia6::Instance();
 
  // sync GENIE/PYTHIA6 seed number
  RandomGen::Instance();
+#endif
 }
 //____________________________________________________________________________
 

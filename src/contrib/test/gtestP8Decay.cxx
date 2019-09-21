@@ -29,7 +29,9 @@
 #include "Conventions/Units.h"
 #include "Conventions/Constants.h"
 #include "Decay/Decayer.h"
-#include "Decay/PythiaDecayer.h"
+#ifdef __GENIE_PYTHIA8_ENABLED__
+#include "Decay/Pythia8Decayer.h"
+#endif
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
@@ -64,11 +66,11 @@ void TestPythiaTauDecays(void)
 {
   // Get the pythia decayer
   LOG("test",pINFO)
-     << "Asking the AlgFactory for a genie::PythiaDecayer\\Default instance";
+     << "Asking the AlgFactory for a genie::Pythia8Decayer\\Default instance";
   AlgFactory * algf = AlgFactory::Instance();
   const Decayer * pdecayer =
      dynamic_cast<const Decayer *> (
-         algf->GetAlgorithm("genie::PythiaDecayer","Default"));
+         algf->GetAlgorithm("genie::Pythia8Decayer","Default"));
 
   // Decayer config print-out
   LOG("test",pINFO) << "Algorithm name = " << pdecayer->Id().Name();

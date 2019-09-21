@@ -24,7 +24,7 @@ KNO2PYTHIA-Wmax             double  No     relevant only for method=2           
     <param type="string" name="CommonParam"> KNO2Pythia </param>
     
     <param type="alg" name="KNO-Hadronizer">      genie::KNOHadronization/Default     </param>
-    <param type="alg" name="PYTHIA-Hadronizer">   genie::Pythia6Hadronization/Default </param>
+    <param type="alg" name="PYTHIA-Hadronizer">   genie::Pythia8Hadronization/Default </param>
 
   </param_set>
 

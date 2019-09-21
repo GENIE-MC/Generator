@@ -195,18 +195,30 @@ endif
 
 
 #-------------------------------------------------------------------
-#                             PYTHIA6
+#                             PYTHIA
 #-------------------------------------------------------------------
 
-# PYTHIA6 dir/lib/object file
+PYTHIA_LIBRARIES =
+PYTHIA_INCLUDES =
+
+ifeq ($(strip $(GOPT_ENABLE_PYTHIA6)),YES) 
 
 PYTHIA_DIR = $(GOPT_WITH_PYTHIA6_LIB)
 PYTHIA_O   = $(wildcard $(PYTHIA_DIR)/pythia*.o) # match all vrs
 
-PYTHIA_LIBRARIES  = -L$(PYTHIA_DIR) -lPythia6 $(PYTHIA_O)
+PYTHIA_LIBRARIES += -L$(PYTHIA_DIR) -lPythia6 $(PYTHIA_O)
 
 ifeq ($(strip $(ARCH)),macosx) 
-PYTHIA_LIBRARIES  = -L$(PYTHIA_DIR) -lPythia6 
+PYTHIA_LIBRARIES += -L$(PYTHIA_DIR) -lPythia6 
+endif
+
+endif
+
+ifeq ($(strip $(GOPT_ENABLE_PYTHIA8)),YES) 
+
+PYTHIA_LIBRARIES += -L$(GOPT_WITH_PYTHIA8_LIB) -lpythia8
+PYTHIA_INCLUDES  += -I$(GOPT_WITH_PYTHIA8_INC)
+
 endif
 
 #-------------------------------------------------------------------
@@ -216,7 +228,10 @@ endif
 ROOT_FLAGS     = $(shell root-config --cflags)
 ROOT_INCLUDES  = -I$(shell root-config --incdir)
 ROOT_LIBRARIES = $(shell root-config --glibs) \
-                        -lMinuit -lGeom -lEG -lEGPythia6 -lGenVector
+                        -lMinuit -lGeom -lEG -lGenVector
+ifeq ($(strip $(GOPT_ENABLE_PYTHIA6)),YES) 
+ROOT_LIBRARIES += -lEGPythia6 
+endif
 ROOT_VERSION = $(shell root-config --version )
 ROOT_MAJOR   = $(shell root-config --version | cut -d. -f1 )
 
@@ -523,6 +538,7 @@ CPP_INCLUDES := \
     $(XML_INCLUDES) \
     $(LOG_INCLUDES) \
     $(ROOT_INCLUDES) \
+    $(PYTHIA_INCLUDES) \
     $(LHAPDF_INCLUDES) \
     $(GSL_INCLUDES) \
     $(GENIE_INCLUDES) 
@@ -532,6 +548,7 @@ ROOT_DICT_GEN_INCLUDES := \
     $(XML_INCLUDES) \
     $(LOG_INCLUDES) \
     $(ROOT_INCLUDES) \
+    $(PYTHIA_INCLUDES) \
     $(GENIE_INCLUDES) 
 
 LIBRARIES := $(SYSLIBS) \

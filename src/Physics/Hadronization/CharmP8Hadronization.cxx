@@ -10,20 +10,15 @@
          Changes required to implement the GENIE Boosted Dark Matter module
          were installed by Josh Berger (Univ. of Wisconsin)
 
+         Shivesh Mandalia <s.p.mandalia@qmul.ac.uk>
+         Queen Mary University of London
 */
 //____________________________________________________________________________
 
 #include <RVersion.h>
-#include <TPythia6.h>
 #include <TVector3.h>
 #include <TF1.h>
 #include <TROOT.h>
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
@@ -33,7 +28,7 @@
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepFlags.h" 
 #include "Framework/EventGen/EVGThreadException.h"
-#include "Physics/Hadronization/CharmHadronization.h"
+#include "Physics/Hadronization/CharmP8Hadronization.h"
 #include "Physics/Hadronization/FragmentationFunctionI.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
@@ -51,23 +46,20 @@ using namespace genie;
 using namespace genie::constants;
 using namespace genie::controls;
 
-extern "C" void py1ent_(int *,  int *, double *, double *, double *);
-extern "C" void py2ent_(int *,  int *, int *, double *);
-
 //____________________________________________________________________________
-CharmHadronization::CharmHadronization() :
-EventRecordVisitorI("genie::CharmHadronization")
+CharmP8Hadronization::CharmP8Hadronization() :
+EventRecordVisitorI("genie::CharmP8Hadronization")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-CharmHadronization::CharmHadronization(string config) :
-EventRecordVisitorI("genie::CharmHadronization", config)
+CharmP8Hadronization::CharmP8Hadronization(string config) :
+EventRecordVisitorI("genie::CharmP8Hadronization", config)
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-CharmHadronization::~CharmHadronization()
+CharmP8Hadronization::~CharmP8Hadronization()
 {
   delete fCharmPT2pdf;
   fCharmPT2pdf = 0;
@@ -82,19 +74,25 @@ CharmHadronization::~CharmHadronization()
   fDsFracSpl = 0;
 }
 //____________________________________________________________________________
-void CharmHadronization::Initialize(void) const
+void CharmP8Hadronization::Initialize(void) const
 {
-  fPythia = TPythia6::Instance();
+#ifdef __GENIE_PYTHIA8_ENABLED__
+  fPythia = Pythia8Singleton::Instance();
+
+  fPythia->Pythia8()->readString("ProcessLevel:all = off");
+  fPythia->Pythia8()->readString("Print:quiet      = on");
+  fPythia->Pythia8()->init();
+#endif
 }
 //____________________________________________________________________________
-void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
+void CharmP8Hadronization::ProcessEventRecord(GHepRecord * event) const
 {
   Interaction * interaction = event->Summary();
   TClonesArray * particle_list = this->Hadronize(interaction);
 
   if(! particle_list ) {
-    LOG("CharmHadronization", pWARN) << "Got an empty particle list. Hadronizer failed!";
-    LOG("CharmHadronization", pWARN) << "Quitting the current event generation thread";
+    LOG("CharmP8Hadronization", pWARN) << "Got an empty particle list. Hadronizer failed!";
+    LOG("CharmP8Hadronization", pWARN) << "Quitting the current event generation thread";
     
     event->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
 
@@ -172,7 +170,7 @@ void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
 
 }
 //____________________________________________________________________________
-TClonesArray * CharmHadronization::Hadronize(
+TClonesArray * CharmP8Hadronization::Hadronize(
                                         const Interaction * interaction) const
 {
   LOG("CharmHad", pNOTICE) << "** Running CHARM hadronizer";
@@ -454,6 +452,7 @@ TClonesArray * CharmHadronization::Hadronize(
   new ((*particle_list)[1]) GHepParticle (kPdgHadronicBlob,kIStNucleonTarget,
           -1,-1,2,3, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(), 0,0,0,0);
 
+#ifdef __GENIE_PYTHIA8_ENABLED__
   unsigned int rpos =2; // offset in event record
 
   bool use_pythia = (WR>1.5);
@@ -573,72 +572,117 @@ TClonesArray * CharmHadronization::Hadronize(
      //
      // Run PYTHIA for the hadronization of remnant system
      //
-     fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),              1,0); // don't decay pi0
-     fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaM),  1,1); // decay Delta+
-     fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_Delta0),  1,1); // decay Delta++
-     fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaP),  1,1); // decay Delta++
-     fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaPP), 1,1); // decay Delta++
-//   fPythia->SetMDCY(fPythia->Pycomp(kPdgDeltaP),  1,1); // decay Delta+
-//   fPythia->SetMDCY(fPythia->Pycomp(kPdgDeltaPP), 1,1); // decay Delta++
+     fPythia->Pythia8()->particleData.mayDecay(kPdgPi0,              false); // don't decay pi0
+     fPythia->Pythia8()->particleData.mayDecay(kPdgP33m1232_DeltaM,  true); // decay Delta+
+     fPythia->Pythia8()->particleData.mayDecay(kPdgP33m1232_Delta0,  true); // decay Delta++
+     fPythia->Pythia8()->particleData.mayDecay(kPdgP33m1232_DeltaP,  true); // decay Delta++
+     fPythia->Pythia8()->particleData.mayDecay(kPdgP33m1232_DeltaPP, true); // decay Delta++
+//   fPythia->Pythia8()->particleData.mayDecay(kPdgDeltaP,  true); // decay Delta+
+//   fPythia->Pythia8()->particleData.mayDecay(kPdgDeltaPP, true); // decay Delta++
 
-     int ip = 0;
-     py2ent_(&ip, &qrkSyst1, &qrkSyst2, &WR); // hadronize
+     // -- hadronize --
 
-     fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),1,1); // restore
+     double mA    = fPythia->Pythia8()->particleData.m0(qrkSyst1);
+     double mB    = fPythia->Pythia8()->particleData.m0(qrkSyst2);
+     double pzAcm = 0.5 * Pythia8::sqrtpos( (WR + mA + mB) * (WR - mA - mB) * (WR - mA + mB) * (WR + mA - mB) ) / WR;
+     double pzBcm = -pzAcm;
+     double eA    = sqrt(mA*mA + pzAcm*pzAcm);
+     double eB    = sqrt(mB*mB + pzBcm*pzBcm);
 
-     //-- Get PYTHIA's LUJETS event record
-     TClonesArray * pythia_remnants = 0;
-     fPythia->GetPrimaries();
-     pythia_remnants = dynamic_cast<TClonesArray *>(fPythia->ImportParticles("All"));
-     if(!pythia_remnants) {
-         LOG("CharmHad", pWARN) << "Couldn't hadronize (non-charm) remnants!";
-         return 0;
-      }
+     fPythia->Pythia8()->event.reset();
 
-     int np = pythia_remnants->GetEntries();
-     assert(np>0);
+      // Pythia8 status code for outgoing particles of the hardest subprocesses is 23
+      // anti/colour tags for these 2 particles must complement each other
+      // antiparticles must have positive anticolour to avoid PYTHIA errors
+     if (qrkSyst1 > 0) {
+         fPythia->Pythia8()->event.append(qrkSyst1, 23, 101, 0, 0., 0., pzAcm, eA, mA);
+         fPythia->Pythia8()->event.append(qrkSyst2, 23, 0, 101, 0., 0., pzBcm, eB, mB);
+     } else {
+         fPythia->Pythia8()->event.append(qrkSyst1, 23, 0, 101, 0., 0., pzAcm, eA, mA);
+         fPythia->Pythia8()->event.append(qrkSyst2, 23, 101, 0, 0., 0., pzBcm, eB, mB);
+     }
+     fPythia->Pythia8()->next();
 
-      // PYTHIA performs the hadronization at the *remnant hadrons* centre of mass 
-      // frame  (not the hadronic centre of mass frame). 
-      // Boost all hadronic blob fragments to the HCM', fix their mother/daughter 
-      // assignments and add them to the fragmentation record.
+      // List the event information
+     fPythia->Pythia8()->event.list();
+     fPythia->Pythia8()->stat();
 
-      TVector3 rmnbeta = +1 * p4R.BoostVector(); // boost velocity
+     fPythia->Pythia8()->particleData.mayDecay(kPdgPi0, true); // restore
 
-      TMCParticle * pythia_remn  = 0; // remnant
-      GHepParticle * bremn = 0; // boosted remnant
-      TIter remn_iter(pythia_remnants);
-      while( (pythia_remn = (TMCParticle *) remn_iter.Next()) ) {
+     //-- Get PYTHIA's event record
+     Pythia8::Event &fEvent = fPythia->Pythia8()->event;
+     int numpart = fEvent.size();
+     assert(numpart>0);
 
-         // insert and get a pointer to inserted object for mods
-	bremn = new ((*particle_list)[rpos++]) GHepParticle ( pythia_remn->GetKF(),                // pdg
-							      GHepStatus_t(pythia_remn->GetKS()),  // status
-							      pythia_remn->GetParent(),            // first parent
-							      -1,                                  // second parent
-							      pythia_remn->GetFirstChild(),        // first daughter
-							      pythia_remn->GetLastChild(),         // second daughter
-							      pythia_remn -> GetPx(),              // px
-							      pythia_remn -> GetPy(),              // py
-							      pythia_remn -> GetPz(),              // pz
-							      pythia_remn -> GetEnergy(),          // e
-							      pythia_remn->GetVx(),                // x
-							      pythia_remn->GetVy(),                // y
-							      pythia_remn->GetVz(),                // z
-							      pythia_remn->GetTime()               // t
-							      );
+     // Offset the initial (system) particle
+     int ioff = 0;
+     if (fEvent[0].id() == 90) ioff = -1;
 
-	// boost 
-	bremn -> P4() -> Boost( rmnbeta ) ; 
-	
-         // handle insertion of charmed hadron 
-         int jp  = bremn->FirstMother();
-	 int ifc = bremn->FirstDaughter();
-	 int ilc = bremn->LastDaughter();
+     // Hadronic 4vec
+     TLorentzVector p4Had = kinematics.HadSystP4();
+ 
+     // Vector defining rotation from LAB to LAB' (z:= \vec{phad})
+     TVector3 unitvq = p4Had.Vect().Unit();
+ 
+     // Boost velocity LAB' -> HCM
+     TVector3 beta(0,0,p4Had.P()/p4Had.Energy());
 
-         bremn -> SetFirstMother( (jp  == 0 ?  1 : jp +1) );
-	 bremn -> SetFirstDaughter ( (ifc == 0 ? -1 : ifc+1) );
-	 bremn -> SetLastDaughter  ( (ilc == 0 ? -1 : ilc+1) );
-      }
+     for (int i = 1; i < numpart; ++i) {
+        /*
+         * Convert Pythia8 status code to Pythia6
+         * Initial quark has a pythia6 status code of 12
+         * The initial diquark and the fragmented particles have a pythia6 code
+         * of 11 (kIStNucleonTarget)
+         * Final state particles have a positive pythia8 code and a pythia6 code of
+         * 1 (kIStStableFinalState)
+         * The fragmentation products are generated in the hadronic CM frame
+         * where the z>0 axis is the \vec{phad} direction. For each particle 
+         * returned by the hadronizer:
+         * - boost it back to LAB' frame {z:=\vec{phad}} / doesn't affect pT
+         * - rotate its 3-momentum from LAB' to LAB
+         */
+        GHepStatus_t gStatus;
+        if (i == 1) gStatus = kIStDISPreFragmHadronicState;
+        else gStatus = (fEvent[i].status()>0) ? kIStStableFinalState : kIStNucleonTarget;
+
+        LOG("CharmP8Had", pDEBUG)
+            << "Adding final state particle pdgc = " << fEvent[i].id()
+            << " with status = " << gStatus;
+
+        if (fEvent[i].status() > 0){
+          if( pdg::IsQuark  (fEvent[i].id()) || 
+                  pdg::IsDiQuark(fEvent[i].id()) ) {
+            LOG("CharmP8Had", pERROR)
+                << "Hadronization failed! Bare quark/di-quarks appear in final state!";
+            particle_list->Delete();
+            delete particle_list;
+            return 0;            
+          }
+        }
+
+        TLorentzVector p4o(fEvent[i].px(), fEvent[i].py(), fEvent[i].pz(), fEvent[i].e());
+        p4o.Boost(beta); 
+        TVector3 p3 = p4o.Vect();
+        p3.RotateUz(unitvq); 
+        TLorentzVector p4(p3,p4o.Energy());
+
+        new((*particle_list)[i++]) GHepParticle(
+                fEvent[i].id(),               // pdg
+                gStatus,                      // status
+                fEvent[i].mother1()   + ioff, // first parent
+                fEvent[i].mother2()   + ioff, // second parent
+                fEvent[i].daughter1() + ioff, // first daughter
+                fEvent[i].daughter2() + ioff, // second daughter
+                p4.Px(),                      // px [GeV/c]
+                p4.Py(),                      // py [GeV/c]
+                p4.Pz(),                      // pz [GeV/c]
+                p4.Energy(),                  // e  [GeV]
+                fEvent[i].xProd(),            // x  [mm]
+                fEvent[i].yProd(),            // y  [mm]
+                fEvent[i].zProd(),            // z  [mm]
+                fEvent[i].tProd()             // t  [mm/c]
+        );
+     }
   } // use_pythia
 
   // ....................................................................
@@ -739,12 +783,13 @@ TClonesArray * CharmHadronization::Hadronize(
      }
   } 
 
+#endif
   //-- Print & return the fragmentation record
   //utils::fragmrec::Print(particle_list);
   return particle_list;
 }
 //____________________________________________________________________________
-int CharmHadronization::GenerateCharmHadron(int nu_pdg, double EvLab) const
+int CharmP8Hadronization::GenerateCharmHadron(int nu_pdg, double EvLab) const
 {
   // generate a charmed hadron pdg code using a charm fraction table
 
@@ -768,25 +813,25 @@ int CharmHadronization::GenerateCharmHadron(int nu_pdg, double EvLab) const
   return 0;
 }
 //____________________________________________________________________________
-double CharmHadronization::Weight(void) const 
+double CharmP8Hadronization::Weight(void) const 
 {
   return 1. ;
 }
 
 //____________________________________________________________________________
-void CharmHadronization::Configure(const Registry & config)
+void CharmP8Hadronization::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void CharmHadronization::Configure(string config)
+void CharmP8Hadronization::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void CharmHadronization::LoadConfig(void)
+void CharmP8Hadronization::LoadConfig(void)
 {
 
   bool hadronize_remnants ; 
@@ -820,9 +865,9 @@ void CharmHadronization::LoadConfig(void)
   bits = utils::str::Split( raw, ";" ) ;
 
   if ( ! utils::str::Convert(bits, ec) ) {
-    LOG("CharmHadronization", pFATAL) <<
+    LOG("CharmP8Hadronization", pFATAL) <<
     		"Failed to decode CharmFrac-E string: ";
-    LOG("CharmHadronization", pFATAL) << "string: "<< raw ;
+    LOG("CharmP8Hadronization", pFATAL) << "string: "<< raw ;
     invalid_configuration = true ;
   }
 
@@ -831,17 +876,17 @@ void CharmHadronization::LoadConfig(void)
   bits = utils::str::Split( raw, ";" ) ;
 
   if ( ! utils::str::Convert(bits, d0frac) ) {
-    LOG("CharmHadronization", pFATAL) <<
+    LOG("CharmP8Hadronization", pFATAL) <<
     		"Failed to decode CharmFrac-D0 string: ";
-    LOG("CharmHadronization", pFATAL) << "string: "<< raw ;
+    LOG("CharmP8Hadronization", pFATAL) << "string: "<< raw ;
     invalid_configuration = true ;
   }
 
   // check the size
   if ( d0frac.size() != ec.size() ) {
-	  LOG("CharmHadronization", pFATAL) << "E entries don't match D0 fraction entries";
-	  LOG("CharmHadronization", pFATAL) << "E:  " << ec.size() ;
-	  LOG("CharmHadronization", pFATAL) << "D0: " << d0frac.size() ;
+	  LOG("CharmP8Hadronization", pFATAL) << "E entries don't match D0 fraction entries";
+	  LOG("CharmP8Hadronization", pFATAL) << "E:  " << ec.size() ;
+	  LOG("CharmP8Hadronization", pFATAL) << "D0: " << d0frac.size() ;
 	  invalid_configuration = true ;
   }
 
@@ -850,17 +895,17 @@ void CharmHadronization::LoadConfig(void)
     bits = utils::str::Split( raw, ";" ) ;
 
     if ( ! utils::str::Convert(bits, dpfrac) ) {
-      LOG("CharmHadronization", pFATAL) <<
+      LOG("CharmP8Hadronization", pFATAL) <<
       		"Failed to decode CharmFrac-D+ string: ";
-      LOG("CharmHadronization", pFATAL) << "string: "<< raw ;
+      LOG("CharmP8Hadronization", pFATAL) << "string: "<< raw ;
       invalid_configuration = true ;
     }
 
     // check the size
     if ( dpfrac.size() != ec.size() ) {
-  	  LOG("CharmHadronization", pFATAL) << "E entries don't match D+ fraction entries";
-  	  LOG("CharmHadronization", pFATAL) << "E:  " << ec.size() ;
-  	  LOG("CharmHadronization", pFATAL) << "D+: " << dpfrac.size() ;
+  	  LOG("CharmP8Hadronization", pFATAL) << "E entries don't match D+ fraction entries";
+  	  LOG("CharmP8Hadronization", pFATAL) << "E:  " << ec.size() ;
+  	  LOG("CharmP8Hadronization", pFATAL) << "D+: " << dpfrac.size() ;
   	  invalid_configuration = true ;
     }
 
@@ -869,17 +914,17 @@ void CharmHadronization::LoadConfig(void)
     bits = utils::str::Split( raw, ";" ) ;
 
     if ( ! utils::str::Convert(bits, dsfrac) ) {
-    	LOG("CharmHadronization", pFATAL) <<
+    	LOG("CharmP8Hadronization", pFATAL) <<
     			"Failed to decode CharmFrac-Ds string: ";
-    	LOG("CharmHadronization", pFATAL) << "string: "<< raw ;
+    	LOG("CharmP8Hadronization", pFATAL) << "string: "<< raw ;
     	invalid_configuration = true ;
     }
 
     // check the size
     if ( dsfrac.size() != ec.size() ) {
-    	LOG("CharmHadronization", pFATAL) << "E entries don't match Ds fraction entries";
-    	LOG("CharmHadronization", pFATAL) << "E:  " << ec.size() ;
-    	LOG("CharmHadronization", pFATAL) << "Ds: " << dsfrac.size() ;
+    	LOG("CharmP8Hadronization", pFATAL) << "E entries don't match Ds fraction entries";
+    	LOG("CharmP8Hadronization", pFATAL) << "E:  " << ec.size() ;
+    	LOG("CharmP8Hadronization", pFATAL) << "Ds: " << dsfrac.size() ;
     	invalid_configuration = true ;
     }
 
@@ -894,7 +939,7 @@ void CharmHadronization::LoadConfig(void)
 
   if ( invalid_configuration ) {
 
-	    LOG("CharmHadronization", pFATAL)
+	    LOG("CharmP8Hadronization", pFATAL)
 	      << "Invalid configuration: Exiting" ;
 
 	    // From the FreeBSD Library Functions Manual

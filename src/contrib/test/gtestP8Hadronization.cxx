@@ -1,12 +1,12 @@
 //____________________________________________________________________________
 /*!
 
-\program gtestHadronization
+\program gtestP8Hadronization
 
 \brief   Program used for testing/debugging the KNO & PYTHIA hadronizers
 
          Syntax :
-           gtestHadronization -n nevents -t test -a hadronizer -c config [-q]
+           gtestP8Hadronization -n nevents -t test -a hadronizer -c config [-q]
 
          Options :
            -n  number of events
@@ -41,6 +41,10 @@
 #include <TClonesArray.h>
 #include <TIterator.h>
 
+#ifdef __GENIE_PYTHIA8_ENABLED__
+#include "Pythia8/Pythia.h"
+#endif
+
 #include "Algorithm/Algorithm.h"
 #include "Algorithm/AlgFactory.h"
 #include "Fragmentation/HadronizationModelI.h"
@@ -63,9 +67,6 @@ using std::ostringstream;
 
 using namespace genie;
 
-extern "C" void pysphe_(double *, double *);
-extern "C" void pythru_(double *, double *);
-
 void PrintSyntax        (void);
 void GetCommandLineArgs (int argc, char ** argv);
 
@@ -80,6 +81,7 @@ string  gHadConfig = "";
 //____________________________________________________________________________
 int main(int argc, char ** argv)
 {
+#ifdef __GENIE_PYTHIA8_ENABLED__
   GetCommandLineArgs(argc, argv);
 
   AlgFactory * algf = AlgFactory::Instance();
@@ -198,6 +200,14 @@ int main(int argc, char ** argv)
   const int nnull_max=100;
   int nnull=0;
 
+  Pythia8::Pythia pythia;
+  pythia.readString("ProcessLevel:all      = off");
+  pythia.readString("Stat:showErrors       = off");
+  pythia.readString("Init:showProcesses    = off");
+  pythia.readString("Stat:showProcessLevel = off");
+  pythia.readString("Print:quiet           = on");
+  pythia.init();
+
   // CC/NC loop
   for(int iccnc=0; iccnc<kCcNc; iccnc++) { 
     InteractionType_t it = (CcNc[iccnc]==1) ? kIntWeakCC : kIntWeakNC;
@@ -268,6 +278,8 @@ int main(int argc, char ** argv)
                 unsigned int daughter1=0, daughter2=0;
                 bool model_set=false;
 
+                pythia.event.clear();
+
                 while( (particle = (GHepParticle *) particle_iter.Next()) ) {
                    br_pdg[i] = particle->Pdg();
                    br_ist[i] = particle->Status();
@@ -283,12 +295,14 @@ int main(int argc, char ** argv)
                    br_xF[i]  = particle->Pz() / (W[iw]/2); 
 		   br_z[i]   = particle->Energy() / W[iw];
 
-                   if(particle->Pdg() == kPdgString || particle->Pdg() == kPdgCluster || particle->Pdg() == kPdgIndep)
+                   if(particle->Pdg() == kPdgString || particle->Pdg() == kPdgCluster || particle->Pdg() == kPdgIndep) {
 			if(model_set) exit(1);
                         model_set = true;
-                        if      (particle->KF() == kPdgString ) br_model=1;
-                        else if (particle->KF() == kPdgCluster) br_model=2;
-                        else if (particle->KF() == kPdgIndep  ) br_model=3;
+                        // TODO : Pythia8 does not use string particles
+                        br_model=1;
+                        if      (particle->Pdg() == kPdgString ) br_model=1;
+                        else if (particle->Pdg() == kPdgCluster) br_model=2;
+                        else if (particle->Pdg() == kPdgIndep  ) br_model=3;
 
                         daughter1 = particle->FirstDaughter();
                         daughter2 = particle->LastDaughter();
@@ -302,13 +316,19 @@ int main(int argc, char ** argv)
                       br_dec[i] = 0;
                    }
 
+                   pythia.event.append(br_pdg[i],br_ist[i],0,0,
+                           br_px[i],br_py[i],br_pz[i],br_E[i],br_M[i]);
+
                    i++;
                 } // particle-iterator
 
                 double sph=0, apl=0, thr=0, obl=0;
                 if(br_model!=0) {
-                   pysphe_(&sph,&apl);
-                   pythru_(&thr,&obl);
+                   Pythia8::Sphericity sphericity;
+                   sphericity.analyze(pythia.event);
+
+                   sph = sphericity.sphericity();
+                   apl = sphericity.aplanarity();LOG("test", pINFO) << "Sphericity = " << sph << ", aplanarity = " << apl;
                    LOG("test", pINFO) << "Sphericity = " << sph << ", aplanarity = " << apl;
                 }
 
@@ -332,6 +352,7 @@ int main(int argc, char ** argv)
 
   gOutFile->Close();
 
+#endif
   return 0;
 }
 //____________________________________________________________________________
