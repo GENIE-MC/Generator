@@ -10,7 +10,7 @@
 
 # print out info & exit if any of the command-line arguments was --help
 #
-if(($match = grep(/--help/i, @ARGV)) > 0) { 
+if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "\n";
   print "*** GENIE configure script *** \n\n";
   print "Usage: ./configure [option]... [flag=value]... \n\n";
@@ -23,8 +23,8 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    lowlevel-mesg        Disable (rather than filter out at run time) prolific       default: disabled \n";
   print "                         debug/info level messages known to slow GENIE down          \n";
   print "    debug                Adds -g in the compiler options to request debug info       default: disabled \n";
-  print "    pythia6              Use PYTHIA6 library for hadronization and decay             default: enabled  \n";
-  print "    pythia8              Use PYTHIA8 library for hadronization and decay             default: disabled \n";
+  print "    pythia6              Use the PYTHIA6 MC generator                                default: enabled  \n";
+  print "    pythia8              Use the PYTHIA8 MC generator                                default: disabled \n";
   print "    lhapdf5              Use the LHAPDF5 parton density function library             default: enabled  \n";
   print "    lhapdf6              Use the LHAPDF6 parton density function library             default: disabled \n";
   print "    t2k                  T2K-specific event generation app                           default: disabled \n";
@@ -43,8 +43,8 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    profiler-lib      Path to profiler library     needed if you --enable-profiler \n";
   print "    doxygen-path      Doxygen binary path          needed if you --enable-doxygen-doc  (if unset: checks for a \$DOXYGENPATH env.var.) \n";
   print "    pythia6-lib       PYTHIA6 library path         needed if you --enable-pythia6      (if unset: checks for a \$PYTHIA6 env.var., then tries to auto-detect it) \n";
-  print "    pythia8-inc       PYTHIA8 include path         needed if you --enable-pythia8      (if unset: checks for a \$PYTHIA8 env.var., then tries to auto-detect it) \n";
-  print "    pythia8-lib       PYTHIA8 library path         needed if you --enable-pythia8      (if unset: checks for a \$PYTHIA8 env.var., then tries to auto-detect it) \n";
+  print "    pythia8-inc       PYTHIA8 include path         needed if you --enable-pythia8      (if unset: checks for a \$PYTHIA8_INC env.var., then tries to auto-detect it) \n";
+  print "    pythia8-lib       PYTHIA8 library path         needed if you --enable-pythia8      (if unset: checks for a \$PYTHIA8_LIB env.var., then tries to auto-detect it) \n";
   print "    lhapdf5-inc       Path to LHAPDF5 includes     needed if you --enable-lhapdf5      (if unset: checks for a \$LHAPDF5_INC env.var., then tries to auto-detect it) \n";
   print "    lhapdf5-lib       Path to LHAPDF5 libraries    needed if you --enable-lhapdf5      (if unset: checks for a \$LHAPDF5_INC env.var.. then tries to auto-detect it) \n";
   print "    lhapdf6-inc       Path to LHAPDF6 includes     needed if you --enable-lhapdf6      (if unset: checks for a \$LHAPDF6_INC env.var., then tries to auto-detect it) \n";
@@ -61,10 +61,10 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
 # Check that $GENIE is set
 #
 $GENIE = $ENV{'GENIE'};
-die ("*** Error *** The GENIE environmental variable (pointing to the top level GENIE directory) is not defined") 
+die ("*** Error *** The GENIE environmental variable (pointing to the top level GENIE directory) is not defined")
 unless defined $GENIE;
 
-# Print GENIE banner 
+# Print GENIE banner
 #
 $BANNER_FILE = "$GENIE/data/logo/genie_banner_short.txt";
 if(-e $BANNER_FILE) {
@@ -77,7 +77,7 @@ if(-e $BANNER_FILE) {
 # Check that $ROOTSYS is set
 #
 $ROOTSYS = $ENV{'ROOTSYS'};
-die ("*** Error *** The ROOTSYS environmental variable is not defined. Is ROOT installed?") 
+die ("*** Error *** The ROOTSYS environmental variable is not defined. Is ROOT installed?")
 unless defined $ROOTSYS;
 
 # Check whether ROOT itself was build with GSL enabled
@@ -118,7 +118,7 @@ my $options = join(" ", @ARGV);
 # Get & save installation location (--prefix) or set default
 #
 my $prefix="/usr/local/";
-if(($match = grep(/--prefix/i, @ARGV)) > 0) { 
+if(($match = grep(/--prefix/i, @ARGV)) > 0) {
   $options=~m/--prefix=(\S*)/i;
   $prefix = $1;
   if( $GENIE eq $prefix ) {
@@ -179,9 +179,6 @@ if(($match = grep(/--enable-masterclass/i,         @ARGV)) > 0) { $gopt_enable_m
 # LHAPDF6 and 5 are mutually exlusive
 if  ($gopt_enable_lhapdf6 eq "YES") { $gopt_enable_lhapdf5 = "NO";}
 
-# PYTHIA8 and 6 are mutually exlusive
-if  ($gopt_enable_pythia8 eq "YES") { $gopt_enable_pythia6 = "NO";}
-
 my $gopt_with_cxx_debug_flag="";
 if($gopt_enable_debug eq "YES") { $gopt_with_cxx_debug_flag = "-g"; }
 
@@ -203,7 +200,7 @@ if( $options=~m/--with-optimiz-level=(\S*)/i ) {
 #
 my $gopt_with_profiler_lib = "";
 if($gopt_enable_profiler eq "YES") {
-  if(($match = grep(/--with-profiler-lib/i, @ARGV)) > 0) { 
+  if(($match = grep(/--with-profiler-lib/i, @ARGV)) > 0) {
     $options=~m/--with-profiler-lib=(\S*)/i;
     $gopt_with_profiler_lib = $1;
   }
@@ -214,7 +211,7 @@ if($gopt_enable_profiler eq "YES") {
 #
 my $gopt_with_doxygen_path = "";
 if($gopt_enable_doxygen_doc eq "YES") {
-  if(($match = grep(/--with-doxygen-path/i, @ARGV)) > 0) { 
+  if(($match = grep(/--with-doxygen-path/i, @ARGV)) > 0) {
     $options=~m/--with-doxygen-path=(\S*)/i;
     $gopt_with_doxygen_path = $1;
   }
@@ -228,145 +225,9 @@ if($gopt_enable_doxygen_doc eq "YES") {
   }
 }
 
-# If --enable-lhapdf5 was set then the full path to the LHAPDF5 library must be specified
-#
-my $gopt_with_lhapdf5_lib = "";
-if($gopt_enable_lhapdf5 eq "YES") {
-  if(($match = grep(/--with-lhapdf5-lib/i, @ARGV)) > 0) { 
-    $options=~m/--with-lhapdf5-lib=(\S*)/i;
-    $gopt_with_lhapdf5_lib = $1;
-  }
-  if(! -d $gopt_with_lhapdf5_lib)  {
-    print "\n*** Warning *** LHAPDF5 has been enabled but you didn't specify the LHAPDF5 library path \n";
-  }
-  # if it was not set, try to pick it up from the environment
-  if($gopt_with_lhapdf5_lib eq "" && defined $ENV{'LHAPDF5_LIB'}) { 
-     $gopt_with_lhapdf5_lib = $ENV{'LHAPDF5_LIB'}; 
-     print "The \$LHAPDF5_LIB env var is defined. I will pick that and use --with-lhapdf5-lib=$gopt_with_lhapdf5_lib\n";
-  }
-  # if it still not set, try autodetecting it
-  if(! -d $gopt_with_lhapdf5_lib && $auto_detect)  {
-    print "Auto-detecting LHAPDF5 library path...\n";
-    $matched = auto_detect("libLHAPDF.a");
-    if( $matched=~m/(\S*)\/libLHAPDF.a/i ) {
-       $gopt_with_lhapdf5_lib = $1;
-    }
-    print "Setting --with-lhapdf5-inc=$gopt_with_lhapdf5_lib\n";
-  }
-  # check
-  my $fileso    = "$gopt_with_lhapdf5_lib/libLHAPDF.so";
-  my $filedylib = "$gopt_with_lhapdf5_lib/libLHAPDF.dylib";
-  if(! -e $fileso && ! -e $filedylib) {
-     print "*** Error *** You need to specify the path to LHAPDF5 library using --with-lhapdf5-lib=/some/path/\n";
-     print "*** Error *** Otherwise, you should --disable-lhapdf5\n\n";
-     exit 1;
-  }
-}
-
-# If --enable-lhapdf5 was set then the full path to the LHAPDF5 includes must be specified
-#
-my $gopt_with_lhapdf5_inc = "";
-if($gopt_enable_lhapdf5 eq "YES") {
-  if(($match = grep(/--with-lhapdf5-inc/i, @ARGV)) > 0) { 
-    $options=~m/--with-lhapdf5-inc=(\S*)/i;
-    $gopt_with_lhapdf5_inc = $1;
-  }
-  if(! -d $gopt_with_lhapdf5_inc)  {
-    print "\n*** Warning *** LHAPDF5 has been enabled but you didn't specify the LHAPDF5 include path \n";
-  }
-  # if it was not set, try to pick it up from the environment
-  if($gopt_with_lhapdf5_inc eq "" && defined $ENV{'LHAPDF5_INC'}) { 
-     $gopt_with_lhapdf5_inc = $ENV{'LHAPDF5_INC'}; 
-     print "The \$LHAPDF5_INC env var is defined. I will pick that and use --with-lhapdf5-inc=$gopt_with_lhapdf5_inc\n";
-  }
-  # if it still not set, try autodetecting it
-  if(! -d $gopt_with_lhapdf5_inc && $auto_detect)  {
-    print "Auto-detecting the LHAPDF5 include path...\n";
-    $matched = auto_detect("LHAPDF.h","LHAPDF/LHAPDF.h");
-    print "$gopt_with_lhapdf5_inc  \n";
-    if( $matched=~m/(\S*)\/LHAPDF\/LHAPDF.h/i ) {
-       $gopt_with_lhapdf5_inc = $1;
-    }
-    print "Setting --with-lhapdf5-inc=$gopt_with_lhapdf5_inc\n";
-  }
-  # check
-  my $file = "$gopt_with_lhapdf5_inc/LHAPDF/LHAPDF.h";
-  if(! -e $file) {
-     print "*** Error *** You need to specify the LHAPDF5 includes path using --with-lhapdf5-inc=/some/path/\n";
-     print "*** Error *** Otherwise, you should --disable-lhapdf5\n\n";
-     exit 1;
-  }
-}
-
-# If --enable-lhapdf6 was set then the full path to the LHAPDF6 library must be specified
-#
-my $gopt_with_lhapdf6_lib = "";
-if($gopt_enable_lhapdf6 eq "YES") {
-  if(($match = grep(/--with-lhapdf6-lib/i, @ARGV)) > 0) { 
-    $options=~m/--with-lhapdf6-lib=(\S*)/i;
-    $gopt_with_lhapdf6_lib = $1;
-  }
-  if(! -d $gopt_with_lhapdf6_lib)  {
-    print "\n*** Warning *** LHAPDF6 has been enabled but you didn't specify the LHAPDF6 library path \n";
-  }
-  # if it was not set, try to pick it up from the environment
-  if($gopt_with_lhapdf6_lib eq "" && defined $ENV{'LHAPDF6_LIB'}) { 
-     $gopt_with_lhapdf6_lib = $ENV{'LHAPDF6_LIB'}; 
-     print "The \$LHAPDF6_LIB env var is defined. I will pick that and use --with-lhapdf6-lib=$gopt_with_lhapdf6_lib\n";
-  }
-  # if it still not set, try autodetecting it
-  if(! -d $gopt_with_lhapdf6_lib && $auto_detect)  {
-    print "Auto-detecting LHAPDF6 library path...\n";
-    $matched = auto_detect("libLHAPDF.a");
-    if( $matched=~m/(\S*)\/libLHAPDF.a/i ) {
-       $gopt_with_lhapdf6_lib = $1;
-    }
-    print "Setting --with-lhapdf6-inc=$gopt_with_lhapdf6_lib\n";
-  }
-  # check
-  my $fileso    = "$gopt_with_lhapdf6_lib/libLHAPDF.so";
-  my $filedylib = "$gopt_with_lhapdf6_lib/libLHAPDF.dylib";
-  if(! -e $fileso && ! -e $filedylib) {
-     print "*** Error *** You need to specify the path to LHAPDF6 library using --with-lhapdf6-lib=/some/path/\n";
-     print "*** Error *** Otherwise, you should --disable-lhapdf6\n\n";
-     exit 1;
-  }
-}
-
-# If --enable-lhapdf6 was set then the full path to the LHAPDF6 includes must be specified
-#
-my $gopt_with_lhapdf6_inc = "";
-if($gopt_enable_lhapdf6 eq "YES") {
-  if(($match = grep(/--with-lhapdf6-inc/i, @ARGV)) > 0) { 
-    $options=~m/--with-lhapdf6-inc=(\S*)/i;
-    $gopt_with_lhapdf6_inc = $1;
-  }
-  if(! -d $gopt_with_lhapdf6_inc)  {
-    print "\n*** Warning *** LHAPDF6 has been enabled but you didn't specify the LHAPDF6 include path \n";
-  }
-  # if it was not set, try to pick it up from the environment
-  if($gopt_with_lhapdf6_inc eq "" && defined $ENV{'LHAPDF6_INC'}) { 
-     $gopt_with_lhapdf6_inc = $ENV{'LHAPDF6_INC'}; 
-     print "The \$LHAPDF6_INC env var is defined. I will pick that and use --with-lhapdf6-inc=$gopt_with_lhapdf6_inc\n";
-  }
-  # if it still not set, try autodetecting it
-  if(! -d $gopt_with_lhapdf6_inc && $auto_detect)  {
-    print "Auto-detecting the LHAPDF6 include path...\n";
-    $matched = auto_detect("LHAPDF.h","LHAPDF/LHAPDF.h");
-    print "$gopt_with_lhapdf6_inc  \n";
-    if( $matched=~m/(\S*)\/LHAPDF\/LHAPDF.h/i ) {
-       $gopt_with_lhapdf6_inc = $1;
-    }
-    print "Setting --with-lhapdf6-inc=$gopt_with_lhapdf6_inc\n";
-  }
-  # check
-  my $file = "$gopt_with_lhapdf6_inc/LHAPDF/LHAPDF.h";
-  if(! -e $file) {
-     print "*** Error *** You need to specify the LHAPDF6 includes path using --with-lhapdf6-inc=/some/path/\n";
-     print "*** Error *** Otherwise, you should --disable-lhapdf6\n\n";
-     exit 1;
-  }
-}
+# ------------------------------------------------
+# PYTHIA6 paths
+# ------------------------------------------------
 
 # Get pythia6 library path
 #
@@ -403,71 +264,241 @@ if($gopt_enable_pythia6 eq "YES") {
   } 
 }
 
-# Get pythia8 library path
+# ------------------------------------------------
+# PYTHIA8 paths
+# ------------------------------------------------
+
+# If --enable-pythia8 was set then the full path to the PYTHIA8 library must be specified
 #
-my $gopt_with_pythia8_lib = "";	
+my $gopt_with_pythia8_lib = "";
 if($gopt_enable_pythia8 eq "YES") {
-  if($options=~m/--with-pythia8-lib=(\S*)/i) {
+  if(($match = grep(/--with-pythia8-lib/i, @ARGV)) > 0) {
+    $options=~m/--with-pythia8-lib=(\S*)/i;
     $gopt_with_pythia8_lib = $1;
-  } else {
-    print "\n*** Warning *** You didn't specify the PYTHIA8 library path \n";
+  }
+  if(! -d $gopt_with_pythia8_lib)  {
+    print "\n*** Warning *** PYTHIA8 has been enabled but you didn't specify the PYTHIA8 library path \n";
   }
   # if it was not set, try to pick it up from the environment
-  if(! -d $gopt_with_pythia8_lib && defined $ENV{'PYTHIA8'}) { 
-    $gopt_with_pythia8_lib = $ENV{'PYTHIA8'}."/lib"; 
-    print "The \$PYTHIA8 env var is defined. I will pick that and set --with-pythia8-lib=$gopt_with_pythia8_lib\n";
+  if($gopt_with_pythia8_lib eq "" && defined $ENV{'PYTHIA8_LIB'}) {
+     $gopt_with_pythia8_lib = $ENV{'PYTHIA8_LIB'};
+     print "The \$PYTHIA8_LIB env var is defined. I will pick that and use --with-pythia8-lib=$gopt_with_pythia8_lib\n";
   }
   # if it still not set, try autodetecting it
-  if(! -d $gopt_with_pythia8_lib && $auto_detect) 
-  {
-    print "Auto-detecting the PYTHIA8 path...\n";
-    $matched = auto_detect("libPythia8*");
-    if( $matched=~m/(\S*)\/libPythia8\S*/i ) {
+  if(! -d $gopt_with_pythia8_lib && $auto_detect)  {
+    print "Auto-detecting PYTHIA8 library path...\n";
+    $matched = auto_detect("libpythia8.so");
+    if( $matched=~m/(\S*)\/libpythia8.so/i ) {
+       print "  -- MATCH = \n";
        $gopt_with_pythia8_lib = $1;
+    }
+    else {
+      if( $matched=~m/(\S*)\/libpythia8.dylib/i ) {
+        print "  -- MATCH = \n";
+        $gopt_with_pythia8_lib = $1;
+      }
     }
     print "Setting --with-pythia8-lib=$gopt_with_pythia8_lib\n";
   }
-  if(! -d $gopt_with_pythia8_lib) {
-      print "*** Error *** Could not locate the PYTHIA8 library path. Please specify it using --with-pythia8-lib=/some/path/\n\n";
-      exit 1;
+  # check
+  my $fileso    = "$gopt_with_pythia8_lib/libpythia8.so";
+  my $filedylib = "$gopt_with_pythia8_lib/libpythia8.dylib";
+  if(! -e $fileso && ! -e $filedylib) {
+     print "*** Error *** You need to specify the path to PYTHIA8 library using --with-pythia8-lib=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-pythia8\n\n";
+     exit 1;
   }
 }
 
-# Get pythia8 include path
+# If --enable-pythia8 was set then the full path to the PYTHIA8 includes must be specified
 #
-my $gopt_with_pythia8_inc = "";	
+my $gopt_with_pythia8_inc = "";
 if($gopt_enable_pythia8 eq "YES") {
-  if($options=~m/--with-pythia8-inc=(\S*)/i) {
+  if(($match = grep(/--with-pythia8-inc/i, @ARGV)) > 0) {
+    $options=~m/--with-pythia8-inc=(\S*)/i;
     $gopt_with_pythia8_inc = $1;
-  } else {
-    print "\n*** Warning *** You didn't specify the PYTHIA8 include path \n";
   }
-  if(! -d $gopt_with_pythia8_inc && defined $ENV{'PYTHIA8'}) { 
-    $gopt_with_pythia8_inc = $ENV{'PYTHIA8'}."/include"; 
-    print "The \$PYTHIA8 env var is defined. I will pick that and set --with-pythia8-inc=$gopt_with_pythia8_inc\n";
+  if(! -d $gopt_with_pythia8_inc)  {
+    print "\n*** Warning *** PYTHIA8 has been enabled but you didn't specify the PYTHIA8 include path \n";
   }
-  if(! -d $gopt_with_pythia8_inc && $auto_detect) 
-  {
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_pythia8_inc eq "" && defined $ENV{'PYTHIA8_INC'}) {
+     $gopt_with_pythia8_inc = $ENV{'PYTHIA8_INC'};
+     print "The \$PHTHIA8_INC env var is defined. I will pick that and use --with-pythia8-inc=$gopt_with_pythia8_inc\n";
+  }
+  # if it still not set, try autodetecting it
+  if(! -d $gopt_with_pythia8_inc && $auto_detect)  {
     print "Auto-detecting the PYTHIA8 include path...\n";
-    $matched = auto_detect("Pythia8.h");
-    if( $matched=~m/(\S*)\/Pythia8\/Pythia8.h/i ) {
+    $matched = auto_detect("Pythia.h","Pythia8/Pythia.h");
+    print "$gopt_with_pythia8_inc  \n";
+    if( $matched=~m/(\S*)\/Pythia8\/Pythia.h/i ) {
        $gopt_with_pythia8_inc = $1;
     }
     print "Setting --with-pythia8-inc=$gopt_with_pythia8_inc\n";
   }
-  if(! -d $gopt_with_pythia8_inc) {
-      print "*** Error *** Could not locate the PYTHIA8 include path. Please specify it using --with-pythia8-inc=/some/path/\n\n";
-      exit 1;
-  } 
+  # check
+  my $file = "$gopt_with_pythia8_inc/Pythia8/Pythia.h";
+  if(! -e $file) {
+     print "*** Error *** You need to specify the PYTHIA8 includes path using --with-pythia8-inc=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-pythia8\n\n";
+     exit 1;
+  }
 }
 
-# Get libxml2 and log4cpp include and library paths 
+# ------------------------------------------------
+# LHAPDF5 paths
+# ------------------------------------------------
+
+# If --enable-lhapdf5 was set then the full path to the LHAPDF5 library must be specified
 #
+my $gopt_with_lhapdf5_lib = "";
+if($gopt_enable_lhapdf5 eq "YES") {
+  if(($match = grep(/--with-lhapdf5-lib/i, @ARGV)) > 0) {
+    $options=~m/--with-lhapdf5-lib=(\S*)/i;
+    $gopt_with_lhapdf5_lib = $1;
+  }
+  if(! -d $gopt_with_lhapdf5_lib)  {
+    print "\n*** Warning *** LHAPDF5 has been enabled but you didn't specify the LHAPDF5 library path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_lhapdf5_lib eq "" && defined $ENV{'LHAPDF5_LIB'}) {
+     $gopt_with_lhapdf5_lib = $ENV{'LHAPDF5_LIB'};
+     print "The \$LHAPDF5_LIB env var is defined. I will pick that and use --with-lhapdf5-lib=$gopt_with_lhapdf5_lib\n";
+  }
+  # if it still not set, try autodetecting it
+  if(! -d $gopt_with_lhapdf5_lib && $auto_detect)  {
+    print "Auto-detecting LHAPDF5 library path...\n";
+    $matched = auto_detect("libLHAPDF.a");
+    if( $matched=~m/(\S*)\/libLHAPDF.a/i ) {
+       $gopt_with_lhapdf5_lib = $1;
+    }
+    print "Setting --with-lhapdf5-lib=$gopt_with_lhapdf5_lib\n";
+  }
+  # check
+  my $fileso    = "$gopt_with_lhapdf5_lib/libLHAPDF.so";
+  my $filedylib = "$gopt_with_lhapdf5_lib/libLHAPDF.dylib";
+  if(! -e $fileso && ! -e $filedylib) {
+     print "*** Error *** You need to specify the path to LHAPDF5 library using --with-lhapdf5-lib=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-lhapdf5\n\n";
+     exit 1;
+  }
+}
+
+# If --enable-lhapdf5 was set then the full path to the LHAPDF5 includes must be specified
+#
+my $gopt_with_lhapdf5_inc = "";
+if($gopt_enable_lhapdf5 eq "YES") {
+  if(($match = grep(/--with-lhapdf5-inc/i, @ARGV)) > 0) {
+    $options=~m/--with-lhapdf5-inc=(\S*)/i;
+    $gopt_with_lhapdf5_inc = $1;
+  }
+  if(! -d $gopt_with_lhapdf5_inc)  {
+    print "\n*** Warning *** LHAPDF5 has been enabled but you didn't specify the LHAPDF5 include path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_lhapdf5_inc eq "" && defined $ENV{'LHAPDF5_INC'}) {
+     $gopt_with_lhapdf5_inc = $ENV{'LHAPDF5_INC'};
+     print "The \$LHAPDF5_INC env var is defined. I will pick that and use --with-lhapdf5-inc=$gopt_with_lhapdf5_inc\n";
+  }
+  # if it still not set, try autodetecting it
+  if(! -d $gopt_with_lhapdf5_inc && $auto_detect)  {
+    print "Auto-detecting the LHAPDF5 include path...\n";
+    $matched = auto_detect("LHAPDF.h","LHAPDF/LHAPDF.h");
+    print "$gopt_with_lhapdf5_inc  \n";
+    if( $matched=~m/(\S*)\/LHAPDF\/LHAPDF.h/i ) {
+       $gopt_with_lhapdf5_inc = $1;
+    }
+    print "Setting --with-lhapdf5-inc=$gopt_with_lhapdf5_inc\n";
+  }
+  # check
+  my $file = "$gopt_with_lhapdf5_inc/LHAPDF/LHAPDF.h";
+  if(! -e $file) {
+     print "*** Error *** You need to specify the LHAPDF5 includes path using --with-lhapdf5-inc=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-lhapdf5\n\n";
+     exit 1;
+  }
+}
+
+# ------------------------------------------------
+# LHAPDF6 paths
+# ------------------------------------------------
+
+# If --enable-lhapdf6 was set then the full path to the LHAPDF6 library must be specified
+#
+my $gopt_with_lhapdf6_lib = "";
+if($gopt_enable_lhapdf6 eq "YES") {
+  if(($match = grep(/--with-lhapdf6-lib/i, @ARGV)) > 0) {
+    $options=~m/--with-lhapdf6-lib=(\S*)/i;
+    $gopt_with_lhapdf6_lib = $1;
+  }
+  if(! -d $gopt_with_lhapdf6_lib)  {
+    print "\n*** Warning *** LHAPDF6 has been enabled but you didn't specify the LHAPDF6 library path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_lhapdf6_lib eq "" && defined $ENV{'LHAPDF6_LIB'}) {
+     $gopt_with_lhapdf6_lib = $ENV{'LHAPDF6_LIB'};
+     print "The \$LHAPDF6_LIB env var is defined. I will pick that and use --with-lhapdf6-lib=$gopt_with_lhapdf6_lib\n";
+  }
+  # if it still not set, try autodetecting it
+  if(! -d $gopt_with_lhapdf6_lib && $auto_detect)  {
+    print "Auto-detecting LHAPDF6 library path...\n";
+    $matched = auto_detect("libLHAPDF.a");
+    if( $matched=~m/(\S*)\/libLHAPDF.a/i ) {
+       $gopt_with_lhapdf6_lib = $1;
+    }
+    print "Setting --with-lhapdf6-inc=$gopt_with_lhapdf6_lib\n";
+  }
+  # check
+  my $fileso    = "$gopt_with_lhapdf6_lib/libLHAPDF.so";
+  my $filedylib = "$gopt_with_lhapdf6_lib/libLHAPDF.dylib";
+  if(! -e $fileso && ! -e $filedylib) {
+     print "*** Error *** You need to specify the path to LHAPDF6 library using --with-lhapdf6-lib=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-lhapdf6\n\n";
+     exit 1;
+  }
+}
+
+# If --enable-lhapdf6 was set then the full path to the LHAPDF6 includes must be specified
+#
+my $gopt_with_lhapdf6_inc = "";
+if($gopt_enable_lhapdf6 eq "YES") {
+  if(($match = grep(/--with-lhapdf6-inc/i, @ARGV)) > 0) {
+    $options=~m/--with-lhapdf6-inc=(\S*)/i;
+    $gopt_with_lhapdf6_inc = $1;
+  }
+  if(! -d $gopt_with_lhapdf6_inc)  {
+    print "\n*** Warning *** LHAPDF6 has been enabled but you didn't specify the LHAPDF6 include path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_lhapdf6_inc eq "" && defined $ENV{'LHAPDF6_INC'}) {
+     $gopt_with_lhapdf6_inc = $ENV{'LHAPDF6_INC'};
+     print "The \$LHAPDF6_INC env var is defined. I will pick that and use --with-lhapdf6-inc=$gopt_with_lhapdf6_inc\n";
+  }
+  # if it still not set, try autodetecting it
+  if(! -d $gopt_with_lhapdf6_inc && $auto_detect)  {
+    print "Auto-detecting the LHAPDF6 include path...\n";
+    $matched = auto_detect("LHAPDF.h","LHAPDF/LHAPDF.h");
+    print "$gopt_with_lhapdf6_inc  \n";
+    if( $matched=~m/(\S*)\/LHAPDF\/LHAPDF.h/i ) {
+       $gopt_with_lhapdf6_inc = $1;
+    }
+    print "Setting --with-lhapdf6-inc=$gopt_with_lhapdf6_inc\n";
+  }
+  # check
+  my $file = "$gopt_with_lhapdf6_inc/LHAPDF/LHAPDF.h";
+  if(! -e $file) {
+     print "*** Error *** You need to specify the LHAPDF6 includes path using --with-lhapdf6-inc=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-lhapdf6\n\n";
+     exit 1;
+  }
+}
+
+# ------------------------------------------------
+# LIBXML2 paths
+# ------------------------------------------------
 
 my $gopt_with_libxml2_inc = "";
 my $gopt_with_libxml2_lib = "";
-my $gopt_with_log4cpp_inc = "";
-my $gopt_with_log4cpp_lib = "";
 
 #
 # --with-libxml2-inc=
@@ -509,6 +540,13 @@ if(! -d $gopt_with_libxml2_lib) {
   exit 1;
 }
 
+# ------------------------------------------------
+# LOG4CPP paths
+# ------------------------------------------------
+
+my $gopt_with_log4cpp_inc = "";
+my $gopt_with_log4cpp_lib = "";
+
 #
 # --with-log4cpp-inc=
 #
@@ -549,6 +587,7 @@ if(! -d $gopt_with_log4cpp_lib) {
   exit 1;
 }
 
+
 # Save config options
 #
 print MKCONF "GOPT_ENABLE_PYTHIA6=$gopt_enable_pythia6\n";
@@ -566,7 +605,7 @@ print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
 print MKCONF "GOPT_ENABLE_MASTERCLASS=$gopt_enable_masterclass\n";
 print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
 print MKCONF "GOPT_ENABLE_PROFILER=$gopt_enable_profiler\n";
-print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n"; 
+print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n";
 print MKCONF "GOPT_ENABLE_DYLIBVERSION=$gopt_enable_dylibversion\n";
 print MKCONF "GOPT_ENABLE_LOW_LEVEL_MESG=$gopt_enable_lowlevel_mesg\n";
 print MKCONF "GOPT_WITH_COMPILER=$gopt_with_compiler\n";
@@ -600,9 +639,9 @@ if(-e $MKCONF_FILE) {
   @make_conf=<MKCONFR>;
   close(MKCONFR);
 # print "@make_conf\n" unless ;
-  foreach $setting (@make_conf) { 
-    chomp($setting); 
-    if ($setting=~m/\=/) {print "  $setting\n";} 
+  foreach $setting (@make_conf) {
+    chomp($setting);
+    if ($setting=~m/\=/) {print "  $setting\n";}
   }
 
   # Copy only the enable/disable options, excluding paths, in a separate file for genie-config.
@@ -611,7 +650,7 @@ if(-e $MKCONF_FILE) {
 
   print "\n";
   print "*** To continue building GENIE type: make ";
-  # Warning for SRT users  
+  # Warning for SRT users
   if(defined $ENV{'SRT_ENV_SET'}) {
     print "(Don't forget to 'srt_setup --unsetup' first)";
   }
@@ -621,10 +660,10 @@ if(-e $MKCONF_FILE) {
 }
 
 sub auto_detect {
-  
+
   # First place to look when autodetecting is in the directories in LD_LIBRARY_PATH
   my @libdirs = ( );
-  push (@libdirs,split(":",$ENV{LD_LIBRARY_PATH}))    if defined $ENV{LD_LIBRARY_PATH};  
+  push (@libdirs,split(":",$ENV{LD_LIBRARY_PATH}))    if defined $ENV{LD_LIBRARY_PATH};
   push (@libdirs,split(":",$ENV{DYLD_LIBRARY_PATH}))  if defined $ENV{DYLD_LIBRARY_PATH}; #and the mac equivalent
   my @search_dir = ();
   foreach my $libdir (unique_entries(@libdirs)) {
@@ -635,21 +674,22 @@ sub auto_detect {
     $lastdir = pop(@pathdirs);
     $basedir = join("/",@pathdirs);
     if ($lastdir =~ m/lib/) {# If the LD_LIBRARY_PATH has "lib" in it, append "../include"
-      push (@search_dir, $basedir."/include"); 
+      push (@search_dir, $basedir."/include");
     }
   }
   push (@search_dir,"/usr");                        # Add usr
-  push (@search_dir,"/lib");                        # Add opt 
-  push (@search_dir,"/opt");                        # Add opt 
-  push (@search_dir,"$ENV{'HOME'}") 
+  push (@search_dir,"/lib");                        # Add opt
+  push (@search_dir,"/opt");                        # Add opt
+  push (@search_dir,"/hep");                        # Add hep
+  push (@search_dir,"$ENV{'HOME'}")
                  if defined $ENV{'HOME'};          # add $HOME
   push (@search_dir,"/hep");                       # add where I add ext apps in my mac book air
-  push (@search_dir,"$ENV{'RSD_TOP_DIR'}") 
+  push (@search_dir,"$ENV{'RSD_TOP_DIR'}")
                  if defined $ENV{'RSD_TOP_DIR'};   # add where RSD puts ext supporting libs
-  
+
   @search_dir = unique_entries(@search_dir); # Search each dir only once
-    
-  $search_file = shift; 
+
+  $search_file = shift;
   $optional_fullpath_substr = shift; # extra help in locating the correct file
 
   $optional_fullpath_substr = "" unless defined $optional_fullpath_substr;

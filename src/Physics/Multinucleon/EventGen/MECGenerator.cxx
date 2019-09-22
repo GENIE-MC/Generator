@@ -300,7 +300,7 @@ void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
  	//  More accurate calculation of the mass of the cluster than 2*Mnucl
  	int nucleon_cluster_pdg = interaction->InitState().Tgt().HitNucPdg();
  	double M2n = PDGLibrary::Instance()->Find(nucleon_cluster_pdg)->Mass(); 
-        bool is_em = interaction->ProcInfo().IsEM();
+        //bool is_em = interaction->ProcInfo().IsEM();
         kinematics::WQ2toXY(Ev,M2n,gW,gQ2,gx,gy);
 
         LOG("MEC", pINFO) << "x = " << gx << ", y = " << gy;
