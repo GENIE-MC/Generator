@@ -4,19 +4,19 @@
   \class    genie::AlvarezRusoSaulSalaCOHGammaPXsec
 
   \brief    Implementation of the Alvarez-Ruso & Saul-Sala coherent gamma production model
+            Is a concrete implementation of the XSecAlgorithmI interface.
 
-  Is a concrete implementation of the XSecAlgorithmI interface.
-
-  \ref      
+  \ref      E. Wang, L. Alvarez-Ruso, and J. Nieves Phys. Rev. C 89, 015503
+            DOI:https://doi.org/10.1103/PhysRevC.89.015503 
 
   \author   Marco Roda
-  University of Liverpool
+            University of Liverpool
 
   \created  August 23, 2019
 
   \cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-  For the full text of the license visit http://copyright.genie-mc.org
-  or see $GENIE/LICENSE
+            For the full text of the license visit http://copyright.genie-mc.org
+            or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 

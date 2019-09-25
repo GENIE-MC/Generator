@@ -123,10 +123,6 @@ double AlvarezRusoSaulSalaCOHGammaPXSec::XSec( const Interaction * interaction,
   // The output of Diff_Cross_Section::getDiffCrossSection is in  GeV^-3 rad^-3
   // which is the desired output of GENIE as well (natural units)  
 
-  // LOG( "AlvarezRusoSaulSala",pFATAL) << "XSection " 
-  // 				     << E_lep << ", " <<  p4_lep.Theta() << ", " << p4_gamma.Theta() << ", " <<  p4_gamma.Phi() 
-  // 				     << ": " << xsec ;
-
   delete p4_nu ;
 
   if (kps != kPSEgTlTgPgfE ) {
