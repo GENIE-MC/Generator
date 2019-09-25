@@ -149,8 +149,6 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
     return 0;
   }
   
-  Range1D_t y_lim = kps.Limits(kKVy);
-  
   // Check this
   double Enu      = init_state.ProbeE(kRfLab);
   double Egamma_min  = 0. ; 

@@ -89,16 +89,14 @@ double AlvarezRusoSaulSalaCOHGammaPXSec::XSec( const Interaction * interaction,
 
   const TLorentzVector * p4_nu = init_state.GetProbeP4( kRfLab ) ;
 
-  double E_nu = P_nu -> E() ; // neutrino energy
-  
   const TLorentzVector p4_lep = kinematics.FSLeptonP4();
   const TLorentzVector p4_gamma = kinematics.HadSystP4();
   
-  double theta_l = p4_nu -> Angle( p3_lep.Vect() ) ;
+  double theta_l = p4_nu -> Angle( p4_lep.Vect() ) ;
   double theta_g = p4_nu -> Angle( p4_gamma.Vect() ) ;
   
-  TVector3 vers_l = p4_nu -> Vect().Cross( p3_lep.Vect() ) ;
-  TVector3 vers_g = p4_nu -> Vect().Cross( p3_gamma.Vect() ) ;
+  TVector3 vers_l = p4_nu -> Vect().Cross( p4_lep.Vect() ) ;
+  TVector3 vers_g = p4_nu -> Vect().Cross( p4_gamma.Vect() ) ;
 
   double phi_g = vers_l.Angle( vers_g ) ;
   // this angle is also the angle between the versors of the two planes
@@ -108,7 +106,7 @@ double AlvarezRusoSaulSalaCOHGammaPXSec::XSec( const Interaction * interaction,
   
   //LOG( "AlvarezRusoSaulSala",pFATAL ) << "Phase Space. Lepton " << p4_lep << " \t Photon: " << p4_gamma ;
 
-  double xsec = dxsec.getDiffCrossSection( P_nu -> E(), 
+  double xsec = dxsec.getDiffCrossSection( p4_nu -> E(), 
 					   p4_lep.E(), 
 					   theta_l, 
 					   theta_g, phi_g );
