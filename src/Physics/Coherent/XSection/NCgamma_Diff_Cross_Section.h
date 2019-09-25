@@ -40,7 +40,7 @@ namespace NC_gamma {
 
         virtual ~Diff_Cross_Section();
 
-        double getDiffCrossSection(double Enu, double Enu_final, double theta_l, double theta_g, double phi_g);
+        double getDiffCrossSection(double Enu, double Eg, double theta_l, double theta_g, double phi_g);
 
         double integrand(double);
 

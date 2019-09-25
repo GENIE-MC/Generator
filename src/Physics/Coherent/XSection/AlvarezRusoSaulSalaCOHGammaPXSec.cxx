@@ -87,17 +87,31 @@ double AlvarezRusoSaulSalaCOHGammaPXSec::XSec( const Interaction * interaction,
 
   Diff_Cross_Section dxsec(mode, nucleus) ;
 
-  double E_nu = init_state.ProbeE(kRfLab); // neutrino energy
+  const TLorentzVector * p4_nu = init_state.GetProbeP4( kRfLab ) ;
+
+  double E_nu = P_nu -> E() ; // neutrino energy
   
   const TLorentzVector p4_lep = kinematics.FSLeptonP4();
   const TLorentzVector p4_gamma = kinematics.HadSystP4();
-  double E_lep = p4_lep.E();
+  
+  double theta_l = p4_nu -> Angle( p3_lep.Vect() ) ;
+  double theta_g = p4_nu -> Angle( p4_gamma.Vect() ) ;
+  
+  TVector3 vers_l = p4_nu -> Vect().Cross( p3_lep.Vect() ) ;
+  TVector3 vers_g = p4_nu -> Vect().Cross( p3_gamma.Vect() ) ;
 
+  double phi_g = vers_l.Angle( vers_g ) ;
+  // this angle is also the angle between the versors of the two planes
+  // the return angle is in the region [0,pi] but the differential cross section is invariant under 
+  // phi_g -> - phi_g transformation so this is enough to evaluate the xsec 
+  // and it saves a lot of calculations 
+  
   //LOG( "AlvarezRusoSaulSala",pFATAL ) << "Phase Space. Lepton " << p4_lep << " \t Photon: " << p4_gamma ;
 
-  double xsec = dxsec.getDiffCrossSection( E_nu, 
-					   E_lep, p4_lep.Theta(), 
-					   p4_gamma.Theta(), p4_gamma.Phi());
+  double xsec = dxsec.getDiffCrossSection( P_nu -> E(), 
+					   p4_lep.E(), 
+					   theta_l, 
+					   theta_g, phi_g );
 
   // This cross section is the following
   //
@@ -106,15 +120,15 @@ double AlvarezRusoSaulSalaCOHGammaPXSec::XSec( const Interaction * interaction,
   //  dE_g dTheta_l dTheta_g dPhi_g
   //
   
-  //xsec *= 1E-38 * units::cm2 * units::GeV2 ;
+  // The output of Diff_Cross_Section::getDiffCrossSection is in  GeV^-3 rad^-3
+  // which is the desired output of GENIE as well (natural units)  
 
   // LOG( "AlvarezRusoSaulSala",pFATAL) << "XSection " 
   // 				     << E_lep << ", " <<  p4_lep.Theta() << ", " << p4_gamma.Theta() << ", " <<  p4_gamma.Phi() 
   // 				     << ": " << xsec ;
 
-  //xsec *= 2*kPi ;
+  delete p4_nu ;
 
-  
   if (kps != kPSEgTlTgPgfE ) {
     xsec *= utils::kinematics::Jacobian(interaction, kPSEgTlTgPgfE, kps );
   }

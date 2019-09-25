@@ -12,18 +12,18 @@
 
 using namespace NC_gamma;
 
-Diff_Cross_Section::Diff_Cross_Section(const std::string &m, const std::string &n) : mode(m),
-                                                                                              nucleus(n) {
-    this->c_i = NCgamma_Param::c_i;
-    double e2 = 4.0 * NCgamma_Param::pi * NCgamma_Param::alpha;
-	
-	// The factor 2*pi of the phi_l integral is taken off, so none integral has been performed to this point
-//     this->constant_factors = NCgamma_Param::Gf2 * e2 / (2.0 * 8.0 * pow(2.0*NCgamma_Param::pi,4) );// * NCgamma_Param::hccm2;
-	this->constant_factors = NCgamma_Param::Gf2 * e2 / (2.0 * 8.0 * pow(2.0*NCgamma_Param::pi,5) );// * NCgamma_Param::hccm2;
+Diff_Cross_Section::Diff_Cross_Section(const std::string &m, const std::string &n) : 
+  mode(m), nucleus(n) {
 
-    this->nuclearFF = new Nucleus_FF_DeVries(nucleus);
-    this->vector_of_currents.push_back(new Hadronic_Current_R_Delta(nuclearFF));
-    this->current_R = new Hadronic_Current_R_Sum(this->vector_of_currents);
+  this->c_i = NCgamma_Param::c_i;
+  double e2 = 4.0 * NCgamma_Param::pi * NCgamma_Param::alpha;
+  
+  this->constant_factors = NCgamma_Param::Gf2 * e2 / (2.0 * 8.0 * pow(2.0*NCgamma_Param::pi,4) );// * NCgamma_Param::hccm2;
+    
+  this->nuclearFF = new Nucleus_FF_DeVries(nucleus);
+  this->vector_of_currents.push_back(new Hadronic_Current_R_Delta(nuclearFF));
+  this->current_R = new Hadronic_Current_R_Sum(this->vector_of_currents);
+
 }
 
 
@@ -35,18 +35,21 @@ Diff_Cross_Section::~Diff_Cross_Section() {
     delete this->current_R;
 }
 
-double Diff_Cross_Section::getDiffCrossSection(double Enu, double Enu_final, double theta_l, double theta_g, double phi_g) {
-    double Eg = Enu - Enu_final;
+double Diff_Cross_Section::getDiffCrossSection(double Enu, 
+					       double Eg, 
+					       double theta_l, 
+					       double theta_g, double phi_g) {
 
-    double params_aux[]= {Enu, Eg, phi_g, theta_g};
-    std::vector<double> param (params_aux, params_aux + sizeof(params_aux) / sizeof(double) );
+  double params_aux[]= {Enu, Eg, phi_g, theta_g};
+  std::vector<double> param (params_aux, params_aux + sizeof(params_aux) / sizeof(double) );
+  
+  this->change_other_parameters(param);
+  
+  double cs =this->integrand(theta_l);
+  
+  if(std::isnan(cs)) return 0.0;
+  else return cs;
 
-    this->change_other_parameters(param);
-
-    double cs =this->integrand(theta_l);
-
-    if(std::isnan(cs)) return 0.0;
-    else return cs;
 }
 
 
