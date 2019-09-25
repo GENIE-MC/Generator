@@ -670,10 +670,11 @@ ROOT::Math::IBaseFunctionMultiDim *
 //
 
 genie::utils::gsl::d4Xsec_dEldThetaldOmegapi::d4Xsec_dEldThetaldOmegapi(
-     const XSecAlgorithmI * m, const Interaction * i) :
-ROOT::Math::IBaseFunctionMultiDim(),
-fModel(m),
-fInteraction(i)
+									const XSecAlgorithmI * m, 
+									const Interaction * i) :
+  ROOT::Math::IBaseFunctionMultiDim(),
+  fModel(m),
+  fInteraction(i)
 {
   
 }
@@ -773,11 +774,12 @@ double genie::utils::gsl::d4Xsec_dEldThetaldOmegapi::GetFactor(void) const
 }
 //____________________________________________________________________________
 genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::d4Xsec_dEgdThetaldThetagdPhig(
-     const XSecAlgorithmI * m, const Interaction * i) :
-ROOT::Math::IBaseFunctionMultiDim(),
-fModel(m),
-fInteraction(i),
-fFactor(1.) 
+										const XSecAlgorithmI * m, 
+										const Interaction * i) :
+  ROOT::Math::IBaseFunctionMultiDim(),
+  fModel(m),
+  fInteraction(i),
+  fFactor(1.) 
 {
   
 }
@@ -791,43 +793,42 @@ unsigned int genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::NDim(void) const
 }
 double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * xin) const
 {
-// inputs:  
-//    E gamma [GeV]
-//    theta l [rad]
-//    theta gamma [rad]
-//    phi gamma [rad]
-// outputs: 
-//   differential cross section [10^-38 cm^2]
-//
+  // inputs:  
+  //    E gamma [GeV]
+  //    theta l [rad]
+  //    theta gamma [rad]
+  //    phi gamma [rad]
+  //
+  // outputs: 
+  //   differential cross section [10^-38 cm^2]
+  //
+
   Kinematics * kinematics = fInteraction->KinePtr();
   const TLorentzVector * P4_nu = fInteraction->InitStatePtr()->GetProbeP4(kRfLab);
   double E_nu       = P4_nu->E();
 
-  double E_g       = xin[0];
-  double E_l       = E_nu-E_g;
-  double theta_l   = xin[1];
+  //double E_g       = xin[0];
+  double E_l       = E_nu - xin[0] ;
+  //double theta_l   = xin[1];
   double phi_l     = 0.0;
-  double theta_g   = xin[2];
-  double phi_g     = xin[3];
   
-  double sin_theta_l  = TMath::Sin(theta_l);
-  double sin_theta_g  = TMath::Sin(theta_g);
+  //double theta_g   = xin[2];
+  //double phi_g     = xin[3];
   
-  double p_l = E_l ; 
+  double sin_theta_l  = TMath::Sin( xin[1] );
+  double sin_theta_g  = TMath::Sin( xin[2] );
+  
   TVector3 lepton_3vector = TVector3(0,0,0);
-  lepton_3vector.SetMagThetaPhi(p_l,theta_l,phi_l);
-  TLorentzVector P4_lep    = TLorentzVector(lepton_3vector , E_l );
+  lepton_3vector.SetMagThetaPhi( E_l, xin[2], phi_l ) ;
+  TLorentzVector P4_lep = TLorentzVector( lepton_3vector , E_l );
   
-  double p_g = E_g ; 
   TVector3 photon_3vector = TVector3(0,0,0);
-  photon_3vector.SetMagThetaPhi(p_g,theta_g,phi_g);
-  TLorentzVector P4_photon   = TLorentzVector(photon_3vector   , E_g);
+  photon_3vector.SetMagThetaPhi( xin[0], xin[2], xin[3] ) ;
+  TLorentzVector P4_photon   = TLorentzVector(photon_3vector, xin[0] );
  
   double Q2 = -(*P4_nu-P4_lep).Mag2();
   
-  double x = Q2/(2*E_g*constants::kNucleonMass);
-  
-  double y = E_g/E_nu;
+  double x = Q2/(2 * xin[0] * constants::kNucleonMass );
   
   Range1D_t xlim = fInteraction->PhaseSpace().XLim();
   
@@ -836,6 +837,9 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
   }
   
   kinematics->Setx(x);
+
+  double y = xin[0]/E_nu;
+
   kinematics->Sety(y);
   kinematics::UpdateWQ2FromXY(fInteraction);
 
@@ -847,8 +851,9 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
   double xsec = fModel->XSec(fInteraction,kPSEgTlTgPgfE);
   return fFactor * xsec/(1E-38 * units::cm2);
 }
+
 ROOT::Math::IBaseFunctionMultiDim * 
-   genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::Clone() const
+genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::Clone() const
 {
   return 
     new genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig(fModel,fInteraction);
