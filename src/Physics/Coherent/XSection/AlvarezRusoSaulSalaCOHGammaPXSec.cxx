@@ -107,7 +107,7 @@ double AlvarezRusoSaulSalaCOHGammaPXSec::XSec( const Interaction * interaction,
   //LOG( "AlvarezRusoSaulSala",pFATAL ) << "Phase Space. Lepton " << p4_lep << " \t Photon: " << p4_gamma ;
 
   double xsec = dxsec.getDiffCrossSection( p4_nu -> E(), 
-					   p4_lep.E(), 
+					   p4_gamma.E(), 
 					   theta_l, 
 					   theta_g, phi_g );
 
