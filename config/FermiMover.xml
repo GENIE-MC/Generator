@@ -1,22 +1,42 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<alg_conf>
+<!--
+Configuration for the Fermi Mover
 
- Configuration sets for the FermiMover EventRecordVisitorI
+Configurable Parameters:
+.............................................................................................................
+Name                          Type    Optional   Comment                                           Default
+.............................................................................................................
+KeepHitNuclOnMassShell        bool    Yes        Switch to control Onshellness of hit nucleon      false
+SimRecoilNucleon              bool    Yes        Allows emission of SRC recoil nucleon             false
+NuclearModel                  alg     Yes        Nuclear model                                     Whatever is contained in SRCNuclearRecoil
+SRCNuclearRecoil              alg     No         SubAlg to NuclearRecoil         
+                                                 Needed for proper config of nuclear model
+-->
+
+<alg_conf>
 
   <param_set name="Default"> 
      <param type="bool"   name="KeepHitNuclOnMassShell"> false                     </param>
 
-   <!-- Option relevant to simulating Short Range Correlation (SRC) effects  -->
-   <param type="bool" name="SimRecoilNucleon"> false </param>
-   
-     <param type="alg"    name="NuclearModel">   genie::NuclearModelMap/Default    </param>
+     <param type="bool" name="SimRecoilNucleon"> false </param>
+
+     <param type="alg"    name="SRCNuclearRecoil">   genie::SRCNuclearRecoil/Default    </param>
+
   </param_set>
 
   <param_set name="NucOnShell"> 
      <param type="bool"   name="KeepHitNuclOnMassShell"> true                       </param>
-     <param type="alg"    name="NuclearModel">      genie::NuclearModelMap/Default  </param>
   </param_set>
 
-</alg_conf>
+  <param_set name="Recoil"> 
+     <param type="bool" name="SimRecoilNucleon"> true </param>
+  </param_set>
 
+<!--
+  <param_set name="GaussianRecoil"> 
+     <param type="bool" name="SimRecoilNucleon"> true </param>
+  </param_set>
+-->
+
+</alg_conf>
