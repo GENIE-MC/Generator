@@ -23,6 +23,7 @@ STFC, Rutherford Appleton Laboratory
   Options:
    - genie::FGMBodekRitchie/Default
    - genie::LocalFGM/Default
+   - genie::LocalFGM/Correlated
    - genie::SpectralFunc1d/Default
    - genie::EffectiveSF/Default  <- See http://arxiv.org/abs/1405.0583
   The 'NuclearModel' option defines the default basic model which should work for _any_ nuclei 
@@ -32,6 +33,7 @@ STFC, Rutherford Appleton Laboratory
 
   <param type="alg"  name="NuclearModel">                 genie::EffectiveSF/Default </param>
   <param type="alg"  name="NuclearModel">                 genie::LocalFGM/Default </param>
+  <param type="alg"  name="NuclearModel">                 genie::LocalFGM/Correlated </param>
   -->
   <param type="alg"  name="NuclearModel">                 genie::FGMBodekRitchie/Default </param>
 

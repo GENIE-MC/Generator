@@ -197,11 +197,17 @@ void LocalFGM::Configure(string param_set)
 //____________________________________________________________________________
 void LocalFGM::LoadConfig(void)
 {
-  this->GetParamDef("MomentumMax", fPMax, 1.0);
+  this->GetParamDef("LFG-MomentumMax", fPMax, 1.0);
   assert(fPMax > 0);
 
-  this->GetParamDef("SRC_Fraction", fSRC_Fraction, 0.0);
-  this->GetParamDef("PCutOff", fPCutOff, 0.7);
+  this->GetParamDef("SRC-Fraction", fSRC_Fraction, 0.0);
+  this->GetParam("LFG-MomentumCutOff", fPCutOff);
+
+  if (fPCutOff > fPMax) {
+        LOG("LocalFGM", pFATAL) << "Momentum CutOff greater than Momentum Max";
+        exit(78);
+  }
+
 
   // Load removal energy for specific nuclei from either the algorithm's
   // configuration file or the UserPhysicsOptions file.
