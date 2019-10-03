@@ -179,6 +179,7 @@
    <config alg="genie::SpectralFunc1d">              SpectralFunc1d.xml              </config>
    <config alg="genie::SpectralFunc">                SpectralFunc.xml                </config>
    <config alg="genie::SmithMonizUtils">             SmithMonizUtils.xml             </config>
+   <config alg="genie::SRCNuclearRecoil">             SRCNuclearRecoil.xml             </config>
 
    <!-- ****** CONFIGURATION FOR MODELS IN MUELOSS UTILITY PACKAGE ****** -->
    <config alg="genie::mueloss::BetheBlochModel">         BetheBlochModel.xml        </config>
