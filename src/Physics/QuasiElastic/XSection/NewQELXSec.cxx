@@ -99,6 +99,14 @@ double NewQELXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in)
   double kine_min[2] = { cos_theta_0_lim.min, phi_0_lim.min };
   double kine_max[2] = { cos_theta_0_lim.max, phi_0_lim.max };
 
+  // If averaging over the initial nucleon distribution has been
+  // disabled, just integrate over angles and return the result.
+  if ( !fAverageOverNucleons ) {
+    double xsec_total = ig.Integral(kine_min, kine_max);
+    delete func;
+    return xsec_total;
+  }
+
   // For a free nucleon target (hit nucleon is at rest in the lab frame), we
   // don't need to do an MC integration over the initial state variables. In
   // this case, just set up the nucleon at the origin, on-shell, and at rest,
@@ -192,6 +200,10 @@ void NewQELXSec::LoadConfig(void)
   // configuration for QELEventGenerator. Avoid duplication here to ensure
   // consistency.
   GetParamDef( "SF-MinAngleEMscattering", fMinAngleEM, 0. ) ;
+
+  // If true, then the integration of the total cross section will include an
+  // MC integration over the initial state nuclear model
+  GetParamDef( "AverageOverNucleons", fAverageOverNucleons, true );
 }
 
 genie::utils::gsl::FullQELdXSec::FullQELdXSec(const XSecAlgorithmI* xsec_model,
