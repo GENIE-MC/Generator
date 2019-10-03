@@ -223,5 +223,18 @@ values for each Reweight tweak dial. All of these have default values of zero.
    <param type="double" name="RDecBR1eta@PlusOneSigma"> 0.50 </param>
    <param type="double" name="RDecBR1eta@MinusOneSigma"> 0.50 </param>
 
+   <!-- Placeholder ±50% uncertainties on the total MEC
+     cross section normalization. These should be replaced by something
+     better at some point. - S. Gardiner
+   -->
+   <param type="double" name="NormCCMEC@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NormCCMEC@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NormNCMEC@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NormNCMEC@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NormEMMEC@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NormEMMEC@MinusOneSigma"> 0.50 </param>
+
  </param_set>
 </alg_conf>
