@@ -20,6 +20,7 @@
 #ifndef _GENIE_LHAPDF6_INTERFACE_H_
 #define _GENIE_LHAPDF6_INTERFACE_H_
 
+#include "Framework/Conventions/GBuild.h"
 #include "Physics/PartonDistributions/PDFModelI.h"
 
 namespace LHAPDF
@@ -63,7 +64,9 @@ private:
   string fSetName;
   int    fMemberID;
 
+#ifdef __GENIE_LHAPDF6_ENABLED__
   LHAPDF::PDF * fLHAPDF;
+#endif
 
 };
 

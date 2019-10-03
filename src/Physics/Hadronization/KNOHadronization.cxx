@@ -152,8 +152,8 @@ void KNOHadronization::ProcessEventRecord(GHepRecord * event) const {
     particle -> SetStatus( ist ) ;
 
     int im  = mom + 1 + particle -> FirstMother() ;
-    int ifc = ( particle -> FirstDaughter() == -1) ? -1 : mom + 1 + particle -> FirstDaughter();
-    int ilc = ( particle -> LastDaughter()  == -1) ? -1 : mom + 1 + particle -> LastDaughter();
+  //int ifc = ( particle -> FirstDaughter() == -1) ? -1 : mom + 1 + particle -> FirstDaughter();
+  //int ilc = ( particle -> LastDaughter()  == -1) ? -1 : mom + 1 + particle -> LastDaughter();
 
     particle -> SetFirstMother( im ) ;
 
@@ -1463,7 +1463,7 @@ int KNOHadronization::GenerateBaryonPdgCode(
   return pdgc;
 }
 //____________________________________________________________________________
-void KNOHadronization::HandleDecays(TClonesArray * plist) const
+void KNOHadronization::HandleDecays(TClonesArray * /*plist*/) const
 {
 // Handle decays of unstable particles if requested through the XML config.
 // The default is not to decay the particles at this stage (during event

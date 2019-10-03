@@ -491,7 +491,7 @@ Range1D_t KPhaseSpace::Q2Lim_W(void) const
   } else if (is_dme || is_dmdis) {
     Q2l = kinematics::DarkQ2Lim_W(Ev,M,ml,W);
   } else {
-     Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W) : Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W); 
+     Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W) : kinematics::InelQ2Lim_W(Ev,M,ml,W);
   }
 
   return Q2l;
