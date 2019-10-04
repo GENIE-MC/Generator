@@ -3,14 +3,13 @@
 
 \class    genie::SRCNuclearRecoil
 
-\brief    It visits the event record & computes a Fermi motion momentum for
-          initial state nucleons bound in nuclei.
-          Is a concrete implementation of the EventRecordVisitorI interface.
+\brief       Created this new module that controls the addition of the recoil nucleon in the event record 
+             and extracts its kinematics
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Afroditi Papadopoulou <apapadop \at mit.edu>
+          Massachusetts Institute of Technology - October 04, 2019
 
-\created  October 08, 2004
+\created  October 04, 2019
 
 \cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -49,18 +48,7 @@ private:
 
   int SRCRecoilPDG(GHepParticle * nucleon, GHepParticle * nucleus, Target* tgt, double pF2) const; // determine the PDG code of the SRC pair
 
-//  void Emit2ndNucleonFromSRC   (GHepRecord * evrec,
-//                                const int eject_nucleon_pdg) const;
-//                                ///^ emit a 2nd nucleon due to short range corellations
-
-//  void KickHitNucleon          (GHepRecord * evrec) const; ///< give hit nucleon a momentum
-
-//  void AddTargetNucleusRemnant (GHepRecord * evrec) const; ///< add a recoiled nucleus remnant
-
   void LoadConfig (void);
-
-//  bool  fKeepNuclOnMassShell;          ///< keep hit bound nucleon on the mass shell?
-//  bool  fSRCRecoilNucleon;             ///< simulate recoil nucleon due to short range corellation?
 
   const NuclearModelI *  fNuclModel;   ///< nuclear model
 
