@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -126,6 +126,12 @@ bool genie::pdg::IsDarkMatter(int pdgc)
 {
   bool is_dm = (pdgc == kPdgDarkMatter);
   return is_dm;
+}
+//____________________________________________________________________________
+bool genie::pdg::IsAntiDarkMatter(int pdgc)
+{
+  bool is_dmbar = (pdgc == kPdgAntiDarkMatter);
+  return is_dmbar;
 }
 //____________________________________________________________________________
 bool genie::pdg::IsNegChargedLepton(int pdgc)

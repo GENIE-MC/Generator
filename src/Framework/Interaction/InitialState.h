@@ -17,7 +17,7 @@
 
 \created  May 02, 2004
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -84,6 +84,8 @@ public:
   bool IsNuBarN (void) const; ///< is anti-neutrino + neutron?
   bool IsDMP    (void) const; ///< is dark matter   + proton?
   bool IsDMN    (void) const; ///< is dark matter   + neutron?
+  bool IsDMBP   (void) const; ///< is anti-dark matter   + proton?
+  bool IsDMBN   (void) const; ///< is anti-dark matter   + neutron?
 
   //-- Copy, reset, compare, print itself and build string code
   void   Reset    (void);

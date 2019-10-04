@@ -29,7 +29,7 @@
 
 \created June 06, 2008 
 
-\cpright Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright Copyright (c) 2003-2019, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
@@ -1799,7 +1799,7 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      //------ number of prim n
      ps->NewPage();
      gst_0->Draw("nin","","");
-     if(gst_1) gst_1->Draw("nfn","","perrsame");
+     if(gst_1) gst_1->Draw("nin","","perrsame");
      ls->Clear();
      ls->SetHeader("Primary Hadronic System: Number of neutrons");
      ls->Draw();

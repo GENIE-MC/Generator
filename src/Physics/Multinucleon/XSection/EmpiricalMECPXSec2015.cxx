@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -90,7 +90,8 @@ double EmpiricalMECPXSec2015::XSec(
   double M2n = PDGLibrary::Instance()->Find(nucleon_cluster_pdg)-> Mass(); // nucleon cluster mass
   double M2n2 = M2n*M2n;
   double ml  = interaction->FSPrimLepton()->Mass();
-  Range1D_t Wlim = genie::utils::kinematics::InelWLim(Ev, M2n, ml);
+  Range1D_t Wlim = isem ? genie::utils::kinematics::electromagnetic::InelWLim(Ev, ml, M2n) : genie::utils::kinematics::InelWLim(Ev, M2n, ml); 
+
   //LOG("MEC", pINFO) << "Ev, ml, M2n = " << Ev << "  " << ml << "  " << M2n;
   //LOG("MEC", pINFO) << "Wlim= " << Wlim.min << "  " <<Wlim.max ;
   if(W < Wlim.min || W > Wlim.max)
@@ -98,7 +99,8 @@ double EmpiricalMECPXSec2015::XSec(
       return xsec;
     }
   //use proper Q2 limit from Controls.h
-  Range1D_t Q2lim = genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, ml, W, kMinQ2Limit);
+  Range1D_t Q2lim = isem ? genie::utils::kinematics::electromagnetic::InelQ2Lim_W(Ev, ml, M2n, W) : genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, ml, W, kMinQ2Limit); 
+
   //LOG("MEC", pINFO) << "Q2lim= " << Q2lim.min << "  " <<Q2lim.max ;
   if(Q2 < Q2lim.min || Q2 > Q2lim.max)
     {double xsec = 0.;

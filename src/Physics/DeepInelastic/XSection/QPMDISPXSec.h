@@ -13,7 +13,7 @@
 
 \created  May 05, 2004
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -50,20 +50,15 @@ public:
 
 private:
   void   LoadConfig                  (void);
-  double DISRESJoinSuppressionFactor (const Interaction * in) const;
 
   mutable DISStructureFunc fDISSF;
   bool                     fInInitPhase;
 
   const DISStructureFuncModelI * fDISSFModel;         ///< SF model
-  const HadronizationModelI *    fHadronizationModel; ///< hadronic multip. model
   const XSecIntegratorI *        fXSecIntegrator;     ///< diff. xsec integrator
 
   const XSecAlgorithmI * fCharmProdModel;
 
-  bool   fUsingDisResJoin;  ///< use a DIS/RES joining scheme?
-  bool   fUseCache;         ///< cache reduction factors used in joining scheme
-  double fWcut;             ///< apply DIS/RES joining scheme < Wcut
   double fScale;            ///< cross section scaling factor
   double fSin48w;           ///< sin^4(Weingberg angle)
 };

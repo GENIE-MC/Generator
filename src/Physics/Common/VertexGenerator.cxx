@@ -1,31 +1,12 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Sep 19, 2007 - CA
-   Added code to generate the interaction according to a realistic nuclear
-   density and made that the default setting.
- @ Dec 01, 2007 - CA
-   For COH and ve- interactions setting the vertex on the nuclear boundary
-   rather than inside the nucleus.
- @ Sep 15, 2009 - CA
-   IsFake() and IsNucleus() are no longer available in GHepParticle. 
-   Use pdg::IsPseudoParticle() and pdg::IsIon().
- @ Feb 12, 2013 - CA (code from Rosen Matev)
-   Handle the IMD annihilation channel.
- @ Jun 03, 2016 - JJ (SD)
-   Move code to generate the position to a public method, so this code
-   can easily be reused by other classes. (Specifically LwlynSmithQELCCPXSec
-   and NievesQELCCPXSec to generate a position before calculating the xsec
-   when making splines).
 */
 //____________________________________________________________________________
 
@@ -135,7 +116,7 @@ TVector3 VertexGenerator::GenerateVertex(const Interaction * interaction,
   
   //Interaction * interaction = evrec->Summary();
   const ProcessInfo & proc_info = interaction->ProcInfo();
-  bool is_coh = proc_info.IsCoherent() || proc_info.IsCoherentElas();
+  bool is_coh = proc_info.IsCoherent() || proc_info.IsCoherentElastic();
   bool is_ve  = proc_info.IsInverseMuDecay() ||
     proc_info.IsIMDAnnihilation() ||
     proc_info.IsNuElectronElastic();

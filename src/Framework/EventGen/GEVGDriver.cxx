@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -700,7 +700,7 @@ void GEVGDriver::AssertIsValidInitState(void) const
 {
   assert(fInitState);
   int ppdgc = fInitState->ProbePdg();
-  bool isv = pdg::IsLepton(ppdgc) || pdg::IsDarkMatter(ppdgc);
+  bool isv = pdg::IsLepton(ppdgc) || pdg::IsDarkMatter(ppdgc) || pdg::IsAntiDarkMatter(ppdgc);
   assert(isv);
 }
 //___________________________________________________________________________

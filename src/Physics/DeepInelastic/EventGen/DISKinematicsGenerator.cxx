@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -193,6 +193,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          }
 
          // compute W,Q2 for selected x,y
+         //bool is_em = interaction->ProcInfo().IsEM();
          kinematics::XYtoWQ2(Ev,M,gW,gQ2,gx,gy);
 
          LOG("DISKinematics", pNOTICE) 

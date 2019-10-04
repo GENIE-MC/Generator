@@ -18,7 +18,7 @@
 
 \created  July 14, 2010
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 
@@ -64,6 +64,8 @@ public :
   //
   void AdoptFidShape(FidShape* shape);
   void MakeSphere(Double_t x0, Double_t y0, Double_t z0, Double_t radius);
+  void MakeXCylinder(Double_t y0, Double_t z0, Double_t radius, Double_t xmin, Double_t xmax);
+  void MakeYCylinder(Double_t x0, Double_t z0, Double_t radius, Double_t ymin, Double_t ymax);
   void MakeZCylinder(Double_t x0, Double_t y0, Double_t radius, Double_t zmin, Double_t zmax);
   void MakeCylinder(Double_t* base, Double_t* axis, Double_t radius, Double_t* cap1, Double_t* cap2);
   void MakeBox(Double_t* xyzmin, Double_t* xyzmax);

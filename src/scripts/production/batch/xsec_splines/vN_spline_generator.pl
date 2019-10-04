@@ -37,7 +37,7 @@
 #   University of Liverpool & STFC Rutherford Appleton Laboratory
 #
 # Copyright:
-#   Copyright (c) 2003-2018, The GENIE Collaboration
+#   Copyright (c) 2003-2019, The GENIE Collaboration
 #   For the full text of the license visit http://copyright.genie-mc.org
 #-------------------------------------------------------------------------------------------------------------
 
@@ -198,7 +198,7 @@ foreach $nu ( @nu_list ) {
 	 print PBS "#PBS -p -1 \n" if ( $priority ) ;
          print PBS "source $genie_setup $config_dir \n";
          print PBS "cd $jobs_dir \n";
-         print PBS "$gmkspl_cmd | $grep_pipe &> $filename_template.mkspl.log \n";
+         print PBS "$gmkspl_cmd \n";
          close(PBS);
          $job_submission_command = "qsub";
          if($batch_system eq 'HTCondor_PBS') {

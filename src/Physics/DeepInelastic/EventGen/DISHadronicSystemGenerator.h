@@ -11,7 +11,7 @@
 
 \created  October 03, 2004
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -23,8 +23,6 @@
 #include "Physics/Common/HadronicSystemGenerator.h"
 
 namespace genie {
-
-class HadronizationModelI;
 
 class DISHadronicSystemGenerator : public HadronicSystemGenerator {
 
@@ -43,12 +41,11 @@ public :
 
 private:
 
-  void AddFragmentationProducts (GHepRecord * event_rec) const;
   void SimulateFormationZone    (GHepRecord * event_rec) const;
 
   void LoadConfig (void);
 
-  const HadronizationModelI * fHadronizationModel;
+  const EventRecordVisitorI * fHadronizationModel;
 
   bool   fFilterPreFragmEntries;
   double fR0;          ///< param controling nuclear size

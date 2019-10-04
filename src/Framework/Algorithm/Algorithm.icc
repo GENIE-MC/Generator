@@ -122,3 +122,21 @@ template<class T>
 
 //add the the template specification as in Registry for RegistryItemI?
 
+template<class T>
+    bool genie::Algorithm::GetParamVect( const std::string & comm_name, std::vector<T> & v,
+                                         unsigned int max, bool is_top_call ) const {
+    
+  v.resize( max + 1 ) ;
+  bool found = true ;
+  		           
+  for ( unsigned int i = 0; i <= max; ++i ) {
+  	std::stringstream name;
+  	name << comm_name << i ;
+  	found = found && GetParam( name.str(), v[i], is_top_call ) ; 
+  }
+   
+  return found ;    		            
+  
+}
+
+ 

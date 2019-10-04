@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -14,19 +14,25 @@
 //____________________________________________________________________________
 
 #include <RVersion.h>
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
 #include <TPythia6.h>
 #include <TVector3.h>
 #include <TF1.h>
 #include <TROOT.h>
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
+#include <TMCParticle.h>
+#else
+#include <TMCParticle6.h>
+#endif
+
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepFlags.h" 
+#include "Framework/EventGen/EVGThreadException.h"
 #include "Physics/Hadronization/CharmHadronization.h"
 #include "Physics/Hadronization/FragmentationFunctionI.h"
 #include "Framework/Messenger/Messenger.h"
@@ -37,6 +43,7 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGCodeList.h"
 #include "Framework/Utils/KineUtils.h"
+#include "Framework/Utils/StringUtils.h"
 #include "Physics/Hadronization/FragmRecUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 
@@ -49,13 +56,13 @@ extern "C" void py2ent_(int *,  int *, int *, double *);
 
 //____________________________________________________________________________
 CharmHadronization::CharmHadronization() :
-HadronizationModelI("genie::CharmHadronization")
+EventRecordVisitorI("genie::CharmHadronization")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
 CharmHadronization::CharmHadronization(string config) :
-HadronizationModelI("genie::CharmHadronization", config)
+EventRecordVisitorI("genie::CharmHadronization", config)
 {
   this->Initialize();
 }
@@ -78,6 +85,91 @@ CharmHadronization::~CharmHadronization()
 void CharmHadronization::Initialize(void) const
 {
   fPythia = TPythia6::Instance();
+}
+//____________________________________________________________________________
+void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
+{
+  Interaction * interaction = event->Summary();
+  TClonesArray * particle_list = this->Hadronize(interaction);
+
+  if(! particle_list ) {
+    LOG("CharmHadronization", pWARN) << "Got an empty particle list. Hadronizer failed!";
+    LOG("CharmHadronization", pWARN) << "Quitting the current event generation thread";
+    
+    event->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
+
+    genie::exceptions::EVGThreadException exception;
+    exception.SetReason("Could not simulate the hadronic system");
+    exception.SwitchOnFastForward();
+    throw exception;
+    
+    return;
+  }
+  
+  int mom = event->FinalStateHadronicSystemPosition();
+  assert(mom!=-1);
+
+  // find the proper status for the particles we are going to put in event record
+  bool is_nucleus = interaction->InitState().Tgt().IsNucleus();
+  GHepStatus_t istfin = (is_nucleus) ?
+    kIStHadronInTheNucleus : kIStStableFinalState ;
+
+  // retrieve the hadronic blob lorentz boost
+  // Because Hadronize() returned particles not in the LAB reference frame
+  const TLorentzVector * had_syst = event -> Particle(mom) -> P4() ;
+  TVector3 beta( 0., 0., had_syst -> P()/ had_syst -> Energy() ) ; 
+
+  // Vector defining rotation from LAB to LAB' (z:= \vec{phad})
+  TVector3 unitvq = had_syst -> Vect().Unit();
+  
+  GHepParticle * neutrino  = event->Probe();                                                                                                                                                 
+  const TLorentzVector & vtx = *(neutrino->X4());                                                                                                                                            
+
+  GHepParticle * particle = 0;
+  TIter particle_iter(particle_list);
+  while ((particle = (GHepParticle *) particle_iter.Next()))  {
+
+    int pdgc = particle -> Pdg() ;
+
+    //  bring the particle in the LAB reference frame
+    particle -> P4() -> Boost( beta ) ;
+    particle -> P4() -> RotateUz( unitvq ) ; 
+
+    // set the proper status according to a number of things:
+    // interaction on a nucleaus or nucleon, particle type
+    GHepStatus_t ist = ( particle -> Status() ==1 ) ? istfin : kIStDISPreFragmHadronicState;
+
+    // handle gammas, and leptons that might come from internal pythia decays
+    // mark them as final state particles
+    bool not_hadron = ( pdgc == kPdgGamma ||
+			pdg::IsNeutralLepton(pdgc) ||
+			pdg::IsChargedLepton(pdgc) ) ;
+
+    if(not_hadron)  { ist = kIStStableFinalState; }
+    particle -> SetStatus( ist ) ;
+
+    int im  = mom + 1 + particle -> FirstMother() ;
+    int ifc = ( particle -> FirstDaughter() == -1) ? -1 : mom + 1 + particle -> FirstDaughter();
+    int ilc = ( particle -> LastDaughter()  == -1) ? -1 : mom + 1 + particle -> LastDaughter();
+
+    particle -> SetFirstMother( im ) ;
+    if ( ifc > -1 ) {
+      particle -> SetFirstDaughter( ifc ) ; 
+      particle -> SetLastDaughter( ilc ) ; 
+    }
+    
+    // the Pythia particle position is overridden    
+    particle -> SetPosition( vtx ) ;         
+    
+    event->AddParticle(*particle);
+  }
+
+  particle_list -> Delete() ;
+  delete particle_list ; 
+  
+  // update the weight of the event
+  event -> SetWeight ( Weight() * event->Weight() );
+
 }
 //____________________________________________________________________________
 TClonesArray * CharmHadronization::Hadronize(
@@ -301,7 +393,7 @@ TClonesArray * CharmHadronization::Hadronize(
 
   TLorentzVector p4R = p4H - p4C;
   double WR = p4R.M();
-  double MC = pdglib->Find(ch_pdg)->Mass();
+  //double MC = pdglib->Find(ch_pdg)->Mass();
 
   LOG("CharmHad", pNOTICE) << "Remnant hadronic system mass = " << WR;
 
@@ -311,14 +403,14 @@ TClonesArray * CharmHadronization::Hadronize(
   //
   if(fCharmOnly) {
     // Create particle list (fragmentation record)
-    TClonesArray * particle_list = new TClonesArray("TMCParticle", 2);
+    TClonesArray * particle_list = new TClonesArray("genie::GHepParticle", 2);
     particle_list->SetOwner(true);
 
     // insert the generated particles
-    new ((*particle_list)[0]) TMCParticle (1,ch_pdg,
-	     -1,-1,-1, p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(),MC, 0,0,0,0,0);
-    new ((*particle_list)[1]) TMCParticle (1,kPdgHadronicBlob,
-             -1,-1,-1, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(),WR, 0,0,0,0,0);
+    new ((*particle_list)[0]) GHepParticle (ch_pdg,kIStStableFinalState,
+	     -1,-1,-1,-1, p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(), 0,0,0,0);
+    new ((*particle_list)[1]) GHepParticle (kPdgHadronicBlob,kIStStableFinalState,
+             -1,-1,-1,-1, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(), 0,0,0,0);
 
     return particle_list;
   }
@@ -330,16 +422,16 @@ TClonesArray * CharmHadronization::Hadronize(
   //
   if(used_lowW_strategy) {
     // Create particle list (fragmentation record)
-    TClonesArray * particle_list = new TClonesArray("TMCParticle", 3);
+    TClonesArray * particle_list = new TClonesArray("genie::GHepParticle", 3);
     particle_list->SetOwner(true);
 
     // insert the generated particles
-    new ((*particle_list)[0]) TMCParticle (1,ch_pdg,
-	     -1,-1,-1, p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(),MC, 0,0,0,0,0);
-    new ((*particle_list)[1]) TMCParticle (11,kPdgHadronicBlob,
-               -1,2,2, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(),WR, 0,0,0,0,0);
-    new ((*particle_list)[2]) TMCParticle (1,fs_nucleon_pdg,
-              1,-1,-1, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(),WR, 0,0,0,0,0);
+    new ((*particle_list)[0]) GHepParticle (ch_pdg,kIStStableFinalState,
+	    -1,-1,-1,-1, p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(), 0,0,0,0);
+    new ((*particle_list)[1]) GHepParticle (kPdgHadronicBlob,kIStNucleonTarget,
+            -1,-1,2,2, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(), 0,0,0,0);
+    new ((*particle_list)[2]) GHepParticle (fs_nucleon_pdg,kIStStableFinalState,
+            1,1,-1,-1, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(), 0,0,0,0);
 
     return particle_list;
   }
@@ -354,13 +446,13 @@ TClonesArray * CharmHadronization::Hadronize(
   // Insert the generated charm hadron & the hadronic (non-charm) blob.
   // In this case the hadronic blob is entered as a pre-fragm. state.
 
-  TClonesArray * particle_list = new TClonesArray("TMCParticle");
+  TClonesArray * particle_list = new TClonesArray("genie::GHepParticle");
   particle_list->SetOwner(true);
 
-  new ((*particle_list)[0]) TMCParticle (1,ch_pdg,
-                  -1,-1,-1,  p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(),MC, 0,0,0,0,0);
-  new ((*particle_list)[1]) TMCParticle (11,kPdgHadronicBlob,
-                     -1,2,3, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(),WR, 0,0,0,0,0);
+  new ((*particle_list)[0]) GHepParticle (ch_pdg,kIStStableFinalState,
+          -1,-1,-1,-1,  p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(), 0,0,0,0);
+  new ((*particle_list)[1]) GHepParticle (kPdgHadronicBlob,kIStNucleonTarget,
+          -1,-1,2,3, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(), 0,0,0,0);
 
   unsigned int rpos =2; // offset in event record
 
@@ -495,13 +587,16 @@ TClonesArray * CharmHadronization::Hadronize(
      fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),1,1); // restore
 
      //-- Get PYTHIA's LUJETS event record
-     TClonesArray * remnants = 0;
+     TClonesArray * pythia_remnants = 0;
      fPythia->GetPrimaries();
-     remnants = dynamic_cast<TClonesArray *>(fPythia->ImportParticles("All"));
-     if(!remnants) {
+     pythia_remnants = dynamic_cast<TClonesArray *>(fPythia->ImportParticles("All"));
+     if(!pythia_remnants) {
          LOG("CharmHad", pWARN) << "Couldn't hadronize (non-charm) remnants!";
          return 0;
       }
+
+     int np = pythia_remnants->GetEntries();
+     assert(np>0);
 
       // PYTHIA performs the hadronization at the *remnant hadrons* centre of mass 
       // frame  (not the hadronic centre of mass frame). 
@@ -510,29 +605,39 @@ TClonesArray * CharmHadronization::Hadronize(
 
       TVector3 rmnbeta = +1 * p4R.BoostVector(); // boost velocity
 
-      TMCParticle * remn  = 0; // remnant
-      TMCParticle * bremn = 0; // boosted remnant
-      TIter remn_iter(remnants);
-      while( (remn = (TMCParticle *) remn_iter.Next()) ) {
+      TMCParticle * pythia_remn  = 0; // remnant
+      GHepParticle * bremn = 0; // boosted remnant
+      TIter remn_iter(pythia_remnants);
+      while( (pythia_remn = (TMCParticle *) remn_iter.Next()) ) {
 
          // insert and get a pointer to inserted object for mods
-         bremn = new ((*particle_list)[rpos++]) TMCParticle (*remn);
+	bremn = new ((*particle_list)[rpos++]) GHepParticle ( pythia_remn->GetKF(),                // pdg
+							      GHepStatus_t(pythia_remn->GetKS()),  // status
+							      pythia_remn->GetParent(),            // first parent
+							      -1,                                  // second parent
+							      pythia_remn->GetFirstChild(),        // first daughter
+							      pythia_remn->GetLastChild(),         // second daughter
+							      pythia_remn -> GetPx(),              // px
+							      pythia_remn -> GetPy(),              // py
+							      pythia_remn -> GetPz(),              // pz
+							      pythia_remn -> GetEnergy(),          // e
+							      pythia_remn->GetVx(),                // x
+							      pythia_remn->GetVy(),                // y
+							      pythia_remn->GetVz(),                // z
+							      pythia_remn->GetTime()               // t
+							      );
 
-         // boost 
-         TLorentzVector p4(remn->GetPx(),remn->GetPy(),remn->GetPz(),remn->GetEnergy());
-         p4.Boost(rmnbeta);
-         bremn -> SetPx     (p4.Px());
-         bremn -> SetPy     (p4.Py());
-         bremn -> SetPz     (p4.Pz());
-         bremn -> SetEnergy (p4.E() );
-
+	// boost 
+	bremn -> P4() -> Boost( rmnbeta ) ; 
+	
          // handle insertion of charmed hadron 
-         int jp  = bremn->GetParent();
-         int ifc = bremn->GetFirstChild();
-         int ilc = bremn->GetLastChild();
-         bremn -> SetParent     ( (jp  == 0 ?  1 : jp +1) );
-         bremn -> SetFirstChild ( (ifc == 0 ? -1 : ifc+1) );
-         bremn -> SetLastChild  ( (ilc == 0 ? -1 : ilc+1) );
+         int jp  = bremn->FirstMother();
+	 int ifc = bremn->FirstDaughter();
+	 int ilc = bremn->LastDaughter();
+
+         bremn -> SetFirstMother( (jp  == 0 ?  1 : jp +1) );
+	 bremn -> SetFirstDaughter ( (ifc == 0 ? -1 : ifc+1) );
+	 bremn -> SetLastDaughter  ( (ilc == 0 ? -1 : ilc+1) );
       }
   } // use_pythia
 
@@ -628,32 +733,15 @@ TClonesArray * CharmHadronization::Hadronize(
      for(unsigned int i=0; i<2; i++) {
         int pdgc = pd[i];
         TLorentzVector * p4d = fPhaseSpaceGenerator.GetDecay(i);
-        new ( (*particle_list)[rpos+i] ) TMCParticle(
-           1,pdgc,1,-1,-1,p4d->Px(),p4d->Py(),p4d->Pz(),p4d->Energy(),
-           mass[i],0,0,0,0,0);
+        new ( (*particle_list)[rpos+i] ) GHepParticle(
+           pdgc,kIStStableFinalState,1,1,-1,-1,p4d->Px(),p4d->Py(),p4d->Pz(),p4d->Energy(),
+           0,0,0,0);
      }
   } 
 
   //-- Print & return the fragmentation record
   //utils::fragmrec::Print(particle_list);
   return particle_list;
-}
-//____________________________________________________________________________
-double CharmHadronization::Weight(void) const
-{
-  return 1.; // does not generate weighted events
-}
-//____________________________________________________________________________
-PDGCodeList * CharmHadronization::SelectParticles(
-                               const Interaction * /*interaction*/) const
-{
-  return 0;
-}
-//____________________________________________________________________________
-TH1D * CharmHadronization::MultiplicityProb(
-           const Interaction * /*interaction*/, Option_t * /*opt*/)  const
-{
-  return 0;
 }
 //____________________________________________________________________________
 int CharmHadronization::GenerateCharmHadron(int nu_pdg, double EvLab) const
@@ -680,6 +768,12 @@ int CharmHadronization::GenerateCharmHadron(int nu_pdg, double EvLab) const
   return 0;
 }
 //____________________________________________________________________________
+double CharmHadronization::Weight(void) const 
+{
+  return 1. ;
+}
+
+//____________________________________________________________________________
 void CharmHadronization::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -695,8 +789,8 @@ void CharmHadronization::Configure(string config)
 void CharmHadronization::LoadConfig(void)
 {
 
-  bool hadronize_remnants = true ;
-  GetParam( "HadronizeRemnants", hadronize_remnants, false ) ;
+  bool hadronize_remnants ; 
+  GetParamDef( "HadronizeRemnants", hadronize_remnants, true ) ;
 
   fCharmOnly = ! hadronize_remnants ;
 
@@ -705,29 +799,110 @@ void CharmHadronization::LoadConfig(void)
     this->SubAlg("FragmentationFunc"));
   assert(fFragmFunc);
 
-  fCharmPT2pdf = new TF1("fCharmPT2pdf", "exp(-0.213362-6.62464*x)",0,0.6);
+  string pt_function ;
+  this -> GetParam( "PTFunction", pt_function ) ;
+
+  fCharmPT2pdf = new TF1("fCharmPT2pdf", pt_function.c_str(),0,0.6);
+
   // stop ROOT from deleting this object of its own volition
   gROOT->GetListOfFunctions()->Remove(fCharmPT2pdf);
 
   // neutrino charm fractions: D^0, D^+, Ds^+ (remainder: Lamda_c^+)
-  //
-  const int nc = 15;
-  double ec[nc] = {0.,5.,10.,15.,20.,25.,30.,35.,40.,50.,60.,70.,80.,90.,100.};
+  std::vector<double> ec, d0frac, dpfrac, dsfrac ;
 
-  double d0frac[nc] = { .000, .320, .460,  .500,  .520,  .530, .540, .540,
-                        .540, .550,  .550,  .560,  .570, .580, .600  };
-  double dpfrac[nc] = { .000, .120, .180,  .200,  .200,  .210, .210, .210,
-                        .210, .210,  .220,  .220,  .220, .230, .230  };
-  double dsfrac[nc] = { .000, .054, .078,  .130,  .130,  .140, .140, .140,
-                        .140, .140,  .140,  .140,  .140, .150, .150  };
- 
-  fD0FracSpl = new Spline(nc, ec, d0frac);
-  fDpFracSpl = new Spline(nc, ec, dpfrac);
-  fDsFracSpl = new Spline(nc, ec, dsfrac);
+  std::string raw ;
+  std::vector<std::string> bits ;
+
+  bool invalid_configuration = false ;
+
+  // load energy points
+  this -> GetParam( "CharmFrac-E", raw ) ;
+  bits = utils::str::Split( raw, ";" ) ;
+
+  if ( ! utils::str::Convert(bits, ec) ) {
+    LOG("CharmHadronization", pFATAL) <<
+    		"Failed to decode CharmFrac-E string: ";
+    LOG("CharmHadronization", pFATAL) << "string: "<< raw ;
+    invalid_configuration = true ;
+  }
+
+  // load D0 fractions
+  this -> GetParam( "CharmFrac-D0", raw ) ;
+  bits = utils::str::Split( raw, ";" ) ;
+
+  if ( ! utils::str::Convert(bits, d0frac) ) {
+    LOG("CharmHadronization", pFATAL) <<
+    		"Failed to decode CharmFrac-D0 string: ";
+    LOG("CharmHadronization", pFATAL) << "string: "<< raw ;
+    invalid_configuration = true ;
+  }
+
+  // check the size
+  if ( d0frac.size() != ec.size() ) {
+	  LOG("CharmHadronization", pFATAL) << "E entries don't match D0 fraction entries";
+	  LOG("CharmHadronization", pFATAL) << "E:  " << ec.size() ;
+	  LOG("CharmHadronization", pFATAL) << "D0: " << d0frac.size() ;
+	  invalid_configuration = true ;
+  }
+
+  // load D+ fractions
+    this -> GetParam( "CharmFrac-D+", raw ) ;
+    bits = utils::str::Split( raw, ";" ) ;
+
+    if ( ! utils::str::Convert(bits, dpfrac) ) {
+      LOG("CharmHadronization", pFATAL) <<
+      		"Failed to decode CharmFrac-D+ string: ";
+      LOG("CharmHadronization", pFATAL) << "string: "<< raw ;
+      invalid_configuration = true ;
+    }
+
+    // check the size
+    if ( dpfrac.size() != ec.size() ) {
+  	  LOG("CharmHadronization", pFATAL) << "E entries don't match D+ fraction entries";
+  	  LOG("CharmHadronization", pFATAL) << "E:  " << ec.size() ;
+  	  LOG("CharmHadronization", pFATAL) << "D+: " << dpfrac.size() ;
+  	  invalid_configuration = true ;
+    }
+
+    // load D_s fractions
+    this -> GetParam( "CharmFrac-Ds", raw ) ;
+    bits = utils::str::Split( raw, ";" ) ;
+
+    if ( ! utils::str::Convert(bits, dsfrac) ) {
+    	LOG("CharmHadronization", pFATAL) <<
+    			"Failed to decode CharmFrac-Ds string: ";
+    	LOG("CharmHadronization", pFATAL) << "string: "<< raw ;
+    	invalid_configuration = true ;
+    }
+
+    // check the size
+    if ( dsfrac.size() != ec.size() ) {
+    	LOG("CharmHadronization", pFATAL) << "E entries don't match Ds fraction entries";
+    	LOG("CharmHadronization", pFATAL) << "E:  " << ec.size() ;
+    	LOG("CharmHadronization", pFATAL) << "Ds: " << dsfrac.size() ;
+    	invalid_configuration = true ;
+    }
+
+  fD0FracSpl = new Spline( ec.size(), & ec[0], & d0frac[0] );
+  fDpFracSpl = new Spline( ec.size(), & ec[0], & dpfrac[0] );
+  fDsFracSpl = new Spline( ec.size(), & ec[0], & dsfrac[0] );
 
   // anti-neutrino charm fractions: bar(D^0), D^-, (remainder: Ds^-)
-  //
-  fD0BarFrac = 0.667;
-  fDmFrac    = 0.222;
+
+  this -> GetParam( "CharmFrac-D0bar", fD0BarFrac ) ;
+  this -> GetParam( "CharmFrac-D-",    fDmFrac ) ;
+
+  if ( invalid_configuration ) {
+
+	    LOG("CharmHadronization", pFATAL)
+	      << "Invalid configuration: Exiting" ;
+
+	    // From the FreeBSD Library Functions Manual
+	    //
+	    // EX_CONFIG (78)   Something was found in an unconfigured or miscon-
+	    //                  figured state.
+
+	    exit( 78 ) ;
+  }
 }
 //____________________________________________________________________________

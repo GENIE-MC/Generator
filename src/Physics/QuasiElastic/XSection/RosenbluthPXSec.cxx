@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -102,7 +102,7 @@ double RosenbluthPXSec::XSec(
 
   // Calculate the scattered lepton energy
   double Ep  = E / (1. + 2.*(E/M)*sin2_halftheta);
-  double Ep2 = Ep*Ep;
+  //double Ep2 = Ep*Ep; // unused variable
 
   // Calculate the Mott cross section dsigma/dOmega
   double xsec_mott = (0.25 * kAem2 * Ep / E3) * (cos2_halftheta/sin4_halftheta);
@@ -111,7 +111,7 @@ double RosenbluthPXSec::XSec(
   double xsec = xsec_mott * (Ge2 + (tau/epsilon)*Gm2) / (1+tau);
 
   // Convert dsigma/dOmega --> dsigma/dQ2
-  xsec *= (kPi/Ep2);
+  xsec *= (kPi/(Ep*E));
 
   // The algorithm computes dxsec/dQ2
   // Check whether variable tranformation is needed

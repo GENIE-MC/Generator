@@ -43,7 +43,10 @@
   <priority msgstream="BSKLNBaseRESPXSec2014">         WARN   </priority>
   <priority msgstream="BodekYang">                     WARN   </priority>
   <priority msgstream="BodekRitchie">                  WARN   </priority>
+  <priority msgstream="SmithMoniz">                    WARN   </priority>
+  <priority msgstream="SMQELXSec">                     WARN   </priority>
   <priority msgstream="Cache">                         WARN   </priority>
+  <priority msgstream="CEvNS">                         WARN   </priority>
   <priority msgstream="CharmHad">                      WARN   </priority>
   <priority msgstream="CFracTab">                      WARN   </priority>
   <priority msgstream="COHXSec">                       WARN   </priority>
@@ -133,6 +136,7 @@
   <priority msgstream="Nieves">                        WARN   </priority>
   <priority msgstream="NucDeEx">                       WARN   </priority>
   <priority msgstream="NucleonDecay">                  WARN   </priority>
+  <priority msgstream="ResonanceDecay">                WARN   </priority>
   <priority msgstream="NucleonP">                      WARN   </priority>
   <priority msgstream="Nuclear">                       WARN   </priority>
   <priority msgstream="Numerical">                     WARN   </priority>
@@ -147,6 +151,7 @@
   <priority msgstream="ParticleDecayer">               WARN   </priority>
   <priority msgstream="PaschLal">                      WARN   </priority>
   <priority msgstream="PythiaDec">                     WARN   </priority>
+  <priority msgstream="Pythia6Decay">                  WARN   </priority>
   <priority msgstream="PythiaHad">                     WARN   </priority>
   <priority msgstream="PDG">                           WARN   </priority>
   <priority msgstream="PathL">                         WARN   </priority>

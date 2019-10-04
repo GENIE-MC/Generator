@@ -17,7 +17,7 @@
 
 \created  September 4, 2017
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -54,14 +54,28 @@ private:
 
   const XSecIntegratorI * fXSecIntegrator;
 
-  double fkAlpha;
-  double fkGamma; 
-  double fEta;
-  double fFa0;
+  double fQchiV;
+  double fQchiA;
+  double fQchiS;
+  double fQuV;
+  double fQuA;
+  double fQdV;
+  double fQdA;
+  double fQsV;
+  double fQsA;
   double fMa2;
   double fMv2;
+  double fMp2;
+  double fMpi2;
+  double fMeta2;
   double fMuP;
   double fMuN;
+  double fDelu;
+  double fDeld;
+  double fDels;
+  double fDeluP;
+  double fDeldP;
+  double fDelsP;
   int    fVelMode;
   double fMedMass;
   double fgZp;

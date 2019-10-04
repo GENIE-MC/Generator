@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -99,9 +99,9 @@ bool ProcessInfo::IsCoherent(void) const
   return (fScatteringType == kScCoherent);
 }
 //____________________________________________________________________________
-bool ProcessInfo::IsCoherentElas(void) const
+bool ProcessInfo::IsCoherentElastic(void) const
 {
-  return (fScatteringType == kScCoherentElas);
+  return (fScatteringType == kScCoherentElastic);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsElectronScattering(void) const
@@ -124,6 +124,11 @@ bool ProcessInfo::IsInverseMuDecay(void) const
 bool ProcessInfo::IsIMDAnnihilation(void) const
 {
   return (fScatteringType == kScIMDAnnihilation);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsDarkMatterElectronElastic(void) const
+{
+  return (fScatteringType == kScDarkMatterElectronElastic);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsInverseBetaDecay(void) const

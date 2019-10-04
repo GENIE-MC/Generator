@@ -72,7 +72,7 @@ Luis Alvarez-Ruso [9], Costas Andreopoulos (*) [5,7], Adi Ashkenazi [4], Christo
 --------------------
 (*) Corresponding Author:
 
- Dr. Costas Andreopoulos < constantinos.andreopoulos \at cern.ch >
+ Prof. Costas Andreopoulos < constantinos.andreopoulos \at cern.ch >
     
  University of Liverpool          |  U.K. Research & Innovation (UKRI)
  Faculty of Science & Engineering |  Science & Technology Facilities Council (STFC)
@@ -86,7 +86,7 @@ Luis Alvarez-Ruso [9], Costas Andreopoulos (*) [5,7], Adi Ashkenazi [4], Christo
 
 ## Copyright
 
-Copyright (c) 2003-2018, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
+Copyright (c) 2003-2019, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
 
 
 ## Physics & User manual

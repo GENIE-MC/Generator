@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -195,7 +195,31 @@ void GeomVolSelectorFiducial::MakeSphere(Double_t x0, Double_t y0, Double_t z0, 
 }
 
 //___________________________________________________________________________
-void GeomVolSelectorFiducial::MakeZCylinder(Double_t x0, Double_t y0, Double_t radius, 
+void GeomVolSelectorFiducial::MakeXCylinder(Double_t y0, Double_t z0, Double_t radius,
+                                            Double_t xmin, Double_t xmax)
+{
+  // This sets parameters for a cylinder parallel to the x-axis
+  Double_t base[] = {  0, y0, z0 };
+  Double_t axis[] = {  1,  0,  0 };
+  Double_t cap1[] = { -1,  0,  0,  xmin };
+  Double_t cap2[] = { +1,  0,  0, -xmax };  // note sign change
+  this->MakeCylinder(base,axis,radius,cap1,cap2);
+}
+
+//___________________________________________________________________________
+void GeomVolSelectorFiducial::MakeYCylinder(Double_t x0, Double_t z0, Double_t radius,
+                                            Double_t ymin, Double_t ymax)
+{
+  // This sets parameters for a cylinder parallel to the y-axis
+  Double_t base[] = { x0,  0, z0 };
+  Double_t axis[] = {  0,  1,  0 };
+  Double_t cap1[] = {  0, -1,  0,  ymin };
+  Double_t cap2[] = {  0, +1,  0, -ymax };  // note sign change
+  this->MakeCylinder(base,axis,radius,cap1,cap2);
+}
+
+//___________________________________________________________________________
+void GeomVolSelectorFiducial::MakeZCylinder(Double_t x0, Double_t y0, Double_t radius,
                                             Double_t zmin, Double_t zmax)
 {
   // This sets parameters for a cylinder parallel to the z-axis

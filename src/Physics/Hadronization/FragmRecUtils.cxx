@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -15,14 +15,12 @@
 //____________________________________________________________________________
 
 #include <RVersion.h>
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
 #include <TIterator.h>
 
 #include "Framework/Messenger/Messenger.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
 #include "Physics/Hadronization/FragmRecUtils.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 
@@ -33,28 +31,28 @@ int genie::utils::fragmrec::NParticles(
                        int pdg_code, const TClonesArray * const particle_list)
 {
   int nparticles = 0;
-  TMCParticle* p = 0;
+  GHepParticle* p = 0;
 
   TObjArrayIter particle_iter(particle_list);
 
-  while( (p = (TMCParticle *) particle_iter.Next()) ) {
-    if(p->GetKF() == pdg_code)  {
-      if(p->GetKS()<10) nparticles++;
+  while( (p = (GHepParticle *) particle_iter.Next()) ) {
+    if(p->Pdg() == pdg_code)  {
+      if(p->Status()<10) nparticles++;
     }
   }
   return nparticles;
 }
 //____________________________________________________________________________
 int genie::utils::fragmrec::NParticles(
-           int pdg_code, int status, const TClonesArray * const particle_list)
+   int pdg_code, GHepStatus_t status, const TClonesArray * const particle_list)
 {
   int nparticles = 0;
-  TMCParticle* p = 0;
+  GHepParticle* p = 0;
 
   TObjArrayIter particle_iter(particle_list);
 
-  while( (p = (TMCParticle *) particle_iter.Next()) )
-              if(p->GetKF() == pdg_code && p->GetKS() == status) nparticles++;
+  while( (p = (GHepParticle *) particle_iter.Next()) )
+              if(p->Pdg() == pdg_code && p->Status() == status) nparticles++;
 
   return nparticles;
 }
@@ -65,11 +63,11 @@ int genie::utils::fragmrec::NPositives(const TClonesArray * const part_list)
 
   TIter piter(part_list);
 
-  TMCParticle * p = 0;
+  GHepParticle * p = 0;
   int npos = 0;
 
-  while( (p = (TMCParticle *) piter.Next()) )
-         if( PDGLibrary::Instance()->Find(p->GetKF())->Charge() > 0 ) npos++;
+  while( (p = (GHepParticle *) piter.Next()) )
+         if( PDGLibrary::Instance()->Find(p->Pdg())->Charge() > 0 ) npos++;
 
   return npos;
 }
@@ -80,11 +78,11 @@ int genie::utils::fragmrec::NNegatives(const TClonesArray * const part_list)
 
   TIter piter(part_list);
 
-  TMCParticle * p = 0;
+  GHepParticle * p = 0;
   int nneg = 0;
 
-  while( (p = (TMCParticle *) piter.Next()) )
-         if( PDGLibrary::Instance()->Find(p->GetKF())->Charge() < 0 ) nneg++;
+  while( (p = (GHepParticle *) piter.Next()) )
+         if( PDGLibrary::Instance()->Find(p->Pdg())->Charge() < 0 ) nneg++;
 
   return nneg;
 }
@@ -94,29 +92,30 @@ void genie::utils::fragmrec::Print(const TClonesArray * const part_list)
   TIter piter(part_list);
 
   unsigned int i=0;
-  TMCParticle * particle = 0;
+  GHepParticle * particle = 0;
 
   double sum_px = 0, sum_py = 0, sum_pz = 0, sum_E = 0;
 
-  
-  while( (particle = (TMCParticle *) piter.Next()) ) {
 
-    sum_E  += (particle->GetEnergy());
-    sum_px += (particle->GetPx());
-    sum_py += (particle->GetPy());
-    sum_pz += (particle->GetPz());
+  while( (particle = (GHepParticle *) piter.Next()) ) {
+
+    sum_E  += (particle->Energy());
+    sum_px += (particle->Px());
+    sum_py += (particle->Py());
+    sum_pz += (particle->Pz());
 
     SLOG("FragmRecUtils", pINFO)
-        << "-> " << i++ << " " << particle->GetName()
-        << " KF = " << particle->GetKF()
-        << " KS = " << particle->GetKS()
-        << " mom = " << particle->GetParent()
-        << " kids = {" 
-        << particle->GetFirstChild() << ", " << particle->GetLastChild() 
-        << "}(E = "  << particle->GetEnergy()
-        << ",Px = "  << particle->GetPx()
-        << ",Py = "  << particle->GetPy()
-        << ",Pz = "  << particle->GetPz() << ")";
+        << "-> " << i++ << " " << particle->Name()
+        << " PDG = " << particle->Pdg()
+        << " status = " << particle->Status()
+        << " moms = {"
+        << particle->FirstMother() << ", " << particle->LastMother()
+        << "} kids = {"
+        << particle->FirstDaughter() << ", " << particle->LastDaughter()
+        << "}(E = "  << particle->Energy()
+        << ",Px = "  << particle->Px()
+        << ",Py = "  << particle->Py()
+        << ",Pz = "  << particle->Pz() << ")";
   }
 
   SLOG("FragmRecUtils", pINFO)
@@ -125,4 +124,3 @@ void genie::utils::fragmrec::Print(const TClonesArray * const part_list)
 
 }
 //__________________________________________________________________________
-

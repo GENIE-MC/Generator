@@ -1,8 +1,7 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab 
@@ -249,6 +248,9 @@ string Interaction::AsString(void) const
   // If the probe has non-zero mass, then it is DM
   if (fInitialState->Probe()->PdgCode() == kPdgDarkMatter) {
     interaction << "dm;";
+  }
+  else if (fInitialState->Probe()->PdgCode() == kPdgAntiDarkMatter) {
+    interaction << "dmb;";
   }
   else {
     interaction << "nu:"  << fInitialState->ProbePdg() << ";";
@@ -707,10 +709,10 @@ Interaction * Interaction::COHNC(
   return interaction;
 }
 //___________________________________________________________________________
-Interaction * Interaction::COHEl(int tgt, int probe, double E)
+Interaction * Interaction::CEvNS(int tgt, int probe, double E)
 {
   Interaction * interaction = 
-     Interaction::Create(tgt,probe,kScCoherentElas, kIntWeakNC);
+     Interaction::Create(tgt,probe,kScCoherentElastic, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
@@ -718,11 +720,11 @@ Interaction * Interaction::COHEl(int tgt, int probe, double E)
   return interaction;
 }
 //___________________________________________________________________________
-Interaction * Interaction::COHEl(
+Interaction * Interaction::CEvNS(
    int tgt, int probe, const TLorentzVector & p4probe)
 {
   Interaction * interaction = 
-     Interaction::Create(tgt,probe,kScCoherentElas, kIntWeakNC);
+     Interaction::Create(tgt,probe,kScCoherentElastic, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);

@@ -4,7 +4,7 @@
 \class    genie::PythiaDecayer
 
 \brief    Interface to PYTHIA particle decayer. \n
-          The PythiaDecayer is a concrete implementation of the DecayModelI
+          The PythiaDecayer is a concrete implementation of the Decayer
           interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
@@ -12,54 +12,45 @@
 
 \created  June 20, 2004
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
-#ifndef _PYTHIA_DECAYER_I_H_
-#define _PYTHIA_DECAYER_I_H_
+#ifndef _PYTHIA6_DECAYER_I_H_
+#define _PYTHIA6_DECAYER_I_H_
 
 #include <TPythia6.h>
 
-#include "Physics/Decay/DecayModelI.h"
+#include "Physics/Decay/Decayer.h"
 
 namespace genie {
 
-class PythiaDecayer : public DecayModelI {
+class GHepParticle;
+class PythiaDecayer: protected Decayer {
 
 public:
-
   PythiaDecayer();
   PythiaDecayer(string config);
   virtual ~PythiaDecayer();
 
-  // implement the DecayModelI interface  
-  bool           IsHandled      (int pdgc)                      const;
-  void           Initialize     (void)                          const;
-  TClonesArray * Decay          (const DecayerInputs_t & inp)   const;
-  double         Weight         (void)                          const;
-  void           InhibitDecay   (int pdg, TDecayChannel * dc=0) const;
-  void           UnInhibitDecay (int pdg, TDecayChannel * dc=0) const;
-
-  // overload the Algorithm::Configure() methods to load private data
-  // members from configuration options
-  void Configure(const Registry & config);
-  void Configure(string config);
+  // Implement the EventRecordVisitorI interface
+  void ProcessEventRecord(GHepRecord * event) const;
 
 private:
 
-  void   LoadConfig             (void);
-  double SumBR                  (int kc) const;
-  int    FindPythiaDecayChannel (int kc, TDecayChannel* dc) const;
-  bool   MatchDecayChannels     (int ichannel, TDecayChannel * dc) const;
+  void   Initialize             (void)                           const;
+  bool   IsHandled              (int pdgc)                       const;
+  void   InhibitDecay           (int pdgc, TDecayChannel * ch=0) const;
+  void   UnInhibitDecay         (int pdgc, TDecayChannel * ch=0) const;
+  bool   Decay                  (int ip, GHepRecord * event)     const;
+  double SumOfBranchingRatios   (int kc)                         const;
+  int    FindPythiaDecayChannel (int kc, TDecayChannel * ch)     const;
+  bool   MatchDecayChannels     (int ic, TDecayChannel * ch)     const;
 
   mutable TPythia6 * fPythia;  ///< PYTHIA6 wrapper class
-  mutable double fWeight;
-//bool fForceDecay;
+  mutable double     fWeight;
 };
 
 }         // genie namespace
-
-#endif    // _PYTHIA_DECAYER_H_
+#endif    // _PYTHIA6_DECAYER_H_

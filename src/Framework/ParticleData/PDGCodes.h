@@ -14,7 +14,7 @@
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE 
 */
@@ -193,6 +193,7 @@ const int kPdgClusterNP       = 2000000201; // A np cluster within a nucleus
 const int kPdgClusterPP       = 2000000202; // A pp cluster within a nucleus
 const int kPdgCompNuclCluster = 2000000300; // Nucleon cluster before phase decay 
 const int kPdgDarkMatter      = 2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
+const int kPdgAntiDarkMatter  = -2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
 const int kPdgMediator        = 2000010001; // Mediator particle for GENIE Boosted Dark Matter mode
 
 //

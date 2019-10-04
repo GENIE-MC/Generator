@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -249,6 +249,26 @@ bool InitialState::IsDMN(void) const
   int  prob = fProbePdg;
   int  nucl = fTgt->HitNucPdg();
   bool isdn = pdg::IsDarkMatter(prob) && pdg::IsNeutron(nucl);
+
+  return isdn;
+}
+//___________________________________________________________________________
+bool InitialState::IsDMBP(void) const
+{
+// Check if DM - proton interaction
+  int  prob = fProbePdg;
+  int  nucl = fTgt->HitNucPdg();
+  bool isdp = pdg::IsAntiDarkMatter(prob) && pdg::IsProton(nucl);
+
+  return isdp;
+}
+//___________________________________________________________________________
+bool InitialState::IsDMBN(void) const
+{
+// Check if DM - neutron interaction
+  int  prob = fProbePdg;
+  int  nucl = fTgt->HitNucPdg();
+  bool isdn = pdg::IsAntiDarkMatter(prob) && pdg::IsNeutron(nucl);
 
   return isdn;
 }

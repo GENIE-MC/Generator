@@ -5,7 +5,7 @@
 
 \brief      Simple utilities for the Fragmentation Event Record.
 
-            The Fragmentation event record is a TClonesArray of TMCParticles -
+            The Fragmentation event record is a TClonesArray of GHepParticle's -
             equivalent to PYTHIA's PYJETS.
 
 \author     Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
@@ -13,7 +13,7 @@
 
 \created    November 26, 2004
 
-\cpright    Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright    Copyright (c) 2003-2019, The GENIE Collaboration
             For the full text of the license visit http://copyright.genie-mc.org
             or see $GENIE/LICENSE
 */
@@ -24,13 +24,15 @@
 
 #include <TClonesArray.h>
 
+#include "Framework/GHEP/GHepStatus.h"
+
 namespace genie {
 namespace utils {
 
 namespace fragmrec
 {
   int NParticles(int pdg_code, const TClonesArray * const particle_list);
-  int NParticles(int pdg_code, int status, const TClonesArray * const particle_list);
+  int NParticles(int pdg_code, GHepStatus_t status, const TClonesArray * const particle_list);
   int NPositives(const TClonesArray * const particle_list);
   int NNegatives(const TClonesArray * const particle_list);
 

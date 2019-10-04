@@ -52,6 +52,11 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-0">  genie::EventGenerator/AM-NUGAMMA   </param>
   </param_set>
 
+  <param_set name="CEvNS"> 
+     <param type="int" name="NGenerators">  1                                  </param>
+     <param type="alg" name="Generator-0">  genie::EventGenerator/CEvNS        </param>
+  </param_set>
+
   <param_set name="UHE"> 
      <param type="int" name="NGenerators">  4                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES        </param>
@@ -453,11 +458,24 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-0">   genie::EventGenerator/DMDIS    </param>
   </param_set>
 
-  <param_set name="DM">
+  <param_set name="DME">
+     <param type="int" name="NGenerators">   1                              </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DME     </param>
+  </param_set>
+
+  <param_set name="DMHAD">
      <param type="int" name="NGenerators">   2                              </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/DMEL     </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/DMDIS    </param>
   </param_set>
+
+  <param_set name="DM">
+     <param type="int" name="NGenerators">   3                              </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DMEL     </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/DMDIS    </param>
+     <param type="alg" name="Generator-2">   genie::EventGenerator/DME      </param>
+  </param_set>
+
 
 </alg_conf>
 

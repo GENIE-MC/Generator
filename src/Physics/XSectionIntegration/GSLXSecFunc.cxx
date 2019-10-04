@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -33,10 +33,11 @@ using namespace genie;
 
 //____________________________________________________________________________
 genie::utils::gsl::dXSec_dQ2_E::dXSec_dQ2_E(
-    const XSecAlgorithmI * m, const Interaction * i) :
+    const XSecAlgorithmI * m, const Interaction * i, double scale) :
 ROOT::Math::IBaseFunctionOneDim(),
 fModel(m),
-fInteraction(i)
+fInteraction(i),
+fScale(scale)
 {
 
 }
@@ -61,7 +62,7 @@ double genie::utils::gsl::dXSec_dQ2_E::DoEval(double xin) const
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GSLXSecFunc", pDEBUG) << "xsec(Q2 = " << Q2 << ") = " << xsec;
 #endif
-  return xsec/(1E-38 * units::cm2);
+  return fScale*xsec/(1E-38 * units::cm2);
 }
 ROOT::Math::IBaseFunctionOneDim *
    genie::utils::gsl::dXSec_dQ2_E::Clone() const
@@ -304,6 +305,7 @@ double genie::utils::gsl::d2XSec_dWdQ2_E::DoEval(const double * xin) const
     double x=0,y=0;
     double E = fInteraction->InitState().ProbeE(kRfHitNucRest);
     double M = fInteraction->InitState().Tgt().HitNucP4Ptr()->M();
+
     kinematics::WQ2toXY(E,M,W,Q2,x,y);
     fInteraction->KinePtr()->Setx(x);
     fInteraction->KinePtr()->Sety(y);

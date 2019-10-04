@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -225,15 +225,8 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
      //-- Decide whether to accept the current kinematics
      if(!fGenerateUniformly) {
-        // > charged lepton scattering
-        if(is_em) {
-          this->AssertXSecLimits(interaction, xsec, xsec_max);
-          double t  = xsec_max * rnd->RndKine().Rndm();
-          accept = (t < xsec);
-	  LOG("RESKinematics", pINFO) << "xsec = " << xsec << ", ran*max = " << t << ", accept= " << accept;
-      }
-        // > neutrino scattering (using importance sampling envelope)
-        else {
+
+          // unified neutrino / electron scattering
           double max = fEnvelope->Eval(gQD2, gW);
           double t   = max * rnd->RndKine().Rndm();
           double J   = kinematics::Jacobian(interaction,kPSWQ2fE,kPSWQD2fE);
@@ -246,7 +239,6 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 #endif
           accept = (t < J*xsec);
         } // charged lepton or neutrino scattering?
-     }
      else {
         accept = (xsec>0);
      } // uniformly over phase space
@@ -352,6 +344,8 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
   const InitialState & init_state = interaction -> InitState();
   double E = init_state.ProbeE(kRfHitNucRest);
+  bool is_em = interaction->ProcInfo().IsEM(); 
+  double Q2Thres = is_em ? utils::kinematics::electromagnetic::kMinQ2Limit : controls::kMinQ2Limit; 
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("RESKinematics", pDEBUG) << "Scanning phase space for E= " << E;
@@ -378,7 +372,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
     const KPhaseSpace & kps = interaction->PhaseSpace();
     Range1D_t rQ2 = kps.Q2Lim_W();
-    if( rQ2.max < kMinQ2Limit || rQ2.min <=0 ) return 0.;
+    if( rQ2.max < Q2Thres || rQ2.min <=0 ) return 0.;
 
     int    NQ2      = 25;
     int    NQ2b     = 5;
@@ -449,8 +443,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
       int NQ2b =  4;
 
       Range1D_t rQ2 = kps.Q2Lim_W();
-
-      if( rQ2.max < kMinQ2Limit || rQ2.min <=0 ) continue;
+      if( rQ2.max < Q2Thres || rQ2.min <=0 ) continue;
       if( rQ2.max-rQ2.min<0.02 ) {NQ2=5; NQ2b=3;}
 
       double logQ2min   = TMath::Log(rQ2.min+kASmallNum);

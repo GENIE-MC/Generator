@@ -43,9 +43,12 @@
   <priority msgstream="Bardin">                FATAL </priority>
   <priority msgstream="BodekYang">             FATAL </priority>
   <priority msgstream="BodekRitchie">          FATAL </priority>
+  <priority msgstream="SmithMoniz">            FATAL </priority>
+  <priority msgstream="SMQELXSec">             FATAL </priority>
   <priority msgstream="Cache">                 FATAL </priority>
   <priority msgstream="CharmHad">              FATAL </priority>
   <priority msgstream="CFracTab">              FATAL </priority>
+  <priority msgstream="CEvNS">                 FATAL </priority>
   <priority msgstream="COHXSec">               FATAL </priority>
   <priority msgstream="COHXSecAR">             FATAL </priority>
   <priority msgstream="CLAP">                  FATAL </priority>
@@ -128,9 +131,10 @@
   <priority msgstream="MEC">                   FATAL </priority>
   <priority msgstream="MuELoss">               FATAL </priority>
   <priority msgstream="MultProb">              FATAL </priority>
-  <priority msgstream="Nieves">                FATAL   </priority>
+  <priority msgstream="Nieves">                FATAL </priority>
   <priority msgstream="NucDeEx">               FATAL </priority>
   <priority msgstream="NucleonDecay">          FATAL </priority>
+  <priority msgstream="ResonanceDecay">        FATAL </priority>
   <priority msgstream="NucleonP">              FATAL </priority>
   <priority msgstream="Nuclear">               FATAL </priority>
   <priority msgstream="Numerical">             FATAL </priority>
@@ -144,6 +148,7 @@
   <priority msgstream="ParticleDecayer">       FATAL </priority>
   <priority msgstream="PaschLal">              FATAL </priority>
   <priority msgstream="PythiaDec">             FATAL </priority>
+  <priority msgstream="Pythia6Decay">          FATAL </priority>
   <priority msgstream="PythiaHad">             FATAL </priority>
   <priority msgstream="PDG">                   FATAL </priority>
   <priority msgstream="PathL">                 FATAL </priority>

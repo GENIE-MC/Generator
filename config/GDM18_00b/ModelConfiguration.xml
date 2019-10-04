@@ -88,9 +88,9 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">         genie::ReinSehgalRESPXSec/NoPauliBlock       </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::ReinSehgalRESPXSec/Default       </param>
   
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">         genie::QPMDISPXSec/Default            </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">         genie::QPMDISPXSec/Default            </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::QPMDISPXSec/Default            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">         genie::KNOTunedQPMDISPXSec/Default            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">         genie::KNOTunedQPMDISPXSec/Default            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::KNOTunedQPMDISPXSec/Default            </param>
 
   <!-- 
   -->
@@ -133,8 +133,9 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/NucleonDecay">   genie::DummyPXSec/Default             </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/NNBarOsc">       genie::NNBarOscDummyPXSec/Default     </param>
 
-    <param type="alg" name="XSecModel@genie::EventGenerator/DMEL">         genie::AhrensDMELPXSec/Velocity2          </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DMEL">         genie::AhrensDMELPXSec/Velocity2          </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DMDIS">         genie::QPMDMDISPXSec/Velocity2            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DME">            genie::DMElectronPXSec/Velocity2      </param>
 
  </param_set>
 

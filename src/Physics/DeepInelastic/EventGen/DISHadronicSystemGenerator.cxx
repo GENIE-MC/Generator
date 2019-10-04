@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -30,18 +30,12 @@
 //____________________________________________________________________________
 
 #include <RVersion.h>
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
 #include "Physics/DeepInelastic/EventGen/DISHadronicSystemGenerator.h"
 #include "Framework/EventGen/EVGThreadException.h"
-#include "Physics/Hadronization/HadronizationModelI.h"
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
@@ -85,114 +79,20 @@ void DISHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Add an entry for the DIS Pre-Fragm. Hadronic State
   this->AddFinalHadronicSyst(evrec);
 
+  // set W in the Event Summary
+  //-- Compute the hadronic system invariant mass
+  TLorentzVector p4Had = this->Hadronic4pLAB(evrec);
+
+  Interaction * interaction = evrec->Summary();
+  interaction->KinePtr()->SetW( p4Had.M() );
+
   //-- Add the fragmentation products
-  this->AddFragmentationProducts(evrec);
+  fHadronizationModel -> ProcessEventRecord( evrec ) ;
+
 
   //-- Simulate the formation zone if not taken directly from the 
   //   hadronization model
   this->SimulateFormationZone(evrec);
-}
-//___________________________________________________________________________
-void DISHadronicSystemGenerator::AddFragmentationProducts(
-                                                   GHepRecord * evrec) const
-{
-// Calls a hadronizer and adds the fragmentation products at the GHEP
-
-  GHepParticle * neutrino  = evrec->Probe();
-  const TLorentzVector & vtx = *(neutrino->X4());
-
-  //-- Compute the hadronic system invariant mass
-  TLorentzVector p4Had = this->Hadronic4pLAB(evrec);
-  double W = p4Had.M();
-
-  Interaction * interaction = evrec->Summary();
-  interaction->KinePtr()->SetW(W);
-
-  //-- Run the hadronization model and get the fragmentation products:
-  //   A collection of ROOT TMCParticles (equiv. to a LUJETS record)
-
-  TClonesArray * plist = fHadronizationModel->Hadronize(interaction);
-  if(!plist) {
-     LOG("DISHadronicVtx", pWARN) 
-                  << "Got an empty particle list. Hadronizer failed!";
-     LOG("DISHadronicVtx", pWARN) 
-                    << "Quitting the current event generation thread";
-
-     evrec->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
-
-     genie::exceptions::EVGThreadException exception;
-     exception.SetReason("Could not simulate the hadronic system");
-     exception.SwitchOnFastForward();
-     throw exception;
-
-     return;
-  }
-
-  //-- Take the hadronic system weight to handle cases that the hadronizer
-  //   was asked to produce weighted events
-  double wght = fHadronizationModel->Weight();
-
-  //-- Translate the fragmentation products from TMCParticles to
-  //   GHepParticles and copy them to the event record.
-
-  int mom = evrec->FinalStateHadronicSystemPosition();
-  assert(mom!=-1);
- 
-  TMCParticle * p = 0;
-  TIter particle_iter(plist);
-
-  bool is_nucleus = interaction->InitState().Tgt().IsNucleus();
-  GHepStatus_t istfin = (is_nucleus) ?       
-                 kIStHadronInTheNucleus : kIStStableFinalState;
-
-  // Vector defining rotation from LAB to LAB' (z:= \vec{phad})
-  TVector3 unitvq = p4Had.Vect().Unit();
-
-  // Boost velocity LAB' -> HCM
-  TVector3 beta(0,0,p4Had.P()/p4Had.Energy());
-
-  while( (p = (TMCParticle *) particle_iter.Next()) ) {
-
-     int pdgc = p->GetKF();
-     int ks   = p->GetKS();
-
-     if(fFilterPreFragmEntries && ks!=1) continue;
-
-     // The fragmentation products are generated in the hadronic CM frame
-     // where the z>0 axis is the \vec{phad} direction. For each particle 
-     // returned by the hadronizer:
-     // - boost it back to LAB' frame {z:=\vec{phad}} / doesn't affect pT
-     // - rotate its 3-momentum from LAB' to LAB
-
-     TLorentzVector p4o(p->GetPx(), p->GetPy(), p->GetPz(), p->GetEnergy());
-     p4o.Boost(beta); 
-     TVector3 p3 = p4o.Vect();
-     p3.RotateUz(unitvq); 
-     TLorentzVector p4(p3,p4o.Energy());
-     
-     // copy final state particles to the event record
-     GHepStatus_t ist = (ks==1) ? istfin : kIStDISPreFragmHadronicState;
-
-     // handle gammas, and leptons that might come from internal pythia decays
-     // mark them as final state particles
-     bool not_hadron = (pdgc==kPdgGamma || 
-                        pdg::IsNeutralLepton(pdgc) || pdg::IsChargedLepton(pdgc));
-     if(not_hadron)  { ist = kIStStableFinalState; }
-
-     int im  = mom + 1 + p->GetParent();
-     int ifc = (p->GetFirstChild() == -1) ? -1 : mom + 1 + p->GetFirstChild();
-     int ilc = (p->GetLastChild()  == -1) ? -1 : mom + 1 + p->GetLastChild();
-
-     evrec->AddParticle(pdgc, ist, im,-1, ifc, ilc, p4,vtx);
-
-  } // fragmentation-products-iterator
-
-  //-- Handle the case that the hadronizer produced weighted events and
-  //   take into account that the current event might be already weighted
-  evrec->SetWeight (wght * evrec->Weight());
-
-  plist->Delete();
-  delete plist;
 }
 //___________________________________________________________________________
 void DISHadronicSystemGenerator::SimulateFormationZone(
@@ -299,7 +199,7 @@ void DISHadronicSystemGenerator::LoadConfig(void)
 
   //-- Get the requested hadronization model
   fHadronizationModel = 
-     dynamic_cast<const HadronizationModelI *> (this->SubAlg("Hadronizer"));
+     dynamic_cast<const EventRecordVisitorI *> (this->SubAlg("Hadronizer"));
   assert(fHadronizationModel);
  
   //-- Handle pre-intranuke decays

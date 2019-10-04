@@ -43,9 +43,12 @@
   <priority msgstream="Bardin">                INFO   </priority>
   <priority msgstream="BodekYang">             INFO   </priority>
   <priority msgstream="BodekRitchie">          WARN   </priority>
+  <priority msgstream="SmithMoniz">            WARN   </priority>
+  <priority msgstream="SMQELXSec">             NOTICE </priority>
   <priority msgstream="Cache">                 WARN   </priority>
   <priority msgstream="CharmHad">              NOTICE </priority>
   <priority msgstream="CFracTab">              INFO   </priority>
+  <priority msgstream="CEvNS">                 NOTICE </priority>
   <priority msgstream="COHXSec">               NOTICE </priority>
   <priority msgstream="COHXSecAR">             NOTICE </priority>
   <priority msgstream="CLAP">                  NOTICE </priority>
@@ -132,6 +135,7 @@
   <priority msgstream="Nieves">                NOTICE </priority>
   <priority msgstream="NucDeEx">               NOTICE </priority>
   <priority msgstream="NucleonDecay">          NOTICE </priority>
+  <priority msgstream="ResonanceDecay">        NOTICE </priority>
   <priority msgstream="NucleonP">              INFO   </priority>
   <priority msgstream="Nuclear">               NOTICE </priority>
   <priority msgstream="Numerical">             INFO   </priority>
@@ -145,6 +149,7 @@
   <priority msgstream="ParticleDecayer">       INFO   </priority>
   <priority msgstream="PaschLal">              INFO   </priority>
   <priority msgstream="PythiaDec">             NOTICE </priority>
+  <priority msgstream="Pythia6Decay">          NOTICE </priority>
   <priority msgstream="PythiaHad">             NOTICE </priority>
   <priority msgstream="PDG">                   INFO   </priority>
   <priority msgstream="PathL">                 NOTICE </priority>

@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -44,7 +44,6 @@
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/Numerical/GSLUtils.h"
 
-
 #include <iostream> // Used for testing code
 #include <fstream> // Used for testing code
 #include "Physics/NuclearState/NuclearModelI.h"
@@ -73,7 +72,7 @@ NievesQELCCPXSec::~NievesQELCCPXSec()
  }
 //____________________________________________________________________________
 double NievesQELCCPXSec::XSec(const Interaction * interaction,
-                       KinePhaseSpace_t kps) const
+  KinePhaseSpace_t kps) const
 {
   /*// TESTING CODE:
   // The first time this method is called, output tensor elements and other
@@ -89,170 +88,225 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   // END TESTING CODE*/
 
 
-  if(! this -> ValidProcess    (interaction) ) return 0.;
-  if(! this -> ValidKinematics (interaction) ) return 0.;
-
+  if ( !this->ValidProcess   (interaction) ) return 0.;
+  if ( !this->ValidKinematics(interaction) ) return 0.;
 
   // Get kinematics and init-state parameters
   const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
   const Target & target = init_state.Tgt();
 
+  // HitNucMass() looks up the PDGLibrary (on-shell) value for the initial
+  // struck nucleon
+  double mNi = target.HitNucMass();
+
+  // Hadronic matrix element for CC neutrino interactions should really use
+  // the "nucleon mass," i.e., the mean of the proton and neutrino masses.
+  // This expression would also work for NC and EM scattering (since the
+  // initial and final on-shell nucleon masses would be the same)
+  double mNucleon = ( mNi + interaction->RecoilNucleon()->Mass() ) / 2.;
+
+  // Create a copy of the struck nucleon 4-momentum that is forced
+  // to be on-shell (this will be needed later for the tensor contraction,
+  // in which the nucleon is treated in this way)
+  double inNucleonOnShellEnergy = std::sqrt( std::pow(mNi, 2)
+    + std::pow(target.HitNucP4().P(), 2) );
+
+  // The Nieves CCQE model follows the de Forest prescription: free nucleon
+  // (i.e., on-shell) form factors and spinors are used, but an effective
+  // value of the 4-momentum transfer "qTilde" is used when computing the
+  // contraction of the hadronic tensor. See comments in the
+  // FullDifferentialXSec() method of LwlynSmithQELCCPXSec for more details.
+  TLorentzVector inNucleonMomOnShell( target.HitNucP4().Vect(),
+    inNucleonOnShellEnergy );
+
   // Get the four kinematic vectors and caluclate GFactor
   // Create copies of all kinematics, so they can be rotated
   // and boosted to the nucleon rest frame (because the tensor
   // constraction below only applies for the initial nucleon
   // at rest and q in the z direction)
-  TLorentzVector neutrinoMom,inNucleonMom,leptonMom, outNucleonMom;
-  double Gfactor = 0.;
-  if (kps == kPSTnctnBnctl || kps == kPSQELEvGen) {
-    // All kinematics will already be stored
-    TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
-    neutrinoMom = *tempNeutrino;
-    delete tempNeutrino;
-    inNucleonMom = target.HitNucP4();
-    leptonMom = kinematics.FSLeptonP4();
-    outNucleonMom = kinematics.HadSystP4();
 
-    // Use these lab kinematics to calculate the Gfactor, in order to make
-    // the XSec differential in initial nucleon momentum and energy
-    // Divide by 4.0 because Nieves' conventions for the leptonic and hadronic
-    // tensor contraction differ from LwlynSmith by a factor of 4
-    Gfactor = kGF2*fCos8c2 / (8.0*kPi*kPi*inNucleonMom.E()*neutrinoMom.E()*outNucleonMom.E()*leptonMom.E()) / 4.0;
-  }else{
-    // Initial Neutrino, Lab frame
-    TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
-    neutrinoMom = *tempNeutrino;
-    delete tempNeutrino;
-    // Initial Nucleon
-    inNucleonMom = target.HitNucP4();
-    // Generate outgoing lepton in the lab frame
-    leptonMom = GenerateOutgoingLepton(interaction,neutrinoMom);
-    // Set outgoing nucleon using conservation of energy
-    outNucleonMom = neutrinoMom + inNucleonMom - leptonMom;
-    // Calculate G factor
-    double E = init_state.ProbeE(kRfLab);
-    double M  = target.HitNucMass();
-    double M2 = TMath::Power(M,     2);
-    double s = (2*E+M)*M;
-    double num = TMath::Power(s-M2,2);
-    Gfactor = kGF2 * fCos8c2 / (8*kPi*num);
+  // All 4-momenta should already be stored, with the hit nucleon off-shell
+  // as appropriate
+  TLorentzVector* tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector neutrinoMom = *tempNeutrino;
+  delete tempNeutrino;
+  TLorentzVector inNucleonMom = target.HitNucP4();
+  TLorentzVector leptonMom = kinematics.FSLeptonP4();
+  TLorentzVector outNucleonMom = kinematics.HadSystP4();
+
+  // Apply Pauli blocking if enabled
+  if ( fDoPauliBlocking && target.IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) ) {
+    int final_nucleon_pdg = interaction->RecoilNucleonPdg();
+    double kF = fPauliBlocker->GetFermiMomentum(target, final_nucleon_pdg,
+      target.HitNucPosition());
+    double pNf = outNucleonMom.P();
+    if ( pNf < kF ) return 0.;
   }
 
-  // Boost to nucleon rest frame to calculate the nucleon rest frame cross section
-  TVector3 beta = -1.0 * inNucleonMom.BoostVector(); // boost from lab to nucRest
-  neutrinoMom.Boost(beta);
-  inNucleonMom.Boost(beta);
-  leptonMom.Boost(beta);
-  outNucleonMom.Boost(beta);
+  // Use the lab kinematics to calculate the Gfactor, in order to make
+  // the XSec differential in initial nucleon momentum and energy
+  // Divide by 4.0 because Nieves' conventions for the leptonic and hadronic
+  // tensor contraction differ from LwlynSmith by a factor of 4
+  double Gfactor = kGF2*fCos8c2 / (8.0*kPi*kPi*inNucleonOnShellEnergy
+    *neutrinoMom.E()*outNucleonMom.E()*leptonMom.E()) / 4.0;
 
-  // Rotate vectors so q is in the z direction, to use Nieves'
-  // explicit form of the Amunu tensor
+  // Calculate Coulomb corrections
+  double ml = interaction->FSPrimLepton()->Mass();
+  double ml2 = TMath::Power(ml, 2);
+  double coulombFactor = 1.0;
+  double plLocal = leptonMom.P();
+
+  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
+  double r = target.HitNucPosition();
+
+  if ( fCoulomb ) {
+    // Coulomb potential
+    double Vc = vcr(& target, r);
+
+    // Outgoing lepton energy and momentum including Coulomb potential
+    int sign = is_neutrino ? 1 : -1;
+    double El = leptonMom.E();
+    double pl = leptonMom.P();
+    double ElLocal = El - sign*Vc;
+
+    if ( ElLocal - ml <= 0. ) {
+      LOG("Nieves", pDEBUG) << "Event should be rejected. Coulomb effects"
+        << " push kinematics below threshold. Returning xsec = 0.0";
+      return 0.0;
+    }
+
+    // The Coulomb correction factor blows up as pl -> 0. To guard against
+    // unphysically huge corrections here, require that the lepton kinetic energy
+    // (at infinity) is larger than the magnitude of the Coulomb potential
+    // (should be around a few MeV)
+    double KEl = El - ml;
+    if ( KEl <= std::abs(Vc) ) {
+      LOG("Nieves", pDEBUG) << "Outgoing lepton has a very small kinetic energy."
+        << " Protecting against near-singularities in the Coulomb correction"
+        << " factor by returning xsec = 0.0";
+      return 0.0;
+    }
+
+    // Local value of the lepton 3-momentum magnitude for the Coulomb
+    // correction
+    plLocal = TMath::Sqrt( ElLocal*ElLocal - ml2 );
+
+    // Correction factor
+    coulombFactor= (plLocal * ElLocal) / (pl * El);
+
+  }
+
+  // When computing the contraction of the leptonic and hadronic tensors,
+  // we need to use an effective value of the 4-momentum transfer q.
+  // The energy transfer (q0) needs to be modified to account for the binding
+  // energy of the struck nucleon, while the 3-momentum transfer needs to
+  // be corrected for Coulomb effects.
+  //
+  // See the original Valencia model paper:
+  // https://journals.aps.org/prc/abstract/10.1103/PhysRevC.70.055503
+
+  double q0Tilde = outNucleonMom.E() - inNucleonMomOnShell.E();
+
+  // If binding energy effects pull us into an unphysical region, return
+  // zero for the differential cross section
+  if ( q0Tilde <= 0. && target.IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) ) return 0.;
+
+  // Note that we're working in the lab frame (i.e., the rest frame
+  // of the target nucleus). We can therefore use Nieves' explicit
+  // form of the Amunu tensor if we rotate the 3-momenta so that
+  // qTilde is in the +z direction
   TVector3 neutrinoMom3 = neutrinoMom.Vect();
   TVector3 leptonMom3 = leptonMom.Vect();
-  TVector3 q3Vec = neutrinoMom3-leptonMom3; // TESTING: Use q rather than qTilde
 
   TVector3 inNucleonMom3 = inNucleonMom.Vect();
   TVector3 outNucleonMom3 = outNucleonMom.Vect();
-  //TVector3 q3Vec = outNucleonMom3-inNucleonMom3; // qTilde
 
-  TVector3 zvec(0,0,1.0);
-  TVector3 rot = (q3Vec.Cross(zvec)).Unit(); // Vector to rotate about
-  double angle = zvec.Angle(q3Vec); // Angle between the z direction and q
+  // If Coulomb corrections are being used, adjust the lepton 3-momentum used
+  // to get q3VecTilde so that its magnitude matches the local
+  // Coulomb-corrected value calculated earlier. Note that, although the
+  // treatment of Coulomb corrections by Nieves et al. doesn't change the
+  // direction of the lepton 3-momentum, it *does* change the direction of the
+  // 3-momentum transfer, and so the correction should be applied *before*
+  // rotating coordinates into a frame where q3VecTilde lies along the positive
+  // z axis.
+  TVector3 leptonMomCoulomb3 = (! fCoulomb ) ? leptonMom3
+    : plLocal * leptonMom3 * (1. / leptonMom3.Mag());
+  TVector3 q3VecTilde = neutrinoMom3 - leptonMomCoulomb3;
+
+  // Find the rotation angle needed to put q3VecTilde along z
+  TVector3 zvec(0.0, 0.0, 1.0);
+  TVector3 rot = ( q3VecTilde.Cross(zvec) ).Unit(); // Vector to rotate about
+  // Angle between the z direction and q
+  double angle = zvec.Angle( q3VecTilde );
+
+  // Handle the edge case where q3VecTilde is along -z, so the
+  // cross product above vanishes
+  if ( q3VecTilde.Perp() == 0. && q3VecTilde.Z() < 0. ) {
+    rot = TVector3(0., 1., 0.);
+    angle = kPi;
+  }
 
   // Rotate if the rotation vector is not 0
-  if(rot.Mag() >= kASmallNum){
+  if ( rot.Mag() >= kASmallNum ) {
+
     neutrinoMom3.Rotate(angle,rot);
     neutrinoMom.SetVect(neutrinoMom3);
+
     leptonMom3.Rotate(angle,rot);
     leptonMom.SetVect(leptonMom3);
+
     inNucleonMom3.Rotate(angle,rot);
     inNucleonMom.SetVect(inNucleonMom3);
+    inNucleonMomOnShell.SetVect(inNucleonMom3);
+
     outNucleonMom3.Rotate(angle,rot);
     outNucleonMom.SetVect(outNucleonMom3);
+
   }
 
   // Calculate q and qTilde
-  //TLorentzVector qP4(0,0,0,0);
-  TLorentzVector qTildeP4(0,0,0,0);
-  //qP4 = neutrinoMom - leptonMom;
-  //qTildeP4 = outNucleonMom - inNucleonMom;
+  TLorentzVector qP4 = neutrinoMom - leptonMom;
+  TLorentzVector qTildeP4(0., 0., q3VecTilde.Mag(), q0Tilde);
 
-  //TESTING: use q instead of qTilde
-  qTildeP4 = neutrinoMom - leptonMom;
+  double Q2 = -1. * qP4.Mag2();
+  double Q2tilde = -1. * qTildeP4.Mag2();
 
-  double Q2tilde = -1 * qTildeP4.Mag2();
-  if ( kps == kPSTnctnBnctl || kps == kPSQELEvGen ) {
-    // otherwise q2 is already stored
-    interaction->KinePtr()->SetQ2(Q2tilde);
-  }
+  // Store Q2tilde in the interaction so that we get the correct
+  // values of the form factors (according to the de Forest prescription)
+  interaction->KinePtr()->SetQ2(Q2tilde);
 
   double q2 = -Q2tilde;
 
   // Check that q2 < 0 (accounting for rounding errors)
-  if(q2>=kASmallNum){
-    LOG("Nieves", pWARN) << "q2>=0, returning xsec = 0.0";
-    return 0.0;
-  }
-  // Check that the energy tranfer q0 is greater than 0, or else the
-  // following equations do not apply. (Note also that the event would
-  // be Pauli blocked )
-  if(qTildeP4.E()<=-kASmallNum){
-    LOG("Nieves", pWARN) << "q0<=0.0, returning xsec = 0.0";
+  if ( q2 >= kASmallNum ) {
+    LOG("Nieves", pWARN) << "q2 >= 0, returning xsec = 0.0";
     return 0.0;
   }
 
-  // Calculate tensor product
+  // Calculate form factors
+  fFormFactors.Calculate( interaction );
 
-  fFormFactors.Calculate(interaction);
-  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
-  double M = inNucleonMom.Mag(); // Struck nucleon mass
-  double r = target.HitNucPosition();
-  bool tgtIsNucleus = target.IsNucleus();
-  int tgt_pdgc = target.HitNucPdg();
-  int A = target.A();
-  int Z = target.Z();
-  int N = target.N();
-  bool hitNucIsProton = pdg::IsProton(target.HitNucPdg());
+  // Now that the form factors have been calculated, store Q2
+  // in the event instead of Q2tilde
+  interaction->KinePtr()->SetQ2( Q2 );
 
-  // Calculate Coulomb corrections
-  double ml = interaction->FSPrimLepton()->Mass();
-  double ml2 = TMath::Power(ml,    2);
-  double coulombFactor = 1.0;
-  if(fCoulomb){
-    // Coulomb potential
-    double Vc = vcr(& target, r);
-
-    // Outgoing lepton energy and momentum including coulomb potential
-    int sign = is_neutrino ? 1 : -1;
-    double El = leptonMom.E();
-    double ElLocal = El - sign*Vc;
-    if(ElLocal - ml <= 0.0){
-      LOG("Nieves", pDEBUG) << "Event should be rejected. Coulomb effects "
-                          << "push kinematics below threshold. Returning "
-                          << "xsec = 0.0";
-      return 0.0;
-    }
-    double plLocal = TMath::Sqrt(ElLocal*ElLocal-ml2);
-
-    // Correction factor
-    coulombFactor= plLocal*ElLocal/leptonMom.Vect().Mag()/El;
-
-    // Correct outgoing lepton momentum
-    /*TVector3 ElVect = leptonMom.Vect();
-    ElVect.SetMag(plLocal);
-    leptonMom.SetVect(ElVect);
-    leptonMom.SetE(ElLocal);*/
-  }
-
-
-  double LmunuAnumuResult = LmunuAnumu(neutrinoMom,inNucleonMom,
-                                       leptonMom,outNucleonMom,
-                                       M,r,is_neutrino,tgtIsNucleus,
-                                       tgt_pdgc,A,Z,N,hitNucIsProton);
+  // Do the contraction of the leptonic and hadronic tensors. See the
+  // RPA-corrected expressions for the hadronic tensor elements in appendix A
+  // of Phys. Rev. C 70, 055503 (2004). Note that the on-shell 4-momentum of
+  // the initial struck nucleon should be used in the calculation, as well as
+  // the effective 4-momentum transfer q tilde (corrected for the nucleon
+  // binding energy and Coulomb effects)
+  double LmunuAnumuResult = LmunuAnumu(neutrinoMom, inNucleonMomOnShell,
+    leptonMom, qTildeP4, mNucleon, is_neutrino, target,
+    interaction->TestBit( kIAssumeFreeNucleon ));
 
   // Calculate xsec
   double xsec = Gfactor*coulombFactor*LmunuAnumuResult;
+
+  // Apply the factor that arises from elimination of the energy-conserving
+  // delta function
+  xsec *= genie::utils::EnergyDeltaFunctionSolutionQEL( *interaction );
 
   // Apply given scaling factor
   xsec *= fXSecScale;
@@ -261,24 +315,13 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
                        << ", Coulomb=" << fCoulomb
                        << ", q2 = " << q2 << ", xsec = " << xsec;
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("Nieves", pDEBUG)
-     << "dXSec[QEL]/dQ2 [FreeN](E = "<< E << ", Q2 = "<< -q2 << ") = "<< xsec;
-#endif
-
-  //----- The algorithm computes dxsec/dQ2 or kPSTnctnBnctl
+  //----- The algorithm computes dxsec/dQ2 or kPSQELEvGen
   //      Check whether variable tranformation is needed
-  if ( kps != kPSQ2fE && kps != kPSTnctnBnctl ) {
+  if ( kps != kPSQELEvGen ) {
 
     // Compute the appropriate Jacobian for transformation to the requested
     // phase space
-    double J = 1.;
-    if ( kps == kPSQELEvGen ) {
-      J = utils::kinematics::Jacobian(interaction, kPSTnctnBnctl, kps);
-    }
-    else {
-      J = utils::kinematics::Jacobian(interaction, kPSQ2fE, kps);
-    }
+    double J = utils::kinematics::Jacobian(interaction, kPSQELEvGen, kps);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Nieves", pDEBUG)
@@ -288,103 +331,29 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
     xsec *= J;
   }
 
-  //----- if requested return the free nucleon xsec even for input nuclear tgt
-  //      the xsec will still include RPA corrections
-  if( interaction->TestBit(kIAssumeFreeNucleon) )    return xsec;
-
-  //----- compute nuclear suppression factor
-  //      (R(Q2) is adapted from NeuGEN - see comments therein)
-  double R;
-  R = nuclear::NuclQELXSecSuppression("Default", 0.5, interaction);
-
-  //----- number of scattering centers in the target
+  // Number of scattering centers in the target
   int nucpdgc = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("Nieves", pINFO)
-       << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
-#endif
-
-  xsec *= (R*NNucl); // nuclear xsec*/
+  xsec *= NNucl; // nuclear xsec
 
   return xsec;
 }
 //____________________________________________________________________________
 double NievesQELCCPXSec::Integral(const Interaction * in) const
 {
-  bool nuclear_target = in->InitState().Tgt().IsNucleus();
-  double E = in->InitState().ProbeE(kRfHitNucRest);
-  if(!nuclear_target || !fDoAvgOverNucleonMomentum) {
-    return fXSecIntegrator->Integrate(this,in);
+  // If we're using the new spline generation method (which integrates
+  // over the kPSQELEvGen phase space used by QELEventGenerator) then
+  // let the cross section integrator do all of the work. It's smart
+  // enough to handle free nucleon vs. nuclear targets, different
+  // nuclear models (including the local Fermi gas model), etc.
+  if ( fXSecIntegrator->Id().Name() == "genie::NewQELXSec" ) {
+    return fXSecIntegrator->Integrate(this, in);
   }
-
-
-
-  // If the nuclear model is LFG or if RPA effects are on, then the xsec
-  // is dependent on the position in the nucleus, and possible radii and
-  // initial nucleon momenta should always be averaged over
-  if(fLFG || fRPA || E < fEnergyCutOff) {
-    // clone the input interaction so as to tweak the
-    // hit nucleon 4-momentum in the averaging loop
-    Interaction in_curr(*in);
-
-    // hit target
-    Target * tgt = in_curr.InitState().TgtPtr();
-
-    // get nuclear masses (init & final state nucleus)
-    int nucleon_pdgc = tgt->HitNucPdg();
-    bool is_p = pdg::IsProton(nucleon_pdgc);
-    int Zi = tgt->Z();
-    int Ai = tgt->A();
-    int Zf = (is_p) ? Zi-1 : Zi;
-    int Af = Ai-1;
-    PDGLibrary * pdglib = PDGLibrary::Instance();
-    TParticlePDG * nucl_i = pdglib->Find( pdg::IonPdgCode(Ai, Zi) );
-    TParticlePDG * nucl_f = pdglib->Find( pdg::IonPdgCode(Af, Zf) );
-    if(!nucl_f) {
-      LOG("QELXSec", pFATAL)
-        << "Unknwown nuclear target! No target with code: "
-        << pdg::IonPdgCode(Af, Zf) << " in PDGLibrary!";
-      exit(1);
-    }
-    double Mi  = nucl_i -> Mass(); // initial nucleus mass
-    double Mf  = nucl_f -> Mass(); // remnant nucleus mass
-
-    // throw nucleons with fermi momenta and binding energies
-    // generated according to the current nuclear model for the
-    // input target and average the cross section
-    double xsec_sum = 0.;
-    const int nnuc = 2000;
-    // VertexGenerator for generating a position before generating
-    // each nucleon
-    VertexGenerator * vg = new VertexGenerator();
-    vg->Configure("Default");
-    for(int inuc=0;inuc<nnuc;inuc++){
-      // Generate a position in the nucleus
-      TVector3 nucpos = vg->GenerateVertex(&in_curr,tgt->A());
-      tgt->SetHitNucPosition(nucpos.Mag());
-
-      // Generate a nucleon
-      fNuclModel->GenerateNucleon(*tgt, nucpos.Mag());
-      TVector3 p3N = fNuclModel->Momentum3();
-      double   EN  = Mi - TMath::Sqrt(p3N.Mag2() + Mf*Mf);
-      TLorentzVector* p4N = tgt->HitNucP4Ptr();
-      p4N->SetPx (p3N.Px());
-      p4N->SetPy (p3N.Py());
-      p4N->SetPz (p3N.Pz());
-      p4N->SetE  (EN);
-
-      double xsec;
-      xsec = fXSecIntegrator->Integrate(this,&in_curr);
-
-      xsec_sum += xsec;
-    }
-    double xsec_avg = xsec_sum / nnuc;
-    delete vg;
-    return xsec_avg;
-  }else{
-    return fXSecIntegrator->Integrate(this,in);
+  else {
+    LOG("Nieves", pFATAL) << "Splines for the Nieves CCQE model must be"
+      << " generated using genie::NewQELXSec";
+    std::exit(1);
   }
 }
 //____________________________________________________________________________
@@ -435,20 +404,20 @@ void NievesQELCCPXSec::LoadConfig(void)
   // hbarc for unit conversion, GeV*fm
   fhbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
 
-   // load QEL form factors model
+  // load QEL form factors model
   fFormFactorsModel = dynamic_cast<const QELFormFactorsModelI *> (
-                                             this->SubAlg("FormFactorsAlg"));
+    this->SubAlg("FormFactorsAlg") );
   assert(fFormFactorsModel);
-  fFormFactors.SetModel(fFormFactorsModel); // <-- attach algorithm
+  fFormFactors.SetModel( fFormFactorsModel ); // <-- attach algorithm
 
-   // load XSec Integrator
-  fXSecIntegrator =
-      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+  // load XSec Integrator
+  fXSecIntegrator = dynamic_cast<const XSecIntegratorI*>(
+    this->SubAlg("XSec-Integrator") );
   assert(fXSecIntegrator);
 
   // Load settings for RPA and Coulomb effects
 
-  // RPA corrections will not effect a free nucleon
+  // RPA corrections will not affect a free nucleon
   GetParamDef("RPA", fRPA, true ) ;
 
   // Coulomb Correction- adds a correction factor, and alters outgoing lepton
@@ -456,7 +425,7 @@ void NievesQELCCPXSec::LoadConfig(void)
   // Correction only becomes sizeable near threshold and/or for heavy nuclei
   GetParamDef( "Coulomb", fCoulomb, true ) ;
 
-  LOG("Nieves",pNOTICE) << "RPA=" << fRPA << ", useCoulomb=" << fCoulomb;
+  LOG("Nieves", pNOTICE) << "RPA=" << fRPA << ", useCoulomb=" << fCoulomb;
 
   // Get nuclear model for use in Integral()
   RgKey nuclkey = "IntegralNuclearModel";
@@ -467,42 +436,67 @@ void NievesQELCCPXSec::LoadConfig(void)
   fLFG = fNuclModel->ModelType(Target()) == kNucmLocalFermiGas;
 
   if(!fLFG){
-          // get the Fermi momentum table for relativistic Fermi gas
-          GetParam( "FermiMomentumTable", fKFTableName ) ;
+    // get the Fermi momentum table for relativistic Fermi gas
+    GetParam( "FermiMomentumTable", fKFTableName ) ;
 
-          fKFTable = 0;
-          FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
-          fKFTable = kftp->GetTable(fKFTableName);
-          assert(fKFTable);
-  }
-
-  // Always average over initial nucleons if the nuclear model is LFG
-  bool average_over_nuc_mom ;
-  GetParamDef( "IntegralAverageOverNucleonMomentum", average_over_nuc_mom, false ) ;
-  fDoAvgOverNucleonMomentum = fLFG || average_over_nuc_mom ;
-
-  fEnergyCutOff = 0.;
-
-  if(fDoAvgOverNucleonMomentum) {
-    // Get averaging cutoff energy
-          GetParamDef( "IntegralNuclearInfluenceCutoffEnergy", fEnergyCutOff, 2.0 ) ;
-
+    fKFTable = 0;
+    FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+    fKFTable = kftp->GetTable( fKFTableName );
+    assert( fKFTable );
   }
 
   // TESTING CODE
   GetParamDef( "PrintDebugData", fCompareNievesTensors, false ) ;
   // END TESTING CODE
+
+  // Nuclear radius parameter (R = R0*A^(1/3)) to use when computing
+  // the maximum radius to use to integrate the Coulomb potential
+  GetParam("NUCL-R0", fR0) ; // fm
+
+  std::string temp_mode;
+  GetParamDef( "RmaxMode", temp_mode, std::string("VertexGenerator") ) ;
+
+  // Translate the string setting the Rmax mode to the appropriate
+  // enum value, or complain if one couldn't be found
+  if ( temp_mode == "VertexGenerator" ) {
+    fCoulombRmaxMode = kMatchVertexGeneratorRmax;
+  }
+  else if ( temp_mode == "Nieves" ) {
+    fCoulombRmaxMode = kMatchNieves;
+  }
+  else {
+    LOG("Nieves", pFATAL) << "Unrecognized setting \"" << temp_mode
+      << "\" requested for the RmaxMode parameter in the"
+      << " configuration for NievesQELCCPXSec";
+    gAbortingInErr = true;
+    std::exit(1);
+  }
+
+  // Method to use to calculate the binding energy of the initial hit nucleon when
+  // generating splines
+  std::string temp_binding_mode;
+  GetParamDef( "IntegralNucleonBindingMode", temp_binding_mode, std::string("UseNuclearModel") );
+  fIntegralNucleonBindingMode = genie::utils::StringToQELBindingMode( temp_binding_mode );
+
+  // Cutoff energy for integrating over nucleon momentum distribution (above this
+  // lab-frame probe energy, the effects of Fermi motion and binding energy
+  // are taken to be negligible for computing the total cross section)
+  GetParamDef("IntegralNuclearInfluenceCutoffEnergy", fEnergyCutOff, 2.5 ) ;
+
+  // Get PauliBlocker for possible use in XSec()
+  fPauliBlocker = dynamic_cast<const PauliBlocker*>( this->SubAlg("PauliBlockerAlg") );
+  assert( fPauliBlocker );
+
+  // Decide whether or not it should be used in XSec()
+  GetParamDef( "DoPauliBlocking", fDoPauliBlocking, true );
 }
 //___________________________________________________________________________
 void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
-                                     double M, double r, bool is_neutrino,
-                                     bool tgtIsNucleus, int tgt_pdgc,
-                                     int A, int Z, int N, bool hitNucIsProton,
-                                     double & CN, double & CT, double & CL,
-                                     double & imaginaryU,
-                                     double & t0, double & r00) const
+  double M, double r, bool is_neutrino, bool tgtIsNucleus, int tgt_pdgc,
+  int A, int Z, int N, bool hitNucIsProton, double & CN, double & CT, double & CL,
+  double & imaginaryU, double & t0, double & r00, bool assumeFreeNucleon) const
 {
-  if(tgtIsNucleus){
+  if ( tgtIsNucleus && !assumeFreeNucleon ) {
     double dq = qTildeP4.Vect().Mag();
     double dq2 = TMath::Power(dq,2);
     double q2 = 1 * qTildeP4.Mag2();
@@ -539,8 +533,6 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
       }
     }
 
-    //LOG("Nieves",pDEBUG) << "r=" << r << ",kF1=" << kF1 << ",kF2=" << kF2;
-
     double kF = TMath::Power(1.5*kPi2*rho, 1.0/3.0) *fhbarc;
 
     std::complex<double> imU(relLindhardIm(qTildeP4.E(),dq,kF1,kF2,
@@ -573,8 +565,8 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
 
     CT = 1.0/TMath::Power(abs(1.0-relLinTot*Vt),2);
     CL = 1.0/TMath::Power(abs(1.0-relLinTot*Vl),2);
-    //LOG("Nieves",pDEBUG) <<"CN = " << CN <<",CT = " << CT << ",CL = " << CL;
-  }else{
+  }
+  else {
     //Polarization Coefficients: all equal to 1.0 for free nucleon
     CN = 1.0;
     CT = 1.0;
@@ -816,19 +808,32 @@ double NievesQELCCPXSec::vcr(const Target * target, double Rcurr) const{
   if(target->IsNucleus()){
     int A = target->A();
     int Z = target->Z();
-    // RMax calculated using formula from Nieves' fortran code and default
-    // charge and neutron matter density paramters from NuclearUtils.cxx
-    double Rmax;
-    if(A > 20){
-      double c = TMath::Power(A,0.35), z = 0.54;
-      Rmax = c + 9.25*z;
-    }else{
-      // c = 1.75 for A <= 20
-      Rmax = TMath::Sqrt(20.0)*1.75;
-    }
+    double Rmax = 0.;
 
-    //LOG("Nieves",pDEBUG) "A = " << A
-    //  << ", Rcurr = " << Rcurr << ", Rmax = " << Rmax;
+    if ( fCoulombRmaxMode == kMatchNieves ) {
+      // Rmax calculated using formula from Nieves' fortran code and default
+      // charge and neutron matter density parameters from NuclearUtils.cxx
+      if (A > 20) {
+        double c = TMath::Power(A,0.35), z = 0.54;
+        Rmax = c + 9.25*z;
+      }
+      else {
+        // c = 1.75 for A <= 20
+        Rmax = TMath::Sqrt(20.0)*1.75;
+      }
+    }
+    else if ( fCoulombRmaxMode == kMatchVertexGeneratorRmax ) {
+      // TODO: This solution is fragile. If the formula used by VertexGenerator
+      // changes, then this one will need to change too. Switch to using
+      // a common function to get Rmax for both.
+      Rmax = 3. * fR0 * std::pow(A, 1./3.);
+    }
+    else {
+      LOG("Nieves", pFATAL) << "Unrecognized setting for fCoulombRmaxMode encountered"
+        << " in NievesQELCCPXSec::vcr()";
+      gAbortingInErr = true;
+      std::exit(1);
+    }
 
     if(Rcurr >= Rmax){
       LOG("Nieves",pNOTICE) << "Radius greater than maximum radius for coulomb corrections."
@@ -889,22 +894,25 @@ int NievesQELCCPXSec::leviCivita(int input[]) const{
 }
 //____________________________________________________________________________
 // Calculates the constraction of the leptonic and hadronic tensors. The
-// initial nucleon must be at rest, and q must be in the z direction.
+// expressions used here are valid in a frame in which the
+// initial nucleus is at rest, and qTilde must be in the z direction.
 double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
-                                    const TLorentzVector inNucleonMom,
-                                    const TLorentzVector leptonMom,
-                                    const TLorentzVector /* outNucleonMom */,
-                                    double M, double r, bool is_neutrino,
-                                    bool tgtIsNucleus,
-                                    int tgt_pdgc, int A, int Z, int N,
-                                    bool hitNucIsProton) const
+const TLorentzVector inNucleonMomOnShell, const TLorentzVector leptonMom,
+const TLorentzVector qTildeP4, double M, bool is_neutrino,
+const Target& target, bool assumeFreeNucleon) const
 {
+  double r = target.HitNucPosition();
+  bool tgtIsNucleus = target.IsNucleus();
+  int tgt_pdgc = target.Pdg();
+  int A = target.A();
+  int Z = target.Z();
+  int N = target.N();
+  bool hitNucIsProton = pdg::IsProton( target.HitNucPdg() );
+
   const double k[4] = {neutrinoMom.E(),neutrinoMom.Px(),neutrinoMom.Py(),neutrinoMom.Pz()};
   const double kPrime[4] = {leptonMom.E(),leptonMom.Px(),
                             leptonMom.Py(),leptonMom.Pz()};
 
-  //const TLorentzVector qTildeP4 = outNucleonMom-inNucleonMom;
-  const TLorentzVector qTildeP4 = neutrinoMom-leptonMom;
   double q2 = qTildeP4.Mag2();
 
   const double q[4] = {qTildeP4.E(),qTildeP4.Px(),qTildeP4.Py(),qTildeP4.Pz()};
@@ -937,33 +945,20 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
   double dq2     = TMath::Power(dq,    2);
   double q4      = TMath::Power(q2,    2);
 
-  // CAN BE DELETED
-  //Terms for xsec terms that don't have RPA corrections
-  /*double a1 = 8.0*q2*((F1V2+2*F1V*xiF2V+xiF2V2)+FA2*(1.0/4.0-M2/q2));
-  double a2 = 32.0*F1V2 - 8.0*xiF2V2*q2/M2 + 8.0*FA2;
-  double a3 = sign*16.0*FA*(F1V+xiF2V);
-  double a4 = -8.0*q2_M2*xiF2V2*(M2/q2+1.0/4.0) -
-    8.0*M2*FA2/(kPionMass2-q2)*(q2/(kPionMass2-q2)+2.0) - 16.0*F1V*xiF2V;
-  //double q2_M2   = q2/M2;
-  //int lcNum = 0;
-  */ // END CODE THAT CAN BE DELETED
-
   double t0,r00;
   double CN=1.,CT=1.,CL=1.,imU=0;
-  CNCTCLimUcalc(qTildeP4,M,r,is_neutrino,tgtIsNucleus,
-                tgt_pdgc,A,Z,N,hitNucIsProton,
-                CN,CT,CL,imU,t0,r00);
-  if(imU > kASmallNum)
+  CNCTCLimUcalc(qTildeP4, M, r, is_neutrino, tgtIsNucleus,
+    tgt_pdgc, A, Z, N, hitNucIsProton, CN, CT, CL, imU,
+    t0, r00, assumeFreeNucleon);
+
+  if ( imU > kASmallNum )
     return 0.;
 
-  if(! fRPA){
-    CN=1.0;
-    CT=1.0;
-    CL=1.0;
+  if ( !fRPA || assumeFreeNucleon ) {
+    CN = 1.0;
+    CT = 1.0;
+    CL = 1.0;
   }
-
-  //LOG("Nieves",pDEBUG) << "CN=" << CN << ",CT=" << CT << ",CL=" << CL << ",imU=" << imU;
-
 
   double tulin[4] = {0.,0.,0.,0.};
   double rulin[4][4] = { {0.,0.,0.,0.},
@@ -999,26 +994,18 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
     rulin[2][2] = gamma;
     rulin[3][0] = r03;
     rulin[3][3] = gamma+delta*dq2; // END TESTING CODE
-  }else{
+  }
+  else {
     // For normal code execulation, tulin is the initial nucleon momentum
-    tulin[0] = inNucleonMom.E();
-    tulin[1] = inNucleonMom.Px();
-    tulin[2] = inNucleonMom.Py();
-    tulin[3] = inNucleonMom.Pz();
+    tulin[0] = inNucleonMomOnShell.E();
+    tulin[1] = inNucleonMomOnShell.Px();
+    tulin[2] = inNucleonMomOnShell.Py();
+    tulin[3] = inNucleonMomOnShell.Pz();
 
     for(int i=0; i<4; i++)
       for(int j=0; j<4; j++)
         rulin[i][j] = tulin[i]*tulin[j];
   }
-
-  /*
-  for(int i=0; i<4; i++)
-    LOG("Nieves",pDEBUG) <<  tulin[i];
-
-  for(int i=0; i<4; i++)
-    for(int j=0; j<4; j++)
-      LOG("Nieves",pDEBUG) << rulin[i][j];
-    */
 
   //Additional constants and variables
   const int g[4][4] = {{1,0,0,0},{0,-1,0,0},{0,0,-1,0},{0,0,0,-1}};
@@ -1109,41 +1096,9 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
         axy = imag(Amunu); // TESTING CODE
         sum += Lmunu*Anumu+Lnumu*Amunu;
       }
-      // All other terms will be 0 becuase the initial nucleon is at rest and
-      // q is in the z direction
+      // All other terms will be 0 because the initial nucleus is at rest and
+      // qTilde is in the z direction
 
-      // CAN BE DELETED
-      /*else{
-        // No RPA corrections to the remaining terms, so A is not r dependent
-        if(mu == nu){
-          Amunu = a1*g[mu][nu]+
-            a2*(rulin[mu][nu]+tulin[mu]*q[nu]/2.0+tulin[nu]*q[mu]/2.0)+a4*q[mu]*q[nu];
-          sum += Lmunu*Amunu;
-
-        }else{
-          imaginaryPart = 0;
-          leviCivitaIndexArray[0] = mu;
-          leviCivitaIndexArray[1] = nu;
-          for(int a=0;a<4;a++){
-            for(int b=a+1;b<4;b++){
-              leviCivitaIndexArray[2] = a;
-              leviCivitaIndexArray[3] = b;
-              //Switching a and b reverses the sign of the leviCivita
-              //symbol, and a==b gives leviCivita = 0
-              lcNum = leviCivita(leviCivitaIndexArray);
-              imaginaryPart += lcNum*g[a][a]*tulin[a]*g[b][b]*q[b]
-                -lcNum*g[b][b]*tulin[b]*g[a][a]*q[a];
-            }
-          }
-          Amunu = a1*g[mu][nu]+
-            a2*(rulin[mu][nu]+tulin[mu]*q[nu]/2.0+tulin[nu]*q[mu]/2.0)+
-            iNum*a3*imaginaryPart+a4*q[mu]*q[nu];
-          Anumu = a1*g[mu][nu]+
-            a2*(rulin[mu][nu]+tulin[mu]*q[nu]/2.0+tulin[nu]*q[mu]/2.0)-
-            iNum*a3*imaginaryPart+a4*q[mu]*q[nu];
-          sum += Lmunu*Anumu+Lnumu*Amunu;
-          }
-          }*/ // END CODE THAT CAN BE DELETED
     } // End loop over nu
   } // End loop over mu
 
@@ -1181,88 +1136,12 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
 
   // Since the real parts of A and L are both symmetric and the imaginary
   // parts are antisymmetric, the contraction should be real
-  if(imag(sum) > kASmallNum)
+  if ( imag(sum) > kASmallNum )
     LOG("Nieves",pWARN) << "Imaginary part of tensor contraction is nonzero "
                         << "in QEL XSec, real(sum) = " << real(sum)
                         << "imag(sum) = " << imag(sum);
 
   return real(sum);
-}
-//____________________________________________________________________________
-// Generate a lepton using PrimaryLeptonGenerator::ProcessEventRecord()
-// and store it by using the KineVar construct with
-// the Kinematics class (variables kKVTl, kKVctl, kKVphikq).
-// Stored lepton is in the LAB FRAME.
-TLorentzVector NievesQELCCPXSec::GenerateOutgoingLepton(const Interaction* interaction,
-                                                        TLorentzVector p4v) const{
-  // Velocity for an active Lorentz transform taking the final state primary
-  // lepton from the [nucleon rest frame] --> [LAB]
-  const InitialState & init_state = interaction->InitState();
-  const TLorentzVector & pnuc4 = init_state.Tgt().HitNucP4(); //[@LAB]
-  TVector3 beta = pnuc4.BoostVector();
-
-
-  // Neutrino 4p
-  p4v.Boost(-1.*beta);                           // v 4p @ Nucleon rest frame
-
-  // Look-up selected kinematics & other needed kinematical params
-  double Q2  = interaction->Kine().Q2(false);
-
-  // get neutrino energy at struck nucleon rest frame and the
-  // struck nucleon mass (can be off the mass shell)
-  double E  = init_state.ProbeE(kRfHitNucRest);
-  double M = init_state.Tgt().HitNucP4().M();
-
-  const XclsTag & xcls = interaction->ExclTag();
-  int rpdgc = 0;
-  if(xcls.IsCharmEvent()) { rpdgc = xcls.CharmHadronPdg();           }
-  else                    { rpdgc = interaction->RecoilNucleonPdg(); }
-  assert(rpdgc);
-  double W = PDGLibrary::Instance()->Find(rpdgc)->Mass();
-  // (W,Q2) -> (x,y)
-  double x=0, y=0;
-  utils::kinematics::WQ2toXY(E,M,W,Q2,x,y);
-  double Ev  = p4v.E();
-  double ml  = interaction->FSPrimLepton()->Mass();
-  double ml2 = TMath::Power(ml,2);
-
-  LOG("LeptonicVertex", pDEBUG)
-    << "Ev = " << Ev << ", Q2 = " << Q2 << ", y = " << y;
-
-  // Compute the final state primary lepton energy and momentum components
-  // along and perpendicular the neutrino direction
-  double El = (1-y)*Ev;
-  double plp = El - 0.5*(Q2+ml2)/Ev;                          // p(//)
-  double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
-
-  LOG("LeptonicVertex", pDEBUG)
-    << "trying fsl: E = " << El << ", |p//| = " << plp << ", [pT] = " << plt;
-
-  // Randomize transverse components
-  RandomGen * rnd = RandomGen::Instance();
-  double phi  = 2*kPi * rnd->RndLep().Rndm();
-  double pltx = plt * TMath::Cos(phi);
-  double plty = plt * TMath::Sin(phi);
-
-
-  // Take a unit vector along the neutrino direction @ the nucleon rest frame
-  TVector3 unit_nudir = p4v.Vect().Unit();
-
-  // Rotate lepton momentum vector from the reference frame (x'y'z') where
-  // {z':(neutrino direction), z'x':(theta plane)} to the nucleon rest frame
-  TVector3 p3l(pltx,plty,plp);
-  p3l.RotateUz(unit_nudir);
-
-  // Lepton 4-momentum in the nucleon rest frame
-  TLorentzVector p4l(p3l,El);
-
-  LOG("LeptonicVertex", pINFO)
-    << "trying fsl @ NRF: " << utils::print::P4AsString(&p4l);
-
-  // Boost final state primary lepton to the lab frame
-  p4l.Boost(beta); // active Lorentz transform
-
-  return p4l;
 }
 
 //___________________________________________________________________________
@@ -1360,16 +1239,10 @@ void NievesQELCCPXSec::CompareNievesTensors(const Interaction* in)
   const InitialState & init_state = interaction -> InitState();
   const Target & target = init_state.Tgt();
 
-  // Paramters required for LmunuAnumu
+  // Parameters required for LmunuAnumu
   double M  = target.HitNucMass();
   double ml = interaction->FSPrimLepton()->Mass();
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
-  bool tgtIsNucleus = target.IsNucleus();
-  int tgt_pdgc = target.HitNucPdg();
-  int A = target.A();
-  int Z = target.Z();
-  int N = target.N();
-  bool hitNucIsProton = pdg::IsProton(target.HitNucPdg());
 
   // Iterate over lepton energy (which then affects q, which is passed to
   // LmunuAnumu using in and out NucleonMom
@@ -1386,13 +1259,12 @@ void NievesQELCCPXSec::CompareNievesTensors(const Interaction* in)
     double q2 = q0*q0-dq*dq;
     interaction->KinePtr()->SetQ2(-q2);
 
-    // When this method is called, inNucleonMom and outNucleonMom are
-    // only used to calulate
-    // q = outNucleonMom - inNucleonMom. I can thus provide the calculated
-    // values using outNucleonMom and inNucleonMom and putting q in the
-    // z direction, as Nieves does in his paper
-    TLorentzVector inNucleonMom(0,0,0,0);
-    TLorentzVector outNucleonMom(0,0,dq,q0);
+    // When this method is called, inNucleonMomOnShell is unused.
+    // I can thus provide the calculated values using a null vector for
+    // inNucleonMomOnShell. I also need to put qTildeP4 in the z direction, as
+    // Nieves does in his paper.
+    TLorentzVector qTildeP4(0, 0, dq, q0);
+    TLorentzVector inNucleonMomOnShell(0,0,0,0);
 
     // neutrinoMom and leptonMom only directly affect the leptonic tensor, which
     // we are not calculating now. Use them to transfer q.
@@ -1420,9 +1292,11 @@ void NievesQELCCPXSec::CompareNievesTensors(const Interaction* in)
       fCoulombFactor = coulombFactor; // Store and print
     }
 
+    // TODO: apply Coulomb correction to 3-momentum transfer dq
+
     fFormFactors.Calculate(interaction);
-    LmunuAnumu(neutrinoMom,inNucleonMom,leptonMom,outNucleonMom,
-               M,r,is_neutrino,tgtIsNucleus,tgt_pdgc,A,Z,N,hitNucIsProton);
+    LmunuAnumu(neutrinoMom, inNucleonMomOnShell, leptonMom, qTildeP4,
+               M, is_neutrino, target, false);
   }
   return;
 } // END TESTING CODE

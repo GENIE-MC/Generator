@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -1651,7 +1651,7 @@ bool genie::utils::intranuke2018::PhaseSpaceDecay(
   TLorentzVector &RemnP4, double NucRmvE, EINukeMode mode)
 {
 // General method decaying the input particle system 'pdgv' with available 4-p
-// given by 'pd'. The decayed system is used to populate the input TMCParticle
+// given by 'pd'. The decayed system is used to populate the input GHepParticle
 // array starting from the slot 'offset'.
 //
   LOG("INukeUtils", pINFO) << "*** Performing a Phase Space Decay";

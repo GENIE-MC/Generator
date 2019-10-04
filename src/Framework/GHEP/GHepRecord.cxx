@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -271,7 +271,7 @@ GEvGenMode_t GHepRecord::EventGenerationMode(void) const
 
   // In dark matter mode, the 1st entry in the event record is a dark
   // matter particle
-  if( pdg::IsDarkMatter(p0pdg) && p0st == kIStInitialState )
+  if( (pdg::IsDarkMatter(p0pdg) || pdg::IsAntiDarkMatter(p0pdg)) && p0st == kIStInitialState )
   {
     return kGMdDarkMatterNucleus;
   }

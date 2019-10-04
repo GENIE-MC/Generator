@@ -72,9 +72,8 @@
 
 \created December 15, 2005
 
-\cpright Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright Copyright (c) 2003-2019, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -594,7 +593,7 @@ void SaveGraphsToRootFile(void)
     else if (proc.IsDeepInelastic()    ) { title << "dis";   }
     else if (proc.IsDiffractive()      ) { title << "dfr";   }
     else if (proc.IsCoherent()         ) { title << "coh";   }
-    else if (proc.IsCoherentElas()     ) { title << "cohel"; }
+    else if (proc.IsCoherentElastic()  ) { title << "cevns"; }
     else if (proc.IsInverseMuDecay()   ) { title << "imd";   }
     else if (proc.IsIMDAnnihilation()  ) { title << "imdanh";}
     else if (proc.IsNuElectronElastic()) { title << "ve";    }

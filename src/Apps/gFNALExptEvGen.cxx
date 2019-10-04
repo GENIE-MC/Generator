@@ -265,7 +265,7 @@
 
 \created August 20, 2008
 
-\cpright Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright Copyright (c) 2003-2019, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
@@ -420,7 +420,8 @@ int main(int argc, char ** argv)
   utils::app_init::XSecTable(gOptInpXSecFile, false);
 
   // Set GHEP print level
-  GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
+  int print_level = RunOpt::Instance()->EventRecordPrintLevel();
+  GHepRecord::SetPrintLevel(print_level);
 
   // *************************************************************************
   // * Create / configure the geometry driver
@@ -745,9 +746,10 @@ int main(int argc, char ** argv)
              << "Got a null generated neutino event! Retrying ...";
          continue;
      }
-     LOG("gevgen_fnal", pINFO)
+     if ( print_level >= 0 ) {
+       LOG("gevgen_fnal", pINFO)
          << "Generated event: " << *event;
-
+     }
      // A valid event was generated: flux info (parent decay/prod
      // position/kinematics) for that simulated event should already
      // be connected to the right output tree branch
@@ -1308,7 +1310,11 @@ void CreateFidSelection (string fidcut, GeomAnalyzerI* geom_driver)
   ///   This must be followed by a ":" and a list of values separated by punctuation
   ///       (allowed separators: commas , parentheses () braces {} or brackets [] )
   ///   Value mapping:
-  ///      zcly:x0,y0,radius,zmin,zmax           - cylinder along z at (x0,y0) capped at z's
+  ///      zcyl:x0,y0,radius,zmin,zmax           - cylinder along z at (x0,y0) capped at z's
+  ///      xcyl:y0,z0,radius,xmin,ymax           - cylinder along x
+  ///      ycyl:x0,z0,radius,ymin,ymax           - cylinder along y
+  ///      gcyl:{x0,y0,z0}{dx,dy,dz},radius,{plane1}{plane2} -- generic cylinder w/ arbitrary orientation and caps
+  ///                                              {planeX} = 4 values to define plane and orientation
   ///      box:xmin,ymin,zmin,xmax,ymax,zmax     - box w/ upper & lower extremes
   ///      zpoly:nfaces,x0,y0,r_in,phi,zmin,zmax - nfaces sided polygon in x-y plane
   //       sphere:x0,y0,z0,radius                - sphere of fixed radius at (x0,y0,z0)
@@ -1319,7 +1325,7 @@ void CreateFidSelection (string fidcut, GeomAnalyzerI* geom_driver)
   ///         six sided polygon in x-y plane, centered at x,y=(2,-1) w/ inscribed radius 1.75
   ///         no rotation (so first face is in y-z plane +r from center, i.e. hex sits on point)
   ///         limited to the z range of {0.25,8.75} in the master ROOT geom coordinates
-  ///      3) zcly:(3,4),5.5,-2,10
+  ///      3) zcyl:(3,4),5.5,-2,10
   ///         a cylinder oriented parallel to the z axis in the "top vol" coordinates
   ///         at x,y=(3,4) with radius 5.5 and z range of {-2,10}
   ///
@@ -1383,6 +1389,33 @@ void CreateFidSelection (string fidcut, GeomAnalyzerI* geom_driver)
       LOG("gevgen_fnal", pFATAL) << "MakeZCylinder needs 5 values, not " << nvals
                                 << " fidcut=\"" << fidcut << "\"";
     fidsel->MakeZCylinder(vals[0],vals[1],vals[2],vals[3],vals[4]);
+
+  } else if ( stype.find("xcyl")   != string::npos ) {
+    // cylinder along x direction at (y0,z0) radius xmin xmax
+    if ( nvals < 5 )
+      LOG("gevgen_fnal", pFATAL) << "MakeXCylinder needs 5 values, not " << nvals
+                                << " fidcut=\"" << fidcut << "\"";
+    fidsel->MakeXCylinder(vals[0],vals[1],vals[2],vals[3],vals[4]);
+
+  } else if ( stype.find("ycyl")   != string::npos ) {
+    // cylinder along y direction at (x0,z0) radius ymin ymax
+    if ( nvals < 5 )
+      LOG("gevgen_fnal", pFATAL) << "MakeYCylinder needs 5 values, not " << nvals
+                                << " fidcut=\"" << fidcut << "\"";
+    fidsel->MakeYCylinder(vals[0],vals[1],vals[2],vals[3],vals[4]);
+
+  } else if ( stype.find("gcyl")   != string::npos ) {
+    // cylinder along arbitrary direction at (x0,y0,z0) radius {plane1} {plane2}
+    if ( nvals < 14 )
+      LOG("gevgen_fnal", pFATAL) << "MakeYCylinder needs 14 values, not " << nvals
+                                << " fidcut=\"" << fidcut << "\"";
+    Double_t base[3] = { vals[0], vals[1], vals[2] };
+    Double_t axis[3] = { vals[3], vals[4], vals[5] };
+    Double_t radius = vals[6];
+    Double_t cap1[4] = { vals[ 7], vals[ 8], vals[ 9], vals[10] };
+    Double_t cap2[4] = { vals[11], vals[12], vals[13], vals[14] };
+
+    fidsel->MakeCylinder(base,axis,radius,cap1,cap2);
 
   } else if ( stype.find("box")    != string::npos ) {
     // box (xmin,ymin,zmin) (xmax,ymax,zmax)

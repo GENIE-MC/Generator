@@ -7,10 +7,11 @@
 #pragma link C++ namespace genie;
 
 #pragma link C++ class genie::COHInteractionListGenerator;
+#pragma link C++ class genie::COHKinematicsGenerator;
 #pragma link C++ class genie::COHPrimaryLeptonGenerator;
 #pragma link C++ class genie::COHHadronicSystemGenerator;
-#pragma link C++ class genie::COHElHadronicSystemGenerator;
-#pragma link C++ class genie::COHKinematicsGenerator;
-#pragma link C++ class genie::COHElKinematicsGenerator;
+
+#pragma link C++ class genie::CEvNSInteractionListGenerator;
+#pragma link C++ class genie::CEvNSEventGenerator;
 
 #endif

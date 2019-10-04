@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the NewQELXSec xsec algorithm.
+
+Configurable Parameters:
+.....................................................................................................
+Name                         Type     Optional   Comment                                      Default
+gsl-integration-type         string   Yes        name of GSL multidimensional integrator      adaptive
+.....................................................................................................
+-->
+
+  <param_set name="Default"> 
+    <param type="string" name = "gsl-integration-type"> adaptive </param>
+    <param type="double" name = "gsl-relative-tolerance"> 0.0001 </param>
+    <param type="int" name = "gsl-max-eval"> 100000 </param>
+    <param type="alg" name = "VertexGenAlg"> genie::VertexGenerator/Default </param>
+    <param type="int" name = "NumNucleonThrows"> 500 </param>
+  </param_set>
+
+</alg_conf>

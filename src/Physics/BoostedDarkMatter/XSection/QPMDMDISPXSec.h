@@ -16,7 +16,7 @@
 
 \created  September 4, 2017
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -72,6 +72,9 @@ private:
   int    fVelMode;          ///< velcoity dependence for xsec
   double fMedMass;          ///< Mediator mass
   double fgzp;              ///< Coupling to the mediator Zprime
+  double fQchiL;            ///< Left-handed DM charge
+  double fQchiR;            ///< Right-handed DM charge
+  double fQchiS;            ///< Scalar DM charge
 };
 
 }       // genie namespace

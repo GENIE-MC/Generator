@@ -1,31 +1,33 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::DMELKinematicsGenerator
+\class    genie::DMELEventGenerator
 
-\brief    Generates values for the kinematic variables describing EL DM
+\brief    Generates values for the kinematic variables describing DMEL neutrino
           interaction events.
           Is a concrete implementation of the EventRecordVisitorI interface.
 
-\author   Joshua Berger <jberger \at physics.wisc.edu>
-          University of Wisconsin-Madison
-          Andrew Furmanski
+\author   Andrew Furmanski
 
-\created  September 4, 2017
+\created  August 04, 2014
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
+
 #ifndef _DMEL_EVENT_GENERATOR_H_
 #define _DMEL_EVENT_GENERATOR_H_
 
+
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Physics/Common/KineGeneratorWithCache.h"
+#include "Physics/BoostedDarkMatter/XSection/DMELUtils.h"
 #include "Framework/Utils/Range1.h"
 #include "Framework/Conventions/Controls.h"
+
 
 namespace genie {
 
@@ -46,27 +48,24 @@ public :
 
 private:
 
-  double ComputeXSec (Interaction * in, double costheta, double phi) const;
-  TVector3 COMframe2Lab(InitialState initialState) const;
-
-  double COMJacobian(TLorentzVector lepton, TLorentzVector leptonCOM, TLorentzVector outNucleon, TVector3 beta) const;
-  
-  // unused // double fQ2min;
   mutable double fEb; // Binding energy
 
   void   LoadConfig     (void);
-  double  ComputeMaxXSec(const Interaction * in) const;
+  double ComputeMaxXSec(const Interaction* in) const;
 
   void AddTargetNucleusRemnant (GHepRecord * evrec) const; ///< add a recoiled nucleus remnant
 
-
   const NuclearModelI *  fNuclModel;   ///< nuclear model
 
-  //mutable double fQ2min;
-  //mutable double fQ2max;
-  //
   mutable double fMinAngleEM;
 
+  /// Enum that indicates which approach should be used to handle the binding
+  /// energy of the struck nucleon
+  DMELEvGen_BindingMode_t fHitNucleonBindingMode;
+
+  /// The number of nucleons to sample from the nuclear model when choosing a maximum
+  /// momentum to use in ComputeMaxXSec()
+  int fMaxXSecNucleonThrows;
 
 }; // class definition
 

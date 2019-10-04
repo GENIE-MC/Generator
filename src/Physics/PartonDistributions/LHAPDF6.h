@@ -11,7 +11,7 @@
 
 \created  March 20, 2018
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -20,6 +20,7 @@
 #ifndef _GENIE_LHAPDF6_INTERFACE_H_
 #define _GENIE_LHAPDF6_INTERFACE_H_
 
+#include "Framework/Conventions/GBuild.h"
 #include "Physics/PartonDistributions/PDFModelI.h"
 
 namespace LHAPDF
@@ -63,7 +64,9 @@ private:
   string fSetName;
   int    fMemberID;
 
+#ifdef __GENIE_LHAPDF6_ENABLED__
   LHAPDF::PDF * fLHAPDF;
+#endif
 
 };
 

@@ -1,14 +1,17 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Authors: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          University of Liverpool & STFC Rutherford Appleton Lab
 
-         Changes required to implement the GENIE Boosted Dark Matter module
-         were installed by Josh Berger (Univ. of Wisconsin)
+	  Afroditi Papadopoulou <apapadop \at mit.edu>
+	  Massachusetts Institute of Technology
+
+          Changes required to implement the GENIE Boosted Dark Matter module
+          were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -251,46 +254,6 @@ double genie::utils::kinematics::Jacobian(
     J = 2*constants::kPi;
   }
 
-  // Transformation: centre-of-mass plep,Omega_lep, p_p, omega_p|E
-  // -> QELEvGen
-  // TODO: update this comment when kPSQELEvGen has been renamed
-  else if ( TransformMatched(fromps, tops, kPSTnctnBnctl, kPSQELEvGen, forward) )
-  {
-    // Get the final-state lepton and struck nucleon 4-momenta in the lab frame
-    const TLorentzVector& lepton = i->Kine().FSLeptonP4();
-    const TLorentzVector& outNucleon = i->Kine().HadSystP4();
-
-    // Get beta for a Lorentz boost from the lab frame to the COM frame and
-    // vice-versa
-    TLorentzVector* probe = i->InitStatePtr()->GetProbeP4(kRfLab);
-    const TLorentzVector& target = i->InitStatePtr()->TgtPtr()
-      ->HitNucP4();
-    TLorentzVector total_p4 = (*probe) + target;
-    TVector3 beta_COM_to_lab = total_p4.BoostVector();
-    TVector3 beta_lab_to_COM = -beta_COM_to_lab;
-
-    // Square of the Lorentz gamma factor for the boosts
-    double gamma2 = std::pow(total_p4.Gamma(), 2);
-
-    // Get the final-state lepton 4-momentum in the COM frame
-    TLorentzVector leptonCOM = TLorentzVector( lepton );
-    leptonCOM.Boost( beta_lab_to_COM );
-
-    // Angle between lab-frame muon velocity and velocity of COM frame
-    // as measured in lab frame
-    double theta_J = lepton.Angle( beta_COM_to_lab );
-    double cos_theta_J2 = std::pow(std::cos( theta_J ), 2);
-
-    // Difference in lab frame velocities between lepton and outgoing nucleon
-    TVector3 lepton_vel = ( lepton.Vect() * (1. / lepton.E()) );
-    TVector3 outNucleon_vel = ( outNucleon.Vect() * (1. / outNucleon.E()) );
-    double vel_diff = ( lepton_vel - outNucleon_vel ).Mag();
-
-    // Compute the Jacobian
-    J = 4. * kPi * leptonCOM.P() * leptonCOM.P()
-      * std::sqrt( 1. + (1. - cos_theta_J2)*(gamma2 - 1) ) / vel_diff;
-  }
-
   else {
      SLOG("KineLimits", pFATAL)
        << "*** Can not compute Jacobian for transforming: "
@@ -332,7 +295,6 @@ Range1D_t genie::utils::kinematics::InelWLim(double Ev, double M, double ml)
 
   Range1D_t W;
   W.min  = kNeutronMass + kPhotontest;
-//  W.min  = kNeutronMass + kPionMass;
   W.max  = TMath::Sqrt(s) - ml;
   if(W.max<=W.min) {
     W.min = -1;
@@ -510,6 +472,196 @@ Range1D_t genie::utils::kinematics::InelYLim_X(
   return y;
 }
 //____________________________________________________________________________
+// Kinematical Limits for em interactions:
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::electromagnetic::InelWLim(double El, double ml, double M)
+{
+// Computes W limits for inelastic em interactions
+//
+  double M2 = TMath::Power(M,2);
+  double ml2 = TMath::Power(ml,2); // added lepton mass squared to be used in s calculation
+  double s  = M2 + 2*M*El + ml2; // non-negligible mass for em interactions
+  assert (s>0);
+
+  Range1D_t W;
+  W.min  = kNeutronMass + kPhotontest;
+  W.max  = TMath::Sqrt(s) - ml;
+  if(W.max<=W.min) {
+    W.min = -1;
+    W.max = -1;
+    return W;
+  }
+  W.min  += controls::kASmallNum;
+  W.max  -= controls::kASmallNum;
+  return W;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim_W(
+     double El, double ml, double M, double W)
+{
+// Computes Q2 limits (>0) @ the input W for inelastic em interactions
+
+  Range1D_t Q2;
+  Q2.min = -1;
+  Q2.max = -1;
+
+  double M2  = TMath::Power(M,  2.);
+  double ml2 = TMath::Power(ml, 2.);
+  double W2  = TMath::Power(W,  2.);
+  double s   = M2 + 2*M*El + ml2; // added lepton mass squared to be used in s calculation (non-negligible mass for em interactions)
+
+  SLOG("KineLimits", pDEBUG) << "s  = " << s;
+  SLOG("KineLimits", pDEBUG) << "El = " << El;
+  assert (s>0);
+
+  double auxC = 0.5*(s - M2 - ml2)/s; // subtract ml2 to account for the non-negligible mass of the incoming lepton
+  double aux1 = s + ml2 - W2;
+  double aux2 = aux1*aux1 - 4*s*ml2;
+
+  (aux2 < 0) ? ( aux2 = 0 ) : ( aux2 = TMath::Sqrt(aux2) );
+
+  Q2.max = -ml2 + auxC * (aux1 + aux2); // => 0
+  Q2.min = -ml2 + auxC * (aux1 - aux2); // => 0
+
+  // guard against overflows
+  Q2.max = TMath::Max(0., Q2.max);
+  Q2.min = TMath::Max(0., Q2.min);
+
+  // limit the minimum Q2
+  if(Q2.min < utils::kinematics::electromagnetic::kMinQ2Limit) {Q2.min = utils::kinematics::electromagnetic::kMinQ2Limit; } // use the relevant threshold for em scattering 
+  if(Q2.max < Q2.min   ) {Q2.min = -1; Q2.max = -1;}
+
+  return Q2;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::electromagnetic::Inelq2Lim_W(
+    double El, double ml, double M, double W)
+{
+// Computes q2 (<0) limits @ the input W for inelastic em interactions
+
+  Range1D_t Q2 = utils::kinematics::electromagnetic::InelQ2Lim_W(El,ml,M,W);
+  Range1D_t q2;
+  q2.min = - Q2.max;
+  q2.max = - Q2.min;
+  return q2;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim(
+    double El, double ml, double M)
+{
+// Computes Q2 (>0) limits irrespective of W for inelastic em interactions
+
+  Range1D_t Q2;
+  Q2.min = -1;
+  Q2.max = -1;
+
+  Range1D_t W  = utils::kinematics::electromagnetic::InelWLim(El,ml,M);
+  if(W.min<0) return Q2;
+
+  Q2 = utils::kinematics::electromagnetic::InelQ2Lim_W(El,ml,M,W.min);
+  return Q2;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::electromagnetic::Inelq2Lim(
+     double El, double ml, double M)
+{
+// Computes Q2 (>0) limits irrespective of W for inelastic em interactions
+
+  Range1D_t Q2 = utils::kinematics::electromagnetic::InelQ2Lim(El,ml,M);
+  Range1D_t q2;
+  q2.min = - Q2.max;
+  q2.max = - Q2.min;
+  return q2;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::electromagnetic::InelXLim(double El, double ml, double M)
+
+{
+// Computes Bjorken x limits for inelastic em interactions
+
+  double M2  = TMath::Power(M, 2.);
+  double ml2 = TMath::Power(ml,2.);
+  double s   = M2 + 2*M*El + ml2; // added lepton mass squared to be used in s calculation (non-negligible mass for em interactions)
+
+  SLOG("KineLimits", pDEBUG) << "s  = " << s;
+  SLOG("KineLimits", pDEBUG) << "El = " << El;
+  assert (s > M2 + ml2); // added lepton mass squared to be used in s calculation (non-negligible mass for em interactions)
+
+  Range1D_t x;
+  x.min = ml2/(s - M2 - ml2) + controls::kASmallNum; // subtracted lepton mass squared to be used in s calculation (non-negligible mass for em interactions)
+  x.max = 1. - controls::kASmallNum;
+
+  return x;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::electromagnetic::InelYLim(double El, double ml, double M)
+{
+// Computes y limits for inelastic v interactions
+
+  Range1D_t y;
+  y.min =  999;
+  y.max = -999;
+
+  Range1D_t xl = kinematics::electromagnetic::InelXLim(El,ml,M);
+  assert(xl.min>0 && xl.max>0);
+
+  const unsigned int N=100;
+  const double logxmin = TMath::Log10(xl.min);
+  const double logxmax = TMath::Log10(xl.max);
+  const double dlogx   = (logxmax-logxmin) / (double)(N-1);
+
+  for(unsigned int i=0; i<N; i++) {
+    double x = TMath::Power(10, logxmin + i*dlogx);
+
+    Range1D_t y_x = kinematics::electromagnetic::InelYLim_X(El,ml,M,x);
+    if(y_x.min>=0 && y_x.min<=1) y.min = TMath::Min(y.min, y_x.min);
+    if(y_x.max>=0 && y_x.max<=1) y.max = TMath::Max(y.max, y_x.max);
+  }
+
+  if(y.max >= 0 && y.max <= 1 && y.min >= 0 && y.min <= 1) {
+    y.min = TMath::Max(y.min,     controls::kASmallNum);
+    y.max = TMath::Min(y.max, 1 - controls::kASmallNum);
+  } else {
+    y.min = -1;
+    y.max = -1;
+  }
+  SLOG("KineLimits", pDEBUG) << "y  = [" << y.min << ", " << y.max << "]";
+  return y;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::electromagnetic::InelYLim_X(
+                                 double El, double ml, double M, double x)
+
+{
+// Computes y limits @ the input x for inelastic em interactions
+
+  Range1D_t y;
+  y.min = -1;
+  y.max = -1;
+
+  double El2 = TMath::Power(El,2);
+  double ml2 = TMath::Power(ml,2);
+
+  SLOG("KineLimits", pDEBUG) << "x  = " << x;
+  SLOG("KineLimits", pDEBUG) << "El = " << El;
+
+  assert (El>0);
+  assert (x>0&&x<1);
+
+  double a = 0.5 * ml2/(M*El*x);
+  double b = ml2/El2;
+  double c = 1 + 0.5*x*M/El;
+  double d = TMath::Max(0., TMath::Power(1-a,2.) - b);
+
+  double A = 0.5 * (1-a-0.5*b)/c;
+  double B = 0.5 * TMath::Sqrt(d)/c;
+
+  y.min = TMath::Max(0., A-B) + controls::kASmallNum;
+  y.max = TMath::Min(1., A+B) - controls::kASmallNum;
+
+  return y;
+}
+//____________________________________________________________________________
 Range1D_t genie::utils::kinematics::CohXLim(void)
 {
 // Computes x limits for coherent v interactions
@@ -641,14 +793,18 @@ Range1D_t genie::utils::kinematics::CohYLim(double EvL, double ml)
   return y;
 }
 //____________________________________________________________________________
-// Helpers for kinematic limits
-//____________________________________________________________________________
 double genie::utils::kinematics::CohW2Min(double Mn, double mpi)
 {
   // These expressions for W^2 min and max appear in PRD 74, 054007 (2006) by
   // Kartavtsev, Paschos, and Gounaris
 
   return (Mn + mpi) * (Mn + mpi);
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::CEvNSQ2Lim(double Ev)
+{
+  Range1D_t Q2(controls::kAVerySmallNum, 4*Ev*Ev);
+  return Q2;
 }
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::DarkWLim(double Ev, double M, double ml)
@@ -1228,5 +1384,3 @@ double genie::utils::kinematics::COHImportanceSamplingEnvelope(
   return func;
 }
 //___________________________________________________________________________
-
-
