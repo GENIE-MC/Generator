@@ -4,26 +4,12 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - October 08, 2004
+ Author: Afroditi Papadopoulou <apapadop \at mit.edu>
+         Massachusetts Institute of Technology - October 04, 2019
 
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 07, 2009 - CA
-   Added option to simulate the recoil nucleon due to short range corelation.
-   The recoil nucleon is added in case that the selected hit nucleon has a
-   momentum selected from the NN corelation tail. The 2 nucleons are put
-   back-to-back. For the time-being using hard-coded relative fractions for
-   the nn, pp, np pairs.
-   The code for adding the recoil nuclear target at the GHEP record was moved
-   into this processing step.
-
- @ Mar 18, 2016- Joe Johnston (SD)
-   Call GenerateNucleon() with a target and a radius, so the local Fermi
-   gas model can access the radius.
-   Added a check to see if a local Fermi gas model is being used. If so,
-   use a local Fermi gas model when deciding whether to eject a recoil nucleon.
+ @ October 4, 2019 - Afroditi Papadopoulou (AP)
+   Created this new module that controls the addition of the recoil nucleon in the event record 
+   and extracts its kinematics 
 */
 //____________________________________________________________________________
 
