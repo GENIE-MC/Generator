@@ -13,8 +13,9 @@ Name                         Type     Optional   Comment                        
 
   <param_set name="Default"> 
     <param type="string" name = "gsl-integration-type">        adaptive  </param>
-    <param type="int"    name = "gsl-max-eval">                   40000  </param>
+    <param type="int"    name = "gsl-max-size-of-subintervals">                   40000  </param>
     <param type="double" name = "gsl-relative-tolerance">         0.001  </param>
+    <param type="int"    name = "gsl-rule">                             3  </param>
   </param_set>
 
 </alg_conf>

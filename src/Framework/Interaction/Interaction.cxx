@@ -249,6 +249,9 @@ string Interaction::AsString(void) const
   if (fInitialState->Probe()->PdgCode() == kPdgDarkMatter) {
     interaction << "dm;";
   }
+  else if (fInitialState->Probe()->PdgCode() == kPdgAntiDarkMatter) {
+    interaction << "dmb;";
+  }
   else {
     interaction << "nu:"  << fInitialState->ProbePdg() << ";";
   }
