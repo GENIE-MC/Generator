@@ -17,7 +17,6 @@
    <config alg="genie::VertexGenerator">             VertexGenerator.xml             </config>
    <config alg="genie::QELEventGenerator">           QELEventGenerator.xml           </config>
    <config alg="genie::QELEventGeneratorSM">         QELEventGeneratorSM.xml         </config>
-   <config alg="genie::DMELEventGenerator">          DMELEventGenerator.xml          </config>
    <config alg="genie::QELPrimaryLeptonGenerator">   QELPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::DISPrimaryLeptonGenerator">   DISPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::RESPrimaryLeptonGenerator">   RESPrimaryLeptonGenerator.xml   </config>

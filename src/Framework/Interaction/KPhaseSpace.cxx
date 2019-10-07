@@ -166,7 +166,11 @@ double KPhaseSpace::Threshold(void) const
     return TMath::Max(0.,Ethr);
   }
 
+<<<<<<< HEAD
   if(pi.IsNuElectronElastic() || pi.IsDarkMatterElectronElastic() || pi.IsGlashowResonance() ) {
+=======
+  if(pi.IsNuElectronElastic() || pi.IsGlashowResonance() ) {
+>>>>>>> 951b40d20fe582d1672f2fde24bf4bc6d0b30cda
     return 0;
   }
   if(pi.IsAMNuGamma()) {
@@ -241,7 +245,10 @@ bool KPhaseSpace::IsAboveThreshold(void) const
       pi.IsInverseMuDecay()    ||
       pi.IsIMDAnnihilation()   ||
       pi.IsNuElectronElastic() ||
+<<<<<<< HEAD
       pi.IsDarkMatterElectronElastic() ||
+=======
+>>>>>>> 951b40d20fe582d1672f2fde24bf4bc6d0b30cda
       pi.IsMEC())
   {
       E = init_state.ProbeE(kRfLab);
@@ -731,11 +738,9 @@ Range1D_t KPhaseSpace::YLim(void) const
     const InitialState & init_state = fInteraction->InitState();
     double Ev = init_state.ProbeE(kRfLab);
     double ml = fInteraction->FSPrimLepton()->Mass();
-    LOG("KPhaseSpace", pWARN) << "Using a FS lepton mass of " << ml;
     double me = kElectronMass;
     yl.min = (Ev*me*me + ml*ml*(Ev + 2.0*me)) / (Ev * (2.0*Ev*me + me*me + ml*ml)) + controls::kASmallNum;
     yl.max = 1.0 - controls::kASmallNum;
-    LOG("KPhaseSpace", pWARN) << "Limits are set to " << yl.min << " - " << yl.max;
     return yl;
   }  
   bool is_dfr = pi.IsDiffractive();

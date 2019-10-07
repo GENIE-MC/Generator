@@ -82,9 +82,6 @@ void DMEOutgoingDarkGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double pl    = TMath::Sqrt(El2-ml2);   
   double pv    = TMath::Sqrt(Ev2-ml2);
   
-  LOG("LeptonicVertex", pWARN) << "Using a mass of " << ml;
-  LOG("LeptonicVertex", pWARN) << "Beam energy is " << Ev;
-  LOG("LeptonicVertex", pWARN) << "Generated a outgoing momentum is " << El;
   assert(El2>=ml2&&Ev2>=ml2);
 
   double Q2    = 2*(Ev-El)*me;

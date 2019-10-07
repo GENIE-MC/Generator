@@ -128,7 +128,7 @@ bool ProcessInfo::IsIMDAnnihilation(void) const
 //____________________________________________________________________________
 bool ProcessInfo::IsDarkMatterElectronElastic(void) const
 {
-  return (fScatteringType == kScDarkMatterElectronElastic);
+  return (fScatteringType == kScDarkMatterElectron);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsInverseBetaDecay(void) const

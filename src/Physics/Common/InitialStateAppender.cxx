@@ -70,6 +70,7 @@ void InitialStateAppender::ProcessEventRecord(GHepRecord * evrec) const
   //   If the interaction was ve- elastic, inverse muon decay or Glashow 
   //   resonance then it will add the target e- instead.
   this->AddStruckParticle(evrec);
+  evrec->Print();
 }
 //___________________________________________________________________________
 void InitialStateAppender::AddNeutrino(GHepRecord * evrec) const
@@ -118,9 +119,11 @@ void InitialStateAppender::AddStruckParticle(GHepRecord * evrec) const
   const InitialState & init_state = interaction->InitState();
   const ProcessInfo & proc_info   = interaction->ProcInfo();
 
+  // EDIT: Add the dark matter scattering off electron here
   bool hit_e = proc_info.IsInverseMuDecay()    ||
                proc_info.IsIMDAnnihilation()   ||
                proc_info.IsNuElectronElastic() ||
+               proc_info.IsDarkMatterElectronElastic() ||
                proc_info.IsGlashowResonance();
 
   if(hit_e) {
