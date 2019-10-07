@@ -731,11 +731,9 @@ Range1D_t KPhaseSpace::YLim(void) const
     const InitialState & init_state = fInteraction->InitState();
     double Ev = init_state.ProbeE(kRfLab);
     double ml = fInteraction->FSPrimLepton()->Mass();
-    LOG("KPhaseSpace", pWARN) << "Using a FS lepton mass of " << ml;
     double me = kElectronMass;
     yl.min = (Ev*me*me + ml*ml*(Ev + 2.0*me)) / (Ev * (2.0*Ev*me + me*me + ml*ml)) + controls::kASmallNum;
     yl.max = 1.0 - controls::kASmallNum;
-    LOG("KPhaseSpace", pWARN) << "Limits are set to " << yl.min << " - " << yl.max;
     return yl;
   }  
   bool is_dfr = pi.IsDiffractive();

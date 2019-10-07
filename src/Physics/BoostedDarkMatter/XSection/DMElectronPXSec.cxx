@@ -69,7 +69,6 @@ double DMElectronPXSec::XSec(
   double ml = interaction->FSPrimLepton()->Mass();
   double ml2 = TMath::Power(ml,2);
   double y  = kinematics.y();
-  LOG("Elastic", pWARN) << "Read in a y of " << y;
   double MZ2 = TMath::Power(fMedMass,2);
   double A  = fgZp4 * TMath::Power(Ev,3) * me / (4.0 * kPi * (Ev2 - ml2) * TMath::Power(MZ2 + 2.0*Ev*me*(1.0 - y),2));
 
@@ -78,11 +77,8 @@ double DMElectronPXSec::XSec(
   //  if(y < 0) return 0;
 
   double QeV2 = TMath::Power(0.5*(fQeL+fQeR),2);
-  LOG("Elastic", pWARN) << "QeV = " << 0.5*(fQeL+fQeR);
   double QeA2 = TMath::Power(0.5*(-fQeL+fQeR),2);
-  LOG("Elastic", pWARN) << "QeV = " << 0.5*(-fQeL+fQeR);
   double QeVA = 0.25*(TMath::Power(fQeR,2) - TMath::Power(fQeL,2));
-  LOG("Elastic", pWARN) << "QeV*QeA = " << QeVA;
     
   double xsec = 0; // <-- dxsec/dy
 
