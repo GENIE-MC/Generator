@@ -64,7 +64,10 @@ typedef enum EKinePhaseSpace {
   kPSTkTlctl,
   kPSQ2vfE,
   kPSQELEvGen,// Phase space used by genie::QELEventGenerator for sampling kinematic variables
+<<<<<<< HEAD
   kPSDMELEvGen,// Equivalent for Dark Matter scattering
+=======
+>>>>>>> 951b40d20fe582d1672f2fde24bf4bc6d0b30cda
               // TODO: rename this value when the correct variables are identified
   kPSTAfE
 } KinePhaseSpace_t;

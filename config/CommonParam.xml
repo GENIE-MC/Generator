@@ -302,6 +302,7 @@ Or changing the name of this parameter set
         Set the coupling of dark matter to nucleons
     -->
     <param type="double" name="ZpCoupling"> 0.1 </param>
+<<<<<<< HEAD
     <param type="double" name="DarkLeftCharge"> 1.0 </param>
     <param type="double" name="DarkRightCharge"> 1.0 </param>
     <param type="double" name="DarkScalarCharge"> 1.0 </param> 
@@ -321,6 +322,8 @@ Or changing the name of this parameter set
     <param type="double" name="AxialVectorSpin-u"> 0.827 </param>
     <param type="double" name="AxialVectorSpin-d"> -0.38 </param>
     <param type="double" name="AxialVectorSpin-s"> -0.0427 </param>
+=======
+>>>>>>> 951b40d20fe582d1672f2fde24bf4bc6d0b30cda
 
   </param_set>
 
