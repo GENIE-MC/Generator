@@ -304,8 +304,6 @@ void FermiMover::LoadConfig(void)
 
   this->GetParamDef("KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false);
 
-  this->GetParamDef("SimRecoilNucleon",       fSRCRecoilNucleon,    false);
-
   bool NuclearRecoil = false;
   this->GetParamDef("SimRecoilNucleon",       NuclearRecoil,    false);
 
