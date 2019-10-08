@@ -47,6 +47,10 @@ private:
 
   bool fIsCC;
   bool fIsNC;
+  bool fPionProduction ;
+  bool fGammaProduction ;
+  bool fRhoProduction ;
+
 };
 
 }      // genie namespace

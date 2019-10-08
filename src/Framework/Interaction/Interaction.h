@@ -128,10 +128,12 @@ public:
   static Interaction * RESEM     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * DFRCC     (int tgt, int nuc, int probe, double E=0);
   static Interaction * DFRCC     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
-  static Interaction * COHCC     (int tgt, int probe, double E=0);
-  static Interaction * COHCC     (int tgt, int probe, const TLorentzVector & p4probe);
-  static Interaction * COHNC     (int tgt, int probe, double E=0);
-  static Interaction * COHNC     (int tgt, int probe, const TLorentzVector & p4probe);
+  static Interaction * COHCC     (int tgt, int probe, unsigned int prod_pdg, double E=0);
+  static Interaction * COHCC     (int tgt, int probe, unsigned int prod_pdg, 
+				  const TLorentzVector & p4probe);
+  static Interaction * COHNC     (int tgt, int probe, unsigned int prod_pdg, double E=0);
+  static Interaction * COHNC     (int tgt, int probe, unsigned int prod_pdg, 
+				  const TLorentzVector & p4probe);
   static Interaction * CEvNS     (int tgt, int probe, double E=0);
   static Interaction * CEvNS     (int tgt, int probe, const TLorentzVector & p4probe);
   static Interaction * IMD       (int tgt, double E=0);

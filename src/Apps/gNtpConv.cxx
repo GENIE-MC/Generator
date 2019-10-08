@@ -605,7 +605,7 @@ void ConvertToGST(void)
     bool is_qel    = proc_info.IsQuasiElastic();
     bool is_res    = proc_info.IsResonant();
     bool is_dis    = proc_info.IsDeepInelastic();
-    bool is_coh    = proc_info.IsCoherent();
+    bool is_coh    = proc_info.IsCoherentProduction();
     bool is_dfr    = proc_info.IsDiffractive();
     bool is_imd    = proc_info.IsInverseMuDecay();
     bool is_imdanh = proc_info.IsIMDAnnihilation();
