@@ -151,21 +151,23 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
   prob->SetDirectory(0);
 
   double dp = fPMax / (npbins-1);
-  double iC = (C>0) ? 1./C : 0.;
-  double kfa_pi_2 = TMath::Power(KF*a/kPi,2);
+//  double iC = (C>0) ? 1./C : 0.; // unused variables
+//  double kfa_pi_2 = TMath::Power(KF*a/kPi,2); // unused variables
 
   for(int i = 0; i < npbins; i++) {
      double p  = i * dp;
      double p2 = TMath::Power(p,2);
 
+     // use expression with fSRC_Fraction to allow the possibility of 
+     // using the Correlated Fermi Gas Model with a high momentum tail
+
      // calculate |phi(p)|^2
      double phi2 = 0;
-     if (p <= KF)
-        phi2 = iC * (1. - 6.*kfa_pi_2);
-
-     // Do not include nucleon correlation tail
-     //else if ( p > KF && p < fPCutOff)
-     //   phi2 = iC * (2*R*kfa_pi_2*TMath::Power(KF/p,4.));
+        if (p <= KF){
+            phi2 = (1./(4*kPi)) * (3/TMath::Power(KF,3.)) * ( 1 - fSRC_Fraction );
+        }else if( p > KF && p < fPCutOff ){
+            phi2 = (1./(4*kPi)) * ( fSRC_Fraction / (1./KF - 1./fPCutOff) ) / TMath::Power(p,4.);
+        }
 
      // calculate probability density : dProbability/dp
      double dP_dp = 4*kPi * p2 * phi2;
@@ -195,8 +197,17 @@ void LocalFGM::Configure(string param_set)
 //____________________________________________________________________________
 void LocalFGM::LoadConfig(void)
 {
-  this->GetParamDef("MomentumMax", fPMax, 1.0);
+  this->GetParamDef("LFG-MomentumMax", fPMax, 1.0);
   assert(fPMax > 0);
+
+  this->GetParamDef("SRC-Fraction", fSRC_Fraction, 0.0);
+  this->GetParam("LFG-MomentumCutOff", fPCutOff);
+
+  if (fPCutOff > fPMax) {
+        LOG("LocalFGM", pFATAL) << "Momentum CutOff greater than Momentum Max";
+        exit(78);
+  }
+
 
   // Load removal energy for specific nuclei from either the algorithm's
   // configuration file or the UserPhysicsOptions file.
