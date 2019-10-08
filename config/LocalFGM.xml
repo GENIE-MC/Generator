@@ -7,16 +7,30 @@ Configuration for the local Fermi gas model
 
 Configurable Parameters:
 .............................................................................................................
-Name               Type    Optional   Comment                                        Default
+Name                   Type    Optional   Comment                                        Default
 .............................................................................................................
-MomentumMax        double   Yes       max p in prob distribution                     1 GeV
-MomentumCutOff     double   Yes       momentum cut off value                         from FermiGas CommonParam
-NucRemovalE@Pdg=?  int      Yes       nuclear removal energy for specfic nuclei      from FermiGas CommonParam
+LFG-MomentumMax        double   Yes       max p in prob distribution                     1 GeV
+LFG-MomentumCutOff     double   No        momentum cut off value                         
+SRC-Fraction           double   Yes       Fraction of high energy tail distribution      0. (Local Fermi Gas)     
+                                          dominated by Short Range Correlated Pairs
+NucRemovalE@Pdg=?      int      Yes       nuclear removal energy for specfic nuclei      from FermiGas CommonParam
 -->
 
   <param_set name="Default"> 
     <param type="string" name="CommonParam"> FermiGas </param>
+    <!-- CutOff known from electron scattering experiments
+     Short range correlations and the isospin dependence of nuclear correlation functions (arXiv:1710.07966)-->
+    <param type="double" name = "LFG-MomentumCutOff">    0.7   </param>
+  </param_set>
 
+  <param_set name="Correlated"> 
+    <!--Correlated Fermi Gas Model
+        - Percentage of high momentum / SRC tail
+          In the Correlated Fermi Gas Model, 20% of our nucleons live under the high momentum tail 
+          (K. S. Egiyan et al., Phys. Rev. C 68 (2003) 014313 and Phys. Rev. Lett. 96 (2006) 082501.)
+        - Short range correlations and the isospin dependence of nuclear correlation functions (arXiv:1710.07966)
+    -->
+    <param type="double" name = "SRC-Fraction">    0.2   </param>
   </param_set>
 
 </alg_conf>
