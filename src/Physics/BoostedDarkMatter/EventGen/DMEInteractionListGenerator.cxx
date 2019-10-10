@@ -68,7 +68,7 @@ InteractionList * DMEInteractionListGenerator::DMEELInteractionList(
   init_state.TgtPtr()->SetHitNucPdg(0);
 
   if(nupdg == kPdgDarkMatter  || nupdg == kPdgAntiDarkMatter) {
-     ProcessInfo   proc_info(kScDarkMatterElectronElastic,  kIntDarkMatter);
+     ProcessInfo   proc_info(kScDarkMatterElectron,  kIntDarkMatter);
      Interaction * interaction = new Interaction(init, proc_info);
      intlist->push_back(interaction);
   }

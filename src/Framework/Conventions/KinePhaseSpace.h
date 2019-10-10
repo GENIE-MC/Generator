@@ -118,6 +118,7 @@ public:
       case(kPSQ2vfE)      : return "<{Q2,v}|E>"; break;
       // TODO: update this string when the appropriate kinematic variables are known
       case(kPSQELEvGen)   : return "<QELEvGen>"; break;
+      case(kPSDMELEvGen)   : return "<DMELEvGen>"; break;
       case(kPSTAfE)       : return "<{TA}|E>";   break;
     }
     return "** Undefined kinematic phase space **";
