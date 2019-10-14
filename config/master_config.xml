@@ -195,6 +195,7 @@
    <config alg="genie::StrumiaVissaniIBDPXSec">         StrumiaVissaniIBDPXSec.xml       </config>
    <config alg="genie::KLVOxygenIBDPXSec">              KLVOxygenIBDPXSec.xml            </config>
    
-   
+   <!-- ****** CONFIGURATION FOR REWEIGHT ALGORITHMS ****** -->
+   <config alg="genie::rew::GSystUncertaintyTable">     GSystUncertaintyTable.xml        </config>
 
 </genie_config>
