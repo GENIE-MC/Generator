@@ -14,10 +14,6 @@
 #include <limits>
 #include <sstream>
 
-// Needed for isnan() from C standard library
-// TODO: Replace this with std::isnan() when GENIE updates to C++11
-#include <math.h>
-
 // ROOT includes
 #include "TDatabasePDG.h"
 #include "TLorentzVector.h"
@@ -108,6 +104,12 @@ double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
       hitNucleonBindingMode);
   }
 
+  // A very high-momentum bound nucleon (which is far off the mass shell)
+  // can have a momentum greater than its total energy. This leads to numerical
+  // issues (NaNs) since the invariant mass of the nucleon becomes imaginary.
+  // In such cases, just return zero to avoid trouble.
+  if ( interaction->InitState().Tgt().HitNucP4().M() <= 0. ) return 0.;
+
   // Mass of the outgoing lepton
   double lepMass = interaction->FSPrimLepton()->Mass();
 
@@ -117,13 +119,6 @@ double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
 
   // Mandelstam s for the probe/hit nucleon system
   double s = std::pow( interaction->InitState().CMEnergy(), 2 );
-
-  // A very high-momentum bound nucleon (which is far off the mass shell)
-  // can have a momentum greater than its total energy. This leads to numerical
-  // issues when s goes negative (and thus sqrt(s) is imaginary). In such cases,
-  // Mandelstam s as calculated above will be NaN. This corresponds to being
-  // below threshold, so just return zero.
-  if ( isnan(s) ) return 0.;
 
   // Return a differential cross section of zero if we're below threshold (and
   // therefore need to sample a new event)

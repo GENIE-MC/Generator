@@ -208,7 +208,10 @@ std::complex<double> genie::FreeNucleonTensor::Contract(
     // to multiply by 16.
     correction *= 16.;
 
-    result += correction;
+    // Neglect the correction for now (NuWro doesn't appear to use it, for instance)
+    // TODO: figure out whether there's an error in your implementation or in the
+    // paper you've based this on. When you do, restore the correction.
+    //result += correction;
   }
 
   return result;
