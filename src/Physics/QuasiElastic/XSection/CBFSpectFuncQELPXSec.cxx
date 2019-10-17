@@ -151,7 +151,7 @@ double CBFSpectFuncQELPXSec::XSec(const Interaction* interaction,
   // The corrected energy transfer qTilde0 needs to be nonnegative
   // to enforce energy conservation
   if ( qTildeP4.E() < 0. ) {
-    LOG("CBFSpectFunc", pWARN) << "q0Tilde < 0," << " returning xsec = 0";
+    LOG("CBFSpectFunc", pDEBUG) << "q0Tilde < 0," << " returning xsec = 0";
     return 0.;
   }
 
