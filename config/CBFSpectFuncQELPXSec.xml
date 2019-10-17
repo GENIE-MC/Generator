@@ -30,10 +30,11 @@ IntegralNucleonBindingMode           alg      No
     <param type="string"  name="CommonParam"> CKM </param>
 
     <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
+    <param type="double" name="IntegralNuclearInfluenceCutoffEnergy"> 10.0 </param>
 
     <param type="alg"  name="XSec-Integrator"> genie::NewQELXSec/Default </param>
     <param type="alg"  name="IntegralNuclearModel"> genie::SpectralFunc/Default </param>
-    <param type="string" name="IntegralNucleonBindingMode"> kUseNuclearModel </param>
+    <param type="string" name="IntegralNucleonBindingMode"> UseNuclearModel </param>
 
     <param type="alg"  name="PauliBlockerAlg"> genie::PauliBlocker/Default </param>
 
