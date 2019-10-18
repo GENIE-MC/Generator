@@ -151,6 +151,8 @@
   <priority msgstream="PythiaDec">             NOTICE </priority>
   <priority msgstream="Pythia6Decay">          NOTICE </priority>
   <priority msgstream="PythiaHad">             NOTICE </priority>
+  <priority msgstream="Pythia6Had">            NOTICE </priority>
+  <priority msgstream="Pythia8Had">            NOTICE </priority>
   <priority msgstream="PDG">                   INFO   </priority>
   <priority msgstream="PathL">                 NOTICE </priority>
   <priority msgstream="PhysUtil">              NOTICE </priority>
