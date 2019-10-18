@@ -23,6 +23,7 @@
 */
 //____________________________________________________________________________
 
+#include <fstream>
 #include <sstream>
 #include <string>
 
@@ -41,23 +42,7 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Numerical/RandomGen.h"
 
-// Create a functor class in this anonymous namespace for now. We will use it
-// to facilitate numerical integration of TGraph2D objects in genie::SpectralFunc.
-// TODO: when GENIE moves to C++11, replace this nonsense with a lambda expression.
 namespace {
-
-  // Store a pointer to the TGraph2D to be integrated, but don't take ownership
-  class FunctorThatShouldBeALambda {
-    public:
-      FunctorThatShouldBeALambda(TGraph2D* graph) : fGraph( graph ) {}
-
-      double operator()(double* x, double*) {
-        return fGraph->Interpolate( x[0], x[1] );
-      }
-
-    private:
-      TGraph2D* fGraph;
-  };
 
   // Replace this with std::to_string when we switch to C++11
   std::string replace_with_std_to_string(int an_integer) {
@@ -105,13 +90,13 @@ bool SpectralFunc::GenerateNucleon(const Target& target) const
     return false;
   }
 
-  double kmin    = sf->GetXaxis()->GetBinLowEdge( 1 ); // momentum range
-  double kmax    = sf->GetXaxis()->GetBinLowEdge( fNumXBins + 1 );
-  double wmin    = sf->GetYaxis()->GetBinLowEdge( 1 ); // removal energy range
-  double wmax    = sf->GetYaxis()->GetBinLowEdge( fNumYBins + 1 );
+  double kmin    = sf->GetXaxis()->GetXmin(); // momentum range
+  double kmax    = sf->GetXaxis()->GetXmax();
+  double wmin    = sf->GetYaxis()->GetXmin(); // removal energy range
+  double wmax    = sf->GetYaxis()->GetXmax();
 
-  LOG("SpectralFunc", pINFO) << "Momentum range = ["   << kmin << ", " << kmax << "]";
-  LOG("SpectralFunc", pINFO) << "Rmv energy range = [" << wmin << ", " << wmax << "]";
+  LOG("SpectralFunc", pDEBUG) << "Momentum range = ["   << kmin << ", " << kmax << "]";
+  LOG("SpectralFunc", pDEBUG) << "Rmv energy range = [" << wmin << ", " << wmax << "]";
 
   // Temporarily replace ROOT's gRandom RNG with GENIE's so that our call to
   // TH2::GetRandom2() will use GENIE's random numbers
@@ -156,17 +141,21 @@ double SpectralFunc::Prob(double p, double w, const Target & target) const
   if ( !sf ) return 0.;
 
   // TODO: check whether we should return the probability mass or density here.
-  // The previous implementation used the density. For now, we do that too.
+  // The previous implementation used the density. For now, we return the mass.
   int bin_num = sf->FindBin( p, w );
   double prob_mass = sf->GetBinContent( bin_num );
 
-  int bx, by, bz;
-  sf->GetBinXYZ( bin_num, bx, by, bz );
+  return prob_mass;
 
-  double prob_density = prob_mass / sf->GetXaxis()->GetBinWidth( bx )
-    / sf->GetYaxis()->GetBinWidth( by );
+  //int bx, by, bz;
+  //sf->GetBinXYZ( bin_num, bx, by, bz );
 
-  return prob_density;
+  //double prob_density = prob_mass / sf->GetXaxis()->GetBinWidth( bx )
+  //  / sf->GetYaxis()->GetBinWidth( by )
+  //  / std::pow(sf->GetXaxis()->GetBinLowEdge( bx ), 2)
+  //  / (4. * kPi);
+
+  //return prob_density;
 }
 //____________________________________________________________________________
 void SpectralFunc::Configure(const Registry & config)
@@ -200,32 +189,6 @@ void SpectralFunc::LoadConfig(void)
   }
 
   fDataPath = data_path;
-
-  // Get the number of bins to use for each axis of the spectral function
-  // histogram
-  this->GetParamDef( "NumMomentumBins", fNumXBins, 1000 );
-  this->GetParamDef( "NumRemovalEnergyBins", fNumYBins, 1000 );
-
-}
-//____________________________________________________________________________
-TGraph2D* SpectralFunc::Convert2Graph(TNtupleD& sfdata) const
-{
-  int np = sfdata.GetEntries();
-  TGraph2D * sfgraph = new TGraph2D( np );
-
-  sfdata.Draw("k:e:prob","","GOFF");
-  assert( np == sfdata.GetSelectedRows() );
-  double* k = sfdata.GetV1();
-  double* e = sfdata.GetV2();
-  double* p = sfdata.GetV3();
-
-  for (int i = 0; i < np; ++i ) {
-    double ki = k[i] * ( units::MeV / units::GeV ); // momentum
-    double ei = e[i] * ( units::MeV / units::GeV ); // removal energy
-    double pi = p[i] * TMath::Power(ki,2); // probabillity
-    sfgraph->SetPoint(i, ki, ei, pi);
-  }
-  return sfgraph;
 }
 //____________________________________________________________________________
 TH2D* SpectralFunc::SelectSpectralFunction(const Target& t) const
@@ -251,64 +214,104 @@ TH2D* SpectralFunc::SelectSpectralFunction(const Target& t) const
   // Prepend the data path to the file name
   data_filename = fDataPath + data_filename;
 
-  TNtupleD temp_sf_data( ("sfdata_" + target_pdg_string).c_str(), "",
-    "k:e:prob" );
+  TH2D* sf_hist = this->LoadSFDataFile(data_filename);
 
-  temp_sf_data.ReadFile( data_filename.c_str() );
+  LOG("SpectralFunc", pNOTICE) << "Loaded spectral function data"
+    " for target with PDG code " << target_pdg << " from the file "
+    << data_filename;
 
-  LOG("SpectralFunc", pDEBUG) << "Loaded " << temp_sf_data.GetEntries()
-    << " spectral function data points for pdg code " << target_pdg;
-
-  TGraph2D* temp_sf_graph = this->Convert2Graph( temp_sf_data );
-  temp_sf_graph->SetName( ("sf_" + target_pdg_string).c_str() );
-
-  // Create a TF2 that we can use to easily integrate the TGraph2D over
-  // histogram bins
-  double x_min = temp_sf_graph->GetXmin();
-  double x_max = temp_sf_graph->GetXmax();
-
-  double y_min = temp_sf_graph->GetYmin();
-  double y_max = temp_sf_graph->GetYmax();
-
-  FunctorThatShouldBeALambda functor( temp_sf_graph );
-  TF2 temp_sf_func("temp_sf_func", functor, x_min, x_max, y_min, y_max, 0);
-
-  // Create a 2D histogram to represent the spectral function
-  TH2D* sf_hist = new TH2D( ("sf_hist" + target_pdg_string).c_str(),
-    ("spectral function for pdg code " + target_pdg_string
-    + "; nucleon momentum (GeV); removal energy (GeV); probability").c_str(),
-    fNumXBins, x_min, x_max, fNumYBins, y_min, y_max );
+  sf_hist->SetName( ("sf_" + target_pdg_string).c_str() );
 
   // Set the directory to NULL so that this histogram is never auto-deleted
   // (the genie::SpectralFunc object will take ownership)
   sf_hist->SetDirectory( NULL );
 
-  for ( int bx = 1; bx <= fNumXBins; ++bx ) {
-    for ( int by = 1; by <= fNumYBins; ++by ) {
+  // Store the new spectral function histogram for easy retrieval later
+  fSpectralFunctionMap[ target_pdg ] = sf_hist;
 
-      // Get the current bin's boundaries
-      double bin_x_min = sf_hist->GetXaxis()->GetBinLowEdge( bx );
-      double bin_x_max = sf_hist->GetXaxis()->GetBinLowEdge( bx + 1 );
+  return sf_hist;
+}
+//____________________________________________________________________________
+TH2D* SpectralFunc::LoadSFDataFile(const std::string& full_file_name) const
+{
+  int num_E_bins, num_p_bins;
+  std::ifstream in_file( full_file_name );
 
-      double bin_y_min = sf_hist->GetYaxis()->GetBinLowEdge( by );
-      double bin_y_max = sf_hist->GetYaxis()->GetBinLowEdge( by + 1 );
+  // TODO: add I/O error handling
 
-      // Probability mass for the current bin
-      double pmf = temp_sf_func.Integral( bin_x_min, bin_x_max, bin_y_min,
-        bin_y_max );
+  // First pass: get the number of bins on each axis
+  // and the set of bin edges
+  // TODO: consider changing the format so that this can
+  // be conveniently done in a single read-through of the
+  // input file
+  in_file >> num_E_bins >> num_p_bins;
+  double p, E, prob_density;
+  std::vector<double> ps, Es;
+  for ( int ip = 0; ip < num_p_bins; ++ip ) {
 
-      // Get the global bin number for the current bin
-      int bin_num = sf_hist->GetBin( bx, by );
+    in_file >> p;
+    ps.push_back( p * genie::units::MeV );
 
-      // Set its contents to match the probability mass function
-      sf_hist->SetBinContent( bin_num, pmf );
+    for ( int ie = 0; ie < num_E_bins; ++ie ) {
+      in_file >> E >> prob_density;
+      if ( ip == 0 ) Es.push_back( E * genie::units::MeV );
     }
   }
 
-  delete temp_sf_graph;
+  // Assume that the last bin along each axis has the same width
+  // as the first bin (Noemi's SF tables do not give the last bin's
+  // high edge explicitly). Defining a TH2 with variable-size bins
+  // requires these high edge values.
+  // TODO: revisit this as needed
+  double p_width = ps.at(1) - ps.front();
+  ps.push_back( ps.back() + p_width );
 
-  // Store the new spectral function histogram for easy retrieval later
-  fSpectralFunctionMap[ target_pdg ] = sf_hist;
+  double E_width = Es.at(1) - Es.front();
+  Es.push_back( Es.back() + E_width );
+
+  in_file.close();
+
+  // We've built the grid, now make a histogram using it
+  TH2D* sf_hist = new TH2D("temp_sf_hist",
+    "Spectral Function; nucleon momentum (GeV); removal energy (GeV)",
+    num_p_bins, &(ps.front()), num_E_bins, &(Es.front()));
+
+  // Do a second pass and set the contents of each bin
+  in_file.open( full_file_name );
+  in_file >> num_E_bins >> num_p_bins;
+  for ( int ip = 0; ip < num_p_bins; ++ip ) {
+
+    in_file >> p;
+
+    // Convert from MeV to GeV
+    p *= genie::units::MeV;
+
+    for ( int ie = 0; ie < num_E_bins; ++ie ) {
+
+      in_file >> E >> prob_density;
+
+      // Convert from MeV to GeV
+      E *= genie::units::MeV;
+
+      // Convert bin contents from probability density to probability
+      // mass for easier sampling
+      TAxis* p_axis = sf_hist->GetXaxis();
+      int p_idx = p_axis->FindBin( p );
+      double p_bin_width = p_axis->GetBinWidth( p_idx );
+
+      TAxis* E_axis = sf_hist->GetYaxis();
+      int E_idx = E_axis->FindBin( E );
+      double E_bin_width = E_axis->GetBinWidth( E_idx );
+
+      double prob_mass = prob_density * std::pow(p, 2) * 4. * kPi
+        * p_bin_width * E_bin_width;
+
+      sf_hist->SetBinContent( sf_hist->FindBin(p, E), prob_mass );
+      LOG("SpectralFunc", pDEBUG) << "p = " << p << ", E = " << E << ", dens = " << prob_density
+        << ", mass = " << prob_mass << ", p_bin_width = " << p_bin_width << ", E_bin_width = "
+        << E_bin_width;
+    }
+  }
 
   return sf_hist;
 }

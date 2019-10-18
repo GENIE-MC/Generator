@@ -61,6 +61,7 @@ private:
   void       LoadConfig             (void);
   TGraph2D*  Convert2Graph          (TNtupleD& data) const;
   TH2D*      SelectSpectralFunction (const Target& target) const;
+  TH2D* LoadSFDataFile(const std::string& full_file_name) const;
 
   /// The path to the folder containing the spectral function data files
   std::string fDataPath;
