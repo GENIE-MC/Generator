@@ -6,7 +6,7 @@
 
 #pragma link C++ namespace genie;
 
-#pragma link C++ class genie::NtpMCTreeHeader;
+#pragma link C++ class genie::NtpMCTreeHeader+;
 #pragma link C++ class genie::NtpMCDTime;
 #pragma link C++ class genie::NtpMCJobEnv;
 #pragma link C++ class genie::NtpMCJobConfig;

@@ -60,11 +60,17 @@ void NtpMCTreeHeader::PrintToStream(ostream & stream) const
 {
   string sformat = NtpMCFormat::AsString(this->format);
   string scvstag = this->cvstag.GetString().Data();
+  string stune       = this->tune.GetString().Data();
+  string stuneDir    = this->tuneDir.GetString().Data();
+  string scustomDirs = this->customDirs.GetString().Data();
 
   stream << "Tree Header Info:"                     << endl
          << "MC run number     -> " << this->runnu  << endl
          << "NtpRecord Format  -> " << sformat      << endl
          << "GENIE CVS Vrs Nu  -> " << scvstag      << endl
+         << "GENIE tune name   -> " << stune        << endl
+         << "tune directory    -> " << stuneDir     << endl
+         << "custom directories-> " << scustomDirs  << endl
          << "File generated at -> " << this->datime << endl;
 }
 //____________________________________________________________________________
@@ -74,12 +80,15 @@ void NtpMCTreeHeader::Copy(const NtpMCTreeHeader & hdr)
   this->cvstag.SetString(hdr.cvstag.GetString().Data());
   this->datime.Copy(hdr.datime);
   this->runnu  = hdr.runnu;
+  this->tune.SetString(hdr.tune.GetString().Data());
+  this->tuneDir.SetString(hdr.tuneDir.GetString().Data());
+  this->customDirs.SetString(hdr.customDirs.GetString().Data());
 }
 //____________________________________________________________________________
 void NtpMCTreeHeader::Init(void)
 {
   string version;
-  string genie_path = gSystem->Getenv("GENIE");   
+  string genie_path = gSystem->Getenv("GENIE");
   string filename   = genie_path + "/VERSION";
   bool vrs_file_found = ! (gSystem->AccessPathName(filename.c_str()));
   if (!vrs_file_found) {
@@ -92,9 +101,16 @@ void NtpMCTreeHeader::Init(void)
     gvinp.close();
   }
 
+  string tunename("unknown");
+  string tuneDir("unknown");
+  string customDirs("");
+
   this->format = kNFUndefined;
   this->cvstag.SetString(version.c_str());
   this->datime.Now();
   this->runnu  = 0;
+  this->tune.SetString(tunename.c_str());
+  this->tuneDir.SetString(tuneDir.c_str());
+  this->customDirs.SetString(customDirs.c_str());
 }
 //____________________________________________________________________________
