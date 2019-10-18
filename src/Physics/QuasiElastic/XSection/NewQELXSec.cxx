@@ -79,7 +79,7 @@ double NewQELXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in)
   }
 
   utils::gsl::FullQELdXSec* func = new utils::gsl::FullQELdXSec(model,
-    interaction, bind_mode, fMinAngleEM);
+    interaction, bind_mode);
   ROOT::Math::IntegrationMultiDim::Type ig_type =
     utils::gsl::IntegrationNDimTypeFromString( fGSLIntgType );
 
@@ -191,17 +191,12 @@ void NewQELXSec::LoadConfig(void)
   fVertexGenID = AlgId( vertexGenID );
 
   GetParamDef( "NumNucleonThrows", fNumNucleonThrows, 5000 );
-
-  // TODO: This is a parameter that may also be specified in the XML
-  // configuration for QELEventGenerator. Avoid duplication here to ensure
-  // consistency.
-  GetParamDef( "SF-MinAngleEMscattering", fMinAngleEM, 0. ) ;
 }
 
 genie::utils::gsl::FullQELdXSec::FullQELdXSec(const XSecAlgorithmI* xsec_model,
-  const Interaction* interaction, QELEvGen_BindingMode_t binding_mode, double min_angle_EM)
+  const Interaction* interaction, QELEvGen_BindingMode_t binding_mode)
   : fXSecModel( xsec_model ), fInteraction( new Interaction(*interaction) ),
-  fHitNucleonBindingMode( binding_mode ), fMinAngleEM( min_angle_EM )
+  fHitNucleonBindingMode( binding_mode )
 {
   fNuclModel = dynamic_cast<const NuclearModelI*>( fXSecModel->SubAlg("IntegralNuclearModel") );
   assert( fNuclModel );
@@ -224,7 +219,7 @@ const Interaction& genie::utils::gsl::FullQELdXSec::GetInteraction() const
 
 ROOT::Math::IBaseFunctionMultiDim* genie::utils::gsl::FullQELdXSec::Clone(void) const
 {
-  return new FullQELdXSec(fXSecModel, fInteraction, fHitNucleonBindingMode, fMinAngleEM);
+  return new FullQELdXSec(fXSecModel, fInteraction, fHitNucleonBindingMode);
 }
 
 unsigned int genie::utils::gsl::FullQELdXSec::NDim(void) const
@@ -251,7 +246,7 @@ double genie::utils::gsl::FullQELdXSec::DoEval(const double* xin) const
 
   // Compute the full differential cross section
   double xsec = genie::utils::ComputeFullQELPXSec(fInteraction, fNuclModel,
-    fXSecModel, cos_theta0, phi0, dummy_Eb, fHitNucleonBindingMode, fMinAngleEM, true);
+    fXSecModel, cos_theta0, phi0, dummy_Eb, fHitNucleonBindingMode, true);
 
   return xsec;
 }

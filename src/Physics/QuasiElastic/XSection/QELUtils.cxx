@@ -94,8 +94,7 @@ double genie::utils::EnergyDeltaFunctionSolutionQEL(
 double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
   const genie::NuclearModelI* nucl_model, const genie::XSecAlgorithmI* xsec_model,
   double cos_theta_0, double phi_0, double& Eb,
-  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM,
-  bool bind_nucleon)
+  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, bool bind_nucleon)
 {
   // If requested, set the initial hit nucleon 4-momentum to be off-shell
   // according to the binding mode specified in the function call
@@ -172,11 +171,6 @@ double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
   // Boost the 4-momenta for both particles into the lab frame
   lepton.Boost(beta);
   outNucleon.Boost(beta);
-
-  // Check if event is at a low angle - if so return 0 and stop wasting time
-  if (180 * lepton.Theta() / genie::constants::kPi < min_angle_EM && interaction->ProcInfo().IsEM()) {
-    return 0;
-  }
 
   TLorentzVector * nuP4 = interaction->InitState().GetProbeP4( genie::kRfLab );
   TLorentzVector qP4 = *nuP4 - lepton;
