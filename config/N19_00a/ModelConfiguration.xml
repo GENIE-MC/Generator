@@ -13,8 +13,15 @@
   Currently the same nuclear model is forced for all isotopes.
  -->
 
-  <!-- Use a local Fermi gas for nuclei for which GENIE does not have a tabulated spectral function -->
+  <!--
+  Use a local Fermi gas for nuclei for which GENIE does not have a tabulated spectral function.
+  This default nuclear model will also be used for Pauli blocking kF lookups
   <param type="alg"  name="NuclearModel"> genie::LocalFGM/Default </param>
+  -->
+
+  <!-- Use a global Fermi gas for nuclei for which GENIE does not have a tabulated spectral function.
+  This default nuclear model will also be used for Pauli blocking kF lookups -->
+  <param type="alg"  name="NuclearModel"> genie::FGMBodekRitchie/Default </param>
 
   <!-- For 12C and 56Fe, use the spectral function -->
   <param type="alg" name="NuclearModel@Pdg=1000060120"> genie::SpectralFunc/Default </param>
