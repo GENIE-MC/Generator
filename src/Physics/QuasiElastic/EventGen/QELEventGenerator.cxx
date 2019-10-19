@@ -449,7 +449,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
       // BindHitNucleon()
       genie::utils::BindHitNucleon(*interaction, *fNuclModel, dummy_Eb, kOnShell);
 
-      // TODO: document this, won't work for spectral functions
+      // TODO: document this
       double dummy_w = -1.;
       double prob = fNuclModel->Prob(pNi_next, dummy_w, tgt,
         tgt.HitNucPosition());
@@ -491,7 +491,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
           double costh_increment = (costh_range_max-costh_range_min) / N_theta;
           double phi_increment   = (phi_range_max-phi_range_min) / N_phi;
           // Now scan through centre-of-mass angles coarsely
-          for (int itheta = 0; itheta < N_theta; itheta++){
+          for (int itheta = 0; itheta <= N_theta; itheta++) {
               double costh = costh_range_min + itheta * costh_increment;
               for (int iphi = 0; iphi < N_phi; iphi++) { // Scan around phi
                   double phi = phi_range_min + iphi * phi_increment;

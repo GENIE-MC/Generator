@@ -142,8 +142,23 @@ double SpectralFunc::Prob(double p, double w, const Target & target) const
 
   // TODO: check whether we should return the probability mass or density here.
   // The previous implementation used the density. For now, we return the mass.
-  int bin_num = sf->FindBin( p, w );
-  double prob_mass = sf->GetBinContent( bin_num );
+  double prob_mass = 0.;
+  if ( w >= 0. ) {
+    // In the normal case, find the bin corresponding to (p, w) and return the
+    // probability based on that
+    int bin_num = sf->FindBin( p, w );
+    prob_mass = sf->GetBinContent( bin_num );
+  }
+  else {
+    // For w < 0 (e.g., w = -1 used by QELEventGenerator), ignore w and find
+    // the integrated probability of sampling from the appropriate p bin
+    TH1D* temp_p_hist = sf->ProjectionX("temp_p_proj_x", 1,
+      sf->GetXaxis()->GetNbins());
+
+    int p_bin_num = temp_p_hist->FindBin( p );
+    prob_mass = temp_p_hist->GetBinContent( p_bin_num );
+    delete temp_p_hist;
+  }
 
   return prob_mass;
 

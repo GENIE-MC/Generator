@@ -98,14 +98,14 @@ double CBFSpectFuncQELPXSec::XSec(const Interaction* interaction,
     double kF = fPauliBlocker->GetFermiMomentum(target,
       interaction->RecoilNucleonPdg(), target.HitNucPosition());
     if ( p4Nf.P() < kF ) return 0.;
-
-    // Scale cross section by the number of active nucleons
-    int hit_nuc_pdg = target.HitNucPdg();
-    // Number of active nucleons in the target
-    int num_active = pdg::IsProton(hit_nuc_pdg) ? target.Z() : target.N();
-
-    xsec *= num_active;
   }
+
+  // Scale cross section by the number of active nucleons
+  int hit_nuc_pdg = target.HitNucPdg();
+  // Number of active nucleons in the target
+  int num_active = pdg::IsProton(hit_nuc_pdg) ? target.Z() : target.N();
+
+  xsec *= num_active;
 
   // Compute form factors using Q2tilde (the effective Q2 value after
   // binding energy corrections)
@@ -148,12 +148,10 @@ double CBFSpectFuncQELPXSec::XSec(const Interaction* interaction,
   // Apply the coupling factor to the differential cross section
   xsec *= coupling_factor;
 
-  // The corrected energy transfer qTilde0 needs to be nonnegative
-  // to enforce energy conservation
-  if ( qTildeP4.E() < 0. ) {
-    LOG("CBFSpectFunc", pDEBUG) << "q0Tilde < 0," << " returning xsec = 0";
-    return 0.;
-  }
+  // For a bound hit nucleon, the corrected energy transfer qTilde0 needs to be
+  // positive to enforce energy conservation
+  if ( qTildeP4.E() <= 0. && interaction->InitState().Tgt().IsNucleus()
+    && !interaction->TestBit(kIAssumeFreeNucleon) ) return 0.;
 
   // Set Q2 to Q2tilde while computing form factors
   interaction->KinePtr()->SetQ2( Q2tilde );
