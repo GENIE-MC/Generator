@@ -22,6 +22,7 @@
 #ifndef _KNO_PYTHIA_HADRONIZATION_H_
 #define _KNO_PYTHIA_HADRONIZATION_H_
 
+#include "Framework/Interaction/Interaction.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
 
 namespace genie {

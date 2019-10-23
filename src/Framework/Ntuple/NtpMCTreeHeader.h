@@ -54,12 +54,15 @@ public :
   // Ntuple is treated like a C-struct with public data members and
   // rule-breakinsg field data members not prefaced by "f" and mostly lowercase.
 
-  NtpMCFormat_t format;  ///< Event Record format (GENIE support multiple formats)
-  TObjString    cvstag;  ///< GENIE CVS Tag (to keep track of GENIE's version)
-  NtpMCDTime    datime;  ///< Date and Time that the event ntuple was generated
-  Long_t        runnu;   ///< MC Job run number
+  NtpMCFormat_t format;     ///< Event Record format (GENIE support multiple formats)
+  TObjString    cvstag;     ///< GENIE CVS Tag (to keep track of GENIE's version)
+  NtpMCDTime    datime;     ///< Date and Time that the event ntuple was generated
+  Long_t        runnu;      ///< MC Job run number
+  TObjString    tune;       ///< GENIE Tune Name
+  TObjString    tuneDir;    ///< directory from when tune config came
+  TObjString    customDirs; ///< any custom directories
 
-  ClassDef(NtpMCTreeHeader, 1)
+  ClassDef(NtpMCTreeHeader, 3)
 };
 
 }      // genie namespace

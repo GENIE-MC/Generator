@@ -124,7 +124,7 @@ print "\n Neutrino List: @nu_list \n";
 
 @nuclei_proc = ( 'none',
                  'WeakMEC',
-                 'CCCOH',    'NCCOH',
+                 'CCCOHPION',    'NCCOHPION',
                  'Fast',
                  'FastWithMEC'  ## this is supposed to be better with G16_01 comprehensive models
                  );
@@ -132,7 +132,7 @@ print "\n Neutrino List: @nu_list \n";
 
 @nuclei_proc_def = ( 'none',
                      'WeakMEC',
-                     'CCCOH',    'NCCOH',
+                     'CCCOHPION',    'NCCOHPION',
                      'Fast'
 	             );
 
