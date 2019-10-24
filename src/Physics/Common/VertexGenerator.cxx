@@ -116,7 +116,7 @@ TVector3 VertexGenerator::GenerateVertex(const Interaction * interaction,
   
   //Interaction * interaction = evrec->Summary();
   const ProcessInfo & proc_info = interaction->ProcInfo();
-  bool is_coh = proc_info.IsCoherent() || proc_info.IsCoherentElastic();
+  bool is_coh = proc_info.IsCoherentProduction() || proc_info.IsCoherentElastic();
   bool is_ve  = proc_info.IsInverseMuDecay() ||
     proc_info.IsIMDAnnihilation() ||
     proc_info.IsNuElectronElastic();

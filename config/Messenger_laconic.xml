@@ -21,7 +21,8 @@
     same stream is listed twice with conflicting priority then the
     one found last is used
    -->
-
+  <priority msgstream="ResonanceDecay">                WARN   </priority>  
+  <priority msgstream="Pythia6Decay">                  WARN   </priority>
   <priority msgstream="Messenger">                     WARN   </priority>
   <priority msgstream="AhrensNCEL">                    WARN   </priority>
   <!-- EDIT: add notification for DM EL algorithm -->

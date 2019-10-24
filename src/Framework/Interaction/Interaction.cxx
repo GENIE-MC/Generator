@@ -660,11 +660,17 @@ Interaction * Interaction::DFRCC(
   return interaction;
 }
 //___________________________________________________________________________
-Interaction * Interaction::COHCC(int tgt, int probe, double E)
+Interaction * Interaction::COHCC(int tgt, int probe, unsigned int prod_pdg, double E)
 {
   Interaction * interaction = 
-     Interaction::Create(tgt,probe,kScCoherent, kIntWeakCC);
+     Interaction::Create(tgt,probe,kScCoherentProduction, kIntWeakCC);
 
+  XclsTag * xcl = interaction -> ExclTagPtr() ; 
+  if ( pdg::IsPion( prod_pdg ) ) {
+    if ( pdg::IsNeutrino( probe ) ) xcl -> SetNPions( 1,0,0 ) ;
+    else if ( pdg::IsAntiNeutrino( probe ) ) xcl -> SetNPions( 0,0,1 ) ;
+  }
+  
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
 
@@ -672,10 +678,16 @@ Interaction * Interaction::COHCC(int tgt, int probe, double E)
 }
 //___________________________________________________________________________
 Interaction * Interaction::COHCC(
-    int tgt, int probe, const TLorentzVector & p4probe)
+    int tgt, int probe, unsigned int prod_pdg, const TLorentzVector & p4probe)
 {
   Interaction * interaction = 
-     Interaction::Create(tgt,probe,kScCoherent, kIntWeakCC);
+     Interaction::Create(tgt,probe,kScCoherentProduction, kIntWeakCC);
+
+  XclsTag * xcl = interaction -> ExclTagPtr() ; 
+  if ( pdg::IsPion( prod_pdg ) ) {
+    if ( pdg::IsNeutrino( probe ) ) xcl -> SetNPions( 1,0,0 ) ;
+    else if ( pdg::IsAntiNeutrino( probe ) ) xcl -> SetNPions( 0,0,1 ) ;
+  }
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
@@ -683,10 +695,14 @@ Interaction * Interaction::COHCC(
   return interaction;
 }
 //___________________________________________________________________________
-Interaction * Interaction::COHNC(int tgt, int probe, double E)
+Interaction * Interaction::COHNC(int tgt, int probe, unsigned int prod_pdg, double E)
 {
   Interaction * interaction = 
-     Interaction::Create(tgt,probe,kScCoherent, kIntWeakNC);
+     Interaction::Create(tgt,probe,kScCoherentProduction, kIntWeakNC);
+
+  XclsTag * xcl = interaction -> ExclTagPtr() ; 
+  if ( pdg::IsPion( prod_pdg ) ) xcl -> SetNPions( 0,1,0 ) ;
+  else if ( prod_pdg == kPdgGamma )  xcl -> SetNSingleGammas(1) ;
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
@@ -695,11 +711,15 @@ Interaction * Interaction::COHNC(int tgt, int probe, double E)
 }
 //___________________________________________________________________________
 Interaction * Interaction::COHNC(
-   int tgt, int probe, const TLorentzVector & p4probe)
+   int tgt, int probe, unsigned int prod_pdg, const TLorentzVector & p4probe)
 {
   Interaction * interaction = 
-     Interaction::Create(tgt,probe,kScCoherent, kIntWeakNC);
+     Interaction::Create(tgt,probe,kScCoherentProduction, kIntWeakNC);
 
+  XclsTag * xcl = interaction -> ExclTagPtr() ; 
+  if ( pdg::IsPion( prod_pdg ) ) xcl -> SetNPions( 0,1,0 ) ;
+  else if ( prod_pdg == kPdgGamma )  xcl -> SetNSingleGammas(1) ;
+  
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
 

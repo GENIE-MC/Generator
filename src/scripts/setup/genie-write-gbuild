@@ -44,6 +44,13 @@ if( $root_conf_status=~m/enable-pythia6/i )
       { print GBLD   "#define __GENIE_PYTHIA6_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_PYTHIA6_ENABLED__\n"; }
 
+# pythia8 enabled?
+#
+@nret = `grep 'GOPT_ENABLE_PYTHIA8=YES' $GCONF_FILE`;
+if(@nret>0)
+      { print GBLD   "#define __GENIE_PYTHIA8_ENABLED__\n"; }
+else  { print GBLD "//#define __GENIE_PYTHIA8_ENABLED__\n"; }
+
 # mysql enabled?
 #
 if( $root_conf_status=~m/enable-mysql/i )
