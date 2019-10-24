@@ -263,8 +263,8 @@ const EventRecordVisitorI * GetIntranuke(void)
      sconf = "Default";
 #endif
 #ifdef __GENIE_GEANT4_INTERFACE_ENABLED__
-  } else if ( gOptMode.compare("HG4BertiniCasc") == 0 ) {
-     sname = "genie::HG4BertiniCascIntranuke";
+  } else if ( gOptMode.compare("HG4BertCasc") == 0 ) {
+     sname = "genie::HG4BertCascIntranuke";
      sconf = "Default";
 #endif
   } else {
