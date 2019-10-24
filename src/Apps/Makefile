@@ -16,12 +16,7 @@ GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 
 # Mac OS X -bind_at_load means we must list the low level libraries
 # first, and each stage must fully resolved before the next library
-# LIBRARIES  := $(LIBRARIES) $(CERN_LIBRARIES) $(GENIE_LIBS)
-
-# including INCL then wants this reversed (GENIE first, low level later)
-# due to addition of static libraries ... can we revert this by
-# linking hadron transport library to INCL lib when building _it_.
-LIBRARIES  :=   $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
+LIBRARIES  := $(LIBRARIES) $(CERN_LIBRARIES) $(GENIE_LIBS)
 
 TGT_BASE =  gevgen          \
             gevgen_hadron   \
