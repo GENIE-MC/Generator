@@ -758,7 +758,7 @@ if($gopt_enable_geant4_interface eq "YES") {
     if( $matched=~m/(\S*)\/libG4processes.so/i ) {
        $gopt_with_geant4_lib = $1;
     }
-    print "Setting --with-geant4-inc=$gopt_with_geant4_lib\n";
+    print "Setting --with-geant4-lib=$gopt_with_geant4_lib\n";
   }
   # check
   my $fileso    = "$gopt_with_geant4_lib/libG4processes.so";
