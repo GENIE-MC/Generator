@@ -262,6 +262,11 @@ const EventRecordVisitorI * GetIntranuke(void)
      sname = "genie::HINCLCascadeIntranuke";
      sconf = "Default";
 #endif
+#ifdef __GENIE_GEANT4_INTERFACE_ENABLED__
+  } else if ( gOptMode.compare("HG4BertiniCasc") == 0 ) {
+     sname = "genie::HG4BertiniCascIntranuke";
+     sconf = "Default";
+#endif
   } else {
     LOG("gevgen_hadron", pFATAL) << "Invalid Intranuke mode - Exiting";
     gAbortingInErr = true;
