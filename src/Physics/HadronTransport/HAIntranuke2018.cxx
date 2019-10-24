@@ -478,7 +478,7 @@ double HAIntranuke2018::PnBounce(void) const
 }
 //___________________________________________________________________________
 void HAIntranuke2018::ElasHA(GHepRecord* ev, GHepParticle* p,
-                             INukeFateHA_t /* fate */) const
+                             INukeFateHA_t fate ) const
 {
   // scatters particle within nucleus, copy of hN code meant to run only once
   // in hA mode
