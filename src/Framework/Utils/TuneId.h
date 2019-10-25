@@ -74,6 +74,8 @@ public:
   string Tail            (void) const ;
   string CMCDirectory    (void) const ;
   string TuneDirectory   (void) const ;
+  string BaseDirectory   (void) const { return fBaseDirectory; }
+  string CustomSource    (void) const { return fCustomSource;  }
 
   void   Build   (const string & name = "" ) ;
   void   Decode  (string id_str);
