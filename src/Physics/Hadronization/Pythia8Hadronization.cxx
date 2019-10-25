@@ -56,7 +56,9 @@ PythiaHadronizationBase("genie::Pythia8Hadronization", config)
 //____________________________________________________________________________
 Pythia8Hadronization::~Pythia8Hadronization()
 {
-
+#ifdef __GENIE_PYTHIA8_ENABLED__
+  delete fPythia;
+#endif
 }
 //____________________________________________________________________________
 void Pythia8Hadronization::ProcessEventRecord(GHepRecord *
@@ -90,23 +92,40 @@ TClonesArray * Pythia8Hadronization::Hadronize(const Interaction *
   LOG("Pythia8Had", pNOTICE)
     << "Fragmentation: "
     << "q = " << fLeadingQuark << ", qq = " << fRemnantDiquark
-    << ", W = " << W;
+    << ", W = " << W << " GeV";
 
   // Hadronize
 
-  double mA    = fPythia->particleData.m0(fLeadingQuark);
-  double mB    = fPythia->particleData.m0(fRemnantDiquark);
-  double pzAcm = 0.5 * Pythia8::sqrtpos( (W + mA + mB) * (W - mA - mB) * (W - mA + mB) * (W + mA - mB) ) / W;
+  LOG("Pythia8Had", pDEBUG) << "Reseting PYTHIA8 event";
+  fPythia->event.reset();
+
+  // Get quark/diquark masses
+  double mA = fPythia->particleData.m0(fLeadingQuark);
+  double mB = fPythia->particleData.m0(fRemnantDiquark);
+
+  LOG("Pythia8Had", pINFO)
+    << "Leading quark mass = " << mA
+    << " GeV, remnant diqurak mass = " << mB << ", GeV";
+
+  // Calculate quark/diquark energy/momentum
+  double pzAcm = 0.5 * Pythia8::sqrtpos(
+     (W + mA + mB) * (W - mA - mB) * (W - mA + mB) * (W + mA - mB) ) / W;
   double pzBcm = -pzAcm;
   double eA    = sqrt(mA*mA + pzAcm*pzAcm);
   double eB    = sqrt(mB*mB + pzBcm*pzBcm);
 
-  fPythia->event.reset();
+  LOG("Pythia8Had", pINFO)
+   << "Quark: (pz = " << pzAcm << ", E = " << eA << ") GeV, "
+   << "Diquark: (pz = " << pzBcm << ", E = " << eB << ") GeV";
 
   // Pythia8 status code for outgoing particles of the hardest subprocesses is 23
   // anti/colour tags for these 2 particles must complement each other
+  LOG("Pythia8Had", pDEBUG) << "Appending quark/diquark into the PYTHIA8 event";
   fPythia->event.append(fLeadingQuark,   23, 101, 0, 0., 0., pzAcm, eA, mA);
   fPythia->event.append(fRemnantDiquark, 23, 0, 101, 0., 0., pzBcm, eB, mB);
+  fPythia->event.list();
+
+  LOG("Pythia8Had", pDEBUG) << "Generating next PYTHIA8 event";
   fPythia->next();
 
   // List the event information
@@ -114,6 +133,7 @@ TClonesArray * Pythia8Hadronization::Hadronize(const Interaction *
   fPythia->stat();
 
   // Get LUJETS record
+  LOG("Pythia8Had", pDEBUG) << "Copying PYTHIA8 event record into GENIE's";
   Pythia8::Event &fEvent = fPythia->event;
   int np = fEvent.size();
   assert(np>0);
@@ -158,7 +178,7 @@ TClonesArray * Pythia8Hadronization::Hadronize(const Interaction *
 
      if (fEvent[i].status() > 0){
        if( pdg::IsQuark  (fEvent[i].id()) ||
-               pdg::IsDiQuark(fEvent[i].id()) ) {
+           pdg::IsDiQuark(fEvent[i].id()) ) {
          LOG("Pythia8Had", pERROR)
              << "Hadronization failed! Bare quark/di-quarks appear in final state!";
          particle_list->Delete();
@@ -191,6 +211,7 @@ TClonesArray * Pythia8Hadronization::Hadronize(const Interaction *
              fEvent[i].tProd()             // t  [mm/c]
      );
   }
+
   return particle_list;
 
 #else
@@ -211,7 +232,7 @@ void Pythia8Hadronization::CopyOriginalDecayFlags(void) const
   fOriDecayFlag_Dp  = fPythia->particleData.canDecay(kPdgP33m1232_DeltaP);
   fOriDecayFlag_Dpp = fPythia->particleData.canDecay(kPdgP33m1232_DeltaPP);
 
-  //#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Pythia8Had", pDEBUG)
        << "Original PYTHIA6 decay flags:"
        << "\n  pi0           =  " << fOriDecayFlag_pi0
@@ -223,7 +244,7 @@ void Pythia8Hadronization::CopyOriginalDecayFlags(void) const
        << "\n  D0            =  " << fOriDecayFlag_D0
        << "\n  D+            =  " << fOriDecayFlag_Dp
        << "\n  D++           =  " << fOriDecayFlag_Dpp;
-  //#endif
+#endif
 
 #endif
 }
@@ -285,6 +306,9 @@ void Pythia8Hadronization::LoadConfig(void)
   fPythia->settings.parm("StringZ:aLund",                fLunda);
   fPythia->settings.parm("StringZ:bLund",                fLundb);
   fPythia->settings.parm("StringZ:aExtraDiquark",        fLundaDiq);
+
+  fPythia->init(); // needed again to read the above?
+
 #endif
 
   LOG("Pythia8Had", pDEBUG) << this->GetConfig();
@@ -295,8 +319,19 @@ void Pythia8Hadronization::Initialize(void)
 #ifdef __GENIE_PYTHIA8_ENABLED__
   fPythia = new Pythia8::Pythia();
 
-  // sync GENIE/PYTHIA8 seed number
-  RandomGen::Instance(); // <---- NOT syncing yet - To do! Rephaps this need revisiting
+  fPythia->readString("ProcessLevel:all = off");
+  fPythia->readString("Print:quiet      = on");
+
+  // sync GENIE and PYTHIA8 seeds
+  RandomGen * rnd = RandomGen::Instance();
+  long int seed = rnd->GetSeed();
+  fPythia->readString("Random:setSeed = on");
+  fPythia->settings.mode("Random:seed", seed);
+  LOG("Pythia8Had", pINFO)
+    << "PYTHIA8  seed = " << fPythia->settings.mode("Random:seed");
+
+  fPythia->init();
+
 #endif
 }
 //____________________________________________________________________________
