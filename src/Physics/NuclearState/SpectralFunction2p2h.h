@@ -1,15 +1,18 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::SRCNuclearRecoil
+\class    genie::SpectralFunction2p2h
 
-\brief       Created this new module that controls the addition of the recoil nucleon in the event record 
-             and extracts its kinematics
+\brief    Speficif implementation of SecondNucleonEmissionI
+          to emit the second nulceon coming from a 2p2h pair
+          When GENIE is operating in with EffectiveSF
 
 \author   Afroditi Papadopoulou <apapadop \at mit.edu>
           Massachusetts Institute of Technology - October 04, 2019
+          Marco Roda <mroda@liverpool.ac.uk>
+          University of Liverpool
 
-\created  October 04, 2019
+\created  October, 2019
 
 \cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -17,24 +20,25 @@
 */
 //____________________________________________________________________________
 
-#ifndef _SRC_NUCLEAR_RECOIL_H_
-#define _SRC_NUCLEAR_RECOIL_H_
+#ifndef _SPECTRAL_FUNCTION_2P2H_H_
+#define _SPECTRAL_FUNCTION_2P2H_H_
 
-#include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/GHEP/GHepParticle.h"
-#include "Physics/NuclearState/FermiMomentumTable.h"
+
 #include "Framework/Interaction/Target.h"
+#include "Physics/NuclearState/SecondNucleonEmissionI.h"
+
 
 namespace genie {
 
 class NuclearModelI;
 
-class SRCNuclearRecoil : public EventRecordVisitorI {
+class SpectralFunction2p2h : public SecondNucleonEmissionI {
 
 public :
-  SRCNuclearRecoil();
-  SRCNuclearRecoil(string config);
- ~SRCNuclearRecoil();
+  SpectralFunction2p2h();
+  SpectralFunction2p2h(string config);
+ ~SpectralFunction2p2h();
 
   //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
@@ -46,16 +50,8 @@ public :
 
 private:
 
-  int SRCRecoilPDG(GHepParticle * nucleon, GHepParticle * nucleus, Target* tgt, double pF2) const; // determine the PDG code of the SRC pair
-
   void LoadConfig (void);
 
-  const NuclearModelI *  fNuclModel;   ///< nuclear model
-
-  double fPPPairPercentage;
-  double fPNPairPercentage;
-  const FermiMomentumTable * fKFTable;
-  string fKFTableName;
 };
 
 }      // genie namespace
