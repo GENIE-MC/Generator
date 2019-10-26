@@ -304,16 +304,11 @@ void FermiMover::LoadConfig(void)
 
   this->GetParamDef("KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false);
 
-	fSecondEmitter = nullptr ;
-
-	const Regsitry & complete_conf = GetConfig() ;
-	RgKey nuclearrecoilkey = "SecondNucleonEmitter";
-
-	if ( complete_conf.Exists( nuclearrecoilkey ) )
-
-		fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *> (this->SubAlg(nuclearrecoilkey));
-		assert(fSecondEmitter);
+	RgKey nuclearrecoilkey = "SecondNucleonEmitter" ;
+	fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *> (this->SubAlg(nuclearrecoilkey));
   }
+
+	assert(fSecondEmitter);
 
 }
 //____________________________________________________________________________
