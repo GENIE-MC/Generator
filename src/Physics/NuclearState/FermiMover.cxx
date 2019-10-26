@@ -90,6 +90,8 @@ void FermiMover::ProcessEventRecord(GHepRecord * evrec) const
   // give hit nucleon a Fermi momentum
   this->KickHitNucleon(evrec);
 
+	if ( fSecondEmitter ) fSecondEmitter -> ProcessEventRecord( evrec ) ;
+
   // add a recoiled nucleus remnant
   this->AddTargetNucleusRemnant(evrec);
 }
@@ -146,7 +148,9 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
     EN = nucleon->Mass() - w - pF2 / (2 * (nucleus->Mass() - nucleon->Mass()));
   } else if (interaction_type == kFermiMoveEffectiveSF2p2h_eject ||
              interaction_type == kFermiMoveEffectiveSF2p2h_noeject) {
-    TParticlePDG * other_nucleon = nucleon->Pdg() == kPdgProton ? PDGLibrary::Instance()->Find(kPdgNeutron) : PDGLibrary::Instance()->Find(kPdgProton);
+
+		int other_nucleon_pdg = nucleon->Pdg() == kPdgProton ? kPdgNeutron : kPdgProton ;
+		TParticlePDG * other_nucleon = PDGLibrary::Instance()->Find( other_nucleon_pdg );
 
     TParticlePDG * deuteron = PDGLibrary::Instance()->Find(1000010020);
     EN = deuteron->Mass() - 2 * w - TMath::Sqrt(pF2 + other_nucleon->Mass() * other_nucleon->Mass());
@@ -213,10 +217,6 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
      throw exception;
   }
 
-  // Call for SRCNuclearRecoil 
-  if (fSRCNuclearRecoil) {
-	fSRCNuclearRecoil->ProcessEventRecord(evrec);
-  }
 
 }
 //___________________________________________________________________________
@@ -307,13 +307,16 @@ void FermiMover::LoadConfig(void)
   bool NuclearRecoil = false;
   this->GetParamDef("SimRecoilNucleon",       NuclearRecoil,    false);
 
-  if (NuclearRecoil) {
+	fSecondEmitter = nullptr ;
 
-	RgKey srcnuclearrecoilkey = "SRCNuclearRecoilMotion";
-	fSRCNuclearRecoil = dynamic_cast<const SRCNuclearRecoil *> (this->SubAlg(srcnuclearrecoilkey));
-	assert(fSRCNuclearRecoil);
+	const Regsitry & complete_conf = GetConfig() ;
+	RgKey nuclearrecoilkey = "SecondNucleonEmitter";
+
+	if ( complete_conf.Exists( nuclearrecoilkey ) )
+
+		fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *> (this->SubAlg(nuclearrecoilkey));
+		assert(fSecondEmitter);
   }
-
 
 }
 //____________________________________________________________________________

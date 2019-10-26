@@ -57,7 +57,7 @@ private:
   bool  fKeepNuclOnMassShell;          ///< keep hit bound nucleon on the mass shell?
   const NuclearModelI *  fNuclModel;   ///< nuclear model
 
-  const SRCNuclearRecoil *  fSRCNuclearRecoil; 
+  const SecondNucleonEmissionI *  fSecondEmitter ; 
 
 };
 
