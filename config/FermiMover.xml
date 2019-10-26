@@ -8,33 +8,28 @@ Configurable Parameters:
 Name                          Type    Optional   Comment                                           Default
 .............................................................................................................
 KeepHitNuclOnMassShell        bool    Yes        Switch to control Onshellness of hit nucleon      false
-SimRecoilNucleon              bool    Yes        Allows emission of SRC recoil nucleon             false
-NuclearModel                  alg     Yes        Nuclear model                                     Whatever is contained in SRCNuclearRecoil
-SRCNuclearRecoil              alg     No         SubAlg to NuclearRecoil         
+NuclearModel                  alg     Yes        Nuclear Model                                     Whatever is contained in the SecondEmitter
+SecondNucleonEmitter          alg     No         SubAlg to add a second nucleon
                                                  Needed for proper config of nuclear model
 -->
 
 <alg_conf>
 
-  <param_set name="Default"> 
+  <param_set name="Default">
      <param type="bool"   name="KeepHitNuclOnMassShell"> false                     </param>
-
-     <param type="bool" name="SimRecoilNucleon"> false </param>
-
-     <param type="alg"    name="SRCNuclearRecoil">   genie::SRCNuclearRecoil/Default    </param>
-
+     <param type="alg" name="SecondNucleonEmitter"> genie::SpectralFunction2p2h/Default </param>
   </param_set>
 
-  <param_set name="NucOnShell"> 
+  <param_set name="NucOnShell">
      <param type="bool"   name="KeepHitNuclOnMassShell"> true                       </param>
   </param_set>
 
-  <param_set name="Recoil"> 
-     <param type="bool" name="SimRecoilNucleon"> true </param>
+  <param_set name="SRCRecoil">
+     <param type="alg" name="SecondNucleonEmitter"> genie::SRCNuclearRecoil/Default </param>
   </param_set>
 
 <!--
-  <param_set name="GaussianRecoil"> 
+  <param_set name="GaussianRecoil">
      <param type="bool" name="SimRecoilNucleon"> true </param>
   </param_set>
 -->

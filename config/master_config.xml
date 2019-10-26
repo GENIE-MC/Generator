@@ -50,6 +50,10 @@
    <config alg="genie::CEvNSEventGenerator">         CEvNSEventGenerator.xml         </config>
    <config alg="genie::NucleonDecayPrimaryVtxGenerator"> NucleonDecayPrimaryVtxGenerator.xml </config>
    <config alg="genie::NNBarOscPrimaryVtxGenerator">     NNBarOscPrimaryVtxGenerator.xml     </config>
+   <config alg="genie::SpectralFunction2p2h">        SpectralFunction2p2h.xml        </config>
+   <config alg="genie::SRCNuclearRecoil">             SRCNuclearRecoil.xml             </config>
+
+
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
    <config alg="genie::QELInteractionListGenerator">           QELInteractionListGenerator.xml       </config>
@@ -179,14 +183,13 @@
    <config alg="genie::SpectralFunc1d">              SpectralFunc1d.xml              </config>
    <config alg="genie::SpectralFunc">                SpectralFunc.xml                </config>
    <config alg="genie::SmithMonizUtils">             SmithMonizUtils.xml             </config>
-   <config alg="genie::SRCNuclearRecoil">             SRCNuclearRecoil.xml             </config>
 
    <!-- ****** CONFIGURATION FOR MODELS IN MUELOSS UTILITY PACKAGE ****** -->
    <config alg="genie::mueloss::BetheBlochModel">         BetheBlochModel.xml        </config>
    <config alg="genie::mueloss::BezrukovBugaevModel">     BezrukovBugaevModel.xml    </config>
    <config alg="genie::mueloss::KokoulinPetrukhinModel">  KokoulinPetrukhinModel.xml </config>
    <config alg="genie::mueloss::PetrukhinShestakovModel"> PetrukhinShestakovModel.xml</config>
-   
+
    <!-- ****** CONFIGURATION FOR MODELS IN VLE PACKAGE ****** -->
    <config alg="genie::IBDHadronicSystemGenerator">     IBDHadronicSystemGenerator.xml   </config>
    <config alg="genie::IBDKinematicsGenerator">         IBDKinematicsGenerator.xml       </config>
@@ -195,7 +198,7 @@
    <config alg="genie::IBDInteractionListGenerator">    IBDInteractionListGenerator.xml  </config>
    <config alg="genie::StrumiaVissaniIBDPXSec">         StrumiaVissaniIBDPXSec.xml       </config>
    <config alg="genie::KLVOxygenIBDPXSec">              KLVOxygenIBDPXSec.xml            </config>
-   
-   
+
+
 
 </genie_config>
