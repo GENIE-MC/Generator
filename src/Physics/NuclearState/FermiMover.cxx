@@ -304,9 +304,6 @@ void FermiMover::LoadConfig(void)
 
   this->GetParamDef("KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false);
 
-  bool NuclearRecoil = false;
-  this->GetParamDef("SimRecoilNucleon",       NuclearRecoil,    false);
-
 	fSecondEmitter = nullptr ;
 
 	const Regsitry & complete_conf = GetConfig() ;
