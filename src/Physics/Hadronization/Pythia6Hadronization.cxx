@@ -74,9 +74,9 @@ void Pythia6Hadronization::ProcessEventRecord(GHepRecord *
 #endif
 }
 //____________________________________________________________________________
-TClonesArray * Pythia6Hadronization::Hadronize(const Interaction *
+bool Pythia6Hadronization::Hadronize(GHepRecord *
 #ifdef __GENIE_PYTHIA6_ENABLED__
-  interaction // avoid unused variable warning if PYTHIA6 is not enabled
+  event // avoid unused variable warning if PYTHIA6 is not enabled
 #endif
 ) const
 {
@@ -84,6 +84,7 @@ TClonesArray * Pythia6Hadronization::Hadronize(const Interaction *
 
   LOG("Pythia6Had", pNOTICE) << "Running PYTHIA6 hadronizer";
 
+  const Interaction * interaction = event->Summary();
   const Kinematics & kinematics = interaction->Kine();
   double W = kinematics.W();
 
@@ -109,10 +110,6 @@ TClonesArray * Pythia6Hadronization::Hadronize(const Interaction *
   TClonesArray * particle_list = new TClonesArray("genie::GHepParticle", np);
   particle_list->SetOwner(true);
 
-  unsigned int i = 0;
-  TMCParticle * p = 0;
-  TIter particle_iter(pythia_particles);
-
   // Hadronic 4vec
   TLorentzVector p4Had = kinematics.HadSystP4();
 
@@ -122,7 +119,38 @@ TClonesArray * Pythia6Hadronization::Hadronize(const Interaction *
   // Boost velocity LAB' -> HCM
   TVector3 beta(0,0,p4Had.P()/p4Had.Energy());
 
+  // Check target and decide appropriate status code for f/s particles
+  bool is_nucleus = interaction->InitState().Tgt().IsNucleus();
+  GHepStatus_t istfin = is_nucleus ? kIStHadronInTheNucleus : kIStStableFinalState ;
+
+  // Get the index of the mother of the hadronic system
+  int mom = event->FinalStateHadronicSystemPosition();
+  assert(mom!=-1);
+
+  // Get the neutrino vertex position (all hadrons positions set to this point)
+  GHepParticle * neutrino  = event->Probe();
+  const TLorentzVector & vtx = *(neutrino->X4());
+
+  // Loop over PYTHIA8 event particles and copy relevant entries
+  unsigned int i = 0;
+  TMCParticle * p = 0;
+  TIter particle_iter(pythia_particles);
   while( (p = (TMCParticle *) particle_iter.Next()) ) {
+
+     int particle_pdg_code      = p->GetKF();
+     int pythia_particle_status = p->GetKS();
+
+     // Sanity check
+     if(pythia_particle_status == 1) {
+       if( pdg::IsQuark  (particle_pdg_code) ||
+           pdg::IsDiQuark(particle_pdg_code) )
+       {
+         LOG("Pythia6Had", pERROR)
+            << "Hadronization failed! Bare quarks appear in final state!";
+         return false;
+       }
+     }
+
      // The fragmentation products are generated in the hadronic CM frame
      // where the z>0 axis is the \vec{phad} direction. For each particle
      // returned by the hadronizer:
@@ -134,48 +162,53 @@ TClonesArray * Pythia6Hadronization::Hadronize(const Interaction *
      p3.RotateUz(unitvq);
      TLorentzVector p4(p3,p4o.Energy());
 
-     // Convert from TMCParticle to GHepParticle
+     // Set the proper GENIE status according to a number of things:
+     // interaction on a nucleus or nucleon, particle type
+     GHepStatus_t ist = (pythia_particle_status == 1) ?
+         istfin : kIStDISPreFragmHadronicState;
+     // Handle gammas, and leptons that might come from internal pythia decays
+     // mark them as final state particles
+     bool is_gamma = (particle_pdg_code == kPdgGamma);
+     bool is_nu    = pdg::IsNeutralLepton(particle_pdg_code);
+     bool is_lchg  = pdg::IsChargedLepton(particle_pdg_code);
+     bool not_hadr = is_gamma || is_nu || is_lchg;
+     if(not_hadr)  { ist = kIStStableFinalState; }
+
+     // Set mother/daugher indices
+     int mother1   = mom + p->GetParent();
+     int mother2   = -1;
+     int daughter1 = (p->GetFirstChild() <= 0 ) ? -1 : mom  + p->GetFirstChild();
+     int daughter2 = (p->GetLastChild()  <= 0 ) ? -1 : mom  + p->GetLastChild();
+
+     // Create GHepParticle
      GHepParticle particle = GHepParticle(
-         p->GetKF(),                // pdg
-         GHepStatus_t(p->GetKS()),  // status
-         p->GetParent(),            // first parent
-         -1,                        // second parent
-         p->GetFirstChild(),        // first daughter
-         p->GetLastChild(),         // second daughter
-         p4.Px(),                   // px
-         p4.Py(),                   // py
-         p4.Pz(),                   // pz
-         p4.Energy(),               // e
-         p->GetVx(),                // x
-         p->GetVy(),                // y
-         p->GetVz(),                // z
-         p->GetTime()               // t
+         particle_pdg_code,  // pdg
+         ist,                // status
+         mother1,            // first parent
+         mother2,            // second parent
+         daughter1,          // first daughter
+         daughter2,          // second daughter
+         p4.Px(),            // px
+         p4.Py(),            // py
+         p4.Pz(),            // pz
+         p4.Energy(),        // e
+         vtx.X(),            // x
+         vtx.Y(),            // y
+         vtx.Z(),            // z
+         vtx.T()             // t
      );
 
      LOG("Pythia6Had", pDEBUG)
           << "Adding final state particle pdgc = " << particle.Pdg()
           << " with status = " << particle.Status();
 
-     if(particle.Status() == 1) {
-       if( pdg::IsQuark  (particle.Pdg()) ||
-	         pdg::IsDiQuark(particle.Pdg()) ) {
-
-          LOG("Pythia6Had", pERROR)
-	           << "Hadronization failed! Bare quark/di-quarks appear in final state!";
-
-	        particle_list->Delete();
-	        delete particle_list;
-	        return 0;
-       }
-     }
-
-     // insert the particle in the list
-     new ( (*particle_list)[i++] ) GHepParticle(particle);
+     // Insert the particle in the list
+     event->AddParticle(particle);
   }
-  return particle_list;
+  return true;
 
 #else
-  return 0;
+  return false;
 #endif // __GENIE_PYTHIA6_ENABLED__
 }
 //____________________________________________________________________________
@@ -206,7 +239,7 @@ void Pythia6Hadronization::CopyOriginalDecayFlags(void) const
      << "\n  D++           =  " << fOriDecayFlag_Dpp;
 #endif
 
-#endif // // __GENIE_PYTHIA6_ENABLED__
+#endif // __GENIE_PYTHIA6_ENABLED__
 }
 //____________________________________________________________________________
 void Pythia6Hadronization::SetDesiredDecayFlags(void) const
@@ -298,7 +331,10 @@ void Pythia6Hadronization::Initialize(void)
   PythiaHadronizationBase::Initialize();
 #ifdef __GENIE_PYTHIA6_ENABLED__
   fPythia = TPythia6::Instance();
-  RandomGen::Instance(); // sync GENIE/PYTHIA6 seed number
+  // sync GENIE/PYTHIA6 seed number
+  // PYTHIA6 is a singleton, so do this from RandomGen for all
+  // GENIE algorithms that use PYTHIA6
+  RandomGen::Instance();
 #endif
 }
 //____________________________________________________________________________

@@ -6,11 +6,11 @@
 \brief    Provides access to the PYTHIA hadronization models. \n
           Is a concrete implementation of the EventRecordVisitorI interface.
 
-\author   Shivesh Mandalia <s.p.mandalia@qmul.ac.uk>
-          Queen Mary University of London
-
-          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
+
+          Shivesh Mandalia <s.p.mandalia@qmul.ac.uk>
+          Queen Mary University of London
 
 \created  October 17, 2019
 
@@ -51,7 +51,8 @@ public:
   void Configure(string config);
 
 private:
-  TClonesArray * Hadronize (const Interaction*) const;
+
+  bool Hadronize (GHepRecord* event) const;
 
   void CopyOriginalDecayFlags     (void) const;
   void SetDesiredDecayFlags       (void) const;

@@ -45,7 +45,7 @@ protected:
   virtual void SetDesiredDecayFlags       (void) const = 0;
   virtual void RestoreOriginalDecayFlags  (void) const = 0;
 
-  virtual TClonesArray* Hadronize         (const Interaction* in) const = 0;
+  virtual bool Hadronize (GHepRecord* event) const = 0;
 
   // PDG codes assigned on an event-by-event basis and driving
   // PYTHIA6/8 hadronization routines

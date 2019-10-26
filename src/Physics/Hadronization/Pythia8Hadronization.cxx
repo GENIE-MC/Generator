@@ -4,11 +4,11 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Shivesh Mandalia <s.p.mandalia@qmul.ac.uk>
-         Queen Mary University of London
-
-         Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
+
+         Shivesh Mandalia <s.p.mandalia@qmul.ac.uk>
+         Queen Mary University of London
 */
 //____________________________________________________________________________
 
@@ -77,15 +77,16 @@ void Pythia8Hadronization::ProcessEventRecord(GHepRecord *
 #endif
 }
 //____________________________________________________________________________
-TClonesArray * Pythia8Hadronization::Hadronize(const Interaction *
+bool Pythia8Hadronization::Hadronize(GHepRecord *
 #ifdef __GENIE_PYTHIA8_ENABLED__
-  interaction // avoid unused variable warning if PYTHIA6 is not enabled
+  event // avoid unused variable warning if PYTHIA6 is not enabled
 #endif
 ) const
 {
 #ifdef __GENIE_PYTHIA8_ENABLED__
   LOG("Pythia8Had", pNOTICE) << "Running PYTHIA8 hadronizer";
 
+  const Interaction * interaction = event->Summary();
   const Kinematics & kinematics = interaction->Kine();
   double W = kinematics.W();
 
@@ -138,10 +139,6 @@ TClonesArray * Pythia8Hadronization::Hadronize(const Interaction *
   int np = fEvent.size();
   assert(np>0);
 
-  // Offset the initial (system) particle
-  int ioff = 0;
-  if (fEvent[0].id() == 90) ioff = -1;
-
   TClonesArray * particle_list = new TClonesArray("genie::GHepParticle", np);
   particle_list->SetOwner(true);
 
@@ -154,68 +151,110 @@ TClonesArray * Pythia8Hadronization::Hadronize(const Interaction *
   // Boost velocity LAB' -> HCM
   TVector3 beta(0,0,p4Had.P()/p4Had.Energy());
 
-  for (int i = 1; i < np; ++i) {
-     /*
-      * Convert Pythia8 status code to Pythia6
-      * Initial quark has a pythia6 status code of 12
-      * The initial diquark and the fragmented particles have a pythia6 code
-      * of 11 (kIStNucleonTarget)
-      * Final state particles have a positive pythia8 code and a pythia6 code of
-      * 1 (kIStStableFinalState)
-      * The fragmentation products are generated in the hadronic CM frame
-      * where the z>0 axis is the \vec{phad} direction. For each particle
-      * returned by the hadronizer:
-      * - boost it back to LAB' frame {z:=\vec{phad}} / doesn't affect pT
-      * - rotate its 3-momentum from LAB' to LAB
-      */
-     GHepStatus_t gStatus;
-     if (i == 1) gStatus = kIStDISPreFragmHadronicState;
-     else gStatus = (fEvent[i].status()>0) ? kIStStableFinalState : kIStNucleonTarget;
+  // Check target and decide appropriate status code for f/s particles
+  bool is_nucleus = interaction->InitState().Tgt().IsNucleus();
+  GHepStatus_t istfin = is_nucleus ? kIStHadronInTheNucleus : kIStStableFinalState ;
 
-     LOG("Pythia8Had", pDEBUG)
-         << "Adding final state particle pdgc = " << fEvent[i].id()
-         << " with status = " << gStatus;
+  // Get the index of the mother of the hadronic system
+  int mom = event->FinalStateHadronicSystemPosition();
+  assert(mom!=-1);
 
-     if (fEvent[i].status() > 0){
-       if( pdg::IsQuark  (fEvent[i].id()) ||
-           pdg::IsDiQuark(fEvent[i].id()) ) {
-         LOG("Pythia8Had", pERROR)
-             << "Hadronization failed! Bare quark/di-quarks appear in final state!";
-         particle_list->Delete();
-         delete particle_list;
-         return 0;
+  // Get the neutrino vertex position (all hadrons positions set to this point)
+  GHepParticle * neutrino  = event->Probe();
+  const TLorentzVector & vtx = *(neutrino->X4());
+
+  // Loop over PYTHIA8 event particles and copy relevant entries
+  for (int i = 0; i < np; i++) {
+
+     if (fEvent[i].id() == 90) continue; // ignore (system) pseudoparticle
+
+     // Get PYTHIA8 particle ID and status codes
+     int particle_pdg_code      = fEvent[i].id();
+     int pythia_particle_status = fEvent[i].status();
+
+     // Sanity check
+     if(pythia_particle_status > 0) {
+       if( pdg::IsQuark  (particle_pdg_code) ||
+           pdg::IsDiQuark(particle_pdg_code) )
+       {
+          LOG("Pythia8Had", pERROR)
+             << "Hadronization failed! Bare quarks appear in final state!";
+          return false;
        }
      }
 
-     TLorentzVector p4o(fEvent[i].px(), fEvent[i].py(), fEvent[i].pz(), fEvent[i].e());
-     p4o.Boost(beta);
-     TVector3 p3 = p4o.Vect();
-     p3.RotateUz(unitvq);
-     TLorentzVector p4(p3,p4o.Energy());
+     // Copy the initial q, qq (status = -23) and all undecayed particles
+     // Ignore particles we asked PYTHIA to decay (eg omega, Delta) but
+     // record their decay products
+     bool copy = (pythia_particle_status==-23) || (pythia_particle_status > 0);
+     if(copy) {
+        // The fragmentation products are generated in the hadronic CM frame
+        // where the z>0 axis is the \vec{phad} direction. For each particle
+        // returned by the hadronizer:
+        // - boost it back to LAB' frame {z:=\vec{phad}} / doesn't affect pT
+        // - rotate its 3-momentum from LAB' to LAB
+        TLorentzVector p4o(
+          fEvent[i].px(), fEvent[i].py(), fEvent[i].pz(), fEvent[i].e());
+        p4o.Boost(beta);
+        TVector3 p3 = p4o.Vect();
+        p3.RotateUz(unitvq);
+        TLorentzVector p4(p3,p4o.Energy());
 
-     // insert the particle in the list
-     new((*particle_list)[i]) GHepParticle(
-             fEvent[i].id(),               // pdg
-             gStatus,                      // status
-             fEvent[i].mother1()   + ioff, // first parent
-             fEvent[i].mother2()   + ioff, // second parent
-             fEvent[i].daughter1() + ioff, // first daughter
-             fEvent[i].daughter2() + ioff, // second daughter
-             p4.Px(),                      // px [GeV/c]
-             p4.Py(),                      // py [GeV/c]
-             p4.Pz(),                      // pz [GeV/c]
-             p4.Energy(),                  // e  [GeV]
-             fEvent[i].xProd(),            // x  [mm]
-             fEvent[i].yProd(),            // y  [mm]
-             fEvent[i].zProd(),            // z  [mm]
-             fEvent[i].tProd()             // t  [mm/c]
-     );
-  }
+        // Set the proper GENIE status according to a number of things:
+        // interaction on a nucleus or nucleon, particle type
+        GHepStatus_t ist = (pythia_particle_status > 0) ?
+           istfin : kIStDISPreFragmHadronicState;
+        // Handle gammas, and leptons that might come from internal pythia decays
+        // mark them as final state particles
+        bool is_gamma = (particle_pdg_code == kPdgGamma);
+        bool is_nu    = pdg::IsNeutralLepton(particle_pdg_code);
+        bool is_lchg  = pdg::IsChargedLepton(particle_pdg_code);
+        bool not_hadr = is_gamma || is_nu || is_lchg;
+        if(not_hadr)  { ist = kIStStableFinalState; }
 
-  return particle_list;
+        // Set mother/daugher indices
+        // int mother1 = mom+ fEvent[i].mother1();
+        // int mother2 = (pythia_particle_status > 0) ? mom + fEvent[i].mother2() : -1;
+        int mother1 = mom; // fEvent[i].mother1();
+        int mother2 = -1; //(pythia_particle_status > 0) ? mom + fEvent[i].mother2() : -1;
+        if(pythia_particle_status > 0) {
+          mother1 = mom+1;
+          mother2 = mom+2;
+        }
+        int daughter1 = -1;//(fEvent[i].daughter1() <= 0 ) ? -1 : mom  + fEvent[i].daughter1();
+        int daughter2 = -1;//(fEvent[i].daughter1() <= 0 ) ? -1 : mom  + fEvent[i].daughter2();
+
+        // Create GHepParticle
+        GHepParticle particle = GHepParticle(
+            particle_pdg_code, // pdg
+            ist,               // status
+            mother1,           // first parent
+            mother2,           // second parent
+            daughter1,         // first daughter
+            daughter2,         // second daughter
+            p4.Px(),           // px
+            p4.Py(),           // py
+            p4.Pz(),           // pz
+            p4.Energy(),       // e
+            vtx.X(),           // x
+            vtx.Y(),           // y
+            vtx.Z(),           // z
+            vtx.T()            // t
+        );
+
+        LOG("Pythia8Had", pDEBUG)
+             << "Adding final state particle pdgc = " << particle.Pdg()
+             << " with status = " << particle.Status();
+
+        // Insert the particle in the list
+        event->AddParticle(particle);
+     }// copy?
+  }// loop over particles
+
+  return true;
 
 #else
-  return 0;
+  return false;
 #endif
 }
 //____________________________________________________________________________

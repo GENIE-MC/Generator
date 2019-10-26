@@ -51,7 +51,7 @@ public:
 
 private:
 
-  TClonesArray * Hadronize (const Interaction*) const;
+  bool Hadronize (GHepRecord* event) const;
 
   void CopyOriginalDecayFlags     (void) const;
   void SetDesiredDecayFlags       (void) const;

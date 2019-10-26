@@ -57,8 +57,8 @@ void PythiaHadronizationBase::ProcessEventRecord(GHepRecord * event) const
 {
   Interaction * interaction = event->Summary();
 
-  bool ok = this->AssertValidity(interaction);
-  if(!ok) {
+  bool valid_process = this->AssertValidity(interaction);
+  if(!valid_process) {
      LOG("PythiaHad", pFATAL)
        << "Input interaction type is not allowed!!!";
      LOG("PythiaHad", pFATAL)
@@ -75,71 +75,21 @@ void PythiaHadronizationBase::ProcessEventRecord(GHepRecord * event) const
   this->SetDesiredDecayFlags();
 
   // Call PYTHIA6 or PYTHIA8 to obtain the fragmentation products
-  TClonesArray * particle_list = this->Hadronize(interaction);
+  //TClonesArray * particle_list = this->Hadronize(interaction);
+  bool hadronized = this->Hadronize(event);
 
-  // Restore
+  // Restore decay flags
   this->RestoreOriginalDecayFlags();
 
-  if(! particle_list ) {
-    LOG("PythiaHad", pWARN)
-      << "Hadronizer failure: A null particle list was returned!";
-
+  if(!hadronized) {
+    LOG("PythiaHad", pWARN) << "Hadronization failed!";
     event->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
-
     genie::exceptions::EVGThreadException exception;
     exception.SetReason("Could not simulate the hadronic system");
     exception.SwitchOnFastForward();
     throw exception;
-
     return;
    }
-
-  bool is_nucleus = interaction->InitState().Tgt().IsNucleus();
-  GHepStatus_t istfin = is_nucleus ? kIStHadronInTheNucleus : kIStStableFinalState ;
-
-  int mom = event->FinalStateHadronicSystemPosition();
-  assert(mom!=-1);
-
-  GHepParticle * neutrino  = event->Probe();
-  const TLorentzVector & vtx = *(neutrino->X4());
-
-  GHepParticle * p = 0;
-  TIter particle_iter(particle_list);
-  while ((p = (GHepParticle *) particle_iter.Next()))
-  {
-    int pdgc = p -> Pdg() ;
-
-    // set the proper status according to a number of things:
-    // interaction on a nucleaus or nucleon, particle type
-    GHepStatus_t ist = ( p -> Status() ==1 ) ? istfin : kIStDISPreFragmHadronicState;
-    // not that this status here ^ is the pythia state
-
-    // handle gammas, and leptons that might come from internal pythia decays
-    // mark them as final state particles
-    bool not_hadron = ( pdgc == kPdgGamma ||
-			pdg::IsNeutralLepton(pdgc) ||
-			pdg::IsChargedLepton(pdgc) ) ;
-
-    if( not_hadron )  { ist = kIStStableFinalState; }
-    p -> SetStatus( ist ) ;
-
-    p->SetFirstMother(mom + p->FirstMother() );
-    p->SetLastMother( -1 );
-
-    // In Pythia having no daughters means daughter == 0 hnce the following check
-    int ifd = (p->FirstDaughter() <= 0 ) ? -1 : mom  + p->FirstDaughter();
-    int ild = (p->LastDaughter()  <= 0 ) ? -1 : mom  + p->LastDaughter();
-    p->SetFirstDaughter(ifd);
-    p->SetLastDaughter (ild);
-
-    // the Pythia particle position is overridden
-    p -> SetPosition( vtx ) ;
-
-    event->AddParticle(*p);
-  }
-
-  particle_list -> Delete() ;
-  delete particle_list ;
 }
 //____________________________________________________________________________
 void PythiaHadronizationBase::MakeQuarkDiquarkAssignments(
