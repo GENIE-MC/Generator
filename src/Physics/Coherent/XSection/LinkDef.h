@@ -19,6 +19,8 @@
 
 #pragma link C++ class genie::COHElasticPXSec;
 
+#pragma link C++ class genie::DeVriesFormFactor;
+
 #pragma link C++ class genie::COHXSec;
 #pragma link C++ class genie::COHXSecAR;
 
