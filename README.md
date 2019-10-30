@@ -51,13 +51,14 @@ For more information, visit http://www.genie-mc.org
 ## Authors
 
 <pre>
-Luis Alvarez-Ruso [9], Costas Andreopoulos (*) [5,7], Adi Ashkenazi [4], Christopher Barry [5], Francis Bench [5], 
- Steve Dennis [5], Steve Dytman [6], Hugh Gallagher [8], Steven Gardiner[3], Walter Giele [3], Robert Hatcher [3], 
- Or Hen [4], Libo Jiang [6], Rhiannon Jones [5], Igor Kakorin [2], Konstantin Kuzmin [2], Anselmo Meregaglia [1], 
-       Donna Naples [6], Vadim Naumov [2],  Afroditi Papadopoulou [4], Gabriel Perdue [3], Marco Roda [5], 
-              Vladyslav Syrotenko [8], Julia Tena Vidal [5], Jeremy Wolcott [8], and Julia Yarba [3]
+            Luis Alvarez-Ruso [9], Costas Andreopoulos (*) [5,7], Adi Ashkenazi [4], Christopher Barry [5], 
+          Francis Bench [5], Glória de Sá Pereira [5,7], Steve Dennis [5], Steve Dytman [6], Hugh Gallagher [8], 
+         Steven Gardiner[3], Walter Giele [3], Robert Hatcher [3], Or Hen [4], Libo Jiang [6], Rhiannon Jones [5], 
+           Igor Kakorin [2], Konstantin Kuzmin [2], Anselmo Meregaglia [1], Donna Naples [6], Vadim Naumov [2],  
+                  Afroditi Papadopoulou [4], Gabriel Perdue [3], Marco Roda [5], Vladyslav Syrotenko [8], 
+                               Júlia Tena Vidal [5], Jeremy Wolcott [8], and Julia Yarba [3]
 
-                                           (The GENIE Collaboration)
+                                                (The GENIE Collaboration)
 
 (1) CENBG, Université de Bordeaux, CNRS/IN2P3, 33175 Gradignan, France
 (2) Joint Institute for Nuclear Research (JINR), Dubna, Moscow region, 141980, Russia
