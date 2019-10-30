@@ -37,19 +37,24 @@ public:
   virtual ~DeVriesFormFactor();
 
   int NucleusPDG() const { return fNuclPDG ; }
-  double ProtonFF( double Q ) const ;
-  double NeutronFF( double Q ) const ;
+  double FormFacotor( double Q ) const ;
+  // The Q has to be in GeV
+  // The returned FF is in fm^3
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
 
+
 private:
 
   void LoadConfig(void);
 
-  int fNuclPDG ;
+  std::vector<double> fFBCs ;  // Fourier-Bessel Coeffictients
+  double fRadius ;   // this is the radius of the nucleus in GeV^-1
+  int fPDG ;
+
 
 };
 

@@ -21,6 +21,10 @@
 #include "Physics/Coherent/XSection/DeVriesFormFactor.h"
 #include "Framework/Messenger/Messenger.h"
 
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+
+
 using namespace genie;
 using namespace genie::utils;
 
@@ -42,12 +46,21 @@ DeVriesFormFactor::~DeVriesFormFactor()
 
 }
 //____________________________________________________________________________
-double DeVriesFormFactor::ProtonFF( double Q ) const {
+double DeVriesFormFactor::FormFacotor( double Q ) const {
 
-  
+  double qr = Q * fRadius ;
+
+  double aux_sum = 0.0, nu ;
+
+  for (unsigned int i = 0 ; i < fFBCs.size() ; ++i ) {
+     nu = i + 1. ;
+     double pi_x_i = constants::kPi*nu ;
+     aux_sum += pow( -1.0, i )*a[i]/( ( pi_x_i + qr )*( pi_x_i - qr ) ) ;
+ }
+
+ return 4.*constants::kPi*pow( R/units::fm, 3)*aux_sum*(sin(qr)/(qr) ) ;
+
 }
-//____________________________________________________________________________
-double DeVriesFormFactor::NeutronFF( double Q ) const ;
 //____________________________________________________________________________
 void DeVriesFormFactor::Configure(const Registry & config)
 {
@@ -64,6 +77,23 @@ void DeVriesFormFactor::Configure(string config)
 void DeVriesFormFactor::LoadConfig(void)
 {
 
+  std::string raw ;
+  std::vector<std::string> bits ;
+
+  // load R33 parameters
+  this -> GetParam( "DV-Coefficients", raw ) ;
+  bits = utils::str::Split( raw, ";" ) ;
+
+  if ( ! utils::str::Convert(bits, fFBCs) ) {
+    LOG("DeVriesFormFactor", pFATAL) << "Failed to decode coeffictient string for nucleus " << Id().Config() ;
+    LOG("DeVriesFormFactor", pFATAL) << "String " << raw ;
+    invalid_configuration = true ;
+  }
+
+  GetParam( "DV-Radius", kRadius ) ;
+  fRadius *= units::fm ;
+
+  GetParam( "DV-Nucleus", fPDG ) ;
 
 }
 //____________________________________________________________________________
