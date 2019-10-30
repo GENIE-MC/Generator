@@ -114,6 +114,8 @@
    <config alg="genie::RSHelicityAmplModelNCn">                  RSHelicityAmplModelNCn.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMp">                  RSHelicityAmplModelEMp.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMn">                  RSHelicityAmplModelEMn.xml                  </config>
+   <config alg="genie::DeVriesFormFactor">                       DeVriesFormFactor.xml                       </config>
+
 
    <!--  ****** CONFIGURATION GENERIC CROSS SECTION INTEGRATORS ****** -->
    <config alg="genie::QELXSec">                     QELXSec.xml                     </config>
@@ -183,7 +185,7 @@
    <config alg="genie::mueloss::BezrukovBugaevModel">     BezrukovBugaevModel.xml    </config>
    <config alg="genie::mueloss::KokoulinPetrukhinModel">  KokoulinPetrukhinModel.xml </config>
    <config alg="genie::mueloss::PetrukhinShestakovModel"> PetrukhinShestakovModel.xml</config>
-   
+
    <!-- ****** CONFIGURATION FOR MODELS IN VLE PACKAGE ****** -->
    <config alg="genie::IBDHadronicSystemGenerator">     IBDHadronicSystemGenerator.xml   </config>
    <config alg="genie::IBDKinematicsGenerator">         IBDKinematicsGenerator.xml       </config>
@@ -192,7 +194,7 @@
    <config alg="genie::IBDInteractionListGenerator">    IBDInteractionListGenerator.xml  </config>
    <config alg="genie::StrumiaVissaniIBDPXSec">         StrumiaVissaniIBDPXSec.xml       </config>
    <config alg="genie::KLVOxygenIBDPXSec">              KLVOxygenIBDPXSec.xml            </config>
-   
-   
+
+
 
 </genie_config>

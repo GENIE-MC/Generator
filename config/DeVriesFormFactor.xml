@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+
+<!--
+
+Configuration sets for the DeVriesFormFactor
+
+All the data are coming from this DeVries' paper
+  Atom.Data Nucl.Data Tabl. 36 (1987) 495-536
+  DOI: 10.1016/0092-640X(87)90013-1
+
+There shall be a parameter set for each nucleus.
+
+Configurable Parameters:
+..........................................................................................................
+Name                          Type     Optional   Comment
+..........................................................................................................
+DV-Nucleus                    int      No         PDG of the nucleus for which the FormFacotor is evaluated
+
+DV-Radius                     double   No         Radius of the nucleus as
+
+DV-Coefficients               string   No         string ; separated of values for the Fourier-Bessel coefficients
+                                                  of the for factor.
+
+-->
+
+
+
+<alg_conf>
+
+  <param_set name="3H">
+    <param type="int" name="DV-Nucleus"> 1000010030  </param>
+
+    <param type="double" name="DV-Radiuss"> 3.5  </param>
+
+    <param type="string" name="DV-Coefficients">  0.25182e-1 ; 0.34215e-1 ; 0.15257e-1 </param>
+  </param_set>
+
+
+  <param_set name="3He">
+    <param type="int" name="DV-Nucleus"> 1000020030  </param>
+
+    <param type="double" name="DV-Radiuss"> 5.0  </param>
+
+    <param type="string" name="DV-Coefficients">  0.20020e-1 ; 0.41934e-1 ; 0.36254e-1 ; O.17941e-1 ; 0.46608e-2 ;
+                                                  0.46834e-2 ; 0.52042e-2 ; 0.3828Oe-2 ; 0.25661e-2 ; O.14182e-2 ;
+                                                  0.61390e-3 ; 022929e-3 </param>
+  </param_set>
+
+  <param_set name="12C">
+    <param type="int" name="DV-Nucleus"> 1000060120  </param>
+
+    <param type="double" name="DV-Radiuss"> 8.0  </param>
+
+    <param type="string" name="DV-Coefficients"> O.15737e-1 ;  0.38897e-1 ;  0.37085e-1 ;  0.14795e-1 ; -0.44831e-2 ;
+                                                -O.10057e-1 ; -0.68696e2  ; -028813e-2  ; -0.77229e-3 ;  0.66908e-4 ;
+                                                 O.10636e-3 ; -0.36864e-4 ; -0.50135e-5 ;  0.9455Oe-5 ;  -0.47687e-5 </param>
+  </param_set>
+
+
+
+</alg_conf>
