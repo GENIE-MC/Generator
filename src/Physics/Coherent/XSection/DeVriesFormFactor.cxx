@@ -95,5 +95,7 @@ void DeVriesFormFactor::LoadConfig(void)
 
   GetParam( "DV-Nucleus", fPDG ) ;
 
+  LOG("DeVriesFormFactor", pINFO) << "Loaded " << fFBCs.size() << " coeffictients for nucleus " << fPDG ; 
+
 }
 //____________________________________________________________________________

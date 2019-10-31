@@ -31,7 +31,9 @@ DV-Coefficients               string   No         string ; separated of values f
 
   <param_set name="3H">
     <param type="int" name="DV-Nucleus"> 1000010030  </param>
-
+ ; 0.20203e-1 ; -0.; -0.13578e-1 ;
+                                              -0.432;  0.11971e-3 ; -0.19801e-4  ;
+                                                 -0.43204e-5 ; 0.61205e-5 ; -0.37803e-5 ;  0.18001e-5 ; U.77407e-6 0.91988e-3 ; -0.41205e-3 ; 04e-4 16765e-1
     <param type="double" name="DV-Radiuss"> 3.5  </param>
 
     <param type="string" name="DV-Coefficients">  0.25182e-1 ; 0.34215e-1 ; 0.15257e-1 </param>
@@ -56,6 +58,16 @@ DV-Coefficients               string   No         string ; separated of values f
     <param type="string" name="DV-Coefficients"> O.15737e-1 ;  0.38897e-1 ;  0.37085e-1 ;  0.14795e-1 ; -0.44831e-2 ;
                                                 -O.10057e-1 ; -0.68696e2  ; -028813e-2  ; -0.77229e-3 ;  0.66908e-4 ;
                                                  O.10636e-3 ; -0.36864e-4 ; -0.50135e-5 ;  0.9455Oe-5 ;  -0.47687e-5 </param>
+  </param_set>
+
+  <param_set name="40Ar">
+    <param type="int" name="DV-Nucleus"> 1000180400  </param>
+
+    <param type="double" name="DV-Radiuss"> 9.0  </param>
+
+    <param type="string" name="DV-Coefficients">  0.30451e-1 ; 0.55337e-1 ;  0.20203e-1 ; -0.16765e-1 ; -0.13578e-1 ;
+                                                 -0.43204e-4 ; 0.91988e-3 ; -0.41205e-3 ;  0.11971e-3 ; -0.19801e-4  ;
+                                                 -0.43204e-5 ; 0.61205e-5 ; -0.37803e-5 ;  0.18001e-5 ; U.77407e-6 </param>
   </param_set>
 
 
