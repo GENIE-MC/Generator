@@ -24,19 +24,20 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
 
+#include "Framework/Utils/StringUtils.h" 
 
 using namespace genie;
-using namespace genie::utils;
+
 
 //____________________________________________________________________________
 DeVriesFormFactor::DeVriesFormFactor() :
-XSecAlgorithmI("genie::DeVriesFormFactor")
+Algorithm("genie::DeVriesFormFactor")
 {
 
 }
 //____________________________________________________________________________
 DeVriesFormFactor::DeVriesFormFactor(string config) :
-XSecAlgorithmI("genie::DeVriesFormFactor", config)
+Algorithm("genie::DeVriesFormFactor", config)
 {
 
 }
@@ -55,10 +56,10 @@ double DeVriesFormFactor::FormFacotor( double Q ) const {
   for (unsigned int i = 0 ; i < fFBCs.size() ; ++i ) {
      nu = i + 1. ;
      double pi_x_i = constants::kPi*nu ;
-     aux_sum += pow( -1.0, i )*a[i]/( ( pi_x_i + qr )*( pi_x_i - qr ) ) ;
+     aux_sum += pow( -1.0, i )*fFBCs[i]/( ( pi_x_i + qr )*( pi_x_i - qr ) ) ;
  }
 
- return 4.*constants::kPi*pow( R/units::fm, 3)*aux_sum*(sin(qr)/(qr) ) ;
+ return 4.*constants::kPi*pow( fRadius/units::fm, 3)*aux_sum*(sin(qr)/(qr) ) ;
 
 }
 //____________________________________________________________________________
@@ -87,10 +88,9 @@ void DeVriesFormFactor::LoadConfig(void)
   if ( ! utils::str::Convert(bits, fFBCs) ) {
     LOG("DeVriesFormFactor", pFATAL) << "Failed to decode coeffictient string for nucleus " << Id().Config() ;
     LOG("DeVriesFormFactor", pFATAL) << "String " << raw ;
-    invalid_configuration = true ;
   }
 
-  GetParam( "DV-Radius", kRadius ) ;
+  GetParam( "DV-Radius", fRadius ) ;
   fRadius *= units::fm ;
 
   GetParam( "DV-Nucleus", fPDG ) ;

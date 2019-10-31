@@ -36,7 +36,7 @@ public:
   DeVriesFormFactor(string config);
   virtual ~DeVriesFormFactor();
 
-  int NucleusPDG() const { return fNuclPDG ; }
+  int NucleusPDG() const { return fPDG ; }
   double FormFacotor( double Q ) const ;
   // The Q has to be in GeV
   // The returned FF is in fm^3
