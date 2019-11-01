@@ -61,7 +61,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    boost-inc         boost includes path          needed if you --enable-incl         (if unset: tries to auto-detect it) \n";
   print "    boost-lib         boost library path           needed if you --enable-incl         (if unset: tries to auto-detect it) \n";
   print "    geant4-inc        Geant4 includes path         needed if you --enable-geant4       (if unset: checks for a \$GEANT4_INC env.var.. then tries to auto-detect it) \n";
-  print "    geant4-lib        Geant4 library path          needed if you --enable-geant4       (if unset: checks for a \$GEANT4_INC env.var.. then tries to auto-detect it) \n";
+  print "    geant4-lib        Geant4 library path          needed if you --enable-geant4       (if unset: checks for a \$GEANT4_LIB env.var.. then tries to auto-detect it) \n";
   print "    gfortran-lib      libgfortran library path     needed if you --enable-gfortran     (if unset: tries to auto-detect it) \n";
   print "    g2c-lib           libg2c library path          needed if you --enable-g2c          (if unset: tries to auto-detect it) \n\n";
   print "If the printout was too long then pipe it through a pager, eg: \n";
