@@ -28,6 +28,10 @@ Name                                 Type     Optional   Comment
 
      <param type="alg"  name="HadronTensorAlg">  genie::SuSAv2QELHadronTensorModel/Default </param>
 
+     <!-- Delegate cross section calculations for free nucleon targets to the Llewellyn-Smith model -->
+     <!-- TODO: add free nucleon models to handle NC, EM -->
+     <param type="alg"  name="FreeNucleonXSecAlg">  genie::LwlynSmithQELCCPXSec/Dipole </param>
+
      <!-- Using the MEC integrator rather than the QELXSec as we need to integrate in q0,q3 and not in Q2. -->
      <param type="alg"  name="XSec-Integrator"> genie::MECXSec/Default </param>
 

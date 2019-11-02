@@ -82,7 +82,10 @@ private:
   double fEbPb;
 
   /// GSL numerical integrator
-  const XSecIntegratorI *  fXSecIntegrator;
+  const XSecIntegratorI*  fXSecIntegrator;
+
+  /// Alternate cross section model for free nucleon targets
+  const XSecAlgorithmI* fFreeNucleonXSecAlg;
 
 };
 

@@ -480,7 +480,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="ILstGen">    genie::DFRInteractionListGenerator/NC-Default       </param>
   </param_set>
 
-  <param_set name="COH-NC">
+  <param_set name="COH-NC-PION">
      <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   6                                                   </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                 </param>
@@ -492,7 +492,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="ILstGen">    genie::COHInteractionListGenerator/NC-Default       </param>
   </param_set>
 
-  <param_set name="COH-CC">
+  <param_set name="COH-CC-PION">
      <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   6                                                   </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                 </param>

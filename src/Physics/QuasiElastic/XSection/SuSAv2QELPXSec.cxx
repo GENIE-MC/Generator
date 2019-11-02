@@ -23,10 +23,6 @@
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
 
-// TODO: use LwlynSmith CCQE for the free-nucleon case (which SuSAv2 doesn't
-// handle)
-//#include "Physics/QuasiElastic/XSection/LwlynSmithQELCCPXSec.h"
-
 using namespace genie;
 
 //_________________________________________________________________________
@@ -46,6 +42,12 @@ SuSAv2QELPXSec::~SuSAv2QELPXSec()
 double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   KinePhaseSpace_t kps) const
 {
+  // For free nucleon targets, delegate calculation of the cross section
+  // to an alternate model that can handle them
+  if ( !interaction->InitState().Tgt().IsNucleus() ) {
+    return fFreeNucleonXSecAlg->XSec( interaction, kps );
+  }
+
   // Get the hadron tensor for the selected nuclide. Check the probe PDG code
   // to know whether to use the tensor for CC neutrino scattering or for
   // electron scattering
@@ -67,19 +69,10 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   double Eb_tgt=0;
   double Eb_ten=0;
 
-  /// \todo Add more hadron tensors so this scaling is not so terrible
-  // At the moment all we have is Carbon so this is all just a place holder ...
-  if ( A_request == 1 || A_request == 0 ) {
-    tensor_pdg = kPdgTgtFreeP;
-    Eb_tgt=0.0; Eb_ten=0.0;
-    // SuSA can't handle this: use LS with SuSA FF for elastic case
-    //LwlynSmithQELCCPXSec* LSXSec = new LwlynSmithQELCCPXSec("");
-    //return LSXSec.XSec(interaction, kPSQ2fE);
-  }
-  else if ( A_request == 4 ) {
+  if ( A_request <= 4 ) {
+    // Use carbon tensor for very light nuclei. This is not ideal . . .
     tensor_pdg = kPdgTgtC12;
     Eb_tgt=fEbHe; Eb_ten=fEbC;
-    // This is for helium 4, but use carbon tensor, may not be ideal ...
   }
   else if (A_request < 9) {
     tensor_pdg = kPdgTgtC12;
@@ -114,7 +107,6 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
     Eb_tgt=fEbPb; Eb_ten=fEbC;
   }
 
-
   if (tensor_pdg != target_pdg) need_to_scale = true;
 
   // The SuSAv2-1p1h hadron tensors are defined using the same conventions
@@ -123,7 +115,6 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   const ValenciaHadronTensorI* tensor
     = dynamic_cast<const ValenciaHadronTensorI*>( fHadronTensorModel->GetTensor(tensor_pdg,
     tensor_type) );
-
 
   // If retrieving the tensor failed, complain and return zero
   if ( !tensor ) {
@@ -198,6 +189,14 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 //_________________________________________________________________________
 double SuSAv2QELPXSec::Integral(const Interaction* interaction) const
 {
+  // If we're working with a free nucleon target, then delegate spline
+  // integration to the alternate model
+  if ( !interaction->InitState().Tgt().IsNucleus() ) {
+    return fFreeNucleonXSecAlg->Integral( interaction );
+  }
+
+  // Otherwise, integrate the SuSAv2 differential cross section in the normal
+  // way
   double xsec = fXSecIntegrator->Integrate(this, interaction);
   return xsec;
 }
@@ -246,15 +245,21 @@ void SuSAv2QELPXSec::LoadConfig(void)
     this->SubAlg("HadronTensorAlg") );
   assert( fHadronTensorModel );
 
-   // load XSec Integrator
+  // The SuSAv2 calculation doesn't handle free nucleon targets, so we delegate
+  // that calculation to a different model
+  fFreeNucleonXSecAlg = dynamic_cast< const XSecAlgorithmI* >(
+    this->SubAlg("FreeNucleonXSecAlg") );
+  assert( fFreeNucleonXSecAlg );
+
+   // Load XSec Integrator
   fXSecIntegrator = dynamic_cast<const XSecIntegratorI *>(
     this->SubAlg("XSec-Integrator") );
   assert( fXSecIntegrator );
 
-  //Fermi momentum tables for scaling
+  // Fermi momentum tables for scaling
   this->GetParam( "FermiMomentumTable", fKFTable);
 
-  //binding energy lookups for scaling
+  // Binding energy lookups for scaling
   this->GetParam( "RFG-NucRemovalE@Pdg=1000020040", fEbHe );
   this->GetParam( "RFG-NucRemovalE@Pdg=1000030060", fEbLi );
   this->GetParam( "RFG-NucRemovalE@Pdg=1000060120", fEbC  );
