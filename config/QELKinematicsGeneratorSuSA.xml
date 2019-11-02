@@ -18,12 +18,18 @@ QEL-EbOR             bool     No         What Eb to use if fixed                
 -->
 
   <param_set name="Default"> 
-  	<param type="string" name="CommonParam"> QuasiElastic,FermiGas </param>
-    <param type="double" name="Cache-MinEnergy">        1.0       </param>
-    <param type="alg"    name="NuclearModel">           genie::NuclearModelMap/Default            </param>
+
+    <param type="string" name="CommonParam"> QuasiElastic,FermiGas </param>
+    <param type="double" name="Cache-MinEnergy"> 1.0 </param>
+    <param type="alg" name="NuclearModel"> genie::NuclearModelMap/Default </param>
+
+    <!-- This generator doesn't handle free nucleon targets. Those cases are instead
+         delegated to this EventRecordVisitorI -->
+    <param type="alg" name="FreeNucleonEventGenerator"> genie::QELEventGenerator/Default </param>
+
     <!--  Extra stuff for SuSAv2 1p1h implementation   -->
 
-    <!--  Q3 max for hadrontensors model    -->
+    <!--  Q3 max for hadron tensors model    -->
     <param type="double" name="QEL-Q3Max"> 2.0 </param>
 
     <!--  Force bound nucleons in SuSAv2 implementation -->
@@ -36,7 +42,6 @@ QEL-EbOR             bool     No         What Eb to use if fixed                
     <param type="bool" name="QEL-ForceFixedEb"> false </param>
     <param type="double" name="QEL-EbOR"> 0.025 </param>
 
-
   </param_set>
 
   <param_set name="ModelEb"> 
@@ -46,14 +51,12 @@ QEL-EbOR             bool     No         What Eb to use if fixed                
 
   </param_set>
 
-
   <param_set name="ForceBound"> 
 
     <!--  Force bound nucleons in SuSAv2 implementation -->
     <param type="bool" name="QEL-ForceBound"> true </param>
 
   </param_set>
-
 
   <param_set name="FixEb"> 
 

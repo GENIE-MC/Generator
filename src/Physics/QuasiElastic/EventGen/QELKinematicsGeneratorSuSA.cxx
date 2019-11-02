@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -67,6 +67,14 @@ QELKinematicsGeneratorSuSA::~QELKinematicsGeneratorSuSA()
 //___________________________________________________________________________
 void QELKinematicsGeneratorSuSA::ProcessEventRecord(GHepRecord * event) const
 {
+  // If we're working with a free nucleon target, then the SuSAv2 calculation
+  // isn't set up to handle it. In these cases, we delegate the work to another
+  // EventRecordVisitorI object (likely QELEventGenerator) configured to run as
+  // a sub-algorithm.
+  if ( !event->Summary()->InitState().Tgt().IsNucleus() ) {
+    return fFreeNucleonEventGenerator->ProcessEventRecord( event );
+  }
+
   //-- Access cross section algorithm for running thread
   RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
   const EventGeneratorI * evg = rtinfo->RunningThread();
@@ -82,7 +90,6 @@ void QELKinematicsGeneratorSuSA::ProcessEventRecord(GHepRecord * event) const
 //___________________________________________________________________________
 void QELKinematicsGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
 {
-
 
   // -- Event Properties -----------------------------//
   Interaction * interaction = event->Summary();
@@ -578,8 +585,14 @@ void QELKinematicsGeneratorSuSA::LoadConfig(void)
 {
     fNuclModel = 0;
     RgKey nuclkey = "NuclearModel";
-    fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
-    assert(fNuclModel);
+    fNuclModel = dynamic_cast<const NuclearModelI *> ( this->SubAlg(nuclkey) );
+    assert( fNuclModel );
+
+    // Sub-algorithm for generating events on free nucleon targets
+    // (not handled by the SuSAv2 calculation)
+    fFreeNucleonEventGenerator = dynamic_cast<const EventRecordVisitorI* >(
+      this->SubAlg("FreeNucleonEventGenerator") );
+    assert( fFreeNucleonEventGenerator );
 
     //-- Maximum q3 in input hadron tensors
     GetParam( "QEL-Q3Max", fQ3Max ) ;
@@ -607,7 +620,7 @@ void QELKinematicsGeneratorSuSA::LoadConfig(void)
     //-- Maximum allowed fractional cross section deviation from maxim cross
     //   section used in rejection method
     GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
-      assert(fMaxXSecDiffTolerance>=0);
+    assert( fMaxXSecDiffTolerance >= 0. );
 
     //-- Generate kinematics uniformly over allowed phase space and compute
     //   an event weight? NOT IMPLEMENTED FOR SUSA YET!
@@ -615,7 +628,7 @@ void QELKinematicsGeneratorSuSA::LoadConfig(void)
 }
 //____________________________________________________________________________
 double QELKinematicsGeneratorSuSA::ComputeMaxXSec(
-                                       const Interaction * interaction) const
+  const Interaction * interaction ) const
 {
 // Computes the maximum differential cross section in the requested phase
 // space. This method overloads KineGeneratorWithCache::ComputeMaxXSec
@@ -627,13 +640,9 @@ double QELKinematicsGeneratorSuSA::ComputeMaxXSec(
 
 //*********************
 
-
-
   int TgtPDG = interaction->InitState().TgtPdg();
   bool have_nucleus = (TgtPDG!=kPdgTgtFreeP);
-  if(!have_nucleus) return this->ComputeMaxXSec_elas(interaction);
-
-
+  if ( !have_nucleus ) return this->ComputeMaxXSec_elas(interaction);
 
   double max_xsec = 0.0;
 
@@ -718,7 +727,7 @@ double QELKinematicsGeneratorSuSA::ComputeMaxXSec(
 }
 //___________________________________________________________________________
 double QELKinematicsGeneratorSuSA::ComputeMaxXSec_elas(
-                                       const Interaction * interaction) const
+  const Interaction * interaction) const
 {
   // Copied from QELKinematicsGenerator
 

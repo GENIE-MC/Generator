@@ -8,6 +8,9 @@
 \author   Stephen Dolan <stephen.joseph.dolan \at cern.ch>
           European Organization for Nuclear Research (CERN)
 
+          Steven Gardiner <gardiner \at fnal.gov>
+          Fermi National Accelerator Laboratory
+
 \cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
@@ -62,6 +65,10 @@ private:
   // Carbon removal energy - used for scaling
   double fEbC;
 
+  /// Delegate event generation for free nucleon targets (which are
+  /// not handled by the SuSAv2 calculation) to a different event
+  /// generator
+  const EventRecordVisitorI* fFreeNucleonEventGenerator;
 };
 
 }      // genie namespace
