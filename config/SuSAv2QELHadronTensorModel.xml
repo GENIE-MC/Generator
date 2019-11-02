@@ -18,6 +18,8 @@ DataPathType       string   Yes        Whether the specified path is    relative
 
   <param_set name="Default">
 
+    <param type="bool" name="WarnIfMissing"> false </param>
+
     <param type="string" name="DataPath"> data/evgen/hadron_tensors/susav2 </param>
     <param type="string" name="DataPathType"> relative </param>
     <!-- Paths can be absolute or relative to the $GENIE folder -->

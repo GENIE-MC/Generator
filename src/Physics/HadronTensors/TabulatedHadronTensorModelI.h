@@ -72,6 +72,10 @@ protected:
     }
   };
 
+  /// If true, logging messages will be issued when a requested hadron tensor
+  /// file cannot be found
+  bool fWarnIfMissing;
+
   /// Cache of hadron tensor objects that have been fully loaded into memory
   ///
   /// Keys are tensor IDs, values are pointers to hadron tensor objects

@@ -117,6 +117,8 @@ void genie::TabulatedHadronTensorModelI::Configure(std::string config)
 //____________________________________________________________________________
 void genie::TabulatedHadronTensorModelI::LoadConfig(void)
 {
+  GetParamDef( "WarnIfMissing", fWarnIfMissing, true );
+
   // Either a data path relative to the root GENIE folder
   // or an absolute path can be used. Find out which
   // option was chosen.
@@ -135,7 +137,6 @@ void genie::TabulatedHadronTensorModelI::LoadConfig(void)
   }
 
   fDataPaths.push_back( data_path );
-
 }
 
 //____________________________________________________________________________
@@ -161,7 +162,7 @@ const genie::HadronTensorI* genie::TabulatedHadronTensorModelI::GetTensor(
   // If not, try to create it
   const HadronTensorI* ht = this->BuildTensor( temp_id );
 
-  if ( !ht ) {
+  if ( !ht && fWarnIfMissing ) {
     LOG("TabulatedHadronTensorModelI", pWARN) << "Unable to create a hadron tensor"
       << " for target pdg = " << temp_id.target_pdg
       << " and hadron tensor type " << temp_id.type;
@@ -218,7 +219,7 @@ const genie::HadronTensorI* genie::TabulatedHadronTensorModelI::BuildTensor(
     return temp_ptr;
   }
 
-  else {
+  else if ( fWarnIfMissing ) {
     LOG("TabulatedHadronTensorModelI", pERROR) << "The hadron tensor data file \""
       << full_file_name << "\" requested for target pdg = "
       << tensor_id.target_pdg << " and hadron tensor type "
@@ -243,7 +244,7 @@ std::string genie::TabulatedHadronTensorModelI::GetTensorFileBasename(
     + tgt_string;
 
   std::string basename;
-  GetParam( key, basename );
+  GetParamDef( key, basename, std::string("TENSOR_FILE_NOT_FOUND") );
 
   return basename;
 }
