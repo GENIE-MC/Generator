@@ -65,7 +65,7 @@ system("echo     >> $BLD_ENV_LOG");
 #system("echo     >> $BLD_ENV_LOG");
 system("df       >> $BLD_ENV_LOG");
 system("echo     >> $BLD_ENV_LOG");
-#system("quota -v >> $BLD_ENV_LOG");
+system("quota -v >> $BLD_ENV_LOG");
 
 
 

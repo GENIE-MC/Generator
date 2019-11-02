@@ -24,8 +24,7 @@ RFG-MomentumCutOff         double   No         FG model momentum cut off value  
   <param_set name="Default"> 
 
     <param type="bool"   name="UseRFGRemovalE">       false </param> 
-    <param type="bool"   name="UseRFGMomentumCutoff"> false  </param> 
-   <!-- Default was: <param type="bool"   name="UseRFGMomentumCutoff"> true  </param>  -->
+    <param type="bool"   name="UseRFGMomentumCutoff"> true  </param> 
 
     <param type="string" name="CommonParam"> FermiGas </param>
 

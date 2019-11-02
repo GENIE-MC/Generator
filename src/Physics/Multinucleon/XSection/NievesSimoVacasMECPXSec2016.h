@@ -13,8 +13,8 @@
 
           Substantial code refactorizations by the core GENIE group.
 
-          Refactored in 2018 by S. Gardiner to use the new HadronTensorI and
-          HadronTensorPool classes
+          Refactored in 2018 by S. Gardiner to use the new hadron tensor
+          framework
 
 \ref      J. Nieves, I. Ruiz Simo, M.J. Vicente Vacas,
           Inclusive quasi-elastic neutrino reactions, PRC 83 (2011) 045501

@@ -71,8 +71,6 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * evrec) const
      bool in_fin_state = (p->Status() == kIStStableFinalState);
      bool had_bind_e   = (p->RemovalEnergy() > 0.);
 
-     if(is_nucleon && in_fin_state) LOG("Nuclear", pINFO) << "Binding energy = " << p->RemovalEnergy();
-
      bool handle = is_nucleon && in_fin_state && had_bind_e;
      if(!handle) continue;
 
