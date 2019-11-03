@@ -328,6 +328,16 @@ University of Liverpool
 
   </param_set>
 
+  <param_set name="KNO2Pythia">
+    <!--
+
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Invariant mass window for the transition from KNO model to PYTHIA
+    -->
+
+    <param type="double" name="KNO2PYTHIA-Wmin">  2.30 </param>
+    <param type="double" name="KNO2PYTHIA-Wmax">  3.00 </param>
+  </param_set>
 
   <param_set name="Validation">
     <!-- 
