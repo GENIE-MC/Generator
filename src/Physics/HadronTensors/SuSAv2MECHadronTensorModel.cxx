@@ -15,7 +15,7 @@
 // GENIE includes
 #include "Physics/HadronTensors/SuSAv2MECHadronTensorModel.h"
 #include "Physics/HadronTensors/TabulatedHadronTensorModelI.h"
-#include "Physics/HadronTensors/TabulatedValenciaHadronTensor.h"
+#include "Physics/HadronTensors/TabulatedLabFrameHadronTensor.h"
 
 //____________________________________________________________________________
 genie::SuSAv2MECHadronTensorModel::SuSAv2MECHadronTensorModel()
@@ -41,5 +41,5 @@ genie::SuSAv2MECHadronTensorModel::~SuSAv2MECHadronTensorModel()
 genie::HadronTensorI* genie::SuSAv2MECHadronTensorModel::ParseTensorFile(
   const std::string& full_file_name) const
 {
-  return new TabulatedValenciaHadronTensor( full_file_name );
+  return new TabulatedLabFrameHadronTensor( full_file_name );
 }

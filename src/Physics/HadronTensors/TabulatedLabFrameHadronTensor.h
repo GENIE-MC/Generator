@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::TabulatedValenciaHadronTensor
+\class    genie::TabulatedLabFrameHadronTensor
 
 \brief    Computes the elements and structure functions of the hadron
           tensor \f$W^{\mu\nu}\f$ (using the conventions of the Valencia model)
@@ -27,16 +27,16 @@
 
 // GENIE includes
 #include "Framework/Numerical/BLI2DNonUnifObjectGrid.h"
-#include "Physics/HadronTensors/ValenciaHadronTensorI.h"
+#include "Physics/HadronTensors/LabFrameHadronTensorI.h"
 
 namespace genie {
 
-class TabulatedValenciaHadronTensor : public ValenciaHadronTensorI {
+class TabulatedLabFrameHadronTensor : public LabFrameHadronTensorI {
 
   public:
 
-  TabulatedValenciaHadronTensor(const std::string& table_file_name);
-  virtual ~TabulatedValenciaHadronTensor();
+  TabulatedLabFrameHadronTensor(const std::string& table_file_name);
+  virtual ~TabulatedLabFrameHadronTensor();
 
   // \todo Enable override specifiers when GENIE modernizes to C++11
 
@@ -206,7 +206,7 @@ class TabulatedValenciaHadronTensor : public ValenciaHadronTensorI {
 
   BLI2DNonUnifObjectGrid<TableEntry> fGrid;
 
-}; // class TabulatedValenciaHadronTensor
+}; // class TabulatedLabFrameHadronTensor
 
 }  // genie namespace
 #endif

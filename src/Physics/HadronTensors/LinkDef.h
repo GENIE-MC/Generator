@@ -7,8 +7,8 @@
 #pragma link C++ namespace genie;
 
 #pragma link C++ class genie::HadronTensorI;
-#pragma link C++ class genie::ValenciaHadronTensorI;
-#pragma link C++ class genie::TabulatedValenciaHadronTensor;
+#pragma link C++ class genie::LabFrameHadronTensorI;
+#pragma link C++ class genie::TabulatedLabFrameHadronTensor;
 
 #pragma link C++ class genie::HadronTensorModelI;
 #pragma link C++ class genie::TabulatedHadronTensorModelI;

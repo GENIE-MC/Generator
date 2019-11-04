@@ -15,7 +15,7 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
-#include "Physics/HadronTensors/ValenciaHadronTensorI.h"
+#include "Physics/HadronTensors/LabFrameHadronTensorI.h"
 #include "Physics/HadronTensors/SuSAv2QELHadronTensorModel.h"
 #include "Physics/QuasiElastic/XSection/SuSAv2QELPXSec.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
@@ -112,8 +112,8 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   // The SuSAv2-1p1h hadron tensors are defined using the same conventions
   // as the Valencia MEC (and SuSAv2-MEC) model, so we can use the same sort of tensor
   // object to describe them.
-  const ValenciaHadronTensorI* tensor
-    = dynamic_cast<const ValenciaHadronTensorI*>( fHadronTensorModel->GetTensor(tensor_pdg,
+  const LabFrameHadronTensorI* tensor
+    = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(tensor_pdg,
     tensor_type) );
 
   // If retrieving the tensor failed, complain and return zero

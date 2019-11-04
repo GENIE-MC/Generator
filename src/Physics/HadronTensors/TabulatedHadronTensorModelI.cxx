@@ -20,7 +20,7 @@
 // GENIE includes
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/HadronTensors/TabulatedHadronTensorModelI.h"
-#include "Physics/HadronTensors/TabulatedValenciaHadronTensor.h"
+#include "Physics/HadronTensors/TabulatedLabFrameHadronTensor.h"
 #include "Physics/HadronTensors/HadronTensorI.h"
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Utils/XmlParserUtils.h"
@@ -157,7 +157,7 @@ const genie::HadronTensorI* genie::TabulatedHadronTensorModelI::GetTensor(
 
   // First check to see if the hadron tensor object already exists in memory.
   // If it does, return the existing object.
-  if ( fTensors.count(temp_id) ) return fTensors.at(temp_id);
+  if ( fTensors.count(temp_id) ) return fTensors.find(temp_id)->second;
 
   // If not, try to create it
   const HadronTensorI* ht = this->BuildTensor( temp_id );

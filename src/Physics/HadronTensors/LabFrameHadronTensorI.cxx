@@ -6,9 +6,9 @@
 #include "Framework/Conventions/Units.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/HadronTensors/ValenciaHadronTensorI.h"
+#include "Physics/HadronTensors/LabFrameHadronTensorI.h"
 
-double genie::ValenciaHadronTensorI::contraction(
+double genie::LabFrameHadronTensorI::contraction(
   const Interaction* interaction, double Q_value) const
 {
   // Don't do anything if you've been handed a nullptr
@@ -24,7 +24,7 @@ double genie::ValenciaHadronTensorI::contraction(
   return contraction(probe_pdg, E_probe, m_probe, Tl, cos_l, ml, Q_value);
 }
 
-double genie::ValenciaHadronTensorI::contraction(int probe_pdg, double E_probe,
+double genie::LabFrameHadronTensorI::contraction(int probe_pdg, double E_probe,
   double m_probe, double Tl, double cos_l, double ml, double Q_value) const
 {
   // Final state lepton total energy

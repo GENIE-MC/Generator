@@ -20,7 +20,7 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Conventions/Units.h"
-#include "Physics/HadronTensors/ValenciaHadronTensorI.h"
+#include "Physics/HadronTensors/LabFrameHadronTensorI.h"
 #include "Physics/HadronTensors/HadronTensorI.h"
 
 using namespace genie;
@@ -266,8 +266,8 @@ double genie::utils::mec::OldTensorContraction(
       = dynamic_cast<const genie::HadronTensorModelI*>(
       genie::AlgFactory::Instance()->GetAlgorithm( tensor_model, "Default" ));
 
-    const ValenciaHadronTensorI* tensor_table
-      = dynamic_cast<const ValenciaHadronTensorI*>( ht_model->GetTensor(targetpdg,
+    const LabFrameHadronTensorI* tensor_table
+      = dynamic_cast<const LabFrameHadronTensorI*>( ht_model->GetTensor(targetpdg,
       tensor_type) );
 
     double W00 = (tensor_table->tt(q0nucleus,q3)).real();

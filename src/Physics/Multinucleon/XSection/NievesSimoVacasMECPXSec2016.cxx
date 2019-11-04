@@ -17,7 +17,7 @@
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Physics/HadronTensors/NievesMECHadronTensorModel.h"
-#include "Physics/HadronTensors/ValenciaHadronTensorI.h"
+#include "Physics/HadronTensors/LabFrameHadronTensorI.h"
 #include "Physics/Multinucleon/XSection/NievesSimoVacasMECPXSec2016.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
@@ -141,8 +141,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
 
   genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
 
-  const ValenciaHadronTensorI* tensor
-    = dynamic_cast<const ValenciaHadronTensorI*>(
+  const LabFrameHadronTensorI* tensor
+    = dynamic_cast<const LabFrameHadronTensorI*>(
     fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_FullAll) );
 
   // If retrieving the tensor failed, complain and return zero
@@ -182,8 +182,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
   double xsec_pn  = 0.;
   if ( delta ) {
 
-    const ValenciaHadronTensorI* tensor_delta_all
-      = dynamic_cast<const ValenciaHadronTensorI*>(
+    const LabFrameHadronTensorI* tensor_delta_all
+      = dynamic_cast<const LabFrameHadronTensorI*>(
       fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_DeltaAll) );
 
     if ( !tensor_delta_all ) {
@@ -192,8 +192,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
       return 0.;
     }
 
-    const ValenciaHadronTensorI* tensor_delta_pn
-      = dynamic_cast<const ValenciaHadronTensorI*>(
+    const LabFrameHadronTensorI* tensor_delta_pn
+      = dynamic_cast<const LabFrameHadronTensorI*>(
       fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_Deltapn) );
 
     if ( !tensor_delta_pn ) {
@@ -208,8 +208,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
   }
   else {
 
-    const ValenciaHadronTensorI* tensor_full_all
-      = dynamic_cast<const ValenciaHadronTensorI*>(
+    const LabFrameHadronTensorI* tensor_full_all
+      = dynamic_cast<const LabFrameHadronTensorI*>(
       fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_FullAll) );
 
     if ( !tensor_full_all ) {
@@ -218,8 +218,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
       return 0.;
     }
 
-    const ValenciaHadronTensorI* tensor_full_pn
-      = dynamic_cast<const ValenciaHadronTensorI*>(
+    const LabFrameHadronTensorI* tensor_full_pn
+      = dynamic_cast<const LabFrameHadronTensorI*>(
       fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_Fullpn) );
 
     if ( !tensor_full_pn ) {

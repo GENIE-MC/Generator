@@ -15,7 +15,7 @@
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Physics/HadronTensors/SuSAv2MECHadronTensorModel.h"
-#include "Physics/HadronTensors/ValenciaHadronTensorI.h"
+#include "Physics/HadronTensors/LabFrameHadronTensorI.h"
 #include "Physics/Multinucleon/XSection/SuSAv2MECPXSec.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
@@ -118,8 +118,8 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   // The SuSAv2-MEC hadron tensors are defined using the same conventions
   // as the Valencia MEC model, so we can use the same sort of tensor
   // object to describe them.
-  const ValenciaHadronTensorI* tensor
-    = dynamic_cast<const ValenciaHadronTensorI*>( fHadronTensorModel->GetTensor(tensor_pdg,
+  const LabFrameHadronTensorI* tensor
+    = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(tensor_pdg,
     tensor_type) );
 
   /// \todo add the different pair configurations for e-scattering
@@ -225,12 +225,12 @@ double SuSAv2MECPXSec::PairRatio(const Interaction* interaction) const
   // The SuSAv2-MEC hadron tensors are defined using the same conventions
   // as the Valencia MEC model, so we can use the same sort of tensor
   // object to describe them.
-  const ValenciaHadronTensorI* tensor
-    = dynamic_cast<const ValenciaHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
+  const LabFrameHadronTensorI* tensor
+    = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
     tensor_type) );
 
-  const ValenciaHadronTensorI* tensor_pn
-    = dynamic_cast<const ValenciaHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
+  const LabFrameHadronTensorI* tensor_pn
+    = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
     pn_tensor_type) );
 
 

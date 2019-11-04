@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::ValenciaHadronTensorI
+\class    genie::LabFrameHadronTensorI
 
 \brief    Abstract interface for an object that computes the elements
           (\f$W^{xx}\f$, \f$W^{0z}\f$, etc.) and structure functions
@@ -71,11 +71,11 @@
 
 namespace genie {
 
-class ValenciaHadronTensorI : public HadronTensorI {
+class LabFrameHadronTensorI : public HadronTensorI {
 
 public:
 
-  inline virtual ~ValenciaHadronTensorI() {}
+  inline virtual ~LabFrameHadronTensorI() {}
 
   /// \name Tensor elements
   /// \brief Functions that return the elements of the tensor. Since it is
@@ -223,11 +223,11 @@ public:
 
 protected:
 
-  inline ValenciaHadronTensorI(int pdg = 0) : HadronTensorI(pdg) {}
+  inline LabFrameHadronTensorI(int pdg = 0) : HadronTensorI(pdg) {}
 
-  inline ValenciaHadronTensorI(int Z, int A) : HadronTensorI(Z, A) {}
+  inline LabFrameHadronTensorI(int Z, int A) : HadronTensorI(Z, A) {}
 
-}; // class ValenciaHadronTensorI
+}; // class LabFrameHadronTensorI
 
 } // genie namespace
 #endif
