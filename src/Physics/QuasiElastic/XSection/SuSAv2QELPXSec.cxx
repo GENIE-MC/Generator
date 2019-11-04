@@ -153,9 +153,28 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   double xsec = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value);
   LOG("SuSAv2QE", pDEBUG) << "XSec in cm2 / neutron is  " << xsec/(units::cm2);
 
-  // Currently the hadron tensors are per neutron, but the calculation above
-  // assumes they are per atom. Need to adjust for this
-  xsec *= interaction->InitState().Tgt().Z();
+  // Currently the hadron tensors are per active nucleon, but the calculation above
+  // assumes they are per atom. Need to adjust for this.
+  const ProcessInfo& proc_info = interaction->ProcInfo();
+  if ( proc_info.IsWeakCC() ) {
+    if ( pdg::IsNeutrino(probe_pdg) ) xsec *= interaction->InitState().Tgt().N();
+    else if ( pdg::IsAntiNeutrino(probe_pdg) ) xsec *= interaction->InitState().Tgt().Z();
+    else {
+      // We should never get here if ValidProcess() is working correctly
+      LOG("SuSAv2QE", pERROR) << "Unrecognized probe " << probe_pdg
+        << " encountered for a WeakCC process";
+      xsec = 0.;
+    }
+  }
+  else if ( proc_info.IsEM() ) xsec *= interaction->InitState().Tgt().A();
+  else if ( proc_info.IsWeakNC() ) xsec *= interaction->InitState().Tgt().A();
+  else {
+    // We should never get here if ValidProcess() is working correctly
+    LOG("SuSAv2QE", pERROR) << "Unrecognized process " << proc_info.AsString()
+      << " encountered in SuSAv2QELPXSec::XSec()";
+    xsec = 0.;
+  }
+
   LOG("SuSAv2QE", pDEBUG) << "XSec in cm2 / atom is  " << xsec/(units::cm2);
 
   // This scaling should be okay-ish for the total xsec, but it misses
