@@ -35,13 +35,6 @@ ifeq ($(strip $(GOPT_ENABLE_INCL)),YES)
   EXTRA_EXT_LIBS         += $(INCL_LIBRARIES)
 else
   $(info $(PACKAGE) not build against INCL++)
-  # remove INCL++ related files from things to build
-### ! can't do it this way because of the way Make.std-package-targets works
-### ! has already used PACKAGE_SOURCE/OBJECTS to define how library is built
-##  # VAR := $(filter-out A B C,$(VAR))
-##  INCL_SOURCES = HINCLCascade.cxx INCLCascade.cxx INCLInterfacetoGENIE.cxx
-##  PACKAGE_SOURCES := $(filter-out $(INCL_SOURCES), $(PACKAGE_SOURCES))
-##  PACKAGE_OBJECTS  = $(addsuffix .$(ObjSuf), $(basename $(PACKAGE_SOURCES)))
 endif
 
 ifeq ($(strip $(GOPT_ENABLE_GEANT4_INTERFACE)),YES)
