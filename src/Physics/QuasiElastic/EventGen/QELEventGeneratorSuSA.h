@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::QELKinematicsGeneratorSuSA
+\class    genie::QELEventGeneratorSuSA
 
 \brief    Event generator for SuSAv2 1p1h interactions
 
@@ -29,12 +29,12 @@
 
 namespace genie {
 
-class QELKinematicsGeneratorSuSA : public KineGeneratorWithCache {
+class QELEventGeneratorSuSA : public KineGeneratorWithCache {
 
 public :
-  QELKinematicsGeneratorSuSA();
-  QELKinematicsGeneratorSuSA(string config);
- ~QELKinematicsGeneratorSuSA();
+  QELEventGeneratorSuSA();
+  QELEventGeneratorSuSA(string config);
+ ~QELEventGeneratorSuSA();
 
   // implement the EventRecordVisitorI interface
   void ProcessEventRecord (GHepRecord * event) const;

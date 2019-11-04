@@ -29,7 +29,7 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGCodes.h"
-#include "Physics/QuasiElastic/EventGen/QELKinematicsGeneratorSuSA.h"
+#include "Physics/QuasiElastic/EventGen/QELEventGeneratorSuSA.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
 
 #include "Physics/NuclearState/NuclearModelI.h"
@@ -48,24 +48,24 @@ namespace { // anonymous namespace (file only visibility)
   const double eps = std::numeric_limits<double>::epsilon();
 }
 //___________________________________________________________________________
-QELKinematicsGeneratorSuSA::QELKinematicsGeneratorSuSA() :
-KineGeneratorWithCache("genie::QELKinematicsGeneratorSuSA")
+QELEventGeneratorSuSA::QELEventGeneratorSuSA() :
+KineGeneratorWithCache("genie::QELEventGeneratorSuSA")
 {
 
 }
 //___________________________________________________________________________
-QELKinematicsGeneratorSuSA::QELKinematicsGeneratorSuSA(string config) :
-KineGeneratorWithCache("genie::QELKinematicsGeneratorSuSA", config)
+QELEventGeneratorSuSA::QELEventGeneratorSuSA(string config) :
+KineGeneratorWithCache("genie::QELEventGeneratorSuSA", config)
 {
 
 }
 //___________________________________________________________________________
-QELKinematicsGeneratorSuSA::~QELKinematicsGeneratorSuSA()
+QELEventGeneratorSuSA::~QELEventGeneratorSuSA()
 {
 
 }
 //___________________________________________________________________________
-void QELKinematicsGeneratorSuSA::ProcessEventRecord(GHepRecord * event) const
+void QELEventGeneratorSuSA::ProcessEventRecord(GHepRecord * event) const
 {
   // If we're working with a free nucleon target, then the SuSAv2 calculation
   // isn't set up to handle it. In these cases, we delegate the work to another
@@ -88,7 +88,7 @@ void QELKinematicsGeneratorSuSA::ProcessEventRecord(GHepRecord * event) const
   //event->Print();
 }
 //___________________________________________________________________________
-void QELKinematicsGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
+void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
 {
 
   // -- Event Properties -----------------------------//
@@ -274,7 +274,7 @@ void QELKinematicsGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) con
   LOG("QELEvent",pDEBUG) << "~~~ LEPTON DONE ~~~";
 }
 //___________________________________________________________________________
-void QELKinematicsGeneratorSuSA::AddTargetNucleusRemnant(GHepRecord * event) const
+void QELEventGeneratorSuSA::AddTargetNucleusRemnant(GHepRecord * event) const
 {
     // add the remnant nuclear target at the GHEP record
 
@@ -343,7 +343,7 @@ void QELKinematicsGeneratorSuSA::AddTargetNucleusRemnant(GHepRecord * event) con
     LOG("QELEvent", pINFO) << *event;
 }
 //___________________________________________________________________________
-void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
+void QELEventGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
 {
     // We need a kinematic limits accept/reject loop here, so generating the
     // initial hadrons is combined with generating the recoil hadrons...
@@ -569,19 +569,19 @@ void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
 
 }
 //___________________________________________________________________________
-void QELKinematicsGeneratorSuSA::Configure(const Registry & config)
+void QELEventGeneratorSuSA::Configure(const Registry & config)
 {
     Algorithm::Configure(config);
     this->LoadConfig();
 }
 //___________________________________________________________________________
-void QELKinematicsGeneratorSuSA::Configure(string config)
+void QELEventGeneratorSuSA::Configure(string config)
 {
     Algorithm::Configure(config);
     this->LoadConfig();
 }
 //___________________________________________________________________________
-void QELKinematicsGeneratorSuSA::LoadConfig(void)
+void QELEventGeneratorSuSA::LoadConfig(void)
 {
     fNuclModel = 0;
     RgKey nuclkey = "NuclearModel";
@@ -627,7 +627,7 @@ void QELKinematicsGeneratorSuSA::LoadConfig(void)
     GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false ) ;
 }
 //____________________________________________________________________________
-double QELKinematicsGeneratorSuSA::ComputeMaxXSec(
+double QELEventGeneratorSuSA::ComputeMaxXSec(
   const Interaction * interaction ) const
 {
 // Computes the maximum differential cross section in the requested phase
@@ -726,12 +726,12 @@ double QELKinematicsGeneratorSuSA::ComputeMaxXSec(
 
 }
 //___________________________________________________________________________
-double QELKinematicsGeneratorSuSA::ComputeMaxXSec_elas(
+double QELEventGeneratorSuSA::ComputeMaxXSec_elas(
   const Interaction * interaction) const
 {
   // Copied from QELKinematicsGenerator
 
-  LOG("QELKinematics", pDEBUG)  << "Running QELKinematicsGeneratorSuSA::ComputeMaxXSec_elas" ;
+  LOG("QELKinematics", pDEBUG)  << "Running QELEventGeneratorSuSA::ComputeMaxXSec_elas" ;
 
   double max_xsec = 0.0;
 

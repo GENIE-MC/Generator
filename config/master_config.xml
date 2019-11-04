@@ -57,7 +57,7 @@
    <config alg="genie::MECGenerator">                    MECGenerator.xml                    </config>
    <config alg="genie::GLRESGenerator">                  GLRESGenerator.xml                  </config>
    <config alg="genie::CEvNSEventGenerator">             CEvNSEventGenerator.xml             </config>
-   <config alg="genie::QELKinematicsGeneratorSuSA">      QELKinematicsGeneratorSuSA.xml      </config>
+   <config alg="genie::QELEventGeneratorSuSA">           QELEventGeneratorSuSA.xml           </config>
    <config alg="genie::NucleonDecayPrimaryVtxGenerator"> NucleonDecayPrimaryVtxGenerator.xml </config>
    <config alg="genie::NNBarOscPrimaryVtxGenerator">     NNBarOscPrimaryVtxGenerator.xml     </config>
    <config alg="genie::NHLPrimaryVtxGenerator">          NHLPrimaryVtxGenerator.xml          </config>
