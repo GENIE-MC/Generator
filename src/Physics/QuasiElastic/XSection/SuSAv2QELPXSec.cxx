@@ -42,11 +42,7 @@ SuSAv2QELPXSec::~SuSAv2QELPXSec()
 double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   KinePhaseSpace_t kps) const
 {
-  // For free nucleon targets, delegate calculation of the cross section
-  // to an alternate model that can handle them
-  if ( !interaction->InitState().Tgt().IsNucleus() ) {
-    return fFreeNucleonXSecAlg->XSec( interaction, kps );
-  }
+  if ( !this->ValidProcess(interaction) ) return 0.;
 
   // Get the hadron tensor for the selected nuclide. Check the probe PDG code
   // to know whether to use the tensor for CC neutrino scattering or for
@@ -208,14 +204,6 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 //_________________________________________________________________________
 double SuSAv2QELPXSec::Integral(const Interaction* interaction) const
 {
-  // If we're working with a free nucleon target, then delegate spline
-  // integration to the alternate model
-  if ( !interaction->InitState().Tgt().IsNucleus() ) {
-    return fFreeNucleonXSecAlg->Integral( interaction );
-  }
-
-  // Otherwise, integrate the SuSAv2 differential cross section in the normal
-  // way
   double xsec = fXSecIntegrator->Integrate(this, interaction);
   return xsec;
 }
@@ -228,6 +216,10 @@ bool SuSAv2QELPXSec::ValidProcess(const Interaction* interaction) const
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
   if ( !proc_info.IsQuasiElastic() ) return false;
+
+  // The SuSAv2 calculation is only appropriate for complex nuclear targets,
+  // not free nucleons.
+  if ( !init_state.Tgt().IsNucleus() ) return false;
 
   int  nuc = init_state.Tgt().HitNucPdg();
   int  nu  = init_state.ProbePdg();
@@ -264,13 +256,7 @@ void SuSAv2QELPXSec::LoadConfig(void)
     this->SubAlg("HadronTensorAlg") );
   assert( fHadronTensorModel );
 
-  // The SuSAv2 calculation doesn't handle free nucleon targets, so we delegate
-  // that calculation to a different model
-  fFreeNucleonXSecAlg = dynamic_cast< const XSecAlgorithmI* >(
-    this->SubAlg("FreeNucleonXSecAlg") );
-  assert( fFreeNucleonXSecAlg );
-
-   // Load XSec Integrator
+  // Load XSec Integrator
   fXSecIntegrator = dynamic_cast<const XSecIntegratorI *>(
     this->SubAlg("XSec-Integrator") );
   assert( fXSecIntegrator );

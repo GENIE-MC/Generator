@@ -64,7 +64,7 @@ STFC, Rutherford Appleton Laboratory
   The parameter name is build as: "XSecModel@[name of thread]"
   -->
 
-  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::SuSAv2QELPXSec/Default         </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::HybridXSecAlgorithm/SuSAv2-QEL </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-NC">         genie::AhrensNCELPXSec/Default        </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-EM">         genie::RosenbluthPXSec/Default        </param>
 
