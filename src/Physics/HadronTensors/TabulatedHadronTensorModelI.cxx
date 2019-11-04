@@ -219,11 +219,18 @@ const genie::HadronTensorI* genie::TabulatedHadronTensorModelI::BuildTensor(
     return temp_ptr;
   }
 
-  else if ( fWarnIfMissing ) {
-    LOG("TabulatedHadronTensorModelI", pERROR) << "The hadron tensor data file \""
-      << full_file_name << "\" requested for target pdg = "
-      << tensor_id.target_pdg << " and hadron tensor type "
-      << tensor_id.type << " could not be found.";
+  else {
+    // If we couldn't make the hadron tensor, store a nullptr to avoid
+    // unsuccessful repeat attempts. These can otherwise slow things down
+    // for no good reason.
+    fTensors[tensor_id] = NULL;
+
+    if ( fWarnIfMissing ) {
+      LOG("TabulatedHadronTensorModelI", pERROR) << "The hadron tensor data file \""
+        << full_file_name << "\" requested for target pdg = "
+        << tensor_id.target_pdg << " and hadron tensor type "
+        << tensor_id.type << " could not be found.";
+    }
   }
 
   // If there was a problem, return a null pointer
