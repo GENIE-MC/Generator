@@ -1,10 +1,15 @@
 #include "TString.h" 
 #include "TFile.h"
+#include "TTree.h"
+#include "TH1.h"
+#include "TH2.h"
 
 #include "Framework/Ntuple/NtpMCTreeHeader.h" 
-#include "Framework/GHEP/EventRecord.h" 
+#include "Framework/Ntuple/NtpMCEventRecord.h" 
+#include "Framework/EventGen/EventRecord.h" 
 #include "Framework/ParticleData/BaryonResUtils.h"
 
+#include "Framework/GHEP/GHepParticle.h"       
 #include "Framework/ParticleData/PDGUtils.h"
 
 using namespace genie ;
@@ -19,15 +24,15 @@ int make_plots( TString file_name, TString flag ) {
   
   TFile in_file( file_name );
 
-  NtpMCTreeHeader * header = dynamic_cast<NtpMCTreeHeader*>( file.Get("header") );
+  //NtpMCTreeHeader * header = dynamic_cast<NtpMCTreeHeader*>( file.Get("header") );
 
   // Get the GENIE GHEP tree and set its branch address
-  TTree * tree = dynamic_cast<TTree*> ( file.Get("gtree") );
+  TTree * tree = dynamic_cast<TTree*> ( in_file.Get("gtree") );
   
   TH1D h_theta( "h_theta", flag + " #theta distribution", 100, 0., TMath::Pi() ) ;
   TH1D h_phi  ( "h_phi",   flag + " #varphi distribution", 100, 0., TMath::Pi() ) ;
   
-  TH1D h_tp( "h_theta_phi", flag + " (#theta, #varphi) distribution", 
+  TH2D h_tp( "h_theta_phi", flag + " (#theta, #varphi) distribution", 
 	     50, 0., TMath::Pi(),
 	     50, 0., TMath::Pi() ) ;
 
@@ -67,8 +72,8 @@ int make_plots( TString file_name, TString flag ) {
 
 	if ( n_d == 2 ) {
 
-	  GHepParticle * d1 = delta -> FirstDaughter() ;
-	  GHepParticle * d2 = delta -> LastDaughter() ;
+	  GHepParticle * d1 = event.Particle( delta -> FirstDaughter() ) ;
+	  GHepParticle * d2 = event.Particle( delta -> LastDaughter() ) ;
 
 	  if ( ( pdg::IsPion( d1 -> Pdg() )    || pdg::IsPion( d2 -> Pdg() ) ) && 
 	       ( pdg::IsNucleon( d1 -> Pdg() ) || pdg::IsNucleon( d2 -> Pdg() ) ) ) {
@@ -81,18 +86,18 @@ int make_plots( TString file_name, TString flag ) {
 	    TLorentzVector pion_mom = * ( pion -> P4() ) ;
 	    //TLorentzVector nucl_mom = * ( nucl -> P4() ) ;
 	    
-	    TLorentzVector in_lep_p4( * (event -> Probe()-> P4() ) ) ;
+	    TLorentzVector in_lep_p4( * (event.Probe()-> P4() ) ) ;
 	    
 	    in_lep_p4.Boost( - delta_mom.BoostVector() ) ;
 
-	    TLorentzVector out_lep_p4 = *( event -> FinalStatePrimaryLepton() -> P4() ) ;
+	    TLorentzVector out_lep_p4 = *( event.FinalStatePrimaryLepton() -> P4() ) ;
 	    out_lep_p4.Boost( - delta_mom.BoostVector() ) ;
 
 	    TLorentzVector q = in_lep_p4 - out_lep_p4 ;
 	    
 	    pion_mom.Boost( - delta_mom.BoostVector() );  // this gives us the pion in the Delta reference frame
 
-	    TVector3 pion_dir = pion.Vect().Unit() ;
+	    TVector3 pion_dir = pion_mom.Vect().Unit() ;
 	    TVector3 z_axis = q.Vect().Unit() ;
 
 	    TVector3 y_axis = in_lep_p4.Vect().Cross( out_lep_p4.Vect() ).Unit() ;
@@ -106,7 +111,7 @@ int make_plots( TString file_name, TString flag ) {
 	    
 	    h_theta.Fill( theta ) ;
 	    h_phi.Fill( phi ) ;
-	    h_theta_phi.Fill( theta, phi ) ;
+	    h_tp.Fill( theta, phi ) ;
 
 	  }  // if there is a pion and a nucleon
 
@@ -132,7 +137,7 @@ int make_plots( TString file_name, TString flag ) {
   
   h_theta.Write() ;
   h_phi.Write() ;
-  h_theta_phi.Write() ;
+  h_tp.Write() ;
 
   return tree -> GetEntries() ;
 
