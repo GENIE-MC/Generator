@@ -166,11 +166,7 @@ double KPhaseSpace::Threshold(void) const
     return TMath::Max(0.,Ethr);
   }
 
-<<<<<<< HEAD
   if(pi.IsNuElectronElastic() || pi.IsDarkMatterElectronElastic() || pi.IsGlashowResonance() ) {
-=======
-  if(pi.IsNuElectronElastic() || pi.IsGlashowResonance() ) {
->>>>>>> 951b40d20fe582d1672f2fde24bf4bc6d0b30cda
     return 0;
   }
   if(pi.IsAMNuGamma()) {
@@ -245,10 +241,7 @@ bool KPhaseSpace::IsAboveThreshold(void) const
       pi.IsInverseMuDecay()    ||
       pi.IsIMDAnnihilation()   ||
       pi.IsNuElectronElastic() ||
-<<<<<<< HEAD
       pi.IsDarkMatterElectronElastic() ||
-=======
->>>>>>> 951b40d20fe582d1672f2fde24bf4bc6d0b30cda
       pi.IsMEC())
   {
       E = init_state.ProbeE(kRfLab);

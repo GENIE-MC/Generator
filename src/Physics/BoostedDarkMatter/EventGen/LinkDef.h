@@ -6,6 +6,7 @@
 
 #pragma link C++ namespace genie;
 
+#pragma link C++ class genie::DMELEventGenerator;
 #pragma link C++ class genie::DMELInteractionListGenerator;
 #pragma link C++ class genie::DMELKinematicsGenerator;
 #pragma link C++ class genie::DMELOutgoingDarkGenerator;
