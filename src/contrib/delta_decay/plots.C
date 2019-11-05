@@ -11,11 +11,14 @@
 
 #include "Framework/GHEP/GHepParticle.h"       
 #include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/GHEP/GHepStatus.h"
 
 using namespace genie ;
 
 
 int FindDelta( const EventRecord & ) ;
+
+
 
 
 
@@ -141,4 +144,38 @@ int make_plots( TString file_name, TString flag ) {
 
   return tree -> GetEntries() ;
 
+}
+
+
+int FindDelta( const EventRecord & event ) {
+
+  TObjArrayIter iter(&event);
+  GHepParticle * p = 0;
+  GHepParticle * d = 0;
+  
+  int p_id = -1 ;
+  // loop over event particles
+  for((p = dynamic_cast<GHepParticle *>(iter.Next()))) {
+    
+    p_id ++ ; 
+  
+    int pdgc = p->Pdg();
+    int status = p->Status();
+
+    if( status != kIStDecayedState ) continue;
+
+    bool has_nucleon = false ; 
+    for ( unsigned int i = p -> FirstDaughter() ;
+	  i <= p -> LastDaugher() ; ++i ) {
+      
+      d = event.Particle( i ) ;
+      if ( pdg::IsNucleon( e -> Pdg() ) ) {
+	has_nucleon = true ;
+	break ;
+      }
+      
+    }
+
+    if ( has_nucleon ) return p_id ;
+    else return -1 ;
 }
