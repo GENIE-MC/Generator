@@ -16,26 +16,26 @@
 using namespace genie ;
 
 
-int FindDelta( const EventRecord & ) ;
+int FindDelta( const EventRecord & event ) ;
 
 
 
 
 
-int make_plots( TString file_name, TString flag ) {
+int make_plots( TString file_name, TString flag, TString dir ) {
 
   
-  TFile in_file( file_name );
+  TFile in_file( dir + '/' + file_name );
 
   //NtpMCTreeHeader * header = dynamic_cast<NtpMCTreeHeader*>( file.Get("header") );
 
   // Get the GENIE GHEP tree and set its branch address
   TTree * tree = dynamic_cast<TTree*> ( in_file.Get("gtree") );
   
-  TH1D h_theta( "h_theta", flag + " #theta distribution", 100, 0., TMath::Pi() ) ;
-  TH1D h_phi  ( "h_phi",   flag + " #varphi distribution", 100, 0., TMath::Pi() ) ;
+  TH1D h_theta( "h_theta", flag + " #theta distribution;#theta [rad]", 100, 0., TMath::Pi() ) ;
+  TH1D h_phi  ( "h_phi",   flag + " #varphi distribution;#varphi [rad]", 100, 0., TMath::Pi() ) ;
   
-  TH2D h_tp( "h_theta_phi", flag + " (#theta, #varphi) distribution", 
+  TH2D h_tp( "h_theta_phi", flag + " (#theta, #varphi) distribution;#theta [rad];#varphi [rad]", 
 	     50, 0., TMath::Pi(),
 	     50, 0., TMath::Pi() ) ;
 
@@ -65,8 +65,10 @@ int make_plots( TString file_name, TString flag ) {
 	int delta_pos = FindDelta( event ) ;
 
 	if ( delta_pos < 0 ) { 
-	  cerr << "found delta event with no delta" << std::endl ; 
-	  break ; 
+	  cerr << "found delta event with no delta" << std::endl ;
+	  cerr << "Event " << i << std::endl ;
+	  mcrec->Clear();
+	  continue  ; 
 	}
 
 	GHepParticle * delta = event.Particle( delta_pos ) ; 
@@ -155,7 +157,7 @@ int FindDelta( const EventRecord & event ) {
   
   int p_id = -1 ;
   // loop over event particles
-  for((p = dynamic_cast<GHepParticle *>(iter.Next()))) {
+  while( (p = dynamic_cast<GHepParticle *>(iter.Next())) ) {
     
     p_id ++ ; 
   
@@ -164,12 +166,14 @@ int FindDelta( const EventRecord & event ) {
 
     if( status != kIStDecayedState ) continue;
 
+    if ( ! utils::res::IsDelta( utils::res::FromPdgCode(pdgc) ) ) continue ;
+
     bool has_nucleon = false ; 
-    for ( unsigned int i = p -> FirstDaughter() ;
-	  i <= p -> LastDaugher() ; ++i ) {
+    for ( int i = p -> FirstDaughter() ;
+	  i <= p -> LastDaughter() ; ++i ) {
       
       d = event.Particle( i ) ;
-      if ( pdg::IsNucleon( e -> Pdg() ) ) {
+      if ( pdg::IsNucleon( d -> Pdg() ) ) {
 	has_nucleon = true ;
 	break ;
       }
@@ -177,5 +181,8 @@ int FindDelta( const EventRecord & event ) {
     }
 
     if ( has_nucleon ) return p_id ;
-    else return -1 ;
+     
+  }
+
+  return -1 ;
 }
