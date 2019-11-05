@@ -27,8 +27,6 @@
 
 namespace genie {
 
-class NuclearModelI;
-
 class SRCNuclearRecoil : public EventRecordVisitorI {
 
 public :
@@ -49,8 +47,6 @@ private:
   int SRCRecoilPDG(GHepParticle * nucleon, GHepParticle * nucleus, Target* tgt, double pF2) const; // determine the PDG code of the SRC pair
 
   void LoadConfig (void);
-
-  const NuclearModelI *  fNuclModel;   ///< nuclear model
 
   double fPPPairPercentage;
   double fPNPairPercentage;

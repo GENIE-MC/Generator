@@ -89,23 +89,7 @@ void SRCNuclearRecoil::ProcessEventRecord(GHepRecord * evrec) const
 
   if (eject_nucleon_pdg != 0) {
 
-    LOG("SRCNuclearRecoil", pINFO) << "Adding a recoil nucleon due to short range corelation";
-
-    GHepStatus_t status = kIStHadronInTheNucleus;
-    int imom = evrec->TargetNucleusPosition();
-
-    //-- Has opposite momentum from the struck nucleon
-    double vx = nucleon->Vx();
-    double vy = nucleon->Vy();
-    double vz = nucleon->Vz();
-    double px = -1.* nucleon->Px();
-    double py = -1.* nucleon->Py();
-    double pz = -1.* nucleon->Pz();
-    double M    = PDGLibrary::Instance()->Find(eject_nucleon_pdg)->Mass();
-    double E    = TMath::Sqrt(px*px+py*py+pz*pz+M*M);
-
-    evrec->AddParticle(
-        eject_nucleon_pdg, status, imom, -1, -1, -1, px, py, pz, E, vx, vy, vz, 0);
+    EmitSecondNucleon(evrec,eject_nucleon_pdg);
 
   }
 

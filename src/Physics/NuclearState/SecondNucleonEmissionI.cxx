@@ -68,7 +68,7 @@ SecondNucleonEmissionI::~SecondNucleonEmissionI()
 //___________________________________________________________________________
 bool SecondNucleonEmissionI::EmitSecondNucleon( GHepRecord * evrec, const int eject_nucleon_pdg ) const {
 
-	LOG("SecondNucleonEmissionI", pINFO) << "Adding a recoil nucleon with PDG " << eject_nucleon_pdg ;
+  LOG("SecondNucleonEmissionI", pINFO) << "Adding a recoil nucleon with PDG " << eject_nucleon_pdg ;
 
   GHepParticle * nucleon = evrec->HitNucleon();
 
@@ -82,10 +82,10 @@ bool SecondNucleonEmissionI::EmitSecondNucleon( GHepRecord * evrec, const int ej
   double px = -1.* nucleon->Px();
   double py = -1.* nucleon->Py();
   double pz = -1.* nucleon->Pz();
-  double M  = PDGLibrary::Instance()->Find(eject_pdg_code)->Mass();
+  double M  = PDGLibrary::Instance()->Find(eject_nucleon_pdg)->Mass();
   double E  = TMath::Sqrt(px*px+py*py+pz*pz+M*M);
 
-  evrec->AddParticle( eject_pdg_code, status, imom, -1, -1, -1, px, py, pz, E, vx, vy, vz, 0 );
+  evrec->AddParticle( eject_nucleon_pdg, status, imom, -1, -1, -1, px, py, pz, E, vx, vy, vz, 0 );
 
 }
 

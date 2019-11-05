@@ -28,11 +28,13 @@
 
 namespace genie {
 
+class NuclearModelI;
+
 class SecondNucleonEmissionI : public EventRecordVisitorI {
 
 public :
 
- ~SRCNuclearRecoil();
+  virtual ~SecondNucleonEmissionI();
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
@@ -43,14 +45,14 @@ protected:
 
   virtual bool EmitSecondNucleon( GHepRecord * evrec, const int eject_nucleon_pdg ) const ;
 
+  const NuclearModelI *  fNuclModel;   ///< nuclear model
+
 private:
 
   SecondNucleonEmissionI();
   SecondNucleonEmissionI(string config);
 
   void LoadConfig (void);
-
-  const NuclearModelI *  fNuclModel;   ///< nuclear model
 
 };
 
