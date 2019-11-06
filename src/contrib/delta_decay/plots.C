@@ -31,7 +31,8 @@ int make_plots( TString file_name, TString flag, TString dir ) {
 
   // Get the GENIE GHEP tree and set its branch address
   TTree * tree = dynamic_cast<TTree*> ( in_file.Get("gtree") );
-  
+
+  TH1D h_ct( "h_cos_theta", flag + " cos(#theta) distribution;Cos(#theta)", 80, 0., 1. ) ;
   TH1D h_theta( "h_theta", flag + " #theta distribution;#theta [rad]", 100, 0., TMath::Pi() ) ;
   TH1D h_phi  ( "h_phi",   flag + " #varphi distribution;#varphi [rad]", 100, 0., TMath::Pi() ) ;
   
@@ -114,6 +115,7 @@ int make_plots( TString file_name, TString flag, TString dir ) {
 	    
 	    double theta = pion_dir.Angle( z_axis ) ;
 	    
+	    h_ct.Fill( TMath::Cos(theta) ) ;
 	    h_theta.Fill( theta ) ;
 	    h_phi.Fill( phi ) ;
 	    h_tp.Fill( theta, phi ) ;
@@ -140,6 +142,7 @@ int make_plots( TString file_name, TString flag, TString dir ) {
   TFile out_file( "result_" + file_name, "RECREATE" ) ;
   out_file.cd() ;
   
+  h_ct.Write() ;
   h_theta.Write() ;
   h_phi.Write() ;
   h_tp.Write() ;
