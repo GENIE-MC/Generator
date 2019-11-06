@@ -54,7 +54,6 @@
    <config alg="genie::SRCNuclearRecoil">             SRCNuclearRecoil.xml             </config>
 
 
-
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
    <config alg="genie::QELInteractionListGenerator">           QELInteractionListGenerator.xml       </config>
    <config alg="genie::RSPPInteractionListGenerator">          RSPPInteractionListGenerator.xml      </config>

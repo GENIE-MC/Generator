@@ -49,13 +49,13 @@ using namespace genie::constants;
 
 //___________________________________________________________________________
 SpectralFunction2p2h::SpectralFunction2p2h() :
-EventRecordVisitorI("genie::SpectralFunction2p2h")
+SecondNucleonEmissionI("genie::SpectralFunction2p2h")
 {
 
 }
 //___________________________________________________________________________
 SpectralFunction2p2h::SpectralFunction2p2h(string config) :
-EventRecordVisitorI("genie::SpectralFunction2p2h", config)
+SecondNucleonEmissionI(config)
 {
 
 }
@@ -73,7 +73,6 @@ void SpectralFunction2p2h::ProcessEventRecord(GHepRecord * evrec) const
     Target *       tgt         = init_state  -> TgtPtr();
 
     if ( tgt -> A() <= 2 ) return ;
-
     if ( tgt -> Z() < 2 ) return ;
 
     FermiMoverInteractionType_t interaction_type = fNuclModel->GetFermiMoverInteractionType();
@@ -81,10 +80,8 @@ void SpectralFunction2p2h::ProcessEventRecord(GHepRecord * evrec) const
     if ( interaction_type == kFermiMoveEffectiveSF2p2h_eject ) {
 
         GHepParticle * nucleon = evrec->HitNucleon();
-
         int second_nucleon_pdg = nucleon->Pdg() == kPdgProton ? kPdgNeutron : kPdgProton ;
-
-        SecondNucleonEmissionI::EmitSecondNucleon( evrec, other_nucleon -> PdgCode() )
+        SecondNucleonEmissionI::EmitSecondNucleon( evrec, second_nucleon_pdg );
 
     }
 

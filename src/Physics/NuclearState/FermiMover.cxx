@@ -304,11 +304,10 @@ void FermiMover::LoadConfig(void)
 
   this->GetParamDef("KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false);
 
-	RgKey nuclearrecoilkey = "SecondNucleonEmitter" ;
-	fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *> (this->SubAlg(nuclearrecoilkey));
-  }
-
-	assert(fSecondEmitter);
+  RgKey nuclearrecoilkey = "SecondNucleonEmitter" ;
+  fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *> (this->SubAlg(nuclearrecoilkey));
+  
+  assert(fSecondEmitter);
 
 }
 //____________________________________________________________________________

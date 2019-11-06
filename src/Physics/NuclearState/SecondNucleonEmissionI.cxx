@@ -88,7 +88,18 @@ bool SecondNucleonEmissionI::EmitSecondNucleon( GHepRecord * evrec, const int ej
   evrec->AddParticle( eject_nucleon_pdg, status, imom, -1, -1, -1, px, py, pz, E, vx, vy, vz, 0 );
 
 }
-
+//___________________________________________________________________________
+void SecondNucleonEmissionI::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void SecondNucleonEmissionI::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
 //____________________________________________________________________________
 void SecondNucleonEmissionI::LoadConfig(void)
 {

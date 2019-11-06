@@ -49,13 +49,13 @@ using namespace genie::constants;
 
 //___________________________________________________________________________
 SRCNuclearRecoil::SRCNuclearRecoil() :
-EventRecordVisitorI("genie::SRCNuclearRecoil")
+SecondNucleonEmissionI("genie::SRCNuclearRecoil")
 {
 
 }
 //___________________________________________________________________________
 SRCNuclearRecoil::SRCNuclearRecoil(string config) :
-EventRecordVisitorI("genie::SRCNuclearRecoil", config)
+SecondNucleonEmissionI(config)
 {
 
 }

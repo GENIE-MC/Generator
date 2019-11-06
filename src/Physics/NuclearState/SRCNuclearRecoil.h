@@ -24,10 +24,11 @@
 #include "Framework/GHEP/GHepParticle.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Framework/Interaction/Target.h"
+#include "Physics/NuclearState/SecondNucleonEmissionI.h"
 
 namespace genie {
 
-class SRCNuclearRecoil : public EventRecordVisitorI {
+class SRCNuclearRecoil : public SecondNucleonEmissionI {
 
 public :
   SRCNuclearRecoil();

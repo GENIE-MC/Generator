@@ -39,6 +39,7 @@ public :
   SpectralFunction2p2h();
   SpectralFunction2p2h(string config);
  ~SpectralFunction2p2h();
+  void LoadConfig (void);
 
   //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
@@ -49,8 +50,6 @@ public :
   void Configure(string config);
 
 private:
-
-  void LoadConfig (void);
 
 };
 

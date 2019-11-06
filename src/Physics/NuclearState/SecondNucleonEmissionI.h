@@ -47,12 +47,12 @@ protected:
 
   const NuclearModelI *  fNuclModel;   ///< nuclear model
 
-private:
-
   SecondNucleonEmissionI();
   SecondNucleonEmissionI(string config);
 
   void LoadConfig (void);
+
+private:
 
 };
 
