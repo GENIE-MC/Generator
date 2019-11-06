@@ -15,7 +15,7 @@ FermiMomentumTable            string  Yes        Definition of Fermi Momenta    
 <alg_conf>
 
   <param_set name="Default"> 
-   <param type="float" name="PNPairPercentage"> 0.95 </param>
+   <param type="double" name="PNPairPercentage"> 0.95 </param>
 
    <param type="alg"    name="NuclearModel">   genie::NuclearModelMap/Default    </param>
 

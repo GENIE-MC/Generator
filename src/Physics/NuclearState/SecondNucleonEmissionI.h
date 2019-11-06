@@ -36,19 +36,14 @@ public :
 
   virtual ~SecondNucleonEmissionI();
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
-  void Configure(const Registry & config);
-  void Configure(string config);
-
 protected:
 
   virtual bool EmitSecondNucleon( GHepRecord * evrec, const int eject_nucleon_pdg ) const ;
 
   const NuclearModelI *  fNuclModel;   ///< nuclear model
-
-  SecondNucleonEmissionI();
-  SecondNucleonEmissionI(string config);
+  
+  SecondNucleonEmissionI( string name ) ;
+  SecondNucleonEmissionI( string name, string config );
 
   void LoadConfig (void);
 

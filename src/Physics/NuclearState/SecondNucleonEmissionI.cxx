@@ -47,15 +47,14 @@
 using namespace genie;
 using namespace genie::constants;
 
-//___________________________________________________________________________
-SecondNucleonEmissionI::SecondNucleonEmissionI() :
-EventRecordVisitorI("genie::SecondNucleonEmissionI")
+SecondNucleonEmissionI::SecondNucleonEmissionI(string name ) :
+EventRecordVisitorI( name )
 {
 
 }
 //___________________________________________________________________________
-SecondNucleonEmissionI::SecondNucleonEmissionI(string config) :
-EventRecordVisitorI("genie::SecondNucleonEmissionI", config)
+SecondNucleonEmissionI::SecondNucleonEmissionI(string name, string config) :
+EventRecordVisitorI( name, config)
 {
 
 }
@@ -87,18 +86,7 @@ bool SecondNucleonEmissionI::EmitSecondNucleon( GHepRecord * evrec, const int ej
 
   evrec->AddParticle( eject_nucleon_pdg, status, imom, -1, -1, -1, px, py, pz, E, vx, vy, vz, 0 );
 
-}
-//___________________________________________________________________________
-void SecondNucleonEmissionI::Configure(const Registry & config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void SecondNucleonEmissionI::Configure(string config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
+  return true ;
 }
 //____________________________________________________________________________
 void SecondNucleonEmissionI::LoadConfig(void)

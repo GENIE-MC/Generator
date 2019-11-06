@@ -55,7 +55,7 @@ SecondNucleonEmissionI("genie::SpectralFunction2p2h")
 }
 //___________________________________________________________________________
 SpectralFunction2p2h::SpectralFunction2p2h(string config) :
-SecondNucleonEmissionI(config)
+  SecondNucleonEmissionI("genie::SpectralFunction2p2h", config)
 {
 
 }

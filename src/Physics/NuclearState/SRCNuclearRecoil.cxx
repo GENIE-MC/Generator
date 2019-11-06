@@ -55,7 +55,7 @@ SecondNucleonEmissionI("genie::SRCNuclearRecoil")
 }
 //___________________________________________________________________________
 SRCNuclearRecoil::SRCNuclearRecoil(string config) :
-SecondNucleonEmissionI(config)
+  SecondNucleonEmissionI("genie::SRCNuclearRecoil", config )
 {
 
 }
@@ -143,10 +143,8 @@ void SRCNuclearRecoil::Configure(string config)
 //____________________________________________________________________________
 void SRCNuclearRecoil::LoadConfig(void)
 {
-  RgKey nuclkey = "NuclearModel";
-  fNuclModel = 0;
-  fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
-  assert(fNuclModel);
+
+  SecondNucleonEmissionI::LoadConfig() ;
 
   this->GetParamDef("PNPairPercentage",       fPNPairPercentage,    0.95);
 
