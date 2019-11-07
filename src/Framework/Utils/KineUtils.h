@@ -50,13 +50,13 @@ namespace kinematics
   Range1D_t  InelXLim    (double Ev, double M, double ml);
   Range1D_t  InelYLim    (double Ev, double M, double ml);
   Range1D_t  InelYLim_X  (double Ev, double M, double ml, double x);
-  Range1D_t  CohW2Lim    (double Mn, double mpi, double mlep, double Ev, double Q2);
+  Range1D_t  CohW2Lim    (double Mn, double m_produced, double mlep, double Ev, double Q2);
   Range1D_t  CohNuLim    (double W2min, double W2max, double Q2, double Mn, double xsi);
-  Range1D_t  CohYLim     (double Mn, double mpi, double mlep, double Ev, double Q2, double xsi);
+  Range1D_t  CohYLim     (double Mn, double m_produced, double mlep, double Ev, double Q2, double xsi);
   Range1D_t  CohYLim     (double EvL, double ml);
   Range1D_t  CohXLim     (void);
-  Range1D_t  CohQ2Lim    (double Mn, double mpi, double mlep, double Ev);
-  Range1D_t  Cohq2Lim    (double Mn, double mpi, double mlep, double Ev);
+  Range1D_t  CohQ2Lim    (double Mn, double m_produced, double mlep, double Ev);
+  Range1D_t  Cohq2Lim    (double Mn, double m_produced, double mlep, double Ev);
   Range1D_t  CEvNSQ2Lim  (double Ev);
   Range1D_t  DarkWLim    (double Ev, double M, double ml);
   Range1D_t  DarkQ2Lim_W (double Ev, double M, double ml, double W, double Q2min_cut =    controls::kMinQ2Limit);
@@ -68,7 +68,7 @@ namespace kinematics
   Range1D_t  DarkYLim_X  (double Ev, double M, double ml, double x);
 
   //-- helpers for kinematic limits
-  double CohW2Min(double Mn, double mpi);
+  double CohW2Min(double Mn, double m_produced);
 
   //-- kinematical variable transforms
   double QD2toQ2 (double QD2);
