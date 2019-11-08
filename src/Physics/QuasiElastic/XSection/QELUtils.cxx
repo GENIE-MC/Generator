@@ -177,14 +177,14 @@ double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
   delete nuP4;
   double Q2 = -1 * qP4.Mag2();
 
-  interaction->KinePtr()->SetFSLeptonP4( lepton );
-  interaction->KinePtr()->SetHadSystP4( outNucleon );
-  interaction->KinePtr()->SetQ2( Q2 );
-
   // Check the Q2 range. If we're outside of it, don't bother
   // with the rest of the calculation.
   Range1D_t Q2lim = interaction->PhaseSpace().Q2Lim();
   if (Q2 < Q2lim.min || Q2 > Q2lim.max) return 0.;
+
+  interaction->KinePtr()->SetFSLeptonP4( lepton );
+  interaction->KinePtr()->SetHadSystP4( outNucleon );
+  interaction->KinePtr()->SetQ2( Q2 );
 
   // Compute the QE cross section for the current kinematics
   double xsec = xsec_model->XSec(interaction, genie::kPSQELEvGen);
