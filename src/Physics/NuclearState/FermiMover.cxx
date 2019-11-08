@@ -90,6 +90,7 @@ void FermiMover::ProcessEventRecord(GHepRecord * evrec) const
   // give hit nucleon a Fermi momentum
   this->KickHitNucleon(evrec);
 
+  // handle the addition of the recoil nucleon
   if ( fSecondEmitter ) fSecondEmitter -> ProcessEventRecord( evrec ) ;
 
   // add a recoiled nucleus remnant

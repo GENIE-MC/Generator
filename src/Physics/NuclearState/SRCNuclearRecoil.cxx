@@ -59,12 +59,16 @@ SRCNuclearRecoil::SRCNuclearRecoil(string config) :
 {
 
 }
+
 //___________________________________________________________________________
+
 SRCNuclearRecoil::~SRCNuclearRecoil()
 {
 
 }
+
 //___________________________________________________________________________
+
 void SRCNuclearRecoil::ProcessEventRecord(GHepRecord * evrec) const
 {
 
@@ -87,14 +91,13 @@ void SRCNuclearRecoil::ProcessEventRecord(GHepRecord * evrec) const
   // Set this to either a proton or neutron to eject a secondary particle
   int eject_nucleon_pdg = this->SRCRecoilPDG(nucleon, nucleus, tgt, pF2);
 
-  if (eject_nucleon_pdg != 0) {
-
-    EmitSecondNucleon(evrec,eject_nucleon_pdg);
-
-  }
+  // Ejection of secondary particle
+  if (eject_nucleon_pdg != 0) { EmitSecondNucleon(evrec,eject_nucleon_pdg); }
 
 }
+
 //___________________________________________________________________________
+
 int SRCNuclearRecoil::SRCRecoilPDG(GHepParticle * nucleon, GHepParticle * nucleus, Target* tgt, double pF2) const {
 
       int eject_nucleon_pdg = 0;

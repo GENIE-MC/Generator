@@ -47,8 +47,6 @@ protected:
 
   void LoadConfig (void);
 
-private:
-
 };
 
 }      // genie namespace
