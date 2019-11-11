@@ -729,7 +729,7 @@ bool BaryonResonanceDecayer::IsHandled(int pdg_code) const
       << "Can decay particle with PDG code = " << pdg_code
       << "? " << ((is_handled)? "Yes" : "No");
 
-  return pdg_code;
+  return is_handled;
 }
 //____________________________________________________________________________
 void BaryonResonanceDecayer::InhibitDecay(int pdgc, TDecayChannel * dc) const

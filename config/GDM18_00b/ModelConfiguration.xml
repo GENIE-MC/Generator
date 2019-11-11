@@ -23,6 +23,7 @@ STFC, Rutherford Appleton Laboratory
   Options:
    - genie::FGMBodekRitchie/Default
    - genie::LocalFGM/Default
+   - genie::LocalFGM/Correlated
    - genie::SpectralFunc1d/Default
    - genie::EffectiveSF/Default  <- See http://arxiv.org/abs/1405.0583
   The 'NuclearModel' option defines the default basic model which should work for _any_ nuclei 
@@ -32,6 +33,7 @@ STFC, Rutherford Appleton Laboratory
 
   <param type="alg"  name="NuclearModel">                 genie::EffectiveSF/Default </param>
   <param type="alg"  name="NuclearModel">                 genie::LocalFGM/Default </param>
+  <param type="alg"  name="NuclearModel">                 genie::LocalFGM/Correlated </param>
   -->
   <param type="alg"  name="NuclearModel">                 genie::FGMBodekRitchie/Default </param>
 
@@ -88,29 +90,29 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">         genie::ReinSehgalRESPXSec/NoPauliBlock       </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::ReinSehgalRESPXSec/Default       </param>
   
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">         genie::QPMDISPXSec/Default            </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">         genie::QPMDISPXSec/Default            </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::QPMDISPXSec/Default            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">         genie::KNOTunedQPMDISPXSec/Default            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">         genie::KNOTunedQPMDISPXSec/Default            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::KNOTunedQPMDISPXSec/Default            </param>
 
   <!-- 
   -->
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::ReinSehgalCOHPiPXSec/Default   </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::ReinSehgalCOHPiPXSec/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC-PION">         genie::ReinSehgalCOHPiPXSec/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-PION">         genie::ReinSehgalCOHPiPXSec/Default   </param>
 
   <!-- BS "Finite-mass" (as opposed to infinite mass) nucleus -->
   <!--
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::BergerSehgalFMCOHPiPXSec2015/Default   </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::BergerSehgalFMCOHPiPXSec2015/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC-PION">         genie::BergerSehgalFMCOHPiPXSec2015/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-PION">         genie::BergerSehgalFMCOHPiPXSec2015/Default   </param>
   -->
 
   <!-- Berger-Sehgal "as in the paper"
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC-PION">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-PION">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
   -->
 
   <!-- Alvarez-Ruso et al COH pion
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC-PION">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-PION">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
   -->
 
   <param type="alg" name="XSecModel@genie::EventGenerator/IMD">            genie::BardinIMDRadCorPXSec/Default   </param>

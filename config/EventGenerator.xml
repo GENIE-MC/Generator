@@ -509,19 +509,16 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="ILstGen">    genie::DFRInteractionListGenerator/NC-Default       </param>
   </param_set>
 
-  <param_set name="COH-NC">
+  <param_set name="CEvNS">
      <param type="string" name="VldContext"> </param>
-     <param type="int"    name="NModules">   6                                                   </param>
+     <param type="int"    name="NModules">   3                                                   </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                 </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                      </param>
-     <param type="alg"    name="Module-2">   genie::COHKinematicsGenerator/Default               </param>
-     <param type="alg"    name="Module-3">   genie::COHPrimaryLeptonGenerator/Default            </param>
-     <param type="alg"    name="Module-4">   genie::COHHadronicSystemGenerator/Default           </param>
-     <param type="alg"    name="Module-5">   genie::UnstableParticleDecayer/AfterHadronTransport </param>
-     <param type="alg"    name="ILstGen">    genie::COHInteractionListGenerator/NC-Default       </param>
+     <param type="alg"    name="Module-2">   genie::CEvNSEventGenerator/Default                  </param>
+     <param type="alg"    name="ILstGen">    genie::CEvNSInteractionListGenerator/Default        </param>          
   </param_set>
 
-  <param_set name="COH-CC">
+  <param_set name="COH-NC-PION">
      <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   6                                                   </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                 </param>
@@ -530,7 +527,19 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="Module-3">   genie::COHPrimaryLeptonGenerator/Default            </param>
      <param type="alg"    name="Module-4">   genie::COHHadronicSystemGenerator/Default           </param>
      <param type="alg"    name="Module-5">   genie::UnstableParticleDecayer/AfterHadronTransport </param>
-     <param type="alg"    name="ILstGen">    genie::COHInteractionListGenerator/CC-Default       </param>
+     <param type="alg"    name="ILstGen">    genie::COHInteractionListGenerator/NC-PION          </param>
+  </param_set>
+
+  <param_set name="COH-CC-PION">
+     <param type="string" name="VldContext"> </param>
+     <param type="int"    name="NModules">   6                                                   </param>
+     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                 </param>
+     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                      </param>
+     <param type="alg"    name="Module-2">   genie::COHKinematicsGenerator/Default               </param>
+     <param type="alg"    name="Module-3">   genie::COHPrimaryLeptonGenerator/Default            </param>
+     <param type="alg"    name="Module-4">   genie::COHHadronicSystemGenerator/Default           </param>
+     <param type="alg"    name="Module-5">   genie::UnstableParticleDecayer/AfterHadronTransport </param>
+     <param type="alg"    name="ILstGen">    genie::COHInteractionListGenerator/CC-PION          </param>
   </param_set>
 
   <!--
