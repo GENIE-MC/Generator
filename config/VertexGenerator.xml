@@ -4,7 +4,6 @@
 
 <!--
 Configuration sets for the VertexGenerator EventRecordVisitorI
-
 Configurable Parameters:
 ................................................................................................
 Name                        Type     Optional   Comment            Default
@@ -26,4 +25,3 @@ VtxGenerationMethod         int      no                            ///
  </param_set>
 
 </alg_conf>
-

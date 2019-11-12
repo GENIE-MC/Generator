@@ -154,6 +154,20 @@ LHAPDF_LIBRARIES += -L$(GOPT_WITH_LHAPDF5_LIB) -lLHAPDF $(FORT_LIBRARIES)
 endif
 
 #-------------------------------------------------------------------
+#                             APFEL
+#-------------------------------------------------------------------
+
+APFEL_LIBRARIES = 
+APFEL_INCLUDES  =
+
+ifeq ($(strip $(GOPT_ENABLE_APFEL)),YES) 
+
+APFEL_INCLUDES  = -I$(GOPT_WITH_APFEL_INC)
+APFEL_LIBRARIES = -L$(GOPT_WITH_APFEL_LIB) -lAPFEL 
+
+endif
+
+#-------------------------------------------------------------------
 # PYTHIA6
 #-------------------------------------------------------------------
 
@@ -492,6 +506,7 @@ CPP_INCLUDES := \
     $(ROOT_INCLUDES) \
     $(PYTHIA8_INCLUDES) \
     $(LHAPDF_INCLUDES) \
+    $(APFEL_INCLUDES) \
     $(GSL_INCLUDES) \
     $(GENIE_INCLUDES)
 
@@ -508,6 +523,7 @@ LIBRARIES := $(SYSLIBS) \
              $(PYTHIA6_LIBRARIES) \
              $(PYTHIA8_LIBRARIES) \
              $(LHAPDF_LIBRARIES) \
+             $(APFEL_LIBRARIES) \
              $(XML_LIBRARIES) \
              $(LOG_LIBRARIES) \
              $(GSL_LIBRARIES) \

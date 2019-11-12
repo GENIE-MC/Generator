@@ -151,6 +151,11 @@ bool ProcessInfo::IsDiffractive(void) const
   return (fScatteringType == kScDiffractive);
 }
 //____________________________________________________________________________
+bool ProcessInfo::IsHEDIS(void) const
+{
+  return (fScatteringType == kScHEDIS);
+}
+//____________________________________________________________________________
 bool ProcessInfo::IsEM(void) const
 {
   return (fInteractionType == kIntEM);

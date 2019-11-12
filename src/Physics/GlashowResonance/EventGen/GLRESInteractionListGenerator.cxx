@@ -12,6 +12,9 @@
  Important revisions after version 2.0.0 :
  @ Dec 14, 2009 - CA
    Was first added in v2.5.1
+ @ November 08, 2019 - Alfonso Garcia
+   Modified to generate the kinematics of outgoing lepton properly.
+   Phys. Rev. D 22, 2122 – Published 1 November 1980
 
 */
 //____________________________________________________________________________
@@ -48,7 +51,10 @@ InteractionList *
                                        const InitialState & init_state) const
 {
 // channels:
-// nuebar + e- -> W-
+// nuebar + e- -> W- -> nuebar + e-
+// nuebar + e- -> W- -> nuebar + mu-
+// nuebar + e- -> W- -> nuebar + tau-
+// nuebar + e- -> W- -> hadrons
 
   if(init_state.ProbePdg() != kPdgAntiNuE) {
      LOG("IntLst", pDEBUG) 
@@ -56,13 +62,71 @@ InteractionList *
      return 0;
   }
 
-  int target = init_state.Tgt().Pdg();
+  InitialState init(init_state);
+  init_state.TgtPtr()->SetHitNucPdg(0);  
+
+  ProcessInfo   proc_info(kScGlashowResonance, kIntWeakCC);
 
   InteractionList * intlist = new InteractionList;
 
-  Interaction * interaction = Interaction::GLR(target);
-  intlist->push_back(interaction);
+  if (fIsMu) {
+    Interaction * interaction = new Interaction(init_state, proc_info);
+    XclsTag exclusive_tag;
+    exclusive_tag.SetFinalLepton(kPdgMuon);
+    interaction->SetExclTag(exclusive_tag);
+    intlist->push_back(interaction);  
+  }
+  else if (fIsTau) {
+    Interaction * interaction = new Interaction(init_state, proc_info);
+    XclsTag exclusive_tag;
+    exclusive_tag.SetFinalLepton(kPdgTau);
+    interaction->SetExclTag(exclusive_tag);
+    intlist->push_back(interaction);  
+  }
+  else if (fIsEle) {
+    Interaction * interaction = new Interaction(init_state, proc_info);
+    XclsTag exclusive_tag;
+    exclusive_tag.SetFinalLepton(kPdgElectron);
+    interaction->SetExclTag(exclusive_tag);
+    intlist->push_back(interaction);  
+  }
+  else if (fIsHad) {
+    Interaction * interaction = new Interaction(init_state, proc_info);
+    XclsTag exclusive_tag;
+    exclusive_tag.SetFinalLepton(kPdgPiP);
+    interaction->SetExclTag(exclusive_tag);
+    intlist->push_back(interaction);  
+  }
+
+  if(intlist->size() == 0) {
+     LOG("IntLst", pERROR)
+         << "Returning NULL InteractionList for init-state: "
+                                                  << init_state.AsString();
+     delete intlist;
+     return 0;
+  }
 
   return intlist;
 }
 //___________________________________________________________________________
+void GLRESInteractionListGenerator::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+}
+//____________________________________________________________________________
+void GLRESInteractionListGenerator::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfigData();
+}
+//____________________________________________________________________________
+void GLRESInteractionListGenerator::LoadConfigData(void)
+{
+
+  GetParamDef("is-Mu",  fIsMu,  false ) ;
+  GetParamDef("is-Tau", fIsTau, false ) ;
+  GetParamDef("is-Ele", fIsEle, false ) ;
+  GetParamDef("is-Had", fIsHad, false ) ;
+
+}
