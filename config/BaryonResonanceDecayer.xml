@@ -55,12 +55,21 @@ Delta-R3m1                    string   Yes        string ; separated of values f
   <param_set name="AfterHadronTransport">
     <param type="bool" name="RunBeforeHadronTransport"> false </param>
   </param_set>
+
   
+  <!-- 
+  ANL decay distributions are from the paper 
+  https://doi.org/10.1103/PhysRevD.25.1161
+  G. M. Radecky et al PhysRevD.25.1161 
+
+  The reports also standard deviations for the R parameters
+  --> 
+
+ 
   <param_set name="BeforeHadronTransport_ANL">
     
     <param type="bool" name="RunBeforeHadronTransport"> true  </param>
     
-    <!-- ANL -->
     <param type="bool" name="Delta-ThetaOnly"> false </param>
     <param type="string" name="Delta-R33">    0.523 ;  0.649 ;  0.674 ;  0.748 </param>
     <param type="string" name="Delta-R31">   -0.322 ; -0.128 ; -0.017 ;  0.041 </param>
@@ -73,7 +82,6 @@ Delta-R3m1                    string   Yes        string ; separated of values f
     
     <param type="bool" name="RunBeforeHadronTransport"> false </param>
 
-    <!-- ANL -->
     <param type="bool" name="Delta-ThetaOnly"> false </param>
     <param type="string" name="Delta-R33">    0.523 ;  0.649 ;  0.674 ;  0.748 </param>
     <param type="string" name="Delta-R31">   -0.322 ; -0.128 ; -0.017 ;  0.041 </param>
