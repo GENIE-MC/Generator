@@ -382,9 +382,16 @@ void AlgConfigPool::AddConfigParameter(
 // pvalue at the input configuration registry r
 
   SLOG("AlgConfigPool", pDEBUG)
-          << "Adding Parameter [" << ptype << "]: Key = "
-                                         << pname << " -> Value = " << pvalue;
+    << "Adding Parameter [" << ptype << "]: Key = "
+    << pname << " -> Value = " << pvalue;
 
+  bool isVector = false ; 
+  
+  if ( ptype.find("vec-") == 0 ) {
+    isVector = true ; 
+    ptype = ptype.substr( 4 ) ;
+  }
+  
   bool isRootObjParam = (strcmp(ptype.c_str(), "h1f")    == 0) ||
                         (strcmp(ptype.c_str(), "Th2f")   == 0) ||
                         (strcmp(ptype.c_str(), "tree")   == 0);
@@ -393,14 +400,40 @@ void AlgConfigPool::AddConfigParameter(
                         (strcmp(ptype.c_str(), "double") == 0) ||
                         (strcmp(ptype.c_str(), "string") == 0) ||
                         (strcmp(ptype.c_str(), "alg")    == 0);
-
-  if     (isBasicParam)   this->AddBasicParameter  (r, ptype, pname, pvalue);
-  else if(isRootObjParam) this->AddRootObjParameter(r, ptype, pname, pvalue);
-  else {
+  
+  
+  if ( ! ( isBasicParam || isRootObjParam ) ) {
     SLOG("AlgConfigPool", pERROR)
-            << "Parameter [" << ptype << "]: Key = " << pname
-                        << " -> Value = " << pvalue << " could not be added";
+      << "Parameter [" << ptype << "]: Key = " << pname
+      << " -> Value = " << pvalue << " could not be added";
+    return ;
   }
+
+  if ( isVector ) {
+
+    vector<string> bits = utils::str::Split( pvalue, ";" ) ;
+    
+    string n_name = 'N'+pname+'s' ;
+    std::stringstream n_value ; 
+    n_value << bits.size() ; 
+
+    this->AddBasicParameter  (r, "int", n_name, n_value.str() );
+
+    for ( unsigned int i = 0 ; i < bits.size() ; ++i ) {
+      std::stringstream name ;
+      name << pname << '-' << i ; 
+
+      if     (isBasicParam)   this->AddBasicParameter  (r, ptype, name.str(), bits[i] );
+      else if(isRootObjParam) this->AddRootObjParameter(r, ptype, name.str(), bits[i] );
+    }
+
+  }  // if it is a vector 
+  else { 
+    if     (isBasicParam)   this->AddBasicParameter  (r, ptype, pname, pvalue);
+    else if(isRootObjParam) this->AddRootObjParameter(r, ptype, pname, pvalue);
+    
+  } // not a vector 
+  
 }
 //____________________________________________________________________________
 void AlgConfigPool::AddBasicParameter(
