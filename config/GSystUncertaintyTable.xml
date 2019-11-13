@@ -236,5 +236,13 @@ values for each Reweight tweak dial. All of these have default values of zero.
    <param type="double" name="NormEMMEC@PlusOneSigma"> 0.50 </param>
    <param type="double" name="NormEMMEC@MinusOneSigma"> 0.50 </param>
 
+   <!-- Placeholder ±20% uncertainties on the CCMEC pn fraction. - S. Gardiner -->
+   <param type="double" name="FracPN_CCMEC@PlusOneSigma"> 0.20 </param>
+   <param type="double" name="FracPN_CCMEC@MinusOneSigma"> 0.20 </param>
+
+   <!-- Placeholder ±20% uncertainties on the CCMEC delta fraction. - S. Gardiner -->
+   <param type="double" name="FracDelta_CCMEC@PlusOneSigma"> 0.20 </param>
+   <param type="double" name="FracDelta_CCMEC@MinusOneSigma"> 0.20 </param>
+
  </param_set>
 </alg_conf>
