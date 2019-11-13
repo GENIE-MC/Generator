@@ -162,6 +162,9 @@ double KPhaseSpace::Threshold(void) const
     double Ethr = 0.5*(smin-Mn2)/Mn;
     // threshold is different for dark matter case
     if(pi.IsDarkMatterElastic() || pi.IsDarkMatterDeepInelastic()) {
+      // Correction to minimum kinematic variables
+      Wmin = Mn;
+      smin = TMath::Power(Wmin+ml,2);
       Ethr = TMath::Max(0.5*(smin-Mn2-ml*ml)/Mn,ml);
     }
 
@@ -173,7 +176,7 @@ double KPhaseSpace::Threshold(void) const
     return TMath::Max(0.,Ethr);
   }
 
-  if(pi.IsNuElectronElastic() || pi.IsGlashowResonance() ) {
+  if(pi.IsNuElectronElastic() || pi.IsDarkMatterElectronElastic() || pi.IsGlashowResonance() ) {
     return 0;
   }
   if(pi.IsAMNuGamma()) {
@@ -248,6 +251,7 @@ bool KPhaseSpace::IsAboveThreshold(void) const
       pi.IsInverseMuDecay()     ||
       pi.IsIMDAnnihilation()    ||
       pi.IsNuElectronElastic()  ||
+      pi.IsDarkMatterElectronElastic() ||
       pi.IsMEC())
   {
       E = init_state.ProbeE(kRfLab);
@@ -317,7 +321,7 @@ bool KPhaseSpace::IsAllowed(void) const
   }
 
   //IMD
-  if(pi.IsInverseMuDecay() || pi.IsIMDAnnihilation() || pi.IsNuElectronElastic()) {
+  if(pi.IsInverseMuDecay() || pi.IsIMDAnnihilation() || pi.IsNuElectronElastic() || pi.IsDarkMatterElectronElastic()) {
     Range1D_t yl = this->YLim();
     double    y  = kine.y();
     bool in_phys = math::IsWithinLimits(y, yl);
@@ -740,6 +744,16 @@ Range1D_t KPhaseSpace::YLim(void) const
     yl.max = 1 - (ml*ml + me*me)/(2*me*Ev) - controls::kASmallNum;
     return yl;
   }
+  // EDIT: y limits are different for massive probe
+  if(pi.IsDarkMatterElectronElastic()) {
+    const InitialState & init_state = fInteraction->InitState();
+    double Ev = init_state.ProbeE(kRfLab);
+    double ml = fInteraction->FSPrimLepton()->Mass();
+    double me = kElectronMass;
+    yl.min = (Ev*me*me + ml*ml*(Ev + 2.0*me)) / (Ev * (2.0*Ev*me + me*me + ml*ml)) + controls::kASmallNum;
+    yl.max = 1.0 - controls::kASmallNum;
+    return yl;
+  }  
   bool is_dfr = pi.IsDiffractive();
   if(is_dfr) {
     const InitialState & init_state = fInteraction -> InitState();

@@ -45,6 +45,7 @@ namespace pdg
   bool IsPosChargedLepton (int pdgc);
 
   bool IsDarkMatter       (int pdgc);
+  bool IsAntiDarkMatter   (int pdgc);
   
   bool IsNuE              (int pdgc);
   bool IsNuMu             (int pdgc);
