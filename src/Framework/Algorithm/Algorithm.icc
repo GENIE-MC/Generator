@@ -137,7 +137,7 @@ template<class T>
     for ( int i = 0; i < n; ++i ) {
   	std::stringstream name;
   	name << comm_name << '-' << i ;
-  	found = found && GetParam( name.str(), v[i], is_top_call ) ; 
+  	found = found && GetParam( name.str(), (v[i]) , is_top_call ) ; 
     }
    
     return found ;    		            
