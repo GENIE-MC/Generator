@@ -483,11 +483,9 @@ void HAIntranuke2018::ElasHA(
   // scatters particle within nucleus, copy of hN code meant to run only once
   // in hA mode
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("HAIntranuke2018", pDEBUG)
     << "ElasHA() is invoked for a : " << p->Name()
     << " whose fate is : " << INukeHadroFates::AsString(fate);
-#endif
 
   /*  if(fate!=kIHAFtElas)
     {

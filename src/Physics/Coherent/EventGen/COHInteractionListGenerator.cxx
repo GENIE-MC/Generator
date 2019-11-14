@@ -82,23 +82,31 @@ InteractionList * COHInteractionListGenerator::CreateInteractionList(
 
   InteractionList * intlist = new InteractionList;
 
-  ProcessInfo proc_info(kScCoherent, inttype);
+  ProcessInfo proc_info(kScCoherentProduction, inttype);
   Interaction * interaction = new Interaction(init_state, proc_info);
 
-  if(fIsCC) {
-    if(pdg::IsNeutrino(probe_pdg)) {
+  if ( fPionProduction ) { 
+
+    if(fIsCC) {
+      if(pdg::IsNeutrino(probe_pdg)) {
         // v A -> l- A pi+
         interaction->ExclTagPtr()->SetNPions(1,0,0);  
-    } else 	{
+      } else 	{
         // vbar A -> l+ A pi-
         interaction->ExclTagPtr()->SetNPions(0,0,1); 
+      }
     }
+    else {
+      // v A -> v A pi0
+      interaction->ExclTagPtr()->SetNPions(0,1,0);
+    } 
+    
   }
-  else {
-   // v A -> v A pi0
-   interaction->ExclTagPtr()->SetNPions(0,1,0);
-  } 
-
+  
+  if ( fGammaProduction ) {
+    interaction->ExclTagPtr()->SetNSingleGammas(1);
+  }
+ 
   intlist->push_back(interaction);
 
   return intlist;
@@ -118,8 +126,14 @@ void COHInteractionListGenerator::Configure(string config)
 //____________________________________________________________________________
 void COHInteractionListGenerator::LoadConfigData(void)
 {
-	GetParamDef( "is-CC", fIsCC, false ) ;
-	GetParamDef( "is-NC", fIsNC, false ) ;
+  GetParamDef( "is-CC", fIsCC, false ) ;
+  GetParamDef( "is-NC", fIsNC, false ) ;
+
+  GetParamDef( "has-PION",  fPionProduction,  false ) ;
+  GetParamDef( "has-RHO",   fRhoProduction,   false ) ;
+  GetParamDef( "has-GAMMA", fGammaProduction, false ) ;
+
+
 }
 //____________________________________________________________________________
 
