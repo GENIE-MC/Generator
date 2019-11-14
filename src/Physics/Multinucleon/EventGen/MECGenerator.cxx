@@ -340,7 +340,7 @@ void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
           LOG("MEC", pINFO) << "Calulating temp final state for radiative correction fsl @ LAB: E " <<p4l.E() << " px "<<p4l.Px() << " py "<<p4l.Py() << " pz "<<p4l.Pz() ;
           RadiativeCorrector * fRadiativeCorrector = new RadiativeCorrector();
           fRadiativeCorrector->SetISR(true);
-          fRadiativeCorrector->SetModel("vanderhagen");
+          fRadiativeCorrector->SetModel("simc");
           fRadiativeCorrector->SetQ2(gQ2);
           fRadiativeCorrector->SetP4l(p4l);
           fRadiativeCorrector->ProcessEventRecord(event);

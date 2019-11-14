@@ -135,6 +135,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	double e = p4.E();
 	double energyLoss = 0.;
         double e_gamma_max;
+	double e_gamma_min = 1E-10;
         if (fISR) e_gamma_max = init_state_ptr->ProbeE(kRfLab) - fP4l.E();
         else 
 	{
@@ -147,14 +148,14 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
  	   if (fISR) a = (kAem/kPi)*(TMath::Log(fQ2/pow(kElectronMass,2)) - 1.);
 	   else a = (kAem/kPi)*(TMath::Log(kine->Q2(true)/pow(kElectronMass,2)) - 1.);
 	   LOG("RadiativeCorrector", pDEBUG) << "\n ipos "<<ipos<<" probE  "<<init_state_ptr->ProbeE(kRfLab)<<" evrec->CorrectProbe()->GetP4()->E() "<<evrec->CorrectProbe()->GetP4()->E()<<" energy loss limit "<<e_gamma_max<<" a parameter "<<a<<" the radiated lepton e "<<e;
-           TF1 *f = new TF1("f","([0]/x)*TMath::Power(x/[1],[0])",1E-10,e_gamma_max);
+           TF1 *f = new TF1("f","([0]/x)*TMath::Power(x/[1],[0])",e_gamma_min,e_gamma_max);
            f->SetParameter(0,a);
            f->SetParameter(1,e);
            energyLoss = f->GetRandom();
 	   delete f;
 	   LOG("RadiativeCorrector", pINFO) << "Vanderhagen Energy loss is "<<energyLoss;
 	}
-	double L1,L2,b,thickness,lambda_e,g,e_gamma_min,power_hi,power_lo;
+	double L1,L2,b,thickness,lambda_e,g,power_hi,power_lo;
 	if (fModel =="simc") {
  
            L1 = log(184.15) - (1./3)*log(Z);
@@ -166,7 +167,6 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
            g = b*thickness + lambda_e;
            std::cout<<" lambda e  is "<<lambda_e<<" g "<<g<<std::endl;
 
-	   e_gamma_min = 1E-10;
 	   power_hi = pow(e_gamma_max,g);
 	   power_lo  = pow(e_gamma_min,g);
 	   //double ymin = power_lo/power_hi;
@@ -186,6 +186,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
            LOG("RadiativeCorrector", pINFO) << "SIMC Energy loss is "<<energyLoss;
 
 	}
+	if (energyLoss<fCutoff) continue;
 
 	double momentumLoss = energyLoss;
 	double ptLoss;
@@ -358,6 +359,7 @@ void RadiativeCorrector::LoadConfig(void)
 {
   GetParamDef( "model" , fModel, std::string("simc"));
   GetParam( "ISR",fISR);
+  GetParam( "Cutoff",fCutoff);
 }
 //____________________________________________________________________________
 void RadiativeCorrector::SetISR(bool isr)
@@ -378,6 +380,11 @@ void RadiativeCorrector::SetQ2(double Q2)
 void RadiativeCorrector::SetP4l(TLorentzVector p4l)
 {
   fP4l = p4l;
+}
+//____________________________________________________________________________
+void RadiativeCorrector::SetCutoff(double cutoff)
+{
+  fCutoff = cutoff;
 }
 //____________________________________________________________________________
 void RadiativeCorrector::Configure(const InitialState & is)

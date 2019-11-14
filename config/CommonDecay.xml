@@ -26,7 +26,7 @@ University of Liverpool
      <!--
 	     Pi0's: Decays inhibited by default, as per popular request
      -->
-     <param type="bool" name="DecayParticleWithCode=111">   false </param>  <!--  pi^{0}            -->
+     <param type="bool" name="DecayParticleWithCode=111">   true </param>  <!--  pi^{0}            -->
 
      <!--
 	     Charmed hadrons: Not decayed by default.

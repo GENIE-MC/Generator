@@ -60,6 +60,7 @@ public :
   void SetModel(std::string model); 
   void SetQ2(double Q2); 
   void SetP4l(TLorentzVector p4l); 
+  void SetCutoff(double cutoff); 
 
   //int           rad_kDefOptNevents;       // n-events to generate
   //NtpMCFormat_t rad_kDefOptNtpFormat; // ntuple format
@@ -79,7 +80,7 @@ private:
   double         fQ2; 
   TLorentzVector fP4l; 
   InitialState * fInitState;       ///< initial state information for changing probe
-
+  double         fCutoff;
   mutable GHepRecordHistory             fRecHistory;     ///< event record history 
 
 };
