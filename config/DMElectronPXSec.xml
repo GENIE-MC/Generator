@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the NuElectronPXSec xsec algorithm.
+
+Configurable Parameters:
+....................................................................................
+Name           Type     Optional   Comment                 Default
+WeinbergAngle  double   No                                 CommonParam[WeakInt]
+....................................................................................
+-->
+
+  <param_set name="Velocity0"> 
+    <param type="string"  name="CommonParam"> BoostedDarkMatter  </param>
+    
+     <param type="alg"  name="XSec-Integrator"> genie::DMElectronXSec/Default  </param>
+     <param type="int"  name="velocity-mode">            0      </param>
+  </param_set>
+  <param_set name="Velocity2"> 
+    <param type="string"  name="CommonParam"> BoostedDarkMatter  </param>
+    
+     <param type="alg"  name="XSec-Integrator"> genie::DMElectronXSec/Default  </param>
+     <param type="int"  name="velocity-mode">            2      </param>
+  </param_set>
+
+</alg_conf>
+

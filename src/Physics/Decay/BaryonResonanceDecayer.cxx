@@ -870,29 +870,12 @@ void BaryonResonanceDecayer::LoadConfig(void) {
 
   bool invalid_configuration = false ;
 
-  std::string raw ;
-  std::vector<std::string> bits ;
-
   // load R33 parameters
-  this -> GetParamDef( "Delta-R33", raw, string(" 0.5 ") ) ;
-  bits = utils::str::Split( raw, ";" ) ;
-
-  if ( ! utils::str::Convert(bits, fR33) ) {
-    LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-R33 string: " ;
-    LOG("BaryonResonanceDecayer", pFATAL) << "String " << raw ;
-    invalid_configuration = true ;
-  }
+  this -> GetParamVect( "Delta-R33", fR33 ) ; 
 
   // load Q2 thresholds if necessary
   if ( fR33.size() > 1 ) {
-    this -> GetParam("Delta-Q2", raw ) ;
-    bits = utils::str::Split( raw, ";" ) ;
-
-    if ( ! utils::str::Convert(bits, fQ2Thresholds ) ) {
-      LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-Q2 string: " ;
-      LOG("BaryonResonanceDecayer", pFATAL) << "String: " << raw ;
-      invalid_configuration = true ;
-    }
+    this -> GetParamVect("Delta-Q2", fQ2Thresholds ) ;
   }
   else {
     fQ2Thresholds.clear() ;
@@ -917,35 +900,21 @@ void BaryonResonanceDecayer::LoadConfig(void) {
     	break ;
       }
     }
-
+    
     // set appropriate maxima
     fW_max.resize( fR33.size(), 0. ) ;
     for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
       fW_max[i] = ( fR33[i] < 0.5 ? 2. * ( 1. - fR33[i] ) : fR33[i] + 0.5 ) + fMaxTolerance ;
     }
-  
+    
   } // Delta Theta Only
-
+  
   else {
 
     // load R31 and R3m1 parameters
-    this -> GetParam( "Delta-R31", raw ) ;
-    bits = utils::str::Split( raw, ";" ) ;
+    this -> GetParamVect( "Delta-R31", fR31 ) ;
 
-    if ( ! utils::str::Convert(bits, fR31) ) {
-      LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-R31 string: " ;
-      LOG("BaryonResonanceDecayer", pFATAL) << "String " << raw ;
-      invalid_configuration =  true ;
-    }
-
-    this -> GetParam( "Delta-R3m1", raw ) ;
-    bits = utils::str::Split( raw, ";" ) ;
-
-    if ( ! utils::str::Convert(bits, fR3m1) ) {
-      LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-R3m1 string: " ;
-      LOG("BaryonResonanceDecayer", pFATAL) << "String " << raw ;
-      invalid_configuration =  true ;
-    }
+    this -> GetParamVect( "Delta-R3m1", fR3m1 ) ;
 
     // check if they match the numbers of R33
     if ( (fR31.size() != fR33.size()) || (fR3m1.size() != fR33.size()) ) {
@@ -965,34 +934,29 @@ void BaryonResonanceDecayer::LoadConfig(void) {
       fRParams.push_back( new double[3]{ fR33[i], fR31[i], fR3m1[i] } ) ;
     }
 
-    //set dummy maxima
+    
+    // check if they are physical
     fW_max.resize( fR33.size(), 0. ) ;
     for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
-
+      
       double temp_min = FindDistributionExtrema( i, false ) ;
       if ( temp_min < 0. ) {
 	LOG("BaryonResonanceDecayer", pFATAL) << "pion angular distribution minimum is negative for Q2 bin " << i ;
 	invalid_configuration = true ;
 	break ;
       }
-
+      
       double temp_max = FindDistributionExtrema( i, true ) ;
       if ( temp_max <= 0. ) {
 	LOG("BaryonResonanceDecayer", pFATAL) << "pion angular distribution maximum is non positive for Q2 bin " << i ;
 	invalid_configuration = true ;
 	break ;
       }
-
+      
       fW_max[i] = temp_max + fMaxTolerance ; 
-	
+      
     }
-
-    // the maxima are set as dummy as they are "heavy to configure as they require brute force minimization
-    // hence they are evaluated the first time they are necessary
-
-    // check if they are physical
-    // should we check at least if the ditributions are always bigger than 0 ?
-
+    
   }
 
   if ( invalid_configuration ) {

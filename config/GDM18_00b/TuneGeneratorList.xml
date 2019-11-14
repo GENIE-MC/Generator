@@ -47,9 +47,10 @@ Generator-%d                alg     No
 -->
 
   <param_set name="Default"> 
-    <param type="int" name="NGenerators">   2                                  </param>
+    <param type="int" name="NGenerators">   3                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/DMEL     </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/DMDIS    </param>    
+     <param type="alg" name="Generator-2">   genie::EventGenerator/DME      </param>    
   </param_set>
 
 </tune_generator_list>

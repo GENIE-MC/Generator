@@ -17,10 +17,12 @@
    <config alg="genie::VertexGenerator">             VertexGenerator.xml             </config>
    <config alg="genie::QELEventGenerator">           QELEventGenerator.xml           </config>
    <config alg="genie::QELEventGeneratorSM">         QELEventGeneratorSM.xml         </config>
+   <config alg="genie::DMELEventGenerator">          DMELEventGenerator.xml          </config>
    <config alg="genie::QELPrimaryLeptonGenerator">   QELPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::DISPrimaryLeptonGenerator">   DISPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::RESPrimaryLeptonGenerator">   RESPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::NuEPrimaryLeptonGenerator">   NuEPrimaryLeptonGenerator.xml   </config>
+   <config alg="genie::DMEOutgoingDarkGenerator">    DMEOutgoingDarkGenerator.xml   </config>
    <config alg="genie::COHPrimaryLeptonGenerator">   COHPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::DFRPrimaryLeptonGenerator">   DFRPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::SKPrimaryLeptonGenerator">    SKPrimaryLeptonGenerator.xml    </config>
@@ -30,6 +32,7 @@
    <config alg="genie::DISKinematicsGenerator">      DISKinematicsGenerator.xml      </config>
    <config alg="genie::RESKinematicsGenerator">      RESKinematicsGenerator.xml      </config>
    <config alg="genie::NuEKinematicsGenerator">      NuEKinematicsGenerator.xml      </config>
+   <config alg="genie::DMEKinematicsGenerator">      DMEKinematicsGenerator.xml      </config>
    <config alg="genie::COHKinematicsGenerator">      COHKinematicsGenerator.xml      </config>
    <config alg="genie::DFRKinematicsGenerator">      DFRKinematicsGenerator.xml      </config>
    <config alg="genie::SKKinematicsGenerator">       SKKinematicsGenerator.xml       </config>
@@ -43,6 +46,7 @@
    <config alg="genie::RSPPHadronicSystemGenerator"> RSPPHadronicSystemGenerator.xml </config>
    <config alg="genie::SKHadronicSystemGenerator">   SKHadronicSystemGenerator.xml   </config>
    <config alg="genie::NuETargetRemnantGenerator">   NuETargetRemnantGenerator.xml   </config>
+   <config alg="genie::DMETargetRemnantGenerator">   DMETargetRemnantGenerator.xml   </config>
    <config alg="genie::RSPPResonanceSelector">       RSPPResonanceSelector.xml       </config>
    <config alg="genie::AMNuGammaGenerator">          AMNuGammaGenerator.xml          </config>
    <config alg="genie::MECGenerator">                MECGenerator.xml                </config>
@@ -57,6 +61,7 @@
    <config alg="genie::RESInteractionListGenerator">           RESInteractionListGenerator.xml       </config>
    <config alg="genie::DISInteractionListGenerator">           DISInteractionListGenerator.xml       </config>
    <config alg="genie::NuEInteractionListGenerator">           NuEInteractionListGenerator.xml       </config>
+   <config alg="genie::DMEInteractionListGenerator">           DMEInteractionListGenerator.xml       </config>
    <config alg="genie::COHInteractionListGenerator">           COHInteractionListGenerator.xml       </config>
    <config alg="genie::AMNuGammaInteractionListGenerator">     AMNuGammaInteractionListGenerator.xml </config>
    <config alg="genie::MECInteractionListGenerator">           MECInteractionListGenerator.xml       </config>
@@ -129,6 +134,7 @@
    <config alg="genie::RESXSec">                     RESXSec.xml                     </config>
    <config alg="genie::MECXSec">                     MECXSec.xml                     </config>
    <config alg="genie::NuElectronXSec">              NuElectronXSec.xml              </config>
+   <config alg="genie::DMElectronXSec">              DMElectronXSec.xml              </config>
    <config alg="genie::DMELXSec">                    DMELXSec.xml                    </config>
    <config alg="genie::DMDISXSec">                   DMDISXSec.xml                   </config>
 
@@ -154,6 +160,7 @@
    <config alg="genie::IMDAnnihilationPXSec">               IMDAnnihilationPXSec.xml               </config>
    <config alg="genie::PattonCEvNSPXSec">                   PattonCEvNSPXSec.xml                   </config>
    <config alg="genie::NuElectronPXSec">                    NuElectronPXSec.xml                    </config>
+   <config alg="genie::DMElectronPXSec">                    DMElectronPXSec.xml                    </config>
    <config alg="genie::GLRESPXSec">                         GLRESPXSec.xml                         </config>
    <config alg="genie::BergerSehgalRESPXSec2014">           BergerSehgalRESPXSec2014.xml           </config>
    <config alg="genie::KuzminLyubushkinNaumovRESPXSec2014"> KuzminLyubushkinNaumovRESPXSec2014.xml </config>
