@@ -10,45 +10,51 @@
 
 # print out info & exit if any of the command-line arguments was --help
 #
-if(($match = grep(/--help/i, @ARGV)) > 0) { 
+if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "\n";
   print "*** GENIE configure script *** \n\n";
   print "Usage: ./configure [option]... [flag=value]... \n\n";
   print "    FLAG                 DESCRIPTION                                                 DEFAULT\n\n";
   print "    --prefix             Installation location (for 'make install')                  /usr/local/\n";
   print "\n enable/disable options with either --enable- or --disable- (eg --enable-lhapdf5 --disable-flux-drivers)\n\n";
-  print "    profiler             GENIE code profiling using Google PerfTools                 default: disabled \n";
-  print "    doxygen-doc          Generate doxygen documentation at build time                default: disabled \n";
-  print "    dylibversion         Adds version number in library names (recommended)          default: enabled  \n";
-  print "    lowlevel-mesg        Disable (rather than filter out at run time) prolific       default: disabled \n";
-  print "                         debug/info level messages known to slow GENIE down          \n";
-  print "    debug                Adds -g in the compiler options to request debug info       default: disabled \n";
+  print "    pythia8              Use the PYTHIA8 MC generator                                default: disabled \n";
   print "    lhapdf5              Use the LHAPDF5 parton density function library             default: enabled  \n";
   print "    lhapdf6              Use the LHAPDF6 parton density function library             default: disabled \n";
+  print "    flux-drivers         Built-in flux drivers                                       default: enabled  \n";
+  print "    geom-drivers         Built-in detector geometry drivers                          default: enabled  \n";
   print "    t2k                  T2K-specific event generation app                           default: disabled \n";
   print "    fnal                 FNAL-specific event generation app                          default: disabled \n";
   print "    atmo                 Atmospheric neutrino event generation app                   default: disabled \n";
   print "    nucleon-decay        Nucleon decay simulation                                    default: disabled \n";
   print "    nnbar-oscillation    Simulation of nbar annihilation [n-nbar oscillation]        default: disabled \n";
   print "    boosted-dark-matter  Boosted dark matter simulation                              default: disabled \n";
-  print "    flux-drivers         Built-in flux drivers                                       default: enabled  \n";
-  print "    geom-drivers         Built-in detector geometry drivers                          default: enabled  \n";
   print "    masterclass          Enable GENIE neutrino masterclass app                       default: disabled (Experimental) \n";
   print "    test                 Build test programs                                         default: disabled \n";
+  print "    debug                Adds -g in the compiler options to request debug info       default: disabled \n";
+  print "    dylibversion         Adds version number in library names (recommended)          default: enabled  \n";
+  print "    lowlevel-mesg        Disable (rather than filter) prolific low level messages    default: disabled \n";
+  print "    profiler             GENIE code profiling using Google PerfTools                 default: disabled \n";
+  print "    doxygen-doc          Generate doxygen documentation at build time                default: disabled \n";
+  print "    gfortran             Link against external libraries built with gfortran         default: disabled \n";
+  print "    g2c                  Link against external libraries built with g77              default: disabled \n";
   print "\n options for 3rd party software, prefix with --with- (eg --with-lhapdf5-lib=/some/path/)\n\n";
   print "    compiler          Compiler to use (any of clang,gcc)                          default: gcc \n";
   print "    optimiz-level     Compiler optimization        any of O,O2,O3,OO,Os / default: O2 \n";
   print "    profiler-lib      Path to profiler library     needed if you --enable-profiler \n";
   print "    doxygen-path      Doxygen binary path          needed if you --enable-doxygen-doc  (if unset: checks for a \$DOXYGENPATH env.var.) \n";
-  print "    pythia6-lib       PYTHIA6 library path         always needed                       (if unset: checks for a \$PYTHIA6 env.var., then tries to auto-detect it) \n";
-  print "    lhapdf5-inc       Path to LHAPDF5 includes     needed if you --enable-lhapdf5      (if unset: checks for a \$LHAPDF5_INC env.var., then tries to auto-detect it) \n";
-  print "    lhapdf5-lib       Path to LHAPDF5 libraries    needed if you --enable-lhapdf5      (if unset: checks for a \$LHAPDF5_INC env.var.. then tries to auto-detect it) \n";
-  print "    lhapdf6-inc       Path to LHAPDF6 includes     needed if you --enable-lhapdf6      (if unset: checks for a \$LHAPDF6_INC env.var., then tries to auto-detect it) \n";
-  print "    lhapdf6-lib       Path to LHAPDF6 libraries    needed if you --enable-lhapdf6      (if unset: checks for a \$LHAPDF6_INC env.var.. then tries to auto-detect it) \n";
-  print "    libxml2-inc       Path to libxml2 includes     always needed                       (if unset: tries to auto-detect it) \n";
-  print "    libxml2-lib       Path to libxml2 library      always needed                       (if unset: tries to auto-detect it) \n";
-  print "    log4cpp-inc       Path to log4cpp includes     always needed                       (if unset: tries to auto-detect it) \n";
-  print "    log4cpp-lib       Path to log4cpp library      always needed                       (if unset: tries to auto-detect it) \n\n";
+  print "    pythia6-lib       PYTHIA6 libraries path       always needed                       (if unset: checks for a \$PYTHIA6 env.var., then tries to auto-detect it) \n";
+  print "    pythia8-inc       PYTHIA8 includes path        needed if you --enable-pythia8      (if unset: checks for a \$PYTHIA8_INC env.var., then tries to auto-detect it) \n";
+  print "    pythia8-lib       PYTHIA8 libraries path       needed if you --enable-pythia8      (if unset: checks for a \$PYTHIA8_LIB env.var.. then tries to auto-detect it) \n";
+  print "    lhapdf5-inc       LHAPDF5 includes path        needed if you --enable-lhapdf5      (if unset: checks for a \$LHAPDF5_INC env.var., then tries to auto-detect it) \n";
+  print "    lhapdf5-lib       LHAPDF5 libraries path       needed if you --enable-lhapdf5      (if unset: checks for a \$LHAPDF5_LIB env.var.. then tries to auto-detect it) \n";
+  print "    lhapdf6-inc       LHAPDF6 includes path        needed if you --enable-lhapdf6      (if unset: checks for a \$LHAPDF6_INC env.var., then tries to auto-detect it) \n";
+  print "    lhapdf6-lib       LHAPDF6 libraries path       needed if you --enable-lhapdf6      (if unset: checks for a \$LHAPDF6_LIB env.var.. then tries to auto-detect it) \n";
+  print "    libxml2-inc       libxml2 includes path        always needed                       (if unset: tries to auto-detect it) \n";
+  print "    libxml2-lib       libxml2 libraries path       always needed                       (if unset: tries to auto-detect it) \n";
+  print "    log4cpp-inc       log4cpp includes path        always needed                       (if unset: tries to auto-detect it) \n";
+  print "    log4cpp-lib       log4cpp libraries path       always needed                       (if unset: tries to auto-detect it) \n";
+  print "    gfortran-lib      libgfortran library path     needed if you --enable-gfortran     (if unset: tries to auto-detect it) \n";
+  print "    g2c-lib           libg2c library path          needed if you --enable-g2c          (if unset: tries to auto-detect it) \n\n";
   print "If the printout was too long then pipe it through a pager, eg: \n";
   print "./configure --help | more \n";
   exit 0;
@@ -57,10 +63,10 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
 # Check that $GENIE is set
 #
 $GENIE = $ENV{'GENIE'};
-die ("*** Error *** The GENIE environmental variable (pointing to the top level GENIE directory) is not defined") 
+die ("*** Error *** The GENIE environmental variable (pointing to the top level GENIE directory) is not defined")
 unless defined $GENIE;
 
-# Print GENIE banner 
+# Print GENIE banner
 #
 $BANNER_FILE = "$GENIE/data/logo/genie_banner_short.txt";
 if(-e $BANNER_FILE) {
@@ -73,7 +79,7 @@ if(-e $BANNER_FILE) {
 # Check that $ROOTSYS is set
 #
 $ROOTSYS = $ENV{'ROOTSYS'};
-die ("*** Error *** The ROOTSYS environmental variable is not defined. Is ROOT installed?") 
+die ("*** Error *** The ROOTSYS environmental variable is not defined. Is ROOT installed?")
 unless defined $ROOTSYS;
 
 # Check whether ROOT itself was build with GSL enabled
@@ -85,7 +91,6 @@ unless defined $ROOTSYS;
      die ("*** Error *** ROOT needs to be built with GSL/MathMore enabled.");
   }
 }
-
 
 # Enable auto-detection?
 #
@@ -114,7 +119,7 @@ my $options = join(" ", @ARGV);
 # Get & save installation location (--prefix) or set default
 #
 my $prefix="/usr/local/";
-if(($match = grep(/--prefix/i, @ARGV)) > 0) { 
+if(($match = grep(/--prefix/i, @ARGV)) > 0) {
   $options=~m/--prefix=(\S*)/i;
   $prefix = $1;
   if( $GENIE eq $prefix ) {
@@ -126,16 +131,11 @@ print MKCONF "GENIE_INSTALLATION_PATH=$prefix\n";
 
 # Default --enable/--disable config options (for a minimal genie build)
 #
-my $gopt_enable_profiler          = "NO";
-my $gopt_enable_doxygen_doc       = "NO";
-my $gopt_enable_dylibversion      = "YES";
-my $gopt_enable_lowlevel_mesg     = "NO";
-my $gopt_enable_debug             = "NO";
+my $gopt_enable_pythia8           = "NO";
 my $gopt_enable_lhapdf5           = "YES";
 my $gopt_enable_lhapdf6           = "NO";
 my $gopt_enable_flux_drivers      = "YES";
 my $gopt_enable_geom_drivers      = "YES";
-my $gopt_enable_test              = "NO";
 my $gopt_enable_t2k               = "NO";
 my $gopt_enable_fnal              = "NO";
 my $gopt_enable_atmo              = "NO";
@@ -143,21 +143,24 @@ my $gopt_enable_nucleon_decay     = "NO";
 my $gopt_enable_nnbar_oscillation = "NO";
 my $gopt_enable_boosted_dark_mat  = "NO";
 my $gopt_enable_masterclass       = "NO";
+my $gopt_enable_test              = "NO";
+my $gopt_enable_debug             = "NO";
+my $gopt_enable_dylibversion      = "YES";
+my $gopt_enable_lowlevel_mesg     = "NO";
+my $gopt_enable_profiler          = "NO";
+my $gopt_enable_doxygen_doc       = "NO";
+my $gopt_enable_gfortran          = "NO";
+my $gopt_enable_g2c               = "NO";
 
 # Check configure's command line arguments for non-default values
 #
-if(($match = grep(/--enable-profiler/i,            @ARGV)) > 0) { $gopt_enable_profiler          = "YES"; }
-if(($match = grep(/--enable-doxygen-doc/i,         @ARGV)) > 0) { $gopt_enable_doxygen_doc       = "YES"; }
-if(($match = grep(/--disable-dylibversion/i,       @ARGV)) > 0) { $gopt_enable_dylibversion      = "NO";  }
-if(($match = grep(/--enable-lowlevel-mesg/i,       @ARGV)) > 0) { $gopt_enable_lowlevel_mesg     = "YES"; }
-if(($match = grep(/--enable-debug/i,               @ARGV)) > 0) { $gopt_enable_debug             = "YES"; }
+if(($match = grep(/--enable-pythia8/i,             @ARGV)) > 0) { $gopt_enable_pythia8           = "YES"; }
 if(($match = grep(/--enable-lhapdf5/i,             @ARGV)) > 0) { $gopt_enable_lhapdf5           = "YES"; }
 if(($match = grep(/--disable-lhapdf5/i,            @ARGV)) > 0) { $gopt_enable_lhapdf5           = "NO";  }
 if(($match = grep(/--enable-lhapdf6/i,             @ARGV)) > 0) { $gopt_enable_lhapdf6           = "YES"; }
 if(($match = grep(/--disable-lhapdf6/i,            @ARGV)) > 0) { $gopt_enable_lhapdf6           = "NO";  }
 if(($match = grep(/--disable-flux-drivers/i,       @ARGV)) > 0) { $gopt_enable_flux_drivers      = "NO";  }
 if(($match = grep(/--disable-geom-drivers/i,       @ARGV)) > 0) { $gopt_enable_geom_drivers      = "NO";  }
-if(($match = grep(/--enable-test/i,                @ARGV)) > 0) { $gopt_enable_test              = "YES"; }
 if(($match = grep(/--enable-t2k/i,                 @ARGV)) > 0) { $gopt_enable_t2k               = "YES"; }
 if(($match = grep(/--enable-fnal/i,                @ARGV)) > 0) { $gopt_enable_fnal              = "YES"; }
 if(($match = grep(/--enable-atmo/i,                @ARGV)) > 0) { $gopt_enable_atmo              = "YES"; }
@@ -165,10 +168,40 @@ if(($match = grep(/--enable-nucleon-decay/i,       @ARGV)) > 0) { $gopt_enable_n
 if(($match = grep(/--enable-nnbar-oscillation/i,   @ARGV)) > 0) { $gopt_enable_nnbar_oscillation = "YES"; }
 if(($match = grep(/--enable-boosted-dark-matter/i, @ARGV)) > 0) { $gopt_enable_boosted_dark_mat  = "YES"; }
 if(($match = grep(/--enable-masterclass/i,         @ARGV)) > 0) { $gopt_enable_masterclass       = "YES"; }
+if(($match = grep(/--enable-test/i,                @ARGV)) > 0) { $gopt_enable_test              = "YES"; }
+if(($match = grep(/--enable-debug/i,               @ARGV)) > 0) { $gopt_enable_debug             = "YES"; }
+if(($match = grep(/--disable-dylibversion/i,       @ARGV)) > 0) { $gopt_enable_dylibversion      = "NO";  }
+if(($match = grep(/--enable-lowlevel-mesg/i,       @ARGV)) > 0) { $gopt_enable_lowlevel_mesg     = "YES"; }
+if(($match = grep(/--enable-profiler/i,            @ARGV)) > 0) { $gopt_enable_profiler          = "YES"; }
+if(($match = grep(/--enable-doxygen-doc/i,         @ARGV)) > 0) { $gopt_enable_doxygen_doc       = "YES"; }
+if(($match = grep(/--enable-gfortran/i,            @ARGV)) > 0) { $gopt_enable_gfortran          = "YES"; }
+if(($match = grep(/--enable-g2c/i,                 @ARGV)) > 0) { $gopt_enable_g2c               = "YES"; }
 
-# LHAPDF6 and 5 are mutually exlusive
-if  ($gopt_enable_lhapdf6 eq "YES") { $gopt_enable_lhapdf5 = "NO";}
+# LHAPDF6 and LHAPDF5 are mutually exlusive
+if ($gopt_enable_lhapdf6 eq "YES" && $gopt_enable_lhapdf5 eq "YES") {
+  print "*** Warning *** LHAPDF6 and LHAPDF5 are mutually exclusive - Disabling LHAPDF5\n\n";
+  $gopt_enable_lhapdf5 = "NO";
+}
 
+# libgfortran and libg2c are mutually exlusive
+if ($gopt_enable_gfortran eq "YES" && $gopt_enable_g2c eq "YES") {
+  print "*** Warning *** libgfortran and libg2c are mutually exclusive - Disabling libg2c\n\n";
+  $gopt_enable_g2c = "NO";
+}
+
+# If built-in flux and/or geometry drivers are disabled, then disable t2k, fnal, atmo
+if($gopt_enable_flux_drivers eq "NO" || $gopt_enable_geom_drivers eq "NO") {
+  if($gopt_enable_t2k  eq "YES" ||
+     $gopt_enable_fnal eq "YES" ||
+     $gopt_enable_atmo eq "YES") {
+       print "*** Warning *** Can't enable experiment-specific apps without flux and geometry drivers\n\n";
+     }
+  $gopt_enable_t2k  = "NO";
+  $gopt_enable_fnal = "NO";
+  $gopt_enable_atmo = "NO";
+}
+
+# Set debug flag
 my $gopt_with_cxx_debug_flag="";
 if($gopt_enable_debug eq "YES") { $gopt_with_cxx_debug_flag = "-g"; }
 
@@ -190,7 +223,7 @@ if( $options=~m/--with-optimiz-level=(\S*)/i ) {
 #
 my $gopt_with_profiler_lib = "";
 if($gopt_enable_profiler eq "YES") {
-  if(($match = grep(/--with-profiler-lib/i, @ARGV)) > 0) { 
+  if(($match = grep(/--with-profiler-lib/i, @ARGV)) > 0) {
     $options=~m/--with-profiler-lib=(\S*)/i;
     $gopt_with_profiler_lib = $1;
   }
@@ -201,7 +234,7 @@ if($gopt_enable_profiler eq "YES") {
 #
 my $gopt_with_doxygen_path = "";
 if($gopt_enable_doxygen_doc eq "YES") {
-  if(($match = grep(/--with-doxygen-path/i, @ARGV)) > 0) { 
+  if(($match = grep(/--with-doxygen-path/i, @ARGV)) > 0) {
     $options=~m/--with-doxygen-path=(\S*)/i;
     $gopt_with_doxygen_path = $1;
   }
@@ -215,11 +248,133 @@ if($gopt_enable_doxygen_doc eq "YES") {
   }
 }
 
+# ------------------------------------------------
+# PYTHIA6 paths
+# ------------------------------------------------
+
+# Get pythia6 library path
+#
+my $gopt_with_pythia6_lib = "";
+if($options=~m/--with-pythia6=\S*/i) {
+    print "*** Error *** Note that the option --with-pythia6 has been renamed to --with-pythia6-lib \n";
+    print "*** Error *** Please see './configure --help' for all config option updates \n\n";
+    exit 1;
+}
+if($options=~m/--with-pythia6-lib=(\S*)/i) {
+  $gopt_with_pythia6_lib = $1;
+} else {
+  print "\n*** Warning *** You didn't specify the PYTHIA6 path \n";
+}
+# if it was not set, try to pick it up from the environment
+if(! -d $gopt_with_pythia6_lib && defined $ENV{'PYTHIA6'}) {
+  $gopt_with_pythia6_lib = $ENV{'PYTHIA6'};
+  print "The \$PYTHIA6 env var is defined. I will pick that and set --with-pythia6-lib=$gopt_with_pythia6_lib\n";
+}
+# if it still not set, try autodetecting it
+if(! -d $gopt_with_pythia6_lib && $auto_detect)
+{
+  print "Auto-detecting the PYTHIA6 path...\n";
+  $matched = auto_detect("libPythia6*");
+  if( $matched=~m/(\S*)\/libPythia6\S*/i ) {
+     $gopt_with_pythia6_lib = $1;
+  }
+  print "Setting --with-pythia6-lib=$gopt_with_pythia6_lib\n";
+}
+if(! -d $gopt_with_pythia6_lib) {
+    print "*** Error *** Could not locate the PYTHIA6 library path. Please specify it using --with-pythia6=/some/path/\n\n";
+    exit 1;
+}
+
+# ------------------------------------------------
+# PYTHIA8 paths
+# ------------------------------------------------
+
+# If --enable-pythia8 was set then the full path to the PYTHIA8 library must be specified
+#
+my $gopt_with_pythia8_lib = "";
+if($gopt_enable_pythia8 eq "YES") {
+  if(($match = grep(/--with-pythia8-lib/i, @ARGV)) > 0) {
+    $options=~m/--with-pythia8-lib=(\S*)/i;
+    $gopt_with_pythia8_lib = $1;
+  }
+  if(! -d $gopt_with_pythia8_lib)  {
+    print "\n*** Warning *** PYTHIA8 has been enabled but you didn't specify the PYTHIA8 library path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_pythia8_lib eq "" && defined $ENV{'PYTHIA8_LIB'}) {
+     $gopt_with_pythia8_lib = $ENV{'PYTHIA8_LIB'};
+     print "The \$PYTHIA8_LIB env var is defined. I will pick that and use --with-pythia8-lib=$gopt_with_pythia8_lib\n";
+  }
+  # if it still not set, try autodetecting it
+  if(! -d $gopt_with_pythia8_lib && $auto_detect)  {
+    print "Auto-detecting PYTHIA8 library path...\n";
+    $matched = auto_detect("libpythia8.so");
+    if( $matched=~m/(\S*)\/libpythia8.so/i ) {
+       print "  -- MATCH = \n";
+       $gopt_with_pythia8_lib = $1;
+    }
+    else {
+      if( $matched=~m/(\S*)\/libpythia8.dylib/i ) {
+        print "  -- MATCH = \n";
+        $gopt_with_pythia8_lib = $1;
+      }
+    }
+    print "Setting --with-pythia8-lib=$gopt_with_pythia8_lib\n";
+  }
+  # check
+  my $fileso    = "$gopt_with_pythia8_lib/libpythia8.so";
+  my $filedylib = "$gopt_with_pythia8_lib/libpythia8.dylib";
+  if(! -e $fileso && ! -e $filedylib) {
+     print "*** Error *** You need to specify the path to PYTHIA8 library using --with-pythia8-lib=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-pythia8\n\n";
+     exit 1;
+  }
+}
+
+# If --enable-pythia8 was set then the full path to the PYTHIA8 includes must be specified
+#
+my $gopt_with_pythia8_inc = "";
+if($gopt_enable_pythia8 eq "YES") {
+  if(($match = grep(/--with-pythia8-inc/i, @ARGV)) > 0) {
+    $options=~m/--with-pythia8-inc=(\S*)/i;
+    $gopt_with_pythia8_inc = $1;
+  }
+  if(! -d $gopt_with_pythia8_inc)  {
+    print "\n*** Warning *** PYTHIA8 has been enabled but you didn't specify the PYTHIA8 include path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_pythia8_inc eq "" && defined $ENV{'PYTHIA8_INC'}) {
+     $gopt_with_pythia8_inc = $ENV{'PYTHIA8_INC'};
+     print "The \$PHTHIA8_INC env var is defined. I will pick that and use --with-pythia8-inc=$gopt_with_pythia8_inc\n";
+  }
+  # if it still not set, try autodetecting it
+  if(! -d $gopt_with_pythia8_inc && $auto_detect)  {
+    print "Auto-detecting the PYTHIA8 include path...\n";
+    $matched = auto_detect("Pythia.h","Pythia8/Pythia.h");
+    print "$gopt_with_pythia8_inc  \n";
+    if( $matched=~m/(\S*)\/Pythia8\/Pythia.h/i ) {
+       $gopt_with_pythia8_inc = $1;
+    }
+    print "Setting --with-pythia8-inc=$gopt_with_pythia8_inc\n";
+  }
+  # check
+  my $file = "$gopt_with_pythia8_inc/Pythia8/Pythia.h";
+  if(! -e $file) {
+     print "*** Error *** You need to specify the PYTHIA8 includes path using --with-pythia8-inc=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-pythia8\n\n";
+     exit 1;
+  }
+}
+
+# ------------------------------------------------
+# LHAPDF5 paths
+# ------------------------------------------------
+
 # If --enable-lhapdf5 was set then the full path to the LHAPDF5 library must be specified
 #
 my $gopt_with_lhapdf5_lib = "";
 if($gopt_enable_lhapdf5 eq "YES") {
-  if(($match = grep(/--with-lhapdf5-lib/i, @ARGV)) > 0) { 
+  if(($match = grep(/--with-lhapdf5-lib/i, @ARGV)) > 0) {
     $options=~m/--with-lhapdf5-lib=(\S*)/i;
     $gopt_with_lhapdf5_lib = $1;
   }
@@ -227,8 +382,8 @@ if($gopt_enable_lhapdf5 eq "YES") {
     print "\n*** Warning *** LHAPDF5 has been enabled but you didn't specify the LHAPDF5 library path \n";
   }
   # if it was not set, try to pick it up from the environment
-  if($gopt_with_lhapdf5_lib eq "" && defined $ENV{'LHAPDF5_LIB'}) { 
-     $gopt_with_lhapdf5_lib = $ENV{'LHAPDF5_LIB'}; 
+  if($gopt_with_lhapdf5_lib eq "" && defined $ENV{'LHAPDF5_LIB'}) {
+     $gopt_with_lhapdf5_lib = $ENV{'LHAPDF5_LIB'};
      print "The \$LHAPDF5_LIB env var is defined. I will pick that and use --with-lhapdf5-lib=$gopt_with_lhapdf5_lib\n";
   }
   # if it still not set, try autodetecting it
@@ -238,7 +393,7 @@ if($gopt_enable_lhapdf5 eq "YES") {
     if( $matched=~m/(\S*)\/libLHAPDF.a/i ) {
        $gopt_with_lhapdf5_lib = $1;
     }
-    print "Setting --with-lhapdf5-inc=$gopt_with_lhapdf5_lib\n";
+    print "Setting --with-lhapdf5-lib=$gopt_with_lhapdf5_lib\n";
   }
   # check
   my $fileso    = "$gopt_with_lhapdf5_lib/libLHAPDF.so";
@@ -254,7 +409,7 @@ if($gopt_enable_lhapdf5 eq "YES") {
 #
 my $gopt_with_lhapdf5_inc = "";
 if($gopt_enable_lhapdf5 eq "YES") {
-  if(($match = grep(/--with-lhapdf5-inc/i, @ARGV)) > 0) { 
+  if(($match = grep(/--with-lhapdf5-inc/i, @ARGV)) > 0) {
     $options=~m/--with-lhapdf5-inc=(\S*)/i;
     $gopt_with_lhapdf5_inc = $1;
   }
@@ -262,8 +417,8 @@ if($gopt_enable_lhapdf5 eq "YES") {
     print "\n*** Warning *** LHAPDF5 has been enabled but you didn't specify the LHAPDF5 include path \n";
   }
   # if it was not set, try to pick it up from the environment
-  if($gopt_with_lhapdf5_inc eq "" && defined $ENV{'LHAPDF5_INC'}) { 
-     $gopt_with_lhapdf5_inc = $ENV{'LHAPDF5_INC'}; 
+  if($gopt_with_lhapdf5_inc eq "" && defined $ENV{'LHAPDF5_INC'}) {
+     $gopt_with_lhapdf5_inc = $ENV{'LHAPDF5_INC'};
      print "The \$LHAPDF5_INC env var is defined. I will pick that and use --with-lhapdf5-inc=$gopt_with_lhapdf5_inc\n";
   }
   # if it still not set, try autodetecting it
@@ -285,11 +440,15 @@ if($gopt_enable_lhapdf5 eq "YES") {
   }
 }
 
+# ------------------------------------------------
+# LHAPDF6 paths
+# ------------------------------------------------
+
 # If --enable-lhapdf6 was set then the full path to the LHAPDF6 library must be specified
 #
 my $gopt_with_lhapdf6_lib = "";
 if($gopt_enable_lhapdf6 eq "YES") {
-  if(($match = grep(/--with-lhapdf6-lib/i, @ARGV)) > 0) { 
+  if(($match = grep(/--with-lhapdf6-lib/i, @ARGV)) > 0) {
     $options=~m/--with-lhapdf6-lib=(\S*)/i;
     $gopt_with_lhapdf6_lib = $1;
   }
@@ -297,8 +456,8 @@ if($gopt_enable_lhapdf6 eq "YES") {
     print "\n*** Warning *** LHAPDF6 has been enabled but you didn't specify the LHAPDF6 library path \n";
   }
   # if it was not set, try to pick it up from the environment
-  if($gopt_with_lhapdf6_lib eq "" && defined $ENV{'LHAPDF6_LIB'}) { 
-     $gopt_with_lhapdf6_lib = $ENV{'LHAPDF6_LIB'}; 
+  if($gopt_with_lhapdf6_lib eq "" && defined $ENV{'LHAPDF6_LIB'}) {
+     $gopt_with_lhapdf6_lib = $ENV{'LHAPDF6_LIB'};
      print "The \$LHAPDF6_LIB env var is defined. I will pick that and use --with-lhapdf6-lib=$gopt_with_lhapdf6_lib\n";
   }
   # if it still not set, try autodetecting it
@@ -324,7 +483,7 @@ if($gopt_enable_lhapdf6 eq "YES") {
 #
 my $gopt_with_lhapdf6_inc = "";
 if($gopt_enable_lhapdf6 eq "YES") {
-  if(($match = grep(/--with-lhapdf6-inc/i, @ARGV)) > 0) { 
+  if(($match = grep(/--with-lhapdf6-inc/i, @ARGV)) > 0) {
     $options=~m/--with-lhapdf6-inc=(\S*)/i;
     $gopt_with_lhapdf6_inc = $1;
   }
@@ -332,8 +491,8 @@ if($gopt_enable_lhapdf6 eq "YES") {
     print "\n*** Warning *** LHAPDF6 has been enabled but you didn't specify the LHAPDF6 include path \n";
   }
   # if it was not set, try to pick it up from the environment
-  if($gopt_with_lhapdf6_inc eq "" && defined $ENV{'LHAPDF6_INC'}) { 
-     $gopt_with_lhapdf6_inc = $ENV{'LHAPDF6_INC'}; 
+  if($gopt_with_lhapdf6_inc eq "" && defined $ENV{'LHAPDF6_INC'}) {
+     $gopt_with_lhapdf6_inc = $ENV{'LHAPDF6_INC'};
      print "The \$LHAPDF6_INC env var is defined. I will pick that and use --with-lhapdf6-inc=$gopt_with_lhapdf6_inc\n";
   }
   # if it still not set, try autodetecting it
@@ -355,46 +514,12 @@ if($gopt_enable_lhapdf6 eq "YES") {
   }
 }
 
-# Get pythia6 library path
-#
-my $gopt_with_pythia6_lib = "";	
-if($options=~m/--with-pythia6=\S*/i) {
-    print "*** Error *** Note that the option --with-pythia6 has been renamed to --with-pythia6-lib \n";
-    print "*** Error *** Please see './configure --help' for all config option updates \n\n";
-    exit 1;
-}
-if($options=~m/--with-pythia6-lib=(\S*)/i) {
-  $gopt_with_pythia6_lib = $1;
-} else {
-  print "\n*** Warning *** You didn't specify the PYTHIA6 path \n";
-}
-# if it was not set, try to pick it up from the environment
-if(! -d $gopt_with_pythia6_lib && defined $ENV{'PYTHIA6'}) { 
-  $gopt_with_pythia6_lib = $ENV{'PYTHIA6'}; 
-  print "The \$PYTHIA6 env var is defined. I will pick that and set --with-pythia6-lib=$gopt_with_pythia6_lib\n";
-}
-# if it still not set, try autodetecting it
-if(! -d $gopt_with_pythia6_lib && $auto_detect) 
-{
-  print "Auto-detecting the PYTHIA6 path...\n";
-  $matched = auto_detect("libPythia6*");
-  if( $matched=~m/(\S*)\/libPythia6\S*/i ) {
-     $gopt_with_pythia6_lib = $1;
-  }
-  print "Setting --with-pythia6-lib=$gopt_with_pythia6_lib\n";
-}
-if(! -d $gopt_with_pythia6_lib) {
-    print "*** Error *** Could not locate the PYTHIA6 library path. Please specify it using --with-pythia6=/some/path/\n\n";
-    exit 1;
-} 
-
-# Get libxml2 and log4cpp include and library paths 
-#
+# ------------------------------------------------
+# LIBXML2 paths
+# ------------------------------------------------
 
 my $gopt_with_libxml2_inc = "";
 my $gopt_with_libxml2_lib = "";
-my $gopt_with_log4cpp_inc = "";
-my $gopt_with_log4cpp_lib = "";
 
 #
 # --with-libxml2-inc=
@@ -436,6 +561,13 @@ if(! -d $gopt_with_libxml2_lib) {
   exit 1;
 }
 
+# ------------------------------------------------
+# LOG4CPP paths
+# ------------------------------------------------
+
+my $gopt_with_log4cpp_inc = "";
+my $gopt_with_log4cpp_lib = "";
+
 #
 # --with-log4cpp-inc=
 #
@@ -476,30 +608,87 @@ if(! -d $gopt_with_log4cpp_lib) {
   exit 1;
 }
 
+# ------------------------------------------------
+# libgfortran path
+# ------------------------------------------------
+
+my $gopt_with_gfortran_lib = "";
+
+if($gopt_enable_gfortran eq "YES") {
+
+  if($options=~m/--with-gfortran-lib=(\S*)/i) {
+    $gopt_with_gfortran_lib = $1;
+  }
+  if(! -d $gopt_with_gfortran_lib && $auto_detect)  {
+    print "\n*** Warning *** You didn't specify the gfortran library path \n";
+    print "Auto-detecting...\n";
+    $matched = auto_detect("libgfortran.*");
+    if( $matched=~m/(\S*)\/libgfortran\S*/i ) {
+       $gopt_with_gfortran_lib = $1;
+    }
+    print "Setting --with-gfortran-lib=$gopt_with_gfortran_lib\n";
+  }
+  if(! -d $gopt_with_gfortran_lib) {
+    print "*** Error *** You need to specify the gfortran library path using --with-gfortran-lib=/some/path/\n\n";
+    exit 1;
+  }
+}
+
+# ------------------------------------------------
+# libg2c path
+# ------------------------------------------------
+
+my $gopt_with_g2c_lib = "";
+
+if($gopt_enable_g2c eq "YES") {
+
+  if($options=~m/--with-g2c-lib=(\S*)/i) {
+    $gopt_with_g2c_lib = $1;
+  }
+  if(! -d $gopt_with_g2c_lib && $auto_detect)  {
+    print "\n*** Warning *** You didn't specify the g2c library path \n";
+    print "Auto-detecting...\n";
+    $matched = auto_detect("libg2c.*");
+    if( $matched=~m/(\S*)\/libg2c\S*/i ) {
+       $gopt_with_g2c_lib = $1;
+    }
+    print "Setting --with-g2c-lib=$gopt_with_g2c_lib\n";
+  }
+  if(! -d $gopt_with_g2c_lib) {
+    print "*** Error *** You need to specify the g2c library path using --with-g2c-lib=/some/path/\n\n";
+    exit 1;
+  }
+}
+
 # Save config options
 #
+print MKCONF "GOPT_ENABLE_PYTHIA8=$gopt_enable_pythia8\n";
 print MKCONF "GOPT_ENABLE_LHAPDF5=$gopt_enable_lhapdf5\n";
 print MKCONF "GOPT_ENABLE_LHAPDF6=$gopt_enable_lhapdf6\n";
+print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
+print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
 print MKCONF "GOPT_ENABLE_T2K=$gopt_enable_t2k\n";
 print MKCONF "GOPT_ENABLE_FNAL=$gopt_enable_fnal\n";
 print MKCONF "GOPT_ENABLE_ATMO=$gopt_enable_atmo\n";
 print MKCONF "GOPT_ENABLE_NUCLEON_DECAY=$gopt_enable_nucleon_decay\n";
 print MKCONF "GOPT_ENABLE_NNBAR_OSCILLATION=$gopt_enable_nnbar_oscillation\n";
 print MKCONF "GOPT_ENABLE_BOOSTED_DARK_MATTER=$gopt_enable_boosted_dark_mat\n";
-print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
-print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
 print MKCONF "GOPT_ENABLE_MASTERCLASS=$gopt_enable_masterclass\n";
 print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
-print MKCONF "GOPT_ENABLE_PROFILER=$gopt_enable_profiler\n";
-print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n"; 
 print MKCONF "GOPT_ENABLE_DYLIBVERSION=$gopt_enable_dylibversion\n";
 print MKCONF "GOPT_ENABLE_LOW_LEVEL_MESG=$gopt_enable_lowlevel_mesg\n";
+print MKCONF "GOPT_ENABLE_PROFILER=$gopt_enable_profiler\n";
+print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n";
+print MKCONF "GOPT_ENABLE_GFORTRAN=$gopt_enable_gfortran\n";
+print MKCONF "GOPT_ENABLE_G2C=$gopt_enable_g2c\n";
 print MKCONF "GOPT_WITH_COMPILER=$gopt_with_compiler\n";
 print MKCONF "GOPT_WITH_CXX_DEBUG_FLAG=$gopt_with_cxx_debug_flag\n";
 print MKCONF "GOPT_WITH_CXX_OPTIMIZ_FLAG=-$gopt_with_cxx_optimiz_flag\n";
 print MKCONF "GOPT_WITH_PROFILER_LIB=$gopt_with_profiler_lib\n";
 print MKCONF "GOPT_WITH_DOXYGEN_PATH=$gopt_with_doxygen_path\n";
 print MKCONF "GOPT_WITH_PYTHIA6_LIB=$gopt_with_pythia6_lib\n";
+print MKCONF "GOPT_WITH_PYTHIA8_LIB=$gopt_with_pythia8_lib\n";
+print MKCONF "GOPT_WITH_PYTHIA8_INC=$gopt_with_pythia8_inc\n";
 print MKCONF "GOPT_WITH_LHAPDF5_LIB=$gopt_with_lhapdf5_lib\n";
 print MKCONF "GOPT_WITH_LHAPDF5_INC=$gopt_with_lhapdf5_inc\n";
 print MKCONF "GOPT_WITH_LHAPDF6_LIB=$gopt_with_lhapdf6_lib\n";
@@ -508,6 +697,8 @@ print MKCONF "GOPT_WITH_LIBXML2_INC=$gopt_with_libxml2_inc\n";
 print MKCONF "GOPT_WITH_LIBXML2_LIB=$gopt_with_libxml2_lib\n";
 print MKCONF "GOPT_WITH_LOG4CPP_INC=$gopt_with_log4cpp_inc\n";
 print MKCONF "GOPT_WITH_LOG4CPP_LIB=$gopt_with_log4cpp_lib\n";
+print MKCONF "GOPT_WITH_GFORTRAN_LIB=$gopt_with_gfortran_lib\n";
+print MKCONF "GOPT_WITH_G2C_LIB=$gopt_with_g2c_lib\n";
 
 close(MKCONF);
 
@@ -523,9 +714,9 @@ if(-e $MKCONF_FILE) {
   @make_conf=<MKCONFR>;
   close(MKCONFR);
 # print "@make_conf\n" unless ;
-  foreach $setting (@make_conf) { 
-    chomp($setting); 
-    if ($setting=~m/\=/) {print "  $setting\n";} 
+  foreach $setting (@make_conf) {
+    chomp($setting);
+    if ($setting=~m/\=/) {print "  $setting\n";}
   }
 
   # Copy only the enable/disable options, excluding paths, in a separate file for genie-config.
@@ -534,7 +725,7 @@ if(-e $MKCONF_FILE) {
 
   print "\n";
   print "*** To continue building GENIE type: make ";
-  # Warning for SRT users  
+  # Warning for SRT users
   if(defined $ENV{'SRT_ENV_SET'}) {
     print "(Don't forget to 'srt_setup --unsetup' first)";
   }
@@ -544,10 +735,10 @@ if(-e $MKCONF_FILE) {
 }
 
 sub auto_detect {
-  
+
   # First place to look when autodetecting is in the directories in LD_LIBRARY_PATH
   my @libdirs = ( );
-  push (@libdirs,split(":",$ENV{LD_LIBRARY_PATH}))    if defined $ENV{LD_LIBRARY_PATH};  
+  push (@libdirs,split(":",$ENV{LD_LIBRARY_PATH}))    if defined $ENV{LD_LIBRARY_PATH};
   push (@libdirs,split(":",$ENV{DYLD_LIBRARY_PATH}))  if defined $ENV{DYLD_LIBRARY_PATH}; #and the mac equivalent
   my @search_dir = ();
   foreach my $libdir (unique_entries(@libdirs)) {
@@ -558,21 +749,24 @@ sub auto_detect {
     $lastdir = pop(@pathdirs);
     $basedir = join("/",@pathdirs);
     if ($lastdir =~ m/lib/) {# If the LD_LIBRARY_PATH has "lib" in it, append "../include"
-      push (@search_dir, $basedir."/include"); 
+      push (@search_dir, $basedir."/include");
     }
   }
-  push (@search_dir,"/usr");                        # Add usr
-  push (@search_dir,"/lib");                        # Add opt 
-  push (@search_dir,"/opt");                        # Add opt 
-  push (@search_dir,"$ENV{'HOME'}") 
+  # and standard search paths
+  push (@search_dir,"/usr");
+  push (@search_dir,"/lib");
+  push (@search_dir,"/opt");
+  push (@search_dir,"/hep");
+  push (@search_dir,"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/");
+  push (@search_dir,"$ENV{'HOME'}")
                  if defined $ENV{'HOME'};          # add $HOME
   push (@search_dir,"/hep");                       # add where I add ext apps in my mac book air
-  push (@search_dir,"$ENV{'RSD_TOP_DIR'}") 
+  push (@search_dir,"$ENV{'RSD_TOP_DIR'}")
                  if defined $ENV{'RSD_TOP_DIR'};   # add where RSD puts ext supporting libs
-  
+
   @search_dir = unique_entries(@search_dir); # Search each dir only once
-    
-  $search_file = shift; 
+
+  $search_file = shift;
   $optional_fullpath_substr = shift; # extra help in locating the correct file
 
   $optional_fullpath_substr = "" unless defined $optional_fullpath_substr;

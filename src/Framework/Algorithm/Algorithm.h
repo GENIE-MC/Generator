@@ -181,7 +181,7 @@ protected:
   //! It looks for different registry item with name comm_name0, comm_name1, etc...
   template<class T>
     bool GetParamVect( const std::string & comm_name, std::vector<T> & v,
-    		           unsigned int max, bool is_top_call = true ) const ;
+    		       bool is_top_call = true ) const ;
 
   int   AddTopRegistry( Registry * rp, bool owns = true );  ///< add registry with top priority, also update ownership
   int   AddLowRegistry( Registry * rp, bool owns = true );  ///< add registry with lowest priority, also update ownership

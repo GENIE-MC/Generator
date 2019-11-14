@@ -1,34 +1,27 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-Configuration for the Rein-Sehgal RES excitation d^xsec / dQ^2 dW xsec algorithm
 
 Algorithm Configurable Parameters:
 ..........................................................................................................................
 Name                        Type    Opt   Comment                                             Default
 ..........................................................................................................................
-SFAlg                       alg     No    Structure functions algorithm 
+SFAlg                       alg     No    Structure functions algorithm
 XSec-Integrator             alg     No
-Hadronizer                  alg     Dep   Hadronization model used for computing suppression
-                                          factors. Set if use-dis-res-joining-scheme=true
-DIS-XSecScale               double  No    XSec scaling factor                                 
-UseDRJoinScheme             bool    No    Use DIS/RES joining scheme?                         CommonParam[NonResBackground]
-Wcut                        double  Yes   Param used in DIS/RES joining                       CommonParam[NonResBackground]
-UseCache                    bool    Yes   Cache suppression factors?                          true
+
+DIS-XSecScale               double  No    XSec scaling factor
 WeinbergAngle               double  No                                                        CommonParam[WeakInt]
 -->
 
 <alg_conf>
 
-  <param_set name="Default"> 
-    <param type="string" name="CommonParam"> NonResBackground,WeakInt  </param>
+  <param_set name="Default">
+    <param type="string" name="CommonParam"> WeakInt  </param>
 
      <param type="alg" name="SFAlg">           genie::BYStrucFunc/Default      </param>
      <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default          </param>
-     <param type="alg" name="Hadronizer">      genie::KNOHadronization/Default </param>
 
      <param type="double" name="DIS-XSecScale">    1.032 </param>
   </param_set>
 
 </alg_conf>
-

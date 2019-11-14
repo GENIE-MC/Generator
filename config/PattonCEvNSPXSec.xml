@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the PattonCEvNSPXSec xsec algorithm.
+
+Configurable Parameters:
+..........................................................................................
+Name             Type     Optional   Comment                     Default
+..........................................................................................
+WeinbergAngle    double   No         Weinberg angle              CommonParam[WeakInt]
+XSec-Integrator  alg      No
+-->
+
+  <param_set name="Default"> 
+
+    <param type="string" name="CommonParam"> WeakInt </param>
+
+    <param type="alg"  name="XSec-Integrator"> genie::CEvNSXSec/Default </param>
+
+  </param_set>
+
+</alg_conf>
+

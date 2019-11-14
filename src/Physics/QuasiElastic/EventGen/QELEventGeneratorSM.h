@@ -77,6 +77,7 @@ private:
   CacheBranchFx * AccessCacheBranchDiffv (const Interaction * in) const;
 
   mutable KinePhaseSpace_t fkps;
+  
 
   bool fGenerateNucleonInNucleus;           ///< generate struck nucleon in nucleus
   double fQ2Min;                            ///< Q2-threshold for seeking the second maximum

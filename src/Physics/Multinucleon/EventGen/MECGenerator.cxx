@@ -242,7 +242,7 @@ void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
   double Wmin  =  1.88;
   double Wmax  =  3.00;
 
-  // Scan phase-space for the maximum differential cross section 
+  // Scan phase-space for the maximum differential cross section
   // at the current neutrino energy
   const int nq=30;
   const int nw=20;
@@ -253,8 +253,8 @@ void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
     for(int iq=0; iq<nq; iq++) {
       double Q2 = Q2min + iq*dQ2;
       double W  = Wmin  + iw*dW;
-      interaction->KinePtr()->SetQ2(Q2);  
-      interaction->KinePtr()->SetW (W);   
+      interaction->KinePtr()->SetQ2(Q2);
+      interaction->KinePtr()->SetW (W);
       double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
       xsec_max = TMath::Max(xsec, xsec_max);
     }
@@ -300,7 +300,7 @@ void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
  	//  More accurate calculation of the mass of the cluster than 2*Mnucl
  	int nucleon_cluster_pdg = interaction->InitState().Tgt().HitNucPdg();
  	double M2n = PDGLibrary::Instance()->Find(nucleon_cluster_pdg)->Mass(); 
-        bool is_em = interaction->ProcInfo().IsEM();
+        //bool is_em = interaction->ProcInfo().IsEM();
         kinematics::WQ2toXY(Ev,M2n,gW,gQ2,gx,gy);
 
         LOG("MEC", pINFO) << "x = " << gx << ", y = " << gy;

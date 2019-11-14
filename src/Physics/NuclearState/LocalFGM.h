@@ -70,6 +70,10 @@ private:
   map<int, double> fNucRmvE;
 
   double fPMax;
+
+  // options related to SRC pairs
+  double fSRC_Fraction;
+  double fPCutOff;
 };
 
 }         // genie namespace
