@@ -78,24 +78,15 @@ void DeVriesFormFactor::Configure(string config)
 void DeVriesFormFactor::LoadConfig(void)
 {
 
-  std::string raw ;
-  std::vector<std::string> bits ;
-
   // load R33 parameters
-  this -> GetParam( "DV-Coefficients", raw ) ;
-  bits = utils::str::Split( raw, ";" ) ;
-
-  if ( ! utils::str::Convert(bits, fFBCs) ) {
-    LOG("DeVriesFormFactor", pFATAL) << "Failed to decode coeffictient string for nucleus " << Id().Config() ;
-    LOG("DeVriesFormFactor", pFATAL) << "String " << raw ;
-  }
+  this -> GetParamVect( "DV-Coefficients", fFBCs ) ;
 
   GetParam( "DV-Radius", fRadius ) ;
   fRadius *= units::fm ;
 
   GetParam( "DV-Nucleus", fPDG ) ;
-
+  
   LOG("DeVriesFormFactor", pINFO) << "Loaded " << fFBCs.size() << " coeffictients for nucleus " << fPDG ; 
-
+  
 }
 //____________________________________________________________________________
