@@ -57,14 +57,13 @@ Delta-R3m1                    vec-double  Yes        Vlues for the R31 parameter
 
   
   <!-- 
-  ANL decay distributions are from the paper 
-  https://doi.org/10.1103/PhysRevD.25.1161
-  G. M. Radecky et al PhysRevD.25.1161 
-
-  The reports also standard deviations for the R parameters
+       ANL decay distributions are from the paper 
+       https://doi.org/10.1103/PhysRevD.25.1161
+       G. M. Radecky et al, PhysRevD.25.1161 
+       
+       The reports also standard deviations for the R parameters
   --> 
 
- 
   <param_set name="BeforeHadronTransport_ANL">
     
     <param type="bool" name="RunBeforeHadronTransport"> true  </param>
@@ -89,11 +88,51 @@ Delta-R3m1                    vec-double  Yes        Vlues for the R31 parameter
     
   </param_set>
 
+
+  <!-- 
+       BNL decay distributions are from the paper 
+       https://doi.org/10.1103/PhysRevD.19.2521
+       S. J. Barish et al, Phys. Rev. D 19, 2521
+       
+       The reports also standard deviations for the R parameters
+  --> 
+
   <param_set name="BeforeHadronTransport_BNL">
     
     <param type="bool" name="RunBeforeHadronTransport"> true  </param>
 
-    <!-- BNL -->
+    <param type="bool" name="Delta-ThetaOnly"> false </param>
+    <param type="vec-double" name="Delta-R33" delim=";">    0.634 ;  0.679 ;  0.694 </param>
+    <param type="vec-double" name="Delta-R31" delim=";">   -0.400 ; -0.124 ;  0.035 </param>
+    <param type="vec-double" name="Delta-R3m1" delim=";">  -0.122 ;  0.177 ; -0.132 </param>
+    <param type="vec-double" name="Delta-Q2" delim=";">          0.1   ;  0.3  </param>
+    
+  </param_set>
+
+  <param_set name="AfterHadronTransport_BNL">
+    
+    <param type="bool" name="RunBeforeHadronTransport"> false </param>
+
+    <param type="bool" name="Delta-ThetaOnly"> false </param>
+    <param type="vec-double" name="Delta-R33" delim=";">    0.634 ;  0.679 ;  0.694 </param>
+    <param type="vec-double" name="Delta-R31" delim=";">   -0.400 ; -0.124 ;  0.035 </param>
+    <param type="vec-double" name="Delta-R3m1" delim=";">  -0.122 ;  0.177 ; -0.132 </param>
+    <param type="vec-double" name="Delta-Q2" delim=";">          0.1   ;  0.3  </param>
+    
+  </param_set>
+
+
+  <!-- 
+      ANL+BNL decay distributions come from an attempt to combine both 
+      The work was done by the NuWro collaboration 
+      
+     Standard deviations for the R parameters are not avalable to the GENIE collaboration
+  --> 
+
+  <param_set name="BeforeHadronTransport_ANL+BNL">
+    
+    <param type="bool" name="RunBeforeHadronTransport"> true  </param>
+
     <param type="bool" name="Delta-ThetaOnly"> false </param>
     <param type="vec-double" name="Delta-R33" delim=";">    0.661 ;  0.673 ; 0.750 ; 0.800 </param>
     <param type="vec-double" name="Delta-R31" delim=";">   -0.213 ;  0.025 ; 0.036 ; 0.075 </param>
@@ -102,11 +141,10 @@ Delta-R3m1                    vec-double  Yes        Vlues for the R31 parameter
     
   </param_set>
 
-  <param_set name="AfterHadronTransport_BNL">
+  <param_set name="AfterHadronTransport_ANL+BNL">
     
     <param type="bool" name="RunBeforeHadronTransport"> false </param>
 
-    <!-- BNL -->
     <param type="bool" name="Delta-ThetaOnly" delim=";"> false </param>
     <param type="vec-double" name="Delta-R33" delim=";">    0.661 ;  0.673 ; 0.750 ; 0.800 </param>
     <param type="vec-double" name="Delta-R31" delim=";">   -0.213 ;  0.025 ; 0.036 ; 0.075 </param>
