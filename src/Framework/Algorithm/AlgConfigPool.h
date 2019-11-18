@@ -73,9 +73,11 @@ private:
   bool   LoadTuneGeneratorList(void);
   bool   LoadSingleAlgConfig (string alg_name, string file_name);
   bool   LoadRegistries      (string key_base, string file_name, string root);
+  int    AddParameterVector  (Registry * r, string pt, string pn, string pv, const string & delim = ";" );
   void   AddConfigParameter  (Registry * r, string pt, string pn, string pv);
   void   AddBasicParameter   (Registry * r, string pt, string pn, string pv);
   void   AddRootObjParameter (Registry * r, string pt, string pn, string pv);
+  
 
   static AlgConfigPool * fInstance;
 

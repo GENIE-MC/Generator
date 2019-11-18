@@ -285,7 +285,7 @@ Or changing the name of this parameter set
     <param type="string" name="ResonanceNameList">
       P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),
       S31(1620),D33(1700),P11(1440),P33(1600),P13(1720),F15(1680),
-      P31(1910),P33(1920),F35(1905),F37(1950),P11(1710),F17(1970)
+      P31(1910),P33(1920),F35(1905),F37(1950),P11(1710)
     </param>
 
   </param_set>
@@ -302,7 +302,25 @@ Or changing the name of this parameter set
         Set the coupling of dark matter to nucleons
     -->
     <param type="double" name="ZpCoupling"> 0.1 </param>
-
+    <param type="double" name="DarkLeftCharge"> 1.0 </param>
+    <param type="double" name="DarkRightCharge"> 1.0 </param>
+    <param type="double" name="DarkScalarCharge"> 1.0 </param> 
+    <param type="double" name="UpLeftCharge"> 1.0 </param>
+    <param type="double" name="UpRightCharge"> 1.0 </param>
+    <param type="double" name="DownLeftCharge"> 1.0 </param>
+    <param type="double" name="DownRightCharge"> 1.0 </param>
+    <param type="double" name="StrangeLeftCharge"> 1.0 </param>
+    <param type="double" name="StrangeRightCharge"> 1.0 </param>
+    <param type="double" name="CharmLeftCharge"> 1.0 </param>
+    <param type="double" name="CharmRightCharge"> 1.0 </param>
+    <param type="double" name="ElectronLeftCharge"> 1.0 </param>
+    <param type="double" name="ElectronRightCharge"> 1.0 </param>
+    <param type="double" name="DMEL-Mp"> 1.441 </param>
+    <param type="double" name="DMEL-Mpi"> 0.1349766 </param>
+    <param type="double" name="DMEL-Meta"> 0.547862 </param>
+    <param type="double" name="AxialVectorSpin-u"> 0.827 </param>
+    <param type="double" name="AxialVectorSpin-d"> -0.38 </param>
+    <param type="double" name="AxialVectorSpin-s"> -0.0427 </param>
   </param_set>
 
 

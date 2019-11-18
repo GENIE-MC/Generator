@@ -51,13 +51,34 @@ For more information, visit http://www.genie-mc.org
 ## Authors
 
 <pre>
-Luis Alvarez-Ruso [9], Costas Andreopoulos (*) [5,7], Adi Ashkenazi [4], Christopher Barry [5], Francis Bench [5], 
- Steve Dennis [5], Steve Dytman [6], Hugh Gallagher [8], Steven Gardiner[3], Walter Giele [3], Robert Hatcher [3], 
- Or Hen [4], Libo Jiang [6], Rhiannon Jones [5], Igor Kakorin [2], Konstantin Kuzmin [2], Anselmo Meregaglia [1], 
-       Donna Naples [6], Vadim Naumov [2],  Afroditi Papadopoulou [4], Gabriel Perdue [3], Marco Roda [5], 
-              Vladyslav Syrotenko [8], Julia Tena Vidal [5], Jeremy Wolcott [8], and Julia Yarba [3]
+Luis Alvarez-Ruso [9] < Luis.Alvarez \at ific.uv.es >, 
+Costas Andreopoulos (*) [5,7] < constantinos.andreopoulos \at cern.ch >, 
+Adi Ashkenazi [4] < adishka \at gmail.com >, 
+Christopher Barry [5] < C.Barry \at liverpool.ac.uk >, 
+Glória de Sá Pereira [5,7] < gloriadsp \at hep.ph.liv.ac.uk >, 
+Steve Dennis [5] < s.r.dennis \at liverpool.ac.uk >, 
+Steve Dytman [6] < dytman \at pitt.edu >, 
+Hugh Gallagher [8] < hugh.gallagher \at tufts.edu >, 
+Steven Gardiner[3] < gardiner \at fnal.gov >, 
+Walter Giele [3] < giele \at fnal.gov >, 
+Robert Hatcher [3] < rhatcher \at fnal.gov >, 
+Or Hen [4] < hen \at mit.edu >, 
+Libo Jiang [6] < libojiang8584 \at gmail.com >, 
+Rhiannon Jones [5] < rhiannon.jones \at liverpool.ac.uk >, 
+Igor Kakorin [2] < idkakorin \at gmail.com >, 
+Konstantin Kuzmin [2] < kkuzmin \at theor.jinr.ru >, 
+Anselmo Meregaglia [1] < anselmo.meregaglia \at cern.ch >, 
+Donna Naples [6], 
+Vadim Naumov [2] < vnaumov \at theor.jinr.ru >,  
+Afroditi Papadopoulou [4] < apapadop \at mit.edu >, 
+Gabriel Perdue [3] < perdue \at fnal.gov >, 
+Marco Roda [5]  < marco.roda \at liverpool.ac.uk >, 
+Vladyslav Syrotenko [8]  < Vladyslav.Syrotenko \at tufts.edu >, 
+Júlia Tena Vidal [5]  < j.tena-vidal \at liverpool.ac.uk >, 
+Jeremy Wolcott [8]  < jwolcott \at fnal.gov >, and 
+Julia Yarba [3]  < yarba_j \at fnal.gov >
 
-                                           (The GENIE Collaboration)
+(The GENIE Collaboration)
 
 (1) CENBG, Université de Bordeaux, CNRS/IN2P3, 33175 Gradignan, France
 (2) Joint Institute for Nuclear Research (JINR), Dubna, Moscow region, 141980, Russia

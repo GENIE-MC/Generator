@@ -72,6 +72,9 @@ private:
   int    fVelMode;          ///< velcoity dependence for xsec
   double fMedMass;          ///< Mediator mass
   double fgzp;              ///< Coupling to the mediator Zprime
+  double fQchiL;            ///< Left-handed DM charge
+  double fQchiR;            ///< Right-handed DM charge
+  double fQchiS;            ///< Scalar DM charge
 };
 
 }       // genie namespace
