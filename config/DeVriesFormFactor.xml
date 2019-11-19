@@ -14,14 +14,13 @@ There shall be a parameter set for each nucleus.
 
 Configurable Parameters:
 ..........................................................................................................
-Name                          Type     Optional   Comment
+Name                          Type        Optional   Comment
 ..........................................................................................................
-DV-Nucleus                    int      No         PDG of the nucleus for which the FormFacotor is evaluated
+DV-Nucleus                    int         No         PDG of the nucleus for which the FormFacotor is evaluated
 
-DV-Radius                     double   No         Radius of the nucleus as
+DV-Radius                     double      No         Radius of the nucleus as
 
-DV-Coefficients               string   No         string ; separated of values for the Fourier-Bessel coefficients
-of the for factor.
+DV-Coefficient                vec-double  No         values for the Fourier-Bessel coefficients of the form factor.
 
 -->
 
@@ -32,42 +31,44 @@ of the for factor.
   <param_set name="3H">
     <param type="int" name="DV-Nucleus"> 1000010030  </param>
 
-    <param type="double" name="DV-Radiuss"> 3.5  </param>
+    <param type="double" name="DV-Radius"> 3.5  </param>
 
-    <param type="vec-double" name="DV-Coefficients" delim=";">  0.25182e-1 ; 0.34215e-1 ; 0.15257e-1 </param>
+    <param type="vec-double" name="DV-Coefficient" delim=";">  0.25182e-1 ; 0.34215e-1 ; 0.15257e-1 </param>
   </param_set>
 
 
   <param_set name="3He">
     <param type="int" name="DV-Nucleus"> 1000020030  </param>
 
-    <param type="double" name="DV-Radiuss"> 5.0  </param>
+    <param type="double" name="DV-Radius"> 5.0  </param>
 
-    <param type="vec-double" name="DV-Coefficients" delim=";">  
-      0.20020e-1 ; 0.41934e-1 ; 0.36254e-1 ; O.17941e-1 ; 0.46608e-2 ;
-      0.46834e-2 ; 0.52042e-2 ; 0.3828Oe-2 ; 0.25661e-2 ; O.14182e-2 ;
-      0.61390e-3 ; 022929e-3 
+    <param type="vec-double" name="DV-Coefficient" delim=";">  
+      0.20020e-1 ; 0.41934e-1 ; 0.36254e-1 ; 0.17941e-1 ; 0.46608e-2 ;
+      0.46834e-2 ; 0.52042e-2 ; 0.38280e-2 ; 0.25661e-2 ; 0.14182e-2 ;
+      0.61390e-3 ; 0.22929e-3 
     </param>
   </param_set>
   
+
   <param_set name="12C">
     <param type="int" name="DV-Nucleus"> 1000060120  </param>
     
-    <param type="double" name="DV-Radiuss"> 8.0  </param>
+    <param type="double" name="DV-Radius"> 8.0  </param>
     
-    <param type="vec-double" name="DV-Coefficients" delim=";"> 
-       O.15737e-1 ;  0.38897e-1 ;  0.37085e-1 ;  0.14795e-1 ; -0.44831e-2 ;
-      -O.10057e-1 ; -0.68696e2  ; -028813e-2  ; -0.77229e-3 ;  0.66908e-4 ;
-       O.10636e-3 ; -0.36864e-4 ; -0.50135e-5 ;  0.9455Oe-5 ;  -0.47687e-5 
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.15737e-1 ;  0.38897e-1 ;  0.37085e-1 ;  0.14795e-1 ; -0.44831e-2 ;
+      -0.10057e-1 ; -0.68696e-2 ; -0.28813e-2 ; -0.77229e-3 ;  0.66908e-4 ;
+       0.10636e-3 ; -0.36864e-4 ; -0.50135e-5 ;  0.94550e-5 ; -0.47687e-5 
     </param>
   </param_set>
+
 
   <param_set name="40Ar">
     <param type="int" name="DV-Nucleus"> 1000180400  </param>
 
-    <param type="double" name="DV-Radiuss"> 9.0  </param>
+    <param type="double" name="DV-Radius"> 9.0  </param>
 
-    <param type="vec-double" name="DV-Coefficients" delim=";">  
+    <param type="vec-double" name="DV-Coefficient" delim=";">  
        0.30451e-1 ; 0.55337e-1 ;  0.20203e-1 ; -0.16765e-1 ; -0.13578e-1 ;
       -0.43204e-4 ; 0.91988e-3 ; -0.41205e-3 ;  0.11971e-3 ; -0.19801e-4  ;
       -0.43204e-5 ; 0.61205e-5 ; -0.37803e-5 ;  0.18001e-5 ; -0.77407e-6 

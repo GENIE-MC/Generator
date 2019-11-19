@@ -79,7 +79,7 @@ void DeVriesFormFactor::LoadConfig(void)
 {
 
   // load R33 parameters
-  this -> GetParamVect( "DV-Coefficients", fFBCs ) ;
+  this -> GetParamVect( "DV-Coefficient", fFBCs ) ;
 
   GetParam( "DV-Radius", fRadius ) ;
   fRadius *= units::fm ;
