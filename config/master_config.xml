@@ -120,6 +120,7 @@
    <config alg="genie::RSHelicityAmplModelEMp">                  RSHelicityAmplModelEMp.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMn">                  RSHelicityAmplModelEMn.xml                  </config>
    <config alg="genie::DeVriesFormFactor">                       DeVriesFormFactor.xml                       </config>
+   <config alg="genie::COHFormFactorMap">                        COHFormFactorMap.xml                        </config>
 
 
    <!--  ****** CONFIGURATION GENERIC CROSS SECTION INTEGRATORS ****** -->
