@@ -410,7 +410,7 @@ int  AlgConfigPool::AddParameterVector  (Registry * r, string pt, string pn, str
   for ( unsigned int i = 0 ; i < bits.size() ; ++i ) {
     std::string name = Algorithm::BuildParamVectKey( pn, i ) ; 
     
-    this -> AddConfigParameter( r, pt, name, bits[i] );
+    this -> AddConfigParameter( r, pt, name, utils::str::TrimSpaces( bits[i] ) );
   }
   
   return bits.size() ;
