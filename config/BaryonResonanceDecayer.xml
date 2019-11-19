@@ -36,7 +36,6 @@ Delta-R3m1                    vec-double  Yes        Vlues for the R31 parameter
 <alg_conf>
 
   <param_set name="Default">
-
     <param type="string" name="CommonDecay"> DecayFlags </param>
 
     <param type="double" name="FFScaling">  0.706    </param>
@@ -44,12 +43,13 @@ Delta-R3m1                    vec-double  Yes        Vlues for the R31 parameter
     <!-- MiniBooNE -->
     <param type="bool" name="Delta-ThetaOnly"> true </param>
     <param type="vec-double" name="Delta-R33" delim=";"> 0.75 </param>
-
   </param_set>
   
+
   <param_set name="BeforeHadronTransport">
     <param type="bool" name="RunBeforeHadronTransport"> true  </param>
   </param_set>
+
   
   <param_set name="AfterHadronTransport">
     <param type="bool" name="RunBeforeHadronTransport"> false </param>
