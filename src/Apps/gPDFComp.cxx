@@ -54,6 +54,7 @@
 #include "Framework/Utils/CmdLnArgParser.h"
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Utils/Style.h"
+#include "Framework/Utils/RunOpt.h"
 
 using namespace std;
 using namespace genie;
@@ -658,6 +659,9 @@ void MakePlots (void)
 //_________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
+  // necessary for setting from whence it gets ModelConfiguration.xml
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
+
   CmdLnArgParser parser(argc,argv);
 
   if(parser.OptionExists("pdf-set")){
