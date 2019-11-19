@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+
+Configuration sets for the COHFormFactorMap
+
+Configurable Parameters:
+..........................................................................................................
+Name                          Type     Optional   Comment
+..........................................................................................................
+COH-DV-FormFactor             vec-alg  No         Vector of DeVries sub algo and nuclei specification
+-->
+
+
+
+<alg_conf>
+
+  <param_set name="Default">
+    <param type="vec-alg" name="COH-DV-FormFactor" delim=";"> 
+      genie::DeVriesFormFactor/12C   ;
+      genie::DeVriesFormFactor/40Ar  
+    </param>
+  </param_set>
+
+
+</alg_conf>
