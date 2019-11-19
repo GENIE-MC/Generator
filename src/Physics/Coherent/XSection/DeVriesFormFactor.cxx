@@ -47,7 +47,7 @@ DeVriesFormFactor::~DeVriesFormFactor()
 
 }
 //____________________________________________________________________________
-double DeVriesFormFactor::FormFacotor( double Q ) const {
+double DeVriesFormFactor::FormFactor( double Q ) const {
 
   double qr = Q * fRadius ;
 

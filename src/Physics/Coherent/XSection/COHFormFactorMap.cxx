@@ -1,92 +1,116 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
- For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+  Copyright (c) 2003-2019, The GENIE Collaboration
+  For the full text of the license visit http://copyright.genie-mc.org
+  or see $GENIE/LICENSE
 
- Author:
+  Author: Marco Roda
+  University of Liverpool
+  <mroda \at liverpool.ac.uk>
 
- For the class documentation see the corresponding header file.
+  For the class documentation see the corresponding header file.
 
- Important revisions after version 2.0.0 :
- @ Feb 09, 2009 - CA
-   Moved into the new Coherent package from its previous location  (Elastic
-   package)
+  Important revisions after version 2.0.0 :
+  @ Feb 09, 2009 - CA
+  Moved into the new Coherent package from its previous location  (Elastic
+  package)
 
 */
 //____________________________________________________________________________
 
-#include <TMath.h>
+#include <vector>
 
-#include "Physics/Coherent/XSection/DeVriesFormFactor.h"
 #include "Framework/Messenger/Messenger.h"
 
-#include "Framework/Conventions/Constants.h"
-#include "Framework/Conventions/Units.h"
-
-#include "Framework/Utils/StringUtils.h" 
+#include "Physics/Coherent/XSection/COHFormFactorMap.h"
+#include "Framework/Registry/RegistryItemTypeDef.h"
 
 using namespace genie;
 
 
-//____________________________________________________________________________
-DeVriesFormFactor::DeVriesFormFactor() :
-Algorithm("genie::DeVriesFormFactor")
+COHFormFactorMap::COHFormFactorMap() :
+  COHFormFactorI("genie::COHFormFactorMap")
 {
 
 }
 //____________________________________________________________________________
-DeVriesFormFactor::DeVriesFormFactor(string config) :
-Algorithm("genie::DeVriesFormFactor", config)
+COHFormFactorMap::COHFormFactorMap(string config) :
+  COHFormFactorI("genie::COHFormFactorMap", config)
 {
 
 }
 //____________________________________________________________________________
-DeVriesFormFactor::~DeVriesFormFactor()
+COHFormFactorMap::~COHFormFactorMap()
 {
 
 }
 //____________________________________________________________________________
-double DeVriesFormFactor::FormFacotor( double Q ) const {
+double COHFormFactorMap::ProtonFF( double Q, int pdg ) const {
 
-  double qr = Q * fRadius ;
-
-  double aux_sum = 0.0, nu ;
-
-  for (unsigned int i = 0 ; i < fFBCs.size() ; ++i ) {
-     nu = i + 1. ;
-     double pi_x_i = constants::kPi*nu ;
-     aux_sum += pow( -1.0, i )*fFBCs[i]/( ( pi_x_i + qr )*( pi_x_i - qr ) ) ;
- }
-
- return 4.*constants::kPi*pow( fRadius/units::fm, 3)*aux_sum*(sin(qr)/(qr) ) ;
-
+  const std::map<int, const genie::DeVriesFormFactor *>::const_iterator it = 
+    fNuclearFFs.find( pdg ) ; 
+  
+  if ( it == fNuclearFFs.end() ) return 0. ;
+  
+  return it -> second -> FormFactor( Q ) ; 
+  
 }
 //____________________________________________________________________________
-void DeVriesFormFactor::Configure(const Registry & config)
+bool COHFormFactorMap::HasNucleus( int pdg ) const { 
+  
+  return (fNuclearFFs.count( pdg ) > 0) ;
+}
+//____________________________________________________________________________
+void COHFormFactorMap::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void DeVriesFormFactor::Configure(string config)
+void COHFormFactorMap::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void DeVriesFormFactor::LoadConfig(void)
+void COHFormFactorMap::LoadConfig(void)
 {
 
-  // load R33 parameters
-  this -> GetParamVect( "DV-Coefficients", fFBCs ) ;
-
-  GetParam( "DV-Radius", fRadius ) ;
-  fRadius *= units::fm ;
-
-  GetParam( "DV-Nucleus", fPDG ) ;
+  fNuclearFFs.clear() ;
   
-  LOG("DeVriesFormFactor", pINFO) << "Loaded " << fFBCs.size() << " coeffictients for nucleus " << fPDG ; 
+  bool good_configuration = true ; 
+
+  // read the vector of algos from the xml file
+  std::vector<RgKey> keys ;
+  GetParamVectKeys( "COH-DV-FormFactor", keys ) ; 
   
+  // Store pointers to subalgos in the local map 
+  for ( unsigned int i = 0 ; i < keys.size() ; ++i ) {
+    
+    const Algorithm * algo = SubAlg( keys[i] ) ;
+    
+    const DeVriesFormFactor * ff = dynamic_cast< const DeVriesFormFactor * >( algo ) ;
+    
+    if ( ! ff ) {
+      good_configuration = false ;
+      LOG("COHFormFactorMap", pERROR ) << "SubAlgo with key " << keys[i] << " not retrieved" ;
+
+    }
+    
+    if ( fNuclearFFs.count( ff -> NucleusPDG() ) > 0 ) { 
+      
+      good_configuration = false ; 
+      LOG("COHFormFactorMap", pERROR ) << "Attempt to add a second DeVries form factor for PDG " << ff -> NucleusPDG() ; 
+    }
+    
+    fNuclearFFs[ ff -> NucleusPDG() ] = ff ;
+    
+  }  // loop over subalgo
+
+  if ( ! good_configuration ) {
+    LOG("COHFormFactorMap", pFATAL ) << "Configuration not good, exiting" ;
+    exit ( 78 ) ;
+  }
+
 }
 //____________________________________________________________________________

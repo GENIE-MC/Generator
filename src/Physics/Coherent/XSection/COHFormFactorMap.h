@@ -21,6 +21,8 @@
 #ifndef _COH_FORM_FACTOR_MAP_H_
 #define _COH_FORM_FACTOR_MAP_H_ 
 
+#include <map>
+
 #include "Physics/Coherent/XSection/COHFormFactorI.h"
 #include "Physics/Coherent/XSection/DeVriesFormFactor.h"
 
@@ -35,10 +37,13 @@ public:
   virtual ~COHFormFactorMap();
 
   // methods to be implemented from COHFormFactorI
-  virtual double ProtonFF ( double Q, int pdg ) const = 0 ;
-  virtual double NeutronFF( double Q, int pdg ) const = 0 ;
+  virtual double ProtonFF ( double Q, int pdg ) const  ;
+  
+  virtual double NeutronFF( double Q, int pdg ) const {
+    return ProtonFF( Q, pdg ) ;
+  }
 
-  virtual bool HasNucleus( int pdg ) const = 0 ;
+  virtual bool HasNucleus( int pdg ) const ;
 
   // methods to implemented from Algorithm 
   void Configure (const Registry & config);
@@ -49,7 +54,7 @@ public:
 
   void LoadConfig(void);
   
-  map<int, const genie::DeVriesFormFactor *> fNuclearFFs ;
+  std::map<int, const genie::DeVriesFormFactor *> fNuclearFFs ;
   // the map key is given by the pdg
 
 };
