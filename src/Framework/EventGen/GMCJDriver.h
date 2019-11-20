@@ -58,6 +58,9 @@ public :
   void UseSplines                  (bool useLogE = true);
   bool UseMaxPathLengths           (string xml_filename);
   void KeepOnThrowingFluxNeutrinos (bool keep_on);
+  void SetPmaxLogBinning           (void);
+  void SetPmaxSafetyFactor         (double sf);
+  void ForceInteraction            (void);
   void ForceSingleProbScale        (void);
   void PreSelectEvents             (bool preselect = true);
   bool PreCalcFluxProbabilities    (void);
@@ -116,6 +119,8 @@ private:
   int             fSelTgtPdg;          ///< [current] selected target material PDG code
   map<int,double> fCurCumulProbMap;    ///< [current] cummulative interaction probabilities
   double          fNFluxNeutrinos;     ///< [current] number of flux nuetrinos fired by the flux driver so far 
+  bool            fPmaxLogBinning;     ///< [config] maximum interaction probability is computed in logarithmic energy bins
+  double          fPmaxSafetyFactor;   ///< [config] safety factor to compute the interaction probability
   map<int,TH1D*>  fPmax;               ///< [computed at init] interaction probability scale /neutrino /energy for given geometry
   double          fGlobPmax;           ///< [computed at init] global interaction probability scale for given flux & geometry
   string          fEventGenList;       ///< [config] list of event generators loaded by this driver (what used to be the $GEVGL setting)
@@ -126,6 +131,7 @@ private:
   bool            fUseLogE;            ///< [config] build splines = f(logE) (rather than f(E)) ?
   bool            fKeepThrowingFluxNu; ///< [config] keep firing flux neutrinos till one of them interacts
   bool            fGenerateUnweighted; ///< [config] force single probability scale?
+  bool            fForceInteraction;   ///< [config] force intearction?
   bool            fPreSelect;          ///< [config] set whether to pre-select events using max interaction paths 
   TFile*          fFluxIntProbFile;    ///< [input] pre-generated flux interaction probability file
   TTree*          fFluxIntTree;        ///< [computed-or-loaded] pre-computed flux interaction probabilities (expected tree name is "gFlxIntProbs")
