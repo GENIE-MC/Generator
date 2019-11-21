@@ -45,6 +45,9 @@ private:
   void LoadConfig(void);
 
   mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
+
+  double fWmin;               // Minimum value of W
+
 };
 
 }      // genie namespace

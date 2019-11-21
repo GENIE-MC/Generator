@@ -103,6 +103,8 @@ physics-neutrino-scattering-modes: FORCE
 	cd ${GENIE}/src/Physics/Resonance/EventGen               &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/Strange/XSection                 &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/Strange/EventGen                 &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/HEDIS/XSection                   &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/HEDIS/EventGen                   &&  $(MAKE) &&   \
 	cd ${GENIE}
 
 physics-nucleon-decay:
@@ -363,6 +365,9 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Strange
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Strange/XSection
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Strange/EventGen
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/HEDIS
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/HEDIS/XSection
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/HEDIS/EventGen
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/XSectionIntegration
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools/Flux
@@ -420,6 +425,8 @@ copy-install-files: FORCE
 	cd ${GENIE}/src/Physics/Resonance/EventGen               &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Strange/XSection                 &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Strange/EventGen                 &&  $(MAKE) install && \
+	cd ${GENIE}/src/Physics/HEDIS/XSection                   &&  $(MAKE) install && \
+	cd ${GENIE}/src/Physics/HEDIS/EventGen                   &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/XSectionIntegration              &&  $(MAKE) install && \
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) install && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) install && \
@@ -475,6 +482,8 @@ purge: FORCE
 	cd ${GENIE}/src/Physics/Resonance/EventGen               &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Strange/XSection                 &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Strange/EventGen                 &&  $(MAKE) purge && \
+	cd ${GENIE}/src/Physics/HEDIS/XSection                   &&  $(MAKE) purge && \
+	cd ${GENIE}/src/Physics/HEDIS/EventGen                   &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/XSectionIntegration              &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) purge && \
@@ -531,6 +540,8 @@ clean-files: FORCE
 	cd ${GENIE}/src/Physics/Resonance/EventGen               &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Strange/XSection                 &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Strange/EventGen                 &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Physics/HEDIS/XSection                   &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Physics/HEDIS/EventGen                   &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/XSectionIntegration              &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) clean && \
@@ -600,6 +611,8 @@ distclean: FORCE
 	cd ${GENIE}/src/Physics/Resonance/EventGen               &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Strange/XSection                 &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Strange/EventGen                 &&  $(MAKE) distclean && \
+	cd ${GENIE}/src/Physics/HEDIS/XSection                   &&  $(MAKE) distclean && \
+	cd ${GENIE}/src/Physics/HEDIS/EventGen                   &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/XSectionIntegration              &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) distclean && \

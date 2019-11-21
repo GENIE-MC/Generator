@@ -144,6 +144,23 @@ void XclsTag::SetDecayMode(int decay_mode)
   fDecayMode = decay_mode;
 }
 //___________________________________________________________________________
+void XclsTag::SetHEDISQrkChannel(HEDISQrkChannel_t channel)
+{
+  fHEDISQrkChannel = channel;
+}
+//___________________________________________________________________________
+void XclsTag::SetFinalQuark(int finalquark_pdgc)
+{
+  fIsFinalQuarkEvent     = true;
+  fFinalQuarkPdg = finalquark_pdgc; // leave as 0 (default) for inclusive charm
+}
+//___________________________________________________________________________
+void XclsTag::SetFinalLepton(int finallepton_pdgc)
+{
+  fIsFinalLeptonEvent     = true;
+  fFinalLeptonPdg = finallepton_pdgc; // leave as 0 (default) for inclusive charm
+}
+//___________________________________________________________________________
 void XclsTag::Reset(void)
 {
   fIsStrangeEvent   = false ; 
@@ -161,6 +178,11 @@ void XclsTag::Reset(void)
   fNRhoMinus        = 0 ;
   fResonance        = kNoResonance ;
   fDecayMode        = -1 ;
+  fHEDISQrkChannel    = kHEDISQrkNull;
+  fIsFinalQuarkEvent  = false;
+  fFinalQuarkPdg      = 0;
+  fIsFinalLeptonEvent = false;
+  fFinalLeptonPdg     = 0;
 }
 //___________________________________________________________________________
 void XclsTag::Copy(const XclsTag & xcls)
@@ -180,6 +202,11 @@ void XclsTag::Copy(const XclsTag & xcls)
   fNRhoMinus         = xcls.fNRhoMinus;
   fResonance        = xcls.fResonance;
   fDecayMode        = xcls.fDecayMode;
+  fHEDISQrkChannel    = xcls.fHEDISQrkChannel;
+  fIsFinalQuarkEvent  = xcls.fIsFinalQuarkEvent;
+  fFinalQuarkPdg      = xcls.fFinalQuarkPdg;
+  fIsFinalLeptonEvent = xcls.fIsFinalLeptonEvent;
+  fFinalLeptonPdg     = xcls.fFinalLeptonPdg;
 }
 //___________________________________________________________________________
 /*
@@ -244,6 +271,14 @@ string XclsTag::AsString(void) const
     tag << "dec:" << fDecayMode;
   }
 
+  if(fIsFinalQuarkEvent) {
+    tag << "finalquark:" << fFinalQuarkPdg;
+  }
+
+  if(fIsFinalLeptonEvent) {
+    tag << "finallepton:" << fFinalLeptonPdg;
+  }
+
   return tag.str();
 }
 //___________________________________________________________________________
@@ -303,6 +338,27 @@ void XclsTag::Print(ostream & stream) const
   } else {
      stream << "[not set]";
   }
+
+  stream << endl;
+
+  stream << " |--> final quark prod.  : "
+         << utils::print::BoolAsString(fIsFinalQuarkEvent);
+  if(fIsFinalQuarkEvent) {
+    stream << " - Final Quark PDG-code = " << fFinalQuarkPdg;
+    TParticlePDG * chadr = PDGLibrary::Instance()->Find( fFinalQuarkPdg );
+    if(chadr) stream << " (" << chadr->GetName() << ")";
+  }
+
+  stream << endl;
+
+  stream << " |--> final lepton prod.  : "
+         << utils::print::BoolAsString(fIsFinalLeptonEvent);
+  if(fIsFinalLeptonEvent) {
+    stream << " - Final Lepton PDG-code = " << fFinalLeptonPdg;
+    TParticlePDG * chadr = PDGLibrary::Instance()->Find( fFinalLeptonPdg );
+    if(chadr) stream << " (" << chadr->GetName() << ")";
+  }
+
   stream << endl;
 }
 //___________________________________________________________________________

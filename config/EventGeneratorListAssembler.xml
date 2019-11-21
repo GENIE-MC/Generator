@@ -58,16 +58,42 @@ Generator-%d                alg     No
   </param_set>
 
   <param_set name="UHE"> 
-     <param type="int" name="NGenerators">  4                                  </param>
-     <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES        </param>
-     <param type="alg" name="Generator-1">  genie::EventGenerator/DIS-CC       </param>
-     <param type="alg" name="Generator-2">  genie::EventGenerator/DIS-NC       </param>
-     <param type="alg" name="Generator-3">  genie::EventGenerator/DIS-CC-CHARM </param>
+     <param type="int" name="NGenerators">  7                                  </param>
+     <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES-Mu     </param>
+     <param type="alg" name="Generator-1">  genie::EventGenerator/GLRES-Tau    </param>
+     <param type="alg" name="Generator-2">  genie::EventGenerator/GLRES-Ele    </param>
+     <param type="alg" name="Generator-3">  genie::EventGenerator/GLRES-Ele    </param>
+     <param type="alg" name="Generator-4">  genie::EventGenerator/DIS-CC       </param>
+     <param type="alg" name="Generator-5">  genie::EventGenerator/DIS-NC       </param>
+     <param type="alg" name="Generator-6">  genie::EventGenerator/DIS-CC-CHARM </param>
   </param_set>
 
   <param_set name="GLRES"> 
+     <param type="int" name="NGenerators">  4                                  </param>
+     <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES-Mu     </param>
+     <param type="alg" name="Generator-1">  genie::EventGenerator/GLRES-Tau    </param>
+     <param type="alg" name="Generator-2">  genie::EventGenerator/GLRES-Ele    </param>
+     <param type="alg" name="Generator-3">  genie::EventGenerator/GLRES-Had    </param>
+  </param_set>
+
+  <param_set name="GLRES-Mu"> 
      <param type="int" name="NGenerators">  1                                  </param>
-     <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES        </param>
+     <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES-Mu     </param>
+  </param_set>
+
+  <param_set name="GLRES-Tau"> 
+     <param type="int" name="NGenerators">  1                                  </param>
+     <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES-Tau    </param>
+  </param_set>
+
+  <param_set name="GLRES-Ele"> 
+     <param type="int" name="NGenerators">  1                                  </param>
+     <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES-Ele    </param>
+  </param_set>
+
+  <param_set name="GLRES-Had"> 
+     <param type="int" name="NGenerators">  1                                  </param>
+     <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES-Had    </param>
   </param_set>
 
   <param_set name="DFR"> 
@@ -476,6 +502,28 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-2">   genie::EventGenerator/DME      </param>
   </param_set>
 
+
+  <!-- HEDIS module -->
+
+  <param_set name="HEDIS"> 
+     <param type="int" name="NGenerators">    6                               </param>
+     <param type="alg" name="Generator-0 ">   genie::EventGenerator/HEDIS-CC  </param>
+     <param type="alg" name="Generator-1 ">   genie::EventGenerator/HEDIS-NC  </param>
+     <param type="alg" name="Generator-2">    genie::EventGenerator/GLRES-Mu  </param>
+     <param type="alg" name="Generator-3">    genie::EventGenerator/GLRES-Tau </param>
+     <param type="alg" name="Generator-4">    genie::EventGenerator/GLRES-Ele </param>
+     <param type="alg" name="Generator-5">    genie::EventGenerator/GLRES-Had </param>
+  </param_set>
+
+  <param_set name="CCHEDIS"> 
+     <param type="int" name="NGenerators">    1                               </param>
+     <param type="alg" name="Generator-0 ">   genie::EventGenerator/HEDIS-CC    </param>
+  </param_set>
+
+  <param_set name="NCHEDIS"> 
+     <param type="int" name="NGenerators">    1                               </param>
+     <param type="alg" name="Generator-0">    genie::EventGenerator/HEDIS-NC    </param>
+  </param_set>
 
 </alg_conf>
 
