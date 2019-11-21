@@ -19,6 +19,7 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
 
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Algorithm/Algorithm.h"
@@ -515,6 +516,54 @@ void Algorithm::DeleteSubstructure(void)
 }
 //____________________________________________________________________________
 
+string  Algorithm::BuildParamVectKey( const std::string & comm_name, unsigned int i ) {
+
+  std::stringstream name;
+  name << comm_name << '-' << i ;
+  return name.str() ; 
+  
+}
+
+//____________________________________________________________________________
+
+string  Algorithm::BuildParamVectSizeKey( const std::string & comm_name ) { 
+
+  return 'N' + comm_name + 's' ; 
+
+}
+
+//____________________________________________________________________________
+
+int  Algorithm::GetParamVectKeys( const std::string & comm_name, std::vector<RgKey> & k,
+				  bool is_top_call ) const {
+
+  k.clear() ;
+  
+  int n ;
+  std::string n_name = Algorithm::BuildParamVectSizeKey( comm_name ) ;
+
+  bool found = GetParam( n_name, n, is_top_call ) ;
+
+  if ( ! found ) {
+    return 0 ; 
+  }
+  
+  for ( int i = 0; i < n; ++i ) {
+    
+    RgKey temp_key = Algorithm::BuildParamVectKey( comm_name, i ) ; 
+
+    // potentially, if it is a top call, 
+    // we might want to check if the key actually exist in the global Registry
+    // Not a priority irght now
+
+    k.push_back( temp_key ) ;
+  }
+
+  return k.size() ; 
+}
+
+
+//____________________________________________________________________________
 Registry * Algorithm::ExtractLocalConfig( const Registry & in ) const {
 
   const RgIMap & rgmap = in.GetItemMap();
