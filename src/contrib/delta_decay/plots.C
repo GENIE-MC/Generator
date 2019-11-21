@@ -13,11 +13,13 @@
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/GHEP/GHepStatus.h"
 
+#include "Framework/ParticleData/PDGCodes.h"
+
 using namespace genie ;
 
 
 int FindDelta( const EventRecord & event ) ;
-
+int IsSinglePion( const EventRecord & event ) ; 
 
 
 
@@ -32,7 +34,9 @@ int make_plots( TString file_name, TString flag, TString dir ) {
   // Get the GENIE GHEP tree and set its branch address
   TTree * tree = dynamic_cast<TTree*> ( in_file.Get("gtree") );
 
-  TH1D h_ct( "h_cos_theta", flag + " cos(#theta) distribution;Cos(#theta)", 80, 0., 1. ) ;
+  TH1D h_ct( "h_cos_theta", flag + " cos(#theta) distribution;Cos(#theta)", 100, -1., 1. ) ;
+  TH1D h_ct_lab( "h_cos_theta_lab", flag + " cos(#theta) distribution;Cos(#theta)", 80, -1., 1. ) ;
+
   TH1D h_theta( "h_theta", flag + " #theta distribution;#theta [rad]", 100, 0., TMath::Pi() ) ;
   TH1D h_phi  ( "h_phi",   flag + " #varphi distribution;#varphi [rad]", 100, 0., TMath::Pi() ) ;
   
@@ -94,14 +98,22 @@ int make_plots( TString file_name, TString flag, TString dir ) {
 	    
 	    TLorentzVector in_lep_p4( * (event.Probe()-> P4() ) ) ;
 	    
-	    in_lep_p4.Boost( - delta_mom.BoostVector() ) ;
-
 	    TLorentzVector out_lep_p4 = *( event.FinalStatePrimaryLepton() -> P4() ) ;
-	    out_lep_p4.Boost( - delta_mom.BoostVector() ) ;
-
+	    
 	    TLorentzVector q = in_lep_p4 - out_lep_p4 ;
 	    
+	    double theta_lab = pion_mom.Angle( q.Vect() ) ;
+	    h_ct_lab.Fill( TMath::Cos( theta_lab ) ) ;
+
+	    // move in the Delta CM
+
+	    in_lep_p4.Boost( - delta_mom.BoostVector() ) ;
+	    out_lep_p4.Boost( - delta_mom.BoostVector() ) ;
+	    
+	    q = in_lep_p4 - out_lep_p4 ;
+	    
 	    pion_mom.Boost( - delta_mom.BoostVector() );  // this gives us the pion in the Delta reference frame
+	    
 
 	    TVector3 pion_dir = pion_mom.Vect().Unit() ;
 	    TVector3 z_axis = q.Vect().Unit() ;
@@ -134,7 +146,22 @@ int make_plots( TString file_name, TString flag, TString dir ) {
     } // is resonant process
 
 
-    
+    // int pion_pos = IsSinglePion( event ) ;
+    // if ( pion_pos > 0 ) {
+      
+    //   TLorentzVector in_lep_p4( * (event.Probe()-> P4() ) ) ;
+      
+    //   TLorentzVector out_lep_p4 = *( event.FinalStatePrimaryLepton() -> P4() ) ;
+      
+    //   TLorentzVector q = in_lep_p4 - out_lep_p4 ;
+      
+    //   TLorentzVector pion_mom( * event.Particle( pion_pos ) -> P4() ) ;
+
+    //   double theta = pion_mom.Angle( q.Vect() ) ;
+    //   h_ct_lab.Fill( TMath::Cos( theta ) ) ;
+		     
+    // }  //  we have a single pion event 
+
       
     mcrec->Clear();
   }
@@ -143,6 +170,7 @@ int make_plots( TString file_name, TString flag, TString dir ) {
   out_file.cd() ;
   
   h_ct.Write() ;
+  h_ct_lab.Write() ;
   h_theta.Write() ;
   h_phi.Write() ;
   h_tp.Write() ;
@@ -188,4 +216,64 @@ int FindDelta( const EventRecord & event ) {
   }
 
   return -1 ;
+}
+
+int IsSinglePion( const EventRecord & event ) {
+
+  TObjArrayIter iter(&event);
+  GHepParticle * p = 0;
+    
+  unsigned int n_pions = 0 ;
+  unsigned int n_protons = 0 ;
+  unsigned int n_leptons = 0 ;
+  unsigned int n_others = 0 ;
+
+  int pion_pos = -1 ; 
+  int prot_pos = -1 ;
+  int pos = -1 ;
+  // loop over event particles
+  while( (p = dynamic_cast<GHepParticle *>(iter.Next())) ) {
+    
+    pos ++ ; 
+
+    int pdgc = p->Pdg();
+    int status = p->Status();
+
+    if( status != kIStDecayedState ) continue;
+
+    if      ( genie::pdg::IsChargedLepton( pdgc ) ) n_leptons ++  ;
+    else if ( genie::pdg::IsNucleon( pdgc ) ) {
+      if ( genie::pdg::IsProton( pdgc ) ) {
+	if ( p -> KinE() > 0.1 ) {
+	  prot_pos = pos ;
+	  n_protons ++ ;
+	}
+	
+      }
+    }
+
+    else if ( genie::pdg::IsPion( pdgc ) ) { 
+      if ( TMath::Abs(pdgc) == genie::kPdgPiP ) {
+	pion_pos = pos ;
+	n_pions++ ;
+      }
+    }
+    else if ( genie::pdg::IsParticle( pdgc ) ) {
+      if ( p -> Charge() != 0 ) 
+	n_others ++ ;
+    }
+    
+    
+  }  // particle loop
+  
+  if ( n_leptons > 1 ) return -1 ;
+  if ( n_others > 0 ) return -1 ;
+  if ( n_protons != 1 ) return -1 ;
+  if ( n_pions != 1 ) return -1 ;
+  
+  TLorentzVector delta_mom = (* event.Particle( prot_pos ) -> P4()) + (* event.Particle( pion_pos ) -> P4()) ;
+  double w = delta_mom.M() ; 
+
+  if ( w < 1.4 ) return pion_pos ;
+  return -1 ; 
 }
