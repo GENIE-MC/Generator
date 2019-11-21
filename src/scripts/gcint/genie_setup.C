@@ -21,4 +21,8 @@ void genie_setup()
     gSystem->cd(curr_dir.Data());
 
     change_prompt();
+    
+    gROOT->ProcessLine("genie::RunOpt::Instance()->ReadFromCommandLine( 0, 0 );" ) ;
+    gROOT->ProcessLine("genie::RunOpt::Instance()->BuildTune();");
+
 }
