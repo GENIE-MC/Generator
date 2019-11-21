@@ -35,7 +35,7 @@ int make_plots( TString file_name, TString flag, TString dir ) {
   TTree * tree = dynamic_cast<TTree*> ( in_file.Get("gtree") );
 
   TH1D h_ct( "h_cos_theta", flag + " cos(#theta) distribution;Cos(#theta)", 100, -1., 1. ) ;
-  TH1D h_ct_lab( "h_cos_theta_lab", flag + " cos(#theta) distribution;Cos(#theta)", 80, -1., 1. ) ;
+  TH1D h_ct_lab( "h_cos_theta_lab", flag + " cos(#theta) distribution;Cos(#theta)", 100, -1., 1. ) ;
 
   TH1D h_theta( "h_theta", flag + " #theta distribution;#theta [rad]", 100, 0., TMath::Pi() ) ;
   TH1D h_phi  ( "h_phi",   flag + " #varphi distribution;#varphi [rad]", 100, 0., TMath::Pi() ) ;
