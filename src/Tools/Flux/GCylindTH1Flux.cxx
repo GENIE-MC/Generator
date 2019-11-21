@@ -30,7 +30,9 @@
 #include "Tools/Flux/GCylindTH1Flux.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
+#include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/PrintUtils.h"
 
 #include "Tools/Flux/GFluxDriverFactory.h"
@@ -62,6 +64,11 @@ bool GCylindTH1Flux::GenerateNext(void)
 
   TVector3 p3(*fDirVec); // momentum along the neutrino direction
   p3.SetMag(Ev);         // with |p|=Ev
+  // EDIT: Check if we're running with DM beam
+  if (fPdgCList->ExistsInPDGCodeList(kPdgDarkMatter) || fPdgCList->ExistsInPDGCodeList(kPdgAntiDarkMatter)) {
+    double Md = PDGLibrary::Instance()->Find(kPdgDarkMatter)->Mass();
+    p3.SetMag(TMath::Sqrt(Ev*Ev - Md*Md));
+  }
 
   fgP4.SetPxPyPzE(p3.Px(), p3.Py(), p3.Pz(), Ev);
 

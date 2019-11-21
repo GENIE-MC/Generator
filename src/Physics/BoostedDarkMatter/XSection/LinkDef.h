@@ -8,8 +8,10 @@
 
 #pragma link C++ class genie::AhrensDMELPXSec;
 #pragma link C++ class genie::QPMDMDISPXSec;
+#pragma link C++ class genie::DMElectronPXSec;
 
 #pragma link C++ class genie::DMELXSec;
 #pragma link C++ class genie::DMDISXSec;
+#pragma link C++ class genie::DMElectronXSec;
 
 #endif

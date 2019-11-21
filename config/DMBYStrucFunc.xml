@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+Configuration for the DMBYStrucFunc DISStructureFuncModelI
+
+Algorithm Configurable Parameters:
+....................................................................................................
+Name                       Type    Opt   Comment                                Default
+....................................................................................................
+BY-A                       double  No    Bodek-Yang scaling var param A         
+By-B                       double  No    Bodek-Yang scaling var param B         
+BY-CsU                     double  No    Bodek-Yang u sea K factor param        
+BY-CsD                     double  No    Bodek-Yang d sea K factor param        
+BY-Cv1U                    double  No    Bodek-Yang u val K factor param        
+BY-Cv2U                    double  No    Bodek-Yang u val K factor param        
+BY-Cv1D                    double  No    Bodek-Yang d val K factor param        
+BY-Cv2D                    double  No    Bodek-Yang d val K factor param        
+
++++ This model inherits from QPMDISStrucFunc and calls its configure
++++ The following parameters have to be the same as in QPMDISStrucFunc.xml
+
+PDF-Set                    alg     No    PDF model
+Charm-Mass                 double  No    charm mass                             CommonParam[Masses]
+Charm-Prod-Off             bool    Yes   charm production is turned off         false
+PDF-Q2min                  double  No    min Q2 for PDF evaluation              From "PDF-Set" 
+IncludeR                   bool    No    include R factor?              
+IncludeNuclMod             bool    No    include nuclear factor?            
+CKM-Vcd                    double  No                                           CommonParam[CKM]
+CKM-Vcs                    double  No                                           CommonParam[CKM]
+CKM-Vud                    double  No                                           CommonParam[CKM]
+CKM-Vus                    double  No                                           CommonParam[CKM]
+Use2016Corrections         bool    No    Use SF corrections?                    
+LowQ2CutoffF1F2            double  No    min for F1/F2 SF relation             
+WeinbergAngle              double  No                                           CommonParam[WeakInt]
+-->
+
+<alg_conf>
+
+  <param_set name="Default"> 
+    <param type="string" name="CommonParam"> CKM,Masses,BoostedDarkMatter </param>
+
+     <param type="alg" name="PDF-Set"> genie::BYPDF/Default </param>
+
+     <param type="double" name="BY-A">     0.538   </param>
+     <param type="double" name="BY-B">     0.305   </param>
+     <param type="double" name="BY-CsU">   0.363   </param>
+     <param type="double" name="BY-CsD">   0.621   </param>
+     <param type="double" name="BY-Cv1U">  0.291   </param>
+     <param type="double" name="BY-Cv2U">  0.189   </param>
+     <param type="double" name="BY-Cv1D">  0.202   </param>
+     <param type="double" name="BY-Cv2D">  0.255   </param>
+
+     <!-- 
+	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	  Switches controlling the DIS structure function calculation. Those switches specify whether to:
+	  - include an R (~FL) factor into the calculation
+	  - include a nuclear factor (accounting for shadowing/anti-shadowing)
+	  - include corrections for calculating relation between 2xF1 and F2
+	  - Select value for Q2 cutoff in relation between 2xF1 and F2
+     -->
+     <param type="bool"   name="IncludeR">           true  </param>
+     <param type="bool"   name="IncludeNuclMod">     true  </param>
+     <param type="bool"   name="Use2016Corrections"> false </param>
+     <param type="double" name="LowQ2CutoffF1F2">    0.8   </param>
+     
+  </param_set>
+
+</alg_conf>
+
