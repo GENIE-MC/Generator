@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-Configuration for the KNOPythiaHadronization HadronizationModelI
+Configuration for the AGKY2019 HadronizationModelI
 
 Algorithm Configurable Parameters:
 ......................................................................................................
@@ -23,8 +23,8 @@ KNO2PYTHIA-Wmax             double  No     relevant only for method=2           
 
     <param type="string" name="CommonParam"> KNO2Pythia </param>
     
-    <param type="alg" name="KNO-Hadronizer">      genie::KNOHadronization/Default     </param>
-    <param type="alg" name="PYTHIA-Hadronizer">   genie::Pythia6Hadronization/Default </param>
+    <param type="alg" name="KNO-Hadronizer">      genie::AGKYLowW2019/Default     </param>
+    <param type="alg" name="PYTHIA-Hadronizer">   genie::Pythia6Hadro2019/Default </param>
 
   </param_set>
 

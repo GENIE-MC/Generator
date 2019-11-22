@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::CharmHadronization
+\class    genie::AGCharm2019
 
 \brief    Provides access to the PYTHIA hadronization models. \n
           Is a concrete implementation of the EventRecordVisitorI interface.
@@ -36,12 +36,12 @@ namespace genie {
 class Spline;
 class FragmentationFunctionI;
 
-class CharmHadronization : public EventRecordVisitorI {
+class AGCharm2019 : public EventRecordVisitorI {
 
 public:
-  CharmHadronization();
-  CharmHadronization(string config);
-  virtual ~CharmHadronization();
+  AGCharm2019();
+  AGCharm2019(string config);
+  virtual ~AGCharm2019();
 
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;
