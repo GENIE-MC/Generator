@@ -3,7 +3,14 @@
 
 \class    genie::AGCharm2019
 
-\brief    Provides access to the PYTHIA hadronization models. \n
+\brief    Andreopoulos - Gallagher (AG) GENIE Charm Hadronization model.
+
+          The model relies on empirical charm fragmentation and pT functions,
+          as well as on experimentally-determined charm fractions, to produce
+          the ID and 4-momentum of charmed hadron in charm production events.
+
+          The remnant (non-charm) system is hadronised by a call to PYTHIA.
+
           Is a concrete implementation of the EventRecordVisitorI interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
