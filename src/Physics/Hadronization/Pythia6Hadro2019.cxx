@@ -18,13 +18,13 @@
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepFlags.h"
 #include "Framework/EventGen/EVGThreadException.h"
-#include "Physics/Hadronization/Pythia6Hadro2019.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
+#include "Physics/Hadronization/Pythia6Hadro2019.h"
 
 #ifdef __GENIE_PYTHIA6_ENABLED__
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
