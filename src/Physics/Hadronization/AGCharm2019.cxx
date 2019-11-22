@@ -33,8 +33,6 @@
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepFlags.h" 
 #include "Framework/EventGen/EVGThreadException.h"
-#include "Physics/Hadronization/AGCharm2019.h"
-#include "Physics/Hadronization/FragmentationFunctionI.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Numerical/Spline.h"
@@ -44,8 +42,9 @@
 #include "Framework/ParticleData/PDGCodeList.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/StringUtils.h"
-#include "Physics/Hadronization/FragmRecUtils.h"
 #include "Framework/Utils/PrintUtils.h"
+#include "Physics/Hadronization/AGCharm2019.h"
+#include "Physics/Hadronization/FragmentationFunctionI.h"
 
 using namespace genie;
 using namespace genie::constants;
