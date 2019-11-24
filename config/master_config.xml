@@ -91,6 +91,7 @@
    <config alg="genie::KNOHadronization">            KNOHadronization.xml            </config>
    <config alg="genie::KNOPythiaHadronization">      KNOPythiaHadronization.xml      </config>
    <config alg="genie::Pythia6Hadronization">        Pythia6Hadronization.xml        </config>
+   <config alg="genie::Pythia8Hadronization">        Pythia8Hadronization.xml        </config>
    <config alg="genie::CharmHadronization">          CharmHadronization.xml          </config>
 
    <!-- ****** CONFIGURATION FOR PARTON DENSITY FUNCTION ALGORITHMS ****** -->

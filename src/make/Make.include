@@ -490,7 +490,6 @@ CPP_INCLUDES := \
     $(XML_INCLUDES) \
     $(LOG_INCLUDES) \
     $(ROOT_INCLUDES) \
-    $(PYTHIA8_INCLUDES) \
     $(LHAPDF_INCLUDES) \
     $(GSL_INCLUDES) \
     $(GENIE_INCLUDES)
@@ -505,9 +504,8 @@ ROOT_DICT_GEN_INCLUDES := \
 LIBRARIES := $(SYSLIBS) \
              $(FORT_LIBRARIES) \
              $(ROOT_LIBRARIES) \
-             $(PYTHIA6_LIBRARIES) \
-             $(PYTHIA8_LIBRARIES) \
              $(LHAPDF_LIBRARIES) \
+             $(PYTHIA6_LIBRARIES) \
              $(XML_LIBRARIES) \
              $(LOG_LIBRARIES) \
              $(GSL_LIBRARIES) \

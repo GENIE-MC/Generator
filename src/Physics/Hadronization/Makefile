@@ -25,4 +25,12 @@ install : install-inc install-lib
 #
 include $(GENIE)/src/make/Make.std-package-targets
 
+ifeq ($(strip $(GOPT_ENABLE_PYTHIA8)),YES)
+  CPP_INCLUDES           += $(PYTHIA8_INCLUDES)
+  ROOT_DICT_GEN_INCLUDES += $(PYTHIA8_INCLUDES) 
+  EXTRA_EXT_LIBS         += $(PYTHIA8_LIBRARIES)
+else
+  $(info $(PACKAGE) not build against Pythia8 )
+endif
+
 FORCE:
