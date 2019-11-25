@@ -3,7 +3,7 @@
 
 \class    genie::COHHadronicCurrentI
 
-\brief    Interface for COH Production model form factor
+\brief    Interface for COH Hadronic Current for COH NC Gamma production
 
 \author   Marco Roda <mroda@liverpool.ac.uk>
           University of Liverpool
@@ -36,7 +36,7 @@ public:
   virtual ~COHHadronicCurrentI() { ; } 
 
   virtual std::complex<double> R( uint8_t l, uint8_t m, 
-				  const Interaction * i, const COHFormFactorI * ff ) const ;
+				  const Interaction * i, const COHFormFactorI * ff ) const = 0 ;
 
   virtual Resonance_t Resonance() const { return kNoResonance ; } 
 
