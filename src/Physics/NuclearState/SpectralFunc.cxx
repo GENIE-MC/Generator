@@ -11,15 +11,6 @@
          Fermi National Accelerator Laboratory
 
  For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ May 01, 2012 - CA
-   Pick spectral function data from $GENIE/data/evgen/nucl/spectral_functions
-
- @ April 29, 2019 - SG
-   Full rewrite to use finely-binned histograms (tightly-peaked distributions led
-   to very slow rejection sampling), XML-based configuration of spectral function
-   data files with lazy initialization
 */
 //____________________________________________________________________________
 
@@ -44,7 +35,7 @@
 
 namespace {
 
-  // Replace this with std::to_string when we switch to C++11
+  // TODO: Replace this with std::to_string when we switch to C++11
   std::string replace_with_std_to_string(int an_integer) {
     std::ostringstream oss;
     oss << an_integer;
@@ -210,9 +201,8 @@ TH2D* SpectralFunc::SelectSpectralFunction(const Target& t) const
 {
   // First check whether we've already built the requested spectral function
   int target_pdg = t.Pdg();
-  if ( fSpectralFunctionMap.count(target_pdg) ) {
-    return fSpectralFunctionMap.at( target_pdg );
-  }
+  std::map<int, TH2D*>::iterator my_iter = fSpectralFunctionMap.find( target_pdg );
+  if ( my_iter != fSpectralFunctionMap.end() ) return my_iter->second;
 
   // If not, attempt to build it
   std::string target_pdg_string = replace_with_std_to_string( target_pdg );
@@ -250,50 +240,35 @@ TH2D* SpectralFunc::SelectSpectralFunction(const Target& t) const
 TH2D* SpectralFunc::LoadSFDataFile(const std::string& full_file_name) const
 {
   int num_E_bins, num_p_bins;
+  double p_min, p_max, E_min, E_max;
+
   std::ifstream in_file( full_file_name );
 
   // TODO: add I/O error handling
 
-  // First pass: get the number of bins on each axis
-  // and the set of bin edges
-  // TODO: consider changing the format so that this can
-  // be conveniently done in a single read-through of the
-  // input file
+  // Read the histogram bin boundary information from the
+  // spectral function data file header. Note that the current
+  // format requires equally-spaced bins.
   in_file >> num_E_bins >> num_p_bins;
-  double p, E, prob_density;
-  std::vector<double> ps, Es;
-  for ( int ip = 0; ip < num_p_bins; ++ip ) {
+  in_file >> E_min >> p_min;
+  in_file >> E_max >> p_max;
 
-    in_file >> p;
-    ps.push_back( p * genie::units::MeV );
+  // The input files use MeV while GENIE uses GeV, so make the
+  // change to GENIE units now.
+  // change now
+  E_min *= genie::units::MeV;
+  E_max *= genie::units::MeV;
 
-    for ( int ie = 0; ie < num_E_bins; ++ie ) {
-      in_file >> E >> prob_density;
-      if ( ip == 0 ) Es.push_back( E * genie::units::MeV );
-    }
-  }
+  p_min *= genie::units::MeV;
+  p_max *= genie::units::MeV;
 
-  // Assume that the last bin along each axis has the same width
-  // as the first bin (Noemi's SF tables do not give the last bin's
-  // high edge explicitly). Defining a TH2 with variable-size bins
-  // requires these high edge values.
-  // TODO: revisit this as needed
-  double p_width = ps.at(1) - ps.front();
-  ps.push_back( ps.back() + p_width );
-
-  double E_width = Es.at(1) - Es.front();
-  Es.push_back( Es.back() + E_width );
-
-  in_file.close();
-
-  // We've built the grid, now make a histogram using it
+  // Build an empty histogram with the given bin boundaries
   TH2D* sf_hist = new TH2D("temp_sf_hist",
     "Spectral Function; nucleon momentum (GeV); removal energy (GeV)",
-    num_p_bins, &(ps.front()), num_E_bins, &(Es.front()));
+    num_p_bins, p_min, p_max, num_E_bins, E_min, E_max);
 
-  // Do a second pass and set the contents of each bin
-  in_file.open( full_file_name );
-  in_file >> num_E_bins >> num_p_bins;
+  // Now set the contents of each bin using the body of the input data file.
+  // Note that the tabulated p and E values represent the bin centers.
   for ( int ip = 0; ip < num_p_bins; ++ip ) {
 
     in_file >> p;
@@ -318,6 +293,8 @@ TH2D* SpectralFunc::LoadSFDataFile(const std::string& full_file_name) const
       int E_idx = E_axis->FindBin( E );
       double E_bin_width = E_axis->GetBinWidth( E_idx );
 
+      // This expression assumes that the p^2 * prob_density can
+      // be treated as approximately constant over the bin of interest
       double prob_mass = prob_density * std::pow(p, 2) * 4. * kPi
         * p_bin_width * E_bin_width;
 

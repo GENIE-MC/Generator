@@ -19,7 +19,7 @@ Name               Type    Optional   Comment                      Default
     <param type="string" name="DataPath"> data/evgen/nucl/spectral_functions </param>
 
     <!-- <param type="string" name="SpectFuncTable@Pdg=1000060120"> benhar-sf-12c.data </param> -->
-    <param type="string" name="SpectFuncTable@Pdg=1000060120"> pke12_tot_genie_format.data </param>
+    <param type="string" name="SpectFuncTable@Pdg=1000060120"> pke12_tot.data </param>
     <param type="string" name="SpectFuncTable@Pdg=1000260560"> benhar-sf-56fe.data </param>
 
   </param_set>
