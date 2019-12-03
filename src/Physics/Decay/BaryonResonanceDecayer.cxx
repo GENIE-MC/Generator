@@ -820,9 +820,11 @@ double BaryonResonanceDecayer::FindDistributionExtrema( unsigned int q2_bin, boo
   min.SetMaxIterations(1000);
   min.SetTolerance( fMaxTolerance );
  
-  ROOT::Math::WrappedParamFunction f( ( find_maximum ? & BaryonResonanceDecayer::MinusPionAngularDist : & BaryonResonanceDecayer::PionAngularDist ), 
-				      2, 3, fRParams[q2_bin] ) ;
-
+  ROOT::Math::WrappedParamFunction<ROOT::Math::FreeParamMultiFunctionPtr> f( ( find_maximum ? 
+									       & BaryonResonanceDecayer::MinusPionAngularDist : 
+									       & BaryonResonanceDecayer::PionAngularDist ), 
+									     2, 3, fRParams[q2_bin] ) ;
+  
   // Steps are defined as the same fraction of the range of each variable
   double step[2] = { 0.00005 * kPi, 0.00005 * 2 * kPi } ;
   
