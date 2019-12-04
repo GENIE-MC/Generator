@@ -85,8 +85,7 @@ void SRCNuclearRecoil::ProcessEventRecord(GHepRecord * evrec) const
   assert(nucleon);
   assert(nucleus);
 
-  TVector3 pN = nucleon->P4()->Rho(); // momentum of struck nucleon
-  double pN2 = pN.Mag2(); // (momentum of struck nucleon)^2
+  double pN2 = TMath::Power(nucleon->P4()->Rho(),2.); // (momentum of struck nucleon)^2
 
   // Set this to either a proton or neutron to eject a secondary particle
   int eject_nucleon_pdg = this->SRCRecoilPDG(nucleon, nucleus, tgt, pN2);
@@ -120,7 +119,7 @@ int SRCNuclearRecoil::SRCRecoilPDG(GHepParticle * nucleon, GHepParticle * nucleu
       }else{
         kF = fKFTable->FindClosestKF(nucleus_pdgc, nucleon_pdgc);
       }
-      if (TMath::Sqrt(pF2) > kF) {
+      if (TMath::Sqrt(pN2) > kF) {
 
         double Pp = (nucleon->Pdg() == kPdgProton) ? fPPPairPercentage : fPNPairPercentage;
         RandomGen * rnd = RandomGen::Instance();
