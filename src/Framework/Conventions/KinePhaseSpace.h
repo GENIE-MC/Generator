@@ -67,7 +67,6 @@ typedef enum EKinePhaseSpace {
               // TODO: rename this value when the correct variables are identified
   kPSTAfE,
   kPSEgTlOgfE,
-  kPSp3NiEOlEl
 } KinePhaseSpace_t;
 
 class KinePhaseSpace
@@ -121,7 +120,6 @@ public:
       // TODO: update this string when the appropriate kinematic variables are known
       case(kPSQELEvGen)   : return "<QELEvGen>"; break;
       case(kPSTAfE)       : return "<{TA}|E>";   break;
-      case(kPSp3NiEOlEl) : return "<p3Ni,E_removal,Omega_l,E_l|E>"; break;
     }
     return "** Undefined kinematic phase space **";
   }

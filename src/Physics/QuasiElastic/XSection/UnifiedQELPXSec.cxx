@@ -176,22 +176,15 @@ double UnifiedQELPXSec::XSec(const Interaction* interaction,
   // Apply the tensor contraction to the cross section
   xsec *= contraction.real();
 
-  // Multiply by the analytic solution of the energy-conserving delta
-  // function (if needed for the kPSQELEvGen phase space) or by
-  // the Jacobian for the kPSp3NiEOlEl phase space otherwise.
-  if ( kps == kPSQELEvGen ) {
-    xsec *= genie::utils::EnergyDeltaFunctionSolutionQEL( *interaction );
-  }
-  else {
-    xsec *= lepP4.P() * lepP4.E() * p4Nf.E()
-      / ( 4. * qP4.P() * p4Ni.P() );
-  }
+  // Multiply by the analytic solution of the energy-conserving delta function
+  // used by the kPSQELEvGen phase space.
+  xsec *= genie::utils::EnergyDeltaFunctionSolutionQEL( *interaction );
 
   // Check whether variable tranformation is needed
-  if ( kps != kPSQELEvGen && kps != kPSp3NiEOlEl ) {
+  if ( kps != kPSQELEvGen ) {
     // Compute the appropriate Jacobian for transformation to the requested
     // phase space
-    double J = utils::kinematics::Jacobian(interaction, kPSp3NiEOlEl, kps);
+    double J = utils::kinematics::Jacobian(interaction, kPSQELEvGen, kps);
     xsec *= J;
   }
 
