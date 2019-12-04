@@ -200,7 +200,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // since we've already done that above
         LOG("QELEvent", pDEBUG) << "cth0 = " << costheta << ", phi0 = " << phi;
         double xsec = genie::utils::ComputeFullQELPXSec(interaction, fNuclModel,
-          fXSecModel, costheta, phi, fEb, fHitNucleonBindingMode, fMinAngleEM, false);
+          fXSecModel, costheta, phi, fEb, fHitNucleonBindingMode, false);
 
         // select/reject event
         this->AssertXSecLimits(interaction, xsec, xsec_max);
@@ -390,7 +390,7 @@ void QELEventGenerator::LoadConfig(void)
     // Minimum energy for which max xsec would be cached, forcing explicit
     // calculation for lower eneries
     GetParamDef( "Cache-MinEnergy", fEMin, 1.00 ) ;
-    
+
     // Maximum allowed fractional cross section deviation from maxim cross
     // section used in rejection method
     GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
@@ -399,8 +399,6 @@ void QELEventGenerator::LoadConfig(void)
     // Generate kinematics uniformly over allowed phase space and compute
     // an event weight?
     GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false ) ;
-
-    GetParamDef( "SF-MinAngleEMscattering", fMinAngleEM, 0. ) ;
 
     // Decide how to handle the binding energy of the initial state struck
     // nucleon
@@ -451,7 +449,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
       // BindHitNucleon()
       genie::utils::BindHitNucleon(*interaction, *fNuclModel, dummy_Eb, kOnShell);
 
-      // TODO: document this, won't work for spectral functions
+      // TODO: document this
       double dummy_w = -1.;
       double prob = fNuclModel->Prob(pNi_next, dummy_w, tgt,
         tgt.HitNucPosition());
@@ -493,7 +491,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
           double costh_increment = (costh_range_max-costh_range_min) / N_theta;
           double phi_increment   = (phi_range_max-phi_range_min) / N_phi;
           // Now scan through centre-of-mass angles coarsely
-          for (int itheta = 0; itheta < N_theta; itheta++){
+          for (int itheta = 0; itheta <= N_theta; itheta++) {
               double costh = costh_range_min + itheta * costh_increment;
               for (int iphi = 0; iphi < N_phi; iphi++) { // Scan around phi
                   double phi = phi_range_min + iphi * phi_increment;
@@ -502,7 +500,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
                   // argument is false because we've already called
                   // BindHitNucleon() above
                   double xs = genie::utils::ComputeFullQELPXSec(interaction,
-                    fNuclModel, fXSecModel, costh, phi, dummy_Eb, kOnShell, fMinAngleEM, false);
+                    fNuclModel, fXSecModel, costh, phi, dummy_Eb, kOnShell, false);
 
                   if (xs > this_nuc_xsec_max){
                       phi_at_xsec_max = phi;

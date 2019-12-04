@@ -21,6 +21,7 @@
 #pragma link C++ class genie::LwlynSmithQELCCPXSec;
 #pragma link C++ class genie::LwlynSmithFFCC;
 #pragma link C++ class genie::LwlynSmithFFNC;
+#pragma link C++ class genie::LwlynSmithFFEM;
 #pragma link C++ class genie::LwlynSmithFF;
 #pragma link C++ class genie::LwlynSmithFFDeltaS;
 #pragma link C++ class genie::AxialFormFactorModelI;
@@ -38,5 +39,10 @@
 
 #pragma link C++ class genie::QELXSec;
 #pragma link C++ class genie::NewQELXSec;
+
+#pragma link C++ class genie::Rank2LorentzTensorI;
+#pragma link C++ class genie::LeptonTensor;
+#pragma link C++ class genie::FreeNucleonTensor;
+#pragma link C++ class genie::UnifiedQELPXSec;
 
 #endif
