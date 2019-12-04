@@ -184,8 +184,8 @@ protected:
   //! Handle to load vectors of parameters
   template<class T>
     int GetParamVect( const std::string & comm_name, std::vector<T> & v,
-    		       bool is_top_call = true ) const ;
-
+		      bool is_top_call = true ) const ;
+  
   int GetParamVectKeys( const std::string & comm_name, std::vector<RgKey> & k,
 			bool is_top_call = true ) const ;
   
