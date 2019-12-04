@@ -85,11 +85,11 @@ void SRCNuclearRecoil::ProcessEventRecord(GHepRecord * evrec) const
   assert(nucleon);
   assert(nucleus);
 
-  TVector3 p3 = fNuclModel->Momentum3();
-  double pF2 = p3.Mag2(); // (fermi momentum)^2
+  TVector3 pN = nucleon->P4()->Rho(); // momentum of struck nucleon
+  double pN2 = pN.Mag2(); // (momentum of struck nucleon)^2
 
   // Set this to either a proton or neutron to eject a secondary particle
-  int eject_nucleon_pdg = this->SRCRecoilPDG(nucleon, nucleus, tgt, pF2);
+  int eject_nucleon_pdg = this->SRCRecoilPDG(nucleon, nucleus, tgt, pN2);
 
   // Ejection of secondary particle
   if (eject_nucleon_pdg != 0) { EmitSecondNucleon(evrec,eject_nucleon_pdg); }
@@ -98,7 +98,7 @@ void SRCNuclearRecoil::ProcessEventRecord(GHepRecord * evrec) const
 
 //___________________________________________________________________________
 
-int SRCNuclearRecoil::SRCRecoilPDG(GHepParticle * nucleon, GHepParticle * nucleus, Target* tgt, double pF2) const {
+int SRCNuclearRecoil::SRCRecoilPDG(GHepParticle * nucleon, GHepParticle * nucleus, Target* tgt, double pN2) const {
 
       int eject_nucleon_pdg = 0;
 
