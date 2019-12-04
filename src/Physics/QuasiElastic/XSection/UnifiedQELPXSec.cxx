@@ -18,7 +18,7 @@
 #include "Math/IFunction.h"
 #include "Math/Integrator.h"
 
-#include "Physics/QuasiElastic/XSection/CBFSpectFuncQELPXSec.h"
+#include "Physics/QuasiElastic/XSection/UnifiedQELPXSec.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactorsModelI.h"
@@ -41,24 +41,24 @@ using namespace genie::controls;
 using namespace genie::utils;
 
 //____________________________________________________________________________
-CBFSpectFuncQELPXSec::CBFSpectFuncQELPXSec() :
-XSecAlgorithmI("genie::CBFSpectFuncQELPXSec")
+UnifiedQELPXSec::UnifiedQELPXSec() :
+XSecAlgorithmI("genie::UnifiedQELPXSec")
 {
 
 }
 //____________________________________________________________________________
-CBFSpectFuncQELPXSec::CBFSpectFuncQELPXSec(string config) :
-XSecAlgorithmI("genie::CBFSpectFuncQELPXSec", config)
+UnifiedQELPXSec::UnifiedQELPXSec(string config) :
+XSecAlgorithmI("genie::UnifiedQELPXSec", config)
 {
 
 }
 //____________________________________________________________________________
-CBFSpectFuncQELPXSec::~CBFSpectFuncQELPXSec()
+UnifiedQELPXSec::~UnifiedQELPXSec()
 {
 
 }
 //____________________________________________________________________________
-double CBFSpectFuncQELPXSec::XSec(const Interaction* interaction,
+double UnifiedQELPXSec::XSec(const Interaction* interaction,
   KinePhaseSpace_t kps) const
 {
   if ( !this->ValidProcess(interaction) ) return 0.;
@@ -118,7 +118,7 @@ double CBFSpectFuncQELPXSec::XSec(const Interaction* interaction,
 
   // Make sure Q2 is physical
   if ( Q2 <= 0. ) {
-    LOG("CBFSpectFunc", pWARN) << "Q2 <= 0, returning xsec = 0";
+    LOG("UnifiedQELPXSec", pWARN) << "Q2 <= 0, returning xsec = 0";
     return 0.;
   }
 
@@ -140,7 +140,7 @@ double CBFSpectFuncQELPXSec::XSec(const Interaction* interaction,
     fFormFactors.SetModel( fEMFormFactorsModel );
   }
   else {
-    LOG("CBFSpectFunc", pERROR) << "Unrecognized process type encountered"
+    LOG("UnifiedQELPXSec", pERROR) << "Unrecognized process type encountered"
       << " in genie::CBFSpecFuncQELPXSec::XSec()";
     return 0.;
   }
@@ -169,7 +169,7 @@ double CBFSpectFuncQELPXSec::XSec(const Interaction* interaction,
   std::complex<double> contraction = L_munu * ATilde_munu;
 
   if ( std::abs(contraction.imag()) > kASmallNum ) {
-    LOG("CBFSpectFunc", pWARN) << "Tensor contraction has nonvanishing"
+    LOG("UnifiedQELPXSec", pWARN) << "Tensor contraction has nonvanishing"
       << " imaginary part!";
   }
 
@@ -198,7 +198,7 @@ double CBFSpectFuncQELPXSec::XSec(const Interaction* interaction,
   return xsec;
 }
 //____________________________________________________________________________
-double CBFSpectFuncQELPXSec::Integral(const Interaction* in) const
+double UnifiedQELPXSec::Integral(const Interaction* in) const
 {
   // Intended for use with genie::NewQELXSec, which is smart
   // enough to handle free nucleon vs. nuclear targets, different
@@ -206,7 +206,7 @@ double CBFSpectFuncQELPXSec::Integral(const Interaction* in) const
   return fXSecIntegrator->Integrate(this, in);
 }
 //____________________________________________________________________________
-bool CBFSpectFuncQELPXSec::ValidProcess(const Interaction* interaction) const
+bool UnifiedQELPXSec::ValidProcess(const Interaction* interaction) const
 {
   if ( interaction->TestBit(kISkipProcessChk) ) return true;
 
@@ -234,19 +234,19 @@ bool CBFSpectFuncQELPXSec::ValidProcess(const Interaction* interaction) const
   return false;
 }
 //____________________________________________________________________________
-void CBFSpectFuncQELPXSec::Configure(const Registry& config)
+void UnifiedQELPXSec::Configure(const Registry& config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void CBFSpectFuncQELPXSec::Configure(std::string config)
+void UnifiedQELPXSec::Configure(std::string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void CBFSpectFuncQELPXSec::LoadConfig(void)
+void UnifiedQELPXSec::LoadConfig(void)
 {
   double thc;
   GetParam( "CabibboAngle", thc ) ;

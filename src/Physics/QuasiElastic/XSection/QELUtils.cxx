@@ -291,12 +291,21 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
     // model, then it implies a certain value for the final
     // nucleus mass
     if ( hitNucleonBindingMode == genie::kUseNuclearModel ) {
-      Eb = nucl_model.RemovalEnergy();
-      // This equation is the definition that we assume
-      // here for the "removal energy" (Eb) returned by the
-      // nuclear model. It matches GENIE's convention for
-      // the Bodek/Ritchie Fermi gas model.
-      Mf = Mi + Eb - mNi;
+      if ( nucl_model.Id().Name() != "genie::SpectralFunc" ) {
+        Eb = nucl_model.RemovalEnergy();
+        // For all nuclear models except SpectralFunc, this equation is the
+        // definition that we assume for the "removal energy" (Eb). It matches
+        // GENIE's convention for the Bodek/Ritchie Fermi gas model.
+        Mf = Mi + Eb - mNi;
+      }
+      else {
+        // The SpectralFunc nuclear model returns a removal energy
+        // which includes the kinetic energy of the final-state nucleus.
+        // We account for this difference here.
+        double E = nucl_model.RemovalEnergy();
+        Mf = std::sqrt( std::max(0., std::pow(Mi + E - mNi, 2) - p3Ni.Mag2()) );
+        Eb = Mf + mNi - Mi;
+      }
     }
     // We can also assume that the final nucleus is in its
     // ground state. In this case, we can just look up its

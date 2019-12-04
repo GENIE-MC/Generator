@@ -43,6 +43,6 @@
 #pragma link C++ class genie::Rank2LorentzTensorI;
 #pragma link C++ class genie::LeptonTensor;
 #pragma link C++ class genie::FreeNucleonTensor;
-#pragma link C++ class genie::CBFSpectFuncQELPXSec;
+#pragma link C++ class genie::UnifiedQELPXSec;
 
 #endif

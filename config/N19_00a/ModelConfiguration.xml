@@ -50,9 +50,9 @@
 
 
   <!-- New QE model based on SF treatment. For CCQE, it's essentially equivalent to the Llewellyn-Smith model  -->
-  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC"> genie::CBFSpectFuncQELPXSec/Dipole </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-NC"> genie::CBFSpectFuncQELPXSec/Dipole </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-EM"> genie::CBFSpectFuncQELPXSec/Dipole </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC"> genie::UnifiedQELPXSec/Dipole </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-NC"> genie::UnifiedQELPXSec/Dipole </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-EM"> genie::UnifiedQELPXSec/Dipole </param>
 
   <!--
     <param type="alg" name="XSecModel@genie::EventGenerator/MEC-CC"> genie::EmpiricalMECPXSec2015/Default </param>

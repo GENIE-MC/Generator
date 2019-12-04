@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::CBFSpectFuncQELPXSec
+\class    genie::UnifiedQELPXSec
 
 \brief    Computes quasielastic neutrino-nucleus differential cross sections
           using a contraction of leptonic and hadronic tensors. Intended for
@@ -39,13 +39,13 @@ class QELFormFactorsModelI;
 class QELFormFactors;
 class XSecIntegratorI;
 
-class CBFSpectFuncQELPXSec : public XSecAlgorithmI {
+class UnifiedQELPXSec : public XSecAlgorithmI {
 
 public:
 
-  CBFSpectFuncQELPXSec();
-  CBFSpectFuncQELPXSec(std::string config);
-  virtual ~CBFSpectFuncQELPXSec();
+  UnifiedQELPXSec();
+  UnifiedQELPXSec(std::string config);
+  virtual ~UnifiedQELPXSec();
 
   // XSecAlgorithmI interface implementation
   double XSec            (const Interaction* i, KinePhaseSpace_t k) const;
