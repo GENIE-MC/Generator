@@ -76,6 +76,9 @@ private:
   bool                           fCharmOnly;   ///< don't hadronize non-charm blob
   TF1 *                          fCharmPT2pdf; ///< charm hadron pT^2 pdf
   const FragmentationFunctionI * fFragmFunc;   ///< charm hadron fragmentation func
+
+  double fFracMaxEnergy ;                      ///< Maximum energy available for the Meson fractions 
+
   Spline *                       fD0FracSpl;   ///< nu charm fraction vs Ev: D0
   Spline *                       fDpFracSpl;   ///< nu charm fraction vs Ev: D+
   Spline *                       fDsFracSpl;   ///< nu charm fraction vs Ev: Ds+
