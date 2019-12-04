@@ -185,7 +185,7 @@ endif
 ROOT_FLAGS     = $(shell root-config --cflags)
 ROOT_INCLUDES  = -I$(shell root-config --incdir)
 ROOT_LIBRARIES = $(shell root-config --glibs) \
-                        -lMinuit -lGeom -lEG -lEGPythia6 -lGenVector
+                        -lMinuit -lGeom -lEG -lEGPythia6 -lGenVector -lMathMore
 ROOT_VERSION = $(shell root-config --version )
 ROOT_MAJOR   = $(shell root-config --version | cut -d. -f1 )
 
