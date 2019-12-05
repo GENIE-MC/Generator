@@ -152,6 +152,8 @@
   <priority msgstream="PythiaDec">             FATAL </priority>
   <priority msgstream="Pythia6Decay">          FATAL </priority>
   <priority msgstream="PythiaHad">             FATAL </priority>
+  <priority msgstream="Pythia6Had">            FATAL </priority>
+  <priority msgstream="Pythia8Had">            FATAL </priority>
   <priority msgstream="PDG">                   FATAL </priority>
   <priority msgstream="PathL">                 FATAL </priority>
   <priority msgstream="PhysUtil">              FATAL </priority>

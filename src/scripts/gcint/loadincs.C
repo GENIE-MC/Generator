@@ -1,3 +1,4 @@
+int loadincs()
 {
   TString genie_topdir = gSystem->Getenv("GENIE");
 
@@ -32,5 +33,6 @@
 
   dip = ".include /usr/local/include/log4cpp";
   gROOT->ProcessLine(dip.Data());
-
+  
+  return 0;
 }

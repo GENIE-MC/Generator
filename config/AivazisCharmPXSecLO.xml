@@ -16,23 +16,19 @@ XSec-Integrator alg
 
 <alg_conf>
 
-  <param_set name="Default"> 
-    
-     <param type="string" name="CommonParam"> CKM,Masses </param>
-    
+  <param_set name="Default">     
+     <param type="string" name="CommonParam"> CKM,Masses </param>    
   </param_set>
   
 
   <param_set name="CC-Optional"> 
-     <param type="alg" name="PDF-Set">         genie::GRV98LO/Default  </param>
+     <param type="alg" name="PDF-Set">         genie::LHAPDF5/GRVLO    </param>
      <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default  </param>
-
   </param_set>
 
   <param_set name="CC-Default"> 
-     <param type="alg" name="PDF-Set">         genie::LHAPDF5/GRVLO    </param>
-     <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default  </param>
-     
+     <param type="alg" name="PDF-Set">         genie::GRV98LO/Default  </param>
+     <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default  </param>     
   </param_set>
 
 </alg_conf>
