@@ -185,8 +185,6 @@ foreach $nu ( @nu_list ) {
 
       print "@@ exec: $gmkspl_cmd \n";
 
-      push( @direct_commands, "source $genie_setup $config_dir; cd $jobs_dir; $gmkspl_cmd" ) ;
-
       # create sh file 
       $shell_script = "$filename_template.sh";
       open(COMMANDS, ">$shell_script") or die("Can not create the bash script");
@@ -195,6 +193,8 @@ foreach $nu ( @nu_list ) {
       print COMMANDS "cd $jobs_dir \n";
       print COMMANDS "$gmkspl_cmd \n";
       close(COMMANDS);
+
+      push( @direct_commands, "source $filename_template.sh" ) ;
 
       
       # PBS case
