@@ -263,6 +263,7 @@ foreach $nu ( @nu_list ) {
          print HTC "Output                 = $filename_template.out \n";
  	 print HTC "Error                  = $filename_template.err \n";
  	 print HTC "Request_memory         = 2 GB \n";
+	 print HTC "priority               = -1 \n" if ( $priority ) ;
  	 print HTC "Queue \n";
  	 close(HTC);
  	 push ( @batch_commands, "condor_submit $batch_script" ) ;
