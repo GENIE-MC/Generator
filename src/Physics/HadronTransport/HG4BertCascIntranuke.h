@@ -101,7 +101,7 @@ private:
   bool         fUseOset;      ///< Oset model for low energy pion in hN
   bool         fAltOset;      ///< NuWro's table-based implementation (not recommended)
   bool         fXsecNNCorr;   ///< use nuclear medium correction for NN cross section
-  bool fDoFermi;
+  bool         fDoFermi;
   double       fPionMFPScale;  
   double       fNucleonMFPScale;
 };

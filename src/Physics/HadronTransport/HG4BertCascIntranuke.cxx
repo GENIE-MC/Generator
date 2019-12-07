@@ -87,9 +87,7 @@ int HG4BertCascIntranuke::G4BertCascade(GHepRecord * evrec) const{
   GHepParticle* tgtNucl = evrec->TargetNucleus();             // target
 
 
-  //
   G4ParticleDefinition* incidentDef = PDGtoG4Particle(probe->Pdg() );
-
 
   int Zinit = tgtNucl->Z();
   int Ainit = tgtNucl->A();
@@ -417,7 +415,6 @@ int Zinit = remNucl->Z() - outLept->Charge()/3;
 //  if (incidentBaryon->Pdg() != struckNucleon->Pdg() ) Zinit--;
 Zinit += (struckNucleon->Charge() - incidentBaryon->Charge() )/3;
 //std::cout << " Zinit = " << Zinit << std::endl;
-
 int Ainit = remNucl->A();
 //std::cout << " Ainit = " << Ainit << std::endl;
 
