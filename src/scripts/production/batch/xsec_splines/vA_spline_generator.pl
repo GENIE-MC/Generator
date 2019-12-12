@@ -217,7 +217,7 @@ foreach $nu ( @nu_list ) {
       # submit
       #
 
-      push( @direct_commands, "source $shell_script" ) ;
+      push( @direct_commands, "bash $shell_script " ) ;
 
 
       # PBS case
@@ -315,7 +315,8 @@ if ( $batch_system eq 'none' ) {
     ## run all of them interactively
 
     for my $run_cmd ( @direct_commands ) {
-        `$run_cmd` ;
+	print "Executin: $run_cmd \n" ;
+	`$run_cmd` ;
     }
 }
 else {
@@ -326,6 +327,7 @@ else {
 
     # handle the first according to script options
     if ( defined $run_one ) {
+	print "\nExecuting: $direct_commands[0] \n" ;
         `$direct_commands[0]` ;
     }
     else {

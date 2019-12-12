@@ -194,7 +194,7 @@ foreach $nu ( @nu_list ) {
       print COMMANDS "$gmkspl_cmd \n";
       close(COMMANDS);
 
-      push( @direct_commands, "source $filename_template.sh" ) ;
+      push( @direct_commands, "bash $filename_template.sh" ) ;
 
       
       # PBS case
@@ -299,6 +299,7 @@ foreach $nu ( @nu_list ) {
 if ( $batch_system eq 'none' ) {
     ## run all of them interactively
     for my $run_cmd ( @direct_commands ) {
+	print "Executing: $run_cmd \n" ; 
 	`$run_cmd` ;
     }
 }
@@ -310,6 +311,7 @@ else {
 
     # handle the first according to script options
     if ( defined $run_one ) {
+	print "Executing: $direct_commands[0] \n" ;
 	`$direct_commands[0]` ;
     }
     else {
