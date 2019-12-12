@@ -10,7 +10,7 @@
 
          Options :
            -n  number of events
-           -a  hadronizer (algorithm name, eg genie::KNOHadronization)
+           -a  hadronizer (algorithm name, eg genie::AGKYLowW2019)
            -c  hadronizer config set
            -q  set hit quark (needed for PYTHIA, not needed for KNO)
 
