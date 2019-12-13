@@ -89,20 +89,19 @@ private:
                                    // determining how far to track hadrons
                                    //  beyond the "nuclear boundary"
   double       fNucRmvE;      ///< binding energy to subtract from cascade nucleons
-  double       fDelRPion;     ///< factor by which Pion Compton wavelength gets multiplied to become nuclear size enhancement 
-  double       fDelRNucleon;  ///< factor by which Nucleon Compton wavelength gets multiplied to become nuclear size enhancement 
+  double       fDelRPion;     ///< factor by which Pion Compton wavelength gets multiplied to become nuclear size enhancement
+  double       fDelRNucleon;  ///< factor by which Nucleon Compton wavelength gets multiplied to become nuclear size enhancement
   double       fHadStep;      ///< step size for intranuclear hadron transport
   double       fNucAbsFac;    ///< absorption xsec correction factor (hN Mode)
   double       fNucCEXFac;    ///< charge exchange xsec correction factor (hN Mode)
   double       fEPreEq;       ///< threshold for pre-equilibrium reaction
   double       fFermiFac;     ///< testing parameter to modify fermi momentum
-  double       fFreeStep;     ///< produced particle free stem, in fm
   double       fFermiMomentum;     ///< whether or not particle collision is pauli blocked
   bool         fUseOset;      ///< Oset model for low energy pion in hN
   bool         fAltOset;      ///< NuWro's table-based implementation (not recommended)
   bool         fXsecNNCorr;   ///< use nuclear medium correction for NN cross section
   bool         fDoFermi;
-  double       fPionMFPScale;  
+  double       fPionMFPScale;
   double       fNucleonMFPScale;
 };
 
