@@ -41,6 +41,7 @@
 #include "Geant4/G4IonTable.hh"
 #include "Geant4/G4LeptonConstructor.hh"
 #include "Geant4/G4MesonConstructor.hh"
+#include "Geant4/G4BaryonConstructor.hh"
 #include "Geant4/G4GenericIon.hh"
 #include "Geant4/G4ProcessManager.hh"
 #include "Geant4/G4SystemOfUnits.hh"
@@ -266,12 +267,31 @@ void HG4BertCascIntranuke::InitG4Particles() const
 {
   G4LeptonConstructor::ConstructParticle();
   G4MesonConstructor::ConstructParticle();
+  G4BaryonConstructor::ConstructParticle();
   G4He3::He3();
   G4Gamma::Gamma();
   G4ParticleTable* pTable = G4ParticleTable::GetParticleTable();
   pTable->SetReadiness(true);
   G4GenericIon* gIon = G4GenericIon::Definition();
   gIon->SetProcessManager(new G4ProcessManager(gIon) );
+
+  // testing
+  const G4ParticleDefinition* electron = PDGtoG4Particle(11);
+  const G4ParticleDefinition* proton   = PDGtoG4Particle(2212);
+  const G4ParticleDefinition* neutron  = PDGtoG4Particle(2112);
+  const G4ParticleDefinition* piplus   = PDGtoG4Particle(211);
+  LOG("HG4BertCascIntranuke", pINFO)
+    << "testing initialization of G4 particles \n"
+    << " e   0x" << electron << "\n"
+    << " p   0x" << proton << "\n"
+    << " n   0x" << neutron << "\n"
+    << " pi+ 0x" << piplus << "\n"
+    << "...InitG4Particles complete";
+  if ( electron == 0 || proton == 0 || neutron == 0 || piplus == 0 ) {
+    LOG("HG4BertCascIntranuke", pFATAL)
+      << "something is seriously wrong with g4 particle lookup";
+    exit(42);
+  }
 }
 
 //___________________________________________________________________________
@@ -584,7 +604,7 @@ const G4ParticleDefinition* HG4BertCascIntranuke::PDGtoG4Particle(int pdg) const
 {
   const G4ParticleDefinition* pDef = 0;
 
-  if ( pdg < 1000000000 ) {
+  if ( abs(pdg) < 1000000000 ) {
     pDef = G4ParticleTable::GetParticleTable()->FindParticle(pdg);
   } else if ( pdg < 2000000000 ) {
     pDef = G4IonTable::GetIonTable()->GetIon(pdg);
@@ -761,6 +781,7 @@ void HG4BertCascIntranuke::LoadConfig(void)
   GetParamDef( "AltOset",              fAltOset, false ) ;
   GetParam( "HNINUKE-DelRPion",    fDelRPion ) ;
   GetParam( "HNINUKE-DelRNucleon", fDelRNucleon ) ;
+
   // report
   LOG("HG4BertCascIntranuke", pNOTICE)
     << "Settings for INTRANUKE mode: " << INukeMode::AsString(kIMdHA) << "\n"
