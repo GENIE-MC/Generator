@@ -46,7 +46,6 @@ class HG4BertCascIntranuke : public EventRecordVisitorI {
 public :
   HG4BertCascIntranuke();
   HG4BertCascIntranuke(string config);
-  HG4BertCascIntranuke(string name, string config);
   int G4BertCascade(GHepRecord * event_rec) const;
  ~HG4BertCascIntranuke();
 
@@ -63,7 +62,7 @@ private:
 
   void InitG4Particles() const;
   void TransportHadrons(GHepRecord* ev) const;
-  G4ParticleDefinition* PDGtoG4Particle(int pdg) const;
+  const G4ParticleDefinition* PDGtoG4Particle(int pdg) const;
   G4KineticTrackVector* ConvertGenieSecondariesToG4(GHepRecord* evrec) const;
   G4KineticTrackVector* ConvertGenieSecondariesToG4(std::vector<GHepParticle> partList) const;
   //TLorentzVector pincident(std::vector<GHepParticle>partList)const;

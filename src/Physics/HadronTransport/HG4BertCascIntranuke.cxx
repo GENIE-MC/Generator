@@ -15,7 +15,7 @@
 #include <sstream>
 #include <exception>
 
-#include <TMath.h>
+#include "TMath.h"
 
 //rwh//#include "Framework/Algorithm/AlgConfigPool.h"
 //rwh//#include "Framework/Algorithm/AlgFactory.h"
@@ -25,9 +25,11 @@
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
+#include "Framework/Utils/PrintUtils.h"
 #include "Physics/HadronTransport/HG4BertCascIntranuke.h"
 //rwh//#include "Physics/HadronTransport/INukeHadroData.h"
 #include "Physics/HadronTransport/INukeUtils.h"
+#include "Physics/HadronTransport/INukeUtils2018.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -36,6 +38,7 @@
 // Geant4 headers
 #include "Geant4/G4ParticleTypes.hh"
 #include "Geant4/G4ParticleTable.hh"
+#include "Geant4/G4IonTable.hh"
 #include "Geant4/G4LeptonConstructor.hh"
 #include "Geant4/G4MesonConstructor.hh"
 #include "Geant4/G4GenericIon.hh"
@@ -66,16 +69,10 @@ HG4BertCascIntranuke::HG4BertCascIntranuke()
 }
 
 //___________________________________________________________________________
-HG4BertCascIntranuke::HG4BertCascIntranuke(string name)
-  : EventRecordVisitorI("genie::HG4BertCascIntranuke")
+HG4BertCascIntranuke::HG4BertCascIntranuke(string config)
+  : EventRecordVisitorI("genie::HG4BertCascIntranuke", config)
 {
   InitG4Particles();
-}
-//___________________________________________________________________________
-HG4BertCascIntranuke::HG4BertCascIntranuke(string name, string config)  :
-  EventRecordVisitorI(name)
-{
-
 }
 //___________________________________________________________________________
 HG4BertCascIntranuke::~HG4BertCascIntranuke()
@@ -87,7 +84,7 @@ int HG4BertCascIntranuke::G4BertCascade(GHepRecord * evrec) const{
   GHepParticle* tgtNucl = evrec->TargetNucleus();             // target
 
 
-  G4ParticleDefinition* incidentDef = PDGtoG4Particle(probe->Pdg() );
+  const G4ParticleDefinition* incidentDef = PDGtoG4Particle(probe->Pdg() );
 
   int Zinit = tgtNucl->Z();
   int Ainit = tgtNucl->A();
@@ -309,7 +306,7 @@ void HG4BertCascIntranuke::GenerateVertex(GHepRecord * evrec) const
   // rotate the vtx position
   vtx.RotateUz(direction);
 
-  LOG("Intranuke2018", pNOTICE)
+  LOG("HG4BertCascIntranuke", pNOTICE)
     << "Generated vtx @ R = " << vtx.Mag() << " fm / "
     << print::Vec3AsString(&vtx);
 
@@ -364,7 +361,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
   //  std::cout << " sepEnergy = " << sepEnergy << std::endl;
 
   GHepParticle* p = 0;
-  G4ParticleDefinition* incidentDef = 0;
+  const G4ParticleDefinition* incidentDef = 0;
   GHepParticle* incidentBaryon = 0;
   TObjArrayIter piter(evrec);
   int icurr =-1;
@@ -397,7 +394,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
       List_of_transparents.push_back(*sp);
     }
 
-    if (!has_incidenBaryon && sp->Status() == kIStHadronInTheNucleus) {
+    if ( ! has_incidenBaryon && sp->Status() == kIStHadronInTheNucleus) {
       if ( sp->Pdg() == kPdgProton  ||
            sp->Pdg() == kPdgNeutron ||
            sp->Pdg() == kPdgLambda  ||
@@ -406,7 +403,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
            sp->Pdg() == kPdgSigmaM     ) {
         incidentBaryon = sp;
         incidentDef = PDGtoG4Particle(sp->Pdg() );
-        has_incidenBaryon=true;
+        has_incidenBaryon = true;
       }
     }
     delete sp;
@@ -422,14 +419,14 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
   }
   if ( has_secondaries ) {
     if ( ! incidentBaryon )
-      LOG("G4BertCascInterface::TransportHadrons", pWARN)
+      LOG("G4BertCascInterface", pWARN)
         << "Unrecognized baryon in nucleus";
 
     int Zinit = remNucl->Z() - outLept->Charge()/3;
     //  if (incidentBaryon->Pdg() != struckNucleon->Pdg() ) Zinit--;
     Zinit += (struckNucleon->Charge() - incidentBaryon->Charge() )/3;
     //std::cout << " Zinit = " << Zinit << std::endl;
-    int Ainit = remNucl->A();
+    // unused // int Ainit = remNucl->A();
     //std::cout << " Ainit = " << Ainit << std::endl;
 
     G4Fancy3DNucleus* g4Nucleus = new G4Fancy3DNucleus();
@@ -583,47 +580,18 @@ bool HG4BertCascIntranuke::NeedsRescattering(const GHepParticle * p) const {
 }
 
 //___________________________________________________________________________
-G4ParticleDefinition* HG4BertCascIntranuke::PDGtoG4Particle(int pdg) const
+const G4ParticleDefinition* HG4BertCascIntranuke::PDGtoG4Particle(int pdg) const
 {
-  G4ParticleDefinition* pDef = 0;
+  const G4ParticleDefinition* pDef = 0;
 
-  switch(pdg) {
-  case kPdgNuE:       pDef = G4NeutrinoE::Definition();       break;
-  case kPdgAntiNuE:   pDef = G4AntiNeutrinoE::Definition();   break;
-  case kPdgNuMu:      pDef = G4NeutrinoMu::Definition();      break;
-  case kPdgAntiNuMu:  pDef = G4AntiNeutrinoMu::Definition();  break;
-  case kPdgNuTau:     pDef = G4NeutrinoTau::Definition();     break;
-  case kPdgAntiNuTau: pDef = G4AntiNeutrinoTau::Definition(); break;
-
-  case kPdgMuon:      pDef = G4MuonMinus::Definition();       break;
-
-  case kPdgProton:    pDef = G4Proton::Definition();          break;
-  case kPdgNeutron:   pDef = G4Neutron::Definition();         break;
-  case kPdgPiP:       pDef = G4PionPlus::Definition();        break;
-  case kPdgPiM:       pDef = G4PionMinus::Definition();       break;
-  case kPdgPi0:       pDef = G4PionZero::Definition();        break;
-  case kPdgGamma:     pDef = G4Gamma::Definition();           break;
-  case kPdgKP:        pDef = G4KaonPlus::Definition();        break;
-  case kPdgKM:        pDef = G4KaonMinus::Definition();       break;
-  case kPdgK0:        pDef = G4KaonZero::Definition();        break;
-  case kPdgAntiK0:    pDef = G4AntiKaonZero::Definition();    break;
-  case kPdgEta:       pDef = G4Eta::Definition();             break;
-  case kPdgK0L:
-  case kPdgK0S: {
-    pDef = G4KaonZero::Definition();
-    if ( RandomGen::Instance()->RndFsi().Rndm() > 0.5 )
-      pDef = G4AntiKaonZero::Definition();
-    break;
+  if ( pdg < 1000000000 ) {
+    pDef = G4ParticleTable::GetParticleTable()->FindParticle(pdg);
+  } else if ( pdg < 2000000000 ) {
+    pDef = G4IonTable::GetIonTable()->GetIon(pdg);
   }
-  case kPdgLambda:    pDef = G4Lambda::Definition();          break;
-  case kPdgSigmaP:    pDef = G4SigmaPlus::Definition();       break;
-  case kPdgSigma0:    pDef = G4SigmaZero::Definition();       break;
-  case kPdgSigmaM:    pDef = G4SigmaMinus::Definition();      break;
-  case kPdgXi0:       pDef = G4XiZero::Definition();          break;
-  case kPdgXiM:       pDef = G4XiMinus::Definition();         break;
-  case kPdgOmegaM:    pDef = G4OmegaMinus::Definition();      break;
-  default:
-    LOG("HG4BertCascIntranuke::PDGtoG4Particle", pWARN)
+
+  if ( ! pDef ) {
+    LOG("HG4BertCascIntranuke", pWARN)
       << "Unrecognized Bertini particle type: " << pdg;
   }
 
@@ -636,7 +604,7 @@ G4KineticTrackVector* HG4BertCascIntranuke::ConvertGenieSecondariesToG4(std::vec
   static double GeToG4length = 2.81967*1.0e-12*1.2/1.4;
 
   GHepParticle* p = 0;
-  G4ParticleDefinition* pDef = 0;
+  const G4ParticleDefinition* pDef = 0;
   G4KineticTrackVector* g4secondaries = new G4KineticTrackVector;
   G4KineticTrack* kt = 0;
 
@@ -669,7 +637,7 @@ G4KineticTrackVector* HG4BertCascIntranuke::ConvertGenieSecondariesToG4(GHepReco
 
   TObjArrayIter piter(evrec);
   GHepParticle* p = 0;
-  G4ParticleDefinition* pDef = 0;
+  const G4ParticleDefinition* pDef = 0;
   G4KineticTrackVector* g4secondaries = new G4KineticTrackVector;
   G4KineticTrack* kt = 0;
 
@@ -721,9 +689,9 @@ bool HG4BertCascIntranuke::Conserve4Momentum(GHepRecord* evrec) const
 
   TLorentzVector initial4mom = *(targetNucleus->P4() ) + *(probe->P4() );
 
-  TLorentzVector diff = initial4mom - sum4mon;
+  TLorentzVector diff = initial4mom - sum4mom;
   // rwh need some threshold for acceptable differences
-  const maxdiff     = 1.0e-9;  // set crazy small for now
+  const double maxdiff  = 1.0e-9;  // set crazy small for now
   double   diffE    = diff.E();
   TVector3 diffp3   = diff.Vect();
   double   diffpmag = diffp3.Mag();
