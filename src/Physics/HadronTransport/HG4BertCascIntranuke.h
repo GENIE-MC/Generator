@@ -67,12 +67,13 @@ private:
   G4KineticTrackVector* ConvertGenieSecondariesToG4(std::vector<GHepParticle> partList) const;
   //TLorentzVector pincident(std::vector<GHepParticle>partList)const;
 
-  bool Conserve4Momentum(GHepRecord* ev) const;
+  bool   Conserve4Momentum  (GHepRecord* ev) const;
+  bool   CanRescatter       (const GHepParticle* p) const;
   void   GenerateVertex     (GHepRecord * ev) const;
   bool   IsInNucleus        (const GHepParticle* p) const;
-  void SetTrackingRadius(const GHepParticle* p) const;
+  void   SetTrackingRadius  (const GHepParticle* p) const;
   double GenerateStep       (GHepRecord* ev, GHepParticle* p) const;
-  bool NeedsRescattering(const GHepParticle * p) const;
+  bool   NeedsRescattering  (const GHepParticle * p) const;
 
   // utility objects & params
   mutable double fTrackingRadius;  // tracking radius for nucleus current event

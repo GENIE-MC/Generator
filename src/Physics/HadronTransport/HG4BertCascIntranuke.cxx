@@ -34,6 +34,8 @@
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+
 
 // Geant4 headers
 #include "Geant4/G4ParticleTypes.hh"
@@ -369,7 +371,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
   // In frozen nucleus approximation it is the remnant nucleus corrected for
   // final state lepton charge
 
-  GHepParticle* probe = evrec->Probe();                   // incoming neutrino
+  GHepParticle* probe   = evrec->Probe();                // incoming neutrino
   GHepParticle* tgtNucl = evrec->TargetNucleus();
   GHepParticle* remNucl = evrec->RemnantNucleus();
   GHepParticle* outLept = evrec->FinalStatePrimaryLepton();  // outgoing lepton
@@ -385,21 +387,39 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
   GHepParticle* incidentBaryon = 0;
   TObjArrayIter piter(evrec);
   int icurr =-1;
-  bool has_incidenBaryon(false),has_secondaries(false), has_remnant(false);
+  bool has_incidentBaryon(false),has_secondaries(false), has_remnant(false);
   std::vector<GHepParticle> List_of_secondaries, List_of_transparents;
 
   fRemnA=remNucl->A();
   fRemnZ=remNucl->Z();
 
+  LOG("G4BertCascInterface", pINFO)
+    << "start of loop for TransportHadrons";
+  ostringstream debugMsg; // RWH debug
+
   while ( (p = (GHepParticle*) piter.Next()) ) {
     icurr++;
+    debugMsg << "\noriginal [" << icurr << "] " << *p; // RWH debug
+
     bool has_interacted(false);
-    if(!this->NeedsRescattering(p)) continue;
+    if ( ! this->NeedsRescattering(p) ) continue;
 
     GHepParticle * sp = new GHepParticle(*p);
     sp->SetFirstMother(icurr);
 
+    debugMsg << "\nnew [" << icurr << "] " << *sp; // RWH debug
+    bool did_step = false; // RWH debug
+
+    if ( ! this->CanRescatter(sp) ) {
+      sp->SetStatus(kIStStableFinalState);
+      evrec->AddParticle(*sp);
+      evrec->Particle(sp->FirstMother())->SetRescatterCode(1);
+      delete sp;
+      continue;
+    }
+
     while ( this-> IsInNucleus(sp) ) {
+      did_step = true;  // RWH debug
       // advance the hadron by a step
       utils::intranuke2018::StepParticle(sp, fHadStep);
       double d = this->GenerateStep(evrec,sp);
@@ -410,25 +430,46 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
         break;
       }
     } //stepping
+
+    if (did_step) {
+      debugMsg << "\ndid_step [" << icurr << "] " << *sp; // RWH debug
+    }
+
     if ( ! has_interacted ) {
       List_of_transparents.push_back(*sp);
     }
 
-    if ( ! has_incidenBaryon && sp->Status() == kIStHadronInTheNucleus) {
-      if ( sp->Pdg() == kPdgProton  ||
-           sp->Pdg() == kPdgNeutron ||
-           sp->Pdg() == kPdgLambda  ||
-           sp->Pdg() == kPdgSigmaP  ||
-           sp->Pdg() == kPdgSigma0  ||
-           sp->Pdg() == kPdgSigmaM     ) {
-        incidentBaryon = sp;
-        incidentDef = PDGtoG4Particle(sp->Pdg() );
-        has_incidenBaryon = true;
+    if ( ! has_incidentBaryon && sp->Status() == kIStHadronInTheNucleus) {
+      TParticlePDG * ppdg = PDGLibrary::Instance()->Find(sp->Pdg());
+      if ( ! ppdg ) {
+        LOG("G4BertCascInterface", pWARN)
+          << "no entry for PDG " << sp->Pdg() << " in PDGLibrary";
+      } else {
+        if ( std::string(ppdg->ParticleClass()) == std::string("Baryon") ) {
+          incidentBaryon = sp;
+          incidentDef = PDGtoG4Particle(sp->Pdg());
+          has_incidentBaryon = true;
+          LOG("G4BertCascInterface", pINFO) // RWH debug
+            << "#### RWH #### found baryon pdg "
+            << sp->Pdg() << " " << ppdg->GetName()
+            << " at icurr=" << icurr;
+        }
       }
-    }
+    } // looking for incident baryon in the nucleus
+
     delete sp;
-  }
+    sp = 0;
+  } // end loop over particles
+
+  debugMsg << "\n ... saw " << icurr << " entries"; // RWH debug
+
+  LOG("G4BertCascInterface", pINFO)
+    << "end of loop for TransportHadrons";
+
   if ( List_of_transparents.size() != 0 ) {
+    LOG("G4BertCascInterface", pINFO)
+      << "in TransportHadrons " << List_of_transparents.size()
+      << " were transparent";
     for(size_t it=0; it<List_of_transparents.size(); it++) {
       GHepParticle *sp= new GHepParticle(List_of_transparents.at(it));
       sp->SetStatus(kIStStableFinalState);
@@ -437,10 +478,13 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
       delete sp;
     }
   }
+
   if ( has_secondaries ) {
-    if ( ! incidentBaryon )
+    if ( ! incidentBaryon ) {
       LOG("G4BertCascInterface", pWARN)
-        << "Unrecognized baryon in nucleus";
+        << "incident baryon not found in icurr " << icurr << " entries\n"
+        << debugMsg.str(); // RWH debug
+    }
 
     int Zinit = remNucl->Z() - outLept->Charge()/3;
     //  if (incidentBaryon->Pdg() != struckNucleon->Pdg() ) Zinit--;
@@ -585,9 +629,17 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
     delete sp;
   }
   evrec->Particle(inucl)->SetStatus(kIStIntermediateState);
+
   // Geant4 conservation test
-  if ( Conserve4Momentum(evrec) ) {
-    std::cout << " Energy conservation test " << std::endl;
+  if ( ! Conserve4Momentum(evrec) ) {
+    std::cout << " Energy conservation test failed " << std::endl;
+    LOG("G4BertCascInterface", pINFO)
+      << *evrec;
+    LOG("G4BertCascInterface", pINFO)
+        << "### RWH ### debugMsg \n"
+        << debugMsg.str(); // RWH debug
+    std::cout << " Energy conservation test failed dump done" << std::endl;
+
   }
 }
 
@@ -597,6 +649,23 @@ bool HG4BertCascIntranuke::NeedsRescattering(const GHepParticle * p) const {
   assert(p);
   // attempt to rescatter anything marked as 'hadron in the nucleus'
   return ( p->Status() == kIStHadronInTheNucleus );
+}
+
+//___________________________________________________________________________
+bool HG4BertCascIntranuke::CanRescatter(const GHepParticle * p) const
+{
+  assert(p);
+  return  ( p->Pdg() == kPdgPiP     ||
+            p->Pdg() == kPdgPiM     ||
+            p->Pdg() == kPdgPi0     ||
+            p->Pdg() == kPdgProton  ||
+            p->Pdg() == kPdgNeutron ||
+            p->Pdg() == kPdgKP      ||
+            p->Pdg() == kPdgKM      ||
+            p->Pdg() == kPdgSigma0  ||
+            p->Pdg() == kPdgSigmaM  ||
+            p->Pdg() == kPdgSigmaP
+                 );
 }
 
 //___________________________________________________________________________
@@ -684,6 +753,8 @@ G4KineticTrackVector* HG4BertCascIntranuke::ConvertGenieSecondariesToG4(GHepReco
 //___________________________________________________________________________
 bool HG4BertCascIntranuke::Conserve4Momentum(GHepRecord* evrec) const
 {
+  bool failed = false;
+
   GHepParticle* probe = evrec->Probe(); // incoming neutrino
   GHepParticle* targetNucleus = evrec->TargetNucleus();
   GHepParticle* finalLepton = evrec->FinalStatePrimaryLepton();
@@ -716,6 +787,7 @@ bool HG4BertCascIntranuke::Conserve4Momentum(GHepRecord* evrec) const
   TVector3 diffp3   = diff.Vect();
   double   diffpmag = diffp3.Mag();
   if ( TMath::Abs(diffE) > maxdiff || diffpmag > maxdiff ) {
+    failed = true;
     LOG("HG4BertCascIntranuke", pWARN)
       << "final state - initial state differs by > " << maxdiff << "\n"
       << " dE = " << diffE << ", d|p3| = " << diffpmag;
@@ -744,13 +816,14 @@ bool HG4BertCascIntranuke::Conserve4Momentum(GHepRecord* evrec) const
   }
 
   if (Qinit != Qfinal) {
+    failed = true;
     LOG("HG4BertCascIntranuke", pWARN)
       << " Charge not conserved: \n"
       << " Qfinal = " << Qfinal
       << " Qinit = " << Qinit;
   }
 
-  return false;
+  return ( ! failed );
 }
 
 
