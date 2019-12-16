@@ -622,12 +622,15 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
     Zresult += (fRemnZ + pdgcpiontoZ(sp->Pdg())- result.ZRem[0]);
     Aexception = A_i - Aresult; // remaining particles in the nucleus
     Zexception = Z_i - Zresult;
-    if ( Zexception <= 0 || Aexception <= 0 ) {
+    if ( Zexception <= 0 || Aexception <= 0 || Aexception <= Zexception ) {
       // Make sure that ARemn and Zremn >0
+      Zl  += pdgcpiontoZ(sp->Pdg());
+      Aft += pdgcpiontoA(sp->Pdg());
       sp->SetFirstMother(icurr);
       sp->SetStatus(kIStStableFinalState);
       evrec->AddParticle(*sp);
       delete sp;
+
       for (size_t it=0; it<ListeOfINCLresult.size();it++){
          Pos = Postion_evrec.at(it);  // Position of the mother in evrec
          GHepParticle * pinthenucleus = evrec->Particle(Pos);
@@ -659,16 +662,16 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
              evrec->AddParticle(*p_outFinal);
              delete p_outFinal;
              has_remnant=true;
-           }//Add all the result with the correct remnant nucleus
+           } // Add all the result with the correct remnant nucleus
          }
       }
       ListeOfINCLresult.clear();
     } else {
-      //if result  give a transparent event FSI=1
+      // if result  give a transparent event FSI=1
       // Store *sp
       if ( result.transparent ) {
-        Zl+=pdgcpiontoZ(sp->Pdg());
-        Aft+=pdgcpiontoA(sp->Pdg());
+        Zl  += pdgcpiontoZ(sp->Pdg());
+        Aft += pdgcpiontoA(sp->Pdg());
         sp->SetFirstMother(icurr);
         sp->SetStatus(kIStStableFinalState);
         evrec->AddParticle(*sp);
