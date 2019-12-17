@@ -213,6 +213,9 @@ foreach $nu ( @nu_list ) {
       print COMMANDS "$gmkspl_cmd \n";
       close(COMMANDS);
 
+      # set executing privileges to the script 
+      `chmod ugo+x $filename_template.sh` ;
+
       #
       # submit
       #
