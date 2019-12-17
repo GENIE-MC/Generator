@@ -208,8 +208,8 @@ foreach $nu ( @nu_list ) {
       $shell_script = "$filename_template.sh";
       open(COMMANDS, ">$shell_script") or die("Can not create the bash script");
       print COMMANDS "#!/bin/bash \n";
-      print COMMANDS "source $genie_setup $config_dir \n";
       print COMMANDS "cd $jobs_dir \n";
+      print COMMANDS "source $genie_setup $config_dir \n";
       print COMMANDS "$gmkspl_cmd \n";
       close(COMMANDS);
 
