@@ -281,7 +281,6 @@ foreach $nu ( @nu_list ) {
         open(HTC, ">$batch_script") or die("Can not create the Condor submit description file: $batch_script");
         print HTC "Universe               = vanilla \n";
         print HTC "Executable             = $shell_script \n";
-        print HTC "Arguments              = \n";
         print HTC "Log                    = $filename_template.log \n";
         print HTC "Output                 = $filename_template.out \n";
         print HTC "Error                  = $filename_template.err \n";

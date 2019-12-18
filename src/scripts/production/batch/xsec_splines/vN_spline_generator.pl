@@ -194,6 +194,9 @@ foreach $nu ( @nu_list ) {
       print COMMANDS "$gmkspl_cmd \n";
       close(COMMANDS);
 
+      # set executing privileges to the script 
+      `chmod ugo+x $filename_template.sh` ;
+      
       push( @direct_commands, "bash $filename_template.sh" ) ;
 
       
@@ -258,7 +261,6 @@ foreach $nu ( @nu_list ) {
 	 open(HTC, ">$batch_script") or die("Can not create the Condor submit description file: $batch_script");
 	 print HTC "Universe               = vanilla \n";
 	 print HTC "Executable             = $shell_script \n";
-	 print HTC "Arguments              = \n";
  	 print HTC "Log                    = $filename_template.log \n";
          print HTC "Output                 = $filename_template.out \n";
  	 print HTC "Error                  = $filename_template.err \n";
