@@ -486,7 +486,7 @@ void NNBarOscPrimaryVtxGenerator::GenerateDecayProducts(
 
   } //!accept_decay
 
-  // Insert final state products into a TClonesArray of TMCParticles
+  // Insert final state products into a TClonesArray of GHepParticle's
   TLorentzVector v4(*v4d); 
   int idp = 0;
   for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {

@@ -31,6 +31,8 @@
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Decay/BaryonResonanceDecayer.h"
+#include "Math/GSLMinimizer.h"
+#include <Math/WrappedParamFunction.h>
 
 using namespace genie;
 using namespace genie::controls;
@@ -50,6 +52,10 @@ Decayer("genie::BaryonResonanceDecayer", config)
 //____________________________________________________________________________
 BaryonResonanceDecayer::~BaryonResonanceDecayer()
 {
+
+  for ( unsigned int i = 0; i < fRParams.size() ; ++i ) {
+    delete fRParams[i] ;
+  }
 
 }
 //____________________________________________________________________________
@@ -618,7 +624,7 @@ bool BaryonResonanceDecayer::AcceptPionDecay( TLorentzVector pion,
   TVector3 pion_dir = pion.Vect().Unit() ;
   TVector3 z_axis = q.Vect().Unit() ;
 
-  double c_t = pion_dir*z_axis; // cos theta
+
 
   unsigned int q2_index = 0 ;
   
@@ -630,13 +636,22 @@ bool BaryonResonanceDecayer::AcceptPionDecay( TLorentzVector pion,
     if ( Q2 < fQ2Thresholds[q2_index] ) ++q2_index ;
     else break ;
   }
-  
-  double w_function = 1. - (fR33[q2_index] - 0.5)*(3.*c_t*c_t - 1.) ;
 
-  if ( ! fDeltaThetaOnly ) {
+  double w_function ; 
 
-    // evaluate sin theta as it appears in the formula
-    double s_t = sqrt(1. - c_t*c_t) ;  //sin theta
+  if ( fDeltaThetaOnly ) {
+    
+    double c_t = pion_dir*z_axis; // cos theta
+    
+    w_function = 1. - (fR33[q2_index] - 0.5)*(3.*c_t*c_t - 1.) ;
+
+  }
+
+  else {
+
+    double x[2] ; // 0 : theta, 1 : phi 
+
+    x[0] = pion_dir.Angle( z_axis ) ; // theta
 
     in_lep_p4.Boost(-delta_p4.BoostVector() ) ;
     out_lep_p4.Boost( -delta_p4.BoostVector() ) ;
@@ -645,10 +660,16 @@ bool BaryonResonanceDecayer::AcceptPionDecay( TLorentzVector pion,
     TVector3 y_axis = in_lep_p4.Vect().Cross( out_lep_p4.Vect() ).Unit() ;
     TVector3 x_axis = y_axis.Cross(z_axis);
 
-    double c_phi = pion_dir*x_axis;
+    TVector3 pion_perp( z_axis.Cross( pion_dir.Cross( z_axis ).Unit() ) ) ;
+    
+    x[1] = pion_perp.Angle( x_axis ) ;  // phi
 
-    double phi_dependency = kSqrt3 *( 2.*fR31[q2_index]*s_t*c_t*c_phi + fR3m1[q2_index]*s_t*(2.*c_phi*c_phi-1.) ) ;
-    w_function -= phi_dependency ;
+    w_function = BaryonResonanceDecayer::PionAngularDist( x, fRParams[q2_index] ) ; 
+    
+  }
+
+  if ( fW_max[q2_index] <= 0. ) {
+    const_cast<genie::BaryonResonanceDecayer*>( this ) -> fW_max[q2_index] = FindDistributionExtrema( q2_index, true ) ; 
   }
 
   double aidrnd = fW_max[q2_index] * RandomGen::Instance()-> RndDec().Rndm();
@@ -729,7 +750,7 @@ bool BaryonResonanceDecayer::IsHandled(int pdg_code) const
       << "Can decay particle with PDG code = " << pdg_code
       << "? " << ((is_handled)? "Yes" : "No");
 
-  return pdg_code;
+  return is_handled ; 
 }
 //____________________________________________________________________________
 void BaryonResonanceDecayer::InhibitDecay(int pdgc, TDecayChannel * dc) const
@@ -774,6 +795,71 @@ bool BaryonResonanceDecayer::HasEvolvedBRs( int dec_part_pdgc ) {
             dec_part_pdgc ==  kPdgP33m1232_DeltaP ) ; 
 }
 //____________________________________________________________________________
+double BaryonResonanceDecayer::PionAngularDist( const double* x, const double * par ) {
+  
+  double c_t = TMath::Cos( x[0] ) ;
+  double s_t = TMath::Sin( x[0] ) ;
+
+  double c_phi = TMath::Cos( x[1 ] ); 
+
+  double theta_dep_only = 1. - ( par[0] - 0.5 )*( 3.*c_t*c_t - 1. ) ;
+  double phi_dependency = kSqrt3 *( 2.*par[1]*s_t*c_t*c_phi + par[2]*s_t*(2.*c_phi*c_phi-1.) ) ;
+  
+  return theta_dep_only - phi_dependency ; 
+
+}
+//____________________________________________________________________________
+double BaryonResonanceDecayer::FindDistributionExtrema( unsigned int q2_bin, bool find_maximum ) const {
+
+  // Choose method upon creation between:
+  // kConjugateFR, kConjugatePR, kVectorBFGS,
+  // kVectorBFGS2, kSteepestDescent
+  ROOT::Math::GSLMinimizer min( ROOT::Math::kVectorBFGS );
+ 
+  min.SetMaxFunctionCalls(1000);
+  min.SetMaxIterations(1000);
+  min.SetTolerance( fMaxTolerance );
+ 
+  ROOT::Math::WrappedParamFunction<ROOT::Math::FreeParamMultiFunctionPtr> f( ( find_maximum ? 
+									       & BaryonResonanceDecayer::MinusPionAngularDist : 
+									       & BaryonResonanceDecayer::PionAngularDist ), 
+									     2, 3, fRParams[q2_bin] ) ;
+  
+  // Steps are defined as the same fraction of the range of each variable
+  double step[2] = { 0.00005 * kPi, 0.00005 * 2 * kPi } ;
+  
+  min.SetFunction(f);
+
+  do {
+
+    // Set the free variables to be minimized!
+    // it has been observed that some initial values are making the minimization to fail. 
+    // e.g. ( pi/2, pi/2 )
+    // at the same time, the absolute extrema seems very stable with respect to changes of the initial variable
+    // hence the minimization is done inside a loop where the variables a initialized randomly 
+    
+    min.SetLimitedVariable( 0, "theta", kPi * RandomGen::Instance()-> RndDec().Rndm(), step[0], 0.,   kPi );
+    min.SetLimitedVariable( 1, "phi", 2*kPi * RandomGen::Instance()-> RndDec().Rndm(), step[1], 0., 2*kPi );
+
+  } while( ! min.Minimize() ) ;
+
+  const double *xs = min.X();
+  
+  double result = find_maximum ? -1 * f( xs ) : f( xs ) ;
+  
+  LOG("BaryonResonanceDecayer", pINFO) << (find_maximum ? "Maximum " : "Minimum ")
+				       << "of angular distribution found in ( " 
+				       << xs[0] << ", " << xs[1] << " ): " 
+				       << result ;
+
+  LOG("BaryonResonanceDecayer", pDEBUG) << "Minimum found in " << min.NCalls() << " calls" ;
+  
+  return result  ; 
+
+}
+
+
+//____________________________________________________________________________
 void BaryonResonanceDecayer::LoadConfig(void) {
 
   Decayer::LoadConfig() ;
@@ -782,31 +868,16 @@ void BaryonResonanceDecayer::LoadConfig(void) {
 
   this -> GetParamDef( "Delta-ThetaOnly", fDeltaThetaOnly, true ) ;
 
+  this -> GetParamDef( "DeltaDecayMaximumTolerance", fMaxTolerance, 0.0005 ) ;
+
   bool invalid_configuration = false ;
 
-  std::string raw ;
-  std::vector<std::string> bits ;
-
   // load R33 parameters
-  this -> GetParamDef( "Delta-R33", raw, string(" 0.5 ") ) ;
-  bits = utils::str::Split( raw, ";" ) ;
-
-  if ( ! utils::str::Convert(bits, fR33) ) {
-    LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-R33 string: " ;
-    LOG("BaryonResonanceDecayer", pFATAL) << "String " << raw ;
-    invalid_configuration = true ;
-  }
+  this -> GetParamVect( "Delta-R33", fR33 ) ; 
 
   // load Q2 thresholds if necessary
   if ( fR33.size() > 1 ) {
-    this -> GetParam("Delta-Q2", raw ) ;
-    bits = utils::str::Split( raw, ";" ) ;
-
-    if ( ! utils::str::Convert(bits, fQ2Thresholds ) ) {
-      LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-Q2 string: " ;
-      LOG("BaryonResonanceDecayer", pFATAL) << "String: " << raw ;
-      invalid_configuration = true ;
-    }
+    this -> GetParamVect("Delta-Q2", fQ2Thresholds ) ;
   }
   else {
     fQ2Thresholds.clear() ;
@@ -831,35 +902,21 @@ void BaryonResonanceDecayer::LoadConfig(void) {
     	break ;
       }
     }
-
+    
     // set appropriate maxima
     fW_max.resize( fR33.size(), 0. ) ;
     for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
-      fW_max[i] = fR33[i] < 0.5 ? 2. * ( 1. - fR33[i] ) : fR33[i] + 0.5 ;
+      fW_max[i] = ( fR33[i] < 0.5 ? 2. * ( 1. - fR33[i] ) : fR33[i] + 0.5 ) + fMaxTolerance ;
     }
-  
+    
   } // Delta Theta Only
-
+  
   else {
 
     // load R31 and R3m1 parameters
-    this -> GetParam( "Delta-R31", raw ) ;
-    bits = utils::str::Split( raw, ";" ) ;
+    this -> GetParamVect( "Delta-R31", fR31 ) ;
 
-    if ( ! utils::str::Convert(bits, fR31) ) {
-      LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-R31 string: " ;
-      LOG("BaryonResonanceDecayer", pFATAL) << "String " << raw ;
-      invalid_configuration =  true ;
-    }
-
-    this -> GetParam( "Delta-R3m1", raw ) ;
-    bits = utils::str::Split( raw, ";" ) ;
-
-    if ( ! utils::str::Convert(bits, fR3m1) ) {
-      LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-R3m1 string: " ;
-      LOG("BaryonResonanceDecayer", pFATAL) << "String " << raw ;
-      invalid_configuration =  true ;
-    }
+    this -> GetParamVect( "Delta-R3m1", fR3m1 ) ;
 
     // check if they match the numbers of R33
     if ( (fR31.size() != fR33.size()) || (fR3m1.size() != fR33.size()) ) {
@@ -870,13 +927,38 @@ void BaryonResonanceDecayer::LoadConfig(void) {
       invalid_configuration = true ;
     }
 
-    // check if they are physical
+    for ( unsigned int i = 0; i < fRParams.size() ; ++i ) {
+      delete [] fRParams[i] ;
+    }
+    fRParams.clear() ; 
+    // fill the container by Q2 bin instead of the parmaeter bin
+    for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
+      fRParams.push_back( new double[3]{ fR33[i], fR31[i], fR3m1[i] } ) ;
+    }
 
-    // Set the appropriate maxima
+    
+    // check if they are physical
     fW_max.resize( fR33.size(), 0. ) ;
     for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
-      fW_max[i] = 1.+(fR33[i]-0.5) + 2.*k1_Sqrt3*fR31[i] + k1_Sqrt3*fR3m1[i];
+      
+      double temp_min = FindDistributionExtrema( i, false ) ;
+      if ( temp_min < 0. ) {
+	LOG("BaryonResonanceDecayer", pFATAL) << "pion angular distribution minimum is negative for Q2 bin " << i ;
+	invalid_configuration = true ;
+	break ;
+      }
+      
+      double temp_max = FindDistributionExtrema( i, true ) ;
+      if ( temp_max <= 0. ) {
+	LOG("BaryonResonanceDecayer", pFATAL) << "pion angular distribution maximum is non positive for Q2 bin " << i ;
+	invalid_configuration = true ;
+	break ;
+      }
+      
+      fW_max[i] = temp_max + fMaxTolerance ; 
+      
     }
+    
   }
 
   if ( invalid_configuration ) {

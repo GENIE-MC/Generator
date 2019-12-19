@@ -140,6 +140,7 @@ const int kPdgP11m1710_N0      = 212112; // P11(1710) N0(1710)
 const int kPdgP11m1710_NP      = 212212; // P11(1710) N+(1710)
 const int kPdgF17m1970_N0      = 212118; // F17(1970) N0(1990)
 const int kPdgF17m1970_NP      = 212218; // F17(1970) N+(1990)
+
 const int kPdgPiP              =   211; // pi+
 const int kPdgPiM              =  -211; // pi-
 const int kPdgPi0              =   111; // pi0
@@ -192,19 +193,17 @@ const int kPdgTgtFe56      = 1000260560;
 //
 // PDG codes for GENIE special particles
 //
-const int kPdgHadronicSyst      = 2000000001; // DIS hadronic system before hadronization
-const int kPdgHadronicBlob      = 2000000002; // Unmodelled fraction of the hadronic system
-const int kPdgBindino           = 2000000101; // Binding energy subtracted from f/s nucleons
-const int kPdgCoulobtron        = 2000000102; // Coulomb energy subtracted from f/s leptons
-const int kPdgProbableParticleP = 2000000103; // Quasi-particle with charge +1 to conserve probability in the decay channel
-const int kPdgProbableParticle0 = 2000000104; // Quasi-particle with charge  0 to conserve probability in the decay channel
-const int kPdgProbableParticleM = 2000000105; // Quasi-particle with charge -1 to conserve probability in the decay channel
-const int kPdgClusterNN         = 2000000200; // A nn cluster within a nucleus
-const int kPdgClusterNP         = 2000000201; // A np cluster within a nucleus
-const int kPdgClusterPP         = 2000000202; // A pp cluster within a nucleus
-const int kPdgCompNuclCluster   = 2000000300; // Nucleon cluster before phase decay 
-const int kPdgDarkMatter        = 2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
-const int kPdgMediator          = 2000010001; // Mediator particle for GENIE Boosted Dark Matter mode
+const int kPdgHadronicSyst    = 2000000001; // DIS hadronic system before hadronization
+const int kPdgHadronicBlob    = 2000000002; // Unmodelled fraction of the hadronic system
+const int kPdgBindino         = 2000000101; // Binding energy subtracted from f/s nucleons
+const int kPdgCoulobtron      = 2000000102; // Coulomb energy subtracted from f/s leptons
+const int kPdgClusterNN       = 2000000200; // A nn cluster within a nucleus
+const int kPdgClusterNP       = 2000000201; // A np cluster within a nucleus
+const int kPdgClusterPP       = 2000000202; // A pp cluster within a nucleus
+const int kPdgCompNuclCluster = 2000000300; // Nucleon cluster before phase decay 
+const int kPdgDarkMatter      = 2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
+const int kPdgAntiDarkMatter  = -2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
+const int kPdgMediator        = 2000010001; // Mediator particle for GENIE Boosted Dark Matter mode
 
 //
 // PDG codes for special particles used by external generators interfaced with GENIE

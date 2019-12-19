@@ -26,7 +26,6 @@
 #include "Framework/Conventions/RefFrame.h"
 #include "Framework/Conventions/KineVar.h"
 #include "Framework/Conventions/Units.h"
-#include "Physics/Hadronization/HadronizationModelI.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/BoostedDarkMatter/XSection/QPMDMDISPXSec.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -73,7 +72,7 @@ double QPMDMDISPXSec::XSec(
   // Get kinematical & init-state parameters
   const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
-  // const ProcessInfo &  proc_info  = interaction -> ProcInfo(); // comment-out unused variable to eliminate warnings
+  const ProcessInfo &  proc_info  = interaction -> ProcInfo(); // comment-out unused variable to eliminate warnings
 
   LOG("DMDISPXSec", pDEBUG) << "Using v^" << fVelMode << " dependence";
   
@@ -88,29 +87,30 @@ double QPMDMDISPXSec::XSec(
   // double ml4   = ml2  * ml2; // comment-out unused variable to eliminate warnings
   // double Mnuc2 = Mnuc * Mnuc; // comment-out unused variable to eliminate warnings
 
-  #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DMDISPXSec", pDEBUG)  
    << "Computing d2xsec/dxdy @ E = " << E << ", x = " << x << ", y = " << y;
-  #endif
+#endif
 
   // One of the xsec terms changes sign for antineutrinos @ DMDIS/CC
 
   // bool is_nubar_cc = pdg::IsAntiNeutrino(init_state.ProbePdg()) && 
   //                    proc_info.IsWeakCC(); // // comment-out unused variable to eliminate warnings
   // int sign = (is_nubar_cc) ? -1 : 1; // comment-out unused variable to eliminate warnings
-
+  int sign = 1;
+  if ( pdg::IsAntiDarkMatter(init_state.ProbePdg()) ) sign = -1;
+  
   // Calculate the DMDIS structure functions
   fDISSF.Calculate(interaction); 
 
-  #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DMDISPXSec", pDEBUG) << fDISSF;
-  #endif
+#endif
 
   //
   // Compute the differential cross section
   //
 
-  double g2 = kGF2;
   // For EM interaction replace  G_{Fermi} with :
   // a_{em} * pi / ( sqrt(2) * sin^2(theta_weinberg) * Mass_{W}^2 }
   // See C.Quigg, Gauge Theories of the Strong, Weak and E/M Interactions,
@@ -130,9 +130,9 @@ double QPMDMDISPXSec::XSec(
   // double gzp = RunOpt::Instance()->ZpCoupling();
   double gzp = fgzp;
   double gzp4 = TMath::Power(gzp,4);
-  g2 = gzp4 / TMath::Power((Q2 + Mzp2), 2);
+  double g2 = gzp4 / TMath::Power((Q2 + Mzp2), 2);
   double p2 = TMath::Max(E2 - ml2,0.);
-  double front_factor = (g2*Mnuc*E) / kPi * (E2 / p2);
+  double front_factor = (g2*Mnuc*E) / (64.0 * kPi) * (E2 / p2);
   
   // Build all dxsec/dxdy terms
   double term1 = 0.;
@@ -143,24 +143,25 @@ double QPMDMDISPXSec::XSec(
   // The cross-check of these expressions is that they should
   // give the elastic cross-section in the limit x -> 1, PDF -> 1,
   // and absent nuclear effects
-  switch (fVelMode) {
-  case 0:
+  if (fVelMode == 0) {
     // Second lines contain longitudinal Z' coupling
     // If the mediator is relatively light, these terms are important
     // and can't be neglected like they are in the SM
-    term1  = 0.125 * y * ( x*y + 3.*ml2/(E*Mnuc) );
-    term1 += ml2*x*y*y/(2*Mzp2) *  (1. + Mnuc*E*x*y / Mzp2);
-    term2  = 0.125 * (1 - y - Mnuc*x*y/(2*E) - ml2/E2);
-    term2 += ml2*y*y/(4*Mzp2) * (1. + Mnuc*E*x*y / Mzp2);
-    term4  = x*y*ml2/(4*Mnuc*E);
-    term4 += ml2*x*x*y*y/Mzp2 * (1. + Mnuc*E*x*y / Mzp2);
-    term5  = -y*ml2/(8*Mnuc*E);
-    term5 += -ml2*x*y*y/(2*Mzp2) * (1. + Mnuc*E*x*y / Mzp2);
-    break;
-  case 2:
+    double QchiV2 = TMath::Power(0.5*(fQchiL + fQchiR),2);
+    double QchiA2 = TMath::Power(0.5*(fQchiL - fQchiR),2);
+    double QchiVA = TMath::Power(0.5*fQchiL,2) - TMath::Power(0.5*fQchiR,2);
+    double LongF = TMath::Power(1.0 + 2.0 * x * y * Mnuc * E / Mzp2,2);
+    term1  = 8.0 * y * ((QchiV2 + QchiA2) * x * y - (QchiV2 - (2.0 + LongF) * QchiA2) * ml2 / (E * Mnuc));
+    term2  = 4.0 * (2.0 * (QchiV2 + QchiA2) * (1.0 - y - 0.5 * Mnuc / E * x * y) - QchiA2 * ml2 / E * (2.0 / E + y / x / Mnuc * (1.0 - LongF)));
+    term3  = sign * 8.0 * (2.0 - y) * x * y * QchiVA;
+    term4  = 16.0 * QchiA2 * LongF * ml2 * x * y / (E * Mnuc);
+    term5  = -8.0 * QchiA2 * LongF * ml2 * y / (E * Mnuc);
+  }
+  else if (fVelMode == 2) {
     // Scalar case has no longitudinal Z' coupling
-    term1 = -0.125 * y * (0.5 * x * y + ml2/(E*Mnuc));
-    term2 = 0.125 * (1. - y + 0.25 * y * y);
+    double QchiS2 = TMath::Power(fQchiS, 2);
+    term1 = - 4.0 * QchiS2 * y * (x * y + 2.0 * ml2/(E*Mnuc));
+    term2 = 2.0 * QchiS2 * TMath::Power(y - 2.0,2);
   }  
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DMDISPXSec", pDEBUG)  
@@ -187,16 +188,6 @@ double QPMDMDISPXSec::XSec(
         << "d2xsec/dxdy[FreeN] (E= " << E 
                       << ", x= " << x << ", y= " << y << ") = " << xsec;
 #endif
-
-  // If the DMDIS/RES joining scheme is enabled, modify the xsec accordingly
-  if(fUsingDisResJoin) {
-     double R = this->DMDISRESJoinSuppressionFactor(interaction);
-     xsec*=R;
-     #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("DMDISPXSec", pINFO) << "D/R Join scheme - suppression factor R = " << R;;
-     LOG("DMDISPXSec", pINFO) << "d2xsec/dxdy[FreeN, D/R Join] " << xsec;
-     #endif
-  }
 
   // The algorithm computes d^2xsec/dxdy
   // Check whether variable tranformation is needed
@@ -245,7 +236,7 @@ bool QPMDMDISPXSec::ValidProcess(const Interaction * interaction) const
 
   const InitialState & init_state = interaction -> InitState();
   int probe_pdg = init_state.ProbePdg();
-  if(!pdg::IsDarkMatter(probe_pdg)) return false;
+  if(!pdg::IsDarkMatter(probe_pdg) && !pdg::IsAntiDarkMatter(probe_pdg)) return false;
 
   if(! init_state.Tgt().HitNucIsSet()) return false;
 
@@ -253,121 +244,6 @@ bool QPMDMDISPXSec::ValidProcess(const Interaction * interaction) const
   if(!pdg::IsNeutronOrProton(hitnuc_pdg)) return false;
 
   return true;
-}
-//____________________________________________________________________________
-double QPMDMDISPXSec::DMDISRESJoinSuppressionFactor(
-   const Interaction * in) const
-{
-// Computes suppression factors for the DMDIS xsec under the used DMDIS/RES join
-// scheme. Since this is a 'low-level' algorithm that is being called many
-// times per generated event or computed cross section spline, the suppression
-// factors would be cached to avoid calling the hadronization model too often.
-//
-  double R=0, Ro=0;
-
-  const double Wmin = kNeutronMass + kPionMass + 1E-3;
-
-  const InitialState & ist = in->InitState();
-  const ProcessInfo &  pi  = in->ProcInfo();
-
-  double E    = ist.ProbeE(kRfHitNucRest);
-  double Mnuc = ist.Tgt().HitNucMass();
-  double x    = in->Kine().x(); 
-  double y    = in->Kine().y();
-  double Wo   = utils::kinematics::XYtoW(E,Mnuc,x,y);
-
-  TH1D * mprob = 0;
-
-  if(!fUseCache) {
-    // ** Compute the reduction factor at each call - no caching 
-    //
-    mprob = fHadronizationModel->MultiplicityProb(in,"+LowMultSuppr");
-    R = 1;
-    if(mprob) {
-       R = mprob->Integral("width");
-       delete mprob;
-    }
-  }
-  else {
-
-    // ** Precompute/cache the reduction factors and then use the 
-    // ** cache to evaluate these factors
-
-    // Access the cache branch. The branch key is formed as:
-    // algid/DMDIS-RES-Join/nu-pdg:N;hit-nuc-pdg:N/inttype
-    Cache * cache = Cache::Instance();
-    string algkey = this->Id().Key() + "/DMDIS-RES-Join";
-
-    ostringstream ikey;
-    ikey << "nu-pdgc:" << ist.ProbePdg() 
-         << ";hit-nuc-pdg:"<< ist.Tgt().HitNucPdg() << "/"
-         << pi.InteractionTypeAsString();
-
-    string key = cache->CacheBranchKey(algkey, ikey.str());
-
-    CacheBranchFx * cbr =
-          dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
-
-    // If it does't exist then create a new one 
-    // and cache DMDIS xsec suppression factors
-    bool non_zero=false;
-    if(!cbr) {
-      LOG("DMDISXSec", pNOTICE) 
-                        << "\n ** Creating cache branch - key = " << key;
-
-      cbr = new CacheBranchFx("DMDIS Suppr. Factors in DMDIS/RES Join Scheme");
-      Interaction interaction(*in);
-
-      const int kN   = 300;
-      double WminSpl = Wmin;
-      double WmaxSpl = fWcut + 0.1; // well into the area where scaling factor = 1
-      double dW      = (WmaxSpl-WminSpl)/(kN-1);
-
-      for(int i=0; i<kN; i++) {
-        double W = WminSpl+i*dW;
-        interaction.KinePtr()->SetW(W);
-        mprob = fHadronizationModel->MultiplicityProb(&interaction,"+LowMultSuppr");
-        R = 1;
-        if(mprob) {
-           R = mprob->Integral("width");
-           delete mprob;
-        }
-        // make sure that it takes enough samples where it is non-zero:
-        // modify the step and the sample counter once I've hit the first
-        // non-zero value
-        if(!non_zero && R>0) {
-	  non_zero=true;
-          WminSpl=W;
-          i = 0;
-          dW = (WmaxSpl-WminSpl)/(kN-1);
-        }
-        LOG("DMDISXSec", pNOTICE) 
-	    << "Cached DMDIS XSec Suppr. factor (@ W=" << W << ") = " << R;
-
-        cbr->AddValues(W,R);
-      }
-      cbr->CreateSpline();
-
-      cache->AddCacheBranch(key, cbr);
-      assert(cbr);
-    } // cache data
-
-    // get the reduction factor from the cache branch
-    if(Wo > Wmin && Wo < fWcut-1E-2) {
-       const CacheBranchFx & cache_branch = (*cbr);
-       R = cache_branch(Wo);
-    }
-  }
-
-  // Now return the suppression factor
-  if      (Wo > Wmin && Wo < fWcut-1E-2) Ro = R;
-  else if (Wo <= Wmin)                   Ro = 0.0;
-  else                                   Ro = 1.0;
-
-  LOG("DMDISXSec", pDEBUG) 
-      << "DMDIS/RES Join: DMDIS xsec suppr. (W=" << Wo << ") = " << Ro;
-
-  return Ro;
 }
 //____________________________________________________________________________
 void QPMDMDISPXSec::Configure(const Registry & config)
@@ -382,9 +258,9 @@ void QPMDMDISPXSec::Configure(string config)
 
   Registry r( "QPMDMDISPXSec_specific", false ) ;
 
-  std::string  key = "XSecModel@genie::EventGenerator/DIS-CC-CHARM" ;
+  RgKey xdefkey = "XSecModel@genie::EventGenerator/DIS-CC-CHARM";
   RgKey local_key = "CharmXSec" ;
-  r.Set( local_key , AlgConfigPool::Instance() -> GlobalParameterList() -> GetAlg(key) ) ;
+  r.Set( local_key, AlgConfigPool::Instance() -> GlobalParameterList() -> GetAlg(xdefkey) ) ;
 
   Algorithm::Configure(r) ;
 
@@ -401,21 +277,6 @@ void QPMDMDISPXSec::LoadConfig(void)
   assert(fDISSFModel);
 
   fDISSF.SetModel(fDISSFModel); // <-- attach algorithm
-
-  this->GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
-
-  fHadronizationModel = 0;
-  fWcut = 0.;
-
-  if(fUsingDisResJoin) {
-     fHadronizationModel = 
-       dynamic_cast<const HadronizationModelI *> (this->SubAlg("Hadronizer"));
-     assert(fHadronizationModel);
-
-     // Load Wcut determining the phase space area where the multiplicity prob.
-     // scaling factors would be applied -if requested-
-     this->GetParam( "Wcut", fWcut ) ;
-  }
 
   // Cross section scaling factor
   this->GetParam( "DIS-XSecScale", fScale ) ;
@@ -453,6 +314,9 @@ void QPMDMDISPXSec::LoadConfig(void)
 
   // mediator coupling
   this->GetParam("ZpCoupling", fgzp);
+  this->GetParam("DarkLeftCharge", fQchiL);
+  this->GetParam("DarkRightCharge", fQchiR);
+  this->GetParam("DarkScalarCharge", fQchiS);
 
   // mediator mass ratio and mediator mass
   fMedMass = PDGLibrary::Instance()->Find(kPdgMediator)->Mass();
@@ -462,12 +326,12 @@ void QPMDMDISPXSec::LoadConfig(void)
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
 
-  RgKey xdefkey = "CharmXSec" ;
+  RgKey local_key = "CharmXSec" ;
   RgAlg xalg ;
-  GetParam( xdefkey, xalg) ;
+  GetParam( local_key, xalg) ;
   LOG("DMDISXSec", pDEBUG)
      << "Loading the cross section model: " << xalg;
-  fCharmProdModel = dynamic_cast<const XSecAlgorithmI *> ( this -> SubAlg(xdefkey) ) ;
+  fCharmProdModel = dynamic_cast<const XSecAlgorithmI *> ( this -> SubAlg(local_key) ) ;
   assert(fCharmProdModel);
 }
 //____________________________________________________________________________
