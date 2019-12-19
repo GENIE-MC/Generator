@@ -103,6 +103,10 @@ const int kPdgS31m1620_DeltaM  =  1112; // S31(1620) Delta-
 const int kPdgS31m1620_Delta0  =  1212; // S31(1620) Delta0
 const int kPdgS31m1620_DeltaP  =  2122; // S31(1620) Delta+
 const int kPdgS31m1620_DeltaPP =  2222; // S31(1620) Delta++
+const int kPdgP33m1600_DeltaM  = 31114; // P33(1600) Delta-
+const int kPdgP33m1600_Delta0  = 32114; // P33(1600) Delta0
+const int kPdgP33m1600_DeltaP  = 32214; // P33(1600) Delta+
+const int kPdgP33m1600_DeltaPP = 32224; // P33(1600) Delta++
 const int kPdgD33m1700_DeltaM  = 11114; // D33(1700) Delta-
 const int kPdgD33m1700_Delta0  = 12114; // D33(1700) Delta0
 const int kPdgD33m1700_DeltaP  = 12214; // D33(1700) Delta+
@@ -193,6 +197,7 @@ const int kPdgClusterNP       = 2000000201; // A np cluster within a nucleus
 const int kPdgClusterPP       = 2000000202; // A pp cluster within a nucleus
 const int kPdgCompNuclCluster = 2000000300; // Nucleon cluster before phase decay 
 const int kPdgDarkMatter      = 2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
+const int kPdgAntiDarkMatter  = -2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
 const int kPdgMediator        = 2000010001; // Mediator particle for GENIE Boosted Dark Matter mode
 
 //

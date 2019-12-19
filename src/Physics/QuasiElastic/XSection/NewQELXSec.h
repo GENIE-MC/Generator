@@ -82,7 +82,7 @@ private:
   void LoadConfig (void);
 
   // Configuration obtained from cross section model
-  QELEvGen_BindingMode_t fBindingMode;
+  //QELEvGen_BindingMode_t fBindingMode;
 
   // XML configuration parameters
   std::string fGSLIntgType;

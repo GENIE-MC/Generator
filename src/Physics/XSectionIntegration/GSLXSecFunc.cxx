@@ -33,10 +33,11 @@ using namespace genie;
 
 //____________________________________________________________________________
 genie::utils::gsl::dXSec_dQ2_E::dXSec_dQ2_E(
-    const XSecAlgorithmI * m, const Interaction * i) :
+    const XSecAlgorithmI * m, const Interaction * i, double scale) :
 ROOT::Math::IBaseFunctionOneDim(),
 fModel(m),
-fInteraction(i)
+fInteraction(i),
+fScale(scale)
 {
 
 }
@@ -61,7 +62,7 @@ double genie::utils::gsl::dXSec_dQ2_E::DoEval(double xin) const
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GSLXSecFunc", pDEBUG) << "xsec(Q2 = " << Q2 << ") = " << xsec;
 #endif
-  return xsec/(1E-38 * units::cm2);
+  return fScale*xsec/(1E-38 * units::cm2);
 }
 ROOT::Math::IBaseFunctionOneDim *
    genie::utils::gsl::dXSec_dQ2_E::Clone() const

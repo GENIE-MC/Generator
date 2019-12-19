@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the GSystUncertaintyTable algorithm
+
+Configurable parameters correspond to plus and minus one-sigma uncertainty
+values for each Reweight tweak dial. All of these have default values of zero.
+-->
+
+ <param_set name="Default">
+
+   <param type="double" name="MaNCEL@PlusOneSigma"> 0.25 </param>
+   <param type="double" name="MaNCEL@MinusOneSigma"> 0.25 </param>
+
+   <param type="double" name="EtaNCEL@PlusOneSigma"> 0.30 </param>
+   <param type="double" name="EtaNCEL@MinusOneSigma"> 0.30 </param>
+
+   <param type="double" name="NormCCQE@PlusOneSigma"> 0.20 </param>
+   <param type="double" name="NormCCQE@MinusOneSigma"> 0.15 </param>
+
+   <!-- changed according to best fit"> see
+   https://indico.fnal.gov/event/11610/session/18/contribution/14 -->
+   <param type="double" name="MaCCQEshape@PlusOneSigma"> 0.025 </param>
+   <param type="double" name="MaCCQEshape@MinusOneSigma"> 0.025 </param>
+
+   <param type="double" name="MaCCQE@PlusOneSigma"> 0.03 </param>
+   <param type="double" name="MaCCQE@MinusOneSigma"> 0.03 </param>
+
+   <param type="double" name="E0CCQEshape@PlusOneSigma"> 0.18 </param>
+   <param type="double" name="E0CCQEshape@MinusOneSigma"> 0.16 </param>
+
+   <param type="double" name="E0CCQE@PlusOneSigma"> 0.18 </param>
+   <param type="double" name="E0CCQE@MinusOneSigma"> 0.16 </param>
+
+   <param type="double" name="ZNormCCQE@PlusOneSigma"> 0.20 </param>
+   <param type="double" name="ZNormCCQE@MinusOneSigma"> 0.15 </param>
+
+   <param type="double" name="ZExpA1CCQE@PlusOneSigma"> 0.14 </param>
+   <param type="double" name="ZExpA1CCQE@MinusOneSigma"> 0.14 </param>
+
+   <param type="double" name="ZExpA2CCQE@PlusOneSigma"> 0.67 </param>
+   <param type="double" name="ZExpA2CCQE@MinusOneSigma"> 0.67 </param>
+
+   <param type="double" name="ZExpA3CCQE@PlusOneSigma"> 1.00 </param>
+   <param type="double" name="ZExpA3CCQE@MinusOneSigma"> 1.00 </param>
+
+   <param type="double" name="ZExpA4CCQE@PlusOneSigma"> 0.75 </param>
+   <param type="double" name="ZExpA4CCQE@MinusOneSigma"> 0.75 </param>
+
+   <param type="double" name="NormCCRES@PlusOneSigma"> 0.20 </param>
+   <param type="double" name="NormCCRES@MinusOneSigma"> 0.20 </param>
+
+   <param type="double" name="MaCCRESshape@PlusOneSigma"> 0.10 </param>
+   <param type="double" name="MaCCRESshape@MinusOneSigma"> 0.10 </param>
+
+   <param type="double" name="MvCCRESshape@PlusOneSigma"> 0.05 </param>
+   <param type="double" name="MvCCRESshape@MinusOneSigma"> 0.05 </param>
+
+   <param type="double" name="MaCCRES@PlusOneSigma"> 0.20 </param>
+   <param type="double" name="MaCCRES@MinusOneSigma"> 0.20 </param>
+
+   <param type="double" name="MvCCRES@PlusOneSigma"> 0.10 </param>
+   <param type="double" name="MvCCRES@MinusOneSigma"> 0.10 </param>
+
+   <param type="double" name="NormNCRES@PlusOneSigma"> 0.20 </param>
+   <param type="double" name="NormNCRES@MinusOneSigma"> 0.20 </param>
+
+   <param type="double" name="MaNCRESshape@PlusOneSigma"> 0.10 </param>
+   <param type="double" name="MaNCRESshape@MinusOneSigma"> 0.10 </param>
+
+   <param type="double" name="MvNCRESshape@PlusOneSigma"> 0.05 </param>
+   <param type="double" name="MvNCRESshape@MinusOneSigma"> 0.05 </param>
+
+   <param type="double" name="MaNCRES@PlusOneSigma"> 0.20 </param>
+   <param type="double" name="MaNCRES@MinusOneSigma"> 0.20 </param>
+
+   <param type="double" name="MvNCRES@PlusOneSigma"> 0.10 </param>
+   <param type="double" name="MvNCRES@MinusOneSigma"> 0.10 </param>
+
+   <param type="double" name="MaCOHpi@PlusOneSigma"> 0.40 </param>
+   <param type="double" name="MaCOHpi@MinusOneSigma"> 0.40 </param>
+
+   <param type="double" name="R0COHpi@PlusOneSigma"> 0.10 </param>
+   <param type="double" name="R0COHpi@MinusOneSigma"> 0.10 </param>
+
+   <param type="double" name="NonRESBGvpCC1pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NonRESBGvpCC1pi@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NonRESBGvpCC2pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NonRESBGvpCC2pi@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NonRESBGvpNC1pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NonRESBGvpNC1pi@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NonRESBGvpNC2pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NonRESBGvpNC2pi@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NonRESBGvnCC1pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NonRESBGvnCC1pi@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NonRESBGvnCC2pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NonRESBGvnCC2pi@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NonRESBGvnNC1pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NonRESBGvnNC1pi@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NonRESBGvnNC2pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NonRESBGvnNC2pi@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NonRESBGvbarpCC1pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NonRESBGvbarpCC1pi@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NonRESBGvbarpCC2pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NonRESBGvbarpCC2pi@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NonRESBGvbarpNC1pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NonRESBGvbarpNC1pi@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NonRESBGvbarpNC2pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NonRESBGvbarpNC2pi@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NonRESBGvbarnCC1pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NonRESBGvbarnCC1pi@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NonRESBGvbarnCC2pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NonRESBGvbarnCC2pi@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NonRESBGvbarnNC1pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NonRESBGvbarnNC1pi@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="NonRESBGvbarnNC2pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="NonRESBGvbarnNC2pi@MinusOneSigma"> 0.50 </param>
+
+   <!-- From Debdatta's thesis:
+     Aht = 0.538 +/- 0.134
+     Bht = 0.305 +/- 0.076
+     CV1u = 0.291 +/- 0.087
+     CV2u = 0.189 +/- 0.076
+   -->
+   <param type="double" name="AhtBY@PlusOneSigma"> 0.25 </param>
+   <param type="double" name="AhtBY@MinusOneSigma"> 0.25 </param>
+
+   <param type="double" name="BhtBY@PlusOneSigma"> 0.25 </param>
+   <param type="double" name="BhtBY@MinusOneSigma"> 0.25 </param>
+
+   <param type="double" name="CV1uBY@PlusOneSigma"> 0.30 </param>
+   <param type="double" name="CV1uBY@MinusOneSigma"> 0.30 </param>
+
+   <param type="double" name="CV2uBY@PlusOneSigma"> 0.40 </param>
+   <param type="double" name="CV2uBY@MinusOneSigma"> 0.40 </param>
+
+   <param type="double" name="AhtBYshape@PlusOneSigma"> 0.25 </param>
+   <param type="double" name="AhtBYshape@MinusOneSigma"> 0.25 </param>
+
+   <param type="double" name="BhtBYshape@PlusOneSigma"> 0.25 </param>
+   <param type="double" name="BhtBYshape@MinusOneSigma"> 0.25 </param>
+
+   <param type="double" name="CV1uBYshape@PlusOneSigma"> 0.30 </param>
+   <param type="double" name="CV1uBYshape@MinusOneSigma"> 0.30 </param>
+
+   <param type="double" name="CV2uBYshape@PlusOneSigma"> 0.40 </param>
+   <param type="double" name="CV2uBYshape@MinusOneSigma"> 0.40 </param>
+
+   <param type="double" name="DISNuclMod@PlusOneSigma"> 1.00 </param>
+   <param type="double" name="DISNuclMod@MinusOneSigma"> 1.00 </param>
+
+   <param type="double" name="CCQEPauliSupViaKF@PlusOneSigma"> 0.30 </param>
+   <param type="double" name="CCQEPauliSupViaKF@MinusOneSigma"> 0.30 </param>
+
+   <param type="double" name="AGKYxF1pi@PlusOneSigma"> 0.20 </param>
+   <param type="double" name="AGKYxF1pi@MinusOneSigma"> 0.20 </param>
+
+   <param type="double" name="AGKYpT1pi@PlusOneSigma"> 0.03 </param>
+   <param type="double" name="AGKYpT1pi@MinusOneSigma"> 0.03 </param>
+
+   <param type="double" name="FormZone@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="FormZone@MinusOneSigma"> 0.50 </param>
+
+   <!-- From INTRANUKE pi+A and N+A mode comparisons with hadron scattering data: -->
+   <param type="double" name="MFP_pi@PlusOneSigma"> 0.20 </param>
+   <param type="double" name="MFP_pi@MinusOneSigma"> 0.20 </param>
+
+   <param type="double" name="MFP_N@PlusOneSigma"> 0.20 </param>
+   <param type="double" name="MFP_N@MinusOneSigma"> 0.20 </param>
+
+   <param type="double" name="FrCEx_pi@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="FrCEx_pi@MinusOneSigma"> 0.50 </param>
+
+   <!-- FrElas_pi was removed for Generator v3.0.2 / Reweight v1.0.0
+     <param type="double" name="FrElas_pi@PlusOneSigma"> 0.10 </param>
+     <param type="double" name="FrElas_pi@MinusOneSigma"> 0.10 </param> -->
+
+   <param type="double" name="FrInel_pi@PlusOneSigma"> 0.40 </param>
+   <param type="double" name="FrInel_pi@MinusOneSigma"> 0.40 </param>
+
+   <param type="double" name="FrAbs_pi@PlusOneSigma"> 0.30 </param>
+   <param type="double" name="FrAbs_pi@MinusOneSigma"> 0.30 </param>
+
+   <param type="double" name="FrPiProd_pi@PlusOneSigma"> 0.20 </param>
+   <param type="double" name="FrPiProd_pi@MinusOneSigma"> 0.20 </param>
+
+   <param type="double" name="FrCEx_N@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="FrCEx_N@MinusOneSigma"> 0.50 </param>
+
+   <!-- FrElas_N was removed for Generator v3.0.2 / Reweight v1.0.0
+     <param type="double" name="FrElas_N@PlusOneSigma"> 0.30 </param>
+     <param type="double" name="FrElas_N@MinusOneSigma"> 0.30 </param> -->
+
+   <param type="double" name="FrInel_N@PlusOneSigma"> 0.40 </param>
+   <param type="double" name="FrInel_N@MinusOneSigma"> 0.40 </param>
+
+   <param type="double" name="FrAbs_N@PlusOneSigma"> 0.20 </param>
+   <param type="double" name="FrAbs_N@MinusOneSigma"> 0.20 </param>
+
+   <param type="double" name="FrPiProd_N@PlusOneSigma"> 0.20 </param>
+   <param type="double" name="FrPiProd_N@MinusOneSigma"> 0.20 </param>
+
+   <param type="double" name="RDecBR1gamma@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="RDecBR1gamma@MinusOneSigma"> 0.50 </param>
+
+   <param type="double" name="RDecBR1eta@PlusOneSigma"> 0.50 </param>
+   <param type="double" name="RDecBR1eta@MinusOneSigma"> 0.50 </param>
+
+ </param_set>
+</alg_conf>

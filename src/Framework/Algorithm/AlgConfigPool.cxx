@@ -350,8 +350,19 @@ bool AlgConfigPool::LoadRegistries(
                     utils::xml::TrimSpaces(
                                xmlNodeListGetString(
                                  xml_doc, xml_param->xmlChildrenNode, 1));
-            this->AddConfigParameter(
-                             config, param_type, param_name, param_value);
+
+
+	    if ( param_type.find( "vec-" ) == 0 ) {
+	      
+	      param_type = param_type.substr( 4 ) ; 
+	      
+	      string delim = utils::str::TrimSpaces( utils::xml::GetAttribute(xml_param, "delim"));
+
+	      this -> AddParameterVector( config, param_type, param_name, param_value, delim ) ;
+	    }
+	    else this->AddConfigParameter( config, 
+					   param_type, param_name, 
+					   param_value);
         }
         xml_param = xml_param->next;
       }
@@ -375,15 +386,50 @@ bool AlgConfigPool::LoadRegistries(
   return true;
 }
 //____________________________________________________________________________
-void AlgConfigPool::AddConfigParameter(
-                      Registry * r, string ptype, string pname, string pvalue)
+int  AlgConfigPool::AddParameterVector  (Registry * r, string pt, string pn, string pv, 
+					 const string & delim ) {
+
+  // Adds a configuration parameter vector 
+  // It is simply add a number of entries in the Registy 
+  // The name scheme starts from the name and it goes like 
+  // 'N'+pn+'s' that will be an integer with the number of entries.
+  // Each entry will be named pn+"-i" where i is replaced by the number
+
+  SLOG("AlgConfigPool", pDEBUG)
+    << "Adding Parameter Vector [" << pt << "]: Key = "
+    << pn << " -> Value = " << pv;
+
+  vector<string> bits = utils::str::Split( pv, delim ) ;
+    
+  string n_name = Algorithm::BuildParamVectSizeKey( pn ) ; 
+
+  std::stringstream n_value ; 
+  n_value << bits.size() ; 
+  
+  this->AddConfigParameter(r, "int", n_name, n_value.str() );
+  
+  for ( unsigned int i = 0 ; i < bits.size() ; ++i ) {
+
+    std::string name = Algorithm::BuildParamVectKey( pn, i ) ; 
+    
+    this -> AddConfigParameter( r, pt, name, utils::str::TrimSpaces( bits[i] ) );
+
+  }
+  
+  return bits.size() ;
+  
+} 
+
+//____________________________________________________________________________
+void AlgConfigPool::AddConfigParameter( Registry * r, 
+					string ptype, string pname, string pvalue)
 {
 // Adds a configuration parameter with type = ptype, key = pname and value =
 // pvalue at the input configuration registry r
 
   SLOG("AlgConfigPool", pDEBUG)
-          << "Adding Parameter [" << ptype << "]: Key = "
-                                         << pname << " -> Value = " << pvalue;
+    << "Adding Parameter [" << ptype << "]: Key = "
+    << pname << " -> Value = " << pvalue;
 
   bool isRootObjParam = (strcmp(ptype.c_str(), "h1f")    == 0) ||
                         (strcmp(ptype.c_str(), "Th2f")   == 0) ||
@@ -393,14 +439,16 @@ void AlgConfigPool::AddConfigParameter(
                         (strcmp(ptype.c_str(), "double") == 0) ||
                         (strcmp(ptype.c_str(), "string") == 0) ||
                         (strcmp(ptype.c_str(), "alg")    == 0);
-
+  
+  
   if     (isBasicParam)   this->AddBasicParameter  (r, ptype, pname, pvalue);
   else if(isRootObjParam) this->AddRootObjParameter(r, ptype, pname, pvalue);
   else {
     SLOG("AlgConfigPool", pERROR)
-            << "Parameter [" << ptype << "]: Key = " << pname
-                        << " -> Value = " << pvalue << " could not be added";
+      << "Parameter [" << ptype << "]: Key = " << pname
+      << " -> Value = " << pvalue << " could not be added";
   }
+  
 }
 //____________________________________________________________________________
 void AlgConfigPool::AddBasicParameter(

@@ -123,20 +123,27 @@ template<class T>
 //add the the template specification as in Registry for RegistryItemI?
 
 template<class T>
-    bool genie::Algorithm::GetParamVect( const std::string & comm_name, std::vector<T> & v,
-                                         unsigned int max, bool is_top_call ) const {
+  int genie::Algorithm::GetParamVect( const std::string & comm_name, std::vector<T> & v,
+                                         bool is_top_call ) const {
     
-  v.resize( max + 1 ) ;
-  bool found = true ;
-  		           
-  for ( int i = 0; i <= max; ++i ) {
-  	std::stringstream name;
-  	name << comm_name << i ;
-  	found = found && GetParam( name.str(), v[i], is_top_call ) ; 
-  }
-   
-  return found ;    		            
-  
+
+    v.clear() ; 
+
+    int n ;
+    std::string n_name = Algorithm::BuildParamVectSizeKey( comm_name ) ; 
+    		
+    bool found = GetParam( n_name, n, is_top_call ) ;
+
+    if ( ! found ) return 0  ;
+
+    v.resize( n ) ;
+
+    for ( int i = 0; i < n; ++i ) {
+  	RgKey temp_key = Algorithm::BuildParamVectKey( comm_name, i ) ; 
+  	found = GetParam( temp_key, v[i], is_top_call ) ; 
+    }
+
+    return v.size() ;    		            
 }
 
  

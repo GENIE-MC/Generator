@@ -21,7 +21,9 @@
     same stream is listed twice with conflicting priority then the
     one found last is used
    -->
-
+  
+  <priority msgstream="ResonanceDecay">        FATAL </priority>
+  <priority msgstream="Pythia6Decay">          FATAL </priority>
   <priority msgstream="Messenger">             FATAL </priority>
   <priority msgstream="AhrensNCEL">            FATAL </priority>
   <!-- EDIT: add notification for DM EL algorithm -->
@@ -48,6 +50,7 @@
   <priority msgstream="Cache">                 FATAL </priority>
   <priority msgstream="CharmHad">              FATAL </priority>
   <priority msgstream="CFracTab">              FATAL </priority>
+  <priority msgstream="CEvNS">                 FATAL </priority>
   <priority msgstream="COHXSec">               FATAL </priority>
   <priority msgstream="COHXSecAR">             FATAL </priority>
   <priority msgstream="CLAP">                  FATAL </priority>
@@ -149,6 +152,8 @@
   <priority msgstream="PythiaDec">             FATAL </priority>
   <priority msgstream="Pythia6Decay">          FATAL </priority>
   <priority msgstream="PythiaHad">             FATAL </priority>
+  <priority msgstream="Pythia6Had">            FATAL </priority>
+  <priority msgstream="Pythia8Had">            FATAL </priority>
   <priority msgstream="PDG">                   FATAL </priority>
   <priority msgstream="PathL">                 FATAL </priority>
   <priority msgstream="PhysUtil">              FATAL </priority>
