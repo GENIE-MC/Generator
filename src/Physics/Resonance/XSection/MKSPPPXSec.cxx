@@ -4,7 +4,9 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author:  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
+ Authors: Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
+          Konstantin Kuzmin <kkuzmin@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
+          Vadim Naumov <vnaumov@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
           adapted from code provided by
           Minoo Kabirnezhad <minoo.kabirnezhad@physics.ox.ac.uk>
           University of Oxford, Department of Physics
@@ -39,7 +41,7 @@
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Physics/NuclearState/NuclearUtils.h"
-
+#include <limits>
 
 
 using namespace genie;
@@ -65,7 +67,6 @@ MKSPPPXSec::~MKSPPPXSec()
 //____________________________________________________________________________
 double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) const
 {
-  
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
   
@@ -120,7 +121,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double q_0               = (W2 - M2 + m_pi2)/Wt2;
   double q_02              = q_0*q_0;
   double k_0               = (W2 - M2 - Q2)/Wt2;
-  double abs_mom_q         = TMath::Sqrt(q_02 - m_pi2);
+  double abs_mom_q         = (q_02 - m_pi2)<=0?std::numeric_limits<double>::epsilon():TMath::Sqrt(q_02 - m_pi2);
   double abs_mom_k         = TMath::Sqrt(k_0*k_0 + Q2);
   //double E_2L              = (M2 - W2 - Q2 + Mt2*E)/Mt2;
   double abs_mom_k_L       = W*abs_mom_k/M;
@@ -130,21 +131,21 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double p_10              = (W2 + M2 + Q2)/Wt2;
   double qk                = q_0*k_0 - abs_mom_k*abs_mom_q*CosTheta; 
   //double k_2L              = TMath::Sqrt(E_2L*E_2L - ml2);         //magnitude of lepton momentum in lab frame
-  double k_2_iso           = TMath::Sqrt(k_2*k_2 - ml2);             //magnitude of lepton momentum in CM frame
-  double cos_theta         = (2*k_1*k_2  - Q2 - ml2)/2/k_1/k_2_iso;
+  double k_2_iso           = (k_2 - ml)<0?0:TMath::Sqrt(k_2*k_2 - ml2);   //magnitude of lepton momentum in isobaric frame
+  double cos_theta         = k_2_iso==0?0:(2*k_1*k_2  - Q2 - ml2)/2/k_1/k_2_iso;
   // Eq. 7 of ref. 1
-  double A_plus            = TMath::Sqrt( k_1*(k_2 - k_2_iso) );
-  double A_minus           = TMath::Sqrt( k_1*(k_2 + k_2_iso) );
+  double A_plus            = (k_1*(k_2 - k_2_iso))<0?0:TMath::Sqrt( k_1*(k_2 - k_2_iso) );
+  double A_minus           = (k_1*(k_2 + k_2_iso))<0?0:TMath::Sqrt( k_1*(k_2 + k_2_iso) );
   //Eq. 6 of ref. 1
-  double eps_1_plus        =  2.*A_plus *(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1. + cos_theta);
-  double eps_1_minus       = -2.*A_minus*(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1. - cos_theta);
-  double eps_2_plus        =  2.*A_plus *TMath::Sqrt(1. + cos_theta);
-  double eps_2_minus       =  2.*A_minus*TMath::Sqrt(1. - cos_theta);
+  double eps_1_plus        =  (1. + cos_theta)<0?0:2.*A_plus *(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1. + cos_theta);
+  double eps_1_minus       =  (1. - cos_theta)<0?0:-2.*A_minus*(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1. - cos_theta);
+  double eps_2_plus        =  (1. + cos_theta)<0?0:2.*A_plus *TMath::Sqrt(1. + cos_theta);
+  double eps_2_minus       =  (1. - cos_theta)<0?0:2.*A_minus*TMath::Sqrt(1. - cos_theta);
   //Eq. 9 of ref. 1
-  double eps_zero_L        = -2.*A_minus*TMath::Sqrt(1. + cos_theta);       // L->lambda = -1
-  double eps_zero_R        =  2.*A_plus *TMath::Sqrt(1. - cos_theta);       // R->lambda = +1
-  double eps_z_L           = -2.*A_minus*(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1. + cos_theta);
-  double eps_z_R           =  2.*A_plus *(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1. - cos_theta);
+  double eps_zero_L        = (1. + cos_theta)<0?0:-2.*A_minus*TMath::Sqrt(1. + cos_theta);       // L->lambda = -1
+  double eps_zero_R        = (1. - cos_theta)<0?0:2.*A_plus *TMath::Sqrt(1. - cos_theta);       // R->lambda = +1
+  double eps_z_L           = (1. + cos_theta)<0?0:-2.*A_minus*(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1. + cos_theta);
+  double eps_z_R           = (1. - cos_theta)<0?0:2.*A_plus *(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1. - cos_theta);
   //Eq. 10 of ref. 1
   double C_L_plus          =  k1_Sqrt2*(eps_1_plus  - eps_2_plus);
   double C_L_minus         =  k1_Sqrt2*(eps_1_minus - eps_2_minus);
@@ -153,7 +154,15 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double C_S_plus          =  TMath::Sqrt(TMath::Abs(eps_zero_R*eps_zero_R -  eps_z_R*eps_z_R));
   double C_S_minus         =  TMath::Sqrt(TMath::Abs(eps_zero_L*eps_zero_L -  eps_z_L*eps_z_L));
   
-   
+  // if C_S_plus or C_S_minus are equal to zero, then the singularity appers 
+  // in the expressions for Hbkg and Hres at BosonPolarization=PLUS0 or BosonPolarization=MINUS0
+  // which further eliminated by corresponding factors in the sum for calculating of the cross section.
+  // Therefore we can just set them equal to 1 in this case. In our opinion it is simplier to eliminate 
+  // singularity in such way, because it allows to keep intact original formulas from paper.
+  C_S_plus  = C_S_plus==0?1:C_S_plus;
+  C_S_minus = C_S_minus==0?1:C_S_minus;
+  
+  
   /*    Bkg Contribution   */
   //Auxiliary functions
   double W_plus            = W + M;
@@ -161,9 +170,9 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double W_plus2           = W_plus*W_plus;
   double W_minus2          = W_minus*W_minus;
   double O_1_plus          = TMath::Sqrt((W_plus2 + Q2)*( W_plus2 - m_pi2 ))/Wt2;
-  double O_1_minus         = TMath::Sqrt((W_minus2 + Q2)*(W_minus2 - m_pi2))/Wt2;
-  double O_2_plus          = TMath::Sqrt((W_plus2 + Q2)/(W_plus2 - m_pi2)) ;
-  double O_2_minus         = TMath::Sqrt((W_minus2 + Q2)/(W_minus2 - m_pi2)) ;
+  double O_1_minus         = (W_minus - m_pi)<0?0:TMath::Sqrt((W_minus2 + Q2)*(W_minus2 - m_pi2))/Wt2;
+  double O_2_plus          = TMath::Sqrt((W_plus2 + Q2)/(W_plus2 - m_pi2));
+  double O_2_minus         = (W_minus - m_pi)<=0?0:TMath::Sqrt((W_minus2 + Q2)/(W_minus2 - m_pi2));
   double s_minus_M2        = W*W - M*M;
   double u_minus_M2        = m_pi2 - 2*(q_0*p_10 + abs_mom_q*abs_mom_k*CosTheta);
   double t_minus_mpi2      = -(Q2 + 2*qk);
@@ -221,7 +230,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
         V_2 =  g_A*FV_cut/f_pi*Mt2*FF_1/qk*(1./s_minus_M2 - 1./u_minus_M2);
         V_3 = -g_A*FV_cut/f_pi*2.*FF_2*(1./s_minus_M2 + 1./u_minus_M2);
         V_4 = -g_A*FV_cut/f_pi*2.*FF_2*(1./s_minus_M2 - 1./u_minus_M2);;
-        V_5 = -2*g_A/f_pi*M*FF_pi*FV_cut/t_minus_mpi2/qk;
+        V_5 = -g_A*FV_cut/f_pi*Mt2*FF_pi/t_minus_mpi2/qk;
         break;
 
     //NC
@@ -261,13 +270,13 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
           
   }
   double V_25 = (W_plus*W_minus)*V_2 - Q2*V_5;
-  
+    
   double K_1_V = W_minus*O_1_plus; 
   double K_2_V = W_plus*O_1_minus; 
-  double K_3_V = (q_02 - m_pi2)*W_plus*O_2_minus; 
+  double K_3_V = abs_mom_q*abs_mom_q*W_plus*O_2_minus; 
   double K_4_V = abs_mom_q*abs_mom_q*W_minus*O_2_plus; 
   double K_5_V = 1/O_2_plus; 
-  double K_6_V = 1/O_2_minus; 
+  double K_6_V = (W_minus - m_pi)<=0?0:1/O_2_minus; 
 
   double F_1 =   V_1 + qk*(V_3 - V_4)/W_minus + W_minus*V_4; 
   double F_2 =  -V_1 + qk*(V_3 - V_4)/W_plus  + W_plus *V_4; 
@@ -284,7 +293,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double sF_3 = K_3_V*F_3/Mt2; 
   double sF_4 = K_4_V*F_4/Mt2; 
   double sF_5 = K_5_V*F_5/Mt2; 
-  double sF_6 = K_6_V*F_6/Mt2; 
+  double sF_6 = K_6_V*F_6/Mt2;
                                                                                              
 
   Hbkg(Current::VECTOR,          BosonPolarization::LEFT, NucleonPolarization::PLUS,  NucleonPolarization::PLUS)  =  
@@ -350,6 +359,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
      -CosHalfTheta*(k_0*eps_z_L - abs_mom_k*eps_zero_L)*(sF_5 + sF_6)/C_S_minus*std::complex<double>
      (TMath::Cos(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::MINUS, NucleonPolarization::MINUS)),
       TMath::Sin(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::MINUS, NucleonPolarization::MINUS)));
+      
      
   if (is_CC)
   {
@@ -372,7 +382,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
        -CosHalfTheta*(k_0*eps_z_R - abs_mom_k*eps_zero_R)*(sF_5 + sF_6)/C_S_plus*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::PLUS0,  NucleonPolarization::MINUS, NucleonPolarization::MINUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::PLUS0,  NucleonPolarization::MINUS, NucleonPolarization::MINUS)));
-        
+               
   }
   else
   {
@@ -416,8 +426,8 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
              LOG("MKSPPPXSec", pFATAL) << "CC channel in NC mode " << spp_channel;
              exit(1);
     }
-    
     double Vem_25 = (W_plus*W_minus)*Vem_2 + Vem_5;
+    
         
     double Fem_1 = Vem_1 + qk*(Vem_3 - Vem_4)/W_minus + W_minus*Vem_4; 
     double Fem_2 = -Vem_1 + qk*(Vem_3 - Vem_4)/W_plus  + W_plus*Vem_4; 
@@ -498,14 +508,17 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
        -CosHalfTheta*(k_0*eps_z_L - abs_mom_k*eps_zero_L)*(sFem_5 + sFem_6)/C_S_minus*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::MINUS, NucleonPolarization::MINUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::MINUS, NucleonPolarization::MINUS)));
-       
+    
     Hbkg = Hbkg*(1. - 2.*fSin2Wein) - HbkgEM*4.*fSin2Wein;
   }
+  
+
  
 
   //Axial helicity amp for bkg
-  //Axial cut
-  double FA_cut;
+  //Axial cut is same as FV_cut in the latest version
+  double FA_cut = FV_cut;
+/*  
   //virtual form symmetry_factor to kill the bkg smothly
   if (W < fBkgAWmin)
     FA_cut = 1.;           
@@ -513,9 +526,10 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
     FA_cut = fBkgA0 + W*(fBkgA1 + W*(fBkgA2 + W*fBkgA3)) ;
   else 
     FA_cut = 0;
+*/ 
   // FF_A here is equal to -g_A*FF_A of original code
   double FF_A    = fFormFactors.FA();
-  double F_rho   = Frho0/(1. - (t_minus_mpi2 + m_pi2 )/(fRho770Mass*fRho770Mass));
+  double F_rho   = Frho0/(1. - (t_minus_mpi2 + m_pi2 )/fRho770Mass/fRho770Mass);
   
     // Eq. 38 and Table 5 of ref. 1
   double A_1 = 0., A_3 = 0., A_4 = 0., A_7 = 0., A_8 = 0.;
@@ -583,7 +597,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   }
     
   double K_1_A = abs_mom_q*O_2_plus;
-  double K_2_A = abs_mom_q* O_2_minus;
+  double K_2_A = (W_minus - m_pi)<=0?TMath::Sqrt(mpi2_minus_k2):abs_mom_q*O_2_minus;
   double K_3_A = abs_mom_q*O_1_minus;
   double K_4_A = abs_mom_q* O_1_plus;
   double K_5_A = O_1_minus;
@@ -624,6 +638,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
      double As_4 = 0.;
      double As_7 = 0.;
      double As_8 = 0.;
+     
    
      double Gs_1 = W_plus* As_1 - M*As_4;
      double Gs_2 = -W_minus*As_1 - M*As_4;
@@ -633,6 +648,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
      double Gs_6 =-(Delta + (W_minus2 - m_pi2)/Wt2 + 2.*W*k_0*W_minus/(W_plus2 + Q2)) *As_1 - (q_0 - Delta)*As_3 - M*W_plus*As_4/(p_10 + M);
      double Gs_7 = (W_plus2  - m_pi2)*As_1/Wt2 + q_0*As_3 - M*As_4 + k_0*As_7 + W_plus* k_0*As_8;
      double Gs_8 =-(W_minus2 - m_pi2)*As_1/Wt2 - q_0*As_3 - M*As_4 - k_0*As_7 + W_minus* k_0*As_8;
+     
      
      sG_1 -= K_1_A*Gs_1/Mt2;
      sG_2 -= K_2_A*Gs_2/Mt2;
@@ -732,10 +748,12 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::PLUS0,  NucleonPolarization::MINUS, NucleonPolarization::MINUS)));
   }
   
+    
   /*   Resonace contribution   */    
   
   HelicityAmpVminusARes<std::complex<double>>  Hres;
-  std::complex<double>  f_BW_V, f_BW_A;
+  //f_BW_A is same as f_BW_V in the latest version, so rename f_BW_V = f_BW_A -> f_BW
+  std::complex<double>  f_BW;
     
   for (auto res : fResList)
   {
@@ -748,13 +766,16 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
     int    JR         = (utils::res::AngularMom       (res) + 1)/2;
     double MR         = utils::res::Mass              (res);
     double WR         = utils::res::Width             (res);
+/*
+    // Not used in the latest version
     double qV         = utils::res::VectorPhase       (res);
     double qA         = utils::res::AxialPhase        (res);
     double CV40       = utils::res::CV40              (res);
     double CA50       = utils::res::CA50              (res);
+*/ 
     double Cjsgn_plus = utils::res::Cjsgn_plus        (res);
     double Dsgn       = utils::res::Dsgn              (res);
-    double BR         = SppChannel::BranchingRatio(spp_channel, res);
+    double BR         = SppChannel::BranchingRatio    (res);
     
       
     double d = W_plus2 + Q2; 
@@ -762,172 +783,241 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
     double nomg = NR*fOmega;
     
 
-    //Graczyk and Sobczyk vector form-symmetry_factors
-    // Eq. 30 of ref. 6
+
+/*
+    // Not used in the latest version
     double CV4 = -1.51*CV40/(1 + Q2/fMv2/4)/(1 + Q2/fMv2)/(1 + Q2/fMv2);
-/*  Not used now
+*/ 
+
+    //Graczyk and Sobczyk vector form-factors
+    double CV_factor = 1./(1. + Q2/fMv2/4.);
+    // Eq. 29 of ref. 6
+    double CV3 =  2.13*CV_factor/(1 + Q2/fMv2)/(1 + Q2/fMv2);
+    // Eq. 30 of ref. 6
+    double CV4 = -1.51/2.13*CV3;
+    // Eq. 31 of ref. 6
+    double CV5 =  0.48*CV_factor/(1 + Q2/fMv2/0.766)/(1 + Q2/fMv2/0.766);
     
-    double CV3 = 2.13*CV0/(1 + Q2/fMv2)/(1 + Q2/fMv2);
-    double CV5 =  0.48*CV0/(1 + Q2/fMv2/0.766)/(1 + Q2/fMv2/0.766);
+    // Eq. 38 of ref. 6
     double GV3 =  0.5*k1_Sqrt3*(CV4*(W2 - M2 - Q2)/2./M2 + CV5*(W2 - M2 + Q2)/2./M2 + CV3*W_plus/M);
-    double GV1 = -0.5*k1_Sqrt3*(CV4*(W2 - M2 - Q2)/2./M2 + CV5*(W2 - M2 + Q2)/2./M2 + CV3*(M2 + Q2 +M*W)/W/M);
-    double GV  =  0.5*TMath::Power(1 + Q2/W_plus2, 0.5-NR)* TMath::Sqrt(3.*GV3*GV3 + GV1*GV1);
-*/
-    // formula for G_V^{RS} after eq. 28 in ref. 6
+    // Eq. 39 of ref. 6
+    double GV1 = -0.5*k1_Sqrt3*(CV4*(W2 - M2 - Q2)/2./M2 + CV5*(W2 - M2 + Q2)/2./M2 - CV3*(W_plus*M + Q2)/W/M);
+    // Eq. 36 of ref. 6, which is implied to use for EM-production
+    double GV  =  0.5*TMath::Sqrt(1 + Q2/W_plus2)/TMath::Power(1 + Q2/4/M2, 0.5*NR)*TMath::Sqrt(3.*GV3*GV3 + GV1*GV1);
+    // Eq. 37 of ref. 6, which is implied to use for neutrino-production
+    // double GV  =  0.5*TMath::Sqrt(1 + Q2/W_plus2)/TMath::Power(1 + Q2/4/M2, NR)*TMath::Sqrt(3.*GV3*GV3 + GV1*GV1);
+
+/*    
+    // Not used in the latest version
+    // formula for G_V^{RS} after eq. 28 in ref. 6 with additional factor (1.+ Q2/4./M2)^(-0.5*NR)
     double GV  =  -k1_Sqrt3/4*W_plus2/M2*TMath::Power(1. + Q2/W_plus2, 3./2)*CV4*TMath::Power(1.+ Q2/4./M2, -0.5*NR);  
- 
+*/
+    
     //Graczyk and Sobczyk axial form-symmetry_factor
     // Eq. 52 of ref. 6
-    double CA5 = CA50/(1 + Q2/fMa2)/(1 + Q2/fMa2);
-    double GA;
-    if ( NR == 0 )
-      // Eq. 50 of ref. 6
-      GA = 0.5*kSqrt3*TMath::Sqrt(1.+ Q2/W_plus2)*((W2 -Q2 -M2)/Wt2/W_minus + W*Q2/4/M2/W_minus)*CA5;
-    else
-      // The form is the same like in Eq. 54 of ref. 6, but differ from it by index, which in ref. 6 is equal to -NR.
-      GA = 0.5*kSqrt3*TMath::Sqrt(1 + Q2/W_plus2)*(1 - (W2 - Q2 -M2)/8/M2)*CA5*TMath::Power(1+ Q2/4/M2, -0.5*NR);
+    double CA5 = fCA50/(1 + Q2/fMa2)/(1 + Q2/fMa2);
+/*        
+    // Not used in the latest version
+    // Eq. 50 of ref. 6
+    GA = 0.5*kSqrt3*TMath::Sqrt(1.+ Q2/W_plus2)*((W2 -Q2 -M2)/Wt2/W_minus + W*Q2/4/M2/W_minus)*CA5;
+*/
+    // The form is the same like in Eq. 54 of ref. 6, but differ from it by index, which in ref. 6 is equal to NR.
+    double GA = 0.5*kSqrt3*TMath::Sqrt(1 + Q2/W_plus2)*(1 - (W2 - Q2 -M2)/8/M2)*CA5/TMath::Power(1+ Q2/4/M2, 0.5*NR);
 
     double qMR_0        = (MR*MR - M2 + m_pi2)/(2.*MR);
     double abs_mom_qMR  = TMath::Sqrt( qMR_0*qMR_0 - m_pi2);
-    double kappa        = kPi*W*TMath::Sqrt(2./JR/abs_mom_q)/M ;
+    double kappa        = kPi*W*TMath::Sqrt(2./JR/abs_mom_q)/M;
     double Gamma        = WR*TMath::Power((abs_mom_q/abs_mom_qMR), 2*LR + 1);
     
-    
+/*        
+    // Not used in the latest version    
     //phases between resonances and nonresonant helicity amplitudes
     std::complex<double> exp_phase_V = std::complex<double>(TMath::Cos(qV), TMath::Sin(qV));
     std::complex<double> exp_phase_A = std::complex<double>(TMath::Cos(qA), TMath::Sin(qA));
-    
+*/   
     
     // denominator of Breit-Wigner function
     std::complex<double> denom(W-MR, Gamma/2);
-    //Breit-Wigner amplitude for vector part multiplied by sqrt(BR), where BR = chi_E (see eq. 25 and 27 of ref. 1)
-    f_BW_V = TMath::Sqrt(BR*Gamma/2/kPi)*exp_phase_V/denom;
-    //Breit-Wigner amplitude for axial part multiplied by sqrt(BR),  where BR = chi_E (see eq. 25 and 27 of ref. 1)
-    f_BW_A = TMath::Sqrt(BR*Gamma/2/kPi)*exp_phase_A/denom;
+    //Breit-Wigner amplitude multiplied by sqrt(BR), where BR = chi_E (see eq. 25 and 27 of ref. 1)
+    f_BW = TMath::Sqrt(BR*Gamma/2/kPi)/denom;
     
+/*   
+    // Not used in the latest version    
+    //Breit-Wigner amplitude for axial part multiplied by sqrt(BR),  where BR = chi_E (see eq. 25 and 27 of ref. 1)
+    f_BW_A = TMath::Sqrt(BR*Gamma/2/kPi)/denom;
+*/
+     
     
     fFKR.Lamda  = sq2omg*abs_mom_k;
     fFKR.Tv     = GV/3/W/sq2omg;
     fFKR.Ta     = 2./3/sq2omg*abs_mom_k*GA/d; 
     fFKR.Rv     = kSqrt2*abs_mom_k*W_plus*GV/d;
     fFKR.Ra     = kSqrt2/6*(W_plus + 2*nomg*W/d)*GA/W;
+    fFKR.R      = fFKR.Rv;
+    fFKR.T      = fFKR.Tv;
+    fFKR.Rplus  = - (fFKR.Rv + fFKR.Ra);
+    fFKR.Rminus = - (fFKR.Rv - fFKR.Ra);
+    fFKR.Tplus  = - (fFKR.Tv + fFKR.Ta);
+    fFKR.Tminus = - (fFKR.Tv - fFKR.Ta);
+    
     
         
     double a_aux = 1 + ((W2 + Q2 + M2)/(Mt2*W));
-    fFKR.Cplus =  Q/C_S_plus*((eps_zero_R*abs_mom_k - eps_z_R*k_0)*(1./3 + k_0/a_aux/M) + 
-                (Wt2/3 - Q2/a_aux/M + nomg/a_aux/M/3)*(eps_z_R + (eps_zero_R*k_0 - eps_z_R*abs_mom_k)*abs_mom_k/mpi2_minus_k2))*GA/Wt2/abs_mom_k; 
-    fFKR.Cminus = Q/C_S_minus*((eps_zero_L*abs_mom_k - eps_z_L*k_0)*(1./3 + k_0/a_aux/M) + 
-                (Wt2/3 - Q2/a_aux/M + nomg/a_aux/M/3)*(eps_z_L + (eps_zero_L*k_0 - eps_z_L*abs_mom_k)*abs_mom_k/mpi2_minus_k2))*GA/Wt2/abs_mom_k;
-
-    fFKR.Bplus =  Q/C_S_plus *(eps_zero_R + eps_z_R*abs_mom_k/a_aux/M + 
-                   (eps_zero_R*k_0 - eps_z_R*abs_mom_k)*(k_0 + abs_mom_k*abs_mom_k/M/a_aux)/mpi2_minus_k2)*GA/W/3/sq2omg/abs_mom_k; 
-    fFKR.Bminus = Q/C_S_minus*(eps_zero_L + eps_z_L*abs_mom_k/a_aux/M + 
-                  (eps_zero_L*k_0 - eps_z_L*abs_mom_k)*(k_0 + abs_mom_k*abs_mom_k/M/a_aux)/mpi2_minus_k2)*GA/W/3/sq2omg/abs_mom_k;
+    // if Q2=Q=sqrt(Q2)=0 then the singularity appears in k_sqrtQ2
+    // which is eliminated when in Hres at BosonPolarization=PLUS0 or BosonPolarization=MINUS0 
+    // when k_sqrtQ2 is multiplied by C, B and S. Therefore in this case we put Q equal to 1.
+    // In our opinion it is simplier to eliminate singularity in such way, because it allows to 
+    // keep intact original formulas from paper.
+    if (Q == 0) Q = 1;
     
-    fFKR.Splus  = Q/C_S_plus *(eps_z_R*k_0 - eps_zero_R*abs_mom_k)*(1 + Q2/M2 - 3*W/M)*GV/abs_mom_k_L2/6; 
-    fFKR.Sminus = Q/C_S_minus*(eps_z_L*k_0 - eps_zero_L*abs_mom_k)*(1 + Q2/M2 - 3*W/M)*GV/abs_mom_k_L2/6;
+    double C_plus = Q/C_S_plus*((eps_zero_R*abs_mom_k - eps_z_R*k_0)*(1./3 + k_0/a_aux/M) + 
+                   (Wt2/3 - Q2/a_aux/M + nomg/a_aux/M/3)*(eps_z_R + (eps_zero_R*k_0 - eps_z_R*abs_mom_k)*abs_mom_k/mpi2_minus_k2))*GA/Wt2/abs_mom_k; 
+    double C_minus = Q/C_S_minus*((eps_zero_L*abs_mom_k - eps_z_L*k_0)*(1./3 + k_0/a_aux/M) + 
+                   (Wt2/3 - Q2/a_aux/M + nomg/a_aux/M/3)*(eps_z_L + (eps_zero_L*k_0 - eps_z_L*abs_mom_k)*abs_mom_k/mpi2_minus_k2))*GA/Wt2/abs_mom_k;
     
-    double k_sqrtQ2 = abs_mom_k/TMath::Sqrt(Q2);
+    double B_plus =  Q/C_S_plus *(eps_zero_R + eps_z_R*abs_mom_k/a_aux/M + 
+                    (eps_zero_R*k_0 - eps_z_R*abs_mom_k)*(k_0 + abs_mom_k*abs_mom_k/M/a_aux)/mpi2_minus_k2)*GA/W/3/sq2omg/abs_mom_k; 
+    double B_minus = Q/C_S_minus*(eps_zero_L + eps_z_L*abs_mom_k/a_aux/M + 
+                    (eps_zero_L*k_0 - eps_z_L*abs_mom_k)*(k_0 + abs_mom_k*abs_mom_k/M/a_aux)/mpi2_minus_k2)*GA/W/3/sq2omg/abs_mom_k;
     
+    double S_plus  = Q/C_S_plus *(eps_z_R*k_0 - eps_zero_R*abs_mom_k)*(1 + Q2/M2 - 3*W/M)*GV/abs_mom_k_L2/6; 
+    double S_minus = Q/C_S_minus*(eps_z_L*k_0 - eps_zero_L*abs_mom_k)*(1 + Q2/M2 - 3*W/M)*GV/abs_mom_k_L2/6;
+    
+    double k_sqrtQ2 = abs_mom_k/Q;
+    
+/*    
+    // Not used in the latest version    
     const MKHelicityAmplModelI * hamplmod = 0;
+*/    
+    const RSHelicityAmplModelI * hamplmod = 0;
     
-    if (is_CC) {hamplmod = fHAmplModelCC;}
+    if (is_CC)
+      hamplmod = fHAmplModelCC;
     else if(is_NC) 
     {
-      if (is_p) { hamplmod = fHAmplModelNCp;}
-      else      { hamplmod = fHAmplModelNCn;}
+      if (is_p) 
+        hamplmod = fHAmplModelNCp;
+      else      
+        hamplmod = fHAmplModelNCn;
     }
     
+/*    
+    // Not used in the latest version        
     const MKHelicityAmpl & hampl = hamplmod->Compute(res, fFKR);
+*/    
+    fFKR.S = S_minus;
+    fFKR.B = B_minus;
+    fFKR.C = C_minus;
+    const RSHelicityAmpl & hampl = hamplmod->Compute(res, fFKR);
+    double fp3 = hampl.AmpPlus3();
+    double fp1 = hampl.AmpPlus1();
+    double fm3 = hampl.AmpMinus3();
+    double fm1 = hampl.AmpMinus1();
+    double fm0m = hampl.Amp0Minus();
+    double fm0p = hampl.Amp0Plus();
+    
+    double fp0m = 0., fp0p = 0.;
+    if (is_CC)
+    {
+       fFKR.S = S_plus;
+       fFKR.B = B_plus;
+       fFKR.C = C_plus;
+       const RSHelicityAmpl & hampl_plus = hamplmod->Compute(res, fFKR);
+       fp0m = hampl_plus.Amp0Minus();
+       fp0p = hampl_plus.Amp0Plus();
+    }
+    
+    double JRtSqrt2 = kSqrt2*JR;
      
     // Helicity amplitudes V-A, eq. 23 - 25 and Table 3 and 4 of ref. 1
     // Cjsgn_plus are C^j_{lS2z} for S2z=1/2 and given in Table 9 of ref. 4
     // Cjsgn_minus are C^j_{lS2z} for S2z=-1/2 and all equal to 1 (see Table 7 of ref. 4) 
     Hres(res,                      BosonPolarization::LEFT, NucleonPolarization::PLUS,  NucleonPolarization::PLUS) = 
-        kSqrt2*JR*Dsgn*kappa*Cjsgn_plus*(f_BW_V*hampl.AmpVMinus3() - f_BW_A*hampl.AmpAMinus3())*std::complex<double>
+        JRtSqrt2*Dsgn*Cjsgn_plus*kappa*f_BW*fp3*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::LEFT, NucleonPolarization::PLUS,  NucleonPolarization::PLUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::LEFT, NucleonPolarization::PLUS,  NucleonPolarization::PLUS)));
     
     Hres(res,                      BosonPolarization::LEFT, NucleonPolarization::MINUS,  NucleonPolarization::PLUS) = 
-        kSqrt2*JR*Dsgn*kappa*(f_BW_V*hampl.AmpVMinus3() - f_BW_A*hampl.AmpAMinus3())*std::complex<double>
+       -JRtSqrt2*Dsgn*Cjsgn_plus*kappa*f_BW*fp3*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::LEFT, NucleonPolarization::MINUS,  NucleonPolarization::PLUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::LEFT, NucleonPolarization::MINUS,  NucleonPolarization::PLUS)));
     
     Hres(res,                      BosonPolarization::LEFT, NucleonPolarization::PLUS,  NucleonPolarization::MINUS) = 
-        kSqrt2*JR*Dsgn*kappa*Cjsgn_plus*(f_BW_V*hampl.AmpVMinus1() - f_BW_A*hampl.AmpAMinus1())*std::complex<double>
+        JRtSqrt2*Dsgn*Cjsgn_plus*kappa*f_BW*fp1*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::LEFT, NucleonPolarization::PLUS,  NucleonPolarization::MINUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::LEFT, NucleonPolarization::PLUS,  NucleonPolarization::MINUS)));        
     
     Hres(res,                      BosonPolarization::LEFT, NucleonPolarization::MINUS,  NucleonPolarization::MINUS) = 
-        kSqrt2*JR*Dsgn*kappa*(f_BW_V*hampl.AmpVMinus1() - f_BW_A*hampl.AmpAMinus1())*std::complex<double>
+       -JRtSqrt2*Dsgn*Cjsgn_plus*kappa*f_BW*fp1*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::LEFT, NucleonPolarization::MINUS,  NucleonPolarization::MINUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::LEFT, NucleonPolarization::MINUS,  NucleonPolarization::MINUS)));
 
 
     
     Hres(res,                      BosonPolarization::RIGHT, NucleonPolarization::PLUS,  NucleonPolarization::PLUS) = 
-        kSqrt2*JR*Dsgn*kappa*Cjsgn_plus*(f_BW_V*hampl.AmpVMinus1() - f_BW_A*hampl.AmpAMinus1())*std::complex<double>
+       -JRtSqrt2*Dsgn*Cjsgn_plus*kappa*f_BW*fm1*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::RIGHT, NucleonPolarization::PLUS,  NucleonPolarization::PLUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::RIGHT, NucleonPolarization::PLUS,  NucleonPolarization::PLUS)));
     
     Hres(res,                      BosonPolarization::RIGHT, NucleonPolarization::MINUS,  NucleonPolarization::PLUS) = 
-       -kSqrt2*JR*Dsgn*kappa*(f_BW_V*hampl.AmpVMinus1() - f_BW_A*hampl.AmpAMinus1())*std::complex<double>
+        JRtSqrt2*Dsgn*Cjsgn_plus*kappa*f_BW*fm1*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::RIGHT, NucleonPolarization::MINUS,  NucleonPolarization::PLUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::RIGHT, NucleonPolarization::MINUS,  NucleonPolarization::PLUS)));
     
     Hres(res,                      BosonPolarization::RIGHT, NucleonPolarization::PLUS,  NucleonPolarization::MINUS) = 
-       -kSqrt2*JR*Dsgn*kappa*Cjsgn_plus*(f_BW_V*hampl.AmpVMinus3() - f_BW_A*hampl.AmpAMinus3())*std::complex<double>
+       -JRtSqrt2*Dsgn*Cjsgn_plus*kappa*f_BW*fm3*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::RIGHT, NucleonPolarization::PLUS,  NucleonPolarization::MINUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::RIGHT, NucleonPolarization::PLUS,  NucleonPolarization::MINUS)));
     
     Hres(res,                      BosonPolarization::RIGHT, NucleonPolarization::MINUS,  NucleonPolarization::MINUS) = 
-        kSqrt2*JR*Dsgn*kappa*(f_BW_V*hampl.AmpVMinus3() - f_BW_A*hampl.AmpAMinus3())*std::complex<double>
+        JRtSqrt2*Dsgn*Cjsgn_plus*kappa*f_BW*fm3*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::RIGHT, NucleonPolarization::MINUS,  NucleonPolarization::MINUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::RIGHT, NucleonPolarization::MINUS,  NucleonPolarization::MINUS)));
 
 
 
     Hres(res,                      BosonPolarization::MINUS0, NucleonPolarization::PLUS,  NucleonPolarization::PLUS) = 
-       -k_sqrtQ2*kSqrt2*JR*Dsgn*kappa*Cjsgn_plus*(f_BW_V*hampl.AmpV0LMinus() - f_BW_A*hampl.AmpA0LMinus())*std::complex<double>
+       -k_sqrtQ2*JRtSqrt2*Dsgn*kappa*f_BW*fm0m*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::PLUS,  NucleonPolarization::PLUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::PLUS,  NucleonPolarization::PLUS)));
     
     Hres(res,                      BosonPolarization::MINUS0, NucleonPolarization::MINUS,  NucleonPolarization::PLUS) = 
-        k_sqrtQ2*kSqrt2*JR*Dsgn*kappa*(f_BW_V*hampl.AmpV0LMinus() - f_BW_A*hampl.AmpA0LMinus())*std::complex<double>
+        k_sqrtQ2*JRtSqrt2*Dsgn*kappa*f_BW*fm0m*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::MINUS,  NucleonPolarization::PLUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::MINUS,  NucleonPolarization::PLUS)));
     
     Hres(res,                      BosonPolarization::MINUS0, NucleonPolarization::PLUS,  NucleonPolarization::MINUS) = 
-        k_sqrtQ2*kSqrt2*JR*Dsgn*kappa*Cjsgn_plus*(f_BW_V*hampl.AmpV0LPlus() - f_BW_A*hampl.AmpA0LPlus())*std::complex<double>
+        k_sqrtQ2*JRtSqrt2*Dsgn*kappa*f_BW*fm0p*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::PLUS,  NucleonPolarization::MINUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::PLUS,  NucleonPolarization::MINUS)));
     
     Hres(res,                      BosonPolarization::MINUS0, NucleonPolarization::MINUS,  NucleonPolarization::MINUS) = 
-       -k_sqrtQ2*kSqrt2*JR*Dsgn*kappa*(f_BW_V*hampl.AmpV0LPlus() - f_BW_A*hampl.AmpA0LPlus())*std::complex<double>
+       -k_sqrtQ2*JRtSqrt2*Dsgn*kappa*f_BW*fm0p*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::MINUS,  NucleonPolarization::MINUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::MINUS,  NucleonPolarization::MINUS)));
 
 
 
     Hres(res,                      BosonPolarization::PLUS0, NucleonPolarization::PLUS,  NucleonPolarization::PLUS) = 
-       -k_sqrtQ2*kSqrt2*JR*Dsgn*kappa*Cjsgn_plus*(f_BW_V*hampl.AmpV0RMinus() - f_BW_A*hampl.AmpA0RMinus())*std::complex<double>
+       -k_sqrtQ2*JRtSqrt2*Dsgn*kappa*f_BW*fp0m*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::PLUS0, NucleonPolarization::PLUS,  NucleonPolarization::PLUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::PLUS0, NucleonPolarization::PLUS,  NucleonPolarization::PLUS)));
    
     Hres(res,                      BosonPolarization::PLUS0, NucleonPolarization::MINUS,  NucleonPolarization::PLUS) = 
-        k_sqrtQ2*kSqrt2*JR*Dsgn*kappa*(f_BW_V*hampl.AmpV0RMinus() - f_BW_A*hampl.AmpA0RMinus())*std::complex<double>
+        k_sqrtQ2*JRtSqrt2*Dsgn*kappa*f_BW*fp0m*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::PLUS0, NucleonPolarization::MINUS,  NucleonPolarization::PLUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::PLUS0, NucleonPolarization::MINUS,  NucleonPolarization::PLUS)));
     
     Hres(res,                      BosonPolarization::PLUS0, NucleonPolarization::PLUS,  NucleonPolarization::MINUS) = 
-        k_sqrtQ2*kSqrt2*JR*Dsgn*kappa*Cjsgn_plus*(f_BW_V*hampl.AmpV0RPlus() - f_BW_A*hampl.AmpA0RPlus())*std::complex<double>
+        k_sqrtQ2*JRtSqrt2*Dsgn*kappa*f_BW*fp0p*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::PLUS0, NucleonPolarization::PLUS,  NucleonPolarization::MINUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::PLUS0, NucleonPolarization::PLUS,  NucleonPolarization::MINUS)));
     
     Hres(res,                      BosonPolarization::PLUS0, NucleonPolarization::MINUS,  NucleonPolarization::MINUS) = 
-       -k_sqrtQ2*kSqrt2*JR*Dsgn*kappa*(f_BW_V*hampl.AmpV0RPlus() - f_BW_A*hampl.AmpA0RPlus())*std::complex<double>
+       -k_sqrtQ2*JRtSqrt2*Dsgn*kappa*f_BW*fp0p*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::PLUS0, NucleonPolarization::MINUS,  NucleonPolarization::MINUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::PLUS0, NucleonPolarization::MINUS,  NucleonPolarization::MINUS)));
+        
   
   } //end resonances loop
   
@@ -1040,11 +1130,14 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double C1         = SppChannel::Isospin1Coefficients(spp_channel);
   double C3         = SppChannel::Isospin3Coefficients(spp_channel);
   
+  
   double g = kGF;
   if(is_CC) g = kGF*fVud;
   
-  double Lcoeff= abs_mom_k_L/2/kSqrt2/E/Q; //Eq. 3.59 of ref. 2
-  double xsec0 = TMath::Power(g/8/kPi/kPi, 2)*abs_mom_q*Q2*Lcoeff*Lcoeff/abs_mom_k_L2/2;
+  double Lcoeff= abs_mom_k_L/2/kSqrt2/E; 
+  // Eq. 3.59 of ref. 2, which is multiplied by Q to avoid singularity at Q2=0
+  double xsec0 = TMath::Power(g/8/kPi/kPi, 2)*abs_mom_q*Lcoeff*Lcoeff/abs_mom_k_L2/2; 
+  // We divide xsec0 by Q2 due to redifinition of Lcoeff
   
   if (kps == kPSWQ2ctpphipfE)
   {
@@ -1152,7 +1245,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   int NNucl = (SppChannel::InitStateNucleon(spp_channel) == kPdgProton) ? Z : N;
   xsec*=NNucl; // nuclear xsec (no nuclear suppression symmetry_factor)
 
-  if ( fUsePauliBlocking && A!=1 )
+  if ( fUsePauliBlocking && A!=1 && kps == kPSWQ2ctpfE )
   {
     // Calculation of Pauli blocking according to refs. 9-11
     double P_Fermi = 0.0;
@@ -1243,37 +1336,26 @@ bool MKSPPPXSec::ValidKinematics(const Interaction * interaction) const
   // call only after ValidProcess
   if ( interaction->TestBit(kISkipKinematicChk) ) return true;
   
+  const KPhaseSpace& kps = interaction->PhaseSpace();
+  
   // Get kinematical parameters
   const InitialState & init_state = interaction -> InitState();
   const Kinematics & kinematics = interaction -> Kine();
   double Enu = init_state.ProbeE(kRfHitNucRest);
-  double ml   = interaction->FSPrimLepton()->Mass();
-  double ml2  = ml*ml;
-  double Q2   = kinematics.Q2();
   double W    = kinematics.W();
-
-  PDGLibrary * pdglib = PDGLibrary::Instance();
+  double Q2   = kinematics.Q2();
   
-  // imply isospin symmetry  
-  double mpi  = (pdglib->Find(kPdgPiP)->Mass() + pdglib->Find(kPdgPi0)->Mass() + pdglib->Find(kPdgPiM)->Mass())/3;
-  double M = (pdglib->Find(kPdgProton)->Mass() + pdglib->Find(kPdgNeutron)->Mass())/2;
+  if (Enu < kps.Threshold_RSPP())
+    return false;
     
-  double E_thr = (TMath::Power(M + ml + mpi, 2) - M*M)/2/M;
-  if (Enu < E_thr) return false;
+  Range1D_t Wl  = kps.WLim_RSPP();
+  Range1D_t Q2l = kps.Q2Lim_W_RSPP();
   
-  double s = M*(M + 2*Enu);
-  double sqrt_s = TMath::Sqrt(s);
-  
-  double Wlow = M + mpi;
-  double Wup  = sqrt_s - ml;
-  if (W < Wlow || W > Wup) return false;
-  
-  double Enu_CM = (s - M*M)/2/sqrt_s;
-  double El_CM  = (s + ml*ml - W*W)/2/sqrt_s;
-  double Pl_CM  = TMath::Sqrt(El_CM*El_CM - ml2);
-  double Q2low = 2*Enu_CM*(El_CM - Pl_CM) - ml2;
-  double Q2up  = 2*Enu_CM*(El_CM + Pl_CM) - ml2;
-  if (Q2 < Q2low || Q2 > Q2up) return false;
+  if (W < Wl.min || W > Wl.max)
+    return false;
+    
+  if (Q2 < Q2l.min || Q2 > Q2l.max)
+    return false;
   
   return true;
   
@@ -1307,11 +1389,11 @@ void MKSPPPXSec::LoadConfig(void)
   this->GetParamDef( "RES-Omega"  , fOmega, 1.05);
 
   double ma, mv;
-  this->GetParamDef( "RES-Ma", ma, 1.06);
-  this->GetParamDef( "RES-Mv", mv, 0.84);
+  this->GetParam( "RES-Ma"   , ma);
+  this->GetParam( "RES-Mv"   , mv);
   fMa2 = ma*ma;
   fMv2 = mv*mv;
-
+  this->GetParam( "RES-CA50" , fCA50) ;
 
   double thw;
   this->GetParam( "WeinbergAngle", thw );
@@ -1325,9 +1407,9 @@ void MKSPPPXSec::LoadConfig(void)
   fHAmplModelNCn    = 0;
   
   AlgFactory * algf = AlgFactory::Instance();
-  fHAmplModelCC  = dynamic_cast<const MKHelicityAmplModelI *> (algf->GetAlgorithm("genie::MKHelicityAmplModelCC","Default"));
-  fHAmplModelNCp = dynamic_cast<const MKHelicityAmplModelI *> (algf->GetAlgorithm("genie::MKHelicityAmplModelNCp","Default"));
-  fHAmplModelNCn = dynamic_cast<const MKHelicityAmplModelI *> (algf->GetAlgorithm("genie::MKHelicityAmplModelNCn","Default"));
+  fHAmplModelCC  = dynamic_cast<const RSHelicityAmplModelI *> (algf->GetAlgorithm("genie::RSHelicityAmplModelCC","Default"));
+  fHAmplModelNCp = dynamic_cast<const RSHelicityAmplModelI *> (algf->GetAlgorithm("genie::RSHelicityAmplModelNCp","Default"));
+  fHAmplModelNCn = dynamic_cast<const RSHelicityAmplModelI *> (algf->GetAlgorithm("genie::RSHelicityAmplModelNCn","Default"));
   
   assert(fHAmplModelCC);
   assert(fHAmplModelNCp);

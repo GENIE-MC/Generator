@@ -12,12 +12,12 @@
 
 for the following channels:      
 
-          1       nu + p -> mu     + p + pi+
-          2       nu + n -> mu     + p + pi0
-          3       nu + n -> mu     + n + pi+
-          4   antinu + n -> mu+    + n + pi-
-          5   antinu + p -> mu+    + n + pi0
-          6   antinu + p -> mu+    + p + pi-
+          1       nu + p -> l      + p + pi+
+          2       nu + n -> l      + p + pi0
+          3       nu + n -> l      + n + pi+
+          4   antinu + n -> l+     + n + pi-
+          5   antinu + p -> l+     + n + pi0
+          6   antinu + p -> l+     + p + pi-
           7       nu + p -> nu     + p + pi0
           8       nu + p -> nu     + n + pi+
           9       nu + n -> nu     + n + pi0
@@ -43,6 +43,8 @@ for the following channels:
              nonperturbative dispersive  sector in strong (quasi-)abelian  fields", Ph. D.Thesis, Dortmund U., Dortmund, 2002 (unpublished)
 
 \authors  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
+          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>,  Joint Institute for Nuclear Research \n
+          Vadim Naumov <vnaumov@theor.jinr.ru>,  Joint Institute for Nuclear Research \n
           adapted from code provided by \n
           Minoo Kabirnezhad <minoo.kabirnezhad@physics.ox.ac.uk>
           University of Oxford, Department of Physics \n
@@ -70,9 +72,9 @@ for the following channels:
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Framework/ParticleData/BaryonResonance.h"
 #include "Framework/ParticleData/BaryonResList.h"
-#include "Physics/Resonance/XSection/MKHelicityAmplModelI.h"
-#include "Physics/Resonance/XSection/MKHelicityAmpl.h"
-#include "Physics/Resonance/XSection/FKR_MK.h"
+#include "Physics/Resonance/XSection/RSHelicityAmplModelI.h"
+#include "Physics/Resonance/XSection/RSHelicityAmpl.h"
+#include "Physics/Resonance/XSection/FKR.h"
 #include "Physics/QuasiElastic/XSection/ELFormFactorsModelI.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactorsModelI.h"
 #include "Physics/QuasiElastic/XSection/ELFormFactors.h"
@@ -330,14 +332,23 @@ namespace genie {
       
       void LoadConfig (void);
       
+/*
+      // Not used n the latest version 
       mutable FKR_MK fFKR;
       
       const MKHelicityAmplModelI * fHAmplModelCC;
       const MKHelicityAmplModelI * fHAmplModelNCp;
       const MKHelicityAmplModelI * fHAmplModelNCn;
+*/      
+      
+      mutable FKR fFKR;
+      const RSHelicityAmplModelI * fHAmplModelCC;
+      const RSHelicityAmplModelI * fHAmplModelNCp;
+      const RSHelicityAmplModelI * fHAmplModelNCn;
 
 
       // configuration data
+      double   fCA50;              ///< FKR parameter Zeta
       double   fOmega;             ///< FKR parameter Omega
       double   fMa2;               ///< (axial mass)^2
       double   fMv2;               ///< (vector mass)^2
@@ -369,7 +380,9 @@ namespace genie {
       double fBkgV2;   
       double fBkgV1;   
       double fBkgV0;   
-      /// Parameters for vector virtual form factor
+      /*
+      // Not used n the latest version 
+      /// Parameters for axial-vector virtual form factor
       /// for background contribution, which equal to:  
       /// 1,                                              W<VWmin   
       /// A3*W^3+A2*W^2+A1*W+A0                     VWmin<W<VWmax
@@ -380,7 +393,7 @@ namespace genie {
       double fBkgA2;  
       double fBkgA1;  
       double fBkgA0; 
-      
+      */
       double fRho770Mass;                        ///< Mass of rho(770) meson 
       
       const XSecIntegratorI * fXSecIntegrator;

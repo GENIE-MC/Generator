@@ -175,6 +175,7 @@
   <priority msgstream="QELEvent">              NOTICE </priority>
   <priority msgstream="QELHadronicVtx">        WARN   </priority>
   <priority msgstream="QELKinematics">         WARN   </priority>
+  <priority msgstream="RSPPEventGen">          NOTICE </priority>
   <priority msgstream="RESXSec">               INFO   </priority>
   <priority msgstream="RESPXSec">              WARN   </priority>
   <priority msgstream="RESPXSec">              WARN   </priority>
@@ -187,7 +188,6 @@
   <priority msgstream="ReinSehgalResCF">       NOTICE </priority>
   <priority msgstream="ReinSehgalSpp">         NOTICE </priority>
   <priority msgstream="RSHAmpl">               WARN   </priority>
-  <priority msgstream="MKHAmpl">               WARN   </priority>
   <priority msgstream="Registry">              WARN   </priority>
   <priority msgstream="ReW">                   NOTICE </priority>
   <priority msgstream="RESHadronicVtx">        WARN   </priority>

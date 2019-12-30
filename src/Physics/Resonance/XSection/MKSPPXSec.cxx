@@ -4,10 +4,11 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Igor Kakorin <kakorin@jinr.ru>
-         Joint Institute for Nuclear Research - November 12, 2019
-         based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Authors: Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
+          Konstantin Kuzmin <kkuzmin@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
+          Vadim Naumov <vnaumov@theor.jinr.ru >,  Joint Institute for Nuclear Research \n        
+          based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          University of Liverpool & STFC Rutherford Appleton Lab
  
  For the class documentation see the corresponding header file.
 

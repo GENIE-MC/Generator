@@ -44,6 +44,7 @@
    <config alg="genie::DISHadronicSystemGenerator">  DISHadronicSystemGenerator.xml  </config>
    <config alg="genie::RESHadronicSystemGenerator">  RESHadronicSystemGenerator.xml  </config>
    <config alg="genie::RSPPHadronicSystemGenerator"> RSPPHadronicSystemGenerator.xml </config>
+   <config alg="genie::RSPPEventGenerator">          RSPPEventGenerator.xml          </config>
    <config alg="genie::SKHadronicSystemGenerator">   SKHadronicSystemGenerator.xml   </config>
    <config alg="genie::NuETargetRemnantGenerator">   NuETargetRemnantGenerator.xml   </config>
    <config alg="genie::DMETargetRemnantGenerator">   DMETargetRemnantGenerator.xml   </config>
@@ -123,9 +124,6 @@
    <config alg="genie::RSHelicityAmplModelNCn">                  RSHelicityAmplModelNCn.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMp">                  RSHelicityAmplModelEMp.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMn">                  RSHelicityAmplModelEMn.xml                  </config>
-   <config alg="genie::MKHelicityAmplModelCC">                   MKHelicityAmplModelCC.xml                   </config>
-   <config alg="genie::MKHelicityAmplModelNCp">                  MKHelicityAmplModelNCp.xml                  </config>
-   <config alg="genie::MKHelicityAmplModelNCn">                  MKHelicityAmplModelNCn.xml                  </config>
 
 
    <!--  ****** CONFIGURATION GENERIC CROSS SECTION INTEGRATORS ****** -->

@@ -4,10 +4,11 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Igor Kakorin <kakorin@jinr.ru>
-         Joint Institute for Nuclear Research - November 12, 2019
-         based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Authors: Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
+          Konstantin Kuzmin <kkuzmin@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
+          Vadim Naumov <vnaumov@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
+          based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
@@ -226,47 +227,22 @@ fModel(m)
   fInteraction->SetBit(kISkipProcessChk);
   fInteraction->SetBit(kISkipKinematicChk);
   
+  kps = fInteraction->PhaseSpacePtr();
+  
   // Get kinematical parameters
   const InitialState & init_state = interaction -> InitState();
-  const Kinematics & kinematics = interaction -> Kine();
   double Enu = init_state.ProbeE(kRfHitNucRest);
-  fml   = interaction->FSPrimLepton()->Mass();
-  fml2  = fml*fml;
-  
-  PDGLibrary * pdglib = PDGLibrary::Instance();
-  
-  // imply isospin symmetry  
-  double mpi  = (pdglib->Find(kPdgPiP)->Mass() + pdglib->Find(kPdgPi0)->Mass() + pdglib->Find(kPdgPiM)->Mass())/3;
-  fM = (pdglib->Find(kPdgProton)->Mass() + pdglib->Find(kPdgNeutron)->Mass())/2;
-    
-  double E_thr = (TMath::Power(fM + fml + mpi, 2) - fM*fM)/2/fM;
-  if (Enu < E_thr)
+
+
+  if (Enu < kps->Threshold_RSPP())
   {
     isZero = true;
     return;
   }
   
-  fs = fM*(fM + 2*Enu);
-  fsqrt_s = TMath::Sqrt(fs);
+  Wl  = kps->WLim_RSPP();
   
-  double Wlow = fM + mpi;
-  double Wup  = fsqrt_s - fml;
-          
-  fWmin = Wlow;
-  fWmax = Wup;
-/*  
-  Registry fConfig = (const_cast<XSecAlgorithmI *>(fModel))->GetConfig();
-  bool fUsingDisResJoin = fConfig.GetBool("UseDRJoinScheme");
-  double fWcut = 999999;
-
-  fWmax=TMath::Min(fWcut, fWmax);
-  if (fWcut<fWmin)
-          isfWcutLessfWmin=true;
-  else
-          isfWcutLessfWmin=false;
-*/
   
-
 }
 genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::~d3XSecMK_dWQ2CosTheta_E()
 {
@@ -285,22 +261,18 @@ double genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::DoEval(const double * xin) co
 
   if (isZero) return 0.;
   
-  double W  = fWmin+(fWmax-fWmin)*xin[0];
+  double W  = Wl.min + (Wl.max - Wl.min)*xin[0];
   fInteraction->KinePtr()->SetW(W);
-    
-  double Enu_CM = (fs - fM*fM)/2/fsqrt_s;
-  double El_CM  = (fs + fml*fml - W*W)/2/fsqrt_s;
-  double Pl_CM  = TMath::Sqrt(El_CM*El_CM - fml2);
-  double Q2low = 2*Enu_CM*(El_CM - Pl_CM) - fml2;
-  double Q2up  = 2*Enu_CM*(El_CM + Pl_CM) - fml2;
-  
-  double Q2 = Q2low + (Q2up - Q2low)*xin[1];
+   
+  Range1D_t Q2l = kps->Q2Lim_W_RSPP(); 
+   
+  double Q2 = Q2l.min + (Q2l.max - Q2l.min)*xin[1];
   fInteraction->KinePtr()->SetQ2(Q2);
   
   fInteraction->KinePtr()->SetKV(kKVctp, -1. + 2.*xin[2]); //CosTheta
   
   
-  double xsec = fModel->XSec(fInteraction, kPSWQ2ctpfE)*(fWmax-fWmin)*(Q2up-Q2low)*2;
+  double xsec = fModel->XSec(fInteraction, kPSWQ2ctpfE)*(Wl.max-Wl.min)*(Q2l.max-Q2l.min)*2;
   return xsec/(1E-38 * units::cm2);
 }
 ROOT::Math::IBaseFunctionMultiDim *

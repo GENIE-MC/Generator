@@ -60,10 +60,13 @@ namespace genie {
             int         AngularMom        (Resonance_t res);
             int         Cjsgn_plus        (Resonance_t res);
             int         Dsgn              (Resonance_t res);
+/*
+            // Not used in the latest version
             double      VectorPhase       (Resonance_t res);
             double      AxialPhase        (Resonance_t res);
             double      CV40              (Resonance_t res);
             double      CA50              (Resonance_t res);
+*/ 
 
         }        // res   namespace
     }        // utils namespace

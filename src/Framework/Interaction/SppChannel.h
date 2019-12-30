@@ -352,45 +352,41 @@ public:
 
   }
   //__________________________________________________________________________
-  static double BranchingRatio(SppChannel_t channel, Resonance_t res)
+  // The values of resonance mass and width is taken from 
+  // M. Tanabashi et al. (Particle Data Group) Phys. Rev. D 98, 030001
+  // Hardcoded data are removed, now they are taken from PDG table via TDatabasePDG and cached
+  static double BranchingRatio(Resonance_t res)
   {
-    // return the BR for the decay of the input resonance to the final state
-    // hadronic system of the input exclusive channel.
-
+    // return the BR for the decay of the input resonance to the final state: nucleon + pion.
     // get list of TDecayChannels, match one with the input channel and get
     // the branching ratio.
-    static double cache[14][18]; //18 resonances, 14 channels
+    static double cache[18]; //18 resonances, 14 channels
+    double BR = cache[res];
+    if (BR != 0)
+       return BR;
     
-    if (channel != kSppNull)
+    PDGLibrary * pdglib = PDGLibrary::Instance();
+    // the charge of resonance does not matter
+    int pdg = genie::utils::res::PdgCode(res, 0);
+    TParticlePDG * res_pdg = pdglib->Find( pdg );
+    if (res_pdg != 0)
     {
-      double BR = cache[channel-1][res];
-      if (BR != 0)
-         return BR;
-      
-      PDGLibrary * pdglib = PDGLibrary::Instance();
-      int Q = SppChannel::ResonanceCharge(channel);
-      int pdg = genie::utils::res::PdgCode(res, Q);
-      TParticlePDG * res_pdg = pdglib->Find( pdg );
-      if (res_pdg != 0)
+      for (int nch = 0; nch < res_pdg->NDecayChannels(); nch++)
       {
-        for (int nch = 0; nch < res_pdg->NDecayChannels(); nch++)
+        TDecayChannel * ch = res_pdg->DecayChannel(nch);
+        if (ch->NDaughters() == 2)
         {
-          TDecayChannel * ch = res_pdg->DecayChannel(nch);
-          if (ch->NDaughters() == 2)
+          int first_daughter_pdg  = ch->DaughterPdgCode (0);
+          int second_daughter_pdg = ch->DaughterPdgCode (1);
+          if ((genie::pdg::IsNucleon(first_daughter_pdg ) && genie::pdg::IsPion(second_daughter_pdg)) ||
+              (genie::pdg::IsNucleon(second_daughter_pdg) && genie::pdg::IsPion(first_daughter_pdg )))
           {
-            int first_daughter_pdg  = ch->DaughterPdgCode (0);
-            int second_daughter_pdg = ch->DaughterPdgCode (1);
-            if ((first_daughter_pdg == FinStateNucleon(channel) && second_daughter_pdg == FinStatePion(channel)) ||
-                (first_daughter_pdg == FinStatePion(channel) && second_daughter_pdg == FinStateNucleon(channel)))
-            {
-               BR = ch->BranchingRatio();
-               break;
-            }      
-          }
+             BR += ch->BranchingRatio();
+          }      
         }
-        cache[channel-1][res] = BR;
-        return BR;
       }
+      cache[res] = BR;
+      return BR;
     }
   
     // should not be here - meaningless to return anything
