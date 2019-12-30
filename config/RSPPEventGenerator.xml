@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the RSPPEventGenerator EventRecordVisitorI
+
+Algorithm Configurable Parameters:
+.......................................................................................................................
+Name                     Type    Opt   Comment                                                                Default
+.......................................................................................................................
+UniformOverPhaseSpace    bool    Yes   kinematics uniformly over allowd phase space                            false
+                                       wgt = (phase_space_volume)*(diff_xsec)/(xsec)
+MaxXSec-SafetyFactor     double  Yes   multiplies max xsec in rejection method                                  1.25
+MaxXSec-DiffTolerance    double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)                          999999 
+                                       (disable) if xsec>xsecmax
+Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cached                               0.5
+
+NumOfKnots_W             int     Yes   Number of W-knots to coarse search maximum on the grid                     40
+NumOfKnots_Q2            int     Yes   Number of Q2-knots to coarse search maximum on the grid                    40
+NumOfKnots_CosTheta      int     Yes   Number of cosine of theta-knots to coarse search maximum on the grid       40
+NumOfKnots_Phi           int     Yes   Number of phi-knots to coarse search maximum on the grid                   40
+-->
+
+  <param_set name="Default">
+    
+  </param_set>
+
+
+
+</alg_conf>
+

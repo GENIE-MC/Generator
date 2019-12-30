@@ -15,8 +15,9 @@
           Is a concrete implementation of the XSecAlgorithmI interface.\n
 
 
-\author   Igor Kakorin <kakorin@jinr.ru>
-          Joint Institute for Nuclear Research - Novermber 12, 2019 \n
+\authors  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
+          Konstantin Kuzmin <kkuzmin@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
+          Vadim Naumov <vnaumov@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
           based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
 

@@ -13,8 +13,9 @@ Computes the cross section for an neutrino resonance SPP reaction
          according to the MK model.
 
 
-\author   Igor Kakorin <kakorin@jinr.ru>
-          Joint Institute for Nuclear Research - November 12, 2019 \n
+\authors  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
+          Konstantin Kuzmin <kkuzmin@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
+          Vadim Naumov <vnaumov@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
           based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
@@ -90,13 +91,7 @@ public:
 private:
   const XSecAlgorithmI * fModel;
   Interaction *    fInteraction;
-  double fWmin;
-  double fWmax;
-  double fs;
-  double fsqrt_s;
-  double fM;
-  double fml;
-  double fml2;
+  Range1D_t Wl;
   bool isZero;
   KPhaseSpace * kps;
 };

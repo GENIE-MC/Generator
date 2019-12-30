@@ -460,7 +460,7 @@ bool genie::utils::res::IsN(Resonance_t res)
 //____________________________________________________________________________
 double genie::utils::res::Mass(Resonance_t res)
 {
-  // Hardcoded data are removed, now them are taken from PDG table via TDatabasePDG and cached
+  // Hardcoded data are removed, now they are taken from PDG table via TDatabasePDG and cached
   static double cm[18];
   if (res == kNoResonance)      
     return -1;
@@ -486,7 +486,7 @@ double genie::utils::res::Mass(Resonance_t res)
 //____________________________________________________________________________
 double genie::utils::res::Width(Resonance_t res)
 {
-  // Hardcoded data are removed, now them are taken from PDG table via TDatabasePDG and cached
+  // Hardcoded data are removed, now they are taken from PDG table via TDatabasePDG and cached
   static double cw[18];
   if (res == kNoResonance)      
     return -1;
@@ -673,7 +673,7 @@ int genie::utils::res::AngularMom(Resonance_t res)
 }
 //____________________________________________________________________________
 int genie::utils::res::Cjsgn_plus(Resonance_t res)
-// signs of angular momentum Clebsch-Gordon coefficient for MK model
+// signs of angular momentum Clebsch-Gordon coefficient for RSPP model
 {
    
     switch(res) {
@@ -704,7 +704,7 @@ int genie::utils::res::Cjsgn_plus(Resonance_t res)
     return 0;
 }
 //____________________________________________________________________________
-// Rein-Sehgal signs for MK model
+// Rein-Sehgal signs for RSPP model
 int genie::utils::res::Dsgn(Resonance_t res)
 {
    
@@ -735,6 +735,8 @@ int genie::utils::res::Dsgn(Resonance_t res)
     }
     return 0;
 }
+/*
+//  Not used in the latest version
 //____________________________________________________________________________
 //phases between resonances and nonresonant helicity amplitudes for MK model
 double genie::utils::res::AxialPhase(Resonance_t res)
@@ -860,3 +862,4 @@ double genie::utils::res::CA50(Resonance_t res)
     }
 }
 //____________________________________________________________________________
+*/

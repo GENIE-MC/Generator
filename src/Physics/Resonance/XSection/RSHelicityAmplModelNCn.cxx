@@ -90,7 +90,7 @@ const RSHelicityAmpl &
    case (kD13_1520) :
    {
      double xt      = 2* xi * fkr.T;
-     double xr      =    xi * fkr.R;
+     double xr      = 3* xi * fkr.R;
      double Tm2xiT  = fkr.Tminus + xt;
      double Tp2xiT  = fkr.Tplus  + xt;
      double LRmxiR  = fkr.Lamda  * (fkr.Rminus + xr);

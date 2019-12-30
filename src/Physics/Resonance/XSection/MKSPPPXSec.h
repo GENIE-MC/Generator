@@ -12,12 +12,12 @@
 
 for the following channels:      
 
-          1       nu + p -> mu     + p + pi+
-          2       nu + n -> mu     + p + pi0
-          3       nu + n -> mu     + n + pi+
-          4   antinu + n -> mu+    + n + pi-
-          5   antinu + p -> mu+    + n + pi0
-          6   antinu + p -> mu+    + p + pi-
+          1       nu + p -> l      + p + pi+
+          2       nu + n -> l      + p + pi0
+          3       nu + n -> l      + n + pi+
+          4   antinu + n -> l+     + n + pi-
+          5   antinu + p -> l+     + n + pi0
+          6   antinu + p -> l+     + p + pi-
           7       nu + p -> nu     + p + pi0
           8       nu + p -> nu     + n + pi+
           9       nu + n -> nu     + n + pi0
@@ -29,8 +29,9 @@ for the following channels:
                                                                                            
                                                           
 \ref      
-          1.  Kabirnezhad M., Phys.Rev.D 97 (2018) 013002 (Erratim: unpublished)
-          2.  Kabirnezhad M., Ph. D. Thesis (https://www.ncbj.gov.pl/sites/default/files/m.kabirnezhad_thesis_0.pdf) 
+          1.  Kabirnezhad M., Phys.Rev.D 97 (2018) 013002 (Erratim: arXiv:1711.02403)
+          2.  Kabirnezhad M., Ph. D. Thesis (https://www.ncbj.gov.pl/sites/default/files/m.kabirnezhad_thesis_0.pdf , 
+                                        https://www.ncbj.gov.pl/sites/default/files/m.kabirnezhad-thesis_final_0.pdf) 
           3.  Rein D., Sehgal L., Ann. of Phys. 133 (1981) 79-153
           4.  Rein D., Z.Phys.C 35 (1987) 43-64
           5.  Adler S.L., Ann. Phys. 50 (1968) 189
@@ -41,8 +42,13 @@ for the following channels:
           10. Paschos E.A., Yu J.Y., Sakuda M., Phys. Rev. D 69 (2004) 014013 [arXiv: hep-ph/0308130] 
           11. Yu J.Y., "Neutrino interactions and  nuclear  effects in oscillation experiments and the 
              nonperturbative dispersive  sector in strong (quasi-)abelian  fields", Ph. D.Thesis, Dortmund U., Dortmund, 2002 (unpublished)
+          12. Kakorin I., Kuzmin K., Naumov V. "Report on implementation of the MK-model for resonance single-pion production into GENIE"
+                                               (https://genie-docdb.pp.rl.ac.uk/cgi-bin/private/ShowDocument?docid=181, 
+                                                http://theor.jinr.ru/NeutrinoOscillations/Papers/Report_MK_implementation_GENIE.pdf)              
 
 \authors  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
+          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>,  Joint Institute for Nuclear Research \n
+          Vadim Naumov <vnaumov@theor.jinr.ru>,  Joint Institute for Nuclear Research \n
           adapted from code provided by \n
           Minoo Kabirnezhad <minoo.kabirnezhad@physics.ox.ac.uk>
           University of Oxford, Department of Physics \n
@@ -70,9 +76,9 @@ for the following channels:
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Framework/ParticleData/BaryonResonance.h"
 #include "Framework/ParticleData/BaryonResList.h"
-#include "Physics/Resonance/XSection/MKHelicityAmplModelI.h"
-#include "Physics/Resonance/XSection/MKHelicityAmpl.h"
-#include "Physics/Resonance/XSection/FKR_MK.h"
+#include "Physics/Resonance/XSection/RSHelicityAmplModelI.h"
+#include "Physics/Resonance/XSection/RSHelicityAmpl.h"
+#include "Physics/Resonance/XSection/FKR.h"
 #include "Physics/QuasiElastic/XSection/ELFormFactorsModelI.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactorsModelI.h"
 #include "Physics/QuasiElastic/XSection/ELFormFactors.h"
@@ -330,14 +336,23 @@ namespace genie {
       
       void LoadConfig (void);
       
+/*
+      // Not used n the latest version 
       mutable FKR_MK fFKR;
       
       const MKHelicityAmplModelI * fHAmplModelCC;
       const MKHelicityAmplModelI * fHAmplModelNCp;
       const MKHelicityAmplModelI * fHAmplModelNCn;
+*/      
+      
+      mutable FKR fFKR;
+      const RSHelicityAmplModelI * fHAmplModelCC;
+      const RSHelicityAmplModelI * fHAmplModelNCp;
+      const RSHelicityAmplModelI * fHAmplModelNCn;
 
 
       // configuration data
+      double   fCA50;              ///< FKR parameter Zeta
       double   fOmega;             ///< FKR parameter Omega
       double   fMa2;               ///< (axial mass)^2
       double   fMv2;               ///< (vector mass)^2
@@ -369,7 +384,9 @@ namespace genie {
       double fBkgV2;   
       double fBkgV1;   
       double fBkgV0;   
-      /// Parameters for vector virtual form factor
+      /*
+      // Not used n the latest version 
+      /// Parameters for axial-vector virtual form factor
       /// for background contribution, which equal to:  
       /// 1,                                              W<VWmin   
       /// A3*W^3+A2*W^2+A1*W+A0                     VWmin<W<VWmax
@@ -380,7 +397,7 @@ namespace genie {
       double fBkgA2;  
       double fBkgA1;  
       double fBkgA0; 
-      
+      */
       double fRho770Mass;                        ///< Mass of rho(770) meson 
       
       const XSecIntegratorI * fXSecIntegrator;
