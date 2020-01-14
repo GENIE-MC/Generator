@@ -26,13 +26,13 @@
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepFlags.h"
 #include "Framework/EventGen/EVGThreadException.h"
-#include "Physics/Hadronization/Pythia8Hadronization.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
+#include "Physics/Hadronization/Pythia8Hadro2019.h"
 
 #ifdef __GENIE_PYTHIA8_ENABLED__
 #include "Pythia8/Pythia.h"
@@ -42,33 +42,33 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-Pythia8Hadronization::Pythia8Hadronization() :
-PythiaHadronizationBase("genie::Pythia8Hadronization")
+Pythia8Hadro2019::Pythia8Hadro2019() :
+PythiaBaseHadro2019("genie::Pythia8Hadro2019")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-Pythia8Hadronization::Pythia8Hadronization(string config) :
-PythiaHadronizationBase("genie::Pythia8Hadronization", config)
+Pythia8Hadro2019::Pythia8Hadro2019(string config) :
+PythiaBaseHadro2019("genie::Pythia8Hadro2019", config)
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-Pythia8Hadronization::~Pythia8Hadronization()
+Pythia8Hadro2019::~Pythia8Hadro2019()
 {
 #ifdef __GENIE_PYTHIA8_ENABLED__
   delete fPythia;
 #endif
 }
 //____________________________________________________________________________
-void Pythia8Hadronization::ProcessEventRecord(GHepRecord *
+void Pythia8Hadro2019::ProcessEventRecord(GHepRecord *
 #ifdef __GENIE_PYTHIA8_ENABLED__
   event // avoid unused variable warning if PYTHIA6 is not enabled
 #endif
 ) const
 {
 #ifdef __GENIE_PYTHIA8_ENABLED__
-  PythiaHadronizationBase::ProcessEventRecord(event);
+  PythiaBaseHadro2019::ProcessEventRecord(event);
 #else
   LOG("Pythia8Had", pFATAL)
     << "Calling GENIE/PYTHIA8 hadronization modules without enabling PYTHIA8";
@@ -77,7 +77,7 @@ void Pythia8Hadronization::ProcessEventRecord(GHepRecord *
 #endif
 }
 //____________________________________________________________________________
-bool Pythia8Hadronization::Hadronize(GHepRecord *
+bool Pythia8Hadro2019::Hadronize(GHepRecord *
 #ifdef __GENIE_PYTHIA8_ENABLED__
   event // avoid unused variable warning if PYTHIA6 is not enabled
 #endif
@@ -258,7 +258,7 @@ bool Pythia8Hadronization::Hadronize(GHepRecord *
 #endif
 }
 //____________________________________________________________________________
-void Pythia8Hadronization::CopyOriginalDecayFlags(void) const
+void Pythia8Hadro2019::CopyOriginalDecayFlags(void) const
 {
 #ifdef __GENIE_PYTHIA8_ENABLED__
   fOriDecayFlag_pi0 = fPythia->particleData.canDecay(kPdgPi0);
@@ -288,7 +288,7 @@ void Pythia8Hadronization::CopyOriginalDecayFlags(void) const
 #endif
 }
 //____________________________________________________________________________
-void Pythia8Hadronization::SetDesiredDecayFlags(void) const
+void Pythia8Hadro2019::SetDesiredDecayFlags(void) const
 {
 #ifdef __GENIE_PYTHIA8_ENABLED__
   fPythia->particleData.mayDecay(kPdgPi0,              fReqDecayFlag_pi0 );
@@ -303,7 +303,7 @@ void Pythia8Hadronization::SetDesiredDecayFlags(void) const
 #endif
 }
 //____________________________________________________________________________
-void Pythia8Hadronization::RestoreOriginalDecayFlags(void) const
+void Pythia8Hadro2019::RestoreOriginalDecayFlags(void) const
 {
 #ifdef __GENIE_PYTHIA8_ENABLED__
   fPythia->particleData.mayDecay(kPdgPi0,              fOriDecayFlag_pi0 );
@@ -318,21 +318,21 @@ void Pythia8Hadronization::RestoreOriginalDecayFlags(void) const
 #endif
 }
 //____________________________________________________________________________
-void Pythia8Hadronization::Configure(const Registry & config)
+void Pythia8Hadro2019::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void Pythia8Hadronization::Configure(string config)
+void Pythia8Hadro2019::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void Pythia8Hadronization::LoadConfig(void)
+void Pythia8Hadro2019::LoadConfig(void)
 {
-  PythiaHadronizationBase::LoadConfig();
+  PythiaBaseHadro2019::LoadConfig();
 
 #ifdef __GENIE_PYTHIA8_ENABLED__
   fPythia->settings.parm("StringFlav:probStoUD",         fSSBarSuppression);
@@ -353,7 +353,7 @@ void Pythia8Hadronization::LoadConfig(void)
   LOG("Pythia8Had", pDEBUG) << this->GetConfig();
 }
 //____________________________________________________________________________
-void Pythia8Hadronization::Initialize(void)
+void Pythia8Hadro2019::Initialize(void)
 {
 #ifdef __GENIE_PYTHIA8_ENABLED__
   fPythia = new Pythia8::Pythia();

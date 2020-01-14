@@ -34,7 +34,6 @@
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
-#include "Physics/DeepInelastic/EventGen/DISHadronicSystemGenerator.h"
 #include "Framework/EventGen/EVGThreadException.h"
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
@@ -45,9 +44,9 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
-#include "Physics/Hadronization/FragmRecUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/Utils/PhysUtils.h"
+#include "Physics/DeepInelastic/EventGen/DISHadronicSystemGenerator.h"
 
 using namespace genie;
 using namespace genie::controls;

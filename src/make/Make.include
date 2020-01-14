@@ -504,8 +504,8 @@ ROOT_DICT_GEN_INCLUDES := \
 LIBRARIES := $(SYSLIBS) \
              $(FORT_LIBRARIES) \
              $(ROOT_LIBRARIES) \
-             $(LHAPDF_LIBRARIES) \
              $(PYTHIA6_LIBRARIES) \
+             $(LHAPDF_LIBRARIES) \
              $(XML_LIBRARIES) \
              $(LOG_LIBRARIES) \
              $(GSL_LIBRARIES) \

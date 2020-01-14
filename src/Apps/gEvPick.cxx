@@ -254,8 +254,7 @@ void RunCherryPicker(void)
        if(AcceptEvent(event)) {
           brOrigFilename->SetString(chEl->GetTitle());
           brOrigEvtNum = iev;
-          EventRecord * event_copy = new EventRecord(event);
-          ntpw.AddEventRecord(iev_glob,event_copy);
+          ntpw.AddEventRecord( iev_glob, &event );
           iev_glob++;
        }
        mcrec->Clear();

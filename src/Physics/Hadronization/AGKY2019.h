@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::KNOPythiaHadronization
+\class    genie::AGKY2019
 
 \brief    A 'composite' hadronization model using a KNO-based hadronization
           model at low W and PYTHIA/JETSET at higher W.
@@ -27,13 +27,13 @@
 
 namespace genie {
 
-class KNOPythiaHadronization : protected EventRecordVisitorI {
+class AGKY2019 : protected EventRecordVisitorI {
 
 public:
 
-  KNOPythiaHadronization();
-  KNOPythiaHadronization(string config);
-  virtual ~KNOPythiaHadronization();
+  AGKY2019();
+  AGKY2019(string config);
+  virtual ~AGKY2019();
 
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;

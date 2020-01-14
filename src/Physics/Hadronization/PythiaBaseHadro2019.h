@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::PythiaHadronizationBase
+\class    genie::PythiaBaseHadro2019
 
 \brief    Base class for the Pythia (6 and 8) hadronization modules in GENIE.
           In particular, the base class provides common checks and basic
@@ -27,13 +27,13 @@
 
 namespace genie {
 
-class PythiaHadronizationBase : public EventRecordVisitorI {
+class PythiaBaseHadro2019 : public EventRecordVisitorI {
 
 protected:
-  PythiaHadronizationBase();
-  PythiaHadronizationBase(string name);
-  PythiaHadronizationBase(string name, string config);
-  virtual ~PythiaHadronizationBase();
+  PythiaBaseHadro2019();
+  PythiaBaseHadro2019(string name);
+  PythiaBaseHadro2019(string name, string config);
+  virtual ~PythiaBaseHadro2019();
 
   virtual void ProcessEventRecord         (GHepRecord* event)     const;
   virtual void MakeQuarkDiquarkAssignments(const Interaction* in) const;
