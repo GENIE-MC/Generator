@@ -1,9 +1,16 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::CharmHadronization
+\class    genie::AGCharm2019
 
-\brief    Provides access to the PYTHIA hadronization models. \n
+\brief    Andreopoulos - Gallagher (AG) GENIE Charm Hadronization model.
+
+          The model relies on empirical charm fragmentation and pT functions,
+          as well as on experimentally-determined charm fractions, to produce
+          the ID and 4-momentum of charmed hadron in charm production events.
+
+          The remnant (non-charm) system is hadronised by a call to PYTHIA.
+
           Is a concrete implementation of the EventRecordVisitorI interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
@@ -36,12 +43,12 @@ namespace genie {
 class Spline;
 class FragmentationFunctionI;
 
-class CharmHadronization : public EventRecordVisitorI {
+class AGCharm2019 : public EventRecordVisitorI {
 
 public:
-  CharmHadronization();
-  CharmHadronization(string config);
-  virtual ~CharmHadronization();
+  AGCharm2019();
+  AGCharm2019(string config);
+  virtual ~AGCharm2019();
 
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;
@@ -69,6 +76,9 @@ private:
   bool                           fCharmOnly;   ///< don't hadronize non-charm blob
   TF1 *                          fCharmPT2pdf; ///< charm hadron pT^2 pdf
   const FragmentationFunctionI * fFragmFunc;   ///< charm hadron fragmentation func
+
+  double fFracMaxEnergy ;                      ///< Maximum energy available for the Meson fractions 
+
   Spline *                       fD0FracSpl;   ///< nu charm fraction vs Ev: D0
   Spline *                       fDpFracSpl;   ///< nu charm fraction vs Ev: D+
   Spline *                       fDsFracSpl;   ///< nu charm fraction vs Ev: Ds+

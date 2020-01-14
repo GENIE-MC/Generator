@@ -30,35 +30,35 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodeList.h"
-#include "Physics/Hadronization/KNOPythiaHadronization.h"
+#include "Physics/Hadronization/AGKY2019.h"
 
 using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-KNOPythiaHadronization::KNOPythiaHadronization() :
-EventRecordVisitorI("genie::KNOPythiaHadronization")
+AGKY2019::AGKY2019() :
+EventRecordVisitorI("genie::AGKY2019")
 {
 
 }
 //____________________________________________________________________________
-KNOPythiaHadronization::KNOPythiaHadronization(string config) :
-EventRecordVisitorI("genie::KNOPythiaHadronization", config)
+AGKY2019::AGKY2019(string config) :
+EventRecordVisitorI("genie::AGKY2019", config)
 {
 
 }
 //____________________________________________________________________________
-KNOPythiaHadronization::~KNOPythiaHadronization()
+AGKY2019::~AGKY2019()
 {
 
 }
 //____________________________________________________________________________
-// void KNOPythiaHadronization::Initialize(void) const
+// void AGKY2019::Initialize(void) const
 // {
 //
 // }
 //____________________________________________________________________________
-void KNOPythiaHadronization::ProcessEventRecord(GHepRecord * event) const
+void AGKY2019::ProcessEventRecord(GHepRecord * event) const
 {
 // Generate the hadronic system using either the KNO-based or PYTHIA/JETSET
 // hadronization models according to the specified transition scheme
@@ -77,7 +77,7 @@ void KNOPythiaHadronization::ProcessEventRecord(GHepRecord * event) const
 }
 //____________________________________________________________________________
 /*
-PDGCodeList * KNOPythiaHadronization::SelectParticles(
+PDGCodeList * AGKY2019::SelectParticles(
                                         const Interaction * interaction) const
 {
   //-- Select hadronizer
@@ -89,7 +89,7 @@ PDGCodeList * KNOPythiaHadronization::SelectParticles(
   return pdgv;
 }
 //____________________________________________________________________________
-TH1D * KNOPythiaHadronization::MultiplicityProb(
+TH1D * AGKY2019::MultiplicityProb(
  		       const Interaction * interaction, Option_t * opt) const
 {
   //-- Select hadronizer
@@ -101,13 +101,13 @@ TH1D * KNOPythiaHadronization::MultiplicityProb(
   return mprob;
 }
 //____________________________________________________________________________
-double KNOPythiaHadronization::Weight(void) const
+double AGKY2019::Weight(void) const
 {
   return fWeight;
 }
 */
 //____________________________________________________________________________
-const EventRecordVisitorI * KNOPythiaHadronization::SelectHadronizer(
+const EventRecordVisitorI * AGKY2019::SelectHadronizer(
                                         const Interaction * interaction) const
 {
   const EventRecordVisitorI * hadronizer = 0;
@@ -157,19 +157,19 @@ const EventRecordVisitorI * KNOPythiaHadronization::SelectHadronizer(
   return hadronizer;
 }
 //____________________________________________________________________________
-void KNOPythiaHadronization::Configure(const Registry & config)
+void AGKY2019::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void KNOPythiaHadronization::Configure(string config)
+void AGKY2019::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void KNOPythiaHadronization::LoadConfig(void)
+void AGKY2019::LoadConfig(void)
 {
 // Read configuration options or set defaults
 

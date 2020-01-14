@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::KNOHadronization
+\class    genie::AGKYLowW2019
 
 \brief    A KNO-based hadronization model.
 
@@ -54,13 +54,13 @@ namespace genie {
 class Decayer;
 //class Spline;
 
-class KNOHadronization : public EventRecordVisitorI {
+class AGKYLowW2019 : public EventRecordVisitorI {
 
 public:
 
-  KNOHadronization();
-  KNOHadronization(string config);
-  virtual ~KNOHadronization();
+  AGKYLowW2019();
+  AGKYLowW2019(string config);
+  virtual ~AGKYLowW2019();
 
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;

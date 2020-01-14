@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::Pythia8Hadronization
+\class    genie::Pythia8Hadro2019
 
 \brief    Provides access to the PYTHIA hadronization models. \n
           Is a concrete implementation of the EventRecordVisitorI interface.
@@ -25,7 +25,7 @@
 
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Interaction/Interaction.h"
-#include "Physics/Hadronization/PythiaHadronizationBase.h"
+#include "Physics/Hadronization/PythiaBaseHadro2019.h"
 
 #ifdef __GENIE_PYTHIA8_ENABLED__
 #include "Pythia8/Pythia.h"
@@ -35,12 +35,12 @@ namespace genie {
 
 class GHepParticle;
 
-class Pythia8Hadronization : public PythiaHadronizationBase {
+class Pythia8Hadro2019 : public PythiaBaseHadro2019 {
 
 public:
-  Pythia8Hadronization();
-  Pythia8Hadronization(string config);
-  virtual ~Pythia8Hadronization();
+  Pythia8Hadro2019();
+  Pythia8Hadro2019(string config);
+  virtual ~Pythia8Hadro2019();
 
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;

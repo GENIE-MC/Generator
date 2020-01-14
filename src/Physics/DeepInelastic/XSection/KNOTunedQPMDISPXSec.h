@@ -25,7 +25,7 @@
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/DeepInelastic/XSection/QPMDISPXSec.h"
-#include "Physics/Hadronization/KNOHadronization.h"
+#include "Physics/Hadronization/AGKYLowW2019.h"
 
 
 namespace genie {
@@ -53,7 +53,7 @@ private:
   void   LoadConfig                  (void);
   double DISRESJoinSuppressionFactor (const Interaction * in) const;
 
-  const KNOHadronization *    fHadronizationModel; ///< hadronic multip. model
+  const AGKYLowW2019 *    fHadronizationModel; ///< hadronic multip. model
   const QPMDISPXSec *         fDISModel ;
   const XSecIntegratorI *     fXSecIntegrator;     ///< diff. xsec integrator
 
