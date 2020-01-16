@@ -311,4 +311,16 @@ University of Liverpool
 
   </param_set>
 
+  <param_set name="RadiativeCorrection">
+    <!--
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         GENIE Radiative Correction  
+    -->
+     <param type="string"  name="RadiativeCorrectionModel"> simc </param>
+     <param type="double"  name="RadiativeCorrectionCutoff"> 0.03 </param>
+     <!-- <param type="double"  name="RadiativeCorrectionThickness"> 0.008532  </param> --> <!--Fe-->
+     <param type="double"  name="RadiativeCorrectionThickness"> 0.027760 </param>          <!--H -->
+
+  </param_set>
+
 </common_Param_list>

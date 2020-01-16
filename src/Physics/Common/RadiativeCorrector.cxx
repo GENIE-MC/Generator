@@ -121,6 +121,9 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
   InitialState * init_state_ptr = interaction -> InitStatePtr();
   Target * target_ptr = init_state_ptr -> TgtPtr();
   int Z = target_ptr->Z();
+  //double thickness = 0.1;
+  //map<int,double>::const_iterator it = fThicknesses.find(Z);
+  //if(it != fThicknesses.end()) thickness = it->second;
   //const InitialState & const_init_state = interaction -> InitState();
   //InitialState init_state(const_init_state);
   TObjArrayIter piter(evrec);
@@ -142,6 +145,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	  e_gamma_max = init_state_ptr->ProbeE(kRfLab) - kine->FSLeptonP4().E();
 	  if (e_gamma_max > kine->FSLeptonP4().E()) e_gamma_max = kine->FSLeptonP4().E();
         }
+        LOG("RadiativeCorrector", pINFO) << " particle for decay "<<p->Pdg()<<" e_gamma_max "<<e_gamma_max;
 	if (fModel == "vanderhagen") {
            if (e_gamma_max<0) e_gamma_max = 1E-10;
            double a;
@@ -155,7 +159,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	   delete f;
 	   LOG("RadiativeCorrector", pINFO) << "Vanderhagen Energy loss is "<<energyLoss;
 	}
-	double L1,L2,b,thickness,lambda_e,g,power_hi,power_lo;
+	double L1,L2,b,lambda_e,g,power_hi,power_lo;
 	if (fModel =="simc") {
  
            L1 = log(184.15) - (1./3)*log(Z);
@@ -163,8 +167,9 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
            b = (1./9)*(12 + float(Z+1)/(Z*(Z*L1 + L2)));
 	   if (fISR) lambda_e = (kAem/kPi)*( TMath::Log(4*pow(p->P4()->P(),2)/pow(kElectronMass,2)-1) + 2*TMath::Log(init_state_ptr->GetProbeP4(kRfLab)->P()/fP4l.E()) + TMath::Log(0.5*(1-fP4l.CosTheta() ) ) );
 	   else lambda_e = (kAem/kPi)*( TMath::Log(4*pow(p->P4()->P(),2)/pow(kElectronMass,2)-1) + 2*TMath::Log(init_state_ptr->GetProbeP4(kRfLab)->P()/kine->FSLeptonP4().E()) + TMath::Log(0.5*(1-kine->FSLeptonP4().CosTheta() ) ) );
-	   thickness =  0.005176; //thickness in radiation length (0.1 cm carbon)
-           g = b*thickness + lambda_e;
+	   //fThickness =  0.005176; //fThickness in radiation length (0.1 cm carbon)
+	   LOG("RadiativeCorrector", pINFO) << "SIMC chosen Thickness "<<fThickness;
+           g = b*fThickness + lambda_e;
            std::cout<<" lambda e  is "<<lambda_e<<" g "<<g<<std::endl;
 
 	   power_hi = pow(e_gamma_max,g);
@@ -186,6 +191,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
            LOG("RadiativeCorrector", pINFO) << "SIMC Energy loss is "<<energyLoss;
 
 	}
+ 	//double fCutoff = 0.03;
 	if (energyLoss<fCutoff) continue;
 
 	double momentumLoss = energyLoss;
@@ -208,10 +214,10 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 
 	if (fISR && !radDone) {
 	  if(fModel =="simc") {
-            double C = g/(TMath::Gamma(1+b*thickness)*pow(p4.P(),b*thickness)*pow(p4.P()*p4tag.P(),lambda_e/2)); 
+            double C = g/(TMath::Gamma(1+b*fThickness)*pow(p4.P(),b*fThickness)*pow(p4.P()*p4tag.P(),lambda_e/2)); 
             double W_rad_e = (C/g)*(power_hi-power_lo);
-            //double Phi_ext_e = 1. - ( (b*thickness/2)/(b*thickness/2 + lambda_e) )*( p4.E()/p4.P()  );
-            double Phi_ext_e = 1. - ( (b*thickness) / p4.E() / pow(g, p4RadGamma.E()));
+            //double Phi_ext_e = 1. - ( (b*fThickness/2)/(b*fThickness/2 + lambda_e) )*( p4.E()/p4.P()  );
+            double Phi_ext_e = 1. - ( (b*fThickness) / p4.E() / pow(g, p4RadGamma.E()));
             double radcor_weight = W_rad_e*Phi_ext_e;
 	    evrec->SetWeight(evrec->Weight() * radcor_weight);
             std::cout<<" weights C "<<C<<" g "<<g<<" W_rad_e "<<W_rad_e<<" Phi_ext_e "<<Phi_ext_e<<std::endl; 
@@ -235,7 +241,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	   float radcor_weight = 1.;
 	   if(fModel == "vanderhagen") 
 	   {
-	   	TF1 *fsp = new TF1("fsp","1./x * TMath::Log(1-x)");
+	   	TF1 *fsp = new TF1("fsp","TMath::Log(1-x)* (1./x)");
 	   	double SP = -1*fsp->Integral(0.03,pow(cos(p4tag.Theta())/2,2));
 		delete fsp;
 	   	radcor_weight = 1. + Z*(kAem/kPi)*( (TMath::Log(kine->Q2(true)/pow(kElectronMass,2))-1)*TMath::Log(pow(init_state_ptr->ProbeE(kRfLab),2)/(init_state_ptr->ProbeE(kRfLab)*kine->FSLeptonP4().E())) 
@@ -252,10 +258,10 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
                 double tot_delta    = (1./(3*kPi))*( -5./3 + TMath::Log(kine->Q2(true)/pow(kElectronMass,2)) );
 		double delta_hard   = 2*kAem*( (-3./(4*kPi))*TMath::Log(kine->Q2(true)/pow(kElectronMass,2)) + 1./kPi - 2*tot_delta );
 		//double c          = lambda_e/pow(evrec->CorrectProbe()->GetP4()->E() * kine->FSLeptonP4().E(),(lambda_e/2.));
-		double C            = g/(TMath::Gamma(1+b*thickness)*pow(p4.P(),b*thickness)*pow(p4.P()*p4tag.P(),lambda_e/2));
+		double C            = g/(TMath::Gamma(1+b*fThickness)*pow(p4.P(),b*fThickness)*pow(p4.P()*p4tag.P(),lambda_e/2));
                 double W_rad_el     = (C/g)*(power_hi-power_lo);
-                //double Phi_ext_el = 1. - ( (b*thickness/2)/(b*thickness/2 + lambda_e) )*( p4.E()/p4.P() );
-                double Phi_ext_el   = 1. - ( (b*thickness) / p4.E() / pow(g, p4RadGamma.E() ) );
+                //double Phi_ext_el = 1. - ( (b*fThickness/2)/(b*fThickness/2 + lambda_e) )*( p4.E()/p4.P() );
+                double Phi_ext_el   = 1. - ( (b*fThickness) / p4.E() / pow(g, p4RadGamma.E() ) );
 		double W_rad_pl     = 1.;
                 double Phi_ext_pl   = 1.;
                 radcor_weight       = W_rad_el*W_rad_pl*Phi_ext_el*Phi_ext_pl*(1-delta_hard);
@@ -328,12 +334,15 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 //___________________________________________________________________________
 bool RadiativeCorrector::ToBeDecayed(GHepParticle * particle) const
 {
+   std::cout<<"inside RadiativeCorrector::ToBeDecayed pdg "<<particle->Pdg()<<" status "<<particle->Status()<<std::endl;
    if(particle->Pdg() != 0) {
      if (fISR) {
+	std::cout<<"inside RadiativeCorrector::ToBeDecayed ISR"<<std::endl;
      	if ((particle->Status() == 0) && (pdg::IsElectron(particle->Pdg()) || pdg::IsPositron(particle->Pdg()))) return true;
      	else return false;	
      }
      else {
+	std::cout<<"inside RadiativeCorrector::ToBeDecayed FSR"<<std::endl;
      	if ((particle->Status() == 1) && (pdg::IsElectron(particle->Pdg()) || pdg::IsPositron(particle->Pdg()))) return true;
      	else return false;	
      }
@@ -357,9 +366,35 @@ void RadiativeCorrector::Configure(string config)
 //____________________________________________________________________________
 void RadiativeCorrector::LoadConfig(void)
 {
-  GetParamDef( "model" , fModel, std::string("simc"));
   GetParam( "ISR",fISR);
+  GetParamDef( "RadiativeCorrectionModel" , fModel, std::string("simc"));
+  GetParam( "RadiativeCorrectionThickness",fThickness);
   GetParam( "Cutoff",fCutoff);
+  
+  /*
+  const std::string keyStart = "Thickness@Pdg=";
+
+  RgIMap entries = GetConfig().GetItemMap();
+
+  for(RgIMap::const_iterator it = entries.begin(); it != entries.end(); ++it){
+    const std::string& key = it->first;
+    int pdg = 0;
+    int Z = 0;
+    if (0 == key.compare(0, keyStart.size(), keyStart.c_str())) {
+      pdg = atoi(key.c_str() + keyStart.size());
+      Z = pdg::IonPdgCodeToZ(pdg);
+    }
+    if (0 != pdg && 0 != Z) {
+      ostringstream key_ss ;
+      key_ss << keyStart << pdg;
+      RgKey rgkey   = key_ss.str();
+      double thickness ;
+      GetParam( rgkey, thickness ) ;
+      thickness = TMath::Max(thickness, 0.);
+      LOG("RadiativeCorrector", pINFO) << "Nucleus: " << pdg << " -> using Thickness =  " << thickness << " radiation lengths";
+      fThicknesses.insert(map<int,double>::value_type(Z,thickness));
+    }
+  }*/
 }
 //____________________________________________________________________________
 void RadiativeCorrector::SetISR(bool isr)
@@ -385,6 +420,11 @@ void RadiativeCorrector::SetP4l(TLorentzVector p4l)
 void RadiativeCorrector::SetCutoff(double cutoff)
 {
   fCutoff = cutoff;
+}
+//____________________________________________________________________________
+void RadiativeCorrector::SetThickness(double thickness)
+{
+  fThickness = thickness;
 }
 //____________________________________________________________________________
 void RadiativeCorrector::Configure(const InitialState & is)

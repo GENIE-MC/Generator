@@ -44,9 +44,9 @@ public :
   RadiativeCorrector(string config);
  ~RadiativeCorrector();
  
-  double r_eprime;
-  double r_etheta;
-  double r_e;
+  //double r_eprime;
+  //double r_etheta;
+  //double r_e;
 
   //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord (GHepRecord * event_rec) const;
@@ -61,6 +61,7 @@ public :
   void SetQ2(double Q2); 
   void SetP4l(TLorentzVector p4l); 
   void SetCutoff(double cutoff); 
+  void SetThickness(double thickness); 
 
   //int           rad_kDefOptNevents;       // n-events to generate
   //NtpMCFormat_t rad_kDefOptNtpFormat; // ntuple format
@@ -74,9 +75,12 @@ private:
   void  BuildInitialState(const InitialState & init_state);
   bool  ToBeDecayed       (GHepParticle * particle) const;
 
-  bool 		 fISR; ///< to distinguish between ISR and FSR
-  std::string	 fModel; ///< to distinguish between differnt models, right now simc / vanderhagen
-  double         fRadiatedEnergyLimit; 
+  bool 		 fISR;                 ///< to distinguish between ISR and FSR
+  std::string	 fModel;               ///< to distinguish between differnt models, right now simc / vanderhagen
+  //double         fRadiatedEnergyLimit; 
+  //map<int, double> fThicknesses;       ///< thicnknesses of targets in CLAS in radiation length
+  double fThickness;       ///< thicnknesses of targets in CLAS in radiation length
+
   double         fQ2; 
   TLorentzVector fP4l; 
   InitialState * fInitState;       ///< initial state information for changing probe

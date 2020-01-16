@@ -131,8 +131,13 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   unsigned int iter = 0;
   bool accept = false;
-  bool doRadiativeCorrection;
-  if (fDoRadiativeCorrection) doRadiativeCorrection = true;
+  bool doRad   = false;
+  bool doneISR = false;
+  if (fDoRadiativeCorrection) {
+      doRad = true;
+      doneISR = false;
+  }
+ 
   while(1) {
      iter++;
      if(iter > kRjMaxIterations) {
@@ -263,44 +268,20 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         //double M = init_state.Tgt().HitNucMass();
         kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy);
 
-	if(doRadiativeCorrection) {
-          LOG("QELKinematics", pNOTICE) << "Event selected for radiative correction Selected in kRfHitNucRest: Q^2 = " << gQ2<<" gy = ";
-          const TLorentzVector & pnuc4 = init_state.Tgt().HitNucP4(); //[@LAB]
-          TVector3 beta = pnuc4.BoostVector();
-          double El  = (1-gy)*E;
-          double ml  = interaction->FSPrimLepton()->Mass();
-          double ml2 = TMath::Power(ml,2);
-          double plp = El - 0.5*(gQ2+ml2)/E;                          // p(//)
-          double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
-          LOG("QELKinematics", pNOTICE) << "Calulating temp final state for radiative correction fsl @ Nucleon rest frame: E = " << El << ", |p//| = " << plp << ", [pT] = " << plt;
-          // Randomize transverse components
-          RandomGen * rnd_temp = RandomGen::Instance();
-          double phi  = 2*kPi * rnd_temp->RndLep().Rndm();
-          double pltx = plt * TMath::Cos(phi);
-          double plty = plt * TMath::Sin(phi);
-          TLorentzVector * p4v = evrec->CorrectProbe()->GetP4(); // v 4p @ LAB
-          p4v->Boost(-1.*beta);                           // v 4p @ Nucleon rest frame
-          // Take a unit vector along the neutrino direction @ the nucleon rest frame
-          TVector3 unit_nudir = p4v->Vect().Unit();
-          // Rotate lepton momentum vector from the reference frame (x'y'z') where 
-          //{z':(neutrino direction), z'x':(theta plane)} to the nucleon rest frame
-	  TVector3 p3l(pltx,plty,plp);
-          p3l.RotateUz(unit_nudir);
-          // Lepton 4-momentum in the nucleon rest frame
-          TLorentzVector p4l(p3l,El);
-          // Boost final state primary lepton to the lab frame
-          p4l.Boost(beta); // active Lorentz transform
-          LOG("QELKinematics", pNOTICE) << "Calulating temp final state for radiative correction fsl @ LAB: E " <<p4l.E() << " px "<<p4l.Px() << " py "<<p4l.Py() << " pz "<<p4l.Pz() ;
-          RadiativeCorrector * fRadiativeCorrector = new RadiativeCorrector();
-          fRadiativeCorrector->SetISR(true);
-          fRadiativeCorrector->SetModel("simc");
-          fRadiativeCorrector->SetQ2(gQ2);
-          fRadiativeCorrector->SetP4l(p4l);
-          fRadiativeCorrector->ProcessEventRecord(evrec);
-          doRadiativeCorrection = false;
+        if(doRad && !doneISR) {
+          LOG("RESKinematics", pINFO)  << "Doing ISR "<< fModel <<" cutoff "<<fCutoff<<" thickness "<<fThickness;
+          TLorentzVector p4l = this->GetFinalStateLeptonKinematic(evrec,E,gy,gQ2);
+          RadiativeCorrector * fISRCorrector = new RadiativeCorrector();
+          fISRCorrector->SetISR(true);
+          fISRCorrector->SetModel(fModel);
+          fISRCorrector->SetCutoff(fCutoff);
+          fISRCorrector->SetThickness(fThickness);
+          fISRCorrector->SetQ2(gQ2);
+          fISRCorrector->SetP4l(p4l);
+          fISRCorrector->ProcessEventRecord(evrec);
+          doneISR = true;
           continue;
         }
-
         // set the cross section for the selected kinematics
         evrec->SetDiffXSec(xsec,kPSWQ2fE);
 
@@ -328,6 +309,39 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         return;
      } // accept
   } // iterations
+}
+//___________________________________________________________________________
+TLorentzVector RESKinematicsGenerator::GetFinalStateLeptonKinematic(GHepRecord * evrec, double E, double gy, double gQ2) const
+{
+          Interaction * interaction = evrec->Summary();
+          const InitialState & init_state = interaction->InitState();
+          LOG("RESKinematics", pNOTICE) << "Event selected for radiative correction Selected in kRfHitNucRest: Q^2 = " << gQ2<<" gy = ";
+          const TLorentzVector & pnuc4 = init_state.Tgt().HitNucP4(); //[@LAB]
+          TVector3 beta = pnuc4.BoostVector();
+          double El  = (1-gy)*E;
+          double ml  = interaction->FSPrimLepton()->Mass();
+          double ml2 = TMath::Power(ml,2);
+          double plp = El - 0.5*(gQ2+ml2)/E;                          // p(//)
+          double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
+          LOG("RESKinematics", pNOTICE) << "Calulating temp final state for radiative correction fsl @ Nucleon rest frame: E = " << El << ", |p//| = " << plp << ", [pT] = " << plt;
+          // Randomize transverse components
+	  RandomGen * rnd_temp = RandomGen::Instance();
+          double phi  = 2*kPi * rnd_temp->RndLep().Rndm();
+          double pltx = plt * TMath::Cos(phi);
+          double plty = plt * TMath::Sin(phi);
+          TLorentzVector * p4v = evrec->CorrectProbe()->GetP4(); // v 4p @ LAB
+          p4v->Boost(-1.*beta);                           // v 4p @ Nucleon rest frame
+          // Take a unit vector along the neutrino direction @ the nucleon rest frame
+          TVector3 unit_nudir = p4v->Vect().Unit();
+          // Rotate lepton momentum vector from the reference frame (x'y'z') where 
+          // {z':(neutrino direction), z'x':(theta plane)} to the nucleon rest frame
+          TVector3 p3l(pltx,plty,plp);
+          p3l.RotateUz(unit_nudir);
+          // Lepton 4-momentum in the nucleon rest frame
+          TLorentzVector p4l(p3l,El);
+          p4l.Boost(beta); // active Lorentz transform
+          LOG("RESKinematics", pNOTICE) << "Calulating temp final state for radiative correction fsl @ LAB: E " <<p4l.E() << " px "<<p4l.Px() << " py "<<p4l.Py() << " pz "<<p4l.Pz() ;
+          return p4l;
 }
 //___________________________________________________________________________
 void RESKinematicsGenerator::Configure(const Registry & config)
@@ -372,7 +386,11 @@ void RESKinematicsGenerator::LoadConfig(void)
   gROOT->GetListOfFunctions()->Remove(fEnvelope);
 
   GetParam("doRadiativeCorrection", fDoRadiativeCorrection, false) ;
-
+  if (fDoRadiativeCorrection) {
+     GetParamDef( "RadiativeCorrectionModel" , fModel, std::string("simc"));
+     GetParam( "RadiativeCorrectionCutoff",fCutoff);
+     GetParam( "RadiativeCorrectionThickness",fThickness);
+  }
 }
 //____________________________________________________________________________
 double RESKinematicsGenerator::ComputeMaxXSec(

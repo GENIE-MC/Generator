@@ -48,8 +48,12 @@ public :
 private:
   void   LoadConfig      (void);
   double ComputeMaxXSec  (const Interaction * interaction) const;
+  TLorentzVector GetFinalStateLeptonKinematic(GHepRecord * evrec, double E, double gy, double gQ2) const;
 
   bool fDoRadiativeCorrection;
+  std::string fModel;               ///< to distinguish between differnt models, right now simc / vanderhagen
+  double      fCutoff;
+  double      fThickness;           ///< thicnknesses of targets in CLAS in radiation length 
 };
 
 }      // genie namespace

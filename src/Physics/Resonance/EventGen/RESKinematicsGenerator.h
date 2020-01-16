@@ -45,10 +45,15 @@ public :
 private:
   void   LoadConfig      (void);
   double ComputeMaxXSec  (const Interaction * interaction) const;
+  TLorentzVector GetFinalStateLeptonKinematic(GHepRecord * evrec, double E, double gy, double gQ2) const;
+
 
   mutable TF2 * fEnvelope; ///< 2-D envelope used for importance sampling
   double fWcut;            ///< Wcut parameter in DIS/RES join scheme
   bool fDoRadiativeCorrection;
+  std::string fModel;               ///< to distinguish between differnt models, right now simc / vanderhagen
+  double      fCutoff;
+  double      fThickness;           ///< thicnknesses of targets in CLAS in radiation length 
 };
 
 }      // genie namespace

@@ -41,9 +41,12 @@
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
+#include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Physics/QuasiElastic/EventGen/QELKinematicsGenerator.h"
 #include "Physics/Common/RadiativeCorrector.h"
+#include "Physics/Common/PrimaryLeptonGenerator.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
 
@@ -136,8 +139,13 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   unsigned int iter = 0;
   bool accept = false;
-  bool doRadiativeCorrection;
-  if (fDoRadiativeCorrection) doRadiativeCorrection = true; 
+  bool doRad   = false;
+  bool doneISR = false;
+  if (fDoRadiativeCorrection) {
+      doRad = true;
+      doneISR = false;
+  }
+ 
   while(1) {
      iter++;
      if(iter > kRjMaxIterations) {
@@ -226,43 +234,45 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
         //-- In the case of Radiative correction, the radiated photon energy
         //   depends on the final state lepton kinematics.
-        if(doRadiativeCorrection) {
-          LOG("QELKinematics", pNOTICE) << "Event selected for radiative correction Selected in kRfHitNucRest: Q^2 = " << gQ2<<" gy = ";
-	  const TLorentzVector & pnuc4 = init_state.Tgt().HitNucP4(); //[@LAB]
-          TVector3 beta = pnuc4.BoostVector();
-          double El  = (1-gy)*E;
-          double ml  = interaction->FSPrimLepton()->Mass();
-          double ml2 = TMath::Power(ml,2);
-          double plp = El - 0.5*(gQ2+ml2)/E;                          // p(//)
-          double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
-          LOG("QELKinematics", pNOTICE) << "Calulating temp final state for radiative correction fsl @ Nucleon rest frame: E = " << El << ", |p//| = " << plp << ", [pT] = " << plt;
-          // Randomize transverse components
-          RandomGen * rnd_temp = RandomGen::Instance();
-          double phi  = 2*kPi * rnd_temp->RndLep().Rndm();
-          double pltx = plt * TMath::Cos(phi);
-          double plty = plt * TMath::Sin(phi);
-          TLorentzVector * p4v = evrec->CorrectProbe()->GetP4(); // v 4p @ LAB
-          p4v->Boost(-1.*beta);                           // v 4p @ Nucleon rest frame
-          // Take a unit vector along the neutrino direction @ the nucleon rest frame
-          TVector3 unit_nudir = p4v->Vect().Unit();
-          // Rotate lepton momentum vector from the reference frame (x'y'z') where 
-          // {z':(neutrino direction), z'x':(theta plane)} to the nucleon rest frame
-          TVector3 p3l(pltx,plty,plp);
-          p3l.RotateUz(unit_nudir);
-          // Lepton 4-momentum in the nucleon rest frame
-          TLorentzVector p4l(p3l,El);
-          // Boost final state primary lepton to the lab frame
-          p4l.Boost(beta); // active Lorentz transform
-          LOG("QELKinematics", pNOTICE) << "Calulating temp final state for radiative correction fsl @ LAB: E " <<p4l.E() << " px "<<p4l.Px() << " py "<<p4l.Py() << " pz "<<p4l.Pz() ;
-          RadiativeCorrector * fRadiativeCorrector = new RadiativeCorrector();
-          fRadiativeCorrector->SetISR(true);
-          fRadiativeCorrector->SetModel("simc");
-          fRadiativeCorrector->SetQ2(gQ2);
-          fRadiativeCorrector->SetP4l(p4l);
-          fRadiativeCorrector->ProcessEventRecord(evrec); 
-          doRadiativeCorrection = false;
+        if(doRad && !doneISR) {
+	  LOG("QELKinematics", pINFO)  << "Doing ISR "<< fModel <<" cutoff "<<fCutoff<<" thickness "<<fThickness;
+          TLorentzVector p4l = this->GetFinalStateLeptonKinematic(evrec,E,gy,gQ2);
+          RadiativeCorrector * fISRCorrector = new RadiativeCorrector();
+          fISRCorrector->SetISR(true);
+          fISRCorrector->SetModel(fModel);
+          fISRCorrector->SetCutoff(fCutoff);
+          fISRCorrector->SetThickness(fThickness);
+          fISRCorrector->SetQ2(gQ2);
+          fISRCorrector->SetP4l(p4l);
+          fISRCorrector->ProcessEventRecord(evrec); 
+          doneISR = true;
           continue;
         }
+	/*if(doRadiativeCorrection && doneISR) {
+	  LOG("QELKinematics", pINFO)  << "Doing FSR";
+	  TLorentzVector p4l = this->GetFinalStateLeptonKinematic(evrec,E,gy,gQ2);
+	  int pdgc = interaction->FSPrimLepton()->PdgCode();
+	  //PrimaryLeptonGenerator * fPLG = new PrimaryLeptonGenerator();
+	  //fPLG->AddToEventRecord(evrec, pdgc, p4l);
+	  //fPLG->SetPolarization(evrec);
+	  this->AddToEventRecord(evrec, pdgc, p4l);
+	  this->SetPolarization(evrec);
+          RadiativeCorrector * fFSRCorrector = new RadiativeCorrector();
+	  fFSRCorrector->SetISR(false);
+          fFSRCorrector->SetModel("simc");
+          fFSRCorrector->SetCutoff(0.03);
+          fFSRCorrector->SetQ2(gQ2);
+          fFSRCorrector->SetP4l(p4l);
+          fFSRCorrector->ProcessEventRecord(evrec);
+	  double t   = 1. * rnd->RndKine().Rndm();
+	  LOG("QELKinematics", pINFO)  << "Doint FSR Random number "<<t<<" wieght "<<evrec->Weight();
+	  if (t > evrec->Weight()) {
+	     genie::exceptions::EVGThreadException exception;
+     	     exception.SetReason("Radiative correction probability low");
+             exception.SwitchOnStepBack();
+             throw exception;
+	  } 
+	}*/
 
         // set the cross section for the selected kinematics
         evrec->SetDiffXSec(xsec,kPSQ2fE);
@@ -291,6 +301,146 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         return;
      }
   }// iterations
+}
+//___________________________________________________________________________
+TLorentzVector QELKinematicsGenerator::GetFinalStateLeptonKinematic(GHepRecord * evrec, double E, double gy, double gQ2) const
+{
+	  Interaction * interaction = evrec->Summary();
+ 	  const InitialState & init_state = interaction->InitState();
+          LOG("QELKinematics", pNOTICE) << "Event selected for radiative correction Selected in kRfHitNucRest: Q^2 = " << gQ2<<" gy = ";
+          const TLorentzVector & pnuc4 = init_state.Tgt().HitNucP4(); //[@LAB]
+          TVector3 beta = pnuc4.BoostVector();
+          double El  = (1-gy)*E;
+          double ml  = interaction->FSPrimLepton()->Mass();
+          double ml2 = TMath::Power(ml,2);
+          double plp = El - 0.5*(gQ2+ml2)/E;                          // p(//)
+          double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
+          LOG("QELKinematics", pNOTICE) << "Calulating temp final state for radiative correction fsl @ Nucleon rest frame: E = " << El << ", |p//| = " << plp << ", [pT] = " << plt;
+          // Randomize transverse components
+	  RandomGen * rnd_temp = RandomGen::Instance();
+          double phi  = 2*kPi * rnd_temp->RndLep().Rndm();
+          double pltx = plt * TMath::Cos(phi);
+          double plty = plt * TMath::Sin(phi);
+          TLorentzVector * p4v = evrec->CorrectProbe()->GetP4(); // v 4p @ LAB
+          p4v->Boost(-1.*beta);                           // v 4p @ Nucleon rest frame
+          // Take a unit vector along the neutrino direction @ the nucleon rest frame
+          TVector3 unit_nudir = p4v->Vect().Unit();
+          // Rotate lepton momentum vector from the reference frame (x'y'z') where 
+          // {z':(neutrino direction), z'x':(theta plane)} to the nucleon rest frame
+	  TVector3 p3l(pltx,plty,plp);
+          p3l.RotateUz(unit_nudir);
+          // Lepton 4-momentum in the nucleon rest frame
+          TLorentzVector p4l(p3l,El);
+	  p4l.Boost(beta); // active Lorentz transform
+          LOG("QELKinematics", pNOTICE) << "Calulating temp final state for radiative correction fsl @ LAB: E " <<p4l.E() << " px "<<p4l.Px() << " py "<<p4l.Py() << " pz "<<p4l.Pz() ;
+          return p4l; 
+}
+//___________________________________________________________________________
+void QELKinematicsGenerator::AddToEventRecord( GHepRecord * evrec, int pdgc, TLorentzVector & p4) const
+{
+  /*Interaction * interaction = evrec->Summary();
+
+  GHepParticle * mom  = evrec->CorrectProbe();
+  int            imom = evrec->CorrectProbePosition();
+
+  const TLorentzVector & vtx = *(mom->X4());
+
+  TLorentzVector x4l(vtx);  // position 4-vector
+  TLorentzVector p4l(p4);   // momentum 4-vector
+
+  GHepParticle * nucltgt = evrec->TargetNucleus();
+
+  bool is_ve = interaction->ProcInfo().IsInverseMuDecay() ||
+               interaction->ProcInfo().IsIMDAnnihilation() ||
+               interaction->ProcInfo().IsNuElectronElastic();
+
+  bool can_correct = fApplyCoulombCorrection && nucltgt!=0 && !is_ve;
+  if(can_correct) {
+    LOG("LeptonicVertex", pINFO)
+        << "Correcting f/s lepton energy for Coulomb effects";
+
+    double m = interaction->FSPrimLepton()->Mass();
+    double Z  = nucltgt->Z();
+    double A  = nucltgt->A();
+
+    //  charge radius of nucleus in GeV^-1
+    double Rc = (1.1*TMath::Power(A,1./3.) + 0.86*TMath::Power(A,-1./3.))/0.197;
+    // shift of lepton energy in homogenous sphere with radius Rc
+    double Vo = 3*kAem*Z/(2*Rc);
+    Vo *= 0.75; // as suggested in R.Gran's note
+
+    double Elo = p4l.Energy();
+    double e   = TMath::Min(Vo, Elo-m);
+    double El  = TMath::Max(0., Elo-e);
+
+    LOG("LeptonicVertex", pINFO)
+      << "Lepton energy subtraction: E = " << Elo << " --> " << El;
+
+    double pmag_old = p4l.P();
+    double pmag_new = TMath::Sqrt(utils::math::NonNegative(El*El-m*m));
+    double scale    = pmag_new / pmag_old;
+    LOG("LeptonicVertex", pDEBUG)
+         << "|pnew| = " << pmag_new << ", |pold| = " << pmag_old
+         << ", scale = " << scale;
+
+    double pxl = scale * p4l.Px();
+    double pyl = scale * p4l.Py();
+    double pzl = scale * p4l.Pz();
+
+    p4l.SetPxPyPzE(pxl,pyl,pzl,El);
+
+    TLorentzVector p4c = p4 - p4l;
+    TLorentzVector x4dummy(0,0,0,0);;
+
+    evrec->AddParticle(
+        kPdgCoulobtron, kIStStableFinalState, -1,-1,-1,-1, p4c, x4dummy);
+  }
+
+  evrec->AddParticle(pdgc, kIStStableFinalState, imom,-1,-1,-1, p4l, x4l);
+
+  // update the interaction summary
+  evrec->Summary()->KinePtr()->SetFSLeptonP4(p4l);
+  */
+}
+//___________________________________________________________________________
+void QELKinematicsGenerator::SetPolarization(GHepRecord * evrec) const
+{
+// Set the final state lepton polarization. A mass-less lepton would be fully
+// polarized. This would be exact for neutrinos and a very good approximation
+// for electrons for the energies this generator is going to be used. This is
+// not the case for muons and, mainly, for taus. I need to refine this later.
+// How? See Kuzmin, Lyubushkin and Naumov, hep-ph/0312107
+
+  // get the final state primary lepton
+  GHepParticle * fsl = evrec->FinalStatePrimaryLepton();
+  if(!fsl) {
+     LOG("LeptonicVertex", pERROR)
+                    << "Final state lepton not set yet! \n" << *evrec;
+     return;
+  }
+
+  // get (px,py,pz) @ LAB
+    TVector3 plab(fsl->Px(), fsl->Py(), fsl->Pz());
+
+  // in the limit m/E->0: leptons are left-handed and their anti-particles
+  // are right-handed
+  int pdgc = fsl->Pdg();
+  if(pdg::IsNeutrino(pdgc) || pdg::IsElectron(pdgc) ||
+                    pdg::IsMuon(pdgc) || pdg::IsTau(pdgc) ) {
+    plab *= -1; // left-handed
+  }
+
+  LOG("LeptonicVertex", pINFO)
+            << "Setting polarization angles for particle: " << fsl->Name();
+
+  fsl->SetPolarization(plab);
+
+  if(fsl->PolzIsSet()) {
+     LOG("LeptonicVertex", pINFO)
+          << "Polarization (rad): Polar = "  << fsl->PolzPolarAngle()
+                           << ", Azimuthal = " << fsl->PolzAzimuthAngle();
+  }
+
 }
 //___________________________________________________________________________
 void QELKinematicsGenerator::SpectralFuncExperimentalCode(
@@ -524,6 +674,11 @@ void QELKinematicsGenerator::LoadConfig(void)
   GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false ) ;
 
   GetParam("doRadiativeCorrection", fDoRadiativeCorrection, false) ;
+  if (fDoRadiativeCorrection) {
+     GetParamDef( "RadiativeCorrectionModel" , fModel, std::string("simc"));
+     GetParam( "RadiativeCorrectionCutoff",fCutoff);
+     GetParam( "RadiativeCorrectionThickness",fThickness);
+  }
 }
 //____________________________________________________________________________
 double QELKinematicsGenerator::ComputeMaxXSec(

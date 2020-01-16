@@ -45,11 +45,17 @@ public :
 private:
 
   void SpectralFuncExperimentalCode(GHepRecord * event_rec) const;
-
+  TLorentzVector GetFinalStateLeptonKinematic(GHepRecord * evrec, double E, double gy, double gQ2) const; 
+  virtual void AddToEventRecord(GHepRecord * evrec, int pdgc, TLorentzVector & p4) const;
+  virtual void SetPolarization(GHepRecord * evrec) const;
   void   LoadConfig     (void);
   double ComputeMaxXSec (const Interaction * in) const;
 
   bool fDoRadiativeCorrection;
+  std::string fModel;               ///< to distinguish between differnt models, right now simc / vanderhagen
+  double      fCutoff;
+  double      fThickness;           ///< thicnknesses of targets in CLAS in radiation length 
+  bool fApplyCoulombCorrection;
 };
 
 }      // genie namespace
