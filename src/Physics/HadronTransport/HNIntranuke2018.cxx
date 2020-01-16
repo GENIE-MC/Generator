@@ -1007,16 +1007,22 @@ INukeFateHN_t HNIntranuke2018::HadronFateOset () const
   //LOG("HNIntranuke2018", pWARN) << "{ frac abs  = " << osetUtils::currentInstance->getAbsorptionFraction();
   //LOG("HNIntranuke2018", pWARN) << "  frac cex  = " << osetUtils::currentInstance->getCexFraction() << " }";
 
-  const double fractionAbsorption = osetUtils::currentInstance->
-                                    getAbsorptionFraction();
-  const double fractionCex = osetUtils::currentInstance->getCexFraction ();
+  double fractionAbsorption = osetUtils::currentInstance->getAbsorptionFraction();
+  double fractionCex = osetUtils::currentInstance->getCexFraction ();
+  double fractionElas = 1 - (fractionAbsorption + fractionCex);
+
+  fractionCex         *= fNucCEXFac;    // scaling factors
+  fractionAbsorption  *= fNucAbsFac;
+  fractionElas        *= fNucQEFac;
+
+  double totalFrac = fractionCex + fractionAbsorption + fractionElas;
 
   RandomGen *randomGenerator = RandomGen::Instance();
-  const double randomNumber  = randomGenerator->RndFsi().Rndm();
+  const double randomNumber  = randomGenerator->RndFsi().Rndm() * totalFrac;
 
-  //LOG("HNIntranuke2018", pWARN) << "{ frac abs  = " << fractionAbsorption;
-  //LOG("HNIntranuke2018", pWARN) << "  frac cex  = " << fractionCex;
-  //LOG("HNIntranuke2018", pWARN) << "  frac elas = " << 1-fractionAbsorption-fractionCex << " }";
+  LOG("HNIntranuke2018", pNOTICE) << "{ frac abs  = " << fractionAbsorption;
+  LOG("HNIntranuke2018", pNOTICE) << "  frac cex  = " << fractionCex;
+  LOG("HNIntranuke2018", pNOTICE) << "  frac elas = " << fractionElas << " }";
 
   if (randomNumber < fractionAbsorption && fRemnA > 1) return kIHNFtAbs;
   else if (randomNumber < fractionAbsorption + fractionCex) return kIHNFtCEx;
