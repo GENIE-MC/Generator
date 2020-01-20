@@ -33,8 +33,6 @@
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepFlags.h" 
 #include "Framework/EventGen/EVGThreadException.h"
-#include "Physics/Hadronization/CharmHadronization.h"
-#include "Physics/Hadronization/FragmentationFunctionI.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Numerical/Spline.h"
@@ -44,8 +42,9 @@
 #include "Framework/ParticleData/PDGCodeList.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/StringUtils.h"
-#include "Physics/Hadronization/FragmRecUtils.h"
 #include "Framework/Utils/PrintUtils.h"
+#include "Physics/Hadronization/AGCharm2019.h"
+#include "Physics/Hadronization/FragmentationFunctionI.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -55,19 +54,19 @@ extern "C" void py1ent_(int *,  int *, double *, double *, double *);
 extern "C" void py2ent_(int *,  int *, int *, double *);
 
 //____________________________________________________________________________
-CharmHadronization::CharmHadronization() :
-EventRecordVisitorI("genie::CharmHadronization")
+AGCharm2019::AGCharm2019() :
+EventRecordVisitorI("genie::AGCharm2019")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-CharmHadronization::CharmHadronization(string config) :
-EventRecordVisitorI("genie::CharmHadronization", config)
+AGCharm2019::AGCharm2019(string config) :
+EventRecordVisitorI("genie::AGCharm2019", config)
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-CharmHadronization::~CharmHadronization()
+AGCharm2019::~AGCharm2019()
 {
   delete fCharmPT2pdf;
   fCharmPT2pdf = 0;
@@ -82,19 +81,19 @@ CharmHadronization::~CharmHadronization()
   fDsFracSpl = 0;
 }
 //____________________________________________________________________________
-void CharmHadronization::Initialize(void) const
+void AGCharm2019::Initialize(void) const
 {
   fPythia = TPythia6::Instance();
 }
 //____________________________________________________________________________
-void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
+void AGCharm2019::ProcessEventRecord(GHepRecord * event) const
 {
   Interaction * interaction = event->Summary();
   TClonesArray * particle_list = this->Hadronize(interaction);
 
   if(! particle_list ) {
-    LOG("CharmHadronization", pWARN) << "Got an empty particle list. Hadronizer failed!";
-    LOG("CharmHadronization", pWARN) << "Quitting the current event generation thread";
+    LOG("AGCharm2019", pWARN) << "Got an empty particle list. Hadronizer failed!";
+    LOG("AGCharm2019", pWARN) << "Quitting the current event generation thread";
     
     event->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
 
@@ -172,7 +171,7 @@ void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
 
 }
 //____________________________________________________________________________
-TClonesArray * CharmHadronization::Hadronize(
+TClonesArray * AGCharm2019::Hadronize(
                                         const Interaction * interaction) const
 {
   LOG("CharmHad", pNOTICE) << "** Running CHARM hadronizer";
@@ -744,49 +743,60 @@ TClonesArray * CharmHadronization::Hadronize(
   return particle_list;
 }
 //____________________________________________________________________________
-int CharmHadronization::GenerateCharmHadron(int nu_pdg, double EvLab) const
+int AGCharm2019::GenerateCharmHadron(int nu_pdg, double EvLab) const
 {
   // generate a charmed hadron pdg code using a charm fraction table
-
+  
   RandomGen * rnd = RandomGen::Instance();
   double r  = rnd->RndHadro().Rndm();
-
+  
+  // the ratios are giving up to a certain value. 
+  // The rations saturates at high energies, so the values used above that enery
+  // are the evaluated at 
+  
   if(pdg::IsNeutrino(nu_pdg)) {
-     double tf = 0;
-     if      (r < (tf+=fD0FracSpl->Evaluate(EvLab)))  return kPdgD0;       // D^0
-     else if (r < (tf+=fDpFracSpl->Evaluate(EvLab)))  return kPdgDP;       // D^+
-     else if (r < (tf+=fDsFracSpl->Evaluate(EvLab)))  return kPdgDPs;      // Ds^+
-     else                                             return kPdgLambdaPc; // Lamda_c^+
 
+    // the ratios are giving up to a certain value. 
+    // The rations saturates at high energies, so the values used above that enery
+    // are the evaluated at the maximum energies avaiable for the ratios
+
+    EvLab = TMath::Min( EvLab, fFracMaxEnergy ) ;  
+    
+    double tf = 0;
+    if      (r < (tf+=fD0FracSpl->Evaluate(EvLab)))  return kPdgD0;       // D^0
+    else if (r < (tf+=fDpFracSpl->Evaluate(EvLab)))  return kPdgDP;       // D^+
+    else if (r < (tf+=fDsFracSpl->Evaluate(EvLab)))  return kPdgDPs;      // Ds^+
+    else                                             return kPdgLambdaPc; // Lamda_c^+
+    
   } else if(pdg::IsAntiNeutrino(nu_pdg)) {
-     if      (r < fD0BarFrac)          return kPdgAntiD0;
-     else if (r < fD0BarFrac+fDmFrac)  return kPdgDM;
-     else                              return kPdgDMs;
+    if      (r < fD0BarFrac)          return kPdgAntiD0;
+    else if (r < fD0BarFrac+fDmFrac)  return kPdgDM;
+    else                              return kPdgDMs;
   }
-
+  
   LOG("CharmHad", pERROR) << "Could not generate a charm hadron!";
   return 0;
 }
 //____________________________________________________________________________
-double CharmHadronization::Weight(void) const 
+double AGCharm2019::Weight(void) const 
 {
   return 1. ;
 }
 
 //____________________________________________________________________________
-void CharmHadronization::Configure(const Registry & config)
+void AGCharm2019::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void CharmHadronization::Configure(string config)
+void AGCharm2019::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void CharmHadronization::LoadConfig(void)
+void AGCharm2019::LoadConfig(void)
 {
 
   bool hadronize_remnants ; 
@@ -806,103 +816,72 @@ void CharmHadronization::LoadConfig(void)
 
   // stop ROOT from deleting this object of its own volition
   gROOT->GetListOfFunctions()->Remove(fCharmPT2pdf);
-
+  
   // neutrino charm fractions: D^0, D^+, Ds^+ (remainder: Lamda_c^+)
   std::vector<double> ec, d0frac, dpfrac, dsfrac ;
 
   std::string raw ;
   std::vector<std::string> bits ;
-
+  
   bool invalid_configuration = false ;
 
   // load energy points
-  this -> GetParam( "CharmFrac-E", raw ) ;
-  bits = utils::str::Split( raw, ";" ) ;
-
-  if ( ! utils::str::Convert(bits, ec) ) {
-    LOG("CharmHadronization", pFATAL) <<
-    		"Failed to decode CharmFrac-E string: ";
-    LOG("CharmHadronization", pFATAL) << "string: "<< raw ;
-    invalid_configuration = true ;
-  }
-
+  this -> GetParamVect( "CharmFrac-E", ec ) ;
+  fFracMaxEnergy = ec.back() - controls::kASmallNum ;
+  
   // load D0 fractions
-  this -> GetParam( "CharmFrac-D0", raw ) ;
-  bits = utils::str::Split( raw, ";" ) ;
-
-  if ( ! utils::str::Convert(bits, d0frac) ) {
-    LOG("CharmHadronization", pFATAL) <<
-    		"Failed to decode CharmFrac-D0 string: ";
-    LOG("CharmHadronization", pFATAL) << "string: "<< raw ;
-    invalid_configuration = true ;
-  }
-
+  this -> GetParamVect( "CharmFrac-D0", d0frac ) ;
+  
   // check the size
   if ( d0frac.size() != ec.size() ) {
-	  LOG("CharmHadronization", pFATAL) << "E entries don't match D0 fraction entries";
-	  LOG("CharmHadronization", pFATAL) << "E:  " << ec.size() ;
-	  LOG("CharmHadronization", pFATAL) << "D0: " << d0frac.size() ;
-	  invalid_configuration = true ;
+    LOG("AGCharm2019", pFATAL) << "E entries don't match D0 fraction entries";
+    LOG("AGCharm2019", pFATAL) << "E:  " << ec.size() ;
+    LOG("AGCharm2019", pFATAL) << "D0: " << d0frac.size() ;
+    invalid_configuration = true ;
   }
-
+  
   // load D+ fractions
-    this -> GetParam( "CharmFrac-D+", raw ) ;
-    bits = utils::str::Split( raw, ";" ) ;
+  this -> GetParamVect( "CharmFrac-D+", dpfrac ) ;
 
-    if ( ! utils::str::Convert(bits, dpfrac) ) {
-      LOG("CharmHadronization", pFATAL) <<
-      		"Failed to decode CharmFrac-D+ string: ";
-      LOG("CharmHadronization", pFATAL) << "string: "<< raw ;
-      invalid_configuration = true ;
-    }
-
-    // check the size
-    if ( dpfrac.size() != ec.size() ) {
-  	  LOG("CharmHadronization", pFATAL) << "E entries don't match D+ fraction entries";
-  	  LOG("CharmHadronization", pFATAL) << "E:  " << ec.size() ;
-  	  LOG("CharmHadronization", pFATAL) << "D+: " << dpfrac.size() ;
-  	  invalid_configuration = true ;
-    }
-
+  // check the size
+  if ( dpfrac.size() != ec.size() ) {
+    LOG("AGCharm2019", pFATAL) << "E entries don't match D+ fraction entries";
+    LOG("AGCharm2019", pFATAL) << "E:  " << ec.size() ;
+    LOG("AGCharm2019", pFATAL) << "D+: " << dpfrac.size() ;
+    invalid_configuration = true ;
+  }
+  
     // load D_s fractions
-    this -> GetParam( "CharmFrac-Ds", raw ) ;
-    bits = utils::str::Split( raw, ";" ) ;
+  this -> GetParamVect( "CharmFrac-Ds", dsfrac ) ;
 
-    if ( ! utils::str::Convert(bits, dsfrac) ) {
-    	LOG("CharmHadronization", pFATAL) <<
-    			"Failed to decode CharmFrac-Ds string: ";
-    	LOG("CharmHadronization", pFATAL) << "string: "<< raw ;
-    	invalid_configuration = true ;
-    }
-
-    // check the size
-    if ( dsfrac.size() != ec.size() ) {
-    	LOG("CharmHadronization", pFATAL) << "E entries don't match Ds fraction entries";
-    	LOG("CharmHadronization", pFATAL) << "E:  " << ec.size() ;
-    	LOG("CharmHadronization", pFATAL) << "Ds: " << dsfrac.size() ;
-    	invalid_configuration = true ;
-    }
-
+  // check the size
+  if ( dsfrac.size() != ec.size() ) {
+    LOG("AGCharm2019", pFATAL) << "E entries don't match Ds fraction entries";
+    LOG("AGCharm2019", pFATAL) << "E:  " << ec.size() ;
+    LOG("AGCharm2019", pFATAL) << "Ds: " << dsfrac.size() ;
+    invalid_configuration = true ;
+  }
+  
   fD0FracSpl = new Spline( ec.size(), & ec[0], & d0frac[0] );
   fDpFracSpl = new Spline( ec.size(), & ec[0], & dpfrac[0] );
   fDsFracSpl = new Spline( ec.size(), & ec[0], & dsfrac[0] );
-
+  
   // anti-neutrino charm fractions: bar(D^0), D^-, (remainder: Ds^-)
-
+  
   this -> GetParam( "CharmFrac-D0bar", fD0BarFrac ) ;
   this -> GetParam( "CharmFrac-D-",    fDmFrac ) ;
-
+  
   if ( invalid_configuration ) {
-
-	    LOG("CharmHadronization", pFATAL)
-	      << "Invalid configuration: Exiting" ;
-
-	    // From the FreeBSD Library Functions Manual
-	    //
-	    // EX_CONFIG (78)   Something was found in an unconfigured or miscon-
-	    //                  figured state.
-
-	    exit( 78 ) ;
+    
+    LOG("AGCharm2019", pFATAL)
+      << "Invalid configuration: Exiting" ;
+    
+    // From the FreeBSD Library Functions Manual
+    //
+    // EX_CONFIG (78)   Something was found in an unconfigured or miscon-
+    //                  figured state.
+    
+    exit( 78 ) ;
   }
 }
 //____________________________________________________________________________
