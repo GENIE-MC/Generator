@@ -85,10 +85,11 @@
    <config alg="genie::CollinsSpillerFragm">         CollinsSpillerFragm.xml         </config>
 
    <!-- ****** CONFIGURATION FOR FRAGMENTATION ALGORITHMS ****** -->
-   <config alg="genie::KNOHadronization">            KNOHadronization.xml            </config>
-   <config alg="genie::KNOPythiaHadronization">      KNOPythiaHadronization.xml      </config>
-   <config alg="genie::Pythia6Hadronization">        Pythia6Hadronization.xml        </config>
-   <config alg="genie::CharmHadronization">          CharmHadronization.xml          </config>
+   <config alg="genie::AGKYLowW2019">            AGKYLowW2019.xml            </config>
+   <config alg="genie::AGKY2019">      AGKY2019.xml      </config>
+   <config alg="genie::Pythia6Hadro2019">        Pythia6Hadro2019.xml        </config>
+   <config alg="genie::Pythia8Hadro2019">        Pythia8Hadro2019.xml        </config>
+   <config alg="genie::AGCharm2019">          AGCharm2019.xml          </config>
 
    <!-- ****** CONFIGURATION FOR PARTON DENSITY FUNCTION ALGORITHMS ****** -->
    <config alg="genie::GRV98LO">                     GRV98LO.xml                     </config>

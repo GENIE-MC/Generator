@@ -16,7 +16,7 @@ PACKAGE           = Physics/PartonDistributions
 PACKAGE_ABBREV    = PhPDF
 DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)
 LIBNAME           = libG$(PACKAGE_ABBREV)
-EXTRA_EXT_LIBS    = $(CERN_LIBRARIES) $(LHAPDF_LIBRARIES)
+EXTRA_EXT_LIBS    = 
 
 all     : rootcint lib lib-link
 install : install-inc install-lib

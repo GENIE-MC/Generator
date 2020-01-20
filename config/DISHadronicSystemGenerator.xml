@@ -23,7 +23,7 @@ NUCL-NR             double  No                                                  
   <param_set name="Default"> 
      <param type="string"  name="CommonParam"> NUCL </param>
 
-     <param type="alg"  name="Hadronizer">          genie::KNOPythiaHadronization/Default                 </param>
+     <param type="alg"  name="Hadronizer">          genie::AGKY2019/Default                 </param>
      <param type="alg"  name="PreTransportDecayer"> genie::UnstableParticleDecayer/BeforeHadronTransport  </param>
      <param type="bool" name="FilterPreFragm">      false                                                 </param>
  
@@ -40,7 +40,7 @@ NUCL-NR             double  No                                                  
   </param_set>
 
   <param_set name="Charm"> 
-     <param type="alg"  name="Hadronizer">          genie::CharmHadronization/Default                     </param>
+     <param type="alg"  name="Hadronizer">          genie::AGCharm2019/Default                     </param>
      <param type="alg"  name="PreTransportDecayer"> genie::UnstableParticleDecayer/BeforeHadronTransport  </param>
      <param type="bool" name="FilterPreFragm">      false                                                 </param>
 

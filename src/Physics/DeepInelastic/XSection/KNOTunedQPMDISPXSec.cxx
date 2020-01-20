@@ -242,7 +242,7 @@ void KNOTunedQPMDISPXSec::LoadConfig(void)
   fHadronizationModel = nullptr ;
 
   fHadronizationModel =
-    dynamic_cast<const KNOHadronization *> (this->SubAlg("Hadronizer"));
+    dynamic_cast<const AGKYLowW2019 *> (this->SubAlg("Hadronizer"));
   assert(fHadronizationModel);
 
   GetParam( "Wcut", fWcut ) ;
