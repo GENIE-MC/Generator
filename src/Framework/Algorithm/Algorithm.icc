@@ -102,6 +102,10 @@ template<class T>
     LOG("Algorithm", pFATAL)
        << "*** Key: " << key
        << " does not exist in pools from algorithm : " << fID.Key() ;
+
+    LOG("Algorithm", pFATAL) << "*** Current Configuration " ;
+    LOG("Algorithm", pFATAL) << GetConfig() ;
+
     gAbortingInErr = true;
     exit(1);
 
@@ -144,7 +148,6 @@ template<class T>
     }
 
     return v.size() ;    		            
-  
 }
 
  

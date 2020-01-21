@@ -68,12 +68,27 @@ private:
   static bool IsDelta( int dec_part_pdgc ) ; 
   static bool HasEvolvedBRs( int dec_part_pdgc ) ; 
 
+  // utilities for pion angular distribution with phi dependency 
+
+  static double PionAngularDist( const double * x, const double * par ) ;
+  static double MinusPionAngularDist( const double * x, const double * par ) {  // this is used to find the maxima of the previous function
+    return -1. * BaryonResonanceDecayer::PionAngularDist( x, par ) ; 
+  }
+
+  double FindDistributionExtrema( unsigned int i /*q2_bin_index*/, 
+				  bool find_maximum = false  ) const ;
+
+
   mutable TGenPhaseSpace fPhaseSpaceGenerator;
   mutable double         fWeight;
 
   bool   fDeltaThetaOnly ;
 
+  double fMaxTolerance ;
+
   std::vector<double> fR33, fR31, fR3m1 ;
+  std::vector<double*> fRParams ;  // this contains same parameter as fR33, fR31 and fR3m1 alingned by Q2 bin
+
   std::vector<double> fQ2Thresholds ;
 
   std::vector<double> fW_max ;

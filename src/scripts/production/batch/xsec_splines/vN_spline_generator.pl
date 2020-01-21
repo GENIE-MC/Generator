@@ -185,8 +185,21 @@ foreach $nu ( @nu_list ) {
 
       print "@@ exec: $gmkspl_cmd \n";
 
-      push( @direct_commands, "source $genie_setup $config_dir; cd $jobs_dir; $gmkspl_cmd" ) ;
+      # create sh file 
+      $shell_script = "$filename_template.sh";
+      open(COMMANDS, ">$shell_script") or die("Can not create the bash script");
+      print COMMANDS "#!/bin/bash \n";
+      print COMMANDS "cd $jobs_dir \n";
+      print COMMANDS "source $genie_setup $config_dir \n";
+      print COMMANDS "$gmkspl_cmd \n";
+      close(COMMANDS);
 
+      # set executing privileges to the script 
+      `chmod ugo+x $filename_template.sh` ;
+      
+      push( @direct_commands, "bash $filename_template.sh" ) ;
+
+      
       # PBS case
       if($batch_system eq 'PBS' || $batch_system eq 'HTCondor_PBS') {
          $batch_script = "$filename_template.pbs";
@@ -196,9 +209,7 @@ foreach $nu ( @nu_list ) {
          print PBS "#PBS -o $filename_template.pbsout.log \n";
          print PBS "#PBS -e $filename_template.pbserr.log \n";
 	 print PBS "#PBS -p -1 \n" if ( $priority ) ;
-         print PBS "source $genie_setup $config_dir \n";
-         print PBS "cd $jobs_dir \n";
-         print PBS "$gmkspl_cmd \n";
+         print PBS "source $shell_script \n";
          close(PBS);
          $job_submission_command = "qsub";
          if($batch_system eq 'HTCondor_PBS') {
@@ -220,14 +231,12 @@ foreach $nu ( @nu_list ) {
          print PBS "#\$ -e $filename_template.pbserr.log \n";
          print PBS "#\$ -l ct=8:00:00,sps=1 \n";
 	 print PBS "#\$ -p -1 \n" if ( $priority ) ;
-         print PBS "source $genie_setup $config_dir \n";
-         print PBS "cd $jobs_dir \n";
-         print PBS "$gmkspl_cmd \n";
+         print PBS "source $shell_script \n";
          close(PBS);
          $job_submission_command = "qsub";
-
+	 
 	 push( @batch_commands, "$job_submission_command  $batch_script " ) ;
-
+	 
        } #LyonPBS
 
        # LSF case
@@ -235,13 +244,11 @@ foreach $nu ( @nu_list ) {
     	 $batch_script = "$filename_template.sh";
   	 open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
  	 print LSF "#!/bin/bash \n";
- 	 print PBS "#BSUB-j $jobname \n";
+ 	 print LSF "#BSUB-j $jobname \n";
  	 print LSF "#BSUB-q $queue \n";
  	 print LSF "#BSUB-o $filename_template.lsfout.log \n";
  	 print LSF "#BSUB-e $filename_template.lsferr.log \n";
- 	 print LSF "source $genie_setup $config_dir \n";
- 	 print LSF "cd $jobs_dir \n";
- 	 print LSF "$gmkspl_cmd | $grep_pipe &> $filename_template.mkspl.log \n";
+         print LSF "source $shell_script \n";	 
  	 close(LSF);
 
 	 push( @batch_commands, "bsub < $batch_script " ) ;
@@ -253,12 +260,12 @@ foreach $nu ( @nu_list ) {
 	 $batch_script = "$filename_template.htc";
 	 open(HTC, ">$batch_script") or die("Can not create the Condor submit description file: $batch_script");
 	 print HTC "Universe               = vanilla \n";
-	 print HTC "Executable             = $softw_topdir/generator/builds/$arch/$genie_version/src/scripts/production/batch/htcondor_exec.sh \n";
-	 print HTC "Arguments              = $genie_setup $jobs_dir $gmkspl_cmd \n";
+	 print HTC "Executable             = $shell_script \n";
  	 print HTC "Log                    = $filename_template.log \n";
          print HTC "Output                 = $filename_template.out \n";
  	 print HTC "Error                  = $filename_template.err \n";
  	 print HTC "Request_memory         = 2 GB \n";
+	 print HTC "priority               = -1 \n" if ( $priority ) ;
  	 print HTC "Queue \n";
  	 close(HTC);
  	 push ( @batch_commands, "condor_submit $batch_script" ) ;
@@ -272,9 +279,7 @@ foreach $nu ( @nu_list ) {
  	 print SLURM "#SBATCH-p $queue \n";
  	 print SLURM "#SBATCH-o $filename_template.slurmout.log \n";
  	 print SLURM "#SBATCH-e $filename_template.slurmerr.log \n";
-         print SLURM "source $genie_setup $config_dir \n";
- 	 print SLURM "cd $jobs_dir \n";
- 	 print SLURM "$gmkspl_cmd | $grep_pipe &> $filename_template.mkspl.log \n";
+	 print SLURM "source $shell_script \n";
  	 close(SLURM);
 
 	 push( @batch_commands, "sbatch --job-name=$jobname $batch_script" ) ;
@@ -296,6 +301,7 @@ foreach $nu ( @nu_list ) {
 if ( $batch_system eq 'none' ) {
     ## run all of them interactively
     for my $run_cmd ( @direct_commands ) {
+	print "Executing: $run_cmd \n" ; 
 	`$run_cmd` ;
     }
 }
@@ -307,6 +313,7 @@ else {
 
     # handle the first according to script options
     if ( defined $run_one ) {
+	print "Executing: $direct_commands[0] \n" ;
 	`$direct_commands[0]` ;
     }
     else {
