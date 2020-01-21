@@ -1,20 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - May 13, 2005
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Mar 03, 2009 - CA
-   Moved into the new DIS package from its previous location (EVGModules).
- @ Sep 21, 2009 - CA
-   Generate interaction lists for charge lepton scattering.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -111,9 +101,9 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
           target->SetHitSeaQrk(from_sea);
 
           Interaction * intq = new Interaction(*interaction);
-          intlist->push_back(intq);  
+          intlist->push_back(intq);
         }
-        delete interaction; 
+        delete interaction;
       }
       else {
         intlist->push_back(interaction);
@@ -190,7 +180,7 @@ multimap<int,bool> DISInteractionListGenerator::GetHitQuarks(
                        hq.insert(pair<int,bool>(kPdgDQuark,     false));
                        hq.insert(pair<int,bool>(kPdgDQuark,     true ));
                        hq.insert(pair<int,bool>(kPdgSQuark,     true ));
-    } 
+    }
     else if (pdg::IsAntiNeutrino(ppdg)){
        if(!fIsCharm) { hq.insert(pair<int,bool>(kPdgUQuark,     false)); }
        if(!fIsCharm) { hq.insert(pair<int,bool>(kPdgUQuark,     true )); }
@@ -202,4 +192,3 @@ multimap<int,bool> DISInteractionListGenerator::GetHitQuarks(
   return hq;
 }
 //____________________________________________________________________________
-

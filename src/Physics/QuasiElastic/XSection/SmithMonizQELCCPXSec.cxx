@@ -1,25 +1,31 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
- For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+  Copyright (c) 2003-2020, The GENIE Collaboration
+  For the full text of the license visit http://copyright.genie-mc.org
 
- Author:  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
-          adapted from  fortran code provided by 
-          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>, Joint Institute for Nuclear Research
-          Vladimir Lyubushkin, Joint Institute for Nuclear Research
-          Vadim Naumov <vnaumov@theor.jinr.ru>, Joint Institute for Nuclear Research
-          based on code of Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
-           
- For the class documentation see the corresponding header file.
+  Igor Kakorin <kakorin@jinr.ru>
+  Joint Institute for Nuclear Research
 
+  adapted from  fortran code provided by:
+
+  Konstantin Kuzmin <kkuzmin@theor.jinr.ru>
+  Joint Institute for Nuclear Research
+
+  Vladimir Lyubushkin
+  Joint Institute for Nuclear Research
+
+  Vadim Naumov <vnaumov@theor.jinr.ru>
+  Joint Institute for Nuclear Research
+
+  based on code of:
+  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+  University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
+
 #include <sstream>
 
 #include <TMath.h>
-
 
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
@@ -63,35 +69,35 @@ SmithMonizQELCCPXSec::~SmithMonizQELCCPXSec()
 double SmithMonizQELCCPXSec::XSec(
    const Interaction * interaction, KinePhaseSpace_t kps) const
 {
-  
-  if(! this -> ValidProcess (interaction) ) 
+
+  if(! this -> ValidProcess (interaction) )
   {
-    LOG("SmithMoniz",pWARN) << "not a valid process"; 
+    LOG("SmithMoniz",pWARN) << "not a valid process";
     return 0.;
   }
-  
-  if(kps == kPSQ2fE) 
+
+  if(kps == kPSQ2fE)
   {
      if(! this -> ValidKinematics (interaction) )
      {
-        LOG("SmithMoniz",pWARN) << "not valid kinematics"; 
+        LOG("SmithMoniz",pWARN) << "not valid kinematics";
         return 0.;
      }
      return this->dsQES_dQ2_SM(interaction);
   }
-  
+
   if(kps == kPSQ2vfE) {
     return this->d2sQES_dQ2dv_SM(interaction);
   }
-  
+
   return 0;
-  
+
 }
 //____________________________________________________________________________
 double SmithMonizQELCCPXSec::Integral(const Interaction * in) const
 {
   return fXSecIntegrator->Integrate(this,in);
-  
+
 }
 //____________________________________________________________________________
 bool SmithMonizQELCCPXSec::ValidProcess(const Interaction * interaction) const
@@ -137,10 +143,10 @@ void SmithMonizQELCCPXSec::Configure(string config)
 //____________________________________________________________________________
 void SmithMonizQELCCPXSec::LoadConfig(void)
 {
-  
+
   // Cross section scaling factor
   GetParamDef( "QEL-CC-XSecScale", fXSecScale, 1. ) ;
-  
+
   double Vud;
   GetParam( "CKM-Vud", Vud ) ;
   fVud2 = TMath::Power( Vud, 2 );
@@ -155,58 +161,58 @@ void SmithMonizQELCCPXSec::LoadConfig(void)
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
-  
+
   sm_utils = const_cast<genie::SmithMonizUtils *>(
                dynamic_cast<const genie::SmithMonizUtils *>(
                  this -> SubAlg( "sm_utils_algo" ) ) ) ;
-  
+
 }
 //____________________________________________________________________________
 double SmithMonizQELCCPXSec::d3sQES_dQ2dvdkF_SM(const Interaction * interaction) const
 {
   // Get kinematics & init-state parameters
   const Kinematics &   kinematics = interaction -> Kine();
-  
+
   double kF      = kinematics.GetKV(kKVPn);
   double kkF     = kF*kF;
   double P_Fermi, E_nuBIN;
-  
+
   E_nuBIN = sm_utils->GetBindingEnergy();
-  
+
   double E_p     = TMath::Sqrt(fmm_ini+kkF)-E_nuBIN;
   double cosT_p  = ((fv-E_nuBIN)*(2*E_p+fv+E_nuBIN)-fqqv+fmm_ini-fmm_fin)/(2*kF*fqv);           //\cos\theta_p
   if (cosT_p < -1.0 || cosT_p > 1.0 ) return 0.0;
   double pF      = TMath::Sqrt(kkF+(2*kF*fqv)*cosT_p+fqqv);
   double b2_flux = (E_p-kF*fcosT_k*cosT_p)*(E_p-kF*fcosT_k*cosT_p);
   double c2_flux = kkF*(1-cosT_p*cosT_p)*(1-fcosT_k*fcosT_k);
-  
+
   P_Fermi        = sm_utils->GetFermiMomentum();
   double FV_SM   = 4.0*TMath::Pi()/3*TMath::Power(P_Fermi, 3);
-  double factor  = fk1*(fm_tar*kF/(FV_SM*fqv*TMath::Sqrt(b2_flux-c2_flux)))*SmithMonizUtils::rho(P_Fermi, 0.0, kF)*(1-SmithMonizUtils::rho(P_Fermi, 0.01, pF));    
-  
+  double factor  = fk1*(fm_tar*kF/(FV_SM*fqv*TMath::Sqrt(b2_flux-c2_flux)))*SmithMonizUtils::rho(P_Fermi, 0.0, kF)*(1-SmithMonizUtils::rho(P_Fermi, 0.01, pF));
+
   double a2      = kkF/kNucleonMass2;
   double a3      = a2*cosT_p*cosT_p;
   double a6      = kF*cosT_p/kNucleonMass;
   double a7      = E_p/kNucleonMass;
   double a4      = a7*a7;
   double a5      = 2*a7*a6;
-  
+
   double k3      = fv/fqv;
   double k4      = (3*a3-a2)/fqqv;
   double k5      = (a7-a6*k3)*fm_tar/kNucleonMass;
-  
+
   double T_1     = 1.0*fW_1+(a2-a3)*0.5*fW_2;                              //Ref.[1], W_1
   double T_2     = ((a2-a3)*fQ2/(2*fqqv)+a4-k3*(a5-k3*a3))*fW_2;           //Ref.[1], W_2
   double T_3     = k5*fW_3;                                                //Ref.[1], W_8
   double T_4     = fmm_tar*(0.5*fW_2*k4+1.0*fW_4/kNucleonMass2+a6*fW_5/(kNucleonMass*fqv));    //Ref.[1], W_\alpha
   double T_5     = k5*fW_5+fm_tar*(a5/fqv-fv*k4)*fW_2;
-  
+
   double xsec    = kGF2*factor*((fE_lep-fk7)*(T_1+fk2*T_4)/fm_tar+(fE_lep+fk7)*T_2/(2*fm_tar)
                    +fn_NT*T_3*((fE_nu+fE_lep)*(fE_lep-fk7)/(2*fmm_tar)-fk2)-fk2*T_5)
                    *(kMw2/(kMw2+fQ2))*(kMw2/(kMw2+fQ2))/fE_nu/kPi;
   return xsec;
-  
-  
+
+
 }
 //____________________________________________________________________________
 double SmithMonizQELCCPXSec::d2sQES_dQ2dv_SM(const Interaction * interaction) const
@@ -216,17 +222,17 @@ double SmithMonizQELCCPXSec::d2sQES_dQ2dv_SM(const Interaction * interaction) co
   fQ2      = kinematics->GetKV(kKVQ2);
   fv       = kinematics->GetKV(kKVv);
   Range1D_t rkF = sm_utils->kFQES_SM_lim(fQ2,fv);
-  
+
   const InitialState & init_state = interaction -> InitState();
   const Target & target = init_state.Tgt();
   PDGLibrary * pdglib = PDGLibrary::Instance();
-  
+
   // One of the xsec terms changes sign for antineutrinos
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
   fn_NT = (is_neutrino) ? +1 : -1;
-  
+
   int nucl_pdg_ini = target.HitNucPdg();
-  double m_ini  = target.HitNucMass();                         
+  double m_ini  = target.HitNucMass();
   fmm_ini = TMath::Power(m_ini,    2);
   int nucl_pdg_fin = genie::pdg::SwitchProtonNeutron(nucl_pdg_ini);
   TParticlePDG * nucl_fin = pdglib->Find( nucl_pdg_fin );
@@ -234,7 +240,7 @@ double SmithMonizQELCCPXSec::d2sQES_dQ2dv_SM(const Interaction * interaction) co
   fmm_fin = TMath::Power(m_fin,    2);
   fm_tar = target.Mass();                                     //  Mass of target nucleus (GeV)
   fmm_tar = TMath::Power(fm_tar,    2);
-  
+
   fE_nu  = init_state.ProbeE(kRfLab);
   fE_lep   = fE_nu-fv;
   double m_lep = interaction->FSPrimLepton()->Mass();
@@ -249,12 +255,12 @@ double SmithMonizQELCCPXSec::d2sQES_dQ2dv_SM(const Interaction * interaction) co
   fqv      = TMath::Sqrt(fqqv);
   fcosT_k  = (fv+k6)/fqv;
   if (fcosT_k < -1.0 || fcosT_k > 1.0 ) return 0.0;
-  
+
   fk1 = fVud2*kNucleonMass2*kPi;
   fk2 = mm_lep/(2*fmm_tar);
   fk7 = P_lep*cosT_lep;
-  
-  
+
+
   // Calculate the QEL form factors
   fFormFactors.Calculate(interaction);
   fF_V   = fFormFactors.F1V();
@@ -264,14 +270,14 @@ double SmithMonizQELCCPXSec::d2sQES_dQ2dv_SM(const Interaction * interaction) co
   fFF_V  = fF_V*fF_V;
   fFF_M  = fF_M*fF_M;
   fFF_A  = fF_A*fF_A;
-  
+
   double t = fQ2/(4*kNucleonMass2);
   fW_1     = fFF_A*(1+t)+t*(fF_V+fF_M)*(fF_V+fF_M);                   //Ref.[1], \tilde{T}_1
   fW_2     = fFF_A+fFF_V+t*fFF_M;                                     //Ref.[1], \tilde{T}_2
   fW_3     =-2*fF_A*(fF_V+fF_M);                                      //Ref.[1], \tilde{T}_8
   fW_4     =-0.5*fF_V*fF_M-fF_A*fF_P+t*fF_P*fF_P-0.25*(1-t)*fFF_M;    //Ref.[1], \tilde{T}_\alpha
   fW_5     = fFF_V+t*fFF_M+fFF_A;
-  
+
 //  Gaussian quadratures integrate over Fermi momentum
   double R[48]= { 0.16276744849602969579e-1,0.48812985136049731112e-1,
                   0.81297495464425558994e-1,1.13695850110665920911e-1,
@@ -322,7 +328,7 @@ double SmithMonizQELCCPXSec::d2sQES_dQ2dv_SM(const Interaction * interaction) co
                   0.32034456231992663218e-1,0.32206204794030250669e-1,
                   0.32343822568575928429e-1,0.32447163714064269364e-1,
                   0.32516118713868835987e-1,0.32550614492363166242e-1};
-  
+
   double Sum = 0;
   for(int i = 0;i<48;i++)
   {
@@ -333,19 +339,19 @@ double SmithMonizQELCCPXSec::d2sQES_dQ2dv_SM(const Interaction * interaction) co
     kinematics->SetKV(kKVPn, kF);
     Sum+=d3sQES_dQ2dvdkF_SM(interaction)*W[47-i];
   }
-  
+
   double xsec = 0.5*Sum*(rkF.max-rkF.min);
-  
+
   int nucpdgc = target.HitNucPdg();
-  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
-  
+  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
+
   xsec *= NNucl; // nuclear xsec
-  
+
   // Apply given scaling factor
   xsec *= fXSecScale;
-  
+
   return xsec;
-  
+
 }
 //____________________________________________________________________________
 double SmithMonizQELCCPXSec::dsQES_dQ2_SM(const Interaction * interaction) const
@@ -366,7 +372,7 @@ double SmithMonizQELCCPXSec::dsQES_dQ2_SM(const Interaction * interaction) const
   int sign = (is_neutrino) ? -1 : 1;
 
   // Calculate the QEL form factors
-  fFormFactors.Calculate(interaction);    
+  fFormFactors.Calculate(interaction);
 
   double F1V   = fFormFactors.F1V();
   double xiF2V = fFormFactors.xiF2V();
@@ -389,16 +395,16 @@ double SmithMonizQELCCPXSec::dsQES_dQ2_SM(const Interaction * interaction) const
   // Compute free nucleon differential cross section
   double A = (0.25*(ml2-q2)/M2) * (
          (4-q2_M2)*FA2 - (4+q2_M2)*F1V2 - q2_M2*xiF2V2*(1+0.25*q2_M2)
-              -4*q2_M2*F1V*xiF2V - (ml2/M2)*( 
+              -4*q2_M2*F1V*xiF2V - (ml2/M2)*(
                (F1V2+xiF2V2+2*F1V*xiF2V)+(FA2+4*Fp2+4*FA*Fp)+(q2_M2-4)*Fp2));
   double B = -1 * q2_M2 * FA*(F1V+xiF2V);
   double C = 0.25*(FA2 + F1V2 - 0.25*q2_M2*xiF2V2);
 
   double xsec = Gfactor * (A + sign*B*s_u/M2 + C*s_u*s_u/M4);
-  
+
   // Apply given scaling factor
   xsec *= fXSecScale;
-  
+
   // Deuterium and tritium is a special case
   if (target.A()>1 && target.A()<4)
   {
@@ -408,12 +414,12 @@ double SmithMonizQELCCPXSec::dsQES_dQ2_SM(const Interaction * interaction) const
   }
 
   int nucpdgc = target.HitNucPdg();
-  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
+  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
 
   xsec *= NNucl; // nuclear xsec
-  
+
   // Apply radiative correction to the cross section for IBD processes
-  // Refs: 
+  // Refs:
   // 1) I.S. Towner, Phys. Rev. C 58 (1998) 1288;
   // 2) J.F. Beacom, S.J. Parke, Phys. Rev. D 64 (2001) 091302;
   // 3) A. Kurylov, M.J. Ramsey-Musolf, P. Vogel, Phys. Rev. C 65 (2002) 055501;
@@ -424,7 +430,7 @@ double SmithMonizQELCCPXSec::dsQES_dQ2_SM(const Interaction * interaction) const
     const double mp  = kProtonMass;
     const double mp2 = kProtonMass2;
     const double mn2 = kNeutronMass2;
-    const double Ee  = E + ( (q2 - mn2 + mp2) / 2.0 / mp ); 
+    const double Ee  = E + ( (q2 - mn2 + mp2) / 2.0 / mp );
     assert(Ee > 0.0); // must be non-zero and positive
     rc  = 6.0 + (1.5 * TMath::Log(kProtonMass / 2.0 / Ee));
     rc += 1.2 * TMath::Power((kElectronMass / Ee), 1.5);
@@ -435,4 +441,3 @@ double SmithMonizQELCCPXSec::dsQES_dQ2_SM(const Interaction * interaction) const
   xsec *= rc;
   return xsec;
 }
-

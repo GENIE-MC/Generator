@@ -1,18 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Sep 07, 2009 - CA
-   Integrated with GNU Numerical Library (GSL) via ROOT's MathMore library.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -28,7 +20,7 @@
 #include "Physics/XSectionIntegration/GSLXSecFunc.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/GSLUtils.h"
-  
+
 using namespace genie;
 using namespace genie::constants;
 
@@ -68,9 +60,9 @@ double NuElectronXSec::Integrate(
   interaction->SetBit(kISkipProcessChk);
   //interaction->SetBit(kISkipKinematicChk);
 
-  ROOT::Math::IBaseFunctionOneDim * func = 
+  ROOT::Math::IBaseFunctionOneDim * func =
      new utils::gsl::dXSec_dy_E(model, interaction);
-  ROOT::Math::IntegrationOneDim::Type ig_type = 
+  ROOT::Math::IntegrationOneDim::Type ig_type =
      utils::gsl::Integration1DimTypeFromString(fGSLIntgType);
   ROOT::Math::Integrator ig(*func,ig_type,1,fGSLRelTol,fGSLMaxEval);
   double xsec = ig.Integral(yl.min, yl.max) * (1E-38 * units::cm2);
@@ -104,4 +96,3 @@ void NuElectronXSec::LoadConfig(void)
 	fGSLMaxEval  = (unsigned int) max ;
 }
 //____________________________________________________________________________
-

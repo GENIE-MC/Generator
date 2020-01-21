@@ -1,20 +1,28 @@
-////////////////////////////////////////////////////////////////////////
-/// \file  GFlavorMixerFactory.h
-/// \brief A class for generating concrete GFlavorMixerI derived classes
-///        based on the factory pattern.  This code supplies a CPP
-///        macro which allows the classes to self-register and thus
-///        no modification of this class is needed in order to expand
-///        the list of classes it knows about.
-///
-///        Implemented as a singleton holding a map between names and
-///        pointers-to-functions (that call a class default constructor).
-///        The functions pointers must return GFlavorMixerI*.
-///
-/// \version 
-/// \author  Robert Hatcher <rhatcher \at fnal.gov>
-///          Fermi National Accelerator Laboratory
-///
-////////////////////////////////////////////////////////////////////////
+//____________________________________________________________________________
+/*!
+
+\class   genie::flux::GFlavorMixerFactory
+
+\brief   A class for generating concrete GFlavorMixerI derived classes
+         based on the factory pattern.  This code supplies a CPP
+         macro which allows the classes to self-register and thus
+         no modification of this class is needed in order to expand
+         the list of classes it knows about.
+
+         Implemented as a singleton holding a map between names and
+         pointers-to-functions (that call a class default constructor).
+         The functions pointers must return GFlavorMixerI*.
+
+\author  Robert Hatcher <rhatcher \at fnal.gov>
+         Fermi National Accelerator Laboratory
+
+\created
+
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
+         for the full text of the license visit http://copyright.genie-mc.org
+*/
+//____________________________________________________________________________
+
 #ifndef GENIE_FLUX_GFLAVORMIXERFACTORY_H
 #define GENIE_FLUX_GFLAVORMIXERFACTORY_H
 
@@ -27,8 +35,8 @@
 namespace genie {
 namespace flux {
 
-// define a type for the pointer to a function that returns a 
-//    genie::flux::GFlavorMixerI* 
+// define a type for the pointer to a function that returns a
+//    genie::flux::GFlavorMixerI*
 // i.e. calls the (typically default) ctor for the class.
 typedef genie::flux::GFlavorMixerI* (*GFlavorMixerICtorFuncPtr_t)();
 
@@ -47,7 +55,7 @@ public:
   const std::vector<std::string>& AvailableFlavorMixers() const;
   // return a list of available names
 
-  bool RegisterCreator(std::string name, 
+  bool RegisterCreator(std::string name,
                        GFlavorMixerICtorFuncPtr_t ctorptr, bool* ptr);
   // register a new GFlavorMixerI type by passing pointer to creator function
 
@@ -61,9 +69,9 @@ private:
   std::map<std::string, bool*> fBoolPtrMap;
 
   mutable std::vector<std::string> listnames;
-  // copy of list of names, used solely due to AvailableFlavorMixers() 
+  // copy of list of names, used solely due to AvailableFlavorMixers()
   // method returning a const reference rather than a vector object.
-  // mutable because AvailableFlavorMixers() is const, but list might 
+  // mutable because AvailableFlavorMixers() is const, but list might
   // need recreation if new entries have been registered.
 
 private:
@@ -86,7 +94,7 @@ private:
          delete GFlavorMixerFactory::fgTheInstance;
          GFlavorMixerFactory::fgTheInstance = 0;
   } } };
-  friend struct Cleaner; 
+  friend struct Cleaner;
 
 };
 
@@ -113,12 +121,12 @@ private:
 //
 // The expanded code looks like:
 //   genie::flux::GFlavorMixerI* MyMixerClass_ctor_function () { return new MyMixerClass; }
-//   static bool MyMixerClass_creator_registered = 
+//   static bool MyMixerClass_creator_registered =
 //     GFlavorMixerFactory::Instance().RegisterCreator("MyMixerClass",
 //                                               & MyMixerClass_ctor_function );
 //   namespace myspace {
 //     genie::flux::GFlavorMixerI* myAltAltMixer_ctor_function () { return new myspace::myAltAltMixer; }
-//     static bool myAltMixer_creator_registered = 
+//     static bool myAltMixer_creator_registered =
 //       GFlavorMixerFactory::Instance().RegisterCreator("myspace::myAltAltMixer",
 //                                                 & myspace::myAltAltMixer_ctor_function ); }
 
@@ -127,7 +135,7 @@ private:
   static bool _name ## _creator_registered =                            \
     genie::flux::GFlavorMixerFactory::Instance().RegisterCreator(# _name, \
                                         & _name ## _ctor_function,        \
-                                        & _name ## _creator_registered ); 
+                                        & _name ## _creator_registered );
 
 #define FLAVORMIXREG3( _ns, _name, _fqname ) \
 namespace _ns { \

@@ -1,18 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 12, 2013 - CA (code from Rosen Matev)
-   Tweak kinematics. The final state primary lepton is always the electron.
-   The kinematical variable y has the definition used in Marciano's paper.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -74,7 +66,7 @@ double NuElectronPXSec::XSec(
   int inu = init_state.ProbePdg();
 
   // nue + e- -> nue + e- [CC + NC + interference]
-  if(pdg::IsNuE(inu)) 
+  if(pdg::IsNuE(inu))
   {
     double em = -0.5 - fSin28w;
     double ep = -fSin28w;
@@ -83,7 +75,7 @@ double NuElectronPXSec::XSec(
   }
 
   // nuebar + e- -> nue + e- [CC + NC + interference]
-  if(pdg::IsAntiNuE(inu)) 
+  if(pdg::IsAntiNuE(inu))
   {
     double em = -0.5 - fSin28w;
     double ep = -fSin28w;
@@ -92,7 +84,7 @@ double NuElectronPXSec::XSec(
   }
 
   // numu/nutau + e- -> numu/nutau + e- [NC]
-  if( (pdg::IsNuMu(inu)||pdg::IsNuTau(inu)) && proc_info.IsWeakNC() ) 
+  if( (pdg::IsNuMu(inu)||pdg::IsNuTau(inu)) && proc_info.IsWeakNC() )
   {
     double em = 0.5 - fSin28w;
     double ep = -fSin28w;
@@ -184,4 +176,3 @@ void NuElectronPXSec::LoadConfig(void)
   assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
-

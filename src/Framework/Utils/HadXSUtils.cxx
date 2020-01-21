@@ -1,19 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - March 11, 2004
-
- For documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Jul 18, 2013 - Daniel Scully
- Fixed indexing bug in InelasticPionNucleonXSec and TotalPionNucleonXSec
- @ Jul 18, 2013 - Daniel Scully
- Added pion-nucleon cross-sections from C. Berger, provided via D. Cherdack
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -88,7 +79,7 @@ double genie::utils::hadxs::TotalPionNucleonXSec(double Epion,
   return (xs * units::mb);
 }
 //____________________________________________________________________________
-double genie::utils::hadxs::berger::InelasticPionNucleonXSec(double Epion, 
+double genie::utils::hadxs::berger::InelasticPionNucleonXSec(double Epion,
     bool isChargedPion)
 {
   const double total = PionNucleonXSec(Epion, true, isChargedPion);
@@ -96,13 +87,13 @@ double genie::utils::hadxs::berger::InelasticPionNucleonXSec(double Epion,
   return (total - elastic);
 }
 //____________________________________________________________________________
-double genie::utils::hadxs::berger::TotalPionNucleonXSec(double Epion, 
+double genie::utils::hadxs::berger::TotalPionNucleonXSec(double Epion,
     bool isChargedPion)
 {
   return PionNucleonXSec(Epion, true, isChargedPion);
 }
 //____________________________________________________________________________
-double genie::utils::hadxs::berger::PionNucleonXSec(double Epion, bool get_total, 
+double genie::utils::hadxs::berger::PionNucleonXSec(double Epion, bool get_total,
     bool isChargedPion)
 {
   // Convert inputs from Genie to those expected by Berger's code:
@@ -113,22 +104,22 @@ double genie::utils::hadxs::berger::PionNucleonXSec(double Epion, bool get_total
     mpi  = kPi0Mass;
     mpi2 = mpi * mpi;
   }
-  
+
   double Epion2 = TMath::Power(Epion,2);
   double ppi = TMath::Sqrt( TMath::Max(0., Epion2 - mpi2) );
-  
+
   if( ppi <= 0.0 ) return 0.0;
-  
+
   int out;
   if( get_total ) out = 0;  // Total pion-nucleon cross-section
   else out = 1;             // Elastic pion-nucleon cross-section
-  
+
   const double M_pi = mpi;        // TODO: used to be kPionMass prior to charge checks
   const double M_p = kProtonMass; // TODO: should be kNucleonMass  ??
   const double pi = kPi;
-  
+
   // Now this is the Berger's code...
-  
+
   double afit=1.0;
   double afit2=1.9;
   double afit3=0.27;
@@ -205,7 +196,7 @@ double genie::utils::hadxs::berger::PionNucleonXSec(double Epion, bool get_total
     double sigma_el = (sgpelx + sgmelx) / 2.0;
     output = sigma_el;
   }
-  
+
   // Berger's code over, convert to Genie units and return
   return (output * units::mb);
 }

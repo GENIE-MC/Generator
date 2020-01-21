@@ -1,19 +1,16 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the namespace documentation see the corresponding header file.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
 #include <cassert>
 #include <cstdlib>
-#include <map> 
+#include <map>
 
 #include <TMath.h>
 
@@ -280,7 +277,7 @@ int genie::utils::res::PdgCode(Resonance_t res, int Q)
             break;
 
         case kF17_1970:
-            return 0;   
+            return 0;
             break;
 
         default:
@@ -419,7 +416,7 @@ bool genie::utils::res::IsDelta(Resonance_t res)
     return false;
 }
 //____________________________________________________________________________
-// The values of resonance mass and width is taken from 
+// The values of resonance mass and width is taken from
 // M. Tanabashi et al. (Particle Data Group) Phys. Rev. D 98, 030001
 bool genie::utils::res::IsN(Resonance_t res)
 {
@@ -539,7 +536,7 @@ int genie::utils::res::OrbitalAngularMom(Resonance_t res)
         default:
                          // should not be here - meaningless to return anything
                          gAbortingInErr = true;
-                         LOG("BaryonRes", pFATAL) 
+                         LOG("BaryonRes", pFATAL)
                              << "Unknown resonance " << res;
                          exit(1);
     }
@@ -570,7 +567,7 @@ int genie::utils::res::ResonanceIndex(Resonance_t res)
         default:
                          // should not be here - meaningless to return anything
                          gAbortingInErr = true;
-                         LOG("BaryonRes", pFATAL) 
+                         LOG("BaryonRes", pFATAL)
                              << "Unknown resonance " << res;
                          exit(1);
     }

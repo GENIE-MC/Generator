@@ -1,19 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - December 08, 2004
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
- @ Nov 17, 2011 - CA
-   Added decay mode ID needed by the nucleon decay generator.
-   Removed unused == operator and Compare() method.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -146,7 +137,7 @@ void XclsTag::SetDecayMode(int decay_mode)
 //___________________________________________________________________________
 void XclsTag::Reset(void)
 {
-  fIsStrangeEvent   = false ; 
+  fIsStrangeEvent   = false ;
   fIsCharmEvent     = false ;
   fStrangeHadronPdg = 0 ;
   fCharmedHadronPdg = 0 ;
@@ -220,18 +211,18 @@ string XclsTag::AsString(void) const
     need_separator = true;
   }
 
-  bool multset = 
-       fNProtons>0 || fNNeutrons>0 || 
-       fNPiPlus>0 || fNPiMinus>0 || fNPi0>0 || 
-       fNSingleGammas>0 || 
+  bool multset =
+       fNProtons>0 || fNNeutrons>0 ||
+       fNPiPlus>0 || fNPiMinus>0 || fNPi0>0 ||
+       fNSingleGammas>0 ||
        fNRho0>0 || fNRhoPlus>0 || fNRhoMinus>0 ;
   if(multset) {
     if(need_separator) tag << ";";
     tag << "hmult:"
         << "(p=" << fNProtons << ",n=" << fNNeutrons
-        << ",pi+=" << fNPiPlus << ",pi-=" << fNPiMinus << ",pi0=" << fNPi0 
+        << ",pi+=" << fNPiPlus << ",pi-=" << fNPiMinus << ",pi0=" << fNPi0
         << ",gamma=" << fNSingleGammas
-        << ",rho+=" << fNRhoPlus << ",rho-=" << fNRhoMinus << ",rho0=" << fNRho0 
+        << ",rho+=" << fNRhoPlus << ",rho-=" << fNRhoMinus << ",rho0=" << fNRho0
         << ")";
   }
 
@@ -317,5 +308,3 @@ XclsTag & XclsTag::operator = (const XclsTag & xcls)
   return (*this);
 }
 //___________________________________________________________________________
-
-

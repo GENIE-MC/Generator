@@ -1,21 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - February 15, 2008
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 15, 2008 - CB
-   This cross section algorithm was added in 2.3.1. The differential cross
-   section is not yet implemented - only the integrated cross section. 
-   Energy dependence (6-th power) increases the cross section rapidly for
-   energies > ~ nucleon mass which is outside the model validity range.
-   Currently preventing that by frozing E-dependence at ~1 GeV.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -127,4 +116,3 @@ void H3AMNuGammaPXSec::LoadConfig(void)
 
 }
 //____________________________________________________________________________
-

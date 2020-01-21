@@ -3,23 +3,22 @@
 
 \class   genie::flux::GHAKKMAtmoFlux
 
-\brief   A driver for the HAKKM 3-D atmospheric neutrino flux (commonly known 
-         as the `Honda flux') 
+\brief   A driver for the HAKKM 3-D atmospheric neutrino flux (commonly known
+         as the `Honda flux')
 
 \ref     M. Honda, M. Sajjad Athar, T. Kajita, K. Kasahara, and S. Midorikawa
-         Phys. Rev. D 92 (2015) 023004 
+         Phys. Rev. D 92 (2015) 023004
 
          The flux files necessary for running this flux driver can be obtained
          from:​http://www.icrr.u-tokyo.ac.jp/~mhonda/
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+         University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created July 9, 2015
 
-\cpright Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          for the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -39,7 +38,7 @@ const double       kGHnd3DCosThetaMax           =   1.0;
 const unsigned int kGHnd3DNumPhiBins       	=  12;
 const double       kGHnd3DPhiMin           	=   0.0;
 const double       kGHnd3DPhiMax           	= 360.0;
-const unsigned int kGHnd3DNumLogEvBins          = 101;	
+const unsigned int kGHnd3DNumLogEvBins          = 101;
 const unsigned int kGHnd3DNumLogEvBinsPerDecade =  20;
 const double       kGHnd3DEvMin                 =   0.1; // GeV
 

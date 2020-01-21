@@ -1,11 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
-
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+ 
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -34,13 +33,13 @@ PDFModelI("genie::LHAPDF5")
 LHAPDF5::LHAPDF5(string config) :
 PDFModelI("genie::LHAPDF5", config)
 {
-  LOG("LHAPDF5", pDEBUG) << "LHAPDF5 configuration:\n " << this->GetConfig();  
+  LOG("LHAPDF5", pDEBUG) << "LHAPDF5 configuration:\n " << this->GetConfig();
 
   this->Initialize();
 }
 //____________________________________________________________________________
-LHAPDF5::~LHAPDF5() 
-{ 
+LHAPDF5::~LHAPDF5()
+{
 
 }
 //____________________________________________________________________________
@@ -56,7 +55,7 @@ void LHAPDF5::Initialize(void) const
       else lhapath_ok = false;
   }
   if(!lhapath_ok) {
-   LOG("LHAPDF5", pFATAL) 
+   LOG("LHAPDF5", pFATAL)
      << "\n"
      << "** LHAPDF won't be able to read-in the PDF data. \n"
      << "** The LHAPATH env. variable is not properly (or at all) defined. \n"
@@ -146,7 +145,7 @@ PDF_t LHAPDF5::AllPDFs(
 
 #ifdef __GENIE_LHAPDF5_ENABLED__
   // QCD scale
-  double Q = TMath::Sqrt( TMath::Abs(Q2) ); 
+  double Q = TMath::Sqrt( TMath::Abs(Q2) );
 
   vector<double> pdfs = LHAPDF::xfx(x, Q);
   pdf.uval = pdfs[8] - pdfs[4];
@@ -160,14 +159,14 @@ PDF_t LHAPDF5::AllPDFs(
   pdf.gl   = pdfs[6];;
 #endif
 
-  return pdf;                                               
+  return pdf;
 }
 //____________________________________________________________________________
 void LHAPDF5::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
 
-  this->Initialize();         
+  this->Initialize();
   this->SetPDFSetFromConfig();
 
   fAllowReconfig=false;
@@ -177,10 +176,9 @@ void LHAPDF5::Configure(string config)
 {
   Algorithm::Configure(config);
 
-  this->Initialize();          
-  this->SetPDFSetFromConfig(); 
+  this->Initialize();
+  this->SetPDFSetFromConfig();
 
   fAllowReconfig=false;
 }
 //____________________________________________________________________________
-
