@@ -24,6 +24,9 @@
 
 #include "Framework/Algorithm/Algorithm.h"
 
+#include "Physics/NuclearState/FermiMomentumTable.h"
+
+
 namespace genie {
 
 class DeltaInMediumCorrections : public Algorithm {
@@ -59,7 +62,7 @@ public:
     1) the fermi momenta for proton and neutrons are taken from the GENIE tables (as if it was a Relativistic Fermi Gas
     2) from the fermi Momenta, we evaluate the average densities. The nucleus density is the average of the two
     3) that average density is what is used to evaluate all the corrections, e.g. the Sigma corrections. 
-    This approach should grant consistency within the GENEI framework and with the model itself
+    This approach should grant consistency within the GENIE framework and with the model itself
     
    */
 
@@ -76,6 +79,10 @@ private:
 
   void LoadConfig(void);
 
+  const FermiMomentumTable * fKFTable = nullptr ;
+  // this object is retrieved with a Pool that keeps ownerships of the tables
+  // No need to delete this object 
+  
 };
 
 }       // genie namespace
