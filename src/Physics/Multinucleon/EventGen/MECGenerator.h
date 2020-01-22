@@ -54,6 +54,7 @@ private:
   void    AddTargetRemnant                  (GHepRecord * event) const;
   void    GenerateFermiMomentum             (GHepRecord * event) const;
   void    SelectEmpiricalKinematics         (GHepRecord * event) const;
+  TLorentzVector GetFinalStateLepton               (GHepRecord * event, double E, double gy, double gQ2) const;
   void    AddFinalStateLepton               (GHepRecord * event) const;
   void    RecoilNucleonCluster              (GHepRecord * event) const;
   void    DecayNucleonCluster               (GHepRecord * event) const;
@@ -67,6 +68,9 @@ private:
 
   double fQ3Max;
   bool fDoRadiativeCorrection;
+  std::string fModel;               ///< to distinguish between differnt models, right now simc / vanderhagen
+  double      fCutoff;
+  double      fThickness;           ///< thicnknesses of targets in CLAS in radiation length 
 };
 
 }      // genie namespace

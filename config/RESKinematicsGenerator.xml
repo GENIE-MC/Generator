@@ -19,11 +19,12 @@ Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cach
 
   <param_set name="Default">
     <param type="string" name="CommonParam">  NonResBackground    </param>
+    <param type="bool"   name="doRadiativeCorrection"> false                                 </param>
   </param_set>
 
 
   <param_set name="RES">
-
+     <param type="bool"   name="doRadiativeCorrection"> false                                 </param>
      <param type="double" name="MaxXSec-SafetyFactor">   1.400                               </param>
      <param type="double" name="Cache-MinEnergy">        0.500                               </param>
   </param_set>
@@ -33,7 +34,12 @@ Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cach
   </param_set>
 
   <param_set name="RES-radcorr">
-     <param type="bool"   name="doRadiativeCorrection"> true                      </param>
+     <param type="string" name="CommonParam"> RadiativeCorrection    </param>
+     <param type="string"  name="RadiativeCorrectionModel"> simc </param>
+     <param type="double"  name="RadiativeCorrectionCutoff"> 0.0001 </param>
+     <param type="double"  name="RadiativeCorrectionThickness"> 0.008532  </param>  <!--Fe-->
+     <!--  <param type="double"  name="RadiativeCorrectionThickness"> 0.027760 </param>  -->        <!--H -->
+     <param type="bool"   name="doRadiativeCorrection"> true                                 </param>
      <param type="double" name="MaxXSec-SafetyFactor">   1.400                               </param>
      <param type="double" name="Cache-MinEnergy">        0.500                               </param>
   </param_set>
