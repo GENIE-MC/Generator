@@ -140,13 +140,14 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	double e = p4.E();
 	double energyLoss = 0.;
         double e_gamma_max;
-	double e_gamma_min = 1E-40;
+	double e_gamma_min = 1E-20;
         if (fISR) e_gamma_max = init_state_ptr->ProbeE(kRfLab) - fP4l.E();
         else 
 	{
 	  e_gamma_max = init_state_ptr->ProbeE(kRfLab) - kine->FSLeptonP4().E();
 	  if (e_gamma_max > kine->FSLeptonP4().E()) e_gamma_max = kine->FSLeptonP4().E();
         }
+	e_gamma_max = 0.5*e_gamma_max;
         LOG("RadiativeCorrector", pINFO) << " particle for decay "<<p->Pdg()<<" e_gamma_max "<<e_gamma_max;
 	if (fModel == "vanderhagen") {
            if (e_gamma_max<0) e_gamma_max = 1E-10;
@@ -175,17 +176,16 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
            b = (1./9)*(12 + float(Z+1)/(Z*L1 + L2));
 	   if (fISR) lambda_e = (kAem/kPi)*( 2*TMath::Log(2*p->P4()->P()/kElectronMass) -1 + TMath::Log(0.5*(1-fP4l.CosTheta())) );//+ 2*TMath::Log(init_state_ptr->GetProbeP4(kRfLab)->P()/fP4l.E()) + TMath::Log(0.5*(1-fP4l.CosTheta() ) ) );
 	   else lambda_e =      (kAem/kPi)*( 2*TMath::Log(2*p->P4()->P()/kElectronMass) -1 + TMath::Log(0.5*(1-kine->FSLeptonP4().CosTheta())) );//+ 2*TMath::Log(init_state_ptr->GetProbeP4(kRfLab)->P()/kine->FSLeptonP4().E()) + TMath::Log(0.5*(1-kine->FSLeptonP4().CosTheta() ) ) );
-	   //fThickness =  0.005176; //fThickness in radiation length (0.1 cm carbon)
-	   LOG("RadiativeCorrector", pINFO) << "SIMC chosen Thickness "<<fThickness;
            g = b*fThickness + lambda_e;
-           std::cout<<" lambda e  is "<<lambda_e<<" g "<<g<<" b "<<b<<std::endl;
+	   LOG("RadiativeCorrector", pINFO) << "SIMC chosen Thickness "<<fThickness<<" lambda e  is "<<lambda_e<<" g "<<g<<" b "<<b;
 
 	   power_hi = pow(e_gamma_max,g);
-	   power_lo  = pow(e_gamma_min,g);
-	   //double ymin = power_lo/power_hi;
-	   //std::cout<<"ymin "<<ymin<<std::endl; 
+	   //power_lo  = pow(e_gamma_min,g);
+	   power_lo  = pow(fCutoff,g);
 	   TRandom3 rnd;
 	   rnd.SetSeed(0);
+	   //double ymin = power_lo/power_hi;
+	   //std::cout<<"ymin "<<ymin<<std::endl; 
 	   //double y = ymin + rnd.Rndm()*(1.-ymin);
 	   //std::cout<<"y "<<y<<std::endl;
 	   //double x = pow(y,1./g);
@@ -194,15 +194,12 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	   TF1 *f = new TF1("f","[0]*pow(x,[0]-1)/[1]",e_gamma_min,e_gamma_max);
            f->SetParameter(0,g);
            f->SetParameter(1,power_hi - power_lo);
-	   //TCanvas *c = new TCanvas();
-	   //c->cd();
-	   //f->Draw();
-	   //c->SaveAs("dEsimc.pdf");
            energyLoss = f->GetRandom();
            delete f;
            LOG("RadiativeCorrector", pINFO) << "SIMC Energy loss is "<<energyLoss;
 
 	}
+	std::cout<<"CHECK energyLoss "<<energyLoss*1E20<<" fCutoff "<<fCutoff*1E20<<std::endl;
 	if (energyLoss<fCutoff) continue;
 
 	double momentumLoss = energyLoss;
@@ -235,6 +232,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	    std::cout<<"weights b "<<b<<" fThickness "<<fThickness<<" p4.E() "<<p4.E()<<" p4RadGamma.E() "<<p4RadGamma.E()<<std::endl;
             LOG("RadiativeCorrector", pINFO) << "Applying ISR part of the radiative correction weight "<<evrec->Weight() * radcor_weight;
           }
+	  if (energyLoss<fCutoff) std::cout<<"CHECK BAD "<<std::endl;
 	  LOG("RadiativeCorrector", pINFO) << "performing ISR correction for: " << p->Name() << " reduced energy is : "<<p4tag.E();
 	  // changing the probe energy for the initial state 
 	  init_state_ptr->SetProbeP4(p4tag);
@@ -277,8 +275,8 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
                 double Phi_ext_el   = 1. - ( (b*fThickness) / p4.E() / g * p4RadGamma.E()) ;
 		double W_rad_pl     = 1.;
                 double Phi_ext_pl   = 1.;
-                //radcor_weight       = W_rad_el*W_rad_pl*Phi_ext_el*Phi_ext_pl*(1-delta_hard);
                 radcor_weight       = W_rad_el*W_rad_pl*Phi_ext_el*Phi_ext_pl*(1-delta_hard);
+                //radcor_weight       = W_rad_el*W_rad_pl*Phi_ext_el*Phi_ext_pl;
 		std::cout<<"Weight: log "<<TMath::Log(kine->Q2(true)/pow(kElectronMass,2))<<" () "<<(-28./9.+(13./6.)*TMath::Log(kine->Q2(true)/pow(kElectronMass,2)))<<" E2 "<<pow(p4.E(),2)<<" delta_hard "<<delta_hard<<std::endl;
 	   	std::cout<<"C "<<C<<" g "<<g<<" W_rad_el "<<W_rad_el<<" W_rad_pl "<<W_rad_pl<<" Phi_ext_el"<<Phi_ext_el<<" delta hard "<<delta_hard<<std::endl;
 	   }
@@ -286,17 +284,17 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	   LOG("RadiativeCorrector", pINFO) << "performing FSR correction for: " << p->Name();
            //-- Mark it as a 'decayed state' & add its daughter links
        	   p->SetStatus(kIStDecayedState);
-
            ////-- Add the mom & daughters to the event record
            LOG("RadiativeCorrector", pINFO) << "Adding daughter... PDG=" << p->Pdg();
 	   evrec->AddParticle(p->Pdg(), kIStStableFinalState, ipos,-1,-1,-1, p4tag, x4);
            LOG("RadiativeCorrector", pINFO) << "Adding daughter... PDG= 22";
 	   evrec->AddParticle(22, kIStStableFinalState, ipos,-1,-1,-1, p4RadGamma, x4);
-           
+           ////-- Printouts
 	   evrec->Print();
 	   std::cout<<"\n";
-           evrec->SetWeight(evrec->Weight() * radcor_weight);
 	   LOG("RadiativeCorrector", pINFO) << "Applying radiative correction weight "<<evrec->Weight();
+           
+	   evrec->SetWeight(evrec->Weight() * radcor_weight);
 	   radDone = true;
 	}
 	/* //code no longer needed now with FSL before and after radiation are keptand PrimaryLeptonPosition method is changed  
@@ -383,6 +381,7 @@ void RadiativeCorrector::LoadConfig(void)
   GetParam( "RadiativeCorrectionModel" , fModel);
   GetParam( "RadiativeCorrectionThickness",fThickness);
   GetParam( "RadiativeCorrectionCutoff",fCutoff);
+  GetParam( "RadiativeCorrectionExtRadOnly",fExtRadOnly);
   
   /*
   const std::string keyStart = "Thickness@Pdg=";
@@ -438,6 +437,11 @@ void RadiativeCorrector::SetCutoff(double cutoff)
 void RadiativeCorrector::SetThickness(double thickness)
 {
   fThickness = thickness;
+}
+//____________________________________________________________________________
+void RadiativeCorrector::SetExtRadOnly(bool extRadOnly)
+{
+  fExtRadOnly = extRadOnly;
 }
 //____________________________________________________________________________
 void RadiativeCorrector::Configure(const InitialState & is)

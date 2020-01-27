@@ -62,6 +62,8 @@ public :
   void SetP4l(TLorentzVector p4l); 
   void SetCutoff(double cutoff); 
   void SetThickness(double thickness); 
+  void SetExtRadOnly(bool extRadOnly);
+
 
   //int           rad_kDefOptNevents;       // n-events to generate
   //NtpMCFormat_t rad_kDefOptNtpFormat; // ntuple format
@@ -85,6 +87,7 @@ private:
   TLorentzVector fP4l; 
   InitialState * fInitState;       ///< initial state information for changing probe
   double         fCutoff;
+  bool		 fExtRadOnly;
   mutable GHepRecordHistory             fRecHistory;     ///< event record history 
 
 };

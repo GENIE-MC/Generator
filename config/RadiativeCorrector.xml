@@ -12,10 +12,10 @@ Name                   Type     Optional   Comment            Default
 -->
   <param_set name="Default">
    <param type="string"  name="CommonParam"> RadiativeCorrection </param> 
-   <param type="string"  name="model"> simc </param>
+   <!-- 
+   <param type="string"  name="model"> vanderhagen </param>
    <param type="double"  name="Cutoff"> 0.03 </param>
    <param type="double"  name="Thickness"> 0.008532  </param> 
-   <!-- 
    <param type="double" name="Thickness@Pdg=1000010010"> 0.027760  </param> 
    <param type="double" name="Thickness@Pdg=1000020040"> 0.005772  </param> 
    <param type="double" name="Thickness@Pdg=1000060120"> 0.004183  </param> 
