@@ -1,16 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -23,7 +17,6 @@
 #include "Framework/Conventions/RefFrame.h"
 #include "Physics/NuElectron/XSection/BardinIMDRadCorPXSec.h"
 #include "Framework/Messenger/Messenger.h"
-//#include "Numerical/IntegratorI.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Numerical/GSLUtils.h"
 
@@ -98,7 +91,7 @@ double BardinIMDRadCorPXSec::XSec(
 
   // Scale for the number of scattering centers at the target
   int Ne = init_state.Tgt().Z(); // num of scattering centers
-  xsec *= Ne; 
+  xsec *= Ne;
 
   return xsec;
 }
@@ -272,7 +265,7 @@ void BardinIMDRadCorPXSec::Configure(string param_set)
 //____________________________________________________________________________
 void BardinIMDRadCorPXSec::LoadConfig(void)
 {
-  ////fIntegrator = 
+  ////fIntegrator =
 ////      dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
 /////  assert(fIntegrator);
 
@@ -295,9 +288,9 @@ utils::gsl::wrap::BardinIMDRadCorIntegrand::~BardinIMDRadCorIntegrand()
 }
 //____________________________________________________________________________
 unsigned int utils::gsl::wrap::BardinIMDRadCorIntegrand::NDim(void) const
-{    
+{
   return 1;
-} 
+}
 //____________________________________________________________________________
 double utils::gsl::wrap::BardinIMDRadCorIntegrand::DoEval(double xin) const
 {
@@ -313,4 +306,3 @@ ROOT::Math::IBaseFunctionOneDim *
   return new utils::gsl::wrap::BardinIMDRadCorIntegrand(fZ);
 }
 //____________________________________________________________________________
-

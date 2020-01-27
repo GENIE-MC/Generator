@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Daniel Scully ( d.i.scully \at warwick.ac.uk)
-   University of Warwick
+ Daniel Scully ( d.i.scully \at warwick.ac.uk)
+ University of Warwick
+
  Based on Fortran code by Luis Alvarez-Ruso.
 */
 //____________________________________________________________________________
@@ -46,7 +46,7 @@ typedef ROOT::Math::SVector< cdouble , 4> CVector;
 namespace genie {
 namespace alvarezruso {
 
-AlvarezRusoCOHPiPDXSec::AlvarezRusoCOHPiPDXSec(unsigned int Z_, unsigned int A_, const current_t current_, 
+AlvarezRusoCOHPiPDXSec::AlvarezRusoCOHPiPDXSec(unsigned int Z_, unsigned int A_, const current_t current_,
    const flavour_t flavour_, const nutype_t nutype_,const formfactors_t ff_)
   : debug_(false),
   fZ(Z_),
@@ -67,7 +67,7 @@ AlvarezRusoCOHPiPDXSec::AlvarezRusoCOHPiPDXSec(unsigned int Z_, unsigned int A_,
 {
   SetCurrent();
   SetFlavour();
-  
+
 }
 
 AlvarezRusoCOHPiPDXSec::~AlvarezRusoCOHPiPDXSec()
@@ -83,13 +83,13 @@ AlvarezRusoCOHPiPDXSec::~AlvarezRusoCOHPiPDXSec()
 
 double AlvarezRusoCOHPiPDXSec::DXSec( const double E_nu_, const double E_l_, const double theta_l_, const double phi_l_, const double theta_pi_, const double phi_pi_)
 {
-  
+
   fE_nu      = E_nu_;
   fE_l       = E_l_;
   fTheta_l   = theta_l_;
   fTheta_pi  = theta_pi_;
   fPhi       = phi_pi_ - phi_l_;
-  
+
   if( (fE_nu/fConstants->HBar()) < (fM_pi + fM_l) )
   {
     return 0.0;
@@ -98,15 +98,15 @@ double AlvarezRusoCOHPiPDXSec::DXSec( const double E_nu_, const double E_l_, con
   {
     return 0.0;
   }
-  
+
   SetKinematics();
-  
+
   if( fP_pi.E() < fM_pi )
   {
     LOG("AlvarezRusoCOHPiPDXSec",pERROR)<<"Pion energy smaller than mass: "<<fP_pi.E();
     return 0.0;
   }
-  
+
   if( TMath::Abs((fQ - fP_pi).M()) > (2.0 / fConstants->HBar()) )
   {
     // Comment from original fortran:
@@ -119,7 +119,7 @@ double AlvarezRusoCOHPiPDXSec::DXSec( const double E_nu_, const double E_l_, con
   fF_cross_delta    = PiDecayVertex(-fP_pi, fConstants->DeltaPMass ());
   fF_direct_nucleon = PiDecayVertex( fP_pi, fConstants->NucleonMass());
   fF_cross_nucleon  = PiDecayVertex(-fP_pi, fConstants->NucleonMass());
-  
+
   // Only need to resolve wave funtions if Epi changes
   if ( TMath::Abs(fLastE_pi-fP_pi.E()) > 1E-10 ){
     SolveWavefunctions();
@@ -133,9 +133,9 @@ double AlvarezRusoCOHPiPDXSec::DXSec( const double E_nu_, const double E_l_, con
   NuclearCurrent(fQ, fP_direct, fP_cross, fP_pi, fJ_hadronic);
 
   double dxsec = DifferentialCrossSection();
-  
+
   fLastE_pi = fP_pi.E();
-  
+
   return dxsec;
 }
 
@@ -164,14 +164,14 @@ double AlvarezRusoCOHPiPDXSec::DifferentialCrossSection()
      term3 = 2.0 * fP_nu.E() * ( H(0,0) - H(0,3) - H(3,0) + H(3,3) );
      term4 = -fQ.E() * ( H(0,0) - H(0,3) + H(1,1) + i*H(1,2) - i*H(2,1) + H(2,2) - H(3,0) + H(3,3) );
   }
-  
+
   cdouble complex_amp2 = 8.0 * fP_nu.E() * (term1 + term2 + term3 + term4);
-  
+
   double amp2 = real(complex_amp2);
-  
-  double d5 = fg_factor / 8.0 * fP_l.P() * fP_pi.P() / fP_nu.E() / (32 * kPi4 * kPi ) * 
+
+  double d5 = fg_factor / 8.0 * fP_l.P() * fP_pi.P() / fP_nu.E() / (32 * kPi4 * kPi ) *
                            amp2 * fConstants->cm38Conversion() / fConstants->HBar();
-                           
+
   return d5;
 }
 
@@ -181,17 +181,17 @@ double AlvarezRusoCOHPiPDXSec::DifferentialCrossSection()
  * formerly offshell()
  */
 double AlvarezRusoCOHPiPDXSec::PiDecayVertex(LorentzVector momentum, double mass)
-{  
+{
   // s-channel form factor for the piNDelta vertex as in M. Post thesis (pg 35)
   // Calculated for a NUCLEON AT REST
-  
+
   double Lam = 1.0 / fConstants->HBar();
   double Lam4 = Lam*Lam*Lam*Lam;
-  
+
   double mass2 = mass*mass;
-  
+
   LorentzVector decaying_momentum(momentum.x(),momentum.y(),momentum.z(), (momentum.E()+fConstants->NucleonMass()));
-  
+
   double factor = decaying_momentum.mag2() - mass2;
   factor *= factor;
 
@@ -207,16 +207,16 @@ void AlvarezRusoCOHPiPDXSec::SetKinematics()
 {
   // Initial neutrino momentum
   fP_nu = LorentzVector(0, 0, (fE_nu/fConstants->HBar()), (fE_nu/fConstants->HBar()) );
-  
+
   // Final lepton momentum
   double mod_p_l = TMath::Sqrt( (fE_l/fConstants->HBar())*(fE_l/fConstants->HBar()) - fM_l*fM_l );
   double p_l_x = mod_p_l * TMath::Sin(fTheta_l);
   double p_l_z = mod_p_l * TMath::Cos(fTheta_l);
   fP_l = LorentzVector(p_l_x, 0, p_l_z, (fE_l/fConstants->HBar()));
-  
+
   // Momentum transfer
   fQ = fP_nu - fP_l;
-  
+
   // Pion momentum
   double E_pi = fQ.E();
   double mod_fP_pi = TMath::Sqrt( E_pi*E_pi - fM_pi*fM_pi );
@@ -228,7 +228,7 @@ void AlvarezRusoCOHPiPDXSec::SetKinematics()
 
 
 /* *********************************************************************
- * 
+ *
  */
 void AlvarezRusoCOHPiPDXSec::SetFlavour()
 {
@@ -256,7 +256,7 @@ void AlvarezRusoCOHPiPDXSec::SetFlavour()
   }
   else
   {
-    LOG("AlvarezRusoCOHPiPDXSec",pERROR) << "[ERROR] Unknown current"; 
+    LOG("AlvarezRusoCOHPiPDXSec",pERROR) << "[ERROR] Unknown current";
     exit(1);
   }
 }
@@ -301,11 +301,11 @@ void AlvarezRusoCOHPiPDXSec::SetCurrent()
 void AlvarezRusoCOHPiPDXSec::SolveWavefunctions()
 {
   unsigned int n_points = fNucleus->GetNDensities();
-  
+
   double x2;
   double radius;
   double cosine_rz; // angle w.r.t the pion momentum
-  
+
   // for calculating derivatives
   double delta_r;
   double delta_c;
@@ -316,7 +316,7 @@ void AlvarezRusoCOHPiPDXSec::SolveWavefunctions()
   for(unsigned int i = 0; i != n_points; ++i)
   {
     for(unsigned int j = 0; j != n_points; ++j)
-    {    
+    {
       //double x1 = fNucleus->SamplePoint1(i); // unused
       x2 = fNucleus->SamplePoint2(j);
 
@@ -324,59 +324,59 @@ void AlvarezRusoCOHPiPDXSec::SolveWavefunctions()
       radius = fNucleus->Radius(i,j);
       // angle of sampling point wrt to neutrino direction
       cosine_rz = x2 / radius;
-    
+
       // Calculate wavefunction
-      fUwave->set(i, j, fWfsolution->Element(radius, -cosine_rz, 
+      fUwave->set(i, j, fWfsolution->Element(radius, -cosine_rz,
                           fP_pi.E()));
       delta_r = 0.0001;
       if( radius < delta_r ) delta_r = radius;
-    
+
       // Calculate derivative of wavefunction in the radial direction
-      uwave_plus  = fWfsolution->Element( (radius+delta_r), -cosine_rz, 
+      uwave_plus  = fWfsolution->Element( (radius+delta_r), -cosine_rz,
                                      fP_pi.E());
-      uwave_minus = fWfsolution->Element( (radius-delta_r), -cosine_rz, 
+      uwave_minus = fWfsolution->Element( (radius-delta_r), -cosine_rz,
                                      fP_pi.E());
-                                     
+
       fUwaveDr->set(i, j, (uwave_plus - uwave_minus) / (2.0 * delta_r) );
-      
+
       // Calculate derivative of wavefunction in the angle space
       delta_c = 0.0001;
       if     ( (cosine_rz - delta_c) <= -1.0 )  delta_c = cosine_rz + 1.0 - 1E-12;
       else if( (cosine_rz + delta_c) >=  1.0 )  delta_c = 1.0 - cosine_rz - 1E-12;
-      
-      uwave_plus  = fWfsolution->Element(radius, -(cosine_rz+delta_c), 
+
+      uwave_plus  = fWfsolution->Element(radius, -(cosine_rz+delta_c),
                                         fP_pi.E());
-      uwave_minus = fWfsolution->Element(radius, -(cosine_rz-delta_c), 
+      uwave_minus = fWfsolution->Element(radius, -(cosine_rz-delta_c),
                                         fP_pi.E());
       fUwaveDtheta->set( i, j, (uwave_plus - uwave_minus) / (2.0 * delta_c) );
-      
+
     }
   }
-  
+
 }
 
 cdouble AlvarezRusoCOHPiPDXSec::DeltaPropagatorInMed(LorentzVector delta_momentum)
 {
   //Energy dependent in-medium Delta propagator
   double W = TMath::Abs( delta_momentum.mag() );
-  double width = DeltaWidthPauliBlocked(delta_momentum, 0.0);  
-  double imSigma = DeltaSelfEnergyIm(0.0);  
+  double width = DeltaWidthPauliBlocked(delta_momentum, 0.0);
+  double imSigma = DeltaSelfEnergyIm(0.0);
   double reSigma = DeltaSelfEnergyRe(0.0);
-  
+
   cdouble denom1( (W + fConstants->DeltaPMass() + reSigma), 0.0);
   cdouble denom2( (W - fConstants->DeltaPMass() - reSigma), ((width/2.0) - imSigma) );
-  
+
   cdouble result = 1.0 / (denom1 * denom2);
   return result;
 }
 
 double AlvarezRusoCOHPiPDXSec::DeltaWidthPauliBlocked(LorentzVector delta_momentum, double density)
 {
-   //In-medium Delta width including Pauli blocking  
-  
+   //In-medium Delta width including Pauli blocking
+
   double width;
   double free_width = DeltaWidthFree(delta_momentum);
-  
+
   if(free_width == 0.0)
   {
     width = 0.0;
@@ -386,7 +386,7 @@ double AlvarezRusoCOHPiPDXSec::DeltaWidthPauliBlocked(LorentzVector delta_moment
     double f = 0.0;
     double p_f = TMath::Power( ((3.0/2.0)*constants::kPi2*density), (1.0/3.0) );  // Fermi-momentum
     double p_cm = PionMomentumCM(delta_momentum);  // nucleon (and pion) momentum in CoM
-    
+
     if(formfactors == kNieves)
     {
       // Use the approximation from Nieves et al. NPA 554(93)554
@@ -413,7 +413,7 @@ double AlvarezRusoCOHPiPDXSec::DeltaWidthPauliBlocked(LorentzVector delta_moment
       // Nucleon energy in CoM
       double E_n = TMath::Sqrt( fConstants->NucleonMassSq() + p_cm*p_cm );
       f = (kd*p_cm + delta_momentum.E()*E_n - E_f*wd) / (2.0*kd*p_cm);
-      
+
       if(f < 0.0)      f = 0;
       else if(f > 1.0)  f = 1.0;
     }
@@ -422,18 +422,18 @@ double AlvarezRusoCOHPiPDXSec::DeltaWidthPauliBlocked(LorentzVector delta_moment
       LOG("AlvarezRusoCOHPiPDXSec",pERROR) << "[ERROR] Choice of form-factor approximation not properly made";
       exit(1);
     }
-    
+
     width = free_width*f;
   }
   return width;
 }
 
 double AlvarezRusoCOHPiPDXSec::DeltaWidthFree(LorentzVector delta_momentum)
-{  
-   // Free Delta width  
+{
+   // Free Delta width
   double pre_factor_1 = 1.0 / (6.0 * kPi );
   double pre_factor_2 = fConstants->DeltaNCoupling()*fConstants->DeltaNCoupling()/(fM_pi*fM_pi);
-  
+
   double qcm = PionMomentumCM(delta_momentum);
   double qcm3 = qcm*qcm*qcm;
   double mn = fConstants->NucleonMass();
@@ -441,15 +441,15 @@ double AlvarezRusoCOHPiPDXSec::DeltaWidthFree(LorentzVector delta_momentum)
   // double pre_factor_3 = fConstants->NucleonMass() / TMath::Sqrt(TMath::Abs( delta_momentum.mag2() ));
   // but the paper uses the Delta mass?
   double p  = sqrt(delta_momentum.mag2());
-  
+
   if (not(p>=fM_pi+mn)) {
     LOG("AlvarezRusoCOHPiPDXSec",pWARN)<<"DeltaWidthFree >> Delta invariant mass less than pion mass plus nucleon mass: "<<p;
   }
-  
+
   double pre_factor_3 =  mn/p;
-  
+
   double delta_width = pre_factor_1 * pre_factor_2 * pre_factor_3 * qcm3;
-  
+
   return delta_width;
 }
 
@@ -464,11 +464,11 @@ double AlvarezRusoCOHPiPDXSec::PionMomentumCM(LorentzVector delta_momentum) // q
   double m_n2 = fConstants->NucleonMassSq();
   double s = delta_momentum.mag2();
   assert(s>=0);
-  
+
   double p_pi_cm = ((s-m_pi2-m_n2)*(s-m_pi2-m_n2)) - 4.0*m_pi2*m_n2;
-  
+
   assert(p_pi_cm > 0.);
-  
+
   p_pi_cm = TMath::Sqrt(p_pi_cm / s) / 2.0;
   return p_pi_cm;
 }
@@ -477,19 +477,19 @@ double AlvarezRusoCOHPiPDXSec::PNVertexFactor(LorentzVector momentum, double mas
 {
   // s-channel form factor for the piNDelta/piNN vertex as in M. Post thesis (pg 35)
   // Calculated for a NUCLEON AT REST
-  
+
   double lambda = 1.0 / fConstants->HBar();
   double lambda4 = lambda*lambda*lambda*lambda;
-  
+
   double mass2 = mass*mass;
-  
+
   LorentzVector decaying_momentum(momentum.x(), momentum.y(),momentum.z(), (momentum.E()+fConstants->NucleonMass()));
-  
+
   double factor = decaying_momentum.mag2() - mass2;
   factor *= factor;
-  
+
   double result = lambda4 / (lambda4 + factor);
-  
+
   return result;
 }
 
@@ -504,9 +504,9 @@ double AlvarezRusoCOHPiPDXSec::DeltaSelfEnergyIm(double density)
   // Oset, Salcedo, NPA 468(87)631
   // Using eq. (3.5) to relate the energy of the delta with the pion
   // energy used in the parametrization
-  
+
   double E = fP_pi.E();
-  
+
   // The parameterization is valid for  85 MeV < tpi < 315
   // above which we take a contant values
 
@@ -514,7 +514,7 @@ double AlvarezRusoCOHPiPDXSec::DeltaSelfEnergyIm(double density)
   {
     E = fM_pi + 0.315/fConstants->HBar();
   }
-  
+
   double Cq  = DeltaSelfEnergyConstant(-5.19, 15.35, 2.06, E) / (1000.0 * fConstants->HBar());
   double Ca2 = DeltaSelfEnergyConstant(1.06, -6.64, 22.66, E) / (1000.0 * fConstants->HBar());
 
@@ -533,14 +533,14 @@ double AlvarezRusoCOHPiPDXSec::DeltaSelfEnergyIm(double density)
   double alpha = DeltaSelfEnergyConstant(0.382, -1.322, 1.466, E);
   double beta  = DeltaSelfEnergyConstant(-0.038, 0.204, 0.613, E);
   double gamma = 2.0*beta;
-  
+
   double ratio = density / fConstants->Rho0();
-  
+
   double result = Cq * TMath::Power(ratio, alpha);
   result += Ca2 * TMath::Power(ratio, beta);
   result += Ca3 * TMath::Power(ratio, gamma);
   result *= -1.0;
-  
+
   return result;
 }
 
@@ -593,10 +593,10 @@ void AlvarezRusoCOHPiPDXSec::NuclearCurrent(LorentzVector q, LorentzVector pdir,
   double ppitr2 = ppitr*ppitr;
   double fs = fConstants->DeltaNCoupling();
   double rmax = fNucleus->RadiusMax();
-  
+
   cdouble I(0,1);
   cdouble twoI(0,2);
-  
+
   double hbarsq = fConstants->HBar()*fConstants->HBar();
 
   double alp;
@@ -608,7 +608,7 @@ void AlvarezRusoCOHPiPDXSec::NuclearCurrent(LorentzVector q, LorentzVector pdir,
   {
     alp = 1.0;
   }
-  
+
   double mod;
   if(current == kCC)
   {
@@ -634,12 +634,12 @@ void AlvarezRusoCOHPiPDXSec::NuclearCurrent(LorentzVector q, LorentzVector pdir,
     C4v *= nc_factor;
     C5v *= nc_factor;
   }
-  
-  double C5a = 1.2 * ( 1.0 - ((fConstants->CA5_A() * t)/(fConstants->CA5_B() - t)) ) / 
+
+  double C5a = 1.2 * ( 1.0 - ((fConstants->CA5_A() * t)/(fConstants->CA5_B() - t)) ) /
                                            ( ( 1.0 - (t / Ma2_Delta))*( 1.0 - (t / Ma2_Delta)) );
   double C4a = -C5a / 4.0;
   double C6a = (C5a * mn*mn) / ((mpi*mpi) - (t / hbarsq));
-  
+
   // QE Form Factors
   double F1;
   double F2;
@@ -648,7 +648,7 @@ void AlvarezRusoCOHPiPDXSec::NuclearCurrent(LorentzVector q, LorentzVector pdir,
   {
     double mun = -1.913;
     double mup = 2.793;
-     
+
     double MNucleon = fConstants->NucleonMass() * fConstants->HBar();
     double MPion = fM_pi * fConstants->HBar();
     double Mv2_Nucleon = fConstants->Mv_Nucleon()*fConstants->Mv_Nucleon();
@@ -660,31 +660,31 @@ void AlvarezRusoCOHPiPDXSec::NuclearCurrent(LorentzVector q, LorentzVector pdir,
     double Q_s4 = Q_s3*Q_s;
     double Q_s5 = Q_s4*Q_s;
     double Q_s6 = Q_s5*Q_s;
-    
+
     double tau = Q_s / (4.0 * MNucleon*MNucleon);
-    
+
     // parametrization by Budd, Bodek, Arrington (hep-ex/0308005) - BBA2003 formfactors
     // valid up to t = 6 GeV**2
-    
+
     double GEp = 1.0 / (1.0 + 3.253*Q_s + 1.422*Q_s2 + 0.08582*Q_s3 + 0.3318*Q_s4 - 0.09371*Q_s5 + 0.01076*Q_s6);
     double GMp = mup / (1.0 + 3.104*Q_s + 1.428*Q_s2 + 0.1112*Q_s3 - 0.006981*Q_s4 + 0.0003705*Q_s5 - 7.063e-6*Q_s6);
     double GEn = ((-mun * 0.942 * tau) / (1.0 + 4.61*tau)) / ( (1.0 + Q_s/Mv2_Nucleon) * (1.0 + Q_s/Mv2_Nucleon) );
-    
+
     // parametrization of Krutov (hep-ph/0202183)
 
     double GMn = mun / (1.+3.043*Q_s + 0.8548*Q_s2 + 0.6806*Q_s3 - 0.1287*Q_s4 + 0.008912*Q_s5);
     F1 = ((GEp - GEn) + tau*(GMp - GMn)) / (1.0 + tau);
     F2 = ((GMp - GMn) - (GEp - GEn)) / (1.0 + tau);
-  
+
     FA = 1.0 + ( Q_s / Ma2_Nucleon );
     FA *= FA;
     FA = fConstants->GAxial() / FA;
-    
+
     FP = (2.0 * MNucleon*MNucleon);
     FP /= ( MPion*MPion + Q_s );
     FP *= FA;
     FP /= fConstants->NucleonMass();
-    
+
     if( current == kNC )
     {
       double nc_factor = fConstants->NCFactor();
@@ -692,63 +692,63 @@ void AlvarezRusoCOHPiPDXSec::NuclearCurrent(LorentzVector q, LorentzVector pdir,
       F2 *= nc_factor;
     }
   }
-  
+
   // Get q momentum component perpendicular to pion momentum
   double qper2 = q.P2();
   double tot = ppi.P2();
   double dot = q.Vect().Dot(ppi.Vect());
   if (tot > 0.) qper2 -=dot*dot/tot;
   qper2 = TMath::Max(qper2,0.);
-  
+
   double qper = TMath::Sqrt(qper2);
   double qpar = dot / ppim;
-  
+
   unsigned int n = this->GetNucleus().GetNDensities();
-  
+
   std::vector<cdouble > empty_row(n, cdouble(0.0,0.0));
   std::vector< std::vector<cdouble > > ordez (4, empty_row);
   std::vector< std::vector<cdouble > > ordez1(4, empty_row);
   std::vector< std::vector<cdouble > > ordez2(4, empty_row);
   std::vector< std::vector<cdouble > > ordez3(4, empty_row);
   std::vector< std::vector<cdouble > > ordez4(4, empty_row);
-  
+
   std::vector< std::vector<cdouble > > ordeb2(4, empty_row);
   // IMPORTANT !!!
   // ORDEB HAS ITS INDICES REVERSED W.R.T THE FORTRAN
   std::vector<cdouble > empty_row_backwards(4, cdouble(0.0,0.0));
   std::vector< std::vector<cdouble > > ordeb(n, empty_row_backwards);
-  
+
   cdouble ppi1d, ppi2d, ppi3d;
-  
+
   std::vector<cdouble > jnuclear(4);
-  
-  
+
+
   for(unsigned int i = 0; i != n; ++i)
   {
     double be = fNucleus->SamplePoint1(i);
     double bej0 = TMath::BesselJ0( qper*be );
     double bej1 = TMath::BesselJ1( qper*be );
-    
+
     for(unsigned int l = 0; l != n; ++l)
     {
       double za = fNucleus->SamplePoint2(l);
       double r = TMath::Sqrt(za*za + be*be);
       double r2 = r*r;
-      
+
       //double dens = fNucleus->Density(i,l);
       double dens_cent = fNucleus->DensityOfCentres(i,l);
       double dens_p_cent = dens_cent * fZ / fA ;
       double dens_n_cent = dens_cent * (fA-fZ)/fA;
-      
+
       cdouble exp_i_qpar_za = exp(I*qpar*za);
-      
+
       const cdouble & uwavefunc   = (*fUwave)[i][l];
       const cdouble & uwavedr     = (*fUwaveDr)[i][l];
       const cdouble & uwavedtheta = (*fUwaveDtheta)[i][l];
-      
+
       cdouble A = I * ( uwavedr - (za/r2) * uwavedtheta ) * (be/r);
       cdouble B = I * ( uwavedr*za + (be*be/r2)*uwavedtheta ) / r;
-      
+
       // Calculate distorted pion momentum components
       if( (qper == 0.0) && ppitr != 0.0)
       {
@@ -776,7 +776,7 @@ void AlvarezRusoCOHPiPDXSec::NuclearCurrent(LorentzVector q, LorentzVector pdir,
         ppi2d = -ppi2 * (ppi1*q1 + ppi3*q3) / ppim2/qper*A*(I*bej1)+ppi2/ppim*B*bej0;
         ppi3d=-(q1*ppi1*ppi3-q3*ppitr2)/ppim2/qper*A*(I*bej1)+ppi3/ppim*B*bej0;
       }
-      
+
       // Calculate the current for four different processes (See Fig 1 of Alvarez-Ruso et al,
       // "Neutral current coherent pion production", arXiv:0707.2172
       // j1 : current for direct delta production
@@ -788,131 +788,131 @@ void AlvarezRusoCOHPiPDXSec::NuclearCurrent(LorentzVector q, LorentzVector pdir,
            C4a*mdel2*q0*q12 - C4a*mdel2*q0*q32 - C6a*q02*(mn + q0)*(q0*(mn + q0) - q12 - q32))*bej0*uwavefunc +
          ppi1d*(-(C5a*mn2*(-mn - q0)*q1) - C6a*mdel2*q0*q1 + C4a*mdel2*(mn + q0)*q1 +
            C6a*q0*q1*(q0*(mn + q0) - q12 - q32)) +
-         ppi3d*(-(C5a*mn2*(-mn - q0)*q3) - 
+         ppi3d*(-(C5a*mn2*(-mn - q0)*q3) -
            C6a*mdel2*q0*q3 + C4a*mdel2*(mn + q0)*q3 + C6a*q0*q3*(q0*(mn + q0) - q12 - q32))
          );
 
-      j1[1] = (-4.*C6a*mdel3*q02*q1 - 4.*C6a*mdel2*mn*q02*q1 + 4.*C6a*mdel*mn2*q02*q1 + 4.*C6a*mn3*q02*q1 - 
-          4.*C6a*mdel2*q03*q1 + 8.*C6a*mdel*mn*q03*q1 + 12.*C6a*mn2*q03*q1 + 4.*C6a*mdel*q04*q1 + 
-          12.*C6a*mn*q04*q1 + 4.*C6a*q05*q1 + 4.*C4a*mdel2*q02*(mdel + mn + q0)*q1 + 
-          4.*C5a*mn2*q0*(mn + q0)*(mdel + mn + q0)*q1 - 4.*C6a*mdel*mn*q0*q13 - 4.*C6a*mn2*q0*q13 - 
-          4.*C6a*mdel*q02*q13 - 8.*C6a*mn*q02*q13 - 4.*C6a*q03*q13 - 
-          4.*C6a*q0*(mn + q0)*(mdel + mn + q0)*q1*q32)*bej0*uwavefunc + 
-        ppi1d*(-4.*C4a*mdel2*q0*(mn + q0)*(mdel + mn + q0) + 4.*C6a*mdel3*q12 + 4.*C6a*mdel2*mn*q12 + 
-          4.*C6a*mdel2*q0*q12 - 4.*C6a*mdel*mn*q0*q12 - 4.*C6a*mn2*q0*q12 - 4.*C6a*mdel*q02*q12 - 
-          8.*C6a*mn*q02*q12 - 4.*C6a*q03*q12 + 4.*C6a*mdel*q14 + 4.*C6a*mn*q14 + 4.*C6a*q0*q14 - 
-          4.*C5a*mn2*(mdel + mn + q0)*(mdel2 + q12) + 4.*C4a*mdel2*(mdel + mn + q0)*q32 + 
+      j1[1] = (-4.*C6a*mdel3*q02*q1 - 4.*C6a*mdel2*mn*q02*q1 + 4.*C6a*mdel*mn2*q02*q1 + 4.*C6a*mn3*q02*q1 -
+          4.*C6a*mdel2*q03*q1 + 8.*C6a*mdel*mn*q03*q1 + 12.*C6a*mn2*q03*q1 + 4.*C6a*mdel*q04*q1 +
+          12.*C6a*mn*q04*q1 + 4.*C6a*q05*q1 + 4.*C4a*mdel2*q02*(mdel + mn + q0)*q1 +
+          4.*C5a*mn2*q0*(mn + q0)*(mdel + mn + q0)*q1 - 4.*C6a*mdel*mn*q0*q13 - 4.*C6a*mn2*q0*q13 -
+          4.*C6a*mdel*q02*q13 - 8.*C6a*mn*q02*q13 - 4.*C6a*q03*q13 -
+          4.*C6a*q0*(mn + q0)*(mdel + mn + q0)*q1*q32)*bej0*uwavefunc +
+        ppi1d*(-4.*C4a*mdel2*q0*(mn + q0)*(mdel + mn + q0) + 4.*C6a*mdel3*q12 + 4.*C6a*mdel2*mn*q12 +
+          4.*C6a*mdel2*q0*q12 - 4.*C6a*mdel*mn*q0*q12 - 4.*C6a*mn2*q0*q12 - 4.*C6a*mdel*q02*q12 -
+          8.*C6a*mn*q02*q12 - 4.*C6a*q03*q12 + 4.*C6a*mdel*q14 + 4.*C6a*mn*q14 + 4.*C6a*q0*q14 -
+          4.*C5a*mn2*(mdel + mn + q0)*(mdel2 + q12) + 4.*C4a*mdel2*(mdel + mn + q0)*q32 +
           4.*C6a*(mdel + mn + q0)*q12*q32) +
-        ppi2d*(twoI*C4v*mdel2*(q0*(mn + q0) - q12)*q3 + 
-          twoI*C3v*mdel*mn*(2*mdel2 + 2.*mdel*mn - q0*(mn + q0) + q12)*q3 - 
-          twoI*mdel*(C4v*mdel - C3v*mn)*q33) + 
-        ppi3d*(-4.*C4a*mdel2*(mdel + mn + q0)*q1*q3 - 
-          4.*C5a*mn2*(mdel + mn + q0)*q1*q3 + 4.*C6a*(mdel + mn + q0)*q1*(mdel2 - q0*(mn + q0) + q12)*q3 + 
+        ppi2d*(twoI*C4v*mdel2*(q0*(mn + q0) - q12)*q3 +
+          twoI*C3v*mdel*mn*(2*mdel2 + 2.*mdel*mn - q0*(mn + q0) + q12)*q3 -
+          twoI*mdel*(C4v*mdel - C3v*mn)*q33) +
+        ppi3d*(-4.*C4a*mdel2*(mdel + mn + q0)*q1*q3 -
+          4.*C5a*mn2*(mdel + mn + q0)*q1*q3 + 4.*C6a*(mdel + mn + q0)*q1*(mdel2 - q0*(mn + q0) + q12)*q3 +
           4.*C6a*(mdel + mn + q0)*q1*q33) +
         ppi2d*twoI*C5v*mdel2*mn*q0*q3;
-    
-      j1[2] = -2.*I*(-2.*I*C5a*mdel*mn2*ppi2d*(mdel + mn + q0) - 
-          twoI*C4a*mdel*ppi2d*(mdel + mn + q0)*(q0*(mn + q0) - q12 - q32) - 
-          (ppi3d*q1 - ppi1d*q3)*(C4v*mdel*(q0*(mn + q0) - q12 - q32) + 
-          C3v*mn*(2*mdel2 + 2*mdel*mn - q0*(mn + q0) + q12 + q32)))*mdel + 
+
+      j1[2] = -2.*I*(-2.*I*C5a*mdel*mn2*ppi2d*(mdel + mn + q0) -
+          twoI*C4a*mdel*ppi2d*(mdel + mn + q0)*(q0*(mn + q0) - q12 - q32) -
+          (ppi3d*q1 - ppi1d*q3)*(C4v*mdel*(q0*(mn + q0) - q12 - q32) +
+          C3v*mn*(2*mdel2 + 2*mdel*mn - q0*(mn + q0) + q12 + q32)))*mdel +
         twoI*C5v*mdel*mn*q0*(ppi3d*q1 - ppi1d*q3)*mdel;
 
-      j1[3] = (4.*C4a*mdel2*q02*(mdel + mn + q0)*q3 - 4.*C6a*mdel2*q02*(mdel + mn + q0)*q3 + 
+      j1[3] = (4.*C4a*mdel2*q02*(mdel + mn + q0)*q3 - 4.*C6a*mdel2*q02*(mdel + mn + q0)*q3 +
           4.*C5a*mn2*q0*(mn + q0)*(mdel + mn + q0)*q3 + 4.*C6a*q0*(mn + q0)*(mdel + mn + q0)*
-          (q0*(mn + q0) - q12)*q3 - 4.*C6a*q0*(mn + q0)*(mdel + mn + q0)*q33)*bej0*uwavefunc + 
-        ppi2d*(-twoI*mdel*q1*(C4v*mdel*(q0*(mn + q0) - q12) + 
+          (q0*(mn + q0) - q12)*q3 - 4.*C6a*q0*(mn + q0)*(mdel + mn + q0)*q33)*bej0*uwavefunc +
+        ppi2d*(-twoI*mdel*q1*(C4v*mdel*(q0*(mn + q0) - q12) +
           C3v*mn*(2.*mdel2 + 2*mdel*mn - q0*(mn + q0) + q12)) + twoI*mdel*
           (C4v*mdel - C3v*mn)*q1*q32) +
-        ppi1d*(-4.*C4a*mdel2*(mdel + mn + q0)*q1*q3 + 
-          4.*C6a*mdel2*(mdel + mn + q0)*q1*q3 - 4.*C5a*mn2*(mdel + mn + q0)*q1*q3 - 
-          4.*C6a*(mdel + mn + q0)*q1*(q0*(mn + q0) - q12)*q3 + 4.*C6a*(mdel + mn + q0)*q1*q33) + 
-        ppi3d*(-4.*C4a*mdel2*mn*q0*(mdel + mn + q0) - 4.*C4a*mdel2*(mdel + mn + q0)*(q0 - q1)*(q0 + q1) + 
-          4.*C6a*(mdel + mn + q0)*(mdel2 - q0*(mn + q0) + q12)*q32 + 4.*C6a*(mdel + mn + q0)*q34 - 
-          4.*C5a*mn2*(mdel + mn + q0)*(mdel2 + q32)) + 
+        ppi1d*(-4.*C4a*mdel2*(mdel + mn + q0)*q1*q3 +
+          4.*C6a*mdel2*(mdel + mn + q0)*q1*q3 - 4.*C5a*mn2*(mdel + mn + q0)*q1*q3 -
+          4.*C6a*(mdel + mn + q0)*q1*(q0*(mn + q0) - q12)*q3 + 4.*C6a*(mdel + mn + q0)*q1*q33) +
+        ppi3d*(-4.*C4a*mdel2*mn*q0*(mdel + mn + q0) - 4.*C4a*mdel2*(mdel + mn + q0)*(q0 - q1)*(q0 + q1) +
+          4.*C6a*(mdel + mn + q0)*(mdel2 - q0*(mn + q0) + q12)*q32 + 4.*C6a*(mdel + mn + q0)*q34 -
+          4.*C5a*mn2*(mdel + mn + q0)*(mdel2 + q32)) +
         -twoI*C5v*mdel2*mn*ppi2d*q0*q1;
-      
+
       // Crossed Delta
-      
+
       j2[0]=-4.*(mdel + mn - q0)*(
-        (C5a*mdel2*mn2*q0 - C5a*mn2*(mn - q0)*(mn - q0)*q0 + C6a*mdel2*q03 - 
-          C4a*mdel2*q0*q12 - C4a*mdel2*q0*q32 - C6a*(mn - q0)*q02*((mn - q0)*q0 + q12 + q32))*bej0*uwavefunc + 
-        ppi1d*(-(C4a*mdel2*mn*q1) - C5a*mn2*(mn - q0)*q1 + C4a*mdel2*q0*q1 - 
-          C6a*mdel2*q0*q1 - C6a*q0*q1*((mn - q0)*q0 + q12 + q32)) + 
-        ppi3d*(-(C4a*mdel2*mn*q3) - C5a*mn2*(mn - q0)*q3 + C4a*mdel2*q0*q3 - 
+        (C5a*mdel2*mn2*q0 - C5a*mn2*(mn - q0)*(mn - q0)*q0 + C6a*mdel2*q03 -
+          C4a*mdel2*q0*q12 - C4a*mdel2*q0*q32 - C6a*(mn - q0)*q02*((mn - q0)*q0 + q12 + q32))*bej0*uwavefunc +
+        ppi1d*(-(C4a*mdel2*mn*q1) - C5a*mn2*(mn - q0)*q1 + C4a*mdel2*q0*q1 -
+          C6a*mdel2*q0*q1 - C6a*q0*q1*((mn - q0)*q0 + q12 + q32)) +
+        ppi3d*(-(C4a*mdel2*mn*q3) - C5a*mn2*(mn - q0)*q3 + C4a*mdel2*q0*q3 -
           C6a*mdel2*q0*q3 - C6a*q0*q3*((mn - q0)*q0 + q12 + q32)));
 
-      j2[1]=(-4.*C5a*mn2*(mn - q0)*(mdel + mn - q0)*q0*q1 - 4.*C6a*mdel3*q02*q1 - 
-          4.*C6a*mdel2*mn*q02*q1 + 4.*C6a*mdel*mn2*q02*q1 + 4.*C6a*mn3*q02*q1 + 
-          4.*C4a*mdel2*(mdel + mn - q0)*q02*q1 + 4.*C6a*mdel2*q03*q1 - 
-          8.*C6a*mdel*mn*q03*q1 - 12.*C6a*mn2*q03*q1 + 4.*C6a*mdel*q04*q1 + 
-          12.*C6a*mn*q04*q1 - 4.*C6a*q05*q1 + 4.*C6a*mdel*mn*q0*q13 + 
-          4.*C6a*mn2*q0*q13 - 4.*C6a*mdel*q02*q13 - 8.*C6a*mn*q02*q13 + 
-          4.*C6a*q03*q13 + 4.*C6a*(mn - q0)*(mdel + mn - q0)*q0*q1*q32)*bej0*uwavefunc + 
-        ppi1d*(-4.*C5a*mdel2*mn2*(mdel + mn - q0) + 4.*C4a*mdel2*mn*(mdel + mn - q0)*q0 - 
-          4.*C4a*mdel2*(mdel + mn - q0)*q02 + 4.*C6a*mdel3*q12 + 
-          4.*C6a*mdel2*mn*q12 - 4.*C5a*mn2*(mdel + mn - q0)*q12 - 
-          4.*C6a*mdel2*q0*q12 + 4.*C6a*mdel*mn*q0*q12 + 4.*C6a*mn2*q0*q12 - 
-          4.*C6a*mdel*q02*q12 - 8.*C6a*mn*q02*q12 + 4.*C6a*q03*q12 + 
-          4.*C6a*mdel*q14 + 4.*C6a*mn*q14 - 4.*C6a*q0*q14 + 
-          4.*C4a*mdel2*(mdel + mn - q0)*q32 + 4.*C6a*(mdel + mn - q0)*q12*q32) + 
-        ppi2d*(twoI*mdel*(mdel*q0*(-((C4v + C5v)*mn) + C4v*q0) + 
-          C3v*mn*(2*mdel*(mdel + mn) + mn*q0 - q02))*q3 + 
+      j2[1]=(-4.*C5a*mn2*(mn - q0)*(mdel + mn - q0)*q0*q1 - 4.*C6a*mdel3*q02*q1 -
+          4.*C6a*mdel2*mn*q02*q1 + 4.*C6a*mdel*mn2*q02*q1 + 4.*C6a*mn3*q02*q1 +
+          4.*C4a*mdel2*(mdel + mn - q0)*q02*q1 + 4.*C6a*mdel2*q03*q1 -
+          8.*C6a*mdel*mn*q03*q1 - 12.*C6a*mn2*q03*q1 + 4.*C6a*mdel*q04*q1 +
+          12.*C6a*mn*q04*q1 - 4.*C6a*q05*q1 + 4.*C6a*mdel*mn*q0*q13 +
+          4.*C6a*mn2*q0*q13 - 4.*C6a*mdel*q02*q13 - 8.*C6a*mn*q02*q13 +
+          4.*C6a*q03*q13 + 4.*C6a*(mn - q0)*(mdel + mn - q0)*q0*q1*q32)*bej0*uwavefunc +
+        ppi1d*(-4.*C5a*mdel2*mn2*(mdel + mn - q0) + 4.*C4a*mdel2*mn*(mdel + mn - q0)*q0 -
+          4.*C4a*mdel2*(mdel + mn - q0)*q02 + 4.*C6a*mdel3*q12 +
+          4.*C6a*mdel2*mn*q12 - 4.*C5a*mn2*(mdel + mn - q0)*q12 -
+          4.*C6a*mdel2*q0*q12 + 4.*C6a*mdel*mn*q0*q12 + 4.*C6a*mn2*q0*q12 -
+          4.*C6a*mdel*q02*q12 - 8.*C6a*mn*q02*q12 + 4.*C6a*q03*q12 +
+          4.*C6a*mdel*q14 + 4.*C6a*mn*q14 - 4.*C6a*q0*q14 +
+          4.*C4a*mdel2*(mdel + mn - q0)*q32 + 4.*C6a*(mdel + mn - q0)*q12*q32) +
+        ppi2d*(twoI*mdel*(mdel*q0*(-((C4v + C5v)*mn) + C4v*q0) +
+          C3v*mn*(2*mdel*(mdel + mn) + mn*q0 - q02))*q3 +
           twoI*mdel*(-(C4v*mdel) + C3v*mn)*q12*q3 - twoI*mdel*(C4v*mdel - C3v*mn)*q33) +
-        ppi3d*(-4.*C4a*mdel2*(mdel + mn - q0)*q1*q3 - 
-          4.*C5a*mn2*(mdel + mn - q0)*q1*q3 + 4.*C6a*(mdel + mn - q0)*(mdel2 + (mn - q0)*q0)*q1*q3 + 
+        ppi3d*(-4.*C4a*mdel2*(mdel + mn - q0)*q1*q3 -
+          4.*C5a*mn2*(mdel + mn - q0)*q1*q3 + 4.*C6a*(mdel + mn - q0)*(mdel2 + (mn - q0)*q0)*q1*q3 +
           4.*C6a*(mdel + mn - q0)*q13*q3 + 4.*C6a*(mdel + mn - q0)*q1*q33);
 
       j2[2]=-(twoI*ppi2d*(-twoI*C5a*mdel*mn2*(mdel + mn - q0) +
-          twoI*C4a*mdel*(mdel + mn - q0)*((mn - q0)*q0 + q12 + q32)) - 
-        ppi3d*twoI*q1*(C3v*mn*(2*mdel*(mdel + mn) + mn*q0 - q02 + q12 + q32) - 
-          mdel*(C5v*mn*q0 + C4v*((mn - q0)*q0 + q12 + q32))) + 
-        ppi1d*twoI*q3*(C3v*mn*(2*mdel*(mdel + mn) + mn*q0 - q02 + q12 + q32) - 
+          twoI*C4a*mdel*(mdel + mn - q0)*((mn - q0)*q0 + q12 + q32)) -
+        ppi3d*twoI*q1*(C3v*mn*(2*mdel*(mdel + mn) + mn*q0 - q02 + q12 + q32) -
+          mdel*(C5v*mn*q0 + C4v*((mn - q0)*q0 + q12 + q32))) +
+        ppi1d*twoI*q3*(C3v*mn*(2*mdel*(mdel + mn) + mn*q0 - q02 + q12 + q32) -
           mdel*(C5v*mn*q0 + C4v*((mn - q0)*q0 + q12 + q32)))
         )*mdel;
 
       j2[3] = (-4.*C5a*mn2*(mn - q0)*(mdel + mn - q0)*q0*q3 +
-          4.*C4a*mdel2*(mdel + mn - q0)*q02*q3 - 4.*C6a*mdel2*(mdel + mn - q0)*q02*q3 + 
-          4.*C6a*(mn - q0)*(mdel + mn - q0)*q0*((mn - q0)*q0 + q12)*q3 + 
-          4.*C6a*(mn - q0)*(mdel + mn - q0)*q0*q33)*bej0*uwavefunc + 
-        ppi2d*(-twoI*mdel*q1*(C3v*mn*(2*mdel*(mdel + mn) + mn*q0 - q02 + q12) - 
-          mdel*(q0*((C4v + C5v)*mn - C4v*q0) + C4v*q12)) + 
-          twoI*mdel*(C4v*mdel - C3v*mn)*q1*q32) + 
-        ppi1d*(-4.*C4a*mdel2*(mdel + mn - q0)*q1*q3 + 4.*C6a*mdel2*(mdel + mn - q0)*q1*q3 - 
-          4.*C5a*mn2*(mdel + mn - q0)*q1*q3 + 
-          4.*C6a*(mdel + mn - q0)*q1*((mn - q0)*q0 + q12)*q3 + 
-          4.*C6a*(mdel + mn - q0)*q1*q33) + 
-        ppi3d*(-4.*C5a*mdel2*mn2*(mdel + mn - q0) + 
+          4.*C4a*mdel2*(mdel + mn - q0)*q02*q3 - 4.*C6a*mdel2*(mdel + mn - q0)*q02*q3 +
+          4.*C6a*(mn - q0)*(mdel + mn - q0)*q0*((mn - q0)*q0 + q12)*q3 +
+          4.*C6a*(mn - q0)*(mdel + mn - q0)*q0*q33)*bej0*uwavefunc +
+        ppi2d*(-twoI*mdel*q1*(C3v*mn*(2*mdel*(mdel + mn) + mn*q0 - q02 + q12) -
+          mdel*(q0*((C4v + C5v)*mn - C4v*q0) + C4v*q12)) +
+          twoI*mdel*(C4v*mdel - C3v*mn)*q1*q32) +
+        ppi1d*(-4.*C4a*mdel2*(mdel + mn - q0)*q1*q3 + 4.*C6a*mdel2*(mdel + mn - q0)*q1*q3 -
+          4.*C5a*mn2*(mdel + mn - q0)*q1*q3 +
+          4.*C6a*(mdel + mn - q0)*q1*((mn - q0)*q0 + q12)*q3 +
+          4.*C6a*(mdel + mn - q0)*q1*q33) +
+        ppi3d*(-4.*C5a*mdel2*mn2*(mdel + mn - q0) +
           4.*C4a*mdel2*(mdel + mn - q0)*((mn - q0)*q0 + q12) -
-          4.*C5a*mn2*(mdel + mn - q0)*q32 + 
-          4.*C6a*(mdel + mn - q0)*(mdel2 + (mn - q0)*q0 + q12)*q32 + 
+          4.*C5a*mn2*(mdel + mn - q0)*q32 +
+          4.*C6a*(mdel + mn - q0)*(mdel2 + (mn - q0)*q0 + q12)*q32 +
           4.*C6a*(mdel + mn - q0)*q34);
-      
+
       //
       // Direct Nucleon
-      
+
       j3[0]=-2.0*(FA - FP*q0)*(q02*bej0*uwavefunc - ppi1d*q1 - ppi3d*q3);
-      
+
       j3[1] = 2.0*(-(FA*q0*q1) + FP*q02*q1) * bej0 * uwavefunc +
         2.0*ppi1d*(2.0*FA*mn + FA*q0 - FP*q12) -
         twoI*(F1 + F2)*ppi2d*q3 - 2.*FP*ppi3d*q1*q3;
 
       j3[2]=twoI*(-I*FA*ppi2d*(2.0*mn + q0) - (F1 + F2)*(ppi3d*q1 - ppi1d*q3));
 
-      j3[3]=twoI*(F1 + F2)*ppi2d*q1 - 2.0*FP*ppi1d*q1*q3 + 
+      j3[3]=twoI*(F1 + F2)*ppi2d*q1 - 2.0*FP*ppi1d*q1*q3 +
         2.0*(-(FA*q0*q3) + FP*q02*q3)*bej0*uwavefunc +
         2.0*ppi3d*(2.0*FA*mn + FA*q0 - FP*q32);
-      
+
       //
       // Crossed Nucleon
-      
+
       j4[0] = 2.0*(FA + FP*q0)*(q02  *bej0*uwavefunc - ppi1d*q1 - ppi3d*q3);
 
-      j4[1] = -2.0*(-(FA*q0*q1) - FP*q02*q1)*bej0*uwavefunc - 2.0*ppi1d*(-2.0*FA*mn + FA*q0 + FP*q12) - 
+      j4[1] = -2.0*(-(FA*q0*q1) - FP*q02*q1)*bej0*uwavefunc - 2.0*ppi1d*(-2.0*FA*mn + FA*q0 + FP*q12) -
         twoI*(F1 + F2)*ppi2d*q3 - 2.0*FP*ppi3d*q1*q3;
 
       j4[2] = twoI*(-I*FA*ppi2d*(2.0*mn - q0) - (F1 + F2)*(ppi3d*q1 - ppi1d*q3));
 
-      j4[3] = twoI*(F1 + F2)*ppi2d*q1 - 2.0*FP*ppi1d*q1*q3 + 2.0*(FA*q0*q3 + FP*q02*q3)*bej0*uwavefunc + 
+      j4[3] = twoI*(F1 + F2)*ppi2d*q1 - 2.0*FP*ppi1d*q1*q3 + 2.0*(FA*q0*q3 + FP*q02*q3)*bej0*uwavefunc +
         2.0*ppi3d*(2.0*FA*mn - FA*q0 - FP*q32);
 
       cdouble pre_factor_1 = mod * I * (fs/mpi) / constants::kSqrt3 *
@@ -930,29 +930,29 @@ void AlvarezRusoCOHPiPDXSec::NuclearCurrent(LorentzVector q, LorentzVector pdir,
                              dens_n_cent*NucleonPropagator(pdir)*pi*fF_direct_nucleon;
       cdouble pre_factor_4 =  1./mod*(-I)*PreFacMult*exp_i_qpar_za*
                              dens_p_cent*NucleonPropagator(pcrs)*pi*fF_cross_nucleon;
-                             
+
       for(int m = 0; m != 4; ++m)
       {
         ordez1[m][l] = pre_factor_1 * j1[m];
         ordez2[m][l] = pre_factor_2 * j2[m];
         ordez3[m][l] = pre_factor_3 * j3[m];
         ordez4[m][l] = pre_factor_4 * j4[m];
-        
+
         ordez[m][l] = ordez1[m][l] + ordez2[m][l] + ordez3[m][l] + ordez4[m][l];
       }
     } //l
-    
+
     // IMPORTANT !!!
     // ORDEB HAS ITS INDICES REVERSED W.R.T THE FORTRAN
-    
+
     integrationtools::RGN2D(-rmax, rmax, 2, 0, 3, ordez, fSampling, ordeb[i]);
-  
+
     for(unsigned int z = 0; z != 4; ++z)
     {
       ordeb[i][z] *= be;
     }
   }// fSampling point 1 loop (i)
-  
+
   for(unsigned int z = 0; z != n; ++z)
   {
     for(unsigned int y = 0; y != 4; ++y)
@@ -960,9 +960,9 @@ void AlvarezRusoCOHPiPDXSec::NuclearCurrent(LorentzVector q, LorentzVector pdir,
       ordeb2[y][z] = ordeb[z][y];
     }
   }
-  
+
   integrationtools::RGN2D(0.0, rmax, 2, 0, 3, ordeb2, fSampling, jnuclear);
-  
+
   for (int i=0; i<4; i++) {
     cdouble & jn = jnuclear[i];
     *(jHadCurrent+i) = cdouble(jn);
@@ -970,7 +970,7 @@ void AlvarezRusoCOHPiPDXSec::NuclearCurrent(LorentzVector q, LorentzVector pdir,
 }
 
 
-cdouble AlvarezRusoCOHPiPDXSec::DeltaCouplingInMed(LorentzVector delta_momentum, LorentzVector pion_momentum, double density) 
+cdouble AlvarezRusoCOHPiPDXSec::DeltaCouplingInMed(LorentzVector delta_momentum, LorentzVector pion_momentum, double density)
 {
   cdouble gdmed;
   cdouble s_delta (delta_momentum.mag2(),0);
@@ -993,21 +993,21 @@ cdouble AlvarezRusoCOHPiPDXSec::DeltaCouplingInMed(LorentzVector delta_momentum,
 
     cdouble part_1 = sqrt_delta - fConstants->DeltaPMass() + (ofshel*ofshel*(I*gamdpb)/2.0) - real - I*imaginary;
     cdouble part_2 = sqrt_delta + fConstants->DeltaPMass();
-    
+
     gdmed = 1.0 / (part_1 * part_2);
   }
-  
+
   return gdmed;
 }
 
 cdouble AlvarezRusoCOHPiPDXSec::NucleonPropagator(LorentzVector nucleon_momentum)
 {
   // relativistic nucleon propagator (its denominator)
-  
+
   cdouble gn( nucleon_momentum.mag2() - fConstants->NucleonMassSq() ,
            ( fConstants->NucleonMass()*10.0 / (1000.0*fConstants->HBar()) ) );
   gn = 1.0 / gn;
-  
+
   return gn;
 }
 

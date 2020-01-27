@@ -7,11 +7,13 @@
 
 \ref      hep-ph/0411202
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  September 28, 2004
 
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -44,19 +46,19 @@ protected:
   // override part of the DISStructureFuncModel implementation
   // to compute all the corrections applied by the Bodek-Yang model.
   double ScalingVar (const Interaction * i) const;
-  void   KFactors   (const Interaction * i, double & kuv, 
+  void   KFactors   (const Interaction * i, double & kuv,
                          double & kdv, double & kus, double & kds) const;
 
   // Bodek-Yang model-specific parameters
 
   double fA;     ///< better scaling var parameter A
   double fB;     ///< better scaling var parameter B
-  double fCsU;   ///< U-sea K factor parameter 
-  double fCsD;   ///< D-sea K factor parameter 
-  double fCv1U;  ///< U-val K factor parameter 
-  double fCv2U;  ///< U-val K factor parameter 
-  double fCv1D;  ///< D-val K factor parameter 
-  double fCv2D;  ///< D-val K factor parameter 
+  double fCsU;   ///< U-sea K factor parameter
+  double fCsD;   ///< D-sea K factor parameter
+  double fCv1U;  ///< U-val K factor parameter
+  double fCv2U;  ///< U-val K factor parameter
+  double fCv1D;  ///< D-val K factor parameter
+  double fCv2D;  ///< D-val K factor parameter
 };
 
 }         // genie namespace

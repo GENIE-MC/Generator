@@ -1,28 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Mar 03, 2009 - CA
-   Moved into the new QEL package from its previous location (EVGModules)
- @ Mar 05, 2010 - CA
-   Added a temprorary SpectralFuncExperimentalCode() 
- @ Feb 06, 2013 - CA
-   When the value of the differential cross-section for the selected kinematics
-   is set to the event, set the corresponding KinePhaseSpace_t value too.
- @ Feb 14, 2013 - CA
-   Temporarily disable the kinematical transformation that takes out the
-   dipole form from the dsigma/dQ2 p.d.f.
- @ Mar 18, 2016 - JJ (SD)
-   Store the struck nucleon position in the Target object before calling
-   the xsec method for the first time
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -96,8 +78,8 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Note: The kinematic generator would be using the free nucleon cross
   //   section (even for nuclear targets) so as not to double-count nuclear
   //   suppression. This assumes that a) the nuclear suppression was turned
-  //   on when computing the cross sections for selecting the current event 
-  //   and that b) if the event turns out to be unphysical (Pauli-blocked) 
+  //   on when computing the cross sections for selecting the current event
+  //   and that b) if the event turns out to be unphysical (Pauli-blocked)
   //   the next attempted event will be forced to QEL again.
   //   (discussion with Hugh - GENIE/NeuGEN integration workshop - 07APR2006
   interaction->SetBit(kIAssumeFreeNucleon);
@@ -271,8 +253,8 @@ void QELKinematicsGenerator::SpectralFuncExperimentalCode(
   //-- Note: The kinematic generator would be using the free nucleon cross
   //   section (even for nuclear targets) so as not to double-count nuclear
   //   suppression. This assumes that a) the nuclear suppression was turned
-  //   on when computing the cross sections for selecting the current event 
-  //   and that b) if the event turns out to be unphysical (Pauli-blocked) 
+  //   on when computing the cross sections for selecting the current event
+  //   and that b) if the event turns out to be unphysical (Pauli-blocked)
   //   the next attempted event will be forced to QEL again.
   //   (discussion with Hugh - GENIE/NeuGEN integration workshop - 07APR2006
   interaction->SetBit(kIAssumeFreeNucleon);
@@ -550,4 +532,3 @@ double QELKinematicsGenerator::ComputeMaxXSec(
   return max_xsec;
 }
 //___________________________________________________________________________
-

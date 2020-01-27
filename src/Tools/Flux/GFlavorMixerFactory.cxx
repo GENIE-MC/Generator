@@ -1,16 +1,14 @@
-////////////////////////////////////////////////////////////////////////
-/// \file  GFlavorMixerFactory.cxx
-/// \brief factory for generating GENIE GFlavorMixerI class objects
-///
-/// \version 
-/// \author  Robert Hatcher <rhatcher \at fnal.gov>
-///          Fermi National Accelerator Laboratory
-///
-/// \update  2012-08-03 initial version
-////////////////////////////////////////////////////////////////////////
+//____________________________________________________________________________
+/*!
+ Copyright (c) 2003-2020, The GENIE Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+
+ Robert Hatcher <rhatcher@fnal.gov>
+ Fermi National Accelerator Laboratory
+*/
+//____________________________________________________________________________
 
 #include "Tools/Flux/GFlavorMixerFactory.h"
-
 #include "Framework/Messenger/Messenger.h"
 
 namespace genie {
@@ -19,7 +17,7 @@ namespace flux {
 // Define static variable which holds the one-and-only instance
 GFlavorMixerFactory* GFlavorMixerFactory::fgTheInstance;
 
-GFlavorMixerFactory::GFlavorMixerFactory() 
+GFlavorMixerFactory::GFlavorMixerFactory()
 {
   fgTheInstance = this;   // record created self in static pointer
 }
@@ -39,20 +37,20 @@ GFlavorMixerFactory& GFlavorMixerFactory::Instance()
     cleaner.UseMe();   // dummy call to quiet compiler warnings
     fgTheInstance = new GFlavorMixerFactory();
   }
-  
+
   return *fgTheInstance;
 }
 
-GFlavorMixerI* 
+GFlavorMixerI*
 GFlavorMixerFactory::GetFlavorMixer(const std::string& name)
 {
   GFlavorMixerI* p = 0;
-  
+
   // we don't want map creating an entry if it doesn't exist
   // so use map::find() not map::operator[]
   std::map<std::string, GFlavorMixerICtorFuncPtr_t>::iterator itr
     = fFunctionMap.find(name);
-  if ( fFunctionMap.end() != itr ) { 
+  if ( fFunctionMap.end() != itr ) {
     // found an appropriate entry in the list
     GFlavorMixerICtorFuncPtr_t foo = itr->second;  // this is the function
     p = (*foo)();  // use function to create the GFlavorMixerI
@@ -63,7 +61,7 @@ GFlavorMixerFactory::GetFlavorMixer(const std::string& name)
   }
   return p;
 }
-  
+
 bool GFlavorMixerFactory::IsKnownFlavorMixer(const std::string& name)
 {
   //  check if we know the name
@@ -74,7 +72,7 @@ bool GFlavorMixerFactory::IsKnownFlavorMixer(const std::string& name)
   return res;
 }
 
-const std::vector<std::string>& 
+const std::vector<std::string>&
 GFlavorMixerFactory::AvailableFlavorMixers() const
 {
   // list of names might be out of date due to new registrations
@@ -89,7 +87,7 @@ GFlavorMixerFactory::AvailableFlavorMixers() const
   return listnames;
 }
 
-bool GFlavorMixerFactory::RegisterCreator(std::string name, 
+bool GFlavorMixerFactory::RegisterCreator(std::string name,
                                           GFlavorMixerICtorFuncPtr_t foo,
                                           bool* boolptr)
 {

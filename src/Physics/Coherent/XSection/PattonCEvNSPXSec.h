@@ -4,16 +4,16 @@
 \class    genie::PattonCEvNSPXSec
 
 \brief    Differential cross section for v+As coherent elastic scattering.
-          Is a concrete implementation of the XSecAlgorithmI interface. 
+          Is a concrete implementation of the XSecAlgorithmI interface.
 
 \ref      K.Patton, J.Engel, G.McLaughlin, and N.Schunck, arXiv:1207.0693v1
 
-\author   Costas Andreopoulos <costas.andreopoulos \at cern.ch>
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
           University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  July 12, 2019
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________

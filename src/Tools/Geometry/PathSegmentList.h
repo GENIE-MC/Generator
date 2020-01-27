@@ -5,7 +5,7 @@
 
 \brief   Object to be filled with the neutrino path-segments representing
          geometry volume steps (generally boundary-to-boundary) along with
-         geometry materials.  Good for a single starting position and 
+         geometry materials.  Good for a single starting position and
          travelling along the direction of the neutrino 4-momentum.
 
 \author  Robert Hatcher <rhatcher@fnal.gov>
@@ -13,9 +13,8 @@
 
 \created May 26, 2009
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
+        For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -61,18 +60,18 @@ class PathSegment {
  ~PathSegment() { ; }
 
   /// point of entry to geometry element
-  void SetEnter(const TVector3 & p3enter, double raydist) 
+  void SetEnter(const TVector3 & p3enter, double raydist)
      { fEnter = p3enter; fRayDist = raydist; }
-  void SetEnter(const Double_t * p3enter, double raydist) 
+  void SetEnter(const Double_t * p3enter, double raydist)
      { fEnter.SetXYZ(p3enter[0],p3enter[1],p3enter[2]); fRayDist = raydist; }
 
   /// point of exit from geometry element
   void SetExit(const TVector3 & p3exit) { fExit = p3exit;  }
-  void SetExit(const Double_t * p3exit) 
+  void SetExit(const Double_t * p3exit)
      { fExit.SetXYZ(p3exit[0],p3exit[1],p3exit[2]); }
 
   /// info about the geometry element
-  void SetGeo(const TGeoVolume * gvol, const TGeoMedium * gmed, 
+  void SetGeo(const TGeoVolume * gvol, const TGeoMedium * gmed,
               const TGeoMaterial * gmat)
   { fVolume = gvol; fMedium = gmed; fMaterial = gmat; }
 #ifdef PATHSEG_KEEP_PATH
@@ -99,7 +98,7 @@ class PathSegment {
   void Print (ostream & stream) const;
   friend ostream & operator << (ostream & stream, const PathSegment & list);
   friend bool      operator <  (const PathSegment &lhs, const PathSegment &rhs);
-                                
+
 
   Double_t               fRayDist;      ///< distance from start of ray
   Double_t               fStepLength;   ///< total step size in volume
@@ -131,7 +130,7 @@ public :
   void    SetDoCrossCheck (bool doit = true) { fDoCrossCheck = doit; }
   void    SetPrintVerbose (bool doit = true) { fPrintVerbose = doit; }
   void    SetAllToZero    (void);
-  void    SetStartInfo    (const TVector3& pos = TVector3(0,0,1e37), 
+  void    SetStartInfo    (const TVector3& pos = TVector3(0,0,1e37),
                            const TVector3& dir = TVector3(0,0,0)     );
   bool    IsSameStart     (const TVector3& pos, const TVector3& dir) const;
   void    AddSegment      (const PathSegment& ps) { fSegmentList.push_back(ps); }
@@ -142,7 +141,7 @@ public :
   typedef std::list<PathSegment> PathSegmentV_t;
   typedef PathSegmentV_t::const_iterator PathSegVCItr_t;
 
-  const   PathSegmentV_t&   GetPathSegmentV (void) const { return fSegmentList; }  
+  const   PathSegmentV_t&   GetPathSegmentV (void) const { return fSegmentList; }
   size_t                    size(void) const { return fSegmentList.size(); }
 
   typedef std::map<const TGeoMaterial*,Double_t> MaterialMap_t;

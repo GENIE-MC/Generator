@@ -1,17 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - May 06, 2004
-
- For documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Jul 14, 2009 - RH
-   Tweak PrintBanner() to fix problem with random garbage trailing the banner.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -125,21 +118,21 @@ void genie::utils::print::PrintBanner(void)
   string base_dir = string(gSystem->Getenv("GENIE"));
 
 #ifdef __GENIE_DEVEL_VERSION__
-  string warn_dev_banner = 
-      base_dir + 
+  string warn_dev_banner =
+      base_dir +
       string("/data/logo/warning_development_version.txt");
   PrintBanner(warn_dev_banner, 0);
 #endif
 
-#ifdef __GENIE_RELEASE_CANDIDATE__ 
-  string warn_rc_banner = 
-      base_dir + 
+#ifdef __GENIE_RELEASE_CANDIDATE__
+  string warn_rc_banner =
+      base_dir +
       string("/data/logo/warning_release_candidate.txt");
   PrintBanner(warn_rc_banner, 0);
 #endif
 
-  string main_banner = 
-      base_dir + 
+  string main_banner =
+      base_dir +
       string("/data/logo/genie_banner_long.txt");
   PrintBanner(main_banner, 0);
 }
@@ -173,9 +166,9 @@ string genie::utils::print::PrintFramedMesg(
 {
   string frame(4+mesg.size(),f);
 
-  string framed_mesg = string("\n") + 
-                       frame + string("\n") + 
-                       string("  ") + mesg + string("  ") + string("\n") + 
+  string framed_mesg = string("\n") +
+                       frame + string("\n") +
+                       string("  ") + mesg + string("  ") + string("\n") +
                        frame;
 
   for(unsigned il=0; il<nl; il++) { framed_mesg += string("\n"); }

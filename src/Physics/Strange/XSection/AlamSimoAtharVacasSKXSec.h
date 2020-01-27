@@ -3,7 +3,7 @@
 
 \class    genie::AlamSimoAtharVacasSKXSec
 
-\brief    A cross-section integrator and GSL interface for the 
+\brief    A cross-section integrator and GSL interface for the
           M. Rafi Alam, I. Ruiz Simo, M. Sajjad Athar and M.J. Vicente Vacas
           single-Kaon production model.
           Is a concrete implementation of the XSecIntegratorI interface.
@@ -12,9 +12,8 @@
 
 \created  March 20, 2014
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -54,8 +53,8 @@ private:
 };
 
 //_____________________________________________________________________________________
-// 
-// GSL wrappers 
+//
+// GSL wrappers
 //
 //_____________________________________________________________________________________
 

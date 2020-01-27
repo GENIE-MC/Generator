@@ -5,7 +5,7 @@
 #
 # Usage:  ./build_lhapdf.sh [version] [--refetch]
 #
-# Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
 #
 
 version=5.7.0

@@ -4,20 +4,19 @@
 \class    genie::RSPPHadronicSystemGenerator
 
 \brief    Generates the 'final state' hadronic system in v SPP interactions.
-          It adds the remnant nucleus (if any) and the baryon resonance decay 
+          It adds the remnant nucleus (if any) and the baryon resonance decay
           products at the GHEP record. The resonance decay products are pre-
           determined since in this thread we generate exclusive SPP reactions.
           The module uses a simple phase space decay.
           Is a concrete implementation of the EventRecordVisitorI interface.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  November 23, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 

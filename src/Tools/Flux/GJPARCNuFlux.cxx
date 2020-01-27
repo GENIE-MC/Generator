@@ -1,115 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - Feb 04, 2008
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 04, 2008 - CA
-   The first implementation of this concrete flux driver was first added in 
-   the development version 2.3.1
- @ Feb 19, 2008 - CA
-   Extended to handle all near detector locations and super-k
- @ Feb 22, 2008 - CA
-   Added method to report the actual POT.
- @ Mar 05, 2008 - CA,JD
-   Added method to configure the starting z position (upstream of the detector
-   face, in detector coord system). Added code to project flux neutrinos from
-   z=0 to a configurable z position (somewhere upstream of the detector face)
- @ Mar 27, 2008 - CA
-   Added option to recycle the flux ntuple
- @ Mar 31, 2008 - CA
-   Handle the flux ntuple weights. Renamed the old implementation of GFluxI
-   GenerateNext() to GenerateNext_weighted(). Coded-up a new GenerateNext()
-   method using GenerateNext_weighted() + the rejection method to generate
-   unweighted flux neutrinos. Added code in LoadBeamSimData() to scan for the 
-   max. flux weight for the input location. The 'actual POT' norm factor is 
-   updated after each generated flux neutrino taking into account the flux 
-   weight variability. Added NFluxNeutrinos() and SumWeight().
- @ May 29, 2008 - CA, PG
-   Protect LoadBeamSimData() against non-existent input file
- @ May 31, 2008 - CA
-   Added option to keep on recyclying the flux ntuple for an 'infinite' number
-   of times (SetNumOfCycles(0)) so that exiting the event generation loop can 
-   be controlled by the accumulated POTs or number of events.
- @ June 1, 2008 - CA
-   At LoadBeamSimData() added code to scan for number of neutrinos and sum of
-   weights for a complete flux ntuple cycle, at the specified detector.
-   Added POT_1cycle() to return the flux POT per flux ntuple cycle.
-   Added POT_curravg() to return the current average number of POTs taking
-   into account the flux ntuple recycling. At complete cycles the reported
-   number is not just the average POT but the exact POT.
-   Removed the older ActualPOT() method.
- @ June 4, 2008 - CA, AM
-   Small modification at the POT normalization to account for the fact that
-   flux neutrinos get de-weighted before passed to the event generation code.
-   Now pot = file_pot/max_wght rather than file_pot*(nneutrinos/sum_wght)
- @ June 19, 2008 - CA
-   Removing some LOG() mesgs speeds up GenerateNext() by a factor of 20 (!)
- @ June 18, 2009 - CA
-   Demote warning mesgs if the current flux neutrino is skipped because it 
-   is not in the list of neutrinos to be considered. 
-   Now this can be intentional (eg. if generating nu_e only).
-   In GenerateNext_weighted() Moved the code updating the number of neutrinos
-   and sum of weights higher so that force-rejected flux neutrinos still
-   count for normalization purposes.
- @ March 6, 2010 - JD
-   Made compatible with 10a version of jnubeam flux. Maintained compatibility 
-   with 07a version. This involved finding a few more branches - now look for 
-   all branches and only use them if they exist. Also added check for required 
-   branches. GJPARCNuFluxPassThroughInfo class now passes through flux info in 
-   identical format as given in flux file. Any conversions to more usable 
-   format happen at later stage (gNtpConv.cxx). In addition also store the flux
-   entry number for current neutrino and the deduced flux version.
-   Changed method to search for maximum flux weight to avoid seg faults when 
-   have large number of flux entries in a file (~1.5E6). 
- @ March 8, 2010 - JD
-   Incremented the GJPARCNuFluxPassThroughInfo class def number to reflect
-   changes made in previous commit. Added a failsafe which will terminate 
-   the job if go through a whole flux cycle without finding a detector location
-   matching that specified by user. This avoids potential infinite number of
-   cycles.
- @ Feb 4, 2011 - JD
-   Made compatible with 11a version of jnubeam flux. Still compatable with older
-   versions. Now set the data members of the pass-through class directly as the
-   branch addresses of the input tree to reduce amount of duplicated code. 
- @ Feb 22, 2011 - JD
-   Added functionality to start looping over input flux file from a random 
-   offset. This is to avoid any potential biases when processing very large 
-   flux files and always starting from the same position. The default is to
-   apply a random offset but this can be switched off using the 
-   GJPARCNuFlux::DisableOffset() method.
- @ Feb 22, 2011 - JD
-   Implemented the new GFluxI::Clear, GFluxI::Index and GFluxI::GenerateWeighted
-   methods needed so that can be used with the new pre-generation of flux 
-   interaction probabilities methods added to GMCJDriver. 
- @ Feb 24, 2011 - JD
-   Updated list of expected decay modes for the JNuBeam flux neutrinos for >10a
-   flux mc. The decay mode is used to infer the neutrino pdg and previously we
-   were just skipping them if we didn't recognise the mode - now the job aborts
-   as this can lead to unphysical results.
- @ Feb 26, 2011 - JD
-   Now check that there is at least one entry with matching flux location (idfd)
-   at the LoadBeamSimData stage. Previously were only checking this after a 
-   cycle of calling GenerateNext. This stops case where if only looping over a 
-   single cycle the user was not warned that there were no flux location matches. 
- @ Jul 05, 2011 - TD
-   Code used to match nd detector locations 1-10. Now match detector locations
-   up to 51. Change made in preparation for the new sand muon flux (nd13).
- @ Feb 09, 2012 - TD
-   Added ability to TChain flux files together. This is so when doing vector
-   producion, we can sample all the input flux files, even if the equivalent
-   hadd'ed flux file is too large.
- @ Mar 14, 2014 - TD
-   Prevent an infinite loop in GenerateNext() when the flux driver has not been
-   properly configured by exiting within GenerateNext_weighted().
-   LoadBeamSimData() now returns bool, so that the user can catch cases when
-   the flux driver has not been properly configured.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -172,22 +67,22 @@ bool GJPARCNuFlux::GenerateNext(void)
      if(!nextok) continue;
 
      if(fNCycles==0) {
-       LOG("Flux", pNOTICE) 
+       LOG("Flux", pNOTICE)
           << "Got flux entry: " << this->Index()
-          << " - Cycle: "<< fICycle << "/ infinite"; 
+          << " - Cycle: "<< fICycle << "/ infinite";
      } else {
-       LOG("Flux", pNOTICE) 
-          << "Got flux entry: "<< this->Index() 
-          << " - Cycle: "<< fICycle << "/"<< fNCycles; 
+       LOG("Flux", pNOTICE)
+          << "Got flux entry: "<< this->Index()
+          << " - Cycle: "<< fICycle << "/"<< fNCycles;
      }
 
      // If de-weighting get fractional weight & decide whether to accept curr flux neutrino
      double f = 1.0;
      if(fGenerateWeighted == false) f = this->Weight();
-     LOG("Flux", pNOTICE) 
+     LOG("Flux", pNOTICE)
         << "Curr flux neutrino fractional weight = " << f;
      if(f > (1.+controls::kASmallNum)) {
-       LOG("Flux", pERROR) 
+       LOG("Flux", pERROR)
            << "** Fractional weight = " << f << " > 1 !!";
      }
      double r = (f < 1.) ? rnd->RndFlux().Rndm() : 0;
@@ -196,7 +91,7 @@ bool GJPARCNuFlux::GenerateNext(void)
        return true;
      }
 
-     LOG("Flux", pNOTICE) 
+     LOG("Flux", pNOTICE)
        << "** Rejecting current flux neutrino based on the flux weight only";
   }
   return false;
@@ -242,9 +137,9 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   }
 
   // In addition to getting info to generate event the following also
-  // updates pass-through info (= info on the flux neutrino parent particle 
-  // that may be stored at an extra branch of the output event tree -alongside 
-  // with the generated event branch- for use further upstream in the t2k 
+  // updates pass-through info (= info on the flux neutrino parent particle
+  // that may be stored at an extra branch of the output event tree -alongside
+  // with the generated event branch- for use further upstream in the t2k
   // analysis chain -eg for beam reweighting etc-)
   bool found_entry;
   if (fNuFluxUsingTree)
@@ -264,17 +159,17 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
     if(fNuFluxSumChain) fNuFluxSumChain->GetEntry(fNuFluxChain->GetTreeNumber());
   }
 
-  // check for negative flux weights 
-  if(fPassThroughInfo->norm + controls::kASmallNum < 0.0){ 
+  // check for negative flux weights
+  if(fPassThroughInfo->norm + controls::kASmallNum < 0.0){
     LOG("Flux", pERROR) << "Negative flux weight! Will set weight to 0.0";
     fPassThroughInfo->norm  = 0.0;
-  } 
+  }
   // remember to update fNorm as no longer set to fNuFluxTree branch address
   fNorm = (double) fPassThroughInfo->norm;
 
   // for 'near detector' flux ntuples make sure that the current entry
   // corresponds to a flux neutrino at the specified detector location
-  if(fIsNDLoc           /* nd */  && 
+  if(fIsNDLoc           /* nd */  &&
      fDetLocId!=fPassThroughInfo->idfd /* doesn't match specified detector location*/) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("Flux", pNOTICE)
@@ -300,33 +195,33 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   // See:
   // http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/nemode.h
   //  mode    description
-  //  11      numu from pi+ 
-  //  12      numu from K+  
-  //  13      numu from mu- 
-  //  21      numu_bar from pi- 
-  //  22      numu_bar from K-  
-  //  23      numu_bar from mu+ 
-  //  31      nue from K+ (Ke3) 
-  //  32      nue from K0L(Ke3) 
-  //  33      nue from Mu+      
-  //  41      nue_bar from K- (Ke3) 
-  //  42      nue_bar from K0L(Ke3) 
-  //  43      nue_bar from Mu-      
+  //  11      numu from pi+
+  //  12      numu from K+
+  //  13      numu from mu-
+  //  21      numu_bar from pi-
+  //  22      numu_bar from K-
+  //  23      numu_bar from mu+
+  //  31      nue from K+ (Ke3)
+  //  32      nue from K0L(Ke3)
+  //  33      nue from Mu+
+  //  41      nue_bar from K- (Ke3)
+  //  42      nue_bar from K0L(Ke3)
+  //  43      nue_bar from Mu-
   // Since JNuBeam flux version >= 10a the following modes also expected
   //  14      numu from K+(3)
   //  15      numu from K0(3)
   //  24      numu_bar from K-(3)
   //  25      numu_bar from K0(3)
-  //  34      nue from pi+     
-  //  44      nue_bar from pi-  
+  //  34      nue from pi+
+  //  44      nue_bar from pi-
   // In general expect more modes following the rule:
   //  11->19 --> numu
   //  21->29 --> numu_bar
   //  31->39 --> nue
   //  41->49 --> nuebar
   // This is based on example given at:
-  //  http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/efill.kumac 
- 
+  //  http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/efill.kumac
+
   if(fPassThroughInfo->mode >= 11 && fPassThroughInfo->mode <= 19) fgPdgC = kPdgNuMu;
   else if(fPassThroughInfo->mode >= 21 && fPassThroughInfo->mode <= 29) fgPdgC = kPdgAntiNuMu;
   else if(fPassThroughInfo->mode >= 31 && fPassThroughInfo->mode <= 39) fgPdgC = kPdgNuE;
@@ -334,10 +229,10 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   else {
     // If here then trying to process a neutrino from an unknown decay mode.
     // Rather than just skipping this flux neutrino the job is aborted to avoid
-    // unphysical results. 
+    // unphysical results.
     LOG("Flux", pFATAL) << "Unexpected decay mode: "<< fPassThroughInfo->mode <<
                            "  --> unable to infer neutrino pdg! Aborting job!";
-    exit(1);  
+    exit(1);
   }
 
   // Check neutrino pdg against declared list of neutrino species declared
@@ -360,16 +255,16 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   // by the current instance of the JPARC neutrino flux driver.
   // No flux neutrino exceeding that maximum energy will be accepted at this point as
   // that maximum energy has already been used for normalizing the interaction probabilities.
-  // Make sure that the appropriate maximum flux neutrino energy was set at 
+  // Make sure that the appropriate maximum flux neutrino energy was set at
   // initialization via GJPARCNuFlux::SetMaxEnergy(double Ev)
 
   if(fPassThroughInfo->Enu > fMaxEv) {
      LOG("Flux", pWARN)
           << "Flux neutrino energy exceeds declared maximum neutrino energy";
-     LOG("Flux", pWARN) 
+     LOG("Flux", pWARN)
           << "Ev = " << fPassThroughInfo->Enu << "(> Ev{max} = " << fMaxEv << ")";
   }
-  
+
   // Set the current flux neutrino 4-momentum & 4-position
 
   double pxnu = fPassThroughInfo->Enu * fPassThroughInfo->nnu[0];
@@ -384,16 +279,16 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
     double ynu  = cm2m * fPassThroughInfo->ynu;
     double znu  = 0;
 
-    // projected 4-position (from z=0) back to a configurable plane 
+    // projected 4-position (from z=0) back to a configurable plane
     // position (fZ0) upstream of the detector face.
-    xnu += (fZ0/fPassThroughInfo->nnu[2])*fPassThroughInfo->nnu[0]; 
+    xnu += (fZ0/fPassThroughInfo->nnu[2])*fPassThroughInfo->nnu[0];
     ynu += (fZ0/fPassThroughInfo->nnu[2])*fPassThroughInfo->nnu[1];
     znu = fZ0;
 
     fgX4.SetXYZT (xnu,  ynu,  znu,  0.);
   } else {
     fgX4.SetXYZT (0.,0.,0.,0.);
-  
+
   }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -431,7 +326,7 @@ double GJPARCNuFlux::POT_1cycle(void)
   if( (!fNuFluxTree && fNuFluxUsingTree) || (!fNuFluxChain && !fNuFluxUsingTree) ) {
      LOG("Flux", pWARN)
           << "The flux driver has not been properly configured";
-     return 0;	
+     return 0;
   }
 
 // double pot = fFilePOT * (fNNeutrinosTot1c/fSumWeightTot1c);
@@ -445,14 +340,14 @@ double GJPARCNuFlux::POT_1cycle(void)
 //___________________________________________________________________________
 double GJPARCNuFlux::POT_curravg(void)
 {
-// Compute current number of flux POTs 
+// Compute current number of flux POTs
 // On complete cycles, that POT number should be exact.
-// Within cycles that is only an average number 
+// Within cycles that is only an average number
 
   if( (!fNuFluxTree && fNuFluxUsingTree) || (!fNuFluxChain && !fNuFluxUsingTree) ) {
      LOG("Flux", pWARN)
           << "The flux driver has not been properly configured";
-     return 0;	
+     return 0;
   }
 
 // double pot = fNNeutrinos*fFilePOT/fSumWeightTot1c;
@@ -466,13 +361,13 @@ double GJPARCNuFlux::POT_curravg(void)
 }
 //___________________________________________________________________________
 long int GJPARCNuFlux::Index(void)
-{ 
-// Return the current flux entry index. If GenerateNext has not yet been 
-// called then return -1. 
+{
+// Return the current flux entry index. If GenerateNext has not yet been
+// called then return -1.
 //
   if(fLoadedNeutrino){
     // subtract 1 as fIEntry was incremented since call to TTree::GetEntry
-    // and deal with special case where fIEntry-1 is last entry in cycle 
+    // and deal with special case where fIEntry-1 is last entry in cycle
     return fIEntry == 0 ? fNEntries - 1 : fIEntry-1;
   }
   // return -1 if no neutrino loaded since last call to this->ResetCurrent()
@@ -486,9 +381,9 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
 // The detector location can be any of:
 //  "sk","nd1" (<-2km),"nd5" (<-nd280),...,"nd10"
 
-  LOG("Flux", pNOTICE) 
+  LOG("Flux", pNOTICE)
         << "Loading jnubeam flux tree from ROOT file: " << filename;
-  LOG("Flux", pNOTICE) 
+  LOG("Flux", pNOTICE)
         << "Detector location: " << detector_location;
 
   // Check to see if its a single flux file (/dir/root_filename.0.root)
@@ -511,7 +406,7 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
     fileroot  = filenamev[0];
     firstfile = atoi(filenamev[1].c_str());
     lastfile  = atoi(filenamev[2].c_str());
-    LOG("Flux", pNOTICE) 
+    LOG("Flux", pNOTICE)
       << "Chaining beam simulation output files with stem: " << fileroot
       << " and run numbers in the range: [" << firstfile << ", " << firstfile << "]";
   }
@@ -530,7 +425,7 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
       bool is_accessible = ! (gSystem->AccessPathName( Form("%s.%i.root",fileroot.c_str(),i) ));
       if (!is_accessible) {
 	LOG("Flux", pFATAL)
-	  << "The input jnubeam flux file " << Form("%s.%i.root",fileroot.c_str(),i) 
+	  << "The input jnubeam flux file " << Form("%s.%i.root",fileroot.c_str(),i)
 	  << "doesn't exist! Initialization failed!";
 	please_exit = true;
       }
@@ -539,11 +434,11 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
       exit(1);
   }
 
-  fDetLoc   = detector_location;   
-  fDetLocId = this->DLocName2Id(fDetLoc);  
+  fDetLoc   = detector_location;
+  fDetLocId = this->DLocName2Id(fDetLoc);
 
   if(fDetLocId == 0) {
-    LOG("Flux", pERROR) 
+    LOG("Flux", pERROR)
          << " ** Unknown input detector location: " << fDetLoc;
     return false;
   }
@@ -569,7 +464,7 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
 	<< "** Couldn't get flux tree: " << ntuple_name;
       return false;
     }
-    
+
     for (int i = firstfile+1; i < lastfile+1; i++) {
       result = fNuFluxChain->Add( Form("%s.%i.root",fileroot.c_str(),i), 0 );
       if (result == 0)
@@ -578,7 +473,7 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
     fNEntries = fNuFluxChain->GetEntries();
     }
   }
-  
+
   else {
     fNuFluxFile = new TFile(filename.c_str(), "read");
     if(fNuFluxFile) {
@@ -589,10 +484,10 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
 	ntuple_name = "h3001";
 	fNuFluxTree = (TTree*) fNuFluxFile->Get(ntuple_name.c_str());
       }
-      LOG("Flux", pINFO)   
+      LOG("Flux", pINFO)
 	<< "Getting flux tree: " << ntuple_name;
       if(!fNuFluxTree) {
-	LOG("Flux", pERROR) 
+	LOG("Flux", pERROR)
 	  << "** Couldn't get flux tree: " << ntuple_name;
 	return false;
       }
@@ -600,14 +495,14 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
       LOG("Flux", pERROR) << "** Couldn't open: " << filename;
       return false;
     }
-    
+
     fNEntries = fNuFluxTree->GetEntries();
   }
 
-  LOG("Flux", pNOTICE) 
+  LOG("Flux", pNOTICE)
     << "Loaded flux tree contains " <<  fNEntries << " entries";
-  
-  LOG("Flux", pDEBUG) 
+
+  LOG("Flux", pDEBUG)
     << "Getting tree branches & setting leaf addresses";
 
   // try to get all the branches that we know about and only set address if
@@ -618,25 +513,25 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
 
   if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("norm")) ) fBr->SetAddress(&info->norm);
   else if( (fBr = fNuFluxChain->GetBranch("norm")) ) fNuFluxChain->SetBranchAddress("norm",&info->norm);
-  else { 
+  else {
     LOG("Flux", pFATAL) <<"Cannot find flux branch: norm";
     missing_critical = true;
   }
   if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("Enu")) ) fBr->SetAddress(&info->Enu);
   else if( (fBr = fNuFluxChain->GetBranch("Enu")) ) fNuFluxChain->SetBranchAddress("Enu",&info->Enu);
   else {
-    LOG("Flux", pFATAL) <<"Cannot find flux branch: Enu";  
+    LOG("Flux", pFATAL) <<"Cannot find flux branch: Enu";
     missing_critical = true;
   }
   if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("ppid")) ) fBr->SetAddress(&info->ppid);
   else if( (fBr = fNuFluxChain->GetBranch("ppid")) ) fNuFluxChain->SetBranchAddress("ppid",&info->ppid);
   else {
-    LOG("Flux", pFATAL) <<"Cannot find flux branch: ppid"; 
+    LOG("Flux", pFATAL) <<"Cannot find flux branch: ppid";
     missing_critical = true;
   }
   if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("mode")) ) fBr->SetAddress(&info->mode);
   else if( (fBr = fNuFluxChain->GetBranch("mode")) ) fNuFluxChain->SetBranchAddress("mode",&info->mode);
-  else { 
+  else {
     LOG("Flux", pFATAL) <<"Cannot find flux branch: mode";
     missing_critical = true;
   }
@@ -645,17 +540,17 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   else if(fIsNDLoc){ // Only required for ND location
     LOG("Flux", pFATAL) <<"Cannot find flux branch: rnu";
     missing_critical = true;
-  } 
+  }
   if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("xnu")) ) fBr->SetAddress(&info->xnu);
   else if( (fBr = fNuFluxChain->GetBranch("xnu")) ) fNuFluxChain->SetBranchAddress("xnu",&info->xnu);
   else if(fIsNDLoc){ // Only required for ND location
-    LOG("Flux", pFATAL) <<"Cannot find flux branch: xnu"; 
+    LOG("Flux", pFATAL) <<"Cannot find flux branch: xnu";
     missing_critical = true;
   }
   if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("ynu")) ) fBr->SetAddress(&info->ynu);
   else if( (fBr = fNuFluxChain->GetBranch("ynu")) ) fNuFluxChain->SetBranchAddress("ynu",&info->ynu);
   else if(fIsNDLoc) { // Only required for ND location
-    LOG("Flux", pFATAL) <<"Cannot find flux branch: ynu"; 
+    LOG("Flux", pFATAL) <<"Cannot find flux branch: ynu";
     missing_critical = true;
   }
   if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("nnu")) ) fBr->SetAddress(info->nnu);
@@ -667,7 +562,7 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("idfd")) ) fBr->SetAddress(&info->idfd);
   else if( (fBr = fNuFluxChain->GetBranch("idfd")) ) fNuFluxChain->SetBranchAddress("idfd",&info->idfd);
   else if(fIsNDLoc){ // Only required for ND location
-    LOG("Flux", pFATAL) <<"Cannot find flux branch: idfd"; 
+    LOG("Flux", pFATAL) <<"Cannot find flux branch: idfd";
     missing_critical = true;
   }
   // check that have found essential branches
@@ -741,7 +636,7 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("anorm"))   ) fBr->SetAddress(&info->anorm);
   else if( (fBr = fNuFluxChain->GetBranch("anorm"))   ) fNuFluxChain->SetBranchAddress("anorm",&info->anorm);
 
-  // Look for the flux file summary info tree (only expected for > 10a flux versions) 
+  // Look for the flux file summary info tree (only expected for > 10a flux versions)
   if( fNuFluxUsingTree && (fNuFluxSumTree = (TTree*) fNuFluxFile->Get("h1000")) ){
     if( (fBr = fNuFluxSumTree->GetBranch("version"))) fBr->SetAddress(&info->version);
     if( (fBr = fNuFluxSumTree->GetBranch("ntrig"))  ) fBr->SetAddress(&info->ntrig);
@@ -757,7 +652,7 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
     if( (fBr = fNuFluxSumTree->GetBranch("rseed"))  ) fBr->SetAddress(info->rseed);
   }
 
-  // Look for the flux file summary info tree (only expected for > 10a flux versions) 
+  // Look for the flux file summary info tree (only expected for > 10a flux versions)
   if ( !fNuFluxUsingTree ) {
     fNuFluxSumChain = new TChain("h1000");
     int result = fNuFluxSumChain->Add( Form("%s.%i.root",fileroot.c_str(),firstfile), 0 );
@@ -795,13 +690,13 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
      else
        fNuFluxChain->GetEntry(ientry);
      // check for negative flux weights
-     if(fPassThroughInfo->norm + controls::kASmallNum < 0.0){ 
+     if(fPassThroughInfo->norm + controls::kASmallNum < 0.0){
        LOG("Flux", pERROR) << "Negative flux weight! Will set weight to 0.0";
        fPassThroughInfo->norm  = 0.0;
-     } 
+     }
      fNorm = (double) fPassThroughInfo->norm;
      // update maximum weight
-     fMaxWeight = TMath::Max(fMaxWeight, (double) fPassThroughInfo->norm); 
+     fMaxWeight = TMath::Max(fMaxWeight, (double) fPassThroughInfo->norm);
      // compare detector location (see GenerateNext_weighted() for details)
      if(fIsNDLoc && fDetLocId!=fPassThroughInfo->idfd) continue;
      fSumWeightTot1c += fNorm;
@@ -813,18 +708,18 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
     LOG("Flux", pFATAL)
      << "The input jnubeam flux ntuple contains no entries for detector id "
      << fDetLocId << ". Terminating job!";
-    exit(1); 
+    exit(1);
   }
   fNDetLocIdFound = 0; // reset the counter
 
-  LOG("Flux", pNOTICE) << "Maximum flux weight = " << fMaxWeight;  
+  LOG("Flux", pNOTICE) << "Maximum flux weight = " << fMaxWeight;
   if(fMaxWeight <=0 ) {
       LOG("Flux", pFATAL) << "Non-positive maximum flux weight!";
       exit(1);
   }
 
   LOG("Flux", pINFO)
-    << "Totals / cycle: #neutrinos = " << fNNeutrinosTot1c 
+    << "Totals / cycle: #neutrinos = " << fNNeutrinosTot1c
     << ", Sum{Weights} = " << fSumWeightTot1c;
 
   if(fUseRandomOffset){
@@ -841,7 +736,7 @@ void GJPARCNuFlux::SetFluxParticles(const PDGCodeList & particles)
   }
   fPdgCList->Copy(particles);
 
-  LOG("Flux", pINFO) 
+  LOG("Flux", pINFO)
     << "Declared list of neutrino species: " << *fPdgCList;
 }
 //___________________________________________________________________________
@@ -849,7 +744,7 @@ void GJPARCNuFlux::SetMaxEnergy(double Ev)
 {
   fMaxEv = TMath::Max(0.,Ev);
 
-  LOG("Flux", pINFO) 
+  LOG("Flux", pINFO)
     << "Declared maximum flux neutrino energy: " << fMaxEv;
 }
 //___________________________________________________________________________
@@ -864,7 +759,7 @@ void GJPARCNuFlux::SetFilePOT(double pot)
 void GJPARCNuFlux::SetUpstreamZ(double z0)
 {
 // The flux neutrino position (x,y) is given at the detector coord system
-// at z=0. This method sets the preferred starting z position upstream of 
+// at z=0. This method sets the preferred starting z position upstream of
 // the upstream detector face. Each flux neutrino will be backtracked from
 // z=0 to the input z0.
 
@@ -876,7 +771,7 @@ void GJPARCNuFlux::SetNumOfCycles(int n)
 // The flux ntuples can be recycled for a number of times to boost generated
 // event statistics without requiring enormous beam simulation statistics.
 // That option determines how many times the driver is going to cycle through
-// the input flux ntuple. 
+// the input flux ntuple.
 // With n=0 the flux ntuple will be recycled an infinite amount of times so
 // that the event generation loop can exit only on a POT or event num check.
 
@@ -894,15 +789,15 @@ void GJPARCNuFlux::GenerateWeighted(bool gen_weighted)
 //___________________________________________________________________________
 void GJPARCNuFlux::RandomOffset()
 {
-// Choose a random number between 0-->fNEntries to set as start point for 
-// looping over flux ntuple. May be necessary when looping over very large 
-// flux files as always starting fromthe same point may introduce biases 
-// (inversely proportional to number of cycles). This method resets the 
+// Choose a random number between 0-->fNEntries to set as start point for
+// looping over flux ntuple. May be necessary when looping over very large
+// flux files as always starting fromthe same point may introduce biases
+// (inversely proportional to number of cycles). This method resets the
 // starting value for fIEntry so must be called before any call to GenerateNext
 // is made.
 //
   double ran_frac = RandomGen::Instance()->RndFlux().Rndm();
-  long int offset = (long int) floor(ran_frac * fNEntries); 
+  long int offset = (long int) floor(ran_frac * fNEntries);
   LOG("Flux", pERROR) << "Setting flux driver to start looping over entries "
                       << "with offset of "<< offset;
   fIEntry = fOffset = offset;
@@ -911,10 +806,10 @@ void GJPARCNuFlux::RandomOffset()
 void GJPARCNuFlux::Clear(Option_t * opt)
 {
 // If opt = "CycleHistory" then:
-// Reset all counters and state variables from any previous cycles. This 
+// Reset all counters and state variables from any previous cycles. This
 // should be called if, for instance, before event generation this flux
 // driver had been used for pre-calculating interaction probabilities. Does
-// not reset initial state variables such as flux particle types, POTs etc... 
+// not reset initial state variables such as flux particle types, POTs etc...
 //
   if(std::strcmp(opt, "CycleHistory") == 0){
     // Reset so that generate de-weighted events
@@ -957,7 +852,7 @@ void GJPARCNuFlux::Initialize(void)
   fFilePOT         = 0;
   fZ0              = 0;
   fNCycles         = 0;
-  fICycle          = 0;        
+  fICycle          = 0;
   fSumWeight       = 0;
   fNNeutrinos      = 0;
   fSumWeightTot1c  = 0;
@@ -972,9 +867,9 @@ void GJPARCNuFlux::Initialize(void)
 //___________________________________________________________________________
 void GJPARCNuFlux::SetDefaults(void)
 {
-// - Set default neutrino species list (nue, nuebar, numu, numubar) and 
+// - Set default neutrino species list (nue, nuebar, numu, numubar) and
 //   maximum energy (25 GeV).
-//   These defaults can be overwritten by user calls (at the driver init) to 
+//   These defaults can be overwritten by user calls (at the driver init) to
 //   GJPARCNuFlux::SetMaxEnergy(double Ev) and
 //   GJPARCNuFlux::SetFluxParticles(const PDGCodeList & particles)
 // - Set the default file normalization to 1E+21 POT
@@ -993,7 +888,7 @@ void GJPARCNuFlux::SetDefaults(void)
   this->SetFluxParticles(particles);
   this->SetMaxEnergy(25./*GeV*/);
   this->SetFilePOT(1E+21);
-  this->SetUpstreamZ(-5.0); 
+  this->SetUpstreamZ(-5.0);
   this->SetNumOfCycles(1);
 }
 //___________________________________________________________________________
@@ -1059,7 +954,7 @@ TObject()
   ppid       = info.ppid;
   mode       = info.mode;
   ppi        = info.ppi;
-  ppi0       = info.ppi0; 
+  ppi0       = info.ppi0;
   nvtx0      = info.nvtx0;
   cospibm    = info.cospibm;
   cospi0bm   = info.cospi0bm;
@@ -1086,14 +981,14 @@ TObject()
     gvx[ip] = info.gvx[ip];
     gvy[ip] = info.gvy[ip];
     gvz[ip] = info.gvz[ip];
-    gpx[ip] = info.gpx[ip]; 
-    gpy[ip] = info.gpy[ip]; 
-    gpz[ip] = info.gpz[ip]; 
+    gpx[ip] = info.gpx[ip];
+    gpy[ip] = info.gpy[ip];
+    gpz[ip] = info.gpz[ip];
     gmat[ip] = info.gmat[ip];
     gdistc[ip] = info.gdistc[ip];
     gdistal[ip] = info.gdistal[ip];
     gdistti[ip] = info.gdistti[ip];
-    gdistfe[ip] = info.gdistfe[ip]; 
+    gdistfe[ip] = info.gdistfe[ip];
   }
   norm = info.norm;
   Enusk = info.Enusk;
@@ -1112,7 +1007,7 @@ TObject()
     alpha[i] = info.alpha[i];
     rseed[i] = info.rseed[i];
   }
-  for(int i = 0; i < 3; i++) hcur[i] = info.hcur[i]; 
+  for(int i = 0; i < 3; i++) hcur[i] = info.hcur[i];
 }
 //___________________________________________________________________________
 void GJPARCNuFluxPassThroughInfo::Reset(){
@@ -1144,27 +1039,27 @@ void GJPARCNuFluxPassThroughInfo::Reset(){
   }
   ng = -1;
   for(int ip = 0; ip<fNgmax; ip++){
-    gpid[ip] = -999999; 
+    gpid[ip] = -999999;
     gmec[ip] = -999999;
     gcosbm[ip] = -999999.;
     gvx[ip] = -999999.;
     gvy[ip] = -999999.;
     gvz[ip] = -999999.;
-    gpx[ip] = -999999.; 
-    gpy[ip] = -999999.; 
+    gpx[ip] = -999999.;
+    gpy[ip] = -999999.;
     gpz[ip] = -999999.;
     gmat[ip] = -999999;
     gdistc[ip] = -999999.;
     gdistal[ip] = -999999.;
     gdistti[ip] = -999999.;
-    gdistfe[ip] = -999999.; 
+    gdistfe[ip] = -999999.;
   }
   Enusk = -999999.;
-  normsk = -999999.; 
+  normsk = -999999.;
   anorm = -999999.;
   version = -999999.;
   ntrig = -999999;
-  tuneid = -999999; 
+  tuneid = -999999;
   pint = -999999;
   rand = -999999;
   for(int i = 0; i < 2; i++){
@@ -1172,7 +1067,7 @@ void GJPARCNuFluxPassThroughInfo::Reset(){
     btilt[i] = -999999.;
     brms[i] = -999999.;
     emit[i] = -999999.;
-    alpha[i] = -999999.; 
+    alpha[i] = -999999.;
     rseed[i] = -999999;
   }
   for(int i = 0; i < 3; i++) hcur[i] = -999999.;
@@ -1181,7 +1076,7 @@ void GJPARCNuFluxPassThroughInfo::Reset(){
 namespace genie {
 namespace flux  {
   ostream & operator << (
-    ostream & stream, const genie::flux::GJPARCNuFluxPassThroughInfo & info) 
+    ostream & stream, const genie::flux::GJPARCNuFluxPassThroughInfo & info)
     {
       stream << "\n idfd       = " << info.idfd
              << "\n norm       = " << info.norm
@@ -1189,36 +1084,34 @@ namespace flux  {
              << "\n flux file  = " << info.fluxfilename
              << "\n Enu        = " << info.Enu
              << "\n geant code = " << info.ppid
-             << "\n (pdg code) = " << pdg::GeantToPdg(info.ppid)   
+             << "\n (pdg code) = " << pdg::GeantToPdg(info.ppid)
              << "\n decay mode = " << info.mode
              << "\n nvtx0      = " << info.nvtx0
-             << "\n |momentum| @ decay       = " << info.ppi    
-             << "\n position_vector @ decay  = (" 
-                 << info.xpi[0] << ", " 
-                 << info.xpi[1] << ", " 
+             << "\n |momentum| @ decay       = " << info.ppi
+             << "\n position_vector @ decay  = ("
+                 << info.xpi[0] << ", "
+                 << info.xpi[1] << ", "
                  << info.xpi[2]  << ")"
-             << "\n direction_vector @ decay = (" 
-                 << info.npi[0] << ", " 
-                 << info.npi[1] << ", " 
+             << "\n direction_vector @ decay = ("
+                 << info.npi[0] << ", "
+                 << info.npi[1] << ", "
                  << info.npi[2]  << ")"
-             << "\n |momentum| @ prod.       = " << info.ppi0 
-             << "\n position_vector @ prod.  = (" 
-                 << info.xpi0[0] << ", " 
-                 << info.xpi0[1] << ", " 
+             << "\n |momentum| @ prod.       = " << info.ppi0
+             << "\n position_vector @ prod.  = ("
+                 << info.xpi0[0] << ", "
+                 << info.xpi0[1] << ", "
                  << info.xpi0[2]  << ")"
-             << "\n direction_vector @ prod. = (" 
-                 << info.npi0[0] << ", " 
-                 << info.npi0[1] << ", " 
+             << "\n direction_vector @ prod. = ("
+                 << info.npi0[0] << ", "
+                 << info.npi0[1] << ", "
                  << info.npi0[2]  << ")"
              << "\n cospibm = " << info.cospibm
              << "\n cospi0bm = " << info.cospi0bm
-             << "\n Plus additional info if flux version is later than 07a" 
+             << "\n Plus additional info if flux version is later than 07a"
              << endl;
 
     return stream;
   }
-}//flux 
+}//flux
 }//genie
 //___________________________________________________________________________
-
-

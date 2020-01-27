@@ -8,15 +8,15 @@
           approximation.
 
 \author   Aaron Meyer <asmeyer2012 \at uchicago.edu>
+
           based off DipoleELFormFactorsModel by
-          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  August 16, 2013
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -37,7 +37,7 @@ public:
   // implement the AxialFormFactorModelI interface
   double FA (const Interaction * interaction) const;
 
-  // overload Algorithm's Configure() 
+  // overload Algorithm's Configure()
   void   Configure  (const Registry & config);
   void   Configure  (string param_set);
 

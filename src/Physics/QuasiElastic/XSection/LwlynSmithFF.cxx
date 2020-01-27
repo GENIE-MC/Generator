@@ -1,20 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Sep 19, 2009 - CA
-   Renamed LlewellynSmithModel -> LwlynSmithFF
- @ Aug 27, 2013 - AM
-   Implemented Axial Form Factor Model structure
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -64,7 +54,7 @@ LwlynSmithFF::~LwlynSmithFF()
 //____________________________________________________________________________
 double LwlynSmithFF::StrangeF1V(const Interaction * interaction) const
 {
-  double f1p = this->F1P(interaction); 
+  double f1p = this->F1P(interaction);
   double f1n = this->F1N(interaction);
   double value = 0.;
 
@@ -82,7 +72,7 @@ double LwlynSmithFF::StrangexiF2V(const Interaction * interaction) const
 {
   const XclsTag &      xcls       = interaction->ExclTag();
   int pdgc = xcls.StrangeHadronPdg();
-  
+
   double f2p = this->F2P(interaction);
   double f2n = this->F2N(interaction);
   double value = 0.;
@@ -116,7 +106,7 @@ double LwlynSmithFF::StrangeFA(const Interaction * interaction) const
 }
 //____________________________________________________________________________
 double LwlynSmithFF::F1P(const Interaction * interaction) const
-{ 
+{
   fELFF.Calculate(interaction);
   double t   = this->tau(interaction);
   double T   = 1 / (1 - t);
@@ -169,7 +159,7 @@ double LwlynSmithFF::xiF2V(const Interaction * interaction) const
 //____________________________________________________________________________
 double LwlynSmithFF::FA(const Interaction * interaction) const
 {
-  //-- compute FA(q2) 
+  //-- compute FA(q2)
 
   fAxFF.Calculate(interaction);
   return fAxFF.FA();
@@ -228,7 +218,7 @@ void LwlynSmithFF::LoadConfig(void)
     fCleanUpfElFFModel = true;
   }
 
-  fELFF.SetModel(fElFFModel);  
+  fELFF.SetModel(fElFFModel);
 
   fAxFFModel =
     dynamic_cast<const AxialFormFactorModelI *> (this->SubAlg("AxialFormFactorModel"));
@@ -248,7 +238,7 @@ void LwlynSmithFF::LoadConfig(void)
   double d,f ;
   GetParam( "SU3-D", d ) ;
   GetParam( "SU3-F", f ) ;
-  fFDratio = f/(d+f); 
+  fFDratio = f/(d+f);
 }
 //____________________________________________________________________________
 double LwlynSmithFF::tau(const Interaction * interaction) const
@@ -284,4 +274,3 @@ double LwlynSmithFF::GVM(const Interaction * interaction) const
   return gvm;
 }
 //____________________________________________________________________________
-

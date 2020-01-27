@@ -1,18 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Jan 24, 2013 - CA
-   No longer uses the $GSEED variable for setting the random number seed.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -52,7 +44,7 @@ RandomGen::RandomGen()
 */
 
   if ( gSystem->Getenv("GSEED") ) {
-    LOG("Rndm", pFATAL) 
+    LOG("Rndm", pFATAL)
       << "\n\n"
       << "************************************************************************************** \n"
       << "The random number seed is no longer set via the $GSEED variable.\n"
@@ -92,21 +84,21 @@ void RandomGen::SetSeed(long int seed)
   LOG("Rndm", pNOTICE)
      << "Setting"
      << ((fInitalized) ? " " : " default ")
-     << "random number seed" 
+     << "random number seed"
      << ((fInitalized) ? ": " : " at random number generator initialization: ")
      << seed;
 
   // Set the seed number for all internal GENIE random number generators
   this->RndKine ().SetSeed(seed);
   this->RndHadro().SetSeed(seed);
-  this->RndDec  ().SetSeed(seed); 
+  this->RndDec  ().SetSeed(seed);
   this->RndFsi  ().SetSeed(seed);
   this->RndLep  ().SetSeed(seed);
   this->RndISel ().SetSeed(seed);
   this->RndGeom ().SetSeed(seed);
   this->RndFlux ().SetSeed(seed);
   this->RndEvg  ().SetSeed(seed);
-  this->RndNum  ().SetSeed(seed); 
+  this->RndNum  ().SetSeed(seed);
   this->RndGen  ().SetSeed(seed);
 
   // Set the seed number for ROOT's gRandom

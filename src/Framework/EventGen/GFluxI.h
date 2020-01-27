@@ -5,21 +5,13 @@
 
 \brief    GENIE Interface for user-defined flux classes
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 25, 2005
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
-
- @ Feb 22, 2011 - JD
-   Changed the interface by adding the GFluxI::Clear, GFluxI::Index and 
-   GFluxI::GenerateWeighted methods needed so that can be used with the new 
-   pre-generation of flux interaction probabilities functionality added to
-   GMCJDriver. 
-
 */
 //____________________________________________________________________________
 
@@ -47,7 +39,7 @@ public :
   virtual bool                   GenerateNext  (void) = 0; ///< generate the next flux neutrino (return false in err)
   virtual int                    PdgCode       (void) = 0; ///< returns the flux neutrino pdg code
   virtual double                 Weight        (void) = 0; ///< returns the flux neutrino weight (if any)
-  virtual const TLorentzVector & Momentum      (void) = 0; ///< returns the flux neutrino 4-momentum 
+  virtual const TLorentzVector & Momentum      (void) = 0; ///< returns the flux neutrino 4-momentum
   virtual const TLorentzVector & Position      (void) = 0; ///< returns the flux neutrino 4-position (note: expect SI rather than physical units)
   virtual bool                   End           (void) = 0; ///< true if no more flux nu's can be thrown (eg reaching end of beam sim ntuples)
   virtual long int               Index         (void) = 0; ///< returns corresponding index for current flux neutrino (e.g. for a flux ntuple returns the current entry number)
