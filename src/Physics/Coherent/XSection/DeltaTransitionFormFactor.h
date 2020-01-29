@@ -47,6 +47,16 @@ private:
 
   void LoadConfig(void);
 
+  double fDeltaMass ; 
+  double fDeltaMass2 ; 
+
+  double fN_Delta_Ma ; 
+  
+  double fKgcm0 ; 
+  double fMpw2, fMmw2 ; 
+
+  double fANC ; 
+
 };
 
 }       // genie namespace

@@ -26,6 +26,8 @@
 
 #include "Framework/Utils/StringUtils.h" 
 
+#include "Framework/ParticleData/BaryonResUtils.h" 
+
 using namespace genie;
 
 
@@ -78,13 +80,21 @@ void DeltaTransitionFormFactor::Configure(string config)
 void DeltaTransitionFormFactor::LoadConfig(void)
 {
 
-  // load R33 parameters
-  this -> GetParamVect( "DV-Coefficient", fFBCs ) ;
+  fDeltaMass = utils::res::Mass( kP33_1232 ) ; 
+  fDeltaMass2 = pow( fDeltaMasss, 2 ) ; 
 
-  GetParam( "DV-Radius", fRadius ) ;
-  fRadius *= units::fm ;
+  GetParam( "N-Delta-Ma", fN_Delta_Ma ) ;
 
-  GetParam( "DV-Nucleus", fPDG ) ;
+  double mN2 = pow( constants::kProtonMass, 2 ) ; 
+
+  fKgcm0 = ( fDeltaMass2 - mN2 ) / ( 2 * fDeltaMass ) ; 
+  fMpw2 = pow( fDeltaMass + constants::kProtonMass, 2 ) ;
+  fMmw2 = pow( fDeltaMass - constants::kProtonMass, 2 ) ;
+
+  double w_A ;
+  GetParam( "WeinbergAngle", w_A ) ;
+  
+  fANC = 1. - 2 * pow( sin( w_A ), 2 ) ; 
   
   LOG("DeltaTransitionFormFactor", pINFO) << "Loaded " << fFBCs.size() << " coeffictients for nucleus " << fPDG ; 
   
