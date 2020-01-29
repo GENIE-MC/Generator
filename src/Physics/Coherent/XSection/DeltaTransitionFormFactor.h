@@ -34,8 +34,22 @@ public:
   virtual ~DeltaTransitionFormFactor();
 
   double C3V( double Q2 ) const ;
+  double C4V( double  ) const { return 0 ; }
+  double C5V( double  ) const { return 0 ; }
+
+  double C3A( double  ) const { return 0 ; }
+  double C4A( double  ) const { return 0 ; }
+  double C5A( double  ) const { return 0 ; }
+  double C6A( double  ) const { return 0 ; }
+
   double C3VNC( double Q2 ) const ;
+  double C4VNC( double  ) const { return 0 ; }
+  double C5VNC( double  ) const { return 0 ; }
+
+  double C3ANC( double ) const { return 0 ; }
+  double C4ANC( double ) const { return 0 ; }
   double C5ANC( double Q2 ) const ;
+  double C6ANC( double ) const { return 0 ; }
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
@@ -50,7 +64,7 @@ private:
   double fDeltaMass ; 
   double fDeltaMass2 ; 
 
-  double fN_Delta_Ma ; 
+  double fN_Delta_Ma2 ; 
   
   double fKgcm0 ; 
   double fMpw2, fMmw2 ; 

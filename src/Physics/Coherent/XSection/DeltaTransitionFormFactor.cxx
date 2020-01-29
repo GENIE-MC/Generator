@@ -65,6 +65,19 @@ double DeltaTransitionFormFactor::C3V( double Q2 ) const {
 
 }
 //____________________________________________________________________________
+double DeltaTransitionFormFactor::C3VNC( double Q2 ) const {
+
+  return C3V(Q2) * fANC ;
+
+}
+//____________________________________________________________________________
+double DeltaTransitionFormFactor::C5ANC( double Q2 ) const {
+
+  double Fd = pow( 1.0 + Q2 / fN_Delta_Ma2, -2 ) ;
+  return 1.2 * Fd;
+
+}
+//____________________________________________________________________________
 void DeltaTransitionFormFactor::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -83,7 +96,9 @@ void DeltaTransitionFormFactor::LoadConfig(void)
   fDeltaMass = utils::res::Mass( kP33_1232 ) ; 
   fDeltaMass2 = pow( fDeltaMass, 2 ) ; 
 
-  GetParam( "N-Delta-Ma", fN_Delta_Ma ) ;
+  double n_Delta_Ma ;
+  GetParam( "N-Delta-Ma", n_Delta_Ma ) ;
+  fN_Delta_Ma2 = pow( n_Delta_Ma, 2 ) ;
 
   double mN2 = pow( constants::kProtonMass, 2 ) ; 
 
