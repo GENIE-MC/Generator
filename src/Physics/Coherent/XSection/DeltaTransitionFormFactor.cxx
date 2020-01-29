@@ -51,12 +51,12 @@ DeltaTransitionFormFactor::~DeltaTransitionFormFactor()
 //____________________________________________________________________________
 double DeltaTransitionFormFactor::C3V( double Q2 ) const {
 
-  
-
   double r = sqrt( 2.0 * fKgcm0 * constants::kProtonMass * fDeltaMass / ( constants::kPi * constants::kAem * ( fMmw2+Q2) ) );
 
-  double egcm = ( fDeltaMass2-Q2- mN2)/ ( 2.0 * fDeltaMass ) ; 
+  double egcm = ( fDeltaMass2 - Q2 - pow( constants::kProtonMass, 2 ) )/ ( 2.0 * fDeltaMass ) ; 
   double qcm = sqrt(egcm*egcm + Q2);
+
+  double Fq = 1.0 / pow(1.0 + Q2/fParam_071, 2) ; 
 
   double AM = fParam_03 * (1.0 + fParam_001*Q2)*exp(-fParam_023*Q2)*(qcm/ fKgcm0)*Fq;
   double a32 = constants::kSqrt3 * (  -AM ) / 2.0 ; 
@@ -81,7 +81,7 @@ void DeltaTransitionFormFactor::LoadConfig(void)
 {
 
   fDeltaMass = utils::res::Mass( kP33_1232 ) ; 
-  fDeltaMass2 = pow( fDeltaMasss, 2 ) ; 
+  fDeltaMass2 = pow( fDeltaMass, 2 ) ; 
 
   GetParam( "N-Delta-Ma", fN_Delta_Ma ) ;
 
@@ -99,8 +99,9 @@ void DeltaTransitionFormFactor::LoadConfig(void)
   GetParam( "NCG-Param03" , fParam_03 ) ;
   GetParam( "NCG-Param001" , fParam_001 ) ;
   GetParam( "NCG-Param023" , fParam_023 ) ;
+  GetParam( "NCG-Param071" , fParam_071 ) ;
   
-  LOG("DeltaTransitionFormFactor", pINFO) << "Loaded " << fFBCs.size() << " coeffictients for nucleus " << fPDG ; 
+  //LOG("DeltaTransitionFormFactor", pINFO) << "Loaded " << fFBCs.size() << " coeffictients for nucleus " << fPDG ; 
   
 }
 //____________________________________________________________________________
