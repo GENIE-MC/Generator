@@ -57,6 +57,10 @@ private:
 
   double fANC ; 
 
+  double fParam_03 ; //GeV^(-1/2)
+  double fparam_001 ; // GeV^-2
+  double fparam_023 ; // GeV^-2
+
 };
 
 }       // genie namespace

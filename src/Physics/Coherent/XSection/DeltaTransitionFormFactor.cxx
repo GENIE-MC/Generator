@@ -49,19 +49,19 @@ DeltaTransitionFormFactor::~DeltaTransitionFormFactor()
 
 }
 //____________________________________________________________________________
-double DeltaTransitionFormFactor::FormFactor( double Q ) const {
+double DeltaTransitionFormFactor::C3V( double Q2 ) const {
 
-  double qr = Q * fRadius ;
+  
 
-  double aux_sum = 0.0, nu ;
+  double r = sqrt( 2.0 * fKgcm0 * constants::kProtonMass * fDeltaMass / ( constants::kPi * constants::kAem * ( fMmw2+Q2) ) );
 
-  for (unsigned int i = 0 ; i < fFBCs.size() ; ++i ) {
-     nu = i + 1. ;
-     double pi_x_i = constants::kPi*nu ;
-     aux_sum += pow( -1.0, i )*fFBCs[i]/( ( pi_x_i + qr )*( pi_x_i - qr ) ) ;
- }
+  double egcm = ( fDeltaMass2-Q2- mN2)/ ( 2.0 * fDeltaMass ) ; 
+  double qcm = sqrt(egcm*egcm + Q2);
 
- return 4.*constants::kPi*pow( fRadius/units::fm, 3)*aux_sum*(sin(qr)/(qr) ) ;
+  double AM = fParam_03 * (1.0 + fParam_001*Q2)*exp(-fParam_023*Q2)*(qcm/ fKgcm0)*Fq;
+  double a32 = constants::kSqrt3 * (  -AM ) / 2.0 ; 
+
+  return -r * 2.0 * a32 * constants::kProtonMass * fDeltaMass / (fMpw2+Q2);
 
 }
 //____________________________________________________________________________
@@ -95,6 +95,10 @@ void DeltaTransitionFormFactor::LoadConfig(void)
   GetParam( "WeinbergAngle", w_A ) ;
   
   fANC = 1. - 2 * pow( sin( w_A ), 2 ) ; 
+
+  GetParam( "NCG-Param03" , fParam_03 ) ;
+  GetParam( "NCG-Param001" , fParam_001 ) ;
+  GetParam( "NCG-Param023" , fParam_023 ) ;
   
   LOG("DeltaTransitionFormFactor", pINFO) << "Loaded " << fFBCs.size() << " coeffictients for nucleus " << fPDG ; 
   
