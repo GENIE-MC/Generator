@@ -193,10 +193,11 @@
    <config alg="genie::SmithMonizUtils">             SmithMonizUtils.xml             </config>
 
    <!-- ****** CONFIGURATION FOR MODELS IN MUELOSS UTILITY PACKAGE ****** -->
-   <config alg="genie::mueloss::BetheBlochModel">         BetheBlochModel.xml        </config>
-   <config alg="genie::mueloss::BezrukovBugaevModel">     BezrukovBugaevModel.xml    </config>
-   <config alg="genie::mueloss::KokoulinPetrukhinModel">  KokoulinPetrukhinModel.xml </config>
-   <config alg="genie::mueloss::PetrukhinShestakovModel"> PetrukhinShestakovModel.xml</config>
+   <config alg="genie::mueloss::BetheBlochModel">         BetheBlochModel.xml            </config>
+   <config alg="genie::mueloss::BezrukovBugaevModel">     BezrukovBugaevModel.xml        </config>
+   <config alg="genie::mueloss::KokoulinPetrukhinModel">  KokoulinPetrukhinModel.xml     </config>
+   <config alg="genie::mueloss::PetrukhinShestakovModel"> PetrukhinShestakovModel.xml    </config>
+   <config alg="genie::DeltaInMediumCorrections">         DeltaInMediumCorrections.xml   </config>
 
    <!-- ****** CONFIGURATION FOR MODELS IN VLE PACKAGE ****** -->
    <config alg="genie::IBDHadronicSystemGenerator">     IBDHadronicSystemGenerator.xml   </config>
