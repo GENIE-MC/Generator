@@ -16,10 +16,14 @@
 #include <TMath.h>
 
 #include "Physics/Coherent/XSection/DeltaInMediumCorrections.h"
+#include "Physics/NuclearState/FermiMomentumTablePool.h"
+
+
 #include "Framework/Messenger/Messenger.h"
 
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
+#include "Framework/ParticleData/PDGCodes.h"
 
 #include "Framework/Utils/StringUtils.h" 
 
@@ -46,14 +50,14 @@ DeltaInMediumCorrections::~DeltaInMediumCorrections()
 //____________________________________________________________________________
 double DeltaInMediumCorrections::FermiMomentum( int nucleus_pdg, int nucleon_pdg ) const {
   
-  double kf = fKFTable->FindClosestKF(nucleus_pdgc, nucleon_pdgc);
+  double kf = fKFTable->FindClosestKF(nucleus_pdg, nucleon_pdg);
   return kf ;
 
 }
 //____________________________________________________________________________
 double DeltaInMediumCorrections::AverageDensity( int nucleus_pdg, int nucleon_pdg ) const {
   
-  double rho = std::pow( FermiMomentum( int nucleus_pdg, int nucleon_pdg ), 3 ) * 2. / ( 3 * constants::kPi2 );
+  double rho = std::pow( FermiMomentum( nucleus_pdg, nucleon_pdg ), 3 ) * 2. / ( 3 * constants::kPi2 );
   return rho ;
 
 }
@@ -62,7 +66,7 @@ double DeltaInMediumCorrections::AverageDensity( int nucleus_pdg ) const {
   
   // this is the average density between proton and neutron matters
 
-  std::array<int,2> pdgs = {kPdgProton, kPdgNeutron} ;
+  std::array<int,2> pdgs = { kPdgProton, kPdgNeutron} ;
   double rho = 0. ;
   for ( auto pdg : pdgs ) {
     rho += AverageDensity( nucleus_pdg, pdg ) ;
