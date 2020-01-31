@@ -8,6 +8,8 @@ Configuration sets for the Corrections for Delta in Nuclear medium used in the C
 Algorithm Configurable Parameters:
 .........................................................................................
 Name                     Type    Optional   Comment                           Default
+NCG-Delta-V0             double  No         In GeV
+NCG-Rho0                 double  No         nuclear matter density (fm^-3)
 .........................................................................................
 
 
@@ -15,6 +17,8 @@ Name                     Type    Optional   Comment                           De
 
   <param_set name="Default">   
 
+        <param type="double" name="NCG-Delta-V0"> 0.08 </param>  <!-- reference-->
+        <param type="double" name="NCG-Rho0">  0.17  </param>  <!-- reference-->
     
   </param_set>
 

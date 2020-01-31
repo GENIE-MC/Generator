@@ -86,7 +86,8 @@ private:
   // No need to delete this object 
 
   double fDeltaV0 ; 
-  double fRho0 ; 
+  double fRho0 ;  // this is the nuclear matter density. 
+                  // It should be in natural units but it's read from the xml in fm^-3 as that is how it's usually reported
 
 };
 
