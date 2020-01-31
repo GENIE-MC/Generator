@@ -78,6 +78,12 @@ double DeltaInMediumCorrections::AverageDensity( int nucleus_pdg ) const {
   
 }
 //____________________________________________________________________________
+double DeltaInMediumCorrections::Sigma( int nucleus_pdg ) const {
+  
+  double sigma = -0.5 * fDeltaV0 * AverageDensity( nucleus_pdg ) / fRho0 ; 
+  return sigma ; 
+}
+//____________________________________________________________________________
 void DeltaInMediumCorrections::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -103,6 +109,11 @@ void DeltaInMediumCorrections::LoadConfig(void)
   fKFTable = kftp->GetTable( table_name );
 
   assert(fKFTable);
+
+  GetParam( "NCG-Delta-V0", fDeltaV0 ) ; 
+
+  GetParam( "NCG-Rho0", fRho0 ) ; 
+  
 
   //  LOG("DeltaInMediumCorrections", pINFO) << "Loaded " << fFBCs.size() << " coeffictients for nucleus " << fPDG ; 
   

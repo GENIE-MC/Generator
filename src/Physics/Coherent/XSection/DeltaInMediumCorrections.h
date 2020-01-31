@@ -72,6 +72,8 @@ public:
   double AverageDensity( int pdg ) const ;
   double AverageDensity( int nucleus_pdg, int nucleon_pdg ) const ;
 
+  double Sigma( int pdg ) const  ;
+  
   // AverageDirectPropagator() const ;
   // AverageCrossPropagator() const ;
 
@@ -82,7 +84,10 @@ private:
   const FermiMomentumTable * fKFTable = nullptr ;
   // this object is retrieved with a Pool that keeps ownerships of the tables
   // No need to delete this object 
-  
+
+  double fDeltaV0 ; 
+  double fRho0 ; 
+
 };
 
 }       // genie namespace
