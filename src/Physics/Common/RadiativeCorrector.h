@@ -62,7 +62,7 @@ public :
   void SetP4l(TLorentzVector p4l); 
   void SetCutoff(double cutoff); 
   void SetThickness(double thickness); 
-  void SetExtRadOnly(bool extRadOnly);
+  void SetDoInternalRad(bool doInternal);
 
 
   //int           rad_kDefOptNevents;       // n-events to generate
@@ -87,7 +87,7 @@ private:
   TLorentzVector fP4l; 
   InitialState * fInitState;       ///< initial state information for changing probe
   double         fCutoff;
-  bool		 fExtRadOnly;
+  bool		 fDoInternal;
   mutable GHepRecordHistory             fRecHistory;     ///< event record history 
 
 };

@@ -227,7 +227,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
             //double Phi_ext_e = 1. - ( (b*fThickness/2)/(b*fThickness/2 + lambda_e) )*( p4.E()/p4.P()  );
             double Phi_ext_e = 1. - ( (b*fThickness) / p4.E() / g * p4RadGamma.E()) ;
             double radcor_weight = W_rad_e*Phi_ext_e;
-	    evrec->SetWeight(evrec->Weight() * radcor_weight);
+	    if( fDoInternal) evrec->SetWeight(evrec->Weight() * radcor_weight);
             std::cout<<"weights C "<<C<<" g "<<g<<" W_rad_e "<<W_rad_e<<" Phi_ext_e "<<Phi_ext_e<<std::endl; 
 	    std::cout<<"weights b "<<b<<" fThickness "<<fThickness<<" p4.E() "<<p4.E()<<" p4RadGamma.E() "<<p4RadGamma.E()<<std::endl;
             LOG("RadiativeCorrector", pINFO) << "Applying ISR part of the radiative correction weight "<<evrec->Weight() * radcor_weight;
@@ -275,10 +275,39 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
                 double Phi_ext_el   = 1. - ( (b*fThickness) / p4.E() / g * p4RadGamma.E()) ;
 		double W_rad_pl     = 1.;
                 double Phi_ext_pl   = 1.;
-                radcor_weight       = W_rad_el*W_rad_pl*Phi_ext_el*Phi_ext_pl*(1-delta_hard);
+                if (fDoInternal) radcor_weight       = W_rad_el*W_rad_pl*Phi_ext_el*Phi_ext_pl*(1-delta_hard);
+		else radcor_weight       = Phi_ext_el*Phi_ext_pl;
                 //radcor_weight       = W_rad_el*W_rad_pl*Phi_ext_el*Phi_ext_pl;
 		std::cout<<"Weight: log "<<TMath::Log(kine->Q2(true)/pow(kElectronMass,2))<<" () "<<(-28./9.+(13./6.)*TMath::Log(kine->Q2(true)/pow(kElectronMass,2)))<<" E2 "<<pow(p4.E(),2)<<" delta_hard "<<delta_hard<<std::endl;
 	   	std::cout<<"C "<<C<<" g "<<g<<" W_rad_el "<<W_rad_el<<" W_rad_pl "<<W_rad_pl<<" Phi_ext_el"<<Phi_ext_el<<" delta hard "<<delta_hard<<std::endl;
+
+		// crisis attempt 
+		double lambda_e_ISR   = (kAem/kPi)*( 2*TMath::Log(2*init_state_ptr->GetProbeP4(kRfLab)->P()/kElectronMass) -1 + TMath::Log(0.5*(1-fP4l.CosTheta())) );
+                double lambda_e_FSR   =      (kAem/kPi)*( 2*TMath::Log(2*p->P4()->P()/kElectronMass) -1 + TMath::Log(0.5*(1-kine->FSLeptonP4().CosTheta())) );
+                double g_ISR          = b*fThickness + lambda_e_ISR;
+                double g_FSR          = b*fThickness + lambda_e_FSR;
+		double extrad_phi_ISR = 1. - (b*fThickness/init_state_ptr->ProbeE(kRfLab) + b*fThickness/kine->FSLeptonP4().E() ) / (g_ISR+g_FSR) * (init_state_ptr->ProbeE(kRfLab) - evrec->CorrectProbe()->GetP4()->P() );
+	        double extrad_phi_FSR = 1. - b*fThickness/kine->FSLeptonP4().E() / g_FSR * p4RadGamma.E();
+		double C_ISR = b*fThickness/pow(init_state_ptr->ProbeE(kRfLab),b*fThickness)/TMath::Gamma(1+b*fThickness);
+		double C_FSR = b*fThickness/pow(kine->FSLeptonP4().E()        ,b*fThickness)/TMath::Gamma(1+b*fThickness);
+		double g_ext = 2*b*fThickness; 
+		double c_ext = C_ISR*C_FSR * g_ext; //c_ext(1)*c_ext(2) * g_ext / bt(1)/bt(2)
+		c_ext = c_ext * TMath::Gamma(1+b*fThickness) * TMath::Gamma(1+b*fThickness) / TMath::Gamma(1 + g_ext);
+		std::cout<<"Weight try extrad_phi_ISR "<<extrad_phi_ISR<<" extrad_phi_FSR "<<extrad_phi_FSR<<" c_ext "<<c_ext<<std::endl;
+		std::cout<<" C_ISR "<<C_ISR<<" C_FSR "<<C_FSR<<" g_ext "<<g_ext<<std::endl;
+		//bei= (-1./(2.*pi))*log(ein/egamma)
+		//bef= (-1./(2.*pi))*log(eout/egamma)
+		//adot= ein*eout*(1.-cos(eang))
+		//alpha= 2.*ame**2 - 2.*adot
+		//ar1= 0.5+sqrt(adot**2 - ame**4)/alpha
+		//ar2= 0.5-sqrt(adot**2 - ame**4)/alpha
+		//bee= -1.*adot*inter(calculate_spence,alpha,ar1,ar2,ak,akp,de)
+		//b= 2.*e2*(bei+bef+bee)
+	        //double peaked_rad_weight = c_ext/g_ext * (exp(-dsoft_intmax)*emax**g_ext - exp(-dsoft_intmin)*emin**g_ext)
+		//peaked_rad_weight = peaked_rad_weight * exp(-eul*g(4))/gamma(1.+g(4))
+    		//	* gamma(1.+g(4)-bt(1)-bt(2))*gamma(1.+bt(1))
+    		//	* gamma(1.+bt(2))/gamma(1.+g(4))
+
 	   }
 
 	   LOG("RadiativeCorrector", pINFO) << "performing FSR correction for: " << p->Name();
@@ -381,7 +410,7 @@ void RadiativeCorrector::LoadConfig(void)
   GetParam( "RadiativeCorrectionModel" , fModel);
   GetParam( "RadiativeCorrectionThickness",fThickness);
   GetParam( "RadiativeCorrectionCutoff",fCutoff);
-  GetParam( "RadiativeCorrectionExtRadOnly",fExtRadOnly);
+  GetParam( "RadiativeCorrectionDoInternal",fDoInternal);
   
   /*
   const std::string keyStart = "Thickness@Pdg=";
@@ -439,9 +468,9 @@ void RadiativeCorrector::SetThickness(double thickness)
   fThickness = thickness;
 }
 //____________________________________________________________________________
-void RadiativeCorrector::SetExtRadOnly(bool extRadOnly)
+void RadiativeCorrector::SetDoInternalRad(bool doInternal)
 {
-  fExtRadOnly = extRadOnly;
+  fDoInternal = doInternal;
 }
 //____________________________________________________________________________
 void RadiativeCorrector::Configure(const InitialState & is)

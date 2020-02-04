@@ -51,6 +51,7 @@ private:
   mutable TF2 * fEnvelope; ///< 2-D envelope used for importance sampling
   double fWcut;            ///< Wcut parameter in DIS/RES join scheme
   bool fDoRadiativeCorrection;
+  bool fDoInternal;
   std::string fModel;               ///< to distinguish between differnt models, right now simc / vanderhagen
   double      fCutoff;
   double      fThickness;           ///< thicnknesses of targets in CLAS in radiation length 

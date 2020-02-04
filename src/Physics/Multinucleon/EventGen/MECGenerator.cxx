@@ -319,6 +319,7 @@ void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
           TLorentzVector p4l = this->GetFinalStateLepton(event,Ev,gy,gQ2);
           RadiativeCorrector * fISRCorrector = new RadiativeCorrector();
           fISRCorrector->SetISR(true);
+	  fISRCorrector->SetDoInternalRad(fDoInternal);
           fISRCorrector->SetModel(fModel);
           fISRCorrector->SetCutoff(fCutoff);
           fISRCorrector->SetThickness(fThickness);
@@ -1154,6 +1155,7 @@ void MECGenerator::LoadConfig(void)
        GetParamDef( "RadiativeCorrectionModel" , fModel, std::string("simc"));
        GetParam( "RadiativeCorrectionCutoff",fCutoff);
        GetParam( "RadiativeCorrectionThickness",fThickness);
+       GetParam( "RadiativeCorrectionDoInternal",fDoInternal);
     }
 }
 //___________________________________________________________________________

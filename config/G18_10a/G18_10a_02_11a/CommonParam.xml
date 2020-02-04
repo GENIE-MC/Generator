@@ -320,7 +320,6 @@ University of Liverpool
      <param type="double"  name="RadiativeCorrectionCutoff"> 0.0001 </param>
      <param type="double"  name="RadiativeCorrectionThickness"> 0.008532 </param> <!--Fe-->
      <!-- <param type="double"  name="RadiativeCorrectionThickness"> 0.027760 </param>   -->     <!--H -->
-     <param type="bool"  name="RadiativeCorrectionExtRadOnly"> false  </param> <!--Fe-->
 
   </param_set>
 

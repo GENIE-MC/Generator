@@ -37,7 +37,7 @@ Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cach
      <param type="string"  name="RadiativeCorrectionModel"> simc </param>
      <param type="double"  name="RadiativeCorrectionCutoff"> 0.0001 </param>
      <param type="double"  name="RadiativeCorrectionThickness"> 0.008532  </param>  <!--Fe-->
-     <param type="bool"   name="RadiativeCorrectionExtRadOnly"> true             </param>
+     <param type="bool"   name="RadiativeCorrectionDoInternal"> false             </param>
      <param type="bool"   name="doRadiativeCorrection"> true                                    </param>
      <param type="double" name="MaxXSec-SafetyFactor">   1.500                                  </param>
 

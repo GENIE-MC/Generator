@@ -55,6 +55,7 @@ private:
   std::string fModel;               ///< to distinguish between differnt models, right now simc / vanderhagen
   double      fCutoff;
   double      fThickness;           ///< thicnknesses of targets in CLAS in radiation length 
+  bool        fdoInternal;
   bool fApplyCoulombCorrection;
 };
 

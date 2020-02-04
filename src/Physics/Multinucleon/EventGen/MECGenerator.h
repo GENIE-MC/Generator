@@ -68,6 +68,7 @@ private:
 
   double fQ3Max;
   bool fDoRadiativeCorrection;
+  bool fDoInternal;
   std::string fModel;               ///< to distinguish between differnt models, right now simc / vanderhagen
   double      fCutoff;
   double      fThickness;           ///< thicnknesses of targets in CLAS in radiation length 

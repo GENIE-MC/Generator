@@ -30,7 +30,7 @@ Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cach
   <param_set name="EM-radcorr"> 
     <param type="string" name="CommonParam"> RadiativeCorrection </param> 
     <param type="bool"   name="doRadiativeCorrection"> true                      </param>
-    <param type="bool"   name="RadiativeCorrectionExtRadOnly"> false             </param>
+    <param type="bool"   name="RadiativeCorrectionDoInternal"> true             </param>
   </param_set>
 
   <param_set name="CC-Charm-Default"> 

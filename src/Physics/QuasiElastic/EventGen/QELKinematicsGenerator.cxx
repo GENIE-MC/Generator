@@ -239,6 +239,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
           TLorentzVector p4l = this->GetFinalStateLeptonKinematic(evrec,E,gy,gQ2);
           RadiativeCorrector * fISRCorrector = new RadiativeCorrector();
           fISRCorrector->SetISR(true);
+	  fISRCorrector->SetDoInternalRad(true);
           fISRCorrector->SetModel(fModel);
           fISRCorrector->SetCutoff(fCutoff);
           fISRCorrector->SetThickness(fThickness);
@@ -678,6 +679,7 @@ void QELKinematicsGenerator::LoadConfig(void)
      GetParamDef( "RadiativeCorrectionModel" , fModel, std::string("simc"));
      GetParam( "RadiativeCorrectionCutoff",fCutoff);
      GetParam( "RadiativeCorrectionThickness",fThickness);
+     GetParam( "RadiativeCorrectionDoInternal",fdoInternal);
   }
 }
 //____________________________________________________________________________

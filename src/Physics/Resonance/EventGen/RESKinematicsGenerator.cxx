@@ -273,6 +273,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
           TLorentzVector p4l = this->GetFinalStateLeptonKinematic(evrec,E,gy,gQ2);
           RadiativeCorrector * fISRCorrector = new RadiativeCorrector();
           fISRCorrector->SetISR(true);
+          fISRCorrector->SetDoInternalRad(fDoInternal);
           fISRCorrector->SetModel(fModel);
           fISRCorrector->SetCutoff(fCutoff);
           fISRCorrector->SetThickness(fThickness);
@@ -390,6 +391,7 @@ void RESKinematicsGenerator::LoadConfig(void)
      GetParamDef( "RadiativeCorrectionModel" , fModel, std::string("simc"));
      GetParam( "RadiativeCorrectionCutoff",fCutoff);
      GetParam( "RadiativeCorrectionThickness",fThickness);
+     GetParam( "RadiativeCorrectionDoInternal",fDoInternal);
   }
 }
 //____________________________________________________________________________

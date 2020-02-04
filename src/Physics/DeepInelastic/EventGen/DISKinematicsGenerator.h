@@ -51,6 +51,7 @@ private:
   TLorentzVector GetFinalStateLeptonKinematic(GHepRecord * evrec, double E, double gy, double gQ2) const;
 
   bool fDoRadiativeCorrection;
+  bool fDoInternal;
   std::string fModel;               ///< to distinguish between differnt models, right now simc / vanderhagen
   double      fCutoff;
   double      fThickness;           ///< thicnknesses of targets in CLAS in radiation length 

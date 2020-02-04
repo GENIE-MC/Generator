@@ -216,6 +216,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
           TLorentzVector p4l = this->GetFinalStateLeptonKinematic(evrec,Ev,gy,gQ2);
           RadiativeCorrector * fISRCorrector = new RadiativeCorrector();
           fISRCorrector->SetISR(true);
+	  fISRCorrector->SetDoInternalRad(fDoInternal);
           fISRCorrector->SetModel(fModel);
           fISRCorrector->SetCutoff(fCutoff);
           fISRCorrector->SetThickness(fThickness);
@@ -308,6 +309,7 @@ void DISKinematicsGenerator::LoadConfig(void)
        GetParamDef( "RadiativeCorrectionModel" , fModel, std::string("simc"));
        GetParam( "RadiativeCorrectionCutoff",fCutoff);
        GetParam( "RadiativeCorrectionThickness",fThickness);
+       GetParam( "RadiativeCorrectionDoInternal",fDoInternal);
     }
 
 }

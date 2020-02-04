@@ -261,7 +261,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   <param_set name="QEL-EM-radcorr">
      <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">  13                                                   </param>
-     <param type="alg"    name="Module-0">  genie::InitialStateAppender/Default                  </param>
+     <param type="alg"    name="Module-0">  genie::InitialStateAppender/DefaultQEL               </param>
      <param type="alg"    name="Module-1">  genie::VertexGenerator/Default                       </param>
      <param type="alg"    name="Module-2">  genie::FermiMover/Default                            </param>
      <param type="alg"    name="Module-3">  genie::QELKinematicsGenerator/EM-radcorr             </param> 
