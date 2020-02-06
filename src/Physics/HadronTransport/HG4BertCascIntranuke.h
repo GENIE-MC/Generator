@@ -28,7 +28,6 @@
 
 
 #include <TLorentzVector.h>
-class TLorentzVector;
 class TVector3;
 
 class G4ParticleDefinition;
@@ -50,7 +49,7 @@ public :
  ~HG4BertCascIntranuke();
 
   void ProcessEventRecord(GHepRecord* event_rec) const;
-  virtual string GetINukeMode() const {return "hA2018";};
+  virtual string GetINukeMode() const {return "hG4BertCasc";};
 
 
   void Configure(const Registry & config);
@@ -65,10 +64,10 @@ private:
   const G4ParticleDefinition* PDGtoG4Particle(int pdg) const;
   G4KineticTrackVector* ConvertGenieSecondariesToG4(GHepRecord* evrec) const;
   G4KineticTrackVector* ConvertGenieSecondariesToG4(std::vector<GHepParticle> partList) const;
-  //TLorentzVector pincident(std::vector<GHepParticle>partList)const;
 
   bool   Conserve4Momentum  (GHepRecord* ev) const;
   bool   CanRescatter       (const GHepParticle* p) const;
+  bool   IsBaryon           (const GHepParticle* p) const;
   void   GenerateVertex     (GHepRecord * ev) const;
   bool   IsInNucleus        (const GHepParticle* p) const;
   void   SetTrackingRadius  (const GHepParticle* p) const;
@@ -77,8 +76,7 @@ private:
 
   // utility objects & params
   mutable double fTrackingRadius;  // tracking radius for nucleus current event
-  INukeHadroData* fHadroData;      // a collection of h+N,h+A data & calculations
-  AlgFactory* fAlgf;               // algorithm factory instance
+
   const NuclearModelI* fNuclmodel; // nuclear model used to generate fermi momentum
   mutable int fRemnA;              // remnant nucleus A
   mutable int fRemnZ;              // remnant nucleus Z
