@@ -453,7 +453,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
   }
 
   if ( has_secondaries ) {
-    if ( ! incidentBaryon ) LOG("G4BertCascInterface::TransportHadrons", pWARN)
+    if ( ! incidentBaryon ) LOG("G4BertCascInterface::TransportHadrons", pINFO)
                               << "Unrecognized baryon in nucleus";
 
     int Zinit = remNucl->Z() - outLept->Charge()/3;
