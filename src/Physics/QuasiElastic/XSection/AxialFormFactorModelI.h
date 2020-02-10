@@ -4,19 +4,20 @@
 \class    genie::AxialFormFactorModelI
 
 \brief    Pure abstract base class. Defines the AxialFormFactorModelI interface
-          to be implemented by LlewellynSmith Algorithm for calculating the 
+          to be implemented by LlewellynSmith Algorithm for calculating the
           Axial Form Factor.
 
 \author   Aaron Meyer <asmeyer2012 \at uchicago.edu>
+
           based off ELFormFactorsModelI by
-          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  August 16, 2013
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+
 */
 //____________________________________________________________________________
 

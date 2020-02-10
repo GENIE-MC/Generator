@@ -1,24 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
- @ Sep 13, 2007 - CA
-   Debugged the model in order to be included in the default event generation
-   threads in the next physics release (2.0.2). Rather than using Kovalenko's
-   expression for the ZR scaling factor, I apply an ad-hoc scaling factor 
-   maintaining the relative strength of the QELC channels but lowering their 
-   sum to be consistent with recent NOMAD measurement. The default value of
-   M0 has been changed from 0.1 to sqrt(0.1) as in M.Bischofberger's (ETHZ)
-   PhD thesis (DISS.ETH NO 16034). For more details see GENIE-PUB/2007/006.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -106,7 +92,7 @@ double KovalenkoQELCharmPXSec::XSec(
   double D         = this->DR(interaction);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("QELCharmXSec", pDEBUG) 
+  LOG("QELCharmXSec", pDEBUG)
      << "Z = " << Z << ", D = " << D << ". xiR = " << xiR << ", vR = " << vR;
 #endif
 
@@ -129,8 +115,8 @@ double KovalenkoQELCharmPXSec::XSec(
   xsec *= NNucl;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("QELCharmXSec", pINFO) 
-     << "dsigma/dQ2(E=" << E << ", Q2=" << Q2 << ") = " 
+  LOG("QELCharmXSec", pINFO)
+     << "dsigma/dQ2(E=" << E << ", Q2=" << Q2 << ") = "
                              << xsec / (1E-40*units::cm2) << " x 1E-40 cm^2";
 #endif
 
@@ -178,18 +164,18 @@ double KovalenkoQELCharmPXSec::DR(const Interaction * interaction) const
   double xi_bar_minus  = 0.999;
   double xi_bar_plus  = this->xiBar(Q2, Mnuc, vR_plus);
 
-  LOG("QELCharmXSec", pDEBUG) 
+  LOG("QELCharmXSec", pDEBUG)
     << "Integration limits = [" << xi_bar_plus << ", " << xi_bar_minus << "]";
 
   int pdgc = init_state.Tgt().HitNucPdg();
 
-  ROOT::Math::IBaseFunctionOneDim * integrand = new 
+  ROOT::Math::IBaseFunctionOneDim * integrand = new
           utils::gsl::wrap::KovQELCharmIntegrand(&pdfs,Q2,pdgc);
-  ROOT::Math::IntegrationOneDim::Type ig_type = 
+  ROOT::Math::IntegrationOneDim::Type ig_type =
           utils::gsl::Integration1DimTypeFromString("adaptive");
-  
+
   double abstol   = 1;    // We mostly care about relative tolerance
-  double reltol   = 1E-4; 
+  double reltol   = 1E-4;
   int    nmaxeval = 100000;
   ROOT::Math::Integrator ig(*integrand,ig_type,abstol,reltol,nmaxeval);
   double D = ig.Integral(xi_bar_plus, xi_bar_minus);
@@ -369,13 +355,13 @@ double utils::gsl::wrap::KovQELCharmIntegrand::DoEval(double xin) const
   bool isP = pdg::IsProton(fPdgC);
   double f = (isP) ? fPDF->DownValence() : fPDF->UpValence();
 
-  LOG("QELCharmXSec", pDEBUG) 
-        << "f(xin = " << xin << ", Q2 = " << fQ2 << ") = " << f; 
+  LOG("QELCharmXSec", pDEBUG)
+        << "f(xin = " << xin << ", Q2 = " << fQ2 << ") = " << f;
 
   return f;
 }
 //____________________________________________________________________________
-ROOT::Math::IBaseFunctionOneDim * 
+ROOT::Math::IBaseFunctionOneDim *
   utils::gsl::wrap::KovQELCharmIntegrand::Clone(void) const
 {
   return new utils::gsl::wrap::KovQELCharmIntegrand(fPDF, fQ2, fPdgC);

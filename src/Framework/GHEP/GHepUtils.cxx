@@ -1,18 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - Nov 30, 2008
-
- For documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Nov 30, 2008 - CA
-   Added in version 2.5.1
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -31,13 +23,13 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
 {
 // Ryan Terri, Yoshinari Hayato, Costas Andreopoulos
 //
-// A description of NEUT event types can be seen here: 
+// A description of NEUT event types can be seen here:
 // http://t2k.phy.duke.edu/bin/view/Main/NeutModes
 // Any extension used here has been agreed with SK (Hayato et al)
 //
 // Updated for NEUT 5.4.0 by Christophe Bronner
 
-  
+
   if(!event) {
     LOG("GHepUtils", pWARN) << "Null event!";
     return 0;
@@ -45,14 +37,14 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
 
   int evtype = 0;
 
-  Interaction * interaction = event->Summary();  
-          
+  Interaction * interaction = event->Summary();
+
   const ProcessInfo &  proc = interaction->ProcInfo();
   const InitialState & init = interaction->InitState();
   const XclsTag &      xcls = interaction->ExclTag();
   const Kinematics &   kine = interaction->Kine();
   const Target &       tgt  = init.Tgt();
-        
+
   bool is_cc    = proc.IsWeakCC();
   bool is_nc    = proc.IsWeakNC();
   bool is_charm = xcls.IsCharmEvent();
@@ -69,16 +61,16 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
   bool is_nu    = pdg::IsNeutrino    (init.ProbePdg());
   bool is_nubar = pdg::IsAntiNeutrino(init.ProbePdg());
   bool W_gt_2   = kine.KVSet(kKVW) ?  (kine.W() > 2.0) : false;
-        
+
   // (quasi-)elastic, nc+cc, nu+nubar
   //
   if      (is_qel && !is_charm && is_cc && is_nu           ) evtype =   1;
-  else if (is_qel && !is_charm && is_nc && is_nu && is_p   ) evtype =  51;   
+  else if (is_qel && !is_charm && is_nc && is_nu && is_p   ) evtype =  51;
   else if (is_qel && !is_charm && is_nc && is_nu && is_n   ) evtype =  52;
   else if (is_qel && !is_charm && is_cc && is_nubar        ) evtype =  -1;
   else if (is_qel && !is_charm && is_nc && is_nubar && is_p) evtype = -51;
   else if (is_qel && !is_charm && is_nc && is_nubar && is_n) evtype = -52;
-           
+
   // MEC - only CC implemented in NEUT
   else if      (is_mec && !is_charm && is_cc && is_nu           ) evtype =   2;
   else if      (is_mec && !is_charm && is_cc && is_nubar        ) evtype =  -2;
@@ -92,28 +84,28 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
   //Those modes don't actually exist in NEUT, 9 and 59 used as place holders
   else if ( is_imd ) evtype =  9;
   else if ( is_ve  ) evtype = 59;
-               
+
   // coherent pi, nc+cc, nu+nubar
   //
   else if (is_coh_pr && is_cc && is_nu   ) evtype =  16;
   else if (is_coh_pr && is_cc && is_nubar) evtype = -16;
   else if (is_coh_pr && is_nc && is_nu   ) evtype =  36;
   else if (is_coh_pr && is_nc && is_nubar) evtype = -36;
-                     
+
   // dis, W>2, nc+cc, nu+nubar
   // (charm DIS not simulated by NEUT, will bundle GENIE charm DIS into this category)
   //
   else if (is_dis && W_gt_2 && is_cc && is_nu   ) evtype =  26;
   else if (is_dis && W_gt_2 && is_nc && is_nu   ) evtype =  46;
-  else if (is_dis && W_gt_2 && is_cc && is_nubar) evtype = -26; 
-  else if (is_dis && W_gt_2 && is_nc && is_nubar) evtype = -46; 
+  else if (is_dis && W_gt_2 && is_cc && is_nubar) evtype = -26;
+  else if (is_dis && W_gt_2 && is_nc && is_nubar) evtype = -46;
 
   // resonance or dis with W < 2 GeV or single kaon
   //
   else if ( is_res || (is_dis && !W_gt_2) || is_ask ) {
-        
+
      LOG("GHepUtils", pNOTICE) << "Current event is RES or DIS with W<2";
-        
+
      // check the number of pions and nucleons in the primary hadronic system
      // (_before_ intranuclear rescattering)
      //
@@ -129,7 +121,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
          int ghep_pdgc    = p->Pdg();
          int ghep_fm      = p->FirstMother();
          int ghep_fmpdgc  = (ghep_fm==-1) ? 0 : event->Particle(ghep_fm)->Pdg();
-        
+
          // For nuclear targets use hadrons marked as 'hadron in the nucleus'
          // which are the ones passed in the intranuclear rescattering
          // For free nucleon targets use particles marked as 'final state'
@@ -144,7 +136,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
                (!nuclear_target && ghep_ist==kIStStableFinalState && !parent_included);
 
          if(!count_it) continue;
-                
+
          if(ghep_pdgc == kPdgProton )    np++;            // p
          if(ghep_pdgc == kPdgNeutron)    nn++;            // n
          if(ghep_pdgc == kPdgPiP)        npip++;          // pi+
@@ -161,81 +153,81 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
      }
      LOG("GHepUtils", pNOTICE)
            << "Num of primary particles: \n p = " << np << ", n = " << nn
-              << ", pi+ = " << npip << ", pi- = " << npim << ", pi0 = " << npi0 
-              << ", eta = " << neta 
-              << ", K+ = " << nKp << ", K- = " << nKm << ", K0 = " << nK0 
+              << ", pi+ = " << npip << ", pi- = " << npim << ", pi0 = " << npi0
+              << ", eta = " << neta
+              << ", K+ = " << nKp << ", K- = " << nKm << ", K0 = " << nK0
               << ", Lambda's = " << nlambda
               << ", gamma's = " << ngamma;
-              
+
      int nnuc = np + nn;
      int npi  = npi0 + npip + npim;
      int nK   = nK0 + nKp + nKm;
      int neKL = neta + nK + nlambda;
-              
+
      bool is_radiative_dec = (nnuc==1) && (npi==0) && (ngamma==1);
-              
+
      //
      // single gamma from resonances
      //
-              
+
      if      (is_res && is_nu    && is_cc && is_n && is_radiative_dec) evtype =  17;
      else if (is_res && is_nu    && is_nc && is_n && is_radiative_dec) evtype =  38;
      else if (is_res && is_nu    && is_nc && is_p && is_radiative_dec) evtype =  39;
-               
+
      else if (is_res && is_nubar && is_cc && is_p && is_radiative_dec) evtype = -17;
      else if (is_res && is_nubar && is_nc && is_n && is_radiative_dec) evtype = -38;
      else if (is_res && is_nubar && is_nc && is_p && is_radiative_dec) evtype = -39;
-               
+
      //
      // single pi (res + non-res bkg)
      //
-            
+
      // nu CC
      else if (is_nu    && is_cc && is_p && np==1 && nn==0 && npip==1 && npim==0 && npi0==0 && neKL==0) evtype =  11;
      else if (is_nu    && is_cc && is_n && np==1 && nn==0 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype =  12;
      else if (is_nu    && is_cc && is_n && np==0 && nn==1 && npip==1 && npim==0 && npi0==0 && neKL==0) evtype =  13;
-           
+
      // nu NC
      else if (is_nu    && is_nc && is_n && np==0 && nn==1 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype =  31;
      else if (is_nu    && is_nc && is_p && np==1 && nn==0 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype =  32;
      else if (is_nu    && is_nc && is_n && np==1 && nn==0 && npip==0 && npim==1 && npi0==0 && neKL==0) evtype =  33;
      else if (is_nu    && is_nc && is_p && np==0 && nn==1 && npip==1 && npim==0 && npi0==0 && neKL==0) evtype =  34;
-           
+
      //nubar CC
      else if (is_nubar && is_cc && is_n && np==0 && nn==1 && npip==0 && npim==1 && npi0==0 && neKL==0) evtype = -11;
      else if (is_nubar && is_cc && is_p && np==0 && nn==1 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype = -12;
      else if (is_nubar && is_cc && is_p && np==1 && nn==0 && npip==0 && npim==1 && npi0==0 && neKL==0) evtype = -13;
-                     
+
      //nubar NC
      else if (is_nubar && is_nc && is_n && np==0 && nn==1 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype = -31;
      else if (is_nubar && is_nc && is_p && np==1 && nn==0 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype = -32;
      else if (is_nubar && is_nc && is_n && np==1 && nn==0 && npip==0 && npim==1 && npi0==0 && neKL==0) evtype = -33;
      else if (is_nubar && is_nc && is_p && np==0 && nn==1 && npip==1 && npim==0 && npi0==0 && neKL==0) evtype = -34;
-              
+
      //
      // single eta from res
      //
-              
+
      else if (is_res &&  is_nu    && is_cc && is_n && np==1 && nn==0 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype =  22;
      else if (is_res &&  is_nu    && is_nc && is_n && np==0 && nn==1 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype =  42;
      else if (is_res &&  is_nu    && is_nc && is_p && np==1 && nn==0 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype =  43;
-              
+
      else if (is_res &&  is_nubar && is_cc && is_p && np==0 && nn==1 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype = -22;
      else if (is_res &&  is_nubar && is_nc && is_n && np==0 && nn==1 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype = -42;
      else if (is_res &&  is_nubar && is_nc && is_p && np==1 && nn==0 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype = -43;
-              
+
      //
      // single K from res (dS=0)
      //
-              
+
      else if (is_res &&  is_nu    && is_cc && is_n && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype =  23;
      else if (is_res &&  is_nu    && is_nc && is_n && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype =  44;
      else if (is_res &&  is_nu    && is_nc && is_p && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype =  45;
-              
+
      else if (is_res &&  is_nubar && is_cc && is_p && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype = -23;
      else if (is_res &&  is_nubar && is_nc && is_n && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype = -44;
      else if (is_res &&  is_nubar && is_nc && is_p && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype = -45;
-     
+
      //
      // single K from AtharSingleKaon (dS=1)
      //
@@ -243,7 +235,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
      else if (is_ask &&  is_nu && is_cc && is_n && nn==1 && np==0 && nKp==1 && neKL==1) evtype =  18;
      else if (is_ask &&  is_nu && is_cc && is_n && nn==0 && np==1 && nK0==1 && neKL==1) evtype =  19;
      else if (is_ask &&  is_nu && is_cc && is_p && nn==0 && np==1 && nKp==1 && neKL==1) evtype =  20;
-     
+
 
      // antineutrino modes not yet implemented
      //else if (is_ask &&  is_nubar && is_cc && is_n && nn==1 && np==0 && nKp==1 && neKL==1) evtype = -18;
@@ -253,7 +245,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
      //
      // multi-pi (res or dis (W<2GeV)
      //
-              
+
      else if (is_nu    && is_cc && npi>1) evtype =  21;
      else if (is_nu    && is_nc && npi>1) evtype =  41;
      else if (is_nubar && is_cc && npi>1) evtype = -21;
@@ -264,7 +256,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
      // (eg K0\bar{K0} final states, N0(1720) -> Sigma- K+ res decays, etc)
      // bundled-in with multi-pi
      //
-     else {              
+     else {
        LOG("GHepUtils", pWARN)
          << "Rare RES/low-W DIS final state: Bundled-in with multi-pi events";
 
@@ -281,7 +273,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
 int genie::utils::ghep::NuanceReactionCode(const GHepRecord * event)
 {
 // Josh Spitz, Costas Andreopoulos
-//  
+//
   if(!event) {
     LOG("GHepUtils", pWARN) << "Null event!";
     return 0;
@@ -289,7 +281,7 @@ int genie::utils::ghep::NuanceReactionCode(const GHepRecord * event)
 
   int evtype = 0;
 
-  Interaction * interaction = event->Summary();  
+  Interaction * interaction = event->Summary();
 
   const ProcessInfo &  proc = interaction->ProcInfo();
   const InitialState & init = interaction->InitState();
@@ -302,14 +294,14 @@ int genie::utils::ghep::NuanceReactionCode(const GHepRecord * event)
   else if (proc.IsNuElectronElastic())                 evtype = 98;
   else if (proc.IsInverseMuDecay())                    evtype = 99;
   else if (proc.IsResonant()) {
-     int nn=0, np=0, npi0=0, npip=0, npim=0; 
+     int nn=0, np=0, npi0=0, npip=0, npim=0;
      bool nuclear_target = init.Tgt().IsNucleus();
      GHepStatus_t matched_ist = (nuclear_target) ?
                 kIStHadronInTheNucleus : kIStStableFinalState;
 
      TIter event_iter(event);
      GHepParticle * p = 0;
-  
+
      while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) )
      {
          GHepStatus_t ghep_ist = (GHepStatus_t) p->Status();
@@ -327,7 +319,7 @@ int genie::utils::ghep::NuanceReactionCode(const GHepRecord * event)
          if(np==1 && nn==0 && npip==1 && npi0==0 && npim==0) evtype = 3;
      }
      if(proc.IsWeakCC() && init.IsNuN()) {
-         // v n -> l- p pi0  
+         // v n -> l- p pi0
          if(np==1 && nn==0 && npip==0 && npi0==1 && npim==0) evtype = 4;
          // v n -> l- n pi+
          if(np==0 && nn==1 && npip==1 && npi0==0 && npim==0) evtype = 5;

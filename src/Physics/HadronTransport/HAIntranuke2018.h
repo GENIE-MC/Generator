@@ -17,13 +17,13 @@
           Aaron Meyer <asm58@pitt.edu>, Pittsburgh University
 	  Alex Bell, Pittsburgh University
           Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts University
-          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk> STFC, Rutherford Lab
+          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch> STFC, Rutherford Lab
 
 \created  September 20, 2005
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+          
 */
 //____________________________________________________________________________
 

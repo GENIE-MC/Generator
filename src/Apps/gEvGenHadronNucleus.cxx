@@ -71,15 +71,15 @@
           University of Pittsburgh
 
           Costas Andreopoulos,
-          University of Liverpool & STFC Rutherford Appleton Lab
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \version 1.3
 
 \created May 1, 2007
 
-\cpright Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //____________________________________________________________________________
 

@@ -3,18 +3,17 @@
 
 \class    genie::GHepFlag
 
-\brief    An enumeration of event flags. Each represents a physical condition 
-          or a computational error. If any is set the event would be marked as 
+\brief    An enumeration of event flags. Each represents a physical condition
+          or a computational error. If any is set the event would be marked as
           unphysical.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -40,7 +39,7 @@ class GHepFlags {
 
  public:
   //__________________________________________________________________________
-  static const char * Describe(GHepFlag_t flag) 
+  static const char * Describe(GHepFlag_t flag)
   {
      switch (flag) {
      case kGenericErr :
@@ -58,13 +57,13 @@ class GHepFlags {
      case kKineGenErr :
             return "Generic error in kinematic generation";
             break;
-     case kHadroSysGenErr : 
+     case kHadroSysGenErr :
             return "Generic error in f/s hadronic system generation";
             break;
-     case kLeptoGenErr : 
+     case kLeptoGenErr :
             return "Generic error in f/s lepton generation";
             break;
-     case kDecayErr : 
+     case kDecayErr :
             return "Generic error during unstable particle decay";
             break;
      default:

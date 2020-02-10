@@ -1,16 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -71,7 +65,7 @@ double KokoulinPetrukhinModel::dE_dx(double E, MuELMaterial_t material) const
       new gsl::KokoulinPetrukhinIntegrand(E, Z);
   ROOT::Math::IntegrationMultiDim::Type ig_type =
       utils::gsl::IntegrationNDimTypeFromString("adaptive");
-  
+
   double abstol   = 1; // We mostly care about relative tolerance.
   double reltol   = 1E-4;
   int    nmaxeval = 500000;
@@ -92,24 +86,6 @@ double KokoulinPetrukhinModel::dE_dx(double E, MuELMaterial_t material) const
   return de_dx;
 }
 //____________________________________________________________________________
-//void KokoulinPetrukhinModel::Configure(const Registry & config)
-//{
-//  Algorithm::Configure(config);
-//  this->LoadConfig();
-//}
-////____________________________________________________________________________
-//void KokoulinPetrukhinModel::Configure(string config)
-//{
-//  Algorithm::Configure(config);
-//  this->LoadConfig();
-//}
-////____________________________________________________________________________
-//void KokoulinPetrukhinModel::LoadConfig(void)
-//{
-////  fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-////  assert(fIntegrator);
-//}
-//____________________________________________________________________________
 //
 // KokoulinPetrukhinIntegrand
 //
@@ -129,7 +105,7 @@ gsl::KokoulinPetrukhinIntegrand::~KokoulinPetrukhinIntegrand()
 unsigned int gsl::KokoulinPetrukhinIntegrand::NDim(void) const
 {
   return 2;
-} 
+}
 //____________________________________________________________________________
 double gsl::KokoulinPetrukhinIntegrand::DoEval (const double * xin) const
 {
@@ -142,7 +118,7 @@ double gsl::KokoulinPetrukhinIntegrand::DoEval (const double * xin) const
   if (   v >1)  return 0;
   if (! (fE>0)) return 0;
 
-  double pmax_v = (1. - 6.*kMuonMass2 / (fE*fE*(1.-v)) ) * 
+  double pmax_v = (1. - 6.*kMuonMass2 / (fE*fE*(1.-v)) ) *
                                  TMath::Sqrt(1.-4.*kElectronMass/(fE*v));
   if(p>pmax_v) return 0;
 
@@ -201,10 +177,9 @@ double gsl::KokoulinPetrukhinIntegrand::DoEval (const double * xin) const
   return vd2s_dvdp;
 }
 //____________________________________________________________________________
-ROOT::Math::IBaseFunctionMultiDim * 
+ROOT::Math::IBaseFunctionMultiDim *
   gsl::KokoulinPetrukhinIntegrand::Clone(void) const
 {
   return new gsl::KokoulinPetrukhinIntegrand(fE,fZ);
 }
 //____________________________________________________________________________
-

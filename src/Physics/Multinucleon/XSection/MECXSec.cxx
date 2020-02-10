@@ -1,10 +1,7 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
-
- For the class documentation see the corresponding header file.
 
 */
 //____________________________________________________________________________
@@ -61,7 +58,7 @@ double MECXSec::Integrate(
       const XSecAlgorithmI * model, const Interaction * in) const
 {
   if(! model->ValidProcess(in) ) return 0.;
-  
+
   const KPhaseSpace & kps = in->PhaseSpace(); // only OK phase space for this
   if(!kps.IsAboveThreshold()) {
      LOG("MECXSec", pDEBUG)  << "*** Below energy threshold";
@@ -71,7 +68,7 @@ double MECXSec::Integrate(
   Interaction * interaction = new Interaction(*in);
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
-  
+
   // T, costh limits
   double Enu = in->InitState().ProbeE(kRfLab);
   double LepMass = in->FSPrimLepton()->Mass();
@@ -81,29 +78,29 @@ double MECXSec::Integrate(
   double CosthMin = -1.0;
   if (Enu < fQ3Max) {
     TMin = 0 ;
-    CosthMin = -1 ; 
+    CosthMin = -1 ;
   } else {
     TMin = TMath::Sqrt(TMath::Power(LepMass, 2) + TMath::Power((Enu - fQ3Max), 2)) - LepMass;
     CosthMin = TMath::Sqrt(1 - TMath::Power((fQ3Max / Enu ), 2));
   }
 
-  double kine_min[2] = { TMin,  CosthMin }; 
-  double kine_max[2] = { TMax,  CosthMax }; 
+  double kine_min[2] = { TMin,  CosthMin };
+  double kine_max[2] = { TMax,  CosthMax };
 
   double xsec = 0;
 
   double abstol = 1; //We mostly care about relative tolerance.
-  ROOT::Math::IBaseFunctionMultiDim * func = 
+  ROOT::Math::IBaseFunctionMultiDim * func =
         new utils::gsl::d2Xsec_dTCosth(model, interaction);
-  ROOT::Math::IntegrationMultiDim::Type ig_type = 
-    utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);        
+  ROOT::Math::IntegrationMultiDim::Type ig_type =
+    utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
   ROOT::Math::IntegratorMultiDim ig(
     *func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
-  
-  xsec = ig.Integral(kine_min, kine_max); 
+
+  xsec = ig.Integral(kine_min, kine_max);
 
   delete func;
-  delete interaction;   
+  delete interaction;
 
   return xsec;
 }
@@ -144,13 +141,13 @@ ROOT::Math::IBaseFunctionMultiDim(),
 fModel(m),
 fInteraction(i)
 {
-  
+
 }
 //____________________________________________________________________________
 genie::utils::gsl::d2Xsec_dTCosth::~d2Xsec_dTCosth()
 {
-  
-}   
+
+}
 //____________________________________________________________________________
 unsigned int genie::utils::gsl::d2Xsec_dTCosth::NDim(void) const
 {
@@ -165,15 +162,15 @@ double genie::utils::gsl::d2Xsec_dTCosth::DoEval(const double * xin) const
 // outputs:
 //   differential cross section (hbar=c=1 units)
 //
- 
+
   double T     = xin[0];
   double costh = xin[1];
 
   Kinematics * kinematics = fInteraction->KinePtr();
   kinematics->SetKV(kKVTl, T);
   kinematics->SetKV(kKVctl, costh);
-  
-  double xsec = fModel->XSec(fInteraction, kPSTlctl); 
+
+  double xsec = fModel->XSec(fInteraction, kPSTlctl);
   return xsec;
 }
 //____________________________________________________________________________
@@ -184,5 +181,3 @@ ROOT::Math::IBaseFunctionMultiDim *
     new genie::utils::gsl::d2Xsec_dTCosth(fModel,fInteraction);
 }
 //____________________________________________________________________________
-
-

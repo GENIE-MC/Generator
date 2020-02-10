@@ -1,88 +1,16 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Anselmo Meregaglia <anselmo.meregaglia \at cern.ch>, ETH Zurich
-         Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, STFC - Rutherford Lab
-         Robert Hatcher <rhatcher \at fnal.gov>, Fermilab
+ Anselmo Meregaglia <anselmo.meregaglia \at cern.ch>
+ ETH Zurich
 
-         May 24, 2005
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 28, 2008 - CA
-   Slight code restructuring to make it easier keeping track of conversions
-   between the SI and the current geometry system of units.
-   Fixed a bug in density unit conversions reported by Elaine Schulte.
- @ Mar 28, 2008 - Pawel Guzowksi, Jim Dobson
-   Fixed bug preventing the code crossing more than a fixed number of volume
-   boundaries. The problem was not seen before as the code was tested with
-   relatively simpler geometries (small number of volumes).
-   Fixed problem with SetTopVolume() not actually setting it, so that the 
-   option to specify sub-volumes of the master volume wasn't working properly.
- @ Nov 12, 2008 - CA, Jim Dobson
-   Cleaned-up geometry navigation code. Improve the vertex placement method
-   GenerateVertex() to avoid geo volume overshots.
- @ May 30, 2008 - CA, Jim Dobson
-   Fixed path-lengths units problem in Local2SI(). The problem went undetected
-   for long as the relevant quantities were used in ratios & the extra 
-   multiplicative factor was cancelled out. It was spotted when we tried to
-   work out T2K event sample normalization in terms of POTs.
- @ June 4, 2008 - CA
-   Modified code forming pdg codes in case of mixtures: Getting A from
-   TGeoMixture::GetAmixt()[ielement] rather than TGeoElement::GetA().
-   Updated code enables GENIE to see all isotopes in the fixed nd280 geometry.
- @ August 29, 2008 - Pawel Guzowksi
-   Fixed a long-standing limitation: Now the top volume can be any geometry
-   volume and not just the master geometry volume. ROOT is placing the origin
-   of the coordinatee system at the centre of the top volume. On the other
-   hand GENIE assumed the the origin of the coordinate system is at the centre 
-   of the master geometry volume. So, if the top volume is to be set to anything
-   other than the master geometry volume, an appropriate transformation is 
-   required for the input flux neutrino positions/directions and the generated 
-   neutrino interaction vertices.
-   Added Master2Top(v), Master2TopDir(v) and Top2Master(v) methods and the
-   fMasterToTop TGeoHMatrix to store the transformation matrix between the 
-   master and top volume coordinates.
- @ June 4, 2009 - RWH
-   Refactorized code so swimming the same start point and direction only
-   ever happens once for all the target PDG codes; do so generates a 
-   PathSegmentList from whence the individual PDG lengths can be derived.  
-   This also allows for future culling or trimming of path segments by an 
-   externally supplied function as well as being more efficient.
- @ July 17, 2009 - RWH
-   StepUntilEntering() wasn't accumulating total distance stepped if the 
-   StepToNextBoudary() didn't leave the position IsEntering().  
-   Also, small tweaks to LOG messages.
- @ July 27, 2009 - RWH
-   The method StepToNextBoundary() doesn't actually move the current point 
-   but just finds the boundary so the returned "step" size shouldn't be part 
-   of the sum in StepUntilEntering().
- @ August 3, 2009 - RWH
-   Handle case where initial step is from outside the geometry into the top
-   volume.  It appears that the volume name is given as the top volume 
-   (perhaps incorrectly), but the material (correctly) is null. Such steps 
-   don't contribute to any material path length but document the total path.          
-   Provision for keeping track of maximum ray distance and step size errors.
- @ August 28, 2009 - RWH
-   Adjust to PathSegmentList move to genie::geometry namespace.  
-   Add AdoptGeomVolSelector() function with takes ownership of GeomVolSelectorI*.  
-   This selector can generate an trimmed PathSegmentList* which can be swapped 
-   in for the original to limit what material is considered.
- @ February 4, 2010 - RWH
-   Allow forcing fetch of geometry hierarchy path (or'ed with desire of the 
-   GeomVolSelector, if any) but to get it by default as it is costly.  
-   Fill the PathSegment medium and material upon entry along with volume name, 
-   not at exit.
- @ February 4, 2011 - JD
-   Change the way the topvolume is matched in SetTopVolName(string name). 
-   Previously used TString::Contains("vol2match") which did not require the string
-   length to be the same and sometime lead to degeneracies and selection of 
-   incorrect top volume. Bug and fix were found by Kevin Connolly.   
-
+ Robert Hatcher <rhatcher \at fnal.gov>
+ Fermilab
 */
 //____________________________________________________________________________
 
@@ -172,9 +100,9 @@ ROOTGeomAnalyzer::~ROOTGeomAnalyzer()
 
   if ( fmxddist > 0 || fmxdstep > 0 )
     LOG("GROOTGeom",pNOTICE)
-      << "ROOTGeomAnalyzer " 
+      << "ROOTGeomAnalyzer "
       << " mxddist " << fmxddist
-      << " mxdstep " << fmxdstep; 
+      << " mxdstep " << fmxdstep;
 }
 
 //===========================================================================
@@ -189,8 +117,8 @@ const PDGCodeList & ROOTGeomAnalyzer::ListOfTargetNuclei(void)
 //___________________________________________________________________________
 const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
 {
-/// Computes the maximum path lengths for all materials in the input 
-/// geometry. The computed path lengths are in SI units (kgr/m^2, if 
+/// Computes the maximum path lengths for all materials in the input
+/// geometry. The computed path lengths are in SI units (kgr/m^2, if
 /// density weighting is enabled)
 
   LOG("GROOTGeom", pNOTICE)
@@ -207,7 +135,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
   //-- select maximum path length calculation method
   if ( fFlux ) {
     this->MaxPathLengthsFluxMethod();
-    // clear any accumulated exposure accounted generated 
+    // clear any accumulated exposure accounted generated
     // while exploring the geometry
     fFlux->Clear("CycleHistory");
   } else {
@@ -221,10 +149,10 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
 const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
                           const TLorentzVector & x, const TLorentzVector & p)
 {
-/// Computes the path-length within each detector material for a 
-/// neutrino starting from point x (master coord) and travelling along 
+/// Computes the path-length within each detector material for a
+/// neutrino starting from point x (master coord) and travelling along
 /// the direction of p (master coord).
-/// The computed path lengths are in SI units (kgr/m^2, if density 
+/// The computed path lengths are in SI units (kgr/m^2, if density
 /// weighting is enabled)
 
   //LOG("GROOTGeom", pDEBUG)
@@ -245,7 +173,7 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
   TVector3 udir = p.Vect().Unit(); // unit vector along direction
   TVector3 pos = x.Vect();         // initial position
   this->SI2Local(pos);             // SI -> curr geom units
-  
+
   if (!fMasterToTopIsIdentity) {
     this->Master2Top(pos);         // transform position (master -> top)
     this->Master2TopDir(udir);     // transform direction (master -> top)
@@ -280,7 +208,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
               const TLorentzVector & x, const TLorentzVector & p, int tgtpdg)
 {
 /// Generates a random vertex, within the detector material with the input
-/// PDG code, for a neutrino starting from point x (master coord) and 
+/// PDG code, for a neutrino starting from point x (master coord) and
 /// travelling along the direction of p (master coord).
 
   LOG("GROOTGeom", pNOTICE)
@@ -345,11 +273,11 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   }
 #endif
 
-  // compute the pdg weight for each material just once, then use a stl map 
+  // compute the pdg weight for each material just once, then use a stl map
   PathSegmentList::MaterialMap_t wgtmap;
-  PathSegmentList::MaterialMapCItr_t mitr     = 
+  PathSegmentList::MaterialMapCItr_t mitr     =
     fCurrPathSegmentList->GetMatStepSumMap().begin();
-  PathSegmentList::MaterialMapCItr_t mitr_end = 
+  PathSegmentList::MaterialMapCItr_t mitr_end =
     fCurrPathSegmentList->GetMatStepSumMap().end();
   // loop over map to get tgt weight for each material (once)
   // steps outside the geometry may have no assigned material
@@ -366,7 +294,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   }
 
   // walk down the path to pick the vertex
-  const genie::geometry::PathSegmentList::PathSegmentV_t& segments = 
+  const genie::geometry::PathSegmentList::PathSegmentV_t& segments =
     fCurrPathSegmentList->GetPathSegmentV();
   genie::geometry::PathSegmentList::PathSegVCItr_t sitr;
   double walked = 0;
@@ -388,8 +316,8 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
 #ifdef RWH_DEBUG
       if ( ( fDebugFlags & 0x08 ) ) {
         LOG("GROOTGeom", pINFO)
-          << "Choose vertex pos walked=" << walked 
-          << " beyond=" << beyond 
+          << "Choose vertex pos walked=" << walked
+          << " beyond=" << beyond
           << " wgtstep " << wgtstep
           << " ( " << trimmed_step << "*" << wgtmap[mat] << ")"
           << " look for " << genwgt_dist
@@ -416,7 +344,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   }
 
   LOG("GROOTGeom", pNOTICE)
-     << "The vertex was placed in volume: " 
+     << "The vertex was placed in volume: "
      << fGeometry->GetCurrentVolume()->GetName()
      << ", path: " << fGeometry->GetPath();
 
@@ -444,7 +372,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   fCurrVertex->SetXYZ(pos[0],pos[1],pos[2]);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("GROOTGeom", pDEBUG) 
+  LOG("GROOTGeom", pDEBUG)
       << "Vtx (m) = " << utils::print::Vec3AsString(&pos);
 #endif
 
@@ -457,17 +385,17 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::SetLengthUnits(double u)
 {
-/// Use the units of the input geometry, 
+/// Use the units of the input geometry,
 ///    e.g. SetLengthUnits(genie::units::centimeter)
-/// GENIE uses the physical system of units (hbar=c=1) almost throughtout 
-/// so everything is expressed in GeV but when analyzing detector geometries 
-/// use meters. Setting input geometry units will allow the code to compute 
+/// GENIE uses the physical system of units (hbar=c=1) almost throughtout
+/// so everything is expressed in GeV but when analyzing detector geometries
+/// use meters. Setting input geometry units will allow the code to compute
 /// the conversion factor.
 /// As input, use one of the constants in $GENIE/src/Conventions/Units.h
 
   fLengthScale = u/units::meter;
   LOG("GROOTGeom", pNOTICE)
-     << "Geometry length units scale factor (geom units -> m): " 
+     << "Geometry length units scale factor (geom units -> m): "
      << fLengthScale;
 }
 
@@ -478,7 +406,7 @@ void ROOTGeomAnalyzer::SetDensityUnits(double u)
 
   fDensityScale = u / (units::kilogram / units::meter3);
   LOG("GROOTGeom", pNOTICE)
-    << "Geometry density units scale factor (geom units -> kgr/m3): " 
+    << "Geometry density units scale factor (geom units -> kgr/m3): "
     << fDensityScale;
 }
 
@@ -486,9 +414,9 @@ void ROOTGeomAnalyzer::SetDensityUnits(double u)
 void ROOTGeomAnalyzer::SetMaxPlSafetyFactor(double sf)
 {
 /// Set a factor that can multiply the computed max path lengths.
-/// The maximum path lengths are computed by performing an MC scanning of 
-/// the input geometry. If you configure the scanner with a low number of 
-/// points or rays you might understimate the path lengths, so you might 
+/// The maximum path lengths are computed by performing an MC scanning of
+/// the input geometry. If you configure the scanner with a low number of
+/// points or rays you might understimate the path lengths, so you might
 /// want to 'inflate' them a little bit using this method.
 /// Do not set this number too high, because the max interaction probability
 /// will be grossly overestimated and you would need lots of attempts before
@@ -504,7 +432,7 @@ void ROOTGeomAnalyzer::SetMaxPlSafetyFactor(double sf)
 void ROOTGeomAnalyzer::SetMixtureWeightsSum(double sum)
 {
 /// Set it to x, if the relative weight proportions of elements in a mixture
-/// add up to x (eg x=1, 100, etc). Set it to a negative value to explicitly 
+/// add up to x (eg x=1, 100, etc). Set it to a negative value to explicitly
 /// compute the correct weight normalization.
 
   fMixtWghtSum = sum;
@@ -533,11 +461,11 @@ void ROOTGeomAnalyzer::SetTopVolName(string name)
   }
 
   // Get a matrix connecting coordinates of master and top volumes.
-  // The matrix will be used for transforming the coordinates of incoming 
+  // The matrix will be used for transforming the coordinates of incoming
   // flux neutrinos & generated interaction vertices.
-  // This is needed (in case that the input top volume != master volume) 
-  // because ROOT always sets the coordinate system origin at the centre of 
-  // the specified top volume (whereas GENIE assumes that the global reference 
+  // This is needed (in case that the input top volume != master volume)
+  // because ROOT always sets the coordinate system origin at the centre of
+  // the specified top volume (whereas GENIE assumes that the global reference
   // frame is that of the master volume)
 
   TGeoIterator next(fGeometry->GetMasterVolume());
@@ -597,7 +525,7 @@ void ROOTGeomAnalyzer::Local2SI(TVector3 & vec) const
       << "Position (loc): " << utils::print::Vec3AsString(&vec);
 #endif
 
-    vec *= (this->LengthUnits()); 
+    vec *= (this->LengthUnits());
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("GROOTGeom", pDEBUG)
@@ -615,7 +543,7 @@ void ROOTGeomAnalyzer::SI2Local(TVector3 & vec) const
       << "Position (SI): " << utils::print::Vec3AsString(&vec);
 #endif
 
-    vec *= (1./this->LengthUnits()); 
+    vec *= (1./this->LengthUnits());
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("GROOTGeom", pDEBUG)
@@ -627,7 +555,7 @@ void ROOTGeomAnalyzer::SI2Local(TVector3 & vec) const
 void ROOTGeomAnalyzer::Master2Top(TVector3 & vec) const
 {
 /// transform the input position vector from the master volume coordinate
-/// system to the specified top volume coordinate system, but not 
+/// system to the specified top volume coordinate system, but not
 /// change the units.
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -672,7 +600,7 @@ void ROOTGeomAnalyzer::Master2TopDir(TVector3 & vec) const
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::Top2Master(TVector3 & vec) const
 {
-/// transform the input position vector from the specified top volume 
+/// transform the input position vector from the specified top volume
 /// coordinate system to the master volume coordinate system, but not
 /// change the units.
 
@@ -695,7 +623,7 @@ void ROOTGeomAnalyzer::Top2Master(TVector3 & vec) const
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::Top2MasterDir(TVector3 & vec) const
 {
-/// transform the input direction vector from the specified top volume 
+/// transform the input direction vector from the specified top volume
 /// coordinate system to the master volume coordinate system.
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -959,9 +887,9 @@ double ROOTGeomAnalyzer::GetWeight(const TGeoMaterial * mat, int pdgc)
   int ion_pdgc = this->GetTargetPdgCode(mat);
   if (ion_pdgc != pdgc) return 0.;
 
-  if (this->WeightWithDensity()) 
+  if (this->WeightWithDensity())
     weight = mat->GetDensity(); // material density (curr geom units)
-  else                           
+  else
     weight = 1.0;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -991,7 +919,7 @@ double ROOTGeomAnalyzer::GetWeight(const TGeoMixture * mixt, int pdgc)
   if (nm>1) {
      for (int j = 0; j < mixt->GetNelements(); j++) {
            LOG("GROOTGeom", pWARN)
-              << "[" << j << "] Z = " << mixt->GetZmixt()[j] 
+              << "[" << j << "] Z = " << mixt->GetZmixt()[j]
               << ", A = " << mixt->GetAmixt()[j]
               << " (pdgc = " << this->GetTargetPdgCode(mixt,j)
               << "), w = " << mixt->GetWmixt()[j];
@@ -1102,15 +1030,15 @@ void ROOTGeomAnalyzer::MaxPathLengthsFluxMethod(void)
           enters = true;
        }
     }
-    if (enters) iparticle++;  
+    if (enters) iparticle++;
   }
 }
 
 //___________________________________________________________________________
 void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
 {
-/// Generate points in the geometry's bounding box and for each point 
-/// generate random rays, follow them through the detector and figure out 
+/// Generate points in the geometry's bounding box and for each point
+/// generate random rays, follow them through the detector and figure out
 /// the maximum path length for each material
 
   LOG("GROOTGeom", pNOTICE)
@@ -1150,7 +1078,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
 
   // print out the results
   LOG("GROOTGeom", pDEBUG)
-    << "DensWeight \"" << (fDensWeight?"true":"false") 
+    << "DensWeight \"" << (fDensWeight?"true":"false")
     << "\" MixtWghtSum " << fMixtWghtSum;
   LOG("GROOTGeom", pDEBUG) << "CurrMaxPathLengthList: "
     << *fCurrMaxPathLengthList;
@@ -1168,7 +1096,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
     double rms = TMath::Sqrt((x2/(double)ns) - avg*avg);
     LOG("GROOTGeom", pNOTICE)
       << "RWH: nswim after BOX face " << j << " is " << ns
-      << " avg " << avg << " rms " << rms 
+      << " avg " << avg << " rms " << rms
       << " never " << nnever[j];
   }
   LOG("GROOTGeom", pNOTICE)
@@ -1209,11 +1137,11 @@ bool ROOTGeomAnalyzer::GenBoxRay(int indx, TLorentzVector& x4, TLorentzVector& p
     fox = (box->GetOrigin())[0];
     foy = (box->GetOrigin())[1];
     foz = (box->GetOrigin())[2];
-    
-    LOG("GROOTGeom",pNOTICE) 
+
+    LOG("GROOTGeom",pNOTICE)
       << "Box size (GU)   :"
       << " x = " << 2*fdx << ", y = " << 2*fdy << ", z = " << 2*fdz;
-    LOG("GROOTGeom",pNOTICE) 
+    LOG("GROOTGeom",pNOTICE)
       << "Box origin (GU) :"
       << " x = " << fox   << ", y = " << foy   << ", z = " <<   foz;
     LOG("GROOTGeom",pNOTICE)
@@ -1235,12 +1163,12 @@ bool ROOTGeomAnalyzer::GenBoxRay(int indx, TLorentzVector& x4, TLorentzVector& p
           TVector3 pos2(master);
           this->Master2Top(pos2);
           this->SI2Local(pos2);
-          LOG("GROOTGeom", pNOTICE)  
+          LOG("GROOTGeom", pNOTICE)
             << "TopVol corner "
             << " [" << pos[0] << "," << pos[1] << "," << pos[2] << "] "
             << "Master corner "
             << " [" << master[0] << "," << master[1] << "," << master[2] << "] "
-            << " top again" 
+            << " top again"
             << " [" << pos2[0] << "," << pos2[1] << "," << pos2[2] << "] ";
         }
       }
@@ -1254,70 +1182,70 @@ bool ROOTGeomAnalyzer::GenBoxRay(int indx, TLorentzVector& x4, TLorentzVector& p
   double eps = 0.0; //1.0e-12; // tweak to make sure we're inside the box
 
   switch ( fiface ) {
-  case 0: 
+  case 0:
     {
       //top:
       if ( firay == fNRays-1 && fipoint == fNPoints-1 )
         LOG("GROOTGeom",pINFO) << "Box surface scanned: [TOP]";
-      fGenBoxRayDir.SetXYZ(-0.5+rnd->RndGeom().Rndm(), 
-                           -rnd->RndGeom().Rndm(), 
+      fGenBoxRayDir.SetXYZ(-0.5+rnd->RndGeom().Rndm(),
+                           -rnd->RndGeom().Rndm(),
                            -0.5+rnd->RndGeom().Rndm());
       if ( fnewpnt )
-        fGenBoxRayPos.SetXYZ(fox-fdx+eps+2*(fdx-eps)*rnd->RndGeom().Rndm(), 
-                             foy+fdy-eps, 
+        fGenBoxRayPos.SetXYZ(fox-fdx+eps+2*(fdx-eps)*rnd->RndGeom().Rndm(),
+                             foy+fdy-eps,
                              foz-fdz+eps+2*(fdz-eps)*rnd->RndGeom().Rndm());
       break;
-    } 
-  case 1: 
+    }
+  case 1:
     {
       //left:
       if ( firay == fNRays-1 && fipoint == fNPoints-1 )
         LOG("GROOTGeom",pINFO) << "Box surface scanned: [LEFT]";
-      fGenBoxRayDir.SetXYZ(rnd->RndGeom().Rndm(), 
-                           -0.5+rnd->RndGeom().Rndm(), 
+      fGenBoxRayDir.SetXYZ(rnd->RndGeom().Rndm(),
+                           -0.5+rnd->RndGeom().Rndm(),
                            -0.5+rnd->RndGeom().Rndm());
       if ( fnewpnt )
-        fGenBoxRayPos.SetXYZ(fox-fdx+eps, 
+        fGenBoxRayPos.SetXYZ(fox-fdx+eps,
                              foy-fdy+eps+2*(fdy-eps)*rnd->RndGeom().Rndm(),
                              foz-fdz+eps+2*(fdz-eps)*rnd->RndGeom().Rndm());
       break;
-    } 
-  case 2: 
+    }
+  case 2:
     {
       //front: (really what I, RWH, would call the back)
       if ( firay == fNRays-1 && fipoint == fNPoints-1 )
         LOG("GROOTGeom",pINFO) << "Box surface scanned: [FRONT]";
-      fGenBoxRayDir.SetXYZ(-0.5+rnd->RndGeom().Rndm(), 
-                           -0.5+rnd->RndGeom().Rndm(), 
+      fGenBoxRayDir.SetXYZ(-0.5+rnd->RndGeom().Rndm(),
+                           -0.5+rnd->RndGeom().Rndm(),
                            -rnd->RndGeom().Rndm());
       if ( fnewpnt )
-        fGenBoxRayPos.SetXYZ(fox-fdx+eps+2*(fdx-eps)*rnd->RndGeom().Rndm(), 
-                             foy-fdy+eps+2*(fdy-eps)*rnd->RndGeom().Rndm(), 
+        fGenBoxRayPos.SetXYZ(fox-fdx+eps+2*(fdx-eps)*rnd->RndGeom().Rndm(),
+                             foy-fdy+eps+2*(fdy-eps)*rnd->RndGeom().Rndm(),
                              foz+fdz+eps);
       break;
     }
   }
 /*
     //bottom:
-      pos.SetXYZ(ox-dx+2*dx*rnd->RndGeom().Rndm(), 
-                 oy-dy, 
+      pos.SetXYZ(ox-dx+2*dx*rnd->RndGeom().Rndm(),
+                 oy-dy,
                  oz-dz+2*dz*rnd->RndGeom().Rndm());
-      dir.SetXYZ(-0.5+rnd->RndGeom().Rndm(), 
-                 rnd->RndGeom().Rndm(), 
+      dir.SetXYZ(-0.5+rnd->RndGeom().Rndm(),
+                 rnd->RndGeom().Rndm(),
                  -0.5+rnd->RndGeom().Rndm());
     //right:
-      pos.SetXYZ(ox+dx, 
-                 oy-dy+2*dy*rnd->RndGeom().Rndm(), 
+      pos.SetXYZ(ox+dx,
+                 oy-dy+2*dy*rnd->RndGeom().Rndm(),
                  oz-dz+2*dz*rnd->RndGeom().Rndm());
-      dir.SetXYZ(-rnd->RndGeom().Rndm(), 
+      dir.SetXYZ(-rnd->RndGeom().Rndm(),
                  -0.5+rnd->RndGeom().Rndm(),
                  -0.5+rnd->RndGeom().Rndm());
     //back:
-      pos.SetXYZ(ox-dx+2*dx*rnd->RndGeom().Rndm(), 
-                 oy-dy+2*dy*rnd->RndGeom().Rndm(), 
+      pos.SetXYZ(ox-dx+2*dx*rnd->RndGeom().Rndm(),
+                 oy-dy+2*dy*rnd->RndGeom().Rndm(),
                  oz-dz);
-      dir.SetXYZ(-0.5+rnd->RndGeom().Rndm(), 
-                 -0.5+rnd->RndGeom().Rndm(), 
+      dir.SetXYZ(-0.5+rnd->RndGeom().Rndm(),
+                 -0.5+rnd->RndGeom().Rndm(),
                   rnd->RndGeom().Rndm());
 */
 
@@ -1327,7 +1255,7 @@ bool ROOTGeomAnalyzer::GenBoxRay(int indx, TLorentzVector& x4, TLorentzVector& p
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   if ( fnewpnt )
-    LOG("GROOTGeom", pNOTICE)  
+    LOG("GROOTGeom", pNOTICE)
       << "GenBoxRay(topvol) "
       << " iface " << fiface << " ipoint " << fipoint << " iray " << firay
       << " newpnt " << (fnewpnt?"true":"false")
@@ -1347,7 +1275,7 @@ bool ROOTGeomAnalyzer::GenBoxRay(int indx, TLorentzVector& x4, TLorentzVector& p
   p4.SetVect(fGenBoxRayDir.Unit());
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("GROOTGeom", pNOTICE)  
+  LOG("GROOTGeom", pNOTICE)
     << "GenBoxRay(master) "
     << " iface " << fiface << " ipoint " << fipoint << " iray " << firay
     << " newpnt " << (fnewpnt?"true":"false")
@@ -1362,8 +1290,8 @@ bool ROOTGeomAnalyzer::GenBoxRay(int indx, TLorentzVector& x4, TLorentzVector& p
 double ROOTGeomAnalyzer::ComputePathLengthPDG(
                   const TVector3 & r0, const TVector3 & udir, int pdgc)
 {
-/// Compute the path length for the material with pdg-code = pdc, staring 
-/// from the input position r (top vol coord & units) and moving along the 
+/// Compute the path length for the material with pdg-code = pdc, staring
+/// from the input position r (top vol coord & units) and moving along the
 /// direction of the unit vector udir (top vol coord).
 
   double pl = 0; // path-length (x density, if density-weighting is ON)
@@ -1378,9 +1306,9 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
   const TGeoMaterial * mat = 0;
 
   // loop over independent materials, which is shorter or equal to # of volumes
-  PathSegmentList::MaterialMapCItr_t itr     = 
+  PathSegmentList::MaterialMapCItr_t itr     =
     fCurrPathSegmentList->GetMatStepSumMap().begin();
-  PathSegmentList::MaterialMapCItr_t itr_end = 
+  PathSegmentList::MaterialMapCItr_t itr_end =
     fCurrPathSegmentList->GetMatStepSumMap().end();
   for ( ; itr != itr_end; ++itr ) {
     mat  = itr->first;
@@ -1391,7 +1319,7 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
   }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("GROOTGeom", pDEBUG) 
+  LOG("GROOTGeom", pDEBUG)
        << "PathLength[" << pdgc << "] = " << pl << " in curr geom units";
 #endif
 
@@ -1401,8 +1329,8 @@ double ROOTGeomAnalyzer::ComputePathLengthPDG(
 //________________________________________________________________________
 void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
 {
-/// Swim through the geometry from the from the input position 
-/// r0 (top vol coord & units) and moving along the direction of the 
+/// Swim through the geometry from the from the input position
+/// r0 (top vol coord & units) and moving along the direction of the
 /// unit vector udir (topvol coord) to create a filled PathSegmentList
 
   int nvolswim = 0; //rwh
@@ -1415,9 +1343,9 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
   // start fresh
   fCurrPathSegmentList->SetAllToZero();
 
-  // set start info so next time we don't swim for the same ray 
+  // set start info so next time we don't swim for the same ray
   fCurrPathSegmentList->SetStartInfo(r0,udir);
- 
+
   PathSegment ps_curr;
 
   bool found_vol (false);
@@ -1435,7 +1363,7 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
   const bool fill_path = fKeepSegPath || selneedspath;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("GROOTGeom", pNOTICE)  
+  LOG("GROOTGeom", pNOTICE)
     << "SwimOnce x [" << r0[0] << "," << r0[1] << "," << r0[2]
     << "] udir [" << udir[0] << "," << udir[1] << "," << udir[2];
 #endif
@@ -1480,7 +1408,7 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
 
 #ifdef RWH_DEBUG
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-        LOG("GROOTGeom", pDEBUG) << "Outside ToNextBoundary step: " << step 
+        LOG("GROOTGeom", pDEBUG) << "Outside ToNextBoundary step: " << step
                                  << " raydist: " << raydist;
 #endif
 #endif
@@ -1490,28 +1418,28 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
           raydist += step;
 #ifdef RWH_DEBUG
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-          LOG("GROOTGeom", pDEBUG) 
+          LOG("GROOTGeom", pDEBUG)
               << "Stepping... [step size = " << step << "]";
-          LOG("GROOTGeom", pDEBUG) << "Outside step: " << step 
+          LOG("GROOTGeom", pDEBUG) << "Outside step: " << step
                                    << " raydist: " << raydist;
 #endif
 #endif
           if (this->WillNeverEnter(step)) {
 #ifdef RWH_COUNTVOLS
             if ( accum_vol_stat ) {
-              // this really shouldn't happen for the box exploration... 
+              // this really shouldn't happen for the box exploration...
               // if coord transforms done right
               // could happen for neutrinos on a flux window
               nnever[curface]++;  //rwh
               if ( nnever[curface]%21 == 0 )
-                LOG("GROOTGeom", pNOTICE)  
+                LOG("GROOTGeom", pNOTICE)
                   << "curface " << curface << " " << nswims[curface]
                   << " never " << nnever[curface]
                   << " x [" << r0[0] << "," << r0[1] << "," << r0[2] << "] "
                   << " p [" << udir[0] << "," << udir[1] << "," << udir[2] << "]";
             }
 #endif
-            fCurrPathSegmentList->SetAllToZero();            
+            fCurrPathSegmentList->SetAllToZero();
             return;
           }
         } // finished while
@@ -1543,10 +1471,10 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
        nvolswim++; //rwh
 
 #ifdef DUMP_SWIM
-       LOG("GROOTGeom", pDEBUG) << "Current volume: " << vol->GetName() 
+       LOG("GROOTGeom", pDEBUG) << "Current volume: " << vol->GetName()
                                 << " step " << step << " in " << mat->GetName();
 #endif
-         
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("GROOTGeom", pDEBUG)
          << "Cur med.: " << med->GetName() << ", mat.: " << mat->GetName();
@@ -1585,7 +1513,7 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
 
   // PathSegmentList trimming occurs here!
   if ( fGeomVolSelector ) {
-    PathSegmentList* altlist = 
+    PathSegmentList* altlist =
       fGeomVolSelector->GenerateTrimmedList(fCurrPathSegmentList);
     std::swap(altlist,fCurrPathSegmentList);
     delete altlist;  // after swap delete original
@@ -1594,7 +1522,7 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
   fCurrPathSegmentList->FillMatStepSum();
 
 #ifdef RWH_DEBUG_2
-  if ( fGeomVolSelector) { 
+  if ( fGeomVolSelector) {
     // after FillMatStepSum() so one can see the summed mass
     if ( ( fDebugFlags & 0x40 ) ) {
       fCurrPathSegmentList->SetPrintVerbose(true);
@@ -1648,7 +1576,7 @@ double ROOTGeomAnalyzer::Step(void)
 double ROOTGeomAnalyzer::StepUntilEntering(void)
 {
   this->StepToNextBoundary();  // doesn't actually step, so don't include in sum
-  double step = 0; // 
+  double step = 0; //
 
   while(!fGeometry->IsEntering()) {
     step += this->Step();
@@ -1683,7 +1611,7 @@ bool ROOTGeomAnalyzer::WillNeverEnter(double step)
 #endif
      return true;
 
-  } else 
+  } else
     return false;
 }
 

@@ -1,22 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - January 25, 2005
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Dec 03, 2007 - CA
-   Setting the reference frame explicitly before computing the energy passed
-   to the spline objects rather than depending on the interaction doing the
-   right thing. Protect cross section eval. against NaN input as TSpline3
-   itself doesn't and its hard to diagnose problems from its actuall err mesg.
- @ Jun 23, 2008 - CA
-   Protect against round off err / negative xsec
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -101,12 +89,12 @@ EventRecord * PhysInteractionSelector::SelectInteraction
      << "Computing xsecs for all relevant modeled interactions:";
 
   unsigned int i=0;
-  InteractionList::const_iterator intliter = ilst.begin(); 
+  InteractionList::const_iterator intliter = ilst.begin();
 
   ostringstream xsec_table_printout;
 
-  xsec_table_printout 
-      << " |"  << setfill('-') << setw(112) << "|" << endl     
+  xsec_table_printout
+      << " |"  << setfill('-') << setw(112) << "|" << endl
       << " | " << setfill(' ') << setw(80) << "interaction"
       << " | cross-section (1E-38*cm^2) |" << endl
       << " |"  << setfill('-') << setw(112) << "|" << endl;
@@ -132,8 +120,8 @@ EventRecord * PhysInteractionSelector::SelectInteraction
            const InitialState & init = interaction->InitState();
            const ProcessInfo & proc  = interaction->ProcInfo();
            // choose ref frame ('Lab' or 'Hit nucleon rest frame')
-           RefFrame_t frame = 
-              (proc.IsCoherentProduction() || proc.IsElectronScattering()) ? 
+           RefFrame_t frame =
+              (proc.IsCoherentProduction() || proc.IsElectronScattering()) ?
               kRfLab : kRfHitNucRest;
            double E = init.ProbeE(frame);
            if(TMath::IsNaN(E)) {
@@ -150,11 +138,11 @@ EventRecord * PhysInteractionSelector::SelectInteraction
      TMath::Max(0., xsec);
 /*
      LOG("IntSel", pNOTICE)
-       << interaction->AsString() 
-       << " --> xsec " << (eval ? "[**interp**]" : "[**calc**]") 
+       << interaction->AsString()
+       << " --> xsec " << (eval ? "[**interp**]" : "[**calc**]")
        << " = " << xsec/genie::units::cm2 << " cm^2";
 */
-     xsec_table_printout 
+     xsec_table_printout
            << " | " << setfill(' ') << setw(80) << interaction->AsString()
            << " | " << setfill(' ') << setw(26) << xsec/(1E-38*genie::units::cm2)
            << " | " << endl;

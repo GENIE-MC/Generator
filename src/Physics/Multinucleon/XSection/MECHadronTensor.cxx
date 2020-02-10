@@ -1,10 +1,8 @@
 //_________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- For the class documentation see the corresponding header file.
 */
 //_________________________________________________________________________
 
@@ -40,10 +38,10 @@ MECHadronTensor::MECHadronTensor()
 {
   // This list should be abstracted to a configuration file
   // Along with the known target method.
-  
+
   // Three targets have explicit tensor tables.
   //
-  fKnownTensors.push_back(kPdgTgtC12);  // C12 
+  fKnownTensors.push_back(kPdgTgtC12);  // C12
   fKnownTensors.push_back(kPdgTgtO16);  // O16
   fKnownTensors.push_back(1000140280);  // Si28
   fKnownTensors.push_back(kPdgTgtCa40); // Ca40, also for Ar40
@@ -64,8 +62,8 @@ MECHadronTensor::MECHadronTensor()
   vector<int>::const_iterator it=fKnownTensors.begin();
   for( ; it!=fKnownTensors.end(); ++it) {
     this->LoadTensorTables(*it);
-    // this method will fail silently if the target list here does not match later.   
-  }  
+    // this method will fail silently if the target list here does not match later.
+  }
   fgInstance = 0;
 }
 //_________________________________________________________________________
@@ -84,7 +82,7 @@ MECHadronTensor::~MECHadronTensor()
 				}
 			}
 		}
-	}  
+	}
 }
 //_________________________________________________________________________
 MECHadronTensor * MECHadronTensor::Instance()
@@ -94,7 +92,7 @@ MECHadronTensor * MECHadronTensor::Instance()
     static MECHadronTensor::Cleaner cleaner;
     cleaner.DummyMethodAndSilentCompiler();
     fgInstance = new MECHadronTensor();
-  }  
+  }
   return fgInstance;
 }
 //_________________________________________________________________________
@@ -113,12 +111,12 @@ bool MECHadronTensor::KnownTarget(int targetpdg)
   if(Arequest >= 9 || (Arequest == 4 && Zrequest == 2)){
     return true;
   }
-  return false;  
-} 
+  return false;
+}
 //_________________________________________________________________________
 bool MECHadronTensor::KnownTensor(int targetpdg)
 {
-  return std::count(fKnownTensors.begin(), fKnownTensors.end(), targetpdg)!=0;  
+  return std::count(fKnownTensors.begin(), fKnownTensors.end(), targetpdg)!=0;
 }
 //_________________________________________________________________________
 const vector<genie::BLI2DNonUnifGrid *> &
@@ -131,11 +129,11 @@ void MECHadronTensor::LoadTensorTables(int targetpdg)
 {
 // Load the hadron tensor tables.
 // For the Nieves model they are in ${GENIE}/data/evgen/mectensor/nieves/
-  
+
   // define dimensions of data in the hadron tensor files
   int nwpoints = 5;
-  const int nq0points = 120;  
-  const int nqzpoints = 120;  
+  const int nq0points = 120;
+  const int nqzpoints = 120;
   const int nq0qzpoints = nq0points*nqzpoints;
   double arraystep = 0.01; // GeV
   // if later we use tables that are not 120x120
@@ -147,8 +145,8 @@ void MECHadronTensor::LoadTensorTables(int targetpdg)
   string tensorFileEnd   = "-20150210.dat";
 
   if(!KnownTarget(targetpdg)){
-    LOG("MECHadronTensor", pERROR) 
-      << "No MEC tensor table for target with PDG code: " 
+    LOG("MECHadronTensor", pERROR)
+      << "No MEC tensor table for target with PDG code: "
       << targetpdg;
     return;
   }
@@ -172,7 +170,7 @@ void MECHadronTensor::LoadTensorTables(int targetpdg)
   for (int a = 0; a < nqzpoints; a++){
     hadtensor_qz_array[a]=double(a+1)*arraystep;
   }
-  
+
   // possible future feature, allow a model to not deliver Delta tensors.
   std::map<MECHadronTensor::MECHadronTensorType_t, std::string> tensorTypeNames;
   tensorTypeNames[MECHadronTensor::kMHTValenciaFullAll]  = "FullAll";
@@ -181,35 +179,35 @@ void MECHadronTensor::LoadTensorTables(int targetpdg)
   tensorTypeNames[MECHadronTensor::kMHTValenciaDeltapn]  = "Deltapn";
 
   // iterate over all four hadron tensor types in the map above.
-  for(int tensorType = 0; 
+  for(int tensorType = 0;
           tensorType <= MECHadronTensor::kMHTValenciaDeltapn; ++tensorType) {
 
     // build filenames from the bits of string
     ostringstream datafile;
-    datafile << data_dir << "/" << tensorFileStart << targetpdg << "-" 
+    datafile << data_dir << "/" << tensorFileStart << targetpdg << "-"
 	     << tensorTypeNames[(MECHadronTensor::MECHadronTensorType_t)tensorType]
 	     << tensorFileEnd;
 
     // make sure data files are available
-    LOG("MECHadronTensor", pDEBUG) 
-       << "Asserting that file " << datafile.str().c_str() << " exists...";      
+    LOG("MECHadronTensor", pDEBUG)
+       << "Asserting that file " << datafile.str().c_str() << " exists...";
     assert (! gSystem->AccessPathName(datafile.str().c_str()));
-  
+
     // read data file
     ReadHadTensorqzq0File(
       datafile.str(), nwpoints, nqzpoints, nq0points, hadtensor_w_array
     );
-  
-    //loop over all 5 tensors 
+
+    //loop over all 5 tensors
     for (int i = 0; i < nwpoints; i++){
-   
+
       // create a non uniform grid from tensor data
-      genie::BLI2DNonUnifGrid *hadTensorGrid = 
+      genie::BLI2DNonUnifGrid *hadTensorGrid =
            new genie::BLI2DNonUnifGrid(
-               nqzpoints, 
-               nq0points, 
-               hadtensor_qz_array, 
-               hadtensor_q0_array, 
+               nqzpoints,
+               nq0points,
+               hadtensor_qz_array,
+               hadtensor_q0_array,
                hadtensor_w_array[i]
            );
 
@@ -220,8 +218,8 @@ void MECHadronTensor::LoadTensorTables(int targetpdg)
   }
 }
 //_________________________________________________________________________
-void MECHadronTensor::ReadHadTensorqzq0File( 
-  string filename, int nwpoints, int nqzpoints, int nq0points, 
+void MECHadronTensor::ReadHadTensorqzq0File(
+  string filename, int nwpoints, int nqzpoints, int nq0points,
   double hadtensor_w_array[][14400])
 {
   // open file
@@ -233,8 +231,8 @@ void MECHadronTensor::ReadHadTensorqzq0File(
     return;
   }
 
-  double temp;  
-  for (int ij = 0; ij < (nqzpoints*nq0points); ij++){  
+  double temp;
+  for (int ij = 0; ij < (nqzpoints*nq0points); ij++){
     for (int k = 0; k < nwpoints; k++) {
       tensor_stream >> temp;
       hadtensor_w_array[k][ij]=temp;

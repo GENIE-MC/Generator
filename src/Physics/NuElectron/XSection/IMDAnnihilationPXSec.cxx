@@ -1,15 +1,9 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Rosen Matev (r.matev@gmail.com)
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.8.0 :
-
+ Rosen Matev (r.matev@gmail.com)
 */
 //____________________________________________________________________________
 
@@ -131,4 +125,3 @@ void IMDAnnihilationPXSec::LoadConfig(void)
   assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
-

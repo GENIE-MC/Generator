@@ -4,16 +4,16 @@
 \class    genie::Interpolator2D
 
 \brief    A 2D interpolator using the GSL spline type
-          If GSL version is not sufficient, does an inefficient version using TGraph2D.
+          If GSL version is not sufficient, does an inefficient version
+          using TGraph2D.
 
 \author   Steve Dennis <s.r.dennis \at liverpool.ac.uk>
           University of Liverpool
 
 \created  November, 2017
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -31,14 +31,14 @@ class Interpolator2D
                    const size_t & size_y, const double * grid_y,
                    const double * knots);
     ~Interpolator2D();
-    
+
     double Eval    (const double & x, const double & y) const;
     double DerivX  (const double & x, const double & y) const;
     double DerivY  (const double & x, const double & y) const;
     double DerivXX (const double & x, const double & y) const;
     double DerivXY (const double & x, const double & y) const;
     double DerivYY (const double & x, const double & y) const;
-    
+
   private:
     // Done using PIMPL to avoid GSL vs ROOT mess in libraries
     // Struct type declarations will be done in object code

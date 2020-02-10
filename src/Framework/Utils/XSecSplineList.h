@@ -5,14 +5,13 @@
 
 \brief    List of cross section vs energy splines
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 12, 2005
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -59,7 +58,7 @@ public:
 
   // Set and query current tune.
   // An XSecSplineList can keep splines for numerous tunes and pick the appropriate
-  // one for each process, as instructed. 
+  // one for each process, as instructed.
   void   SetCurrentTune (const string & tune) { fCurrentTune = tune; }
   string CurrentTune    (void) const  { return fCurrentTune; }
   bool   HasSplineFromTune( const string & tune ) const { return fSplineMap.count(tune) > 0 ; }
