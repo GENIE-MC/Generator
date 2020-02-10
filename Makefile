@@ -29,6 +29,7 @@ INITIAL_BUILD_TARGETS = print-make-info \
 		   physics-nucleon-decay \
 		   physics-nnbar-oscillation \
 		   physics-boosted-dark-matter \
+		   physics-neutral-heavy-lepton \
 		   tools-flux-drivers \
 		   tools-geometry-drivers \
 		   tools-masterclass
@@ -143,6 +144,18 @@ ifeq ($(strip $(GOPT_ENABLE_BOOSTED_DARK_MATTER)),YES)
 else
 	@echo " "
 	@echo "** Boosted dark matter library was not enabled. Skipping..."
+endif
+
+
+physics-neutral-heavy-lepton:
+	@echo " "
+	@echo "** Building neutral heavy lepton library..."
+ifeq ($(strip $(GOPT_ENABLE_NEUTRAL_HEAVY_LEPTON)),YES)
+	cd ${GENIE}/src/Physics/NeutralHeavyLepton && $(MAKE) && \
+	cd ${GENIE}
+else
+	@echo " "
+	@echo "** Neutral heavy lepton library was not enabled. Skipping..."
 endif
 
 
@@ -347,6 +360,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Multinucleon/EventGen
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/MuonEnergyLoss
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/NNBarOscillation
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/NeutralHeavyLepton
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/NuclearState
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/NuclearDeExcitation
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/NucleonDecay
@@ -408,6 +422,7 @@ copy-install-files: FORCE
 	cd ${GENIE}/src/Physics/Multinucleon/EventGen            &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/MuonEnergyLoss                   &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/NNBarOscillation                 &&  $(MAKE) install && \
+	cd ${GENIE}/src/Physics/NeutralHeavyLepton               &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/NuclearState                     &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/NuclearDeExcitation              &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/NucleonDecay                     &&  $(MAKE) install && \
@@ -463,6 +478,7 @@ purge: FORCE
 	cd ${GENIE}/src/Physics/Multinucleon/EventGen            &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/MuonEnergyLoss                   &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/NNBarOscillation                 &&  $(MAKE) purge && \
+	cd ${GENIE}/src/Physics/NeutralHeavyLepton               &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/NuclearState                     &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/NuclearDeExcitation              &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/NucleonDecay                     &&  $(MAKE) purge && \
@@ -519,6 +535,7 @@ clean-files: FORCE
 	cd ${GENIE}/src/Physics/Multinucleon/EventGen            &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/MuonEnergyLoss                   &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/NNBarOscillation                 &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Physics/NeutralHeavyLepton               &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/NuclearState                     &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/NuclearDeExcitation              &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/NucleonDecay                     &&  $(MAKE) clean && \
@@ -588,6 +605,7 @@ distclean: FORCE
 	cd ${GENIE}/src/Physics/Multinucleon/EventGen            &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/MuonEnergyLoss                   &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/NNBarOscillation                 &&  $(MAKE) distclean && \
+	cd ${GENIE}/src/Physics/NeutralHeavyLepton               &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/NuclearState                     &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/NuclearDeExcitation              &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/NucleonDecay                     &&  $(MAKE) distclean && \
