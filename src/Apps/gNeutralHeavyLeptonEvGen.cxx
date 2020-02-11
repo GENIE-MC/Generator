@@ -16,7 +16,6 @@
                     -f nhl_flux
 	                 [-g geometry]
                    [-L geometry_length_units]
-                   [-D geometry_density_units]
                    [-t geometry_top_volume_name]
                    [-o output_event_file_prefix]
                    [--seed random_number_seed]
@@ -51,9 +50,6 @@
            -L
               Input geometry length units, eg 'm', 'cm', 'mm', ...
               [default: 'mm']
-           -D
-              Input geometry density units, eg 'g_cm3', 'clhep_def_density_unit',...
-              [default: 'g_cm3']
            -t
               Input 'top volume' for event generation.
               The option be used to force event generation in given sub-detector.
@@ -154,7 +150,6 @@ bool             gOptUsingRootGeom = false;              // using root geom or t
 string           gOptRootGeom;                           // input ROOT file with realistic detector geometry
 string           gOptRootGeomTopVol = "";                // input geometry top event generation volume
 double           gOptGeomLUnits = 0;                     // input geometry length units
-double           gOptGeomDUnits = 0;                     // input geometry density units
 long int         gOptRanSeed = -1;                       // random number seed
 
 // Geometry bounding box and origin - read from the input geometry file (if any)
@@ -403,7 +398,8 @@ void GetCommandLineArgs(int argc, char ** argv)
   //
 
   string geom = "";
-  string lunits, dunits;
+  string lunits;
+  // string dunits;
   if( parser.OptionExists('g') ) {
     LOG("gevgen_nhl", pDEBUG) << "Getting input geometry";
     geom = parser.ArgAsString('g');
@@ -434,17 +430,17 @@ void GetCommandLineArgs(int argc, char ** argv)
         LOG("gevgen_nhl", pDEBUG) << "Using default geometry length units";
         lunits = kDefOptGeomLUnits;
      } // -L
-     // density units:
-     if( parser.OptionExists('D') ) {
-        LOG("gevgen_nhl", pDEBUG)
-           << "Checking for input geometry density units";
-        dunits = parser.ArgAsString('D');
-     } else {
-        LOG("gevgen_nhl", pDEBUG) << "Using default geometry density units";
-        dunits = kDefOptGeomDUnits;
-     } // -D
+     // // density units:
+     // if( parser.OptionExists('D') ) {
+     //    LOG("gevgen_nhl", pDEBUG)
+     //       << "Checking for input geometry density units";
+     //    dunits = parser.ArgAsString('D');
+     // } else {
+     //    LOG("gevgen_nhl", pDEBUG) << "Using default geometry density units";
+     //    dunits = kDefOptGeomDUnits;
+     // } // -D
      gOptGeomLUnits = utils::units::UnitFromString(lunits);
-     gOptGeomDUnits = utils::units::UnitFromString(dunits);
+     // gOptGeomDUnits = utils::units::UnitFromString(dunits);
 
      // check whether an event generation volume name has been
      // specified -- default is the 'top volume'
@@ -485,8 +481,8 @@ void GetCommandLineArgs(int argc, char ** argv)
     gminfo << "Using ROOT geometry - file: " << gOptRootGeom
            << ", top volume: "
            << ((gOptRootGeomTopVol.size()==0) ? "<master volume>" : gOptRootGeomTopVol)
-           << ", length  units: " << lunits
-           << ", density units: " << dunits;
+           << ", length  units: " << lunits;
+           // << ", density units: " << dunits;
   }
 
   LOG("gevgen_nhl", pNOTICE)
@@ -515,7 +511,6 @@ void PrintSyntax(void)
    << "\n            [-g geometry]"
    << "\n            [-t top_volume_name_at_geom]"
    << "\n            [-L length_units_at_geom]"
-   << "\n            [-D density_units_at_geom]"
    << "\n             -n n_of_events "
    << "\n            [-o output_event_file_prefix]"
    << "\n            [--seed random_number_seed]"
