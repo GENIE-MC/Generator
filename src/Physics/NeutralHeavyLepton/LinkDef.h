@@ -7,5 +7,6 @@
 #pragma link C++ namespace genie;
 #pragma link C++ namespace genie::utils::nhl;
 
+#pragma link C++ class genie::NHLPrimaryVtxGenerator;
 
 #endif
