@@ -27,6 +27,8 @@ string genie::utils::nhl::AsString(NHLDecayMode_t nhldm)
 // add all other cases and specify a string for the decay channel
 //
 //
+  case(kNHLDcyTEST):
+  return "N -> e+e-";
 
   }
   return "Invalid HL decay mode!";
@@ -48,9 +50,9 @@ bool genie::utils::nhl::IsKinematicallyAllowed(NHLDecayMode_t nhldm, double M)
     int pdg_code = *it;
     TParticlePDG * p = pdglib->Find(pdg_code);
     if(p) {
-       Msum += p->Mass(); 
+       Msum += p->Mass();
     } else {
-       LOG("NHL", pERROR) 
+       LOG("NHL", pERROR)
         << "Decay list includes particle with unrecognised PDG code: "
         << pdg_code;
     }
@@ -75,6 +77,10 @@ PDGCodeList genie::utils::nhl::DecayProductList(NHLDecayMode_t nhldm)
   //     decay_products.push_back(... some other particle PDG code);
   //     break;
   //
+  case(kNHLDcyTEST):
+    decay_products.push_back(kPdgPositron);
+    decay_products.push_back(kPdgElectron);
+    break;
 
   default :
     break;

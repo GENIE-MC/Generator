@@ -39,7 +39,8 @@ typedef enum EInteractionType {
   kIntWeakMix,     // CC + NC + interference
   kIntDarkMatter,  //
   kIntNDecay,      //
-  kIntNOsc         //
+  kIntNOsc,        //
+  kIntNHL          //
 
 } InteractionType_t;
 
@@ -60,6 +61,7 @@ public:
       case(kIntDarkMatter) : return "DarkMatter";                break;
       case(kIntNDecay)     : return "NucleonDecay";              break;
       case(kIntNOsc)       : return "NeutronOsc";                break;
+      case(kIntNHL)        : return "NHL";                       break;
       default :              return "Unknown";                   break;
     }
     return "Unknown";
@@ -98,6 +100,8 @@ public:
     else if ( strcmp(t,"NDECAY") == 0 ) return kIntNDecay;
 
     else if ( strcmp(t,"NOSC") == 0 ) return kIntNOsc;
+
+    else if ( strcmp(t,"NHL") == 0 ) return kIntNHL;
 
     else return kIntNull;
   }

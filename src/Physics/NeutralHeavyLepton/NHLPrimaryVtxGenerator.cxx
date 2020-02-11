@@ -63,12 +63,15 @@ void NHLPrimaryVtxGenerator::ProcessEventRecord(GHepRecord * event) const
 void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
 {
   TLorentzVector v4(0,0,0,0);
-  TLorentzVector p4(100,0,0,100); // Need to get this from the interaction summary
 
-  GHepStatus_t nhl_st  = kIStDecayedState;
-  int          nhl_pdg = 0; // <--- 
+  Interaction * interaction = event->Summary();
+  double E = interaction->InitState().ProbeE(kRfLab);
+  double M = PDGLibrary::Instance()->Find(kPdgNHL)->Mass();
+  double p = TMath::Sqrt(E*E-M*M);
 
-  event->AddParticle(nhl_pdg, nhl_st, 0,-1,-1,-1, p4, v4);
+  TLorentzVector p4(0,0,p,E);
+
+  event->AddParticle(kPdgNHL, kIStInitialState, 0,-1,-1,-1, p4, v4);
 }
 //____________________________________________________________________________
 void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
@@ -97,11 +100,11 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
   LOG("NHL", pINFO)
     << "Decaying N = " << pdgv.size() << " particles / total mass = " << sum;
 
-  int decayed_nucleon_id = 1;
-  GHepParticle * decayed_nucleon = event->Particle(decayed_nucleon_id);
-  assert(decayed_nucleon);
-  TLorentzVector * p4d = decayed_nucleon->GetP4();
-  TLorentzVector * v4d = decayed_nucleon->GetX4();
+  int nhl_id = 0;
+  GHepParticle * nhl = event->Particle(nhl_id);
+  assert(nhl);
+  TLorentzVector * p4d = nhl->GetP4();
+  TLorentzVector * v4d = nhl->GetX4();
 
   LOG("NHL", pINFO)
     << "Decaying system p4 = " << utils::print::P4AsString(p4d);
@@ -182,7 +185,7 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
      int pdgc = *pdg_iter;
      TLorentzVector * p4fin = fPhaseSpaceGenerator.GetDecay(idp);
      GHepStatus_t ist = kIStStableFinalState;
-     event->AddParticle(pdgc, ist, decayed_nucleon_id,-1,-1,-1, *p4fin, v4);
+     event->AddParticle(pdgc, ist, nhl_id,-1,-1,-1, *p4fin, v4);
      idp++;
   }
 
