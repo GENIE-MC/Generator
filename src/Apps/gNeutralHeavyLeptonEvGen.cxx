@@ -99,6 +99,10 @@
 #include <sstream>
 
 #include <TSystem.h>
+#include <TGeoVolume.h>
+#include <TGeoManager.h>
+#include <TGeoShape.h>
+#include <TGeoBBox.h>
 
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/EventGen/EventRecord.h"
@@ -129,7 +133,8 @@ using namespace genie;
 // function prototypes
 void  GetCommandLineArgs (int argc, char ** argv);
 void  PrintSyntax        (void);
-// int   SelectInitState    (void);
+void  InitBoundingBox    (void);
+TLorentzVector GeneratePosition(void);
 const EventRecordVisitorI * NHLGenerator(void);
 
 //
@@ -146,12 +151,19 @@ double           gOptMassNHL      = -1;                  // NHL mass
 NHLDecayMode_t   gOptDecayMode    = kNHLDcyNull;         // NHL decay mode
 string           gOptEvFilePrefix = kDefOptEvFilePrefix; // event file prefix
 bool             gOptUsingRootGeom = false;              // using root geom or target mix?
-map<int,double>  gOptTgtMix;                             // target mix  (tgt pdg -> wght frac) / if not using detailed root geom
 string           gOptRootGeom;                           // input ROOT file with realistic detector geometry
 string           gOptRootGeomTopVol = "";                // input geometry top event generation volume
 double           gOptGeomLUnits = 0;                     // input geometry length units
 double           gOptGeomDUnits = 0;                     // input geometry density units
 long int         gOptRanSeed = -1;                       // random number seed
+
+// Geometry bounding box and origin - read from the input geometry file (if any)
+double fdx = 0; // half-length - x
+double fdy = 0; // half-length - y
+double fdz = 0; // half-length - z
+double fox = 0; // origin - x
+double foy = 0; // origin - y
+double foz = 0; // origin - z
 
 //_________________________________________________________________________________________
 int main(int argc, char ** argv)
@@ -175,6 +187,9 @@ int main(int argc, char ** argv)
   // Set GHEP print level
   GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
 
+  // Read geometry bounding box - for vertex position generation
+  InitBoundingBox();
+
   // Get the nucleon decay generator
   const EventRecordVisitorI * mcgen = NHLGenerator();
 
@@ -196,6 +211,10 @@ int main(int argc, char ** argv)
      // Simulate decay
      mcgen->ProcessEventRecord(event);
 
+     // Generate a position within the geometry bounding box
+     TLorentzVector x4 = GeneratePosition();
+     event->SetVertex(x4);
+
      LOG("gevgen_nhl", pINFO)
          << "Generated event: " << *event;
 
@@ -213,6 +232,65 @@ int main(int argc, char ** argv)
   LOG("gevgen_nhl", pNOTICE) << "Done!";
 
   return 0;
+}
+//_________________________________________________________________________________________
+void InitBoundingBox(void)
+{
+// Initialise geometry bounding box, used for generating NHL vertex positions
+
+  fdx = 0; // half-length - x
+  fdy = 0; // half-length - y
+  fdz = 0; // half-length - z
+  fox = 0; // origin - x
+  foy = 0; // origin - y
+  foz = 0; // origin - z
+
+  if(!gOptUsingRootGeom) return;
+
+  bool geom_is_accessible = ! (gSystem->AccessPathName(gOptRootGeom.c_str()));
+  if (!geom_is_accessible) {
+    LOG("gevgen_nhl", pFATAL)
+      << "The specified ROOT geometry doesn't exist! Initialization failed!";
+    exit(1);
+  }
+
+  TGeoManager * gm = TGeoManager::Import(gOptRootGeom.c_str());
+  TGeoVolume * top_volume = gm->GetTopVolume();
+  TGeoShape * ts  = top_volume->GetShape();
+  TGeoBBox *  box = (TGeoBBox *)ts;
+  //get box origin and dimensions (in the same units as the geometry)
+  fdx = box->GetDX(); // half-length
+  fdy = box->GetDY(); // half-length
+  fdz = box->GetDZ(); // half-length
+  fox = (box->GetOrigin())[0];
+  foy = (box->GetOrigin())[1];
+  foz = (box->GetOrigin())[2];
+
+  // Convert from local to SI units
+  fdx *= gOptGeomLUnits;
+  fdy *= gOptGeomLUnits;
+  fdz *= gOptGeomLUnits;
+  fox *= gOptGeomLUnits;
+  foy *= gOptGeomLUnits;
+  foz *= gOptGeomLUnits;
+}
+//_________________________________________________________________________________________
+TLorentzVector GeneratePosition(void)
+{
+  RandomGen * rnd = RandomGen::Instance();
+  TRandom3 & rnd_geo = rnd->RndGeom();
+
+  double rndx = 2 * (rnd_geo.Rndm() - 0.5); // [-1,1]
+  double rndy = 2 * (rnd_geo.Rndm() - 0.5); // [-1,1]
+  double rndz = 2 * (rnd_geo.Rndm() - 0.5); // [-1,1]
+
+  double t_gen = 0;
+  double x_gen = fox + rndx * fdx;
+  double y_gen = foy + rndy * fdy;
+  double z_gen = foz + rndz * fdz;
+
+  TLorentzVector pos(x_gen, y_gen, z_gen, t_gen);
+  return pos;
 }
 //_________________________________________________________________________________________
 const EventRecordVisitorI * NHLGenerator(void)
@@ -379,46 +457,6 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   } // using root geom?
 
-  // else {
-  //   // User has specified a target mix.
-  //   // Decode the list of target pdf codes & their corresponding weight fraction
-  //   // (specified as 'pdg_code_1[fraction_1],pdg_code_2[fraction_2],...')
-  //   // See documentation on top section of this file.
-  //   //
-  //   gOptTgtMix.clear();
-  //   vector<string> tgtmix = utils::str::Split(geom,",");
-  //   if(tgtmix.size()==1) {
-  //        int    pdg = atoi(tgtmix[0].c_str());
-  //        double wgt = 1.0;
-  //        gOptTgtMix.insert(map<int, double>::value_type(pdg, wgt));
-  //   } else {
-  //     vector<string>::const_iterator tgtmix_iter = tgtmix.begin();
-  //     for( ; tgtmix_iter != tgtmix.end(); ++tgtmix_iter) {
-  //        string tgt_with_wgt = *tgtmix_iter;
-  //        string::size_type open_bracket  = tgt_with_wgt.find("[");
-  //        string::size_type close_bracket = tgt_with_wgt.find("]");
-  //        if (open_bracket ==string::npos ||
-  //            close_bracket==string::npos)
-  //        {
-  //            LOG("gevgen_nhl", pFATAL)
-  //               << "You made an error in specifying the target mix";
-  //            PrintSyntax();
-  //            exit(1);
-  //        }
-  //        string::size_type ibeg = 0;
-  //        string::size_type iend = open_bracket;
-  //        string::size_type jbeg = open_bracket+1;
-  //        string::size_type jend = close_bracket;
-  //        int    pdg = atoi(tgt_with_wgt.substr(ibeg,iend-ibeg).c_str());
-  //        double wgt = atof(tgt_with_wgt.substr(jbeg,jend-jbeg).c_str());
-  //        LOG("gevgen_nhl", pDEBUG)
-  //           << "Adding to target mix: pdg = " << pdg << ", wgt = " << wgt;
-  //        gOptTgtMix.insert(map<int, double>::value_type(pdg, wgt));
-  //
-  //     }// tgtmix_iter
-  //   } // >1 materials in mix
-  // } // using tgt mix?
-
   // event file prefix
   if( parser.OptionExists('o') ) {
     LOG("gevgen_nhl", pDEBUG) << "Reading the event filename prefix";
@@ -428,7 +466,6 @@ void GetCommandLineArgs(int argc, char ** argv)
       << "Will set the default event filename prefix";
     gOptEvFilePrefix = kDefOptEvFilePrefix;
   } //-o
-
 
   // random number seed
   if( parser.OptionExists("seed") ) {
@@ -450,18 +487,6 @@ void GetCommandLineArgs(int argc, char ** argv)
            << ((gOptRootGeomTopVol.size()==0) ? "<master volume>" : gOptRootGeomTopVol)
            << ", length  units: " << lunits
            << ", density units: " << dunits;
-  } else {
-    gminfo << "Using target mix - ";
-    map<int,double>::const_iterator iter;
-    for(iter = gOptTgtMix.begin(); iter != gOptTgtMix.end(); ++iter) {
-          int    pdg_code = iter->first;
-          double wgt      = iter->second;
-          TParticlePDG * p = pdglib->Find(pdg_code);
-          if(p) {
-            string name = p->GetName();
-            gminfo << "(" << name << ") -> " << 100*wgt << "% / ";
-          }//p?
-    }
   }
 
   LOG("gevgen_nhl", pNOTICE)
@@ -469,24 +494,12 @@ void GetCommandLineArgs(int argc, char ** argv)
      << utils::print::PrintFramedMesg("gevgen_nhl job configuration");
 
   LOG("gevgen_nhl", pNOTICE)
-     << "\n @@ Run number: " << gOptRunNu
-     << "\n @@ Random number seed: " << gOptRanSeed
-     << "\n @@ NHL mass: " << gOptMassNHL << " GeV"
-     << "\n @@ Decay channel $ " << utils::nhl::AsString(gOptDecayMode)
-     << "\n @@ Geometry      $ " << gminfo.str()
-     << "\n @@ Statistics    $ " << gOptNev << " events";
-
-  //
-  // Temporary warnings...
-  //
-  if(gOptUsingRootGeom) {
-     LOG("gevgen_nhl", pWARN)
-        << "\n ** ROOT geometries not supported yet in the NHL mode"
-        << "\n ** (they will be in the very near future)"
-        << "\n ** Please specify a `target mix' instead.";
-     gAbortingInErr = true;
-     exit(1);
-  }
+     << "\n @@ Run number    : " << gOptRunNu
+     << "\n @@ Random seed   : " << gOptRanSeed
+     << "\n @@ NHL mass      : " << gOptMassNHL << " GeV"
+     << "\n @@ Decay channel : " << utils::nhl::AsString(gOptDecayMode)
+     << "\n @@ Geometry      : " << gminfo.str()
+     << "\n @@ Statistics    : " << gOptNev << " events";
 }
 //_________________________________________________________________________________________
 void PrintSyntax(void)
@@ -499,7 +512,7 @@ void PrintSyntax(void)
    << "\n             --mass nhl_mass"
    << "\n             -m decay_mode"
    << "\n             -f flux ** not installed yet **"
-   << "\n            [-g geometry] ** not installed yet **"
+   << "\n            [-g geometry]"
    << "\n            [-t top_volume_name_at_geom]"
    << "\n            [-L length_units_at_geom]"
    << "\n            [-D density_units_at_geom]"
