@@ -116,7 +116,7 @@ double EmpiricalMECPXSec2015::XSec(
 
   // Calculate d^2xsec/dWdQ2 - first form factor which is common to both
   double Wdep  = TMath::Gaus(W, fMass, fWidth);
-  double Q2dep = Q2*TMath::Power((1+Q2/fMq2d),-8.);
+  double Q2dep = Q2*TMath::Power((1+Q2/fMq2d),-4.);
   //  double nudep = TMath::Power(Tmu,2.5);
   //  LOG("MEC", pINFO) << "Tmu = " << Tmu << ", nudep = " << nudep;
   double FF2  = Wdep * Q2dep;// * nudep;
