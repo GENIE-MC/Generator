@@ -258,7 +258,7 @@ USING_CLANG  = YES
 endif
 
 # get gcc version & split in '.' delimited tokens (major/minor/revison num.)
-CXXVRS      = $(shell $(CXX) -dumpversion)
+CXXVRS      = $(shell $(CXX) -dumpfullversion -dumpversion)
 CXXVRS_MAJ  = $(shell awk 'BEGIN {\
 		str="$(CXXVRS)"; split(str, tk, "."); print tk[1]}')
 CXXVRS_MIN  = $(shell awk 'BEGIN {\
