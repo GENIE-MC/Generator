@@ -388,7 +388,7 @@ void RESKinematicsGenerator::LoadConfig(void)
 
   GetParam("doRadiativeCorrection", fDoRadiativeCorrection, false) ;
   if (fDoRadiativeCorrection) {
-     GetParamDef( "RadiativeCorrectionModel" , fModel, std::string("simc"));
+     GetParam( "RadiativeCorrectionModel" , fModel);
      GetParam( "RadiativeCorrectionCutoff",fCutoff);
      GetParam( "RadiativeCorrectionThickness",fThickness);
      GetParam( "RadiativeCorrectionDoInternal",fDoInternal);

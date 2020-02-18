@@ -140,14 +140,14 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	double e = p4.E();
 	double energyLoss = 0.;
         double e_gamma_max;
-	double e_gamma_min = 1E-20;
-        if (fISR) e_gamma_max = init_state_ptr->ProbeE(kRfLab) - fP4l.E();
-        else 
-	{
-	  e_gamma_max = init_state_ptr->ProbeE(kRfLab) - kine->FSLeptonP4().E();
-	  if (e_gamma_max > kine->FSLeptonP4().E()) e_gamma_max = kine->FSLeptonP4().E();
-        }
-	e_gamma_max = 0.5*e_gamma_max;
+	double e_gamma_min = 1E-25;
+        //if (fISR) e_gamma_max = init_state_ptr->ProbeE(kRfLab) - fP4l.E();
+        //else 
+	//{
+	//  e_gamma_max = init_state_ptr->ProbeE(kRfLab) - kine->FSLeptonP4().E();
+	//  if (e_gamma_max > kine->FSLeptonP4().E()) e_gamma_max = kine->FSLeptonP4().E();
+        //}
+        e_gamma_max = 0.2*p4.E();
         LOG("RadiativeCorrector", pINFO) << " particle for decay "<<p->Pdg()<<" e_gamma_max "<<e_gamma_max;
 	if (fModel == "vanderhagen") {
            if (e_gamma_max<0) e_gamma_max = 1E-10;
@@ -163,7 +163,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	   LOG("RadiativeCorrector", pINFO) << "Vanderhagen Energy loss is "<<energyLoss;
 	}
 	double L1,L2,b,lambda_e,g,power_hi,power_lo;
-	if (fModel =="simc") {
+	if (fModel =="simc" || fModel == "simple") {
  
 	   if (Z==1) {
 	      L1 = 5.31;
@@ -174,6 +174,17 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	      L2 = TMath::Log(1194.) - (2./3)*TMath::Log(Z);
 	   }
            b = (1./9)*(12 + float(Z+1)/(Z*L1 + L2));
+	}
+	if (fModel == "simple") {
+	   double lambda = (kAem/kPi)*(2*TMath::Log(2*init_state_ptr->ProbeE(kRfLab)/kElectronMass) - 1) + b*fThickness;
+	   TF1 *f = new TF1("f","[0]*pow(x,[0]-1)/[1]",e_gamma_min,e_gamma_max);
+           f->SetParameter(0,lambda);
+           f->SetParameter(1,pow(init_state_ptr->ProbeE(kRfLab),-1.*lambda));
+           energyLoss = f->GetRandom();
+           delete f;
+           LOG("RadiativeCorrector", pINFO) << "Simple Energy loss is "<<energyLoss;    
+	}
+	if (fModel == "simc") {
 	   if (fISR) lambda_e = (kAem/kPi)*( 2*TMath::Log(2*p->P4()->P()/kElectronMass) -1 + TMath::Log(0.5*(1-fP4l.CosTheta())) );//+ 2*TMath::Log(init_state_ptr->GetProbeP4(kRfLab)->P()/fP4l.E()) + TMath::Log(0.5*(1-fP4l.CosTheta() ) ) );
 	   else lambda_e =      (kAem/kPi)*( 2*TMath::Log(2*p->P4()->P()/kElectronMass) -1 + TMath::Log(0.5*(1-kine->FSLeptonP4().CosTheta())) );//+ 2*TMath::Log(init_state_ptr->GetProbeP4(kRfLab)->P()/kine->FSLeptonP4().E()) + TMath::Log(0.5*(1-kine->FSLeptonP4().CosTheta() ) ) );
            g = b*fThickness + lambda_e;
@@ -199,7 +210,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
            LOG("RadiativeCorrector", pINFO) << "SIMC Energy loss is "<<energyLoss;
 
 	}
-	std::cout<<"CHECK energyLoss "<<energyLoss*1E20<<" fCutoff "<<fCutoff*1E20<<std::endl;
+	std::cout<<"CHECK energyLoss "<<energyLoss<<" fCutoff "<<fCutoff<<" original energy is "<<p4.E()<<" the loss is "<<energyLoss*100/p4.E()<<"%"<<std::endl;
 	if (energyLoss<fCutoff) continue;
 
 	double momentumLoss = energyLoss;
@@ -232,6 +243,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	    std::cout<<"weights b "<<b<<" fThickness "<<fThickness<<" p4.E() "<<p4.E()<<" p4RadGamma.E() "<<p4RadGamma.E()<<std::endl;
             LOG("RadiativeCorrector", pINFO) << "Applying ISR part of the radiative correction weight "<<evrec->Weight() * radcor_weight;
           }
+	  
 	  if (energyLoss<fCutoff) std::cout<<"CHECK BAD "<<std::endl;
 	  LOG("RadiativeCorrector", pINFO) << "performing ISR correction for: " << p->Name() << " reduced energy is : "<<p4tag.E();
 	  // changing the probe energy for the initial state 

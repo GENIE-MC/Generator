@@ -1152,7 +1152,7 @@ void MECGenerator::LoadConfig(void)
     GetParam( "NSV-Q3Max", fQ3Max ) ;
     GetParam("doRadiativeCorrection", fDoRadiativeCorrection, false) ;
     if (fDoRadiativeCorrection) {
-       GetParamDef( "RadiativeCorrectionModel" , fModel, std::string("simc"));
+       GetParam( "RadiativeCorrectionModel" , fModel);
        GetParam( "RadiativeCorrectionCutoff",fCutoff);
        GetParam( "RadiativeCorrectionThickness",fThickness);
        GetParam( "RadiativeCorrectionDoInternal",fDoInternal);

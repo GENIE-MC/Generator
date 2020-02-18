@@ -34,7 +34,7 @@ Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cach
 
   <param_set name="EM-radcorr"> 
      <param type="string" name="CommonParam"> RadiativeCorrection                               </param>
-     <param type="string"  name="RadiativeCorrectionModel"> simc </param>
+     <param type="string"  name="RadiativeCorrectionModel"> simple </param>
      <param type="double"  name="RadiativeCorrectionCutoff"> 0.0001 </param>
      <param type="double"  name="RadiativeCorrectionThickness"> 0.008532  </param>  <!--Fe-->
      <param type="bool"   name="RadiativeCorrectionDoInternal"> false             </param>
