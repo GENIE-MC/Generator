@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the DMElectronXSec xsec algorithm.
+
+Configurable Parameters:
+....................................................................................
+Name           Type     Optional   Comment                 Default
+....................................................................................
+
+
+-->
+
+  <param_set name="Default"> 
+    <param type="string" name ="gsl-integration-type">    adaptive  </param>
+    <param type="int"    name ="gsl-max-eval" >              40000  </param>
+    <param type="double" name ="gsl-relative-tolerance"  >   0.001  </param>
+  </param_set>
+
+</alg_conf>
+

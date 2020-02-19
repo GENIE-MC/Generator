@@ -63,15 +63,10 @@ else
         # and re-packages into UPS
 	  ROOT_INCLUDE_PATH=$(GENIE_LIB_PATH):$(GENIE)/src:$(GENIE)/src/$(PACKAGE) \
           rootcling -f $(DICTIONARY).cc \
-                    -I$(PACKAGE) -ITypes -IInterfaces -IGENIE \
-                    -I../Types -I../Interfaces \
+                    -I$(PACKAGE) -IGENIE \
                     -IGENIE/$(PACKAGE) \
-                    -IGENIE/Types \
-                    -IGENIE/Interfaces \
                     -I../include -I../include/GENIE \
                     -I../include/GENIE/$(PACKAGE) \
-                    -I../include/GENIE/Types \
-                    -I../include/GENIE/Interfaces \
                     -inlineInputHeader \
                     -s $(PACKAGE_LIBNOVRS) \
                   -rml $(PACKAGE_PCM) \

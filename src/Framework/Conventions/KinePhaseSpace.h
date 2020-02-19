@@ -12,7 +12,6 @@
 
 \cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -64,9 +63,11 @@ typedef enum EKinePhaseSpace {
   kPSElOlTpifE,
   kPSTkTlctl,
   kPSQ2vfE,
-  kPSQELEvGen // Phase space used by genie::QELEventGenerator for sampling kinematic variables
+  kPSQELEvGen,// Phase space used by genie::QELEventGenerator for sampling kinematic variables
               // TODO: rename this value when the correct variables are identified
-
+  kPSTAfE,
+  kPSEgTlOgfE,
+  kPSDMELEvGen // Equivalent to kPSQELEvGen for Dark Matter scattering  
 } KinePhaseSpace_t;
 
 class KinePhaseSpace
@@ -113,11 +114,14 @@ public:
       case(kPSlogQ2logyfE): return "<{Q2,y}|E>";      break;
       case(kPSTlctl)      : return "<{Tl,cos(theta_l)}|E>";     break;
       case(kPSElOlOpifE)  : return "<{El,Omega_l,Omega_pi}|E>"; break;
+      case(kPSEgTlOgfE)   : return "<{Egamma,Theta_l,Omega_gamma}|E>"; break;
       case(kPSElOlTpifE)  : return "<{El,Omega_l,Theta_pi}|E>"; break;
       case(kPSTkTlctl)    : return "<{Tk,Tl,cos(theta_l)}|E>";  break;
       case(kPSQ2vfE)      : return "<{Q2,v}|E>"; break;
       // TODO: update this string when the appropriate kinematic variables are known
       case(kPSQELEvGen)   : return "<QELEvGen>"; break;
+      case(kPSDMELEvGen)   : return "<DMELEvGen>"; break;
+      case(kPSTAfE)       : return "<{TA}|E>";   break;
     }
     return "** Undefined kinematic phase space **";
   }

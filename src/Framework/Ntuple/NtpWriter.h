@@ -53,11 +53,11 @@ public :
   void Save (void);
 
   ///< get the even tree
-  TTree *  EventTree (void) { return fOutTree; }  
+  TTree *  EventTree (void) { return fOutTree; }
 
   ///< use before Initialize() only if you wish to override the default
   ///< filename, or the default filename prefix
-  void CustomizeFilename       (string filename);   
+  void CustomizeFilename       (string filename);
   void CustomizeFilenamePrefix (string prefix);
 
 private:
@@ -74,8 +74,8 @@ private:
   string             fOutFilename;        ///< output filename
   TFile *            fOutFile;            ///< output file
   TTree *            fOutTree;            ///< output tree
-  TBranch *          fEventBranch;        ///< the generated event branch 
-  NtpMCEventRecord * fNtpMCEventRecord;   ///< 
+  TBranch *          fEventBranch;        ///< the generated event branch
+  NtpMCEventRecord * fNtpMCEventRecord;   ///<
   NtpMCTreeHeader *  fNtpMCTreeHeader;    ///<
 };
 

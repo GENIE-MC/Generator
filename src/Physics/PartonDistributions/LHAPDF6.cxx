@@ -15,7 +15,6 @@
 #include <TSystem.h>
 #include <TMath.h>
 
-#include "Framework/Conventions/GBuild.h"
 #include "Physics/PartonDistributions/LHAPDF6.h"
 #include "Framework/Messenger/Messenger.h"
 

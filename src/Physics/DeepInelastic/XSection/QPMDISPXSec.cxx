@@ -18,6 +18,9 @@
  @ Jan 29, 2013 - CA
    Don't look-up depreciated $GDISABLECACHING environmental variable.
    Use the RunOpt singleton instead.
+ @ 2019 Jan - Marco Roda <mroda@liverpool.ac.uk>
+   DIS model cleaned of the joint rescaling with RES. The re-scaling is available
+   in an higher level algorithm that will take this model and will re-scale it accordingly.
 
 */
 //____________________________________________________________________________
@@ -36,7 +39,6 @@
 #include "Framework/Conventions/RefFrame.h"
 #include "Framework/Conventions/KineVar.h"
 #include "Framework/Conventions/Units.h"
-#include "Physics/Hadronization/HadronizationModelI.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/DeepInelastic/XSection/QPMDISPXSec.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -168,17 +170,7 @@ double QPMDISPXSec::XSec(
                       << ", x= " << x << ", y= " << y << ") = " << xsec;
 #endif
 
-  // If the DIS/RES joining scheme is enabled, modify the xsec accordingly
-  if(fUsingDisResJoin) {
-     double R = this->DISRESJoinSuppressionFactor(interaction);
-     xsec*=R;
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("DISPXSec", pINFO) << "D/R Join scheme - suppression factor R = " << R;;
-     LOG("DISPXSec", pINFO) << "d2xsec/dxdy[FreeN, D/R Join] " << xsec;
-#endif
-  }
-
-  // The algorithm computes d^2xsec/dxdy
+   // The algorithm computes d^2xsec/dxdy
   // Check whether variable tranformation is needed
   if(kps!=kPSxyfE) {
     double J = utils::kinematics::Jacobian(interaction,kPSxyfE,kps);
@@ -235,121 +227,6 @@ bool QPMDISPXSec::ValidProcess(const Interaction * interaction) const
   return true;
 }
 //____________________________________________________________________________
-double QPMDISPXSec::DISRESJoinSuppressionFactor(
-   const Interaction * in) const
-{
-// Computes suppression factors for the DIS xsec under the used DIS/RES join
-// scheme. Since this is a 'low-level' algorithm that is being called many
-// times per generated event or computed cross section spline, the suppression
-// factors would be cached to avoid calling the hadronization model too often.
-//
-  double R=0, Ro=0;
-
-  const double Wmin = kNeutronMass + kPionMass + 1E-3;
-
-  const InitialState & ist = in->InitState();
-  const ProcessInfo &  pi  = in->ProcInfo();
-
-  double E    = ist.ProbeE(kRfHitNucRest);
-  double Mnuc = ist.Tgt().HitNucMass();
-  double x    = in->Kine().x(); 
-  double y    = in->Kine().y();
-  double Wo   = utils::kinematics::XYtoW(E,Mnuc,x,y);
-
-  TH1D * mprob = 0;
-
-  if(!fUseCache) {
-    // ** Compute the reduction factor at each call - no caching 
-    //
-    mprob = fHadronizationModel->MultiplicityProb(in,"+LowMultSuppr");
-    R = 1;
-    if(mprob) {
-       R = mprob->Integral("width");
-       delete mprob;
-    }
-  }
-  else {
-
-    // ** Precompute/cache the reduction factors and then use the 
-    // ** cache to evaluate these factors
-
-    // Access the cache branch. The branch key is formed as:
-    // algid/DIS-RES-Join/nu-pdg:N;hit-nuc-pdg:N/inttype
-    Cache * cache = Cache::Instance();
-    string algkey = this->Id().Key() + "/DIS-RES-Join";
-
-    ostringstream ikey;
-    ikey << "nu-pdgc:" << ist.ProbePdg() 
-         << ";hit-nuc-pdg:"<< ist.Tgt().HitNucPdg() << "/"
-         << pi.InteractionTypeAsString();
-
-    string key = cache->CacheBranchKey(algkey, ikey.str());
-
-    CacheBranchFx * cbr =
-          dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
-
-    // If it does't exist then create a new one 
-    // and cache DIS xsec suppression factors
-    bool non_zero=false;
-    if(!cbr) {
-      LOG("DISXSec", pNOTICE) 
-                        << "\n ** Creating cache branch - key = " << key;
-
-      cbr = new CacheBranchFx("DIS Suppr. Factors in DIS/RES Join Scheme");
-      Interaction interaction(*in);
-
-      const int kN   = 300;
-      double WminSpl = Wmin;
-      double WmaxSpl = fWcut + 0.1; // well into the area where scaling factor = 1
-      double dW      = (WmaxSpl-WminSpl)/(kN-1);
-
-      for(int i=0; i<kN; i++) {
-        double W = WminSpl+i*dW;
-        interaction.KinePtr()->SetW(W);
-        mprob = fHadronizationModel->MultiplicityProb(&interaction,"+LowMultSuppr");
-        R = 1;
-        if(mprob) {
-           R = mprob->Integral("width");
-           delete mprob;
-        }
-        // make sure that it takes enough samples where it is non-zero:
-        // modify the step and the sample counter once I've hit the first
-        // non-zero value
-        if(!non_zero && R>0) {
-	  non_zero=true;
-          WminSpl=W;
-          i = 0;
-          dW = (WmaxSpl-WminSpl)/(kN-1);
-        }
-        LOG("DISXSec", pNOTICE) 
-	    << "Cached DIS XSec Suppr. factor (@ W=" << W << ") = " << R;
-
-        cbr->AddValues(W,R);
-      }
-      cbr->CreateSpline();
-
-      cache->AddCacheBranch(key, cbr);
-      assert(cbr);
-    } // cache data
-
-    // get the reduction factor from the cache branch
-    if(Wo > Wmin && Wo < fWcut-1E-2) {
-       const CacheBranchFx & cache_branch = (*cbr);
-       R = cache_branch(Wo);
-    }
-  }
-
-  // Now return the suppression factor
-  if      (Wo > Wmin && Wo < fWcut-1E-2) Ro = R;
-  else if (Wo <= Wmin)                   Ro = 0.0;
-  else                                   Ro = 1.0;
-
-  LOG("DISXSec", pDEBUG) 
-      << "DIS/RES Join: DIS xsec suppr. (W=" << Wo << ") = " << Ro;
-
-  return Ro;
-}
-//____________________________________________________________________________
 void QPMDISPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -382,23 +259,6 @@ void QPMDISPXSec::LoadConfig(void)
 
   fDISSF.SetModel(fDISSFModel); // <-- attach algorithm
 
-  GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
-
-  fHadronizationModel = 0;
-  fWcut = 0.;
-
-  if(fUsingDisResJoin) {
-     fHadronizationModel = 
-       dynamic_cast<const HadronizationModelI *> (this->SubAlg("Hadronizer"));
-     assert(fHadronizationModel);
-
-     // Load Wcut determining the phase space area where the multiplicity prob.
-     // scaling factors would be applied -if requested-
-
-     GetParam( "Wcut", fWcut ) ;
-
-  }
-
   // Cross section scaling factor
   GetParam( "DIS-XSecScale", fScale ) ;
 
@@ -407,17 +267,6 @@ void QPMDISPXSec::LoadConfig(void)
   GetParam( "WeinbergAngle", thw ) ;
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
 
-  // Caching the reduction factors used in the DIS/RES joing scheme?
-  // In normal event generation (1 config -> many calls) it is worth caching
-  // these suppression factors.
-  // Depending on the way this algorithm is used during event reweighting,
-  // precomputing (for all W's) & caching these factors might not be efficient.
-  // Here we provide the option to turn the caching off at run-time (default: on)
-
-  bool cache_enabled = RunOpt::Instance()->BareXSecPreCalc();
-
-  GetParamDef( "UseCache", fUseCache, true ) ;
-  fUseCache = fUseCache && cache_enabled;
 
   // Since this method would be called every time the current algorithm is 
   // reconfigured at run-time, remove all the data cached by this algorithm

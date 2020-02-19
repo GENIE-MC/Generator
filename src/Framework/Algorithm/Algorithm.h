@@ -135,6 +135,10 @@ public:
   virtual void Print(ostream & stream) const;
   friend ostream & operator << (ostream & stream, const Algorithm & alg);
 
+
+  static string BuildParamVectKey( const std::string & comm_name, unsigned int i ) ; 
+  static string BuildParamVectSizeKey( const std::string & comm_name ) ; 
+
 protected:
   Algorithm();
   Algorithm(string name);
@@ -178,11 +182,13 @@ protected:
      bool GetParamDef( const RgKey & name, T & p, const T & def ) const ;
 
   //! Handle to load vectors of parameters
-  //! It looks for different registry item with name comm_name0, comm_name1, etc...
   template<class T>
-    bool GetParamVect( const std::string & comm_name, std::vector<T> & v,
-    		           unsigned int max, bool is_top_call = true ) const ;
-
+    int GetParamVect( const std::string & comm_name, std::vector<T> & v,
+		      bool is_top_call = true ) const ;
+  
+  int GetParamVectKeys( const std::string & comm_name, std::vector<RgKey> & k,
+			bool is_top_call = true ) const ;
+  
   int   AddTopRegistry( Registry * rp, bool owns = true );  ///< add registry with top priority, also update ownership
   int   AddLowRegistry( Registry * rp, bool owns = true );  ///< add registry with lowest priority, also update ownership
   int   MergeTopRegistry( const Registry & r ) ;            ///< Merge with top level registry if first reg of the vector is owned
