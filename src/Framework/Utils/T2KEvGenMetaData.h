@@ -10,9 +10,8 @@
 
 \created  Mar 04, 2010
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -42,20 +41,20 @@ public:
   using TObject::Print; // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
 
   T2KEvGenMetaData() :
-      jnubeam_version(""), 
-      jnubeam_file(""), 
-      detector_location(""), 
-      geom_file(""), 
-      geom_top_volume(""), 
-      geom_length_units(1.), 
+      jnubeam_version(""),
+      jnubeam_file(""),
+      detector_location(""),
+      geom_file(""),
+      geom_top_volume(""),
+      geom_length_units(1.),
       geom_density_units(1.),
-      using_root_geom(false), 
-      using_hist_flux(false) 
-  { 
+      using_root_geom(false),
+      using_hist_flux(false)
+  {
   }
 
-  ~T2KEvGenMetaData() 
-  { 
+  ~T2KEvGenMetaData()
+  {
   }
 
   void Print(ostream & stream) const;

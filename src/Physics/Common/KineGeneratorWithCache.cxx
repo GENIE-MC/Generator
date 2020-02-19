@@ -1,21 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Jun 25, 2008 - CA
-   Using the new CacheBranchFx which avoids a significant memory leak.
- @ Feb 06, 2013 - CA
-   When the value of the differential cross-section for the selected kinematics
-   is set to the event, set the corresponding KinePhaseSpace_t value too.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -91,7 +80,7 @@ double KineGeneratorWithCache::MaxXSec(GHepRecord * event_rec) const
             << "Can not generate event kinematics {K} (max_xsec({K};E)<=0)";
   // xsec for selected kinematics = 0
   event_rec->SetDiffXSec(0,kPSNull);
-  // switch on error flag 
+  // switch on error flag
   event_rec->EventFlags()->SetBitNumber(kKineGenErr, true);
   // reset 'trust' bits
   interaction->ResetBit(kISkipProcessChk);
@@ -131,7 +120,7 @@ double KineGeneratorWithCache::FindMaxXSec(
        double spl_max_xsec = cb->Spl()->Evaluate(E);
        LOG("Kinematics", pINFO)
           << "\nInterpolated: max xsec (E=" << E << ") = " << spl_max_xsec;
-       return spl_max_xsec;      
+       return spl_max_xsec;
      }
      LOG("Kinematics", pINFO)
           << "Outside spline boundaries - Forcing explicit calculation";
@@ -259,24 +248,24 @@ void KineGeneratorWithCache::AssertXSecLimits(
   if(xsec>xsec_max) {
     double f = 200*(xsec-xsec_max)/(xsec_max+xsec);
     if(f>fMaxXSecDiffTolerance) {
-       LOG("Kinematics", pFATAL) 
-    	  << "xsec: (curr) = " << xsec 
+       LOG("Kinematics", pFATAL)
+    	  << "xsec: (curr) = " << xsec
       	         << " > (max) = " << xsec_max << "\n for " << *interaction;
-       LOG("Kinematics", pFATAL) 
+       LOG("Kinematics", pFATAL)
  	  << "*** Exceeding estimated maximum differential cross section";
        exit(1);
     } else {
-       LOG("Kinematics", pWARN) 
-    	  << "xsec: (curr) = " << xsec 
+       LOG("Kinematics", pWARN)
+    	  << "xsec: (curr) = " << xsec
       	         << " > (max) = " << xsec_max << "\n for " << *interaction;
-       LOG("Kinematics", pWARN) 
+       LOG("Kinematics", pWARN)
   	    << "*** The fractional deviation of " << f << " % was allowed";
     }
   }
 
   // this should never happen - print an error mesg just in case...
   if(xsec<0) {
-    LOG("Kinematics", pERROR) 
+    LOG("Kinematics", pERROR)
      << "Negative cross section for current kinematics!! \n" << *interaction;
   }
 }

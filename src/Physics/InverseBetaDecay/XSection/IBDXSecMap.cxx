@@ -1,13 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Corey Reed <cjreed \at nikhef.nl>
-         Nikhef - February 4, 2010
-
- For the class documentation see the corresponding header file.
+ Corey Reed <cjreed \at nikhef.nl>
+ Nikhef 
 */
 //____________________________________________________________________________
 
@@ -61,7 +58,7 @@ void IBDXSecMap::LoadConfig(void)
 {
    // build the default xsec model according to the options contained
    // in IBDXSecMap.xml and/or UserPhysicsOptions.xml
-   
+
    // load default global model (should work for all nuclei)
    RgAlg dgmodel ;
    GetParam( "IBDNucXSecModel", dgmodel ) ;
@@ -71,10 +68,10 @@ void IBDXSecMap::LoadConfig(void)
    fDefaultModel =
       dynamic_cast<const XSecAlgorithmI*>( this -> SubAlg("IBDNucXSecModel") );
    assert(fDefaultModel!=0);
-   
+
    // check whether to map according to specific isotopes
    GetParam("IsotopesUseSameModel", fIsotopesUseSameModel ) ;
-   
+
    // load refined models for specific nuclei
    for(int Z=1; Z<140; Z++) {
      for(int A=Z; A<3*Z; A++) {
@@ -104,9 +101,9 @@ const XSecAlgorithmI* IBDXSecMap::SelectModel(const Target & t) const
    // search the map for the PDG code of the target
    // if a refined model is found, return it
    // otherwise return the default xsec model
-   
+
    map<int,const XSecAlgorithmI*>::const_iterator it = fRefinedModels.find(t.Pdg());
-   
+
    if(it != fRefinedModels.end()) return it->second;
    else return fDefaultModel;
 }
@@ -158,4 +155,3 @@ bool   IBDXSecMap::ValidKinematics(const Interaction * i) const
       return 0;
    }
 }
-

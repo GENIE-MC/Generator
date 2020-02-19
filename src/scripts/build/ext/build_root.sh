@@ -9,7 +9,7 @@
 #                         [--with-pythia6-version=...]
 #                         [--with-gsl-version=...]
 #
-# Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
 #
 
 version=5.24.00

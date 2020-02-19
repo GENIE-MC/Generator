@@ -1,27 +1,25 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
-         This GENIE code was adapted from the neugen3 code co-authored by
-         Donna Naples (Pittsburgh U.), Hugh Gallagher (Tufts U), and
-         Costas Andreopoulos (RAL)
+ This GENIE code was adapted from the neugen3 code co-authored by Donna Naples
+ (Pittsburgh U.), Hugh Gallagher (Tufts U), and Costas Andreopoulos (RAL)
 
-         A fix was installed (Aug 12, 2014) by Brian Tice (Rochester) so that
-         the nuclear modification to the pdf should be calculated in terms
-         of the experimental x, not the rescaled x. The same goes for R(x,Q2).
+ A fix was installed (Aug 12, 2014) by Brian Tice (Rochester) so that
+ the nuclear modification to the pdf should be calculated in terms
+ of the experimental x, not the rescaled x. The same goes for R(x,Q2).
 
-         A fix of the scaling variable used for the relations between structure
-         functions was installed by C. Bronner and J. Morrison Jun 06, 2016
-         after it was confirmed by A. Bodek that x and not the modified
-         scaling variable should be used there.
+ A fix of the scaling variable used for the relations between structure
+ functions was installed by C. Bronner and J. Morrison Jun 06, 2016
+ after it was confirmed by A. Bodek that x and not the modified
+ scaling variable should be used there.
 
-         Changes required to implement the GENIE Boosted Dark Matter module
-         were installed by Josh Berger (Univ. of Wisconsin)
+ Changes required to implement the GENIE Boosted Dark Matter module
+ were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 

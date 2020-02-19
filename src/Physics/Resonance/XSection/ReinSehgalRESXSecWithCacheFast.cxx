@@ -1,16 +1,14 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Igor Kakorin <kakorin@jinr.ru>
-         Joint Institute for Nuclear Research - March 01, 2017
-         based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Igor Kakorin <kakorin@jinr.ru>
+ Joint Institute for Nuclear Research
 
- For the class documentation see the corresponding header file.
-
+ based on code of
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 

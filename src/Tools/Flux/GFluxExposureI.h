@@ -1,17 +1,22 @@
-////////////////////////////////////////////////////////////////////////
-/// \file  GFluxExposureI.h
-/// \class genie::flux::GFluxExposureI
-/// \brief GENIE interface for uniform flux exposure iterface
-///
-///        Unified flux exposure interface to be used by flux drivers
-///        that can support such.
-///
-/// \author  Robert Hatcher <rhatcher \at fnal.gov>
-///          Fermi National Accelerator Laboratory
-///
-/// \created 2015-03-17  initial version
-/// \version $Id: $
-////////////////////////////////////////////////////////////////////////
+//____________________________________________________________________________
+/*!
+
+\class   genie::flux::GFluxExposureI
+
+\brief   GENIE interface for uniform flux exposure iterface
+
+         Unified flux exposure interface to be used by flux drivers
+         that can support such.
+
+\author  Robert Hatcher <rhatcher \at fnal.gov>
+         Fermi National Accelerator Laboratory
+
+\created 2015-03-17
+
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
+         for the full text of the license visit http://copyright.genie-mc.org
+*/
+//____________________________________________________________________________
 
 #ifndef GENIE_FLUX_GFLUXEXPOSUREI_H
 #define GENIE_FLUX_GFLUXEXPOSUREI_H
@@ -30,9 +35,9 @@ namespace flux {
   } Exposure_t;
 
   class GFluxExposureI {
-    
+
   public:
-  
+
     GFluxExposureI(genie::flux::Exposure_t etype);
     virtual ~GFluxExposureI();
 
@@ -54,7 +59,7 @@ namespace flux {
     static genie::flux::Exposure_t  StringToEnum(const char* chars, int maxChar=0);
 
   private:
-    genie::flux::Exposure_t fEType; 
+    genie::flux::Exposure_t fEType;
 
   };
 

@@ -1,13 +1,12 @@
-////////////////////////////////////////////////////////////////////////
-/// \file  GFluxExposureI.cxx
-/// \brief GENIE interface for uniform flux exposure iterface
-///
-/// \version $Id: $
-/// \author  Robert Hatcher <rhatcher \at fnal.gov>
-///          Fermi National Accelerator Laboratory
-///
-/// \update  2015-03-17 initial version
-////////////////////////////////////////////////////////////////////////
+//____________________________________________________________________________
+/*!
+ Copyright (c) 2003-2020, The GENIE Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+
+ Robert Hatcher <rhatcher@fnal.gov>
+ Fermi National Accelerator Laboratory
+*/
+//____________________________________________________________________________
 
 #include "Tools/Flux/GFluxExposureI.h"
 
@@ -27,17 +26,17 @@ namespace flux {
     }
   }
 
-    genie::flux::Exposure_t 
+    genie::flux::Exposure_t
       GFluxExposureI::StringToEnum(const char* chars, int maxChar)
   {
     int len = strlen(chars);
     if (maxChar == 0  ) maxChar = len;
     if (maxChar >  len) maxChar = len;
     if (maxChar <= 0  ) return genie::flux::kUnknown;
-    
+
     char* lowchars = new char [maxChar];
     for (int i=0; i<maxChar; ++i) lowchars[i] = tolower(chars[i]);
-    
+
     genie::flux::Exposure_t etype = genie::flux::kUnknown;
     if        ( 0 == strncmp(lowchars,"pot",TMath::Min(maxChar,3))) {
       etype = genie::flux::kPOTs;
@@ -48,7 +47,7 @@ namespace flux {
     return etype;
   }
 
-  GFluxExposureI::GFluxExposureI(genie::flux::Exposure_t etype) 
+  GFluxExposureI::GFluxExposureI(genie::flux::Exposure_t etype)
   { fEType = etype; }
 
   GFluxExposureI::~GFluxExposureI() { ; }

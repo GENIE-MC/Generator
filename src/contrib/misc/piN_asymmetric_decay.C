@@ -7,8 +7,8 @@
 // root[1] plot_input_data();  //or
 // root[1] run_evgen_test(W);
 //
-// Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-// University of Liverpool & STFC Rutherford Appleton Lab
+// Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+// University of Liverpool & STFC Rutherford Appleton Laboratory
 //
 
 //

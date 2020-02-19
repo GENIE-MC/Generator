@@ -1,14 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Joe Johnston, University of Pittsburgh
-         Steven Dytman, University of Pittsburgh
-
- For the class documentation see the corresponding header file.
-
+ Joe Johnston, University of Pittsburgh
+ Steven Dytman, University of Pittsburgh
 */
 //____________________________________________________________________________
 

@@ -1,18 +1,13 @@
 //____________________________________________________________________________
 /*
-
-  Copyright (c) 2003-2019, The GENIE Collaboration
+  Copyright (c) 2003-2020, The GENIE Collaboration
   For the full text of the license visit http://copyright.genie-mc.org
-  or see $GENIE/LICENSE
-  
-  Authors: Chris Marshall <marshall \at pas.rochester.edu>
-           University of Rochester
 
-           Martti Nirkko
-           University of Berne
- 
-   For the class documentation see the corresponding header file.
+  Chris Marshall <marshall \at pas.rochester.edu>
+  University of Rochester
 
+  Martti Nirkko
+  University of Berne
 */
 //____________________________________________________________________________
 
@@ -93,7 +88,7 @@ void SKPrimaryLeptonGenerator::CalculatePrimaryLepton(GHepRecord * evrec) const
   // Take a unit vector along the neutrino direction
   TVector3 unit_nudir = evrec->Probe()->P4()->Vect().Unit();
 
-  // Rotate lepton momentum vector from the reference frame (x'y'z') where 
+  // Rotate lepton momentum vector from the reference frame (x'y'z') where
   // {z':(neutrino direction), z'x':(theta plane)} to the LAB
   p3l.RotateUz(unit_nudir);
 

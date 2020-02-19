@@ -1,27 +1,25 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos  <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Costas Andreopoulos  <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
-         Hugh Gallagher <gallag \at minos.phy.tufts.edu>
-         Tufts University
+ Hugh Gallagher <gallag \at minos.phy.tufts.edu>
+ Tufts University
 
-         Tinjun Yang <tjyang \at stanford.edu>
-         Stanford University
+ Tinjun Yang <tjyang \at stanford.edu>
+ Stanford University
 
-         Strange baryon production, and adjusted hadronic shower production
-         to conserve strangeness, and to continue balancing charge and
-         maintaining correct multiplicity was implemented by Keith Hofmann
-         and Hugh Gallagher (Tufts)
+ Strange baryon production, and adjusted hadronic shower production to conserve
+ strangeness, and to continue balancing charge and maintaining correct
+ multiplicity was implemented by Keith Hofmann and Hugh Gallagher (Tufts)
 
-         Production of etas was added by Ji Liu (W&M)
+ Production of etas was added by Ji Liu (W&M)
 
-         Changes required to implement the GENIE Boosted Dark Matter module
-         were installed by Josh Berger (Univ. of Wisconsin)
+ Changes required to implement the GENIE Boosted Dark Matter module
+ were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -43,7 +41,7 @@
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
-#include "Framework/GHEP/GHepFlags.h" 
+#include "Framework/GHEP/GHepFlags.h"
 #include "Framework/EventGen/EVGThreadException.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
@@ -101,14 +99,14 @@ void AGKYLowW2019::ProcessEventRecord(GHepRecord * event) const {
   if(! particle_list ) {
     LOG("AGKYLowW2019", pWARN) << "Got an empty particle list. Hadronizer failed!";
     LOG("AGKYLowW2019", pWARN) << "Quitting the current event generation thread";
-    
+
     event->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
-    
+
     genie::exceptions::EVGThreadException exception;
     exception.SetReason("Could not simulate the hadronic system");
     exception.SwitchOnFastForward();
     throw exception;
-    
+
     return;
   }
 
@@ -161,7 +159,7 @@ void AGKYLowW2019::ProcessEventRecord(GHepRecord * event) const {
     event->AddParticle(*particle);
   }
 
-  delete particle_list ; 
+  delete particle_list ;
 
   // update the weight of the event
   event -> SetWeight ( Weight() * event->Weight() );
@@ -1566,7 +1564,7 @@ TH1D * AGKYLowW2019::CreateMultProbHist(double maxmult) const
   return mult_prob;
 }
 //____________________________________________________________________________
-void AGKYLowW2019::ApplyRijk( const Interaction * interaction, 
+void AGKYLowW2019::ApplyRijk( const Interaction * interaction,
                                   bool norm, TH1D * mp ) const
 {
   // Apply the NEUGEN multiplicity probability scaling factors

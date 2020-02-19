@@ -1,20 +1,25 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author:  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
-          adapted from  fortran code provided by 
-          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>, Joint Institute for Nuclear Research
-          Vladimir Lyubushkin, Joint Institute for Nuclear Research
-          Vadim Naumov <vnaumov@theor.jinr.ru>, Joint Institute for Nuclear Research
-          based on code of Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
-          
- For the class documentation see the corresponding header file.
+ Igor Kakorin <kakorin@jinr.ru>
+ Joint Institute for Nuclear Research
 
+ adapted from  fortran code provided by:
 
+ Konstantin Kuzmin <kkuzmin@theor.jinr.ru>
+ Joint Institute for Nuclear Research
+
+ Vladimir Lyubushkin
+ Joint Institute for Nuclear Research
+
+ Vadim Naumov <vnaumov@theor.jinr.ru>
+ Joint Institute for Nuclear Research
+
+ based on code of:
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -76,15 +81,15 @@ void SmithMonizUtils::LoadConfig(void)
 
   GetParam( "FermiMomentumTable", fKFTable);
   GetParam( "RFG-UseParametrization", fUseParametrization);
-  
-  
+
+
   // Load removal energy for specific nuclei from either the algorithm's
   // configuration file or the UserPhysicsOptions file.
   // If none is used use Wapstra's semi-empirical formula.
   const std::string keyStart = "RFG-NucRemovalE@Pdg=";
-  
+
   RgIMap entries = GetConfig().GetItemMap();
-  
+
   for(RgIMap::const_iterator it = entries.begin(); it != entries.end(); ++it)
   {
     const std::string& key = it->first;
@@ -106,23 +111,23 @@ void SmithMonizUtils::LoadConfig(void)
       fNucRmvE.insert(map<int,double>::value_type(Z,eb));
     }
   }
-  
+
 
 }
 //____________________________________________________________________________
 // Set the variables necessary for further calculations
 void SmithMonizUtils::SetInteraction(const Interaction * interaction)
 {
-  
+
   fInteraction = interaction;
   // Get kinematics & init-state parameters
   // unused // const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
   const Target & target = init_state.Tgt();
   PDGLibrary * pdglib = PDGLibrary::Instance();
-  
+
   E_nu = interaction->InitState().ProbeE(kRfLab);         //  Neutrino energy (GeV)
-  
+
   assert(target.HitNucIsSet());
   // get lepton&nuclear masses (init & final state nucleus)
   m_lep = interaction->FSPrimLepton()->Mass();          //  Mass of final charged lepton (GeV)
@@ -143,14 +148,14 @@ void SmithMonizUtils::SetInteraction(const Interaction * interaction)
     E_BIN = P_Fermi = m_rnu = mm_rnu = 0;
     return;
   }
-  
+
   bool is_p = pdg::IsProton(nucl_pdg_ini);
   int Zi = target.Z();
   int Ai = target.A();
   int Zf = (is_p) ? Zi-1 : Zi;
   int Af = Ai-1;
   TParticlePDG * nucl_f = pdglib->Find( pdg::IonPdgCode(Af, Zf) );
-  if(!nucl_f) 
+  if(!nucl_f)
   {
     LOG("SmithMoniz", pFATAL)
     << "Unknwown nuclear target! No target with code: "
@@ -160,12 +165,12 @@ void SmithMonizUtils::SetInteraction(const Interaction * interaction)
 
   m_rnu = nucl_f -> Mass();                          //  Mass of residual nucleus (GeV)
   mm_rnu = TMath::Power(m_rnu, 2);
-  
+
   int Z = target.Z();
   int A = target.A();
   int N = A-Z;
-  
-  
+
+
   // Maximum value of Fermi momentum of target nucleon (GeV)
   if (A < 6 || !fUseParametrization)
   {
@@ -184,7 +189,7 @@ void SmithMonizUtils::SetInteraction(const Interaction * interaction)
     else
            P_Fermi *= TMath::Power( 2.*N/A, 1./3);
   }
-  
+
   // Neutrino binding energy (GeV)
   if (target.A() < 6 || !fUseParametrization)
   {
@@ -193,9 +198,9 @@ void SmithMonizUtils::SetInteraction(const Interaction * interaction)
        else E_BIN = utils::nuclear::BindEnergyPerNucleon(target);
   }
   else
-    E_BIN = utils::nuclear::BindEnergyPerNucleonParametrization(target);  
-  
-  
+    E_BIN = utils::nuclear::BindEnergyPerNucleonParametrization(target);
+
+
 
 
 }
@@ -205,8 +210,8 @@ double SmithMonizUtils::E_nu_thr_SM(void) const
 {
 
   Func1D<SmithMonizUtils> QEL_EnuMin_SM_(*this, &SmithMonizUtils::QEL_EnuMin_SM);
-  
-  
+
+
   const int MFC = 10000;      //  Maximum of function call
   const double EPSABS = 0;
   const double EPSREL = 1.0e-08;
@@ -417,7 +422,7 @@ void SmithMonizUtils::DMINFC(Func1D<SmithMonizUtils> &F, double A,double B, doub
   const double HW = (W5-1)/2;
   const double R1 = 1.0;
   const double HF = R1/2;
-  
+
   int N = -1;
   if(A!=B) N = TMath::Nint(2.08*TMath::Log(TMath::Abs((A-B)/EPS)));
   double C = A;
@@ -475,7 +480,7 @@ double SmithMonizUtils::rho(double P_Fermi, double T_Fermi, double p)
 {
 
   if (T_Fermi==0)                             //Pure Fermi gaz with T_Fermi=0
-    if(p<=P_Fermi) 
+    if(p<=P_Fermi)
       return 1.0;
     else
       return 0.0;

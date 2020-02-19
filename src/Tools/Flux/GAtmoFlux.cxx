@@ -1,54 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 05, 2008 - CA
-   This class was added in 2.3.1 by code factored out from the concrete
-   GFLUKAAtmoFlux driver & the newer, largely similar, GBGLRSAtmoFlux
-   driver.
- @ Feb 23, 2010 - CA
-   Re-structuring and clean-up. Added option to generate weighted flux.
-   Added option to specify a maximum energy cut.
- @ Feb 24, 2010 - CA
-   Added option to specify a minimum energy cut.
- @ Sep 22, 2010 - TF, CA
-   Added SetUserCoordSystem(TRotation &) to specify a rotation from the
-   Topocentric Horizontal (THZ) coordinate system to a user-defined
-   topocentric coordinate system. Added NFluxNeutrinos() to get number of
-   flux neutrinos generated for sample normalization purposes (note that, in
-   the presence of cuts, this is not the same as the number of flux neutrinos
-   thrown towards the geometry).
- @ Feb 22, 2011 - JD
-   Implemented dummy versions of the new GFluxI::Clear and GFluxI::Index as
-   these methods needed for pre-generation of flux interaction probabilities
-   in GMCJDriver.
- @ Feb 03, 2011 - TF
-   Bug fixed: events are now generated randomly and uniformly on a disc with
-   R = R_{transverse}
- @ Feb 23, 2012 - AB
-   Bug fixed: events were being generated according to the differential flux
-   in each energy bin, dPhi/dE, rather than the total flux, Phi, in each bin.
-   This has now been fixed.
- @ Jul 13, 2015 - CA
-   Changed all internal flux histograms from 2-D to 3-D to accomodate fluxes
-   (HAKKM) with phi dependence. Changed several names accordingly. For FLUKA
-   and BGLRS fluxes, just add a single phi bin from 0 to 2*pi.
- @ Apr 13, 2016 - CA
-   Added AddFluxFile() without neutrino PDG code argument for the case that
-   the input data file (as it is the case for HAKKM) includes all species.
-   The pure virtual method FillFluxHisto() now takes a neutrino PDG code
-   rather than a TH3D ptr input and it is expected to retrieve the TH3D flux
-   itself. This change was made to easily fit HAKKM in the code already used
-   by FLUKA and BGLRS.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -454,7 +410,7 @@ void GAtmoFlux::AddFluxFile(string filename)
   fFluxFlavour.push_back(kPdgAntiNuE);  fFluxFile.push_back(filename);
   fFluxFlavour.push_back(kPdgNuMu);     fFluxFile.push_back(filename);
   fFluxFlavour.push_back(kPdgAntiNuMu); fFluxFile.push_back(filename);
-  
+
 }
 //___________________________________________________________________________
 //void GAtmoFlux::SetFluxFile(int nu_pdg, string filename)

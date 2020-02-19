@@ -1,18 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - November 22, 2004
-
- For documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ May 01, 2016 - Libo Jiang
-   Add W dependence to Delta->N gamma 
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -50,7 +42,7 @@ double genie::utils::bwfunc::BreitWignerLGamma(
   double m_2   = TMath::Power(mass, 2);
   double mN_2  = TMath::Power(mN,   2);
   double W_2   = TMath::Power(W,    2);
-  
+
   double m=mass;
   //m_aux1 m_aux2
   double m_aux1= TMath::Power(mN+mPi, 2);
@@ -59,8 +51,8 @@ double genie::utils::bwfunc::BreitWignerLGamma(
   double BRPi0    = 0.994; //Npi Branching Ratio
   double BRgamma0 = 0.006; //Ngamma Branching Ratio
 
-  double widPi0   = width0*BRPi0;  
-  double widgamma0= width0*BRgamma0;  
+  double widPi0   = width0*BRPi0;
+  double widgamma0= width0*BRgamma0;
 
   //-- calculate the L-dependent resonance width
   double EgammaW= (W_2-mN_2)/(2*W);
@@ -71,9 +63,9 @@ double genie::utils::bwfunc::BreitWignerLGamma(
 //  cout<< "Two small W!!! W is lower than one Nucleon Mass!!!!"<<endl;
   return 0;
   }
-  //pPiW pion momentum 
+  //pPiW pion momentum
   double pPiW     = 0;
-  // 
+  //
   if(W_2>m_aux1) pPiW   = TMath::Sqrt((W_2-m_aux1)*(W_2-m_aux2))/(2*W);
 
   double pPim   = TMath::Sqrt((m_2-m_aux1)*(m_2-m_aux2))/(2*m);
@@ -170,4 +162,3 @@ double genie::utils::bwfunc::BreitWigner(
   return bw;
 }
 //______________________________________________________________________
-

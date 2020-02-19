@@ -5,17 +5,16 @@
 
 \brief      Kinematical utilities
 
-\author     Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-            University of Liverpool & STFC Rutherford Appleton Lab
+\author     Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+            University of Liverpool & STFC Rutherford Appleton Laboratory
 
             Changes required to implement the GENIE Boosted Dark Matter module
             were installed by Josh Berger (Univ. of Wisconsin)
 
 \created    November 26, 2004
 
-\cpright    Copyright (c) 2003-2019, The GENIE Collaboration
-            For the full text of the license visit http://copyright.genie-mc.org
-            or see $GENIE/LICENSE
+\cpright    Copyright (c) 2003-2020, The GENIE Collaboration
+            For the full text of the license visit http://copyright.genie-mc.org            
 */
 //____________________________________________________________________________
 
@@ -93,7 +92,7 @@ namespace kinematics
   bool   IsAboveCharmThreshold (double x, double Q2, double M, double mc);
   double SlowRescalingVar      (double x, double Q2, double M, double mc);
 
-  //-- Functions used to define differential cross section distribution envelopes 
+  //-- Functions used to define differential cross section distribution envelopes
   //-- for importance sampling in kinematical selection modules
   double RESImportanceSamplingEnvelope(double * x, double * par);
   double DISImportanceSamplingEnvelope(double * x, double * par);

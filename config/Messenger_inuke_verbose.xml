@@ -106,7 +106,9 @@
   <priority msgstream="INukeUtils">            INFO   </priority>
   <priority msgstream="INukeUtils2018">        INFO   </priority>
   <priority msgstream="INukeUtils2019">        INFO   </priority>
-  <priority msgstream="INukeNucleonCorr">       INFO   </priority>
+  <priority msgstream="HINCLCascadeIntranuke"> INFO   </priority>
+  <priority msgstream="HG4BertCascIntranuke">  INFO   </priority>
+  <priority msgstream="INukeNucleonCorr">      INFO   </priority>
   <priority msgstream="TwoBodyCollision">      INFO   </priority>
   <priority msgstream="ISApp">                 INFO   </priority>
   <priority msgstream="IntGenMap">             WARN   </priority>

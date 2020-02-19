@@ -1,13 +1,9 @@
 //____________________________________________________________________________
 /*
-   Copyright (c) 2003-2019, The GENIE Collaboration
+   Copyright (c) 2003-2020, The GENIE Collaboration
    For the full text of the license visit http://copyright.genie-mc.org
-   or see $GENIE/LICENSE
 
-Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-STFC, Rutherford Appleton Laboratory - March 11, 2005
-
-For the class documentation see the corresponding header file.
+   G. Perdue, H. Gallagher, D. Cherdack
 */
 //____________________________________________________________________________
 
@@ -52,7 +48,7 @@ double BergerSehgalCOHPiPXSec2015::XSec(
     const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   // Here we are following PRD 79, 053003 (2009) by Berger and Sehgal
-  // This method computes the differential cross section represented 
+  // This method computes the differential cross section represented
   // in Eq.'s 6 (CC) and 7 (NC) from that paper.
 
   if(! this -> ValidProcess    (interaction) ) return 0.;
@@ -67,21 +63,21 @@ double BergerSehgalCOHPiPXSec2015::XSec(
   double E      = init_state.ProbeE(kRfLab);        // nu E
   double Q2     = kinematics.Q2();
   double y      = kinematics.y();                   // inelasticity
-  double x      = kinematics.x();          
+  double x      = kinematics.x();
   assert(E > 0.);
   assert(y > 0.);
   assert(y < 1.);
   double ppistar = PionCOMAbsMomentum(interaction); // |Center of Mass Momentum|
-  if (ppistar <= 0.0) { 
-    LOG("BergerSehgalCohPi", pDEBUG) << "Pion COM momentum negative for Q2 = " << Q2 << 
-      " x = " << x << " y = " << y; 
-    return 0.0; 
+  if (ppistar <= 0.0) {
+    LOG("BergerSehgalCohPi", pDEBUG) << "Pion COM momentum negative for Q2 = " << Q2 <<
+      " x = " << x << " y = " << y;
+    return 0.0;
   }
   double front  = ExactKinematicTerm(interaction);
-  if (front <= 0.0) { 
-    LOG("BergerSehgalCohPi", pDEBUG) << "Exact kin. form = " << front << 
-      " E = " << E << " Q2 = " << Q2 << " y = " << y << " x = " << x; 
-    return 0.0; 
+  if (front <= 0.0) {
+    LOG("BergerSehgalCohPi", pDEBUG) << "Exact kin. form = " << front <<
+      " E = " << E << " Q2 = " << Q2 << " y = " << y << " x = " << x;
+    return 0.0;
   }
 
   double A      = (double) init_state.Tgt().A();   // mass number
@@ -95,7 +91,7 @@ double BergerSehgalCOHPiPXSec2015::XSec(
   double Ga2    = TMath::Power(Ga, 2.);            // propagator term
   double Ro2    = TMath::Power(fRo * units::fermi, 2.);
 
-  // the xsec is d^3xsec/dQ^2dydt but the only t-dependent factor 
+  // the xsec is d^3xsec/dQ^2dydt but the only t-dependent factor
   // is an exp(-bt) so it can be integrated analyticaly
   double Epi2   = TMath::Power(Epi, 2.);
   double R      = fRo * A_3 * units::fermi; // nuclear radius
@@ -119,7 +115,7 @@ double BergerSehgalCOHPiPXSec2015::XSec(
   double siginel_pin = sigtot_pin - sigel_pin;
 
   // fabs (F_{abs}) describes the average attenuation of a pion emerging
-  // from a sphere of nuclear matter with radius = R_0 A^{1/3}. it is 
+  // from a sphere of nuclear matter with radius = R_0 A^{1/3}. it is
   // Eq. 13 in Berger-Sehgal PRD 79, 053003
   double fabs_input  = (9.0 * A_3) / (16.0 * kPi * Ro2);
   double fabs        = TMath::Exp( -1.0 * fabs_input * siginel_pin);
@@ -132,7 +128,7 @@ double BergerSehgalCOHPiPXSec2015::XSec(
   double RS_factor = (A2 * fabs) / (16.0 * kPi) * (sigtot_pin * sigtot_pin);
 
   // get the pion-nucleus cross section on carbon, fold it into differential cross section
-  double tpi         = (E * y) - M_pi - ((Q2 + M_pi * M_pi) / (2 * M)); 
+  double tpi         = (E * y) - M_pi - ((Q2 + M_pi * M_pi) / (2 * M));
   double tpilow      = 0.0;
   double siglow      = 0.0;
   double tpihigh     = 0.0;
@@ -153,7 +149,7 @@ double BergerSehgalCOHPiPXSec2015::XSec(
     t_itt = TMath::Exp(logt);
     t_width = t_itt*logt_step;
 
-    if (tpi <= 1.0 && fRSPionXSec == false) {  
+    if (tpi <= 1.0 && fRSPionXSec == false) {
       xsec_stat =  utils::hadxs::berger::PionNucleusXSec(tpi, ppistar, t_itt, A, tpilow, siglow, tpihigh, sighigh);
       if(xsec_stat){
         LOG("BergerSehgalCohPi", pERROR) << "Call to PionNucleusXSec code failed - return xsec of 0.0";
@@ -184,13 +180,13 @@ double BergerSehgalCOHPiPXSec2015::XSec(
     double Q2min = ml2 * y/(1-y);
     if(Q2 > Q2min) {
       double C1 = TMath::Power(Ga - 0.5 * Q2min / (Q2 + kPionMass2), 2);
-      double C2 = 0.25 * y * Q2min * (Q2 - Q2min) / 
+      double C2 = 0.25 * y * Q2min * (Q2 - Q2min) /
         TMath::Power(Q2 + kPionMass2, 2);
       C = C1 + C2;
     } else {
       C = 0.;
     }
-    xsec *= (2. * C); // *2 is for CC vs NC in BS 
+    xsec *= (2. * C); // *2 is for CC vs NC in BS
   }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -210,7 +206,7 @@ double BergerSehgalCOHPiPXSec2015::XSec(
 #endif
 
   //----- The algorithm computes d^2xsec/dQ2dy
-  // Check whether variable tranformation is needed? May be working with logs. 
+  // Check whether variable tranformation is needed? May be working with logs.
   // kPSlogQ2logyfE is possible - all others will not succeed
   if(kps != kPSQ2yfE) {
     double J = utils::kinematics::Jacobian(interaction,kPSQ2yfE, kps);
@@ -221,7 +217,7 @@ double BergerSehgalCOHPiPXSec2015::XSec(
 //____________________________________________________________________________
 double BergerSehgalCOHPiPXSec2015::ExactKinematicTerm(const Interaction * interaction) const
 {
-  // This function is a bit inefficient but is being encapsulated as 
+  // This function is a bit inefficient but is being encapsulated as
   // such in order to possibly migrate into a general kinematics check.
   const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
@@ -231,17 +227,17 @@ double BergerSehgalCOHPiPXSec2015::ExactKinematicTerm(const Interaction * intera
   double E             = init_state.ProbeE(kRfLab);        // nu E
   double Q2            = kinematics.Q2();
   double y             = kinematics.y();                   // inelasticity
-  double fp2           = (0.93 * M_pi)*(0.93 * M_pi); 
+  double fp2           = (0.93 * M_pi)*(0.93 * M_pi);
 
-  double term = ((kGF2 * fp2) / (4.0 * kPi2)) * 
-    ((E * (1.0 - y)) / sqrt(y*E * y*E + Q2)) * 
+  double term = ((kGF2 * fp2) / (4.0 * kPi2)) *
+    ((E * (1.0 - y)) / sqrt(y*E * y*E + Q2)) *
     (1.0 - Q2 / (4.0 * E*E * (1.0 - y)));
-  return term;   
+  return term;
 }
 //____________________________________________________________________________
 double BergerSehgalCOHPiPXSec2015::PionCOMAbsMomentum(const Interaction * interaction) const
 {
-  // This function is a bit inefficient but is being encapsulated as 
+  // This function is a bit inefficient but is being encapsulated as
   // such in order to possibly migrate into a general kinematics check.
   const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
@@ -251,7 +247,7 @@ double BergerSehgalCOHPiPXSec2015::PionCOMAbsMomentum(const Interaction * intera
   double E             = init_state.ProbeE(kRfLab);        // nu E
   double Q2            = kinematics.Q2();
   double y             = kinematics.y();                   // inelasticity
-  double MT            = init_state.Tgt().Mass(); 
+  double MT            = init_state.Tgt().Mass();
 
   double W2      = MT*MT - Q2 + 2.0 * y * E * MT;
   double arg     = (2.0*MT*(y*E - M_pi) - Q2 - M_pi*M_pi)*(2.0*MT*(y*E + M_pi) - Q2 - M_pi*M_pi);
@@ -308,7 +304,7 @@ void BergerSehgalCOHPiPXSec2015::LoadConfig(void)
   fCos8c2     = TMath::Power(TMath::Cos(thc), 2);
 
   // fRSPionXSec => Do not use the pion-nucleus cross section from Table 1 in PRD 79, 053003
-  // Instead, use the Rein-Sehgal "style" pion-nucleon cross section and scale by A 
+  // Instead, use the Rein-Sehgal "style" pion-nucleon cross section and scale by A
   // for all pion energies.
   GetParam( "COH-UseRSPionXSec", fRSPionXSec ) ;
 
@@ -318,4 +314,3 @@ void BergerSehgalCOHPiPXSec2015::LoadConfig(void)
   assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
-

@@ -7,16 +7,16 @@
 
           This class is using the \b Strategy Pattern. \n
 
-\author   Aaron Meyer <asmeyer2012 \at uchicago.edu>
-          based off AxialFormFactorModelI by
-          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+\author    Aaron Meyer <asmeyer2012 \at uchicago.edu>
+
+           based off AxialFormFactor by
+           Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+           University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  August 19, 2013
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 

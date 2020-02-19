@@ -1,19 +1,13 @@
-////////////////////////////////////////////////////////////////////////
-/// \file  GFluxBlender.h
-/// \brief GENIE GFluxI adapter to allow flavor modification
-///
-/// \version $Id: GFluxBlender.cxx,v 1.1.1.1 2010/12/22 16:18:52 p-nusoftart Exp $
-/// \author  Robert Hatcher <rhatcher \at fnal.gov>
-///          Fermi National Accelerator Laboratory
-///
-/// \update  2010-10-31 initial version
-///
-/// \update  2011-02-22 - JD
-///   Implemented dummy versions of the new GFluxI::Clear, GFluxI::Index 
-///   and GFluxI::GenerateWeighted methods needed for pre-generation of 
-///   flux interaction probabilities in GMCJDriver.
-///
-////////////////////////////////////////////////////////////////////////
+//____________________________________________________________________________
+/*!
+ Copyright (c) 2003-2020, The GENIE Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+
+ Robert Hatcher <rhatcher@fnal.gov>
+ Fermi National Accelerator Laboratory
+*/
+//____________________________________________________________________________
+
 #include <math.h>
 #include <iostream>
 #include <iomanip>
@@ -35,7 +29,7 @@ namespace flux {
 
 //____________________________________________________________________________
 
-GFluxBlender::GFluxBlender() : 
+GFluxBlender::GFluxBlender() :
   GFluxI(),
   fRealGFluxI(0),
   fGNuMIFlux(0),
@@ -89,7 +83,7 @@ const PDGCodeList& GFluxBlender::FluxParticles(void)
 //____________________________________________________________________________
 bool GFluxBlender::GenerateNext(void)
 {
-  
+
   bool gen1 = false;
   while ( ! gen1 ) {
     if ( ! fRealGFluxI->GenerateNext() ) return false;
@@ -100,8 +94,8 @@ bool GFluxBlender::GenerateNext(void)
       fPdgCMixed = fPdgCGenerated;
       gen1 = true;
     } else {
-      // now pick a new flavor 
-      fDistance = fBaselineDist; 
+      // now pick a new flavor
+      fDistance = fBaselineDist;
       if ( fGNuMIFlux   ) fDistance = fGNuMIFlux->GetDecayDist();
       if ( fGSimpleFlux ) fDistance = fGSimpleFlux->GetDecayDist();
       fEnergy = fRealGFluxI->Momentum().Energy();
@@ -116,14 +110,14 @@ bool GFluxBlender::GenerateNext(void)
 //____________________________________________________________________________
 void GFluxBlender::Clear(Option_t * opt)
 {
-// Clear method needed to conform to GFluxI interface 
+// Clear method needed to conform to GFluxI interface
 //
   fRealGFluxI->Clear(opt);
 }
 //____________________________________________________________________________
 long int GFluxBlender::Index(void)
 {
-// Index method needed to conform to GFluxI interface 
+// Index method needed to conform to GFluxI interface
 //
   return fRealGFluxI->Index();
 }
@@ -165,7 +159,7 @@ int GFluxBlender::ChooseFlavor(int pdg_init, double energy, double dist)
   bool   isset = false;
   int    pdg_out = 0;
   double sumprob = 0;
-    
+
   fRndm = RandomGen::Instance()->RndFlux().Rndm();
   for (size_t indx = 0; indx < fNPDGOut; ++indx ) {
     int pdg_test = fPDGListMixed[indx];
@@ -187,26 +181,26 @@ void GFluxBlender::PrintConfig(void)
 {
   LOG_BEGIN("FluxBlender", pINFO) << "GFluxBlender::PrintConfig()" << LOG_END;
   if ( fRealGFluxI ) {
-    LOG_BEGIN("FluxBlender", pINFO) 
-      << "   fRealGFluxI is a \"" 
-      << typeid(fRealGFluxI).name() << "\"" 
+    LOG_BEGIN("FluxBlender", pINFO)
+      << "   fRealGFluxI is a \""
+      << typeid(fRealGFluxI).name() << "\""
       << LOG_END;
   } else {
-    LOG_BEGIN("FluxBlender", pINFO) 
+    LOG_BEGIN("FluxBlender", pINFO)
       << "   fRealGFluxI is not initialized" << LOG_END;
   }
   if ( fFlavorMixer ) {
-    LOG_BEGIN("FluxBlender", pINFO) 
+    LOG_BEGIN("FluxBlender", pINFO)
       << "   fFlavorMixer is a \""
-      << typeid(fFlavorMixer).name() << "\"" 
+      << typeid(fFlavorMixer).name() << "\""
       << LOG_END;
   } else {
     LOG_BEGIN("FluxBlender", pINFO)
       << "   fFlavorMixer is not initialized" << LOG_END;
   }
-  LOG_BEGIN("FluxBlender", pINFO) 
+  LOG_BEGIN("FluxBlender", pINFO)
     << "   BaselineDist " << fBaselineDist << LOG_END;
-  LOG_BEGIN("FluxBlender", pINFO) 
+  LOG_BEGIN("FluxBlender", pINFO)
     << "PDG List from Generator" << fPDGListGenerator << LOG_END;
   LOG_BEGIN("FluxBlender", pINFO)
     << "PDG List after mixing (n=" << fNPDGOut << ")"
@@ -218,9 +212,9 @@ void GFluxBlender::PrintConfig(void)
 void GFluxBlender::PrintState(bool verbose)
 {
   LOG_BEGIN("FluxBlender", pINFO) << "GFluxBlender::PrintState()" << LOG_END;
-  LOG_BEGIN("FluxBlender", pINFO) 
-    << "  Flavor " << fPdgCGenerated 
-    << " ==> " << fPdgCMixed 
+  LOG_BEGIN("FluxBlender", pINFO)
+    << "  Flavor " << fPdgCGenerated
+    << " ==> " << fPdgCMixed
     << " (E=" << fEnergy << ", dist=" << fDistance << ")" << LOG_END;
   if ( verbose ) {
     LOG_BEGIN("FluxBlender", pINFO) << "  Rndm = " << fRndm << LOG_END;

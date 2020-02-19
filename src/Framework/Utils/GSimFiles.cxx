@@ -1,13 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Laboratory
-
- For the class documentation see the corresponding header file.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -100,7 +97,7 @@ bool GSimFiles::LoadFromFile(string xmlfile)
   vector<string>  &          xsec_filename  = *fXSecFileName;
   vector<TChain*> &          evt_chain      = *fEvtChain;
   vector< vector<string> > & evt_filenames  = *fEvtFileNames;
- 
+
   xmlTextReaderPtr reader = xmlNewTextReaderFilename(xmlfile.c_str());
   if(reader == NULL) {
     return false;
@@ -132,7 +129,7 @@ bool GSimFiles::LoadFromFile(string xmlfile)
          LOG("GSimFiles", pDEBUG) << "Root element = " << name;
          if(xmlStrcmp(name, (const xmlChar *) "genie_simulation_outputs")) {
            LOG("GSimFiles", pERROR)
-             << "\nXML doc. has invalid root element! [filename: " 
+             << "\nXML doc. has invalid root element! [filename: "
              << xmlfile << "]";
            return false;
          }
@@ -142,13 +139,13 @@ bool GSimFiles::LoadFromFile(string xmlfile)
          xmlChar * xname = xmlTextReaderGetAttribute(reader,(const xmlChar*)"name");
          string sname    = utils::str::TrimSpaces((const char *)xname);
          model_tag[imodel] = sname;
-         LOG("GSimFiles", pNOTICE) 
-            << "Adding files for model ID: " 
+         LOG("GSimFiles", pNOTICE)
+            << "Adding files for model ID: "
             << imodel << " (" << model_tag[imodel] << ")";
          xmlFree(xname);
        }
        if( (!xmlStrcmp(name, (const xmlChar *) "model")) && end_element) {
-         LOG("GSimFiles", pNOTICE) 
+         LOG("GSimFiles", pNOTICE)
             << "Done adding files for model ID: " << imodel;
          imodel++;
        }
@@ -164,21 +161,21 @@ bool GSimFiles::LoadFromFile(string xmlfile)
          is_gst_evt_file   = false;
          xmlChar * xfmt = xmlTextReaderGetAttribute(reader,(const xmlChar*)"format");
          string sfmt = utils::str::TrimSpaces((const char *)xfmt);
-         if (sfmt.find("gst")  != string::npos) 
-         { 
-            is_gst_evt_file  = true; 
+         if (sfmt.find("gst")  != string::npos)
+         {
+            is_gst_evt_file  = true;
             if(!have_gst_files) { have_gst_files = true; }
          }
-         else 
-         if (sfmt.find("ghep") != string::npos) 
-         { 
-            is_ghep_evt_file = true; 
+         else
+         if (sfmt.find("ghep") != string::npos)
+         {
+            is_ghep_evt_file = true;
             if(!have_ghep_files) { have_ghep_files = true; }
-         } 
+         }
          if(have_gst_files && have_ghep_files) {
-            LOG("GSimFiles", pFATAL) 
+            LOG("GSimFiles", pFATAL)
                << "Oops! You shouldn't mix GHEP and GST event files in GSimFiles";
-            LOG("GSimFiles", pFATAL) 
+            LOG("GSimFiles", pFATAL)
                << "Please correct XML file: " << xmlfile;
             gAbortingInErr = true;;
             exit(1);
@@ -191,13 +188,13 @@ bool GSimFiles::LoadFromFile(string xmlfile)
        if( (!xmlStrcmp(name, (const xmlChar *) "#text")) && depth==3) {
          string filename = utils::str::TrimSpaces((const char *)value);
          if(is_evt_file) {
-           LOG("GSimFiles", pNOTICE) 
+           LOG("GSimFiles", pNOTICE)
                 << " * Adding event file: " << filename;
            // chain the event trees, if requested
            if(fDoChain) {
              if(!evt_chain[imodel] && is_gst_evt_file) {
                  evt_chain[imodel] = new TChain("gst");
-             } else 
+             } else
              if(!evt_chain[imodel] && is_ghep_evt_file) {
                  evt_chain[imodel] = new TChain("gtree");
              }
@@ -208,7 +205,7 @@ bool GSimFiles::LoadFromFile(string xmlfile)
            evt_filenames[imodel].push_back(filename);
          }
          if(is_xsec_file) {
-           LOG("GSimFiles", pNOTICE) 
+           LOG("GSimFiles", pNOTICE)
                 << " * Adding cross section file: " << filename;
            xsec_file    [imodel] = new TFile(filename.c_str(), "read");
            xsec_filename[imodel] = filename;
@@ -230,7 +227,7 @@ bool GSimFiles::LoadFromFile(string xmlfile)
   }//reader!=null
 
   fNModels = imodel;
-  
+
   fPath2XMLFile = xmlfile;
 
   return true;
@@ -245,7 +242,7 @@ void GSimFiles::Print(ostream & stream) const
      if(this->XSecFile(imodel)) {
         stream << "   xsec file  : " << this->XSecFileName(imodel) << endl;
      }
-     const vector<string> & filenames = this->EvtFileNames(imodel);  
+     const vector<string> & filenames = this->EvtFileNames(imodel);
      vector<string>::const_iterator iter = filenames.begin();
      for( ; iter != filenames.end(); ++iter) {
         string filename = *iter;
@@ -280,4 +277,3 @@ void GSimFiles::CleanUp(void)
 
 }
 //____________________________________________________________________________
-

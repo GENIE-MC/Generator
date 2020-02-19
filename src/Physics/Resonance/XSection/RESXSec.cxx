@@ -1,18 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Sep 07, 2009 - CA
-   Integrated with GNU Numerical Library (GSL) via ROOT's MathMore library.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -70,13 +62,13 @@ double RESXSec::Integrate(
   interaction->SetBit(kISkipProcessChk);
   //interaction->SetBit(kISkipKinematicChk);
 
-  ROOT::Math::IBaseFunctionMultiDim * func = 
+  ROOT::Math::IBaseFunctionMultiDim * func =
       new utils::gsl::d2XSec_dWdQ2_E(model, interaction);
-  
-  ROOT::Math::IntegrationMultiDim::Type ig_type = 
+
+  ROOT::Math::IntegrationMultiDim::Type ig_type =
       utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
   double abstol = 1E-16; //We mostly care about relative tolerance.
-  
+
   ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
 
   double kine_min[2] = { Wl.min, Q2l.min };
@@ -91,7 +83,7 @@ double RESXSec::Integrate(
     LOG("RESXSec", pERROR)  << "Integrator status code = " << ig.Status();
     LOG("RESXSec", pERROR)  << "Integrator error code = " << ig.Error();
   }
-         
+
   //LOG("RESXSec", pINFO)  << "XSec[RES] (Ev = " << Ev << " GeV) = " << xsec;
 
   delete interaction;
