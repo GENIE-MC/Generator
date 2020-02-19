@@ -145,7 +145,7 @@ std::complex<double> genie::FreeNucleonTensor::operator()(
   result -= 2. * fFA * fFP * q_mu * q_nu;
 
   // Remaining terms (involving second-class currents)
-  result += (0.5*fF2V*fF3V/M2 - q2*fF3A*fFP/M2 - 2.*fF3A*fFA
+  result += (0.5*q2*fF2V*fF3V/M2 - q2*fF3A*fFP/M2 - 2.*fF3A*fFA
     + 2.*fF1V*fF3V) * (p_mu*q_nu + q_mu*p_nu + q_mu*q_nu);
 
   // ** Overall factor **
