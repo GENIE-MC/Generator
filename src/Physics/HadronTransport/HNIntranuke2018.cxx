@@ -979,6 +979,9 @@ void HNIntranuke2018::LoadConfig(void)
   GetParam( "HNINUKE-DelRPion",    fDelRPion ) ;
   GetParam( "HNINUKE-DelRNucleon", fDelRNucleon ) ;
 
+  GetParamDef( "FSI-Pion-MFPScale",              fPionMFPScale,           1.0 ) ;
+  GetParamDef( "FSI-Nucleon-MFPScale",           fNucleonMFPScale,        1.0 ) ;
+
   // report
   LOG("HNIntranuke2018", pINFO) << "Settings for Intranuke2018 mode: " << INukeMode::AsString(kIMdHN);
   LOG("HNIntranuke2018", pWARN) << "R0          = " << fR0 << " fermi";
@@ -997,6 +1000,7 @@ void HNIntranuke2018::LoadConfig(void)
   LOG("HNIntranuke2018", pWARN) << "useOset     = " << fUseOset;
   LOG("HNIntranuke2018", pWARN) << "altOset     = " << fAltOset;
   LOG("HNIntranuke2018", pWARN) << "XsecNNCorr? = " << ((fXsecNNCorr)?(true):(false));
+  LOG("HNIntranuke2018", pWARN) << "FSI-Pion-MFPScale     = " << fPionMFPScale;
 }
 //___________________________________________________________________________
 
