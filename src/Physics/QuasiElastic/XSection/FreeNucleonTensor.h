@@ -21,6 +21,7 @@
 
 // GENIE includes
 #include "Framework/Interaction/Interaction.h"
+#include "Framework/Interaction/InteractionType.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
 #include "Physics/QuasiElastic/XSection/Rank2LorentzTensorI.h"
 
@@ -30,16 +31,16 @@ class FreeNucleonTensor : public Rank2LorentzTensorI {
 
 public:
 
+  /// Constructor for typical uses
   FreeNucleonTensor(const genie::Interaction& interaction,
     const genie::QELFormFactors& ff);
 
-  inline virtual ~FreeNucleonTensor() {}
+  /// Constructor to facilitate testing
+  FreeNucleonTensor(const TLorentzVector& pNi, const TLorentzVector& q,
+    double F1V, double F2V, double F3V, double FA, double FP, double F3A,
+    InteractionType_t type, int hit_nuc_pdg);
 
-  // Override the Contract() method of Rank2LorentzTensorI to add in a
-  // correction for conservation of the EM current (see Phys. Rev. C 77, 044311
-  // (2008) eqs. (4)-(5) and accompanying text for an explanation)
-  virtual std::complex<double> Contract(const Rank2LorentzTensorI& other) const
-    /*override*/;
+  inline virtual ~FreeNucleonTensor() {}
 
   /// Retrieves a tensor element corresponding to the given indices
   virtual std::complex<double> operator()(TensorIndex_t mu, TensorIndex_t nu)
@@ -54,13 +55,6 @@ protected:
   TLorentzVector fqTilde;
 
   double fNucleonMass; ///< Nucleon mass to use when computing tensor elements
-
-  /// Momentum-dependent binding energy of the initial hit nucleon
-  double fEpsilonB;
-
-  /// Interaction type (EM, CC, NC) to assume when computing the tensor
-  /// elements
-  InteractionType_t fInteractionType;
 
   /// \name Form factors
   // TODO: reference conventions!

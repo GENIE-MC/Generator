@@ -30,19 +30,17 @@ class LeptonTensor : public Rank2LorentzTensorI {
 
 public:
 
+  /// Constructor for typical uses
   LeptonTensor(const genie::Interaction& interaction);
+
+  /// Constructor to facilitate testing
+  LeptonTensor(const TLorentzVector& p4Probe, const TLorentzVector& p4Lep,
+    int probe_pdg, InteractionType_t type);
 
   inline virtual ~LeptonTensor() {}
 
   inline const TLorentzVector& GetProbeP4() const { return fProbeP4; }
   inline const TLorentzVector& GetFSLeptonP4() const { return fFSLepP4; }
-
-  // Override the Contract() method of Rank2LorentzTensorI to add in a
-  // correction for conservation of the EM current (see Phys. Rev. C 77, 044311
-  // (2008) eqs. (4)-(5) and accompanying text for an explanation) when this
-  // tensor is contracted with the FreeNucleonTensor.
-  virtual std::complex<double> Contract(const Rank2LorentzTensorI& other) const
-    /*override*/;
 
   virtual std::complex<double> operator()(genie::TensorIndex_t mu,
     genie::TensorIndex_t nu) const /*override*/;

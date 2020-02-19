@@ -1,4 +1,5 @@
 #include "Framework/Conventions/RefFrame.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/QuasiElastic/XSection/FreeNucleonTensor.h"
@@ -19,6 +20,20 @@ genie::LeptonTensor::LeptonTensor(const genie::Interaction& interaction)
 
   // Initial lepton mass (needed for EM channel)
   fMLep2 = std::pow(interaction.InitState().Probe()->Mass(), 2);
+}
+
+genie::LeptonTensor::LeptonTensor(const TLorentzVector& p4Probe,
+  const TLorentzVector& p4Lep, int probe_pdg, InteractionType_t type)
+{
+  fProbeP4 = p4Probe;
+  fFSLepP4 = p4Lep;
+
+  fInitialLeptonPDG = probe_pdg;
+  fInteractionType = type;
+
+  genie::PDGLibrary* pdg_lib = genie::PDGLibrary::Instance();
+  double probe_mass = pdg_lib->Find( probe_pdg )->Mass();
+  fMLep2 = std::pow( probe_mass, 2 );
 }
 
 std::complex<double> genie::LeptonTensor::operator()(genie::TensorIndex_t mu,
@@ -58,17 +73,4 @@ std::complex<double> genie::LeptonTensor::LeviCivitaProduct(
 {
   return std::complex<double>( 0.,
     Rank2LorentzTensorI::LeviCivitaProduct(mu, nu, fProbeP4, fFSLepP4) );
-}
-
-std::complex<double> genie::LeptonTensor::Contract(
-  const Rank2LorentzTensorI& other) const
-{
-  // If we're dealing with the contraction of the EM nucleon current with the
-  // leptonic current, then we need to add a couple of terms to correct for
-  // current conservation. Code to do that lives in
-  // FreeNucleonTensor::Contract(), so call that method if needed.
-  const genie::FreeNucleonTensor* fnt = dynamic_cast<const
-    genie::FreeNucleonTensor*>( &other );
-  if ( fnt && fInteractionType == kIntEM ) return fnt->Contract( *this );
-  else return Rank2LorentzTensorI::Contract( other );
 }
