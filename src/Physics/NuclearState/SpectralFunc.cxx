@@ -244,6 +244,13 @@ TH2D* SpectralFunc::LoadSFDataFile(const std::string& full_file_name) const
 
   std::ifstream in_file( full_file_name );
 
+  // Check that the file exists and is readable
+  if ( !in_file.good() ) {
+    LOG("SpectralFunc", pERROR) << "Could not read spectral function table"
+      << " from the file " << full_file_name;
+    std::exit( 1 );
+  }
+
   // TODO: add I/O error handling
 
   // Read the histogram bin boundary information from the
