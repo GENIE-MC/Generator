@@ -6,17 +6,15 @@
 \brief    Computes DIS differential cross sections.
           Is a concrete implementation of the XSecAlgorithmI interface.
 
-
 \ref      E.A.Paschos and J.Y.Yu, Phys.Rev.D 65.03300
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 05, 2004
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -25,8 +23,7 @@
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/DeepInelastic/XSection/QPMDISPXSec.h"
-#include "Physics/Hadronization/KNOHadronization.h"
-
+#include "Physics/Hadronization/AGKYLowW2019.h"
 
 namespace genie {
 
@@ -53,7 +50,7 @@ private:
   void   LoadConfig                  (void);
   double DISRESJoinSuppressionFactor (const Interaction * in) const;
 
-  const KNOHadronization *    fHadronizationModel; ///< hadronic multip. model
+  const AGKYLowW2019 *    fHadronizationModel; ///< hadronic multip. model
   const QPMDISPXSec *         fDISModel ;
   const XSecIntegratorI *     fXSecIntegrator;     ///< diff. xsec integrator
 

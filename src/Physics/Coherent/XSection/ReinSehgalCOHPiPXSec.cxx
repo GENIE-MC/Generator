@@ -1,20 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - March 11, 2005
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Nov 21, 2007 - CA
-   Was renamed to ReinSehgalCOHPiPXSec (from ReinSehgalCOHPXSec)
- @ Mar 31, 2009 - CA
-   Fixed a minor bug in the C2 term controlling the forward mu- suppression
-   predicted by Adler's PCAC (mpi -> mpi^2)
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -121,10 +111,10 @@ double ReinSehgalCOHPiPXSec::XSec(
 
   // compute the cross section for the CC case
 
-  if(interaction->ProcInfo().IsWeakCC()) { 
+  if(interaction->ProcInfo().IsWeakCC()) {
      // Check whether a modification to Adler's PCAC theorem is applied for
-     // including the effect of the muon mass. 
-     // See Rein and Sehgal, PCAC and the Deficit of Forward Muons in pi+ 
+     // including the effect of the muon mass.
+     // See Rein and Sehgal, PCAC and the Deficit of Forward Muons in pi+
      // Production by Neutrinos, hep-ph/0606185
      double C = 1.;
      if(fModPCAC) {
@@ -139,7 +129,7 @@ double ReinSehgalCOHPiPXSec::XSec(
            C = 0.;
         }
      }
-     xsec *= (2.*C); 
+     xsec *= (2.*C);
   }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -209,4 +199,3 @@ void ReinSehgalCOHPiPXSec::LoadConfig(void)
   assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
-

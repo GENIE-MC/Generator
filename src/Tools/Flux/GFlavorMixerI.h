@@ -1,30 +1,35 @@
-////////////////////////////////////////////////////////////////////////
-/// \file  GFlavorMixerI.h
-/// \class genie::flux::GFlavorMixerI
-/// \brief GENIE interface for flavor modification
-///
-///        Specific implementations of this class when used in conjuction
-///        with the genie::flux::GFluxBlender class allow it to act as
-///        an intermediate between a concrete flux generator and the
-///        genie::GMCJDriver class.  Using this adapter allows one to
-///        apply neutrino flavor changes using different models without
-///        modifying either the concrete flux generator or GMCJDriver.
-///
-///        Concrete instances of this interface must be configurable
-///        from a string, and provide a means of calculating the
-///        transition probability from one flavor to any of the PDG
-///        codes { 0, 12, 14, 16, -12, -14, -16 } where 0 represents
-///        the complete disappearance (decay, sterile, ...).
-///
-///        Probability is expected to be normalized (that is, the sum
-///        of all possible outcomes, including 0, must be 1).
-///
-/// \author  Robert Hatcher <rhatcher \at fnal.gov>
-///          Fermi National Accelerator Laboratory
-///
-/// \created 2010-10-31
-/// \version $Id: GFlavorMixerI.h,v 1.1.1.1 2010/12/22 16:18:52 p-nusoftart Exp $
-////////////////////////////////////////////////////////////////////////
+//____________________________________________________________________________
+/*!
+
+\class   genie::flux::GFlavorMixerI
+
+\brief   GENIE interface for flavor modification
+
+         Specific implementations of this class when used in conjuction
+         with the genie::flux::GFluxBlender class allow it to act as
+         an intermediate between a concrete flux generator and the
+         genie::GMCJDriver class.  Using this adapter allows one to
+         apply neutrino flavor changes using different models without
+         modifying either the concrete flux generator or GMCJDriver.
+
+         Concrete instances of this interface must be configurable
+         from a string, and provide a means of calculating the
+         transition probability from one flavor to any of the PDG
+         codes { 0, 12, 14, 16, -12, -14, -16 } where 0 represents
+         the complete disappearance (decay, sterile, ...).
+
+         Probability is expected to be normalized (that is, the sum
+         of all possible outcomes, including 0, must be 1).
+
+\author  Robert Hatcher <rhatcher \at fnal.gov>
+         Fermi National Accelerator Laboratory
+
+\created 2010-10-31
+
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
+         for the full text of the license visit http://copyright.genie-mc.org
+*/
+//____________________________________________________________________________
 
 #ifndef GENIE_FLUX_GFLAVORMIXERI_H
 #define GENIE_FLUX_GFLAVORMIXERI_H
@@ -35,9 +40,9 @@ namespace genie {
 namespace flux {
 
   class GFlavorMixerI {
-    
+
   public:
-  
+
     GFlavorMixerI();
     virtual ~GFlavorMixerI();
 
@@ -52,9 +57,9 @@ namespace flux {
 
     /// for any pair of PDG codes the model must calculate
     /// the transition probability.  This can also depend on
-    /// neutrino energy (in GeV) and distance (in meters) from 
+    /// neutrino energy (in GeV) and distance (in meters) from
     /// the neutrino origin.
-    virtual double    Probability(int pdg_initial, int pdg_final, 
+    virtual double    Probability(int pdg_initial, int pdg_final,
                                   double energy, double dist) = 0;
 
     /// provide a means of printing the configuration

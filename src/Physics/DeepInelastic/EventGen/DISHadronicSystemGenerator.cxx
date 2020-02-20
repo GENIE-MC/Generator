@@ -1,31 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Dec 03, 2007 - CA
-   If the formation zone is too large then the particle is placed back,
-   just "outside the nucleus". Update the definition of "outside the
-   nucleus" to be the maximum distance that a particle can be tracked
-   by the intranuclear cascade + a couple of fermis. Brings the code
-   in sync with changes in the intranuclear cascade tracking algorithm.
- @ Feb 07, 2009 - CA
-   Removed call to AddTargetNucleusRemnant(). This simulation step is now
-   performed further upstream in the processing chain.  
- @ Mar 03, 2009 - CA
-   Moved into the new DIS package from its previous location (EVGModules).
- @ Sep 15, 2009 - CA
-   IsNucleus() is no longer available in GHepParticle. Use pdg::IsIon().
- @ Feb 08, 2013 - CA
-   Use the formation zone code from PhysUtils (also used by reweighting) 
-   rather than having own implementation here
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -34,7 +13,6 @@
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
-#include "Physics/DeepInelastic/EventGen/DISHadronicSystemGenerator.h"
 #include "Framework/EventGen/EVGThreadException.h"
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
@@ -45,9 +23,9 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
-#include "Physics/Hadronization/FragmRecUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/Utils/PhysUtils.h"
+#include "Physics/DeepInelastic/EventGen/DISHadronicSystemGenerator.h"
 
 using namespace genie;
 using namespace genie::controls;
@@ -90,7 +68,7 @@ void DISHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   fHadronizationModel -> ProcessEventRecord( evrec ) ;
 
 
-  //-- Simulate the formation zone if not taken directly from the 
+  //-- Simulate the formation zone if not taken directly from the
   //   hadronization model
   this->SimulateFormationZone(evrec);
 }
@@ -98,12 +76,12 @@ void DISHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 void DISHadronicSystemGenerator::SimulateFormationZone(
                                                    GHepRecord * evrec) const
 {
-  LOG("DISHadronicVtx", pDEBUG) 
+  LOG("DISHadronicVtx", pDEBUG)
     << "Simulating formation zone for the DIS hadronic system";
- 
+
   GHepParticle * nucltgt = evrec->TargetNucleus();
   if (!nucltgt) {
-    LOG("DISHadronicVtx", pDEBUG) 
+    LOG("DISHadronicVtx", pDEBUG)
      << "No nuclear target was found - No need to simulate formation zones";
     return;
   }
@@ -125,11 +103,11 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
   // Loop over GHEP and set the formation zone to the right particles
   // Limit the maximum formation zone so that particles escaping the
   // nucleus are placed right outside...
-  
+
   TObjArrayIter piter(evrec);
   GHepParticle * p = 0;
   int icurr = -1;
- 
+
   while( (p = (GHepParticle *) piter.Next()) )
   {
     icurr++;
@@ -142,11 +120,11 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
     LOG("DISHadronicVtx", pINFO)
       << "Applying formation-zone to " << p->Name();
 
-    double m = p->Mass();  
+    double m = p->Mass();
     int pdgc = p->Pdg();
     const TLorentzVector & p4 = *(p->P4());
     double ct0=0.;
-    pdg::IsNucleon(pdgc) ? ct0=fct0nucleon : ct0=fct0pion; 
+    pdg::IsNucleon(pdgc) ? ct0=fct0nucleon : ct0=fct0pion;
     double fz = phys::FormationZone(m,p4,p3hadr,ct0,fK);
 
     //-- Apply the formation zone step
@@ -161,11 +139,11 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
     TLorentzVector x4new = *(p->X4()) + dx4;         // new position
 
     //-- If the formation zone was large enough that the particle is now outside
-    //   the nucleus make sure that it is not placed further away from the 
+    //   the nucleus make sure that it is not placed further away from the
     //   (max distance particles tracked by intranuclear cascade) + ~2 fm
     double epsilon = 2; // fm
     double r       = x4new.Vect().Mag(); // fm
-    double rmax    = R+epsilon; 
+    double rmax    = R+epsilon;
     if(r > rmax) {
         LOG("DISHadronicVtx", pINFO)
           << "Particle was stepped too far away (r = " << r << " fm)";
@@ -198,10 +176,10 @@ void DISHadronicSystemGenerator::LoadConfig(void)
   fPreINukeDecayer    = 0;
 
   //-- Get the requested hadronization model
-  fHadronizationModel = 
+  fHadronizationModel =
      dynamic_cast<const EventRecordVisitorI *> (this->SubAlg("Hadronizer"));
   assert(fHadronizationModel);
- 
+
   //-- Handle pre-intranuke decays
   fPreINukeDecayer =
      dynamic_cast<const EventRecordVisitorI *> (this->SubAlg("PreTransportDecayer"));
@@ -225,4 +203,3 @@ void DISHadronicSystemGenerator::LoadConfig(void)
   LOG("DISHadronicVtx", pDEBUG) << "K(pt^2) = " << fK;
 }
 //____________________________________________________________________________
-

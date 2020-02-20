@@ -1,25 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - May 04, 2004
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Oct 11, 2007 - CA
-   Added 'bool ItemIsLocal(RgKey) const', 'void OverrideGlobalDef(RgKey)', 
-   and 'void LinkToGlobalDef(RgKey)' to handle the distinction between 
-   global/local configuration items. 
-   The templated function 'GetValueOrUseDefault' was modifed to mark items 
-   with global status & not return them so that an updated default can be 
-   cascaded through the entire pool of instantiated algorithms.
- @ Sep 30, 2009 - CA
-   Added 'RgType_t ItemType(RgKey) const', 'RgKeyList FindKeys(RgKey) const'
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -67,13 +52,13 @@ namespace genie {
                           Registry * r, RgKey key, T def, bool set_def)
  {
   // Return the requested registry item. If it does not exist return
-  // the input default value (in this case, if set_def is true it can 
+  // the input default value (in this case, if set_def is true it can
   // override a lock and add the input default as a new registry item)
 
    T value;
-   if(r->Exists(key)) { 
+   if(r->Exists(key)) {
       if(r->ItemIsLocal(key)) {
-         r->Get(key,value); 
+         r->Get(key,value);
          return value;
       }
    }
@@ -97,7 +82,7 @@ namespace genie {
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }
 //____________________________________________________________________________
-Registry::Registry() 
+Registry::Registry()
 {
   this->Init();
 }
@@ -199,7 +184,7 @@ bool Registry::ItemIsLocal(RgKey key) const
   } else {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("Registry", pDEBUG)
-        << "*** Was asked to check 'local' flag on non-existing item: [" 
+        << "*** Was asked to check 'local' flag on non-existing item: ["
         << key << "]";
 #endif
   }
@@ -213,8 +198,8 @@ void Registry::OverrideGlobalDef(RgKey key)
      entry->second->SetLocal(true);
   } else {
      LOG("Registry", pWARN)
-        << "*** Can't give 'local' status to  non-existem item [" 
-        << key << "]"; 
+        << "*** Can't give 'local' status to  non-existem item ["
+        << key << "]";
   }
 }
 //____________________________________________________________________________
@@ -225,8 +210,8 @@ void Registry::LinkToGlobalDef(RgKey key)
      entry->second->SetLocal(false);
   } else {
      LOG("Registry", pWARN)
-        << "*** Can't give 'global' status to  non-existem item [" 
-        << key << "]"; 
+        << "*** Can't give 'global' status to  non-existem item ["
+        << key << "]";
   }
 }
 //____________________________________________________________________________
@@ -239,10 +224,10 @@ bool Registry::ItemIsLocked(RgKey key) const
   } else {
 /*
      LOG("Registry", pDEBUG)
-        << "*** Was asked to check lock on non-existing item: [" 
+        << "*** Was asked to check lock on non-existing item: ["
         << key << "]";
 */
-  }  
+  }
   return false;
 }
 //____________________________________________________________________________
@@ -537,7 +522,7 @@ RgTree Registry::GetTree(RgKey key) const
   return item;
 }
 //____________________________________________________________________________
-RgBool Registry::GetBoolDef(RgKey key, RgBool def_opt, bool set_def) 
+RgBool Registry::GetBoolDef(RgKey key, RgBool def_opt, bool set_def)
 {
   return GetValueOrUseDefault(this, key, def_opt, set_def);
 }
@@ -547,12 +532,12 @@ int Registry::GetIntDef(RgKey key, int def_opt, bool set_def)
   return GetValueOrUseDefault(this, key, def_opt, set_def);
 }
 //____________________________________________________________________________
-double Registry::GetDoubleDef(RgKey key, double def_opt, bool set_def) 
+double Registry::GetDoubleDef(RgKey key, double def_opt, bool set_def)
 {
   return GetValueOrUseDefault(this, key, def_opt, set_def);
 }
 //____________________________________________________________________________
-string Registry::GetStringDef(RgKey key, string def_opt, bool set_def) 
+string Registry::GetStringDef(RgKey key, string def_opt, bool set_def)
 {
   return GetValueOrUseDefault(this, key, def_opt, set_def);
 }
@@ -572,7 +557,7 @@ RgIMapConstIter Registry::SafeFind(RgKey key) const
        << "*** Key: " << key
        << " does not exist in registry: " << this->Name();
   gAbortingInErr = true;
-  exit(1);    
+  exit(1);
 }
 //____________________________________________________________________________
 bool Registry::Exists(RgKey key) const
@@ -621,7 +606,7 @@ void Registry::AssertExistence(RgKey key0) const
      LOG("Registry", pFATAL)
            << "*** Key: " << key0
              << " does not exist in registry: " << this->Name();
-     exit(1);    
+     exit(1);
   }
 }
 //____________________________________________________________________________
@@ -679,7 +664,7 @@ void Registry::CopyToFolder(TFolder * folder) const
         folder->Add(new TObjString(entry.str().c_str()));
      }
      else if (type == kRgAlg) {
-        entry << ";value: " << this->GetAlg(key).name 
+        entry << ";value: " << this->GetAlg(key).name
               << "/" << this->GetAlg(key).config;
         LOG("Registry", pINFO) << "entry = " << entry.str();
         folder->Add(new TObjString(entry.str().c_str()));
@@ -738,7 +723,7 @@ void Registry::Copy(const Registry & registry)
 {
 // Copies the input registry
 //
-  LOG("Registry", pINFO) 
+  LOG("Registry", pINFO)
          << "Copying registry " << registry.Name() << " to " << this->Name();
 
   if(this->IsLocked()) {
@@ -759,7 +744,7 @@ void Registry::Append(const Registry & registry, RgKey prefix)
 {
 // Appends the input registry entries (& their locks)
 
-  LOG("Registry", pINFO) 
+  LOG("Registry", pINFO)
        << "Appending registry " << registry.Name() << " to " << this->Name();
 
   if(this->IsLocked()) {
@@ -782,7 +767,7 @@ void Registry::Append(const Registry & registry, RgKey prefix)
      string   stype = RgType::AsString(type);
 
      LOG("Registry", pINFO)
-         << "Copying [" << stype << "] item named = " 
+         << "Copying [" << stype << "] item named = "
                                          << name << " as " << new_name;
 
      RegistryItemI * cri = registry.CloneRegistryItem( name ) ; // cloned registry item
@@ -880,7 +865,7 @@ void Registry::Clear(bool force)
 {
 // clean all registry entries
 
-  LOG("Registry", pINFO) 
+  LOG("Registry", pINFO)
       << "Cleaning-up [force unlock = " << ((force)?"true":"false")
       << "] registry: " << this->Name();
   if(!force) {
@@ -968,4 +953,3 @@ RegistryItemI * Registry::CloneRegistryItem( const RgKey & key ) const {
      return cri ;
 
 }
-

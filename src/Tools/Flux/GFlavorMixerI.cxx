@@ -1,13 +1,12 @@
-////////////////////////////////////////////////////////////////////////
-/// \file  GFlavorMixerI.cxx
-/// \brief GENIE interface for flavor modification
-///
-/// \version $Id: GFlavorMixerI.cxx,v 1.1.1.1 2010/12/22 16:18:52 p-nusoftart Exp $
-/// \author  Robert Hatcher <rhatcher \at fnal.gov>
-///          Fermi National Accelerator Laboratory
-///
-/// \update  2010-10-31 initial version
-////////////////////////////////////////////////////////////////////////
+//____________________________________________________________________________
+/*!
+ Copyright (c) 2003-2020, The GENIE Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+
+ Robert Hatcher <rhatcher@fnal.gov>
+ Fermi National Accelerator Laboratory
+*/
+//____________________________________________________________________________
 
 #include "Tools/Flux/GFlavorMixerI.h"
 

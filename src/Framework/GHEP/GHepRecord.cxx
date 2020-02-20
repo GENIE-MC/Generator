@@ -1,54 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Mar 08, 2008 - CA
-   Modified the algorithm for compactifying the daughter lists. The new 
-   algorithm is more robust and avoids failure modes of the old algorithm
-   which appeared once simulation of nuclear de-excitations was enabled.
- @ Jun 20, 2008 - CA
-   Fixed memory leak in Print()
- @ Jan 28, 2009 - CA
-   When checking for energy / momentum conservation in Print(), use the new
-   kIStFinalStateNuclearRemnant status code for nuclear remnants (previously
-   marked as kIStStableFinalState).
- @ Sep 15, 2009 - CA
-   IsNucleus() is no longer available in GHepParticle. Use pdg::IsIon().
-   Print-out the particle 'rescattering code' (if it was set).
- @ May 05, 2010 - CR
-   Adding special ctor for ROOT I/O purposes so as to avoid memory leak due to
-   memory allocated in the default ctor when objects of this class are read by 
-   the ROOT Streamer.
- @ Sep 26, 2011 - CA
-   Demote a few messages from `warning' to `notice'.
- @ Nov 17, 2011 - CA
-   Added `GEvGenMode_t EventGenerationMode(void) const'
- @ Nov 28, 2011 - CA
-   HitNucleon() can return a hit nucleon cluster too, as needed for MEC.
- @ Jan 29, 2013 - CA
-   Demote a few messages from `notice' to `info'.
- @ Jan 31, 2013 - CA
-   Added static SetPrintLevel(int print_level) and corresponding static
-   data member. $GHEPPRINTLEVEL env var is no longer used.
- @ Feb 01, 2013 - CA
-   The GUNPHYSMASK env. var is no longer used. Added a private data member to
-   store the bit-field mask in the GHEP record. Added GHepRecord::Accept() and
-   GHepRecord::SetUnphysEventMask(). Tweaks in Print().
- @ Feb 06, 2013 - CA
-   Added KinePhaseSpace_t fDiffXSecPhSp prov data members to specify which
-   differential cross-section value is stored in fDiffXSec. Added method to 
-   set it and tweaked Print() accordingly.
- @ May 02, 2013 - CA
-   Added `KinePhaseSpace_t DiffXSecVars(void) const' to return fDiffXSecPhSp.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -116,8 +72,8 @@ TClonesArray("genie::GHepParticle", record.GetEntries())
 GHepRecord::GHepRecord(TRootIOCtor*) :
 TClonesArray("genie::GHepParticle"),
 fInteraction(0),
-fVtx(0), 
-fEventFlags(0), 
+fVtx(0),
+fEventFlags(0),
 fEventMask(0),
 fWeight(0.),
 fProb(0.),
@@ -217,15 +173,15 @@ int GHepRecord::ParticlePosition(GHepParticle * particle, int start) const
 //___________________________________________________________________________
 vector<int> * GHepRecord::GetStableDescendants(int position) const
 {
-// Returns a list of all stable descendants of the GHEP entry in the input 
+// Returns a list of all stable descendants of the GHEP entry in the input
 // slot. The user adopts the output vector.
 
   // return null if particle index is out of range
   int nentries = this->GetEntries();
-  if(position<0 || position>=nentries) return 0;  
+  if(position<0 || position>=nentries) return 0;
 
   vector<int> * descendants = new vector<int>;
-  
+
   // return itself if it is a stable final state particle
   if(this->Particle(position)->Status() == kIStStableFinalState) {
     descendants->push_back(position);
@@ -280,7 +236,7 @@ GEvGenMode_t GHepRecord::EventGenerationMode(void) const
   // is a hadron with status code = kIStInitialState and the 2nd entry
   // is a nucleon or nucleus with status code = kIStInitialState
   if( pdg::IsHadron(p0pdg) && p0st == kIStInitialState )
-  {   
+  {
     if( (pdg::IsIon(p1pdg) || pdg::IsNucleon(p1pdg)) && p1st == kIStInitialState)
     {
        return kGMdHadronNucleus;
@@ -289,21 +245,21 @@ GEvGenMode_t GHepRecord::EventGenerationMode(void) const
 
   // As above, with a photon as a probe
   if( p0pdg == kPdgGamma && p0st == kIStInitialState )
-  {   
+  {
     if( (pdg::IsIon(p1pdg) || pdg::IsNucleon(p1pdg)) && p1st == kIStInitialState)
     {
        return kGMdPhotonNucleus;
     }
   }
-      
-  // In nucleon decay mode, 
+
+  // In nucleon decay mode,
   // - [if the decayed nucleon was a bound one] the 1st entry in the event
   //   record is a nucleus with status code = kIStInitialState and the
   //   2nd entry is a nucleon with code = kIStDecayedState
   // - [if the decayed nucleon was a free one] the first entry in the event
   //   record is a nucleon with status code = kIStInitialState and it has a
   //   single daughter which is a nucleon with status code = kIStDecayedState.
-         
+
   if( pdg::IsIon(p0pdg)     && p0st == kIStInitialState &&
       pdg::IsNucleon(p1pdg) && p1st == kIStDecayedState)
   {
@@ -314,7 +270,7 @@ GEvGenMode_t GHepRecord::EventGenerationMode(void) const
   {
      return kGMdNucleonDecay;
   }
-         
+
   return kGMdUnknown;
 }
 //___________________________________________________________________________
@@ -329,7 +285,7 @@ GHepParticle * GHepRecord::Probe(void) const
 //___________________________________________________________________________
 GHepParticle * GHepRecord::TargetNucleus(void) const
 {
-// Returns the GHepParticle representing the target / initial state nucleus, 
+// Returns the GHepParticle representing the target / initial state nucleus,
 // or 0 if it does not exist.
 
   int ipos = this->TargetNucleusPosition();
@@ -339,7 +295,7 @@ GHepParticle * GHepRecord::TargetNucleus(void) const
 //___________________________________________________________________________
 GHepParticle * GHepRecord::RemnantNucleus(void) const
 {
-// Returns the GHepParticle representing the remnant nucleus, 
+// Returns the GHepParticle representing the remnant nucleus,
 // or 0 if it does not exist.
 
   int ipos = this->RemnantNucleusPosition();
@@ -385,46 +341,46 @@ GHepParticle * GHepRecord::FinalStateHadronicSystem(void) const
   if(ipos>-1) return this->Particle(ipos);
   return 0;
 }
-//___________________________________________________________________________ 
+//___________________________________________________________________________
 int GHepRecord::ProbePosition(void) const
 {
-// Returns the GHEP position of the GHepParticle representing the probe 
+// Returns the GHEP position of the GHepParticle representing the probe
 // (neutrino, e,...).
 
   // The probe is *always* at slot 0.
   GEvGenMode_t mode = this->EventGenerationMode();
-  if(mode == kGMdLeptonNucleus || 
+  if(mode == kGMdLeptonNucleus ||
      mode == kGMdDarkMatterNucleus ||
      mode == kGMdHadronNucleus ||
-     mode == kGMdPhotonNucleus) 
+     mode == kGMdPhotonNucleus)
   {
     return 0;
   }
-  return -1; 
+  return -1;
 }
 //___________________________________________________________________________
 int GHepRecord::TargetNucleusPosition(void) const
 {
-// Returns the GHEP position of the GHepParticle representing the target 
+// Returns the GHEP position of the GHepParticle representing the target
 // nucleus - or -1 if the interaction takes place at a free nucleon.
 
   GEvGenMode_t mode = this->EventGenerationMode();
 
-  if(mode == kGMdLeptonNucleus || 
+  if(mode == kGMdLeptonNucleus ||
      mode == kGMdDarkMatterNucleus ||
      mode == kGMdHadronNucleus ||
-     mode == kGMdPhotonNucleus) 
+     mode == kGMdPhotonNucleus)
   {
      GHepParticle * p = this->Particle(1); // If exists, it will be at slot 1
      if(!p) return -1;
      int pdgc = p->Pdg();
-     if(pdg::IsIon(pdgc) && p->Status()==kIStInitialState) return 1; 
+     if(pdg::IsIon(pdgc) && p->Status()==kIStInitialState) return 1;
   }
   if(mode == kGMdNucleonDecay) {
      GHepParticle * p = this->Particle(0); // If exists, it will be at slot 0
      if(!p) return -1;
      int pdgc = p->Pdg();
-     if(pdg::IsIon(pdgc) && p->Status()==kIStInitialState) return 0; 
+     if(pdg::IsIon(pdgc) && p->Status()==kIStInitialState) return 0;
   }
 
   return -1;
@@ -446,7 +402,7 @@ int GHepRecord::RemnantNucleusPosition(void) const
   for(int i=dau1; i<=dau2; i++) {
     GHepParticle * dp = this->Particle(i);
     int dpdgc = dp->Pdg();
-    if(pdg::IsIon(dpdgc) && dp->Status()==kIStStableFinalState) return i; 
+    if(pdg::IsIon(dpdgc) && dp->Status()==kIStStableFinalState) return i;
   }
   return -1;
 }
@@ -456,7 +412,7 @@ int GHepRecord::HitNucleonPosition(void) const
 // Returns the GHEP position of the GHepParticle representing the hit nucleon.
 // If a struck nucleon is set it will be at slot 2 (for scattering off nuclear
 // targets) or at slot 1 (for free nucleon scattering).
-// If the struck nucleon is not set (eg coherent scattering, ve- scattering) 
+// If the struck nucleon is not set (eg coherent scattering, ve- scattering)
 // it returns 0.
 
   GHepParticle * nucleus = this->TargetNucleus();
@@ -468,8 +424,8 @@ int GHepRecord::HitNucleonPosition(void) const
   if(!p) return -1;
 
 //  bool isN = pdg::IsNeutronOrProton(p->Pdg());
-  bool isN = pdg::IsNucleon(p->Pdg()) || pdg::Is2NucleonCluster(p->Pdg()); 
-  if(isN && p->Status()==ist) return ipos; 
+  bool isN = pdg::IsNucleon(p->Pdg()) || pdg::Is2NucleonCluster(p->Pdg());
+  if(isN && p->Status()==ist) return ipos;
 
   return -1;
 }
@@ -487,14 +443,14 @@ int GHepRecord::HitElectronPosition(void) const
   if(!p) return -1;
 
   bool ise = pdg::IsElectron(p->Pdg());
-  if(ise && p->Status()==kIStInitialState) return ipos; 
+  if(ise && p->Status()==kIStInitialState) return ipos;
 
   return -1;
 }
 //___________________________________________________________________________
 int GHepRecord::FinalStatePrimaryLeptonPosition(void) const
 {
-// Returns the GHEP position GHepParticle representing the final state 
+// Returns the GHEP position GHepParticle representing the final state
 // primary lepton.
 
   GHepParticle * probe = this->Probe();
@@ -509,7 +465,7 @@ int GHepRecord::FinalStateHadronicSystemPosition(void) const
   return this->ParticlePosition(
                         kPdgHadronicSyst,kIStDISPreFragmHadronicState,0);
 }
-//___________________________________________________________________________ 
+//___________________________________________________________________________
 unsigned int GHepRecord::NEntries(int pdg, GHepStatus_t ist, int start) const
 {
   unsigned int nentries = 0;
@@ -653,7 +609,7 @@ void GHepRecord::UpdateDaughterLists(void)
 void GHepRecord::RemoveIntermediateParticles(void)
 {
   LOG("GHEP", pNOTICE) << "Removing all intermediate particles from GHEP";
-  this->Compress(); 
+  this->Compress();
 
   int i=0;
   GHepParticle * p = 0;
@@ -664,7 +620,7 @@ void GHepRecord::RemoveIntermediateParticles(void)
     if(!p) continue;
     GHepStatus_t ist = p->Status();
 
-    bool keep = (ist==kIStInitialState) || 
+    bool keep = (ist==kIStInitialState) ||
                 (ist==kIStStableFinalState) || (ist==kIStNucleonTarget);
     if(keep) {
        p->SetFirstDaughter(-1);
@@ -672,7 +628,7 @@ void GHepRecord::RemoveIntermediateParticles(void)
        p->SetFirstMother(-1);
        p->SetLastMother(-1);
     } else {
-       LOG("GHEP", pNOTICE) 
+       LOG("GHEP", pNOTICE)
            << "Removing: " << p->Name() << " from slot: " << i;
        this->RemoveAt(i);
     }
@@ -681,7 +637,7 @@ void GHepRecord::RemoveIntermediateParticles(void)
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GHEP", pDEBUG) << "Compressing GHEP record to remove empty slots";
 #endif
-  this->Compress(); 
+  this->Compress();
 }
 //___________________________________________________________________________
 void GHepRecord::CompactifyDaughterLists(void)
@@ -696,8 +652,8 @@ void GHepRecord::CompactifyDaughterLists(void)
      bool compact = this->HasCompactDaughterList(i);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("GHEP", pNOTICE) 
-        << "Particle's " << i << " daughter list is " 
+     LOG("GHEP", pNOTICE)
+        << "Particle's " << i << " daughter list is "
         << ((compact) ? "compact" : "__not__ compact");
 #endif
 
@@ -710,7 +666,7 @@ void GHepRecord::CompactifyDaughterLists(void)
         int ndp  = dau2+1;
         if(dau1==-1) {ndau=0;}
 
-        int curr_pos = n-1;   
+        int curr_pos = n-1;
         while (curr_pos > ndp) {
            this->SwapParticles(curr_pos,curr_pos-1);
            curr_pos--;
@@ -744,7 +700,7 @@ bool GHepRecord::HasCompactDaughterList(int pos)
   int i=0;
   while( (p = (GHepParticle *)iter.Next()) ) {
     if(p->FirstMother() == pos) {
-    
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("GHEP", pDEBUG) << "Particle at: " << i << " is a daughter";
 #endif
@@ -807,8 +763,8 @@ void GHepRecord::SwapParticles(int i, int j)
   // tell their daughters
   if(pi->HasDaughters()) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-    LOG("GHEP", pINFO) 
-      << pi->Name() << "(previously at pos: " << j 
+    LOG("GHEP", pINFO)
+      << pi->Name() << "(previously at pos: " << j
       << ") is now at pos: " << i << " -> Notify daughters";
 #endif
     for(int k=0; k<n; k++) {
@@ -820,8 +776,8 @@ void GHepRecord::SwapParticles(int i, int j)
 
   if(pj->HasDaughters()) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-    LOG("GHEP", pINFO) 
-      << pj->Name() << "(previously at pos: " << i 
+    LOG("GHEP", pINFO)
+      << pj->Name() << "(previously at pos: " << i
       << ") is now at pos: " << j << " -> Notify daughters";
 #endif
     for(int k=0; k<n; k++) {
@@ -989,13 +945,13 @@ bool GHepRecord::Accept(void) const
   return accept;
 }
 //___________________________________________________________________________
-void GHepRecord::SetPrintLevel(int print_level) 
-{ 
-  fPrintLevel = print_level; 
+void GHepRecord::SetPrintLevel(int print_level)
+{
+  fPrintLevel = print_level;
 }
 int  GHepRecord::GetPrintLevel()
-{ 
-  return fPrintLevel; 
+{
+  return fPrintLevel;
 }
 //___________________________________________________________________________
 void GHepRecord::Print(ostream & stream) const
@@ -1010,24 +966,24 @@ void GHepRecord::Print(ostream & stream) const
   // 12 -> as in level 2 but showing particle positions too
   // 13 -> as in level 3 but showing particle positions too
 
-   bool accept_input_print_level = 
+   bool accept_input_print_level =
        (fPrintLevel >= 0 && fPrintLevel <= 3) ||
        (fPrintLevel >=10 && fPrintLevel <=13);
-   
+
   int printlevel = (accept_input_print_level) ? fPrintLevel : 3;
   int printlevel_orig = printlevel;
 
-  bool showpos = false; 
+  bool showpos = false;
   if(printlevel >= 10) {
      printlevel-=10;
      showpos=true;
   }
-  
+
   stream << "\n\n|";
   stream << setfill('-') << setw(115) << "|";
 
   stream << "\n|GENIE GHEP Event Record [print level: "
-         << setfill(' ') << setw(3) << printlevel_orig << "]" 
+         << setfill(' ') << setw(3) << printlevel_orig << "]"
          << setfill(' ') << setw(73) << "|";
 
   stream << "\n|";
@@ -1080,7 +1036,7 @@ void GHepRecord::Print(ostream & stream) const
      if (p->IsOnMassShell())
         stream << setfill(' ') << setw(7)  << p->Mass()        << " | ";
      else
-        stream << setfill('*') << setw(7)  << p->Mass()        << " | M = " 
+        stream << setfill('*') << setw(7)  << p->Mass()        << " | M = "
                << p->P4()->M() << " ";
 
      if (p->PolzIsSet()) {
@@ -1121,7 +1077,7 @@ void GHepRecord::Print(ostream & stream) const
           sum_px += p->Px();
           sum_py += p->Py();
           sum_pz += p->Pz();
-     } else 
+     } else
      if(p->Status() == kIStInitialState) {
        /*
      if(p->Status() == kIStInitialState || p->Status() == kIStNucleonTarget) {
@@ -1180,19 +1136,19 @@ void GHepRecord::Print(ostream & stream) const
 
   if(printlevel>=1) {
     stream << "\n| ";
-    stream << "Err flag [bits:" << fEventFlags->GetNbits()-1 << "->0] : " 
-           << *fEventFlags << "    |  " 
-           << "1st set: " << setfill(' ') << setw(56) 
-           << ( this->IsUnphysical() ? 
-                 GHepFlags::Describe(GHepFlag_t(fEventFlags->FirstSetBit())) : 
+    stream << "Err flag [bits:" << fEventFlags->GetNbits()-1 << "->0] : "
+           << *fEventFlags << "    |  "
+           << "1st set: " << setfill(' ') << setw(56)
+           << ( this->IsUnphysical() ?
+                 GHepFlags::Describe(GHepFlag_t(fEventFlags->FirstSetBit())) :
                  "none") << " | ";
     stream << "\n| ";
-    stream << "Err mask [bits:" << fEventMask->GetNbits()-1 << "->0] : " 
-           << *fEventMask << "    |  " 
-           << "Is unphysical: " << setfill(' ') << setw(5) 
+    stream << "Err mask [bits:" << fEventMask->GetNbits()-1 << "->0] : "
+           << *fEventMask << "    |  "
+           << "Is unphysical: " << setfill(' ') << setw(5)
            << utils::print::BoolAsYNString(this->IsUnphysical()) << " |   "
-           << "Accepted: " << setfill(' ') << setw(5) 
-           << utils::print::BoolAsYNString(this->Accept()) 
+           << "Accepted: " << setfill(' ') << setw(5)
+           << utils::print::BoolAsYNString(this->Accept())
            << "                          |";
     stream << "\n|";
     stream << setfill('-') << setw(115) << "|";
@@ -1202,12 +1158,12 @@ void GHepRecord::Print(ostream & stream) const
     stream << "\n| ";
     stream << std::scientific << setprecision(5);
 
-    stream << "sig(Ev) = " 
-           << setfill(' ') << setw(17) << fXSec/units::cm2 
+    stream << "sig(Ev) = "
+           << setfill(' ') << setw(17) << fXSec/units::cm2
            << " cm^2  |";
 
     switch(fDiffXSecPhSp) {
-      case ( kPSyfE   ) :                                                                           
+      case ( kPSyfE   ) :
         stream << " dsig(y;E)/dy =          " << setfill(' ') << setw(13) << fDiffXSec/units::cm2 << " cm^2       |";
         break;
       case ( kPSxyfE  ) :
@@ -1229,9 +1185,9 @@ void GHepRecord::Print(ostream & stream) const
         stream << " dsig(Ev;{K_s})/dK   =   " << setfill(' ') << setw(13) << fDiffXSec/units::cm2 << " cm^2/{K}   |";
     }
     stream << " Weight = "
-           << setfill(' ') << setw(16) 
+           << setfill(' ') << setw(16)
            << std::fixed << setprecision(5)
-           << fWeight   
+           << fWeight
            << " |";
 
     stream << "\n|";

@@ -5,16 +5,16 @@
 
 \brief    Contains minimal information for tagging exclusive processes.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
-          Marco Roda <mroda@liverpool.ac.uk>
-          University of Liverpool
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
+
+          Additions for single-\rho and single-\gamma processes were installed
+          by Marco Roda <mroda@liverpool.ac.uk>, University of Liverpool
 
 \created  December 08, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //___________________________________________________________________________
 
@@ -34,10 +34,10 @@ using std::string;
 namespace genie {
 
 class XclsTag;
-ostream & operator << (ostream& stream, const XclsTag & xcls); 
+ostream & operator << (ostream& stream, const XclsTag & xcls);
 
 class XclsTag : public TObject {
-  
+
 public:
   using TObject::Print; // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
   using TObject::Copy;
@@ -52,7 +52,7 @@ public:
   int  CharmHadronPdg     (void) const { return fCharmedHadronPdg; }
   bool IsStrangeEvent     (void) const { return fIsStrangeEvent;   }
   bool IsInclusiveStrange (void) const;
-  int  StrangeHadronPdg   (void) const {return fStrangeHadronPdg;  }
+  int  StrangeHadronPdg   (void) const { return fStrangeHadronPdg; }
   int  NProtons           (void) const { return fNProtons;  }
   int  NNeutrons          (void) const { return fNNeutrons; }
   int  NPi0               (void) const { return fNPi0;      }

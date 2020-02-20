@@ -5,19 +5,17 @@
 
 \brief    A base class for the concrete astrophysical neutrino flux drivers.
 
-
           <<<< NOTE: CODE UNDER DEVELOPMENT >>>>
-
 
           COORDINATE SYSTEMS / NEUTRINO GENERATION & PROPAGATION :
 
-          Neutrinos are generated on a sphere with radius R_{earth}. 
+          Neutrinos are generated on a sphere with radius R_{earth}.
           Especially,
-          - For diffuse fluxes: 
-            Neutrinos can be generated anywhere on that surface. 
-          - For point sources: 
-            Neutrinos are generated at fixed right ascension and declination. 
-            Then time is randomized, to account for Earth's rotation, and the 
+          - For diffuse fluxes:
+            Neutrinos can be generated anywhere on that surface.
+          - For point sources:
+            Neutrinos are generated at fixed right ascension and declination.
+            Then time is randomized, to account for Earth's rotation, and the
             Equatorial Coordinates are converted to GEF. So, neutrinos from each
             point source are generated on circles parallel to the Earth's Equator.
 
@@ -25,7 +23,7 @@
           Fixed (GEF) Coordinate System (later to be converted to the appropriate
           detector coordinate system - See further below).
 
-          * Definition: 
+          * Definition:
             Geocentric Earth-Fixed (GEF) Coordinate System
               +z: Points to North Pole.
               xy: Equatorial plane.
@@ -34,29 +32,29 @@
 
           Neutrinos are then propagated towards the detector.
           The Earth opaqueness to ultra high energy neutrinos is taken into
-          account. The Earth density profile is modelled using the PREM 
+          account. The Earth density profile is modelled using the PREM
           (Preliminary Earth Model, The Encyclopedia of Solid Earth Geophysics,
           David E. James, ed., Van Nostrand Reinhold, New York, 1989, p.331).
 
-          The detector position is determined in the Spherical/Geographic System 
-          by its geographic latitude (angle relative to Equator), its geographic 
-          longitude (angle relative to Prime Meridian) and its depth from the 
+          The detector position is determined in the Spherical/Geographic System
+          by its geographic latitude (angle relative to Equator), its geographic
+          longitude (angle relative to Prime Meridian) and its depth from the
           surface.
 
           The generated flux neutrinos, propagated through the Earth towards the
-          detector) are then positioned on the surface of a sphere with radius Rd 
+          detector) are then positioned on the surface of a sphere with radius Rd
           which should fully enclose the neutrino detector. The centre of that
           sphere is taken to be the origin of the detector coordinate system.
-          The transverse coords are appropriately randomized so that neutrinos 
-          from any given direction bath the entire sphere enclosing the detector. 
+          The transverse coords are appropriately randomized so that neutrinos
+          from any given direction bath the entire sphere enclosing the detector.
 
-          The final flux neutrino coordinates are given in the detector coordinate 
+          The final flux neutrino coordinates are given in the detector coordinate
           system. The default detector coordinate system is the Topocentric Horizontal
           (THZ) Coordinate System. Alternative user-defined topocentric systems can
           be defined by specifying the appropriate rotation from THZ.
 
-          * Definition: 
-            Topocentric Horizontal (THZ) Coordinate System 
+          * Definition:
+            Topocentric Horizontal (THZ) Coordinate System
             (default detector coordinate system)
                 +z: Points towards the local zenith.
                 +x: On same plane as local meridian, pointing south.
@@ -66,7 +64,7 @@
           WEIGHTING SCHEMES:
 
           For a detector with geometrical cross section ~ 1km^2, the solid
-          angle acceptance changes by ~10 orders of magnitude across the 
+          angle acceptance changes by ~10 orders of magnitude across the
           surface of the Earth.
 
           The driver supports both weighted and un-weighted flux generation
@@ -80,17 +78,16 @@
           If run without arguments, the following relative populations are set:
           nue:numu:nutau:nuebar:numubar:nutaubar = 1:2:0:1:2:0
 
-          The energy spectrum is follows a power law. The user needs to 
+          The energy spectrum is follows a power law. The user needs to
           specify the power-law index by calling SetEnergyPowLawIdx().
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  March 27, 2010
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -116,8 +113,8 @@ using std::map;
 namespace genie {
 namespace flux  {
 
-const double kAstroDefMaxEv      = 1E+20 * units::GeV; ///< 
-const double kAstroDefMinEv      = 1E-3  * units::GeV; ///< 
+const double kAstroDefMaxEv      = 1E+20 * units::GeV; ///<
+const double kAstroDefMinEv      = 1E-3  * units::GeV; ///<
 const int    kAstroNlog10EvBins  = 1000;               ///<
 const int    kAstroNCosThetaBins = 500;                ///<
 const int    kAstroNPhiBins      = 500;                ///<
@@ -188,7 +185,7 @@ protected:
   double           fDetSize;              ///< (config) detector: size (detector should be enclosed in sphere of this radius)
   map<int,double>  fRelNuPopulations;     ///< (config) relative neutrino populations
   TRotation        fRotGEF2THz;         ///< (config) coord. system rotation: GEF translated to detector centre -> THZ
-  TRotation        fRotTHz2User;         ///< (config) coord. system rotation: THZ -> Topocentric user-defined 
+  TRotation        fRotTHz2User;         ///< (config) coord. system rotation: THZ -> Topocentric user-defined
   // internal flags and utility objects
   TVector3         fDetCenter;            ///<
   TH1D *           fEnergySpectrum;       ///<
@@ -230,7 +227,7 @@ protected:
 //
 
 //............................................................................
-// GENIE diffuse astrophysical neutrino flux driver 
+// GENIE diffuse astrophysical neutrino flux driver
 //
 class GDiffuseAstroFlux: public GAstroFlux {
 public :
@@ -239,7 +236,7 @@ public :
 
   //
   //
-}; 
+};
 
 //............................................................................
 // GENIE concrete flux driver for astrophysical point neutrino sources
@@ -266,11 +263,10 @@ private:
   double           fPntSrcTotI;  ///< sum of all relative intensities
 
   unsigned int fSelSourceId;
-}; 
+};
 //............................................................................
 
 } // flux namespace
 } // genie namespace
 
 #endif // _GASTRO_FLUX_H_
-

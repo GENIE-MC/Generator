@@ -2,20 +2,9 @@
 /*
  Copyright (C) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         May 30, 2009
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ May 30, 2009 - CA
-   Was first added in v2.5.1
- @ Sep 29, 2009 - CA
-   Add FormFactors nested class & re-organize code
- @ May 01, 2012 - CA
-   Pick data from new location ($GENIE/data/evgen/gibuu/)
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -108,8 +97,8 @@ GiBUURESFormFactor::FormFactors::~FormFactors(void)
            }
         }//k
       }//j
-    }//i   
-  }//r 
+    }//i
+  }//r
 }
 //____________________________________________________________________________
 void GiBUURESFormFactor::FormFactors::LoadTables(void)
@@ -123,10 +112,10 @@ void GiBUURESFormFactor::FormFactors::LoadTables(void)
              fFFRes[r][i][j][k] = 0;
         }//k
       }//j
-    }//i   
-  }//r 
+    }//i
+  }//r
 
-  string data_dir = string(gSystem->Getenv("GENIE")) + 
+  string data_dir = string(gSystem->Getenv("GENIE")) +
                     string("/data/evgen/gibuu");
 
   LOG("GiBUURESFormFactor", pNOTICE) << "Loading GiBUU data from: " << data_dir;
@@ -188,10 +177,10 @@ void GiBUURESFormFactor::FormFactors::LoadTables(void)
         //   I=1/2 res: Qs   F_1^V  F_2^V  -----  -----  F_A    F_P    -----  ----
 
         TTree data_ffres;
-        data_ffres.ReadFile(datafile.str().c_str(), 
+        data_ffres.ReadFile(datafile.str().c_str(),
                             "Q2/D:f1/D:f2/D:f3/D:f4/D:f5/D:f6/D:f7/D:f8/D");
 
-        LOG("GiBUURESFormFactor", pDEBUG)  
+        LOG("GiBUURESFormFactor", pDEBUG)
            << "Number of data rows: " << data_ffres.GetEntries();
 
         //
@@ -203,7 +192,7 @@ void GiBUURESFormFactor::FormFactors::LoadTables(void)
            fFFRes[r][i][j][2]  = new Spline(&data_ffres, "Q2:f5"); // FA  = f(Q2)
            fFFRes[r][i][j][3]  = new Spline(&data_ffres, "Q2:f6"); // FP  = f(Q2)
         } // Delta res
-        else 
+        else
         //
         // I=1/2 resonances
         //
@@ -219,8 +208,8 @@ void GiBUURESFormFactor::FormFactors::LoadTables(void)
         } //N res
 
       }//j
-    }//i   
-  }//r 
+    }//i
+  }//r
 
 
   for(int r=0; r<kNRes; r++) {
@@ -230,10 +219,10 @@ void GiBUURESFormFactor::FormFactors::LoadTables(void)
              if(fFFRes[r][i][j][k]) fFFRes[r][i][j][k]->YCanBeNegative(true);
         }//k
       }//j
-    }//i   
-  }//r 
+    }//i
+  }//r
 
-  LOG("GiBUURESFormFactor", pINFO)  
+  LOG("GiBUURESFormFactor", pINFO)
      << "Done loading all resonance form factor files...";
 }
 //____________________________________________________________________________
@@ -321,8 +310,8 @@ double GiBUURESFormFactor::FormFactors::FP(
   return this->FFRes(Q2,res,hit_nucleon_pdg,it,3);
 }
 //____________________________________________________________________________
-double GiBUURESFormFactor::FormFactors::FFRes ( 
-    double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it, 
+double GiBUURESFormFactor::FormFactors::FFRes (
+    double Q2, Resonance_t res, int hit_nucleon_pdg, InteractionType_t it,
     int ffresid) const
 {
   if(Q2 < fMinQ2 || Q2 > fMaxQ2) return 0.;

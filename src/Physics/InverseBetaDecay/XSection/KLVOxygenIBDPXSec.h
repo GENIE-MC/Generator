@@ -12,9 +12,8 @@
 
 \created  January 27, 2010
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -33,7 +32,7 @@ public:
   static const double kO16NubarThr; //  energy threshold for 16O + nu_e_bar
   static const double kO16NuMinE;   //  minimum energy for 16O + nu_e
   static const double kMaxE;        //  maximum neutrino energy for this xsec model
-  
+
   KLVOxygenIBDPXSec();
   KLVOxygenIBDPXSec(string config);
   virtual ~KLVOxygenIBDPXSec();
@@ -51,7 +50,7 @@ public:
 
 private:
   void LoadConfig (void);
-  
+
   void MakeAntiNuESpline(void);
   void MakeNuESpline(void);
 

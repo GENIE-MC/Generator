@@ -1,21 +1,20 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::KNOPythiaHadronization
+\class    genie::AGKY2019
 
 \brief    A 'composite' hadronization model using a KNO-based hadronization
           model at low W and PYTHIA/JETSET at higher W.
           Contains no new hadronization code but merely a configurable KNO to
           PYTHIA transition scheme.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  June 08, 2006
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -27,13 +26,13 @@
 
 namespace genie {
 
-class KNOPythiaHadronization : protected EventRecordVisitorI {
+class AGKY2019 : protected EventRecordVisitorI {
 
 public:
 
-  KNOPythiaHadronization();
-  KNOPythiaHadronization(string config);
-  virtual ~KNOPythiaHadronization();
+  AGKY2019();
+  AGKY2019(string config);
+  virtual ~AGKY2019();
 
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;

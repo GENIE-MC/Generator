@@ -1,11 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
-
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ 
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -46,7 +45,7 @@ GHAKKMAtmoFlux::~GHAKKMAtmoFlux()
 }
 //___________________________________________________________________________
 void GHAKKMAtmoFlux::SetBinSizes(void)
-{ 
+{
   //
   // cos(theta)
   //
@@ -54,19 +53,19 @@ void GHAKKMAtmoFlux::SetBinSizes(void)
   fCosThetaBins    = new double [kGHnd3DNumCosThetaBins + 1];
   fNumCosThetaBins = kGHnd3DNumCosThetaBins;
 
-  double dcostheta = 
+  double dcostheta =
       (kGHnd3DCosThetaMax - kGHnd3DCosThetaMin) /
       (double) kGHnd3DNumCosThetaBins;
 
   for(unsigned int i=0; i<= kGHnd3DNumCosThetaBins; i++) {
      fCosThetaBins[i] = kGHnd3DCosThetaMin + i * dcostheta;
      if(i != kGHnd3DNumCosThetaBins) {
-       LOG("Flux", pDEBUG) 
-         << "HAKKM 3D flux: CosTheta bin " << i+1 
+       LOG("Flux", pDEBUG)
+         << "HAKKM 3D flux: CosTheta bin " << i+1
          << ": lower edge = " << fCosThetaBins[i];
      } else {
-       LOG("Flux", pDEBUG) 
-         << "HAKKM 3D flux: CosTheta bin " << kGHnd3DNumCosThetaBins 
+       LOG("Flux", pDEBUG)
+         << "HAKKM 3D flux: CosTheta bin " << kGHnd3DNumCosThetaBins
          << ": upper edge = " << fCosThetaBins[kGHnd3DNumCosThetaBins];
      }
   }
@@ -80,19 +79,19 @@ void GHAKKMAtmoFlux::SetBinSizes(void)
 
   double d2r = constants::kPi/180.;
 
-  double dphi = 
+  double dphi =
       d2r * (kGHnd3DPhiMax - kGHnd3DPhiMin) /
       (double) kGHnd3DNumPhiBins;
 
   for(unsigned int i=0; i<= kGHnd3DNumPhiBins; i++) {
      fPhiBins[i] = kGHnd3DPhiMin + i * dphi;
      if(i != kGHnd3DNumPhiBins) {
-       LOG("Flux", pDEBUG) 
-         << "HAKKM 3D flux: Phi bin " << i+1 
+       LOG("Flux", pDEBUG)
+         << "HAKKM 3D flux: Phi bin " << i+1
          << ": lower edge = " << fPhiBins[i];
      } else {
-       LOG("Flux", pDEBUG) 
-         << "HAKKM 3D flux: Phi bin " << kGHnd3DNumPhiBins 
+       LOG("Flux", pDEBUG)
+         << "HAKKM 3D flux: Phi bin " << kGHnd3DNumPhiBins
          << ": upper edge = " << fPhiBins[kGHnd3DNumPhiBins];
      }
   }
@@ -113,22 +112,22 @@ void GHAKKMAtmoFlux::SetBinSizes(void)
 
   double logEmax = TMath::Log10(1.);
   double logEmin = TMath::Log10(0.1);
-  double dlogE = 
-      (logEmax - logEmin) / 
+  double dlogE =
+      (logEmax - logEmin) /
       (double) kGHnd3DNumLogEvBinsPerDecade;
 
   fEnergyBins[0] = 0;
   for(unsigned int i=0; i < fNumEnergyBins; i++) {
      fEnergyBins[i+1] = TMath::Power(10., logEmin + i*dlogE);
      if(i < kGHnd3DNumLogEvBins) {
-       LOG("Flux", pDEBUG) 
-          << "HAKKM 3D flux: Energy bin " << i+1 
+       LOG("Flux", pDEBUG)
+          << "HAKKM 3D flux: Energy bin " << i+1
           << ": upper edge = " << fEnergyBins[i+1] << " GeV";
-     } 
+     }
   }
 
   fMaxEv = fEnergyBins[fNumEnergyBins];
-  LOG("Flux", pDEBUG) 
+  LOG("Flux", pDEBUG)
     << "HAKKM 3D flux: Maximum energy = " << fMaxEv;
 
 }
@@ -183,7 +182,7 @@ bool GHAKKMAtmoFlux::FillFluxHisto(int nu_pdg, string filename)
        << ", phi = [" << fPhiBins[iphi-1] << ", " << fPhiBins[iphi] << "] rad"
        << " or [" << r2d * fPhiBins[iphi-1] << ", " << r2d * fPhiBins[iphi] << "] deg) ";
 
-    for(unsigned int i=0; i < kGHnd3DNumLogEvBins; i++) {    
+    for(unsigned int i=0; i < kGHnd3DNumLogEvBins; i++) {
 
       int ienergy = i+1;
 
@@ -195,19 +194,19 @@ bool GHAKKMAtmoFlux::FillFluxHisto(int nu_pdg, string filename)
 
       flux_stream >> energy >> fnumu >> fnumubar >> fnue >> fnuebar;
 
-      // fitting this easily into what is done for FLUKA, BGLRS where a 
+      // fitting this easily into what is done for FLUKA, BGLRS where a
       // different file is specified for each neurtino species means that
       // the input file for HAKKM has to be read 4 times (at most).
-      // However, this maintains the ability to switch off individual 
+      // However, this maintains the ability to switch off individual
       // components at source and generate interactions for some species only
-    
+
       double flux = 0.;
       if(nu_pdg == kPdgNuMu    ) flux = fnumu;
       if(nu_pdg == kPdgAntiNuMu) flux = fnumubar;
       if(nu_pdg == kPdgNuE     ) flux = fnue;
       if(nu_pdg == kPdgAntiNuE ) flux = fnuebar;
       LOG("Flux", pDEBUG)
-         << "Flux (nu_pdg = " << nu_pdg 
+         << "Flux (nu_pdg = " << nu_pdg
          << "; Ev = " << energy << " GeV / bin used = ["
          << fEnergyBins[ienergy-1] << ", " << fEnergyBins[ienergy] << "] GeV"
          << ") = " << flux << " (m^2 sec sr GeV)^-1";

@@ -1,11 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
-
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ 
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
          Changes required to implement the GENIE Boosted Dark Matter module
          were installed by Josh Berger (Univ. of Wisconsin)
@@ -33,7 +32,7 @@ bool genie::pdg::IsPseudoParticle(int pdgc)
        (pdgc > 2000000000 && pdgc < 2000100000) ||
        (pdgc == kPdgCluster || pdgc == kPdgString || pdgc == kPdgIndep)
      );
-      
+
   return is_fake;
 }
 //____________________________________________________________________________
@@ -382,9 +381,9 @@ int genie::pdg::GeantToPdg(int geant_code)
   if(geant_code ==  3) return kPdgElectron;     //    11 / e-
   if(geant_code ==  2) return kPdgPositron;     //   -11 / e+
   if(geant_code ==  6) return kPdgMuon;         //    13 / mu-
-  if(geant_code ==  5) return kPdgAntiMuon;     //   -13 / mu+             
+  if(geant_code ==  5) return kPdgAntiMuon;     //   -13 / mu+
   if(geant_code == 34) return kPdgTau;          //    15 / tau-
-  if(geant_code == 33) return kPdgAntiTau;      //   -15 / tau+              
+  if(geant_code == 33) return kPdgAntiTau;      //   -15 / tau+
   if(geant_code ==  8) return kPdgPiP;          //   211 / pi+
   if(geant_code ==  9) return kPdgPiM;          //  -211 / pi-
   if(geant_code ==  7) return kPdgPi0;          //   111 / pi0
@@ -437,4 +436,3 @@ int genie::pdg::GeantToPdg(int geant_code)
   return 0;
 }
 //____________________________________________________________________________
-

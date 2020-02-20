@@ -4,16 +4,15 @@
 \class    genie::AlgConfigPool
 
 \brief    A singleton class holding all configuration registries built while
-          parsing all loaded XML configuration files. 
+          parsing all loaded XML configuration files.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -51,7 +50,7 @@ public:
   Registry * GlobalParameterList(void) const;
   Registry * CommonList( const string & file_id, const string & set_name ) const;
   Registry * TuneGeneratorList(void) const;
- 
+
 
   const vector<string> & ConfigKeyList (void) const;
 
@@ -77,7 +76,7 @@ private:
   void   AddConfigParameter  (Registry * r, string pt, string pn, string pv);
   void   AddBasicParameter   (Registry * r, string pt, string pn, string pv);
   void   AddRootObjParameter (Registry * r, string pt, string pn, string pv);
-  
+
 
   static AlgConfigPool * fInstance;
 

@@ -8,15 +8,14 @@
 	  can see the "bigger picture" and access the cross section model for
 	  the thread, look-up info for modules that run before or are scheduled
           to run after etc.
-	  
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org    
 */
 //____________________________________________________________________________
 
@@ -32,13 +31,13 @@ class RunningThreadInfo
 public:
   static RunningThreadInfo * Instance(void);
 
-  const EventGeneratorI * RunningThread(void) 
-  {   
-    return fRunningThread; 
+  const EventGeneratorI * RunningThread(void)
+  {
+    return fRunningThread;
   }
-  void UpdateRunningThread(const EventGeneratorI * evg) 
-  { 
-     fRunningThread = evg; 
+  void UpdateRunningThread(const EventGeneratorI * evg)
+  {
+     fRunningThread = evg;
   }
 
 private:

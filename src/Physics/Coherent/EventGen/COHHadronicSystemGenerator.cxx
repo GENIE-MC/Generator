@@ -1,26 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 09, 2009 - CA
-   Moved into the new Coherent package from its previous location (EVGModules 
-   package)
- @ Mar 03, 2009 - CA
-   Renamed COHPiHadronicSystemGenerator -> COHHadronicSystemGenerator in
-   anticipation of reusing the code for simulating coherent production of
-   vector mesons.
- @ Apr 02, 2009 - CA,HG,PK
-   Bug fix: Reverse the order of the pion momentum rotations: Randomize the
-   transverse component direction in the x'y' plane before aligning z' with 
-   the direction of the momentum transfer q in the LAB.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -103,7 +87,7 @@ int COHHadronicSystemGenerator::getPionPDGCodeFromXclTag(const XclsTag& xcls_tag
 //___________________________________________________________________________
 void COHHadronicSystemGenerator::CalculateHadronicSystem_BergerSehgal(GHepRecord * evrec) const
 {
-  // Treatment of the hadronic side is identical to Rein-Sehgal if we assume an infinite 
+  // Treatment of the hadronic side is identical to Rein-Sehgal if we assume an infinite
   // mass for the nucleus.
   CalculateHadronicSystem_ReinSehgal(evrec);
 }
@@ -111,7 +95,7 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_BergerSehgal(GHepRecord
 void COHHadronicSystemGenerator::CalculateHadronicSystem_BergerSehgalFM(GHepRecord * evrec) const
 {
   //
-  // This method generates the final state hadronic system (pion + nucleus) in 
+  // This method generates the final state hadronic system (pion + nucleus) in
   // COH interactions
   //
   RandomGen * rnd = RandomGen::Instance();
@@ -137,28 +121,28 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_BergerSehgalFM(GHepReco
   int pion_pdgc = getPionPDGCodeFromXclTag(xcls_tag);
 
   //-- basic kinematic inputs
-  double E    = nu->E();  
+  double E    = nu->E();
   double Q2   = interaction->Kine().Q2(true);
-  double y    = interaction->Kine().y(true); 
-  double t    = interaction->Kine().t(true); 
-  double MA   = init_state.Tgt().Mass(); 
+  double y    = interaction->Kine().y(true);
+  double t    = interaction->Kine().t(true);
+  double MA   = init_state.Tgt().Mass();
   // double MA2  = TMath::Power(MA, 2.);   // Unused
   double mpi  = PDGLibrary::Instance()->Find(pion_pdgc)->Mass();
   double mpi2 = TMath::Power(mpi,2);
 
-  SLOG("COHHadronicVtx", pINFO) 
-    << "Ev = "<< E << ", Q^2 = " << Q2 
+  SLOG("COHHadronicVtx", pINFO)
+    << "Ev = "<< E << ", Q^2 = " << Q2
     << ", y = " << y << ", t = " << t;
 
   double Epi = y * E - t / (2 * MA);
   double ppi2   = Epi * Epi - mpi2;
   double ppi    = ppi2 > 0.0 ? TMath::Sqrt(ppi2) : 0.0;
 
-  double costheta = (t - Q2 - mpi2) / (2 * ( (y *E - Epi) * Epi - 
+  double costheta = (t - Q2 - mpi2) / (2 * ( (y *E - Epi) * Epi -
        ppi * sqrt(TMath::Power(y * E - Epi, 2.) + t) ) );
 
   if ((costheta > 1.0) || (costheta < -1.0)) {
-    SLOG("COHHadronicVtx", pERROR) 
+    SLOG("COHHadronicVtx", pERROR)
       << "Unphysical pion angle!";
   }
 
@@ -173,7 +157,7 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_BergerSehgalFM(GHepReco
   // double EA       = (S + MA2 + Q2)/(2 * S_2);
   // double PAprime2 = TMath::Power(EAprime,2.0) - MA2;
   // double PAprime  = TMath::Sqrt(PAprime2);
-  // double tA       = TMath::Power((EAprime - EA),2.0) - TMath::Power(PAprime,2.0) - 
+  // double tA       = TMath::Power((EAprime - EA),2.0) - TMath::Power(PAprime,2.0) -
   //   TMath::Power(Pcm, 2.0);
   // double tB       = 2 * Pcm * PAprime;
   // double cosT     = (t - tA)/tB;
@@ -220,7 +204,7 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_BergerSehgalFM(GHepReco
   int mom = evrec->TargetNucleusPosition();
 
   // Nucleus - need to balance overall 4-momentum
-  evrec->AddParticle(nucl_pdgc,kIStStableFinalState, mom,-1,-1,-1, 
+  evrec->AddParticle(nucl_pdgc,kIStStableFinalState, mom,-1,-1,-1,
                      pxNf, pyNf, pzNf, ENf, 0, 0, 0, 0);
 
   // evrec->AddParticle(
@@ -235,7 +219,7 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_BergerSehgalFM(GHepReco
 void COHHadronicSystemGenerator::CalculateHadronicSystem_ReinSehgal(GHepRecord * evrec) const
 {
   //
-  // This method generates the final state hadronic system (pion + nucleus) in 
+  // This method generates the final state hadronic system (pion + nucleus) in
   // COH interactions
   //
   RandomGen * rnd = RandomGen::Instance();
@@ -260,20 +244,20 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_ReinSehgal(GHepRecord *
   int pion_pdgc = getPionPDGCodeFromXclTag(xcls_tag);
 
   //-- basic kinematic inputs
-  double E    = nu->E();  
+  double E    = nu->E();
   double M    = kNucleonMass;
   double mpi  = PDGLibrary::Instance()->Find(pion_pdgc)->Mass();
   double mpi2 = TMath::Power(mpi,2);
-  double xo   = interaction->Kine().x(true); 
-  double yo   = interaction->Kine().y(true); 
-  double to   = interaction->Kine().t(true); 
+  double xo   = interaction->Kine().x(true);
+  double yo   = interaction->Kine().y(true);
+  double to   = interaction->Kine().t(true);
 
-  SLOG("COHHadronicVtx", pINFO) 
-    << "Ev = "<< E << ", xo = " << xo 
+  SLOG("COHHadronicVtx", pINFO)
+    << "Ev = "<< E << ", xo = " << xo
     << ", yo = " << yo << ", to = " << to;
 
   //-- compute pion energy and |momentum|
-  double Epi  = yo * E;  
+  double Epi  = yo * E;
   double Epi2 = TMath::Power(Epi,2);
   double ppi2 = Epi2-mpi2;
   double ppi  = TMath::Sqrt(TMath::Max(0.,ppi2));
@@ -289,7 +273,7 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_ReinSehgal(GHepRecord *
 
   TLorentzVector q = p4nu - p4fsl;
 
-  SLOG("COHHadronicVtx", pINFO) 
+  SLOG("COHHadronicVtx", pINFO)
     << "\n 4-p transfer q @ LAB: " << utils::print::P4AsString(&q);
 
   //-- find angle theta between q and ppi (xi=costheta)
@@ -314,7 +298,7 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_ReinSehgal(GHepRecord *
   ppi3.RotateZ(phi);              // randomize transverse components
   ppi3.RotateUz(q.Vect().Unit()); // align longit. component with q in LAB
 
-  SLOG("COHHadronicVtx", pINFO) 
+  SLOG("COHHadronicVtx", pINFO)
     << "Pion 3-p @ LAB: " << utils::print::Vec3AsString(&ppi3);
 
   // now figure out the f/s nucleus 4-p
@@ -328,10 +312,10 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_ReinSehgal(GHepRecord *
 
   int mom = evrec->TargetNucleusPosition();
 
-  evrec->AddParticle(nucl_pdgc,kIStStableFinalState, mom,-1,-1,-1, 
+  evrec->AddParticle(nucl_pdgc,kIStStableFinalState, mom,-1,-1,-1,
                      pxNf, pyNf, pzNf, ENf, 0, 0, 0, 0);
 
-  evrec->AddParticle(pion_pdgc,kIStStableFinalState, mom,-1,-1,-1, 
+  evrec->AddParticle(pion_pdgc,kIStStableFinalState, mom,-1,-1,-1,
                      ppi3.Px(), ppi3.Py(),ppi3.Pz(),Epi, vtx.X(), vtx.Y(), vtx.Z(), vtx.T());
 }
 //___________________________________________________________________________
@@ -385,4 +369,3 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_AlvarezRuso(GHepRecord 
   evrec->AddParticle(pion_pdgc,kIStStableFinalState, mom,-1,-1,-1,
                      ppi3.Px(), ppi3.Py(),ppi3.Pz(),Epi, vtx.X(), vtx.Y(), vtx.Z(), vtx.T());
 }
-

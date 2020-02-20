@@ -1,20 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Christopher Backhouse <c.backhouse1@physics.ox.ac.uk>
-         Oxford University
-
- For the class documentation see the corresponding header file.
- @ Feb 05, 2008 - CB
-   This concrete flux driver was added in 2.3.1 by C.Backhouse (Oxford U.)
- @ Feb 23, 2010 - CA
-   Build bin arrays at ctor. Re-structuring and clean-up.
- @ Feb 23, 2012 - AB
-   Combine the flux calculations at low and high energies.
-
+ Christopher Backhouse <c.backhouse1@physics.ox.ac.uk>
+ Oxford University
 */
 //____________________________________________________________________________
 
@@ -58,29 +48,29 @@ void GBGLRSAtmoFlux::SetBinSizes(void)
 {
 // Generate the correct cos(theta) and energy bin sizes.
 //
-// Zenith angle binning: the flux is given in 20 bins of 
-// cos(zenith angle) from -1.0 to 1.0 (bin width = 0.1) 
+// Zenith angle binning: the flux is given in 20 bins of
+// cos(zenith angle) from -1.0 to 1.0 (bin width = 0.1)
 //
-// Neutrino energy binning: the Bartol flux files are 
-// provided in two pieces 
+// Neutrino energy binning: the Bartol flux files are
+// provided in two pieces
 //  (1) low energy piece (<10 GeV), solar min or max,
-//      given in 40 log-spaced bins from 0.1 to 10 GeV 
+//      given in 40 log-spaced bins from 0.1 to 10 GeV
 //      (20 bins per decade)
-//  (2) high energy piece (>10 GeV), without solar effects, 
+//  (2) high energy piece (>10 GeV), without solar effects,
 //      given in 30 log-spaced bins from 10 to 1000 GeV
 //      (10 bins per decade)
-     
+
   fPhiBins       = new double [2];
   fCosThetaBins  = new double [kBGLRS3DNumCosThetaBins + 1];
   fEnergyBins    = new double [kBGLRS3DNumLogEvBinsLow + kBGLRS3DNumLogEvBinsHigh + 1];
 
   fPhiBins[0] = 0;
   fPhiBins[1] = 2.*kPi;
-   
+
   double dcostheta =
-      (kBGLRS3DCosThetaMax - kBGLRS3DCosThetaMin) / 
+      (kBGLRS3DCosThetaMax - kBGLRS3DCosThetaMin) /
       (double) kBGLRS3DNumCosThetaBins;
-     
+
   double logEmin = TMath::Log10(kBGLRS3DEvMin);
   double dlogElow = 1.0 / (double) kBGLRS3DNumLogEvBinsPerDecadeLow;
   double dlogEhigh = 1.0 / (double) kBGLRS3DNumLogEvBinsPerDecadeHigh;
@@ -101,9 +91,9 @@ void GBGLRSAtmoFlux::SetBinSizes(void)
         << ": upper edge = " << fCosThetaBins[kBGLRS3DNumCosThetaBins];
     }
   }
-     
+
   double logE = logEmin;
- 
+
   for(unsigned int i=0; i<=kBGLRS3DNumLogEvBinsLow+kBGLRS3DNumLogEvBinsHigh; i++) {
     if( i==0 ) ; // do nothing
     else if( i<=kBGLRS3DNumLogEvBinsLow ) logE += dlogElow;
@@ -117,19 +107,19 @@ void GBGLRSAtmoFlux::SetBinSizes(void)
       LOG("Flux", pDEBUG)
          << "FLUKA 3d flux: Energy bin " << kBGLRS3DNumLogEvBinsLow+kBGLRS3DNumLogEvBinsHigh
          << ": upper edge = " << fEnergyBins[kBGLRS3DNumLogEvBinsLow+kBGLRS3DNumLogEvBinsHigh];
-    } 
-  }      
+    }
+  }
 
   fNumPhiBins      = 1;
   fNumCosThetaBins = kBGLRS3DNumCosThetaBins;
-  fNumEnergyBins   = kBGLRS3DNumLogEvBinsLow + kBGLRS3DNumLogEvBinsHigh; 
+  fNumEnergyBins   = kBGLRS3DNumLogEvBinsLow + kBGLRS3DNumLogEvBinsHigh;
   fMaxEv = fEnergyBins[fNumEnergyBins];
 }
 //___________________________________________________________________________
 bool GBGLRSAtmoFlux::FillFluxHisto(int nu_pdg, string filename)
 {
-  LOG("Flux", pNOTICE) 
-    << "Loading BGLRS flux for neutrino: " << nu_pdg 
+  LOG("Flux", pNOTICE)
+    << "Loading BGLRS flux for neutrino: " << nu_pdg
     << " from file: " << filename;
 
   TH3D* histo = 0;
@@ -164,7 +154,7 @@ bool GBGLRSAtmoFlux::FillFluxHisto(int nu_pdg, string filename)
       // [Note: should do this explicitly using bin widths]
       flux /= energy;
       LOG("Flux", pINFO)
-        << "Flux[Ev = " << energy 
+        << "Flux[Ev = " << energy
         << ", cos8 = " << costheta << "] = " << flux;
       ibin = histo->FindBin( (Axis_t)energy, (Axis_t)costheta, (Axis_t)kPi );
       histo->SetBinContent( ibin, (Stat_t)(scale*flux) );

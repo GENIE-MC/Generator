@@ -20,6 +20,8 @@
                         -e exposure_in_kton_x_yrs >
                         -E min_energy,max_energy
                        [-o output_event_file_prefix]
+                       [--flux-ray-generation-surface-distance ]
+                       [--flux-ray-generation-surface-radius   ]
                        [--seed random_number_seed]
                        [--cross-sections xml_file]
                        [--event-generator-list list_name]
@@ -134,6 +136,16 @@
               Specifies the neutrino energy in GeV.
               Must be a comma-separated pair of numbers, eg `-E 0.3,70'
               [default: 0.5,50]
+           --flux-ray-generation-surface-distance               
+           --flux-ray-generation-surface-radius   
+              See the User & Physics Manual for a graphical representation of the flux 
+              ray generation surface: For a given zenith \theta and azimuthal angle \phi,
+              flux rays are produced within the area of a circle of radius Rt,
+              which is tangetial to a point P on a sphere of radius Rl, centred at the 
+              detector. The point P has polar coordinates \theta and \phi.
+              The argument --flux-ray-generation-surface-distance sets Rl, while              
+              the argument --flux-ray-generation-surface-distance sets Rt.
+              SI units are used.
            -o
               Sets the prefix of the output event file.
               The output filename is built as:
@@ -196,8 +208,8 @@
 
 \created August 20, 2010
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
          Torben Ferber <torben.ferber \at DESY.DE>
          DESY
@@ -208,9 +220,9 @@
          Tarak Thakore <tarak \at mailhost.tifr.res.in>
          Tata Institute of Fundamental Research
 
-\cpright Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //_________________________________________________________________________________________
 
@@ -289,6 +301,8 @@ string          gOptEvFilePrefix;              // event file prefix
 TRotation       gOptRot;                       // coordinate rotation matrix: topocentric horizontal -> user-defined topocentric system
 long int        gOptRanSeed;                   // random number seed
 string          gOptInpXSecFile;               // cross-section splines
+double          gOptRL;                        // distance of flux ray generation surface (m)
+double          gOptRT;                        // radius of flux ray generation surface (m)
 
 // Defaults:
 //
@@ -475,7 +489,7 @@ GFluxI* GetFlux(void)
   }
   atmo_flux_driver->LoadFluxData();
   // configure flux generation surface:
-  atmo_flux_driver->SetRadii(1, 1);
+  atmo_flux_driver->SetRadii(gOptRL, gOptRT);
   // set rotation for coordinate tranformation from the topocentric horizontal
   // system to a user-defined coordinate system:
   if(!gOptRot.IsIdentity()) {
@@ -673,6 +687,30 @@ void GetCommandLineArgs(int argc, char ** argv)
     PrintSyntax();
     gAbortingInErr = true;
     exit(1);
+  }
+
+  // *** options to fine tune the flux ray generation surface
+ 
+  // defaults
+  gOptRL = 1000; // m
+  gOptRT = 1000; // m
+
+  if( parser.OptionExists("flux-ray-generation-surface-distance") ) {
+    LOG("gevgen_atmo", pINFO) 
+      << "Reading distance of flux ray generation surface";
+    gOptRL = parser.ArgAsDouble("flux-ray-generation-surface-distance");
+  } else {
+    LOG("gevgen_atmo", pINFO) 
+      << "Unspecified distance of flux ray generation surface - Using default";
+  }
+
+  if( parser.OptionExists("flux-ray-generation-surface-radius") ) {
+    LOG("gevgen_atmo", pINFO) 
+      << "Reading radius of flux ray generation surface";
+    gOptRT = parser.ArgAsDouble("flux-ray-generation-surface-radius");
+  } else {
+    LOG("gevgen_atmo", pINFO) 
+      << "Unspecified radius of flux ray generation surface - Using default";
   }
 
   //
@@ -900,6 +938,8 @@ void GetCommandLineArgs(int argc, char ** argv)
         fluxinfo << "(" << name << ") -> " << filename << " / ";
      }
   }
+  fluxinfo << "Flux ray generation surface - Distance = " 
+           << gOptRL << " m, Radius = " << gOptRT << " m";
 
   ostringstream expinfo;
   if(gOptNev > 0)            { expinfo << gOptNev            << " events";   }
@@ -961,6 +1001,8 @@ void PrintSyntax(void)
    << "\n            -e exposure_in_kton_x_yrs>"
    << "\n            -E min_energy,max_energy"
    << "\n           [-o output_event_file_prefix]"
+   << "\n           [--flux-ray-generation-surface-distance]"               
+   << "\n           [--flux-ray-generation-surface-radius]"
    << "\n           [--seed random_number_seed]"
    << "\n            --cross-sections xml_file"
    << "\n           [--event-generator-list list_name]"

@@ -1,23 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Sep 19, 2009 - CA
-   Renamed QELPXSec -> LwlynSmithQELCCPXSec
- @ Mar 18, 2016 - JJ (SD)
-   Moved code to average over initial nucleons from QELXSec to the Integral()
-   method here. For each nucleon, generate a struck nucleon position, then a
-   momentum, then integrate.
- @ 2015 - AF
-   Added FullDifferentialXSec method to work with QELEventGenerator
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 

@@ -107,7 +107,7 @@ Julia Yarba [3]  < yarba_j \at fnal.gov >
 
 ## Copyright
 
-Copyright (c) 2003-2019, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
+Copyright (c) 2003-2020, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
 
 
 ## Physics & User manual

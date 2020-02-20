@@ -1,10 +1,10 @@
 //_________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- For the class documentation see the corresponding header file.
+ Original code contributed by J. Schwehr, D. Cherdack, R. Gran
+ Substantial code refactorizations by the core GENIE group.
 */
 //_________________________________________________________________________
 
@@ -54,12 +54,12 @@ double NievesSimoVacasMECPXSec2016::XSec(
     int Arequest = pdg::IonPdgCodeToA(targetpdg);
     int Zrequest = pdg::IonPdgCodeToZ(targetpdg);
 
-    // To generate cross-sections for nuclei other than those with hadron 
-    // tensors we need to pull both the full cross-section and 
+    // To generate cross-sections for nuclei other than those with hadron
+    // tensors we need to pull both the full cross-section and
     // the pn initial state fraction.
     // Non-isoscalar nuclei are beyond the original published Valencia model
     // and scale with A according to the number of pp, pn, or nn pairs
-    // the probe is expected to find.  
+    // the probe is expected to find.
     // There is some by-hand optimization here, skipping the delta part when
     // only the total cross-section is requested.
     // Possible future models without a Delta had tensor would also use that
@@ -94,36 +94,36 @@ double NievesSimoVacasMECPXSec2016::XSec(
             // could explicitly put in nitrogen for air
             //else if ( Arequest >= 14 && A < 15) { // AND CHANGE <=14 to <14.
             //  tensorpdg = kPdgTgtN14;
-        } 
+        }
         else if( Arequest >= 15 && Arequest < 22){
             tensorpdg = kPdgTgtO16;
-        } 
+        }
         else if( Arequest >= 22 && Arequest < 33){
             // of special interest, this gets Al27 and Si28
             tensorpdg = 1000140280;
-        } 
+        }
         else if(Arequest >= 33 && Arequest < 50){
-            // of special interest, this gets Ar40 and Ti48   
+            // of special interest, this gets Ar40 and Ti48
             tensorpdg = kPdgTgtCa40;
-        } 
+        }
         else if( Arequest >= 50 && Arequest < 90){
             // pseudoFe56, also covers many other ferrometals and Ge
             tensorpdg = 1000280560;
-        } 
+        }
         else if( Arequest >= 90 && Arequest < 160){
             // use Ba112 = PseudoCd.  Row5 of Periodic table useless. Ag, Xe?
             tensorpdg = 1000561120;
-        } 
+        }
         else if( Arequest >= 160 ){
             // use Rf208 = pseudoPb
-            tensorpdg = 1001042080;   
-        } 
+            tensorpdg = 1001042080;
+        }
         else {
-            MAXLOG("NievesSimoVacasMEC", pWARN, 10) 
-                << "Asked to scale to a nucleus " 
+            MAXLOG("NievesSimoVacasMEC", pWARN, 10)
+                << "Asked to scale to a nucleus "
                 << targetpdg << " which we don't know yet.";
             return 0;
-        }  
+        }
     }
 
     // Check that the input kinematical point is within the range
@@ -152,7 +152,7 @@ double NievesSimoVacasMECPXSec2016::XSec(
     // for pioness Delta decay).
     // If a {p,n} hit dinucleon was set will calculate the cross-section
     // for that component only (either full or PDD cross-section)
-    bool delta = interaction->ExclTag().KnownResonance(); 
+    bool delta = interaction->ExclTag().KnownResonance();
     bool pn    = (interaction->InitState().Tgt().HitNucPdg() == kPdgClusterNP);
     //LOG("NievesSimoVacasMEC", pDEBUG) << "delta: " << delta << ", pn: " << pn;
 
@@ -184,7 +184,7 @@ double NievesSimoVacasMECPXSec2016::XSec(
         double scale_pp = TMath::Sqrt( (PP * (PP - 1.)) / (P * (P - 1.)) );
         double scale_nn = TMath::Sqrt( (NN * (NN - 1.)) / (N * (N - 1.)) );
 
-        LOG("NievesSimoVacasMEC", pDEBUG) 
+        LOG("NievesSimoVacasMEC", pDEBUG)
             << "Scale pn pp nn for (" << targetpdg << ", " << tensorpdg << ")"
             << " : " << scale_pn << " " << scale_pp << " " << scale_nn;
 
@@ -206,7 +206,7 @@ double NievesSimoVacasMECPXSec2016::XSec(
         }
         xsec_all = temp_all;
         xsec_pn  = temp_pn;
-    } 
+    }
 
     double xsec = (pn) ? xsec_pn : xsec_all;
 
@@ -225,14 +225,14 @@ double NievesSimoVacasMECPXSec2016::XSec(
 }
 //_________________________________________________________________________
 double NievesSimoVacasMECPXSec2016::Integral(
-        const Interaction * interaction) const 
+        const Interaction * interaction) const
 {
     double xsec = fXSecIntegrator->Integrate(this,interaction);
     return xsec;
 }
 //_________________________________________________________________________
 bool NievesSimoVacasMECPXSec2016::ValidProcess(
-        const Interaction * interaction) const 
+        const Interaction * interaction) const
 {
     if (interaction->TestBit(kISkipProcessChk)) return true;
 

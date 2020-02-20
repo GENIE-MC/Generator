@@ -6,25 +6,33 @@
 \brief    Computes elastic form factors using the BBA2007 parameterization.
           Concrete implementation of the ELFormFactorsModelI interface.
 
-\ref      A.Bodek, R.Bradford, H.Budd and S.Avvakumov, 
+\ref      A.Bodek, R.Bradford, H.Budd and S.Avvakumov,
           Euro.Phys.J.C53 (2008);[arXiv:0708.1946 [hep-ex]]
 
-\author   Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
-          adapted from  fortran code provided by 
+
+\author   Igor Kakorin <kakorin@jinr.ru>
+          Joint Institute for Nuclear Research \n
+
+          adapted from  fortran code provided by:
           Konstantin Kuzmin <kkuzmin@theor.jinr.ru>, \n
-          Joint Institute for Nuclear Research,  Institute for Theoretical and Experimental Physics \n
+          Joint Institute for Nuclear Research
+          Institute for Theoretical and Experimental Physics \n
+
           Vladimir Lyubushkin, \n
           Joint Institute for Nuclear Research \n
+
           Vadim Naumov <vnaumov@theor.jinr.ru>, \n
           Joint Institute for Nuclear Research  \n
-          based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk> \n
-          University of Liverpool & STFC Rutherford Appleton Lab
+
+          based on code of:
+          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch> \n
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  Dec 01, 2017
 
-\cpright  Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+
 */
 //____________________________________________________________________________
 
@@ -64,10 +72,10 @@ private:
   // fill data members from the configuration Registry
   void LoadConfig(void);
 
-  
+
   double AN (double x,double c1, double c2, double c3,double c4,double c5, double c6, double c7) const;
-  
-  
+
+
 
   // model parameters.
   BBA2007Fit_t fGep;   ///< BBA2007 fit coefficients for Gep
