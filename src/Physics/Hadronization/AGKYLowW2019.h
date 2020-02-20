@@ -34,7 +34,7 @@
 
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          
+
 */
 //____________________________________________________________________________
 
@@ -45,7 +45,7 @@
 
 #include "Physics/Decay/Decayer.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
-
+#include "Framework/Interaction/Interaction.h"
 
 class TF1;
 
