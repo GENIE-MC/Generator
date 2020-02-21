@@ -99,7 +99,6 @@ RadiativeCorrector::~RadiativeCorrector()
 //___________________________________________________________________________
 void RadiativeCorrector::BuildInitialState(const InitialState & init_state)
 {
-  LOG("RadiativeCorrector", pINFO) << "Setting the initial state";
 
   if(fInitState) delete fInitState;
   fInitState = new InitialState(init_state);
@@ -109,13 +108,13 @@ void RadiativeCorrector::BuildInitialState(const InitialState & init_state)
 //___________________________________________________________________________
 void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const 
 {
-  LOG("RadiativeCorrector", pINFO) << "Welcome to the Radiative corrector using the "<<fModel<<" model";
-  if (fISR) LOG("RadiativeCorrector", pINFO) <<"This is ISR";
-  else LOG("RadiativeCorrector", pINFO) <<"This is FSR";
+  LOG("RadiativeCorrector", pDEBUG) << "Welcome to the Radiative corrector using the "<<fModel<<" model";
+  if (fISR) LOG("RadiativeCorrector", pDEBUG) <<"This is ISR";
+  else LOG("RadiativeCorrector", pDEBUG) <<"This is FSR";
   // decay a photon with dE from the electron
   evrec->SetPrintLevel(13); 
-  evrec->Print();
-  std::cout<<"\n";
+  //evrec->Print();
+  //std::cout<<"\n";
   bool radDone = false;
  
   Interaction * interaction = evrec->Summary();
@@ -148,7 +147,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	//  if (e_gamma_max > kine->FSLeptonP4().E()) e_gamma_max = kine->FSLeptonP4().E();
         //}
         e_gamma_max = 0.2*p4.E();
-        LOG("RadiativeCorrector", pINFO) << " particle for decay "<<p->Pdg()<<" e_gamma_max "<<e_gamma_max;
+        LOG("RadiativeCorrector", pDEBUG) << " particle for decay "<<p->Pdg()<<" e_gamma_max "<<e_gamma_max;
 	if (fModel == "vanderhagen") {
            if (e_gamma_max<0) e_gamma_max = 1E-10;
            double a;
@@ -182,7 +181,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
            f->SetParameter(1,pow(init_state_ptr->ProbeE(kRfLab),-1.*lambda));
            energyLoss = f->GetRandom();
            delete f;
-           LOG("RadiativeCorrector", pINFO) << "Simple Energy loss is "<<energyLoss;    
+           LOG("RadiativeCorrector", pDEBUG) << "Simple Energy loss is "<<energyLoss;    
 	}
 	if (fModel == "simc") {
 	   if (fISR) lambda_e = (kAem/kPi)*( 2*TMath::Log(2*p->P4()->P()/kElectronMass) -1 + TMath::Log(0.5*(1-fP4l.CosTheta())) );//+ 2*TMath::Log(init_state_ptr->GetProbeP4(kRfLab)->P()/fP4l.E()) + TMath::Log(0.5*(1-fP4l.CosTheta() ) ) );
@@ -210,7 +209,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
            LOG("RadiativeCorrector", pINFO) << "SIMC Energy loss is "<<energyLoss;
 
 	}
-	std::cout<<"CHECK energyLoss "<<energyLoss<<" fCutoff "<<fCutoff<<" original energy is "<<p4.E()<<" the loss is "<<energyLoss*100/p4.E()<<"%"<<std::endl;
+	//std::cout<<"CHECK energyLoss "<<energyLoss<<" fCutoff "<<fCutoff<<" original energy is "<<p4.E()<<" the loss is "<<energyLoss*100/p4.E()<<"%"<<std::endl;
 	if (energyLoss<fCutoff) continue;
 
 	double momentumLoss = energyLoss;
@@ -239,20 +238,20 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
             double Phi_ext_e = 1. - ( (b*fThickness) / p4.E() / g * p4RadGamma.E()) ;
             double radcor_weight = W_rad_e*Phi_ext_e;
 	    if( fDoInternal) evrec->SetWeight(evrec->Weight() * radcor_weight);
-            std::cout<<"weights C "<<C<<" g "<<g<<" W_rad_e "<<W_rad_e<<" Phi_ext_e "<<Phi_ext_e<<std::endl; 
-	    std::cout<<"weights b "<<b<<" fThickness "<<fThickness<<" p4.E() "<<p4.E()<<" p4RadGamma.E() "<<p4RadGamma.E()<<std::endl;
+            //std::cout<<"weights C "<<C<<" g "<<g<<" W_rad_e "<<W_rad_e<<" Phi_ext_e "<<Phi_ext_e<<std::endl; 
+	    //std::cout<<"weights b "<<b<<" fThickness "<<fThickness<<" p4.E() "<<p4.E()<<" p4RadGamma.E() "<<p4RadGamma.E()<<std::endl;
             LOG("RadiativeCorrector", pINFO) << "Applying ISR part of the radiative correction weight "<<evrec->Weight() * radcor_weight;
           }
 	  
 	  if (energyLoss<fCutoff) std::cout<<"CHECK BAD "<<std::endl;
-	  LOG("RadiativeCorrector", pINFO) << "performing ISR correction for: " << p->Name() << " reduced energy is : "<<p4tag.E();
+	  LOG("RadiativeCorrector", pDEBUG) << "performing ISR correction for: " << p->Name() << " reduced energy is : "<<p4tag.E();
 	  // changing the probe energy for the initial state 
 	  init_state_ptr->SetProbeP4(p4tag);
 	  //-- Mark it as a 'decayed state' & add its daughter links
 	  //-- Add the mom & daughters to the event record
-	  LOG("RadiativeCorrector", pINFO) << "Adding daughter... PDG=" << p->Pdg();
+	  LOG("RadiativeCorrector", pDEBUG) << "Adding daughter... PDG=" << p->Pdg();
           evrec->AddParticle(p->Pdg(), kIStCorrectedProbe, ipos,-1,-1,-1, p4tag, x4);
-          LOG("RadiativeCorrector", pINFO) << "Adding daughter... PDG= 22";
+          LOG("RadiativeCorrector", pDEBUG) << "Adding daughter... PDG= 22";
           evrec->AddParticle(22, kIStStableFinalState, ipos,-1,-1,-1, p4RadGamma, x4);
 	  radDone = true;
           //evrec->Print();
@@ -290,8 +289,8 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
                 if (fDoInternal) radcor_weight       = W_rad_el*W_rad_pl*Phi_ext_el*Phi_ext_pl*(1-delta_hard);
 		else radcor_weight       = Phi_ext_el*Phi_ext_pl;
                 //radcor_weight       = W_rad_el*W_rad_pl*Phi_ext_el*Phi_ext_pl;
-		std::cout<<"Weight: log "<<TMath::Log(kine->Q2(true)/pow(kElectronMass,2))<<" () "<<(-28./9.+(13./6.)*TMath::Log(kine->Q2(true)/pow(kElectronMass,2)))<<" E2 "<<pow(p4.E(),2)<<" delta_hard "<<delta_hard<<std::endl;
-	   	std::cout<<"C "<<C<<" g "<<g<<" W_rad_el "<<W_rad_el<<" W_rad_pl "<<W_rad_pl<<" Phi_ext_el"<<Phi_ext_el<<" delta hard "<<delta_hard<<std::endl;
+		//std::cout<<"Weight: log "<<TMath::Log(kine->Q2(true)/pow(kElectronMass,2))<<" () "<<(-28./9.+(13./6.)*TMath::Log(kine->Q2(true)/pow(kElectronMass,2)))<<" E2 "<<pow(p4.E(),2)<<" delta_hard "<<delta_hard<<std::endl;
+	   	//std::cout<<"C "<<C<<" g "<<g<<" W_rad_el "<<W_rad_el<<" W_rad_pl "<<W_rad_pl<<" Phi_ext_el"<<Phi_ext_el<<" delta hard "<<delta_hard<<std::endl;
 
 		// crisis attempt 
 		double lambda_e_ISR   = (kAem/kPi)*( 2*TMath::Log(2*init_state_ptr->GetProbeP4(kRfLab)->P()/kElectronMass) -1 + TMath::Log(0.5*(1-fP4l.CosTheta())) );
@@ -305,8 +304,8 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 		double g_ext = 2*b*fThickness; 
 		double c_ext = C_ISR*C_FSR * g_ext; //c_ext(1)*c_ext(2) * g_ext / bt(1)/bt(2)
 		c_ext = c_ext * TMath::Gamma(1+b*fThickness) * TMath::Gamma(1+b*fThickness) / TMath::Gamma(1 + g_ext);
-		std::cout<<"Weight try extrad_phi_ISR "<<extrad_phi_ISR<<" extrad_phi_FSR "<<extrad_phi_FSR<<" c_ext "<<c_ext<<std::endl;
-		std::cout<<" C_ISR "<<C_ISR<<" C_FSR "<<C_FSR<<" g_ext "<<g_ext<<std::endl;
+		//std::cout<<"Weight try extrad_phi_ISR "<<extrad_phi_ISR<<" extrad_phi_FSR "<<extrad_phi_FSR<<" c_ext "<<c_ext<<std::endl;
+		//std::cout<<" C_ISR "<<C_ISR<<" C_FSR "<<C_FSR<<" g_ext "<<g_ext<<std::endl;
 		//bei= (-1./(2.*pi))*log(ein/egamma)
 		//bef= (-1./(2.*pi))*log(eout/egamma)
 		//adot= ein*eout*(1.-cos(eang))
@@ -322,18 +321,18 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 
 	   }
 
-	   LOG("RadiativeCorrector", pINFO) << "performing FSR correction for: " << p->Name();
+	   LOG("RadiativeCorrector", pDEBUG) << "performing FSR correction for: " << p->Name();
            //-- Mark it as a 'decayed state' & add its daughter links
        	   p->SetStatus(kIStDecayedState);
            ////-- Add the mom & daughters to the event record
-           LOG("RadiativeCorrector", pINFO) << "Adding daughter... PDG=" << p->Pdg();
+           LOG("RadiativeCorrector", pDEBUG) << "Adding daughter... PDG=" << p->Pdg();
 	   evrec->AddParticle(p->Pdg(), kIStStableFinalState, ipos,-1,-1,-1, p4tag, x4);
-           LOG("RadiativeCorrector", pINFO) << "Adding daughter... PDG= 22";
+           LOG("RadiativeCorrector", pDEBUG) << "Adding daughter... PDG= 22";
 	   evrec->AddParticle(22, kIStStableFinalState, ipos,-1,-1,-1, p4RadGamma, x4);
            ////-- Printouts
-	   evrec->Print();
-	   std::cout<<"\n";
-	   LOG("RadiativeCorrector", pINFO) << "Applying radiative correction weight "<<evrec->Weight();
+	   //evrec->Print();
+	   //std::cout<<"\n";
+	   LOG("RadiativeCorrector", pDEBUG) << "Applying radiative correction weight "<<evrec->Weight();
            
 	   evrec->SetWeight(evrec->Weight() * radcor_weight);
 	   radDone = true;
@@ -359,9 +358,9 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
         //evrec->CorrectProbe()->SetLastDaughter(-1);
         
 	p->SetStatus(kIStDecayedState);
-	LOG("RadiativeCorrector", pINFO) <<"After setting the particles status to decyed and momentum of the nucleon to be zero, pdg "<<p->Pdg()<<" mass "<<p->Mass();
-        evrec->Print();
-	std::cout<<"\n";
+	LOG("RadiativeCorrector", pDEBUG) <<"After setting the particles status to decyed and momentum of the nucleon to be zero, pdg "<<p->Pdg()<<" mass "<<p->Mass();
+        //evrec->Print();
+	//std::cout<<"\n";
         //kine->ClearRunningValues();
         //kine->Reset();
      }
@@ -390,7 +389,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 //___________________________________________________________________________
 bool RadiativeCorrector::ToBeDecayed(GHepParticle * particle) const
 {
-   LOG("RadiativeCorrector", pINFO) <<"Particle ToBeDecayed pdg "<<particle->Pdg()<<" status "<<particle->Status()<<" mother "<<particle->FirstMother();
+   LOG("RadiativeCorrector", pDEBUG) <<"Particle ToBeDecayed pdg "<<particle->Pdg()<<" status "<<particle->Status()<<" mother "<<particle->FirstMother();
    if(particle->Pdg() != 0) {
      if (fISR) {
      	if ((particle->Status() == 0) && (pdg::IsElectron(particle->Pdg()) || pdg::IsPositron(particle->Pdg()))) return true;
