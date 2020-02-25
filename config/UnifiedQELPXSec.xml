@@ -39,10 +39,9 @@ IntegralNucleonBindingMode           alg      No
     <param type="alg"  name="PauliBlockerAlg"> genie::PauliBlocker/Default </param>
 
     <param type="alg"  name="NCFormFactorsAlg"> genie::LwlynSmithFFNC/Default </param>
-    <param type="alg"  name="EMFormFactorsAlg"> genie::LwlynSmithFFEM/Dipole </param>
+    <param type="alg"  name="EMFormFactorsAlg"> genie::LwlynSmithFFEM/Default </param>
 
   </param_set>
-
 
   <param_set name="Dipole">
      <param type="alg"  name="CCFormFactorsAlg"> genie::LwlynSmithFFCC/Dipole </param>

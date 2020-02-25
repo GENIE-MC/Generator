@@ -21,23 +21,13 @@ SU3-F                         double   No                                     Co
 -->
 
   <param_set name="Default"> 
+
     <param type="string" name="CommonParam"> WeakInt,MagnMoments,StrongInt,ElasticFF </param>
-  </param_set>
 
-  <param_set name="Dipole"> 
-     <param type="alg" name="AxialFormFactorModel"> genie::DipoleAxialFormFactorModel/Default </param>
-
-  </param_set>
-
-  <param_set name="ZExp"> 
-     <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/Default </param>
+    <!-- Dummy axial form factor model required since this class inherits from LwlynSmithFF.
+         All axial form factors are set to zero by LwlynSmithFFEM. -->
+    <param type="alg" name="AxialFormFactorModel"> genie::DipoleAxialFormFactorModel/Default </param>
 
   </param_set>
-
-  <param_set name="RunningMA"> 
-     <param type="alg" name="AxialFormFactorModel"> genie::KuzminNaumov2016AxialFormFactorModel/Default </param>
-
-  </param_set>
-
 
 </alg_conf>

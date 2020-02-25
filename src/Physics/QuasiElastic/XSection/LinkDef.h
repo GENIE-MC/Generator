@@ -45,4 +45,7 @@
 #pragma link C++ class genie::FreeNucleonTensor;
 #pragma link C++ class genie::UnifiedQELPXSec;
 
+#pragma link C++ class genie::NCELStrangeFormFactorsModelI;
+#pragma link C++ class genie::AhrensNCELStrangeFF;
+
 #endif
