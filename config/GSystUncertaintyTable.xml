@@ -244,5 +244,13 @@ values for each Reweight tweak dial. All of these have default values of zero.
    <param type="double" name="FracDelta_CCMEC@PlusOneSigma"> 0.20 </param>
    <param type="double" name="FracDelta_CCMEC@MinusOneSigma"> 0.20 </param>
 
+   <!-- Placeholder ±100% uncertainties on the COH-CC total cross section. - S. Gardiner -->
+   <param type="double" name="NormCCCOH@PlusOneSigma"> 1.0 </param>
+   <param type="double" name="NormCCCOH@MinusOneSigma"> 1.0 </param>
+
+   <!-- Placeholder ±100% uncertainties on the COH-NC total cross section. - S. Gardiner -->
+   <param type="double" name="NormNCCOH@PlusOneSigma"> 1.0 </param>
+   <param type="double" name="NormNCCOH@MinusOneSigma"> 1.0 </param>
+
  </param_set>
 </alg_conf>
