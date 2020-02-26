@@ -237,8 +237,8 @@ Or changing the name of this parameter set
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Axial and vector masses for quasi-elastic scattering
     -->
-    <param type="double" name="QEL-Ma"> 0.990 </param>
-    <param type="double" name="QEL-Mv"> 0.840 </param>
+    <param type="double" name="QEL-Ma"> 1.0 </param>
+    <param type="double" name="QEL-Mv"> 0.69513 </param>
 
   </param_set>
 

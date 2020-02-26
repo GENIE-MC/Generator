@@ -129,7 +129,7 @@ void BBA03ELFormFactorsModel::LoadConfig(void)
   GetParam( "BBA03-Q2Max", fQ2Max ) ;
 
   // vector mass
-  GetParam( "EL-Mv",fMv ) ;
+  GetParam( "QEL-Mv", fMv ) ;
   fMv2 = TMath::Power(fMv,2);
 
   // anomalous magnetic moments

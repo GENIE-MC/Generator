@@ -9,7 +9,7 @@ Configurable Parameters:
 .........................................................................................
 Name               Type    Optional   Comment                      Default
 .........................................................................................
-EL-Mv              double  No         Vector Mass                  
+QEL-Mv             double  No         Vector Mass                  CommonParam[QuasiElastic]
 AnomMagnMoment-P   double  No         p Anomalous Magn Moment      CommonParam[MagnMoments]
 AnomMagnMoment-N   double  No         n Anomalous Magn Moment      CommonParam[MagnMoments]
 Gep-a2             double  No         BBA2003 fit param for Gep    bba2003::kGep_a2
@@ -38,9 +38,7 @@ Q2Max              double  No         Q2>Q2max :Gep/Gmp is const   bba2003::kQ2M
 
   <param_set name="Default"> 
 
-    <param type="string" name="CommonParam"> MagnMoments  </param> 
-
-    <param type="double" name="EL-Mv">  0.840  </param> 
+    <param type="string" name="CommonParam"> QuasiElastic,MagnMoments </param>
 
      <!-- 
 	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,4 +73,3 @@ Q2Max              double  No         Q2>Q2max :Gep/Gmp is const   bba2003::kQ2M
   </param_set>
 
 </alg_conf>
-

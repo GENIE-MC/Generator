@@ -9,8 +9,8 @@ Configurable Parameters:
 ..........................................................................................
 Name             Type     Optional   Comment                     Default
 ..........................................................................................
-QEL-Ma           double   No         Axial Mass                  ComomnParam[QuasiElastic]
-QEL-Mv           double   No         Vector Mass                 ComomnParam[QuasiElastic]
+QEL-Ma           double   No         Axial Mass                  CommonParam[QuasiElastic]
+QEL-Mv           double   No         Vector Mass                 CommonParam[QuasiElastic]
 EL-Axial-Eta     double   No         Strange Axial form factor   
 QEL-Fa0          double   No         Fa(q2=0)                    CommonParam[QuasiElastic]
 AnomMagnMoment-P double   No         p Anomalous Magn Moment     CommonParam[MagnMoments]
