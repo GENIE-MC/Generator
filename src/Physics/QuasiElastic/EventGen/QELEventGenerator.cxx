@@ -3,6 +3,9 @@
  Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
+ Significant revisions by Steven Gardiner <gardiner \at fnal.gov>
+ Fermi National Accelerator Laboratory
+
  New QE event generator written by:
  Andy Furmanski
  Manchester
