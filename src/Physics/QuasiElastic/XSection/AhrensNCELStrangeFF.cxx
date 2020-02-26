@@ -61,10 +61,6 @@ double AhrensNCELStrangeFF::FAs(const Interaction* interaction) const
   fAxFF.Calculate( interaction );
   double FA_CC = fAxFF.FA();
 
-  int sign = 1;
-  int hit_nuc_pdg = interaction->InitState().Tgt().HitNucPdg();
-  if ( pdg::IsNeutron(hit_nuc_pdg) ) sign = -1;
-
   // Compute the strange axial NC form factor
   double FAs = -1. * fEta * FA_CC;
   return FAs;
