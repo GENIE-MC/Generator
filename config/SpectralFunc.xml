@@ -3,7 +3,7 @@
 <alg_conf>
 
 <!--
-Configuration for the SpectralFunc NuclerModelI implementation
+Configuration for the SpectralFunc NuclearModelI implementation
 
 Configurable Parameters:
 .........................................................................................
@@ -12,7 +12,16 @@ Name               Type    Optional   Comment                      Default
 -->
 
   <param_set name="Default"> 
+
+    <!-- The data file path may be specified relative to the GENIE root folder or
+       as an absolute path -->
+    <param type="string" name="DataPathType"> relative </param>
+    <param type="string" name="DataPath"> data/evgen/nucl/spectral_functions </param>
+
+    <!-- <param type="string" name="SpectFuncTable@Pdg=1000060120"> benhar-sf-12c.data </param> -->
+    <param type="string" name="SpectFuncTable@Pdg=1000060120"> pke12_tot.data </param>
+    <param type="string" name="SpectFuncTable@Pdg=1000260560"> benhar-sf-56fe.data </param>
+
   </param_set>
 
 </alg_conf>
-

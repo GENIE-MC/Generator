@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration sets for Ahrens NCEL strange form factors
+
+Configurable Parameters:
+........................................................................................................
+Name                     Type     Optional   Comment                     Default
+AxialFormFactorModel     alg      No         Axial form factor model
+EL-Axial-Eta             double   No         FAs = -1. * Eta * FA_CC
+........................................................................................................
+-->
+
+  <param_set name="Default">
+    <param type="alg" name="AxialFormFactorModel"> genie::DipoleAxialFormFactorModel/Default </param>
+    <param type="double" name="EL-Axial-Eta"> 0.12 </param>
+  </param_set>
+
+</alg_conf>

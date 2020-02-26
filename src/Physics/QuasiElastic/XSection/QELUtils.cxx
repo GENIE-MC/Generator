@@ -93,8 +93,7 @@ double genie::utils::EnergyDeltaFunctionSolutionQEL(
 double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
   const genie::NuclearModelI* nucl_model, const genie::XSecAlgorithmI* xsec_model,
   double cos_theta_0, double phi_0, double& Eb,
-  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM,
-  bool bind_nucleon)
+  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, bool bind_nucleon)
 {
   // If requested, set the initial hit nucleon 4-momentum to be off-shell
   // according to the binding mode specified in the function call
@@ -102,6 +101,12 @@ double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
     genie::utils::BindHitNucleon(*interaction, *nucl_model, Eb,
       hitNucleonBindingMode);
   }
+
+  // A very high-momentum bound nucleon (which is far off the mass shell)
+  // can have a momentum greater than its total energy. This leads to numerical
+  // issues (NaNs) since the invariant mass of the nucleon becomes imaginary.
+  // In such cases, just return zero to avoid trouble.
+  if ( interaction->InitState().Tgt().HitNucP4().M() <= 0. ) return 0.;
 
   // Mass of the outgoing lepton
   double lepMass = interaction->FSPrimLepton()->Mass();
@@ -166,24 +171,19 @@ double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
   lepton.Boost(beta);
   outNucleon.Boost(beta);
 
-  // Check if event is at a low angle - if so return 0 and stop wasting time
-  if (180 * lepton.Theta() / genie::constants::kPi < min_angle_EM && interaction->ProcInfo().IsEM()) {
-    return 0;
-  }
-
   TLorentzVector * nuP4 = interaction->InitState().GetProbeP4( genie::kRfLab );
   TLorentzVector qP4 = *nuP4 - lepton;
   delete nuP4;
   double Q2 = -1 * qP4.Mag2();
 
-  interaction->KinePtr()->SetFSLeptonP4( lepton );
-  interaction->KinePtr()->SetHadSystP4( outNucleon );
-  interaction->KinePtr()->SetQ2( Q2 );
-
   // Check the Q2 range. If we're outside of it, don't bother
   // with the rest of the calculation.
   Range1D_t Q2lim = interaction->PhaseSpace().Q2Lim();
   if (Q2 < Q2lim.min || Q2 > Q2lim.max) return 0.;
+
+  interaction->KinePtr()->SetFSLeptonP4( lepton );
+  interaction->KinePtr()->SetHadSystP4( outNucleon );
+  interaction->KinePtr()->SetQ2( Q2 );
 
   // Compute the QE cross section for the current kinematics
   double xsec = xsec_model->XSec(interaction, genie::kPSQELEvGen);
@@ -290,12 +290,21 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
     // model, then it implies a certain value for the final
     // nucleus mass
     if ( hitNucleonBindingMode == genie::kUseNuclearModel ) {
-      Eb = nucl_model.RemovalEnergy();
-      // This equation is the definition that we assume
-      // here for the "removal energy" (Eb) returned by the
-      // nuclear model. It matches GENIE's convention for
-      // the Bodek/Ritchie Fermi gas model.
-      Mf = Mi + Eb - mNi;
+      if ( nucl_model.ModelType(*tgt) != kNucmSpectralFunc ) {
+        Eb = nucl_model.RemovalEnergy();
+        // For all nuclear models except SpectralFunc, this equation is the
+        // definition that we assume for the "removal energy" (Eb). It matches
+        // GENIE's convention for the Bodek/Ritchie Fermi gas model.
+        Mf = Mi + Eb - mNi;
+      }
+      else {
+        // The SpectralFunc nuclear model returns a removal energy
+        // which includes the kinetic energy of the final-state nucleus.
+        // We account for this difference here.
+        double E = nucl_model.RemovalEnergy();
+        Mf = std::sqrt( std::max(0., std::pow(Mi + E - mNi, 2) - p3Ni.Mag2()) );
+        Eb = Mf + mNi - Mi;
+      }
     }
     // We can also assume that the final nucleus is in its
     // ground state. In this case, we can just look up its

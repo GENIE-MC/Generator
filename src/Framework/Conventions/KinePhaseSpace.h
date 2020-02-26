@@ -67,7 +67,7 @@ typedef enum EKinePhaseSpace {
               // TODO: rename this value when the correct variables are identified
   kPSTAfE,
   kPSEgTlOgfE,
-  kPSDMELEvGen // Equivalent to kPSQELEvGen for Dark Matter scattering  
+  kPSDMELEvGen // Equivalent to kPSQELEvGen for Dark Matter scattering
 } KinePhaseSpace_t;
 
 class KinePhaseSpace

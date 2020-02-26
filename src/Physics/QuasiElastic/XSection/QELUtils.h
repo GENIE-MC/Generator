@@ -51,8 +51,7 @@ namespace genie {
     double ComputeFullQELPXSec(Interaction* interaction,
       const NuclearModelI* nucl_model, const XSecAlgorithmI* xsec_model,
       double cos_theta_0, double phi_0, double& Eb,
-      QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM = 0.,
-      bool bind_nucleon = true);
+      QELEvGen_BindingMode_t hitNucleonBindingMode, bool bind_nucleon = true);
 
     double CosTheta0Max(const genie::Interaction& interaction);
 

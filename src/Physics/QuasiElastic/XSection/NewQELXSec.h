@@ -38,7 +38,7 @@ namespace utils {
     {
      public:
        FullQELdXSec(const XSecAlgorithmI* xsec_model, const Interaction* interaction,
-         QELEvGen_BindingMode_t binding_mode, double min_angle_EM);
+         QELEvGen_BindingMode_t binding_mode);
        virtual ~FullQELdXSec();
 
        // ROOT::Math::IBaseFunctionMultiDim interface
@@ -54,7 +54,6 @@ namespace utils {
        const NuclearModelI* fNuclModel;
        Interaction* fInteraction;
        QELEvGen_BindingMode_t fHitNucleonBindingMode;
-       double fMinAngleEM;
     };
 
   } // gsl   namespace
@@ -89,7 +88,6 @@ private:
   unsigned int fGSLMaxEval;
   AlgId fVertexGenID;
   int fNumNucleonThrows;
-  double fMinAngleEM;
 };
 
 

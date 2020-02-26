@@ -9,18 +9,14 @@ Algorithm Configurable Parameters:
 .........................................................................................
 Name                  Type    Optional   Comment                    Default
 .........................................................................................
-EL-Mv                 double  No         Vector Mass                
+QEL-Mv                double  No         Vector Mass                CommonParam[QuasiElastic]
 AnomMagnMoment-P      double  No         p Anomalous Magn Moment    CommonParam[MagnMoments]
 AnomMagnMoment-N      double  No         n Anomalous Magn Moment    CommonParam[MagnMoments]
 
 -->
 
   <param_set name="Default"> 
-    <param type="string" name="CommonParam"> MagnMoments  </param>
-
-    
-
+    <param type="string" name="CommonParam"> QuasiElastic,MagnMoments </param>
   </param_set>
 
 </alg_conf>
-

@@ -42,6 +42,17 @@ public:
   //! Compute the form factor Fp for the input interaction
   virtual double Fp    (const Interaction * interaction) const = 0;
 
+  //! \name Second-class currents
+  //! @{
+  //! Compute the form factor F3V for the input interaction
+  inline virtual double F3V(const Interaction* /*interaction*/)
+    const { return 0.; }
+
+  //! Compute the form factor F3A for the input interaction
+  inline virtual double F3A(const Interaction* /*interaction*/)
+    const { return 0.; }
+  //! @}
+
 protected:
   QELFormFactorsModelI();
   QELFormFactorsModelI(string name);

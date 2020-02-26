@@ -2,7 +2,7 @@
 /*
  Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- 
+
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
  University of Liverpool & STFC Rutherford Appleton Laboratory - October 08, 2004
@@ -168,28 +168,50 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
   // Do default Fermi Moving
   } else  {
     if (!fKeepNuclOnMassShell) {
-      //-- compute A,Z for final state nucleus & get its PDG code
-      int nucleon_pdgc = nucleon->Pdg();
-      bool is_p  = pdg::IsProton(nucleon_pdgc);
-      int Z = (is_p) ? nucleus->Z()-1 : nucleus->Z();
-      int A = nucleus->A() - 1;
 
-      TParticlePDG * fnucleus = 0;
-      int ipdgc = pdg::IonPdgCode(A, Z);
-      fnucleus = PDGLibrary::Instance()->Find(ipdgc);
-      if(!fnucleus) {
-        LOG("FermiMover", pFATAL)
-              << "No particle with [A = " << A << ", Z = " << Z
-              << ", pdgc = " << ipdgc << "] in PDGLibrary!";
-        exit(1);
+      if ( fNuclModel->ModelType(*tgt) == kNucmSpectralFunc ) {
+        // If we're using the SpectralFunc nuclear model, use it to determine a
+        // variable off-shell total energy for the initial hit nucleon
+        // See also the BindHitNucleon() function in
+        // Physics/QuasiElastic/XSection/QELUtils.cxx
+        double mNi = tgt->HitNucMass(); // On-shell initial hit nucleon mass
+        double Mi = tgt->Mass(); // Initial mass of the nuclear target
+        double Mf = std::sqrt( std::max(0., std::pow(Mi + w - mNi, 2) - p3.Mag2()) );
+        // The (lab-frame) off-shell initial nucleon energy is the difference
+        // between the lab frame total energies of the initial and remnant nuclei
+        EN = Mi - std::sqrt( Mf*Mf + p3.Mag2() );
       }
-      //-- compute the energy of the struck (off the mass-shell) nucleus
+      else {
+        // Otherwise, assume that the spectator nuclear remnant is left in its
+        // ground state.
 
-      double Mf  = fnucleus -> Mass(); // remnant nucleus mass
-      double Mi  = nucleus  -> Mass(); // initial nucleus mass
+        // TODO: revisit this assumption, as was done for QELEventGenerator
+        // for the v3.0.4 release
 
-      EN = Mi - TMath::Sqrt(pF2 + Mf*Mf);
-    } else {
+        //-- compute A,Z for final state nucleus & get its PDG code
+        int nucleon_pdgc = nucleon->Pdg();
+        bool is_p  = pdg::IsProton(nucleon_pdgc);
+        int Z = (is_p) ? nucleus->Z()-1 : nucleus->Z();
+        int A = nucleus->A() - 1;
+
+        TParticlePDG * fnucleus = 0;
+        int ipdgc = pdg::IonPdgCode(A, Z);
+        fnucleus = PDGLibrary::Instance()->Find(ipdgc);
+        if(!fnucleus) {
+          LOG("FermiMover", pFATAL)
+                << "No particle with [A = " << A << ", Z = " << Z
+                << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+          exit(1);
+        }
+        //-- compute the energy of the struck (off the mass-shell) nucleus
+
+        double Mf  = fnucleus -> Mass(); // remnant nucleus mass
+        double Mi  = nucleus  -> Mass(); // initial nucleus mass
+
+        EN = Mi - TMath::Sqrt(pF2 + Mf*Mf);
+      }
+    }
+    else {
       double MN  = nucleon->Mass();
       double MN2 = TMath::Power(MN,2);
       EN = TMath::Sqrt(MN2+pF2);
