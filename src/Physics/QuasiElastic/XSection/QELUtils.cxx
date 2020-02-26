@@ -290,7 +290,7 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
     // model, then it implies a certain value for the final
     // nucleus mass
     if ( hitNucleonBindingMode == genie::kUseNuclearModel ) {
-      if ( nucl_model.Id().Name() != "genie::SpectralFunc" ) {
+      if ( nucl_model.ModelType(*tgt) != kNucmSpectralFunc ) {
         Eb = nucl_model.RemovalEnergy();
         // For all nuclear models except SpectralFunc, this equation is the
         // definition that we assume for the "removal energy" (Eb). It matches
