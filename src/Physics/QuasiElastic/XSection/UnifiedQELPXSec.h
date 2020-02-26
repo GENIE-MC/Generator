@@ -59,6 +59,7 @@ public:
 
 private:
   void LoadConfig (void);
+  double FreeNucXSec(const Interaction* interaction, KinePhaseSpace_t kps) const;
 
   const QELFormFactorsModelI* fCCFormFactorsModel;
   const QELFormFactorsModelI* fNCFormFactorsModel;
