@@ -90,6 +90,7 @@
   <priority msgstream="GROOTGeom">             FATAL </priority>
   <priority msgstream="GHEP">                  FATAL </priority>
   <priority msgstream="GHepParticle">          FATAL </priority>
+  <priority msgstream="GHepUtils">             FATAL </priority>
   <priority msgstream="GuiUtils">              FATAL </priority>
   <priority msgstream="GRV98LO">               FATAL </priority>
   <priority msgstream="GXSecFunc">             FATAL </priority>

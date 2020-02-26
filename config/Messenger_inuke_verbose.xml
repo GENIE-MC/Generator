@@ -79,6 +79,7 @@
   <priority msgstream="GROOTGeom">             NOTICE </priority>
   <priority msgstream="GHEP">                  WARN   </priority>
   <priority msgstream="GHepParticle">          INFO   </priority>
+  <priority msgstream="GHepUtils">             INFO   </priority>
   <priority msgstream="GuiUtils">              INFO   </priority>
   <priority msgstream="GridDim">               WARN   </priority>
   <priority msgstream="GXSecFunc">             WARN   </priority>
