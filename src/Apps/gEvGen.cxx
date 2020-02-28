@@ -117,7 +117,7 @@
 
 \cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         
+
 */
 //____________________________________________________________________________
 
@@ -494,6 +494,11 @@ GFluxI * TH1FluxDriver(void)
 
     LOG("gevgen", pNOTICE) << "Flux name: " << fv[1];
     TH1D * hst = (TH1D *)flux_file->Get(fv[1].c_str());
+    if ( !hst ) {
+      LOG("gevgen", pFATAL) << "Could not load the flux histogram \"" << fv[1]
+        << "\" from the input ROOT file: " << fv[0];
+      std::exit(1);
+    }
     assert(hst);
 
     LOG("gevgen", pNOTICE) << hst->GetEntries();

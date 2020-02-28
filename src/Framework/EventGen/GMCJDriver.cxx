@@ -4,7 +4,7 @@
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory 
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -1159,8 +1159,8 @@ void GMCJDriver::GenerateVertexPosition(void)
   origin-=vtx; // computes vector dr = origin - vtx
 
   double dL = origin.Mag();
-  double c  = kLightSpeed /(units::meter/units::second);
-  double dt = dL/c;
+  double v  = p4.Beta() * kLightSpeed /(units::meter/units::second);
+  double dt = dL/v;
 
   LOG("GMCJDriver", pNOTICE)
      << "|vtx - origin|: dL = " << dL << " m, dt = " << dt << " sec";
