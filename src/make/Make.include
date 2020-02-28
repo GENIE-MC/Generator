@@ -154,6 +154,70 @@ LHAPDF_LIBRARIES += -L$(GOPT_WITH_LHAPDF5_LIB) -lLHAPDF $(FORT_LIBRARIES)
 endif
 
 #-------------------------------------------------------------------
+#                             INCL
+#-------------------------------------------------------------------
+
+INCL_LIBRARIES =
+INCL_INCLUDES  =
+
+ifeq ($(strip $(GOPT_ENABLE_INCL)),YES)
+
+INCL_INCLUDES  = -I$(GOPT_WITH_INCL_INC) -I$(GOPT_WITH_BOOST_INC)
+INCL_FLAGS     = $(shell $(GOPT_WITH_INCL_LIB)/../bin/inclxx-config --dflags )
+INCL_LIBRARIES = -L$(GOPT_WITH_INCL_LIB)  $(shell $(GOPT_WITH_INCL_LIB)/../bin/inclxx-config --libs )
+
+BOOST_LIBRARIES = -L$(GOPT_WITH_BOOST_LIB) -lboost_program_options -lboost_timer -lboost_system -lboost_date_time
+INCL_LIBRARIES := $(BOOST_LIBRARIES) $(FORT_LIBRARIES) $(INCL_LIBRARIES)
+
+endif
+
+#-------------------------------------------------------------------
+#                             geant4
+#-------------------------------------------------------------------
+
+GEANT4_FLAGS     =
+GEANT4_INCLUDES   =
+GEANT4_LIBRARIES =
+
+ifeq ($(strip $(GOPT_ENABLE_GEANT4_INTERFACE)),YES)
+
+# -cflags is a mixture of compiler flags and includes
+GEANT4_CFLAGS = $(shell $(GOPT_WITH_GEANT4_LIB)/../bin/geant4-config --cflags )
+
+GEANT4_FLAGS   = $(filter-out -I%,$(GEANT4_CFLAGS))
+G4_IFLAGS_ONLY = $(filter     -I%,$(GEANT4_CFLAGS))
+
+#$(info --------- GEANT4 flags and include path handling ---------)
+#$(info )
+#$(info GEANT4_FLAGS=$(GEANT4_FLAGS))
+#$(info )
+#$(info G4_IFLAGS_ONLY=$(G4_IFLAGS_ONLY))
+#$(info )
+
+# this might be -I/path/include/ or -I/path/include/Geant
+# really want the first
+#GEANT4_INCLUDES += -DG4_INC_START $(G4_IFLAGS_ONLY) -DG4_INC_END
+GEANT4_INCLUDES += $(G4_IFLAGS_ONLY)
+
+G4INCBASE = $(strip $(filter -I%include/Geant4,$(G4_IFLAGS_ONLY)))
+#$(info G4INCBASE="$(G4INCBASE)")
+#$(info )
+ifneq ($(G4INCBASE),"")
+  #$(info G4INCBASE was non-blank)
+  # strip out specification of Geant4
+  ALTG4INC := $(subst include/Geant4,include,$(G4INCBASE))
+  #$(info ALTG4INC=$(ALTG4INC))
+  #$(info )
+  #GEANT4_INCLUDES +=  -DG4_INC_ALT_START $(ALTG4INC) -DG4_INC_ALT_END
+  GEANT4_INCLUDES += $(ALTG4INC)
+  #$(info GEANT4_INCLUDES=$(GEANT4_INCLUDES))
+  #$(info )
+ endif
+
+GEANT4_LIBRARIES := $(shell $(GOPT_WITH_GEANT4_LIB)/../bin/geant4-config --libs-without-gui )
+endif
+
+#-------------------------------------------------------------------
 # PYTHIA6
 #-------------------------------------------------------------------
 
@@ -282,9 +346,9 @@ ARCH_OK       = YES
 IS_MACOSX     = YES
 CXXFLAGS      = -pipe -W -Wall -Wno-long-double -fsigned-char -fno-common \
 		$(ROOT_FLAGS) \
-		$(OPT_WITH_CXX_DEBUG_FLAG) \
-		$(OPT_WITH_CXX_OPTIMIZ_FLAG) \
-		$(OPT_WITH_CXX_USERDEF_FLAGS)
+		$(GOPT_WITH_CXX_DEBUG_FLAG) \
+		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
+		$(GOPT_WITH_CXX_USERDEF_FLAGS)
 ifeq ($(strip $(GCC_GE_4_1_0)), YES)
   CXXFLAGS += -Wno-strict-aliasing
 endif
@@ -306,7 +370,6 @@ OutPutOpt     = -o
 SOMINF        =
 EXTRALIBS     =
 endif
-
 
 #ifeq ($(strip $(ARCH)),macosx)
 #ARCH_OK       = YES
@@ -358,9 +421,9 @@ IS_MACOSX     = YES
 CXXFLAGS      = -m64 -pipe -Wshadow -W -Wall -Woverloaded-virtual \
                 -fsigned-char -fno-common \
                 $(ROOT_FLAGS) \
-                $(OPT_WITH_CXX_DEBUG_FLAG) \
-                $(OPT_WITH_CXX_OPTIMIZ_FLAG) \
-                $(OPT_WITH_CXX_USERDEF_FLAGS)
+                $(GOPT_WITH_CXX_DEBUG_FLAG) \
+                $(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
+                $(GOPT_WITH_CXX_USERDEF_FLAGS)
 ifneq ($(strip $(GCC_GE_4_2_1)), YES)
   ifneq ($(USING_CLANG), YES)
     CXXFLAGS   += -flat_namespace

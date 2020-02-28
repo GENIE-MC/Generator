@@ -472,7 +472,7 @@ GFluxI* GetFlux(void)
      GHAKKMAtmoFlux * honda_flux = new GHAKKMAtmoFlux;
      atmo_flux_driver = dynamic_cast<GAtmoFlux *>(honda_flux);
   } else {
-     LOG("gevgen_atmo", pFATAL) << "Uknonwn flux simulation: " << gOptFluxSim;
+     LOG("gevgen_atmo", pFATAL) << "Unknown flux simulation: " << gOptFluxSim;
      gAbortingInErr = true;
      exit(1);
   }
@@ -487,7 +487,13 @@ GFluxI* GetFlux(void)
     string filename   = file_iter->second;
     atmo_flux_driver->AddFluxFile(neutrino_code, filename);
   }
-  atmo_flux_driver->LoadFluxData();
+
+  if (!atmo_flux_driver->LoadFluxData()) {
+    LOG("gevgen_atmo", pFATAL) << "Error loading flux data. Quitting...";
+    gAbortingInErr = true;
+    exit(1);
+  }
+
   // configure flux generation surface:
   atmo_flux_driver->SetRadii(gOptRL, gOptRT);
   // set rotation for coordinate tranformation from the topocentric horizontal

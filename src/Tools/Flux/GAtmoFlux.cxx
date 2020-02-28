@@ -439,16 +439,20 @@ bool GAtmoFlux::LoadFluxData(void)
     TH3D* hist = 0;
     std::map<int,TH3D*>::iterator myMapEntry = fRawFluxHistoMap.find(nu_pdg);
     if( myMapEntry == fRawFluxHistoMap.end() ){
-//      hist = myMapEntry->second;
-//      if(hist==0) {
         hist = this->CreateFluxHisto(pname.c_str(), pname.c_str());
         fRawFluxHistoMap.insert( map<int,TH3D*>::value_type(nu_pdg,hist) );
-//      }
     }
     // now let concrete instances to read the flux-specific data files
     // and fill the histogram
     bool loaded = this->FillFluxHisto(nu_pdg, filename);
+
     loading_status = loading_status && loaded;
+
+    if (!loaded) {
+        LOG("Flux", pERROR)
+          << "Error loading atmospheric neutrino flux simulation data from " << filename;
+        break;
+    }
   }
 
   if(loading_status) {
