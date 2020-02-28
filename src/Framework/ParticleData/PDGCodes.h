@@ -187,17 +187,18 @@ const int kPdgTgtFe56      = 1000260560;
 //
 // PDG codes for GENIE special particles
 //
-const int kPdgHadronicSyst    = 2000000001; // DIS hadronic system before hadronization
-const int kPdgHadronicBlob    = 2000000002; // Unmodelled fraction of the hadronic system
-const int kPdgBindino         = 2000000101; // Binding energy subtracted from f/s nucleons
-const int kPdgCoulobtron      = 2000000102; // Coulomb energy subtracted from f/s leptons
-const int kPdgClusterNN       = 2000000200; // A nn cluster within a nucleus
-const int kPdgClusterNP       = 2000000201; // A np cluster within a nucleus
-const int kPdgClusterPP       = 2000000202; // A pp cluster within a nucleus
-const int kPdgCompNuclCluster = 2000000300; // Nucleon cluster before phase decay
-const int kPdgDarkMatter      = 2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
+const int kPdgHadronicSyst    =  2000000001; // DIS hadronic system before hadronization
+const int kPdgHadronicBlob    =  2000000002; // Unmodelled fraction of the hadronic system
+const int kPdgBindino         =  2000000101; // Binding energy subtracted from f/s nucleons
+const int kPdgCoulobtron      =  2000000102; // Coulomb energy subtracted from f/s leptons
+const int kPdgClusterNN       =  2000000200; // A nn cluster within a nucleus
+const int kPdgClusterNP       =  2000000201; // A np cluster within a nucleus
+const int kPdgClusterPP       =  2000000202; // A pp cluster within a nucleus
+const int kPdgCompNuclCluster =  2000000300; // Nucleon cluster before phase decay
+const int kPdgDarkMatter      =  2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
 const int kPdgAntiDarkMatter  = -2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
-const int kPdgMediator        = 2000010001; // Mediator particle for GENIE Boosted Dark Matter mode
+const int kPdgMediator        =  2000010001; // Mediator particle for GENIE Boosted Dark Matter mode
+const int kPdgNHL             =  2000020000; // Neutral Heavy Lepton PDG code
 
 //
 // PDG codes for special particles used by external generators interfaced with GENIE
