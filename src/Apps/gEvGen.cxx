@@ -35,6 +35,7 @@
                   [--mc-job-status-refresh-rate  rate]
                   [--cache-file root_file]
                   [--xml-path config_xml_dir]
+                  [--tune G18_02a_00_000] (or your preferred tune identifier)
 
          Options :
            [] Denotes an optional argument.
@@ -795,6 +796,7 @@ void PrintSyntax(void)
     << "\n              [--mc-job-status-refresh-rate  rate]"
     << "\n              [--cache-file root_file]"
     << "\n              [--xml-path config_xml_dir]"
+    << "\n              [--tune G18_02a_00_000] (or your preferred tune identifier)"
     << "\n";
 }
 //____________________________________________________________________________
