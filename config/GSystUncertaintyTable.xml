@@ -252,5 +252,10 @@ values for each Reweight tweak dial. All of these have default values of zero.
    <param type="double" name="NormNCCOH@PlusOneSigma"> 1.0 </param>
    <param type="double" name="NormNCCOH@MinusOneSigma"> 1.0 </param>
 
+   <!-- Placeholder 20% uncertainty on the EM potential used for Coulomb corrections in
+        the Nieves CCQE model - S. Gardiner -->
+   <param type="double" name="CoulombCCQE@PlusOneSigma"> 0.20 </param>
+   <param type="double" name="CoulombCCQE@MinusOneSigma"> 0.20 </param>
+
  </param_set>
 </alg_conf>
