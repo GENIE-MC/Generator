@@ -393,7 +393,7 @@ void NievesQELCCPXSec::Configure(string config)
 //____________________________________________________________________________
 void NievesQELCCPXSec::LoadConfig(void)
 {
-  bool good_config = true ; 
+  bool good_config = true ;
   double thc;
   GetParam( "CabibboAngle", thc ) ;
   fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
@@ -491,11 +491,11 @@ void NievesQELCCPXSec::LoadConfig(void)
   GetParamDef( "DoPauliBlocking", fDoPauliBlocking, true );
 
   // Read optional QvalueShifter:
-  fQvalueShifter = nullptr; 
+  fQvalueShifter = nullptr;
   if( GetConfig().Exists("QvalueShifterAlg") ) {
     fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
     if( !fQvalueShifter ) {
-      good_config = false ; 
+      good_config = false ;
       LOG("NievesQELCCPXSec", pERROR) << "The required QvalueShifterAlg does not exist. AlgID is : " << SubAlg("QvalueShifterAlg")->Id() ;
     }
   }
@@ -505,6 +505,8 @@ void NievesQELCCPXSec::LoadConfig(void)
     exit(78) ;
   }
 
+  // Scaling factor for the Coulomb potential
+  GetParamDef( "CoulombScale", fCoulombScale, 1.0 );
 }
 //___________________________________________________________________________
 void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
@@ -871,7 +873,8 @@ double NievesQELCCPXSec::vcr(const Target * target, double Rcurr) const{
 
     // Multiply by Z to normalize densities to number of protons
     // Multiply by hbarc to put result in GeV instead of fm
-    return -kAem*4*kPi*result*fhbarc;
+    // Multiply by an extra configurable scaling factor that defaults to unity
+    return -kAem*4*kPi*result*fhbarc*fCoulombScale;
   }else{
     // If target is not a nucleus the potential will be 0
     return 0.0;

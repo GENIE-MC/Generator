@@ -104,6 +104,9 @@ private:
   /// when matching the VertexGenerator method
   double fR0;
 
+  /// Scaling factor for the Coulomb potential
+  double fCoulombScale;
+
   /// Enum variable describing which method of computing Rmax should be used
   /// for integrating the Coulomb potential
   Nieves_Coulomb_Rmax_t fCoulombRmaxMode;
