@@ -115,6 +115,16 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   </param_set>
 
 
+ <!--
+  VMC / EventLibraryInterface
+ -->
+  <param_set name="EventLibraryInterface">
+     <param type="string" name="VldContext"> </param>
+     <param type="int"    name="NModules">   1                                                    </param>
+     <param type="alg"    name="Module-0">   genie::EventLibraryInterface/Default                 </param>
+     <param type="alg"    name="ILstGen">    genie::DummyInteractionListGenerator/Default         </param>
+  </param_set>
+
 
   <!--
   Event generation for Smith-Moniz CCQE model

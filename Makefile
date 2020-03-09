@@ -31,6 +31,7 @@ INITIAL_BUILD_TARGETS = print-make-info \
 		   physics-boosted-dark-matter \
 		   tools-flux-drivers \
 		   tools-geometry-drivers \
+		   tools-vmc \
 		   tools-masterclass
 FINAL_BUILD_TARGETS = doxygen-doc \
 		   apps \
@@ -202,6 +203,18 @@ else
 	@echo "** Building geometry-drivers was not enabled. Skipping..."
 endif
 
+tools-vmc: FORCE
+#ifeq ($(strip $(GOPT_ENABLE_VMC)),YES)
+	@echo " "
+	@echo "** Building VMC..."
+	cd ${GENIE}/src/Tools/VMC && \
+	$(MAKE) && \
+	cd ${GENIE}
+#else
+#	@echo " "
+#	@echo "** Building VMC was not enabled. Skipping..."
+#endif
+
 
 tools-masterclass: FORCE
 ifeq ($(strip $(GOPT_ENABLE_MASTERCLASS)),YES)
@@ -368,6 +381,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools/Flux
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools/Geometry
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools/Masterclass
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools/VMC
 
 
 copy-install-files: FORCE
@@ -424,6 +438,7 @@ copy-install-files: FORCE
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) install && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) install && \
 	cd ${GENIE}/src/Tools/Masterclass                        &&  $(MAKE) install && \
+	cd ${GENIE}/src/Tools/VMC                                &&  $(MAKE) install && \
 	cd ${GENIE}
 
 
@@ -479,6 +494,7 @@ purge: FORCE
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Tools/Masterclass                        &&  $(MAKE) purge && \
+	cd ${GENIE}/src/Tools/VMC                                &&  $(MAKE) purge && \
 	cd ${GENIE}
 
 clean: clean-files clean-dir clean-etc
@@ -535,6 +551,7 @@ clean-files: FORCE
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Tools/Masterclass                        &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Tools/VMC                                &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Apps                                     &&  $(MAKE) clean && \
 	cd ${GENIE}/src/scripts                                  &&  $(MAKE) clean && \
 	cd ${GENIE}
@@ -604,6 +621,7 @@ distclean: FORCE
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Tools/Masterclass                        &&  $(MAKE) distclean && \
+	cd ${GENIE}/src/Tools/VMC                                &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Apps                                     &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/scripts                                  &&  $(MAKE) distclean && \
 	cd ${GENIE}
