@@ -16,6 +16,7 @@
 #include "Framework/Interaction/Interaction.h"
 #include "Physics/HadronTensors/HadronTensorModelI.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -327,3 +328,87 @@ double genie::utils::mec::OldTensorContraction(
   //return (xsec * (1.0E-39 * units::cm2));
   return (xsec);
 }
+//___________________________________________________________________________
+double genie::utils::mec::GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
+  const Interaction& inter, const double tolerance, const double safety_factor,
+  const int max_n_layers )
+{
+  // Clone the input interaction so that we can modify the Tl and ctl values
+  // without messing anything up
+  Interaction* interaction = new Interaction( inter );
+
+  const double Enu = interaction->InitState().ProbeE( kRfLab );
+  const double LepMass = interaction->FSPrimLepton()->Mass();
+
+  // Bounds for the current layer being scanned. Here we initialize them
+  // to include the full range of the kPSTlctl phase space.
+  double CurTMin = 0.;
+  double CurTMax = Enu - LepMass;
+  double CurCosthMin = -1.;
+  double CurCosthMax =  1.;
+
+  // This is based on the technique used to compute the maximum differential
+  // cross section for rejection sampling in QELEventGenerator. A brute-force
+  // scan over the two-dimensional kPSTlctl phase space is used to find the
+  // maximum cross section. Multiple layers are used to "zoom in" on the
+  // vicinity of the maximum. Tighter and tighter layers are made until
+  // the maximum number of iterations is reached or the xsec stabilizes
+  // to within a given tolerance.
+  const int N_T = 10; // number of kinetic energy steps per layer
+  const int N_Costh = 10; // number of scattering cosine steps per layer
+  double T_at_xsec_max = CurTMax;
+  double Costh_at_xsec_max = CurCosthMin;
+  double cur_max_xsec = -1.;
+
+  for ( int ilayer = 0; ilayer < max_n_layers; ++ilayer ) {
+
+    double last_layer_xsec_max = cur_max_xsec;
+
+    double T_increment = ( CurTMax - CurTMin ) / ( N_T - 1 );
+    double Costh_increment   = ( CurCosthMax - CurCosthMin ) / ( N_Costh - 1 );
+
+    // Scan through the 2D phase space using the bounds of the current layer
+    for ( int iT = 0; iT < N_T; ++iT ) {
+      double T = CurTMin + iT * T_increment;
+      for ( int iCosth = 0; iCosth < N_Costh; ++iCosth ) {
+        double Costh = CurCosthMin + iCosth * Costh_increment;
+
+        interaction->KinePtr()->SetKV( kKVTl, T );
+        interaction->KinePtr()->SetKV( kKVctl, Costh );
+        double xsec = xsec_model.XSec( interaction, kPSTlctl );
+
+        if ( xsec > cur_max_xsec ) {
+          T_at_xsec_max = T;
+          Costh_at_xsec_max = Costh;
+          cur_max_xsec = xsec;
+        }
+
+      } // Done with cos(theta) scan
+    } // Done with lepton kinetic energy scan
+
+    LOG("MEC", pDEBUG) << "Layer " << ilayer << " has max xsec = "
+      << cur_max_xsec << " for T = " << T_at_xsec_max << ", costh = "
+      << Costh_at_xsec_max;
+
+    // Calculate the range for the next layer
+    CurTMin = T_at_xsec_max - T_increment;
+    CurTMax = T_at_xsec_max + T_increment;
+    CurCosthMin = Costh_at_xsec_max - Costh_increment;
+    CurCosthMax = Costh_at_xsec_max + Costh_increment;
+
+    // If the xsec has stabilized within the requested tolerance, then
+    // stop adding more layers
+    double improvement_factor = cur_max_xsec / last_layer_xsec_max;
+    if ( ilayer && std::abs(improvement_factor - 1.) < tolerance ) break;
+
+  } // Done with iterations over layers
+
+
+  // We're done. Delete the cloned interaction object before returning the
+  // estimate of the maximum differential cross section.
+  delete interaction;
+
+  double XSecMax = cur_max_xsec * safety_factor;
+  return XSecMax;
+}
+//___________________________________________________________________________

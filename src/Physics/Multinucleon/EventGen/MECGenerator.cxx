@@ -27,6 +27,7 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Common/PrimaryLeptonUtils.h"
 #include "Physics/Multinucleon/EventGen/MECGenerator.h"
+#include "Physics/Multinucleon/XSection/MECUtils.h"
 #include "Physics/Multinucleon/XSection/SuSAv2MECPXSec.h"
 
 #include "Physics/NuclearState/NuclearModelI.h"
@@ -941,7 +942,7 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
 
   // Scan the accessible phase space to find the maximum differential cross
   // section to throw against
-  double XSecMax = this->GetXSecMaxTlctl( *interaction );
+  double XSecMax = utils::mec::GetMaxXSecTlctl( *fXSecModel, *interaction );
 
   // loop over different (randomly) selected T and Costh
   while ( !accept ) {
@@ -1292,90 +1293,5 @@ void MECGenerator::LoadConfig(void)
     assert(fNuclModel);
 
     GetParam( "NSV-Q3Max", fQ3Max ) ;
-}
-//___________________________________________________________________________
-double MECGenerator::GetXSecMaxTlctl( const Interaction& inter ) const {
-
-  // TODO: make this user-configurable
-  const double safety_factor = 1.2;
-
-  // Clone the input interaction so that we can modify the Tl and ctl values
-  // without messing anything up
-  Interaction* interaction = new Interaction( inter );
-
-  const double Enu = interaction->InitState().ProbeE( kRfLab );
-  const double LepMass = interaction->FSPrimLepton()->Mass();
-
-  // Bounds for the current layer being scanned. Here we initialize them
-  // to include the full range of the kPSTlctl phase space.
-  double CurTMin = 0.;
-  double CurTMax = Enu - LepMass;
-  double CurCosthMin = -1.;
-  double CurCosthMax =  1.;
-
-  // This is based on the technique used to compute the maximum differential
-  // cross section for rejection sampling in QELEventGenerator. A brute-force
-  // scan over the two-dimensional kPSTlctl phase space is used to find the
-  // maximum cross section. Multiple layers are used to "zoom in" on the
-  // vicinity of the maximum. Tighter and tighter layers are made until
-  // the maximum number of iterations is reached or the xsec stabilizes
-  // to within a given fraction of the safety factor.
-  const double acceptable_fraction_of_safety_factor = 0.01;
-  const int max_n_layers = 100;
-  const int N_T = 10;
-  const int N_Costh = 10;
-  double T_at_xsec_max = CurTMax;
-  double Costh_at_xsec_max = CurCosthMin;
-  double cur_max_xsec = -1.;
-
-  for ( int ilayer = 0; ilayer < max_n_layers; ++ilayer ) {
-
-    double last_layer_xsec_max = cur_max_xsec;
-
-    double T_increment = ( CurTMax - CurTMin ) / ( N_T - 1 );
-    double Costh_increment   = ( CurCosthMax - CurCosthMin ) / ( N_Costh - 1 );
-
-    // Scan through the 2D phase space using the bounds of the current layer
-    for ( int iT = 0; iT < N_T; ++iT ) {
-      double T = CurTMin + iT * T_increment;
-      for ( int iCosth = 0; iCosth < N_Costh; ++iCosth ) {
-        double Costh = CurCosthMin + iCosth * Costh_increment;
-
-        interaction->KinePtr()->SetKV( kKVTl, T );
-        interaction->KinePtr()->SetKV( kKVctl, Costh );
-        double xsec = fXSecModel->XSec( interaction, kPSTlctl );
-
-        if ( xsec > cur_max_xsec ) {
-          T_at_xsec_max = T;
-          Costh_at_xsec_max = Costh;
-          cur_max_xsec = xsec;
-        }
-
-      } // Done with cos(theta) scan
-    } // Done with lepton kinetic energy scan
-
-    LOG("MEC", pDEBUG) << "Layer " << ilayer << " has max xsec = "
-      << cur_max_xsec << " for T = " << T_at_xsec_max << ", costh = "
-      << Costh_at_xsec_max;
-
-    // Calculate the range for the next layer
-    CurTMin = T_at_xsec_max - T_increment;
-    CurTMax = T_at_xsec_max + T_increment;
-    CurCosthMin = Costh_at_xsec_max - Costh_increment;
-    CurCosthMax = Costh_at_xsec_max + Costh_increment;
-
-    double improvement_factor = cur_max_xsec / last_layer_xsec_max;
-    if ( ilayer && (improvement_factor - 1.)
-      < acceptable_fraction_of_safety_factor * (safety_factor - 1.) ) break;
-
-  } // Done with iterations over layers
-
-
-  // We're done. Delete the cloned interaction object before returning the
-  // estimate of the maximum differential cross section.
-  delete interaction;
-
-  double XSecMax = cur_max_xsec * safety_factor;
-  return XSecMax;
 }
 //___________________________________________________________________________

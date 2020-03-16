@@ -22,6 +22,7 @@
 namespace genie {
 
 class Interaction;
+class XSecAlgorithmI;
 
 namespace utils {
 namespace mec   {
@@ -59,6 +60,16 @@ namespace mec   {
   //Version of the tesor contraction in GENIE 2.12.X (modified to use new hadron tensor pool) for debugging purposes
   //double OldTensorContraction(int nupdg, int targetpdg, double Enu, double Ml, double Tl, double costhl, int tensorpdg, genie::HadronTensorType_t tensor_type, char* tensor_model);
   double OldTensorContraction(int nupdg, int targetpdg, double Enu, double Ml, double Tl, double costhl, int tensorpdg, genie::HadronTensorType_t tensor_type, char* tensor_model );
+
+  // Performs a brute-force scan of the kPSTlctl phase space to compute the
+  // maximum value of the differential cross section within a specified
+  // tolerance. An optional safety factor can be applied to the final result.
+  // This function is used by MECGenerator::SelectSuSALeptonKinematics() during
+  // rejection sampling. -- S. Gardiner, 16 March 2020
+  double GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
+    const Interaction& inter, const double tolerance = 0.01,
+    const double safety_factor = 1.2, const int max_n_layers = 100 );
+
 } // mec   namespace
 } // utils namespace
 } // genie namespace
