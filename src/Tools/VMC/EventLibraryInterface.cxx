@@ -8,7 +8,7 @@
 //____________________________________________________________________________
 
 #include "Framework/Messenger/Messenger.h"
-//#include "Framework/Numerical/RandomGen.h"
+#include "Framework/Numerical/RandomGen.h"
 //#include "Framework/EventGen/EVGThreadException.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
@@ -18,8 +18,6 @@
 #include "Framework/Interaction/Interaction.h"
 #include "Tools/VMC/EventLibraryInterface.h"
 #include "Tools/VMC/RecordList.h"
-
-#include "TRandom3.h" // TODO proper RNG
 
 #include <wordexp.h>
 
@@ -155,8 +153,7 @@ std::vector<TVector3> EventLibraryInterface::Basis(TVector3 z) const
   const TVector3 x = up.Cross(z).Unit(); // Perpendicular to neutrino and up
   const TVector3 y = x.Cross(z).Unit();  // Defines the third axis
 
-  // TODO what GENIE RNG infrastructure should we be using?
-  const double a = gRandom->Uniform(0, 2*M_PI);
+  const double a = RandomGen::Instance()->RndEvg().Uniform(0, 2*M_PI);
 
   const TVector3 xp =  cos(a) * x + sin(a) * y;
   const TVector3 yp = -sin(a) * x + cos(a) * y;
