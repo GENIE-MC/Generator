@@ -25,9 +25,13 @@
 #include "TVector3.h"
 
 namespace genie {
+
+class InitialState;
+
 namespace vmc {
 
 class IRecordList;
+class Record;
 
 class EventLibraryInterface: public EventRecordVisitorI {
 
@@ -68,6 +72,8 @@ private:
   };
 
   mutable std::map<Key, const IRecordList*> fRecords;
+
+  const Record* GetRecord(const InitialState& init_state) const;
 
   /// Return a random (x,y,z) basis with z aligned with the input vector
   std::vector<TVector3> Basis(TVector3 z) const;

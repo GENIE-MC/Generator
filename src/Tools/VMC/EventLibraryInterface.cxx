@@ -62,69 +62,38 @@ EventLibraryInterface::~EventLibraryInterface()
 //____________________________________________________________________________
 void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
 {
-  if(fRecords.empty()) LoadRecords();
-
 // Get event summary constructed by GENIE
 //
   Interaction * interaction = event->Summary();
   const InitialState & init_state = interaction->InitState();
 
+  const Record* rec = GetRecord(init_state);
+  if(!rec) return; // Reason has already been printed
+
   std::unique_ptr<TLorentzVector> probe_p4(init_state.GetProbeP4(kRfLab));
-  const double probe_E = probe_p4->E();
-  const TLorentzVector probe_v4(0.,0.,0.,0.);
 
-  const int probe_pdgc = init_state.ProbePdg();
+  event->AddParticle(init_state.ProbePdg(),
+                     kIStInitialState,
+                     -1,-1,-1,-1,
+                     *probe_p4,
+                     TLorentzVector(0, 0, 0, 0));
 
-
-
-  LOG("ELI", pINFO) << "Adding neutrino [pdgc = " << probe_pdgc << "]";
-
-  event->AddParticle(probe_pdgc, kIStInitialState, -1,-1,-1,-1, *probe_p4, probe_v4);
-
-  if(!init_state.Tgt().IsNucleus()){
-    LOG("ELI", pINFO)
-      << "Skippping non-nuclear target " << init_state;
-
-    // Ideally we would have a way to run the main GENIE simulation in this
-    // case.
-    return;
-  }
-
-  const int    tgt_A    = init_state.Tgt().A();
-  const int    tgt_Z    = init_state.Tgt().Z();
-  const int    tgt_pdgc = pdg::IonPdgCode(tgt_A, tgt_Z);
-  const double tgt_M    = PDGLibrary::Instance()->Find(tgt_pdgc)->Mass();
-
+  const int tgt_A    = init_state.Tgt().A();
+  const int tgt_Z    = init_state.Tgt().Z();
+  const int tgt_pdgc = pdg::IonPdgCode(tgt_A, tgt_Z);
+  // TODO why was that not just init_state.TgtPdg()?
 
   LOG("ELI", pINFO)
     << "Adding nucleus [A = " << tgt_A << ", Z = " << tgt_Z
     << ", pdg = " << tgt_pdgc << "]";
 
-  event->AddParticle(tgt_pdgc,kIStInitialState,-1,-1,-1,-1, 0,0,0,tgt_M, 0,0,0,0);
+  event->AddParticle(tgt_pdgc,
+                     kIStInitialState,
+                     -1,-1,-1,-1,
+                     0, 0, 0, PDGLibrary::Instance()->Find(tgt_pdgc)->Mass(),
+                     0,0,0,0);
 
-  const bool isCC = true; // TODO TODO this has already been decided, right? where do we find it?
-
-  const Key key(tgt_pdgc, probe_pdgc, isCC);
-
-  const auto rec_it = fRecords.find(key);
-
-  if(rec_it == fRecords.end()){
-    LOG("ELI", pINFO)
-      << "Skippping " << key << " -- not found in library";
-    // Likewise, want to fallback to GENIE
-    return;
-  }
-
-  const Record* rec = rec_it->second->GetRecord(probe_E);
-
-  if(!rec){
-    LOG("ELI", pINFO)
-      << "Skippping " << key << " at " << probe_E << " GeV -- not found in library";
-    // Another case we want to fallback to GENIE
-    return;
-  }
-
-  const std::vector<TVector3> basis = Basis(probe_v4.Vect());
+  const std::vector<TVector3> basis = Basis(probe_p4->Vect());
 
   for(const Particle& part: rec->parts){
     event->AddParticle(part.pdg,
@@ -134,8 +103,47 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
                                       part.py*basis[1] +
                                       part.pz*basis[2],
                                       part.E),
-                       probe_v4);
+                       TLorentzVector(0, 0, 0, 0));
   }
+}
+
+//____________________________________________________________________________
+const Record* EventLibraryInterface::GetRecord(const InitialState& init_state) const
+{
+  if(fRecords.empty()) LoadRecords();
+
+  const std::unique_ptr<TLorentzVector> probe_p4(init_state.GetProbeP4(kRfLab));
+  const double probe_E = probe_p4->E();
+  const int probe_pdgc = init_state.ProbePdg();
+
+  if(!init_state.Tgt().IsNucleus()){
+    LOG("ELI", pINFO) << "Skippping non-nuclear target " << init_state;
+    return 0;
+  }
+
+  const int tgt_A    = init_state.Tgt().A();
+  const int tgt_Z    = init_state.Tgt().Z();
+  const int tgt_pdgc = pdg::IonPdgCode(tgt_A, tgt_Z);
+
+  const bool isCC = true; // TODO TODO this has already been decided, right? where do we find it?
+
+  const Key key(tgt_pdgc, probe_pdgc, isCC);
+
+  const auto rec_it = fRecords.find(key);
+
+  if(rec_it == fRecords.end()){
+    LOG("ELI", pINFO) << "Skippping " << key << " -- not found in library";
+    return 0;
+  }
+
+  const Record* rec = rec_it->second->GetRecord(probe_E);
+
+  if(!rec){
+    LOG("ELI", pINFO) << "Skippping " << key << " at " << probe_E << " GeV -- not found in library";
+    return 0;
+  }
+
+  return rec;
 }
 
 //____________________________________________________________________________
