@@ -17,9 +17,30 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Tools/VMC/EventLibraryInterface.h"
+#include "Tools/VMC/RecordList.h"
+
+#include "TRandom3.h" // TODO proper RNG
 
 using namespace genie;
 using namespace genie::vmc;
+
+/// TODO there are almost certainly GENIE facilities for this
+namespace
+{
+  const std::map<int, std::string> nucleus_to_label = {
+  {1000010010, "H1"  },
+  {1000060120, "C12" },
+  {1000080160, "O16" },
+  {1000170350, "Cl35"},
+  {1000220480, "Ti48"},
+  {1000260560, "Fe56"}};
+
+  std::map<int, std::string> nu_to_genie_label = {
+  {-12, "nu_e_bar"},
+  {+12, "nu_e"},
+  {-14, "nu_mu_bar"},
+  {+14, "nu_mu"}};
+}
 
 //____________________________________________________________________________
 EventLibraryInterface::EventLibraryInterface() :
@@ -36,20 +57,23 @@ EventRecordVisitorI("genie::EventLibraryInterface",config)
 //____________________________________________________________________________
 EventLibraryInterface::~EventLibraryInterface()
 {
-
+  for(auto it: fRecords) delete it.second;
 }
 //____________________________________________________________________________
 void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
 {
+  if(fRecords.empty()) LoadRecords();
+
 // Get event summary constructed by GENIE
 //
   Interaction * interaction = event->Summary();
   const InitialState & init_state = interaction->InitState();
 
-  TLorentzVector * probe_p4 = init_state.GetProbeP4(kRfLab);
+  std::unique_ptr<TLorentzVector> probe_p4(init_state.GetProbeP4(kRfLab));
+  const double probe_E = probe_p4->E();
   const TLorentzVector probe_v4(0.,0.,0.,0.);
 
-  int probe_pdgc = init_state.ProbePdg();
+  const int probe_pdgc = init_state.ProbePdg();
 
 
 
@@ -57,30 +81,80 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
 
   event->AddParticle(probe_pdgc, kIStInitialState, -1,-1,-1,-1, *probe_p4, probe_v4);
 
-  delete probe_p4;
-
-  bool is_nucleus = init_state.Tgt().IsNucleus();
-  if(is_nucleus) {
-    int    tgt_A    = init_state.Tgt().A();
-    int    tgt_Z    = init_state.Tgt().Z();
-    int    tgt_pdgc = pdg::IonPdgCode(tgt_A, tgt_Z);
-    double tgt_M    = PDGLibrary::Instance()->Find(tgt_pdgc)->Mass();
-
+  if(!init_state.Tgt().IsNucleus()){
     LOG("ELI", pINFO)
-         << "Adding nucleus [A = " << tgt_A << ", Z = " << tgt_Z
-         << ", pdg = " << tgt_pdgc << "]";
+      << "Skippping non-nuclear target " << init_state;
 
-    event->AddParticle(tgt_pdgc,kIStInitialState,-1,-1,-1,-1, 0,0,0,tgt_M, 0,0,0,0);
+    // Ideally we would have a way to run the main GENIE simulation in this
+    // case.
+    return;
   }
 
-  LOG("ELI", pNOTICE)
-    << "Simulating NHL decay ";
+  const int    tgt_A    = init_state.Tgt().A();
+  const int    tgt_Z    = init_state.Tgt().Z();
+  const int    tgt_pdgc = pdg::IonPdgCode(tgt_A, tgt_Z);
+  const double tgt_M    = PDGLibrary::Instance()->Find(tgt_pdgc)->Mass();
 
-//
-// do your thing here...
-//
 
+  LOG("ELI", pINFO)
+    << "Adding nucleus [A = " << tgt_A << ", Z = " << tgt_Z
+    << ", pdg = " << tgt_pdgc << "]";
+
+  event->AddParticle(tgt_pdgc,kIStInitialState,-1,-1,-1,-1, 0,0,0,tgt_M, 0,0,0,0);
+
+  const bool isCC = true; // TODO TODO this has already been decided, right? where do we find it?
+
+  const Key key(tgt_pdgc, probe_pdgc, isCC);
+
+  const auto rec_it = fRecords.find(key);
+
+  if(rec_it == fRecords.end()){
+    LOG("ELI", pINFO)
+      << "Skippping " << key << " -- not found in library";
+    // Likewise, want to fallback to GENIE
+    return;
+  }
+
+  const Record* rec = rec_it->second->GetRecord(probe_E);
+
+  if(!rec){
+    LOG("ELI", pINFO)
+      << "Skippping " << key << " at " << probe_E << " GeV -- not found in library";
+    // Another case we want to fallback to GENIE
+    return;
+  }
+
+  const std::vector<TVector3> basis = Basis(probe_v4.Vect());
+
+  for(const Particle& part: rec->parts){
+    event->AddParticle(part.pdg,
+                       kIStStableFinalState,
+                       -1,-1,-1,-1,
+                       TLorentzVector(part.px*basis[0] +
+                                      part.py*basis[1] +
+                                      part.pz*basis[2],
+                                      part.E),
+                       probe_v4);
+  }
 }
+
+//____________________________________________________________________________
+std::vector<TVector3> EventLibraryInterface::Basis(TVector3 z) const
+{
+  const TVector3 up(0, 1, 0);
+  const TVector3 x = up.Cross(z).Unit(); // Perpendicular to neutrino and up
+  const TVector3 y = x.Cross(z).Unit();  // Defines the third axis
+
+  // TODO what GENIE RNG infrastructure should we be using?
+  const double a = gRandom->Uniform(0, 2*M_PI);
+
+  const TVector3 xp =  cos(a) * x + sin(a) * y;
+  const TVector3 yp = -sin(a) * x + cos(a) * y;
+  const TVector3 zp = z.Unit();
+
+  return {xp, yp, zp};
+}
+
 //____________________________________________________________________________
 void EventLibraryInterface::Configure(const Registry & config)
 {
@@ -104,3 +178,35 @@ void EventLibraryInterface::LoadConfig(void)
 
 }
 //___________________________________________________________________________
+void EventLibraryInterface::LoadRecords() const
+{
+  // TODO get from configuration. Are there tools for expanding environment
+  // variables?
+  const std::string dir = "vmc_libs";
+
+  for(bool iscc: {true, false}){
+    for(int sign: {+1, -1}){
+      for(int pdg: {12, 14}){
+        // NCs should be the same for all flavours. Use numu by convention.
+        if(!iscc && pdg == 12) continue;
+        for(std::pair<int, std::string> it: nucleus_to_label){
+
+            const TString gibuuStr =
+              TString::Format("%s/%s%s_%s/%s/records.root",
+                              dir.c_str(),
+                              iscc ? "cc" : "nc",
+                              (sign < 0) ? "bar" : "",
+                              nu_to_genie_label[pdg].c_str(),
+                              it.second.c_str());
+
+            const Key key(it.first, sign*pdg, iscc);
+
+            if(true) // TODO configuration
+              fRecords[key] = new OnDemandRecordList(gibuuStr.Data());
+            else
+              fRecords[key] = new SimpleRecordList(gibuuStr.Data());
+        } // end for nucleus
+      } // end for pdg
+    } // end for sign
+  } // end for iscc
+}

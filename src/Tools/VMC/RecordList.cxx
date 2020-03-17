@@ -79,7 +79,7 @@ namespace vmc{
       parts[j].pz = pz[j];
     } // end for j
 
-return Record(Enu, /*weight,*/ prod_id, parts);
+    return Record(Enu, /*weight,*/ prod_id, parts);
   }
 
   //---------------------------------------------------------------------------

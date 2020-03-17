@@ -22,8 +22,12 @@
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
 
+#include "TVector3.h"
+
 namespace genie {
 namespace vmc {
+
+class IRecordList;
 
 class EventLibraryInterface: public EventRecordVisitorI {
 
@@ -41,10 +45,38 @@ public:
   void Configure(string config);
 
 private:
+  struct Key
+  {
+    Key(int _nucl_pdg, int _nu_pdg, bool _iscc)
+      : nucl_pdg(_nucl_pdg), nu_pdg(_nu_pdg), iscc(_iscc) {}
 
-   void LoadConfig            (void);
-   void AddInitialState       (GHepRecord * event) const;
-   void GenerateDecayProducts (GHepRecord * event) const;
+    bool operator<(const Key& k) const
+    {
+      return (std::make_tuple(  nucl_pdg,   nu_pdg,   iscc) <
+              std::make_tuple(k.nucl_pdg, k.nu_pdg, k.iscc));
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const Key& k)
+    {
+      os << k.nu_pdg << " on " << k.nucl_pdg << " " << " via " << (k.iscc ? "CC" : "NC");
+      return os;
+    }
+
+    int nucl_pdg;
+    int nu_pdg;
+    bool iscc;
+  };
+
+  mutable std::map<Key, const IRecordList*> fRecords;
+
+  /// Return a random (x,y,z) basis with z aligned with the input vector
+  std::vector<TVector3> Basis(TVector3 z) const;
+
+  void LoadConfig            (void);
+  void AddInitialState       (GHepRecord * event) const;
+  void GenerateDecayProducts (GHepRecord * event) const;
+
+  void LoadRecords() const;
 };
 
 } // vmc namespace
