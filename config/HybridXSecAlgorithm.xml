@@ -39,6 +39,13 @@ XSecAlg@Interaction=XX alg      Yes        Algorithm to use to handle interactio
     <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
       genie::LwlynSmithQELCCPXSec/Dipole </param>
 
+    <!-- TODO: add entries for muon EMQE scattering, etc. -->
+    <!-- Delegate handling of EMQE scattering on a free nucleon to the Rosenbluth model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:11;tgt:1000000010;N:2112;proc:EM,QES;">
+      genie::RosenbluthPXSec/Default </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:11;tgt:1000010010;N:2212;proc:EM,QES;">
+      genie::RosenbluthPXSec/Default </param>
+
   </param_set>
 
 </alg_conf>

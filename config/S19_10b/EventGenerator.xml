@@ -188,7 +188,21 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="ILstGen">    genie::QELInteractionListGenerator/NC-Default        </param>
   </param_set>
 
-  <!-- "old" style QEL-EM event generation... -->
+   <!-- EMQE generator for SuSA-1p1h which is loosely based on the MEC-CC generator -->
+   <param_set name="QEL-EM">
+      <param type="string" name="VldContext"> </param>
+      <param type="int"    name="NModules">   7                                                    </param>
+      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
+      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
+      <param type="alg"    name="Module-2">   genie::QELEventGeneratorSuSA/Default            </param>
+      <param type="alg"    name="Module-3">   genie::UnstableParticleDecayer/BeforeHadronTransport </param>
+      <param type="alg"    name="Module-4">   genie::NucDeExcitationSim/Default                    </param>
+      <param type="alg"    name="Module-5">   genie::HadronTransporter/Default                     </param>
+      <param type="alg"    name="Module-6">   genie::UnstableParticleDecayer/AfterHadronTransport  </param>
+      <param type="alg"    name="ILstGen">    genie::QELInteractionListGenerator/EM-Default        </param>
+  </param_set>
+
+  <!-- "old" style QEL-EM event generation...
   <param_set name="QEL-EM">
      <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   12                                                   </param>
@@ -206,6 +220,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="Module-11">  genie::UnstableParticleDecayer/AfterHadronTransport  </param>
      <param type="alg"    name="ILstGen">    genie::QELInteractionListGenerator/EM-Default        </param>
   </param_set>
+  -->
 
   <param_set name="QEL-CC-LAMBDA">
      <param type="string" name="VldContext"> </param>
