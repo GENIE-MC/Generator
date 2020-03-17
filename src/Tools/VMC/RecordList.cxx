@@ -120,16 +120,21 @@ namespace vmc{
 
   //---------------------------------------------------------------------------
   OnDemandRecordList::OnDemandRecordList(const char* fname)
-    : fLoader(fname)
+    : fFname(fname), fLoader(fname)
   {
-    std::cout << "Loading index to " << fname;
+  }
 
-    TFile f(fname);
+  //---------------------------------------------------------------------------
+  void OnDemandRecordList::LoadIndex() const
+  {
+    std::cout << "Loading index to " << fFname;
+
+    TFile f(fFname.c_str());
     if(f.IsZombie()) exit(1);
 
     TTree* tr = (TTree*)f.Get("tr");
     if(!tr){
-      LOG("ELI", pFATAL) << "'tr' not found in " << fname;
+      LOG("ELI", pFATAL) << "'tr' not found in " << fFname;
       exit(1);
     }
 
@@ -153,6 +158,8 @@ namespace vmc{
   //---------------------------------------------------------------------------
   const Record* OnDemandRecordList::GetRecord(float E) const
   {
+    if(fEnergies.empty()) LoadIndex();
+
     auto it = std::lower_bound(fEnergies.begin(), fEnergies.end(),
                                std::make_pair(E, 0));
     if(it == fEnergies.end()) return 0;

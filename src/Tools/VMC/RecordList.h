@@ -6,6 +6,7 @@
 #define _RECORDLIST_H
 
 #include <vector>
+#include <string>
 
 class TFile;
 class TTree;
@@ -84,9 +85,12 @@ namespace vmc{
 
     const Record* GetRecord(float E) const override;
   protected:
+    void LoadIndex() const;
+
+    std::string fFname;
     RecordLoader fLoader;
 
-    std::vector<std::pair<float, int>> fEnergies;
+    mutable std::vector<std::pair<float, int>> fEnergies;
 
     mutable Record fRecord;
   };
