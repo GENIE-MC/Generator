@@ -13,8 +13,8 @@
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
 //#include "Framework/ParticleData/PDGCodes.h"
-//#include "Framework/ParticleData/PDGUtils.h"
-//#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Tools/VMC/EventLibraryInterface.h"
 
@@ -53,25 +53,25 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
 
 
 
-  LOG("ELI", pINFO) << "Adding neutrino [pdgc = " << pdgc << "]";
+  LOG("ELI", pINFO) << "Adding neutrino [pdgc = " << probe_pdgc << "]";
 
-  event->AddParticle(pdgc,kIStInitialState, -1,-1,-1,-1, *p4, v4);
+  event->AddParticle(probe_pdgc, kIStInitialState, -1,-1,-1,-1, *probe_p4, probe_v4);
 
-  delete p4;
+  delete probe_p4;
 
   bool is_nucleus = init_state.Tgt().IsNucleus();
   if(is_nucleus) {
     int    tgt_A    = init_state.Tgt().A();
     int    tgt_Z    = init_state.Tgt().Z();
-    int    tgt_pdgc = pdg::IonPdgCode(A, Z);
-    double tgt_M    = PDGLibrary::Instance()->Find(pdgc)->Mass();
+    int    tgt_pdgc = pdg::IonPdgCode(tgt_A, tgt_Z);
+    double tgt_M    = PDGLibrary::Instance()->Find(tgt_pdgc)->Mass();
 
     LOG("ELI", pINFO)
-         << "Adding nucleus [A = " << A << ", Z = " << Z
-         << ", pdg = " << pdgc << "]";
+         << "Adding nucleus [A = " << tgt_A << ", Z = " << tgt_Z
+         << ", pdg = " << tgt_pdgc << "]";
 
-  event->AddParticle(pdgc,kIStInitialState,-1,-1,-1,-1, 0,0,0,M, 0,0,0,0);
-
+    event->AddParticle(tgt_pdgc,kIStInitialState,-1,-1,-1,-1, 0,0,0,tgt_M, 0,0,0,0);
+  }
 
   LOG("ELI", pNOTICE)
     << "Simulating NHL decay ";
