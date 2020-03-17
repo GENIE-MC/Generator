@@ -34,12 +34,6 @@ namespace
   {1000170350, "Cl35"},
   {1000220480, "Ti48"},
   {1000260560, "Fe56"}};
-
-  std::map<int, std::string> nu_to_genie_label = {
-  {-12, "nu_e_bar"},
-  {+12, "nu_e"},
-  {-14, "nu_mu_bar"},
-  {+14, "nu_mu"}};
 }
 
 //____________________________________________________________________________
@@ -216,6 +210,8 @@ void EventLibraryInterface::LoadRecords() const
   bool onDemand;
   GetParamDef( "OnDemand", onDemand, true );
 
+  PDGLibrary* pdglib = PDGLibrary::Instance();
+
   for(bool iscc: {true, false}){
     for(int sign: {+1, -1}){
       for(int pdg: {12, 14}){
@@ -228,7 +224,7 @@ void EventLibraryInterface::LoadRecords() const
                               dir.c_str(),
                               iscc ? "cc" : "nc",
                               (sign < 0) ? "bar" : "",
-                              nu_to_genie_label[pdg].c_str(),
+                              pdglib->Find(pdg)->GetName(),
                               it.second.c_str());
 
             const Key key(it.first, sign*pdg, iscc);
