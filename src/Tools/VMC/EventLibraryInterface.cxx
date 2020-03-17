@@ -44,7 +44,7 @@ namespace
 
 //____________________________________________________________________________
 EventLibraryInterface::EventLibraryInterface() :
-EventRecordVisitorI("genie::EventLibraryInterface")
+EventRecordVisitorI("genie::vmc::EventLibraryInterface")
 {
 
 }
