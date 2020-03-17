@@ -13,6 +13,8 @@
 #include <TLorentzVector.h>
 
 #include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/Utils/KineUtils.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Physics/HadronTensors/HadronTensorModelI.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
@@ -337,15 +339,24 @@ double genie::utils::mec::GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
   // without messing anything up
   Interaction* interaction = new Interaction( inter );
 
+  // Choose the appropriate minimum Q^2 value based on the interaction
+  // mode (this is important for EM interactions since the differential
+  // cross section blows up as Q^2 --> 0)
+  double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
+  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
+    ::electromagnetic::kMinQ2Limit; // EM limit
+
   const double Enu = interaction->InitState().ProbeE( kRfLab );
+  const double ProbeMass = interaction->InitState().Probe()->Mass();
   const double LepMass = interaction->FSPrimLepton()->Mass();
 
   // Bounds for the current layer being scanned. Here we initialize them
   // to include the full range of the kPSTlctl phase space.
   double CurTMin = 0.;
   double CurTMax = Enu - LepMass;
-  double CurCosthMin = -1.;
-  double CurCosthMax =  1.;
+  double CurQ2Min = Q2min;
+  // Overshoots the true maximum Q^2, but that's not a worry here
+  double CurQ2Max = 4.*Enu*Enu;
 
   // This is based on the technique used to compute the maximum differential
   // cross section for rejection sampling in QELEventGenerator. A brute-force
@@ -355,9 +366,9 @@ double genie::utils::mec::GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
   // the maximum number of iterations is reached or the xsec stabilizes
   // to within a given tolerance.
   const int N_T = 10; // number of kinetic energy steps per layer
-  const int N_Costh = 10; // number of scattering cosine steps per layer
+  const int N_Q2 = 10; // number of scattering cosine steps per layer
   double T_at_xsec_max = CurTMax;
-  double Costh_at_xsec_max = CurCosthMin;
+  double Q2_at_xsec_max = CurQ2Max;
   double cur_max_xsec = -1.;
 
   for ( int ilayer = 0; ilayer < max_n_layers; ++ilayer ) {
@@ -365,21 +376,37 @@ double genie::utils::mec::GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
     double last_layer_xsec_max = cur_max_xsec;
 
     double T_increment = ( CurTMax - CurTMin ) / ( N_T - 1 );
-    double Costh_increment   = ( CurCosthMax - CurCosthMin ) / ( N_Costh - 1 );
+    double Q2_increment   = ( CurQ2Max - CurQ2Min ) / ( N_Q2 - 1 );
 
     // Scan through the 2D phase space using the bounds of the current layer
     for ( int iT = 0; iT < N_T; ++iT ) {
       double T = CurTMin + iT * T_increment;
-      for ( int iCosth = 0; iCosth < N_Costh; ++iCosth ) {
-        double Costh = CurCosthMin + iCosth * Costh_increment;
+      for ( int iQ2 = 0; iQ2 < N_Q2; ++iQ2 ) {
+        double Q2 = CurQ2Min + iQ2 * Q2_increment;
 
+        // Compute the scattering cosine at fixed Tl given a value of Q^2.
+        double Elep = T + LepMass;
+        double pnu = std::sqrt( std::max(0., Enu*Enu - ProbeMass*ProbeMass) );
+        double plep = std::sqrt( std::max(0., std::pow(T + LepMass, 2)
+          - LepMass*LepMass) );
+
+        double Costh = ( 2.*Enu*Elep - ProbeMass*ProbeMass - LepMass*LepMass
+          - Q2 ) / ( 2. * pnu * plep );
+        // Respect the bounds of the cosine function.
+        Costh = std::min( std::max(-1., Costh), 1. );
+
+        // Update the values of Tl and ctl in the interaction, then
+        // compute the differential cross section
         interaction->KinePtr()->SetKV( kKVTl, T );
         interaction->KinePtr()->SetKV( kKVctl, Costh );
         double xsec = xsec_model.XSec( interaction, kPSTlctl );
 
+        // If the current differential cross section exceeds the previous
+        // maximum value, update the stored value and information about where it
+        // lies in the kPSTlctl phase space.
         if ( xsec > cur_max_xsec ) {
           T_at_xsec_max = T;
-          Costh_at_xsec_max = Costh;
+          Q2_at_xsec_max = Q2;
           cur_max_xsec = xsec;
         }
 
@@ -387,14 +414,14 @@ double genie::utils::mec::GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
     } // Done with lepton kinetic energy scan
 
     LOG("MEC", pDEBUG) << "Layer " << ilayer << " has max xsec = "
-      << cur_max_xsec << " for T = " << T_at_xsec_max << ", costh = "
-      << Costh_at_xsec_max;
+      << cur_max_xsec << " for T = " << T_at_xsec_max << ", Q2 = "
+      << Q2_at_xsec_max;
 
     // Calculate the range for the next layer
     CurTMin = T_at_xsec_max - T_increment;
     CurTMax = T_at_xsec_max + T_increment;
-    CurCosthMin = Costh_at_xsec_max - Costh_increment;
-    CurCosthMax = Costh_at_xsec_max + Costh_increment;
+    CurQ2Min = std::max( Q2min, Q2_at_xsec_max - Q2_increment );
+    CurQ2Max = Q2_at_xsec_max + Q2_increment;
 
     // If the xsec has stabilized within the requested tolerance, then
     // stop adding more layers

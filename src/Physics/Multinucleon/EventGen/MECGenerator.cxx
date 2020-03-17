@@ -884,7 +884,16 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
   Interaction* interaction = event->Summary();
   Kinematics* kinematics = interaction->KinePtr();
 
-  double Enu = interaction->InitState().ProbeE( kRfHitNucRest );
+  // Choose the appropriate minimum Q^2 value based on the interaction
+  // mode (this is important for EM interactions since the differential
+  // cross section blows up as Q^2 --> 0)
+  double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
+  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
+    ::electromagnetic::kMinQ2Limit; // EM limit
+
+  LOG("MEC", pDEBUG) << "Q2min = " << Q2min;
+
+  double Enu = interaction->InitState().ProbeE( kRfLab );
 
   int NuPDG = interaction->InitState().ProbePdg();
   int TgtPDG = interaction->InitState().TgtPdg();
@@ -967,8 +976,16 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
     Plep = TMath::Sqrt( T * (T + (2.0 * LepMass)));  // ok is sqrt(E2 - m2)
     Q3 = TMath::Sqrt(Plep*Plep + Enu*Enu - 2.0 * Plep * Enu * Costh);
 
+    // TODO: implement this more cleanly (throw Costh from restricted range)
+    Q0 = Enu - (T + LepMass);
+    Q2 = Q3*Q3 - Q0*Q0;
+
+    LOG("MEC", pDEBUG) << "T = " << T << ", Costh = " << Costh
+      << ", Q2 = " << Q2;
+
     // Don't bother doing hard work if the selected Q3 is greater than Q3Max
-    if ( Q3 < fQ3Max ) {
+    // or if Q2 falls below the minimum allowed Q^2 value
+    if ( Q3 < fQ3Max && Q2 >= Q2min ) {
 
       kinematics->SetKV(kKVTl, T);
       kinematics->SetKV(kKVctl, Costh);
