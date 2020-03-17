@@ -26,7 +26,7 @@
 
 namespace genie {
 
-class InitialState;
+class Interaction;
 
 namespace vmc {
 
@@ -73,7 +73,7 @@ private:
 
   mutable std::map<Key, const IRecordList*> fRecords;
 
-  const Record* GetRecord(const InitialState& init_state) const;
+  const Record* GetRecord(const Interaction* interaction) const;
 
   /// Return a random (x,y,z) basis with z aligned with the input vector
   std::vector<TVector3> Basis(TVector3 z) const;

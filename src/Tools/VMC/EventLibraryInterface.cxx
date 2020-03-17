@@ -46,10 +46,10 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
 {
 // Get event summary constructed by GENIE
 //
-  Interaction * interaction = event->Summary();
+  Interaction* interaction = event->Summary();
   const InitialState & init_state = interaction->InitState();
 
-  const Record* rec = GetRecord(init_state);
+  const Record* rec = GetRecord(interaction);
   if(!rec) return; // Reason has already been printed
 
   std::unique_ptr<TLorentzVector> probe_p4(init_state.GetProbeP4(kRfLab));
@@ -90,9 +90,11 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
 }
 
 //____________________________________________________________________________
-const Record* EventLibraryInterface::GetRecord(const InitialState& init_state) const
+const Record* EventLibraryInterface::GetRecord(const Interaction* interaction) const
 {
   if(fRecords.empty()) LoadRecords();
+
+  const InitialState& init_state = interaction->InitState();
 
   const std::unique_ptr<TLorentzVector> probe_p4(init_state.GetProbeP4(kRfLab));
   const double probe_E = probe_p4->E();
@@ -107,9 +109,14 @@ const Record* EventLibraryInterface::GetRecord(const InitialState& init_state) c
   const int tgt_Z    = init_state.Tgt().Z();
   const int tgt_pdgc = pdg::IonPdgCode(tgt_A, tgt_Z);
 
-  const bool isCC = true; // TODO TODO this has already been decided, right? where do we find it?
+  const ProcessInfo& proc = interaction->ProcInfo();
 
-  const Key key(tgt_pdgc, probe_pdgc, isCC);
+  if(!proc.IsWeakCC() && !proc.IsWeakNC()){
+    LOG("ELI", pINFO) << "Skipping unknown process " << proc;
+    return 0;
+  }
+
+  const Key key(tgt_pdgc, probe_pdgc, proc.IsWeakCC());
 
   const auto rec_it = fRecords.find(key);
 
