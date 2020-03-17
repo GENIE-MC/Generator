@@ -208,4 +208,6 @@
    <!-- ****** CONFIGURATION FOR REWEIGHT ALGORITHMS ****** -->
    <config alg="genie::rew::GSystUncertaintyTable">     GSystUncertaintyTable.xml        </config>
 
+ <!-- ****** VMC / EventLibraryInterface ****** -->
+   <config alg="genie::vmc::EventLibraryInterface">     EventLibraryInterface.xml        </config>
 </genie_config>
