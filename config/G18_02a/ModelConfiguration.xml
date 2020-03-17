@@ -138,7 +138,8 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/NucleonDecay">   genie::DummyPXSec/Default             </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/NNBarOsc">       genie::NNBarOscDummyPXSec/Default     </param>
 
-  <param type="alg" name="XSecModel@genie::EventGenerator/EventLibraryInterface"> genie::NNBarOscDummyPXSec/Default </param>
+  <!-- TODO write our own xsec model -- may not have to do anything, just let the splines handle it? -->
+  <param type="alg" name="XSecModel@genie::EventGenerator/EventLibraryInterface">  genie::LwlynSmithQELCCPXSec/Dipole   </param>
  </param_set>
 
 
