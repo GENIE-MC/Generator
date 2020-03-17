@@ -76,7 +76,7 @@ private:
   const Record* GetRecord(const Interaction* interaction) const;
 
   /// Return a random (x,y,z) basis with z aligned with the input vector
-  std::vector<TVector3> Basis(TVector3 z) const;
+  std::vector<TVector3> Basis(const TVector3& z) const;
 
   void LoadRecords() const;
 };

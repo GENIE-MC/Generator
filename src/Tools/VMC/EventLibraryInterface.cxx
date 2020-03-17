@@ -54,9 +54,19 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
 
   std::unique_ptr<TLorentzVector> probe_p4(init_state.GetProbeP4(kRfLab));
 
+  unsigned int nLep = 0;
+  for(const Particle& part: rec->parts) if(pdg::IsLepton(part.pdg)) ++nLep;
+
+  const int firstLep = (nLep == 0) ? -1 : 2;
+  const int lastLep  = (nLep == 0) ? -1 : 1+nLep;
+
+  const int firstHad = (rec->parts.size() == nLep) ? -1 : 2+nLep;
+  const int lastHad  = (rec->parts.size() == nLep) ? -1 : 1+rec->parts.size();
+
+  // Neutrino is a parent to the lepton(s)
   event->AddParticle(init_state.ProbePdg(),
                      kIStInitialState,
-                     -1,-1,-1,-1,
+                     -1, -1, firstLep, lastLep,
                      *probe_p4,
                      TLorentzVector(0, 0, 0, 0));
 
@@ -69,23 +79,27 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
     << "Adding nucleus [A = " << tgt_A << ", Z = " << tgt_Z
     << ", pdg = " << tgt_pdgc << "]";
 
+  // Nucleus is a parent to everything else
   event->AddParticle(tgt_pdgc,
                      kIStInitialState,
-                     -1,-1,-1,-1,
+                     -1, -1, firstHad, lastHad,
                      0, 0, 0, PDGLibrary::Instance()->Find(tgt_pdgc)->Mass(),
-                     0,0,0,0);
+                     0, 0, 0, 0);
 
   const std::vector<TVector3> basis = Basis(probe_p4->Vect());
 
-  for(const Particle& part: rec->parts){
-    event->AddParticle(part.pdg,
-                       kIStStableFinalState,
-                       -1,-1,-1,-1,
-                       TLorentzVector(part.px*basis[0] +
-                                      part.py*basis[1] +
-                                      part.pz*basis[2],
-                                      part.E),
-                       TLorentzVector(0, 0, 0, 0));
+  for(bool lep: {true, false}){ // make sure lepton in first
+    for(const Particle& part: rec->parts){
+      if(lep != pdg::IsLepton(part.pdg)) continue;
+      event->AddParticle(part.pdg,
+                         kIStStableFinalState,
+                         (lep ? 0 : 1), -1, -1, -1, // child of the neutrino or nucleus
+                         TLorentzVector(part.px*basis[0] +
+                                        part.py*basis[1] +
+                                        part.pz*basis[2],
+                                        part.E),
+                         TLorentzVector(0, 0, 0, 0));
+    }
   }
 }
 
@@ -108,6 +122,7 @@ const Record* EventLibraryInterface::GetRecord(const Interaction* interaction) c
   const int tgt_A    = init_state.Tgt().A();
   const int tgt_Z    = init_state.Tgt().Z();
   const int tgt_pdgc = pdg::IonPdgCode(tgt_A, tgt_Z);
+  // TODO why was that not just init_state.TgtPdg()?
 
   const ProcessInfo& proc = interaction->ProcInfo();
 
@@ -136,9 +151,11 @@ const Record* EventLibraryInterface::GetRecord(const Interaction* interaction) c
 }
 
 //____________________________________________________________________________
-std::vector<TVector3> EventLibraryInterface::Basis(TVector3 z) const
+std::vector<TVector3> EventLibraryInterface::Basis(const TVector3& z) const
 {
-  const TVector3 up(0, 1, 0);
+  TVector3 up(0, 1, 0);
+  if(up.Dot(z) == 0) up = TVector3(1, 0, 0);
+
   const TVector3 x = up.Cross(z).Unit(); // Perpendicular to neutrino and up
   const TVector3 y = x.Cross(z).Unit();  // Defines the third axis
 
