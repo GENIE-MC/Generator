@@ -44,7 +44,7 @@ EventRecordVisitorI("genie::vmc::EventLibraryInterface")
 }
 //____________________________________________________________________________
 EventLibraryInterface::EventLibraryInterface(string config) :
-EventRecordVisitorI("genie::EventLibraryInterface",config)
+EventRecordVisitorI("genie::vmc::EventLibraryInterface",config)
 {
 
 }
