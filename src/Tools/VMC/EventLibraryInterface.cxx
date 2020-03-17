@@ -24,18 +24,6 @@
 using namespace genie;
 using namespace genie::vmc;
 
-/// TODO there are almost certainly GENIE facilities for this
-namespace
-{
-  const std::map<int, std::string> nucleus_to_label = {
-  {1000010010, "H1"  },
-  {1000060120, "C12" },
-  {1000080160, "O16" },
-  {1000170350, "Cl35"},
-  {1000220480, "Ti48"},
-  {1000260560, "Fe56"}};
-}
-
 //____________________________________________________________________________
 EventLibraryInterface::EventLibraryInterface() :
 EventRecordVisitorI("genie::vmc::EventLibraryInterface")
@@ -212,22 +200,31 @@ void EventLibraryInterface::LoadRecords() const
 
   PDGLibrary* pdglib = PDGLibrary::Instance();
 
+  // TODO - should be able to figure out the nuclei which are in the library
+  // file, rather than hardcoding this set. TParticlePDG::GetParticle() to do
+  // reverse lookup from the names to the PDG codes?
+  const int nuclei[] = {1000010010,
+                        1000060120,
+                        1000080160,
+                        1000170350,
+                        1000220480,
+                        1000260560};
+
   for(bool iscc: {true, false}){
     for(int sign: {+1, -1}){
       for(int pdg: {12, 14}){
         // NCs should be the same for all flavours. Use numu by convention.
         if(!iscc && pdg == 12) continue;
-        for(std::pair<int, std::string> it: nucleus_to_label){
-
+        for(int tgt: nuclei){
             const TString fname =
               TString::Format("%s/%s%s_%s/%s/records.root",
                               dir.c_str(),
                               iscc ? "cc" : "nc",
                               (sign < 0) ? "bar" : "",
                               pdglib->Find(pdg)->GetName(),
-                              it.second.c_str());
+                              pdglib->Find(tgt)->GetName());
 
-            const Key key(it.first, sign*pdg, iscc);
+            const Key key(tgt, sign*pdg, iscc);
 
             if(onDemand)
               fRecords[key] = new OnDemandRecordList(fname.Data());
