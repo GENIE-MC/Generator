@@ -217,11 +217,10 @@ void EventLibraryInterface::LoadRecords() const
         if(!iscc && pdg == 12) continue;
         for(int tgt: nuclei){
             const TString fname =
-              TString::Format("%s/%s%s_%s/%s/records.root",
+              TString::Format("%s/%s_%s/%s/records.root",
                               dir.c_str(),
                               iscc ? "cc" : "nc",
-                              (sign < 0) ? "bar" : "",
-                              pdglib->Find(pdg)->GetName(),
+                              pdglib->Find(sign*pdg)->GetName(),
                               pdglib->Find(tgt)->GetName());
 
             const Key key(tgt, sign*pdg, iscc);
