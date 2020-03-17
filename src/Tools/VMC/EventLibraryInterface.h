@@ -78,10 +78,6 @@ private:
   /// Return a random (x,y,z) basis with z aligned with the input vector
   std::vector<TVector3> Basis(TVector3 z) const;
 
-  void LoadConfig            (void);
-  void AddInitialState       (GHepRecord * event) const;
-  void GenerateDecayProducts (GHepRecord * event) const;
-
   void LoadRecords() const;
 };
 

@@ -4,11 +4,12 @@
 
 #include "Tools/VMC/RecordList.h"
 
+#include "Framework/Messenger/Messenger.h"
+
 #include "TFile.h"
 #include "TTree.h"
 
 #include <algorithm>
-#include <cassert>
 #include <iostream>
 
 namespace genie{
@@ -34,10 +35,13 @@ namespace vmc{
   RecordLoader::RecordLoader(const char* fname)
   {
     fFile = new TFile(fname);
-    assert(!fFile->IsZombie());
+    if(fFile->IsZombie()) exit(1);
 
     fTree = (TTree*)fFile->Get("tr");
-    assert(fTree);
+    if(!fTree){
+      LOG("ELI", pFATAL) << "'tr' not found in " << fname;
+      exit(1);
+    }
 
     fTree->SetBranchAddress("Enu", &Enu);
 //    fTree->SetBranchAddress("weight", &weight);
@@ -69,7 +73,11 @@ namespace vmc{
   {
     fTree->GetEntry(i);
 
-    assert(nparts <= 1024);
+    if(nparts > 1024){
+      LOG("ELI", pFATAL) << "Too many particles " << nparts;
+      exit(1);
+    }
+
     std::vector<Particle> parts(nparts);
     for(int j = 0; j < nparts; ++j){
       parts[j].pdg = pdgs[j];
@@ -117,10 +125,13 @@ namespace vmc{
     std::cout << "Loading index to " << fname;
 
     TFile f(fname);
-    assert(!f.IsZombie());
+    if(f.IsZombie()) exit(1);
 
     TTree* tr = (TTree*)f.Get("tr");
-    assert(tr);
+    if(!tr){
+      LOG("ELI", pFATAL) << "'tr' not found in " << fname;
+      exit(1);
+    }
 
     float Enu;
     tr->SetBranchAddress("Enu", &Enu);

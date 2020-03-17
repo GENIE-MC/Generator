@@ -21,6 +21,8 @@
 
 #include "TRandom3.h" // TODO proper RNG
 
+#include <wordexp.h>
+
 using namespace genie;
 using namespace genie::vmc;
 
@@ -163,34 +165,59 @@ std::vector<TVector3> EventLibraryInterface::Basis(TVector3 z) const
   return {xp, yp, zp};
 }
 
+//___________________________________________________________________________
+// TODO is there a built-in tool for doing this?
+void Expand(std::string& s)
+{
+  wordexp_t p;
+  const int status = wordexp(s.c_str(), &p, WRDE_SHOWERR | WRDE_UNDEF);
+  if(status != 0){
+    LOG("ELI", pFATAL) << "String '" << s
+                       << "' returned error " << status << " from wordexp().";
+    exit(1);
+  }
+
+  if(p.we_wordc == 0){
+    LOG("ELI", pFATAL) << "String '" << s
+                       << "' didn't expand to anything.";
+    exit(1);
+  }
+
+  if(p.we_wordc > 1){
+    LOG("ELI", pFATAL) << "String '" << s
+                       << "' expanded to " << p.we_wordc << " locations.";
+    exit(1);
+  }
+
+  s = p.we_wordv[0];
+
+  wordfree(&p);
+}
+
 //____________________________________________________________________________
 void EventLibraryInterface::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfig();
 }
 //___________________________________________________________________________
 void EventLibraryInterface::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadConfig();
 }
-//___________________________________________________________________________
-void EventLibraryInterface::LoadConfig(void)
-{
-// here can read configuration from corresponding XML file, as usual
 
-//
-// ...
-//
-
-}
 //___________________________________________________________________________
 void EventLibraryInterface::LoadRecords() const
 {
-  // TODO get from configuration. Are there tools for expanding environment
-  // variables?
-  const std::string dir = "vmc_libs";
+  std::string dir;
+  if(!GetParamDef( "LibraryPath", dir, std::string() )){
+    LOG("ELI", pFATAL) << "Must specify 'LibraryPath'";
+    exit(1);
+  }
+
+  Expand(dir);
+
+  bool onDemand;
+  GetParamDef( "OnDemand", onDemand, true );
 
   for(bool iscc: {true, false}){
     for(int sign: {+1, -1}){
@@ -199,7 +226,7 @@ void EventLibraryInterface::LoadRecords() const
         if(!iscc && pdg == 12) continue;
         for(std::pair<int, std::string> it: nucleus_to_label){
 
-            const TString gibuuStr =
+            const TString fname =
               TString::Format("%s/%s%s_%s/%s/records.root",
                               dir.c_str(),
                               iscc ? "cc" : "nc",
@@ -209,10 +236,10 @@ void EventLibraryInterface::LoadRecords() const
 
             const Key key(it.first, sign*pdg, iscc);
 
-            if(true) // TODO configuration
-              fRecords[key] = new OnDemandRecordList(gibuuStr.Data());
+            if(onDemand)
+              fRecords[key] = new OnDemandRecordList(fname.Data());
             else
-              fRecords[key] = new SimpleRecordList(gibuuStr.Data());
+              fRecords[key] = new SimpleRecordList(fname.Data());
         } // end for nucleus
       } // end for pdg
     } // end for sign

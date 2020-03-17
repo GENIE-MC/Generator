@@ -5,7 +5,7 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace genie;
-#pragma link C++ namespace genie::vmc
+#pragma link C++ namespace genie::vmc;
 
 #pragma link C++ class genie::vmc::EventLibraryInterface;
 
