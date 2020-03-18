@@ -9,5 +9,6 @@
 
 #pragma link C++ class genie::vmc::EventLibraryInterface;
 #pragma link C++ class genie::vmc::EvtLibInteractionListGenerator;
+#pragma link C++ class genie::vmc::EvtLibPXSec;
 
 #endif

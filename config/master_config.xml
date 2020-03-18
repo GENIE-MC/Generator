@@ -211,4 +211,5 @@
  <!-- ****** VMC / EventLibraryInterface ****** -->
    <config alg="genie::vmc::EventLibraryInterface">      EventLibraryInterface.xml       </config>
    <config alg="genie::vmc::EvtLibInteractionListGenerator"> EvtLibInteractionListGenerator.xml  </config>
+   <config alg="genie::vmc::EvtLibPXSec"> EvtLibPXSec.xml  </config>
 </genie_config>
