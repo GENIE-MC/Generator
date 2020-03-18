@@ -8,5 +8,6 @@
 #pragma link C++ namespace genie::vmc;
 
 #pragma link C++ class genie::vmc::EventLibraryInterface;
+#pragma link C++ class genie::vmc::EvtLibInteractionListGenerator;
 
 #endif

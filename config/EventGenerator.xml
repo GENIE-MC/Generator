@@ -122,8 +122,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   1                                                    </param>
      <param type="alg"    name="Module-0">   genie::vmc::EventLibraryInterface/Default            </param>
-     <!-- TODO figure out what this should actually be -->
-     <param type="alg"    name="ILstGen">    genie::QELInteractionListGenerator/CC-Default        </param>
+     <param type="alg"    name="ILstGen">    genie::vmc::EvtLibInteractionListGenerator/Default   </param>
   </param_set>
 
 
