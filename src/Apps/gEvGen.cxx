@@ -36,6 +36,7 @@
                   [--cache-file root_file]
                   [--xml-path config_xml_dir]
                   [--tune G18_02a_00_000] (or your preferred tune identifier)
+                  [--gen-unscaled]
 
          Options :
            [] Denotes an optional argument.
@@ -108,6 +109,9 @@
               re-used in subsequent MC jobs.
            --xml-path
               A directory to load XML files from - overrides $GXMLPATH, and $GENIE/config
+	   --gen-unscaled
+	      Write unscaled weight option (required to correcly combine 
+	      files generated with different E ranges/geometries)
 
         ***  See the User Manual for more details and examples. ***
 
@@ -118,7 +122,7 @@
 
 \cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-
+         
 */
 //____________________________________________________________________________
 
@@ -214,6 +218,7 @@ long int        gOptRanSeed;      // random number seed
 string          gOptInpXSecFile;  // cross-section splines
 string          gOptOutFileName;  // Optional outfile name
 string          gOptStatFileName; // Status file name, set if gOptOutFileName was set.
+bool            gOptGenUnscaled = false;  // write EventRecorg->Weight() in global probability scale
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -312,7 +317,7 @@ void GenerateEventsAtFixedInitState(void)
 
      // generate a single event
      EventRecord * event = evg_driver.GenerateEvent(nu_p4);
-
+     
      if(!event) {
         LOG("gevgen", pNOTICE)
           << "Last attempt failed. Re-trying....";
@@ -381,6 +386,10 @@ void GenerateEventsUsingFluxOrTgtMix(void)
      // generate a single event for neutrinos coming from the specified flux
      EventRecord * event = mcj_driver->GenerateEvent();
 
+     if(gOptGenUnscaled){
+       event->SetWeight( mcj_driver->GlobProbScale() * event->Weight() );
+     }
+     
      LOG("gevgen", pNOTICE) << "Generated Event GHEP Record: " << *event;
 
      // add event at the output ntuple, refresh the mc job monitor & clean-up
@@ -721,6 +730,9 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptInpXSecFile = "";
   }
 
+  // write unscaled weight option (required to correcly combine files generated with different E ranges/geometries)
+  gOptGenUnscaled = parser.OptionExists("gen-unscaled");
+  
   //
   // print-out the command line options
   //
@@ -768,6 +780,8 @@ void GetCommandLineArgs(int argc, char ** argv)
       LOG("gevgen", pNOTICE)
           << " >> " <<  tgtpdgc << " (weight fraction = " << wgt << ")";
   }
+  LOG("gevgen", pNOTICE)
+       << "Write unscaled weights? " << gOptGenUnscaled;
   LOG("gevgen", pNOTICE) << "\n";
 
   LOG("gevgen", pNOTICE) << *RunOpt::Instance();
@@ -797,6 +811,7 @@ void PrintSyntax(void)
     << "\n              [--cache-file root_file]"
     << "\n              [--xml-path config_xml_dir]"
     << "\n              [--tune G18_02a_00_000] (or your preferred tune identifier)"
+    << "\n              [--gen-unscaled]"
     << "\n";
 }
 //____________________________________________________________________________
