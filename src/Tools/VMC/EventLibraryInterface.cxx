@@ -18,10 +18,9 @@
 #include "Framework/Interaction/Interaction.h"
 #include "Tools/VMC/EventLibraryInterface.h"
 #include "Tools/VMC/RecordList.h"
+#include "Tools/VMC/Utils.h"
 
 #include "TFile.h"
-
-#include <wordexp.h>
 
 using namespace genie;
 using namespace genie::vmc;
@@ -168,35 +167,6 @@ std::vector<TVector3> EventLibraryInterface::Basis(const TVector3& z) const
   const TVector3 zp = z.Unit();
 
   return {xp, yp, zp};
-}
-
-//___________________________________________________________________________
-// TODO is there a built-in tool for doing this?
-void Expand(std::string& s)
-{
-  wordexp_t p;
-  const int status = wordexp(s.c_str(), &p, WRDE_SHOWERR | WRDE_UNDEF);
-  if(status != 0){
-    LOG("ELI", pFATAL) << "String '" << s
-                       << "' returned error " << status << " from wordexp().";
-    exit(1);
-  }
-
-  if(p.we_wordc == 0){
-    LOG("ELI", pFATAL) << "String '" << s
-                       << "' didn't expand to anything.";
-    exit(1);
-  }
-
-  if(p.we_wordc > 1){
-    LOG("ELI", pFATAL) << "String '" << s
-                       << "' expanded to " << p.we_wordc << " locations.";
-    exit(1);
-  }
-
-  s = p.we_wordv[0];
-
-  wordfree(&p);
 }
 
 //____________________________________________________________________________

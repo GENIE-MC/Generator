@@ -20,6 +20,8 @@
 #ifndef _EVENT_LIBRARY_INTERFACE_H_
 #define _EVENT_LIBRARY_INTERFACE_H_
 
+#include "Tools/VMC/Key.h"
+
 #include "Framework/EventGen/EventRecordVisitorI.h"
 
 #include "TVector3.h"
@@ -49,28 +51,6 @@ public:
   void Configure(string config);
 
 private:
-  struct Key
-  {
-    Key(int _nucl_pdg, int _nu_pdg, bool _iscc)
-      : nucl_pdg(_nucl_pdg), nu_pdg(_nu_pdg), iscc(_iscc) {}
-
-    bool operator<(const Key& k) const
-    {
-      return (std::make_tuple(  nucl_pdg,   nu_pdg,   iscc) <
-              std::make_tuple(k.nucl_pdg, k.nu_pdg, k.iscc));
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const Key& k)
-    {
-      os << k.nu_pdg << " on " << k.nucl_pdg << " " << " via " << (k.iscc ? "CC" : "NC");
-      return os;
-    }
-
-    int nucl_pdg;
-    int nu_pdg;
-    bool iscc;
-  };
-
   mutable std::map<Key, const IRecordList*> fRecords;
 
   const Record* GetRecord(const Interaction* interaction) const;
