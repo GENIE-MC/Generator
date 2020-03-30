@@ -111,8 +111,7 @@ const Record* EventLibraryInterface::GetRecord(const Interaction* interaction) c
 
   const InitialState& init_state = interaction->InitState();
 
-  const std::unique_ptr<TLorentzVector> probe_p4(init_state.GetProbeP4(kRfLab));
-  const double probe_E = probe_p4->E();
+  const double probe_E = init_state.ProbeE(kRfLab);
   const int probe_pdgc = init_state.ProbePdg();
 
   if(!init_state.Tgt().IsNucleus()){
@@ -120,10 +119,7 @@ const Record* EventLibraryInterface::GetRecord(const Interaction* interaction) c
     return 0;
   }
 
-  const int tgt_A    = init_state.Tgt().A();
-  const int tgt_Z    = init_state.Tgt().Z();
-  const int tgt_pdgc = pdg::IonPdgCode(tgt_A, tgt_Z);
-  // TODO why was that not just init_state.TgtPdg()?
+  const int tgt_pdgc = init_state.TgtPdg();
 
   const ProcessInfo& proc = interaction->ProcInfo();
 

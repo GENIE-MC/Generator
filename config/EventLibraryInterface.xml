@@ -2,7 +2,7 @@
 
 <alg_conf>
   <param_set name="Default">
-    <param type="string" name="LibraryPath"> Dummy/ </param>
+    <param type="string" name="LibraryPath"> Dummy.root </param>
     <param type="bool" name="OnDemand"> true </param>
   </param_set>
 </alg_conf>

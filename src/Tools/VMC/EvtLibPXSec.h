@@ -1,17 +1,14 @@
 #ifndef _LLEWELLYN_SMITH_QELCC_CROSS_SECTION_H_
 #define _LLEWELLYN_SMITH_QELCC_CROSS_SECTION_H_
 
-#include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/EventGen/XSecAlgorithmI.h"
-#include "Physics/QuasiElastic/XSection/QELFormFactors.h"
-#include "Physics/QuasiElastic/XSection/QELUtils.h"
-#include "Physics/NuclearState/PauliBlocker.h"
+
+#include "Tools/VMC/Key.h"
+
+class TGraph;
 
 namespace genie {
 namespace vmc {
-
-class QELFormFactorsModelI;
-class XSecIntegratorI;
 
 class EvtLibPXSec : public XSecAlgorithmI {
 
@@ -29,6 +26,12 @@ public:
   // data to private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
+
+protected:
+  TGraph* GetXSec(const Interaction* in) const;
+  void LoadXSecs() const;
+
+  mutable std::map<Key, TGraph*> fXSecs;
 };
 
 } // vmc namespace
