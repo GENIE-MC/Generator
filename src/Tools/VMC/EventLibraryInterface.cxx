@@ -226,32 +226,32 @@ void EventLibraryInterface::LoadRecords() const
 
   PDGLibrary* pdglib = PDGLibrary::Instance();
 
-  // TODO - should be able to figure out the nuclei which are in the library
-  // file, rather than hardcoding this set. TParticlePDG::GetParticle() to do
-  // reverse lookup from the names to the PDG codes?
-  const int nuclei[] = {1000010010,
-                        1000060120,
-                        1000080160,
-                        1000170350,
-                        1000220480,
-                        1000260560};
-
   TFile fin(libPath.c_str());
   if(fin.IsZombie()) exit(1);
 
-  for(bool iscc: {true, false}){
+  TIter next(fin.GetListOfKeys());
+  while(TObject* dir = next()){
+    const std::string& tgtName = dir->GetName();
+    const TParticlePDG* tgtPart = pdglib->DBase()->GetParticle(tgtName.c_str());
+    if(!tgtPart){
+      LOG("ELI", pWARN) << "Unknown nucleus " << tgtName
+                        << " found in " << libPath
+                        << " -- skipping";
+      continue;
+    }
+
     for(int sign: {+1, -1}){
       for(int pdg: {12, 14}){
-        // NCs should be the same for all flavours. Use numu by convention.
-        if(!iscc && pdg != 14) continue;
-        for(int tgt: nuclei){
+        for(bool iscc: {true, false}){
+          // NCs should be the same for all flavours. Use numu by convention.
+          if(!iscc && pdg != 14) continue;
           const std::string treeName =
             TString::Format("%s/%s/%s/records",
-                            pdglib->Find(tgt)->GetName(),
+                            tgtName.c_str(),
                             pdglib->Find(sign*pdg)->GetName(),
                             iscc ? "cc" : "nc").Data();
 
-          const Key key(tgt, sign*pdg, iscc);
+          const Key key(tgtPart->PdgCode(), sign*pdg, iscc);
 
           TTree* tr = (TTree*)fin.Get(treeName.c_str());
           if(!tr){
