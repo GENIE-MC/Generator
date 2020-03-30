@@ -32,17 +32,9 @@ namespace vmc{
   }
 
   //---------------------------------------------------------------------------
-  RecordLoader::RecordLoader(const std::string& fname, const std::string& trName)
+  RecordLoader::RecordLoader(TTree* tree)
+    : fTree(tree)
   {
-    fFile = new TFile(fname.c_str());
-    if(fFile->IsZombie()) exit(1);
-
-    fTree = (TTree*)fFile->Get(trName.c_str());
-    if(!fTree){
-      LOG("ELI", pFATAL) << trName << " not found in " << fname;
-      exit(1);
-    }
-
     fTree->SetBranchAddress("Enu", &Enu);
 //    fTree->SetBranchAddress("weight", &weight);
     fTree->SetBranchAddress("prod_id", &prod_id);
@@ -59,7 +51,6 @@ namespace vmc{
   //---------------------------------------------------------------------------
   RecordLoader::~RecordLoader()
   {
-    delete fFile;
   }
 
   //---------------------------------------------------------------------------
@@ -91,10 +82,10 @@ namespace vmc{
   }
 
   //---------------------------------------------------------------------------
-  SimpleRecordList::SimpleRecordList(const std::string& fname, const std::string& trName)
+  SimpleRecordList::SimpleRecordList(TTree* tree, const std::string& prettyName)
   {
-    std::cout << "Loading " << fname << " " << trName;
-    RecordLoader loader(fname, trName);
+    std::cout << "Loading " << prettyName;
+    RecordLoader loader(tree);
 
     const int N = loader.NRecords();
     fRecs.reserve(N);
@@ -106,8 +97,6 @@ namespace vmc{
     std::cout << std::endl;
 
     std::sort(fRecs.begin(), fRecs.end());
-
-//    for(Record& r: fRecs) r.weight *= fRecs.size();
   }
 
   //---------------------------------------------------------------------------
@@ -119,34 +108,25 @@ namespace vmc{
   }
 
   //---------------------------------------------------------------------------
-  OnDemandRecordList::OnDemandRecordList(const std::string& fname, const std::string& trName)
-    : fFileName(fname), fTreeName(trName), fLoader(fname, trName)
+  OnDemandRecordList::OnDemandRecordList(TTree* tree, const std::string& prettyName)
+    : fTree(tree), fPrettyName(prettyName), fLoader(tree)
   {
   }
 
   //---------------------------------------------------------------------------
   void OnDemandRecordList::LoadIndex() const
   {
-    std::cout << "Loading index to " << fFileName << " " << fTreeName;
-
-    TFile f(fFileName.c_str());
-    if(f.IsZombie()) exit(1);
-
-    TTree* tr = (TTree*)f.Get(fTreeName.c_str());
-    if(!tr){
-      LOG("ELI", pFATAL) << fTreeName << " not found in " << fFileName;
-      exit(1);
-    }
+    std::cout << "Loading index to " << fPrettyName;
 
     float Enu;
-    tr->SetBranchAddress("Enu", &Enu);
+    fTree->SetBranchAddress("Enu", &Enu);
 
-    const int N = tr->GetEntries();
+    const int N = fTree->GetEntries();
     fEnergies.reserve(N);
 
     for(int i = 0; i < N; ++i){
       if(i%(N/8) == 0) std::cout << "." << std::flush;
-      tr->GetEntry(i);
+      fTree->GetEntry(i);
 
       fEnergies.emplace_back(Enu, i);
     } // end for i
@@ -165,8 +145,6 @@ namespace vmc{
     if(it == fEnergies.end()) return 0;
 
     fRecord = fLoader.GetRecord(it->second);
-
-//    fRecord.weight *= fEnergies.size();
 
     return &fRecord;
   }

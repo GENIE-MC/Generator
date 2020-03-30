@@ -19,6 +19,8 @@
 #include "Tools/VMC/EventLibraryInterface.h"
 #include "Tools/VMC/RecordList.h"
 
+#include "TFile.h"
+
 #include <wordexp.h>
 
 using namespace genie;
@@ -234,11 +236,14 @@ void EventLibraryInterface::LoadRecords() const
                         1000220480,
                         1000260560};
 
+  TFile fin(libPath.c_str());
+  if(fin.IsZombie()) exit(1);
+
   for(bool iscc: {true, false}){
     for(int sign: {+1, -1}){
       for(int pdg: {12, 14}){
         // NCs should be the same for all flavours. Use numu by convention.
-        if(!iscc && pdg == 12) continue;
+        if(!iscc && pdg != 14) continue;
         for(int tgt: nuclei){
           const std::string treeName =
             TString::Format("%s/%s/%s/records",
@@ -248,10 +253,18 @@ void EventLibraryInterface::LoadRecords() const
 
           const Key key(tgt, sign*pdg, iscc);
 
+          TTree* tr = (TTree*)fin.Get(treeName.c_str());
+          if(!tr){
+            LOG("ELI", pINFO) << treeName << " not found in "
+                              << libPath << " -- skipping";
+            continue;
+          }
+          tr->SetDirectory(0);
+
           if(onDemand)
-            fRecords[key] = new OnDemandRecordList(libPath, treeName);
+            fRecords[key] = new OnDemandRecordList(tr, treeName);
           else
-            fRecords[key] = new SimpleRecordList(libPath, treeName);
+            fRecords[key] = new SimpleRecordList(tr, treeName);
         } // end for nucleus
       } // end for pdg
     } // end for sign

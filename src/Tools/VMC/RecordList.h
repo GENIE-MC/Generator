@@ -48,13 +48,12 @@ namespace vmc{
   class RecordLoader
   {
   public:
-    RecordLoader(const std::string& fname, const std::string& trName);
+    RecordLoader(TTree* tree);//const std::string& fname, const std::string& trName);
     ~RecordLoader();
 
     long NRecords() const;
     Record GetRecord(int i) const;
   protected:
-    TFile* fFile;
     TTree* fTree;
 
     float Enu;//, weight;
@@ -68,7 +67,7 @@ namespace vmc{
   class SimpleRecordList: public IRecordList
   {
   public:
-    SimpleRecordList(const std::string& fname, const std::string& trName);
+    SimpleRecordList(TTree* tree, const std::string& prettyName);
     virtual ~SimpleRecordList(){}
 
     const Record* GetRecord(float E) const override;
@@ -80,15 +79,15 @@ namespace vmc{
   class OnDemandRecordList: public IRecordList
   {
   public:
-    OnDemandRecordList(const std::string& fname, const std::string& trName);
+    OnDemandRecordList(TTree* tree, const std::string& prettyName);
     virtual ~OnDemandRecordList(){}
 
     const Record* GetRecord(float E) const override;
   protected:
     void LoadIndex() const;
 
-    std::string fFileName;
-    std::string fTreeName;
+    TTree* fTree;
+    std::string fPrettyName;
     RecordLoader fLoader;
 
     mutable std::vector<std::pair<float, int>> fEnergies;
