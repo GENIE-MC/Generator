@@ -211,13 +211,13 @@ void EventLibraryInterface::Configure(string config)
 //___________________________________________________________________________
 void EventLibraryInterface::LoadRecords() const
 {
-  std::string dir;
-  if(!GetParamDef( "LibraryPath", dir, std::string() )){
+  std::string libPath;
+  if(!GetParamDef( "LibraryPath", libPath, std::string() )){
     LOG("ELI", pFATAL) << "Must specify 'LibraryPath'";
     exit(1);
   }
 
-  Expand(dir);
+  Expand(libPath);
 
   bool onDemand;
   GetParamDef( "OnDemand", onDemand, true );
@@ -240,19 +240,18 @@ void EventLibraryInterface::LoadRecords() const
         // NCs should be the same for all flavours. Use numu by convention.
         if(!iscc && pdg == 12) continue;
         for(int tgt: nuclei){
-            const TString fname =
-              TString::Format("%s/%s_%s/%s/records.root",
-                              dir.c_str(),
-                              iscc ? "cc" : "nc",
-                              pdglib->Find(sign*pdg)->GetName(),
-                              pdglib->Find(tgt)->GetName());
+          const std::string treeName =
+            TString::Format("%s/%s/%s/records",
+                            pdglib->Find(tgt)->GetName(),
+                            pdglib->Find(sign*pdg)->GetName(),
+                            iscc ? "cc" : "nc").Data();
 
-            const Key key(tgt, sign*pdg, iscc);
+          const Key key(tgt, sign*pdg, iscc);
 
-            if(onDemand)
-              fRecords[key] = new OnDemandRecordList(fname.Data());
-            else
-              fRecords[key] = new SimpleRecordList(fname.Data());
+          if(onDemand)
+            fRecords[key] = new OnDemandRecordList(libPath, treeName);
+          else
+            fRecords[key] = new SimpleRecordList(libPath, treeName);
         } // end for nucleus
       } // end for pdg
     } // end for sign

@@ -32,14 +32,14 @@ namespace vmc{
   }
 
   //---------------------------------------------------------------------------
-  RecordLoader::RecordLoader(const char* fname)
+  RecordLoader::RecordLoader(const std::string& fname, const std::string& trName)
   {
-    fFile = new TFile(fname);
+    fFile = new TFile(fname.c_str());
     if(fFile->IsZombie()) exit(1);
 
-    fTree = (TTree*)fFile->Get("tr");
+    fTree = (TTree*)fFile->Get(trName.c_str());
     if(!fTree){
-      LOG("ELI", pFATAL) << "'tr' not found in " << fname;
+      LOG("ELI", pFATAL) << trName << " not found in " << fname;
       exit(1);
     }
 
@@ -91,10 +91,10 @@ namespace vmc{
   }
 
   //---------------------------------------------------------------------------
-  SimpleRecordList::SimpleRecordList(const char* fname)
+  SimpleRecordList::SimpleRecordList(const std::string& fname, const std::string& trName)
   {
-    std::cout << "Loading " << fname;
-    RecordLoader loader(fname);
+    std::cout << "Loading " << fname << " " << trName;
+    RecordLoader loader(fname, trName);
 
     const int N = loader.NRecords();
     fRecs.reserve(N);
@@ -119,22 +119,22 @@ namespace vmc{
   }
 
   //---------------------------------------------------------------------------
-  OnDemandRecordList::OnDemandRecordList(const char* fname)
-    : fFname(fname), fLoader(fname)
+  OnDemandRecordList::OnDemandRecordList(const std::string& fname, const std::string& trName)
+    : fFileName(fname), fTreeName(trName), fLoader(fname, trName)
   {
   }
 
   //---------------------------------------------------------------------------
   void OnDemandRecordList::LoadIndex() const
   {
-    std::cout << "Loading index to " << fFname;
+    std::cout << "Loading index to " << fFileName << " " << fTreeName;
 
-    TFile f(fFname.c_str());
+    TFile f(fFileName.c_str());
     if(f.IsZombie()) exit(1);
 
-    TTree* tr = (TTree*)f.Get("tr");
+    TTree* tr = (TTree*)f.Get(fTreeName.c_str());
     if(!tr){
-      LOG("ELI", pFATAL) << "'tr' not found in " << fFname;
+      LOG("ELI", pFATAL) << fTreeName << " not found in " << fFileName;
       exit(1);
     }
 
