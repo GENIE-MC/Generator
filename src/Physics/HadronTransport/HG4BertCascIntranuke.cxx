@@ -634,17 +634,24 @@ bool HG4BertCascIntranuke::NeedsRescattering(const GHepParticle * p) const {
 bool HG4BertCascIntranuke::CanRescatter(const GHepParticle * p) const
 {
   assert(p);
-  return  ( p->Pdg() == kPdgPiP     ||
-            p->Pdg() == kPdgPiM     ||
-            p->Pdg() == kPdgPi0     ||
-            p->Pdg() == kPdgProton  ||
-            p->Pdg() == kPdgNeutron ||
-            p->Pdg() == kPdgKP      ||
-            p->Pdg() == kPdgKM      ||
-            p->Pdg() == kPdgSigma0  ||
-            p->Pdg() == kPdgSigmaM  ||
-            p->Pdg() == kPdgSigmaP
-                 );
+  return  ( p->Pdg() == kPdgPiP           ||
+            p->Pdg() == kPdgPiM           ||
+            p->Pdg() == kPdgPi0           ||
+            p->Pdg() == kPdgProton        ||
+            p->Pdg() == kPdgAntiProton    ||
+            p->Pdg() == kPdgNeutron       ||
+            p->Pdg() == kPdgKP            ||
+            p->Pdg() == kPdgKM            ||
+            p->Pdg() == kPdgK0            ||
+            p->Pdg() == kPdgK0L           ||
+            p->Pdg() == kPdgSigma0        ||
+            p->Pdg() == kPdgSigmaM        ||
+            p->Pdg() == kPdgSigmaP        ||
+          //p->Pdg() == kPdgSigmaPPc      ||
+            p->Pdg() == kPdgXiM           ||
+            p->Pdg() == kPdgXi0           ||
+            p->Pdg() == kPdgLambda
+            );
 }
 
 //___________________________________________________________________________
