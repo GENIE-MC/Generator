@@ -93,7 +93,7 @@ void EvtLibPXSec::LoadXSecs() const
     }
 
     for(int sign: {+1, -1}){
-      for(int pdg: {12, 14}){
+      for(int pdg: {12, 14, 16}){
         for(bool iscc: {true, false}){
           // NCs should be the same for all flavours. Use numu by convention.
           if(!iscc && pdg != 14) continue;
