@@ -19,8 +19,8 @@
 #include <string>
 #include <vector>
 
-#include "Messenger/Messenger.h"
-#include "Utils/CmdLnArgParser.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/CmdLnArgParser.h"
 
 using std::string;
 using std::vector;

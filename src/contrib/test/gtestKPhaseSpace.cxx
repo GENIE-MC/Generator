@@ -19,9 +19,9 @@
 #include <TFile.h>
 #include <TTree.h>
 
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
 
 using namespace genie;
 
