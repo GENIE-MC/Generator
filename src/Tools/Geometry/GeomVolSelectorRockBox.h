@@ -12,16 +12,13 @@
 
 \created  August 5, 2010
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
-
 */
 //____________________________________________________________________________
 
 #ifndef _GEOM_VOL_SELECTOR_ROCKBOX_H_
 #define _GEOM_VOL_SELECTOR_ROCKBOX_H_
-
 
 #include <string>
 #include <vector>
@@ -53,8 +50,8 @@ public :
   //
   // set fiducial volume parameter (call only once)
   //   in "top vol" coordinates and units
-  // set minimal (inner (optionally exclusion)) extent 
-  //   before either wall or inclusion extent (which define region 
+  // set minimal (inner (optionally exclusion)) extent
+  //   before either wall or inclusion extent (which define region
   //   where events are always accepted)
   void SetRockBoxMinimal(Double_t* xyzmin, Double_t* xyzmax);
   void SetRockBoxInclusion(Double_t* xyzmin, Double_t* xyzmax);
@@ -64,7 +61,7 @@ public :
 
   // by default shapes are assumed to be in "top vol" coordinates
   // in the case where they are entered in master coordinates
-  // ask the configured shape to convert itself  
+  // ask the configured shape to convert itself
   // (do this only once for any shape definition)
   virtual void ConvertShapeMaster2Top(const ROOTGeomAnalyzer* rgeom);
 
@@ -75,13 +72,13 @@ protected:
   Double_t  fMinimalXYZMin[3];   /// interior box lower corner
   Double_t  fMinimalXYZMax[3];   /// interior box upper corner
   Double_t  fMinimumWall;        /// minimum distance around (XYZmin,XYZmax)
-  Double_t  fInclusionXYZMin[3]; /// box within which events are always 
+  Double_t  fInclusionXYZMin[3]; /// box within which events are always
   Double_t  fInclusionXYZMax[3]; ///   accepted
   Double_t  fDeDx;               /// how to scale from energy to distance
   Bool_t    fExpandInclusion;    /// expand from minimal or inclusion box?
 
   mutable FidShape* fRockBoxShape;   /// shape changes for every nu ray
-  
+
   const ROOTGeomAnalyzer* fROOTGeom;  // ref! only (for coordinate transforms, units)
 
   // values calculated during BeginPSList():

@@ -1,13 +1,13 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
-         Changes required to implement the GENIE Boosted Dark Matter module 
-         were installed by Josh Berger (Univ. of Wisconsin)
+ Changes required to implement the GENIE Boosted Dark Matter module
+ were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -63,10 +63,10 @@ TObject()
 //___________________________________________________________________________
 Interaction::Interaction(TRootIOCtor*) :
 TObject(),
-fInitialState(0), 
+fInitialState(0),
 fProcInfo(0),
-fKinematics(0), 
-fExclusiveTag(0), 
+fKinematics(0),
+fExclusiveTag(0),
 fKinePhSp(0)
 {
 
@@ -203,7 +203,7 @@ int Interaction::RecoilNucleonPdg(void) const
     assert(struck_is_2nuc_cluster && (is_weak || is_em));
     if(fProcInfo->IsWeakCC()) {
        bool isnu = pdg::IsNeutrino(fInitialState->ProbePdg());
-       // nucleon cluster charge should be incremented by +1 for 
+       // nucleon cluster charge should be incremented by +1 for
        // neutrino CC and by -1 for antineutrino CC
        int dQ = (isnu) ? +1 : -1;
        recoil_nuc = pdg::ModifyNucleonCluster(struck_nuc,dQ); // CC
@@ -272,9 +272,9 @@ string Interaction::AsString(void) const
                 << (tgt.HitSeaQrk() ? "(s)" : "(v)") << ";";
   }
 
-  interaction << "proc:" << fProcInfo->InteractionTypeAsString() 
+  interaction << "proc:" << fProcInfo->InteractionTypeAsString()
               << "," << fProcInfo->ScatteringTypeAsString()  << ";";
-  
+
   string xcls = fExclusiveTag->AsString();
   interaction << xcls;
   if(xcls.size()>0) interaction << ";";
@@ -322,7 +322,7 @@ Interaction * Interaction::Create(
 //___________________________________________________________________________
 Interaction * Interaction::DISCC(int target, int hitnuc, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
              Interaction::Create(target,probe,kScDeepInelastic, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -347,7 +347,7 @@ Interaction * Interaction::DISCC(
 Interaction * Interaction::DISCC(
    int target, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScDeepInelastic, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -358,7 +358,7 @@ Interaction * Interaction::DISCC(
 }
 //___________________________________________________________________________
 Interaction * Interaction::DISCC(
-   int target, int hitnuc, int hitqrk, bool fromsea, int probe, 
+   int target, int hitnuc, int hitqrk, bool fromsea, int probe,
    const TLorentzVector & p4probe)
 {
   Interaction* interaction = Interaction::DISCC(target,hitnuc,probe,p4probe);
@@ -372,7 +372,7 @@ Interaction * Interaction::DISCC(
 //___________________________________________________________________________
 Interaction * Interaction::DISNC(int target, int hitnuc, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
              Interaction::Create(target,probe,kScDeepInelastic, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -397,7 +397,7 @@ Interaction * Interaction::DISNC(
 Interaction * Interaction::DISNC(
    int target, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScDeepInelastic, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -408,7 +408,7 @@ Interaction * Interaction::DISNC(
 }
 //___________________________________________________________________________
 Interaction * Interaction::DISNC(
-   int target, int hitnuc, int hitqrk, bool fromsea, int probe, 
+   int target, int hitnuc, int hitqrk, bool fromsea, int probe,
    const TLorentzVector & p4probe)
 {
   Interaction * interaction = Interaction::DISNC(target,hitnuc,probe,p4probe);
@@ -422,7 +422,7 @@ Interaction * Interaction::DISNC(
 //___________________________________________________________________________
 Interaction * Interaction::DISEM(int target, int hitnuc, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
              Interaction::Create(target,probe,kScDeepInelastic, kIntEM);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -447,7 +447,7 @@ Interaction * Interaction::DISEM(
 Interaction * Interaction::DISEM(
    int target, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScDeepInelastic, kIntEM);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -458,7 +458,7 @@ Interaction * Interaction::DISEM(
 }
 //___________________________________________________________________________
 Interaction * Interaction::DISEM(
-   int target, int hitnuc, int hitqrk, bool fromsea, int probe, 
+   int target, int hitnuc, int hitqrk, bool fromsea, int probe,
    const TLorentzVector & p4probe)
 {
   Interaction * interaction = Interaction::DISEM(target,hitnuc,probe,p4probe);
@@ -472,7 +472,7 @@ Interaction * Interaction::DISEM(
 //___________________________________________________________________________
 Interaction * Interaction::QELCC(int target, int hitnuc, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScQuasiElastic, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -485,7 +485,7 @@ Interaction * Interaction::QELCC(int target, int hitnuc, int probe, double E)
 Interaction * Interaction::QELCC(
    int target, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScQuasiElastic, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -497,7 +497,7 @@ Interaction * Interaction::QELCC(
 //___________________________________________________________________________
 Interaction * Interaction::QELNC(int target, int hitnuc, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScQuasiElastic, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -510,7 +510,7 @@ Interaction * Interaction::QELNC(int target, int hitnuc, int probe, double E)
 Interaction * Interaction::QELNC(
    int target, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScQuasiElastic, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -522,7 +522,7 @@ Interaction * Interaction::QELNC(
 //___________________________________________________________________________
 Interaction * Interaction::QELEM(int target, int hitnuc, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScQuasiElastic, kIntEM);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -535,7 +535,7 @@ Interaction * Interaction::QELEM(int target, int hitnuc, int probe, double E)
 Interaction * Interaction::QELEM(
    int target, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScQuasiElastic, kIntEM);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -549,14 +549,14 @@ Interaction * Interaction::IBD(int target, int hitnuc, int probe, double E)
 {
   Interaction * interaction =
      Interaction::Create(target,probe,kScInverseBetaDecay,kIntWeakCC);
-   
+
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
   init_state->TgtPtr()->SetHitNucPdg(hitnuc);
-   
+
   return interaction;
-} 
-//___________________________________________________________________________ 
+}
+//___________________________________________________________________________
 Interaction * Interaction::IBD(
    int target, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
@@ -566,13 +566,13 @@ Interaction * Interaction::IBD(
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
   init_state->TgtPtr()->SetHitNucPdg(hitnuc);
-  
+
   return interaction;
 }
 //___________________________________________________________________________
 Interaction * Interaction::RESCC(int target, int hitnuc, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScResonant, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -585,7 +585,7 @@ Interaction * Interaction::RESCC(int target, int hitnuc, int probe, double E)
 Interaction * Interaction::RESCC(
            int target, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScResonant, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -597,7 +597,7 @@ Interaction * Interaction::RESCC(
 //___________________________________________________________________________
 Interaction * Interaction::RESNC(int target, int hitnuc, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScResonant, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -610,7 +610,7 @@ Interaction * Interaction::RESNC(int target, int hitnuc, int probe, double E)
 Interaction * Interaction::RESNC(
    int target, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScResonant, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -622,7 +622,7 @@ Interaction * Interaction::RESNC(
 //___________________________________________________________________________
 Interaction * Interaction::RESEM(int target, int hitnuc, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScResonant, kIntEM);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -635,7 +635,7 @@ Interaction * Interaction::RESEM(int target, int hitnuc, int probe, double E)
 Interaction * Interaction::RESEM(
    int target, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScResonant, kIntEM);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -647,7 +647,7 @@ Interaction * Interaction::RESEM(
 //___________________________________________________________________________
 Interaction * Interaction::DFRCC(int tgt,int hitnuc, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt, probe, kScDiffractive, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -660,7 +660,7 @@ Interaction * Interaction::DFRCC(int tgt,int hitnuc, int probe, double E)
 Interaction * Interaction::DFRCC(
    int tgt, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt, probe, kScDiffractive, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -672,15 +672,15 @@ Interaction * Interaction::DFRCC(
 //___________________________________________________________________________
 Interaction * Interaction::COHCC(int tgt, int probe, unsigned int prod_pdg, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt,probe,kScCoherentProduction, kIntWeakCC);
 
-  XclsTag * xcl = interaction -> ExclTagPtr() ; 
+  XclsTag * xcl = interaction -> ExclTagPtr() ;
   if ( pdg::IsPion( prod_pdg ) ) {
     if ( pdg::IsNeutrino( probe ) ) xcl -> SetNPions( 1,0,0 ) ;
     else if ( pdg::IsAntiNeutrino( probe ) ) xcl -> SetNPions( 0,0,1 ) ;
   }
-  
+
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
 
@@ -690,10 +690,10 @@ Interaction * Interaction::COHCC(int tgt, int probe, unsigned int prod_pdg, doub
 Interaction * Interaction::COHCC(
     int tgt, int probe, unsigned int prod_pdg, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt,probe,kScCoherentProduction, kIntWeakCC);
 
-  XclsTag * xcl = interaction -> ExclTagPtr() ; 
+  XclsTag * xcl = interaction -> ExclTagPtr() ;
   if ( pdg::IsPion( prod_pdg ) ) {
     if ( pdg::IsNeutrino( probe ) ) xcl -> SetNPions( 1,0,0 ) ;
     else if ( pdg::IsAntiNeutrino( probe ) ) xcl -> SetNPions( 0,0,1 ) ;
@@ -707,10 +707,10 @@ Interaction * Interaction::COHCC(
 //___________________________________________________________________________
 Interaction * Interaction::COHNC(int tgt, int probe, unsigned int prod_pdg, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt,probe,kScCoherentProduction, kIntWeakNC);
 
-  XclsTag * xcl = interaction -> ExclTagPtr() ; 
+  XclsTag * xcl = interaction -> ExclTagPtr() ;
   if ( pdg::IsPion( prod_pdg ) ) xcl -> SetNPions( 0,1,0 ) ;
   else if ( prod_pdg == kPdgGamma )  xcl -> SetNSingleGammas(1) ;
 
@@ -723,13 +723,13 @@ Interaction * Interaction::COHNC(int tgt, int probe, unsigned int prod_pdg, doub
 Interaction * Interaction::COHNC(
    int tgt, int probe, unsigned int prod_pdg, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt,probe,kScCoherentProduction, kIntWeakNC);
 
-  XclsTag * xcl = interaction -> ExclTagPtr() ; 
+  XclsTag * xcl = interaction -> ExclTagPtr() ;
   if ( pdg::IsPion( prod_pdg ) ) xcl -> SetNPions( 0,1,0 ) ;
   else if ( prod_pdg == kPdgGamma )  xcl -> SetNSingleGammas(1) ;
-  
+
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
 
@@ -738,7 +738,7 @@ Interaction * Interaction::COHNC(
 //___________________________________________________________________________
 Interaction * Interaction::CEvNS(int tgt, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt,probe,kScCoherentElastic, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -750,7 +750,7 @@ Interaction * Interaction::CEvNS(int tgt, int probe, double E)
 Interaction * Interaction::CEvNS(
    int tgt, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt,probe,kScCoherentElastic, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -761,7 +761,7 @@ Interaction * Interaction::CEvNS(
 //___________________________________________________________________________
 Interaction * Interaction::IMD(int target, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,kPdgNuMu,kScInverseMuDecay, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -772,7 +772,7 @@ Interaction * Interaction::IMD(int target, double E)
 //___________________________________________________________________________
 Interaction * Interaction::IMD(int target, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,kPdgNuMu,kScInverseMuDecay, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -783,7 +783,7 @@ Interaction * Interaction::IMD(int target, const TLorentzVector & p4probe)
 //___________________________________________________________________________
 Interaction * Interaction::AMNuGamma(int tgt, int nuc, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt,probe,kScAMNuGamma, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -796,7 +796,7 @@ Interaction * Interaction::AMNuGamma(int tgt, int nuc, int probe, double E)
 Interaction * Interaction::AMNuGamma(
    int tgt, int nuc, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt,probe,kScAMNuGamma, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -808,7 +808,7 @@ Interaction * Interaction::AMNuGamma(
 //___________________________________________________________________________
 Interaction * Interaction::MECCC(int tgt, int ncluster, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt, probe, kScMEC, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -821,7 +821,7 @@ Interaction * Interaction::MECCC(int tgt, int ncluster, int probe, double E)
 Interaction * Interaction::MECCC(
    int tgt, int ncluster, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt, probe, kScMEC, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -833,7 +833,7 @@ Interaction * Interaction::MECCC(
 //___________________________________________________________________________
 Interaction * Interaction::MECCC(int tgt, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt, probe, kScMEC, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -845,7 +845,7 @@ Interaction * Interaction::MECCC(int tgt, int probe, double E)
 Interaction * Interaction::MECCC(
    int tgt, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt, probe, kScMEC, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -857,7 +857,7 @@ Interaction * Interaction::MECCC(
 //___________________________________________________________________________
 Interaction * Interaction::MECNC(int tgt, int ncluster, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt, probe, kScMEC, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -870,7 +870,7 @@ Interaction * Interaction::MECNC(int tgt, int ncluster, int probe, double E)
 Interaction * Interaction::MECNC(
    int tgt, int ncluster, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt, probe, kScMEC, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -882,7 +882,7 @@ Interaction * Interaction::MECNC(
 //___________________________________________________________________________
 Interaction * Interaction::MECEM(int tgt, int ncluster, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt, probe, kScMEC, kIntEM);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -895,7 +895,7 @@ Interaction * Interaction::MECEM(int tgt, int ncluster, int probe, double E)
 Interaction * Interaction::MECEM(
    int tgt, int ncluster, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt, probe, kScMEC, kIntEM);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -907,7 +907,7 @@ Interaction * Interaction::MECEM(
 //___________________________________________________________________________
 Interaction * Interaction::GLR(int tgt, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt, kPdgAntiNuE, kScGlashowResonance, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -919,7 +919,7 @@ Interaction * Interaction::GLR(int tgt, double E)
 //___________________________________________________________________________
 Interaction * Interaction::GLR(int tgt, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt, kPdgAntiNuE, kScGlashowResonance, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -931,7 +931,7 @@ Interaction * Interaction::GLR(int tgt, const TLorentzVector & p4probe)
 //___________________________________________________________________________
 Interaction * Interaction::NDecay(int tgt, int decay_mode, int decayed_nucleon)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt, 0, kScNull, kIntNDecay);
   interaction->ExclTagPtr()->SetDecayMode(decay_mode);
 
@@ -949,9 +949,21 @@ Interaction * Interaction::NOsc(int tgt, int annihilation_mode)
   return interaction;
 }
 //___________________________________________________________________________
+Interaction * Interaction::NHL(double E, int decayed_mode)
+{
+  Interaction * interaction =
+    Interaction::Create(0, 0, kScNull, kIntNHL);
+  interaction->ExclTagPtr()->SetDecayMode(decayed_mode);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+
+  return interaction;
+}
+//___________________________________________________________________________
 Interaction * Interaction::ASK(int tgt, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt,probe,kScSingleKaon, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -963,7 +975,7 @@ Interaction * Interaction::ASK(int tgt, int probe, double E)
 Interaction * Interaction::ASK(
     int tgt, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt,probe,kScSingleKaon, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -975,7 +987,7 @@ Interaction * Interaction::ASK(
 Interaction * Interaction::DME(int target, int hitnuc, int probe, double E)
 {
   // EDIT: need to be able to create dark matter elastic
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScDarkMatterElastic, kIntDarkMatter);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -989,7 +1001,7 @@ Interaction * Interaction::DME(
    int target, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
   // EDIT: need to be able to create dark matter elastic
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScDarkMatterElastic, kIntDarkMatter);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -1001,7 +1013,7 @@ Interaction * Interaction::DME(
 //___________________________________________________________________________
 Interaction * Interaction::DMDI(int target, int hitnuc, int probe, double E)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
              Interaction::Create(target,probe,kScDarkMatterDeepInelastic, kIntDarkMatter);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -1026,7 +1038,7 @@ Interaction * Interaction::DMDI(
 Interaction * Interaction::DMDI(
    int target, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(target,probe,kScDarkMatterDeepInelastic, kIntDarkMatter);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -1037,7 +1049,7 @@ Interaction * Interaction::DMDI(
 }
 //___________________________________________________________________________
 Interaction * Interaction::DMDI(
-   int target, int hitnuc, int hitqrk, bool fromsea, int probe, 
+   int target, int hitnuc, int hitqrk, bool fromsea, int probe,
    const TLorentzVector & p4probe)
 {
   Interaction * interaction = Interaction::DMDI(target,hitnuc,probe,p4probe);

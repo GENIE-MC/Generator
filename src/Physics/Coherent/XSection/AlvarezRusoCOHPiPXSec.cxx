@@ -1,15 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Steve Dennis
-         University of Warwick, Rutherford Appleton Laboratory,
-         October 5, 2012
-
- For the class documentation see the corresponding header file.
-
+ Steve Dennis
+ University of Warwick, Rutherford Appleton Laboratory,
 */
 //____________________________________________________________________________
 
@@ -70,15 +65,15 @@ double AlvarezRusoCOHPiPXSec::XSec(
 
   const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
-  
+
   int A       = init_state.Tgt().A(); // mass number
   int Z       = init_state.Tgt().Z(); // atomic number
   double E_nu = init_state.ProbeE(kRfLab); // neutrino energy
-  
+
   const TLorentzVector p4_lep = kinematics.FSLeptonP4();
   const TLorentzVector p4_pi  = kinematics.HadSystP4();
   double E_lep = p4_lep.E();
- 
+
   if (fLastInteraction!=interaction) {
     if (fMultidiff != NULL) {
       delete fMultidiff;
@@ -96,7 +91,7 @@ double AlvarezRusoCOHPiPXSec::XSec(
       LOG("AlvarezRusoCohPi",pDEBUG)<<"Unknown current for AlvarezRuso implementation";
       return 0.;
     }
-    
+
     flavour_t flavour;
     if ( init_state.ProbePdg() == 12 || init_state.ProbePdg() == -12) {
       flavour=kE;
@@ -118,18 +113,18 @@ double AlvarezRusoCOHPiPXSec::XSec(
     } else {
       nutype = kAntiNu;
     }
- 
+
     fMultidiff = new AlvarezRusoCOHPiPDXSec(Z, A ,current, flavour, nutype);
     fLastInteraction = interaction;
   }
 
   double xsec = fMultidiff->DXSec(E_nu, E_lep, p4_lep.Theta(), p4_lep.Phi(), p4_pi.Theta(), p4_pi.Phi());
   xsec = xsec * 1E-38 * units::cm2;
-  
+
   if (kps != kPSElOlOpifE) {
     xsec *= utils::kinematics::Jacobian(interaction, kPSElOlOpifE, kps );
   }
-  
+
   return (xsec);
 }
 //____________________________________________________________________________
@@ -192,4 +187,3 @@ void AlvarezRusoCOHPiPXSec::LoadConfig(void)
 
 }
 //____________________________________________________________________________
-

@@ -2,17 +2,17 @@
 /*!
 \class    genie::utils::gsl::wrap::NuclDensityMomentIntegrand
 
-\brief    Integrand for the calculation of the k^th nuclear density moment: 
-	  \int_{0}^{\infinity} \rho_{A}(r) r^k d^{3}r
+\brief    Integrand for the calculation of the k^th nuclear density moment:
+	        \int_{0}^{\infinity} \rho_{A}(r) r^k d^{3}r
           where \rho_{A}(r) is the nuclear density for a nucleus with atomic
           mass number A.
-         
-\author   Costas Andreopoulos <costas.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory      
+
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  July 12, 2019
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________

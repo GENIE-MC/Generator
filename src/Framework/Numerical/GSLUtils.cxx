@@ -1,18 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Sep 03, 2008 - CA
-   Was first added in GENIE v2.5.1.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -27,7 +19,7 @@
 #include "Framework/Numerical/GSLUtils.h"
 
 //____________________________________________________________________________
-ROOT::Math::IntegrationOneDim::Type 
+ROOT::Math::IntegrationOneDim::Type
      genie::utils::gsl::Integration1DimTypeFromString (string type)
 {
 // Returns the appropriate IntegrationOneDim type based on the input string
@@ -41,8 +33,8 @@ ROOT::Math::IntegrationOneDim::Type
   else if (t=="adaptive_singular") return ROOT::Math::IntegrationOneDim::ADAPTIVESINGULAR;
   else if (t=="non_adaptive")      return ROOT::Math::IntegrationOneDim::NONADAPTIVE;
 
-  LOG("GSL", pWARN) 
-       << "Unknown 1-dim GSL integration type = " << type 
+  LOG("GSL", pWARN)
+       << "Unknown 1-dim GSL integration type = " << type
        << ". Setting it to default [adaptive].";
 
   return ROOT::Math::IntegrationOneDim::ADAPTIVE;
@@ -54,8 +46,8 @@ ROOT::Math::IntegrationOneDim::Type
   else if (t=="adaptive_singular") return ROOT::Math::IntegrationOneDim::kADAPTIVESINGULAR;
   else if (t=="non_adaptive")      return ROOT::Math::IntegrationOneDim::kNONADAPTIVE;
 
-  LOG("GSL", pWARN) 
-       << "Unknown 1-dim GSL integration type = " << type 
+  LOG("GSL", pWARN)
+       << "Unknown 1-dim GSL integration type = " << type
        << ". Setting it to default [adaptive].";
 
   return ROOT::Math::IntegrationOneDim::kADAPTIVE;
@@ -63,7 +55,7 @@ ROOT::Math::IntegrationOneDim::Type
 #endif
 }
 //____________________________________________________________________________
-ROOT::Math::IntegrationMultiDim::Type 
+ROOT::Math::IntegrationMultiDim::Type
      genie::utils::gsl::IntegrationNDimTypeFromString (string type)
 {
 // Returns the appropriate IntegrationMultiDim type based on the input string
@@ -77,8 +69,8 @@ ROOT::Math::IntegrationMultiDim::Type
   else if (t=="vegas")    return ROOT::Math::IntegrationMultiDim::VEGAS;
   else if (t=="miser")    return ROOT::Math::IntegrationMultiDim::MISER;
 
-  LOG("GSL", pWARN) 
-       << "Unknown N-dim GSL integration type = " << type 
+  LOG("GSL", pWARN)
+       << "Unknown N-dim GSL integration type = " << type
        << ". Setting it to default [adaptive].";
 
   return ROOT::Math::IntegrationMultiDim::ADAPTIVE;
@@ -90,8 +82,8 @@ ROOT::Math::IntegrationMultiDim::Type
   else if (t=="vegas")    return ROOT::Math::IntegrationMultiDim::kVEGAS;
   else if (t=="miser")    return ROOT::Math::IntegrationMultiDim::kMISER;
 
-  LOG("GSL", pWARN) 
-       << "Unknown N-dim GSL integration type = " << type 
+  LOG("GSL", pWARN)
+       << "Unknown N-dim GSL integration type = " << type
        << ". Setting it to default [adaptive].";
 
   return ROOT::Math::IntegrationMultiDim::kADAPTIVE;
@@ -100,4 +92,3 @@ ROOT::Math::IntegrationMultiDim::Type
 
 }
 //____________________________________________________________________________
-

@@ -3,23 +3,22 @@
 
 \class    genie::geometry::FidShape
 
-\brief    Some simple volumes that know how to calculate where a ray 
+\brief    Some simple volumes that know how to calculate where a ray
           intercepts them.
+
+          Some of the algorithms here are (loosely) based on those found in:
+          Graphics Gems II, ISBN 0-12-064480-0
+          pg. 247 "Fast Ray-Convex Polyhedron Intersection"
+          Graphics Gems IV, ed. Paul Heckbert, ISBN 0-12-336156-7 T385.G6974 (1994)
+          pg. 356 "Intersecting a Ray with a Cylinder"
 
 \author   Robert Hatcher <rhatcher@fnal.gov>
           FNAL
 
 \created  August 3, 2010
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
-
-          Some of the algorithms here are (loosely) based on those found in:
-          Graphics Gems II, ISBN 0-12-064480-0
-          pg. 247 "Fast Ray-Convex Polyhedron Intersection"
-          Graphics Gems IV, ed. Paul Heckbert, ISBN 0-12-336156-7  T385.G6974 (1994)
-          pg. 356 "Intersecting a Ray with a Cylinder"
 */
 //____________________________________________________________________________
 
@@ -38,14 +37,14 @@ namespace geometry {
 class ROOTGeomAnalyzer;
 
 class PlaneParam;
-std::ostream& operator<< (std::ostream& stream, 
+std::ostream& operator<< (std::ostream& stream,
                            const genie::geometry::PlaneParam& pparam);
 
 class RayIntercept {
   /// A class to hold information about where a ray intercepts a
-  /// convex shape.  
+  /// convex shape.
   public:
-  RayIntercept() : fDistIn(-DBL_MAX), fDistOut(DBL_MAX), 
+  RayIntercept() : fDistIn(-DBL_MAX), fDistOut(DBL_MAX),
       fIsHit(false), fSurfIn(-1), fSurfOut(-1) { ; }
   ~RayIntercept() { ; }
   Double_t  fDistIn;   /// distance along ray to enter fid volume
@@ -54,7 +53,7 @@ class RayIntercept {
   Int_t     fSurfIn;   /// what surface was hit on way in
   Int_t     fSurfOut;  /// what surface was hit on way out
 };
-std::ostream& operator<< (std::ostream& stream, 
+std::ostream& operator<< (std::ostream& stream,
                           const genie::geometry::RayIntercept& ri);
 
 class PlaneParam {
@@ -69,7 +68,7 @@ class PlaneParam {
     { a = abcd[0]; b = abcd[1]; c = abcd[2]; d = abcd[3]; Normalize(); }
 
   void     Normalize()  // make the a,b,c parameters a unit normal
-    { Double_t mag = TMath::Sqrt(a*a+b*b+c*c); 
+    { Double_t mag = TMath::Sqrt(a*a+b*b+c*c);
       if (mag>0) { a /= mag; b /= mag; c /= mag; d /= mag; } }
   Double_t Vn(const TVector3& raybase) const
     { return raybase.X()*a + raybase.Y()*b + raybase.Z()*c + d; }
@@ -78,29 +77,29 @@ class PlaneParam {
   Bool_t   IsValid() const { return (a != 0 || b != 0 || c != 0 ); }
   void     ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom);
   void     Print(std::ostream& stream) const;
-  friend std::ostream& operator<< (std::ostream& stream, 
+  friend std::ostream& operator<< (std::ostream& stream,
                                    const genie::geometry::PlaneParam& pparam);
 
   Double_t a, b, c, d; // the parameters
 };
 
 class FidShape;
-std::ostream& operator<< (std::ostream& stream, 
+std::ostream& operator<< (std::ostream& stream,
                           const genie::geometry::FidShape& shape);
 
 class FidShape {
   // generic fiducial shape
   public:
-  FidShape() { ; } 
+  FidShape() { ; }
   virtual ~FidShape() { ; }
   /// derived classes must implement the Intercept() method
   /// which calculates the entry/exit point of a ray w/ the shape
-  virtual RayIntercept Intercept(const TVector3& start, const TVector3& dir) const = 0; 
+  virtual RayIntercept Intercept(const TVector3& start, const TVector3& dir) const = 0;
   /// derived classes must implement the ConvertMaster2Top() method
   /// which transforms the shape specification from master coordinates to "top vol"
   virtual void ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom) = 0;
   virtual void Print(std::ostream& stream) const = 0;
-  friend std::ostream& operator<< (std::ostream& stream, 
+  friend std::ostream& operator<< (std::ostream& stream,
                               const genie::geometry::FidShape& shape);
 
 };
@@ -118,8 +117,8 @@ class FidSphere : public FidShape {
 
 class FidCylinder : public FidShape {
  public:
- FidCylinder(const TVector3& base, const TVector3& axis, Double_t radius, 
-             const PlaneParam& cap1, const PlaneParam& cap2) 
+ FidCylinder(const TVector3& base, const TVector3& axis, Double_t radius,
+             const PlaneParam& cap1, const PlaneParam& cap2)
    : fCylBase(base), fCylAxis(axis), fCylRadius(radius), fCylCap1(cap1), fCylCap2(cap2) { ; }
  RayIntercept Intercept(const TVector3& start, const TVector3& dir) const;
  RayIntercept InterceptUncapped(const TVector3& start, const TVector3& dir) const;

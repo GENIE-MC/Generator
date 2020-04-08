@@ -8,11 +8,13 @@
 \ref      http://gibuu.physik.uni-giessen.de/GiBUU
           Specific references for each piece of data included in given below.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 30, 2009
 
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -39,7 +41,7 @@ public:
   const FormFactors & FF(void) const;
 
   //
-  // Resonance form factors. 
+  // Resonance form factors.
   // Details given in Phys. Rev. C 79, 034601 (2009).
   //
   class FormFactors {
@@ -51,19 +53,19 @@ public:
 
      // the following is non-zero for I=1/2 (N) resonances
      double C3V (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const;
-     double C4V (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const; 
-     double C5V (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const; 
-     double C6V (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const; 
-     double C3A (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const; 
-     double C4A (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const; 
-     double C5A (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const; 
+     double C4V (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const;
+     double C5V (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const;
+     double C6V (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const;
+     double C3A (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const;
+     double C4A (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const;
+     double C5A (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const;
      double C6A (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const;
-  
+
      // the following is non-zero for I=3/2 (Delta) resonances
-     double F1V (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const; 
-     double F2V (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const; 
-     double FA  (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const;  
-     double FP  (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const; 
+     double F1V (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const;
+     double F2V (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const;
+     double FA  (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const;
+     double FP  (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it) const;
 
      double Q2min (void) const { return fMinQ2; }
      double Q2max (void) const { return fMaxQ2; }
@@ -73,7 +75,7 @@ public:
      static double fMinQ2; ///< min Q2 for which resonance f/f data are given
      static double fMaxQ2; ///< max Q2 for which resonance f/f data are given
 
-     // The first array index is the resonance id. 
+     // The first array index is the resonance id.
      // Tina provided GiBUU form factor data for 13 resonances given below along with
      // the corresponding GENIE resonance ids
      //                 GENIE Resonance_t   as integer
@@ -102,13 +104,13 @@ public:
      static const int kNFFRes  = 12;
 
      //! actual form factor data = f(Q2)
-     Spline * fFFRes [kNRes][kNCurr][kNHitNuc][kNFFRes];   
+     Spline * fFFRes [kNRes][kNCurr][kNHitNuc][kNFFRes];
 
      //! func to retrieve interpolated form factor values
      double FFRes (double Q2, Resonance_t res, int nucleon_pdg, InteractionType_t it, int ffid) const;
 
      //! load all form factor data tables
-     void LoadTables(void); 
+     void LoadTables(void);
 
      friend class GiBUURESFormFactor;
 
@@ -120,7 +122,7 @@ private:
  ~GiBUURESFormFactor();
 
   // load all data tables
-  void LoadTables(void); 
+  void LoadTables(void);
 
   // singleton 'self'
   static GiBUURESFormFactor * fInstance;
@@ -144,5 +146,4 @@ private:
 
 }      // genie namespace
 
-#endif // _GIBUU_RES_FORM_FACTOR_H_ 
-
+#endif // _GIBUU_RES_FORM_FACTOR_H_

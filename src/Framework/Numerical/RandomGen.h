@@ -3,20 +3,19 @@
 
 \class    genie::RandomGen
 
-\brief    A singleton holding random number generator classes. All random 
+\brief    A singleton holding random number generator classes. All random
           number generation in GENIE should take place through this class.
           Ensures that the random number generator seed is set consistently
           to all GENIE modules and that all modules use the preferred rndm
           number generator.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  September 22, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -48,19 +47,19 @@ public:
   //! See: http://root.cern.ch/root/html/TRandom3.html
 
   //! rnd number generator used by kinematics generators
-  TRandom3 & RndKine (void) const { return *fRandom3; } 
+  TRandom3 & RndKine (void) const { return *fRandom3; }
 
-  //! rnd number generator used by hadronization models 
+  //! rnd number generator used by hadronization models
   TRandom3 & RndHadro (void) const { return *fRandom3; }
 
-  //! rnd number generator used by decay models 
+  //! rnd number generator used by decay models
   TRandom3 & RndDec (void) const { return *fRandom3; }
 
   //! rnd number generator used by intranuclear cascade monte carlos
   TRandom3 & RndFsi (void) const { return *fRandom3; }
 
   //! rnd number generator used by final state primary lepton generators
-  TRandom3 & RndLep (void) const { return *fRandom3; } 
+  TRandom3 & RndLep (void) const { return *fRandom3; }
 
   //! rnd number generator used by interaction selectors
   TRandom3 & RndISel (void) const { return *fRandom3; }

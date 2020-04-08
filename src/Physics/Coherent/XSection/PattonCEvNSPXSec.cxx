@@ -1,12 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Author: Costas Andreopoulos <costas.andreopoulos \at cern.ch>
-         University of Liverpool & STFC Rutherford Appleton Laboratory
-
- For the class documentation see the corresponding header file.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -163,7 +161,7 @@ double PattonCEvNSPXSec::NuclearDensityMoment(int A, int k) const
   //   - nuclear density moment in units of fm^k
   //
   // THINGS TO DO:
-  // 1) The calculation can be stored, as it is required only once per nucleus. 
+  // 1) The calculation can be stored, as it is required only once per nucleus.
   //    The calculation is very fast so it doesn't matter.
 
   ROOT::Math::IBaseFunctionOneDim * integrand = new
@@ -227,21 +225,21 @@ void PattonCEvNSPXSec::LoadConfig(void)
   fSin2thw = TMath::Power(TMath::Sin(thw), 2.);
 
   this->GetParamDef(
-          "nuclear-density-moment-gsl-upper-limit", 
-          fNuclDensMomentCalc_UpperIntegrationLimit, 
+          "nuclear-density-moment-gsl-upper-limit",
+          fNuclDensMomentCalc_UpperIntegrationLimit,
           10.);  // in nuclear radii
   this->GetParamDef(
-          "nuclear-density-moment-gsl-rel-tol",    
-          fNuclDensMomentCalc_RelativeTolerance, 
-          1E-3); 
+          "nuclear-density-moment-gsl-rel-tol",
+          fNuclDensMomentCalc_RelativeTolerance,
+          1E-3);
   this->GetParamDef(
-          "nuclear-density-moment-gsl-abs-tol",    
-          fNuclDensMomentCalc_AbsoluteTolerance, 
-          1.); 
+          "nuclear-density-moment-gsl-abs-tol",
+          fNuclDensMomentCalc_AbsoluteTolerance,
+          1.);
   this->GetParamDef(
-          "nuclear-density-moment-gsl-max-eval",  
-          fNuclDensMomentCalc_MaxNumOfEvaluations, 
-          10000); 
+          "nuclear-density-moment-gsl-max-eval",
+          fNuclDensMomentCalc_MaxNumOfEvaluations,
+          10000);
 
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));

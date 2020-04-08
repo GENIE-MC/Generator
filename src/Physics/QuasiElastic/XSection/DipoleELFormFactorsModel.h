@@ -6,14 +6,13 @@
 \brief    Concrete implementation of the ELFormFactorsModelI interface.
           Computes dipole elastic form factors.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  Oct 19, 2005
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org        
 */
 //____________________________________________________________________________
 
@@ -37,7 +36,7 @@ public:
   double Gen (const Interaction * interaction) const;
   double Gmn (const Interaction * interaction) const;
 
-  // overload Algorithm's Configure() 
+  // overload Algorithm's Configure()
   void   Configure  (const Registry & config);
   void   Configure  (string param_set);
 

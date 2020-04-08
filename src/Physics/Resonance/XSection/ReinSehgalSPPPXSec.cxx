@@ -1,16 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - November 22, 2004
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -57,29 +51,29 @@ double ReinSehgalSPPPXSec::XSec(
                  << "Computing a cross section for " << *interaction;
 #endif
   //-- Check whether a resonance has been specified
-  //   If yes, compute only the contribution of this resonance at the 
-  //   specified exclusive state  
+  //   If yes, compute only the contribution of this resonance at the
+  //   specified exclusive state
 
   Resonance_t inpres = interaction->ExclTag().Resonance();
   if(inpres != kNoResonance) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-	LOG("ReinSehgalSpp", pDEBUG) 
+	LOG("ReinSehgalSpp", pDEBUG)
                << "Computing only the contribution from: " << utils::res::AsString(inpres);
-#endif        
+#endif
     if(!fResList.Find(inpres)) {
-       LOG("ReinSehgalSpp", pWARN) 
+       LOG("ReinSehgalSpp", pWARN)
            << "Resonance: " << utils::res::AsString(inpres) << " was not found in my list";
        return 0;
     }
     //-- Compute the contribution of this resonance
     //-- Get the Breit-Wigner weighted xsec for exciting the resonance
-    
+
     return fSingleResXSecModel->XSec(interaction,kps);
   }
 
   //-- Loop over the specified list of baryon resonances and compute
   //   the cross section for the input exclusive channel
-  
+
   return this->XSecNRES(interaction,kps);
 }
 //____________________________________________________________________________
@@ -90,18 +84,18 @@ double ReinSehgalSPPPXSec::XSecNRES(
 // specified baryon resonances
 
   unsigned int nres = fResList.NResonances();
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__ 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("ReinSehgalSpp", pDEBUG)
     << "Computing SPP cross section using " << nres << " resonances";
 #endif
-  
+
   //-- Get 1pi exclusive channel
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("ReinSehgalSpp", pDEBUG)
               << "SPP channel " << SppChannel::AsString(spp_channel);
 #endif
-              
+
   double xsec = 0;
   for(unsigned int ires = 0; ires < nres; ires++) {
 

@@ -1,19 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 09, 2009 - CA
-   Moved into the NuE package from its previous location (EVGModules package)
- @ Feb 12, 2013 - CA (code from Rosen Matev)
-   Add mass_electron^2 term in kinematical calculation.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -67,7 +58,7 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   assert(pdgc!=0);
 
   // Compute the neutrino and muon energy
-  double Ev  = init_state.ProbeE(kRfLab); 
+  double Ev  = init_state.ProbeE(kRfLab);
   double El  = (1-y)*Ev;
 
   LOG("LeptonicVertex", pINFO)
@@ -78,8 +69,8 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double me    = kElectronMass;
   double ml    = interaction->FSPrimLepton()->Mass();
   double ml2   = TMath::Power(ml,2);
-  double pl    = TMath::Sqrt(El2-ml2);   
-  
+  double pl    = TMath::Sqrt(El2-ml2);
+
   assert(El2>=ml2);
 
   double Q2    = 2*(Ev-El)*me + me*me;
@@ -97,7 +88,7 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   }
   assert(TMath::Abs(costh)<=1);
 
-  // Compute the p components along and perpendicular the v direction 
+  // Compute the p components along and perpendicular the v direction
   double plp = pl * costh; // p(//)
   double plt = pl * sinth; // p(-|)
 
@@ -113,7 +104,7 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   // Take a unit vector along the neutrino direction
   TVector3 unit_nudir = evrec->Probe()->P4()->Vect().Unit();
 
-  // Rotate lepton momentum vector from the reference frame (x'y'z') where 
+  // Rotate lepton momentum vector from the reference frame (x'y'z') where
   // {z':(neutrino direction), z'x':(theta plane)} to the LAB
   TVector3 p3l(pltx,plty,plp);
   p3l.RotateUz(unit_nudir);

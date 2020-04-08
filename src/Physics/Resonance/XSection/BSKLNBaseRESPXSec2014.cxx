@@ -1,22 +1,25 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Steve Dytman
+ University of Pittsburgh
 
-          Afroditi Papadopoulou <apapadop \at mit.edu>
-          Massachusetts Institute of Technology
+ Jarek Nowak
+ University of Lancaster
 
-          Adi Ashkenazi <adishka \at gmail.com>
-          Massachusetts Institute of Technology
+ Gabe Perdue
+ Fermilab
+ 
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
- @ July 4, 2018 - Afroditi Papadopoulou
-   For electromagnetic (EM) interactions, the weak g2 was still used for the
-   calculation of the helicity amplitude. Fixed by replacing with the correct EM g2
+ Afroditi Papadopoulou <apapadop \at mit.edu>
+ Massachusetts Institute of Technology
 
+ Adi Ashkenazi <adishka \at gmail.com>
+ Massachusetts Institute of Technology
 */
 //____________________________________________________________________________
 

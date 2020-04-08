@@ -1,19 +1,9 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - May 06, 2004
-
- For documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Mar 26, 2009 - CA
-   That file was added in 2.5.1 - Added RecursiveExhaust() method contributed
-   by Jacek Holeczek.
-
+ RecursiveExhaust() method contributed by Jacek Holeczek.
 */
 //____________________________________________________________________________
 
@@ -30,7 +20,7 @@ void genie::utils::geometry::RecursiveExhaust(
 //
 //
     if (!topvol) return; // just a precaution
-            
+
     // check if the "current volume" is in the list of volumes
     if (topvol->GetName()) // non-null pointer to volume name?
     {
@@ -65,15 +55,15 @@ void genie::utils::geometry::RecursiveExhaust(
               << " <" << topvol->GetMedium()->GetName() << ">"
               << " : " << exhaust << " :";
 #endif /* defined(DEBUG_RECURSIVE_EXHAUST) */
-   
-    // "exhaust" the "current top volume" if requested 
+
+    // "exhaust" the "current top volume" if requested
     if (exhaust)
     {
         static TGeoMaterial *matVacuum = ((TGeoMaterial *)0);
         static TGeoMedium *Vacuum = ((TGeoMedium *)0);
-   
+
         if (!Vacuum)
-        {  
+        {
 #if defined(DEBUG_RECURSIVE_EXHAUST)
             std::cout << " Creating the Vaccum material and medium :";
 #endif /* defined(DEBUG_RECURSIVE_EXHAUST) */
@@ -83,13 +73,13 @@ void genie::utils::geometry::RecursiveExhaust(
             if (!matVacuum) matVacuum = new TGeoMaterial("Vacuum", 0.0, 0.0, 0.0);
             if (matVacuum) Vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
         }
-        
+
         if (Vacuum) topvol->SetMedium(Vacuum); // "exhaust" volume
     }
-         
+
 #if defined(DEBUG_RECURSIVE_EXHAUST)
     std::cout << " <" << topvol->GetMedium()->GetName() << ">"
-              << std::endl;                                 
+              << std::endl;
 #endif /* defined(DEBUG_RECURSIVE_EXHAUST) */
 
     // proceed with all daughters of the "current volume"
@@ -104,4 +94,3 @@ void genie::utils::geometry::RecursiveExhaust(
     }
 }
 //___________________________________________________________________________
-

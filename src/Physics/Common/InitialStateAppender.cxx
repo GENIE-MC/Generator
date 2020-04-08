@@ -1,20 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Dec 14, 2009 - CA
-   Include the struck e- for Glashow resonance reactions.
- @ Feb 12, 2013 - CA (code from Rosen Matev)
-   Handle the IMD annihilation channel.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -67,7 +57,7 @@ void InitialStateAppender::ProcessEventRecord(GHepRecord * evrec) const
   //   It is added with status-code = 0 (init state) if the target was a
   //   free nucleon, or with a status-code = 11 (nucleon target) if the
   //   target was a nucleus.
-  //   If the interaction was ve- elastic, inverse muon decay or Glashow 
+  //   If the interaction was ve- elastic, inverse muon decay or Glashow
   //   resonance then it will add the target e- instead.
   this->AddStruckParticle(evrec);
   evrec->Print();

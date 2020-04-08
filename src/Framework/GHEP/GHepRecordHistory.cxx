@@ -1,16 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - September 23, 2005
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -92,7 +86,7 @@ void GHepRecordHistory::PurgeHistory(void)
                               history_iter != this->end(); ++history_iter) {
 
     int step = history_iter->first;
-    LOG("GHEP", pINFO) 
+    LOG("GHEP", pINFO)
                   << "Deleting GHEP snapshot for processing step: " << step;
 
     GHepRecord * record = history_iter->second;
@@ -111,12 +105,12 @@ void GHepRecordHistory::PurgeRecentHistory(int start_step)
 // before any processing step is added with key = -1.
 // Therefore GHepRecordHistory keys should be: -1,0,1,2,3,...
 
-  LOG("GHEP", pNOTICE) 
-       << "Purging recent GHEP history buffer (processing step >= " 
+  LOG("GHEP", pNOTICE)
+       << "Purging recent GHEP history buffer (processing step >= "
                                                       << start_step << ")";
 
   if(start_step < -1) {
-    LOG("GHEP", pWARN) 
+    LOG("GHEP", pWARN)
                << "Invalid starting step: " << start_step << " - Ignoring";
     return;
   }
@@ -131,11 +125,11 @@ void GHepRecordHistory::PurgeRecentHistory(int start_step)
   for(history_iter = this->begin();
                               history_iter != this->end(); ++history_iter) {
 
-    if(history_iter->first >= start_step) { 
+    if(history_iter->first >= start_step) {
        int step = history_iter->first;
-       LOG("GHEP", pINFO) 
+       LOG("GHEP", pINFO)
                   << "Deleting GHEP snapshot for processing step: " << step;
-       this->erase(history_iter); 
+       this->erase(history_iter);
     }
   }
 }
@@ -178,7 +172,7 @@ void GHepRecordHistory::Print(ostream & stream) const
   }
 }
 //___________________________________________________________________________
-void GHepRecordHistory::ReadFlags(void) 
+void GHepRecordHistory::ReadFlags(void)
 {
   if (gSystem->Getenv("GHEPHISTENABLE")) {
 
@@ -189,15 +183,14 @@ void GHepRecordHistory::ReadFlags(void)
 
   } else {
      // set defaults
-     fEnabledFull          = false;          
-     fEnabledBootstrapStep = true; 
+     fEnabledFull          = false;
+     fEnabledBootstrapStep = true;
   }
 
   LOG("GHEP", pINFO) << "GHEP History Flags: ";
-  LOG("GHEP", pINFO) << "  - Keep Full History:          " 
+  LOG("GHEP", pINFO) << "  - Keep Full History:          "
                      << utils::print::BoolAsYNString(fEnabledFull);
-  LOG("GHEP", pINFO) << "  - Keep Bootstrap Record Only: " 
+  LOG("GHEP", pINFO) << "  - Keep Bootstrap Record Only: "
                      << utils::print::BoolAsYNString(fEnabledBootstrapStep);
 }
 //___________________________________________________________________________
-

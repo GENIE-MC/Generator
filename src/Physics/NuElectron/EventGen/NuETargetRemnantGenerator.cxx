@@ -1,20 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 09, 2009 - CA
-   Moved into the NuE package from its previous location (EVGModules package)
- @ Feb 12, 2013 - CA (code from Rosen Matev)
-   Handle the IMD annihilation channel.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -76,7 +66,7 @@ void NuETargetRemnantGenerator::AddElectronNeutrino(GHepRecord * evrec) const
   const TLorentzVector & p4v = *(nu->P4());
   const TLorentzVector & p4e = *(el->P4());
   const TLorentzVector & p4l = *(l->P4());
-  const TLorentzVector & p4  = p4v + p4e - p4l; 
+  const TLorentzVector & p4  = p4v + p4e - p4l;
 
   //-- Vtx position
   const TLorentzVector & vtx = *(nu->X4());

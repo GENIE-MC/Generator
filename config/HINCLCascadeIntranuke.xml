@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration sets for the HINCLCascadeIntranuke (GENIE-using-INCL++)
+Intranuke EventRecordVisitorI
+
+  -d [ <double-hypen>de-excitation ] arg (=ABLA07)  which de-excitation model to use:
+                                          none
+                                          ABLA07 (default)
+                                          ABLAv3p
+                                          GEMINIXX
+                                          SMM
+
+  Most of the DeExcitation models need external data.  A path is included
+  when the code is built, but that fails if things are relocated.
+  If that built-in path isn't found, use the value given here in this XML file.
+  If that doesn't work, fallback to looking for an external env variable
+
+  <double-hypen>inclxx-datafile-path arg
+       here try ${INCL_SRC_DIR}/data/
+       fallback ${INCL_DATA_DIR}
+                                        path to the INCL++ data files
+  <double-hypen>abla07-datafile-path arg
+       here try ${INCL_SRC_DIR}/de-excitation/abla07/upstream/tables/
+       fallback ${ABLA07_DATA_DIR}
+                                        path to the ABLA07 data files
+  <double-hypen>ablav3p-cxx-datafile-path arg
+       here try ${INCL_SRC_DIR}/de-excitation/ablaxx/upstream/data/G4ABLA3.0/
+       fallback ${ABLAV3P_DATA_DIR}
+                                        path to the ABLAv3p data files
+  <double-hypen>geminixx-datafile-path arg
+       here try ${INCL_SRC_DIR}/de-excitation/geminixx/upstream/
+       fallback ${GEMINI_DATA_DIR}  [note: code expects to find subdir "tbl" under this path]
+                                        path to the GEMINI++ data files
+
+-->
+
+  <param_set name="Default">
+
+    <!-- these INCLConfigParser flags are required, but HINCLCascadeIntranuke
+         code provides these values as defaults
+         in general, the code then substitutes the right probe, target,
+         "shots" and energy on an event-by-event basis, so they don't
+         need changing.
+      -->
+    <!--
+    <param type="string" name="INCL-infile">  NULL     </param>
+    <param type="string" name="INCL-pflag" > -pp       </param>
+    <param type="string" name="INCL-tflag" > -tFe56    </param>
+    <param type="string" name="INCL-Nflag" > -N1       </param>
+    <param type="string" name="INCL-Eflag" > -E1       </param>
+    -->
+
+    <!-- change the de-excitation model -->
+    <param type="string" name="INCL-dflag" > -dABLA07    </param>
+    <!-- <param type="string" name="INCL-dflag" > -dABLAv3p   </param> -->
+    <!-- <param type="string" name="INCL-dflag" > -dGEMINIXX  </param> -->
+    <!-- <param type="string" name="INCL-dflag" > -dSMM       </param> -->
+    <!-- <param type="string" name="INCL-dflag" > -dnone      </param> -->
+
+    <!-- pass extra flags the G4INCL::ConfigParser knows about -->
+    <param type="string" name="INCL-extra-flags" >  </param>
+    <!-- next line serves as an example for testing purposes -->
+    <!-- <param type="string" name="INCL-extra-flags" >  -v10 -l xyzzy_extra_flag.log </param> -->
+
+    <!-- alternative locations for data files that might be needed by models -->
+
+    <param type="string" name="INCL-incl-data-alt1"    > ${INCL_SRC_DIR}/data/ </param>
+    <param type="string" name="INCL-incl-data-alt2"    > ${INCL_DATA_DIR}/ </param>
+
+    <param type="string" name="INCL-abla07-data-alt1"  > ${INCL_SRC_DIR}/de-excitation/abla07/upstream/tables/ </param>
+    <param type="string" name="INCL-abla07-data-alt2"  > ${ABLA07_DATA_DIR}/ </param>
+
+    <param type="string" name="INCL-ablav3p-data-alt1" > ${INCL_SRC_DIR}/de-excitation/ablaxx/upstream/data/G4ABLA3.0/ </param>
+    <param type="string" name="INCL-ablav3p-data-alt2" > ${ABLAV3P_DATA_DIR}/ </param>
+
+    <param type="string" name="INCL-gemini-data-alt1"  > ${INCL_SRC_DIR}/de-excitation/geminixx/upstream/ </param>
+    <param type="string" name="INCL-gemini-data-alt2"  > ${GEMINIXX_DATA_DIR}/ </param>
+
+  </param_set>
+
+</alg_conf>
+

@@ -3,25 +3,24 @@
 
 \class    genie::QPMDISStrucFuncBase
 
-\brief    Abstract base class. 
+\brief    Abstract base class.
           Provides common implementation for concrete objects implementing the
           DISStructureFuncModelI interface.
 
-\ref      For a discussion of DIS SF see for example E.A.Paschos and J.Y.Yu, 
+\ref      For a discussion of DIS SF see for example E.A.Paschos and J.Y.Yu,
           Phys.Rev.D 65.033002 and R.Devenish and A.Cooper-Sarkar, OUP 2004.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
           Adapted from neugen 3.
-          Primary authors: 
+          Primary authors:
           D.Naples (Pittsburgh U.), H.Gallagher (Tufts U), CA (RAL)
 
 \created  May 03, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -68,7 +67,7 @@ protected:
   virtual void   CalcPDFs   (const Interaction * i) const;
   virtual double NuclMod    (const Interaction * i) const;
   virtual double R          (const Interaction * i) const;
-  virtual void   KFactors   (const Interaction * i, double & kuv, 
+  virtual void   KFactors   (const Interaction * i, double & kuv,
                                      double & kdv, double & kus, double & kds) const;
   // configuration
   //
@@ -98,20 +97,19 @@ protected:
   PDF *  fPDF;           ///< computed PDFs @ (x,Q2)
   PDF *  fPDFc;          ///< computed PDFs @ (slow-rescaling-var,Q2)
   mutable double fuv;
-  mutable double fus; 
-  mutable double fdv; 
-  mutable double fds; 
+  mutable double fus;
+  mutable double fdv;
+  mutable double fds;
   mutable double fs;
   mutable double fc;
-  mutable double fuv_c; 
-  mutable double fus_c; 
+  mutable double fuv_c;
+  mutable double fus_c;
   mutable double fdv_c;
   mutable double fds_c;
-  mutable double fs_c; 
-  mutable double fc_c; 
+  mutable double fs_c;
+  mutable double fc_c;
 
 };
 
 }         // genie namespace
 #endif    // _QPM_DIS_STRUCTURE_FUNCTIONS_BASE_H_
-

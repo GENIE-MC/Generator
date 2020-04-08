@@ -6,14 +6,13 @@
 \brief    Computes the cross section for COH neutrino-nucleus pi production.\n
           Is a concrete implementation of the XSecIntegratorI interface.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
           STFC, Rutherford Appleton Laboratory
 
 \created  May 04, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 

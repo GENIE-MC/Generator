@@ -4,18 +4,17 @@
 \class    genie::GLRESPXSec
 
 \brief    Nuebar cross section at the Glashow resonance (nuebar + e- -> W-).
-          Is a concrete implementation of the XSecAlgorithmI interface. 
+          Is a concrete implementation of the XSecAlgorithmI interface.
 
 \ref      T.K.Gaisser, F.Halzen and T.Stanev, Physics Reports 258:173 (1995)
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 04, 2005
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 

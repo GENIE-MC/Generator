@@ -1,21 +1,26 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author:  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
-          adopted from  fortran code provided by
-          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>,
-          Joint Institute for Nuclear Research,  Institute for Theoretical and Experimental Physics
-          Vladimir Lyubushkin,
-          Joint Institute for Nuclear Research
-          Vadim Naumov <vnaumov@theor.jinr.ru>,
-          Joint Institute for Nuclear Research
-          based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+ Igor Kakorin <kakorin@jinr.ru>
+ Joint Institute for Nuclear Research
 
- For the class documentation see the corresponding header file.
+ adapted from fortran code provided by:
+
+ Konstantin Kuzmin <kkuzmin@theor.jinr.ru>,
+ Joint Institute for Nuclear Research,
+ Institute for Theoretical and Experimental Physics
+
+ Vladimir Lyubushkin,
+ Joint Institute for Nuclear Research
+
+ Vadim Naumov <vnaumov@theor.jinr.ru>,
+ Joint Institute for Nuclear Research
+
+ based on code of:
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -185,7 +190,7 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
 #endif
        accept = (t < xsec);
      }
-     else 
+     else
      {
         accept = (xsec>0);
      }
@@ -285,13 +290,13 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
 
   // set the cross section for the selected kinematics
   evrec->SetDiffXSec(xsec,fkps);
-  if(fGenerateUniformly) 
+  if(fGenerateUniformly)
   {
      double vol     = sm_utils->PhaseSpaceVolume(fkps);
      double totxsec = evrec->XSec();
      double wght    = (vol/totxsec)*xsec;
      LOG("QELEvent", pNOTICE)  << "Kinematics wght = "<< wght;
-     
+
      // apply computed weight to the current event weight
      wght *= evrec->Weight();
      LOG("QELEvent", pNOTICE) << "Current event wght = " << wght;
@@ -342,7 +347,7 @@ void QELEventGeneratorSM::AddTargetNucleusRemnant(GHepRecord * evrec) const
   int fd = nucleus->FirstDaughter();
   int ld = nucleus->LastDaughter();
 
-  for(int id = fd; id <= ld; id++) 
+  for(int id = fd; id <= ld; id++)
   {
 
      // compute A,Z for final state nucleus & get its PDG code and its mass
@@ -351,10 +356,10 @@ void QELEventGeneratorSM::AddTargetNucleusRemnant(GHepRecord * evrec) const
      int  pdgc = particle->Pdg();
      bool is_p  = pdg::IsProton (pdgc);
      bool is_n  = pdg::IsNeutron(pdgc);
-     
+
      if (is_p) Z--;
      if (is_p || is_n) A--;
-     
+
      Px += particle->Px();
      Py += particle->Py();
      Pz += particle->Pz();
@@ -421,7 +426,7 @@ void QELEventGeneratorSM::LoadConfig(void)
   // calculation for lower eneries
   GetParamDef( "Cache-MinEnergy", fEMin, 1.00) ;
   GetParamDef( "Threshold-Q2", fQ2Min, 2.00);
-  
+
   // Maximum allowed fractional cross section deviation from maxim cross
   // section used in rejection method
   GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999.);
@@ -433,7 +438,7 @@ void QELEventGeneratorSM::LoadConfig(void)
 
   // Generate nucleon in nucleus?
   GetParamDef( "IsNucleonInNucleus", fGenerateNucleonInNucleus, true);
-  
+
 
   sm_utils = const_cast<genie::SmithMonizUtils *>(dynamic_cast<const genie::SmithMonizUtils *>( this -> SubAlg("sm_utils_algo") ) ) ;
 }
@@ -451,14 +456,14 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction) cons
     double tmp_xsec_max = -1;
     // Now scan through kinematical variables Q2,v
     for (int Q2_n=0; Q2_n < N_Q2; Q2_n++)
-    {  
+    {
        // Scan around Q2
        double Q2 = TMath::Exp(Q2_n * (logQ2max-logQ2min)/N_Q2 + logQ2min);
        Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
        const double logvmin = TMath::Log(TMath::Max(rv.min, eps));
        const double logvmax = TMath::Log(TMath::Max(rv.max, TMath::Max(rv.min, eps)));
        for (int v_n=0; v_n < N_v; v_n++)
-       {  
+       {
           // Scan around v
           double v = TMath::Exp(v_n * (logvmax-logvmin)/N_v + logvmin);
           Kinematics * kinematics = interaction->KinePtr();
@@ -493,14 +498,14 @@ double QELEventGeneratorSM::ComputeMaxXSec2(const Interaction * interaction) con
     double tmp_xsec_max = -1;
     // Now scan through kinematical variables Q2,v
     for (int Q2_n=0; Q2_n < N_Q2; Q2_n++)
-    {  
+    {
        // Scan around Q2
        double Q2 = TMath::Exp(Q2_n * (logQ2max-logQ2min)/N_Q2 + logQ2min);
        Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
        const double logvmin = TMath::Log(TMath::Max(rv.min, eps));
        const double logvmax = TMath::Log(TMath::Max(rv.max, TMath::Max(rv.min, eps)));
        for (int v_n=0; v_n < N_v; v_n++)
-       {  
+       {
           // Scan around v
           double v = TMath::Exp(v_n * (logvmax-logvmin)/N_v + logvmin);
           Kinematics * kinematics = interaction->KinePtr();
@@ -735,7 +740,7 @@ double QELEventGeneratorSM::FindMaxDiffv(const Interaction * interaction) const
   // if there are enough points stored in the cache buffer to build a
   // spline, then intepolate
   if( cb->Spl() ) {
-     if( E >= cb->Spl()->XMin() && E <= cb->Spl()->XMax()) 
+     if( E >= cb->Spl()->XMin() && E <= cb->Spl()->XMax())
      {
        double spl_maxdiffv = cb->Spl()->Evaluate(E);
        LOG("Kinematics", pINFO)
@@ -752,7 +757,7 @@ double QELEventGeneratorSM::FindMaxDiffv(const Interaction * interaction) const
   double dE = TMath::Min(0.25, 0.05*E);
   const map<double,double> & fmap = cb->Map();
   map<double,double>::const_iterator iter = fmap.lower_bound(E);
-  if(iter != fmap.end()) 
+  if(iter != fmap.end())
   {
      if(TMath::Abs(E - iter->first) < dE) return iter->second;
   }
@@ -777,7 +782,7 @@ void QELEventGeneratorSM::CacheMaxDiffv(const Interaction * interaction, double 
 
   if( cb->Spl() )
   {
-     if( E < cb->Spl()->XMin() || E > cb->Spl()->XMax() ) 
+     if( E < cb->Spl()->XMin() || E > cb->Spl()->XMax() )
      {
         cb->CreateSpline();
      }
