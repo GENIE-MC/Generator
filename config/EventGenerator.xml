@@ -639,7 +639,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="int"    name="NModules">   4                                                    </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
-     <param type="alg"    name="Module-2">   genie::HEDISKinematicsGenerator/CC-Default           </param>
+     <param type="alg"    name="Module-2">   genie::HEDISKinematicsGenerator/Default           </param>
      <param type="alg"    name="Module-3">   genie::HEDISGenerator/Default                        </param>
      <param type="alg"    name="ILstGen">    genie::HEDISInteractionListGenerator/CC-Default      </param>
   </param_set>
@@ -649,7 +649,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="int"    name="NModules">   4                                                    </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
-     <param type="alg"    name="Module-2">   genie::HEDISKinematicsGenerator/NC-Default           </param>
+     <param type="alg"    name="Module-2">   genie::HEDISKinematicsGenerator/Default           </param>
      <param type="alg"    name="Module-3">   genie::HEDISGenerator/Default                        </param>
      <param type="alg"    name="ILstGen">    genie::HEDISInteractionListGenerator/NC-Default      </param>
   </param_set>

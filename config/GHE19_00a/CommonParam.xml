@@ -21,15 +21,15 @@
     <param type="double" name="MassZ">                                 91.1876 </param>
     <param type="double" name="Rho">                                0.00940161 </param>
     <param type="double" name="Sin2ThW">                                    0. </param>
-    <param type="double" name="CKM-Vud">                               0.97427 </param>
-    <param type="double" name="CKM-Vus">                               0.22536 </param>
-    <param type="double" name="CKM-Vub">                               0.00355 </param>
-    <param type="double" name="CKM-Vcd">                               0.22522 </param>
-    <param type="double" name="CKM-Vcs">                               0.97343 </param>
-    <param type="double" name="CKM-Vcb">                               0.04140 </param>
-    <param type="double" name="CKM-Vtd">                               0.00886 </param>
-    <param type="double" name="CKM-Vts">                               0.04050 </param>
-    <param type="double" name="CKM-Vtb">                               0.99914 </param>
+    <param type="double" name="Mud">                                   0.97427 </param>
+    <param type="double" name="Mus">                                   0.22536 </param>
+    <param type="double" name="Mub">                                   0.00355 </param>
+    <param type="double" name="Mcd">                                   0.22522 </param>
+    <param type="double" name="Mcs">                                   0.97343 </param>
+    <param type="double" name="Mcb">                                   0.04140 </param>
+    <param type="double" name="Mtd">                                   0.00886 </param>
+    <param type="double" name="Mts">                                   0.04050 </param>
+    <param type="double" name="Mtb">                                   0.99914 </param>
   </param_set>
 
   <param_set name="HEDIS-PYTHIA">

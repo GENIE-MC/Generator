@@ -217,14 +217,14 @@ void HEDISPXSec::LoadConfig(void)
   GetParam("MassZ",           fSFinfo.MassZ        );
   GetParam("Rho",             fSFinfo.Rho          );
   GetParam("Sin2ThW",         fSFinfo.Sin2ThW      );
-  GetParam("CKM-Vud",         fSFinfo.Vud          );
-  GetParam("CKM-Vus",         fSFinfo.Vus          );
-  GetParam("CKM-Vub",         fSFinfo.Vub          );
-  GetParam("CKM-Vcd",         fSFinfo.Vcd          );
-  GetParam("CKM-Vcs",         fSFinfo.Vcs          );
-  GetParam("CKM-Vcb",         fSFinfo.Vcb          );
-  GetParam("CKM-Vtd",         fSFinfo.Vtd          );
-  GetParam("CKM-Vts",         fSFinfo.Vts          );
-  GetParam("CKM-Vtb",         fSFinfo.Vtb          );
+  GetParam("Mud",             fSFinfo.Vud          );
+  GetParam("Mus",             fSFinfo.Vus          );
+  GetParam("Mub",             fSFinfo.Vub          );
+  GetParam("Mcd",             fSFinfo.Vcd          );
+  GetParam("Mcs",             fSFinfo.Vcs          );
+  GetParam("Mcb",             fSFinfo.Vcb          );
+  GetParam("Mtd",             fSFinfo.Vtd          );
+  GetParam("Mts",             fSFinfo.Vts          );
+  GetParam("Mtb",             fSFinfo.Vtb          );
 
 }
