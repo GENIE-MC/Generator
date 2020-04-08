@@ -1,17 +1,10 @@
 //____________________________________________________________________________
 /*
-
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool STFC, Rutherford Appleton Laboratory 
-
- For the class documentation see the corresponding header file.
-
- Important revisions:
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool STFC, Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -55,8 +48,8 @@ PDFModelI("genie::GRV98LO", config),
   this->Initialize();
 }
 //____________________________________________________________________________
-GRV98LO::~GRV98LO() 
-{ 
+GRV98LO::~GRV98LO()
+{
   if (fXUVF) {delete fXUVF; fXUVF = NULL;}
   if (fXDVF) {delete fXDVF; fXDVF = NULL;}
   if (fXDEF) {delete fXDEF; fXDEF = NULL;}
@@ -115,10 +108,10 @@ PDF_t GRV98LO::AllPDFs(double x, double Q2) const
   PDF_t pdf;
 
   if(!fInitialized) {
-    LOG("GRV98LO", pWARN) 
+    LOG("GRV98LO", pWARN)
       << "GRV98LO algorithm was not initialized succesfully";
     pdf.uval = 0.;
-    pdf.dval = 0.; 
+    pdf.dval = 0.;
     pdf.usea = 0.;
     pdf.dsea = 0.;
     pdf.str  = 0.;
@@ -129,10 +122,10 @@ PDF_t GRV98LO::AllPDFs(double x, double Q2) const
     return pdf;
   }
 
-  LOG("GRV98LO", pDEBUG) 
+  LOG("GRV98LO", pDEBUG)
     << "Inputs x = " << x << ", Q2 = " << Q2;
 
-  // apply kinematical limits 
+  // apply kinematical limits
 //Q2 = TMath::Max(Q2, fGridQ2[0]);
   if(Q2 <= 0.8) Q2 = 0.80001;
   Q2 = std::min(Q2, fGridQ2[kNQ2-1]);
@@ -157,9 +150,9 @@ PDF_t GRV98LO::AllPDFs(double x, double Q2) const
   double ds = 0.5 * (ud + de);
   double ss = fXSF->Eval(logx,logQ2)  * x1p7 * xs;
   double gl = fXGF->Eval(logx,logQ2)  * x1p5 * xs;
-  
+
   pdf.uval = uv;
-  pdf.dval = dv; 
+  pdf.dval = dv;
   pdf.usea = us;
   pdf.dsea = ds;
   pdf.str  = ss;
@@ -167,34 +160,34 @@ PDF_t GRV98LO::AllPDFs(double x, double Q2) const
   pdf.bot  = 0.;
   pdf.top  = 0.;
   pdf.gl   = gl;
-  
-  return pdf;                                               
+
+  return pdf;
 }
 //____________________________________________________________________________
 void GRV98LO::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->Initialize();         
+  this->Initialize();
 }
 //____________________________________________________________________________
 void GRV98LO::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->Initialize();          
+  this->Initialize();
 }
 //____________________________________________________________________________
 void GRV98LO::Initialize(void)
 {
   fInitialized = false;
 
-  const char * genie_dir = gSystem->Getenv("GENIE"); 
+  const char * genie_dir = gSystem->Getenv("GENIE");
   if(!genie_dir) return;
 
-  string grid_file_name = 
+  string grid_file_name =
      string(gSystem->Getenv("GENIE")) + string("/data/evgen/pdfs/GRV98lo_patched.LHgrid");
 
-  LOG("GRV98LO", pNOTICE) 
-    << "Reading grid file from:\n " << grid_file_name; 
+  LOG("GRV98LO", pNOTICE)
+    << "Reading grid file from:\n " << grid_file_name;
 
   ifstream grid_file;
   grid_file.open (grid_file_name.c_str());
@@ -204,7 +197,7 @@ void GRV98LO::Initialize(void)
   const int nskip = 21;
   for(int i=0; i<nskip; i++) {
    grid_file.getline(rubbish,1000);
-   LOG("GRV98LO", pDEBUG) << "Skipping: " << rubbish; 
+   LOG("GRV98LO", pDEBUG) << "Skipping: " << rubbish;
   }
 
   // x's
@@ -215,7 +208,7 @@ void GRV98LO::Initialize(void)
     double xbj = -1;
     grid_file >> xbj;
     // check against known limits
-    // ...    
+    // ...
     fGridXbj[j] = xbj;
     fGridLogXbj[j] = TMath::Log(xbj);
   }
@@ -226,7 +219,7 @@ void GRV98LO::Initialize(void)
     if(j == kNXbj - 1) { grid_values << ")";  }
     else               { grid_values << ", "; }
   }
-  LOG("GRV98LO", pDEBUG) 
+  LOG("GRV98LO", pDEBUG)
     << "x_bj grid values: " << grid_values.str();
 
   // Q^2s
@@ -237,7 +230,7 @@ void GRV98LO::Initialize(void)
     double Q2 = -1;
     grid_file >> Q2;
     // check against known limits
-    // ...    
+    // ...
     fGridQ2[i] = Q2;
     fGridLogQ2[i] = TMath::Log(Q2);
   }
@@ -248,17 +241,17 @@ void GRV98LO::Initialize(void)
     if(i == kNQ2 - 1) { grid_values << ")";  }
     else              { grid_values << ", "; }
   }
-  LOG("GRV98LO", pDEBUG) 
+  LOG("GRV98LO", pDEBUG)
     << "Q^2 grid values: " << grid_values.str() << "GeV^2";
 
   // skip again
   grid_file.getline(rubbish,1000);
-  LOG("GRV98LO", pDEBUG) << "Skipping: " << rubbish; 
+  LOG("GRV98LO", pDEBUG) << "Skipping: " << rubbish;
   grid_file.getline(rubbish,1000);
-  LOG("GRV98LO", pDEBUG) << "Skipping: " << rubbish; 
+  LOG("GRV98LO", pDEBUG) << "Skipping: " << rubbish;
 
   // pdf values on grid points
-  // 
+  //
 
   LOG("GRV98LO", pDEBUG) << "Reading PDF values on grid points";
 
@@ -272,8 +265,8 @@ void GRV98LO::Initialize(void)
       double p4 = 0;
       double p5 = 0;
       grid_file >> p0 >> p1 >> p2 >> p3 >> p4 >> p5;
-      LOG("GRV98LO", pDEBUG) 
-         << "Row: " << k << ", grid point: (" << i << ", " << j << ") ->" 
+      LOG("GRV98LO", pDEBUG)
+         << "Row: " << k << ", grid point: (" << i << ", " << j << ") ->"
          << "  p0 = " << p0
          << ", p1 = " << p1
          << ", p2 = " << p2
@@ -293,8 +286,8 @@ void GRV98LO::Initialize(void)
   grid_file.close();
 
   // arrays for interpolation routines
-  // 
-  
+  //
+
   vector<double> gridLogQ2 (kNQ2);
   vector<double> gridLogXbj(kNXbj);
   vector<double> knotsXUVF(kNQ2*kNXbj);
@@ -336,14 +329,14 @@ void GRV98LO::Initialize(void)
     knotsXGF [k] = 0;
     k++;
   }
-  
+
   fXUVF = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXUVF[0]);
   fXDVF = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXDVF[0]);
   fXDEF = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXDEF[0]);
   fXUDF = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXUDF[0]);
   fXSF  = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXSF [0]);
   fXGF  = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXGF [0]);
-  
+
   fInitialized = true;
 }
 //____________________________________________________________________________

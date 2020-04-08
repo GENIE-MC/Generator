@@ -18,7 +18,7 @@ XSec-Integrator
 
   <param_set name="Default">
 
-     <param type="alg" name="PDF-Set">         genie::LHAPDF5/GRVLO    </param>
+     <param type="alg" name="PDF-Set">         genie::GRV98LO/Default  </param>
      <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default  </param>
 
   </param_set>

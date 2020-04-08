@@ -6,12 +6,15 @@
 
 #pragma link C++ namespace genie;
 #pragma link C++ namespace genie::utils::frgmfunc;
-#pragma link C++ namespace genie::utils::fragmrec;
+//#pragma link C++ namespace genie::utils::fragmrec;
 
-#pragma link C++ class genie::Pythia6Hadronization;
-#pragma link C++ class genie::KNOHadronization;
-#pragma link C++ class genie::KNOPythiaHadronization;
-#pragma link C++ class genie::CharmHadronization;
+#pragma link C++ class genie::PythiaBaseHadro2019;
+#pragma link C++ class genie::Pythia6Hadro2019;
+#pragma link C++ class genie::Pythia8Hadro2019;
+
+#pragma link C++ class genie::AGKYLowW2019;
+#pragma link C++ class genie::AGKY2019;
+#pragma link C++ class genie::AGCharm2019;
 
 #pragma link C++ class genie::FragmentationFunctionI;
 #pragma link C++ class genie::PetersonFragm;

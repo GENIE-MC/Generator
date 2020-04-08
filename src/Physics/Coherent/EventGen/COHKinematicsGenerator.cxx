@@ -1,30 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 09, 2009 - CA
-   Moved into the new Coherent package from its previous location  (EVGModules 
-   package)
- @ Mar 03, 2009 - CA
-   Renamed COHPiKinematicsGenerator -> COHKinematicsGenerator in
-   anticipation of reusing the code for simulating coherent production of
-   vector mesons.
- @ May 06, 2009 - CA
-   Fix a problem with the search for the max cross section over the allowed
-   phase space which prevented kinematics to be generated for events near the 
-   energy threshold.
- @ Feb 06, 2013 - CA
-   When the value of the differential cross-section for the selected kinematics
-   is set to the event, set the corresponding KinePhaseSpace_t value too.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -110,7 +90,7 @@ void COHKinematicsGenerator::CalculateKin_BergerSehgal(GHepRecord * evrec) const
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);    // TODO: Why turn this off?
 
-  // Initialise a random number generator 
+  // Initialise a random number generator
   RandomGen * rnd = RandomGen::Instance();
 
   //-- For the subsequent kinematic selection with the rejection method:
@@ -131,7 +111,7 @@ void COHKinematicsGenerator::CalculateKin_BergerSehgal(GHepRecord * evrec) const
   const double ymax  = y.max - kASmallNum;
   const double dy    = ymax - ymin;
   const double Q2min = Q2.min + kASmallNum;
-  const double Q2max = Q2.max - kASmallNum; 
+  const double Q2max = Q2.max - kASmallNum;
   const double dQ2   = Q2max - Q2min;
 
   unsigned int iter = 0;
@@ -142,14 +122,14 @@ void COHKinematicsGenerator::CalculateKin_BergerSehgal(GHepRecord * evrec) const
     iter++;
     if(iter > kRjMaxIterations) this->throwOnTooManyIterations(iter,evrec);
 
-    //-- Select unweighted kinematics using importance sampling method. 
-    // TODO: The importance sampling envelope is not used. Currently, 
+    //-- Select unweighted kinematics using importance sampling method.
+    // TODO: The importance sampling envelope is not used. Currently,
     // we just employ a standard rejection-method approach.
 
-    gy  = ymin  + dy  * rnd->RndKine().Rndm(); 
-    gQ2 = Q2min + dQ2 * rnd->RndKine().Rndm(); 
+    gy  = ymin  + dy  * rnd->RndKine().Rndm();
+    gQ2 = Q2min + dQ2 * rnd->RndKine().Rndm();
 
-    LOG("COHKinematics", pINFO) << 
+    LOG("COHKinematics", pINFO) <<
       "Trying: Q^2 = " << gQ2 << ", y = " << gy; /* << ", t = " << gt; */
 
     interaction->KinePtr()->Sety(gy);
@@ -177,24 +157,24 @@ void COHKinematicsGenerator::CalculateKin_BergerSehgal(GHepRecord * evrec) const
       double Ev    = init_state.ProbeE(kRfLab);
       double Epi   = gy*Ev; // pion energy
       double Epi2  = TMath::Power(Epi,2);
-      double pme2  = kPionMass2/Epi2;   
-      double gx    = interaction->KinePtr()->x(); // utils::kinematics::Q2YtoX(Ev,kNucleonMass,gQ2,gy); // gQ2 / ( 2. * gy * kNucleonMass * Ev); 
+      double pme2  = kPionMass2/Epi2;
+      double gx    = interaction->KinePtr()->x(); // utils::kinematics::Q2YtoX(Ev,kNucleonMass,gQ2,gy); // gQ2 / ( 2. * gy * kNucleonMass * Ev);
       double xME   = kNucleonMass*gx/Epi;
       double tA    = 1. + xME - 0.5*pme2;
       /* Range1D_t tl = kps.TLim();   // this becomes the bounds for t */
       double tB    = TMath::Sqrt(1.+ 2*xME) * TMath::Sqrt(1.-pme2);
       double tmin  = 2*Epi2 * (tA-tB);
       double tmax  = 2*Epi2 * (tA+tB);
-      double A     = (double) init_state.Tgt().A(); 
+      double A     = (double) init_state.Tgt().A();
       double A13   = TMath::Power(A,1./3.);
       double R     = fRo * A13 * units::fermi; // nuclear radius
       double R2    = TMath::Power(R,2.);
       double b     = 0.33333 * R2;
-      double tsum  = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b; 
+      double tsum  = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b;
       double rt    = tsum * rnd->RndKine().Rndm();
       double gt    = -1.*TMath::Log(-1.*b*rt + TMath::Exp(-1.*b*tmin))/b;
 
-      // TODO: If we re-install the fGenerateUniformly option, we 
+      // TODO: If we re-install the fGenerateUniformly option, we
       // would compute the event weight here.
 
       // reset bits
@@ -224,7 +204,7 @@ void COHKinematicsGenerator::CalculateKin_BergerSehgalFM(GHepRecord * evrec) con
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
 
-  // Initialise a random number generator 
+  // Initialise a random number generator
   RandomGen * rnd = RandomGen::Instance();
 
   //-- For the subsequent kinematic selection with the rejection method:
@@ -245,7 +225,7 @@ void COHKinematicsGenerator::CalculateKin_BergerSehgalFM(GHepRecord * evrec) con
   const double ymax  = y.max - kASmallNum;
   const double dy    = ymax - ymin;
   const double Q2min = Q2.min + kASmallNum;
-  const double Q2max = Q2.max - kASmallNum; 
+  const double Q2max = Q2.max - kASmallNum;
   const double dQ2   = Q2max - Q2min;
   const double tmin  = kASmallNum;
   const double tmax  = fTMax - kASmallNum; // TODO: Choose realistic t bounds
@@ -261,19 +241,19 @@ void COHKinematicsGenerator::CalculateKin_BergerSehgalFM(GHepRecord * evrec) con
     iter++;
     if(iter > kRjMaxIterations) this->throwOnTooManyIterations(iter,evrec);
 
-    //-- Select unweighted kinematics using importance sampling method. 
-    // TODO: The importance sampling envelope is not used. Currently, 
+    //-- Select unweighted kinematics using importance sampling method.
+    // TODO: The importance sampling envelope is not used. Currently,
     // we just employ a standard rejection-method approach.
 
-    gy  = ymin  + dy  * rnd->RndKine().Rndm(); 
-    gt  = tmin  + dt  * rnd->RndKine().Rndm(); 
-    gQ2 = Q2min + dQ2 * rnd->RndKine().Rndm(); 
+    gy  = ymin  + dy  * rnd->RndKine().Rndm();
+    gt  = tmin  + dt  * rnd->RndKine().Rndm();
+    gQ2 = Q2min + dQ2 * rnd->RndKine().Rndm();
 
-    LOG("COHKinematics", pINFO) << 
+    LOG("COHKinematics", pINFO) <<
       "Trying: Q^2 = " << gQ2 << ", y = " << gy << ", t = " << gt;
 
     interaction->KinePtr()->Sety(gy);
-    interaction->KinePtr()->Sett(gt);  
+    interaction->KinePtr()->Sett(gt);
     interaction->KinePtr()->SetQ2(gQ2);
 
     // computing cross section for the current kinematics
@@ -285,9 +265,9 @@ void COHKinematicsGenerator::CalculateKin_BergerSehgalFM(GHepRecord * evrec) con
     //-- If the generated kinematics are accepted, finish-up module's job
     if(accept) {
       LOG("COHKinematics", pNOTICE)
-        << "Selected: Q^2 = " << gQ2 << ", y = " << gy << ", t = " << gt; 
+        << "Selected: Q^2 = " << gQ2 << ", y = " << gy << ", t = " << gt;
 
-      // TODO: If we re-install the fGenerateUniformly option, we 
+      // TODO: If we re-install the fGenerateUniformly option, we
       // would compute the event weight here.
 
       // reset bits
@@ -298,7 +278,7 @@ void COHKinematicsGenerator::CalculateKin_BergerSehgalFM(GHepRecord * evrec) con
       interaction->KinePtr()->SetQ2(gQ2, true);
       interaction->KinePtr()->Sety(gy, true);
       interaction->KinePtr()->Sett(gt, true);
-      interaction->KinePtr()->SetW(this->pionMass(interaction), true); 
+      interaction->KinePtr()->SetW(this->pionMass(interaction), true);
       interaction->KinePtr()->ClearRunningValues();
 
       // set the cross section for the selected kinematics
@@ -355,14 +335,14 @@ void COHKinematicsGenerator::CalculateKin_ReinSehgal(GHepRecord * evrec) const
       gy = ymin + dy * rnd->RndKine().Rndm();
 
     } else {
-      //-- Select unweighted kinematics using importance sampling method. 
+      //-- Select unweighted kinematics using importance sampling method.
 
       if(iter==1) {
         LOG("COHKinematics", pNOTICE) << "Initializing the sampling envelope";
         double Ev = interaction->InitState().ProbeE(kRfLab);
         fEnvelope->SetRange(xmin,ymin,xmax,ymax);
-        fEnvelope->SetParameter(0, xsec_max);  
-        fEnvelope->SetParameter(1, Ev);        
+        fEnvelope->SetParameter(0, xsec_max);
+        fEnvelope->SetParameter(1, Ev);
       }
 
       // Generate W,QD2 using the 2-D envelope as PDF
@@ -384,12 +364,12 @@ void COHKinematicsGenerator::CalculateKin_ReinSehgal(GHepRecord * evrec) const
 
       this->AssertXSecLimits(interaction, xsec, max);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-      LOG("COHKinematics", pDEBUG) 
+      LOG("COHKinematics", pDEBUG)
         << "xsec= " << xsec << ", J= 1, Rnd= " << t;
 #endif
       accept = (t<xsec);
     }
-    else { 
+    else {
       accept = (xsec>0);
     }
 
@@ -407,18 +387,18 @@ void COHKinematicsGenerator::CalculateKin_ReinSehgal(GHepRecord * evrec) const
       double Ev    = init_state.ProbeE(kRfLab);
       double Epi   = gy*Ev; // pion energy
       double Epi2  = TMath::Power(Epi,2);
-      double pme2  = kPionMass2/Epi2;   
+      double pme2  = kPionMass2/Epi2;
       double xME   = kNucleonMass*gx/Epi;
       double tA    = 1. + xME - 0.5*pme2;
       double tB    = TMath::Sqrt(1.+ 2*xME) * TMath::Sqrt(1.-pme2);
       double tmin  = 2*Epi2 * (tA-tB);
       double tmax  = 2*Epi2 * (tA+tB);
-      double A     = (double) init_state.Tgt().A(); 
+      double A     = (double) init_state.Tgt().A();
       double A13   = TMath::Power(A,1./3.);
       double R     = fRo * A13 * units::fermi; // nuclear radius
       double R2    = TMath::Power(R,2.);
       double b     = 0.33333 * R2;
-      double tsum  = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b; 
+      double tsum  = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b;
       double rt    = tsum * rnd->RndKine().Rndm();
       double gt    = -1.*TMath::Log(-1.*b*rt + TMath::Exp(-1.*b*tmin))/b;
 
@@ -468,7 +448,7 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
 
-  // Initialise a random number generator 
+  // Initialise a random number generator
   RandomGen * rnd = RandomGen::Instance();
 
   //-- For the subsequent kinematic selection with the rejection method:
@@ -492,7 +472,7 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
   // Pion angle transverse to the beam axis
   const double phi_min = kASmallNum;
   const double phi_max = (2.0 * kPi) - kASmallNum;
-  // 
+  //
   const double d_E_l = E_l_max - E_l_min;
   const double d_ctheta_l  = ctheta_l_max  - ctheta_l_min;
   const double d_ctheta_pi = ctheta_pi_max - ctheta_pi_min;
@@ -514,15 +494,15 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
     g_ctheta_pi = ctheta_pi_min + d_ctheta_pi * rnd->RndKine().Rndm();
     g_phi_l = phi_min + d_phi * rnd->RndKine().Rndm();
     // random phi is relative to phi_l
-    g_phi_pi = g_phi_l + (phi_min + d_phi * rnd->RndKine().Rndm()); 
+    g_phi_pi = g_phi_l + (phi_min + d_phi * rnd->RndKine().Rndm());
     g_theta_l = TMath::ACos(g_ctheta_l);
     g_theta_pi = TMath::ACos(g_ctheta_pi);
 
-    LOG("COHKinematics", pINFO) << "Trying: Lep(" <<g_E_l << ", " << 
-      g_theta_l << ", " << g_phi_l << ") Pi(" << 
+    LOG("COHKinematics", pINFO) << "Trying: Lep(" <<g_E_l << ", " <<
+      g_theta_l << ", " << g_phi_l << ") Pi(" <<
       g_theta_pi << ",     " << g_phi_pi << ")";
 
-    this->SetKinematics(g_E_l, g_theta_l, g_phi_l, g_theta_pi, g_phi_pi, 
+    this->SetKinematics(g_E_l, g_theta_l, g_phi_l, g_theta_pi, g_phi_pi,
                         interaction, interaction->KinePtr());
 
     // computing cross section for the current kinematics
@@ -532,7 +512,7 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
       //-- decide whether to accept the current kinematics
       double t   = xsec_max * rnd->RndKine().Rndm();
 
-      LOG("COHKinematics", pINFO) << "Got: xsec = " << xsec << ", t = " << 
+      LOG("COHKinematics", pINFO) << "Got: xsec = " << xsec << ", t = " <<
         t << " (max_xsec = " << xsec_max << ")";
 
       this->AssertXSecLimits(interaction, xsec, xsec_max);
@@ -548,8 +528,8 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
 
     //-- If the generated kinematics are accepted, finish-up module's job
     if(accept) {
-      LOG("COHKinematics", pNOTICE) << "Selected: Lepton(" << 
-        g_E_l << ", " << g_theta_l << ", " << 
+      LOG("COHKinematics", pNOTICE) << "Selected: Lepton(" <<
+        g_E_l << ", " << g_theta_l << ", " <<
         g_phi_l << ") Pion(" << g_theta_pi << ", " << g_phi_pi << ")";
 
       double E_l = g_E_l;
@@ -659,7 +639,7 @@ void COHKinematicsGenerator::SetKinematics(const double E_l,
 }
 //___________________________________________________________________________
 bool COHKinematicsGenerator::CheckKinematics(const double E_l,
-                                             const double /*  theta_l    */ ,  
+                                             const double /*  theta_l    */ ,
                                              const double /*  phi_l      */ ,
                                              const double /*  theta_pi   */ ,
                                              const double /*  phi_pi     */ ,
@@ -736,7 +716,7 @@ double COHKinematicsGenerator::MaxXSec_BergerSehgal(const Interaction * in) cons
   Q2r.max = fQ2Max;
 
   const double logQ2min = TMath::Log10(Q2r.min + kASmallNum);
-  const double logQ2max = TMath::Log10(Q2r.max); 
+  const double logQ2max = TMath::Log10(Q2r.max);
   const double dlogQ2   = (logQ2max - logQ2min) /(NQ2-1);
 
   for(int i=0; i<NQ2; i++) {
@@ -744,7 +724,7 @@ double COHKinematicsGenerator::MaxXSec_BergerSehgal(const Interaction * in) cons
     in->KinePtr()->SetQ2(Q2);
 
     Range1D_t yr = kps.YLim();
-    if ((yr.max < 0) || (yr.max < yr.min) || 
+    if ((yr.max < 0) || (yr.max < yr.min) ||
         (yr.max > 1) || (yr.min < 0)) { // forbidden kinematics
       continue;
     }
@@ -762,7 +742,7 @@ double COHKinematicsGenerator::MaxXSec_BergerSehgal(const Interaction * in) cons
       // Note: We're not stepping through log Q^2, log y - we "unpacked"
       double xsec = fXSecModel->XSec(in, kPSQ2yfE);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-      LOG("COHKinematics", pDEBUG)  
+      LOG("COHKinematics", pDEBUG)
         << "xsec(Q2= " << Q2 << ", y= " << gy << ", t = " << gt << ") = " << xsec;
 #endif
       max_xsec = TMath::Max(max_xsec, xsec);
@@ -785,9 +765,9 @@ double COHKinematicsGenerator::MaxXSec_BergerSehgalFM(const Interaction * in) co
   Q2r.max = fQ2Max;
 
   const double logQ2min = TMath::Log10(Q2r.min + kASmallNum);
-  const double logQ2max = TMath::Log10(Q2r.max); 
+  const double logQ2max = TMath::Log10(Q2r.max);
   const double logtmin  = TMath::Log10(kASmallNum);
-  const double logtmax  = TMath::Log10(fTMax - kASmallNum); 
+  const double logtmax  = TMath::Log10(fTMax - kASmallNum);
   const double dlogQ2   = (logQ2max - logQ2min) /(NQ2-1);
   const double dlogt    = (logtmax - logtmin) /(Nt-1);
 
@@ -796,7 +776,7 @@ double COHKinematicsGenerator::MaxXSec_BergerSehgalFM(const Interaction * in) co
     in->KinePtr()->SetQ2(Q2);
 
     Range1D_t yr = kps.YLim();
-    if ((yr.max < 0) || (yr.max < yr.min) || 
+    if ((yr.max < 0) || (yr.max < yr.min) ||
         (yr.max > 1) || (yr.min < 0)) { // forbidden kinematics
       continue;
     }
@@ -806,7 +786,7 @@ double COHKinematicsGenerator::MaxXSec_BergerSehgalFM(const Interaction * in) co
 
     for(int j=0; j<Ny; j++) {
       double gy = TMath::Power(10, logymin + j * dlogy);
-      
+
       for(int k=0; k<Nt; k++) {
         double gt = TMath::Power(10, logtmin + k * dlogt);
 
@@ -815,7 +795,7 @@ double COHKinematicsGenerator::MaxXSec_BergerSehgalFM(const Interaction * in) co
 
         double xsec = fXSecModel->XSec(in, kPSxyfE);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-        LOG("COHKinematics", pDEBUG)  
+        LOG("COHKinematics", pDEBUG)
           << "xsec(Q2= " << Q2 << ", y= " << gy << ", t = " << gt << ") = " << xsec;
 #endif
         max_xsec = TMath::Max(max_xsec, xsec);
@@ -858,7 +838,7 @@ double COHKinematicsGenerator::MaxXSec_ReinSehgal(const Interaction * in) const
 
       double xsec = fXSecModel->XSec(in, kPSxyfE);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-      LOG("COHKinematics", pDEBUG)  
+      LOG("COHKinematics", pDEBUG)
         << "xsec(x= " << gx << ", y= " << gy << ") = " << xsec;
 #endif
       max_xsec = TMath::Max(max_xsec, xsec);
@@ -1007,7 +987,7 @@ void COHKinematicsGenerator::LoadConfig(void)
   GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
     assert(fMaxXSecDiffTolerance>=0);
 
-  //-- Envelope employed when importance sampling is used 
+  //-- Envelope employed when importance sampling is used
   //   (initialize with dummy range)
   if(fEnvelope) delete fEnvelope;
   fEnvelope = new TF2("CohKinEnvelope",
@@ -1016,4 +996,3 @@ void COHKinematicsGenerator::LoadConfig(void)
   gROOT->GetListOfFunctions()->Remove(fEnvelope);
 }
 //____________________________________________________________________________
-

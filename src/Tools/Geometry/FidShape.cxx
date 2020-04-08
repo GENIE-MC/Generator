@@ -1,13 +1,9 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Robert Hatcher <rhatcher@fnal.gov>
-
- For the class documentation see the corresponding header file.
-
+ Robert Hatcher <rhatcher@fnal.gov>
 */
 //____________________________________________________________________________
 
@@ -22,16 +18,16 @@ using namespace genie;
 using namespace genie::geometry;
 
 //___________________________________________________________________________
-std::ostream& 
-genie::geometry::operator<< (std::ostream& stream, 
+std::ostream&
+genie::geometry::operator<< (std::ostream& stream,
                              const genie::geometry::PlaneParam& pparam)
 {
   pparam.Print(stream);
   return stream;
 }
 
-std::ostream& 
-genie::geometry::operator<< (std::ostream& stream, 
+std::ostream&
+genie::geometry::operator<< (std::ostream& stream,
                              const genie::geometry::RayIntercept& ri)
 {
   stream << "RayIntercept: dist in/out " << ri.fDistIn << "/" << ri.fDistOut
@@ -40,8 +36,8 @@ genie::geometry::operator<< (std::ostream& stream,
   return stream;
 }
 
-std::ostream& 
-genie::geometry::operator<< (std::ostream& stream, 
+std::ostream&
+genie::geometry::operator<< (std::ostream& stream,
                              const genie::geometry::FidShape& shape)
 {
   shape.Print(stream);
@@ -66,7 +62,7 @@ void PlaneParam::ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom)
 //___________________________________________________________________________
 void PlaneParam::Print(std::ostream& stream) const
 {
-  stream << "PlaneParam=[" << a << "," << b << "," << c << "," << d << "]"; 
+  stream << "PlaneParam=[" << a << "," << b << "," << c << "," << d << "]";
 }
 
 //___________________________________________________________________________
@@ -172,7 +168,7 @@ RayIntercept FidCylinder::Intercept(const TVector3& start, const TVector3& dir) 
     if ( ! cap.IsValid() ) continue;
     Double_t vd = cap.Vd(dir);
     Double_t vn = cap.Vn(start);
-    //std::cout << "FidCyl::Intercept cap " << icap 
+    //std::cout << "FidCyl::Intercept cap " << icap
     //          << " vd " << vd << " vn " << vn;
     if ( vd == 0.0 ) { // parallel to surface, is it on the right side?
       //std::cout << " vd=0, vn " << ((vn>0)?"wrong":"right") << "side " << std::endl;
@@ -182,10 +178,10 @@ RayIntercept FidCylinder::Intercept(const TVector3& start, const TVector3& dir) 
       //std::cout << " t " << t << " in/out "
       //          << intercept.fDistIn << "/" << intercept.fDistOut << std::endl;
       if ( vd < 0.0 ) { // t is the entering point
-        if ( t > intercept.fDistIn  ) 
+        if ( t > intercept.fDistIn  )
           { intercept.fDistIn  = t;  intercept.fSurfIn  = 1; }
       } else { // t is the exiting point
-        if ( t < intercept.fDistOut ) 
+        if ( t < intercept.fDistOut )
           { intercept.fDistOut = t;  intercept.fSurfOut = 1; }
       }
     }
@@ -240,7 +236,7 @@ RayIntercept FidPolyhedron::Intercept(const TVector3& start, const TVector3& dir
     // calculate numerator, denominator to "t" = distance along ray to intersection w/ pln
     Double_t vd = pln.Vd(dir);
     Double_t vn = pln.Vn(start);
-    
+
     //LOG("GeomVolSel", pNOTICE)
     //  << " face " << iface << " [" << pln.a << "," << pln.b << "," << pln.c << "," << pln.d
     //  << "] vd=" << vd << " vn=" << vn;
@@ -267,7 +263,7 @@ RayIntercept FidPolyhedron::Intercept(const TVector3& start, const TVector3& dir
           tfar    = t;
         }
       }
-      //LOG("GeomVolSel", pNOTICE) << "     new surf " <<  surfNear << "," << surfFar 
+      //LOG("GeomVolSel", pNOTICE) << "     new surf " <<  surfNear << "," << surfFar
       //                           << " tnear=" << tnear << " tfar=" << tfar;
     }
   }
@@ -291,7 +287,7 @@ RayIntercept FidPolyhedron::Intercept(const TVector3& start, const TVector3& dir
   }
   intercept.fDistIn  = tnear;
   intercept.fDistOut = tfar;
-  //LOG("GeomVolSel", pNOTICE) << " hit? " << (fIsHit?"true":"false") 
+  //LOG("GeomVolSel", pNOTICE) << " hit? " << (fIsHit?"true":"false")
   //                           << " dist in " << fDistIn << " out " << fDistOut;
   return intercept;
 }

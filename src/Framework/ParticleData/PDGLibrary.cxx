@@ -1,11 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
-
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+ 
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
          Changes required to implement the GENIE Boosted Dark Matter module
          were installed by Josh Berger (Univ. of Wisconsin)
@@ -78,19 +77,19 @@ bool PDGLibrary::LoadDBase(void)
                           << altpdgtable;
         fDatabasePDG->ReadPDGTable( altpdgtable );
         return true;
-    } 
+    }
   }
 
   if ( gSystem->Getenv("GENIE") ) {
     string base_dir = string( gSystem->Getenv("GENIE") );
-    string path = base_dir + 
+    string path = base_dir +
       string("/data/evgen/catalogues/pdg/genie_pdg_table.txt");
 
     if ( ! (gSystem->AccessPathName(path.c_str()) ) ) {
         LOG("PDG", pINFO) << "Load PDG data from: " << path;
         fDatabasePDG->ReadPDGTable( path.c_str() );
         return true;
-    } 
+    }
   }
 
   // no PDG data in $GENIE/config/ - Try $ROOTSYS/etc/
@@ -133,6 +132,20 @@ void PDGLibrary::AddDarkMatter(double mass, double med_ratio)
   }
 }
 //____________________________________________________________________________
+void PDGLibrary::AddNHL(double mass)
+{
+// Add NHL to PDG database
+
+  TParticlePDG * nhl = fDatabasePDG->GetParticle(kPdgNHL);
+  if (!nhl) {
+    // Name Title Mass Stable Width Charge Class PDG
+    fDatabasePDG->AddParticle("NHL","NHL",mass,true,0.,0,"NHL",kPdgNHL);
+  }
+  else {
+    assert(nhl->Mass() == mass);
+  }
+}
+//____________________________________________________________________________
 // EDIT: need a way to clear and then reload the PDG database
 void PDGLibrary::ReloadDBase(void)
 {
@@ -142,3 +155,4 @@ void PDGLibrary::ReloadDBase(void)
 
   if( ! LoadDBase() ) LOG("PDG", pERROR) << "Could not load PDG data";
 }
+//____________________________________________________________________________

@@ -5,14 +5,13 @@
 
 \brief   STDHEP-like event record entry that can fit a particle or a nucleus.
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created November 18, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org    
 */
 //____________________________________________________________________________
 
@@ -88,7 +87,7 @@ public :
   // Returns the momentum & position 4-vectors components
   double Px     (void) const { return (fP4) ? fP4->Px()     : 0; } ///< Get Px
   double Py     (void) const { return (fP4) ? fP4->Py()     : 0; } ///< Get Py
-  double Pz     (void) const { return (fP4) ? fP4->Pz()     : 0; } ///< Get Pz 
+  double Pz     (void) const { return (fP4) ? fP4->Pz()     : 0; } ///< Get Pz
   double E      (void) const { return (fP4) ? fP4->Energy() : 0; } ///< Get energy
   double Energy (void) const { return this->E();                 } ///< Get energy
   double KinE   (bool mass_from_pdg = false) const;                ///< Get kinetic energy
@@ -98,7 +97,7 @@ public :
   double Vt     (void) const { return (fX4) ? fX4->T()      : 0; } ///< Get production time
 
   // Return removal energy /set only for bound nucleons/
-  double RemovalEnergy (void) const { return fRemovalEnergy; } ///< Get removal energy 
+  double RemovalEnergy (void) const { return fRemovalEnergy; } ///< Get removal energy
 
   // Compare with another particle
   bool Compare            (const GHepParticle * p) const;
@@ -149,7 +148,7 @@ public :
   void SetPolarization(double theta, double phi);
   void SetPolarization(const TVector3 & polz);
 
-  // Set the bould flag & removal energy (bound flag set automatically 
+  // Set the bould flag & removal energy (bound flag set automatically
   // if a positive removal energy is set)
   void SetBound         (bool bound);
   void SetRemovalEnergy (double Erm);
@@ -193,4 +192,3 @@ ClassDef(GHepParticle, 2)
 }      // genie namespace
 
 #endif // _GHEP_PARTICLE_H_
-

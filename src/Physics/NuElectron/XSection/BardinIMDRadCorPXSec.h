@@ -3,7 +3,7 @@
 
 \class    genie::BardinIMDRadCorPXSec
 
-\brief    Computes the Inverse Muon Decay (IMD) diff. cross section using the 
+\brief    Computes the Inverse Muon Decay (IMD) diff. cross section using the
           Bardin-Dokuchaeva including all 1-loop radiative corrections. \n
 
           This is a 'trully' inclusive IMD cross section, i.e. the brem. cross
@@ -16,14 +16,13 @@
 
 \ref      D.Yu.Bardin and V.A.Dokuchaeva, Nucl.Phys.B287:839 (1987)
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  February 14, 2005
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -31,13 +30,10 @@
 #define _BARDIN_IMD_RADIATIVE_CORRECTIONS_PARTIAL_XSEC_H_
 
 #include <Math/IFunction.h>
-
 #include "Framework/EventGen/XSecAlgorithmI.h"
-//#include "Numerical/GSFunc.h"
 
 namespace genie {
 
-//class IntegratorI;
 class XSecIntegratorI;
 
 class BardinIMDRadCorPXSec : public XSecAlgorithmI {
@@ -83,8 +79,8 @@ private:
 \brief    Auxiliary scalar function for the internal integration in Bardin's
           IMD d2xsec/dxdy cross section algorithm
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  February 20, 2006
 */

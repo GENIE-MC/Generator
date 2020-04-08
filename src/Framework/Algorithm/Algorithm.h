@@ -5,17 +5,16 @@
 
 \brief    Algorithm abstract base class.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
           Marco Roda <mroda \at liverpool.ac.uk>
           University of Liverpool
 
 \created  May 02, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -63,13 +62,13 @@ public:
 
   //! Configure the algorithm from the AlgoConfigPool
   //!   based on param_set string given in input
-  //! An algorithm contains a vector of registries coming from different 
+  //! An algorithm contains a vector of registries coming from different
   //!   xml configuration files, which are loaded according a very precise prioriy
   //! This methods will load a number registries in order of priority:
   //!   1) "Tunable" parameter set from CommonParametes. This is loaded with the
   //!      highest prioriry and it is designed to be used for tuning procedure
   //!      Usage not expected from the user.
-  //!   2) For every string defined in "CommonParame" the corresponding parameter set will be loaded 
+  //!   2) For every string defined in "CommonParame" the corresponding parameter set will be loaded
   //!      from CommonParameter.xml
   //!   3) parameter set specified by the config string and defined in the xml file of the algorithm
   //!   4) if config is not "Default" also the Default parameter set from the same xml file will be loaded
@@ -82,15 +81,15 @@ public:
 
   //! Get configuration registry
   //!  Evaluate the summary of the configuration and returns it
-  //!  The summary of a configuration is a merge of all the registries 
+  //!  The summary of a configuration is a merge of all the registries
   //!  known to the algorithm (see Configure() methods) but every parameter is appearing only
-  //!  once and in case of repetitions, only the parameter from the registry with the highest prioriry 
+  //!  once and in case of repetitions, only the parameter from the registry with the highest prioriry
   //!  is considered.
   virtual const Registry & GetConfig(void) const ;
 
   //! Returns the pointer of the summary registry, see previous method
-  //!  Gives access to the summary so it could be changed. 
-  //!  The usage of this method is deprecated as it is mantained only for back compatibility. 
+  //!  Gives access to the summary so it could be changed.
+  //!  The usage of this method is deprecated as it is mantained only for back compatibility.
   //! If you need to add or chage a parter (or more), use the AddTopRegistry() instead
   Registry * GetOwnedConfig(void);
 
@@ -136,8 +135,8 @@ public:
   friend ostream & operator << (ostream & stream, const Algorithm & alg);
 
 
-  static string BuildParamVectKey( const std::string & comm_name, unsigned int i ) ; 
-  static string BuildParamVectSizeKey( const std::string & comm_name ) ; 
+  static string BuildParamVectKey( const std::string & comm_name, unsigned int i ) ;
+  static string BuildParamVectSizeKey( const std::string & comm_name ) ;
 
 protected:
   Algorithm();
@@ -184,16 +183,16 @@ protected:
   //! Handle to load vectors of parameters
   template<class T>
     int GetParamVect( const std::string & comm_name, std::vector<T> & v,
-    		       bool is_top_call = true ) const ;
+		      bool is_top_call = true ) const ;
 
   int GetParamVectKeys( const std::string & comm_name, std::vector<RgKey> & k,
 			bool is_top_call = true ) const ;
-  
+
   int   AddTopRegistry( Registry * rp, bool owns = true );  ///< add registry with top priority, also update ownership
   int   AddLowRegistry( Registry * rp, bool owns = true );  ///< add registry with lowest priority, also update ownership
   int   MergeTopRegistry( const Registry & r ) ;            ///< Merge with top level registry if first reg of the vector is owned
                                                             ///< Otherwise an owned copy is added as a top registry
-  int   AddTopRegisties( const vector<Registry*> & rs, bool owns = false ) ; ///< Add registries with top priority, also udated Ownerships  
+  int   AddTopRegisties( const vector<Registry*> & rs, bool owns = false ) ; ///< Add registries with top priority, also udated Ownerships
 
 private:
 

@@ -1,27 +1,25 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos  <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Costas Andreopoulos  <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
-         Hugh Gallagher <gallag \at minos.phy.tufts.edu>
-         Tufts University
+ Hugh Gallagher <gallag \at minos.phy.tufts.edu>
+ Tufts University
 
-         Tinjun Yang <tjyang \at stanford.edu>
-         Stanford University
+ Tinjun Yang <tjyang \at stanford.edu>
+ Stanford University
 
-         Strange baryon production, and adjusted hadronic shower production
-         to conserve strangeness, and to continue balancing charge and
-         maintaining correct multiplicity was implemented by Keith Hofmann
-         and Hugh Gallagher (Tufts)
+ Strange baryon production, and adjusted hadronic shower production to conserve
+ strangeness, and to continue balancing charge and maintaining correct
+ multiplicity was implemented by Keith Hofmann and Hugh Gallagher (Tufts)
 
-         Production of etas was added by Ji Liu (W&M)
+ Production of etas was added by Ji Liu (W&M)
 
-         Changes required to implement the GENIE Boosted Dark Matter module
-         were installed by Josh Berger (Univ. of Wisconsin)
+ Changes required to implement the GENIE Boosted Dark Matter module
+ were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -43,20 +41,19 @@
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
-#include "Framework/GHEP/GHepFlags.h" 
+#include "Framework/GHEP/GHepFlags.h"
 #include "Framework/EventGen/EVGThreadException.h"
-#include "Physics/Decay/Decayer.h"
-#include "Physics/Hadronization/KNOHadronization.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-//#include "Framework/Numerical/Spline.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGCodeList.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/PrintUtils.h"
+//#include "Physics/Decay/Decayer.h"
+#include "Physics/Hadronization/AGKYLowW2019.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -64,23 +61,23 @@ using namespace genie::controls;
 using namespace genie::utils::print;
 
 //____________________________________________________________________________
-KNOHadronization::KNOHadronization() :
-EventRecordVisitorI("genie::KNOHadronization")
+AGKYLowW2019::AGKYLowW2019() :
+EventRecordVisitorI("genie::AGKYLowW2019")
 {
   fBaryonXFpdf  = 0;
   fBaryonPT2pdf = 0;
 //fKNO          = 0;
 }
 //____________________________________________________________________________
-KNOHadronization::KNOHadronization(string config) :
-EventRecordVisitorI("genie::KNOHadronization", config)
+AGKYLowW2019::AGKYLowW2019(string config) :
+EventRecordVisitorI("genie::AGKYLowW2019", config)
 {
   fBaryonXFpdf  = 0;
   fBaryonPT2pdf = 0;
 //fKNO          = 0;
 }
 //____________________________________________________________________________
-KNOHadronization::~KNOHadronization()
+AGKYLowW2019::~AGKYLowW2019()
 {
   if (fBaryonXFpdf ) delete fBaryonXFpdf;
   if (fBaryonPT2pdf) delete fBaryonPT2pdf;
@@ -89,27 +86,27 @@ KNOHadronization::~KNOHadronization()
 //____________________________________________________________________________
 // HadronizationModelI interface implementation:
 //____________________________________________________________________________
-void KNOHadronization::Initialize(void) const
+void AGKYLowW2019::Initialize(void) const
 {
 
 }
 //____________________________________________________________________________
-void KNOHadronization::ProcessEventRecord(GHepRecord * event) const {
+void AGKYLowW2019::ProcessEventRecord(GHepRecord * event) const {
 
   Interaction * interaction = event->Summary();
   TClonesArray * particle_list = this->Hadronize(interaction);
 
   if(! particle_list ) {
-    LOG("KNOHadronization", pWARN) << "Got an empty particle list. Hadronizer failed!";
-    LOG("KNOHadronization", pWARN) << "Quitting the current event generation thread";
-    
+    LOG("AGKYLowW2019", pWARN) << "Got an empty particle list. Hadronizer failed!";
+    LOG("AGKYLowW2019", pWARN) << "Quitting the current event generation thread";
+
     event->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
-    
+
     genie::exceptions::EVGThreadException exception;
     exception.SetReason("Could not simulate the hadronic system");
     exception.SwitchOnFastForward();
     throw exception;
-    
+
     return;
   }
 
@@ -162,14 +159,14 @@ void KNOHadronization::ProcessEventRecord(GHepRecord * event) const {
     event->AddParticle(*particle);
   }
 
-  delete particle_list ; 
+  delete particle_list ;
 
   // update the weight of the event
   event -> SetWeight ( Weight() * event->Weight() );
 
 }
 //____________________________________________________________________________
-TClonesArray * KNOHadronization::Hadronize(
+TClonesArray * AGKYLowW2019::Hadronize(
                                         const Interaction * interaction) const
 {
 // Generate the hadronic system in a neutrino interaction using a KNO-based
@@ -241,7 +238,7 @@ TClonesArray * KNOHadronization::Hadronize(
   return particle_list;
 }
 //____________________________________________________________________________
-PDGCodeList * KNOHadronization::SelectParticles(
+PDGCodeList * AGKYLowW2019::SelectParticles(
                                        const Interaction * interaction) const
 {
   if(!this->AssertValidity(interaction)) {
@@ -369,7 +366,7 @@ PDGCodeList * KNOHadronization::SelectParticles(
   return pdgcv;
 }
 //____________________________________________________________________________
-TH1D * KNOHadronization::MultiplicityProb(
+TH1D * AGKYLowW2019::MultiplicityProb(
 		        const Interaction * interaction, Option_t * opt) const
 {
 // Returns a multiplicity probability distribution for the input interaction.
@@ -480,20 +477,20 @@ TH1D * KNOHadronization::MultiplicityProb(
   return mult_prob;
 }
 //____________________________________________________________________________
-double KNOHadronization::Weight(void) const
+double AGKYLowW2019::Weight(void) const
 {
   return fWeight;
 }
 //____________________________________________________________________________
 // methods overloading the default Algorithm interface implementation:
 //____________________________________________________________________________
-void KNOHadronization::Configure(const Registry & config)
+void AGKYLowW2019::Configure(const Registry & config)
 {
   EventRecordVisitorI::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void KNOHadronization::Configure(string config)
+void AGKYLowW2019::Configure(string config)
 {
   EventRecordVisitorI::Configure(config);
   this->LoadConfig();
@@ -501,7 +498,7 @@ void KNOHadronization::Configure(string config)
 //____________________________________________________________________________
 // private methods:
 //____________________________________________________________________________
-void KNOHadronization::LoadConfig(void)
+void AGKYLowW2019::LoadConfig(void)
 {
   // Force decays of unstable hadronization products?
   //GetParamDef( "ForceDecays", fForceDecays, false ) ;
@@ -628,7 +625,7 @@ void KNOHadronization::LoadConfig(void)
 
 }
 //____________________________________________________________________________
-double KNOHadronization::KNO(int probe_pdg, int nuc_pdg, double z) const
+double AGKYLowW2019::KNO(int probe_pdg, int nuc_pdg, double z) const
 {
 // Computes <n>P(n) for the input reduced multiplicity z=n/<n>
 
@@ -663,7 +660,7 @@ double KNOHadronization::KNO(int probe_pdg, int nuc_pdg, double z) const
   return kno;
 }
 //____________________________________________________________________________
-double KNOHadronization::AverageChMult(
+double AGKYLowW2019::AverageChMult(
      int probe_pdg,int nuc_pdg, double W) const
 {
 // computes the average charged multiplicity
@@ -697,7 +694,7 @@ double KNOHadronization::AverageChMult(
   return av_nch;
 }
 //____________________________________________________________________________
-int KNOHadronization::HadronShowerCharge(const Interaction* interaction) const
+int AGKYLowW2019::HadronShowerCharge(const Interaction* interaction) const
 {
 // Returns the hadron shower charge in units of +e
 // HadronShowerCharge = Q{initial} - Q{final state primary lepton}
@@ -729,7 +726,7 @@ int KNOHadronization::HadronShowerCharge(const Interaction* interaction) const
   return hadronShowerCharge;
 }
 //____________________________________________________________________________
-TClonesArray * KNOHadronization::DecayMethod1(
+TClonesArray * AGKYLowW2019::DecayMethod1(
                double W, const PDGCodeList & pdgv, bool reweight_decays) const
 {
 // Simple phase space decay including all generated particles.
@@ -752,7 +749,7 @@ TClonesArray * KNOHadronization::DecayMethod1(
   return plist;
 }
 //____________________________________________________________________________
-TClonesArray * KNOHadronization::DecayMethod2(
+TClonesArray * AGKYLowW2019::DecayMethod2(
                double W, const PDGCodeList & pdgv, bool reweight_decays) const
 {
 // Generate the baryon based on experimental pT^2 and xF distributions
@@ -868,7 +865,7 @@ TClonesArray * KNOHadronization::DecayMethod2(
   return plist;
 }
 //____________________________________________________________________________
-TClonesArray * KNOHadronization::DecayBackToBack(
+TClonesArray * AGKYLowW2019::DecayBackToBack(
                                      double W, const PDGCodeList & pdgv) const
 {
 // Handles a special case (only two particles) of the 2nd decay method
@@ -934,7 +931,7 @@ TClonesArray * KNOHadronization::DecayBackToBack(
   return plist;
 }
 //____________________________________________________________________________
-bool KNOHadronization::PhaseSpaceDecay(
+bool AGKYLowW2019::PhaseSpaceDecay(
          TClonesArray & plist, TLorentzVector & pd,
                    const PDGCodeList & pdgv, int offset, bool reweight) const
 {
@@ -1082,7 +1079,7 @@ bool KNOHadronization::PhaseSpaceDecay(
   return true;
 }
 //____________________________________________________________________________
-double KNOHadronization::ReWeightPt2(const PDGCodeList & pdgcv) const
+double AGKYLowW2019::ReWeightPt2(const PDGCodeList & pdgcv) const
 {
 // Phase Space Decay re-weighting to reproduce exp(-pT2/<pT2>) pion pT2
 // distributions.
@@ -1106,7 +1103,7 @@ double KNOHadronization::ReWeightPt2(const PDGCodeList & pdgcv) const
   return w;
 }
 //____________________________________________________________________________
-PDGCodeList * KNOHadronization::GenerateHadronCodes(
+PDGCodeList * AGKYLowW2019::GenerateHadronCodes(
                                    int multiplicity, int maxQ, double W) const
 {
 // Selection of fragments (identical as in NeuGEN).
@@ -1380,7 +1377,7 @@ PDGCodeList * KNOHadronization::GenerateHadronCodes(
   return pdgc;
 }
 //____________________________________________________________________________
-int KNOHadronization::GenerateBaryonPdgCode(
+int AGKYLowW2019::GenerateBaryonPdgCode(
                  int multiplicity, int maxQ, double W) const
 {
 // Selection of main target fragment (identical as in NeuGEN).
@@ -1463,7 +1460,7 @@ int KNOHadronization::GenerateBaryonPdgCode(
   return pdgc;
 }
 //____________________________________________________________________________
-void KNOHadronization::HandleDecays(TClonesArray * /*plist*/) const
+void AGKYLowW2019::HandleDecays(TClonesArray * /*plist*/) const
 {
 // Handle decays of unstable particles if requested through the XML config.
 // The default is not to decay the particles at this stage (during event
@@ -1533,7 +1530,7 @@ void KNOHadronization::HandleDecays(TClonesArray * /*plist*/) const
   // } // force decay
 }
 //____________________________________________________________________________
-bool KNOHadronization::AssertValidity(const Interaction * interaction) const
+bool AGKYLowW2019::AssertValidity(const Interaction * interaction) const
 {
   if(interaction->ExclTag().IsCharmEvent()) {
      LOG("KNOHad", pWARN) << "Can't hadronize charm events";
@@ -1547,7 +1544,7 @@ bool KNOHadronization::AssertValidity(const Interaction * interaction) const
   return true;
 }
 //____________________________________________________________________________
-double KNOHadronization::MaxMult(const Interaction * interaction) const
+double AGKYLowW2019::MaxMult(const Interaction * interaction) const
 {
   double W = interaction->Kine().W();
 
@@ -1555,7 +1552,7 @@ double KNOHadronization::MaxMult(const Interaction * interaction) const
   return maxmult;
 }
 //____________________________________________________________________________
-TH1D * KNOHadronization::CreateMultProbHist(double maxmult) const
+TH1D * AGKYLowW2019::CreateMultProbHist(double maxmult) const
 {
   double minmult = 2;
   int    nbins   = TMath::Nint(maxmult-minmult+1);
@@ -1567,7 +1564,7 @@ TH1D * KNOHadronization::CreateMultProbHist(double maxmult) const
   return mult_prob;
 }
 //____________________________________________________________________________
-void KNOHadronization::ApplyRijk( const Interaction * interaction, 
+void AGKYLowW2019::ApplyRijk( const Interaction * interaction,
                                   bool norm, TH1D * mp ) const
 {
   // Apply the NEUGEN multiplicity probability scaling factors
@@ -1678,7 +1675,7 @@ void KNOHadronization::ApplyRijk( const Interaction * interaction,
   }
 }
 //____________________________________________________________________________
-double KNOHadronization::Wmin(void) const
+double AGKYLowW2019::Wmin(void) const
 {
   return (kNucleonMass+kPionMass);
 }

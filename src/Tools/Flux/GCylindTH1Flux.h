@@ -3,21 +3,20 @@
 
 \class   genie::flux::GCylindTH1Flux
 
-\brief   A generic GENIE flux driver. 
-         Generates a 'cylindrical' neutrino beam along the input direction, 
+\brief   A generic GENIE flux driver.
+         Generates a 'cylindrical' neutrino beam along the input direction,
          with the input transverse radius and centered at the input position.
          The energies are generated from the input energy spectrum (TH1D).
          Multiple neutrino species can be generated (you will need to supply
          an energy spectrum for each).
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+         University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created July 4, 2005
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
+         For the full text of the license visit http://copyright.genie-mc.org    
 */
 //____________________________________________________________________________
 

@@ -3,57 +3,60 @@
 <genie_config>
 
    <!-- ****** CONFIGURATION FOR EVENT GENERATION MODULES ****** -->
-   <config alg="genie::EventGenerator">              EventGenerator.xml              </config>
-   <config alg="genie::FermiMover">                  FermiMover.xml                  </config>
-   <config alg="genie::HadronTransporter">           HadronTransporter.xml           </config>
-   <config alg="genie::HAIntranuke">                 HAIntranuke.xml                 </config>
-   <config alg="genie::HAIntranuke2018">             HAIntranuke2018.xml             </config>
-   <config alg="genie::HNIntranuke2018">             HNIntranuke2018.xml             </config>
-   <config alg="genie::UnstableParticleDecayer">     UnstableParticleDecayer.xml     </config>
-   <config alg="genie::PauliBlocker">                PauliBlocker.xml                </config>
-   <config alg="genie::NucDeExcitationSim">          NucDeExcitationSim.xml          </config>
-   <config alg="genie::NucBindEnergyAggregator">     NucBindEnergyAggregator.xml     </config>
-   <config alg="genie::InitialStateAppender">        InitialStateAppender.xml        </config>
-   <config alg="genie::VertexGenerator">             VertexGenerator.xml             </config>
-   <config alg="genie::QELEventGenerator">           QELEventGenerator.xml           </config>
-   <config alg="genie::QELEventGeneratorSM">         QELEventGeneratorSM.xml         </config>
-   <config alg="genie::DMELEventGenerator">          DMELEventGenerator.xml          </config>
-   <config alg="genie::QELPrimaryLeptonGenerator">   QELPrimaryLeptonGenerator.xml   </config>
-   <config alg="genie::DISPrimaryLeptonGenerator">   DISPrimaryLeptonGenerator.xml   </config>
-   <config alg="genie::RESPrimaryLeptonGenerator">   RESPrimaryLeptonGenerator.xml   </config>
-   <config alg="genie::NuEPrimaryLeptonGenerator">   NuEPrimaryLeptonGenerator.xml   </config>
-   <config alg="genie::DMEOutgoingDarkGenerator">    DMEOutgoingDarkGenerator.xml   </config>
-   <config alg="genie::COHPrimaryLeptonGenerator">   COHPrimaryLeptonGenerator.xml   </config>
-   <config alg="genie::DFRPrimaryLeptonGenerator">   DFRPrimaryLeptonGenerator.xml   </config>
-   <config alg="genie::SKPrimaryLeptonGenerator">    SKPrimaryLeptonGenerator.xml    </config>
-   <config alg="genie::DMELOutgoingDarkGenerator">   DMELOutgoingDarkGenerator.xml   </config>
-   <config alg="genie::DMDISOutgoingDarkGenerator">  DMDISOutgoingDarkGenerator.xml  </config>
-   <config alg="genie::QELKinematicsGenerator">      QELKinematicsGenerator.xml      </config>
-   <config alg="genie::DISKinematicsGenerator">      DISKinematicsGenerator.xml      </config>
-   <config alg="genie::RESKinematicsGenerator">      RESKinematicsGenerator.xml      </config>
-   <config alg="genie::NuEKinematicsGenerator">      NuEKinematicsGenerator.xml      </config>
-   <config alg="genie::DMEKinematicsGenerator">      DMEKinematicsGenerator.xml      </config>
-   <config alg="genie::COHKinematicsGenerator">      COHKinematicsGenerator.xml      </config>
-   <config alg="genie::DFRKinematicsGenerator">      DFRKinematicsGenerator.xml      </config>
-   <config alg="genie::SKKinematicsGenerator">       SKKinematicsGenerator.xml       </config>
-   <config alg="genie::DMELKinematicsGenerator">     DMELKinematicsGenerator.xml     </config>
-   <config alg="genie::DMDISKinematicsGenerator">    DMDISKinematicsGenerator.xml    </config>
-   <config alg="genie::QELHadronicSystemGenerator">  QELHadronicSystemGenerator.xml  </config>
-   <config alg="genie::COHHadronicSystemGenerator">  COHHadronicSystemGenerator.xml  </config>
-   <config alg="genie::DFRHadronicSystemGenerator">  DFRHadronicSystemGenerator.xml  </config>
-   <config alg="genie::DISHadronicSystemGenerator">  DISHadronicSystemGenerator.xml  </config>
-   <config alg="genie::RESHadronicSystemGenerator">  RESHadronicSystemGenerator.xml  </config>
-   <config alg="genie::RSPPHadronicSystemGenerator"> RSPPHadronicSystemGenerator.xml </config>
-   <config alg="genie::SKHadronicSystemGenerator">   SKHadronicSystemGenerator.xml   </config>
-   <config alg="genie::NuETargetRemnantGenerator">   NuETargetRemnantGenerator.xml   </config>
-   <config alg="genie::DMETargetRemnantGenerator">   DMETargetRemnantGenerator.xml   </config>
-   <config alg="genie::RSPPResonanceSelector">       RSPPResonanceSelector.xml       </config>
-   <config alg="genie::AMNuGammaGenerator">          AMNuGammaGenerator.xml          </config>
-   <config alg="genie::MECGenerator">                MECGenerator.xml                </config>
-   <config alg="genie::GLRESGenerator">              GLRESGenerator.xml              </config>
-   <config alg="genie::CEvNSEventGenerator">         CEvNSEventGenerator.xml         </config>
+   <config alg="genie::EventGenerator">                  EventGenerator.xml                  </config>
+   <config alg="genie::FermiMover">                      FermiMover.xml                      </config>
+   <config alg="genie::HadronTransporter">               HadronTransporter.xml               </config>
+   <config alg="genie::HAIntranuke">                     HAIntranuke.xml                     </config>
+   <config alg="genie::HAIntranuke2018">                 HAIntranuke2018.xml                 </config>
+   <config alg="genie::HNIntranuke2018">                 HNIntranuke2018.xml                 </config>
+   <config alg="genie::HINCLCascadeIntranuke">           HINCLCascadeIntranuke.xml           </config>
+   <config alg="genie::HG4BertCascIntranuke">            HG4BertCascIntranuke.xml            </config>
+   <config alg="genie::UnstableParticleDecayer">         UnstableParticleDecayer.xml         </config>
+   <config alg="genie::PauliBlocker">                    PauliBlocker.xml                    </config>
+   <config alg="genie::NucDeExcitationSim">              NucDeExcitationSim.xml              </config>
+   <config alg="genie::NucBindEnergyAggregator">         NucBindEnergyAggregator.xml         </config>
+   <config alg="genie::InitialStateAppender">            InitialStateAppender.xml            </config>
+   <config alg="genie::VertexGenerator">                 VertexGenerator.xml                 </config>
+   <config alg="genie::QELEventGenerator">               QELEventGenerator.xml               </config>
+   <config alg="genie::QELEventGeneratorSM">             QELEventGeneratorSM.xml             </config>
+   <config alg="genie::DMELEventGenerator">              DMELEventGenerator.xml              </config>
+   <config alg="genie::QELPrimaryLeptonGenerator">       QELPrimaryLeptonGenerator.xml       </config>
+   <config alg="genie::DISPrimaryLeptonGenerator">       DISPrimaryLeptonGenerator.xml       </config>
+   <config alg="genie::RESPrimaryLeptonGenerator">       RESPrimaryLeptonGenerator.xml       </config>
+   <config alg="genie::NuEPrimaryLeptonGenerator">       NuEPrimaryLeptonGenerator.xml       </config>
+   <config alg="genie::DMEOutgoingDarkGenerator">        DMEOutgoingDarkGenerator.xml        </config>
+   <config alg="genie::COHPrimaryLeptonGenerator">       COHPrimaryLeptonGenerator.xml       </config>
+   <config alg="genie::DFRPrimaryLeptonGenerator">       DFRPrimaryLeptonGenerator.xml       </config>
+   <config alg="genie::SKPrimaryLeptonGenerator">        SKPrimaryLeptonGenerator.xml        </config>
+   <config alg="genie::DMELOutgoingDarkGenerator">       DMELOutgoingDarkGenerator.xml       </config>
+   <config alg="genie::DMDISOutgoingDarkGenerator">      DMDISOutgoingDarkGenerator.xml      </config>
+   <config alg="genie::QELKinematicsGenerator">          QELKinematicsGenerator.xml          </config>
+   <config alg="genie::DISKinematicsGenerator">          DISKinematicsGenerator.xml          </config>
+   <config alg="genie::RESKinematicsGenerator">          RESKinematicsGenerator.xml          </config>
+   <config alg="genie::NuEKinematicsGenerator">          NuEKinematicsGenerator.xml          </config>
+   <config alg="genie::DMEKinematicsGenerator">          DMEKinematicsGenerator.xml          </config>
+   <config alg="genie::COHKinematicsGenerator">          COHKinematicsGenerator.xml          </config>
+   <config alg="genie::DFRKinematicsGenerator">          DFRKinematicsGenerator.xml          </config>
+   <config alg="genie::SKKinematicsGenerator">           SKKinematicsGenerator.xml           </config>
+   <config alg="genie::DMELKinematicsGenerator">         DMELKinematicsGenerator.xml         </config>
+   <config alg="genie::DMDISKinematicsGenerator">        DMDISKinematicsGenerator.xml        </config>
+   <config alg="genie::QELHadronicSystemGenerator">      QELHadronicSystemGenerator.xml      </config>
+   <config alg="genie::COHHadronicSystemGenerator">      COHHadronicSystemGenerator.xml      </config>
+   <config alg="genie::DFRHadronicSystemGenerator">      DFRHadronicSystemGenerator.xml      </config>
+   <config alg="genie::DISHadronicSystemGenerator">      DISHadronicSystemGenerator.xml      </config>
+   <config alg="genie::RESHadronicSystemGenerator">      RESHadronicSystemGenerator.xml      </config>
+   <config alg="genie::RSPPHadronicSystemGenerator">     RSPPHadronicSystemGenerator.xml     </config>
+   <config alg="genie::SKHadronicSystemGenerator">       SKHadronicSystemGenerator.xml       </config>
+   <config alg="genie::NuETargetRemnantGenerator">       NuETargetRemnantGenerator.xml       </config>
+   <config alg="genie::DMETargetRemnantGenerator">       DMETargetRemnantGenerator.xml       </config>
+   <config alg="genie::RSPPResonanceSelector">           RSPPResonanceSelector.xml           </config>
+   <config alg="genie::AMNuGammaGenerator">              AMNuGammaGenerator.xml              </config>
+   <config alg="genie::MECGenerator">                    MECGenerator.xml                    </config>
+   <config alg="genie::GLRESGenerator">                  GLRESGenerator.xml                  </config>
+   <config alg="genie::CEvNSEventGenerator">             CEvNSEventGenerator.xml             </config>
    <config alg="genie::NucleonDecayPrimaryVtxGenerator"> NucleonDecayPrimaryVtxGenerator.xml </config>
    <config alg="genie::NNBarOscPrimaryVtxGenerator">     NNBarOscPrimaryVtxGenerator.xml     </config>
+   <config alg="genie::NHLPrimaryVtxGenerator">          NHLPrimaryVtxGenerator.xml          </config>
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
    <config alg="genie::QELInteractionListGenerator">           QELInteractionListGenerator.xml       </config>
@@ -85,10 +88,11 @@
    <config alg="genie::CollinsSpillerFragm">         CollinsSpillerFragm.xml         </config>
 
    <!-- ****** CONFIGURATION FOR FRAGMENTATION ALGORITHMS ****** -->
-   <config alg="genie::KNOHadronization">            KNOHadronization.xml            </config>
-   <config alg="genie::KNOPythiaHadronization">      KNOPythiaHadronization.xml      </config>
-   <config alg="genie::Pythia6Hadronization">        Pythia6Hadronization.xml        </config>
-   <config alg="genie::CharmHadronization">          CharmHadronization.xml          </config>
+   <config alg="genie::AGKYLowW2019">            AGKYLowW2019.xml            </config>
+   <config alg="genie::AGKY2019">                AGKY2019.xml                </config>
+   <config alg="genie::Pythia6Hadro2019">        Pythia6Hadro2019.xml        </config>
+   <config alg="genie::Pythia8Hadro2019">        Pythia8Hadro2019.xml        </config>
+   <config alg="genie::AGCharm2019">             AGCharm2019.xml             </config>
 
    <!-- ****** CONFIGURATION FOR PARTON DENSITY FUNCTION ALGORITHMS ****** -->
    <config alg="genie::GRV98LO">                     GRV98LO.xml                     </config>
@@ -192,7 +196,7 @@
    <config alg="genie::mueloss::BezrukovBugaevModel">     BezrukovBugaevModel.xml    </config>
    <config alg="genie::mueloss::KokoulinPetrukhinModel">  KokoulinPetrukhinModel.xml </config>
    <config alg="genie::mueloss::PetrukhinShestakovModel"> PetrukhinShestakovModel.xml</config>
-   
+
    <!-- ****** CONFIGURATION FOR MODELS IN VLE PACKAGE ****** -->
    <config alg="genie::IBDHadronicSystemGenerator">     IBDHadronicSystemGenerator.xml   </config>
    <config alg="genie::IBDKinematicsGenerator">         IBDKinematicsGenerator.xml       </config>
@@ -201,7 +205,7 @@
    <config alg="genie::IBDInteractionListGenerator">    IBDInteractionListGenerator.xml  </config>
    <config alg="genie::StrumiaVissaniIBDPXSec">         StrumiaVissaniIBDPXSec.xml       </config>
    <config alg="genie::KLVOxygenIBDPXSec">              KLVOxygenIBDPXSec.xml            </config>
-   
+
    <!-- ****** CONFIGURATION FOR REWEIGHT ALGORITHMS ****** -->
    <config alg="genie::rew::GSystUncertaintyTable">     GSystUncertaintyTable.xml        </config>
 

@@ -5,14 +5,13 @@
 
 \brief      Simple functions and data for computing hadron interaction xsecs
 
-\author     Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-            University of Liverpool & STFC Rutherford Appleton Lab
+\author     Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+            University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created    March 11, 2004
 
-\cpright    Copyright (c) 2003-2019, The GENIE Collaboration
-            For the full text of the license visit http://copyright.genie-mc.org
-            or see $GENIE/LICENSE
+\cpright    Copyright (c) 2003-2020, The GENIE Collaboration
+            For the full text of the license visit http://copyright.genie-mc.org            
 */
 //____________________________________________________________________________
 
@@ -72,7 +71,7 @@ namespace hadxs
 
   // Pion-Nucleon cross-sections as implemented by C. Berger for re-implementation
   // of the Rein-Sehgal coherent pion production model, and provided to D. Cherdack.
-  // 
+  //
   // C. Berger & L. Sehgal
   // "PCAC and coherent pion production by low energy neutrinos"
   // http://arxiv.org/abs/0812.2653
@@ -83,11 +82,11 @@ namespace hadxs
     double PionNucleonXSec     (double Epion, bool get_total, bool isChargedPion=true);
     //Pion-Nucleus xsec extrapolated from pion-Carbon data
     int    PionNucleusXSec(double tpi, double ppistar, double t_new, double A, double &tpilow, double &siglow, double &tpihigh, double &sighigh);
-                           //Input: the pion kinetic energy, 
-                           //       the pion CMS momentum, 
-                           //       the square if the 4-p transfer from the pion to the nucleus, and 
+                           //Input: the pion kinetic energy,
+                           //       the pion CMS momentum,
+                           //       the square if the 4-p transfer from the pion to the nucleus, and
                            //       the number of nucleons in teh target nucleus
-                           //Also pass pointers to varaibles which store the output: 
+                           //Also pass pointers to varaibles which store the output:
                            //       the data points (xsec -vs- tpi) above and below the input tpi
                            //       an interpolation algorithm must be used to determine the xsec from this information
   }

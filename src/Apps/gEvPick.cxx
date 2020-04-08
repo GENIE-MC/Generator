@@ -71,7 +71,7 @@
                 - cc_hyperon         
                     any (anti)neutrino CC with at least one hyperon 
                     (\Sigma^{+,0,-}, \Lambda^{0}, \Xi^{0,-}, \Omega^{-}) in final state
-                - <can add more / please send request to costas.andreopoulos \at stfc.ac.uk>
+                - <can add more / please send request to constantinos.andreopoulos \at cern.ch>
            -o 
               Specify output filename.
               (optional, default: gntp.<topology>.ghep.root)
@@ -91,14 +91,14 @@
                 numu NC 1pi0 events. All cherry-picked events will be saved in the 
                 output file gntp.numu_nc_1pi0.ghep.root (default name).
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created August 09, 2010
 
-\cpright Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //_____________________________________________________________________________________________
 
@@ -254,8 +254,7 @@ void RunCherryPicker(void)
        if(AcceptEvent(event)) {
           brOrigFilename->SetString(chEl->GetTitle());
           brOrigEvtNum = iev;
-          EventRecord * event_copy = new EventRecord(event);
-          ntpw.AddEventRecord(iev_glob,event_copy);
+          ntpw.AddEventRecord( iev_glob, &event );
           iev_glob++;
        }
        mcrec->Clear();

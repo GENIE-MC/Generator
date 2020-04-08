@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::KNOHadronization
+\class    genie::AGKYLowW2019
 
 \brief    A KNO-based hadronization model.
 
@@ -9,8 +9,8 @@
 
 \author   The main authors of this model are:
 
-          - Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-            University of Liverpool & STFC Rutherford Appleton Lab
+          - Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+            University of Liverpool & STFC Rutherford Appleton Laboratory
 
           - Hugh Gallagher <gallag@minos.phy.tufts.edu>
             Tufts University
@@ -32,9 +32,9 @@
 
 \created  August 17, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+          
 */
 //____________________________________________________________________________
 
@@ -54,13 +54,13 @@ namespace genie {
 class Decayer;
 //class Spline;
 
-class KNOHadronization : public EventRecordVisitorI {
+class AGKYLowW2019 : public EventRecordVisitorI {
 
 public:
 
-  KNOHadronization();
-  KNOHadronization(string config);
-  virtual ~KNOHadronization();
+  AGKYLowW2019();
+  AGKYLowW2019(string config);
+  virtual ~AGKYLowW2019();
 
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;

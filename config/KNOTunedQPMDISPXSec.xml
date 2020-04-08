@@ -7,7 +7,7 @@ Algorithm Configurable Parameters:
 Name                        Type    Opt   Comment                             Default
 ..........................................................................................................
 XSec-Integrator             alg     yes                                       The default integrator will be same of the pure QPMDISPXSec
-Hadronizer                  alg     no    It must be KNOHadronization         
+Hadronizer                  alg     no    It must be AGKYLowW2019         
 DISModel                    alg     no    It must be QPMDISPXSec    
 
 UseCache                    bool    Yes   Cache suppression factors?          true
@@ -21,7 +21,7 @@ Wcut                        double  no                                        Co
     <param type="string" name="CommonParam"> NonResBackground </param>
 
     <param type="alg" name="DISModel">   genie::QPMDISPXSec/Default      </param>
-    <param type="alg" name="Hadronizer"> genie::KNOHadronization/Default </param>
+    <param type="alg" name="Hadronizer"> genie::AGKYLowW2019/Default </param>
 
   </param_set>
 

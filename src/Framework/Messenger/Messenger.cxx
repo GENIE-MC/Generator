@@ -1,32 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - June 16, 2004
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Jun 01, 2008 - CA
-   At Configure(), if the GPRODMODE environmental variable is set then use
-   mesg thresholds from Messenger_production.xml rather than Messenger.xml.
-   That minimizes verbosity during production jobs.
- @ Dec 06, 2008 - CA
-   Adding gAbortingInErr to be set if GENE is exiting in err so as to prevent 
-   output clutter (caused by reporting singletons) and help spotting the fatal
-   mesg more easily. In PriorityFromString() re-ordered the if-statements, 
-   putting the most commonly used priorities on top, so to improve performance.
- @ Aug 25, 2009 - RH
-   Use the GetXMLFilePath() to search the potential XML config file locations
-   and return the first actual file that can be found. Adapt code to use the
-   utils::xml namespace.
- @ Jan 31, 2013 - CA
-   The $GMSGCONF var is no longer used. Instead, call 
-   Messenger::SetPrioritiesFromXmlFile(string filename) explicitly.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -74,7 +52,7 @@ Messenger * Messenger::Instance()
 
     // the first thing that get's printed in a GENIE session is the banner
     utils::print::PrintBanner();
-	
+
     static Messenger::Cleaner cleaner;
     cleaner.DummyMethodAndSilentCompiler();
 
@@ -84,7 +62,7 @@ Messenger * Messenger::Instance()
     appender = new log4cpp::OstreamAppender("default", &cout);
     const char* layoutenv = gSystem->Getenv("GMSGLAYOUT");
     std::string layoutstr = (layoutenv) ? string(layoutenv) : "BASIC";
-    if ( layoutstr == "SIMPLE" ) 
+    if ( layoutstr == "SIMPLE" )
       appender->setLayout(new log4cpp::SimpleLayout());
     else
       appender->setLayout(new log4cpp::BasicLayout());
@@ -139,7 +117,7 @@ bool Messenger::SetPrioritiesFromXmlFile(string filenames)
 // The input can be a colection of XML files, delimited with a ":".
 // The full path for each file should be given.
 // In case of multiple files, all files are read.
-// The later each file is, the higher priority it has (if the same mesg 
+// The later each file is, the higher priority it has (if the same mesg
 // stream is listed twice with conflicting priority, the last one is used.).
 //
 
@@ -150,7 +128,7 @@ bool Messenger::SetPrioritiesFromXmlFile(string filenames)
 
   vector<string>::const_iterator filename_iter;
   for(filename_iter  = filename_vec.begin();
-      filename_iter != filename_vec.end(); ++filename_iter) 
+      filename_iter != filename_vec.end(); ++filename_iter)
   {
      // look in all known XML locations, just like primary file
      string filename = utils::xml::GetXMLFilePath(*filename_iter);
@@ -207,7 +185,7 @@ bool Messenger::SetPrioritiesFromXmlFile(string filenames)
     xmlFreeNode(xml_msgp);
     xmlFreeDoc(xml_doc);
   }//filename_iter
-  
+
   return true;
 }
 //____________________________________________________________________________

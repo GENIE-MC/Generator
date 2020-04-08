@@ -1,23 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 07, 2009 - CA
-   Removed call to AddTargetNucleusRemnant(). This simulation step is now
-   performed further upstream in the processing chain.
- @ Mar 03, 2009 - CA
-   Moved into the new RES package from its previous location (EVGModules)
- @ Jul 23, 2010 - CA
-   Use ResonanceCharge() from base class. Function removed from utils::res.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 

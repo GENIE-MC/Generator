@@ -28,7 +28,7 @@
 #        --max 100
 #   See submit-evg_sk_fhst.pl for more SuperK MC job options.
 #
-# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
 # STFC, Rutherford Appleton Lab
 #-------------------------------------------------------------------------------------------
 

@@ -6,17 +6,16 @@
 \brief    Differential cross section for charged lepton elastic scattering. \n
           Is a concrete implementation of the XSecAlgorithmI interface. \n
 
-\ref      See for example: 
+\ref      See for example:
           R.Bradford, A.Bodek, H.Budd, J.Arrington, Nucl.Phys.B159 (2006) 127
-          
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  Sep 15, 2009
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -59,4 +58,4 @@ private:
 
 }       // genie namespace
 
-#endif  
+#endif

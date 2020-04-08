@@ -13,14 +13,20 @@
 
 \ref      S.G.Kovalenko, Sov.J.Nucl.Phys.52:934 (1990)
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+          Rather than using Kovalenko's expression for the ZR scaling factor,
+          I apply an ad-hoc scaling factor maintaining the relative strength
+          of the QELC channels but lowering their sum to be consistent with
+          recent NOMAD measurement. The default value of M0 has been changed
+          from 0.1 to sqrt(0.1) as in M.Bischofberger's (ETHZ)PhD thesis
+          (DISS.ETH NO 16034). For more details see GENIE-PUB/2007/006.
+
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  June 10, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -87,8 +93,8 @@ private:
 \brief    Auxiliary scalar function for the internal integration in Kovalenko
           QEL charm production cross section algorithm
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  February 20, 2006
 */
@@ -120,5 +126,3 @@ namespace genie {
 } // genie namespace
 
 #endif  // _KOVALENKO_QEL_CHARM_PARTIAL_XSEC_H_
-
-

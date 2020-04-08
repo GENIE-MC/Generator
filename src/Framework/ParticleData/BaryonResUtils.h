@@ -1,26 +1,25 @@
 //____________________________________________________________________________
 /*!
 
-  \namespace genie::utils::res
+\namespace genie::utils::res
 
-  \brief     Baryon Resonance utilities.
+\brief     Baryon Resonance utilities.
 
-  \author    Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-  University of Liverpool & STFC Rutherford Appleton Lab
+\author    Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+           University of Liverpool & STFC Rutherford Appleton Laboratory
 
-  \created   November 25, 2004
+\created   November 25, 2004
 
-  \cpright   Copyright (c) 2003-2019, The GENIE Collaboration
-  For the full text of the license visit http://copyright.genie-mc.org
-  or see $GENIE/LICENSE
-  */
+\cpright   Copyright (c) 2003-2020, The GENIE Collaboration
+           For the full text of the license visit http://copyright.genie-mc.org
+*/
 //____________________________________________________________________________
 
 #ifndef _BARYON_RESONANCE_UTILS_H_
 #define _BARYON_RESONANCE_UTILS_H_
 
 #include <string>
-#include <map> 
+#include <map>
 
 #include "Framework/ParticleData/BaryonResonance.h"
 
@@ -42,9 +41,9 @@ namespace genie {
             bool        IsN               (Resonance_t res);  		 ///< is it an N resonance?
             double      Mass              (Resonance_t res); 			 ///< resonance mass (GeV)
             double      Width             (Resonance_t res); 			 ///< resonance width (GeV)
-            double      BWNorm            (Resonance_t res, 
-                    double N0ResMaxNWidths=6, 
-                    double N2ResMaxNWidths=2, 
+            double      BWNorm            (Resonance_t res,
+                    double N0ResMaxNWidths=6,
+                    double N2ResMaxNWidths=2,
                     double GnResMaxNWidths=4);  ///< breit-wigner normalization factor
             int         OrbitalAngularMom (Resonance_t res);  		///< orbital angular momentum
             int         ResonanceIndex    (Resonance_t res);  		///< resonance idx, quark model / SU(6)

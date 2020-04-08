@@ -5,16 +5,15 @@
 
 \brief    Abstract base class for Alvarez-Ruso wavefunction solution.
 
-\ref      
+\ref
 
 \author   Steve Dennis
           University of Warwick, Rutherford Appleton Laboratory
 
 \created  05/12/2013
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -33,7 +32,7 @@ enum pUnits_t{ kInMeV=0, kInNatural };
 class ARWFSolution
 {
   public:
-    
+
     ARWFSolution(bool debug = false);
     virtual ~ARWFSolution();
     virtual std::complex<double>  Element(const double radius, const double cosine_rz, const double e_pion) = 0;

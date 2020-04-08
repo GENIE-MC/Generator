@@ -1,11 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -94,9 +93,9 @@ void GNuMcMainFrame::Init(void)
    fExitButton          = 0;
    fViewTabWidth        = 0;
    fViewTabHeight       = 0;
-   
+
    fTruthDisplay = 0;
-   
+
    fEventFilename = "";
    fEventFile     = 0;
    fGHepTree      = 0;
@@ -156,11 +155,11 @@ TGGroupFrame * GNuMcMainFrame::BuildImageButtonFrame(void)
   TGGroupFrame * bf = new TGGroupFrame(
         fUpperFrame, "Viewer Control Buttons", kHorizontalFrame);
 
-  fFileOpenButton  = 
+  fFileOpenButton  =
     new TGPictureButton(bf, gClient->GetPicture(Icon("open"),32,32));
-  fNextEventButton = 
+  fNextEventButton =
     new TGPictureButton(bf, gClient->GetPicture(Icon("next"),32,32));
-  fExitButton = 
+  fExitButton =
     new TGPictureButton(bf, gClient->GetPicture(Icon("exit"), 32,32),
     "gApplication->Terminate(0)");
 
@@ -191,9 +190,9 @@ void GNuMcMainFrame::BuildTabs(void)
   this->BuildFastSimScintCaloTab ();
   this->BuildFastSimCherenkovTab ();
 
-  ULong_t hintViewerTabsLayout = 
+  ULong_t hintViewerTabsLayout =
        kLHintsTop | kLHintsExpandX | kLHintsExpandY;
-  fViewerTabsLayout      
+  fViewerTabsLayout
        = new TGLayoutHints(hintViewerTabsLayout, 5, 5, 10, 1);
 
   fLowerFrame -> AddFrame ( fViewerTabs, fViewerTabsLayout );
@@ -218,9 +217,9 @@ void GNuMcMainFrame::BuildMCTruthTab(void)
   fEmbeddedCanvas -> GetCanvas() -> SetBorderMode (0);
   fEmbeddedCanvas -> GetCanvas() -> SetFillColor  (0);
 
-  ULong_t hintFeynmanTabLayout  = 
+  ULong_t hintFeynmanTabLayout  =
      kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
-  fFeynmanTabLayout = 
+  fFeynmanTabLayout =
      new TGLayoutHints(hintFeynmanTabLayout, 5, 5, 10, 1);
 
   fFeynmanTab -> AddFrame( fEmbeddedCanvas, fFeynmanTabLayout );
@@ -235,9 +234,9 @@ void GNuMcMainFrame::BuildMCTruthTab(void)
   fGHep = new TGTextEdit(fGHepTab, w, h, kSunkenFrame | kDoubleBorder);
   fGHep->AddLine( "GHEP:" );
 
-  ULong_t hintGHepTabLayout = 
+  ULong_t hintGHepTabLayout =
      kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
-  fGHepTabLayout         
+  fGHepTabLayout
      = new TGLayoutHints(hintGHepTabLayout, 5, 5, 10, 1);
 
   fGHepTab -> AddFrame(fGHep,    fGHepTabLayout);
@@ -257,7 +256,7 @@ void GNuMcMainFrame::BuildFastSimScintCaloTab (void)
 //______________________________________________________________________________
 void GNuMcMainFrame::BuildFastSimCherenkovTab (void)
 {
-// Build tab for displaying fast simulation results of Cherenkov detector 
+// Build tab for displaying fast simulation results of Cherenkov detector
 // response and for controlling simulation inputs.
 //
   TGCompositeFrame * tf = 0;
@@ -272,9 +271,9 @@ void GNuMcMainFrame::BuildStatusBar(void)
   fStatusBar = new TGStatusBar(fMain, 50, 10, kHorizontalFrame);
   fStatusBar->SetParts(parts, 3);
 
-  ULong_t hintStatusBarLayout = 
+  ULong_t hintStatusBarLayout =
      kLHintsBottom | kLHintsLeft | kLHintsExpandX;
-  fStatusBarLayout       
+  fStatusBarLayout
      = new TGLayoutHints(hintStatusBarLayout, 0, 0,  2, 0);
 
   fMain->AddFrame(fStatusBar, fStatusBarLayout);
@@ -323,25 +322,25 @@ void GNuMcMainFrame::FileOpen(void)
        delete fGHepTree;
      }
 
-     fEventFile = 
+     fEventFile =
          new TFile(fEventFilename.c_str(),"READ");
-     fGHepTree = 
+     fGHepTree =
          dynamic_cast <TTree *> (fEventFile->Get("gtree"));
      if(!fGHepTree) {
-        LOG("MasterClass", pFATAL) 
+        LOG("MasterClass", pFATAL)
             << "No GHEP event tree in input file: " << fEventFilename;
         gAbortingInErr=true;
         exit(1);
      }
      fCurrEventNu = 0;
      fNuOfEvents  = fGHepTree->GetEntries();
-     LOG("MasterClass", pNOTICE)  
-       << "Input GHEP event tree has " << fNuOfEvents 
+     LOG("MasterClass", pNOTICE)
+       << "Input GHEP event tree has " << fNuOfEvents
        << ((fNuOfEvents==1) ? " entry." : " entries.");
 
-     NtpMCTreeHeader * thdr = 
+     NtpMCTreeHeader * thdr =
          dynamic_cast <NtpMCTreeHeader *> ( fEventFile->Get("header") );
-     LOG("MasterClass", pNOTICE) 
+     LOG("MasterClass", pNOTICE)
          << "Input tree header: " << *thdr;
 
      fGHepTree->SetBranchAddress("gmcrec", &fMCRecord);
