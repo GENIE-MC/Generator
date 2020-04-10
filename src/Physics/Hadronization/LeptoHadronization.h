@@ -4,7 +4,6 @@
 \class    genie::LeptoHadronization
 
 \brief    Provides access to the LEPTO hadronization models. \n
-          Is a concrete implementation of the HadronizationModelI interface.
 
 \author   Alfonso Garcia <alfonsog \at nikhef.nl>
           NIKHEF (Amsterdam)
@@ -20,10 +19,17 @@
 #ifndef _LEPTO_HADRONIZATION_H_
 #define _LEPTO_HADRONIZATION_H_
 
-#include <TPythia6.h>
+#define __GENIE_PYTHIA6_ENABLED__
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/Interaction/Interaction.h"
+#include "Framework/Numerical/MathUtils.h"
+
+#ifdef __GENIE_PYTHIA6_ENABLED__
+#include <TPythia6.h>
+#endif
+
+using namespace genie::utils::math;
 
 namespace genie {
 
@@ -46,11 +52,14 @@ public:
 
 private:
 
+  bool           Hadronize        (GHepRecord * event) const;
+
   void           Initialize       (void)               const;
-  TClonesArray * Hadronize        (const Interaction*) const;
   void           LoadConfig       (void);
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
   mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
+#endif
 
   //-- configuration parameters
   int    fMaxIterHad;         // Maxmium number of iterations to look for a combination of hadrons

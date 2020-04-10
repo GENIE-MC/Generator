@@ -62,7 +62,7 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES-Mu     </param>
      <param type="alg" name="Generator-1">  genie::EventGenerator/GLRES-Tau    </param>
      <param type="alg" name="Generator-2">  genie::EventGenerator/GLRES-Ele    </param>
-     <param type="alg" name="Generator-3">  genie::EventGenerator/GLRES-Ele    </param>
+     <param type="alg" name="Generator-3">  genie::EventGenerator/GLRES-Had    </param>
      <param type="alg" name="Generator-4">  genie::EventGenerator/DIS-CC       </param>
      <param type="alg" name="Generator-5">  genie::EventGenerator/DIS-NC       </param>
      <param type="alg" name="Generator-6">  genie::EventGenerator/DIS-CC-CHARM </param>
@@ -505,7 +505,7 @@ Generator-%d                alg     No
 
   <!-- HEDIS module -->
 
-  <param_set name="HEDIS"> 
+  <param_set name="HEDISGLRES"> 
      <param type="int" name="NGenerators">    6                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/HEDIS-CC  </param>
      <param type="alg" name="Generator-1 ">   genie::EventGenerator/HEDIS-NC  </param>
@@ -515,14 +515,29 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-5">    genie::EventGenerator/GLRES-Had </param>
   </param_set>
 
+  <param_set name="CCHEDISGLRES"> 
+     <param type="int" name="NGenerators">    5                               </param>
+     <param type="alg" name="Generator-0 ">   genie::EventGenerator/HEDIS-CC  </param>
+     <param type="alg" name="Generator-2">    genie::EventGenerator/GLRES-Mu  </param>
+     <param type="alg" name="Generator-3">    genie::EventGenerator/GLRES-Tau </param>
+     <param type="alg" name="Generator-4">    genie::EventGenerator/GLRES-Ele </param>
+     <param type="alg" name="Generator-5">    genie::EventGenerator/GLRES-Had </param>
+  </param_set>
+
+  <param_set name="HEDIS"> 
+     <param type="int" name="NGenerators">    2                               </param>
+     <param type="alg" name="Generator-0 ">   genie::EventGenerator/HEDIS-CC  </param>
+     <param type="alg" name="Generator-1 ">   genie::EventGenerator/HEDIS-NC  </param>
+  </param_set>
+
   <param_set name="CCHEDIS"> 
      <param type="int" name="NGenerators">    1                               </param>
-     <param type="alg" name="Generator-0 ">   genie::EventGenerator/HEDIS-CC    </param>
+     <param type="alg" name="Generator-0 ">   genie::EventGenerator/HEDIS-CC  </param>
   </param_set>
 
   <param_set name="NCHEDIS"> 
      <param type="int" name="NGenerators">    1                               </param>
-     <param type="alg" name="Generator-0">    genie::EventGenerator/HEDIS-NC    </param>
+     <param type="alg" name="Generator-0">    genie::EventGenerator/HEDIS-NC  </param>
   </param_set>
 
 </alg_conf>

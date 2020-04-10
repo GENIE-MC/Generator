@@ -128,8 +128,7 @@ double KPhaseSpace::Threshold(void) const
      pi.IsResonant()                ||
      pi.IsDeepInelastic()           ||
      pi.IsDarkMatterDeepInelastic() ||
-     pi.IsDiffractive()             ||
-     pi.IsHEDIS()) 
+     pi.IsDiffractive()) 
   {
     assert(tgt.HitNucIsSet());
     double Mn   = tgt.HitNucP4Ptr()->M();
@@ -271,8 +270,7 @@ bool KPhaseSpace::IsAboveThreshold(void) const
      pi.IsDarkMatterDeepInelastic() ||
      pi.IsDiffractive()             ||
      pi.IsSingleKaon()              ||
-     pi.IsAMNuGamma()               ||
-     pi.IsHEDIS()) 
+     pi.IsAMNuGamma()) 
   {
       E = init_state.ProbeE(kRfHitNucRest);
   }
@@ -317,7 +315,7 @@ bool KPhaseSpace::IsAllowed(void) const
   }
 
   // DIS
-  if(pi.IsDeepInelastic() || pi.IsDarkMatterDeepInelastic() || pi.IsHEDIS()) {
+  if(pi.IsDeepInelastic() || pi.IsDarkMatterDeepInelastic()) {
     Range1D_t Wl  = this->WLim();
     Range1D_t Q2l = this->Q2Lim_W();
     double    W   = kine.W();
@@ -413,7 +411,7 @@ Range1D_t KPhaseSpace::WLim(void) const
 
   bool is_em = pi.IsEM();
   bool is_qel  = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay() || pi.IsDarkMatterElastic();
-  bool is_inel = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsDiffractive() || pi.IsHEDIS();
+  bool is_inel = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsDiffractive();
   bool is_dmdis = pi.IsDarkMatterDeepInelastic();
 
   if(is_qel) {
@@ -487,7 +485,7 @@ Range1D_t KPhaseSpace::Q2Lim_W(void) const
 
   bool is_em = pi.IsEM();
   bool is_qel   = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay();
-  bool is_inel  = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsDiffractive() || pi.IsHEDIS();
+  bool is_inel  = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsDiffractive();
   bool is_coh   = pi.IsCoherentProduction();
   bool is_dme   = pi.IsDarkMatterElastic();
   bool is_dmdis = pi.IsDarkMatterDeepInelastic();
@@ -543,7 +541,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
 
   bool is_em    = pi.IsEM();
   bool is_qel   = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay();
-  bool is_inel  = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsHEDIS();
+  bool is_inel  = pi.IsDeepInelastic() || pi.IsResonant();
   bool is_coh   = pi.IsCoherentProduction();
   bool is_cevns = pi.IsCoherentElastic();
   bool is_dme   = pi.IsDarkMatterElastic();
@@ -661,7 +659,7 @@ Range1D_t KPhaseSpace::XLim(void) const
   bool is_em = pi.IsEM();
 
   //RES+DIS
-  bool is_inel = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsHEDIS();
+  bool is_inel = pi.IsDeepInelastic() || pi.IsResonant();
   if(is_inel) {
     const InitialState & init_state  = fInteraction->InitState();
     double Ev  = init_state.ProbeE(kRfHitNucRest);
@@ -713,7 +711,7 @@ Range1D_t KPhaseSpace::YLim(void) const
   bool is_em = pi.IsEM();
 
   //RES+DIS
-  bool is_inel = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsHEDIS();
+  bool is_inel = pi.IsDeepInelastic() || pi.IsResonant();
   if(is_inel) {
     const InitialState & init_state = fInteraction->InitState();
     double Ev  = init_state.ProbeE(kRfHitNucRest);
@@ -795,7 +793,7 @@ Range1D_t KPhaseSpace::YLim_X(void) const
   bool is_em = pi.IsEM();
 
   //RES+DIS
-  bool is_inel = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsHEDIS();
+  bool is_inel = pi.IsDeepInelastic() || pi.IsResonant();
   if(is_inel) {
     const InitialState & init_state = fInteraction->InitState();
     double Ev  = init_state.ProbeE(kRfHitNucRest);

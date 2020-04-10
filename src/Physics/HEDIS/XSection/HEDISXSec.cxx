@@ -95,6 +95,8 @@ double HEDISXSec::Integrate(
     delete interaction;
   }
 
+  LOG("HEDISXSec", pINFO)  << in->AsString();
+
   Range1D_t xl  = kps.XLim();
   Range1D_t Q2l = kps.Q2Lim();
   LOG("HEDISXSec", pDEBUG) << "X only kinematic range = [" << xl.min << ", " << xl.max << "]";

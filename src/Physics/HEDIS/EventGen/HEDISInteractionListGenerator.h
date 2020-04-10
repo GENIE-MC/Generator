@@ -21,8 +21,12 @@
 #ifndef _HEDIS_INTERACTION_LIST_GENERATOR_H_
 #define _HEDIS_INTERACTION_LIST_GENERATOR_H_
 
+#include <map>
+
 #include "Framework/EventGen/InteractionListGeneratorI.h"
-#include "Framework/Interaction/HEDISChannel.h"
+#include "Framework/Interaction/Interaction.h"
+
+using std::multimap;
 
 namespace genie {
 
@@ -37,6 +41,8 @@ public :
 
   // implement the InteractionListGeneratorI interface
   InteractionList * CreateInteractionList(const InitialState & init) const;
+  InteractionList * CreateHEDISlist(vector<InitialState> vinit, 
+                                  vector<InteractionType_t> vinttype) const;
 
   // overload the Algorithm::Configure() methods to load private data
   // members from configuration options
@@ -45,7 +51,10 @@ public :
 
 private:
 
-  void AddFinalStateInfo(Interaction * interaction, HEDISQrkChannel_t hedischan) const;
+
+  multimap<int,bool> GetHitQuarks(const Interaction * interaction) const;
+  vector<int> GetFinalQuarks(const Interaction * interaction) const;
+
   void LoadConfigData(void);
   
   bool fIsCC;

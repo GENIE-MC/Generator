@@ -33,7 +33,7 @@
   </param_set>
 
   <param_set name="HEDIS-PYTHIA">
-    <param type="double" name="Wmin">                                2. </param>
+    <param type="double" name="Xsec-Wmin">                           2. </param>
     <param type="int"    name="Warnings">                        100000 </param>
     <param type="int"    name="Errors">                          100000 </param>
     <param type="int"    name="QuarkMass">                            1 </param>

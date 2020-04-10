@@ -65,7 +65,6 @@ double HEDISPXSec::XSec(
 
   const InitialState & init_state = interaction -> InitState();
 
-  HEDISQrkChannel_t ch = interaction->ExclTag().HEDISQrkChannel();
   double y     = kinematics.y();
   double Q2    = kinematics.Q2();
   double x     = kinematics.x();
@@ -74,7 +73,7 @@ double HEDISPXSec::XSec(
   double Mlep2 = TMath::Power(interaction->FSPrimLepton()->Mass(),2);
 
   // Get F1,F2,F3 for particular quark channel and compute differential xsec
-  SF_xQ2 sf = sf_tbl->EvalQrkSFLO( ch, x, Q2 );
+  SF_xQ2 sf = sf_tbl->EvalQrkSFLO( interaction, x, Q2 );
   double xsec = (fMassTerms) ? ds_dxdy_mass( sf, x, y, E, Mnuc, Mlep2 ) : ds_dxdy( sf, x, y );
 
   // If NLO is enable we compute sigma_NLO/sigma_LO. Then the quark xsec 
@@ -83,9 +82,8 @@ double HEDISPXSec::XSec(
   // for the hadronization we need the different quark contributions.
   // This could be avoid if a NLO parton showering is introduced.
   if (fSFinfo.IsNLO && xsec>0.) {
-    HEDISNucChannel_t nucch  = HEDISChannel::HEDISNucChannel(ch);
-    SF_xQ2 sflo  = sf_tbl->EvalNucSFLO(nucch,x,Q2);
-    SF_xQ2 sfnlo = sf_tbl->EvalNucSFNLO(nucch,x,Q2);
+    SF_xQ2 sflo  = sf_tbl->EvalNucSFLO(interaction,x,Q2);
+    SF_xQ2 sfnlo = sf_tbl->EvalNucSFNLO(interaction,x,Q2);
     double lo  = (fMassTerms) ? ds_dxdy_mass( sflo, x, y, E, Mnuc, Mlep2 ) : ds_dxdy( sflo, x, y );
     if (lo>0.) {
       double nlo = (fMassTerms) ? ds_dxdy_mass( sfnlo, x, y, E, Mnuc, Mlep2 ) : ds_dxdy( sfnlo, x, y );
@@ -163,7 +161,7 @@ bool HEDISPXSec::ValidProcess(const Interaction * interaction) const
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
   const ProcessInfo & proc_info  = interaction->ProcInfo();
-  if(!proc_info.IsHEDIS()) return false;
+  if(!proc_info.IsDeepInelastic()) return false;
 
   const InitialState & init_state = interaction -> InitState();
   int probe_pdg = init_state.ProbePdg();
@@ -197,7 +195,7 @@ void HEDISPXSec::LoadConfig(void)
   assert(fXSecIntegrator);
 
   // Minimum value of W (typically driven by hadronization limitation)
-  GetParam("Wmin",       fWmin);
+  GetParam("Xsec-Wmin",       fWmin);
   GetParam("Mass-Terms", fMassTerms);
 
   GetParamDef("BaseDir", fSFBaseDir, string(""));

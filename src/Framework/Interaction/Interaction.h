@@ -102,10 +102,12 @@ public:
   // Use the "Named Constructor" C++ idiom for fast creation of typical interactions
   static Interaction * DISCC     (int tgt, int nuc, int probe, double E=0);
   static Interaction * DISCC     (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
+  static Interaction * DISCC     (int tgt, int nuc, int qrk, bool sea, int fqrk, int probe, double E=0);
   static Interaction * DISCC     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * DISCC     (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
   static Interaction * DISNC     (int tgt, int nuc, int probe, double E=0);
   static Interaction * DISNC     (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
+  static Interaction * DISNC     (int tgt, int nuc, int qrk, bool sea, int fqrk, int probe, double E=0);
   static Interaction * DISNC     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * DISNC     (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
   static Interaction * DISEM     (int tgt, int nuc, int probe, double E=0);
@@ -161,14 +163,6 @@ public:
   static Interaction * DMDI      (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
   static Interaction * DMDI      (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * DMDI      (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
-  static Interaction * HEDISCC   (int tgt, int nuc, int probe, double E=0);
-  static Interaction * HEDISCC   (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
-  static Interaction * HEDISCC   (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
-  static Interaction * HEDISCC   (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
-  static Interaction * HEDISNC   (int tgt, int nuc, int probe, double E=0);
-  static Interaction * HEDISNC   (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
-  static Interaction * HEDISNC   (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
-  static Interaction * HEDISNC   (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
 
 private:
 

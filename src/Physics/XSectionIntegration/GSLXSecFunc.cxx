@@ -211,10 +211,8 @@ double genie::utils::gsl::d2XSec_dlog10xdlog10Q2_E::DoEval(const double * xin) c
 // outputs: 
 //   differential cross section [10^-38 cm^2]
 //
-  double  log10x = xin[0];
-  double log10Q2 = xin[1];
-  fInteraction->KinePtr()->Setx(TMath::Power(10,log10x));
-  fInteraction->KinePtr()->SetQ2(TMath::Power(10,log10Q2));
+  fInteraction->KinePtr()->Setx(TMath::Power(10,xin[0]));
+  fInteraction->KinePtr()->SetQ2(TMath::Power(10,xin[1]));
   kinematics::UpdateWYFromXQ2(fInteraction);
   double xsec = fModel->XSec(fInteraction, kPSlog10xlog10Q2fE);
   return fScale*xsec/(1E-38 * units::cm2);

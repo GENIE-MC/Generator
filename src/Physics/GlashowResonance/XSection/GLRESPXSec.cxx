@@ -69,7 +69,7 @@ double GLRESPXSec::XSec(
   double m_w     = kMw;                                           //kMw                                           //genhen=80.425
   double m_z     = kMz;                                           //kMz                                           //genhen=91.1876
   double Sin2thw = 1 - kMw2 / kMz2;                               //1 - kMw2 / kMz2                               //genhen=0.2312
-  double branch  = 64.41/10.63;                                   //64.41/10.63                                   //genhen=67.96/10.57 
+  double branch  = 64.41/10.63;                                   //branching ratio hadrons/muons                 //genhen=67.96/10.57 
 
   double Gw2     = TMath::Power(Gw,  2);
   double m_w2    = TMath::Power(m_w,2); 
@@ -175,7 +175,7 @@ void GLRESPXSec::LoadConfig(void)
   fXSecIntegrator = dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
 
-  GetParam( "Wmin", fWmin ) ;
+  GetParam( "Xsec-Wmin", fWmin ) ;
 
 
 }

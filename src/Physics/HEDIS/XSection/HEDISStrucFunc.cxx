@@ -13,9 +13,13 @@
 //____________________________________________________________________________
 
 #include "Physics/HEDIS/XSection/HEDISStrucFunc.h"
+#include "Physics/HEDIS/EventGen/HEDISInteractionListGenerator.h"
+#include "Framework/EventGen/InteractionList.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Utils/RunOpt.h"
 #include "Framework/Conventions/Constants.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 
 #include <TSystem.h>
 #include <TMath.h>
@@ -171,28 +175,39 @@ HEDISStrucFunc::HEDISStrucFunc(string basedir, SF_info sfinfo)
   double z[nx*ny];
   for (int i=0; i<nx; i++) x[i] = sf_q2_array[i];
   for (int j=0; j<ny; j++) y[j] = sf_x_array[j];
+  
+  vector<InteractionType_t> inttype;
+  inttype.push_back(kIntWeakCC);
+  inttype.push_back(kIntWeakNC);
+  vector<InitialState> init_state;
+  init_state.push_back(InitialState(1, 2, kPdgNuE));
+  init_state.push_back(InitialState(1, 2, kPdgAntiNuE));
+
+  HEDISInteractionListGenerator * helist = new HEDISInteractionListGenerator();
+  InteractionList * ilist = helist->CreateHEDISlist(init_state,inttype);
 
   // Load structure functions for each quark at LO
-  for( int ch=1; ch<kHEDISQrk_numofchannels; ch++ ) {
-    string sfFile = SFname + "/QrkSF_LO_" + HEDISChannel::AsString((HEDISQrkChannel_t)ch) + ".dat";
+  for(InteractionList::iterator in=ilist->begin(); in!=ilist->end(); ++in) {
+
+    string sfFile = SFname + "/QrkSF_LO_" + QrkSFName(*in) + ".dat";
     // Make sure data files are available
     LOG("HEDISStrucFunc", pINFO) << "Checking if file " << sfFile << " exists...";        
     if ( gSystem->AccessPathName( sfFile.c_str()) ) {
       LOG("HEDISStrucFunc", pWARN) << "File doesnt exist. SF table will be computed.";        
-      CreateQrkSF( (HEDISQrkChannel_t)ch, sfFile );
+      CreateQrkSF( *in, sfFile );
     }
     else if ( atoi(gSystem->GetFromPipe(("wc -w "+sfFile+" | awk '{print $1}'").c_str()))!=kSFT3*nx*ny ) {
       LOG("HEDISStrucFunc", pWARN) << "File does not contain all the need points. SF table will be recomputed.";        
       gSystem->Exec(("rm "+sfFile).c_str());
-      CreateQrkSF( (HEDISQrkChannel_t)ch, sfFile );
+      CreateQrkSF( *in, sfFile );
     }
     std::ifstream sf_stream(sfFile.c_str(), std::ios::in);
     // Loop over F1,F2,F3
-    for(int sf = 1; sf <= kSFnumber; ++sf) {
+    for(int sf = 1; sf < kSFnumber; ++sf) {
       // Loop over x/Q2 bins
       for ( int ij=0; ij<nx*ny; ij++ ) sf_stream >> z[ij];
       // Create SF tables with BLI2DNonUnifGrid using x,Q2 binning
-      fQrkSFLOTables[(HEDISQrkChannel_t)ch].Table[(HEDISStrucFuncType_t)sf] = new genie::BLI2DNonUnifGrid( nx, ny, x, y, z );
+      fQrkSFLOTables[QrkSFCode(*in)].Table[(HEDISStrucFuncType_t)sf] = new genie::BLI2DNonUnifGrid( nx, ny, x, y, z );
     }
   }
 
@@ -231,16 +246,21 @@ HEDISStrucFunc::HEDISStrucFunc(string basedir, SF_info sfinfo)
                   fSF.Vcd, fSF.Vcs, fSF.Vcb,
                   fSF.Vtd, fSF.Vts, fSF.Vtb);
 #endif
-    //compute structure functions for each nucleon
-    for( int ch=1; ch<kHEDISNuc_numofchannels; ch++ ) {
-      // Load structure functions for each nucleon at NLO
-      string sfFile = SFname + "/NucSF_NLO_" + HEDISChannel::AsString((HEDISNucChannel_t)ch) + ".dat";
+
+    // Load structure functions for each quark at LO
+    int nch = -1;
+    for(InteractionList::iterator in=ilist->begin(); in!=ilist->end(); ++in) {
+
+      if ( nch==NucSFCode(*in) ) continue;
+      nch = NucSFCode(*in);
+      
+      string sfFile = SFname + "/NucSF_NLO_" + NucSFName(*in) + ".dat";
       // Make sure data files are available
       LOG("HEDISStrucFunc", pINFO) << "Checking if file " << sfFile << " exists...";        
       if ( gSystem->AccessPathName( sfFile.c_str()) ) {
 #ifdef __GENIE_APFEL_ENABLED__
         LOG("HEDISStrucFunc", pWARN) << "File doesnt exist. SF table will be computed.";        
-        CreateNucSF( (HEDISNucChannel_t)ch, sfFile );
+        CreateNucSF( *in, sfFile );
 #else
         LOG("HEDISStrucFunc", pERROR) << "File doesnt exist. APFEL is needed for NLO SF";        
         assert(0);
@@ -250,7 +270,7 @@ HEDISStrucFunc::HEDISStrucFunc(string basedir, SF_info sfinfo)
 #ifdef __GENIE_APFEL_ENABLED__
         LOG("HEDISStrucFunc", pWARN) << "File does not contain all the need points. SF table will be recomputed.";        
         gSystem->Exec(("rm "+sfFile).c_str());
-        CreateQrkSF( (HEDISQrkChannel_t)ch, sfFile );
+        CreateNucSF( *in, sfFile );
 #else
         LOG("HEDISStrucFunc", pERROR) << "File does not contain all the need points. APFEL is needed for NLO SF";        
         assert(0);
@@ -258,18 +278,21 @@ HEDISStrucFunc::HEDISStrucFunc(string basedir, SF_info sfinfo)
       }
       std::ifstream sf_stream(sfFile.c_str(), std::ios::in);
       // Loop over F1,F2,F3
-      for(int sf = 1; sf <= kSFnumber; ++sf) {
+      for(int sf = 1; sf < kSFnumber; ++sf) {
         // Loop over x/Q2 bins
         for ( int ij=0; ij<nx*ny; ij++ ) sf_stream >> z[ij];
         // Create SF tables with BLI2DNonUnifGrid using x,Q2 binning
-        fNucSFNLOTables[(HEDISNucChannel_t)ch].Table[(HEDISStrucFuncType_t)sf] = new genie::BLI2DNonUnifGrid( nx, ny, x, y, z );
+        fNucSFNLOTables[nch].Table[(HEDISStrucFuncType_t)sf] = new genie::BLI2DNonUnifGrid( nx, ny, x, y, z );
       }        
+
       //compute structure functions for each nucleon at LO using quark grids
-      LOG("HEDISStrucFunc", pDEBUG) << "Creating LO " << sfFile;        
-      int frstqrkch = HEDISChannel::GetFirstHEDISQrkChannel((HEDISNucChannel_t)ch);
-      int lastqrkch = HEDISChannel::GetLastHEDISQrkChannel((HEDISNucChannel_t)ch);
+      LOG("HEDISStrucFunc", pDEBUG) << "Creating LO " << sfFile;              
+      vector <int> qcodes;
+      for(InteractionList::iterator in2=ilist->begin(); in2!=ilist->end(); ++in2) {
+        if (NucSFCode(*in2)==nch) qcodes.push_back(QrkSFCode(*in2));
+      }
       // Loop over F1,F2,F3
-      for(int sf = 1; sf <= kSFnumber; ++sf) {
+      for(int sf = 1; sf < kSFnumber; ++sf) {
         int ij = 0;
         // Loop over Q2 bins
         for (int i=0; i<nx; i++) {
@@ -277,17 +300,18 @@ HEDISStrucFunc::HEDISStrucFunc(string basedir, SF_info sfinfo)
           for (int j=0; j<ny; j++) {
             double sum = 0.;
             // NucSF = sum_qrks QrkSF
-            for( int qch=frstqrkch; qch<=lastqrkch; qch++ ) sum += fQrkSFLOTables[(HEDISQrkChannel_t)qch].Table[(HEDISStrucFuncType_t)sf]->Evaluate(x[i],y[j]);
+            for(vector<int>::const_iterator iq=qcodes.begin(); iq!=qcodes.end(); ++iq) 
+              sum += fQrkSFLOTables[*iq].Table[(HEDISStrucFuncType_t)sf]->Evaluate(x[i],y[j]);
             z[ij] = sum;
             ij++;
           }
         }
         // Create SF tables with BLI2DNonUnifGrid using x,Q2 binning
-        fNucSFLOTables[(HEDISNucChannel_t)ch].Table[(HEDISStrucFuncType_t)sf] = new genie::BLI2DNonUnifGrid( nx, ny, x, y, z );
+        fNucSFLOTables[nch].Table[(HEDISStrucFuncType_t)sf] = new genie::BLI2DNonUnifGrid( nx, ny, x, y, z );
       }
     }
   }
-
+  
   fgInstance = 0;
 
 }
@@ -310,33 +334,32 @@ HEDISStrucFunc * HEDISStrucFunc::Instance(string basedir, SF_info sfinfo)
 
 
 //____________________________________________________________________________
-void HEDISStrucFunc::CreateQrkSF( HEDISQrkChannel_t ch, string sfFile ) 
+void HEDISStrucFunc::CreateQrkSF( const Interaction * in, string sfFile ) 
 {
 
   // variables used to tag the SF for particular channel
-  int pdg_nucl  = HEDISChannel::HitNuclPdg(ch);   // PDG of target nucleon
-  bool sea_iq   = HEDISChannel::HitQuarkSea(ch);  // Valence/sea hit quark
-  int pdg_iq    = HEDISChannel::HitQuarkPdg(ch);  // PDG hit quark
-  int pdg_fq    = HEDISChannel::FnlQuarkPdg(ch);  // PDG produced quark
-
-  // variables used for certain quark production threshold options
-  double mass_fq   = mPDFQrk[TMath::Abs(pdg_fq)];                     // mass produced quark
-  double mass_nucl = (pdg_nucl==2212) ? kProtonMass : kNeutronMass;   // mass target nucleon
+  bool iscc        = in->ProcInfo().IsWeakCC();
+  bool isnu        = pdg::IsNeutrino(in->InitState().ProbePdg());
+  bool ispr        = pdg::IsProton(in->InitState().Tgt().HitNucPdg());
+  bool sea_iq      = in->InitState().Tgt().HitSeaQrk();
+  int pdg_iq       = in->InitState().Tgt().HitQrkPdg();
+  int pdg_fq       = in->ExclTag().FinalQuarkPdg();
+  double mass_nucl = in->InitState().Tgt().HitNucMass();
 
   // up and down quark swicth depending on proton or neutron interaction  
   int qrkd = 0;
   int qrku = 0;
-  if      ( pdg_nucl==2212 ) { qrkd = 1 ; qrku = 2; }
-  else if ( pdg_nucl==2112 ) { qrkd = 2 ; qrku = 1; }
+  if ( ispr ) { qrkd = 1 ; qrku = 2; }
+  else        { qrkd = 2 ; qrku = 1; }
 
   // variables associated to the PDF and coupling of the quarks
   int qpdf1 = -999;                                     // number used to compute PDF
   int qpdf2 = -999;                                     // auxiliary number used to compute PDF for valence quarks
   double Cp2 = -999;                                    // couping for F1,F2
   double Cp3 = -999;                                    // couping for F3
-  double sign3 = (HEDISChannel::IsNu(ch)) ? +1. : -1.;  // sign change for nu/nubar in F3
-  if ( HEDISChannel::InteractionType(ch) == kIntWeakCC ) {
-    if ( HEDISChannel::IsNu(ch) ) {
+  double sign3 = isnu ? +1. : -1.;  // sign change for nu/nubar in F3
+  if ( iscc ) {
+    if ( isnu ) {
       if      ( pdg_iq== 1 && !sea_iq && pdg_fq== 2 ) { qpdf1 =  qrkd; qpdf2 = -qrkd; Cp2 = 2*fSF.Vud*fSF.Vud; Cp3 =  2*fSF.Vud*fSF.Vud; }
       else if ( pdg_iq== 1 && !sea_iq && pdg_fq== 4 ) { qpdf1 =  qrkd; qpdf2 = -qrkd; Cp2 = 2*fSF.Vcd*fSF.Vcd; Cp3 =  2*fSF.Vcd*fSF.Vcd; }
       else if ( pdg_iq== 1 && !sea_iq && pdg_fq== 6 ) { qpdf1 =  qrkd; qpdf2 = -qrkd; Cp2 = 2*fSF.Vtd*fSF.Vtd; Cp3 =  2*fSF.Vtd*fSF.Vtd; }
@@ -377,7 +400,7 @@ void HEDISStrucFunc::CreateQrkSF( HEDISQrkChannel_t ch, string sfFile )
       else if ( pdg_iq==-5 &&  sea_iq && pdg_fq==-6 ) { qpdf1 = -5;                   Cp2 = 2*fSF.Vtb*fSF.Vtb; Cp3 = -2*fSF.Vtb*fSF.Vtb; }
     }
   }
-  else if ( HEDISChannel::InteractionType(ch) == kIntWeakNC ) {           
+  else {           
     double c2u = TMath::Power( 1./2. - 4./3.*fSF.Sin2ThW,2) + 1./4.;
     double c2d = TMath::Power(-1./2. + 2./3.*fSF.Sin2ThW,2) + 1./4.;
     double c3u = 1./2. - 4./3.*fSF.Sin2ThW;
@@ -410,16 +433,16 @@ void HEDISStrucFunc::CreateQrkSF( HEDISQrkChannel_t ch, string sfFile )
 
         // W threshold
         if      (fSF.QrkThrs==1) { 
-            if ( Q2*(1/z-1)+mass_nucl*mass_nucl <= TMath::Power(mass_nucl+mass_fq,2) ) { sf_stream << 0. << "  "; continue; }
+            if ( Q2*(1/z-1)+mass_nucl*mass_nucl <= TMath::Power(mass_nucl+mPDFQrk[TMath::Abs(pdg_fq)],2) ) { sf_stream << 0. << "  "; continue; }
         } 
         // W threshold and slow rescaling
         else if (fSF.QrkThrs==2) {
-            if ( Q2*(1/z-1)+mass_nucl*mass_nucl <= TMath::Power(mass_nucl+mass_fq,2) ) { sf_stream << 0. << "  "; continue; }
-            z *= 1+mass_fq*mass_fq/Q2;
+            if ( Q2*(1/z-1)+mass_nucl*mass_nucl <= TMath::Power(mass_nucl+mPDFQrk[TMath::Abs(pdg_fq)],2) ) { sf_stream << 0. << "  "; continue; }
+            z *= 1+mPDFQrk[TMath::Abs(pdg_fq)]*mPDFQrk[TMath::Abs(pdg_fq)]/Q2;
         }
         // Slow rescaling
         else if (fSF.QrkThrs==3) {
-            z *= 1+mass_fq*mass_fq/Q2;
+            z *= 1+mPDFQrk[TMath::Abs(pdg_fq)]*mPDFQrk[TMath::Abs(pdg_fq)]/Q2;
         }
 
         // Fill x,Q2 used to extract PDF. If values outside boundaries then freeze them.
@@ -457,16 +480,21 @@ void HEDISStrucFunc::CreateQrkSF( HEDISQrkChannel_t ch, string sfFile )
 }
 #ifdef __GENIE_APFEL_ENABLED__
 //____________________________________________________________________________
-void HEDISStrucFunc::CreateNucSF( HEDISNucChannel_t ch, string sfFile )
+void HEDISStrucFunc::CreateNucSF( const Interaction * in, string sfFile )
 {
 
+  // variables used to tag the SF for particular channel
+  bool iscc = in->ProcInfo().IsWeakCC();
+  bool isnu = pdg::IsNeutrino(in->InitState().ProbePdg());
+  bool ispr = pdg::IsProton(in->InitState().Tgt().HitNucPdg());
+
   // Define the channel that is used in APFEL
-  if ( HEDISChannel::IsNu(ch) ) APFEL::SetProjectileDIS("neutrino");
-  else                          APFEL::SetProjectileDIS("antineutrino");
-  if      ( HEDISChannel::InteractionType(ch) == kIntWeakCC ) APFEL::SetProcessDIS("CC");
-  else if ( HEDISChannel::InteractionType(ch) == kIntWeakNC ) APFEL::SetProcessDIS("NC");
-  if      ( HEDISChannel::HitNuclPdg(ch)==2212 ) APFEL::SetTargetDIS("proton");
-  else if ( HEDISChannel::HitNuclPdg(ch)==2112 ) APFEL::SetTargetDIS("neutron");
+  if ( isnu ) APFEL::SetProjectileDIS("neutrino");
+  else        APFEL::SetProjectileDIS("antineutrino");
+  if ( iscc ) APFEL::SetProcessDIS("CC");
+  else        APFEL::SetProcessDIS("NC");
+  if ( ispr ) APFEL::SetTargetDIS("proton");
+  else        APFEL::SetTargetDIS("neutron");
 
   APFEL::InitializeAPFEL_DIS();
 
@@ -484,7 +512,7 @@ void HEDISStrucFunc::CreateNucSF( HEDISNucChannel_t ch, string sfFile )
     double Q2 = sf_q2_array[i];
     double Q  = TMath::Sqrt(Q2);
     // SF from APFEL are multiplied by a prefactor in NC. We dont want that prefactor
-    double norm = (HEDISChannel::InteractionType(ch)==kIntWeakCC) ? 1. : 2./TMath::Power( Q2/(Q2 + TMath::Power(APFEL::GetZMass(),2))/4/APFEL::GetSin2ThetaW()/(1-APFEL::GetSin2ThetaW()), 2 );
+    double norm = iscc ? 1. : 2./TMath::Power( Q2/(Q2 + TMath::Power(APFEL::GetZMass(),2))/4/APFEL::GetSin2ThetaW()/(1-APFEL::GetSin2ThetaW()), 2 );
     APFEL::SetAlphaQCDRef(pdf->alphasQ(Q),Q);
     APFEL::ComputeStructureFunctionsAPFEL(Q,Q);
     for ( unsigned int j=0; j<sf_x_array.size(); j++ ) {
@@ -501,7 +529,7 @@ void HEDISStrucFunc::CreateNucSF( HEDISNucChannel_t ch, string sfFile )
   // open file in which SF will be stored
   std::ofstream sf_stream(sfFile.c_str());
 
-  double sign3 = (HEDISChannel::IsNu(ch)) ? +1. : -1.;  // sign change for nu/nubar in F3
+  double sign3 = isnu ? +1. : -1.;  // sign change for nu/nubar in F3
   // loop over 3 different SF: F1,F2,F3
   for(int sf = 1; sf < 4; sf++) {
     for (int i=0; i<nx*nq2; i++) {
@@ -521,29 +549,71 @@ void HEDISStrucFunc::CreateNucSF( HEDISNucChannel_t ch, string sfFile )
 }
 #endif
 //____________________________________________________________________________
-SF_xQ2 HEDISStrucFunc::EvalQrkSFLO( HEDISQrkChannel_t ch, double x, double Q2 ) 
+string HEDISStrucFunc::QrkSFName( const Interaction * in) 
 {
+  string sin = pdg::IsNeutrino(in->InitState().ProbePdg()) ? "nu_" : "nubar_";
+  sin += in->ProcInfo().IsWeakCC() ? "cc_" : "nc_";
+  sin += pdg::IsProton(in->InitState().Tgt().HitNucPdg()) ? "p_" : "n_";
+  sin += "iq"+to_string(in->InitState().Tgt().HitQrkPdg());
+  sin += in->InitState().Tgt().HitSeaQrk() ? "sea_" : "val_";
+  sin += "fq"+to_string(in->ExclTag().FinalQuarkPdg());
+  return sin;
+}
+//____________________________________________________________________________
+string HEDISStrucFunc::NucSFName( const Interaction * in) 
+{
+  string sin = pdg::IsNeutrino(in->InitState().ProbePdg()) ? "nu_" : "nubar_";
+  sin += in->ProcInfo().IsWeakCC() ? "cc_" : "nc_";
+  sin += pdg::IsProton(in->InitState().Tgt().HitNucPdg()) ? "p" : "n";
+  return sin;
+}
+//____________________________________________________________________________
+int HEDISStrucFunc::QrkSFCode( const Interaction * in) 
+{
+  int code = 10000000*pdg::IsNeutrino(in->InitState().ProbePdg());
+  code    += 1000000*in->ProcInfo().IsWeakCC();
+  code    += 100000*pdg::IsProton(in->InitState().Tgt().HitNucPdg());
+  code    += 10000*in->InitState().Tgt().HitSeaQrk();
+  code    += 100*(6+in->InitState().Tgt().HitQrkPdg());
+  code    += 1*(6+in->ExclTag().FinalQuarkPdg());
+  return code;
+}
+//____________________________________________________________________________
+int HEDISStrucFunc::NucSFCode( const Interaction * in) 
+{
+  int code = 100*pdg::IsNeutrino(in->InitState().ProbePdg());
+  code    += 10*in->ProcInfo().IsWeakCC();
+  code    += 1*pdg::IsProton(in->InitState().Tgt().HitNucPdg());
+  return code;
+}
+//____________________________________________________________________________
+SF_xQ2 HEDISStrucFunc::EvalQrkSFLO( const Interaction * in, double x, double Q2 ) 
+{
+  int code = QrkSFCode(in);
   SF_xQ2 sf;
-  sf.F1 = fQrkSFLOTables[ch].Table[kSFT1]->Evaluate(Q2,x);
-  sf.F2 = fQrkSFLOTables[ch].Table[kSFT2]->Evaluate(Q2,x);
-  sf.F3 = fQrkSFLOTables[ch].Table[kSFT3]->Evaluate(Q2,x);
+  sf.F1 = fQrkSFLOTables[code].Table[kSFT1]->Evaluate(Q2,x);
+  sf.F2 = fQrkSFLOTables[code].Table[kSFT2]->Evaluate(Q2,x);
+  sf.F3 = fQrkSFLOTables[code].Table[kSFT3]->Evaluate(Q2,x);
   return sf;
 }
 //____________________________________________________________________________
-SF_xQ2 HEDISStrucFunc::EvalNucSFLO( HEDISNucChannel_t ch, double x, double Q2 ) 
+SF_xQ2 HEDISStrucFunc::EvalNucSFLO( const Interaction * in, double x, double Q2 ) 
 {
+  int code = NucSFCode(in);
   SF_xQ2 sf;
-  sf.F1 = fNucSFLOTables[ch].Table[kSFT1]->Evaluate(Q2,x);
-  sf.F2 = fNucSFLOTables[ch].Table[kSFT2]->Evaluate(Q2,x);
-  sf.F3 = fNucSFLOTables[ch].Table[kSFT3]->Evaluate(Q2,x);
+  sf.F1 = fNucSFLOTables[code].Table[kSFT1]->Evaluate(Q2,x);
+  sf.F2 = fNucSFLOTables[code].Table[kSFT2]->Evaluate(Q2,x);
+  sf.F3 = fNucSFLOTables[code].Table[kSFT3]->Evaluate(Q2,x);
   return sf;
 }
 //____________________________________________________________________________
-SF_xQ2 HEDISStrucFunc::EvalNucSFNLO( HEDISNucChannel_t ch, double x, double Q2 ) 
+SF_xQ2 HEDISStrucFunc::EvalNucSFNLO( const Interaction * in, double x, double Q2 ) 
 {
+  int code = NucSFCode(in);
   SF_xQ2 sf;
-  sf.F1 = fNucSFNLOTables[ch].Table[kSFT1]->Evaluate(Q2,x);
-  sf.F2 = fNucSFNLOTables[ch].Table[kSFT2]->Evaluate(Q2,x);
-  sf.F3 = fNucSFNLOTables[ch].Table[kSFT3]->Evaluate(Q2,x);
+  sf.F1 = fNucSFNLOTables[code].Table[kSFT1]->Evaluate(Q2,x);
+  sf.F2 = fNucSFNLOTables[code].Table[kSFT2]->Evaluate(Q2,x);
+  sf.F3 = fNucSFNLOTables[code].Table[kSFT3]->Evaluate(Q2,x);
   return sf;
 }
+

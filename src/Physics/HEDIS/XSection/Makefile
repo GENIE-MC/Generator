@@ -25,4 +25,14 @@ install : install-inc install-lib
 #
 include $(GENIE)/src/make/Make.std-package-targets
 
+ifeq ($(strip $(GOPT_ENABLE_APFEL)),YES)
+  # extra flags, include paths, and libraries to link to
+  CPP_INCLUDES           += $(APFEL_INCLUDES)
+  ROOT_DICT_GEN_INCLUDES += $(APFEL_INCLUDES)
+  EXTRA_EXT_LIBS         += $(APFEL_LIBRARIES)
+else
+  $(info $(PACKAGE) not build against APFEL++)
+endif
+
+
 FORCE:

@@ -74,7 +74,6 @@ public:
   bool IsAMNuGamma               (void) const;
   bool IsMEC                     (void) const;
   bool IsDiffractive             (void) const;
-  bool IsHEDIS                   (void) const;
   bool IsEM                      (void) const;
   bool IsWeak                    (void) const;
   bool IsWeakCC                  (void) const;

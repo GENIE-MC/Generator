@@ -1,25 +1,16 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Alfonso Garcia <alfonsog \at nikhef.nl>
-         NIKHEF (Amsterdam)
-
-         Changes required to implement the GENIE Boosted Dark Matter module
-         were installed by Josh Berger (Univ. of Wisconsin)
+ Alfonso Garcia <alfonsog \at nikhef.nl>
+ NIKHEF (Amsterdam)
 */
 //____________________________________________________________________________
 
 #include <RVersion.h>
 #include <TClonesArray.h>
 #include <TMath.h>
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
@@ -32,14 +23,20 @@
 #include "Physics/Hadronization/LeptoHadronization.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "Framework/Numerical/MathUtils.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
+#include <TMCParticle.h>
+#else
+#include <TMCParticle6.h>
+#endif
+#endif // __GENIE_PYTHIA6_ENABLED__
+
 using namespace genie;
 using namespace genie::constants;
-using namespace genie::utils::math;
 
 // the actual PYTHIA call
 extern "C" {
@@ -71,15 +68,50 @@ LeptoHadronization::~LeptoHadronization()
 //____________________________________________________________________________
 void LeptoHadronization::Initialize(void) const
 {
+#ifdef __GENIE_PYTHIA6_ENABLED__
   fPythia = TPythia6::Instance();
 
   // sync GENIE/PYTHIA6 seed number
   RandomGen::Instance();
+#endif
 }
 //____________________________________________________________________________
-void LeptoHadronization::ProcessEventRecord(GHepRecord * event) const
+void LeptoHadronization::ProcessEventRecord(GHepRecord * 
+  #ifdef __GENIE_PYTHIA6_ENABLED__
+    event // avoid unused variable warning if PYTHIA6 is not enabled
+  #endif
+) const
 {
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
+
+  if(!this->Hadronize(event)) {
+    LOG("PythiaHad", pWARN) << "Hadronization failed!";
+    event->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
+    genie::exceptions::EVGThreadException exception;
+    exception.SetReason("Could not simulate the hadronic system");
+    exception.SwitchOnFastForward();
+    throw exception;
+    return;
+  }
+
+#else
+  LOG("LeptoHad", pFATAL)
+    << "Calling GENIE/PYTHIA6 without enabling PYTHIA6";
+  gAbortingInErr = true;
+  std::exit(1);
+#endif
+
+}
+//____________________________________________________________________________
+bool LeptoHadronization::Hadronize(GHepRecord *
+#ifdef __GENIE_PYTHIA6_ENABLED__
+  event // avoid unused variable warning if PYTHIA6 is not enabled
+#endif
+) const
+{
+
+#ifdef __GENIE_PYTHIA6_ENABLED__
   // Compute kinematics of hadronic system with energy/momentum conservation
   LongLorentzVector p4v( event->Probe()->P4()                   );
   LongLorentzVector p4N( event->HitNucleon()->P4()              );
@@ -96,88 +128,9 @@ void LeptoHadronization::ProcessEventRecord(GHepRecord * event) const
   TLorentzVector p4Had( (double)p4Hadlong.Px(), (double)p4Hadlong.Py(), (double)p4Hadlong.Pz(), (double)p4Hadlong.E() );
   event->AddParticle(kPdgHadronicSyst, kIStDISPreFragmHadronicState, event->HitNucleonPosition(),-1,-1,-1, p4Had, vtx);
   
-
-  Interaction * interaction = event->Summary();
+  const Interaction * interaction = event->Summary();
   interaction->KinePtr()->SetHadSystP4(p4Had);
   interaction->KinePtr()->SetW(p4Hadlong.M());
-
-  TClonesArray * plist = this->Hadronize(interaction);
-  if(!plist) {
-     LOG("LeptoHad", pWARN) << "Got an empty particle list. Hadronizer failed!";
-     LOG("LeptoHad", pWARN) << "Quitting the current event generation thread";
-     event->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
-     genie::exceptions::EVGThreadException exception;
-     exception.SetReason("Could not simulate the hadronic system");
-     exception.SwitchOnFastForward();
-     throw exception;
-     return;
-  }
-
-  //-- Translate the fragmentation products from TMCParticles to
-  //   GHepParticles and copy them to the event record.
-  int mom = event->FinalStateHadronicSystemPosition();
-  assert(mom!=-1);
- 
-  TMCParticle * p = 0;
-  TIter particle_iter(plist);
-
-  // Boost velocity HCM -> LAB
-  long double beta = p4Hadlong.P()/p4Hadlong.E();
-
-  while( (p = (TMCParticle *) particle_iter.Next()) ) {
-
-    int pdgc = p->GetKF();
-    int ks   = p->GetKS();
-
-    LongLorentzVector p4long( p->GetPx(), p->GetPy(), p->GetPz(), p->GetEnergy()  );
-    p4long.Boost(beta);
-    p4long.Rotate(p4Hadlong);
-
-    // Translate from long double to double
-    TLorentzVector p4( (double)p4long.Px(), (double)p4long.Py(), (double)p4long.Pz(), (double)p4long.E() );
-
-    // Somtimes PYTHIA output particles with E smaller than its mass. This is wrong,
-    // so we assume that the are at rest.
-    double massPDG = PDGLibrary::Instance()->Find(pdgc)->Mass();
-    if ( (ks==1 || ks==4) && p4.E() < massPDG ) {
-      LOG("LeptoHad", pINFO) << "Putting at rest one stable particle generated by PYTHIA because E < m";
-      LOG("LeptoHad", pINFO) << "PDG = " << pdgc << " // State = " << ks;
-      LOG("LeptoHad", pINFO) << "E = " << p4.E() << " // |p| = " << p4.P(); 
-      LOG("LeptoHad", pINFO) << "p = [ " << p4.Px() << " , "  << p4.Py() << " , "  << p4.Pz() << " ]";
-      LOG("LeptoHad", pINFO) << "m    = " << p4.M() << " // mpdg = " << massPDG;
-      p4.SetXYZT(0,0,0,massPDG);
-    }
-
-    // copy final state particles to the event record
-    GHepStatus_t ist = (ks==1 || ks==4) ? kIStStableFinalState : kIStDISPreFragmHadronicState;
-
-    int im  = mom + 1 + p->GetParent();
-    int ifc = (p->GetFirstChild() <= -1) ? -1 : mom + 1 + p->GetFirstChild();
-    int ilc = (p->GetLastChild()  <= -1) ? -1 : mom + 1 + p->GetLastChild();
-
-    double vx = vtx.X() + p->GetVx()*1e12; //pythia gives position in [mm] while genie uses [fm]
-    double vy = vtx.Y() + p->GetVy()*1e12;
-    double vz = vtx.Z() + p->GetVz()*1e12;
-    double vt = vtx.T() + p->GetTime()*(units::millimeter/units::second);
-    TLorentzVector pos( vx, vy, vz, vt );
-
-    LOG("LeptoHad", pDEBUG) << pdgc << "  " << ist << "  " << im << "  " << ifc;
-
-    event->AddParticle( pdgc, ist, im,-1, ifc, ilc, p4, pos );
-
-  } // fragmentation-products-iterator
-
-  plist->Delete();
-  delete plist;
-
-}
-//____________________________________________________________________________
-TClonesArray * 
-  LeptoHadronization::Hadronize(
-         const Interaction * interaction) const
-{
-
-  LOG("LeptoHad", pDEBUG) << "Running LEPTO PYTHIA hadronizer";
 
   double W = interaction->Kine().W();
   if(W < fWmin) {
@@ -414,7 +367,6 @@ TClonesArray *
 
   // get LUJETS record
   fPythia->GetPrimaries();
-
   TClonesArray * pythia_particles = (TClonesArray *) fPythia->ImportParticles("All");
 
   // copy PYTHIA container to a new TClonesArray so as to transfer ownership
@@ -422,22 +374,32 @@ TClonesArray *
 
   int np = pythia_particles->GetEntries();
   assert(np>0);
-  TClonesArray * particle_list = new TClonesArray("TMCParticle", np);
+  TClonesArray * particle_list = new TClonesArray("genie::GHepParticle", np);
   particle_list->SetOwner(true);
 
+  // Boost velocity HCM -> LAB
+  long double beta = p4Hadlong.P()/p4Hadlong.E();
+
+  //fix numbering for events with top
   bool isTop = false;
-  register unsigned int i = 0;
-  TMCParticle * particle = 0;
+
+  //-- Translate the fragmentation products from TMCParticles to
+  //   GHepParticles and copy them to the event record.
+  int mom = event->FinalStateHadronicSystemPosition();
+  assert(mom!=-1);
+
+  TMCParticle * p = 0;
   TIter particle_iter(pythia_particles);
-  while( (particle = (TMCParticle *) particle_iter.Next()) ) {
+  while( (p = (TMCParticle *) particle_iter.Next()) ) {
+
+    int pdgc = p->GetKF();
+    int ks   = p->GetKS();
     
     // Final state particles can not be quarks or diquarks but colorless 
-    if(particle->GetKS() == 1) {
-      if( pdg::IsQuark(particle->GetKF()) || pdg::IsDiQuark(particle->GetKF()) ) {
+    if(ks == 1) {
+      if( pdg::IsQuark(pdgc) || pdg::IsDiQuark(pdgc) ) {
         LOG("LeptoHad", pERROR) << "Hadronization failed! Bare quark/di-quarks appear in final state!";
-        particle_list->Delete();
-        delete particle_list;
-        return 0;            
+        return false;            
       }  
     }
 
@@ -445,27 +407,62 @@ TClonesArray *
     // products are hadronized with the hadron remnants. Therefore, we remove the top quark from 
     // the list of particles so that the mother/daugher assigments is at the same level for decayed
     // products and hadron remnants.
-    if ( i==0 && pdg::IsTQuark( TMath::Abs(particle->GetKF()) ) ) { isTop=true; continue; }
+    if ( pdg::IsTQuark( TMath::Abs(pdgc) ) ) { isTop=true; continue; }
 
     // fix numbering scheme used for mother/daughter assignments
     if ( isTop ) {
-      (particle->GetParent()==0) ? particle->SetParent(particle->GetParent() - 1) : particle->SetParent(particle->GetParent() - 2);
-      particle->SetFirstChild (particle->GetFirstChild() - 2);
-      particle->SetLastChild  (particle->GetLastChild()  - 2);
+      (p->GetParent()==0) ? p->SetParent(p->GetParent() - 1) : p->SetParent(p->GetParent() - 2);
+      p->SetFirstChild (p->GetFirstChild() - 2);
+      p->SetLastChild  (p->GetLastChild()  - 2);
     }
     else  {
-      particle->SetParent(particle->GetParent() - 1);
-      particle->SetFirstChild (particle->GetFirstChild() - 1);
-      particle->SetLastChild  (particle->GetLastChild()  - 1);
+      p->SetParent(p->GetParent() - 1);
+      p->SetFirstChild (p->GetFirstChild() - 1);
+      p->SetLastChild  (p->GetLastChild()  - 1);
     }                                  
-    // insert the particle in the list
-    new ( (*particle_list)[i++] ) TMCParticle(*particle);
+
+    LongLorentzVector p4long( p->GetPx(), p->GetPy(), p->GetPz(), p->GetEnergy()  );
+    p4long.Boost(beta);
+    p4long.Rotate(p4Hadlong);
+
+    // Translate from long double to double
+    TLorentzVector p4( (double)p4long.Px(), (double)p4long.Py(), (double)p4long.Pz(), (double)p4long.E() );
+
+    // Somtimes PYTHIA output particles with E smaller than its mass. This is wrong,
+    // so we assume that the are at rest.
+    double massPDG = PDGLibrary::Instance()->Find(pdgc)->Mass();
+    if ( (ks==1 || ks==4) && p4.E() < massPDG ) {
+      LOG("LeptoHad", pINFO) << "Putting at rest one stable particle generated by PYTHIA because E < m";
+      LOG("LeptoHad", pINFO) << "PDG = " << pdgc << " // State = " << ks;
+      LOG("LeptoHad", pINFO) << "E = " << p4.E() << " // |p| = " << p4.P(); 
+      LOG("LeptoHad", pINFO) << "p = [ " << p4.Px() << " , "  << p4.Py() << " , "  << p4.Pz() << " ]";
+      LOG("LeptoHad", pINFO) << "m    = " << p4.M() << " // mpdg = " << massPDG;
+      p4.SetXYZT(0,0,0,massPDG);
+    }
+
+    // copy final state particles to the event record
+    GHepStatus_t ist = (ks==1 || ks==4) ? kIStStableFinalState : kIStDISPreFragmHadronicState;
+
+    int im  = mom + 1 + p->GetParent();
+    int ifc = (p->GetFirstChild() <= -1) ? -1 : mom + 1 + p->GetFirstChild();
+    int ilc = (p->GetLastChild()  <= -1) ? -1 : mom + 1 + p->GetLastChild();
+
+    double vx = vtx.X() + p->GetVx()*1e12; //pythia gives position in [mm] while genie uses [fm]
+    double vy = vtx.Y() + p->GetVy()*1e12;
+    double vz = vtx.Z() + p->GetVz()*1e12;
+    double vt = vtx.T() + p->GetTime()*(units::millimeter/units::second);
+    TLorentzVector pos( vx, vy, vz, vt );
+
+    LOG("LeptoHad", pDEBUG) << pdgc << "  " << ist << "  " << im << "  " << ifc;
+
+    event->AddParticle( pdgc, ist, im,-1, ifc, ilc, p4, pos );
+
   }
+  return true;
 
-  delete particle;
-  pythia_particles->Clear("C");
-
-  return particle_list;
+#else
+  return false;
+#endif // __GENIE_PYTHIA6_ENABLED__
 
 }
 //____________________________________________________________________________
@@ -496,7 +493,7 @@ void LeptoHadronization::LoadConfig(void)
   GetParam( "Energy-Singlet", fMinESinglet ) ; 
 
   // PYTHIA parameters only valid for HEDIS
-  GetParam( "Wmin", fWmin ) ;
+  GetParam( "Xsec-Wmin", fWmin ) ;
   fPythia->SetPARP(2,  fWmin); //(D = 10. GeV) lowest c.m. energy for the event as a whole that the program will accept to simulate. (bellow 2GeV pythia crashes)
 
   int warnings;       GetParam( "Warnings",      warnings ) ;
@@ -504,11 +501,18 @@ void LeptoHadronization::LoadConfig(void)
   int qrk_mass;       GetParam( "QuarkMass",     qrk_mass ) ;
   int decaycut;       GetParam( "DecayCutOff",   decaycut ) ;
   double decaylength; GetParam( "DecayLength",   decaylength ) ;
+
+#ifdef __GENIE_PYTHIA6_ENABLED__
   fPythia->SetMSTU(26, warnings);     // (Default=10) maximum number of warnings that are printed
   fPythia->SetMSTU(22, errors);       // (Default=10) maximum number of errors that are printed
   fPythia->SetMSTJ(93, qrk_mass);     // light (d, u, s, c, b) quark masses are taken from PARF(101) - PARF(105) rather than PMAS(1,1) - PMAS(5,1). Diquark masses are given as sum of quark masses, without spin splitting term.
   fPythia->SetMSTJ(22, decaycut);     // (Default=1) cut-off on decay length for a particle that is allowed to decay according to MSTJ(21) and the MDCY value
   fPythia->SetPARJ(71, decaylength);  // (Default=10. mm) maximum average proper lifetime cτ for particles allowed to decay
+  fPythia->SetMDME(192,1,0);          //swicht off W decay to top
+  fPythia->SetMDME(196,1,0); 
+  fPythia->SetMDME(200,1,0); 
+  fPythia->SetPMAS(24,1,kMw); //mass of the W boson (pythia=80.450 // genie=80.385)
+#endif
 
   GetParam("PromptPythiaList", fPromptPythiaList ) ;
 

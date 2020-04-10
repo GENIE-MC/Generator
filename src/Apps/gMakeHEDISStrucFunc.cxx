@@ -38,8 +38,6 @@
 #include "Framework/Interaction/InitialState.h"
 #include "Framework/Messenger/Messenger.h"
 
-#include <TStopwatch.h>
-
 using namespace genie;
 
 void   PrintSyntax        (void);
@@ -59,7 +57,7 @@ int main(int argc, char ** argv)
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
 
   GEVGDriver evg_driver;
-  InitialState init_state(1000010010, 14);
+  InitialState init_state(1000010020, 14);
   evg_driver.SetEventGeneratorList("CCHEDIS");
   evg_driver.Configure(init_state);
 
@@ -68,13 +66,7 @@ int main(int argc, char ** argv)
   Interaction * interaction = *intliter;
   const XSecAlgorithmI * xsec_alg = evg_driver.FindGenerator(interaction)->CrossSectionAlg();
   interaction->SetBit(kISkipKinematicChk);
-
-  TStopwatch timer;
-  timer.Start();
   xsec_alg->XSec(interaction, kPSxQ2fE);
-  timer.Stop();
-
-  LOG("gmkhedissf", pERROR) << "RT=" << timer.RealTime() << "CPU = " << timer.CpuTime();
 
 }//____________________________________________________________________________
 void PrintSyntax(void)

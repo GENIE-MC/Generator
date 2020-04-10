@@ -605,7 +605,6 @@ void SaveGraphsToRootFile(void)
     else if (proc.IsInverseMuDecay()   ) { title << "imd";   }
     else if (proc.IsIMDAnnihilation()  ) { title << "imdanh";}
     else if (proc.IsNuElectronElastic()) { title << "ve";    }
-    else if (proc.IsHEDIS()            ) { title << "hedis"; }
     else if (proc.IsGlashowResonance() ) { title << "glres"; }
     else                                 { continue;         }
 
@@ -990,69 +989,6 @@ void SaveGraphsToRootFile(void)
     topdir->Add(gr_cohtot);
 
     //
-    // add-up all hedis channels
-    //
-
-    double * xshedisccp = new double[kNSplineP];
-    double * xshedisccn = new double[kNSplineP];
-    double * xshedisncp = new double[kNSplineP];
-    double * xshedisncn = new double[kNSplineP];
-    for(int i=0; i<kNSplineP; i++) {
-       xshedisccp[i] = 0;
-       xshedisccn[i] = 0;
-       xshedisncp[i] = 0;
-       xshedisncn[i] = 0;
-    }
-
-    for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
-
-       const Interaction * interaction = *ilistiter;
-       const ProcessInfo &  proc = interaction->ProcInfo();
-       const InitialState & init = interaction->InitState();
-       const Target &       tgt  = init.Tgt();
-       const Spline * spl = evg_driver.XSecSpline(interaction);
-
-       if (proc.IsHEDIS() && proc.IsWeakCC() && pdg::IsProton(tgt.HitNucPdg())) {
-         for(int i=0; i<kNSplineP; i++) { 
-             xshedisccp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
-         }
-       }
-       if (proc.IsHEDIS() && proc.IsWeakCC() && pdg::IsNeutron(tgt.HitNucPdg())) {
-         for(int i=0; i<kNSplineP; i++) { 
-             xshedisccn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
-         }
-       }
-       if (proc.IsHEDIS() && proc.IsWeakNC() && pdg::IsProton(tgt.HitNucPdg())) {
-         for(int i=0; i<kNSplineP; i++) { 
-             xshedisncp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
-         }
-       }
-       if (proc.IsHEDIS() && proc.IsWeakNC() && pdg::IsNeutron(tgt.HitNucPdg())) {
-         for(int i=0; i<kNSplineP; i++) { 
-             xshedisncn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
-         }
-       }
-
-    }
-
-    TGraph * gr_hedisccp = new TGraph(kNSplineP, e, xshedisccp);
-    gr_hedisccp->SetName("hedis_cc_p");
-    gr_hedisccp->SetTitle("GENIE cross section graph");
-    topdir->Add(gr_hedisccp);
-    TGraph * gr_hedisccn = new TGraph(kNSplineP, e, xshedisccn);
-    gr_hedisccn->SetName("hedis_cc_n");
-    gr_hedisccn->SetTitle("GENIE cross section graph");
-    topdir->Add(gr_hedisccn);
-    TGraph * gr_hedisncp = new TGraph(kNSplineP, e, xshedisncp);
-    gr_hedisncp->SetName("hedis_nc_p");
-    gr_hedisncp->SetTitle("GENIE cross section graph");
-    topdir->Add(gr_hedisncp);
-    TGraph * gr_hedisncn = new TGraph(kNSplineP, e, xshedisncn);
-    gr_hedisncn->SetName("hedis_nc_n");
-    gr_hedisncn->SetTitle("GENIE cross section graph");
-    topdir->Add(gr_hedisncn);
-
-    //
     // total cross sections
     //
     double * xstotcc  = new double[kNSplineP];
@@ -1153,10 +1089,6 @@ void SaveGraphsToRootFile(void)
     delete [] xscohcc;
     delete [] xscohnc;
     delete [] xscohtot;
-    delete [] xshedisccp;
-    delete [] xshedisccn;
-    delete [] xshedisncp;
-    delete [] xshedisncn;
     delete [] xstotcc;
     delete [] xstotccp;
     delete [] xstotccn;

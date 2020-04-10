@@ -345,6 +345,21 @@ Interaction * Interaction::DISCC(
 }
 //___________________________________________________________________________
 Interaction * Interaction::DISCC(
+   int target, int hitnuc, int hitqrk, bool fromsea, int fqrk, int probe, double E)
+{
+  Interaction* interaction = Interaction::DISCC(target,hitnuc,probe,E);
+
+  Target * tgt = interaction->InitStatePtr()->TgtPtr();
+  tgt -> SetHitQrkPdg (hitqrk);
+  tgt -> SetHitSeaQrk (fromsea);
+
+  XclsTag * xclstag = interaction->ExclTagPtr();
+  xclstag->SetFinalQuark(fqrk);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DISCC(
    int target, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
   Interaction * interaction =
@@ -390,6 +405,21 @@ Interaction * Interaction::DISNC(
   Target * tgt = interaction->InitStatePtr()->TgtPtr();
   tgt -> SetHitQrkPdg (hitqrk);
   tgt -> SetHitSeaQrk (fromsea);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DISNC(
+   int target, int hitnuc, int hitqrk, bool fromsea, int fqrk, int probe, double E)
+{
+  Interaction* interaction = Interaction::DISNC(target,hitnuc,probe,E);
+
+  Target * tgt = interaction->InitStatePtr()->TgtPtr();
+  tgt -> SetHitQrkPdg (hitqrk);
+  tgt -> SetHitSeaQrk (fromsea);
+
+  XclsTag * xclstag = interaction->ExclTagPtr();
+  xclstag->SetFinalQuark(fqrk);
 
   return interaction;
 }
@@ -1053,106 +1083,6 @@ Interaction * Interaction::DMDI(
    const TLorentzVector & p4probe)
 {
   Interaction * interaction = Interaction::DMDI(target,hitnuc,probe,p4probe);
-
-  Target * tgt = interaction->InitStatePtr()->TgtPtr();
-  tgt -> SetHitQrkPdg (hitqrk);
-  tgt -> SetHitSeaQrk (fromsea);
-
-  return interaction;
-}
-//___________________________________________________________________________
-Interaction * Interaction::HEDISCC(int target, int hitnuc, int probe, double E)
-{
-  Interaction * interaction = 
-             Interaction::Create(target,probe,kScHEDIS, kIntWeakCC);
-
-  InitialState * init_state = interaction->InitStatePtr();
-  init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
-
-  return interaction;
-}
-//___________________________________________________________________________
-Interaction * Interaction::HEDISCC(
-   int target, int hitnuc, int hitqrk, bool fromsea, int probe, double E)
-{
-  Interaction* interaction = Interaction::HEDISCC(target,hitnuc,probe,E);
-
-  Target * tgt = interaction->InitStatePtr()->TgtPtr();
-  tgt -> SetHitQrkPdg (hitqrk);
-  tgt -> SetHitSeaQrk (fromsea);
-
-  return interaction;
-}
-//___________________________________________________________________________
-Interaction * Interaction::HEDISCC(
-   int target, int hitnuc, int probe, const TLorentzVector & p4probe)
-{
-  Interaction * interaction = 
-     Interaction::Create(target,probe,kScHEDIS, kIntWeakCC);
-
-  InitialState * init_state = interaction->InitStatePtr();
-  init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
-
-  return interaction;
-}
-//___________________________________________________________________________
-Interaction * Interaction::HEDISCC(
-   int target, int hitnuc, int hitqrk, bool fromsea, int probe, 
-   const TLorentzVector & p4probe)
-{
-  Interaction* interaction = Interaction::HEDISCC(target,hitnuc,probe,p4probe);
-
-  Target * tgt = interaction->InitStatePtr()->TgtPtr();
-  tgt -> SetHitQrkPdg (hitqrk);
-  tgt -> SetHitSeaQrk (fromsea);
-
-  return interaction;
-}
-//___________________________________________________________________________
-Interaction * Interaction::HEDISNC(int target, int hitnuc, int probe, double E)
-{
-  Interaction * interaction = 
-             Interaction::Create(target,probe,kScHEDIS, kIntWeakNC);
-
-  InitialState * init_state = interaction->InitStatePtr();
-  init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
-
-  return interaction;
-}
-//___________________________________________________________________________
-Interaction * Interaction::HEDISNC(
-   int target, int hitnuc, int hitqrk, bool fromsea, int probe, double E)
-{
-  Interaction* interaction = Interaction::HEDISNC(target,hitnuc,probe,E);
-
-  Target * tgt = interaction->InitStatePtr()->TgtPtr();
-  tgt -> SetHitQrkPdg (hitqrk);
-  tgt -> SetHitSeaQrk (fromsea);
-
-  return interaction;
-}
-//___________________________________________________________________________
-Interaction * Interaction::HEDISNC(
-   int target, int hitnuc, int probe, const TLorentzVector & p4probe)
-{
-  Interaction * interaction = 
-     Interaction::Create(target,probe,kScHEDIS, kIntWeakNC);
-
-  InitialState * init_state = interaction->InitStatePtr();
-  init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
-
-  return interaction;
-}
-//___________________________________________________________________________
-Interaction * Interaction::HEDISNC(
-   int target, int hitnuc, int hitqrk, bool fromsea, int probe, 
-   const TLorentzVector & p4probe)
-{
-  Interaction * interaction = Interaction::HEDISNC(target,hitnuc,probe,p4probe);
 
   Target * tgt = interaction->InitStatePtr()->TgtPtr();
   tgt -> SetHitQrkPdg (hitqrk);

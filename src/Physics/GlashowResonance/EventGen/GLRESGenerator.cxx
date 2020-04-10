@@ -13,11 +13,6 @@
 #include <RVersion.h>
 #include <TClonesArray.h>
 #include <TMath.h>
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
 
 #include "Framework/Conventions/Constants.h"
 #include "Framework/GHEP/GHepStatus.h"
@@ -31,6 +26,14 @@
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Physics/GlashowResonance/EventGen/GLRESGenerator.h"
+
+#ifdef __GENIE_PYTHIA6_ENABLED__
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
+#include <TMCParticle.h>
+#else
+#include <TMCParticle6.h>
+#endif
+#endif // __GENIE_PYTHIA6_ENABLED__
 
 using namespace genie;
 using namespace genie::constants;
@@ -53,8 +56,14 @@ GLRESGenerator::~GLRESGenerator()
 
 }
 //___________________________________________________________________________
-void GLRESGenerator::ProcessEventRecord(GHepRecord * event) const
+void GLRESGenerator::ProcessEventRecord(GHepRecord *
+  #ifdef __GENIE_PYTHIA6_ENABLED__
+    event // avoid unused variable warning if PYTHIA6 is not enabled
+  #endif
+) const
 {
+
+#ifdef __GENIE_PYTHIA6_ENABLED__
 
   Interaction * interaction = event->Summary();
   const InitialState & init_state = interaction->InitState();
@@ -100,19 +109,18 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord * event) const
     assert(y>0 && y<1);
   
     // Compute the neutrino and muon energy
-    double Ev  = (long double) init_state.ProbeE(kRfLab); 
+    double Ev  = init_state.ProbeE(kRfLab); 
     double El  = y*Ev;
 
     LOG("GLRESGenerator", pINFO) << "Ev = " << Ev << ", y = " << y << ", -> El = " << El;
     
     // Compute the momentum transfer and scattering angle
     double El2   = TMath::Power(El,2);
-    double me    = (long double) kElectronMass;
-    double ml    = (long double) interaction->FSPrimLepton()->Mass();
+    double ml    = interaction->FSPrimLepton()->Mass();
     double ml2   = TMath::Power(ml,2);
     double pl    = TMath::Sqrt(El2-ml2);   
     
-    double Q2    = 2*(Ev-El)*me + me*me;
+    double Q2    = 2*(Ev-El)*kElectronMass + kElectronMass*kElectronMass;
     double costh = (El-0.5*(Q2+ml2)/Ev)/pl;
     double sinth = TMath::Sqrt( 1-TMath::Power(costh,2.) );
     // Randomize transverse components
@@ -153,18 +161,10 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord * event) const
     strcpy(p6tgt,   "e-"     );
     fPythia->Pyinit(p6frame, p6nu, p6tgt, (double)Wmass);
     
-    fPythia->SetMDME(206,1,0); //swicht off W decay leptonic modes
-    fPythia->SetMDME(207,1,0); 
-    fPythia->SetMDME(208,1,0); 
-
     fPythia->Pyevnt();
 
-    fPythia->SetMDME(206,1,1); //swicht them back on
-    fPythia->SetMDME(207,1,1); 
-    fPythia->SetMDME(208,1,1); 
-
     // Use for debugging purposes
-    fPythia->Pylist(3);
+    //fPythia->Pylist(3);
 
     // get LUJETS record
     fPythia->GetPrimaries();
@@ -248,6 +248,13 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord * event) const
   
   }
 
+#else
+  LOG("GLRESGenerator", pFATAL)
+    << "Calling GENIE/PYTHIA6 without enabling PYTHIA6";
+  gAbortingInErr = true;
+  std::exit(1);
+#endif
+
 }
 //___________________________________________________________________________
 void GLRESGenerator::Configure(const Registry & config)
@@ -264,13 +271,14 @@ void GLRESGenerator::Configure(string config)
 //____________________________________________________________________________
 void GLRESGenerator::LoadConfig(void)
 {
+#ifdef __GENIE_PYTHIA6_ENABLED__
  fPythia = TPythia6::Instance();
 
  // sync GENIE/PYTHIA6 seed number
  RandomGen::Instance();
 
   // PYTHIA parameters only valid for HEDIS
-  GetParam( "Wmin", fWmin ) ;
+  GetParam( "Xsec-Wmin", fWmin ) ;
   fPythia->SetPARP(2,  fWmin); //(D = 10. GeV) lowest c.m. energy for the event as a whole that the program will accept to simulate. (bellow 2GeV pythia crashes)
 
   int warnings;       GetParam( "Warnings",      warnings ) ;
@@ -283,6 +291,17 @@ void GLRESGenerator::LoadConfig(void)
   fPythia->SetMSTJ(93, qrk_mass);     // light (d, u, s, c, b) quark masses are taken from PARF(101) - PARF(105) rather than PMAS(1,1) - PMAS(5,1). Diquark masses are given as sum of quark masses, without spin splitting term.
   fPythia->SetMSTJ(22, decaycut);     // (Default=1) cut-off on decay length for a particle that is allowed to decay according to MSTJ(21) and the MDCY value
   fPythia->SetPARJ(71, decaylength);  // (Default=10. mm) maximum average proper lifetime cτ for particles allowed to decay
+
+  fPythia->SetMSTP(61,0);             // (Default=2) master switch for initial-state QCD and QED radiation.
+  fPythia->SetMSTP(71,0);             // (Default=2) master switch for initial-state QCD and QED radiation.
+  fPythia->SetMDME(206,1,0);          //swicht off W decay leptonic modes
+  fPythia->SetMDME(207,1,0); 
+  fPythia->SetMDME(208,1,0); 
+  fPythia->SetMDME(192,1,0);          //swicht off W decay to top
+  fPythia->SetMDME(196,1,0); 
+  fPythia->SetMDME(200,1,0); 
+  fPythia->SetPMAS(24,1,kMw); //mass of the W boson (pythia=80.450 // genie=80.385)
+#endif // __GENIE_PYTHIA6_ENABLED__
 
 }
 //____________________________________________________________________________

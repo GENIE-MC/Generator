@@ -20,7 +20,7 @@
 #define _HEDIS_STRUC_FUNC_H_
 
 #include "Framework/Numerical/BLI2D.h"
-#include "Framework/Interaction/HEDISChannel.h"
+#include "Framework/Interaction/Interaction.h"
 
 #include <map>
 #include <vector>
@@ -57,31 +57,30 @@ namespace genie {
 
   inline bool operator== (const SF_info& a, const SF_info& b) {
     
-    bool ok = true;
-    if ( a.LHAPDFmember != b.LHAPDFmember   ) { ok = false; std::cout << "LHAPDFmember" << std::endl; }
-    if ( a.LHAPDFset    != b.LHAPDFset      ) { ok = false; std::cout << "LHAPDFset"    << std::endl; }
-    if ( a.IsNLO        != b.IsNLO          ) { ok = false; std::cout << "IsNLO"        << std::endl; }
-    if ( a.Scheme       != b.Scheme         ) { ok = false; std::cout << "Scheme"       << std::endl; }
-    if ( a.QrkThrs      != b.QrkThrs        ) { ok = false; std::cout << "QrkThrs"      << std::endl; }
-    if ( a.NGridX       != b.NGridX         ) { ok = false; std::cout << "NGridX"       << std::endl; }
-    if ( a.NGridQ2      != b.NGridQ2        ) { ok = false; std::cout << "NGridQ2"      << std::endl; }
-    if ( abs(a.XGridMin-b.XGridMin)>1e-10   ) { ok = false; std::cout << "XGridMin"     << std::endl; }
-    if ( abs(a.Q2GridMin-b.Q2GridMin)>1e-10 ) { ok = false; std::cout << "Q2GridMin"    << std::endl; }
-    if ( abs(a.Q2GridMax-b.Q2GridMax)>1e-10 ) { ok = false; std::cout << "Q2GridMax"    << std::endl; }
-    if ( abs(a.MassW-b.MassW)>1e-10         ) { ok = false; std::cout << "MassW"        << std::endl; }
-    if ( abs(a.MassZ-b.MassZ)>1e-10         ) { ok = false; std::cout << "MassZ"        << std::endl; }
-    if ( abs(a.Rho-b.Rho)>1e-10             ) { ok = false; std::cout << "Rho"          << std::endl; }
-    if ( abs(a.Sin2ThW-b.Sin2ThW)>1e-10     ) { ok = false; std::cout << "Sin2ThW"      << std::endl; }
-    if ( abs(a.Vud-b.Vud)>1e-10             ) { ok = false; std::cout << "Vud"          << std::endl; }
-    if ( abs(a.Vus-b.Vus)>1e-10             ) { ok = false; std::cout << "Vus"          << std::endl; }
-    if ( abs(a.Vub-b.Vub)>1e-10             ) { ok = false; std::cout << "Vub"          << std::endl; }
-    if ( abs(a.Vcd-b.Vcd)>1e-10             ) { ok = false; std::cout << "Vcd"          << std::endl; }
-    if ( abs(a.Vcs-b.Vcs)>1e-10             ) { ok = false; std::cout << "Vcs"          << std::endl; }
-    if ( abs(a.Vcb-b.Vcb)>1e-10             ) { ok = false; std::cout << "Vcb"          << std::endl; }
-    if ( abs(a.Vtd-b.Vtd)>1e-10             ) { ok = false; std::cout << "Vtd"          << std::endl; }
-    if ( abs(a.Vts-b.Vts)>1e-10             ) { ok = false; std::cout << "Vts"          << std::endl; }
-    if ( abs(a.Vtb-b.Vtb)>1e-10             ) { ok = false; std::cout << "Vtb"          << std::endl; }
-    return ok;
+    if ( a.LHAPDFmember != b.LHAPDFmember   ) return false;
+    if ( a.LHAPDFset    != b.LHAPDFset      ) return false;
+    if ( a.IsNLO        != b.IsNLO          ) return false;
+    if ( a.Scheme       != b.Scheme         ) return false;
+    if ( a.QrkThrs      != b.QrkThrs        ) return false;
+    if ( a.NGridX       != b.NGridX         ) return false;
+    if ( a.NGridQ2      != b.NGridQ2        ) return false;
+    if ( abs(a.XGridMin-b.XGridMin)>1e-10   ) return false;
+    if ( abs(a.Q2GridMin-b.Q2GridMin)>1e-10 ) return false;
+    if ( abs(a.Q2GridMax-b.Q2GridMax)>1e-10 ) return false;
+    if ( abs(a.MassW-b.MassW)>1e-10         ) return false;
+    if ( abs(a.MassZ-b.MassZ)>1e-10         ) return false;
+    if ( abs(a.Rho-b.Rho)>1e-10             ) return false;
+    if ( abs(a.Sin2ThW-b.Sin2ThW)>1e-10     ) return false;
+    if ( abs(a.Vud-b.Vud)>1e-10             ) return false;
+    if ( abs(a.Vus-b.Vus)>1e-10             ) return false;
+    if ( abs(a.Vub-b.Vub)>1e-10             ) return false;
+    if ( abs(a.Vcd-b.Vcd)>1e-10             ) return false;
+    if ( abs(a.Vcs-b.Vcs)>1e-10             ) return false;
+    if ( abs(a.Vcb-b.Vcb)>1e-10             ) return false;
+    if ( abs(a.Vtd-b.Vtd)>1e-10             ) return false;
+    if ( abs(a.Vts-b.Vts)>1e-10             ) return false;
+    if ( abs(a.Vtb-b.Vtb)>1e-10             ) return false;
+    return true;
 
   }
 
@@ -132,7 +131,7 @@ namespace genie {
     std::getline (is,saux); a.Vtb=atof(saux.c_str());
     return is;
 
-}
+  }
 
   inline std::ostream & operator<< (std::ostream& os, const SF_info& a) {
 
@@ -197,14 +196,13 @@ namespace genie {
       // HEDIS structure functions type
       //
 
-      typedef enum HEDISStrucFuncType {  
+      typedef enum StrucFuncType {  
         kMHTUndefined = 0,
         kSFT1, 
         kSFT2, 
         kSFT3, 
         kSFnumber, 
-      } 
-      HEDISStrucFuncType_t;
+      } HEDISStrucFuncType_t;
 
       // ................................................................
       // HEDIS form factor type
@@ -222,13 +220,10 @@ namespace genie {
 
       static HEDISStrucFunc * Instance(string basedir, SF_info sfinfo);
 
-      void CreateQrkSF    ( HEDISQrkChannel_t ch, string sfFile );
-      void CreateNucSF    ( HEDISNucChannel_t ch, string sfFile );
-
       // method to return values of the SF for a particular channel in x and Q2
-      SF_xQ2 EvalQrkSFLO  ( HEDISQrkChannel_t ch, double x, double Q2 );
-      SF_xQ2 EvalNucSFLO  ( HEDISNucChannel_t ch, double x, double Q2 ); 
-      SF_xQ2 EvalNucSFNLO ( HEDISNucChannel_t ch, double x, double Q2 );
+      SF_xQ2 EvalQrkSFLO  ( const Interaction * in, double x, double Q2 );
+      SF_xQ2 EvalNucSFLO  ( const Interaction * in, double x, double Q2 ); 
+      SF_xQ2 EvalNucSFNLO ( const Interaction * in, double x, double Q2 );
 
     private:
 
@@ -237,13 +232,21 @@ namespace genie {
       HEDISStrucFunc(const HEDISStrucFunc &);
      ~HEDISStrucFunc();
 
+      void CreateQrkSF    ( const Interaction * in, string sfFile );
+      void CreateNucSF    ( const Interaction * in, string sfFile );
+
+      string  QrkSFName ( const Interaction * in ); 
+      string  NucSFName ( const Interaction * in ) ;
+      int     QrkSFCode ( const Interaction * in ); 
+      int     NucSFCode ( const Interaction * in ) ;
+
       // Self
       static HEDISStrucFunc * fgInstance;
 
       // These map holds all SF tables (interaction channel is the key)
-      map<HEDISQrkChannel_t, HEDISStrucFuncTable> fQrkSFLOTables;
-      map<HEDISNucChannel_t, HEDISStrucFuncTable> fNucSFLOTables;
-      map<HEDISNucChannel_t, HEDISStrucFuncTable> fNucSFNLOTables;
+      map<int, HEDISStrucFuncTable> fQrkSFLOTables;
+      map<int, HEDISStrucFuncTable> fNucSFLOTables;
+      map<int, HEDISStrucFuncTable> fNucSFNLOTables;
 
       SF_info fSF;
       vector<double> sf_x_array;
