@@ -23,7 +23,7 @@
 #include <TVectorD.h>
 #include <TLorentzVector.h>
 #include "Framework/Utils/Range1.h"
-#include "cmath.h"
+#include "math.h"
 
 using std::vector;
 

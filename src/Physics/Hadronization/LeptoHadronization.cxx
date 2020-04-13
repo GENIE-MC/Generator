@@ -363,7 +363,7 @@ bool LeptoHadronization::Hadronize(GHepRecord *
   fPythia->Pyexec();
   
   // Use for debugging purposes
-  if (fPromptPythiaList) fPythia->Pylist(3);
+  //fPythia->Pylist(3);
 
   // get LUJETS record
   fPythia->GetPrimaries();
@@ -453,8 +453,6 @@ bool LeptoHadronization::Hadronize(GHepRecord *
     double vt = vtx.T() + p->GetTime()*(units::millimeter/units::second);
     TLorentzVector pos( vx, vy, vz, vt );
 
-    LOG("LeptoHad", pDEBUG) << pdgc << "  " << ist << "  " << im << "  " << ifc;
-
     event->AddParticle( pdgc, ist, im,-1, ifc, ilc, p4, pos );
 
   }
@@ -512,8 +510,8 @@ void LeptoHadronization::LoadConfig(void)
   fPythia->SetMDME(196,1,0); 
   fPythia->SetMDME(200,1,0); 
   fPythia->SetPMAS(24,1,kMw); //mass of the W boson (pythia=80.450 // genie=80.385)
+  fPythia->SetPMAS(24,2,0.);  //set to 0 the width of the W boson to avoid problems with energy conservation
+  fPythia->SetPMAS(6,2,0.);  //set to 0 the width of the top to avoid problems with energy conservation
 #endif
-
-  GetParam("PromptPythiaList", fPromptPythiaList ) ;
 
 }

@@ -14,7 +14,6 @@ Configuration for the LEPTO hadronization model
      <param type="double" name="Primordial-kT">              0.44 </param>
      <param type="double" name="Remnant-pT">                 0.35 </param>
      <param type="double" name="Energy-Singlet">              0.5 </param>
-     <param type="bool"   name="PromptPythiaList">          false </param>
   </param_set>
 
 </alg_conf>

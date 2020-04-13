@@ -22,6 +22,7 @@
 #include "Framework/EventGen/EVGThreadException.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
+#include "Framework/Numerical/MathUtils.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGLibrary.h"
@@ -37,6 +38,7 @@
 
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::utils::math;
 
 //___________________________________________________________________________
 GLRESGenerator::GLRESGenerator() :
@@ -78,12 +80,11 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord *
 
   if(target) event->AddParticle(target->Pdg(), kIStStableFinalState, 1,-1,-1,-1, *(target->P4()), *(target->X4()) );
 
-  TLorentzVector p4_nu (* nu->P4());
-  TLorentzVector p4_el (* el->P4());
+  LongLorentzVector p4_nu( event->Probe()->P4()       );
+  LongLorentzVector p4_el( event->HitElectron()->P4() );
+  LongLorentzVector p4_Wlong( p4_nu.Px()+p4_el.Px(), p4_nu.Py()+p4_el.Py(), p4_nu.Pz()+p4_el.Pz(), p4_nu.E()+p4_el.E() );
 
-  TLorentzVector p4_W = p4_nu + p4_el;
-
-  double Wmass = p4_W.M();
+  long double Wmass = p4_Wlong.M();
   LOG("GLRESGenerator", pINFO) << "Wmass : " << Wmass;
 
   if(Wmass < fWmin) {
@@ -105,41 +106,42 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord *
   if ( pdg::IsElectron(pdgl) || pdg::IsMuon(pdgl) || pdg::IsTau(pdgl) ) {
 
     // Get selected kinematics
-    double y = interaction->Kine().y(true);
+    long double y = interaction->Kine().y(true);
     assert(y>0 && y<1);
   
     // Compute the neutrino and muon energy
-    double Ev  = init_state.ProbeE(kRfLab); 
-    double El  = y*Ev;
+    long double Ev  = init_state.ProbeE(kRfLab); 
+    long double El  = y*Ev;
 
     LOG("GLRESGenerator", pINFO) << "Ev = " << Ev << ", y = " << y << ", -> El = " << El;
     
     // Compute the momentum transfer and scattering angle
-    double El2   = TMath::Power(El,2);
-    double ml    = interaction->FSPrimLepton()->Mass();
-    double ml2   = TMath::Power(ml,2);
-    double pl    = TMath::Sqrt(El2-ml2);   
+    long double El2   = powl(El,2);
+    long double ml    = interaction->FSPrimLepton()->Mass();
+    long double ml2   = powl(ml,2);
+    long double pl    = sqrtl(El2-ml2);   
     
-    double Q2    = 2*(Ev-El)*kElectronMass + kElectronMass*kElectronMass;
-    double costh = (El-0.5*(Q2+ml2)/Ev)/pl;
-    double sinth = TMath::Sqrt( 1-TMath::Power(costh,2.) );
+    long double Q2    = 2*(Ev-El)*kElectronMass + kElectronMass*kElectronMass;
+    long double costh = (El-0.5*(Q2+ml2)/Ev)/pl;
+    long double sinth = sqrtl( 1-powl(costh,2.) );
     // Randomize transverse components
     RandomGen * rnd = RandomGen::Instance();
-    double phi  = 2* M_PIl * rnd->RndLep().Rndm();
+    long double phi  = 2* M_PIl * rnd->RndLep().Rndm();
     
     LOG("GLRESGenerator", pINFO) << "Q2 = " << Q2 << ", cos(theta) = " << costh << ", phi = " << phi;
    
-    double plx = pl*sinth*TMath::Cos(phi);
-    double ply = pl*sinth*TMath::Sin(phi);
-    double plz = pl*costh;
+    long double plx = pl*sinth*cosl(phi);
+    long double ply = pl*sinth*sinl(phi);
+    long double plz = pl*costh;
 
-    //rotate from LAB (where neutrino is [0,0,E,E]) to LAB' (where neutrino is [px,py,pz,E])
-    TVector3 unit_nudir = p4_nu.Vect().Unit(); 
-    TVector3 p3l(plx,ply,plz);
-    p3l.RotateUz(unit_nudir);
+    // Lepton 4-momentum in the LAB frame
+    LongLorentzVector p4lplong( plx, ply, plz, El );
+    p4lplong.Rotate(p4_nu);
+    LongLorentzVector p4nulong( p4_Wlong.Px()-p4lplong.Px(), p4_Wlong.Py()-p4lplong.Py(), p4_Wlong.Pz()-p4lplong.Pz(), p4_Wlong.E()-p4lplong.E() );
 
-    TLorentzVector p4_lpout( p3l, El );
-    TLorentzVector p4_nuout = p4_nu + p4_el - p4_lpout;
+    TLorentzVector p4_W    ( (double)p4_Wlong.Px(), (double)p4_Wlong.Py(), (double)p4_Wlong.Pz(), (double)p4_Wlong.E() );
+    TLorentzVector p4_lpout( (double)p4lplong.Px(), (double)p4lplong.Py(), (double)p4lplong.Pz(), (double)p4lplong.E() );
+    TLorentzVector p4_nuout( (double)p4nulong.Px(), (double)p4nulong.Py(), (double)p4nulong.Pz(), (double)p4nulong.E() );
 
     int pdgvout = 0;
     if      ( pdg::IsElectron(pdgl) ) pdgvout = kPdgAntiNuE;
@@ -176,38 +178,37 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord *
     TClonesArray * particle_list = new TClonesArray("genie::GHepParticle", np);
     particle_list->SetOwner(true);
 
-    // Vector defining rotation from LAB to LAB' (z:= \vec{resonance momentum})
-    TVector3 unit_Wdir = p4_W.Vect().Unit();
-
     // Boost velocity LAB' -> Resonance rest frame
-    TVector3 beta(0,0,p4_W.P()/p4_W.Energy());
+    long double beta = p4_Wlong.P()/p4_Wlong.E();
 
-    TMCParticle * particle = 0;
-    TIter piter(pythia_particles);
-    while( (particle = (TMCParticle *) piter.Next()) ) {
+    TMCParticle * p = 0;
+    TIter particle_iter(pythia_particles);
+    while( (p = (TMCParticle *) particle_iter.Next()) ) {
       
-      int ks = particle->GetKS();
+      int pdgc   = p->GetKF();
+      int ks     = p->GetKS();
+      int parent = p->GetParent();
       
       if ( ks==21 ) { continue; } //we dont want to save first particles from pythia (init states)
 
-      TLorentzVector p4o(particle->GetPx(), particle->GetPy(), particle->GetPz(), particle->GetEnergy());
-      p4o.Boost(beta); 
-      TVector3 p3 = p4o.Vect();
-      p3.RotateUz(unit_Wdir); 
-      TLorentzVector p4(p3,p4o.Energy());
-      TParticlePDG * part = PDGLibrary::Instance()->Find(particle->GetKF());
+      LongLorentzVector p4long( p->GetPx(), p->GetPy(), p->GetPz(), p->GetEnergy()  );
+      p4long.Boost(beta);
+      p4long.Rotate(p4_Wlong);
 
-      if ( ks==1 && p4.E() < part->Mass() ) {
+      TLorentzVector p4( (double)p4long.Px(), (double)p4long.Py(), (double)p4long.Pz(), (double)p4long.E() );
+
+      double massPDG = PDGLibrary::Instance()->Find(pdgc)->Mass();
+      if ( (ks==1 || ks==4) && p4.E() < massPDG ) {
         LOG("GLRESGenerator", pWARN) << "Putting at rest one stable particle generated by PYTHIA because E < m";
-        LOG("GLRESGenerator", pWARN) << "PDG = " << particle->GetKF() << " // State = " << ks;
+        LOG("GLRESGenerator", pWARN) << "PDG = " << pdgc << " // State = " << ks;
         LOG("GLRESGenerator", pWARN) << "E = " << p4.E() << " // |p| = " << TMath::Sqrt(p4.P()); 
         LOG("GLRESGenerator", pWARN) << "p = [ " << p4.Px() << " , "  << p4.Py() << " , "  << p4.Pz() << " ]";
-        LOG("GLRESGenerator", pWARN) << "m    = " << p4.M() << " // mpdg = " << part->Mass();
-        p4.SetXYZT(0,0,0,part->Mass());
+        LOG("GLRESGenerator", pWARN) << "m    = " << p4.M() << " // mpdg = " << massPDG;
+        p4.SetXYZT(0,0,0,massPDG);
       }
 
       // copy final state particles to the event record
-      GHepStatus_t ist = (ks==1) ? kIStStableFinalState : kIStDISPreFragmHadronicState;
+      GHepStatus_t ist = (ks==1 || ks==4) ? kIStStableFinalState : kIStDISPreFragmHadronicState;
 
       // fix numbering scheme used for mother/daughter assignments
       int firstmother = -1;
@@ -215,34 +216,34 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord *
       int firstchild  = -1;
       int lastchild   = -1;
 
-      if ( particle->GetParent() < 10 ) {  // I=10 is the position were W boson is stored
-        if      ( TMath::Abs(particle->GetKF())<7 ) {   //outgoing quarks: mother will be the boson (saved in position 4)
+      if ( parent < 10 ) {  // I=10 is the position were W boson is stored
+        if      ( TMath::Abs(pdgc)<7 ) {   //outgoing quarks: mother will be the boson (saved in position 4)
           firstmother = 4;       
-          firstchild  = particle->GetFirstChild() - 6;  //boson is stored in I=10 with pythia and I=4 for GENIE => shift 6
-          lastchild   = particle->GetLastChild()  - 6;
+          firstchild  = p->GetFirstChild() - 6;  //boson is stored in I=10 with pythia and I=4 for GENIE => shift 6
+          lastchild   = p->GetLastChild()  - 6;
         }
-        else if ( TMath::Abs(particle->GetKF())==24 ) { //produced W boson: mother will be the incoming neutrino
+        else if ( TMath::Abs(pdgc)==24 ) { //produced W boson: mother will be the incoming neutrino
           firstmother = 0;
-          firstchild  = particle->GetFirstChild() - 6;
-          lastchild   = particle->GetLastChild()  - 6;
+          firstchild  = p->GetFirstChild() - 6;
+          lastchild   = p->GetLastChild()  - 6;
         }
-        else if ( particle->GetKF()==22 ) {             //radiative photons: mother will be the incoming electron
+        else if ( pdgc==22 ) {             //radiative photons: mother will be the incoming electron
           firstmother = 2; 
         }
       }
       else { //rest
-        firstmother = particle->GetParent()     - 6; //shift to match boson position
-        firstchild  = (particle->GetFirstChild()==0) ? particle->GetFirstChild() - 1 : particle->GetFirstChild() - 6;
-        lastchild   = (particle->GetLastChild()==0)  ? particle->GetLastChild()  - 1 : particle->GetLastChild()  - 6;
+        firstmother = parent - 6; //shift to match boson position
+        firstchild  = (p->GetFirstChild()==0) ? p->GetFirstChild() - 1 : p->GetFirstChild() - 6;
+        lastchild   = (p->GetLastChild()==0)  ? p->GetLastChild()  - 1 : p->GetLastChild()  - 6;
       }
 
-      double vx = nu->X4()->X() + particle->GetVx()*1e12; //pythia gives position in [mm] while genie uses [fm]
-      double vy = nu->X4()->Y() + particle->GetVy()*1e12;
-      double vz = nu->X4()->Z() + particle->GetVz()*1e12;
-      double vt = nu->X4()->T() + particle->GetTime()*(units::millimeter/units::second);
+      double vx = nu->X4()->X() + p->GetVx()*1e12; //pythia gives position in [mm] while genie uses [fm]
+      double vy = nu->X4()->Y() + p->GetVy()*1e12;
+      double vz = nu->X4()->Z() + p->GetVz()*1e12;
+      double vt = nu->X4()->T() + p->GetTime()*(units::millimeter/units::second);
       TLorentzVector pos( vx, vy, vz, vt );
 
-      event->AddParticle(particle->GetKF(), ist, firstmother, lastmother, firstchild, lastchild, p4, pos );
+      event->AddParticle(pdgc, ist, firstmother, lastmother, firstchild, lastchild, p4, pos );
 
     }
   
@@ -301,6 +302,8 @@ void GLRESGenerator::LoadConfig(void)
   fPythia->SetMDME(196,1,0); 
   fPythia->SetMDME(200,1,0); 
   fPythia->SetPMAS(24,1,kMw); //mass of the W boson (pythia=80.450 // genie=80.385)
+  fPythia->SetPMAS(24,2,0.);  //set to 0 the width of the W boson to avoid problems with energy conservation
+  fPythia->SetPMAS(6,2,0.);  //set to 0 the width of the top to avoid problems with energy conservation
 #endif // __GENIE_PYTHIA6_ENABLED__
 
 }
