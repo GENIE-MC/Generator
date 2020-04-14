@@ -43,7 +43,8 @@ TGT =	gtestAlgorithms 	 \
 	gtestRegistry		 \
 	gtestInteraction	 \
 	gtestResonances		 \
-	gtestKPhaseSpace	
+	gtestKPhaseSpace	 \
+	gtestGAtmoFlux	
 
 all: $(TGT)
 
@@ -191,6 +192,10 @@ else
 	@echo "You need to enable the geometry drivers to build the gtestROOTGeometry program"
 endif
 
+gtestGAtmoFlux: FORCE
+	$(CXX) $(CXXFLAGS) -c gtestGAtmoFlux.cxx $(CPP_INCLUDES)
+	$(LD) $(LDFLAGS) gtestGAtmoFlux.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestGAtmoFlux
+
 #################### CLEANING
 
 purge: FORCE
@@ -224,6 +229,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_PATH)/gtestResonances		
 	$(RM) $(GENIE_BIN_PATH)/gtestKPhaseSpace	
+	$(RM) $(GENIE_BIN_PATH)/gtestGAtmoFlux	
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
 	$(RM) $(GENIE_BIN_PATH)/gtestMuELoss		
 endif
@@ -258,6 +264,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestResonances		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestKPhaseSpace	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestGAtmoFlux	
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMuELoss		
 endif
