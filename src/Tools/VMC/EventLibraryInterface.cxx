@@ -9,10 +9,8 @@
 
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-//#include "Framework/EventGen/EVGThreadException.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
-//#include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Interaction/Interaction.h"
@@ -92,7 +90,13 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
   for(bool lep: {true, false}){ // make sure lepton in first
     for(const Particle& part: rec->parts){
       if(lep != pdg::IsLepton(part.pdg)) continue;
-      event->AddParticle(part.pdg,
+
+      // Fix up the outgoing lepton for NC events (in the library it's always
+      // nu_mu...)
+      int pdg = part.pdg;
+      if(interaction->ProcInfo().IsWeakNC()) pdg = init_state.ProbePdg();
+
+      event->AddParticle(pdg,
                          kIStStableFinalState,
                          (lep ? 0 : 1), -1, -1, -1, // child of the neutrino or nucleus
                          TLorentzVector(part.px*basis[0] +
@@ -112,7 +116,6 @@ const Record* EventLibraryInterface::GetRecord(const Interaction* interaction) c
   const InitialState& init_state = interaction->InitState();
 
   const double probe_E = init_state.ProbeE(kRfLab);
-  const int probe_pdgc = init_state.ProbePdg();
 
   if(!init_state.Tgt().IsNucleus()){
     LOG("ELI", pINFO) << "Skippping non-nuclear target " << init_state;
@@ -126,6 +129,13 @@ const Record* EventLibraryInterface::GetRecord(const Interaction* interaction) c
   if(!proc.IsWeakCC() && !proc.IsWeakNC()){
     LOG("ELI", pINFO) << "Skipping unknown process " << proc;
     return 0;
+  }
+
+  int probe_pdgc = init_state.ProbePdg();
+
+  // Use nu_mu for NC by convention
+  if(proc.IsWeakNC()){
+    if(probe_pdgc > 0) probe_pdgc = +14; else probe_pdgc = -14;
   }
 
   const Key key(tgt_pdgc, probe_pdgc, proc.IsWeakCC());
@@ -211,11 +221,15 @@ void EventLibraryInterface::LoadRecords() const
         for(bool iscc: {true, false}){
           // NCs should be the same for all flavours. Use numu by convention.
           if(!iscc && pdg != 14) continue;
+
+          std::string nuName = pdglib->Find(sign*pdg)->GetName();
+          if(!iscc) nuName = (sign > 0) ? "nu" : "nu_bar";
+
           const std::string treeName =
             TString::Format("%s/%s/%s/records",
                             tgtName.c_str(),
-                            pdglib->Find(sign*pdg)->GetName(),
-                            iscc ? "cc" : "nc").Data();
+                            iscc ? "cc" : "nc",
+                            nuName.c_str()).Data();
 
           const Key key(tgtPart->PdgCode(), sign*pdg, iscc);
 

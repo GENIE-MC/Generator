@@ -97,11 +97,15 @@ void EvtLibPXSec::LoadXSecs() const
         for(bool iscc: {true, false}){
           // NCs should be the same for all flavours. Use numu by convention.
           if(!iscc && pdg != 14) continue;
+
+          std::string nuName = pdglib->Find(sign*pdg)->GetName();
+          if(!iscc) nuName = (sign > 0) ? "nu" : "nu_bar";
+
           const std::string graphName =
             TString::Format("%s/%s/%s/xsec",
                             tgtName.c_str(),
-                            pdglib->Find(sign*pdg)->GetName(),
-                            iscc ? "cc" : "nc").Data();
+                            iscc ? "cc" : "nc",
+                            nuName.c_str()).Data();
 
           const Key key(tgtPart->PdgCode(), sign*pdg, iscc);
 
@@ -132,7 +136,13 @@ TGraph* EvtLibPXSec::GetXSec(const Interaction* in) const
     return 0;
   }
 
-  const Key key(init_state.TgtPdg(), init_state.ProbePdg(), proc.IsWeakCC());
+  int pdg = init_state.ProbePdg();
+  // Use nu_mu for NC by convention
+  if(proc.IsWeakNC()){
+    if(pdg > 0) pdg = +14; else pdg = -14;
+  }
+
+  const Key key(init_state.TgtPdg(), pdg, proc.IsWeakCC());
 
   auto it = fXSecs.find(key);
   if(it == fXSecs.end()){
