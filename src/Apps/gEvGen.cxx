@@ -385,10 +385,6 @@ void GenerateEventsUsingFluxOrTgtMix(void)
 
      // generate a single event for neutrinos coming from the specified flux
      EventRecord * event = mcj_driver->GenerateEvent();
-
-     if(gOptGenUnscaled){
-       event->SetWeight( mcj_driver->GlobProbScale() * event->Weight() );
-     }
      
      LOG("gevgen", pNOTICE) << "Generated Event GHEP Record: " << *event;
 
@@ -399,6 +395,12 @@ void GenerateEventsUsingFluxOrTgtMix(void)
      delete event;
   }
 
+  // if requested, set event normalization to 1
+  if(gOptGenUnscaled){
+     double psc  = mcj_driver->GlobProbScale();
+     ntpw.EventTree()->SetWeight(1.0/psc);
+  }
+  
   // Save the generated MC events
   ntpw.Save();
 
