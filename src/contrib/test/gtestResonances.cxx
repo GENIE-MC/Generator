@@ -28,12 +28,12 @@
 #include <TPad.h>
 #include <TPaveLabel.h>
 
-#include "BaryonResonance/BaryonResonance.h"
-#include "BaryonResonance/BaryonResUtils.h"
-#include "Conventions/Constants.h"
-#include "Conventions/Units.h"
-#include "Messenger/Messenger.h"
-#include "Utils/BWFunc.h"
+#include "Framework/ParticleData/BaryonResonance.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/BWFunc.h"
 
 using std::string;
 

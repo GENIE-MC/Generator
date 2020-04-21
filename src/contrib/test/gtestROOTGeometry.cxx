@@ -72,13 +72,13 @@
 #include <TApplication.h>
 #include <TPolyMarker3D.h>
 
-#include "Conventions/Constants.h"
-#include "Geo/ROOTGeomAnalyzer.h"
-#include "EVGDrivers/PathLengthList.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "Utils/StringUtils.h"
-#include "Utils/CmdLnArgParser.h"
+#include "Framework/Conventions/Constants.h"
+#include "Tools/Geometry/ROOTGeomAnalyzer.h"
+#include "Framework/EventGen/PathLengthList.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/Utils/StringUtils.h"
+#include "Framework/Utils/CmdLnArgParser.h"
 
 using std::string;
 using std::vector;

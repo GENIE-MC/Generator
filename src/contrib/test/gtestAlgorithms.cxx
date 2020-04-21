@@ -16,13 +16,13 @@
 */
 //____________________________________________________________________________
 
-#include "Algorithm/Algorithm.h"
-#include "Algorithm/AlgFactory.h"
-#include "Algorithm/AlgConfigPool.h"
-#include "Base/QELFormFactorsModelI.h"
-#include "Base/XSecAlgorithmI.h"
-#include "ElFF/ELFormFactorsModelI.h"
-#include "Messenger/Messenger.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Physics/QuasiElastic/XSection/QELFormFactorsModelI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Physics/QuasiElastic/XSection/ELFormFactorsModelI.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 

@@ -33,14 +33,14 @@
 #include <TFile.h>
 #include <TNtuple.h>
 
-#include "Algorithm/AlgFactory.h"
-#include "Conventions/Units.h"
-#include "MuELoss/MuELossI.h"
-#include "MuELoss/MuELMaterial.h"
-#include "MuELoss/MuELProcess.h"
-#include "Messenger/Messenger.h"
-#include "Utils/StringUtils.h"
-#include "Utils/CmdLnArgParser.h"
+#include "Framework/AlgorithmAlgFactory.h"
+#include "Framework/Conventions/Units.h"
+#include "Physics/MuonEnergyLoss/MuELossI.h"
+#include "Physics/MuonEnergyLoss/MuELMaterial.h"
+#include "Physics/MuonEnergyLoss/MuELProcess.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/StringUtils.h"
+#include "Framework/Utils/CmdLnArgParser.h"
 
 using std::string;
 using std::vector;
