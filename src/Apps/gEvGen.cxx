@@ -110,7 +110,7 @@
            --xml-path
               A directory to load XML files from - overrides $GXMLPATH, and $GENIE/config
 	   --gen-unscaled
-	      Write unscaled weight option (required to correcly combine 
+	      Set event tree weight to event normalization (required to correcly combine 
 	      files generated with different E ranges/geometries)
 
         ***  See the User Manual for more details and examples. ***
@@ -218,7 +218,7 @@ long int        gOptRanSeed;      // random number seed
 string          gOptInpXSecFile;  // cross-section splines
 string          gOptOutFileName;  // Optional outfile name
 string          gOptStatFileName; // Status file name, set if gOptOutFileName was set.
-bool            gOptGenUnscaled = false;  // write EventRecorg->Weight() in global probability scale
+bool            gOptGenUnscaled = false;  // Set event tree weight to event normalization
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -395,7 +395,7 @@ void GenerateEventsUsingFluxOrTgtMix(void)
      delete event;
   }
 
-  // if requested, set event normalization to 1
+  // if requested, set event tree weight to event prob. scale
   if(gOptGenUnscaled){
      double psc  = mcj_driver->GlobProbScale();
      ntpw.EventTree()->SetWeight(psc);
@@ -732,7 +732,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptInpXSecFile = "";
   }
 
-  // write unscaled weight option (required to correcly combine files generated with different E ranges/geometries)
+  // option to set event tree weight to event normalization
   gOptGenUnscaled = parser.OptionExists("gen-unscaled");
   
   //
