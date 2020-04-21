@@ -398,7 +398,7 @@ void GenerateEventsUsingFluxOrTgtMix(void)
   // if requested, set event normalization to 1
   if(gOptGenUnscaled){
      double psc  = mcj_driver->GlobProbScale();
-     ntpw.EventTree()->SetWeight(1.0/psc);
+     ntpw.EventTree()->SetWeight(psc);
   }
   
   // Save the generated MC events
