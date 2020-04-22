@@ -22,12 +22,12 @@
 #include <TMath.h>
 #include <TVector3.h>
 
-#include "../Interfaces/NuclearModelI.h"
-#include "Algorithm/AlgFactory.h"
-#include "Interaction/Target.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "Utils/PrintUtils.h"
+#include "Physics/NuclearState/NuclearModelI.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Framework/Interaction/Target.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/Utils/PrintUtils.h"
 
 using namespace genie;
 

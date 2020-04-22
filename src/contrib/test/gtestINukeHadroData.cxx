@@ -41,12 +41,12 @@ propagation.  Add photon and kaon xs ouputs.
 #include <string>
 #include <fstream>
 
-#include "Conventions/Constants.h"
-#include "HadronTransport/INukeHadroData.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/Spline.h"
-#include "PDG/PDGCodes.h"
-#include "Utils/CmdLnArgParser.h"
+#include "Framework/Conventions/Constants.h"
+#include "Physics/HadronTransport/INukeHadroData.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/Spline.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/Utils/CmdLnArgParser.h"
 
 #include <TSystem.h>
 #include <TFile.h>

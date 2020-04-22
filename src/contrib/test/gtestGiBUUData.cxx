@@ -22,11 +22,11 @@
 #include <TFile.h>
 #include <TTree.h>
 
-#include "BaryonResonance/BaryonResUtils.h"
-#include "GiBUU/GiBUUData.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/Spline.h"
-#include "PDG/PDGCodes.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
+#include "Physics/Resonance/XSection/GiBUURESFormFactor.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/Spline.h"
+#include "Framework/ParticleData/PDGCodes.h"
 
 using namespace genie;
 using namespace genie::utils;
@@ -45,9 +45,9 @@ void SaveToRootFile(void)
   // get GiBUU data
   //
 
-  GiBUUData * gd = GiBUUData::Instance();
+  GiBUURESFormFactor * gd = GiBUURESFormFactor::Instance();
 
-  const GiBUUData::FormFactors & ff = gd->FF();
+  const GiBUURESFormFactor::FormFactors & ff = gd->FF();
 
   //
   // define inputs

@@ -19,9 +19,9 @@
 #include <iomanip>
 #include <string>
 
-#include "Messenger/Messenger.h"
-#include "Utils/NaturalIsotopes.h"
-#include "PDG/PDGLibrary.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/NaturalIsotopes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "TParticlePDG.h"
 #include "TMath.h"
 

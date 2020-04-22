@@ -20,11 +20,11 @@
 #include <TFile.h>
 #include <TMath.h>
 
-#include "Algorithm/AlgFactory.h"
-#include "Messenger/Messenger.h"
-#include "PDF/PDFModelI.h"
-#include "PDF/LHAPDF5.h"
-#include "PDF/PDF.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/PartonDistributions/PDFModelI.h"
+#include "Physics/PartonDistributions/LHAPDF5.h"
+#include "Physics/PartonDistributions/PDF.h"
 
 using namespace genie;
 
