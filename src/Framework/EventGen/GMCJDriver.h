@@ -57,7 +57,9 @@ public :
   void UseSplines                  (bool useLogE = true);
   bool UseMaxPathLengths           (string xml_filename);
   void KeepOnThrowingFluxNeutrinos (bool keep_on);
+  void SetXSecSplineNbins          (int nbins);
   void SetPmaxLogBinning           (void);
+  void SetPmaxNbins                (int nbins);
   void SetPmaxSafetyFactor         (double sf);
   void ForceInteraction            (void);
   void ForceSingleProbScale        (void);
@@ -118,8 +120,10 @@ private:
   int             fSelTgtPdg;          ///< [current] selected target material PDG code
   map<int,double> fCurCumulProbMap;    ///< [current] cummulative interaction probabilities
   double          fNFluxNeutrinos;     ///< [current] number of flux nuetrinos fired by the flux driver so far 
+  int             fXSecSplineNbins;    ///< [config] number of bins in energy used in the xsec splines
   bool            fPmaxLogBinning;     ///< [config] maximum interaction probability is computed in logarithmic energy bins
-  double          fPmaxSafetyFactor;   ///< [config] safety factor to compute the interaction probability
+  int             fPmaxNbins;          ///< [config] number of bins in energy used in the maximum interaction probability
+  double          fPmaxSafetyFactor;   ///< [config] safety factor to compute the maximum interaction probability
   map<int,TH1D*>  fPmax;               ///< [computed at init] interaction probability scale /neutrino /energy for given geometry
   double          fGlobPmax;           ///< [computed at init] global interaction probability scale for given flux & geometry
   string          fEventGenList;       ///< [config] list of event generators loaded by this driver (what used to be the $GEVGL setting)

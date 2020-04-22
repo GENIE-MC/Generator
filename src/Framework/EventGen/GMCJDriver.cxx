@@ -125,15 +125,30 @@ void GMCJDriver::KeepOnThrowingFluxNeutrinos(bool keep_on)
   fKeepThrowingFluxNu = keep_on;
 }
 //___________________________________________________________________________
+void GMCJDriver::SetXSecSplineNbins(int nbins)
+{
+  fXSecSplineNbins = nbins;
+
+  LOG("GMCJDriver", pNOTICE)
+    << "Number of bins in energy used for the xsec splines: " 
+      << fXSecSplineNbins;
+}
+//___________________________________________________________________________
 void GMCJDriver::SetPmaxLogBinning()
 {
-// Use a single probability scale. That generates unweighted events.
-// (Note that generating unweighted event kinematics is a different thing)
-//
   fPmaxLogBinning = true;
 
   LOG("GMCJDriver", pNOTICE)
     << "Pmax will be store in histogram with logarithmic energy bins";
+}
+//___________________________________________________________________________
+void GMCJDriver::SetPmaxNbins(int nbins)
+{
+  fPmaxNbins = nbins;
+
+  LOG("GMCJDriver", pNOTICE)
+    << "Number of bins in energy used for maximum int. probability: " 
+      << fPmaxNbins;
 }
 //___________________________________________________________________________
 void GMCJDriver::SetPmaxSafetyFactor(double sf)
@@ -146,8 +161,7 @@ void GMCJDriver::SetPmaxSafetyFactor(double sf)
 //___________________________________________________________________________
 void GMCJDriver::ForceInteraction()
 {
-// Use a single probability scale. That generates unweighted events.
-// (Note that generating unweighted event kinematics is a different thing)
+// Force interaction in detector volume. That generates unweighted events.
 //
   fForceInteraction = true;
 
@@ -450,7 +464,9 @@ void GMCJDriver::InitJob(void)
   fUseSplines         = false;
   fNFluxNeutrinos     = 0;     // <-- number of flux neutrinos thrown so far
 
+  fXSecSplineNbins    = 100;   // <-- number of energy bins used in the xsec splines
   fPmaxLogBinning     = false; // <-- maximum interaction probability is computed in logarithmic energy bins
+  fPmaxNbins          = 300;   // <-- number of energy bins used in the maximum interaction probability
   fPmaxSafetyFactor   = 1.2;   // <-- safety factor to compute maximum interaction probability per neutrino & per energy bin
   fGlobPmax           = 0;     // <-- maximum interaction probability (global prob scale)
   fPmax.clear();               // <-- maximum interaction probability per neutrino & per energy bin
@@ -642,8 +658,7 @@ void GMCJDriver::BootstrapXSecSplineSummation(void)
     
     // in the logaritmic binning is important to have a narrow binning to
     // describe better the glashow resonance peak.
-    int nbins = (fPmaxLogBinning) ? 1000 : 100;
-    evgdriver->CreateXSecSumSpline(nbins,min,max,true);
+    evgdriver->CreateXSecSumSpline(fXSecSplineNbins,min,max,true);
   }
   LOG("GMCJDriver", pNOTICE)
      << "Finished summing all interaction xsec splines per initial state";
@@ -679,22 +694,22 @@ void GMCJDriver::ComputeProbScales(void)
     fPmax.clear();
   }
 
-  int n = 0;
-  double * ebins = new double[400];
+  double * ebins;
   if (fPmaxLogBinning) {
-    n = 300;
     double emin = 0.1;
-    double de = (TMath::Log10(fEmax) - TMath::Log10(emin)) / n;
-    for(int i=0; i<=n; i++) ebins[i] = TMath::Power(10., TMath::Log10(emin) + i * de);
+    double de = (TMath::Log10(fEmax) - TMath::Log10(emin)) / fPmaxNbins;
+    ebins = new double[fPmaxNbins+1];
+    for(int i=0; i<=fPmaxNbins; i++) ebins[i] = TMath::Power(10., TMath::Log10(emin) + i * de);
   }
   else {
     // for maximum interaction probability vs E /for given geometry/ I will
     // be using 300 bins up to the maximum energy for the input flux
-    double de   = fEmax/300.;//djk june 5, 2013
+    double de   = fEmax/fPmaxNbins;//djk june 5, 2013
     double emin = 0.0;
     double emax = fEmax + de;
-    n = 1 + (int) ((emax-emin)/de);
-    for(int i=0; i<n; i++) ebins[i] = emin + i * (emax-emin)/n;
+    fPmaxNbins++;
+    ebins = new double[fPmaxNbins+1];
+    for(int i=0; i<=fPmaxNbins; i++) ebins[i] = emin + i * (emax-emin)/fPmaxNbins;
   }
 
   PDGCodeList::const_iterator nuiter;
@@ -704,7 +719,7 @@ void GMCJDriver::ComputeProbScales(void)
   for(nuiter = fNuList.begin(); nuiter != fNuList.end(); ++nuiter) {
     int neutrino_pdgc = *nuiter;
     TH1D * pmax_hst = new TH1D("pmax_hst",
-             "max interaction probability vs E | geom",n,ebins);
+             "max interaction probability vs E | geom",fPmaxNbins,ebins);
     pmax_hst->SetDirectory(0);
 
     // loop over energy bins
@@ -762,6 +777,8 @@ void GMCJDriver::ComputeProbScales(void)
 
     fPmax.insert(map<int,TH1D*>::value_type(neutrino_pdgc,pmax_hst));
   } // nu
+
+  delete ebins;
 
   // Compute global probability scale
   // Sum Probabilities {
