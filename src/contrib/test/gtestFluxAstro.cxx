@@ -19,11 +19,11 @@
 #include <TFile.h>
 #include <TNtuple.h>
 
-#include "Conventions/Constants.h"
-#include "Conventions/Units.h"
-#include "FluxDrivers/GAstroFlux.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+#include "Tools/Flux/GAstroFlux.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
 
 using namespace genie;
 using namespace genie::flux;

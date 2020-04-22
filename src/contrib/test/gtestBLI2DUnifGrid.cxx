@@ -20,9 +20,9 @@
 #include <TFile.h>
 #include <TNtuple.h>
 
-#include "Messenger/Messenger.h"
-#include "Numerical/BLI2D.h"
-#include "Numerical/RandomGen.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/BLI2D.h"
+#include "Framework/Numerical/RandomGen.h"
 
 using namespace genie;
 

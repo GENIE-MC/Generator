@@ -21,13 +21,13 @@
 #include <TFile.h>
 #include <TNtupleD.h>
 
-#include "Algorithm/Algorithm.h"
-#include "Algorithm/AlgFactory.h"
-#include "ElFF/ELFormFactors.h"
-#include "ElFF/ELFormFactorsModelI.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Physics/QuasiElastic/XSection/ELFormFactors.h"
+#include "Physics/QuasiElastic/XSection/ELFormFactorsModelI.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
 
 using namespace genie;
 using std::string;

@@ -24,18 +24,18 @@
 #include <TParticlePDG.h>
 #include <TIterator.h>
 
-#include "Algorithm/Algorithm.h"
-#include "Algorithm/AlgFactory.h"
-#include "Conventions/Units.h"
-#include "Conventions/Constants.h"
-#include "Decay/Decayer.h"
-#include "Decay/PythiaDecayer.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Conventions/Constants.h"
+#include "Physics/Decay/Decayer.h"
+#include "Physics/Decay/PythiaDecayer.h"
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGLibrary.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 
 using namespace genie;
 

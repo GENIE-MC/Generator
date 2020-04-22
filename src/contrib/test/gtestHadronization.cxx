@@ -41,20 +41,20 @@
 #include <TClonesArray.h>
 #include <TIterator.h>
 
-#include "Algorithm/Algorithm.h"
-#include "Algorithm/AlgFactory.h"
-#include "Fragmentation/HadronizationModelI.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Physics/Hadronization/HadronizationModelI.h"
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
-#include "Interaction/ProcessInfo.h"
-#include "Interaction/InitialState.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "Utils/FragmRecUtils.h"
-#include "Utils/CmdLnArgParser.h"
+#include "Framework/Interaction/ProcessInfo.h"
+#include "Framework/Interaction/InitialState.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Physics/Hadronization/FragmRecUtils.h"
+#include "Framework/Utils/CmdLnArgParser.h"
 
 using std::string;
 using std::vector;

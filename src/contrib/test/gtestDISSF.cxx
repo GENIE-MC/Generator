@@ -33,13 +33,13 @@
 #include <TFile.h>
 #include <TTree.h>
 
-#include "Algorithm/Algorithm.h"
-#include "Algorithm/AlgFactory.h"
-#include "Base/DISStructureFunc.h"
-#include "Base/DISStructureFuncModelI.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "Utils/CmdLnArgParser.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Physics/DeepInelastic/XSection/DISStructureFunc.h"
+#include "Physics/DeepInelastic/XSection/DISStructureFuncModelI.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/Utils/CmdLnArgParser.h"
 
 using namespace genie;
 using std::string;

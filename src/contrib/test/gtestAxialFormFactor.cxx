@@ -38,20 +38,20 @@
 #include <TTree.h>
 //#include <TNtupleD.h>
 
-#include "Algorithm/Algorithm.h"
-#include "Algorithm/AlgFactory.h"
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/Constants.h"
-#include "GHEP/GHepParticle.h"
-#include "LlewellynSmith/AxialFormFactorModelI.h"
-#include "LlewellynSmith/AxialFormFactor.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGLibrary.h"
-#include "PDG/PDGUtils.h"
-#include "Utils/CmdLnArgParser.h"
-#include "Utils/StringUtils.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Physics/QuasiElastic/XSection/AxialFormFactorModelI.h"
+#include "Physics/QuasiElastic/XSection/AxialFormFactor.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Utils/CmdLnArgParser.h"
+#include "Framework/Utils/StringUtils.h"
 
 // number of coefficient values stored in tree
 #define MAX_COEF 3
