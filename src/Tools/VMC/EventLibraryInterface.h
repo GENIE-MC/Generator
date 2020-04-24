@@ -59,6 +59,8 @@ private:
   std::vector<TVector3> Basis(const TVector3& z) const;
 
   void LoadRecords() const;
+
+  mutable TFile* fRecordFile;
 };
 
 } // vmc namespace

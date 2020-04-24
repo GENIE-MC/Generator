@@ -25,13 +25,15 @@ using namespace genie::vmc;
 
 //____________________________________________________________________________
 EventLibraryInterface::EventLibraryInterface() :
-EventRecordVisitorI("genie::vmc::EventLibraryInterface")
+  EventRecordVisitorI("genie::vmc::EventLibraryInterface"),
+  fRecordFile(0)
 {
 
 }
 //____________________________________________________________________________
 EventLibraryInterface::EventLibraryInterface(string config) :
-EventRecordVisitorI("genie::vmc::EventLibraryInterface",config)
+  EventRecordVisitorI("genie::vmc::EventLibraryInterface", config),
+  fRecordFile(0)
 {
 
 }
@@ -39,6 +41,7 @@ EventRecordVisitorI("genie::vmc::EventLibraryInterface",config)
 EventLibraryInterface::~EventLibraryInterface()
 {
   for(auto it: fRecords) delete it.second;
+  delete fRecordFile;
 }
 //____________________________________________________________________________
 void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
@@ -189,6 +192,8 @@ void EventLibraryInterface::Configure(string config)
 //___________________________________________________________________________
 void EventLibraryInterface::LoadRecords() const
 {
+  assert(!fRecordFile);
+
   std::string libPath;
   if(!GetParamDef( "LibraryPath", libPath, std::string() )){
     LOG("ELI", pFATAL) << "Must specify 'LibraryPath'";
@@ -202,10 +207,10 @@ void EventLibraryInterface::LoadRecords() const
 
   PDGLibrary* pdglib = PDGLibrary::Instance();
 
-  TFile fin(libPath.c_str());
-  if(fin.IsZombie()) exit(1);
+  fRecordFile = new TFile(libPath.c_str());
+  if(fRecordFile->IsZombie()) exit(1);
 
-  TIter next(fin.GetListOfKeys());
+  TIter next(fRecordFile->GetListOfKeys());
   while(TObject* dir = next()){
     const std::string& tgtName = dir->GetName();
     const TParticlePDG* tgtPart = pdglib->DBase()->GetParticle(tgtName.c_str());
@@ -233,13 +238,13 @@ void EventLibraryInterface::LoadRecords() const
 
           const Key key(tgtPart->PdgCode(), sign*pdg, iscc);
 
-          TTree* tr = (TTree*)fin.Get(treeName.c_str());
+          TTree* tr = (TTree*)fRecordFile->Get(treeName.c_str());
+
           if(!tr){
             LOG("ELI", pINFO) << treeName << " not found in "
                               << libPath << " -- skipping";
             continue;
           }
-          tr->SetDirectory(0);
 
           if(onDemand)
             fRecords[key] = new OnDemandRecordList(tr, treeName);
@@ -249,4 +254,7 @@ void EventLibraryInterface::LoadRecords() const
       } // end for pdg
     } // end for sign
   } // end for iscc
+
+  // Need to keep the record file open for OnDemand, but not Simple
+  if(!onDemand){delete fRecordFile; fRecordFile = 0;}
 }
