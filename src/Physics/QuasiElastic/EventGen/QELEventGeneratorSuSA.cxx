@@ -95,6 +95,13 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
   Interaction * interaction = event->Summary();
   Kinematics * kinematics = interaction->KinePtr();
 
+  // Choose the appropriate minimum Q^2 value based on the interaction
+  // mode (this is important for EM interactions since the differential
+  // cross section blows up as Q^2 --> 0)
+  double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
+  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
+    ::electromagnetic::kMinQ2Limit; // EM limit
+
   // The SuSA 1p1h model kinematics works in a system where
   // the whole nuclear target system has no momentum.
   double Enu = interaction->InitState().ProbeE(kRfLab);
@@ -152,15 +159,13 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
 
   //e-scat xsecs blow up close to theta=0, MC methods won't work so well...
   // NOTE: SuSAv2 1p1h e-scatting has not been validated yet, use with caution
-  if (NuPDG==11){
-    maxIter *= 100000;
-    CosthMax=0.995;
+  if ( NuPDG==11 ) {
+    maxIter *= 1000;
+    CosthMax = 1.0;
   }
 
-  //Get Max XSec:
+  // Get Max XSec:
   double XSecMax = this->MaxXSec(event);
-  //if(!have_nucleus)  XSecMax*=50; // elastic case is super peaked
-
 
   // loop over different (randomly) selected T and Costh
   while (!accept) {
@@ -185,6 +190,10 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
       Plep = TMath::Sqrt( T * (T + (2.0 * LepMass)));  // ok is sqrt(E2 - m2)
       Q3 = TMath::Sqrt(Plep*Plep + Enu*Enu - 2.0 * Plep * Enu * Costh);
 
+      // Calculate what we need to enforce the minimum Q^2 cut
+      Q0 = Enu - (T + LepMass);
+      Q2 = Q3*Q3 - Q0*Q0;
+
       // Anti neutrino elastic scattering case - include delta in xsec
       if (!have_nucleus){
         genie::utils::mec::Getq0q3FromTlCostl(T, Costh, Enu, LepMass, Q0, Q3);
@@ -195,7 +204,8 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
       }
 
       // Don't bother doing hard work if the selected Q3 is greater than Q3Max
-      if (Q3 < fQ3Max){
+      // or if Q^2 is less than the minimum allowed value
+      if ( Q3 < fQ3Max && Q2 >= Q2min ){
 
           kinematics->SetKV(kKVTl, T);
           kinematics->SetKV(kKVctl, Costh);
@@ -636,81 +646,9 @@ double QELEventGeneratorSuSA::ComputeMaxXSec(
 // during subsequent event generation.
 // The computed max differential cross section does not need to be the exact
 // maximum. The number used in the rejection method will be scaled up by a
-// safety factor. But it needs to be fast - do not use a very small steps.
+// safety factor. But it needs to be fast - do not use very small steps.
 
-//*********************
-
-  int TgtPDG = interaction->InitState().TgtPdg();
-  bool have_nucleus = (TgtPDG!=kPdgTgtFreeP);
-  if ( !have_nucleus ) return this->ComputeMaxXSec_elas(interaction);
-
-  double max_xsec = 0.0;
-
-  int N  = 20;
-  int Nb = 12;
-
-  double xseclast = -1;
-  bool   increasing;
-
-  int N_T = 40;
-
-  double Enu = interaction->InitState().ProbeE(kRfLab);
-  double LepMass = interaction->FSPrimLepton()->Mass();
-  double TMax = Enu - LepMass;
-  double TMin = 0.0;
-
-  if(Enu < fQ3Max) TMin = 0 + kASmallNum;
-  else TMin = TMath::Sqrt(TMath::Power(LepMass, 2) + TMath::Power((Enu - fQ3Max), 2)) - LepMass;
-
-  for(int i_T=0; i_T<N_T; i_T++) {
-    double T = i_T * ((TMax-TMin)/N_T) + TMin;
-
-    const KPhaseSpace & kps = interaction->PhaseSpace();
-    Range1D_t rQ2 = kps.Limits(kKVQ2);
-    double logQ2min = TMath::Log(rQ2.min + kASmallNum);
-    double logQ2max = TMath::Log(rQ2.max - kASmallNum);
-    double dlogQ2   = (logQ2max - logQ2min) /(N-1);
-
-    for(int i=0; i<N; i++) {
-      double Q2 = TMath::Exp(logQ2min + i * dlogQ2);
-      // Calculate other useful values
-      double pl = TMath::Sqrt( T * (T + (2.0 * LepMass)));
-      double q0 = Enu - TMath::Sqrt(pl*pl+LepMass*LepMass);
-      double q3 = TMath::Sqrt(Q2+q0*q0);
-      double cthl = (pl*pl + Enu*Enu - q3*q3)/(2*pl*Enu);
-      // Define interaction kinematics
-      Kinematics * kinematics = interaction->KinePtr();
-      kinematics->SetKV(kKVQ2, Q2);
-      kinematics->SetKV(kKVTl, T);
-      kinematics->SetKV(kKVctl, cthl);
-      kinematics->SetKV(kKVv, q0);
-      //Get the xsec
-      double xsec = fXSecModel->XSec(interaction, kPSTlctl);
-      #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-        LOG("QELKinematics", pDEBUG)  << "xsec(Q2= " << Q2 << ") = " << xsec;
-      #endif
-      max_xsec = TMath::Max(xsec, max_xsec);
-      increasing = xsec-xseclast>=0;
-      xseclast   = xsec;
-
-      // once the cross section stops increasing, I reduce the step size and
-      // step backwards a little bit to handle cases that the max cross section
-      // is grossly underestimated (very peaky distribution & large step)
-      if(!increasing) {
-        dlogQ2/=(Nb+1);
-        for(int ib=0; ib<Nb; ib++) {
-         Q2 = TMath::Exp(TMath::Log(Q2) - dlogQ2);
-          if(Q2 < rQ2.min) continue;
-          interaction->KinePtr()->SetQ2(Q2);
-          xsec = fXSecModel->XSec(interaction, kPSTlctl);
-          #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-            LOG("QELKinematics", pDEBUG)  << "xsec(Q2= " << Q2 << ") = " << xsec;
-          #endif
-          max_xsec = TMath::Max(xsec, max_xsec);
-        }
-      }
-    }//Q^2
-  }//T
+  double max_xsec = utils::mec::GetMaxXSecTlctl( *fXSecModel, *interaction );
 
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy
@@ -723,86 +661,5 @@ double QELEventGeneratorSuSA::ComputeMaxXSec(
   #endif
 
   return max_xsec;
-
 }
-//___________________________________________________________________________
-double QELEventGeneratorSuSA::ComputeMaxXSec_elas(
-  const Interaction * interaction) const
-{
-  // Copied from QELKinematicsGenerator
-
-  LOG("QELKinematics", pDEBUG)  << "Running QELEventGeneratorSuSA::ComputeMaxXSec_elas" ;
-
-  double max_xsec = 0.0;
-
-  const KPhaseSpace & kps = interaction->PhaseSpace();
-  Range1D_t rQ2 = kps.Limits(kKVQ2);
-  if(rQ2.min <=0 || rQ2.max <= rQ2.min) return 0.;
-
-  const double logQ2min = TMath::Log(rQ2.min + kASmallNum);
-  const double logQ2max = TMath::Log(rQ2.max - kASmallNum);
-
-  const int N  = 15;
-  const int Nb = 10;
-
-  double dlogQ2   = (logQ2max - logQ2min) /(N-1);
-  double xseclast = -1;
-  bool   increasing;
-
-  double T=0;
-  double Costh=0;
-  double LepMass = interaction->FSPrimLepton()->Mass();
-  double Enu = interaction->InitState().ProbeE(kRfLab);
-
-  for(int i=0; i<N; i++) {
-     double Q2 = TMath::Exp(logQ2min + i * dlogQ2);
-     double Q0 = Q2/(2*kNucleonMass);
-     double Q3 = sqrt(Q0*Q0+2*kNucleonMass*Q0);
-     genie::utils::mec::GetTlCostlFromq0q3(Q0, Q3, Enu, LepMass, T, Costh);
-     Kinematics * kinematics = interaction->KinePtr();
-     kinematics->SetKV(kKVQ2, Q2);
-     kinematics->SetKV(kKVTl, T);
-     kinematics->SetKV(kKVctl, Costh);
-     kinematics->SetKV(kKVv, Q0);
-
-     double xsec = fXSecModel->XSec(interaction, kPSTlctl);
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("QELKinematics", pDEBUG)  << "xsec(Q2= " << Q2 << ") = " << xsec;
-#endif
-     max_xsec = TMath::Max(xsec, max_xsec);
-     increasing = xsec-xseclast>=0;
-     xseclast   = xsec;
-
-     // once the cross section stops increasing, I reduce the step size and
-     // step backwards a little bit to handle cases that the max cross section
-     // is grossly underestimated (very peaky distribution & large step)
-     if(!increasing) {
-       dlogQ2/=(Nb+1);
-       for(int ib=0; ib<Nb; ib++) {
-         Q2 = TMath::Exp(TMath::Log(Q2) - dlogQ2);
-         if(Q2 < rQ2.min) continue;
-         interaction->KinePtr()->SetQ2(Q2);
-         xsec = fXSecModel->XSec(interaction, kPSTlctl);
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-         LOG("QELKinematics", pDEBUG)  << "xsec(Q2= " << Q2 << ") = " << xsec;
-#endif
-         max_xsec = TMath::Max(xsec, max_xsec);
-       }
-       break;
-     }
-  }//Q^2
-
-  // Apply safety factor, since value retrieved from the cache might
-  // correspond to a slightly different energy
-  max_xsec *= fSafetyFactor;
-
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  SLOG("QELKinematics", pDEBUG) << interaction->AsString();
-  SLOG("QELKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
-  SLOG("QELKinematics", pDEBUG) << "Computed using alg = " << *fXSecModel;
-#endif
-
-  return max_xsec;
-}
-
 //___________________________________________________________________________
