@@ -145,6 +145,19 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
     return 0.0;
   }
 
+  // *** Enforce the global Q^2 cut (important for EM scattering) ***
+  // Choose the appropriate minimum Q^2 value based on the interaction
+  // mode (this is important for EM interactions since the differential
+  // cross section blows up as Q^2 --> 0)
+  double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
+  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
+    ::electromagnetic::kMinQ2Limit; // EM limit
+
+  // Neglect shift due to binding energy. The cut is on the actual
+  // value of Q^2, not the effective one to use in the tensor contraction.
+  double Q2 = Q3*Q3 - Q0*Q0;
+  if ( Q2 < Q2min ) return 0.;
+
   // Compute the cross section using the hadron tensor
   double xsec = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value);
   LOG("SuSAv2QE", pDEBUG) << "XSec in cm2 / neutron is  " << xsec/(units::cm2);
