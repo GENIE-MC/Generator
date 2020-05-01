@@ -46,6 +46,7 @@
 
 
 #include "Framework/Utils/Range1.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 #include "Physics/QuasiElastic/XSection/SmithMonizUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/Cache.h"
@@ -304,7 +305,11 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
   }
   TLorentzVector x4l(*(evrec->Probe())->X4());
 
+  // Add the final-state lepton to the event record
   evrec->AddParticle(interaction->FSPrimLeptonPdg(), kIStStableFinalState, evrec->ProbePosition(),-1,-1,-1, outLeptonMom, x4l);
+
+  // Set its polarization
+  utils::SetPrimaryLeptonPolarization( evrec );
 
   GHepStatus_t ist;
   if (!fGenerateNucleonInNucleus)

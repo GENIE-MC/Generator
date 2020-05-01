@@ -25,6 +25,7 @@
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/Messenger/Messenger.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 #include "Physics/Multinucleon/EventGen/MECGenerator.h"
 
 #include "Physics/NuclearState/NuclearModelI.h"
@@ -367,9 +368,13 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * event) const
   // Lepton 4-position (= interacton vtx)
   TLorentzVector v4(*event->Probe()->X4());
 
+  // Add the final-state lepton to the event record
   int momidx = event->ProbePosition();
   event->AddParticle(
     pdgc, kIStStableFinalState, momidx, -1, -1, -1, p4l, v4);
+
+  // Set its polarization
+  utils::SetPrimaryLeptonPolarization( event );
 }
 //___________________________________________________________________________
 void MECGenerator::RecoilNucleonCluster(GHepRecord * event) const
@@ -851,6 +856,9 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 
   // -- Lepton
   event->AddParticle( pdgc, kIStStableFinalState, momidx, -1, -1, -1, p4l, v4);
+
+  // Set the final-state lepton polarization
+  utils::SetPrimaryLeptonPolarization( event );
 
   LOG("MEC",pDEBUG) << "~~~ LEPTON DONE ~~~";
 }
