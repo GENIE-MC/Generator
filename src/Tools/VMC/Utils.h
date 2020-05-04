@@ -6,7 +6,6 @@
 namespace genie{
 namespace vmc{
 
-// TODO is there a built-in tool for doing this?
 void Expand(std::string& s);
 
 }}

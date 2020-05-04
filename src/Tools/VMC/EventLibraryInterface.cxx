@@ -75,7 +75,8 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
   const int tgt_A    = init_state.Tgt().A();
   const int tgt_Z    = init_state.Tgt().Z();
   const int tgt_pdgc = pdg::IonPdgCode(tgt_A, tgt_Z);
-  // TODO why was that not just init_state.TgtPdg()?
+  // REVIEW: it was like this in Costas' example code. Can it just be
+  // init_state.TgtPdg()?
 
   LOG("ELI", pINFO)
     << "Adding nucleus [A = " << tgt_A << ", Z = " << tgt_Z

@@ -32,7 +32,11 @@ InteractionList * EvtLibInteractionListGenerator::CreateInteractionList(
 {
   InteractionList * intlist = new InteractionList;
 
-  // TODO all these arbitrary choices seems to be required to be able to pick a spline
+  // REVIEW these are all these arbitrary choices, but seems to be required to
+  // be able to succesfully pick a spline. Perhaps it would be better to add
+  // new enum entries for "unspecified because it came from an external
+  // library"?
+
   ProcessInfo proc_info_cc(kScQuasiElastic, kIntWeakCC);
   Interaction* interaction_cc = new Interaction(init_state, proc_info_cc);
   interaction_cc->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgNeutron);

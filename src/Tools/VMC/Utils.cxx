@@ -5,7 +5,7 @@
 #include <wordexp.h>
 
 //___________________________________________________________________________
-// TODO is there a built-in tool for doing this?
+// REVIEW is there a built-in tool for doing this?
 void genie::vmc::Expand(std::string& s)
 {
   wordexp_t p;
