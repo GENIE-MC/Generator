@@ -44,6 +44,9 @@ namespace vmc{
     virtual const EvtLibRecord* GetRecord(float E) const = 0;
   };
 
+  /// Maximum number of particles supported in a single library event record
+  const int kEvtLibMaxParts = 1024;
+
   //---------------------------------------------------------------------------
   /// Helper for \ref SimpleRecordList and \ref OnDemandRecordList
   class RecordLoader
@@ -57,11 +60,12 @@ namespace vmc{
   protected:
     TTree* fTree;
 
-    float Enu;//, weight;
+    float Enu;
     int prod_id;
     int nparts;
-    int pdgs[1024];
-    float Es[1024], px[1024], py[1024], pz[1024];
+    int pdgs[kEvtLibMaxParts];
+    float Es[kEvtLibMaxParts];
+    float px[kEvtLibMaxParts], py[kEvtLibMaxParts], pz[kEvtLibMaxParts];
   };
 
   //---------------------------------------------------------------------------

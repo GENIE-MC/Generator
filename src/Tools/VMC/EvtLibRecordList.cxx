@@ -64,8 +64,14 @@ namespace vmc{
   {
     fTree->GetEntry(i);
 
-    if(nparts > 1024){
-      LOG("ELI", pFATAL) << "Too many particles " << nparts;
+    // The event library ROOT format is as minimalistic as possible. We use
+    // variable-sized arrays for the particle list. Because the address of
+    // `parts` had to be provided to SetBranchAddress up-front we had to pick
+    // a fixed size. If the list was actually longer we're in trouble and
+    // should bail out. This seems extremely unlikely to be a problem in
+    // practice, and we can always increase the constant to something larger.
+    if(nparts > kEvtLibMaxParts){
+      LOG("ELI", pFATAL) << "Too many particles " << nparts << "(limit " << kEvtLibMaxParts << ")";
       exit(1);
     }
 
