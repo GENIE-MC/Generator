@@ -8,7 +8,7 @@
 class TGraph;
 
 namespace genie {
-namespace vmc {
+namespace evtlib {
 
 class EvtLibPXSec : public XSecAlgorithmI {
 
@@ -35,7 +35,7 @@ protected:
   std::map<Key, TGraph*> fXSecs;
 };
 
-} // vmc namespace
+} // evtlib namespace
 } // genie namespace
 
 #endif

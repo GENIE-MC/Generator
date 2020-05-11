@@ -13,7 +13,7 @@
 #include <iostream>
 
 namespace genie{
-namespace vmc{
+namespace evtlib{
   //---------------------------------------------------------------------------
   EvtLibRecord::EvtLibRecord() : E(0)
   {

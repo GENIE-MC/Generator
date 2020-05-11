@@ -5,10 +5,10 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace genie;
-#pragma link C++ namespace genie::vmc;
+#pragma link C++ namespace genie::evtlib;
 
-#pragma link C++ class genie::vmc::EventLibraryInterface;
-#pragma link C++ class genie::vmc::EvtLibInteractionListGenerator;
-#pragma link C++ class genie::vmc::EvtLibPXSec;
+#pragma link C++ class genie::evtlib::EventLibraryInterface;
+#pragma link C++ class genie::evtlib::EvtLibInteractionListGenerator;
+#pragma link C++ class genie::evtlib::EvtLibPXSec;
 
 #endif

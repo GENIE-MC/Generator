@@ -9,18 +9,18 @@
 #include "TGraph.h"
 
 using namespace genie;
-using namespace genie::vmc;
+using namespace genie::evtlib;
 
 //____________________________________________________________________________
 EvtLibPXSec::EvtLibPXSec() :
-XSecAlgorithmI("genie::vmc::EvtLibPXSec")
+XSecAlgorithmI("genie::evtlib::EvtLibPXSec")
 {
 
 }
 
 //____________________________________________________________________________
 EvtLibPXSec::EvtLibPXSec(string config) :
-XSecAlgorithmI("genie::vmc::EvtLibPXSec", config)
+XSecAlgorithmI("genie::evtlib::EvtLibPXSec", config)
 {
 
 }

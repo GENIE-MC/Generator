@@ -12,7 +12,7 @@ class TFile;
 class TTree;
 
 namespace genie{
-namespace vmc{
+namespace evtlib{
 
   //---------------------------------------------------------------------------
   struct EvtLibParticle

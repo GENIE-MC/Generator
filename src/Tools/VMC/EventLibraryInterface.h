@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::vmc::EventLibraryInterface
+\class    genie::evtlib::EventLibraryInterface
 
 \brief    Reads pre-generated events produced by an external generator.
           On an event-by-event basis, it can accept GENIE input specifying
@@ -30,7 +30,7 @@ namespace genie {
 
 class Interaction;
 
-namespace vmc {
+namespace evtlib {
 
 class IEvtLibRecordList;
 class EvtLibRecord;
@@ -64,7 +64,7 @@ private:
   TFile* fRecordFile;
 };
 
-} // vmc namespace
+} // evtlib namespace
 } // genie namespace
 
 #endif // _EVENT_LIBRARY_INTERFACE_H_

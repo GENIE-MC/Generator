@@ -4,7 +4,7 @@
 #include "Framework/EventGen/InteractionListGeneratorI.h"
 
 namespace genie {
-namespace vmc {
+namespace evtlib {
 
 class EvtLibInteractionListGenerator : public InteractionListGeneratorI {
 
@@ -22,7 +22,7 @@ public :
   void Configure(string config);
 };
 
-} // vmc namespace
+} // evtlib namespace
 } // genie namespace
 
 #endif // _EVTLIB_INTERACTION_GENERATOR_H_

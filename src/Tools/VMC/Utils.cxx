@@ -5,7 +5,7 @@
 #include <wordexp.h>
 
 //___________________________________________________________________________
-void genie::vmc::Expand(std::string& s)
+void genie::evtlib::Expand(std::string& s)
 {
   wordexp_t p;
   const int status = wordexp(s.c_str(), &p, WRDE_SHOWERR | WRDE_UNDEF);

@@ -4,7 +4,7 @@
 #include <string>
 
 namespace genie{
-namespace vmc{
+namespace evtlib{
 
 /// \brief Expand env vars/homedirs/wildcards in \a s
 ///

@@ -4,7 +4,7 @@
 #include <ostream>
 
 namespace genie{
-namespace vmc{
+namespace evtlib{
 
 struct Key
 {

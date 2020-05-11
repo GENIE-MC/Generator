@@ -7,17 +7,17 @@
 #include "Framework/ParticleData/PDGUtils.h"
 
 using namespace genie;
-using namespace genie::vmc;
+using namespace genie::evtlib;
 
 //___________________________________________________________________________
 EvtLibInteractionListGenerator::EvtLibInteractionListGenerator() :
-InteractionListGeneratorI("genie::vmc::EvtLibInteractionListGenerator")
+InteractionListGeneratorI("genie::evtlib::EvtLibInteractionListGenerator")
 {
 
 }
 //___________________________________________________________________________
 EvtLibInteractionListGenerator::EvtLibInteractionListGenerator(string config):
-InteractionListGeneratorI("genie::vmc::EvtLibInteractionListGenerator",  config)
+InteractionListGeneratorI("genie::evtlib::EvtLibInteractionListGenerator",  config)
 {
 
 }

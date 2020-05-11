@@ -21,11 +21,11 @@
 #include "TFile.h"
 
 using namespace genie;
-using namespace genie::vmc;
+using namespace genie::evtlib;
 
 //____________________________________________________________________________
 EventLibraryInterface::EventLibraryInterface() :
-  EventRecordVisitorI("genie::vmc::EventLibraryInterface"),
+  EventRecordVisitorI("genie::evtlib::EventLibraryInterface"),
   fRecordFile(0)
 {
 
@@ -33,7 +33,7 @@ EventLibraryInterface::EventLibraryInterface() :
 
 //____________________________________________________________________________
 EventLibraryInterface::EventLibraryInterface(string config) :
-  EventRecordVisitorI("genie::vmc::EventLibraryInterface", config),
+  EventRecordVisitorI("genie::evtlib::EventLibraryInterface", config),
   fRecordFile(0)
 {
 
