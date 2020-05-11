@@ -196,15 +196,11 @@ void EventLibraryInterface::LoadRecords() const
   assert(!fRecordFile);
 
   std::string libPath;
-  if(!GetParamDef( "LibraryPath", libPath, std::string() )){
-    LOG("ELI", pFATAL) << "Must specify 'LibraryPath'";
-    exit(1);
-  }
-
+  GetParam("LibraryPath", libPath);
   Expand(libPath);
 
   bool onDemand;
-  GetParamDef( "OnDemand", onDemand, true );
+  GetParam("OnDemand", onDemand);
 
   PDGLibrary* pdglib = PDGLibrary::Instance();
 
