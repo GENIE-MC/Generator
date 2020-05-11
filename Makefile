@@ -31,7 +31,7 @@ INITIAL_BUILD_TARGETS = print-make-info \
 		   physics-boosted-dark-matter \
 		   tools-flux-drivers \
 		   tools-geometry-drivers \
-		   tools-vmc \
+		   tools-evtlib \
 		   tools-masterclass
 FINAL_BUILD_TARGETS = doxygen-doc \
 		   apps \
@@ -203,7 +203,7 @@ else
 	@echo "** Building geometry-drivers was not enabled. Skipping..."
 endif
 
-tools-vmc: FORCE
+tools-evtlib: FORCE
 #ifeq ($(strip $(GOPT_ENABLE_EvtLib)),YES)
 	@echo " "
 	@echo "** Building EvtLib..."
