@@ -2,6 +2,8 @@
 
 <alg_conf>
   <param_set name="Default">
+    <!-- This parameter supports env var expansion, like
+    $MY_LIB_DIR/my_lib.root -->
     <param type="string" name="EventLibraryPath"> Dummy.root </param>
   </param_set>
 </alg_conf>
