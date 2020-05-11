@@ -90,7 +90,8 @@ void EvtLibPXSec::LoadXSecs() const
     for(int sign: {+1, -1}){
       for(int pdg: {12, 14, 16}){
         for(bool iscc: {true, false}){
-          // NCs should be the same for all flavours. Use numu by convention.
+          // NCs should be the same for all flavours. Use nu_mu as a
+          // convention internal to this code to index into the xsecs map.
           if(!iscc && pdg != 14) continue;
 
           std::string nuName = pdglib->Find(sign*pdg)->GetName();

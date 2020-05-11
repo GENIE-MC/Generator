@@ -138,7 +138,8 @@ GetRecord(const Interaction* interaction) const
 
   int probe_pdgc = init_state.ProbePdg();
 
-  // Use nu_mu for NC by convention
+  // Use nu_mu for NC as a convention internal to this code to index into the
+  // records map.
   if(proc.IsWeakNC()){
     if(probe_pdgc > 0) probe_pdgc = +14; else probe_pdgc = -14;
   }
@@ -222,7 +223,8 @@ void EventLibraryInterface::LoadRecords() const
     for(int sign: {+1, -1}){
       for(int pdg: {12, 14, 16}){
         for(bool iscc: {true, false}){
-          // NCs should be the same for all flavours. Use numu by convention.
+          // NCs should be the same for all flavours. Use nu_mu as a
+          // convention internal to this code to index into the records map.
           if(!iscc && pdg != 14) continue;
 
           std::string nuName = pdglib->Find(sign*pdg)->GetName();
