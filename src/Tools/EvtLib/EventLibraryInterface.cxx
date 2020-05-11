@@ -92,6 +92,13 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
                      0, 0, 0, PDGLibrary::Instance()->Find(tgt_pdgc)->Mass(),
                      0, 0, 0, 0);
 
+  // Include nuclear target in this position (2) by convention
+  event->AddParticle(init_state.Tgt().HitNucPdg(),
+                     kIStNucleonTarget,
+                     -1, -1, firstHad, lastHad,
+                     0, 0, 0, init_state.Tgt().HitNucMass(),
+                     0, 0, 0, 0);
+
   const std::vector<TVector3> basis = Basis(probe_p4->Vect());
 
   TLorentzVector lep_p4;
