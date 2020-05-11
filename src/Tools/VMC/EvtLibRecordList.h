@@ -28,7 +28,7 @@ namespace vmc{
     EvtLibRecord(float _E, int _prod_id,
                  const std::vector<EvtLibParticle>& _ps);
 
-    /// Order by energy
+    /// Order by energy - this allows OnDemandRecordList to work efficiently
     bool operator<(const EvtLibRecord& rhs) const;
 
     float E;
