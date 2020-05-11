@@ -2,6 +2,6 @@
 
 <alg_conf>
   <param_set name="Default">
-    <param type="string" name="LibraryPath"> Dummy.root </param>
+    <param type="string" name="EventLibraryPath"> Dummy.root </param>
   </param_set>
 </alg_conf>

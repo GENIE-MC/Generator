@@ -68,7 +68,7 @@ void EvtLibPXSec::Configure(string config)
 void EvtLibPXSec::LoadXSecs() const
 {
   std::string libPath;
-  GetParam( "LibraryPath", libPath);
+  GetParam("EventLibraryPath", libPath);
   Expand(libPath);
 
   PDGLibrary* pdglib = PDGLibrary::Instance();

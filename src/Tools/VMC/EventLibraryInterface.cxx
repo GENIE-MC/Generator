@@ -196,7 +196,7 @@ void EventLibraryInterface::LoadRecords() const
   assert(!fRecordFile);
 
   std::string libPath;
-  GetParam("LibraryPath", libPath);
+  GetParam("EventLibraryPath", libPath);
   Expand(libPath);
 
   bool onDemand;
