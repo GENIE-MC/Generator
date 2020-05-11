@@ -30,6 +30,7 @@ EventLibraryInterface::EventLibraryInterface() :
 {
 
 }
+
 //____________________________________________________________________________
 EventLibraryInterface::EventLibraryInterface(string config) :
   EventRecordVisitorI("genie::vmc::EventLibraryInterface", config),
@@ -37,12 +38,13 @@ EventLibraryInterface::EventLibraryInterface(string config) :
 {
 
 }
+
 //____________________________________________________________________________
 EventLibraryInterface::~EventLibraryInterface()
 {
-  for(auto it: fRecords) delete it.second;
-  delete fRecordFile;
+  Cleanup();
 }
+
 //____________________________________________________________________________
 void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
 {
@@ -116,8 +118,6 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
 const EvtLibRecord* EventLibraryInterface::
 GetRecord(const Interaction* interaction) const
 {
-  if(fRecords.empty()) LoadRecords();
-
   const InitialState& init_state = interaction->InitState();
 
   const double probe_E = init_state.ProbeE(kRfLab);
@@ -182,20 +182,32 @@ std::vector<TVector3> EventLibraryInterface::Basis(const TVector3& z) const
 }
 
 //____________________________________________________________________________
-void EventLibraryInterface::Configure(const Registry & config)
+void EventLibraryInterface::Configure(const Registry& config)
 {
   Algorithm::Configure(config);
+  LoadRecords();
 }
+
 //___________________________________________________________________________
 void EventLibraryInterface::Configure(string config)
 {
   Algorithm::Configure(config);
+  LoadRecords();
 }
 
 //___________________________________________________________________________
-void EventLibraryInterface::LoadRecords() const
+void EventLibraryInterface::Cleanup()
 {
-  assert(!fRecordFile);
+  for(auto it: fRecords) delete it.second;
+  fRecords.clear();
+  delete fRecordFile;
+  fRecordFile = 0;
+}
+
+//___________________________________________________________________________
+void EventLibraryInterface::LoadRecords()
+{
+  Cleanup();
 
   std::string libPath;
   GetParam("EventLibraryPath", libPath);

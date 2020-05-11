@@ -51,16 +51,17 @@ public:
   void Configure(string config);
 
 private:
-  mutable std::map<Key, const IEvtLibRecordList*> fRecords;
-
   const EvtLibRecord* GetRecord(const Interaction* interaction) const;
 
   /// Return a random (x,y,z) basis with z aligned with the input vector
   std::vector<TVector3> Basis(const TVector3& z) const;
 
-  void LoadRecords() const;
+  void LoadRecords();
 
-  mutable TFile* fRecordFile;
+  void Cleanup();
+
+  std::map<Key, const IEvtLibRecordList*> fRecords;
+  TFile* fRecordFile;
 };
 
 } // vmc namespace
