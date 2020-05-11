@@ -15,7 +15,7 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Tools/VMC/EventLibraryInterface.h"
-#include "Tools/VMC/RecordList.h"
+#include "Tools/VMC/EvtLibRecordList.h"
 #include "Tools/VMC/Utils.h"
 
 #include "TFile.h"
@@ -51,13 +51,13 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
   Interaction* interaction = event->Summary();
   const InitialState & init_state = interaction->InitState();
 
-  const Record* rec = GetRecord(interaction);
+  const EvtLibRecord* rec = GetRecord(interaction);
   if(!rec) return; // Reason has already been printed
 
   std::unique_ptr<TLorentzVector> probe_p4(init_state.GetProbeP4(kRfLab));
 
   unsigned int nLep = 0;
-  for(const Particle& part: rec->parts) if(pdg::IsLepton(part.pdg)) ++nLep;
+  for(const EvtLibParticle& part: rec->parts) if(pdg::IsLepton(part.pdg)) ++nLep;
 
   const int firstLep = (nLep == 0) ? -1 : 2;
   const int lastLep  = (nLep == 0) ? -1 : 1+nLep;
@@ -92,7 +92,7 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
   const std::vector<TVector3> basis = Basis(probe_p4->Vect());
 
   for(bool lep: {true, false}){ // make sure lepton in first
-    for(const Particle& part: rec->parts){
+    for(const EvtLibParticle& part: rec->parts){
       if(lep != pdg::IsLepton(part.pdg)) continue;
 
       // Fix up the outgoing lepton for NC events (in the library it's always
@@ -113,7 +113,8 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
 }
 
 //____________________________________________________________________________
-const Record* EventLibraryInterface::GetRecord(const Interaction* interaction) const
+const EvtLibRecord* EventLibraryInterface::
+GetRecord(const Interaction* interaction) const
 {
   if(fRecords.empty()) LoadRecords();
 
@@ -151,7 +152,7 @@ const Record* EventLibraryInterface::GetRecord(const Interaction* interaction) c
     return 0;
   }
 
-  const Record* rec = rec_it->second->GetRecord(probe_E);
+  const EvtLibRecord* rec = rec_it->second->GetRecord(probe_E);
 
   if(!rec){
     LOG("ELI", pINFO) << "Skippping " << key << " at " << probe_E << " GeV -- not found in library";

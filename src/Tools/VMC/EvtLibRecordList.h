@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////
-// \author Christopher Backhouse -- c.backhouse@ucl.ac.uk
+// \author Chris Backhouse -- c.backhouse@ucl.ac.uk
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef _RECORDLIST_H
-#define _RECORDLIST_H
+#ifndef _EVTLIBRECORDLIST_H
+#define _EVTLIBRECORDLIST_H
 
 #include <vector>
 #include <string>
@@ -13,34 +13,35 @@ class TTree;
 
 namespace genie{
 namespace vmc{
+
   //---------------------------------------------------------------------------
-  struct Particle
+  struct EvtLibParticle
   {
     int pdg;
     float E, px, py, pz;
   };
 
   //---------------------------------------------------------------------------
-  struct Record
+  struct EvtLibRecord
   {
-    Record();
-    Record(float _E, /*float _w,*/ int _prod_id, const std::vector<Particle>& _ps);
+    EvtLibRecord();
+    EvtLibRecord(float _E, int _prod_id,
+                 const std::vector<EvtLibParticle>& _ps);
 
     /// Order by energy
-    bool operator<(const Record& rhs) const;
+    bool operator<(const EvtLibRecord& rhs) const;
 
     float E;
-    //    float weight;
     int prod_id;
-    std::vector<Particle> parts;
+    std::vector<EvtLibParticle> parts;
   };
 
   //---------------------------------------------------------------------------
-  class IRecordList
+  class IEvtLibRecordList
   {
   public:
-    virtual ~IRecordList(){}
-    virtual const Record* GetRecord(float E) const = 0;
+    virtual ~IEvtLibRecordList(){}
+    virtual const EvtLibRecord* GetRecord(float E) const = 0;
   };
 
   //---------------------------------------------------------------------------
@@ -48,11 +49,11 @@ namespace vmc{
   class RecordLoader
   {
   public:
-    RecordLoader(TTree* tree);//const std::string& fname, const std::string& trName);
+    RecordLoader(TTree* tree);
     ~RecordLoader();
 
     long NRecords() const;
-    Record GetRecord(int i) const;
+    EvtLibRecord GetRecord(int i) const;
   protected:
     TTree* fTree;
 
@@ -64,25 +65,25 @@ namespace vmc{
   };
 
   //---------------------------------------------------------------------------
-  class SimpleRecordList: public IRecordList
+  class SimpleRecordList: public IEvtLibRecordList
   {
   public:
     SimpleRecordList(TTree* tree, const std::string& prettyName);
     virtual ~SimpleRecordList(){}
 
-    const Record* GetRecord(float E) const override;
+    const EvtLibRecord* GetRecord(float E) const override;
   protected:
-    std::vector<Record> fRecs;
+    std::vector<EvtLibRecord> fRecs;
   };
 
   //---------------------------------------------------------------------------
-  class OnDemandRecordList: public IRecordList
+  class OnDemandRecordList: public IEvtLibRecordList
   {
   public:
     OnDemandRecordList(TTree* tree, const std::string& prettyName);
     virtual ~OnDemandRecordList(){}
 
-    const Record* GetRecord(float E) const override;
+    const EvtLibRecord* GetRecord(float E) const override;
   protected:
     void LoadIndex() const;
 
@@ -92,7 +93,7 @@ namespace vmc{
 
     mutable std::vector<std::pair<float, int>> fEnergies;
 
-    mutable Record fRecord;
+    mutable EvtLibRecord fRecord;
   };
 
 }} // namespaces

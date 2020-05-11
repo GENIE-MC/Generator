@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////
-// \author Christopher Backhouse -- c.backhouse@ucl.ac.uk
+// \author Chris Backhouse -- c.backhouse@ucl.ac.uk
 ////////////////////////////////////////////////////////////////////////
 
-#include "Tools/VMC/RecordList.h"
+#include "Tools/VMC/EvtLibRecordList.h"
 
 #include "Framework/Messenger/Messenger.h"
 
@@ -15,18 +15,19 @@
 namespace genie{
 namespace vmc{
   //---------------------------------------------------------------------------
-  Record::Record() : E(0)/*, weight(0)*/
+  EvtLibRecord::EvtLibRecord() : E(0)
   {
   }
 
   //---------------------------------------------------------------------------
-    Record::Record(float _E, /*float _w,*/ int _prod_id, const std::vector<Particle>& _ps)
-      : E(_E), /*weight(_w),*/ prod_id(_prod_id), parts(_ps)
+  EvtLibRecord::EvtLibRecord(float _E, int _prod_id,
+                             const std::vector<EvtLibParticle>& _ps)
+    : E(_E), prod_id(_prod_id), parts(_ps)
   {
   }
 
   //---------------------------------------------------------------------------
-  bool Record::operator<(const Record& rhs) const
+  bool EvtLibRecord::operator<(const EvtLibRecord& rhs) const
   {
     return E < rhs.E;
   }
@@ -36,7 +37,6 @@ namespace vmc{
     : fTree(tree)
   {
     fTree->SetBranchAddress("Enu", &Enu);
-//    fTree->SetBranchAddress("weight", &weight);
     fTree->SetBranchAddress("prod_id", &prod_id);
 
     fTree->SetBranchAddress("nparts", &nparts);
@@ -60,7 +60,7 @@ namespace vmc{
   }
 
   //---------------------------------------------------------------------------
-  Record RecordLoader::GetRecord(int i) const
+  EvtLibRecord RecordLoader::GetRecord(int i) const
   {
     fTree->GetEntry(i);
 
@@ -69,7 +69,7 @@ namespace vmc{
       exit(1);
     }
 
-    std::vector<Particle> parts(nparts);
+    std::vector<EvtLibParticle> parts(nparts);
     for(int j = 0; j < nparts; ++j){
       parts[j].pdg = pdgs[j];
       parts[j].E = Es[j];
@@ -78,7 +78,7 @@ namespace vmc{
       parts[j].pz = pz[j];
     } // end for j
 
-    return Record(Enu, /*weight,*/ prod_id, parts);
+    return EvtLibRecord(Enu, prod_id, parts);
   }
 
   //---------------------------------------------------------------------------
@@ -100,9 +100,10 @@ namespace vmc{
   }
 
   //---------------------------------------------------------------------------
-  const Record* SimpleRecordList::GetRecord(float E) const
+  const EvtLibRecord* SimpleRecordList::GetRecord(float E) const
   {
-    auto it = std::lower_bound(fRecs.begin(), fRecs.end(), Record(E, /*0,*/ 0, {}));
+    auto it = std::lower_bound(fRecs.begin(), fRecs.end(),
+                               EvtLibRecord(E, 0, {}));
     if(it == fRecs.end()) return 0;
     return &(*it);
   }
@@ -136,7 +137,7 @@ namespace vmc{
   }
 
   //---------------------------------------------------------------------------
-  const Record* OnDemandRecordList::GetRecord(float E) const
+  const EvtLibRecord* OnDemandRecordList::GetRecord(float E) const
   {
     if(fEnergies.empty()) LoadIndex();
 

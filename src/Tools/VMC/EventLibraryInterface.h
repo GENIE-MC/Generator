@@ -32,8 +32,8 @@ class Interaction;
 
 namespace vmc {
 
-class IRecordList;
-class Record;
+class IEvtLibRecordList;
+class EvtLibRecord;
 
 class EventLibraryInterface: public EventRecordVisitorI {
 
@@ -51,9 +51,9 @@ public:
   void Configure(string config);
 
 private:
-  mutable std::map<Key, const IRecordList*> fRecords;
+  mutable std::map<Key, const IEvtLibRecordList*> fRecords;
 
-  const Record* GetRecord(const Interaction* interaction) const;
+  const EvtLibRecord* GetRecord(const Interaction* interaction) const;
 
   /// Return a random (x,y,z) basis with z aligned with the input vector
   std::vector<TVector3> Basis(const TVector3& z) const;
