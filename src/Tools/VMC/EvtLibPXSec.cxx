@@ -17,17 +17,20 @@ XSecAlgorithmI("genie::vmc::EvtLibPXSec")
 {
 
 }
+
 //____________________________________________________________________________
 EvtLibPXSec::EvtLibPXSec(string config) :
 XSecAlgorithmI("genie::vmc::EvtLibPXSec", config)
 {
 
 }
+
 //____________________________________________________________________________
 EvtLibPXSec::~EvtLibPXSec()
 {
-
+  ClearXSecs();
 }
+
 //____________________________________________________________________________
 double EvtLibPXSec::XSec(const Interaction* /*in*/,
                          KinePhaseSpace_t /*kps*/) const
@@ -48,25 +51,39 @@ double EvtLibPXSec::Integral(const Interaction* in) const
 
   return g->Eval(E) * target.N() * 1e-38 * genie::units::cm2;
 }
+
 //____________________________________________________________________________
 bool EvtLibPXSec::ValidProcess(const Interaction* /*in*/) const
 {
   return true;
 }
+
 //____________________________________________________________________________
-void EvtLibPXSec::Configure(const Registry & config)
+void EvtLibPXSec::Configure(const Registry& config)
 {
   Algorithm::Configure(config);
+  LoadXSecs();
 }
+
 //____________________________________________________________________________
 void EvtLibPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
+  LoadXSecs();
 }
 
 //____________________________________________________________________________
-void EvtLibPXSec::LoadXSecs() const
+void EvtLibPXSec::ClearXSecs()
 {
+  for(auto it: fXSecs) delete it.second;
+  fXSecs.clear();
+}
+
+//____________________________________________________________________________
+void EvtLibPXSec::LoadXSecs()
+{
+  ClearXSecs();
+
   std::string libPath;
   GetParam("EventLibraryPath", libPath);
   Expand(libPath);
@@ -122,8 +139,6 @@ void EvtLibPXSec::LoadXSecs() const
 //____________________________________________________________________________
 TGraph* EvtLibPXSec::GetXSec(const Interaction* in) const
 {
-  if(fXSecs.empty()) LoadXSecs();
-
   const InitialState& init_state = in->InitState();
 
   const ProcessInfo& proc = in->ProcInfo();

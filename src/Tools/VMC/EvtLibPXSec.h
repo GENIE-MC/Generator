@@ -29,9 +29,10 @@ public:
 
 protected:
   TGraph* GetXSec(const Interaction* in) const;
-  void LoadXSecs() const;
+  void LoadXSecs();
+  void ClearXSecs();
 
-  mutable std::map<Key, TGraph*> fXSecs;
+  std::map<Key, TGraph*> fXSecs;
 };
 
 } // vmc namespace
