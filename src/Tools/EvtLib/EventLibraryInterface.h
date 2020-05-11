@@ -57,8 +57,11 @@ private:
   std::vector<TVector3> Basis(const TVector3& z) const;
 
   void LoadRecords();
-
   void Cleanup();
+
+  void FillKinematics(const TLorentzVector& p_nu,
+                      const TLorentzVector& p_lep,
+                      Kinematics& kine) const;
 
   std::map<Key, const IEvtLibRecordList*> fRecords;
   TFile* fRecordFile;

@@ -13,6 +13,7 @@
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Tools/EvtLib/EventLibraryInterface.h"
 #include "Tools/EvtLib/EvtLibRecordList.h"
@@ -93,25 +94,33 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
 
   const std::vector<TVector3> basis = Basis(probe_p4->Vect());
 
-  for(bool lep: {true, false}){ // make sure lepton in first
+  TLorentzVector lep_p4;
+
+  for(bool lep: {true, false}){ // make sure lepton is first
     for(const EvtLibParticle& part: rec->parts){
       if(lep != pdg::IsLepton(part.pdg)) continue;
 
-      // Fix up the outgoing lepton for NC events (in the library it's always
-      // nu_mu...)
+      // Fix up the outgoing lepton for NC events (due to lepton universality
+      // it could be any value in the library)
       int pdg = part.pdg;
       if(interaction->ProcInfo().IsWeakNC()) pdg = init_state.ProbePdg();
+
+      const TLorentzVector p4(part.px*basis[0] +
+                              part.py*basis[1] +
+                              part.pz*basis[2],
+                              part.E);
 
       event->AddParticle(pdg,
                          kIStStableFinalState,
                          (lep ? 0 : 1), -1, -1, -1, // child of the neutrino or nucleus
-                         TLorentzVector(part.px*basis[0] +
-                                        part.py*basis[1] +
-                                        part.pz*basis[2],
-                                        part.E),
+                         p4,
                          TLorentzVector(0, 0, 0, 0));
+
+      if(pdg::IsLepton(part.pdg)) lep_p4 = p4;
     }
   }
+
+  FillKinematics(*probe_p4, lep_p4, *interaction->KinePtr());
 }
 
 //____________________________________________________________________________
@@ -269,4 +278,24 @@ void EventLibraryInterface::LoadRecords()
 
   // Need to keep the record file open for OnDemand, but not Simple
   if(!onDemand){delete fRecordFile; fRecordFile = 0;}
+}
+
+//___________________________________________________________________________
+void EventLibraryInterface::FillKinematics(const TLorentzVector& p_nu,
+                                           const TLorentzVector& p_lep,
+                                           Kinematics& kine) const
+{
+  kine.SetFSLeptonP4(p_lep);
+
+  const TLorentzVector q = p_nu-p_lep;
+
+  // Initial hadronic state, semi-arbitrary
+  const TLorentzVector p_p(0, 0, 0,
+                           PDGLibrary::Instance()->Find(kPdgNeutron)->Mass());
+
+  kine.Setq2(+q.Mag2(), true);
+  kine.SetQ2(-q.Mag2(), true);
+  kine.SetW((q + p_p).Mag(), true);
+  kine.Setx(-q.Mag2() / (2*p_p.Dot(q)), true);
+  kine.Sety(1-p_lep.E()/p_nu.E(), true);
 }
