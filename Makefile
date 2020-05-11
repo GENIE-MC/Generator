@@ -204,15 +204,15 @@ else
 endif
 
 tools-vmc: FORCE
-#ifeq ($(strip $(GOPT_ENABLE_VMC)),YES)
+#ifeq ($(strip $(GOPT_ENABLE_EvtLib)),YES)
 	@echo " "
-	@echo "** Building VMC..."
-	cd ${GENIE}/src/Tools/VMC && \
+	@echo "** Building EvtLib..."
+	cd ${GENIE}/src/Tools/EvtLib && \
 	$(MAKE) && \
 	cd ${GENIE}
 #else
 #	@echo " "
-#	@echo "** Building VMC was not enabled. Skipping..."
+#	@echo "** Building EvtLib was not enabled. Skipping..."
 #endif
 
 
@@ -381,7 +381,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools/Flux
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools/Geometry
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools/Masterclass
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools/VMC
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools/EvtLib
 
 
 copy-install-files: FORCE
@@ -438,7 +438,7 @@ copy-install-files: FORCE
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) install && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) install && \
 	cd ${GENIE}/src/Tools/Masterclass                        &&  $(MAKE) install && \
-	cd ${GENIE}/src/Tools/VMC                                &&  $(MAKE) install && \
+	cd ${GENIE}/src/Tools/EvtLib                             &&  $(MAKE) install && \
 	cd ${GENIE}
 
 
@@ -494,7 +494,7 @@ purge: FORCE
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Tools/Masterclass                        &&  $(MAKE) purge && \
-	cd ${GENIE}/src/Tools/VMC                                &&  $(MAKE) purge && \
+	cd ${GENIE}/src/Tools/EvtLib                             &&  $(MAKE) purge && \
 	cd ${GENIE}
 
 clean: clean-files clean-dir clean-etc
@@ -551,7 +551,7 @@ clean-files: FORCE
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Tools/Masterclass                        &&  $(MAKE) clean && \
-	cd ${GENIE}/src/Tools/VMC                                &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Tools/EvtLib                             &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Apps                                     &&  $(MAKE) clean && \
 	cd ${GENIE}/src/scripts                                  &&  $(MAKE) clean && \
 	cd ${GENIE}
@@ -621,7 +621,7 @@ distclean: FORCE
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Tools/Masterclass                        &&  $(MAKE) distclean && \
-	cd ${GENIE}/src/Tools/VMC                                &&  $(MAKE) distclean && \
+	cd ${GENIE}/src/Tools/EvtLib                             &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Apps                                     &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/scripts                                  &&  $(MAKE) distclean && \
 	cd ${GENIE}

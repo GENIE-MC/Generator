@@ -20,7 +20,7 @@
 #ifndef _EVENT_LIBRARY_INTERFACE_H_
 #define _EVENT_LIBRARY_INTERFACE_H_
 
-#include "Tools/VMC/Key.h"
+#include "Tools/EvtLib/Key.h"
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
 

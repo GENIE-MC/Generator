@@ -1,5 +1,5 @@
-#ifndef _VMC_UTILS_H_
-#define _VMC_UTILS_H_
+#ifndef _EVTLIB_UTILS_H_
+#define _EVTLIB_UTILS_H_
 
 #include <string>
 

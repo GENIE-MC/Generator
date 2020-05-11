@@ -116,7 +116,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
 
 
  <!--
-  VMC / EventLibraryInterface
+  EvtLib / EventLibraryInterface
  -->
   <param_set name="EventLibraryInterface">
      <param type="string" name="VldContext"> </param>

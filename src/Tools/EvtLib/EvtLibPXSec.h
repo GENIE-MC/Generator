@@ -3,7 +3,7 @@
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 
-#include "Tools/VMC/Key.h"
+#include "Tools/EvtLib/Key.h"
 
 class TGraph;
 

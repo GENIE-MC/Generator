@@ -1,5 +1,5 @@
-#ifndef _VMC_KEY_H_
-#define _VMC_KEY_H_
+#ifndef _EVTLIB_KEY_H_
+#define _EVTLIB_KEY_H_
 
 #include <ostream>
 

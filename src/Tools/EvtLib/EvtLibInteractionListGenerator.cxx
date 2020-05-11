@@ -1,4 +1,4 @@
-#include "Tools/VMC/EvtLibInteractionListGenerator.h"
+#include "Tools/EvtLib/EvtLibInteractionListGenerator.h"
 
 #include "Framework/EventGen/InteractionList.h"
 #include "Framework/Interaction/Interaction.h"

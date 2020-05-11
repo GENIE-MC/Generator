@@ -2,7 +2,7 @@
 // \author Chris Backhouse -- c.backhouse@ucl.ac.uk
 ////////////////////////////////////////////////////////////////////////
 
-#include "Tools/VMC/EvtLibRecordList.h"
+#include "Tools/EvtLib/EvtLibRecordList.h"
 
 #include "Framework/Messenger/Messenger.h"
 

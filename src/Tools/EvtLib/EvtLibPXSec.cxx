@@ -1,5 +1,5 @@
-#include "Tools/VMC/EvtLibPXSec.h"
-#include "Tools/VMC/Utils.h"
+#include "Tools/EvtLib/EvtLibPXSec.h"
+#include "Tools/EvtLib/Utils.h"
 
 #include "Framework/Conventions/Units.h"
 

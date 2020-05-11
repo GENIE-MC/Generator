@@ -12,8 +12,8 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = Tools/VMC
-PACKAGE_ABBREV    = TlVMC
+PACKAGE           = Tools/EvtLib
+PACKAGE_ABBREV    = TlEvtLib
 DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)
 LIBNAME           = libG$(PACKAGE_ABBREV)
 

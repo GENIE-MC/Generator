@@ -14,9 +14,9 @@
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Interaction/Interaction.h"
-#include "Tools/VMC/EventLibraryInterface.h"
-#include "Tools/VMC/EvtLibRecordList.h"
-#include "Tools/VMC/Utils.h"
+#include "Tools/EvtLib/EventLibraryInterface.h"
+#include "Tools/EvtLib/EvtLibRecordList.h"
+#include "Tools/EvtLib/Utils.h"
 
 #include "TFile.h"
 
