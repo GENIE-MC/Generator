@@ -49,7 +49,8 @@ double EvtLibPXSec::Integral(const Interaction* in) const
   const double E  = init_state.ProbeE(kRfLab);
   const Target& target = init_state.Tgt();
 
-  return g->Eval(E) * target.N() * 1e-38 * genie::units::cm2;
+  // Units of the cross-section graph are expected to be 10^-38 cm^2 / nucleus
+  return g->Eval(E) * 1e-38 * genie::units::cm2;
 }
 
 //____________________________________________________________________________
