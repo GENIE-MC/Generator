@@ -197,6 +197,8 @@ double KPhaseSpace::Threshold(void) const
     }
   }
 
+  if(pi.IsExternalGen()) return 0;
+
   SLOG("KPhaseSpace", pERROR)
          << "Can't compute threshold for \n" << *fInteraction;
   exit(1);

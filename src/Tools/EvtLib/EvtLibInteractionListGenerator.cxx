@@ -37,12 +37,12 @@ InteractionList * EvtLibInteractionListGenerator::CreateInteractionList(
   // new enum entries for "unspecified because it came from an external
   // library"?
 
-  ProcessInfo proc_info_cc(kScQuasiElastic, kIntWeakCC);
+  ProcessInfo proc_info_cc(kScExternalGen, kIntWeakCC);
   Interaction* interaction_cc = new Interaction(init_state, proc_info_cc);
   interaction_cc->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgNeutron);
   intlist->push_back(interaction_cc);
 
-  ProcessInfo proc_info_nc(kScQuasiElastic, kIntWeakNC);
+  ProcessInfo proc_info_nc(kScExternalGen, kIntWeakNC);
   Interaction* interaction_nc = new Interaction(init_state, proc_info_nc);
   interaction_nc->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgProton);
   intlist->push_back(interaction_nc);
