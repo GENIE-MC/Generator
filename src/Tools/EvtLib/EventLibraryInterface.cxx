@@ -157,7 +157,7 @@ GetRecord(const Interaction* interaction) const
   // Use nu_mu for NC as a convention internal to this code to index into the
   // records map.
   if(proc.IsWeakNC()){
-    if(probe_pdgc > 0) probe_pdgc = +14; else probe_pdgc = -14;
+    if(probe_pdgc > 0) probe_pdgc = kPdgNuMu; else probe_pdgc = kPdgAntiNuMu;
   }
 
   const Key key(tgt_pdgc, probe_pdgc, proc.IsWeakCC());
@@ -248,40 +248,41 @@ void EventLibraryInterface::LoadRecords()
       continue;
     }
 
-    for(int sign: {+1, -1}){
-      for(int pdg: {12, 14, 16}){
-        for(bool iscc: {true, false}){
-          // NCs should be the same for all flavours. Use nu_mu as a
-          // convention internal to this code to index into the records map.
-          if(!iscc && pdg != 14) continue;
+    for(int pdg: {kPdgNuE,   kPdgAntiNuE,
+                  kPdgNuMu,  kPdgAntiNuMu,
+                  kPdgNuTau, kPdgAntiNuTau}){
 
-          std::string nuName = pdglib->Find(sign*pdg)->GetName();
-          if(!iscc) nuName = (sign > 0) ? "nu" : "nu_bar";
+      for(bool iscc: {true, false}){
+        // NCs should be the same for all flavours. Use nu_mu as a convention
+        // internal to this code to index into the records map.
+        if(!iscc && abs(pdg) != kPdgNuMu) continue;
 
-          const std::string treeName =
-            TString::Format("%s/%s/%s/records",
-                            tgtName.c_str(),
-                            iscc ? "cc" : "nc",
-                            nuName.c_str()).Data();
+        std::string nuName = pdglib->Find(pdg)->GetName();
+        if(!iscc) nuName = pdg::IsAntiNeutrino(pdg) ? "nu_bar" : "nu";
 
-          const Key key(tgtPart->PdgCode(), sign*pdg, iscc);
+        const std::string treeName =
+          TString::Format("%s/%s/%s/records",
+                          tgtName.c_str(),
+                          iscc ? "cc" : "nc",
+                          nuName.c_str()).Data();
 
-          TTree* tr = (TTree*)fRecordFile->Get(treeName.c_str());
+        const Key key(tgtPart->PdgCode(), pdg, iscc);
 
-          if(!tr){
-            LOG("ELI", pINFO) << treeName << " not found in "
-                              << libPath << " -- skipping";
-            continue;
-          }
+        TTree* tr = (TTree*)fRecordFile->Get(treeName.c_str());
 
-          if(onDemand)
-            fRecords[key] = new OnDemandRecordList(tr, treeName);
-          else
-            fRecords[key] = new SimpleRecordList(tr, treeName);
-        } // end for nucleus
-      } // end for pdg
-    } // end for sign
-  } // end for iscc
+        if(!tr){
+          LOG("ELI", pINFO) << treeName << " not found in "
+                            << libPath << " -- skipping";
+          continue;
+        }
+
+        if(onDemand)
+          fRecords[key] = new OnDemandRecordList(tr, treeName);
+        else
+          fRecords[key] = new SimpleRecordList(tr, treeName);
+      } // end for iscc
+    } // end for pdg
+  } // end for dir
 
   // Need to keep the record file open for OnDemand, but not Simple
   if(!onDemand){delete fRecordFile; fRecordFile = 0;}

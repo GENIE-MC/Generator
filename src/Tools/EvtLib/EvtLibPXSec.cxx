@@ -3,7 +3,9 @@
 
 #include "Framework/Conventions/Units.h"
 
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGCodes.h"
 
 #include "TFile.h"
 #include "TGraph.h"
@@ -47,7 +49,6 @@ double EvtLibPXSec::Integral(const Interaction* in) const
 
   const InitialState& init_state = in->InitState();
   const double E  = init_state.ProbeE(kRfLab);
-  const Target& target = init_state.Tgt();
 
   // Units of the cross-section graph are expected to be 10^-38 cm^2 / nucleus
   return g->Eval(E) * 1e-38 * genie::units::cm2;
@@ -105,36 +106,37 @@ void EvtLibPXSec::LoadXSecs()
       continue;
     }
 
-    for(int sign: {+1, -1}){
-      for(int pdg: {12, 14, 16}){
-        for(bool iscc: {true, false}){
-          // NCs should be the same for all flavours. Use nu_mu as a
-          // convention internal to this code to index into the xsecs map.
-          if(!iscc && pdg != 14) continue;
+    for(int pdg: {kPdgNuE,   kPdgAntiNuE,
+                  kPdgNuMu,  kPdgAntiNuMu,
+                  kPdgNuTau, kPdgAntiNuTau}){
 
-          std::string nuName = pdglib->Find(sign*pdg)->GetName();
-          if(!iscc) nuName = (sign > 0) ? "nu" : "nu_bar";
+      for(bool iscc: {true, false}){
+        // NCs should be the same for all flavours. Use nu_mu as a convention
+        // internal to this code to index into the xsecs map.
+        if(!iscc && abs(pdg) != kPdgNuMu) continue;
 
-          const std::string graphName =
-            TString::Format("%s/%s/%s/xsec",
-                            tgtName.c_str(),
-                            iscc ? "cc" : "nc",
-                            nuName.c_str()).Data();
+        std::string nuName = pdglib->Find(pdg)->GetName();
+        if(!iscc) nuName = pdg::IsAntiNeutrino(pdg) ? "nu_bar" : "nu";
 
-          const Key key(tgtPart->PdgCode(), sign*pdg, iscc);
+        const std::string graphName =
+          TString::Format("%s/%s/%s/xsec",
+                          tgtName.c_str(),
+                          iscc ? "cc" : "nc",
+                          nuName.c_str()).Data();
 
-          TGraph* g = (TGraph*)fin.Get(graphName.c_str());
-          if(!g){
-            LOG("ELI", pINFO) << graphName << " not found in "
-                              << libPath << " -- skipping";
-            continue;
-          }
+        const Key key(tgtPart->PdgCode(), pdg, iscc);
 
-          fXSecs[key] = new TGraph(*g);
-        } // end for nucleus
-      } // end for pdg
-    } // end for sign
-  } // end for iscc
+        TGraph* g = (TGraph*)fin.Get(graphName.c_str());
+        if(!g){
+          LOG("ELI", pINFO) << graphName << " not found in "
+                            << libPath << " -- skipping";
+          continue;
+        }
+
+        fXSecs[key] = new TGraph(*g);
+      } // end for iscc
+    } // end for pdg
+  } // end for dir
 }
 
 //____________________________________________________________________________
@@ -149,9 +151,10 @@ TGraph* EvtLibPXSec::GetXSec(const Interaction* in) const
   }
 
   int pdg = init_state.ProbePdg();
-  // Use nu_mu for NC by convention
+  // Use nu_mu for NC as a convention internal to this code to index into the
+  // xsec graphs map.
   if(proc.IsWeakNC()){
-    if(pdg > 0) pdg = +14; else pdg = -14;
+    if(pdg > 0) pdg = kPdgNuMu; else pdg = kPdgAntiNuMu;
   }
 
   const Key key(init_state.TgtPdg(), pdg, proc.IsWeakCC());
