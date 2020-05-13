@@ -204,7 +204,7 @@ else
 endif
 
 tools-evtlib: FORCE
-#ifeq ($(strip $(GOPT_ENABLE_EvtLib)),YES)
+#ifeq ($(strip $(GOPT_ENABLE_EVTLIB)),YES)
 	@echo " "
 	@echo "** Building EvtLib..."
 	cd ${GENIE}/src/Tools/EvtLib && \
