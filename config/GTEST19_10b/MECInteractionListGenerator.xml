@@ -16,7 +16,7 @@ Name             Type     Optional   Comment               Default
     <!-- 
 	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 SetDiNucleonCode:  Include the dinucleon code in the interaction list generator.
-         Want `true` for EmpiricalMEC, `false` for NSV
+         Want `true` for EmpiricalMEC, `false` for NSV and SuSAv2
     -->
     <param type="bool" name="SetDiNucleonCode"> false </param>
     <param type="bool" name="SetDiNucleonCodeEM"> false </param>
@@ -44,4 +44,3 @@ Name             Type     Optional   Comment               Default
   </param_set>
   
 </alg_conf>
-
