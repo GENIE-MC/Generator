@@ -1,65 +1,36 @@
 //____________________________________________________________________________
 /*!
 
-  \namespace  genie::utils::math
+  \class      genie::utils::math::GTrace
 
-  \brief      Simple mathematical utilities not found in ROOT's TMath
+  \brief      Simple math container for 4 x 4 complex objects 
 
   \author     Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-  University of Liverpool & STFC Rutherford Appleton Lab
+              University of Liverpool & STFC Rutherford Appleton Lab
 
-  \created    May 06, 2004
+              Marco Roda <mroda@liverpool.ac.uk>
+              University of Liverpool
+
+  \created    May 15, 2020
 
   \cpright    Copyright (c) 2003-2019, The GENIE Collaboration
-  For the full text of the license visit http://copyright.genie-mc.org
-  or see $GENIE/LICENSE
+              For the full text of the license visit http://copyright.genie-mc.org
+              or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
-#ifndef _MATH_UTILS_H_
-#define _MATH_UTILS_H_
+#ifndef _MATH_UTILS_GTRACE_H_
+#define _MATH_UTILS_GTRACE_H_
 
-#include <vector>
-#include <array>
-#include <complex>
-#include <TMatrixD.h>
-#include <TVectorD.h>
-#include "Framework/Utils/Range1.h"
-
-using std::vector;
+#include "Framework/Numerical/MathUtils.h"
 
 namespace genie {
   namespace utils {
 
-    namespace math
-    {
-
-      using GComplexArray = std::array< std::complex<double>, 4 > ;
-
-      // Cholesky decomposition. Returns lower triangular matrix.
-      TMatrixD CholeskyDecomposition (const TMatrixD& cov); 
-      // Generates a vector of correlated parameters.
-      TVectorD CholeskyGenerateCorrelatedParams (const TMatrixD& Lch, TVectorD& mean);
-      TVectorD CholeskyGenerateCorrelatedParams (const TMatrixD& Lch, TVectorD& mean, TVectorD& g_uncorrelated);
-      // Generates a vector of correlated parameter variations.
-      TVectorD CholeskyGenerateCorrelatedParamVariations (const TMatrixD& Lch);             
-      TVectorD CholeskyCalculateCorrelatedParamVariations(const TMatrixD& Lch, TVectorD& g_uncorrelated);
-
-      double KahanSummation (double x[], unsigned int n);
-      double KahanSummation (const vector<double> & x);
-
-      bool   AreEqual       (double x1, double x2);
-      bool   AreEqual       (float  x1, float  x2);
-
-      bool   IsWithinLimits (double x, Range1D_t range);
-      bool   IsWithinLimits (float  x, Range1F_t range);
-      bool   IsWithinLimits (int    i, Range1I_t range);
-
-      double NonNegative    (double x);
-      double NonNegative    (float  x);
+    namespace math  {
 
     } // math  namespace
   } // utils namespace
 } // genie namespace
 
-#endif // _MATH_UTILS_H_
+#endif // _MATH_UTILS_GTRACE_H_ 
