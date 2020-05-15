@@ -8,20 +8,8 @@
 */
 //_________________________________________________________________________
 
-#include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/Conventions/Units.h"
 #include "Framework/EventGen/HybridXSecAlgorithm.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/ParticleData/PDGCodes.h"
-#include "Framework/ParticleData/PDGLibrary.h"
-#include "Framework/ParticleData/PDGUtils.h"
-#include "Framework/Utils/KineUtils.h"
-#include "Physics/HadronTensors/LabFrameHadronTensorI.h"
-#include "Physics/HadronTensors/SuSAv2QELHadronTensorModel.h"
-#include "Physics/Multinucleon/XSection/MECUtils.h"
-#include "Physics/XSectionIntegration/XSecIntegratorI.h"
-#include "Physics/NuclearState/FermiMomentumTablePool.h"
-#include "Physics/NuclearState/FermiMomentumTable.h"
 
 using namespace genie;
 
