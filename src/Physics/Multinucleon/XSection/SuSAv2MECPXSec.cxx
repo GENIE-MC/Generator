@@ -309,7 +309,16 @@ bool SuSAv2MECPXSec::ValidProcess(const Interaction* interaction) const
     return false;
   }
 
-  /// \todo Check whether CC, NC, EM? No tensor files for NC yet.
+  int probe = interaction->InitState().ProbePdg();
+
+  bool is_nu = pdg::IsNeutrino( probe );
+  bool is_nub = pdg::IsAntiNeutrino( probe );
+  bool is_chgl = pdg::IsChargedLepton( probe );
+
+  bool prc_ok = ( proc_info.IsWeakCC() && (is_nu || is_nub) )
+    || ( proc_info.IsEM() && is_chgl );
+
+  if ( !prc_ok ) return false;
 
   return true;
 }

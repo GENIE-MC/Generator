@@ -241,8 +241,10 @@ bool SuSAv2QELPXSec::ValidProcess(const Interaction* interaction) const
   bool isN   = pdg::IsNeutron(nuc);
   bool isnu  = pdg::IsNeutrino(nu);
   bool isnub = pdg::IsAntiNeutrino(nu);
+  bool is_chgl = pdg::IsChargedLepton(nu);
 
-  bool prcok = (proc_info.IsWeakCC() && ((isP&&isnub) || (isN&&isnu))) || proc_info.IsEM();
+  bool prcok = ( proc_info.IsWeakCC() && ((isP && isnub) || (isN && isnu)) )
+    || ( proc_info.IsEM() && is_chgl );
   if ( !prcok ) return false;
 
   return true;
