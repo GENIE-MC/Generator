@@ -162,12 +162,15 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   double xsec = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value);
   LOG("SuSAv2QE", pDEBUG) << "XSec in cm2 / neutron is  " << xsec/(units::cm2);
 
-  // Currently the hadron tensors are per active nucleon, but the calculation above
-  // assumes they are per atom. Need to adjust for this.
+  // Currently the SuSAv2 QE hadron tensors are given per active nucleon, but
+  // the calculation above assumes they are per atom. Need to adjust for this.
   const ProcessInfo& proc_info = interaction->ProcInfo();
+
+  // Neutron, proton, and mass numbers of the target
+  const Target& tgt = interaction->InitState().Tgt();
   if ( proc_info.IsWeakCC() ) {
-    if ( pdg::IsNeutrino(probe_pdg) ) xsec *= interaction->InitState().Tgt().N();
-    else if ( pdg::IsAntiNeutrino(probe_pdg) ) xsec *= interaction->InitState().Tgt().Z();
+    if ( pdg::IsNeutrino(probe_pdg) ) xsec *= tgt.N();
+    else if ( pdg::IsAntiNeutrino(probe_pdg) ) xsec *= tgt.Z();
     else {
       // We should never get here if ValidProcess() is working correctly
       LOG("SuSAv2QE", pERROR) << "Unrecognized probe " << probe_pdg
@@ -175,8 +178,20 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
       xsec = 0.;
     }
   }
-  else if ( proc_info.IsEM() ) xsec *= interaction->InitState().Tgt().A();
-  else if ( proc_info.IsWeakNC() ) xsec *= interaction->InitState().Tgt().A();
+  else if ( proc_info.IsEM() || proc_info.IsWeakNC() ) {
+    // For EM processes, scale by the number of nucleons of the same type
+    // as the struck one. This ensures the correct ratio of initial-state
+    // p vs. n when making splines. The nuclear cross section is obtained
+    // by scaling by A/2 for an isoscalar target, so we can get the right
+    // behavior for all targets by scaling by Z/2 or N/2 as appropriate.
+    // Do the same for NC. TODO: double-check that this is the right
+    // thing to do when we SuSAv2 NC hadronic tensors are added to GENIE.
+    int hit_nuc_pdg = tgt.HitNucPdg();
+    if ( pdg::IsProton(hit_nuc_pdg) ) xsec *= tgt.Z() / 2.;
+    else if ( pdg::IsNeutron(hit_nuc_pdg) ) xsec *= tgt.N() / 2.;
+    // We should never get here if ValidProcess() is working correctly
+    else return 0.;
+  }
   else {
     // We should never get here if ValidProcess() is working correctly
     LOG("SuSAv2QE", pERROR) << "Unrecognized process " << proc_info.AsString()
@@ -184,7 +199,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
     xsec = 0.;
   }
 
-  LOG("SuSAv2QE", pDEBUG) << "XSec in cm2 / atom is  " << xsec/(units::cm2);
+  LOG("SuSAv2QE", pDEBUG) << "XSec in cm2 / atom is  " << xsec / units::cm2;
 
   // This scaling should be okay-ish for the total xsec, but it misses
   // the energy shift. To get this we should really just build releveant
@@ -244,7 +259,7 @@ bool SuSAv2QELPXSec::ValidProcess(const Interaction* interaction) const
   bool is_chgl = pdg::IsChargedLepton(nu);
 
   bool prcok = ( proc_info.IsWeakCC() && ((isP && isnub) || (isN && isnu)) )
-    || ( proc_info.IsEM() && is_chgl );
+    || ( proc_info.IsEM() && is_chgl && (isP || isN) );
   if ( !prcok ) return false;
 
   return true;

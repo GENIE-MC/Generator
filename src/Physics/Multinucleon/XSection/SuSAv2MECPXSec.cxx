@@ -41,6 +41,10 @@ SuSAv2MECPXSec::~SuSAv2MECPXSec()
 double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   KinePhaseSpace_t kps) const
 {
+  // Don't try to do the calculation if we've been handed an interaction that
+  // doesn't make sense
+  if ( !this->ValidProcess(interaction) ) return 0.;
+
   // Get the hadron tensor for the selected nuclide. Check the probe PDG code
   // to know whether to use the tensor for CC neutrino scattering or for
   // electron scattering

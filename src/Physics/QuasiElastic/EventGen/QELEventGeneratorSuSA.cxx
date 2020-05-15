@@ -159,10 +159,7 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
 
   //e-scat xsecs blow up close to theta=0, MC methods won't work so well...
   // NOTE: SuSAv2 1p1h e-scatting has not been validated yet, use with caution
-  if ( NuPDG==11 ) {
-    maxIter *= 1000;
-    CosthMax = 1.0;
-  }
+  if ( NuPDG==11 ) maxIter *= 1000;
 
   // Get Max XSec:
   double XSecMax = this->MaxXSec(event);
