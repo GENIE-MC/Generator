@@ -204,16 +204,16 @@ else
 endif
 
 tools-evtlib: FORCE
-#ifeq ($(strip $(GOPT_ENABLE_EVTLIB)),YES)
+ifeq ($(strip $(GOPT_ENABLE_EVTLIB)),YES)
 	@echo " "
 	@echo "** Building EvtLib..."
 	cd ${GENIE}/src/Tools/EvtLib && \
 	$(MAKE) && \
 	cd ${GENIE}
-#else
-#	@echo " "
-#	@echo "** Building EvtLib was not enabled. Skipping..."
-#endif
+else
+	@echo " "
+	@echo "** Building EvtLib was not enabled. Skipping..."
+endif
 
 
 tools-masterclass: FORCE
