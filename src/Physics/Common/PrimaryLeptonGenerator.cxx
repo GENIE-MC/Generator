@@ -14,6 +14,7 @@
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
 #include "Physics/Common/PrimaryLeptonGenerator.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepStatus.h"
@@ -210,41 +211,10 @@ void PrimaryLeptonGenerator::AddToEventRecord(
 //___________________________________________________________________________
 void PrimaryLeptonGenerator::SetPolarization(GHepRecord * ev) const
 {
-// Set the final state lepton polarization. A mass-less lepton would be fully
-// polarized. This would be exact for neutrinos and a very good approximation
-// for electrons for the energies this generator is going to be used. This is
-// not the case for muons and, mainly, for taus. I need to refine this later.
-// How? See Kuzmin, Lyubushkin and Naumov, hep-ph/0312107
-
-  // get the final state primary lepton
-  GHepParticle * fsl = ev->FinalStatePrimaryLepton();
-  if(!fsl) {
-     LOG("LeptonicVertex", pERROR)
-                    << "Final state lepton not set yet! \n" << *ev;
-     return;
-  }
-
-  // get (px,py,pz) @ LAB
-  TVector3 plab(fsl->Px(), fsl->Py(), fsl->Pz());
-
-  // in the limit m/E->0: leptons are left-handed and their anti-particles
-  // are right-handed
-  int pdgc = fsl->Pdg();
-  if(pdg::IsNeutrino(pdgc) || pdg::IsElectron(pdgc) ||
-                    pdg::IsMuon(pdgc) || pdg::IsTau(pdgc) ) {
-    plab *= -1; // left-handed
-  }
-
-  LOG("LeptonicVertex", pINFO)
-            << "Setting polarization angles for particle: " << fsl->Name();
-
-  fsl->SetPolarization(plab);
-
-  if(fsl->PolzIsSet()) {
-     LOG("LeptonicVertex", pINFO)
-          << "Polarization (rad): Polar = "  << fsl->PolzPolarAngle()
-                           << ", Azimuthal = " << fsl->PolzAzimuthAngle();
-  }
+  // The default treatment is just to delegate to the utility function.
+  // Derived classes that need a different approach may override this
+  // member function.
+  genie::utils::SetPrimaryLeptonPolarization( ev );
 }
 //___________________________________________________________________________
 void PrimaryLeptonGenerator::Configure(const Registry & config)
