@@ -47,11 +47,6 @@ Generator-%d                alg     No
 
 -->
 
-  <param_set name="EventLibraryInterface"> 
-     <param type="int" name="NGenerators">  1                                             </param>
-     <param type="alg" name="Generator-0">  genie::EventGenerator/EventLibraryInterface   </param>
-  </param_set>
-
   <param_set name="AnomalyMediatedNuGamma"> 
      <param type="int" name="NGenerators">  1                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/AM-NUGAMMA   </param>
