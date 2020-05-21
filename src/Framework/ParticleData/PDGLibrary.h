@@ -14,7 +14,7 @@
 \created  May 06, 2004
 
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -42,6 +42,7 @@ public:
   void AddDarkMatter  (double mass, double med_ratio);
   // Similarly for the NHL app
   void AddNHL  (double mass);
+  void AddDarkSector (double mass, double med_ratio);
 
 private:
 

@@ -2,7 +2,7 @@
 /*
  Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- 
+
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
  University of Liverpool & STFC Rutherford Appleton Laboratory
 
@@ -143,6 +143,29 @@ void PDGLibrary::AddNHL(double mass)
   }
   else {
     assert(nhl->Mass() == mass);
+  }
+}
+//____________________________________________________________________________
+void PDGLibrary::AddDarkSector(double mass, double med_ratio)
+{//TODO_DNU: Not sure about the mass and med_ratio params above, nor the code below
+// Add dark neutrino particle to PDG database
+
+  double med_mass = mass*med_ratio;
+  TParticlePDG * dnu_particle = fDatabasePDG->GetParticle(kPdgDarkNeutrino);
+  TParticlePDG * med_particle = fDatabasePDG->GetParticle(kPdgDNuMediator);
+  if (!dnu_particle) {
+    // Name Title Mass Stable Width Charge Class PDG
+    fDatabasePDG->AddParticle("nu_D","nu_D",mass,true,0.,0,"DarkNeutrino",kPdgDarkNeutrino);
+  }
+  else {
+    assert(dnu_particle->Mass() == mass);
+  }
+  if (!med_particle) {
+    // Name Title Mass Stable Width Charge Class PDG
+    fDatabasePDG->AddParticle("Z_D","Z_D",med_mass,true,0.,0,"DarkNeutrino",kPdgDNuMediator);
+  }
+  else {
+    assert(med_particle->Mass() == med_mass);
   }
 }
 //____________________________________________________________________________

@@ -103,6 +103,7 @@
    <!-- ****** CONFIGURATION FOR PARTICLE DECAY ALGORITHMS****** -->
    <config alg="genie::PythiaDecayer">               PythiaDecayer.xml               </config>
    <config alg="genie::BaryonResonanceDecayer">      BaryonResonanceDecayer.xml      </config>
+   <config alg="genie::DarkSectorDecayer">           DarkSectorDecayer.xml           </config>
 
    <!--  ****** CONFIGURATION FORM FACTOR and STRUCTURE FUNCTION ALGORITHMS ****** -->
    <config alg="genie::DipoleELFormFactorsModel">                DipoleELFormFactorsModel.xml                </config>

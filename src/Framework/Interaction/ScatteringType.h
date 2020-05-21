@@ -52,7 +52,8 @@ typedef enum EScatteringType {
   kScDarkMatterElastic = 101,
   kScDarkMatterDeepInelastic,
   kScDarkMatterElectron
-
+  // TODO DNU: maybe add a scaterring type??
+  
 } ScatteringType_t;
 
 class ScatteringType
@@ -78,9 +79,10 @@ public:
       case(kScInverseBetaDecay) :        return "IBD";       break;
       case(kScGlashowResonance) :        return "GLR";       break;
       case(kScIMDAnnihilation) :         return "IMDAnh";    break;
-      case(kScDarkMatterElastic) :       return "DMEL";       break;
+      case(kScDarkMatterElastic) :       return "DMEL";      break;
       case(kScDarkMatterDeepInelastic) : return "DMDIS";     break;
-      case(kScDarkMatterElectron) :      return "DME";     break;
+      case(kScDarkMatterElectron) :      return "DME";       break;
+      // TODO DNU: maybe add a scaterring type??
       default :                          return "Unknown";   break;
     }
     return "Unknown";

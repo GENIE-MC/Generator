@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+Configuration sets for Baryon Resonance decayer
+
+Configurable Parameters:
+..........................................................................................................
+Name                          Type        Optional   Comment
+..........................................................................................................
+FFScaling                     double      No         Scaling factor for Form Factor for Gamma Delta coupling
+                                                     This value is coming from an MiniBooNE technical note
+
+Delta-ThetaOnly               bool        yes        Pion angolar distribution from delta decay isotropic in phi
+
+Delta-R33                     vec-double  No         Values for the R33 parameter of the
+                                                     pion angular distribution in the Delta reference frame.
+
+Delta-Q2                      vec-double  Yes        Values that sets the Q2 regions of the parameters
+                                                     This is requested only if Delta-R33 has more than one parameter
+
+Delta-R31                     vec-double  Yes        Values for the R31 parameter of the
+                                                     pion angular distribution in the Delta reference frame.
+                                                     There is not default here: if Delta-ThetaOnly is false, the parameter must be here
+
+Delta-R3m1                    vec-double  Yes        Vlues for the R31 parameter of the
+                                                     pion angular distribution in the Delta reference frame.
+                                                     There is not default here: if Delta-ThetaOnly is false, the parameter must be here
+
+-->
+
+
+
+<alg_conf>
+
+  <param_set name="Default">
+    <param type="string" name="CommonDecay"> DecayFlags </param>
+
+    <param type="double" name="FFScaling">  0.706    </param>
+    <param type="double" name="DarkMediatorMass">  2.    </param>
+
+    <param type="bool" name="Delta-ThetaOnly"> true </param>
+  </param_set>
+
+
+  <param_set name="BeforeHadronTransport">
+    <param type="bool" name="RunBeforeHadronTransport"> true  </param>
+  </param_set>
+</alg_conf>
