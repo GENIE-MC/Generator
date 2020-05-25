@@ -37,11 +37,11 @@ COHDeltaCurrent::~COHDeltaCurrent()
 
 }
 //____________________________________________________________________________
-std::complex<double> R( uint8_t l, uint8_t m, 
-			const Interaction * i, 
-			const COHFormFactorI * ff ) const {
+GTrace R( const Interaction * i, 
+	  const COHFormFactorI * ff ) const {
   
-  
+  GTrace t ;
+  return t ;
 }
 //____________________________________________________________________________
 void COHDeltaCurrent::Configure(const Registry & config)

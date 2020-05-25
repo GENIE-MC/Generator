@@ -38,8 +38,8 @@ public:
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
-  void Configure (const Registry & config);
-  void Configure (string param_set);
+  void Configure (const Registry & config) override ;
+  void Configure (string param_set) override ;
 
   double Sigma( int pdg ) const ;
 

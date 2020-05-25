@@ -32,11 +32,10 @@ public:
 
   virtual ~COHDeltaCurrent() { ; } 
 
-  virtual std::complex<double> R( uint8_t l, uint8_t m, 
-				  const Interaction * i, 
-				  const COHFormFactorI * ff ) const ;
+  virtual GTrace R( const Interaction * i, 
+		    const COHFormFactorI * ff ) const override ;
 
-  virtual Resonance_t Resonance() const { return kP33_1232 ; } 
+  virtual Resonance_t Resonance() constexpr { return kP33_1232 ; } 
 
   // methods to implemented from Algorithm 
   void Configure (const Registry & config);
