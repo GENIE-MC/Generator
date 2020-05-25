@@ -29,6 +29,12 @@ namespace genie {
 
     namespace math  {
 
+      class GTrace : public ComplexMatrix<4> {
+
+      public:
+	
+      };
+
     } // math  namespace
   } // utils namespace
 } // genie namespace
