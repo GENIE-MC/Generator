@@ -46,6 +46,17 @@ public:
 
   void LoadConfig(void);
 
+  GTrace DirTrace( const Interaction * i,
+		   const COHFormFactorI * ff ) const ;
+  // The form factor might not be necessary in this case
+
+  GTrace CrsTrace( const Interaction * i,
+		   const COHFormFactorI * ff ) const ;
+
+ private: 
+  
+  const DeltaTransitionFormFactor * delta_ff ; 
+
 };
 
 }       // genie namespace
