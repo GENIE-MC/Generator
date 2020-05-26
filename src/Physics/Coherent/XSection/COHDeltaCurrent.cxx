@@ -92,7 +92,8 @@ GTrace DirTrace( const Interaction * i,
   // these calculations expects the interaction to be in the lab frame with the incoming neutrino parallel to z
 
   TLorentzVector * probe = i -> InitState().GetProbeP4( kRfLab ) ;
-  TLorentzVecotr   out_neutrino = i -> Kine().FSLeptonP4() ; 
+  TLorentzVector   out_neutrino = i -> Kine().FSLeptonP4() ; 
+  TLorentzVector   t_photon = i -> Kine().HadSystP4() ; 
 
   TLorentzVector t_q = *probe - out_neutrino ; 
   double Q2 = t_q.M2() ;
@@ -109,24 +110,23 @@ GTrace DirTrace( const Interaction * i,
   // the following contractions requires a vector with time coordinate in the 0-th position
   // that is not the case for TLorentzVector so we need to rearrange it
   std::array<double, 4> q = { t_q.E(), t_q.X(), t_q.Y(), t_q.Z() } ;
-
+  double p0 = out_neutrino.E() ; 
+  std::array<double, 4> kg = { t_photon.E(), t_photon.X(), t_photon.Y(), t_photon.Z() } ;
+  double mn = kNucleonMass ;
 
 
   GTrace tr ;
 
-  tr[0][0] = -(C3v*C3vNC*( mDelta*p0 + 
-			   this->mn*(p0 + this->q[0]))*(4*mDelta2*this->q[1]*this->kg[1] - 4*pow(p0,2)*this->q[1]*this->kg[1] + 
-							pow(this->q[1],3)*this->kg[1] + 
-							this->q[1]*this->q[3] * this->q[3]*this->kg[1] +
-							this->q[1] * this->q[1]*this->kg[1] * this->kg[1] - 
-							this->q[3] * this->q[3]*this->kg[1] * this->kg[1] - 
-							this->q[3] * this->q[3]*this->kg[2] * this->kg[2] +
-							this->q[0] * this->q[0]*(this->q[1] * this->q[1] - 
-										 3*this->q[1]*this->kg[1] + this->q[3]*(2*this->q[3] - 3*this->kg[3])) +
-							this->q[3]*(4*mDelta2 - 4*pow(p0,2) + this->q[1] * this->q[1] + 
-								    this->q[3] * this->q[3] + 2*this->q[1]*this->kg[1])*this->kg[3] - 
-							8*p0*this->q[0]*(this->q[1]*this->kg[1] + this->q[3]*this->kg[3])))/
-    (3.*mDelta2*pow(this->mn,3));
+  tr[0][0] = -(C3v*C3vNC*( mDelta*p0 + mn*(p0 + q[0]))*( 4*mDelta2*q[1]*kg[1] - 4*pow(p0,2)*q[1]*kg[1] + 
+							 pow(q[1],3) * kg[1] + q[1] * q[3] * q[3] * kg[1] +
+							 q[1] * q[1] * kg[1] * kg[1] - q[3] * q[3] * kg[1] * kg[1] - 
+							 q[3] * q[3] * kg[2] * kg[2] + 
+							 q[0] * q[0] * ( q[1] * q[1] - 3 * q[1] * kg[1] + 
+									 q[3] * (2 * q[3] - 3 * kg[3] ) ) +
+							 q[3] * ( 4*mDelta2 - 4*pow(p0,2) + q[1] * q[1] + 
+								  q[3] * q[3] + 2 * q[1] * kg[1] ) * kg[3] - 
+							 8 * p0 * q[0] * ( q[1] * kg[1] + q[3] * kg[3] ) 
+							 ) ) / (3.*mDelta2*pow(mn,3) );
 
 
 }
