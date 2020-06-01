@@ -56,7 +56,6 @@ double BertuzzoDNuCOHPXSec::XSec(
   const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
-  if(! this -> ValidKinematics (interaction) ) return 0.;
 
   const InitialState & init_state = interaction -> InitState();
   const Kinematics &   kinematics = interaction -> Kine();
@@ -65,12 +64,12 @@ double BertuzzoDNuCOHPXSec::XSec(
   // TODO DNU: these values
   // model parameters
   const double dark_kinetic_mixing = 1;            // \varepsilon
-  const double dnu_mixing = 0.5;           // \theta
+  const double DNu_mixing = 0.5;           // \theta
   const double dark_gauge_coupling = 0.5;  // g_D
 
   // TODO DNU: these other values
-  const double dnu_mass = 1.;
-  const double dnu_energy =  1.; // E_N is the energy of the dark neutrino
+  const double DNu_mass = 1.;
+  const double DNu_energy =  1.; // E_N is the energy of the dark neutrino
   const double DMediator_mass = 0.03; // M_{Z_D}= 30 MeV is the mass of the dark gauge boson
 
   // User inputs to the calculation
@@ -91,10 +90,10 @@ double BertuzzoDNuCOHPXSec::XSec(
 
   // auxiliary variables
   const double E2  = E*E;
-  const double dnu_mass2 = dnu_mass * dnu_mass;
+  const double DNu_mass2 = DNu_mass * DNu_mass;
   const double Z2 = Z * Z;
   const double eps2 = dark_kinetic_mixing * dark_kinetic_mixing;
-  const double theta2 = dnu_mixing * dnu_mixing;
+  const double theta2 = DNu_mixing * DNu_mixing;
   const double gD2 = dark_gauge_coupling * dark_gauge_coupling;
   const double DMediator_mass2 = DMediator_mass * DMediator_mass;
   const double FF2 = FF * FF;
@@ -112,19 +111,21 @@ double BertuzzoDNuCOHPXSec::XSec(
   const double M = PDGLibrary::Instance()->Find(target_nucleus_pdgc)->Mass(); // units: GeV
   LOG("DNu", pDEBUG) << "M = " << M << " GeV";
 
+  if(! this -> ValidKinematics (interaction, DNu_energy, DNu_mass2, E, M) ) return 0.;
+
   const double const_factor = .125 * elec2 / kPi;
   const double model_params = eps2 * theta2 * gD2;
 
-  const double num_fact1 = ( FF2  * dnu_mass) * Z2;
-  const double num_fact2 = (dnu_energy+E+M)*dnu_mass2  - 2*M*(E2 + M*dnu_energy + E2 - E*M);
+  const double num_fact1 = ( FF2  * DNu_mass) * Z2;
+  const double num_fact2 = (DNu_energy+E+M)*DNu_mass2  - 2*M*(E2 + M*DNu_energy + E2 - E*M);
   const double den_fact1 = 1. / (E2*M);
-  const double den_fact2 = TMath::Power((DMediator_mass2 - 2.*dnu_energy*M + 2*E*M), -2.);
+  const double den_fact2 = TMath::Power((DMediator_mass2 - 2.*DNu_energy*M + 2*E*M), -2.);
 
   const double xsec = const_factor * model_params
     * num_fact1 * num_fact2 * den_fact1 * den_fact2;
-  // const double cross_section = (elec2 * FF2 * eps2 * theta2 * g_D2 * dnu_mass) *
-  //   ( (dnu_energy+E+M)*dnu_mass2  - 2*M*(E2 + M*dnu_energy + E2 - E*M) )*Z2 *
-  //   (1./ (8*kPi*E2*M *  TMath::Power((DZ_mass2 - 2*dnu*M + 2*E*M),2)));
+  // const double cross_section = (elec2 * FF2 * eps2 * theta2 * g_D2 * DNu_mass) *
+  //   ( (DNu_energy+E+M)*DNu_mass2  - 2*M*(E2 + M*DNu_energy + E2 - E*M) )*Z2 *
+  //   (1./ (8*kPi*E2*M *  TMath::Power((DZ_mass2 - 2*DNu*M + 2*E*M),2)));
 
 
 
@@ -249,10 +250,27 @@ bool BertuzzoDNuCOHPXSec::ValidProcess(const Interaction * interaction) const
   const ProcessInfo & proc_info = interaction->ProcInfo();
   if(!proc_info.IsCoherentElastic()) return false;
 
+  // TODO DNU: add other requirements
+
   const InitialState & init_state = interaction->InitState();
   const Target & target = init_state.Tgt();
   if(!target.IsNucleus()) return false;
 
+  return true;
+}
+//____________________________________________________________________________
+bool BertuzzoDNuCOHPXSec::ValidKinematics(const Interaction* interaction,
+                                          const double DNu_energy,
+                                          const double DNu_mass2,
+                                          const double E,
+                                          const double M) const
+{
+  const double t1 = 4. * DNu_mass2 * (DNu_energy - E) * (M + E);
+  const double t2 = 4. * M * (DNu_energy - E) * (DNu_energy*(M+2.*E) - M*E);
+  const double t3 = DNu_mass2 * DNu_mass2;
+  if( (t1 - t2 - t3) <= 0. ) return false;
+
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
   return true;
 }
 //____________________________________________________________________________
