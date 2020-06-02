@@ -636,9 +636,8 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="ILstGen">    genie::DMEInteractionListGenerator/DME  </param>
   </param_set>
 
-  <!-- Very Low Energy Event Generation -->
-
-  <param_set name="VLE">
+  <!-- Inverse Beta Decay Event Generator -->
+  <param_set name="IBD">
       <param type="string" name="VldContext"> </param>
       <param type="int"    name="NModules">   5                                                    </param>
       <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
@@ -648,4 +647,5 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
       <param type="alg"    name="Module-4">   genie::IBDHadronicSystemGenerator/Default            </param>
       <param type="alg"    name="ILstGen">    genie::IBDInteractionListGenerator/Default           </param>
   </param_set>
+
 </alg_conf>
