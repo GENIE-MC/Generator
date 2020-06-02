@@ -125,6 +125,50 @@ void GMCJDriver::KeepOnThrowingFluxNeutrinos(bool keep_on)
   fKeepThrowingFluxNu = keep_on;
 }
 //___________________________________________________________________________
+void GMCJDriver::SetXSecSplineNbins(int nbins)
+{
+  fXSecSplineNbins = nbins;
+
+  LOG("GMCJDriver", pNOTICE)
+    << "Number of bins in energy used for the xsec splines: " 
+      << fXSecSplineNbins;
+}
+//___________________________________________________________________________
+void GMCJDriver::SetPmaxLogBinning()
+{
+  fPmaxLogBinning = true;
+
+  LOG("GMCJDriver", pNOTICE)
+    << "Pmax will be store in histogram with logarithmic energy bins";
+}
+//___________________________________________________________________________
+void GMCJDriver::SetPmaxNbins(int nbins)
+{
+  fPmaxNbins = nbins;
+
+  LOG("GMCJDriver", pNOTICE)
+    << "Number of bins in energy used for maximum int. probability: " 
+      << fPmaxNbins;
+}
+//___________________________________________________________________________
+void GMCJDriver::SetPmaxSafetyFactor(double sf)
+{
+  fPmaxSafetyFactor = sf;
+
+  LOG("GMCJDriver", pNOTICE)
+    << "Pmax safety factor = " << fPmaxSafetyFactor;
+}
+//___________________________________________________________________________
+void GMCJDriver::ForceInteraction()
+{
+// Force interaction in detector volume. That generates unweighted events.
+//
+  fForceInteraction = true;
+
+  LOG("GMCJDriver", pNOTICE)
+    << "GMCJDriver will generate weighted events forcing the interaction. ";
+}
+//___________________________________________________________________________
 void GMCJDriver::ForceSingleProbScale()
 {
 // Use a single probability scale. That generates unweighted events.
@@ -388,7 +432,7 @@ void GMCJDriver::Configure(bool calc_prob_scales)
   // for each possible initial state)
   this->BootstrapXSecSplineSummation();
 
-  if(calc_prob_scales){
+  if(calc_prob_scales && !fForceInteraction){
     // Ask the input geometry driver to compute the max. path length for each
     // material in the list of target materials (or load a precomputed list)
     this->GetMaxPathLengthList();
@@ -397,6 +441,7 @@ void GMCJDriver::Configure(bool calc_prob_scales)
     // probabilities to be computed by this driver
     this->ComputeProbScales();
   }
+  if (fForceInteraction) fGlobPmax = 1.;
   LOG("GMCJDriver", pNOTICE) << "Finished configuring GMCJDriver\n\n";
 }
 //___________________________________________________________________________
@@ -419,9 +464,14 @@ void GMCJDriver::InitJob(void)
   fUseSplines         = false;
   fNFluxNeutrinos     = 0;     // <-- number of flux neutrinos thrown so far
 
+  fXSecSplineNbins    = 100;   // <-- number of energy bins used in the xsec splines
+  fPmaxLogBinning     = false; // <-- maximum interaction probability is computed in logarithmic energy bins
+  fPmaxNbins          = 300;   // <-- number of energy bins used in the maximum interaction probability
+  fPmaxSafetyFactor   = 1.2;   // <-- safety factor to compute maximum interaction probability per neutrino & per energy bin
   fGlobPmax           = 0;     // <-- maximum interaction probability (global prob scale)
   fPmax.clear();               // <-- maximum interaction probability per neutrino & per energy bin
 
+  fForceInteraction   = false; // <-- default opt to not force the interaction
   fGenerateUnweighted = false; // <-- default opt to generate weighted events
   fPreSelect          = true;  // <-- default to use pre-selection based on maximum path lengths
 
@@ -605,7 +655,10 @@ void GMCJDriver::BootstrapXSecSplineSummation(void)
     double dE  = fEmax/10.;
     double min = rE.min;
     double max = (fEmax+dE < rE.max) ? fEmax+dE : rE.max;
-    evgdriver->CreateXSecSumSpline(100,min,max,true);
+    
+    // in the logaritmic binning is important to have a narrow binning to
+    // describe better the glashow resonance peak.
+    evgdriver->CreateXSecSumSpline(fXSecSplineNbins,min,max,true);
   }
   LOG("GMCJDriver", pNOTICE)
      << "Finished summing all interaction xsec splines per initial state";
@@ -641,13 +694,23 @@ void GMCJDriver::ComputeProbScales(void)
     fPmax.clear();
   }
 
-  // for maximum interaction probability vs E /for given geometry/ I will
-  // be using 300 bins up to the maximum energy for the input flux
-  // double de   = fEmax/300.;//djk june 5, 2013
-  double de   = fEmax/300.;//djk june 5, 2013
-  double emin = 0.0;
-  double emax = fEmax + de;
-  int n = 1 + (int) ((emax-emin)/de);
+  double * ebins;
+  if (fPmaxLogBinning) {
+    double emin = 0.1;
+    double de = (TMath::Log10(fEmax) - TMath::Log10(emin)) / fPmaxNbins;
+    ebins = new double[fPmaxNbins+1];
+    for(int i=0; i<=fPmaxNbins; i++) ebins[i] = TMath::Power(10., TMath::Log10(emin) + i * de);
+  }
+  else {
+    // for maximum interaction probability vs E /for given geometry/ I will
+    // be using 300 bins up to the maximum energy for the input flux
+    double de   = fEmax/fPmaxNbins;//djk june 5, 2013
+    double emin = 0.0;
+    double emax = fEmax + de;
+    fPmaxNbins++;
+    ebins = new double[fPmaxNbins+1];
+    for(int i=0; i<=fPmaxNbins; i++) ebins[i] = emin + i * (emax-emin)/fPmaxNbins;
+  }
 
   PDGCodeList::const_iterator nuiter;
   PDGCodeList::const_iterator tgtiter;
@@ -656,7 +719,7 @@ void GMCJDriver::ComputeProbScales(void)
   for(nuiter = fNuList.begin(); nuiter != fNuList.end(); ++nuiter) {
     int neutrino_pdgc = *nuiter;
     TH1D * pmax_hst = new TH1D("pmax_hst",
-             "max interaction probability vs E | geom",n,emin,emax);
+             "max interaction probability vs E | geom",fPmaxNbins,ebins);
     pmax_hst->SetDirectory(0);
 
     // loop over energy bins
@@ -705,7 +768,7 @@ void GMCJDriver::ComputeProbScales(void)
            << "Pmax[" << init_state.AsString() << ", Ev from " << EvLow << "-" << EvHigh << "] = " << pmax;
        } // targets
 
-       pmax_hst->SetBinContent(ie, 1.2 * pmax_hst->GetBinContent(ie));
+       pmax_hst->SetBinContent(ie, fPmaxSafetyFactor * pmax_hst->GetBinContent(ie));
 
        LOG("GMCJDriver", pINFO)
 	 << "Pmax[nu=" << neutrino_pdgc << ", Ev from " << EvLow << "-" << EvHigh << "] = "
@@ -714,6 +777,8 @@ void GMCJDriver::ComputeProbScales(void)
 
     fPmax.insert(map<int,TH1D*>::value_type(neutrino_pdgc,pmax_hst));
   } // nu
+
+  delete ebins;
 
   // Compute global probability scale
   // Sum Probabilities {
@@ -791,120 +856,138 @@ EventRecord * GMCJDriver::GenerateEvent1Try(void)
      return 0;
   }
 
-  // Compute the interaction probabilities assuming max. path lengths
-  // and decide whether the neutrino would interact --
-  // Many flux neutrinos should be rejected here, drastically reducing
-  // the number of neutrinos that I need to propagate through the
-  // actual detector geometry (this is skipped when using
-  // pre-calculated flux interaction probabilities)
-  if(fPreSelect) {
-       LOG("GMCJDriver", pNOTICE)
-          << "Computing interaction probabilities for max. path lengths";
-
-       Psum = this->ComputeInteractionProbabilities(true /* <- max PL*/);
-       Pno  = 1-Psum;
-       LOG("GMCJDriver", pNOTICE)
-          << "The no-interaction probability (max. path lengths) is: "
-          << 100*Pno << " %";
-       if(Pno<0.) {
-           LOG("GMCJDriver", pFATAL)
-             << "Negative no-interaction probability! (P = " << 100*Pno << " %)"
-             << " Particle E=" << fFluxDriver->Momentum().E() << " type=" << fFluxDriver->PdgCode() << "Psum=" << Psum;
-           gAbortingInErr=true;
-           exit(1);
-       }
-       if(R>=1-Pno) {
-  	   LOG("GMCJDriver", pNOTICE)
-              << "** Rejecting current flux neutrino";
-	   return 0;
-       }
-  } // preselect
-
-  bool pl_ok = false;
-
-
-  // If possible use pre-generated flux neutrino interaction probabilities
-  if(fFluxIntTree){
-    Psum = this->PreGenFluxInteractionProbability();
-  }
-  // Else compute them in the usual manner
-  else {
-    // Compute (pathLength x density x weight fraction) for all materials
-    // in the input geometry, for the neutrino generated by the flux driver
-    pl_ok = this->ComputePathLengths();
-    if(!pl_ok) {
-       LOG("GMCJDriver", pERROR)
-          << "** Rejecting current flux neutrino (err computing path-lengths)";
-       return 0;
-    }
+  if (fForceInteraction) {
+    bool pl_ok = this->ComputePathLengths(); 
+    if(!pl_ok) { 
+      LOG("GMCJDriver", pFATAL) << "** Cannot calculate path lenths!"; 
+      exit(1); 
+    }  
     if(fCurPathLengths.AreAllZero()) {
        LOG("GMCJDriver", pNOTICE)
           << "** Rejecting current flux neutrino (misses generation volume)";
        return 0;
     }
-    Psum = this->ComputeInteractionProbabilities(false /* <- actual PL */);
-  }
-
-
-  if(TMath::Abs(Psum) < controls::kASmallNum){
+    Psum = this->ComputeInteractionProbabilities(false);
     LOG("GMCJDriver", pNOTICE)
-       << "** Rejecting current flux neutrino (has null interaction probability)";
-    return 0;
+       << "The interaction probability is: " << Psum;
+    R *= Psum;
   }
+  else {
+    // Compute the interaction probabilities assuming max. path lengths
+    // and decide whether the neutrino would interact -- 
+    // Many flux neutrinos should be rejected here, drastically reducing 
+    // the number of neutrinos that I need to propagate through the 
+    // actual detector geometry (this is skipped when using 
+    // pre-calculated flux interaction probabilities)
+    if(fPreSelect) {
+         LOG("GMCJDriver", pNOTICE) 
+            << "Computing interaction probabilities for max. path lengths";
 
-  // Now decide whether the current neutrino interacts
-  Pno  = 1-Psum;
-  LOG("GMCJDriver", pNOTICE)
-     << "The actual 'no interaction' probability is: " << 100*Pno << " %";
-  if(Pno<0.) {
-      LOG("GMCJDriver", pFATAL)
-         << "Negative no interactin probability! (P = " << 100*Pno << " %)";
+         Psum = this->ComputeInteractionProbabilities(true /* <- max PL*/);
+         Pno  = 1-Psum;
+         LOG("GMCJDriver", pNOTICE)
+            << "The no-interaction probability (max. path lengths) is: " 
+            << 100*Pno << " %";
+         if(Pno<0.) {
+             LOG("GMCJDriver", pFATAL) 
+               << "Negative no-interaction probability! (P = " << 100*Pno << " %)"
+               << " Particle E=" << fFluxDriver->Momentum().E() << " type=" << fFluxDriver->PdgCode() << "Psum=" << Psum;
+             gAbortingInErr=true;
+             exit(1);
+         }
+         if(R>=1-Pno) {
+    	   LOG("GMCJDriver", pNOTICE)  
+                << "** Rejecting current flux neutrino";
+  	   return 0;
+         }
+    } // preselect 
 
-      // print info about what caused the problem
-      int                    nupdg = fFluxDriver -> PdgCode  ();
-      const TLorentzVector & nup4  = fFluxDriver -> Momentum ();
-      const TLorentzVector & nux4  = fFluxDriver -> Position ();
+    bool pl_ok = false;
 
-      LOG("GMCJDriver", pWARN)
-        << "\n [-] Problematic neutrino: "
-        << "\n  |----o PDG-code   : " << nupdg
-        << "\n  |----o 4-momentum : " << utils::print::P4AsString(&nup4)
-        << "\n  |----o 4-position : " << utils::print::X4AsString(&nux4)
-        << "\n Emax : " << fEmax;
 
-      LOG("GMCJDriver", pWARN)
-        << "\n Problematic path lengths:" << fCurPathLengths;
-
-      LOG("GMCJDriver", pWARN)
-        << "\n Maximum path lengths:" << fMaxPathLengths;
-
-      exit(1);
-  }
-  if(R>=1-Pno) {
-     LOG("GMCJDriver", pNOTICE)
-        << "** Rejecting current flux neutrino";
-     return 0;
-  }
-
-  //
-  // The flux neutrino interacts!
-  //
-
-  // Calculate path lengths for first time and check potential mismatch if
-  // used pre-generated flux interaction probabilities
-  if(fFluxIntTree){
-    pl_ok = this->ComputePathLengths();
-    if(!pl_ok) {
-      LOG("GMCJDriver", pFATAL) << "** Cannot calculate path lenths!";
-      exit(1);
+    // If possible use pre-generated flux neutrino interaction probabilities 
+    if(fFluxIntTree){
+      Psum = this->PreGenFluxInteractionProbability(); 
+    }         
+    // Else compute them in the usual manner
+    else {
+      // Compute (pathLength x density x weight fraction) for all materials
+      // in the input geometry, for the neutrino generated by the flux driver
+      pl_ok = this->ComputePathLengths();
+      if(!pl_ok) {
+         LOG("GMCJDriver", pERROR) 
+            << "** Rejecting current flux neutrino (err computing path-lengths)";
+         return 0;
+      }
+      if(fCurPathLengths.AreAllZero()) {
+         LOG("GMCJDriver", pNOTICE) 
+            << "** Rejecting current flux neutrino (misses generation volume)";
+         return 0;
+      }
+      Psum = this->ComputeInteractionProbabilities(false /* <- actual PL */);
     }
-    double Psum_curr = this->ComputeInteractionProbabilities(false /* <- actual PL */);
-    bool mismatch = TMath::Abs(Psum-Psum_curr) > controls::kASmallNum;
-    if(mismatch){
-      LOG("GMCJDriver", pFATAL) <<
-          "** Mismatch between pre-calculated and current interaction "<<
-          "probabilities!";
-      exit(1);
+
+
+    if(TMath::Abs(Psum) < controls::kASmallNum){
+      LOG("GMCJDriver", pNOTICE)
+         << "** Rejecting current flux neutrino (has null interaction probability)";
+      return 0;
+    } 
+
+    // Now decide whether the current neutrino interacts
+    Pno  = 1-Psum;
+    LOG("GMCJDriver", pNOTICE)
+       << "The actual 'no interaction' probability is: " << 100*Pno << " %";
+    if(Pno<0.) {
+        LOG("GMCJDriver", pFATAL) 
+           << "Negative no interactin probability! (P = " << 100*Pno << " %)";
+
+        // print info about what caused the problem
+        int                    nupdg = fFluxDriver -> PdgCode  ();
+        const TLorentzVector & nup4  = fFluxDriver -> Momentum ();
+        const TLorentzVector & nux4  = fFluxDriver -> Position ();
+
+        LOG("GMCJDriver", pWARN)
+          << "\n [-] Problematic neutrino: "
+          << "\n  |----o PDG-code   : " << nupdg
+          << "\n  |----o 4-momentum : " << utils::print::P4AsString(&nup4)
+          << "\n  |----o 4-position : " << utils::print::X4AsString(&nux4)
+          << "\n Emax : " << fEmax;
+
+        LOG("GMCJDriver", pWARN)
+          << "\n Problematic path lengths:" << fCurPathLengths;
+
+        LOG("GMCJDriver", pWARN)
+          << "\n Maximum path lengths:" << fMaxPathLengths;
+
+        exit(1);
+    }
+    if(R>=1-Pno) {
+       LOG("GMCJDriver", pNOTICE) 
+          << "** Rejecting current flux neutrino";
+       return 0;
+    }
+
+    //
+    // The flux neutrino interacts! 
+    //
+
+    // Calculate path lengths for first time and check potential mismatch if 
+    // used pre-generated flux interaction probabilities
+    if(fFluxIntTree){
+      pl_ok = this->ComputePathLengths(); 
+      if(!pl_ok) { 
+        LOG("GMCJDriver", pFATAL) << "** Cannot calculate path lenths!"; 
+        exit(1); 
+      }  
+      double Psum_curr = this->ComputeInteractionProbabilities(false /* <- actual PL */);
+      bool mismatch = TMath::Abs(Psum-Psum_curr) > controls::kASmallNum;    
+      if(mismatch){
+        LOG("GMCJDriver", pFATAL) << 
+            "** Mismatch between pre-calculated and current interaction "<<
+            "probabilities!";
+        exit(1);
+      }
     }
   }
 
@@ -936,7 +1019,14 @@ EventRecord * GMCJDriver::GenerateEvent1Try(void)
   // For normalization purposes make sure that you take into account the
   // GHepRecord::Weight() -if event generation is weighted-, and
   // GFluxI::Weight() -if beam simulation is weighted-.
-  this->ComputeEventProbability();
+  if(fForceInteraction) {
+    double weight = 1. - TMath::Exp(-Psum);
+    fCurEvt->SetProbability(Psum);
+    fCurEvt->SetWeight(weight * fCurEvt->Weight());
+  }
+  else {
+    this->ComputeEventProbability();
+  }
 
   return fCurEvt;
 }
@@ -1070,7 +1160,8 @@ double GMCJDriver::ComputeInteractionProbabilities(bool use_max_path_length)
         // to have to throw few billions of flux neutrinos before getting
         // an interaction...
         double pmax = 0;
-        if(fGenerateUnweighted) pmax = fGlobPmax;
+        if(fForceInteraction) pmax = 1.;
+        else if(fGenerateUnweighted) pmax = fGlobPmax;
         else {
            map<int,TH1D*>::const_iterator pmax_iter = fPmax.find(nupdg);
            assert(pmax_iter != fPmax.end());

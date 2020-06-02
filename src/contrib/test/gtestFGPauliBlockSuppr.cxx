@@ -19,14 +19,14 @@
 #include <TFile.h>
 #include <TNtuple.h>
 
-#include "Conventions/Constants.h"
-#include "Conventions/Units.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "Utils/NuclearUtils.h"
-#include "Nuclear/FermiMomentumTablePool.h"
-#include "Nuclear/FermiMomentumTable.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
+#include "Physics/NuclearState/FermiMomentumTablePool.h"
+#include "Physics/NuclearState/FermiMomentumTable.h"
 
 using namespace genie;
 

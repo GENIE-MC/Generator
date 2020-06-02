@@ -942,6 +942,18 @@ Interaction * Interaction::NOsc(int tgt, int annihilation_mode)
   return interaction;
 }
 //___________________________________________________________________________
+Interaction * Interaction::NHL(double E, int decayed_mode)
+{
+  Interaction * interaction =
+    Interaction::Create(0, 0, kScNull, kIntNHL);
+  interaction->ExclTagPtr()->SetDecayMode(decayed_mode);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+
+  return interaction;
+}
+//___________________________________________________________________________
 Interaction * Interaction::ASK(int tgt, int probe, double E)
 {
   Interaction * interaction =
