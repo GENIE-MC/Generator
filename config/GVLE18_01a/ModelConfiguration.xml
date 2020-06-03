@@ -33,13 +33,6 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/CEvNS">   genie::PattonCEvNSPXSec/Default  </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/NUE-EL">  genie::NuElectronPXSec/Default   </param>
  
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Validity range for present model configuration
-  -->
-  <param type="double" name="GVLD-Emin">     0.001  </param>
-  <param type="double" name="GVLD-Emax">     0.600  </param>
-
  </param_set>
 
 
