@@ -1,17 +1,13 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Authors: Chris Marshall <marshall \at pas.rochester.edu>
-          University of Rochester
+ Chris Marshall <marshall \at pas.rochester.edu>
+ University of Rochester
 
-          Martti Nirkko
-          University of Berne
-
- For the class documentation see the corresponding header file.
-
+ Martti Nirkko
+ University of Berne
 */
 //____________________________________________________________________________
 
@@ -69,7 +65,7 @@ void SKHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 void SKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepRecord * evrec) const
 {
 //
-// This method generates the final state hadronic system (kaon + nucleus) 
+// This method generates the final state hadronic system (kaon + nucleus)
 //
 
   Interaction * interaction = evrec->Summary();
@@ -95,7 +91,7 @@ void SKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepReco
   // Transform the neutrino and final-state lepton to the struck nucleon rest frame
   const TLorentzVector pnuc4 = interaction->InitState().Tgt().HitNucP4(); // 4-momentum of struck nucleon in lab frame
   TVector3 beta = pnuc4.BoostVector();
-  p4nu.Boost(-1.*beta);   
+  p4nu.Boost(-1.*beta);
   p4fsl.Boost(-1.*beta);
 
   LOG( "SKHadron", pDEBUG ) << "\nStruck nucleon p = (" << pnuc4.X() << ", " << pnuc4.Y() << ", " << pnuc4.Z() << ")";
@@ -129,7 +125,7 @@ void SKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepReco
   double eN = q.E() + M - kaon_E; // FS nucleon total energy
   double cos_thetaKq = (q3*q3 + pk*pk + Mf*Mf - eN*eN)/(2*q3*pk);
 
-  LOG( "SKHadron", pDEBUG ) << 
+  LOG( "SKHadron", pDEBUG ) <<
     "Cosine theta_kq = " << cos_thetaKq << "\n" <<
     "q.E = " << q.E() << " M = " << M << " kaon E " << kaon_E << " q3 = " << q3 << " pk = " << pk;
 
@@ -145,7 +141,7 @@ void SKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepReco
 
 //  this can be slightly larger than 1 due to numerical precision issues -- don't let it be
 //  if( cos_thetaKq > 1.0 ) {
-//    LOG( "SKHadron", pWARN ) << 
+//    LOG( "SKHadron", pWARN ) <<
 //      "Cosine theta_kq = " << cos_thetaKq << ", setting to 1.0\n" <<
 //      "q.E = " << q.E() << " M = " << M << " kaon E " << kaon_E << " q3 = " << q3 << " pk = " << pk;
 //    cos_thetaKq = 1.0;
@@ -195,14 +191,13 @@ void SKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepReco
   int mom = evrec->HitNucleonPosition();
 
   // AddParticle (int pdg, GHepStatus_t ist, int mom1, int mom2, int dau1, int dau2, double px, double py, double pz, double E, double x, double y, double z, double t)
-  
+
   evrec->AddParticle(
-     nuc_pdgc, ist, mom,-1,-1,-1, 
+     nuc_pdgc, ist, mom,-1,-1,-1,
      pxNf, pyNf, pzNf, ENf, vtx.X(), vtx.Y(), vtx.Z(), vtx.T());
 
   evrec->AddParticle(
-     kaon_pdgc,ist, mom,-1,-1,-1, 
+     kaon_pdgc,ist, mom,-1,-1,-1,
      pxKf, pyKf, pzKf, EKf, vtx.X(), vtx.Y(), vtx.Z(), vtx.T());
 
 }
-

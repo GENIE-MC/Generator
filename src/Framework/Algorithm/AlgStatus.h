@@ -5,14 +5,13 @@
 
 \brief    Encapsulates an enumeration of possible algorithm execution states.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 03, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE 
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org           
 */
 //____________________________________________________________________________
 
@@ -27,12 +26,12 @@ namespace genie {
 
 typedef enum EAlgStatus {
 
-   kAlgUndefinedStatus    = -1, 
+   kAlgUndefinedStatus    = -1,
    kAlgFail,
    kAlgSuccess
 
-} AlgStatus_t; 
-  
+} AlgStatus_t;
+
 
 class AlgStatus {
 

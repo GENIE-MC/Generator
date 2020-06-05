@@ -6,17 +6,16 @@
 \brief    Most commonly used PDG codes.
           A set of utility functions to handle PDG codes is provided in PDGUtils
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
           Changes required to implement the GENIE Boosted Dark Matter module
           were installed by Josh Berger (Univ. of Wisconsin)
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE 
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org           
 */
 //____________________________________________________________________________
 
@@ -28,7 +27,7 @@ namespace genie {
 const int kPdgNuE              =  12;   //
 const int kPdgAntiNuE          = -12;   //
 const int kPdgNuMu             =  14;   //
-const int kPdgAntiNuMu         = -14;   // 
+const int kPdgAntiNuMu         = -14;   //
 const int kPdgNuTau            =  16;   //
 const int kPdgAntiNuTau        = -16;   //
 
@@ -52,10 +51,10 @@ const int kPdgAntiBQuark       =  -5;   //
 const int kPdgTQuark           =   6;   //
 const int kPdgAntiTQuark       =  -6;   //
 
-const int kPdgDDDiquarkS1      =  1103; // dd, spin = 1 
-const int kPdgUDDiquarkS0      =  2101; // ud, spin = 0 
-const int kPdgUDDiquarkS1      =  2103; // ud, spin = 1 
-const int kPdgUUDiquarkS1      =  2203; // uu, spin = 1 
+const int kPdgDDDiquarkS1      =  1103; // dd, spin = 1
+const int kPdgUDDiquarkS0      =  2101; // ud, spin = 0
+const int kPdgUDDiquarkS1      =  2103; // ud, spin = 1
+const int kPdgUUDiquarkS1      =  2203; // uu, spin = 1
 const int kPdgSDDiquarkS0      =  3101; // sd, spin = 0
 const int kPdgSDDiquarkS1      =  3103; // sd, spin = 1
 const int kPdgSUDiquarkS0      =  3201; // su, spin = 0
@@ -157,7 +156,7 @@ const int kPdgAntiK0           =  -311; // \bar{K0}
 const int kPdgK0L              =   130; // K0_{long}
 const int kPdgK0S              =   310; // K0_{short}
 const int kPdgKStarP           =   323; // Kstar+(892)
-const int kPdgKStarM           =  -323; // Kstar-(892) 
+const int kPdgKStarM           =  -323; // Kstar-(892)
 const int kPdgKStar0           =   313; // Kstar0(892)
 const int kPdgDP               =   411; // D+
 const int kPdgDM               =  -411; // D-
@@ -174,7 +173,7 @@ const int kPdgWM               =   -24; // W-
 
 //
 // Note: PDG codes for nuclear targets can be computed using pdg::IonPdgCode(A,Z)
-// PDG2006 convention: 10LZZZAAAI 
+// PDG2006 convention: 10LZZZAAAI
 // Define names for some commonly used nuclear PDG codes:
 //
 const int kPdgTgtFreeP     = 1000010010;
@@ -188,24 +187,25 @@ const int kPdgTgtFe56      = 1000260560;
 //
 // PDG codes for GENIE special particles
 //
-const int kPdgHadronicSyst    = 2000000001; // DIS hadronic system before hadronization
-const int kPdgHadronicBlob    = 2000000002; // Unmodelled fraction of the hadronic system
-const int kPdgBindino         = 2000000101; // Binding energy subtracted from f/s nucleons
-const int kPdgCoulobtron      = 2000000102; // Coulomb energy subtracted from f/s leptons
-const int kPdgClusterNN       = 2000000200; // A nn cluster within a nucleus
-const int kPdgClusterNP       = 2000000201; // A np cluster within a nucleus
-const int kPdgClusterPP       = 2000000202; // A pp cluster within a nucleus
-const int kPdgCompNuclCluster = 2000000300; // Nucleon cluster before phase decay 
-const int kPdgDarkMatter      = 2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
+const int kPdgHadronicSyst    =  2000000001; // DIS hadronic system before hadronization
+const int kPdgHadronicBlob    =  2000000002; // Unmodelled fraction of the hadronic system
+const int kPdgBindino         =  2000000101; // Binding energy subtracted from f/s nucleons
+const int kPdgCoulobtron      =  2000000102; // Coulomb energy subtracted from f/s leptons
+const int kPdgClusterNN       =  2000000200; // A nn cluster within a nucleus
+const int kPdgClusterNP       =  2000000201; // A np cluster within a nucleus
+const int kPdgClusterPP       =  2000000202; // A pp cluster within a nucleus
+const int kPdgCompNuclCluster =  2000000300; // Nucleon cluster before phase decay
+const int kPdgDarkMatter      =  2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
 const int kPdgAntiDarkMatter  = -2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
-const int kPdgMediator        = 2000010001; // Mediator particle for GENIE Boosted Dark Matter mode
+const int kPdgMediator        =  2000010001; // Mediator particle for GENIE Boosted Dark Matter mode
+const int kPdgNHL             =  2000020000; // Neutral Heavy Lepton PDG code
 
 //
 // PDG codes for special particles used by external generators interfaced with GENIE
 //
 const int kPdgCluster      = 91; // PYTHIA cluster pseudo-particle
-const int kPdgString       = 92; // PYTHIA string pseudo-particle 
-const int kPdgIndep        = 93; // PYTHIA independent fragmentation pseudo-particle 
+const int kPdgString       = 92; // PYTHIA string pseudo-particle
+const int kPdgIndep        = 93; // PYTHIA independent fragmentation pseudo-particle
 
 }      // genie namespace
 

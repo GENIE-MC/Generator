@@ -1,14 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Corey Reed <cjreed \at nikhef.nl>
-         Nikhef - January 27, 2010
-
- For the class documentation see the corresponding header file.
-*/
+ Corey Reed <cjreed \at nikhef.nl>
+ Nikhef
+ */
 //____________________________________________________________________________
 
 #include <TSpline.h>
@@ -76,7 +73,7 @@ void KLVOxygenIBDPXSec::MakeAntiNuESpline(void)
    // remove any spline that might already exist
 
    delete fXsplNuebar;
-   
+
    static const Int_t npts_nuebar = 21;
    static const Double_t Evnuebar[npts_nuebar] = {
       kO16NubarThr,
@@ -96,7 +93,7 @@ void KLVOxygenIBDPXSec::MakeAntiNuESpline(void)
    // make spline via dummy TGraph because TSpline3's ctor isn't const correct
    const TGraph dummy(npts_nuebar,Evnuebar,Onuebar);
    fXsplNuebar = new TSpline3("16O_nu_e_bar_xsec",&dummy);
-   fXsplNuebar->SetNpx(500);   
+   fXsplNuebar->SetNpx(500);
 }
 //____________________________________________________________________________
 void KLVOxygenIBDPXSec::MakeNuESpline()
@@ -137,9 +134,9 @@ double KLVOxygenIBDPXSec::Integral(const Interaction * interaction) const
    const InitialState & init_state = interaction -> InitState();
    const double         Ev         = init_state.ProbeE(kRfHitNucRest);
    const int            prbpdg     = init_state.ProbePdg();
-   
+
    double xsec = 0;
-   
+
    if (pdg::IsNuE(prbpdg)) {
       assert(fXsplNue!=0);
       xsec = fXsplNue->Eval(Ev);
@@ -150,46 +147,46 @@ double KLVOxygenIBDPXSec::Integral(const Interaction * interaction) const
       LOG("KLVOxygen", pERROR) << "*** <Integral> Probe has invalid pdg ["
 			       << init_state.ProbePdg() << "]";
    }
-   
+
    return xsec;
 }
 //____________________________________________________________________________
 bool KLVOxygenIBDPXSec::ValidProcess(const Interaction * interaction) const
 {
    if(interaction->TestBit(kISkipProcessChk)) return true;
-   
+
    // should be IBD and either nu_e + O16 or anu_e + O16
    if (interaction->ProcInfo().IsInverseBetaDecay()) {
-      
+
       const InitialState & init_state = interaction -> InitState();
       if (init_state.TgtPdg() == kPdgTgtO16) {
-	 
+
 	 if ( (pdg::IsNuE(init_state.ProbePdg())) ||
 	      (pdg::IsAntiNuE(init_state.ProbePdg())) ) {
-	    
+
 	    return true;
-	    
+
 	 } else {
 	    LOG("KLVOxygen", pERROR) << "*** Probe has invalid pdg ["
 				     << init_state.ProbePdg() << "]";
 	 }
-	 
+
       } else {
 	 LOG("KLVOxygen", pERROR) << "*** Target has pdg ["
 				  << init_state.TgtPdg()
 				  << "], not 16O ("
 				  << kPdgTgtO16 << ")!";
       }
-      
+
    }
-   
+
    return false;
 }
 //____________________________________________________________________________
 bool KLVOxygenIBDPXSec::ValidKinematics(const Interaction* interaction) const
 {
    // check energy range
-   
+
    if(interaction->TestBit(kISkipKinematicChk)) return true;
 
    const InitialState & init_state = interaction -> InitState();
@@ -209,7 +206,7 @@ bool KLVOxygenIBDPXSec::ValidKinematics(const Interaction* interaction) const
 	 return false;
       }
    }
-   
+
    const KPhaseSpace & kps = interaction->PhaseSpace();
    return kps.IsAboveThreshold();
 }

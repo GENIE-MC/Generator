@@ -10,8 +10,8 @@
 //        -> 2 : like 1 but psi in Eq.5 is not the Levy function
 //               but a Gamma function
 //
-// Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-// University of Liverpool & STFC Rutherford Appleton Lab
+// Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+// University of Liverpool & STFC Rutherford Appleton Laboratory
 //
 
 double integrand              (double * x, double * par);

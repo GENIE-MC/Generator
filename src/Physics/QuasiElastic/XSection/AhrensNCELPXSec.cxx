@@ -1,18 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Sep 19, 2009 - CA
-   NuNucElasticPXSec -> AhrensNCELPXSec
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -85,7 +77,7 @@ double AhrensNCELPXSec::XSec(
   //-- compute isovector form factor terms
   double Ge1 = 0.5 * fkAlpha / qmv2;
   double Gm1 = 0.5 * fkAlpha * (fMuP-fMuN) / qmv2;
-  double Ga1 = -0.5 * fFa0 * (1 + (nucsign) * fEta) / qma2;  
+  double Ga1 = -0.5 * fFa0 * (1 + (nucsign) * fEta) / qma2;
 
   //-- compute form factors
   double Ge  = Ge0 + (nucsign) * Ge1;
@@ -99,7 +91,7 @@ double AhrensNCELPXSec::XSec(
   double tau   = 0.25 * Q2/M2;
   double fa    = 1-M*tau/E;
   double fa2   = TMath::Power(fa,2);
-  double fb    = tau*(tau+1)*M2/E2; 
+  double fb    = tau*(tau+1)*M2/E2;
   double A     = (Ge2/(1+tau))           * (fa2-fb);
   double B     = (Ga2 + tau*Gm2/(1+tau)) * (fa2+fb);
   double C     = 4*tau*(M/E)*Gm*Ga       * fa;
@@ -130,7 +122,7 @@ double AhrensNCELPXSec::XSec(
        << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
 
   //-- compute nuclear cross section
-  xsec *= (R*NNucl); 
+  xsec *= (R*NNucl);
 
   return xsec;
 }

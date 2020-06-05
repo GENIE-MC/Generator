@@ -1,19 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - December 19, 2005
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 09, 2009 - CA
-   Moved into the new Coherent package from its previous location  (EVGModules 
-   package)
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -62,7 +53,7 @@ InteractionList * COHInteractionListGenerator::CreateInteractionList(
   }
 
   int probe_pdg = init_state.ProbePdg();
-  bool isnu = pdg::IsNeutrino(probe_pdg) || pdg::IsAntiNeutrino(probe_pdg); 
+  bool isnu = pdg::IsNeutrino(probe_pdg) || pdg::IsAntiNeutrino(probe_pdg);
   if( !isnu) {
      // shouldn't happen... warn
      LOG("IntLst", pWARN)
@@ -72,7 +63,7 @@ InteractionList * COHInteractionListGenerator::CreateInteractionList(
   }
   const Target & target = init_state.Tgt();
   if(!target.IsNucleus()) {
-     // happens as this code is also indiscriminately both for free-nucleon and 
+     // happens as this code is also indiscriminately both for free-nucleon and
      // nuclear targets - don't warn
      LOG("IntLst", pINFO)
        << "Not a nuclear target! Returning NULL InteractionList "
@@ -85,28 +76,28 @@ InteractionList * COHInteractionListGenerator::CreateInteractionList(
   ProcessInfo proc_info(kScCoherentProduction, inttype);
   Interaction * interaction = new Interaction(init_state, proc_info);
 
-  if ( fPionProduction ) { 
+  if ( fPionProduction ) {
 
     if(fIsCC) {
       if(pdg::IsNeutrino(probe_pdg)) {
         // v A -> l- A pi+
-        interaction->ExclTagPtr()->SetNPions(1,0,0);  
+        interaction->ExclTagPtr()->SetNPions(1,0,0);
       } else 	{
         // vbar A -> l+ A pi-
-        interaction->ExclTagPtr()->SetNPions(0,0,1); 
+        interaction->ExclTagPtr()->SetNPions(0,0,1);
       }
     }
     else {
       // v A -> v A pi0
       interaction->ExclTagPtr()->SetNPions(0,1,0);
-    } 
-    
+    }
+
   }
-  
+
   if ( fGammaProduction ) {
     interaction->ExclTagPtr()->SetNSingleGammas(1);
   }
- 
+
   intlist->push_back(interaction);
 
   return intlist;
@@ -136,4 +127,3 @@ void COHInteractionListGenerator::LoadConfigData(void)
 
 }
 //____________________________________________________________________________
-

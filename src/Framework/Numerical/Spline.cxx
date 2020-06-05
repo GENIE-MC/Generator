@@ -1,11 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
-
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ 
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -384,7 +383,7 @@ double Spline::Evaluate(double x) const
         y=0;
       } else {
         // just 1 neighboring knot has y=0 - do a linear interpolation
-        LOG("Spline", pDEBUG) 
+        LOG("Spline", pDEBUG)
           << "Point has zero" << (is0n ? " left " : " right ") << "knot";
         double xpknot=0, ypknot=0, xnknot=0, ynknot=0;
         this->FindClosestKnot(x, xnknot, ynknot, "-");
@@ -564,17 +563,17 @@ void Spline::Print(ostream & stream) const
 {
   int    nknots = this->NKnots();
   double xmin   = this->XMin();
-  double xmax   = this->XMax();     
+  double xmax   = this->XMax();
 
   stream << endl;
   stream << "** Spline: " << this->Name() << endl;
-  stream << "Has " << nknots 
+  stream << "Has " << nknots
         << " knots in the [" << xmin << ", " << xmax << "] range" << endl;
   double x,y;
-  for(int i=0; i<nknots; i++) {  
-    this->GetKnot(i,x,y); 
-    stream << "-- knot : " << i 
-           << " -> (x = " << x << ", y = " << y << ")" << endl; 
+  for(int i=0; i<nknots; i++) {
+    this->GetKnot(i,x,y);
+    stream << "-- knot : " << i
+           << " -> (x = " << x << ", y = " << y << ")" << endl;
   }
 }
 //___________________________________________________________________________
@@ -582,7 +581,7 @@ void Spline::Add(const Spline & spl, double c)
 {
   // continue only if the input spline is defined at a wider x-range
   double xmin = this->XMin();
-  double xmax = this->XMax();     
+  double xmax = this->XMax();
   bool ok = spl.IsWithinValidRange(xmin) && spl.IsWithinValidRange(xmax);
   if(!ok) {
     LOG("Spline", pERROR) << "** Can't add splines. X-range mismatch!";
@@ -593,8 +592,8 @@ void Spline::Add(const Spline & spl, double c)
   double * x = new double[nknots];
   double * y = new double[nknots];
 
-  for(int i=0; i<nknots; i++) {  
-    this->GetKnot(i,x[i],y[i]); 
+  for(int i=0; i<nknots; i++) {
+    this->GetKnot(i,x[i],y[i]);
     y[i] += (c * spl.Evaluate(x[i]));
   }
   this->ResetSpline();
@@ -607,7 +606,7 @@ void Spline::Multiply(const Spline & spl, double c)
 {
   // continue only if the input spline is defined at a wider x-range
   double xmin = this->XMin();
-  double xmax = this->XMax();     
+  double xmax = this->XMax();
   bool ok = spl.IsWithinValidRange(xmin) && spl.IsWithinValidRange(xmax);
   if(!ok) {
     LOG("Spline", pERROR) << "** Can't multiply splines. X-range mismatch!";
@@ -618,8 +617,8 @@ void Spline::Multiply(const Spline & spl, double c)
   double * x = new double[nknots];
   double * y = new double[nknots];
 
-  for(int i=0; i<nknots; i++) {  
-    this->GetKnot(i,x[i],y[i]); 
+  for(int i=0; i<nknots; i++) {
+    this->GetKnot(i,x[i],y[i]);
     y[i] *= (c * spl.Evaluate(x[i]));
   }
   this->ResetSpline();
@@ -632,7 +631,7 @@ void Spline::Divide(const Spline & spl, double c)
 {
   // continue only if the input spline is defined at a wider x-range
   double xmin = this->XMin();
-  double xmax = this->XMax();     
+  double xmax = this->XMax();
   bool ok = spl.IsWithinValidRange(xmin) && spl.IsWithinValidRange(xmax);
   if(!ok) {
     LOG("Spline", pERROR) << "** Can't divide splines. X-range mismatch!";
@@ -643,8 +642,8 @@ void Spline::Divide(const Spline & spl, double c)
   double * x = new double[nknots];
   double * y = new double[nknots];
 
-  for(int i=0; i<nknots; i++) {  
-    this->GetKnot(i,x[i],y[i]); 
+  for(int i=0; i<nknots; i++) {
+    this->GetKnot(i,x[i],y[i]);
     double denom = c * spl.Evaluate(x[i]);
     bool denom_is_zero = TMath::Abs(denom) < DBL_EPSILON;
     if(denom_is_zero) {
@@ -667,8 +666,8 @@ void Spline::Add(double a)
   double * x = new double[nknots];
   double * y = new double[nknots];
 
-  for(int i=0; i<nknots; i++) {  
-    this->GetKnot(i,x[i],y[i]); 
+  for(int i=0; i<nknots; i++) {
+    this->GetKnot(i,x[i],y[i]);
     y[i]+=a;
   }
   this->ResetSpline();
@@ -683,8 +682,8 @@ void Spline::Multiply(double a)
   double * x = new double[nknots];
   double * y = new double[nknots];
 
-  for(int i=0; i<nknots; i++) {  
-    this->GetKnot(i,x[i],y[i]); 
+  for(int i=0; i<nknots; i++) {
+    this->GetKnot(i,x[i],y[i]);
     y[i]*=a;
   }
   this->ResetSpline();
@@ -704,8 +703,8 @@ void Spline::Divide(double a)
   double * x = new double[nknots];
   double * y = new double[nknots];
 
-  for(int i=0; i<nknots; i++) {  
-    this->GetKnot(i,x[i],y[i]); 
+  for(int i=0; i<nknots; i++) {
+    this->GetKnot(i,x[i],y[i]);
     y[i]/=a;
   }
   this->ResetSpline();

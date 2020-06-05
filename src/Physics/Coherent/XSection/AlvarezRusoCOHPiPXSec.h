@@ -7,16 +7,15 @@
 
           Is a concrete implementation of the XSecAlgorithmI interface.
 
-\ref      
+\ref
 
 \author   Steve Dennis
           University of Warwick, Rutherford Appleton Laboratory
 
 \created  October 5, 2012
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -28,7 +27,7 @@
 
 namespace genie {
 
-class XSecIntegratorI; 
+class XSecIntegratorI;
 class Interaction;
 
 class AlvarezRusoCOHPiPXSec : public XSecAlgorithmI {
@@ -54,7 +53,7 @@ private:
   //-- private data members loaded from config Registry or set to defaults
 
   const XSecIntegratorI * fXSecIntegrator;
-  
+
   mutable alvarezruso::AlvarezRusoCOHPiPDXSec * fMultidiff;
   mutable const Interaction * fLastInteraction;
   //Parameters

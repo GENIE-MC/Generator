@@ -1,16 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - December 10, 2003
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -63,7 +57,7 @@ double BezrukovBugaevModel::dE_dx(double E, MuELMaterial_t material) const
   // integrate the Bezrukov-Bugaev differential cross section v*ds/dv for
   // muon nuclear interaction over v
 
-  ROOT::Math::IBaseFunctionOneDim * integrand = 
+  ROOT::Math::IBaseFunctionOneDim * integrand =
           new gsl::BezrukovBugaevIntegrand(E,A);
   ROOT::Math::IntegrationOneDim::Type ig_type =
           utils::gsl::Integration1DimTypeFromString("adaptive");
@@ -75,7 +69,7 @@ double BezrukovBugaevModel::dE_dx(double E, MuELMaterial_t material) const
 
   // calculate the b factor (bE = -dE/dx) in GeV^-3
   A *= units::g;
-  double bnucl = (kNA/A) * ig.Integral(Vmin, Vmax); 
+  double bnucl = (kNA/A) * ig.Integral(Vmin, Vmax);
 
   delete integrand;
 
@@ -98,7 +92,7 @@ double BezrukovBugaevModel::dE_dx(double E, MuELMaterial_t material) const
 ////____________________________________________________________________________
 //void BezrukovBugaevModel::LoadConfig(void)
 //{
-//  //fIntegrator = 
+//  //fIntegrator =
 ////       dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
 ////  assert(fIntegrator);
 //}

@@ -1,18 +1,10 @@
 //____________________________________________________________________________
 /*!
+ Copyright (c) 2003-2020, The GENIE Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
 
-\class    genie::exceptions::InteractionException
-
-\brief    Exception used inside Interaction classes.
-
-\author   Jeremy Wolcott <jwolcott \at fnal.gov>
-          Tufts University
-
-\created  July 15, 2016
-
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+ Jeremy Wolcott <jwolcott \at fnal.gov>
+ Tufts University
 */
 //____________________________________________________________________________
 

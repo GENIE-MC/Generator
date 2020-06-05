@@ -8,19 +8,29 @@
 \ref      [1] R.A.Smith and E.J.Moniz, Nuclear Physics  B43, (1972) 605-622 \n
           [2] K.S. Kuzmin, V.V. Lyubushkin, V.A.Naumov Eur. Phys. J. C54, (2008) 517-538
 
-\author   Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
-          adapted from  fortran code provided by \n
-          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>, Joint Institute for Nuclear Research \n
-          Vladimir Lyubushkin, Joint Institute for Nuclear Research \n
-          Vadim Naumov <vnaumov@theor.jinr.ru>, Joint Institute for Nuclear Research  \n
-          based on code of \n
-          Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>, University of Liverpool & STFC Rutherford Appleton Lab
+\author   Igor Kakorin <kakorin@jinr.ru>
+          Joint Institute for Nuclear Research \n
+
+          adapted from  fortran code provided by: \n
+
+          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>
+          Joint Institute for Nuclear Research \n
+
+          Vladimir Lyubushkin
+          Joint Institute for Nuclear Research \n
+
+          Vadim Naumov <vnaumov@theor.jinr.ru>
+          Joint Institute for Nuclear Research  \n
+
+          based on code of: \n
+          Costas Andreopoulos <constantinos.andreopoulos@cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 05, 2017
 
-\cpright  Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+
 */
 //____________________________________________________________________________
 
@@ -55,7 +65,7 @@ public:
         Range1D_t kFQES_SM_lim(double nu, double Q2) const;
         static double rho(double P_Fermi, double T_Fermi, double p);
         double PhaseSpaceVolume(KinePhaseSpace_t ps) const;
-        
+
         //! methods overloading the Algorithm() interface implementation
         //! to build the fragmentation function from configuration data
         void Configure(const Registry & config);
@@ -65,7 +75,7 @@ private:
         template <class C>
         class Func1D
         {
-            public: 
+            public:
                 Func1D(const C &obj, double (C::*f)(double) const):obj_(obj), f_(f){}
                 ~Func1D(){}
                 double operator()(double d) {return (obj_.*f_)( d);}
@@ -73,7 +83,7 @@ private:
                 const C &obj_;
                 double (C::*f_)(double) const;
         };
-        
+
         void   LoadConfig (void);
         double QEL_EnuMin_SM(double E_nu) const;
         double Q2lim1_SM(double Q2) const;
@@ -82,13 +92,13 @@ private:
         void DMINFC(Func1D<SmithMonizUtils> &F, double A,double B, double EPS, double DELTA, double &X, double &Y, bool &LLM) const;
         double vQES_SM_low_bound  (double Q2) const;
         double vQES_SM_upper_bound(double Q2) const;
-        
+
         map<int, double> fNucRmvE;
         string fKFTable;
         bool fUseParametrization;
-        
+
         const Interaction *  fInteraction;
-        
+
         // Some often used variables of class.
         // To not calculate them again and again and for speed increase
         // they are initialized at once for multiple use
@@ -107,10 +117,9 @@ private:
         double  E_BIN;      ///<  Binding energy (GeV)
 mutable	double  Enu_in;     ///<  Running neutrino energy (GeV)
 
-     
+
 };
-  
+
 
 }       // genie namespace
 #endif  // _SMITH_MONIZ_UTILS_H_
-

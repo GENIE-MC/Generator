@@ -1,38 +1,43 @@
-////////////////////////////////////////////////////////////////////////
-/// \file  GFlavorMap.h
-/// \class genie::flux::GFlavorMap
-/// \brief GENIE interface for flavor modification
-///
-///        Concrete instance of GFlavorMixerI that maps from
-///        one flavor to another independent of energy or distance.
-///        Users specify the transition probability from one flavor 
-///        to any of the PDG codes { 0, 12, 14, 16, -12, -14, -16 } 
-///        where 0 represents the complete disappearance (decay, sterile, ...).
-///
-///        Probability is expected to be normalized (that is, the sum
-///        of all possible outcomes, including 0, must be 1).
-///
-///        Supported config string formats:
-///        1)  " swap pdg1:pdg2  pdg3:pdg4 "
-///            Map all neutrinos of flavor "pdg1" to "pdg2",  "pdg3" to "pdg4"
-///            Use PDG values { 0, 12, 14, 16, -12, -14, -16 }
-///              for { sterile, nu_e, nu_mu, nu_tau, nu_e_bar, ...}
-///            Unnamed initial flavors are left unmodified.
-///            Use numeric values with spaces only between pairs.
-///            Must start with the literal "swap"
-///            (FMWK note:  param must be surrounded by explicit "'s)
-///        2)  " fixedfrac {pdg1:f0,f12,f14,f16,f-12,f-14,f-16} ..."
-///            For each group delineated by {}'s the map the "pdg1"
-///            by each pdg by the fraction given [0-1, sum=1].
-///            So {12:0.5,0.5,0,0,0,0,0} means nu_e => 50/50% nu_e/nu_mu.
-///            Each list *must* have an int + 7 fractions.
-///
-/// \author  Robert Hatcher <rhatcher \at fnal.gov>
-///          Fermi National Accelerator Laboratory
-///
-/// \created 2010-10-31
-/// \version $Id: GFlavorMap.h,v 1.1.1.1 2010/12/22 16:18:52 p-nusoftart Exp $
-////////////////////////////////////////////////////////////////////////
+//____________________________________________________________________________
+/*!
+
+\class   genie::flux::GFlavorMap
+
+\brief   GENIE interface for flavor modification
+
+         Concrete instance of GFlavorMixerI that maps from
+         one flavor to another independent of energy or distance.
+         Users specify the transition probability from one flavor
+         to any of the PDG codes { 0, 12, 14, 16, -12, -14, -16 }
+         where 0 represents the complete disappearance (decay, sterile, ...).
+
+         Probability is expected to be normalized (that is, the sum
+         of all possible outcomes, including 0, must be 1).
+
+         Supported config string formats:
+         1)  " swap pdg1:pdg2  pdg3:pdg4 "
+             Map all neutrinos of flavor "pdg1" to "pdg2",  "pdg3" to "pdg4"
+             Use PDG values { 0, 12, 14, 16, -12, -14, -16 }
+               for { sterile, nu_e, nu_mu, nu_tau, nu_e_bar, ...}
+             Unnamed initial flavors are left unmodified.
+             Use numeric values with spaces only between pairs.
+             Must start with the literal "swap"
+             (FMWK note:  param must be surrounded by explicit "'s)
+         2)  " fixedfrac {pdg1:f0,f12,f14,f16,f-12,f-14,f-16} ..."
+             For each group delineated by {}'s the map the "pdg1"
+             by each pdg by the fraction given [0-1, sum=1].
+             So {12:0.5,0.5,0,0,0,0,0} means nu_e => 50/50% nu_e/nu_mu.
+             Each list *must* have an int + 7 fractions.
+
+\author  Robert Hatcher <rhatcher \at fnal.gov>
+         Fermi National Accelerator Laboratory
+
+\created 2010-10-31
+
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
+         for the full text of the license visit http://copyright.genie-mc.org
+*/
+//____________________________________________________________________________
 
 #ifndef GENIE_FLUX_GFLAVORSWAP_H
 #define GENIE_FLUX_GFLAVORSWAP_H
@@ -44,9 +49,9 @@ namespace genie {
 namespace flux {
 
   class GFlavorMap : public GFlavorMixerI {
-    
+
   public:
-  
+
     GFlavorMap();
     ~GFlavorMap();
 
@@ -61,9 +66,9 @@ namespace flux {
 
     /// for any pair of PDG codes the model must calculate
     /// the transition probability.  This can also depend on
-    /// neutrino energy (in GeV) and distance (in meters) from 
+    /// neutrino energy (in GeV) and distance (in meters) from
     /// the neutrino origin.
-    double    Probability(int pdg_initial, int pdg_final, 
+    double    Probability(int pdg_initial, int pdg_final,
                           double energy, double dist);
 
     /// provide a means of printing the configuration

@@ -11,15 +11,14 @@
           Substantial refactorization by the core GENIE group.
 
 \ref      Hadron tensors used here are those computed by the following models:
-          
+
           J. Nieves, I. Ruiz Simo, M.J. Vicente Vacas,
           Inclusive quasi-elastic neutrino reactions, PRC 83 (2011) 045501
 
 \created  September 12, 2014
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -50,20 +49,20 @@ public:
   // MEC hadron tensor type
   //
 
-  typedef enum EMECHadronTensorType {  
+  typedef enum EMECHadronTensorType {
     kMHTUndefined = -1,
-    kMHTValenciaFullAll, 
-    kMHTValenciaFullpn, 
-    kMHTValenciaDeltaAll, 
+    kMHTValenciaFullAll,
+    kMHTValenciaFullpn,
+    kMHTValenciaDeltaAll,
     kMHTValenciaDeltapn
-  } 
+  }
   MECHadronTensorType_t;
 
   // ................................................................
   // MEC hadron tensor table
   //
 
-  class MECHadronTensorTable 
+  class MECHadronTensorTable
   {
   public:
      MECHadronTensorTable() { }

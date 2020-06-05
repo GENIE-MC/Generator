@@ -1,19 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - November 26, 2004
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Jun 25, 2008 - CA
-   Partial re-write to fix a serious memory leak. Holding x,y values in a map
-   rather than a circular ntuple.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 

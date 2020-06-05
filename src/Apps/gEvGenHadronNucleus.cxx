@@ -71,27 +71,29 @@
           University of Pittsburgh
 
           Costas Andreopoulos,
-          University of Liverpool & STFC Rutherford Appleton Lab
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \version 1.3
 
 \created May 1, 2007
 
-\cpright Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //____________________________________________________________________________
 
 #include <cassert>
 #include <cstdlib>
 
-#include <TSystem.h>
-#include <TFile.h>
-#include <TTree.h>
-#include <TH1D.h>
-#include <TF1.h>
+// ROOT
+#include "TSystem.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TH1D.h"
+#include "TF1.h"
 
+#include "Framework/Conventions/GBuild.h"
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Conventions/Controls.h"
 #include "Framework/EventGen/EventRecord.h"
@@ -237,36 +239,35 @@ const EventRecordVisitorI * GetIntranuke(void)
   string sname = "";
   string sconf = "";
 
-  if(gOptMode.compare("hA")==0) {
+  if        ( gOptMode.compare("hA") == 0 ) {
      sname = "genie::HAIntranuke";
      sconf = "Default";
-  }
-  else
-  if(gOptMode.compare("hN")==0) {
+  } else if ( gOptMode.compare("hN") == 0 ) {
      sname = "genie::HNIntranuke";
      sconf = "Default";
-  }
-  else
-  if(gOptMode.compare("hA2019")==0) {
+  } else if ( gOptMode.compare("hA2019") == 0 ) {
      sname = "genie::HAIntranuke2019";
      sconf = "Default";
-  }
-  else
-  if(gOptMode.compare("hN2019")==0) {
+  } else if ( gOptMode.compare("hN2019") == 0 ) {
      sname = "genie::HNIntranuke2019";
      sconf = "Default";
-  }
-  else
-  if(gOptMode.compare("hA2018")==0) {
+  } else if ( gOptMode.compare("hA2018") == 0 ) {
      sname = "genie::HAIntranuke2018";
      sconf = "Default";
-  }
-  else
-  if(gOptMode.compare("hN2018")==0) {
+  } else if ( gOptMode.compare("hN2018") == 0 ) {
      sname = "genie::HNIntranuke2018";
      sconf = "Default";
-  }
-  else {
+#ifdef __GENIE_INCL_ENABLED__
+  } else if ( gOptMode.compare("HINCL") == 0 ) {
+     sname = "genie::HINCLCascadeIntranuke";
+     sconf = "Default";
+#endif
+#ifdef __GENIE_GEANT4_INTERFACE_ENABLED__
+  } else if ( gOptMode.compare("HG4BertCasc") == 0 ) {
+     sname = "genie::HG4BertCascIntranuke";
+     sconf = "Default";
+#endif
+  } else {
     LOG("gevgen_hadron", pFATAL) << "Invalid Intranuke mode - Exiting";
     gAbortingInErr = true;
     exit(1);

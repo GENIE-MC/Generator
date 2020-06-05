@@ -1,21 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - November 23, 2004
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 07, 2009 - CA
-   Removed call to AddTargetNucleusRemnant(). This simulation step is now
-   performed further upstream in the processing chain.
- @ Mar 03, 2009 - CA
-   Moved into the new RES package from its previous location (EVGModules).
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -88,7 +77,7 @@ void RSPPHadronicSystemGenerator::AddResonanceDecayProducts(
   else           res_pos = 3;
 
   GHepParticle * res  = evrec->Particle(res_pos);
-  const TLorentzVector & x4 = *(res->X4());  
+  const TLorentzVector & x4 = *(res->X4());
 
   //-- mark the resonance as decayed
   res->SetStatus(kIStDecayedState);
@@ -115,7 +104,7 @@ void RSPPHadronicSystemGenerator::AddResonanceDecayProducts(
   TLorentzVector vdummy(0,0,0,0); // dummy 'vertex'
 
   // decide the particle status
-  GHepStatus_t ist = (is_nucleus) ? 
+  GHepStatus_t ist = (is_nucleus) ?
                               kIStHadronInTheNucleus : kIStStableFinalState;
   int mom = res_pos;
   evrec->AddParticle(nuc_pdgc, ist, mom,-1,-1,-1, p4_nuc, x4);
@@ -123,4 +112,3 @@ void RSPPHadronicSystemGenerator::AddResonanceDecayProducts(
   delete p4;
 }
 //___________________________________________________________________________
-

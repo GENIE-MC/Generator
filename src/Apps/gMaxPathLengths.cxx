@@ -59,13 +59,13 @@
            See $GENIE/src/Conventions/Units.h for GENIE unit definitions.
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created September 27, 2005
 
-\cpright Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //____________________________________________________________________________
 
