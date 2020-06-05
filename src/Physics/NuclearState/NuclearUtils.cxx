@@ -75,6 +75,15 @@ double genie::utils::nuclear::BindEnergy(int nucA, int nucZ)
 // formula from Wapstra (Handbuch der Physik, XXXVIII/1)
 
   if (nucA<=0 || nucZ<=0) return 0;
+  
+  if (nucZ == 2)
+  {
+   if (nucA == 3)
+     return 7.5e-3;
+   if (nucA == 4)
+     return 28.4e-3;
+   return 0.;
+  }
 
   double a =  15.835;
   double b =  18.33;

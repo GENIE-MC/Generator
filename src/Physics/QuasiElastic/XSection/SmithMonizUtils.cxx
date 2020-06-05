@@ -346,8 +346,8 @@ Range1D_t SmithMonizUtils::Q2QES_SM_lim(void) const
   {
      if(Q2lim2_SM(Q2_max)>0)
      {
-             LOG("SmithMoniz", pFATAL) << "No overlapped area for energy " << E_nu;
-             exit(1);
+           LOG("SmithMoniz", pWARN) << "The RFG model is not applicable! The cross section is set zero!";
+             Q2_min = Q2_max;
      }
      else
      {
