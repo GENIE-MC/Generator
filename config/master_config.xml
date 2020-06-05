@@ -55,6 +55,7 @@
    <config alg="genie::CEvNSEventGenerator">         CEvNSEventGenerator.xml         </config>
    <config alg="genie::NucleonDecayPrimaryVtxGenerator"> NucleonDecayPrimaryVtxGenerator.xml </config>
    <config alg="genie::NNBarOscPrimaryVtxGenerator">     NNBarOscPrimaryVtxGenerator.xml     </config>
+   <config alg="genie::NHLPrimaryVtxGenerator">          NHLPrimaryVtxGenerator.xml          </config>
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
    <config alg="genie::QELInteractionListGenerator">           QELInteractionListGenerator.xml       </config>
@@ -71,6 +72,7 @@
    <config alg="genie::SKInteractionListGenerator">            SKInteractionListGenerator.xml        </config>
    <config alg="genie::DMELInteractionListGenerator">          DMELInteractionListGenerator.xml      </config>
    <config alg="genie::DMDISInteractionListGenerator">         DMDISInteractionListGenerator.xml     </config>
+   <config alg="genie::IBDInteractionListGenerator">           IBDInteractionListGenerator.xml       </config>
    <config alg="genie::CEvNSInteractionListGenerator">         CEvNSInteractionListGenerator.xml     </config>
    <config alg="genie::DummyInteractionListGenerator">         Default.xml                           </config>
    <config alg="genie::NNBarOscDummyInteractionListGenerator"> Default.xml                           </config>
@@ -87,10 +89,10 @@
 
    <!-- ****** CONFIGURATION FOR FRAGMENTATION ALGORITHMS ****** -->
    <config alg="genie::AGKYLowW2019">            AGKYLowW2019.xml            </config>
-   <config alg="genie::AGKY2019">      AGKY2019.xml      </config>
+   <config alg="genie::AGKY2019">                AGKY2019.xml                </config>
    <config alg="genie::Pythia6Hadro2019">        Pythia6Hadro2019.xml        </config>
    <config alg="genie::Pythia8Hadro2019">        Pythia8Hadro2019.xml        </config>
-   <config alg="genie::AGCharm2019">          AGCharm2019.xml          </config>
+   <config alg="genie::AGCharm2019">             AGCharm2019.xml             </config>
 
    <!-- ****** CONFIGURATION FOR PARTON DENSITY FUNCTION ALGORITHMS ****** -->
    <config alg="genie::GRV98LO">                     GRV98LO.xml                     </config>
@@ -164,6 +166,9 @@
    <config alg="genie::P33PaschosLalakulichPXSec">          P33PaschosLalakulichPXSec.xml          </config>
    <config alg="genie::BardinIMDRadCorPXSec">               BardinIMDRadCorPXSec.xml               </config>
    <config alg="genie::IMDAnnihilationPXSec">               IMDAnnihilationPXSec.xml               </config>
+   <config alg="genie::IBDXSecMap">                         IBDXSecMap.xml                         </config>
+   <config alg="genie::StrumiaVissaniIBDPXSec">             StrumiaVissaniIBDPXSec.xml             </config>
+   <config alg="genie::KLVOxygenIBDPXSec">                  KLVOxygenIBDPXSec.xml                  </config>
    <config alg="genie::PattonCEvNSPXSec">                   PattonCEvNSPXSec.xml                   </config>
    <config alg="genie::NuElectronPXSec">                    NuElectronPXSec.xml                    </config>
    <config alg="genie::DMElectronPXSec">                    DMElectronPXSec.xml                    </config>
@@ -200,16 +205,7 @@
    <config alg="genie::mueloss::BezrukovBugaevModel">     BezrukovBugaevModel.xml    </config>
    <config alg="genie::mueloss::KokoulinPetrukhinModel">  KokoulinPetrukhinModel.xml </config>
    <config alg="genie::mueloss::PetrukhinShestakovModel"> PetrukhinShestakovModel.xml</config>
-   
-   <!-- ****** CONFIGURATION FOR MODELS IN VLE PACKAGE ****** -->
-   <config alg="genie::IBDHadronicSystemGenerator">     IBDHadronicSystemGenerator.xml   </config>
-   <config alg="genie::IBDKinematicsGenerator">         IBDKinematicsGenerator.xml       </config>
-   <config alg="genie::IBDPrimaryLeptonGenerator">      IBDPrimaryLeptonGenerator.xml    </config>
-   <config alg="genie::IBDXSecMap">                     IBDXSecMap.xml                   </config>
-   <config alg="genie::IBDInteractionListGenerator">    IBDInteractionListGenerator.xml  </config>
-   <config alg="genie::StrumiaVissaniIBDPXSec">         StrumiaVissaniIBDPXSec.xml       </config>
-   <config alg="genie::KLVOxygenIBDPXSec">              KLVOxygenIBDPXSec.xml            </config>
-   
+
    <!-- ****** CONFIGURATION FOR REWEIGHT ALGORITHMS ****** -->
    <config alg="genie::rew::GSystUncertaintyTable">     GSystUncertaintyTable.xml        </config>
 

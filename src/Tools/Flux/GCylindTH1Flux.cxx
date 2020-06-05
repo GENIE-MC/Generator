@@ -1,21 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - July 04, 2005
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
- @ Feb 22, 2011 - JD
-   Implemented dummy versions of the new GFluxI::Clear, GFluxI::Index and 
-   GFluxI::GenerateWeighted methods needed for pre-generation of flux
-   interaction probabilities in GMCJDriver.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -80,7 +69,7 @@ bool GCylindTH1Flux::GenerateNext(void)
 
   if(fRt <= 0) {
     fgX4.SetXYZT(0.,0.,0.,0.);
-  } 
+  }
   else {
     // Create a vector (vec) that points to a random position at a disk
     // of radius Rt passing through the origin, perpendicular to the
@@ -113,9 +102,9 @@ bool GCylindTH1Flux::GenerateNext(void)
 //___________________________________________________________________________
 void GCylindTH1Flux::Clear(Option_t * opt)
 {
-// Dummy clear method needed to conform to GFluxI interface 
+// Dummy clear method needed to conform to GFluxI interface
 //
-  LOG("Flux", pERROR) << 
+  LOG("Flux", pERROR) <<
       "No Clear(Option_t * opt) method implemented for opt: "<< opt;
 }
 //___________________________________________________________________________
@@ -123,8 +112,8 @@ void GCylindTH1Flux::GenerateWeighted(bool gen_weighted)
 {
 // Dummy implementation needed to conform to GFluxI interface
 //
-  LOG("Flux", pERROR) << 
-      "No GenerateWeighted(bool gen_weighted) method implemented for " << 
+  LOG("Flux", pERROR) <<
+      "No GenerateWeighted(bool gen_weighted) method implemented for " <<
       "gen_weighted: " << gen_weighted;
 }
 //___________________________________________________________________________
@@ -208,7 +197,7 @@ void GCylindTH1Flux::AddEnergySpectrum(int nu_pdgc, TH1D * spectrum)
      Axis_t max = spectrum->GetBinLowEdge(nb)+spectrum->GetBinWidth(nb);
      fMaxEv = TMath::Max(fMaxEv, (double)max);
 
-     LOG("Flux", pNOTICE) 
+     LOG("Flux", pNOTICE)
           << "Updating maximum energy of flux particles to: " << fMaxEv;
 
      this->AddAllFluxes(); // update combined flux

@@ -1,30 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - October 03, 2004
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 25, 2008 - CA
-   This event generation modules was first added in version 2.3.1 as part of
-   the new event generation thread handling amonaly-mediated single gamma
-   interactions. 
- @ Sep 25, 2008 - CA
-   Improved the calculation of the photon 4-momentum. Generating the 4-momentum
-   at NRF' and then rotating it to NRF and boosting it back at the LAB.
-   The photon cos(theta) follows a uniform distribution (with respect to the
-   incoming neutrnino in NRF). Need further inputs for modeling the energy 
-   transfer to the photon (uniform distribution up to the available energy).
-   The final state neutrino 4-momentum determined from energy conservation
-   (incoming nu = outgoing gamma + outgoing nu) but difficult to keep on the
-   mass shell. The nucleon recoil is negligible. For nuclear targets the hit
-   nucleon is forced back on the mass shell before intranuclear rescattering.
-   The necessary energy is taken from the remnant nucleus.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -85,11 +65,11 @@ void AMNuGammaGenerator::AddPhoton(GHepRecord * evrec) const
 
   // Get the neutrino 4-momentum at the LAB
   GHepParticle * nu = evrec->Probe();
-  const TLorentzVector & p4v_lab = *(nu->P4()); 
+  const TLorentzVector & p4v_lab = *(nu->P4());
 
   // Get the neutrino 4-momentum at the NRF
-  TLorentzVector p4v_nrf = p4v_lab; 
-  p4v_nrf.Boost(-1.*beta);                  
+  TLorentzVector p4v_nrf = p4v_lab;
+  p4v_nrf.Boost(-1.*beta);
 
   // Generate the photon cos(theta) with respect to the neutrino direction
   // (at NRF) and a uniform azimuthal angle phi
@@ -103,8 +83,8 @@ void AMNuGammaGenerator::AddPhoton(GHepRecord * evrec) const
   double Ev_nrf = p4v_nrf.Energy();
   double Egamma_nrf = Ev_nrf * efrac_gamma;
 
-  // Calculate the photon momentum components at a rotated NRF (NRF') 
-  // where z is along the neutrino direction 
+  // Calculate the photon momentum components at a rotated NRF (NRF')
+  // where z is along the neutrino direction
   double sintheta_gamma = TMath::Sqrt(1-TMath::Power(costheta_gamma,2));
   double pgamma_nrf_p = Egamma_nrf * costheta_gamma; // p(//)
   double pgamma_nrf_t = Egamma_nrf * sintheta_gamma; // p(-|)
@@ -113,7 +93,7 @@ void AMNuGammaGenerator::AddPhoton(GHepRecord * evrec) const
   double pz = pgamma_nrf_p;
 
   // Take a unit vector along the neutrino direction @ the NRF
-  TVector3 unit_nudir = p4v_nrf.Vect().Unit(); 
+  TVector3 unit_nudir = p4v_nrf.Vect().Unit();
 
   // Rotate the photon momentum vector from NRF' -> NRF
   TVector3 p3gamma_nrf(px,py,pz);
@@ -121,7 +101,7 @@ void AMNuGammaGenerator::AddPhoton(GHepRecord * evrec) const
 
   // Get the photon 4-momentum back at the LAB
   TLorentzVector p4gamma_lab(p3gamma_nrf, Egamma_nrf);
-  p4gamma_lab.Boost(beta); 
+  p4gamma_lab.Boost(beta);
 
   // Add the photon at the event record
   const TLorentzVector & vtx = *(nu->X4());
@@ -146,7 +126,7 @@ void AMNuGammaGenerator::AddFinalStateNeutrino(GHepRecord * evrec) const
   const TLorentzVector & p4nu_lab    = *(nu->P4());
   const TLorentzVector & p4gamma_lab = *(gamma->P4());
   TLorentzVector p4_lab = p4nu_lab - p4gamma_lab;
- 
+
   GHepParticle p(nu->Pdg(), kIStStableFinalState, 0,-1,-1,-1, p4_lab, vtx);
   evrec->AddParticle(p);
 }
@@ -154,10 +134,10 @@ void AMNuGammaGenerator::AddFinalStateNeutrino(GHepRecord * evrec) const
 void AMNuGammaGenerator::AddRecoilNucleon(GHepRecord * evrec) const
 {
 // Adding the recoil nucleon.
-// Recoil is negligible at the H3 model. However, for nuclear targets, the 
-// hit nucleon was off-the-mass-shell (bound). Doing some magic here to bring 
-// it back on-the-mass-shell so that it can be INTRANUKE'ed and appear in 
-// the final state. The nucleon will keep its original (Fermi) 3-momentum but 
+// Recoil is negligible at the H3 model. However, for nuclear targets, the
+// hit nucleon was off-the-mass-shell (bound). Doing some magic here to bring
+// it back on-the-mass-shell so that it can be INTRANUKE'ed and appear in
+// the final state. The nucleon will keep its original (Fermi) 3-momentum but
 // take some energy back from the remnant nucleus. No such tweaking takes
 // place for free nucleon targets.
 
@@ -170,11 +150,11 @@ void AMNuGammaGenerator::AddRecoilNucleon(GHepRecord * evrec) const
   // Get the hit nucleon
   GHepParticle * hitnuc = evrec->HitNucleon();
   assert(hitnuc);
-  
+
   // Get the hit nucleon pdg code (= recoil nucleon pdg code)
   int pdgc = hitnuc->Pdg();
 
-  // Get the hit nucleon 4-momentum (LAB) 
+  // Get the hit nucleon 4-momentum (LAB)
   const TLorentzVector & p4n = *(hitnuc->P4());
   TLorentzVector p4(p4n);
 
@@ -242,18 +222,18 @@ void AMNuGammaGenerator::AddTargetRemnant(GHepRecord * evrec) const
   }
 
   // Figure out the remnant 4-momentum
-  double Mf  = remnant->Mass();   
+  double Mf  = remnant->Mass();
   double Mf2 = TMath::Power(Mf,2);
-  double px  = -1.* rec_nucleon->Px();  
+  double px  = -1.* rec_nucleon->Px();
   double py  = -1.* rec_nucleon->Py();
   double pz  = -1.* rec_nucleon->Pz();
   double E   = TMath::Sqrt(Mf2 + rec_nucleon->P4()->Vect().Mag2());
   E += (hit_nucleon->P4()->E() - rec_nucleon->P4()->E());
-   
+
   //-- Add the nucleus to the event record
   LOG("AMNuGammaGenerator", pINFO)
        << "Adding nucleus [A = " << A << ", Z = " << Z
-                                           << ", pdgc = " << ipdgc << "]";   
+                                           << ", pdgc = " << ipdgc << "]";
   int mom = evrec->TargetNucleusPosition();
   evrec->AddParticle(
            ipdgc,kIStStableFinalState, mom,-1,-1,-1, px,py,pz,E, 0,0,0,0);

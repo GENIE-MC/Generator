@@ -6,20 +6,16 @@
 \brief   An exception thrown by NievesQELCCPXSec for kinematics problems.
          When failure occurs, set xsec = 0.
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+\author  Steve Dytman <dytman \at pitt.edu>
+	       Univ. of Pittsburgh
 
-         Steve Dytman <dytman \at pitt.edu>
-	 Univ. of Pittsburgh         
-	 
-	 Joe Johnston <jpj13 \at pitt.edu>
-	 Univ. of Pittsburgh
+      	 Joe Johnston <jpj13 \at pitt.edu>
+	       Univ. of Pittsburgh
 
 \created June 2015
 
-\cpright Copyright (c) 2003-2019, The GENIE Collaboration
-         For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
+         For the full text of the license visit http://copyright.genie-mc.org         
 */
 //____________________________________________________________________________
 

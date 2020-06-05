@@ -1,15 +1,13 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+ 
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
-         Changes required to implement the GENIE Boosted Dark Matter module
-         were installed by Josh Berger (Univ. of Wisconsin)
-
+ Changes required to implement the GENIE Boosted Dark Matter module
+ were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -31,7 +29,7 @@
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
-#include "Framework/GHEP/GHepFlags.h" 
+#include "Framework/GHEP/GHepFlags.h"
 #include "Framework/EventGen/EVGThreadException.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
@@ -94,17 +92,17 @@ void AGCharm2019::ProcessEventRecord(GHepRecord * event) const
   if(! particle_list ) {
     LOG("AGCharm2019", pWARN) << "Got an empty particle list. Hadronizer failed!";
     LOG("AGCharm2019", pWARN) << "Quitting the current event generation thread";
-    
+
     event->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
 
     genie::exceptions::EVGThreadException exception;
     exception.SetReason("Could not simulate the hadronic system");
     exception.SwitchOnFastForward();
     throw exception;
-    
+
     return;
   }
-  
+
   int mom = event->FinalStateHadronicSystemPosition();
   assert(mom!=-1);
 
@@ -116,13 +114,13 @@ void AGCharm2019::ProcessEventRecord(GHepRecord * event) const
   // retrieve the hadronic blob lorentz boost
   // Because Hadronize() returned particles not in the LAB reference frame
   const TLorentzVector * had_syst = event -> Particle(mom) -> P4() ;
-  TVector3 beta( 0., 0., had_syst -> P()/ had_syst -> Energy() ) ; 
+  TVector3 beta( 0., 0., had_syst -> P()/ had_syst -> Energy() ) ;
 
   // Vector defining rotation from LAB to LAB' (z:= \vec{phad})
   TVector3 unitvq = had_syst -> Vect().Unit();
-  
-  GHepParticle * neutrino  = event->Probe();                                                                                                                                                 
-  const TLorentzVector & vtx = *(neutrino->X4());                                                                                                                                            
+
+  GHepParticle * neutrino  = event->Probe();
+  const TLorentzVector & vtx = *(neutrino->X4());
 
   GHepParticle * particle = 0;
   TIter particle_iter(particle_list);
@@ -132,7 +130,7 @@ void AGCharm2019::ProcessEventRecord(GHepRecord * event) const
 
     //  bring the particle in the LAB reference frame
     particle -> P4() -> Boost( beta ) ;
-    particle -> P4() -> RotateUz( unitvq ) ; 
+    particle -> P4() -> RotateUz( unitvq ) ;
 
     // set the proper status according to a number of things:
     // interaction on a nucleaus or nucleon, particle type
@@ -153,19 +151,19 @@ void AGCharm2019::ProcessEventRecord(GHepRecord * event) const
 
     particle -> SetFirstMother( im ) ;
     if ( ifc > -1 ) {
-      particle -> SetFirstDaughter( ifc ) ; 
-      particle -> SetLastDaughter( ilc ) ; 
+      particle -> SetFirstDaughter( ifc ) ;
+      particle -> SetLastDaughter( ilc ) ;
     }
-    
-    // the Pythia particle position is overridden    
-    particle -> SetPosition( vtx ) ;         
-    
+
+    // the Pythia particle position is overridden
+    particle -> SetPosition( vtx ) ;
+
     event->AddParticle(*particle);
   }
 
   particle_list -> Delete() ;
-  delete particle_list ; 
-  
+  delete particle_list ;
+
   // update the weight of the event
   event -> SetWeight ( Weight() * event->Weight() );
 
@@ -178,7 +176,7 @@ TClonesArray * AGCharm2019::Hadronize(
 
   PDGLibrary * pdglib = PDGLibrary::Instance();
   RandomGen *  rnd    = RandomGen::Instance();
-  
+
   // ....................................................................
   // Get information on the input event
   //
@@ -223,8 +221,8 @@ TClonesArray * AGCharm2019::Hadronize(
      // Generate a charmed hadron PDG code
      int    pdg = this->GenerateCharmHadron(nu_pdg,Ev); // generate hadron
      double mc  = pdglib->Find(pdg)->Mass();           // lookup mass
-     
-     LOG("CharmHad", pNOTICE) 
+
+     LOG("CharmHad", pNOTICE)
          << "Trying charm hadron = " << pdg << "(m = " << mc << ")";
 
      if(mc>=W) continue; // dont' accept
@@ -237,55 +235,55 @@ TClonesArray * AGCharm2019::Hadronize(
      double Ec2 = TMath::Power(Ec,2);
      double pc2 = Ec2-mc2;
 
-     LOG("CharmHad", pINFO) 
+     LOG("CharmHad", pINFO)
          << "Trying charm hadron z = " << z << ", E = " << Ec;
-     
-     if(pc2<=0) continue; 
+
+     if(pc2<=0) continue;
 
      // Generate the charm hadron pT^2 and pL^2 (with respect to the
      // hadronic system direction @ the LAB)
-     double ptc2 = fCharmPT2pdf->GetRandom();   
+     double ptc2 = fCharmPT2pdf->GetRandom();
      double plc2 = Ec2 - ptc2 - mc2;
-     LOG("CharmHad", pINFO) 
+     LOG("CharmHad", pINFO)
            << "Trying charm hadron pT^2 (tranv to pHad) = " << ptc2;
      if(plc2<0) continue;
 
      // Generate the charm hadron momentum components (@ LAB', z:\vec{pHad})
      double ptc = TMath::Sqrt(ptc2);
-     double plc = TMath::Sqrt(plc2);   
+     double plc = TMath::Sqrt(plc2);
      double phi = (2*kPi) * rnd->RndHadro().Rndm();
      double pxc = ptc * TMath::Cos(phi);
      double pyc = ptc * TMath::Sin(phi);
-     double pzc = plc; 
+     double pzc = plc;
 
      p4C.SetPxPyPzE(pxc,pyc,pzc,Ec); // @ LAB'
 
      // Boost charm hadron 4-momentum from the LAB' to the HCM' frame
      //
-     LOG("CharmHad", pDEBUG) 
+     LOG("CharmHad", pDEBUG)
        << "Charm hadron p4 (@LAB') = " << utils::print::P4AsString(&p4C);
 
      p4C.Boost(beta);
 
-     LOG("CharmHad", pDEBUG) 
+     LOG("CharmHad", pDEBUG)
         << "Charm hadron p4 (@HCM') = " << utils::print::P4AsString(&p4C);
 
      // Hadronic non-charm remnant 4p at HCM'
      TLorentzVector p4 = p4H - p4C;
      double wr = p4.M();
-     LOG("CharmHad", pINFO) 
+     LOG("CharmHad", pINFO)
              << "Invariant mass of remnant hadronic system= " << wr;
      if(wr < kNucleonMass + kPionMass + kASmallNum) {
         LOG("CharmHad", pINFO) << "Too small hadronic remnant mass!";
         continue;
      }
-    
+
      ch_pdg = pdg;
      got_charmed_hadron = true;
 
-     LOG("CharmHad", pNOTICE) 
+     LOG("CharmHad", pNOTICE)
            << "Generated charm hadron = " << pdg << "(m = " <<  mc << ")";
-     LOG("CharmHad", pNOTICE) 
+     LOG("CharmHad", pNOTICE)
            << "Generated charm hadron z = " << z << ", E = " << Ec;
   }
 
@@ -294,49 +292,49 @@ TClonesArray * AGCharm2019::Hadronize(
   // hadron near the W - threshold.
   // If yes, attempt a phase space decay of a low mass charm hadron + nucleon
   // pair that maintains the charge.
-  // That's a desperate solution but don't want to quit too early as that 
+  // That's a desperate solution but don't want to quit too early as that
   // would distort the generated dsigma/dW distribution near threshold.
   //
   bool used_lowW_strategy = false;
   int  fs_nucleon_pdg = -1;
   if(ch_pdg==-1 && W < 3.){
-     LOG("CharmHad", pNOTICE) 
+     LOG("CharmHad", pNOTICE)
          << "Had difficulty generating charm hadronic system near W threshold";
-     LOG("CharmHad", pNOTICE) 
+     LOG("CharmHad", pNOTICE)
          << "Trying an alternative strategy";
 
      double qfsl  = interaction->FSPrimLepton()->Charge() / 3.;
      double qinit = pdglib->Find(nuc_pdg)->Charge() / 3.;
      int qhad  = (int) (qinit - qfsl);
 
-     int remn_pdg = -1; 
-     int chrm_pdg = -1; 
+     int remn_pdg = -1;
+     int chrm_pdg = -1;
 
      //cc-only: qhad(nu) = +1,+2, qhad(nubar)= -1,0
      //
-     if(qhad == 2) { 
-         chrm_pdg = kPdgDP; remn_pdg = kPdgProton; 
-     } else if(qhad ==  1) { 
-         if(rnd->RndHadro().Rndm() > 0.5) { 
-            chrm_pdg = kPdgD0; remn_pdg = kPdgProton; 
-         } else { 
-            chrm_pdg = kPdgDP; remn_pdg = kPdgNeutron; 
+     if(qhad == 2) {
+         chrm_pdg = kPdgDP; remn_pdg = kPdgProton;
+     } else if(qhad ==  1) {
+         if(rnd->RndHadro().Rndm() > 0.5) {
+            chrm_pdg = kPdgD0; remn_pdg = kPdgProton;
+         } else {
+            chrm_pdg = kPdgDP; remn_pdg = kPdgNeutron;
          }
-     } else if(qhad ==  0) { 
-         chrm_pdg = kPdgAntiD0; remn_pdg = kPdgNeutron; 
-     } else if(qhad == -1) { 
-         chrm_pdg = kPdgDM; remn_pdg = kPdgNeutron; 
-     } 
+     } else if(qhad ==  0) {
+         chrm_pdg = kPdgAntiD0; remn_pdg = kPdgNeutron;
+     } else if(qhad == -1) {
+         chrm_pdg = kPdgDM; remn_pdg = kPdgNeutron;
+     }
 
-     double mc  = pdglib->Find(chrm_pdg)->Mass();           
-     double mn  = pdglib->Find(remn_pdg)->Mass();          
+     double mc  = pdglib->Find(chrm_pdg)->Mass();
+     double mn  = pdglib->Find(remn_pdg)->Mass();
 
      if(mc+mn < W) {
         // Set decay
         double mass[2] = {mc, mn};
         bool permitted = fPhaseSpaceGenerator.SetDecay(p4H, 2, mass);
         assert(permitted);
- 
+
         // Get the maximum weight
         double wmax = -1;
         for(int i=0; i<200; i++) {
@@ -373,7 +371,7 @@ TClonesArray * AGCharm2019::Hadronize(
                  p4C            = *p4;
                  ch_pdg         = chrm_pdg;
                  fs_nucleon_pdg = remn_pdg;
-             } 
+             }
            } // decay loop
         }//wmax>0
 
@@ -385,7 +383,7 @@ TClonesArray * AGCharm2019::Hadronize(
   // remnant system
   //
   if(ch_pdg==-1){
-     LOG("CharmHad", pWARN) 
+     LOG("CharmHad", pWARN)
          << "Couldn't generate charm hadron for: " << *interaction;
      return 0;
   }
@@ -398,7 +396,7 @@ TClonesArray * AGCharm2019::Hadronize(
 
   // ....................................................................
   // Handle case where the user doesn't want to remnant system to be
-  // hadronized (add as 'hadronic blob') 
+  // hadronized (add as 'hadronic blob')
   //
   if(fCharmOnly) {
     // Create particle list (fragmentation record)
@@ -434,7 +432,7 @@ TClonesArray * AGCharm2019::Hadronize(
 
     return particle_list;
   }
-  
+
   // ....................................................................
   // --------------------------------------------------------------------
   // Hadronize non-charm hadronic blob using PYTHIA/JETSET
@@ -458,14 +456,14 @@ TClonesArray * AGCharm2019::Hadronize(
   bool use_pythia = (WR>1.5);
 
 /*
-  // Determining quark systems to input to PYTHIA based on simple quark model 
+  // Determining quark systems to input to PYTHIA based on simple quark model
   // arguments
   //
   // Neutrinos
   // ------------------------------------------------------------------
   // Scattering off valence q
   // ..................................................................
-  // p: [uu]+d 
+  // p: [uu]+d
   //         |--> c --> D0       <c+\bar(u)>  : [u]
   //                --> D+       <c+\bar(d)>  : [d]
   //                --> Ds+      <c+\bar(s)>  : [s]
@@ -476,7 +474,7 @@ TClonesArray * AGCharm2019::Hadronize(
   // Scattering off sea q
   // ..................................................................
   // p: [uud] + [\bar(d)]d (or)
-  //            [\bar(s)]s 
+  //            [\bar(s)]s
   //                     |--> c --> D0       <c+\bar(u)>  : [u]
   //                            --> D+       <c+\bar(d)>  : [d]
   //                            --> Ds+      <c+\bar(s)>  : [s]
@@ -486,7 +484,7 @@ TClonesArray * AGCharm2019::Hadronize(
   // Scattering off sea q
   // ..................................................................
   // p: [uud] + [d] \bar(d) (or)
-  //            [s] \bar(s) 
+  //            [s] \bar(s)
   //                   |----> \bar(c) --> \bar(D0) <\bar(c)+u>  : [\bar(u)]
   //                                  --> D-       <\bar(c)+d>  : [\bar(d)]
   //                                  --> Ds-      <\bar(c)+s>  : [\bar(s)]
@@ -532,7 +530,7 @@ TClonesArray * AGCharm2019::Hadronize(
   //
   //
   // Taking some short-cuts below :
-  // In the process of obtaining 2 q systems (while conserving the charge) I might tread 
+  // In the process of obtaining 2 q systems (while conserving the charge) I might tread
   // d,s or \bar(d),\bar(s) as the same
   // In the future I should perform the first steps of the multi-q hadronization manualy
   // (to reduce the number of q's input to PYTHIA) or use py3ent_(), py4ent_() ...
@@ -550,12 +548,12 @@ TClonesArray * AGCharm2019::Hadronize(
           if(isp) { qrkSyst2 = kPdgUUDiquarkS1; }
           if(isn) { qrkSyst2 = (rnd->RndHadro().Rndm()<0.5) ?  kPdgUDDiquarkS0 :  kPdgUDDiquarkS1; }
           if (ch_pdg==kPdgD0      ) { qrkSyst1 = kPdgUQuark; }
-          if (ch_pdg==kPdgDP      ) { qrkSyst1 = kPdgDQuark; }  
-          if (ch_pdg==kPdgDPs     ) { qrkSyst1 = kPdgSQuark; }  
+          if (ch_pdg==kPdgDP      ) { qrkSyst1 = kPdgDQuark; }
+          if (ch_pdg==kPdgDPs     ) { qrkSyst1 = kPdgSQuark; }
        }
      }
      if(isnub) { // antineutrinos
-       qrkSyst1 = kPdgDQuark;    
+       qrkSyst1 = kPdgDQuark;
        if (isp && ch_pdg==kPdgAntiD0) { qrkSyst2 = (rnd->RndHadro().Rndm()<0.5) ? kPdgUDDiquarkS0 : kPdgUDDiquarkS1; }
        if (isp && ch_pdg==kPdgDM    ) { qrkSyst2 = kPdgUUDiquarkS1; }
        if (isp && ch_pdg==kPdgDMs   ) { qrkSyst2 = kPdgUUDiquarkS1; }
@@ -564,7 +562,7 @@ TClonesArray * AGCharm2019::Hadronize(
        if (isn && ch_pdg==kPdgDMs   ) { qrkSyst2 = (rnd->RndHadro().Rndm()<0.5) ? kPdgUDDiquarkS0 : kPdgUDDiquarkS1; }
      }
      if(qrkSyst1 == 0 && qrkSyst2 == 0) {
-         LOG("CharmHad", pWARN) 
+         LOG("CharmHad", pWARN)
              << "Couldn't generate quark systems for PYTHIA in: " << *interaction;
          return 0;
      }
@@ -597,9 +595,9 @@ TClonesArray * AGCharm2019::Hadronize(
      int np = pythia_remnants->GetEntries();
      assert(np>0);
 
-      // PYTHIA performs the hadronization at the *remnant hadrons* centre of mass 
-      // frame  (not the hadronic centre of mass frame). 
-      // Boost all hadronic blob fragments to the HCM', fix their mother/daughter 
+      // PYTHIA performs the hadronization at the *remnant hadrons* centre of mass
+      // frame  (not the hadronic centre of mass frame).
+      // Boost all hadronic blob fragments to the HCM', fix their mother/daughter
       // assignments and add them to the fragmentation record.
 
       TVector3 rmnbeta = +1 * p4R.BoostVector(); // boost velocity
@@ -626,10 +624,10 @@ TClonesArray * AGCharm2019::Hadronize(
 							      pythia_remn->GetTime()               // t
 							      );
 
-	// boost 
-	bremn -> P4() -> Boost( rmnbeta ) ; 
-	
-         // handle insertion of charmed hadron 
+	// boost
+	bremn -> P4() -> Boost( rmnbeta ) ;
+
+         // handle insertion of charmed hadron
          int jp  = bremn->FirstMother();
 	 int ifc = bremn->FirstDaughter();
 	 int ilc = bremn->LastDaughter();
@@ -664,19 +662,19 @@ TClonesArray * AGCharm2019::Hadronize(
      bool allowdup=true;
      PDGCodeList pd(allowdup);
      if(Q==2) {
-            pd.push_back(kPdgProton);  pd.push_back(kPdgPiP);  } 
+            pd.push_back(kPdgProton);  pd.push_back(kPdgPiP);  }
      else if (Q==1) {
        if(rnd->RndHadro().Rndm()<0.5) {
             pd.push_back(kPdgProton);  pd.push_back(kPdgPi0);  }
        else {
             pd.push_back(kPdgNeutron); pd.push_back(kPdgPiP);  }
-     } 
+     }
      else if (Q==0) {
         if(rnd->RndHadro().Rndm()<0.5) {
             pd.push_back(kPdgProton);  pd.push_back(kPdgPiM);  }
         else {
            pd.push_back(kPdgNeutron);  pd.push_back(kPdgPi0);  }
-     } 
+     }
      else if (Q==-1) {
            pd.push_back(kPdgNeutron);  pd.push_back(kPdgPiM);  }
 
@@ -736,7 +734,7 @@ TClonesArray * AGCharm2019::Hadronize(
            pdgc,kIStStableFinalState,1,1,-1,-1,p4d->Px(),p4d->Py(),p4d->Pz(),p4d->Energy(),
            0,0,0,0);
      }
-  } 
+  }
 
   //-- Print & return the fragmentation record
   //utils::fragmrec::Print(particle_list);
@@ -746,39 +744,39 @@ TClonesArray * AGCharm2019::Hadronize(
 int AGCharm2019::GenerateCharmHadron(int nu_pdg, double EvLab) const
 {
   // generate a charmed hadron pdg code using a charm fraction table
-  
+
   RandomGen * rnd = RandomGen::Instance();
   double r  = rnd->RndHadro().Rndm();
-  
-  // the ratios are giving up to a certain value. 
+
+  // the ratios are giving up to a certain value.
   // The rations saturates at high energies, so the values used above that enery
-  // are the evaluated at 
-  
+  // are the evaluated at
+
   if(pdg::IsNeutrino(nu_pdg)) {
 
-    // the ratios are giving up to a certain value. 
+    // the ratios are giving up to a certain value.
     // The rations saturates at high energies, so the values used above that enery
     // are the evaluated at the maximum energies avaiable for the ratios
 
-    EvLab = TMath::Min( EvLab, fFracMaxEnergy ) ;  
-    
+    EvLab = TMath::Min( EvLab, fFracMaxEnergy ) ;
+
     double tf = 0;
     if      (r < (tf+=fD0FracSpl->Evaluate(EvLab)))  return kPdgD0;       // D^0
     else if (r < (tf+=fDpFracSpl->Evaluate(EvLab)))  return kPdgDP;       // D^+
     else if (r < (tf+=fDsFracSpl->Evaluate(EvLab)))  return kPdgDPs;      // Ds^+
     else                                             return kPdgLambdaPc; // Lamda_c^+
-    
+
   } else if(pdg::IsAntiNeutrino(nu_pdg)) {
     if      (r < fD0BarFrac)          return kPdgAntiD0;
     else if (r < fD0BarFrac+fDmFrac)  return kPdgDM;
     else                              return kPdgDMs;
   }
-  
+
   LOG("CharmHad", pERROR) << "Could not generate a charm hadron!";
   return 0;
 }
 //____________________________________________________________________________
-double AGCharm2019::Weight(void) const 
+double AGCharm2019::Weight(void) const
 {
   return 1. ;
 }
@@ -799,7 +797,7 @@ void AGCharm2019::Configure(string config)
 void AGCharm2019::LoadConfig(void)
 {
 
-  bool hadronize_remnants ; 
+  bool hadronize_remnants ;
   GetParamDef( "HadronizeRemnants", hadronize_remnants, true ) ;
 
   fCharmOnly = ! hadronize_remnants ;
@@ -816,22 +814,22 @@ void AGCharm2019::LoadConfig(void)
 
   // stop ROOT from deleting this object of its own volition
   gROOT->GetListOfFunctions()->Remove(fCharmPT2pdf);
-  
+
   // neutrino charm fractions: D^0, D^+, Ds^+ (remainder: Lamda_c^+)
   std::vector<double> ec, d0frac, dpfrac, dsfrac ;
 
   std::string raw ;
   std::vector<std::string> bits ;
-  
+
   bool invalid_configuration = false ;
 
   // load energy points
   this -> GetParamVect( "CharmFrac-E", ec ) ;
   fFracMaxEnergy = ec.back() - controls::kASmallNum ;
-  
+
   // load D0 fractions
   this -> GetParamVect( "CharmFrac-D0", d0frac ) ;
-  
+
   // check the size
   if ( d0frac.size() != ec.size() ) {
     LOG("AGCharm2019", pFATAL) << "E entries don't match D0 fraction entries";
@@ -839,7 +837,7 @@ void AGCharm2019::LoadConfig(void)
     LOG("AGCharm2019", pFATAL) << "D0: " << d0frac.size() ;
     invalid_configuration = true ;
   }
-  
+
   // load D+ fractions
   this -> GetParamVect( "CharmFrac-D+", dpfrac ) ;
 
@@ -850,7 +848,7 @@ void AGCharm2019::LoadConfig(void)
     LOG("AGCharm2019", pFATAL) << "D+: " << dpfrac.size() ;
     invalid_configuration = true ;
   }
-  
+
     // load D_s fractions
   this -> GetParamVect( "CharmFrac-Ds", dsfrac ) ;
 
@@ -861,26 +859,26 @@ void AGCharm2019::LoadConfig(void)
     LOG("AGCharm2019", pFATAL) << "Ds: " << dsfrac.size() ;
     invalid_configuration = true ;
   }
-  
+
   fD0FracSpl = new Spline( ec.size(), & ec[0], & d0frac[0] );
   fDpFracSpl = new Spline( ec.size(), & ec[0], & dpfrac[0] );
   fDsFracSpl = new Spline( ec.size(), & ec[0], & dsfrac[0] );
-  
+
   // anti-neutrino charm fractions: bar(D^0), D^-, (remainder: Ds^-)
-  
+
   this -> GetParam( "CharmFrac-D0bar", fD0BarFrac ) ;
   this -> GetParam( "CharmFrac-D-",    fDmFrac ) ;
-  
+
   if ( invalid_configuration ) {
-    
+
     LOG("AGCharm2019", pFATAL)
       << "Invalid configuration: Exiting" ;
-    
+
     // From the FreeBSD Library Functions Manual
     //
     // EX_CONFIG (78)   Something was found in an unconfigured or miscon-
     //                  figured state.
-    
+
     exit( 78 ) ;
   }
 }

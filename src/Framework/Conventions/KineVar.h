@@ -5,14 +5,13 @@
 
 \brief    Enumeration of kinematic variables
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org      
 */
 //____________________________________________________________________________
 
@@ -100,7 +99,6 @@ public:
       case(kKVSelv)    : return "*Selected* Energy transfer";            break;
       case(kKVSelphip) : return "*Selected* MK final pion phi";          break;
       case(kKVSelctp)  : return "*Selected* MK cosine final pion theta"; break;
-
       default          : return "** Unknown kinematic variable **";      break;
     }
     return "** Unknown kinematic variable **";

@@ -10,7 +10,7 @@
 # Example:
 # %perl make_genie_sim_file_list.pl /some/path/,model_name /another/path1:/another/path2,another_model_name ...
 #
-# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
 # STFC, Rutherford Appleton Lab
 #-------------------------------------------------------------------------------------------
 

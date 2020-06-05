@@ -106,14 +106,14 @@
                 t2k_rootracker format. 
                 The output file is named myfile.gtrac.root
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created September 23, 2005
 
-\cpright Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //_____________________________________________________________________________________________
 
@@ -747,11 +747,13 @@ void ConvertToGST(void)
       // now add pi0's that were decayed as short lived particles
       else if(pdgc == kPdgPi0){
 	int ifd = p->FirstDaughter();
-	int fd_pdgc = event.Particle(ifd)->Pdg();
-	// just require that first daughter is one of gamma, e+ or e-  
-	if(fd_pdgc == kPdgGamma || fd_pdgc == kPdgElectron || fd_pdgc == kPdgPositron){
-	  final_had_syst.push_back(ip);
-	}
+        if ( ifd != -1 ) {
+          int fd_pdgc = event.Particle(ifd)->Pdg();
+          // just require that first daughter is one of gamma, e+ or e-  
+          if(fd_pdgc == kPdgGamma || fd_pdgc == kPdgElectron || fd_pdgc == kPdgPositron){
+            final_had_syst.push_back(ip);
+          }
+        }
       }
     }//particle-loop
 

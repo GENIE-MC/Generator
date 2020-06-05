@@ -80,7 +80,7 @@ public:
 
       case (kSpp_vp_cc_10100) : return "v p -> l- p pi+";   break;
       case (kSpp_vn_cc_10010) : return "v n -> l- p pi0";   break;
-      case (kSpp_vn_cc_01100) : return "v n -> l- n pi+";   break; 
+      case (kSpp_vn_cc_01100) : return "v n -> l- n pi+";   break;
 
       case (kSpp_vp_nc_10010) : return "v p -> v p pi0";    break;
       case (kSpp_vp_nc_01100) : return "v p -> v n pi+";    break;
@@ -422,7 +422,7 @@ public:
     int probe = init_state.ProbePdg();
 
     // figure out spp channel
-    if( pdg::IsNeutrino(probe) ) { 
+    if( pdg::IsNeutrino(probe) ) {
 
        if ( proc_info.IsWeakCC() ) {
           if      (hit_p && fs_p && fs_pi_plus ) return kSpp_vp_cc_10100;
@@ -437,7 +437,7 @@ public:
           else                                   return kSppNull;
        } else return kSppNull;
 
-    } else if( pdg::IsAntiNeutrino(probe) ) { 
+    } else if( pdg::IsAntiNeutrino(probe) ) {
 
        if ( proc_info.IsWeakCC() ) {
           if      (hit_n && fs_n && fs_pi_minus) return kSpp_vbn_cc_01001;

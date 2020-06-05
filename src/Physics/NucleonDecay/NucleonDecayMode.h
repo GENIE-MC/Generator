@@ -5,14 +5,13 @@
 
 \brief    Enumeration of nucleon decay modes.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  November 10, 2011
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE 
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org           
 */
 //____________________________________________________________________________
 
@@ -31,13 +30,13 @@ namespace genie {
    // Antilepton + meson
    kNDN2eppi,           // m = 1: p --> e^{+} + \pi^{0}, n --> e^{+} + \pi^{-}
    kNDN2muppi,          // m = 2: p --> \mu^{+} + \pi^{0}, n --> \mu^{+} + \pi^{-}
-   kNDN2nubarpi,        // m = 3: p --> \bar{\nu}} + \pi^{+}, n -->  \bar{\nu}} + \pi^{0} 
+   kNDN2nubarpi,        // m = 3: p --> \bar{\nu}} + \pi^{+}, n -->  \bar{\nu}} + \pi^{0}
    kNDp2epeta,          // m = 4: p --> e^{+} + \eta
    kNDp2mupeta,         // m = 5: p --> \mu^{+} + \eta
    kNDn2nubareta,       // m = 6: n --> \bar{\nu}} + \eta
    kNDN2eprho,          // m = 7: p --> e^{+} + \rho^{0}, n --> e^{+} + \rho^{-}
    kNDN2muprho,         // m = 8: p --> \mu^{+} + \rho^{0}, n --> \mu^{+} + \rho^{-}
-   kNDN2nubarrho,       // m = 9: p --> \bar{\nu}} + \rho^{+}, n --> \bar{\nu}} + \rho^{0} 
+   kNDN2nubarrho,       // m = 9: p --> \bar{\nu}} + \rho^{+}, n --> \bar{\nu}} + \rho^{0}
    kNDp2epomega,        // m = 10: p --> e^{+} + \omega
    kNDp2mupomega,       // m = 11: p --> \mu^{+} + \omega
    kNDn2nubaromega,     // m = 12: n --> \bar{\nu}} + \omega
@@ -47,8 +46,8 @@ namespace genie {
    kNDN2mupK,           // m = 16: p --> \mu^{+} + K^{0}, n --> \mu^{+} + K^{-}
    kNDp2mupK0s,         // m = 17: p --> \mu^{+} + K^{0}_{short}
    kNDp2mupK0l,         // m = 18: p --> \mu^{+} + K^{0}_{long}
-   kNDN2nubarK,         // m = 19: p --> \bar{\nu}} + K^{+}, n --> \bar{\nu}} + K^{0} 
-   kNDn2nubarK0s,       // m = 20: n --> \bar{\nu}} + K^{0}_{short} 
+   kNDN2nubarK,         // m = 19: p --> \bar{\nu}} + K^{+}, n --> \bar{\nu}} + K^{0}
+   kNDn2nubarK0s,       // m = 20: n --> \bar{\nu}} + K^{0}_{short}
    kNDp2epKstar0,       // m = 21: p --> e^{+} + K^{\star 0}
    kNDN2nubarKstar,     // m = 22: p --> \bar{\nu}} + K^{\star +}, n --> \bar{\nu}} + K^{\star 0}
    // Antilepton + mesons
@@ -91,7 +90,7 @@ namespace genie {
    kNDp2mupnubarnu,     // m = 57: p --> \mu^{+} + \bar{\nu}} + \nu
    kNDp2emmupmup,       // m = 58: p --> e^{-} + \mu^{+} + \mu^{+}
    kNDn2threenus,       // m = 59: n --> \bar{\nu}} + \bar{\nu}} + \nu
-   kNDn2fivenus         // m = 60: n --> \bar{\nu}} + \bar{\nu}} + \bar{\nu}} + \nu + \nu 
+   kNDn2fivenus         // m = 60: n --> \bar{\nu}} + \bar{\nu}} + \bar{\nu}} + \nu + \nu
 
  } NucleonDecayMode_t;
 

@@ -14,14 +14,14 @@
               (the material ids correspond to the enumeration that can be seen
                in $GENIE/src/MuELoss/MuELMaterial.h)
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created March 10, 2006
 
-\cpright Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //____________________________________________________________________________
 
@@ -33,14 +33,14 @@
 #include <TFile.h>
 #include <TNtuple.h>
 
-#include "Algorithm/AlgFactory.h"
-#include "Conventions/Units.h"
-#include "MuELoss/MuELossI.h"
-#include "MuELoss/MuELMaterial.h"
-#include "MuELoss/MuELProcess.h"
-#include "Messenger/Messenger.h"
-#include "Utils/StringUtils.h"
-#include "Utils/CmdLnArgParser.h"
+#include "Framework/AlgorithmAlgFactory.h"
+#include "Framework/Conventions/Units.h"
+#include "Physics/MuonEnergyLoss/MuELossI.h"
+#include "Physics/MuonEnergyLoss/MuELMaterial.h"
+#include "Physics/MuonEnergyLoss/MuELProcess.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/StringUtils.h"
+#include "Framework/Utils/CmdLnArgParser.h"
 
 using std::string;
 using std::vector;

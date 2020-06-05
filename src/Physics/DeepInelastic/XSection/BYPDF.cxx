@@ -1,17 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Oct 09, 2009 - CA
-   Renamed to BYPDF from BYPDFModel
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -90,7 +83,7 @@ double BYPDF::Gluon(double x, double q2) const
 PDF_t BYPDF::AllPDFs(double x, double q2) const
 {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("BodekYang", pDEBUG) 
+  LOG("BodekYang", pDEBUG)
        << "Inputs: x = " << x << ", |q2| = " << TMath::Abs(q2);
 #endif
   if(TMath::Abs(q2) < fQ2min) q2=fQ2min;
@@ -151,9 +144,9 @@ PDF_t BYPDF::AllPDFs(double x, double q2) const
 //____________________________________________________________________________
 double BYPDF::DeltaDU(double x) const
 {
-// Computes the BY correction factor delta(d/u) 
+// Computes the BY correction factor delta(d/u)
 
-  double d = fX0 + fX1 * x + fX2 * TMath::Power(x,2); 
+  double d = fX0 + fX1 * x + fX2 * TMath::Power(x,2);
   return d;
 }
 //____________________________________________________________________________
@@ -179,9 +172,7 @@ void BYPDF::LoadConfig(void)
   GetParam( "PDF-Q2min", fQ2min ) ;
 
   // get the base PDF model (typically GRV9* LO)
-  fBasePDFModel = 
+  fBasePDFModel =
     dynamic_cast<const PDFModelI *>(this->SubAlg("Uncorr-PDF-Set"));
 }
 //____________________________________________________________________________
-
-

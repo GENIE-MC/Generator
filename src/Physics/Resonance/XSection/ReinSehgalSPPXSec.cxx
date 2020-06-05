@@ -1,16 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - March 09, 2006
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -89,22 +83,22 @@ double ReinSehgalSPPXSec::Integrate(
 
      //-- Build a unique name for the cache branch
      string key = this->CacheBranchName(res, it, nu_pdgc, nucleon_pdgc);
-     LOG("ReinSehgalSpp", pINFO) 
+     LOG("ReinSehgalSpp", pINFO)
                             << "Finding cache branch with key: " << key;
      CacheBranchFx * cache_branch =
             dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
 
      if(!cache_branch) {
-       LOG("ReinSehgalSpp", pWARN)  
+       LOG("ReinSehgalSpp", pWARN)
          << "No cached RES v-production data for input neutrino"
          << " (pdgc: " << nu_pdgc << ")";
-       LOG("ReinSehgalSpp", pWARN)  
+       LOG("ReinSehgalSpp", pWARN)
          << "Wait while computing/caching RES production xsec first...";
 
-       this->CacheResExcitationXSec(interaction); 
+       this->CacheResExcitationXSec(interaction);
 
        LOG("ReinSehgalSpp", pINFO) << "Done caching resonance xsec data";
-       LOG("ReinSehgalSpp", pINFO) 
+       LOG("ReinSehgalSpp", pINFO)
                << "Finding newly created cache branch with key: " << key;
        cache_branch =
               dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
@@ -134,13 +128,13 @@ double ReinSehgalSPPXSec::Integrate(
        << "> * <BR(->1pi) = " << br
        << "> * <Breit-Wigner * d^2xsec/dQ^2dW = " << rxsec
        << "> = " << res_xsec_contrib;
-   
+
      //-- Add contribution of this resonance to the cross section
      xsec += res_xsec_contrib;
 
   }//res
 
-  SLOG("ReinSehgalSpp", pNOTICE)  
+  SLOG("ReinSehgalSpp", pNOTICE)
          << "XSec[SPP/" << SppChannel::AsString(spp_channel)
                                << "/free] (Ev = " << Ev << " GeV) = " << xsec;
 
@@ -150,7 +144,7 @@ double ReinSehgalSPPXSec::Integrate(
   //-- number of scattering centers in the target
   int NNucl = (pdg::IsProton(nucleon_pdgc)) ? target.Z() : target.N();
 
-  xsec*=NNucl; // nuclear xsec 
+  xsec*=NNucl; // nuclear xsec
 
   return xsec;
 }
@@ -173,7 +167,7 @@ void ReinSehgalSPPXSec::LoadConfig(void)
   GetParamDef( "gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
   GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 0.01 ) ;
   GetParamDef( "gsl-max-eval", fGSLMaxEval, 100000 ) ;
-  
+
   // get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
   GetParamDef( "ESplineMax", fEMax, 100. ) ;
   fEMax = TMath::Max(fEMax, 20.); // don't accept user Emax if less than 20 GeV

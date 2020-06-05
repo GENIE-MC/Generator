@@ -1,7 +1,7 @@
 #
 # Makefile for GENIE test programs
 #
-# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
 # May 02, 2004
 #
 

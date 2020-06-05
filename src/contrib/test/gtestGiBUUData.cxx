@@ -8,25 +8,25 @@
 
 \syntax  gtestGiBUUData
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created May 31, 2009
 
-\cpright Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //____________________________________________________________________________
 
 #include <TFile.h>
 #include <TTree.h>
 
-#include "BaryonResonance/BaryonResUtils.h"
-#include "GiBUU/GiBUUData.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/Spline.h"
-#include "PDG/PDGCodes.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
+#include "Physics/Resonance/XSection/GiBUURESFormFactor.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/Spline.h"
+#include "Framework/ParticleData/PDGCodes.h"
 
 using namespace genie;
 using namespace genie::utils;
@@ -45,9 +45,9 @@ void SaveToRootFile(void)
   // get GiBUU data
   //
 
-  GiBUUData * gd = GiBUUData::Instance();
+  GiBUURESFormFactor * gd = GiBUURESFormFactor::Instance();
 
-  const GiBUUData::FormFactors & ff = gd->FF();
+  const GiBUURESFormFactor::FormFactors & ff = gd->FF();
 
   //
   // define inputs

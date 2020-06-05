@@ -1,20 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Mar 03, 2009 - CA
-   Moved into the new DIS package from its previous location (EVGModules).
- @ Feb 06, 2013 - CA
-   When the value of the differential cross-section for the selected kinematics
-   is set to the event, set the corresponding KinePhaseSpace_t value too.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -76,16 +66,16 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   const EventGeneratorI * evg = rtinfo->RunningThread();
   fXSecModel = evg->CrossSectionAlg();
 
-  //-- Get the interaction 
+  //-- Get the interaction
   Interaction * interaction = evrec->Summary();
   interaction->SetBit(kISkipProcessChk);
 
-  //-- Get neutrino energy and hit 'nucleon mass' 
+  //-- Get neutrino energy and hit 'nucleon mass'
   const InitialState & init_state = interaction->InitState();
   double Ev  = init_state.ProbeE(kRfHitNucRest);
   double M   = init_state.Tgt().HitNucP4().M(); // can be off m-shell
 
-  //-- Get the physical W range 
+  //-- Get the physical W range
   const KPhaseSpace & kps = interaction->PhaseSpace();
   Range1D_t W  = kps.Limits(kKVW);
   if(W.max <=0 || W.min>=W.max) {
@@ -140,8 +130,8 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      interaction->KinePtr()->Sety(gy);
      kinematics::UpdateWQ2FromXY(interaction);
 
-     LOG("DISKinematics", pNOTICE) 
-        << "Trying: x = " << gx << ", y = " << gy 
+     LOG("DISKinematics", pNOTICE)
+        << "Trying: x = " << gx << ", y = " << gy
         << " (W  = " << interaction->KinePtr()->W()  << ","
         << " (Q2 = " << interaction->KinePtr()->Q2() << ")";
 
@@ -159,14 +149,14 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
               << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
 #endif
         accept = (t < J*xsec);
-     } 
+     }
      else {
         accept = (xsec>0);
      }
 
      //-- If the generated kinematics are accepted, finish-up module's job
      if(accept) {
-         LOG("DISKinematics", pNOTICE) 
+         LOG("DISKinematics", pNOTICE)
             << "Selected:  x = " << gx << ", y = " << gy
             << " (W  = " << interaction->KinePtr()->W()  << ","
             << " (Q2 = " << interaction->KinePtr()->Q2() << ")";
@@ -196,7 +186,7 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          //bool is_em = interaction->ProcInfo().IsEM();
          kinematics::XYtoWQ2(Ev,M,gW,gQ2,gx,gy);
 
-         LOG("DISKinematics", pNOTICE) 
+         LOG("DISKinematics", pNOTICE)
                         << "Selected x,y => W = " << gW << ", Q2 = " << gQ2;
 
          // lock selected kinematics & clear running values
@@ -287,7 +277,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
        ypeak    = .7;
        ywindow  = .3;
     }
-  } 
+  }
 
   const KPhaseSpace & kps = interaction->PhaseSpace();
   Range1D_t xl = kps.Limits(kKVx);
@@ -301,7 +291,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
   double dy      = (ymax-ymin)/(Ny-1);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISKinematics", pDEBUG) 
+  LOG("DISKinematics", pDEBUG)
     << "Searching max. in x [" << xmin << ", " << xmax << "], y [" << ymin << ", " << ymax << "]";
 #endif
   double xseclast_y = -1;
@@ -326,7 +316,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
 
         double xsec = fXSecModel->XSec(interaction, kPSxyfE);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-        LOG("DISKinematics", pINFO) 
+        LOG("DISKinematics", pINFO)
                 << "xsec(y=" << gy << ", x=" << gx << ") = " << xsec;
 #endif
         // update maximum xsec
@@ -340,7 +330,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
         // is grossly underestimated (very peaky distribution & large step)
         if(!increasing_x) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-          LOG("DISKinematics", pDEBUG) 
+          LOG("DISKinematics", pDEBUG)
            << "d2xsec/dxdy|x stopped increasing. Stepping back & exiting x loop";
 #endif
           //double dlogxn = dlogx/(Nxb+1);
@@ -352,7 +342,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
              kinematics::UpdateWQ2FromXY(interaction);
              xsec = fXSecModel->XSec(interaction, kPSxyfE);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-             LOG("DISKinematics", pINFO) 
+             LOG("DISKinematics", pINFO)
                 << "xsec(y=" << gy << ", x=" << gx << ") = " << xsec;
 #endif
 	  }
@@ -363,7 +353,7 @@ double DISKinematicsGenerator::ComputeMaxXSec(
      xseclast_y   = max_xsec;
      if(!increasing_y) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-       LOG("DISKinematics", pDEBUG) 
+       LOG("DISKinematics", pDEBUG)
            << "d2xsec/dxdy stopped increasing. Exiting y loop";
 #endif
        break;
@@ -385,4 +375,3 @@ double DISKinematicsGenerator::ComputeMaxXSec(
   return max_xsec;
 }
 //___________________________________________________________________________
-

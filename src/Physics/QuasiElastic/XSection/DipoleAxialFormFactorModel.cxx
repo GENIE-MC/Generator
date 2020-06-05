@@ -1,16 +1,13 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
-\author   Aaron Meyer <asmeyer2012 \at uchicago.edu>
-          based off DipoleELFormFactorsModel by
-          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+ Aaron Meyer <asmeyer2012 \at uchicago.edu>
 
- For the class documentation see the corresponding header file.
-
+ based off DipoleELFormFactorsModel by
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -72,4 +69,3 @@ void DipoleAxialFormFactorModel::LoadConfig(void)
   GetParam( "QEL-FA0", fFA0 ) ;
 }
 //____________________________________________________________________________
-
