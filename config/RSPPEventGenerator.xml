@@ -11,19 +11,22 @@ Name                     Type    Opt   Comment                                  
 .......................................................................................................................
 UniformOverPhaseSpace    bool    Yes   kinematics uniformly over allowd phase space                            false
                                        wgt = (phase_space_volume)*(diff_xsec)/(xsec)
-MaxXSec-SafetyFactor     double  Yes   multiplies max xsec in rejection method                                  1.25
-MaxXSec-DiffTolerance    double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)                          999999 
-                                       (disable) if xsec>xsecmax
-Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cached                               0.5
-
-NumOfKnots_W             int     Yes   Number of W-knots to coarse search maximum on the grid                     40
-NumOfKnots_Q2            int     Yes   Number of Q2-knots to coarse search maximum on the grid                    40
-NumOfKnots_CosTheta      int     Yes   Number of cosine of theta-knots to coarse search maximum on the grid       40
-NumOfKnots_Phi           int     Yes   Number of phi-knots to coarse search maximum on the grid                   40
+EnergyWidthOfNextGrid    double  Yes   Interval between reference energies of neutrino                         0.5 
+                                       (in hit nucleon rest frame) at which the foam grid is built
+FOAM_NCells              int     Yes   No of allocated number of cells                                         1000
+FOAM_NSampl              int     Yes   No. of MC events in the cell MC exploration                             200
+FOAM_NBin                int     Yes   No. of bins in edge-histogram in cell exploration                       8
+FOAM_OptRej              int     Yes   OptRej = 0, weighted; OptRej=1, wt=1 MC events                          1
+FOAM_OptDrive            int     Yes   Maximum weight reduction, =1 for variance reduction                     2
+FOAM_EvPerBin            int     Yes   Maximum number of the effective wt=1 events/bin,                        25
+                                       EvPerBin=0 deactivates this option                                      
+FOAM_Chat                int     Yes   =0,1,2 is the "chat level" in the standard out                          0
+FOAM_MaxWtRej            double  Yes   Maximum weight used to get w=1 MC events                                1.1
 -->
 
   <param_set name="Default">
-    
+      
+
   </param_set>
 
 

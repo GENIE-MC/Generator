@@ -41,6 +41,8 @@ Is a concrete implementation of the EventRecordVisitorI interface.
 
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
+#include <TFoam.h>
+#include <TFoamIntegrand.h>
 
 #include "Framework/Utils/Range1.h"
 #include "Physics/Common/KineGeneratorWithCache.h"
@@ -48,7 +50,7 @@ Is a concrete implementation of the EventRecordVisitorI interface.
 
 namespace genie {
 
-class RSPPEventGenerator : public KineGeneratorWithCache {
+class RSPPEventGenerator : public EventRecordVisitorI {
 
 public :
   RSPPEventGenerator();
@@ -65,19 +67,29 @@ public :
 
 private:
   void   LoadConfig      (void);
-  double ComputeMaxXSec  (const Interaction * interaction) const;
   int GetRecoilNucleonPdgCode(Interaction * interaction) const;
   int GetFinalPionPdgCode(Interaction * interaction) const;
+  string CreateKey(int num_grid, Interaction * interaction) const;
+  void OpenFile (void);
   
-  int N_W;              ///<  Number of W-knots to search maximum on the grid
-  int N_Q2;             ///<  Number of Q2-knots to search maximum on the grid
-  int N_CosTheta;       ///<  Number of cosine of theta-knots to search maximum on the grid
-  int N_Phi;            ///<  Number of phi-knots to search maximum on the grid
+  mutable TFoam * fFoam = 0;        ///< MC adaptive simulator
+  mutable TFile * fFoam_file;       ///< File to store MC Foam grid
+  mutable const XSecAlgorithmI * fXSecModel;
+  bool   fGenerateUniformly;    ///< Uniform over allowed phase space + event weight?
+  double fNextGriddE;           ///< Interval between reference energies of neutrino (in hit nucleon rest frame) at which the foam grid is built
+  int    fFOAMNCells;           ///< No of allocated number of cells  
+  int    fFOAMNSampl;           ///< No. of MC events in the cell MC exploration        
+  int    fFOAMNBin;             ///< No. of bins in edge-histogram in cell exploration        
+  int    fFOAMOptRej;           ///< OptRej = 0, weighted; OptRej=1, wt=1 MC events        
+  int    fFOAMOptDrive;         ///< Maximum weight reduction, =1 for variance reduction         
+  int    fFOAMEvPerBin;         ///< Maximum number of the effective wt=1 events/bin, EvPerBin=0 deactivates this option
+  int    fFOAMChat;             ///< =0,1,2 is the `‘chat level’' in the standard output      
+  double fFOAMMaxWtRej;         ///< Maximum weight used to get w=1 MC events       
   
-
+  
+  
+  
 };
-
-
 
 class XSecAlgorithmI;
 class Interaction;
@@ -92,7 +104,7 @@ namespace gsl   {
 // genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E
 // A 4-D cross section function: d4XSecMK_dWQ2CosThetaPhi_E = f(W, Q2, CosTheta, Phi)|(fixed E)
 //
-class d4XSecMK_dWQ2CosThetaPhi_E: public ROOT::Math::IBaseFunctionMultiDim
+class d4XSecMK_dWQ2CosThetaPhi_E: public ROOT::Math::IBaseFunctionMultiDim, public TFoamIntegrand
 {
 public:
   d4XSecMK_dWQ2CosThetaPhi_E(const XSecAlgorithmI * m, const Interaction * i);
@@ -102,6 +114,9 @@ public:
   unsigned int                        NDim   (void)               const;
   double                              DoEval (const double * xin) const;
   ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
+  
+  // TFoamIntegrand interface
+  double Density (int ndim, double * xin);
 
 private:
   const XSecAlgorithmI * fModel;

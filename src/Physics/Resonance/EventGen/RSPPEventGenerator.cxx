@@ -13,11 +13,14 @@
 */
 //____________________________________________________________________________
 
+#include <sstream>
+
 #include <TMath.h>
+#include <TFile.h>
+#include <TKey.h>
 #include <Math/Factory.h>
 #include <Math/Minimizer.h>
-
-#include <vector>
+#include <TH1.h>
 
 
 #include "Framework/Algorithm/AlgConfigPool.h"
@@ -39,6 +42,8 @@
 #include "Framework/Conventions/Constants.h"
 #include "Physics/Resonance/EventGen/RSPPEventGenerator.h"
 
+using std::ostringstream;
+
 using namespace genie;
 using namespace genie::controls;
 using namespace genie::utils;
@@ -46,32 +51,39 @@ using namespace genie::constants;
 
 //___________________________________________________________________________
 RSPPEventGenerator::RSPPEventGenerator() :
-KineGeneratorWithCache("genie::RSPPEventGenerator")
+EventRecordVisitorI("genie::RSPPEventGenerator")
 {
-
+   OpenFile();
 }
 //___________________________________________________________________________
 RSPPEventGenerator::RSPPEventGenerator(string config) :
-KineGeneratorWithCache("genie::RSPPEventGenerator", config)
+EventRecordVisitorI("genie::RSPPEventGenerator", config)
 {
-  
+   OpenFile();
 }
 //___________________________________________________________________________
 RSPPEventGenerator::~RSPPEventGenerator()
 {
-  
+  fFoam_file->Close();
+  delete fFoam_file;
+}
+//___________________________________________________________________________
+void RSPPEventGenerator::OpenFile(void)
+{
+  TDirectory *& cur_dir = TDirectory::CurrentDirectory();
+  fFoam_file = new TFile("foam_grid.root","RECREATE","foam");
+  if (cur_dir)
+    TDirectory::Cd(cur_dir->GetPath());
 }
 //___________________________________________________________________________
 void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-    
+  
+  TDirectory *& cur_dir = TDirectory::CurrentDirectory();
+  fFoam_file->cd();
+  
   
   LOG("RSPPEventGen", pINFO) << "Generating resonance single pion production event kinematics...";
-
-  if(fGenerateUniformly) {
-    LOG("RSPPEventGen", pNOTICE)
-          << "Generating kinematics uniformly over the allowed phase space";
-  }
   
   //-- Get the interaction from the GHEP record
   Interaction * interaction = evrec->Summary();
@@ -79,7 +91,6 @@ void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   const KPhaseSpace& kps = interaction->PhaseSpace();
 
   // Access the target from the interaction summary
-  //const Target & tgt = init_state.Tgt();
   Target * tgt = interaction -> InitStatePtr()->TgtPtr();
   
   // get masses of nucleon and pion
@@ -97,12 +108,9 @@ void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   TLorentzVector k1(*(init_state.GetProbeP4(kRfLab)));
   // 4-momentum of hit nucleon in lab frame
   TLorentzVector p1(*(evrec->HitNucleon())->P4());
-  
   TLorentzVector p1_copy(p1);
-  
   // set temporarily initial nucleon on shell
   p1.SetE(TMath::Sqrt(p1.P()*p1.P() + M*M));
-  
   tgt->SetHitNucP4(p1);
   
   // neutrino 4-momentun in nucleon rest frame
@@ -123,67 +131,104 @@ void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
-
-  double xsec = -1;
-  double xin[4];
+      
+  bool isDestroy = false;
   
-  //-- For the subsequent kinematic selection with the rejection method:
-  //   Calculate the max differential cross section or retrieve it from the
-  //   cache. Throw an exception and quit the evg thread if a non-positive
-  //   value is found.
-  //   If the kinematics are generated uniformly over the allowed phase
-  //   space the max xsec is irrelevant
-  double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
- 
-  // generate W, Q2, cos(theta) and phi by accept-reject method
-  unsigned int iter = 0;
-  bool accept = false;
-  while(1) 
+  double xin[4];
+  double xsec = -1;
+  double wght = 1.;
+  if(fGenerateUniformly)
   {
-     iter++;
-     if(iter > 100*kRjMaxIterations) {
-         LOG("RSPPEventGen", pWARN)
-              << "*** Could not select a valid kinematics variable after "
-                                                    << iter << " iterations";
-         evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
-         genie::exceptions::EVGThreadException exception;
-         exception.SetReason("Couldn't select kinematics");
-         exception.SwitchOnFastForward();
-         throw exception;
-     }
-
-     xin[0] = rnd->RndKine().Rndm();
-     xin[1] = rnd->RndKine().Rndm();
-     xin[2] = rnd->RndKine().Rndm();
-     xin[3] = rnd->RndKine().Rndm();
+     LOG("RSPPEventGen", pNOTICE)
+           << "Generating kinematics uniformly over the allowed phase space";
      
-     
-     //-- Computing cross section for the current kinematics
-     xsec = -(*f)(xin);
-     
-     //-- Decide whether to accept the current kinematics
-     if(!fGenerateUniformly)
+     // generate W, Q2, cos(theta) and phi by accept-reject method
+     unsigned int iter = 0;
+     bool accept = false;
+     while(1) 
      {
-       this->AssertXSecLimits(interaction, xsec, xsec_max);
-       double t = xsec_max * rnd->RndKine().Rndm();
-       accept = (t < xsec);
-     }
-     else 
-     {
+        iter++;
+        if(iter > kRjMaxIterations) {
+            LOG("RSPPEventGen", pWARN)
+                 << "*** Could not select a valid kinematics variable after "
+                                                       << iter << " iterations";
+            evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
+            genie::exceptions::EVGThreadException exception;
+            exception.SetReason("Couldn't select kinematics");
+            exception.SwitchOnFastForward();
+            throw exception;
+        }
+     
+        xin[0] = rnd->RndKine().Rndm();
+        xin[1] = rnd->RndKine().Rndm();
+        xin[2] = rnd->RndKine().Rndm();
+        xin[3] = rnd->RndKine().Rndm();
+     
+        
+        //-- Computing cross section for the current kinematics
+        xsec = (*f)(xin);
+        
         accept = (xsec>0);
-     }
-     
-     // If the generated kinematics are accepted, finish-up module's job
-     if(accept)
-     {
-       // reset 'trust' bits
-       interaction->ResetBit(kISkipProcessChk);
-       interaction->ResetBit(kISkipKinematicChk);
-       break;
-     }
-     iter++;
-   }
-
+        
+        // If the generated kinematics are accepted, finish-up module's job
+        if(accept)
+        {
+          // reset 'trust' bits
+          interaction->ResetBit(kISkipProcessChk);
+          interaction->ResetBit(kISkipKinematicChk);
+          break;
+        }
+        iter++;
+      }
+  }
+  else
+  {
+       Interaction * ref_int = new Interaction (*interaction);
+       double Eth = kps.Threshold_RSPP();
+       int num_grid = TMath::Floor(.5 + (Ev - Eth)/fNextGriddE);
+       InitialState * ref_init_state = ref_int -> InitStatePtr();
+       Target * ref_tgt = ref_init_state->TgtPtr();
+       ref_init_state->SetProbeP4(TLorentzVector(0., 0., 0., Eth + num_grid*fNextGriddE));
+       ref_tgt->SetHitNucP4(p1_HNRF);
+       genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E * rho = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, ref_int);
+       string key = CreateKey(num_grid, ref_int);
+       fFoam = (TFoam*) fFoam_file->Get(key.c_str());
+       if (!fFoam)
+       {
+          fFoam  = new TFoam(key.c_str());   // Create Simulator
+          isDestroy = true;
+          fFoam->SetkDim(       rho->NDim());      // Mandatory!!!Dimension of the integration space. Must be redefined!
+          fFoam->SetnCells(     fFOAMNCells);    // optional. No of allocated number of cells. default: 1000
+          fFoam->SetnSampl(     fFOAMNSampl);    // optional. No. of MC events in the cell MC exploration. default: 200
+          fFoam->SetnBin(       fFOAMNBin);      // optional. No. of bins in edge-histogram in cell exploration. default: 8
+          fFoam->SetOptRej(     fFOAMOptRej);    // optional. if 0 then weighted; if 1 then weight=1 for MC events. default: 1
+          fFoam->SetOptDrive(   fFOAMOptDrive);  // optional. Maximum weight reduction, =1 for variance reduction. default: 2
+          fFoam->SetEvPerBin(   fFOAMEvPerBin);  // optional. Maximum number of the effective weight=1 events/bin, if 0 deactivates this option. default: 25
+          fFoam->SetChat(       fFOAMChat);      // optional  =0,1,2 is the `‘chat level’' in the standard output. default: 1
+          fFoam->SetMaxWtRej(   fFOAMMaxWtRej);  // optional  Maximum weight used to get weight=1 MC events. default: 1.1
+          fFoam->SetPseRan(&rnd->RndKine());     // Set random number generator
+          fFoam->SetRho(rho);
+          fFoam->Initialize();                   // Initialize simulator
+       }
+       else
+           fFoam->SetRho(rho);
+       
+       if (isDestroy)
+         fFoam->Write(key.c_str());     // Writing Foam on the disk, TESTING PERSISTENCY!!!
+       
+       fFoam->MakeEvent();                           // generate MC event
+       fFoam->GetMCvect(xin);
+       wght = fFoam->GetMCwt();
+       xsec = (*f)(xin);
+       wght *= xsec/(*rho)(xin);
+       if (isDestroy)
+         delete fFoam;
+       fFoam = 0;
+       delete rho;
+       delete ref_int;
+  }
+   
+ 
   // W,Q2,cos(theta) and phi from reduced variables
   Range1D_t Wl  = kps.WLim_RSPP();
   Range1D_t Q2l = kps.Q2Lim_W_RSPP();
@@ -203,11 +248,11 @@ void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   {
     double vol     = (Wl.max-Wl.min)*(Q2l.max-Q2l.min)*4*kPi;
     double totxsec = evrec->XSec();
-    double wght    = (vol/totxsec)*xsec;
-    wght *= evrec->Weight();
-    evrec->SetWeight(wght);
+    wght    = (vol/totxsec)*xsec;
   }
 
+  wght *= evrec->Weight();
+  evrec->SetWeight(wght);
 
   // set the cross section for the selected kinematics
   evrec->SetDiffXSec(xsec,kPSWQ2ctpphipfE);
@@ -277,8 +322,9 @@ void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   evrec->AddParticle(this->GetFinalPionPdgCode(interaction), ist, evrec->HitNucleonPosition(), -1, -1, -1, pi_isb, x4l);
   
   delete f;
-  
 
+  fFoam_file->Write();
+  TDirectory::Cd(cur_dir->GetPath());
   return;
 
 }
@@ -304,6 +350,30 @@ int RSPPEventGenerator::GetFinalPionPdgCode(Interaction * interaction) const
 
 }
 //___________________________________________________________________________
+string RSPPEventGenerator::CreateKey(int num_grid, Interaction * inter) const
+{
+  // build the cache branch key as: namespace::algorithm/config/interaction
+
+  const InitialState & init_state = inter -> InitState();
+    
+  // Access the target from the interaction summary
+  const Target & tgt = init_state.Tgt();
+  const ProcessInfo & proc_info = inter -> ProcInfo();
+  const XclsTag & xcls_tag = inter -> ExclTag();
+  ostringstream interaction;
+  interaction << num_grid << "_";
+  interaction << "nu:"  << init_state.ProbePdg() << "_";
+  interaction << "N:" << tgt.HitNucPdg() << "_";
+  interaction << "proc:" << proc_info.InteractionTypeAsString() 
+              << "," << proc_info.ScatteringTypeAsString()  << "_";
+  
+  string xcls = xcls_tag.AsString();
+  interaction << xcls;
+  
+  return interaction.str();
+
+}
+//___________________________________________________________________________
 void RSPPEventGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -318,115 +388,42 @@ void RSPPEventGenerator::Configure(string config)
 //____________________________________________________________________________
 void RSPPEventGenerator::LoadConfig(void)
 {
-  // Safety factor for the maximum differential cross section
-  this->GetParamDef("MaxXSec-SafetyFactor", fSafetyFactor, 1.25);
+  //// Safety factor for the maximum differential cross section
+  //this->GetParamDef("MaxXSec-SafetyFactor", fSafetyFactor, 1.25);
 
-  // Minimum energy for which max xsec would be cached, forcing explicit
-  // calculation for lower eneries
-  this->GetParamDef("Cache-MinEnergy", fEMin, 0.5);
-
-
-  // Maximum allowed fractional cross section deviation from maxim cross
-  // section used in rejection method
-  this->GetParamDef("MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999.);
-  assert(fMaxXSecDiffTolerance>=0);
-
+  // Interval between reference energies of neutrino 
+  // (in hit nucleon rest frame) at which the foam grid is built
+  this->GetParamDef("EnergyWidthOfNextGrid", fNextGriddE, 0.5);
+  if (fNextGriddE <= 0)
+    fNextGriddE = 0.5;
+  // No of allocated number of cells  
+  this->GetParamDef("FOAM_NCells",   fFOAMNCells, 1000);
+  // No. of MC events in the cell MC exploration  
+  this->GetParamDef("FOAM_NSampl",   fFOAMNSampl,  200);
+  // No. of bins in edge-histogram in cell exploration  
+  this->GetParamDef("FOAM_NBin",     fFOAMNBin,      8);
+  // OptRej = 0, weighted; OptRej=1, wt=1 MC events    
+  this->GetParamDef("FOAM_OptRej",   fFOAMOptRej,    1);
+  // Maximum weight reduction, =1 for variance reduction    
+  this->GetParamDef("FOAM_OptDrive", fFOAMOptDrive,  2);
+  // Maximum number of the effective wt=1 events/bin, EvPerBin=0 deactivates this option
+  this->GetParamDef("FOAM_EvPerBin", fFOAMEvPerBin, 25);
+  // =0,1,2 is the `‘chat level’' in the standard output   
+  this->GetParamDef("FOAM_Chat",     fFOAMChat,      0);
+  // Maximum weight used to get w=1 MC events   
+  this->GetParamDef("FOAM_MaxWtRej", fFOAMMaxWtRej, 1.1);
+    
   // Generate kinematics uniformly over allowed phase space and compute
   // an event weight?
   this->GetParamDef("UniformOverPhaseSpace", fGenerateUniformly, false);
-  
-  GetParamDef( "NumOfKnots_W",         N_W,  40);
-  GetParamDef( "NumOfKnots_Q2",        N_Q2, 40);
-  GetParamDef( "NumOfKnots_CosTheta",  N_CosTheta,  40);
-  GetParamDef( "NumOfKnots_Phi",       N_Phi, 40);
 
-}
-//____________________________________________________________________________
-double RSPPEventGenerator::ComputeMaxXSec(
-                                       const Interaction * interaction) const
-{
-  const InitialState & init_state = interaction -> InitState();
-  
-  ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit", "Minimize");
-  ROOT::Math::IBaseFunctionMultiDim * f = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction);
-  min->SetFunction( *f );
-  min->SetMaxFunctionCalls(10000);  // for Minuit/Minuit2
-  min->SetMaxIterations(10000);     // for GSL
-  min->SetTolerance(0.001);
-  min->SetPrintLevel(0);
-  double step[4] = {1e-7,1e-7,1e-7,1e-7};
-  double variable[4];
-  double xin[4];
-  
-  // coarse minimum search
-  double Fmin = 0.;
-  int ixWmin = -1, ixQ2min = -1, ixCosThetamin = -1, ixPhimin = -1;
-  for (int ixW = 0; ixW <= N_W; ixW++)
-  {
-    xin[0] = 1.*ixW/N_W;
-    for (int ixQ2 = 0; ixQ2 <= N_Q2; ixQ2++)
-    {
-      xin[1] = 1.*ixQ2/N_Q2;
-      for (int ixCosTheta = 0; ixCosTheta <= N_CosTheta; ixCosTheta++)
-      {
-        xin[2] = 1.*ixCosTheta/N_CosTheta;
-        for (int ixPhi = 0; ixPhi <= N_Phi; ixPhi++)
-        {
-          xin[3] = 1.*ixPhi/N_Phi;
-          double F = (*f)(xin);
-          if (F < Fmin)
-          {
-            Fmin = F;
-            ixWmin = ixW;
-            ixQ2min = ixQ2;
-            ixCosThetamin = ixCosTheta;
-            ixPhimin = ixPhi;
-          }
-        }
-      }
-    }
-  }
-
-  
-  //delicate minimum search
-  int ixWdl        = TMath::Max(ixWmin - 1,0);
-  int ixWul        = TMath::Min(ixWmin + 1,N_W);
-  int ixQ2dl       = TMath::Max(ixQ2min - 1,0);
-  int ixQ2ul       = TMath::Min(ixQ2min + 1,N_Q2);
-  int ixCosThetadl = TMath::Max(ixCosThetamin - 1,0);
-  int ixCosThetaul = TMath::Min(ixCosThetamin + 1,N_CosTheta);
-  int ixPhidl      = TMath::Max(ixPhimin - 1,0);
-  int ixPhiul      = TMath::Min(ixPhimin + 1,N_Phi);
-    
-  variable[0] = 1.*ixWmin/N_W;
-  variable[1] = 1.*ixQ2min/N_Q2;
-  variable[2] = 1.*ixCosThetamin/N_CosTheta;
-  variable[3] = 1.*ixPhimin/N_Phi;
-  min->SetVariable(0,"W",         variable[0], step[0]);
-  min->SetVariable(1,"Q2",        variable[1], step[1]);
-  min->SetVariable(2,"CosThetaPi",variable[2], step[2]);
-  min->SetVariable(3,"PhiPi",     variable[3], step[3]);
-  min->SetVariableLimits(0, 1.*ixWdl/N_W,               1.*ixWul/N_W);
-  min->SetVariableLimits(1, 1.*ixQ2dl/N_Q2,             1.*ixQ2ul/N_Q2);
-  min->SetVariableLimits(2, 1.*ixCosThetadl/N_CosTheta, 1.*ixCosThetaul/N_CosTheta);
-  min->SetVariableLimits(3, 1.*ixPhidl/N_Phi,           1.*ixPhiul/N_Phi);
-  min->Minimize();
-  double min_xsec = min->MinValue();
-  
-  if (min_xsec > Fmin)
-    min_xsec = Fmin;
-     
-  delete f;
-
-
-  return -min_xsec;
 }
 //____________________________________________________________________________
 // GSL wrappers
 //____________________________________________________________________________
 genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::d4XSecMK_dWQ2CosThetaPhi_E(
      const XSecAlgorithmI * m, const Interaction * interaction) :
-ROOT::Math::IBaseFunctionMultiDim(), fModel(m)
+ROOT::Math::IBaseFunctionMultiDim(), TFoamIntegrand(), fModel(m)
 {
 
   isZero = false;
@@ -479,8 +476,12 @@ double genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::DoEval(const double * xin)
   
   fInteraction->KinePtr()->SetKV(kKVphip , 2.*kPi*xin[3]); // pion phi in resonance rest frame
     
-  double xsec = -fModel->XSec(fInteraction, kPSWQ2ctpphipfE)*(Wl.max-Wl.min)*(Q2l.max-Q2l.min)*4*kPi;
+  double xsec = fModel->XSec(fInteraction, kPSWQ2ctpphipfE)*(Wl.max-Wl.min)*(Q2l.max-Q2l.min)*4*kPi;
   return xsec/(1E-38 * units::cm2);
+}
+double genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::Density(int ndim, double * xin)
+{
+  return this->DoEval(xin); 
 }
 ROOT::Math::IBaseFunctionMultiDim *
    genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::Clone() const
