@@ -44,6 +44,7 @@ Is a concrete implementation of the EventRecordVisitorI interface.
 
 #include "Framework/Utils/Range1.h"
 #include "Physics/Common/KineGeneratorWithCache.h"
+#include "Framework/ParticleData/BaryonResList.h"
 
 
 namespace genie {
@@ -69,11 +70,47 @@ private:
   int GetRecoilNucleonPdgCode(Interaction * interaction) const;
   int GetFinalPionPdgCode(Interaction * interaction) const;
   
-  int N_W;              ///<  Number of W-knots to search maximum on the grid
-  int N_Q2;             ///<  Number of Q2-knots to search maximum on the grid
-  int N_CosTheta;       ///<  Number of cosine of theta-knots to search maximum on the grid
-  int N_Phi;            ///<  Number of phi-knots to search maximum on the grid
+  struct Vertex
+  {
+    Vertex () : Vertex (0., 0., 0., 0.)
+    {};
+    Vertex (double px1, double px2, double px3, double px4) : x1(px1), x2(px2), x3(px3), x4(px4)
+    {};
+    ~Vertex(){};
+    double x1, x2, x3, x4;
+    void Print (std::ostream& os)
+    {
+      os << "(" << x1 << "," << x2 << "," << x3 << "," << x4 << ")";
+    };
+    bool operator == (const Vertex &v) const
+    {
+       double epsilon = 1e-5;
+       return (TMath::Abs(this->x1 - v.x1) < epsilon || TMath::Abs(this->x2 - v.x2) < epsilon || TMath::Abs(this->x3 - v.x3) < epsilon || TMath::Abs(this->x4 - v.x4) < epsilon);
+    };
+   
+  };
   
+  struct Cell
+  {
+     Cell(){};
+     ~Cell(){};
+     Vertex Vertex1;
+     Vertex Vertex2;
+     void Print (std::ostream& os)
+     {
+        os << std::endl;
+        os << "vertex1 = ";
+        Vertex1.Print(os);
+        os << std::endl;
+        os << "vertex2 = ";
+        Vertex2.Print(os);
+        os << std::endl;
+     };
+  };
+
+  int fMaxDepth;  ///< Maximum depth of dividing parent cell
+  
+  BaryonResList  fResList;
 
 };
 

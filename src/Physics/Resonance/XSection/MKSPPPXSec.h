@@ -29,8 +29,9 @@ for the following channels:
                                                                                            
                                                           
 \ref      
-          1.  Kabirnezhad M., Phys.Rev.D 97 (2018) 013002 (Erratim: unpublished)
-          2.  Kabirnezhad M., Ph. D. Thesis (https://www.ncbj.gov.pl/sites/default/files/m.kabirnezhad_thesis_0.pdf) 
+          1.  Kabirnezhad M., Phys.Rev.D 97 (2018) 013002 (Erratim: arXiv:1711.02403)
+          2.  Kabirnezhad M., Ph. D. Thesis (https://www.ncbj.gov.pl/sites/default/files/m.kabirnezhad_thesis_0.pdf , 
+                                        https://www.ncbj.gov.pl/sites/default/files/m.kabirnezhad-thesis_final_0.pdf) 
           3.  Rein D., Sehgal L., Ann. of Phys. 133 (1981) 79-153
           4.  Rein D., Z.Phys.C 35 (1987) 43-64
           5.  Adler S.L., Ann. Phys. 50 (1968) 189
@@ -41,6 +42,9 @@ for the following channels:
           10. Paschos E.A., Yu J.Y., Sakuda M., Phys. Rev. D 69 (2004) 014013 [arXiv: hep-ph/0308130] 
           11. Yu J.Y., "Neutrino interactions and  nuclear  effects in oscillation experiments and the 
              nonperturbative dispersive  sector in strong (quasi-)abelian  fields", Ph. D.Thesis, Dortmund U., Dortmund, 2002 (unpublished)
+          12. Kakorin I., Kuzmin K., Naumov V. "Report on implementation of the MK-model for resonance single-pion production into GENIE"
+                                               (https://genie-docdb.pp.rl.ac.uk/cgi-bin/private/ShowDocument?docid=181, 
+                                                http://theor.jinr.ru/NeutrinoOscillations/Papers/Report_MK_implementation_GENIE.pdf)              
 
 \authors  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
           Konstantin Kuzmin <kkuzmin@theor.jinr.ru>,  Joint Institute for Nuclear Research \n

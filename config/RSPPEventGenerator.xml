@@ -16,13 +16,19 @@ MaxXSec-DiffTolerance    double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsec
                                        (disable) if xsec>xsecmax
 Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cached                               0.5
 
-NumOfKnots_W             int     Yes   Number of W-knots to coarse search maximum on the grid                     40
-NumOfKnots_Q2            int     Yes   Number of Q2-knots to coarse search maximum on the grid                    40
-NumOfKnots_CosTheta      int     Yes   Number of cosine of theta-knots to coarse search maximum on the grid       40
-NumOfKnots_Phi           int     Yes   Number of phi-knots to coarse search maximum on the grid                   40
+Maximum-Depth            int     Yes   maximum depth of dividing parent cell                                       3
+ResonanceNameList        string  No    List of resonances to be taken into account                CommonParam[Resonances]
+                                       for low-energy maximum search algorithm                   
 -->
 
   <param_set name="Default">
+    <param type="string" name="CommonParam"> Resonances </param>
+    
+    <param type="string" name="ResonanceNameList">
+         P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),
+         S31(1620),D33(1700),P11(1440),P33(1600),P13(1720),F15(1680),
+         P31(1910),P33(1920),F35(1905),F37(1950),P11(1710)
+    </param>
     
   </param_set>
 

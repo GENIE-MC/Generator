@@ -29,6 +29,7 @@
 #include "Framework/Conventions/RefFrame.h"
 #include "Framework/Conventions/KineVar.h"
 #include "Framework/Conventions/Units.h"
+#include <Framework/Conventions/KinePhaseSpace.h>
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
@@ -41,7 +42,9 @@
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Physics/NuclearState/NuclearUtils.h"
+
 #include <limits>
+#include <algorithm>
 
 
 using namespace genie;
@@ -929,9 +932,19 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
     
     double JRtSqrt2 = kSqrt2*JR;
      
-    // Helicity amplitudes V-A, eq. 23 - 25 and Table 3 and 4 of ref. 1
+    
+    // The signs of Hres are not correct. Now we consider these signs are exactly equal to ones in the latest version
+    // of code provided by Minoo Kabirnezhad, however pay attention to Cjsgn_plus 
+    // which differ from what stated in refs. 1 and 2.
+    // More details about other problems can be found in Ref. 12, see section "Ambiguity in calculation of signs of the amplitudes"
+    // (most important conclusion in subsection "Paradox and probable explanation").
+    
+    // Helicity amplitudes V-A, eq. 23 - 25 and Table 3 of ref. 1
     // Cjsgn_plus are C^j_{lS2z} for S2z=1/2 and given in Table 9 of ref. 4
     // Cjsgn_minus are C^j_{lS2z} for S2z=-1/2 and all equal to 1 (see Table 7 of ref. 4) 
+    
+    // The sign of the following amplitude is opposite to one from original code, because of it will be change
+    // when it will be multiplied by Wigner functions d^j_{\lambda\mu}
     Hres(res,                      BosonPolarization::LEFT, NucleonPolarization::PLUS,  NucleonPolarization::PLUS) = 
         JRtSqrt2*Dsgn*Cjsgn_plus*kappa*f_BW*fp3*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::LEFT, NucleonPolarization::PLUS,  NucleonPolarization::PLUS)),
@@ -947,6 +960,9 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::LEFT, NucleonPolarization::PLUS,  NucleonPolarization::MINUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::LEFT, NucleonPolarization::PLUS,  NucleonPolarization::MINUS)));        
     
+    
+    // The sign of the following amplitude is opposite to one from original code, because of it will be change
+    // when it will be multiplied by Wigner functions d^j_{\lambda\mu}
     Hres(res,                      BosonPolarization::LEFT, NucleonPolarization::MINUS,  NucleonPolarization::MINUS) = 
        -JRtSqrt2*Dsgn*Cjsgn_plus*kappa*f_BW*fp1*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::LEFT, NucleonPolarization::MINUS,  NucleonPolarization::MINUS)),
@@ -981,6 +997,8 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::PLUS,  NucleonPolarization::PLUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::PLUS,  NucleonPolarization::PLUS)));
     
+    // The sign of the following amplitude is opposite to one from original code, because of it will be change
+    // when it will be multiplied by Wigner functions d^j_{\lambda\mu}
     Hres(res,                      BosonPolarization::MINUS0, NucleonPolarization::MINUS,  NucleonPolarization::PLUS) = 
         k_sqrtQ2*JRtSqrt2*Dsgn*kappa*f_BW*fm0m*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::MINUS,  NucleonPolarization::PLUS)),
@@ -1003,6 +1021,8 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::PLUS0, NucleonPolarization::PLUS,  NucleonPolarization::PLUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::PLUS0, NucleonPolarization::PLUS,  NucleonPolarization::PLUS)));
    
+    // The sign of the following amplitude is opposite to one from original code, because of it will be change
+    // when it will be multiplied by Wigner functions d^j_{\lambda\mu}
     Hres(res,                      BosonPolarization::PLUS0, NucleonPolarization::MINUS,  NucleonPolarization::PLUS) = 
         k_sqrtQ2*JRtSqrt2*Dsgn*kappa*f_BW*fp0m*std::complex<double>
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::PLUS0, NucleonPolarization::MINUS,  NucleonPolarization::PLUS)),
@@ -1114,6 +1134,9 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   }
                         
   // swap CL+/-, CR+/- and CS+/- for antineutrino case
+  // This ``recipe'' of transition from neutrino to antineutrino case is promoted by Minoo Kabirnezhad.
+  // However, it is not correct in our opinion. All details can be found in Ref. [12], see 
+  // section "Problem with transition from neutrino to antineutrino case".
   double temp;
   if (is_nubar)
   {
@@ -1139,7 +1162,11 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double xsec0 = TMath::Power(g/8/kPi/kPi, 2)*abs_mom_q*Lcoeff*Lcoeff/abs_mom_k_L2/2; 
   // We divide xsec0 by Q2 due to redifinition of Lcoeff
   
-  if (kps == kPSWQ2ctpphipfE)
+  // dimension of kine phase space
+  std::string s = KinePhaseSpace::AsString(kps);
+  int kpsdim = 1 + std::count(s.begin(), s.end(), ',');
+  
+  if (kpsdim == 4)
   {
     for (NucleonPolarization l2 : NucleonPolarizationIterator() )
     {      
@@ -1183,7 +1210,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
        }
     }
   }
-  else if (kps == kPSWQ2ctpfE)
+  else if (kpsdim == 3)
   {
     for (NucleonPolarization l2 : NucleonPolarizationIterator() )
     {      
@@ -1214,23 +1241,27 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
                    2*(          Hbkg(Current::VECTOR,  BosonPolarization::PLUS0,  l2, l1) - Hbkg(Current::AXIAL,  BosonPolarization::PLUS0,  l2, l1)).real()*
                                         (C1*sum1(      BosonPolarization::PLUS0,  l2, l1) + C3*sum3(              BosonPolarization::PLUS0,  l2, l1)).real()
                                                              );
-       }
-       
+       } 
    }
    xsec*= 2*kPi;
  } 
     
   xsec*=xsec0;
   
-/*
-  // The algorithm computes d^2xsec/dWdQ2dCostThetadPhi
+
+  // The algorithm computes d^4xsec/dWdQ2dCostThetadPhi or d^3xsec/dWdQ2dCostTheta
   // Check whether variable tranformation is needed
-  if ( kps != kPSWQ2ctpphipfE || kps !=  ) {
-     double J = utils::kinematics::Jacobian(interaction,kPSWQ2ctpphipfE,kps);
+  if ( kps != kPSWQ2ctpphipfE && kps != kPSWQ2ctpfE ) 
+  {
+     double J = 1.;
+     if (kpsdim == 3)
+       J = utils::kinematics::Jacobian(interaction, kPSWQ2ctpfE, kps);
+     else if (kpsdim == 3)
+       J = utils::kinematics::Jacobian(interaction, kPSWQ2ctpphipfE, kps);
      xsec *= J;
   }
-*/
-  // Apply given scaling symmetry_factor
+
+  // Apply given scaling factor
   if      (is_CC) { xsec *= fXSecScaleCC; }
   else if (is_NC) { xsec *= fXSecScaleNC; }
 
@@ -1438,6 +1469,8 @@ void MKSPPPXSec::LoadConfig(void)
   this->GetParamDef("MK-NonResBkg-V3",    fBkgV3,       8.08497 );
   this->GetParamDef("MK-NonResBkg-V2",    fBkgV2,      -41.6767 );
   this->GetParamDef("MK-NonResBkg-V1",    fBkgV1,       66.3419 );
+/*  
+  // Not used in the latest version    
   this->GetParamDef("MK-NonResBkg-V0",    fBkgV0,      -32.5733 );                         
   this->GetParamDef("MK-NonResBkg-AWmin", fBkgAWmin,       1.28 );
   this->GetParamDef("MK-NonResBkg-AWmax", fBkgAWmax,       1.50 );
@@ -1445,7 +1478,7 @@ void MKSPPPXSec::LoadConfig(void)
   this->GetParamDef("MK-NonResBkg-A2",    fBkgA2,      -185.994 );
   this->GetParamDef("MK-NonResBkg-A1",    fBkgA1,       246.608 );
   this->GetParamDef("MK-NonResBkg-A0",    fBkgA0,      -105.945 );
-                                                 
+*/                                                 
   this->GetParamDef("Mass-rho770 ", fRho770Mass,   0.7758 );
   
   // Load the differential cross section integrator

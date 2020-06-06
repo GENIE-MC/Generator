@@ -19,8 +19,8 @@
 
 #include <vector>
 
-
 #include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/KineVar.h"
@@ -97,12 +97,9 @@ void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   TLorentzVector k1(*(init_state.GetProbeP4(kRfLab)));
   // 4-momentum of hit nucleon in lab frame
   TLorentzVector p1(*(evrec->HitNucleon())->P4());
-  
   TLorentzVector p1_copy(p1);
-  
   // set temporarily initial nucleon on shell
   p1.SetE(TMath::Sqrt(p1.P()*p1.P() + M*M));
-  
   tgt->SetHitNucP4(p1);
   
   // neutrino 4-momentun in nucleon rest frame
@@ -134,7 +131,6 @@ void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //   If the kinematics are generated uniformly over the allowed phase
   //   space the max xsec is irrelevant
   double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
- 
   // generate W, Q2, cos(theta) and phi by accept-reject method
   unsigned int iter = 0;
   bool accept = false;
@@ -318,8 +314,15 @@ void RSPPEventGenerator::Configure(string config)
 //____________________________________________________________________________
 void RSPPEventGenerator::LoadConfig(void)
 {
+  
+  fResList.Clear();
+  string resonances ;
+  GetParam( "ResonanceNameList", resonances ) ;
+  fResList.DecodeFromNameList(resonances);
+  
   // Safety factor for the maximum differential cross section
   this->GetParamDef("MaxXSec-SafetyFactor", fSafetyFactor, 1.25);
+  this->GetParamDef("Maximum-Depth", fMaxDepth, 3);
 
   // Minimum energy for which max xsec would be cached, forcing explicit
   // calculation for lower eneries
@@ -335,91 +338,137 @@ void RSPPEventGenerator::LoadConfig(void)
   // an event weight?
   this->GetParamDef("UniformOverPhaseSpace", fGenerateUniformly, false);
   
-  GetParamDef( "NumOfKnots_W",         N_W,  40);
-  GetParamDef( "NumOfKnots_Q2",        N_Q2, 40);
-  GetParamDef( "NumOfKnots_CosTheta",  N_CosTheta,  40);
-  GetParamDef( "NumOfKnots_Phi",       N_Phi, 40);
 
 }
 //____________________________________________________________________________
 double RSPPEventGenerator::ComputeMaxXSec(
                                        const Interaction * interaction) const
 {
-  const InitialState & init_state = interaction -> InitState();
-  
-  ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit", "Minimize");
-  ROOT::Math::IBaseFunctionMultiDim * f = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction);
-  min->SetFunction( *f );
-  min->SetMaxFunctionCalls(10000);  // for Minuit/Minuit2
-  min->SetMaxIterations(10000);     // for GSL
-  min->SetTolerance(0.001);
-  min->SetPrintLevel(0);
-  double step[4] = {1e-7,1e-7,1e-7,1e-7};
-  double variable[4];
-  double xin[4];
-  
-  // coarse minimum search
-  double Fmin = 0.;
-  int ixWmin = -1, ixQ2min = -1, ixCosThetamin = -1, ixPhimin = -1;
-  for (int ixW = 0; ixW <= N_W; ixW++)
-  {
-    xin[0] = 1.*ixW/N_W;
-    for (int ixQ2 = 0; ixQ2 <= N_Q2; ixQ2++)
-    {
-      xin[1] = 1.*ixQ2/N_Q2;
-      for (int ixCosTheta = 0; ixCosTheta <= N_CosTheta; ixCosTheta++)
-      {
-        xin[2] = 1.*ixCosTheta/N_CosTheta;
-        for (int ixPhi = 0; ixPhi <= N_Phi; ixPhi++)
-        {
-          xin[3] = 1.*ixPhi/N_Phi;
-          double F = (*f)(xin);
-          if (F < Fmin)
-          {
-            Fmin = F;
-            ixWmin = ixW;
-            ixQ2min = ixQ2;
-            ixCosThetamin = ixCosTheta;
-            ixPhimin = ixPhi;
-          }
+   KPhaseSpace * kps = interaction->PhaseSpacePtr();
+   Range1D_t Wl = kps->WLim_RSPP();
+   double dW = Wl.max - Wl.min;
+   const InitialState & init_state = interaction -> InitState();
+   ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit", "Minimize");
+   ROOT::Math::IBaseFunctionMultiDim * f = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction);
+   min->SetFunction( *f );
+   min->SetMaxFunctionCalls(10000);  // for Minuit/Minuit2
+   min->SetMaxIterations(10000);     // for GSL
+   min->SetTolerance(0.001);
+   min->SetPrintLevel(0);
+   double min_xsec = 0.;
+   double xsec;
+   double step = 1e-7;
+   double Enu = init_state.ProbeE(kRfHitNucRest);
+   if (Enu <= 15)
+   {
+     // low-energy heuristic algorithm for maximum search
+     int N3 = 2;
+     int N4 = 4;
+     double x2max;
+     
+     if (Enu < 1.)
+       x2max = 1.;
+     else 
+       x2max = 1./3;
+     for (auto res : fResList)
+     {
+       double MR  = utils::res::Mass(res);
+       double WR  = utils::res::Width(res);
+       double x1 = (MR - Wl.min)/dW;
+       double x1min = (MR - WR - Wl.min)/dW;
+       x1min = x1min<0?0:x1min;
+       double x1max = (MR + WR - Wl.min)/dW;
+       x1max = x1max>1?1:x1max;
+       for (int i3 = 0; i3 < N3; i3++)
+       {
+         double x3 = 1.*i3;
+         double x3min = .5*i3;
+         double x3max = .5*(i3 + 1);
+         for (int i4 = 0; i4 <= N4; i4++)
+         {
+           double x4 = 1.*i4/N4;
+           double x4min = 1.*i4/N4;
+           double x4max = 1.*(i4 + 1)/N4;
+           if (i4 == N4)
+           {
+             x4min = 3./N4;
+             x4max = 1;
+           }
+           min->SetVariable(0, "x1", x1, step);
+           min->SetVariable(1, "x2", 1./6, step);
+           min->SetVariable(2, "x3", x3, step);
+           min->SetVariable(3, "x4", x4, step);
+           min->SetVariableLimits(0, x1min, x1max);
+           min->SetVariableLimits(1, 0, x2max);
+           min->SetVariableLimits(2, x3min, x3max);
+           min->SetVariableLimits(3, x4min, x4max);
+           min->Minimize();
+           xsec = min->MinValue();
+           if (xsec < min_xsec)
+             min_xsec = xsec;
         }
       }
     }
-  }
-
-  
-  //delicate minimum search
-  int ixWdl        = TMath::Max(ixWmin - 1,0);
-  int ixWul        = TMath::Min(ixWmin + 1,N_W);
-  int ixQ2dl       = TMath::Max(ixQ2min - 1,0);
-  int ixQ2ul       = TMath::Min(ixQ2min + 1,N_Q2);
-  int ixCosThetadl = TMath::Max(ixCosThetamin - 1,0);
-  int ixCosThetaul = TMath::Min(ixCosThetamin + 1,N_CosTheta);
-  int ixPhidl      = TMath::Max(ixPhimin - 1,0);
-  int ixPhiul      = TMath::Min(ixPhimin + 1,N_Phi);
-    
-  variable[0] = 1.*ixWmin/N_W;
-  variable[1] = 1.*ixQ2min/N_Q2;
-  variable[2] = 1.*ixCosThetamin/N_CosTheta;
-  variable[3] = 1.*ixPhimin/N_Phi;
-  min->SetVariable(0,"W",         variable[0], step[0]);
-  min->SetVariable(1,"Q2",        variable[1], step[1]);
-  min->SetVariable(2,"CosThetaPi",variable[2], step[2]);
-  min->SetVariable(3,"PhiPi",     variable[3], step[3]);
-  min->SetVariableLimits(0, 1.*ixWdl/N_W,               1.*ixWul/N_W);
-  min->SetVariableLimits(1, 1.*ixQ2dl/N_Q2,             1.*ixQ2ul/N_Q2);
-  min->SetVariableLimits(2, 1.*ixCosThetadl/N_CosTheta, 1.*ixCosThetaul/N_CosTheta);
-  min->SetVariableLimits(3, 1.*ixPhidl/N_Phi,           1.*ixPhiul/N_Phi);
-  min->Minimize();
-  double min_xsec = min->MinValue();
-  
-  if (min_xsec > Fmin)
-    min_xsec = Fmin;
+   }
+   else
+   {
+     // high-energy heuristic algorithm for maximum search
+     int total_cells = (TMath::Power(16, fMaxDepth) - 1)/15;
+     vector<Cell> cells(total_cells);
      
+     for (int dep = 0; dep < fMaxDepth; dep++)
+     {
+       int aux = TMath::Power(16, dep) - 1;
+       for (int cell = aux/15; cell <= 16*aux/15 ; cell++)
+       {
+     
+         if (cell == 0)
+         {
+            cells[cell].Vertex1 = Vertex(0., 0., 0., 0.);
+            cells[cell].Vertex2 = Vertex(1., 1., 1., 1.);
+         }
+         
+         double x1m = (cells[cell].Vertex1.x1 + cells[cell].Vertex2.x1)/2;
+         double x2m = (cells[cell].Vertex1.x2 + cells[cell].Vertex2.x2)/2;
+         double x3m = (cells[cell].Vertex1.x3 + cells[cell].Vertex2.x3)/2;
+         double x4m = (cells[cell].Vertex1.x4 + cells[cell].Vertex2.x4)/2;
+         min->SetVariable(0, "x1", x1m, step);
+         min->SetVariable(1, "x2", x2m, step);
+         min->SetVariable(2, "x3", x3m, step);
+         min->SetVariable(3, "x4", x4m, step);
+         min->SetVariableLimits(0, cells[cell].Vertex1.x1, cells[cell].Vertex2.x1);
+         min->SetVariableLimits(1, cells[cell].Vertex1.x2, cells[cell].Vertex2.x2);
+         min->SetVariableLimits(2, cells[cell].Vertex1.x3, cells[cell].Vertex2.x3);
+         min->SetVariableLimits(3, cells[cell].Vertex1.x4, cells[cell].Vertex2.x4);
+         min->Minimize();
+         xsec = min->MinValue();
+         if (xsec < min_xsec)
+           min_xsec = xsec;
+         const double *xs = min->X();
+         Vertex minv(xs[0], xs[1], xs[2], xs[3]);
+         if (minv == cells[cell].Vertex1 || minv == cells[cell].Vertex2)
+           minv = Vertex (x1m, x2m, x3m, x4m);
+     
+         if (dep < fMaxDepth - 1)
+         {
+     
+           for (int i = 0; i < 16; i++)
+           {
+              int child = 16*cell + i + 1;
+              cells[child].Vertex1 = minv;
+              cells[child].Vertex2 = Vertex ((i>>0)%2?cells[cell].Vertex1.x1:cells[cell].Vertex2.x1,
+                                             (i>>1)%2?cells[cell].Vertex1.x2:cells[cell].Vertex2.x2,
+                                             (i>>2)%2?cells[cell].Vertex1.x3:cells[cell].Vertex2.x3,
+                                             (i>>3)%2?cells[cell].Vertex1.x4:cells[cell].Vertex2.x4);
+           }
+         }
+       }
+     }
+  }
+  
   delete f;
 
-
-  return -min_xsec;
+  return -fSafetyFactor*min_xsec;
 }
 //____________________________________________________________________________
 // GSL wrappers
