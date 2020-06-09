@@ -75,7 +75,8 @@ double genie::utils::nuclear::BindEnergy(int nucA, int nucZ)
 // formula from Wapstra (Handbuch der Physik, XXXVIII/1)
 
   if (nucA<=0 || nucZ<=0) return 0;
-  
+  // see http://applet-magic.com/He3nuclide.htm and
+  // http://applet-magic.com.p11.hostingprod.com/BEHe4He3H3H2.htm
   if (nucZ == 2)
   {
    if (nucA == 3)
