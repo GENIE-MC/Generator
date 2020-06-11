@@ -69,14 +69,20 @@ double BertuzzoDNuCOHPXSec::XSec(
 
   // TODO DNU: these other values
   const double DNu_mass = 1.;
-  const double DNu_energy =  1.; // E_N is the energy of the dark neutrino
   const double DMediator_mass = 0.03; // M_{Z_D}= 30 MeV is the mass of the dark gauge boson
 
   // User inputs to the calculation
   const double E  = init_state.ProbeE(kRfLab); // neutrino energy, units: GeV
-  // const double Q2 = kinematics.Q2(); // momentum transfer, units: GeV^2
+  const double Q2 = kinematics.Q2(); // momentum transfer, units: GeV^2
+  const double DNu_energy =  kinematics.FSLeptonP4().E(); // E_N is the energy of the dark neutrino
   const unsigned int Z = target.Z(); // number of protons
   const unsigned int N = target.N(); // number of nucleons
+
+  // Target atomic mass number and mass calculated from inputs
+  const unsigned int A = Z + N;
+  const int target_nucleus_pdgc = pdg::IonPdgCode(A, Z);
+  const double M = PDGLibrary::Instance()->Find(target_nucleus_pdgc)->Mass(); // units: GeV
+  LOG("DNu", pDEBUG) << "M = " << M << " GeV";
 
   // Calculation of nuclear recoil kinetic energy computed from input Q2
   // double TA = Q2*E / (2*E*M+Q2); // nuclear recoil kinetic energy
@@ -105,12 +111,6 @@ double BertuzzoDNuCOHPXSec::XSec(
   // double Q4  = Q2*Q2;
   // double Q6  = Q2*Q4;
 
-  // Target atomic mass number and mass calculated from inputs
-  const unsigned int A = Z + N;
-  const int target_nucleus_pdgc = pdg::IonPdgCode(A, Z);
-  const double M = PDGLibrary::Instance()->Find(target_nucleus_pdgc)->Mass(); // units: GeV
-  LOG("DNu", pDEBUG) << "M = " << M << " GeV";
-
   if(! this -> ValidKinematics (interaction, DNu_energy, DNu_mass2, E, M) ) return 0.;
 
   const double const_factor = .125 * elec2 / kPi;
@@ -130,10 +130,6 @@ double BertuzzoDNuCOHPXSec::XSec(
 
 
 
-
-
-  
- 
   // // Calculation of weak charge
   // // double Qw = N - Z*(1-fSin2thw);
   // // Qw^2/4 x-section factor in arXiv:1207.0693v1 not needed here.
