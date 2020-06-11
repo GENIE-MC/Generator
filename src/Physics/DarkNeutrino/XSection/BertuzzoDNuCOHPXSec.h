@@ -26,6 +26,7 @@
 #define _BERTUZZO_DNu_COH_CROSS_SECTION_H_
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Physics/DarkNeutrino/XSection/EngelFormFactor.h"
 
 namespace genie {
 
@@ -61,6 +62,7 @@ private:
   // double NuclearDensityMoment(int A, int k) const;
 
   const XSecIntegratorI * fXSecIntegrator;  ///< cross section integrator
+  const EngelFormFactor * fFF; ///< Engel Form Factor algorithm
   // double fSin2thw;                          ///< sin^2(weinberg angle)
 
   // // Parameters used for the numerical integration yielding nuclear density moments

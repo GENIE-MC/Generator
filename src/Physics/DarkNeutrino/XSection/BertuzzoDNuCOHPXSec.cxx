@@ -28,6 +28,7 @@
 #include "Physics/NuclearState/NuclearUtils.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Physics/DarkNeutrino/XSection/BertuzzoDNuCOHPXSec.h"
+#include "Physics/DarkNeutrino/XSection/EngelFormFactor.h"
 // #include "Physics/Coherent/XSection/NuclDensityMomentIntegrand.h"
 
 using namespace genie;
@@ -91,8 +92,7 @@ double BertuzzoDNuCOHPXSec::XSec(
   //   << "Q2 = " << Q2 << " GeV^2, E = " << E << " GeV "
   //   << "--> TA = " << TA << " GeV";
 
-  //TODO DNu: do FF class and computation
-  const double FF = 1;
+  const double FF = fFF->FormFactor(Q2, target);
 
   // auxiliary variables
   const double E2  = E*E;
@@ -308,5 +308,7 @@ void BertuzzoDNuCOHPXSec::LoadConfig(void)
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
+  fFF = dynamic_cast<const EngelFormFactor *> (this->SubAlg("FormFactor"));
+  assert(fFF);
 }
 //____________________________________________________________________________
