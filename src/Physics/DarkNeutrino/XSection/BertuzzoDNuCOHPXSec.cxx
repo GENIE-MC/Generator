@@ -62,20 +62,10 @@ double BertuzzoDNuCOHPXSec::XSec(
   const Kinematics &   kinematics = interaction -> Kine();
   const Target &       target     = init_state.Tgt();
 
-  // TODO DNU: these values
-  // model parameters
-  const double dark_kinetic_mixing = 1;            // \varepsilon
-  const double DNu_mixing = 0.5;           // \theta
-  const double dark_gauge_coupling = 0.5;  // g_D
-
-  // TODO DNU: these other values
-  const double DNu_mass = 1.;
-  const double DMediator_mass = 0.03; // M_{Z_D}= 30 MeV is the mass of the dark gauge boson
-
   // User inputs to the calculation
   const double E  = init_state.ProbeE(kRfLab); // neutrino energy, units: GeV
   const double Q2 = kinematics.Q2(); // momentum transfer, units: GeV^2
-  const double DNu_energy =  kinematics.FSLeptonP4().E(); // E_N is the energy of the dark neutrino
+  const double DNuEnergy =  kinematics.FSLeptonP4().E(); // E_N is the energy of the dark neutrino
   const unsigned int Z = target.Z(); // number of protons
   const unsigned int N = target.N(); // number of nucleons
 
@@ -96,12 +86,7 @@ double BertuzzoDNuCOHPXSec::XSec(
 
   // auxiliary variables
   const double E2  = E*E;
-  const double DNu_mass2 = DNu_mass * DNu_mass;
   const double Z2 = Z * Z;
-  const double eps2 = dark_kinetic_mixing * dark_kinetic_mixing;
-  const double theta2 = DNu_mixing * DNu_mixing;
-  const double gD2 = dark_gauge_coupling * dark_gauge_coupling;
-  const double DMediator_mass2 = DMediator_mass * DMediator_mass;
   const double FF2 = FF * FF;
 
   //TODO DNu: is this one required?
@@ -111,15 +96,15 @@ double BertuzzoDNuCOHPXSec::XSec(
   // double Q4  = Q2*Q2;
   // double Q6  = Q2*Q4;
 
-  if(! this -> ValidKinematics (interaction, DNu_energy, DNu_mass2, E, M) ) return 0.;
+  if(! this -> ValidKinematics (interaction, DNuEnergy, fDNuMass2, E, M) ) return 0.;
 
   const double const_factor = .125 * elec2 / kPi;
-  const double model_params = eps2 * theta2 * gD2;
+  const double model_params = fEps2 * fTheta2 * fgD2;
 
-  const double num_fact1 = ( FF2  * DNu_mass) * Z2;
-  const double num_fact2 = (DNu_energy+E+M)*DNu_mass2  - 2*M*(E2 + M*DNu_energy + E2 - E*M);
+  const double num_fact1 = ( FF2  * fDNuMass) * Z2;
+  const double num_fact2 = (DNuEnergy+E+M)*fDNuMass2  - 2*M*(E2 + M*DNuEnergy + E2 - E*M);
   const double den_fact1 = 1. / (E2*M);
-  const double den_fact2 = TMath::Power((DMediator_mass2 - 2.*DNu_energy*M + 2*E*M), -2.);
+  const double den_fact2 = TMath::Power((fDMediatorMass2 - 2.*DNuEnergy*M + 2*E*M), -2.);
 
   const double xsec = const_factor * model_params
     * num_fact1 * num_fact2 * den_fact1 * den_fact2;
@@ -284,26 +269,25 @@ void BertuzzoDNuCOHPXSec::Configure(string config)
 //____________________________________________________________________________
 void BertuzzoDNuCOHPXSec::LoadConfig(void)
 {
-  // double thw = 0.;
-  // this->GetParam("WeinbergAngle", thw);
-  // fSin2thw = TMath::Power(TMath::Sin(thw), 2.);
+  double DKineticMixing = 0.;    // \varepsilon
+  this->GetParam("Dark-KineticMixing", DKineticMixing);
+  fEps2 = DKineticMixing * DKineticMixing;
 
-  // this->GetParamDef(
-  //         "nuclear-density-moment-gsl-upper-limit",
-  //         fNuclDensMomentCalc_UpperIntegrationLimit,
-  //         10.);  // in nuclear radii
-  // this->GetParamDef(
-  //         "nuclear-density-moment-gsl-rel-tol",
-  //         fNuclDensMomentCalc_RelativeTolerance,
-  //         1E-3);
-  // this->GetParamDef(
-  //         "nuclear-density-moment-gsl-abs-tol",
-  //         fNuclDensMomentCalc_AbsoluteTolerance,
-  //         1.);
-  // this->GetParamDef(
-  //         "nuclear-density-moment-gsl-max-eval",
-  //         fNuclDensMomentCalc_MaxNumOfEvaluations,
-  //         10000);
+  double DTheta = 0.;            // \theta
+  this->GetParam("Dark-Theta", DTheta);
+  fTheta2 = DTheta * DTheta;
+
+  double DGaugeCoupling = 0.;   // g_D
+  this->GetParam("Dark-GaugeCoupling", DGaugeCoupling);
+  fgD2 = DGaugeCoupling * DGaugeCoupling;
+
+  fDNuMass = 0.;
+  this->GetParam("Dark-NeutrinoMass", fDNuMass);
+  fDNuMass2 = fDNuMass * fDNuMass;
+
+  fDMediatorMass = 0.;
+  this->GetParam("Dark-MediatorMass", fDMediatorMass);
+  fDMediatorMass2 = fDMediatorMass * fDMediatorMass;
 
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));

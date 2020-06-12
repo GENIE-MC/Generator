@@ -63,17 +63,17 @@ private:
 
   const XSecIntegratorI * fXSecIntegrator;  ///< cross section integrator
   const EngelFormFactor * fFF; ///< Engel Form Factor algorithm
-  // double fSin2thw;                          ///< sin^2(weinberg angle)
 
-  // // Parameters used for the numerical integration yielding nuclear density moments
-  // double fNuclDensMomentCalc_UpperIntegrationLimit; // upper integration limit (in units of nuclear radii R0*A^1/3)
-  // double fNuclDensMomentCalc_RelativeTolerance;     // relative tolerance for numerical integrator
-  // double fNuclDensMomentCalc_AbsoluteTolerance;     // absolute tolerance for numerical integrator
-  // int    fNuclDensMomentCalc_MaxNumOfEvaluations;   // maximum number of integran evaluations in numerical integration
+  double fEps2;
+  double fTheta2;
+  double fgD2;
+
+  double fDNuMass, fDNuMass2;
+  double fDMediatorMass, fDMediatorMass2;
 
 };
 
-}       // genie namespace
+} // genie namespace
 
 
 #endif // _BERTUZZO_DNu_COH_CROSS_SECTION_H_
