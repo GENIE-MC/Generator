@@ -46,16 +46,9 @@ double EngelFormFactor::FormFactor(const double Q2, const Target & target) const
 
   if(!target.IsValidNucleus()) return 0.;
 
-  // const double kappa = TMath::Sqrt(2.*M*Er); // Q^2 \sim -2\kappa^2
-  // const double kappa2 = kappa * kappa;
-
   const double M = target.Mass(); // units: GeV
   const double A = target.A();
 
-  // const double Er = (Q*Q)/(-2.*M);
-  // const double kappa2 = -Q * Q;
-  // const double kappa = TMath::Abs(kappa2);
-  // const double Q2 = Q * Q;
   const double s = 1.*units::fm;
   const double s2 = s * s;
   const double R = 1.2*TMath::Power(A, 1./3.)*units::fm;
@@ -81,16 +74,6 @@ void EngelFormFactor::Configure(string config)
 //____________________________________________________________________________
 void EngelFormFactor::LoadConfig(void)
 {
-
-  // // load R33 parameters
-  // this -> GetParamVect( "DV-Coefficient", fFBCs ) ;
-
-  // GetParam( "DV-Radius", fRadius ) ;
-  // fRadius *= units::fm ;
-
-  // GetParam( "DV-Nucleus", fPDG ) ;
-
-  // LOG("EngelFormFactor", pINFO) << "Loaded " << fFBCs.size() << " coeffictients for nucleus " << fPDG ; 
 
 }
 //____________________________________________________________________________

@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-  \class    genie::BertuzzoDNuCOHPXSec
+  \class    genie::EngelFormFactor
 
-  \brief    Form Factor for ...
+  \brief    Form Factor for BertuzzoDNuCOHXSec...
 
   \ref      J. Engel
             Phys.Lett. B264, 114 (1991)
@@ -53,5 +53,5 @@ private:
 
 };
 
-}       // genie namespace
+} // genie namespace
 #endif  // _ENGEL_FORM_FACTOR_H_
