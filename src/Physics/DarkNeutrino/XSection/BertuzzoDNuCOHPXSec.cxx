@@ -75,8 +75,7 @@ double BertuzzoDNuCOHPXSec::XSec(
   const double M = PDGLibrary::Instance()->Find(target_nucleus_pdgc)->Mass(); // units: GeV
   LOG("DNu", pDEBUG) << "M = " << M << " GeV";
 
-  // Calculation of nuclear recoil kinetic energy computed from input Q2
-  // double TA = Q2*E / (2*E*M+Q2); // nuclear recoil kinetic energy
+  if(! this -> ValidKinematics (interaction, M) ) return 0.;
 
   // LOG("DNu", pDEBUG)
   //   << "Q2 = " << Q2 << " GeV^2, E = " << E << " GeV "
@@ -91,13 +90,7 @@ double BertuzzoDNuCOHPXSec::XSec(
 
   //TODO DNu: is this one required?
   const double elec2 = 0.3*0.3;
-
-  // double TA2 = TA*TA;
-  // double Q4  = Q2*Q2;
-  // double Q6  = Q2*Q4;
-
-  if(! this -> ValidKinematics (interaction, DNuEnergy, fDNuMass2, E, M) ) return 0.;
-
+  
   const double const_factor = .125 * elec2 / kPi;
   const double model_params = fEps2 * fTheta2 * fgD2;
 
@@ -241,14 +234,14 @@ bool BertuzzoDNuCOHPXSec::ValidProcess(const Interaction * interaction) const
 }
 //____________________________________________________________________________
 bool BertuzzoDNuCOHPXSec::ValidKinematics(const Interaction* interaction,
-                                          const double DNu_energy,
-                                          const double DNu_mass2,
-                                          const double E,
                                           const double M) const
 {
-  const double t1 = 4. * DNu_mass2 * (DNu_energy - E) * (M + E);
-  const double t2 = 4. * M * (DNu_energy - E) * (DNu_energy*(M+2.*E) - M*E);
-  const double t3 = DNu_mass2 * DNu_mass2;
+  const double E = interaction->InitState().ProbeE(kRfLab);
+  const double DNuEnergy = interaction->Kine().FSLeptonP4().E();
+
+  const double t1 = 4. * fDNuMass2 * (DNuEnergy - E) * (M + E);
+  const double t2 = 4. * M * (DNuEnergy - E) * (DNuEnergy*(M+2.*E) - M*E);
+  const double t3 = fDNuMass2 * fDNuMass2;
   if( (t1 - t2 - t3) <= 0. ) return false;
 
   if(interaction->TestBit(kISkipKinematicChk)) return true;

@@ -44,10 +44,7 @@ public:
   double Integral        (const Interaction * i) const override;
   bool   ValidProcess    (const Interaction * i) const override;
   bool   ValidKinematics (const Interaction * i,
-                          const double DNu_energy,
-                          const double DNu_mass2,
-                          const double E,
-                          const double M) const;
+                          const double M) const override;
 
   // Override the Algorithm::Configure methods to load configuration
   // data to private data members
@@ -57,9 +54,6 @@ public:
 private:
 
   void LoadConfig(void);
-
-  // // Calculate nuclear density moments
-  // double NuclearDensityMoment(int A, int k) const;
 
   const XSecIntegratorI * fXSecIntegrator;  ///< cross section integrator
   const EngelFormFactor * fFF; ///< Engel Form Factor algorithm
