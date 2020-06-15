@@ -1,17 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - February 15, 2008
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 15, 2009 - CA
-   This class was first added in version 2.5.1. 
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -72,7 +65,7 @@ double ReinDFRPXSec::XSec(
   double Q2      = 2.*x*y*M*E;                                // momentum transfer Q2>0
   double Gf      = kGF2 * M/(16*kPi3);                        // GF/pi/etc factor
   double fp      = 0.93 * kPionMass;                          // pion decay constant (cc)
-  double fp2     = TMath::Power(fp,2.);         
+  double fp2     = TMath::Power(fp,2.);
   double Epi     = y*E - t/(2*M);                             // pion energy.  note we use - instead of + like Rein's paper b/c our t is magnitude only
   double b       = fBeta;
   double ma2     = TMath::Power(fMa,2);
@@ -102,25 +95,25 @@ double ReinDFRPXSec::XSec(
   // NC XS is half of CC
   if (!isCC)
     xsec *= 0.5;
- 
+
   //----- Check whether variable tranformation is needed
   if(kps!=kPSxytfE) {
     double J = utils::kinematics::Jacobian(interaction,kPSxytfE,kps);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("ReinDFR", pDEBUG)
-     << "Jacobian for transformation to: " 
+     << "Jacobian for transformation to: "
                   << KinePhaseSpace::AsString(kps) << ", J = " << J;
 #endif
     xsec *= J;
   }
 
-  //----- if requested return the free nucleon xsec even for input nuclear tgt 
+  //----- if requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
   //----- number of scattering centers in the target
   int nucpdgc = target.HitNucPdg();
-  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
-  xsec *= NNucl; 
+  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
+  xsec *= NNucl;
 
   return xsec;
 }
@@ -167,4 +160,3 @@ void ReinDFRPXSec::LoadConfig(void)
 	assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
-

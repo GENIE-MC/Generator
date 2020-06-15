@@ -119,6 +119,8 @@
   <priority msgstream="INukeUtils">                    WARN   </priority>
   <priority msgstream="INukeUtils2019">                WARN   </priority>
   <priority msgstream="INukeUtils2018">                WARN   </priority>
+  <priority msgstream="HINCLCascadeIntranuke">         WARN   </priority>
+  <priority msgstream="HG4BertCascIntranuke">          WARN   </priority>
   <priority msgstream="INukeNucleonCorr">              WARN   </priority>
   <priority msgstream="TwoBodyCollision">              WARN   </priority>
   <priority msgstream="ISApp">                         WARN   </priority>

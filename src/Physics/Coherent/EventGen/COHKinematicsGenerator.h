@@ -3,18 +3,17 @@
 
 \class    genie::COHKinematicsGenerator
 
-\brief    Generates values for the kinematic variables describing coherent 
+\brief    Generates values for the kinematic variables describing coherent
           neutrino-nucleus pion production events.
           Is a concrete implementation of the EventRecordVisitorI interface.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  October 03, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -51,11 +50,11 @@ namespace genie {
     void   CalculateKin_BergerSehgal(GHepRecord * event_rec) const;
     void   CalculateKin_BergerSehgalFM(GHepRecord * event_rec) const;
     void   CalculateKin_AlvarezRuso(GHepRecord * event_rec) const;
-    void SetKinematics(const double E_l, const double theta_l, const double phi_l, 
-                       const double theta_pi, const double phi_pi, 
+    void SetKinematics(const double E_l, const double theta_l, const double phi_l,
+                       const double theta_pi, const double phi_pi,
                        const     Interaction* interaction, Kinematics* kinematics) const;
-    bool CheckKinematics(const double E_l, const double theta_l, 
-                         const double phi_l, const double theta_pi, 
+    bool CheckKinematics(const double E_l, const double theta_l,
+                         const double phi_l, const double theta_pi,
                          const double phi_pi, const Interaction* interaction) const;
 
     // overload KineGeneratorWithCache method to compute max xsec

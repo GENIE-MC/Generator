@@ -5,14 +5,13 @@
 
 \brief    Cross Section Integrator Interface.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 03, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -32,15 +31,15 @@ class IntegratorI;
 public:
   virtual ~XSecIntegratorI();
 
-  virtual double Integrate(const XSecAlgorithmI * model, 
-                           const Interaction * interaction 
+  virtual double Integrate(const XSecAlgorithmI * model,
+                           const Interaction * interaction
                        /*, const KPhaseSpaceCut * cut=0*/) const= 0;
 protected:
   XSecIntegratorI();
   XSecIntegratorI(string name);
   XSecIntegratorI(string name, string config);
 
-  const IntegratorI * fIntegrator; ///< GENIE numerical integrator 
+  const IntegratorI * fIntegrator; ///< GENIE numerical integrator
 
   string fGSLIntgType;                     ///< name of GSL numerical integrator
   double fGSLRelTol;                       ///< required relative tolerance (error)

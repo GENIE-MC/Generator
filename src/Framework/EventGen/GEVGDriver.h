@@ -8,17 +8,16 @@
          Each such object is configured for a given initial state and it drives all
          relevant GENIE neutrino interaction physics simulation code for that state.
          To set-up MC jobs involving a multitude of possible initial states,
-         including arbitrarily complex neutrino flux and detector geometry 
+         including arbitrarily complex neutrino flux and detector geometry
          descriptions, see the GMCJDriver object.
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created August 06, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org        
 */
 //____________________________________________________________________________
 
@@ -72,7 +71,7 @@ public :
   // Generate single event
   EventRecord * GenerateEvent (const TLorentzVector & nu4p);
 
-  // Get the list of all interactions that can be simulated for the specified 
+  // Get the list of all interactions that can be simulated for the specified
   // initial state (depends on which event generation threads were loaded into
   // the event generation driver driver)
   const InteractionList * Interactions(void) const;

@@ -1,4 +1,7 @@
 src/Framework/Numerical/Interpolator2D.cxx
+mySplines/
+mySamples/
+env*
 bin/
 lib/
 build-env.log

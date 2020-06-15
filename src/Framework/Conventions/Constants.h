@@ -5,14 +5,13 @@
 
 \brief     Basic constants
 
-\author    Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-           University of Liverpool & STFC Rutherford Appleton Lab
+\author    Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+           University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created   May 03, 2004
 
-\cpright   Copyright (c) 2003-2019, The GENIE Collaboration
-           For the full text of the license visit http://copyright.genie-mc.org
-           or see $GENIE/LICENSE
+\cpright   Copyright (c) 2003-2020, The GENIE Collaboration
+           For the full text of the license visit http://copyright.genie-mc.org     
 */
 //____________________________________________________________________________
 
@@ -47,9 +46,9 @@ static const double kSqrtNapierConst = TMath::Sqrt(kNapierConst);
 //
 // Avogadro number, compton wavelength and such...
 //
-static const double kNA    = 6.02214179E+23;             
+static const double kNA    = 6.02214179E+23;
 static const double kLe    = 3.8616E-11 *units::cm;
-static const double kLe2   = TMath::Power(kLe,2);          
+static const double kLe2   = TMath::Power(kLe,2);
 
 //
 // Coupling constants
@@ -108,7 +107,7 @@ static const double FMTOGEV= 5.0761421;
 //
 // Earth consts
 //
-static const double kREarth = 6371 * units::km; 
+static const double kREarth = 6371 * units::km;
 
 //
 // Sqrts frequently encountered in helicity amplitude calculations
@@ -188,5 +187,3 @@ static const double kSqrt27_40 =  0.82158384;
 } // namespace genie
 
 #endif // _CONSTANTS_H_
-
-

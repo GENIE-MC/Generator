@@ -1,29 +1,13 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
-         Steve Dytman <dytman+ \at pitt.edu>
-         Pittsburgh University
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Nov 28, 2011 - CA
-   Integrated cross section for CCMEC is taken to be a fraction of the
-   CCQE cross section for the given neutrino energy and nucleus.
- @ Dec 9, 2011 - SD
-   Using a simple model now - 2N mass chosen with a Gaussian.
-   Strength is tuned to get agreement with MiniBoone and NOMAD tot xs.
-   Parameters tuned to get best agreement with MiniBoone muon angle/energy dist.
- @ May 14, 2012 - SD
-   Changed empirical model to have correct Q2 behavior.  Shape is
-   now Q2*Gaussian*dipole form factor.
-   Add (e,e') MEC, start development to make them dependent on same model.
+ Steve Dytman <dytman+ \at pitt.edu>
+ Pittsburgh University
 */
 //____________________________________________________________________________
 
@@ -90,7 +74,7 @@ double EmpiricalMECPXSec2015::XSec(
   double M2n = PDGLibrary::Instance()->Find(nucleon_cluster_pdg)-> Mass(); // nucleon cluster mass
   double M2n2 = M2n*M2n;
   double ml  = interaction->FSPrimLepton()->Mass();
-  Range1D_t Wlim = isem ? genie::utils::kinematics::electromagnetic::InelWLim(Ev, ml, M2n) : genie::utils::kinematics::InelWLim(Ev, M2n, ml); 
+  Range1D_t Wlim = isem ? genie::utils::kinematics::electromagnetic::InelWLim(Ev, ml, M2n) : genie::utils::kinematics::InelWLim(Ev, M2n, ml);
 
   //LOG("MEC", pINFO) << "Ev, ml, M2n = " << Ev << "  " << ml << "  " << M2n;
   //LOG("MEC", pINFO) << "Wlim= " << Wlim.min << "  " <<Wlim.max ;
@@ -99,7 +83,7 @@ double EmpiricalMECPXSec2015::XSec(
       return xsec;
     }
   //use proper Q2 limit from Controls.h
-  Range1D_t Q2lim = isem ? genie::utils::kinematics::electromagnetic::InelQ2Lim_W(Ev, ml, M2n, W) : genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, ml, W, kMinQ2Limit); 
+  Range1D_t Q2lim = isem ? genie::utils::kinematics::electromagnetic::InelQ2Lim_W(Ev, ml, M2n, W) : genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, ml, W, kMinQ2Limit);
 
   //LOG("MEC", pINFO) << "Q2lim= " << Q2lim.min << "  " <<Q2lim.max ;
   if(Q2 < Q2lim.min || Q2 > Q2lim.max)

@@ -12,14 +12,14 @@
          -f specifies a GENIE event file (GHEP format)
          -n specifies the number of events to process (default: all)
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created May 19, 2010
 
-\cpright Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //____________________________________________________________________________
 
@@ -30,28 +30,28 @@
 #include <TFile.h>
 #include <TTree.h>
 
-#include "EVGCore/EventRecord.h"
-#include "Ntuple/NtpMCFormat.h"
-#include "Ntuple/NtpMCTreeHeader.h"
-#include "Ntuple/NtpMCEventRecord.h"
-#include "Messenger/Messenger.h"
-#include "ReWeight/GReWeightI.h"
-#include "ReWeight/GSystSet.h"
-#include "ReWeight/GReWeight.h"
-#include "ReWeight/GReWeightNuXSecCCQE.h"
-#include "ReWeight/GReWeightNuXSecCCQEvec.h"
-#include "ReWeight/GReWeightNuXSecCCRES.h"
-#include "ReWeight/GReWeightNuXSecNCRES.h"
-#include "ReWeight/GReWeightNuXSecDIS.h"
-#include "ReWeight/GReWeightNuXSecCOH.h"
-#include "ReWeight/GReWeightNonResonanceBkg.h"
-#include "ReWeight/GReWeightFGM.h"
-#include "ReWeight/GReWeightDISNuclMod.h"
-#include "ReWeight/GReWeightResonanceDecay.h"
-#include "ReWeight/GReWeightFZone.h"
-#include "ReWeight/GReWeightINuke.h"
-#include "ReWeight/GReWeightAGKY.h"
-#include "Utils/CmdLnArgParser.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/Ntuple/NtpMCFormat.h"
+#include "Framework/Ntuple/NtpMCTreeHeader.h"
+#include "Framework/Ntuple/NtpMCEventRecord.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Tools/ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GSystSet.h"
+#include "Tools/ReWeight/GReWeight.h"
+#include "Tools/ReWeight/GReWeightNuXSecCCQE.h"
+#include "Tools/ReWeight/GReWeightNuXSecCCQEvec.h"
+#include "Tools/ReWeight/GReWeightNuXSecCCRES.h"
+#include "Tools/ReWeight/GReWeightNuXSecNCRES.h"
+#include "Tools/ReWeight/GReWeightNuXSecDIS.h"
+#include "Tools/ReWeight/GReWeightNuXSecCOH.h"
+#include "Tools/ReWeight/GReWeightNonResonanceBkg.h"
+#include "Tools/ReWeight/GReWeightFGM.h"
+#include "Tools/ReWeight/GReWeightDISNuclMod.h"
+#include "Tools/ReWeight/GReWeightResonanceDecay.h"
+#include "Tools/ReWeight/GReWeightFZone.h"
+#include "Tools/ReWeight/GReWeightINuke.h"
+#include "Tools/ReWeight/GReWeightAGKY.h"
+#include "Framework/Utils/CmdLnArgParser.h"
 
 using std::string;
 

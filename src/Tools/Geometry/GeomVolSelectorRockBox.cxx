@@ -1,13 +1,9 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Robert Hatcher <rhatcher@fnal.gov>
-
- For the class documentation see the corresponding header file.
-
+ Robert Hatcher <rhatcher@fnal.gov>
 */
 //____________________________________________________________________________
 
@@ -23,7 +19,7 @@ using namespace genie::geometry;
 #include <TGeoMedium.h>
 
 //____________________________________________________________________________
-GeomVolSelectorRockBox::GeomVolSelectorRockBox() 
+GeomVolSelectorRockBox::GeomVolSelectorRockBox()
   : GeomVolSelectorFiducial(), fMinimumWall(0.), fDeDx(1.)
   , fExpandInclusion(false)
   , fRockBoxShape(0), fROOTGeom(0)
@@ -31,7 +27,7 @@ GeomVolSelectorRockBox::GeomVolSelectorRockBox()
   fName = "RockBox";
   // base class' fiducial volume always treated as reverse (if even exists)
   this->SetReverseFiducial(true);
-  
+
   for (int i=0; i<3; ++i) {
     fMinimalXYZMin[i] = 0;
     fMinimalXYZMax[i] = 0;
@@ -51,12 +47,12 @@ GeomVolSelectorRockBox::~GeomVolSelectorRockBox()
 //___________________________________________________________________________
 void GeomVolSelectorRockBox::TrimSegment(PathSegment& ps) const
 {
-  // First trim the segment based on the ray vs. cylinder or box 
+  // First trim the segment based on the ray vs. cylinder or box
   // Then trim futher according to the Basic parameters
-  
+
   if ( ! fInterceptRock.fIsHit ) {
       // want in rock box, ray misses => reject all segments
-      ps.fStepRangeSet.clear();  // 
+      ps.fStepRangeSet.clear();  //
   } else {
     // ray hit rock box volume, some segments steps need rejection, some need splitting...
     // check the steps in this segment
@@ -65,8 +61,8 @@ void GeomVolSelectorRockBox::TrimSegment(PathSegment& ps) const
     StepRangeSet::iterator srs_end = ps.fStepRangeSet.end();
     StepRangeSet modifiedStepRangeSet;
     Bool_t ismod = false;
-    
-    // loop over steps within this segement 
+
+    // loop over steps within this segement
     for ( ; srs_itr != srs_end; ++srs_itr ) {
       Double_t slo = srs_itr->first;
       Double_t shi = srs_itr->second;
@@ -96,7 +92,7 @@ void GeomVolSelectorRockBox::BeginPSList(const PathSegmentList* untrimmed) const
 {
   // A new neutrino ray has been set, calculate the entrance/exit distances.
 
-  GeomVolSelectorFiducial::BeginPSList(untrimmed); 
+  GeomVolSelectorFiducial::BeginPSList(untrimmed);
 
   fCurrPathSegmentList = untrimmed;
 
@@ -106,7 +102,7 @@ void GeomVolSelectorRockBox::BeginPSList(const PathSegmentList* untrimmed) const
     LOG("GeomVolSel", pFATAL) << "no shape defined";
     fInterceptRock = RayIntercept();
   } else {
-    fInterceptRock = 
+    fInterceptRock =
       fRockBoxShape->Intercept(fCurrPathSegmentList->GetStartPos(),
                                fCurrPathSegmentList->GetDirection());
   }
@@ -155,7 +151,7 @@ void GeomVolSelectorRockBox::SetRockBoxInclusion(Double_t* xyzmin,
 }
 //___________________________________________________________________________
 void GeomVolSelectorRockBox::SetMinimumWall(Double_t w)
-{ 
+{
   fMinimumWall = w;
   for ( int j = 0; j < 3; ++j ) {
     fInclusionXYZMin[j] = fMinimalXYZMin[j] - fMinimumWall;
@@ -207,29 +203,29 @@ void GeomVolSelectorRockBox::MakeRockBox() const
 #ifdef RWH_DEBUG
   static bool first = true;
   if ( first ) {
-    cout << "MakeRockBox first Minimal min [" 
+    cout << "MakeRockBox first Minimal min ["
          << fMinimalXYZMin[0] << ","
          << fMinimalXYZMin[1] << ","
-         << fMinimalXYZMin[2] << "]" 
-         << "  max [" 
+         << fMinimalXYZMin[2] << "]"
+         << "  max ["
          << fMinimalXYZMax[0] << ","
          << fMinimalXYZMax[1] << ","
          << fMinimalXYZMax[2] << "]" << endl;
-    cout << "MakeRockBox first Inclusion min [" 
+    cout << "MakeRockBox first Inclusion min ["
          << fInclusionXYZMin[0] << ","
          << fInclusionXYZMin[1] << ","
-         << fInclusionXYZMin[2] << "]" 
-         << "  max [" 
+         << fInclusionXYZMin[2] << "]"
+         << "  max ["
          << fInclusionXYZMax[0] << ","
          << fInclusionXYZMax[1] << ","
          << fInclusionXYZMax[2] << "]" << endl;
     first = false;
   }
-  cout << "MakeRockBox this ray using min [" 
+  cout << "MakeRockBox this ray using min ["
        << boxXYZMin[0] << ","
        << boxXYZMin[1] << ","
-       << boxXYZMin[2] << "]" 
-       << "  max [" 
+       << boxXYZMin[2] << "]"
+       << "  max ["
        << boxXYZMax[0] << ","
        << boxXYZMax[1] << ","
        << boxXYZMax[2] << "]" << endl;
@@ -246,5 +242,3 @@ void GeomVolSelectorRockBox::MakeRockBox() const
 }
 
 //___________________________________________________________________________
-
-

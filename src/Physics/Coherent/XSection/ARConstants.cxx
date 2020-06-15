@@ -1,12 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Daniel Scully ( d.i.scully \at warwick.ac.uk)
-   University of Warwick
-
+ Daniel Scully ( d.i.scully \at warwick.ac.uk)
+ University of Warwick
 */
 //____________________________________________________________________________
 
@@ -21,8 +19,8 @@
 
 namespace genie {
 namespace alvarezruso {
-  
-  
+
+
 ARConstants::ARConstants() {
 
 
@@ -40,7 +38,7 @@ ARConstants::ARConstants() {
   COHAR_fStar       = 2.13 ;
   fCosCabibboAngle  = TMath::Cos( 0.22853207 ) ;
   fSinWeinbergAngle = TMath::Sin( 0.49744211 ) ;
-  
+
   massElectron = genie::PDGLibrary::Instance()->Find(genie::kPdgElectron)->Mass() / HBar();
   massMuon     = genie::PDGLibrary::Instance()->Find(genie::kPdgMuon)->Mass() / HBar();
   massTau      = genie::PDGLibrary::Instance()->Find(genie::kPdgTau)->Mass() / HBar();
@@ -52,7 +50,7 @@ ARConstants::ARConstants() {
   massDelta0   = genie::PDGLibrary::Instance()->Find(genie::kPdgP33m1232_Delta0)->Mass() / HBar();
   massPiP      = genie::PDGLibrary::Instance()->Find(genie::kPdgPiP)->Mass() / HBar();
   massPi0      = genie::PDGLibrary::Instance()->Find(genie::kPdgPi0)->Mass() / HBar();
-  
+
   ncFactor = 1.0 - 2.0*fSinWeinbergAngle*fSinWeinbergAngle;
 }
 

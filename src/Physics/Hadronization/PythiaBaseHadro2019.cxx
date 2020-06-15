@@ -1,14 +1,13 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
-         Changes required to implement the GENIE Boosted Dark Matter module
-         were installed by Josh Berger (Univ. of Wisconsin)
+ Changes required to implement the GENIE Boosted Dark Matter module
+ were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -24,36 +23,36 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
-#include "Physics/Hadronization/PythiaHadronizationBase.h"
+#include "Physics/Hadronization/PythiaBaseHadro2019.h"
 
 using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-PythiaHadronizationBase::PythiaHadronizationBase() :
+PythiaBaseHadro2019::PythiaBaseHadro2019() :
 EventRecordVisitorI()
 {
 
 }
 //____________________________________________________________________________
-PythiaHadronizationBase::PythiaHadronizationBase(string name) :
+PythiaBaseHadro2019::PythiaBaseHadro2019(string name) :
 EventRecordVisitorI(name)
 {
 
 }
 //____________________________________________________________________________
-PythiaHadronizationBase::PythiaHadronizationBase(string name, string config) :
+PythiaBaseHadro2019::PythiaBaseHadro2019(string name, string config) :
 EventRecordVisitorI(name, config)
 {
 
 }
 //____________________________________________________________________________
-PythiaHadronizationBase::~PythiaHadronizationBase()
+PythiaBaseHadro2019::~PythiaBaseHadro2019()
 {
 
 }
 //____________________________________________________________________________
-void PythiaHadronizationBase::ProcessEventRecord(GHepRecord * event) const
+void PythiaBaseHadro2019::ProcessEventRecord(GHepRecord * event) const
 {
   Interaction * interaction = event->Summary();
 
@@ -92,7 +91,7 @@ void PythiaHadronizationBase::ProcessEventRecord(GHepRecord * event) const
    }
 }
 //____________________________________________________________________________
-void PythiaHadronizationBase::MakeQuarkDiquarkAssignments(
+void PythiaBaseHadro2019::MakeQuarkDiquarkAssignments(
   const Interaction * interaction) const
 {
   LOG("PythiaHad", pNOTICE)
@@ -274,7 +273,7 @@ void PythiaHadronizationBase::MakeQuarkDiquarkAssignments(
   fRemnantDiquark = remnant_diquark;
 }
 //____________________________________________________________________________
-bool PythiaHadronizationBase::AssertValidity(const Interaction * interaction) const {
+bool PythiaBaseHadro2019::AssertValidity(const Interaction * interaction) const {
 
   // check that there is no charm production
   // (GENIE uses a special model for these cases)
@@ -351,7 +350,7 @@ bool PythiaHadronizationBase::AssertValidity(const Interaction * interaction) co
   return true;
 }
 //____________________________________________________________________________
-void PythiaHadronizationBase::Initialize(void)
+void PythiaBaseHadro2019::Initialize(void)
 {
   fLeadingQuark           = 0;
   fRemnantDiquark         = 0;
@@ -385,7 +384,7 @@ void PythiaHadronizationBase::Initialize(void)
   fReqDecayFlag_Dpp       = false;
 }
 //____________________________________________________________________________
-void PythiaHadronizationBase::LoadConfig(void)
+void PythiaBaseHadro2019::LoadConfig(void)
 {
   // Get PYTHIA physics configuration parameters specified by GENIE
   this->GetParam( "PYTHIA-SSBarSuppression",       fSSBarSuppression       );

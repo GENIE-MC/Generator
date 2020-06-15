@@ -1,29 +1,14 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
-         Marco Roda <mroda \at liverpool.ac.uk>
-         University of Liverpool
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Oct 09, 2009 - CA
-   Modified to handle charged lepton - nucleon(nucleus) scattering.
-   Renamed QPMDISPXSec from DISPartonModelPXSec following code reorganization.
- @ Oct 11, 2009 - CA
-   Implemented ValidProcess()
- @ Jan 29, 2013 - CA
-   Don't look-up depreciated $GDISABLECACHING environmental variable.
-   Use the RunOpt singleton instead.
- @ This revision branches the old QPMDISPXSec in order to disentangle the pure DIS
-   from Pachos et al. adn the internal GENIE tuning
-
+ Extracted/adjusted this code as part of hadronization ode refactoring.
+ Marco Roda <mroda \at liverpool.ac.uk>
+ University of Liverpool
 */
 //____________________________________________________________________________
 
@@ -79,7 +64,7 @@ double KNOTunedQPMDISPXSec::XSec( const Interaction * interaction,
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISPXSec", pINFO)
-        << "d2xsec/dxdy[FreeN] (E= " << E 
+        << "d2xsec/dxdy[FreeN] (E= " << E
                       << ", x= " << x << ", y= " << y << ") = " << xsec;
 #endif
 
@@ -125,14 +110,14 @@ double KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(
 
   double E    = ist.ProbeE(kRfHitNucRest);
   double Mnuc = ist.Tgt().HitNucMass();
-  double x    = in->Kine().x(); 
+  double x    = in->Kine().x();
   double y    = in->Kine().y();
   double Wo   = utils::kinematics::XYtoW(E,Mnuc,x,y);
 
   TH1D * mprob = 0;
 
   if(!fUseCache) {
-    // ** Compute the reduction factor at each call - no caching 
+    // ** Compute the reduction factor at each call - no caching
     //
     mprob = fHadronizationModel->MultiplicityProb(in,"+LowMultSuppr");
     R = 1;
@@ -143,7 +128,7 @@ double KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(
   }
   else {
 
-    // ** Precompute/cache the reduction factors and then use the 
+    // ** Precompute/cache the reduction factors and then use the
     // ** cache to evaluate these factors
 
     // Access the cache branch. The branch key is formed as:
@@ -152,7 +137,7 @@ double KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(
     string algkey = this->Id().Key() + "/DIS-RES-Join";
 
     ostringstream ikey;
-    ikey << "nu-pdgc:" << ist.ProbePdg() 
+    ikey << "nu-pdgc:" << ist.ProbePdg()
          << ";hit-nuc-pdg:"<< ist.Tgt().HitNucPdg() << "/"
          << pi.InteractionTypeAsString();
 
@@ -161,11 +146,11 @@ double KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(
     CacheBranchFx * cbr =
           dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
 
-    // If it does't exist then create a new one 
+    // If it does't exist then create a new one
     // and cache DIS xsec suppression factors
     bool non_zero=false;
     if(!cbr) {
-      LOG("DISXSec", pNOTICE) 
+      LOG("DISXSec", pNOTICE)
                         << "\n ** Creating cache branch - key = " << key;
 
       cbr = new CacheBranchFx("DIS Suppr. Factors in DIS/RES Join Scheme");
@@ -194,7 +179,7 @@ double KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(
           i = 0;
           dW = (WmaxSpl-WminSpl)/(kN-1);
         }
-        LOG("DISXSec", pNOTICE) 
+        LOG("DISXSec", pNOTICE)
 	    << "Cached DIS XSec Suppr. factor (@ W=" << W << ") = " << R;
 
         cbr->AddValues(W,R);
@@ -217,7 +202,7 @@ double KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(
   else if (Wo <= Wmin)                   Ro = 0.0;
   else                                   Ro = 1.0;
 
-  LOG("DISXSec", pDEBUG) 
+  LOG("DISXSec", pDEBUG)
       << "DIS/RES Join: DIS xsec suppr. (W=" << Wo << ") = " << Ro;
 
   return Ro;
@@ -242,7 +227,7 @@ void KNOTunedQPMDISPXSec::LoadConfig(void)
   fHadronizationModel = nullptr ;
 
   fHadronizationModel =
-    dynamic_cast<const KNOHadronization *> (this->SubAlg("Hadronizer"));
+    dynamic_cast<const AGKYLowW2019 *> (this->SubAlg("Hadronizer"));
   assert(fHadronizationModel);
 
   GetParam( "Wcut", fWcut ) ;
@@ -286,4 +271,3 @@ void KNOTunedQPMDISPXSec::LoadConfig(void)
 
   }
 //____________________________________________________________________________
-

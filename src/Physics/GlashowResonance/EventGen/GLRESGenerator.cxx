@@ -1,20 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Dec 14, 2009 - CA
-   Was first added in v2.5.1 
- @ Apr 24, 2010 - CA
-   Add code to decay the off-the-mass-shell W- using PYTHIA6. 
-   First complete version of the GLRES event thread.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -68,7 +58,7 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord * event) const
   //... neglect for now
 
   //
-  // Add remnant nucleus 
+  // Add remnant nucleus
   //
   GHepParticle * target = event -> TargetNucleus();
   if(target) {
@@ -129,9 +119,9 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord * event) const
      int ist  = p->Status();
      if(ist == 1) {
         TLorentzVector p4o(p->Px(), p->Py(), p->Pz(), p->Energy());
-        p4o.Boost(beta); 
+        p4o.Boost(beta);
         TVector3 p3 = p4o.Vect();
-        p3.RotateUz(unitvq); 
+        p3.RotateUz(unitvq);
         TLorentzVector p4(p3,p4o.Energy());
         event->AddParticle(pdgc, kIStStableFinalState, 4,-1,-1,-1, p4, x4);
      }
@@ -159,4 +149,3 @@ void GLRESGenerator::LoadConfig(void)
  RandomGen::Instance();
 }
 //____________________________________________________________________________
-

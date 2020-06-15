@@ -3,18 +3,17 @@
 
 \class    genie::MECXSec
 
-\brief    A numerical cross-section integrator (GENIE/GSL interface) for the 
+\brief    A numerical cross-section integrator (GENIE/GSL interface) for the
           J. Nieves, I. Ruiz Simo, M.J. Vicente Vacas and Martini MEC models.
           Is a concrete implementation of the XSecIntegratorI interface.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  March 22, 2016
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -55,8 +54,8 @@ private:
 };
 
 //_____________________________________________________________________________________
-// 
-// GSL wrappers 
+//
+// GSL wrappers
 //
 //_____________________________________________________________________________________
 

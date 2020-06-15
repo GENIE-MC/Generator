@@ -1,17 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 8, 2016 - CA
-   Added Cholesky's method functions
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -52,13 +45,13 @@ TMatrixD genie::utils::math::CholeskyDecomposition(const TMatrixD& cov_matrix)
      if(L(i,i) <= 0) {
        if(fabs(L(i,i)) < epsilon){
          L(i,i)=epsilon;
-         LOG("Cholesky", pINFO) 
+         LOG("Cholesky", pINFO)
            << "Changed element (" << i << ", " << i << ") to " << L(i,i);
        }
        else{
-         LOG("Cholesky", pERROR) 
+         LOG("Cholesky", pERROR)
             << "Decomposed covariance matrix not positive-definite";
-         LOG("Cholesky", pERROR) 
+         LOG("Cholesky", pERROR)
             << "L(" << i << "," << i << ") = " << L(i,i);
          exit(1);
        }
@@ -81,7 +74,7 @@ TMatrixD genie::utils::math::CholeskyDecomposition(const TMatrixD& cov_matrix)
 }
 //____________________________________________________________________________
 TVectorD  genie::utils::math::CholeskyGenerateCorrelatedParams (
-    const TMatrixD& cholesky_triangular, TVectorD& mean_params) 
+    const TMatrixD& cholesky_triangular, TVectorD& mean_params)
 {
 // Generate a vector of correlated params
 
@@ -90,13 +83,13 @@ TVectorD  genie::utils::math::CholeskyGenerateCorrelatedParams (
   int npars = mean_params.GetNrows();
 
   if(ncols != nrows) {
-    LOG("Cholesky", pERROR) 
-        << "Mismatch between number of columns (" << ncols 
+    LOG("Cholesky", pERROR)
+        << "Mismatch between number of columns (" << ncols
         << ") & rows (" << nrows << ")";
     exit(1);
   }
   if(npars != nrows) {
-    LOG("Cholesky", pERROR) 
+    LOG("Cholesky", pERROR)
         << "Mismatch between number of parameters (" << npars
         << ") & array size (" << nrows << ")";
     exit(1);
@@ -124,7 +117,7 @@ TVectorD  genie::utils::math::CholeskyGenerateCorrelatedParams (
 }
 //____________________________________________________________________________
 TVectorD  genie::utils::math::CholeskyGenerateCorrelatedParams (
- const TMatrixD& cholesky_triangular, TVectorD& mean_params, TVectorD& g_uncorrelated) 
+ const TMatrixD& cholesky_triangular, TVectorD& mean_params, TVectorD& g_uncorrelated)
 {
 // Generate a vector of correlated params
 
@@ -134,19 +127,19 @@ TVectorD  genie::utils::math::CholeskyGenerateCorrelatedParams (
   int nunco = g_uncorrelated.GetNrows();
 
   if(ncols != nrows) {
-    LOG("Cholesky", pERROR) 
-        << "Mismatch between number of columns (" << ncols 
+    LOG("Cholesky", pERROR)
+        << "Mismatch between number of columns (" << ncols
         << ") & rows (" << nrows << ")";
     exit(1);
   }
   if(npars != nrows) {
-    LOG("Cholesky", pERROR) 
+    LOG("Cholesky", pERROR)
         << "Mismatch between number of parameters (" << npars
         << ") & array size (" << nrows << ")";
     exit(1);
   }
   if(nunco != nrows) {
-    LOG("Cholesky", pERROR) 
+    LOG("Cholesky", pERROR)
         << "Mismatch between size of uncorrelated parameter vector (" << nunco
         << ") & array size (" << nrows << ")";
     exit(1);
@@ -170,7 +163,7 @@ TVectorD  genie::utils::math::CholeskyGenerateCorrelatedParams (
 }
 //____________________________________________________________________________
 TVectorD  genie::utils::math::CholeskyGenerateCorrelatedParamVariations (
-    const TMatrixD& cholesky_triangular) 
+    const TMatrixD& cholesky_triangular)
 {
   int ncols = cholesky_triangular.GetNcols();
   int nrows = cholesky_triangular.GetNrows();
@@ -191,7 +184,7 @@ TVectorD  genie::utils::math::CholeskyGenerateCorrelatedParamVariations (
 }
 //____________________________________________________________________________
 TVectorD  genie::utils::math::CholeskyCalculateCorrelatedParamVariations (
-    const TMatrixD& cholesky_triangular, TVectorD & g_uncorrelated) 
+    const TMatrixD& cholesky_triangular, TVectorD & g_uncorrelated)
 {
   int ncols = cholesky_triangular.GetNcols();
   int nrows = cholesky_triangular.GetNrows();
@@ -291,4 +284,3 @@ double genie::utils::math::NonNegative(float x)
   return TMath::Max( (float)0., x);
 }
 //____________________________________________________________________________
-

@@ -1,11 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -567,9 +566,9 @@ void XSecSplineList::Print(ostream & stream) const
   stream << "\n [-] Options:";
   stream << "\n  |";
   stream << "\n  |-----o  UseLogE..................." << fUseLogE;
-  stream << "\n  |-----o  Spline Emin..............." << fNKnots;
-  stream << "\n  |-----o  Spline Emax..............." << fEmin;
-  stream << "\n  |-----o  Spline NKnots............." << fEmax;
+  stream << "\n  |-----o  Spline Emin..............." << fEmin;
+  stream << "\n  |-----o  Spline Emax..............." << fEmax;
+  stream << "\n  |-----o  Spline NKnots............." << fNKnots;
   stream << "\n  |";
 
   map<string, map<string, Spline *> >::const_iterator mm_iter;

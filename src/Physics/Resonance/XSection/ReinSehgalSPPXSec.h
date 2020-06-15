@@ -6,14 +6,14 @@
 \brief    Computes the cross section for an exclusive 1pi reaction through
           resonance neutrinoproduction according to the Rein-Sehgal model.
 
-          This algorithm produces in principle what you could also get from 
-          the genie::RESXSec algorithm (RES cross section integrator) by 
-          specifying the genie::ReinSehgalSPPPXSec as the differential 
-          cross section model. However, ReinSehgalSPPXSec offers a faster 
-          alternative. Before computing any SPP cross section this algorithm 
-          computes and caches splines for resonance neutrino-production cross 
-          sections. This improves the speed since it is reducing the number of 
-          calculations (the generic algorithm needs to recompute resonance 
+          This algorithm produces in principle what you could also get from
+          the genie::RESXSec algorithm (RES cross section integrator) by
+          specifying the genie::ReinSehgalSPPPXSec as the differential
+          cross section model. However, ReinSehgalSPPXSec offers a faster
+          alternative. Before computing any SPP cross section this algorithm
+          computes and caches splines for resonance neutrino-production cross
+          sections. This improves the speed since it is reducing the number of
+          calculations (the generic algorithm needs to recompute resonance
           production xsec for every exclusive channel).
 
           In this algorithm we follow the non-coherent approach: we sum
@@ -25,14 +25,13 @@
 \ref      D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
           and Single Pion Production, Ann.Phys.133, 79 (1981)
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  March 09, 2006
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -64,4 +63,3 @@ private:
 
 }       // genie namespace
 #endif  // _REIN_SEHGAL_SPP_XSEC_H_
-

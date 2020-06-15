@@ -5,14 +5,13 @@
 
 \brief    Encapsulates an XML document parsing status
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 4, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //_______________________________________________________________________________
 
@@ -27,7 +26,7 @@ typedef enum EXmlParseStatus {
   kXmlOK          =  0,
   kXmlNotParsed   =  1,
   kXmlEmpty       =  2,
-  kXmlInvalidRoot =  3         
+  kXmlInvalidRoot =  3
 
 } XmlParserStatus_t;
 
@@ -44,10 +43,9 @@ class XmlParserStatus {
          case kXmlInvalidRoot: return "XML document has invalid root element"; break;
          default:              return "unrecognized XMLParseStatus_t enum";    break;
        }
-       return "unrecognized XMLParseStatus_t enum";  
+       return "unrecognized XMLParseStatus_t enum";
      }
 };
 
 }       // namespace
 #endif  // _XML_PARSER_STATUS_H_
-

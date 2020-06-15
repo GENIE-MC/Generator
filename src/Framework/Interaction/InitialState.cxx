@@ -1,17 +1,16 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
-         Changes required to implement the GENIE Boosted Dark Matter module 
-         were installed by Josh Berger (Univ. of Wisconsin)
+ Changes required to implement the GENIE Boosted Dark Matter module
+ were installed by Josh Berger (Univ. of Wisconsin)
 
-         CMEnergy() method added by Andy Furmanski (Univ. of Manchester) 
-         and Joe Johnston (Univ of Pittsburgh)
+ CMEnergy() method added by Andy Furmanski (Univ. of Manchester)
+ and Joe Johnston (Univ of Pittsburgh)
 */
 //____________________________________________________________________________
 
@@ -80,8 +79,8 @@ TObject()
 InitialState::InitialState(TRootIOCtor*) :
 TObject(),
 fProbePdg(0),
-fTgt(0), 
-fProbeP4(0), 
+fTgt(0),
+fProbeP4(0),
 fTgtP4(0)
 {
 
@@ -396,13 +395,13 @@ double InitialState::CMEnergy() const
 {
   TLorentzVector * k4 = this->GetProbeP4(kRfLab);
   TLorentzVector * p4 = fTgt->HitNucP4Ptr();
-  
+
   *k4 += *p4; // now k4 represents centre-of-mass 4-momentum
   double s = k4->Dot(*k4); // dot-product with itself
   double E = TMath::Sqrt(s);
 
   delete k4;
-  
+
   return E;
 }
 //___________________________________________________________________________
@@ -516,5 +515,3 @@ InitialState & InitialState::operator = (const InitialState & init_state)
   return (*this);
 }
 //___________________________________________________________________________
-
-

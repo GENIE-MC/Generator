@@ -1,27 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Oct 05, 2009 - CA
-   Modified code to handle charged lepton scattering too.
-   Also, the helicity amplitude code now returns a `const RSHelicityAmpl &'.
- @ July 23, 2010 - CA
-   BaryonResParams, and BreitWignerI, BaryonResDataSetI implementations are
-   now redundant. Get resonance parameters from BaryonResUtils and use the
-   Breit-Weigner functions from utils::bwfunc.
- @ May 01, 2012 - CA
-   Pick nutau/nutaubar scaling factors from new location.
- @ May 01, 2016 - Libo Jiang
-   Add W dependence to Delta->N gamma
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -96,7 +79,7 @@ double ReinSehgalRESPXSec::XSec(
     if(W>=fWcut) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("ReinSehgalRes", pDEBUG)
-         << "RES/DIS Join Scheme: XSec[RES, W=" << W 
+         << "RES/DIS Join Scheme: XSec[RES, W=" << W
          << " >= Wcut=" << fWcut << "] = 0";
 #endif
        return 0;
@@ -141,9 +124,9 @@ double ReinSehgalRESPXSec::XSec(
 	else if (W > MR + fGnResMaxNWidths * WR)          return 0.;
   }
 
-  // Compute auxiliary & kinematical factors 
+  // Compute auxiliary & kinematical factors
   double E      = init_state.ProbeE(kRfHitNucRest);
-  double Mnuc   = target.HitNucMass(); 
+  double Mnuc   = target.HitNucMass();
   double W2     = TMath::Power(W,    2);
   double Mnuc2  = TMath::Power(Mnuc, 2);
   double k      = 0.5 * (W2 - Mnuc2)/Mnuc;
@@ -159,7 +142,7 @@ double ReinSehgalRESPXSec::XSec(
   double UV     = U*V;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("ReinSehgalRes", pDEBUG) 
+  LOG("ReinSehgalRes", pDEBUG)
      << "Kinematical params V = " << V << ", U = " << U;
 #endif
 
@@ -169,7 +152,7 @@ double ReinSehgalRESPXSec::XSec(
   double GV  = Go * TMath::Power( 1./(1-q2/fMv2), 2);
   double GA  = Go * TMath::Power( 1./(1-q2/fMa2), 2);
 
-  if(is_EM) { 
+  if(is_EM) {
     GA = 0.; // zero the axial term for EM scattering
   }
 
@@ -194,29 +177,29 @@ double ReinSehgalRESPXSec::XSec(
   fFKR.Tminus = - (fFKR.Tv - fFKR.Ta);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("FKR", pDEBUG) 
+  LOG("FKR", pDEBUG)
      << "FKR params for RES = " << resname << " : " << fFKR;
 #endif
 
   // Calculate the Rein-Sehgal Helicity Amplitudes
 
   const RSHelicityAmplModelI * hamplmod = 0;
-  if(is_CC) { 
-    hamplmod = fHAmplModelCC; 
+  if(is_CC) {
+    hamplmod = fHAmplModelCC;
   }
-  else 
-  if(is_NC) { 
+  else
+  if(is_NC) {
     if (is_p) { hamplmod = fHAmplModelNCp;}
     else      { hamplmod = fHAmplModelNCn;}
   }
-  else 
-  if(is_EM) { 
+  else
+  if(is_EM) {
     if (is_p) { hamplmod = fHAmplModelEMp;}
     else      { hamplmod = fHAmplModelEMn;}
   }
   assert(hamplmod);
-  
-  const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR); 
+
+  const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("RSHAmpl", pDEBUG)
@@ -237,7 +220,7 @@ double ReinSehgalRESPXSec::XSec(
   //
   if(is_EM) {
     double q4 = q2*q2;
-    g2 = kAem2 * kPi2 / (2.0 * fSin48w * q4); 
+    g2 = kAem2 * kPi2 / (2.0 * fSin48w * q4);
   }
 
   // Compute the cross section
@@ -259,11 +242,11 @@ double ReinSehgalRESPXSec::XSec(
   double xsec = 0.0;
   if (is_nu || is_lminus) {
      xsec = sig0*(V2*sigR + U2*sigL + 2*UV*sigS);
-  } 
-  else 
+  }
+  else
   if (is_nubar || is_lplus) {
      xsec = sig0*(U2*sigR + V2*sigL + 2*UV*sigS);
-  } 
+  }
   xsec = TMath::Max(0.,xsec);
 
   double mult = 1.0;
@@ -278,17 +261,17 @@ double ReinSehgalRESPXSec::XSec(
   if(fWghtBW) {
      //different Delta photon decay branch
      if(is_delta){
-     bw = utils::bwfunc::BreitWignerLGamma(W,LR,MR,WR,NR); 
+     bw = utils::bwfunc::BreitWignerLGamma(W,LR,MR,WR,NR);
      }
      else{
-     bw = utils::bwfunc::BreitWignerL(W,LR,MR,WR,NR); 
+     bw = utils::bwfunc::BreitWignerL(W,LR,MR,WR,NR);
      }
-  } 
+  }
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("ReinSehgalRes", pDEBUG) 
+     LOG("ReinSehgalRes", pDEBUG)
        << "BreitWigner(RES=" << resname << ", W=" << W << ") = " << bw;
 #endif
-  xsec *= bw; 
+  xsec *= bw;
 
   // Apply NeuGEN nutau cross section reduction factors
   double rf = 1.0;
@@ -310,7 +293,7 @@ double ReinSehgalRESPXSec::XSec(
   xsec *= xsec_scale;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("ReinSehgalRes", pINFO) 
+  LOG("ReinSehgalRes", pINFO)
     << "\n d2xsec/dQ2dW"  << "[" << interaction->AsString()
           << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << xsec;
 #endif
@@ -325,34 +308,34 @@ double ReinSehgalRESPXSec::XSec(
   // If requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
-  
+
   int Z = target.Z();
   int A = target.A();
   int N = A-Z;
-  
+
   // Take into account the number of scattering centers in the target
   int NNucl = (is_p) ? Z : N;
 
-  xsec*=NNucl; // nuclear xsec (no nuclear suppression factor) 
-  
+  xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
+
   if (fUsePauliBlocking && A!=1)
   {
      // Calculation of Pauli blocking according references:
      //
-     //     [1] S.L. Adler,  S. Nussinov,  and  E.A.  Paschos,  "Nuclear     
-     //         charge exchange corrections to leptonic pion  production     
-     //         in  the (3,3) resonance  region,"  Phys. Rev. D 9 (1974)     
-     //         2125-2143 [Erratum Phys. Rev. D 10 (1974) 1669].             
-     //     [2] J.Y. Yu, "Neutrino interactions and  nuclear  effects in     
-     //         oscillation experiments and the  nonperturbative disper-     
-     //         sive  sector in strong (quasi-)abelian  fields,"  Ph. D.     
-     //         Thesis, Dortmund U., Dortmund, 2002 (unpublished).           
-     //     [3] E.A. Paschos, J.Y. Yu,  and  M. Sakuda,  "Neutrino  pro-     
-     //         duction  of  resonances,"  Phys. Rev. D 69 (2004) 014013     
-     //         [arXiv: hep-ph/0308130].                                     
-  
+     //     [1] S.L. Adler,  S. Nussinov,  and  E.A.  Paschos,  "Nuclear
+     //         charge exchange corrections to leptonic pion  production
+     //         in  the (3,3) resonance  region,"  Phys. Rev. D 9 (1974)
+     //         2125-2143 [Erratum Phys. Rev. D 10 (1974) 1669].
+     //     [2] J.Y. Yu, "Neutrino interactions and  nuclear  effects in
+     //         oscillation experiments and the  nonperturbative disper-
+     //         sive  sector in strong (quasi-)abelian  fields,"  Ph. D.
+     //         Thesis, Dortmund U., Dortmund, 2002 (unpublished).
+     //     [3] E.A. Paschos, J.Y. Yu,  and  M. Sakuda,  "Neutrino  pro-
+     //         duction  of  resonances,"  Phys. Rev. D 69 (2004) 014013
+     //         [arXiv: hep-ph/0308130].
+
      double P_Fermi = 0.0;
-  
+
      // Maximum value of Fermi momentum of target nucleon (GeV)
      if (A<6 || !fUseRFGParametrization)
      {
@@ -368,11 +351,11 @@ double ReinSehgalRESPXSec::XSec(
         if(is_p) { P_Fermi *= TMath::Power( 2.*Z/A, 1./3); }
         else     { P_Fermi *= TMath::Power( 2.*N/A, 1./3); }
      }
-  
+
      double FactorPauli_RES = 1.0;
-  
+
      double k0 = 0., q = 0., q0 = 0.;
- 
+
      if (P_Fermi > 0.)
      {
         k0 = (W2-Mnuc2-Q2)/(2*W);
@@ -380,17 +363,17 @@ double ReinSehgalRESPXSec::XSec(
         q0 = (W2-Mnuc2+kPionMass2)/(2*W);
         q = TMath::Sqrt(q0*q0-kPionMass2);
      }
-           
-     if (2*P_Fermi < k-q) 
+
+     if (2*P_Fermi < k-q)
         FactorPauli_RES = 1.0;
      if (2*P_Fermi >= k+q)
         FactorPauli_RES = ((3*k*k+q*q)/(2*P_Fermi)-(5*TMath::Power(k,4)+TMath::Power(q,4)+10*k*k*q*q)/(40*TMath::Power(P_Fermi,3)))/(2*k);
      if (2*P_Fermi >= k-q && 2*P_Fermi <= k+q)
         FactorPauli_RES = ((q+k)*(q+k)-4*P_Fermi*P_Fermi/5-TMath::Power(k-q, 3)/(2*P_Fermi)+TMath::Power(k-q, 5)/(40*TMath::Power(P_Fermi, 3)))/(4*q*k);
-     
+
      xsec *= FactorPauli_RES;
   }
-  
+
   return xsec;
 }
 //____________________________________________________________________________
@@ -417,7 +400,7 @@ bool ReinSehgalRESPXSec::ValidProcess(const Interaction * interaction) const
   if (!is_pn) return false;
 
   int  probe   = init_state.ProbePdg();
-  bool is_weak = proc_info.IsWeak(); 
+  bool is_weak = proc_info.IsWeak();
   bool is_em   = proc_info.IsEM();
   bool nu_weak = (pdg::IsNeutralLepton(probe) && is_weak);
   bool l_em    = (pdg::IsChargedLepton(probe) && is_em  );
@@ -460,13 +443,13 @@ void ReinSehgalRESPXSec::LoadConfig(void)
   double thw ;
   this->GetParam( "WeinbergAngle", thw ) ;
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
-  double Vud; 
+  double Vud;
   this->GetParam("CKM-Vud", Vud );
   fVud2 = TMath::Power( Vud, 2 );
   this->GetParam("FermiMomentumTable", fKFTable);
   this->GetParam("RFG-UseParametrization", fUseRFGParametrization);
   this->GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
-  
+
   // Load all the sub-algorithms needed
 
   fHAmplModelCC     = 0;
@@ -506,7 +489,7 @@ void ReinSehgalRESPXSec::LoadConfig(void)
   // It limits the integration area around the peak and avoids the
   // problem with huge xsec increase at low Q2 and high W.
   // In correspondence with Hugh, Rein said that the underlying problem
-  // are unphysical assumptions in the model. 
+  // are unphysical assumptions in the model.
   this->GetParamDef( "MaxNWidthForN2Res", fN2ResMaxNWidths, 2.0 ) ;
   this->GetParamDef( "MaxNWidthForN0Res", fN0ResMaxNWidths, 6.0 ) ;
   this->GetParamDef( "MaxNWidthForGNRes", fGnResMaxNWidths, 4.0 ) ;
@@ -522,12 +505,12 @@ void ReinSehgalRESPXSec::LoadConfig(void)
      string base = std::getenv( "GENIE") ;
 
      string filename = base + "/data/evgen/rein_sehgal/res/nutau_xsec_scaling_factors.dat";
-     LOG("ReinSehgalRes", pNOTICE) 
+     LOG("ReinSehgalRes", pNOTICE)
                 << "Loading nu_tau xsec reduction spline from: " << filename;
      fNuTauRdSpl = new Spline(filename);
 
      filename = base + "/data/evgen/rein_sehgal/res/nutaubar_xsec_scaling_factors.dat";
-     LOG("ReinSehgalRes", pNOTICE) 
+     LOG("ReinSehgalRes", pNOTICE)
            << "Loading bar{nu_tau} xsec reduction spline from: " << filename;
      fNuTauBarRdSpl = new Spline(filename);
   }
@@ -538,4 +521,3 @@ void ReinSehgalRESPXSec::LoadConfig(void)
   assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
-

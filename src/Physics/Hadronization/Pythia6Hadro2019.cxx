@@ -1,11 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
-
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ 
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -18,13 +17,13 @@
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepFlags.h"
 #include "Framework/EventGen/EVGThreadException.h"
-#include "Physics/Hadronization/Pythia6Hadronization.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
+#include "Physics/Hadronization/Pythia6Hadro2019.h"
 
 #ifdef __GENIE_PYTHIA6_ENABLED__
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
@@ -41,31 +40,31 @@ using namespace genie::constants;
 extern "C" void py2ent_(int *,  int *, int *, double *);
 
 //____________________________________________________________________________
-Pythia6Hadronization::Pythia6Hadronization() :
-PythiaHadronizationBase("genie::Pythia6Hadronization")
+Pythia6Hadro2019::Pythia6Hadro2019() :
+PythiaBaseHadro2019("genie::Pythia6Hadro2019")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-Pythia6Hadronization::Pythia6Hadronization(string config) :
-PythiaHadronizationBase("genie::Pythia6Hadronization", config)
+Pythia6Hadro2019::Pythia6Hadro2019(string config) :
+PythiaBaseHadro2019("genie::Pythia6Hadro2019", config)
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-Pythia6Hadronization::~Pythia6Hadronization()
+Pythia6Hadro2019::~Pythia6Hadro2019()
 {
 
 }
 //____________________________________________________________________________
-void Pythia6Hadronization::ProcessEventRecord(GHepRecord *
+void Pythia6Hadro2019::ProcessEventRecord(GHepRecord *
   #ifdef __GENIE_PYTHIA6_ENABLED__
     event // avoid unused variable warning if PYTHIA6 is not enabled
   #endif
 ) const
 {
 #ifdef __GENIE_PYTHIA6_ENABLED__
-  PythiaHadronizationBase::ProcessEventRecord(event);
+  PythiaBaseHadro2019::ProcessEventRecord(event);
 #else
   LOG("Pythia6Had", pFATAL)
     << "Calling GENIE/PYTHIA6 hadronization modules without enabling PYTHIA6";
@@ -74,7 +73,7 @@ void Pythia6Hadronization::ProcessEventRecord(GHepRecord *
 #endif
 }
 //____________________________________________________________________________
-bool Pythia6Hadronization::Hadronize(GHepRecord *
+bool Pythia6Hadro2019::Hadronize(GHepRecord *
 #ifdef __GENIE_PYTHIA6_ENABLED__
   event // avoid unused variable warning if PYTHIA6 is not enabled
 #endif
@@ -212,7 +211,7 @@ bool Pythia6Hadronization::Hadronize(GHepRecord *
 #endif // __GENIE_PYTHIA6_ENABLED__
 }
 //____________________________________________________________________________
-void Pythia6Hadronization::CopyOriginalDecayFlags(void) const
+void Pythia6Hadro2019::CopyOriginalDecayFlags(void) const
 {
 #ifdef __GENIE_PYTHIA6_ENABLED__
   fOriDecayFlag_pi0 = (fPythia->GetMDCY(fPythia->Pycomp(kPdgPi0),              1) == 1);
@@ -242,7 +241,7 @@ void Pythia6Hadronization::CopyOriginalDecayFlags(void) const
 #endif // __GENIE_PYTHIA6_ENABLED__
 }
 //____________________________________________________________________________
-void Pythia6Hadronization::SetDesiredDecayFlags(void) const
+void Pythia6Hadro2019::SetDesiredDecayFlags(void) const
 {
 #ifdef __GENIE_PYTHIA6_ENABLED__
 
@@ -268,7 +267,7 @@ void Pythia6Hadronization::SetDesiredDecayFlags(void) const
 #endif // __GENIE_PYTHIA6_ENABLED__
 }
 //____________________________________________________________________________
-void Pythia6Hadronization::RestoreOriginalDecayFlags(void) const
+void Pythia6Hadro2019::RestoreOriginalDecayFlags(void) const
 {
 #ifdef __GENIE_PYTHIA6_ENABLED__
 
@@ -294,21 +293,21 @@ fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaPP),
 #endif  // __GENIE_PYTHIA6_ENABLED__
 }
 //____________________________________________________________________________
-void Pythia6Hadronization::Configure(const Registry & config)
+void Pythia6Hadro2019::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void Pythia6Hadronization::Configure(string config)
+void Pythia6Hadro2019::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void Pythia6Hadronization::LoadConfig(void)
+void Pythia6Hadro2019::LoadConfig(void)
 {
-  PythiaHadronizationBase::LoadConfig();
+  PythiaBaseHadro2019::LoadConfig();
 
 #ifdef __GENIE_PYTHIA6_ENABLED__
   fPythia->SetPARJ(2,  fSSBarSuppression       );
@@ -326,9 +325,9 @@ void Pythia6Hadronization::LoadConfig(void)
   LOG("Pythia6Had", pDEBUG) << this->GetConfig() ;
 }
 //____________________________________________________________________________
-void Pythia6Hadronization::Initialize(void)
+void Pythia6Hadro2019::Initialize(void)
 {
-  PythiaHadronizationBase::Initialize();
+  PythiaBaseHadro2019::Initialize();
 #ifdef __GENIE_PYTHIA6_ENABLED__
   fPythia = TPythia6::Instance();
   // sync GENIE/PYTHIA6 seed number

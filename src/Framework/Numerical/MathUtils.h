@@ -5,14 +5,13 @@
 
 \brief      Simple mathematical utilities not found in ROOT's TMath
 
-\author     Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-            University of Liverpool & STFC Rutherford Appleton Lab
+\author     Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+            University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created    May 06, 2004
 
-\cpright    Copyright (c) 2003-2019, The GENIE Collaboration
-            For the full text of the license visit http://copyright.genie-mc.org
-            or see $GENIE/LICENSE
+\cpright    Copyright (c) 2003-2020, The GENIE Collaboration
+            For the full text of the license visit http://copyright.genie-mc.org            
 */
 //____________________________________________________________________________
 
@@ -32,12 +31,12 @@ namespace utils {
 namespace math
 {
   // Cholesky decomposition. Returns lower triangular matrix.
-  TMatrixD CholeskyDecomposition (const TMatrixD& cov); 
+  TMatrixD CholeskyDecomposition (const TMatrixD& cov);
   // Generates a vector of correlated parameters.
   TVectorD CholeskyGenerateCorrelatedParams (const TMatrixD& Lch, TVectorD& mean);
   TVectorD CholeskyGenerateCorrelatedParams (const TMatrixD& Lch, TVectorD& mean, TVectorD& g_uncorrelated);
   // Generates a vector of correlated parameter variations.
-  TVectorD CholeskyGenerateCorrelatedParamVariations (const TMatrixD& Lch);             
+  TVectorD CholeskyGenerateCorrelatedParamVariations (const TMatrixD& Lch);
   TVectorD CholeskyCalculateCorrelatedParamVariations(const TMatrixD& Lch, TVectorD& g_uncorrelated);
 
   double KahanSummation (double x[], unsigned int n);

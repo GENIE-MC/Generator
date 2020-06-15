@@ -1,20 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 09, 2009 - CA
-   Moved into the NuE package from its previous location (EVGModules package)
- @ Feb 12, 2013 - CA (code from Rosen Matev)
-   Handle the IMD annihilation channel.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -62,7 +52,7 @@ InteractionList * NuEInteractionListGenerator::IMDInteractionList(
 // numu + e- -> mu- + nu_e [CC] -- 'inverse muon decay'
 
   if(init_state.ProbePdg() != kPdgNuMu) {
-     LOG("IntLst", pDEBUG) 
+     LOG("IntLst", pDEBUG)
           << "Return *null* interaction list (non nu_mu probe in IMD thread)";
      return 0;
   }
@@ -88,7 +78,7 @@ InteractionList * NuEInteractionListGenerator::IMDAnnihilationInteractionList(
 // nuebar + e- -> mu- + nu_e [CC] -- 'inverse muon decay annihilation channel'
 
   if(init_state.ProbePdg() != kPdgAntiNuE) {
-     LOG("IntLst", pDEBUG) 
+     LOG("IntLst", pDEBUG)
           << "Return *null* interaction list (non anti_nu_e probe in IMDAnnihilation thread)";
      return 0;
   }
@@ -128,7 +118,7 @@ InteractionList * NuEInteractionListGenerator::NuEELInteractionList(
   init_state.TgtPtr()->SetHitNucPdg(0);
 
   // NC
-  if(nupdg == kPdgNuMu  || nupdg == kPdgAntiNuMu || 
+  if(nupdg == kPdgNuMu  || nupdg == kPdgAntiNuMu ||
      nupdg == kPdgNuTau || nupdg == kPdgAntiNuTau) {
      ProcessInfo   proc_info(kScNuElectronElastic,  kIntWeakNC);
      Interaction * interaction = new Interaction(init, proc_info);
@@ -136,8 +126,8 @@ InteractionList * NuEInteractionListGenerator::NuEELInteractionList(
   }
 
   // CC+NC+interference
-  if(nupdg == kPdgNuE  || nupdg == kPdgAntiNuE) { 
-     ProcessInfo   proc_info(kScNuElectronElastic,  kIntWeakMix); 
+  if(nupdg == kPdgNuE  || nupdg == kPdgAntiNuE) {
+     ProcessInfo   proc_info(kScNuElectronElastic,  kIntWeakMix);
      Interaction * interaction = new Interaction(init, proc_info);
      intlist->push_back(interaction);
   }
@@ -163,4 +153,3 @@ void NuEInteractionListGenerator::LoadConfig(void)
 	GetParamDef( "is-IMD-ANH", fIsIMDAnh, false ) ;
 }
 //____________________________________________________________________________
-

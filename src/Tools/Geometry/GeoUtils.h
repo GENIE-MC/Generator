@@ -5,14 +5,12 @@
 
 \brief      Geometry utilities
 
-\author     Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-            University of Liverpool & STFC Rutherford Appleton Lab
+\author     Jacek Holeczek
 
 \created    March 26, 2009
 
-\cpright    Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright    Copyright (c) 2003-2020, The GENIE Collaboration
             For the full text of the license visit http://copyright.genie-mc.org
-            or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -28,7 +26,7 @@ using std::string;
 namespace genie {
 namespace utils {
 
-namespace geometry   
+namespace geometry
 {
   void RecursiveExhaust(TGeoVolume *topvol, string volnames, bool exhaust);
 

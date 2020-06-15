@@ -1,14 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For documentation see the corresponding header file.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -36,16 +32,16 @@ void genie::utils::T2KEvGenMetaData::Print(ostream & stream) const
   stream << endl;
 
   if(this->jnubeam_version.size() > 0) {
-    stream << "jnubeam version = " << this->jnubeam_version << endl;          
+    stream << "jnubeam version = " << this->jnubeam_version << endl;
   }
   if(this->jnubeam_file.size() > 0) {
     stream << "flux ntuple filename = " << this->jnubeam_file << endl;
   }
   if(this->detector_location.size() > 0) {
-    stream << "detector location = " << this->detector_location << endl;          
+    stream << "detector location = " << this->detector_location << endl;
   }
   if(this->geom_file.size() > 0) {
-    stream << "detector geometry file = " << this->geom_file << endl;          
+    stream << "detector geometry file = " << this->geom_file << endl;
   }
 
   map<int, TH1D*> fluxhists = this->flux_hists;
@@ -56,9 +52,9 @@ void genie::utils::T2KEvGenMetaData::Print(ostream & stream) const
   while(hist_iter != fluxhists.end()){
     TH1D * curr_hist = (TH1D*) hist_iter->second;
     if(curr_hist){
-      stream << " - name = "  << curr_hist->GetName() 
-             << " (entries: " << curr_hist->GetEntries() 
-             << ", mean: "    << curr_hist->GetMean() 
+      stream << " - name = "  << curr_hist->GetName()
+             << " (entries: " << curr_hist->GetEntries()
+             << ", mean: "    << curr_hist->GetMean()
              << ") --> neutrino pdg = " << hist_iter->first << endl;
       ++hist_iter;
     }//curr_hist
@@ -70,10 +66,9 @@ void genie::utils::T2KEvGenMetaData::Print(ostream & stream) const
   }
   map<int, double>::const_iterator target_iter = targetmix.begin();
   while(target_iter != targetmix.end()){
-     stream << " - target pdg = " << target_iter->first 
+     stream << " - target pdg = " << target_iter->first
             << ", weight fraction = " << target_iter->second << endl;
       ++target_iter;
   }
 }
 //____________________________________________________________________________
-

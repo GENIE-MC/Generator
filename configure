@@ -4,8 +4,8 @@
 #
 # For help, type ./configure --help
 #
-# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-# University of Liverpool & STFC Rutherford Appleton Lab
+# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+# University of Liverpool & STFC Rutherford Appleton Laboratory
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # print out info & exit if any of the command-line arguments was --help
@@ -18,6 +18,8 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    --prefix             Installation location (for 'make install')                  /usr/local/\n";
   print "\n enable/disable options with either --enable- or --disable- (eg --enable-lhapdf5 --disable-flux-drivers)\n\n";
   print "    pythia8              Use the PYTHIA8 MC generator                                default: disabled \n";
+  print "    incl                 Interface with INCL++ for nuclear transport                 default: disabled \n";
+  print "    geant4               Interface with Geant4 for nuclear transport                 default: disabled \n";  
   print "    lhapdf5              Use the LHAPDF5 parton density function library             default: enabled  \n";
   print "    lhapdf6              Use the LHAPDF6 parton density function library             default: disabled \n";
   print "    flux-drivers         Built-in flux drivers                                       default: enabled  \n";
@@ -28,6 +30,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    nucleon-decay        Nucleon decay simulation                                    default: disabled \n";
   print "    nnbar-oscillation    Simulation of nbar annihilation [n-nbar oscillation]        default: disabled \n";
   print "    boosted-dark-matter  Boosted dark matter simulation                              default: disabled \n";
+  print "    neutral-heavy-lepton Neutral Heavy Lepton simulation                             default: disabled \n";
   print "    masterclass          Enable GENIE neutrino masterclass app                       default: disabled (Experimental) \n";
   print "    test                 Build test programs                                         default: disabled \n";
   print "    debug                Adds -g in the compiler options to request debug info       default: disabled \n";
@@ -42,9 +45,14 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    optimiz-level     Compiler optimization        any of O,O2,O3,OO,Os / default: O2 \n";
   print "    profiler-lib      Path to profiler library     needed if you --enable-profiler \n";
   print "    doxygen-path      Doxygen binary path          needed if you --enable-doxygen-doc  (if unset: checks for a \$DOXYGENPATH env.var.) \n";
+
   print "    pythia6-lib       PYTHIA6 libraries path       always needed                       (if unset: checks for a \$PYTHIA6 env.var., then tries to auto-detect it) \n";
   print "    pythia8-inc       PYTHIA8 includes path        needed if you --enable-pythia8      (if unset: checks for a \$PYTHIA8_INC env.var., then tries to auto-detect it) \n";
   print "    pythia8-lib       PYTHIA8 libraries path       needed if you --enable-pythia8      (if unset: checks for a \$PYTHIA8_LIB env.var.. then tries to auto-detect it) \n";
+  print "    incl-inc          INCL++ includes path         needed if you --enable-incl         (if unset: tries to auto-detect it) \n";
+  print "    incl-lib          INCL++ library path          needed if you --enable-incl         (if unset: tries to auto-detect it) \n";
+  print "    geant4-inc        Geant4 includes path         needed if you --enable-geant4       (if unset: checks for a \$GEANT4_INC env.var.. then tries to auto-detect it) \n";
+  print "    geant4-lib        Geant4 library path          needed if you --enable-geant4       (if unset: checks for a \$GEANT4_LIB env.var.. then tries to auto-detect it) \n";
   print "    lhapdf5-inc       LHAPDF5 includes path        needed if you --enable-lhapdf5      (if unset: checks for a \$LHAPDF5_INC env.var., then tries to auto-detect it) \n";
   print "    lhapdf5-lib       LHAPDF5 libraries path       needed if you --enable-lhapdf5      (if unset: checks for a \$LHAPDF5_LIB env.var.. then tries to auto-detect it) \n";
   print "    lhapdf6-inc       LHAPDF6 includes path        needed if you --enable-lhapdf6      (if unset: checks for a \$LHAPDF6_INC env.var., then tries to auto-detect it) \n";
@@ -53,6 +61,8 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    libxml2-lib       libxml2 libraries path       always needed                       (if unset: tries to auto-detect it) \n";
   print "    log4cpp-inc       log4cpp includes path        always needed                       (if unset: tries to auto-detect it) \n";
   print "    log4cpp-lib       log4cpp libraries path       always needed                       (if unset: tries to auto-detect it) \n";
+  print "    boost-inc         boost includes path          needed if you --enable-incl         (if unset: tries to auto-detect it) \n";
+  print "    boost-lib         boost library path           needed if you --enable-incl         (if unset: tries to auto-detect it) \n";
   print "    gfortran-lib      libgfortran library path     needed if you --enable-gfortran     (if unset: tries to auto-detect it) \n";
   print "    g2c-lib           libg2c library path          needed if you --enable-g2c          (if unset: tries to auto-detect it) \n\n";
   print "If the printout was too long then pipe it through a pager, eg: \n";
@@ -131,51 +141,57 @@ print MKCONF "GENIE_INSTALLATION_PATH=$prefix\n";
 
 # Default --enable/--disable config options (for a minimal genie build)
 #
-my $gopt_enable_pythia8           = "NO";
-my $gopt_enable_lhapdf5           = "YES";
-my $gopt_enable_lhapdf6           = "NO";
-my $gopt_enable_flux_drivers      = "YES";
-my $gopt_enable_geom_drivers      = "YES";
-my $gopt_enable_t2k               = "NO";
-my $gopt_enable_fnal              = "NO";
-my $gopt_enable_atmo              = "NO";
-my $gopt_enable_nucleon_decay     = "NO";
-my $gopt_enable_nnbar_oscillation = "NO";
-my $gopt_enable_boosted_dark_mat  = "NO";
-my $gopt_enable_masterclass       = "NO";
-my $gopt_enable_test              = "NO";
-my $gopt_enable_debug             = "NO";
-my $gopt_enable_dylibversion      = "YES";
-my $gopt_enable_lowlevel_mesg     = "NO";
-my $gopt_enable_profiler          = "NO";
-my $gopt_enable_doxygen_doc       = "NO";
-my $gopt_enable_gfortran          = "NO";
-my $gopt_enable_g2c               = "NO";
+my $gopt_enable_pythia8              = "NO";
+my $gopt_enable_lhapdf5              = "YES";
+my $gopt_enable_lhapdf6              = "NO";
+my $gopt_enable_flux_drivers         = "YES";
+my $gopt_enable_geom_drivers         = "YES";
+my $gopt_enable_t2k                  = "NO";
+my $gopt_enable_fnal                 = "NO";
+my $gopt_enable_atmo                 = "NO";
+my $gopt_enable_nucleon_decay        = "NO";
+my $gopt_enable_nnbar_oscillation    = "NO";
+my $gopt_enable_boosted_dark_mat     = "NO";
+my $gopt_enable_neutral_heavy_lepton = "NO";
+my $gopt_enable_incl                 = "NO";
+my $gopt_enable_geant4_interface     = "NO";
+my $gopt_enable_masterclass          = "NO";
+my $gopt_enable_test                 = "NO";
+my $gopt_enable_debug                = "NO";
+my $gopt_enable_dylibversion         = "YES";
+my $gopt_enable_lowlevel_mesg        = "NO";
+my $gopt_enable_profiler             = "NO";
+my $gopt_enable_doxygen_doc          = "NO";
+my $gopt_enable_gfortran             = "NO";
+my $gopt_enable_g2c                  = "NO";
 
 # Check configure's command line arguments for non-default values
 #
-if(($match = grep(/--enable-pythia8/i,             @ARGV)) > 0) { $gopt_enable_pythia8           = "YES"; }
-if(($match = grep(/--enable-lhapdf5/i,             @ARGV)) > 0) { $gopt_enable_lhapdf5           = "YES"; }
-if(($match = grep(/--disable-lhapdf5/i,            @ARGV)) > 0) { $gopt_enable_lhapdf5           = "NO";  }
-if(($match = grep(/--enable-lhapdf6/i,             @ARGV)) > 0) { $gopt_enable_lhapdf6           = "YES"; }
-if(($match = grep(/--disable-lhapdf6/i,            @ARGV)) > 0) { $gopt_enable_lhapdf6           = "NO";  }
-if(($match = grep(/--disable-flux-drivers/i,       @ARGV)) > 0) { $gopt_enable_flux_drivers      = "NO";  }
-if(($match = grep(/--disable-geom-drivers/i,       @ARGV)) > 0) { $gopt_enable_geom_drivers      = "NO";  }
-if(($match = grep(/--enable-t2k/i,                 @ARGV)) > 0) { $gopt_enable_t2k               = "YES"; }
-if(($match = grep(/--enable-fnal/i,                @ARGV)) > 0) { $gopt_enable_fnal              = "YES"; }
-if(($match = grep(/--enable-atmo/i,                @ARGV)) > 0) { $gopt_enable_atmo              = "YES"; }
-if(($match = grep(/--enable-nucleon-decay/i,       @ARGV)) > 0) { $gopt_enable_nucleon_decay     = "YES"; }
-if(($match = grep(/--enable-nnbar-oscillation/i,   @ARGV)) > 0) { $gopt_enable_nnbar_oscillation = "YES"; }
-if(($match = grep(/--enable-boosted-dark-matter/i, @ARGV)) > 0) { $gopt_enable_boosted_dark_mat  = "YES"; }
-if(($match = grep(/--enable-masterclass/i,         @ARGV)) > 0) { $gopt_enable_masterclass       = "YES"; }
-if(($match = grep(/--enable-test/i,                @ARGV)) > 0) { $gopt_enable_test              = "YES"; }
-if(($match = grep(/--enable-debug/i,               @ARGV)) > 0) { $gopt_enable_debug             = "YES"; }
-if(($match = grep(/--disable-dylibversion/i,       @ARGV)) > 0) { $gopt_enable_dylibversion      = "NO";  }
-if(($match = grep(/--enable-lowlevel-mesg/i,       @ARGV)) > 0) { $gopt_enable_lowlevel_mesg     = "YES"; }
-if(($match = grep(/--enable-profiler/i,            @ARGV)) > 0) { $gopt_enable_profiler          = "YES"; }
-if(($match = grep(/--enable-doxygen-doc/i,         @ARGV)) > 0) { $gopt_enable_doxygen_doc       = "YES"; }
-if(($match = grep(/--enable-gfortran/i,            @ARGV)) > 0) { $gopt_enable_gfortran          = "YES"; }
-if(($match = grep(/--enable-g2c/i,                 @ARGV)) > 0) { $gopt_enable_g2c               = "YES"; }
+if(($match = grep(/--enable-pythia8/i,              @ARGV)) > 0) { $gopt_enable_pythia8              = "YES"; }
+if(($match = grep(/--enable-lhapdf5/i,              @ARGV)) > 0) { $gopt_enable_lhapdf5              = "YES"; }
+if(($match = grep(/--disable-lhapdf5/i,             @ARGV)) > 0) { $gopt_enable_lhapdf5              = "NO";  }
+if(($match = grep(/--enable-lhapdf6/i,              @ARGV)) > 0) { $gopt_enable_lhapdf6              = "YES"; }
+if(($match = grep(/--disable-lhapdf6/i,             @ARGV)) > 0) { $gopt_enable_lhapdf6              = "NO";  }
+if(($match = grep(/--disable-flux-drivers/i,        @ARGV)) > 0) { $gopt_enable_flux_drivers         = "NO";  }
+if(($match = grep(/--disable-geom-drivers/i,        @ARGV)) > 0) { $gopt_enable_geom_drivers         = "NO";  }
+if(($match = grep(/--enable-t2k/i,                  @ARGV)) > 0) { $gopt_enable_t2k                  = "YES"; }
+if(($match = grep(/--enable-fnal/i,                 @ARGV)) > 0) { $gopt_enable_fnal                 = "YES"; }
+if(($match = grep(/--enable-atmo/i,                 @ARGV)) > 0) { $gopt_enable_atmo                 = "YES"; }
+if(($match = grep(/--enable-nucleon-decay/i,        @ARGV)) > 0) { $gopt_enable_nucleon_decay        = "YES"; }
+if(($match = grep(/--enable-nnbar-oscillation/i,    @ARGV)) > 0) { $gopt_enable_nnbar_oscillation    = "YES"; }
+if(($match = grep(/--enable-boosted-dark-matter/i,  @ARGV)) > 0) { $gopt_enable_boosted_dark_mat     = "YES"; }
+if(($match = grep(/--enable-neutral-heavy-lepton/i, @ARGV)) > 0) { $gopt_enable_neutral_heavy_lepton = "YES"; }
+if(($match = grep(/--enable-incl/i,                 @ARGV)) > 0) { $gopt_enable_incl                 = "YES"; }
+if(($match = grep(/--enable-geant4/i,               @ARGV)) > 0) { $gopt_enable_geant4_interface     = "YES"; }
+if(($match = grep(/--enable-masterclass/i,          @ARGV)) > 0) { $gopt_enable_masterclass          = "YES"; }
+if(($match = grep(/--enable-test/i,                 @ARGV)) > 0) { $gopt_enable_test                 = "YES"; }
+if(($match = grep(/--enable-debug/i,                @ARGV)) > 0) { $gopt_enable_debug                = "YES"; }
+if(($match = grep(/--disable-dylibversion/i,        @ARGV)) > 0) { $gopt_enable_dylibversion         = "NO";  }
+if(($match = grep(/--enable-lowlevel-mesg/i,        @ARGV)) > 0) { $gopt_enable_lowlevel_mesg        = "YES"; }
+if(($match = grep(/--enable-profiler/i,             @ARGV)) > 0) { $gopt_enable_profiler             = "YES"; }
+if(($match = grep(/--enable-doxygen-doc/i,          @ARGV)) > 0) { $gopt_enable_doxygen_doc          = "YES"; }
+if(($match = grep(/--enable-gfortran/i,             @ARGV)) > 0) { $gopt_enable_gfortran             = "YES"; }
+if(($match = grep(/--enable-g2c/i,                  @ARGV)) > 0) { $gopt_enable_g2c                  = "YES"; }
 
 # LHAPDF6 and LHAPDF5 are mutually exlusive
 if ($gopt_enable_lhapdf6 eq "YES" && $gopt_enable_lhapdf5 eq "YES") {
@@ -609,6 +625,190 @@ if(! -d $gopt_with_log4cpp_lib) {
 }
 
 # ------------------------------------------------
+# INCL path
+# ------------------------------------------------
+
+# If --enable-incl was set then the full path to the INCL library must be specified
+my $gopt_with_incl_lib = "";
+if($gopt_enable_incl eq "YES") {
+  if(($match = grep(/--with-incl-lib/i, @ARGV)) > 0) {
+    $options=~m/--with-incl-lib=(\S*)/i;
+    $gopt_with_incl_lib = $1;
+  }
+  if(! -d $gopt_with_incl_lib)  {
+    print "\n*** Warning *** INCL has been enabled but you didn't specify the INCL library path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_incl_lib eq "" && defined $ENV{'INCL_LIB'}) {
+    $gopt_with_incl_lib = $ENV{'INCL_LIB'};
+    print "The \$INCL_LIB env var is defined. I will pick that and use --with-incl-lib=$gopt_with_incl_lib\n";
+  }
+
+  # check
+  my $fileso    = "$gopt_with_incl_lib/libINCL_Physics.so";
+  my $filea = "$gopt_with_incl_lib/libINCL_Physics.a";
+  if(! -e $fileso && ! -e $filea) {
+    print "*** Error *** You need to specify the path to libINCL_Physics using --with-incl-lib=/some/path/\n";
+    print "*** Error *** Otherwise, you should --disable-incl\n\n";
+    exit 1;
+  }
+}
+
+# If --enable-incl was set then the full path to the INCL includes must be specified
+my $gopt_with_incl_inc = "";
+if($gopt_enable_incl eq "YES") {
+  if(($match = grep(/--with-incl-inc/i, @ARGV)) > 0) {
+    $options=~m/--with-incl-inc=(\S*)/i;
+    $gopt_with_incl_inc = $1;
+  }
+  if(! -d $gopt_with_incl_inc)  {
+    print "\n*** Warning *** INCL has been enabled but you didn't specify the INCL includes path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_incl_inc eq "" && defined $ENV{'INCL_INC'}) {
+    $gopt_with_incl_inc = $ENV{'INCL_INC'};
+    print "The \$INCL_INC env var is defined. I will pick that and use --with-incl-inc=$gopt_with_incl_inc\n";
+  }
+
+  # check
+  my $file = "$gopt_with_incl_inc/G4INCLCascade.hh";
+  if(! -e $file) {
+    print "*** Error *** You need to specify the path to G4INCLCascade.hh using --with-incl-inc=/some/path/\n";
+    print "*** Error *** Otherwise, you should --disable-incl\n\n";
+    exit 1;
+  }
+}
+
+# ------------------------------------------------
+# boost path
+# ------------------------------------------------
+
+# If --enable-incl was set then the full path to the boost library must also be specified
+my $gopt_with_boost_lib = "";
+if($gopt_enable_incl eq "YES") {
+  if(($match = grep(/--with-boost-lib/i, @ARGV)) > 0) {
+    $options=~m/--with-boost-lib=(\S*)/i;
+    $gopt_with_boost_lib = $1;
+  }
+  if(! -d $gopt_with_boost_lib)  {
+    print "\n*** Warning *** INCL has been enabled but you didn't specify the boost library path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_boost_lib eq "" && defined $ENV{'BOOST_LIB'}) {
+    $gopt_with_boost_lib = $ENV{'BOOST_LIB'};
+    print "The \$BOOST_LIB env var is defined. I will pick that and use --with-boost-lib=$gopt_with_boost_lib\n";
+  }
+
+  # check
+  my $fileso = "$gopt_with_boost_lib/libboost_program_options-mt.so";
+  my $filea  = "$gopt_with_boost_lib/libboost_program_options-mt.a";
+  if(! -e $fileso && ! -e $filea) {
+    print "*** Error *** You need to specify the path to libboost_program_options-mt.so using --with-boost-lib=/some/path/\n";
+    print "*** Error *** Otherwise, you should --disable-incl\n\n";
+    exit 1;
+  }
+}
+
+# If --enable-incl was set then the full path to the boost includes must also be specified
+my $gopt_with_boost_inc = "";
+if($gopt_enable_incl eq "YES") {
+  if(($match = grep(/--with-boost-inc/i, @ARGV)) > 0) {
+    $options=~m/--with-boost-inc=(\S*)/i;
+    $gopt_with_boost_inc = $1;
+  }
+  if(! -d $gopt_with_boost_inc)  {
+    print "\n*** Warning *** INCL has been enabled but you didn't specify the boost includes path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_boost_inc eq "" && defined $ENV{'BOOST_INC'}) {
+    $gopt_with_boost_inc = $ENV{'BOOST_INC'};
+    print "The \$BOOST_INC env var is defined. I will pick that and use --with-boost-inc=$gopt_with_boost_inc\n";
+  }
+
+  # check
+  my $file = "$gopt_with_boost_inc/boost/program_options.hpp";
+  if(! -e $file) {
+    print "*** Error *** You need to specify the path to boost/program_options.hpp using --with-boost-inc=/some/path/\n";
+    print "*** Error *** Otherwise, you should --disable-incl\n\n";
+     exit 1;
+  }
+}
+
+# ------------------------------------------------
+# geant4 path
+# ------------------------------------------------
+
+# If --enable-geant4 was set then the full path to the Geant4 libraries must be specified
+#
+my $gopt_with_geant4_lib = "";
+if($gopt_enable_geant4_interface eq "YES") {
+  if(($match = grep(/--with-geant4-lib/i, @ARGV)) > 0) {
+    $options=~m/--with-geant4-lib=(\S*)/i;
+    $gopt_with_geant4_lib = $1;
+  }
+  if(! -d $gopt_with_geant4_lib)  {
+    print "\n*** Warning *** Geant4 has been enabled but you didn't specify the Geant4 library path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_geant4_lib eq "" && defined $ENV{'GEANT4_LIB'}) {
+     $gopt_with_geant4_lib = $ENV{'GEANT4_LIB'};
+     print "The \$GEANT4_LIB env var is defined. I will pick that and use --with-geant4-lib=$gopt_with_geant4_lib\n";
+  }
+  # if it still not set, try autodetecting it
+  if(! -d $gopt_with_geant4_lib && $auto_detect)  {
+    print "Auto-detecting GEANT4 library path...\n";
+    $matched = auto_detect("libG4processes.so");
+    if( $matched=~m/(\S*)\/libG4processes.so/i ) {
+       $gopt_with_geant4_lib = $1;
+    }
+    print "Setting --with-geant4-lib=$gopt_with_geant4_lib\n";
+  }
+  # check
+  my $fileso    = "$gopt_with_geant4_lib/libG4processes.so";
+  my $filedylib = "$gopt_with_geant4_lib/libG4processes.dylib";
+  if(! -e $fileso && ! -e $filedylib) {
+     print "*** Error *** You need to specify the path to GEANT4 library using --with-geant4-lib=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-geant4\n\n";
+     exit 1;
+  }
+}
+
+# If --enable-geant4 was set then the full path to the GEANT4 includes must be specified
+#
+my $gopt_with_geant4_inc = "";
+if($gopt_enable_geant4_interface eq "YES") {
+  if(($match = grep(/--with-geant4-inc/i, @ARGV)) > 0) {
+    $options=~m/--with-geant4-inc=(\S*)/i;
+    $gopt_with_geant4_inc = $1;
+  }
+  if(! -d $gopt_with_geant4_inc)  {
+    print "\n*** Warning *** GEANT4 has been enabled but you didn't specify the GEANT4 include path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_geant4_inc eq "" && defined $ENV{'GEANT4_INC'}) {
+     $gopt_with_geant4_inc = $ENV{'GEANT4_INC'};
+     print "The \$GEANT4_INC env var is defined. I will pick that and use --with-geant4-inc=$gopt_with_geant4_inc\n";
+  }
+  # if it still not set, try autodetecting it
+  if(! -d $gopt_with_geant4_inc && $auto_detect)  {
+    print "Auto-detecting the GEANT4 include path...\n";
+    $matched = auto_detect("G4Run.hh","Geant4/G4Run.hh");
+    print "$gopt_with_geant4_inc  \n";
+    if( $matched=~m/(\S*)\/Geant4\/G4Run.hh/i ) {
+       $gopt_with_geant4_inc = $1;
+    }
+    print "Setting --with-geant4-inc=$gopt_with_geant4_inc\n";
+  }
+  # check
+  my $file = "$gopt_with_geant4_inc/Geant4/G4Run.hh";
+  if(! -e $file) {
+     print "*** Error *** You need to specify the GEANT4 includes path using --with-geant4-inc=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-geant4\n\n";
+     exit 1;
+  }
+}
+
+# ------------------------------------------------
 # libgfortran path
 # ------------------------------------------------
 
@@ -660,9 +860,12 @@ if($gopt_enable_g2c eq "YES") {
   }
 }
 
+
 # Save config options
 #
 print MKCONF "GOPT_ENABLE_PYTHIA8=$gopt_enable_pythia8\n";
+print MKCONF "GOPT_ENABLE_INCL=$gopt_enable_incl\n";
+print MKCONF "GOPT_ENABLE_GEANT4_INTERFACE=$gopt_enable_geant4_interface\n";
 print MKCONF "GOPT_ENABLE_LHAPDF5=$gopt_enable_lhapdf5\n";
 print MKCONF "GOPT_ENABLE_LHAPDF6=$gopt_enable_lhapdf6\n";
 print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
@@ -673,6 +876,7 @@ print MKCONF "GOPT_ENABLE_ATMO=$gopt_enable_atmo\n";
 print MKCONF "GOPT_ENABLE_NUCLEON_DECAY=$gopt_enable_nucleon_decay\n";
 print MKCONF "GOPT_ENABLE_NNBAR_OSCILLATION=$gopt_enable_nnbar_oscillation\n";
 print MKCONF "GOPT_ENABLE_BOOSTED_DARK_MATTER=$gopt_enable_boosted_dark_mat\n";
+print MKCONF "GOPT_ENABLE_NEUTRAL_HEAVY_LEPTON=$gopt_enable_neutral_heavy_lepton\n";
 print MKCONF "GOPT_ENABLE_MASTERCLASS=$gopt_enable_masterclass\n";
 print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
 print MKCONF "GOPT_ENABLE_DYLIBVERSION=$gopt_enable_dylibversion\n";
@@ -697,9 +901,14 @@ print MKCONF "GOPT_WITH_LIBXML2_INC=$gopt_with_libxml2_inc\n";
 print MKCONF "GOPT_WITH_LIBXML2_LIB=$gopt_with_libxml2_lib\n";
 print MKCONF "GOPT_WITH_LOG4CPP_INC=$gopt_with_log4cpp_inc\n";
 print MKCONF "GOPT_WITH_LOG4CPP_LIB=$gopt_with_log4cpp_lib\n";
+print MKCONF "GOPT_WITH_INCL_INC=$gopt_with_incl_inc\n";
+print MKCONF "GOPT_WITH_INCL_LIB=$gopt_with_incl_lib\n";
+print MKCONF "GOPT_WITH_BOOST_INC=$gopt_with_boost_inc\n";
+print MKCONF "GOPT_WITH_BOOST_LIB=$gopt_with_boost_lib\n";
+print MKCONF "GOPT_WITH_GEANT4_INC=$gopt_with_geant4_inc\n";
+print MKCONF "GOPT_WITH_GEANT4_LIB=$gopt_with_geant4_lib\n";
 print MKCONF "GOPT_WITH_GFORTRAN_LIB=$gopt_with_gfortran_lib\n";
 print MKCONF "GOPT_WITH_G2C_LIB=$gopt_with_g2c_lib\n";
-
 close(MKCONF);
 
 print "\nYour input configuration options were: @ARGV";
