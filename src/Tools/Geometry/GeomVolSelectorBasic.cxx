@@ -1,20 +1,9 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Robert Hatcher <rhatcher@fnal.gov>
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ February 04, 2010 - RWH
-   Was first added in v2.5.1.
-   Introduce GeomVolSelectorBasic as concrete example of GeomVolSelectorI that 
-   accepts/rejects path segments based on volume name, material, medium, or 
-   path in geometry hierarchy.
-
+ Robert Hatcher <rhatcher@fnal.gov>
 */
 //____________________________________________________________________________
 
@@ -31,7 +20,7 @@ using namespace genie::geometry;
 #include <TGeoMedium.h>
 
 //____________________________________________________________________________
-GeomVolSelectorBasic::GeomVolSelectorBasic() 
+GeomVolSelectorBasic::GeomVolSelectorBasic()
   : GeomVolSelectorI("Basic")
 {
 
@@ -71,41 +60,41 @@ void GeomVolSelectorBasic::SetPathSelection(string pathstr)
 
 //___________________________________________________________________________
 // nothing special needs to be done at the beginning or end of a new PathSegmentList
-void GeomVolSelectorBasic::BeginPSList(const PathSegmentList* /* untrimmed */ ) const 
+void GeomVolSelectorBasic::BeginPSList(const PathSegmentList* /* untrimmed */ ) const
 { ; }
 
-void GeomVolSelectorBasic::EndPSList() const 
+void GeomVolSelectorBasic::EndPSList() const
 { ; }
 
 //___________________________________________________________________________
 void GeomVolSelectorBasic::TrimSegment(PathSegment& ps) const
 {
   bool reject = false;
-  
+
   // not splitting PathSegment into 2 or more PathSegment elements
-  // so either 
+  // so either
   //    - keep "as is"
   //    - adjust the low/high endpoints
   //    - not copy to output list (
   // be careful about steps outside all the geometry that might not
   // have an associated volume/media/material
-  
-  
+
+
   if ( ! reject ) {
     std::string volname = ( ps.fVolume) ? ps.fVolume->GetName() : "no-volume";
     reject = RejectString(volname,fRequiredVol,fForbiddenVol);
   }
-  
+
   if ( ! reject ) {
     std::string medname = ( ps.fMedium) ? ps.fMedium->GetName() : "no-medium";
     reject = RejectString(medname,fRequiredMed,fForbiddenMed);
   }
-  
+
   if ( ! reject ) {
     std::string matname = ( ps.fMaterial) ? ps.fMaterial->GetName() : "no-material";
     reject = RejectString(matname,fRequiredMat,fForbiddenMat);
   }
-  
+
 #ifdef PATHSEG_KEEP_PATH
   if ( ! reject ) {
     reject = RejectString(ps.fPathString,fRequiredPath,fForbiddenPath);
@@ -117,8 +106,8 @@ void GeomVolSelectorBasic::TrimSegment(PathSegment& ps) const
 }
 
 //___________________________________________________________________________
-void GeomVolSelectorBasic::ParseSelection(const string& strall, 
-                                          vector<string>& required, 
+void GeomVolSelectorBasic::ParseSelection(const string& strall,
+                                          vector<string>& required,
                                           vector<string>& forbidden)
 {
   required.clear();
@@ -134,8 +123,8 @@ void GeomVolSelectorBasic::ParseSelection(const string& strall,
   }
 }
 //___________________________________________________________________________
-bool GeomVolSelectorBasic::RejectString(const string& str, 
-                                        const vector<string>& required, 
+bool GeomVolSelectorBasic::RejectString(const string& str,
+                                        const vector<string>& required,
                                         const vector<string>& forbidden) const
 {
   bool reject = false;
@@ -167,4 +156,3 @@ bool GeomVolSelectorBasic::RejectString(const string& str,
   return reject;
 }
 //___________________________________________________________________________
-

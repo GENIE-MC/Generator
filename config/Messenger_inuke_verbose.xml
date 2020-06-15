@@ -79,6 +79,7 @@
   <priority msgstream="GROOTGeom">             NOTICE </priority>
   <priority msgstream="GHEP">                  WARN   </priority>
   <priority msgstream="GHepParticle">          INFO   </priority>
+  <priority msgstream="GHepUtils">             INFO   </priority>
   <priority msgstream="GuiUtils">              INFO   </priority>
   <priority msgstream="GridDim">               WARN   </priority>
   <priority msgstream="GXSecFunc">             WARN   </priority>
@@ -106,7 +107,9 @@
   <priority msgstream="INukeUtils">            INFO   </priority>
   <priority msgstream="INukeUtils2018">        INFO   </priority>
   <priority msgstream="INukeUtils2019">        INFO   </priority>
-  <priority msgstream="INukeNucleonCorr">       INFO   </priority>
+  <priority msgstream="HINCLCascadeIntranuke"> INFO   </priority>
+  <priority msgstream="HG4BertCascIntranuke">  INFO   </priority>
+  <priority msgstream="INukeNucleonCorr">      INFO   </priority>
   <priority msgstream="TwoBodyCollision">      INFO   </priority>
   <priority msgstream="ISApp">                 INFO   </priority>
   <priority msgstream="IntGenMap">             WARN   </priority>

@@ -1,12 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Steve Boyd ( s.b.boyd \at warwick.ac.uk)
-   University of Warwick
-
+  Steve Boyd <s.b.boyd \at warwick.ac.uk>
+  University of Warwick
 */
 //____________________________________________________________________________
 
@@ -31,7 +29,7 @@ typedef std::complex<double> cdouble;
 // Routine to work out the evaluation points for a Gaussian integral given the
 // end points, and the number of sampling points
 //
-void integrationtools::SG20R(const double a, const double b, const unsigned int n, const unsigned int nsamp, 
+void integrationtools::SG20R(const double a, const double b, const unsigned int n, const unsigned int nsamp,
            double* x, unsigned int& np, double* /*w*/)
 {
   static const double y[10] = {.9931285991, .9639719272, .9122344282, .8391169718, .7463319064, .6360536807, .5108670019, .3737060887, .2277858511, .0765265211 };
@@ -77,15 +75,15 @@ cdouble integrationtools::RG201D(const double A, const double B, const unsigned 
       J2 = I2 - j;
       CR += W[j-1] * (CF[J1-1]+CF[J2-1]);
     }
-  } 
+  }
   //CRES=CR*0.5*(B-A)/float(N)
   cdouble CRES = CR*0.5*(B-A)/Double_t(N);
   return CRES;
 }
 //-----------------------------------------------------------------------------------------------------------
 // Gaussian-Legendre integration of the function defined by CF
-void integrationtools::RG202D(const double a, const double b, unsigned int n, unsigned int l, 
-              unsigned int m, std::vector< std::vector<cdouble> >& cf, 
+void integrationtools::RG202D(const double a, const double b, unsigned int n, unsigned int l,
+              unsigned int m, std::vector< std::vector<cdouble> >& cf,
               const unsigned int nsamp, std::vector<cdouble>& cres)
 {
   // This is a fast integrator based on a Gauss-Legendre method. This only support two-dimensional integration
@@ -102,7 +100,7 @@ void integrationtools::RG202D(const double a, const double b, unsigned int n, un
 
   for(unsigned int i = 0; i != n; ++i)
   {
-    i1 += nsamp; 
+    i1 += nsamp;
     i2 = i1 + nsamp-1;
     for(unsigned int j = 0; j != 10; ++j)
     {
@@ -126,7 +124,7 @@ void integrationtools::RG202D(const double a, const double b, unsigned int n, un
 // Routine to work out the evaluation points for a Gaussian integral given the
 // end points, and the number of sampling points
 //
-void integrationtools::SG48R(const double a, const double b, const unsigned int n, const unsigned int nsamp, 
+void integrationtools::SG48R(const double a, const double b, const unsigned int n, const unsigned int nsamp,
            double* x, unsigned int& np, double* /*w*/)
 {
   static const double y[24] = {0.9987710072, 0.9935301722, 0.9841245873, 0.9705915925, 0.9529877031,
@@ -177,15 +175,15 @@ cdouble integrationtools::RG481D(const double A, const double B, const unsigned 
       J2 = I2 - j;
       CR += W[j-1] * (CF[J1-1]+CF[J2-1]);
     }
-  } 
+  }
   //CRES=CR*0.5*(B-A)/float(N)
   cdouble CRES = CR*0.5*(B-A)/Double_t(N);
   return CRES;
 }
 //-----------------------------------------------------------------------------------------------------------
 // Gaussian-Legendre integration of the function defined by CF
-void integrationtools::RG482D(const double a, const double b, unsigned int n, unsigned int l, 
-              unsigned int m, std::vector< std::vector<cdouble> >& cf, 
+void integrationtools::RG482D(const double a, const double b, unsigned int n, unsigned int l,
+              unsigned int m, std::vector< std::vector<cdouble> >& cf,
               const unsigned int nsamp, std::vector<cdouble>& cres)
 {
   // This is a fast integrator based on a Gauss-Legendre method. This only support two-dimensional integration
@@ -205,7 +203,7 @@ void integrationtools::RG482D(const double a, const double b, unsigned int n, un
 
   for(unsigned int i = 0; i != n; ++i)
   {
-    i1 += nsamp; 
+    i1 += nsamp;
     i2 = i1 + nsamp-1;
     for(unsigned int j = 0; j != 24; ++j)
     {
@@ -227,7 +225,7 @@ void integrationtools::RG482D(const double a, const double b, unsigned int n, un
 
 //______________________________________________________________________
 // Calls correct integration tool for current sampling
-void integrationtools::SGNR(const double a, const double b, const unsigned int n, const unsigned int nsamp, 
+void integrationtools::SGNR(const double a, const double b, const unsigned int n, const unsigned int nsamp,
                             double* x, unsigned int& np, double* w)
 {
   if (nsamp==20) {
@@ -256,8 +254,8 @@ cdouble integrationtools::RGN1D(const double A, const double B, const unsigned i
   }
 }
 
-void integrationtools::RGN2D (const double a, const double b, unsigned int n, unsigned int l, 
-              unsigned int m, std::vector< std::vector<cdouble> >& cf, 
+void integrationtools::RGN2D (const double a, const double b, unsigned int n, unsigned int l,
+              unsigned int m, std::vector< std::vector<cdouble> >& cf,
               const unsigned int nsamp, std::vector<cdouble>& cres)
 {
   if (nsamp==20) {

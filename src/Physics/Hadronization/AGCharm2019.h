@@ -13,17 +13,16 @@
 
           Is a concrete implementation of the EventRecordVisitorI interface.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
           Hugh Gallagher <gallag@minos.phy.tufts.edu>
           Tufts University
 
 \created  August 17, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -77,7 +76,7 @@ private:
   TF1 *                          fCharmPT2pdf; ///< charm hadron pT^2 pdf
   const FragmentationFunctionI * fFragmFunc;   ///< charm hadron fragmentation func
 
-  double fFracMaxEnergy ;                      ///< Maximum energy available for the Meson fractions 
+  double fFracMaxEnergy ;                      ///< Maximum energy available for the Meson fractions
 
   Spline *                       fD0FracSpl;   ///< nu charm fraction vs Ev: D0
   Spline *                       fDpFracSpl;   ///< nu charm fraction vs Ev: D+
@@ -90,4 +89,3 @@ private:
 }         // genie namespace
 
 #endif    // _CHARM_HADRONIZATION__H_
-

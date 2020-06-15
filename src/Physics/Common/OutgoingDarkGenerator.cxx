@@ -1,13 +1,13 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Joshua Berger <jberger \at physics.wisc.edu>
-         University of Wisconsin-Madison
-         Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+ Joshua Berger <jberger \at physics.wisc.edu>
+ University of Wisconsin-Madison
+
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -76,12 +76,12 @@ void OutgoingDarkGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double ml  = interaction->FSPrimLepton()->Mass();
   double ml2 = TMath::Power(ml,2);
   double pv  = TMath::Sqrt(TMath::Max(0.,Ev*Ev - ml2));
-    
+
   LOG("LeptonicVertex", pNOTICE)
              << "Ev = " << Ev << ", Q2 = " << Q2 << ", y = " << y;
 
   // Compute the final state primary lepton energy and momentum components
-  // along and perpendicular the neutrino direction 
+  // along and perpendicular the neutrino direction
   double El  = Ev * (1. - y);
   double plp = (2.*Ev*El - 2.*ml2 - Q2) / (2.*pv);
   double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
@@ -96,9 +96,9 @@ void OutgoingDarkGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double plty = plt * TMath::Sin(phi);
 
   // Take a unit vector along the neutrino direction @ the nucleon rest frame
-  TVector3 unit_nudir = p4v->Vect().Unit(); 
+  TVector3 unit_nudir = p4v->Vect().Unit();
 
-  // Rotate lepton momentum vector from the reference frame (x'y'z') where 
+  // Rotate lepton momentum vector from the reference frame (x'y'z') where
   // {z':(neutrino direction), z'x':(theta plane)} to the nucleon rest frame
   TVector3 p3l(pltx,plty,plp);
   p3l.RotateUz(unit_nudir);
@@ -137,7 +137,7 @@ TVector3 OutgoingDarkGenerator::NucRestFrame2Lab(GHepRecord * evrec) const
 
   const TLorentzVector & pnuc4 = init_state.Tgt().HitNucP4(); //[@LAB]
   TVector3 beta = pnuc4.BoostVector();
-    
+
   return beta;
 }
 //___________________________________________________________________________
@@ -148,7 +148,7 @@ void OutgoingDarkGenerator::AddToEventRecord(
 // To be called by all concrete OutgoingDarkGenerators before exiting.
 
   Interaction * interaction = evrec->Summary();
-    
+
   GHepParticle * mom  = evrec->Probe();
   int            imom = evrec->ProbePosition();
 
@@ -159,13 +159,13 @@ void OutgoingDarkGenerator::AddToEventRecord(
 
   GHepParticle * nucltgt = evrec->TargetNucleus();
 
-  bool is_ve = interaction->ProcInfo().IsInverseMuDecay() || 
-               interaction->ProcInfo().IsIMDAnnihilation() || 
+  bool is_ve = interaction->ProcInfo().IsInverseMuDecay() ||
+               interaction->ProcInfo().IsIMDAnnihilation() ||
                interaction->ProcInfo().IsNuElectronElastic();
 
   bool can_correct = fApplyCoulombCorrection && nucltgt!=0 && !is_ve;
   if(can_correct) {
-    LOG("LeptonicVertex", pINFO)  
+    LOG("LeptonicVertex", pINFO)
         << "Correcting f/s lepton energy for Coulomb effects";
 
     double m = interaction->FSPrimLepton()->Mass();
@@ -173,23 +173,23 @@ void OutgoingDarkGenerator::AddToEventRecord(
     double A  = nucltgt->A();
 
     //  charge radius of nucleus in GeV^-1
-    double Rc = (1.1*TMath::Power(A,1./3.) + 0.86*TMath::Power(A,-1./3.))/0.197; 
+    double Rc = (1.1*TMath::Power(A,1./3.) + 0.86*TMath::Power(A,-1./3.))/0.197;
 
     // shift of lepton energy in homogenous sphere with radius Rc
     double Vo = 3*kAem*Z/(2*Rc);
     Vo *= 0.75; // as suggested in R.Gran's note
-    
+
     double Elo = p4l.Energy();
     double e   = TMath::Min(Vo, Elo-m);
     double El  = TMath::Max(0., Elo-e);
 
-    LOG("LeptonicVertex", pINFO) 
+    LOG("LeptonicVertex", pINFO)
       << "Lepton energy subtraction: E = " << Elo << " --> " << El;
 
     double pmag_old = p4l.P();
     double pmag_new = TMath::Sqrt(utils::math::NonNegative(El*El-m*m));
     double scale    = pmag_new / pmag_old;
-    LOG("LeptonicVertex", pDEBUG) 
+    LOG("LeptonicVertex", pDEBUG)
          << "|pnew| = " << pmag_new << ", |pold| = " << pmag_old
          << ", scale = " << scale;
 
@@ -239,14 +239,14 @@ void OutgoingDarkGenerator::SetPolarization(GHepRecord * ev) const
     plab *= -1; // left-handed
   }
 
-  LOG("LeptonicVertex", pINFO) 
+  LOG("LeptonicVertex", pINFO)
             << "Setting polarization angles for particle: " << fsl->Name();
 
   fsl->SetPolarization(plab);
 
   if(fsl->PolzIsSet()) {
-     LOG("LeptonicVertex", pINFO) 
-          << "Polarization (rad): Polar = "  << fsl->PolzPolarAngle() 
+     LOG("LeptonicVertex", pINFO)
+          << "Polarization (rad): Polar = "  << fsl->PolzPolarAngle()
                            << ", Azimuthal = " << fsl->PolzAzimuthAngle();
   }
 }
@@ -258,7 +258,7 @@ void OutgoingDarkGenerator::Configure(const Registry & config)
 }
 //____________________________________________________________________________
 void OutgoingDarkGenerator::Configure(string config)
-{    
+{
   Algorithm::Configure(config);
   this->LoadConfig();
 }
@@ -269,4 +269,3 @@ void OutgoingDarkGenerator::LoadConfig(void)
 
 }
 //___________________________________________________________________________
-

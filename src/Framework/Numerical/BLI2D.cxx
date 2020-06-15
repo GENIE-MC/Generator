@@ -1,23 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - May 30, 2009
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ May 30, 2009 - CA
-   Was first added in v2.5.1.
- @ Mar 08, 2010 - CA
-   Fix `converting to `int' from `double'' warnings by using TMath::FloorInt
-   in all lines similar to `int ix = (xmax-xmin)/dx'.
- @ July 29, 2011 - AM
-   Added BLI2DNonUnifGrid.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -94,7 +81,7 @@ bool BLI2DUnifGrid::AddPoint(double x, double y, double z)
   fZmin = TMath::Min(z, fZmin);
   fZmax = TMath::Max(z, fZmax);
 
-  LOG("BLI2DUnifGrid", pDEBUG) 
+  LOG("BLI2DUnifGrid", pDEBUG)
     << "Added x = " << x << " (ix = " << ix << ")"
          << " y = " << y << " (iy = " << iy << ") -> "
          << " z = " << z << " (iz = " << iz << ")";
@@ -107,8 +94,8 @@ double BLI2DUnifGrid::Evaluate(double x, double y) const
   if(x < fXmin || x > fXmax) return 0.;
   if(y < fYmin || y > fYmax) return 0.;
 
-  int ix_lo  = TMath::FloorNint( (x - fXmin) / fDX ); 
-  int iy_lo  = TMath::FloorNint( (y - fYmin) / fDY ); 
+  int ix_lo  = TMath::FloorNint( (x - fXmin) / fDX );
+  int iy_lo  = TMath::FloorNint( (y - fYmin) / fDY );
   int ix_hi  = ix_lo + 1;
   int iy_hi  = iy_lo + 1;
 
@@ -294,7 +281,7 @@ bool BLI2DNonUnifGrid::AddPoint(double x, double y, double z)
 	  fX[fNFillX-j]=fX[fNFillX-j-1];
 	  for (int k=0;k<fNFillY;k++)
 	    {
-	      fZ[ this->IdxZ(fNFillX-j,k) ] 
+	      fZ[ this->IdxZ(fNFillX-j,k) ]
 		= fZ[ this->IdxZ(fNFillX-j-1,k) ];
 	    }
 	}
@@ -310,7 +297,7 @@ bool BLI2DNonUnifGrid::AddPoint(double x, double y, double z)
 	  fY[fNFillY-j]=fY[fNFillY-j-1];
 	  for (int k=0;k<fNFillX;k++)
 	    {
-	      fZ[ this->IdxZ(k,fNFillY-j) ] 
+	      fZ[ this->IdxZ(k,fNFillY-j) ]
 		= fZ[ this->IdxZ(k,fNFillY-j-1) ];
 	    }
 	}
@@ -327,7 +314,7 @@ bool BLI2DNonUnifGrid::AddPoint(double x, double y, double z)
   fZmin = TMath::Min(z, fZmin);
   fZmax = TMath::Max(z, fZmax);
 
-  LOG("BLI2DNonUnifGrid", pDEBUG) 
+  LOG("BLI2DNonUnifGrid", pDEBUG)
     << "Added x = " << x << " (ix = " << xidx << ")"
          << " y = " << y << " (iy = " << yidx << ") -> "
          << " z = " << z << " (iz = " << iz   << ")";
@@ -342,7 +329,7 @@ double BLI2DNonUnifGrid::Evaluate(double x, double y) const
   double evaly=TMath::Min(y,fYmax);
   evaly=TMath::Max(evaly,fYmin);
 
-  int ix_lo  = -2; 
+  int ix_lo  = -2;
   int iy_lo  = -2;
   for (int i=0;i<fNFillX;i++)
     {
@@ -381,7 +368,7 @@ double BLI2DNonUnifGrid::Evaluate(double x, double y) const
   double z2  = z12 * (x2-evalx)/(x2-x1) + z22 * (evalx-x1)/(x2-x1);
   double z   = z1  * (y2-evaly)/(y2-y1) + z2  * (evaly-y1)/(y2-y1);
 
-  /*  
+  /*
   LOG("BLI2DNonUnifGrid", pINFO) << "x = " << evalx << " -> nearby nodes: " << x1 << ", " << x2;
   LOG("BLI2DNonUnifGrid", pINFO) << "y = " << evaly << " -> nearby nodes: " << y1 << ", " << y2;
   LOG("BLI2DNonUnifGrid", pINFO) << "xmin = " << fXmin << ", xmax = " << fXmax;
@@ -410,7 +397,7 @@ void BLI2DNonUnifGrid::Init(
   fYmin  = 0.;
   fYmax  = 0.;
   fZmin  = std::numeric_limits<double>::max();
-  fZmax  = std::numeric_limits<double>::min(); 
+  fZmax  = std::numeric_limits<double>::min();
   fX     = 0;
   fY     = 0;
   fZ     = 0;

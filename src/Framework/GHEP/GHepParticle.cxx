@@ -1,28 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Sep 15, 2009 - CA   
-   Remove redundant IsFake(), IsNucleus() and IsParticle() methods. Removed 
-   the corresponding priv data members. Use pdg::IsPseudoParticle(), 
-   pdg::IsIon() and pdg::IsParticle instead.
- @ Sep 15, 2009 - CA   
-   Added 'rescattering code' to allow intranuclear hadron transport MCs to
-   store a hadronic reaction code which can not always be easily recreated
-   from the particle list.
- @ May 05, 2010 - CR
-   Adding special ctor for ROOT I/O purposes so as to avoid memory leak due to
-   memory allocated in the default ctor when objects of this class are read by 
-   the ROOT Streamer. 
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -88,8 +70,8 @@ fLastDaughter(daughter2)
   fX4 = new TLorentzVector(v);
 
   fRescatterCode  = -1;
-  fPolzTheta      = -999; 
-  fPolzPhi        = -999;    
+  fPolzTheta      = -999;
+  fPolzPhi        = -999;
   fIsBound        = false;
   fRemovalEnergy  = 0.;
 }
@@ -112,10 +94,10 @@ fLastDaughter(daughter2)
   fX4 = new TLorentzVector(x,y,z,t);
 
   fRescatterCode  = -1;
-  fPolzTheta      = -999; 
-  fPolzPhi        = -999;   
+  fPolzTheta      = -999;
+  fPolzPhi        = -999;
   fIsBound        = false;
-  fRemovalEnergy  = 0.; 
+  fRemovalEnergy  = 0.;
 }
 //___________________________________________________________________________
 // Copy constructor
@@ -135,7 +117,7 @@ fFirstMother(-1),
 fLastMother(-1),
 fFirstDaughter(-1),
 fLastDaughter(-1),
-fP4(0), 
+fP4(0),
 fX4(0),
 fPolzTheta(-999.),
 fPolzPhi(-999.),
@@ -193,7 +175,7 @@ int GHepParticle::Z(void) const
 {
 // Decoding Z from the PDG code
 
-  if(!pdg::IsIon(fPdgCode)) 
+  if(!pdg::IsIon(fPdgCode))
     return -1;
   else
     return pdg::IonPdgCodeToZ(fPdgCode);
@@ -203,21 +185,21 @@ int GHepParticle::A(void) const
 {
 // Decoding A from the PDG code
 
-  if(!pdg::IsIon(fPdgCode)) 
+  if(!pdg::IsIon(fPdgCode))
     return -1;
   else
     return pdg::IonPdgCodeToA(fPdgCode);
 }
 //___________________________________________________________________________
-TLorentzVector * GHepParticle::GetP4(void) const 
-{ 
+TLorentzVector * GHepParticle::GetP4(void) const
+{
 // see GHepParticle::P4() for a method that does not create a new object and
-// transfers its ownership 
+// transfers its ownership
 
   if(fP4) {
-     TLorentzVector * p4 = new TLorentzVector(*fP4); 
+     TLorentzVector * p4 = new TLorentzVector(*fP4);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("GHepParticle", pDEBUG) 
+     LOG("GHepParticle", pDEBUG)
           << "Return vp = " << utils::print::P4AsShortString(p4);
 #endif
      return p4;
@@ -227,15 +209,15 @@ TLorentzVector * GHepParticle::GetP4(void) const
   }
 }
 //___________________________________________________________________________
-TLorentzVector * GHepParticle::GetX4(void) const 
-{ 
+TLorentzVector * GHepParticle::GetX4(void) const
+{
 // see GHepParticle::X4() for a method that does not create a new object and
 // transfers its ownership
 
   if(fX4) {
-     TLorentzVector * x4 = new TLorentzVector(*fX4); 
+     TLorentzVector * x4 = new TLorentzVector(*fX4);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("GHepParticle", pDEBUG) 
+     LOG("GHepParticle", pDEBUG)
          << "Return x4 = " << utils::print::X4AsString(x4);
 #endif
      return x4;
@@ -275,8 +257,8 @@ void GHepParticle::SetPosition(const TLorentzVector & v4)
 void GHepParticle::SetPosition(double x, double y, double z, double t)
 {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("GHepParticle", pDEBUG) 
-            << "Setting position to (x = " << x << ", y = " 
+  LOG("GHepParticle", pDEBUG)
+            << "Setting position to (x = " << x << ", y = "
                                << y << ", z = " << z << ", t = " << t << ")";
 #endif
 
@@ -347,14 +329,14 @@ void GHepParticle::SetPolarization(double theta, double phi)
 {
 // sets the polarization angles
 
-  if(theta>=0 && theta<=kPi && phi>=0 && phi<2*kPi) 
+  if(theta>=0 && theta<=kPi && phi>=0 && phi<2*kPi)
   {
-    fPolzTheta = theta; 
-    fPolzPhi   = phi;    
+    fPolzTheta = theta;
+    fPolzPhi   = phi;
 
   } else {
-    LOG("GHepParticle", pERROR) 
-      << "Invalid polarization angles (polar = " << theta 
+    LOG("GHepParticle", pERROR)
+      << "Invalid polarization angles (polar = " << theta
       << ", azimuthal = " << phi << ")";
   }
 }
@@ -365,7 +347,7 @@ void GHepParticle::SetPolarization(const TVector3 & polz)
 
   double p = polz.Mag();
   if(! (p>0) ) {
-    LOG("GHepParticle", pERROR) 
+    LOG("GHepParticle", pERROR)
            << "Input polarization vector has non-positive norm! Ignoring it";
     return;
   }
@@ -381,9 +363,9 @@ void GHepParticle::SetBound(bool bound)
   // only set it for p or n
   bool is_nucleon = pdg::IsNeutronOrProton(fPdgCode);
   if(!is_nucleon && bound) {
-    LOG("GHepParticle", pERROR) 
+    LOG("GHepParticle", pERROR)
        << "Refusing to set the bound flag for particles other than nucleons";
-    LOG("GHepParticle", pERROR) 
+    LOG("GHepParticle", pERROR)
        << "(Requested for pdg = " << fPdgCode << ")";
     return;
   }
@@ -412,8 +394,8 @@ void GHepParticle::Init(void)
   fLastMother    = -1;
   fFirstDaughter = -1;
   fLastDaughter  = -1;
-  fPolzTheta     = -999; 
-  fPolzPhi       = -999;    
+  fPolzTheta     = -999;
+  fPolzPhi       = -999;
   fIsBound       = false;
   fRemovalEnergy = 0.;
   fP4            = new TLorentzVector(0,0,0,0);
@@ -463,9 +445,9 @@ void GHepParticle::Print(ostream & stream) const
   stream << setfill(' ') << setw(6)  << this->Pz()             << " | ";
   stream << setfill(' ') << setw(6)  << this->E()              << " | ";
   stream << setfill(' ') << setw(6)  << this->Mass()           << " | ";
-  
+
   int rescat_code = this->RescatterCode();
-  if( rescat_code != -1 ) 
+  if( rescat_code != -1 )
   {
      stream << setfill(' ') << setw(5)  << rescat_code << " | ";
   }
@@ -555,7 +537,7 @@ void GHepParticle::AssertIsKnownParticle(void) const
   TParticlePDG * p = PDGLibrary::Instance()->Find(fPdgCode);
   if(!p) {
     LOG("GHepParticle", pFATAL)
-      << "\n** You are attempting to insert particle with PDG code = " 
+      << "\n** You are attempting to insert particle with PDG code = "
       << fPdgCode << " into the event record."
       << "\n** This particle can not be found in "
       << "$GENIE/data/evgen/catalogues/pdg/genie_pdg_table.txt";
@@ -575,4 +557,3 @@ GHepParticle & GHepParticle::operator = (const GHepParticle & p)
   return (*this);
 }
 //___________________________________________________________________________
-

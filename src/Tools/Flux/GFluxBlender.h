@@ -1,31 +1,39 @@
-////////////////////////////////////////////////////////////////////////
-/// \file  GFluxBlender.h
-/// \brief GENIE GFluxI adapter to allow flavor modification
-///
-///        This adapter intervenes between the GENIE GMCJDriver class
-///        (MC job driver) and a concrete GFluxI flux generator, to
-///        allow user modification of the neutrino flavor.  This
-///        modification could be a fixed "swap" or an energy and/or
-///        distance dependent (standard oscillations) one.
-///
-///        Because the GMCJDriver only queries the flavor of a 
-///        generated neutrino once, prior to propagation through
-///        the geometry, this approach is _not_ appropriate with
-///        use of an oscillatory model in situations where the flavor 
-///        might change significantly over the scale of the geometry.
-///        In such cases one would have to generate with a fixed flavor
-///        (energy/distance independent) swap and reweight after the fact.
-///
-///        Do not use this as a means of selecting only certain flavor
-///        from flux generators that support other means (e.g. GNuMIFlux,
-///        GSimpleNtpFlux which have SetFluxParticles(PDGCodeList)) as
-///        those will be more efficient.
-///
-/// \version $Id: GFluxBlender.h,v 1.1.1.1 2010/12/22 16:18:52 p-nusoftart Exp $
-/// \author  Robert Hatcher <rhatcher \at fnal.gov>
-///          Fermi National Accelerator Laboratory
-///
-////////////////////////////////////////////////////////////////////////
+//____________________________________________________________________________
+/*!
+
+\class   genie::flux::GFluxBlender
+
+\brief   GENIE GFluxI adapter to allow flavor modification
+
+         This adapter intervenes between the GENIE GMCJDriver class
+         (MC job driver) and a concrete GFluxI flux generator, to
+         allow user modification of the neutrino flavor.  This
+         modification could be a fixed "swap" or an energy and/or
+         distance dependent (standard oscillations) one.
+
+         Because the GMCJDriver only queries the flavor of a
+         generated neutrino once, prior to propagation through
+         the geometry, this approach is _not_ appropriate with
+         use of an oscillatory model in situations where the flavor
+         might change significantly over the scale of the geometry.
+         In such cases one would have to generate with a fixed flavor
+         (energy/distance independent) swap and reweight after the fact.
+
+         Do not use this as a means of selecting only certain flavor
+         from flux generators that support other means (e.g. GNuMIFlux,
+         GSimpleNtpFlux which have SetFluxParticles(PDGCodeList)) as
+         those will be more efficient.
+
+\author  Robert Hatcher <rhatcher \at fnal.gov>
+         Fermi National Accelerator Laboratory
+
+\created 2010/12/22
+
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
+         for the full text of the license visit http://copyright.genie-mc.org
+*/
+//____________________________________________________________________________
+
 #ifndef GENIE_FLUX_GFLUXBLENDER_H
 #define GENIE_FLUX_GFLUXBLENDER_H
 
@@ -42,9 +50,9 @@ namespace flux {
   class GSimpleNtpFlux;
 
   class GFluxBlender : public GFluxI {
-    
+
   public:
-  
+
     GFluxBlender();
     ~GFluxBlender();
 
@@ -59,7 +67,7 @@ namespace flux {
     bool                   GenerateNext  (void); ///< generate the next flux neutrino (return false in err)
     int                    PdgCode       (void) { return fPdgCMixed; } ///< returns the flux neutrino pdg code
     double                 Weight        (void) { return fRealGFluxI->Weight(); } ///< returns the flux neutrino weight (if any)
-    const TLorentzVector & Momentum      (void) { return fRealGFluxI->Momentum(); } ///< returns the flux neutrino 4-momentum 
+    const TLorentzVector & Momentum      (void) { return fRealGFluxI->Momentum(); } ///< returns the flux neutrino 4-momentum
     const TLorentzVector & Position      (void) { return fRealGFluxI->Position(); } ///< returns the flux neutrino 4-position (note: expect SI rather than physical units)
     bool                   End           (void) { return fRealGFluxI->End(); }  ///< true if no more flux nu's can be thrown (eg reaching end of beam sim ntuples)
     long int               Index            (void);

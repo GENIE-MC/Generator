@@ -1,25 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - March 09, 2006
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Jan 18, 2008 - CA
-   Simplify the way free nucleon channels (for which we cache cross sections)
-   are built from the input interaction
- @ Jan 19, 2008 - CA
-   Modify the way knots are distributed in the cached free nucleon resonance
-   neutrino production splines so that the energy threshold is treated more
-   accurately (see also XSecSplineList.cxx).
- @ Sep 07, 2009 - CA
-   Integrated with GNU Numerical Library (GSL) via ROOT's MathMore library.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -87,11 +72,11 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
   assert(fSingleResXSecModel);
 //  assert(fIntegrator);
 
-  // Compute the number of spline knots - use at least 10 knots per decade 
+  // Compute the number of spline knots - use at least 10 knots per decade
   // && at least 40 knots in the full energy range
   const double Emin       = 0.01;
-  const int    nknots_min = (int) (10*(TMath::Log(fEMax)-TMath::Log(Emin))); 
-  const int    nknots     = TMath::Max(40, nknots_min); 
+  const int    nknots_min = (int) (10*(TMath::Log(fEMax)-TMath::Log(Emin)));
+  const int    nknots     = TMath::Max(40, nknots_min);
   double * E = new double[nknots]; // knot 'x'
 
   TLorentzVector p4(0,0,0,0);
@@ -122,7 +107,7 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
          assert(!cache_branch);
 
          // Create the new cache branch
-         LOG("ReinSehgalResC", pNOTICE) 
+         LOG("ReinSehgalResC", pNOTICE)
                         << "\n ** Creating cache branch - key = " << key;
          cache_branch = new CacheBranchFx("RES Excitation XSec");
          cache->AddCacheBranch(key, cache_branch);
@@ -157,29 +142,29 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
              interaction->InitStatePtr()->SetProbeP4(p4);
 
              if(Ev>Ethr+kASmallNum) {
-               // Get W integration range and the wider possible Q2 range 
+               // Get W integration range and the wider possible Q2 range
                // (for all W)
                Range1D_t rW  = kps.Limits(kKVW);
                Range1D_t rQ2 = kps.Limits(kKVQ2);
 
-               LOG("ReinSehgalResC", pINFO) 
-	         << "*** Integrating d^2 XSec/dWdQ^2 for R: " 
+               LOG("ReinSehgalResC", pINFO)
+	         << "*** Integrating d^2 XSec/dWdQ^2 for R: "
      	                 << utils::res::AsString(res) << " at Ev = " << Ev;
-               LOG("ReinSehgalResC", pINFO) 
+               LOG("ReinSehgalResC", pINFO)
                                 << "{W}   = " << rW.min  << ", " << rW.max;
-      	       LOG("ReinSehgalResC", pINFO) 
+      	       LOG("ReinSehgalResC", pINFO)
                                << "{Q^2} = " << rQ2.min << ", " << rQ2.max;
 
                if(rW.max<rW.min || rQ2.max<rQ2.min || rW.min<0 || rQ2.min<0) {
-     	          LOG("ReinSehgalResC", pINFO) 
+     	          LOG("ReinSehgalResC", pINFO)
                               << "** Not allowed kinematically, xsec=0";
                } else {
 
-                  ROOT::Math::IBaseFunctionMultiDim * func = 
+                  ROOT::Math::IBaseFunctionMultiDim * func =
                       new utils::gsl::d2XSec_dWdQ2_E(fSingleResXSecModel, interaction);
-                  ROOT::Math::IntegrationMultiDim::Type ig_type = 
+                  ROOT::Math::IntegrationMultiDim::Type ig_type =
                       utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-                  ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);   
+                  ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
                   ig.SetFunction(*func);
                   double kine_min[2] = { rW.min, rQ2.min };
                   double kine_max[2] = { rW.max, rQ2.max };
@@ -187,11 +172,11 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
                   delete func;
                }
              } else {
-                 LOG("ReinSehgalResC", pINFO) 
+                 LOG("ReinSehgalResC", pINFO)
  		       << "** Below threshold E = " << Ev << " <= " << Ethr;
              }
              cache_branch->AddValues(Ev,xsec);
-             SLOG("ReinSehgalResC", pNOTICE) 
+             SLOG("ReinSehgalResC", pNOTICE)
                << "RES XSec (R:" << utils::res::AsString(res)
     	       << ", E="<< Ev << ") = "<< xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
          }//spline knots
@@ -212,12 +197,12 @@ string ReinSehgalRESXSecWithCache::CacheBranchName(
   Cache * cache = Cache::Instance();
   string res_name = utils::res::AsString(res);
   string it_name  = InteractionType::AsString(it);
-  string nc_nuc   = ((nucleonpdgc==kPdgProton) ? "p" : "n"); 
+  string nc_nuc   = ((nucleonpdgc==kPdgProton) ? "p" : "n");
 
   ostringstream intk;
   intk << "ResExcitationXSec/R:" << res_name << ";nu:"  << nupdgc
            << ";int:" << it_name << nc_nuc;
-      
+
   string algkey = fSingleResXSecModel->Id().Key();
   string ikey   = intk.str();
   string key    = cache->CacheBranchKey(algkey, ikey);

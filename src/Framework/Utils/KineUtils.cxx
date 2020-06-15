@@ -1,17 +1,16 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Authors: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
-	  Afroditi Papadopoulou <apapadop \at mit.edu>
-	  Massachusetts Institute of Technology
+ Afroditi Papadopoulou <apapadop \at mit.edu>
+ Massachusetts Institute of Technology
 
-          Changes required to implement the GENIE Boosted Dark Matter module
-          were installed by Josh Berger (Univ. of Wisconsin)
+ Changes required to implement the GENIE Boosted Dark Matter module
+ were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -528,7 +527,7 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim_W(
   Q2.min = TMath::Max(0., Q2.min);
 
   // limit the minimum Q2
-  if(Q2.min < utils::kinematics::electromagnetic::kMinQ2Limit) {Q2.min = utils::kinematics::electromagnetic::kMinQ2Limit; } // use the relevant threshold for em scattering 
+  if(Q2.min < utils::kinematics::electromagnetic::kMinQ2Limit) {Q2.min = utils::kinematics::electromagnetic::kMinQ2Limit; } // use the relevant threshold for em scattering
   if(Q2.max < Q2.min   ) {Q2.min = -1; Q2.max = -1;}
 
   return Q2;
@@ -675,8 +674,8 @@ Range1D_t genie::utils::kinematics::CohQ2Lim(double Mn, double m_produced, doubl
   // The expressions for Q^2 min appears in PRD 74, 054007 (2006) by
   // Kartavtsev, Paschos, and Gounaris
 
-  // That expression is specified for the case of the pion. 
-  // GENIE has also Coherent interaction with Single gamma production and Rho 
+  // That expression is specified for the case of the pion.
+  // GENIE has also Coherent interaction with Single gamma production and Rho
   // so that formula will be adapted for a generic m_produced
 
   Range1D_t Q2;
@@ -727,8 +726,8 @@ Range1D_t genie::utils::kinematics::CohW2Lim(double Mn, double m_produced, doubl
   // These expressions for W^2 min and max appear in PRD 74, 054007 (2006) by
   // Kartavtsev, Paschos, and Gounaris
 
-  // That expression is specified for the case of the pion. 
-  // GENIE has also Coherent interaction with Single gamma production and Rho 
+  // That expression is specified for the case of the pion.
+  // GENIE has also Coherent interaction with Single gamma production and Rho
   // so that formula will be adapted for a generic m_produced
 
   Range1D_t W2l;
@@ -806,8 +805,8 @@ double genie::utils::kinematics::CohW2Min(double Mn, double m_produced)
   // These expressions for W^2 min and max appear in PRD 74, 054007 (2006) by
   // Kartavtsev, Paschos, and Gounaris
 
-  // That expression is specified for the case of the pion. 
-  // GENIE has also Coherent interaction with Single gamma production and Rho 
+  // That expression is specified for the case of the pion.
+  // GENIE has also Coherent interaction with Single gamma production and Rho
   // so that formula will be adapted for a generic m_produced
 
   return (Mn + m_produced) * (Mn + m_produced);

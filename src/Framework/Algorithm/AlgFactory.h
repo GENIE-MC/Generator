@@ -5,14 +5,13 @@
 
 \brief    The GENIE Algorithm Factory.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 12, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -67,7 +66,7 @@ private:
   AlgFactory(const AlgFactory & alg_factory);
   virtual ~AlgFactory();
 
-  //! method instantiating (based on TClass * TROOT::GetClass(name)) 
+  //! method instantiating (based on TClass * TROOT::GetClass(name))
   //! & configuring algorithmic objects
   Algorithm * InstantiateAlgorithm(string name, string config) const;
 

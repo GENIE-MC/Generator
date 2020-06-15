@@ -3,25 +3,26 @@
 
 \class    genie::ReinSehgalRESXSecWithCacheFast
 
-\brief    Class that caches resonance neutrinoproduction cross sections on free 
-          nucleons according to the Rein-Sehgal model. This significantly speeds 
+\brief    Class that caches resonance neutrinoproduction cross sections on free
+          nucleons according to the Rein-Sehgal model. This significantly speeds
           the cross section calculation for multiple nuclear targets (eg at the
           spline construction phase). This class integrates cross sections faster,
-          than ReinSehgalRESXSecWithCache because of integration area transformation. 
+          than ReinSehgalRESXSecWithCache because of integration area transformation.
 
 \ref      D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
           and Single Pion Production, Ann.Phys.133, 79 (1981)
 
 \author   Igor Kakorin <kakorin@jinr.ru>
-          Joint Institute for Nuclear Research - March 01, 2017 \n
-          based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+          Joint Institute for Nuclear Research
+
+          based on code of
+          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  March 01, 2017
 
-\cpright  Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -99,6 +100,3 @@ private:
 } // genie namespace
 
 #endif  // _REIN_SEHGAL_RES_XSEC_WITH_CACHE_H_
-
-
-
