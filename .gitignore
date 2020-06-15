@@ -1,3 +1,6 @@
+mySplines/
+mySamples/
+env*
 bin/
 lib/
 build-env.log
