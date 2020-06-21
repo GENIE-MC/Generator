@@ -52,6 +52,73 @@ double EmpiricalMECPXSec2015::XSec(
                       const Interaction * interaction, KinePhaseSpace_t kps) const
 {
 
+  // If we've been asked for the kPSTlctl phase space, get W and Q^2
+  // from those variables. You actually need the lepton phi set in order
+  // to do the conversion for a moving initial struck nucleon cluster.
+  // We therefore assume that the lepton 4-momentum has been set in the
+  // Interaction object if the user is requesting use of the kPSTlctl
+  // phase space for this model.
+  // TODO: reduce code duplication between this block and the Jacobian
+  // calculation
+  if ( kps == kPSTlctl ) {
+
+    // Lab-frame outgoing lepton kinetic energy and scattering cosine
+    double Tl = interaction->Kine().GetKV( kKVTl );
+    double ctl = interaction->Kine().GetKV( kKVctl );
+
+    // Probe mass
+    const InitialState& init_state = interaction->InitState();
+    double mv = init_state.Probe()->Mass();
+
+    // Outgoing lepton mass
+    double ml = interaction->FSPrimLepton()->Mass();
+
+    // Q^2 from Tl and ctl
+    double Ev = init_state.ProbeE( kRfLab );
+    double pv = std::sqrt( std::max(0., Ev*Ev - mv*mv) );
+    double El = Tl + ml;
+    double pl = std::sqrt( Tl*Tl + 2.*ml*Tl );
+    double Q2 = -mv*mv - ml*ml + 2.*Ev*El - 2.*pv*pl*ctl;
+
+    // Hit nucleon cluster
+    const TLorentzVector& hit_nuc_P4 = init_state.Tgt().HitNucP4();
+    double M = hit_nuc_P4.M();
+
+    // Calculation of W is the part that requires us to know the lepton
+    // azimuthal angle phi. Fermi motion of the initial nucleon cluster
+    // breaks the rotational symmetry.
+
+    // Get the outgoing lepton phi from the event record. Avoid assuming that
+    // the input values of Tl and ctl reflect the 4-momentum present there by
+    // building our own outgoing lepton 4-momentum here. This is needed, e.g.,
+    // when integrating this function via the MECXSec algorithm. To finish the
+    // calculation, we're forced to assume that the phi value from the event
+    // record is set to the desired value.
+    double phi_lep = interaction->Kine().FSLeptonP4().Phi();
+
+    // Now that we have the azimuthal angle, build the full 4-momentum
+    // of the lepton in the laboratory frame given the input Tl and ctl
+    double stl = std::sqrt( std::max(0., 1. - ctl*ctl) );
+    double pxl = pl * stl * std::cos( phi_lep );
+    double pyl = pl * stl * std::sin( phi_lep );
+    double pzl = pl * ctl;
+    TLorentzVector lep_P4( pxl, pyl, pzl, El );
+
+    // Mandelstam s
+    double s = std::pow( init_state.CMEnergy(), 2 );
+
+    // Dot product of the initial struck nucleon cluster 4-momentum
+    // and the 4-momentum transfer
+    double pNi_dot_q = 0.5*( s - mv*mv - M*M ) - hit_nuc_P4.Dot( lep_P4 );
+
+    // We can now easily compute W using the 4-vector product
+    double W = std::sqrt( std::max(0., M*M - Q2 + 2.*pNi_dot_q) );
+
+    interaction->KinePtr()->SetW( W );
+    interaction->KinePtr()->SetQ2( Q2 );
+  }
+
+
 // meson exchange current contribution depends a lot on QE model.
 // This is an empirical model in development, not used in default event generation.
 
@@ -145,7 +212,7 @@ double EmpiricalMECPXSec2015::XSec(
     xsec = A + smufac*smufac*C;   // CC or NC case - Llewelyn-Smith for transverse vector process.
   }
   // Check whether variable tranformation is needed
-  if(kps!=kPSWQ2fE) {
+  if ( kps!=kPSWQ2fE && xsec != 0. ) {
     double J = utils::kinematics::Jacobian(interaction,kPSWQ2fE,kps);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("MEC", pDEBUG)

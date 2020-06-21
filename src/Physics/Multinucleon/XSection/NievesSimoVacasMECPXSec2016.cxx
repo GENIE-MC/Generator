@@ -335,39 +335,39 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
 
   // Cross section scaling factor
   GetParam( "MEC-CC-XSecScale", fXSecScale ) ;
-  
+
   fHadronTensorModel = dynamic_cast<const HadronTensorModelI *> ( this->SubAlg("HadronTensorAlg") );
   if( !fHadronTensorModel ) {
-    good_config = false ; 
+    good_config = false ;
     LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required HadronTensorAlg does not exist. AlgID is : " << SubAlg("HadronTensorAlg")->Id() ;
   }
 
   fXSecIntegrator = dynamic_cast<const XSecIntegratorI *> (this->SubAlg("NumericalIntegrationAlg"));
   if( !fXSecIntegrator ) {
-    good_config = false ; 
+    good_config = false ;
     LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required NumericalIntegrationAlg does not exist. AlgID is : " << SubAlg("NumericalIntegrationAlg")->Id();
   }
-  
+
   // Read optional QvalueShifter:
-  fQvalueShifter = nullptr; 
+  fQvalueShifter = nullptr;
   if( GetConfig().Exists("QvalueShifterAlg") ) {
     fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
     if( !fQvalueShifter ) {
-      good_config = false ; 
+      good_config = false ;
       LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required QvalueShifterAlg does not exist. AlgID is : " << SubAlg("QvalueShifterAlg")->Id() ;
     }
   }
 
   // Read optional MECScaleVsW:
-  fMECScaleAlg = nullptr; 
+  fMECScaleAlg = nullptr;
   if( GetConfig().Exists("MECScaleAlg") ) {
     fMECScaleAlg = dynamic_cast<const XSecScaleI *> ( this->SubAlg("MECScaleAlg") );
     if( !fMECScaleAlg ) {
-      good_config = false ; 
+      good_config = false ;
       LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required MECScaleAlg cannot be casted. AlgID is : " << SubAlg("MECScaleAlg")->Id() ;
     }
   }
-	
+
   if( ! good_config ) {
     LOG("NievesSimoVacasMECPXSec2016", pERROR) << "Configuration has failed.";
     exit(78) ;
