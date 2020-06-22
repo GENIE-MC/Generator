@@ -98,118 +98,17 @@ double BertuzzoDNuCOHPXSec::XSec(
   const double den_fact1 = 1. / (E2*M);
   const double den_fact2 = TMath::Power((fDMediatorMass2 - 2.*DNuEnergy*M + 2*E*M), -2.);
 
-  const double xsec = const_factor * model_params
-    * num_fact1 * num_fact2 * den_fact1 * den_fact2;
-  // const double cross_section = (elec2 * FF2 * eps2 * theta2 * g_D2 * DNu_mass) *
-  //   ( (DNu_energy+E+M)*DNu_mass2  - 2*M*(E2 + M*DNu_energy + E2 - E*M) )*Z2 *
-  //   (1./ (8*kPi*E2*M *  TMath::Power((DZ_mass2 - 2*DNu*M + 2*E*M),2)));
-
-
-
-
-  // // Calculation of weak charge
-  // // double Qw = N - Z*(1-fSin2thw);
-  // // Qw^2/4 x-section factor in arXiv:1207.0693v1 not needed here.
-  // // 1/4 was absorbed in the constant front factor (below) and Qw^2 factor would
-  // // have cancelled with ignored 1/Qw factor in the form factor F.
-
-  // // Calculation of nuclear density moments used for the evaluation
-  // // of the neutron form factor
-  // double avg_density = this->NuclearDensityMoment(A, 0); // units:: fm^-3
-  // double Rn2 = this->NuclearDensityMoment(A, 2) / avg_density; // units: fm^2
-  // double Rn4 = this->NuclearDensityMoment(A, 4) / avg_density; // units: fm^4
-  // double Rn6 = this->NuclearDensityMoment(A, 6) / avg_density; // units: fm^6
-
-  // LOG("CEvNS", pDEBUG)
-  //   << "Nuclear density moments:"
-  //   << " <Rn^2> = " << Rn2 << " fm^2,"
-  //   << " <Rn^4> = " << Rn4 << " fm^4,"
-  //   << " <Rn^6> = " << Rn6 << " fm^6";
-
-  // Rn2 *= TMath::Power(units::fm, 2.); // units: GeV^-2
-  // Rn4 *= TMath::Power(units::fm, 4.); // units: GeV^-4
-  // Rn6 *= TMath::Power(units::fm, 6.); // units: GeV^-6
-
-  // // Calculation of proton form factor
-  // // Form factor is neglected since it is multiplied with a small factor 1-4sin^2(\theta_{w})
-  // double Fp = 0; // units: -
-  // // Calculation of neutron form factor
-  // // Using a Taylor expansion of sin(Qr) and keeping the first three terms (shown to be
-  // // sufficient for approximating the full Fn calculation, even for heavy nuclei)
-  // double Fn = N * (1 - Q2*Rn2/6. + Q4*Rn4/120. - Q6*Rn6/5040.); // units: -
-  // // Overall form factor
-  // double F  = (Fn - (1-4*fSin2thw)*Fp); // units: -
-  // F = TMath::Max(0.,F);
-  // double F2 = F*F; // units: -
-
-  // LOG("CEvNS", pDEBUG)
-  //   << "Form factors: Fp = " << Fp << ", Fn = " << Fn << ", F = " << F;
-
-  // // dsig/dTA calculation
-  // double const_factor = 0.125*kGF2/kPi; // units: GeV^-4
-  // double kinematic_term = M * (2 - 2*TA/E + TA2/E2 - M*TA/E2); // units: GeV
-  // kinematic_term = TMath::Max(0., kinematic_term);
-
-  // LOG("CEvNS", pDEBUG)
-  //   << "kinematic term: " << kinematic_term;
-
-  // double xsec = const_factor * kinematic_term * F2; // units: GeV^-3 (area/GeV)
-
-  // LOG("CEvNS", pINFO)
-  //   << "dsig[vA,CEvNS]/dTA (Ev =  "
-  //   << E << " GeV, Q2 = "<< Q2 << " GeV^2; TA = " << TA << " GeV) = "
-  //   << xsec/(units::cm2) << " cm^2/GeV";
-
-  // // The algorithm computes dxsec/dTA
-  // // Check whether variable tranformation is needed
-  // if(kps!=kPSTAfE) {
-  //   // TODO: Move the calculation in utils::kinematics
-  //   // double J = utils::kinematics::Jacobian(interaction,kPSQ2fE,kps);
-  //   double J = 0;
-  //   if(kps==kPSQ2fE) {
-  //       J = 2*E2*M / TMath::Power(2*E*M+Q2, 2.); // units: GeV^-1
-  //   }
-  //   xsec *= J; // units: GeV^-4 (area/GeV^2)
-  // }
-
-  return xsec;
+  if(kps==kPSEDNufE) {
+    const double xsec = const_factor * model_params
+      * num_fact1 * num_fact2 * den_fact1 * den_fact2;
+    // const double cross_section = (elec2 * FF2 * eps2 * theta2 * g_D2 * DNu_mass) *
+    //   ( (DNu_energy+E+M)*DNu_mass2  - 2*M*(E2 + M*DNu_energy + E2 - E*M) )*Z2 *
+    //   (1./ (8*kPi*E2*M *  TMath::Power((DZ_mass2 - 2*DNu*M + 2*E*M),2)));
+    return xsec;
+  }
+  return 0.;
 }
 //____________________________________________________________________________
-// double BertuzzoDNuCOHPXSec::NuclearDensityMoment(int A, int k) const
-// {
-//   // Calculate moments of the nuclear density
-//   // Inputs:
-//   //   - atomic mass number, A
-//   //   - integer k specifying required nuclear density moment
-//   // Output:
-//   //   - nuclear density moment in units of fm^k
-//   //
-//   // THINGS TO DO:
-//   // 1) The calculation can be stored, as it is required only once per nucleus.
-//   //    The calculation is very fast so it doesn't matter.
-
-//   ROOT::Math::IBaseFunctionOneDim * integrand = new
-//               utils::gsl::wrap::NuclDensityMomentIntegrand(A,k);
-
-//   ROOT::Math::IntegrationOneDim::Type ig_type =
-//           utils::gsl::Integration1DimTypeFromString("adaptive");
-
-//   double R0 = utils::nuclear::Radius(A); // units: fm
-//   double rmin = 0; // units: fm
-//   double rmax = fNuclDensMomentCalc_UpperIntegrationLimit * R0; // units: fm
-
-//   ROOT::Math::Integrator ig(
-//     *integrand,ig_type,
-//     fNuclDensMomentCalc_AbsoluteTolerance,
-//     fNuclDensMomentCalc_RelativeTolerance,
-//     fNuclDensMomentCalc_MaxNumOfEvaluations);
-//   double moment = 2 * constants::kPi * ig.Integral(rmin, rmax); // units: fm^k
-
-//   delete integrand;
-
-//   return moment;
-// }
-// //____________________________________________________________________________
 double BertuzzoDNuCOHPXSec::Integral(const Interaction * interaction) const
 {
   double xsec = fXSecIntegrator->Integrate(this,interaction);
