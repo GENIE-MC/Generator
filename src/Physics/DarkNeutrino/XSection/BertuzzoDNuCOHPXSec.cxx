@@ -57,6 +57,7 @@ double BertuzzoDNuCOHPXSec::XSec(
   const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
 
   const InitialState & init_state = interaction -> InitState();
   const Kinematics &   kinematics = interaction -> Kine();
@@ -75,8 +76,6 @@ double BertuzzoDNuCOHPXSec::XSec(
   const double M = PDGLibrary::Instance()->Find(target_nucleus_pdgc)->Mass(); // units: GeV
   LOG("DNu", pDEBUG) << "M = " << M << " GeV";
 
-  if(! this -> ValidKinematics (interaction, M) ) return 0.;
-
   // LOG("DNu", pDEBUG)
   //   << "Q2 = " << Q2 << " GeV^2, E = " << E << " GeV "
   //   << "--> TA = " << TA << " GeV";
@@ -90,7 +89,7 @@ double BertuzzoDNuCOHPXSec::XSec(
 
   //TODO DNu: is this one required?
   const double elec2 = 0.3*0.3;
-  
+
   const double const_factor = .125 * elec2 / kPi;
   const double model_params = fEps2 * fTheta2 * fgD2;
 
@@ -233,19 +232,21 @@ bool BertuzzoDNuCOHPXSec::ValidProcess(const Interaction * interaction) const
   return true;
 }
 //____________________________________________________________________________
-bool BertuzzoDNuCOHPXSec::ValidKinematics(const Interaction* interaction,
-                                          const double M) const
+bool BertuzzoDNuCOHPXSec::ValidKinematics(const Interaction* interaction) const
 {
-  const double E = interaction->InitState().ProbeE(kRfLab);
-  const double DNuEnergy = interaction->Kine().FSLeptonP4().E();
-
-  const double t1 = 4. * fDNuMass2 * (DNuEnergy - E) * (M + E);
-  const double t2 = 4. * M * (DNuEnergy - E) * (DNuEnergy*(M+2.*E) - M*E);
-  const double t3 = fDNuMass2 * fDNuMass2;
-  if( (t1 - t2 - t3) <= 0. ) return false;
-
   if(interaction->TestBit(kISkipKinematicChk)) return true;
-  return true;
+
+  const double E = interaction->InitState().ProbeE(kRfLab);
+
+  // Pedro suggests, but it's an overkill:
+  // const double M = interaction->InitState().Tgt().Mass();
+  // const double DNuEnergy = interaction->Kine().FSLeptonP4().E();
+  // const double t1 = 4. * fDNuMass2 * (DNuEnergy - E) * (M + E);
+  // const double t2 = 4. * M * (DNuEnergy - E) * (DNuEnergy*(M+2.*E) - M*E);
+  // const double t3 = fDNuMass2 * fDNuMass2;
+  // if( (t1 - t2 - t3) <= 0. ) return false;
+
+  return (E > fDNuMass);
 }
 //____________________________________________________________________________
 void BertuzzoDNuCOHPXSec::Configure(const Registry & config)

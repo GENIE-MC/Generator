@@ -43,8 +43,7 @@ public:
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const override;
   double Integral        (const Interaction * i) const override;
   bool   ValidProcess    (const Interaction * i) const override;
-  bool   ValidKinematics (const Interaction * i,
-                          const double M) const override;
+  bool   ValidKinematics (const Interaction * i) const override;
 
   // Override the Algorithm::Configure methods to load configuration
   // data to private data members
