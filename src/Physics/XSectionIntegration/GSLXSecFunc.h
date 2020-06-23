@@ -74,6 +74,30 @@ private:
 
 //.....................................................................................
 //
+// genie::utils::gsl::dXSec_dEDNu_E
+// A 1-D cross section function: dxsec/dEDNu = f(EDNu)|(fixed E)
+//
+class dXSec_dEDNu_E: public ROOT::Math::IBaseFunctionOneDim
+{
+public:
+  dXSec_dEDNu_E(const XSecAlgorithmI * m, const Interaction * i,
+                double DNuMass, double scale=1.);
+  ~dXSec_dEDNu_E();
+
+  // ROOT::Math::IBaseFunctionOneDim interface
+  unsigned int                      NDim   (void)       const;
+  double                            DoEval (double xin) const;
+  ROOT::Math::IBaseFunctionOneDim * Clone  (void)       const;
+
+private:
+  const XSecAlgorithmI * fModel;
+  const Interaction *    fInteraction;
+  double                 fDNuMass;
+  double                 fScale; // can set to -1. for use with GSL minimizer
+};
+
+//.....................................................................................
+//
 // genie::utils::gsl::d2XSec_dxdy_E
 // A 2-D cross section function: d2xsec/dxdy = f(x,y)|(fixed E)
 //
