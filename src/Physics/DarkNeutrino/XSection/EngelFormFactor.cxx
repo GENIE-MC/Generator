@@ -46,7 +46,6 @@ double EngelFormFactor::FormFactor(const double Q2, const Target & target) const
 
   if(!target.IsValidNucleus()) return 0.;
 
-  const double M = target.Mass(); // units: GeV
   const double A = target.A();
 
   const double s = 1.*units::fm;
