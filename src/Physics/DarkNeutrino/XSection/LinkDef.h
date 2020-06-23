@@ -6,6 +6,7 @@
 
 #pragma link C++ namespace genie;
 
-#pragma link C++ class genie::DNuPXSec;
+#pragma link C++ class genie::COHDNuXSec;
+#pragma link C++ class genie::BertuzzoDNuCOHPXSec;
 
 #endif

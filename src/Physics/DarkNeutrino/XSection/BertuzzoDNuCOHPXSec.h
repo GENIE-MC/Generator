@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*!
-  \class    genie::DNuPXSec
+  \class    genie::BertuzzoDNuCOHPXSec
 
   \brief    Differential cross section for v+As coherent elastic scattering.Coherent DNu. \n
             Is a concrete implementation of the XSecAlgorithmI interface. \n
@@ -14,7 +14,7 @@
             Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
             University of Liverpool & STFC Rutherford Appleton Laboratory
 
-  \created  September 4, 2017
+  \created  June 12, 2020
 
   \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
             For the full text of the license visit http://copyright.genie-mc.org
