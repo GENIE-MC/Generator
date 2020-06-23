@@ -92,20 +92,20 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
     // if it's dark neutrino call DecayDarkNeutrino
     
     //TODO: this block below
-    // bool decayed = this->Decay(ipos, event);
-    // if ( ! decayed ) {
-    //   LOG("DarkSectorDecay", pWARN) << "Dark stuff not decayed!" ;
-    //   LOG("DarkSectorDecay", pWARN) << "Quitting the current event generation thread" ;
+    bool decayed = this->Decay(ipos, event);
+    if (!decayed) {
+      LOG("DarkSectorDecay", pWARN) << "Dark stuff not decayed!" ;
+      LOG("DarkSectorDecay", pWARN) << "Quitting the current event generation thread" ;
 
-    //   event -> EventFlags() -> SetBitNumber(kHadroSysGenErr, true);
+      event -> EventFlags() -> SetBitNumber(kDecayErr, true);
 
-    //   genie::exceptions::EVGThreadException exception;
-    //   exception.SetReason("Dark stuff not decayed"); // TODO
-    //   exception.SwitchOnFastForward();
-    //   throw exception;
+      genie::exceptions::EVGThreadException exception;
+      exception.SetReason("Dark stuff not decayed"); // TODO
+      exception.SwitchOnFastForward();
+      throw exception;
 
-    //   return ;
-    // }
+      return ;
+    }
 
   } // loop over particles
 
@@ -113,9 +113,9 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
      << "Done finding & decaying dark sector particles";
 }
 //____________________________________________________________________________
-// bool DarkSectorDecayer::Decay(
-//   int decay_particle_id, GHepRecord * event) const
-// {
+bool DarkSectorDecayer::Decay(
+  int decay_particle_id, GHepRecord * event) const
+{
 //   // Reset previous decay weight
 //   fWeight = 1.;
 
@@ -123,7 +123,7 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
 //   GHepParticle * decay_particle = event->Particle(decay_particle_id);
 //   if( ! decay_particle) {
 //     LOG("DarkSectorDecay", pERROR)
-//       << "Particle to be decayed not in the event record. Particle ud: " << decay_particle_id ; 
+//       << "Particle to be decayed not in the event record. Particle id: " << decay_particle_id ; 
 //     return false;
 //   }
 
@@ -157,8 +157,22 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
 //   // Mark input particle as a 'decayed state' & add its daughter links
 //   decay_particle->SetStatus(kIStDecayedState);
 
-//   return true;
-// }
+  return true;
+}
+//____________________________________________________________________________
+bool DarkSectorDecayer::DecayDarkMediator(
+  int decay_particle_id, GHepRecord * event) const
+{
+
+  return true;
+}
+//____________________________________________________________________________
+bool DarkSectorDecayer::DecayDarkNeutrino(
+  int decay_particle_id, GHepRecord * event) const
+{
+
+  return true;
+}
 //____________________________________________________________________________
 // double DarkSectorDecayer::Weight(void) const
 // {
@@ -200,7 +214,13 @@ void DarkSectorDecayer::Initialize(void) const
 bool DarkSectorDecayer::IsHandled(int pdg_code) const
 {
   // bool is_handled = utils::res::IsBaryonResonance(pdg_code); //TODO: add utils::darks::isdark
-  bool is_handled = true;
+  bool is_handled = false;
+  if(pdg_code == kPdgDNuMediator ||
+     pdg_code == kPdgDarkNeutrino ||
+     pdg_code == kPdgAntiDarkNeutrino)
+  {
+    is_handled = true;
+  }
 
   LOG("DarkSectorDecay", pDEBUG)
       << "Can decay particle with PDG code = " << pdg_code
@@ -519,7 +539,7 @@ void DarkSectorDecayer::LoadConfig(void) {
   // bool invalid_configuration = false ;
 
   // // load R33 parameters
-  // this -> GetParamVect( "Delta-R33", fR33 ) ; 
+  // this -> GetParamVect( "Delta-R33", fR33 ) ;
 
   // // load Q2 thresholds if necessary
   // if ( fR33.size() > 1 ) {
@@ -592,18 +612,18 @@ void DarkSectorDecayer::LoadConfig(void) {
   //       invalid_configuration = true ;
   //       break ;
   //     }
-      
+
   //     double temp_max = FindDistributionExtrema( i, true ) ;
   //     if ( temp_max <= 0. ) {
   //       LOG("DarkSectorDecayer", pFATAL) << "pion angular distribution maximum is non positive for Q2 bin " << i ;
   //       invalid_configuration = true ;
   //       break ;
   //     }
-      
-  //     fW_max[i] = temp_max + fMaxTolerance ; 
-      
+
+  //     fW_max[i] = temp_max + fMaxTolerance ;
+
   //   }
-    
+
   // }
 
   // if ( invalid_configuration ) {
@@ -619,5 +639,5 @@ void DarkSectorDecayer::LoadConfig(void) {
   //   exit( 78 ) ;
 
   // }
-  
+
 }

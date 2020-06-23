@@ -2,12 +2,19 @@
 /*!
 \class    genie::DarkSectorDecayer
 \brief    Dark Sector decayer module.
+
           A simple decay simulation...
           ....
           Is a concerete implementation of the EventRecordVisitorI interface.
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+
+\author   Iker de Icaza <i.de-icaza-astiz \at sussex.ac.uk>
+          University of Sussex
+
+          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
           University of Liverpool & STFC Rutherford Appleton Laboratory
+
 \created  March XX, 2020
+
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
@@ -43,7 +50,9 @@ namespace genie {
     void           InhibitDecay      (int pdgc, TDecayChannel * ch=0) const;
     void           UnInhibitDecay    (int pdgc, TDecayChannel * ch=0) const;
     /* double         Weight            (void) const; */
-    /* bool           Decay             (int dec_part_id, GHepRecord * event) const; */
+    bool           Decay             (int dec_part_id, GHepRecord * event) const;
+    bool           DecayDarkMediator (int dec_part_id, GHepRecord * event) const;
+    bool           DecayDarkNeutrino (int dec_part_id, GHepRecord * event) const;
     /* TDecayChannel* SelectDecayChannel(int dec_part_id, GHepRecord * event, bool & to_be_deleted ) const; */
     // the flag to_be_deleted is referred to the returned decay channel
     /* bool           DecayExclusive    (int dec_part_id, GHepRecord * event, TDecayChannel * ch) const; */
