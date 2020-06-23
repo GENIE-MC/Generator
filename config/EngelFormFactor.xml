@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+<!--
+Configuration sets for the EngelFormFactor
+Some more comments and the reference here.
+
+..........................................................................................................
+Name                          Type        Optional   Comment
+..........................................................................................................
+
+-->
+
+
+
+<alg_conf>
+
+  <param_set name="Default">
+
+  </param_set>
+  <!-- <param_set name="3H"> -->
+  <!--   <param type="int" name="DV-Nucleus"> 1000010030  </param> -->
+
+  <!--   <param type="double" name="DV-Radius"> 3.5  </param> -->
+
+  <!--   <param type="vec-double" name="DV-Coefficient" delim=";">  0.25182e-1 ; 0.34215e-1 ; 0.15257e-1 </param> -->
+  <!-- </param_set> -->
+
+
+
+</alg_conf>

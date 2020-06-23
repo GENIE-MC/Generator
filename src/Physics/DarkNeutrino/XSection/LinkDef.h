@@ -8,5 +8,6 @@
 
 #pragma link C++ class genie::COHDNuXSec;
 #pragma link C++ class genie::BertuzzoDNuCOHPXSec;
+#pragma link C++ class genie::EngelFormFactor;
 
 #endif

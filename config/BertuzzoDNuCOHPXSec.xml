@@ -15,10 +15,11 @@ XSec-Integrator  alg      No
 
   <param_set name="Default">
 
-    <param type="string" name="CommonDark"> Masses, Mixing </param>
+    <param type="string" name="CommonDark"> Mixing,Masses </param>
 
-    <param type="alg"  name="FormFactor"> genie::EngelFormFactor/Default </param>
-    <!-- <param type="alg"  name="XSec-Integrator"> genie::CEvNSXSec/Default </param> -->
+    <param type="alg"  name="FormFactor"> genie::EngelFormFactor </param>
+
+    <param type="alg"  name="XSec-Integrator"> genie::COHDNuXSec/Default </param>
 
   </param_set>
 

@@ -128,12 +128,15 @@
    <config alg="genie::RSHelicityAmplModelNCn">                  RSHelicityAmplModelNCn.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMp">                  RSHelicityAmplModelEMp.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMn">                  RSHelicityAmplModelEMn.xml                  </config>
+   <config alg="genie::EngelFormFactor">                         EngelFormFactor.xml                         </config>
+
 
    <!--  ****** CONFIGURATION GENERIC CROSS SECTION INTEGRATORS ****** -->
    <config alg="genie::QELXSec">                     QELXSec.xml                     </config>
    <config alg="genie::NewQELXSec">                  NewQELXSec.xml                  </config>
    <config alg="genie::SmithMonizQELCCXSec">         SmithMonizQELCCXSec.xml         </config>
    <config alg="genie::DISXSec">                     DISXSec.xml                     </config>
+   <config alg="genie::COHDNuXSec">                  COHDNuXSec.xml                  </config>
    <config alg="genie::COHXSec">                     COHXSec.xml                     </config>
    <config alg="genie::COHXSecAR">                   COHXSecAR.xml                   </config>
    <config alg="genie::CEvNSXSec">                   CEvNSXSec.xml                   </config>
@@ -153,6 +156,7 @@
    <config alg="genie::AlvarezRusoCOHPiPXSec">              AlvarezRusoCOHPiPXSec.xml              </config>
    <config alg="genie::BergerSehgalCOHPiPXSec2015">         BergerSehgalCOHPiPXSec2015.xml         </config>
    <config alg="genie::BergerSehgalFMCOHPiPXSec2015">       BergerSehgalFMCOHPiPXSec2015.xml       </config>
+   <config alg="genie::BertuzzoDNuCOHPXSec">                BertuzzoDNuCOHPXSec.xml                </config>
    <config alg="genie::LwlynSmithQELCCPXSec">               LwlynSmithQELCCPXSec.xml               </config>
    <config alg="genie::NievesQELCCPXSec">                   NievesQELCCPXSec.xml                   </config>
    <config alg="genie::SmithMonizQELCCPXSec">               SmithMonizQELCCPXSec.xml               </config>
