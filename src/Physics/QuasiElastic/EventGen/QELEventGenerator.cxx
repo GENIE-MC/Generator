@@ -34,6 +34,7 @@
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Physics/QuasiElastic/EventGen/QELEventGenerator.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/Numerical/MathUtils.h"
@@ -254,9 +255,14 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
             TLorentzVector outNucleon(interaction->KinePtr()->HadSystP4());
             TLorentzVector x4l(*(evrec->Probe())->X4());
 
+            // Add the final-state lepton to the event record
             evrec->AddParticle(interaction->FSPrimLeptonPdg(), kIStStableFinalState,
               evrec->ProbePosition(), -1, -1, -1, interaction->KinePtr()->FSLeptonP4(), x4l);
 
+            // Set its polarization
+            utils::SetPrimaryLeptonPolarization( evrec );
+
+            // Add the final-state nucleon to the event record
             GHepStatus_t ist = (tgt->IsNucleus()) ? kIStHadronInTheNucleus : kIStStableFinalState;
             evrec->AddParticle(interaction->RecoilNucleonPdg(), ist, evrec->HitNucleonPosition(),
               -1, -1, -1, interaction->KinePtr()->HadSystP4(), x4l);
