@@ -155,14 +155,16 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
   RandomGen * rnd = RandomGen::Instance();
   bool accept = false;
   unsigned int iter = 0;
-  unsigned int maxIter = kRjMaxIterations*1000;
+  unsigned int maxIter = kRjMaxIterations * 1000;
 
   //e-scat xsecs blow up close to theta=0, MC methods won't work so well...
   // NOTE: SuSAv2 1p1h e-scatting has not been validated yet, use with caution
-  if ( NuPDG==11 ) maxIter *= 1000;
+  if ( NuPDG == 11 ) maxIter *= 1000;
 
   // Get Max XSec:
-  double XSecMax = this->MaxXSec(event);
+  double XSecMax = this->MaxXSec( event );
+
+  LOG("Kinematics", pDEBUG) << "Max XSec = " << XSecMax;
 
   // loop over different (randomly) selected T and Costh
   while (!accept) {
@@ -206,7 +208,7 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
 
           kinematics->SetKV(kKVTl, T);
           kinematics->SetKV(kKVctl, Costh);
-          LOG("QELEvent", pDEBUG) << " T, Costh: " << T << ", " << Costh ;
+          LOG("QELEvent", pDEBUG) << " T, Costh, Q2: " << T << ", " << Costh << ", " << Q2;
 
           double XSec = fXSecModel->XSec(interaction, kPSTlctl);
 
@@ -215,6 +217,7 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
               LOG("QELEvent", pDEBUG) << "XSec in cm2 is  " << XSec/(units::cm2);
               LOG("QELEvent", pDEBUG) << "XSec in cm2 /neutron is  " << XSec/(units::cm2*pdg::IonPdgCodeToZ(TgtPDG));
               LOG("QELEvent", pDEBUG) << "XSecMax in cm2 /neutron is  " << XSecMax/(units::cm2*pdg::IonPdgCodeToZ(TgtPDG));
+              LOG("QELEvent", pERROR) << " T, Costh, Q2: " << T << ", " << Costh << ", " << Q2;
               LOG("QELEvent", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG << " "
                                  << XSec << " > " << XSecMax
                                  << " don't let this happen.";
@@ -621,8 +624,11 @@ void QELEventGeneratorSuSA::LoadConfig(void)
     GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor , 5.00 ) ;
 
     //-- Minimum energy for which max xsec would be cached, forcing explicit
-    //   calculation for lower eneries
-    GetParamDef( "Cache-MinEnergy", fEMin, 1.00 ) ;
+    //   calculation for lower energies
+    //-- I've set this to an extremely high value to avoid problems with the
+    //   SuSAv2 model seen during testing. Everything seems to work OK when
+    //   the cache is disabled. - S. Gardiner, 1 July 2020
+    GetParamDef( "Cache-MinEnergy", fEMin, 1000.00 ) ;
 
     //-- Maximum allowed fractional cross section deviation from maxim cross
     //   section used in rejection method
@@ -637,13 +643,13 @@ void QELEventGeneratorSuSA::LoadConfig(void)
 double QELEventGeneratorSuSA::ComputeMaxXSec(
   const Interaction * interaction ) const
 {
-// Computes the maximum differential cross section in the requested phase
-// space. This method overloads KineGeneratorWithCache::ComputeMaxXSec
-// method and the value is cached at a circular cache branch for retrieval
-// during subsequent event generation.
-// The computed max differential cross section does not need to be the exact
-// maximum. The number used in the rejection method will be scaled up by a
-// safety factor. But it needs to be fast - do not use very small steps.
+  // Computes the maximum differential cross section in the requested phase
+  // space. This method overloads KineGeneratorWithCache::ComputeMaxXSec
+  // method and the value is cached at a circular cache branch for retrieval
+  // during subsequent event generation.
+  // The computed max differential cross section does not need to be the exact
+  // maximum. The number used in the rejection method will be scaled up by a
+  // safety factor. But it needs to be fast - do not use very small steps.
 
   double max_xsec = utils::mec::GetMaxXSecTlctl( *fXSecModel, *interaction );
 

@@ -51,8 +51,6 @@ private:
   void    SelectLeptonKinematics  (GHepRecord * event) const;
   void    GenerateNucleon         (GHepRecord * event) const;
   double  ComputeMaxXSec(const Interaction * in) const;
-  double  ComputeMaxXSec_elas(const Interaction * in) const;
-
 
   const NuclearModelI *          fNuclModel;
 

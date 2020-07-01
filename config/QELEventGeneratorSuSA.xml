@@ -20,7 +20,15 @@ QEL-EbOR             bool     No         What Eb to use if fixed                
   <param_set name="Default"> 
 
     <param type="string" name="CommonParam"> QuasiElastic,FermiGas </param>
-    <param type="double" name="Cache-MinEnergy"> 1.0 </param>
+
+    <!-- I've had problems with the cache during some tests. Everything seems to work
+         fine with the cache turned off, however (with negligible impact on performance),
+         so I'll just set the minimum energy for the cache to an extremely high value.
+         - S. Gardiner, 1 July 2020 -->
+    <param type="double" name="Cache-MinEnergy"> 1000.0 </param>
+
+    <param type="double" name="MaxXSec-SafetyFactor"> 1.2 </param>
+
     <param type="alg" name="NuclearModel"> genie::NuclearModelMap/Default </param>
 
     <!-- This generator doesn't handle free nucleon targets. Those cases are instead

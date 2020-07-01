@@ -352,8 +352,9 @@ double genie::utils::mec::GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
 
   // Bounds for the current layer being scanned. Here we initialize them
   // to include the full range of the kPSTlctl phase space.
+  const double TMax = Enu - LepMass;
   double CurTMin = 0.;
-  double CurTMax = Enu - LepMass;
+  double CurTMax = TMax;
   double CurQ2Min = Q2min;
   // Overshoots the true maximum Q^2, but that's not a worry here
   double CurQ2Max = 4.*Enu*Enu;
@@ -417,10 +418,28 @@ double genie::utils::mec::GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
       << cur_max_xsec << " for T = " << T_at_xsec_max << ", Q2 = "
       << Q2_at_xsec_max;
 
-    // Calculate the range for the next layer
-    CurTMin = T_at_xsec_max - T_increment;
-    CurTMax = T_at_xsec_max + T_increment;
-    CurQ2Min = std::max( Q2min, Q2_at_xsec_max - Q2_increment );
+    // ** Calculate the range for the next layer **
+
+    // Don't let the minimum kinetic energy fall below zero
+    CurTMin = std::max( 0., T_at_xsec_max - T_increment );
+
+    // We know a priori that the maximum cross section should occur near the
+    // maximum lepton kinetic energy, so keep the old maximum value when
+    // recalculating the new range. It was originally set to something near the
+    // maximum allowed value, so this should zero in on the appropriate region
+    // in future scans. The updated maximum from the old code is shown below,
+    // but due to problems with round-off in the kinematic limits, it can
+    // sometimes miss the edge of the phase space if the T_increment value is
+    // coarse enough. - S. Gardiner, 1 July 2020
+    CurTMax = TMax; // T_at_xsec_max + T_increment;
+
+    // We use the same idea here. A priori, we know that the maximum cross section
+    // should lie near the minimum Q^2 value. Round-off gives us the same problems
+    // in finding the low Q^2 edge of phase space, so just keep the minimum equal
+    // to the cut for the next scan. The old assignment (which mostly worked
+    // but had problems for a coarse Q2_increment value) is commented out below.
+    // - S. Gardiner, 1 July 2020
+    CurQ2Min = Q2min; // std::max( Q2min, Q2_at_xsec_max - Q2_increment );
     CurQ2Max = Q2_at_xsec_max + Q2_increment;
 
     // If the xsec has stabilized within the requested tolerance, then
