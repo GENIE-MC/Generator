@@ -155,6 +155,17 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   int nu_pdg = interaction->InitState().ProbePdg();
   double Q_value = 2*(Eb_tgt-Eb_ten);
 
+  // We apply an extra Q-value shift here to account for differences between
+  // the 12C EM MEC tensors currently in use (which have a "baked in" Q-value
+  // already incorporated) and the treatment in Guille's thesis. Differences
+  // between the two lead to a few-tens-of-MeV shift in the energy transfer
+  // distribution for EM MEC. The shift is done in terms of the binding energy
+  // value associated with the original tensor (Eb_ten). Corrections for
+  // scaling to a different target are already handled above.
+  // - S. Gardiner, 1 July 2020
+  bool isEM = interaction->ProcInfo().IsEM();
+  if ( isEM ) Q_value -= 2. * Eb_ten;
+
   genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
 
   double Q0min = tensor->q0Min();
