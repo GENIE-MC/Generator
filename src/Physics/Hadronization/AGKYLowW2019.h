@@ -43,6 +43,7 @@
 
 #include <TGenPhaseSpace.h>
 
+#include "Framework/Interaction/Interaction.h"
 #include "Physics/Decay/Decayer.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
 

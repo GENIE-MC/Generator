@@ -24,6 +24,8 @@
 //____________________________________________________________________________
 
 #include <sstream>
+#include <string>
+#include <algorithm>
 
 #include <TMath.h>
 
@@ -35,6 +37,7 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/RefFrame.h"
 #include "Framework/Conventions/KineVar.h"
+#include "Framework/Conventions/KinePhaseSpace.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Physics/QuasiElastic/XSection/SmithMonizQELCCPXSec.h"
 #include "Framework/ParticleData/PDGLibrary.h"
@@ -69,28 +72,47 @@ SmithMonizQELCCPXSec::~SmithMonizQELCCPXSec()
 double SmithMonizQELCCPXSec::XSec(
    const Interaction * interaction, KinePhaseSpace_t kps) const
 {
-
-  if(! this -> ValidProcess (interaction) )
+  double xsec;
+  // dimension of kine phase space
+  std::string s = KinePhaseSpace::AsString(kps);
+  int kpsdim = 1 + std::count(s.begin(), s.end(), ',');
+  
+  if(!this -> ValidProcess (interaction) )
   {
     LOG("SmithMoniz",pWARN) << "not a valid process";
     return 0.;
   }
 
-  if(kps == kPSQ2fE)
+  if(kpsdim == 1)
   {
      if(! this -> ValidKinematics (interaction) )
      {
         LOG("SmithMoniz",pWARN) << "not valid kinematics";
         return 0.;
      }
-     return this->dsQES_dQ2_SM(interaction);
+     xsec = this->dsQES_dQ2_SM(interaction);
   }
 
-  if(kps == kPSQ2vfE) {
-    return this->d2sQES_dQ2dv_SM(interaction);
+  if(kpsdim == 2) 
+  {
+    xsec = this->d2sQES_dQ2dv_SM(interaction);
+  }
+  
+
+  
+  // The algorithm computes d^1xsec/dQ2 or d^2xsec/dQ2dv
+  // Check whether variable tranformation is needed
+  if ( kps != kPSQ2fE && kps != kPSQ2vfE ) 
+  {
+     double J = 1.;
+     if (kpsdim == 1)
+       J = utils::kinematics::Jacobian(interaction, kPSQ2fE, kps);
+     else if (kpsdim == 2)
+       J = utils::kinematics::Jacobian(interaction, kPSQ2vfE, kps);
+     xsec *= J;
   }
 
-  return 0;
+  return xsec;
 
 }
 //____________________________________________________________________________
@@ -219,11 +241,13 @@ double SmithMonizQELCCPXSec::d2sQES_dQ2dv_SM(const Interaction * interaction) co
 {
   Kinematics *  kinematics = interaction -> KinePtr();
   sm_utils->SetInteraction(interaction);
+  const InitialState & init_state = interaction -> InitState();
+  fE_nu  = init_state.ProbeE(kRfLab);
+  if (fE_nu < sm_utils->E_nu_thr_SM()) return 0;
   fQ2      = kinematics->GetKV(kKVQ2);
   fv       = kinematics->GetKV(kKVv);
   Range1D_t rkF = sm_utils->kFQES_SM_lim(fQ2,fv);
 
-  const InitialState & init_state = interaction -> InitState();
   const Target & target = init_state.Tgt();
   PDGLibrary * pdglib = PDGLibrary::Instance();
 
@@ -241,7 +265,6 @@ double SmithMonizQELCCPXSec::d2sQES_dQ2dv_SM(const Interaction * interaction) co
   fm_tar = target.Mass();                                     //  Mass of target nucleus (GeV)
   fmm_tar = TMath::Power(fm_tar,    2);
 
-  fE_nu  = init_state.ProbeE(kRfLab);
   fE_lep   = fE_nu-fv;
   double m_lep = interaction->FSPrimLepton()->Mass();
   double mm_lep = m_lep*m_lep;
