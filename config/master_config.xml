@@ -57,6 +57,7 @@
    <config alg="genie::MECGenerator">                    MECGenerator.xml                    </config>
    <config alg="genie::GLRESGenerator">                  GLRESGenerator.xml                  </config>
    <config alg="genie::CEvNSEventGenerator">             CEvNSEventGenerator.xml             </config>
+   <config alg="genie::COHDNuEventGenerator">            COHDNuEventGenerator.xml            </config>
    <config alg="genie::NucleonDecayPrimaryVtxGenerator"> NucleonDecayPrimaryVtxGenerator.xml </config>
    <config alg="genie::NNBarOscPrimaryVtxGenerator">     NNBarOscPrimaryVtxGenerator.xml     </config>
    <config alg="genie::NHLPrimaryVtxGenerator">          NHLPrimaryVtxGenerator.xml          </config>
@@ -78,6 +79,7 @@
    <config alg="genie::DMDISInteractionListGenerator">         DMDISInteractionListGenerator.xml     </config>
    <config alg="genie::IBDInteractionListGenerator">           IBDInteractionListGenerator.xml       </config>
    <config alg="genie::CEvNSInteractionListGenerator">         CEvNSInteractionListGenerator.xml     </config>
+   <config alg="genie::COHDNuInteractionListGenerator">        COHDNuInteractionListGenerator.xml    </config>
    <config alg="genie::DummyInteractionListGenerator">         Default.xml                           </config>
    <config alg="genie::NNBarOscDummyInteractionListGenerator"> Default.xml                           </config>
    <config alg="genie::InteractionListAssembler">              InteractionListAssembler.xml          </config>

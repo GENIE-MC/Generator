@@ -523,7 +523,16 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                 </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                      </param>
      <param type="alg"    name="Module-2">   genie::CEvNSEventGenerator/Default                  </param>
-     <param type="alg"    name="ILstGen">    genie::CEvNSInteractionListGenerator/Default        </param>          
+     <param type="alg"    name="ILstGen">    genie::CEvNSInteractionListGenerator/Default        </param>
+  </param_set>
+
+  <param_set name="COHDNu">
+     <param type="string" name="VldContext"> </param>
+     <param type="int"    name="NModules">   3                                                   </param>
+     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                 </param>
+     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                      </param>
+     <param type="alg"    name="Module-2">   genie::COHDNuEventGenerator/Default                 </param>
+     <param type="alg"    name="ILstGen">    genie::COHDNuInteractionListGenerator/Default       </param>
   </param_set>
 
   <param_set name="COH-NC-PION">
