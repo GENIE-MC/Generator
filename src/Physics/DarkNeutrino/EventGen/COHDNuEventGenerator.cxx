@@ -32,6 +32,7 @@
 #include "Framework/GHEP/GHepFlags.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
+#include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/PrintUtils.h"
@@ -51,7 +52,7 @@ EventRecordVisitorI("genie::COHDNuEventGenerator")
 }
 //___________________________________________________________________________
 COHDNuEventGenerator::COHDNuEventGenerator(string config) :
-EventRecordVisitorI("genie::COHElKinematicsGenerator", config)
+EventRecordVisitorI("genie::COHDNuEventGenerator", config)
 {
 
 }
@@ -63,9 +64,9 @@ COHDNuEventGenerator::~COHDNuEventGenerator()
 //___________________________________________________________________________
 void COHDNuEventGenerator::ProcessEventRecord(GHepRecord * event) const
 {
-  this -> GenerateKinematics    (event);
-  this -> AddFinalStateNeutrino (event);
-  this -> AddRecoilNucleus      (event);
+  this -> GenerateKinematics        (event);
+  this -> AddFinalStateDarkNeutrino (event);
+  this -> AddRecoilNucleus          (event);
 }
 //___________________________________________________________________________
 void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
@@ -78,22 +79,28 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
   RandomGen * rnd = RandomGen::Instance();
 
   // Get the kinematical limits
-  const KPhaseSpace & kps = interaction->PhaseSpace();
-  Range1D_t Q2 = kps.Q2Lim();
-  assert(Q2.min > 0. && Q2.min < Q2.max);
   const InitialState & init_state = interaction -> InitState();
-  double E  = init_state.ProbeE(kRfLab);
-  const double Q2min = Q2.min;
-  const double Q2max = Q2.max;
-  const double dQ2   = Q2max - Q2min;
+  double E_nu  = init_state.ProbeE(kRfLab);
+  Range1D_t DNuEnergy(fDNuMass, E_nu);
+  double dDNuE = DNuEnergy.max - DNuEnergy.min;
+
+  
+  // const KPhaseSpace & kps = interaction->PhaseSpace();
+  // Range1D_t Q2 = kps.Q2Lim();
+  // assert(Q2.min > 0. && Q2.min < Q2.max);
+  // const InitialState & init_state = interaction -> InitState();
+  // double E  = init_state.ProbeE(kRfLab);
+  // const double Q2min = Q2.min;
+  // const double Q2max = Q2.max;
+  // const double dQ2   = Q2max - Q2min;
 
   // Access cross section algorithm for running thread
   RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
   const EventGeneratorI * evg = rtinfo->RunningThread();
   fXSecModel = evg->CrossSectionAlg();
 
-  double gQ2   = -1; // generated Q2
-  double gxsec = -1; // dsig/dQ2 at generated Q2
+  double gDNuE   = -1; // generated Dark Neutrino Energy
+  double gxsec = -1; // dsig/dDENu at generated DNuE
 
   // Generate kinematics
   if(fGenerateUniformly) {
@@ -125,27 +132,27 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
     // Calculate the max differential cross section.
     // Always at Q^2 = 0 for energies and model tested,
     // but go ahead and do the calculation nevertheless.
-    ROOT::Math::IBaseFunctionOneDim * xsec_func =
-        new utils::gsl::dXSec_dQ2_E(fXSecModel, interaction,-1.);
+    ROOT::Math::IBaseFunctionOneDim * xsec_func = new utils::gsl::dXSec_dEDNu_E(fXSecModel, interaction, fDNuMass, -1.);
     ROOT::Math::BrentMinimizer1D minimizer;
-    minimizer.SetFunction(*xsec_func,Q2min,Q2max);
-    minimizer.Minimize(1000,1,1E-5);
-    double Q2_for_xsec_max = minimizer.XMinimum();
-    interaction->KinePtr()->SetQ2(Q2_for_xsec_max);
-    double xsec_max = fXSecModel->XSec(interaction, kPSQ2fE);
-    delete xsec_func;
-    LOG("CEvNS", pNOTICE)
-      << "Maximizing dsig(Q2;E = " << E << "GeV)/dQ2 gave a value of "
-      << xsec_max/(units::cm2) << " cm2/GeV^2 at Q2 = "
-      << Q2_for_xsec_max << " GeV^2";
+    minimizer.SetFunction(*xsec_func, DNuEnergy.min, DNuEnergy.max);
+    minimizer.Minimize(1000, 1, 1E-5);
+    double DNuE_for_xsec_max = minimizer.XMinimum();
+    double xsec_max = -1. * (*xsec_func)(DNuE_for_xsec_max); // xsec in units of 1E-38 cm2/GeV
+
+    // // TODO DNu below
+    // LOG("CEvNS", pNOTICE)
+    //   << "Maximizing dsig(Q2;E = " << E << "GeV)/dQ2 gave a value of "
+    //   << xsec_max/(units::cm2) << " cm2/GeV^2 at Q2 = "
+    //   << Q2_for_xsec_max << " GeV^2";
 
     // Try to select a valid Q2
     unsigned int iter = 0;
     while(1) {
        iter++;
        if(iter > kRjMaxIterations) {
-          LOG("CEvNS", pWARN)
-            << "*** Could not select a valid Q2 after " << iter << " iterations";
+         delete xsec_func;
+         LOG("COHDNuEventGenerator", pWARN)
+            << "*** Could not select a valid DNuE after " << iter << " iterations";
           event->EventFlags()->SetBitNumber(kKineGenErr, true);
           genie::exceptions::EVGThreadException exception;
           exception.SetReason("Couldn't select kinematics");
@@ -153,12 +160,12 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
           throw exception;
        } // max iterations
 
-       gQ2 = Q2min + dQ2 * rnd->RndKine().Rndm();
-       LOG("CEvNS", pINFO) << "Trying: Q2 = " << gQ2;
-       interaction->KinePtr()->SetQ2(gQ2);
+       gDNuE = DNuEnergy.min + dDNuE * rnd->RndKine().Rndm();
+       LOG("CEvNS", pINFO) << "Trying: Q2 = " << gDNuE;
+       // interaction->KinePtr()->SetQ2(gQ2);
 
        // Computing cross section for the current kinematics
-       gxsec = fXSecModel->XSec(interaction, kPSQ2fE);
+       gxsec = -1. * (*xsec_func)(gDNuE);
 
        if(gxsec > xsec_max) {
           double frac = TMath::Abs(gxsec-xsec_max)/xsec_max;
@@ -179,80 +186,107 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
        bool accept = (t<gxsec);
        if(accept) break; // exit loop
     } // 1
+    delete xsec_func;
   } // generate uniformly
 
-  LOG("CEvNS", pNOTICE) << "Selected Q2 = " << gQ2 << " GeV^2";
+  // LOG("CEvNS", pNOTICE) << "Selected Q2 = " << gQ2 << " GeV^2";
 
   // reset bits
   interaction->ResetBit(kISkipProcessChk);
   interaction->ResetBit(kISkipKinematicChk);
 
+  // double fDNuMass2 = fDNuMass*fDNuMass;
+
+  // Kinematics * kinematics = fInteraction->KinePtr();
+  // const TLorentzVector * P4_nu = fInteraction->InitStatePtr()->GetProbeP4(kRfLab);
+  double M_target = interaction->InitState().Tgt().Mass();
+
+  double ETimesM = E_nu * M_target;
+  double EPlusM  = E_nu + M_target;
+
+  double p_DNu = TMath::Sqrt(gDNuE*gDNuE - fDNuMass2);
+  double cos_theta_DNu = (gDNuE*EPlusM - ETimesM - 0.5*fDNuMass2) / (E_nu * p_DNu);
+  double theta_DNu = TMath::ACos(cos_theta_DNu);
+
+  // Take a unit vector along the neutrino direction @ the LAB
+  GHepParticle * probe  = event->Probe();
+  TVector3 unit_nudir = probe->P4()->Vect().Unit();
+
+  TVector3 DNu_3vector = TVector3(0,0,0);
+  double phi = 2.*kPi * rnd->RndKine().Rndm();
+  DNu_3vector.SetMagThetaPhi(p_DNu, theta_DNu, phi);
+  DNu_3vector.RotateUz(unit_nudir);
+  TLorentzVector P4_DNu = TLorentzVector(DNu_3vector, gDNuE);
+  interaction->KinePtr()->SetFSLeptonP4(P4_DNu);
+
   // lock selected kinematics & clear running values
+  double gQ2 = -(P4_DNu - *(probe->P4())).M2();
   interaction->KinePtr()->SetQ2(gQ2, true);
   interaction->KinePtr()->ClearRunningValues();
 
   // Set the cross section for the selected kinematics
-  event->SetDiffXSec(gxsec,kPSQ2fE);
+  event->SetDiffXSec(gxsec * (1E-38*units::cm2), kPSEDNufE);
 }
 //___________________________________________________________________________
-void COHDNuEventGenerator::AddFinalStateNeutrino(GHepRecord * event) const
+void COHDNuEventGenerator::AddFinalStateDarkNeutrino(GHepRecord * event) const
 {
   GHepParticle * probe  = event->Probe();
-  GHepParticle * target = event->TargetNucleus();
+  // GHepParticle * target = event->TargetNucleus();
 
-  int target_pdgc = target->Pdg();
-  double M = PDGLibrary::Instance()->Find(target_pdgc)->Mass(); // units: GeV
+  // int target_pdgc = target->Pdg();
+  // double M = PDGLibrary::Instance()->Find(target_pdgc)->Mass(); // units: GeV
 
-  double Ev = probe->E(); // neutrino energy, units: GeV
-  double Q2 = event->Summary()->Kine().Q2(true); // selected momentum transfer, units: GeV^2
+  // double Ev = probe->E(); // neutrino energy, units: GeV
+  // double Q2 = event->Summary()->Kine().Q2(true); // selected momentum transfer, units: GeV^2
+  // double DNuEnergy = 0.5*Q2/fDNuMass + fDnuMass;
 
   const TLorentzVector & vtx = *(probe->X4());
   TLorentzVector x4l(vtx);  // position 4-vector
 
   // Compute the final state neutino energy
+  // double y  = Q2/(2*M*Ev);
+  // double El = (1-y)*Ev;
 
-  double y  = Q2/(2*M*Ev);
-  double El = (1-y)*Ev;
-
-  LOG("CEvNS", pNOTICE)
-    << "Final state neutrino energy: E = " << El << " GeV";
+  // LOG("CEvNS", pNOTICE)
+    // << "Final state neutrino energy: E = " << El << " GeV";
 
   // Compute the final state neutrino momentum components
   // along and perpendicular to the incoming neutrino direction
 
-  double ml2 = 0;
-  double plp = El - 0.5*(Q2+ml2)/Ev;                          // p(//)
-  double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
+  // double ml2 = 0;
+  // double plp = El - 0.5*(Q2+ml2)/Ev;                          // p(//)
+  // double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
 
-  LOG("CEvNS", pNOTICE)
-    << "Final state neutrino momentum components: |p//| = "
-    << plp << " GeV, [pT] = " << plt << " GeV";
+  // LOG("CEvNS", pNOTICE)
+    // << "Final state neutrino momentum components: |p//| = "
+    // << plp << " GeV, [pT] = " << plt << " GeV";
 
   // Randomize transverse components
-  RandomGen * rnd = RandomGen::Instance();
-  double phi  = 2*kPi * rnd->RndLep().Rndm();
-  double pltx = plt * TMath::Cos(phi);
-  double plty = plt * TMath::Sin(phi);
+  // RandomGen * rnd = RandomGen::Instance();
+  // double phi  = 2*kPi * rnd->RndLep().Rndm();
+  // double pltx = plt * TMath::Cos(phi);
+  // double plty = plt * TMath::Sin(phi);
 
   // Take a unit vector along the neutrino direction @ the LAB
-  TVector3 unit_nudir = probe->P4()->Vect().Unit();
+  // TVector3 unit_nudir = probe->P4()->Vect().Unit();
 
-  // Rotate lepton momentum vector from the reference frame (x'y'z') where
-  // {z':(neutrino direction), z'x':(theta plane)} to the LAB
-  TVector3 p3l(pltx,plty,plp);
-  p3l.RotateUz(unit_nudir);
+  // // Rotate lepton momentum vector from the reference frame (x'y'z') where
+  // // {z':(neutrino direction), z'x':(theta plane)} to the LAB
+  // TVector3 p3l(pltx,plty,plp);
+  // p3l.RotateUz(unit_nudir);
 
   // Lepton 4-momentum in the LAB
-  TLorentzVector p4l(p3l,El);
+  // TLorentzVector p4l(p3l,El);
 
-  LOG("CEvNS", pNOTICE)
-     << "Final state neutrino 4-momentum: " << utils::print::P4AsString(&p4l);
+  // LOG("CEvNS", pNOTICE)
+  //    << "Final state neutrino 4-momentum: " << utils::print::P4AsString(&p4l);
+
 
   event->AddParticle(
-    probe->Pdg(), kIStStableFinalState, event->ProbePosition(),
-    -1,-1,-1, p4l, x4l);
+    kPdgDarkNeutrino, kIStDecayedState, event->ProbePosition(),
+    -1,-1,-1, event->Summary()->Kine().FSLeptonP4(), x4l);
 
-  event->Summary()->KinePtr()->SetFSLeptonP4(p4l);
+  // event->Summary()->KinePtr()->SetFSLeptonP4(p4l);
 }
 //___________________________________________________________________________
 void COHDNuEventGenerator::AddRecoilNucleus(GHepRecord * event) const
@@ -306,5 +340,10 @@ void COHDNuEventGenerator::LoadConfig(void)
   // section used in rejection method
   this->GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
   assert(fMaxXSecDiffTolerance>=0);
+
+  fDNuMass = 0.;
+  this->GetParam("Dark-NeutrinoMass", fDNuMass);
+  fDNuMass2 = fDNuMass * fDNuMass;
+
 }
 //____________________________________________________________________________

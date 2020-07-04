@@ -1,6 +1,5 @@
 //____________________________________________________________________________
 /*!
-
 \class    genie::COHDNuEventGenerator
 
 \brief    Generates complete COHDNu events.
@@ -44,21 +43,24 @@ public :
   void Configure(const Registry & config);
   void Configure(string config);
 
-public:
+private:
 
   // Methods to load sub-algorithms and config data from the Registry
   void LoadConfig (void);
 
   // Event generation methods
-  void GenerateKinematics    (GHepRecord * event) const;
-  void AddFinalStateNeutrino (GHepRecord * event) const;
-  void AddRecoilNucleus      (GHepRecord * event) const;
+  void GenerateKinematics        (GHepRecord * event) const;
+  void AddFinalStateDarkNeutrino (GHepRecord * event) const;
+  void AddRecoilNucleus          (GHepRecord * event) const;
 
   mutable const XSecAlgorithmI * fXSecModel; ///<
 
   bool   fGenerateUniformly;    ///<
   double fSafetyFactor;         ///<
   double fMaxXSecDiffTolerance; ///<
+
+  double fDNuMass, fDNuMass2;
+
 };
 
 } // genie namespace
