@@ -170,6 +170,7 @@ physics-dark-neutrino:
 	@echo "** Building dark neutrino library..."
 ifeq ($(strip $(GOPT_ENABLE_DARK_NEUTRINO)),YES)
 	cd ${GENIE}/src/Physics/DarkNeutrino/XSection && $(MAKE) && \
+	cd ${GENIE}/src/Physics/DarkNeutrino/EventGen && $(MAKE) && \
 	cd ${GENIE}
 else
 	@echo " "
@@ -360,6 +361,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Common
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/DarkNeutrino
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/DarkNeutrino/XSection
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/DarkNeutrino/EventGen
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Decay
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/DeepInelastic
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/DeepInelastic/XSection
@@ -428,6 +430,7 @@ copy-install-files: FORCE
 	cd ${GENIE}/src/Physics/Coherent/EventGen                &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Common                           &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/DarkNeutrino/XSection            &&  $(MAKE) install && \
+	cd ${GENIE}/src/Physics/DarkNeutrino/EventGen            &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Decay                            &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/DeepInelastic/XSection           &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) install && \
@@ -485,6 +488,7 @@ purge: FORCE
 	cd ${GENIE}/src/Physics/Coherent/EventGen                &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Common                           &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/DarkNeutrino/XSection            &&  $(MAKE) purge && \
+	cd ${GENIE}/src/Physics/DarkNeutrino/EventGen            &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Decay                            &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/DeepInelastic/XSection           &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) purge && \
@@ -543,6 +547,7 @@ clean-files: FORCE
 	cd ${GENIE}/src/Physics/Coherent/EventGen                &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Common                           &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/DarkNeutrino/XSection            &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Physics/DarkNeutrino/EventGen            &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Decay                            &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/DeepInelastic/XSection           &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) clean && \
@@ -614,6 +619,7 @@ distclean: FORCE
 	cd ${GENIE}/src/Physics/Coherent/EventGen                &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Common                           &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/DarkNeutrino/XSection            &&  $(MAKE) distclean && \
+	cd ${GENIE}/src/Physics/DarkNeutrino/EventGen            &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Decay                            &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/DeepInelastic/XSection           &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) distclean && \
