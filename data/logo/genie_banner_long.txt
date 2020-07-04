@@ -54,7 +54,7 @@
 *                                       [8] University of Valencia, Valencia, Spain                             *
 *                                                                                                               *
 *  Corresponding Author:                                                                                        *
-*  Dr. Costas Andreopoulos  <constantinos.andreopoulos \at cern.ch>                                                *
+*  Prof. Costas Andreopoulos  <constantinos.andreopoulos \at cern.ch>                                           *
 *                                                                                                               *
 *  University of Liverpool  |  STFC Rutherford Appleton Laboratory                                              *
 *  Physics Department       |  Particle Physics Department                                                      *
