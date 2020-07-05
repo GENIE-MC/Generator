@@ -93,6 +93,7 @@ private:
       const XSecAlgorithmI * fModel;
       const Interaction *    fInteraction;
       mutable SmithMonizUtils * sm_utils;
+      Range1D_t rQ2;
    };
 
 
