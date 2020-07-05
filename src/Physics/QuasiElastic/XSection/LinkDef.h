@@ -39,4 +39,8 @@
 #pragma link C++ class genie::QELXSec;
 #pragma link C++ class genie::NewQELXSec;
 
+
+// Wrappers for GSL/MathMore lib
+#pragma link C++ class genie::utils::gsl::d2Xsec_dQ2dv;
+
 #endif

@@ -172,6 +172,7 @@ fInteraction(interaction)
   AlgFactory * algf = AlgFactory::Instance();
   sm_utils = const_cast<genie::SmithMonizUtils *>(dynamic_cast<const genie::SmithMonizUtils *>(algf->GetAlgorithm("genie::SmithMonizUtils","Default")));
   sm_utils->SetInteraction(interaction);
+  rQ2 = sm_utils->Q2QES_SM_lim();
 }
 //____________________________________________________________________________
 genie::utils::gsl::d2Xsec_dQ2dv::~d2Xsec_dQ2dv()
