@@ -85,10 +85,8 @@ void SRCNuclearRecoil::ProcessEventRecord(GHepRecord * evrec) const
   assert(nucleon);
   assert(nucleus);
 
-  double pN2 = TMath::Power(nucleon->P4()->Rho(),2.); // (momentum of struck nucleon)^2
-
   // Set this to either a proton or neutron to eject a secondary particle
-  int eject_nucleon_pdg = this->SRCRecoilPDG(nucleon, nucleus, tgt, pN2);
+  int eject_nucleon_pdg = this->SRCRecoilPDG(nucleon, tgt);
 
   // Ejection of secondary particle
   if (eject_nucleon_pdg != 0) { EmitSecondNucleon(evrec,eject_nucleon_pdg); }
@@ -97,12 +95,14 @@ void SRCNuclearRecoil::ProcessEventRecord(GHepRecord * evrec) const
 
 //___________________________________________________________________________
 
-int SRCNuclearRecoil::SRCRecoilPDG(GHepParticle * nucleon, GHepParticle * nucleus, Target* tgt, double pN2) const {
+int SRCNuclearRecoil::SRCRecoilPDG(GHepParticle * nucleon,Target* tgt) const {
 
       int eject_nucleon_pdg = 0;
 
-      const int nucleus_pdgc = nucleus->Pdg();
+      const int nucleus_pdgc = tgt->Pdg();
       const int nucleon_pdgc = nucleon->Pdg();
+
+      double pN2 = TMath::Power(nucleon->P4()->Rho(),2.); // (momentum of struck nucleon)^2
 
       // Calculate the Fermi momentum, using a local Fermi gas if the
       // nuclear model is LocalFGM, and RFG otherwise

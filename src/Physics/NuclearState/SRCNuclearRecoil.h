@@ -45,7 +45,7 @@ public :
 
 private:
 
-  int SRCRecoilPDG(GHepParticle * nucleon, GHepParticle * nucleus, Target* tgt, double pF2) const; // determine the PDG code of the SRC pair
+  int SRCRecoilPDG(GHepParticle * nucleon, Target* tgt) const; // determine the PDG code of the SRC pair
 
   void LoadConfig (void);
 
