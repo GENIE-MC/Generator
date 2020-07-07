@@ -115,6 +115,9 @@
 #include "Framework/Utils/XSecSplineList.h"
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Utils/CmdLnArgParser.h"
+#include "Framework/Registry/Registry.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+
 
 using std::string;
 using std::vector;
@@ -1394,16 +1397,19 @@ void GetCommandLineArgs(int argc, char ** argv)
        gEmin = atof(nurange[0].c_str());
        gEmax = atof(nurange[1].c_str());
     } else {
-      LOG("gspl2root", pDEBUG)
-         << "Unspecified Emin - Setting to 0.01 GeV";
-      gEmin = 0.01;
+      const Registry * val_reg = AlgConfigPool::Instance() -> CommonList( "Validation", "Param" ) ;
+      gEmin = val_reg -> GetDouble( "GVLD-Emin" ) ; 
       gEmax = atof(nue.c_str());
+      LOG("gspl2root", pDEBUG)
+	<< "Unspecified Emin - Setting to " << gEmin << " GeV as per configuration";
     }
   } else {
-    LOG("gspl2root", pDEBUG)
-       << "Unspecified Emin,Emax - Setting to 0.01,100 GeV";
-    gEmin = 0.01;
+    const Registry * val_reg = AlgConfigPool::Instance() -> CommonList( "Validation", "Param" ) ;
+    gEmin = val_reg -> GetDouble( "GVLD-Emin" ) ; 
     gEmax = 100;
+    LOG("gspl2root", pDEBUG)
+      << "Unspecified Emin,Emax - Setting to " << gEmin << ",100 GeV ";
+
   }
   assert(gEmin<gEmax);
 
