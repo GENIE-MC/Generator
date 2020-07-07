@@ -74,7 +74,7 @@ void HEDISGenerator::AddPrimaryLepton(GHepRecord * evrec) const
   Interaction * interaction = evrec->Summary();
 
   // Neutrino 4p
-  LongLorentzVector p4v( evrec->Probe()->P4() );
+  LongLorentzVector p4v( * evrec->Probe()->P4() );
   LOG("HEDISGenerator", pINFO) << "NEUTRINO @ LAB' =>  E = " << p4v.E() << " //  m = " << p4v.M() << " // p = " << p4v.P();
   LOG("HEDISGenerator", pINFO) << "                  dir = " << p4v.Dx() << " , "  << p4v.Dy() << " , "  << p4v.Dz();
 

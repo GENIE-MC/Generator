@@ -113,9 +113,9 @@ bool LeptoHadronization::Hadronize(GHepRecord *
 
 #ifdef __GENIE_PYTHIA6_ENABLED__
   // Compute kinematics of hadronic system with energy/momentum conservation
-  LongLorentzVector p4v( event->Probe()->P4()                   );
-  LongLorentzVector p4N( event->HitNucleon()->P4()              );
-  LongLorentzVector p4l( event->FinalStatePrimaryLepton()->P4() );
+  LongLorentzVector p4v( * event->Probe()->P4()                   );
+  LongLorentzVector p4N( * event->HitNucleon()->P4()              );
+  LongLorentzVector p4l( * event->FinalStatePrimaryLepton()->P4() );
   LongLorentzVector p4Hadlong( p4v.Px()+p4N.Px()-p4l.Px(), p4v.Py()+p4N.Py()-p4l.Py(), p4v.Pz()+p4N.Pz()-p4l.Pz(), p4v.E()+p4N.E()-p4l.E() );
 
   LOG("LeptoHad", pDEBUG) << "v [LAB']: " << p4v.E() << " // " << p4v.M2() << " // [ " << p4v.Dx() << " , " << p4v.Dy() << " , " << p4v.Dz() << " ]";

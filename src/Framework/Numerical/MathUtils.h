@@ -23,7 +23,7 @@
 #include <TVectorD.h>
 #include <TLorentzVector.h>
 #include "Framework/Utils/Range1.h"
-#include "math.h"
+#include "cmath"
 
 using std::vector;
 
@@ -41,16 +41,16 @@ namespace math
 
     public :
       LongLorentzVector(double px, double py, double pz, double e) {
-        fPx = (long double)px;
-        fPy = (long double)py;
-        fPz = (long double)pz;
-        fE  = (long double)e;
+        fPx = (long double) px;
+        fPy = (long double) py;
+        fPz = (long double) pz;
+        fE  = (long double) e;
       }
-      LongLorentzVector(TLorentzVector * p4) { 
-        fPx = (long double)p4->Px();  
-        fPy = (long double)p4->Py();  
-        fPz = (long double)p4->Pz();  
-        fE  = (long double)p4->E();  
+      LongLorentzVector(const TLorentzVector & p4) { 
+        fPx = (long double) p4.Px();  
+        fPy = (long double) p4.Py();  
+        fPz = (long double) p4.Pz();  
+        fE  = (long double) p4.E();  
       }
      ~LongLorentzVector() {}
 

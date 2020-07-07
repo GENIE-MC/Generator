@@ -80,8 +80,8 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord *
 
   if(target) event->AddParticle(target->Pdg(), kIStStableFinalState, 1,-1,-1,-1, *(target->P4()), *(target->X4()) );
 
-  LongLorentzVector p4_nu( event->Probe()->P4()       );
-  LongLorentzVector p4_el( event->HitElectron()->P4() );
+  LongLorentzVector p4_nu( * event->Probe()->P4()       );
+  LongLorentzVector p4_el( * event->HitElectron()->P4() );
   LongLorentzVector p4_Wlong( p4_nu.Px()+p4_el.Px(), p4_nu.Py()+p4_el.Py(), p4_nu.Pz()+p4_el.Pz(), p4_nu.E()+p4_el.E() );
 
   long double Wmass = p4_Wlong.M();
