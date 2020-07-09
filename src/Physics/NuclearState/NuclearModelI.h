@@ -23,6 +23,9 @@
    GenerateNucleon() with the radius set to 0 for all other NuclearModelI
    implementations.
 
+ @ Jul 2020 - Marco Roda
+   Added fooks for FermiMomentum and LocalFermiMomentum
+
 */
 //____________________________________________________________________________
 
@@ -34,6 +37,7 @@
 #include <TVector3.h>
 
 #include "Physics/NuclearState/NuclearModel.h"
+#include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Framework/Algorithm/Algorithm.h"
 #include "Framework/Interaction/Target.h"
 
@@ -54,7 +58,11 @@ public:
 
   virtual NuclearModel_t ModelType       (const Target &) const = 0;
 
-  inline double         RemovalEnergy   (void)           const
+  virtual double         FermiMomentum( const Target &, int nucleon_pdg ) const ;
+  virtual double         LocalFermiMomentum( const Target &, int nucleon_pdg, double radius ) const ; 
+ 
+
+  inline double          RemovalEnergy   (void)           const
   {
     return fCurrRemovalEnergy;
   }
@@ -90,23 +98,40 @@ protected:
     , fCurrRemovalEnergy(0)
     , fCurrMomentum(0,0,0)
     , fFermiMoverInteractionType(kFermiMoveDefault)
+    , fKFTable(nullptr)
+    , fKFTableName("Unspecified")
     {};
   NuclearModelI(std::string name)
     : Algorithm(name)
     , fCurrRemovalEnergy(0)
     , fCurrMomentum(0,0,0)
     , fFermiMoverInteractionType(kFermiMoveDefault)
+    , fKFTable(nullptr)
+    , fKFTableName("Unspecified")
     {};
   NuclearModelI(std::string name, std::string config)
     : Algorithm(name, config)
     , fCurrRemovalEnergy(0)
     , fCurrMomentum(0,0,0)
     , fFermiMoverInteractionType(kFermiMoveDefault)
+    , fKFTable(nullptr)
+    , fKFTableName("Unspecified")
     {};
+
+  virtual void LoadConfig() ;
+
+  const string & FermiMomentumTableName() const { return fKFTableName; }
+  const genie::FermiMomentumTable & FermiMomentumTable() const { return *fKFTable ; }
 
   mutable double   fCurrRemovalEnergy;
   mutable TVector3 fCurrMomentum;
   mutable FermiMoverInteractionType_t fFermiMoverInteractionType;
+
+
+ private:
+
+  const genie::FermiMomentumTable * fKFTable; 
+  string fKFTableName;
 
 };
 

@@ -43,16 +43,18 @@ public :
   void Configure(const Registry & config);
   void Configure(string config);
 
+
+ protected:
+  void LoadConfig (void);  
+
 private:
 
   int SRCRecoilPDG(GHepParticle * nucleon, Target* tgt) const; // determine the PDG code of the SRC pair
 
-  void LoadConfig (void);
 
   double fPPPairPercentage;
   double fPNPairPercentage;
-  const FermiMomentumTable * fKFTable;
-  string fKFTableName;
+
 };
 
 }      // genie namespace
