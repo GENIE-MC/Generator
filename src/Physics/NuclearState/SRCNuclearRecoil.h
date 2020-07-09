@@ -46,10 +46,10 @@ public :
 
  protected:
   void LoadConfig (void);  
+  
+  int SRCRecoilPDG( const GHepParticle & nucleon, const Target & tgt) const; // determine the PDG code of the SRC pair
 
 private:
-
-  int SRCRecoilPDG(GHepParticle * nucleon, Target* tgt) const; // determine the PDG code of the SRC pair
 
 
   double fPPPairPercentage;

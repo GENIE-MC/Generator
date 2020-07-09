@@ -72,12 +72,12 @@ SRCNuclearRecoil::~SRCNuclearRecoil()
 void SRCNuclearRecoil::ProcessEventRecord(GHepRecord * evrec) const
 {
 
-  Interaction *  interaction = evrec       -> Summary();
-  InitialState * init_state  = interaction -> InitStatePtr();
-  Target *       tgt         = init_state  -> TgtPtr();
+  const Interaction *  interaction = evrec       -> Summary();
+  const InitialState & init_state  = interaction -> InitState();
+  const Target       & tgt         = init_state.Tgt();
 
   // do nothing for non-nuclear targets
-  if(!tgt->IsNucleus()) return;
+  if(! tgt.IsNucleus()) return;
 
   // access the hit nucleon and target nucleus at the GHEP record
   GHepParticle * nucleon = evrec->HitNucleon();
@@ -86,7 +86,7 @@ void SRCNuclearRecoil::ProcessEventRecord(GHepRecord * evrec) const
   assert(nucleus);
 
   // Set this to either a proton or neutron to eject a secondary particle
-  int eject_nucleon_pdg = this->SRCRecoilPDG(nucleon, tgt);
+  int eject_nucleon_pdg = this->SRCRecoilPDG( *nucleon, tgt );
 
   // Ejection of secondary particle
   if (eject_nucleon_pdg != 0) { EmitSecondNucleon(evrec,eject_nucleon_pdg); }
@@ -95,26 +95,26 @@ void SRCNuclearRecoil::ProcessEventRecord(GHepRecord * evrec) const
 
 //___________________________________________________________________________
 
-int SRCNuclearRecoil::SRCRecoilPDG(GHepParticle * nucleon,Target* tgt) const {
+int SRCNuclearRecoil::SRCRecoilPDG( const GHepParticle & nucleon, const Target & tgt) const {
 
       int eject_nucleon_pdg = 0;
 
       // const int nucleus_pdgc = tgt->Pdg();
-      const int nucleon_pdgc = nucleon->Pdg();
+      const int nucleon_pdgc = nucleon.Pdg();
 
-      double pN2 = TMath::Power(nucleon->P4()->Rho(),2.); // (momentum of struck nucleon)^2
+      double pN2 = TMath::Power(nucleon.P4()->Rho(),2.); // (momentum of struck nucleon)^2
 
-      double kF = fNuclModel -> LocalFermiMomentum( *tgt, 
+      double kF = fNuclModel -> LocalFermiMomentum( tgt, 
 						    nucleon_pdgc, 
-						    nucleon->X4()->Vect().Mag() );
+						    nucleon.X4()->Vect().Mag() );
 
       if (TMath::Sqrt(pN2) > kF) {
-        double Pp = (nucleon->Pdg() == kPdgProton) ? fPPPairPercentage : fPNPairPercentage;
+        double Pp = (nucleon_pdgc == kPdgProton) ? fPPPairPercentage : fPNPairPercentage;
         RandomGen * rnd = RandomGen::Instance();
         double prob = rnd->RndGen().Rndm();
         eject_nucleon_pdg = (prob > Pp) ? kPdgNeutron : kPdgProton;
       }
-
+      
       return eject_nucleon_pdg;
 }
 //___________________________________________________________________________

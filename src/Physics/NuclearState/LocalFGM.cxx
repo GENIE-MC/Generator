@@ -117,17 +117,16 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
   LOG("LocalFGM", pNOTICE)
              << ", P(max) = " << fPMax;
 
+  assert(target.HitNucIsSet());
+
   //-- get information for the nuclear target
   int nucleon_pdgc = target.HitNucPdg();
   assert(pdg::IsProton(nucleon_pdgc) || pdg::IsNeutron(nucleon_pdgc));
-  int A = target.A();
 
-  assert(target.HitNucIsSet());
-  bool is_p = pdg::IsProton(nucleon_pdgc);
-  double numNuc = (is_p) ? (double)target.Z():(double)target.N();
+  // bool is_p = pdg::IsProton(nucleon_pdgc);
+  // double numNuc = (is_p) ? (double)target.Z():(double)target.N();
 
   // Calculate Fermi Momentum using Local FG equations
-  double hbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
   double KF = LocalFermiMomentum( target, nucleon_pdgc, r ) ; 
 
   LOG("LocalFGM",pNOTICE) << "KF = " << KF;
