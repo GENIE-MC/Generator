@@ -2,7 +2,7 @@
 /*
  Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- 
+
 
  For documentation see the corresponding header file.
 
@@ -350,14 +350,23 @@ double genie::utils::mec::GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
   const double ProbeMass = interaction->InitState().Probe()->Mass();
   const double LepMass = interaction->FSPrimLepton()->Mass();
 
-  // Bounds for the current layer being scanned. Here we initialize them
-  // to include the full range of the kPSTlctl phase space.
-  const double TMax = Enu - LepMass;
-  double CurTMin = 0.;
+  // Determine the bounds for the current layer being scanned.
+
+  // Maximum energy transfer to consider
+  const double Q0Max = std::min( utils::mec::Q0LimitMaxXSec, Enu );
+
+  // Maximum momentum transfer to consider
+  const double QMagMax = std::min( utils::mec::QMagLimitMaxXSec, 2.*Enu );
+
+  // Translate these bounds into limits for the lepton
+  // kinetic energy and Q^2
+  const double TMax = std::max( 0., Enu - LepMass );
+  double CurTMin = std::max( 0., TMax - Q0Max );
   double CurTMax = TMax;
   double CurQ2Min = Q2min;
-  // Overshoots the true maximum Q^2, but that's not a worry here
-  double CurQ2Max = 4.*Enu*Enu;
+  // Overshoots the true maximum Q^2, but not so severely that it's expected to
+  // be a problem.
+  double CurQ2Max = QMagMax * QMagMax;
 
   // This is based on the technique used to compute the maximum differential
   // cross section for rejection sampling in QELEventGenerator. A brute-force

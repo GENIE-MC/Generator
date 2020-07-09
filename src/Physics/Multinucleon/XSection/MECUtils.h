@@ -70,6 +70,18 @@ namespace mec   {
     const Interaction& inter, const double tolerance = 0.01,
     const double safety_factor = 1.2, const int max_n_layers = 100 );
 
+  // Hard-coded bounds for the scan over phase space in GetMaxXSecTlctl.
+  // These are based on the upper limits in the current set of SuSAv2 hadron
+  // tensor tables. In the future, it would be good to refactor GetMaxXSecTlctl
+  // to retrieve these bounds from the relevant hadron tensor model itself.
+  // - S. Gardiner
+
+  // Maximum tabulated energy transfer (GeV)
+  const double Q0LimitMaxXSec = 2.;
+
+  // Maximum tabulated momentum transfer (GeV)
+  const double QMagLimitMaxXSec = 2.;
+
 } // mec   namespace
 } // utils namespace
 } // genie namespace
