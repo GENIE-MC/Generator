@@ -223,7 +223,7 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
                                  << " don't let this happen.";
           }
           // decide whether to accept or reject these kinematics
-          assert(XSec <= XSecMax);
+          this->AssertXSecLimits( interaction, XSec, XSecMax );
           accept = XSec > XSecMax*rnd->RndKine().Rndm();
           LOG("QELEvent", pINFO) << "Xsec, Max, Accept: " << XSec << ", "
               << XSecMax << ", " << accept;

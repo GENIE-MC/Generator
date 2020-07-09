@@ -1001,8 +1001,24 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
       if ( XSec > XSecMax ) {
         LOG("MEC", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG << " "
           << XSec << " > " << XSecMax << " don't let this happen.";
+
+        double percent_deviation = 200. * ( XSec - XSecMax ) / ( XSecMax + XSec );
+
+        if ( percent_deviation > fSuSAMaxXSecDiffTolerance ) {
+          LOG( "Kinematics", pFATAL ) << "xsec: (curr) = " << XSec
+            << " > (max) = " << XSecMax << "\n for " << *interaction;
+          LOG( "Kinematics", pFATAL )
+             << "*** Exceeding estimated maximum differential cross section";
+          std::terminate();
+        }
+        else {
+          LOG( "Kinematics", pWARN ) << "xsec: (curr) = " << XSec
+            << " > (max) = " << XSecMax << "\n for " << *interaction;
+          LOG("Kinematics", pWARN) << "*** The fractional deviation of "
+            << percent_deviation << " % was allowed";
+        }
       }
-      assert( XSec <= XSecMax );
+
       accept = XSec > XSecMax*rnd->RndKine().Rndm();
       LOG("MEC", pINFO) << "Xsec, Max, Accept: " << XSec << ", "
         << XSecMax << ", " << accept;
@@ -1310,5 +1326,10 @@ void MECGenerator::LoadConfig(void)
     assert(fNuclModel);
 
     GetParam( "NSV-Q3Max", fQ3Max ) ;
+
+    // Maximum allowed percentage deviation from the maximum cross section used
+    // in the accept/reject loop for selecting lepton kinematics for SuSAv2.
+    // Similar to the tolerance used by QELEventGenerator.
+    GetParamDef( "SuSA-MaxXSec-DiffTolerance", fSuSAMaxXSecDiffTolerance, 999999. );
 }
 //___________________________________________________________________________

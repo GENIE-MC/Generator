@@ -71,6 +71,10 @@ private:
   const NuclearModelI *          fNuclModel;
 
   double fQ3Max;
+
+  // Tolerate this maximum percent deviation above the calculated maximum cross
+  // section when sampling lepton kinematics for the SuSAv2-MEC model.
+  double fSuSAMaxXSecDiffTolerance;
 };
 
 }      // genie namespace

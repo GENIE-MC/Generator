@@ -27,7 +27,9 @@ QEL-EbOR             bool     No         What Eb to use if fixed                
          - S. Gardiner, 1 July 2020 -->
     <param type="double" name="Cache-MinEnergy"> 1000.0 </param>
 
-    <param type="double" name="MaxXSec-SafetyFactor"> 1.2 </param>
+    <param type="double" name="MaxXSec-SafetyFactor"> 1.5 </param>
+
+    <!-- <param type="double" name="MaxXSec-DiffTolerance"> 0.0 </param> -->
 
     <param type="alg" name="NuclearModel"> genie::NuclearModelMap/Default </param>
 
