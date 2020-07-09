@@ -9,6 +9,7 @@ Configurable Parameters:
 .............................................................................................................
 Name                   Type    Optional   Comment                                        Default
 .............................................................................................................
+FermiMomentumTable     string   No        Table of Fermi momentum (kF) constants         CommonParam[FermiGas]                                                                                     
 LFG-MomentumMax        double   Yes       max p in prob distribution                     1 GeV
 LFG-MomentumCutOff     double   No        momentum cut off value                         
 SRC-Fraction           double   Yes       Fraction of high energy tail distribution      0. (Local Fermi Gas)     
