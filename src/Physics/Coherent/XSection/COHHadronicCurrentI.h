@@ -36,7 +36,7 @@ public:
 
   virtual ~COHHadronicCurrentI() { ; } 
 
-  virtual GTrace R( const Interaction * i, const COHFormFactorI * ff ) const = 0 ;
+  virtual utils::math::GTrace R( const Interaction * i, const COHFormFactorI * ff ) const = 0 ;
 
   virtual Resonance_t Resonance() const { return kNoResonance ; } 
 

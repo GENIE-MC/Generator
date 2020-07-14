@@ -18,6 +18,7 @@
 #include "Physics/Coherent/XSection/COHDeltaCurrent.h"
 
 using namespace genie;
+using namespace utils::math;
 
 
 COHDeltaCurrent::COHDeltaCurrent() :

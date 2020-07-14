@@ -20,6 +20,7 @@
 #define _COH_DELTA_CURRENT_H_
 
 #include "Physics/Coherent/XSection/COHHadronicCurrentI.h"
+#include "Physics/Coherent/XSection/DeltaTransitionFormFactor.h"
 
 namespace genie {
 
@@ -32,10 +33,10 @@ public:
 
   virtual ~COHDeltaCurrent() { ; } 
 
-  virtual GTrace R( const Interaction * i, 
+  virtual utils::math::GTrace R( const Interaction * i,
 		    const COHFormFactorI * ff ) const override ;
 
-  virtual Resonance_t Resonance() constexpr { return kP33_1232 ; } 
+  virtual Resonance_t Resonance() const { return kP33_1232 ; }
 
   // methods to implemented from Algorithm 
   void Configure (const Registry & config);
@@ -46,11 +47,12 @@ public:
 
   void LoadConfig(void);
 
-  GTrace DirTrace( const Interaction * i,
+
+  utils::math::GTrace DirTrace( const Interaction * i,
 		   const COHFormFactorI * ff ) const ;
   // The form factor might not be necessary in this case
 
-  GTrace CrsTrace( const Interaction * i,
+  utils::math::GTrace CrsTrace( const Interaction * i,
 		   const COHFormFactorI * ff ) const ;
 
  private: 
