@@ -19,6 +19,8 @@
 
 #include <TSystem.h>
 
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/GBuild.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGLibrary.h"
@@ -33,7 +35,13 @@ PDGLibrary * PDGLibrary::fInstance = 0;
 PDGLibrary::PDGLibrary()
 {
   if( ! LoadDBase() ) LOG("PDG", pERROR) << "Could not load PDG data";
-
+#ifdef __GENIE_DARK_NEUTRINO_ENABLED__
+  if(AddDarkSector()) LOG("PDG", pINFO) << "Loaded Dark Neutrino data";
+  else {
+    LOG("PDG", pFATAL) << "Could not load Dark Neutrino data";
+    exit(78);
+  }
+#endif // __GENIE_DARK_NEUTRINO_ENABLED__
   fInstance =  0;
 }
 //____________________________________________________________________________
@@ -149,27 +157,28 @@ void PDGLibrary::AddNHL(double mass)
   }
 }
 //____________________________________________________________________________
-void PDGLibrary::AddDarkSector(double mass, double med_ratio)
-{//TODO_DNU: Not sure about the mass and med_ratio params above, nor the code below
-// Add dark neutrino particle to PDG database
+bool PDGLibrary::AddDarkSector()
+{
+  // Add dark neutrino particles to PDG database
 
-  double med_mass = mass*med_ratio;
+  const Registry * reg = AlgConfigPool::Instance()->CommonList("Dark", "Masses");
+  if(!reg) {
+    LOG("PDG", pERROR) << "The Dark Sector masses not available.";
+    return false;
+  }
   TParticlePDG * dnu_particle = fDatabasePDG->GetParticle(kPdgDarkNeutrino);
   TParticlePDG * med_particle = fDatabasePDG->GetParticle(kPdgDNuMediator);
   if (!dnu_particle) {
     // Name Title Mass Stable Width Charge Class PDG
-    fDatabasePDG->AddParticle("nu_D","nu_D",mass,true,0.,0,"DarkNeutrino",kPdgDarkNeutrino);
-  }
-  else {
-    assert(dnu_particle->Mass() == mass);
+    fDatabasePDG->AddParticle("nu_D","nu_D",reg->GetDouble("Dark-NeutrinoMass"),
+                              true,0.,0,"DarkNeutrino",kPdgDarkNeutrino);
   }
   if (!med_particle) {
     // Name Title Mass Stable Width Charge Class PDG
-    fDatabasePDG->AddParticle("Z_D","Z_D",med_mass,true,0.,0,"DarkNeutrino",kPdgDNuMediator);
+    fDatabasePDG->AddParticle("Z_D","Z_D",reg->GetDouble("Dark-MediatorMass"),
+                              true,0.,0,"DarkNeutrino",kPdgDNuMediator);
   }
-  else {
-    assert(med_particle->Mass() == med_mass);
-  }
+  return true;
 }
 //____________________________________________________________________________
 // EDIT: need a way to clear and then reload the PDG database

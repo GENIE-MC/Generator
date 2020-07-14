@@ -11,6 +11,9 @@
           Changes required to implement the GENIE Boosted Dark Matter module
           were installed by Josh Berger (Univ. of Wisconsin)
 
+          Changes required to implement the GENIE Dark Neutrino module
+          were installed by Iker de Icaza (Univ. of Sussex)
+
 \created  May 06, 2004
 
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
@@ -42,7 +45,6 @@ public:
   void AddDarkMatter  (double mass, double med_ratio);
   // Similarly for the NHL app
   void AddNHL  (double mass);
-  void AddDarkSector (double mass, double med_ratio);
 
 private:
 
@@ -51,6 +53,7 @@ private:
   virtual ~PDGLibrary();
 
   bool LoadDBase(void);
+  bool AddDarkSector ();
 
   static PDGLibrary * fInstance;
   TDatabasePDG      * fDatabasePDG;
