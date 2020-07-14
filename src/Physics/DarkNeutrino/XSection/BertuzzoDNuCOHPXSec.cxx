@@ -66,7 +66,7 @@ double BertuzzoDNuCOHPXSec::XSec(
   // User inputs to the calculation
   const double E  = init_state.ProbeE(kRfLab); // neutrino energy, units: GeV
   const double Q2 = kinematics.Q2(); // momentum transfer, units: GeV^2
-  const double DNuEnergy =  kinematics.FSLeptonP4().E(); // E_N is the energy of the dark neutrino
+  const double DNuE =  kinematics.FSLeptonP4().E(); // E_N is the energy of the dark neutrino
   const unsigned int Z = target.Z(); // number of protons
   const unsigned int N = target.N(); // number of nucleons
 
@@ -83,7 +83,8 @@ double BertuzzoDNuCOHPXSec::XSec(
   const double FF = fFF->FormFactor(Q2, target);
 
   // auxiliary variables
-  const double E2  = E*E;
+  const double E2  = E * E;
+  const double DNuE2  = DNuE * DNuE;
   const double Z2 = Z * Z;
   const double FF2 = FF * FF;
 
@@ -94,9 +95,9 @@ double BertuzzoDNuCOHPXSec::XSec(
   const double model_params = fEps2 * fTheta2 * fgD2;
 
   const double num_fact1 = ( FF2  * fDNuMass) * Z2;
-  const double num_fact2 = (DNuEnergy+E+M)*fDNuMass2  - 2*M*(E2 + M*DNuEnergy + E2 - E*M);
+  const double num_fact2 = (DNuE+E+M)*fDNuMass2  - 2.*M*(DNuE2 + M*DNuE + E2 - E*M);
   const double den_fact1 = 1. / (E2*M);
-  const double den_fact2 = TMath::Power((fDMediatorMass2 - 2.*DNuEnergy*M + 2*E*M), -2.);
+  const double den_fact2 = TMath::Power((fDMediatorMass2 - 2.*DNuE*M + 2*E*M), -2.);
 
   if(kps==kPSEDNufE) {
     const double xsec = const_factor * model_params
