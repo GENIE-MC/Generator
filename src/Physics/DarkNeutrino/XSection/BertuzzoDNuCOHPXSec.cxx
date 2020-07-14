@@ -135,7 +135,7 @@ bool BertuzzoDNuCOHPXSec::ValidKinematics(const Interaction* interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  const double E = interaction->InitState().ProbeE(kRfLab);
+  return interaction->PhaseSpace().IsAboveThreshold();
 
   // Pedro suggests, but it's an overkill:
   // const double M = interaction->InitState().Tgt().Mass();
@@ -144,8 +144,6 @@ bool BertuzzoDNuCOHPXSec::ValidKinematics(const Interaction* interaction) const
   // const double t2 = 4. * M * (DNuEnergy - E) * (DNuEnergy*(M+2.*E) - M*E);
   // const double t3 = fDNuMass2 * fDNuMass2;
   // if( (t1 - t2 - t3) <= 0. ) return false;
-
-  return (E > fDNuMass);
 }
 //____________________________________________________________________________
 void BertuzzoDNuCOHPXSec::Configure(const Registry & config)
