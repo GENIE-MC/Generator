@@ -100,12 +100,16 @@ double BertuzzoDNuCOHPXSec::XSec(
   const double den_fact2 = TMath::Power((fDMediatorMass2 - 2.*DNuE*M + 2*E*M), -2.);
 
   if(kps==kPSEDNufE) {
-    const double xsec = const_factor * model_params
-      * num_fact1 * num_fact2 * den_fact1 * den_fact2;
+    // TODO DNu: BUG xsec is negative
+    // const double xsec = const_factor * model_params
+      // * num_fact1 * num_fact2 * den_fact1 * den_fact2;
+    const double xsec_approx = (2.*const_factor) * model_params *
+      (E - DNuE) * (M * fDNuMass *Z2) * (1./E2) * den_fact2;
     // const double cross_section = (elec2 * FF2 * eps2 * theta2 * g_D2 * DNu_mass) *
     //   ( (DNu_energy+E+M)*DNu_mass2  - 2*M*(E2 + M*DNu_energy + E2 - E*M) )*Z2 *
     //   (1./ (8*kPi*E2*M *  TMath::Power((DZ_mass2 - 2*DNu*M + 2*E*M),2)));
-    return xsec;
+    // return xsec;
+    return xsec_approx;
   }
   return 0.;
 }
