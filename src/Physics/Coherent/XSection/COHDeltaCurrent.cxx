@@ -18,17 +18,17 @@
 #include "Physics/Coherent/XSection/COHDeltaCurrent.h"
 
 using namespace genie;
-using namespace utils::math;
+using namespace genie::utils::math;
 
 
 COHDeltaCurrent::COHDeltaCurrent() :
-  COHFormFactorI("genie::COHDeltaCurrent")
+  COHHadronicCurrentI("genie::COHDeltaCurrent")
 {
 
 }
 //____________________________________________________________________________
 COHDeltaCurrent::COHDeltaCurrent(string config) :
-  COHFormFactorI("genie::COHDeltaCurrent", config)
+  COHHadronicCurrentI("genie::COHDeltaCurrent", config)
 {
 
 }
@@ -106,7 +106,8 @@ GTrace DirTrace( const Interaction * i,
   double C3vNC = delta_ff -> C3VNC( Q2 ) ;
   double C5aNC = delta_ff -> C5ANC( Q2 ) ;
 
-  double mDelta = util::res::Mass( this -> Resonance() ) ; 
+
+  double mDelta = utils::res::Mass( this -> Resonance() ) ;
   double mDelta2 = pow( mDelta, 2 ); 
   
   // the following contractions requires a vector with time coordinate in the 0-th position
@@ -114,7 +115,7 @@ GTrace DirTrace( const Interaction * i,
   std::array<double, 4> q = { t_q.E(), t_q.X(), t_q.Y(), t_q.Z() } ;
   double p0 = out_neutrino.E() ; 
   std::array<double, 4> kg = { t_photon.E(), t_photon.X(), t_photon.Y(), t_photon.Z() } ;
-  double mn = kNucleonMass ;
+  double mn = constants::kNucleonMass ;
   double mn2 = pow( mn, 2 ) ;
 
 
@@ -439,6 +440,8 @@ GTrace DirTrace( const Interaction * i,
                   + q[1]*( q[1] * q[1]*kg[1] + 2*q[1]*( kg[1] * kg[1] + kg[2] * kg[2] ) + q[3]*kg[1]*(q[3] + 2*kg[3]) ) ) ) ) )
               ) / (24.*mDelta2*pow(mn,4));
 
+  return tr;
+
 }
 
 //____________________________________________________________________________
@@ -462,7 +465,7 @@ GTrace CrsTrace( const Interaction * i,
   double C3vNC = delta_ff -> C3VNC( Q2 ) ;
   double C5aNC = delta_ff -> C5ANC( Q2 ) ;
 
-  double mDelta = util::res::Mass( this -> Resonance() ) ;
+  double mDelta = utils::res::Mass( this -> Resonance() ) ;
   double mDelta2 = pow( mDelta, 2 );
 
   // the following contractions requires a vector with time coordinate in the 0-th position
@@ -470,7 +473,8 @@ GTrace CrsTrace( const Interaction * i,
   std::array<double, 4> q = { t_q.E(), t_q.X(), t_q.Y(), t_q.Z() } ;
   double p0 = out_neutrino.E() ;
   std::array<double, 4> kg = { t_photon.E(), t_photon.X(), t_photon.Y(), t_photon.Z() } ;
-  double mn = kNucleonMass ;
+
+  double mn = constants::kNucleonMass ;
   double mn2 = pow( mn, 2 ) ;
 
   GTrace tr;
@@ -752,5 +756,7 @@ GTrace CrsTrace( const Interaction * i,
                   - q[0] * q[0]*( 4*q[1] * q[1] - q[1]*kg[1] + 3*( kg[1] * kg[1] + kg[2] * kg[2] ) + q[3]*(q[3] + 2*kg[3]) )
                   + q[1]*( q[1] * q[1]*kg[1] + 2*q[1]*( kg[1] * kg[1] + kg[2] * kg[2] ) + q[3]*kg[1]*(q[3] + 2*kg[3]) ) ) ) ) )
               ) / (24.*mDelta2*pow(mn,4));
+
+  return tr;
 
 }

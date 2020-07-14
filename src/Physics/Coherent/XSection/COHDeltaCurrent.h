@@ -31,7 +31,7 @@ public:
   COHDeltaCurrent() ;
   COHDeltaCurrent( string config );
 
-  virtual ~COHDeltaCurrent() { ; } 
+  virtual ~COHDeltaCurrent();
 
   virtual utils::math::GTrace R( const Interaction * i,
 		    const COHFormFactorI * ff ) const override ;

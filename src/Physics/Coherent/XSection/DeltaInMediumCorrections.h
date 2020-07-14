@@ -41,8 +41,6 @@ public:
   void Configure (const Registry & config) override ;
   void Configure (string param_set) override ;
 
-  double Sigma( int pdg ) const ;
-
   /*
     
     ** Comments about Fermi Momentum and Density ** 
