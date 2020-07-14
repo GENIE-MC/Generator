@@ -160,7 +160,8 @@ double genie::utils::gsl::dXSec_dEDNu_E::DoEval(double xin) const
   TVector3 target_3vector = P4_nu->Vect() - DNu_3vector;
   double E_target = E_nu + M_target - DNuEnergy;
   TLorentzVector P4_target = TLorentzVector(target_3vector , E_target);
-  kinematics->SetFSLeptonP4(P4_target);
+  kinematics->SetHadSystP4(P4_target);
+  kinematics->SetQ2(2.*M_target*(E_target-M_target));
 
   delete P4_nu;
   double xsec = fModel->XSec(fInteraction, kPSEDNufE);
