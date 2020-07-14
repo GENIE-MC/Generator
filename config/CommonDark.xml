@@ -28,7 +28,7 @@ University of Liverpool
     </param_set>
 
     <param_set name="Masses">
-        <param type="double" name="Dark-NeutrinoMass"> 1. </param> <!-- GeV -->
+        <param type="double" name="Dark-NeutrinoMass"> .1 </param> <!-- GeV -->
         <param type="double" name="Dark-MediatorMass"> 0.03 </param> <!-- GeV -->
     </param_set>
 
