@@ -21,7 +21,9 @@
 
 #include "Framework/Algorithm/Algorithm.h"
 #include "Framework/ParticleData/BaryonResonance.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Interaction/Interaction.h" 
+#include "Framework/Conventions/Constants.h"
 #include "Framework/Numerical/GTrace.h"
 
 #include "Physics/Coherent/XSection/COHFormFactorI.h"

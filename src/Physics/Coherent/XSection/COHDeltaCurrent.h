@@ -42,7 +42,6 @@ public:
   void Configure (const Registry & config);
   void Configure (string param_set);
 
-
  protected: 
 
   void LoadConfig(void);

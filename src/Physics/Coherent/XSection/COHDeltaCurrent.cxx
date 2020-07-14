@@ -38,7 +38,7 @@ COHDeltaCurrent::~COHDeltaCurrent()
 
 }
 //____________________________________________________________________________
-GTrace R( const Interaction * i, 
+GTrace COHDeltaCurrent::R( const Interaction * i,
 	  const COHFormFactorI * ff ) const {
   
   GTrace t ;
@@ -87,7 +87,7 @@ void COHDeltaCurrent::LoadConfig(void)
 
 }
 //____________________________________________________________________________
-GTrace DirTrace( const Interaction * i,
+GTrace COHDeltaCurrent::DirTrace( const Interaction * i,
 		 const COHFormFactorI * ff ) const {
 
   // these calculations expects the interaction to be in the lab frame with the incoming neutrino parallel to z
@@ -107,7 +107,7 @@ GTrace DirTrace( const Interaction * i,
   double C5aNC = delta_ff -> C5ANC( Q2 ) ;
 
 
-  double mDelta = utils::res::Mass( this -> Resonance() ) ;
+  double mDelta = utils::res::Mass( Resonance() ) ;
   double mDelta2 = pow( mDelta, 2 ); 
   
   // the following contractions requires a vector with time coordinate in the 0-th position
@@ -185,7 +185,7 @@ GTrace DirTrace( const Interaction * i,
   tr[1][1] = (C3v*( std::complex<double>(0.,1.)*C5aNC*q[3]*kg[2]*( 4*pow(mDelta,3)*mn*( q[1] + kg[1] )
                   + 2*mn2*( q[1] + kg[1] )*( -( q[0]*( 2*p0 + q[0] ) ) + q[1]*kg[1] + q[3]*kg[3] )
                 + mDelta*mn*( q[1] + kg[1] )*( -4*p0*q[0] - 3*q[0]*q[0] + q[1]*q[1] + q[3]*q[3]
-                  + 2*q[1]*kg[1] + 2*>q[3]*kg[3] )
+                  + 2*q[1]*kg[1] + 2*q[3]*kg[3] )
                 + mDelta2*( q[0]*q[0]*( q[1] - kg[1] ) + 8*mn2*kg[1] - 2*p0*q[0]*kg[1] + q[3]*q[3]*kg[1]
                   + 4*pow(p0,2)*( q[1] + kg[1] ) - q[1]*q[3]*kg[3] ) )
               - 2*C3vNC*mn*( 16*mDelta2*mn*( p0 + q[0] )*( q[0]*q[0] - q[3]*kg[3] )
@@ -445,7 +445,7 @@ GTrace DirTrace( const Interaction * i,
 }
 
 //____________________________________________________________________________
-GTrace CrsTrace( const Interaction * i,
+GTrace COHDeltaCurrent::CrsTrace( const Interaction * i,
 		 const COHFormFactorI * ff ) const {
 
 
@@ -465,7 +465,7 @@ GTrace CrsTrace( const Interaction * i,
   double C3vNC = delta_ff -> C3VNC( Q2 ) ;
   double C5aNC = delta_ff -> C5ANC( Q2 ) ;
 
-  double mDelta = utils::res::Mass( this -> Resonance() ) ;
+  double mDelta = utils::res::Mass( Resonance() ) ;
   double mDelta2 = pow( mDelta, 2 );
 
   // the following contractions requires a vector with time coordinate in the 0-th position
