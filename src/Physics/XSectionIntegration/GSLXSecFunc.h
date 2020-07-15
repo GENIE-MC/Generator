@@ -20,6 +20,7 @@
 
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
+#include "Framework/Utils/Range1.h"
 
 namespace genie {
 
@@ -88,6 +89,7 @@ public:
   unsigned int                      NDim   (void)       const;
   double                            DoEval (double xin) const;
   ROOT::Math::IBaseFunctionOneDim * Clone  (void)       const;
+  Range1D_t IntegrationRange(void)  const;
 
 private:
   const XSecAlgorithmI * fModel;

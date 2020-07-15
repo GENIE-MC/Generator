@@ -51,7 +51,6 @@ double COHDNuXSec::Integrate(
   if(! model->ValidProcess(in) ) return 0.;
   if(!model->ValidKinematics(in)) return 0;
 
-  Range1D_t DNuEnergy(fDNuMass, in->InitState().ProbeE(kRfLab));
 
   // TODO DNu
   /* LOG("CEvNS", pNOTICE) */
@@ -65,8 +64,9 @@ double COHDNuXSec::Integrate(
 
   ROOT::Math::IntegrationOneDim::Type ig_type =
           utils::gsl::Integration1DimTypeFromString(fGSLIntgType);
-  ROOT::Math::IBaseFunctionOneDim * func =
+  utils::gsl::dXSec_dEDNu_E * func =
     new utils::gsl::dXSec_dEDNu_E(model, interaction, fDNuMass);
+  Range1D_t DNuEnergy = func->IntegrationRange();
   double abstol = 1; // We mostly care about relative tolerance
   ROOT::Math::Integrator ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
   double xsec = ig.Integral(DNuEnergy.min, DNuEnergy.max) * (1E-38 * units::cm2); // units: GeV^-2

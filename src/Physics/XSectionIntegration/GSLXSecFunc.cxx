@@ -177,6 +177,23 @@ genie::utils::gsl::dXSec_dEDNu_E::Clone() const
   return
     new genie::utils::gsl::dXSec_dEDNu_E(fModel, fInteraction, fDNuMass);
 }
+Range1D_t genie::utils::gsl::dXSec_dEDNu_E::IntegrationRange() const
+{
+  // look at valid angles section at tech note
+  const double E  = fInteraction->InitState().ProbeE(kRfLab);
+  const double M = fInteraction->InitState().Tgt().Mass();
+  const double M2 = M * M;
+  double fDNuMass2 = fDNuMass*fDNuMass;
+
+  const double A = M2 +  2.*M*E;
+  const double B = (M+E) * (E*M + 0.5*fDNuMass2);
+  const double C = E*E *(M2 + fDNuMass2) + E*M*fDNuMass2 + 0.25*fDNuMass2*fDNuMass2;
+  const double D = sqrt(B*B - A*C);
+
+  Range1D_t DNuEnergy((B - D)/A, (B + D)/A);
+  return DNuEnergy;
+
+}
 //____________________________________________________________________________
 genie::utils::gsl::d2XSec_dxdy_E::d2XSec_dxdy_E(
      const XSecAlgorithmI * m, const Interaction * i) :

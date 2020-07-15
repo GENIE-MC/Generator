@@ -81,8 +81,6 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
   // Get the kinematical limits
   const InitialState & init_state = interaction -> InitState();
   double E_nu  = init_state.ProbeE(kRfLab);
-  Range1D_t DNuEnergy(fDNuMass, E_nu);
-  double dDNuE = DNuEnergy.max - DNuEnergy.min;
 
   
   // const KPhaseSpace & kps = interaction->PhaseSpace();
@@ -132,7 +130,9 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
     // Calculate the max differential cross section.
     // Always at Q^2 = 0 for energies and model tested,
     // but go ahead and do the calculation nevertheless.
-    ROOT::Math::IBaseFunctionOneDim * xsec_func = new utils::gsl::dXSec_dEDNu_E(fXSecModel, interaction, fDNuMass, -1.);
+    utils::gsl::dXSec_dEDNu_E * xsec_func = new utils::gsl::dXSec_dEDNu_E(fXSecModel, interaction, fDNuMass, -1.);
+    Range1D_t DNuEnergy = xsec_func->IntegrationRange();
+    double dDNuE = DNuEnergy.max - DNuEnergy.min;
     ROOT::Math::BrentMinimizer1D minimizer;
     minimizer.SetFunction(*xsec_func, DNuEnergy.min, DNuEnergy.max);
     minimizer.Minimize(1000, 1, 1E-5);
