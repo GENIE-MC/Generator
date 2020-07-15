@@ -140,7 +140,18 @@ bool BertuzzoDNuCOHPXSec::ValidKinematics(const Interaction* interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  return interaction->PhaseSpace().IsAboveThreshold();
+  // if(!interaction->PhaseSpace().IsAboveThreshold()) return false;
+
+  const double E  = interaction->InitState().ProbeE(kRfLab);
+  const double M = interaction->InitState().Tgt().Mass();
+  const TLorentzVector& DNu = interaction->Kine().FSLeptonP4();
+
+  const double tl = DNu.E()*(M+E) - E*M - 0.5*fDNuMass2;
+  const double tr = E * DNu.P();
+
+  if(tl < -1.*tr) return false;
+  if(tl >  tr) return false;
+  return true;
 
   // Pedro suggests, but it's an overkill:
   // const double M = interaction->InitState().Tgt().Mass();
