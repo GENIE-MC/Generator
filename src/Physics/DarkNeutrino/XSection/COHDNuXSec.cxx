@@ -48,9 +48,8 @@ COHDNuXSec::~COHDNuXSec()
 double COHDNuXSec::Integrate(
       const XSecAlgorithmI * model, const Interaction * in) const
 {
-  if(! model->ValidProcess(in) ) return 0.;
-  if(!model->ValidKinematics(in)) return 0;
-
+  if(!model->ValidProcess(in) ) return 0.;
+  if(!in->PhaseSpace().IsAboveThreshold()) return 0.;
 
   // TODO DNu
   /* LOG("CEvNS", pNOTICE) */
