@@ -32,6 +32,9 @@ namespace genie {
       class GTrace : public ComplexMatrix<4> {
 
       public:
+
+        GTrace operator+(GTrace &);
+        GTrace operator*(GTrace &);
 	
       };
 

@@ -26,36 +26,34 @@ COHDeltaCurrent::COHDeltaCurrent() :
 {
 
 }
+
 //____________________________________________________________________________
 COHDeltaCurrent::COHDeltaCurrent(string config) :
   COHHadronicCurrentI("genie::COHDeltaCurrent", config)
 {
 
 }
+
 //____________________________________________________________________________
 COHDeltaCurrent::~COHDeltaCurrent()
 {
 
 }
-//____________________________________________________________________________
-GTrace COHDeltaCurrent::R( const Interaction * i,
-	  const COHFormFactorI * ff ) const {
-  
-  GTrace t ;
-  return t ;
-}
+
 //____________________________________________________________________________
 void COHDeltaCurrent::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
+
 //____________________________________________________________________________
 void COHDeltaCurrent::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
+
 //____________________________________________________________________________
 void COHDeltaCurrent::LoadConfig(void)
 {
@@ -86,6 +84,22 @@ void COHDeltaCurrent::LoadConfig(void)
   }
 
 }
+
+//____________________________________________________________________________
+GTrace COHDeltaCurrent::R( const Interaction * i,
+	  const COHFormFactorI * ff ) const {
+
+  TLorentzVector * probe = i -> InitState().GetProbeP4( kRfLab ) ;
+  TLorentzVector   out_neutrino = i -> Kine().FSLeptonP4() ;
+  double p0 = out_neutrino.E() ;
+
+  // TODO Add multiplication by Delta propagator
+  GTrace tr_p = DirTrace(i, ff) + CrsTrace(i, ff) ;
+  GTrace tr_n = DirTrace(i, ff) + CrsTrace(i, ff) ;
+
+  return (tr_p*ff + tr_n*ff) / 2*p0 ;
+}
+
 //____________________________________________________________________________
 GTrace COHDeltaCurrent::DirTrace( const Interaction * i,
 		 const COHFormFactorI * ff ) const {
