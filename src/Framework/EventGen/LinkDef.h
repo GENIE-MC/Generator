@@ -32,6 +32,6 @@
 #pragma link C++ class genie::GMCJMonitor;
 
 #pragma link C++ class genie::XSecAlgorithmI;
-
+#pragma link C++ class genie::HybridXSecAlgorithm;
 
 #endif

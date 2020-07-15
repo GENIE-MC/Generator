@@ -11,7 +11,6 @@
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Multinucleon/XSection/MartiniEricsonChanfrayMarteauMECPXSec2016.h"
-#include "Physics/Multinucleon/XSection/MECHadronTensor.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"

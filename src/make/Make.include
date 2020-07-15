@@ -495,7 +495,7 @@ CXXFLAGS      = -W -Wall -fPIC -Wshadow \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
 		$(GOPT_WITH_CXX_USERDEF_FLAGS)
-ifeq ($(strip $(GCC_GE_4_1_0)), YES)
+ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
   CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
 endif
 LDFLAGS       = -g -Wl,--no-as-needed -Wl,--no-undefined
@@ -523,7 +523,7 @@ CXXFLAGS      = -W -Wall -fPIC -Wshadow \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
 		$(GOPT_WITH_CXX_USERDEF_FLAGS)
-ifeq ($(strip $(GCC_GE_4_1_0)), YES)
+ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
   CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
 endif
 LDFLAGS       = -g -Wl,--no-as-needed -Wl,--no-undefined
