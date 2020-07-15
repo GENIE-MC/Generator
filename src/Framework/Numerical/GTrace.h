@@ -35,6 +35,8 @@ namespace genie {
 
         GTrace operator+(GTrace &);
         GTrace operator*(GTrace &);
+        GTrace operator+(double);
+        GTrace operator*(double);
 	
       };
 

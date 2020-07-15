@@ -91,13 +91,22 @@ GTrace COHDeltaCurrent::R( const Interaction * i,
 
   TLorentzVector * probe = i -> InitState().GetProbeP4( kRfLab ) ;
   TLorentzVector   out_neutrino = i -> Kine().FSLeptonP4() ;
+  TLorentzVector   t_photon = i -> Kine().HadSystP4() ;
+
+  double Q = ( (*probe - out_neutrino) - t_photon ).Mag() ;
   double p0 = out_neutrino.E() ;
+
+  delete probe ;
+
+  // TODO Use correct pdg code
+  double ff_p = ff -> ProtonFF(Q, 1);
+  double ff_n = ff -> NeutronFF(Q, 1);
 
   // TODO Add multiplication by Delta propagator
   GTrace tr_p = DirTrace(i, ff) + CrsTrace(i, ff) ;
   GTrace tr_n = DirTrace(i, ff) + CrsTrace(i, ff) ;
 
-  return (tr_p*ff + tr_n*ff) / 2*p0 ;
+  return (tr_p*ff_p + tr_n*ff_n) / 2*p0 ;
 }
 
 //____________________________________________________________________________
@@ -111,7 +120,7 @@ GTrace COHDeltaCurrent::DirTrace( const Interaction * i,
   TLorentzVector   t_photon = i -> Kine().HadSystP4() ; 
 
   TLorentzVector t_q = *probe - out_neutrino ; 
-  double Q2 = t_q.M2() ;
+  double Q2 = t_q.Mag2() ;
 
   delete probe ; 
 
@@ -470,7 +479,7 @@ GTrace COHDeltaCurrent::CrsTrace( const Interaction * i,
   TLorentzVector   t_photon = i -> Kine().HadSystP4() ;
 
   TLorentzVector t_q = *probe - out_neutrino ;
-  double Q2 = t_q.M2() ;
+  double Q2 = t_q.Mag2() ;
 
   delete probe ;
 
