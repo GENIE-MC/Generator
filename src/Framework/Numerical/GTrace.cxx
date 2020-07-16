@@ -14,3 +14,23 @@
 
 #include "Framework/Numerical/GTrace.h"
 
+using namespace genie::utils::math;
+
+//____________________________________________________________________________
+const GTrace &GTrace::operator+=( const GTrace & M ) {
+  for( int i=0; i<M.size(); i++; ) {
+    for( int j=0; j<M.size(); j++; ) {
+      (*this)[i][j] += M[i][j];
+	}
+  }
+  return *this;
+}
+//____________________________________________________________________________
+const GTrace &GTrace::operator*=( std::complex<double> c) {
+  for( int i=0; i<M.size(); i++; ) {
+    for( int j=0; j<M.size(); j++; ) {
+      (*this)[i][j] *= c;
+	}
+  }
+  return *this;
+}

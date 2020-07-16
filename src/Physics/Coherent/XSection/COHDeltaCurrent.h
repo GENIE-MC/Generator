@@ -21,6 +21,7 @@
 
 #include "Physics/Coherent/XSection/COHHadronicCurrentI.h"
 #include "Physics/Coherent/XSection/DeltaTransitionFormFactor.h"
+#include "Physics/Coherent/XSection/DeltaInMediumCorrections.h"
 
 namespace genie {
 
@@ -47,16 +48,15 @@ public:
   void LoadConfig(void);
 
 
-  utils::math::GTrace DirTrace( const Interaction * i,
-		   const COHFormFactorI * ff ) const ;
+  utils::math::GTrace DirTrace( const Interaction * i ) const ;
   // The form factor might not be necessary in this case
 
-  utils::math::GTrace CrsTrace( const Interaction * i,
-		   const COHFormFactorI * ff ) const ;
+  utils::math::GTrace CrsTrace( const Interaction * i ) const ;
 
  private: 
   
   const DeltaTransitionFormFactor * delta_ff ; 
+  const DeltaInMediumCorrections * Delta_med ;
 
 };
 

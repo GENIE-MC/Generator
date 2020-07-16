@@ -93,25 +93,41 @@ GTrace COHDeltaCurrent::R( const Interaction * i,
   TLorentzVector   out_neutrino = i -> Kine().FSLeptonP4() ;
   TLorentzVector   t_photon = i -> Kine().HadSystP4() ;
 
-  double Q = ( (*probe - out_neutrino) - t_photon ).Mag() ;
+  TLorentzVector t = (*probe - out_neutrino) - t_photon ;
+
+  // This is not quite what is used in original code which was
+  // the magnitude of the 3-momentum, here we are using 4-momentum
+  TLorentzVector p(t.Px(), t.Py(), t.Pz(), 0);
+  p.setE( sqrt(constants::kProtonMass2 + p.Mag2()) ) ;
+  double p2 = p.Mag2() ;
   double p0 = out_neutrino.E() ;
 
   delete probe ;
 
-  // TODO Use correct pdg code
-  double ff_p = ff -> ProtonFF(Q, 1);
-  double ff_n = ff -> NeutronFF(Q, 1);
+  int pdg = i -> Target().Pdg() ;
 
-  // TODO Add multiplication by Delta propagator
-  GTrace tr_p = DirTrace(i, ff) + CrsTrace(i, ff) ;
-  GTrace tr_n = DirTrace(i, ff) + CrsTrace(i, ff) ;
+  // Right now the proton and neutron FF are equal but could change
+  double ff_p = ff -> ProtonFF( t.Mag(), pdg );
+  double ff_n = ff -> NeutronFF( t.Mag(), pdg );
 
-  return (tr_p*ff_p + tr_n*ff_n) / 2*p0 ;
+  std::complex<double> D_prop_dir = Delta_med -> AverageDirectPropagator( p2, pdg ) ;
+  std::complex<double> D_prop_cross = Delta_med -> AverageCrossPropagator( p2, pdg ) ;
+
+  GTrace tr = DirTrace(i) ;
+  tr *= D_prop_dir ;
+
+  GTrace tr_cross = CrsTrace(i) ;
+  tr_cross *= D_prop_cross ;
+
+  // Add trace * propagator from direct and crossed diagrams
+  tr += tr_cross ;
+  tr *= (ff_p + ff_n) / (2*p0) ;
+
+  return tr;
 }
 
 //____________________________________________________________________________
-GTrace COHDeltaCurrent::DirTrace( const Interaction * i,
-		 const COHFormFactorI * ff ) const {
+GTrace COHDeltaCurrent::DirTrace( const Interaction * i ) const {
 
   // these calculations expects the interaction to be in the lab frame with the incoming neutrino parallel to z
 
@@ -468,8 +484,7 @@ GTrace COHDeltaCurrent::DirTrace( const Interaction * i,
 }
 
 //____________________________________________________________________________
-GTrace COHDeltaCurrent::CrsTrace( const Interaction * i,
-		 const COHFormFactorI * ff ) const {
+GTrace COHDeltaCurrent::CrsTrace( const Interaction * i ) const {
 
 
   // these calculations expects the interaction to be in the lab frame with the incoming neutrino parallel to z

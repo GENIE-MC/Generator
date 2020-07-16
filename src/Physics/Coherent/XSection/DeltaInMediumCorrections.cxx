@@ -85,6 +85,67 @@ double DeltaInMediumCorrections::Sigma( int nucleus_pdg ) const {
   return sigma ; 
 }
 //____________________________________________________________________________
+double DeltaInMediumCorrections::Gamma_vacuum( double p2 ) const {
+
+  double mn     = constants::kNucleonMass ;
+  double mpi    = constants::kPionMass ;
+
+  // FIXME this is probably not the best place from which to grab the constant f^*
+  double f_star = alvarezruso::ARConstants::DeltaNCoupling ;
+  double p      = sqrt(p2) ;
+  double Gamma  = 0.0 ;
+
+  double qcm = sqrt(p2*p2 + pow(mpi,4) + pow(mn,4) - 2.0*p2*mpi*mpi - 2.0*mpi*mpi*mn*mn - 2.0*p2*mn*mn) / (2.0 * p) ;
+
+  if(p2 > (mn + mpi)*(mn + mpi)) {
+    Gamma = 1.0 / ( 6.0*constants::kPi ) * ( f_star/mpi )*( f_star/mpi )*mn / p*pow(qcm, 3) ;
+  }
+
+  return Gamma;
+}
+//____________________________________________________________________________
+double DeltaInMediumCorrections::I_series( double q ) const {
+
+  double I = 1.0;
+
+  if (q != 0) {
+    if (q > 1.0) I += -2.0 / (5.0 * q * q) + 9.0 / ( 35.0 * pow(q, 4) ) - 2.0 / ( 21.0 * pow(q, 6) ) ;
+    else if (q < 1.0) I += 34.0 / ( 35.0 * q) - 22.0 / (105.0 * q * q * q) - 1.0 ;
+  }
+
+  return I;
+}
+//____________________________________________________________________________
+double DeltaInMediumCorrections::Gamma_tilde( double p2, int nucleus_pdg ) const {
+
+  double mn  = constants::kNucleonMass ;
+  double mpi = constants::kPionMass ;
+  double qcm = sqrt(p2*p2 + pow(mpi,4) + pow(mn,4) - 2.0*p2*mpi*mpi - 2.0*mpi*mpi*mn*mn - 2.0*p2*mn*mn) / ( 2.0 * sqrt(p2) ) ;
+
+  // Reconstruct the avg Fermi momentum from avg nucleus/nucleon density for consistency.
+  double kf_avg = pow( ( 3*constants::kPi2*AverageDensity( nucleus_pdg ) / 2 ), 1./3.) ;
+  double q_tilde = qcm / kf_avg ;
+
+  return Gamma_vacuum(p2) * I_series(q_tilde);
+}
+//____________________________________________________________________________
+std::complex<double> DeltaInMediumCorrections::AverageDirectPropagator( double p2, int nucleus_pdg ) const {
+
+  double mDelta = utils::res::Mass( Resonance() ) ;
+  double mDelta2 = pow( mDelta, 2 ) ;
+
+  // Simplified form obtained since Sigma.real = 0
+  return 1.0 / ( p2 - mDelta2 + std::complex<double>(0,1)*mDelta*( Gamma_tilde(p2, nucleus_pdg) - 2*Sigma(nucleus_pdg)) ) ;
+}
+//____________________________________________________________________________
+std::complex<double> DeltaInMediumCorrections::AverageCrossPropagator( double p2, int nucleus_pdg ) const {
+
+  double mDelta = utils::res::Mass( Resonance() ) ;
+  double mDelta2 = pow( mDelta, 2 ) ;
+
+  return 1.0 / ( p2 - mDelta2 + std::complex<double>(0,1) * mDelta * Gamma_vacuum(p2) ) ;
+}
+//____________________________________________________________________________
 void DeltaInMediumCorrections::Configure(const Registry & config)
 {
   Algorithm::Configure(config);

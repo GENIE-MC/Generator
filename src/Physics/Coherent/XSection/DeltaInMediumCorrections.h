@@ -23,8 +23,9 @@
 #define _DELTA_IN_MEDIUM_CORRECTIONS_H_ 
 
 #include "Framework/Algorithm/Algorithm.h"
-
+#include "Framework/ParticleData/BaryonResonance.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
+#include "Physics/Coherent/XSection/ARConstants.h"
 
 
 namespace genie {
@@ -36,6 +37,8 @@ public:
   DeltaInMediumCorrections(string config);
   virtual ~DeltaInMediumCorrections();
 
+  virtual Resonance_t Resonance() const { return kP33_1232 ; }
+
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
   void Configure (const Registry & config) override ;
@@ -46,16 +49,16 @@ public:
     ** Comments about Fermi Momentum and Density ** 
 
     The corrections to the delta are implemented in the NC COH gamma model as average corrections.
-    There are no integrals perforemed at run time. 
+    There are no integrals performed at run time.
     
-    Hence, the density is not space dependent and it's an average on the nuclus. 
+    Hence, the density is not space dependent and it's an average on the nucleus.
     It is also the average of the two nucleon densities, that is why there are two methods.
 
     The model is developed in the context of a Local Fermi Gas model, so tempering with 
-    the density means tempering with the density means tempering with the fermi momentum.
-    Some degrees of consistency need to be granted.
+    the density means tempering with the fermi momentum. Some degrees of consistency need to be granted.
 
-    Because in these model the nuclear corrections are applied as averages, the FermiMomentum cannot be evaluated as a function of the position, simply because that is not a degree of freedome. 
+    Because in these model the nuclear corrections are applied as averages, the FermiMomentum cannot be evaluated
+    as a function of the position, simply because that is not a degree of freedom.
     So the consistency is achieved in this way:
     1) the fermi momenta for proton and neutrons are taken from the GENIE tables (as if it was a Relativistic Fermi Gas
     2) from the fermi Momenta, we evaluate the average densities. The nucleus density is the average of the two
@@ -70,10 +73,13 @@ public:
   double AverageDensity( int pdg ) const ;
   double AverageDensity( int nucleus_pdg, int nucleon_pdg ) const ;
 
-  double Sigma( int pdg ) const  ;
+  double Sigma( int pdg ) const ;
+  double Gamma_tilde( double p2, int nucleus_pdg ) const ;
+  double Gamma_vacuum( double p2 ) const ;
+  double I_series( double q ) const ;
   
-  // AverageDirectPropagator() const ;
-  // AverageCrossPropagator() const ;
+  std::complex<double> AverageDirectPropagator( double p2, int nucleus_pdg ) const ;
+  std::complex<double> AverageCrossPropagator( double p2, int nucleus_pdg ) const ;
 
 private:
 
