@@ -12,7 +12,7 @@
 //____________________________________________________________________________
 
 #include <cmath>
-
+#include <complex>
 #include <TMath.h>
 
 #include "Physics/Coherent/XSection/DeltaInMediumCorrections.h"
@@ -90,15 +90,13 @@ double DeltaInMediumCorrections::Gamma_vacuum( double p2 ) const {
   double mn     = constants::kNucleonMass ;
   double mpi    = constants::kPionMass ;
 
-  // FIXME this is probably not the best place from which to grab the constant f^*
-  double f_star = alvarezruso::ARConstants::DeltaNCoupling ;
   double p      = sqrt(p2) ;
   double Gamma  = 0.0 ;
 
   double qcm = sqrt(p2*p2 + pow(mpi,4) + pow(mn,4) - 2.0*p2*mpi*mpi - 2.0*mpi*mpi*mn*mn - 2.0*p2*mn*mn) / (2.0 * p) ;
 
   if(p2 > (mn + mpi)*(mn + mpi)) {
-    Gamma = 1.0 / ( 6.0*constants::kPi ) * ( f_star/mpi )*( f_star/mpi )*mn / p*pow(qcm, 3) ;
+    Gamma = 1.0 / ( 6.0*constants::kPi ) * ( fDeltaNCoupling/mpi )*( fDeltaNCoupling/mpi )*mn / p*pow(qcm, 3) ;
   }
 
   return Gamma;

@@ -18,8 +18,8 @@ using namespace genie::utils::math;
 
 //____________________________________________________________________________
 const GTrace &GTrace::operator+=( const GTrace & M ) {
-  for( int i=0; i<M.size(); i++; ) {
-    for( int j=0; j<M.size(); j++; ) {
+  for( unsigned int i=0; i<M.size(); i++ ) {
+    for( unsigned int j=0; j<M.size(); j++ ) {
       (*this)[i][j] += M[i][j];
 	}
   }
@@ -27,8 +27,8 @@ const GTrace &GTrace::operator+=( const GTrace & M ) {
 }
 //____________________________________________________________________________
 const GTrace &GTrace::operator*=( std::complex<double> c) {
-  for( int i=0; i<M.size(); i++; ) {
-    for( int j=0; j<M.size(); j++; ) {
+  for( unsigned int i=0; i<M.size(); i++ ) {
+    for( unsigned int j=0; j<M.size(); j++ ) {
       (*this)[i][j] *= c;
 	}
   }

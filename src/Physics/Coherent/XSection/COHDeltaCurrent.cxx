@@ -98,13 +98,15 @@ GTrace COHDeltaCurrent::R( const Interaction * i,
   // This is not quite what is used in original code which was
   // the magnitude of the 3-momentum, here we are using 4-momentum
   TLorentzVector p(t.Px(), t.Py(), t.Pz(), 0);
-  p.setE( sqrt(constants::kProtonMass2 + p.Mag2()) ) ;
+  p.SetE( sqrt(constants::kProtonMass2 + p.Mag2()) ) ;
   double p2 = p.Mag2() ;
   double p0 = out_neutrino.E() ;
 
   delete probe ;
 
-  int pdg = i -> Target().Pdg() ;
+  // FIXME what is the correct pdg?
+  // int pdg = i -> Target().Pdg() ;
+  int pdg = i -> RecoilNucleonPdg() ;
 
   // Right now the proton and neutron FF are equal but could change
   double ff_p = ff -> ProtonFF( t.Mag(), pdg );

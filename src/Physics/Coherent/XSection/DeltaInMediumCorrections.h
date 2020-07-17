@@ -24,6 +24,7 @@
 
 #include "Framework/Algorithm/Algorithm.h"
 #include "Framework/ParticleData/BaryonResonance.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Physics/Coherent/XSection/ARConstants.h"
 
@@ -89,6 +90,8 @@ private:
   // this object is retrieved with a Pool that keeps ownerships of the tables
   // No need to delete this object 
 
+  // FIXME should be config parameter
+  double fDeltaNCoupling = 2.14 ;
   double fDeltaV0 ; 
   double fRho0 ;  // this is the nuclear matter density. 
                   // It should be in natural units but it's read from the xml in fm^-3 as that is how it's usually reported
