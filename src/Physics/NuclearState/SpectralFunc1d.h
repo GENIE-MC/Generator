@@ -55,8 +55,11 @@ public:
   void Configure (const Registry & config);
   void Configure (string param_set);
 
-private:
+ protected:
   void LoadConfig (void);
+
+private:
+  
   void CleanUp    (void);
   
   // Spectral function data
