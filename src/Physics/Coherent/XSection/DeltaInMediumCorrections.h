@@ -80,7 +80,7 @@ public:
   double I_series( double q ) const ;
   
   std::complex<double> AverageDirectPropagator( double p2, int nucleus_pdg ) const ;
-  std::complex<double> AverageCrossPropagator( double p2, int nucleus_pdg ) const ;
+  std::complex<double> AverageCrossPropagator( double p2 ) const ;
 
 private:
 

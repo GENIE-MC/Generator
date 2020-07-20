@@ -104,28 +104,28 @@ GTrace COHDeltaCurrent::R( const Interaction * i,
 
   delete probe ;
 
-  // FIXME what is the correct pdg?
+  // FIXME is this correct pdg?
   // int pdg = i -> Target().Pdg() ;
-  int pdg = i -> RecoilNucleonPdg() ;
+  int pdg = i -> fInitialState -> TgtPdg();
 
   // Right now the proton and neutron FF are equal but could change
   double ff_p = ff -> ProtonFF( t.Mag(), pdg );
   double ff_n = ff -> NeutronFF( t.Mag(), pdg );
 
   std::complex<double> D_prop_dir = Delta_med -> AverageDirectPropagator( p2, pdg ) ;
-  std::complex<double> D_prop_cross = Delta_med -> AverageCrossPropagator( p2, pdg ) ;
+  std::complex<double> D_prop_cross = Delta_med -> AverageCrossPropagator( p2 ) ;
 
-  GTrace tr = DirTrace(i) ;
-  tr *= D_prop_dir ;
+  GTrace R = DirTrace(i) ;
+  R *= D_prop_dir ;
 
   GTrace tr_cross = CrsTrace(i) ;
-  tr_cross *= D_prop_cross ;
+  R_cross *= D_prop_cross ;
 
   // Add trace * propagator from direct and crossed diagrams
-  tr += tr_cross ;
-  tr *= (ff_p + ff_n) / (2*p0) ;
+  R += tr_cross ;
+  R *= ( ff_p + ff_n ) / (2*p0) ;
 
-  return tr;
+  return R;
 }
 
 //____________________________________________________________________________
