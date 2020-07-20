@@ -14,6 +14,7 @@
 
 #include <TMath.h>
 
+#include "Physics/Coherent/XSection/AlvarezRusoSalaCOHGammaPXSec.h"
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Framework/Conventions/GBuild.h"
@@ -37,16 +38,22 @@ AlvarezRusoSalaCOHGammaPXSec::AlvarezRusoSalaCOHGammaPXSec() :
   XSecAlgorithmI("genie::AlvarezRusoSalaCOHGammaPXSec"),
   fFormFactors( nullptr ),
   fXSecIntegrator( nullptr )
-  { ; }
+  {
+
+  }
 //____________________________________________________________________________
 AlvarezRusoSalaCOHGammaPXSec::AlvarezRusoSalaCOHGammaPXSec(string config) :
   XSecAlgorithmI("genie::AlvarezRusoSalaCOHGammaPXSec", config),
   fFormFactors( nullptr ),
   fXSecIntegrator( nullptr )
-  { ; }
+  {
+
+  }
 //____________________________________________________________________________
 AlvarezRusoSalaCOHGammaPXSec::~AlvarezRusoSalaCOHGammaPXSec()
-{ ; }
+{
+
+}
 //____________________________________________________________________________
 double AlvarezRusoSalaCOHGammaPXSec::XSec( const Interaction * interaction,
                                            KinePhaseSpace_t kps) const {
@@ -65,7 +72,7 @@ double AlvarezRusoSalaCOHGammaPXSec::XSec( const Interaction * interaction,
   double E_lep = p4_lep.E();
 
   // get the traces for each currents and sum them
-
+  double xsec = 0.0;
 
 
   return (xsec);

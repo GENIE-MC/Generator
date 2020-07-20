@@ -89,7 +89,9 @@ void COHDeltaCurrent::LoadConfig(void)
 GTrace COHDeltaCurrent::R( const Interaction * i,
 	  const COHFormFactorI * ff ) const {
 
-  TLorentzVector * probe = i -> InitState().GetProbeP4( kRfLab ) ;
+  const InitialState & init_state = i -> InitState();
+
+  TLorentzVector * probe = init_state.GetProbeP4( kRfLab ) ;
   TLorentzVector   out_neutrino = i -> Kine().FSLeptonP4() ;
   TLorentzVector   t_photon = i -> Kine().HadSystP4() ;
 
@@ -104,22 +106,20 @@ GTrace COHDeltaCurrent::R( const Interaction * i,
 
   delete probe ;
 
-  // FIXME is this correct pdg?
-  // int pdg = i -> Target().Pdg() ;
-  int pdg = i -> fInitialState -> TgtPdg();
+  int pdg = init_state.Tgt().Pdg() ;
 
   // Right now the proton and neutron FF are equal but could change
   double ff_p = ff -> ProtonFF( t.Mag(), pdg );
   double ff_n = ff -> NeutronFF( t.Mag(), pdg );
 
-  std::complex<double> D_prop_dir = Delta_med -> AverageDirectPropagator( p2, pdg ) ;
+  std::complex<double> D_prop_dir   = Delta_med -> AverageDirectPropagator( p2, pdg ) ;
   std::complex<double> D_prop_cross = Delta_med -> AverageCrossPropagator( p2 ) ;
 
   GTrace R = DirTrace(i) ;
   R *= D_prop_dir ;
 
   GTrace tr_cross = CrsTrace(i) ;
-  R_cross *= D_prop_cross ;
+  tr_cross *= D_prop_cross ;
 
   // Add trace * propagator from direct and crossed diagrams
   R += tr_cross ;
