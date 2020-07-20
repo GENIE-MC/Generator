@@ -12,6 +12,8 @@
 #pragma link C++ class genie::alvarezruso::ARSampledNucleus;
 #pragma link C++ class genie::AlvarezRusoCOHPiPXSec;
 
+#pragma link C++ class genie::AlvarezRusoSalaCOHGammaPXSec ;
+
 #pragma link C++ class genie::BergerSehgalCOHPiPXSec2015;
 #pragma link C++ class genie::BergerSehgalFMCOHPiPXSec2015;
 
