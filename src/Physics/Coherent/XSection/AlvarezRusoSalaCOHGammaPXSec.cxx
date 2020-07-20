@@ -131,13 +131,13 @@ void AlvarezRusoSalaCOHGammaPXSec::LoadConfig(void)
 
   for ( unsigned int i = 0 ; i < current_keys.size() ; ++i ) {
 
-    const Algorithm * algo = SubAlg( keys[i] ) ;
+    const Algorithm * algo = SubAlg( current_keys[i] ) ;
 
     const COHHadronicCurrentI * current = dynamic_cast< const COHHadronicCurrentI * >( algo ) ;
 
     if ( ! current ) {
       good_configuration = false ;
-      LOG("AlvarezRusoSalaCOHGammaPXSec", pERROR ) << "SubAlgo with key " << keys[i] << " not retrieved" ;
+      LOG("AlvarezRusoSalaCOHGammaPXSec", pERROR ) << "SubAlgo with key " << current_keys[i] << " not retrieved" ;
     }
     else {
       fCurrents.push_back( current ) ;

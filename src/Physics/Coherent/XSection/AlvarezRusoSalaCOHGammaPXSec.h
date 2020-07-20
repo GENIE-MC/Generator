@@ -21,6 +21,7 @@
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
+#include "Physics/Coherent/XSection/COHHadronicCurrentI.h"
 #include "Physics/Coherent/XSection/COHFormFactorI.h"
 
 namespace genie {
@@ -49,8 +50,10 @@ private:
 
   //-- private data members loaded from config Registry or set to defaults
 
-  std::vector<const COHHadronicCurrentI *> fCurrents ;
-  const COHFormFactorI * fFormFactors ;
+  std::vector< const COHHadronicCurrentI* > fCurrents ;
+  std::vector< int > fCurrentss ;
+  const COHHadronicCurrentI * fX ;
+  const COHFormFactorI* fFormFactors ;
 
   const XSecIntegratorI * fXSecIntegrator;
 
