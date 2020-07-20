@@ -26,6 +26,7 @@
 #define _DEVRIES_FORM_FACTOR_H_
 
 #include "Framework/Algorithm/Algorithm.h"
+#include "Physics/Coherent/XSection/FourierBesselFFCalculator.h"
 
 namespace genie {
 
@@ -37,24 +38,19 @@ public:
   virtual ~DeVriesFormFactor();
 
   int NucleusPDG() const { return fPDG ; }
-  double FormFactor( double Q ) const ;
-  // The Q has to be in GeV
-  // The returned FF is in fm^3
+  const FourierBesselFFCalculator & Calculator() const { return fCalculator; }
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
 
-
 private:
 
   void LoadConfig(void);
 
-  std::vector<double> fFBCs ;  // Fourier-Bessel Coeffictients
-  double fRadius ;   // this is the radius of the nucleus in GeV^-1
+  FourierBesselFFCalculator fCalculator ;
   int fPDG ;
-
 
 };
 
