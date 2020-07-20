@@ -19,7 +19,7 @@
 //____________________________________________________________________________
 
 #ifndef _COH_FORM_FACTOR_MAP_H_
-#define _COH_FORM_FACTOR_MAP_H_ 
+#define _COH_FORM_FACTOR_MAP_H_
 
 #include <map>
 
@@ -38,26 +38,32 @@ public:
 
   // methods to be implemented from COHFormFactorI
   virtual double ProtonFF ( double Q, int pdg ) const  ;
-  
+
   virtual double NeutronFF( double Q, int pdg ) const {
     return ProtonFF( Q, pdg ) ;
   }
 
   virtual bool HasNucleus( int pdg ) const ;
 
-  // methods to implemented from Algorithm 
+  // methods to implemented from Algorithm
   void Configure (const Registry & config);
   void Configure (string param_set);
 
 
- protected: 
+ protected:
 
-  void LoadConfig(void);
-  
+  COHFormFactorMap( string name, string config );
+
+  virtual void LoadConfig(void);
+
+  std::map<int, const genie::DeVriesFormFactor *> Map() const { return fNuclearFFs; }
+
+private:
+
   std::map<int, const genie::DeVriesFormFactor *> fNuclearFFs ;
   // the map key is given by the pdg
 
 };
 
 }       // genie namespace
-#endif  //  #ifndef _COH_FORM_FACTOR_MAP_H_ 
+#endif  //  #ifndef _COH_FORM_FACTOR_MAP_H_

@@ -23,6 +23,7 @@
 
 #pragma link C++ class genie::DeVriesFormFactor;
 #pragma link C++ class genie::COHFormFactorMap;
+#pragma link C++ class genie::COHFormFactorInterpolation;
 
 #pragma link C++ class genie::COHXSec;
 #pragma link C++ class genie::COHXSecAR;
