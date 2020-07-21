@@ -227,6 +227,14 @@ double EmpiricalMECPXSec2015::XSec(
 //____________________________________________________________________________
 double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
 {
+  // Normally the empirical MEC splines are computed as a fraction of the CCQE
+  // ones. In cases where we want to integrate the differential cross section
+  // directly (e.g., for reweighting via the XSecShape_CCMEC dial), do that
+  // instead.
+  if ( fIntegrateForReweighting ) {
+    return fXSecIntegrator->Integrate( this, interaction );
+  }
+
 // Calculate the CCMEC cross section as a fraction of the CCQE cross section
 // for the given nuclear target at the given energy.
 // Alternative strategy is to calculate the MEC cross section as the difference
@@ -423,5 +431,15 @@ void EmpiricalMECPXSec2015::LoadConfig(void)
   fXSecAlgEMQE =
      dynamic_cast<const XSecAlgorithmI *> ( this -> SubAlg( key_head + "QEL-EM" ) ) ;
   assert(fXSecAlgEMQE);
+
+  // Get the "fast" configuration of MECXSec. This will be used when integrating
+  // the total cross section for reweighting purposes.
+  genie::AlgFactory* algf = genie::AlgFactory::Instance();
+  fXSecIntegrator = dynamic_cast<const XSecIntegratorI*>( algf->AdoptAlgorithm(
+    "genie::MECXSec", "Fast") );
+  assert( fXSecIntegrator );
+
+  fIntegrateForReweighting = false;
+  GetParamDef( "IntegrateForReweighting", fIntegrateForReweighting, false );
 }
 //____________________________________________________________________________
