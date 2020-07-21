@@ -51,11 +51,11 @@ public:
   virtual const genie::FourierBesselFFCalculator & InterpolateProtons( int pdg ) const ;
   virtual const genie::FourierBesselFFCalculator & InterpolateNeutrons( int pdg ) const ;
 
-  double RadiusInterpolation( int pdg, const pair<int, int> & neighbours ) const ;
-
 private:
 
   pair<int, int> NearbyNuclei( pdg ) const ;
+  double RadiusInterpolation( int pdg, const pair<int, int> & neighbours ) const ;
+
   genie::FourierBesselFFCalculator LinearInterpolation( int pdg,
                                                               const std::function<int(int)> & )
 

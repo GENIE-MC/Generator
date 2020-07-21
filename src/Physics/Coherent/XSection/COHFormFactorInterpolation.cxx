@@ -89,19 +89,36 @@ const genie::FourierBesselFFCalculator & InterpolateNeutrons( int pdg ) const {
 }
 //____________________________________________________________________________
 genie::FourierBesselFFCalculator LinearInterpolation( int pdg,
-                                                      const std::function<int(int)> & ) {
+                                                      const std::function<int(int)> & var ) {
 
     std::pair<int, int> neighbours = NearbyNuclei( pdg ) ;
-    double r = RadiusInterpolation(pdg neighbours) ;
+    double r = RadiusInterpolation(pdg, neighbours) ;
 
-    unsigned int n_coeffs = min( Map()[neighbours.first] -> Coefficients().size(),
-                                Map()[neighbours.second] -> Coefficients().size() ) ;
+    std::vector<double> first_v( Map()[neighbours.first] -> Coefficients() ) ;
+    std::vector<double> second_v( Map()[neighbours.second] -> Coefficients() ) ;
+
+    unsigned int n_coeffs = max( first_v.size(), second_v.size() ) ;
+
+    // vector are extended with 0s if necessary
+    first_v.resise( n_coeffs, 0. );
+    second_v.resise( n_coeffs, 0. );
 
     vector<double> coeffs( 0., n_coeffs ) ;
     for ( unsinged int i = 0; i < n_coeffs; ++i ) {
+      int var_first = var( neighbours.first) ;
+      int var_second = var( neighbours.second ) ;
 
-      coeffs[i] =
+      if ( var_first == var_second ) {
+        // in this case liner interpolation fails, we take the average
+        coeffs[i] = 0.5 *( first_v[i] + second_v[i] );
+      }
+      else {
+        int new_var = var(pdg) ;
+        coeffs[i] = first_v[i] + (new_var - var_first)*(second_v[i] - first_v[i])/(var_second-var_first) ;
+      }
     }
+
+    return FourierBesselFFCalculator( coeffs, r ) ;
 }
 
 //____________________________________________________________________________
