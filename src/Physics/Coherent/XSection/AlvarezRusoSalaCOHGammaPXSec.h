@@ -37,6 +37,11 @@ public:
   double XSec            ( const Interaction * i, KinePhaseSpace_t k) const;
   double Integral        ( const Interaction * i) const;
   bool   ValidProcess    ( const Interaction * i) const;
+  utils::math::GTrace HadronicCurrent ( const Interaction * interaction ) const;
+  double NeutrinoHadronContraction ( const Interaction * i, const utils::math::GTrace & R ) const;
+  double AntiNeutrinoHadronContraction ( const Interaction * i, const utils::math::GTrace & R ) const;
+  std::complex<double> H( const utils::math::GTrace & R,  unsigned short i, unsigned short j,
+                                          unsigned short k, unsigned short l ) const;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
@@ -50,9 +55,8 @@ private:
 
   //-- private data members loaded from config Registry or set to defaults
 
-  std::vector< const COHHadronicCurrentI* > fCurrents ;
-  std::vector< int > fCurrentss ;
-  const COHHadronicCurrentI * fX ;
+  std::vector< const COHHadronicCurrentI * > fCurrents ;
+
   const COHFormFactorI* fFormFactors ;
 
   const XSecIntegratorI * fXSecIntegrator;
