@@ -57,12 +57,14 @@ private:
   double RadiusInterpolation( int pdg, const pair<int, int> & neighbours ) const ;
 
   genie::FourierBesselFFCalculator LinearInterpolation( int pdg,
-                                                              const std::function<int(int)> & )
+                                                        const std::function<int(int)> & )
 
   mutable std::map<int, genie::FourierBesselFFCalculator> fInterProtons ;
   mutable std::map<int, genie::FourierBesselFFCalculator> fInterNeutrons ;
   // the map key is given by the pdg
 
+  bool fAllowExtrapolation ;
+  
 };
 
 }       // genie namespace
