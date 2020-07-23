@@ -24,13 +24,15 @@ using namespace genie;
 
 
 COHFormFactorInterpolation::COHFormFactorInterpolation() :
-  COHFormFactorMap("genie::COHFormFactorInterpolation")
+  COHFormFactorMap("genie::COHFormFactorInterpolation"),
+  fAllowExtrapolation(false)
 {
 
 }
 //____________________________________________________________________________
 COHFormFactorInterpolation::COHFormFactorInterpolation(string config) :
-  COHFormFactorMap("genie::COHFormFactorInterpolation", config)
+  COHFormFactorMap("genie::COHFormFactorInterpolation", config),
+  fAllowExtrapolation(false)
 {
 
 }
@@ -199,6 +201,8 @@ void COHFormFactorInterpolation::LoadConfig(void)
     LOG("COHFormFactorInterpolation", pERROR ) << "Not enough FormFactors inside the Map" ;
     good_configuration = false ;
   }
+
+  GetParamDef( "AllowExtrapolation", fAllowExtrapolation, false ) ;
 
   if ( ! good_configuration ) {
     LOG("COHFormFactorInterpolation", pFATAL ) << "Configuration not good, exiting" ;
