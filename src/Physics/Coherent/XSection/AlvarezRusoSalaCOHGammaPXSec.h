@@ -12,6 +12,8 @@
 \author   Marco Roda
           University of Liverpool
 
+          Jon Sensenig
+
 \created  July, 2020
 
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
@@ -28,6 +30,7 @@
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
+#include "Physics/Coherent/XSection/COHHadronicCurrentI.h"
 #include "Physics/Coherent/XSection/COHFormFactorI.h"
 
 namespace genie {
@@ -44,6 +47,12 @@ public:
   double Integral        ( const Interaction * i) const;
   bool   ValidProcess    ( const Interaction * i) const;
 
+  utils::math::GTrace HadronicCurrent ( const Interaction * interaction ) const;
+  double NeutrinoHadronContraction ( const Interaction * i, const utils::math::GTrace & R ) const;
+  double AntiNeutrinoHadronContraction ( const Interaction * i, const utils::math::GTrace & R ) const;
+  std::complex<double> H( const utils::math::GTrace & R,  unsigned short i, unsigned short j,
+                                          unsigned short k, unsigned short l ) const;
+
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
   void Configure(const Registry & config);
@@ -53,8 +62,6 @@ protected:
   void LoadConfig(void);
 
 private:
-
-  //-- private data members loaded from config Registry or set to defaults
 
   std::vector<const COHHadronicCurrentI *> fCurrents ;
   const COHFormFactorI * fFormFactors ;

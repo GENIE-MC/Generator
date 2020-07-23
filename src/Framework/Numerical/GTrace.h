@@ -32,6 +32,13 @@ namespace genie {
       class GTrace : public ComplexMatrix<4> {
 
       public:
+
+        const GTrace &operator+=( const GTrace & ) ;
+        const GTrace &operator*=( std::complex<double> ) ;
+        const GTrace &operator*=( double c ) { return (*this) *= std::complex<double>(c, 0) ; } ;
+        //GTrace operator*(GTrace &);
+        //GTrace operator+(double);
+        //GTrace operator*(double);
 	
       };
 

@@ -21,7 +21,9 @@
 
 #include "Framework/Algorithm/Algorithm.h"
 #include "Framework/ParticleData/BaryonResonance.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Interaction/Interaction.h" 
+#include "Framework/Conventions/Constants.h"
 #include "Framework/Numerical/GTrace.h"
 
 #include "Physics/Coherent/XSection/COHFormFactorI.h"
@@ -36,7 +38,7 @@ public:
 
   virtual ~COHHadronicCurrentI() { ; } 
 
-  virtual GTrace R( const Interaction * i, const COHFormFactorI * ff ) const = 0 ;
+  virtual utils::math::GTrace R( const Interaction * i, const COHFormFactorI * ff ) const = 0 ;
 
   virtual Resonance_t Resonance() const { return kNoResonance ; } 
 
