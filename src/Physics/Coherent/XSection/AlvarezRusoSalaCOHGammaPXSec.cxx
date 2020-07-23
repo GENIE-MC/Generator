@@ -73,7 +73,7 @@ double AlvarezRusoSalaCOHGammaPXSec::XSec( const Interaction * interaction ) con
   int nu = init_state.ProbePdg();
   double contraction = 0.;
 
-  // if not a (anti)neutrino x-section is 0
+  // if not a (anti)neutrino, x-section is 0
   if (pdg::IsNeutrino(nu)) {
 	contraction = NeutrinoHadronContraction(interaction, R);
   }
@@ -85,7 +85,7 @@ double AlvarezRusoSalaCOHGammaPXSec::XSec( const Interaction * interaction ) con
 	return 0.;
   }
 
-  double pre_factor = 4.*constants::kPi*constants::kAem * constants::kGF2 / 16*pow(2.*constants::kPi, 5);
+  double pre_factor = ( 4.*constants::kPi*constants::kAem * constants::kGF2 ) / ( 16*pow(2.*constants::kPi, 5) );
 
   return pre_factor*contraction*( E_gamma*(E_nu - E_gamma) / E_nu );
 }
@@ -146,28 +146,30 @@ double AlvarezRusoSalaCOHGammaPXSec::AntiNeutrinoHadronContraction( const Intera
 	double k0 = probe->E(); // incident neutrino E
 	delete probe;
 
+	utils::math::TraceContraction H(R, R);
 
-	std::complex<double> lh = -8*k0*((2*k0 - q[0] - q[3])*H(R,0,0,0,0) + q[1]*H(R,0,0,0,1) - std::complex<double>(0,1)*q[1]*H(R,0,0,0,2) +
-	                       (-2*k0 + q[0] + q[3])*H(R,0,0,0,3) + q[1]*H(R,0,1,0,0) + (-q[0] + q[3])*H(R,0,1,0,1) +
-	                       std::complex<double>(0,1)*(q[0] - q[3])*H(R,0,1,0,2) - q[1]*H(R,0,1,0,3) + std::complex<double>(0,1)*q[1]*H(R,0,2,0,0) -
-	                       std::complex<double>(0,1)*(q[0] - q[3])*H(R,0,2,0,1) + (-q[0] + q[3])*H(R,0,2,0,2) - std::complex<double>(0,1)*q[1]*H(R,0,2,0,3) +
-	                       (-2*k0 + q[0] + q[3])*H(R,0,3,0,0) - q[1]*H(R,0,3,0,1) + std::complex<double>(0,1)*q[1]*H(R,0,3,0,2) +
-	                       (2*k0 - q[0] - q[3])*H(R,0,3,0,3) + (-2*k0 + q[0] + q[3])*H(R,1,0,1,0) - q[1]*H(R,1,0,1,1) +
-	                       std::complex<double>(0,1)*q[1]*H(R,1,0,1,2) + (2*k0 - q[0] - q[3])*H(R,1,0,1,3) - q[1]*H(R,1,1,1,0) +
-	                       (q[0] - q[3])*H(R,1,1,1,1) - std::complex<double>(0,1)*(q[0] - q[3])*H(R,1,1,1,2) + q[1]*H(R,1,1,1,3) -
-	                       std::complex<double>(0,1)*q[1]*H(R,1,2,1,0) + std::complex<double>(0,1)*(q[0] - q[3])*H(R,1,2,1,1) + (q[0] - q[3])*H(R,1,2,1,2) +
-	                       std::complex<double>(0,1)*q[1]*H(R,1,2,1,3) + (2*k0 - q[0] - q[3])*H(R,1,3,1,0) + q[1]*H(R,1,3,1,1) -
-	                       std::complex<double>(0,1)*q[1]*H(R,1,3,1,2) + (-2*k0 + q[0] + q[3])*H(R,1,3,1,3) + (-2*k0 + q[0] + q[3])*H(R,2,0,2,0) -
-	                       q[1]*H(R,2,0,2,1) + std::complex<double>(0,1)*q[1]*H(R,2,0,2,2) + (2*k0 - q[0] - q[3])*H(R,2,0,2,3) - q[1]*H(R,2,1,2,0) +
-	                       (q[0] - q[3])*H(R,2,1,2,1) - std::complex<double>(0,1)*(q[0] - q[3])*H(R,2,1,2,2) + q[1]*H(R,2,1,2,3) -
-	                       std::complex<double>(0,1)*q[1]*H(R,2,2,2,0) + std::complex<double>(0,1)*(q[0] - q[3])*H(R,2,2,2,1) + (q[0] - q[3])*H(R,2,2,2,2) +
-	                       std::complex<double>(0,1)*q[1]*H(R,2,2,2,3) + (2*k0 - q[0] - q[3])*H(R,2,3,2,0) + q[1]*H(R,2,3,2,1) -
-	                       std::complex<double>(0,1)*q[1]*H(R,2,3,2,2) + (-2*k0 + q[0] + q[3])*H(R,2,3,2,3) + (-2*k0 + q[0] + q[3])*H(R,3,0,3,0) -
-	                       q[1]*H(R,3,0,3,1) + std::complex<double>(0,1)*q[1]*H(R,3,0,3,2) + (2*k0 - q[0] - q[3])*H(R,3,0,3,3) - q[1]*H(R,3,1,3,0) +
-	                       (q[0] - q[3])*H(R,3,1,3,1) - std::complex<double>(0,1)*(q[0] - q[3])*H(R,3,1,3,2) + q[1]*H(R,3,1,3,3) -
-	                       std::complex<double>(0,1)*q[1]*H(R,3,2,3,0) + std::complex<double>(0,1)*(q[0] - q[3])*H(R,3,2,3,1) + (q[0] - q[3])*H(R,3,2,3,2) +
-	                       std::complex<double>(0,1)*q[1]*H(R,3,2,3,3) + (2*k0 - q[0] - q[3])*H(R,3,3,3,0) + q[1]*H(R,3,3,3,1) -
-	                       std::complex<double>(0,1)*q[1]*H(R,3,3,3,2) + (-2*k0 + q[0] + q[3])*H(R,3,3,3,3));
+
+	std::complex<double> lh = -8*k0*((2*k0 - q[0] - q[3])*H(0,0,0,0) + q[1]*H(0,0,0,1) - std::complex<double>(0,1)*q[1]*H(0,0,0,2) +
+	                       (-2*k0 + q[0] + q[3])*H(0,0,0,3) + q[1]*H(0,1,0,0) + (-q[0] + q[3])*H(0,1,0,1) +
+	                       std::complex<double>(0,1)*(q[0] - q[3])*H(0,1,0,2) - q[1]*H(0,1,0,3) + std::complex<double>(0,1)*q[1]*H(0,2,0,0) -
+	                       std::complex<double>(0,1)*(q[0] - q[3])*H(0,2,0,1) + (-q[0] + q[3])*H(0,2,0,2) - std::complex<double>(0,1)*q[1]*H(0,2,0,3) +
+	                       (-2*k0 + q[0] + q[3])*H(0,3,0,0) - q[1]*H(0,3,0,1) + std::complex<double>(0,1)*q[1]*H(0,3,0,2) +
+	                       (2*k0 - q[0] - q[3])*H(0,3,0,3) + (-2*k0 + q[0] + q[3])*H(1,0,1,0) - q[1]*H(1,0,1,1) +
+	                       std::complex<double>(0,1)*q[1]*H(1,0,1,2) + (2*k0 - q[0] - q[3])*H(1,0,1,3) - q[1]*H(1,1,1,0) +
+	                       (q[0] - q[3])*H(1,1,1,1) - std::complex<double>(0,1)*(q[0] - q[3])*H(1,1,1,2) + q[1]*H(1,1,1,3) -
+	                       std::complex<double>(0,1)*q[1]*H(1,2,1,0) + std::complex<double>(0,1)*(q[0] - q[3])*H(1,2,1,1) + (q[0] - q[3])*H(1,2,1,2) +
+	                       std::complex<double>(0,1)*q[1]*H(1,2,1,3) + (2*k0 - q[0] - q[3])*H(1,3,1,0) + q[1]*H(1,3,1,1) -
+	                       std::complex<double>(0,1)*q[1]*H(1,3,1,2) + (-2*k0 + q[0] + q[3])*H(1,3,1,3) + (-2*k0 + q[0] + q[3])*H(2,0,2,0) -
+	                       q[1]*H(2,0,2,1) + std::complex<double>(0,1)*q[1]*H(2,0,2,2) + (2*k0 - q[0] - q[3])*H(2,0,2,3) - q[1]*H(2,1,2,0) +
+	                       (q[0] - q[3])*H(2,1,2,1) - std::complex<double>(0,1)*(q[0] - q[3])*H(2,1,2,2) + q[1]*H(2,1,2,3) -
+	                       std::complex<double>(0,1)*q[1]*H(2,2,2,0) + std::complex<double>(0,1)*(q[0] - q[3])*H(2,2,2,1) + (q[0] - q[3])*H(2,2,2,2) +
+	                       std::complex<double>(0,1)*q[1]*H(2,2,2,3) + (2*k0 - q[0] - q[3])*H(2,3,2,0) + q[1]*H(2,3,2,1) -
+	                       std::complex<double>(0,1)*q[1]*H(2,3,2,2) + (-2*k0 + q[0] + q[3])*H(2,3,2,3) + (-2*k0 + q[0] + q[3])*H(3,0,3,0) -
+	                       q[1]*H(3,0,3,1) + std::complex<double>(0,1)*q[1]*H(3,0,3,2) + (2*k0 - q[0] - q[3])*H(3,0,3,3) - q[1]*H(3,1,3,0) +
+	                       (q[0] - q[3])*H(3,1,3,1) - std::complex<double>(0,1)*(q[0] - q[3])*H(3,1,3,2) + q[1]*H(3,1,3,3) -
+	                       std::complex<double>(0,1)*q[1]*H(3,2,3,0) + std::complex<double>(0,1)*(q[0] - q[3])*H(3,2,3,1) + (q[0] - q[3])*H(3,2,3,2) +
+	                       std::complex<double>(0,1)*q[1]*H(3,2,3,3) + (2*k0 - q[0] - q[3])*H(3,3,3,0) + q[1]*H(3,3,3,1) -
+	                       std::complex<double>(0,1)*q[1]*H(3,3,3,2) + (-2*k0 + q[0] + q[3])*H(3,3,3,3));
   return lh.real();
 }
 //____________________________________________________________________________
@@ -181,27 +183,29 @@ double AlvarezRusoSalaCOHGammaPXSec::NeutrinoHadronContraction( const Interactio
 	double k0 = probe->E(); // incident neutrino E
 	delete probe;
 
-	std::complex<double> lh = -8*k0*((2*k0 - q[0] - q[3])*H(R,0,0,0,0) + q[1]*H(R,0,0,0,1) +  std::complex<double>(0,1)*q[1]*H(R,0,0,0,2) +
-							 (-2*k0 + q[0] + q[3])*H(R,0,0,0,3) + q[1]*H(R,0,1,0,0) + (-q[0] + q[3])*H(R,0,1,0,1) -
-							 std::complex<double>(0,1)*(q[0] - q[3])*H(R,0,1,0,2) - q[1]*H(R,0,1,0,3) - std::complex<double>(0,1)*q[1]*H(R,0,2,0,0) +
-							 std::complex<double>(0,1)*(q[0] - q[3])*H(R,0,2,0,1) + (-q[0] + q[3])*H(R,0,2,0,2) + std::complex<double>(0,1)*q[1]*H(R,0,2,0,3) +
-							 (-2*k0 + q[0] + q[3])*H(R,0,3,0,0) - q[1]*H(R,0,3,0,1) - std::complex<double>(0,1)*q[1]*H(R,0,3,0,2) +
-							 (2*k0 - q[0] - q[3])*H(R,0,3,0,3) + (-2*k0 + q[0] + q[3])*H(R,1,0,1,0) - q[1]*H(R,1,0,1,1) -
-							 std::complex<double>(0,1)*q[1]*H(R,1,0,1,2) + (2*k0 - q[0] - q[3])*H(R,1,0,1,3) - q[1]*H(R,1,1,1,0) +
-							 (q[0] - q[3])*H(R,1,1,1,1) + std::complex<double>(0,1)*(q[0] - q[3])*H(R,1,1,1,2) + q[1]*H(R,1,1,1,3) +
-							 std::complex<double>(0,1)*q[1]*H(R,1,2,1,0) - std::complex<double>(0,1)*(q[0] - q[3])*H(R,1,2,1,1) + (q[0] - q[3])*H(R,1,2,1,2) -
-							 std::complex<double>(0,1)*q[1]*H(R,1,2,1,3) + (2*k0 - q[0] - q[3])*H(R,1,3,1,0) + q[1]*H(R,1,3,1,1) +
-							 std::complex<double>(0,1)*q[1]*H(R,1,3,1,2) + (-2*k0 + q[0] + q[3])*H(R,1,3,1,3) + (-2*k0 + q[0] + q[3])*H(R,2,0,2,0) -
-							 q[1]*H(R,2,0,2,1) - std::complex<double>(0,1)*q[1]*H(R,2,0,2,2) + (2*k0 - q[0] - q[3])*H(R,2,0,2,3) - q[1]*H(R,2,1,2,0) +
-							 (q[0] - q[3])*H(R,2,1,2,1) + std::complex<double>(0,1)*(q[0] - q[3])*H(R,2,1,2,2) + q[1]*H(R,2,1,2,3) +
-							 std::complex<double>(0,1)*q[1]*H(R,2,2,2,0) - std::complex<double>(0,1)*(q[0] - q[3])*H(R,2,2,2,1) + (q[0] - q[3])*H(R,2,2,2,2) -
-							 std::complex<double>(0,1)*q[1]*H(R,2,2,2,3) + (2*k0 - q[0] - q[3])*H(R,2,3,2,0) + q[1]*H(R,2,3,2,1) +
-							 std::complex<double>(0,1)*q[1]*H(R,2,3,2,2) + (-2*k0 + q[0] + q[3])*H(R,2,3,2,3) + (-2*k0 + q[0] + q[3])*H(R,3,0,3,0) -
-							 q[1]*H(R,3,0,3,1) - std::complex<double>(0,1)*q[1]*H(R,3,0,3,2) + (2*k0 - q[0] - q[3])*H(R,3,0,3,3) - q[1]*H(R,3,1,3,0) +
-							 (q[0] - q[3])*H(R,3,1,3,1) + std::complex<double>(0,1)*(q[0] - q[3])*H(R,3,1,3,2) + q[1]*H(R,3,1,3,3) +
-							 std::complex<double>(0,1)*q[1]*H(R,3,2,3,0) - std::complex<double>(0,1)*(q[0] - q[3])*H(R,3,2,3,1) + (q[0] - q[3])*H(R,3,2,3,2) -
-							 std::complex<double>(0,1)*q[1]*H(R,3,2,3,3) + (2*k0 - q[0] - q[3])*H(R,3,3,3,0) + q[1]*H(R,3,3,3,1) +
-							 std::complex<double>(0,1)*q[1]*H(R,3,3,3,2) + (-2*k0 + q[0] + q[3])*H(R,3,3,3,3));
+	utils::math::TraceContraction H(R, R);
+
+	std::complex<double> lh = -8*k0*((2*k0 - q[0] - q[3])*H(0,0,0,0) + q[1]*H(0,0,0,1) +  std::complex<double>(0,1)*q[1]*H(0,0,0,2) +
+							 (-2*k0 + q[0] + q[3])*H(0,0,0,3) + q[1]*H(0,1,0,0) + (-q[0] + q[3])*H(0,1,0,1) -
+							 std::complex<double>(0,1)*(q[0] - q[3])*H(0,1,0,2) - q[1]*H(0,1,0,3) - std::complex<double>(0,1)*q[1]*H(0,2,0,0) +
+							 std::complex<double>(0,1)*(q[0] - q[3])*H(0,2,0,1) + (-q[0] + q[3])*H(0,2,0,2) + std::complex<double>(0,1)*q[1]*H(0,2,0,3) +
+							 (-2*k0 + q[0] + q[3])*H(0,3,0,0) - q[1]*H(0,3,0,1) - std::complex<double>(0,1)*q[1]*H(0,3,0,2) +
+							 (2*k0 - q[0] - q[3])*H(0,3,0,3) + (-2*k0 + q[0] + q[3])*H(1,0,1,0) - q[1]*H(1,0,1,1) -
+							 std::complex<double>(0,1)*q[1]*H(1,0,1,2) + (2*k0 - q[0] - q[3])*H(1,0,1,3) - q[1]*H(1,1,1,0) +
+							 (q[0] - q[3])*H(1,1,1,1) + std::complex<double>(0,1)*(q[0] - q[3])*H(1,1,1,2) + q[1]*H(1,1,1,3) +
+							 std::complex<double>(0,1)*q[1]*H(1,2,1,0) - std::complex<double>(0,1)*(q[0] - q[3])*H(1,2,1,1) + (q[0] - q[3])*H(1,2,1,2) -
+							 std::complex<double>(0,1)*q[1]*H(1,2,1,3) + (2*k0 - q[0] - q[3])*H(1,3,1,0) + q[1]*H(1,3,1,1) +
+							 std::complex<double>(0,1)*q[1]*H(1,3,1,2) + (-2*k0 + q[0] + q[3])*H(1,3,1,3) + (-2*k0 + q[0] + q[3])*H(2,0,2,0) -
+							 q[1]*H(2,0,2,1) - std::complex<double>(0,1)*q[1]*H(2,0,2,2) + (2*k0 - q[0] - q[3])*H(2,0,2,3) - q[1]*H(2,1,2,0) +
+							 (q[0] - q[3])*H(2,1,2,1) + std::complex<double>(0,1)*(q[0] - q[3])*H(2,1,2,2) + q[1]*H(2,1,2,3) +
+							 std::complex<double>(0,1)*q[1]*H(2,2,2,0) - std::complex<double>(0,1)*(q[0] - q[3])*H(2,2,2,1) + (q[0] - q[3])*H(2,2,2,2) -
+							 std::complex<double>(0,1)*q[1]*H(2,2,2,3) + (2*k0 - q[0] - q[3])*H(2,3,2,0) + q[1]*H(2,3,2,1) +
+							 std::complex<double>(0,1)*q[1]*H(2,3,2,2) + (-2*k0 + q[0] + q[3])*H(2,3,2,3) + (-2*k0 + q[0] + q[3])*H(3,0,3,0) -
+							 q[1]*H(3,0,3,1) - std::complex<double>(0,1)*q[1]*H(3,0,3,2) + (2*k0 - q[0] - q[3])*H(3,0,3,3) - q[1]*H(3,1,3,0) +
+							 (q[0] - q[3])*H(3,1,3,1) + std::complex<double>(0,1)*(q[0] - q[3])*H(3,1,3,2) + q[1]*H(3,1,3,3) +
+							 std::complex<double>(0,1)*q[1]*H(3,2,3,0) - std::complex<double>(0,1)*(q[0] - q[3])*H(3,2,3,1) + (q[0] - q[3])*H(3,2,3,2) -
+							 std::complex<double>(0,1)*q[1]*H(3,2,3,3) + (2*k0 - q[0] - q[3])*H(3,3,3,0) + q[1]*H(3,3,3,1) +
+							 std::complex<double>(0,1)*q[1]*H(3,3,3,2) + (-2*k0 + q[0] + q[3])*H(3,3,3,3));
 
 
   return lh.real();

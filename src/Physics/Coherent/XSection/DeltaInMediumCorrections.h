@@ -90,8 +90,7 @@ private:
   // this object is retrieved with a Pool that keeps ownerships of the tables
   // No need to delete this object 
 
-  // FIXME should be config parameter
-  double fDeltaNCoupling = 2.14 ;
+  double fDeltaNCoupling ;
   double fDeltaV0 ; 
   double fRho0 ;  // this is the nuclear matter density. 
                   // It should be in natural units but it's read from the xml in fm^-3 as that is how it's usually reported
