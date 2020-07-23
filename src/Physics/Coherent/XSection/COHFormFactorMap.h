@@ -56,7 +56,7 @@ public:
 
   virtual void LoadConfig(void);
 
-  std::map<int, const genie::DeVriesFormFactor *> Map() const { return fNuclearFFs; }
+  const std::map<int, const genie::DeVriesFormFactor *> & Map() const noexcept { return fNuclearFFs; }
 
 private:
 

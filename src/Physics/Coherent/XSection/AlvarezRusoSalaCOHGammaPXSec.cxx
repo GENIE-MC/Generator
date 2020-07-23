@@ -3,20 +3,18 @@
  Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
-<<<<<<< HEAD
+
 
  Author: Marco Roda
          University of Liverpool
+
+	 Jon Sensenig 
+
          July 2020
 
  For the class documentation see the corresponding header file.
 
-=======
- Author: Marco Roda
-         University of Liverpool
-         July 2020
- For the class documentation see the corresponding header file.
->>>>>>> eace98236f5cbc8f7823245bfd3ec71466eece6b
+
 */
 //____________________________________________________________________________
 
@@ -59,7 +57,7 @@ AlvarezRusoSalaCOHGammaPXSec::~AlvarezRusoSalaCOHGammaPXSec()
 { ; }
 //____________________________________________________________________________
 double AlvarezRusoSalaCOHGammaPXSec::XSec( const Interaction * interaction,
-                                           KinePhaseSpace_t kps) const {
+                                           KinePhaseSpace_t /*kps*/) const {
 
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
@@ -110,7 +108,6 @@ std::complex<double> AlvarezRusoSalaCOHGammaPXSec::H( const utils::math::GTrace 
                                       unsigned short j, unsigned short k, unsigned short l ) const
 {
 	return R[i][j] * std::conj(R[k][l]);
->>>>>>> eace98236f5cbc8f7823245bfd3ec71466eece6b
 }
 //____________________________________________________________________________
 double AlvarezRusoSalaCOHGammaPXSec::Integral(const Interaction * interaction) const
@@ -211,7 +208,7 @@ double AlvarezRusoSalaCOHGammaPXSec::AntiNeutrinoHadronContraction( const Intera
 	TLorentzVector t_q = *probe - out_nu;
 	// FIXME not sure if q is exactly right
 	std::array<double, 4> q = { t_q.E(), t_q.X(), t_q.Y(), t_q.Z() };
-	double k0 = *probe->E();
+	double k0 = probe->E();
 	delete probe;
 
 
@@ -246,7 +243,7 @@ double AlvarezRusoSalaCOHGammaPXSec::NeutrinoHadronContraction( const Interactio
 	TLorentzVector t_q = *probe - out_nu;
 	// FIXME not sure if q is exactly right
 	std::array<double, 4> q = { t_q.E(), t_q.X(), t_q.Y(), t_q.Z() };
-	double k0 = *probe->E();
+	double k0 = probe->E();
 	delete probe;
 
 	std::complex<double> lh = -8*k0*((2*k0 - q[0] - q[3])*H(R,0,0,0,0) + q[1]*H(R,0,0,0,1) +  std::complex<double>(0,1)*q[1]*H(R,0,0,0,2) +

@@ -37,8 +37,8 @@ public:
   DeVriesFormFactor(string config);
   virtual ~DeVriesFormFactor();
 
-  int NucleusPDG() const { return fPDG ; }
-  const FourierBesselFFCalculator & Calculator() const { return fCalculator; }
+  int NucleusPDG() const noexcept { return fPDG ; }
+  const FourierBesselFFCalculator & Calculator() const noexcept { return fCalculator; }
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members

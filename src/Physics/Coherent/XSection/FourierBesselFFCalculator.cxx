@@ -23,7 +23,7 @@
 using namespace genie;
 
 //____________________________________________________________________________
-double DeVriesFormFactor::FormFactor( double Q ) const {
+double FourierBesselFFCalculator::FormFactor( double Q ) const {
 
   double qr = Q * fRadius ;
 

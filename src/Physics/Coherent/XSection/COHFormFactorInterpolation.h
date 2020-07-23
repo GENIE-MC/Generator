@@ -25,6 +25,7 @@
 #define _COH_FORM_FACTOR_INTERPOLATION_H_
 
 #include <map>
+#include <functional>
 
 #include "Physics/Coherent/XSection/COHFormFactorMap.h"
 
@@ -53,11 +54,11 @@ public:
 
 private:
 
-  pair<int, int> NearbyNuclei( pdg ) const ;
+  pair<int, int> NearbyNuclei( int pdg ) const ;
   double RadiusInterpolation( int pdg, const pair<int, int> & neighbours ) const ;
 
   genie::FourierBesselFFCalculator LinearInterpolation( int pdg,
-                                                        const std::function<int(int)> & )
+                                                        const std::function<int(int)> & ) const ;
 
   mutable std::map<int, genie::FourierBesselFFCalculator> fInterProtons ;
   mutable std::map<int, genie::FourierBesselFFCalculator> fInterNeutrons ;

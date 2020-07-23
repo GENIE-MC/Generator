@@ -35,7 +35,7 @@ COHFormFactorMap::COHFormFactorMap(string config) :
 
 }
 //____________________________________________________________________________
-COHFormFactorMap( string name, string config ) :
+COHFormFactorMap::COHFormFactorMap( string name, string config ) :
   COHFormFactorI(name, config)
 {
 

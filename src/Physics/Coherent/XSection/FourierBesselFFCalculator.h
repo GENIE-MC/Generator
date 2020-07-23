@@ -33,12 +33,11 @@ class FourierBesselFFCalculator {
 
 public:
 
-  FourierBesselFFCalculator( const std::vector<double> & coeffs, double radius ) :
+  FourierBesselFFCalculator( const std::vector<double> & coeffs, double radius ) noexcept :
     fFBCs(coeffs),
     fRadius(radius) {;}
 
   FourierBesselFFCalculator( const FourierBesselFFCalculator & ) = default ;
-  FourierBesselFFCalculator( const FourierBesselFFCalculator && ) = default ;
 
   ~FourierBesselFFCalculator() = default ;
 
@@ -46,11 +45,11 @@ public:
   // The Q has to be in GeV
   // The returned FF is in fm^3
 
-  const std::std::vector<double> & Coefficients() const { return fFBCs; }
-  double Radius() const { return fRadius; }
+  const std::vector<double> & Coefficients() const noexcept { return fFBCs; }
+  double Radius() const noexcept { return fRadius; }
 
 protected:
-  FourierBesselFFCalculator( ) : fFBCs, fRadius(0.) {;}
+  FourierBesselFFCalculator( ) noexcept : fFBCs(), fRadius(0.) {;}
 
 private:
 

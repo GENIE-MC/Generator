@@ -14,6 +14,8 @@
 //____________________________________________________________________________
 
 #include <vector>
+#include <utility>
+#include <algorithm>
 
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGUtils.h"
@@ -51,7 +53,7 @@ double COHFormFactorInterpolation::ProtonFF( double Q, int pdg ) const {
   const std::map<int,genie::FourierBesselFFCalculator>::const_iterator it =
     fInterProtons.find( pdg ) ;
 
-  if ( it != fInterProtons.end() )  return it.second.FormFactor(Q) ;
+  if ( it != fInterProtons.end() )  return it -> second.FormFactor(Q) ;
 
   return InterpolateProtons( pdg ).FormFactor(Q) ;
 
@@ -66,7 +68,7 @@ double COHFormFactorInterpolation::NeutronFF( double Q, int pdg ) const {
   const std::map<int,genie::FourierBesselFFCalculator>::const_iterator it =
     fInterNeutrons.find( pdg ) ;
 
-  if ( it != fInterNeutrons.end() )  return it.second.FormFactor(Q) ;
+  if ( it != fInterNeutrons.end() )  return it -> second.FormFactor(Q) ;
 
   return InterpolateNeutrons( pdg ).FormFactor(Q) ;
 
@@ -90,30 +92,34 @@ bool COHFormFactorInterpolation::HasNucleus( int pdg ) const {
 //____________________________________________________________________________
 const genie::FourierBesselFFCalculator & COHFormFactorInterpolation::InterpolateProtons( int pdg ) const {
 
-  return fInterProtons[pdg] = LinearInterpolation( pdg, pdg::IonPdgCodeToZ ) ;
+  auto result = fInterProtons.insert( std::make_pair( pdg, LinearInterpolation( pdg, pdg::IonPdgCodeToZ ) ) ) ;
+  return result.first -> second ;
+
 }
 //____________________________________________________________________________
 const genie::FourierBesselFFCalculator & COHFormFactorInterpolation::InterpolateNeutrons( int pdg ) const {
 
-  return fInterNeutrons[pdg] =
-    LinearInterpolation( pdg,
-                        [](int pdg){ return pdg::IonPdgCodeToA(pdg)
-                                            - pdg::IonPdgCodeToZ(pdg) } ) ;
+  auto result = fInterNeutrons.insert( std::make_pair( pdg, 
+						       LinearInterpolation( pdg, 
+									    [](int _pdg){ return pdg::IonPdgCodeToA(_pdg) 
+                                                                                           - pdg::IonPdgCodeToZ(_pdg); }) ) ) ;
+  return result.first -> second ;
 }
 //____________________________________________________________________________
-pair<int, int> COHFormFactorInterpolation::NearbyNuclei( pdg ) const {
+pair<int, int> COHFormFactorInterpolation::NearbyNuclei( int pdg ) const {
 
-  auto last = Map().rbegin() ;
+  auto rit = Map().rbegin() ;
 
-  if ( last.first < pdg ) return make_pair( (last+1).first, last.first ) ;
+  if ( rit -> first < pdg ) return std::make_pair( (++Map().rbegin()) -> first, 
+						   rit -> first ) ;
 
-  auto first = 1+last ;
-
-  while (first.first > pdg ) {
-    first++
-  }
-
-  return make_pair( first.first, (first+1).first ) ;
+  do {
+   rit++ ;
+  } while ( rit -> first > pdg && rit != Map().rend() ) ;
+ 
+  auto sec = rit ;
+  sec-- ;
+  return std::make_pair( rit -> first, sec -> first ) ;
 }
 //____________________________________________________________________________
 double COHFormFactorInterpolation::RadiusInterpolation( int pdg,
@@ -129,16 +135,16 @@ double COHFormFactorInterpolation::RadiusInterpolation( int pdg,
       double r = 0. ;
       if ( min_A == max_A ) {
         // take the average
-        r = 0.5( Map()[neighbours.first].Calculator().Radius()
-                 + Map()[neighbours.second].Calculator().Radius() ) ;
+        r = 0.5 * ( Map().at(neighbours.first) -> Calculator().Radius()
+                    + Map().at(neighbours.second) -> Calculator().Radius() ) ;
       }
       else {
         double min_root = pow( min_A, 1./3 ) ;
         double max_root = pow( max_A, 1./3 ) ;
         double root = pow( pdg::IonPdgCodeToA(pdg), 1./3 ) ;
 
-        double min_rad =   Map()[neighbours.first].Calculator().Radius() ;
-        double max_rad =   Map()[neighbours.second].Calculator().Radius() ;
+        double min_rad =   Map().at( neighbours.first ) -> Calculator().Radius() ;
+        double max_rad =   Map().at( neighbours.second ) -> Calculator().Radius() ;
 
         r = min_rad
             + (max_rad - min_rad)*(root - min_root)/(max_root - min_root) ;
@@ -151,16 +157,16 @@ double COHFormFactorInterpolation::RadiusInterpolation( int pdg,
 //____________________________________________________________________________
 
 genie::FourierBesselFFCalculator COHFormFactorInterpolation::LinearInterpolation( int pdg,
-                                                                                  const std::function<int(int)> & var ) {
+                                                                                  const std::function<int(int)> & var ) const {
 
     std::pair<int, int> neighbours = NearbyNuclei( pdg ) ;
 
     double r = RadiusInterpolation(pdg, neighbours) ;
 
-    std::vector<double> first_v( Map()[neighbours.first] -> Coefficients() ) ;
-    std::vector<double> second_v( Map()[neighbours.second] -> Coefficients() ) ;
+    std::vector<double> first_v( Map().at( neighbours.first) -> Calculator().Coefficients() ) ;
+    std::vector<double> second_v( Map().at( neighbours.second) -> Calculator().Coefficients() ) ;
 
-    unsigned int n_coeffs = max( first_v.size(), second_v.size() ) ;
+    unsigned int n_coeffs = std::max( first_v.size(), second_v.size() ) ;
 
     // vector are extended with 0s if necessary
     first_v.resize( n_coeffs, 0. );
@@ -173,7 +179,7 @@ genie::FourierBesselFFCalculator COHFormFactorInterpolation::LinearInterpolation
 
     if ( var_first == var_second ) {
       // in this case liner interpolation fails, we take the average
-      for ( unsinged int i = 0; i < n_coeffs; ++i ) {
+      for ( unsigned int i = 0; i < n_coeffs; ++i ) {
         coeffs[i] = 0.5 *( first_v[i] + second_v[i] );
       }
     }
@@ -182,8 +188,8 @@ genie::FourierBesselFFCalculator COHFormFactorInterpolation::LinearInterpolation
       int new_var = var(pdg) ;
       double scale = (new_var - var_first)/ (double) (var_second-var_first) ;
 
-      for ( unsinged int i = 0; i < n_coeffs; ++i ) {
-        coeffs[i] = first_v[i] + scale*(second_v[i] - first_v[i])/ ;
+      for ( unsigned int i = 0; i < n_coeffs; ++i ) {
+        coeffs[i] = first_v[i] + scale*(second_v[i] - first_v[i]) ;
       }
     }
 
