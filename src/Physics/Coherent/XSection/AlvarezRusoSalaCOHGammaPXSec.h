@@ -34,9 +34,9 @@ public:
   virtual ~AlvarezRusoSalaCOHGammaPXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec            ( const Interaction * i, KinePhaseSpace_t k) const;
-  double Integral        ( const Interaction * i) const;
-  bool   ValidProcess    ( const Interaction * i) const;
+  double XSec            ( const Interaction * i ) const;
+  double Integral        ( const Interaction * i ) const;
+  bool   ValidProcess    ( const Interaction * i ) const;
   utils::math::GTrace HadronicCurrent ( const Interaction * interaction ) const;
   double NeutrinoHadronContraction ( const Interaction * i, const utils::math::GTrace & R ) const;
   double AntiNeutrinoHadronContraction ( const Interaction * i, const utils::math::GTrace & R ) const;
