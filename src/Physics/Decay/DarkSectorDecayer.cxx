@@ -3,6 +3,9 @@
  Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
+ Author: Iker de Icaza <i.de-icaza-astiz \at sussex.ac.uk>
+ University of Sussex
+
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
  University of Liverpool & STFC Rutherford Appleton Laboratory
 */
@@ -39,31 +42,26 @@ using namespace genie::controls;
 using namespace genie::constants;
 //____________________________________________________________________________
 DarkSectorDecayer::DarkSectorDecayer() :
-Decayer("genie::DarkSectorDecayer")
+  EventRecordVisitorI("genie::DarkSectorDecayer")
 {
-  this->Initialize();
+
 }
 //____________________________________________________________________________
 DarkSectorDecayer::DarkSectorDecayer(string config) :
-Decayer("genie::DarkSectorDecayer", config)
+  EventRecordVisitorI("genie::DarkSectorDecayer", config)
 {
-  this->Initialize();
+
 }
 //____________________________________________________________________________
 DarkSectorDecayer::~DarkSectorDecayer()
 {
 
-  for ( unsigned int i = 0; i < fRParams.size() ; ++i ) {
-    delete fRParams[i] ;
-  }
-
 }
 //____________________________________________________________________________
 void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
 {
-  LOG("DarkSectorDecay", pINFO)
+  LOG("DarkSectorDecayer", pINFO)
     << "Running dark sector decayer ";
-    // << ((fRunBefHadroTransp) ? "*before*" : "*after*") << " FSI";
 
   // Loop over particles, find unstable ones and decay them
   TObjArrayIter piter(event);
@@ -71,50 +69,61 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
   int ipos = -1;
 
   while( (p = (GHepParticle *) piter.Next()) ) {
-
     ipos++;
-    LOG("DarkSectorDecay", pDEBUG) << "Checking: " << p->Name();
+    LOG("DarkSectorDecayer", pDEBUG) << "Checking: " << p->Name();
 
-    int pdg_code = p->Pdg();
-    GHepStatus_t status_code = p->Status();
+    if(!this->ToBeDecayed(*p)) continue;
 
-    //    std::cout << "Decaing particle " << ipos << " with PDG " << pdg_code << std::endl ; 
+    DecayChannel dc = SelectDecayChannel(*p, event);
+    std::vector<GHepParticle> daughters = Decay(*p, dc.first);
+    SetSpaceTime(daughters, *p, dc.second);
 
-    if(!this->IsHandled  (pdg_code)) continue;
-    if(!this->ToBeDecayed(pdg_code, status_code)) continue;
-
-    LOG("DarkSectorDecay", pNOTICE)
-          << "Decaying unstable particle: " << p->Name();
-
-
-    // TODO: here check pdg of particle
-    // if it's dark mediator call DecayDarkMediator
-    // if it's dark neutrino call DecayDarkNeutrino
-    
-    //TODO: this block below
-    bool decayed = this->Decay(ipos, event);
-    if (!decayed) {
-      LOG("DarkSectorDecay", pWARN) << "Dark stuff not decayed!" ;
-      LOG("DarkSectorDecay", pWARN) << "Quitting the current event generation thread" ;
-
-      event -> EventFlags() -> SetBitNumber(kDecayErr, true);
-
-      genie::exceptions::EVGThreadException exception;
-      exception.SetReason("Dark stuff not decayed"); // TODO
-      exception.SwitchOnFastForward();
-      throw exception;
-
-      return ;
+    for(auto & daughter: daughters){
+      daughter.SetFirstMother(ipos);
+      event->AddParticle(daughter);
     }
+  }
+  
+    // int pdg_code = p->Pdg();
+    // GHepStatus_t status_code = p->Status();
 
-  } // loop over particles
+    // //    std::cout << "Decaing particle " << ipos << " with PDG " << pdg_code << std::endl ; 
 
-  LOG("DarkSectorDecay", pNOTICE)
+    // // if(!this->IsHandled  (pdg_code)) continue;
+
+
+    // LOG("DarkSectorDecayer", pNOTICE)
+    //       << "Decaying unstable particle: " << p->Name();
+
+
+    // // TODO: here check pdg of particle
+    // // if it's dark mediator call DecayDarkMediator
+    // // if it's dark neutrino call DecayDarkNeutrino
+    
+    // //TODO: this block below
+    // bool decayed = this->Decay(ipos, event);
+    // if (!decayed) {
+    //   LOG("DarkSectorDecayer", pWARN) << "Dark stuff not decayed!" ;
+    //   LOG("DarkSectorDecayer", pWARN) << "Quitting the current event generation thread" ;
+
+    //   event -> EventFlags() -> SetBitNumber(kDecayErr, true);
+
+    //   genie::exceptions::EVGThreadException exception;
+    //   exception.SetReason("Dark stuff not decayed"); // TODO
+    //   exception.SwitchOnFastForward();
+    //   throw exception;
+
+    //   return ;
+    // }
+
+
+  LOG("DarkSectorDecayer", pNOTICE)
      << "Done finding & decaying dark sector particles";
 }
 //____________________________________________________________________________
-bool DarkSectorDecayer::Decay(
-  int decay_particle_id, GHepRecord * event) const
+  std::vector<GHepParticle> DarkSectorDecayer::Decay (
+    const GHepParticle & p,
+    const std::vector<int> & pdg_daughters) const
 {
 //   // Reset previous decay weight
 //   fWeight = 1.;
@@ -122,7 +131,7 @@ bool DarkSectorDecayer::Decay(
 //   // Get particle to be decayed
 //   GHepParticle * decay_particle = event->Particle(decay_particle_id);
 //   if( ! decay_particle) {
-//     LOG("DarkSectorDecay", pERROR)
+//     LOG("DarkSectorDecayer", pERROR)
 //       << "Particle to be decayed not in the event record. Particle id: " << decay_particle_id ; 
 //     return false;
 //   }
@@ -134,9 +143,9 @@ bool DarkSectorDecayer::Decay(
 //     this->SelectDecayChannel(decay_particle_id, event, to_be_deleted ) ;
 
 //   if(!selected_decay_channel) {
-//     LOG("DarkSectorDecay", pERROR)
+//     LOG("DarkSectorDecayer", pERROR)
 //       << "No decay channel for particle " << decay_particle_id ;
-//     LOG("DarkSectorDecay", pERROR)
+//     LOG("DarkSectorDecayer", pERROR)
 //       << *event ;
 
 //     return false;
@@ -157,22 +166,40 @@ bool DarkSectorDecayer::Decay(
 //   // Mark input particle as a 'decayed state' & add its daughter links
 //   decay_particle->SetStatus(kIStDecayedState);
 
-  return true;
+  // return true;
 }
 //____________________________________________________________________________
-bool DarkSectorDecayer::DecayDarkMediator(
-  int decay_particle_id, GHepRecord * event) const
+DecayChannel DarkSectorDecayer::SelectDecayChannel(
+  const GHepParticle & p,
+  const GHepRecord * event) const
 {
 
-  return true;
 }
 //____________________________________________________________________________
-bool DarkSectorDecayer::DecayDarkNeutrino(
-  int decay_particle_id, GHepRecord * event) const
+std::vector<DecayChannel> DarkSectorDecayer::DarkMediatorDecayChannels(
+  const GHepParticle & p,
+  const GHepRecord * event) const
 {
 
-  return true;
 }
+//____________________________________________________________________________
+std::vector<DecayChannel> DarkSectorDecayer::DarkNeutrinoDecayChannels(
+  const GHepParticle & p,
+  const GHepRecord * event) const
+{
+
+}
+//____________________________________________________________________________
+void DarkSectorDecayer::SetSpaceTime(
+  std::vector<GHepParticle> & pp,
+  const GHepParticle & mother,
+  double amplitude) const
+{
+  
+}
+//____________________________________________________________________________
+
+
 //____________________________________________________________________________
 // double DarkSectorDecayer::Weight(void) const
 // {
@@ -197,7 +224,7 @@ bool DarkSectorDecayer::DecayDarkNeutrino(
 //      // hack to switch off channels giving rare  occurences of |1114| that has
 //      // no decay channels in the pdg table (08/2007)
 //      if(TMath::Abs(daughter_code) == 1114) {
-//          LOG("DarkSectorDecay", pNOTICE)
+//          LOG("DarkSectorDecayer", pNOTICE)
 //             << "Disabling decay channel containing resonance 1114";;
 //          md = 999999999;
 //      }
@@ -206,49 +233,46 @@ bool DarkSectorDecayer::DecayDarkNeutrino(
 //   return mass;
 // }
 //____________________________________________________________________________
-void DarkSectorDecayer::Initialize(void) const
+bool DarkSectorDecayer::ToBeDecayed(const GHepParticle & p) const
 {
+  // TODO DNu: is there any point to the status_code?
+  // GHepStatus_t status_code = p->Status();
 
-}
-//____________________________________________________________________________
-bool DarkSectorDecayer::IsHandled(int pdg_code) const
-{
-  // bool is_handled = utils::res::IsBaryonResonance(pdg_code); //TODO: add utils::darks::isdark
+  int pdg_code = p.Pdg();
   bool is_handled = false;
   if(pdg_code == kPdgDNuMediator ||
      pdg_code == kPdgDarkNeutrino ||
-     pdg_code == kPdgAntiDarkNeutrino)
-  {
-    is_handled = true;
+     pdg_code == kPdgAntiDarkNeutrino){
+    return true;
   }
 
-  LOG("DarkSectorDecay", pDEBUG)
+  LOG("DarkSectorDecayer", pDEBUG)
       << "Can decay particle with PDG code = " << pdg_code
       << "? " << ((is_handled)? "Yes" : "No");
 
-  return is_handled ;
+  return is_handled;
 }
 //____________________________________________________________________________
-void DarkSectorDecayer::InhibitDecay(int pdgc, TDecayChannel * dc) const
-{
-  if(! this->IsHandled(pdgc)) return;
-  if(!dc) return;
+// void DarkSectorDecayer::InhibitDecay(int pdgc, TDecayChannel * dc) const
+// {
+//   if(! this->IsHandled(pdgc)) return;
+//   if(!dc) return;
 
-  //
-  // Not implemented
-  //
-}
-//____________________________________________________________________________
-void DarkSectorDecayer::UnInhibitDecay(int pdgc, TDecayChannel * dc) const
-{
-  if(! this->IsHandled(pdgc)) return;
-  if(!dc) return;
+//   //
+//   // Not implemented
+//   //
+// }
+// //____________________________________________________________________________
+// void DarkSectorDecayer::UnInhibitDecay(int pdgc, TDecayChannel * dc) const
+// {
+//   if(! this->IsHandled(pdgc)) return;
+//   if(!dc) return;
 
-  //
-  // Not implemented
-  //
-}
-//____________________________________________________________________________
+//   //
+//   // Not implemented
+//   //
+// }
+// //____________________________________________________________________________
 // TDecayChannel * DarkSectorDecayer::SelectDecayChannel( int decay_particle_id,
 //                                                        GHepRecord * event,
 //                                                        bool & to_be_deleted ) const
@@ -265,25 +289,25 @@ void DarkSectorDecayer::UnInhibitDecay(int pdgc, TDecayChannel * dc) const
 //   TParticlePDG * mother =
 //      PDGLibrary::Instance()->Find(decay_particle_pdg_code);
 //   if(!mother) {
-//      LOG("DarkSectorDecay", pERROR)
+//      LOG("DarkSectorDecayer", pERROR)
 //         << "\n *** The particle with PDG code = " << decay_particle_pdg_code
 //          << " was not found in PDGLibrary";
 //      return 0;
 //   }
-//   LOG("DarkSectorDecay", pINFO)
+//   LOG("DarkSectorDecayer", pINFO)
 //     << "Decaying a " << mother->GetName()
 //     << " with P4 = " << utils::print::P4AsString(&decay_particle_p4);
 
 //   // Get the resonance mass W (generally different from the mass associated
 //   // with the input PDG code, since the it is produced off the mass shell)
 //   double W = decay_particle_p4.M();
-//   LOG("DarkSectorDecay", pINFO) << "Available mass W = " << W;
+//   LOG("DarkSectorDecayer", pINFO) << "Available mass W = " << W;
 
 //   // Get all decay channels
 //   TObjArray * original_decay_list = mother->DecayList();
 
 //   unsigned int nch = original_decay_list -> GetEntries();
-//   LOG("DarkSectorDecay", pINFO)
+//   LOG("DarkSectorDecayer", pINFO)
 //     << mother->GetName() << " has: " << nch << " decay channels";
 
 //   // Loop over the decay channels (dc) and write down the branching
@@ -315,14 +339,14 @@ void DarkSectorDecayer::UnInhibitDecay(int pdgc, TDecayChannel * dc) const
 //     double fsmass = this->FinalStateMass(ch) ;
 //     if ( fsmass < W ) {
 
-//       SLOG("DarkSectorDecay", pDEBUG)
+//       SLOG("DarkSectorDecayer", pDEBUG)
 //                 << "Using channel: " << ich
 //                 << " with final state mass = " << fsmass << " GeV";
 
 //       tot_BR += ch->BranchingRatio();
 
 //     } else {
-//       SLOG("DarkSectorDecay", pINFO)
+//       SLOG("DarkSectorDecayer", pINFO)
 //                 << "Suppresing channel: " << ich
 //                 << " with final state mass = " << fsmass << " GeV";
 //     } // final state mass
@@ -331,7 +355,7 @@ void DarkSectorDecayer::UnInhibitDecay(int pdgc, TDecayChannel * dc) const
 //   }//channel loop
 
 //   if( tot_BR <= 0. ) {
-//     SLOG("DarkSectorDecay", pWARN)
+//     SLOG("DarkSectorDecayer", pWARN)
 //           << "None of the " << nch << " decay channels is available @ W = " << W;
 //     return 0;
 //   }
@@ -346,7 +370,7 @@ void DarkSectorDecayer::UnInhibitDecay(int pdgc, TDecayChannel * dc) const
 
 //   TDecayChannel * sel_ch = (TDecayChannel *) actual_decay_list -> At(sel_ich);
 
-//   LOG("DarkSectorDecay", pINFO)
+//   LOG("DarkSectorDecayer", pINFO)
 //     << "Selected " << sel_ch->NDaughters() << "-particle decay channel ("
 //     << sel_ich << ") has BR = " << sel_ch->BranchingRatio();
 
@@ -390,7 +414,7 @@ void DarkSectorDecayer::UnInhibitDecay(int pdgc, TDecayChannel * dc) const
 //      pdgc[iparticle] = daughter_code;
 //      mass[iparticle] = daughter->Mass();
 
-//      SLOG("DarkSectorDecay", pINFO)
+//      SLOG("DarkSectorDecayer", pINFO)
 //          << "+ daughter[" << iparticle << "]: "
 //          << daughter->GetName() << " (pdg-code = "
 //          << pdgc[iparticle] << ", mass = " << mass[iparticle] << ")";
@@ -418,7 +442,7 @@ void DarkSectorDecayer::UnInhibitDecay(int pdgc, TDecayChannel * dc) const
 //      wmax = TMath::Max(wmax,w);
 //   }
 //   assert(wmax>0);
-//   LOG("DarkSectorDecay", pINFO)
+//   LOG("DarkSectorDecayer", pINFO)
 //     << "Max phase space gen. weight for current decay: " << wmax;
 
 //   if(fGenerateWeighted)
@@ -446,10 +470,10 @@ void DarkSectorDecayer::UnInhibitDecay(int pdgc, TDecayChannel * dc) const
 //       double gw = wmax * rnd->RndDec().Rndm();
 
 //       if(w>wmax) {
-//          LOG("DarkSectorDecay", pWARN)
+//          LOG("DarkSectorDecayer", pWARN)
 //             << "Current decay weight = " << w << " > wmax = " << wmax;
 //       }
-//       LOG("DarkSectorDecay", pINFO)
+//       LOG("DarkSectorDecayer", pINFO)
 //         << "Current decay weight = " << w << " / R = " << gw;
 
 //       accept_decay = (gw<=w);
@@ -507,7 +531,7 @@ void DarkSectorDecayer::UnInhibitDecay(int pdgc, TDecayChannel * dc) const
 //      int daughter_pdg_code = pdgc[id];
 
 //      TLorentzVector * daughter_p4 = fPhaseSpaceGenerator.GetDecay(id);
-//      LOG("DarkSectorDecay", pDEBUG)
+//      LOG("DarkSectorDecayer", pDEBUG)
 //         << "Adding daughter particle with PDG code = " << pdgc[id]
 //         << " and mass = " << mass[id] << " GeV";
 
@@ -525,106 +549,39 @@ void DarkSectorDecayer::UnInhibitDecay(int pdgc, TDecayChannel * dc) const
 //   return true ;
 // }
 //____________________________________________________________________________
-void DarkSectorDecayer::LoadConfig(void) {
+void DarkSectorDecayer::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void DarkSectorDecayer::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void DarkSectorDecayer::LoadConfig(void)
+{
 
-  Decayer::LoadConfig() ;
+  fDNuMass = 0.;
+  this->GetParam("Dark-NeutrinoMass", fDNuMass);
+  fDNuMass2 = fDNuMass * fDNuMass;
 
-  this -> GetParam( "FFScaling", fFFScaling ) ;
-  this -> GetParam( "DarkMediatorMass", fDarkMediatorMass ) ;
+  fDMediatorMass = 0.;
+  this->GetParam("Dark-MediatorMass", fDMediatorMass);
+  fDMediatorMass2 = fDMediatorMass * fDMediatorMass;
+
+  
+  // Decayer::LoadConfig() ;
+
+  // this -> GetParam( "DarkMediatorMass", fDarkMediatorMass ) ;
 
   // this -> GetParamDef( "Delta-ThetaOnly", fDeltaThetaOnly, true ) ;
 
   // this -> GetParamDef( "DeltaDecayMaximumTolerance", fMaxTolerance, 0.0005 ) ;
 
   // bool invalid_configuration = false ;
-
-  // // load R33 parameters
-  // this -> GetParamVect( "Delta-R33", fR33 ) ;
-
-  // // load Q2 thresholds if necessary
-  // if ( fR33.size() > 1 ) {
-  //   this -> GetParamVect("Delta-Q2", fQ2Thresholds ) ;
-  // }
-  // else {
-  //   fQ2Thresholds.clear() ;
-  // }
-
-  // // check if the number of Q2 matches the number of R33
-  // if ( fQ2Thresholds.size() != fR33.size() -1 ) {
-  //   invalid_configuration = true ;
-  //   LOG("DarkSectorDecayer", pFATAL) << "Delta-Q2 and Delta-R33 have wrong sizes" ;
-  //   LOG("DarkSectorDecayer", pFATAL) << "Delta-Q2  -> " << fQ2Thresholds.size() ;
-  //   LOG("DarkSectorDecayer", pFATAL) << "Delta-R33 -> " << fR33.size() ;
-  // }
-
-  // if ( fDeltaThetaOnly ) {
-
-  //   // check the parameters validity
-  //   for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
-  //     if ( (fR33[i] < -0.5) ||  (fR33[i] > 1.) ) {
-  //   	invalid_configuration = true ;
-  //   	LOG("DarkSectorDecayer", pFATAL) << "Delta-R33[" << i << "] out of valid range [-0.5 ; 1 ]" ;
-  //   	LOG("DarkSectorDecayer", pFATAL) << "Delta-R33[" << i << "] = " << fR33[i] ;
-  //   	break ;
-  //     }
-  //   }
-    
-  //   // set appropriate maxima
-  //   fW_max.resize( fR33.size(), 0. ) ;
-  //   for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
-  //     fW_max[i] = ( fR33[i] < 0.5 ? 2. * ( 1. - fR33[i] ) : fR33[i] + 0.5 ) + fMaxTolerance ;
-  //   }
-    
-  // } // Delta Theta Only
-  
-  // else {
-
-  //   // load R31 and R3m1 parameters
-  //   this -> GetParamVect( "Delta-R31", fR31 ) ;
-
-  //   this -> GetParamVect( "Delta-R3m1", fR3m1 ) ;
-
-  //   // check if they match the numbers of R33
-  //   if ( (fR31.size() != fR33.size()) || (fR3m1.size() != fR33.size()) ) {
-  //     LOG("DarkSectorDecayer", pFATAL) << "Delta-R31 or Delta-R3m1 sizes don't match Delta-R33" ;
-  //     LOG("DarkSectorDecayer", pFATAL) << "R31: " << fR31.size()
-  //                                      << ", R3m1: " << fR31.size()
-  //                                      << " while R33: " << fR33.size() ;
-  //     invalid_configuration = true ;
-  //   }
-
-  //   for ( unsigned int i = 0; i < fRParams.size() ; ++i ) {
-  //     delete [] fRParams[i] ;
-  //   }
-  //   fRParams.clear() ; 
-  //   // fill the container by Q2 bin instead of the parmaeter bin
-  //   for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
-  //     fRParams.push_back( new double[3]{ fR33[i], fR31[i], fR3m1[i] } ) ;
-  //   }
-
-
-  //   // check if they are physical
-  //   fW_max.resize( fR33.size(), 0. ) ;
-  //   for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
-  //     double temp_min = FindDistributionExtrema( i, false ) ;
-  //     if ( temp_min < 0. ) {
-  //       LOG("DarkSectorDecayer", pFATAL) << "pion angular distribution minimum is negative for Q2 bin " << i ;
-  //       invalid_configuration = true ;
-  //       break ;
-  //     }
-
-  //     double temp_max = FindDistributionExtrema( i, true ) ;
-  //     if ( temp_max <= 0. ) {
-  //       LOG("DarkSectorDecayer", pFATAL) << "pion angular distribution maximum is non positive for Q2 bin " << i ;
-  //       invalid_configuration = true ;
-  //       break ;
-  //     }
-
-  //     fW_max[i] = temp_max + fMaxTolerance ;
-
-  //   }
-
-  // }
 
   // if ( invalid_configuration ) {
 
