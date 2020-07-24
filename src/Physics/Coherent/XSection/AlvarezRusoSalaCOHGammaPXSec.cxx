@@ -92,8 +92,6 @@ double AlvarezRusoSalaCOHGammaPXSec::XSec( const Interaction * interaction,
   else if (pdg::IsAntiNeutrino(nu)) {
     contraction = AntiNeutrinoHadronContraction(interaction, R);
   }
-
-  double pre_factor = 4.*constants::kPi*constants::kAem * constants::kGF2 / 16*pow(2.*constants::kPi, 5);
   else {
 	LOG("AlvarezRusoSalaCOHGamma",pDEBUG)<<"Unknown probe for AlvarezRuso COHGamma implementation";
 	return 0.;
