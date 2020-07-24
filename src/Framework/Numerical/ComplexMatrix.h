@@ -29,19 +29,19 @@ namespace genie {
     namespace math  {
 
       template< size_t N >
-      class ComplexArray : std::array< std::complex<double>, N > {
+      class ComplexArray : public std::array< std::complex<double>, N > {
 
         const ComplexArray & operator += ( const ComplexArray & ) ;
-        const ComplexArray & operator *= ( const complex<double> & ) ;
+        const ComplexArray & operator *= ( const std::complex<double> & ) ;
 
         ComplexArray Conj() const ;
       } ;
 
       template< size_t N >
-      class ComplexMatrix : std::array< ComplexArray<N>, N > {
+      class ComplexMatrix : public std::array< ComplexArray<N>, N > {
 
         const ComplexMatrix & operator += ( const ComplexMatrix & ) ;
-        const ComplexMatrix & operator *= ( const complex<double> & ) ;
+        const ComplexMatrix & operator *= ( const std::complex<double> & ) ;
 
         ComplexMatrix Conj() const ;
 

@@ -17,11 +17,13 @@
 
 using namespace genie::utils::math ;
 
-template<size_t N>
-const ComplexArray & ComplexArray::operator += ( const ComplexArray & v ) {
+using std::complex ;
 
-  for ( unsigned int i = 0 ; i < size(); ++i ) {
-    at(i) += v[i] ;
+template<size_t N>
+const ComplexArray<N> & ComplexArray<N>::operator += ( const ComplexArray<N> & v ) {
+
+  for ( unsigned int i = 0 ; i < this->size(); ++i ) {
+    this->at(i) += v[i] ;
   }
 
   return *this ;
@@ -30,10 +32,10 @@ const ComplexArray & ComplexArray::operator += ( const ComplexArray & v ) {
 //____________________________________________________________________________
 
 template<size_t N>
-const ComplexArray & ComplexArray::operator *= ( const complex<double> & c ) {
+const ComplexArray<N> & ComplexArray<N>::operator *= ( const complex<double> & c ) {
 
-  for ( unsigned int i = 0 ; i < size(); ++i ) {
-    at(i) *= c ;
+  for ( unsigned int i = 0 ; i < this->size(); ++i ) {
+    this -> at(i) *= c ;
   }
 
   return *this ;
@@ -41,12 +43,12 @@ const ComplexArray & ComplexArray::operator *= ( const complex<double> & c ) {
 }
 
 //____________________________________________________________________________
-template<size_t>
-ComplexArray ComplexArray::Conj() const {
+template<size_t N>
+ComplexArray<N> ComplexArray<N>::Conj() const {
 
-  ComplexArray a;
-  for ( unsigned int i = 0 ; i < size(); ++i ) {
-    a.[i] = std::conj( at(i) ) ;
+  ComplexArray<N> a;
+  for ( unsigned int i = 0 ; i < this->size(); ++i ) {
+    a[i] = std::conj( this->at(i) ) ;
   }
 
   return a ;
@@ -55,10 +57,10 @@ ComplexArray ComplexArray::Conj() const {
 //____________________________________________________________________________
 
 template<size_t N>
-const ComplexMatrix & ComplexMatrix::operator += ( const ComplexMatrix & m ) {
+const ComplexMatrix<N> & ComplexMatrix<N>::operator += ( const ComplexMatrix<N> & m ) {
 
-  for ( unsigned int i = 0 ; i < size(); ++i ) {
-    at(i) += v[i] ;
+  for ( unsigned int i = 0 ; i < this->size(); ++i ) {
+    this->at(i) += m[i] ;
   }
 
   return *this ;
@@ -67,23 +69,22 @@ const ComplexMatrix & ComplexMatrix::operator += ( const ComplexMatrix & m ) {
 //____________________________________________________________________________
 
 template<size_t N>
-const ComplexMatrix & operator *= ( const complex<double> & c ) {
+const ComplexMatrix<N> & ComplexMatrix<N>::operator *= ( const complex<double> & c ) {
 
-  for ( unsigned int i = 0 ; i < size(); ++i ) {
-    at(i) *= c ;
+  for ( unsigned int i = 0 ; i < this->size(); ++i ) {
+    this->at(i) *= c ;
   }
 
   return *this ;
-
 }
 
 //____________________________________________________________________________
 template<size_t N >
-ComplexMatrix ComplexMatrix::Conj() const {
+ComplexMatrix<N> ComplexMatrix<N>::Conj() const {
 
-  ComplexMatrix a;
-  for ( unsigned int i = 0 ; i < size(); ++i ) {
-    a.[i] = at(i).Conj() ;
+  ComplexMatrix<N> a;
+  for ( unsigned int i = 0 ; i < this->size(); ++i ) {
+    a[i] = this->at(i).Conj() ;
   }
 
   return a ;
