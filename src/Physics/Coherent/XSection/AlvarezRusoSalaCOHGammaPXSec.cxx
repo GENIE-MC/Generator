@@ -146,9 +146,7 @@ double AlvarezRusoSalaCOHGammaPXSec::AntiNeutrinoHadronContraction( const Intera
 	double k0 = probe->E(); // incident neutrino E
 	delete probe;
 
-    utils::math::GTrace c;
-	utils::math::TraceContraction H(R, c.Conj(R));
-
+	utils::math::TraceContraction H(R, R);
 
 	std::complex<double> lh = -8*k0*((2*k0 - q[0] - q[3])*H(0,0,0,0) + q[1]*H(0,0,0,1) - std::complex<double>(0,1)*q[1]*H(0,0,0,2) +
 	                       (-2*k0 + q[0] + q[3])*H(0,0,0,3) + q[1]*H(0,1,0,0) + (-q[0] + q[3])*H(0,1,0,1) +
@@ -184,8 +182,7 @@ double AlvarezRusoSalaCOHGammaPXSec::NeutrinoHadronContraction( const Interactio
 	double k0 = probe->E(); // incident neutrino E
 	delete probe;
 
-    utils::math::GTrace c;
-	utils::math::TraceContraction H(R, c.Conj(R));
+	utils::math::TraceContraction H(R, R);
 
 	std::complex<double> lh = -8*k0*((2*k0 - q[0] - q[3])*H(0,0,0,0) + q[1]*H(0,0,0,1) +  std::complex<double>(0,1)*q[1]*H(0,0,0,2) +
 							 (-2*k0 + q[0] + q[3])*H(0,0,0,3) + q[1]*H(0,1,0,0) + (-q[0] + q[3])*H(0,1,0,1) -

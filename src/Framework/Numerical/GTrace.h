@@ -51,7 +51,7 @@ namespace genie {
 
     	  std::complex<double> operator()(unsigned short i, unsigned short j,
     			                          unsigned short m, unsigned short n) {
-          return first[i][j] * second[m][n] ; }
+          return first[i][j] * std::conj(second[m][n]) ; }
       };
 
     } // math  namespace
