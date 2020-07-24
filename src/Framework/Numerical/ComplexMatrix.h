@@ -38,8 +38,14 @@ namespace genie {
       } ;
 
       template< size_t N >
-      using ComplexMatrix = std::array< ComplexArray<N>, N > ;
+      class ComplexMatrix : std::array< ComplexArray<N>, N > {
 
+        const ComplexMatrix & operator += ( const ComplexMatrix & ) ;
+        const ComplexMatrix & operator *= ( const complex<double> & ) ;
+
+        ComplexMatrix Conj() const ;
+
+      };
 
     } // math  namespace
   } // utils namespace
