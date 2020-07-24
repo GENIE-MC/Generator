@@ -35,13 +35,13 @@ public:
   virtual ~COHDeltaCurrent();
 
   virtual utils::math::GTrace R( const Interaction * i,
-		    const COHFormFactorI * ff ) const override ;
+				 const COHFormFactorI * ff ) const override ;
 
-  virtual Resonance_t Resonance() const { return kP33_1232 ; }
+  virtual Resonance_t Resonance() const override { return kP33_1232 ; }
 
   // methods to implemented from Algorithm 
-  void Configure (const Registry & config);
-  void Configure (string param_set);
+  void Configure (const Registry & config) override ;
+  void Configure (string param_set) override ;
 
  protected: 
 

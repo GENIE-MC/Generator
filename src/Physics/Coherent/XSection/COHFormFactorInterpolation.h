@@ -40,14 +40,14 @@ public:
   virtual ~COHFormFactorInterpolation();
 
   // methods to be implemented from COHFormFactorI
-  virtual double ProtonFF ( double Q, int pdg ) const  ;
-  virtual double NeutronFF( double Q, int pdg ) const  ;
+  virtual double ProtonFF ( double Q, int pdg ) const override ;
+  virtual double NeutronFF( double Q, int pdg ) const override ;
 
-  virtual bool HasNucleus( int pdg ) const ;
+  virtual bool HasNucleus( int pdg ) const override ;
 
  protected:
 
-  virtual void LoadConfig(void);
+  virtual void LoadConfig(void) override ;
 
   virtual const genie::FourierBesselFFCalculator & InterpolateProtons( int pdg ) const ;
   virtual const genie::FourierBesselFFCalculator & InterpolateNeutrons( int pdg ) const ;

@@ -54,24 +54,22 @@ public:
 
   //-- XSecAlgorithmI interface implementation
 
-  double XSec            ( const Interaction * i, KinePhaseSpace_t k) const;
-  double Integral        ( const Interaction * i) const;
-  bool   ValidProcess    ( const Interaction * i) const;
+  double XSec            ( const Interaction * i, KinePhaseSpace_t k) const override ;
+  double Integral        ( const Interaction * i) const override ;
+  bool   ValidProcess    ( const Interaction * i) const override ;
 
-
-  utils::math::GTrace HadronicCurrent ( const Interaction * interaction ) const;
-  double NeutrinoHadronContraction ( const Interaction * i, const utils::math::GTrace & R ) const;
-  double AntiNeutrinoHadronContraction ( const Interaction * i, const utils::math::GTrace & R ) const;
-  std::complex<double> H( const utils::math::GTrace & R,  unsigned short i, unsigned short j,
-                                          unsigned short k, unsigned short l ) const;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
-  void Configure(const Registry & config);
-  void Configure(string config);
+  void Configure(const Registry & config) override ;
+  void Configure(string config) override ;
 
 protected:
   void LoadConfig(void);
+
+  utils::math::GTrace TotalHadronicCurrent ( const Interaction * interaction ) const;
+  double NeutrinoHadronContraction ( const Interaction * i ) const ;
+  double AntiNeutrinoHadronContraction ( const Interaction * i ) const ; 
 
 private:
 

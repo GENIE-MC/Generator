@@ -31,6 +31,7 @@ namespace genie {
       template< size_t N >
       class ComplexArray : public std::array< std::complex<double>, N > {
 
+      public: 
         const ComplexArray & operator += ( const ComplexArray & ) ;
         const ComplexArray & operator *= ( const std::complex<double> & ) ;
 
@@ -40,6 +41,7 @@ namespace genie {
       template< size_t N >
       class ComplexMatrix : public std::array< ComplexArray<N>, N > {
 
+      public: 
         const ComplexMatrix & operator += ( const ComplexMatrix & ) ;
         const ComplexMatrix & operator *= ( const std::complex<double> & ) ;
 

@@ -6,16 +6,16 @@
   \brief      Simple math container for 4 x 4 complex objects
 
   \author     Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-              University of Liverpool & STFC Rutherford Appleton Lab
+  University of Liverpool & STFC Rutherford Appleton Lab
 
-              Marco Roda <mroda@liverpool.ac.uk>
-              University of Liverpool
+  Marco Roda <mroda@liverpool.ac.uk>
+  University of Liverpool
 
   \created    May 15, 2020
 
   \cpright    Copyright (c) 2003-2019, The GENIE Collaboration
-              For the full text of the license visit http://copyright.genie-mc.org
-              or see $GENIE/LICENSE
+  For the full text of the license visit http://copyright.genie-mc.org
+  or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -34,12 +34,15 @@ namespace genie {
       class GTraceContraction : public std::pair<GTrace, GTrace> {
       public:
 
-    	  GTraceContraction( const GTrace & a, const GTrace & b ) :
-    	  std::pair<GTrace, GTrace>(a, b) { ; }
+      GTraceContraction( const GTrace & t ) :
+	std::pair<GTrace, GTrace>(t.Conj(), t) { ; }
 
-    	  std::complex<double> operator()( uint8_t i, uint8_t j,
-    			                   uint8_t m, uint8_t n) const {
-          return first[i][j] * second[m][n] ; }
+      GTraceContraction( const GTrace & a, const GTrace & b ) :
+	std::pair<GTrace, GTrace>(a, b) { ; }
+
+	std::complex<double> operator()( uint8_t i, uint8_t j,
+					 uint8_t m, uint8_t n) const {
+	  return first[i][j] * second[m][n] ; }
       };
 
     } // math  namespace

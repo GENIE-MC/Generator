@@ -37,17 +37,17 @@ public:
   virtual ~COHFormFactorMap();
 
   // methods to be implemented from COHFormFactorI
-  virtual double ProtonFF ( double Q, int pdg ) const  ;
+  virtual double ProtonFF ( double Q, int pdg ) const override ;
 
-  virtual double NeutronFF( double Q, int pdg ) const {
+  virtual double NeutronFF( double Q, int pdg ) const override {
     return ProtonFF( Q, pdg ) ;
   }
 
-  virtual bool HasNucleus( int pdg ) const ;
+  virtual bool HasNucleus( int pdg ) const override ;
 
   // methods to implemented from Algorithm
-  void Configure (const Registry & config);
-  void Configure (string param_set);
+  void Configure (const Registry & config) override ;
+  void Configure (string param_set) override;
 
 
  protected:
