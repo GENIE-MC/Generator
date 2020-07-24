@@ -122,6 +122,7 @@
    <config alg="genie::RSHelicityAmplModelEMn">                  RSHelicityAmplModelEMn.xml                  </config>
    <config alg="genie::DeVriesFormFactor">                       DeVriesFormFactor.xml                       </config>
    <config alg="genie::COHFormFactorMap">                        COHFormFactorMap.xml                        </config>
+   <config alg="genie::COHFormFactorInterpolation">              COHFormFactorInterpolation.xml              </config>
    <config alg="genie::DeltaTransitionFormFactor">               DeltaTransitionFormFactor.xml               </config>
 
 
@@ -207,7 +208,7 @@
    <config alg="genie::IBDInteractionListGenerator">    IBDInteractionListGenerator.xml  </config>
    <config alg="genie::StrumiaVissaniIBDPXSec">         StrumiaVissaniIBDPXSec.xml       </config>
    <config alg="genie::KLVOxygenIBDPXSec">              KLVOxygenIBDPXSec.xml            </config>
-   
+
    <!-- ****** CONFIGURATION FOR REWEIGHT ALGORITHMS ****** -->
    <config alg="genie::rew::GSystUncertaintyTable">     GSystUncertaintyTable.xml        </config>
 

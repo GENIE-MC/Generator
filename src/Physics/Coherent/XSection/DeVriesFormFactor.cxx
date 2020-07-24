@@ -24,42 +24,24 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
 
-#include "Framework/Utils/StringUtils.h" 
+#include "Framework/Utils/StringUtils.h"
 
 using namespace genie;
 
 
 //____________________________________________________________________________
 DeVriesFormFactor::DeVriesFormFactor() :
-Algorithm("genie::DeVriesFormFactor")
-{
-
-}
+  Algorithm("genie::DeVriesFormFactor"),
+  fCalculator( {}, 0. ),
+  fPDG(0) { ; }
 //____________________________________________________________________________
 DeVriesFormFactor::DeVriesFormFactor(string config) :
-Algorithm("genie::DeVriesFormFactor", config)
-{
-
-}
+  Algorithm("genie::DeVriesFormFactor", config),
+  fCalculator( {}, 0. ),
+  fPDG(0) { ; }
 //____________________________________________________________________________
 DeVriesFormFactor::~DeVriesFormFactor()
 {
-
-}
-//____________________________________________________________________________
-double DeVriesFormFactor::FormFactor( double Q ) const {
-
-  double qr = Q * fRadius ;
-
-  double aux_sum = 0.0, nu ;
-
-  for (unsigned int i = 0 ; i < fFBCs.size() ; ++i ) {
-     nu = i + 1. ;
-     double pi_x_i = constants::kPi*nu ;
-     aux_sum += pow( -1.0, i )*fFBCs[i]/( ( pi_x_i + qr )*( pi_x_i - qr ) ) ;
- }
-
- return 4.*constants::kPi*pow( fRadius/units::fm, 3)*aux_sum*(sin(qr)/(qr) ) ;
 
 }
 //____________________________________________________________________________
@@ -78,15 +60,19 @@ void DeVriesFormFactor::Configure(string config)
 void DeVriesFormFactor::LoadConfig(void)
 {
 
-  // load R33 parameters
-  this -> GetParamVect( "DV-Coefficient", fFBCs ) ;
+  // load coeffictients
+  vector<double> cs;
+  this -> GetParamVect( "DV-Coefficient", cs ) ;
 
-  GetParam( "DV-Radius", fRadius ) ;
-  fRadius *= units::fm ;
+  double r;
+  GetParam( "DV-Radius", r ) ;
+  r *= units::fm ;
+
+  fCalculator = FourierBesselFFCalculator( cs, r ) ;
 
   GetParam( "DV-Nucleus", fPDG ) ;
-  
-  LOG("DeVriesFormFactor", pINFO) << "Loaded " << fFBCs.size() << " coeffictients for nucleus " << fPDG ; 
-  
+
+  LOG("DeVriesFormFactor", pINFO) << "Loaded " << cs.size() << " coeffictients for nucleus " << fPDG ;
+
 }
 //____________________________________________________________________________

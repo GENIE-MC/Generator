@@ -1,11 +1,17 @@
 //____________________________________________________________________________
 /*!
 \class    genie::AlvarezRusoSalaCOHGammaPXSec
+
 \brief    Implementation of the Alvarez-Ruso Sala coherent gamma production model
+
           Is a concrete implementation of the XSecAlgorithmI interface.
+
 \ref
+
 \author   Marco Roda
           University of Liverpool
+          Jon Sensenig
+          University of Pennsylvania
 \created  July, 2020
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -34,30 +40,28 @@ public:
   virtual ~AlvarezRusoSalaCOHGammaPXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec            ( const Interaction * i ) const;
-  double Integral        ( const Interaction * i ) const;
-  bool   ValidProcess    ( const Interaction * i ) const;
-  utils::math::GTrace HadronicCurrent ( const Interaction * interaction ) const;
-  double NeutrinoHadronContraction ( const Interaction * i, const utils::math::GTrace & R ) const;
-  double AntiNeutrinoHadronContraction ( const Interaction * i, const utils::math::GTrace & R ) const;
-  std::complex<double> H( const utils::math::GTrace & R,  unsigned short i, unsigned short j,
-                                          unsigned short k, unsigned short l ) const;
+
+  double XSec            ( const Interaction * i, KinePhaseSpace_t k) const override ;
+  double Integral        ( const Interaction * i) const override ;
+  bool   ValidProcess    ( const Interaction * i) const override ;
+
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
-  void Configure(const Registry & config);
-  void Configure(string config);
+  void Configure(const Registry & config) override ;
+  void Configure(string config) override ;
 
 protected:
   void LoadConfig(void);
 
+  utils::math::GTrace TotalHadronicCurrent ( const Interaction * interaction ) const;
+  double NeutrinoHadronContraction ( const Interaction * i ) const ;
+  double AntiNeutrinoHadronContraction ( const Interaction * i ) const ; 
+
 private:
 
-  //-- private data members loaded from config Registry or set to defaults
-
-  std::vector< const COHHadronicCurrentI * > fCurrents ;
-
-  const COHFormFactorI* fFormFactors ;
+  std::vector<const COHHadronicCurrentI *> fCurrents ;
+  const COHFormFactorI * fFormFactors ;
 
   const XSecIntegratorI * fXSecIntegrator;
 

@@ -10,11 +10,6 @@
 
   For the class documentation see the corresponding header file.
 
-  Important revisions after version 2.0.0 :
-  @ Feb 09, 2009 - CA
-  Moved into the new Coherent package from its previous location  (Elastic
-  package)
-
 */
 //____________________________________________________________________________
 
@@ -40,6 +35,12 @@ COHFormFactorMap::COHFormFactorMap(string config) :
 
 }
 //____________________________________________________________________________
+COHFormFactorMap::COHFormFactorMap( string name, string config ) :
+  COHFormFactorI(name, config)
+{
+
+}
+//____________________________________________________________________________
 COHFormFactorMap::~COHFormFactorMap()
 {
 
@@ -47,17 +48,17 @@ COHFormFactorMap::~COHFormFactorMap()
 //____________________________________________________________________________
 double COHFormFactorMap::ProtonFF( double Q, int pdg ) const {
 
-  const std::map<int, const genie::DeVriesFormFactor *>::const_iterator it = 
-    fNuclearFFs.find( pdg ) ; 
-  
+  const std::map<int, const genie::DeVriesFormFactor *>::const_iterator it =
+    fNuclearFFs.find( pdg ) ;
+
   if ( it == fNuclearFFs.end() ) return 0. ;
-  
-  return it -> second -> FormFactor( Q ) ; 
-  
+
+  return it -> second -> Calculator().FormFactor( Q ) ;
+
 }
 //____________________________________________________________________________
-bool COHFormFactorMap::HasNucleus( int pdg ) const { 
-  
+bool COHFormFactorMap::HasNucleus( int pdg ) const {
+
   return (fNuclearFFs.count( pdg ) > 0) ;
 }
 //____________________________________________________________________________
@@ -77,34 +78,34 @@ void COHFormFactorMap::LoadConfig(void)
 {
 
   fNuclearFFs.clear() ;
-  
-  bool good_configuration = true ; 
+
+  bool good_configuration = true ;
 
   // read the vector of algos from the xml file
   std::vector<RgKey> keys ;
-  GetParamVectKeys( "COH-DV-FormFactor", keys ) ; 
-  
-  // Store pointers to subalgos in the local map 
+  GetParamVectKeys( "COH-DV-FormFactor", keys ) ;
+
+  // Store pointers to subalgos in the local map
   for ( unsigned int i = 0 ; i < keys.size() ; ++i ) {
-    
+
     const Algorithm * algo = SubAlg( keys[i] ) ;
-    
+
     const DeVriesFormFactor * ff = dynamic_cast< const DeVriesFormFactor * >( algo ) ;
-    
+
     if ( ! ff ) {
       good_configuration = false ;
       LOG("COHFormFactorMap", pERROR ) << "SubAlgo with key " << keys[i] << " not retrieved" ;
 
     }
-    
-    if ( fNuclearFFs.count( ff -> NucleusPDG() ) > 0 ) { 
-      
-      good_configuration = false ; 
-      LOG("COHFormFactorMap", pERROR ) << "Attempt to add a second DeVries form factor for PDG " << ff -> NucleusPDG() ; 
+
+    if ( fNuclearFFs.count( ff -> NucleusPDG() ) > 0 ) {
+
+      good_configuration = false ;
+      LOG("COHFormFactorMap", pERROR ) << "Attempt to add a second DeVries form factor for PDG " << ff -> NucleusPDG() ;
     }
-    
+
     fNuclearFFs[ ff -> NucleusPDG() ] = ff ;
-    
+
   }  // loop over subalgo
 
   if ( ! good_configuration ) {
