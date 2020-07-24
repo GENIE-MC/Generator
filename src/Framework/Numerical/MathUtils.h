@@ -33,12 +33,6 @@ namespace genie {
 
     namespace math
     {
-      template< size_t N > 
-      using ComplexArray = std::array< std::complex<double>, N > ;
-      
-      template< size_t N >
-      using ComplexMatrix = std::array< ComplexArray<N>, N > ;
-
       // Cholesky decomposition. Returns lower triangular matrix.
       TMatrixD CholeskyDecomposition (const TMatrixD& cov); 
       // Generates a vector of correlated parameters.
