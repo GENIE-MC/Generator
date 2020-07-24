@@ -29,7 +29,7 @@ namespace genie {
 
     namespace math  {
 
-      using GTrace =  ComplexMatrix<4> ;
+      using GTrace = ComplexMatrix<4> ;
 
       class GTraceContraction : public std::pair<GTrace, GTrace> {
       public:

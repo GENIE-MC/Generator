@@ -29,7 +29,7 @@ namespace genie {
     namespace math  {
 
       template< size_t N >
-      class ComplexArray : public std::array< std::complex<double>, N > {
+	class ComplexArray : public std::array< std::complex<double>, N > {
 
       public: 
         const ComplexArray & operator += ( const ComplexArray & ) ;
@@ -39,7 +39,7 @@ namespace genie {
       } ;
 
       template< size_t N >
-      class ComplexMatrix : public std::array< ComplexArray<N>, N > {
+	class ComplexMatrix : public std::array< ComplexArray<N>, N > {
 
       public: 
         const ComplexMatrix & operator += ( const ComplexMatrix & ) ;
@@ -48,6 +48,86 @@ namespace genie {
         ComplexMatrix Conj() const ;
 
       };
+
+      // all these classes are templated, so they need the implementation locally
+      
+
+      template<size_t N>
+	const ComplexArray<N> & ComplexArray<N>::operator += ( const ComplexArray<N> & v ) {
+
+	for ( unsigned int i = 0 ; i < this->size(); ++i ) {
+	  this->at(i) += v[i] ;
+	}
+
+	return *this ;
+      }
+
+      //____________________________________________________________________________                    
+
+      template<size_t N>
+	const ComplexArray<N> & ComplexArray<N>::operator *= ( const std::complex<double> & c ) {
+
+	for ( unsigned int i = 0 ; i < this->size(); ++i ) {
+	  this -> at(i) *= c ;
+	}
+
+	return *this ;
+
+      }
+
+      //____________________________________________________________________________                    
+      template<size_t N>
+	ComplexArray<N> ComplexArray<N>::Conj() const {
+
+	ComplexArray<N> a;
+	for ( unsigned int i = 0 ; i < this->size(); ++i ) {
+	  a[i] = std::conj( this->at(i) ) ;
+	}
+
+	return a ;
+      }
+
+      //____________________________________________________________________________                    
+
+      template<size_t N>
+	const ComplexMatrix<N> & ComplexMatrix<N>::operator += ( const ComplexMatrix<N> & m ) {
+
+	for ( unsigned int i = 0 ; i < this->size(); ++i ) {
+	  this->at(i) += m[i] ;
+	}
+
+	return *this ;
+      }
+
+      //____________________________________________________________________________             
+
+      template<size_t N>
+	const ComplexMatrix<N> & ComplexMatrix<N>::operator *= ( const std::complex<double> & c ) {
+
+	for ( unsigned int i = 0 ; i < this->size(); ++i ) {
+	  this->at(i) *= c ;
+	}
+
+	return *this ;
+      }
+
+      //____________________________________________________________________________                    
+      template<size_t N >
+	ComplexMatrix<N> ComplexMatrix<N>::Conj() const {
+
+	ComplexMatrix<N> a;
+	for ( unsigned int i = 0 ; i < this->size(); ++i ) {
+	  a[i] = this->at(i).Conj() ;
+	}
+
+	return a ;
+      }
+
+      //____________________________________________________________________________                    
+
+
+
+
 
     } // math  namespace
   } // utils namespace
