@@ -36,10 +36,24 @@ namespace genie {
         const GTrace &operator+=( const GTrace & ) ;
         const GTrace &operator*=( std::complex<double> ) ;
         const GTrace &operator*=( double c ) { return (*this) *= std::complex<double>(c, 0) ; } ;
+
+        GTrace Conj( const GTrace & M ) ;
+
         //GTrace operator*(GTrace &);
         //GTrace operator+(double);
         //GTrace operator*(double);
 	
+      };
+
+      class TraceContraction : public std::pair<GTrace, GTrace> {
+      public:
+
+    	  TraceContraction( const GTrace & a, const GTrace & b ) :
+    	  std::pair<GTrace, GTrace>(a, b) { ; }
+
+    	  std::complex<double> operator()(unsigned short i, unsigned short j,
+    			                          unsigned short m, unsigned short n) {
+          return first[i][j] * std::conj(second[m][n]) ; }
       };
 
     } // math  namespace

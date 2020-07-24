@@ -19,6 +19,7 @@ NCG-Rho0                 double  No         nuclear matter density (fm^-3)
 
         <param type="double" name="NCG-Delta-V0"> 0.08 </param>  <!-- reference-->
         <param type="double" name="NCG-Rho0">  0.17  </param>  <!-- reference-->
+        <param type="double" name="Delta-N-Coupling">  2.14  </param>  <!-- reference-->
     
   </param_set>
 

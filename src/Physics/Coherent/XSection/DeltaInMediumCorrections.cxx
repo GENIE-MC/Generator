@@ -54,6 +54,10 @@ double DeltaInMediumCorrections::FermiMomentum( int nucleus_pdg, int nucleon_pdg
   return kf ;
 
 }
+double DeltaInMediumCorrections::FermiMomentum( int nucleus_pdg ) const {
+  // Invert avg. nucleus density to obtain avg. Fermi momentum for consistency.
+  return pow( ( 3*constants::kPi2*AverageDensity( nucleus_pdg ) / 2 ), 1./3.) ;
+}
 //____________________________________________________________________________
 double DeltaInMediumCorrections::AverageDensity( int nucleus_pdg, int nucleon_pdg ) const {
   
@@ -118,11 +122,9 @@ double DeltaInMediumCorrections::Gamma_tilde( double p2, int nucleus_pdg ) const
 
   double mn  = constants::kNucleonMass ;
   double mpi = constants::kPionMass ;
-  double qcm = sqrt(p2*p2 + pow(mpi,4) + pow(mn,4) - 2.0*p2*mpi*mpi - 2.0*mpi*mpi*mn*mn - 2.0*p2*mn*mn) / ( 2.0 * sqrt(p2) ) ;
 
-  // Reconstruct the avg Fermi momentum from avg nucleus/nucleon density for consistency.
-  double kf_avg = pow( ( 3*constants::kPi2*AverageDensity( nucleus_pdg ) / 2 ), 1./3.) ;
-  double q_tilde = qcm / kf_avg ;
+  double qcm = sqrt(p2*p2 + pow(mpi,4) + pow(mn,4) - 2.0*p2*mpi*mpi - 2.0*mpi*mpi*mn*mn - 2.0*p2*mn*mn) / ( 2.0 * sqrt(p2) ) ;
+  double q_tilde = qcm / FermiMomentum(nucleus_pdg) ;
 
   return Gamma_vacuum(p2) * I_series(q_tilde);
 }
@@ -172,7 +174,9 @@ void DeltaInMediumCorrections::LoadConfig(void)
 
   GetParam( "NCG-Delta-V0", fDeltaV0 ) ; 
 
-  GetParam( "NCG-Rho0", fRho0 ) ; 
+  GetParam( "NCG-Rho0", fRho0 ) ;
+
+  GetParam( "Delta-N-Coupling", fDeltaNCoupling ) ;
   
 
   //  LOG("DeltaInMediumCorrections", pINFO) << "Loaded " << fFBCs.size() << " coeffictients for nucleus " << fPDG ; 

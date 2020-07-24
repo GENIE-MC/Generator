@@ -94,8 +94,8 @@ GTrace COHDeltaCurrent::R( const Interaction * i,
   TLorentzVector * probe = init_state.GetProbeP4( kRfLab ) ;
   TLorentzVector   out_neutrino = i -> Kine().FSLeptonP4() ;
   TLorentzVector   t_photon = i -> Kine().HadSystP4() ;
-
-  TLorentzVector t = (*probe - out_neutrino) - t_photon ;
+  // TODO verify the calculation of t
+  TLorentzVector t = 0.5*( (*probe - out_neutrino) - t_photon );
 
   // This is not quite what is used in original code which was
   // the magnitude of the 3-momentum, here we are using 4-momentum
@@ -138,7 +138,7 @@ GTrace COHDeltaCurrent::DirTrace( const Interaction * i ) const {
   TLorentzVector   t_photon = i -> Kine().HadSystP4() ; 
 
   TLorentzVector t_q = *probe - out_neutrino ; 
-  double Q2 = t_q.Mag2() ;
+  double Q2 = t_q.Mag2() ; // Downstream agnostic to sign
 
   delete probe ; 
 
@@ -496,7 +496,7 @@ GTrace COHDeltaCurrent::CrsTrace( const Interaction * i ) const {
   TLorentzVector   t_photon = i -> Kine().HadSystP4() ;
 
   TLorentzVector t_q = *probe - out_neutrino ;
-  double Q2 = t_q.Mag2() ;
+  double Q2 = t_q.Mag2() ; // Downstream agnostic to sign
 
   delete probe ;
 

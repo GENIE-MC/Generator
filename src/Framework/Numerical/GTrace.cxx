@@ -23,6 +23,8 @@ const GTrace &GTrace::operator+=( const GTrace & M ) {
       (*this)[i][j] += M[i][j];
 	}
   }
+
+
   return *this;
 }
 //____________________________________________________________________________
@@ -32,5 +34,16 @@ const GTrace &GTrace::operator*=( std::complex<double> c) {
       (*this)[i][j] *= c;
 	}
   }
+
   return *this;
+}
+//____________________________________________________________________________
+GTrace GTrace::Conj( const GTrace & M ) {
+  for( unsigned int i=0; i<M.size(); i++ ) {
+    for( unsigned int j=0; j<M.size(); j++ ) {
+      (*this)[i][j] = std::conj(M[i][j]);
+    }
+  }
+  return (*this);
+
 }
