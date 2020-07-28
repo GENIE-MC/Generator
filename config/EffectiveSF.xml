@@ -11,6 +11,7 @@ Configurable Parameters:
 .............................................................................................................
 Name                         Type     Optional  Comment                                        Default
 .............................................................................................................
+FermiMomentumTable           string   No        Table of Fermi momentum (kF) constants         CommonParam[FermiGas]                                                                                 
 BindingEnergy@Pdg=?          double   Yes       effective binding energy for that nucleon      Varies
 f1p1h@Pdg=?                  double   Yes       probability for 1p1h recoil                    Varies
 TransEnhf1p1hMod@Pdg=?       double   Yes       Enhancement to QE peak by 2p2h process.  Only  1
@@ -60,7 +61,7 @@ MomentumCutOff               double   Yes      Set all momentums past this to ze
 
 <param_set name="Default">
 
-<param type="string" name="CommonParam"> ElasticFF </param>
+<param type="string" name="CommonParam"> ElasticFF,FermiGas </param>
 
 <param type="bool" name="EjectSecondNucleon2p2h"> true </param>
 <param type="double" name="MomentumMax"> 1.0 </param>

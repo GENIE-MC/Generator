@@ -115,7 +115,7 @@ double BLI2DUnifGrid::Evaluate(double x, double y) const
 
 /*
   LOG("BLI2DUnifGrid", pDEBUG) << "x = " << x << " -> nearby nodes: " << x1 << ", " << x2;
-  LOG("BLI2DUnifGrid", pDEBUG) << "y = " << x << " -> nearby nodes: " << y1 << ", " << y2;
+  LOG("BLI2DUnifGrid", pDEBUG) << "y = " << y << " -> nearby nodes: " << y1 << ", " << y2;
   LOG("BLI2DUnifGrid", pDEBUG) << "z11 := z(" << this->IdxZ(ix_lo,iy_lo) << ")  = " << z11;
   LOG("BLI2DUnifGrid", pDEBUG) << "z21 := z(" << this->IdxZ(ix_hi,iy_lo) << ")  = " << z21;
   LOG("BLI2DUnifGrid", pDEBUG) << "z12 := z(" << this->IdxZ(ix_lo,iy_hi) << ")  = " << z12;

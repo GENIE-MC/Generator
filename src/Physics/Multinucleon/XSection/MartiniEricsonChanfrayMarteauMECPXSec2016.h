@@ -31,7 +31,6 @@
 #include <vector>
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
-#include "Physics/Multinucleon/XSection/MECHadronTensor.h"
 
 using std::vector;
 

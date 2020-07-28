@@ -202,7 +202,7 @@ void Algorithm::FindConfig(void)
 
       if ( ! config ) {
         LOG("Algorithm", pFATAL)
-	  << "No Commom parameters available for " << it -> first << " list "
+	  << "No Common parameters available for " << it -> first << " list "
 	  << list[i] << " at the ConfigPool";
 
 	    exit( 78 ) ;

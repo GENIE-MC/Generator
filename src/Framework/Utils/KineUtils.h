@@ -92,7 +92,7 @@ namespace kinematics
   bool   IsAboveCharmThreshold (double x, double Q2, double M, double mc);
   double SlowRescalingVar      (double x, double Q2, double M, double mc);
 
-  //-- Functions used to define differential cross section distribution envelopes
+  //-- Functions used to define differential cross section distribution envelopes 
   //-- for importance sampling in kinematical selection modules
   double RESImportanceSamplingEnvelope(double * x, double * par);
   double DISImportanceSamplingEnvelope(double * x, double * par);

@@ -50,13 +50,18 @@ public:
     return kNucmFermiGas; 
   }
 
+  virtual double         FermiMomentum( const Target & t, int nucleon_pdg ) const ;
+
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
 
-private:
+ protected:
   void   LoadConfig (void);
+  
+private:
+
   TH1D * ProbDistro (const Target & t) const;
 
   mutable map<string, TH1D *> fProbDistroMap;
@@ -65,8 +70,8 @@ private:
 
   double fPMax;
   double fPCutOff;
-  string fKFTable;
   bool fUseParametrization;
+
 };
 
 }         // genie namespace

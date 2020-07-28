@@ -156,6 +156,9 @@ void SpectralFunc1d::Configure(string param_set)
 //____________________________________________________________________________
 void SpectralFunc1d::LoadConfig(void)
 {
+  
+  NuclearModelI::LoadConfig() ; 
+
   LOG("SpectralFunc1", pDEBUG) << "Loading coonfiguration for SpectralFunc1d";
 
   this->CleanUp();

@@ -141,7 +141,7 @@
   <priority msgstream="LwlynSmith">            NOTICE </priority>
   <priority msgstream="LHAPDF6">               NOTICE </priority>
   <priority msgstream="Math">                  NOTICE </priority>
-  <priority msgstream="MEC">                   INFO   </priority>
+  <priority msgstream="MEC">                   WARN  </priority>
   <priority msgstream="MuELoss">               NOTICE </priority>
   <priority msgstream="MultProb">              INFO   </priority>
   <priority msgstream="Nieves">                NOTICE </priority>

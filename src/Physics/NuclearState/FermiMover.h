@@ -22,6 +22,11 @@
 #define _FERMI_MOVER_H_
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Physics/NuclearState/FermiMomentumTable.h"
+#include "Framework/Interaction/Target.h"
+#include "Physics/NuclearState/SRCNuclearRecoil.h"
+#include "Physics/NuclearState/SecondNucleonEmissionI.h"
 
 namespace genie {
 
@@ -45,16 +50,16 @@ public :
 private:
 
   void KickHitNucleon          (GHepRecord * evrec) const; ///< give hit nucleon a momentum
-  void Emit2ndNucleonFromSRC   (GHepRecord * evrec,
-                                const int eject_nucleon_pdg) const;
-                                ///^ emit a 2nd nucleon due to short range corellations
+
   void AddTargetNucleusRemnant (GHepRecord * evrec) const; ///< add a recoiled nucleus remnant
 
   void LoadConfig (void);
 
   bool  fKeepNuclOnMassShell;          ///< keep hit bound nucleon on the mass shell?
-  bool  fSRCRecoilNucleon;             ///< simulate recoil nucleon due to short range corellation?
   const NuclearModelI *  fNuclModel;   ///< nuclear model
+
+  const SecondNucleonEmissionI *  fSecondEmitter ; 
+
 };
 
 }      // genie namespace
