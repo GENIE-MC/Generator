@@ -55,7 +55,7 @@ namespace genie {
   private:
     bool ToBeDecayed(const GHepParticle & p) const;
     // comments later
-    std::vector<GHepParticle> Decay(const GHepParticle & p,
+    std::vector<GHepParticle> Decay(const GHepParticle & mother,
                                     const std::vector<int> & pdg_daughters) const;
     // this function will take care of the momentum conservation
     // the output particles cannot be inserted in the event record as they are
@@ -64,9 +64,9 @@ namespace genie {
                            const GHepRecord * event,
                            const std::vector<DecayChannel> & dcs,
                            double total_amplitude) const;
-    std::vector<DecayChannel> DarkMediatorDecayChannels(const GHepParticle & p,
+    std::vector<DecayChannel> DarkMediatorDecayChannels(const GHepParticle & mother,
                                                         const GHepRecord * event) const;
-    std::vector<DecayChannel> DarkNeutrinoDecayChannels(const GHepParticle & p,
+    std::vector<DecayChannel> DarkNeutrinoDecayChannels(const GHepParticle & mother,
                                                         const GHepRecord * event) const;
     void SetSpaceTime(std::vector<GHepParticle> & pp, const GHepParticle & mother,
                       double amplitude) const;
