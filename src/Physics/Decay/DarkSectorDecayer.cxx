@@ -135,52 +135,82 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
      << "Done finding & decaying dark sector particles";
 }
 //____________________________________________________________________________
-  std::vector<GHepParticle> DarkSectorDecayer::Decay (
-    const std::vector<int> & pdg_daughters) const
+std::vector<GHepParticle> DarkSectorDecayer::Decay(
   const GHepParticle & mother,
+  const std::vector<int> & pdg_daughters) const
 {
-//   // Reset previous decay weight
-//   fWeight = 1.;
+  TLorentzVector mother_p4 = *(mother.P4());
+  LOG("DarkSectorDecayer", pINFO)
+    << "Decaying a " << mother.GetName()
+    << " with P4 = " << utils::print::P4AsString(&mother_p4);
 
-//   // Get particle to be decayed
-//   GHepParticle * decay_particle = event->Particle(decay_particle_id);
-//   if( ! decay_particle) {
-//     LOG("DarkSectorDecayer", pERROR)
-//       << "Particle to be decayed not in the event record. Particle id: " << decay_particle_id ; 
-//     return false;
-//   }
+  unsigned int nd = pdg_daughters.size();
+  double mass[nd] = {0.};
 
-//   bool to_be_deleted ;
+  for(unsigned int iparticle = 0; iparticle < nd; iparticle++) {
+    TParticlePDG * daughter = PDGLibrary::Instance()->Find(pdg_daughters[iparticle]);
+    assert(daughter);
 
-//   // Select a decay channel
-//   TDecayChannel * selected_decay_channel =
-//     this->SelectDecayChannel(decay_particle_id, event, to_be_deleted ) ;
+    mass[iparticle] = daughter->Mass();
 
-//   if(!selected_decay_channel) {
-//     LOG("DarkSectorDecayer", pERROR)
-//       << "No decay channel for particle " << decay_particle_id ;
-//     LOG("DarkSectorDecayer", pERROR)
-//       << *event ;
+    SLOG("DarkSectorDecayer", pINFO)
+      << "+ daughter[" << iparticle << "]: "
+      << daughter->GetName() << " (pdg-code = "
+      << pdg_daughters[iparticle] << ", mass = " << mass[iparticle] << ")";
+  }
 
-//     return false;
-//   }
+  bool is_permitted = fPhaseSpaceGenerator.SetDecay(mother_p4, nd, mass);
+  assert(is_permitted);
 
-//   // Decay the exclusive state and copy daughters in the event record
-//   bool decayed = this->DecayExclusive(decay_particle_id, event, selected_decay_channel);
+  // Find the maximum phase space decay weight
+  double wmax = -1;
+  for(int i=0; i<50; i++) {
+    double w = fPhaseSpaceGenerator.Generate();
+    wmax = TMath::Max(wmax,w);
+  }
+  assert(wmax>0);
+  LOG("DarkSectorDecayer", pINFO)
+    << "Max phase space gen. weight for current decay: " << wmax;
 
-//   if ( to_be_deleted ) 
-//     delete selected_decay_channel ; 
+  // Generating un-weighted decays
+  RandomGen * rnd = RandomGen::Instance();
+  wmax *= 2;
+  bool accept_decay=false;
+  unsigned int itry=0;
 
-//   if ( ! decayed ) return false ;
+  while(!accept_decay){
+    itry++;
+    assert(itry<kMaxUnweightDecayIterations);
 
-//   // Update the event weight for each weighted particle decay
-//   double weight = event->Weight() * fWeight;
-//   event->SetWeight(weight);
+    double w  = fPhaseSpaceGenerator.Generate();
+    double gw = wmax * rnd->RndDec().Rndm();
 
-//   // Mark input particle as a 'decayed state' & add its daughter links
-//   decay_particle->SetStatus(kIStDecayedState);
+    if(w>wmax) {
+      LOG("DarkSectorDecayer", pWARN)
+        << "Current decay weight = " << w << " > wmax = " << wmax;
+    }
+    LOG("DarkSectorDecayer", pINFO)
+      << "Current decay weight = " << w << " / R = " << gw;
 
-  // return true;
+    accept_decay = (gw<=w);
+  }
+
+  // A decay was generated - Copy to the event record
+  std::vector<GHepParticle> particles;
+  // Loop over daughter list and add corresponding GHepParticles
+  for(unsigned int id = 0; id < nd; id++) {
+    TLorentzVector * daughter_p4 = fPhaseSpaceGenerator.GetDecay(id);
+    LOG("DarkSectorDecayer", pDEBUG)
+      << "Adding daughter particle with PDG code = " << pdg_daughters[id]
+      << " and mass = " << mass[id] << " GeV";
+    GHepStatus_t daughter_status_code = (pdg_daughters[id]==kPdgDNuMediator)
+      ? kIStDecayedState : kIStStableFinalState;
+    particles.push_back(GHepParticle(pdg_daughters[id], daughter_status_code,
+                                     -1, -1, -1, -1,
+                                     *daughter_p4, TLorentzVector()));
+  }
+
+  return particles;
 }
 //____________________________________________________________________________
 int DarkSectorDecayer::SelectDecayChannel(
