@@ -169,11 +169,21 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
   // return true;
 }
 //____________________________________________________________________________
-DecayChannel DarkSectorDecayer::SelectDecayChannel(
-  const GHepParticle & p,
-  const GHepRecord * event) const
+int DarkSectorDecayer::SelectDecayChannel(
+  const GHepParticle & mother,
+  const GHepRecord * event,
+  const std::vector<DecayChannel> & dcs,
+  const double total_amplitude) const
 {
+  // Select a decay based on the amplitudes
+  unsigned int ich = 0, sel_ich; // id of selected decay channel
+  RandomGen * rnd = RandomGen::Instance();
+  double x = total_amplitude * rnd->RndDec().Rndm();
+  do {
+    sel_ich = ich;
+  } while (x > dcs.at(ich++).second);
 
+  return sel_ich;
 }
 //____________________________________________________________________________
 std::vector<DecayChannel> DarkSectorDecayer::DarkMediatorDecayChannels(
