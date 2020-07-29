@@ -235,20 +235,29 @@ void DarkSectorDecayer::SetSpaceTime(
 //____________________________________________________________________________
 bool DarkSectorDecayer::ToBeDecayed(const GHepParticle & p) const
 {
-  // TODO DNu: is there any point to the status_code?
-  // GHepStatus_t status_code = p->Status();
+  GHepStatus_t status_code = p.Status();
+  if(status_code != kIStDecayedState) return false;
 
   int pdg_code = p.Pdg();
   bool is_handled = false;
   if(pdg_code == kPdgDNuMediator ||
      pdg_code == kPdgDarkNeutrino ||
      pdg_code == kPdgAntiDarkNeutrino){
-    return true;
+    is_handled = true;
   }
 
   LOG("DarkSectorDecayer", pDEBUG)
       << "Can decay particle with PDG code = " << pdg_code
       << "? " << ((is_handled)? "Yes" : "No");
+
+  // // Find the particle in the PDG library & quit if it does not exist
+  // TParticlePDG * mother = PDGLibrary::Instance()->Find(pdg_code);
+  // if(!mother && is_handled) {
+  //   LOG("DarkSectorDecayer", pERROR)
+  //     << "\n *** The particle with PDG code = " << pdg_code
+  //     << " was not found in PDGLibrary";
+  //   //exit;
+  // }
 
   return is_handled;
 }
