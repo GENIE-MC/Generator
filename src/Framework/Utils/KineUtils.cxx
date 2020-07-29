@@ -273,72 +273,40 @@ double genie::utils::kinematics::Jacobian(
   }
 
   // Transformation: {Tl,ctl} -> {W,Q2}|E
+  // IMPORTANT NOTE: This transformation can't be done exactly in two
+  // dimensions due to Fermi motion. For fixed {W,Q2}, the azimuthal angle phi
+  // is uniformly distributed in the hit nucleon rest frame, while for fixed
+  // {Tl,ctl} it is uniform in the lab frame (i.e., the target nucleus rest
+  // frame). A 3D Jacobian is needed in order to account for the relationship
+  // between these two azimuthal angles. In the implementation below, I choose
+  // to neglect Fermi motion. Under this approximation, the lab and hit nucleon
+  // rest frames are the same. Doing things this way is a stopgap solution for
+  // the new XSecShape_CCMEC reweighting dial developed for MicroBooNE. A full
+  // solution should use the Jacobian that connects the 3D phase spaces which
+  // each include phi. - S. Gardiner, 29 July 2020
   else if ( TransformMatched(fromps, tops, kPSTlctl, kPSWQ2fE, forward) )
   {
-    // Lab-frame outgoing lepton kinetic energy and scattering cosine
-    double Tl = i->Kine().GetKV( kKVTl );
-    double ctl = i->Kine().GetKV( kKVctl );
-
-    // Probe mass
+    // Probe properties (mass, energy, momentum)
     const InitialState& init_state = i->InitState();
     double mv = init_state.Probe()->Mass();
+    double Ev = init_state.ProbeE( kRfLab );
+    double pv = std::sqrt( std::max(0., Ev*Ev - mv*mv) );
+
+    // Invariant mass of the initial hit nucleon
+    const TLorentzVector& hit_nuc_P4 = init_state.Tgt().HitNucP4();
+    double M = hit_nuc_P4.M();
 
     // Outgoing lepton mass
     double ml = i->FSPrimLepton()->Mass();
 
-    // Q^2 from Tl and ctl
-    double Ev = init_state.ProbeE( kRfLab );
-    double pv = std::sqrt( std::max(0., Ev*Ev - mv*mv) );
-    double El = Tl + ml;
-    double pl = std::sqrt( Tl*Tl + 2.*ml*Tl );
-    double Q2 = -mv*mv - ml*ml + 2.*Ev*El - 2.*pv*pl*ctl;
+    double W = i->Kine().GetKV( kKVW );
+    double Q2 = i->Kine().GetKV( kKVQ2 );
+    double El = Ev - ( (W*W + Q2 - M*M) / (2.*M) );
+    double pl = std::sqrt( std::max(0., El*El - ml*ml) );
 
-    // Energy transfer and 3-momentum transfer magnitude
-    double omega = Ev - El;
-    double q = std::sqrt( std::max(0., Q2 + omega*omega) );
-    assert( q > 0. );
-
-    // Hit nucleon
-    const TLorentzVector& hit_nuc_P4 = init_state.Tgt().HitNucP4();
-    double ENi = hit_nuc_P4.E();
-    double M = hit_nuc_P4.M();
-
-    // Calculation of W is the part that requires us to know the lepton
-    // azimuthal angle phi. Fermi motion of the initial nucleon cluster
-    // breaks the rotational symmetry.
-
-    // Get the outgoing lepton phi from the event record. Avoid assuming that
-    // the input values of Tl and ctl reflect the 4-momentum present there by
-    // building our own outgoing lepton 4-momentum here. To finish the
-    // calculation, we're forced to assume that the phi value from the event
-    // record is set to the desired value.
-    double phi_lep = i->Kine().FSLeptonP4().Phi();
-
-    // Now that we have the azimuthal angle, build the full 4-momentum
-    // of the lepton in the laboratory frame given the input Tl and ctl
-    double stl = std::sqrt( std::max(0., 1. - ctl*ctl) );
-    double pxl = pl * stl * std::cos( phi_lep );
-    double pyl = pl * stl * std::sin( phi_lep );
-    double pzl = pl * ctl;
-    TLorentzVector lep_P4( pxl, pyl, pzl, El );
-
-    // Mandelstam s
-    double s = std::pow( init_state.CMEnergy(), 2 );
-
-    // Dot product of the initial struck nucleon cluster 4-momentum
-    // and the 4-momentum transfer
-    double pNi_dot_q = 0.5*( s - mv*mv - M*M ) - hit_nuc_P4.Dot( lep_P4 );
-
-    // We can now easily compute W using the 4-vector product
-    double W = std::sqrt( std::max(0., M*M - Q2 + 2.*pNi_dot_q) );
-
-    J = 2. * pv * pl / ( W * q * q );
-    J *= ( ENi*Q2 + omega*pNi_dot_q );
-
-    // Form used here is actually for the inverse transformation
-    // {W,Q2}|E -> {Tl,ctl}
-    assert( J > 0. );
-    J = 1. / J;
+    // Compute the Jacobian for {Tl, ctl} --> {W, Q2}
+    // (it will be inverted below for the inverse transformation)
+    J = W / ( 2. * pv * pl * M );
   }
 
   else {
