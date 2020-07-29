@@ -626,6 +626,17 @@ void DarkSectorDecayer::Configure(string config)
 //____________________________________________________________________________
 void DarkSectorDecayer::LoadConfig(void)
 {
+  double DKineticMixing = 0.;    // \varepsilon
+  this->GetParam("Dark-KineticMixing", DKineticMixing);
+  fEps2 = DKineticMixing * DKineticMixing;
+
+  double DTheta = 0.;            // \theta
+  this->GetParam("Dark-Theta", DTheta);
+  fTheta2 = DTheta * DTheta;
+
+  double DGaugeCoupling = 0.;   // g_D
+  this->GetParam("Dark-GaugeCoupling", DGaugeCoupling);
+  fgD2 = DGaugeCoupling * DGaugeCoupling;
 
   fDNuMass = 0.;
   this->GetParam("Dark-NeutrinoMass", fDNuMass);
@@ -635,7 +646,6 @@ void DarkSectorDecayer::LoadConfig(void)
   this->GetParam("Dark-MediatorMass", fDMediatorMass);
   fDMediatorMass2 = fDMediatorMass * fDMediatorMass;
 
-  
   // Decayer::LoadConfig() ;
 
   // this -> GetParam( "DarkMediatorMass", fDarkMediatorMass ) ;

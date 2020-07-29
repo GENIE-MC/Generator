@@ -74,6 +74,10 @@ namespace genie {
     mutable TGenPhaseSpace fPhaseSpaceGenerator;
     mutable double         fWeight;
 
+    double fEps2;
+    double fTheta2;
+    double fgD2;
+
     double fDNuMass, fDNuMass2;
     double fDMediatorMass, fDMediatorMass2;
 
