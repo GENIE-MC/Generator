@@ -51,6 +51,7 @@ namespace genie {
     void   CalculateKin_BergerSehgal(GHepRecord * event_rec) const;
     void   CalculateKin_BergerSehgalFM(GHepRecord * event_rec) const;
     void   CalculateKin_AlvarezRuso(GHepRecord * event_rec) const;
+    void   CalculateKin_AlvarezRusoSala(GHepRecord * event_rec) const;
     void SetKinematics(const double E_l, const double theta_l, const double phi_l, 
                        const double theta_pi, const double phi_pi, 
                        const     Interaction* interaction, Kinematics* kinematics) const;
@@ -64,6 +65,7 @@ namespace genie {
     double MaxXSec_BergerSehgal (const Interaction * in) const;
     double MaxXSec_BergerSehgalFM (const Interaction * in) const;
     double MaxXSec_AlvarezRuso (const Interaction * in) const;
+    double MaxXSec_AlvarezRusoSala(const Interaction * in) const;
 
     // overload KineGeneratorWithCache method to get energy
     double Energy         (const Interaction * in) const;

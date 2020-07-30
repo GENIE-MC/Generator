@@ -932,11 +932,13 @@ void SaveGraphsToRootFile(void)
 	  xscohcc[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
 	}
       }
+
       if (proc.IsCoherentProduction() && proc.IsWeakNC()) {
 	for(int i=0; i<kNSplineP; i++) {
 	  xscohnc[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
 	}
       }
+
       if ( proc.IsCoherentProduction() ) {
 	for(int i=0; i<kNSplineP; i++) {
 	  xscohtot[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));

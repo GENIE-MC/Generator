@@ -148,6 +148,7 @@
    <config alg="genie::AhrensNCELPXSec">                    AhrensNCELPXSec.xml                    </config>
    <config alg="genie::AhrensDMELPXSec">                    AhrensDMELPXSec.xml                    </config>
    <config alg="genie::AlvarezRusoCOHPiPXSec">              AlvarezRusoCOHPiPXSec.xml              </config>
+   <config alg="genie::AlvarezRusoSaulSalaCOHGammaPXSec">   AlvarezRusoSaulSalaCOHGammaPXSec.xml   </config>
    <config alg="genie::BergerSehgalCOHPiPXSec2015">         BergerSehgalCOHPiPXSec2015.xml         </config>
    <config alg="genie::BergerSehgalFMCOHPiPXSec2015">       BergerSehgalFMCOHPiPXSec2015.xml       </config>
    <config alg="genie::LwlynSmithQELCCPXSec">               LwlynSmithQELCCPXSec.xml               </config>
