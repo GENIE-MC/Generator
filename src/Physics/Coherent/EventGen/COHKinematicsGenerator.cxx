@@ -96,7 +96,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
     CalculateKin_AlvarezRuso(evrec);
   } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoSalaCOHGammaPXSec")) {
-    CalculateKin_AlvarezRusoSaulSala(evrec);
+    CalculateKin_AlvarezRusoSala(evrec);
   }
   else {
     LOG("COHKinematicsGenerator",pFATAL) <<
