@@ -911,8 +911,8 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
     max_xsec = MaxXSec_BergerSehgalFM(in);
   } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
     max_xsec = MaxXSec_AlvarezRuso(in);
-  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoSaulSalaCOHGammaPXSec")) {
-    max_xsec = MaxXSec_AlvarezRusoSaulSala(in);
+  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoSalaCOHGammaPXSec")) {
+    max_xsec = MaxXSec_AlvarezRusoSala(in);
   }
 
   else {
@@ -1147,7 +1147,7 @@ double COHKinematicsGenerator::MaxXSec_AlvarezRuso(const Interaction * in) const
   return max_xsec;
 }
 //___________________________________________________________________________
-double COHKinematicsGenerator::MaxXSec_AlvarezRusoSaulSala(const Interaction * in) const
+double COHKinematicsGenerator::MaxXSec_AlvarezRusoSala(const Interaction * in) const
 {
   // Computes the maximum differential cross section in the requested phase
   // space. This method overloads KineGeneratorWithCache::ComputeMaxXSec
