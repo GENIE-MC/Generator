@@ -77,7 +77,8 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
     CalculateHadronicSystem_BergerSehgal(evrec);
   } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015")) {
     CalculateHadronicSystem_BergerSehgalFM(evrec);
-  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
+  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec") || 
+	     (fXSecModel->Id().Name() == "genie::AlvarezRusoSaulSalaCOHGammaPXSec")) {
     CalculateHadronicSystem_AlvarezRuso(evrec);
   }
   else {
@@ -343,35 +344,44 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_AlvarezRuso(GHepRecord 
   GHepParticle * Ni  = evrec->TargetNucleus();
   GHepParticle * fsl = evrec->FinalStatePrimaryLepton();
 
-  // Pion
-  const TLorentzVector ppi  = kinematics.HadSystP4();
-  const TVector3 ppi3 = ppi.Vect();
-  const double Epi = ppi.E();
-  int pion_pdgc=0;
-  if ( interaction->ProcInfo().IsWeakCC() ) {
-    if( nu->Pdg() > 0 ){ // neutrino
-      pion_pdgc = kPdgPiP;
+  // Pion or Photon
+  const TLorentzVector p_other  = kinematics.HadSystP4();
+  const TVector3 p_other3 = p_other.Vect();
+  const double E_other = p_other.E();
+
+  const XclsTag & xcls = interaction->ExclTag();
+  
+  int other_pdgc = 0 ; 
+
+  if ( xcls.NPions() > 0 ) {
+    if ( interaction->ProcInfo().IsWeakCC() ) {
+      if( nu->Pdg() > 0 ){ // neutrino
+	other_pdgc = kPdgPiP;
+      }
+      else{ // anti-neutrino
+	other_pdgc = kPdgPiM;
+      }
     }
-    else{ // anti-neutrino
-      pion_pdgc = kPdgPiM;
+    else if ( interaction->ProcInfo().IsWeakNC() ) {
+      other_pdgc = kPdgPi0;
+    }
+    else{
+      LOG("COHHadronicSystemGeneratorAR", pFATAL)
+	<< "Could not determine pion involved in interaction";
+      exit(1);
     }
   }
-  else if ( interaction->ProcInfo().IsWeakNC() ) {
-    pion_pdgc = kPdgPi0;
-  }
-  else{
-    LOG("COHHadronicSystemGeneratorAR", pFATAL)
-      << "Could not determine pion involved in interaction";
-    exit(1);
+  else if ( xcls.NSingleGammas() > 0 ) {
+    other_pdgc = kPdgGamma ;
   }
 
   //
   // Nucleus
   int nucl_pdgc = Ni->Pdg(); // pdg of final nucleus same as the initial nucleus
-  double pxNf = nu->Px() + Ni->Px() - fsl->Px() - ppi3.Px();
-  double pyNf = nu->Py() + Ni->Py() - fsl->Py() - ppi3.Py();
-  double pzNf = nu->Pz() + Ni->Pz() - fsl->Pz() - ppi3.Pz();
-  double ENf  = nu->E()  + Ni->E()  - fsl->E()  - Epi;
+  double pxNf = nu->Px() + Ni->Px() - fsl->Px() - p_other3.Px();
+  double pyNf = nu->Py() + Ni->Py() - fsl->Py() - p_other3.Py();
+  double pzNf = nu->Pz() + Ni->Pz() - fsl->Pz() - p_other3.Pz();
+  double ENf  = nu->E()  + Ni->E()  - fsl->E()  - E_other;
   //
   // Both
   const TLorentzVector & vtx   = *(nu->X4());
@@ -382,7 +392,8 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_AlvarezRuso(GHepRecord 
   evrec->AddParticle(nucl_pdgc,kIStStableFinalState, mom,-1,-1,-1,
                      pxNf, pyNf, pzNf, ENf, 0, 0, 0, 0);
 
-  evrec->AddParticle(pion_pdgc,kIStStableFinalState, mom,-1,-1,-1,
-                     ppi3.Px(), ppi3.Py(),ppi3.Pz(),Epi, vtx.X(), vtx.Y(), vtx.Z(), vtx.T());
+  evrec->AddParticle(other_pdgc,kIStStableFinalState, mom,-1,-1,-1,
+                     p_other.Px(), p_other3.Py(),p_other3.Pz(),E_other, 
+		     vtx.X(), vtx.Y(), vtx.Z(), vtx.T());
 }
 

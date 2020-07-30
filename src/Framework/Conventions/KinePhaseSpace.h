@@ -67,7 +67,8 @@ typedef enum EKinePhaseSpace {
               // TODO: rename this value when the correct variables are identified
   kPSTAfE,
   kPSEgTlOgfE,
-  kPSDMELEvGen // Equivalent to kPSQELEvGen for Dark Matter scattering  
+  kPSDMELEvGen, // Equivalent to kPSQELEvGen for Dark Matter scattering  
+  kPSEgTlTgPgfE
 } KinePhaseSpace_t;
 
 class KinePhaseSpace
@@ -115,6 +116,7 @@ public:
       case(kPSTlctl)      : return "<{Tl,cos(theta_l)}|E>";     break;
       case(kPSElOlOpifE)  : return "<{El,Omega_l,Omega_pi}|E>"; break;
       case(kPSEgTlOgfE)   : return "<{Egamma,Theta_l,Omega_gamma}|E>"; break;
+      case(kPSEgTlTgPgfE) : return "<{Egamma,Theta_l,Theta_gamma,Phi_gamma}|E>"; break;
       case(kPSElOlTpifE)  : return "<{El,Omega_l,Theta_pi}|E>"; break;
       case(kPSTkTlctl)    : return "<{Tk,Tl,cos(theta_l)}|E>";  break;
       case(kPSQ2vfE)      : return "<{Q2,v}|E>"; break;
