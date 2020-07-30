@@ -95,7 +95,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
     CalculateKin_BergerSehgalFM(evrec);
   } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
     CalculateKin_AlvarezRuso(evrec);
-  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoSaulSalaCOHGammaPXSec")) {
+  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoSalaCOHGammaPXSec")) {
     CalculateKin_AlvarezRusoSaulSala(evrec);
   }
   else {
@@ -621,7 +621,7 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
   }//while
 }
 //---------------------------------------------------------------------------
-void COHKinematicsGenerator::CalculateKin_AlvarezRusoSaulSala(GHepRecord * evrec) const
+void COHKinematicsGenerator::CalculateKin_AlvarezRusoSala(GHepRecord * evrec) const
 {
   LOG("COHKinematics", pNOTICE) << "Using AlvarezRusoSaulSala Gamma Model";
   // Get the Primary Interacton object

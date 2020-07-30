@@ -78,7 +78,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015")) {
     CalculateHadronicSystem_BergerSehgalFM(evrec);
   } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec") || 
-	     (fXSecModel->Id().Name() == "genie::AlvarezRusoSaulSalaCOHGammaPXSec")) {
+	     (fXSecModel->Id().Name() == "genie::AlvarezRusoSalaCOHGammaPXSec")) {
     CalculateHadronicSystem_AlvarezRuso(evrec);
   }
   else {
