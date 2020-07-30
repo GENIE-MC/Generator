@@ -234,7 +234,31 @@ std::vector<DecayChannel> DarkSectorDecayer::DarkMediatorDecayChannels(
   const GHepParticle & mother,
   const GHepRecord * event) const
 {
+  // eq (4) and (5) and maybe some other higher order variations
+  // TODO DNu: what alpha_D is?
 
+  const double alpha_D = 0.25; // value on the paper
+  std::array<int, 3> neutrinos = {kPdgNuE, kPdgNuMu, kPdgNuTau};
+  std::array<int, 3> antineutrinos = {kPdgAntiNuE, kPdgAntiNuMu, kPdgAntiNuTau};
+
+  std::vector<DecayChannel> dcs;
+  for(size_t i=0; i<neutrinos.size(); ++i){
+    for(size_t j=0; j<antineutrinos.size(); ++j){// for antineutrinos
+      const double decay_width = alpha_D/3. * fMixing2s[i]*fMixing2s[j] * fDMediatorMass;
+      dcs.push_back(DecayChannel{{neutrinos[i], antineutrinos[j]}, decay_width});
+    }
+  }
+
+  if(fDMediatorMass > 2.*PDGLibrary::Instance()->Find(kPdgElectron)->Mass()){
+    const double decay_width = kAem*fEps2/3. * fDMediatorMass;
+    dcs.push_back(DecayChannel{{kPdgElectron, kPdgPositron}, decay_width});
+  }
+  // In the future for the decay to muons
+  // if(fDMediatorMass > 2.*PDGLibrary::Instance()->Find(kPdgMuon)->Mass()){
+  //   const double decay_width = kAem*epsilon2/3. * fDMediatorMass;
+  //   dcs.push_back(DecayChannel{{kPdgMuon, kPdgAntiMuon}, decay_width});
+  // }
+  return dcs;
 }
 //____________________________________________________________________________
 std::vector<DecayChannel> DarkSectorDecayer::DarkNeutrinoDecayChannels(
