@@ -101,20 +101,20 @@ GTrace COHDeltaCurrent::R( const Interaction * i,
 
   const InitialState & init_state = i -> InitState();
 
-  TLorentzVector * probe = init_state.GetProbeP4( kRfLab ) ;
-  TLorentzVector   out_neutrino = i -> Kine().FSLeptonP4() ;
-  TLorentzVector   t_photon = i -> Kine().HadSystP4() ;
+  double k0 = init_state.ProbeE( kRfLab ) ;
+  TLorentzVector probe( 0., 0., k0, k0 ) ; 
+  TLorentzVector out_neutrino = i -> Kine().FSLeptonP4() ;
+  TLorentzVector t_photon = i -> Kine().HadSystP4() ;
   // TODO verify the calculation of t
-  TLorentzVector t = 0.5*( (*probe - out_neutrino) - t_photon );
+  TLorentzVector t = 0.5*( (probe - out_neutrino) - t_photon );
 
   // This is not quite what is used in original code which was
   // the magnitude of the 3-momentum, here we are using 4-momentum
-  TLorentzVector p(t.Px(), t.Py(), t.Pz(), 0);
-  p.SetE( sqrt(constants::kProtonMass2 + p.Mag2()) ) ;
+  TLorentzVector p( t.Vect(), 
+		    sqrt(constants::kNucleonMass + t.Vect().Mag2() ) );
+
   double p2 = p.Mag2() ;
   double p0 = out_neutrino.E() ;
-
-  delete probe ;
 
   int pdg = init_state.Tgt().Pdg() ;
 
@@ -142,15 +142,13 @@ GTrace COHDeltaCurrent::R( const Interaction * i,
 GTrace COHDeltaCurrent::DirTrace( const Interaction * i ) const {
 
   // these calculations expects the interaction to be in the lab frame with the incoming neutrino parallel to z
+  double k0 = i -> InitState().ProbeE( kRfLab ) ;
+  TLorentzVector probe( 0., 0., k0, k0 ) ; 
+  TLorentzVector out_neutrino = i -> Kine().FSLeptonP4() ; 
+  TLorentzVector t_photon = i -> Kine().HadSystP4() ; 
 
-  TLorentzVector * probe = i -> InitState().GetProbeP4( kRfLab ) ;
-  TLorentzVector   out_neutrino = i -> Kine().FSLeptonP4() ; 
-  TLorentzVector   t_photon = i -> Kine().HadSystP4() ; 
-
-  TLorentzVector t_q = *probe - out_neutrino ; 
+  TLorentzVector t_q = probe - out_neutrino ; 
   double Q2 = std::abs(t_q.Mag2()) ; // Must be >0
-
-  delete probe ; 
 
     // this requires Q2
   double C3v   = delta_ff -> C3V( Q2 ) ;
@@ -498,15 +496,13 @@ GTrace COHDeltaCurrent::CrsTrace( const Interaction * i ) const {
 
 
   // these calculations expects the interaction to be in the lab frame with the incoming neutrino parallel to z
+  double k0 = i->InitState().ProbeE( kRfLab ) ;
+  TLorentzVector probe( 0., 0., k0, k0 ) ; 
+  TLorentzVector out_neutrino = i -> Kine().FSLeptonP4() ;
+  TLorentzVector t_photon = i -> Kine().HadSystP4() ;
 
-  TLorentzVector * probe = i -> InitState().GetProbeP4( kRfLab ) ;
-  TLorentzVector   out_neutrino = i -> Kine().FSLeptonP4() ;
-  TLorentzVector   t_photon = i -> Kine().HadSystP4() ;
-
-  TLorentzVector t_q = *probe - out_neutrino ;
+  TLorentzVector t_q = probe - out_neutrino ;
   double Q2 = std::abs(t_q.Mag2()) ; // Must be >0
-
-  delete probe ;
 
   // this requires Q2
   double C3v   = delta_ff -> C3V( Q2 ) ;

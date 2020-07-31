@@ -34,16 +34,16 @@ namespace genie {
       class GTraceContraction : public std::pair<GTrace, GTrace> {
       public:
 
-  GTraceContraction( const GTrace & t ) :
-	  std::pair<GTrace, GTrace>(t.Conj(), t) { ; }
+      GTraceContraction( const GTrace & t ) :
+	std::pair<GTrace, GTrace>(t.Conj(), t) { ; }
 
-  GTraceContraction( const GTrace & a, const GTrace & b ) :
-	  std::pair<GTrace, GTrace>(a, b) { ; }
+      GTraceContraction( const GTrace & a, const GTrace & b ) :
+	std::pair<GTrace, GTrace>(a, b) { ; }
 
 	std::complex<double> operator()( uint8_t i, uint8_t j,
-		                         			 uint8_t m, uint8_t n) const {
+					 uint8_t m, uint8_t n) const {
 	  return first[i][j] * second[m][n] ; }
-  };
+      };
 
     } // math  namespace
   } // utils namespace

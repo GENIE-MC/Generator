@@ -6,7 +6,11 @@ Configuration sets for the COHFormFactorInterpolation
 
 Configurable Parameters:
 .........................................................................................................................
+<<<<<<< HEAD
 Name                          Type     Optional   Comment                                                    Default
+=======
+Name                          Type     Optional   Comment                                                    Defaul
+>>>>>>> c90987546d5cad8d73d0d2f791c6a0fb03f15f2d
 .........................................................................................................................
 COH-DV-FormFactor             vec-alg  No         Vector of DeVries sub algo and nuclei specification        -
 AllowExtrapolation            bool     yes        Allow map extrapolation at higher pdg than map maximum     false
@@ -24,6 +28,7 @@ AllowExtrapolation            bool     yes        Allow map extrapolation at hig
     </param>
 
     <param type="bool" name="AllowExtrapolation"> false  </param>
+
   </param_set>
 
 

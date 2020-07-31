@@ -35,7 +35,7 @@ public:
   virtual ~COHDeltaCurrent();
 
   virtual utils::math::GTrace R( const Interaction * i,
-	                       			   const COHFormFactorI * ff ) const override ;
+				 const COHFormFactorI * ff ) const override ;
 
   virtual Resonance_t Resonance() const override { return kP33_1232 ; }
 

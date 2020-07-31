@@ -177,6 +177,7 @@ void DeltaInMediumCorrections::LoadConfig(void)
 
   GetParam( "Delta-N-Coupling", fDeltaNCoupling ) ;
   
+  
   LOG("DeltaInMediumCorrections", pINFO) << "DeltaV0 " << fDeltaV0 << " Rho0 " << fRho0 << " Delta Coupling " << fDeltaNCoupling;
   
 }
