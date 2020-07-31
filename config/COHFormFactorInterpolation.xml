@@ -27,7 +27,7 @@ AllowExtrapolation            bool     yes        Allow map extrapolation at hig
       genie::DeVriesFormFactor/40Ar
     </param>
 
-    <param type="bool" name="AllowExtrapolation"> false  </param>
+    <param type="bool" name="AllowExtrapolation"> false </param>
 
   </param_set>
 
