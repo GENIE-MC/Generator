@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+
+Configuration sets for the AlvarezRusoSalaCOHGammaPXSec
+
+Configurable Parameters:
+.........................................................................................................................
+Name                          Type     Optional   Comment                                                    Default
+.........................................................................................................................
+COH-HadronicCurrents          vec-alg  No         Vector of hadronic current sub algos                         -
+COH-FormFactor                alg      No         DeVries form facor sub algo                                  -
+XSec-Integrator               alg      No         Cross section integrator sub algo                            - 
+-->
+
+
+
+<alg_conf>
+
+  <param_set name="Default">
+
+    <param type="vec-alg" name="COH-HadronicCurrents" delim=";">
+      genie::COHDeltaCurrent/Default
+    </param>
+ 
+    <param type="alg"  name="COH-FormFactor"> genie::COHFormFactorMap/Default </param>
+    <param type="alg"  name="XSec-Integrator"> genie::COHXSec/Default </param>
+
+  </param_set>
+
+
+</alg_conf>
