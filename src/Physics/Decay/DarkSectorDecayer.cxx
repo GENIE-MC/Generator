@@ -265,7 +265,27 @@ std::vector<DecayChannel> DarkSectorDecayer::DarkNeutrinoDecayChannels(
   const GHepParticle & mother,
   const GHepRecord * event) const
 {
+  // eq (3) and higher order variations 
 
+  const double alpha_D = 0.25; // value on the paper
+  std::array<int, 3> neutrinos = {kPdgNuE, kPdgNuMu, kPdgNuTau};
+  std::array<int, 3> antineutrinos = {kPdgAntiNuE, kPdgAntiNuMu, kPdgAntiNuTau};
+  std::vector<DecayChannel> dcs;
+
+  if(fDNuMass > fDMediatorMass){
+    for(size_t i=0; i<neutrinos.size(); ++i){
+      const double mass2ratio = fDMediatorMass2/fDNuMass2;
+      const double p0 = 0.5*alpha_D * fMixing2s[3] * fMixing2s[i];
+      const double p1 = fDNuMass*fDNuMass2/fDMediatorMass2;
+      const double p2 = 1 - mass2ratio;
+      const double p3 = 1 + mass2ratio - 2*mass2ratio*mass2ratio;
+      const double decay_width = p0 * p1 * p2 * p3;
+      dcs.push_back(DecayChannel{{neutrinos[i], kPdgDNuMediator}, decay_width});
+      // TODO DNu: how to do antineutrinos decay?
+      // dcs.push_back(DecayChannel{{antineutrinos[i], kPdgDNuMediator}, decay_width});
+    }
+  }
+  return dcs;
 }
 //____________________________________________________________________________
 void DarkSectorDecayer::SetSpaceTime(
