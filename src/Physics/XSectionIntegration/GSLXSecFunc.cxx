@@ -824,7 +824,7 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
   photon_3vector.SetMagThetaPhi( xin[0], xin[2], xin[3] ) ;
   TLorentzVector P4_photon   = TLorentzVector(photon_3vector, xin[0] );
  
-  double Q2 = -(*P4_nu-P4_lep).Mag2();
+  double Q2 = -(P4_nu-P4_lep).Mag2();
   
   double x = Q2/(2 * xin[0] * constants::kNucleonMass );
   
