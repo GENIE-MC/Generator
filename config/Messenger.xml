@@ -59,7 +59,7 @@
   <priority msgstream="COHXSecAR">             NOTICE </priority>
   <priority msgstream="CLAP">                  NOTICE </priority>
   <priority msgstream="COHHadronicVtx">        WARN   </priority>
-  <priority msgstream="COHKinematics">         WARN   </priority>
+  <priority msgstream="COHKinematics">         NOTICE   </priority>
   <priority msgstream="DFRHadronicVtx">        DEBUG  </priority>
   <priority msgstream="DFRKinematics">         DEBUG  </priority>
   <priority msgstream="Decay">                 NOTICE </priority>

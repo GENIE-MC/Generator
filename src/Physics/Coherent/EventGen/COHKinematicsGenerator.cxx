@@ -1,29 +1,29 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
- For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+  Copyright (c) 2003-2019, The GENIE Collaboration
+  For the full text of the license visit http://copyright.genie-mc.org
+  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+  University of Liverpool & STFC Rutherford Appleton Lab 
 
- For the class documentation see the corresponding header file.
+  For the class documentation see the corresponding header file.
 
- Important revisions after version 2.0.0 :
- @ Feb 09, 2009 - CA
-   Moved into the new Coherent package from its previous location  (EVGModules 
-   package)
- @ Mar 03, 2009 - CA
-   Renamed COHPiKinematicsGenerator -> COHKinematicsGenerator in
-   anticipation of reusing the code for simulating coherent production of
-   vector mesons.
- @ May 06, 2009 - CA
-   Fix a problem with the search for the max cross section over the allowed
-   phase space which prevented kinematics to be generated for events near the 
-   energy threshold.
- @ Feb 06, 2013 - CA
-   When the value of the differential cross-section for the selected kinematics
-   is set to the event, set the corresponding KinePhaseSpace_t value too.
+  Important revisions after version 2.0.0 :
+  @ Feb 09, 2009 - CA
+  Moved into the new Coherent package from its previous location  (EVGModules 
+  package)
+  @ Mar 03, 2009 - CA
+  Renamed COHPiKinematicsGenerator -> COHKinematicsGenerator in
+  anticipation of reusing the code for simulating coherent production of
+  vector mesons.
+  @ May 06, 2009 - CA
+  Fix a problem with the search for the max cross section over the allowed
+  phase space which prevented kinematics to be generated for events near the 
+  energy threshold.
+  @ Feb 06, 2013 - CA
+  When the value of the differential cross-section for the selected kinematics
+  is set to the event, set the corresponding KinePhaseSpace_t value too.
 
 */
 //____________________________________________________________________________
@@ -83,24 +83,35 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
       << "Generating kinematics uniformly over the allowed phase space";
   }
 
-  //-- Access cross section algorithm for running thread
-  RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
-  const EventGeneratorI * evg = rtinfo->RunningThread();
-  fXSecModel = evg->CrossSectionAlg();
-  if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
-    CalculateKin_ReinSehgal(evrec);
-  } else if (fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015") {
-    CalculateKin_BergerSehgal(evrec);
-  } else if (fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015") {
-    CalculateKin_BergerSehgalFM(evrec);
-  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
-    CalculateKin_AlvarezRuso(evrec);
+  const Interaction * interaction = evrec -> Summary() ;
+  const XclsTag & xcls = interaction -> ExclTag() ;
+
+  if ( xcls.NPions() ==1 ) {
+  
+    //-- Access cross section algorithm for running thread
+    RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+    const EventGeneratorI * evg = rtinfo->RunningThread();
+    fXSecModel = evg->CrossSectionAlg();
+    if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
+      CalculateKin_ReinSehgal(evrec);
+    } else if (fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015") {
+      CalculateKin_BergerSehgal(evrec);
+    } else if (fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015") {
+      CalculateKin_BergerSehgalFM(evrec);
+    } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
+      CalculateKin_AlvarezRuso(evrec);
+    }
+    else {
+      LOG("COHKinematicsGenerator",pFATAL) <<
+	"ProcessEventRecord >> Cannot calculate kinematics for " <<
+	fXSecModel->Id().Name();
+    }
   }
-  else {
-    LOG("COHKinematicsGenerator",pFATAL) <<
-      "ProcessEventRecord >> Cannot calculate kinematics for " <<
-      fXSecModel->Id().Name();
+  else if ( xcls.NSingleGammas() == 1 ) {
+    CalculateKin_Gamma(evrec);
   }
+
+
 }
 //___________________________________________________________________________
 void COHKinematicsGenerator::CalculateKin_BergerSehgal(GHepRecord * evrec) const
@@ -482,7 +493,11 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
   //Set up limits of integration variables
   // Primary lepton energy
   const double E_l_min = interaction->FSPrimLepton()->Mass();
-  const double E_l_max = interaction->InitStatePtr()->GetProbeP4(kRfLab)->E() - kPionMass;
+  const TLorentzVector * P4_nu =  interaction->InitStatePtr()->GetProbeP4(kRfLab) ;
+  const double E_l_max = P4_nu -> E() - kPionMass;
+  delete P4_nu ;
+  P4_nu = nullptr ;
+
   // Primary lepton angle with respect to the beam axis
   const double ctheta_l_min = 0.4;
   const double ctheta_l_max = 1.0 - kASmallNum;
@@ -557,9 +572,9 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
       double theta_pi = g_theta_pi;
       double phi_l = g_phi_l;
       double phi_pi = g_phi_pi;
-      const TLorentzVector P4_nu = *(interaction->InitStatePtr()->GetProbeP4(kRfLab));
-      double E_nu       = P4_nu.E();
-      double E_pi= E_nu-E_l;
+      P4_nu = interaction->InitStatePtr()->GetProbeP4(kRfLab) ;
+      double E_nu = P4_nu -> E();
+      double E_pi = E_nu - E_l ;
       double m_l = interaction->FSPrimLepton()->Mass();
       double m_pi = this->pionMass(interaction);
 
@@ -573,10 +588,13 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
       pion_3vector.SetMagThetaPhi(p_pi,theta_pi,phi_pi);
       TLorentzVector P4_pion   = TLorentzVector(pion_3vector   , E_pi);
 
-      TLorentzVector q = P4_nu - P4_lep;
+      TLorentzVector q = *P4_nu - P4_lep;
       double Q2 = -q.Mag2();
       double x = Q2/(2*E_pi*constants::kNucleonMass);
       double y = E_pi/E_nu;
+
+      delete P4_nu ;
+      P4_nu = nullptr ;
 
       double t = TMath::Abs( (q - P4_pion).Mag2() );
 
@@ -611,51 +629,229 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
     }
   }//while
 }
-//___________________________________________________________________________
-void COHKinematicsGenerator::SetKinematics(const double E_l,
-                                           const double theta_l,
-                                           const double phi_l,
-                                           const double theta_pi,
-                                           const double phi_pi,
-                                           const Interaction* interaction,
-                                           Kinematics* kinematics) const
+//---------------------------------------------------------------------------
+void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
 {
-  const TLorentzVector P4_nu = *(interaction->InitStatePtr()->GetProbeP4(kRfLab));
-  double E_nu       = P4_nu.E();
-  double E_pi= E_nu-E_l;
+  // Get the Primary Interacton object
+  Interaction * interaction = evrec->Summary();
+  interaction->SetBit(kISkipProcessChk);
+  interaction->SetBit(kISkipKinematicChk);
+
+  // Initialise a random number generator 
+  RandomGen * rnd = RandomGen::Instance();
+
+  //-- For the subsequent kinematic selection with the rejection method:
+  //   Calculate the max differential cross section or retrieve it from the
+  //   cache. Throw an exception and quit the evg thread if a non-positive
+  //   value is found.
+  //   If the kinematics are generated uniformly over the allowed phase
+  //   space the max xsec is irrelevant
+  double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);//currently this is an untested method
+  double Ev = interaction->InitState().ProbeE(kRfLab);
+   
+  //Set up limits of integration variables
+  
+  //TODO: check that these are the appropriate limits for theta_l and theta_g
+  //Photon energy
+  const double E_g_min = kASmallNum; //min is 0
+  const double E_g_max = Ev; //max is neutrino energy
+
+  const double theta_l_max = kPi; 
+  const double theta_l_min = 0.;
+
+
+  // Gamma angle with respect to the beam axis - 
+  const double theta_g_max = kPi;
+  const double theta_g_min = 0.;
+
+  // Gamma angle wrt to the outgoing lepton in the transverse plane to the beam axis
+  const double phi_min = 0.0;
+  const double phi_max = (2.0 * kPi);
+  // 
+  const double d_E_g = E_g_max - E_g_min;
+  const double d_theta_l  = theta_l_max  - theta_l_min;
+  const double d_theta_g = theta_g_max - theta_g_min;
+  const double d_phi = phi_max - phi_min;
+
+  //------ Try to select a valid set of kinematics
+  unsigned int iter = 0;
+  bool accept=false;
+
+  double xsec=-1, g_E_g=-1, g_E_l = -1, g_theta_l=-1, g_phi_l=-1, g_theta_g=-1, g_phi_g=-1;
+
+  Interaction local_interaction( * interaction ) ;
+
+  utils::gsl::d4Xsec_dEgdThetaldThetagdPhig functor( fXSecModel, & local_interaction ) ;
+
+  while(1) {
+    iter++;
+    if(iter > kRjMaxIterations) this->throwOnTooManyIterations(iter,evrec);
+      
+    //Select kinematic point
+    g_E_g = E_g_min + d_E_g * rnd->RndKine().Rndm();
+    g_E_l = Ev - g_E_g;
+    g_theta_l  = theta_l_min  + d_theta_l  * rnd->RndKine().Rndm();
+    g_theta_g = theta_g_min + d_theta_g * rnd->RndKine().Rndm();
+    g_phi_g = phi_min + d_phi * rnd->RndKine().Rndm() ; 
+    // the photon phi angle is relative to lepton phi angle 
+    // but the cross is independent from lepton phi angle so 
+    // this is left at the level of the accepted method
+      
+    LOG("COHKinematics", pINFO) << "Trying: Gamma(" << g_E_g << ", "
+				<< g_theta_g << ", " << g_phi_g << "),   Lep(" 
+				<< g_theta_l << ")";
+      
+    double point[4] = { g_E_g, g_theta_l, g_theta_g, g_phi_g } ;
+    xsec = functor( point ) ; 
+    
+    //realized this method assumes E_l 
+    
+    if (!fGenerateUniformly) {
+      //-- decide whether to accept the current kinematics
+      double t   = xsec_max * rnd->RndKine().Rndm();
+
+      LOG("COHKinematics", pINFO) << "Got: xsec = " << xsec << ", t = " << 
+        t << " (max_xsec = " << xsec_max << ")";
+      
+      this->AssertXSecLimits(interaction, xsec, xsec_max);
+      
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+      LOG("COHKinematics", pDEBUG)
+        << "xsec= " << xsec << ", J= 1, Rnd= " << t;
+#endif
+      accept = (t<xsec);
+    }
+    else {
+      accept = (xsec>0);
+    }
+    
+    //-- If the generated kinematics are accepted, finish-up module's job
+    
+    if(accept) {
+
+      LOG("COHKinematics", pNOTICE) << "Last event was selected" ;
+
+      double E_l = g_E_l;
+      double theta_l = g_theta_l;
+      double theta_g = g_theta_g;
+      double phi_l = phi_min + d_phi * rnd->RndKine().Rndm(); // final overall roation added
+      double phi_g = phi_l + g_phi_g;
+
+      LOG("COHKinematics", pNOTICE) << "Selected: Lepton(" << 
+        g_phi_l << ", " << g_theta_l << ")   Gamma(" << g_theta_g << ", " << g_phi_g << ")";
+      
+      
+      this->SetKinematics( E_l, theta_l, phi_l, 
+			   theta_g, phi_g, 
+			   interaction, interaction->KinePtr() ) ;
+      
+
+      // for uniform kinematics, compute an event weight as
+      // wght = (phase space volume)*(differential xsec)/(event total xsec)
+      if(fGenerateUniformly) {
+        // Phase space volume needs checking
+        double vol     = d_E_g*d_theta_l*d_theta_g*d_phi;
+        double totxsec = evrec->XSec();
+        double wght    = (vol/totxsec)*xsec;
+        LOG("COHKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
+
+        // apply computed weight to the current event weight
+        wght *= evrec->Weight();
+        LOG("COHKinematics", pNOTICE) << "Current event wght = " << wght;
+        evrec->SetWeight(wght);
+      }
+
+      // evaluate selected kinematics
+      
+      const  TLorentzVector P4_nu( 0., 0., Ev, Ev ) ; 
+      
+      TLorentzVector P4_lep = interaction->Kine().FSLeptonP4() ;
+      TLorentzVector P4_gamma = interaction->Kine().HadSystP4() ;
+
+      // double E_g= g_E_g;
+      // double m_l = interaction->FSPrimLepton()->Mass();
+      // double m_g = 0.0;
+      
+      TLorentzVector q = P4_nu - P4_lep;
+      double Q2 = -q.Mag2();
+      double x = Q2/(2 * P4_gamma.E()*constants::kNucleonMass);
+      double y = P4_gamma.E() / Ev ;
+
+      double t = TMath::Abs( (q - P4_gamma).Mag2() );
+      
+      // lock selected kinematics & clear running values
+      interaction->KinePtr()->Setx(x, true);
+      interaction->KinePtr()->Sety(y, true);
+      interaction->KinePtr()->Sett(t, true);
+      interaction->KinePtr()->SetW( 0., true);  // for coherent gamma, W = 0 ;
+      interaction->KinePtr()->SetQ2( Q2, true);
+      interaction->KinePtr()->ClearRunningValues();
+
+      // set the cross section for the selected kinematics
+      evrec->SetDiffXSec(xsec,kPSEgTlTgPgfE);
+
+      // reset bits
+      interaction->ResetBit(kISkipProcessChk);
+      interaction->ResetBit(kISkipKinematicChk);
+
+      return;
+    }//if accept
+    
+  }//while still throwing events
+
+  return;
+}
+
+//___________________________________________________________________________
+void COHKinematicsGenerator::SetKinematics( const double E_l,
+					    const double theta_l,
+					    const double phi_l,
+					    const double theta_prod,
+					    const double phi_prod,
+					    const Interaction* interaction,
+					    Kinematics* kinematics) const {
+  
+  double E_nu = interaction->InitStatePtr()->ProbeE(kRfLab) ;
+  const TLorentzVector P4_nu( 0., 0., E_nu, E_nu ) ;
+  
   double m_l = interaction->FSPrimLepton()->Mass();
-  double m_pi;
-  if ( interaction->ProcInfo().IsWeakCC() ) {
-    m_pi = constants::kPionMass;
-  } else {
-    m_pi = constants::kPi0Mass;
-  }
-  double p_l=0.0;
-  if (E_l > m_l) {
-    p_l = TMath::Sqrt(E_l*E_l - m_l*m_l);
-  }
+  double p_l = TMath::Sqrt(E_l*E_l - m_l*m_l) ; 
+  
   TVector3 lepton_3vector = TVector3(0,0,0);
-  lepton_3vector.SetMagThetaPhi(p_l,theta_l,phi_l);
-  TLorentzVector P4_lep    = TLorentzVector(lepton_3vector , E_l );
+  lepton_3vector.SetMagThetaPhi( p_l, theta_l, phi_l ) ;
+  TLorentzVector P4_lep  = TLorentzVector(lepton_3vector , E_l );
+  
+  double E_prod = E_nu - E_l ; 
+  double m_prod = -1. ;
+  //need to check if photon or pion
+  //if pion, charged or neutral 
+  if(interaction->ExclTagPtr()->NSingleGammas() > 0){
+    m_prod = 0.0;
+  } else if( interaction->ExclTagPtr()->NPions() > 0 ) {
+    if ( interaction->ProcInfo().IsWeakCC() ) {
+      m_prod = constants::kPionMass;
+    } else {
+      m_prod = constants::kPi0Mass;
+    }
+  } // else if Pion production
 
-  double p_pi=0.0;
-  if (E_pi > m_pi) {
-    p_pi = TMath::Sqrt(E_pi*E_pi - m_pi*m_pi);
-  }
-  TVector3 pion_3vector = TVector3(0,0,0);
-  pion_3vector.SetMagThetaPhi(p_pi,theta_pi,phi_pi);
-  TLorentzVector P4_pion   = TLorentzVector(pion_3vector   , E_pi);
+  double p_prod = TMath::Sqrt(E_prod*E_prod - m_prod*m_prod); 
+  TVector3 prod_3vector = TVector3(0,0,0);
+  prod_3vector.SetMagThetaPhi( p_prod, theta_prod, phi_prod ) ;
+  TLorentzVector P4_prod = TLorentzVector( prod_3vector, E_prod ) ; 
 
-  double Q2 = -(P4_nu-P4_lep).Mag2();
-  double x = Q2/(2*E_pi*constants::kNucleonMass);
-  double y = E_pi/E_nu;
+  double Q2 = -( P4_nu - P4_lep).Mag2();
+  double x = Q2/(2*E_prod*constants::kNucleonMass);
+  double y = E_prod/E_nu;
 
   kinematics->Setx(x);
   kinematics->Sety(y);
   kinematics::UpdateWQ2FromXY(interaction);
 
-  kinematics->SetFSLeptonP4(P4_lep );
-  kinematics->SetHadSystP4 (P4_pion); // use Hadronic System variable to store pion momentum
+  kinematics->SetFSLeptonP4( P4_lep );
+  kinematics->SetHadSystP4 ( P4_prod ); // use Hadronic System variable to store producted particle momentum
+  
+  
 }
 //___________________________________________________________________________
 bool COHKinematicsGenerator::CheckKinematics(const double E_l,
@@ -665,17 +861,22 @@ bool COHKinematicsGenerator::CheckKinematics(const double E_l,
                                              const double /*  phi_pi     */ ,
                                              const Interaction* interaction) const
 {
-  const TLorentzVector P4_nu = *(interaction->InitStatePtr()->GetProbeP4(kRfLab));
-  double E_nu       = P4_nu.E();
-  double E_pi= E_nu-E_l;
+  const TLorentzVector * P4_nu = interaction->InitStatePtr()->GetProbeP4(kRfLab) ;
+  double E_nu       = P4_nu -> E();
+  double E_pi = E_nu - E_l ;
   double m_l = interaction->FSPrimLepton()->Mass();
   double m_pi;
+
+  delete P4_nu ;
+  P4_nu = nullptr ;
+
   if ( interaction->ProcInfo().IsWeakCC() ) {
     m_pi = constants::kPionMass;
   }
   else {
     m_pi = constants::kPi0Mass;
   }
+
   if (E_l <= m_l) {
     return false;
   }
@@ -696,22 +897,32 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
   SLOG("COHKinematics", pDEBUG)
     << "Scanning the allowed phase space {K} for the max(dxsec/d{K})";
 #endif
-  double max_xsec = 0.;
-  if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
-    max_xsec = MaxXSec_ReinSehgal(in);
-  } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015")) {
-    max_xsec = MaxXSec_BergerSehgal(in);
-  } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015")) {
-    max_xsec = MaxXSec_BergerSehgalFM(in);
-  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
-    max_xsec = MaxXSec_AlvarezRuso(in);
-  }
-  else {
-    LOG("COHKinematicsGenerator",pFATAL) <<
-      "ComputeMaxXSec >> Cannot calculate max cross-section for " <<
-      fXSecModel->Id().Name();
-  }
 
+  double max_xsec = 0.;
+  
+  const XclsTag & xcls = in -> ExclTag() ;
+  
+  if ( xcls.NPions() ==1 ) {
+    
+    if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
+      max_xsec = MaxXSec_ReinSehgal(in);
+    } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015")) {
+      max_xsec = MaxXSec_BergerSehgal(in);
+    } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015")) {
+      max_xsec = MaxXSec_BergerSehgalFM(in);
+    } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
+      max_xsec = MaxXSec_AlvarezRuso(in);
+    }
+    else {
+      LOG("COHKinematicsGenerator",pFATAL) <<
+	"ComputeMaxXSec >> Cannot calculate max cross-section for " <<
+	fXSecModel->Id().Name();
+    }
+  }
+  else if ( xcls.NSingleGammas() == 1 ) {
+    max_xsec = MaxXSec_Gamma(in);
+  }
+  
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy.
   max_xsec *= fSafetyFactor;
@@ -938,6 +1149,83 @@ double COHKinematicsGenerator::MaxXSec_AlvarezRuso(const Interaction * in) const
   return max_xsec;
 }
 //___________________________________________________________________________
+double COHKinematicsGenerator::MaxXSec_Gamma(const Interaction * in) const
+{
+  // Computes the maximum differential cross section in the requested phase
+  // space. This method overloads KineGeneratorWithCache::ComputeMaxXSec
+  // method and the value is cached at a circular cache branch for retrieval
+  // during subsequent event generation.
+  //
+  // This is modeled off of the AR pion
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  SLOG("COHKinematics", pDEBUG)
+    << "Scanning the allowed phase space {K} for the max(dxsec/d{K})";
+#endif
+  double max_xsec = 0.;
+  double Ev = in->InitState().ProbeE(kRfLab);
+
+  const KPhaseSpace & kps = in->PhaseSpace();
+  Range1D_t y = kps.YLim();
+
+  ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit2" );
+  //  min -> SetPrintLevel(3) ;
+  gsl::d4Xsec_dEgdThetaldThetagdPhig f(fXSecModel,in);
+  f.SetFactor(-1.); // Make it return negative of cross-section so we can minimize
+
+  min->SetFunction( f );
+  min->SetMaxFunctionCalls(10000);
+  min->SetTolerance(0.05);//not sure what this does....
+
+
+  //need min, max, n, and d for all the xsec varables
+  //for COH gamma they are Eg, theta_l theta_gamma, phi_gamma 
+  //then set variables and get min
+  const double min_eg = 0.;
+  const double max_eg = Ev ; 
+  const unsigned int n_eg = 100;
+  const double d_eg = (max_eg - min_eg) / double(n_eg - 1);
+
+  const double min_thetal = kASmallNum;
+  const double max_thetal = kPi / 4.0; //not sure why this is the max
+  const unsigned int n_thetal = 10; //also just assuming this is an appropriate number of intervals
+  const double d_thetal = (max_thetal - min_thetal) / double(n_thetal - 1);
+
+  const double min_thetag = kASmallNum; 
+  const double max_thetag = kPi / 2.0;//also not sure why this is the max
+  const unsigned int n_thetag = 10;
+  const double d_thetag = (max_thetag - min_thetag) / double(n_thetag - 1);
+
+  const double min_phig = 0.;
+  const double max_phig = 2*kPi;
+  const unsigned int n_phig = 10;
+  const double d_phig = (max_phig - min_phig) / double(n_phig - 1);
+
+  min->SetLimitedVariable ( 0 ,"E_g"    , 0.5 * (max_eg + min_eg) , d_eg,     min_eg,     max_eg     );
+  min->SetLimitedVariable ( 1 ,"theta_l", 0.5 * (min_thetal + max_thetal), d_thetal, min_thetal, max_thetal );
+  min->SetLimitedVariable ( 2 ,"theta_g", 0.5 * (min_thetag + max_thetag), d_thetag, min_thetag, max_thetag );
+  min->SetLimitedVariable ( 3 ,"phi_g",   0.5 * (min_phig   + max_phig)  , d_phig,   min_phig,   max_phig   );
+
+  min->Minimize();
+  max_xsec = -min->MinValue(); //back to positive xsec
+
+  std::cerr << "Maximum cross section: " << max_xsec << std::endl ;
+
+  // Apply safety factor, since value retrieved from the cache might
+  // correspond to a slightly different energy.
+  
+  max_xsec *= fSafetyFactor;//just going to assume this value is ok
+
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  SLOG("COHKinematics", pDEBUG) << in->AsString();
+  SLOG("COHKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
+  SLOG("COHKinematics", pDEBUG) << "Computed using alg = " << fXSecModel->Id();
+#endif 
+           
+  return max_xsec;
+}
+//___________________________________________________________________________
 double COHKinematicsGenerator::Energy(const Interaction * interaction) const
 {
   // Override the base class Energy() method to cache the max xsec for the
@@ -1005,7 +1293,7 @@ void COHKinematicsGenerator::LoadConfig(void)
   //-- Maximum allowed fractional cross section deviation from maxim cross
   //   section used in rejection method
   GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
-    assert(fMaxXSecDiffTolerance>=0);
+  assert(fMaxXSecDiffTolerance>=0);
 
   //-- Envelope employed when importance sampling is used 
   //   (initialize with dummy range)

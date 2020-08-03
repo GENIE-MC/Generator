@@ -13,7 +13,6 @@
 
   For the class documentation see the corresponding header file.
 
-
   Author: Marco Roda
   University of Liverpool
 
@@ -22,6 +21,7 @@
 
   July 2020
   For the class documentation see the corresponding header file.
+
 */
 //____________________________________________________________________________
 
@@ -66,16 +66,26 @@ AlvarezRusoSalaCOHGammaPXSec::~AlvarezRusoSalaCOHGammaPXSec()
 { ; }
 //____________________________________________________________________________
 double AlvarezRusoSalaCOHGammaPXSec::XSec( const Interaction * interaction,
-                                           KinePhaseSpace_t /*kps*/) const {
+                                           KinePhaseSpace_t kps ) const {
 
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
+
+  if ( kps != kPSEgTlOgfE     && 
+       kps != kPSEgTlTgPgfE   && 
+       kps != kPSEgOlOgfE ) {
+    
+    LOG("AlvarezRusoSalaCOHGammaPXSec", pERROR ) 
+      << "Requested cross section with invalid phase space: " << KinePhaseSpace::AsString( kps ) ;
+    return 0. ;
+  } ;
 
   const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
 
   double E_nu = init_state.ProbeE(kRfLab);  // neutrino energy
-  double E_gamma = kinematics.HadSystP4().E() ; // FS gamma energy
+  TLorentzVector gamma_p4 = kinematics.HadSystP4() ; // FS gamma momentum
+  double E_gamma = gamma_p4.E() ; // FS gamma energy
 
   int nu = init_state.ProbePdg();
   double contraction = pdg::IsNeutrino(nu) ? 
@@ -84,7 +94,28 @@ double AlvarezRusoSalaCOHGammaPXSec::XSec( const Interaction * interaction,
    
   double pre_factor = ( 4.*constants::kPi*constants::kAem * constants::kGF2 ) / ( 16*pow(2.*constants::kPi, 5) );
 
-  return pre_factor*contraction*( E_gamma*(E_nu - E_gamma) / E_nu );
+  double diff_cross_section = pre_factor*contraction*( E_gamma*(E_nu - E_gamma) / E_nu ); 
+
+  if ( kps == kPSEgOlOgfE ) return diff_cross_section ;
+
+  // the system is clearly invariant under z rotations -> phi_lepton translation.
+  // so that integral can be performed simply multiplying by 2 pi
+  diff_cross_section *= 2.*constants::kPi ; 
+
+  // the remaining possible phase spaces are all functions of Theta_l instead of Cos Theta_l
+  // so the first jacobian correction can be applied here 
+  // teh Jacobian simply being sin_Theta_l
+  
+  TLorentzVector out_lep = kinematics.FSLeptonP4() ; 
+  diff_cross_section *= sin( out_lep.Theta() ) ;
+  
+  if ( kps == kPSEgTlOgfE ) 
+    return diff_cross_section ;
+
+
+  // if kps == kPSEgTlTgPgfE 
+  diff_cross_section *= sin( gamma_p4.Theta() ) ;
+  return diff_cross_section ;   
 }
 //____________________________________________________________________________
 utils::math::GTrace 

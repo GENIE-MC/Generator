@@ -55,29 +55,56 @@ COHPrimaryLeptonGenerator::~COHPrimaryLeptonGenerator()
 //___________________________________________________________________________
 void COHPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-  //-- Access cross section algorithm for running thread
-  RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
-  const EventGeneratorI * evg = rtinfo->RunningThread();
-  const XSecAlgorithmI *fXSecModel = evg->CrossSectionAlg();
+  
+  const Interaction * interaction = evrec -> Summary() ;
+  const XclsTag & xcls = interaction -> ExclTag() ;
 
-  // In Rein and Berger-Sehgal, no modification is required to the standard impl.
-  if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
-    PrimaryLeptonGenerator::ProcessEventRecord(evrec);
+  if ( xcls.NPions() ==1 ) {
+
+    //-- Access cross section algorithm for running thread
+    RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+    const EventGeneratorI * evg = rtinfo->RunningThread();
+    const XSecAlgorithmI *fXSecModel = evg->CrossSectionAlg();
+    
+    // In Rein and Berger-Sehgal, no modification is required to the standard impl.
+    if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
+      PrimaryLeptonGenerator::ProcessEventRecord(evrec);
+    }
+    else if ((fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015")) {
+      PrimaryLeptonGenerator::ProcessEventRecord(evrec);
+    }
+    else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015")) {
+      PrimaryLeptonGenerator::ProcessEventRecord(evrec);
+    }
+    else if ( fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec" ) {
+      CalculatePrimaryLepton_AlvarezRuso(evrec);
+    }
+    else {
+      LOG("COHPrimaryLeptonGenerator",pFATAL) <<
+	"ProcessEventRecord >> Cannot calculate primary lepton for " <<
+	fXSecModel->Id().Name();
+    }
   }
-  else if ((fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015")) {
-    PrimaryLeptonGenerator::ProcessEventRecord(evrec);
+  else if ( xcls.NSingleGammas() == 1 ) {
+    
+    const Kinematics & kinematics = interaction->Kine();
+
+    const TLorentzVector * nu_p4 = evrec->Probe() -> P4() ;
+    TVector3 nu_dir = nu_p4 -> Vect().Unit() ; 
+    
+    TVector3 lep_p3 = kinematics.FSLeptonP4().Vect();
+    lep_p3.RotateUz( nu_dir ) ;
+    
+    TLorentzVector lep_p4( lep_p3, kinematics.FSLeptonP4().E() ) ;
+    
+    int pdgc = interaction->FSPrimLepton()->PdgCode();
+
+    evrec -> AddParticle( pdgc, kIStStableFinalState, 
+			  evrec->ProbePosition(), -1, // mothers
+			  -1, -1,                     //  daughters
+			  lep_p4, * evrec->Probe() -> X4() ) ;
   }
-  else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015")) {
-    PrimaryLeptonGenerator::ProcessEventRecord(evrec);
-  }
-  else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
-    CalculatePrimaryLepton_AlvarezRuso(evrec);
-  }
-  else {
-    LOG("COHPrimaryLeptonGenerator",pFATAL) <<
-      "ProcessEventRecord >> Cannot calculate primary lepton for " <<
-      fXSecModel->Id().Name();
-  }
+
 }
 //___________________________________________________________________________
 void COHPrimaryLeptonGenerator::CalculatePrimaryLepton_AlvarezRuso(GHepRecord * evrec) const
