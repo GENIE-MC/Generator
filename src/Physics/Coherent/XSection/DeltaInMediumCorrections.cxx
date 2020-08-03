@@ -130,11 +130,7 @@ double DeltaInMediumCorrections::Gamma_tilde( double p2, int nucleus_pdg ) const
 //____________________________________________________________________________
 std::complex<double> DeltaInMediumCorrections::AverageDirectPropagator( double p2, int nucleus_pdg ) const {
 
-<<<<<<< HEAD
-  double mDelta = utils::res::Mass( Resonance() ) ;
-=======
   double mDelta = utils::res::Mass( kP33_1232 ) ;
->>>>>>> 6a6ebbd4cd7b91dbca7ad951fe5a961c65dc7bbe
   double mDelta2 = pow( mDelta, 2 ) ;
 
   // Simplified form since Sigma.real = 0
@@ -143,11 +139,7 @@ std::complex<double> DeltaInMediumCorrections::AverageDirectPropagator( double p
 //____________________________________________________________________________
 std::complex<double> DeltaInMediumCorrections::AverageCrossPropagator( double p2 ) const {
 
-<<<<<<< HEAD
-  double mDelta = utils::res::Mass( Resonance() ) ;
-=======
   double mDelta = utils::res::Mass( kP33_1232 ) ;
->>>>>>> 6a6ebbd4cd7b91dbca7ad951fe5a961c65dc7bbe
   double mDelta2 = pow( mDelta, 2 ) ;
 
   return 1.0 / ( p2 - mDelta2 + std::complex<double>(0,1) * mDelta * Gamma_vacuum(p2) ) ;
