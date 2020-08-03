@@ -83,26 +83,35 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
       << "Generating kinematics uniformly over the allowed phase space";
   }
 
-  //-- Access cross section algorithm for running thread
-  RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
-  const EventGeneratorI * evg = rtinfo->RunningThread();
-  fXSecModel = evg->CrossSectionAlg();
-  if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
-    CalculateKin_ReinSehgal(evrec);
-  } else if (fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015") {
-    CalculateKin_BergerSehgal(evrec);
-  } else if (fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015") {
-    CalculateKin_BergerSehgalFM(evrec);
-  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
-    CalculateKin_AlvarezRuso(evrec);
-  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoSalaCOHGammaPXSec")) {
-    CalculateKin_AlvarezRusoSala(evrec);
+  const Interaction * interaction = evrec -> Summary() ;
+  const XclsTag & xcls = interaction -> ExclTag() ;
+
+  if ( xcls.NPions() ==1 ) {
+  
+    //-- Access cross section algorithm for running thread
+    RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+    const EventGeneratorI * evg = rtinfo->RunningThread();
+    fXSecModel = evg->CrossSectionAlg();
+    if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
+      CalculateKin_ReinSehgal(evrec);
+    } else if (fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015") {
+      CalculateKin_BergerSehgal(evrec);
+    } else if (fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015") {
+      CalculateKin_BergerSehgalFM(evrec);
+    } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
+      CalculateKin_AlvarezRuso(evrec);
+    }
+    else {
+      LOG("COHKinematicsGenerator",pFATAL) <<
+	"ProcessEventRecord >> Cannot calculate kinematics for " <<
+	fXSecModel->Id().Name();
+    }
   }
-  else {
-    LOG("COHKinematicsGenerator",pFATAL) <<
-      "ProcessEventRecord >> Cannot calculate kinematics for " <<
-      fXSecModel->Id().Name();
+  else if ( xcls.NSingleGammas() == 1 ) {
+    CalculateKin_Gamma(evrec);
   }
+
+
 }
 //___________________________________________________________________________
 void COHKinematicsGenerator::CalculateKin_BergerSehgal(GHepRecord * evrec) const
@@ -621,7 +630,7 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
   }//while
 }
 //---------------------------------------------------------------------------
-void COHKinematicsGenerator::CalculateKin_AlvarezRusoSala(GHepRecord * evrec) const
+void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
 {
   LOG("COHKinematics", pNOTICE) << "Using AlvarezRusoSaulSala Gamma Model";
   // Get the Primary Interacton object
@@ -640,7 +649,6 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRusoSala(GHepRecord * evrec) co
   //   space the max xsec is irrelevant
   double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);//currently this is an untested method
   double Ev = interaction->InitState().ProbeE(kRfLab);
-   
    
   //Set up limits of integration variables
   
@@ -902,25 +910,32 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
   SLOG("COHKinematics", pDEBUG)
     << "Scanning the allowed phase space {K} for the max(dxsec/d{K})";
 #endif
+
   double max_xsec = 0.;
-  if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
-    max_xsec = MaxXSec_ReinSehgal(in);
-  } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015")) {
-    max_xsec = MaxXSec_BergerSehgal(in);
-  } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015")) {
-    max_xsec = MaxXSec_BergerSehgalFM(in);
-  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
-    max_xsec = MaxXSec_AlvarezRuso(in);
-  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoSalaCOHGammaPXSec")) {
-    max_xsec = MaxXSec_AlvarezRusoSala(in);
+  
+  const XclsTag & xcls = in -> ExclTag() ;
+  
+  if ( xcls.NPions() ==1 ) {
+    
+    if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
+      max_xsec = MaxXSec_ReinSehgal(in);
+    } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015")) {
+      max_xsec = MaxXSec_BergerSehgal(in);
+    } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015")) {
+      max_xsec = MaxXSec_BergerSehgalFM(in);
+    } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
+      max_xsec = MaxXSec_AlvarezRuso(in);
+    }
+    else {
+      LOG("COHKinematicsGenerator",pFATAL) <<
+	"ComputeMaxXSec >> Cannot calculate max cross-section for " <<
+	fXSecModel->Id().Name();
+    }
   }
-
-  else {
-    LOG("COHKinematicsGenerator",pFATAL) <<
-      "ComputeMaxXSec >> Cannot calculate max cross-section for " <<
-      fXSecModel->Id().Name();
+  else if ( xcls.NSingleGammas() == 1 ) {
+    max_xsec = MaxXSec_Gamma(in);
   }
-
+  
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy.
   max_xsec *= fSafetyFactor;
@@ -1147,7 +1162,7 @@ double COHKinematicsGenerator::MaxXSec_AlvarezRuso(const Interaction * in) const
   return max_xsec;
 }
 //___________________________________________________________________________
-double COHKinematicsGenerator::MaxXSec_AlvarezRusoSala(const Interaction * in) const
+double COHKinematicsGenerator::MaxXSec_Gamma(const Interaction * in) const
 {
   // Computes the maximum differential cross section in the requested phase
   // space. This method overloads KineGeneratorWithCache::ComputeMaxXSec
