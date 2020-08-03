@@ -804,19 +804,17 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
   //
 
   Kinematics * kinematics = fInteraction->KinePtr();
-  const TLorentzVector * P4_nu = fInteraction->InitStatePtr()->GetProbeP4(kRfLab);
-  double E_nu       = P4_nu->E();
+  double E_nu = fInteraction->InitStatePtr()->GetProbeE(kRfLab);
+  const TLorentzVector P4_nu( 0., 0., E_nu, E_nu ) ;
 
   //double E_g       = xin[0];
   double E_l       = E_nu - xin[0] ;
+
   //double theta_l   = xin[1];
   double phi_l     = 0.0;
   
   //double theta_g   = xin[2];
   //double phi_g     = xin[3];
-  
-  double sin_theta_l  = TMath::Sin( xin[1] );
-  double sin_theta_g  = TMath::Sin( xin[2] );
   
   TVector3 lepton_3vector = TVector3(0,0,0);
   lepton_3vector.SetMagThetaPhi( E_l, xin[2], phi_l ) ;
