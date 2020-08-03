@@ -804,7 +804,7 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
   //
 
   Kinematics * kinematics = fInteraction->KinePtr();
-  double E_nu = fInteraction->InitStatePtr()->GetProbeE(kRfLab);
+  double E_nu = fInteraction->InitStatePtr()->ProbeE(kRfLab);
   const TLorentzVector P4_nu( 0., 0., E_nu, E_nu ) ;
 
   //double E_g       = xin[0];
@@ -843,8 +843,6 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
 
   kinematics->SetFSLeptonP4(P4_lep );
   kinematics->SetHadSystP4 (P4_photon); // use Hadronic System variable to store photon momentum
-  
-  delete P4_nu;
   
   double xsec = fModel->XSec(fInteraction,kPSEgTlTgPgfE);
   return fFactor * xsec/(1E-38 * units::cm2);
