@@ -6,7 +6,7 @@ Configuration sets for the COHFormFactorInterpolation
 
 Configurable Parameters:
 .........................................................................................................................
-Name                          Type     Optional   Comment                                                    Defaul
+Name                          Type     Optional   Comment                                                    Default
 .........................................................................................................................
 COH-DV-FormFactor             vec-alg  No         Vector of DeVries sub algo and nuclei specification        -
 AllowExtrapolation            bool     yes        Allow map extrapolation at higher pdg than map maximum     false
@@ -22,6 +22,9 @@ AllowExtrapolation            bool     yes        Allow map extrapolation at hig
       genie::DeVriesFormFactor/12C   ;
       genie::DeVriesFormFactor/40Ar
     </param>
+
+    <param type="bool" name="AllowExtrapolation"> false </param>
+
   </param_set>
 
 

@@ -60,23 +60,33 @@ void COHDeltaCurrent::LoadConfig(void)
 
   bool good_config = true ;
 
-  const Algorithm * algo = SubAlg( "DeltaFormFactor" ) ; 
+  const Algorithm * delta_trans_algo = SubAlg( "COH-Delta-FormFactor" ) ; 
 
-  if ( ! delta_ff ) {
-
+  if ( ! delta_trans_algo ) {
     good_config = false ;
-    LOG("COHDeltaCurrent", pERROR ) << "Configuration does not know DeltaFormFactor field" ;
+    LOG("COHDeltaCurrent", pERROR ) << "Configuration does not know COH-Delta-FormFactor field" ;
   }
-
   
-  
-  delta_ff = dynamic_cast<const DeltaTransitionFormFactor*>( algo ) ;
+  delta_ff = dynamic_cast<const DeltaTransitionFormFactor*>( delta_trans_algo ) ;
 
   if ( ! delta_ff ) {
     good_config = false ; 
-    LOG("COHDeltaCurrent", pERROR ) << "Algo " << algo -> Id().Name() << " is not a DeltaTransitionFormFactor" ;
+    LOG("COHDeltaCurrent", pERROR ) << "Algo " << delta_trans_algo -> Id().Name() << " is not a DeltaTransitionFormFactor" ;
   }
 
+  const Algorithm * delta_med_algo = SubAlg( "COH-Delta-Corrections" ) ; 
+
+  if ( ! delta_med_algo ) {
+    good_config = false ;
+    LOG("COHDeltaCurrent", pERROR ) << "Configuration does not know COH-Delta-Corrections field" ;
+  }
+
+  Delta_med = dynamic_cast<const DeltaInMediumCorrections*>( delta_med_algo ) ;
+
+  if ( ! Delta_med ) {
+    good_config = false ; 
+    LOG("COHDeltaCurrent", pERROR ) << "Algo " << delta_med_algo -> Id().Name() << " is not a DeltaInMediumCorrections" ;
+  }
 
   if ( ! good_config ) {
     LOG("COHDeltaCurrent", pFATAL ) << "Bad configuration, exit" ;
@@ -138,13 +148,12 @@ GTrace COHDeltaCurrent::DirTrace( const Interaction * i ) const {
   TLorentzVector t_photon = i -> Kine().HadSystP4() ; 
 
   TLorentzVector t_q = probe - out_neutrino ; 
-  double Q2 = t_q.Mag2() ; // Downstream agnostic to sign
+  double Q2 = std::abs(t_q.Mag2()) ; // Must be >0
 
-    // this requires Q2
+  // this requires Q2
   double C3v   = delta_ff -> C3V( Q2 ) ;
   double C3vNC = delta_ff -> C3VNC( Q2 ) ;
   double C5aNC = delta_ff -> C5ANC( Q2 ) ;
-
 
   double mDelta = utils::res::Mass( Resonance() ) ;
   double mDelta2 = pow( mDelta, 2 ); 
@@ -156,7 +165,6 @@ GTrace COHDeltaCurrent::DirTrace( const Interaction * i ) const {
   std::array<double, 4> kg = { t_photon.E(), t_photon.X(), t_photon.Y(), t_photon.Z() } ;
   double mn = constants::kNucleonMass ;
   double mn2 = pow( mn, 2 ) ;
-
 
   GTrace tr;
 
@@ -494,7 +502,7 @@ GTrace COHDeltaCurrent::CrsTrace( const Interaction * i ) const {
   TLorentzVector t_photon = i -> Kine().HadSystP4() ;
 
   TLorentzVector t_q = probe - out_neutrino ;
-  double Q2 = t_q.Mag2() ; // Downstream agnostic to sign
+  double Q2 = std::abs(t_q.Mag2()) ; // Must be >0
 
   // this requires Q2
   double C3v   = delta_ff -> C3V( Q2 ) ;
