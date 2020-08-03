@@ -25,6 +25,10 @@
 #pragma link C++ class genie::COHFormFactorMap;
 #pragma link C++ class genie::COHFormFactorInterpolation;
 
+#pragma link C++ class genie::COHDeltaCurrent;
+#pragma link C++ class genie::DeltaInMediumCorrections;
+#pragma link C++ class genie::DeltaTransitionFormFactor;
+
 #pragma link C++ class genie::COHXSec;
 #pragma link C++ class genie::COHXSecAR;
 

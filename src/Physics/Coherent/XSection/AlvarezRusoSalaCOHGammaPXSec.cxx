@@ -3,8 +3,6 @@
   Copyright (c) 2003-2019, The GENIE Collaboration
   For the full text of the license visit http://copyright.genie-mc.org
   or see $GENIE/LICENSE
-  <<<<<<< HEAD
-
 
   Author: Marco Roda
   University of Liverpool
@@ -13,6 +11,15 @@
 
   July 2020
 
+  For the class documentation see the corresponding header file.
+
+  Author: Marco Roda
+  University of Liverpool
+
+  Jon Sensenig 
+  University of Pennsylvania
+
+  July 2020
   For the class documentation see the corresponding header file.
 
 */
@@ -46,7 +53,6 @@ AlvarezRusoSalaCOHGammaPXSec::AlvarezRusoSalaCOHGammaPXSec() :
   XSecAlgorithmI("genie::AlvarezRusoSalaCOHGammaPXSec"),
   fFormFactors( nullptr ),
   fXSecIntegrator( nullptr )
-
 { ; }
 
 //____________________________________________________________________________
@@ -54,7 +60,6 @@ AlvarezRusoSalaCOHGammaPXSec::AlvarezRusoSalaCOHGammaPXSec(string config) :
   XSecAlgorithmI("genie::AlvarezRusoSalaCOHGammaPXSec", config),
   fFormFactors( nullptr ),
   fXSecIntegrator( nullptr )
-
 { ; }
 //____________________________________________________________________________
 AlvarezRusoSalaCOHGammaPXSec::~AlvarezRusoSalaCOHGammaPXSec()
@@ -87,7 +92,6 @@ double AlvarezRusoSalaCOHGammaPXSec::XSec( const Interaction * interaction,
     NeutrinoHadronContraction(interaction) :
     AntiNeutrinoHadronContraction(interaction) ;    
    
-
   double pre_factor = ( 4.*constants::kPi*constants::kAem * constants::kGF2 ) / ( 16*pow(2.*constants::kPi, 5) );
 
   double diff_cross_section = pre_factor*contraction*( E_gamma*(E_nu - E_gamma) / E_nu ); 
@@ -224,10 +228,7 @@ AlvarezRusoSalaCOHGammaPXSec::NeutrinoHadronContraction( const Interaction * i )
 				   std::complex<double>(0,1)*q[1]*H(3,2,3,0) - std::complex<double>(0,1)*(q[0] - q[3])*H(3,2,3,1) + (q[0] - q[3])*H(3,2,3,2) -
 				   std::complex<double>(0,1)*q[1]*H(3,2,3,3) + (2*k0 - q[0] - q[3])*H(3,3,3,0) + q[1]*H(3,3,3,1) +
 				   std::complex<double>(0,1)*q[1]*H(3,3,3,2) + (-2*k0 + q[0] + q[3])*H(3,3,3,3));
-
-
   return lh.real();
-
 }
 //____________________________________________________________________________
 void AlvarezRusoSalaCOHGammaPXSec::Configure(const Registry & config)

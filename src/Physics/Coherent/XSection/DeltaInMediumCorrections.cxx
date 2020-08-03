@@ -69,7 +69,6 @@ double DeltaInMediumCorrections::AverageDensity( int nucleus_pdg, int nucleon_pd
 double DeltaInMediumCorrections::AverageDensity( int nucleus_pdg ) const {
   
   // this is the average density between proton and neutron matters
-
   std::array<int,2> pdgs = { kPdgProton, kPdgNeutron} ;
   double rho = 0. ;
   for ( auto pdg : pdgs ) {
@@ -131,7 +130,7 @@ double DeltaInMediumCorrections::Gamma_tilde( double p2, int nucleus_pdg ) const
 //____________________________________________________________________________
 std::complex<double> DeltaInMediumCorrections::AverageDirectPropagator( double p2, int nucleus_pdg ) const {
 
-  double mDelta = utils::res::Mass( Resonance() ) ;
+  double mDelta = utils::res::Mass( kP33_1232 ) ;
   double mDelta2 = pow( mDelta, 2 ) ;
 
   // Simplified form since Sigma.real = 0
@@ -140,7 +139,7 @@ std::complex<double> DeltaInMediumCorrections::AverageDirectPropagator( double p
 //____________________________________________________________________________
 std::complex<double> DeltaInMediumCorrections::AverageCrossPropagator( double p2 ) const {
 
-  double mDelta = utils::res::Mass( Resonance() ) ;
+  double mDelta = utils::res::Mass( kP33_1232 ) ;
   double mDelta2 = pow( mDelta, 2 ) ;
 
   return 1.0 / ( p2 - mDelta2 + std::complex<double>(0,1) * mDelta * Gamma_vacuum(p2) ) ;
@@ -177,9 +176,8 @@ void DeltaInMediumCorrections::LoadConfig(void)
   GetParam( "NCG-Rho0", fRho0 ) ;
 
   GetParam( "Delta-N-Coupling", fDeltaNCoupling ) ;
-  
-
-  //  LOG("DeltaInMediumCorrections", pINFO) << "Loaded " << fFBCs.size() << " coeffictients for nucleus " << fPDG ; 
+    
+  LOG("DeltaInMediumCorrections", pINFO) << "DeltaV0 " << fDeltaV0 << " Rho0 " << fRho0 << " Delta Coupling " << fDeltaNCoupling;
   
 }
 //____________________________________________________________________________

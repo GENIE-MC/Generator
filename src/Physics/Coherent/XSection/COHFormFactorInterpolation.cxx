@@ -172,7 +172,7 @@ genie::FourierBesselFFCalculator COHFormFactorInterpolation::LinearInterpolation
     first_v.resize( n_coeffs, 0. );
     second_v.resize( n_coeffs, 0. );
 
-    vector<double> coeffs( 0., n_coeffs ) ;
+    vector<double> coeffs(n_coeffs, 0. ) ;
 
     int var_first = var( neighbours.first) ;
     int var_second = var( neighbours.second ) ;
