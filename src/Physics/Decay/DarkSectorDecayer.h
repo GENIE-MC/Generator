@@ -69,7 +69,7 @@ namespace genie {
     std::vector<DecayChannel> DarkNeutrinoDecayChannels(const GHepParticle & mother,
                                                         const GHepRecord * event) const;
     void SetSpaceTime(std::vector<GHepParticle> & pp, const GHepParticle & mother,
-                      double amplitude) const;
+                      double total_amplitude) const;
 
     mutable TGenPhaseSpace fPhaseSpaceGenerator;
     mutable double         fWeight;

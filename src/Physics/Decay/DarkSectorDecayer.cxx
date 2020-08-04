@@ -291,9 +291,26 @@ std::vector<DecayChannel> DarkSectorDecayer::DarkNeutrinoDecayChannels(
 void DarkSectorDecayer::SetSpaceTime(
   std::vector<GHepParticle> & pp,
   const GHepParticle & mother,
-  double amplitude) const
+  double total_amplitude) const
 {
-  
+  // TODO DNU: pay attention to units being used in GENIE!
+  // convert decay amplitude into time
+  const double lifetime =  units::second*1e24/total_amplitude; // units of 10ˆ-24 s
+
+  RandomGen * rnd = RandomGen::Instance();
+  double t = rnd->RndDec().Exp(lifetime);
+
+  // get beta of decaying particle
+  const TLorentzVector mother_X4 = *(mother.X4());
+  TVector3 mother_boost = mother.P4()->BoostVector();
+
+  // transport decay_particle with respect to their mother
+  double speed_of_light = units::second/units::meter;
+  TVector3 daughter_position = mother_X4.Vect() + mother_boost * (speed_of_light * t * 1e-9);// in fm
+
+  for(auto & p : pp){
+    p.SetPosition(TLorentzVector(daughter_position, mother_X4.T() + t));
+  }
 }
 //____________________________________________________________________________
 
