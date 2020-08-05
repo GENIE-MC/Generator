@@ -66,6 +66,144 @@ double BertuzzoDNuCOHPXSec::XSec(
   // User inputs to the calculation
   const double E  = init_state.ProbeE(kRfLab); // neutrino energy, units: GeV
   const double Q2 = kinematics.Q2(); // momentum transfer, units: GeV^2
+  // const double DNuE =  kinematics.FSLeptonP4().E(); // E_N is the energy of the dark neutrino
+  const double TE =  kinematics.HadSystP4().E(); // energy of the target
+  const unsigned int Z = target.Z(); // number of protons
+  const unsigned int N = target.N(); // number of nucleons
+
+  // Target atomic mass number and mass calculated from inputs
+  const unsigned int A = Z + N;
+  const int target_nucleus_pdgc = pdg::IonPdgCode(A, Z);
+  const double M = PDGLibrary::Instance()->Find(target_nucleus_pdgc)->Mass(); // units: GeV
+  LOG("DNu", pDEBUG) << "M = " << M << " GeV";
+
+  // LOG("DNu", pDEBUG)
+  //   << "Q2 = " << Q2 << " GeV^2, E = " << E << " GeV "
+  //   << "--> TA = " << TA << " GeV";
+
+  const double FF = fFF->FormFactor(Q2, target);
+  const double TT = TE - M;
+
+  // auxiliary variables
+  const double E2  = E * E;
+  // const double DNuE2  = DNuE * DNuE;
+  const double Z2 = Z * Z;
+  const double FF2 = FF * FF;
+  const double TTDiff = TT - M;
+
+  //TODO DNu: is this one required?
+  const double elec2 = 0.3*0.3;
+
+  const double const_factor = .125 * elec2 / kPi;
+  const double model_params = fEps2 * fTheta2 * fgD2;
+
+  const double num_fact1 = FF2 * Z2;
+  const double num_fact21 = fDNuMass2 * (TTDiff - 2.*E);
+  const double num_fact22 = 2. * M * (2.*E2 - 2.*TT*E + TT*TTDiff);
+  const double den_fact1 = 1. / (E2);
+  const double den_fact2 = TMath::Power((fDMediatorMass2 + 2.*TT*M), -2.);
+
+  if(kps == kPSEDNufE) {
+    const double xsec = const_factor * model_params * num_fact1 *
+      (num_fact21 + num_fact22) * den_fact1 * den_fact2;
+
+    // std::cout << "\nnum_fact2:\t" << num_fact2 << "\n";
+    // std::cout << "(DNuE+E+M)*fDNuMass2:\t" << (DNuE+E+M)*fDNuMass2 << "\n";
+    // std::cout << "-2.*M*(DNuE2 + M*DNuE + E2 - E*M):\t" << -2.*M*(DNuE2 + M*DNuE + E2 - E*M) << "\n";
+    // std::cout << "M:\t" << M << "\n";
+    // std::cout << "DNuE:\t" << DNuE << "\n";
+    // std::cout << "DNuE2:\t" << DNuE2 << "\n";
+    // std::cout << "E:\t" << E << "\n";
+    // std::cout << "E2:\t" << E2 << "\n";
+    // std::cout << "xsec:\t" << xsec << "\n";
+    // std::cout << "xsec_approx:\t" << xsec_approx << "\n";
+
+    return xsec;
+  }
+  return 0.;
+}
+//____________________________________________________________________________
+double BertuzzoDNuCOHPXSec::XSecDNuE(
+  const Interaction * interaction, KinePhaseSpace_t kps) const
+{
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
+
+  const InitialState & init_state = interaction -> InitState();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const Target &       target     = init_state.Tgt();
+
+  // User inputs to the calculation
+  const double E  = init_state.ProbeE(kRfLab); // neutrino energy, units: GeV
+  const double Q2 = kinematics.Q2(); // momentum transfer, units: GeV^2
+  const double DNuE =  kinematics.FSLeptonP4().E(); // E_N is the energy of the dark neutrino
+  const unsigned int Z = target.Z(); // number of protons
+  const unsigned int N = target.N(); // number of nucleons
+
+  // Target atomic mass number and mass calculated from inputs
+  const unsigned int A = Z + N;
+  const int target_nucleus_pdgc = pdg::IonPdgCode(A, Z);
+  const double M = PDGLibrary::Instance()->Find(target_nucleus_pdgc)->Mass(); // units: GeV
+  LOG("DNu", pDEBUG) << "M = " << M << " GeV";
+
+  // LOG("DNu", pDEBUG)
+  //   << "Q2 = " << Q2 << " GeV^2, E = " << E << " GeV "
+  //   << "--> TA = " << TA << " GeV";
+
+  const double FF = fFF->FormFactor(Q2, target);
+
+  // auxiliary variables
+  const double E2  = E * E;
+  // const double DNuE2  = DNuE * DNuE;
+  const double Z2 = Z * Z;
+  const double FF2 = FF * FF;
+  const double EDiff = E - DNuE;
+
+  //TODO DNu: is this one required?
+  const double elec2 = 0.3*0.3;
+
+  const double const_factor = .125 * elec2 / kPi;
+  const double model_params = fEps2 * fTheta2 * fgD2;
+
+  const double num_fact1 = FF2 * Z2;
+  const double num_fact21 = -fDNuMass2 * (DNuE+E+M);
+  const double num_fact22 = 2. * M * (2.*DNuE*E + EDiff*(EDiff-M));
+  const double den_fact1 = 1. / (E2);
+  const double den_fact2 = TMath::Power((fDMediatorMass2 + 2.*EDiff*M), -2.);
+
+  if(kps == kPSEDNufE) {
+    const double xsec = const_factor * model_params * num_fact1 *
+      (num_fact21 + num_fact22) * den_fact1 * den_fact2;
+
+    // std::cout << "\nnum_fact2:\t" << num_fact2 << "\n";
+    // std::cout << "(DNuE+E+M)*fDNuMass2:\t" << (DNuE+E+M)*fDNuMass2 << "\n";
+    // std::cout << "-2.*M*(DNuE2 + M*DNuE + E2 - E*M):\t" << -2.*M*(DNuE2 + M*DNuE + E2 - E*M) << "\n";
+    // std::cout << "M:\t" << M << "\n";
+    // std::cout << "DNuE:\t" << DNuE << "\n";
+    // std::cout << "DNuE2:\t" << DNuE2 << "\n";
+    // std::cout << "E:\t" << E << "\n";
+    // std::cout << "E2:\t" << E2 << "\n";
+    // std::cout << "xsec:\t" << xsec << "\n";
+    // std::cout << "xsec_approx:\t" << xsec_approx << "\n";
+
+    return xsec;
+  }
+  return 0.;
+}
+//____________________________________________________________________________
+double BertuzzoDNuCOHPXSec::XSecDefective(
+  const Interaction * interaction, KinePhaseSpace_t kps) const
+{
+  if(! this -> ValidProcess    (interaction) ) return 0.;
+  if(! this -> ValidKinematics (interaction) ) return 0.;
+
+  const InitialState & init_state = interaction -> InitState();
+  const Kinematics &   kinematics = interaction -> Kine();
+  const Target &       target     = init_state.Tgt();
+
+  // User inputs to the calculation
+  const double E  = init_state.ProbeE(kRfLab); // neutrino energy, units: GeV
+  const double Q2 = kinematics.Q2(); // momentum transfer, units: GeV^2
   const double DNuE =  kinematics.FSLeptonP4().E(); // E_N is the energy of the dark neutrino
   const unsigned int Z = target.Z(); // number of protons
   const unsigned int N = target.N(); // number of nucleons

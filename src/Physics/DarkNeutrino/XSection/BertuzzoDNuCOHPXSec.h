@@ -41,6 +41,8 @@ public:
 
   // XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const override;
+  double XSecDNuE        (const Interaction * i, KinePhaseSpace_t k) const;
+  double XSecDefective   (const Interaction * i, KinePhaseSpace_t k) const;
   double Integral        (const Interaction * i) const override;
   bool   ValidProcess    (const Interaction * i) const override;
   bool   ValidKinematics (const Interaction * i) const override;
