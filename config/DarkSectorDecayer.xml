@@ -24,14 +24,9 @@ Delta-R33                     vec-double  No         Values for the R33 paramete
 
   <param_set name="Default">
     <param type="string" name="CommonDecay"> DecayFlags </param>
+    <param type="string" name="CommonDark"> Mixing,Masses </param>
 
-    <param type="double" name="FFScaling">  0.706    </param>
-
-    <param type="bool" name="Delta-ThetaOnly"> true </param>
   </param_set>
 
 
-  <param_set name="BeforeHadronTransport">
-    <param type="bool" name="RunBeforeHadronTransport"> true  </param>
-  </param_set>
 </alg_conf>
