@@ -223,10 +223,11 @@ int DarkSectorDecayer::SelectDecayChannel(
   unsigned int ich = 0, sel_ich; // id of selected decay channel
   RandomGen * rnd = RandomGen::Instance();
   double x = total_amplitude * rnd->RndDec().Rndm();
+  double partial_sum = 0. ;
   do {
     sel_ich = ich;
-  } while (x > dcs.at(ich++).second);
-
+    partial_sum += dcs.at(ich++).second;
+  } while (x > partial_sum );
   return sel_ich;
 }
 //____________________________________________________________________________
