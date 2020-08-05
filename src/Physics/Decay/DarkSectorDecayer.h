@@ -30,14 +30,14 @@
 #include "Framework/ParticleData/PDGCodeList.h"
 #include "Framework/GHEP/GHepStatus.h"
 
-using DecayChannel = std::pair<std::vector<int>, double>;
-// first the vector of pdgs, second the decay amplitude
-
 
 namespace genie {
 
   class GHepParticle;
   class DarkSectorDecayer : public EventRecordVisitorI {
+
+    using DecayChannel = std::pair<std::vector<int>, double>;
+    // first the vector of pdgs, second the decay amplitude
 
   public:
     DarkSectorDecayer();

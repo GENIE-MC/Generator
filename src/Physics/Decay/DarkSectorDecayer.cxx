@@ -75,7 +75,7 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
     if(!this->ToBeDecayed(*p)) continue;
 
     GHepParticle&  mother = *p; // change the name now we know it will decay
-    std::vector<DecayChannel> dcs;
+    std::vector<DarkSectorDecayer::DecayChannel> dcs;
     int pdg_code = mother.Pdg();
     if(pdg_code == kPdgDNuMediator){
       dcs = DarkMediatorDecayChannels(mother, event);
@@ -85,7 +85,8 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
       dcs = DarkNeutrinoDecayChannels(mother, event);
     }
     double total_amplitude = std::accumulate(dcs.begin(), dcs.end(), 0.,
-                                             [](double total, const DecayChannel& dc)
+                                             [](double total,
+                                                const DarkSectorDecayer::DecayChannel& dc)
                                                {return total + dc.second;});
 
     int dcid = SelectDecayChannel(mother, event, dcs, total_amplitude);
@@ -241,8 +242,8 @@ std::vector<DecayChannel> DarkSectorDecayer::DarkMediatorDecayChannels(
   const double alpha_D = 0.25; // value on the paper
   std::array<int, 3> neutrinos = {kPdgNuE, kPdgNuMu, kPdgNuTau};
   std::array<int, 3> antineutrinos = {kPdgAntiNuE, kPdgAntiNuMu, kPdgAntiNuTau};
+  std::vector<DarkSectorDecayer::DecayChannel> dcs;
 
-  std::vector<DecayChannel> dcs;
   for(size_t i=0; i<neutrinos.size(); ++i){
     for(size_t j=0; j<antineutrinos.size(); ++j){// for antineutrinos
       const double decay_width = alpha_D/3. * fMixing2s[i]*fMixing2s[j] * fDMediatorMass;
@@ -262,16 +263,16 @@ std::vector<DecayChannel> DarkSectorDecayer::DarkMediatorDecayChannels(
   return dcs;
 }
 //____________________________________________________________________________
-std::vector<DecayChannel> DarkSectorDecayer::DarkNeutrinoDecayChannels(
   const GHepParticle & mother,
   const GHepRecord * event) const
+std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkNeutrinoDecayChannels(
 {
   // eq (3) and higher order variations 
 
   const double alpha_D = 0.25; // value on the paper
   std::array<int, 3> neutrinos = {kPdgNuE, kPdgNuMu, kPdgNuTau};
   std::array<int, 3> antineutrinos = {kPdgAntiNuE, kPdgAntiNuMu, kPdgAntiNuTau};
-  std::vector<DecayChannel> dcs;
+  std::vector<DarkSectorDecayer::DecayChannel> dcs;
 
   if(fDNuMass > fDMediatorMass){
     for(size_t i=0; i<neutrinos.size(); ++i){
