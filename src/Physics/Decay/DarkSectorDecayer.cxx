@@ -217,7 +217,7 @@ std::vector<GHepParticle> DarkSectorDecayer::Decay(
 int DarkSectorDecayer::SelectDecayChannel(
   const GHepParticle & mother,
   const GHepRecord * event,
-  const std::vector<DecayChannel> & dcs,
+  const std::vector<DarkSectorDecayer::DecayChannel> & dcs,
   const double total_amplitude) const
 {
   // Select a decay based on the amplitudes
@@ -232,7 +232,7 @@ int DarkSectorDecayer::SelectDecayChannel(
   return sel_ich;
 }
 //____________________________________________________________________________
-std::vector<DecayChannel> DarkSectorDecayer::DarkMediatorDecayChannels(
+std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkMediatorDecayChannels(
   const GHepParticle & mother,
   const GHepRecord * event) const
 {
