@@ -60,14 +60,10 @@ namespace genie {
     // this function will take care of the momentum conservation
     // the output particles cannot be inserted in the event record as they are
     // they need to be translated in space and time, according to the decay amplitude
-    int SelectDecayChannel(const GHepParticle & mother,
-                           const GHepRecord * event,
-                           const std::vector<DecayChannel> & dcs,
+    int SelectDecayChannel(const std::vector<DecayChannel> & dcs,
                            double total_amplitude) const;
-    std::vector<DecayChannel> DarkMediatorDecayChannels(const GHepParticle & mother,
-                                                        const GHepRecord * event) const;
-    std::vector<DecayChannel> DarkNeutrinoDecayChannels(const GHepParticle & mother,
-                                                        const GHepRecord * event) const;
+    std::vector<DecayChannel> DarkMediatorDecayChannels(void) const;
+    std::vector<DecayChannel> DarkNeutrinoDecayChannels(void) const;
     void SetSpaceTime(std::vector<GHepParticle> & pp, const GHepParticle & mother,
                       double total_amplitude) const;
 

@@ -75,18 +75,18 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
     std::vector<DarkSectorDecayer::DecayChannel> dcs;
     int pdg_code = mother.Pdg();
     if(pdg_code == kPdgDNuMediator){
-      dcs = DarkMediatorDecayChannels(mother, event);
+      dcs = DarkMediatorDecayChannels();
     }
     else if(pdg_code == kPdgDarkNeutrino ||
             pdg_code == kPdgAntiDarkNeutrino){
-      dcs = DarkNeutrinoDecayChannels(mother, event);
+      dcs = DarkNeutrinoDecayChannels();
     }
     double total_amplitude = std::accumulate(dcs.begin(), dcs.end(), 0.,
                                              [](double total,
                                                 const DarkSectorDecayer::DecayChannel& dc)
                                                {return total + dc.second;});
 
-    int dcid = SelectDecayChannel(mother, event, dcs, total_amplitude);
+    int dcid = SelectDecayChannel(dcs, total_amplitude);
     std::vector<GHepParticle> daughters = Decay(mother, dcs[dcid].first);
     SetSpaceTime(daughters, mother, total_amplitude);
 
@@ -179,8 +179,6 @@ std::vector<GHepParticle> DarkSectorDecayer::Decay(
 }
 //____________________________________________________________________________
 int DarkSectorDecayer::SelectDecayChannel(
-  const GHepParticle & mother,
-  const GHepRecord * event,
   const std::vector<DarkSectorDecayer::DecayChannel> & dcs,
   const double total_amplitude) const
 {
@@ -197,8 +195,7 @@ int DarkSectorDecayer::SelectDecayChannel(
 }
 //____________________________________________________________________________
 std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkMediatorDecayChannels(
-  const GHepParticle & mother,
-  const GHepRecord * event) const
+  void) const
 {
   // eq (4) and (5) and maybe some other higher order variations
   // TODO DNu: what alpha_D is?
@@ -227,9 +224,8 @@ std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkMediatorDeca
   return dcs;
 }
 //____________________________________________________________________________
-  const GHepParticle & mother,
-  const GHepRecord * event) const
 std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkNeutrinoDecayChannels(
+  void) const
 {
   // eq (3) and higher order variations 
 
