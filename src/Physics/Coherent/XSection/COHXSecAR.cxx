@@ -140,9 +140,9 @@ double COHXSecAR::IntegratePion(
 double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interaction * in) const {
 
   const InitialState & init_state = in -> InitState();
-  
-  if(! model->ValidProcess(in) ) return 0.;
-  
+
+  if(! model->ValidProcess(in) ) { return 0.; }
+
   const KPhaseSpace & kps = in->PhaseSpace();
   if(!kps.IsAboveThreshold()) {
     LOG("COHXSecAR", pDEBUG)  << "*** Below energy threshold";

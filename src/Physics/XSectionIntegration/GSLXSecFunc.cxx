@@ -802,11 +802,11 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
   // outputs: 
   //   differential cross section [10^-38 cm^2]
   //
-
+ 
   Kinematics * kinematics = fInteraction->KinePtr();
-  double E_nu = fInteraction->InitStatePtr()->ProbeE(kRfLab);
+  double E_nu = fInteraction->InitState().ProbeE(kRfLab);
   const TLorentzVector P4_nu( 0., 0., E_nu, E_nu ) ;
-
+  
   //double E_g       = xin[0];
   double E_l       = E_nu - xin[0] ;
 
@@ -845,6 +845,7 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
   kinematics->SetHadSystP4 (P4_photon); // use Hadronic System variable to store photon momentum
   
   double xsec = fModel->XSec(fInteraction,kPSEgTlTgPgfE);
+  
   return fFactor * xsec/(1E-38 * units::cm2);
 }
 

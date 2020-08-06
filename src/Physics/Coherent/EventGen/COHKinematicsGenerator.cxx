@@ -29,6 +29,7 @@
 //____________________________________________________________________________
 
 #include <cstdlib>
+#include <iostream>
 
 #include <TROOT.h>
 #include <TMath.h>
@@ -86,12 +87,13 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   const Interaction * interaction = evrec -> Summary() ;
   const XclsTag & xcls = interaction -> ExclTag() ;
 
+  RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+  const EventGeneratorI * evg = rtinfo->RunningThread();
+  fXSecModel = evg->CrossSectionAlg();
+  
   if ( xcls.NPions() ==1 ) {
   
     //-- Access cross section algorithm for running thread
-    RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
-    const EventGeneratorI * evg = rtinfo->RunningThread();
-    fXSecModel = evg->CrossSectionAlg();
     if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
       CalculateKin_ReinSehgal(evrec);
     } else if (fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015") {
@@ -681,6 +683,8 @@ void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
 
   Interaction local_interaction( * interaction ) ;
 
+  
+
   utils::gsl::d4Xsec_dEgdThetaldThetagdPhig functor( fXSecModel, & local_interaction ) ;
 
   while(1) {
@@ -700,7 +704,7 @@ void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
     LOG("COHKinematics", pINFO) << "Trying: Gamma(" << g_E_g << ", "
 				<< g_theta_g << ", " << g_phi_g << "),   Lep(" 
 				<< g_theta_l << ")";
-      
+    
     double point[4] = { g_E_g, g_theta_l, g_theta_g, g_phi_g } ;
     xsec = functor( point ) ; 
     
