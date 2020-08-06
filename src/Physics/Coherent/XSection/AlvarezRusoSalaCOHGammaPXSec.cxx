@@ -188,7 +188,7 @@ AlvarezRusoSalaCOHGammaPXSec::NeutrinoHadronContraction( const Interaction * i )
 }
 //____________________________________________________________________________
 double 
-AlvarezRusoSalaCOHGammaPXSec::NeutrinoHadronContraction( const Interaction * i ) const {
+AlvarezRusoSalaCOHGammaPXSec::AntiNeutrinoHadronContraction( const Interaction * i ) const {
 
   LOG("AlvarezRusoSalaCOHGammaPXSec", pINFO ) << "Entering Anti-Neutrino contraction" ;
 
