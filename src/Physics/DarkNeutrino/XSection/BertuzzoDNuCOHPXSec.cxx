@@ -20,8 +20,9 @@
 #include "Framework/Conventions/RefFrame.h"
 #include "Framework/Conventions/KineVar.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Numerical/GSLUtils.h"
@@ -64,12 +65,20 @@ double BertuzzoDNuCOHPXSec::XSec(
   const Target &       target     = init_state.Tgt();
 
   // User inputs to the calculation
+  const int nu_pdg = init_state.ProbePdg(); // neutrino energy, units: GeV
   const double E  = init_state.ProbeE(kRfLab); // neutrino energy, units: GeV
   const double Q2 = kinematics.Q2(); // momentum transfer, units: GeV^2
   // const double DNuE =  kinematics.FSLeptonP4().E(); // E_N is the energy of the dark neutrino
   const double TE =  kinematics.HadSystP4().E(); // energy of the target
   const unsigned int Z = target.Z(); // number of protons
   const unsigned int N = target.N(); // number of nucleons
+
+  // select the mixing depending on the incoming neutrino
+  size_t nu_i = 3;
+  if(nu_pdg == kPdgNuE || nu_pdg == kPdgAntiNuE) nu_i = 0;
+  else if(nu_pdg == kPdgNuMu || nu_pdg == kPdgAntiNuMu) nu_i = 1;
+  else if(nu_pdg == kPdgNuTau || nu_pdg == kPdgAntiNuTau) nu_i = 2;
+  const double DTheta2 = fMixing2s[nu_i];
 
   // Target atomic mass number and mass calculated from inputs
   const unsigned int A = Z + N;
@@ -95,7 +104,7 @@ double BertuzzoDNuCOHPXSec::XSec(
   const double elec2 = 0.3*0.3;
 
   const double const_factor = .125 * elec2 / kPi;
-  const double model_params = fEps2 * fTheta2 * fgD2;
+  const double model_params = fEps2 * DTheta2 * fgD2;
 
   const double num_fact1 = FF2 * Z2;
   const double num_fact21 = fDNuMass2 * (TTDiff - 2.*E);
@@ -134,11 +143,19 @@ double BertuzzoDNuCOHPXSec::XSecDNuE(
   const Target &       target     = init_state.Tgt();
 
   // User inputs to the calculation
+  const int nu_pdg = init_state.ProbePdg(); // neutrino energy, units: GeV
   const double E  = init_state.ProbeE(kRfLab); // neutrino energy, units: GeV
   const double Q2 = kinematics.Q2(); // momentum transfer, units: GeV^2
   const double DNuE =  kinematics.FSLeptonP4().E(); // E_N is the energy of the dark neutrino
   const unsigned int Z = target.Z(); // number of protons
   const unsigned int N = target.N(); // number of nucleons
+
+  // select the mixing depending on the incoming neutrino
+  size_t nu_i = 3;
+  if(nu_pdg == kPdgNuE || nu_pdg == kPdgAntiNuE) nu_i = 0;
+  else if(nu_pdg == kPdgNuMu || nu_pdg == kPdgAntiNuMu) nu_i = 1;
+  else if(nu_pdg == kPdgNuTau || nu_pdg == kPdgAntiNuTau) nu_i = 2;
+  const double DTheta2 = fMixing2s[nu_i];
 
   // Target atomic mass number and mass calculated from inputs
   const unsigned int A = Z + N;
@@ -163,7 +180,7 @@ double BertuzzoDNuCOHPXSec::XSecDNuE(
   const double elec2 = 0.3*0.3;
 
   const double const_factor = .125 * elec2 / kPi;
-  const double model_params = fEps2 * fTheta2 * fgD2;
+  const double model_params = fEps2 * DTheta2 * fgD2;
 
   const double num_fact1 = FF2 * Z2;
   const double num_fact21 = -fDNuMass2 * (DNuE+E+M);
@@ -202,11 +219,19 @@ double BertuzzoDNuCOHPXSec::XSecDefective(
   const Target &       target     = init_state.Tgt();
 
   // User inputs to the calculation
+  const int nu_pdg = init_state.ProbePdg(); // neutrino energy, units: GeV
   const double E  = init_state.ProbeE(kRfLab); // neutrino energy, units: GeV
   const double Q2 = kinematics.Q2(); // momentum transfer, units: GeV^2
   const double DNuE =  kinematics.FSLeptonP4().E(); // E_N is the energy of the dark neutrino
   const unsigned int Z = target.Z(); // number of protons
   const unsigned int N = target.N(); // number of nucleons
+
+  // select the mixing depending on the incoming neutrino
+  size_t nu_i = 3;
+  if(nu_pdg == kPdgNuE || nu_pdg == kPdgAntiNuE) nu_i = 0;
+  else if(nu_pdg == kPdgNuMu || nu_pdg == kPdgAntiNuMu) nu_i = 1;
+  else if(nu_pdg == kPdgNuTau || nu_pdg == kPdgAntiNuTau) nu_i = 2;
+  const double DTheta2 = fMixing2s[nu_i];
 
   // Target atomic mass number and mass calculated from inputs
   const unsigned int A = Z + N;
@@ -230,7 +255,7 @@ double BertuzzoDNuCOHPXSec::XSecDefective(
   const double elec2 = 0.3*0.3;
 
   const double const_factor = .125 * elec2 / kPi;
-  const double model_params = fEps2 * fTheta2 * fgD2;
+  const double model_params = fEps2 * DTheta2 * fgD2;
 
   const double num_fact1 = ( FF2  * fDNuMass) * Z2;
   const double num_fact2 = (DNuE+E+M)*fDNuMass2  - 2.*M*(DNuE2 + M*DNuE + E2 - E*M);
@@ -318,9 +343,11 @@ void BertuzzoDNuCOHPXSec::LoadConfig(void)
   this->GetParam("Dark-KineticMixing", DKineticMixing);
   fEps2 = DKineticMixing * DKineticMixing;
 
-  double DTheta = 0.;            // \theta
-  this->GetParam("Dark-Theta", DTheta);
-  fTheta2 = DTheta * DTheta;
+  std::vector<double> DMixings;  // U_{\alpha 4}
+  this->GetParamVect("Dark-Mixings", DMixings);
+  for(size_t i=0; i<DMixings.size(); ++i){
+    fMixing2s[i] = DMixings[i] * DMixings[i];
+  }
 
   double DGaugeCoupling = 0.;   // g_D
   this->GetParam("Dark-GaugeCoupling", DGaugeCoupling);

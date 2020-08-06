@@ -75,7 +75,6 @@ namespace genie {
     mutable double         fWeight;
 
     double fEps2;
-    double fTheta2;
     std::array<double, 4> fMixing2s;
     double fgD2;
 

@@ -326,9 +326,12 @@ void DarkSectorDecayer::LoadConfig(void)
   this->GetParam("Dark-KineticMixing", DKineticMixing);
   fEps2 = DKineticMixing * DKineticMixing;
 
-  double DTheta = 0.;            // \theta
-  this->GetParam("Dark-Theta", DTheta);
-  fTheta2 = DTheta * DTheta;
+  std::vector<double> DMixings;  // U_{\alpha 4}
+  this->GetParamVect("Dark-Mixings", DMixings);
+  for(size_t i=0; i<DMixings.size(); ++i){
+    fMixing2s[i] = DMixings[i] * DMixings[i];
+  }
+
 
   double DGaugeCoupling = 0.;   // g_D
   this->GetParam("Dark-GaugeCoupling", DGaugeCoupling);

@@ -60,7 +60,7 @@ private:
   const EngelFormFactor * fFF; ///< Engel Form Factor algorithm
 
   double fEps2;
-  double fTheta2;
+  std::array<double, 4> fMixing2s;
   double fgD2;
 
   double fDNuMass, fDNuMass2;
