@@ -6,19 +6,8 @@
 
   Author: Marco Roda
   University of Liverpool
-
-  Jon Sensenig 
-
-  July 2020
-
-  For the class documentation see the corresponding header file.
-
-  Author: Marco Roda
-  University of Liverpool
-
   Jon Sensenig 
   University of Pennsylvania
-
   July 2020
   For the class documentation see the corresponding header file.
 
@@ -116,6 +105,7 @@ double AlvarezRusoSalaCOHGammaPXSec::XSec( const Interaction * interaction,
   // if kps == kPSEgTlTgPgfE 
   diff_cross_section *= sin( gamma_p4.Theta() ) ;
   return diff_cross_section ;   
+
 }
 //____________________________________________________________________________
 utils::math::GTrace 
@@ -160,7 +150,9 @@ bool AlvarezRusoSalaCOHGammaPXSec::ValidProcess(const Interaction * interaction)
 }
 //____________________________________________________________________________
 double 
-AlvarezRusoSalaCOHGammaPXSec::AntiNeutrinoHadronContraction( const Interaction * i ) const {
+AlvarezRusoSalaCOHGammaPXSec::NeutrinoHadronContraction( const Interaction * i ) const { 
+
+  LOG("AlvarezRusoSalaCOHGammaPXSec", pINFO ) << "Entering Neutrino contraction" ;
 
   double k0 = i -> InitState().ProbeE(kRfLab); // incident neutrino E
   TLorentzVector probe( 0., 0., k0, k0 ) ;
@@ -196,7 +188,9 @@ AlvarezRusoSalaCOHGammaPXSec::AntiNeutrinoHadronContraction( const Interaction *
 }
 //____________________________________________________________________________
 double 
-AlvarezRusoSalaCOHGammaPXSec::NeutrinoHadronContraction( const Interaction * i ) const {
+AlvarezRusoSalaCOHGammaPXSec::AntiNeutrinoHadronContraction( const Interaction * i ) const {
+
+  LOG("AlvarezRusoSalaCOHGammaPXSec", pINFO ) << "Entering Anti-Neutrino contraction" ;
 
   double k0 = i -> InitState().ProbeE(kRfLab); // incident neutrino E
   TLorentzVector probe( 0., 0., k0, k0 ) ;
