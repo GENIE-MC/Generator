@@ -63,7 +63,7 @@ namespace genie {
     int SelectDecayChannel(const std::vector<DecayChannel> & dcs,
                            double total_amplitude) const;
     std::vector<DecayChannel> DarkMediatorDecayChannels(void) const;
-    std::vector<DecayChannel> DarkNeutrinoDecayChannels(void) const;
+    std::vector<DecayChannel> DarkNeutrinoDecayChannels(const int mother_pdg) const;
     void SetSpaceTime(std::vector<GHepParticle> & pp, const GHepParticle & mother,
                       double total_amplitude) const;
 

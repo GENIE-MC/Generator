@@ -79,7 +79,7 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
     }
     else if(pdg_code == kPdgDarkNeutrino ||
             pdg_code == kPdgAntiDarkNeutrino){
-      dcs = DarkNeutrinoDecayChannels();
+      dcs = DarkNeutrinoDecayChannels(pdg_code);
     }
     double total_amplitude = std::accumulate(dcs.begin(), dcs.end(), 0.,
                                              [](double total,
@@ -225,7 +225,7 @@ std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkMediatorDeca
 }
 //____________________________________________________________________________
 std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkNeutrinoDecayChannels(
-  void) const
+  const int mother_pdg) const
 {
   // eq (3) and higher order variations 
 
@@ -242,9 +242,12 @@ std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkNeutrinoDeca
       const double p2 = 1 - mass2ratio;
       const double p3 = 1 + mass2ratio - 2*mass2ratio*mass2ratio;
       const double decay_width = p0 * p1 * p2 * p3;
-      dcs.push_back(DecayChannel{{neutrinos[i], kPdgDNuMediator}, decay_width});
-      // TODO DNu: how to do antineutrinos decay?
-      // dcs.push_back(DecayChannel{{antineutrinos[i], kPdgDNuMediator}, decay_width});
+      if(mother_pdg == kPdgDarkNeutrino){
+        dcs.push_back(DecayChannel{{neutrinos[i], kPdgDNuMediator}, decay_width});
+      }
+      else if(mother_pdg == kPdgAntiDarkNeutrino){
+        dcs.push_back(DecayChannel{{antineutrinos[i], kPdgDNuMediator}, decay_width});
+      }
     }
   }
   return dcs;
