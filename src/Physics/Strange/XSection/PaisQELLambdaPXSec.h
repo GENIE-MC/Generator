@@ -3,26 +3,25 @@
 
 \class    genie::PaisQELLambdaPXSec
 
-\brief    Implementation of the quasi-elastic scattering formula for 
+\brief    Implementation of the quasi-elastic scattering formula for
           production of particles with different masses than the target.
 
 \ref      Weak Interactions at High Energies
-          A. Pais, Annals of Physics 63, 361-392 (1971)    
+          A. Pais, Annals of Physics 63, 361-392 (1971)
           Implemented here is equation 2.34 of the Pais paper, but ignoring
-          lepton mass terms.  This equation is given also as Equation 3.37 in 
-          the Llewellyn-Smith paper, though this paper uses slightly 
+          lepton mass terms.  This equation is given also as Equation 3.37 in
+          the Llewellyn-Smith paper, though this paper uses slightly
           different notation than that used in the Pais paper, and introduces
-          a small error in the kinematic coefficient of the w2 term.  The 
-          notation here by and large follows that of the Llewelyn-Smith paper. 
+          a small error in the kinematic coefficient of the w2 term.  The
+          notation here by and large follows that of the Llewelyn-Smith paper.
 
 \author   Hugh Gallagher
           Tufts University
 
 \created  June 10, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org        
 */
 //____________________________________________________________________________
 
@@ -60,9 +59,9 @@ private:
   double MHyperon(const Interaction * interaction) const;
 
   mutable QELFormFactors          fFormFactors;
-  const   QELFormFactorsModelI *  fFormFactorsModel; 
+  const   QELFormFactorsModelI *  fFormFactorsModel;
   const   XSecIntegratorI *       fXSecIntegrator;
-  double                          fSin8c2; 
+  double                          fSin8c2;
 
 };
 

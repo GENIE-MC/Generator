@@ -8,14 +8,13 @@
 
 \ref      E.A.Paschos and J.Y.Yu, Phys.Rev.D 65.03300
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 05, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -50,20 +49,15 @@ public:
 
 private:
   void   LoadConfig                  (void);
-  double DISRESJoinSuppressionFactor (const Interaction * in) const;
 
   mutable DISStructureFunc fDISSF;
   bool                     fInInitPhase;
 
   const DISStructureFuncModelI * fDISSFModel;         ///< SF model
-  const HadronizationModelI *    fHadronizationModel; ///< hadronic multip. model
   const XSecIntegratorI *        fXSecIntegrator;     ///< diff. xsec integrator
 
   const XSecAlgorithmI * fCharmProdModel;
 
-  bool   fUsingDisResJoin;  ///< use a DIS/RES joining scheme?
-  bool   fUseCache;         ///< cache reduction factors used in joining scheme
-  double fWcut;             ///< apply DIS/RES joining scheme < Wcut
   double fScale;            ///< cross section scaling factor
   double fSin48w;           ///< sin^4(Weingberg angle)
 };

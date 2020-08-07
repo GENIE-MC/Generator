@@ -1,16 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Jeremy Hewes, Georgia Karagiorgi
-         University of Manchester
-
- For documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
+ Jeremy Hewes, Georgia Karagiorgi
+ University of Manchester
 */
 //____________________________________________________________________________
 
@@ -91,10 +85,10 @@ bool genie::utils::nnbar_osc::IsValidMode(NNBarOscMode_t ndm)
     case (kNOnto2pip2pim1pi0) :
     case (kNOnto1pip1pim1o)   :
     case (kNOnto2pip2pim2pi0) :
-      return true;  
+      return true;
       break;
-    default : 
-      return false;  
+    default :
+      return false;
       break;
   }
   return false;
@@ -150,8 +144,8 @@ PDGCodeList genie::utils::nnbar_osc::DecayProductList(
       decay_products.push_back(kPdgPi0);
       break;
     case (kNOpto1pip3pi0) :
-      decay_products.push_back(kPdgPiP); 
-      decay_products.push_back(kPdgPi0); 
+      decay_products.push_back(kPdgPiP);
+      decay_products.push_back(kPdgPi0);
       decay_products.push_back(kPdgPi0);
       decay_products.push_back(kPdgPi0);
       break;
@@ -177,7 +171,7 @@ PDGCodeList genie::utils::nnbar_osc::DecayProductList(
       break;
     case (kNOpto3pip2pim1pi0) :
       decay_products.push_back(kPdgPiP);
-      decay_products.push_back(kPdgPiP); 
+      decay_products.push_back(kPdgPiP);
       decay_products.push_back(kPdgPiP);
       decay_products.push_back(kPdgPiM);
       decay_products.push_back(kPdgPiM);
@@ -252,8 +246,8 @@ GHepStatus_t genie::utils::nnbar_osc::DecayProductStatus(
         pdgc == kPdgomega)
     {
       return kIStHadronInTheNucleus;
-    } 
-  } 
+    }
+  }
 
   return kIStStableFinalState;
 }

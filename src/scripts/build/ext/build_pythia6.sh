@@ -338,10 +338,10 @@ elif [ $mt -eq 410 ] ; then
   exit
 else
 # new location, .f file is gzipped
-  basef=pythia-${major}.${minor}.${tiny}.f
-  #location=http://www.hepforge.org/archive/pythia6
-  location=https://www.hepforge.org/archive/pythia6
-  gzipped=".gz"
+  basef=pythia${major}${minor}${tiny}.f
+  #location=hhttp://home.thep.lu.se/~torbjorn/pythia6
+  location=http://home.thep.lu.se/~torbjorn/pythia6
+  gzipped=""
 fi
 # if we don't already have it, fetch the .f file
 if [ ! -f ${basef}_with_dummies -o ${refetch} -ne 0 ] ; then

@@ -16,8 +16,7 @@ RFG-NucRemovalE@Pdg=?      double   No         nuclear removal energy for specfi
 
 UseRFGMomentumCutoff       bool     No         use the same momentum cutoff as in the FG model     
 RFG-MomentumCutOff         double   No         FG model momentum cut off value                     CommonParam[FermiGas]
-
-
+FermiMomentumTable         string   No         Table of Fermi momentum (kF) constants              CommonParam[FermiGas]                                                                                      
 ...................................................................................................
 -->
 

@@ -1,13 +1,9 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Robert Hatcher <rhatcher@fnal.gov>
-
- For the class documentation see the corresponding header file.
-
+ Robert Hatcher <rhatcher@fnal.gov>
 */
 //____________________________________________________________________________
 
@@ -23,7 +19,7 @@ using namespace genie::geometry;
 #include <TGeoMedium.h>
 
 //____________________________________________________________________________
-GeomVolSelectorFiducial::GeomVolSelectorFiducial() 
+GeomVolSelectorFiducial::GeomVolSelectorFiducial()
   : GeomVolSelectorBasic(), fSelectReverse(false)
   , fShape(0), fCurrPathSegmentList(0)
 {
@@ -41,17 +37,17 @@ GeomVolSelectorFiducial::~GeomVolSelectorFiducial()
 //___________________________________________________________________________
 void GeomVolSelectorFiducial::TrimSegment(PathSegment& ps) const
 {
-  // First trim the segment based on the ray vs. cylinder or box 
+  // First trim the segment based on the ray vs. cylinder or box
   // Then trim futher according to the Basic parameters
-  
+
   if ( ! fIntercept.fIsHit ) {
     // simple case when ray doesn't intersect the fiducial volume at all
     if ( fSelectReverse ) {
-      // fiducial is reversed (ie. only want regions outside) 
+      // fiducial is reversed (ie. only want regions outside)
       /// so a miss means blindly accept all segments
     } else {
       // want in fiducial, ray misses => reject all segments
-      ps.fStepRangeSet.clear();  // 
+      ps.fStepRangeSet.clear();  //
     }
   } else {
     // ray hit fiducial volume, some segments steps need rejection, some need splitting...
@@ -61,8 +57,8 @@ void GeomVolSelectorFiducial::TrimSegment(PathSegment& ps) const
     StepRangeSet::iterator srs_end = ps.fStepRangeSet.end();
     StepRangeSet modifiedStepRangeSet;
     Bool_t ismod = false;
-    
-    // loop over steps within this segement 
+
+    // loop over steps within this segement
     for ( ; srs_itr != srs_end; ++srs_itr ) {
       Double_t slo = srs_itr->first;
       Double_t shi = srs_itr->second;
@@ -88,23 +84,23 @@ void GeomVolSelectorFiducial::TrimSegment(PathSegment& ps) const
 }
 
 //___________________________________________________________________________
-Bool_t GeomVolSelectorFiducial::NewStepPairs(Bool_t selectReverse, Double_t raydist, 
+Bool_t GeomVolSelectorFiducial::NewStepPairs(Bool_t selectReverse, Double_t raydist,
                                              Double_t slo, Double_t shi,
-                                             const RayIntercept& intercept, 
+                                             const RayIntercept& intercept,
                                              Bool_t& split,
                                              StepRange& step1, StepRange& step2)
 {
   // modifying a step based on a range
-  // there seem to be six possible cases:    
+  // there seem to be six possible cases:
   //     step: |===| {slo,shi}
   //
   //   range:   in       out
   //            #        #            normal     reverse
-  // 0   |===|  #        #            {0,0}      {slo,shi} 
+  // 0   |===|  #        #            {0,0}      {slo,shi}
   // 1       |==#==|     #            {in,shi}   {slo,in}
   // 2       |==#========#==|         {in,out}   {slo,in}+{out,shi}
   // 3          #  |==|  #            {slo,shi}  {0,0}
-  // 4          #     |==#==|         {slo,out}  {out,shi} 
+  // 4          #     |==#==|         {slo,out}  {out,shi}
   // 5          #        #  |====|    {0,0}      {slo,shi}
   //            #        #
   //
@@ -127,7 +123,7 @@ Bool_t GeomVolSelectorFiducial::NewStepPairs(Bool_t selectReverse, Double_t rayd
     } else {
       // case 2
       if ( selectReverse ) { split = true;
-        step1 = StepRange(slo,sdistin); 
+        step1 = StepRange(slo,sdistin);
         step2 = StepRange(sdistout,shi); }
       else                 { step1 = StepRange(sdistin,sdistout); }
     }
@@ -195,7 +191,31 @@ void GeomVolSelectorFiducial::MakeSphere(Double_t x0, Double_t y0, Double_t z0, 
 }
 
 //___________________________________________________________________________
-void GeomVolSelectorFiducial::MakeZCylinder(Double_t x0, Double_t y0, Double_t radius, 
+void GeomVolSelectorFiducial::MakeXCylinder(Double_t y0, Double_t z0, Double_t radius,
+                                            Double_t xmin, Double_t xmax)
+{
+  // This sets parameters for a cylinder parallel to the x-axis
+  Double_t base[] = {  0, y0, z0 };
+  Double_t axis[] = {  1,  0,  0 };
+  Double_t cap1[] = { -1,  0,  0,  xmin };
+  Double_t cap2[] = { +1,  0,  0, -xmax };  // note sign change
+  this->MakeCylinder(base,axis,radius,cap1,cap2);
+}
+
+//___________________________________________________________________________
+void GeomVolSelectorFiducial::MakeYCylinder(Double_t x0, Double_t z0, Double_t radius,
+                                            Double_t ymin, Double_t ymax)
+{
+  // This sets parameters for a cylinder parallel to the y-axis
+  Double_t base[] = { x0,  0, z0 };
+  Double_t axis[] = {  0,  1,  0 };
+  Double_t cap1[] = {  0, -1,  0,  ymin };
+  Double_t cap2[] = {  0, +1,  0, -ymax };  // note sign change
+  this->MakeCylinder(base,axis,radius,cap1,cap2);
+}
+
+//___________________________________________________________________________
+void GeomVolSelectorFiducial::MakeZCylinder(Double_t x0, Double_t y0, Double_t radius,
                                             Double_t zmin, Double_t zmax)
 {
   // This sets parameters for a cylinder parallel to the z-axis
@@ -239,7 +259,7 @@ void GeomVolSelectorFiducial::MakeBox(Double_t* xyzmin, Double_t* xyzmax)
 }
 
 //___________________________________________________________________________
-void GeomVolSelectorFiducial::MakeZPolygon(Int_t n, Double_t x0, Double_t y0, Double_t inradius, 
+void GeomVolSelectorFiducial::MakeZPolygon(Int_t n, Double_t x0, Double_t y0, Double_t inradius,
                                            Double_t phi0deg, Double_t zmin, Double_t zmax)
 {
   // phi=0 will put flat face towards +x
@@ -261,5 +281,3 @@ void GeomVolSelectorFiducial::MakeZPolygon(Int_t n, Double_t x0, Double_t y0, Do
 }
 
 //___________________________________________________________________________
-
-

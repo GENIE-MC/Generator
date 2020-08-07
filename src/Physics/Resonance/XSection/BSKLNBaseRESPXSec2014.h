@@ -8,7 +8,7 @@
 
 \ref      Berger, Sehgal Phys. Rev. D76, 113004 (2007) \n
           Kuzmin, Lyubushkin, Naumov Mod. Phys. Lett. A19 (2004) 2815 \n
-	  D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
+	        D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
           and Single Pion Production, Ann.Phys.133, 79 (1981) \n
 
           Modifications based on a MiniBooNE tune courtesy of J. Nowak, S.Dytman
@@ -22,14 +22,13 @@
           Gabe Perdue
           Fermilab
 
-          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  Sep 15, 2015
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -51,7 +50,7 @@ namespace genie {
     public:
       virtual ~BSKLNBaseRESPXSec2014();
 
-      // implement the XSecAlgorithmI interface 
+      // implement the XSecAlgorithmI interface
       double XSec         (const Interaction * i, KinePhaseSpace_t k) const;
       double Integral     (const Interaction * i) const;
       bool   ValidProcess (const Interaction * i) const;
@@ -94,7 +93,7 @@ namespace genie {
       string fKFTable;             ///< table of Fermi momentum (kF) constants for various nuclei
       bool fUseRFGParametrization; ///< use parametrization for fermi momentum insted of table?
       bool fUsePauliBlocking;      ///< account for Pauli blocking?
-     
+
       double   fXSecScaleCC;       ///< external CC xsec scaling factor
       double   fXSecScaleNC;       ///< external NC xsec scaling factor
 

@@ -106,14 +106,14 @@
                 t2k_rootracker format. 
                 The output file is named myfile.gtrac.root
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created September 23, 2005
 
-\cpright Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //_____________________________________________________________________________________________
 
@@ -482,14 +482,14 @@ void ConvertToGST(void)
   s_tree->Branch("niem",          &brNiEM,	    "niem/I"	    );
   s_tree->Branch("niother",       &brNiOther,       "niother/I"     );
   s_tree->Branch("ni",	         &brNi,	            "ni/I"	    );
-  s_tree->Branch("pdgi",          brPdgi,	    "pdgi[ni]/I "   );
-  s_tree->Branch("resc",          brResc,	    "resc[ni]/I "   );
+  s_tree->Branch("pdgi",          brPdgi,	    "pdgi[ni]/I"   );
+  s_tree->Branch("resc",          brResc,	    "resc[ni]/I"   );
   s_tree->Branch("Ei",	          brEi,	            "Ei[ni]/D"      );
   s_tree->Branch("pxi",	          brPxi,	    "pxi[ni]/D"     );
   s_tree->Branch("pyi",	          brPyi,	    "pyi[ni]/D"     );
   s_tree->Branch("pzi",	          brPzi,	    "pzi[ni]/D"     );
   s_tree->Branch("nf",	         &brNf,	            "nf/I"	    );
-  s_tree->Branch("pdgf",          brPdgf,	    "pdgf[nf]/I "   );
+  s_tree->Branch("pdgf",          brPdgf,	    "pdgf[nf]/I"   );
   s_tree->Branch("Ef",	          brEf,	            "Ef[nf]/D"      );
   s_tree->Branch("pxf",	          brPxf,	    "pxf[nf]/D"     );
   s_tree->Branch("pyf",	          brPyf,	    "pyf[nf]/D"     );
@@ -575,7 +575,7 @@ void ConvertToGST(void)
     //
 
     //input particles
-    GHepParticle * neutrino = event.ExperimentalProbe();
+    GHepParticle * neutrino = event.Probe();
     GHepParticle * target = event.Particle(1);
     assert(target);
     GHepParticle * fsl = event.FinalStatePrimaryLepton();
@@ -605,7 +605,7 @@ void ConvertToGST(void)
     bool is_qel    = proc_info.IsQuasiElastic();
     bool is_res    = proc_info.IsResonant();
     bool is_dis    = proc_info.IsDeepInelastic();
-    bool is_coh    = proc_info.IsCoherent();
+    bool is_coh    = proc_info.IsCoherentProduction();
     bool is_dfr    = proc_info.IsDiffractive();
     bool is_imd    = proc_info.IsInverseMuDecay();
     bool is_imdanh = proc_info.IsIMDAnnihilation();
@@ -747,11 +747,13 @@ void ConvertToGST(void)
       // now add pi0's that were decayed as short lived particles
       else if(pdgc == kPdgPi0){
 	int ifd = p->FirstDaughter();
-	int fd_pdgc = event.Particle(ifd)->Pdg();
-	// just require that first daughter is one of gamma, e+ or e-  
-	if(fd_pdgc == kPdgGamma || fd_pdgc == kPdgElectron || fd_pdgc == kPdgPositron){
-	  final_had_syst.push_back(ip);
-	}
+        if ( ifd != -1 ) {
+          int fd_pdgc = event.Particle(ifd)->Pdg();
+          // just require that first daughter is one of gamma, e+ or e-  
+          if(fd_pdgc == kPdgGamma || fd_pdgc == kPdgElectron || fd_pdgc == kPdgPositron){
+            final_had_syst.push_back(ip);
+          }
+        }
       }
     }//particle-loop
 
@@ -2537,10 +2539,10 @@ void ConvertToGHad(void)
 #ifdef __GHAD_NTP__
   TFile fout("ghad.root","recreate");  
   TTree * ghad = new TTree("ghad","");   
-  ghad->Branch("i",       &brIev,          "i/I " );
-  ghad->Branch("W",       &brW,            "W/D " );
-  ghad->Branch("n",       &brN,            "n/I " );
-  ghad->Branch("pdg",      brPdg,          "pdg[n]/I " );
+  ghad->Branch("i",       &brIev,          "i/I" );
+  ghad->Branch("W",       &brW,            "W/D" );
+  ghad->Branch("n",       &brN,            "n/I" );
+  ghad->Branch("pdg",      brPdg,          "pdg[n]/I" );
   ghad->Branch("E",        brE,            "E[n]/D"    );
   ghad->Branch("px",       brPx,           "px[n]/D"   );
   ghad->Branch("py",       brPy,           "py[n]/D"   );
@@ -2603,7 +2605,7 @@ void ConvertToGHad(void)
     else if (init_state.IsNuBarN ()) im = 4; 
     else return;
 
-    GHepParticle * neutrino = event.ExperimentalProbe();
+    GHepParticle * neutrino = event.Probe();
     assert(neutrino);
     GHepParticle * target = event.Particle(1);
     assert(target);
@@ -2805,7 +2807,7 @@ TTree * tEvtTree = new TTree("ginuke","GENIE INuke Summary Tree");
   tEvtTree->Branch("probe_fsi", &brProbeFSI,     "probe_fsi/I" );
   tEvtTree->Branch("dist",      &brDist,         "dist/D"      );
   tEvtTree->Branch("nh",        &brNh,           "nh/I"        );
-  tEvtTree->Branch("pdgh",      brPdgh,          "pdgh[nh]/I " );
+  tEvtTree->Branch("pdgh",      brPdgh,          "pdgh[nh]/I" );
   tEvtTree->Branch("Eh",        brEh,            "Eh[nh]/D"    );
   tEvtTree->Branch("ph",        brPh,            "ph[nh]/D"    );
   tEvtTree->Branch("pxh",       brPxh,           "pxh[nh]/D"   );

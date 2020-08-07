@@ -23,5 +23,23 @@
      <!-- Pb208 --> <kf nucleus_pdgc="1000822080"> <p> 0.245 </p> <n> 0.283 </n> </kf> 
   </kf_table>
 
+  <!-- From G. Megias thesis: https://idus.us.es/xmlui/handle/11441/74826 -->
+  <!-- O16 added from private communication -->
+
+  <kf_table name="SuSA">
+     <!-- H2    --> <kf nucleus_pdgc="1000010020"> <p> 0.055 </p> <n> 0.055 </n> </kf> 
+     <!-- He4   --> <kf nucleus_pdgc="1000020040"> <p> 0.115 </p> <n> 0.115 </n> </kf> 
+     <!-- Li6   --> <kf nucleus_pdgc="1000030060"> <p> 0.165 </p> <n> 0.165 </n> </kf> 
+     <!-- C12   --> <kf nucleus_pdgc="1000060120"> <p> 0.228 </p> <n> 0.228 </n> </kf> 
+     <!-- O16   --> <kf nucleus_pdgc="1000080160"> <p> 0.230 </p> <n> 0.230 </n> </kf> 
+     <!-- Al27  --> <kf nucleus_pdgc="1000130270"> <p> 0.236 </p> <n> 0.236 </n> </kf>  
+     <!-- Ca40  --> <kf nucleus_pdgc="1000200400"> <p> 0.241 </p> <n> 0.241 </n> </kf> 
+     <!-- Fe56  --> <kf nucleus_pdgc="1000260560"> <p> 0.241 </p> <n> 0.241 </n> </kf> 
+     <!-- Ni58  --> <kf nucleus_pdgc="1000280580"> <p> 0.245 </p> <n> 0.245 </n> </kf> 
+     <!-- Sn120 --> <kf nucleus_pdgc="1000501200"> <p> 0.245 </p> <n> 0.245 </n> </kf> 
+     <!-- Au197 --> <kf nucleus_pdgc="1000791970"> <p> 0.245 </p> <n> 0.245 </n> </kf>
+     <!-- Pb208 --> <kf nucleus_pdgc="1000822080"> <p> 0.248 </p> <n> 0.248 </n> </kf> 
+  </kf_table>
+
 </fermi_momentum_const>
 

@@ -6,18 +6,17 @@
 \brief    Is a concrete implementation of the QELFormFactorsModelI:
           Form Factors for Quasi Elastic CC vN Delta S=1 scattering.
 
-\ref      Equations for the strange form factors are taken from Cabibbo 
-          and Chilton, Phys.Rev. 137 (1965) B1628-B1634 and 
+\ref      Equations for the strange form factors are taken from Cabibbo
+          and Chilton, Phys.Rev. 137 (1965) B1628-B1634 and
           Alam et al., J.Phys. G42 (2015) no.5, 055107.
 
 \author   Hugh Gallagher <Hugh.Gallagher \at tufts.edu>
-          Tufts University 
+          Tufts University
 
 \created  April 10, 2016
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -45,4 +44,3 @@ public:
 }      // genie namespace
 
 #endif
-

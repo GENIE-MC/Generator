@@ -7,14 +7,14 @@
           Defines the NuclearModelI interface to be implemented by any physics
           model describing the distribution of nucleons within a nuclei
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  October 09, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+          
 
  Important revisions after version 2.0.0 :
  @ Mar 18, 2016 - JJ (SD)
@@ -22,6 +22,9 @@
    as the arguments. Currently used by LocalFGM. Calls
    GenerateNucleon() with the radius set to 0 for all other NuclearModelI
    implementations.
+
+ @ Jul 2020 - Marco Roda
+   Added fooks for FermiMomentum and LocalFermiMomentum
 
 */
 //____________________________________________________________________________
@@ -34,6 +37,7 @@
 #include <TVector3.h>
 
 #include "Physics/NuclearState/NuclearModel.h"
+#include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Framework/Algorithm/Algorithm.h"
 #include "Framework/Interaction/Target.h"
 
@@ -54,7 +58,11 @@ public:
 
   virtual NuclearModel_t ModelType       (const Target &) const = 0;
 
-  inline double         RemovalEnergy   (void)           const
+  virtual double         FermiMomentum( const Target &, int nucleon_pdg ) const ;
+  virtual double         LocalFermiMomentum( const Target &, int nucleon_pdg, double radius ) const ; 
+ 
+
+  inline double          RemovalEnergy   (void)           const
   {
     return fCurrRemovalEnergy;
   }
@@ -90,23 +98,40 @@ protected:
     , fCurrRemovalEnergy(0)
     , fCurrMomentum(0,0,0)
     , fFermiMoverInteractionType(kFermiMoveDefault)
+    , fKFTable(nullptr)
+    , fKFTableName("Unspecified")
     {};
   NuclearModelI(std::string name)
     : Algorithm(name)
     , fCurrRemovalEnergy(0)
     , fCurrMomentum(0,0,0)
     , fFermiMoverInteractionType(kFermiMoveDefault)
+    , fKFTable(nullptr)
+    , fKFTableName("Unspecified")
     {};
   NuclearModelI(std::string name, std::string config)
     : Algorithm(name, config)
     , fCurrRemovalEnergy(0)
     , fCurrMomentum(0,0,0)
     , fFermiMoverInteractionType(kFermiMoveDefault)
+    , fKFTable(nullptr)
+    , fKFTableName("Unspecified")
     {};
+
+  virtual void LoadConfig() ;
+
+  const string & FermiMomentumTableName() const { return fKFTableName; }
+  const genie::FermiMomentumTable & FermiMomentumTable() const { return *fKFTable ; }
 
   mutable double   fCurrRemovalEnergy;
   mutable TVector3 fCurrMomentum;
   mutable FermiMoverInteractionType_t fFermiMoverInteractionType;
+
+
+ private:
+
+  const genie::FermiMomentumTable * fKFTable; 
+  string fKFTableName;
 
 };
 

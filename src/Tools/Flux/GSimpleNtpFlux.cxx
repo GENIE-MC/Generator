@@ -1,22 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Robert Hatcher <rhatcher@fnal.gov>
-         Fermi National Accelerator Laboratory
-
- For the class documentation see the corresponding header file.
-
- @ Feb 22, 2011 - JD
-   Implemented dummy versions of the new GFluxI::Clear, GFluxI::Index and 
-   GFluxI::GenerateWeighted methods needed for pre-generation of flux
-   interaction probabilities in GMCJDriver.
- @ Mar 14, 2014 - TD
-   Prevent an infinite loop in GenerateNext() when the flux driver has not been
-   properly configured by exiting within GenerateNext_weighted().
-
+ Robert Hatcher <rhatcher@fnal.gov>
+ Fermi National Accelerator Laboratory
 */
 //____________________________________________________________________________
 
@@ -60,7 +48,7 @@ FLUXDRIVERREG4(genie,flux,GSimpleNtpFlux,genie::flux::GSimpleNtpFlux)
 
 //#define __GENIE_LOW_LEVEL_MESG_ENABLED__
 // next line won't work for NOvA: ROOT's Error() != DefaultErrorHandler
-//#define USE_INDEX_FOR_META 
+//#define USE_INDEX_FOR_META
 
 using namespace genie;
 using namespace genie::flux;
@@ -92,11 +80,11 @@ double GSimpleNtpFlux::GetTotalExposure() const
   return UsedPOTs();
 }
 //___________________________________________________________________________
-long int  GSimpleNtpFlux::NFluxNeutrinos(void) const 
-{ 
+long int  GSimpleNtpFlux::NFluxNeutrinos(void) const
+{
   ///< number of flux neutrinos looped so far
-  return fNNeutrinos; 
-} 
+  return fNNeutrinos;
+}
 //___________________________________________________________________________
 bool GSimpleNtpFlux::GenerateNext(void)
 {
@@ -136,7 +124,7 @@ bool GSimpleNtpFlux::GenerateNext(void)
      if (f > 1.) {
        fMaxWeight = this->Weight() * 1.01; // bump the weight
        LOG("Flux", pERROR)
-         << "** Fractional weight = " << f 
+         << "** Fractional weight = " << f
          << " > 1 !! Bump fMaxWeight estimate to " << fMaxWeight
          << GetCurrentEntry();
        std::cout << std::flush;
@@ -165,7 +153,7 @@ bool GSimpleNtpFlux::GenerateNext(void)
 //___________________________________________________________________________
 bool GSimpleNtpFlux::GenerateNext_weighted(void)
 {
-// Get next (weighted) flux ntuple entry 
+// Get next (weighted) flux ntuple entry
 //
 
   // Check whether a flux ntuple has been loaded
@@ -173,7 +161,7 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
      LOG("Flux", pFATAL)
           << "The flux driver has not been properly configured";
      // return false; // don't do this - creates an infinite loop!
-     exit(1); 	
+     exit(1);
   }
 
   // Reuse an entry?
@@ -201,10 +189,10 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
           << fICycle << " of " << fNCycles;
         fEnd = true;
         //assert(0);
-        return false;	
+        return false;
       }
     }
-    
+
     int nbytes = fNuFluxTree->GetEntry(fIEntry);
     UInt_t metakey = fCurEntry->metakey;
     if ( fAllFilesMeta && ( fCurMeta->metakey != metakey ) ) {
@@ -227,27 +215,27 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
       if ( fCurMeta->metakey != metakey ) {
         fCurMeta = 0; // didn't find it!?
         LOG("Flux",pERROR) << "Failed to find right metakey=" << metakey
-                           << " (was " << oldkey << ") out of " << nmeta 
+                           << " (was " << oldkey << ") out of " << nmeta
                            << " entries";
       }
 #endif
-      LOG("Flux",pDEBUG) << "Get meta " << metakey 
+      LOG("Flux",pDEBUG) << "Get meta " << metakey
                          << " (was " << oldkey << ") "
-                         << fCurMeta->metakey 
+                         << fCurMeta->metakey
                          << " nb " << nbytes << " " << nbmeta;
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-      LOG("Flux",pDEBUG) << "Get meta " << *fCurMeta; 
+      LOG("Flux",pDEBUG) << "Get meta " << *fCurMeta;
 #endif
     }
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     Int_t ifile = fNuFluxTree->GetFileNumber();
     LOG("Flux",pDEBUG)
-      << "got " << fNNeutrinos << " nu, using fIEntry " << fIEntry 
+      << "got " << fNNeutrinos << " nu, using fIEntry " << fIEntry
       << " ifile " << ifile << " nbytes " << nbytes
       << *fCurEntry << *fCurMeta;
 #endif
 
-    fIUse = 1; 
+    fIUse = 1;
 
     // here we might want to do flavor oscillations or simple mappings
     //RWH modify:  fPdgC = fCurEntry->pdg;
@@ -259,7 +247,7 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
     // Make sure that the appropriate list of flux neutrino species was set at
     // initialization via GSimpleNtpFlux::SetFluxParticles(const PDGCodeList &)
 
-    // update the # POTs, sum of weights & number of neutrinos 
+    // update the # POTs, sum of weights & number of neutrinos
     // do this HERE (before rejecting flavors that users might be weeding out)
     // in order to keep the POT accounting correct.  This allows one to get
     // the right normalization for generating only events from the intrinsic
@@ -276,11 +264,11 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
       if ( ! fPdgCListRej->ExistsInPDGCodeList(badpdg) ) {
         fPdgCListRej->push_back(badpdg);
         LOG("Flux", pWARN)
-          << "Encountered neutrino specie (" << badpdg 
+          << "Encountered neutrino specie (" << badpdg
           << ") that wasn't in SetFluxParticles() list, "
           << "\nDeclared list of neutrino species: " << *fPdgCList;
       }
-      return false;	
+      return false;
     }
 
   }
@@ -303,11 +291,11 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Flux", pINFO)
-    << "Generated neutrino: " << fIEntry 
+    << "Generated neutrino: " << fIEntry
 #ifdef NOT_YET
     << " run " << fCurNuMI->evtno
-    << " evtno " << fCurNuMI->evtno 
-    << " entryno " << fCurNuMI->entryno 
+    << " evtno " << fCurNuMI->evtno
+    << " entryno " << fCurNuMI->entryno
 #endif
     << "\n pdg-code: " << fCurEntry->pdg << " wgt " << fCurEntry->wgt
     << "\n p4: " << utils::print::P4AsShortString(&fP4)
@@ -315,7 +303,7 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
 #endif
   if ( Ev > fMaxEv ) {
     LOG("Flux", pFATAL)
-      << "Generated neutrino had E_nu = " << Ev << " > " << fMaxEv 
+      << "Generated neutrino had E_nu = " << Ev << " > " << fMaxEv
       << " maximum ";
     assert(0);
   }
@@ -343,8 +331,8 @@ void GSimpleNtpFlux::MoveToZ0(double z0usr)
     return;
   }
 
-  double scale = (z0usr - fX4.Z()) / pzusr; 
-  //LOG("Flux",pDEBUG) 
+  double scale = (z0usr - fX4.Z()) / pzusr;
+  //LOG("Flux",pDEBUG)
   //  << "MoveToZ0: before x4=(" << fX4.X() << "," << fX4.Y() << "," << fX4.Z()
   //  << ") z0=" << z0usr << " pzusr=" << pzusr
   //  << " p4=(" << fP4.Px() << "," << fP4.Py() << "," << fP4.Pz() << ")";
@@ -376,7 +364,7 @@ double GSimpleNtpFlux::UsedPOTs(void) const
   if (!fNuFluxTree) {
      LOG("Flux", pWARN)
           << "The flux driver has not been properly configured";
-     return 0;	
+     return 0;
   }
   return fAccumPOTs;
 }
@@ -401,7 +389,7 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
     string pattern = patterns[ipatt];
     nfiles_from_pattern.push_back(0);
     LOG("Flux", pINFO)
-        << "Loading flux tree from ROOT file pattern [" 
+        << "Loading flux tree from ROOT file pattern ["
         << std::setw(3) << ipatt << "] \"" << pattern << "\"";
 
     // !WILDCARD only works for file name ... NOT directory
@@ -416,7 +404,7 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
 
     void* dirp = gSystem->OpenDirectory(gSystem->ExpandPathName(dirname.c_str()));
     if ( dirp ) {
-      std::string basename = 
+      std::string basename =
         pattern.substr(fbegin,pattern.size()-fbegin);
       TRegexp re(basename.c_str(),kTRUE);
       const char* onefile;
@@ -436,16 +424,16 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
   std::set<string>::const_iterator sitr = fnames.begin();
   for ( ; sitr != fnames.end(); ++sitr, ++indx) {
     string filename = *sitr;
-    //std::cout << "  [" << std::setw(3) << indx << "]  \"" 
+    //std::cout << "  [" << std::setw(3) << indx << "]  \""
     //          << filename << "\"" << std::endl;
-    bool isok = true; 
+    bool isok = true;
     // this next test only works for local files, so we can't do that
     // if we want to stream via xrootd
     // ! (gSystem->AccessPathName(filename.c_str()));
     if ( ! isok ) continue;
     // open the file to see what it contains
     LOG("Flux", pINFO) << "Load file " <<  filename;
-    
+
     TFile* tf = TFile::Open(filename.c_str(),"READ");
     TTree* etree = (TTree*)tf->Get("flux");
     if ( etree ) {
@@ -454,7 +442,7 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
       LOG("Flux", pDEBUG) << "AddFile " << filename
                           << " etree " << etree << " meta " << mtree;
       this->AddFile(etree,mtree,filename);
-      
+
     } // found a GSimpleNtpEntry "flux" tree
     tf->Close();
     delete tf;
@@ -484,7 +472,7 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
     for (size_t ipatt = 0; ipatt < patterns.size(); ++ipatt ) {
       string pattern = patterns[ipatt];
       LOG("Flux", pINFO)
-        << " pattern: " << pattern << " yielded " 
+        << " pattern: " << pattern << " yielded "
         << nfiles_from_pattern[ipatt] << " files";
     }
   }
@@ -492,12 +480,12 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
   int sba_status[3] = { -999, -999, -999 };
   // "entry" branch isn't optional ... contains the neutrino info
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
-  sba_status[0] = 
+  sba_status[0] =
 #endif
     fNuFluxTree->SetBranchAddress("entry",&fCurEntry);
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
   if ( sba_status[0] < 0 ) {
-    LOG("Flux", pFATAL) 
+    LOG("Flux", pFATAL)
       << "flux chain has no \"entry\" branch " << sba_status[0];
     assert(0);
   }
@@ -507,7 +495,7 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
 
   if ( OptionalAttachBranch("numi") ) {
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
-    sba_status[1] = 
+    sba_status[1] =
 #endif
       fNuFluxTree->SetBranchAddress("numi",&fCurNuMI);
     //TBranch* bnumi = fNuFluxTree->GetBranch("numi");
@@ -516,7 +504,7 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
 
   if ( OptionalAttachBranch("aux") ) {
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
-    sba_status[2] = 
+    sba_status[2] =
 #endif
       fNuFluxTree->SetBranchAddress("aux",&fCurAux);
     //TBranch* baux = fNuFluxTree->GetBranch("aux");
@@ -545,10 +533,10 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
   fIUse   =  9999999;
   fIEntry = rnd->RndFlux().Integer(fNEntries) - 1;
   if ( config.find("no-offset-index") != string::npos ) {
-    LOG("Flux",pINFO) << "Config saw \"no-offset-index\"";  
+    LOG("Flux",pINFO) << "Config saw \"no-offset-index\"";
     fIEntry = -1;
   }
-  LOG("Flux",pINFO) << "Start with entry fIEntry=" << fIEntry;  
+  LOG("Flux",pINFO) << "Start with entry fIEntry=" << fIEntry;
 
   // don't count things we used to estimate max weight
   fNEntriesUsed = 0;
@@ -558,14 +546,14 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
 
   LOG("Flux",pDEBUG) << "about to CalcEffPOTsPerNu";
   this->CalcEffPOTsPerNu();
-  
+
 }
 //___________________________________________________________________________
 void GSimpleNtpFlux::GetBranchInfo(std::vector<std::string>& branchNames,
                                    std::vector<std::string>& branchClassNames,
                                    std::vector<void**>&      branchObjPointers)
 {
-  // allow flux driver to report back current status and/or ntuple entry 
+  // allow flux driver to report back current status and/or ntuple entry
   // info for possible recording in the output file by supplying
   // the class name, and a pointer to the object that will be filled
   // as well as a suggested name for the branch.
@@ -634,7 +622,7 @@ void GSimpleNtpFlux::ProcessMeta(void)
   }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("Flux", pNOTICE) << "ProcessMeta() Maximum flux weight = " << fMaxWeight 
+  LOG("Flux", pNOTICE) << "ProcessMeta() Maximum flux weight = " << fMaxWeight
                        << ", energy = " << fMaxEv
                        << ", AlreadyUnwgt=" << (fAlreadyUnwgt?"true":"false");
 #endif
@@ -663,7 +651,7 @@ void GSimpleNtpFlux::SetEntryReuse(long int nuse)
 void GSimpleNtpFlux::GetFluxWindow(TVector3& p0, TVector3& p1, TVector3& p2) const
 {
   // return flux window points
-  
+
   p0 = TVector3(fCurMeta->windowBase[0],
                 fCurMeta->windowBase[1],
                 fCurMeta->windowBase[2]);
@@ -792,7 +780,7 @@ void GSimpleNtpFlux::CleanUp(void)
   if (fNuMetaTree)  delete fNuMetaTree;
 
   LOG("Flux", pNOTICE)
-    << " flux file cycles: " << fICycle << " of " << fNCycles 
+    << " flux file cycles: " << fICycle << " of " << fNCycles
     << ", entry " << fIEntry << " use: " << fIUse << " of " << fNUse;
 }
 
@@ -809,7 +797,7 @@ void GSimpleNtpFlux::AddFile(TTree* fluxtree, TTree* metatree, string fname)
   else            fAllFilesMeta = false;
 
   LOG("Flux",pINFO)
-    << "flux->AddFile() of " << nentries 
+    << "flux->AddFile() of " << nentries
     << " " << ((metatree)?"[+meta]":"[no-meta]")
     << " [status=" << stat << "]"
     << " entries in file: " << fname;
@@ -866,12 +854,12 @@ void GSimpleNtpEntry::Print(const Option_t* /* opt */ ) const
 GSimpleNtpNuMI::GSimpleNtpNuMI() { Reset(); }
 
 void GSimpleNtpNuMI::Reset()
-{ 
+{
   tpx  = tpy  = tpz  = 0.;
   vx   = vy   = vz   = 0.;
   pdpx = pdpy = pdpz = 0.;
   pppx = pppy = pppz = 0.;
-  
+
   ndecay   =  0;
   ptype    =  0;
   ppmedium =  0;
@@ -890,7 +878,7 @@ void GSimpleNtpNuMI::Print(const Option_t* /* opt */ ) const
 GSimpleNtpAux::GSimpleNtpAux() { Reset(); }
 
 void GSimpleNtpAux::Reset()
-{ 
+{
   auxint.clear();
   auxdbl.clear();
 }
@@ -905,18 +893,18 @@ void GSimpleNtpAux::Print(const Option_t* /* opt */ ) const
 
 GSimpleNtpMeta::GSimpleNtpMeta()
   : TObject() //, nflavors(0), flavor(0)
-{ 
+{
   Reset();
 }
 
 GSimpleNtpMeta::~GSimpleNtpMeta()
-{ 
+{
   Reset();
 }
 
 void GSimpleNtpMeta::Reset()
 {
-  
+
   pdglist.clear();
   maxEnergy    = 0.;
   minWgt       = 0.;
@@ -943,7 +931,7 @@ void GSimpleNtpMeta::Reset()
 void GSimpleNtpMeta::AddFlavor(Int_t nupdg)
 {
   bool found = false;
-  for (size_t i=0; i < pdglist.size(); ++i) 
+  for (size_t i=0; i < pdglist.size(); ++i)
     if ( pdglist[i] == nupdg) found = true;
   if ( ! found ) pdglist.push_back(nupdg);
 
@@ -975,8 +963,8 @@ namespace flux  {
   ostream & operator << (
     ostream & stream, const genie::flux::GSimpleNtpEntry & entry)
     {
-      stream << "\nGSimpleNtpEntry " 
-             << " PDG " << entry.pdg 
+      stream << "\nGSimpleNtpEntry "
+             << " PDG " << entry.pdg
              << " wgt " << entry.wgt
              << " ( metakey " << entry.metakey << " )"
              << "\n   vtx [" << entry.vtxx << "," << entry.vtxy << ","
@@ -987,11 +975,11 @@ namespace flux  {
   }
 
 
-ostream & operator << (ostream & stream, 
+ostream & operator << (ostream & stream,
                        const genie::flux::GSimpleNtpNuMI & numi)
 {
   stream << "\nGSimpleNtpNuMI "
-         << "run " << numi.run 
+         << "run " << numi.run
          << " evtno " << numi.evtno
          << " entryno " << numi.entryno
          << "\n   ndecay " << numi.ndecay  << " ptype " << numi.ptype
@@ -1030,7 +1018,7 @@ ostream & operator << (ostream & stream,
       //stream << "\nGSimpleNtpMeta " << meta.nflavors
       //       << " flavors: ";
       //for (int i=0; i< meta.nflavors; ++i) stream << " " << meta.flavor[i];
-             
+
       stream << "\n maxEnergy " << meta.maxEnergy
              << " min/maxWgt " << meta.minWgt << "/" << meta.maxWgt
              << " protons " << meta.protons
@@ -1072,7 +1060,7 @@ ostream & operator << (ostream & stream,
 
 void GSimpleNtpFlux::PrintConfig()
 {
-  
+
   std::ostringstream s;
   PDGCodeList::const_iterator itr = fPdgCList->begin();
   for ( ; itr != fPdgCList->end(); ++itr) s << (*itr) << " ";
@@ -1092,15 +1080,15 @@ void GSimpleNtpFlux::PrintConfig()
 
   LOG("Flux", pNOTICE)
     << "GSimpleNtpFlux Config:"
-    << "\n Enu_max " << fMaxEv 
+    << "\n Enu_max " << fMaxEv
     << "\n pdg-codes: " << s.str() << "\n "
-    << "\"flux\" " << fNEntries << " entries, " 
-    << "\"meta\" " << fNFiles << " entries" 
+    << "\"flux\" " << fNEntries << " entries, "
+    << "\"meta\" " << fNFiles << " entries"
     << " (FilePOTs " << fFilePOTs << ") in files:"
     << flistout.str()
     <<  "\n from file patterns: "
     << fpattout.str()
-    << "\n wgt max=" << fMaxWeight 
+    << "\n wgt max=" << fMaxWeight
     << "\n Z0 pushback " << fZ0
     << "\n used entry " << fIEntry << " " << fIUse << "/" << fNUse
     << " times, in " << fICycle << "/" << fNCycles << " cycles"
@@ -1114,7 +1102,7 @@ void GSimpleNtpFlux::PrintConfig()
 }
 
 //___________________________________________________________________________
-std::vector<std::string> GSimpleNtpFlux::GetFileList() 
+std::vector<std::string> GSimpleNtpFlux::GetFileList()
 {
   std::vector<std::string> flist;
   TObjArray *fileElements=fNuFluxTree->GetListOfFiles();

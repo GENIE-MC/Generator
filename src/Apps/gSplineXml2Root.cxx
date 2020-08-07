@@ -67,14 +67,13 @@
 
            See the User Manual for more details.
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created December 15, 2005
 
-\cpright Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -416,7 +415,7 @@ void SaveToPsFile(void)
   i=0;
   for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {
     const Interaction * interaction = *ilistiter;
-    if(interaction->ProcInfo().IsCoherent()) {
+    if(interaction->ProcInfo().IsCoherentProduction()) {
         gr[i]->Draw("LP");
         TString spltitle(interaction->AsString());
         spltitle = spltitle.ReplaceAll(";",1," ",1);
@@ -593,8 +592,14 @@ void SaveGraphsToRootFile(void)
     else if (proc.IsResonant()         ) { title << "res";   }
     else if (proc.IsDeepInelastic()    ) { title << "dis";   }
     else if (proc.IsDiffractive()      ) { title << "dfr";   }
-    else if (proc.IsCoherent()         ) { title << "coh";   }
-    else if (proc.IsCoherentElas()     ) { title << "cohel"; }
+    else if (proc.IsCoherentProduction() ) { 
+      title << "coh"; 
+      if      ( xcls.NSingleGammas() > 0 ) title << "_gamma" ;
+      else if ( xcls.NPions() > 0 )        title << "_pion"  ;
+      else if ( xcls.NRhos() > 0 )         title << "_rho"   ;
+      else                                 title << "_other" ;
+    }
+    else if (proc.IsCoherentElastic()  ) { title << "cevns"; }
     else if (proc.IsInverseMuDecay()   ) { title << "imd";   }
     else if (proc.IsIMDAnnihilation()  ) { title << "imdanh";}
     else if (proc.IsNuElectronElastic()) { title << "ve";    }
@@ -903,6 +908,59 @@ void SaveGraphsToRootFile(void)
     topdir->Add(gr_mecnc);
 
     //
+    // add-up all COH channels
+    //
+
+    double * xscohcc = new double[kNSplineP];
+    double * xscohnc = new double[kNSplineP];
+    double * xscohtot = new double[kNSplineP];
+    for(int i=0; i<kNSplineP; i++) {
+      xscohcc[i] = 0;
+      xscohnc[i] = 0;
+      xscohtot[i] = 0;
+    }
+
+    for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {
+
+      const Interaction * interaction = *ilistiter;
+      const ProcessInfo &  proc = interaction->ProcInfo();
+      
+      const Spline * spl = evg_driver.XSecSpline(interaction);
+      
+      if (proc.IsCoherentProduction() && proc.IsWeakCC()) {
+	for(int i=0; i<kNSplineP; i++) {
+	  xscohcc[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
+	}
+      }
+      if (proc.IsCoherentProduction() && proc.IsWeakNC()) {
+	for(int i=0; i<kNSplineP; i++) {
+	  xscohnc[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
+	}
+      }
+      if ( proc.IsCoherentProduction() ) {
+	for(int i=0; i<kNSplineP; i++) {
+	  xscohtot[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
+	}
+      }
+
+    }
+
+    TGraph * gr_cohcc = new TGraph(kNSplineP, e, xscohcc);
+    gr_cohcc->SetName("coh_cc");
+    FormatXSecGraph(gr_cohcc);
+    topdir->Add(gr_cohcc);
+
+    TGraph * gr_cohnc = new TGraph(kNSplineP, e, xscohnc);
+    gr_cohnc->SetName("coh_nc");
+    FormatXSecGraph(gr_cohnc);
+    topdir->Add(gr_cohnc);
+
+    TGraph * gr_cohtot = new TGraph(kNSplineP, e, xscohtot);
+    gr_cohtot->SetName("coh");
+    FormatXSecGraph(gr_cohtot);
+    topdir->Add(gr_cohtot);
+
+    //
     // total cross sections
     //
     double * xstotcc  = new double[kNSplineP];
@@ -1000,6 +1058,9 @@ void SaveGraphsToRootFile(void)
     delete [] xsdisccn;
     delete [] xsdisncp;
     delete [] xsdisncn;
+    delete [] xscohcc;
+    delete [] xscohnc;
+    delete [] xscohtot;
     delete [] xstotcc;
     delete [] xstotccp;
     delete [] xstotccn;

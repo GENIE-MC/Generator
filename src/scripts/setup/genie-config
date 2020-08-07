@@ -35,7 +35,7 @@ fmwk_libs=" -lGFwMsg -lGFwReg -lGFwAlg -lGFwInt -lGFwGHEP -lGFwNum -lGFwUtl -lGF
 # (standard)
 phys_libs=" -lGPhXSIg -lGPhPDF -lGPhNuclSt -lGPhCmn -lGPhDcy -lGPhHadTransp -lGPhHadnz  -lGPhDeEx \
   -lGPhAMNGXS -lGPhAMNGEG -lGPhChmXS -lGPhCohXS -lGPhCohEG  -lGPhDISXS -lGPhDISEG \
-  -lGPhDfrcXS -lGPhDfrcEG -lGPhGlwResXS -lGPhGlwResEG -lGPhIBDXS -lGPhIBDEG \
+  -lGPhDfrcXS -lGPhDfrcEG -lGPhGlwResXS -lGPhGlwResEG -lGPhIBDXS -lGPhIBDEG -lGPhHadTens \
   -lGPhMNucXS -lGPhMNucEG -lGPhMEL -lGPhNuElXS -lGPhNuElEG \
   -lGPhQELXS -lGPhQELEG -lGPhResXS -lGPhResEG -lGPhStrXS -lGPhStrEG "
 # (optional)
@@ -47,6 +47,9 @@ if test "$GOPT_ENABLE_NNBAR_OSCILLATION" = "YES"; then
 fi
 if test "$GOPT_ENABLE_BOOSTED_DARK_MATTER" = "YES"; then
   phys_libs="$phys_libs -lGPhBDMXS -lGPhBDMEG"
+fi
+if test "$GOPT_ENABLE_NEUTRAL_HEAVY_LEPTON" = "YES"; then
+  phys_libs="$phys_libs -lGPhNHL "
 fi
 
 # Libraries from GENIE/Generator/Tools

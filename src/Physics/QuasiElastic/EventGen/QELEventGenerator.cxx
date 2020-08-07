@@ -1,27 +1,15 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+ New QE event generator written by:
+ Andy Furmanski
+ Manchester
 
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Mar 03, 2009 - CA
-   Moved into the new QEL package from its previous location (EVGModules)
- @ Mar 05, 2010 - CA
-   Added a temprorary SpectralFuncExperimentalCode()
- @ Feb 06, 2013 - CA
-   When the value of the differential cross-section for the selected kinematics
-   is set to the event, set the corresponding KinePhaseSpace_t value too.
- @ Feb 14, 2013 - CA
-   Temporarily disable the kinematical transformation that takes out the
-   dipole form from the dsigma/dQ2 p.d.f.
- @ 2015 - AF
-   New QELEventgenerator class replaces previous methods in QEL.
+ Using a skeleton and existing QE event generator templates by:
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -46,6 +34,7 @@
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Physics/QuasiElastic/EventGen/QELEventGenerator.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/Numerical/MathUtils.h"
@@ -264,11 +253,16 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
             TLorentzVector lepton(interaction->KinePtr()->FSLeptonP4());
             TLorentzVector outNucleon(interaction->KinePtr()->HadSystP4());
-            TLorentzVector x4l(*(evrec->CorrectProbe())->X4());
+            TLorentzVector x4l(*(evrec->Probe())->X4());
 
+            // Add the final-state lepton to the event record
             evrec->AddParticle(interaction->FSPrimLeptonPdg(), kIStStableFinalState,
-              evrec->CorrectProbePosition(), -1, -1, -1, interaction->KinePtr()->FSLeptonP4(), x4l);
+              evrec->ProbePosition(), -1, -1, -1, interaction->KinePtr()->FSLeptonP4(), x4l);
 
+            // Set its polarization
+            utils::SetPrimaryLeptonPolarization( evrec );
+
+            // Add the final-state nucleon to the event record
             GHepStatus_t ist = (tgt->IsNucleus()) ? kIStHadronInTheNucleus : kIStStableFinalState;
             evrec->AddParticle(interaction->RecoilNucleonPdg(), ist, evrec->HitNucleonPosition(),
               -1, -1, -1, interaction->KinePtr()->HadSystP4(), x4l);
@@ -544,3 +538,4 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
     LOG("QELEvent", pINFO) << "Computed maximum cross section to throw against - value is " << xsec_max;
     return xsec_max;
 }
+//____________________________________________________________________________

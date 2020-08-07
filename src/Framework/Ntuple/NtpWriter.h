@@ -6,14 +6,13 @@
 \brief   A utility class to facilitate creating the GENIE MC Ntuple from the
          output GENIE GHEP event records.
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created October 1, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -53,11 +52,11 @@ public :
   void Save (void);
 
   ///< get the even tree
-  TTree *  EventTree (void) { return fOutTree; }  
+  TTree *  EventTree (void) { return fOutTree; }
 
   ///< use before Initialize() only if you wish to override the default
   ///< filename, or the default filename prefix
-  void CustomizeFilename       (string filename);   
+  void CustomizeFilename       (string filename);
   void CustomizeFilenamePrefix (string prefix);
 
 private:
@@ -74,8 +73,8 @@ private:
   string             fOutFilename;        ///< output filename
   TFile *            fOutFile;            ///< output file
   TTree *            fOutTree;            ///< output tree
-  TBranch *          fEventBranch;        ///< the generated event branch 
-  NtpMCEventRecord * fNtpMCEventRecord;   ///< 
+  TBranch *          fEventBranch;        ///< the generated event branch
+  NtpMCEventRecord * fNtpMCEventRecord;   ///<
   NtpMCTreeHeader *  fNtpMCTreeHeader;    ///<
 };
 

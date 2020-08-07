@@ -5,21 +5,20 @@
 
 \brief    Initial State information
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
           Changes required to implement the GENIE Boosted Dark Matter module
           were installed by Josh Berger (Univ. of Wisconsin)
 
-          Other minor changes / additions and fixes were installed by: 
+          Other minor changes / additions and fixes were installed by:
           Andy Furmanski (Univ. of Manchester)
           Joe Johnston (Univ of Pittsburgh)
 
 \created  May 02, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -44,13 +43,13 @@ class TRootIOCtor;
 namespace genie {
 
 class InitialState;
-ostream & operator << (ostream & stream, const InitialState & i); 
+ostream & operator << (ostream & stream, const InitialState & i);
 
 class InitialState : public TObject {
 
 public:
   using TObject::Print;   // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
-  using TObject::Copy;    // 
+  using TObject::Copy;    //
   using TObject::Compare; //
 
   InitialState();
@@ -84,6 +83,8 @@ public:
   bool IsNuBarN (void) const; ///< is anti-neutrino + neutron?
   bool IsDMP    (void) const; ///< is dark matter   + proton?
   bool IsDMN    (void) const; ///< is dark matter   + neutron?
+  bool IsDMBP   (void) const; ///< is anti-dark matter   + proton?
+  bool IsDMBN   (void) const; ///< is anti-dark matter   + neutron?
 
   //-- Copy, reset, compare, print itself and build string code
   void   Reset    (void);

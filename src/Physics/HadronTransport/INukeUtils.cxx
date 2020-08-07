@@ -1,14 +1,14 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+ 
 
  Author: Jim Dobson <j.dobson07 \at imperial.ac.uk>
          Imperial College London
 
-         Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+         Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
          Aaron Meyer <asm58 \at pitt.edu>
          Pittsburgh University
@@ -1557,7 +1557,7 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
   TLorentzVector &RemnP4, double NucRmvE, EINukeMode mode)
 {
 // General method decaying the input particle system 'pdgv' with available 4-p
-// given by 'pd'. The decayed system is used to populate the input TMCParticle
+// given by 'pd'. The decayed system is used to populate the input GHepParticle
 // array starting from the slot 'offset'.
 //
   LOG("INukeUtils", pINFO) << "*** Performing a Phase Space Decay";

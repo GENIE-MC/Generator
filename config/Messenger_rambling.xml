@@ -48,6 +48,7 @@
   <priority msgstream="Cache">                 WARN   </priority>
   <priority msgstream="CharmHad">              NOTICE </priority>
   <priority msgstream="CFracTab">              INFO   </priority>
+  <priority msgstream="CEvNS">                 NOTICE </priority>
   <priority msgstream="COHXSec">               NOTICE </priority>
   <priority msgstream="COHXSecAR">             NOTICE </priority>
   <priority msgstream="CLAP">                  NOTICE </priority>
@@ -89,6 +90,7 @@
   <priority msgstream="GROOTGeom">             NOTICE </priority>
   <priority msgstream="GHEP">                  WARN   </priority>
   <priority msgstream="GHepParticle">          INFO   </priority>
+  <priority msgstream="GHepUtils">             INFO   </priority>
   <priority msgstream="GuiUtils">              INFO   </priority>
   <priority msgstream="GRV98LO">               NOTICE </priority>
   <priority msgstream="GXSecFunc">             WARN   </priority>
@@ -118,6 +120,8 @@
   <priority msgstream="INukeUtils">            NOTICE </priority> <!-- notice-->
   <priority msgstream="INukeUtils2018">        NOTICE </priority> <!-- notice-->
   <priority msgstream="INukeUtils2019">        NOTICE </priority> <!-- notice-->
+  <priority msgstream="HINCLCascadeIntranuke"> NOTICE </priority>
+  <priority msgstream="HG4BertCascIntranuke">  NOTICE </priority>
   <priority msgstream="INukeNucleonCorr">      NOTICE </priority>
   <priority msgstream="ISApp">                 INFO   </priority>
   <priority msgstream="IntGenMap">             WARN   </priority>
@@ -134,6 +138,7 @@
   <priority msgstream="Nieves">                NOTICE </priority>
   <priority msgstream="NucDeEx">               NOTICE </priority>
   <priority msgstream="NucleonDecay">          NOTICE </priority>
+  <priority msgstream="ResonanceDecay">        NOTICE </priority>
   <priority msgstream="NucleonP">              INFO   </priority>
   <priority msgstream="Nuclear">               NOTICE </priority>
   <priority msgstream="Numerical">             INFO   </priority>
@@ -147,7 +152,10 @@
   <priority msgstream="ParticleDecayer">       INFO   </priority>
   <priority msgstream="PaschLal">              INFO   </priority>
   <priority msgstream="PythiaDec">             NOTICE </priority>
+  <priority msgstream="Pythia6Decay">          NOTICE </priority>
   <priority msgstream="PythiaHad">             NOTICE </priority>
+  <priority msgstream="Pythia6Had">            NOTICE </priority>
+  <priority msgstream="Pythia8Had">            NOTICE </priority>
   <priority msgstream="PDG">                   INFO   </priority>
   <priority msgstream="PathL">                 NOTICE </priority>
   <priority msgstream="PhysUtil">              NOTICE </priority>

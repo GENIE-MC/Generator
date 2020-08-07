@@ -5,14 +5,13 @@
 
 \brief    GENIE's GHEP MC event record.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  October 1, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org        
 */
 //____________________________________________________________________________
 
@@ -27,7 +26,7 @@
 
 #include "Framework/Conventions/GMode.h"
 #include "Framework/Conventions/KinePhaseSpace.h"
-#include "Framework/Interaction/Interaction.h" 
+#include "Framework/Interaction/Interaction.h"
 #include "Framework/GHEP/GHepStatus.h"
 
 class TRootIOCtor;
@@ -92,24 +91,21 @@ public :
   GEvGenMode_t EventGenerationMode(void) const;
 
   // Easy access methods for the most frequently used GHEP entries
-  // CorrectProbe is the hitting lepton after possible corrections such as radiative correction 
 
-  virtual GHepParticle * ExperimentalProbe                (void) const;
-  virtual GHepParticle * CorrectProbe                     (void) const;
+  virtual GHepParticle * Probe                            (void) const;
   virtual GHepParticle * TargetNucleus                    (void) const;
   virtual GHepParticle * RemnantNucleus                   (void) const;
   virtual GHepParticle * HitNucleon                       (void) const;
   virtual GHepParticle * HitElectron                      (void) const;
   virtual GHepParticle * FinalStatePrimaryLepton          (void) const;
   virtual GHepParticle * FinalStateHadronicSystem         (void) const;
-  virtual int            ExperimentalProbePosition        (void) const;
-  virtual int            CorrectProbePosition             (void) const;
+  virtual int            ProbePosition                    (void) const;
   virtual int            TargetNucleusPosition            (void) const;
   virtual int            RemnantNucleusPosition           (void) const;
   virtual int            HitNucleonPosition               (void) const;
   virtual int            HitElectronPosition              (void) const;
   virtual int            FinalStatePrimaryLeptonPosition  (void) const;
-  virtual int            FinalStateHadronicSystemPosition (void) const; 
+  virtual int            FinalStateHadronicSystemPosition (void) const;
 
   // Number of GHepParticle occurences in GHEP
 
@@ -134,9 +130,9 @@ public :
   virtual void   SetWeight      (double wght) { fWeight   = (wght>0) ? wght : 0.; }
   virtual void   SetProbability (double prob) { fProb     = (prob>0) ? prob : 0.; }
   virtual void   SetXSec        (double xsec) { fXSec     = (xsec>0) ? xsec : 0.; }
-  virtual void   SetDiffXSec    (double xsec, KinePhaseSpace_t ps) 
-  { fDiffXSecPhSp = ps; 
-    fDiffXSec = (xsec>0) ? xsec : 0.; 
+  virtual void   SetDiffXSec    (double xsec, KinePhaseSpace_t ps)
+  { fDiffXSecPhSp = ps;
+    fDiffXSec = (xsec>0) ? xsec : 0.;
   }
 
   // Set/get event vertex in detector coordinate system

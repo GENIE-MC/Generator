@@ -1,13 +1,9 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Brian Coopersmith, University of Rochester
-
- For documentation see the corresponding header file.
-
+ Brian Coopersmith, University of Rochester
 */
 //____________________________________________________________________________
 
@@ -26,7 +22,7 @@ namespace config {
 
 //____________________________________________________________________________
 // Given a map of nucleus PDGs to values and ranges of nucleus As to values,
-// return the value for the supplied target. Individual nucleus maps take 
+// return the value for the supplied target. Individual nucleus maps take
 // precedence over the range maps.
 //____________________________________________________________________________
 bool GetValueFromNuclearMaps(
@@ -108,7 +104,7 @@ bool GetDoubleKeyPDG(const char* valName, const int pdgc,
 // Check if the key <valName>@LowA=<lowA>;HighA=<highA> exists in config. If
 // so load that into val and return true.  Otherwise return false.
 //____________________________________________________________________________
-bool GetDoubleKeyRangeNucA(const char* valName, const int lowA, 
+bool GetDoubleKeyRangeNucA(const char* valName, const int lowA,
                            const int highA, Registry* config, double* val)
 {
   ostringstream s;

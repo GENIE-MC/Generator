@@ -6,14 +6,14 @@
 \brief    A realistic spectral function - based nuclear model.
           Is a concrete implementation of the NuclearModelI interface.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 07, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+          
 
 */
 //____________________________________________________________________________
@@ -51,8 +51,11 @@ public:
   void Configure (const Registry & config);
   void Configure (string config);
 
-private:
+ protected:
   void       LoadConfig             (void);
+
+private:
+  
   TGraph2D * Convert2Graph          (TNtupleD & data) const;
   TGraph2D * SelectSpectralFunction (const Target & target) const; 
 

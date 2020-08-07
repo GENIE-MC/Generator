@@ -1,16 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Hugh Gallagher
-         Tufts University
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
+ Hugh Gallagher
+ Tufts University
 */
 //____________________________________________________________________________
 
@@ -84,7 +78,7 @@ double PaisQELLambdaPXSec::XSec(
   double ml2       = TMath::Power(ml,2);
   double M1        = Mnuc;
   double M2        = (this)->MHyperon(interaction);
-  double v         = (TMath::Power(M2,2) - Mnuc2 - q2) / (2*Mnuc); 
+  double v         = (TMath::Power(M2,2) - Mnuc2 - q2) / (2*Mnuc);
   double v2        = TMath::Power(v,2);
   double s         = Mnuc2 + 2*Mnuc*E;
   double u         = Mnuc2 + ml2 + 2*v*Mnuc - 2*Mnuc*E;
@@ -110,13 +104,13 @@ double PaisQELLambdaPXSec::XSec(
 
    //Powers of Form Factors
   double FA2   = TMath::Power(FA, 2);
-//  double FA3   = 0;  
+//  double FA3   = 0;
 
    //Calculate W terms
- 
+
   double w1 = (Mm2 - q2)/(4*Mnuc2)*TMath::Power((F1V + xiF2V), 2) + (Mp2 - q2)/(4*Mnuc2) * FA2;
   double w2 = FA2 + TMath::Power((F1V + xiF2V - Mp * xiF2V / (2 * Mnuc)), 2) - q2 / Mnuc2 * TMath::Power((xiF2V / 2), 2);
-  double w3 = 2 * FA * (F1V + xiF2V); 
+  double w3 = 2 * FA * (F1V + xiF2V);
 
   double xsec = Gf*fSin8c2 / (16*Mnuc2*E2) * (-8*Mnuc2*q2*w1 - 4*(Mnuc2*v2 - q2)*w2 - sign*2*(s - u)*q2*w3 + (s-u)*(s-u)*w2);
   xsec = TMath::Max(xsec,0.);
@@ -159,7 +153,7 @@ bool PaisQELLambdaPXSec::ValidProcess(
                                         const Interaction * interaction) const
 {
   // Make sure we are dealing with one of the following channels:
-  // v + n --> mu+ + Sigma^{-} 
+  // v + n --> mu+ + Sigma^{-}
   // v + p --> mu+ + Lambda^{0}
   // v + p --> mu+ + Sigma^{0}
 

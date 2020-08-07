@@ -158,7 +158,7 @@ s/include \"CrossSections\/NuElectronXSec.h\"/include \"Physics\/XSectionIntegra
 s/include \"CrossSections\/QELXSec.h\"/include \"Physics\/XSectionIntegration\/QELXSec.h\"/ 
 s/include \"CrossSections\/RESXSec.h\"/include \"Physics\/XSectionIntegration\/RESXSec.h\"/ 
 s/include \"Decay\/BaryonResonanceDecayer.h\"/include \"Physics\/Decay\/BaryonResonanceDecayer.h\"/ 
-s/include \"Decay\/DecayModelI.h\"/include \"Physics\/Decay\/DecayModelI.h\"/ 
+s/include \"Decay\/Decayer.h\"/include \"Physics\/Decay\/Decayer.h\"/ 
 s/include \"Decay\/DecayerInputs.h\"/include \"Physics\/Decay\/DecayerInputs.h\"/ 
 s/include \"Decay\/LinkDef.h\"/include \"Physics\/Decay\/LinkDef.h\"/ 
 s/include \"Decay\/PythiaDecayer.h\"/include \"Physics\/Decay\/PythiaDecayer.h\"/ 
@@ -186,14 +186,14 @@ s/include \"HadronTransport\/Intranuke.h\"/include \"Physics\/HadronTransport\/I
 s/include \"HadronTransport\/Intranuke2014.h\"/include \"Physics\/HadronTransport\/Intranuke2014.h\"/ 
 s/include \"HadronTransport\/Intranuke2015.h\"/include \"Physics\/HadronTransport\/Intranuke2015.h\"/ 
 s/include \"HadronTransport\/LinkDef.h\"/include \"Physics\/HadronTransport\/LinkDef.h\"/ 
-s/include \"Fragmentation\/CharmHadronization.h\"/include \"Physics\/Hadronization\/CharmHadronization.h\"/ 
+s/include \"Fragmentation\/AGCharm2019.h\"/include \"Physics\/Hadronization\/AGCharm2019.h\"/ 
 s/include \"Fragmentation\/CollinsSpillerFragm.h\"/include \"Physics\/Hadronization\/CollinsSpillerFragm.h\"/ 
 s/include \"Fragmentation\/FragmentationFunctionI.h\"/include \"Physics\/Hadronization\/FragmentationFunctionI.h\"/ 
 s/include \"Fragmentation\/FragmentationFunctions.h\"/include \"Physics\/Hadronization\/FragmentationFunctions.h\"/ 
 s/include \"Fragmentation\/HadronizationModelBase.h\"/include \"Physics\/Hadronization\/HadronizationModelBase.h\"/ 
 s/include \"Fragmentation\/HadronizationModelI.h\"/include \"Physics\/Hadronization\/HadronizationModelI.h\"/ 
-s/include \"Fragmentation\/KNOHadronization.h\"/include \"Physics\/Hadronization\/KNOHadronization.h\"/ 
-s/include \"Fragmentation\/KNOPythiaHadronization.h\"/include \"Physics\/Hadronization\/KNOPythiaHadronization.h\"/ 
+s/include \"Fragmentation\/AGKYLowW2019.h\"/include \"Physics\/Hadronization\/AGKYLowW2019.h\"/ 
+s/include \"Fragmentation\/AGKY2019.h\"/include \"Physics\/Hadronization\/AGKY2019.h\"/ 
 s/include \"Fragmentation\/LinkDef.h\"/include \"Physics\/Hadronization\/LinkDef.h\"/ 
 s/include \"Fragmentation\/Multiplicity.h\"/include \"Physics\/Hadronization\/Multiplicity.h\"/ 
 s/include \"Fragmentation\/PetersonFragm.h\"/include \"Physics\/Hadronization\/PetersonFragm.h\"/ 

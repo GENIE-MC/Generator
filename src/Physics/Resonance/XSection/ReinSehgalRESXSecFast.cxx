@@ -1,18 +1,15 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Igor Kakorin <kakorin@jinr.ru>
-         Joint Institute for Nuclear Research - March 01, 2017
-         based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
- 
- For the class documentation see the corresponding header file.
+ Igor Kakorin <kakorin@jinr.ru>
+ Joint Institute for Nuclear Research 
 
-
-*/
+ based on code of
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
+ */
 //____________________________________________________________________________
 
 #include <TMath.h>
@@ -95,16 +92,16 @@ double ReinSehgalRESXSecFast::Integrate(
   XSecSplineList * xsl = XSecSplineList::Instance();
   if(init_state.Tgt().IsNucleus() && !xsl->IsEmpty() ) {
     Interaction * in = new Interaction(*interaction);
-    if(pdg::IsProton(nucleon_pdgc)) { 
-      in->InitStatePtr()->TgtPtr()->SetId(kPdgTgtFreeP); 
-    } else { 
-      in->InitStatePtr()->TgtPtr()->SetId(kPdgTgtFreeN); 
+    if(pdg::IsProton(nucleon_pdgc)) {
+      in->InitStatePtr()->TgtPtr()->SetId(kPdgTgtFreeP);
+    } else {
+      in->InitStatePtr()->TgtPtr()->SetId(kPdgTgtFreeN);
     }
     if(xsl->SplineExists(model,in)) {
       const Spline * spl = xsl->GetSpline(model, in);
       double xsec = spl->Evaluate(Ev);
-      SLOG("ReinSehgalResTF", pNOTICE)  
-         << "XSec[RES/" << utils::res::AsString(res)<< "/free] (Ev = " 
+      SLOG("ReinSehgalResTF", pNOTICE)
+         << "XSec[RES/" << utils::res::AsString(res)<< "/free] (Ev = "
                << Ev << " GeV) = " << xsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
       if(! interaction->TestBit(kIAssumeFreeNucleon) ) {
         int NNucl = (pdg::IsProton(nucleon_pdgc)) ? target.Z() : target.N();
@@ -126,51 +123,51 @@ double ReinSehgalRESXSecFast::Integrate(
   if(bare_xsec_pre_calc && !fUsePauliBlocking) {
      Cache * cache = Cache::Instance();
      string key = this->CacheBranchName(res, it, nu_pdgc, nucleon_pdgc);
-     LOG("ReinSehgalResTF", pINFO) 
+     LOG("ReinSehgalResTF", pINFO)
          << "Finding cache branch with key: " << key;
      CacheBranchFx * cache_branch =
          dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
      if(!cache_branch) {
-        LOG("ReinSehgalResTF", pWARN)  
+        LOG("ReinSehgalResTF", pWARN)
            << "No cached RES v-production data for input neutrino"
            << " (pdgc: " << nu_pdgc << ")";
-        LOG("ReinSehgalResTF", pWARN)  
+        LOG("ReinSehgalResTF", pWARN)
            << "Wait while computing/caching RES production xsec first...";
 
-        this->CacheResExcitationXSec(interaction); 
+        this->CacheResExcitationXSec(interaction);
 
         LOG("ReinSehgalResTF", pINFO) << "Done caching resonance xsec data";
-        LOG("ReinSehgalResTF", pINFO) 
+        LOG("ReinSehgalResTF", pINFO)
                << "Finding newly created cache branch with key: " << key;
         cache_branch =
               dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
         assert(cache_branch);
      }
      const CacheBranchFx & cbranch = (*cache_branch);
-  
+
     //-- Get cached resonance neutrinoproduction xsec
     //   (If E>Emax, assume xsec = xsec(Emax) - but do not evaluate the
     //    cross section spline at the end of its energy range-)
     double rxsec = (Ev<fEMax-1) ? cbranch(Ev) : cbranch(fEMax-1);
 
-    SLOG("ReinSehgalResTF", pNOTICE)  
-       << "XSec[RES/" << utils::res::AsString(res)<< "/free] (Ev = " 
+    SLOG("ReinSehgalResTF", pNOTICE)
+       << "XSec[RES/" << utils::res::AsString(res)<< "/free] (Ev = "
                << Ev << " GeV) = " << rxsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
 
      if( interaction->TestBit(kIAssumeFreeNucleon) ) return rxsec;
 
      int NNucl = (pdg::IsProton(nucleon_pdgc)) ? target.Z() : target.N();
-     rxsec*=NNucl; // nuclear xsec 
+     rxsec*=NNucl; // nuclear xsec
      return rxsec;
   } // disable local caching
 
   // Just go ahead and integrate the input differential cross section for the
-  // specified interaction.  
+  // specified interaction.
   else {
 
 	Range1D_t rW  = Range1D_t(0.0,1.0);
 	Range1D_t rQ2 = Range1D_t(0.0,1.0);
-	
+
     LOG("ReinSehgalResTF", pINFO)
           << "*** Integrating d^2 XSec/dWdQ^2 for R: "
           << utils::res::AsString(res) << " at Ev = " << Ev;
@@ -207,7 +204,7 @@ void ReinSehgalRESXSecFast::Configure(string config)
 //____________________________________________________________________________
 void ReinSehgalRESXSecFast::LoadConfig(void)
 {
-  
+
    // Get GSL integration type & relative tolerance
   GetParamDef( "gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
   GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 0.01 ) ;
@@ -224,4 +221,3 @@ void ReinSehgalRESXSecFast::LoadConfig(void)
   fResList.DecodeFromNameList(resonances);
 }
 //____________________________________________________________________________
-

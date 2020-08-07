@@ -11,9 +11,8 @@
 
 \created  February 26, 2019
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -47,6 +46,9 @@ namespace utils {
        double DoEval(const double* xin) const;
        ROOT::Math::IBaseFunctionMultiDim* Clone(void) const;
 
+       Interaction* GetInteractionPtr();
+       const Interaction& GetInteraction() const;
+
      private:
        const XSecAlgorithmI* fXSecModel;
        const NuclearModelI* fNuclModel;
@@ -79,7 +81,7 @@ private:
   void LoadConfig (void);
 
   // Configuration obtained from cross section model
-  QELEvGen_BindingMode_t fBindingMode;
+  //QELEvGen_BindingMode_t fBindingMode;
 
   // XML configuration parameters
   std::string fGSLIntgType;

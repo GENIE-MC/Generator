@@ -5,17 +5,16 @@
 
 \brief    Enumeration of scattering types
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
           Changes required to implement the GENIE Boosted Dark Matter module
           were installed by Josh Berger (Univ. of Wisconsin)
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE 
 */
 //____________________________________________________________________________
 
@@ -40,18 +39,19 @@ typedef enum EScatteringType {
   kScSingleKaon,
   kScDeepInelastic,
   kScResonant,
-  kScCoherent,
+  kScCoherentProduction,
   kScDiffractive,
   kScNuElectronElastic,
   kScInverseMuDecay,
   kScAMNuGamma,
   kScMEC,
-  kScCoherentElas,
+  kScCoherentElastic,
   kScInverseBetaDecay,
   kScGlashowResonance,
   kScIMDAnnihilation,
   kScDarkMatterElastic = 101,
-  kScDarkMatterDeepInelastic
+  kScDarkMatterDeepInelastic,
+  kScDarkMatterElectron
 
 } ScatteringType_t;
 
@@ -68,18 +68,19 @@ public:
       case(kScSingleKaon) :              return "1Kaon";     break;
       case(kScDeepInelastic) :           return "DIS";       break;
       case(kScResonant) :                return "RES";       break;
-      case(kScCoherent) :                return "COH";       break;
+      case(kScCoherentProduction) :      return "COH";       break;
       case(kScDiffractive) :             return "DFR";       break;
       case(kScNuElectronElastic) :       return "NuEEL";     break;
       case(kScInverseMuDecay) :          return "IMD";       break;
       case(kScAMNuGamma) :               return "AMNuGamma"; break;
       case(kScMEC) :                     return "MEC";       break;
-      case(kScCoherentElas) :            return "COHEl";     break;
+      case(kScCoherentElastic) :         return "CEvNS";     break;
       case(kScInverseBetaDecay) :        return "IBD";       break;
       case(kScGlashowResonance) :        return "GLR";       break;
       case(kScIMDAnnihilation) :         return "IMDAnh";    break;
-      case(kScDarkMatterElastic) :       return "DME";       break;
+      case(kScDarkMatterElastic) :       return "DMEL";       break;
       case(kScDarkMatterDeepInelastic) : return "DMDIS";     break;
+      case(kScDarkMatterElectron) :      return "DME";     break;
       default :                          return "Unknown";   break;
     }
     return "Unknown";

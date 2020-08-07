@@ -117,14 +117,14 @@
 
 \author  Joshua Berger <jberger \at physics.wisc.edu>
          University of Wisconsin-Madison
-         Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+         Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created September 1, 2017
 
-\cpright Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //____________________________________________________________________________
 
@@ -197,7 +197,7 @@ using namespace genie::units;
 void GetCommandLineArgs (int argc, char ** argv);
 void Initialize         (void);
 void PrintSyntax        (void);
-bool CheckUnitarityLimit(InitialState init_state);
+bool CheckUnitarityLimit(void);
 
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX_OR_TGTMIX__
 void            GenerateEventsUsingFluxOrTgtMix();
@@ -301,7 +301,7 @@ void GenerateEventsAtFixedInitState(void)
   // Create init state
   InitialState init_state(target, dark_matter);
 
-  bool unitary = CheckUnitarityLimit(init_state);
+  bool unitary = CheckUnitarityLimit();
   if (!unitary) {
     LOG("gevgen_dm", pFATAL)
       << "Cross-section risks exceeding unitarity limit - Exiting";
@@ -856,7 +856,7 @@ void PrintSyntax(void)
     << "\n";
 }
 //____________________________________________________________________________
-bool CheckUnitarityLimit(InitialState init_state)
+bool CheckUnitarityLimit(void)
 {
   // Before generating the events, perform a simple sanity check
   // We estimate the leading divergent piece of the cross-section

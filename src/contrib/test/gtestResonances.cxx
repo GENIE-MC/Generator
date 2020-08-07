@@ -6,14 +6,14 @@
 \brief   Program used for testing/debugging the Breit-Wigner distributions 
          for Baryon Resonances
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created June 20, 2004
 
-\cpright Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //____________________________________________________________________________
 
@@ -28,12 +28,12 @@
 #include <TPad.h>
 #include <TPaveLabel.h>
 
-#include "BaryonResonance/BaryonResonance.h"
-#include "BaryonResonance/BaryonResUtils.h"
-#include "Conventions/Constants.h"
-#include "Conventions/Units.h"
-#include "Messenger/Messenger.h"
-#include "Utils/BWFunc.h"
+#include "Framework/ParticleData/BaryonResonance.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/BWFunc.h"
 
 using std::string;
 

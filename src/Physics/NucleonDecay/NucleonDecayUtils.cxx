@@ -1,18 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Nov 03, 2008 - CA
-   First added in v2.7.1
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -33,12 +25,12 @@ string genie::utils::nucleon_decay::AsString(NucleonDecayMode_t ndm,
 					     int npdg)
 {
   switch(ndm) {
-  
+
   case (kNDNull):
     return "Invalid nucleon decay mode!";
     break;
 
-  case (kNDN2eppi): 
+  case (kNDN2eppi):
     if (npdg == kPdgProton) {
       return "p --> e+ pi0";
     } else if (npdg == kPdgNeutron) {
@@ -48,7 +40,7 @@ string genie::utils::nucleon_decay::AsString(NucleonDecayMode_t ndm,
     }
     break;
 
-  case (kNDN2muppi): 
+  case (kNDN2muppi):
     if (npdg == kPdgProton) {
       return "p --> mu+ pi0";
     } else if (npdg == kPdgNeutron) {
@@ -58,7 +50,7 @@ string genie::utils::nucleon_decay::AsString(NucleonDecayMode_t ndm,
     }
     break;
 
-  case (kNDN2nubarpi): 
+  case (kNDN2nubarpi):
     if (npdg == kPdgProton) {
       return "p --> nubar pi+";
     } else if (npdg == kPdgNeutron) {
@@ -71,7 +63,7 @@ string genie::utils::nucleon_decay::AsString(NucleonDecayMode_t ndm,
   case (kNDp2epeta):
     return "p --> e+ eta";
     break;
-      
+
   case (kNDp2mupeta):
     return "p --> mu+ eta";
     break;
@@ -80,7 +72,7 @@ string genie::utils::nucleon_decay::AsString(NucleonDecayMode_t ndm,
     return "n --> nubar eta";
     break;
 
-  case (kNDN2eprho): 
+  case (kNDN2eprho):
     if (npdg == kPdgProton) {
       return "p --> e+ rho0";
     } else if (npdg == kPdgNeutron) {
@@ -90,7 +82,7 @@ string genie::utils::nucleon_decay::AsString(NucleonDecayMode_t ndm,
     }
     break;
 
-  case (kNDN2muprho): 
+  case (kNDN2muprho):
     if (npdg == kPdgProton) {
       return "p --> mu+ rho0";
     } else if (npdg == kPdgNeutron) {
@@ -100,7 +92,7 @@ string genie::utils::nucleon_decay::AsString(NucleonDecayMode_t ndm,
     }
     break;
 
-  case (kNDN2nubarrho): 
+  case (kNDN2nubarrho):
     if (npdg == kPdgProton) {
       return "p --> nubar rho+";
     } else if (npdg == kPdgNeutron) {
@@ -122,7 +114,7 @@ string genie::utils::nucleon_decay::AsString(NucleonDecayMode_t ndm,
     return "n --> nubar omega";
     break;
 
-  case (kNDN2epK): 
+  case (kNDN2epK):
     if (npdg == kPdgProton) {
       return "p --> e+ K0";
     } else if (npdg == kPdgNeutron) {
@@ -140,7 +132,7 @@ string genie::utils::nucleon_decay::AsString(NucleonDecayMode_t ndm,
     return "p --> e+ K0l";
     break;
 
-  case (kNDN2mupK): 
+  case (kNDN2mupK):
     if (npdg == kPdgProton) {
       return "p --> mu+ K0";
     } else if (npdg == kPdgNeutron) {
@@ -175,7 +167,7 @@ string genie::utils::nucleon_decay::AsString(NucleonDecayMode_t ndm,
   case (kNDp2epKstar0):
     return "p --> e+ K*0";
     break;
-      
+
   case (kNDN2nubarKstar):
     if (npdg == kPdgProton) {
       return "p --> nubar K*+";
@@ -338,7 +330,7 @@ bool genie::utils::nucleon_decay::IsValidMode(NucleonDecayMode_t ndm,
 					      int npdg)
 {
   switch(ndm) {
-   
+
   case (kNDN2eppi):
   case (kNDN2muppi):
   case (kNDN2nubarpi):
@@ -350,7 +342,7 @@ bool genie::utils::nucleon_decay::IsValidMode(NucleonDecayMode_t ndm,
   case (kNDN2nubarK):
   case (kNDN2nubarKstar):
     if (npdg == kPdgProton || npdg == kPdgNeutron) {
-      return true;  
+      return true;
     } else {
       return false;
     }
@@ -385,7 +377,7 @@ bool genie::utils::nucleon_decay::IsValidMode(NucleonDecayMode_t ndm,
   case (kNDp2emmupmup):
 
     if (npdg == kPdgProton || npdg == 0) {
-      return true;  
+      return true;
     } else {
       return false;
     }
@@ -414,14 +406,14 @@ bool genie::utils::nucleon_decay::IsValidMode(NucleonDecayMode_t ndm,
   case (kNDn2fivenus):
 
     if (npdg == kPdgNeutron || npdg == 0) {
-      return true;  
+      return true;
     } else {
       return false;
     }
   break;
 
-  default : 
-    return false;  
+  default :
+    return false;
     break;
   }
   return false;
@@ -431,7 +423,7 @@ bool genie::utils::nucleon_decay::IsValidMode(NucleonDecayMode_t ndm,
 int genie::utils::nucleon_decay::DecayedNucleonPdgCode(NucleonDecayMode_t ndm)
 {
   switch(ndm) {
-    
+
   case (kNDp2epeta)           : return kPdgProton;  break;
   case (kNDp2mupeta)          : return kPdgProton;  break;
   case (kNDn2nubareta)        : return kPdgNeutron; break;
@@ -479,7 +471,7 @@ int genie::utils::nucleon_decay::DecayedNucleonPdgCode(NucleonDecayMode_t ndm)
   case (kNDp2mupnubarnu)      : return kPdgProton;  break;
   case (kNDp2emmupmup)        : return kPdgProton;  break;
   case (kNDn2threenus)        : return kPdgNeutron; break;
-  case (kNDn2fivenus)         : return kPdgNeutron; break; 
+  case (kNDn2fivenus)         : return kPdgNeutron; break;
 
   default               : return 0;           break;
   }
@@ -487,384 +479,384 @@ int genie::utils::nucleon_decay::DecayedNucleonPdgCode(NucleonDecayMode_t ndm)
 }
 
 //____________________________________________________________________________
-PDGCodeList genie::utils::nucleon_decay::DecayProductList(NucleonDecayMode_t ndm, 
+PDGCodeList genie::utils::nucleon_decay::DecayProductList(NucleonDecayMode_t ndm,
 							  int npdg)
 {
   bool allow_duplicate = true;
   PDGCodeList decay_products(allow_duplicate);
 
   switch(ndm) {
-  
+
   case (kNDN2eppi):
     if (npdg == kPdgProton) {
-      decay_products.push_back(kPdgPositron); 
-      decay_products.push_back(kPdgPi0); 
+      decay_products.push_back(kPdgPositron);
+      decay_products.push_back(kPdgPi0);
     } else if (npdg == kPdgNeutron) {
-      decay_products.push_back(kPdgPositron); 
-      decay_products.push_back(kPdgPiM); 
+      decay_products.push_back(kPdgPositron);
+      decay_products.push_back(kPdgPiM);
     }
-    break;  
-    
+    break;
+
   case (kNDN2muppi):
     if (npdg == kPdgProton) {
-      decay_products.push_back(kPdgAntiMuon); 
-      decay_products.push_back(kPdgPi0); 
+      decay_products.push_back(kPdgAntiMuon);
+      decay_products.push_back(kPdgPi0);
     } else if (npdg == kPdgNeutron) {
-      decay_products.push_back(kPdgAntiMuon); 
-      decay_products.push_back(kPdgPiM); 
+      decay_products.push_back(kPdgAntiMuon);
+      decay_products.push_back(kPdgPiM);
     }
-    break;  
-    
+    break;
+
   case (kNDN2nubarpi):
     if (npdg == kPdgProton) {
-      decay_products.push_back(kPdgAntiNuE); 
-      decay_products.push_back(kPdgPiP); 
+      decay_products.push_back(kPdgAntiNuE);
+      decay_products.push_back(kPdgPiP);
     } else if (npdg == kPdgNeutron) {
-      decay_products.push_back(kPdgAntiNuE); 
-      decay_products.push_back(kPdgPi0); 
+      decay_products.push_back(kPdgAntiNuE);
+      decay_products.push_back(kPdgPi0);
     }
-    break;  
+    break;
 
   case (kNDp2epeta):
-    decay_products.push_back(kPdgPositron); 
-    decay_products.push_back(kPdgEta); 
-    break;    
+    decay_products.push_back(kPdgPositron);
+    decay_products.push_back(kPdgEta);
+    break;
 
   case (kNDp2mupeta):
-    decay_products.push_back(kPdgAntiMuon); 
-    decay_products.push_back(kPdgEta); 
-    break;    
+    decay_products.push_back(kPdgAntiMuon);
+    decay_products.push_back(kPdgEta);
+    break;
 
   case (kNDn2nubareta):
-    decay_products.push_back(kPdgAntiNuE); 
-    decay_products.push_back(kPdgEta); 
-    break;    
+    decay_products.push_back(kPdgAntiNuE);
+    decay_products.push_back(kPdgEta);
+    break;
 
   case (kNDN2eprho):
     if (npdg == kPdgProton) {
-      decay_products.push_back(kPdgPositron); 
-      decay_products.push_back(kPdgRho0); 
+      decay_products.push_back(kPdgPositron);
+      decay_products.push_back(kPdgRho0);
     } else if (npdg == kPdgNeutron) {
-      decay_products.push_back(kPdgPositron); 
-      decay_products.push_back(kPdgRhoM); 
+      decay_products.push_back(kPdgPositron);
+      decay_products.push_back(kPdgRhoM);
     }
-    break;  
+    break;
 
   case (kNDN2muprho):
     if (npdg == kPdgProton) {
-      decay_products.push_back(kPdgAntiMuon); 
-      decay_products.push_back(kPdgRho0); 
+      decay_products.push_back(kPdgAntiMuon);
+      decay_products.push_back(kPdgRho0);
     } else if (npdg == kPdgNeutron) {
-      decay_products.push_back(kPdgAntiMuon); 
-      decay_products.push_back(kPdgRhoM); 
+      decay_products.push_back(kPdgAntiMuon);
+      decay_products.push_back(kPdgRhoM);
     }
-    break;  
+    break;
 
   case (kNDN2nubarrho):
     if (npdg == kPdgProton) {
-      decay_products.push_back(kPdgAntiNuE); 
-      decay_products.push_back(kPdgRhoP); 
+      decay_products.push_back(kPdgAntiNuE);
+      decay_products.push_back(kPdgRhoP);
     } else if (npdg == kPdgNeutron) {
-      decay_products.push_back(kPdgAntiNuE); 
-      decay_products.push_back(kPdgRho0); 
+      decay_products.push_back(kPdgAntiNuE);
+      decay_products.push_back(kPdgRho0);
     }
-    break;  
+    break;
 
   case (kNDp2epomega):
-    decay_products.push_back(kPdgPositron); 
-    decay_products.push_back(kPdgomega); 
-    break;    
+    decay_products.push_back(kPdgPositron);
+    decay_products.push_back(kPdgomega);
+    break;
 
   case (kNDp2mupomega):
-    decay_products.push_back(kPdgAntiMuon); 
-    decay_products.push_back(kPdgomega); 
-    break;    
+    decay_products.push_back(kPdgAntiMuon);
+    decay_products.push_back(kPdgomega);
+    break;
 
   case (kNDn2nubaromega):
-    decay_products.push_back(kPdgAntiNuE); 
-    decay_products.push_back(kPdgomega); 
-    break;    
+    decay_products.push_back(kPdgAntiNuE);
+    decay_products.push_back(kPdgomega);
+    break;
 
   case (kNDN2epK):
     if (npdg == kPdgProton) {
-      decay_products.push_back(kPdgPositron); 
-      decay_products.push_back(kPdgK0); 
+      decay_products.push_back(kPdgPositron);
+      decay_products.push_back(kPdgK0);
     } else if (npdg == kPdgNeutron) {
-      decay_products.push_back(kPdgPositron); 
-      decay_products.push_back(kPdgKM); 
+      decay_products.push_back(kPdgPositron);
+      decay_products.push_back(kPdgKM);
     }
-    break;  
+    break;
 
   case (kNDp2epK0s):
-    decay_products.push_back(kPdgPositron); 
-    decay_products.push_back(kPdgK0S); 
-    break;   
+    decay_products.push_back(kPdgPositron);
+    decay_products.push_back(kPdgK0S);
+    break;
 
   case (kNDp2epK0l):
-    decay_products.push_back(kPdgPositron); 
-    decay_products.push_back(kPdgK0L); 
-    break;   
+    decay_products.push_back(kPdgPositron);
+    decay_products.push_back(kPdgK0L);
+    break;
 
   case (kNDN2mupK):
     if (npdg == kPdgProton) {
-      decay_products.push_back(kPdgAntiMuon); 
-      decay_products.push_back(kPdgK0); 
+      decay_products.push_back(kPdgAntiMuon);
+      decay_products.push_back(kPdgK0);
     } else if (npdg == kPdgNeutron) {
-      decay_products.push_back(kPdgAntiMuon); 
-      decay_products.push_back(kPdgKM); 
+      decay_products.push_back(kPdgAntiMuon);
+      decay_products.push_back(kPdgKM);
     }
-    break;  
+    break;
 
   case (kNDp2mupK0s):
-    decay_products.push_back(kPdgAntiMuon); 
-    decay_products.push_back(kPdgK0S); 
-    break;   
+    decay_products.push_back(kPdgAntiMuon);
+    decay_products.push_back(kPdgK0S);
+    break;
 
   case (kNDp2mupK0l):
-    decay_products.push_back(kPdgAntiMuon); 
-    decay_products.push_back(kPdgK0L); 
-    break;   
+    decay_products.push_back(kPdgAntiMuon);
+    decay_products.push_back(kPdgK0L);
+    break;
 
   case (kNDN2nubarK):
     if (npdg == kPdgProton) {
-      decay_products.push_back(kPdgAntiNuE); 
-      decay_products.push_back(kPdgKP); 
+      decay_products.push_back(kPdgAntiNuE);
+      decay_products.push_back(kPdgKP);
     } else if (npdg == kPdgNeutron) {
-      decay_products.push_back(kPdgAntiNuE); 
-      decay_products.push_back(kPdgK0); 
+      decay_products.push_back(kPdgAntiNuE);
+      decay_products.push_back(kPdgK0);
     }
-    break;  
+    break;
 
   case (kNDn2nubarK0s):
-    decay_products.push_back(kPdgAntiNuE); 
-    decay_products.push_back(kPdgK0S); 
-    break;   
+    decay_products.push_back(kPdgAntiNuE);
+    decay_products.push_back(kPdgK0S);
+    break;
 
   case (kNDp2epKstar0):
-    decay_products.push_back(kPdgPositron); 
-    decay_products.push_back(kPdgKStar0); 
-    break;   
+    decay_products.push_back(kPdgPositron);
+    decay_products.push_back(kPdgKStar0);
+    break;
 
   case (kNDN2nubarKstar):
     if (npdg == kPdgProton) {
-      decay_products.push_back(kPdgAntiNuE); 
-      decay_products.push_back(kPdgKStarP); 
+      decay_products.push_back(kPdgAntiNuE);
+      decay_products.push_back(kPdgKStarP);
     } else if (npdg == kPdgNeutron) {
-      decay_products.push_back(kPdgAntiNuE); 
-      decay_products.push_back(kPdgKStar0); 
+      decay_products.push_back(kPdgAntiNuE);
+      decay_products.push_back(kPdgKStar0);
     }
-    break;  
+    break;
 
   case (kNDp2eppippim):
-    decay_products.push_back(kPdgPositron); 
+    decay_products.push_back(kPdgPositron);
     decay_products.push_back(kPdgPiP);
     decay_products.push_back(kPdgPiM);
-    break;   
+    break;
 
   case (kNDp2eppi0pi0):
-    decay_products.push_back(kPdgPositron); 
+    decay_products.push_back(kPdgPositron);
     decay_products.push_back(kPdgPi0);
     decay_products.push_back(kPdgPi0);
-    break;   
+    break;
 
   case (kNDn2eppimpi0):
-    decay_products.push_back(kPdgPositron); 
+    decay_products.push_back(kPdgPositron);
     decay_products.push_back(kPdgPiM);
     decay_products.push_back(kPdgPi0);
-    break;   
+    break;
 
   case (kNDp2muppippim):
-    decay_products.push_back(kPdgAntiMuon); 
+    decay_products.push_back(kPdgAntiMuon);
     decay_products.push_back(kPdgPiP);
     decay_products.push_back(kPdgPiM);
-    break;   
+    break;
 
   case (kNDp2muppi0pi0):
-    decay_products.push_back(kPdgAntiMuon); 
+    decay_products.push_back(kPdgAntiMuon);
     decay_products.push_back(kPdgPi0);
     decay_products.push_back(kPdgPi0);
-    break;   
+    break;
 
   case (kNDn2muppimpi0):
-    decay_products.push_back(kPdgAntiMuon); 
+    decay_products.push_back(kPdgAntiMuon);
     decay_products.push_back(kPdgPiM);
     decay_products.push_back(kPdgPi0);
-    break;   
+    break;
 
   case (kNDn2epK0pim):
-    decay_products.push_back(kPdgPositron); 
+    decay_products.push_back(kPdgPositron);
     decay_products.push_back(kPdgK0);
     decay_products.push_back(kPdgPiM);
-    break;   
+    break;
 
   case (kNDn2empip):
-    decay_products.push_back(kPdgElectron); 
+    decay_products.push_back(kPdgElectron);
     decay_products.push_back(kPdgPiP);
-    break;   
+    break;
 
   case (kNDn2mumpip):
-    decay_products.push_back(kPdgMuon); 
+    decay_products.push_back(kPdgMuon);
     decay_products.push_back(kPdgPiP);
-    break;   
+    break;
 
   case (kNDn2emrhop):
-    decay_products.push_back(kPdgElectron); 
+    decay_products.push_back(kPdgElectron);
     decay_products.push_back(kPdgRhoP);
-    break;   
+    break;
 
   case (kNDn2mumrhop):
-    decay_products.push_back(kPdgMuon); 
+    decay_products.push_back(kPdgMuon);
     decay_products.push_back(kPdgRhoP);
-    break;   
+    break;
 
   case (kNDn2emKp):
-    decay_products.push_back(kPdgElectron); 
+    decay_products.push_back(kPdgElectron);
     decay_products.push_back(kPdgKP);
-    break;   
+    break;
 
   case (kNDn2mumKp):
-    decay_products.push_back(kPdgMuon); 
+    decay_products.push_back(kPdgMuon);
     decay_products.push_back(kPdgKP);
-    break;   
+    break;
 
   case (kNDp2empippip):
-    decay_products.push_back(kPdgElectron); 
+    decay_products.push_back(kPdgElectron);
     decay_products.push_back(kPdgPiP);
     decay_products.push_back(kPdgPiP);
-    break;   
+    break;
 
   case (kNDn2empippi0):
-    decay_products.push_back(kPdgElectron); 
+    decay_products.push_back(kPdgElectron);
     decay_products.push_back(kPdgPiP);
     decay_products.push_back(kPdgPi0);
-    break;   
+    break;
 
   case (kNDp2mumpippip):
-    decay_products.push_back(kPdgMuon); 
+    decay_products.push_back(kPdgMuon);
     decay_products.push_back(kPdgPiP);
     decay_products.push_back(kPdgPiP);
-    break;   
+    break;
 
   case (kNDn2mumpippi0):
-    decay_products.push_back(kPdgMuon); 
+    decay_products.push_back(kPdgMuon);
     decay_products.push_back(kPdgPiP);
     decay_products.push_back(kPdgPi0);
-    break;   
+    break;
 
   case (kNDp2empipKp):
-    decay_products.push_back(kPdgElectron); 
+    decay_products.push_back(kPdgElectron);
     decay_products.push_back(kPdgPiP);
     decay_products.push_back(kPdgKP);
-    break;   
+    break;
 
   case (kNDp2mumpipKp):
-    decay_products.push_back(kPdgMuon); 
+    decay_products.push_back(kPdgMuon);
     decay_products.push_back(kPdgPiP);
     decay_products.push_back(kPdgKP);
-    break;   
+    break;
 
   case (kNDp2epgamma):
-    decay_products.push_back(kPdgPositron); 
+    decay_products.push_back(kPdgPositron);
     decay_products.push_back(kPdgGamma);
-    break;  
+    break;
 
   case (kNDp2mupgamma):
-    decay_products.push_back(kPdgAntiMuon); 
+    decay_products.push_back(kPdgAntiMuon);
     decay_products.push_back(kPdgGamma);
-    break;   
+    break;
 
   case (kNDn2nubargamma):
-    decay_products.push_back(kPdgAntiNuE); 
+    decay_products.push_back(kPdgAntiNuE);
     decay_products.push_back(kPdgGamma);
-    break;  
+    break;
 
   case (kNDp2epgammagamma):
-    decay_products.push_back(kPdgPositron); 
+    decay_products.push_back(kPdgPositron);
     decay_products.push_back(kPdgGamma);
     decay_products.push_back(kPdgGamma);
-    break;  
+    break;
 
   case (kNDn2nubargammagamma):
-    decay_products.push_back(kPdgAntiNuE); 
+    decay_products.push_back(kPdgAntiNuE);
     decay_products.push_back(kPdgGamma);
     decay_products.push_back(kPdgGamma);
-    break;  
+    break;
 
   case (kNDp2epepem):
-    decay_products.push_back(kPdgPositron); 
+    decay_products.push_back(kPdgPositron);
     decay_products.push_back(kPdgPositron);
     decay_products.push_back(kPdgElectron);
-    break; 
+    break;
 
   case (kNDp2epmupmum):
-    decay_products.push_back(kPdgPositron); 
+    decay_products.push_back(kPdgPositron);
     decay_products.push_back(kPdgAntiMuon);
     decay_products.push_back(kPdgMuon);
-    break; 
+    break;
 
   case (kNDp2epnubarnu):
-    decay_products.push_back(kPdgPositron); 
+    decay_products.push_back(kPdgPositron);
     decay_products.push_back(kPdgAntiNuE);
     decay_products.push_back(kPdgNuE);
     break;
 
   case (kNDn2epemnubar):
-    decay_products.push_back(kPdgPositron); 
+    decay_products.push_back(kPdgPositron);
     decay_products.push_back(kPdgElectron);
     decay_products.push_back(kPdgAntiNuE);
     break;
 
   case (kNDn2mupemnubar):
-    decay_products.push_back(kPdgAntiMuon); 
+    decay_products.push_back(kPdgAntiMuon);
     decay_products.push_back(kPdgElectron);
     decay_products.push_back(kPdgAntiNuE);
     break;
 
   case (kNDn2mupmumnubar):
-    decay_products.push_back(kPdgAntiMuon); 
+    decay_products.push_back(kPdgAntiMuon);
     decay_products.push_back(kPdgMuon);
     decay_products.push_back(kPdgAntiNuE);
     break;
 
   case (kNDp2mupepem):
-    decay_products.push_back(kPdgAntiMuon); 
+    decay_products.push_back(kPdgAntiMuon);
     decay_products.push_back(kPdgPositron);
     decay_products.push_back(kPdgElectron);
     break;
 
   case (kNDp2mupmupmum):
-    decay_products.push_back(kPdgAntiMuon); 
+    decay_products.push_back(kPdgAntiMuon);
     decay_products.push_back(kPdgAntiMuon);
     decay_products.push_back(kPdgMuon);
     break;
 
   case (kNDp2mupnubarnu):
-    decay_products.push_back(kPdgAntiMuon); 
+    decay_products.push_back(kPdgAntiMuon);
     decay_products.push_back(kPdgAntiNuE);
     decay_products.push_back(kPdgNuE);
     break;
 
   case (kNDp2emmupmup):
-    decay_products.push_back(kPdgElectron); 
+    decay_products.push_back(kPdgElectron);
     decay_products.push_back(kPdgAntiMuon);
     decay_products.push_back(kPdgAntiMuon);
     break;
 
   case (kNDn2threenus):
-    decay_products.push_back(kPdgAntiNuE); 
+    decay_products.push_back(kPdgAntiNuE);
     decay_products.push_back(kPdgAntiNuE);
     decay_products.push_back(kPdgNuE);
     break;
 
   case (kNDn2fivenus):
-    decay_products.push_back(kPdgAntiNuE); 
+    decay_products.push_back(kPdgAntiNuE);
     decay_products.push_back(kPdgAntiNuE);
     decay_products.push_back(kPdgAntiNuE);
     decay_products.push_back(kPdgNuE);
     decay_products.push_back(kPdgNuE);
     break;
 
-  default : 
+  default :
     break;
   }
   return decay_products;
@@ -877,8 +869,8 @@ GHepStatus_t genie::utils::nucleon_decay::DecayProductStatus(
     if( pdg::IsHadron(pdgc) )
     {
       return kIStHadronInTheNucleus;
-    } 
-  } 
+    }
+  }
 
   return kIStStableFinalState;
 }

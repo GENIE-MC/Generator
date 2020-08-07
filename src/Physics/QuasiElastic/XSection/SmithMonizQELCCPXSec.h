@@ -4,27 +4,35 @@
 \class    genie::SmithMonizQELCCPXSec
 
 \brief    Computes neutrino-nucleon(nucleus) QELCC differential cross section.
-          Is a concrete implementation of the XSecAlgorithmI interface. 
+          Is a concrete implementation of the XSecAlgorithmI interface.
 
-\ref      [1] R.A.Smith and E.J.Moniz, Nuclear Physics  B43, (1972) 605-622 \n
-          [2] K.S. Kuzmin, V.V. Lyubushkin, V.A.Naumov Eur. Phys. J. C54, (2008) 517-538
+\ref      [1] R.A.Smith and E.J.Moniz,
+              Nuclear Physics  B43, (1972) 605-622 \n
+          [2] K.S. Kuzmin, V.V. Lyubushkin, V.A.Naumov,
+              Eur. Phys. J. C54, (2008) 517-538
 
-\author   Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
-          adapted from  fortran code provided by 
-          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>, \n
-          Joint Institute for Nuclear Research,  Institute for Theoretical and Experimental Physics \n
-          Vladimir Lyubushkin, \n
+\author   Igor Kakorin <kakorin@jinr.ru>
           Joint Institute for Nuclear Research \n
-          Vadim Naumov <vnaumov@theor.jinr.ru>, \n
+
+          adapted from  fortran code provided by: \n
+
+          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>
+          Joint Institute for Nuclear Research \n
+
+          Vladimir Lyubushkin
+          Joint Institute for Nuclear Research \n
+
+          Vadim Naumov <vnaumov@theor.jinr.ru>
           Joint Institute for Nuclear Research  \n
-          based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk> \n
-          University of Liverpool & STFC Rutherford Appleton Lab
+
+          based on code of: \n
+          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 05, 2017
 
-\cpright  Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -60,16 +68,16 @@ public:
 
 private:
   mutable SmithMonizUtils * sm_utils;
-  
+
   void   LoadConfig (void);
   double d3sQES_dQ2dvdkF_SM (const Interaction * interaction) const;
   double dsQES_dQ2_SM(const Interaction * interaction) const;
   double d2sQES_dQ2dv_SM(const Interaction * i) const;
-  
+
   double                       fXSecScale;        ///< external xsec scaling factor
-  mutable QELFormFactors       fFormFactors;      
-  const QELFormFactorsModelI * fFormFactorsModel; 
-  const XSecIntegratorI *      fXSecIntegrator;   
+  mutable QELFormFactors       fFormFactors;
+  const QELFormFactorsModelI * fFormFactorsModel;
+  const XSecIntegratorI *      fXSecIntegrator;
   double                       fVud2;             ///< |Vud|^2(square of magnitude ud-element of CKM-matrix)
   mutable int                          fn_NT;
   mutable double                       fQ2;
@@ -98,12 +106,11 @@ private:
   mutable double                       fW_3;
   mutable double                       fW_4;
   mutable double                       fW_5;
-   
-  
+
+
 };
 
 
 } // genie namespace
 
 #endif  //_SMITH_MONITZ_QELCC_CROSS_SECTION_H_
-

@@ -48,6 +48,7 @@
   <priority msgstream="Cache">                 FATAL </priority>
   <priority msgstream="CharmHad">              FATAL </priority>
   <priority msgstream="CFracTab">              FATAL </priority>
+  <priority msgstream="CEvNS">                 FATAL </priority>
   <priority msgstream="COHXSec">               FATAL </priority>
   <priority msgstream="COHXSecAR">             FATAL </priority>
   <priority msgstream="CLAP">                  FATAL </priority>
@@ -89,6 +90,7 @@
   <priority msgstream="GROOTGeom">             FATAL </priority>
   <priority msgstream="GHEP">                  FATAL </priority>
   <priority msgstream="GHepParticle">          FATAL </priority>
+  <priority msgstream="GHepUtils">             FATAL </priority>
   <priority msgstream="GuiUtils">              FATAL </priority>
   <priority msgstream="GRV98LO">               FATAL </priority>
   <priority msgstream="GXSecFunc">             FATAL </priority>
@@ -118,6 +120,8 @@
   <priority msgstream="INukeUtils">            FATAL </priority>
   <priority msgstream="INukeUtils2018">        FATAL </priority>
   <priority msgstream="INukeUtils2019">        FATAL </priority>
+  <priority msgstream="HINCLCascadeIntranuke"> FATAL </priority>
+  <priority msgstream="HG4BertCascIntranuke">  FATAL </priority>
   <priority msgstream="ISApp">                 FATAL </priority>
   <priority msgstream="IntGenMap">             FATAL </priority>
   <priority msgstream="KNOHad">                FATAL </priority>
@@ -130,9 +134,10 @@
   <priority msgstream="MEC">                   FATAL </priority>
   <priority msgstream="MuELoss">               FATAL </priority>
   <priority msgstream="MultProb">              FATAL </priority>
-  <priority msgstream="Nieves">                FATAL   </priority>
+  <priority msgstream="Nieves">                FATAL </priority>
   <priority msgstream="NucDeEx">               FATAL </priority>
   <priority msgstream="NucleonDecay">          FATAL </priority>
+  <priority msgstream="ResonanceDecay">        FATAL </priority>
   <priority msgstream="NucleonP">              FATAL </priority>
   <priority msgstream="Nuclear">               FATAL </priority>
   <priority msgstream="Numerical">             FATAL </priority>
@@ -146,7 +151,10 @@
   <priority msgstream="ParticleDecayer">       FATAL </priority>
   <priority msgstream="PaschLal">              FATAL </priority>
   <priority msgstream="PythiaDec">             FATAL </priority>
+  <priority msgstream="Pythia6Decay">          FATAL </priority>
   <priority msgstream="PythiaHad">             FATAL </priority>
+  <priority msgstream="Pythia6Had">            FATAL </priority>
+  <priority msgstream="Pythia8Had">            FATAL </priority>
   <priority msgstream="PDG">                   FATAL </priority>
   <priority msgstream="PathL">                 FATAL </priority>
   <priority msgstream="PhysUtil">              FATAL </priority>
