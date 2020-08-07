@@ -1,14 +1,14 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+ 
 
  Author: Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
          Aaron Meyer <asm58@pitt.edu>, Pittsburgh Univ.
 	 Alex Bell, Pittsburgh Univ.
          Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts Univ.
-         Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, Rutherford Lab.
+         Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>, Rutherford Lab.
          September 20, 2005
 
  For the class documentation see the corresponding header file.
@@ -550,8 +550,8 @@ void HAIntranuke::InelasticHA(
     << "InelasticHA() is invoked for a : " << p->Name()
     << " whose fate is : " << INukeHadroFates::AsString(fate);
 #endif
-  if(ev->CorrectProbe() ) {
-    LOG("HAIntranuke", pINFO) << " probe KE = " << ev->CorrectProbe()->KinE();
+  if(ev->Probe() ) {
+    LOG("HAIntranuke", pINFO) << " probe KE = " << ev->Probe()->KinE();
   }
   if(fate!=kIHAFtCEx && fate!=kIHAFtInelas)
     {
@@ -678,9 +678,9 @@ void HAIntranuke::InelasticHA(
       LOG("HAIntranuke",pINFO)
 	<< "C3CM = " << C3CM << "\n  P3L, E3L = " 
 	<< P3L << "   " << E3L << "  P4L, E4L = "<< P4L << "   " << E4L ;
-      if(ev->CorrectProbe() ) { LOG("HAIntranuke",pINFO)
-	  << "P4L = " << P4L << " ;E4L=  " << E4L << "\n probe KE = " << ev->CorrectProbe()->KinE() << "\n";
-	if (ev->CorrectProbe() && (E3L>ev->CorrectProbe()->E()||E4L>ev->CorrectProbe()->E()))  //is this redundant?
+      if(ev->Probe() ) { LOG("HAIntranuke",pINFO)
+	  << "P4L = " << P4L << " ;E4L=  " << E4L << "\n probe KE = " << ev->Probe()->KinE() << "\n";
+	if (ev->Probe() && (E3L>ev->Probe()->E()||E4L>ev->Probe()->E()))  //is this redundant?
 	  {
 	    exceptions::INukeException exception;
 	    exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation");

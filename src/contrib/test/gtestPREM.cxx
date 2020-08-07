@@ -5,23 +5,23 @@
 
 \brief   Test tehe PREM model
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created Aug 25, 2009
 
-\cpright Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //____________________________________________________________________________
 
 #include <TFile.h>
 #include <TNtuple.h>
 
-#include "Conventions/Constants.h"
-#include "Conventions/Units.h"
-#include "Utils/PREM.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Utils/PREM.h"
 
 using namespace genie;
 

@@ -1,22 +1,25 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Steve Dytman
+ University of Pittsburgh
 
-          Afroditi Papadopoulou <apapadop \at mit.edu>
-          Massachusetts Institute of Technology
+ Jarek Nowak
+ University of Lancaster
 
-          Adi Ashkenazi <adishka \at gmail.com>
-          Massachusetts Institute of Technology
+ Gabe Perdue
+ Fermilab
+ 
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
- @ July 4, 2018 - Afroditi Papadopoulou
-   For electromagnetic (EM) interactions, the weak g2 was still used for the
-   calculation of the helicity amplitude. Fixed by replacing with the correct EM g2
+ Afroditi Papadopoulou <apapadop \at mit.edu>
+ Massachusetts Institute of Technology
 
+ Adi Ashkenazi <adishka \at gmail.com>
+ Massachusetts Institute of Technology
 */
 //____________________________________________________________________________
 
@@ -253,16 +256,16 @@ double BSKLNBaseRESPXSec2014::XSec(
       KNL_cL_plus  = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  - KNL_jy_plus);
       KNL_cL_minus = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus - KNL_jy_minus);
 
-      KNL_cR_plus  = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
-      KNL_cR_minus = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
+      KNL_cR_plus  = -TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
+      KNL_cR_minus = -TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
 
       KNL_cS_plus   = KNL_K *  TMath::Sqrt(TMath::Abs(KNL_j0_plus *KNL_j0_plus  - KNL_jz_plus *KNL_jz_plus ) );
       KNL_cS_minus  = KNL_K *  TMath::Sqrt(TMath::Abs(KNL_j0_minus*KNL_j0_minus - KNL_jz_minus*KNL_jz_minus) );
     }
 
     if (is_nubar || is_lplus) {
-      KNL_cL_plus  =  1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
-      KNL_cL_minus = -1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
+      KNL_cL_plus  = -1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
+      KNL_cL_minus =  1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
 
       KNL_cR_plus  =  1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus - KNL_jy_minus);
       KNL_cR_minus = -1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  - KNL_jy_plus);

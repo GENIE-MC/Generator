@@ -1,21 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - May 06, 2004
-
- For documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Jan 22, 2008 - CA
-   That file was added in 2.3.1 - Copied Whitlow R from NuclearUtils and
-   added R99118 which was adapted from fortran code sent by V.Tvaskis
- @ Feb 08, 2013 - CA
-   Add here the formation zone code so that it can be easily shared between
-   the event generation and event reweighting code.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -27,7 +16,7 @@
 
 //___________________________________________________________________________
 double  genie::utils::phys::FormationZone(
-   double m, const TLorentzVector & p4, 
+   double m, const TLorentzVector & p4,
    const TVector3 & p3hadr, double ct0 /*in fm*/, double K)
 {
 // m -> hadon mass (on-shell)
@@ -56,7 +45,7 @@ double genie::utils::phys::R99118(double x, double Q2)
     double A[3] = { .06723, .46714, 1.89794 };
     double B[3] = { .06347, .57468, -.35342 };
     double C[3] = { .05992, .50885, 2.10807 };
-    
+
     double consq2=2.;  // Joining point of r1990 and re99118
     double R=0;
 
@@ -69,7 +58,7 @@ double genie::utils::phys::R99118(double x, double Q2)
        double R_C   = C[0]*RLOG + C[1]/TMath::Sqrt( TMath::Power(Q2-Q2thr,2) + TMath::Power(C[2],2) );
        R = (R_A+R_B+R_C)/3.;
     }
-   
+
     if(Q2 < consq2) {
        double FAC   = 1+12.*(consq2/(1.+consq2))*(.125*.125/(x*x+.125*.125));
        double RLOG  = FAC/TMath::Log(consq2/.04);
@@ -134,7 +123,7 @@ double genie::utils::phys::RWhitlow(double x, double Q2)
 //___________________________________________________________________________
 /*
 void genie::utils::phys::ExtractStructFunc (
-        double x, double Q2, double d2sig_dxdy[3], 
+        double x, double Q2, double d2sig_dxdy[3],
         double & F1, double & F2, double & xF3)
 {
 // Solve the system of equations:
@@ -144,7 +133,7 @@ void genie::utils::phys::ExtractStructFunc (
   const double sign = 1;
   const double M    = kNucleonMass;
 
-  TMatrixD A     (3,3); // (row,col) 
+  TMatrixD A     (3,3); // (row,col)
   TMatrixD Sigma (3,1);
 
   A(0,0) = x * TMath::Power(y[0],2.);

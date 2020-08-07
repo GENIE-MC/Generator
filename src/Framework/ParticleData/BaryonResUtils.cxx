@@ -1,38 +1,16 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the namespace documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Dec 11, 2008 - CA
-   Fixed a bug with the Delta- pdg code. It was incorrectly set to -2214.
-   Now set to 1114. The bug affected the final state nubar RES events.
- @ Jun 17, 2009 - CA
-   Used resonance codes from PDG/PDGCodes.h
- @ Oct 20, 2009 - CA
-   Modified ResonanceCharge() to take into account the probe charge (so as
-   to conserve charge in charged lepton scattering)
- @ Jul 23, 2010 - CA
-   Moved ResonanceCharge(Interaction) to EVGModules/HadronicSystemGenerator 
-   to avoid dependency of BaryonResonance package on the Interaction package.
-   Added OrbitalAngularMom(Resonance_t), ResonanceIndex(Resonance_t)
-   Width(Resonance_t) and BWNorm(Resonance_t) functions, previously available
-   through a BaryonResDataSetI implementation. Simplified BaryonResonance
-   package by removing the redundant BaryonResDataPDG, BaryonResDataSetI
-   BreitWignerI, BreitWignerRes, BreitWignerLRes and BaryonResParams classes.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
 #include <cassert>
 #include <cstdlib>
-#include <map> 
+#include <map>
 
 #include <TMath.h>
 
@@ -144,6 +122,12 @@ Resonance_t genie::utils::res::FromPdgCode(int pdgc)
         case (kPdgP11m1440_NP) :       /* N+  */
             return kP11_1440; break;
 
+        case (kPdgP33m1600_DeltaM ) :  /* Delta-  */
+        case (kPdgP33m1600_Delta0 ) :  /* Delta0  */
+        case (kPdgP33m1600_DeltaP ) :  /* Delta+  */
+        case (kPdgP33m1600_DeltaPP) :  /* Delta++ */
+            return kP33_1600; break;
+
         case (kPdgP13m1720_N0) :       /* N0  */
         case (kPdgP13m1720_NP) :       /* N+  */
             return kP13_1720; break;
@@ -243,7 +227,11 @@ int genie::utils::res::PdgCode(Resonance_t res, int Q)
             break;
 
         case kP33_1600:
-            return 0;   
+            if(Q == -1) return  kPdgP33m1600_DeltaM;  /* Delta-  */
+            if(Q ==  0) return  kPdgP33m1600_Delta0;  /* Delta0  */
+            if(Q ==  1) return  kPdgP33m1600_DeltaP;  /* Delta+  */
+            if(Q ==  2) return  kPdgP33m1600_DeltaPP; /* Delta++ */
+            break;
 
         case kP13_1720:
             if(Q ==  0) return  kPdgP13m1720_N0; /* N0  */
@@ -289,7 +277,7 @@ int genie::utils::res::PdgCode(Resonance_t res, int Q)
             break;
 
         case kF17_1970:
-            return 0;   
+            return 0;
             break;
 
         default:
@@ -349,7 +337,10 @@ bool genie::utils::res::IsBaryonResonance(int pdgc)
         case (kPdgP11m1440_NP) :       /* N+  */
 
             /* ------ P33(1600) ------*/
-            // are you?
+        case (kPdgP33m1600_DeltaM ) :  /* Delta-  */
+        case (kPdgP33m1600_Delta0 ) :  /* Delta0  */
+        case (kPdgP33m1600_DeltaP ) :  /* Delta+  */
+        case (kPdgP33m1600_DeltaPP) :  /* Delta++ */
 
             /* ------ P13(1720) ------*/
         case (kPdgP13m1720_N0) :       /* N0  */
@@ -425,7 +416,7 @@ bool genie::utils::res::IsDelta(Resonance_t res)
     return false;
 }
 //____________________________________________________________________________
-// The values of resonance mass and width is taken from 
+// The values of resonance mass and width is taken from
 // M. Tanabashi et al. (Particle Data Group) Phys. Rev. D 98, 030001
 bool genie::utils::res::IsN(Resonance_t res)
 {
@@ -444,7 +435,7 @@ double genie::utils::res::Mass(Resonance_t res)
         case kS31_1620  : return 1.630 * units::GeV ; break;
         case kD33_1700  : return 1.700 * units::GeV ; break;
         case kP11_1440  : return 1.430 * units::GeV ; break;
-        case kP33_1600  : return 1.600 * units::GeV ; break;
+        case kP33_1600  : return 1.570 * units::GeV ; break;
         case kP13_1720  : return 1.720 * units::GeV ; break;
         case kF15_1680  : return 1.685 * units::GeV ; break;
         case kP31_1910  : return 1.890 * units::GeV ; break;
@@ -470,7 +461,7 @@ double genie::utils::res::Width(Resonance_t res)
         case kS31_1620  : return 0.140 * units::GeV ; break;
         case kD33_1700  : return 0.300 * units::GeV ; break;
         case kP11_1440  : return 0.350 * units::GeV ; break;
-        case kP33_1600  : return 0.320 * units::GeV ; break;
+        case kP33_1600  : return 0.250 * units::GeV ; break;
         case kP13_1720  : return 0.250 * units::GeV ; break;
         case kF15_1680  : return 0.130 * units::GeV ; break;
         case kP31_1910  : return 0.280 * units::GeV ; break;
@@ -545,7 +536,7 @@ int genie::utils::res::OrbitalAngularMom(Resonance_t res)
         default:
                          // should not be here - meaningless to return anything
                          gAbortingInErr = true;
-                         LOG("BaryonRes", pFATAL) 
+                         LOG("BaryonRes", pFATAL)
                              << "Unknown resonance " << res;
                          exit(1);
     }
@@ -576,7 +567,7 @@ int genie::utils::res::ResonanceIndex(Resonance_t res)
         default:
                          // should not be here - meaningless to return anything
                          gAbortingInErr = true;
-                         LOG("BaryonRes", pFATAL) 
+                         LOG("BaryonRes", pFATAL)
                              << "Unknown resonance " << res;
                          exit(1);
     }

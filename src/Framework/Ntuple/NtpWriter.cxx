@@ -1,24 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 07, 2008 - CA
-   Made event branch a priv data member and modified code accordingly.
-   Added method to hand over the event tree so that additional user-defined
-   branches (eg flux info) may be added.
- @ Mar 26, 2010 - CA
-   Added CustomizeFilename() and CustomizeFilenamePrefix() to allow the use
-   to customize either the entire output name or just the prefix before the
-   run number.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -37,6 +23,7 @@
 #include "Framework/Ntuple/NtpMCTreeHeader.h"
 #include "Framework/Ntuple/NtpMCJobConfig.h"
 #include "Framework/Ntuple/NtpMCJobEnv.h"
+#include "Framework/Utils/RunOpt.h"
 
 #include "RVersion.h"
 
@@ -100,10 +87,32 @@ void NtpWriter::Initialize()
   this->CreateTree();           // create output tree
 
   //-- create the event branch
-  this->CreateEventBranch(); 
+  this->CreateEventBranch();
 
   //-- create the tree header
   this->CreateTreeHeader();
+  //-- update the tune name (and associated directories) from RunOpt
+  //   (keep header from RunOpt entanglement)
+  string tunename("unknown");
+  string tuneDir("unknown");
+  string customDirs("");
+  TuneId* tuneId = RunOpt::Instance()->Tune();
+  if ( ! tuneId ) {
+    LOG("Ntp", pERROR)
+      << "No TuneId is available from RunOpt";
+  } else {
+    tunename = tuneId->Name();
+    tuneDir  = tuneId->TuneDirectory();
+    if ( tuneId->IsCustom() ) {
+      tunename += "*"; // flag it as possibly modified
+      customDirs = tuneId->CustomSource();
+    }
+  }
+  fNtpMCTreeHeader->tune.SetString(tunename.c_str());
+  fNtpMCTreeHeader->tuneDir.SetString(tuneDir.c_str());
+  fNtpMCTreeHeader->customDirs.SetString(customDirs.c_str());
+
+  //-- write the tree header
   fNtpMCTreeHeader->Write();
 
   //-- save GENIE configuration for this MC Job
@@ -128,7 +137,7 @@ void NtpWriter::CustomizeFilenamePrefix (string prefix)
 void NtpWriter::SetDefaultFilename(string filename_prefix)
 {
   ostringstream fnstr;
-  fnstr << filename_prefix  << "." 
+  fnstr << filename_prefix  << "."
         << fRunNu << "."
         << NtpMCFormat::FilenameTag(fNtpFormat)
         << ".root";
@@ -140,7 +149,7 @@ void NtpWriter::OpenFile(string filename)
 {
   if(fOutFile) delete fOutFile;
 
-  LOG("Ntp", pINFO) 
+  LOG("Ntp", pINFO)
       << "Opening the output ROOT file: " << filename;
 
   // use "TFile::Open()" instead of "new TFile()" so that it can handle
@@ -227,4 +236,3 @@ void NtpWriter::Save(void)
   }
 }
 //____________________________________________________________________________
-

@@ -18,10 +18,8 @@
 
 \created  July 14, 2010
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
-
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -64,6 +62,8 @@ public :
   //
   void AdoptFidShape(FidShape* shape);
   void MakeSphere(Double_t x0, Double_t y0, Double_t z0, Double_t radius);
+  void MakeXCylinder(Double_t y0, Double_t z0, Double_t radius, Double_t xmin, Double_t xmax);
+  void MakeYCylinder(Double_t x0, Double_t z0, Double_t radius, Double_t ymin, Double_t ymax);
   void MakeZCylinder(Double_t x0, Double_t y0, Double_t radius, Double_t zmin, Double_t zmax);
   void MakeCylinder(Double_t* base, Double_t* axis, Double_t radius, Double_t* cap1, Double_t* cap2);
   void MakeBox(Double_t* xyzmin, Double_t* xyzmax);
@@ -71,14 +71,14 @@ public :
 
   // by default shapes are assumed to be in "top vol" coordinates
   // in the case where they are entered in master coordinates
-  // ask the configured shape to convert itself  
+  // ask the configured shape to convert itself
   // (do this only once for any shape definition)
   virtual void ConvertShapeMaster2Top(const ROOTGeomAnalyzer* rgeom);
 
 protected:
 
   static Bool_t NewStepPairs(Bool_t selectReverse,
-                             Double_t raydist, Double_t slo, Double_t shi, 
+                             Double_t raydist, Double_t slo, Double_t shi,
                              const RayIntercept& intercept, Bool_t& split,
                              StepRange& step1, StepRange& step2);
 

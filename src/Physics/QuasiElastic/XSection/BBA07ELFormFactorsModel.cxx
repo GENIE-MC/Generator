@@ -1,22 +1,27 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author:  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
-          adapted from  fortran code provided by
-          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>,
-          Joint Institute for Nuclear Research,  Institute for Theoretical and Experimental Physics
-          Vladimir Lyubushkin,
-          Joint Institute for Nuclear Research
-          Vadim Naumov <vnaumov@theor.jinr.ru>,
-          Joint Institute for Nuclear Research
-          based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+ Igor Kakorin <kakorin@jinr.ru>
+ Joint Institute for Nuclear Research \n
 
- For the class documentation see the corresponding header file.
+ adapted from  fortran code provided by:
 
+ Konstantin Kuzmin <kkuzmin@theor.jinr.ru>, \n
+ Joint Institute for Nuclear Research
+ Institute for Theoretical and Experimental Physics \n
+
+ Vladimir Lyubushkin, \n
+ Joint Institute for Nuclear Research \n
+
+ Vadim Naumov <vnaumov@theor.jinr.ru>, \n
+ Joint Institute for Nuclear Research  \n
+
+ based on code of:
+
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch> \n
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -109,7 +114,7 @@ void BBA07ELFormFactorsModel::Configure(string config)
 //____________________________________________________________________________
 void BBA07ELFormFactorsModel::LoadConfig(void)
 {
-  
+
   //-- load the BBA2007 fit coefficients
   GetParam( "BBA07-Gep-a1", fGep.a1) ;
   GetParam( "BBA07-Gep-b1", fGep.b1) ;
@@ -162,7 +167,7 @@ double BBA07ELFormFactorsModel::AN (double x,double c1, double c2, double c3,dou
      const double d5  = (4.0/6-0.0)*(4.0/6-1.0/6)*(4.0/6-2.0/6)*(4.0/6-3.0/6)*(4.0/6-5.0/6)*(4.0/6-1.0);
      const double d6  = (5.0/6-0.0)*(5.0/6-1.0/6)*(5.0/6-2.0/6)*(5.0/6-3.0/6)*(5.0/6-4.0/6)*(5.0/6-1.0);
      const double d7  = (1.0-0.0)*(1.0-1.0/6)*(1.0-2.0/6)*(1.0-3.0/6)*(1.0-4.0/6)*(1.0-5.0/6);
-     
+
      return c1*        (x-1.0/6)*(x-2.0/6)*(x-3.0/6)*(x-4.0/6)*(x-5.0/6)*(x-1.0)/d1+
             c2*(x-0.0)*          (x-2.0/6)*(x-3.0/6)*(x-4.0/6)*(x-5.0/6)*(x-1.0)/d2+
             c3*(x-0.0)*(x-1.0/6)*          (x-3.0/6)*(x-4.0/6)*(x-5.0/6)*(x-1.0)/d3+

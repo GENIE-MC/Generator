@@ -6,17 +6,16 @@
 \brief    A GENIE flux driver encapsulating the JPARC neutrino flux.
           It reads-in the official JPARC neutrino flux ntuples.
 
-\ref      See http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/ 
+\ref      See http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/
           (Note: T2K internal)
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  Feb 04, 2008
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -64,13 +63,13 @@ public :
   double                 Weight        (void) { return  fNorm / fMaxWeight;    }
   const TLorentzVector & Momentum      (void) { return  fgP4;                  }
   const TLorentzVector & Position      (void) { return  fgX4;                  }
-  bool                   End           (void) { return  fEntriesThisCycle >= fNEntries 
+  bool                   End           (void) { return  fEntriesThisCycle >= fNEntries
                                                      && fICycle == fNCycles && fNCycles > 0;   }
-  long int               Index         (void);                              
-  void                   Clear            (Option_t * opt); 
+  long int               Index         (void);
+  void                   Clear            (Option_t * opt);
   void                   GenerateWeighted (bool gen_weighted = true);
 
-  // Methods specific to the JPARC flux driver, 
+  // Methods specific to the JPARC flux driver,
   // for configuration/initialization of the flux & event generation drivers and
   // and for passing-through flux information (eg neutrino parent decay kinematics)
   // not used by the generator but required by analyses/processing further upstream
@@ -81,15 +80,15 @@ public :
   void SetFilePOT       (double pot);                          ///< flux file norm is in /N POT/det [ND] or /N POT/cm^2 [FD]. Specify N (typically 1E+21)
   void SetUpstreamZ     (double z0);                           ///< set flux neutrino initial z position (upstream of the detector)
   void SetNumOfCycles   (int n);                               ///< set how many times to cycle through the ntuple (default: 1 / n=0 means 'infinite')
-  void DisableOffset    (void){fUseRandomOffset = false;}      ///< switch off random offset, must be called before LoadBeamSimData to have any effect 
-  void RandomOffset     (void);                                ///< choose a random offset as starting entry in flux ntuple 
+  void DisableOffset    (void){fUseRandomOffset = false;}      ///< switch off random offset, must be called before LoadBeamSimData to have any effect
+  void RandomOffset     (void);                                ///< choose a random offset as starting entry in flux ntuple
 
   double   POT_1cycle     (void);                              ///< flux POT per cycle
   double   POT_curravg    (void);                              ///< current average POT
   long int NFluxNeutrinos (void) const { return fNNeutrinos; } ///< number of flux neutrinos looped so far
   double   SumWeight      (void) const { return fSumWeight;  } ///< intergated weight for flux neutrinos looped so far
 
-  const GJPARCNuFluxPassThroughInfo & 
+  const GJPARCNuFluxPassThroughInfo &
      PassThroughInfo(void) { return *fPassThroughInfo; } ///< GJPARCNuFluxPassThroughInfo
 
 private:
@@ -98,7 +97,7 @@ private:
   //
   bool GenerateNext_weighted (void);
   void Initialize            (void);
-  void SetDefaults           (void);  
+  void SetDefaults           (void);
   void CleanUp               (void);
   void ResetCurrent          (void);
   int  DLocName2Id           (string name);
@@ -120,12 +119,12 @@ private:
   bool      fNuFluxUsingTree;  ///< are we using a TTree or a TChain to view the input flux file?
   string    fDetLoc;           ///< input detector location ('sk','nd1','nd2',...)
   int       fDetLocId;         ///< input detector location id (fDetLoc -> jnubeam idfd)
-  int       fNDetLocIdFound;   ///< per cycle keep track of the number of fDetLocId are found - if this is zero will exit job 
+  int       fNDetLocIdFound;   ///< per cycle keep track of the number of fDetLocId are found - if this is zero will exit job
   bool      fIsFDLoc;          ///< input location is a 'far'  detector location?
   bool      fIsNDLoc;          ///< input location is a 'near' detector location?
   long int  fNEntries;         ///< number of flux ntuple entries
   long int  fIEntry;           ///< current flux ntuple entry
-  long int  fEntriesThisCycle; ///< keep track of number of entries used so far for this cycle   
+  long int  fEntriesThisCycle; ///< keep track of number of entries used so far for this cycle
   long int  fOffset;           ///< start looping at entry fOffset
   double    fNorm;             ///< current flux ntuple normalisation
   double    fMaxWeight;        ///< max flux  neutrino weight in input file for the specified detector location
@@ -145,12 +144,12 @@ private:
 };
 
 
-// A small persistable C-struct - like class that may be stored at an extra branch of 
-// the output event tree -alongside with the generated event branch- for use further 
+// A small persistable C-struct - like class that may be stored at an extra branch of
+// the output event tree -alongside with the generated event branch- for use further
 // upstream in the t2k analysis chain -eg beam reweighting etc-)
 //
 const int fNgmax = 12;
-class GJPARCNuFluxPassThroughInfo: public TObject { 
+class GJPARCNuFluxPassThroughInfo: public TObject {
 public:
    GJPARCNuFluxPassThroughInfo();
    GJPARCNuFluxPassThroughInfo(const GJPARCNuFluxPassThroughInfo & info);
@@ -161,14 +160,14 @@ public:
 
    long   fluxentry;
    string fluxfilename;
-   // Using an instance of this class the following datamembers are set 
+   // Using an instance of this class the following datamembers are set
    // directly as the branch addresses of jnubeam flux ntuples tree:
-   float  Enu;            // set to "Enu/F": Nu energy (GeV)  
-   int    ppid;           // set to "ppid/I": Nu parent GEANT particle id 
+   float  Enu;            // set to "Enu/F": Nu energy (GeV)
+   int    ppid;           // set to "ppid/I": Nu parent GEANT particle id
    int    mode;           // set to "mode/I": Nu parent decay mode (see http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/nemode.h)
    float  ppi;            // set to "ppi/F": Nu parent momentum at its decay point (GeV)
    float  xpi[3];         // set to "xpi[3]/F": Nu parent position vector at decay (cm, in t2k global coord system)
-   float  npi[3];         // set to "npi[3]/F": Nu parent direction vector at decay (in t2k global coord system) 
+   float  npi[3];         // set to "npi[3]/F": Nu parent direction vector at decay (in t2k global coord system)
    float  norm;           // set to "norm/F": Weight to give flux in /N POT/det. [ND] or /N POT/cm^2 [FD], where is N is typically 1E+21
    int    nvtx0;          // set to "nvtx0/I": Number of vtx where the nu. parent was produced (made obsolete by nd variable inroduced in 10d flux version)
    float  ppi0;           // set to "ppi0/F": Nu parent momentum at its production point (GeV)
@@ -179,7 +178,7 @@ public:
    float  ynu;            // set to "ynu/F": Nu y position (cm, in detector coord system)
    float  nnu[3];         // set to "nnu[3]/F": Nu direction (in t2k global coord system)
    // New since JNuBeam 10a flux version.
-   float  cospibm;        // set to "cospibm/F": Nu parent direction cosine at decay (with respect to the beam direction) 
+   float  cospibm;        // set to "cospibm/F": Nu parent direction cosine at decay (with respect to the beam direction)
    float  cospi0bm;       // set to "cospi0bm/F": Nu parent direction cosine at production (with respect to the beam direction)
    int    idfd;           // set to "idfd/I": Detector ID
    unsigned char gipart;  // set to "gipart/B": Primary particle ID
@@ -192,19 +191,19 @@ public:
    float  gpy[fNgmax];    // set to "gpy[20]/F":  Momentum Y of each ancestor particle
    float  gpz[fNgmax];    // set to "gpz[20]/F":  Momentum Z of each ancestor particle
    float  gcosbm[fNgmax]; // set to "gcosbm[20]/F": Cosine of the angle between the ancestor particle direction and the beam direction
-   float  gvx[fNgmax];    // set to "gvx[20]/F": Vertex X position of each ancestor particle 
-   float  gvy[fNgmax];    // set to "gvy[20]/F": Vertex Y position of each ancestor particle 
-   float  gvz[fNgmax];    // set to "gvz[20]/F": Vertex Z position of each ancestor particle 
+   float  gvx[fNgmax];    // set to "gvx[20]/F": Vertex X position of each ancestor particle
+   float  gvy[fNgmax];    // set to "gvy[20]/F": Vertex Y position of each ancestor particle
+   float  gvz[fNgmax];    // set to "gvz[20]/F": Vertex Z position of each ancestor particle
    int    gpid[fNgmax];   // set to "gpid[20]/I": Particle ID of each ancestor particles
-   int    gmec[fNgmax];   // set to "gmec[20]/I": Particle production mechanism of each ancestor particle 
+   int    gmec[fNgmax];   // set to "gmec[20]/I": Particle production mechanism of each ancestor particle
    // Next five only present since 11a flux
-   int    gmat[fNgmax];   // set to "gmat[fNgmax]/I": Material in which the particle originates 
-   float  gdistc[fNgmax]; // set to "gdistc[fNgmax]/F": Distance traveled through carbon 
+   int    gmat[fNgmax];   // set to "gmat[fNgmax]/I": Material in which the particle originates
+   float  gdistc[fNgmax]; // set to "gdistc[fNgmax]/F": Distance traveled through carbon
    float  gdistal[fNgmax]; // set to "gdista[fNgmax]/F": Distance traveled through aluminum
    float  gdistti[fNgmax];// set to "gdistti[fNgmax]/F": Distance traveled through titanium
    float  gdistfe[fNgmax];// set to "gdistte[fNgmax]/F": Distance traveled through iron
    float  Enusk;          // set to "Enusk/F": "Enu" for SK
-   float  normsk;         // set to "normsk/F": "norm" for SK 
+   float  normsk;         // set to "normsk/F": "norm" for SK
    float  anorm;          // set to "anorm/F": Norm component from ND acceptance calculation
    // The following do not change per flux entry as is summary info for the flux
    // file. For simplicity we just store per flux entry and accept the duplication.
@@ -215,7 +214,7 @@ public:
    float  bpos[2];        // set to "bpos[2]/F": Beam center position
    float  btilt[2];       // set to "btilt[2]/F": Beam Direction
    float  brms[2];        // set to "brms[2]/F": Beam RMS Width
-   float  emit[2];        // set to "emit[2]/F": Beam Emittance 
+   float  emit[2];        // set to "emit[2]/F": Beam Emittance
    float  alpha[2];       // set to "alpha[2]/F": Beam alpha parameter
    float  hcur[3];        // set to "hcur[3]/F": Horns 1, 2 and 3 Currents
    int    rand;           // set to "rand/I": Random seed

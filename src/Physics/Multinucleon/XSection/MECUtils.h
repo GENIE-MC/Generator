@@ -5,31 +5,31 @@
 
 \brief     MEC utilities
 
-\author    
+\author
 
-\created   
+\created
 
-\cpright   Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright   Copyright (c) 2003-2020, The GENIE Collaboration
            For the full text of the license visit http://copyright.genie-mc.org
-           or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
 #ifndef _MEC_UTILS_H_
 #define _MEC_UTILS_H_
 
-#include "Physics/Multinucleon/XSection/MECHadronTensor.h"
+#include "Physics/HadronTensors/HadronTensorI.h"
 
 namespace genie {
 
 class Interaction;
+class XSecAlgorithmI;
 
 namespace utils {
 namespace mec   {
 
   // ---------------------- this should be removed (is replaced by code below)
   //
-  // Kinematic calculation: Give q0q3 (and Enu and lepton mass) and 
+  // Kinematic calculation: Give q0q3 (and Enu and lepton mass) and
   // return muon KE and costheta, and jacobian area.
   // Contributed by R.Gran.
   double GetTmuCostFromq0q3(
@@ -39,10 +39,10 @@ namespace mec   {
 
   //----------------------- once in trunk, this could be copied in KineUtils
   // Kinematic calculations:
-  // Get lepton KE and costheta from q0, q3 (and Enu and lepton mass) 
+  // Get lepton KE and costheta from q0, q3 (and Enu and lepton mass)
   bool GetTlCostlFromq0q3(
     double q0, double q3, double Enu, double ml, double & Tl, double & costl);
-  // Get q0, q3 from lepton KE and costheta (and Enu and lepton mass) 
+  // Get q0, q3 from lepton KE and costheta (and Enu and lepton mass)
   bool Getq0q3FromTlCostl(
     double Tl, double costl, double Enu, double ml, double & q0, double & q3);
   //----------------------- once in trunk, this could be embedded in KineUtils::Jacobian()
@@ -56,21 +56,31 @@ namespace mec   {
   // Contributed by R.Gran.
   double Qvalue(int targetpdg, int nupdg);
 
-  // This method implements the lepton tensor contraction with a hadron
-  // tensor provided in tabular form.
-  // The lepton tensor is expressed formally in Nieves PRC 70 (2004) 055503.
-  // Returns  d2sigma/(dTmu dcos_mu) in 10^{41} cm^2 / GeV 
-  // Contributed by R.Gran.
-  double TensorContraction(
-     const Interaction * interaction, 
-     int tensor_pdg, 
-     MECHadronTensor::MECHadronTensorType_t tensor_type);
-  double TensorContraction(
-     int nu_pdg, int target_pdg, 
-     double Enu,  // neutrino energy (GeV)
-     double M_l, double T_l, double costh_l, // f/s lepton mass (GeV), kinetic energy (GeV) and cos(angle)
-     int tensor_pdg, 
-     MECHadronTensor::MECHadronTensorType_t tensor_type);
+
+  //Version of the tesor contraction in GENIE 2.12.X (modified to use new hadron tensor pool) for debugging purposes
+  //double OldTensorContraction(int nupdg, int targetpdg, double Enu, double Ml, double Tl, double costhl, int tensorpdg, genie::HadronTensorType_t tensor_type, char* tensor_model);
+  double OldTensorContraction(int nupdg, int targetpdg, double Enu, double Ml, double Tl, double costhl, int tensorpdg, genie::HadronTensorType_t tensor_type, char* tensor_model );
+
+  // Performs a brute-force scan of the kPSTlctl phase space to compute the
+  // maximum value of the differential cross section within a specified
+  // tolerance. An optional safety factor can be applied to the final result.
+  // This function is used by MECGenerator::SelectSuSALeptonKinematics() during
+  // rejection sampling. -- S. Gardiner, 16 March 2020
+  double GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
+    const Interaction& inter, const double tolerance = 0.01,
+    const double safety_factor = 1.2, const int max_n_layers = 100 );
+
+  // Hard-coded bounds for the scan over phase space in GetMaxXSecTlctl.
+  // These are based on the upper limits in the current set of SuSAv2 hadron
+  // tensor tables. In the future, it would be good to refactor GetMaxXSecTlctl
+  // to retrieve these bounds from the relevant hadron tensor model itself.
+  // - S. Gardiner
+
+  // Maximum tabulated energy transfer (GeV)
+  const double Q0LimitMaxXSec = 2.;
+
+  // Maximum tabulated momentum transfer (GeV)
+  const double QMagLimitMaxXSec = 2.;
 
 } // mec   namespace
 } // utils namespace

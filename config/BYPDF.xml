@@ -22,14 +22,14 @@ Uncorr-PDF-Set             alg     No    Uncorrected PDF model
     <param type="double" name="BY-X1">    0.0506  </param>
     <param type="double" name="BY-X2">    0.0798  </param>
     
-    <param type="alg" name="Uncorr-PDF-Set">  genie::LHAPDF5/GRVLO  </param>
+    <param type="alg" name="Uncorr-PDF-Set">  genie::GRV98LO/Default </param>
 
   </param_set>
 
 
   <param_set name="Optional"> 
     
-    <param type="alg" name="Uncorr-PDF-Set">  genie::GRV98LO/Default </param>
+    <param type="alg" name="Uncorr-PDF-Set">  genie::LHAPDF5/GRVLO  </param>
 
   </param_set>
 

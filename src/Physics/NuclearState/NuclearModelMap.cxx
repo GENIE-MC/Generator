@@ -1,11 +1,11 @@
  //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+ 
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
@@ -88,6 +88,21 @@ NuclearModel_t NuclearModelMap::ModelType(const Target & target) const
   if(!nm) return kNucmUndefined;
 
   return nm->ModelType(target);
+}
+//____________________________________________________________________________
+double NuclearModelMap::FermiMomentum( const Target & t, int nucleon_pdg ) const {
+
+  const NuclearModelI * nm = this->SelectModel(t);
+  return nm -> FermiMomentum( t, nucleon_pdg ) ;
+
+}
+//____________________________________________________________________________
+double NuclearModelMap::LocalFermiMomentum( const Target & t, 
+					    int nucleon_pdg, double radius ) const {
+
+  const NuclearModelI * nm = this->SelectModel(t);
+  return nm -> LocalFermiMomentum( t, nucleon_pdg, radius ) ;
+
 }
 //____________________________________________________________________________
 void NuclearModelMap::Configure(const Registry & config)

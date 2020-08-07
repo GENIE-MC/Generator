@@ -1,13 +1,12 @@
-////////////////////////////////////////////////////////////////////////
-/// \file  GFluxDriverFactory.cxx
-/// \brief factory for generating GENIE GFluxI class objects
-///
-/// \version 
-/// \author  Robert Hatcher <rhatcher \at fnal.gov>
-///          Fermi National Accelerator Laboratory
-///
-/// \update  2012-08-03 initial version
-////////////////////////////////////////////////////////////////////////
+//____________________________________________________________________________
+/*!
+ Copyright (c) 2003-2020, The GENIE Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+
+ Robert Hatcher <rhatcher@fnal.gov>
+ Fermi National Accelerator Laboratory
+*/
+//____________________________________________________________________________
 
 #include "Tools/Flux/GFluxDriverFactory.h"
 
@@ -21,7 +20,7 @@ namespace flux {
 // Define static variable which holds the one-and-only instance
 GFluxDriverFactory* GFluxDriverFactory::fgTheInstance;
 
-GFluxDriverFactory::GFluxDriverFactory() 
+GFluxDriverFactory::GFluxDriverFactory()
 {
   fgTheInstance = this;   // record created self in static pointer
 }
@@ -41,20 +40,20 @@ GFluxDriverFactory& GFluxDriverFactory::Instance()
     cleaner.UseMe();   // dummy call to quiet compiler warnings
     fgTheInstance = new GFluxDriverFactory();
   }
-  
+
   return *fgTheInstance;
 }
 
-GFluxI* 
+GFluxI*
 GFluxDriverFactory::GetFluxDriver(const std::string& name)
 {
   GFluxI* p = 0;
-  
+
   // we don't want map creating an entry if it doesn't exist
   // so use map::find() not map::operator[]
   std::map<std::string, GFluxICtorFuncPtr_t>::iterator itr
     = fFunctionMap.find(name);
-  if ( fFunctionMap.end() != itr ) { 
+  if ( fFunctionMap.end() != itr ) {
     // found an appropriate entry in the list
     GFluxICtorFuncPtr_t foo = itr->second;  // this is the function
     p = (*foo)();  // use function to create the GFluxI
@@ -65,7 +64,7 @@ GFluxDriverFactory::GetFluxDriver(const std::string& name)
   }
   return p;
 }
-  
+
 bool GFluxDriverFactory::IsKnownFluxDriver(const std::string& name)
 {
   //  check if we know the name
@@ -76,7 +75,7 @@ bool GFluxDriverFactory::IsKnownFluxDriver(const std::string& name)
   return res;
 }
 
-const std::vector<std::string>& 
+const std::vector<std::string>&
 GFluxDriverFactory::AvailableFluxDrivers() const
 {
   // list of names might be out of date due to new registrations
@@ -91,7 +90,7 @@ GFluxDriverFactory::AvailableFluxDrivers() const
   return listnames;
 }
 
-bool GFluxDriverFactory::RegisterCreator(std::string name, 
+bool GFluxDriverFactory::RegisterCreator(std::string name,
                                           GFluxICtorFuncPtr_t foo,
                                           bool* boolptr)
 {
@@ -108,7 +107,7 @@ void GFluxDriverFactory::PrintConfig() const
   std::cout << "GFluxDriverFactory has the following drivers registered:"
             << std::endl;
   for (size_t i=0; i<n; ++i) {
-    std::cout << "  [" << std::setw(3) << i << "]  " 
+    std::cout << "  [" << std::setw(3) << i << "]  "
               << avail[i] << std::endl;
   }
 }

@@ -8,14 +8,14 @@
 
 \ref      
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  October 09, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+          
 */
 //____________________________________________________________________________
 
@@ -50,13 +50,18 @@ public:
     return kNucmFermiGas; 
   }
 
+  virtual double         FermiMomentum( const Target & t, int nucleon_pdg ) const ;
+
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
 
-private:
+ protected:
   void   LoadConfig (void);
+  
+private:
+
   TH1D * ProbDistro (const Target & t) const;
 
   mutable map<string, TH1D *> fProbDistroMap;
@@ -65,8 +70,8 @@ private:
 
   double fPMax;
   double fPCutOff;
-  string fKFTable;
   bool fUseParametrization;
+
 };
 
 }         // genie namespace

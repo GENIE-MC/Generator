@@ -5,14 +5,13 @@
 
 \brief   MINOS-style Ntuple Class to hold an output MC Tree Header
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created October 1, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -54,12 +53,15 @@ public :
   // Ntuple is treated like a C-struct with public data members and
   // rule-breakinsg field data members not prefaced by "f" and mostly lowercase.
 
-  NtpMCFormat_t format;  ///< Event Record format (GENIE support multiple formats)
-  TObjString    cvstag;  ///< GENIE CVS Tag (to keep track of GENIE's version)
-  NtpMCDTime    datime;  ///< Date and Time that the event ntuple was generated
-  Long_t        runnu;   ///< MC Job run number
+  NtpMCFormat_t format;     ///< Event Record format (GENIE support multiple formats)
+  TObjString    cvstag;     ///< GENIE CVS Tag (to keep track of GENIE's version)
+  NtpMCDTime    datime;     ///< Date and Time that the event ntuple was generated
+  Long_t        runnu;      ///< MC Job run number
+  TObjString    tune;       ///< GENIE Tune Name
+  TObjString    tuneDir;    ///< directory from when tune config came
+  TObjString    customDirs; ///< any custom directories
 
-  ClassDef(NtpMCTreeHeader, 1)
+  ClassDef(NtpMCTreeHeader, 3)
 };
 
 }      // genie namespace

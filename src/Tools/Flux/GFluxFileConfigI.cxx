@@ -1,13 +1,12 @@
-////////////////////////////////////////////////////////////////////////
-/// \file  GFluxFileConfigI.cxx
-/// \brief GENIE interface for uniform flux exposure iterface
-///
-/// \version $Id: $
-/// \author  Robert Hatcher <rhatcher \at fnal.gov>
-///          Fermi National Accelerator Laboratory
-///
-/// \update  2015-03-17 initial version
-////////////////////////////////////////////////////////////////////////
+//____________________________________________________________________________
+/*!
+ Copyright (c) 2003-2020, The GENIE Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+
+ Robert Hatcher <rhatcher@fnal.gov>
+ Fermi National Accelerator Laboratory
+*/
+//____________________________________________________________________________
 
 #include "Tools/Flux/GFluxFileConfigI.h"
 #include "Framework/Messenger/Messenger.h"
@@ -31,7 +30,7 @@ namespace flux {
   { fXMLbasename = xmlbasename; }
 
   //___________________________________________________________________________
-  void GFluxFileConfigI::LoadBeamSimData(const std::set<std::string>& fileset, 
+  void GFluxFileConfigI::LoadBeamSimData(const std::set<std::string>& fileset,
                                          const std::string&           config )
   {
     // Loads a beam simulation root file into the GFluxFileConfig driver.
@@ -42,7 +41,7 @@ namespace flux {
   }
 
   //___________________________________________________________________________
-  void GFluxFileConfigI::LoadBeamSimData(const std::string& filename, 
+  void GFluxFileConfigI::LoadBeamSimData(const std::string& filename,
                                          const std::string& config )
   {
     // Loads a beam simulation root file into the GFluxFileConfig driver.
@@ -56,7 +55,7 @@ namespace flux {
                                        std::vector<std::string>& /* branchClassNames */,
                                        std::vector<void**>&      /* branchObjPointers */)
   {
-    // allow flux driver to report back current status and/or ntuple entry 
+    // allow flux driver to report back current status and/or ntuple entry
     // info for possible recording in the output file by supplying
     // the class name, and a pointer to the object that will be filled
     // as well as a suggested name for the branch.
@@ -73,11 +72,11 @@ namespace flux {
   //___________________________________________________________________________
   void GFluxFileConfigI::SetUpstreamZ(double z0)
   {
-    // The flux neutrino position (x,y) is given on the user specified 
-    // flux window.  This method sets the preferred user coord starting z 
-    // position upstream of detector face. Each flux neutrino will be 
-    // backtracked from the initial flux window to the input z0.  
-    // If the value is unreasonable (> 10^30) then the ray is left on 
+    // The flux neutrino position (x,y) is given on the user specified
+    // flux window.  This method sets the preferred user coord starting z
+    // position upstream of detector face. Each flux neutrino will be
+    // backtracked from the initial flux window to the input z0.
+    // If the value is unreasonable (> 10^30) then the ray is left on
     // the flux window.
 
     fZ0 = z0;
@@ -85,13 +84,13 @@ namespace flux {
   //___________________________________________________________________________
   void GFluxFileConfigI::SetNumOfCycles(long int ncycle)
   {
-    // The flux ntuples can be recycled for a number of times to boost 
+    // The flux ntuples can be recycled for a number of times to boost
     // generated event statistics without requiring enormous beam simulation
     // statistics.
-    // That option determines how many times the driver is going to cycle 
+    // That option determines how many times the driver is going to cycle
     // through the input flux ntuple.
-    // With ncycle=0 the flux ntuple will be recycled an infinite amount of 
-    // times so that the event generation loop can exit only on a POT or 
+    // With ncycle=0 the flux ntuple will be recycled an infinite amount of
+    // times so that the event generation loop can exit only on a POT or
     // event num check.
 
     fNCycles = TMath::Max(0L, ncycle);
@@ -100,7 +99,7 @@ namespace flux {
   void GFluxFileConfigI::SetFluxParticles(const PDGCodeList & particles)
   {
     fPdgCList->Copy(particles);
-    
+
     LOG("Flux", pINFO)
       << "Declared list of neutrino species: " << *fPdgCList;
   }

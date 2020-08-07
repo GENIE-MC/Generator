@@ -1,11 +1,11 @@
 ///____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+ 
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - October 08, 2004
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory - October 08, 2004
 
  For the class documentation see the corresponding header file.
 
@@ -90,6 +90,9 @@ void FermiMover::ProcessEventRecord(GHepRecord * evrec) const
   // give hit nucleon a Fermi momentum
   this->KickHitNucleon(evrec);
 
+  // handle the addition of the recoil nucleon
+  if ( fSecondEmitter ) fSecondEmitter -> ProcessEventRecord( evrec ) ;
+
   // add a recoiled nucleus remnant
   this->AddTargetNucleusRemnant(evrec);
 }
@@ -139,32 +142,20 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
   // the sruck nucleon to be on the mass-shell or not...
 
   double EN=0;
-  // Set this to either a proton or neutron to eject a secondary particle
-  int eject_nucleon_pdg = 0;
-  FermiMoverInteractionType_t interaction_type =
-      fNuclModel->GetFermiMoverInteractionType();
+  FermiMoverInteractionType_t interaction_type = fNuclModel->GetFermiMoverInteractionType();
+
+  // EffectiveSF treatment
   if (interaction_type == kFermiMoveEffectiveSF1p1h) {
-    EN = nucleon->Mass() - w -
-           pF2 / (2 * (nucleus->Mass() - nucleon->Mass()));
+    EN = nucleon->Mass() - w - pF2 / (2 * (nucleus->Mass() - nucleon->Mass()));
   } else if (interaction_type == kFermiMoveEffectiveSF2p2h_eject ||
              interaction_type == kFermiMoveEffectiveSF2p2h_noeject) {
-    TParticlePDG * other_nucleon;
-    if(nucleon->Pdg() == kPdgProton) {
-      other_nucleon = PDGLibrary::Instance()->Find(kPdgNeutron);
-    }
-    else {
-      other_nucleon = PDGLibrary::Instance()->Find(kPdgProton);
-    }
+
+		int other_nucleon_pdg = nucleon->Pdg() == kPdgProton ? kPdgNeutron : kPdgProton ;
+		TParticlePDG * other_nucleon = PDGLibrary::Instance()->Find( other_nucleon_pdg );
+
     TParticlePDG * deuteron = PDGLibrary::Instance()->Find(1000010020);
-    EN = deuteron->Mass() - 2 * w -
-          TMath::Sqrt(pF2 + other_nucleon->Mass() * other_nucleon->Mass());
-    if (interaction_type == kFermiMoveEffectiveSF2p2h_eject &&
-        deuteron->PdgCode() != nucleus->Pdg()) {
-      // Eject a remnant nucleon for the 2p2h process. Don't eject other
-      // nucleon if target is deuterium- need to leave behind a
-      // valid remnant nucleus.
-      eject_nucleon_pdg = other_nucleon->PdgCode();
-    }
+    EN = deuteron->Mass() - 2 * w - TMath::Sqrt(pF2 + other_nucleon->Mass() * other_nucleon->Mass());
+
   // Do default Fermi Moving
   } else  {
     if (!fKeepNuclOnMassShell) {
@@ -194,34 +185,7 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
       double MN2 = TMath::Power(MN,2);
       EN = TMath::Sqrt(MN2+pF2);
     }
-    if (fSRCRecoilNucleon) {
-      const int nucleus_pdgc = nucleus->Pdg();
-      const int nucleon_pdgc = nucleon->Pdg();
 
-      // Calculate the Fermi momentum, using a local Fermi gas if the
-      // nuclear model is LocalFGM, and RFG otherwise
-      double kF;
-      if(fNuclModel->ModelType(*tgt) == kNucmLocalFermiGas){
-	assert(pdg::IsProton(nucleon_pdgc) || pdg::IsNeutron(nucleon_pdgc));
-	int A = tgt->A();
-	bool is_p = pdg::IsProton(nucleon_pdgc);
-	double numNuc = (is_p) ? (double)tgt->Z():(double)tgt->N();
-	double radius = nucleon->X4()->Vect().Mag();
-	double hbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
-	kF= TMath::Power(3*kPi2*numNuc*
-		  genie::utils::nuclear::Density(radius,A),1.0/3.0) *hbarc;
-      }else{
-	FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
-	const FermiMomentumTable * kft  = kftp->GetTable("Default");
-	kF = kft->FindClosestKF(nucleus_pdgc, nucleon_pdgc);
-      }
-      if (TMath::Sqrt(pF2) > kF) {
-        double Pp = (nucleon->Pdg() == kPdgProton) ? 0.05 : 0.95;
-        RandomGen * rnd = RandomGen::Instance();
-        double prob = rnd->RndGen().Rndm();
-        eject_nucleon_pdg = (prob > Pp) ? kPdgNeutron : kPdgProton;
-      }
-    }
   }
 
   //-- update the struck nucleon 4p at the interaction summary and at
@@ -253,34 +217,8 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
      exception.SwitchOnFastForward();
      throw exception;
   }
-  if(eject_nucleon_pdg != 0) {
-    this->Emit2ndNucleonFromSRC(evrec, eject_nucleon_pdg);
-  }
-}
-//___________________________________________________________________________
-void FermiMover::Emit2ndNucleonFromSRC(GHepRecord * evrec,
-                                       const int eject_pdg_code) const
-{
-  LOG("FermiMover", pINFO) << "Adding a recoil nucleon "
-      "due to short range corelation";
 
-  GHepParticle * nucleon = evrec->HitNucleon();
 
-  GHepStatus_t status = kIStHadronInTheNucleus;
-  int imom = evrec->TargetNucleusPosition();
-
-  //-- Has opposite momentum from the struck nucleon
-  double vx = nucleon->Vx();
-  double vy = nucleon->Vy();
-  double vz = nucleon->Vz();
-  double px = -1.* nucleon->Px();
-  double py = -1.* nucleon->Py();
-  double pz = -1.* nucleon->Pz();
-  double M  = PDGLibrary::Instance()->Find(eject_pdg_code)->Mass();
-  double E  = TMath::Sqrt(px*px+py*py+pz*pz+M*M);
-
-  evrec->AddParticle(
-      eject_pdg_code, status, imom, -1, -1, -1, px, py, pz, E, vx, vy, vz, 0);
 }
 //___________________________________________________________________________
 void FermiMover::AddTargetNucleusRemnant(GHepRecord * evrec) const
@@ -366,6 +304,11 @@ void FermiMover::LoadConfig(void)
   assert(fNuclModel);
 
   this->GetParamDef("KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false);
-  this->GetParamDef("SimRecoilNucleon",       fSRCRecoilNucleon,    false);
+
+  RgKey nuclearrecoilkey = "SecondNucleonEmitter" ;
+  fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *> (this->SubAlg(nuclearrecoilkey));
+  
+  assert(fSecondEmitter);
+
 }
 //____________________________________________________________________________

@@ -6,14 +6,13 @@
 \brief    A registry. Provides the container for algorithm configuration
           parameters.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 04, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org        
 */
 //____________________________________________________________________________
 
@@ -53,9 +52,9 @@ typedef vector<RgKey>                                RgKeyList;
 // Templated utility methods to set/get registry items
 //
 class Registry;
-template<class T> 
+template<class T>
   void SetRegistryItem(Registry * r, RgKey key, T item);
-template<class T> 
+template<class T>
   T GetValueOrUseDefault(
      Registry * r, RgKey key, T def, bool set_def=true);
 
@@ -138,7 +137,7 @@ public:
   RgDbl  GetDoubleDef (RgKey key, RgDbl  def_opt, bool set_def=true);
   RgStr  GetStringDef (RgKey key, RgStr  def_opt, bool set_def=true);
   RgAlg  GetAlgDef    (RgKey key, RgAlg  def_opt, bool set_def=true);
-  
+
   RgIMapConstIter SafeFind  (RgKey key) const;
 
   int    NEntries     (void) const;                     ///< get number of items

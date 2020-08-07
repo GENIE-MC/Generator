@@ -12,9 +12,9 @@
 
 \created  December 2015
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+          
 */
 //____________________________________________________________________________
 
@@ -58,18 +58,27 @@ public:
     return kNucmLocalFermiGas; 
   }
 
+  virtual double LocalFermiMomentum( const Target & t, int nucleon_pdg, double radius ) const ;
+
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
   void Configure (const Registry & config);
-  void Configure (string param_set)
-;
-private:
+  void Configure (string param_set) ;
+
+ protected:
   void   LoadConfig (void);
+
+
+private:
   TH1D * ProbDistro (const Target & t, double r) const;
 
   map<int, double> fNucRmvE;
 
   double fPMax;
+
+  // options related to SRC pairs
+  double fSRC_Fraction;
+  double fPCutOff;
 };
 
 }         // genie namespace

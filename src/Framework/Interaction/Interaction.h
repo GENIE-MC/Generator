@@ -8,17 +8,16 @@
           It is a container of an InitialState, a ProcessInfo, an XclsTag
           and a Kinematics object.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
           Changes required to implement the GENIE Boosted Dark Matter module 
           were installed by Josh Berger (Univ. of Wisconsin)
 
 \created  April 25, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -129,12 +128,14 @@ public:
   static Interaction * RESEM     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * DFRCC     (int tgt, int nuc, int probe, double E=0);
   static Interaction * DFRCC     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
-  static Interaction * COHCC     (int tgt, int probe, double E=0);
-  static Interaction * COHCC     (int tgt, int probe, const TLorentzVector & p4probe);
-  static Interaction * COHNC     (int tgt, int probe, double E=0);
-  static Interaction * COHNC     (int tgt, int probe, const TLorentzVector & p4probe);
-  static Interaction * COHEl     (int tgt, int probe, double E=0);
-  static Interaction * COHEl     (int tgt, int probe, const TLorentzVector & p4probe);
+  static Interaction * COHCC     (int tgt, int probe, unsigned int prod_pdg, double E=0);
+  static Interaction * COHCC     (int tgt, int probe, unsigned int prod_pdg, 
+				  const TLorentzVector & p4probe);
+  static Interaction * COHNC     (int tgt, int probe, unsigned int prod_pdg, double E=0);
+  static Interaction * COHNC     (int tgt, int probe, unsigned int prod_pdg, 
+				  const TLorentzVector & p4probe);
+  static Interaction * CEvNS     (int tgt, int probe, double E=0);
+  static Interaction * CEvNS     (int tgt, int probe, const TLorentzVector & p4probe);
   static Interaction * IMD       (int tgt, double E=0);
   static Interaction * IMD       (int tgt, const TLorentzVector & p4probe);
   static Interaction * AMNuGamma (int tgt, int nuc, int probe, double E=0);
@@ -146,11 +147,13 @@ public:
   static Interaction * MECNC     (int tgt, int nuccluster, int probe, double E=0);
   static Interaction * MECNC     (int tgt, int nuccluster, int probe, const TLorentzVector & p4probe);
   static Interaction * MECEM     (int tgt, int nuccluster, int probe, double E=0);
+  static Interaction * MECEM     (int tgt, int probe, double E=0);
   static Interaction * MECEM     (int tgt, int nuccluster, int probe, const TLorentzVector & p4probe);
   static Interaction * GLR       (int tgt, double E=0);
   static Interaction * GLR       (int tgt, const TLorentzVector & p4probe);
   static Interaction * NDecay    (int tgt, int decay_mode=-1, int decayed_nucleon = 0);
   static Interaction * NOsc      (int tgt, int annihilation_mode=-1);
+  static Interaction * NHL       (double E=0, int decayed_mode=-1);
   static Interaction * ASK       (int tgt, int probe, double E=0);
   static Interaction * ASK       (int tgt, int probe, const TLorentzVector & p4probe);
   static Interaction * DME       (int tgt, int nuc, int probe, double E=0);

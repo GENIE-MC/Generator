@@ -1,21 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Oct 20, 2009 - CA
-   Modified HadronShowerCharge() to take into account the probe charge (so as
-   to conserve charge in charged lepton scattering)
- @ Jul 23, 2010 - CA
-   Moved ResonanceCharge() from utils::res. Identical to HadronShowerCharge()
-   but maintained the method name nevertheless.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -140,7 +129,7 @@ TLorentzVector HadronicSystemGenerator::Hadronic4pLAB(
 {
 // Returns the final state hadronic system 4-p in LAB
 
-  GHepParticle * nu = evrec->CorrectProbe(); // incoming v
+  GHepParticle * nu = evrec->Probe(); // incoming v
   GHepParticle * N = evrec->HitNucleon();  // struck nucleon
   GHepParticle * l = evrec->FinalStatePrimaryLepton();  // f/s primary lepton
 
@@ -163,13 +152,13 @@ TLorentzVector HadronicSystemGenerator::Hadronic4pLAB(
 
   LOG("HadronicVtx", pINFO) << "\n HadrSyst [LAB]: " << P4AsString(&pX4);
 
-  return pX4; 
+  return pX4;
 }
 //___________________________________________________________________________
 TLorentzVector HadronicSystemGenerator::MomentumTransferLAB(
                                                     GHepRecord * evrec) const
 {
-  GHepParticle * nu = evrec->CorrectProbe();  // incoming v
+  GHepParticle * nu = evrec->Probe();  // incoming v
   GHepParticle * l = evrec->FinalStatePrimaryLepton();  // f/s primary lepton
 
   assert(nu);
@@ -180,9 +169,9 @@ TLorentzVector HadronicSystemGenerator::MomentumTransferLAB(
 
   TLorentzVector pq4 = p4nu - p4l; // q
 
-  LOG("HadronicVtx", pNOTICE) 
+  LOG("HadronicVtx", pNOTICE)
                       << "\n Momentum Transfer [LAB]: " << P4AsString(&pq4);
-  return pq4; 
+  return pq4;
 }
 //___________________________________________________________________________
 TVector3 HadronicSystemGenerator::HCM2LAB(GHepRecord * evrec) const

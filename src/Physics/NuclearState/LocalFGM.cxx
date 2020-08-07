@@ -1,8 +1,8 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+ 
 
  Author: Joe Johnston, University of Pittsburgh (Advisor Steven Dytman)
 
@@ -117,19 +117,17 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
   LOG("LocalFGM", pNOTICE)
              << ", P(max) = " << fPMax;
 
+  assert(target.HitNucIsSet());
+
   //-- get information for the nuclear target
   int nucleon_pdgc = target.HitNucPdg();
   assert(pdg::IsProton(nucleon_pdgc) || pdg::IsNeutron(nucleon_pdgc));
-  int A = target.A();
 
-  assert(target.HitNucIsSet());
-  bool is_p = pdg::IsProton(nucleon_pdgc);
-  double numNuc = (is_p) ? (double)target.Z():(double)target.N();
+  // bool is_p = pdg::IsProton(nucleon_pdgc);
+  // double numNuc = (is_p) ? (double)target.Z():(double)target.N();
 
   // Calculate Fermi Momentum using Local FG equations
-  double hbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
-  double KF= TMath::Power(3*kPi2*numNuc*genie::utils::nuclear::Density(r,A),
-			    1.0/3.0) *hbarc;
+  double KF = LocalFermiMomentum( target, nucleon_pdgc, r ) ; 
 
   LOG("LocalFGM",pNOTICE) << "KF = " << KF;
 
@@ -151,21 +149,23 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
   prob->SetDirectory(0);
 
   double dp = fPMax / (npbins-1);
-  double iC = (C>0) ? 1./C : 0.;
-  double kfa_pi_2 = TMath::Power(KF*a/kPi,2);
+//  double iC = (C>0) ? 1./C : 0.; // unused variables
+//  double kfa_pi_2 = TMath::Power(KF*a/kPi,2); // unused variables
 
   for(int i = 0; i < npbins; i++) {
      double p  = i * dp;
      double p2 = TMath::Power(p,2);
 
+     // use expression with fSRC_Fraction to allow the possibility of 
+     // using the Correlated Fermi Gas Model with a high momentum tail
+
      // calculate |phi(p)|^2
      double phi2 = 0;
-     if (p <= KF)
-        phi2 = iC * (1. - 6.*kfa_pi_2);
-
-     // Do not include nucleon correlation tail
-     //else if ( p > KF && p < fPCutOff)
-     //   phi2 = iC * (2*R*kfa_pi_2*TMath::Power(KF/p,4.));
+        if (p <= KF){
+            phi2 = (1./(4*kPi)) * (3/TMath::Power(KF,3.)) * ( 1 - fSRC_Fraction );
+        }else if( p > KF && p < fPCutOff ){
+            phi2 = (1./(4*kPi)) * ( fSRC_Fraction / (1./KF - 1./fPCutOff) ) / TMath::Power(p,4.);
+        }
 
      // calculate probability density : dProbability/dp
      double dP_dp = 4*kPi * p2 * phi2;
@@ -179,6 +179,22 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
   prob->Scale( 1.0 / prob->Integral("width") );
 
   return prob;
+}
+//____________________________________________________________________________
+double LocalFGM::LocalFermiMomentum( const Target & t, int nucleon_pdg, double radius ) const {
+
+  assert(pdg::IsProton(nucleon_pdg) || pdg::IsNeutron(nucleon_pdg)) ;
+
+  bool is_p = pdg::IsProton(nucleon_pdg);
+  double numNuc = (double) ( (is_p) ? t.Z() : t.N() );
+
+  //  double hbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
+  
+  double kF = TMath::Power( 3*kPi2*numNuc*genie::utils::nuclear::Density( radius, t.A() ),
+			   1.0/3.0 ) 
+    / genie::units::fermi ;
+
+  return kF ;
 }
 //____________________________________________________________________________
 void LocalFGM::Configure(const Registry & config)
@@ -195,8 +211,20 @@ void LocalFGM::Configure(string param_set)
 //____________________________________________________________________________
 void LocalFGM::LoadConfig(void)
 {
-  this->GetParamDef("MomentumMax", fPMax, 1.0);
+
+  NuclearModelI::LoadConfig() ;
+
+  this->GetParamDef("LFG-MomentumMax", fPMax, 1.0);
   assert(fPMax > 0);
+
+  this->GetParamDef("SRC-Fraction", fSRC_Fraction, 0.0);
+  this->GetParam("LFG-MomentumCutOff", fPCutOff);
+
+  if (fPCutOff > fPMax) {
+        LOG("LocalFGM", pFATAL) << "Momentum CutOff greater than Momentum Max";
+        exit(78);
+  }
+
 
   // Load removal energy for specific nuclei from either the algorithm's
   // configuration file or the UserPhysicsOptions file.

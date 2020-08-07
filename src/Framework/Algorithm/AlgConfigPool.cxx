@@ -1,27 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Oct 11, 2007 - CA
-   The GlobalParameterList method no longer returns a 'const Registry *' 
-   but a 'Registry *'.
- @ Jun 20, 2008 - CA
-   Fix a memory leak in code reading the XML files / added xmlFree(doc)
- @ Dec 06, 2008 - CA
-   Tweak dtor so as not to clutter the output if GENIE exits in err so as to
-   spot the fatal mesg immediately.  
- @ Aug 25, 2009 - RH
-   Use the GetXMLFilePath() to search the potential XML config file locations
-   and return the first actual file that can be found. Adapt code to use the
-   utils::xml namespace.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -230,7 +213,7 @@ bool AlgConfigPool::LoadGlobalParamLists(void)
 //____________________________________________________________________________
 bool AlgConfigPool::LoadCommonLists( const string & file_id )
 {
-// Load the common parameter list 
+// Load the common parameter list
 //
   SLOG("AlgConfigPool", pINFO) << "Loading Common " << file_id << " lists";
 
@@ -253,7 +236,7 @@ bool AlgConfigPool::LoadCommonLists( const string & file_id )
 //____________________________________________________________________________
 bool AlgConfigPool::LoadTuneGeneratorList(void)
 {
-// Load the common parameter list 
+// Load the common parameter list
 //
   SLOG("AlgConfigPool", pINFO) << "Loading Tune Gerator List";
 
@@ -270,7 +253,7 @@ bool AlgConfigPool::LoadTuneGeneratorList(void)
 
 bool AlgConfigPool::LoadSingleAlgConfig(string alg_name, string file_name)
 {
-// Loads all configuration sets for the input algorithm that can be found in 
+// Loads all configuration sets for the input algorithm that can be found in
 // the input XML file
 
   // use the algorithm name as the key prefix
@@ -350,8 +333,19 @@ bool AlgConfigPool::LoadRegistries(
                     utils::xml::TrimSpaces(
                                xmlNodeListGetString(
                                  xml_doc, xml_param->xmlChildrenNode, 1));
-            this->AddConfigParameter(
-                             config, param_type, param_name, param_value);
+
+
+	    if ( param_type.find( "vec-" ) == 0 ) {
+
+	      param_type = param_type.substr( 4 ) ;
+
+	      string delim = utils::str::TrimSpaces( utils::xml::GetAttribute(xml_param, "delim"));
+
+	      this -> AddParameterVector( config, param_type, param_name, param_value, delim ) ;
+	    }
+	    else this->AddConfigParameter( config,
+					   param_type, param_name,
+					   param_value);
         }
         xml_param = xml_param->next;
       }
@@ -375,15 +369,50 @@ bool AlgConfigPool::LoadRegistries(
   return true;
 }
 //____________________________________________________________________________
-void AlgConfigPool::AddConfigParameter(
-                      Registry * r, string ptype, string pname, string pvalue)
+int  AlgConfigPool::AddParameterVector  (Registry * r, string pt, string pn, string pv,
+					 const string & delim ) {
+
+  // Adds a configuration parameter vector
+  // It is simply add a number of entries in the Registy
+  // The name scheme starts from the name and it goes like
+  // 'N'+pn+'s' that will be an integer with the number of entries.
+  // Each entry will be named pn+"-i" where i is replaced by the number
+
+  SLOG("AlgConfigPool", pDEBUG)
+    << "Adding Parameter Vector [" << pt << "]: Key = "
+    << pn << " -> Value = " << pv;
+
+  vector<string> bits = utils::str::Split( pv, delim ) ;
+
+  string n_name = Algorithm::BuildParamVectSizeKey( pn ) ;
+
+  std::stringstream n_value ;
+  n_value << bits.size() ;
+
+  this->AddConfigParameter(r, "int", n_name, n_value.str() );
+
+  for ( unsigned int i = 0 ; i < bits.size() ; ++i ) {
+
+    std::string name = Algorithm::BuildParamVectKey( pn, i ) ;
+
+    this -> AddConfigParameter( r, pt, name, utils::str::TrimSpaces( bits[i] ) );
+
+  }
+
+  return bits.size() ;
+
+}
+
+//____________________________________________________________________________
+void AlgConfigPool::AddConfigParameter( Registry * r,
+					string ptype, string pname, string pvalue)
 {
 // Adds a configuration parameter with type = ptype, key = pname and value =
 // pvalue at the input configuration registry r
 
   SLOG("AlgConfigPool", pDEBUG)
-          << "Adding Parameter [" << ptype << "]: Key = "
-                                         << pname << " -> Value = " << pvalue;
+    << "Adding Parameter [" << ptype << "]: Key = "
+    << pname << " -> Value = " << pvalue;
 
   bool isRootObjParam = (strcmp(ptype.c_str(), "h1f")    == 0) ||
                         (strcmp(ptype.c_str(), "Th2f")   == 0) ||
@@ -394,13 +423,15 @@ void AlgConfigPool::AddConfigParameter(
                         (strcmp(ptype.c_str(), "string") == 0) ||
                         (strcmp(ptype.c_str(), "alg")    == 0);
 
+
   if     (isBasicParam)   this->AddBasicParameter  (r, ptype, pname, pvalue);
   else if(isRootObjParam) this->AddRootObjParameter(r, ptype, pname, pvalue);
   else {
     SLOG("AlgConfigPool", pERROR)
-            << "Parameter [" << ptype << "]: Key = " << pname
-                        << " -> Value = " << pvalue << " could not be added";
+      << "Parameter [" << ptype << "]: Key = " << pname
+      << " -> Value = " << pvalue << " could not be added";
   }
+
 }
 //____________________________________________________________________________
 void AlgConfigPool::AddBasicParameter(
@@ -423,7 +454,7 @@ void AlgConfigPool::AddBasicParameter(
     else if (pvalue=="false") r->Set(key, false);
     else if (pvalue=="FALSE") r->Set(key, false);
     else if (pvalue=="0"    ) r->Set(key, false);
-    else { 
+    else {
       LOG("AlgConfigPool", pERROR)
         << "Could not set bool param: " << key;
     }
@@ -438,7 +469,7 @@ void AlgConfigPool::AddBasicParameter(
     if (algv.size()==2) {
       name   = algv[0];
       config = algv[1];
-    } 
+    }
     else if (algv.size()==1) {
       name   = algv[0];
       config = "Default";
@@ -452,7 +483,7 @@ void AlgConfigPool::AddBasicParameter(
   }
   else {
    LOG("AlgConfigPool", pERROR)
-        << "Config. parameter: " << key 
+        << "Config. parameter: " << key
                  << "has unrecognized type: " << ptype;
   }
 }
@@ -573,7 +604,7 @@ Registry * AlgConfigPool::TuneGeneratorList( void ) const
 {
 
   ostringstream key;
-  key << "TuneGeneratorList/Default"; 
+  key << "TuneGeneratorList/Default";
 
   return this->FindRegistry(key.str());
 }
@@ -592,7 +623,7 @@ void AlgConfigPool::Print(ostream & stream) const
 
   sregSize size = fRegistryPool.size();
 
-  stream << frame 
+  stream << frame
          << endl << "Algorithm Configuration Pool ("
          << size << " configuration sets found)"
          << endl << frame << endl;
@@ -606,4 +637,3 @@ void AlgConfigPool::Print(ostream & stream) const
   }
 }
 //____________________________________________________________________________
-

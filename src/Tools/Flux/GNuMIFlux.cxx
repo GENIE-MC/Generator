@@ -1,169 +1,13 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Robert Hatcher <rhatcher@fnal.gov>
-         Fermi National Accelerator Laboratory
+ Robert Hatcher <rhatcher@fnal.gov>
+ Fermi National Accelerator Laboratory
 
-         Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Jun 27, 2008 - CA
-   The first implementation of this concrete flux driver was first added in
-   the development version 2.5.1
- @ Aug 26, 2008 - RH
-   A start at getting GNuMIFlux working.  Major problems included the wrong 
-   type for fLf_Ntype; a mismatch on capitalization for some of the branches
-   (Fortran has things like "NWtFar", but in the root file it ended up at 
-   "Nwtfar"); and a lack of the use of "Nimpwt" (importance weight) as a overall 
-   weight beyond the x-y position weights. Also lowered the max energy from 
-   200 GeV to 125 -- beam is 120 GeV so no neutrinos should be generated above 
-   that.  Begin generalizing so that one can have off axis x-y weights; not so
-   important for FarDet, but not ignorable for NearDet, especially in the case 
-   of rock events or higher beam energies.
- @ Aug 29, 2008 - RH
-   Expand  GNuMIFluxPassThroughInfo to have all elements of the ntuple.	Use
-   copy of GNuMIFluxPassThroughInfo held by the GNuMIFlux as the repository of 
-   the leave elements. This avoids a bunch of duplication and generally makes 
-   the code more readable.
- @ Dec 15, 2008 - RH
-   Progress on managing numi flux.  Make use of .h and .C files generated from 
-   the ntuples themselves via MakeClass to automate setting branches and 
-   creating  the proper leaves. Unfortunately the geant3 and geant4 GNuMI 
-   ntuples have different formats.  All the most important variables are there 
-   in each, but upper/lower case varies. A critical difference is the switch 
-   from Float_t to Double_t which means one can't simply use the same structure 
-   an change branch assignments. The common format GNuMIFluxPassThrough needs a 
-   Copy() function defined for each type of ntuple.
-   The g3 case has been implemented, but the g4 version is a skeleton. The retained 
-   variables could do with a review to ensure that we're not carrying more than 
-   necessary. The helper classes g3numi and g4numi srouce (.h + .C) live in a 
-   subdirectory GNuMINtuple that needn't otherwise be exposed to any GENIE user
-   -- the actual code gets into the library by having both #include "gXnumi.h" 
-   and #include "gXnumi.C".
-   The x-y reweight function has been integrated into GNuMIFluxPassThrough. This 
-   has been tested against the fortran version (this set of code still retains 
-   some of that testing code which should be purged in the next iteration).  
-   Generally the values are comparable at the expected precision (g3 32-bit
-   float ~2.5e-5 or better in general for the x-y weight, even better for the 
-   neutrino energy). There are some large outliers when calculating x-y weights 
-   for muon decays because the algorithm, as written, depends on taking the 
-   difference in two largish numbers (e.g. ~6 - ~6 = ~0.002) which results in a 
-   large loss of fractional error precision when starting with floats.
-   Some interfaces have been put in place for handling coordinate transformations 
-   between the detector and beam, but these are not fully implemented and/or tested.
- @ Mar 13, 2009 - RH
-   Lots of changes. XML parsing of configuration file. Coord transformations.
-   All exchanges current in *user* coords.
-   XML config file might be in $GENIE/src/FluxDrivers/GNuMINtuple
- @ Mar 27, 2009 - RH 
-   gNuMIExptEvGen expect flux driver method LoadBeamSimData to take two args 
-   (flux file, det config) not just one it did previously.  Added second arg
-   that then calls LoadConfig().  
-   Also add bogus POT_1cycle() method gNuMIExptEvGen expects ... I'm not sure 
-   what the function is exactly supposed to return so it's bogus but at least 
-   now the  EvtGen builds.
- @ Apr 01, 2009 - RH 
-   Call ScanForMaxWeight() in GenerateNext() automatically if the user hasn't 
-   already done so. Comment out annoying debug messages deep in inner loop.
-   When calculating a starting point of the neutrino ray using the flux window 
-   vectors store it into fgX4 (beam coord position) NOT fgP4 (beam coord p4).
-   Don't try to store -1 in a size_t variable (though only some versions of 
-   gcc warn about this).  This was only relevant if the flux file was given 
-   without any path (ie. no "/").
- @ Apr 02, 2009 - RH 
-   Improved scheme for estimating maximum weight - no longer depend solely on 
-   existing near/far weights, but calculate weights for some (configurable) 
-   number of entries and apply a (configurable) fudge factor. This allows 
-   off-axis detectors (NOvA-IPND) to get something more reasonable. 
-   Lower reported maximum energy from 125 to 120; no reason really to fudge this 
-   up as it just adds to the rejection fraction.
-   Accept GXMLPATH or GXMLPATHS as specifying locations.
- @ Apr 03, 2009 - RH 
-   Internalize End() condition Remove SetFilePOT function (intent not mappable 
-   to GNuMI?). SetNumOfCycles() optional 2nd arg to allow immediate reuse of 
-   entries.  Do ScanForMaxWeight() at the end of the config so that MaxEv will 
-   be set *before* any generation of neutrinos (for GMCJDriver). Allow MaxEnergy 
-   (fMaxEv) to be set during ScanForMaxWeight() if the scan finds a value (*fudge 
-   factor) higher than previously set. New <enumax> in XML config allows user 
-   to set estimated enu maximum	and the fudge factor to use during the scan 
-   (1.0=use exactly scanned max). Remove GNuMIFluxXMLHelper::TokenizeString() 
-   in favor of existing genie::utils::str::Split() which I didn't know about.
- @ Apr 10, 2009 - RH 
-   Fix coord transform code so that unit conversion doesn't screw it up.
-   Add PrintConfig() method for dumping current config/state.
- @ Apr 13, 2009 - RH 
-   Generally make "meters" the default 'user' units -- genie expects this.  
-   Allow re-use of ntuple entry (don't reset it until moving on).  
-   Provide means of determining distance between ray origin and dk vertex.  
-   First entry depends on random # (ie. not always first ntuple entry).
-   Resetting unit scale w/out resetting window/transform should work. Best 
-   current guess for g4numi unpacking; currently still some unset variables 
-   in the passthrough class, but they don't look critical. Protection in x-y 
-   weight calculation for case where parent particle came to a stop 
-   (parentp==0) from Trish Vahle.  Remove POT_1cycle() method.
- @ Apr 14, 2009 - RH 
-   Add public MoveToZ0(double) method for pushing ray origin to specified
-   user coordinate z Automatically call MoveToZ0() if SetUpstreamZ() has been 
-   called with sensible (abs(z) < 1.0e30) value. Split SetEntryReuse(int) 
-   function off from SetNumOfCycles(). In our case SetNumOfCycles probably 
-   is going to be deprecated. Rename GNuMIFluxPassThrougInfo::Copy() to 
-   ::MakeCopy()   so that we  don't confuse the issue w/ TObject::Copy() which 
-   has	completelydifferent symantics and to avoid a annoying compiler warning. 
-   XML parsing for <upstreamz> and <reuse> tags.
- @ Apr 22, 2009 - RH 
-   Spin off AddFile() method where one can try to determine how many POTs each 
-   file represents. Change some vars to Long64_t.
- @ Apr 23, 2009 - RH 
-   First attempt at proton-on-target accounting (POTs); should be right	for
-   unweighted neutrinos but probably isn't for weighted ones. Moved some 
-   generated entry info from GNuMIFlux class into the GNuMIFluxPassThroughInfo 
-   class so that it can be passed out for users to record or use.  
-   Some general cleanup and reordering.
- @ May 13, 2009 - RH 
-   Calculate flux window area correctly zero out fSumWeight,fNNeutrinos,
-   fAccumPOTs after weight scan. Initialize fNuTot,fFilePots rather than 
-   accept random garbage. Initialize w/ SetUpstreamZ such that the default 
-   is the flux window. 
-   Make Print() signature look like ROOT's typical (const Option_t* opt=""). 
-   Tweak printout formats.
- @ Jul 22, 2009 - RH 
-   New FLUGG flux ntuples have neutrinos from Omega parents; x-y reweight 
-   function needs to know about those as well.
- @ Aug 25, 2009 - CA
-   Adapt code to use the new utils::xml namespace.
- @ Aug 28, 2009 - RH
-   New XML tag <using_param_set> allows one configuration to include another.
- @ Sep 17, 2009 - RH
-   Fix EffPOTsPerNu calculation so it doesn't get lost in integer arithmetic.
-   If fMaxWeight is bumped print new value.
-   Make debug class xypartials output-able to ostream; print as part of 
-   GNuMIFluxPathThrough ostreaming if GNUMI_TEST_XY_WGT defined.
-   Still looking for why flux files with low E cuts tend to walk the MaxWeight 
-   up to very high values (and thus severly lower the efficiency).
- @ Sep 17, 2009 - RH
-   Support "flugg" ntuples as well as "g3numi" and "g4numi".  
-   Each ntuple file/tree has a slightly different layout (element sizes, 
-   capitalization in the names, mix of elements).  All share sufficient basic 
-   info in order to calculate flavor, p4, x4 and weight.
- @ Feb 04, 2010 - RH
-   New methods: 
-   GetEntryNumber() - current entry # in the TChain.
-   GetFileList() - get list of expanded file names used in TChain.
-   Also, initialize fFlugg pointer; tweak debug messages and ostream<< op.
- @ Feb 22, 2011 - JD
-   Implemented dummy versions of the new GFluxI::Clear, GFluxI::Index and 
-   GFluxI::GenerateWeighted methods needed for pre-generation of flux
-   interaction probabilities in GMCJDriver. 
- @ Mar 14, 2014 - TD
-   Prevent an infinite loop in GenerateNext() when the flux driver has not been
-   properly configured by exiting within GenerateNext_weighted().
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -287,8 +131,8 @@ double GNuMIFlux::GetTotalExposure() const
 //___________________________________________________________________________
 long int GNuMIFlux::NFluxNeutrinos(void) const
 {
-  /// number of flux neutrinos ray generated so far 
-  return fNNeutrinos; 
+  /// number of flux neutrinos ray generated so far
+  return fNNeutrinos;
 }
 
 //___________________________________________________________________________
@@ -329,7 +173,7 @@ bool GNuMIFlux::GenerateNext(void)
      if (f > 1.) {
        fMaxWeight = this->Weight() * fMaxWgtFudge; // bump the weight
        LOG("Flux", pERROR)
-         << "** Fractional weight = " << f 
+         << "** Fractional weight = " << f
          << " > 1 !! Bump fMaxWeight estimate to " << fMaxWeight
          << PassThroughInfo();
      }
@@ -367,7 +211,7 @@ bool GNuMIFlux::GenerateNext_weighted(void)
      LOG("Flux", pFATAL)
           << "The flux driver has not been properly configured";
      //return false; //  don't do this - creates an infinite loop!
-     exit(1);	
+     exit(1);
   }
 
   // Reuse an entry?
@@ -394,32 +238,32 @@ bool GNuMIFlux::GenerateNext_weighted(void)
           << fICycle << " of " << fNCycles;
         fEnd = true;
         // assert(0);
-        return false;	
+        return false;
       }
     }
-    
+
     if ( fG3NuMI ) {
-      fG3NuMI->GetEntry(fIEntry); 
-      fCurEntry->MakeCopy(fG3NuMI); 
-    } else if ( fG4NuMI ) { 
-      fG4NuMI->GetEntry(fIEntry); 
-      fCurEntry->MakeCopy(fG4NuMI); 
-    } else if ( fFlugg ) { 
-      fFlugg->GetEntry(fIEntry); 
-      fCurEntry->MakeCopy(fFlugg); 
+      fG3NuMI->GetEntry(fIEntry);
+      fCurEntry->MakeCopy(fG3NuMI);
+    } else if ( fG4NuMI ) {
+      fG4NuMI->GetEntry(fIEntry);
+      fCurEntry->MakeCopy(fG4NuMI);
+    } else if ( fFlugg ) {
+      fFlugg->GetEntry(fIEntry);
+      fCurEntry->MakeCopy(fFlugg);
     } else {
       LOG("Flux", pERROR) << "No ntuple configured";
       fEnd = true;
       //assert(0);
-      return false;	
+      return false;
     }
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("Flux",pDEBUG) 
-    << "got " << fNNeutrinos << " new fIEntry " << fIEntry 
+  LOG("Flux",pDEBUG)
+    << "got " << fNNeutrinos << " new fIEntry " << fIEntry
     << " evtno " << fCurEntry->evtno;
 #endif
 
-    fIUse = 1; 
+    fIUse = 1;
     fCurEntry->pcodes = 0;  // fetched entry has geant codes
     fCurEntry->units  = 0;  // fetched entry has original units
 
@@ -437,7 +281,7 @@ bool GNuMIFlux::GenerateNext_weighted(void)
   // Make sure that the appropriate list of flux neutrino species was set at
   // initialization via GNuMIFlux::SetFluxParticles(const PDGCodeList &)
 
-  // update the # POTs, number of neutrinos 
+  // update the # POTs, number of neutrinos
   // do this HERE (before rejecting flavors that users might be weeding out)
   // in order to keep the POT accounting correct.  This allows one to get
   // the right normalization for generating only events from the intrinsic
@@ -453,19 +297,19 @@ bool GNuMIFlux::GenerateNext_weighted(void)
      if ( ! fPdgCListRej->ExistsInPDGCodeList(badpdg) ) {
        fPdgCListRej->push_back(badpdg);
        LOG("Flux", pWARN)
-         << "Encountered neutrino specie (" << badpdg 
+         << "Encountered neutrino specie (" << badpdg
          << " pcodes=" << fCurEntry->pcodes << ")"
          << " that wasn't in SetFluxParticles() list, "
          << "\nDeclared list of neutrino species: " << *fPdgCList;
      }
-     return false;	
+     return false;
   }
 
   // Update the curr neutrino weight and energy
 
-  // Check current neutrino energy against the maximum flux neutrino energy 
+  // Check current neutrino energy against the maximum flux neutrino energy
   // declared by the current instance of the NuMI neutrino flux driver.
-  // No flux neutrino exceeding that maximum energy will be accepted at this 
+  // No flux neutrino exceeding that maximum energy will be accepted at this
   // point as that maximum energy has already been used for normalizing the
   // interaction probabilities.
   // Make sure that the appropriate maximum flux neutrino energy was set at
@@ -506,7 +350,7 @@ bool GNuMIFlux::GenerateNext_weighted(void)
   // don't use TLorentzVector here for Mag() due to - on metric
   // normalize direction to 1.0
   TVector3 dirNu = (fCurEntry->fgX4.Vect() - fgX4dkvtx.Vect()).Unit();
-  fCurEntry->fgP4.SetPxPyPzE( Ev*dirNu.X(), 
+  fCurEntry->fgP4.SetPxPyPzE( Ev*dirNu.X(),
                               Ev*dirNu.Y(),
                               Ev*dirNu.Z(), Ev);
 
@@ -540,7 +384,7 @@ bool GNuMIFlux::GenerateNext_weighted(void)
 #endif
   if ( Ev > fMaxEv ) {
     LOG("Flux", pFATAL)
-      << "Generated neutrino had E_nu = " << Ev << " > " << fMaxEv 
+      << "Generated neutrino had E_nu = " << Ev << " > " << fMaxEv
       << " maximum ";
     assert(0);
   }
@@ -576,7 +420,7 @@ void GNuMIFlux::MoveToZ0(double z0usr)
     return;
   }
 
-  double scale = (z0usr - fCurEntry->fgX4User.Z()) / pzusr; 
+  double scale = (z0usr - fCurEntry->fgX4User.Z()) / pzusr;
   fCurEntry->fgX4User += (scale*fCurEntry->fgP4User);
   fCurEntry->fgX4     += ((fLengthScaleU2B*scale)*fCurEntry->fgP4);
   // this scaling works for distances, but not the time component
@@ -624,16 +468,16 @@ double GNuMIFlux::UsedPOTs(void) const
   if (!fNuFluxTree) {
      LOG("Flux", pWARN)
           << "The flux driver has not been properly configured";
-     return 0;	
+     return 0;
   }
   return fAccumPOTs;
 }
 
 //___________________________________________________________________________
-double GNuMIFlux::POT_curr(void) { 
+double GNuMIFlux::POT_curr(void) {
   // RWH: Not sure what POT_curr is supposed to represent I'll guess for
   // now that that it means what I mean by UsedPOTs().
-  return UsedPOTs(); 
+  return UsedPOTs();
 }
 
 //___________________________________________________________________________
@@ -645,7 +489,7 @@ void GNuMIFlux::LoadBeamSimData(const std::vector<std::string>& patterns,
 
   bool found_cfg = this->LoadConfig(config);
   if ( ! found_cfg ) {
-    LOG("Flux", pFATAL) 
+    LOG("Flux", pFATAL)
       << "LoadBeamSimData could not find XML config \"" << config << "\"\n";
     exit(1);
   }
@@ -680,7 +524,7 @@ void GNuMIFlux::LoadBeamSimData(const std::vector<std::string>& patterns,
 
     void* dirp = gSystem->OpenDirectory(gSystem->ExpandPathName(dirname.c_str()));
     if ( dirp ) {
-      std::string basename = 
+      std::string basename =
       pattern.substr(fbegin,pattern.size()-fbegin);
       TRegexp re(basename.c_str(),kTRUE);
       const char* onefile;
@@ -700,9 +544,9 @@ void GNuMIFlux::LoadBeamSimData(const std::vector<std::string>& patterns,
   std::set<string>::const_iterator sitr = fnames.begin();
   for ( ; sitr != fnames.end(); ++sitr, ++indx ) {
     string filename = *sitr;
-    //std::cout << "  [" << std::setw(3) << indx << "]  \"" 
+    //std::cout << "  [" << std::setw(3) << indx << "]  \""
     //          << filename << "\"" << std::endl;
-    bool isok = true; 
+    bool isok = true;
     // this next test only works for local files, so we can't do that
     // if we want to stream via xrootd
     // ! (gSystem->AccessPathName(filename.c_str()));
@@ -715,7 +559,7 @@ void GNuMIFlux::LoadBeamSimData(const std::vector<std::string>& patterns,
       int isflugg = ( filename.find("flugg") != string::npos ) ? 1 : 0;
       const std::string tnames[] = { "h10", "nudata" };
       const std::string gnames[] = { "g3numi","g4numi","flugg","g4flugg"};
-      for (int j = 0; j < 2 ; ++j ) { 
+      for (int j = 0; j < 2 ; ++j ) {
         TTree* atree = (TTree*)tf->Get(tnames[j].c_str());
         if ( atree ) {
           const std::string tname_this = tnames[j];
@@ -731,11 +575,11 @@ void GNuMIFlux::LoadBeamSimData(const std::vector<std::string>& patterns,
           // sanity check for mixing g3/g4/flugg files
           if ( fNuFluxTreeName !=  tname_this ||
                fNuFluxGen      !=  gname_this    ) {
-            LOG("Flux", pFATAL) 
+            LOG("Flux", pFATAL)
               << "Inconsistent flux file types\n"
-              << "The input gnumi flux file \"" << filename 
+              << "The input gnumi flux file \"" << filename
               << "\"\ncontains a '" << tname_this << "' " << gname_this
-              << "numi ntuple " 
+              << "numi ntuple "
               << "but a '" << fNuFluxTreeName << "' " << fNuFluxGen
               << " numi ntuple has alread been seen in the chain";
             exit(1);
@@ -795,7 +639,7 @@ void GNuMIFlux::LoadBeamSimData(const std::vector<std::string>& patterns,
   if (fMaxWeight<=0) {
      LOG("Flux", pINFO)
        << "Run ScanForMaxWeight() as part of LoadBeamSimData";
-     this->ScanForMaxWeight();	
+     this->ScanForMaxWeight();
   }
 
   // current ntuple cycle # (flux ntuples may be recycled)
@@ -805,7 +649,7 @@ void GNuMIFlux::LoadBeamSimData(const std::vector<std::string>& patterns,
   RandomGen* rnd = RandomGen::Instance();
   fIUse   =  9999999;
   fIEntry = rnd->RndFlux().Integer(fNEntries) - 1;
-  
+
   // don't count things we used to estimate max weight
   fSumWeight  = 0;
   fNNeutrinos = 0;
@@ -813,18 +657,18 @@ void GNuMIFlux::LoadBeamSimData(const std::vector<std::string>& patterns,
 
   LOG("Flux",pNOTICE) << "about to CalcEffPOTsPerNu";
   this->CalcEffPOTsPerNu();
-  
+
 }
 //___________________________________________________________________________
 void GNuMIFlux::GetBranchInfo(std::vector<std::string>& branchNames,
                               std::vector<std::string>& branchClassNames,
                               std::vector<void**>&      branchObjPointers)
 {
-  // allow flux driver to report back current status and/or ntuple entry 
+  // allow flux driver to report back current status and/or ntuple entry
   // info for possible recording in the output file by supplying
   // the class name, and a pointer to the object that will be filled
   // as well as a suggested name for the branch.
-  
+
   branchNames.push_back("flux");
   branchClassNames.push_back("genie::flux::GNuMIFluxPassThroughInfo");
   branchObjPointers.push_back((void**)&fCurEntry);
@@ -838,7 +682,7 @@ void GNuMIFlux::ScanForMaxWeight(void)
   if (!fDetLocIsSet) {
      LOG("Flux", pERROR)
        << "Specify a detector location before scanning for max weight";
-     return;	
+     return;
   }
 
   // scan for the maximum weight
@@ -853,7 +697,7 @@ void GNuMIFlux::ScanForMaxWeight(void)
 
     //// one can't really be sure which Nwtfar/Nwtnear this refers to
     //// some gnumi files have "NOvA" weights
-    const char* ntwgtstrv[4] = { "Nimpwt*Nwtnear", 
+    const char* ntwgtstrv[4] = { "Nimpwt*Nwtnear",
                                  "Nimpwt*Nwtfar",
                                  "Nimpwt*NWtNear[0]",
                                  "Nimpwt*NWtFar[0]"  };
@@ -862,7 +706,7 @@ void GNuMIFlux::ScanForMaxWeight(void)
     if ( fG4NuMI ) strindx += 2;
     // set upper limit on how many entries to scan
     Long64_t nscan = TMath::Min(fNEntries,200000LL);
-    
+
     fNuFluxTree->Draw(ntwgtstrv[strindx],"","goff",nscan);
     //std::cout << " Draw \"" << ntwgtstrv[strindx] << "\"" << std::endl;
     //std::cout << " SelectedRows " << fNuFluxTree->GetSelectedRows()
@@ -872,7 +716,7 @@ void GNuMIFlux::ScanForMaxWeight(void)
                                  fNuFluxTree->GetV1());
     //std::cout << "idx " << idx << " of " << fNuFluxTree->GetSelectedRows() << std::endl;
     fMaxWeight = fNuFluxTree->GetV1()[idx];
-    LOG("Flux", pNOTICE) << "Maximum flux weight from Nwt in ntuple = " 
+    LOG("Flux", pNOTICE) << "Maximum flux weight from Nwt in ntuple = "
                          << fMaxWeight;
     if ( fMaxWeight <= 0 ) {
       LOG("Flux", pFATAL) << "Non-positive maximum flux weight!";
@@ -893,7 +737,7 @@ void GNuMIFlux::ScanForMaxWeight(void)
   }
   t.Stop();
   t.Print("u");
-  LOG("Flux", pNOTICE) << "Maximum flux weight for spin = " 
+  LOG("Flux", pNOTICE) << "Maximum flux weight for spin = "
                        << wgtgenmx << ", energy = " << enumx
                        << " (" << fMaxWgtEntries << ")";
 
@@ -908,7 +752,7 @@ void GNuMIFlux::ScanForMaxWeight(void)
     fMaxEv = enumx * fMaxEFudge;
   }
 
-  LOG("Flux", pNOTICE) << "Maximum flux weight = " << fMaxWeight 
+  LOG("Flux", pNOTICE) << "Maximum flux weight = " << fMaxWeight
                        << ", energy = " << fMaxEv;
 
 }
@@ -1011,7 +855,7 @@ bool GNuMIFlux::SetFluxWindow(GNuMIFlux::StdFluxWindow_t stdwindow, double paddi
     }
   default:
     LOG("Flux", pERROR)
-      << "SetBeamFluxWindow - StdFluxWindow " << stdwindow 
+      << "SetBeamFluxWindow - StdFluxWindow " << stdwindow
       << " not yet implemented";
     return false;
   }
@@ -1048,10 +892,10 @@ void GNuMIFlux::SetFluxWindow(TVector3 p0, TVector3 p1, TVector3 p2)
   fWindowNormal = fFluxWindowDir1.Vect().Cross(fFluxWindowDir2.Vect()).Unit();
 
   double dot = fFluxWindowDir1.Dot(fFluxWindowDir2);
-  if ( TMath::Abs(dot) > 1.0e-8 ) 
+  if ( TMath::Abs(dot) > 1.0e-8 )
     LOG("Flux",pWARN) << "Dot product between window direction vectors was "
                       << dot << "; please check for orthoganality";
-  
+
   LOG("Flux",pNOTICE) << "about to CalcEffPOTsPerNu";
   this->CalcEffPOTsPerNu();
 }
@@ -1063,7 +907,7 @@ void GNuMIFlux::GetFluxWindow(TVector3& p0, TVector3& p1, TVector3& p2) const
   p0 = fFluxWindowPtUser[0];
   p1 = fFluxWindowPtUser[1];
   p2 = fFluxWindowPtUser[2];
-  
+
 }
 //___________________________________________________________________________
 void GNuMIFlux::SetBeamRotation(TRotation beamrot)
@@ -1124,17 +968,17 @@ TVector3 GNuMIFlux::GetBeamCenter() const
 //}
 //___________________________________________________________________________
 
-void GNuMIFlux::Beam2UserPos(const TLorentzVector& beamxyz, 
+void GNuMIFlux::Beam2UserPos(const TLorentzVector& beamxyz,
                                    TLorentzVector& usrxyz) const
 {
   usrxyz = fLengthScaleB2U*(fBeamRot*beamxyz) + fBeamZero;
 }
-void GNuMIFlux::Beam2UserDir(const TLorentzVector& beamdir, 
+void GNuMIFlux::Beam2UserDir(const TLorentzVector& beamdir,
                                    TLorentzVector& usrdir) const
 {
   usrdir = fLengthScaleB2U*(fBeamRot*beamdir);
 }
-void GNuMIFlux::Beam2UserP4 (const TLorentzVector& beamp4, 
+void GNuMIFlux::Beam2UserP4 (const TLorentzVector& beamp4,
                                    TLorentzVector& usrp4 ) const
 {
   usrp4 = fBeamRot*beamp4;
@@ -1281,7 +1125,7 @@ void GNuMIFlux::CleanUp(void)
   if ( fFlugg  )    delete fFlugg;
 
   LOG("Flux", pNOTICE)
-    << " flux file cycles: " << fICycle << " of " << fNCycles 
+    << " flux file cycles: " << fICycle << " of " << fNCycles
     << ", entry " << fIEntry << " use: " << fIUse << " of " << fNUse;
 }
 
@@ -1298,7 +1142,7 @@ void GNuMIFlux::AddFile(TTree* thetree, string fname)
   // !Important change
   // Some files (due to some intermediate flugg issues) list evtno==0
   // when it isn't really true, we need to scan nearby values in case the
-  // last entry is one of these (otherwise file contributes 0 POTs).  
+  // last entry is one of these (otherwise file contributes 0 POTs).
   // Also assume quantization of 500 (instead of 100).
 
   thetree->SetMakeClass(1); // need full ntuple decomposition for
@@ -1348,8 +1192,8 @@ void GNuMIFlux::AddFile(TTree* thetree, string fname)
   ULong64_t npots = est_N - est_1 + 1;
   LOG("Flux",pNOTICE) //INFO)
     << fNuFluxTreeName << "->AddFile() of " << nentries << " entries ["
-    << evt_1 << ":" << evt_N << "%" << nquant 
-    << "(" <<  est_1 << ":" << est_N << ")=" 
+    << evt_1 << ":" << evt_N << "%" << nquant
+    << "(" <<  est_1 << ":" << est_N << ")="
     << npots <<" POTs] in {" << fNuFluxGen << "} file: " << fname;
   fNuTot    += nentries;
   fFilePOTs += npots;
@@ -1363,9 +1207,9 @@ void GNuMIFlux::SetLengthUnits(double user_units)
 {
   // Set the scale factor for lengths going from beam (cm) to user coordinates
 
-  // GNuMIFlux uses "cm" as the length unit consistently internally (this is 
-  // the length units used by both the g3 and g4 ntuples).  User interactions 
-  // setting the beam-to-detector coordinate transform, flux window, and the 
+  // GNuMIFlux uses "cm" as the length unit consistently internally (this is
+  // the length units used by both the g3 and g4 ntuples).  User interactions
+  // setting the beam-to-detector coordinate transform, flux window, and the
   // returned position might need to be in other units.  Use:
   //     double scale = genie::utils::units::UnitFromString("cm");
   // ( #include "Utils/UnitUtils.h for declaration )
@@ -1403,8 +1247,8 @@ double GNuMIFlux::LengthUnits(void) const
 //___________________________________________________________________________
 GNuMIFluxPassThroughInfo::GNuMIFluxPassThroughInfo()
   : TObject()
-{ 
-  ResetCopy(); 
+{
+  ResetCopy();
   ResetCurrent();
 }
 
@@ -1413,7 +1257,7 @@ void GNuMIFluxPassThroughInfo::ResetCopy()
 {
   pcodes   = -1;
   units    = -1;
-  
+
   run      = -1;
   evtno    = -1;
   ndxdz    = 0.;
@@ -1895,11 +1739,11 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
 
   // history:
   // jzh  3/21/96 grab R.H.Milburn's weighing routine
-  // jzh  5/ 9/96 substantially modify the weighting function use dot product 
-  //              instead of rotation vecs to get theta get all info except 
+  // jzh  5/ 9/96 substantially modify the weighting function use dot product
+  //              instead of rotation vecs to get theta get all info except
   //              det from ADAMO banks neutrino parent is in Particle.inc
   //              Add weighting factor for polarized muon decay
-  // jzh  4/17/97 convert more code to double precision because of problems 
+  // jzh  4/17/97 convert more code to double precision because of problems
   //              with Enu>30 GeV
   // rwh 10/ 9/08 transliterate function from f77 to C++
 
@@ -1908,15 +1752,15 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
   //   detector geometry to the unit sphere moving with decaying hadron with
   //   velocity v, BETA=v/c, etc..  For (pseudo)scalar hadrons the decays will
   //   be isotropic in this  sphere so the fractional area (out of 4-pi) is the
-  //   fraction of decays that hit the target.  For a given target point and 
+  //   fraction of decays that hit the target.  For a given target point and
   //   area, and given x-y components of decay transverse location and slope,
-  //   and given decay distance from target ans given decay GAMMA and 
-  //   rest-frame neutrino energy, the lab energy at the target and the 
+  //   and given decay distance from target ans given decay GAMMA and
+  //   rest-frame neutrino energy, the lab energy at the target and the
   //   fractional solid angle in the rest-frame are determined.
   //   For muon decays, correction for non-isotropic nature of decay is done.
 
   // Arguments:
-  //    double x, y, z :: position to evaluate for (enu,wgt_xy) 
+  //    double x, y, z :: position to evaluate for (enu,wgt_xy)
   //        in *beam* frame coordinates  (cm units)
   //    double enu, wgt_xy :: resulting energy and weight
   // Return:
@@ -1945,7 +1789,7 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
   const int kpdg_pionminus  =  -211;  // Geant  9
   const int kpdg_k0long     =   130;  // Geant 10  ( K0=311, K0S=310 )
   const int kpdg_k0short    =   310;  // Geant 16
-  const int kpdg_k0mix      =   311;  
+  const int kpdg_k0mix      =   311;
   const int kpdg_kaonplus   =   321;  // Geant 11
   const int kpdg_kaonminus  =  -321;  // Geant 12
   const int kpdg_omegaminus =  3334;  // Geant 24
@@ -2019,7 +1863,7 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
   if ( parentp > 0. ) {
     costh_pardet = ( this->pdpx*(xpos-this->vx) +
                      this->pdpy*(ypos-this->vy) +
-                     this->pdpz*(zpos-this->vz) ) 
+                     this->pdpz*(zpos-this->vz) )
                      / ( parentp * rad);
     if ( costh_pardet >  1.0 ) costh_pardet =  1.0;
     if ( costh_pardet < -1.0 ) costh_pardet = -1.0;
@@ -2036,12 +1880,12 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
   if (debug) {
     std::cout << std::setprecision(15);
     std::cout << "xyz (" << xpos << "," << ypos << "," << zpos << ")" << std::endl;
-    std::cout << "ptype " << this->ptype << " m " << parent_mass 
+    std::cout << "ptype " << this->ptype << " m " << parent_mass
               << " p " << parentp << " e " << parent_energy << " gamma " << gamma
               << " beta " << beta_mag << std::endl;
 
     std::cout << " enuzr " << enuzr << " rad " << rad << " costh " << costh_pardet
-              << " theta " << theta_pardet << " emrat " << emrat 
+              << " theta " << theta_pardet << " emrat " << emrat
               << " enu " << enu << std::endl;
   }
 
@@ -2065,7 +1909,7 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
   // Get solid angle/4pi for detector element
   // small angle approximation, fixed by Alex Radovic
   //SAA//double sangdet = ( kRDET*kRDET / ( (zpos-this->vz)*(zpos-this->vz)))/4.0;
-  
+
   double sanddetcomp = TMath::Sqrt(( (xpos-this->vx)*(xpos-this->vx) ) +
                                    ( (ypos-this->vy)*(ypos-this->vy) ) +
                                    ( (zpos-this->vz)*(zpos-this->vz) )   );
@@ -2081,7 +1925,7 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
 #endif
 
   // Done for all except polarized muon decay
-  // in which case need to modify weight 
+  // in which case need to modify weight
   // (must be done in double precision)
   if ( this->ptype == kpdg_muplus || this->ptype == kpdg_muminus) {
     double beta[3], p_dcm_nu[4], p_nu[3], p_pcm_mp[3], partial;
@@ -2093,7 +1937,7 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
     p_nu[0] = (xpos-this->vx)*enu/rad;
     p_nu[1] = (ypos-this->vy)*enu/rad;
     p_nu[2] = (zpos-this->vz)*enu/rad;
-    partial = gamma * 
+    partial = gamma *
       (beta[0]*p_nu[0] + beta[1]*p_nu[1] + beta[2]*p_nu[2] );
     partial = enu - partial/(gamma+1.0);
     // the following calculation is numerically imprecise
@@ -2127,8 +1971,8 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
     beta[0] = this->ppdxdz * this->pppz / particle_energy;
     beta[1] = this->ppdydz * this->pppz / particle_energy;
     beta[2] =                    this->pppz / particle_energy;
-    partial = gamma * ( beta[0]*this->muparpx + 
-                        beta[1]*this->muparpy + 
+    partial = gamma * ( beta[0]*this->muparpx +
+                        beta[1]*this->muparpy +
                         beta[2]*this->muparpz );
     partial = this->mupare - partial/(gamma+1.0);
     p_pcm_mp[0] = this->muparpx - beta[0]*gamma*partial;
@@ -2142,7 +1986,7 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
     //          << this->muparpy << " " << this->muparpz << std::endl;
     //std::cout << " beta " << beta[0] << " " << beta[1] << " " << beta[2] << std::endl;
     //std::cout << " gamma " << gamma << " partial " << partial << std::endl;
-    //std::cout << " p_pcm_mp " << p_pcm_mp[0] << " " << p_pcm_mp[1] << " " 
+    //std::cout << " p_pcm_mp " << p_pcm_mp[0] << " " << p_pcm_mp[1] << " "
     //          << p_pcm_mp[2] << " " << p_pcm << std::endl;
 
 #ifdef  GNUMI_TEST_XY_WGT
@@ -2212,10 +2056,10 @@ namespace flux  {
       // stream << "\n ndecay   = " << info.ndecay << std::endl;
       stream << "\nGNuMIFlux run " << info.run << " evtno " << info.evtno
              << " (pcodes " << info.pcodes << " units " << info.units << ")"
-             << "\n random dk: dx/dz " << info.ndxdz 
+             << "\n random dk: dx/dz " << info.ndxdz
              << " dy/dz " << info.ndydz
              << " pz " <<  info.npz << " E " << info.nenergy
-             << "\n near00 dk: dx/dz " << info.ndxdznea 
+             << "\n near00 dk: dx/dz " << info.ndxdznea
              << " dy/dz " << info.ndydznea
              << " E " <<  info.nenergyn << " wgt " << info.nwtnear
              << "\n far00  dk: dx/dz " << info.ndxdzfar
@@ -2225,7 +2069,7 @@ namespace flux  {
              << " ntype " << info.ntype
              << "\n had vtx " << info.vx << " " << info.vy << " " << info.vz
              << "\n parent p3 @ dk " << info.pdpx << " " << info.pdpy << " " << info.pdpz
-             << "\n parent prod: dx/dz " << info.ppdxdz 
+             << "\n parent prod: dx/dz " << info.ppdxdz
              << " dy/dz " << info.ppdydz
              << " pz " << info.pppz << " E " << info.ppenergy
              << "\n ppmedium " << info.ppmedium << " ptype " << info.ptype
@@ -2237,7 +2081,7 @@ namespace flux  {
              << " " << info.zpoint
              << "\n tv x,y,z " << info.tvx << " " << info.tvy << " " << info.tvz
              << "\n tptype " << info.tptype << " tgen " << info.tgen
-             << " tgptype " << info.tgptype 
+             << " tgptype " << info.tgptype
              << "\n tgp px,py,pz " << info.tgppx << " " << info.tgppy
              << " " << info.tgppz
              << "\n tpriv x,y,z " << info.tprivx << " " << info.tprivy
@@ -2263,7 +2107,7 @@ namespace flux  {
       //END of minerva additions
 #endif
 
-      stream << "\nCurrent: pdg " << info.fgPdgC 
+      stream << "\nCurrent: pdg " << info.fgPdgC
              << " xywgt " << info.fgXYWgt
              << "\n p4 (beam): " << utils::print::P4AsShortString(&info.fgP4)
              << "\n x4 (beam): " << utils::print::X4AsString(&info.fgX4)
@@ -2273,22 +2117,22 @@ namespace flux  {
 #ifdef GNUMI_TEST_XY_WGT
       stream << "\n" << xypartials::GetStaticInstance();
 #endif
-        
+
 
   /*
   //std::cout << "GNuMIFlux::PrintCurrent ....." << std::endl;
-  //LOG("Flux", pINFO) 
-  LOG("Flux", pNOTICE) 
+  //LOG("Flux", pINFO)
+  LOG("Flux", pNOTICE)
     << "Current Leaf Values: "
     << " run " << fLf_run << " evtno " << fLf_evtno << "\n"
     << " NenergyN " << fLf_NenergyN << " NWtNear " << fLf_NWtNear
     << " NenergyF " << fLf_NenergyF << " NWtFar  " << fLf_NWtFar << "\n"
     << " Norig " << fLf_Norig << " Ndecay " << fLf_Ndecay << " Ntype " << fLf_Ntype << "\n"
-    << " Vxyz " << fLf_Vx << " " << fLf_Vy << " " << fLf_Vz 
+    << " Vxyz " << fLf_Vx << " " << fLf_Vy << " " << fLf_Vz
     << " pdPxyz " << fLf_pdPx << " " << fLf_pdPy << " " << fLf_pdPz << "\n"
     << " pp dxdz " << fLf_ppdxdz << " dydz " << fLf_ppdydz << " pz " << fLf_pppz << "\n"
-    << " pp energy " << fLf_ppenergy << " medium " << fLf_ppmedium 
-    << " ptype " << fLf_ptype 
+    << " pp energy " << fLf_ppenergy << " medium " << fLf_ppmedium
+    << " ptype " << fLf_ptype
     << " ppvxyz " << fLf_ppvx << " " << fLf_ppvy << " " << fLf_ppvz << "\n"
     << " muparpxyz " << fLf_muparpx << " " << fLf_muparpy << " " << fLf_muparpz
     << " mupare " << fLf_mupare << "\n"
@@ -2304,21 +2148,21 @@ namespace flux  {
 
 #ifdef  GNUMI_TEST_XY_WGT
 
-double fabserr(double a, double b) 
+double fabserr(double a, double b)
 { return TMath::Abs(a-b)/TMath::Max(TMath::Abs(b),1.0e-30); }
 
 int outdiff(double a, double b, double eps, const char* label)
 {
   double err = fabserr(a,b);
   if ( err > eps ) {
-    std::cout << std::setw(15) << label << " err " << err 
+    std::cout << std::setw(15) << label << " err " << err
          << " vals " << a << " " << b << std::endl;
     return 1;
   }
   return 0;
 }
 
-int gnumi2pdg(int igeant) 
+int gnumi2pdg(int igeant)
 {
   switch ( igeant ) {
   case 52: return -12;   // nuebar
@@ -2416,7 +2260,7 @@ int xypartials::Compare(const xypartials& other) const
       np++;
     }
     np += outdiff(costhmu          ,other.costhmu          ,eps1,"costhmu");
-    np += outdiff(wgt_ratio        ,other.wgt_ratio        ,eps1,"wgt_ratio");    
+    np += outdiff(wgt_ratio        ,other.wgt_ratio        ,eps1,"wgt_ratio");
 
   }
   return np;
@@ -2432,39 +2276,39 @@ namespace flux {
   ostream & operator << (ostream & stream, const genie::flux::xypartials & xyp )
   {
     stream << "GNuMIFlux xypartials " << std::endl;
-    stream << "  xyzdet (" << xyp.xdet << "," << xyp.ydet << "," 
+    stream << "  xyzdet (" << xyp.xdet << "," << xyp.ydet << ","
            << xyp.zdet << ")" << std::endl;
-    stream << "  parent: mass=" << xyp.parent_mass << " p=" << xyp.parentp 
-           << " e=" << xyp.parent_energy << " gamma=" << xyp.gamma 
+    stream << "  parent: mass=" << xyp.parent_mass << " p=" << xyp.parentp
+           << " e=" << xyp.parent_energy << " gamma=" << xyp.gamma
            << " beta_mag=" << xyp.beta_mag << std::endl;
-    stream << "  enuzr=" << xyp.enuzr << " rad=" << xyp.rad 
+    stream << "  enuzr=" << xyp.enuzr << " rad=" << xyp.rad
            << " costh_pardet=" << xyp.costh_pardet << std::endl;
-    stream << "  emrat=" << xyp.emrat << " sangdet=" << xyp.sangdet 
+    stream << "  emrat=" << xyp.emrat << " sangdet=" << xyp.sangdet
            << " wgt=" << xyp.wgt << std::endl;
     stream << "  ptype=" << xyp.ptype << " "
            << ((TMath::Abs(xyp.ptype) == 13)?"is-muon":"not-muon")
            << std::endl;
 
     if ( TMath::Abs(xyp.ptype)==13 ) {
-      stream << "  betanu: [" << xyp.betanu[0] << "," << xyp.betanu[1] 
+      stream << "  betanu: [" << xyp.betanu[0] << "," << xyp.betanu[1]
              << "," << xyp.betanu[2] << "]" << std::endl;
-      stream << "  p_nu: [" << xyp.p_nu[0] << "," << xyp.p_nu[1] 
+      stream << "  p_nu: [" << xyp.p_nu[0] << "," << xyp.p_nu[1]
              << "," << xyp.p_nu[2] << "]" << std::endl;
       stream << "  partial1=" << xyp.partial1 << std::endl;
-      stream << "  p_dcm_nu: [" << xyp.p_dcm_nu[0] << "," << xyp.p_dcm_nu[1] 
-             << "," << xyp.p_dcm_nu[2] 
+      stream << "  p_dcm_nu: [" << xyp.p_dcm_nu[0] << "," << xyp.p_dcm_nu[1]
+             << "," << xyp.p_dcm_nu[2]
              << "," << xyp.p_dcm_nu[3] << "]" << std::endl;
-      stream << "  muparent_p: [" << xyp.muparent_px << "," << xyp.muparent_py 
+      stream << "  muparent_p: [" << xyp.muparent_px << "," << xyp.muparent_py
              << "," << xyp.muparent_pz << "]" << std::endl;
       stream << "  gammamp=" << xyp.gammamp << std::endl;
-      stream << "  betamp: [" << xyp.betamp[0] << "," << xyp.betamp[1] << "," 
+      stream << "  betamp: [" << xyp.betamp[0] << "," << xyp.betamp[1] << ","
              << xyp.betamp[2] << "]" << std::endl;
       stream << "  partial2=" << xyp.partial2 << std::endl;
-      stream << "  p_pcm_mp: [" << xyp.p_pcm_mp[0] << "," << xyp.p_pcm_mp[1] 
-             << "," << xyp.p_pcm_mp[2] << "]  p_pcm=" 
+      stream << "  p_pcm_mp: [" << xyp.p_pcm_mp[0] << "," << xyp.p_pcm_mp[1]
+             << "," << xyp.p_pcm_mp[2] << "]  p_pcm="
              << xyp.p_pcm << std::endl;
-      stream << "  ntype=" << xyp.ntype 
-             << " costhmu=" << xyp.costhmu 
+      stream << "  ntype=" << xyp.ntype
+             << " costhmu=" << xyp.costhmu
              << " wgt_ratio=" << xyp.wgt_ratio << std::endl;
     }
     return stream;
@@ -2491,7 +2335,7 @@ bool GNuMIFlux::LoadConfig(string cfg)
 
 void GNuMIFlux::PrintConfig()
 {
-  
+
   std::ostringstream s;
   PDGCodeList::const_iterator itr = fPdgCList->begin();
   for ( ; itr != fPdgCList->end(); ++itr) s << (*itr) << " ";
@@ -2515,44 +2359,44 @@ void GNuMIFlux::PrintConfig()
 
   const int w=10, p=6;
   std::ostringstream beamrot_str, beamrotinv_str;
-  beamrot_str 
+  beamrot_str
     << "fBeamRot: " << std::setprecision(p) << "\n"
-    << "  [ " 
+    << "  [ "
     << std::setw(w) << fBeamRot.XX() << " "
     << std::setw(w) << fBeamRot.XY() << " "
     << std::setw(w) << fBeamRot.XZ() << " ]\n"
-    << "  [ " 
+    << "  [ "
     << std::setw(w) << fBeamRot.YX() << " "
     << std::setw(w) << fBeamRot.YY() << " "
     << std::setw(w) << fBeamRot.YZ() << " ]\n"
-    << "  [ " 
+    << "  [ "
     << std::setw(w) << fBeamRot.ZX() << " "
     << std::setw(w) << fBeamRot.ZY() << " "
     << std::setw(w) << fBeamRot.ZZ() << " ]";
-  beamrotinv_str 
+  beamrotinv_str
     << "fBeamRotInv: " << std::setprecision(p) << "\n"
-    << "  [ " 
+    << "  [ "
     << std::setw(w) << fBeamRotInv.XX() << " "
     << std::setw(w) << fBeamRotInv.XY() << " "
     << std::setw(w) << fBeamRotInv.XZ() << " ]\n"
-    << "  [ " 
+    << "  [ "
     << std::setw(w) << fBeamRotInv.YX() << " "
     << std::setw(w) << fBeamRotInv.YY() << " "
     << std::setw(w) << fBeamRotInv.YZ() << " ]\n"
-    << "  [ " 
+    << "  [ "
     << std::setw(w) << fBeamRotInv.ZX() << " "
     << std::setw(w) << fBeamRotInv.ZY() << " "
     << std::setw(w) << fBeamRotInv.ZZ() << " ]";
 
   LOG("Flux", pNOTICE)
     << "GNuMIFlux Config:"
-    << "\n Enu_max " << fMaxEv 
+    << "\n Enu_max " << fMaxEv
     << "\n pdg-codes: " << s.str() << "\n "
-    << (fG3NuMI?"g3numi":"") 
-    << (fG4NuMI?"g4numi":"") 
+    << (fG3NuMI?"g3numi":"")
+    << (fG4NuMI?"g4numi":"")
     << (fFlugg?"flugg":"")
     << "/" << fNuFluxGen << " "
-    << "(" << fNuFluxTreeName << "), " << fNEntries << " entries" 
+    << "(" << fNuFluxTreeName << "), " << fNEntries << " entries"
     << " (FilePOTs " << fFilePOTs << ") "
     <<  "in " << fNFiles << " files: "
     << flistout.str()
@@ -2589,7 +2433,7 @@ void GNuMIFlux::PrintConfig()
 }
 
 //___________________________________________________________________________
-std::vector<std::string> GNuMIFlux::GetFileList() 
+std::vector<std::string> GNuMIFlux::GetFileList()
 {
   std::vector<std::string> flist;
   TObjArray *fileElements=fNuFluxTree->GetListOfFiles();
@@ -2611,14 +2455,14 @@ std::vector<double> GNuMIFluxXMLHelper::GetDoubleVector(std::string str)
   std::vector<double> vect;
   size_t ntok = strtokens.size();
 
-  if ( fVerbose > 2 ) 
+  if ( fVerbose > 2 )
     std::cout << "GetDoubleVector \"" << str << "\"" << std::endl;
 
   for (size_t i=0; i < ntok; ++i) {
     std::string trimmed = utils::str::TrimSpaces(strtokens[i]);
     if ( " " == trimmed || "" == trimmed ) continue;  // skip empty strings
     double val = strtod(trimmed.c_str(), (char**)NULL);
-    if ( fVerbose > 2 ) 
+    if ( fVerbose > 2 )
       std::cout << "(" << vect.size() << ") = " << val << std::endl;
     vect.push_back(val);
   }
@@ -2634,14 +2478,14 @@ std::vector<long int> GNuMIFluxXMLHelper::GetIntVector(std::string str)
   std::vector<long int> vect;
   size_t ntok = strtokens.size();
 
-  if ( fVerbose > 2 ) 
+  if ( fVerbose > 2 )
     std::cout << "GetIntVector \"" << str << "\"" << std::endl;
 
   for (size_t i=0; i < ntok; ++i) {
     std::string trimmed = utils::str::TrimSpaces(strtokens[i]);
     if ( " " == trimmed || "" == trimmed ) continue;  // skip empty strings
     long int val = strtol(trimmed.c_str(),(char**)NULL,10);
-    if ( fVerbose > 2 ) 
+    if ( fVerbose > 2 )
       std::cout << "(" << vect.size() << ") = " << val << std::endl;
     vect.push_back(val);
   }
@@ -2682,7 +2526,7 @@ bool GNuMIFluxXMLHelper::LoadConfig(string cfg)
     return false;
   }
 
-  SLOG("GNuMIFlux", pINFO) << "Attempt to load config \"" << cfg 
+  SLOG("GNuMIFlux", pINFO) << "Attempt to load config \"" << cfg
                            << "\" from file: " << fname;
 
   bool found = this->LoadParamSet(xml_doc,cfg);
@@ -2706,11 +2550,11 @@ bool GNuMIFluxXMLHelper::LoadParamSet(xmlDocPtr& xml_doc, string cfg)
   for ( ; xml_pset != NULL ; xml_pset = xml_pset->next ) {
     if ( ! xmlStrEqual(xml_pset->name, (const xmlChar*)"param_set") ) continue;
     // every time there is a 'param_set' tag
-    string param_set_name = 
+    string param_set_name =
       utils::str::TrimSpaces(utils::xml::GetAttribute(xml_pset,"name"));
-    
+
     if ( param_set_name != cfg ) continue;
-      
+
     SLOG("GNuMIFlux", pINFO) << "Found config \"" << cfg;
 
     this->ParseParamSet(xml_doc,xml_pset);
@@ -2728,14 +2572,14 @@ void GNuMIFluxXMLHelper::ParseParamSet(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
   for ( ; xml_child != NULL ; xml_child = xml_child->next ) {
     // handle basic gnumi_config/param_set
     // bad cast away const on next line, but function sig requires it
-    string pname = 
+    string pname =
       utils::xml::TrimSpaces(const_cast<xmlChar*>(xml_child->name));
     if ( pname == "text" || pname == "comment" ) continue;
-    string pval  = 
+    string pval  =
       utils::xml::TrimSpaces(
               xmlNodeListGetString(xml_doc, xml_child->xmlChildrenNode, 1));
 
-    if ( fVerbose > 1 ) 
+    if ( fVerbose > 1 )
       SLOG("GNuMIFlux", pINFO)
         << "   pname \"" << pname << "\", string value \"" << pval << "\"";
 
@@ -2794,24 +2638,24 @@ void GNuMIFluxXMLHelper::ParseParamSet(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
 
     } else {
       SLOG("GNuMIFlux", pWARN)
-        << "  NOT HANDLED: pname \"" << pname 
+        << "  NOT HANDLED: pname \"" << pname
         << "\", string value \"" << pval << "\"";
-      
+
     }
 
   } // loop over param_set contents
-  xmlFree(xml_child);  
+  xmlFree(xml_child);
 }
 
 void GNuMIFluxXMLHelper::ParseBeamDir(xmlDocPtr& xml_doc, xmlNodePtr& xml_beamdir)
 {
   fBeamRotXML.SetToIdentity(); // start fresh
 
-  string dirtype = 
+  string dirtype =
     utils::str::TrimSpaces(
       utils::xml::GetAttribute(xml_beamdir,"type"));
 
-  string pval  = 
+  string pval  =
     utils::xml::TrimSpaces(
       xmlNodeListGetString(xml_doc, xml_beamdir->xmlChildrenNode, 1));
 
@@ -2822,7 +2666,7 @@ void GNuMIFluxXMLHelper::ParseBeamDir(xmlDocPtr& xml_doc, xmlNodePtr& xml_beamdi
   } else if ( dirtype == "thetaphi3") {
     // G3 style triplet of (theta,phi) pairs
     std::vector<double> thetaphi3 = GetDoubleVector(pval);
-    string units = 
+    string units =
       utils::str::TrimSpaces(utils::xml::GetAttribute(xml_beamdir,"units"));
     if ( thetaphi3.size() == 6 ) {
       TRotation fTempRot;
@@ -2860,15 +2704,15 @@ void GNuMIFluxXMLHelper::ParseBeamDir(xmlDocPtr& xml_doc, xmlNodePtr& xml_beamdi
   if ( fVerbose > 1 ) {
     int w=10, p=6;
     std::cout << " fBeamRotXML: " << std::setprecision(p) << std::endl;
-    std::cout << " [ " 
+    std::cout << " [ "
               << std::setw(w) << fBeamRotXML.XX() << " "
               << std::setw(w) << fBeamRotXML.XY() << " "
               << std::setw(w) << fBeamRotXML.XZ() << endl
-              << "   " 
+              << "   "
               << std::setw(w) << fBeamRotXML.YX() << " "
               << std::setw(w) << fBeamRotXML.YY() << " "
               << std::setw(w) << fBeamRotXML.YZ() << endl
-              << "   " 
+              << "   "
               << std::setw(w) << fBeamRotXML.ZX() << " "
               << std::setw(w) << fBeamRotXML.ZY() << " "
               << std::setw(w) << fBeamRotXML.ZZ() << " ] " << std::endl;
@@ -2895,7 +2739,7 @@ void GNuMIFluxXMLHelper::ParseBeamPos(std::string str)
    }
   if ( fVerbose > 1 ) {
     int w=16, p=10;
-    std::cout << " fBeamPosXML: [ " << std::setprecision(p) 
+    std::cout << " fBeamPosXML: [ " << std::setprecision(p)
               << std::setw(w) << fBeamPosXML.X() << " , "
               << std::setw(w) << fBeamPosXML.Y() << " , "
               << std::setw(w) << fBeamPosXML.Z() << " ] "
@@ -2909,23 +2753,23 @@ void GNuMIFluxXMLHelper::ParseEnuMax(std::string str)
   size_t n = v.size();
   if ( n > 0 ) {
     fGNuMI->SetMaxEnergy(v[0]);
-    if ( fVerbose > 1 ) 
+    if ( fVerbose > 1 )
       std::cout << "ParseEnuMax SetMaxEnergy(" << v[0] << ") " << std::endl;
   }
   if ( n > 1 ) {
     fGNuMI->SetMaxEFudge(v[1]);
-    if ( fVerbose > 1 ) 
+    if ( fVerbose > 1 )
       std::cout << "ParseEnuMax SetMaxEFudge(" << v[1] << ")" << std::endl;
   }
   if ( n > 2 ) {
     if ( n == 3 ) {
       fGNuMI->SetMaxWgtScan(v[2]);
-      if ( fVerbose > 1 ) 
+      if ( fVerbose > 1 )
         std::cout << "ParseEnuMax SetMaxWgtScan(" << v[2] << ")" << std::endl;
     } else {
       long int nentries = (long int)v[3];
       fGNuMI->SetMaxWgtScan(v[2],nentries);
-      if ( fVerbose > 1 ) 
+      if ( fVerbose > 1 )
         std::cout << "ParseEnuMax SetMaxWgtScan(" << v[2] << "," << nentries << ")" << std::endl;
     }
   }
@@ -2939,17 +2783,17 @@ void GNuMIFluxXMLHelper::ParseRotSeries(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset
   for ( ; xml_child != NULL ; xml_child = xml_child->next ) {
     // in a <beamdir> of type "series"
     // should be a sequence of <rotation> entries
-    string name = 
+    string name =
       utils::xml::TrimSpaces(const_cast<xmlChar*>(xml_child->name));
     if ( name == "text" || name == "comment" ) continue;
 
     if ( name == "rotation" ) {
       string val = utils::xml::TrimSpaces(
           xmlNodeListGetString(xml_doc, xml_child->xmlChildrenNode, 1));
-      string axis = 
+      string axis =
         utils::str::TrimSpaces(utils::xml::GetAttribute(xml_child,"axis"));
 
-      string units = 
+      string units =
         utils::str::TrimSpaces(utils::xml::GetAttribute(xml_child,"units"));
 
       double rot = atof(val.c_str());
@@ -2975,7 +2819,7 @@ void GNuMIFluxXMLHelper::ParseRotSeries(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset
   }
   // TRotation rotates objects not frames, so we want the inverse
   fBeamRotXML = fTempRot.Inverse();
-  xmlFree(xml_child);  
+  xmlFree(xml_child);
 }
 
 void GNuMIFluxXMLHelper::ParseWindowSeries(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
@@ -2986,15 +2830,15 @@ void GNuMIFluxXMLHelper::ParseWindowSeries(xmlDocPtr& xml_doc, xmlNodePtr& xml_p
   for ( ; xml_child != NULL ; xml_child = xml_child->next ) {
     // in a <windowr> element
     // should be a sequence of <point> entries
-    string name = 
+    string name =
       utils::xml::TrimSpaces(const_cast<xmlChar*>(xml_child->name));
     if ( name == "text" || name == "comment" ) continue;
 
     if ( name == "point" ) {
-      string val  = 
+      string val  =
         utils::xml::TrimSpaces(
           xmlNodeListGetString(xml_doc, xml_child->xmlChildrenNode, 1));
-      string coord = 
+      string coord =
         utils::str::TrimSpaces(utils::xml::GetAttribute(xml_child,"coord"));
 
       std::vector<double> xyz = GetDoubleVector(val);
@@ -3009,7 +2853,7 @@ void GNuMIFluxXMLHelper::ParseWindowSeries(xmlDocPtr& xml_doc, xmlNodePtr& xml_p
         TVector3 pt(xyz[0],xyz[1],xyz[2]);
         if ( fVerbose > 0 ) {
           int w=16, p=10;
-          std::cout << " point[" << ientry <<"] = [ " << std::setprecision(p) 
+          std::cout << " point[" << ientry <<"] = [ " << std::setprecision(p)
                     << std::setw(w) << pt.X() << " , "
                     << std::setw(w) << pt.Y() << " , "
                     << std::setw(w) << pt.Z() << " ] "
@@ -3026,7 +2870,7 @@ void GNuMIFluxXMLHelper::ParseWindowSeries(xmlDocPtr& xml_doc, xmlNodePtr& xml_p
         << " found <" << name << "> within <window>";
     }
   }
-  xmlFree(xml_child);  
+  xmlFree(xml_child);
 }
 
 TVector3 GNuMIFluxXMLHelper::AnglesToAxis(double theta, double phi, std::string units)
@@ -3045,7 +2889,7 @@ TVector3 GNuMIFluxXMLHelper::AnglesToAxis(double theta, double phi, std::string 
     if (TMath::Abs(xyz[i]-1) < eps ) xyz[i] =  1;
     if (TMath::Abs(xyz[i]+1) < eps ) xyz[i] = -1;
   }
-  return TVector3(xyz[0],xyz[1],xyz[2]);                    
+  return TVector3(xyz[0],xyz[1],xyz[2]);
 }
 
 TVector3 GNuMIFluxXMLHelper::ParseTV3(const string& str)
@@ -3277,4 +3121,3 @@ int GNuMIFluxPassThroughInfo::getProcessID(TString sval){
 }
 //END of minerva additions
 #endif
-

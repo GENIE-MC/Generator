@@ -7,7 +7,7 @@
 
 \author   Aaron Meyer <asmeyer2012 \at uchicago.edu>
           based off testElFormFactors by
-          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
           STFC, Rutherford Appleton Laboratory
 
 \created August 20, 2013
@@ -25,9 +25,9 @@
              -- to skip scanning over a coefficient, put max < min for that coefficient
              note that Kmax in UserPhysicsOptions should match the number of scanned coeffs
 
-\cpright Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //____________________________________________________________________________
 
@@ -38,20 +38,20 @@
 #include <TTree.h>
 //#include <TNtupleD.h>
 
-#include "Algorithm/Algorithm.h"
-#include "Algorithm/AlgFactory.h"
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/Constants.h"
-#include "GHEP/GHepParticle.h"
-#include "LlewellynSmith/AxialFormFactorModelI.h"
-#include "LlewellynSmith/AxialFormFactor.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGLibrary.h"
-#include "PDG/PDGUtils.h"
-#include "Utils/CmdLnArgParser.h"
-#include "Utils/StringUtils.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Physics/QuasiElastic/XSection/AxialFormFactorModelI.h"
+#include "Physics/QuasiElastic/XSection/AxialFormFactor.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Utils/CmdLnArgParser.h"
+#include "Framework/Utils/StringUtils.h"
 
 // number of coefficient values stored in tree
 #define MAX_COEF 3

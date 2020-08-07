@@ -1,8 +1,8 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+ 
 
  Author: Brian Coopersmith, University of Rochester
 
@@ -284,6 +284,9 @@ void EffectiveSF::Configure(string param_set)
 //____________________________________________________________________________
 void EffectiveSF::LoadConfig(void)
 {
+
+  NuclearModelI::LoadConfig() ; 
+
   this->GetParamDef("EjectSecondNucleon2p2h", fEjectSecondNucleon2p2h, false);
 
   this->GetParamDef("MomentumMax",    fPMax,    1.0);

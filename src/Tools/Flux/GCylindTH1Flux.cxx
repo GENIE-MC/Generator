@@ -1,21 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - July 04, 2005
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
- @ Feb 22, 2011 - JD
-   Implemented dummy versions of the new GFluxI::Clear, GFluxI::Index and 
-   GFluxI::GenerateWeighted methods needed for pre-generation of flux
-   interaction probabilities in GMCJDriver.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -30,7 +19,9 @@
 #include "Tools/Flux/GCylindTH1Flux.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
+#include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/PrintUtils.h"
 
 #include "Tools/Flux/GFluxDriverFactory.h"
@@ -62,6 +53,11 @@ bool GCylindTH1Flux::GenerateNext(void)
 
   TVector3 p3(*fDirVec); // momentum along the neutrino direction
   p3.SetMag(Ev);         // with |p|=Ev
+  // EDIT: Check if we're running with DM beam
+  if (fPdgCList->ExistsInPDGCodeList(kPdgDarkMatter) || fPdgCList->ExistsInPDGCodeList(kPdgAntiDarkMatter)) {
+    double Md = PDGLibrary::Instance()->Find(kPdgDarkMatter)->Mass();
+    p3.SetMag(TMath::Sqrt(Ev*Ev - Md*Md));
+  }
 
   fgP4.SetPxPyPzE(p3.Px(), p3.Py(), p3.Pz(), Ev);
 
@@ -73,7 +69,7 @@ bool GCylindTH1Flux::GenerateNext(void)
 
   if(fRt <= 0) {
     fgX4.SetXYZT(0.,0.,0.,0.);
-  } 
+  }
   else {
     // Create a vector (vec) that points to a random position at a disk
     // of radius Rt passing through the origin, perpendicular to the
@@ -106,9 +102,9 @@ bool GCylindTH1Flux::GenerateNext(void)
 //___________________________________________________________________________
 void GCylindTH1Flux::Clear(Option_t * opt)
 {
-// Dummy clear method needed to conform to GFluxI interface 
+// Dummy clear method needed to conform to GFluxI interface
 //
-  LOG("Flux", pERROR) << 
+  LOG("Flux", pERROR) <<
       "No Clear(Option_t * opt) method implemented for opt: "<< opt;
 }
 //___________________________________________________________________________
@@ -116,8 +112,8 @@ void GCylindTH1Flux::GenerateWeighted(bool gen_weighted)
 {
 // Dummy implementation needed to conform to GFluxI interface
 //
-  LOG("Flux", pERROR) << 
-      "No GenerateWeighted(bool gen_weighted) method implemented for " << 
+  LOG("Flux", pERROR) <<
+      "No GenerateWeighted(bool gen_weighted) method implemented for " <<
       "gen_weighted: " << gen_weighted;
 }
 //___________________________________________________________________________
@@ -201,7 +197,7 @@ void GCylindTH1Flux::AddEnergySpectrum(int nu_pdgc, TH1D * spectrum)
      Axis_t max = spectrum->GetBinLowEdge(nb)+spectrum->GetBinWidth(nb);
      fMaxEv = TMath::Max(fMaxEv, (double)max);
 
-     LOG("Flux", pNOTICE) 
+     LOG("Flux", pNOTICE)
           << "Updating maximum energy of flux particles to: " << fMaxEv;
 
      this->AddAllFluxes(); // update combined flux
