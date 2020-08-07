@@ -679,11 +679,9 @@ void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
   unsigned int iter = 0;
   bool accept=false;
 
-  double xsec=-1, g_E_g=-1, g_E_l = -1, g_theta_l=-1, g_phi_l=-1, g_theta_g=-1, g_phi_g=-1;
+  double xsec=-1, g_E_g=-1, g_theta_l=-1, g_phi_l=-1, g_theta_g=-1, g_phi_g=-1;
 
   Interaction local_interaction( * interaction ) ;
-
-  
 
   utils::gsl::d4Xsec_dEgdThetaldThetagdPhig functor( fXSecModel, & local_interaction ) ;
 
@@ -693,7 +691,6 @@ void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
       
     //Select kinematic point
     g_E_g = E_g_min + d_E_g * rnd->RndKine().Rndm();
-    g_E_l = Ev - g_E_g;
     g_theta_l  = theta_l_min  + d_theta_l  * rnd->RndKine().Rndm();
     g_theta_g = theta_g_min + d_theta_g * rnd->RndKine().Rndm();
     g_phi_g = phi_min + d_phi * rnd->RndKine().Rndm() ; 
@@ -735,21 +732,35 @@ void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
 
       LOG("COHKinematics", pNOTICE) << "Last event was selected" ;
 
-      double E_l = g_E_l;
-      double theta_l = g_theta_l;
-      double theta_g = g_theta_g;
+      LOG("COHKinematics", pNOTICE) << "Selected: Lepton(" 
+				    << g_phi_l << ", " << g_theta_l << ")   Gamma(" 
+				    << g_theta_g << ", " << g_phi_g << ")";
+      
+
+      // update kinematic variables
+      Kinematics * kine = interaction->KinePtr() ;
+      const Kinematics & local_kine = local_interaction.Kine() ;
+      
+      kine -> Setx ( local_kine.x() , true );
+      kine -> Sety ( local_kine.y() , true );
+      kine -> SetQ2( local_kine.Q2(), true );
+      kine -> SetW ( local_kine.W() , true );
+      kine -> Sett ( local_kine.t() , true );
+      
+      // generate the phase for the lepton
       double phi_l = phi_min + d_phi * rnd->RndKine().Rndm(); // final overall roation added
-      double phi_g = phi_l + g_phi_g;
 
-      LOG("COHKinematics", pNOTICE) << "Selected: Lepton(" << 
-        g_phi_l << ", " << g_theta_l << ")   Gamma(" << g_theta_g << ", " << g_phi_g << ")";
-      
-      
-      this->SetKinematics( E_l, theta_l, phi_l, 
-			   theta_g, phi_g, 
-			   interaction, interaction->KinePtr() ) ;
-      
+      // add the phase to both lepton and gamma so that the relative is the same
+      TLorentzVector lep ( local_kine.FSLeptonP4() ) ;
+      lep.SetPhi( phi_l ) ;
+      kine -> SetFSLeptonP4( lep ) ;
 
+      TLorentzVector gamma( local_kine.HadSystP4() ) ;
+      double phi_g = gamma.Phi() ;
+      phi_g += phi_l ;
+      gamma.SetPhi( phi_g ) ;
+      kine -> SetHadSystP4( gamma ) ;
+      
       // for uniform kinematics, compute an event weight as
       // wght = (phase space volume)*(differential xsec)/(event total xsec)
       if(fGenerateUniformly) {
@@ -765,33 +776,6 @@ void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
         evrec->SetWeight(wght);
       }
 
-      // evaluate selected kinematics
-      
-      const  TLorentzVector P4_nu( 0., 0., Ev, Ev ) ; 
-      
-      TLorentzVector P4_lep = interaction->Kine().FSLeptonP4() ;
-      TLorentzVector P4_gamma = interaction->Kine().HadSystP4() ;
-
-      // double E_g= g_E_g;
-      // double m_l = interaction->FSPrimLepton()->Mass();
-      // double m_g = 0.0;
-      
-      TLorentzVector q = P4_nu - P4_lep;
-      double Q2 = -q.Mag2();
-      double x = Q2/(2 * P4_gamma.E()*constants::kNucleonMass);
-      double y = P4_gamma.E() / Ev ;
-
-      double t = TMath::Abs( (q - P4_gamma).Mag2() );
-      
-      // lock selected kinematics & clear running values
-      interaction->KinePtr()->Setx(x, true);
-      interaction->KinePtr()->Sety(y, true);
-      interaction->KinePtr()->Sett(t, true);
-      interaction->KinePtr()->SetW( 0., true);  // for coherent gamma, W = 0 ;
-      interaction->KinePtr()->SetQ2( Q2, true);
-      interaction->KinePtr()->ClearRunningValues();
-
-      // set the cross section for the selected kinematics
       evrec->SetDiffXSec(xsec,kPSEgTlTgPgfE);
 
       // reset bits
@@ -802,7 +786,7 @@ void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
     }//if accept
     
   }//while still throwing events
-
+  
   return;
 }
 

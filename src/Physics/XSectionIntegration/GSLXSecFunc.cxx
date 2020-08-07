@@ -807,25 +807,34 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
   double E_nu = fInteraction->InitState().ProbeE(kRfLab);
   const TLorentzVector P4_nu( 0., 0., E_nu, E_nu ) ;
   
-  //double E_g       = xin[0];
-  double E_l       = E_nu - xin[0] ;
+  //double E_g       = xin[0];  // No need to define this, left here for comments
+
+  // Complex correct formula for E_l that takes into account the target mass
+  double m_t = fInteraction->InitState().Tgt().Mass() ;
+  double cos_theta_g = cos( xin[2] ) ;
+  double cos_theta_l = cos( xin[1] ) ; 
+  double E_l = ( m_t*(E_nu - xin[0]) - E_nu*xin[0]*(1. - cos_theta_g) ) 
+    / ( m_t + E_nu*(1.-cos_theta_l) 
+	- xin[0]*(1.-cos_theta_l*cos_theta_g  - sin(xin[1])*sin(xin[2])*cos(xin[3]) ) ) ;
 
   //double theta_l   = xin[1];
-  double phi_l     = 0.0;
+  //double phi_l     = 0.0;
   
   //double theta_g   = xin[2];
   //double phi_g     = xin[3];
   
   TVector3 lepton_3vector = TVector3(0,0,0);
-  lepton_3vector.SetMagThetaPhi( E_l, xin[2], phi_l ) ;
+  lepton_3vector.SetMagThetaPhi( E_l, xin[1], 0. ) ;
   TLorentzVector P4_lep = TLorentzVector( lepton_3vector , E_l );
   
   TVector3 photon_3vector = TVector3(0,0,0);
   photon_3vector.SetMagThetaPhi( xin[0], xin[2], xin[3] ) ;
   TLorentzVector P4_photon   = TLorentzVector(photon_3vector, xin[0] );
+
+  TLorentzVector q = P4_nu-P4_lep ;
  
-  double Q2 = -(P4_nu-P4_lep).Mag2();
-  
+  double Q2 = -q.Mag2();
+
   double x = Q2/(2 * xin[0] * constants::kNucleonMass );
   
   Range1D_t xlim = fInteraction->PhaseSpace().XLim();
@@ -840,6 +849,9 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
 
   kinematics->Sety(y);
   kinematics::UpdateWQ2FromXY(fInteraction);
+
+  double t = TMath::Abs( (q - P4_photon).Mag2() );
+  kinematics -> Sett( t ) ;
 
   kinematics->SetFSLeptonP4(P4_lep );
   kinematics->SetHadSystP4 (P4_photon); // use Hadronic System variable to store photon momentum
