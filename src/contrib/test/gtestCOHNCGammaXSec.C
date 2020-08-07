@@ -89,10 +89,10 @@ void XSectionTest(const TFile & file)
 
   // Fill the struct
   sigma_vars.E_nu_probe = 1.;
-  sigma_vars.theta_lep  = 10.;
+  sigma_vars.theta_lep  = 1.;
   sigma_vars.phi_lep    = 0.;
-  sigma_vars.theta_g    = 10.; 
-  sigma_vars.phi_g      = 10.;
+  sigma_vars.theta_g    = 0.; 
+  sigma_vars.phi_g      = 0.;
   sigma_vars.range      = sigma_vars.E_nu_probe;
   sigma_vars.E_lep      = sigma_vars.E_nu_probe;
 
@@ -138,7 +138,8 @@ void SigmaEg( const Interaction *i, const ARSXSec * xsec_alg, Kinematics * kine,
   TLorentzVector p4_lep;
   TLorentzVector p4_nu(0., 0., sig_param.E_nu_probe, sig_param.E_nu_probe); // probe along z
 
-  KinePhaseSpace_t t; // Not used for now so let it initialize to whatever
+  KinePhaseSpace_t t = kPSEgTlTgPgfE; // Not used for now so let it initialize to whatever
+  cout << "Kinematics phase space setting " << t << endl;
 
   for( unsigned int ang = 0; ang < theta_gamma.size(); ang++ ) {
     sig_param.theta_g = theta_gamma[ang]*TMath::DegToRad();
@@ -175,7 +176,7 @@ void SigmaEg( const Interaction *i, const ARSXSec * xsec_alg, Kinematics * kine,
            << " Valid Kinematics: " <<  xsec_alg->ValidKinematics(i) << endl;
       
       // Calculate Xsection
-      xsec_arr[ang][eg] = xsec_alg->XSec(i, t) * pow(197.33e-16, 2)*1.e41;
+      xsec_arr[ang][eg] = ( xsec_alg->XSec(i, t) *1.e41 ) / units::cm2; 
       cout << "---> Cross section " << xsec_arr[ang][eg] << endl;
 
       Eg_arr[eg] = E_g;
@@ -191,7 +192,7 @@ void SigmaEg( const Interaction *i, const ARSXSec * xsec_alg, Kinematics * kine,
     mg->Add(gr);
   }
 
-  mg->SetTitle(" ^{40}Ar #bar{#nu}_{#mu} #theta_{l}=10 #phi_{l}=0 #phi_{#gamma}=10; E_{#gamma} (GeV); XSec #sigma (x10^{-41})");
+  mg->SetTitle(" ^{40}Ar #bar{#nu}_{#mu} #theta_{l}=1 #phi_{l}=0 #phi_{#gamma}=0 (kPSEgTlTgPgfE); E_{#gamma} (GeV); XSec #sigma (x10^{-41})");
   mg->Draw("ACP");
   legend->Draw();
   mg->Write();
