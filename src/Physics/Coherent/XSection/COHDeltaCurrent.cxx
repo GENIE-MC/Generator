@@ -105,13 +105,15 @@ GTrace COHDeltaCurrent::R( const Interaction * i,
   TLorentzVector probe( 0., 0., k0, k0 ) ; 
   TLorentzVector out_neutrino = i -> Kine().FSLeptonP4() ;
   TLorentzVector t_photon = i -> Kine().HadSystP4() ;
+  TLorentzVector q = probe - out_neutrino ;
   // TODO verify the calculation of t
-  TLorentzVector t = 0.5*( (probe - out_neutrino) - t_photon );
+  TLorentzVector t = 0.5*( t_photon - q );
 
   // This is not quite what is used in original code which was
   // the magnitude of the 3-momentum, here we are using 4-momentum
   TLorentzVector p( t.Vect(), 
-		    sqrt(constants::kNucleonMass + t.Vect().Mag2() ) );
+		    sqrt(pow(constants::kNucleonMass,2) + t.Vect().Mag2() ) );
+  p += q ;
 
   double p2 = p.Mag2() ;
   double p0 = out_neutrino.E() ;

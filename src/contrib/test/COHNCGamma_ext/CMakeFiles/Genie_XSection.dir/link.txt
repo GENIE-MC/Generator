@@ -1,0 +1,1 @@
+/cvmfs/fermilab.opensciencegrid.org/products/larsoft/gcc/v7_3_0/Linux64bit+3.10-2.17/bin/c++ -fPIC   -shared -Wl,-soname,libGenie_XSection.so -o libGenie_XSection.so CMakeFiles/Genie_XSection.dir/NCgamma_Diff_Cross_Section.cpp.o CMakeFiles/Genie_XSection.dir/NCgamma_Form_Factors.cpp.o CMakeFiles/Genie_XSection.dir/NCgamma_Hadronic_Current_R.cpp.o 
