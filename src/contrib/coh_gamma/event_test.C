@@ -19,7 +19,8 @@
 using namespace genie ;
 
 
-
+double LepPhi( const TLorentzVector & probe, TLorentzVector lep ) ;
+double GammaPhi( const TLorentzVector & probe, TLorentzVector gamma, TLorentzVector lep ) ;
 
 
 void event_test( TString in_file_name  = "gntp.0.ghep.root" , 
@@ -47,6 +48,24 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
   // plots we need
   TH1* h_theta_gamma = hists["theta_gamma"] = new TH1D("h_theta_gamma", "#theta_{#gamma};#theta_{#gamma} [rad]",
 							80, 0., TMath::Pi() ) ; 
+  TH1* h_theta_lep = hists["theta_lep"] = new TH1D("h_theta_lep", "#theta_{l};#theta_{l} [rad]",
+						   80, 0., TMath::Pi() ) ; 
+  TH1* h_theta_recoil = hists["theta_nuc"] = new TH1D("h_theta_recoil", "#theta_{recoil};#theta_{recoil} [rad]",
+						   80, 0., TMath::Pi() ) ; 
+
+  TH1* h_phi_gamma = hists["phi_gamma"] = new TH1D("h_phi_gamma", "#phi_{#gamma};#phi_{#gamma} [rad]",
+							100, -TMath::Pi(), TMath::Pi() ) ; 
+  TH1* h_phi_lep = hists["phi_lep"] = new TH1D("h_phi_lep", "#phi_{l};#phi_{#phi} [rad]",
+							100, -TMath::Pi(), TMath::Pi() ) ; 
+
+  TH1* h_E_l = hists["E_l"] = new TH1D("h_E_l", "E_{l};E_{l} [GeV]",
+				       80, 0., 2. ) ; 
+
+  TH1* h_E_g = hists["E_g"] = new TH1D("h_E_g", "E_{#gamma};E_{#gamma} [GeV]",
+				       80, 0., 2. ) ; 
+
+
+
 
   // Event loop
   for(Long64_t i=0; i < in_tree->GetEntries(); i++) {
@@ -70,8 +89,16 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
 	TLorentzVector gamma  ( * event.Particle(3) -> P4() ) ;
 	TLorentzVector recoil ( * event.Particle(4) -> P4() ) ;
 
-	h_theta_gamma -> Fill( lep.Angle( probe.Vect() ) ) ;
+	h_theta_gamma -> Fill( gamma.Angle( probe.Vect() ) ) ;
+	h_theta_lep   -> Fill( lep.Angle( probe.Vect() ) ) ;
+	h_theta_recoil   -> Fill( recoil.Angle( probe.Vect() ) ) ;
 
+	h_phi_gamma -> Fill( GammaPhi( probe, gamma, lep ) ) ;			     
+	h_phi_lep -> Fill( LepPhi( probe, lep ) ) ;			     
+
+
+	h_E_l -> Fill( lep.E() ) ;
+	h_E_g -> Fill( gamma.E() ) ;
 	
       } // single gamma
 
@@ -91,3 +118,23 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
 
 }
 
+
+
+double LepPhi( const TLorentzVector & probe, TLorentzVector lep ) {
+
+
+  TVector3 probe_dir = probe.Vect().Unit() ;
+  lep.RotateUz( probe_dir ) ;
+  return lep.Phi() ;
+
+}
+
+double GammaPhi( const TLorentzVector & probe, TLorentzVector gamma, TLorentzVector lep ) {
+
+  TVector3 probe_dir = probe.Vect().Unit() ;
+  gamma.RotateUz( probe_dir ) ;
+  lep.RotateUz( probe_dir ) ;
+
+  return gamma.DeltaPhi( lep ) ;
+
+}
