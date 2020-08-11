@@ -181,8 +181,8 @@ void SigmaEg( const Interaction *i, const ARSXSec * xsec_alg, Kinematics * kine,
       kine->Setx( x );
       kine->Sety( y );
       utils::kinematics::UpdateWQ2FromXY(i);
-      double t = (q - p4_g).Mag() ;
-      kine->Sett( t ) ;
+      double coh_t = (q - p4_g).Mag() ;
+      kine->Sett( coh_t ) ;
       cout << "E_g " << E_g << " sig_param.E_nu_probe " << sig_param.E_nu_probe << endl;                                                                                            
       // Check the validity
       cout << " Gamma theta angle " << theta_gamma[ang]
