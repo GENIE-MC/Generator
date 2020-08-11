@@ -97,35 +97,33 @@ void COHDeltaCurrent::LoadConfig(void)
 
 //____________________________________________________________________________
 GTrace COHDeltaCurrent::R( const Interaction * i,
-	  const COHFormFactorI * ff ) const {
+			   const COHFormFactorI * ff ) const {
 
   const InitialState & init_state = i -> InitState();
 
   double k0 = init_state.ProbeE( kRfLab ) ;
   TLorentzVector probe( 0., 0., k0, k0 ) ; 
-  TLorentzVector out_neutrino = i -> Kine().FSLeptonP4() ;
-  TLorentzVector t_photon = i -> Kine().HadSystP4() ;
+
+  const Kinematics & kine = i -> Kine() ;
+  TLorentzVector out_neutrino = kine.FSLeptonP4() ;
   TLorentzVector q = probe - out_neutrino ;
-  // TODO verify the calculation of t
-  TLorentzVector t = 0.5*( t_photon - q );
+  
 
-  // This is not quite what is used in original code which was
-  // the magnitude of the 3-momentum, here we are using 4-momentum
-  TLorentzVector p( t.Vect(), 
-		    sqrt(pow(constants::kNucleonMass,2) + t.Vect().Mag2() ) );
-  p += q ;
+  // evaluation of the momenta to be used for the propagators
+  TLorentzVector temp = 0.5*( i -> Kine().HadSystP4() - q );
 
-  double p2 = p.Mag2() ;
-  double p0 = out_neutrino.E() ;
+  TLorentzVector p_dir( temp.Vect(), 
+			sqrt(pow(constants::kNucleonMass,2) + temp.Vect().Mag2() ) );
 
+  TLorentzVector p_crs( -temp.Vect(), p_dir.E() );  // same temporal. opposite sign for the spatial
+  
+  p_dir += q ;
+  p_crs -= q ;
+  
   int pdg = init_state.Tgt().Pdg() ;
-
-  // Right now the proton and neutron FF are equal but could change
-  double ff_p = ff -> ProtonFF( t.Mag(), pdg );
-  double ff_n = ff -> NeutronFF( t.Mag(), pdg );
-
-  std::complex<double> D_prop_dir   = Delta_med -> AverageDirectPropagator( p2, pdg ) ;
-  std::complex<double> D_prop_cross = Delta_med -> AverageCrossPropagator( p2 ) ;
+  
+  std::complex<double> D_prop_dir   = Delta_med -> AverageDirectPropagator( p_dir.Mag2(), pdg ) ;
+  std::complex<double> D_prop_cross = Delta_med -> AverageCrossPropagator( p_crs.Mag2() ) ;
 
   GTrace R = DirTrace(i) ;
   R *= D_prop_dir ;
@@ -135,7 +133,12 @@ GTrace COHDeltaCurrent::R( const Interaction * i,
 
   // Add trace * propagator from direct and crossed diagrams
   R += tr_cross ;
-  R *= ( ff_p + ff_n ) / (2*p0) ;
+
+    // Right now the proton and neutron FF are equal but could change
+  double ff_p = ff -> ProtonFF( kine.t(), pdg );
+  double ff_n = ff -> NeutronFF( kine.t(), pdg );
+
+  R *= ( ff_p + ff_n ) / (2*out_neutrino.E() ) ;
 
   return R;
 }
