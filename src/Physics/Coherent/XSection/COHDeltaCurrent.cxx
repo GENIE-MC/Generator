@@ -117,6 +117,7 @@ GTrace COHDeltaCurrent::R( const Interaction * i,
 
   TLorentzVector p_crs( -temp.Vect(), p_dir.E() );  // same temporal. opposite sign for the spatial
   
+  double p0 = p_dir.E() ;
   p_dir += q ;
   p_crs -= q ;
   
@@ -138,7 +139,7 @@ GTrace COHDeltaCurrent::R( const Interaction * i,
   double ff_p = ff -> ProtonFF( kine.t(), pdg );
   double ff_n = ff -> NeutronFF( kine.t(), pdg );
 
-  R *= ( ff_p + ff_n ) / (2*out_neutrino.E() ) ;
+  R *= ( ff_p + ff_n ) / ( 2*p0 ) ;
 
   return R;
 }
