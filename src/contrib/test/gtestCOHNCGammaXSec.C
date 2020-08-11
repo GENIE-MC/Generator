@@ -151,7 +151,7 @@ void SigmaEg( const Interaction *i, const ARSXSec * xsec_alg, Kinematics * kine,
   TLorentzVector p4_lep;
   TLorentzVector p4_nu(0., 0., sig_param.E_nu_probe, sig_param.E_nu_probe); // probe along z
 
-  KinePhaseSpace_t t = kPSEgTlTgPgfE;
+  KinePhaseSpace_t t = kPSEgOlOgfE;
 
   for( unsigned int ang = 0; ang < theta_gamma.size(); ang++ ) {
     sig_param.theta_g = theta_gamma[ang]*TMath::DegToRad();
