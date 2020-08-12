@@ -19,7 +19,7 @@ gsl-min-eval               int      Yes                                         
   <param_set name="Default">
     <param type="string" name="CommonDark"> Masses </param>
 
-    <param type="string" name ="gsl-integration-type">       vegas  </param>
+    <param type="string" name ="gsl-integration-type">    adaptive  </param>
     <param type="int"    name ="gsl-max-eval" >             500000  </param>
     <param type="int"    name ="gsl-min-eval" >              10000  </param>
     <param type="double" name ="gsl-relative-tolerance"  >   0.001  </param>
