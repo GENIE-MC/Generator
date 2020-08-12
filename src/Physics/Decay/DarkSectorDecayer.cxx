@@ -331,7 +331,7 @@ void DarkSectorDecayer::LoadConfig(void)
   fEps2 = DKineticMixing * DKineticMixing;
 
   bool force_unitarity = false ;
-  GetParam( "Dark-MixingForceUnitarity", force_unitarity ) ;
+  GetParam( "Dark-Mixing-ForceUnitarity", force_unitarity ) ;
 
   unsigned int n_min_mixing = force_unitarity ? 3 : 4 ;
 
