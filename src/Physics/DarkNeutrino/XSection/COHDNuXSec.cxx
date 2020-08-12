@@ -56,28 +56,25 @@ double COHDNuXSec::Integrate(
   /*     << "Q2 integration range = [" << Q2.min << ", " << Q2.max << "] GeV^2"; */
   /* assert(Q2.min > 0. && Q2.min < Q2.max); */
 
-  Interaction * interaction = new Interaction(*in);
-  interaction->SetBit(kISkipProcessChk);
-  interaction->SetBit(kISkipKinematicChk);
+  Interaction interaction(*in);
+  interaction.SetBit(kISkipProcessChk);
+  interaction.SetBit(kISkipKinematicChk);
 
 
   ROOT::Math::IntegrationOneDim::Type ig_type =
           utils::gsl::Integration1DimTypeFromString(fGSLIntgType);
-  utils::gsl::dXSec_dEDNu_E * func =
-    new utils::gsl::dXSec_dEDNu_E(model, interaction, fDNuMass);
-  Range1D_t DNuEnergy = func->IntegrationRange();
-  double abstol = 1; // We mostly care about relative tolerance
-  ROOT::Math::Integrator ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
-  double xsec = ig.Integral(DNuEnergy.min, DNuEnergy.max) * (1E-38 * units::cm2); // units: GeV^-2
 
-  delete func;
+  utils::gsl::dXSec_dEDNu_E func( model, & interaction, fDNuMass );
+  Range1D_t DNuEnergy = func.IntegrationRange();
+
+  double abstol = 1; // We mostly care about relative tolerance
+  ROOT::Math::Integrator ig( func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
+  double xsec = ig.Integral(DNuEnergy.min, DNuEnergy.max) * (1E-38 * units::cm2); // units: GeV^-2
 
   const InitialState & init_state = in->InitState();
   double Ev = init_state.ProbeE(kRfLab);
   LOG("CEvNS", pINFO)
     << "XSec[CEvNS] (E = " << Ev << " GeV) = " << xsec/(units::cm2) << " cm^2";
-
-  delete interaction;
 
   return xsec;
 }
