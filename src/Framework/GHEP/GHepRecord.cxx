@@ -274,11 +274,18 @@ GEvGenMode_t GHepRecord::EventGenerationMode(void) const
   return kGMdUnknown;
 }
 //___________________________________________________________________________
-GHepParticle * GHepRecord::Probe(void) const
+GHepParticle * GHepRecord::ExperimentalProbe(void) const
 {
 // Returns the GHepParticle representing the probe (neutrino, e,...).
-
-  int ipos = this->ProbePosition();
+  int ipos = this->ExperimentalProbePosition();
+  if(ipos>-1) return this->Particle(ipos);
+  return 0;
+}
+//___________________________________________________________________________
+GHepParticle * GHepRecord::CorrectProbe(void) const
+{
+// Returns the GHepParticle representing the probe (neutrino, e,...).
+  int ipos = this->CorrectProbePosition();
   if(ipos>-1) return this->Particle(ipos);
   return 0;
 }
@@ -342,13 +349,41 @@ GHepParticle * GHepRecord::FinalStateHadronicSystem(void) const
   return 0;
 }
 //___________________________________________________________________________
-int GHepRecord::ProbePosition(void) const
+int GHepRecord::ExperimentalProbePosition(void) const
 {
 // Returns the GHEP position of the GHepParticle representing the probe
 // (neutrino, e,...).
 
   // The probe is *always* at slot 0.
   GEvGenMode_t mode = this->EventGenerationMode();
+  if(mode == kGMdLeptonNucleus ||
+     mode == kGMdDarkMatterNucleus ||
+     mode == kGMdHadronNucleus ||
+     mode == kGMdPhotonNucleus)
+  {
+    return 0;
+  }
+  return -1;
+}
+//___________________________________________________________________________
+int GHepRecord::CorrectProbePosition(void) const
+{
+// Returns the GHEP position of the GHepParticle representing the probe 
+// (neutrino, e,...).
+
+// The probe is *always* at slot 0.
+// Except for when the original probe radiated
+  GEvGenMode_t mode = this->EventGenerationMode();
+  if(mode == kGMdLeptonNucleus) {
+    int ipos = 0;
+    GHepParticle * p = 0;
+    TIter iter(this);
+    while( (p = (GHepParticle *)iter.Next()) ) {
+     if(!p) continue;
+     if(this->Particle(ipos)->Status() == kIStCorrectedProbe ) return ipos;
+     ipos++;
+    }
+  }
   if(mode == kGMdLeptonNucleus ||
      mode == kGMdDarkMatterNucleus ||
      mode == kGMdHadronNucleus ||
@@ -453,7 +488,7 @@ int GHepRecord::FinalStatePrimaryLeptonPosition(void) const
 // Returns the GHEP position GHepParticle representing the final state
 // primary lepton.
 
-  GHepParticle * probe = this->Probe();
+  GHepParticle * probe = this->CorrectProbe();
   if(!probe) return -1;
 
   int ifsl = probe->FirstDaughter();
@@ -1123,7 +1158,7 @@ void GHepRecord::Print(ostream & stream) const
 
   // Print vertex
 
-  GHepParticle * probe = this->Probe();
+  GHepParticle * probe = this->ExperimentalProbe();
   if(probe){
     stream << "\n| ";
     stream << setfill(' ') << setw(17) << "Vertex:    ";

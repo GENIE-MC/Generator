@@ -129,7 +129,7 @@ TLorentzVector HadronicSystemGenerator::Hadronic4pLAB(
 {
 // Returns the final state hadronic system 4-p in LAB
 
-  GHepParticle * nu = evrec->Probe(); // incoming v
+  GHepParticle * nu = evrec->CorrectProbe(); // incoming v
   GHepParticle * N = evrec->HitNucleon();  // struck nucleon
   GHepParticle * l = evrec->FinalStatePrimaryLepton();  // f/s primary lepton
 
@@ -158,7 +158,7 @@ TLorentzVector HadronicSystemGenerator::Hadronic4pLAB(
 TLorentzVector HadronicSystemGenerator::MomentumTransferLAB(
                                                     GHepRecord * evrec) const
 {
-  GHepParticle * nu = evrec->Probe();  // incoming v
+  GHepParticle * nu = evrec->CorrectProbe();  // incoming v
   GHepParticle * l = evrec->FinalStatePrimaryLepton();  // f/s primary lepton
 
   assert(nu);

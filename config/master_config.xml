@@ -12,6 +12,7 @@
    <config alg="genie::HINCLCascadeIntranuke">           HINCLCascadeIntranuke.xml           </config>
    <config alg="genie::HG4BertCascIntranuke">            HG4BertCascIntranuke.xml            </config>
    <config alg="genie::UnstableParticleDecayer">         UnstableParticleDecayer.xml         </config>
+   <config alg="genie::RadiativeCorrector">              RadiativeCorrector.xml              </config>
    <config alg="genie::PauliBlocker">                    PauliBlocker.xml                    </config>
    <config alg="genie::NucDeExcitationSim">              NucDeExcitationSim.xml              </config>
    <config alg="genie::NucBindEnergyAggregator">         NucBindEnergyAggregator.xml         </config>

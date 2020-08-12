@@ -105,7 +105,7 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_BergerSehgalFM(GHepReco
   const InitialState & init_state = interaction -> InitState();
 
   //-- Access neutrino, initial nucleus and final state prim. lepton entries
-  GHepParticle * nu  = evrec->Probe();
+  GHepParticle * nu  = evrec->CorrectProbe();
   GHepParticle * Ni  = evrec->TargetNucleus();
   GHepParticle * fsl = evrec->FinalStatePrimaryLepton();
   assert(nu);
@@ -228,7 +228,7 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_ReinSehgal(GHepRecord *
   const XclsTag & xcls_tag  = interaction->ExclTag();
 
   //-- Access neutrino, initial nucleus and final state prim. lepton entries
-  GHepParticle * nu  = evrec->Probe();
+  GHepParticle * nu  = evrec->CorrectProbe();
   GHepParticle * Ni  = evrec->TargetNucleus();
   GHepParticle * fsl = evrec->FinalStatePrimaryLepton();
   assert(nu);
@@ -323,7 +323,7 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_AlvarezRuso(GHepRecord 
 {
   Interaction * interaction = evrec->Summary();
   const Kinematics &   kinematics = interaction -> Kine();
-  GHepParticle * nu  = evrec->Probe();
+  GHepParticle * nu  = evrec->CorrectProbe();
   GHepParticle * Ni  = evrec->TargetNucleus();
   GHepParticle * fsl = evrec->FinalStatePrimaryLepton();
 

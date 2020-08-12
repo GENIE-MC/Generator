@@ -25,11 +25,13 @@
 #include "Framework/GHEP/GHepFlags.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
+#include "Physics/Common/RadiativeCorrector.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/ParticleData/PDGUtils.h"
 
 using namespace genie;
+//using namespace genie::constants;
 using namespace genie::controls;
 using namespace genie::utils;
 
@@ -240,7 +242,8 @@ TLorentzVector DISKinematicsGenerator::GetFinalStateLeptonKinematic(GHepRecord *
           LOG("DISKinematics", pNOTICE) << "Calulating temp final state for radiative correction fsl @ Nucleon rest frame: E = " << El << ", |p//| = " << plp << ", [pT] = " << plt;
 	  // Randomize transverse components
 	  RandomGen * rnd_temp = RandomGen::Instance();
-          double phi  = 2*kPi * rnd_temp->RndLep().Rndm();
+          //double phi  = 2*kPi * rnd_temp->RndLep().Rndm();
+          double phi  = 2* TMath::Pi() * rnd_temp->RndLep().Rndm();
           double pltx = plt * TMath::Cos(phi);
           double plty = plt * TMath::Sin(phi);
           TLorentzVector * p4v = evrec->CorrectProbe()->GetP4(); // v 4p @ LAB
@@ -256,8 +259,6 @@ TLorentzVector DISKinematicsGenerator::GetFinalStateLeptonKinematic(GHepRecord *
           p4l.Boost(beta); // active Lorentz transform
           LOG("DISKinematics", pNOTICE) << "Calulating temp final state for radiative correction fsl @ LAB: E " <<p4l.E() << " px "<<p4l.Px() << " py "<<p4l.Py() << " pz "<<p4l.Pz() ;
           return p4l;
-=======
->>>>>>> 31479d9d829c9c09ab39333b8ef5a41b78b1207a
 }
 //___________________________________________________________________________
 void DISKinematicsGenerator::Configure(const Registry & config)

@@ -575,7 +575,7 @@ void ConvertToGST(void)
     //
 
     //input particles
-    GHepParticle * neutrino = event.Probe();
+    GHepParticle * neutrino = event.ExperimentalProbe();
     GHepParticle * target = event.Particle(1);
     assert(target);
     GHepParticle * fsl = event.FinalStatePrimaryLepton();
@@ -2605,7 +2605,7 @@ void ConvertToGHad(void)
     else if (init_state.IsNuBarN ()) im = 4; 
     else return;
 
-    GHepParticle * neutrino = event.Probe();
+    GHepParticle * neutrino = event.ExperimentalProbe();
     assert(neutrino);
     GHepParticle * target = event.Particle(1);
     assert(target);

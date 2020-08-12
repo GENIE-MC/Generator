@@ -119,7 +119,7 @@ void AGCharm2019::ProcessEventRecord(GHepRecord * event) const
   // Vector defining rotation from LAB to LAB' (z:= \vec{phad})
   TVector3 unitvq = had_syst -> Vect().Unit();
 
-  GHepParticle * neutrino  = event->Probe();
+  GHepParticle * neutrino  = event->CorrectProbe();
   const TLorentzVector & vtx = *(neutrino->X4());
 
   GHepParticle * particle = 0;

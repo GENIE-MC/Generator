@@ -9,11 +9,11 @@ Configurable Parameters:
 ................................................................................................
 Name                   Type     Optional   Comment            Default
 ................................................................................................
--->
   <param_set name="DefaultQEL">
    <param type="string"  name="CommonParam"> RadiativeCorrection </param> 
    <param type="bool"    name="RadiativeCorrectionDoInternal"> true            </param>
   </param_set>
+-->
 
   <param_set name="Default">
    <param type="string"  name="CommonParam"> RadiativeCorrection </param> 

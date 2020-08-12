@@ -25,6 +25,7 @@
 
 namespace genie {
 
+class RadiativeCorrector;
 class QELKinematicsGenerator : public KineGeneratorWithCache {
 
 public :

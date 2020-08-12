@@ -610,7 +610,7 @@ bool BaryonResonanceDecayer::AcceptPionDecay( TLorentzVector pion,
   TLorentzVector delta_p4 = *(decay_particle->P4() );
 
   // find incoming lepton
-  TLorentzVector in_lep_p4( * (event -> Probe()-> GetP4()) ) ;
+  TLorentzVector in_lep_p4( * (event -> CorrectProbe()-> GetP4()) ) ;
 
   // find outgoing lepton
   Interaction * interaction = event->Summary();

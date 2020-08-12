@@ -31,9 +31,11 @@ NSV-Q3Max        double   No         Q3 max for 2p2h model                      
     <param type="bool"   name="doRadiativeCorrection"> true               </param>
     <param type="string"  name="RadiativeCorrectionModel"> simple </param>
     <param type="double"  name="RadiativeCorrectionCutoff"> 0.0001 </param>
-    <param type="double"  name="RadiativeCorrectionThickness"> 0.008532  </param>  <!--Fe-->
     <!-- <param type="double"  name="RadiativeCorrectionThickness"> 0.027760 </param> -->         <!--H -->
-    <param type="bool"   name="RadiativeCorrectionDoInternal"> false             </param>
+    <param type="double"  name="RadiativeCorrectionThickness"> 0.005772 </param>     <!--He -->
+    <!-- <param type="double"  name="RadiativeCorrectionThickness"> 0.004183 </param> -->    <!--C -->
+    <!-- <param type="double"  name="RadiativeCorrectionThickness"> 0.008532  </param> --> <!--Fe-->
+    <param type="bool"   name="RadiativeCorrectionDoInternal"> false             </param>  
   </param_set>
   
 </alg_conf>

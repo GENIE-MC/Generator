@@ -25,6 +25,7 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Numerical/MathUtils.h"
+#include "Physics/Common/RadiativeCorrector.h"
 #include "Framework/ParticleData/BaryonResonance.h"
 #include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Utils/KineUtils.h"
@@ -305,7 +306,8 @@ TLorentzVector RESKinematicsGenerator::GetFinalStateLeptonKinematic(GHepRecord *
           LOG("RESKinematics", pNOTICE) << "Calulating temp final state for radiative correction fsl @ Nucleon rest frame: E = " << El << ", |p//| = " << plp << ", [pT] = " << plt;
           // Randomize transverse components
 	  RandomGen * rnd_temp = RandomGen::Instance();
-          double phi  = 2*kPi * rnd_temp->RndLep().Rndm();
+          //double phi  = 2*kPi * rnd_temp->RndLep().Rndm();
+          double phi  = 2* TMath::Pi() * rnd_temp->RndLep().Rndm();
           double pltx = plt * TMath::Cos(phi);
           double plty = plt * TMath::Sin(phi);
           TLorentzVector * p4v = evrec->CorrectProbe()->GetP4(); // v 4p @ LAB

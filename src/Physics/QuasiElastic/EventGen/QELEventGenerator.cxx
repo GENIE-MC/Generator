@@ -253,11 +253,11 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
             TLorentzVector lepton(interaction->KinePtr()->FSLeptonP4());
             TLorentzVector outNucleon(interaction->KinePtr()->HadSystP4());
-            TLorentzVector x4l(*(evrec->Probe())->X4());
+            TLorentzVector x4l(*(evrec->CorrectProbe())->X4());
 
             // Add the final-state lepton to the event record
             evrec->AddParticle(interaction->FSPrimLeptonPdg(), kIStStableFinalState,
-              evrec->ProbePosition(), -1, -1, -1, interaction->KinePtr()->FSLeptonP4(), x4l);
+              evrec->CorrectProbePosition(), -1, -1, -1, interaction->KinePtr()->FSLeptonP4(), x4l);
 
             // Set its polarization
             utils::SetPrimaryLeptonPolarization( evrec );

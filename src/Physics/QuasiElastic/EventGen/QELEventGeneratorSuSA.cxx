@@ -109,7 +109,7 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
   int NuPDG = interaction->InitState().ProbePdg();
   int TgtPDG = interaction->InitState().TgtPdg();
   // interacton vtx
-  TLorentzVector v4(*event->Probe()->X4());
+  TLorentzVector v4(*event->CorrectProbe()->X4());
   TLorentzVector tempp4(0.,0.,0.,0.);
 
   GHepParticle * nucleus = event->TargetNucleus();
@@ -252,7 +252,7 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
 
   // Rotate lepton momentum vector from the reference frame (x'y'z') where
   // {z':(neutrino direction), z'x':(theta plane)} to the LAB
-  TVector3 unit_nudir = event->Probe()->P4()->Vect().Unit();
+  TVector3 unit_nudir = event->CorrectProbe()->P4()->Vect().Unit();
   TVector3 p3l(PlepX, PlepY, PlepZ);
   p3l.RotateUz(unit_nudir);
 
@@ -262,7 +262,7 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
 
   // Figure out the final-state primary lepton PDG code
   int pdgc = interaction->FSPrimLepton()->PdgCode();
-  int momidx = event->ProbePosition();
+  int momidx = event->CorrectProbePosition();
 
   // -- Store Values ------------------------------------------//
   // -- Interaction: Q2
@@ -361,7 +361,7 @@ void QELEventGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
     LOG("QELEvent",pDEBUG) << "Generate Nucleon - Start";
 
     Interaction * interaction = event->Summary();
-    GHepParticle * neutrino = event->Probe();
+    GHepParticle * neutrino = event->CorrectProbe();
     assert(neutrino);
     TLorentzVector p4nu(*neutrino->P4());
 

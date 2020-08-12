@@ -194,7 +194,7 @@ void CEvNSEventGenerator::GenerateKinematics(GHepRecord * event) const
 //___________________________________________________________________________
 void CEvNSEventGenerator::AddFinalStateNeutrino(GHepRecord * event) const
 {
-  GHepParticle * probe  = event->Probe();
+  GHepParticle * probe  = event->CorrectProbe();
   GHepParticle * target = event->TargetNucleus();
 
   int target_pdgc = target->Pdg();
@@ -246,7 +246,7 @@ void CEvNSEventGenerator::AddFinalStateNeutrino(GHepRecord * event) const
      << "Final state neutrino 4-momentum: " << utils::print::P4AsString(&p4l);
 
   event->AddParticle(
-    probe->Pdg(), kIStStableFinalState, event->ProbePosition(),
+    probe->Pdg(), kIStStableFinalState, event->CorrectProbePosition(),
     -1,-1,-1, p4l, x4l);
 
   event->Summary()->KinePtr()->SetFSLeptonP4(p4l);
@@ -254,7 +254,7 @@ void CEvNSEventGenerator::AddFinalStateNeutrino(GHepRecord * event) const
 //___________________________________________________________________________
 void CEvNSEventGenerator::AddRecoilNucleus(GHepRecord * event) const
 {
-  GHepParticle * probe  = event->Probe();
+  GHepParticle * probe  = event->CorrectProbe();
   GHepParticle * target = event->TargetNucleus();
   GHepParticle * fsl    = event->Particle(probe->FirstDaughter());
 

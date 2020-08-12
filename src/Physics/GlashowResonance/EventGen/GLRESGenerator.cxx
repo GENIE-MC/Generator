@@ -48,7 +48,7 @@ GLRESGenerator::~GLRESGenerator()
 //___________________________________________________________________________
 void GLRESGenerator::ProcessEventRecord(GHepRecord * event) const
 {
-  GHepParticle * nu = event -> Probe();
+  GHepParticle * nu = event -> CorrectProbe();
   GHepParticle * el = event -> HitElectron();
   assert(nu);
   assert(el);

@@ -50,7 +50,6 @@
 #include "Framework/Conventions/Units.h"
 #include "Framework/EventGen/EVGThreadException.h"
 #include "Physics/Common/RadiativeCorrector.h"
-#include "Physics/Decay/DecayModelI.h"
 #include "Physics/Decay/UnstableParticleDecayer.h"
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"

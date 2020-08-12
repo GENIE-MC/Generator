@@ -55,7 +55,7 @@ void DFRHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   RandomGen * rnd = RandomGen::Instance();
 
   //-- Access neutrino, initial nucleus and final state prim. lepton entries
-  GHepParticle * nu  = evrec->Probe();
+  GHepParticle * nu  = evrec->CorrectProbe();
   GHepParticle * Ni  = evrec->HitNucleon();
   GHepParticle * fsl = evrec->FinalStatePrimaryLepton();
   assert(nu);

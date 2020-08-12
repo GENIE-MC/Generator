@@ -102,7 +102,7 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double plty = plt * TMath::Sin(phi);
 
   // Take a unit vector along the neutrino direction
-  TVector3 unit_nudir = evrec->Probe()->P4()->Vect().Unit();
+  TVector3 unit_nudir = evrec->CorrectProbe()->P4()->Vect().Unit();
 
   // Rotate lepton momentum vector from the reference frame (x'y'z') where
   // {z':(neutrino direction), z'x':(theta plane)} to the LAB

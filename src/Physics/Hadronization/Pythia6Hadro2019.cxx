@@ -127,7 +127,7 @@ bool Pythia6Hadro2019::Hadronize(GHepRecord *
   assert(mom!=-1);
 
   // Get the neutrino vertex position (all hadrons positions set to this point)
-  GHepParticle * neutrino  = event->Probe();
+  GHepParticle * neutrino  = event->CorrectProbe();
   const TLorentzVector & vtx = *(neutrino->X4());
 
   // Loop over PYTHIA8 event particles and copy relevant entries
