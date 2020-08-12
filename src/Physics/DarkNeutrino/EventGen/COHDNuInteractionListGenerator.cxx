@@ -44,8 +44,6 @@ InteractionList * COHDNuInteractionListGenerator::CreateInteractionList(
   LOG("IntLst", pINFO)
       << "InitialState = " << init_state.AsString();
 
-  InteractionType_t inttype = kIntDarkNC;;
-
   int probe_pdg = init_state.ProbePdg();
   bool isnu = pdg::IsNeutrino(probe_pdg) || pdg::IsAntiNeutrino(probe_pdg);
   if( !isnu) {
@@ -67,8 +65,8 @@ InteractionList * COHDNuInteractionListGenerator::CreateInteractionList(
 
   InteractionList * intlist = new InteractionList;
 
-  ProcessInfo proc_info(kScCoherentElastic, inttype);
-  Interaction * interaction = new Interaction(init_state, proc_info);
+  ProcessInfo proc_info( kScCoherentElastic, kIntDarkNC );
+  Interaction * interaction = new Interaction( init_state, proc_info);
 
   intlist->push_back(interaction);
 
