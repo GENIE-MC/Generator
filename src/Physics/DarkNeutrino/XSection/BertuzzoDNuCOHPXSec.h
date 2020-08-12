@@ -41,8 +41,6 @@ public:
 
   // XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const override;
-  double XSecDNuE        (const Interaction * i, KinePhaseSpace_t k) const;
-  double XSecDefective   (const Interaction * i, KinePhaseSpace_t k) const;
   double Integral        (const Interaction * i) const override;
   bool   ValidProcess    (const Interaction * i) const override;
   bool   ValidKinematics (const Interaction * i) const override;
@@ -60,7 +58,11 @@ private:
   const EngelFormFactor * fFF; ///< Engel Form Factor algorithm
 
   double fEps2;
+  
   std::array<double, 4> fMixing2s;
+  // mixing angles between the neutrinos (including a 4rth sterile one)
+  // to the dark neutrino
+
   double fgD2;
 
   double fDNuMass, fDNuMass2;

@@ -71,21 +71,17 @@ double BertuzzoDNuCOHPXSec::XSec(
   // const double DNuE =  kinematics.FSLeptonP4().E(); // E_N is the energy of the dark neutrino
   const double TE =  kinematics.HadSystP4().E(); // energy of the target
   const unsigned int Z = target.Z(); // number of protons
-  const unsigned int N = target.N(); // number of nucleons
 
   // select the mixing depending on the incoming neutrino
-  size_t nu_i = 3;
-  if(nu_pdg == kPdgNuE || nu_pdg == kPdgAntiNuE) nu_i = 0;
-  else if(nu_pdg == kPdgNuMu || nu_pdg == kPdgAntiNuMu) nu_i = 1;
-  else if(nu_pdg == kPdgNuTau || nu_pdg == kPdgAntiNuTau) nu_i = 2;
+  unsigned short nu_i = 3;
+  if( pdg::IsNuE( TMath::Abs( nu_pdg ) ) ) nu_i = 0;
+  else if ( pdg::IsNuMu( TMath::Abs( nu_pdg ) ) ) nu_i = 1;
+  else if ( pdg::IsNuTau( TMath::Abs( nu_pdg ) ) ) nu_i = 2;
   const double DTheta2 = fMixing2s[nu_i];
 
   // Target atomic mass number and mass calculated from inputs
-  const unsigned int A = Z + N;
-  const int target_nucleus_pdgc = pdg::IonPdgCode(A, Z);
-  const double M = PDGLibrary::Instance()->Find(target_nucleus_pdgc)->Mass(); // units: GeV
-  LOG("DNu", pDEBUG) << "M = " << M << " GeV";
-
+  const double M = target.Mass(); // units: GeV
+  
   // LOG("DNu", pDEBUG)
   //   << "Q2 = " << Q2 << " GeV^2, E = " << E << " GeV "
   //   << "--> TA = " << TA << " GeV";
@@ -100,10 +96,7 @@ double BertuzzoDNuCOHPXSec::XSec(
   const double FF2 = FF * FF;
   const double TTDiff = TT - M;
 
-  //TODO DNu: is this one required?
-  const double elec2 = 0.3*0.3;
-
-  const double const_factor = .125 * elec2 / kPi;
+  const double const_factor = 0.5 * constants::kAem ;
   const double model_params = fEps2 * DTheta2 * fgD2;
 
   const double num_fact1 = FF2 * Z2;
@@ -116,163 +109,7 @@ double BertuzzoDNuCOHPXSec::XSec(
     const double xsec = const_factor * model_params * num_fact1 *
       (num_fact21 + num_fact22) * den_fact1 * den_fact2;
 
-    // std::cout << "\nnum_fact2:\t" << num_fact2 << "\n";
-    // std::cout << "(DNuE+E+M)*fDNuMass2:\t" << (DNuE+E+M)*fDNuMass2 << "\n";
-    // std::cout << "-2.*M*(DNuE2 + M*DNuE + E2 - E*M):\t" << -2.*M*(DNuE2 + M*DNuE + E2 - E*M) << "\n";
-    // std::cout << "M:\t" << M << "\n";
-    // std::cout << "DNuE:\t" << DNuE << "\n";
-    // std::cout << "DNuE2:\t" << DNuE2 << "\n";
-    // std::cout << "E:\t" << E << "\n";
-    // std::cout << "E2:\t" << E2 << "\n";
-    // std::cout << "xsec:\t" << xsec << "\n";
-    // std::cout << "xsec_approx:\t" << xsec_approx << "\n";
-
     return xsec;
-  }
-  return 0.;
-}
-//____________________________________________________________________________
-double BertuzzoDNuCOHPXSec::XSecDNuE(
-  const Interaction * interaction, KinePhaseSpace_t kps) const
-{
-  if(! this -> ValidProcess    (interaction) ) return 0.;
-  if(! this -> ValidKinematics (interaction) ) return 0.;
-
-  const InitialState & init_state = interaction -> InitState();
-  const Kinematics &   kinematics = interaction -> Kine();
-  const Target &       target     = init_state.Tgt();
-
-  // User inputs to the calculation
-  const int nu_pdg = init_state.ProbePdg(); // neutrino energy, units: GeV
-  const double E  = init_state.ProbeE(kRfLab); // neutrino energy, units: GeV
-  const double Q2 = kinematics.Q2(); // momentum transfer, units: GeV^2
-  const double DNuE =  kinematics.FSLeptonP4().E(); // E_N is the energy of the dark neutrino
-  const unsigned int Z = target.Z(); // number of protons
-  const unsigned int N = target.N(); // number of nucleons
-
-  // select the mixing depending on the incoming neutrino
-  size_t nu_i = 3;
-  if(nu_pdg == kPdgNuE || nu_pdg == kPdgAntiNuE) nu_i = 0;
-  else if(nu_pdg == kPdgNuMu || nu_pdg == kPdgAntiNuMu) nu_i = 1;
-  else if(nu_pdg == kPdgNuTau || nu_pdg == kPdgAntiNuTau) nu_i = 2;
-  const double DTheta2 = fMixing2s[nu_i];
-
-  // Target atomic mass number and mass calculated from inputs
-  const unsigned int A = Z + N;
-  const int target_nucleus_pdgc = pdg::IonPdgCode(A, Z);
-  const double M = PDGLibrary::Instance()->Find(target_nucleus_pdgc)->Mass(); // units: GeV
-  LOG("DNu", pDEBUG) << "M = " << M << " GeV";
-
-  // LOG("DNu", pDEBUG)
-  //   << "Q2 = " << Q2 << " GeV^2, E = " << E << " GeV "
-  //   << "--> TA = " << TA << " GeV";
-
-  const double FF = fFF->FormFactor(Q2, target);
-
-  // auxiliary variables
-  const double E2  = E * E;
-  // const double DNuE2  = DNuE * DNuE;
-  const double Z2 = Z * Z;
-  const double FF2 = FF * FF;
-  const double EDiff = E - DNuE;
-
-  //TODO DNu: is this one required?
-  const double elec2 = 0.3*0.3;
-
-  const double const_factor = .125 * elec2 / kPi;
-  const double model_params = fEps2 * DTheta2 * fgD2;
-
-  const double num_fact1 = FF2 * Z2;
-  const double num_fact21 = -fDNuMass2 * (DNuE+E+M);
-  const double num_fact22 = 2. * M * (2.*DNuE*E + EDiff*(EDiff-M));
-  const double den_fact1 = 1. / (E2);
-  const double den_fact2 = TMath::Power((fDMediatorMass2 + 2.*EDiff*M), -2.);
-
-  if(kps == kPSEDNufE) {
-    const double xsec = const_factor * model_params * num_fact1 *
-      (num_fact21 + num_fact22) * den_fact1 * den_fact2;
-
-    // std::cout << "\nnum_fact2:\t" << num_fact2 << "\n";
-    // std::cout << "(DNuE+E+M)*fDNuMass2:\t" << (DNuE+E+M)*fDNuMass2 << "\n";
-    // std::cout << "-2.*M*(DNuE2 + M*DNuE + E2 - E*M):\t" << -2.*M*(DNuE2 + M*DNuE + E2 - E*M) << "\n";
-    // std::cout << "M:\t" << M << "\n";
-    // std::cout << "DNuE:\t" << DNuE << "\n";
-    // std::cout << "DNuE2:\t" << DNuE2 << "\n";
-    // std::cout << "E:\t" << E << "\n";
-    // std::cout << "E2:\t" << E2 << "\n";
-    // std::cout << "xsec:\t" << xsec << "\n";
-    // std::cout << "xsec_approx:\t" << xsec_approx << "\n";
-
-    return xsec;
-  }
-  return 0.;
-}
-//____________________________________________________________________________
-double BertuzzoDNuCOHPXSec::XSecDefective(
-  const Interaction * interaction, KinePhaseSpace_t kps) const
-{
-  if(! this -> ValidProcess    (interaction) ) return 0.;
-  if(! this -> ValidKinematics (interaction) ) return 0.;
-
-  const InitialState & init_state = interaction -> InitState();
-  const Kinematics &   kinematics = interaction -> Kine();
-  const Target &       target     = init_state.Tgt();
-
-  // User inputs to the calculation
-  const int nu_pdg = init_state.ProbePdg(); // neutrino energy, units: GeV
-  const double E  = init_state.ProbeE(kRfLab); // neutrino energy, units: GeV
-  const double Q2 = kinematics.Q2(); // momentum transfer, units: GeV^2
-  const double DNuE =  kinematics.FSLeptonP4().E(); // E_N is the energy of the dark neutrino
-  const unsigned int Z = target.Z(); // number of protons
-  const unsigned int N = target.N(); // number of nucleons
-
-  // select the mixing depending on the incoming neutrino
-  size_t nu_i = 3;
-  if(nu_pdg == kPdgNuE || nu_pdg == kPdgAntiNuE) nu_i = 0;
-  else if(nu_pdg == kPdgNuMu || nu_pdg == kPdgAntiNuMu) nu_i = 1;
-  else if(nu_pdg == kPdgNuTau || nu_pdg == kPdgAntiNuTau) nu_i = 2;
-  const double DTheta2 = fMixing2s[nu_i];
-
-  // Target atomic mass number and mass calculated from inputs
-  const unsigned int A = Z + N;
-  const int target_nucleus_pdgc = pdg::IonPdgCode(A, Z);
-  const double M = PDGLibrary::Instance()->Find(target_nucleus_pdgc)->Mass(); // units: GeV
-  LOG("DNu", pDEBUG) << "M = " << M << " GeV";
-
-  // LOG("DNu", pDEBUG)
-  //   << "Q2 = " << Q2 << " GeV^2, E = " << E << " GeV "
-  //   << "--> TA = " << TA << " GeV";
-
-  const double FF = fFF->FormFactor(Q2, target);
-
-  // auxiliary variables
-  const double E2  = E * E;
-  const double DNuE2  = DNuE * DNuE;
-  const double Z2 = Z * Z;
-  const double FF2 = FF * FF;
-
-  //TODO DNu: is this one required?
-  const double elec2 = 0.3*0.3;
-
-  const double const_factor = .125 * elec2 / kPi;
-  const double model_params = fEps2 * DTheta2 * fgD2;
-
-  const double num_fact1 = ( FF2  * fDNuMass) * Z2;
-  const double num_fact2 = (DNuE+E+M)*fDNuMass2  - 2.*M*(DNuE2 + M*DNuE + E2 - E*M);
-  const double den_fact1 = 1. / (E2*M);
-  const double den_fact2 = TMath::Power((fDMediatorMass2 - 2.*DNuE*M + 2*E*M), -2.);
-
-  if(kps==kPSEDNufE) {
-    // TODO DNu: BUG xsec is negative
-    // const double xsec = const_factor * model_params
-      // * num_fact1 * num_fact2 * den_fact1 * den_fact2;
-    const double xsec_approx = (2.*const_factor) * model_params *
-      (E - DNuE) * (M * num_fact1) * (1./E2) * den_fact2;
-    // const double cross_section = (elec2 * FF2 * eps2 * theta2 * g_D2 * DNu_mass) *
-    //   ( (DNu_energy+E+M)*DNu_mass2  - 2*M*(E2 + M*DNu_energy + E2 - E*M) )*Z2 *
-    //   (1./ (8*kPi*E2*M *  TMath::Power((DZ_mass2 - 2*DNu*M + 2*E*M),2)));
-    // return xsec;
-    return xsec_approx;
   }
   return 0.;
 }
@@ -288,13 +125,14 @@ bool BertuzzoDNuCOHPXSec::ValidProcess(const Interaction * interaction) const
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
   const ProcessInfo & proc_info = interaction->ProcInfo();
-  if(!proc_info.IsCoherentElastic()) return false;
-
-  // TODO DNU: add other requirements
+  if ( ! proc_info.IsCoherentElastic() ) return false;
+  if ( ! proc_info.IsDarkNeutralCurrent() ) return false ;
 
   const InitialState & init_state = interaction->InitState();
+  if ( ! pdg::IsNeutrino( TMath::Abs( init_state.ProbePdg() ) ) ) return false ;
+  
   const Target & target = init_state.Tgt();
-  if(!target.IsNucleus()) return false;
+  if( ! target.IsNucleus() ) return false ;
 
   return true;
 }
@@ -303,7 +141,7 @@ bool BertuzzoDNuCOHPXSec::ValidKinematics(const Interaction* interaction) const
 {
   if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  // if(!interaction->PhaseSpace().IsAboveThreshold()) return false;
+  if(!interaction->PhaseSpace().IsAboveThreshold()) return false;
 
   const double E  = interaction->InitState().ProbeE(kRfLab);
   const double M = interaction->InitState().Tgt().Mass();
@@ -314,15 +152,9 @@ bool BertuzzoDNuCOHPXSec::ValidKinematics(const Interaction* interaction) const
 
   if(tl < -1.*tr) return false;
   if(tl >  tr) return false;
+
   return true;
 
-  // Pedro suggests, but it's an overkill:
-  // const double M = interaction->InitState().Tgt().Mass();
-  // const double DNuEnergy = interaction->Kine().FSLeptonP4().E();
-  // const double t1 = 4. * fDNuMass2 * (DNuEnergy - E) * (M + E);
-  // const double t2 = 4. * M * (DNuEnergy - E) * (DNuEnergy*(M+2.*E) - M*E);
-  // const double t3 = fDNuMass2 * fDNuMass2;
-  // if( (t1 - t2 - t3) <= 0. ) return false;
 }
 //____________________________________________________________________________
 void BertuzzoDNuCOHPXSec::Configure(const Registry & config)
@@ -339,16 +171,42 @@ void BertuzzoDNuCOHPXSec::Configure(string config)
 //____________________________________________________________________________
 void BertuzzoDNuCOHPXSec::LoadConfig(void)
 {
-  double DKineticMixing = 0.;    // \varepsilon
+
+  bool good_configuration = true ; 
+
+  double DKineticMixing = 0.;    // \varepsilon in the note
   this->GetParam("Dark-KineticMixing", DKineticMixing);
   fEps2 = DKineticMixing * DKineticMixing;
+  
+  bool force_unitarity = false ;
+  GetParam( "Dark-MixingForceUnitarity", force_unitarity ) ;
 
-  std::vector<double> DMixings;  // U_{\alpha 4}
-  this->GetParamVect("Dark-Mixings", DMixings);
-  for(size_t i=0; i<DMixings.size(); ++i){
-    fMixing2s[i] = DMixings[i] * DMixings[i];
+  unsigned int n_min_mixing = force_unitarity ? 3 : 4 ;
+
+  std::vector<double> DMixing2s;  // |U_{\alpha 4}|^2
+  this->GetParamVect("Dark-Mixings2", DMixing2s);
+
+  // check whther we go enough mixing elements
+  if ( DMixing2s.size () < n_min_mixing ) { 
+    
+    good_configuration = false ;
+    LOG("BertuzzoDNuCOHPXSec", pERROR ) << "Not enough mixing elements specified, only specified " 
+					<< DMixing2s.size() << " / " << n_min_mixing ;                                 }
+  
+  double tot_mix = 0. ;
+  for( unsigned int i = 0; i < n_min_mixing ; ++i ) {
+    if ( DMixing2s[i] < 0. ) { 
+      good_configuration = false ;
+      LOG("BertuzzoDNuCOHPXSec", pERROR ) << "Mixign " << i << " non positive: " << DMixing2s[i] ; 
+      continue ;
+    }
+    tot_mix += fMixing2s[i] = DMixing2s[i] ; 
   }
 
+  if ( force_unitarity ) { 
+    fMixing2s[3] = 1. - tot_mix ;  
+  }
+  
   double DGaugeCoupling = 0.;   // g_D
   this->GetParam("Dark-GaugeCoupling", DGaugeCoupling);
   fgD2 = DGaugeCoupling * DGaugeCoupling;
@@ -366,5 +224,13 @@ void BertuzzoDNuCOHPXSec::LoadConfig(void)
   assert(fXSecIntegrator);
   fFF = dynamic_cast<const EngelFormFactor *> (this->SubAlg("FormFactor"));
   assert(fFF);
+
+  if ( ! good_configuration ) { 
+
+    LOG("BertuzzoDNuCOHPXSec", pFATAL ) << "Wrong configuration. Exiting" ;
+    exit ( 78 ) ;
+    
+  }
+  
 }
 //____________________________________________________________________________
