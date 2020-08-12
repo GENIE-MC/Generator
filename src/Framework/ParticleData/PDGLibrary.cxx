@@ -167,15 +167,21 @@ bool PDGLibrary::AddDarkSector()
     return false;
   }
   TParticlePDG * dnu_particle = fDatabasePDG->GetParticle(kPdgDarkNeutrino);
+  TParticlePDG * anti_dnu_particle = fDatabasePDG->GetParticle(kPdgAntiDarkNeutrino);
   TParticlePDG * med_particle = fDatabasePDG->GetParticle(kPdgDNuMediator);
   if (!dnu_particle) {
     // Name Title Mass Stable Width Charge Class PDG
-    fDatabasePDG->AddParticle("nu_D","nu_D",reg->GetDouble("Dark-NeutrinoMass"),
+    fDatabasePDG->AddParticle("nu_D","#nu_{D}",reg->GetDouble("Dark-NeutrinoMass"),
                               true,0.,0,"DarkNeutrino",kPdgDarkNeutrino);
+  }
+  if (!anti_dnu_particle) {
+    // Name Title Mass Stable Width Charge Class PDG
+    fDatabasePDG->AddParticle("nu_D_bar","#bar{#nu}_{D}",reg->GetDouble("Dark-NeutrinoMass"),
+                              true,0.,0,"DarkNeutrino",kPdgAntiDarkNeutrino);
   }
   if (!med_particle) {
     // Name Title Mass Stable Width Charge Class PDG
-    fDatabasePDG->AddParticle("Z_D","Z_D",reg->GetDouble("Dark-MediatorMass"),
+    fDatabasePDG->AddParticle("Z_D","Z_{D}",reg->GetDouble("Dark-MediatorMass"),
                               true,0.,0,"DarkNeutrino",kPdgDNuMediator);
   }
   return true;
