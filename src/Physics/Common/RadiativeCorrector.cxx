@@ -191,8 +191,8 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	   power_hi = pow(e_gamma_max,g);
 	   //power_lo  = pow(e_gamma_min,g);
 	   power_lo  = pow(fCutoff,g);
-	   TRandom3 rnd;
-	   rnd.SetSeed(0);
+	   //TRandom3 rnd;
+	   //rnd.SetSeed(0);
 	   //double ymin = power_lo/power_hi;
 	   //std::cout<<"ymin "<<ymin<<std::endl; 
 	   //double y = ymin + rnd.Rndm()*(1.-ymin);

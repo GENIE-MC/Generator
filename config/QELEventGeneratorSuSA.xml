@@ -19,7 +19,7 @@ QEL-EbOR             bool     No         What Eb to use if fixed                
 
   <param_set name="Default"> 
 
-    <param type="string" name="CommonParam"> QuasiElastic,FermiGas </param>
+    <param type="string" name="CommonParam"> QuasiElastic,FermiGas,RadiativeCorrection </param>
 
     <!-- I've had problems with the cache during some tests. Everything seems to work
          fine with the cache turned off, however (with negligible impact on performance),
@@ -51,6 +51,8 @@ QEL-EbOR             bool     No         What Eb to use if fixed                
     <!--  Force fixed Eb in SuSAv2 implementation and specify Eb Override-->
     <param type="bool" name="QEL-ForceFixedEb"> false </param>
     <param type="double" name="QEL-EbOR"> 0.025 </param>
+
+    <param type="bool"   name="doRadiativeCorrection"> false                      </param>
 
   </param_set>
 
