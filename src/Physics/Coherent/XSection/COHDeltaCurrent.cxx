@@ -164,10 +164,12 @@ GTrace COHDeltaCurrent::DirTrace( const Interaction * i ) const {
   double mDelta = utils::res::Mass( Resonance() ) ;
   double mDelta2 = pow( mDelta, 2 ); 
   
+  TVector3 temp = 0.5*( i -> Kine().HadSystP4() - t_q ).Vect();
+  double p0 = sqrt(pow(constants::kNucleonMass,2) + temp.Mag2() ) ;
+
   // the following contractions requires a vector with time coordinate in the 0-th position
   // that is not the case for TLorentzVector so we need to rearrange it
   std::array<double, 4> q = { t_q.E(), t_q.X(), t_q.Y(), t_q.Z() } ;
-  double p0 = out_neutrino.E() ; 
   std::array<double, 4> kg = { t_photon.E(), t_photon.X(), t_photon.Y(), t_photon.Z() } ;
   double mn = constants::kNucleonMass ;
   double mn2 = pow( mn, 2 ) ;
@@ -518,10 +520,12 @@ GTrace COHDeltaCurrent::CrsTrace( const Interaction * i ) const {
   double mDelta = utils::res::Mass( Resonance() ) ;
   double mDelta2 = pow( mDelta, 2 );
 
+  TVector3 temp = 0.5*( i -> Kine().HadSystP4() - t_q ).Vect();
+  double p0 = sqrt(pow(constants::kNucleonMass,2) + temp.Mag2() ) ;
+  
   // the following contractions requires a vector with time coordinate in the 0-th position
   // that is not the case for TLorentzVector so we need to rearrange it
   std::array<double, 4> q = { t_q.E(), t_q.X(), t_q.Y(), t_q.Z() } ;
-  double p0 = out_neutrino.E() ;
   std::array<double, 4> kg = { t_photon.E(), t_photon.X(), t_photon.Y(), t_photon.Z() } ;
 
   double mn = constants::kNucleonMass ;
