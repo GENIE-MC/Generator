@@ -77,7 +77,10 @@ private:
   std::string fModel;               ///< to distinguish between differnt models, right now simc / vanderhagen
   double      fCutoff;
   double      fThickness;           ///< thicnknesses of targets in CLAS in radiation length 
-
+  double      fThickness_1000010010;           ///< thicnknesses of targets in CLAS in radiation length 
+  double      fThickness_1000020040;           ///< thicnknesses of targets in CLAS in radiation length 
+  double      fThickness_1000060120;           ///< thicnknesses of targets in CLAS in radiation length 
+  double      fThickness_1000260560;           ///< thicnknesses of targets in CLAS in radiation length 
   // Tolerate this maximum percent deviation above the calculated maximum cross
   // section when sampling lepton kinematics for the SuSAv2-MEC model.
   double fSuSAMaxXSecDiffTolerance;
