@@ -85,7 +85,19 @@ QEL-EbOR             bool     No         What Eb to use if fixed                
   </param_set>
 
   <param_set name="EM-Default"> 
+    <param type="bool"   name="doRadiativeCorrection"> false                      </param>
+  </param_set>
 
+  <param_set name="EM-radcorr">
+    <param type="string" name="CommonParam"> RadiativeCorrection </param>
+     <param type="string"  name="RadiativeCorrectionModel"> simple </param>
+     <param type="double"  name="RadiativeCorrectionCutoff"> 0.0001 </param>
+     <!-- <param type="double"  name="RadiativeCorrectionThickness"> 0.027760 </param> -->         <!--H -->
+     <param type="double"  name="RadiativeCorrectionThickness"> 0.005772 </param>     <!--He -->
+     <!-- <param type="double"  name="RadiativeCorrectionThickness"> 0.004183 </param> -->    <!--C -->
+     <!-- <param type="double"  name="RadiativeCorrectionThickness"> 0.008532  </param> --> <!--Fe-->
+     <param type="bool"   name="RadiativeCorrectionDoInternal"> false             </param>
+     <param type="bool"   name="doRadiativeCorrection"> true                                    </param>
   </param_set>
 
   <param_set name="CC-Charm-Default"> 

@@ -31,7 +31,7 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Physics/QuasiElastic/EventGen/QELEventGeneratorSuSA.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
-
+#include "Physics/Common/RadiativeCorrector.h"
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
@@ -156,6 +156,12 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
   bool accept = false;
   unsigned int iter = 0;
   unsigned int maxIter = kRjMaxIterations * 1000;
+  bool doRad   = false;
+  bool doneISR = false;
+  if (fDoRadiativeCorrection) {
+      doRad = true;
+      doneISR = false;
+  }
 
   //e-scat xsecs blow up close to theta=0, MC methods won't work so well...
   // NOTE: SuSAv2 1p1h e-scatting has not been validated yet, use with caution
@@ -229,6 +235,28 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
               << XSecMax << ", " << accept;
               LOG("QELEvent", pDEBUG) << "XSec in cm2 /neutron is  " << XSec/(units::cm2*pdg::IonPdgCodeToZ(TgtPDG));
               LOG("QELEvent", pDEBUG) << "XSecMax in cm2 /neutron is  " << XSecMax/(units::cm2*pdg::IonPdgCodeToZ(TgtPDG));
+
+         //-- In the case of Radiative correction, the radiated photon energy
+  	 //   depends on the final state lepton kinematics.
+  	 if(doRad && !doneISR) {
+           LOG("QELKinematics", pINFO)  << "Doing ISR "<< fModel <<" cutoff "<<fCutoff<<" thickness "<<fThickness;
+           RadiativeCorrector * fISRCorrector = new RadiativeCorrector();
+           fISRCorrector->SetISR(true);
+           fISRCorrector->SetDoInternalRad(true);
+           fISRCorrector->SetModel(fModel);
+           fISRCorrector->SetCutoff(fCutoff);
+           fISRCorrector->SetThickness(fThickness);
+           fISRCorrector->SetQ2(Q2);
+	   TVector3 unit_nudir_tmp = event->CorrectProbe()->P4()->Vect().Unit();
+	   double phi_tmp = 2 * kPi * rnd->RndLep().Rndm();
+	   TVector3 p3l_tmp(Plep * TMath::Sqrt(1. - TMath::Power(Costh,2))*TMath::Cos(phi_tmp), Plep * TMath::Sqrt(1. - TMath::Power(Costh,2))*TMath::Sin(phi_tmp), Plep * Costh);
+	   p3l_tmp.RotateUz(unit_nudir_tmp);
+	   TLorentzVector p4l_tmp(p3l_tmp,TMath::Sqrt(LepMass*LepMass + Plep*Plep));
+           fISRCorrector->SetP4l(p4l_tmp);
+           fISRCorrector->ProcessEventRecord(event);
+           doneISR = true;
+           continue;
+  	 }
 
 
       }// end if passes q3 test
@@ -638,6 +666,14 @@ void QELEventGeneratorSuSA::LoadConfig(void)
     //-- Generate kinematics uniformly over allowed phase space and compute
     //   an event weight? NOT IMPLEMENTED FOR SUSA YET!
     GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false ) ;
+
+    GetParam("doRadiativeCorrection", fDoRadiativeCorrection, false) ;
+    if (fDoRadiativeCorrection) {
+     GetParam( "RadiativeCorrectionModel" , fModel);
+     GetParam( "RadiativeCorrectionCutoff",fCutoff);
+     GetParam( "RadiativeCorrectionThickness",fThickness);
+     GetParam( "RadiativeCorrectionDoInternal",fdoInternal);
+    }
 }
 //____________________________________________________________________________
 double QELEventGeneratorSuSA::ComputeMaxXSec(

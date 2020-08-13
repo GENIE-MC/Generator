@@ -28,7 +28,7 @@
 #include "Framework/Utils/Range1.h"
 
 namespace genie {
-
+class RadiativeCorrector;
 class QELEventGeneratorSuSA : public KineGeneratorWithCache {
 
 public :
@@ -51,6 +51,12 @@ private:
   void    SelectLeptonKinematics  (GHepRecord * event) const;
   void    GenerateNucleon         (GHepRecord * event) const;
   double  ComputeMaxXSec(const Interaction * in) const;
+
+  bool fDoRadiativeCorrection;
+  std::string fModel;               ///< to distinguish between differnt models, right now simc / vanderhagen
+  double      fCutoff;
+  double      fThickness;           ///< thicnknesses of targets in CLAS in radiation length 
+  bool        fdoInternal;
 
   const NuclearModelI *          fNuclModel;
 
