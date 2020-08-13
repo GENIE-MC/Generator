@@ -61,7 +61,8 @@ public :
   void SetQ2(double Q2); 
   void SetP4l(TLorentzVector p4l); 
   void SetCutoff(double cutoff); 
-  void SetThickness(double thickness); 
+  //void SetThickness(double thickness); 
+  void SetThickness(int tgtpdg, double thickness_1000010010, double thickness_1000020040, double thickness_1000060120, double thickness_1000260560);
   void SetDoInternalRad(bool doInternal);
 
 
@@ -82,6 +83,10 @@ private:
   //double         fRadiatedEnergyLimit; 
   //map<int, double> fThicknesses;       ///< thicnknesses of targets in CLAS in radiation length
   double fThickness;       ///< thicnknesses of targets in CLAS in radiation length
+  double fThickness_1000010010; 
+  double fThickness_1000020040; 
+  double fThickness_1000060120; 
+  double fThickness_1000260560; 
 
   double         fQ2; 
   TLorentzVector fP4l; 

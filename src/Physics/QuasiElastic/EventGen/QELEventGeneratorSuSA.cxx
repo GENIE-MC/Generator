@@ -245,7 +245,7 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
            fISRCorrector->SetDoInternalRad(true);
            fISRCorrector->SetModel(fModel);
            fISRCorrector->SetCutoff(fCutoff);
-           fISRCorrector->SetThickness(fThickness);
+           fISRCorrector->SetThickness(TgtPDG, fThickness_1000010010,fThickness_1000020040,fThickness_1000060120,fThickness_1000260560);
            fISRCorrector->SetQ2(Q2);
 	   TVector3 unit_nudir_tmp = event->CorrectProbe()->P4()->Vect().Unit();
 	   double phi_tmp = 2 * kPi * rnd->RndLep().Rndm();
@@ -671,7 +671,10 @@ void QELEventGeneratorSuSA::LoadConfig(void)
     if (fDoRadiativeCorrection) {
      GetParam( "RadiativeCorrectionModel" , fModel);
      GetParam( "RadiativeCorrectionCutoff",fCutoff);
-     GetParam( "RadiativeCorrectionThickness",fThickness);
+     GetParam( "RadiativeCorrectionThickness_1000010010",fThickness_1000010010);
+     GetParam( "RadiativeCorrectionThickness_1000020040",fThickness_1000020040);
+     GetParam( "RadiativeCorrectionThickness_1000060120",fThickness_1000060120);
+     GetParam( "RadiativeCorrectionThickness_1000260560",fThickness_1000260560);     
      GetParam( "RadiativeCorrectionDoInternal",fdoInternal);
     }
 }

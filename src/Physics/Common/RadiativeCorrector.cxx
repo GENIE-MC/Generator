@@ -418,7 +418,10 @@ void RadiativeCorrector::LoadConfig(void)
 {
   GetParam( "ISR",fISR);
   GetParam( "RadiativeCorrectionModel" , fModel);
-  GetParam( "RadiativeCorrectionThickness",fThickness);
+  GetParam( "RadiativeCorrectionThickness_1000010010",fThickness_1000010010);
+  GetParam( "RadiativeCorrectionThickness_1000020040",fThickness_1000020040);
+  GetParam( "RadiativeCorrectionThickness_1000060120",fThickness_1000060120);
+  GetParam( "RadiativeCorrectionThickness_1000260560",fThickness_1000260560);
   GetParam( "RadiativeCorrectionCutoff",fCutoff);
   GetParam( "RadiativeCorrectionDoInternal",fDoInternal);
   
@@ -473,9 +476,12 @@ void RadiativeCorrector::SetCutoff(double cutoff)
   fCutoff = cutoff;
 }
 //____________________________________________________________________________
-void RadiativeCorrector::SetThickness(double thickness)
+void RadiativeCorrector::SetThickness(int tgtpdg, double thickness_1000010010, double thickness_1000020040, double thickness_1000060120, double thickness_1000260560)
 {
-  fThickness = thickness;
+  if      (tgtpdg == 1000010010) fThickness = thickness_1000010010;
+  else if (tgtpdg == 1000020040) fThickness = thickness_1000020040;
+  else if (tgtpdg == 1000060120) fThickness = thickness_1000060120;
+  else if (tgtpdg == 1000260560) fThickness = thickness_1000260560;
 }
 //____________________________________________________________________________
 void RadiativeCorrector::SetDoInternalRad(bool doInternal)

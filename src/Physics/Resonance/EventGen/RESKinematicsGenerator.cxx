@@ -255,7 +255,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
           fISRCorrector->SetDoInternalRad(fDoInternal);
           fISRCorrector->SetModel(fModel);
           fISRCorrector->SetCutoff(fCutoff);
-          fISRCorrector->SetThickness(fThickness);
+	  fISRCorrector->SetThickness(init_state.TgtPdg(), fThickness_1000010010,fThickness_1000020040,fThickness_1000060120,fThickness_1000260560);
           fISRCorrector->SetQ2(gQ2);
           fISRCorrector->SetP4l(p4l);
           fISRCorrector->ProcessEventRecord(evrec);
@@ -370,7 +370,10 @@ void RESKinematicsGenerator::LoadConfig(void)
   if (fDoRadiativeCorrection) {
      GetParam( "RadiativeCorrectionModel" , fModel);
      GetParam( "RadiativeCorrectionCutoff",fCutoff);
-     GetParam( "RadiativeCorrectionThickness",fThickness);
+     GetParam( "RadiativeCorrectionThickness_1000010010",fThickness_1000010010);
+     GetParam( "RadiativeCorrectionThickness_1000020040",fThickness_1000020040);
+     GetParam( "RadiativeCorrectionThickness_1000060120",fThickness_1000060120);
+     GetParam( "RadiativeCorrectionThickness_1000260560",fThickness_1000260560);
      GetParam( "RadiativeCorrectionDoInternal",fDoInternal);
   }
 }
