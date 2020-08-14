@@ -22,14 +22,14 @@ University of Liverpool
 <common_Dark_list>
 
     <param_set name="Mixing">
-      <param type="double" name="Dark-KineticMixing"> 1. </param>
+      <param type="double" name="Dark-KineticMixing"> 1.7e-4 </param>
       <param type="bool" name="Dark-Mixing-ForceUnitarity"> true </param>
-      <param type="vec-double" name="Dark-Mixings2" delim=";"> 0.1 ; 0.1 ; 0.1 </param>
+      <param type="vec-double" name="Dark-Mixings2" delim=";"> 1e-10 ; 1e-8 ; 1e-10 </param>
       <param type="double" name="Dark-GaugeCoupling"> 1. </param>
     </param_set>
 
     <param_set name="Masses">
-        <param type="double" name="Dark-NeutrinoMass"> 0.1 </param> <!-- GeV -->
+        <param type="double" name="Dark-NeutrinoMass"> 0.420 </param> <!-- GeV -->
         <param type="double" name="Dark-MediatorMass"> 0.03 </param> <!-- GeV -->
     </param_set>
 
