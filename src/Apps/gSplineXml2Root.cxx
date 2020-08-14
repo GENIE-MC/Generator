@@ -525,7 +525,11 @@ void SaveGraphsToRootFile(void)
 
   //-- check whether the splines will be saved in a ROOT file - if not, exit now
   bool save_in_root = gOptROOTFilename.size()>0;
-  if(!save_in_root) return;
+  if(!save_in_root) {
+
+    LOG("gspl2root", pWARN) << "No Interaction  List available" ;
+    return;
+  }
 
   //-- get pdglibrary for mapping pdg codes to names
   PDGLibrary * pdglib = PDGLibrary::Instance();
@@ -603,13 +607,20 @@ void SaveGraphsToRootFile(void)
     else if (proc.IsInverseMuDecay()   ) { title << "imd";   }
     else if (proc.IsIMDAnnihilation()  ) { title << "imdanh";}
     else if (proc.IsNuElectronElastic()) { title << "ve";    }
-    else                                 { continue;         }
-
+    else                                 { 
+      LOG("gspl2root", pWARN) << "Process " << proc
+			      << " scattering type not recognised: spline not added" ;
+      continue;         }
+    
     if      (proc.IsWeakCC())  { title << "_cc";      }
     else if (proc.IsWeakNC())  { title << "_nc";      }
     else if (proc.IsWeakMix()) { title << "_ccncmix"; }
     else if (proc.IsEM()    )  { title << "_em";      }
-    else                       { continue;            }
+    else if (proc.IsDarkNeutralCurrent() )  { title << "_dark";  }
+    else                       { 
+      LOG("gspl2root", pWARN) << "Process " << proc 
+			      << " interaction type has not recongnised: spline not added " ;
+      continue;            }
 
     if(tgt.HitNucIsSet()) {
       int hitnuc = tgt.HitNucPdg();

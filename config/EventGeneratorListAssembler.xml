@@ -491,6 +491,11 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-2">   genie::EventGenerator/DME      </param>
   </param_set>
 
+    <param_set name="DARKNEUTRINO">
+     <param type="int" name="NGenerators">   1                              </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/COHDNu   </param>
+  </param_set>
+
 
 </alg_conf>
 
