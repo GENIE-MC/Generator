@@ -168,6 +168,29 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
 	  prod_e += p -> P4() -> E() ;
 	
 	} // finale products loop
+
+	if ( mediator ) {
+	  // evaluate the lenght of the first and second day
+	  
+	  TLorentzVector Delta = (* mediator -> X4()) - (* N.X4()) ;
+	  double total_distance = Delta.Vect().Mag() ;
+	  double delay = Delta.T() ;
+	  
+	  std::cout << "Dark neutrino: " << total_distance << " fm in " << delay << " 10^-24 s" << std::endl ;
+
+	  Delta = (*final_products[0] -> X4()) - (* mediator -> X4()) ;
+	  total_distance = Delta.Vect().Mag() ;
+	  delay = Delta.T() ;
+	  
+	  std::cout << "mediator: " << total_distance << " fm in " << delay << " 10^-24 s" << std::endl ;
+
+	}
+	
+	TLorentzVector Delta = (*final_products[0] -> X4()) - (* N.X4() ) ;
+	double total_distance = Delta.Vect().Mag() ;
+	double delay = Delta.T() ;
+	
+	std::cout << "Total: " << total_distance << " fm in " << delay << " 10^-24 s" << std::endl ;
 	
 	h_vis_dec -> Fill( vis_decay ? 1 : 0 ) ;
 	h_E_vis -> Fill( vis_e ) ;

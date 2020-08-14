@@ -37,6 +37,7 @@
 using namespace genie;
 using namespace genie::controls;
 using namespace genie::constants;
+
 //____________________________________________________________________________
 DarkSectorDecayer::DarkSectorDecayer() :
   EventRecordVisitorI("genie::DarkSectorDecayer")
@@ -81,6 +82,17 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
             pdg_code == kPdgAntiDarkNeutrino){
       dcs = DarkNeutrinoDecayChannels(pdg_code);
     }
+
+    // for ( const auto & dc : dcs ) {
+      
+    //   std::cout << "Decay amplitude: " << dc.second << " GeV "
+    // 		<< " -> " << 1. / dc.second / units::second << "s for channel [" ;
+    //   for ( const auto & p : dc.first ) {
+    // 	std::cout << p << "  " ;
+    //   }
+    //   std::cout << "]" << std::endl ;
+    // }
+    
     double total_amplitude = std::accumulate(dcs.begin(), dcs.end(), 0.,
                                              [](double total,
                                                 const DarkSectorDecayer::DecayChannel& dc)
@@ -98,6 +110,7 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
 
   LOG("DarkSectorDecayer", pNOTICE)
      << "Done finding & decaying dark sector particles";
+
 }
 //____________________________________________________________________________
 std::vector<GHepParticle> DarkSectorDecayer::Decay(
@@ -240,6 +253,7 @@ std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkNeutrinoDeca
       const double p2 = 1 - mass2ratio;
       const double p3 = 1 + mass2ratio - 2*mass2ratio*mass2ratio;
       const double decay_width = p0 * p1 * p2 * p3;
+
       if(mother_pdg == kPdgDarkNeutrino){
         dcs.push_back(DecayChannel{{neutrinos[i], kPdgDNuMediator}, decay_width});
       }
@@ -258,7 +272,7 @@ void DarkSectorDecayer::SetSpaceTime(
 {
   // TODO DNU: pay attention to units being used in GENIE!
   // convert decay amplitude into time
-  const double lifetime =  units::second*1e24/total_amplitude; // units of 10ˆ-24 s
+  const double lifetime =  1e24/units::second/total_amplitude; // units of 10ˆ-24 s
 
   RandomGen * rnd = RandomGen::Instance();
   double t = rnd->RndDec().Exp(lifetime);
@@ -268,7 +282,7 @@ void DarkSectorDecayer::SetSpaceTime(
   t *= mother.P4() -> Gamma() ;
 
   // get beta of decaying particle
-  const TLorentzVector mother_X4 = *(mother.X4());
+  const TLorentzVector & mother_X4 = *(mother.X4());
   TVector3 mother_boost = mother.P4()->BoostVector();
 
   // transport decay_particle with respect to their mother
@@ -395,3 +409,5 @@ void DarkSectorDecayer::LoadConfig(void)
   }
   
 }
+
+
