@@ -1,3 +1,0 @@
-/hepstore/mroda/Software/Genie/generator/Sources/vNCGammaGen/src/contrib/test/COHNCGamma_ext/CMakeFiles/rebuild_cache.dir
-/hepstore/mroda/Software/Genie/generator/Sources/vNCGammaGen/src/contrib/test/COHNCGamma_ext/CMakeFiles/edit_cache.dir
-/hepstore/mroda/Software/Genie/generator/Sources/vNCGammaGen/src/contrib/test/COHNCGamma_ext/CMakeFiles/Genie_XSection.dir
