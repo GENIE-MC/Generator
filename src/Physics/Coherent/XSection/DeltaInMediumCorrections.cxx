@@ -111,7 +111,7 @@ double DeltaInMediumCorrections::I_series( double q ) const {
 
   if (q != 0) {
     if (q > 1.0) I += -2.0 / (5.0 * q * q) + 9.0 / ( 35.0 * pow(q, 4) ) - 2.0 / ( 21.0 * pow(q, 6) ) ;
-    else if (q < 1.0) I += 34.0 / ( 35.0 * q) - 22.0 / (105.0 * q * q * q) - 1.0 ;
+    else if (q < 1.0) I += 34.0 / 35.0 * q - 22.0 / 105.0 * q * q * q - 1.0 ;
   }
 
   return I;
@@ -174,6 +174,8 @@ void DeltaInMediumCorrections::LoadConfig(void)
   GetParam( "NCG-Delta-V0", fDeltaV0 ) ; 
 
   GetParam( "NCG-Rho0", fRho0 ) ;
+  // Rho0 is in fm-3, we use it in GeV^3 in the code
+  fRho0 /= units::fermi3 ;
 
   GetParam( "Delta-N-Coupling", fDeltaNCoupling ) ;
 

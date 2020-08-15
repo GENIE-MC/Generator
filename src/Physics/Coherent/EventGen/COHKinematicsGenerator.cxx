@@ -637,7 +637,8 @@ void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
   // Get the Primary Interacton object
   Interaction * interaction = evrec->Summary();
   interaction->SetBit(kISkipProcessChk);
-  interaction->SetBit(kISkipKinematicChk);
+
+  //interaction->SetBit(kISkipKinematicChk);
 
   // Initialise a random number generator 
   RandomGen * rnd = RandomGen::Instance();

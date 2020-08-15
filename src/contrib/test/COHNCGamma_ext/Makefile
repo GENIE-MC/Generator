@@ -68,10 +68,10 @@ RM = /usr/bin/cmake3 -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /afs/cern.ch/user/j/jsenseni/genie/Generator_marco3/src/contrib/test/COHNCGamma_ext
+CMAKE_SOURCE_DIR = /hepstore/mroda/Software/Genie/generator/Sources/vNCGammaGen/src/contrib/test/COHNCGamma_ext
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /afs/cern.ch/user/j/jsenseni/genie/Generator_marco3/src/contrib/test/COHNCGamma_ext
+CMAKE_BINARY_DIR = /hepstore/mroda/Software/Genie/generator/Sources/vNCGammaGen/src/contrib/test/COHNCGamma_ext
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -90,7 +90,7 @@ rebuild_cache/fast: rebuild_cache
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/usr/bin/ccmake3 -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/usr/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -100,9 +100,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /afs/cern.ch/user/j/jsenseni/genie/Generator_marco3/src/contrib/test/COHNCGamma_ext/CMakeFiles /afs/cern.ch/user/j/jsenseni/genie/Generator_marco3/src/contrib/test/COHNCGamma_ext/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /hepstore/mroda/Software/Genie/generator/Sources/vNCGammaGen/src/contrib/test/COHNCGamma_ext/CMakeFiles /hepstore/mroda/Software/Genie/generator/Sources/vNCGammaGen/src/contrib/test/COHNCGamma_ext/CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /afs/cern.ch/user/j/jsenseni/genie/Generator_marco3/src/contrib/test/COHNCGamma_ext/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /hepstore/mroda/Software/Genie/generator/Sources/vNCGammaGen/src/contrib/test/COHNCGamma_ext/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

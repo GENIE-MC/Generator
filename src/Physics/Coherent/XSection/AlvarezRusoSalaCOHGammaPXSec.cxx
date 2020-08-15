@@ -152,8 +152,6 @@ bool AlvarezRusoSalaCOHGammaPXSec::ValidProcess(const Interaction * interaction)
 double 
 AlvarezRusoSalaCOHGammaPXSec::NeutrinoHadronContraction( const Interaction * i ) const { 
 
-  LOG("AlvarezRusoSalaCOHGammaPXSec", pINFO ) << "Entering Neutrino contraction" ;
-
   double k0 = i -> InitState().ProbeE(kRfLab); // incident neutrino E
   TLorentzVector probe( 0., 0., k0, k0 ) ;
   TLorentzVector out_nu = i -> Kine().FSLeptonP4();
@@ -189,8 +187,6 @@ AlvarezRusoSalaCOHGammaPXSec::NeutrinoHadronContraction( const Interaction * i )
 //____________________________________________________________________________
 double 
 AlvarezRusoSalaCOHGammaPXSec::AntiNeutrinoHadronContraction( const Interaction * i ) const {
-
-  LOG("AlvarezRusoSalaCOHGammaPXSec", pINFO ) << "Entering Anti-Neutrino contraction" ;
 
   double k0 = i -> InitState().ProbeE(kRfLab); // incident neutrino E
   TLorentzVector probe( 0., 0., k0, k0 ) ;

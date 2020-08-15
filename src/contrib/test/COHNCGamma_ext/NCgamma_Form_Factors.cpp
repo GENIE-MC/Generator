@@ -49,6 +49,8 @@ void Nucleus_FF_DeVries::setFF(double Q) {
 
     this->FF_p = 4.0*pi*sin(Q*R)/(Q*R)*aux;// /6.0;
     this->FF_n = this->FF_p;
+
+    std::cout << "Form Factor wiht Q " << Q << " GeV and FF: " << FF_n << std::endl ;
 }
 
 void Nucleus_FF_DeVries::set_12C() {

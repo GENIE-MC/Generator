@@ -1,4 +1,4 @@
-# Install script for directory: /afs/cern.ch/user/j/jsenseni/genie/Generator_marco3/src/contrib/test/COHNCGamma_ext
+# Install script for directory: /hepstore/mroda/Software/Genie/generator/Sources/vNCGammaGen/src/contrib/test/COHNCGamma_ext
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/afs/cern.ch/user/j/jsenseni/genie/Generator_marco3/src/contrib/test/COHNCGamma_ext/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/hepstore/mroda/Software/Genie/generator/Sources/vNCGammaGen/src/contrib/test/COHNCGamma_ext/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
