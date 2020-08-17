@@ -90,22 +90,20 @@ double DeltaInMediumCorrections::Sigma( int nucleus_pdg ) const {
 //____________________________________________________________________________
 double DeltaInMediumCorrections::Gamma_vacuum( double p2 ) const {
 
-  double mn     = constants::kNucleonMass ;
-  double mpi    = constants::kPionMass ;
-
-  double p      = sqrt(p2) ;
   double Gamma  = 0.0 ;
+  
+  double q2cm = Q2_cm( p2, { constants::kNucleonMass2, constants::kPionMass2 } ) ; 
 
-  double qcm = sqrt(p2*p2 + pow(mpi,4) + pow(mn,4) - 2.0*p2*mpi*mpi - 2.0*mpi*mpi*mn*mn - 2.0*p2*mn*mn) / (2.0 * p) ;
-
-  if(p2 > (mn + mpi)*(mn + mpi)) {
-    Gamma = 1.0 / ( 6.0*constants::kPi ) * ( fDeltaNCoupling/mpi )*( fDeltaNCoupling/mpi )*mn / p*pow(qcm, 3) ;
-  }
-
+  if ( q2cm < 0. ) return Gamma ; 
+  // somtimes the p is smaller than ( m_N + m_pi ) so the q2cm is negative.                                            // it is possible and Eduardo's orgiinal code was returning 0. 
+  
+  Gamma = ( fDeltaNCoupling2 * constants::kNucleonMass * pow(q2cm, 3./2 ) ) 
+    / ( 6.0 * constants::kPi * constants::kPionMass2 * sqrt(p2) ) ; 
+  
   return Gamma;
 }
 //____________________________________________________________________________
-double DeltaInMediumCorrections::I_series( double q ) const {
+double DeltaInMediumCorrections::I_series( double q ) {
 
   double I = 1.0;
 
@@ -119,11 +117,13 @@ double DeltaInMediumCorrections::I_series( double q ) const {
 //____________________________________________________________________________
 double DeltaInMediumCorrections::Gamma_tilde( double p2, int nucleus_pdg ) const {
 
-  double mn  = constants::kNucleonMass ;
-  double mpi = constants::kPionMass ;
+  double q2cm = Q2_cm( p2, { constants::kNucleonMass2, constants::kPionMass2 } ) ;
 
-  double qcm = sqrt(p2*p2 + pow(mpi,4) + pow(mn,4) - 2.0*p2*mpi*mpi - 2.0*mpi*mpi*mn*mn - 2.0*p2*mn*mn) / ( 2.0 * sqrt(p2) ) ;
-  double q_tilde = qcm / FermiMomentum(nucleus_pdg) ;
+  if ( q2cm <= 0. ) return 0. ;
+  // somtimes the p is smaller than ( m_N + m_pi ) so the q2cm is negative. 
+  // In that case the gamma_vacuum will be 0 anyway, so not point in propagating a NaN in the code
+  
+  double q_tilde = sqrt( q2cm ) / FermiMomentum(nucleus_pdg) ;
 
   return Gamma_vacuum(p2) * I_series(q_tilde);
 }
@@ -177,9 +177,17 @@ void DeltaInMediumCorrections::LoadConfig(void)
   // Rho0 is in fm-3, we use it in GeV^3 in the code
   fRho0 /= units::fermi3 ;
 
-  GetParam( "Delta-N-Coupling", fDeltaNCoupling ) ;
+  double deltaN_coupling = 0. ;
+  GetParam( "Delta-N-Coupling", deltaN_coupling ) ;
+  fDeltaNCoupling2 = deltaN_coupling * deltaN_coupling ;
 
-  LOG("DeltaInMediumCorrections", pINFO) << "DeltaV0 " << fDeltaV0 << " Rho0 " << fRho0 << " Delta Coupling " << fDeltaNCoupling;
-  
 }
 //____________________________________________________________________________
+double DeltaInMediumCorrections::Q2_cm( double s, 
+					const std::array<double,2> & masses2 ) {
+  
+  const double & m1 = masses2[0] ;
+  const double & m2 = masses2[1] ;
+  return  ( s*s + pow(m1,2) + pow(m2,2) - 2.0*s*m1 - 2.0*m1*m2 - 2.0*s*m2) / (4.0 * s ) ;
+
+}

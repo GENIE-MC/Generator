@@ -77,7 +77,17 @@ public:
   double Sigma( int pdg ) const ;
   double Gamma_tilde( double p2, int nucleus_pdg ) const ;
   double Gamma_vacuum( double p2 ) const ;
-  double I_series( double q ) const ;
+  static double I_series( double q ) ;
+
+  static double Q2_cm( double s, 
+		       const std::array<double,2> & masses2 = { constants::kNucleonMass2, constants::kPionMass2 } ) ;
+  // Given a partilce that decays into 2 bodies 
+  // this function returns the momentum module of each of the daughters in the centre of mass
+  // s is the mother mass square, or in general the square of the CM energy
+  // the array specifies the square masses of the two daughters
+  // Since this method is implemented directly into a Delta related class 
+  // the masses are initialised with the typical Delta decaying into pion and nucleon
+  
   
   std::complex<double> AverageDirectPropagator( double p2, int nucleus_pdg ) const ;
   std::complex<double> AverageCrossPropagator( double p2 ) const ;
@@ -90,7 +100,7 @@ private:
   // this object is retrieved with a Pool that keeps ownerships of the tables
   // No need to delete this object 
 
-  double fDeltaNCoupling ;
+  double fDeltaNCoupling2 ;
   double fDeltaV0 ; 
   double fRho0 ;  // this is the nuclear matter density. 
                   // It should be in natural units but it's read from the xml in fm^-3 as that is how it's usually reported
