@@ -1,9 +1,21 @@
 //____________________________________________________________________________
 /*!
 
-\program gtestCOHNCGammaXSec
+\program gtestCOHNCGammaXSec.C
 
-\brief   Crude v0 program used for testing/debugging the COH NCGamma model
+\brief   Macro to use for testing/debugging the COH NCGamma model and compare to external
+         cross section results.
+
+         Run with: (make sure to enclose the macro in "" )
+         `genie -l "COHNCGammaXSec.C(target, probe_pdg, max_nu_energy)"`
+
+          optional additional arguements are:
+         `genie -l "COHNCGammaXSec.C(target, probe_pdg, max_nu_energy, theta_incoming_nu, theta_gamma, phi_gamma)"`
+
+          For example: an incoming neutrino (14) with energy of 1GeV interacting with a 40Ar (1000180400) nucleus
+          `genie -l "COHNCGammaXSec.C(14,1000180400,1)"`
+      
+          See below in "Main parameters for COH NC Single Gamma Cross Section for defintion of the parameters.
 
 \author  Jon Sensenig inspired by gtestDISSF test file
 
@@ -40,70 +52,76 @@ R__LOAD_LIBRARY(COHNCGamma_ext/libGenie_XSection.so)
 using namespace genie;
 using namespace std;
 
+// Constructor for external X-Sec code
 using namespace NC_gamma;
-Diff_Cross_Section CS("nu", "12C");
+//Diff_Cross_Section CS("nu", "40Ar");
 
-struct SigVars {
-  double E_nu_probe;
-  double E_lep;
-  double theta_lep;
-  double phi_lep;
-  double E_g;
-  double theta_g;
-  double phi_g;
-  double range;
-} sigma_vars;
-  
+// Define so cleaner code later
 typedef AlvarezRusoSalaCOHGammaPXSec ARSXSec;
-const unsigned int steps = 50;
 
-array<double,7> theta_gamma {3,5,10,30,-3,-5,-10}; // FS gamma wrt z-axis in deg
-array<short,7> root_color = {600,1,632,416,616,800,432};
+const unsigned int steps  = 100; // Number of plotted xsec points
+const unsigned int angles = 7;   // Number of plotted gamma theta angles
 
-void gtestCOHNCGammaXSec();
+void gtestCOHNCGammaXSec(int tgt, int prb, double E, double theta_nu=1., double phi=0.);
 void XSectionTest(const TFile & f);
-void GetCLIArgs();
-void SigmaEg(const Interaction *i, const ARSXSec * xsec_alg, Kinematics * kine, SigVars sig_param); 
-//void SigmaEnu(const Interaction *i, const ARSXSec * xsec_alg, Kinematics * kine, SigVars sig_param); 
-double ExtXSec(int nu_probe, int tgt, double Enu, double Enu_final, double theta_l, double theta_g, double phi_g);
-void SigmaCosTh(const Interaction *i, const ARSXSec * xsec_alg, Kinematics * kine, SigVars sig_param); 
+void SigmaEg(const Interaction *i, const ARSXSec * xsec_alg, Kinematics * kine); 
+std::pair<std::string,std::string> ExtXSec(int nu_probe, int tgt);
+void PlotXSecs(double Eg_arr[steps], double gxsec[][steps], double exsec[][steps]);
 
+////////////////////////////
+//
+// Main parameters for COH NC Single Gamma Cross Section 
+//
+////////////////////////////
+
+// Require set by main function
+int target       = -1000;// Target nucleus [pdg]
+int probe        = -1000;// Incoming particle pdg [pdg]
+double probe_E   = -1.;  // Incoming nu energy [GeV]
+// Defaults
+int prod         = 22; // Produced FS particle = gamma [pdg]
+double theta_lep = 1.; // Outgoing nu wrt incoming nu [deg]
+double phi_lep   = 0.; // Outgoing nu in plane transverse to incoming nu [deg]
+double theta_g   = 1.; // Gamma angle wrt to incoming nu [deg]
+double phi_g     = 0.; // Gamma angle in plane transverse to incoming nu [deg]
+
+array<double, angles> theta_gamma = {3,5,10,30,-3,-5,-10}; // FS gamma wrt z-axis in deg
+array<short, angles>  root_color  = {600,1,632,416,616,800,432};
+
+/////////////////////////////
+
+double Eg_arr [steps];
+double xsec_arr[angles][steps];
+double ext_xsec_arr[angles][steps];
 
 //__________________________________________________________________________
-void gtestCOHNCGammaXSec ()
+void gtestCOHNCGammaXSec (int tgt, int prb, double E, double theta_nu=1., double phi=0.)
 {
-  TFile file("./coh_ncgamma.root","recreate");
 
+  target = tgt;
+  probe = prb;
+  probe_E = E;
+  theta_lep = theta_nu;
+  phi_g = phi;
+
+  TFile file("./coh_ncgamma.root","recreate");
+  
   XSectionTest(file);  // Top level cross section
 
   file.Close();
-}
-
-//__________________________________________________________________________
-void GetCLIArgs()
-{
-// TODO implement
 }
 //__________________________________________________________________________
 void XSectionTest(const TFile & file)
 {
 
-  cout << "\n ============= Beginning Delta Current Trace Test ============== \n" << endl;
+  cout << "\n ============= Beginning COH NC 1gamma Test ============== \n" << endl;
 
-  SigVars sigma_vars;
-  int target = 1000180400;   // 40Ar
-  //int target = 1000060120; // 12C
-  int probe  = kPdgNuMu; // nu mu
-  int prod   = 22;           // gamma
+  // Instantiate external cross section
+  std::pair<std::string,std::string> params = ExtXSec(probe, target);
+  Diff_Cross_Section CS(params.first, params.second); // 1st = probe 2nd = target
 
-  // Fill the struct
-  sigma_vars.E_nu_probe = 1.;
-  sigma_vars.theta_lep  = 1.;
-  sigma_vars.phi_lep    = 0.;
-  sigma_vars.theta_g    = 10.; 
-  sigma_vars.phi_g      = 10.;
-  sigma_vars.range      = sigma_vars.E_nu_probe;
-  sigma_vars.E_lep      = sigma_vars.E_nu_probe;
+  double range   = probe_E;
+  double E_lep   = probe_E;
 
   // -- request the COH NC Gamma model
   AlgFactory * algf = AlgFactory::Instance();
@@ -112,64 +130,35 @@ void XSectionTest(const TFile & file)
   const ARSXSec * xsec_alg = dynamic_cast<const ARSXSec *>(algXsec);
 
   // Set up the interaction and kinematics
-  Interaction * i = Interaction::COHNC(target, probe, prod, sigma_vars.E_nu_probe);
+  Interaction * i = Interaction::COHNC(target, probe, prod, probe_E);
   Kinematics * kine = i->KinePtr();
-  sigma_vars.E_nu_probe = i->InitState().ProbeE(kRfLab);
-
-  // Variable xsection is calculated wrt
-  string plot = "E_gamma";
-  if ( plot == "E_gamma" ) {
-    SigmaEg(i, xsec_alg, kine, sigma_vars);
-  } else if ( plot == "E_nu" ) {
-    //SigmaEnu(i, xsec_alg, kine, sigma_vars);
-  } else if ( plot == "Cos_th" ) {
-    SigmaCosTh(i, xsec_alg, kine, sigma_vars);
-  } else {
-    cout << "Unknown cross section variable! Choose E_gamma, E_nu, or Cos_th" << endl;
-  }
-
-  cout << "End of Delta Current Trace test!" << endl;
-}
-//__________________________________________________________________________
-void SigmaEg( const Interaction *i, const ARSXSec * xsec_alg, Kinematics * kine, SigVars sig_param)
-{
-
-  TLegend *legend = new TLegend(0.5,0.7,0.9,0.9);
-  auto mg = new TMultiGraph();
-  auto ext_mg = new TMultiGraph();
-  TCanvas *c1 = new TCanvas("c1","COH NC Gamma",10,10,1000,450);
-  c1->Divide(2,1);
-
-  double Eg_arr [steps];
-  double xsec_arr[theta_gamma.size()][steps];
-  double ext_xsec_arr[theta_gamma.size()][steps];
 
   // Set up the interaction kinematics
   TVector3       p3_g;
   TVector3       p3_lep;
   TLorentzVector p4_g;
   TLorentzVector p4_lep;
-  TLorentzVector p4_nu(0., 0., sig_param.E_nu_probe, sig_param.E_nu_probe); // probe along z
+  TLorentzVector p4_nu(0., 0., probe_E, probe_E); // probe along z
 
   KinePhaseSpace_t t = kPSEgOlOgfE;
 
-  for( unsigned int ang = 0; ang < theta_gamma.size(); ang++ ) {
-    sig_param.theta_g = theta_gamma[ang]*TMath::DegToRad();
-    sig_param.E_lep = sig_param.E_nu_probe;
-    for( unsigned int eg = 0; eg<steps; eg++ ) {
+  for( unsigned int ang = 0; ang < angles; ang++ ) {
+    theta_g = theta_gamma[ang]*TMath::DegToRad();
+    E_lep = probe_E;
+    for( unsigned int eg = 0; eg < steps; eg++ ) {
                                                                                                          
-      double E_g = sig_param.E_nu_probe - sig_param.E_lep;
+      double E_g = probe_E - E_lep;
       // Set FS gamma 4-mom.
-      p3_g.SetMagThetaPhi( E_g, sig_param.theta_g*TMath::DegToRad(), 
-                                sig_param.phi_g*TMath::DegToRad() );
+      p3_g.SetMagThetaPhi( E_g, theta_g*TMath::DegToRad(), 
+                                phi_g*TMath::DegToRad() );
       p4_g.SetVect( p3_g );
       p4_g.SetE( E_g );
       
       // Set FS lepton (nu) 4-mom.
-      p3_lep.SetMagThetaPhi(  sig_param.E_lep, sig_param.theta_lep*TMath::DegToRad(), 
-                                               sig_param.phi_lep*TMath::DegToRad() );
+      p3_lep.SetMagThetaPhi(  E_lep, theta_lep*TMath::DegToRad(), 
+                                               phi_lep*TMath::DegToRad() );
       p4_lep.SetVect( p3_lep );
-      p4_lep.SetE( sig_param.E_lep );
+      p4_lep.SetE( E_lep );
                                                                                                         
       kine->SetHadSystP4( p4_g );
       kine->SetFSLeptonP4( p4_lep );
@@ -177,13 +166,13 @@ void SigmaEg( const Interaction *i, const ARSXSec * xsec_alg, Kinematics * kine,
       TLorentzVector q = p4_nu-p4_lep ;
       double Q2 = -q.Mag2();
       double x = Q2/(2 * E_g * constants::kNucleonMass );
-      double y = E_g/sig_param.E_nu_probe;
+      double y = E_g/probe_E;
       kine->Setx( x );
       kine->Sety( y );
       utils::kinematics::UpdateWQ2FromXY(i);
       double coh_t = (q - p4_g).Mag() ;
       kine->Sett( coh_t ) ;
-      cout << "E_g " << E_g << " sig_param.E_nu_probe " << sig_param.E_nu_probe << endl;                                                                                            
+
       // Check the validity
       cout << " Gamma theta angle " << theta_gamma[ang]
            << " Gamma Energy " << E_g << " Q2 " << Q2 << " x " << x << " y " << y
@@ -192,66 +181,76 @@ void SigmaEg( const Interaction *i, const ARSXSec * xsec_alg, Kinematics * kine,
       
       // Calculate Genie Xsection
       xsec_arr[ang][eg] = (xsec_alg->XSec(i, t) * 1.e41)/units::cm2;
-      cout << "---> Cross section " << xsec_arr[ang][eg] << endl;
-      LOG("gtestCOHNCGammaXSec", pINFO ) << "---> Cross section " << xsec_arr[ang][eg];
+      
       // Calculate external Xsection
-      // If invalid process or kinematics cross section is 0
+      // If invalid process or kinematics set cross section to 0
       if ( !xsec_alg->ValidProcess(i) || !xsec_alg->ValidKinematics(i) ) {
          ext_xsec_arr[ang][eg] = 0.;
       } else {
-        ext_xsec_arr[ang][eg] = ( ExtXSec( 14, 1000180400, sig_param.E_nu_probe, sig_param.E_lep,  
-                                  sig_param.theta_lep*TMath::DegToRad(), 
-                                  sig_param.theta_g*TMath::DegToRad(),
-                                  sig_param.phi_g*TMath::DegToRad() )*1.e41 ) / units::cm2 ;
+        ext_xsec_arr[ang][eg] = ( CS.getDiffCrossSection( probe_E, E_lep, theta_lep*TMath::DegToRad(),
+                                                          theta_g*TMath::DegToRad(), phi_g*TMath::DegToRad()
+                                                          )*1e41 ) / units::cm2;
       } 
 
+      cout << "---> GENIE Cross Section: " << xsec_arr[ang][eg] 
+           << "  External Cross Section: " << ext_xsec_arr[ang][eg] << endl;
+
       Eg_arr[eg] = E_g;
-      sig_param.E_lep -= sig_param.range / double( steps-1 );
+      E_lep -= range / double( steps-1 );
+
     } // gamma E
   } // gamma angle
 
+  PlotXSecs(Eg_arr, xsec_arr, ext_xsec_arr);
+}
+//__________________________________________________________________________
+std::pair<std::string,std::string> ExtXSec(int nu_probe, int tgt)
+{
+  std::pair<std::string,std::string> ext_pdgs("","");
+
+  if (nu_probe == kPdgNuMu)          ext_pdgs.first = "nu";
+  else if (nu_probe == kPdgAntiNuMu) ext_pdgs.first = "anti-nu";
+  else std::cout << "Unknown probe pdg!" << std::endl;
+
+  if (tgt == 1000060120) ext_pdgs.second = "12C";
+  else if (tgt == 1000180400) ext_pdgs.second = "40Ar";
+  else std::cout << "Unknown nucleus pdg!" << std::endl;
+
+  return ext_pdgs; 
+}
+//__________________________________________________________________________
+void PlotXSecs(double Eg_arr[steps], double gxsec[][steps], double exsec[][steps]) {
+
+
+  TLegend *legend = new TLegend(0.5,0.7,0.9,0.9);
+  TCanvas *c1 = new TCanvas("c1","COH NC Gamma",10,10,1000,450);
+  c1->Divide(2,1);
+
+  auto mg = new TMultiGraph();
+  auto ext_mg = new TMultiGraph();
+
   char text[50];
-  for( unsigned int k = 0; k < theta_gamma.size(); k++ ) {
-    auto gr = new TGraph( steps, Eg_arr, xsec_arr[k] ); gr->SetLineColor( root_color[k] ); gr->SetLineWidth(2);
+  for( unsigned int k = 0; k < angles; k++ ) {
+    auto gr = new TGraph( steps, Eg_arr, gxsec[k] ); gr->SetLineColor( root_color[k] ); gr->SetLineWidth(2);
+    auto egr = new TGraph( steps, Eg_arr, exsec[k] ); egr->SetLineColor( root_color[k] ); egr->SetLineWidth(2);
+
     snprintf( text, 50, "#theta_{#gamma} = %d",(int)theta_gamma[k] );
     legend->AddEntry( gr, (char*)text, "l" );
-    mg->Add(gr);
-  }
 
-  mg->SetTitle("Genie ^{40}Ar #bar{#nu}_{#mu} #theta_{l}=1 #phi_{l}=0 #phi_{#gamma}=10; E_{#gamma} (GeV); XSec #sigma (x10^{-41})");
+    mg->Add(gr);
+    ext_mg->Add(egr);
+  }
+                                                                                                                                 
+  mg->SetTitle("Genie ^{40}Ar #nu_{#mu} #theta_{l}=1 #phi_{l}=0 #phi_{#gamma}=10; E_{#gamma} (GeV); XSec #sigma (x10^{-41})");
+  ext_mg->SetTitle("Ext ^{40}Ar #nu_{#mu} #theta_{l}=1 #phi_{l}=0 #phi_{#gamma}=10; E_{#gamma} (GeV); XSec #sigma (x10^{-41})");
+
   c1->cd(1);
   mg->Draw("ACP");
   legend->Draw();
-  mg->Write();
-
-  for( unsigned int m = 0; m < theta_gamma.size(); m++ ) {
-    auto egr = new TGraph( steps, Eg_arr, ext_xsec_arr[m] ); egr->SetLineColor( root_color[m] ); egr->SetLineWidth(2);
-    ext_mg->Add(egr);
-  }
-  ext_mg->SetTitle("Ext ^{40}Ar #bar{#nu}_{#mu} #theta_{l}=1 #phi_{l}=0 #phi_{#gamma}=10; E_{#gamma} (GeV); XSec #sigma (x10^{-41})");
   c1->cd(2);
   ext_mg->Draw("ACP");
-}
-//__________________________________________________________________________
-double ExtXSec(int nu_probe, int tgt, double Enu, double Enu_final, double theta_l, double theta_g, double phi_g)
-{
-  std::string probe;
-  std::string nucleus;
 
-  if (nu_probe == kPdgNuMu)          probe = "nu";
-  else if (nu_probe == kPdgAntiNuMu) probe = "anti-nu";
-  else return 0.;
-
-  if (tgt == 1000060120) nucleus = "12C";
-  if (tgt == 1000180400) nucleus = "40Ar";
-  else return 0.;
-
-  CS.setMode(probe); // Set nu or anti-nu
-  CS.setNucleus(nucleus); // Set target nucleus
-  double xsec = CS.getDiffCrossSection(Enu, Enu_final, theta_l, theta_g, phi_g);
-  return xsec; // Return the xsection from external C++ code
-}
-//__________________________________________________________________________
-void SigmaCosTh(const Interaction *i, const ARSXSec * xsec_alg, Kinematics * kine, SigVars sig_param)
-{
+  mg->Write();
+  ext_mg->Write();
+                                                                                                                                 
 }
