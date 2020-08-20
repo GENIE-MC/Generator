@@ -32,10 +32,16 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TMath.h>
+#include <TLegend.h>
+#include <TCanvas.h>
+#include <TGraph.h>
+#include <TMultiGraph.h>
+
 
 #include "Framework/Algorithm/Algorithm.h"
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Messenger/Messenger.h"
+#include "Framework/Conventions/Units.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Utils/CmdLnArgParser.h"
 #include "Framework/Utils/KineUtils.h"
@@ -43,6 +49,7 @@
 #include "Physics/Coherent/XSection/COHFormFactorMap.h"
 #include "Physics/Coherent/XSection/DeVriesFormFactor.h"
 #include "Physics/Coherent/XSection/FourierBesselFFCalculator.h"
+#include "Physics/Coherent/XSection/AlvarezRusoSalaCOHGammaPXSec.h"
 
 #include "COHNCGamma_ext/NCgamma_Diff_Cross_Section.h"
 
@@ -95,7 +102,7 @@ double xsec_arr[angles][steps];
 double ext_xsec_arr[angles][steps];
 
 //__________________________________________________________________________
-void gtestCOHNCGammaXSec (int tgt, int prb, double E, double theta_nu=1., double phi=0.)
+void gtestCOHNCGammaXSec (int tgt, int prb, double E, double theta_nu, double phi)
 {
 
   target = tgt;
@@ -127,7 +134,7 @@ void XSectionTest(const TFile & file)
   AlgFactory * algf = AlgFactory::Instance();
   AlgId id("AlvarezRusoSalaCOHGammaPXSec","Default");
   const Algorithm * algXsec = algf->GetAlgorithm(id);
-  const ARSXSec * xsec_alg = dynamic_cast<const ARSXSec *>(algXsec);
+  const XSecAlgorithmI * xsec_alg = dynamic_cast<const XSecAlgorithmI *>(algXsec);
 
   // Set up the interaction and kinematics
   Interaction * i = Interaction::COHNC(target, probe, prod, probe_E);
@@ -150,13 +157,12 @@ void XSectionTest(const TFile & file)
       double E_g = probe_E - E_lep;
       // Set FS gamma 4-mom.
       p3_g.SetMagThetaPhi( E_g, theta_g*TMath::DegToRad(), 
-                                phi_g*TMath::DegToRad() );
+			   phi_g*TMath::DegToRad() );
       p4_g.SetVect( p3_g );
       p4_g.SetE( E_g );
       
       // Set FS lepton (nu) 4-mom.
-      p3_lep.SetMagThetaPhi(  E_lep, theta_lep*TMath::DegToRad(), 
-                                               phi_lep*TMath::DegToRad() );
+      p3_lep.SetMagThetaPhi(  E_lep, theta_lep*TMath::DegToRad(), 0. );
       p4_lep.SetVect( p3_lep );
       p4_lep.SetE( E_lep );
                                                                                                         
@@ -240,13 +246,27 @@ void PlotXSecs(double Eg_arr[steps], double gxsec[][steps], double exsec[][steps
     mg->Add(gr);
     ext_mg->Add(egr);
   }
-                                                                                                                                 
-  mg->SetTitle("Genie ^{40}Ar #nu_{#mu} #theta_{l}=1 #phi_{l}=0 #phi_{#gamma}=10; E_{#gamma} (GeV); XSec #sigma (x10^{-41})");
-  ext_mg->SetTitle("Ext ^{40}Ar #nu_{#mu} #theta_{l}=1 #phi_{l}=0 #phi_{#gamma}=10; E_{#gamma} (GeV); XSec #sigma (x10^{-41})");
+
+  stringstream description ; 
+
+  TParticlePDG * tprobe = PDGLibrary::Instance() -> Find( probe ) ;
+  TParticlePDG * ttgt = PDGLibrary::Instance() -> Find( target ) ;
+
+  description << tprobe -> Title() << " on " << ttgt -> Title() ;
+  description << " #theta_{l}=" << theta_l << "^{#circ}" ;
+  description << " #phi_{#gamma}=" << phi_g << "^{#circ}" ;
+  description << ";E_{#gamma} [GeV];#frac{d^{5}#sigma}{dE_{#gamma}d#Omega_{l}d#Omega_{#gamma}} [10^-41 #frac{cm^2}{GeV}]" ;
+
+  std::string genie_title = "GENIE " + description.str() ;
+  std::string ext_title = "Eduardo " + description.str() ;
+
+  mg->SetTitle( genie_title.c_str() );
+  ext_mg->SetTitle( ext_title.c_str() );
 
   c1->cd(1);
   mg->Draw("ACP");
-  legend->Draw();
+  legend->Draw("same");
+  c1 -> Update() ;
   c1->cd(2);
   ext_mg->Draw("ACP");
 
