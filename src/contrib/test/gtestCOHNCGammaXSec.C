@@ -45,6 +45,7 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Utils/CmdLnArgParser.h"
 #include "Framework/Utils/KineUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Physics/Coherent/XSection/COHFormFactorI.h"
 #include "Physics/Coherent/XSection/COHFormFactorMap.h"
 #include "Physics/Coherent/XSection/DeVriesFormFactor.h"
@@ -92,7 +93,7 @@ double phi_lep   = 0.; // Outgoing nu in plane transverse to incoming nu [deg]
 double theta_g   = 1.; // Gamma angle wrt to incoming nu [deg]
 double phi_g     = 0.; // Gamma angle in plane transverse to incoming nu [deg]
 
-array<double, angles> theta_gamma = {3,5,10,30,-3,-5,-10}; // FS gamma wrt z-axis in deg
+array<double, angles> theta_gamma = {1,5,10,30, 60, 90, 170}; // FS gamma wrt z-axis in deg
 array<short, angles>  root_color  = {600,1,632,416,616,800,432};
 
 /////////////////////////////
@@ -252,10 +253,10 @@ void PlotXSecs(double Eg_arr[steps], double gxsec[][steps], double exsec[][steps
   TParticlePDG * tprobe = PDGLibrary::Instance() -> Find( probe ) ;
   TParticlePDG * ttgt = PDGLibrary::Instance() -> Find( target ) ;
 
-  description << tprobe -> Title() << " on " << ttgt -> Title() ;
-  description << " #theta_{l}=" << theta_l << "^{#circ}" ;
+  description << probe_E << "GeV " << tprobe -> GetTitle() << " on " << ttgt -> GetTitle() ;
+  description << " #theta_{l}=" << theta_lep << "^{#circ}" ;
   description << " #phi_{#gamma}=" << phi_g << "^{#circ}" ;
-  description << ";E_{#gamma} [GeV];#frac{d^{5}#sigma}{dE_{#gamma}d#Omega_{l}d#Omega_{#gamma}} [10^-41 #frac{cm^2}{GeV}]" ;
+  description << ";E_{#gamma} [GeV];#frac{d^{5}#sigma}{dE_{#gamma}d#Omega_{l}d#Omega_{#gamma}} [10^{-41} #frac{cm^2}{GeV}]" ;
 
   std::string genie_title = "GENIE " + description.str() ;
   std::string ext_title = "Eduardo " + description.str() ;
@@ -272,5 +273,6 @@ void PlotXSecs(double Eg_arr[steps], double gxsec[][steps], double exsec[][steps
 
   mg->Write();
   ext_mg->Write();
-                                                                                                                                 
+  legend -> Write( "legend" ) ;
+                                                                                                          
 }
