@@ -92,14 +92,15 @@ double DeltaInMediumCorrections::Gamma_vacuum( double p2 ) const {
 
   double Gamma  = 0.0 ;
   
-  double q2cm = Q2_cm( p2, { constants::kNucleonMass2, constants::kPionMass2 } ) ; 
+  if ( p2 > pow( constants::kNucleonMass + constants::kPionMass, 2 ) ) { 
+      
+    double q2cm = Q2_cm( p2, { constants::kNucleonMass2, constants::kPionMass2 } ) ; 
+    
+    Gamma = ( fDeltaNCoupling2 * constants::kNucleonMass * pow(q2cm, 3./2 ) ) 
+      / ( 6.0 * constants::kPi * constants::kPionMass2 * sqrt(p2) ) ; 
 
-  if ( q2cm < 0. ) return Gamma ; 
-  // somtimes the p is smaller than ( m_N + m_pi ) so the q2cm is negative.                                            // it is possible and Eduardo's orgiinal code was returning 0. 
-  
-  Gamma = ( fDeltaNCoupling2 * constants::kNucleonMass * pow(q2cm, 3./2 ) ) 
-    / ( 6.0 * constants::kPi * constants::kPionMass2 * sqrt(p2) ) ; 
-  
+  }
+    
   return Gamma;
 }
 //____________________________________________________________________________
