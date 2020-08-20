@@ -47,7 +47,24 @@ ISCOHGamma              bool     yes                                            
   </param_set>
 
   <param_set name="Gamma"> 
+   
     <param type="bool"   name ="IsCOHGamma" > true  </param>
+    
+    <param type="bool"   name ="OmegaPhaseSpace" > true  </param>
+   
+    <param type="bool"   name ="split-integral"  > false </param>
+    <param type="string" name ="gsl-integration-type">  vegas  </param>
+
+    <param type="int"    name ="gsl-max-eval" >              400000  </param>
+    <param type="double" name ="gsl-relative-tolerance"  >    0.005  </param>
+
+
+  </param_set>
+
+
+    <param_set name="Gamma_AnglePhaseSpace"> 
+    <param type="bool"   name ="IsCOHGamma" > true  </param>
+    <param type="bool"   name ="OmegaPhaseSpace" > false  </param>
     <param type="bool"   name ="split-integral"  > false </param>
     <param type="string" name ="gsl-integration-type">  vegas  </param>
 
