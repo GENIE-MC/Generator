@@ -288,8 +288,6 @@ private:
   const Interaction * fInteraction;
   bool flip;
 };
-
-
 //.....................................................................................
 //
 // genie::utils::gsl::d5Xsec_dEldOmegaldOmegapi
@@ -347,6 +345,33 @@ private:
  public:
    d4Xsec_dEgdThetaldThetagdPhig(const XSecAlgorithmI * m, const Interaction * i);
    ~d4Xsec_dEgdThetaldThetagdPhig();
+
+   // ROOT::Math::IBaseFunctionMultiDim interface
+   unsigned int                        NDim   (void)               const;
+   double                              DoEval (const double * xin) const;
+   ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
+  
+   double                              GetFactor()                 const;
+   void                                SetFactor(double factor);
+
+ private:
+   const XSecAlgorithmI * fModel;
+   const Interaction *    fInteraction;
+   double fFactor;
+ };
+///.....................................................................................
+///
+/// genie::utils::gsl::d5Xsec_dEgdOmegaldOmegag
+/// A 5-D cross section function (fixed E_nu)
+/// RODA - for the AlvarezRuso-SaulSala cross-section
+/// Note that the cross section is invariant under phi_l
+/// So there is not going to be a 5th dimension
+///
+ class d5Xsec_dEgdOmegaldOmegag : public ROOT::Math::IBaseFunctionMultiDim
+ {
+ public:
+   d5Xsec_dEgdOmegaldOmegag(const XSecAlgorithmI * m, const Interaction * i);
+   ~d5Xsec_dEgdOmegaldOmegag();
 
    // ROOT::Math::IBaseFunctionMultiDim interface
    unsigned int                        NDim   (void)               const;

@@ -876,6 +876,112 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::GetFactor(void) const
   return fFactor;
 }
 //____________________________________________________________________________
+genie::utils::gsl::d5Xsec_dEgdOmegaldOmegag::d5Xsec_dEgdOmegaldOmegag(
+										const XSecAlgorithmI * m, 
+										const Interaction * i) :
+  ROOT::Math::IBaseFunctionMultiDim(),
+  fModel(m),
+  fInteraction(i),
+  fFactor(1.) 
+{
+  
+}
+genie::utils::gsl::d5Xsec_dEgdOmegaldOmegag::~d5Xsec_dEgdOmegaldOmegag() 
+{
+
+}
+unsigned int genie::utils::gsl::d5Xsec_dEgdOmegaldOmegag::NDim(void) const
+{
+  return 4;
+}
+double genie::utils::gsl::d5Xsec_dEgdOmegaldOmegag::DoEval(const double * xin) const
+{
+  // inputs:  
+  //    E gamma [GeV]
+  //    cos theta l 
+  //    cos theta gamma
+  //    phi gamma [rad]
+  //
+  // outputs: 
+  //   differential cross section [10^-38 cm^2]
+  //
+ 
+  Kinematics * kinematics = fInteraction->KinePtr();
+  double E_nu = fInteraction->InitState().ProbeE(kRfLab);
+  const TLorentzVector P4_nu( 0., 0., E_nu, E_nu ) ;
+  
+  double sin_theta_l = sqrt( 1. - xin[1]*xin[1] ) ;
+  double sin_theta_g = sqrt( 1. - xin[2]*xin[2] ) ;
+  
+  //double E_g       = xin[0];  // No need to define this, left here for comments
+  
+  // Complex correct formula for E_l that takes into account the target mass
+  double m_t = fInteraction->InitState().Tgt().Mass() ;
+  //double cos_theta_g = xin[2] ;
+  //double cos_theta_l = xin[1]  ; 
+  double E_l = ( m_t*(E_nu - xin[0]) - E_nu*xin[0]*(1. - xin[2]) ) 
+    / ( m_t + E_nu*(1.-xin[1]) 
+	- xin[0]*(1.-xin[1]*xin[2] - sin_theta_l*sin_theta_g*cos(xin[3]) ) ) ;
+
+  //double theta_l   = xin[1];
+  //double phi_l     = 0.0;
+  
+  //double theta_g   = xin[2];
+  //double phi_g     = xin[3];
+  
+  TVector3 lepton_3vector( E_l * sin_theta_l, 0., E_l * xin[1] );
+  TLorentzVector P4_lep = TLorentzVector( lepton_3vector , E_l );
+  
+  TVector3 photon_3vector(xin[0] * sin_theta_g * cos(xin[3] ), 
+			  xin[0] * sin_theta_g * sin(xin[3] ), 
+			  xin[0] * xin[2] ) ;  
+  TLorentzVector P4_photon   = TLorentzVector(photon_3vector, xin[0] );
+
+  TLorentzVector q = P4_nu-P4_lep ;
+  
+  double Q2 = -q.Mag2();
+  
+  double x = Q2/(2 * xin[0] * constants::kNucleonMass );
+  
+  Range1D_t xlim = fInteraction->PhaseSpace().XLim();
+  
+  if ( x <  xlim.min || x > xlim.max ) {
+    return 0.;
+  }
+  
+  kinematics->Setx(x);
+
+  double y = xin[0]/E_nu;
+
+  kinematics->Sety(y);
+  kinematics::UpdateWQ2FromXY(fInteraction);
+  
+  double t = TMath::Abs( (q - P4_photon).Mag2() );
+  kinematics -> Sett( t ) ;
+  
+  kinematics->SetFSLeptonP4(P4_lep );
+  kinematics->SetHadSystP4 (P4_photon); // use Hadronic System variable to store photon momentum
+  
+  double xsec = fModel->XSec(fInteraction,kPSEgOlOgfE);
+  
+  return fFactor * xsec/(1E-38 * units::cm2);
+}
+
+ROOT::Math::IBaseFunctionMultiDim * 
+genie::utils::gsl::d5Xsec_dEgdOmegaldOmegag::Clone() const
+{
+  return 
+    new genie::utils::gsl::d5Xsec_dEgdOmegaldOmegag(fModel,fInteraction);
+}
+void genie::utils::gsl::d5Xsec_dEgdOmegaldOmegag::SetFactor(double factor)
+{
+  fFactor = factor;
+}
+double genie::utils::gsl::d5Xsec_dEgdOmegaldOmegag::GetFactor(void) const
+{
+  return fFactor;
+}
+//____________________________________________________________________________
 genie::utils::gsl::d3Xsec_dOmegaldThetapi::d3Xsec_dOmegaldThetapi(
      const XSecAlgorithmI * m, const Interaction * i) :
 ROOT::Math::IBaseFunctionMultiDim(),
