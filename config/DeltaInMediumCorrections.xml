@@ -2,30 +2,38 @@
 
 <alg_conf>
 
-<!--
-Configuration sets for the Corrections for Delta in Nuclear medium used in the COH NC Gamma production
+  <!--
+      Configuration sets for the Corrections for Delta in Nuclear medium used in the COH NC Gamma production
 
 Algorithm Configurable Parameters:
 .........................................................................................
 Name                     Type    Optional   Comment                                                         Default
-FermiMomentumTable       string  No         Table of Fermi momentum (kF) constants for various nuclei       CommonParam[FermiGas]
+FermiMomentumTable       string  Yes        Table of Fermi momentum (kF) constants for various nuclei       CommonParam[FermiGas]
+                                            If the table is not specified, the Fermi momenta will be 
+                                            evaluated using a Local Fermi Gas formula and an average radius
 NCG-Delta-V0             double  No         In GeV
 NCG-Rho0                 double  No         nuclear matter density (fm^-3)
 Delta-N-Coupling         double  No         
 .........................................................................................
 
 
--->
+  -->
 
   <param_set name="Default">   
 
-        <param type="string" name="CommonParam"> FermiGas </param>
-
-        <param type="double" name="NCG-Delta-V0"> 0.08 </param>  <!-- reference-->
-        <param type="double" name="NCG-Rho0">  0.17  </param>  <!-- reference-->
-        <param type="double" name="Delta-N-Coupling">  2.14  </param>  <!-- reference-->
+    <param type="double" name="NCG-Delta-V0"> 0.08 </param>  <!-- reference-->
+    <param type="double" name="NCG-Rho0">  0.17  </param>  <!-- reference-->
+    <param type="double" name="Delta-N-Coupling">  2.14  </param>  <!-- reference-->
     
   </param_set>
+
+  
+  <param_set name="FermiMomentumTable">   
+
+    <param type="string" name="CommonParam"> FermiGas </param>
+
+  </param_set>
+
 
 </alg_conf>
 

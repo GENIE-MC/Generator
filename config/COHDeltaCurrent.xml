@@ -23,5 +23,11 @@ COH-Delta-Corrections         alg      No         Delta Corrections in medium su
 
   </param_set>
 
+  <param_set name="FermiMomentumTable">
+
+    <param type="alg"  name="COH-Delta-Corrections"> genie::DeltaInMediumCorrections/FermiMomentumTable </param>
+
+  </param_set>
+
 
 </alg_conf>
