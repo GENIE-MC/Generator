@@ -67,18 +67,27 @@ double DeltaInMediumCorrections::AverageDensity( int nucleus_pdg, int nucleon_pd
 }
 //____________________________________________________________________________
 double DeltaInMediumCorrections::AverageDensity( int nucleus_pdg ) const {
-  
-  // this is the average density between proton and neutron matters
-  std::array<int,2> pdgs = { kPdgProton, kPdgNeutron} ;
-  double rho = 0. ;
-  for ( auto pdg : pdgs ) {
-    rho += AverageDensity( nucleus_pdg, pdg ) ;
-  }
-  
-  rho /= pdgs.size() ;
 
-  return rho ;
-  
+  if ( fKFTable ) { 
+    // this is the average density between proton and neutron matters
+    std::array<int,2> pdgs = { kPdgProton, kPdgNeutron} ;
+    double rho = 0. ;
+    for ( auto pdg : pdgs ) {
+      rho += AverageDensity( nucleus_pdg, pdg ) ;
+    }
+    
+    rho /= pdgs.size() ;
+
+    return rho ;
+  }
+  else {
+    
+    static double __rho = 3. / (4. * constants::kPi * pow( 1.2 * units::fermi, 3 ) ) ; 
+
+    return __rho ;
+  }
+
+ 
 }
 //____________________________________________________________________________
 double DeltaInMediumCorrections::Sigma( int nucleus_pdg ) const {
@@ -161,16 +170,16 @@ void DeltaInMediumCorrections::Configure(string config)
 void DeltaInMediumCorrections::LoadConfig(void)
 {
 
-  // get the Fermi momentum table for relativistic Fermi gas
-  string table_name ; 
-  GetParam( "FermiMomentumTable", table_name ) ;
-  
   fKFTable = nullptr ;
 
-  FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
-  fKFTable = kftp->GetTable( table_name );
-
-  assert(fKFTable);
+  // get the Fermi momentum table for relativistic Fermi gas
+  string table_name ; 
+  if ( GetParam( "FermiMomentumTable", table_name, false ) ) {
+    FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+    fKFTable = kftp->GetTable( table_name );
+    assert(fKFTable);
+    LOG( "DeltaInMediumCorrections", pINFO ) << "Configured using Fermi Momentum table called " << table_name ;
+  }
 
   GetParam( "NCG-Delta-V0", fDeltaV0 ) ; 
 

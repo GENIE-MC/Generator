@@ -253,10 +253,10 @@ void PlotXSecs(double Eg_arr[steps], double gxsec[][steps], double exsec[][steps
   TParticlePDG * tprobe = PDGLibrary::Instance() -> Find( probe ) ;
   TParticlePDG * ttgt = PDGLibrary::Instance() -> Find( target ) ;
 
-  description << probe_E << "GeV " << tprobe -> GetTitle() << " on " << ttgt -> GetTitle() ;
-  description << " #theta_{l}=" << theta_lep << "^{#circ}" ;
-  description << " #phi_{#gamma}=" << phi_g << "^{#circ}" ;
-  description << ";E_{#gamma} [GeV];#frac{d^{5}#sigma}{dE_{#gamma}d#Omega_{l}d#Omega_{#gamma}} [10^{-41} #frac{cm^2}{GeV}]" ;
+  description << probe_E << " GeV " << tprobe -> GetTitle() << " on " << ttgt -> GetTitle() ;
+  description << " #theta_{l}=" << theta_lep << "#circ" ;
+  description << " #phi_{#gamma}=" << phi_g << "#circ" ;
+  description << ";E_{#gamma} [GeV];#frac{d^{5}#sigma}{dE_{#gamma}d#Omega_{l}d#Omega_{#gamma}} [10^{-41} #frac{cm^{2}}{GeV}]" ;
 
   std::string genie_title = "GENIE " + description.str() ;
   std::string ext_title = "Eduardo " + description.str() ;
