@@ -49,7 +49,7 @@ private:
 
   bool fHasPion ;
   bool fHasPhoton ;
-
+  bool fOmegaIntegral ;
 };
 
 }       // genie namespace

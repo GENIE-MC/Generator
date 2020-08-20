@@ -157,8 +157,8 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
   // LOG("COHXSecAR", pINFO)
   //      << "Lepton energy integration range = [" << Elep_min << ", " << Elep_max << "]";
 
-  Interaction * interaction = new Interaction(*in);
-  interaction->SetBit(kISkipProcessChk);
+  Interaction interaction(*in);
+  interaction.SetBit(kISkipProcessChk);
   //interaction->SetBit(kISkipKinematicChk);
   
   double xsec = 0;
@@ -192,10 +192,15 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
   //~ double kine_min[5] = { Elep_min, zero , zero    , zero, zero };
   //~ double kine_max[5] = { Elep_max, pi   , twopi   , pi  , twopi};
     
-  ROOT::Math::IBaseFunctionMultiDim * func = 
-    new utils::gsl::d4Xsec_dEgdThetaldThetagdPhig(model, interaction);
-  double kine_min[4] = { Egamma_min, zero , zero    , zero    };
-  double kine_max[4] = { Egamma_max, pi   , pi      , twopi   };
+  ROOT::Math::IBaseFunctionMultiDim * func = nullptr ;
+  if ( fOmegaIntegral ) func = new utils::gsl::d5Xsec_dEgdOmegaldOmegag(model, & interaction);
+  else func = new utils::gsl::d4Xsec_dEgdThetaldThetagdPhig(model, & interaction);
+
+  double min_theta = fOmegaIntegral ? -1. : zero ;
+  double max_theta = fOmegaIntegral ?  1. : pi ;
+  
+  double kine_min[4] = { Egamma_min, min_theta , min_theta, zero    };
+  double kine_max[4] = { Egamma_max, max_theta , max_theta, twopi   };
   
   ROOT::Math::IntegrationMultiDim::Type ig_type = 
     utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
@@ -204,10 +209,11 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
   ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
   
   xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2) ;
+
+  if ( fOmegaIntegral ) xsec *= 2 * constants::kPi ;
+
   delete func;
   //  }
-
-  delete interaction;
 
   return xsec;
 }
@@ -238,6 +244,10 @@ void COHXSecAR::LoadConfig(void)
 
   GetParamDef( "IsCOHPion",  fHasPion,   false ) ;
   GetParamDef( "IsCOHGamma", fHasPhoton, false ) ;
+
+  if ( fHasPhoton ) {
+    GetParamDef( "OmegaPhaseSpace", fOmegaIntegral, true ) ;
+  }
 
   bool error = false ;
   
