@@ -15,6 +15,9 @@ gsl-max-eval            int      yes        Max limit of evaluations for multidi
 
 IsCOHPion               bool     yes        This integrator can be used for both COH Pion and Gamma false
 ISCOHGamma              bool     yes                                                                false
+OmegaPhaseSpace         bool     Yes        Only used for the COH Gamma case                        false
+                                            It perform the integration in the dOmega_g dOmega_l     
+
 ....................................................................................................
 
 -->
@@ -50,7 +53,7 @@ ISCOHGamma              bool     yes                                            
    
     <param type="bool"   name ="IsCOHGamma" > true  </param>
     
-    <param type="bool"   name ="OmegaPhaseSpace" > true  </param>
+    <param type="bool"   name ="OmegaPhaseSpace" > false  </param>
    
     <param type="bool"   name ="split-integral"  > false </param>
     <param type="string" name ="gsl-integration-type">  vegas  </param>
@@ -62,9 +65,9 @@ ISCOHGamma              bool     yes                                            
   </param_set>
 
 
-    <param_set name="Gamma_AnglePhaseSpace"> 
+    <param_set name="Gamma_OmegaPhaseSpace"> 
     <param type="bool"   name ="IsCOHGamma" > true  </param>
-    <param type="bool"   name ="OmegaPhaseSpace" > false  </param>
+    <param type="bool"   name ="OmegaPhaseSpace" > true  </param>
     <param type="bool"   name ="split-integral"  > false </param>
     <param type="string" name ="gsl-integration-type">  vegas  </param>
 
