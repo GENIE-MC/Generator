@@ -66,6 +66,10 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
   TH1* h_N_prod = hists["N_prod"] = new TH1D("h_N_prod", "N_{Prod};N_{Prod}",
 					     10, -0.5, 9.5 ) ; 
 
+  TH1* h_decay_length = hists["decay_length"] = new TH1D("h_decay_length", "Decay Length;|#Delta x| [fm]",
+							 500, 0., 1e13 ) ; // maximum is 1 cm
+
+
 
   // Event loop
   for(Long64_t i=0; i < in_tree->GetEntries(); i++) {
@@ -176,21 +180,23 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
 	  double total_distance = Delta.Vect().Mag() ;
 	  double delay = Delta.T() ;
 	  
-	  std::cout << "Dark neutrino: " << total_distance << " fm in " << delay << " 10^-24 s" << std::endl ;
+	  // std::cout << "Dark neutrino: " << total_distance << " fm in " << delay << " 10^-24 s and beta = " << N.P4() -> Beta() << std::endl ;
 
 	  Delta = (*final_products[0] -> X4()) - (* mediator -> X4()) ;
 	  total_distance = Delta.Vect().Mag() ;
 	  delay = Delta.T() ;
 	  
-	  std::cout << "mediator: " << total_distance << " fm in " << delay << " 10^-24 s" << std::endl ;
+	  // std::cout << "mediator: " << total_distance << " fm in " << delay << " 10^-24 s and beta = " << mediator -> P4() -> Beta() << std::endl ;
 
 	}
 	
 	TLorentzVector Delta = (*final_products[0] -> X4()) - (* N.X4() ) ;
 	double total_distance = Delta.Vect().Mag() ;
 	double delay = Delta.T() ;
+
+	h_decay_length -> Fill( total_distance ) ;
 	
-	std::cout << "Total: " << total_distance << " fm in " << delay << " 10^-24 s" << std::endl ;
+	//d::cout << "Total: " << total_distance << " fm in " << delay << " 10^-24 s" << std::endl ;
 	
 	h_vis_dec -> Fill( vis_decay ? 1 : 0 ) ;
 	h_E_vis -> Fill( vis_e ) ;
