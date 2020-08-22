@@ -81,7 +81,7 @@ double BertuzzoDNuCOHPXSec::XSec(
 
   // Target atomic mass number and mass calculated from inputs
   const double M = target.Mass(); // units: GeV
-  
+
   // LOG("DNu", pDEBUG)
   //   << "Q2 = " << Q2 << " GeV^2, E = " << E << " GeV "
   //   << "--> TA = " << TA << " GeV";
@@ -130,7 +130,7 @@ bool BertuzzoDNuCOHPXSec::ValidProcess(const Interaction * interaction) const
 
   const InitialState & init_state = interaction->InitState();
   if ( ! pdg::IsNeutrino( TMath::Abs( init_state.ProbePdg() ) ) ) return false ;
-  
+
   const Target & target = init_state.Tgt();
   if( ! target.IsNucleus() ) return false ;
 
@@ -172,12 +172,12 @@ void BertuzzoDNuCOHPXSec::Configure(string config)
 void BertuzzoDNuCOHPXSec::LoadConfig(void)
 {
 
-  bool good_configuration = true ; 
+  bool good_configuration = true ;
 
   double DKineticMixing = 0.;    // \varepsilon in the note
   this->GetParam("Dark-KineticMixing", DKineticMixing);
   fEps2 = DKineticMixing * DKineticMixing;
-  
+
   bool force_unitarity = false ;
   GetParam( "Dark-Mixing-ForceUnitarity", force_unitarity ) ;
 
@@ -187,26 +187,26 @@ void BertuzzoDNuCOHPXSec::LoadConfig(void)
   this->GetParamVect("Dark-Mixings2", DMixing2s);
 
   // check whther we go enough mixing elements
-  if ( DMixing2s.size () < n_min_mixing ) { 
-    
+  if ( DMixing2s.size () < n_min_mixing ) {
     good_configuration = false ;
-    LOG("BertuzzoDNuCOHPXSec", pERROR ) << "Not enough mixing elements specified, only specified " 
-					<< DMixing2s.size() << " / " << n_min_mixing ;                                 }
-  
-  double tot_mix = 0. ;
-  for( unsigned int i = 0; i < n_min_mixing ; ++i ) {
-    if ( DMixing2s[i] < 0. ) { 
-      good_configuration = false ;
-      LOG("BertuzzoDNuCOHPXSec", pERROR ) << "Mixign " << i << " non positive: " << DMixing2s[i] ; 
-      continue ;
-    }
-    tot_mix += fMixing2s[i] = DMixing2s[i] ; 
+    LOG("BertuzzoDNuCOHPXSec", pERROR ) << "Not enough mixing elements specified, only specified "
+                                        << DMixing2s.size() << " / " << n_min_mixing ;
   }
 
-  if ( force_unitarity ) { 
-    fMixing2s[3] = 1. - tot_mix ;  
+  double tot_mix = 0. ;
+  for( unsigned int i = 0; i < n_min_mixing ; ++i ) {
+    if ( DMixing2s[i] < 0. ) {
+      good_configuration = false ;
+      LOG("BertuzzoDNuCOHPXSec", pERROR ) << "Mixign " << i << " non positive: " << DMixing2s[i] ;
+      continue ;
+    }
+    tot_mix += fMixing2s[i] = DMixing2s[i] ;
   }
-  
+
+  if ( force_unitarity ) {
+    fMixing2s[3] = 1. - tot_mix ;
+  }
+
   double DGaugeCoupling = 0.;   // g_D
   this->GetParam("Dark-GaugeCoupling", DGaugeCoupling);
   fgD2 = DGaugeCoupling * DGaugeCoupling;
@@ -225,12 +225,10 @@ void BertuzzoDNuCOHPXSec::LoadConfig(void)
   fFF = dynamic_cast<const EngelFormFactor *> (this->SubAlg("FormFactor"));
   assert(fFF);
 
-  if ( ! good_configuration ) { 
-
+  if ( ! good_configuration ) {
     LOG("BertuzzoDNuCOHPXSec", pFATAL ) << "Wrong configuration. Exiting" ;
     exit ( 78 ) ;
-    
   }
-  
+
 }
 //____________________________________________________________________________
