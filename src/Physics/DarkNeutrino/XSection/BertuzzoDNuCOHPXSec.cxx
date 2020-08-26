@@ -77,7 +77,7 @@ double BertuzzoDNuCOHPXSec::XSec(
   if( pdg::IsNuE( TMath::Abs( nu_pdg ) ) ) nu_i = 0;
   else if ( pdg::IsNuMu( TMath::Abs( nu_pdg ) ) ) nu_i = 1;
   else if ( pdg::IsNuTau( TMath::Abs( nu_pdg ) ) ) nu_i = 2;
-  const double DTheta2 = fMixing2s[nu_i];
+  const double DTheta2 = fMixing2s[nu_i] * fMixing2s[3] ;
 
   // Target atomic mass number and mass calculated from inputs
   const double M = target.Mass(); // units: GeV
