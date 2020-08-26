@@ -268,9 +268,8 @@ std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkNeutrinoDeca
 void DarkSectorDecayer::SetSpaceTime(
   std::vector<GHepParticle> & pp,
   const GHepParticle & mother,
-  double total_amplitude) const
-{
-  // TODO DNU: pay attention to units being used in GENIE!
+  double total_amplitude) const  {
+
   // convert decay amplitude into time
   const double lifetime =  1e24/units::second/total_amplitude; // units of 10ˆ-24 s
 
