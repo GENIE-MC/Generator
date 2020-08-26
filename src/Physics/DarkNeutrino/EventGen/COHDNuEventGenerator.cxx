@@ -1,13 +1,13 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
- For the full text of the license visit http://copyright.genie-mc.org
+  Copyright (c) 2003-2020, The GENIE Collaboration
+  For the full text of the license visit http://copyright.genie-mc.org
 
- Author: Iker de Icaza <i.de-icaza-astiz \at sussex.ac.uk>
- University of Sussex
+  Author: Iker de Icaza <i.de-icaza-astiz \at sussex.ac.uk>
+  University of Sussex
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+  University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -46,13 +46,13 @@ using namespace genie::utils;
 
 //___________________________________________________________________________
 COHDNuEventGenerator::COHDNuEventGenerator() :
-EventRecordVisitorI("genie::COHDNuEventGenerator")
+  EventRecordVisitorI("genie::COHDNuEventGenerator")
 {
 
 }
 //___________________________________________________________________________
 COHDNuEventGenerator::COHDNuEventGenerator(string config) :
-EventRecordVisitorI("genie::COHDNuEventGenerator", config)
+  EventRecordVisitorI("genie::COHDNuEventGenerator", config)
 {
 
 }
@@ -96,23 +96,23 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
       << "Option to generate kinematics uniformly not supported";
     exit(1);
 /*
-    gQ2 = Q2min + dQ2 * rnd->RndKine().Rndm();
-    LOG("CEvNS", pINFO) << "Trying: Q2 = " << gQ2;
-    interaction->KinePtr()->SetQ2(gQ2);
+  gQ2 = Q2min + dQ2 * rnd->RndKine().Rndm();
+  LOG("CEvNS", pINFO) << "Trying: Q2 = " << gQ2;
+  interaction->KinePtr()->SetQ2(gQ2);
 
-    // Computing cross section for the current kinematics
-    gxsec = fXSecModel->XSec(interaction, kPSQ2fE);
-    if(gxsec<=0){
-      LOG("CEvNS", pWARN)
-        << "Non-positive x-section for selected Q2 = " << gQ2 << "GeV^2";
-    }
+  // Computing cross section for the current kinematics
+  gxsec = fXSecModel->XSec(interaction, kPSQ2fE);
+  if(gxsec<=0){
+  LOG("CEvNS", pWARN)
+  << "Non-positive x-section for selected Q2 = " << gQ2 << "GeV^2";
+  }
 
-    double weight = 1; // to implement if fGenerateUniformly option is enabled
-    LOG("CEvNS", pDEBUG)  << "Kinematics wght = "<< weight;
-    // apply computed weight to the current event weight
-    weight *= event->Weight();
-    LOG("CEvNS", pDEBUG) << "Current event wght = " << weight;
-    event->SetWeight(weight);
+  double weight = 1; // to implement if fGenerateUniformly option is enabled
+  LOG("CEvNS", pDEBUG)  << "Kinematics wght = "<< weight;
+  // apply computed weight to the current event weight
+  weight *= event->Weight();
+  LOG("CEvNS", pDEBUG) << "Current event wght = " << weight;
+  event->SetWeight(weight);
 */
   }
   else {
@@ -132,41 +132,41 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
     // Try to select a valid E_N
     unsigned int iter = 0;
     while(1) {
-       iter++;
-       if(iter > kRjMaxIterations) {
-	 LOG("COHDNuEventGenerator", pWARN)
-            << "*** Could not select a valid DNuE after " << iter << " iterations";
-          event->EventFlags()->SetBitNumber(kKineGenErr, true);
-          genie::exceptions::EVGThreadException exception;
-          exception.SetReason("Couldn't select kinematics");
-          exception.SwitchOnFastForward();
-          throw exception;
-       } // max iterations
+      iter++;
+      if(iter > kRjMaxIterations) {
+        LOG("COHDNuEventGenerator", pWARN)
+          << "*** Could not select a valid DNuE after " << iter << " iterations";
+        event->EventFlags()->SetBitNumber(kKineGenErr, true);
+        genie::exceptions::EVGThreadException exception;
+        exception.SetReason("Couldn't select kinematics");
+        exception.SwitchOnFastForward();
+        throw exception;
+      } // max iterations
 
-       gDNuE = DNuEnergy.min + dDNuE * rnd->RndKine().Rndm();
-       LOG("CEvNS", pINFO) << "Trying: E_N = " << gDNuE;
-       
-       // Computing cross section for the current kinematics
-       gxsec = -1. * xsec_func(gDNuE);
+      gDNuE = DNuEnergy.min + dDNuE * rnd->RndKine().Rndm();
+      LOG("CEvNS", pINFO) << "Trying: E_N = " << gDNuE;
 
-       if(gxsec > xsec_max) {
-          double frac = TMath::Abs(gxsec-xsec_max)/xsec_max;
-          if(frac > fMaxXSecDiffTolerance) {
-            LOG("CEvNS", pWARN)
-              << "Current computed cross-section (" << gxsec/(units::cm2)
-              << " cm2/GeV^2) exceeds the maximum cross-section ("
-              << xsec_max/(units::cm2) << " beyond the specified tolerance";
-          }
-       }
+      // Computing cross section for the current kinematics
+      gxsec = -1. * xsec_func(gDNuE);
 
-       // Decide whether to accept the current kinematic point
-       double t = fSafetyFactor * xsec_max * rnd->RndKine().Rndm();
-       //this->AssertXSecLimits(interaction, gxsec, xsec_max);
-       LOG("CEvNS", pINFO)
-         << "dxsec/dQ2 = " << gxsec/(units::cm2) << " cm2/GeV^2"
-         << "J = 1, rnd = " << t;
-       bool accept = (t<gxsec);
-       if(accept) break; // exit loop
+      if(gxsec > xsec_max) {
+        double frac = TMath::Abs(gxsec-xsec_max)/xsec_max;
+        if(frac > fMaxXSecDiffTolerance) {
+          LOG("CEvNS", pWARN)
+            << "Current computed cross-section (" << gxsec/(units::cm2)
+            << " cm2/GeV^2) exceeds the maximum cross-section ("
+            << xsec_max/(units::cm2) << " beyond the specified tolerance";
+        }
+      }
+
+      // Decide whether to accept the current kinematic point
+      double t = fSafetyFactor * xsec_max * rnd->RndKine().Rndm();
+      //this->AssertXSecLimits(interaction, gxsec, xsec_max);
+      LOG("CEvNS", pINFO)
+        << "dxsec/dQ2 = " << gxsec/(units::cm2) << " cm2/GeV^2"
+        << "J = 1, rnd = " << t;
+      bool accept = (t<gxsec);
+      if(accept) break; // exit loop
     } // 1
   } // generate uniformly
 
@@ -216,9 +216,9 @@ void COHDNuEventGenerator::AddFinalStateDarkNeutrino(GHepRecord * event) const
   const TLorentzVector & vtx = *(probe->X4());
   TLorentzVector x4l(vtx);  // position 4-vector
 
-  event->AddParticle( probe -> Pdg() > 0 ? kPdgDarkNeutrino : kPdgAntiDarkNeutrino, 
-		      kIStDecayedState, event->ProbePosition(),
-		      -1,-1,-1, event->Summary()->Kine().FSLeptonP4(), x4l);
+  event->AddParticle(probe -> Pdg() > 0 ? kPdgDarkNeutrino : kPdgAntiDarkNeutrino,
+                     kIStDecayedState, event->ProbePosition(),
+                     -1,-1,-1, event->Summary()->Kine().FSLeptonP4(), x4l);
 
 }
 //___________________________________________________________________________
@@ -235,15 +235,15 @@ void COHDNuEventGenerator::AddRecoilNucleus(GHepRecord * event) const
   const TLorentzVector & p4recoil = p4probe + p4target - p4fsl;
 
   LOG("CEvNS", pNOTICE)
-     << "Recoil 4-momentum: " << utils::print::P4AsString(&p4recoil);
+    << "Recoil 4-momentum: " << utils::print::P4AsString(&p4recoil);
 
   const TLorentzVector & vtx = *(probe->X4());
 
   event->AddParticle(
-      event->TargetNucleus()->Pdg(),
-      kIStStableFinalState,
-      event->TargetNucleusPosition(),
-      -1,-1,-1, p4recoil, vtx);
+    event->TargetNucleus()->Pdg(),
+    kIStStableFinalState,
+    event->TargetNucleusPosition(),
+    -1,-1,-1, p4recoil, vtx);
 }
 //___________________________________________________________________________
 void COHDNuEventGenerator::Configure(const Registry & config)

@@ -58,7 +58,7 @@ private:
   const EngelFormFactor * fFF; ///< Engel Form Factor algorithm
 
   double fEps2;
-  
+
   std::array<double, 4> fMixing2s;
   // mixing angles between the neutrinos (including a 4rth sterile one)
   // to the dark neutrino

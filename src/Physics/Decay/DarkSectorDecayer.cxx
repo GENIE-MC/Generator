@@ -84,15 +84,15 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
     }
 
     // for ( const auto & dc : dcs ) {
-      
-    //   std::cout << "Decay amplitude: " << dc.second << " GeV "
-    // 		<< " -> " << 1. / dc.second / units::second << "s for channel [" ;
+
+    // std::cout << "Decay amplitude: " << dc.second << " GeV "
+    //           << " -> " << 1. / dc.second / units::second << "s for channel [" ;
     //   for ( const auto & p : dc.first ) {
-    // 	std::cout << p << "  " ;
+    //       std::cout << p << "  " ;
     //   }
     //   std::cout << "]" << std::endl ;
     // }
-    
+
     double total_amplitude = std::accumulate(dcs.begin(), dcs.end(), 0.,
                                              [](double total,
                                                 const DarkSectorDecayer::DecayChannel& dc)
@@ -238,7 +238,7 @@ std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkMediatorDeca
 //____________________________________________________________________________
 std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkNeutrinoDecayChannels(int mother_pdg) const
 {
-  // eq (3) and higher order variations 
+  // eq (3) and higher order variations
 
   const double alpha_D = 0.25; // value on the paper
   std::array<int, 3> neutrinos = {kPdgNuE, kPdgNuMu, kPdgNuTau};
@@ -285,7 +285,7 @@ void DarkSectorDecayer::SetSpaceTime(
   TVector3 mother_boost = mother.P4()->BoostVector();
 
   // transport decay_particle with respect to their mother
-  double speed_of_light = units::second/units::meter; // this gives us the speed of light in m/s 
+  double speed_of_light = units::second/units::meter; // this gives us the speed of light in m/s
   TVector3 daughter_position = mother_X4.Vect() + mother_boost * (speed_of_light * t * 1e-9);// in fm
 
   for(auto & p : pp){
@@ -352,24 +352,25 @@ void DarkSectorDecayer::LoadConfig(void)
   this->GetParamVect("Dark-Mixings2", DMixing2s);
 
   // check whther we go enough mixing elements
-  if ( DMixing2s.size () < n_min_mixing ) { 
-    
+  if ( DMixing2s.size () < n_min_mixing ) {
+
     good_configuration = false ;
-    LOG("DarkSectorDecayer", pERROR ) << "Not enough mixing elements specified, only specified " 
-				      << DMixing2s.size() << " / " << n_min_mixing ;                                 }
-  
-  double tot_mix = 0. ;
-  for( unsigned int i = 0; i < n_min_mixing ; ++i ) {
-    if ( DMixing2s[i] < 0. ) { 
-      good_configuration = false ;
-      LOG("DarkSectorDecayer", pERROR ) << "Mixign " << i << " non positive: " << DMixing2s[i] ; 
-      continue ;
-    }
-    tot_mix += fMixing2s[i] = DMixing2s[i] ; 
+    LOG("DarkSectorDecayer", pERROR ) << "Not enough mixing elements specified, only specified "
+                                      << DMixing2s.size() << " / " << n_min_mixing ;
   }
 
-  if ( force_unitarity ) { 
-    fMixing2s[3] = 1. - tot_mix ;  
+  double tot_mix = 0. ;
+  for( unsigned int i = 0; i < n_min_mixing ; ++i ) {
+    if ( DMixing2s[i] < 0. ) {
+      good_configuration = false ;
+      LOG("DarkSectorDecayer", pERROR ) << "Mixign " << i << " non positive: " << DMixing2s[i] ;
+      continue ;
+    }
+    tot_mix += fMixing2s[i] = DMixing2s[i] ;
+  }
+
+  if ( force_unitarity ) {
+    fMixing2s[3] = 1. - tot_mix ;
   }
 
   double DGaugeCoupling = 0.;   // g_D
@@ -384,29 +385,23 @@ void DarkSectorDecayer::LoadConfig(void)
   this->GetParam("Dark-MediatorMass", fDMediatorMass);
   fDMediatorMass2 = fDMediatorMass * fDMediatorMass;
 
-  // the model is build on the assumption that the mass of the mediator is smaller than the mass
-  // of the dark neutrino. 
-  // For the cross section, this is not a problem 
-  // The decayer though is sensitive to this as the only known decay amplitude of the dark neutrino 
-  // requires the mediator in the final state.
-  // Until the decay aimplitude in neutrino is not available 
+  // the model is build on the assumption that the mass of the mediator
+  // is smaller than the mass of the dark neutrino.
+  // For the cross section, this is not a problem
+  // The decayer though is sensitive to this as the only known decay amplitude
+  // of the dark neutrino requires the mediator in the final state.
+  // Until the decay aimplitude in neutrino is not available
   // we need to check that the mass hierarchy is respected
   if ( fDMediatorMass >= fDNuMass ) {
-
     good_configuration = false ;
-    LOG("DarkSectorDecayer", pERROR ) << "Dark mediator mass (" <<  fDMediatorMass 
-				      << " GeV) too heavy for the dark neutrino (" 
-				      << fDNuMass << " GeV) to decay" ;
-    
+    LOG("DarkSectorDecayer", pERROR ) << "Dark mediator mass (" <<  fDMediatorMass
+                                      << " GeV) too heavy for the dark neutrino ("
+                                      << fDNuMass << " GeV) to decay" ;
   }
 
-  if ( ! good_configuration ) { 
-
+  if ( ! good_configuration ) {
     LOG("DarkSectorDecayer", pFATAL ) << "Wrong configuration. Exiting" ;
     exit ( 78 ) ;
-    
   }
-  
+
 }
-
-

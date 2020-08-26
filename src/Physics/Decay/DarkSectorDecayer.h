@@ -38,9 +38,9 @@ namespace genie {
 
     using DecayChannel = std::pair<std::vector<int>, double>;
     // first the vector of pdgs, second the decay amplitude
-    
+
   public:
-    
+
     DarkSectorDecayer();
     DarkSectorDecayer(string config);
     virtual ~DarkSectorDecayer();
