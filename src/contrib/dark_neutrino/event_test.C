@@ -68,6 +68,11 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
   TH1* h_decay_length = hists["decay_length"] = new TH1D("h_decay_length", "Decay Length;|#Delta x| [fm]",
                                                          500, 0., 1e13 ) ; // maximum is 1 cm
 
+  TH1* h_theta_Med = hists["theta_Med"] = new TH1D("h_theta_Med", "#theta_{Z};#theta_{Z} [rad]",
+                                               80, 0., TMath::Pi() ) ;
+
+  TH1* h_phi_ee = hists["phi_ee"] = new TH1D("h_phi_ee", "#phi_{ee};#phi_{ee} [rad]",
+                                               80, 0., TMath::Pi() ) ;
 
 
   // Event loop
@@ -117,7 +122,7 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
         }
         else {
           // otherwise there is a neutrino and there is no mediator
-          // so the neutrino is among the decay products fo the dark neutrno,
+          // so the neutrino is among the decay products fo the dark neutrino,
           // all the rest is products
           // impossible to say which one is the main neutrino, just pick the first in that case
 
@@ -158,17 +163,30 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
         double vis_e = t_t ;
         double prod_e = 0. ;
         bool vis_decay = false ;
+        std::vector<const GHepParticle*> charged_particles ;
         for ( const auto & p : final_products ) {
-
+          // gamma
           if ( p -> Pdg() == 22 )  vis_e += p -> P4() -> E() ;
           else if ( p -> Charge() != 0. ) {
             vis_decay = true ;
             vis_e += p -> P4() -> E() ;
+            charged_particles.push_back(p) ;
           }
 
           prod_e += p -> P4() -> E() ;
 
-        } // finale products loop
+        } // final_products loop
+
+        // if the event has two charged particles it also has a
+        // mediator initialised
+        if ( charged_particles.size() == 2 ) {
+          h_phi_ee -> Fill(
+            charged_particles[0]->P4()->Angle(
+              charged_particles[1]->P4()->Vect() ) ) ;
+
+          h_theta_Med -> Fill(
+            mediator->P4()->Angle( probe.Vect() ) ) ;
+        }
 
         if ( mediator ) {
           // evaluate the lenght of the first and second day
