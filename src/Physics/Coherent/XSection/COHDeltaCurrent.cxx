@@ -139,7 +139,7 @@ GTrace COHDeltaCurrent::R( const Interaction * i,
   double ff_p = ff -> ProtonFF( kine.t(), pdg );
   double ff_n = ff -> NeutronFF( kine.t(), pdg );
 
-  R *= ( ( ff_p + ff_n )*constants::kNucleonMass ) / ( 2*p0 ) ;
+  R *= ( ff_p * constants::kProtonMass + ff_n * constants::kNeutronMass ) / ( 2*p0 ) ;
 
   return R;
 }
