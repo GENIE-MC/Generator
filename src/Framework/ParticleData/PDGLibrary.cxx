@@ -161,27 +161,31 @@ bool PDGLibrary::AddDarkSector()
 {
   // Add dark neutrino particles to PDG database
 
-  const Registry * reg = AlgConfigPool::Instance()->CommonList("Dark", "Masses");
-  if(!reg) {
-    LOG("PDG", pERROR) << "The Dark Sector masses not available.";
-    return false;
-  }
+  //TODO DNu: there's a bug here when connecting to larsoft
+  // const Registry * reg = AlgConfigPool::Instance()->CommonList("Dark", "Masses");
+  // if(!reg) {
+  //   LOG("PDG", pERROR) << "The Dark Sector masses not available.";
+  //   return false;
+  // }
   TParticlePDG * dnu_particle = fDatabasePDG->GetParticle(kPdgDarkNeutrino);
   TParticlePDG * anti_dnu_particle = fDatabasePDG->GetParticle(kPdgAntiDarkNeutrino);
   TParticlePDG * med_particle = fDatabasePDG->GetParticle(kPdgDNuMediator);
   if (!dnu_particle) {
     // Name Title Mass Stable Width Charge Class PDG
-    fDatabasePDG->AddParticle("nu_D","#nu_{D}",reg->GetDouble("Dark-NeutrinoMass"),
+    // fDatabasePDG->AddParticle("nu_D","#nu_{D}",reg->GetDouble("Dark-NeutrinoMass"), BUG!
+    fDatabasePDG->AddParticle("nu_D","#nu_{D}",0.420,
                               true,0.,0,"DarkNeutrino",kPdgDarkNeutrino);
   }
   if (!anti_dnu_particle) {
     // Name Title Mass Stable Width Charge Class PDG
-    fDatabasePDG->AddParticle("nu_D_bar","#bar{#nu}_{D}",reg->GetDouble("Dark-NeutrinoMass"),
+    // fDatabasePDG->AddParticle("nu_D_bar","#bar{#nu}_{D}",reg->GetDouble("Dark-NeutrinoMass"), BUG!
+    fDatabasePDG->AddParticle("nu_D_bar","#bar{#nu}_{D}",0.420,
                               true,0.,0,"DarkNeutrino",kPdgAntiDarkNeutrino);
   }
   if (!med_particle) {
     // Name Title Mass Stable Width Charge Class PDG
-    fDatabasePDG->AddParticle("Z_D","Z_{D}",reg->GetDouble("Dark-MediatorMass"),
+    // fDatabasePDG->AddParticle("Z_D","Z_{D}",reg->GetDouble("Dark-MediatorMass"), BUG!
+    fDatabasePDG->AddParticle("Z_D","Z_{D}",0.03,
                               true,0.,0,"DarkNeutrino",kPdgDNuMediator);
   }
   return true;
