@@ -1141,12 +1141,12 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   if (is_nubar)
   {
     temp     = C_L_plus;
-    C_L_plus = C_L_minus;
-    C_L_minus = temp;
+    C_L_plus = C_R_plus;
+    C_R_plus = temp;
     
-    temp     = C_R_plus;
-    C_R_plus = C_R_minus;
-    C_R_minus = temp;    
+    temp     = C_L_minus;
+    C_L_minus = C_R_minus;
+    C_R_minus = temp;
   } 
 
   // Isospin Clebsch–Gordan coefficients to sum amplitudes for I=1/2 and I=3/2, see eq.25 and Table 2 of ref. 1
