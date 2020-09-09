@@ -70,7 +70,7 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 7.0  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-      0.25491e-1 ;  0.50618e-1 ;  029822e-1 ; -0.55196e-2 ; -0.l5913e-1 ;
+      0.25491e-1 ;  0.50618e-1 ;  029822e-1 ; -0.55196e-2 ; -0.15913e-1 ;
      -0.76184e-2 ; -0.23992e-2 ; -0.47940e-3 
     </param>
   </param_set>
@@ -81,9 +81,9 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 8.0  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-       0.20238e-1 ;  0.44793e-1 ; 0.33533e-1 ;  0.35030e-2 ; -0.l2293e-1 ;
-      -0.l0329e-1 ;  0.34036e-2 ; 0.41627e-3 ; -0.94435e-3 ; 0.25771e-3 ;
-       0.23759e-3 ; -0.l0603e-3 ; 0.41480e-4
+       0.20238e-1 ;  0.44793e-1 ; 0.33533e-1 ;  0.35030e-2 ; -0.12293e-1 ;
+      -0.10329e-1 ;  0.34036e-2 ; 0.41627e-3 ; -0.94435e-3 ;  0.25771e-3 ;
+       0.23759e-3 ; -0.10603e-3 ; 0.41480e-4
     </param>
   </param_set>
 
@@ -94,7 +94,7 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
        0.43418e-1 ; 0.60298e-1 ; 0.28950e-2 ; -0.23522e-1 ; -0.79791e-2 ;
-       0.230l0e-2 ; 0.l0794e-2 ; 0.l2574e-3 ; -0.l3021e-3 ;  0.56563e-4 ;
+       0.23010e-2 ; 0.10794e-2 ; 0.12574e-3 ; -0.13021e-3 ;  0.56563e-4 ;
       -0.18011e-4 ; 0.42869e-5
     </param>
   </param_set>
@@ -105,7 +105,7 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 8.0  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";">
-       0.33495e-1 ;  0.59533e-1 ; 0.20979e-1 ; -0.l6900e-1 ; -0.l4998e-1 ;
+       0.33495e-1 ;  0.59533e-1 ; 0.20979e-1 ; -0.16900e-1 ; -0.14998e-1 ;
        4.93248e-3 ;  0.33266e-2 ; 0.59244e-3 ;  4.40013e-3 ;  0.12242e-3 ;
       -0.12994e-4 ; -0.92784e-5 ; 0.72595e-5 ; -0.42096e-5 
     </param>
@@ -117,8 +117,8 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 8.0  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-       0.33521e-1 ; 0.59679e-1 ;  0.20593e-1 ; -0.l8646e-1 ; -0.l6550e-1 ;
-      -0.l1922e-2 ; 0.28025e-2 ; -0.67353e-4 ; -0.34619e-3 ;  0,17611e-3 ;
+       0.33521e-1 ; 0.59679e-1 ;  0.20593e-1 ; -0.18646e-1 ; -0.16550e-1 ;
+      -0.11922e-2 ; 0.28025e-2 ; -0.67353e-4 ; -0.34619e-3 ;  0.17611e-3 ;
       -0.57173e-5 ; 0.12371e-4
     </param>
   </param_set>
@@ -129,8 +129,8 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 8.5  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-       0.28397e-1 ;  0.54163e-1 ; 0.25167e-1 ; -0.l2858e-1 ; -0.17592e-1 ;
-      -0.46722e-2 ;  0.24804e-2 ; 0.l4760e-2 ; -0.30168e-3 ;  0.48346e-4 ;
+       0.28397e-1 ;  0.54163e-1 ; 0.25167e-1 ; -0.12858e-1 ; -0.17592e-1 ;
+      -0.46722e-2 ;  0.24804e-2 ; 0.14760e-2 ; -0.30168e-3 ;  0.48346e-4 ;
        0.0        ; -0.51570e-5 ; 0.30261e-5
     </param>
   </param_set>
@@ -141,9 +141,9 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 8.0  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-        0.35305e-1 ; 0.59642e-1 ; 0.l7274e-1 ; -0.l9303e-1 ; 0.l3545e-1 ;
-        0.63209e-3 ; 0.35462e-2 ; 0.83653e-3 ; -0.47904e-3 ; 0.19099e-3 ;
-       -0.69611e-4 ; 0.23196e-4 ; -0.77780-5
+        0.35305e-1 ; 0.59642e-1 ;  0.17274e-1 ; -0.19303e-1 ; 0.13545e-1 ;
+        0.63209e-3 ; 0.35462e-2 ;  0.83653e-3 ; -0.47904e-3 ; 0.19099e-3 ;
+       -0.69611e-4 ; 0.23196e-4 ; -0.77780e-5
     </param>
   </param_set>
 
@@ -153,7 +153,7 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 8.0  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-        0.37251e-1 ; 0.60248e-1 ;  0.14748e-1 ; -0.l8352e-1 ; -0.l0347e-1 ;
+        0.37251e-1 ; 0.60248e-1 ;  0.14748e-1 ; -0.18352e-1 ; -0.10347e-1 ;
         0.30461e-2 ; 0.35277e-2 ; -0.39834e-4 ; -0.97177e-4 ;  0.92279e-4 ;
        -0.51931e-4 ; 0.22958e-4 ; -0.86609e-5 ;  0.28879e-5 ; -0.86632e-6
     </param>
@@ -165,7 +165,7 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 8.0  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-        0.37036e-1 ; 0.58506e-1 ;  0.l2082e-1 ; -0.19022e-1 ;  0.83421e-2 ;
+        0.37036e-1 ; 0.58506e-1 ;  0.12082e-1 ; -0.19022e-1 ;  0.83421e-2 ;
         0.45434e-2 ; 0.28346e-2 ; -0.52304e-3 ;  0.27754e-4 ;  0.59403e-4 ;
        -0.42794e-4 ; 0.20407e-4 ; -0.79934e-5 ;  0.27354e-5 ; -0.83914e-6 
     </param>
@@ -177,9 +177,9 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 8.0  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-        0.37032e-1 ; 0.57939e-1 ;  0.l0049e-1 ; -0.l9852e-1 ; -0.67176e-2 ;
-        0.61882e-2 ; 0.37795e-2 ; -0.55272e-3 ; -0.l2904e-3 ;  0.15845e-3 ;
-       -0.84063e-4 ; 0.34010e-4 ; -0.l1663e-4 ;  0.35204e-5 ; -0.95135e-6 
+        0.37032e-1 ; 0.57939e-1 ;  0.10049e-1 ; -0.19852e-1 ; -0.67176e-2 ;
+        0.61882e-2 ; 0.37795e-2 ; -0.55272e-3 ; -0.12904e-3 ;  0.15845e-3 ;
+       -0.84063e-4 ; 0.34010e-4 ; -0.11663e-4 ;  0.35204e-5 ; -0.95135e-6 
     </param>
   </param_set>
 
@@ -201,7 +201,7 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 8.0  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-       0.44846e-1 ;  0.61326e-l ; -0.16818e-2 ; -0.26217e-1 ; 0.29725e-2 ;
+       0.44846e-1 ;  0.61326e-1 ; -0.16818e-2 ; -0.26217e-1 ; 0.29725e-2 ;
        0.85534e-2 ;  0.35322e-2 ; -0.48258e-3 ; -0.39346e-3 ; 0.20338e-3 ;
        0.25461e-4 ; -0.17794e-4 ;  0.67394e-5 ; -0.21033e-5
     </param>
@@ -214,7 +214,7 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
         0.44782e-1 ; 0.59523e-1 ; -0.74148e-2 ; -0.29466e-1 ; -0.28350e-3 ;
-        0.l0829e-1 ; 0.30465e-2 ; -0.l0237e-2 ; -0.l7830e-3 ;  0.55391e-4 ;
+        0.10829e-1 ; 0.30465e-2 ; -0.10237e-2 ; -0.17830e-3 ;  0.55391e-4 ;
        -0.22644e-4 ; 0.82671e-5 ; -0.27343e-5 ;  0.82461e-6 ; -0.22780e-6
     </param>
   </param_set>
@@ -225,8 +225,8 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 10.0  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-        0.27850e-1 ;  0.55432e-1 ; 0.26369e-1 ; -0.l7091e-1 ; -0.21798e-1 ;
-       -0.24889e-2 ;  0.76631e-2 ; 0.34554e-2 ; -0.6747le-3 ;  0.l0764e-3 ;
+        0.27850e-1 ;  0.55432e-1 ; 0.26369e-1 ; -0.17091e-1 ; -0.21798e-1 ;
+       -0.24889e-2 ;  0.76631e-2 ; 0.34554e-2 ; -0.67471e-3 ;  0.10764e-3 ;
        -0.16564e-5 ; -0.55566e-5
     </param>
   </param_set>
@@ -238,8 +238,8 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
     </param>
-        0.31818e-1 ; 0.58556e-1 ; 0.l9637e-1 ; -0.24309e-1 ; -0.l8748e-1 ;
-        0.33741e-2 ; 0.89961e-2 ; 0.37954e-2 ;  0.41238e-3 ;  0.l2540e-3
+        0.31818e-1 ; 0.58556e-1 ; 0.19637e-1 ; -0.24309e-1 ; -0.18748e-1 ;
+        0.33741e-2 ; 0.89961e-2 ; 0.37954e-2 ;  0.41238e-3 ;  0.12540e-3
   </param_set>
 
   <param_set name="50Cr">
@@ -248,7 +248,7 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 9.0  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-        0.39174e-l ; 0.61822e-1 ;  0.68550e-2 ; -0.30170e-1 ; -0.98745e-2 ;
+        0.39174e-1 ; 0.61822e-1 ;  0.68550e-2 ; -0.30170e-1 ; -0.98745e-2 ;
         0.87944e-2 ; 0.68502e-2 ; -0.93609e-3 ; -0.24962e-2 ; -0.15361e-2 ;
        -0.73687e-3
     </param>
@@ -260,8 +260,8 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 9.0  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-        0.39287e-1 ; 0.62477e-1 ;  0.62482e-2 ; -0.32885e-1 ; -0.l0648e-1 ;
-        0.l0520e-1 ; 0.85478e-2 ; -0.24003e-3 ; -0.20499e-2 ; -0.l2001e-2 ; 
+        0.39287e-1 ; 0.62477e-1 ;  0.62482e-2 ; -0.32885e-1 ; -0.10648e-1 ;
+        0.10520e-1 ; 0.85478e-2 ; -0.24003e-3 ; -0.20499e-2 ; -0.12001e-2 ; 
        -0.56649e-3
     </param>
   </param_set>
@@ -273,7 +273,7 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
         0.39002e-1 ; 0.60305e-1 ;  0.45845e-2 ; -0.30723e-1 ; -0.91355e-2 ; 
-        0.93251e-2 ; 0.60583e-2 ; -0.l5602e-2 ; -0.76809e-3 ;  0.76809e-3 ;
+        0.93251e-2 ; 0.60583e-2 ; -0.15602e-2 ; -0.76809e-3 ;  0.76809e-3 ;
        -0.34804e-3
     </param>
   </param_set>
@@ -284,9 +284,9 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 9.0  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-        0.42339e-1 ;  0.64428e-1 ;  0.l5840e-2 ; -0.35171e-1 ; -0.10ll6e-1 ; 
-        0.l2069e-1 ;  0.62230e-2 ; -0.l2045e-2 ;  0.l3561e-3 ;  0.10428e-4 ;
-       -0.16980e-4 ;  0.91817e-5 ;  0.39988e-5 ;  0.l573le-5 ; -0.57862e-6 ;
+        0.42339e-1 ;  0.64428e-1 ;  0.15840e-2 ; -0.35171e-1 ; -0.10116e-1 ; 
+        0.12069e-1 ;  0.62230e-2 ; -0.12045e-2 ;  0.13561e-3 ;  0.10428e-4 ;
+       -0.16980e-4 ;  0.91817e-5 ;  0.39988e-5 ;  0.15731e-5 ; -0.57862e-6 ;
         0.20186e-6 ; -0.67892e-7
     </param>
   </param_set>
@@ -298,9 +298,9 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
         0.42018e-1 ;  0.62337e-1 ;  0.23995e-3 ; -0.32776e-1 ; -0.79941e-2 ;
-        0.l0844e-1 ;  0.49123e-2 ; -0.22144e-2 ; -0.l8146e-3 ;  0.37261e-3 ;
-       -0.23296e-3 ;  0.l1494e-3 ; -0.50596e-4 ;  0.20652e-4 ; -0.79428e-5 ;
-        0.28986e-5 ; -0.l0075e-5
+        0.10844e-1 ;  0.49123e-2 ; -0.22144e-2 ; -0.18146e-3 ;  0.37261e-3 ;
+       -0.23296e-3 ;  0.11494e-3 ; -0.50596e-4 ;  0.20652e-4 ; -0.79428e-5 ;
+        0.28986e-5 ; -0.10075e-5
     </param>
   </param_set>
 
@@ -311,7 +311,7 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
        0.41791e-1 ;  0.60524e-1 ; -0.14978e-2 ; -0.31183e-1 ; -0.58013e-2 ;
-       0.l0611e-1 ;  0.41629e-2 ; -0.29045e-5 ;  0.54106e-3 ;  0.38689e-3 ;
+       0.10611e-1 ;  0.41629e-2 ; -0.29045e-5 ;  0.54106e-3 ;  0.38689e-3 ;
        0.20514e-3 ; -0.95237e-4 ;  0.40707e-4 ; -0.16346e-1 ;  0.62233e-5 ;
        0.22568e-5 ;  0.78077e-6
     </param>
@@ -324,9 +324,9 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
         0.43133e-1 ; 0.61249e-1 ; -0.32523e-2 ; -0.32681e-1 ; -0.49583e-2 ;
-        0.l1494e-1 ; 0.55428e-2 ;  0.31398e-3 ;  0.70578e-4 ;  0.53725e-5 ; 
-       -0.7465Oe-6 ; 0.l9793e-5 ; -0.28059e-5 ;  0.27183e-5 ; -0.19454e-5 ;
-        0.l0963e-5 ; 0.51114e-6
+        0.11494e-1 ; 0.55428e-2 ;  0.31398e-3 ;  0.70578e-4 ;  0.53725e-5 ; 
+       -0.74650e-6 ; 0.19793e-5 ; -0.28059e-5 ;  0.27183e-5 ; -0.19454e-5 ;
+        0.10963e-5 ; 0.51114e-6
     </param>
   </param_set>
 
@@ -337,9 +337,9 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
         0.45030e-1 ;  0.65044e-1 ; -0.32843e-2 ; -0.36241e-1 ; -0.67442e-2 ;
-        0.l3146e-1 ;  0.50903e-2 ; -0.20787e-2 ;  0.l2901e-3 ;  0.l4828e-3 ;
+        0.13146e-1 ;  0.50903e-2 ; -0.20787e-2 ;  0.12901e-3 ;  0.14828e-3 ;
        -0.11530e-3 ;  0.60881e-4 ; -0.27676e-4 ;  0.11506e-4 ;  0.44764e-5 ;
-        0.l6468e-5 ; -0.57496e-6
+        0.16468e-5 ; -0.57496e-6
     </param>
   </param_set>
 
@@ -350,8 +350,8 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
         0.44855e-1 ;  0.63476e-1 ; -0.51001e-2 ; -0.34496e-1 ; -0.43132e-2 ; 
-        0.l2767e-1 ;  0.49935e-2 ; -0.92940e-3 ;  0.28281e-3 ; -0.76557e-4 ;
-        0.18677e-4 ;  0.36855e-5 ; -0.32276e-6 ;  0.l9843e-6 ;  0.l6275e-6 ;
+        0.12767e-1 ;  0.49935e-2 ; -0.92940e-3 ;  0.28281e-3 ; -0.76557e-4 ;
+        0.18677e-4 ;  0.36855e-5 ; -0.32276e-6 ;  0.19843e-6 ;  0.16275e-6 ;
        -0.82891e-7 ; -0.34896e-7
     </param>
   </param_set>
@@ -363,9 +363,9 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
         0.44581e-1 ; 0.61478e-1 ; -0.69425e-2 ; -0.33126e-1 ; -0.24964e-2 ;
-        0.l2674e-1 ; 0.37148e-2 ; -0.20881e-2 ;  0.30193e-3 ;  0.57573e-4 ;
+        0.12674e-1 ; 0.37148e-2 ; -0.20881e-2 ;  0.30193e-3 ;  0.57573e-4 ;
        -0.77965e-4 ; 0.46906e-4 ; -0.22724e-4 ;  0.98243e-5 ; -0.39250e-5 ;
-        0.l4732e-5 ; 0.52344e-6
+        0.14732e-5 ; 0.52344e-6
     </param>
   </param_set>
 
@@ -376,8 +376,8 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
         0.44429e-1 ;  0.60116e-1 ; -0.92003e-2 ; -0.33452e-1 ; -0.52856e-3 ; 
-        0.l3156e-1 ;  0.35152e-2 ; -0.21671e-2 ;  0.46497e-4 ;  0.25366e-3 ;
-       -0.l8438e-2 ;  0.96874e-4 ; -0.44224e-4 ;  0.18493e-4 ; -0.72361e-5 ;
+        0.13156e-1 ;  0.35152e-2 ; -0.21671e-2 ;  0.46497e-4 ;  0.25366e-3 ;
+       -0.18438e-2 ;  0.96874e-4 ; -0.44224e-4 ;  0.18493e-4 ; -0.72361e-5 ;
         0.26740e-5 ; -0.93929e-6
     </param>
   </param_set>
@@ -388,10 +388,10 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 9.0  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-        0.45598e-1 ;  0.60706e-1 ; -0.78616e-2 ; -0.31638e-1 ; -0.l4447e-2 ;
-        0.l0953e-1 ;  0.42578e-2 ; -0.24224e-3 ; -0.30067e-3 ;  0.23903e-3 ;
-       -0.l2910e-3 ;  0.60195e-4 ; -0.25755e-4 ;  0.10332e-4 ; -0.39330e-5 ;
-        0.l4254e-5 ; -0.49221e-6
+        0.45598e-1 ;  0.60706e-1 ; -0.78616e-2 ; -0.31638e-1 ; -0.14447e-2 ;
+        0.10953e-1 ;  0.42578e-2 ; -0.24224e-3 ; -0.30067e-3 ;  0.23903e-3 ;
+       -0.12910e-3 ;  0.60195e-4 ; -0.25755e-4 ;  0.10332e-4 ; -0.39330e-5 ;
+        0.14254e-5 ; -0.49221e-6
     </param>
   </param_set>
 
@@ -401,9 +401,9 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 9.0  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-        0.45444e-1 ;  0.59544e-1 ; -0.94968e-2 ; -0.3156le-1 ;  0.22898e-3 ;
-        0.l1189e-1 ;  0.3736Oe-2 ; -0.64873e-3 ; -0.51133e-3 ;  0.43765e-3 ;
-       -0.24276e-3 ;  0.l1507e-3 ; -0.49761e-4 ;  0.2014Oe-4 ; -0.76945e-5 ;
+        0.45444e-1 ;  0.59544e-1 ; -0.94968e-2 ; -0.31561e-1 ;  0.22898e-3 ;
+        0.11189e-1 ;  0.37360e-2 ; -0.64873e-3 ; -0.51133e-3 ;  0.43765e-3 ;
+       -0.24276e-3 ;  0.11507e-3 ; -0.49761e-4 ;  0.20140e-4 ; -0.76945e-5 ;
         0.28055e-5 ; -0.97411e-6
     </param>
   </param_set>
@@ -440,9 +440,9 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 9.0  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-        0.46654e-1 ; 0.58827e-1 ; -0.12283e-1 ; -0.29865e-1 ;  0.25669e-2 ;
-        0.10235e-1 ; 0.31861e-2 ; -0.17351e-3 ; -0.42979e-3 ;  0.33700e-3 ;
-       -0.18435e-3 ; 0.87043e-4 ; -0.37612e-4 ;  0.15220e-4 ; -0.58282e-5 ;
+        0.46654e-1 ;  0.58827e-1 ; -0.12283e-1 ; -0.29865e-1 ;  0.25669e-2 ;
+        0.10235e-1 ;  0.31861e-2 ; -0.17351e-3 ; -0.42979e-3 ;  0.33700e-3 ;
+       -0.18435e-3 ;  0.87043e-4 ; -0.37612e-4 ;  0.15220e-4 ; -0.58282e-5 ;
         0.21230e-5 ; -0.73709e-6
     </param>
   </param_set>
