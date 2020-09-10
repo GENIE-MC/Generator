@@ -80,6 +80,7 @@ bool COHFormFactorInterpolation::HasNucleus( int pdg ) const {
 
    if ( fAllowExtrapolation ) {
      if ( pdg >= Map().begin()->first ) return true ;
+     else return false;
    }
    else {
      if ( pdg < Map().begin()->first ) return false ;
