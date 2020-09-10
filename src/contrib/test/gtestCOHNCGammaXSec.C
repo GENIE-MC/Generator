@@ -70,7 +70,7 @@ typedef AlvarezRusoSalaCOHGammaPXSec ARSXSec;
 const unsigned int steps  = 100; // Number of plotted xsec points
 const unsigned int angles = 7;   // Number of plotted gamma theta angles
 
-void gtestCOHNCGammaXSec(int tgt, int prb, double E, double theta_nu=1., double phi=0.);
+void gtestCOHNCGammaXSec(int tgt, int prb, double E, double theta_nu=1., double phi=0., bool loop_all=false);
 void XSectionTest(const TFile & f);
 void SigmaEg(const Interaction *i, const ARSXSec * xsec_alg, Kinematics * kine); 
 std::pair<std::string,std::string> ExtXSec(int nu_probe, int tgt);
@@ -103,20 +103,40 @@ double xsec_arr[angles][steps];
 double ext_xsec_arr[angles][steps];
 
 //__________________________________________________________________________
-void gtestCOHNCGammaXSec (int tgt, int prb, double E, double theta_nu, double phi)
+void gtestCOHNCGammaXSec (int tgt, int prb, double E, double theta_nu, double phi, bool loop_all)
 {
 
-  target = tgt;
-  probe = prb;
-  probe_E = E;
-  theta_lep = theta_nu;
-  phi_g = phi;
+  std::vector target_pdgs = {1000010030, 1000020030, 1000060120, 1000070150, 1000080160, 1000130270, 1000140280, 
+                             1000140290, 1000140300, 1000150310, 1000160320, 1000160340, 1000160360, 1000180400, 
+                             1000200400, 1000200480, 1000220480, 1000220500, 1000240500, 1000240520, 1000240540, 
+                             1000260540, 1000260560, 1000260580, 1000270590, 1000280580, 1000280600, 1000280620, 
+                             1000280640, 1000290630, 1000290650, 1000300640, 1000300660, 1000300680, 1000300700, 
+                             1000320700, 1000320720, 1000320740, 1000320760, 1000380880, 1000400900, 1000400920, 
+                             1000400940, 1000420920, 1000420940, 1000420960, 1000420980, 1000421000, 1000461040, 
+                             1000461060, 1000461080, 1000461100, 1000621440, 1000621480, 1000621500, 1000621520, 
+                             1000621540, 1000641540, 1000641580, 1000681660, 1000701740, 1000711750, 1000761920, 
+                             1000781960, 1000812030, 1000812050, 1000822040, 1000822060, 1000822070, 1000822080, 1000832090};
 
-  TFile file("./coh_ncgamma.root","recreate");
-  
-  XSectionTest(file);  // Top level cross section
+   target = tgt;
+   probe = prb;
+   probe_E = E;
+   theta_lep = theta_nu;
+   phi_g = phi;
 
-  file.Close();
+  if ( loop_all ) {
+    for ( int tgt = 0; tgt < target_pdgs.size(); tgt++ ) {                                              
+      target = target_pdgs.at(tgt);
+      TFile file("./coh_ncgamma.root","recreate");
+      XSectionTest(file);  // Top level cross section
+      file.Close();
+      sleep(3);
+    }
+  } else {
+                                                    
+    TFile file("./coh_ncgamma.root","recreate");
+    XSectionTest(file);  // Top level cross section
+    file.Close();
+  }
 }
 //__________________________________________________________________________
 void XSectionTest(const TFile & file)
