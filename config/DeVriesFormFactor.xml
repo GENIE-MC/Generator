@@ -237,9 +237,9 @@ DV-Coefficient                vec-double  No         values for the Fourier-Bess
     <param type="double" name="DV-Radius"> 9.5  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-    </param>
         0.31818e-1 ; 0.58556e-1 ; 0.19637e-1 ; -0.24309e-1 ; -0.18748e-1 ;
         0.33741e-2 ; 0.89961e-2 ; 0.37954e-2 ;  0.41238e-3 ;  0.12540e-3
+    </param>
   </param_set>
 
   <param_set name="50Cr">
