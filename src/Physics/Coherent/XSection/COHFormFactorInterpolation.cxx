@@ -26,7 +26,7 @@ using namespace genie;
 
 
 COHFormFactorInterpolation::COHFormFactorInterpolation() :
-  COHFormFactorMap("genie::COHFormFactorInterpolation"),
+  COHFormFactorMap("genie::COHFormFactorInterpolation", "Default" ),
   fAllowExtrapolation(false)
 {
 

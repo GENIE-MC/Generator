@@ -23,7 +23,7 @@ XSec-Integrator               alg      No         Cross section integrator sub a
       genie::COHDeltaCurrent/Default
     </param>
     
-    <param type="alg"  name="COH-FormFactor"> genie::COHFormFactorMap/Default </param>
+    <param type="alg"  name="COH-FormFactor"> genie::COHFormFactorInterpolation/Default </param>
     <param type="alg"  name="XSec-Integrator"> genie::COHXSecAR/Gamma </param>
 
   </param_set>
@@ -34,9 +34,6 @@ XSec-Integrator               alg      No         Cross section integrator sub a
       genie::COHDeltaCurrent/FermiMomentumTable
     </param>
     
-    <param type="alg"  name="COH-FormFactor"> genie::COHFormFactorMap/Default </param>
-    <param type="alg"  name="XSec-Integrator"> genie::COHXSecAR/Gamma </param>
-
   </param_set>
 
 
