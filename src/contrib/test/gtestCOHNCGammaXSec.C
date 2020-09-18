@@ -197,7 +197,7 @@ void XSectionTest(const TFile & file)
       kine->Setx( x );
       kine->Sety( y );
       utils::kinematics::UpdateWQ2FromXY(i);
-      double coh_t = (q - p4_g).Mag() ;
+      double coh_t = TMath::Abs( (q - p4_g).Mag2() ) ;
       kine->Sett( coh_t ) ;
 
       // Check the validity

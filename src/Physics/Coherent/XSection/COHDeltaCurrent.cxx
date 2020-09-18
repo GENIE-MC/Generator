@@ -136,8 +136,9 @@ GTrace COHDeltaCurrent::R( const Interaction * i,
   R += tr_cross ;
 
     // Right now the proton and neutron FF are equal but could change
-  double ff_p = ff -> ProtonFF( kine.t(), pdg );
-  double ff_n = ff -> NeutronFF( kine.t(), pdg );
+  double q_nucleus = sqrt( kine.t() ) ;
+  double ff_p = ff -> ProtonFF( q_nucleus, pdg );
+  double ff_n = ff -> NeutronFF( q_nucleus, pdg );
 
   R *= ( ff_p * constants::kProtonMass + ff_n * constants::kNeutronMass ) / ( 2*p0 ) ;
 
