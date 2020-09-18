@@ -1198,8 +1198,6 @@ double COHKinematicsGenerator::MaxXSec_Gamma(const Interaction * in) const
   min->Minimize();
   max_xsec = -min->MinValue(); //back to positive xsec
 
-  std::cerr << "Maximum cross section: " << max_xsec << std::endl ;
-
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy.
   
