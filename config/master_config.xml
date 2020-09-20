@@ -121,8 +121,8 @@
    <config alg="genie::RSHelicityAmplModelEMp">                  RSHelicityAmplModelEMp.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMn">                  RSHelicityAmplModelEMn.xml                  </config>
    <config alg="genie::DeVriesFormFactor">                       DeVriesFormFactor.xml                       </config>
-   <config alg="genie::COHFormFactorMap">                        COHFormFactorMap.xml                        </config>
-   <config alg="genie::COHFormFactorInterpolation">              COHFormFactorInterpolation.xml              </config>
+   <config alg="genie::DeVriesFormFactorMap">                    DeVriesFormFactorMap.xml                    </config>
+   <config alg="genie::DeVriesFormFactorInterpolation">          DeVriesFormFactorInterpolation.xml          </config>
    <config alg="genie::COHDeltaCurrent">                         COHDeltaCurrent.xml                         </config>
    <config alg="genie::DeltaInMediumCorrections">                DeltaInMediumCorrections.xml                </config>
    <config alg="genie::DeltaTransitionFormFactor">               DeltaTransitionFormFactor.xml               </config>
