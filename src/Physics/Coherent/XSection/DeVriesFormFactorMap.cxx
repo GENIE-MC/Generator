@@ -17,36 +17,36 @@
 
 #include "Framework/Messenger/Messenger.h"
 
-#include "Physics/Coherent/XSection/COHFormFactorMap.h"
+#include "Physics/Coherent/XSection/DeVriesFormFactorMap.h"
 #include "Framework/Registry/RegistryItemTypeDef.h"
 
 using namespace genie;
 
 
-COHFormFactorMap::COHFormFactorMap() :
-  COHFormFactorI("genie::COHFormFactorMap")
+DeVriesFormFactorMap::DeVriesFormFactorMap() :
+  COHFormFactorI("genie::DeVriesFormFactorMap")
 {
 
 }
 //____________________________________________________________________________
-COHFormFactorMap::COHFormFactorMap(string config) :
-  COHFormFactorI("genie::COHFormFactorMap", config)
+DeVriesFormFactorMap::DeVriesFormFactorMap(string config) :
+  COHFormFactorI("genie::DeVriesFormFactorMap", config)
 {
 
 }
 //____________________________________________________________________________
-COHFormFactorMap::COHFormFactorMap( string name, string config ) :
+DeVriesFormFactorMap::DeVriesFormFactorMap( string name, string config ) :
   COHFormFactorI(name, config)
 {
 
 }
 //____________________________________________________________________________
-COHFormFactorMap::~COHFormFactorMap()
+DeVriesFormFactorMap::~DeVriesFormFactorMap()
 {
 
 }
 //____________________________________________________________________________
-double COHFormFactorMap::ProtonFF( double Q, int pdg ) const {
+double DeVriesFormFactorMap::ProtonFF( double Q, int pdg ) const {
 
   const std::map<int, const genie::DeVriesFormFactor *>::const_iterator it =
     fNuclearFFs.find( pdg ) ;
@@ -57,24 +57,24 @@ double COHFormFactorMap::ProtonFF( double Q, int pdg ) const {
 
 }
 //____________________________________________________________________________
-bool COHFormFactorMap::HasNucleus( int pdg ) const {
+bool DeVriesFormFactorMap::HasNucleus( int pdg ) const {
 
   return (fNuclearFFs.count( pdg ) > 0) ;
 }
 //____________________________________________________________________________
-void COHFormFactorMap::Configure(const Registry & config)
+void DeVriesFormFactorMap::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void COHFormFactorMap::Configure(string config)
+void DeVriesFormFactorMap::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void COHFormFactorMap::LoadConfig(void)
+void DeVriesFormFactorMap::LoadConfig(void)
 {
 
   fNuclearFFs.clear() ;
@@ -94,14 +94,14 @@ void COHFormFactorMap::LoadConfig(void)
 
     if ( ! ff ) {
       good_configuration = false ;
-      LOG("COHFormFactorMap", pERROR ) << "SubAlgo with key " << keys[i] << " not retrieved" ;
+      LOG("DeVriesFormFactorMap", pERROR ) << "SubAlgo with key " << keys[i] << " not retrieved" ;
 
     }
 
     if ( fNuclearFFs.count( ff -> NucleusPDG() ) > 0 ) {
 
       good_configuration = false ;
-      LOG("COHFormFactorMap", pERROR ) << "Attempt to add a second DeVries form factor for PDG " << ff -> NucleusPDG() ;
+      LOG("DeVriesFormFactorMap", pERROR ) << "Attempt to add a second DeVries form factor for PDG " << ff -> NucleusPDG() ;
     }
 
     fNuclearFFs[ ff -> NucleusPDG() ] = ff ;
@@ -109,7 +109,7 @@ void COHFormFactorMap::LoadConfig(void)
   }  // loop over subalgo
 
   if ( ! good_configuration ) {
-    LOG("COHFormFactorMap", pFATAL ) << "Configuration not good, exiting" ;
+    LOG("DeVriesFormFactorMap", pFATAL ) << "Configuration not good, exiting" ;
     exit ( 78 ) ;
   }
 

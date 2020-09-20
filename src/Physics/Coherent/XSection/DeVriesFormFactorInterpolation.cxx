@@ -19,36 +19,36 @@
 
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGUtils.h"
-#include "Physics/Coherent/XSection/COHFormFactorInterpolation.h"
+#include "Physics/Coherent/XSection/DeVriesFormFactorInterpolation.h"
 
 
 using namespace genie;
 
 
-COHFormFactorInterpolation::COHFormFactorInterpolation() :
-  COHFormFactorMap("genie::COHFormFactorInterpolation", "Default" ),
+DeVriesFormFactorInterpolation::DeVriesFormFactorInterpolation() :
+  DeVriesFormFactorMap("genie::DeVriesFormFactorInterpolation", "Default" ),
   fAllowExtrapolation(false)
 {
 
 }
 //____________________________________________________________________________
-COHFormFactorInterpolation::COHFormFactorInterpolation(string config) :
-  COHFormFactorMap("genie::COHFormFactorInterpolation", config),
+DeVriesFormFactorInterpolation::DeVriesFormFactorInterpolation(string config) :
+  DeVriesFormFactorMap("genie::DeVriesFormFactorInterpolation", config),
   fAllowExtrapolation(false)
 {
 
 }
 //____________________________________________________________________________
-COHFormFactorInterpolation::~COHFormFactorInterpolation()
+DeVriesFormFactorInterpolation::~DeVriesFormFactorInterpolation()
 {
 
 }
 //____________________________________________________________________________
-double COHFormFactorInterpolation::ProtonFF( double Q, int pdg ) const {
+double DeVriesFormFactorInterpolation::ProtonFF( double Q, int pdg ) const {
 
   if ( ! HasNucleus(pdg) ) return 0. ;
 
-  if ( COHFormFactorMap::HasNucleus(pdg) ) return COHFormFactorMap::ProtonFF( Q, pdg ) ;
+  if ( DeVriesFormFactorMap::HasNucleus(pdg) ) return DeVriesFormFactorMap::ProtonFF( Q, pdg ) ;
 
   const std::map<int,genie::FourierBesselFFCalculator>::const_iterator it =
     fInterProtons.find( pdg ) ;
@@ -59,11 +59,11 @@ double COHFormFactorInterpolation::ProtonFF( double Q, int pdg ) const {
 
 }
 //____________________________________________________________________________
-double COHFormFactorInterpolation::NeutronFF( double Q, int pdg ) const {
+double DeVriesFormFactorInterpolation::NeutronFF( double Q, int pdg ) const {
 
   if ( ! HasNucleus(pdg) ) return 0. ;
 
-  if ( COHFormFactorMap::HasNucleus(pdg) ) return COHFormFactorMap::NeutronFF( Q, pdg ) ;
+  if ( DeVriesFormFactorMap::HasNucleus(pdg) ) return DeVriesFormFactorMap::NeutronFF( Q, pdg ) ;
 
   const std::map<int,genie::FourierBesselFFCalculator>::const_iterator it =
     fInterNeutrons.find( pdg ) ;
@@ -74,7 +74,7 @@ double COHFormFactorInterpolation::NeutronFF( double Q, int pdg ) const {
 
 }
 //____________________________________________________________________________
-bool COHFormFactorInterpolation::HasNucleus( int pdg ) const {
+bool DeVriesFormFactorInterpolation::HasNucleus( int pdg ) const {
 
   if ( Map().size() == 0 ) return false ;
 
@@ -91,14 +91,14 @@ bool COHFormFactorInterpolation::HasNucleus( int pdg ) const {
    return true ;
 }
 //____________________________________________________________________________
-const genie::FourierBesselFFCalculator & COHFormFactorInterpolation::InterpolateProtons( int pdg ) const {
+const genie::FourierBesselFFCalculator & DeVriesFormFactorInterpolation::InterpolateProtons( int pdg ) const {
 
   auto result = fInterProtons.insert( std::make_pair( pdg, LinearInterpolation( pdg, pdg::IonPdgCodeToZ ) ) ) ;
   return result.first -> second ;
 
 }
 //____________________________________________________________________________
-const genie::FourierBesselFFCalculator & COHFormFactorInterpolation::InterpolateNeutrons( int pdg ) const {
+const genie::FourierBesselFFCalculator & DeVriesFormFactorInterpolation::InterpolateNeutrons( int pdg ) const {
 
   auto result = fInterNeutrons.insert( std::make_pair( pdg, 
 						       LinearInterpolation( pdg, 
@@ -107,7 +107,7 @@ const genie::FourierBesselFFCalculator & COHFormFactorInterpolation::Interpolate
   return result.first -> second ;
 }
 //____________________________________________________________________________
-pair<int, int> COHFormFactorInterpolation::NearbyNuclei( int pdg ) const {
+pair<int, int> DeVriesFormFactorInterpolation::NearbyNuclei( int pdg ) const {
 
   auto rit = Map().rbegin() ;
 
@@ -123,7 +123,7 @@ pair<int, int> COHFormFactorInterpolation::NearbyNuclei( int pdg ) const {
   return std::make_pair( rit -> first, sec -> first ) ;
 }
 //____________________________________________________________________________
-double COHFormFactorInterpolation::RadiusInterpolation( int pdg,
+double DeVriesFormFactorInterpolation::RadiusInterpolation( int pdg,
                                                         const pair<int, int> & neighbours ) const {
 
       // we interpolate the radius according to
@@ -157,7 +157,7 @@ double COHFormFactorInterpolation::RadiusInterpolation( int pdg,
 
 //____________________________________________________________________________
 
-genie::FourierBesselFFCalculator COHFormFactorInterpolation::LinearInterpolation( int pdg,
+genie::FourierBesselFFCalculator DeVriesFormFactorInterpolation::LinearInterpolation( int pdg,
                                                                                   const std::function<int(int)> & var ) const {
 
     std::pair<int, int> neighbours = NearbyNuclei( pdg ) ;
@@ -198,21 +198,21 @@ genie::FourierBesselFFCalculator COHFormFactorInterpolation::LinearInterpolation
 }
 
 //____________________________________________________________________________
-void COHFormFactorInterpolation::LoadConfig(void)
+void DeVriesFormFactorInterpolation::LoadConfig(void)
 {
 
-  COHFormFactorMap::LoadConfig() ;
+  DeVriesFormFactorMap::LoadConfig() ;
 
   bool good_configuration = true ;
   if ( Map().size() < 2 ) {
-    LOG("COHFormFactorInterpolation", pERROR ) << "Not enough FormFactors inside the Map" ;
+    LOG("DeVriesFormFactorInterpolation", pERROR ) << "Not enough FormFactors inside the Map" ;
     good_configuration = false ;
   }
 
   GetParamDef( "AllowExtrapolation", fAllowExtrapolation, false ) ;
 
   if ( ! good_configuration ) {
-    LOG("COHFormFactorInterpolation", pFATAL ) << "Configuration not good, exiting" ;
+    LOG("DeVriesFormFactorInterpolation", pFATAL ) << "Configuration not good, exiting" ;
     exit ( 78 ) ;
   }
 

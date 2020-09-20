@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::COHFormFactorMap
+\class    genie::DeVriesFormFactorMap
 
 \brief    for COH Production Form Factor Model
           The class is develope specifically for the NC COH Gamma
@@ -18,8 +18,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _COH_FORM_FACTOR_MAP_H_
-#define _COH_FORM_FACTOR_MAP_H_
+#ifndef _DEVRIES_FORM_FACTOR_MAP_H_
+#define _DEVRIES_FORM_FACTOR_MAP_H_
 
 #include <map>
 
@@ -28,13 +28,13 @@
 
 namespace genie {
 
-class COHFormFactorMap : public COHFormFactorI {
+class DeVriesFormFactorMap : public COHFormFactorI {
 
 public:
 
-  COHFormFactorMap();
-  COHFormFactorMap( string config );
-  virtual ~COHFormFactorMap();
+  DeVriesFormFactorMap();
+  DeVriesFormFactorMap( string config );
+  virtual ~DeVriesFormFactorMap();
 
   // methods to be implemented from COHFormFactorI
   virtual double ProtonFF ( double Q, int pdg ) const override ;
@@ -52,7 +52,7 @@ public:
 
  protected:
 
-  COHFormFactorMap( string name, string config );
+  DeVriesFormFactorMap( string name, string config );
 
   virtual void LoadConfig(void);
 
@@ -66,4 +66,4 @@ private:
 };
 
 }       // genie namespace
-#endif  //  #ifndef _COH_FORM_FACTOR_MAP_H_
+#endif  //  #ifndef _DEVRIES_FORM_FACTOR_MAP_H_

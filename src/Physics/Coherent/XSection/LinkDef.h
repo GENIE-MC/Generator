@@ -22,8 +22,8 @@
 #pragma link C++ class genie::COHElasticPXSec;
 
 #pragma link C++ class genie::DeVriesFormFactor;
-#pragma link C++ class genie::COHFormFactorMap;
-#pragma link C++ class genie::COHFormFactorInterpolation;
+#pragma link C++ class genie::DeVriesFormFactorMap;
+#pragma link C++ class genie::DeVriesFormFactorInterpolation;
 
 #pragma link C++ class genie::COHDeltaCurrent;
 #pragma link C++ class genie::DeltaInMediumCorrections;

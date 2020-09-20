@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::COHFormFactorInterpolation
+\class    genie::DeVriesFormFactorInterpolation
 
 \brief    for COH Production Form Factor Model
           The class is develope specifically for the NC COH Gamma
@@ -21,23 +21,23 @@
 */
 //____________________________________________________________________________
 
-#ifndef _COH_FORM_FACTOR_INTERPOLATION_H_
-#define _COH_FORM_FACTOR_INTERPOLATION_H_
+#ifndef _DEVRIES_FORM_FACTOR_INTERPOLATION_H_
+#define _DEVRIES_FORM_FACTOR_INTERPOLATION_H_
 
 #include <map>
 #include <functional>
 
-#include "Physics/Coherent/XSection/COHFormFactorMap.h"
+#include "Physics/Coherent/XSection/DeVriesFormFactorMap.h"
 
 namespace genie {
 
-class COHFormFactorInterpolation : public COHFormFactorMap {
+class DeVriesFormFactorInterpolation : public DeVriesFormFactorMap {
 
 public:
 
-  COHFormFactorInterpolation();
-  COHFormFactorInterpolation( string config );
-  virtual ~COHFormFactorInterpolation();
+  DeVriesFormFactorInterpolation();
+  DeVriesFormFactorInterpolation( string config );
+  virtual ~DeVriesFormFactorInterpolation();
 
   // methods to be implemented from COHFormFactorI
   virtual double ProtonFF ( double Q, int pdg ) const override ;
@@ -69,4 +69,4 @@ private:
 };
 
 }       // genie namespace
-#endif  //  #ifndef _COH_FORM_FACTOR_MAP_H_
+#endif  //  #ifndef _DEVRIES_FORM_FACTOR_MAP_H_
