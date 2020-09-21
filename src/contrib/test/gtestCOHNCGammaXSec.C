@@ -88,7 +88,7 @@ int probe        = -1000;// Incoming particle pdg [pdg]
 double probe_E   = -1.;  // Incoming nu energy [GeV]
 // Defaults
 int prod         = 22; // Produced FS particle = gamma [pdg]
-double theta_lep = 1.; // Outgoing nu wrt incoming nu [deg]
+double theta_lep = 15.; // Outgoing nu wrt incoming nu [deg]
 double phi_lep   = 0.; // Outgoing nu in plane transverse to incoming nu [deg]
 double theta_g   = 1.; // Gamma angle wrt to incoming nu [deg]
 double phi_g     = 0.; // Gamma angle in plane transverse to incoming nu [deg]

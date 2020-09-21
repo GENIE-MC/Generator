@@ -32,12 +32,12 @@ using namespace genie;
 //____________________________________________________________________________
 DeVriesFormFactor::DeVriesFormFactor() :
   Algorithm("genie::DeVriesFormFactor"),
-  fCalculator( {}, 0. ),
+  fCalculator( {}, 0., 0., 0. ),
   fPDG(0) { ; }
 //____________________________________________________________________________
 DeVriesFormFactor::DeVriesFormFactor(string config) :
   Algorithm("genie::DeVriesFormFactor", config),
-  fCalculator( {}, 0. ),
+  fCalculator( {}, 0., 0., 0. ),
   fPDG(0) { ; }
 //____________________________________________________________________________
 DeVriesFormFactor::~DeVriesFormFactor()
@@ -68,7 +68,13 @@ void DeVriesFormFactor::LoadConfig(void)
   GetParam( "DV-Radius", r ) ;
   r *= units::fm ;
 
-  fCalculator = FourierBesselFFCalculator( cs, r ) ;
+  double Qmax, Qmin;
+  GetParam( "DV-QMin", Qmin ) ;
+  GetParam( "DV-QMax", Qmax ) ;
+  Qmin /= units::fm ;
+  Qmax /= units::fm ;
+
+  fCalculator = FourierBesselFFCalculator( cs, r, Qmax, Qmin ) ;
 
   GetParam( "DV-Nucleus", fPDG ) ;
 

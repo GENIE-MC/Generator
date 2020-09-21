@@ -16,6 +16,13 @@ COH-DV-FormFactor             vec-alg  No         Vector of DeVries sub algo and
 <alg_conf>
 
   <param_set name="Default">
+    <param type="vec-alg" name="COH-DV-FormFactor" delim=";">
+      genie::DeVriesFormFactor/12C ;
+      genie::DeVriesFormFactor/40Ar    
+    </param>
+  </param_set>
+
+  <param_set name="Full">
     <param type="vec-alg" name="COH-DV-FormFactor" delim=";"> 
       genie::DeVriesFormFactor/3H    ;
       genie::DeVriesFormFactor/3He   ;
@@ -90,6 +97,5 @@ COH-DV-FormFactor             vec-alg  No         Vector of DeVries sub algo and
       genie::DeVriesFormFactor/209Bi
     </param>
   </param_set>
-
 
 </alg_conf>

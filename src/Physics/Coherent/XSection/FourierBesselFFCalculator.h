@@ -33,9 +33,11 @@ class FourierBesselFFCalculator {
 
 public:
 
-  FourierBesselFFCalculator( const std::vector<double> & coeffs, double radius ) noexcept :
+  FourierBesselFFCalculator( const std::vector<double> & coeffs, double radius, double Qmax, double Qmin ) noexcept :
     fFBCs(coeffs),
-    fRadius(radius) {;}
+    fRadius(radius), 
+    fQmax(Qmax),
+    fQmin(Qmin) {;}
 
   FourierBesselFFCalculator( const FourierBesselFFCalculator & ) = default ;
 
@@ -47,14 +49,18 @@ public:
 
   const std::vector<double> & Coefficients() const noexcept { return fFBCs; }
   double Radius() const noexcept { return fRadius; }
+  double QMax() const noexcept { return fQmax; }
+  double QMin() const noexcept { return fQmin; }
 
 protected:
-  FourierBesselFFCalculator( ) noexcept : fFBCs(), fRadius(0.) {;}
+  FourierBesselFFCalculator( ) noexcept : fFBCs(), fRadius(0.), fQmax(0.), fQmin(0.) {;}
 
 private:
 
   std::vector<double> fFBCs ;  // Fourier-Bessel Coeffictients
   double fRadius ;   // this is the radius of the nucleus in GeV^-1
+  double fQmax ;   // this is the max q for the DeVries coeffs in GeV^-2
+  double fQmin ;   // this is the min q for the DeVries coeffs in GeV^-2
 
 };
 

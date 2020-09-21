@@ -194,7 +194,8 @@ genie::FourierBesselFFCalculator DeVriesFormFactorInterpolation::LinearInterpola
       }
     }
 
-    return FourierBesselFFCalculator( coeffs, r ) ;
+    // FIXME add Qmin/Qmax
+    return FourierBesselFFCalculator( coeffs, r , 0., 1. ) ;
 }
 
 //____________________________________________________________________________
