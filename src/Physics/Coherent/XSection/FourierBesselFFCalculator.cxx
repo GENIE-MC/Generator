@@ -29,7 +29,7 @@ double FourierBesselFFCalculator::FormFactor( double Q ) const {
 
   double aux_sum = 0.0, nu ;
 
-  for (unsigned int i = 0 ; i < fFBCs.size() ; ++i ) {
+  for ( int i = fFBCs.size() - 1 ; i >= 0 ; --i ) {
      nu = i + 1. ;
      double pi_x_i = constants::kPi*nu ;
      aux_sum += pow( -1.0, i )*fFBCs[i]/( ( pi_x_i + qr )*( pi_x_i - qr ) ) ;
