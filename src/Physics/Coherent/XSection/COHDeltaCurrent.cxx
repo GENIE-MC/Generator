@@ -96,21 +96,21 @@ void COHDeltaCurrent::LoadConfig(void)
 }
 
 //____________________________________________________________________________
-GTrace COHDeltaCurrent::R( const Interaction * i,
-			   const COHFormFactorI * ff ) const {
+GTrace COHDeltaCurrent::R( const Interaction & i,
+			   double proton_ff, double neutron_ff ) const {
 
-  const InitialState & init_state = i -> InitState();
+  const InitialState & init_state = i.InitState();
 
   double k0 = init_state.ProbeE( kRfLab ) ;
   TLorentzVector probe( 0., 0., k0, k0 ) ; 
 
-  const Kinematics & kine = i -> Kine() ;
+  const Kinematics & kine = i.Kine() ;
   TLorentzVector out_neutrino = kine.FSLeptonP4() ;
   TLorentzVector q = probe - out_neutrino ;
   
 
   // evaluation of the momenta to be used for the propagators
-  TLorentzVector temp = 0.5*( i -> Kine().HadSystP4() - q );
+  TLorentzVector temp = 0.5*( i.Kine().HadSystP4() - q );
 
   TLorentzVector p_dir( temp.Vect(), 
 			sqrt(pow(constants::kNucleonMass,2) + temp.Vect().Mag2() ) );
@@ -135,24 +135,19 @@ GTrace COHDeltaCurrent::R( const Interaction * i,
   // Add trace * propagator from direct and crossed diagrams
   R += tr_cross ;
 
-    // Right now the proton and neutron FF are equal but could change
-  double q_nucleus = sqrt( kine.t() ) ;
-  double ff_p = ff -> ProtonFF( q_nucleus, pdg );
-  double ff_n = ff -> NeutronFF( q_nucleus, pdg );
-
-  R *= ( ff_p * constants::kProtonMass + ff_n * constants::kNeutronMass ) / ( 2*p0 ) ;
+  R *= ( proton_ff * constants::kProtonMass + neutron_ff * constants::kNeutronMass ) / ( 2*p0 ) ;
 
   return R;
 }
 
 //____________________________________________________________________________
-GTrace COHDeltaCurrent::DirTrace( const Interaction * i ) const {
+GTrace COHDeltaCurrent::DirTrace( const Interaction & i ) const {
 
   // these calculations expects the interaction to be in the lab frame with the incoming neutrino parallel to z
-  double k0 = i -> InitState().ProbeE( kRfLab ) ;
+  double k0 = i.InitState().ProbeE( kRfLab ) ;
   TLorentzVector probe( 0., 0., k0, k0 ) ; 
-  TLorentzVector out_neutrino = i -> Kine().FSLeptonP4() ; 
-  TLorentzVector t_photon = i -> Kine().HadSystP4() ; 
+  TLorentzVector out_neutrino = i.Kine().FSLeptonP4() ; 
+  TLorentzVector t_photon = i.Kine().HadSystP4() ; 
 
   TLorentzVector t_q = probe - out_neutrino ; 
   double Q2 = std::abs(t_q.Mag2()) ; // Must be >0
@@ -165,7 +160,7 @@ GTrace COHDeltaCurrent::DirTrace( const Interaction * i ) const {
   double mDelta = utils::res::Mass( Resonance() ) ;
   double mDelta2 = pow( mDelta, 2 ); 
   
-  TVector3 temp = 0.5*( i -> Kine().HadSystP4() - t_q ).Vect();
+  TVector3 temp = 0.5*( i.Kine().HadSystP4() - t_q ).Vect();
   double p0 = sqrt(pow(constants::kNucleonMass,2) + temp.Mag2() ) ;
 
   // the following contractions requires a vector with time coordinate in the 0-th position
@@ -501,14 +496,14 @@ GTrace COHDeltaCurrent::DirTrace( const Interaction * i ) const {
 }
 
 //____________________________________________________________________________
-GTrace COHDeltaCurrent::CrsTrace( const Interaction * i ) const {
+GTrace COHDeltaCurrent::CrsTrace( const Interaction & i ) const {
 
 
   // these calculations expects the interaction to be in the lab frame with the incoming neutrino parallel to z
-  double k0 = i->InitState().ProbeE( kRfLab ) ;
+  double k0 = i.InitState().ProbeE( kRfLab ) ;
   TLorentzVector probe( 0., 0., k0, k0 ) ; 
-  TLorentzVector out_neutrino = i -> Kine().FSLeptonP4() ;
-  TLorentzVector t_photon = i -> Kine().HadSystP4() ;
+  TLorentzVector out_neutrino = i.Kine().FSLeptonP4() ;
+  TLorentzVector t_photon = i.Kine().HadSystP4() ;
 
   TLorentzVector t_q = probe - out_neutrino ;
   double Q2 = std::abs(t_q.Mag2()) ; // Must be >0
@@ -521,7 +516,7 @@ GTrace COHDeltaCurrent::CrsTrace( const Interaction * i ) const {
   double mDelta = utils::res::Mass( Resonance() ) ;
   double mDelta2 = pow( mDelta, 2 );
 
-  TVector3 temp = 0.5*( i -> Kine().HadSystP4() - t_q ).Vect();
+  TVector3 temp = 0.5*( i.Kine().HadSystP4() - t_q ).Vect();
   double p0 = sqrt(pow(constants::kNucleonMass,2) + temp.Mag2() ) ;
   
   // the following contractions requires a vector with time coordinate in the 0-th position

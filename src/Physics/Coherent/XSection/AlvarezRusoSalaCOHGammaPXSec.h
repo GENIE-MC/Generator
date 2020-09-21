@@ -46,6 +46,8 @@ public:
   double XSec            ( const Interaction * i, KinePhaseSpace_t k) const override ;
   double Integral        ( const Interaction * i) const override ;
   bool   ValidProcess    ( const Interaction * i) const override ;
+  bool   ValidKinematics ( const Interaction * i) const override ;
+
 
 
   //-- overload the Algorithm::Configure() methods to load private data
@@ -56,9 +58,11 @@ public:
 protected:
   void LoadConfig(void);
 
-  utils::math::GTrace TotalHadronicCurrent ( const Interaction * interaction ) const;
-  double NeutrinoHadronContraction ( const Interaction * i ) const ;
-  double AntiNeutrinoHadronContraction ( const Interaction * i ) const ; 
+  utils::math::GTrace TotalHadronicCurrent ( const Interaction & interaction, 
+					     double proton_ff, double neutron_ff ) const;
+
+  double NeutrinoHadronContraction ( const Interaction & i, const utils::math::GTraceContraction & ) const ;
+  double AntiNeutrinoHadronContraction ( const Interaction & i, const utils::math::GTraceContraction & ) const ; 
 
 private:
 

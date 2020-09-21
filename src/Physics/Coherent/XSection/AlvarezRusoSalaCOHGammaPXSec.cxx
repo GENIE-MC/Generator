@@ -69,21 +69,34 @@ double AlvarezRusoSalaCOHGammaPXSec::XSec( const Interaction * interaction,
     return 0. ;
   } ;
 
+  // the form factor in this interaction is limited to a very narrow region
+  // the most efficient way to evaluate the cross section is to first evaluate 
+  // the form factor(s) and only then, if they are not zero, proceed to the evaluation
+  // of the hadronic currents
+
   const Kinematics &   kinematics = interaction -> Kine();
+  double transferred_Q = sqrt( kinematics.t() ) ;
+  int pdg = interaction -> InitState().Tgt().Pdg() ;
+  double proton_ff = fFormFactors -> ProtonFF( transferred_Q, pdg ) ;
+  double neutron_ff = fFormFactors -> NeutronFF( transferred_Q, pdg ) ;
+  
+  if ( proton_ff == 0. && neutron_ff == 0. ) return 0. ; 
+
+  utils::math::GTraceContraction H( TotalHadronicCurrent( *interaction, proton_ff, neutron_ff ) ) ;
+
   const InitialState & init_state = interaction -> InitState();
-
-  double E_nu = init_state.ProbeE(kRfLab);  // neutrino energy
-  TLorentzVector gamma_p4 = kinematics.HadSystP4() ; // FS gamma momentum
-  double E_gamma = gamma_p4.E() ; // FS gamma energy
-
+  
   int nu = init_state.ProbePdg();
   double contraction = pdg::IsNeutrino(nu) ? 
-    NeutrinoHadronContraction(interaction) :
-    AntiNeutrinoHadronContraction(interaction) ;    
-   
+    NeutrinoHadronContraction( *interaction, H ) :
+    AntiNeutrinoHadronContraction( *interaction, H ) ;    
+  
   double pre_factor = ( 4.*constants::kPi*constants::kAem * constants::kGF2 ) / ( 16*pow(2.*constants::kPi, 5) );
 
-  double diff_cross_section = pre_factor*contraction*( E_gamma*(E_nu - E_gamma) / E_nu ); 
+  TLorentzVector gamma_p4 = kinematics.HadSystP4() ; // FS gamma momentum
+  TLorentzVector out_lep = kinematics.FSLeptonP4() ; 
+   
+  double diff_cross_section = pre_factor*contraction*( gamma_p4.E() * out_lep.E() / init_state.ProbeE(kRfLab) ); 
 
   if ( kps == kPSEgOlOgfE ) return diff_cross_section ;
 
@@ -95,7 +108,7 @@ double AlvarezRusoSalaCOHGammaPXSec::XSec( const Interaction * interaction,
   // so the first jacobian correction can be applied here 
   // teh Jacobian simply being sin_Theta_l
   
-  TLorentzVector out_lep = kinematics.FSLeptonP4() ; 
+  
   diff_cross_section *= sin( out_lep.Theta() ) ;
   
   if ( kps == kPSEgTlOgfE ) 
@@ -109,12 +122,13 @@ double AlvarezRusoSalaCOHGammaPXSec::XSec( const Interaction * interaction,
 }
 //____________________________________________________________________________
 utils::math::GTrace 
-AlvarezRusoSalaCOHGammaPXSec::TotalHadronicCurrent( const Interaction * interaction ) const {
+AlvarezRusoSalaCOHGammaPXSec::TotalHadronicCurrent( const Interaction & interaction, 
+						    double proton_ff, double neutron_ff ) const {
 
   // sum R's from all currents here
   utils::math::GTrace R_total;
   for ( unsigned int i = 0; i < fCurrents.size(); i++ ) {
-    R_total += fCurrents[i] -> R(interaction, fFormFactors);
+    R_total += fCurrents[i] -> R(interaction, proton_ff, neutron_ff );
   }
 
   return R_total;
@@ -149,17 +163,32 @@ bool AlvarezRusoSalaCOHGammaPXSec::ValidProcess(const Interaction * interaction)
   return true;
 }
 //____________________________________________________________________________
-double 
-AlvarezRusoSalaCOHGammaPXSec::NeutrinoHadronContraction( const Interaction * i ) const { 
+bool AlvarezRusoSalaCOHGammaPXSec::ValidKinematics(const Interaction * interaction) const
+{
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
 
-  double k0 = i -> InitState().ProbeE(kRfLab); // incident neutrino E
+  const KPhaseSpace& kps = interaction->PhaseSpace();
+
+  if ( ! kps.IsAllowed() ) {
+    LOG("AlvarezRusoSalaCOHGammaPXSec", pINFO)  << "*** Not in allowed kinematical space";
+    return false;
+  }
+
+  // here we can add cuts on gamma energy to avoid peaks at maximum energy which are clearly unphysical  
+
+  return true;
+}
+//____________________________________________________________________________
+double 
+AlvarezRusoSalaCOHGammaPXSec::NeutrinoHadronContraction( const Interaction & i, 
+							 const utils::math::GTraceContraction & H ) const { 
+
+  double k0 = i.InitState().ProbeE(kRfLab); // incident neutrino E
   TLorentzVector probe( 0., 0., k0, k0 ) ;
-  TLorentzVector out_nu = i -> Kine().FSLeptonP4();
+  TLorentzVector out_nu = i.Kine().FSLeptonP4();
   TLorentzVector t_q = probe - out_nu; // in/out neutrino E difference
   // FIXME not sure if q is exactly right
   std::array<double, 4> q = { t_q.E(), t_q.X(), t_q.Y(), t_q.Z() }; // Z boson momentum??
-
-  utils::math::GTraceContraction H( TotalHadronicCurrent(i) );
 
   std::complex<double> lh = -8*k0*((2*k0 - q[0] - q[3])*H(0,0,0,0) + q[1]*H(0,0,0,1) - std::complex<double>(0,1)*q[1]*H(0,0,0,2) +
 				   (-2*k0 + q[0] + q[3])*H(0,0,0,3) + q[1]*H(0,1,0,0) + (-q[0] + q[3])*H(0,1,0,1) +
@@ -186,16 +215,15 @@ AlvarezRusoSalaCOHGammaPXSec::NeutrinoHadronContraction( const Interaction * i )
 }
 //____________________________________________________________________________
 double 
-AlvarezRusoSalaCOHGammaPXSec::AntiNeutrinoHadronContraction( const Interaction * i ) const {
+AlvarezRusoSalaCOHGammaPXSec::AntiNeutrinoHadronContraction( const Interaction & i, 
+							     const utils::math::GTraceContraction & H ) const {
 
-  double k0 = i -> InitState().ProbeE(kRfLab); // incident neutrino E
+  double k0 = i.InitState().ProbeE(kRfLab); // incident neutrino E
   TLorentzVector probe( 0., 0., k0, k0 ) ;
-  TLorentzVector out_nu = i -> Kine().FSLeptonP4();
+  TLorentzVector out_nu = i.Kine().FSLeptonP4();
   TLorentzVector t_q = probe - out_nu; // in/out neutrino E difference
   // FIXME not sure if q is exactly right
   std::array<double, 4> q = { t_q.E(), t_q.X(), t_q.Y(), t_q.Z() }; // Z boson momentum??
-
-  utils::math::GTraceContraction H( TotalHadronicCurrent(i) );
 
   std::complex<double> lh = -8*k0*((2*k0 - q[0] - q[3])*H(0,0,0,0) + q[1]*H(0,0,0,1) +  std::complex<double>(0,1)*q[1]*H(0,0,0,2) +
 				   (-2*k0 + q[0] + q[3])*H(0,0,0,3) + q[1]*H(0,1,0,0) + (-q[0] + q[3])*H(0,1,0,1) -

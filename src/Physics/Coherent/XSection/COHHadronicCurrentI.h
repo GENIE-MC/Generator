@@ -26,10 +26,6 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Numerical/GTrace.h"
 
-#include "Physics/Coherent/XSection/COHFormFactorI.h"
-
-#include <complex>
-
 namespace genie {
 
 class COHHadronicCurrentI : public Algorithm {
@@ -38,7 +34,10 @@ public:
 
   virtual ~COHHadronicCurrentI() { ; } 
 
-  virtual utils::math::GTrace R( const Interaction * i, const COHFormFactorI * ff ) const = 0 ;
+  virtual utils::math::GTrace R( const Interaction & i, 
+				 double proton_ff, double neutron_ff ) const = 0 ;
+  
+  virtual utils::math::GTrace R( const Interaction & i, double ff ) const { return R( i, ff, ff) ; }
 
   virtual Resonance_t Resonance() const { return kNoResonance ; } 
 

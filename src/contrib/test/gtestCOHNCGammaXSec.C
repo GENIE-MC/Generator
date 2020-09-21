@@ -47,7 +47,7 @@
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Physics/Coherent/XSection/COHFormFactorI.h"
-#include "Physics/Coherent/XSection/COHFormFactorMap.h"
+#include "Physics/Coherent/XSection/DeVriesFormFactorMap.h"
 #include "Physics/Coherent/XSection/DeVriesFormFactor.h"
 #include "Physics/Coherent/XSection/FourierBesselFFCalculator.h"
 #include "Physics/Coherent/XSection/AlvarezRusoSalaCOHGammaPXSec.h"

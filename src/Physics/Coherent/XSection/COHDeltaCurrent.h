@@ -34,8 +34,8 @@ public:
 
   virtual ~COHDeltaCurrent();
 
-  virtual utils::math::GTrace R( const Interaction * i,
-				 const COHFormFactorI * ff ) const override ;
+  virtual utils::math::GTrace R( const Interaction & i,
+				 double proton_ff, double neutron_ff ) const override ;
 
   virtual Resonance_t Resonance() const override { return kP33_1232 ; }
 
@@ -48,10 +48,10 @@ public:
   void LoadConfig(void);
 
 
-  utils::math::GTrace DirTrace( const Interaction * i ) const ;
+  utils::math::GTrace DirTrace( const Interaction & i ) const ;
   // The form factor might not be necessary in this case
 
-  utils::math::GTrace CrsTrace( const Interaction * i ) const ;
+  utils::math::GTrace CrsTrace( const Interaction & i ) const ;
 
  private: 
   
