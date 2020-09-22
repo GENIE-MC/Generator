@@ -26,7 +26,8 @@ using namespace genie;
 double FourierBesselFFCalculator::FormFactor( double Q ) const {
 
   // Only keep Q values within valid range for parameters
-  if ( TMath::Abs(Q) < fQmin || fQmax < TMath::Abs(Q) ) return 0. ;
+  if ( Q > fQmax ) return 0. ;
+  if ( Q < fQmin ) return 0. ;
 
   double qr = Q * fRadius ;
 

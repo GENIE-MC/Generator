@@ -164,8 +164,11 @@ genie::FourierBesselFFCalculator DeVriesFormFactorInterpolation::LinearInterpola
 
     double r = RadiusInterpolation(pdg, neighbours) ;
 
-    std::vector<double> first_v( Map().at( neighbours.first) -> Calculator().Coefficients() ) ;
-    std::vector<double> second_v( Map().at( neighbours.second) -> Calculator().Coefficients() ) ;
+    const genie::FourierBesselFFCalculator & first_calc = Map().at( neighbours.first) -> Calculator() ;
+    const genie::FourierBesselFFCalculator & second_calc = Map().at( neighbours.second ) -> Calculator() ;
+    
+    std::vector<double> first_v( first_calc.Coefficients() ) ;
+    std::vector<double> second_v( second_calc.Coefficients() ) ;
 
     unsigned int n_coeffs = std::max( first_v.size(), second_v.size() ) ;
 
@@ -175,14 +178,20 @@ genie::FourierBesselFFCalculator DeVriesFormFactorInterpolation::LinearInterpola
 
     vector<double> coeffs(n_coeffs, 0. ) ;
 
-    int var_first = var( neighbours.first) ;
+    int var_first = var( neighbours.first ) ;
     int var_second = var( neighbours.second ) ;
+
+    std::pair<double, double> range_first ( first_calc.QMin(), first_calc.QMax() ) ;
+    std::pair<double, double> range_second ( first_calc.QMin(), first_calc.QMax() ) ;
+    std::pair<double, double> new_range ;    
 
     if ( var_first == var_second ) {
       // in this case liner interpolation fails, we take the average
       for ( unsigned int i = 0; i < n_coeffs; ++i ) {
         coeffs[i] = 0.5 *( first_v[i] + second_v[i] );
       }
+      new_range = std::make_pair( 0.5*( range_first.first +  range_second.first ), 
+				  0.5*( range_first.second + range_second.second ) ) ;
     }
     else {
 
@@ -192,10 +201,13 @@ genie::FourierBesselFFCalculator DeVriesFormFactorInterpolation::LinearInterpola
       for ( unsigned int i = 0; i < n_coeffs; ++i ) {
         coeffs[i] = first_v[i] + scale*(second_v[i] - first_v[i]) ;
       }
+
+      new_range = std::make_pair( range_first.first  + scale * ( range_second.first  - range_first.first ), 
+				  range_first.second + scale * ( range_second.second - range_first.second ) ) ; 
+
     }
 
-    // FIXME add Qmin/Qmax
-    return FourierBesselFFCalculator( coeffs, r , 0., 1. ) ;
+    return FourierBesselFFCalculator( coeffs, r , new_range.first, new_range.second ) ;
 }
 
 //____________________________________________________________________________

@@ -22,6 +22,8 @@ DV-Radius                     double      No         Radius of the nucleus as
 
 DV-Coefficient                vec-double  No         values for the Fourier-Bessel coefficients of the form factor.
 
+DV-QMin                       double      No         Minimum Q value for the validity of the form factor in fm^-1
+DV-QMax                       double      No         Maximum Q value for the validity of the form factor in fm^-1
 -->
 
 

@@ -74,7 +74,7 @@ void DeVriesFormFactor::LoadConfig(void)
   Qmin /= units::fm ;
   Qmax /= units::fm ;
 
-  fCalculator = FourierBesselFFCalculator( cs, r, Qmax, Qmin ) ;
+  fCalculator = FourierBesselFFCalculator( cs, r, Qmin, Qmax ) ;
 
   GetParam( "DV-Nucleus", fPDG ) ;
 
