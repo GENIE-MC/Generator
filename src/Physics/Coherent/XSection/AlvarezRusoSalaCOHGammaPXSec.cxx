@@ -170,7 +170,7 @@ bool AlvarezRusoSalaCOHGammaPXSec::ValidKinematics(const Interaction * interacti
   const KPhaseSpace& kps = interaction->PhaseSpace();
 
   if ( ! kps.IsAllowed() ) {
-    LOG("AlvarezRusoSalaCOHGammaPXSec", pINFO)  << "*** Not in allowed kinematical space";
+    LOG("AlvarezRusoSalaCOHGammaPXSec", pDEBUG)  << "*** Not in allowed kinematical space";
     return false;
   }
 
