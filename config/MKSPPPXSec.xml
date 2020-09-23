@@ -40,9 +40,9 @@ XSec-Integrator             alg     No
     <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
     <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
     
-    <param type="double" name="RES-Ma">   0.868688 </param>
+    <param type="double" name="RES-Ma">   0.871039 </param>
     <param type="double" name="RES-Mv">   0.840    </param>
-    <param type="double" name="RES-CA50"> 0.883525 </param>
+    <param type="double" name="RES-CA50"> 0.882856 </param>
 <!-- Parameters for background contribution   -->        
     <param type="alg"    name="CCFormFactorsAlg">         genie::MKFFCC/Default                     </param>
     <param type="alg"    name="EMFormFactorsAlg">         genie::MKFFEM/Default                     </param>

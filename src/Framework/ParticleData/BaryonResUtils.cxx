@@ -1,7 +1,8 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
@@ -35,12 +36,13 @@
    Added previously missing resonances P33(1600) and F17(1970).
    Now mass and widths are taken from PDG table via TDatabasePDG and cached.
    Add extra function needed for MK model.
+
 */
 //____________________________________________________________________________
 
 #include <cassert>
 #include <cstdlib>
-#include <map>
+#include <map> 
 
 #include <TMath.h>
 
@@ -449,7 +451,7 @@ bool genie::utils::res::IsDelta(Resonance_t res)
     return false;
 }
 //____________________________________________________________________________
-// The values of resonance mass and width is taken from
+// The values of resonance mass and width is taken from 
 // M. Tanabashi et al. (Particle Data Group) Phys. Rev. D 98, 030001
 bool genie::utils::res::IsN(Resonance_t res)
 {
