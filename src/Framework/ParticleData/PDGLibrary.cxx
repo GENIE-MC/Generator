@@ -35,13 +35,6 @@ PDGLibrary * PDGLibrary::fInstance = 0;
 PDGLibrary::PDGLibrary()
 {
   if( ! LoadDBase() ) LOG("PDG", pERROR) << "Could not load PDG data";
-#ifdef __GENIE_DARK_NEUTRINO_ENABLED__
-  if(AddDarkSector()) LOG("PDG", pINFO) << "Loaded Dark Neutrino data";
-  else {
-    LOG("PDG", pFATAL) << "Could not load Dark Neutrino data";
-    exit(78);
-  }
-#endif // __GENIE_DARK_NEUTRINO_ENABLED__
   fInstance =  0;
 }
 //____________________________________________________________________________
@@ -71,8 +64,22 @@ TDatabasePDG * PDGLibrary::DBase(void)
 TParticlePDG * PDGLibrary::Find(int pdgc)
 {
 // save some typing in the most frequently typed TDatabasePDG method
+#ifdef __GENIE_DARK_NEUTRINO_ENABLED__
+  TParticlePDG * ret = fDatabasePDG->GetParticle(pdgc);
+  if(ret) return ret;
 
+  if(AddDarkSector()) {
+    LOG("PDG", pINFO) << "Loaded Dark Neutrino data";
+    return fDatabasePDG->GetParticle(pdgc);
+  }
+  else {
+    LOG("PDG", pFATAL) << "Could not load Dark Neutrino data";
+    exit(78);
+  }
+#else
   return fDatabasePDG->GetParticle(pdgc);
+#endif // __GENIE_DARK_NEUTRINO_ENABLED__
+
 }
 
 //____________________________________________________________________________
