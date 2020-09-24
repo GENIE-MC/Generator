@@ -240,7 +240,6 @@ std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkNeutrinoDeca
 {
   // eq (3) and higher order variations
 
-  const double alpha_D = 0.25; // value on the paper
   std::array<int, 3> neutrinos = {kPdgNuE, kPdgNuMu, kPdgNuTau};
   std::array<int, 3> antineutrinos = {kPdgAntiNuE, kPdgAntiNuMu, kPdgAntiNuTau};
   std::vector<DarkSectorDecayer::DecayChannel> dcs;
@@ -248,7 +247,7 @@ std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkNeutrinoDeca
   if(fDNuMass > fDMediatorMass){
     for(size_t i=0; i<neutrinos.size(); ++i){
       const double mass2ratio = fDMediatorMass2/fDNuMass2;
-      const double p0 = 0.5*alpha_D * fMixing2s[3] * fMixing2s[i];
+      const double p0 = 0.5 * fAlpha_D * fMixing2s[3] * fMixing2s[i];
       const double p1 = fDNuMass*fDNuMass2/fDMediatorMass2;
       const double p2 = 1 - mass2ratio;
       const double p3 = 1 + mass2ratio - 2*mass2ratio*mass2ratio;
@@ -373,9 +372,7 @@ void DarkSectorDecayer::LoadConfig(void)
     fMixing2s[3] = 1. - tot_mix ;
   }
 
-  double DGaugeCoupling = 0.;   // g_D
-  this->GetParam("Dark-GaugeCoupling", DGaugeCoupling);
-  fgD2 = DGaugeCoupling * DGaugeCoupling;
+  this->GetParam("Dark-Alpha", fAlpha_D);
 
   fDNuMass = 0.;
   this->GetParam("Dark-NeutrinoMass", fDNuMass);

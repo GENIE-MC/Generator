@@ -73,7 +73,7 @@ namespace genie {
 
     double fEps2;
     std::array<double, 4> fMixing2s;
-    double fgD2;
+    double fAlpha_D;
 
     double fDNuMass, fDNuMass2;
     double fDMediatorMass, fDMediatorMass2;

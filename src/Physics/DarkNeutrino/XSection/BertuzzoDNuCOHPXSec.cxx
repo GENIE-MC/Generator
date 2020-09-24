@@ -96,8 +96,8 @@ double BertuzzoDNuCOHPXSec::XSec(
   const double FF2 = FF * FF;
   const double TTDiff = TT - M;
 
-  const double const_factor = 0.5 * constants::kAem ;
-  const double model_params = fEps2 * DTheta2 * fgD2;
+  const double const_factor = 2* constants::kPi * constants::kAem ;
+  const double model_params = fEps2 * DTheta2 * fAlpha_D ;
 
   const double num_fact1 = FF2 * Z2;
   const double num_fact21 = fDNuMass2 * (TTDiff - 2.*E);
@@ -207,9 +207,7 @@ void BertuzzoDNuCOHPXSec::LoadConfig(void)
     fMixing2s[3] = 1. - tot_mix ;
   }
 
-  double DGaugeCoupling = 0.;   // g_D
-  this->GetParam("Dark-GaugeCoupling", DGaugeCoupling);
-  fgD2 = DGaugeCoupling * DGaugeCoupling;
+  this->GetParam("Dark-Alpha", fAlpha_D);
 
   fDNuMass = 0.;
   this->GetParam("Dark-NeutrinoMass", fDNuMass);

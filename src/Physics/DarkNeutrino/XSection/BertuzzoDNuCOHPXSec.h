@@ -63,7 +63,7 @@ private:
   // mixing angles between the neutrinos (including a 4rth sterile one)
   // to the dark neutrino
 
-  double fgD2;
+  double fAlpha_D;
 
   double fDNuMass, fDNuMass2;
   double fDMediatorMass, fDMediatorMass2;
