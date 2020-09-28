@@ -15,6 +15,8 @@
 //____________________________________________________________________________
 
 
+#include <limits>
+
 #include "Physics/Coherent/XSection/COHFormFactorI.h"
 #include "Framework/Messenger/Messenger.h"
 
@@ -30,4 +32,11 @@ COHFormFactorI::COHFormFactorI( string name ) :
 COHFormFactorI::COHFormFactorI( string name, string config ) :
   Algorithm( name, config ) {
   
+}
+
+//____________________________________________________________________________
+
+genie::Range1D_t COHFormFactorI::QRange( int pdg ) const {
+  
+  return genie::Range1D_t( 0.,  std::numeric_limits<double>::infinity() ) ;
 }

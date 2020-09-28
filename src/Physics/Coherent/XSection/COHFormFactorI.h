@@ -20,6 +20,7 @@
 #define _COH_FORM_FACTOR_I_H_ 
 
 #include "Framework/Algorithm/Algorithm.h"
+#include "Framework/Utils/Range1.h"
 
 namespace genie {
 
@@ -33,6 +34,8 @@ public:
   virtual double NeutronFF( double Q, int pdg ) const = 0 ;
 
   virtual bool HasNucleus( int pdg ) const = 0 ;
+
+  virtual genie::Range1D_t QRange( int pdg ) const ;
 
  protected:
 
