@@ -35,8 +35,7 @@ COHFormFactorI::COHFormFactorI( string name, string config ) :
 }
 
 //____________________________________________________________________________
-
-genie::Range1D_t COHFormFactorI::QRange( int pdg ) const {
+genie::Range1D_t COHFormFactorI::QRange( int /* pdg */ ) const {
   
   return genie::Range1D_t( 0.,  std::numeric_limits<double>::infinity() ) ;
 }

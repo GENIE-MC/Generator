@@ -45,10 +45,11 @@ public:
 
   virtual bool HasNucleus( int pdg ) const override ;
 
+  virtual genie::Range1D_t QRange( int pdg ) const override ;
+
   // methods to implemented from Algorithm
   void Configure (const Registry & config) override ;
   void Configure (string param_set) override;
-
 
  protected:
 

@@ -91,6 +91,33 @@ bool DeVriesFormFactorInterpolation::HasNucleus( int pdg ) const {
    return true ;
 }
 //____________________________________________________________________________
+genie::Range1D_t DeVriesFormFactorInterpolation::QRange( int pdg ) const { 
+
+  if ( ! HasNucleus(pdg) ) return COHFormFactorI::QRange( pdg ) ;
+
+  if ( DeVriesFormFactorMap::HasNucleus(pdg) ) return DeVriesFormFactorMap::QRange( pdg ) ;
+
+  std::map<int,genie::FourierBesselFFCalculator>::const_iterator proton_it =
+    fInterProtons.find( pdg ) ;
+
+  if ( proton_it == fInterProtons.end() ) {
+    InterpolateProtons( pdg ) ;
+    proton_it = fInterProtons.find( pdg ) ;
+  }
+
+  std::map<int,genie::FourierBesselFFCalculator>::const_iterator neutron_it =
+    fInterNeutrons.find( pdg ) ;
+  
+  if ( neutron_it == fInterNeutrons.end() ) {
+    InterpolateNeutrons( pdg ) ;
+    neutron_it = fInterNeutrons.find( pdg ) ;
+  }
+
+  return Range1D_t( TMath::Min( proton_it -> second.QMin(), neutron_it -> second.QMin() ), 
+		    TMath::Max( proton_it -> second.QMax(), neutron_it -> second.QMax() ) ) ;
+		      
+}
+//____________________________________________________________________________
 const genie::FourierBesselFFCalculator & DeVriesFormFactorInterpolation::InterpolateProtons( int pdg ) const {
 
   auto result = fInterProtons.insert( std::make_pair( pdg, LinearInterpolation( pdg, pdg::IonPdgCodeToZ ) ) ) ;

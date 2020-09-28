@@ -57,6 +57,17 @@ double DeVriesFormFactorMap::ProtonFF( double Q, int pdg ) const {
 
 }
 //____________________________________________________________________________
+genie::Range1D_t DeVriesFormFactorMap::QRange( int pdg ) const {
+  
+  const std::map<int, const genie::DeVriesFormFactor *>::const_iterator it =
+    fNuclearFFs.find( pdg ) ;
+  
+  if ( it == fNuclearFFs.end() ) return COHFormFactorI::QRange( pdg ) ; 
+  
+  return Range1D_t( it -> second -> Calculator().QMin(), 
+		    it -> second -> Calculator().QMax() ) ;
+}
+//____________________________________________________________________________
 bool DeVriesFormFactorMap::HasNucleus( int pdg ) const {
 
   return (fNuclearFFs.count( pdg ) > 0) ;
