@@ -6,7 +6,8 @@
 #include "TH2.h"
 
 #include "Framework/Algorithm/AlgFactory.h"
-
+#include "Framework/Algorithm/Algorithm.h"
+#include "Physics/Coherent/XSection/COHFormFactorI.h"
 
 #include "Framework/Ntuple/NtpMCTreeHeader.h" 
 #include "Framework/Ntuple/NtpMCEventRecord.h" 
@@ -22,22 +23,22 @@
 using namespace genie ;
 
 
-void formfactor_test( TString algo_name  = "genie::DeVriesFormFactorMap" , 
-		      TString algo_par_set = "Default",
+void formfactor_test( std::string algo_name  = "genie::DeVriesFormFactorMap" , 
+		      std::string algo_par_set = "Default",
 		      TString out_file_name = "" ) {
 
   if ( out_file_name == "" ) {
 
-    /// somethign clelver to get a good output name
+    out_file_name = "ff_graphs.root";
+
   }
     
-  std::map<int, TGraph*> proton_graphs, neutrons_graphs ; // int = pdg 
+  std::map<int, TGraph*> proton_graphs, neutron_graphs ; // int = pdg 
   
-  const Algorithm * algo = AlgFactory::Instance()->GetAlgorithm( algo_name, alog_par_set ) ; 
+  AlgId id( algo_name, algo_par_set );
+  const Algorithm * algo = AlgFactory::Instance()->GetAlgorithm( id ) ; 
   
   const COHFormFactorI * form_factor = dynamic_cast<const COHFormFactorI*>( algo ) ; 
-    
-  // loop over nuclei 
 
   for ( unsigned int z = 2 ; z < 100 ; ++z ) {  // a better limit coudl be nice, don't even know what z is
     for ( unsigned int n = z/2 ; n < 2*z ; ++n ) {
@@ -46,24 +47,43 @@ void formfactor_test( TString algo_name  = "genie::DeVriesFormFactorMap" ,
 
       if ( form_factor -> HasNucleus( pdg ) ) {
 	
+        std::cout << "FF Has Nucleus " << pdg <<  std::endl;
 	Range1D_t q_range = form_factor -> QRange( pdg ) ;
 
-	// build graph or hist for proton and neutron
+        int nQ = 50;
+        double Q = 0;
+        double ff_p_arr[nQ];
+        double ff_n_arr[nQ];
+        double Q_arr[nQ];
 
-	// fill them
-	
-	// save them into the maps
+        for ( int Qstep = 0; Qstep < nQ; Qstep++ ) {
+          Q += q_range.max / nQ ; // sets q_range.min = 0
+          ff_p_arr[Qstep] = form_factor -> ProtonFF( Q, pdg ) ;
+          ff_n_arr[Qstep] = form_factor -> NeutronFF( Q, pdg ) ;
+          Q_arr[Qstep] = Q;
+        }
+
+        std::string nucleus( PDGLibrary::Instance() -> Find( pdg ) -> GetTitle() ) ;
+        std::string p_title = "Proton Form Factor for " + nucleus + ";Q [GeV];FF";
+        std::string n_title = "Neutron Form Factor for " + nucleus + ";Q [GeV];FF";
+
+        proton_graphs[pdg] = new TGraph( nQ, Q_arr, ff_p_arr );
+        proton_graphs[pdg]->SetName( ("FF_" + nucleus).c_str() );
+        proton_graphs[pdg]->SetTitle( p_title.c_str() );
+
+        neutron_graphs[pdg] = new TGraph( nQ, Q_arr, ff_n_arr );
+        neutron_graphs[pdg]->SetName( ("FF_" + nucleus).c_str() );
+        neutron_graphs[pdg]->SetTitle( n_title.c_str() );
 
       }
     }
-    
   }
 
 
   TFile out_file ( out_file_name, "RECREATE" ) ;
   out_file.cd() ;
   
-  for ( auto & g : graphs ) {
+  for ( auto & g : proton_graphs ) {
     g.second -> Write() ;
     delete g.second ;
   }
