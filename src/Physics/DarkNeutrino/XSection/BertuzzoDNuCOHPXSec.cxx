@@ -17,20 +17,14 @@
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
-#include "Framework/Conventions/RefFrame.h"
-#include "Framework/Conventions/KineVar.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
-#include "Framework/Numerical/MathUtils.h"
-#include "Framework/Numerical/GSLUtils.h"
-#include "Physics/NuclearState/NuclearUtils.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Physics/DarkNeutrino/XSection/BertuzzoDNuCOHPXSec.h"
 #include "Physics/DarkNeutrino/XSection/EngelFormFactor.h"
-// #include "Physics/Coherent/XSection/NuclDensityMomentIntegrand.h"
 
 using namespace genie;
 using namespace genie::utils;

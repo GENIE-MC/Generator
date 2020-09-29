@@ -11,8 +11,6 @@
 */
 //____________________________________________________________________________
 
-#include <cstdlib>
-
 #include <TMath.h>
 #include <Math/IFunction.h>
 #include <Math/GSLMinimizer1D.h>

@@ -16,7 +16,6 @@
 #include <Math/Integrator.h>
 
 #include "Framework/Conventions/Constants.h"
-#include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/GSLUtils.h"
