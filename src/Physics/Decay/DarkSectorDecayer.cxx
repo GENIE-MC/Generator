@@ -13,6 +13,7 @@
 
 #include <cmath>
 #include <numeric>
+#include <sstream>
 
 #include <TMath.h>
 
@@ -72,7 +73,7 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
 
     if(!this->ToBeDecayed(*p)) continue;
 
-    GHepParticle&  mother = *p; // change the name now we know it will decay
+    GHepParticle&  mother = *p; // rename p now we know it will decay
     std::vector<DarkSectorDecayer::DecayChannel> dcs;
     int pdg_code = mother.Pdg();
     if(pdg_code == kPdgDNuMediator){
@@ -83,15 +84,16 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
       dcs = DarkNeutrinoDecayChannels(pdg_code);
     }
 
-    // for ( const auto & dc : dcs ) {
-
-    // std::cout << "Decay amplitude: " << dc.second << " GeV "
-    //           << " -> " << 1. / dc.second / units::second << "s for channel [" ;
-    //   for ( const auto & p : dc.first ) {
-    //       std::cout << p << "  " ;
-    //   }
-    //   std::cout << "]" << std::endl ;
-    // }
+    for ( const auto & dc : dcs ) {
+      std::stringstream amplitudes_msg;
+      amplitudes_msg << "Decay amplitude: " << dc.second << " GeV "
+                     << " -> " << 1. / dc.second / units::second << "s for channel [" ;
+      for ( const auto & pdgc : dc.first ) {
+        amplitudes_msg << pdgc << "  " ;
+      }
+      amplitudes_msg << "]";
+      LOG("DarkSectorDecayer", pDEBUG) << amplitudes_msg.str();
+    }
 
     double total_amplitude = std::accumulate(dcs.begin(), dcs.end(), 0.,
                                              [](double total,
@@ -307,15 +309,6 @@ bool DarkSectorDecayer::ToBeDecayed(const GHepParticle & p) const
       << "Can decay particle with PDG code = " << pdg_code
       << "? " << ((is_handled)? "Yes" : "No");
 
-  // // Find the particle in the PDG library & quit if it does not exist
-  // TParticlePDG * mother = PDGLibrary::Instance()->Find(pdg_code);
-  // if(!mother && is_handled) {
-  //   LOG("DarkSectorDecayer", pERROR)
-  //     << "\n *** The particle with PDG code = " << pdg_code
-  //     << " was not found in PDGLibrary";
-  //   //exit;
-  // }
-
   return is_handled;
 }
 //____________________________________________________________________________
@@ -334,6 +327,19 @@ void DarkSectorDecayer::Configure(string config)
 void DarkSectorDecayer::LoadConfig(void)
 {
 
+  // Check particles are in the PDG library, quit if they don't exist
+  std::array<int, 3> pdgc_mothers = {kPdgDNuMediator, kPdgDarkNeutrino,
+    kPdgAntiDarkNeutrino};
+  for (auto & pdg_code : pdgc_mothers){
+    TParticlePDG * mother = PDGLibrary::Instance()->Find(pdg_code);
+    if(!mother) {
+      LOG("DarkSectorDecayer", pERROR)
+        << "\n *** The particle with PDG code = " << pdg_code
+        << " was not found in PDGLibrary";
+      exit(78);
+    }
+  }
+
   bool good_configuration = true ;
 
   double DKineticMixing = 0.;    // \varepsilon
@@ -341,26 +347,28 @@ void DarkSectorDecayer::LoadConfig(void)
   fEps2 = DKineticMixing * DKineticMixing;
 
   bool force_unitarity = false ;
-  GetParam( "Dark-Mixing-ForceUnitarity", force_unitarity ) ;
+  GetParam("Dark-Mixing-ForceUnitarity", force_unitarity ) ;
 
   unsigned int n_min_mixing = force_unitarity ? 3 : 4 ;
 
   std::vector<double> DMixing2s;  // |U_{\alpha 4}|^2
   this->GetParamVect("Dark-Mixings2", DMixing2s);
 
-  // check whther we go enough mixing elements
+  // check whether we have enough mixing elements
   if ( DMixing2s.size () < n_min_mixing ) {
 
     good_configuration = false ;
-    LOG("DarkSectorDecayer", pERROR ) << "Not enough mixing elements specified, only specified "
-                                      << DMixing2s.size() << " / " << n_min_mixing ;
+    LOG("DarkSectorDecayer", pERROR )
+      << "Not enough mixing elements specified, only specified "
+      << DMixing2s.size() << " / " << n_min_mixing ;
   }
 
   double tot_mix = 0. ;
   for( unsigned int i = 0; i < n_min_mixing ; ++i ) {
     if ( DMixing2s[i] < 0. ) {
       good_configuration = false ;
-      LOG("DarkSectorDecayer", pERROR ) << "Mixign " << i << " non positive: " << DMixing2s[i] ;
+      LOG("DarkSectorDecayer", pERROR )
+        << "Mixing " << i << " non positive: " << DMixing2s[i] ;
       continue ;
     }
     tot_mix += fMixing2s[i] = DMixing2s[i] ;
@@ -380,18 +388,20 @@ void DarkSectorDecayer::LoadConfig(void)
   this->GetParam("Dark-MediatorMass", fDMediatorMass);
   fDMediatorMass2 = fDMediatorMass * fDMediatorMass;
 
-  // the model is build on the assumption that the mass of the mediator
-  // is smaller than the mass of the dark neutrino.
-  // For the cross section, this is not a problem
-  // The decayer though is sensitive to this as the only known decay amplitude
-  // of the dark neutrino requires the mediator in the final state.
-  // Until the decay aimplitude in neutrino is not available
-  // we need to check that the mass hierarchy is respected
+  // The model is build on the assumption that the mass of the
+  // mediator is smaller than the mass of the dark neutrino. For the
+  // cross section, this is not a problem.
+  // The decayer though is sensitive to this as the only known decay
+  // amplitude of the dark neutrino requires the mediator in the final
+  // state.
+  // Until the decay amplitude in neutrino is not available
+  // we need to check that the mass hierarchy is respected.
   if ( fDMediatorMass >= fDNuMass ) {
     good_configuration = false ;
-    LOG("DarkSectorDecayer", pERROR ) << "Dark mediator mass (" <<  fDMediatorMass
-                                      << " GeV) too heavy for the dark neutrino ("
-                                      << fDNuMass << " GeV) to decay" ;
+    LOG("DarkSectorDecayer", pERROR )
+      << "Dark mediator mass (" <<  fDMediatorMass
+      << " GeV) too heavy for the dark neutrino ("
+      << fDNuMass << " GeV) to decay" ;
   }
 
   if ( ! good_configuration ) {

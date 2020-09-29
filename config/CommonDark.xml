@@ -4,20 +4,15 @@
 ***************************************************************************************************
 This file defines parameters sets for parameters which are common between algorithms and therefore
 has to be the same for those parameters to be meaningful.
+
 This is file is read from the AlgConfigPool and the parameters set are expected to be used by the
 algorithms to configure these common parameters.
 
 Author:
-Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-STFC, Rutherford Appleton Laboratory
-
-and
-Marco Roda <marco.roda \at liverpool.ac.uk>
-University of Liverpool
+Iker de Icaza <i.de-icaza-astiz \at sussex.ac.uk>
+University of Sussex
 ***************************************************************************************************
 -->
-
-
 
 <common_Dark_list>
 

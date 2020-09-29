@@ -8,7 +8,7 @@
   \ref      J. Engel
             Phys.Lett. B264, 114 (1991)
 
-  \author   Author: Iker de Icaza <i.de-icaza-astiz \at sussex.ac.uk>
+  \author   Iker de Icaza <i.de-icaza-astiz \at sussex.ac.uk>
             University of Sussex
 
             Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>

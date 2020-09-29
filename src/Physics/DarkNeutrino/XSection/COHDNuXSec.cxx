@@ -50,15 +50,9 @@ double COHDNuXSec::Integrate(
   if(!model->ValidProcess(in) ) return 0.;
   if(!in->PhaseSpace().IsAboveThreshold()) return 0.;
 
-  // TODO DNu
-  /* LOG("CEvNS", pNOTICE) */
-  /*     << "Q2 integration range = [" << Q2.min << ", " << Q2.max << "] GeV^2"; */
-  /* assert(Q2.min > 0. && Q2.min < Q2.max); */
-
   Interaction interaction(*in);
   interaction.SetBit(kISkipProcessChk);
   interaction.SetBit(kISkipKinematicChk);
-
 
   ROOT::Math::IntegrationOneDim::Type ig_type =
           utils::gsl::Integration1DimTypeFromString(fGSLIntgType);
@@ -72,8 +66,8 @@ double COHDNuXSec::Integrate(
 
   const InitialState & init_state = in->InitState();
   double Ev = init_state.ProbeE(kRfLab);
-  LOG("CEvNS", pINFO)
-    << "XSec[CEvNS] (E = " << Ev << " GeV) = " << xsec/(units::cm2) << " cm^2";
+  LOG("COHDNuXSec", pINFO)
+    << "XSec[COHDNu] (E = " << Ev << " GeV) = " << xsec/(units::cm2) << " cm^2";
 
   return xsec;
 }
@@ -105,7 +99,5 @@ void COHDNuXSec::LoadConfig(void)
   this->GetParamDef("gsl-min-eval", min_eval, 5000  );
   fGSLMaxEval = (unsigned int) max_eval ;
   fGSLMinEval = (unsigned int) min_eval ;
-
-  // LOG("CEvNS", pDEBUG) << *this;
 }
 //____________________________________________________________________________
