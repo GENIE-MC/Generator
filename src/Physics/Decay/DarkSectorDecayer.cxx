@@ -210,16 +210,14 @@ int DarkSectorDecayer::SelectDecayChannel(
 std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkMediatorDecayChannels(void) const
 {
   // eq (4) and (5) and maybe some other higher order variations
-  // TODO DNu: what alpha_D is?
 
-  const double alpha_D = 0.25; // value on the paper
   std::array<int, 3> neutrinos = {kPdgNuE, kPdgNuMu, kPdgNuTau};
   std::array<int, 3> antineutrinos = {kPdgAntiNuE, kPdgAntiNuMu, kPdgAntiNuTau};
   std::vector<DarkSectorDecayer::DecayChannel> dcs;
 
   for(size_t i=0; i<neutrinos.size(); ++i){
     for(size_t j=0; j<antineutrinos.size(); ++j){// for antineutrinos
-      const double decay_width = alpha_D/3. * fMixing2s[i]*fMixing2s[j] * fDMediatorMass;
+      const double decay_width = fAlpha_D/3. * fMixing2s[i]*fMixing2s[j] * fDMediatorMass;
       dcs.push_back(DecayChannel{{neutrinos[i], antineutrinos[j]}, decay_width});
     }
   }
