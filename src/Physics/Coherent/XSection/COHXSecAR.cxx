@@ -11,7 +11,6 @@
 
 */
 //____________________________________________________________________________
-#include <chrono>
 
 #include <TMath.h>
 #include <Math/IFunction.h>
@@ -36,7 +35,6 @@ using namespace genie::constants;
 using namespace genie::controls;
 using namespace genie::utils;
 
-using namespace std::chrono ;
 //____________________________________________________________________________
 COHXSecAR::COHXSecAR() :
 XSecIntegratorI("genie::COHXSecAR")
@@ -151,9 +149,6 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
     return 0;
   }
   
-  // The time of this operation is monitored
-  steady_clock::time_point start = steady_clock::now();
-
   // Check this
   double Enu      = init_state.ProbeE(kRfLab);
   double Egamma_min  = 0. ; 
@@ -219,11 +214,6 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
 
   delete func;
   //  }
-
-  steady_clock::time_point end = steady_clock::now();
-
-  duration<double> time_span = duration_cast<duration<double>>(end - start);
-  LOG( "COHXSecAR", pINFO ) << "The integral was performed in " << time_span.count() << " sec" ;
 
   return xsec;
 }
