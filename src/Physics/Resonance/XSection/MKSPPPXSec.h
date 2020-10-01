@@ -197,16 +197,22 @@ namespace genie {
             std::transform(array.begin(), array.end(), array.begin(), std::bind(std::multiplies<T>(), std::placeholders::_1, factor));
             return *this;
           }
+          
+          HelicityBkgAmp& operator/= (double factor)
+          {
+            std::transform(array.begin(), array.end(), array.begin(), std::bind(std::multiplies<T>(), std::placeholders::_1, 1./factor));
+            return *this;
+          }
     
-          HelicityBkgAmp& operator+= (HelicityBkgAmp ha)
+          HelicityBkgAmp& operator+= (const HelicityBkgAmp& ha)
           {
             std::transform(ha.array.begin(), ha.array.end(), array.begin(), array.begin(), std::bind(std::plus<T>(), std::placeholders::_1, std::placeholders::_2));
             return *this;
           }
           
-          HelicityBkgAmp& operator-= (HelicityBkgAmp ha)
+          HelicityBkgAmp& operator-= (const HelicityBkgAmp& ha)
           {
-            std::transform(ha.array.begin(), ha.array.end(), array.begin(), array.begin(), std::bind(std::plus<T>(), std::placeholders::_1, std::placeholders::_2));
+            std::transform(ha.array.begin(), ha.array.end(), array.begin(), array.begin(), std::bind(std::minus<T>(), std::placeholders::_2, std::placeholders::_1));
             return *this;
           }
     
@@ -217,24 +223,41 @@ namespace genie {
             return *this;
           }
           
-          HelicityBkgAmp& operator* (double factor)
+          friend HelicityBkgAmp operator+(HelicityBkgAmp lhs, const HelicityBkgAmp& rhs)
           {
-            (*this)*=factor;
-            return *this; 
+             lhs += rhs;
+             return lhs;
           }
           
-          HelicityBkgAmp& operator+ (HelicityBkgAmp h)
+          friend HelicityBkgAmp operator-(HelicityBkgAmp lhs, const HelicityBkgAmp& rhs)
           {
-            (*this)+=h;
-            return *this; 
-          }
-      
-          HelicityBkgAmp& operator- (HelicityBkgAmp h)
-          {
-            (*this)-=h;
-            return *this; 
+             lhs -= rhs;
+             return lhs;
           }
           
+          friend HelicityBkgAmp operator*(HelicityBkgAmp ha, double factor)
+          {
+             ha *= factor;
+             return ha;
+          }
+          
+          friend HelicityBkgAmp operator*(double factor, HelicityBkgAmp ha)
+          {
+             ha *= factor;
+             return ha;
+          }
+          
+          friend HelicityBkgAmp operator/(HelicityBkgAmp ha, double factor)
+          {
+             ha /= factor;
+             return ha;
+          }
+          
+          friend HelicityBkgAmp operator/(double factor, HelicityBkgAmp ha)
+          {
+             ha /= factor;
+             return ha;
+          }
           
         private:
           std::vector<T> array; //2*4*2*2; 

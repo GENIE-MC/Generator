@@ -512,7 +512,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::MINUS, NucleonPolarization::MINUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::MINUS, NucleonPolarization::MINUS)));
     
-    Hbkg = Hbkg*(1. - 2.*fSin2Wein) - HbkgEM*4.*fSin2Wein;
+    Hbkg = (1. - 2.*fSin2Wein)*Hbkg - 4.*fSin2Wein*HbkgEM;
   }
   
 
