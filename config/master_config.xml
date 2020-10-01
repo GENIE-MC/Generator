@@ -145,6 +145,8 @@
    <config alg="genie::DMElectronXSec">              DMElectronXSec.xml              </config>
    <config alg="genie::DMELXSec">                    DMELXSec.xml                    </config>
    <config alg="genie::DMDISXSec">                   DMDISXSec.xml                   </config>
+   <config alg="genie::COHGammaIntegrationLimits">   COHGammaIntegrationLimits.xml   </config>
+   
 
    <!--  ****** CONFIGURATION FOR XSEC ALGORITHMS ****** -->
    <config alg="genie::AhrensNCELPXSec">                    AhrensNCELPXSec.xml                    </config>
