@@ -58,7 +58,6 @@ DV-QMax            double      No         Maximum Q value for the validity of th
     <param type="int" name="DV-Nucleus"> 1000060120  </param>
     
     <param type="double" name="DV-Radius"> 8.0  </param>
-    <param type="double" name="DV-QMin"> 0.25  </param>
     <param type="double" name="DV-QMax"> 2.75  </param>
     
     <param type="vec-double" name="DV-Coefficient" delim=";"> 

@@ -50,14 +50,16 @@ void formfactor_test( std::string algo_name  = "genie::DeVriesFormFactorMap" ,
         std::cout << "FF Has Nucleus " << pdg <<  std::endl;
 	Range1D_t q_range = form_factor -> QRange( pdg ) ;
 
-        int nQ = 50;
-        double Q = 0;
+        int nQ = 200;
+        double Q = q_range.min;
         double ff_p_arr[nQ];
         double ff_n_arr[nQ];
         double Q_arr[nQ];
 
+	double delta_q = (q_range.max - q_range.min ) / nQ ; 
+
         for ( int Qstep = 0; Qstep < nQ; Qstep++ ) {
-          Q += q_range.max / nQ ; // sets q_range.min = 0
+	  Q += delta_q ; 
           ff_p_arr[Qstep] = form_factor -> ProtonFF( Q, pdg ) ;
           ff_n_arr[Qstep] = form_factor -> NeutronFF( Q, pdg ) ;
           Q_arr[Qstep] = Q;
@@ -68,11 +70,11 @@ void formfactor_test( std::string algo_name  = "genie::DeVriesFormFactorMap" ,
         std::string n_title = "Neutron Form Factor for " + nucleus + ";Q [GeV];FF";
 
         proton_graphs[pdg] = new TGraph( nQ, Q_arr, ff_p_arr );
-        proton_graphs[pdg]->SetName( ("FF_" + nucleus).c_str() );
+        proton_graphs[pdg]->SetName( ("proton_FF_" + nucleus).c_str() );
         proton_graphs[pdg]->SetTitle( p_title.c_str() );
 
         neutron_graphs[pdg] = new TGraph( nQ, Q_arr, ff_n_arr );
-        neutron_graphs[pdg]->SetName( ("FF_" + nucleus).c_str() );
+        neutron_graphs[pdg]->SetName( ("neutron_FF_" + nucleus).c_str() );
         neutron_graphs[pdg]->SetTitle( n_title.c_str() );
 
       }
@@ -87,6 +89,12 @@ void formfactor_test( std::string algo_name  = "genie::DeVriesFormFactorMap" ,
     g.second -> Write() ;
     delete g.second ;
   }
+
+    for ( auto & g : neutron_graphs ) {
+    g.second -> Write() ;
+    delete g.second ;
+  }
+
 
 }
 
