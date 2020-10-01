@@ -69,7 +69,7 @@ void DeVriesFormFactor::LoadConfig(void)
   r *= units::fm ;
 
   double Qmax, Qmin;
-  GetParam( "DV-QMin", Qmin ) ;
+  GetParamDef( "DV-QMin", Qmin, 0. ) ;
   GetParam( "DV-QMax", Qmax ) ;
   Qmin /= units::fm ;
   Qmax /= units::fm ;
