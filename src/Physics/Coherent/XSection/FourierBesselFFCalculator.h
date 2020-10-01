@@ -53,6 +53,8 @@ public:
   double QMax() const noexcept { return fQmax; }
   double QMin() const noexcept { return fQmin; }
 
+  static double sinc( double ) ; 
+
 protected:
   FourierBesselFFCalculator( ) noexcept : fFBCs(), fRadius(0.), fQmin(0.), fQmax(0.) {;}
 

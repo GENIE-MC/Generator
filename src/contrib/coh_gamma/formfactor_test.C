@@ -56,13 +56,13 @@ void formfactor_test( std::string algo_name  = "genie::DeVriesFormFactorMap" ,
         double ff_n_arr[nQ];
         double Q_arr[nQ];
 
-	double delta_q = (q_range.max - q_range.min ) / nQ ; 
+	double delta_q = (q_range.max - q_range.min ) / (nQ-1) ; 
 
         for ( int Qstep = 0; Qstep < nQ; Qstep++ ) {
-	  Q += delta_q ; 
           ff_p_arr[Qstep] = form_factor -> ProtonFF( Q, pdg ) ;
           ff_n_arr[Qstep] = form_factor -> NeutronFF( Q, pdg ) ;
           Q_arr[Qstep] = Q;
+	  Q += delta_q ; 
         }
 
         std::string nucleus( PDGLibrary::Instance() -> Find( pdg ) -> GetTitle() ) ;

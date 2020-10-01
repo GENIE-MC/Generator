@@ -39,7 +39,13 @@ double FourierBesselFFCalculator::FormFactor( double Q ) const {
      aux_sum += pow( -1.0, i )*fFBCs[i]/( ( pi_x_i + qr )*( pi_x_i - qr ) ) ;
  }
 
- return 4.*constants::kPi*pow( fRadius/units::fm, 3)*aux_sum*(sin(qr)/(qr) ) ;
+  return 4.*constants::kPi*pow( fRadius/units::fm, 3)*aux_sum* FourierBesselFFCalculator::sinc(qr) ;
 
 }
 //____________________________________________________________________________
+double FourierBesselFFCalculator::sinc( double x ) { 
+
+  if ( x == 0. ) return 1. ;
+  return sin( x ) / x ;
+
+}
