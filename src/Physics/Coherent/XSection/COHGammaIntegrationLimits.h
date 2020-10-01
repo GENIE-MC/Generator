@@ -3,18 +3,13 @@
 
 \class    genie::COHGammaIntegrationLimits
 
-\brief    De Vries Form factor interfaces for COH Production model
-          The class is develope specifically for the NC COH Gamma
-          But in principle these Form Factors could be reused.
-
-\ref      Atom.Data Nucl.Data Tabl. 36 (1987) 495-536
-          DOI: 10.1016/0092-640X(87)90013-1
-
+\brief    Algorithm to define ina single place the hyper-cube to be used to 
+          integrate the complicated phase space of the COH Gamma cross sections
 
 \author  Marco Roda <mroda@liverpool.ac.uk>
          University of Liverpool
 
-\created October 2019
+\created October 2020
 
 \cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -27,6 +22,7 @@
 
 #include "Framework/Utils/Range1.h"
 #include "Framework/Algorithm/Algorithm.h"
+#include "Framework/Interaction/Interaction.h"
 
 namespace genie {
 
@@ -55,7 +51,8 @@ protected:
 
   void LoadConfig(void);
 
- private:
+private:
+
 
 };
 

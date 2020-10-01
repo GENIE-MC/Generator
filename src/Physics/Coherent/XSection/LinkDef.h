@@ -31,6 +31,8 @@
 
 #pragma link C++ class genie::COHXSec;
 #pragma link C++ class genie::COHXSecAR;
+#pragma link C++ class genie::COHGammaIntegrationLimits;
+
 
 #pragma link C++ class genie::PattonCEvNSPXSec;
 #pragma link C++ class genie::CEvNSXSec;
