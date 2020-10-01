@@ -512,7 +512,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
        (TMath::Cos(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::MINUS, NucleonPolarization::MINUS)),
         TMath::Sin(Phi*PhaseFactor(BosonPolarization::MINUS0, NucleonPolarization::MINUS, NucleonPolarization::MINUS)));
     
-    Hbkg = Hbkg*(1. - 2.*fSin2Wein) - HbkgEM*4.*fSin2Wein;
+    Hbkg = (1. - 2.*fSin2Wein)*Hbkg - 4.*fSin2Wein*HbkgEM;
   }
   
 
@@ -1469,9 +1469,9 @@ void MKSPPPXSec::LoadConfig(void)
   this->GetParamDef("MK-NonResBkg-V3",    fBkgV3,       8.08497 );
   this->GetParamDef("MK-NonResBkg-V2",    fBkgV2,      -41.6767 );
   this->GetParamDef("MK-NonResBkg-V1",    fBkgV1,       66.3419 );
+  this->GetParamDef("MK-NonResBkg-V0",    fBkgV0,      -32.5733 );      
 /*  
-  // Not used in the latest version    
-  this->GetParamDef("MK-NonResBkg-V0",    fBkgV0,      -32.5733 );                         
+  // Not used in the latest version                       
   this->GetParamDef("MK-NonResBkg-AWmin", fBkgAWmin,       1.28 );
   this->GetParamDef("MK-NonResBkg-AWmax", fBkgAWmax,       1.50 );
   this->GetParamDef("MK-NonResBkg-A3",    fBkgA3,       45.7846 );
