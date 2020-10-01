@@ -13,17 +13,17 @@ DOI: 10.1016/0092-640X(87)90013-1
 There shall be a parameter set for each nucleus.
 
 Configurable Parameters:
-..........................................................................................................
-Name                          Type        Optional   Comment
-..........................................................................................................
-DV-Nucleus                    int         No         PDG of the nucleus for which the FormFacotor is evaluated
+.....................................................................................................................
+Name               Type        Optional   Comment                                                          Default
+.....................................................................................................................
+DV-Nucleus         int         No         PDG of the nucleus for which the FormFacotor is evaluated
 
-DV-Radius                     double      No         Radius of the nucleus as
+DV-Radius          double      No         Radius of the nucleus as
 
-DV-Coefficient                vec-double  No         values for the Fourier-Bessel coefficients of the form factor.
+DV-Coefficient     vec-double  No         values for the Fourier-Bessel coefficients of the form factor.
 
-DV-QMin                       double      No         Minimum Q value for the validity of the form factor in fm^-1
-DV-QMax                       double      No         Maximum Q value for the validity of the form factor in fm^-1
+DV-QMin            double      yes        Minimum Q value for the validity of the form factor (fm^-1)      0.
+DV-QMax            double      No         Maximum Q value for the validity of the form factor (fm^-1)
 -->
 
 
