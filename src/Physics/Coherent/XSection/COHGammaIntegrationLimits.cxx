@@ -56,7 +56,7 @@ Range1D_t COHGammaIntegrationLimits::PhiGamma( const Interaction & ) const {
 Range1D_t COHGammaIntegrationLimits::ThetaLepton( const Interaction & ) const {
 
   return Range1D_t( controls::kASmallNum, 
-		    constants::kPi - controls::kASmallNum ) ; 
+		    constants::kPi/4. - controls::kASmallNum ) ; 
 }
 Range1D_t COHGammaIntegrationLimits::t( const Interaction & ) const {
 
