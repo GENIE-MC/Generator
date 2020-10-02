@@ -24,6 +24,9 @@
 #include "Physics/Common/KineGeneratorWithCache.h"
 #include "Framework/Utils/Range1.h"
 
+#include "Physics/Coherent/XSection/COHGammaIntegrationLimits.h" 
+
+
 class TF2;
 
 namespace genie {
@@ -78,9 +81,14 @@ namespace genie {
     double pionMass(const Interaction* in) const;
     void   throwOnTooManyIterations(unsigned int iters, GHepRecord* evrec) const;
 
+    bool fHasPhoton ;
+    const COHGammaIntegrationLimits * fGammaLimits ; 
+
     double fQ2Min;  ///< lower bound of integration for Q^2 in Berger-Sehgal Model
     double fQ2Max;  ///< upper bound of integration for Q^2 in Berger-Sehgal Model
     double fTMax;   ///< upper bound for t = (q - p_pi)^2
+
+
   };
 
 }      // genie namespace

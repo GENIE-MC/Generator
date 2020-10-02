@@ -61,13 +61,17 @@ using namespace genie::utils;
 
 //___________________________________________________________________________
 COHKinematicsGenerator::COHKinematicsGenerator() :
-  KineGeneratorWithCache("genie::COHKinematicsGenerator")
+  KineGeneratorWithCache("genie::COHKinematicsGenerator"), 
+  fHasPhoton( false ), 
+  fGammaLimits( nullptr ) 
 {
   fEnvelope = 0;
 }
 //___________________________________________________________________________
 COHKinematicsGenerator::COHKinematicsGenerator(string config) :
-  KineGeneratorWithCache("genie::COHKinematicsGenerator", config)
+  KineGeneratorWithCache("genie::COHKinematicsGenerator", config), 
+  fHasPhoton( false ), 
+  fGammaLimits( nullptr ) 
 {
   fEnvelope = 0;
 }
@@ -1261,6 +1265,11 @@ void COHKinematicsGenerator::Configure(string config)
 //____________________________________________________________________________
 void COHKinematicsGenerator::LoadConfig(void)
 {
+
+  GetParamDef( "IsCOHGamma", fHasPhoton, false ) ;
+  
+  bool error = false ;
+
   //-- COH model parameter Ro
   GetParam( "COH-Ro", fRo );
   //-- COH model parameter t_max for t = (q - p_pi)^2
@@ -1289,6 +1298,21 @@ void COHKinematicsGenerator::LoadConfig(void)
                       kinematics::COHImportanceSamplingEnvelope,0.,1,0.,1,2);
   // stop ROOT from deleting this object of its own volition
   gROOT->GetListOfFunctions()->Remove(fEnvelope);
+
+  if ( fHasPhoton ) {
+    const Algorithm * temp = SubAlg( "IntegrationLimits" ) ;
+    fGammaLimits = dynamic_cast<const COHGammaIntegrationLimits *>( temp ) ;
+    if (! fGammaLimits ) {
+      LOG( "COHKinematicsGenerator", pERROR ) << "Gamma integration limits subalgo failed to load" ;
+      error = true ;
+    }
+  }
+
+  if ( error ) {
+    LOG( "COHKinematicsGenerator", pFATAL ) << "Invalid configuration. Exiting" ;
+    exit( 78 ) ;
+  } 
+
 }
 //____________________________________________________________________________
 
