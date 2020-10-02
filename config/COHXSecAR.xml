@@ -17,7 +17,7 @@ IsCOHPion               bool     yes        This integrator can be used for both
 ISCOHGamma              bool     yes                                                                false
 OmegaPhaseSpace         bool     Yes        Only used for the COH Gamma case                        false
                                             It perform the integration in the dOmega_g dOmega_l     
-IntegrationLimits       algo     Maybe      Specificies integration limits algoright
+IntegrationLimits       algo     Maybe      Specificies integration limit algorithm
                                             It is required for COH gamma configurations
 
 ....................................................................................................
