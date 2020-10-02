@@ -21,6 +21,7 @@
 #define _COH_XSEC_AR_H_
 
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
+#include "Physics/Coherent/XSection/COHGammaIntegrationLimits.h" 
 
 namespace genie {
 
@@ -50,6 +51,8 @@ private:
   bool fHasPion ;
   bool fHasPhoton ;
   bool fOmegaIntegral ;
+
+  const COHGammaIntegrationLimits * fGammaLimits ; 
 };
 
 }       // genie namespace

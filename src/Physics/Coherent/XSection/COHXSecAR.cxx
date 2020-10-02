@@ -37,13 +37,17 @@ using namespace genie::utils;
 
 //____________________________________________________________________________
 COHXSecAR::COHXSecAR() :
-XSecIntegratorI("genie::COHXSecAR")
+  XSecIntegratorI("genie::COHXSecAR"), 
+  fHasPion( false ), fHasPhoton( false ), fOmegaIntegral( false ), 
+  fGammaLimits( nullptr ) 
 {
 
 }
 //____________________________________________________________________________
 COHXSecAR::COHXSecAR(string config) :
-XSecIntegratorI("genie::COHXSecAR", config)
+  XSecIntegratorI("genie::COHXSecAR", config), 
+  fHasPion( false ), fHasPhoton( false ), fOmegaIntegral( false ), 
+  fGammaLimits( nullptr ) 
 {
 
 }
@@ -245,12 +249,19 @@ void COHXSecAR::LoadConfig(void)
   GetParamDef( "IsCOHPion",  fHasPion,   false ) ;
   GetParamDef( "IsCOHGamma", fHasPhoton, false ) ;
 
+  bool error = false ;
+
   if ( fHasPhoton ) {
     GetParamDef( "OmegaPhaseSpace", fOmegaIntegral, true ) ;
+
+    const Algorithm * temp = SubAlg( "IntegrationLimits" ) ;
+    fGammaLimits = dynamic_cast<const COHGammaIntegrationLimits *>( temp ) ;
+    if (! fGammaLimits ) {
+      LOG( "COHXSecAR", pERROR ) << "Gamma integration limits subalgo failed to load" ;
+      error = true ;
+    }
   }
 
-  bool error = false ;
-  
   if ( !fHasPion && !fHasPhoton ) {
     LOG( "COHXSecAR", pERROR ) << "No pion nor gamma option has been requested" ;
     error = true ;
