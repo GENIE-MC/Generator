@@ -24,6 +24,8 @@ COH-Q2-max               double  No      Maximum considered Q^2 for Berger-Sehga
 COH-t-max                double  No      Maximum considered t for Berger-Sehgal         CommonParam[Coherent]
                                          coherent reactions when estimating 
                                          the max cross section.  Units in GeV^2.
+IsGamma                  bool    Yes     Specify if the algo is supposed to             False
+                                         generato COH Gamma events
 IntegrationLimits        algo    Maybe   Specificies integration limit algorithm                                  
                                           It is required for COH gamma configurations 
 -->
@@ -37,6 +39,8 @@ IntegrationLimits        algo    Maybe   Specificies integration limit algorithm
   </param_set>
 
     <param_set name="Gamma"> 
+      
+      <param type="bool" name ="IsGamma"> true </param>
 
       <param type="alg" name ="IntegrationLimits"  > genie::COHGammaIntegrationLimits/Default </param>
       
