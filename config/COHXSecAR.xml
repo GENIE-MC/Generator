@@ -17,6 +17,8 @@ IsCOHPion               bool     yes        This integrator can be used for both
 ISCOHGamma              bool     yes                                                                false
 OmegaPhaseSpace         bool     Yes        Only used for the COH Gamma case                        false
                                             It perform the integration in the dOmega_g dOmega_l     
+IntegrationLimits       algo     Maybe      Specificies integration limits algoright
+                                            It is required for COH gamma configurations
 
 ....................................................................................................
 
@@ -61,6 +63,7 @@ OmegaPhaseSpace         bool     Yes        Only used for the COH Gamma case    
     <param type="int"    name ="gsl-max-eval" >              400000  </param>
     <param type="double" name ="gsl-relative-tolerance"  >    0.005  </param>
 
+    <param type="algo" name ="IntegrationLimits"  > genie::COHGammaIntegrationLimits/Default </param>
 
   </param_set>
 
