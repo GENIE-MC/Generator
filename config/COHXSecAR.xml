@@ -63,7 +63,7 @@ IntegrationLimits       algo     Maybe      Specificies integration limits algor
     <param type="int"    name ="gsl-max-eval" >              400000  </param>
     <param type="double" name ="gsl-relative-tolerance"  >    0.005  </param>
 
-    <param type="algo" name ="IntegrationLimits"  > genie::COHGammaIntegrationLimits/Default </param>
+    <param type="alg" name ="IntegrationLimits"  > genie::COHGammaIntegrationLimits/Default </param>
 
   </param_set>
 
