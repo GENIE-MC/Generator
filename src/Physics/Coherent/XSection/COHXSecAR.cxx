@@ -154,10 +154,11 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
   }
   
   // Check this
-  double Enu      = init_state.ProbeE(kRfLab);
-  double Egamma_min  = 0. ; 
-  double Egamma_max = Enu;
-  
+  Range1D_t e_gamma     = fGammaLimits -> EGamma( *in ) ;
+  Range1D_t theta_lep   = fGammaLimits -> ThetaLepton( *in ) ;
+  Range1D_t theta_gamma = fGammaLimits -> ThetaGamma( *in ) ;
+  Range1D_t phi_gamma   = fGammaLimits -> PhiGamma( *in ) ;
+
   // LOG("COHXSecAR", pINFO)
   //      << "Lepton energy integration range = [" << Elep_min << ", " << Elep_max << "]";
 
@@ -165,8 +166,7 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
   interaction.SetBit(kISkipProcessChk);
   //interaction->SetBit(kISkipKinematicChk);
   
-  double xsec = 0;
-  
+    
   //for the time begin the option of splitting the integral is not there for photon
 
   // if (fSplitIntegral) {
@@ -187,24 +187,18 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
   // }
   // else {
 
-  double zero    = kASmallNum;
-  double pi      = kPi-kASmallNum ;
-  double twopi   = 2*kPi-kASmallNum ;
-  
-  //~ ROOT::Math::IBaseFunctionMultiDim * func = 
-  //~ new utils::gsl::wrap::d5Xsec_dEldOmegaldOmegapi(model, interaction);
-  //~ double kine_min[5] = { Elep_min, zero , zero    , zero, zero };
-  //~ double kine_max[5] = { Elep_max, pi   , twopi   , pi  , twopi};
-    
   ROOT::Math::IBaseFunctionMultiDim * func = nullptr ;
   if ( fOmegaIntegral ) func = new utils::gsl::d5Xsec_dEgdOmegaldOmegag(model, & interaction);
   else func = new utils::gsl::d4Xsec_dEgdThetaldThetagdPhig(model, & interaction);
-
-  double min_theta = fOmegaIntegral ? -1. : zero ;
-  double max_theta = fOmegaIntegral ?  1. : pi ;
   
-  double kine_min[4] = { Egamma_min, min_theta , min_theta, zero    };
-  double kine_max[4] = { Egamma_max, max_theta , max_theta, twopi   };
+  double kine_min[4] = { e_gamma.min, 
+			 fOmegaIntegral ? cos( theta_lep.max ) : theta_lep.min, 
+			 fOmegaIntegral ? cos( theta_gamma.max ) : theta_gamma.min, 
+			 phi_gamma.min } ;
+  double kine_max[4] = { e_gamma.max, 
+			 fOmegaIntegral ? cos( theta_lep.min ) : theta_lep.max, 
+			 fOmegaIntegral ? cos( theta_gamma.min ) : theta_gamma.max, 
+			 phi_gamma.max } ;
   
   ROOT::Math::IntegrationMultiDim::Type ig_type = 
     utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
@@ -212,13 +206,13 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
   double abstol = 1; //We mostly care about relative tolerance.
   ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
   
-  xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2) ;
-
+  double xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2) ;
+  
   if ( fOmegaIntegral ) xsec *= 2 * constants::kPi ;
-
+  
   delete func;
   //  }
-
+  
   return xsec;
 }
 //____________________________________________________________________________
