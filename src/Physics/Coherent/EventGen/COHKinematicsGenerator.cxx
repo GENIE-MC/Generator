@@ -30,6 +30,9 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <functional>   
+#include <numeric>      // std::accumulate
+
 
 #include <TROOT.h>
 #include <TMath.h>
@@ -113,11 +116,10 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 	fXSecModel->Id().Name();
     }
   }
-  else if ( xcls.NSingleGammas() == 1 ) {
+  else if ( fHasPhoton ) {
     CalculateKin_Gamma(evrec);
   }
-
-
+  
 }
 //___________________________________________________________________________
 void COHKinematicsGenerator::CalculateKin_BergerSehgal(GHepRecord * evrec) const
@@ -639,10 +641,11 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
 void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
 {
   // Get the Primary Interacton object
-  Interaction * interaction = evrec->Summary();
-  interaction->SetBit(kISkipProcessChk);
+  Interaction * in = evrec->Summary();
+  in -> SetBit(kISkipProcessChk);
+  //in -> SetBit(kISkipKinematicChk);
 
-  //interaction->SetBit(kISkipKinematicChk);
+  double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec); 
 
   // Initialise a random number generator 
   RandomGen * rnd = RandomGen::Instance();
@@ -653,62 +656,43 @@ void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
   //   value is found.
   //   If the kinematics are generated uniformly over the allowed phase
   //   space the max xsec is irrelevant
-  double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);//currently this is an untested method
-  double Ev = interaction->InitState().ProbeE(kRfLab);
-   
-  //Set up limits of integration variables
+
+  std::array<Range1D_t,4> ranges = { fGammaLimits -> EGamma( *in ), 
+                                     fGammaLimits -> ThetaLepton( *in ), 
+                                     fGammaLimits -> ThetaGamma( *in ), 
+                                     fGammaLimits -> PhiGamma( *in ) } ;
+
+  std::array<double, 4> widths ;
+  for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
+    widths[i] = ranges[i].max - ranges[i].min ; 
+  }
   
-  //TODO: check that these are the appropriate limits for theta_l and theta_g
-  //Photon energy
-  const double E_g_min = kASmallNum; //min is 0
-  const double E_g_max = Ev; //max is neutrino energy
-
-  const double theta_l_max = kPi; 
-  const double theta_l_min = 0.;
-
-
-  // Gamma angle with respect to the beam axis - 
-  const double theta_g_max = kPi;
-  const double theta_g_min = 0.;
-
-  // Gamma angle wrt to the outgoing lepton in the transverse plane to the beam axis
-  const double phi_min = 0.0;
-  const double phi_max = (2.0 * kPi);
-  // 
-  const double d_E_g = E_g_max - E_g_min;
-  const double d_theta_l  = theta_l_max  - theta_l_min;
-  const double d_theta_g = theta_g_max - theta_g_min;
-  const double d_phi = phi_max - phi_min;
-
   //------ Try to select a valid set of kinematics
   unsigned int iter = 0;
   bool accept=false;
 
-  double xsec=-1, g_E_g=-1, g_theta_l=-1, g_phi_l=-1, g_theta_g=-1, g_phi_g=-1;
+  double xsec=-1 ; 
+  std::array<double,4> point ; 
 
-  Interaction local_interaction( * interaction ) ;
+  Interaction local_interaction( * in ) ;
 
   utils::gsl::d4Xsec_dEgdThetaldThetagdPhig functor( fXSecModel, & local_interaction ) ;
 
   while(1) {
     iter++;
-    if(iter > kRjMaxIterations) this->throwOnTooManyIterations(iter,evrec);
-      
-    //Select kinematic point
-    g_E_g = E_g_min + d_E_g * rnd->RndKine().Rndm();
-    g_theta_l  = theta_l_min  + d_theta_l  * rnd->RndKine().Rndm();
-    g_theta_g = theta_g_min + d_theta_g * rnd->RndKine().Rndm();
-    g_phi_g = phi_min + d_phi * rnd->RndKine().Rndm() ; 
-    // the photon phi angle is relative to lepton phi angle 
-    // but the cross is independent from lepton phi angle so 
-    // this is left at the level of the accepted method
-      
-    LOG("COHKinematics", pINFO) << "Trying: Gamma(" << g_E_g << ", "
-				<< g_theta_g << ", " << g_phi_g << "),   Lep(" 
-				<< g_theta_l << ")";
     
-    double point[4] = { g_E_g, g_theta_l, g_theta_g, g_phi_g } ;
-    xsec = functor( point ) ; 
+    if(iter > kRjMaxIterations) this->throwOnTooManyIterations(iter,evrec);
+    
+    // generate the kinematic point
+    for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
+      point[i] = ranges[i].min + widths[i] * rnd->RndKine().Rndm();
+    }
+
+    // LOG("COHKinematics", pINFO) << "Trying: Gamma(" << g_E_g << ", "
+    // 				<< g_theta_g << ", " << g_phi_g << "),   Lep(" 
+    // 				<< g_theta_l << ")";
+    
+    xsec = functor( point.data() ) ; 
     
     //realized this method assumes E_l 
     
@@ -719,7 +703,7 @@ void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
       LOG("COHKinematics", pINFO) << "Got: xsec = " << xsec << ", t = " << 
         t << " (max_xsec = " << xsec_max << ")";
       
-      this->AssertXSecLimits(interaction, xsec, xsec_max);
+      this->AssertXSecLimits( in, xsec, xsec_max );
       
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("COHKinematics", pDEBUG)
@@ -735,15 +719,8 @@ void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
     
     if(accept) {
 
-      LOG("COHKinematics", pNOTICE) << "Last event was selected" ;
-
-      LOG("COHKinematics", pNOTICE) << "Selected: Lepton(" 
-				    << g_phi_l << ", " << g_theta_l << ")   Gamma(" 
-				    << g_theta_g << ", " << g_phi_g << ")";
-      
-
       // update kinematic variables
-      Kinematics * kine = interaction->KinePtr() ;
+      Kinematics * kine = in -> KinePtr() ;
       const Kinematics & local_kine = local_interaction.Kine() ;
       
       kine -> Setx ( local_kine.x() , true );
@@ -753,7 +730,7 @@ void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
       kine -> Sett ( local_kine.t() , true );
       
       // generate the phase for the lepton
-      double phi_l = phi_min + d_phi * rnd->RndKine().Rndm(); // final overall roation added
+      double phi_l =  2*constants::kPi * rnd->RndKine().Rndm(); // final overall roation added
 
       // add the phase to both lepton and gamma so that the relative is the same
       TLorentzVector lep ( local_kine.FSLeptonP4() ) ;
@@ -770,11 +747,11 @@ void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
       // wght = (phase space volume)*(differential xsec)/(event total xsec)
       if(fGenerateUniformly) {
         // Phase space volume needs checking
-        double vol     = d_E_g*d_theta_l*d_theta_g*d_phi;
+	double vol = std::accumulate( widths.begin(), widths.end(), 1., std::multiplies<double>() ) ;
         double totxsec = evrec->XSec();
         double wght    = (vol/totxsec)*xsec;
         LOG("COHKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
-
+	
         // apply computed weight to the current event weight
         wght *= evrec->Weight();
         LOG("COHKinematics", pNOTICE) << "Current event wght = " << wght;
@@ -782,11 +759,11 @@ void COHKinematicsGenerator::CalculateKin_Gamma(GHepRecord * evrec) const
       }
 
       evrec->SetDiffXSec(xsec,kPSEgTlTgPgfE);
-
+      
       // reset bits
-      interaction->ResetBit(kISkipProcessChk);
-      interaction->ResetBit(kISkipKinematicChk);
-
+      in -> ResetBit(kISkipProcessChk);
+      in -> ResetBit(kISkipKinematicChk);
+      
       return;
     }//if accept
     
@@ -1155,14 +1132,10 @@ double COHKinematicsGenerator::MaxXSec_Gamma(const Interaction * in) const
   SLOG("COHKinematics", pDEBUG)
     << "Scanning the allowed phase space {K} for the max(dxsec/d{K})";
 #endif
-  double max_xsec = 0.;
-  double Ev = in->InitState().ProbeE(kRfLab);
-
-  const KPhaseSpace & kps = in->PhaseSpace();
-  Range1D_t y = kps.YLim();
 
   ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit2" );
   //  min -> SetPrintLevel(3) ;
+  
   gsl::d4Xsec_dEgdThetaldThetagdPhig f(fXSecModel,in);
   f.SetFactor(-1.); // Make it return negative of cross-section so we can minimize
 
@@ -1174,33 +1147,30 @@ double COHKinematicsGenerator::MaxXSec_Gamma(const Interaction * in) const
   //need min, max, n, and d for all the xsec varables
   //for COH gamma they are Eg, theta_l theta_gamma, phi_gamma 
   //then set variables and get min
-  const double min_eg = 0.;
-  const double max_eg = Ev ; 
-  const unsigned int n_eg = 100;
-  const double d_eg = (max_eg - min_eg) / double(n_eg - 1);
+  
+  std::array<string, 4> names = { "E_g", "theta_l", "theta_g", "phi_g" } ;
 
-  const double min_thetal = kASmallNum;
-  const double max_thetal = kPi / 4.0; //not sure why this is the max
-  const unsigned int n_thetal = 10; //also just assuming this is an appropriate number of intervals
-  const double d_thetal = (max_thetal - min_thetal) / double(n_thetal - 1);
+  std::array<Range1D_t,4> ranges = { fGammaLimits -> EGamma( *in ), 
+				     fGammaLimits -> ThetaLepton( *in ), 
+				     fGammaLimits -> ThetaGamma( *in ), 
+				     fGammaLimits -> PhiGamma( *in ) } ;
 
-  const double min_thetag = kASmallNum; 
-  const double max_thetag = kPi / 2.0;//also not sure why this is the max
-  const unsigned int n_thetag = 10;
-  const double d_thetag = (max_thetag - min_thetag) / double(n_thetag - 1);
+  const unsigned int n_eg = 500;
+  std::array<double,4> centres, steps ;
+  // Please not that if Minuit2 minimizer is used, the steps are not used
+  // but for consistency we are evaluating it
 
-  const double min_phig = 0.;
-  const double max_phig = 2*kPi;
-  const unsigned int n_phig = 10;
-  const double d_phig = (max_phig - min_phig) / double(n_phig - 1);
+  for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
 
-  min->SetLimitedVariable ( 0 ,"E_g"    , 0.5 * (max_eg + min_eg) , d_eg,     min_eg,     max_eg     );
-  min->SetLimitedVariable ( 1 ,"theta_l", 0.5 * (min_thetal + max_thetal), d_thetal, min_thetal, max_thetal );
-  min->SetLimitedVariable ( 2 ,"theta_g", 0.5 * (min_thetag + max_thetag), d_thetag, min_thetag, max_thetag );
-  min->SetLimitedVariable ( 3 ,"phi_g",   0.5 * (min_phig   + max_phig)  , d_phig,   min_phig,   max_phig   );
-
+    centres[i] = 0.5 * ( ranges[i].min + ranges[i].max ) ;
+    steps[i] = ( ranges[i].max - ranges[i].min ) / n_eg ;
+    
+    min -> SetLimitedVariable( i, names[i], centres[i], steps[i], ranges[i].min, ranges[i].max ) ;
+  }
+ 
   min->Minimize();
-  max_xsec = -min->MinValue(); //back to positive xsec
+  
+  double max_xsec = -min->MinValue(); //back to positive xsec
 
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy.
@@ -1266,7 +1236,7 @@ void COHKinematicsGenerator::Configure(string config)
 void COHKinematicsGenerator::LoadConfig(void)
 {
 
-  GetParamDef( "IsCOHGamma", fHasPhoton, false ) ;
+  GetParamDef( "IsGamma", fHasPhoton, false ) ;
   
   bool error = false ;
 
