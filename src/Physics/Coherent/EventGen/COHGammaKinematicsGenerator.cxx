@@ -65,16 +65,14 @@ using namespace genie::utils;
 //___________________________________________________________________________
 COHGammaKinematicsGenerator::COHGammaKinematicsGenerator() :
   KineGeneratorWithCache("genie::COHGammaKinematicsGenerator"), 
-  fGammaLimits( nullptr ), 
-  fMinimInitialRatio{ 0.5, 0.5, 0.5, 0.5 } 
+  fGammaLimits( nullptr )
 { 
 
 }
 //___________________________________________________________________________
 COHGammaKinematicsGenerator::COHGammaKinematicsGenerator(string config) :
   KineGeneratorWithCache("genie::COHGammaKinematicsGenerator", config), 
-  fGammaLimits( nullptr ), 
-  fMinimInitialRatio{ 0.5, 0.5, 0.5, 0.5 }
+  fGammaLimits( nullptr )
 {
 
 }

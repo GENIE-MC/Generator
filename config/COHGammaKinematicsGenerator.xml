@@ -29,7 +29,7 @@ IntegrationLimits        algo    Yes     Specificies integration limit algorithm
 
     <param type="double" name="MaxXSec-SafetyFactor"> 1.05 </param>
 
-    <param type="vec-double" name="MinimRelStartPoint"> 0.05 ; 0.05 ; 0.05 ; 0.05 </param>
+    <param type="vec-double" name="MinimRelStartPoint" delim=";" > 0.05 ; 0.05 ; 0.05 ; 0.05 </param> 
 
     <param type="alg" name ="IntegrationLimits"  > genie::COHGammaIntegrationLimits/Default </param>
       
