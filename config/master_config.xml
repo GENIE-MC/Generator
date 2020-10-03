@@ -33,7 +33,8 @@
    <config alg="genie::RESKinematicsGenerator">      RESKinematicsGenerator.xml      </config>
    <config alg="genie::NuEKinematicsGenerator">      NuEKinematicsGenerator.xml      </config>
    <config alg="genie::DMEKinematicsGenerator">      DMEKinematicsGenerator.xml      </config>
-   <config alg="genie::COHKinematicsGenerator">      COHKinematicsGenerator.xml      </config>
+   <config alg="genie::COHPionKinematicsGenerator">  COHPionKinematicsGenerator.xml  </config>
+   <config alg="genie::COHGammaKinematicsGenerator"> COHGammaKinematicsGenerator.xml </config>
    <config alg="genie::DFRKinematicsGenerator">      DFRKinematicsGenerator.xml      </config>
    <config alg="genie::SKKinematicsGenerator">       SKKinematicsGenerator.xml       </config>
    <config alg="genie::DMELKinematicsGenerator">     DMELKinematicsGenerator.xml     </config>
