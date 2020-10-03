@@ -14,6 +14,11 @@ MaxXSec-DiffTolerance    double  Yes     max allowed 200*(xsec-xsecmax)/(xsec+xs
                                          if xsec>xsecmax
 Cache-MinEnergy          double  Yes     minimum energy for which max xsec is cached    0.00
 
+MinimRelStartPoint       vec-double yes  Starting point for the evaluataion of the      all 0.5 (the center)
+                                         maximum cross section. 
+                                         0. correspond to range minimum
+                                         1. correspoond to range maximum 
+                                         order varialbes as defined in the minimiser
 IntegrationLimits        algo    Yes     Specificies integration limit algorithm                                  
                                           It is required for COH gamma configurations 
 -->
@@ -22,7 +27,9 @@ IntegrationLimits        algo    Yes     Specificies integration limit algorithm
 
   <param_set name="Default"> 
 
-    <param type="string" name="CommonParam"> Coherent </param>
+    <param type="double" name="MaxXSec-SafetyFactor"> 1.05 </param>
+
+    <param type="vec-double" name="MinimRelStartPoint"> 0.05 ; 0.05 ; 0.05 ; 0.05 </param>
 
     <param type="alg" name ="IntegrationLimits"  > genie::COHGammaIntegrationLimits/Default </param>
       

@@ -26,7 +26,6 @@
 
 #include "Physics/Coherent/XSection/COHGammaIntegrationLimits.h" 
 
-
 namespace genie {
 
   class COHGammaKinematicsGenerator : public KineGeneratorWithCache {
@@ -59,7 +58,10 @@ namespace genie {
     void   throwOnTooManyIterations(unsigned int iters, GHepRecord* evrec) const;
 
   private:
+
     const COHGammaIntegrationLimits * fGammaLimits ; 
+    std::array<double, 4> fMinimInitialRatio ;
+
 
   };
   

@@ -65,14 +65,16 @@ using namespace genie::utils;
 //___________________________________________________________________________
 COHGammaKinematicsGenerator::COHGammaKinematicsGenerator() :
   KineGeneratorWithCache("genie::COHGammaKinematicsGenerator"), 
-  fGammaLimits( nullptr ) 
+  fGammaLimits( nullptr ), 
+  fMinimInitialRatio{ 0.5, 0.5, 0.5, 0.5 } 
 { 
 
 }
 //___________________________________________________________________________
 COHGammaKinematicsGenerator::COHGammaKinematicsGenerator(string config) :
   KineGeneratorWithCache("genie::COHGammaKinematicsGenerator", config), 
-  fGammaLimits( nullptr ) 
+  fGammaLimits( nullptr ), 
+  fMinimInitialRatio{ 0.5, 0.5, 0.5, 0.5 }
 {
 
 }
@@ -277,8 +279,9 @@ double COHGammaKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
   
   for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
     
-    centres[i] = 0.5 * ( ranges[i].min + ranges[i].max ) ;
-    steps[i] = ( ranges[i].max - ranges[i].min ) / n_eg ;
+    double width = ranges[i].max - ranges[i].min ;
+    centres[i] = ranges[i].min + fMinimInitialRatio[i] * width ;
+    steps[i] = width / n_eg ;
     
     min -> SetLimitedVariable( i, names[i], centres[i], steps[i], ranges[i].min, ranges[i].max ) ;
   }
@@ -360,6 +363,17 @@ void COHGammaKinematicsGenerator::LoadConfig(void)
     error = true ;
   }
 
+  std::vector<double> rel_start_points ;
+  GetParamVect( "MinimRelStartPoint", rel_start_points ) ;
+  if ( rel_start_points.size() < fMinimInitialRatio.size() ) {
+    LOG( "COHGammaKinematicsGenerator", pERROR ) << "Not enough initial point information for minimiser" ;
+    error = true ;
+  }
+		
+  for ( unsigned int i = 0 ; i < fMinimInitialRatio.size() ; ++i ) {
+    fMinimInitialRatio[i] = rel_start_points[i] ;
+  }
+  
   if ( error ) {
     LOG( "COHGammaKinematicsGenerator", pFATAL ) << "Invalid configuration. Exiting" ;
     exit( 78 ) ;
