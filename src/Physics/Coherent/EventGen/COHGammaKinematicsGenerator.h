@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::COHKinematicsGenerator
+\class    genie::COHGammaKinematicsGenerator
 
 \brief    Generates values for the kinematic variables describing coherent 
           neutrino-nucleus pion production events.
@@ -18,8 +18,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _COH_KINEMATICS_GENERATOR_H_
-#define _COH_KINEMATICS_GENERATOR_H_
+#ifndef _COH_GAMMA_KINEMATICS_GENERATOR_H_
+#define _COH_GAMMA_KINEMATICS_GENERATOR_H_
 
 #include "Physics/Common/KineGeneratorWithCache.h"
 #include "Framework/Utils/Range1.h"
@@ -27,69 +27,41 @@
 #include "Physics/Coherent/XSection/COHGammaIntegrationLimits.h" 
 
 
-class TF2;
-
 namespace genie {
 
-  class COHKinematicsGenerator : public KineGeneratorWithCache {
+  class COHGammaKinematicsGenerator : public KineGeneratorWithCache {
 
   public :
-    COHKinematicsGenerator();
-    COHKinematicsGenerator(string config);
-    ~COHKinematicsGenerator();
+    COHGammaKinematicsGenerator();
+    COHGammaKinematicsGenerator(string config);
+    ~COHGammaKinematicsGenerator();
 
     // implement the EventRecordVisitorI interface
-    void ProcessEventRecord(GHepRecord * event_rec) const;
+    void ProcessEventRecord(GHepRecord * event_rec) const override ;
 
     // overload the Algorithm::Configure() methods to load private data
     // members from configuration options
-    void Configure(const Registry & config);
-    void Configure(string config);
+    void Configure(const Registry & config) override ;
+    void Configure(string config) override ;
 
     // methods to load sub-algorithms and config data from the Registry
     void LoadConfig (void);
 
-    // different kinematics calculators for different models
-    void   CalculateKin_ReinSehgal(GHepRecord * event_rec) const;
-    void   CalculateKin_BergerSehgal(GHepRecord * event_rec) const;
-    void   CalculateKin_BergerSehgalFM(GHepRecord * event_rec) const;
-    void   CalculateKin_AlvarezRuso(GHepRecord * event_rec) const;
-    void   CalculateKin_Gamma(GHepRecord * event_rec) const;
-    void SetKinematics(const double E_l, const double theta_l, const double phi_l, 
-                       const double theta_pi, const double phi_pi, 
-                       const     Interaction* interaction, Kinematics* kinematics) const;
-    bool CheckKinematics(const double E_l, const double theta_l, 
-                         const double phi_l, const double theta_pi, 
-                         const double phi_pi, const Interaction* interaction) const;
-
     // overload KineGeneratorWithCache method to compute max xsec
-    double ComputeMaxXSec (const Interaction * in) const;
-    double MaxXSec_ReinSehgal (const Interaction * in) const;
-    double MaxXSec_BergerSehgal (const Interaction * in) const;
-    double MaxXSec_BergerSehgalFM (const Interaction * in) const;
-    double MaxXSec_AlvarezRuso (const Interaction * in) const;
-    double MaxXSec_Gamma(const Interaction * in) const;
+    double ComputeMaxXSec (const Interaction * in) const override ;
 
     // overload KineGeneratorWithCache method to get energy
-    double Energy         (const Interaction * in) const;
+    // This can probably go
+    double Energy         (const Interaction * in) const override ;
 
-    // TODO: should fEnvelope and fRo be public? They look like they should be private
-    mutable TF2 * fEnvelope; ///< 2-D envelope used for importance sampling
-    double fRo;              ///< nuclear scale parameter
 
-  private:
-    double pionMass(const Interaction* in) const;
+  protected:
     void   throwOnTooManyIterations(unsigned int iters, GHepRecord* evrec) const;
 
-    bool fHasPhoton ;
+  private:
     const COHGammaIntegrationLimits * fGammaLimits ; 
 
-    double fQ2Min;  ///< lower bound of integration for Q^2 in Berger-Sehgal Model
-    double fQ2Max;  ///< upper bound of integration for Q^2 in Berger-Sehgal Model
-    double fTMax;   ///< upper bound for t = (q - p_pi)^2
-
-
   };
-
+  
 }      // genie namespace
-#endif // _COH_KINEMATICS_GENERATOR_H_
+#endif // _COH_GAMMA_KINEMATICS_GENERATOR_H_
