@@ -177,7 +177,7 @@ void BertuzzoDNuCOHPXSec::LoadConfig(void)
   // check whether we have enough mixing elements
   if ( DMixing2s.size () < n_min_mixing ) {
     good_configuration = false ;
-    LOG("BertuzzoDNuCOHPXSec", pERROR )
+    LOG("BertuzzoDNuCOH", pERROR )
       << "Not enough mixing elements specified, only specified "
       << DMixing2s.size() << " / " << n_min_mixing ;
   }
@@ -186,7 +186,7 @@ void BertuzzoDNuCOHPXSec::LoadConfig(void)
   for( unsigned int i = 0; i < n_min_mixing ; ++i ) {
     if ( DMixing2s[i] < 0. ) {
       good_configuration = false ;
-      LOG("BertuzzoDNuCOHPXSec", pERROR )
+      LOG("BertuzzoDNuCOH", pERROR )
         << "Mixing " << i << " non positive: " << DMixing2s[i] ;
       continue ;
     }
@@ -214,7 +214,7 @@ void BertuzzoDNuCOHPXSec::LoadConfig(void)
   assert(fFF);
 
   if ( ! good_configuration ) {
-    LOG("BertuzzoDNuCOHPXSec", pFATAL ) << "Wrong configuration. Exiting" ;
+    LOG("BertuzzoDNuCOH", pFATAL ) << "Wrong configuration. Exiting" ;
     exit ( 78 ) ;
   }
 

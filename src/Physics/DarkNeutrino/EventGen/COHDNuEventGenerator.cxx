@@ -90,7 +90,7 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
 
   // Generate kinematics
   if(fGenerateUniformly) {
-    LOG("COHDNuEventGenerator", pFATAL)
+    LOG("COHDNu", pFATAL)
       << "Option to generate kinematics uniformly not supported";
     exit(1);
   }
@@ -113,7 +113,7 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
     while(1) {
       iter++;
       if(iter > kRjMaxIterations) {
-        LOG("COHDNuEventGenerator", pWARN)
+        LOG("COHDNu", pWARN)
           << "*** Could not select a valid DNuE after " << iter << " iterations";
         event->EventFlags()->SetBitNumber(kKineGenErr, true);
         genie::exceptions::EVGThreadException exception;
@@ -123,7 +123,7 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
       } // max iterations
 
       gDNuE = DNuEnergy.min + dDNuE * rnd->RndKine().Rndm();
-      LOG("COHDNuEventGenerator", pINFO) << "Trying: E_N = " << gDNuE;
+      LOG("COHDNu", pINFO) << "Trying: E_N = " << gDNuE;
 
       // Computing cross section for the current kinematics
       gxsec = -1. * xsec_func(gDNuE);
@@ -131,7 +131,7 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
       if(gxsec > xsec_max) {
         double frac = TMath::Abs(gxsec-xsec_max)/xsec_max;
         if(frac > fMaxXSecDiffTolerance) {
-          LOG("COHDNuEventGenerator", pWARN)
+          LOG("COHDNu", pWARN)
             << "Current computed cross-section (" << gxsec/(units::cm2)
             << " cm2/GeV^2) exceeds the maximum cross-section ("
             << xsec_max/(units::cm2) << " beyond the specified tolerance";
@@ -141,7 +141,7 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
       // Decide whether to accept the current kinematic point
       double t = fSafetyFactor * xsec_max * rnd->RndKine().Rndm();
       //this->AssertXSecLimits(interaction, gxsec, xsec_max);
-      LOG("COHDNuEventGenerator", pINFO)
+      LOG("COHDNu", pINFO)
         << "dxsec/dQ2 = " << gxsec/(units::cm2) << " cm2/GeV^2"
         << "J = 1, rnd = " << t;
       bool accept = (t<gxsec);
@@ -206,7 +206,7 @@ void COHDNuEventGenerator::AddRecoilNucleus(GHepRecord * event) const
 
   const TLorentzVector & p4recoil = p4probe + p4target - p4fsl;
 
-  LOG("COHDNuEventGenerator", pNOTICE)
+  LOG("COHDNu", pNOTICE)
     << "Recoil 4-momentum: " << utils::print::P4AsString(&p4recoil);
 
   const TLorentzVector & vtx = *(probe->X4());
