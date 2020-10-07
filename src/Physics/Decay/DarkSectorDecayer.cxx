@@ -121,7 +121,7 @@ std::vector<GHepParticle> DarkSectorDecayer::Decay(
 {
   TLorentzVector mother_p4 = *(mother.P4());
   LOG("DarkSectorDecayer", pINFO)
-    << "Decaying a " << mother.GetName()
+    << "Decaying a " << mother.Name()
     << " with P4 = " << utils::print::P4AsString(&mother_p4);
 
   unsigned int nd = pdg_daughters.size();
@@ -179,10 +179,14 @@ std::vector<GHepParticle> DarkSectorDecayer::Decay(
   std::vector<GHepParticle> particles;
   // Loop over daughter list and add corresponding GHepParticles
   for(unsigned int id = 0; id < nd; id++) {
-    TLorentzVector * daughter_p4 = fPhaseSpaceGenerator.GetDecay(id);
-    LOG("DarkSectorDecayer", pDEBUG)
+    const TLorentzVector * daughter_p4 = fPhaseSpaceGenerator.GetDecay(id);
+    SLOG("DarkSectorDecayer", pINFO)
       << "Adding daughter particle with PDG code = " << pdg_daughters[id]
-      << " and mass = " << mass[id] << " GeV";
+      << " with P4 = " << utils::print::P4AsShortString(daughter_p4);
+    SLOG("DarkSectorDecayer", pDEBUG)
+      << "Particle Gun Kinematics: "
+      << "PDG : " << pdg_daughters[id] << ", "
+      << ParticleGunKineAsString(daughter_p4);
     GHepStatus_t daughter_status_code = (pdg_daughters[id]==kPdgDNuMediator)
       ? kIStDecayedState : kIStStableFinalState;
     particles.push_back(GHepParticle(pdg_daughters[id], daughter_status_code,
@@ -310,6 +314,22 @@ bool DarkSectorDecayer::ToBeDecayed(const GHepParticle & p) const
       << "? " << ((is_handled)? "Yes" : "No");
 
   return is_handled;
+}
+//____________________________________________________________________________
+string DarkSectorDecayer::ParticleGunKineAsString(const TLorentzVector * vec4) const
+{
+  std::ostringstream fmt;
+
+  double P0 = vec4->Vect().Mag();
+  double thetaYZ = TMath::ASin(vec4->Py()/P0);
+  double thetaXZ = TMath::ASin(vec4->Px()/(P0 * TMath::Cos(thetaYZ)));
+  double rad_to_degrees = 180./kPi;
+
+  fmt << "P0 = "  << P0
+      << ", ThetaXZ = " << thetaXZ*rad_to_degrees
+      << ", ThetaYZ = " << thetaYZ*rad_to_degrees;
+
+  return fmt.str();
 }
 //____________________________________________________________________________
 void DarkSectorDecayer::Configure(const Registry & config)
