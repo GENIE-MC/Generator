@@ -11,6 +11,7 @@
 
 #include <cmath>
 #include <limits>
+#include <algorithm>
 
 
 #include "Physics/Coherent/XSection/COHGammaIntegrationLimits.h"
@@ -25,10 +26,16 @@ using namespace genie;
 
 //____________________________________________________________________________
 COHGammaIntegrationLimits::COHGammaIntegrationLimits() :
-  Algorithm("genie::COHGammaIntegrationLimits") { ; }
+  Algorithm("genie::COHGammaIntegrationLimits"), 
+  fFF( nullptr ), 
+  fMaxEg( std::numeric_limits<double>::infinity() ) 
+{ ; }
 //____________________________________________________________________________
 COHGammaIntegrationLimits::COHGammaIntegrationLimits(string config) :
-  Algorithm("genie::COHGammaIntegrationLimits", config) { ; }
+  Algorithm("genie::COHGammaIntegrationLimits", config),
+  fFF( nullptr ),
+  fMaxEg( std::numeric_limits<double>::infinity() ) 
+ { ; }
 //____________________________________________________________________________
 COHGammaIntegrationLimits::~COHGammaIntegrationLimits()
 {
@@ -38,7 +45,9 @@ COHGammaIntegrationLimits::~COHGammaIntegrationLimits()
 Range1D_t COHGammaIntegrationLimits::EGamma( const Interaction & in ) const {
 
   return Range1D_t( controls::kASmallNum, 
-		    in.InitState().ProbeE( kRfLab ) - controls::kASmallNum ) ; 
+		    std::min( in.InitState().ProbeE( kRfLab ) - controls::kASmallNum, 
+			      fMaxEg ) 
+		    ) ; 
 }
 //____________________________________________________________________________
 Range1D_t COHGammaIntegrationLimits::ThetaGamma( const Interaction & ) const {
@@ -58,10 +67,11 @@ Range1D_t COHGammaIntegrationLimits::ThetaLepton( const Interaction & ) const {
   return Range1D_t( controls::kASmallNum, 
 		    constants::kPi - controls::kASmallNum ) ; 
 }
-Range1D_t COHGammaIntegrationLimits::t( const Interaction & ) const {
+//____________________________________________________________________________
+Range1D_t COHGammaIntegrationLimits::t( const Interaction & i ) const {
 
-  return Range1D_t( controls::kASmallNum, 
-		    std::numeric_limits<double>::infinity() ) ; 
+  return fFF -> QRange( i.InitState().Tgt().Pdg() ) ;
+
 }
 //____________________________________________________________________________
 void COHGammaIntegrationLimits::Configure(const Registry & config)
@@ -78,6 +88,23 @@ void COHGammaIntegrationLimits::Configure(string config)
 //____________________________________________________________________________
 void COHGammaIntegrationLimits::LoadConfig(void)
 {
+
+  bool good_configuration = true ;
+
+  //-- load the form factor                                                                                          
+  fFF = dynamic_cast<const COHFormFactorI *> (this->SubAlg("COH-FormFactor"));
+  if (! fFF ) {
+    good_configuration = false ;
+    LOG("COHGammaIntegrationLimits", pERROR ) << "Form factor not retrieved" ;
+  }
+
+  GetParam( "MaxGammaEnergy", fMaxEg ) ;
+
+  if ( ! good_configuration ) {
+    LOG("COHGammaIntegrationLimits", pFATAL ) << "Bad configuration: exiting" ;
+    exit( 78 ) ;
+  }
+
 
 }
 //____________________________________________________________________________

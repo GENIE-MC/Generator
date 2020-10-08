@@ -24,6 +24,8 @@
 #include "Framework/Algorithm/Algorithm.h"
 #include "Framework/Interaction/Interaction.h"
 
+#include "Physics/Coherent/XSection/COHFormFactorI.h" 
+
 namespace genie {
 
 class COHGammaIntegrationLimits : public Algorithm {
@@ -53,6 +55,8 @@ protected:
 
 private:
 
+  const COHFormFactorI * fFF ;
+  double fMaxEg ;
 
 };
 

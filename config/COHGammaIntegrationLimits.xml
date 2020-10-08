@@ -11,7 +11,7 @@ Configurable Parameters:
 Name                          Type     Optional   Comment                               Default
 .....................................................................................................................
 COH-FormFactor                alg      No         form facor sub algo                                  -      
-
+MaxGammaEnergy                double   No         Energy cut off for gamma energy
 
 -->
 
@@ -21,6 +21,7 @@ COH-FormFactor                alg      No         form facor sub algo           
 
     
   <param_set name="Default">
+    <param type="double" name="MaxGammaEnergy"> 2.0 </param>
     <param type="alg"  name="COH-FormFactor"> genie::DeVriesFormFactorMap/Default </param>
     
   </param_set>
