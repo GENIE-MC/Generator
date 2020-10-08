@@ -14,7 +14,6 @@ Name                          Type        Optional   Comment
 <alg_conf>
 
   <param_set name="Default">
-    <param type="string" name="CommonDecay"> DecayFlags </param>
     <param type="string" name="CommonDark"> Mixing,Masses </param>
   </param_set>
 
