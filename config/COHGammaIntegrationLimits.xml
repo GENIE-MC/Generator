@@ -8,8 +8,10 @@ Configuration sets for the COHGammaIntegrationLimits
 
 Configurable Parameters:
 .....................................................................................................................
-Name               Type        Optional   Comment                                                          Default
+Name                          Type     Optional   Comment                               Default
 .....................................................................................................................
+COH-FormFactor                alg      No         form facor sub algo                                  -      
+
 
 -->
 
@@ -19,8 +21,15 @@ Name               Type        Optional   Comment                               
 
     
   <param_set name="Default">
-
+    <param type="alg"  name="COH-FormFactor"> genie::DeVriesFormFactorMap/Default </param>
+    
   </param_set>
+
+  <param_set name="Interpolation">
+    <param type="alg"  name="COH-FormFactor"> genie::DeVriesFormFactorInterpolation/Default </param>
+    
+  </param_set>
+
 
 
 </alg_conf>

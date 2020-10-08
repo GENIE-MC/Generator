@@ -6,11 +6,11 @@ Configuration sets for the AlvarezRusoSalaCOHGammaPXSec
 
 Configurable Parameters:
 .........................................................................................................................
-Name                          Type     Optional   Comment                                                    Default
+Name                          Type     Optional   Comment                                        Default
 .........................................................................................................................
 COH-HadronicCurrents          vec-alg  No         Vector of hadronic current sub algos                         -
-COH-FormFactor                alg      No         DeVries form facor sub algo                                  -
 XSec-Integrator               alg      No         Cross section integrator sub algo                            - 
+COH-FormFactor                alg      yes        DeVries form facor sub algo                    The one of the integrator              
 -->
 
 
@@ -23,7 +23,6 @@ XSec-Integrator               alg      No         Cross section integrator sub a
       genie::COHDeltaCurrent/Default
     </param>
     
-    <param type="alg"  name="COH-FormFactor"> genie::DeVriesFormFactorMap/Default </param>
     <param type="alg"  name="XSec-Integrator"> genie::COHXSecAR/Gamma </param>
 
   </param_set>
