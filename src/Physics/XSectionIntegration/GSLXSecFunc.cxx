@@ -837,11 +837,11 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
 
   double x = Q2/(2 * xin[0] * constants::kNucleonMass );
   
-  Range1D_t xlim = fInteraction->PhaseSpace().XLim();
+  // Range1D_t xlim = fInteraction->PhaseSpace().XLim();
   
-  if ( x <  xlim.min || x > xlim.max ) {
-    return 0.;
-  }
+  // if ( x <  xlim.min || x > xlim.max ) {
+  //   return 0.;
+  // }
   
   kinematics->Setx(x);
 
@@ -943,11 +943,11 @@ double genie::utils::gsl::d5Xsec_dEgdOmegaldOmegag::DoEval(const double * xin) c
   
   double x = Q2/(2 * xin[0] * constants::kNucleonMass );
   
-  Range1D_t xlim = fInteraction->PhaseSpace().XLim();
+  // Range1D_t xlim = fInteraction->PhaseSpace().XLim();
   
-  if ( x <  xlim.min || x > xlim.max ) {
-    return 0.;
-  }
+  // if ( x <  xlim.min || x > xlim.max ) {
+  //   return 0.;
+  // }
   
   kinematics->Setx(x);
 
