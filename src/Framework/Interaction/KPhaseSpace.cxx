@@ -128,7 +128,7 @@ double KPhaseSpace::Threshold(void) const
      pi.IsResonant()                ||
      pi.IsDeepInelastic()           ||
      pi.IsDarkMatterDeepInelastic() ||
-     pi.IsDiffractive())
+     pi.IsDiffractive()) 
   {
     assert(tgt.HitNucIsSet());
     double Mn   = tgt.HitNucP4Ptr()->M();
@@ -176,7 +176,7 @@ double KPhaseSpace::Threshold(void) const
     return TMath::Max(0.,Ethr);
   }
 
-  if(pi.IsNuElectronElastic() || pi.IsDarkMatterElectronElastic() || pi.IsGlashowResonance() ) {
+  if(pi.IsNuElectronElastic() || pi.IsDarkMatterElectronElastic()) {
     return 0;
   }
   if(pi.IsAMNuGamma()) {
@@ -195,6 +195,10 @@ double KPhaseSpace::Threshold(void) const
         // this was ... if (pi.IsMECTensor())
         return ml;
     }
+  }
+  if(pi.IsGlashowResonance()) {
+    double Ethr = 0.5 * (ml*ml-kElectronMass2)/kElectronMass;
+    return TMath::Max(0.,Ethr);
   }
 
   SLOG("KPhaseSpace", pERROR)
@@ -252,7 +256,8 @@ bool KPhaseSpace::IsAboveThreshold(void) const
       pi.IsIMDAnnihilation()    ||
       pi.IsNuElectronElastic()  ||
       pi.IsDarkMatterElectronElastic() ||
-      pi.IsMEC())
+      pi.IsMEC()                || 
+      pi.IsGlashowResonance()) 
   {
       E = init_state.ProbeE(kRfLab);
   }
@@ -265,7 +270,7 @@ bool KPhaseSpace::IsAboveThreshold(void) const
      pi.IsDarkMatterDeepInelastic() ||
      pi.IsDiffractive()             ||
      pi.IsSingleKaon()              ||
-     pi.IsAMNuGamma())
+     pi.IsAMNuGamma()) 
   {
       E = init_state.ProbeE(kRfHitNucRest);
   }
@@ -321,7 +326,7 @@ bool KPhaseSpace::IsAllowed(void) const
   }
 
   //IMD
-  if(pi.IsInverseMuDecay() || pi.IsIMDAnnihilation() || pi.IsNuElectronElastic() || pi.IsDarkMatterElectronElastic()) {
+  if(pi.IsInverseMuDecay() || pi.IsIMDAnnihilation() || pi.IsNuElectronElastic() || pi.IsDarkMatterElectronElastic() || pi.IsGlashowResonance()) {
     Range1D_t yl = this->YLim();
     double    y  = kine.y();
     bool in_phys = math::IsWithinLimits(y, yl);
@@ -761,6 +766,16 @@ Range1D_t KPhaseSpace::YLim(void) const
     double ml = fInteraction->FSPrimLepton()->Mass();
     yl.min = kPionMass/Ev + controls::kASmallNum;
     yl.max = 1. -ml/Ev - controls::kASmallNum;
+    return yl;
+  }
+  // GLRES
+  if(pi.IsGlashowResonance()) {
+    const InitialState & init_state = fInteraction->InitState();
+    double Ev = init_state.ProbeE(kRfLab);
+    double ml = fInteraction->FSPrimLepton()->Mass();
+    double me = kElectronMass;
+    yl.min = (ml*ml+me*me)/2/Ev/me + controls::kASmallNum;
+    yl.max = (4*Ev*(Ev+me) + (ml*ml+me*me))/2/Ev/(me+2*Ev) - controls::kASmallNum;
     return yl;
   }
   return yl;

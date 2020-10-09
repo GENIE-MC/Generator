@@ -99,6 +99,13 @@ if(@nret>0)
       { print GBLD   "#define __GENIE_LHAPDF6_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_LHAPDF6_ENABLED__\n"; }
 
+# APFEL enabled?
+#
+@nret = `grep 'GOPT_ENABLE_APFEL=YES' $GCONF_FILE`;
+if(@nret>0)
+      { print GBLD   "#define __GENIE_APFEL_ENABLED__\n"; }
+else  { print GBLD "//#define __GENIE_APFEL_ENABLED__\n"; }
+
 # GSL enabled?
 #
 @nret = `grep 'GOPT_ENABLE_GSL=YES' $GCONF_FILE`;
