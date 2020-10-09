@@ -2,7 +2,29 @@
 
 <alg_conf>
 
-  <param_set name="Default">
+<!--
+Configuration for the GLRESInteractionListGenerator InteractionListGeneratorI
+
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+-->
+
+  <param_set name="Mu-Default">
+        <param type="bool" name="is-Mu">          true  </param>
+  </param_set>
+
+  <param_set name="Tau-Default">
+        <param type="bool" name="is-Tau">         true  </param>
+  </param_set>
+
+  <param_set name="Ele-Default">
+        <param type="bool" name="is-Ele">         true  </param>
+  </param_set>
+
+  <param_set name="Had-Default">
+        <param type="bool" name="is-Had">         true  </param>
   </param_set>
 
 </alg_conf>

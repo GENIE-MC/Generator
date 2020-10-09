@@ -132,6 +132,7 @@ int Interaction::FSPrimLeptonPdg(void) const
 {
   const ProcessInfo &  proc_info  = this -> ProcInfo();
   const InitialState & init_state = this -> InitState();
+  const XclsTag &      xclstag    = this -> ExclTag();
 
   int pdgc = init_state.ProbePdg();
 
@@ -148,6 +149,12 @@ int Interaction::FSPrimLeptonPdg(void) const
     int clpdgc;
     if (proc_info.IsIMDAnnihilation())
       clpdgc = kPdgMuon;
+    else if (proc_info.IsGlashowResonance()) {
+      if      ( pdg::IsMuon(xclstag.FinalLeptonPdg())     ) clpdgc = kPdgMuon;
+      else if ( pdg::IsTau(xclstag.FinalLeptonPdg())      ) clpdgc = kPdgTau;
+      else if ( pdg::IsElectron(xclstag.FinalLeptonPdg()) ) clpdgc = kPdgElectron;
+      else if ( pdg::IsPion(xclstag.FinalLeptonPdg())     ) clpdgc = kPdgPiP;
+    }
     else
       clpdgc = pdg::Neutrino2ChargedLepton(pdgc);
     return clpdgc;
@@ -338,6 +345,21 @@ Interaction * Interaction::DISCC(
 }
 //___________________________________________________________________________
 Interaction * Interaction::DISCC(
+   int target, int hitnuc, int hitqrk, bool fromsea, int fqrk, int probe, double E)
+{
+  Interaction* interaction = Interaction::DISCC(target,hitnuc,probe,E);
+
+  Target * tgt = interaction->InitStatePtr()->TgtPtr();
+  tgt -> SetHitQrkPdg (hitqrk);
+  tgt -> SetHitSeaQrk (fromsea);
+
+  XclsTag * xclstag = interaction->ExclTagPtr();
+  xclstag->SetFinalQuark(fqrk);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DISCC(
    int target, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
   Interaction * interaction =
@@ -383,6 +405,21 @@ Interaction * Interaction::DISNC(
   Target * tgt = interaction->InitStatePtr()->TgtPtr();
   tgt -> SetHitQrkPdg (hitqrk);
   tgt -> SetHitSeaQrk (fromsea);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DISNC(
+   int target, int hitnuc, int hitqrk, bool fromsea, int fqrk, int probe, double E)
+{
+  Interaction* interaction = Interaction::DISNC(target,hitnuc,probe,E);
+
+  Target * tgt = interaction->InitStatePtr()->TgtPtr();
+  tgt -> SetHitQrkPdg (hitqrk);
+  tgt -> SetHitSeaQrk (fromsea);
+
+  XclsTag * xclstag = interaction->ExclTagPtr();
+  xclstag->SetFinalQuark(fqrk);
 
   return interaction;
 }
