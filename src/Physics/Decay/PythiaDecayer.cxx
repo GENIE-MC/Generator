@@ -102,7 +102,6 @@ bool PythiaDecayer::Decay(int decay_particle_id, GHepRecord * event) const
 
   // Get the particle 4-momentum, 4-position and PDG code
   TLorentzVector decay_particle_p4 = *(decay_particle->P4());
-  TLorentzVector decay_particle_x4 = *(decay_particle->X4());
   int decay_particle_pdg_code = decay_particle->Pdg();
 
   // Convert to PYTHIA6 particle code and check whether decay is inhibited
