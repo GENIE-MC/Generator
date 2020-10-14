@@ -15,6 +15,7 @@
 #include <cassert>
 
 #include <TMath.h>
+#include <algorithm>
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Framework/Conventions/Constants.h"
@@ -888,9 +889,19 @@ double genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig::DoEval(const double * xin) c
 
   // E_l and theta_l as a function of t
   double E_l = B - (0.5*xin[1])/m_t ;
-  double theta_l = atan( C / A ) ;
-  theta_l += acos( ( ( 1./E_l ) * ( 0.5*xin[1] - E_nu*xin[0]*( 1-cos_theta_g ) ) - B ) / sqrt( pow( A, 2 ) + pow( C, 2 ) ) ) ;
+  double alpha = atan2( C, A ) ;
+
+  double arcosin = acos( ( (0.5*xin[1] - E_nu * xin[0]*( 1-cos_theta_g ) )/E_l - B  ) / 
+			 sqrt( pow( A, 2 ) + pow( C, 2 ) ) 
+			 ) ;
+
+  std::array<double,2> solutions = { alpha + arcosin, alpha - arcosin } ;
+  for ( auto & s : solutions ) {
+    if ( s < 0. ) s+= 2 * constants::kPi ;
+  }
   
+  double theta_l = std::min( solutions[0], solutions[1] ) ;
+
   TVector3 lepton_3vector = TVector3(0,0,0);
   lepton_3vector.SetMagThetaPhi( E_l, theta_l, 0. ) ;
   TLorentzVector P4_lep = TLorentzVector( lepton_3vector , E_l );
@@ -923,9 +934,7 @@ double genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig::DoEval(const double * xin) c
   kinematics->SetFSLeptonP4(P4_lep );
   kinematics->SetHadSystP4 (P4_photon); // use Hadronic System variable to store photon momentum
   
-  //double xsec = fModel->XSec(fInteraction,kPSEgtTgPgfE);
-  //FIXME placeholder until kps with t is defined
-  double xsec = fModel->XSec(fInteraction,kPSEgTlTgPgfE);
+  double xsec = fModel->XSec(fInteraction,kPSEgtTgPgfE);
   
   return fFactor * xsec/(1E-38 * units::cm2);
 }
