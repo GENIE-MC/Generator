@@ -791,6 +791,7 @@ unsigned int genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::NDim(void) const
 {
   return 4;
 }
+//____________________________________________________________________________
 double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * xin) const
 {
   // inputs:  
@@ -860,7 +861,76 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
   
   return fFactor * xsec/(1E-38 * units::cm2);
 }
+//____________________________________________________________________________
+double genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig::DoEval(const double * xin) const
+{
+  // inputs:  
+  //    E gamma [GeV]     = xin[0]
+  //    t [GeV^2]         = xin[1]
+  //    theta gamma [rad] = xin[2]
+  //    phi gamma [rad]   = xin[3]
+  //
+  // outputs: 
+  //   differential cross section [10^-38 cm^2]
+  //
+ 
+  Kinematics * kinematics = fInteraction->KinePtr();
+  double E_nu = fInteraction->InitState().ProbeE(kRfLab);
+  const TLorentzVector P4_nu( 0., 0., E_nu, E_nu ) ;
+  
+  double m_t = fInteraction->InitState().Tgt().Mass() ;
 
+  // Compute values so there are no repeated computations
+  double cos_theta_g = cos( xin[2] ) ;
+  double A = xin[0] * cos_theta_g - E_nu  ;
+  double B = E_nu - xin[0] ;
+  double C = xin[0] * sin( xin[2] ) * cos( xin[3] ) ;
+
+  // E_l and theta_l as a function of t
+  double E_l = B - (0.5*xin[1])/m_t ;
+  double theta_l = atan( C / A ) ;
+  theta_l += acos( ( ( 1./E_l ) * ( 0.5*xin[1] - E_nu*xin[0]*( 1-cos_theta_g ) ) - B ) / sqrt( pow( A, 2 ) + pow( C, 2 ) ) ) ;
+  
+  TVector3 lepton_3vector = TVector3(0,0,0);
+  lepton_3vector.SetMagThetaPhi( E_l, theta_l, 0. ) ;
+  TLorentzVector P4_lep = TLorentzVector( lepton_3vector , E_l );
+  
+  TVector3 photon_3vector = TVector3(0,0,0);
+  photon_3vector.SetMagThetaPhi( xin[0], xin[2], xin[3] ) ;
+  TLorentzVector P4_photon = TLorentzVector(photon_3vector, xin[0] );
+
+  TLorentzVector q = P4_nu-P4_lep ;
+ 
+  double Q2 = -q.Mag2();
+
+  double x = Q2/( 2 * xin[0] * constants::kNucleonMass );
+  
+  // Range1D_t xlim = fInteraction->PhaseSpace().XLim();
+  
+  // if ( x <  xlim.min || x > xlim.max ) {
+  //   return 0.;
+  // }
+  
+  kinematics->Setx(x);
+
+  double y = xin[0]/E_nu;
+
+  kinematics->Sety(y);
+  kinematics::UpdateWQ2FromXY(fInteraction);
+
+  kinematics -> Sett( xin[1] ) ;
+
+  kinematics->SetFSLeptonP4(P4_lep );
+  kinematics->SetHadSystP4 (P4_photon); // use Hadronic System variable to store photon momentum
+  
+  //double xsec = fModel->XSec(fInteraction,kPSEgtTgPgfE);
+  //FIXME placeholder until kps with t is defined
+  double xsec = fModel->XSec(fInteraction,kPSEgTlTgPgfE);
+  
+  return fFactor * xsec/(1E-38 * units::cm2);
+}
+
+//____________________________________________________________________________
 ROOT::Math::IBaseFunctionMultiDim * 
 genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::Clone() const
 {
