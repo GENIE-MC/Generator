@@ -62,6 +62,7 @@ double AlvarezRusoSalaCOHGammaPXSec::XSec( const Interaction * interaction,
 
   if ( kps != kPSEgTlOgfE     && 
        kps != kPSEgTlTgPgfE   && 
+       kps != kPSEgtTgPgfE    && 
        kps != kPSEgOlOgfE ) {
     
     LOG("AlvarezRusoSalaCOHGammaPXSec", pERROR ) 
@@ -104,6 +105,12 @@ double AlvarezRusoSalaCOHGammaPXSec::XSec( const Interaction * interaction,
   // so that integral can be performed simply multiplying by 2 pi
   diff_cross_section *= 2.*constants::kPi ; 
 
+  // Jacobian for dsigma wrt to t
+  if ( kps == kPSEgtTgPgfE ) {
+    double dt_dcos = init_state.ProbeE(kRfLab)-gamma_p4.E()*( cos( gamma_p4.Theta() )-( sin( gamma_p4.Theta() )*cos( gamma_p4.Phi() ) )/tan( out_lep.Theta() ) ) ;
+    diff_cross_section /= ( 2. * out_lep.E() * dt_dcos ) ;
+    return diff_cross_section ;
+  }
   // the remaining possible phase spaces are all functions of Theta_l instead of Cos Theta_l
   // so the first jacobian correction can be applied here 
   // teh Jacobian simply being sin_Theta_l
