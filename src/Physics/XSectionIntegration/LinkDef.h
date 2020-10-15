@@ -32,6 +32,7 @@
 #pragma link C++ class genie::utils::gsl::d5Xsec_dEldOmegaldOmegapi;
 #pragma link C++ class genie::utils::gsl::d4Xsec_dEldThetaldOmegapi;
 #pragma link C++ class genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig;
+#pragma link C++ class genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig;
 #pragma link C++ class genie::utils::gsl::d3Xsec_dOmegaldThetapi;
 #pragma link C++ class genie::utils::gsl::dXSec_dElep_AR_pion;
 #pragma link C++ class genie::utils::gsl::dXSec_Log_Wrapper;
