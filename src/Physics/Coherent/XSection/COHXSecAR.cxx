@@ -38,7 +38,8 @@ using namespace genie::utils;
 //____________________________________________________________________________
 COHXSecAR::COHXSecAR() :
   XSecIntegratorI("genie::COHXSecAR"), 
-  fHasPion( false ), fHasPhoton( false ), fOmegaIntegral( false ), 
+  fHasPion( false ), fHasPhoton( false ), 
+  fOmegaIntegral( false ), ftIntegral( false ), 
   fGammaLimits( nullptr ) 
 {
 
@@ -46,7 +47,8 @@ COHXSecAR::COHXSecAR() :
 //____________________________________________________________________________
 COHXSecAR::COHXSecAR(string config) :
   XSecIntegratorI("genie::COHXSecAR", config), 
-  fHasPion( false ), fHasPhoton( false ), fOmegaIntegral( false ), 
+  fHasPion( false ), fHasPhoton( false ), 
+  fOmegaIntegral( false ), ftIntegral( false ), 
   fGammaLimits( nullptr ) 
 {
 
@@ -155,7 +157,6 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
   
   // Check this
   Range1D_t e_gamma     = fGammaLimits -> EGamma( *in ) ;
-  Range1D_t theta_lep   = fGammaLimits -> ThetaLepton( *in ) ;
   Range1D_t theta_gamma = fGammaLimits -> ThetaGamma( *in ) ;
   Range1D_t phi_gamma   = fGammaLimits -> PhiGamma( *in ) ;
 
@@ -188,15 +189,32 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
   // else {
 
   ROOT::Math::IBaseFunctionMultiDim * func = nullptr ;
-  if ( fOmegaIntegral ) func = new utils::gsl::d5Xsec_dEgdOmegaldOmegag(model, & interaction);
-  else func = new utils::gsl::d4Xsec_dEgdThetaldThetagdPhig(model, & interaction);
-  
+  double min_second, max_second ;
+  if ( fOmegaIntegral ) { 
+    func = new utils::gsl::d5Xsec_dEgdOmegaldOmegag(model, & interaction);
+    Range1D_t theta_lep   = fGammaLimits -> ThetaLepton( *in ) ;
+    min_second = cos( theta_lep.max ) ;
+    max_second = cos( theta_lep.min ) ;
+  }
+  else if ( ftIntegral ) { 
+    func =  new utils::gsl::d4Xsec_dEgdtdThetagdPhig(model, & interaction);
+    Range1D_t t = fGammaLimits -> t( *in ) ;
+    min_second = t.min ;
+    max_second = t.max ;
+  }
+  else {
+    func =  new utils::gsl::d4Xsec_dEgdThetaldThetagdPhig(model, & interaction); 
+    Range1D_t theta_lep   = fGammaLimits -> ThetaLepton( *in ) ;
+    min_second = theta_lep.min ;
+    max_second = theta_lep.max ;
+  }
+    
   double kine_min[4] = { e_gamma.min, 
-			 fOmegaIntegral ? cos( theta_lep.max ) : theta_lep.min, 
+			 min_second, 
 			 fOmegaIntegral ? cos( theta_gamma.max ) : theta_gamma.min, 
 			 phi_gamma.min } ;
   double kine_max[4] = { e_gamma.max, 
-			 fOmegaIntegral ? cos( theta_lep.min ) : theta_lep.max, 
+			 max_second,
 			 fOmegaIntegral ? cos( theta_gamma.min ) : theta_gamma.max, 
 			 phi_gamma.max } ;
   
@@ -246,7 +264,10 @@ void COHXSecAR::LoadConfig(void)
   bool error = false ;
 
   if ( fHasPhoton ) {
-    GetParamDef( "OmegaPhaseSpace", fOmegaIntegral, true ) ;
+    GetParam( "OmegaPhaseSpace", fOmegaIntegral ) ;
+
+    GetParamDef( "tPhaseSpace", ftIntegral, true ) ;
+
 
     const Algorithm * temp = SubAlg( "IntegrationLimits" ) ;
     fGammaLimits = dynamic_cast<const COHGammaIntegrationLimits *>( temp ) ;

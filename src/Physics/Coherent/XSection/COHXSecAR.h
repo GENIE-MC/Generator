@@ -51,6 +51,8 @@ private:
   bool fHasPion ;
   bool fHasPhoton ;
   bool fOmegaIntegral ;
+  bool ftIntegral ;
+
 
   const COHGammaIntegrationLimits * fGammaLimits ; 
 };
