@@ -53,6 +53,10 @@ public:
   }
   NuclearModel_t ModelType       (const Target & t) const;
 
+  virtual double FermiMomentum( const Target & t, int nucleon_pdg ) const ;
+  virtual double LocalFermiMomentum( const Target & t, int nucleon_pdg, double radius ) const ;
+
+
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
   void Configure (const Registry & config);

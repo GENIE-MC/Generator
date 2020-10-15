@@ -47,6 +47,7 @@ private:
   bool fIsNC;
   bool fIsEM;
   bool fSetDiNucleonCode;
+  bool fSetDiNucleonCodeEM;
 };
 
 }      // genie namespace

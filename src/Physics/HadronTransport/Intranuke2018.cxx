@@ -418,7 +418,7 @@ double Intranuke2018::GenerateStep(GHepRecord*  /*evrec*/, GHepParticle* p) cons
 						fRemnZ, fDelRPion, fDelRNucleon, fUseOset, fAltOset, fXsecNNCorr, fINukeMode);
 
   LOG("Intranuke2018", pDEBUG)    << "mode= " << fINukeModeGen;
-  if(fINukeModeGen == "hA") L *= scale;
+  L *= scale;
 
   double d = -1.*L * TMath::Log(rnd->RndFsi().Rndm());
 

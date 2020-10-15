@@ -84,9 +84,10 @@ void InitialStateAppender::AddNucleus(GHepRecord * evrec) const
 {
   Interaction * interaction = evrec->Summary();
   const InitialState & init_state = interaction->InitState();
+  const ProcessInfo & proc_info   = interaction->ProcInfo();
 
   bool is_nucleus = init_state.Tgt().IsNucleus();
-  if(!is_nucleus) {
+  if(!is_nucleus && !proc_info.IsGlashowResonance()) {
     LOG("ISApp", pINFO)
          << "Not an interaction with a nuclear target - no nucleus to add";
     return;

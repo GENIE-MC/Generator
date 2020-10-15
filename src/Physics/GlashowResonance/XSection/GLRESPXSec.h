@@ -25,6 +25,8 @@
 
 namespace genie {
 
+class XSecIntegratorI;
+
 class GLRESPXSec : public XSecAlgorithmI {
 
 public:
@@ -33,10 +35,22 @@ public:
   virtual ~GLRESPXSec ();
 
   // XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * i, KinePhaseSpace_t k=kPSfE) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
+
+  // overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
+
+private:
+  void   LoadConfig (void);
+
+  const XSecIntegratorI *        fXSecIntegrator;     ///< diff. xsec integrator
+
+  double fWmin;            ///< Minimum value of W
+
 };
 
 }       // genie namespace

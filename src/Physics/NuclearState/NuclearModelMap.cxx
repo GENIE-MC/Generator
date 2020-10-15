@@ -90,6 +90,21 @@ NuclearModel_t NuclearModelMap::ModelType(const Target & target) const
   return nm->ModelType(target);
 }
 //____________________________________________________________________________
+double NuclearModelMap::FermiMomentum( const Target & t, int nucleon_pdg ) const {
+
+  const NuclearModelI * nm = this->SelectModel(t);
+  return nm -> FermiMomentum( t, nucleon_pdg ) ;
+
+}
+//____________________________________________________________________________
+double NuclearModelMap::LocalFermiMomentum( const Target & t, 
+					    int nucleon_pdg, double radius ) const {
+
+  const NuclearModelI * nm = this->SelectModel(t);
+  return nm -> LocalFermiMomentum( t, nucleon_pdg, radius ) ;
+
+}
+//____________________________________________________________________________
 void NuclearModelMap::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
