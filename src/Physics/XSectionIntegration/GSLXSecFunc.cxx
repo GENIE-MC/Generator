@@ -863,6 +863,40 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
   return fFactor * xsec/(1E-38 * units::cm2);
 }
 //____________________________________________________________________________
+ROOT::Math::IBaseFunctionMultiDim * 
+genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::Clone() const
+{
+  return 
+    new genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig(fModel,fInteraction);
+}
+void genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::SetFactor(double factor)
+{
+  fFactor = factor;
+}
+double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::GetFactor(void) const
+{
+  return fFactor;
+}
+//____________________________________________________________________________
+genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig::d4Xsec_dEgdtdThetagdPhig(
+										const XSecAlgorithmI * m, 
+										const Interaction * i) :
+  ROOT::Math::IBaseFunctionMultiDim(),
+  fModel(m),
+  fInteraction(i),
+  fFactor(1.) 
+{
+  
+}
+genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig::~d4Xsec_dEgdtdThetagdPhig() 
+{
+
+}
+unsigned int genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig::NDim(void) const
+{
+  return 4;
+}
+//____________________________________________________________________________
 double genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig::DoEval(const double * xin) const
 {
   // inputs:  
@@ -941,16 +975,16 @@ double genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig::DoEval(const double * xin) c
 
 //____________________________________________________________________________
 ROOT::Math::IBaseFunctionMultiDim * 
-genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::Clone() const
+genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig::Clone() const
 {
   return 
-    new genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig(fModel,fInteraction);
+    new genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig(fModel,fInteraction);
 }
-void genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::SetFactor(double factor)
+void genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig::SetFactor(double factor)
 {
   fFactor = factor;
 }
-double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::GetFactor(void) const
+double genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig::GetFactor(void) const
 {
   return fFactor;
 }
