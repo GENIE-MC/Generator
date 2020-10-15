@@ -361,7 +361,7 @@ private:
  };
 ///.....................................................................................
 ///
-/// genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig
+/// genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig
 /// A 4-D cross section function (fixed E_nu)
 /// RODA - for the AlvarezRuso-SaulSala cross-section
 ///
