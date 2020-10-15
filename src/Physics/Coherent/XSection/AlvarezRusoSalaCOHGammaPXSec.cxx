@@ -107,8 +107,8 @@ double AlvarezRusoSalaCOHGammaPXSec::XSec( const Interaction * interaction,
 
   // Jacobian for dsigma wrt to t
   if ( kps == kPSEgtTgPgfE ) {
-    double dt_dcos = init_state.ProbeE(kRfLab)-gamma_p4.E()*( cos( gamma_p4.Theta() )-( sin( gamma_p4.Theta() )*cos( gamma_p4.Phi() ) )/tan( out_lep.Theta() ) ) ;
-    diff_cross_section /= ( 2. * out_lep.E() * dt_dcos ) ;
+    double dt_dcos = init_state.ProbeE(kRfLab)-gamma_p4.E()*( cos( gamma_p4.Theta() )-sin( gamma_p4.Theta() )*cos( gamma_p4.Phi()*( out_lep.Z()/out_lep.X() ) ) ) ;
+    diff_cross_section /= ( 2. * out_lep.E() * abs( dt_dcos ) ) ;
     return diff_cross_section ;
   }
   // the remaining possible phase spaces are all functions of Theta_l instead of Cos Theta_l
