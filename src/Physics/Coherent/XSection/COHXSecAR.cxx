@@ -165,9 +165,9 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
 
   Interaction interaction(*in);
   interaction.SetBit(kISkipProcessChk);
-  //interaction->SetBit(kISkipKinematicChk);
+  //interaction.SetBit(kISkipKinematicChk);
   
-    
+  
   //for the time begin the option of splitting the integral is not there for photon
 
   // if (fSplitIntegral) {
@@ -209,14 +209,26 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
     max_second = theta_lep.max ;
   }
     
-  double kine_min[4] = { e_gamma.min, 
-			 min_second, 
-			 fOmegaIntegral ? cos( theta_gamma.max ) : theta_gamma.min, 
-			 phi_gamma.min } ;
-  double kine_max[4] = { e_gamma.max, 
-			 max_second,
-			 fOmegaIntegral ? cos( theta_gamma.min ) : theta_gamma.max, 
-			 phi_gamma.max } ;
+
+  std::array<double,4> kine_min = { e_gamma.min, 
+				    min_second, 
+				    fOmegaIntegral ? cos( theta_gamma.max ) : theta_gamma.min, 
+				    phi_gamma.min } ;
+  std::array<double,4> kine_max = { e_gamma.max, 
+				    max_second,
+				    fOmegaIntegral ? cos( theta_gamma.min ) : theta_gamma.max, 
+				    phi_gamma.max } ;
+  
+  for ( auto & m : kine_min ) {
+    std::cerr << m << " " ;
+  }
+  std::cerr << std::endl ;
+  
+  for ( auto & m : kine_max ) {
+    std::cerr << m << " " ;
+  }
+  std::cerr << std::endl ;
+  
   
   ROOT::Math::IntegrationMultiDim::Type ig_type = 
     utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
@@ -224,7 +236,7 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
   double abstol = 1; //We mostly care about relative tolerance.
   ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
   
-  double xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2) ;
+  double xsec = ig.Integral(kine_min.data(), kine_max.data()) * (1E-38 * units::cm2) ;
   
   if ( fOmegaIntegral ) xsec *= 2 * constants::kPi ;
   

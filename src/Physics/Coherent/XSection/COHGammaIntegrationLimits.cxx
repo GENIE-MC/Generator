@@ -70,7 +70,9 @@ Range1D_t COHGammaIntegrationLimits::ThetaLepton( const Interaction & ) const {
 //____________________________________________________________________________
 Range1D_t COHGammaIntegrationLimits::t( const Interaction & i ) const {
 
-  return fFF -> QRange( i.InitState().Tgt().Pdg() ) ;
+  Range1D_t Q_range = fFF -> QRange( i.InitState().Tgt().Pdg() ) ;
+  return Range1D_t( Q_range.min*Q_range.min , 
+		    Q_range.max*Q_range.max ) ;
 
 }
 //____________________________________________________________________________
