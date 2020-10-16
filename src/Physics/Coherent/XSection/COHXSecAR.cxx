@@ -219,17 +219,6 @@ double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interacti
 				    fOmegaIntegral ? cos( theta_gamma.min ) : theta_gamma.max, 
 				    phi_gamma.max } ;
   
-  for ( auto & m : kine_min ) {
-    std::cerr << m << " " ;
-  }
-  std::cerr << std::endl ;
-  
-  for ( auto & m : kine_max ) {
-    std::cerr << m << " " ;
-  }
-  std::cerr << std::endl ;
-  
-  
   ROOT::Math::IntegrationMultiDim::Type ig_type = 
     utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
   

@@ -944,24 +944,27 @@ double genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig::DoEval(const double * xin) c
   photon_3vector.SetMagThetaPhi( xin[0], xin[2], xin[3] ) ;
   TLorentzVector P4_photon = TLorentzVector(photon_3vector, xin[0] );
 
+  TLorentzVector target( 0., 0., 0., m_t ) ;
+
   TLorentzVector q = P4_nu-P4_lep ;
  
   double Q2 = -q.Mag2();
+  kinematics -> SetQ2( Q2 ) ;
 
-  double x = Q2/( 2 * xin[0] * constants::kNucleonMass );
+  double W = (target + q).Mag() ;
+  kinematics -> SetW( W ) ;
   
   // Range1D_t xlim = fInteraction->PhaseSpace().XLim();
   
   // if ( x <  xlim.min || x > xlim.max ) {
   //   return 0.;
   // }
-  
+
+  double x = 0.5* Q2 / q.Dot( target ) ;
   kinematics->Setx(x);
 
-  double y = xin[0]/E_nu;
-
+  double y = target.Dot( q ) / target.Dot( P4_nu ) ;
   kinematics->Sety(y);
-  kinematics::UpdateWQ2FromXY(fInteraction);
 
   kinematics -> Sett( xin[1] ) ;
 
