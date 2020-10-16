@@ -21,6 +21,8 @@ MinimRelStartPoint       vec-double yes  Starting point for the evaluataion of t
                                          order varialbes as defined in the minimiser
 IntegrationLimits        algo    No     Specificies integration limit algorithm                                  
                                           It is required for COH gamma configurations 
+tPhaseSpace              bool    yes     Generate the events in the t phase space       true 
+                                         instead of theta_l 
 -->
 
 <alg_conf>

@@ -65,14 +65,16 @@ using namespace genie::utils;
 //___________________________________________________________________________
 COHGammaKinematicsGenerator::COHGammaKinematicsGenerator() :
   KineGeneratorWithCache("genie::COHGammaKinematicsGenerator"), 
-  fGammaLimits( nullptr )
+  fGammaLimits( nullptr ), 
+  ftPhaseSpace( true )
 { 
 
 }
 //___________________________________________________________________________
 COHGammaKinematicsGenerator::COHGammaKinematicsGenerator(string config) :
   KineGeneratorWithCache("genie::COHGammaKinematicsGenerator", config), 
-  fGammaLimits( nullptr )
+  fGammaLimits( nullptr ), 
+  ftPhaseSpace( true )
 {
 
 }
@@ -117,7 +119,7 @@ void COHGammaKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //   space the max xsec is irrelevant
 
   std::array<Range1D_t,4> ranges = { fGammaLimits -> EGamma( *in ), 
-                                     fGammaLimits -> ThetaLepton( *in ), 
+                                     ftPhaseSpace ? fGammaLimits -> t( *in ) : fGammaLimits -> ThetaLepton( *in ), 
                                      fGammaLimits -> ThetaGamma( *in ), 
                                      fGammaLimits -> PhiGamma( *in ) } ;
   
@@ -135,7 +137,9 @@ void COHGammaKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   
   Interaction local_interaction( * in ) ;
 
-  utils::gsl::d4Xsec_dEgdThetaldThetagdPhig functor( fXSecModel, & local_interaction ) ;
+  ROOT::Math::IBaseFunctionMultiDim * func = nullptr ;
+  if ( ftPhaseSpace ) func = new utils::gsl::d4Xsec_dEgdtdThetagdPhig( fXSecModel, & local_interaction ) ;
+  else func = new utils::gsl::d4Xsec_dEgdThetaldThetagdPhig( fXSecModel, & local_interaction ) ;
   
   while(1) {
     iter++;
@@ -151,7 +155,7 @@ void COHGammaKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
     // 				<< g_theta_g << ", " << g_phi_g << "),   Lep(" 
     // 				<< g_theta_l << ")";
     
-    xsec = functor( point.data() ) ; 
+    xsec = (*func)( point.data() ) ; 
     
     //realized this method assumes E_l 
     
@@ -223,11 +227,13 @@ void COHGammaKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
       in -> ResetBit(kISkipProcessChk);
       in -> ResetBit(kISkipKinematicChk);
       
-      return;
+      break ; 
     }//if accept
-    
+		  
   }//while still throwing events
   
+  delete func ;   
+
   return;
 }
 //___________________________________________________________________________
@@ -263,13 +269,16 @@ double COHGammaKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
   //for COH gamma they are Eg, theta_l theta_gamma, phi_gamma 
   //then set variables and get min
   
-  std::array<string, 4> names = { "E_g", "theta_l", "theta_g", "phi_g" } ;
+  std::array<string, 4> names = { "E_g", 
+				  ftPhaseSpace ? "t" : "theta_l", 
+				  "theta_g", 
+				  "phi_g" } ;
 
   std::array<Range1D_t,4> ranges = { fGammaLimits -> EGamma( *in ), 
-				     fGammaLimits -> ThetaLepton( *in ), 
+				     ftPhaseSpace ? fGammaLimits -> t( *in ) : fGammaLimits -> ThetaLepton( *in ), 
 				     fGammaLimits -> ThetaGamma( *in ), 
 				     fGammaLimits -> PhiGamma( *in ) } ;
-
+  
   const unsigned int n_eg = 500;
   std::array<double,4> centres, steps ;
   // Please not that if Minuit2 minimizer is used, the steps are not used
@@ -340,6 +349,9 @@ void COHGammaKinematicsGenerator::LoadConfig(void)
 {
 
   bool error = false ;
+
+  GetParamDef( "tPhaseSpace", ftPhaseSpace, true ) ;
+  
   
   //-- max xsec safety factor (for rejection method) and min cached energy
   GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor, 1.6 ) ;

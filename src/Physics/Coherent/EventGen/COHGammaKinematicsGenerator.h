@@ -61,7 +61,7 @@ namespace genie {
 
     const COHGammaIntegrationLimits * fGammaLimits ; 
     std::array<double, 4> fMinimInitialRatio ;
-
+    bool ftPhaseSpace ;
 
   };
   
