@@ -923,11 +923,18 @@ double genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig::DoEval(const double * xin) c
 
   // E_l and theta_l as a function of t
   double E_l = B - (0.5*xin[1])/m_t ;
+
+  if ( E_l <= 0. ) return 0. ;
+
   double alpha = atan2( C, A ) ;
 
-  double arcosin = acos( ( (0.5*xin[1] - E_nu * xin[0]*( 1-cos_theta_g ) )/E_l - B  ) / 
-			 sqrt( pow( A, 2 ) + pow( C, 2 ) ) 
-			 ) ;
+  double numerator = (0.5*xin[1] - E_nu * xin[0]*( 1-cos_theta_g ) )/E_l - B  ;
+  double denumerator = sqrt( pow( A, 2 ) + pow( C, 2 ) ) ; 
+
+  if ( numerator > denumerator ) return 0. ; 
+  if ( numerator < - denumerator ) return 0. ;
+
+  double arcosin = acos( numerator / denumerator ) ;
 
   std::array<double,2> solutions = { alpha + arcosin, alpha - arcosin } ;
   for ( auto & s : solutions ) {
