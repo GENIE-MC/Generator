@@ -836,22 +836,24 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
   TLorentzVector q = P4_nu-P4_lep ;
  
   double Q2 = -q.Mag2();
+  kinematics -> SetQ2( Q2 ) ;
 
-  double x = Q2/(2 * xin[0] * constants::kNucleonMass );
-  
+  TLorentzVector target( 0., 0., 0., m_t ) ;
+  double W = (target + q).Mag() ;
+  kinematics -> SetW( W ) ;
+
+  double x = 0.5* Q2 / q.Dot( target ) ;
+  kinematics->Setx(x);
+
+  double y = target.Dot( q ) / target.Dot( P4_nu ) ;
+  kinematics->Sety(y);
+
   // Range1D_t xlim = fInteraction->PhaseSpace().XLim();
   
   // if ( x <  xlim.min || x > xlim.max ) {
   //   return 0.;
   // }
   
-  kinematics->Setx(x);
-
-  double y = xin[0]/E_nu;
-
-  kinematics->Sety(y);
-  kinematics::UpdateWQ2FromXY(fInteraction);
-
   double t = TMath::Abs( (q - P4_photon).Mag2() );
   kinematics -> Sett( t ) ;
 
@@ -1038,7 +1040,7 @@ double genie::utils::gsl::d5Xsec_dEgdOmegaldOmegag::DoEval(const double * xin) c
   double E_l = ( m_t*(E_nu - xin[0]) - E_nu*xin[0]*(1. - xin[2]) ) 
     / ( m_t + E_nu*(1.-xin[1]) 
 	- xin[0]*(1.-xin[1]*xin[2] - sin_theta_l*sin_theta_g*cos(xin[3]) ) ) ;
-
+  
   //double theta_l   = xin[1];
   //double phi_l     = 0.0;
   
@@ -1056,22 +1058,18 @@ double genie::utils::gsl::d5Xsec_dEgdOmegaldOmegag::DoEval(const double * xin) c
   TLorentzVector q = P4_nu-P4_lep ;
   
   double Q2 = -q.Mag2();
-  
-  double x = Q2/(2 * xin[0] * constants::kNucleonMass );
-  
-  // Range1D_t xlim = fInteraction->PhaseSpace().XLim();
-  
-  // if ( x <  xlim.min || x > xlim.max ) {
-  //   return 0.;
-  // }
-  
+  kinematics -> SetQ2( Q2 ) ;
+
+  TLorentzVector target( 0., 0., 0., m_t ) ;
+  double W = (target + q).Mag() ;
+  kinematics -> SetW( W ) ;
+
+  double x = 0.5* Q2 / q.Dot( target ) ;
   kinematics->Setx(x);
 
-  double y = xin[0]/E_nu;
-
+  double y = target.Dot( q ) / target.Dot( P4_nu ) ;
   kinematics->Sety(y);
-  kinematics::UpdateWQ2FromXY(fInteraction);
-  
+    
   double t = TMath::Abs( (q - P4_photon).Mag2() );
   kinematics -> Sett( t ) ;
   
