@@ -819,7 +819,7 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
     / ( m_t + E_nu*(1.-cos_theta_l) 
 	- xin[0]*(1.-cos_theta_l*cos_theta_g  - sin(xin[1])*sin(xin[2])*cos(xin[3]) ) ) ;
 
-  if ( E_l < 0. ) return 0. ;
+  if ( E_l <= 0. ) return 0. ;
   
   //double theta_l   = xin[1];
   //double phi_l     = 0.0;
@@ -927,6 +927,9 @@ double genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig::DoEval(const double * xin) c
 
   // E_l and theta_l as a function of t
   double E_l = B - (0.5*xin[1])/m_t ;
+
+  if ( E_l <= 0. ) return 0. ;
+
   double alpha = atan2( C, A ) ;
 
   double arcosin = acos( ( (0.5*xin[1] - E_nu * xin[0]*( 1-cos_theta_g ) )/E_l - B  ) / 
@@ -1043,6 +1046,8 @@ double genie::utils::gsl::d5Xsec_dEgdOmegaldOmegag::DoEval(const double * xin) c
     / ( m_t + E_nu*(1.-xin[1]) 
 	- xin[0]*(1.-xin[1]*xin[2] - sin_theta_l*sin_theta_g*cos(xin[3]) ) ) ;
   
+  if ( E_l <= 0. ) return 0. ;
+
   //double theta_l   = xin[1];
   //double phi_l     = 0.0;
   
