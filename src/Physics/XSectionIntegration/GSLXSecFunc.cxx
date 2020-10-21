@@ -819,6 +819,8 @@ double genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig::DoEval(const double * x
     / ( m_t + E_nu*(1.-cos_theta_l) 
 	- xin[0]*(1.-cos_theta_l*cos_theta_g  - sin(xin[1])*sin(xin[2])*cos(xin[3]) ) ) ;
 
+  if ( E_l < 0. ) return 0. ;
+  
   //double theta_l   = xin[1];
   //double phi_l     = 0.0;
   
