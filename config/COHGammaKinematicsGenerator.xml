@@ -13,12 +13,10 @@ MaxXSec-SafetyFactor     double  Yes     multiplies max xsec in rejection method
 MaxXSec-DiffTolerance    double  Yes     max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)  999999.00 (disable)
                                          if xsec>xsecmax
 Cache-MinEnergy          double  Yes     minimum energy for which max xsec is cached    0.00
-
-MinimRelStartPoint       vec-double yes  Starting point for the evaluataion of the      all 0.5 (the center)
-                                         maximum cross section. 
-                                         0. correspond to range minimum
-                                         1. correspoond to range maximum 
-                                         order varialbes as defined in the minimiser
+MinimScanPoint           vec-int    yes  number of points in each phase space           all 1
+                                         coordinate to be used for a scan 
+                                         for Maximum XSec
+					 
 IntegrationLimits        algo    No     Specificies integration limit algorithm                                  
                                           It is required for COH gamma configurations 
 tPhaseSpace              bool    yes     Generate the events in the t phase space       true 
@@ -30,8 +28,8 @@ tPhaseSpace              bool    yes     Generate the events in the t phase spac
   <param_set name="Default"> 
 
     <param type="double" name="MaxXSec-SafetyFactor"> 1.05 </param>
-
-    <param type="vec-double" name="MinimRelStartPoint" delim=";" > 0.5 ; 0.5 ; 0.5 ; 0.5 </param> 
+    
+    <param type="vec-int" name="MinimScanPoint" delim=";" > 5 ; 20 ; 5 ; 1 </param> 
 
     <param type="alg" name ="IntegrationLimits"  > genie::COHGammaIntegrationLimits/Default </param>
     
