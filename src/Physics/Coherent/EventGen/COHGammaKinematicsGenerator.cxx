@@ -376,7 +376,7 @@ void COHGammaKinematicsGenerator::LoadConfig(void)
 
   bool error = false ;
 
-  GetParamDef( "tPhaseSpace", ftPhaseSpace, true ) ;
+  GetParamDef( "tPhaseSpace", ftPhaseSpace, false ) ;
   
   
   //-- max xsec safety factor (for rejection method) and min cached energy

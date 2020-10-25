@@ -19,7 +19,7 @@ MinimScanPoint           vec-int    yes  number of points in each phase space   
 					 
 IntegrationLimits        algo    No     Specificies integration limit algorithm                                  
                                           It is required for COH gamma configurations 
-tPhaseSpace              bool    yes     Generate the events in the t phase space       true 
+tPhaseSpace              bool    yes     Generate the events in the t phase space       false 
                                          instead of theta_l 
 -->
 
@@ -29,7 +29,7 @@ tPhaseSpace              bool    yes     Generate the events in the t phase spac
 
     <param type="double" name="MaxXSec-SafetyFactor"> 1.05 </param>
     
-    <param type="vec-int" name="MinimScanPoint" delim=";" > 5 ; 20 ; 5 ; 1 </param> 
+    <param type="vec-int" name="MinimScanPoint" delim=";" > 5 ; 5 ; 5 ; 1 </param> 
 
     <param type="alg" name ="IntegrationLimits"  > genie::COHGammaIntegrationLimits/Default </param>
     
