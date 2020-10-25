@@ -100,7 +100,8 @@ double RosenbluthPXSec::XSec(
   double xsec = xsec_mott * (Ge2 + (tau/epsilon)*Gm2) / (1+tau);
 
   // Convert dsigma/dOmega --> dsigma/dQ2
-  xsec *= (kPi/Ep2);
+  // See GENIE docDB #214
+  xsec *= ( kPi / Ep2 );
 
   // The algorithm computes dxsec/dQ2
   // Check whether variable tranformation is needed

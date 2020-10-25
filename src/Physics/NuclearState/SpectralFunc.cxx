@@ -177,6 +177,8 @@ void SpectralFunc::Configure(string param_set)
 //____________________________________________________________________________
 void SpectralFunc::LoadConfig(void)
 {
+  NuclearModelI::LoadConfig();
+
   // Determine the folder that should be searched to find the spectral function
   // data files
   std::string data_path_type;

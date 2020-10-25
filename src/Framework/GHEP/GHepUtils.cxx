@@ -56,6 +56,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
   bool is_mec   = proc.IsMEC();
   bool is_imd   = proc.IsInverseMuDecay();
   bool is_ask   = proc.IsSingleKaon();
+  bool is_diff  = proc.IsDiffractive();
   bool is_p     = tgt.HitNucIsSet() ? tgt.HitNucPdg()==kPdgProton  : false;
   bool is_n     = tgt.HitNucIsSet() ? tgt.HitNucPdg()==kPdgNeutron : false;
   bool is_nu    = pdg::IsNeutrino    (init.ProbePdg());
@@ -265,6 +266,16 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
         else if (is_nubar && is_cc) evtype = -21;
         else if (is_nubar && is_nc) evtype = -41;
      }
+  }
+
+  // Weak diffractive processes
+  else if ( is_diff && is_cc ) {
+    if ( is_nu ) evtype = 15;
+    else if ( is_nubar ) evtype = -15;
+  }
+  else if ( is_diff && is_nc ) {
+    if ( is_nu ) evtype = 35;
+    else if ( is_nubar ) evtype = -35;
   }
 
   return evtype;

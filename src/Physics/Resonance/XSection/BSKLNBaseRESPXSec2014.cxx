@@ -256,16 +256,16 @@ double BSKLNBaseRESPXSec2014::XSec(
       KNL_cL_plus  = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  - KNL_jy_plus);
       KNL_cL_minus = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus - KNL_jy_minus);
 
-      KNL_cR_plus  = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
-      KNL_cR_minus = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
+      KNL_cR_plus  = -TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
+      KNL_cR_minus = -TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
 
       KNL_cS_plus   = KNL_K *  TMath::Sqrt(TMath::Abs(KNL_j0_plus *KNL_j0_plus  - KNL_jz_plus *KNL_jz_plus ) );
       KNL_cS_minus  = KNL_K *  TMath::Sqrt(TMath::Abs(KNL_j0_minus*KNL_j0_minus - KNL_jz_minus*KNL_jz_minus) );
     }
 
     if (is_nubar || is_lplus) {
-      KNL_cL_plus  =  1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
-      KNL_cL_minus = -1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
+      KNL_cL_plus  = -1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
+      KNL_cL_minus =  1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
 
       KNL_cR_plus  =  1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus - KNL_jy_minus);
       KNL_cR_minus = -1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  - KNL_jy_plus);

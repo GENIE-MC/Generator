@@ -186,6 +186,44 @@ ROOT::Math::IBaseFunctionMultiDim *
     new genie::utils::gsl::d2XSec_dQ2dy_E(fModel,fInteraction);
 }
 //____________________________________________________________________________
+genie::utils::gsl::d2XSec_dlog10xdlog10Q2_E::d2XSec_dlog10xdlog10Q2_E(
+     const XSecAlgorithmI * m, const Interaction * i, double scale) :
+ROOT::Math::IBaseFunctionMultiDim(),
+fModel(m),
+fInteraction(i),
+fScale(scale)
+{
+  
+}
+genie::utils::gsl::d2XSec_dlog10xdlog10Q2_E::~d2XSec_dlog10xdlog10Q2_E()
+{
+
+}
+unsigned int genie::utils::gsl::d2XSec_dlog10xdlog10Q2_E::NDim(void) const
+{
+  return 2;
+}
+double genie::utils::gsl::d2XSec_dlog10xdlog10Q2_E::DoEval(const double * xin) const
+{
+// inputs:  
+//  log10(x) [-]
+// log10(Q2) [-]
+// outputs: 
+//   differential cross section [10^-38 cm^2]
+//
+  fInteraction->KinePtr()->Setx(TMath::Power(10,xin[0]));
+  fInteraction->KinePtr()->SetQ2(TMath::Power(10,xin[1]));
+  kinematics::UpdateWYFromXQ2(fInteraction);
+  double xsec = fModel->XSec(fInteraction, kPSlog10xlog10Q2fE);
+  return fScale*xsec/(1E-38 * units::cm2);
+}
+ROOT::Math::IBaseFunctionMultiDim * 
+   genie::utils::gsl::d2XSec_dlog10xdlog10Q2_E::Clone() const
+{
+  return 
+    new genie::utils::gsl::d2XSec_dlog10xdlog10Q2_E(fModel,fInteraction);
+}
+//____________________________________________________________________________
 genie::utils::gsl::d2XSec_dQ2dydt_E::d2XSec_dQ2dydt_E(
      const XSecAlgorithmI * m, const Interaction * i) :
 ROOT::Math::IBaseFunctionMultiDim(),

@@ -132,6 +132,20 @@ void PDGLibrary::AddDarkMatter(double mass, double med_ratio)
   }
 }
 //____________________________________________________________________________
+void PDGLibrary::AddNHL(double mass)
+{
+// Add NHL to PDG database
+
+  TParticlePDG * nhl = fDatabasePDG->GetParticle(kPdgNHL);
+  if (!nhl) {
+    // Name Title Mass Stable Width Charge Class PDG
+    fDatabasePDG->AddParticle("NHL","NHL",mass,true,0.,0,"NHL",kPdgNHL);
+  }
+  else {
+    assert(nhl->Mass() == mass);
+  }
+}
+//____________________________________________________________________________
 // EDIT: need a way to clear and then reload the PDG database
 void PDGLibrary::ReloadDBase(void)
 {
@@ -141,3 +155,4 @@ void PDGLibrary::ReloadDBase(void)
 
   if( ! LoadDBase() ) LOG("PDG", pERROR) << "Could not load PDG data";
 }
+//____________________________________________________________________________

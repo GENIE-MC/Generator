@@ -18,6 +18,8 @@ NSV-Q3Max        double   No         Q3 max for 2p2h model                      
     <param type="string" name="CommonParam"> MultiNucleons </param>
     
     <param type="alg" name="NuclearModel"> genie::NuclearModelMap/Default </param>
+
+    <!-- <param type="double" name="SuSA-MaxXSec-DiffTolerance"> 0.0 </param> -->
      
   </param_set>
   

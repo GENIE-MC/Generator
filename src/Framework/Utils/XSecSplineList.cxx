@@ -566,9 +566,9 @@ void XSecSplineList::Print(ostream & stream) const
   stream << "\n [-] Options:";
   stream << "\n  |";
   stream << "\n  |-----o  UseLogE..................." << fUseLogE;
-  stream << "\n  |-----o  Spline Emin..............." << fNKnots;
-  stream << "\n  |-----o  Spline Emax..............." << fEmin;
-  stream << "\n  |-----o  Spline NKnots............." << fEmax;
+  stream << "\n  |-----o  Spline Emin..............." << fEmin;
+  stream << "\n  |-----o  Spline Emax..............." << fEmax;
+  stream << "\n  |-----o  Spline NKnots............." << fNKnots;
   stream << "\n  |";
 
   map<string, map<string, Spline *> >::const_iterator mm_iter;

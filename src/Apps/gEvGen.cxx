@@ -35,6 +35,7 @@
                   [--mc-job-status-refresh-rate  rate]
                   [--cache-file root_file]
                   [--xml-path config_xml_dir]
+                  [--tune G18_02a_00_000] (or your preferred tune identifier)
 
          Options :
            [] Denotes an optional argument.
@@ -117,7 +118,7 @@
 
 \cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         
+
 */
 //____________________________________________________________________________
 
@@ -494,6 +495,11 @@ GFluxI * TH1FluxDriver(void)
 
     LOG("gevgen", pNOTICE) << "Flux name: " << fv[1];
     TH1D * hst = (TH1D *)flux_file->Get(fv[1].c_str());
+    if ( !hst ) {
+      LOG("gevgen", pFATAL) << "Could not load the flux histogram \"" << fv[1]
+        << "\" from the input ROOT file: " << fv[0];
+      std::exit(1);
+    }
     assert(hst);
 
     LOG("gevgen", pNOTICE) << hst->GetEntries();
@@ -790,6 +796,7 @@ void PrintSyntax(void)
     << "\n              [--mc-job-status-refresh-rate  rate]"
     << "\n              [--cache-file root_file]"
     << "\n              [--xml-path config_xml_dir]"
+    << "\n              [--tune G18_02a_00_000] (or your preferred tune identifier)"
     << "\n";
 }
 //____________________________________________________________________________

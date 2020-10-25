@@ -154,6 +154,20 @@ LHAPDF_LIBRARIES += -L$(GOPT_WITH_LHAPDF5_LIB) -lLHAPDF $(FORT_LIBRARIES)
 endif
 
 #-------------------------------------------------------------------
+#                             APFEL
+#-------------------------------------------------------------------
+
+APFEL_LIBRARIES = 
+APFEL_INCLUDES  =
+
+ifeq ($(strip $(GOPT_ENABLE_APFEL)),YES) 
+
+APFEL_INCLUDES  = -I$(GOPT_WITH_APFEL_INC)
+APFEL_LIBRARIES = -L$(GOPT_WITH_APFEL_LIB) -lAPFEL 
+
+endif
+
+#-------------------------------------------------------------------
 #                             INCL
 #-------------------------------------------------------------------
 
@@ -322,7 +336,7 @@ USING_CLANG  = YES
 endif
 
 # get gcc version & split in '.' delimited tokens (major/minor/revison num.)
-CXXVRS      = $(shell $(CXX) -dumpversion)
+CXXVRS      = $(shell $(CXX) -dumpfullversion -dumpversion)
 CXXVRS_MAJ  = $(shell awk 'BEGIN {\
 		str="$(CXXVRS)"; split(str, tk, "."); print tk[1]}')
 CXXVRS_MIN  = $(shell awk 'BEGIN {\
@@ -495,7 +509,7 @@ CXXFLAGS      = -W -Wall -fPIC -Wshadow \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
 		$(GOPT_WITH_CXX_USERDEF_FLAGS)
-ifeq ($(strip $(GCC_GE_4_1_0)), YES)
+ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
   CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
 endif
 LDFLAGS       = -g -Wl,--no-as-needed -Wl,--no-undefined
@@ -523,7 +537,7 @@ CXXFLAGS      = -W -Wall -fPIC -Wshadow \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
 		$(GOPT_WITH_CXX_USERDEF_FLAGS)
-ifeq ($(strip $(GCC_GE_4_1_0)), YES)
+ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
   CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
 endif
 LDFLAGS       = -g -Wl,--no-as-needed -Wl,--no-undefined

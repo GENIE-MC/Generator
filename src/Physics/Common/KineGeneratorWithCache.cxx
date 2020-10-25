@@ -253,7 +253,7 @@ void KineGeneratorWithCache::AssertXSecLimits(
       	         << " > (max) = " << xsec_max << "\n for " << *interaction;
        LOG("Kinematics", pFATAL)
  	  << "*** Exceeding estimated maximum differential cross section";
-       exit(1);
+       std::terminate();
     } else {
        LOG("Kinematics", pWARN)
     	  << "xsec: (curr) = " << xsec

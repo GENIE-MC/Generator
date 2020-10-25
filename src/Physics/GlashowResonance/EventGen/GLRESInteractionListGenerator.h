@@ -32,6 +32,21 @@ public :
 
   // implement the InteractionListGeneratorI interface
   InteractionList * CreateInteractionList(const InitialState & init) const;
+
+  // overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
+
+private:
+
+  void LoadConfigData(void);
+  
+  bool fIsMu;
+  bool fIsTau;
+  bool fIsEle;
+  bool fIsHad;
+
 };
 
 }      // genie namespace

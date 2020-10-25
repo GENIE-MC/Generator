@@ -16,7 +16,7 @@
 
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          
+
 
 */
 //____________________________________________________________________________
@@ -57,7 +57,7 @@ public:
   void Configure (const Registry & config);
   void Configure (string config);
 
-private:
+ protected:
   void       LoadConfig             (void);
   TGraph2D*  Convert2Graph          (TNtupleD& data) const;
   TH2D*      SelectSpectralFunction (const Target& target) const;

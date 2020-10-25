@@ -78,5 +78,6 @@ void COHPrimaryLeptonGenerator::CalculatePrimaryLepton_AlvarezRuso(GHepRecord * 
   TLorentzVector p4l = kinematics.FSLeptonP4();
   int pdgc = interaction->FSPrimLepton()->PdgCode();
   this->AddToEventRecord(evrec, pdgc, p4l);
+  this->SetPolarization( evrec );
 }
 //___________________________________________________________________________

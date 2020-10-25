@@ -284,6 +284,9 @@ void EffectiveSF::Configure(string param_set)
 //____________________________________________________________________________
 void EffectiveSF::LoadConfig(void)
 {
+
+  NuclearModelI::LoadConfig() ; 
+
   this->GetParamDef("EjectSecondNucleon2p2h", fEjectSecondNucleon2p2h, false);
 
   this->GetParamDef("MomentumMax",    fPMax,    1.0);
