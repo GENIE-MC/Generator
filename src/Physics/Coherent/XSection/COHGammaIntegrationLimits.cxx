@@ -62,10 +62,30 @@ Range1D_t COHGammaIntegrationLimits::PhiGamma( const Interaction & ) const {
 		    2*constants::kPi - controls::kASmallNum ) ; 
 }
 //____________________________________________________________________________
-Range1D_t COHGammaIntegrationLimits::ThetaLepton( const Interaction & ) const {
+Range1D_t COHGammaIntegrationLimits::ThetaLepton( const Interaction & in ) const {
 
-  return Range1D_t( controls::kASmallNum, 
-		    constants::kPi - controls::kASmallNum ) ; 
+  double e_nu = in.InitState().ProbeE( kRfLab ) ; 
+  double max_t = t( in ).max ; 
+  double e_gamma_max = EGamma( in ).max ;
+  double target_mass = in.InitState().Tgt().Mass() ;
+
+  double min_e_l = e_nu - e_gamma_max - 0.5 * max_t / target_mass ;
+
+  double min = controls::kASmallNum ; 
+  double max = constants::kPi - controls::kASmallNum ; 
+
+  if ( min_e_l > 0. ) {
+
+    double sqrt_s = sqrt( target_mass * target_mass + 2. * e_nu * target_mass ) ; 
+    
+    double min_cos_theta_limit = 1. - 2. * target_mass * ( sqrt_s - target_mass ) / ( sqrt_s * min_e_l ) ; 
+    
+    double min_cos_theta = std::max( -1., min_cos_theta_limit ) ;
+
+    max = acos( min_cos_theta ) ;
+  }
+
+  return Range1D_t( min, max ) ; 
 }
 //____________________________________________________________________________
 Range1D_t COHGammaIntegrationLimits::t( const Interaction & i ) const {

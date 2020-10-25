@@ -145,7 +145,7 @@ double COHXSecAR::IntegratePion(
 //____________________________________________________________________________
 double COHXSecAR::IntegratePhoton( const XSecAlgorithmI * model, const Interaction * in) const {
 
-  const InitialState & init_state = in -> InitState();
+  //const InitialState & init_state = in -> InitState();
 
   if(! model->ValidProcess(in) ) { return 0.; }
 
@@ -267,7 +267,7 @@ void COHXSecAR::LoadConfig(void)
   if ( fHasPhoton ) {
     GetParam( "OmegaPhaseSpace", fOmegaIntegral ) ;
 
-    GetParamDef( "tPhaseSpace", ftIntegral, true ) ;
+    GetParamDef( "tPhaseSpace", ftIntegral, false ) ;
 
 
     const Algorithm * temp = SubAlg( "IntegrationLimits" ) ;
