@@ -29,7 +29,7 @@ tPhaseSpace              bool    yes     Generate the events in the t phase spac
 
     <param type="double" name="MaxXSec-SafetyFactor"> 1.05 </param>
     
-    <param type="vec-int" name="MinimScanPoint" delim=";" > 5 ; 5 ; 5 ; 1 </param> 
+    <param type="vec-int" name="MinimScanPoint" delim=";" > 10 ; 200 ; 10 ; 1 </param> 
 
     <param type="alg" name ="IntegrationLimits"  > genie::COHGammaIntegrationLimits/Default </param>
     
