@@ -231,7 +231,7 @@ Or changing the name of this parameter set
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Value of axial form factor at Q2=0
     -->
-    <param type="double" name="QEL-FA0"> -1.2670 </param>
+    <param type="double" name="QEL-FA0"> -1.2694 </param>
 
     <!--
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
