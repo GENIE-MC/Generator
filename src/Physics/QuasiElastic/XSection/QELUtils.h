@@ -57,6 +57,10 @@ namespace genie {
 
     void BindHitNucleon(Interaction& interaction, const NuclearModelI& nucl_model,
       double& Eb, QELEvGen_BindingMode_t hitNucleonBindingMode);
+
+    double ComputeTestQELPXSec(Interaction* interaction,
+      const XSecAlgorithmI* xsec_model, double omega, double ctl,
+      double phiLep, double phiNi, double pNi, double Eremove);
   }
 }
 

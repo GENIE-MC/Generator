@@ -345,3 +345,134 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
   p4Ni->SetE( ENi );
 
 }
+
+// Assumes that the probe 4-momentum and struck nucleon PDG code are already
+// set in the input interaction.
+// TODO: adjust to avoid assuming that the probe is traveling along the +z
+// direction
+double genie::utils::ComputeTestQELPXSec(genie::Interaction* interaction,
+  const genie::XSecAlgorithmI* xsec_model, double omega, double ctl,
+  double phiLep, double phiNi, double pNi, double Eremove)
+{
+  // Get the probe 4-momentum
+  TLorentzVector* tempProbeP4 = interaction->InitState().GetProbeP4(
+    genie::kRfLab );
+  TLorentzVector nuP4 = *tempProbeP4;
+  delete tempProbeP4;
+
+  // Prepare the outgoing lepton 4-momentum
+  double ml = interaction->FSPrimLepton()->Mass();
+
+  double Ev = nuP4.E();
+  double El = Ev - omega;
+  double pl = std::sqrt( std::max(0., El*El - ml*ml) );
+  if ( El < ml ) return 0.;
+
+  double stl = std::sqrt( std::max(0., 1. - ctl*ctl) );
+  TLorentzVector lP4( std::cos(phiLep)*stl*pl,
+    std::sin(phiLep)*stl*pl, ctl*pl, El );
+
+  // Get the 4-momentum transfer
+  TLorentzVector qP4 = nuP4 - lP4;
+
+  // Get the cosine between the initial nucleon 3-momentum and the 3-momentum
+  // transfer
+
+  // On-shell mass of initial struck nucleon
+  double mNi = interaction->InitState().Tgt().HitNucMass();
+  // Off-shell total energy of initial struck nucleon
+  double ENi = mNi - Eremove;
+
+  // Look up the (on-shell) mass of the final nucleon
+  double mNf = interaction->RecoilNucleon()->Mass();
+  // Final nucleon total energy
+  double ENf = ENi + omega;
+  if ( ENf < mNf ) return 0.;
+
+  // Final nucleon 3-momentum
+  double pNf = std::sqrt( std::max(0., ENf*ENf - mNf*mNf) );
+
+  // 3-momentum transfer
+  double qMag = qP4.Vect().Mag();
+
+  double pCos = ( pNf*pNf - pNi*pNi - qMag*qMag ) / ( 2.*pNi*qMag );
+  if ( std::abs(pCos) > 1. ) return 0.;
+
+  double pSin = std::sqrt( std::max(0., 1. - pCos*pCos) );
+
+  // Set up the initial struck nucleon 3-momentum in a frame where the
+  // 3-momentum transfer points along +z
+  TVector3 p3Ni( std::cos(phiNi)*pSin*pNi, std::sin(phiNi)*pSin*pNi,
+    pCos*pNi );
+
+  // Find the rotation angle needed to put the 3-momentum transfer along z
+  TVector3 zvec(0.0, 0.0, 1.0);
+  TVector3 q3Vec = qP4.Vect();
+  TVector3 rot = ( q3Vec.Cross(zvec) ).Unit(); // Vector to rotate about
+  // Angle between the z direction and q
+  double angle = zvec.Angle( q3Vec );
+
+  // Handle the edge case where q3Vec is along -z, so the
+  // cross product above vanishes
+  if ( q3Vec.Perp() == 0. && q3Vec.Z() < 0. ) {
+    rot = TVector3(0., 1., 0.);
+    angle = genie::constants::kPi;
+  }
+
+  // We want to rotate z to q3Vec instead of q3Vec to z, so
+  // make the rotation angle negative to account for this.
+  angle *= -1.;
+
+  // Rotate if the rotation vector is not approximately zero
+  if ( rot.Mag() >= genie::controls::kASmallNum ) {
+    p3Ni.Rotate( angle, rot );
+  }
+
+  // Build the initial struck nucleon 4-momentum
+  TLorentzVector p4Ni( p3Ni, ENi );
+
+  // Use it and the 4-momentum transfer to get the final nucleon 4-momentum
+  TLorentzVector p4Nf = p4Ni + qP4;
+
+  // Set the needed 4-momenta in the input interaction
+  interaction->InitState().TgtPtr()->SetHitNucP4( p4Ni );
+  interaction->KinePtr()->SetFSLeptonP4( lP4 );
+  interaction->KinePtr()->SetHadSystP4( p4Nf );
+
+  // A very high-momentum bound nucleon (which is far off the mass shell)
+  // can have a momentum greater than its total energy. This leads to numerical
+  // issues (NaNs) since the invariant mass of the nucleon becomes imaginary.
+  // In such cases, just return zero to avoid trouble.
+  if ( interaction->InitState().Tgt().HitNucP4().M() <= 0. ) return 0.;
+
+  // Mandelstam s for the probe/hit nucleon system
+  double s = std::pow( interaction->InitState().CMEnergy(), 2 );
+
+  // Return a differential cross section of zero if we're below threshold
+  if ( std::sqrt(s) < ml + mNf ) return 0.;
+
+  // Check that Q^2 is within the allowed range
+  double Q2 = -1 * qP4.Mag2();
+
+  // Check the Q2 range. If we're outside of it, don't bother
+  // with the rest of the calculation.
+  Range1D_t Q2lim = interaction->PhaseSpace().Q2Lim();
+  if ( Q2 < Q2lim.min || Q2 > Q2lim.max ) return 0.;
+
+  // Set Q^2 in the input interaction
+  interaction->KinePtr()->SetQ2( Q2 );
+
+  // Compute the QE cross section for the current kinematics
+  double xsec = xsec_model->XSec(interaction, genie::kPSQELEvGen);
+
+  // Adjust some factors for the testing phase space (which differs from
+  // kPSQELEvGen)
+  double delta_sol = EnergyDeltaFunctionSolutionQEL( *interaction );
+
+  double factor = lP4.E() * lP4.P() * p4Nf.E() * p4Ni.P()
+    / ( qMag * delta_sol );
+
+  xsec *= factor;
+
+  return xsec;
+}
