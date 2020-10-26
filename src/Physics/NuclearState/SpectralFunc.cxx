@@ -220,7 +220,7 @@ TH2D* SpectralFunc::SelectSpectralFunction(const Target& t) const
   // Prepend the data path to the file name
   data_filename = fDataPath + data_filename;
 
-  TH2D* sf_hist = this->LoadSFDataFile(data_filename);
+  TH2D* sf_hist = this->LoadSFDataFile( data_filename, t.Z() );
 
   LOG("SpectralFunc", pNOTICE) << "Loaded spectral function data"
     " for target with PDG code " << target_pdg << " from the file "
@@ -238,7 +238,8 @@ TH2D* SpectralFunc::SelectSpectralFunction(const Target& t) const
   return sf_hist;
 }
 //____________________________________________________________________________
-TH2D* SpectralFunc::LoadSFDataFile(const std::string& full_file_name) const
+TH2D* SpectralFunc::LoadSFDataFile(const std::string& full_file_name,
+  int targetZ ) const
 {
   int num_E_bins, num_p_bins;
   double p_min, p_max, E_min, E_max;
@@ -263,7 +264,6 @@ TH2D* SpectralFunc::LoadSFDataFile(const std::string& full_file_name) const
 
   // The input files use MeV while GENIE uses GeV, so make the
   // change to GENIE units now.
-  // change now
   E_min *= genie::units::MeV;
   E_max *= genie::units::MeV;
 
@@ -292,6 +292,13 @@ TH2D* SpectralFunc::LoadSFDataFile(const std::string& full_file_name) const
 
       // Convert from MeV to GeV
       E *= genie::units::MeV;
+
+      // Convert from MeV^(-4) to GeV^(-4)
+      prob_density *= std::pow( genie::units::MeV, -4 );
+
+      // Remove the normalization factor of Z from the values tabulated in the
+      // file
+      prob_density /= targetZ;
 
       // Convert bin contents from probability density to probability
       // mass for easier sampling
