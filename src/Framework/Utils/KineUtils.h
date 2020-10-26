@@ -74,12 +74,14 @@ namespace kinematics
   double Q2toQD2 (double Q2);
   void   WQ2toXY (double Ev, double M, double W, double Q2, double & x, double & y);
   void   XYtoWQ2 (double Ev, double M, double & W, double & Q2, double x, double y);
+  void   XQ2toWY (double Ev, double M, double & W, double Q2, double x, double & y);
   double XYtoW   (double Ev, double M, double x, double y);
   double XYtoQ2  (double Ev, double M, double x, double y);
   double Q2YtoX  (double Ev, double M, double Q2, double y);
 
   void  UpdateWQ2FromXY(const Interaction * in);
   void  UpdateXYFromWQ2(const Interaction * in);
+  void  UpdateWYFromXQ2(const Interaction * in);
   void  UpdateXFromQ2Y(const Interaction * in);
 
   //-- methods used to apply cuts to kinematical limits
@@ -92,7 +94,7 @@ namespace kinematics
   bool   IsAboveCharmThreshold (double x, double Q2, double M, double mc);
   double SlowRescalingVar      (double x, double Q2, double M, double mc);
 
-  //-- Functions used to define differential cross section distribution envelopes
+  //-- Functions used to define differential cross section distribution envelopes 
   //-- for importance sampling in kinematical selection modules
   double RESImportanceSamplingEnvelope(double * x, double * par);
   double DISImportanceSamplingEnvelope(double * x, double * par);

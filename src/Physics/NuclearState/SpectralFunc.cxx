@@ -143,6 +143,9 @@ void SpectralFunc::Configure(string param_set)
 //____________________________________________________________________________
 void SpectralFunc::LoadConfig(void)
 {
+
+  NuclearModelI::LoadConfig() ;
+
   LOG("SpectralFunc", pDEBUG) << "Loading Benhar et al. spectral functions";
 
   string data_dir =

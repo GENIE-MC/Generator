@@ -18,9 +18,13 @@
 #ifndef _GLASHOW_RESONANCE_GENERATOR_H_
 #define _GLASHOW_RESONANCE_GENERATOR_H_
 
-#include <TPythia6.h>
+#define __GENIE_PYTHIA6_ENABLED__
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
+
+#ifdef __GENIE_PYTHIA6_ENABLED__
+#include <TPythia6.h>
+#endif
 
 namespace genie {
 
@@ -43,7 +47,12 @@ private:
 
   void LoadConfig(void);
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
   mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
+#endif
+
+  double fWmin;               // Minimum value of W
+
 };
 
 }      // genie namespace

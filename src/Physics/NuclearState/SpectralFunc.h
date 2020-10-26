@@ -51,8 +51,11 @@ public:
   void Configure (const Registry & config);
   void Configure (string config);
 
-private:
+ protected:
   void       LoadConfig             (void);
+
+private:
+  
   TGraph2D * Convert2Graph          (TNtupleD & data) const;
   TGraph2D * SelectSpectralFunction (const Target & target) const; 
 

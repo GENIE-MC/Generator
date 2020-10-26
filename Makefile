@@ -104,6 +104,8 @@ physics-neutrino-scattering-modes: FORCE
 	cd ${GENIE}/src/Physics/Resonance/EventGen               &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/Strange/XSection                 &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/Strange/EventGen                 &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/HEDIS/XSection                   &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/HEDIS/EventGen                   &&  $(MAKE) &&   \
 	cd ${GENIE}
 
 physics-nucleon-decay:
@@ -165,6 +167,7 @@ physics-utilities: FORCE
 	cd ${GENIE}/src/Physics && \
 	cd Common              &&    $(MAKE) && cd .. && \
 	cd Decay               &&    $(MAKE) && cd .. && \
+	cd HadronTensors       &&    $(MAKE) && cd .. && \
 	cd MuonEnergyLoss      &&    $(MAKE) && cd .. && \
 	cd PartonDistributions &&    $(MAKE) && cd .. && \
 	cd XSectionIntegration &&    $(MAKE) && \
@@ -351,6 +354,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/GlashowResonance/XSection
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/GlashowResonance/EventGen
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Hadronization
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/HadronTensors
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/HadronTransport
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/InverseBetaDecay
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/InverseBetaDecay/XSection
@@ -377,6 +381,9 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Strange
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Strange/XSection
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Strange/EventGen
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/HEDIS
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/HEDIS/XSection
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/HEDIS/EventGen
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/XSectionIntegration
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools/Flux
@@ -416,6 +423,7 @@ copy-install-files: FORCE
 	cd ${GENIE}/src/Physics/GlashowResonance/EventGen        &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Hadronization                    &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/HadronTransport                  &&  $(MAKE) install && \
+	cd ${GENIE}/src/Physics/HadronTensors                    &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/InverseBetaDecay/XSection        &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/InverseBetaDecay/EventGen        &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Multinucleon/XSection            &&  $(MAKE) install && \
@@ -435,6 +443,8 @@ copy-install-files: FORCE
 	cd ${GENIE}/src/Physics/Resonance/EventGen               &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Strange/XSection                 &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Strange/EventGen                 &&  $(MAKE) install && \
+	cd ${GENIE}/src/Physics/HEDIS/XSection                   &&  $(MAKE) install && \
+	cd ${GENIE}/src/Physics/HEDIS/EventGen                   &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/XSectionIntegration              &&  $(MAKE) install && \
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) install && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) install && \
@@ -471,6 +481,7 @@ purge: FORCE
 	cd ${GENIE}/src/Physics/GlashowResonance/XSection        &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/GlashowResonance/EventGen        &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Hadronization                    &&  $(MAKE) purge && \
+	cd ${GENIE}/src/Physics/HadronTensors                    &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/HadronTransport                  &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/InverseBetaDecay/XSection        &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/InverseBetaDecay/EventGen        &&  $(MAKE) purge && \
@@ -491,6 +502,8 @@ purge: FORCE
 	cd ${GENIE}/src/Physics/Resonance/EventGen               &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Strange/XSection                 &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Strange/EventGen                 &&  $(MAKE) purge && \
+	cd ${GENIE}/src/Physics/HEDIS/XSection                   &&  $(MAKE) purge && \
+	cd ${GENIE}/src/Physics/HEDIS/EventGen                   &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/XSectionIntegration              &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) purge && \
@@ -528,6 +541,7 @@ clean-files: FORCE
 	cd ${GENIE}/src/Physics/GlashowResonance/XSection        &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/GlashowResonance/EventGen        &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Hadronization                    &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Physics/HadronTensors                    &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/HadronTransport                  &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/InverseBetaDecay/XSection        &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/InverseBetaDecay/EventGen        &&  $(MAKE) clean && \
@@ -548,6 +562,8 @@ clean-files: FORCE
 	cd ${GENIE}/src/Physics/Resonance/EventGen               &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Strange/XSection                 &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Strange/EventGen                 &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Physics/HEDIS/XSection                   &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Physics/HEDIS/EventGen                   &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/XSectionIntegration              &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) clean && \
@@ -599,6 +615,7 @@ distclean: FORCE
 	cd ${GENIE}/src/Physics/GlashowResonance/EventGen        &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Hadronization                    &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/HadronTransport                  &&  $(MAKE) distclean && \
+	cd ${GENIE}/src/Physics/HadronTensors                    &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/InverseBetaDecay/XSection        &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/InverseBetaDecay/EventGen        &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Multinucleon/XSection            &&  $(MAKE) distclean && \
@@ -618,6 +635,8 @@ distclean: FORCE
 	cd ${GENIE}/src/Physics/Resonance/EventGen               &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Strange/XSection                 &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Strange/EventGen                 &&  $(MAKE) distclean && \
+	cd ${GENIE}/src/Physics/HEDIS/XSection                   &&  $(MAKE) distclean && \
+	cd ${GENIE}/src/Physics/HEDIS/EventGen                   &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/XSectionIntegration              &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) distclean && \

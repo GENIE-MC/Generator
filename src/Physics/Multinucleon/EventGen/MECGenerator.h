@@ -14,7 +14,7 @@
 \created  Sep. 22, 2008
 
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -28,8 +28,9 @@
 
 namespace genie {
 
-class XSecAlgorithmI;
+class Interaction;
 class NuclearModelI;
+class XSecAlgorithmI;
 
 class MECGenerator : public EventRecordVisitorI {
 
@@ -57,14 +58,23 @@ private:
   void    RecoilNucleonCluster              (GHepRecord * event) const;
   void    DecayNucleonCluster               (GHepRecord * event) const;
   void    SelectNSVLeptonKinematics         (GHepRecord * event) const;
+  void    SelectSuSALeptonKinematics        (GHepRecord * event) const;
   void    GenerateNSVInitialHadrons         (GHepRecord * event) const;
   PDGCodeList NucleonClusterConstituents    (int pdgc)           const;
+
+  // Helper function that computes the maximum differential cross section
+  // in the kPSTlctl phase space
+  double GetXSecMaxTlctl( const Interaction& inter ) const;
 
   mutable const XSecAlgorithmI * fXSecModel;
   mutable TGenPhaseSpace         fPhaseSpaceGenerator;
   const NuclearModelI *          fNuclModel;
 
   double fQ3Max;
+
+  // Tolerate this maximum percent deviation above the calculated maximum cross
+  // section when sampling lepton kinematics for the SuSAv2-MEC model.
+  double fSuSAMaxXSecDiffTolerance;
 };
 
 }      // genie namespace

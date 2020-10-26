@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the HEDISKinematicsGenerator EventRecordVisitorI
+
+Algorithm Configurable Parameters:
+.......................................................................................................................
+Name                     Type    Opt   Comment                                        Default
+.......................................................................................................................
+MaxXSec-SafetyFactor     double  Yes   multiplies max xsec in rejection method        1.2
+-->
+
+  <param_set name="Default"> 
+     <param type="string" name="CommonParam">            HEDIS-SF  </param>
+     <param type="int"    name="ScanWide-NKnotsX">              10 </param>
+     <param type="int"    name="ScanWide-NKnotsQ2">             10 </param>
+     <param type="double" name="ScanWide-Range">               1.3 </param>
+     <param type="int"    name="ScanFine-NKnotsX">              20 </param>
+     <param type="int"    name="ScanFine-NKnotsQ2">             20 </param>
+     <param type="double" name="ScanFine-Range">                5. </param>
+     <param type="double" name="MaxXSec-SafetyFactor">         1.2 </param>
+  </param_set>
+
+</alg_conf>
+

@@ -12,7 +12,7 @@
 #include <cstdlib>
 
 #include "Framework/Numerical/Interpolator2D.h"
-#include "gsl/gsl_version.h"
+//#include "gsl/gsl_version.h"
 
 using namespace genie;
 
