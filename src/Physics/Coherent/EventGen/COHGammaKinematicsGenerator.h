@@ -63,6 +63,7 @@ namespace genie {
     std::array<unsigned int, 4> fMinimScanPoints ;
     bool ftPhaseSpace ;
 
+    unsigned int fMaxIterations ; 
   };
   
 }      // genie namespace

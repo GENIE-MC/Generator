@@ -21,6 +21,9 @@ IntegrationLimits        algo    No     Specificies integration limit algorithm
                                           It is required for COH gamma configurations 
 tPhaseSpace              bool    yes     Generate the events in the t phase space       false 
                                          instead of theta_l 
+
+MaxIterations            int     yes     Maximum number of iterations to try            controls::kRjMaxIterations
+                                         acceptance / rejection method
 -->
 
 <alg_conf>
@@ -28,6 +31,8 @@ tPhaseSpace              bool    yes     Generate the events in the t phase spac
   <param_set name="Default"> 
 
     <param type="double" name="MaxXSec-SafetyFactor"> 1.05 </param>
+
+    <param type="int" name="MaxIterations"> 5000 </param>
     
     <param type="vec-int" name="MinimScanPoint" delim=";" > 10 ; 200 ; 10 ; 1 </param> 
 

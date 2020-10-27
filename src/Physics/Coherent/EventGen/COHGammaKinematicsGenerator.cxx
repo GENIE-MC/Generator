@@ -144,7 +144,7 @@ void COHGammaKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   while(1) {
     iter++;
     
-    if(iter > kRjMaxIterations) this->throwOnTooManyIterations(iter,evrec);
+    if( iter > fMaxIterations )  this->throwOnTooManyIterations(iter,evrec);
     
     // generate the kinematic point
     for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
@@ -391,6 +391,12 @@ void COHGammaKinematicsGenerator::LoadConfig(void)
   //   section used in rejection method
   GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
   assert(fMaxXSecDiffTolerance>=0);
+
+  int max_iter ;
+  GetParamDef( "MaxIterations", max_iter, (int) kRjMaxIterations ) ;
+  if ( max_iter > 0 ) {
+    fMaxIterations = max_iter ;
+  }
 
   const Algorithm * temp = SubAlg( "IntegrationLimits" ) ;
   fGammaLimits = dynamic_cast<const COHGammaIntegrationLimits *>( temp ) ;
