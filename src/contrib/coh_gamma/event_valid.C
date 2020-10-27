@@ -202,19 +202,28 @@ void GraphIntegratedCOHGammaXsec( double nevts, TH1 * h_E_g, TFile & file ) {
   double theta_g = ( g_theta_g_max + g_theta_g_min ) / 2. ;
   double phi_g   = ( g_phi_g_max + g_phi_g_min ) / 2. ;
 
+  double wtheta_l = ( g_theta_l_max - g_theta_l_min ) ;
+  double wtheta_g = ( g_theta_g_max - g_theta_g_min ) ;
+  double wphi_g   = ( g_phi_g_max - g_phi_g_min ) ;
+
   int nbin = h_E_g -> GetNbinsX() ;
+  double xsec_i_arr[nbin];
   double xsec_arr[nbin];
   double eg_arr[nbin];
 
   for ( int b = 1; b < nbin; b++ ) {
     double Eg = h_E_g -> GetXaxis() -> GetBinCenter( b ) ;
     double Ni = h_E_g -> GetBinContent( b ) ;
+    double wbin = h_E_g -> GetBinWidth( b ) ;
+
     eg_arr[b-1] = Eg ;
     std::array<double, 4> point = { Eg, theta_l, theta_g, phi_g } ; 
-    xsec_arr[b-1] = func( point.data() ) * ( Ni / nevts ) ;
+    xsec_i_arr[b-1] =  1.2301927672e-14 * ( Ni / nevts ) / ( wbin * wtheta_l * wtheta_g * wphi_g ) ; // sigma(Ev) from spine file for 1GeV
+    xsec_arr[b-1] = func( point.data() ) ;
+    std::cout << "Eg = " << Eg << "Sigma functor = " << xsec_arr[b-1] << " event = " << xsec_i_arr[b-1] << std::endl;
   }
 
-  auto gr = new TGraph( nbin, eg_arr, xsec_arr ); gr->SetLineColor(1); gr->SetLineWidth(2);
+  auto gr = new TGraph( nbin, eg_arr, xsec_i_arr ); gr->SetLineColor(1); gr->SetLineWidth(2);
   gr -> Write();
 
   return ;
