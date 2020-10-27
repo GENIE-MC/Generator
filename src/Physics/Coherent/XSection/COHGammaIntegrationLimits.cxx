@@ -52,8 +52,7 @@ Range1D_t COHGammaIntegrationLimits::EGamma( const Interaction & in ) const {
 //____________________________________________________________________________
 Range1D_t COHGammaIntegrationLimits::ThetaGamma( const Interaction & ) const {
 
-  return Range1D_t( controls::kASmallNum, 
-		    constants::kPi - controls::kASmallNum ) ; 
+  return Range1D_t( controls::kASmallNum, fMaxThetag ) ; 
 }
 //____________________________________________________________________________
 Range1D_t COHGammaIntegrationLimits::PhiGamma( const Interaction & ) const {
@@ -80,11 +79,12 @@ Range1D_t COHGammaIntegrationLimits::ThetaLepton( const Interaction & in ) const
     
     double min_cos_theta_limit = 1. - 2. * target_mass * ( sqrt_s - target_mass - e_gamma_range.min ) / ( sqrt_s * min_e_l ) ; 
     
-    double min_cos_theta = std::max( -1., min_cos_theta_limit ) ;
-
-    max = acos( min_cos_theta ) ;
+    if ( min_cos_theta_limit > -1. ) { 
+      max = acos( min_cos_theta_limit ) ;
+    }
+    
   }
-
+  
   return Range1D_t( min, max ) ; 
 }
 //____________________________________________________________________________
@@ -121,6 +121,10 @@ void COHGammaIntegrationLimits::LoadConfig(void)
   }
 
   GetParam( "MaxGammaEnergy", fMaxEg ) ;
+
+  GetParamDef( "MaxGammaTheta", fMaxThetag, 180. - controls::kASmallNum ) ;
+  fMaxThetag *= constants::kPi / 180. ; 
+  fMaxThetag = std::min( fMaxThetag, constants::kPi ) ; 
 
   if ( ! good_configuration ) {
     LOG("COHGammaIntegrationLimits", pFATAL ) << "Bad configuration: exiting" ;

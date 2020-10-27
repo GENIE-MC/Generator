@@ -57,6 +57,7 @@ private:
 
   const COHFormFactorI * fFF ;
   double fMaxEg ;
+  double fMaxThetag ;
 
 };
 
