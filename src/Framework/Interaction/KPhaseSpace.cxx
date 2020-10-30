@@ -128,7 +128,7 @@ double KPhaseSpace::Threshold(void) const
      pi.IsResonant()                ||
      pi.IsDeepInelastic()           ||
      pi.IsDarkMatterDeepInelastic() ||
-     pi.IsDiffractive()) 
+     pi.IsDiffractive())
   {
     assert(tgt.HitNucIsSet());
     double Mn   = tgt.HitNucP4Ptr()->M();
@@ -203,7 +203,8 @@ double KPhaseSpace::Threshold(void) const
 
   SLOG("KPhaseSpace", pERROR)
          << "Can't compute threshold for \n" << *fInteraction;
-  exit(1);
+  throw genie::exceptions::InteractionException("Can't compute threshold");
+  //exit(1);
 
   return 99999999;
 }
@@ -256,8 +257,8 @@ bool KPhaseSpace::IsAboveThreshold(void) const
       pi.IsIMDAnnihilation()    ||
       pi.IsNuElectronElastic()  ||
       pi.IsDarkMatterElectronElastic() ||
-      pi.IsMEC()                || 
-      pi.IsGlashowResonance()) 
+      pi.IsMEC()                ||
+      pi.IsGlashowResonance())
   {
       E = init_state.ProbeE(kRfLab);
   }
@@ -270,7 +271,7 @@ bool KPhaseSpace::IsAboveThreshold(void) const
      pi.IsDarkMatterDeepInelastic() ||
      pi.IsDiffractive()             ||
      pi.IsSingleKaon()              ||
-     pi.IsAMNuGamma()) 
+     pi.IsAMNuGamma())
   {
       E = init_state.ProbeE(kRfHitNucRest);
   }
