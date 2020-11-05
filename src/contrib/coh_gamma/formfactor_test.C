@@ -23,7 +23,7 @@
 using namespace genie ;
 
 
-void formfactor_test( std::string algo_name  = "genie::DeVriesFormFactorMap" , 
+void formfactor_test( std::string algo_name  = "genie::DeVriesFormFactorInterpolation" , 
 		      std::string algo_par_set = "Default",
 		      TString out_file_name = "" ) {
 
