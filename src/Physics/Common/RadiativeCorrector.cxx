@@ -259,7 +259,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
         if (!fISR && !radDone) {
  	   //-- Update the event weight for each weighted particle decay
 	   float radcor_weight = 1.;
-	   if(fModel == "vanderhagen") 
+	   if(fModel == "vanderhagen" || fModel == "simple") 
 	   {
 	   	TF1 *fsp = new TF1("fsp","TMath::Log(1-x)* (1./x)");
 	   	double SP = -1*fsp->Integral(e_gamma_min,pow(cos(p4tag.Theta())/2,2));
@@ -272,6 +272,17 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 					             + SP );
    		LOG("RadiativeCorrector", pINFO) << "radcor_weight "<<radcor_weight;
 	   }
+
+	   /*if(fModel=="simple") 
+	   {
+		double QSq = 2.*init_state_ptr->ProbeE(kRfLab)* kine->FSLeptonP4().E() * (1.-TMath::Cos(p4tag.Theta()));
+  		double eta = init_state_ptr->ProbeE(kRfLab)/kine->FSLeptonP4().E();
+
+		radcor_weight = - (kAem /kPi) * ( 13.0/6.*TMath::Logkine->Q2(true)/pow(kElectronMass,2)) 
+					        - 28.0/9. 
+						- 0.5*TMath::Power(TMath::Log(eta),2.)
+			 			+ TMath::DiLog(TMath::Power(TMath::Cos(0.5*theta_e),2.)) - M_PI*M_PI/6.);
+	   }*/
 
            if(fModel=="simc")
 	   {
