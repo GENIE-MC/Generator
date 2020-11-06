@@ -50,11 +50,14 @@ void formfactor_test( std::string algo_name  = "genie::DeVriesFormFactorMap" ,
       
       int pdg = pdg::IonPdgCode( n+z, z ) ;
 
+      TParticlePDG * pdg_particle = PDGLibrary::Instance() -> Find( pdg ) ; 
+      if ( ! pdg_particle ) continue ;
+      
       if ( form_factor -> HasNucleus( pdg ) ) {
 	
         std::cout << "FF Has Nucleus " << pdg <<  std::endl;
 	Range1D_t q_range = form_factor -> QRange( pdg ) ;
-
+	
         int nQ = 200;
         double Q = q_range.min;
         double ff_p_arr[nQ];
@@ -70,7 +73,7 @@ void formfactor_test( std::string algo_name  = "genie::DeVriesFormFactorMap" ,
 	  Q += delta_q ; 
         }
 
-        std::string nucleus( PDGLibrary::Instance() -> Find( pdg ) -> GetTitle() ) ;
+        std::string nucleus( pdg_particle -> GetTitle() ) ;
         std::string p_title = "Proton Form Factor for " + nucleus + ";Q [GeV];FF";
         std::string n_title = "Neutron Form Factor for " + nucleus + ";Q [GeV];FF";
 
