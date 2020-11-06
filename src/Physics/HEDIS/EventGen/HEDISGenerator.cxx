@@ -19,6 +19,7 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Numerical/MathUtils.h"
+#include "Framework/Conventions/Constants.h"
 
 #include <RVersion.h>
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
@@ -47,7 +48,7 @@ HEDISGenerator::~HEDISGenerator()
 {
 
 }
-//____________________________________________________________________________                                                                                        
+//____________________________________________________________________________
 void HEDISGenerator::Initialize(void) const
 {
 
@@ -81,18 +82,18 @@ void HEDISGenerator::AddPrimaryLepton(GHepRecord * evrec) const
   // Look-up selected kinematics & other needed kinematical params
   long double Q2  = interaction->Kine().Q2(true);
   long double y   = interaction->Kine().y(true);
-  long double Ev  = p4v.E(); 
+  long double Ev  = p4v.E();
   long double ml  = interaction->FSPrimLepton()->Mass();
   long double ml2 = powl(ml,2);
 
   // Compute the final state primary lepton energy and momentum components
-  // along and perpendicular the neutrino direction 
+  // along and perpendicular the neutrino direction
   long double El  = (1-y)*Ev;
   long double plp = El - 0.5*(Q2+ml2)/Ev;                          // p(//)
   long double plt = sqrtl(fmaxl(0.,El*El-plp*plp-ml2)); // p(-|)
   // Randomize transverse components
   RandomGen * rnd = RandomGen::Instance();
-  long double phi  = 2 * M_PIl * rnd->RndLep().Rndm();
+  long double phi  = 2 * constants::kPi * rnd->RndLep().Rndm();
   long double pltx = plt * cosl(phi);
   long double plty = plt * sinl(phi);
 
@@ -101,7 +102,7 @@ void HEDISGenerator::AddPrimaryLepton(GHepRecord * evrec) const
   p4llong.Rotate(p4v);
   LOG("HEDISGenerator", pINFO) << "LEPTON     @ LAB' =>  E = " << p4llong.E() << " //  m = " << p4llong.M() << " // p = " << p4llong.P();
   LOG("HEDISGenerator", pINFO) << "                    dir = " << p4llong.Dx() << " , "  << p4llong.Dy() << " , "  << p4llong.Dz();
- 
+
   // Translate from long double to double
   TLorentzVector p4l( (double)p4llong.Px(), (double)p4llong.Py(), (double)p4llong.Pz(), (double)p4llong.E() );
 
@@ -129,7 +130,7 @@ void HEDISGenerator::LoadConfig(void)
   fHadronizationModel = 0;
 
   //-- Get the requested hadronization model
-  fHadronizationModel = 
+  fHadronizationModel =
      dynamic_cast<const EventRecordVisitorI *> (this->SubAlg("Hadronizer"));
   assert(fHadronizationModel);
 
