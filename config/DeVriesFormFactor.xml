@@ -81,7 +81,7 @@ DV-QMax            double      No         Maximum Q value for the validity of th
 
    
     <param type="vec-double" name="DV-Coefficient" delim=";"> 
-      0.25491e-1 ;  0.50618e-1 ;  029822e-1 ; -0.55196e-2 ; -0.15913e-1 ;
+      0.25491e-1 ;  0.50618e-1 ;  0.29822e-1 ; -0.55196e-2 ; -0.15913e-1 ;
      -0.76184e-2 ; -0.23992e-2 ; -0.47940e-3 
     </param>
   </param_set>

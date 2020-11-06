@@ -4,6 +4,7 @@
 #include "TTree.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TGraph.h"
 
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Algorithm/Algorithm.h"
@@ -16,6 +17,7 @@
 
 #include "Framework/GHEP/GHepParticle.h"       
 #include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/GHEP/GHepStatus.h"
 
 #include "Framework/ParticleData/PDGCodes.h"
@@ -23,13 +25,16 @@
 using namespace genie ;
 
 
-void formfactor_test( std::string algo_name  = "genie::DeVriesFormFactorInterpolation" , 
+void formfactor_test( std::string algo_name  = "genie::DeVriesFormFactorMap" , 
 		      std::string algo_par_set = "Default",
 		      TString out_file_name = "" ) {
 
   if ( out_file_name == "" ) {
-
-    out_file_name = "ff_graphs.root";
+    
+    std::string name = algo_name.substr( algo_name.find("::") + 2 ) ;
+    name += "_ff_graphs.root" ;
+        
+    out_file_name = name.c_str() ;
 
   }
     
