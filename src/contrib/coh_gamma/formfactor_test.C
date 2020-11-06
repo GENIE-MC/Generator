@@ -45,8 +45,8 @@ void formfactor_test( std::string algo_name  = "genie::DeVriesFormFactorMap" ,
   
   const COHFormFactorI * form_factor = dynamic_cast<const COHFormFactorI*>( algo ) ; 
 
-  for ( unsigned int z = 2 ; z < 100 ; ++z ) {  // a better limit coudl be nice, don't even know what z is
-    for ( unsigned int n = z/2 ; n < 2*z ; ++n ) {
+  for ( unsigned int z = 1 ; z < 100 ; ++z ) {  // a better limit coudl be nice, don't even know what z is
+    for ( unsigned int n = z/2 ; n <= 2*z ; ++n ) {
       
       int pdg = pdg::IonPdgCode( n+z, z ) ;
 
