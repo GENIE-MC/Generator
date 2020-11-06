@@ -1,14 +1,14 @@
 #include "INukeOsetFormula.h"
 
-// constants 
-const double INukeOsetFormula :: fCouplingConstant = 0.36 * 4.0 * M_PI;
+// constants
+const double INukeOsetFormula :: fCouplingConstant = 0.36 * 4.0 * kPi;
 
 const double INukeOsetFormula :: fNormalDensity = 0.17; // fm-3
 
 const double INukeOsetFormula :: fNormFactor = 197.327 * 197.327 * 10.0;
 
 // particles mass
-                                                            
+
 const double INukeOsetFormula :: fNucleonMass  = kNucleonMass * 1000.0; // [MeV]
 const double INukeOsetFormula :: fNucleonMass2 = fNucleonMass * fNucleonMass;
 
@@ -37,7 +37,7 @@ using namespace osetUtils;
 //! @f$ p_{F} = \left(\frac{3}{2}\pi\rho\right)^{1/3} @f$
 void INukeOsetFormula :: setNucleus (const double &density)
 {
-  static const double constFactor = 3.0 / 2.0 * M_PI * M_PI;
+  static const double constFactor = 3.0 / 2.0 * kPi * kPi;
 
   fNuclearDensity = density;
   fFermiMomentum  = pow (constFactor * fNuclearDensity, 1.0 / 3.0) * 197.327;
@@ -48,7 +48,7 @@ void INukeOsetFormula :: setNucleus (const double &density)
  *  <li> set pointer to proper mass (charged vs neutral)
  *  <li> calculate energy, momentum (in LAB and CMS) and invariant mass
  *  </ul>
- */ 
+ */
 void INukeOsetFormula :: setKinematics (const double &pionTk, const bool &isPi0)
 {
   if (isPi0)
@@ -79,10 +79,10 @@ void INukeOsetFormula :: setKinematics (const double &pionTk, const bool &isPi0)
  *  <li> calculalte Delta self energy
  *  <li> calculalte Delta propagator
  *  </ul>
- */ 
+ */
 void INukeOsetFormula :: setDelta ()
 {
-  static const double constFactor = 1.0 / 12.0 / M_PI;
+  static const double constFactor = 1.0 / 12.0 / kPi;
 
   fCouplingFactor = fCouplingConstant / fPionMass2; // (f*/m_pi)^2, e.g. eq. 2.6
 
@@ -121,8 +121,8 @@ void INukeOsetFormula :: setCrossSections ()
   const double pXsecAbsorption = pAborptionFactor * pXsecCommon *
                                  fSelfEnergyAbsorption;
 
-  // constant factor for s-wave absorption cross section 
-  static const double sAbsorptionFactor = 4.0 * M_PI * 197.327 * 10.0 * ImB0;
+  // constant factor for s-wave absorption cross section
+  static const double sAbsorptionFactor = 4.0 * kPi * 197.327 * 10.0 * ImB0;
 
   // absorption s-wave cross section (see sec. 3.3)
   const double sXsecAbsorption = sAbsorptionFactor / fPionMomentum * fNuclearDensity *
@@ -131,12 +131,12 @@ void INukeOsetFormula :: setCrossSections ()
   // total absorption cross section coming from both s- and p-waves
   fAbsorptionCrossSection = pXsecAbsorption + sXsecAbsorption;
 
-  // ----- TOTAL ----- //  
+  // ----- TOTAL ----- //
 
   // el+cex p-wave cross section (will be multipled by proper factor later)
   const double pXsecTotalQel = pXsecCommon * fReducedHalfWidth;
 
-  // see eq. 3.7 
+  // see eq. 3.7
   const double ksi = (fInvariantMass - fNucleonMass - fPionMass) / fPionMass;
 
   // el+cex s-wave cross section
@@ -172,11 +172,11 @@ void INukeOsetFormula :: setCrossSections ()
   for (unsigned int i = 0; i < fNChannels; i++)
     fCexCrossSections[i] = pCexFactor[i] * pXsecTotalQel + sCexFactor[i] * sXsecTotalQel;
 }
-                                  
+
 //! related to Pauli blocking, see sec. 2.3
 double INukeOsetFormula :: deltaReduction () const
 {
-  // assuming nucleon at rest 
+  // assuming nucleon at rest
   const double deltaEnergy = fPionEnergy + fNucleonMass;
   // nucleon energy in CMS
   const double energyCMS   = sqrt(fMomentumCMS * fMomentumCMS + fNucleonMass2);
@@ -187,7 +187,7 @@ double INukeOsetFormula :: deltaReduction () const
   // see eq. 2.13
   if (mu0 < -1.0) return 0.0;
   if (mu0 >  1.0) return 1.0;
-  
+
   return (mu0*mu0*mu0 + mu0 + 2) / 4.0;
 }
 
@@ -222,15 +222,15 @@ void INukeOsetFormula :: setSelfEnergy ()
  *  <li> set up kinematics
  *  <li> set up Delta (width, propagator)
  *  <li> calculate cross sections
- *  </ul> 
+ *  </ul>
  */
-void INukeOsetFormula :: setupOset (const double &density, const double &pionTk, const int &pionPDG, 
+void INukeOsetFormula :: setupOset (const double &density, const double &pionTk, const int &pionPDG,
                                     const double &protonFraction)
 {
   setNucleus (density);
   setKinematics (pionTk, pionPDG == kPdgPi0);
   setDelta();
   setCrossSections ();
-  INukeOset::setCrossSections (pionPDG, protonFraction);  
+  INukeOset::setCrossSections (pionPDG, protonFraction);
 }
 
