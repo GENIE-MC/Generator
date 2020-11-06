@@ -126,7 +126,7 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord *
     long double sinth = sqrtl( 1-powl(costh,2.) );
     // Randomize transverse components
     RandomGen * rnd = RandomGen::Instance();
-    long double phi  = 2* M_PIl * rnd->RndLep().Rndm();
+    long double phi  = 2* constants::kPi * rnd->RndLep().Rndm();
     
     LOG("GLRESGenerator", pINFO) << "Q2 = " << Q2 << ", cos(theta) = " << costh << ", phi = " << phi;
    
