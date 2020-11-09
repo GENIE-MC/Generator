@@ -25,6 +25,9 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Numerical/MathUtils.h"
+#include "Framework/Interaction/InteractionException.h"
+
+#include <sstream>
 
 using namespace genie;
 using namespace genie::constants;
@@ -155,9 +158,16 @@ double genie::utils::kinematics::Jacobian(
   bool forward;
   const Kinematics & kine = i->Kine();
 
+  // cover the simple case
+  if ( fromps == tops )
+  {
+    forward = true;
+    J = 1.;
+  }
   //
   // transformation: {Q2}|E -> {lnQ2}|E
   //
+  else
   if ( TransformMatched(fromps,tops,kPSQ2fE,kPSlogQ2fE,forward) )
   {
     J = 1. / kine.Q2();
@@ -263,11 +273,13 @@ double genie::utils::kinematics::Jacobian(
   }
 
   else {
-     SLOG("KineLimits", pFATAL)
-       << "*** Can not compute Jacobian for transforming: "
+     std::ostringstream msg;
+     msg << "Can not compute Jacobian for transforming: "
        << KinePhaseSpace::AsString(fromps) << " --> "
        << KinePhaseSpace::AsString(tops);
-     exit(1);
+     SLOG("KineLimits", pFATAL) << "*** " << msg.str();
+     throw genie::exceptions::InteractionException(msg.str());
+     //exit(1);
   }
 
   // if any of the above transforms was reverse, invert the jacobian
