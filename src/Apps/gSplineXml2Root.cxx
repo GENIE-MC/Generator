@@ -1397,14 +1397,14 @@ void GetCommandLineArgs(int argc, char ** argv)
        gEmin = atof(nurange[0].c_str());
        gEmax = atof(nurange[1].c_str());
     } else {
-      const Registry * val_reg = AlgConfigPool::Instance() -> CommonList( "Validation", "Param" ) ;
+      const Registry * val_reg = AlgConfigPool::Instance() -> CommonList( "Param", "Validation" ) ;
       gEmin = val_reg -> GetDouble( "GVLD-Emin" ) ; 
       gEmax = atof(nue.c_str());
       LOG("gspl2root", pDEBUG)
 	<< "Unspecified Emin - Setting to " << gEmin << " GeV as per configuration";
     }
   } else {
-    const Registry * val_reg = AlgConfigPool::Instance() -> CommonList( "Validation", "Param" ) ;
+    const Registry * val_reg = AlgConfigPool::Instance() -> CommonList("Param", "Validation" ) ;
     gEmin = val_reg -> GetDouble( "GVLD-Emin" ) ; 
     gEmax = 100;
     LOG("gspl2root", pDEBUG)
