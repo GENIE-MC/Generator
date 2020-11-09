@@ -1,4 +1,5 @@
-bin/
+
+mySplines/bin/
 lib/
 doxygen/
 build-env.log
