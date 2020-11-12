@@ -20,6 +20,8 @@
 #include "Physics/Coherent/XSection/DeVriesFormFactorMap.h"
 #include "Framework/Registry/RegistryItemTypeDef.h"
 
+#include "Framework/ParticleData/PDGUtils.h"
+
 using namespace genie;
 
 
@@ -55,6 +57,22 @@ double DeVriesFormFactorMap::ProtonFF( double Q, int pdg ) const {
 
   return it -> second -> Calculator().FormFactor( Q ) ;
 
+}
+//____________________________________________________________________________
+double DeVriesFormFactorMap::NeutronFF( double Q, int pdg ) const {
+
+  // DeVries form factor are measured from EM interactions
+  // so they are the EM charge distribution inside the nucleus
+  // The neutron charge distribution is assumed to be the same 
+  // as the proton component, with a normalization as the total weak charge is 
+  // the number of neutron, not the number of protons. 
+  // In Fourier transform, the normalization is easy as 
+  // FF(Q=0) = total charge = Z for proton or (A-Z) for Neutron 
+
+  int z = pdg::IonPdgCodeToZ( pdg ) ; 
+  double scale = ( pdg::IonPdgCodeToA( pdg ) - z ) / (double) z ; 
+
+  return scale * ProtonFF( Q, pdg ) ; 
 }
 //____________________________________________________________________________
 genie::Range1D_t DeVriesFormFactorMap::QRange( int pdg ) const {

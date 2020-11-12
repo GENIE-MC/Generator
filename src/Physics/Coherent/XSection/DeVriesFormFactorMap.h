@@ -39,9 +39,7 @@ public:
   // methods to be implemented from COHFormFactorI
   virtual double ProtonFF ( double Q, int pdg ) const override ;
 
-  virtual double NeutronFF( double Q, int pdg ) const override {
-    return ProtonFF( Q, pdg ) ;
-  }
+  virtual double NeutronFF( double Q, int pdg ) const override ; 
 
   virtual bool HasNucleus( int pdg ) const override ;
 
