@@ -266,6 +266,7 @@ foreach $nu ( @nu_list ) {
  	 print HTC "Error                  = $filename_template.err \n";
  	 print HTC "Request_memory         = 2 GB \n";
 	 print HTC "priority               = -1 \n" if ( $priority ) ;
+	 print HTC "requirements           = (Opsys =?= \"LINUX\") && (AccessToData =?= True) && (OpSysAndVer =?= \"CentOS7\")  \n" ;
  	 print HTC "Queue \n";
  	 close(HTC);
  	 push ( @batch_commands, "condor_submit $batch_script" ) ;

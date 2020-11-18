@@ -60,6 +60,22 @@ const int kPdgSDDiquarkS1      =  3103; // sd, spin = 1
 const int kPdgSUDiquarkS0      =  3201; // su, spin = 0
 const int kPdgSUDiquarkS1      =  3203; // su, spin = 1
 const int kPdgSSDiquarkS1      =  3303; // ss, spin = 1
+const int kPdgCDDiquarkS0      =  4101; // cd, spin = 0
+const int kPdgCDDiquarkS1      =  4103; // cd, spin = 1
+const int kPdgCUDiquarkS0      =  4201; // cu, spin = 0
+const int kPdgCUDiquarkS1      =  4203; // cu, spin = 1
+const int kPdgCSDiquarkS0      =  4301; // cs, spin = 0
+const int kPdgCSDiquarkS1      =  4303; // cs, spin = 1
+const int kPdgCCDiquarkS1      =  4403; // cc, spin = 1
+const int kPdgBDDiquarkS0      =  5101; // bd, spin = 0
+const int kPdgBDDiquarkS1      =  5103; // bd, spin = 1
+const int kPdgBUDiquarkS0      =  5201; // bu, spin = 0
+const int kPdgBUDiquarkS1      =  5203; // bu, spin = 1
+const int kPdgBSDiquarkS0      =  5301; // bs, spin = 0
+const int kPdgBSDiquarkS1      =  5303; // bs, spin = 1
+const int kPdgBCDiquarkS0      =  5401; // bc, spin = 0
+const int kPdgBCDiquarkS1      =  5403; // bc, spin = 1
+const int kPdgBBDiquarkS1      =  5503; // bb, spin = 1
 
 const int kPdgProton           =  2212; //
 const int kPdgAntiProton       = -2212; //

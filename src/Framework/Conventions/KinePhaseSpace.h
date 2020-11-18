@@ -38,6 +38,7 @@ typedef enum EKinePhaseSpace {
   kPSlogyfEx,
   kPSxyfE,
   kPSlogxlogyfE,
+  kPSxQ2fE,
   kPSQ2fE,
   kPSQD2fE,
   kPSlogQ2fE,
@@ -68,6 +69,7 @@ typedef enum EKinePhaseSpace {
   kPSTAfE,
   kPSEgTlOgfE,
   kPSDMELEvGen, // Equivalent to kPSQELEvGen for Dark Matter scattering
+  kPSlog10xlog10Q2fE,
   kPSEDNufE // Used for Dark Neutrinos, two body final state
 } KinePhaseSpace_t;
 
@@ -93,6 +95,7 @@ public:
       case(kPSlogyfEx)    : return "<{logy}|E,x>";    break;
       case(kPSlogxlogyfE) : return "<{logx,logy}|E>"; break;
       case(kPSxyfE)       : return "<{x,y}|E>";       break;
+      case(kPSxQ2fE)      : return "<{x,Q2}|E>";      break;
       case(kPSQ2fE)       : return "<{Q2}|E>";        break;
       case(kPSQD2fE)      : return "<{QD2}|E>";       break;
       case(kPSlogQ2fE)    : return "<{logQ2}|E>";     break;
@@ -123,7 +126,8 @@ public:
       case(kPSQELEvGen)   : return "<QELEvGen>"; break;
       case(kPSDMELEvGen)  : return "<DMELEvGen>"; break;
       case(kPSTAfE)       : return "<{TA}|E>";   break;
-      case(kPSEDNufE)     : return "<{EDNu}|E>"; break; 
+      case(kPSlog10xlog10Q2fE) : return "<{log10x,log10Q2}|E>"; break;
+      case(kPSEDNufE)     : return "<{EDNu}|E>"; break;
     }
     return "** Undefined kinematic phase space **";
   }
