@@ -24,6 +24,7 @@
 #pragma link C++ class genie::DeVriesFormFactor;
 #pragma link C++ class genie::DeVriesFormFactorMap;
 #pragma link C++ class genie::DeVriesFormFactorInterpolation;
+#pragma link C++ class genie::COHProtonFormFactorInterpolation;
 
 #pragma link C++ class genie::COHDeltaCurrent;
 #pragma link C++ class genie::DeltaInMediumCorrections;
