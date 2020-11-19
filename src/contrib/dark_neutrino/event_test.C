@@ -58,7 +58,6 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
   TH1* h_E_prod = hists["E_prod"] = new TH1D("h_E_prod", "E_{prod};E_{prod} [GeV]",
                                              100, 0., 1. ) ;
 
-
   TH1* h_theta_N = hists["theta_N"] = new TH1D("h_theta_n", "#theta_{N};#theta_{N} [rad]",
                                                80, 0., TMath::Pi() ) ;
 
@@ -86,140 +85,135 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
 
     const ProcessInfo & proc_info = inter.ProcInfo() ;
 
-    if ( proc_info.IsCoherentElastic() ) {
+    if ( !proc_info.IsCoherentElastic() ) { continue; }
+    if ( !proc_info.IsDarkNeutralCurrent() ) { continue; }
 
-      if ( proc_info.IsDarkNeutralCurrent() ) {
+    const GHepParticle & N = * event.Particle(2) ;
 
-        const GHepParticle & N = * event.Particle(2) ;
+    const GHepParticle * final_neutrino = nullptr ;
+    const GHepParticle * mediator = nullptr ;
+    std::vector<const GHepParticle*> final_products ;
 
-        const GHepParticle * final_neutrino = nullptr ;
-        const GHepParticle * mediator = nullptr ;
-        std::vector<const GHepParticle*> final_products ;
+    const GHepParticle * temp = event.Particle( N.FirstDaughter() ) ;
 
-        const GHepParticle * temp = event.Particle( N.FirstDaughter() ) ;
+    // setting the final products might not be easy for ever
+    // let's try to get it right once and for all
+    if ( N.LastDaughter() - N.FirstDaughter() == 1 ) {
+      // the dark neutrino decays only in two bodies
+      // so one is the neutrino
+      // the other is the dark mediator
+      if ( pdg::IsNeutrino( TMath::Abs( temp -> Pdg() ) ) ) {
+        final_neutrino = temp ;
+        mediator = event.Particle( N.LastDaughter() ) ;
+      }
+      else {
+        mediator = temp ;
+        final_neutrino = event.Particle( N.LastDaughter() ) ;
+      }
 
-        // setting the final products might not be easy for ever
-        // let's try to get it right once and for all
-        if ( N.LastDaughter() - N.FirstDaughter() == 1 ) {
-          // the dark neutrino decays only in two bodies
-          // so one is the neutrino
-          // the other is the dark mediator
+      // the final products are then the daughters of the mediator
+      for ( unsigned int i = mediator -> FirstDaughter() ;
+            i <= mediator -> LastDaughter() ; ++i ) {
+        final_products.push_back( event.Particle( i ) ) ;
+      }
+
+    }
+    else {
+      // otherwise there is a neutrino and there is no mediator
+      // so the neutrino is among the decay products fo the dark neutrino,
+      // all the rest is products
+      // impossible to say which one is the main neutrino, just pick the first in that case
+
+      for ( unsigned int i = N.FirstDaughter() ;
+            i <= N.LastDaughter() ; ++i ) {
+
+        temp = event.Particle( i ) ;
+        if ( ! final_neutrino ) {
           if ( pdg::IsNeutrino( TMath::Abs( temp -> Pdg() ) ) ) {
             final_neutrino = temp ;
-            mediator = event.Particle( N.LastDaughter() ) ;
+            continue ;
           }
-          else {
-            mediator = temp ;
-            final_neutrino = event.Particle( N.LastDaughter() ) ;
-          }
-
-          // the final products are then the daughters of the mediator
-          for ( unsigned int i = mediator -> FirstDaughter() ;
-                i <= mediator -> LastDaughter() ; ++i ) {
-            final_products.push_back( event.Particle( i ) ) ;
-          }
-
         }
-        else {
-          // otherwise there is a neutrino and there is no mediator
-          // so the neutrino is among the decay products fo the dark neutrino,
-          // all the rest is products
-          // impossible to say which one is the main neutrino, just pick the first in that case
+        final_products.push_back( temp ) ;
+      }
 
-          for ( unsigned int i = N.FirstDaughter() ;
-                i <= N.LastDaughter() ; ++i ) {
+    }  // the neutrino decays in other than 2 daughters
 
-            temp = event.Particle( i ) ;
-            if ( ! final_neutrino ) {
-              if ( pdg::IsNeutrino( TMath::Abs( temp -> Pdg() ) ) ) {
-                final_neutrino = temp ;
-                continue ;
-              }
-            }
-            final_products.push_back( temp ) ;
-          }
+    // now we have all the particles identified and we can fill the hists
+    // note that the mediator pointer might be 0 as it does not necessarily exist
 
-        }  // the neutrino decays in other than 2 daughters
+    h_N_prod -> Fill( final_products.size() ) ;
 
-        // now we have all the particles identified and we can fill the hists
-        // note that the mediator pointer might be 0 as it does not necessarily exist
+    const TLorentzVector & probe = * event.Probe() -> P4() ;
 
-        h_N_prod -> Fill( final_products.size() ) ;
-
-        const TLorentzVector & probe = * event.Probe() -> P4() ;
-
-        const TLorentzVector & p4_N =  * N.P4()  ;
-        const TLorentzVector & p4_recoil = * event.Particle(3) ->P4() ;
+    const TLorentzVector & p4_N =  * N.P4()  ;
+    const TLorentzVector & p4_recoil = * event.Particle(3) ->P4() ;
 
 
-        h_E_N -> Fill( p4_N.E() ) ;
+    h_E_N -> Fill( p4_N.E() ) ;
 
-        double t_t = p4_recoil.E() - p4_recoil.Mag() ;
-        h_T_T -> Fill( t_t ) ;
+    double t_t = p4_recoil.E() - p4_recoil.Mag() ;
+    h_T_T -> Fill( t_t ) ;
 
-        h_theta_N -> Fill( p4_N.Angle( probe.Vect() ) ) ;
+    h_theta_N -> Fill( p4_N.Angle( probe.Vect() ) ) ;
 
 
-        double vis_e = t_t ;
-        double prod_e = 0. ;
-        bool vis_decay = false ;
-        std::vector<const GHepParticle*> charged_particles ;
-        for ( const auto & p : final_products ) {
-          // gamma
-          if ( p -> Pdg() == 22 )  vis_e += p -> P4() -> E() ;
-          else if ( p -> Charge() != 0. ) {
-            vis_decay = true ;
-            vis_e += p -> P4() -> E() ;
-            charged_particles.push_back(p) ;
-          }
+    double vis_e = t_t ;
+    double prod_e = 0. ;
+    bool vis_decay = false ;
+    std::vector<const GHepParticle*> charged_particles ;
+    for ( const auto & p : final_products ) {
+      // gamma
+      if ( p -> Pdg() == 22 )  vis_e += p -> P4() -> E() ;
+      else if ( p -> Charge() != 0. ) {
+        vis_decay = true ;
+        vis_e += p -> P4() -> E() ;
+        charged_particles.push_back(p) ;
+      }
 
-          prod_e += p -> P4() -> E() ;
+      prod_e += p -> P4() -> E() ;
 
-        } // final_products loop
+    } // final_products loop
 
-        // if the event has two charged particles it also has a
-        // mediator initialised
-        if ( charged_particles.size() == 2 ) {
-          h_phi_ee -> Fill(
-            charged_particles[0]->P4()->Angle(
-              charged_particles[1]->P4()->Vect() ) ) ;
+    // if the event has two charged particles it also has a
+    // mediator initialised
+    if ( charged_particles.size() == 2 ) {
+      h_phi_ee -> Fill(
+        charged_particles[0]->P4()->Angle(
+          charged_particles[1]->P4()->Vect() ) ) ;
 
-          h_theta_Med -> Fill(
-            mediator->P4()->Angle( probe.Vect() ) ) ;
-        }
+      h_theta_Med -> Fill(
+        mediator->P4()->Angle( probe.Vect() ) ) ;
+    }
 
-        if ( mediator ) {
-          // evaluate the lenght of the first and second day
+    if ( mediator ) {
+      // evaluate the lenght of the first and second decay
 
-          TLorentzVector Delta = (* mediator -> X4()) - (* N.X4()) ;
-          double total_distance = Delta.Vect().Mag() ;
-          double delay = Delta.T() ;
+      TLorentzVector Delta = (* mediator -> X4()) - (* N.X4()) ;
+      double total_distance = Delta.Vect().Mag() ;
+      double delay = Delta.T() ;
 
-          // std::cout << "Dark neutrino: " << total_distance << " fm in " << delay << " 10^-24 s and beta = " << N.P4() -> Beta() << std::endl ;
+      // std::cout << "Dark neutrino: " << total_distance << " fm in " << delay << " 10^-24 s and beta = " << N.P4() -> Beta() << std::endl ;
 
-          Delta = (*final_products[0] -> X4()) - (* mediator -> X4()) ;
-          total_distance = Delta.Vect().Mag() ;
-          delay = Delta.T() ;
+      Delta = (*final_products[0] -> X4()) - (* mediator -> X4()) ;
+      total_distance = Delta.Vect().Mag() ;
+      delay = Delta.T() ;
 
-          // std::cout << "mediator: " << total_distance << " fm in " << delay << " 10^-24 s and beta = " << mediator -> P4() -> Beta() << std::endl ;
+      // std::cout << "mediator: " << total_distance << " fm in " << delay << " 10^-24 s and beta = " << mediator -> P4() -> Beta() << std::endl ;
 
-        }
+    }
 
-        TLorentzVector Delta = (*final_products[0] -> X4()) - (* N.X4() ) ;
-        double total_distance = Delta.Vect().Mag() ;
-        double delay = Delta.T() ;
+    TLorentzVector Delta = (*final_products[0] -> X4()) - (* N.X4() ) ;
+    double total_distance = Delta.Vect().Mag() ;
+    double delay = Delta.T() ;
 
-        h_decay_length -> Fill( total_distance ) ;
+    h_decay_length -> Fill( total_distance ) ;
 
-        //std::cout << "Total: " << total_distance << " fm in " << delay << " 10^-24 s" << std::endl ;
+    //std::cout << "Total: " << total_distance << " fm in " << delay << " 10^-24 s" << std::endl ;
 
-        h_vis_dec -> Fill( vis_decay ? 1 : 0 ) ;
-        h_E_vis -> Fill( vis_e ) ;
-        h_E_prod -> Fill( prod_e ) ;
-
-      } // dark neutral current
-
-    } // coherent elastic
+    h_vis_dec -> Fill( vis_decay ? 1 : 0 ) ;
+    h_E_vis -> Fill( vis_e ) ;
+    h_E_prod -> Fill( prod_e ) ;
 
     mcrec->Clear() ;
   } // event loop
