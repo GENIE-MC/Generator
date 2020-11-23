@@ -18,8 +18,8 @@
 using namespace genie ;
 
 
-void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
-                 TString out_file_name = "" ) {
+void dnu_plots( TString in_file_name  = "gntp.0.ghep.root" ,
+                TString out_file_name = "" ) {
 
 
   if ( out_file_name == "" ) {
