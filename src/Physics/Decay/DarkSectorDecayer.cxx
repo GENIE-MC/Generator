@@ -290,9 +290,10 @@ void DarkSectorDecayer::SetSpaceTime(
   // transport decay_particle with respect to their mother
   double speed_of_light = units::second/units::meter; // this gives us the speed of light in m/s
   TVector3 daughter_position = mother_X4.Vect() + mother_boost * (speed_of_light * t * 1e-9);// in fm
+  TLorentzVector daughter_X4 = TLorentzVector(daughter_position, (mother_X4.T() + t));
 
   for(auto & p : pp){
-    p.SetPosition(TLorentzVector(daughter_position, mother_X4.T() + t));
+    p.SetPosition(daughter_X4);
   }
 }
 //____________________________________________________________________________

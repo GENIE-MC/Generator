@@ -190,8 +190,9 @@ void COHDNuEventGenerator::AddFinalStateDarkNeutrino(GHepRecord * event) const
   TLorentzVector x4l(vtx);  // position 4-vector
 
   event->AddParticle(probe -> Pdg() > 0 ? kPdgDarkNeutrino : kPdgAntiDarkNeutrino,
-                     kIStDecayedState, event->ProbePosition(),
-                     -1,-1,-1, event->Summary()->Kine().FSLeptonP4(), x4l);
+                     kIStDecayedState,
+                     event->ProbePosition(), event->TargetNucleusPosition(),
+                     -1,-1, event->Summary()->Kine().FSLeptonP4(), x4l);
 }
 //___________________________________________________________________________
 void COHDNuEventGenerator::AddRecoilNucleus(GHepRecord * event) const
@@ -211,11 +212,10 @@ void COHDNuEventGenerator::AddRecoilNucleus(GHepRecord * event) const
 
   const TLorentzVector & vtx = *(probe->X4());
 
-  event->AddParticle(
-    event->TargetNucleus()->Pdg(),
-    kIStStableFinalState,
-    event->TargetNucleusPosition(),
-    -1,-1,-1, p4recoil, vtx);
+  event->AddParticle(event->TargetNucleus()->Pdg(),
+                     kIStStableFinalState,
+                     event->TargetNucleusPosition(), event->ProbePosition(),
+                     -1,-1, p4recoil, vtx);
 }
 //___________________________________________________________________________
 void COHDNuEventGenerator::Configure(const Registry & config)
