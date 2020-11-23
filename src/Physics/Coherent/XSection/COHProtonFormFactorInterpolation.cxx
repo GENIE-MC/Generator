@@ -184,6 +184,8 @@ std::vector<int> COHProtonFormFactorInterpolation::Neighbours( int pdg ) const {
 int COHProtonFormFactorInterpolation::ClosestIsotope( const neutron_map & map , 
 						      int n ) const {
 
+  if ( map.count( n ) > 0 ) return map.at(n) ;
+
   if ( n > map.rbegin()->first ) return map.rbegin()->second ;
   
   if ( n < map.begin()->first ) return map.begin()->second ;
@@ -194,8 +196,8 @@ int COHProtonFormFactorInterpolation::ClosestIsotope( const neutron_map & map ,
   }
   
   // at this point the iterator min_it points to the closet after n
-  // 
-  auto max_it = min_it -- ; 
+  // but we need also the previous one
+  auto max_it = min_it-- ; 
   
   // we now check which one of the two is che closes
 
@@ -245,14 +247,20 @@ void COHProtonFormFactorInterpolation::LoadConfig(void)
 
       TParticlePDG * pdg_particle = PDGLibrary::Instance() -> Find( pdg ) ; 
       if ( ! pdg_particle ) continue ;
-      
-      LOG("COHProtonFormFactorInterpolation", pINFO ) << "Adding nucleus " << pdg ; 
 
-      temp[n] = pdg ;
+      if ( fBaseFF -> HasNucleus( pdg ) ) {
+      
+	LOG("COHProtonFormFactorInterpolation", pINFO ) << "Adding nucleus " << pdg ; 
+
+	temp[n] = pdg ;
+      }
 
     }
 
-    fArchive[z] = std::move(temp) ;
+    if ( temp.size() > 0 ) {
+      fArchive[z] = std::move(temp) ;
+    }
+    
   }
  
   
