@@ -4,17 +4,16 @@
 #include "TH1.h"
 #include "TH2.h"
 
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/Messenger/Messenger.h"
 #include "Framework/Ntuple/NtpMCTreeHeader.h"
 #include "Framework/Ntuple/NtpMCEventRecord.h"
-#include "Framework/EventGen/EventRecord.h"
 #include "Framework/ParticleData/BaryonResUtils.h"
-
-#include "Framework/GHEP/GHepParticle.h"
-#include "Framework/ParticleData/PDGUtils.h"
-#include "Framework/GHEP/GHepStatus.h"
-
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
+
 
 using namespace genie ;
 
@@ -29,6 +28,7 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
                               ".plots.root" ) ;
   }
 
+  LOG("DNuPlots", pINFO) << "Reading file: " << in_file_name;
   TFile in_file( in_file_name ) ;
 
   NtpMCTreeHeader * header = dynamic_cast<NtpMCTreeHeader*> (in_file.Get("header"));
@@ -44,34 +44,28 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
   // plots we need
   TH1* h_E_N = hists["E_N"] = new TH1D("h_E_N", "E_{N};E_{N} [GeV]",
                                        80, 0., 6. ) ;
-
   TH1* h_T_T = hists["T_T"] = new TH1D("h_T_T", "T_{T};T_{T} [GeV]",
                                        100, 0., 0.001 ) ;
-
   TH1* h_E_vis = hists["E_vis"] = new TH1D("h_E_vis", "E_{vis};E_{vis} [GeV]",
                                            100, 0., 6. ) ;
-
   TH1* h_vis_dec = hists["vis_dec"] = new TH1D("h_vis_dec", "Visible Decay;visible",
                                                2, -0.5, 1.5 ) ;
-
-
   TH1* h_E_prod = hists["E_prod"] = new TH1D("h_E_prod", "E_{prod};E_{prod} [GeV]",
                                              100, 0., 1. ) ;
-
   TH1* h_theta_N = hists["theta_N"] = new TH1D("h_theta_n", "#theta_{N};#theta_{N} [rad]",
                                                80, 0., TMath::Pi() ) ;
-
   TH1* h_N_prod = hists["N_prod"] = new TH1D("h_N_prod", "N_{Prod};N_{Prod}",
                                              10, -0.5, 9.5 ) ;
-
   TH1* h_decay_length = hists["decay_length"] = new TH1D("h_decay_length", "Decay Length;|#Delta x| [fm]",
                                                          500, 0., 1e13 ) ; // maximum is 1 cm
-
   TH1* h_theta_Med = hists["theta_Med"] = new TH1D("h_theta_Med", "#theta_{Z};#theta_{Z} [rad]",
-                                               80, 0., TMath::Pi() ) ;
-
+                                                   80, 0., TMath::Pi() ) ;
   TH1* h_phi_ee = hists["phi_ee"] = new TH1D("h_phi_ee", "#phi_{ee};#phi_{ee} [rad]",
-                                               80, 0., TMath::Pi() ) ;
+                                             80, 0., TMath::Pi() ) ;
+  auto pr_E_ee = new TProfile("pr_E_ee", "Profile of E_{e+} versus E_{e-}",
+                              100,0,1.,0,1.);
+  auto pr2_E_ee = new TProfile2D("pr2_E_ee", "2D Profile of E_{e+} versus E_{e-}",
+                                 100,0,1., 100,0,1.);
 
 
   // Event loop
@@ -89,6 +83,12 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
     if ( !proc_info.IsDarkNeutralCurrent() ) { continue; }
 
     const GHepParticle & N = * event.Particle(2) ;
+    if(N.Name() != "nu_D"){
+      LOG("DNuPlots", pERROR)
+        << "WARNING!\n Dark Neutrino wasn't found.\n"
+        << "N.Name(): " << N.Name() << "\n";
+      exit(1);
+    };
 
     const GHepParticle * final_neutrino = nullptr ;
     const GHepParticle * mediator = nullptr ;
@@ -163,7 +163,7 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
     bool vis_decay = false ;
     std::vector<const GHepParticle*> charged_particles ;
     for ( const auto & p : final_products ) {
-      // gamma
+      // photon
       if ( p -> Pdg() == 22 )  vis_e += p -> P4() -> E() ;
       else if ( p -> Charge() != 0. ) {
         vis_decay = true ;
@@ -181,26 +181,30 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
       h_phi_ee -> Fill(
         charged_particles[0]->P4()->Angle(
           charged_particles[1]->P4()->Vect() ) ) ;
-
-      h_theta_Med -> Fill(
-        mediator->P4()->Angle( probe.Vect() ) ) ;
+      if (charged_particles[0]->Charge()<0){
+        pr_E_ee->Fill(charged_particles[0]->P4()->E(), charged_particles[1]->P4()->E(), 1);
+        pr2_E_ee->Fill(charged_particles[0]->P4()->E(), charged_particles[1]->P4()->E(), 1);
+      }
+      else{
+        pr_E_ee->Fill(charged_particles[1]->P4()->E(), charged_particles[0]->P4()->E(), 1);
+        pr2_E_ee->Fill(charged_particles[1]->P4()->E(), charged_particles[0]->P4()->E(), 1);
+      }
     }
 
     if ( mediator ) {
       // evaluate the lenght of the first and second decay
-
       TLorentzVector Delta = (* mediator -> X4()) - (* N.X4()) ;
       double total_distance = Delta.Vect().Mag() ;
       double delay = Delta.T() ;
 
       // std::cout << "Dark neutrino: " << total_distance << " fm in " << delay << " 10^-24 s and beta = " << N.P4() -> Beta() << std::endl ;
-
       Delta = (*final_products[0] -> X4()) - (* mediator -> X4()) ;
       total_distance = Delta.Vect().Mag() ;
       delay = Delta.T() ;
 
       // std::cout << "mediator: " << total_distance << " fm in " << delay << " 10^-24 s and beta = " << mediator -> P4() -> Beta() << std::endl ;
-
+      h_theta_Med -> Fill(
+        mediator->P4()->Angle( probe.Vect() ) ) ;
     }
 
     TLorentzVector Delta = (*final_products[0] -> X4()) - (* N.X4() ) ;
@@ -208,7 +212,6 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
     double delay = Delta.T() ;
 
     h_decay_length -> Fill( total_distance ) ;
-
     //std::cout << "Total: " << total_distance << " fm in " << delay << " 10^-24 s" << std::endl ;
 
     h_vis_dec -> Fill( vis_decay ? 1 : 0 ) ;
@@ -219,12 +222,20 @@ void event_test( TString in_file_name  = "gntp.0.ghep.root" ,
   } // event loop
 
 
+  LOG("DNuPlots", pINFO) << "Writing to file: " << out_file_name;
   TFile out_file ( out_file_name, "RECREATE" ) ;
   out_file.cd() ;
 
   for ( auto & h : hists ) {
+    SLOG("DNuPlots", pINFO) << "Plot: " << h.second->GetTitle();
     h.second -> Write() ;
     delete h.second ;
   }
+  SLOG("DNuPlots", pINFO) << "Plot: " << pr_E_ee->GetTitle();
+  pr_E_ee -> Write() ;
+  delete pr_E_ee ;
+  SLOG("DNuPlots", pINFO) << "Plot: " << pr2_E_ee->GetTitle();
+  pr2_E_ee -> Write() ;
+  delete pr2_E_ee ;
 
 }
