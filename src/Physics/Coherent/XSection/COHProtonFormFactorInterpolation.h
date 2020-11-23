@@ -6,9 +6,9 @@
 \brief    for COH Production Form Factor Model
           The class is develope specifically for the NC COH Gamma
           But in principle these Form Factors could be reused.
-          It extends the functionality of COHFormFactorMap providing
-          interpolation for the nuclei that are missing from the
-          DeVriesFormFactor paper.
+          It extends the functionality of a generic COHFormFactorI providing
+          interpolation for the nuclei that are missing from the 
+	  actual implementationthe.
           We only interpolate the proton component in this class
           The neutron component will be the proton of the same nuclei rescaled
 
@@ -35,6 +35,10 @@ namespace genie {
 
 class COHProtonFormFactorInterpolation : public COHFormFactorI {
 
+  using neutron_map = std::map<int, int> ; 
+  // first number of neutron 
+  // second pdg
+
 public:
 
   COHProtonFormFactorInterpolation();
@@ -48,16 +52,26 @@ public:
   virtual bool HasNucleus( int pdg ) const override ;
 
   virtual genie::Range1D_t QRange( int pdg ) const override ;
+  // In this case, it will return the smallest interval that contains all the 
+  // ranges from the neighbours used in the interpolation
 
  protected:
 
   virtual void LoadConfig(void) override ;
 
   std::vector<int> Neighbours( int pdg ) const ; 
-  
+
+  int ClosestIsotope( const neutron_map & map , int n ) const ;
+  // return the closest isotope with than n
+
+  double Interpolate( const vector<int> & zs, const vector<double> & ffs, 
+		      int final_z ) const  ;
+  // The interpolation interface is done with a generic vector because we think about 
+  // more than linear interpolations
+    
  private:
-  
-  std::map<int, std::map<int, int>> fArchive ; 
+
+  std::map<int, neutron_map> fArchive ; 
   // the archive is the list of available nuclei in the base Form Factors that you interpolate
   // it is organised with the first key being Z, and the second begin N
   // The contained object is the pdg 

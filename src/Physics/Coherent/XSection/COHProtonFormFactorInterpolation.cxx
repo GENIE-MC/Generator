@@ -27,6 +27,8 @@ using namespace genie;
 
 COHProtonFormFactorInterpolation::COHProtonFormFactorInterpolation() :
   COHFormFactorI("genie::COHProtonFormFactorInterpolation", "Default" ),
+  fArchive(), 
+  fBaseFF(nullptr),
   fAllowExtrapolation(false)
 {
 
@@ -34,6 +36,8 @@ COHProtonFormFactorInterpolation::COHProtonFormFactorInterpolation() :
 //____________________________________________________________________________
 COHProtonFormFactorInterpolation::COHProtonFormFactorInterpolation(string config) :
   COHFormFactorI("genie::COHProtonFormFactorInterpolation", config),
+  fArchive(), 
+  fBaseFF(nullptr),
   fAllowExtrapolation(false)
 {
 
@@ -48,197 +52,186 @@ double COHProtonFormFactorInterpolation::ProtonFF( double Q, int pdg ) const {
 
   if ( ! HasNucleus(pdg) ) return 0. ;
 
-  if ( DeVriesFormFactorMap::HasNucleus(pdg) ) return DeVriesFormFactorMap::ProtonFF( Q, pdg ) ;
+  if ( fBaseFF -> HasNucleus( pdg ) ) return fBaseFF -> ProtonFF( Q, pdg ) ;
 
-  const std::map<int,genie::FourierBesselFFCalculator>::const_iterator it =
-    fInterProtons.find( pdg ) ;
+  std::vector<int> neighbours = Neighbours( pdg ) ;
 
-  if ( it != fInterProtons.end() )  return it -> second.FormFactor(Q) ;
+  if ( neighbours.size() == 0 ) return 0. ; 
+  // this might happen if the nucleus is too far from any known nucleus 
+  // configurations might prevent interpolation or extrapolation
+  
+  if ( neighbours.size() == 1 ) return fBaseFF ->ProtonFF( Q, neighbours[0] ) ;
 
-  return InterpolateProtons( pdg ).FormFactor(Q) ;
+  // here we interpolate 
+  vector<double> ffs( neighbours.size(), 0. ) ;
+  vector<int> zs( neighbours.size(), 0 )  ;
+
+  for ( unsigned int i = 0 ; i < neighbours.size() ; i++ ) {
+    ffs[i] = fBaseFF( Q, neighbours[i] ) ; 
+    zs[i] = pdg::IonPdgCodeToZ( neighbours[i] ) ;
+  }
+
+  int z = pdg::IonPdgCodeToZ( pdg ) ;
+
+  return Interpolate( zs, ffs, z ) ; 
 
 }
 //____________________________________________________________________________
 double COHProtonFormFactorInterpolation::NeutronFF( double Q, int pdg ) const {
 
+  double pff = ProtonFF( Q, pdg ) ; 
+
+  if ( pff == 0. ) return pff ;
+
   int z = pdg::IonPdgCodeToZ( pdg ) ; 
   
   double scale = ( pdg::IonPdgCodeToA( pdg ) - z ) / (double) z ; 
 
-  return scale * ProtonFF( Q, pdg ) ; 
+  return scale * pff ;
   
 }
 //____________________________________________________________________________
 bool COHProtonFormFactorInterpolation::HasNucleus( int pdg ) const {
 
-  if ( Map().size() == 0 ) return false ;
+  if ( fBaseFF -> HasNucleus( pdg ) ) return true ; 
+  
+  int z =  pdg::IonPdgCodeToZ( pdg ) ;
 
-   if ( fAllowExtrapolation ) {
-     if ( pdg >= Map().begin()->first ) return true ;
-     else return false;
-   }
-   else {
-     if ( pdg < Map().begin()->first ) return false ;
-     else if ( pdg > Map().rbegin()->first ) return false ;
-     else return true ;
-   }
-
-   return true ;
+  if ( fAllowExtrapolation ) {
+    if ( z >= fArchive.begin()->first ) return true ;
+    else return false;
+  }
+  else {
+    if ( z < fArchive.begin()->first ) return false ;
+    else if ( z > fArchive.rbegin()->first ) return false ;
+    else return true ;
+  }
+  
+  return true ;
 }
 //____________________________________________________________________________
 genie::Range1D_t COHProtonFormFactorInterpolation::QRange( int pdg ) const { 
 
   if ( ! HasNucleus(pdg) ) return COHFormFactorI::QRange( pdg ) ;
 
-  if ( DeVriesFormFactorMap::HasNucleus(pdg) ) return DeVriesFormFactorMap::QRange( pdg ) ;
+  if ( fBaseFF -> HasNucleus(pdg) ) return fBaseFF -> QRange( pdg ) ;
 
-  std::map<int,genie::FourierBesselFFCalculator>::const_iterator proton_it =
-    fInterProtons.find( pdg ) ;
+  auto neighbours = Neighbours( pdg ) ;
 
-  if ( proton_it == fInterProtons.end() ) {
-    InterpolateProtons( pdg ) ;
-    proton_it = fInterProtons.find( pdg ) ;
-  }
+  Range1D_t range = fBaseFF -> QRange( neighbours[0] ) ; 
+  // we already tested if the nucleus is ok
+  // so the neighbours are not empty and it's always possible to get the first 
 
-  std::map<int,genie::FourierBesselFFCalculator>::const_iterator neutron_it =
-    fInterNeutrons.find( pdg ) ;
-  
-  if ( neutron_it == fInterNeutrons.end() ) {
-    InterpolateNeutrons( pdg ) ;
-    neutron_it = fInterNeutrons.find( pdg ) ;
-  }
+  for ( unsigned int i = 1 ; i < neighbours.size() ; ++i ) { 
+    auto temp_range = fBaseFF -> QRange( neighbours[i] ) ;
+    if ( temp_range.min < range.min )  range.min = temp_range.min ; 
+    if ( temp_range.max > range.max )  range.max = temp_range.max ; 
+  } 
 
-  return Range1D_t( TMath::Min( proton_it -> second.QMin(), neutron_it -> second.QMin() ), 
-		    TMath::Max( proton_it -> second.QMax(), neutron_it -> second.QMax() ) ) ;
+  return range ;
 		      
 }
 //____________________________________________________________________________
-const genie::FourierBesselFFCalculator & COHProtonFormFactorInterpolation::InterpolateProtons( int pdg ) const {
+std::vector<int> COHProtonFormFactorInterpolation::Neighbours( int pdg ) const {
 
-  auto result = fInterProtons.insert( std::make_pair( pdg, LinearInterpolation( pdg, pdg::IonPdgCodeToZ ) ) ) ;
-  return result.first -> second ;
+  int z = pdg::IonPdgCodeToZ( pdg ) ;
+  int n = pdg::IonPdgCodeToA( pdg ) - z ;
 
-}
-//____________________________________________________________________________
-const genie::FourierBesselFFCalculator & COHProtonFormFactorInterpolation::InterpolateNeutrons( int pdg ) const {
+  std::vector<int> result ; 
 
-  auto result = fInterNeutrons.insert( std::make_pair( pdg, 
-						       LinearInterpolation( pdg, 
-									    [](int _pdg){ return pdg::IonPdgCodeToA(_pdg) 
-                                                                                           - pdg::IonPdgCodeToZ(_pdg); }) ) ) ;
-  return result.first -> second ;
-}
-//____________________________________________________________________________
-pair<int, int> COHProtonFormFactorInterpolation::NearbyNuclei( int pdg ) const {
+  // first we check if a nucleus with the same z is available 
+  // in that case that's what we return
+  if ( fArchive.count( z ) > 0 ) {
+    // find the closest N
+    result.push_back( ClosestIsotope( fArchive[z], n ) ) ;
+    return result ;
+  }
 
-  auto rit = Map().rbegin() ;
+  // here we are in the case where we need to extract 2 nuclei from the archive
 
-  if ( rit -> first < pdg ) return std::make_pair( (++Map().rbegin()) -> first, 
-						   rit -> first ) ;
+  auto res = fArchive.rbegin() ;
+  
+  // then if z > max_z
+  // in that case we take the latest nuclei we at our disposal for extrapolation 
+  if ( res -> first < z ) { 
+    
+    result.push_back( ClosestIsotope( res->second, n ) ) ;
+    result.push_back( ClosestIsotope( (++res)->second, n ) ) ;
+    
+    return result ; 
+  }
+
+  
+  // otherwise we loop down 
 
   do {
-   rit++ ;
-  } while ( rit -> first > pdg && rit != Map().rend() ) ;
+   res++ ;
+  } while ( rit -> first > z && rit != Map().rend() ) ;
  
-  auto sec = rit ;
-  sec-- ;
-  return std::make_pair( rit -> first, sec -> first ) ;
+  // since we are iterating backward
+  // now res is point to the closes z we have that is smaller than the z we need
+
+  auto second = res ;
+  second-- ;
+  
+  result.push_back( ClosestIsotope( second->second, n ) ) ;
+  result.push_back( ClosestIsotope( res->second, n ) ) ;
+  
+  return result ; 
 }
 //____________________________________________________________________________
-double COHProtonFormFactorInterpolation::RadiusInterpolation( int pdg,
-                                                        const pair<int, int> & neighbours ) const {
+int COHProtonFormFactorInterpolation::ClosestIsotope( const neutron_map & map , 
+						      int n ) const {
 
-      // we interpolate the radius according to
-      // r = r0 + c pow( A, 1/3 )
-      // which is a linear interpolation as a function of  pow( A, 1/3 )
+  if ( n > map.rbegin()->first ) return map.rbegin()->second ;
+  
+  if ( n < map.begin()->first ) return map.begin()->second ;
 
-      int min_A = pdg::IonPdgCodeToA(neighbours.first) ;
-      int max_A = pdg::IonPdgCodeToA(neighbours.second) ;
+  auto min_it = map.begin() ;
+  while ( min_it->first < n ) {
+    min_it ++ ;
+  }
+  
+  // at this point the iterator min_it points to the closet after n
+  // 
+  auto max_it = min_it -- ; 
+  
+  // we now check which one of the two is che closes
 
-      double r = 0. ;
-      if ( min_A == max_A ) {
-        // take the average
-        r = 0.5 * ( Map().at(neighbours.first) -> Calculator().Radius()
-                    + Map().at(neighbours.second) -> Calculator().Radius() ) ;
-      }
-      else {
-        double min_root = pow( min_A, 1./3 ) ;
-        double max_root = pow( max_A, 1./3 ) ;
-        double root = pow( pdg::IonPdgCodeToA(pdg), 1./3 ) ;
-
-        double min_rad =   Map().at( neighbours.first ) -> Calculator().Radius() ;
-        double max_rad =   Map().at( neighbours.second ) -> Calculator().Radius() ;
-
-        r = min_rad
-            + (max_rad - min_rad)*(root - min_root)/(max_root - min_root) ;
-
-      }
-
-      return r ;
+  if ( max_it -> first - n < n - min_it -> first ) {
+    // the closest is max 
+    return max_it -> second ;
+  }
+  else {
+    return min_it -> second ;
+  }
 }
-
 //____________________________________________________________________________
+double COHProtonFormFactorInterpolation::Interpolate( const vector<int> & zs, 
+						      const vector<double> & ffs,
+						      int final_z ) const  {
 
-genie::FourierBesselFFCalculator COHProtonFormFactorInterpolation::LinearInterpolation( int pdg,
-                                                                                  const std::function<int(int)> & var ) const {
-
-    std::pair<int, int> neighbours = NearbyNuclei( pdg ) ;
-
-    double r = RadiusInterpolation(pdg, neighbours) ;
-
-    const genie::FourierBesselFFCalculator & first_calc = Map().at( neighbours.first) -> Calculator() ;
-    const genie::FourierBesselFFCalculator & second_calc = Map().at( neighbours.second ) -> Calculator() ;
-    
-    std::vector<double> first_v( first_calc.Coefficients() ) ;
-    std::vector<double> second_v( second_calc.Coefficients() ) ;
-
-    unsigned int n_coeffs = std::max( first_v.size(), second_v.size() ) ;
-
-    // vector are extended with 0s if necessary
-    first_v.resize( n_coeffs, 0. );
-    second_v.resize( n_coeffs, 0. );
-
-    vector<double> coeffs(n_coeffs, 0. ) ;
-
-    int var_first = var( neighbours.first ) ;
-    int var_second = var( neighbours.second ) ;
-
-    std::pair<double, double> range_first ( first_calc.QMin(), first_calc.QMax() ) ;
-    std::pair<double, double> range_second ( first_calc.QMin(), first_calc.QMax() ) ;
-    std::pair<double, double> new_range ;    
-
-    if ( var_first == var_second ) {
-      // in this case liner interpolation fails, we take the average
-      for ( unsigned int i = 0; i < n_coeffs; ++i ) {
-        coeffs[i] = 0.5 *( first_v[i] + second_v[i] );
-      }
-      new_range = std::make_pair( 0.5*( range_first.first +  range_second.first ), 
-				  0.5*( range_first.second + range_second.second ) ) ;
-    }
-    else {
-
-      int new_var = var(pdg) ;
-      double scale = (new_var - var_first)/ (double) (var_second-var_first) ;
-
-      for ( unsigned int i = 0; i < n_coeffs; ++i ) {
-        coeffs[i] = first_v[i] + scale*(second_v[i] - first_v[i]) ;
-      }
-
-      new_range = std::make_pair( range_first.first  + scale * ( range_second.first  - range_first.first ), 
-				  range_first.second + scale * ( range_second.second - range_first.second ) ) ; 
-
-    }
-
-    return FourierBesselFFCalculator( coeffs, r , new_range.first, new_range.second ) ;
+  // linear interpolation
+  double ret = ffs[0] + (ffs[1] - ffs[0])*(final_z - zs[0])/(zs[1] - zs[0]) ; 
+  
 }
 
 //____________________________________________________________________________
 void COHProtonFormFactorInterpolation::LoadConfig(void)
 {
 
-  DeVriesFormFactorMap::LoadConfig() ;
-
   bool good_configuration = true ;
+
+  fBaseFF = dynamic_cast<const genie::COHFormFactorI *>( SubAlg( "BaseCOHFormFactor" ) ) ;
+
+  if ( ! fBaseFF ) {
+    LOG("COHProtonFormFactorInterpolation", pERROR ) << "Invalid Base Form Factor subalgo" ; 
+  }
+
+  // load the archive for fast retrieving during operation
+  
+  
+  
   if ( Map().size() < 2 ) {
     LOG("COHProtonFormFactorInterpolation", pERROR ) << "Not enough FormFactors inside the Map" ;
     good_configuration = false ;
