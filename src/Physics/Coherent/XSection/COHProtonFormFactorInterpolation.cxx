@@ -19,6 +19,7 @@
 
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Physics/Coherent/XSection/COHProtonFormFactorInterpolation.h"
 
 
@@ -67,7 +68,7 @@ double COHProtonFormFactorInterpolation::ProtonFF( double Q, int pdg ) const {
   vector<int> zs( neighbours.size(), 0 )  ;
 
   for ( unsigned int i = 0 ; i < neighbours.size() ; i++ ) {
-    ffs[i] = fBaseFF( Q, neighbours[i] ) ; 
+    ffs[i] = fBaseFF -> ProtonFF( Q, neighbours[i] ) ; 
     zs[i] = pdg::IonPdgCodeToZ( neighbours[i] ) ;
   }
 
@@ -143,7 +144,7 @@ std::vector<int> COHProtonFormFactorInterpolation::Neighbours( int pdg ) const {
   // in that case that's what we return
   if ( fArchive.count( z ) > 0 ) {
     // find the closest N
-    result.push_back( ClosestIsotope( fArchive[z], n ) ) ;
+    result.push_back( ClosestIsotope( fArchive.at(z), n ) ) ;
     return result ;
   }
 
@@ -166,7 +167,7 @@ std::vector<int> COHProtonFormFactorInterpolation::Neighbours( int pdg ) const {
 
   do {
    res++ ;
-  } while ( rit -> first > z && rit != Map().rend() ) ;
+  } while ( res -> first > z && res != fArchive.rend() ) ;
  
   // since we are iterating backward
   // now res is point to the closes z we have that is smaller than the z we need
@@ -212,7 +213,9 @@ double COHProtonFormFactorInterpolation::Interpolate( const vector<int> & zs,
 						      int final_z ) const  {
 
   // linear interpolation
-  double ret = ffs[0] + (ffs[1] - ffs[0])*(final_z - zs[0])/(zs[1] - zs[0]) ; 
+  double ret = ffs[0] + (ffs[1] - ffs[0])*(final_z - zs[0])/(double)(zs[1] - zs[0]) ; 
+
+  return ret ;
   
 }
 
@@ -220,19 +223,32 @@ double COHProtonFormFactorInterpolation::Interpolate( const vector<int> & zs,
 void COHProtonFormFactorInterpolation::LoadConfig(void)
 {
 
+  fArchive.clear() ;
+
   bool good_configuration = true ;
 
   fBaseFF = dynamic_cast<const genie::COHFormFactorI *>( SubAlg( "BaseCOHFormFactor" ) ) ;
 
   if ( ! fBaseFF ) {
+    good_configuration = false ;
     LOG("COHProtonFormFactorInterpolation", pERROR ) << "Invalid Base Form Factor subalgo" ; 
   }
 
   // load the archive for fast retrieving during operation
+  for ( unsigned int z = 1 ; z < 100 ; ++z ) {  
+    for ( unsigned int n = z/2 ; n <= 2*z ; ++n ) {
+      
+      int pdg = pdg::IonPdgCode( n+z, z ) ;
+
+      TParticlePDG * pdg_particle = PDGLibrary::Instance() -> Find( pdg ) ; 
+      if ( ! pdg_particle ) continue ;
+
+      fArchive[z][n] = pdg ;
+    }
+  }
+ 
   
-  
-  
-  if ( Map().size() < 2 ) {
+  if ( fArchive.size() < 2 ) {
     LOG("COHProtonFormFactorInterpolation", pERROR ) << "Not enough FormFactors inside the Map" ;
     good_configuration = false ;
   }

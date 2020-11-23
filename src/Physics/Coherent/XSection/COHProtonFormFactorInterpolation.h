@@ -57,7 +57,7 @@ public:
 
  protected:
 
-  virtual void LoadConfig(void) override ;
+  virtual void LoadConfig(void) ;
 
   std::vector<int> Neighbours( int pdg ) const ; 
 
