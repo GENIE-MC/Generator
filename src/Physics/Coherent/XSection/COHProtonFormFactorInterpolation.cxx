@@ -236,15 +236,23 @@ void COHProtonFormFactorInterpolation::LoadConfig(void)
 
   // load the archive for fast retrieving during operation
   for ( unsigned int z = 1 ; z < 100 ; ++z ) {  
+    
+    neutron_map temp ;
+
     for ( unsigned int n = z/2 ; n <= 2*z ; ++n ) {
       
       int pdg = pdg::IonPdgCode( n+z, z ) ;
 
       TParticlePDG * pdg_particle = PDGLibrary::Instance() -> Find( pdg ) ; 
       if ( ! pdg_particle ) continue ;
+      
+      LOG("COHProtonFormFactorInterpolation", pINFO ) << "Adding nucleus " << pdg ; 
 
-      fArchive[z][n] = pdg ;
+      temp[n] = pdg ;
+
     }
+
+    fArchive[z] = std::move(temp) ;
   }
  
   

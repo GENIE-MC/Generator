@@ -55,9 +55,11 @@ public:
   // In this case, it will return the smallest interval that contains all the 
   // ranges from the neighbours used in the interpolation
 
+  
+
  protected:
 
-  virtual void LoadConfig(void) ;
+  virtual void LoadConfig(void) override ;
 
   std::vector<int> Neighbours( int pdg ) const ; 
 

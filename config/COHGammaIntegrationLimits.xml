@@ -25,7 +25,7 @@ MaxGammaTheta                 double   yes        Theta cut off for gamma [deg] 
     <param type="double" name="MaxGammaEnergy"> 2.0 </param>
     <param type="double" name="MaxGammaTheta"> 150. </param>
 
-    <param type="alg"  name="COH-FormFactor"> genie::DeVriesFormFactorMap/Default </param>
+    <param type="alg"  name="COH-FormFactor"> genie::COHProtonFormFactorInterpolation/Default </param>
     
   </param_set>
 

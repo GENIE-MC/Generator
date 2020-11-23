@@ -91,18 +91,6 @@ bool DeVriesFormFactorMap::HasNucleus( int pdg ) const {
   return (fNuclearFFs.count( pdg ) > 0) ;
 }
 //____________________________________________________________________________
-void DeVriesFormFactorMap::Configure(const Registry & config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void DeVriesFormFactorMap::Configure(string config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
 void DeVriesFormFactorMap::LoadConfig(void)
 {
 

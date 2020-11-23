@@ -45,15 +45,11 @@ public:
 
   virtual genie::Range1D_t QRange( int pdg ) const override ;
 
-  // methods to implemented from Algorithm
-  void Configure (const Registry & config) override ;
-  void Configure (string param_set) override;
-
  protected:
 
   DeVriesFormFactorMap( string name, string config );
 
-  virtual void LoadConfig(void);
+  virtual void LoadConfig(void) override ;
 
   const std::map<int, const genie::DeVriesFormFactor *> & Map() const noexcept { return fNuclearFFs; }
 

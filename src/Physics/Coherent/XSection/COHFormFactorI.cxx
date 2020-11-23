@@ -39,3 +39,15 @@ genie::Range1D_t COHFormFactorI::QRange( int /* pdg */ ) const {
   
   return genie::Range1D_t( 0.,  std::numeric_limits<double>::infinity() ) ;
 }
+//____________________________________________________________________________
+void COHFormFactorI::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void COHFormFactorI::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}

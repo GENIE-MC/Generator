@@ -43,7 +43,11 @@ void formfactor_test( std::string algo_name  = "genie::DeVriesFormFactorMap" ,
   AlgId id( algo_name, algo_par_set );
   const Algorithm * algo = AlgFactory::Instance()->GetAlgorithm( id ) ; 
   
+  std::cout << algo << std::endl ;
+
   const COHFormFactorI * form_factor = dynamic_cast<const COHFormFactorI*>( algo ) ; 
+
+  std::cout << form_factor <<  std::endl ;
 
   for ( unsigned int z = 1 ; z < 100 ; ++z ) {  // a better limit coudl be nice, don't even know what z is
     for ( unsigned int n = z/2 ; n <= 2*z ; ++n ) {

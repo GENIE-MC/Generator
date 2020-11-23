@@ -37,11 +37,15 @@ public:
 
   virtual genie::Range1D_t QRange( int pdg ) const ;
 
+  void Configure (const Registry & config) override ;
+  void Configure (string param_set) override;
+
  protected:
 
   COHFormFactorI( string name );
   COHFormFactorI( string name, string config );
 
+  virtual void LoadConfig() = 0 ; 
 
 private:
 

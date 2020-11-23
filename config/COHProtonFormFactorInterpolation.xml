@@ -18,7 +18,7 @@ AllowExtrapolation            bool     yes        Allow map extrapolation at hig
 
   <param_set name="Default">
     <param type="alg" name="BaseCOHFormFactor" >
-      genie::DeVriesFormFactorMap/Full
+      genie::DeVriesFormFactorMap/Default
     </param>
                                                                  
     <param type="bool" name="AllowExtrapolation"> false </param>
