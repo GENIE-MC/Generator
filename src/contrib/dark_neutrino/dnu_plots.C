@@ -42,6 +42,8 @@ void dnu_plots( TString in_file_name  = "gntp.0.ghep.root" ,
   std::map<std::string, TH1*> hists ;
 
   // plots we need
+  TH1* h_E_probe = hists["E_probe"] = new TH1D("h_E_probe", "E_{probe};E_{probe} [GeV]",
+                                               80, 0., 6. ) ;
   TH1* h_E_N = hists["E_N"] = new TH1D("h_E_N", "E_{N};E_{N} [GeV]",
                                        80, 0., 6. ) ;
   TH1* h_T_T = hists["T_T"] = new TH1D("h_T_T", "T_{T};T_{T} [GeV]",
@@ -150,6 +152,7 @@ void dnu_plots( TString in_file_name  = "gntp.0.ghep.root" ,
     const TLorentzVector & p4_recoil = * event.Particle(3) ->P4() ;
 
 
+    h_E_probe -> Fill( probe.E() ) ;
     h_E_N -> Fill( p4_N.E() ) ;
 
     double t_t = p4_recoil.E() - p4_recoil.Mag() ;
