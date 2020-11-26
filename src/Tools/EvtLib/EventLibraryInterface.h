@@ -43,25 +43,25 @@ public:
  ~EventLibraryInterface();
 
   // implement the EventRecordVisitorI interface
-  void ProcessEventRecord (GHepRecord * event) const;
+  void ProcessEventRecord (GHepRecord * event) const override ;
 
   // overload the Algorithm::Configure() methods to load private data
   // members from configuration options
-  void Configure(const Registry & config);
-  void Configure(string config);
+  void Configure(const Registry & config) override ;
+  void Configure(string config) override ;
 
-private:
+ protected:
+
   const EvtLibRecord* GetRecord(const Interaction* interaction) const;
-
-  /// Return a random (x,y,z) basis with z aligned with the input vector
-  std::vector<TVector3> Basis(const TVector3& z) const;
 
   void LoadRecords();
   void Cleanup();
-
+  
   void FillKinematics( const GHepRecord &, 
 		       Kinematics & kine, 
 		       int primary_lep_id ) const ;
+
+private:
 
   std::map<Key, const IEvtLibRecordList*> fRecords;
   TFile* fRecordFile;

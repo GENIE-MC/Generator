@@ -18,6 +18,7 @@
 #include "Tools/EvtLib/EventLibraryInterface.h"
 #include "Tools/EvtLib/EvtLibRecordList.h"
 #include "Tools/EvtLib/Utils.h"
+#include "Framework/Conventions/Constants.h"
 
 #include "TFile.h"
 
@@ -57,63 +58,93 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
   const EvtLibRecord* rec = GetRecord(interaction);
   if(!rec) return; // Reason has already been printed
 
-  std::unique_ptr<TLorentzVector> probe_p4(init_state.GetProbeP4(kRfLab));
-
+  
+  // at this point we have the event to add to our event record
+  // the energy might be not the same
+  // so first we correct the probe:
+  // we maintain the same direction but we set the energy selected 
+  // by the record.
+  // We only change the the particle in the event record, 
+  // Not the summary so that we keep the history
+  // of the event construction
+  
   // Neutrino is a parent to the lepton(s)
-  event->AddParticle(init_state.ProbePdg(),
-                     kIStInitialState,
-                     -1, -1, -1, -1,
-                     *probe_p4,
-                     TLorentzVector(0, 0, 0, 0));
+  GHepParticle * probe = event->Particle(0) ; 
+  
+  TLorentzVector probe_p4 ( * probe->P4() ) ;
 
-  const int tgt_pdgc = init_state.TgtPdg() ; 
+  probe_p4 *= rec -> E / probe_p4.E() ; 
 
-  // Nucleus is a parent to everything else
-  event->AddParticle(tgt_pdgc,
-                     kIStInitialState,
-                     -1, -1, -1, -1,
-                     0., 0., 0., init_state.Tgt().Mass(),
-                     0, 0, 0, 0);
+  probe -> SetMomentum( probe_p4 ) ;
 
-  const std::vector<TVector3> basis = Basis(probe_p4->Vect());
 
-  TLorentzVector lep_p4;
+  // because of the selection procedure there might not be enough 
+  // events in the library
+  // so we add a roation around the z axis which is random for each event
+  double alpha = RandomGen::Instance()->RndEvg().Uniform(0, 2*constants::kPi );
+
+  
+  // now we simply have to add the particles from the EvtLibRecord
+  // But we need to rotate the particles along the direction of the beam
+  // so we evaluate this direction once and for all
+  TVector3 unit_nudir = probe->P4()->Vect().Unit();
+
 
   int firstLep =  -1 ; 
-  
   const auto & parts = rec -> parts ;
 
   for ( unsigned int i = 0; i < parts.size() ; ++i ) {
     
-    // Fix up the outgoing lepton for NC events (due to lepton universality
-    // it could be any value in the library)
-
     const auto & part = parts[i] ;
-
+    
     int pdg = part.pdg;
-    if( interaction->ProcInfo().IsWeakNC() ) 
-      pdg = init_state.ProbePdg();
-
+    
     if(pdg::IsLepton(part.pdg)) {
-      if ( firstLep == -1 ) firstLep = i ;
+      if ( firstLep == -1 ) { 
+	firstLep = i ;
+	interaction -> KinePtr() -> SetFSLeptonP4( part.px, part.py, part.pz, part.E ) ;
+      }
     }
     
-    // here we should add a rotation based on the direction of the incoming neutrino
-
-    const TLorentzVector p4(part.px*basis[0] +
-			    part.py*basis[1] +
-			    part.pz*basis[2],
-			    part.E);
+    // Fix up the outgoing lepton for NC events (due to lepton universality
+    // it could be any value in the library)
     
+    if( interaction->ProcInfo().IsWeakNC() ) {
+      if ( int(i) == firstLep ) {
+	// in the case of NC the process is always stored as numu (or numubar)
+	// as the couplings are the same
+	// here we restore the proper pdg on what we think it is the leading neutrino
+	pdg = init_state.ProbePdg();
+      }
+    }
+
+    TLorentzVector p4(part.px, part.py, part.pz, part.E) ;
+
+    // The next is the rotation of the event according to the common alpha
+    p4.RotateZ( alpha ) ;
+
+    // Now we rotate the events so that it matches the direction of the incoming neutrino
+    p4.RotateUz(unit_nudir); 
+
     event->AddParticle(pdg,
 		       kIStStableFinalState,
-		       0 , 1, -1, -1, // child of the neutrino or nucleus
+		       0 , 1, -1, -1, // child of the neutrino and nucleus
 		       p4,
 		       TLorentzVector(0, 0, 0, 0));
     
   }
   
-  FillKinematics( *event, *interaction->KinePtr(), firstLep < 0 ? 2 : firstLep+2 );
+  // we now have the particle in the right direction inside the record we just need to 
+  // decorate the summary kinematics
+  
+  firstLep = firstLep < 0 ? 2 : firstLep+2 ; 
+  // these are events from outside, there are no assumptions on the lepton
+  // If we are simulating BSM physics there might not even be a lepton in the final state
+  // So if there is a lepton we evaluate Q2 based on that lepton
+  // If not we evaluate Q2 using the first particle we have available 
+  
+  FillKinematics( *event, *interaction->KinePtr(), firstLep );
+  
 }
 
 //____________________________________________________________________________
@@ -128,7 +159,7 @@ GetRecord(const Interaction* interaction) const
     LOG("ELI", pINFO) << "Skippping non-nuclear target " << init_state;
     return 0;
   }
-
+  
   const int tgt_pdgc = init_state.TgtPdg();
 
   const ProcessInfo& proc = interaction->ProcInfo();
@@ -143,7 +174,8 @@ GetRecord(const Interaction* interaction) const
   // Use nu_mu for NC as a convention internal to this code to index into the
   // records map.
   if(proc.IsWeakNC()){
-    if(probe_pdgc > 0) probe_pdgc = kPdgNuMu; else probe_pdgc = kPdgAntiNuMu;
+    if(probe_pdgc > 0) probe_pdgc = kPdgNuMu; 
+    else probe_pdgc = kPdgAntiNuMu;
   }
 
   const Key key(tgt_pdgc, probe_pdgc, proc.IsWeakCC());
@@ -164,25 +196,6 @@ GetRecord(const Interaction* interaction) const
 
   return rec;
 }
-
-//____________________________________________________________________________
-std::vector<TVector3> EventLibraryInterface::Basis(const TVector3& z) const
-{
-  TVector3 up(0, 1, 0);
-  if(up.Dot(z) == 0) up = TVector3(1, 0, 0);
-
-  const TVector3 x = up.Cross(z).Unit(); // Perpendicular to neutrino and up
-  const TVector3 y = x.Cross(z).Unit();  // Defines the third axis
-
-  const double a = RandomGen::Instance()->RndEvg().Uniform(0, 2*M_PI);
-
-  const TVector3 xp =  cos(a) * x + sin(a) * y;
-  const TVector3 yp = -sin(a) * x + cos(a) * y;
-  const TVector3 zp = z.Unit();
-
-  return {xp, yp, zp};
-}
-
 //____________________________________________________________________________
 void EventLibraryInterface::Configure(const Registry& config)
 {
@@ -284,15 +297,15 @@ void EventLibraryInterface::FillKinematics( const GHepRecord & event,
 
   const TLorentzVector & p_lep = * event.Particle( primary_lep_id ) -> P4() ; 
   
-  
   const TLorentzVector q = p_probe - p_lep;
 
   // Initial hadronic state, semi-arbitrary
   const TLorentzVector & p_tgt = * event.Particle( 1 ) -> P4() ;
-
+  
   kine.Setq2(+q.Mag2(), true);
   kine.SetQ2(-q.Mag2(), true);
   kine.SetW((q + p_tgt).Mag(), true);
   kine.Setx(-q.Mag2() / (2*p_tgt.Dot(q)), true);
   kine.Sety( p_tgt.Dot( q ) / p_tgt.Dot( p_probe ), true ) ;
+
 }
