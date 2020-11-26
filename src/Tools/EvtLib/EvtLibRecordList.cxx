@@ -116,7 +116,7 @@ namespace evtlib{
 
   //---------------------------------------------------------------------------
   OnDemandRecordList::OnDemandRecordList(TTree* tree, const std::string& prettyName)
-    : fTree(tree), fPrettyName(prettyName), fLoader(tree)
+    : fTree(tree), fPrettyName(prettyName), fLoader(0)
   {
   }
 
@@ -145,13 +145,19 @@ namespace evtlib{
   //---------------------------------------------------------------------------
   const EvtLibRecord* OnDemandRecordList::GetRecord(float E) const
   {
-    if(fEnergies.empty()) LoadIndex();
+    if(fEnergies.empty()){
+      LoadIndex();
+      // The loader must be created after the indices are loaded, because they
+      // both want to set branch addresses in the TTree, and we ultimately need
+      // the loader's to be active.
+      fLoader = new RecordLoader(fTree);
+    }
 
     auto it = std::lower_bound(fEnergies.begin(), fEnergies.end(),
                                std::make_pair(E, 0));
     if(it == fEnergies.end()) return 0;
 
-    fRecord = fLoader.GetRecord(it->second);
+    fRecord = fLoader->GetRecord(it->second);
 
     return &fRecord;
   }

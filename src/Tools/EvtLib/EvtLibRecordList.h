@@ -85,7 +85,7 @@ namespace evtlib{
   {
   public:
     OnDemandRecordList(TTree* tree, const std::string& prettyName);
-    virtual ~OnDemandRecordList(){}
+    virtual ~OnDemandRecordList(){delete fLoader;}
 
     const EvtLibRecord* GetRecord(float E) const override;
   protected:
@@ -93,7 +93,7 @@ namespace evtlib{
 
     TTree* fTree;
     std::string fPrettyName;
-    RecordLoader fLoader;
+    mutable RecordLoader* fLoader;
 
     mutable std::vector<std::pair<float, int>> fEnergies;
 
