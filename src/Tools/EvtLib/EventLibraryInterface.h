@@ -59,9 +59,9 @@ private:
   void LoadRecords();
   void Cleanup();
 
-  void FillKinematics(const TLorentzVector& p_nu,
-                      const TLorentzVector& p_lep,
-                      Kinematics& kine) const;
+  void FillKinematics( const GHepRecord &, 
+		       Kinematics & kine, 
+		       int primary_lep_id ) const ;
 
   std::map<Key, const IEvtLibRecordList*> fRecords;
   TFile* fRecordFile;
