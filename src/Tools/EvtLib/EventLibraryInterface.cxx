@@ -72,10 +72,10 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
   GHepParticle * probe = event->Particle(0) ; 
   
   TLorentzVector probe_p4 ( * probe->P4() ) ;
+  
+  //  probe_p4 *= rec -> E / probe_p4.E() ; 
 
-  probe_p4 *= rec -> E / probe_p4.E() ; 
-
-  probe -> SetMomentum( probe_p4 ) ;
+  //probe -> SetMomentum( probe_p4 ) ;
 
 
   // because of the selection procedure there might not be enough 
@@ -137,7 +137,12 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
   // we now have the particle in the right direction inside the record we just need to 
   // decorate the summary kinematics
   
-  firstLep = firstLep < 0 ? 2 : firstLep+2 ; 
+  if ( firstLep < 0 ) {
+    firstLep = 2 ;
+  }
+  else { 
+    firstLep += 2 ; 
+  }
   // these are events from outside, there are no assumptions on the lepton
   // If we are simulating BSM physics there might not even be a lepton in the final state
   // So if there is a lepton we evaluate Q2 based on that lepton
