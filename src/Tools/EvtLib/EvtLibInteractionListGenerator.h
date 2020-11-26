@@ -14,7 +14,7 @@ public :
  ~EvtLibInteractionListGenerator();
 
   // implement the InteractionListGeneratorI interface
-  InteractionList * CreateInteractionList(const InitialState & init) const;
+  InteractionList * CreateInteractionList(const InitialState & init) const override ;
 
   // overload the Algorithm::Configure() methods to load private data
   // members from configuration options

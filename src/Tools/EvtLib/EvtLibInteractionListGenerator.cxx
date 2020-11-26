@@ -36,12 +36,10 @@ InteractionList * EvtLibInteractionListGenerator::CreateInteractionList(
 
   ProcessInfo proc_info_cc(kScExternalGen, kIntWeakCC);
   Interaction* interaction_cc = new Interaction(init_state, proc_info_cc);
-  interaction_cc->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgNeutron);
   intlist->push_back(interaction_cc);
 
   ProcessInfo proc_info_nc(kScExternalGen, kIntWeakNC);
   Interaction* interaction_nc = new Interaction(init_state, proc_info_nc);
-  interaction_nc->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgProton);
   intlist->push_back(interaction_nc);
 
   return intlist;
