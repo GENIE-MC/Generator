@@ -3,11 +3,127 @@
 #include "TVectorD.h"
 #include <iostream>
 
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Ntuple/NtpMCTreeHeader.h"
+#include "Framework/Ntuple/NtpMCEventRecord.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 
+
+using namespace genie ;
+
+// this macro is supposed to be an example on how to create an event library starting from GENIE files
+// by any means it is supposed to be a complete and refined product
 
 int library_gen( TString in_file_name, int tgt_pdg, int probe_pdg, bool CC, TString out_file_name = "" ) {
 
+
+  if ( out_file_name == "" ) {
+    out_file_name = in_file_name ;
+    out_file_name.ReplaceAll( ".ghep.root",
+                              ".evtlib.root" ) ;
+  }
+
+
+  // retrieving the genie tree 
+  TFile in_file( in_file_name ) ;
+
+  NtpMCTreeHeader * header = dynamic_cast<NtpMCTreeHeader*> (in_file.Get("header"));
+
+  // Get the GENIE GHEP tree and set its branch address
+  TTree * in_tree = dynamic_cast<TTree*> (in_file.Get("gtree"));
+  NtpMCEventRecord * mcrec = 0;
+  in_tree->SetBranchAddress("gmcrec", & mcrec);
+
+  //create the library tree
+  TFile out_file(out_file_name, "UPDATE");
+
+  // create the proper structure
+  TParticlePDG * pdg_tgt   = PDGLibrary::Instance() -> Find( tgt_pdg ) ; 
+  TParticlePDG * pdg_probe = PDGLibrary::Instance() -> Find( probe_pdg ) ; 
   
+  std::string current_name = CC ? "cc" : "nc" ;
+  std::string probe_name = pdg_probe -> GetTitle() ;
+  if ( ! CC ) {
+    probe_name = probe_pdg > 0 ? "nu" : "nu_bar" ; 
+  }
+  
+  TDirectory* out_dir = fout.mkdir( pdg_tgt -> GetTitle() ) 
+    ->mkdir( current_name.c_str() )
+    ->mkdir( probe_name.c_str() ) ;
+  out_dir -> cd();
+
+  //create out tree
+  TTree trout("records", "records");
+  float Enu_out, weight_out;
+  trout.Branch("Enu",    &Enu_out);
+  trout.Branch("weight", &weight_out);
+  int prod_id;
+  trout.Branch("prod_id", &prod_id);
+  int nparts_out = 0;
+  int pdg_out[1000];
+  float E_out[1000];
+  float px_out[1000];
+  float py_out[1000];
+  float pz_out[1000];
+  trout.Branch("nparts", &nparts_out);
+  trout.Branch("pdg", &pdg_out, "pdg[nparts]/I");
+  trout.Branch("E", &E_out, "E[nparts]/F");
+  trout.Branch("px", &px_out, "px[nparts]/F");
+  trout.Branch("py", &py_out, "py[nparts]/F");
+  trout.Branch("pz", &pz_out, "pz[nparts]/F");
+  trin->SetBranchAddress("evType", &prod_id);
+    
+  
+  // Event loop
+  for(Long64_t i=0; i < in_tree->GetEntries(); i++) {
+
+    in_tree->GetEntry(i);
+
+    EventRecord & event = *(mcrec->event);
+
+    const Interaction & inter = *( event.Summary() ) ;
+    const InitState   & init_state = inter.InitState() ;
+    const ProcessInfo & proc_info = inter.ProcInfo() ;
+
+    // check the target
+    if ( init_state.TgtPdg() == tgt_pdg ) {
+
+      // check cc or nc
+      if ( ( CC   && ProcessInfo.IsWeakCC() ) ||
+	   ( !CC  && ProcessInfo.IsWeakNC() ) ) {
+	
+	// cehck the neutrino flavour
+	if ( ( CC && InitState.ProbePdg() == probe_pdg ) ||
+	     ( !CC && 
+	       pdg::IsNeutrino( InitState.ProbePdg() ) && 
+	       InitState.ProbePdg() * probe_pdg > 0 ) ) {
+
+	  
+	  // particle loop
+	  const GHepParticle * part = nullptr ;
+	  TObjArrayIter piter(event);
+	  while( (part = (const GHepParticle *) piter.Next()) ) {
+	    
+	    if ( part -> Status() != kIStStableFinalState ) continue ;
+	    // grep only stable particles
+	    
+	    // store them
+
+	  } // particle loop
+	  
+	}  //good probe
+      }  // proper current
+    }  // right target
+
+    mcrec->Clear() ;
+  } // event loop
+
 }
 
 
