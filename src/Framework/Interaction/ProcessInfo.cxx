@@ -156,9 +156,9 @@ bool ProcessInfo::IsDiffractive(void) const
 }
 
 //____________________________________________________________________________
-bool ProcessInfo::IsExternalGen(void) const
+bool ProcessInfo::IsKnown (void) const
 {
-  return (fScatteringType == kScExternalGen);
+  return (fScatteringType > kScNull);
 }
 
 //____________________________________________________________________________

@@ -34,6 +34,7 @@ namespace genie {
 // append to the end of the total list and set a new enum counter value.
 typedef enum EScatteringType {
 
+  kScUnknown = -100, 
   kScNull = 0,
   kScQuasiElastic,
   kScSingleKaon,
@@ -51,9 +52,7 @@ typedef enum EScatteringType {
   kScIMDAnnihilation,
   kScDarkMatterElastic = 101,
   kScDarkMatterDeepInelastic,
-  kScDarkMatterElectron,
-  kScExternalGen = 900
-
+  kScDarkMatterElectron
 } ScatteringType_t;
 
 class ScatteringType
@@ -64,7 +63,7 @@ public:
   static string AsString(ScatteringType_t type)
   {
     switch (type) {
-
+      case(kScUnknown) :                 return "Uknown to GENIE"; break;
       case(kScQuasiElastic) :            return "QES";       break;
       case(kScSingleKaon) :              return "1Kaon";     break;
       case(kScDeepInelastic) :           return "DIS";       break;
@@ -82,7 +81,6 @@ public:
       case(kScDarkMatterElastic) :       return "DMEL";      break;
       case(kScDarkMatterDeepInelastic) : return "DMDIS";     break;
       case(kScDarkMatterElectron) :      return "DME";       break;
-      case(kScExternalGen) :             return "ExternalGenerator"; break;
       default :                          return "Unknown";   break;
     }
     return "Unknown";

@@ -34,11 +34,11 @@ InteractionList * EvtLibInteractionListGenerator::CreateInteractionList(
 
   // Struck nucleon is arbitrary but seems to be required
 
-  ProcessInfo proc_info_cc(kScExternalGen, kIntWeakCC);
+  ProcessInfo proc_info_cc(kScUnknown, kIntWeakCC);
   Interaction* interaction_cc = new Interaction(init_state, proc_info_cc);
   intlist->push_back(interaction_cc);
 
-  ProcessInfo proc_info_nc(kScExternalGen, kIntWeakNC);
+  ProcessInfo proc_info_nc(kScUnknown, kIntWeakNC);
   Interaction* interaction_nc = new Interaction(init_state, proc_info_nc);
   intlist->push_back(interaction_nc);
 

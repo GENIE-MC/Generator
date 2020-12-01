@@ -307,7 +307,6 @@ void EventLibraryInterface::FillKinematics( const GHepRecord & event,
   // Initial hadronic state, semi-arbitrary
   const TLorentzVector & p_tgt = * event.Particle( 1 ) -> P4() ;
   
-  kine.Setq2(+q.Mag2(), true);
   kine.SetQ2(-q.Mag2(), true);
   kine.SetW((q + p_tgt).Mag(), true);
   kine.Setx(-q.Mag2() / (2*p_tgt.Dot(q)), true);
