@@ -37,7 +37,7 @@ EvtLibPXSec::~EvtLibPXSec()
 double EvtLibPXSec::XSec(const Interaction* /*in*/,
                          KinePhaseSpace_t /*kps*/) const
 {
-  std::cout << "EvtLibPXSec::XSec(): should not be reached" << std::endl;
+  LOG("ELI", pFATAL) << "This point should not be reached" ; 
   abort();
 }
 

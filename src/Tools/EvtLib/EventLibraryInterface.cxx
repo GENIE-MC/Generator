@@ -72,11 +72,11 @@ void EventLibraryInterface::ProcessEventRecord(GHepRecord * event) const
   GHepParticle * probe = event->Particle(0) ; 
   
   TLorentzVector probe_p4 ( * probe->P4() ) ;
-  
-  //  probe_p4 *= rec -> E / probe_p4.E() ; 
 
-  //probe -> SetMomentum( probe_p4 ) ;
+  LOG("ELI", pINFO) << "Difference between requested neutrino E and used neutrino energy: " << probe_p4.E() - rec -> E ;
 
+  probe_p4 *= rec -> E / probe_p4.E() ; 
+  probe -> SetMomentum( probe_p4 ) ;
 
   // because of the selection procedure there might not be enough 
   // events in the library
