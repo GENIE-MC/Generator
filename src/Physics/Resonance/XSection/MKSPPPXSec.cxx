@@ -139,6 +139,9 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   // Eq. 7 of ref. 1
   double A_plus            = (k_1*(k_2 - k_2_iso))<0?0:TMath::Sqrt( k_1*(k_2 - k_2_iso) );
   double A_minus           = (k_1*(k_2 + k_2_iso))<0?0:TMath::Sqrt( k_1*(k_2 + k_2_iso) );
+  // This ``recipe'' of transition from neutrino to antineutrino case is promoted by Minoo Kabirnezhad.
+  // However, it is not correct in our opinion. All details can be found in Ref. [12], see 
+  // section "Problem with transition from neutrino to antineutrino case".
   //Eq. 6 of ref. 1
   double eps_1_plus        =  (1. + cos_theta)<0?0:2.*A_plus *(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1. + cos_theta);
   double eps_1_minus       =  (1. - cos_theta)<0?0:-2.*A_minus*(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1. - cos_theta);
@@ -149,6 +152,20 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double eps_zero_R        = (1. - cos_theta)<0?0:2.*A_plus *TMath::Sqrt(1. - cos_theta);       // R->lambda = +1
   double eps_z_L           = (1. + cos_theta)<0?0:-2.*A_minus*(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1. + cos_theta);
   double eps_z_R           = (1. - cos_theta)<0?0:2.*A_plus *(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1. - cos_theta);
+  if (is_nubar)
+  {
+	  Phi = -Phi;
+	 //Eq. 6 of ref. 1
+     eps_1_plus        =  (1. + cos_theta)<0?0:-2.*A_minus *(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1. - cos_theta);
+     eps_1_minus       =  (1. - cos_theta)<0?0:-2.*A_plus*(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1. + cos_theta);
+     eps_2_plus        =  (1. + cos_theta)<0?0:-2.*A_minus *TMath::Sqrt(1. - cos_theta);
+     eps_2_minus       =  (1. - cos_theta)<0?0:2.*A_plus*TMath::Sqrt(1. + cos_theta);
+     //Eq. 9 of ref. 1
+     eps_zero_L        = (1. + cos_theta)<0?0:2.*A_plus*TMath::Sqrt(1. - cos_theta);       // L->lambda = -1
+     eps_zero_R        = (1. - cos_theta)<0?0:2.*A_minus *TMath::Sqrt(1. + cos_theta);       // R->lambda = +1
+     eps_z_L           = (1. + cos_theta)<0?0:2.*A_plus*(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1. - cos_theta);
+     eps_z_R           = (1. - cos_theta)<0?0:2.*A_minus *(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1. + cos_theta);
+  }
   //Eq. 10 of ref. 1
   double C_L_plus          =  k1_Sqrt2*(eps_1_plus  - eps_2_plus);
   double C_L_minus         =  k1_Sqrt2*(eps_1_minus - eps_2_minus);
@@ -1137,17 +1154,19 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   // This ``recipe'' of transition from neutrino to antineutrino case is promoted by Minoo Kabirnezhad.
   // However, it is not correct in our opinion. All details can be found in Ref. [12], see 
   // section "Problem with transition from neutrino to antineutrino case".
-  double temp;
-  if (is_nubar)
-  {
-    temp     = C_L_plus;
-    C_L_plus = C_R_plus;
-    C_R_plus = temp;
+  // Minoo changed transition rules in the last version of code
+  // These ones are not valid
+  //double temp;
+  //if (is_nubar)
+  //{
+    //temp     = C_L_plus;
+    //C_L_plus = C_R_plus;
+    //C_R_plus = temp;
     
-    temp     = C_L_minus;
-    C_L_minus = C_R_minus;
-    C_R_minus = temp;
-  } 
+    //temp     = C_L_minus;
+    //C_L_minus = C_R_minus;
+    //C_R_minus = temp;
+  //} 
 
   // Isospin Clebsch–Gordan coefficients to sum amplitudes for I=1/2 and I=3/2, see eq.25 and Table 2 of ref. 1
   double C1         = SppChannel::Isospin1Coefficients(spp_channel);
