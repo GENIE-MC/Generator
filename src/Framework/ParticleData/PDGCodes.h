@@ -60,6 +60,22 @@ const int kPdgSDDiquarkS1      =  3103; // sd, spin = 1
 const int kPdgSUDiquarkS0      =  3201; // su, spin = 0
 const int kPdgSUDiquarkS1      =  3203; // su, spin = 1
 const int kPdgSSDiquarkS1      =  3303; // ss, spin = 1
+const int kPdgCDDiquarkS0      =  4101; // cd, spin = 0
+const int kPdgCDDiquarkS1      =  4103; // cd, spin = 1
+const int kPdgCUDiquarkS0      =  4201; // cu, spin = 0
+const int kPdgCUDiquarkS1      =  4203; // cu, spin = 1
+const int kPdgCSDiquarkS0      =  4301; // cs, spin = 0
+const int kPdgCSDiquarkS1      =  4303; // cs, spin = 1
+const int kPdgCCDiquarkS1      =  4403; // cc, spin = 1
+const int kPdgBDDiquarkS0      =  5101; // bd, spin = 0
+const int kPdgBDDiquarkS1      =  5103; // bd, spin = 1
+const int kPdgBUDiquarkS0      =  5201; // bu, spin = 0
+const int kPdgBUDiquarkS1      =  5203; // bu, spin = 1
+const int kPdgBSDiquarkS0      =  5301; // bs, spin = 0
+const int kPdgBSDiquarkS1      =  5303; // bs, spin = 1
+const int kPdgBCDiquarkS0      =  5401; // bc, spin = 0
+const int kPdgBCDiquarkS1      =  5403; // bc, spin = 1
+const int kPdgBBDiquarkS1      =  5503; // bb, spin = 1
 
 const int kPdgProton           =  2212; //
 const int kPdgAntiProton       = -2212; //
@@ -187,17 +203,18 @@ const int kPdgTgtFe56      = 1000260560;
 //
 // PDG codes for GENIE special particles
 //
-const int kPdgHadronicSyst    = 2000000001; // DIS hadronic system before hadronization
-const int kPdgHadronicBlob    = 2000000002; // Unmodelled fraction of the hadronic system
-const int kPdgBindino         = 2000000101; // Binding energy subtracted from f/s nucleons
-const int kPdgCoulobtron      = 2000000102; // Coulomb energy subtracted from f/s leptons
-const int kPdgClusterNN       = 2000000200; // A nn cluster within a nucleus
-const int kPdgClusterNP       = 2000000201; // A np cluster within a nucleus
-const int kPdgClusterPP       = 2000000202; // A pp cluster within a nucleus
-const int kPdgCompNuclCluster = 2000000300; // Nucleon cluster before phase decay
-const int kPdgDarkMatter      = 2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
+const int kPdgHadronicSyst    =  2000000001; // DIS hadronic system before hadronization
+const int kPdgHadronicBlob    =  2000000002; // Unmodelled fraction of the hadronic system
+const int kPdgBindino         =  2000000101; // Binding energy subtracted from f/s nucleons
+const int kPdgCoulobtron      =  2000000102; // Coulomb energy subtracted from f/s leptons
+const int kPdgClusterNN       =  2000000200; // A nn cluster within a nucleus
+const int kPdgClusterNP       =  2000000201; // A np cluster within a nucleus
+const int kPdgClusterPP       =  2000000202; // A pp cluster within a nucleus
+const int kPdgCompNuclCluster =  2000000300; // Nucleon cluster before phase decay
+const int kPdgDarkMatter      =  2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
 const int kPdgAntiDarkMatter  = -2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
-const int kPdgMediator        = 2000010001; // Mediator particle for GENIE Boosted Dark Matter mode
+const int kPdgMediator        =  2000010001; // Mediator particle for GENIE Boosted Dark Matter mode
+const int kPdgNHL             =  2000020000; // Neutral Heavy Lepton PDG code
 
 //
 // PDG codes for special particles used by external generators interfaced with GENIE

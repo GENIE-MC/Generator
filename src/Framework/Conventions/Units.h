@@ -24,14 +24,14 @@ namespace units {
 
 //-- Basic unit
 
-static const double gigaelectronvolt  = 1.;
-static const double GeV               = gigaelectronvolt;
+static constexpr double gigaelectronvolt  = 1.;
+static constexpr double GeV               = gigaelectronvolt;
 
 //-- Conversion of conventionl [L], [M], [T] units in physical units
 
-static const double meter    = 5.07e+15 / GeV;
-static const double kilogram = 5.61e+26 * GeV;
-static const double second   = 1.52e+24 / GeV;
+static constexpr double meter    = 5.07e+15 / GeV;
+static constexpr double kilogram = 5.61e+26 * GeV;
+static constexpr double second   = 1.52e+24 / GeV;
 
 // GeV^-2  -> mbarns : x 0.389;
 // mbarns  -> cm^2   : x 1.00E-27;
@@ -44,131 +44,140 @@ static const double second   = 1.52e+24 / GeV;
 
 //-- [L: length],[S: area],[V: volume]
 
-static const double kilometer   = 1000.*meter;
-static const double millimeter  = 0.001*meter;
-static const double millimeter2 = millimeter*millimeter;
-static const double millimeter3 = millimeter*millimeter2;
-static const double centimeter  = 0.01*meter;
-static const double centimeter2 = centimeter*centimeter;
-static const double centimeter3 = centimeter*centimeter2;
-static const double decimeter   = 0.1*meter;
-static const double decimeter2  = decimeter*decimeter;
-static const double decimeter3  = decimeter*decimeter2;
-static const double meter2      = meter*meter;
-static const double meter3      = meter*meter2;
-static const double micrometer  = 1.e-6 *meter;
-static const double nanometer   = 1.e-9 *meter;
-static const double angstrom    = 1.e-10*meter;
-static const double fermi       = 1.e-15*meter;
-static const double fermi2      = fermi*fermi;
-static const double fermi3      = fermi*fermi2;
-static const double barn        = 1.e-28*meter2;
-static const double millibarn   = 1.e-3 *barn;
-static const double microbarn   = 1.e-6 *barn;
-static const double nanobarn    = 1.e-9 *barn;
-static const double picobarn    = 1.e-12*barn;
+static constexpr double kilometer   = 1000.*meter;
+static constexpr double millimeter  = 0.001*meter;
+static constexpr double millimeter2 = millimeter*millimeter;
+static constexpr double millimeter3 = millimeter*millimeter2;
+static constexpr double centimeter  = 0.01*meter;
+static constexpr double centimeter2 = centimeter*centimeter;
+static constexpr double centimeter3 = centimeter*centimeter2;
+static constexpr double decimeter   = 0.1*meter;
+static constexpr double decimeter2  = decimeter*decimeter;
+static constexpr double decimeter3  = decimeter*decimeter2;
+static constexpr double meter2      = meter*meter;
+static constexpr double meter3      = meter*meter2;
+static constexpr double micrometer  = 1.e-6 *meter;
+static constexpr double nanometer   = 1.e-9 *meter;
+static constexpr double angstrom    = 1.e-10*meter;
+static constexpr double fermi       = 1.e-15*meter;
+static constexpr double fermi2      = fermi*fermi;
+static constexpr double fermi3      = fermi*fermi2;
+static constexpr double barn        = 1.e-28*meter2;
+static constexpr double millibarn   = 1.e-3 *barn;
+static constexpr double microbarn   = 1.e-6 *barn;
+static constexpr double nanobarn    = 1.e-9 *barn;
+static constexpr double picobarn    = 1.e-12*barn;
 
-static const double km  = kilometer;
-static const double mm  = millimeter;
-static const double mm2 = millimeter2;
-static const double mm3 = millimeter3;
-static const double cm  = centimeter;
-static const double cm2 = centimeter2;
-static const double cm3 = centimeter3;
-static const double m   = meter;
-static const double m2  = meter2;
-static const double m3  = meter3;
-static const double A   = angstrom;
-static const double fm  = fermi;
-static const double fm2 = fermi2;
-static const double fm3 = fermi3;
-static const double b   = barn;
-static const double mb  = millibarn;
-static const double ub  = microbarn;
-static const double nb  = nanobarn;
-static const double pb  = picobarn;
+static constexpr double km  = kilometer;
+static constexpr double mm  = millimeter;
+static constexpr double mm2 = millimeter2;
+static constexpr double mm3 = millimeter3;
+static constexpr double cm  = centimeter;
+static constexpr double cm2 = centimeter2;
+static constexpr double cm3 = centimeter3;
+static constexpr double m   = meter;
+static constexpr double m2  = meter2;
+static constexpr double m3  = meter3;
+static constexpr double A   = angstrom;
+static constexpr double fm  = fermi;
+static constexpr double fm2 = fermi2;
+static constexpr double fm3 = fermi3;
+static constexpr double b   = barn;
+static constexpr double mb  = millibarn;
+static constexpr double ub  = microbarn;
+static constexpr double nb  = nanobarn;
+static constexpr double pb  = picobarn;
 
 //-- [T: time]
 
-static const double millisecond = 1.e-03 *second;
-static const double microsecond = 1.e-06 *second;
-static const double nanosecond  = 1.e-09 *second;
-static const double picosecond  = 1.e-12 *second;
+static constexpr double millisecond = 1.e-03 *second;
+static constexpr double microsecond = 1.e-06 *second;
+static constexpr double nanosecond  = 1.e-09 *second;
+static constexpr double picosecond  = 1.e-12 *second;
+static constexpr double femptosecond  = 1.e-15 *second;
+static constexpr double attosecond  = 1.e-18 *second;
+static constexpr double zeptosecond  = 1.e-21 *second;
+static constexpr double yoctosecond  = 1.e-24 *second;
 
-static const double s  = second;
-static const double ms = millisecond;
-static const double us = microsecond;
-static const double ns = nanosecond;
-static const double ps = picosecond;
 
-static const double hertz     = 1./second;
-static const double kilohertz = 1.e+3*hertz;
-static const double megahertz = 1.e+6*hertz;
-static const double gigahertz = 1.e+9*hertz;
+static constexpr double s  = second;
+static constexpr double ms = millisecond;
+static constexpr double us = microsecond;
+static constexpr double ns = nanosecond;
+static constexpr double ps = picosecond;
+static constexpr double fs = femptosecond;
+static constexpr double as = attosecond;
+static constexpr double zs = zeptosecond;
+static constexpr double ys = yoctosecond; 
 
-static const double  Hz  = hertz;
-static const double  kHz = kilohertz;
-static const double  MHz = megahertz;
-static const double  GHz = gigahertz;
+static constexpr double hertz     = 1./second;
+static constexpr double kilohertz = 1.e+3*hertz;
+static constexpr double megahertz = 1.e+6*hertz;
+static constexpr double gigahertz = 1.e+9*hertz;
+
+static constexpr double  Hz  = hertz;
+static constexpr double  kHz = kilohertz;
+static constexpr double  MHz = megahertz;
+static constexpr double  GHz = gigahertz;
 
 //-- [Q: Charge]
 
-static const double qe          = 1.;
-static const double qe_coulomb  = 1.60217733e-19;
+static constexpr double qe          = 1.;
+static constexpr double qe_coulomb  = 1.60217733e-19;
 
 //-- [E: Energy]
 
-static const double     electronvolt = 1.e-09 *GeV;
-static const double kiloelectronvolt = 1.e+03 *electronvolt;
-static const double megaelectronvolt = 1.e+06 *electronvolt ;
-static const double teraelectronvolt = 1.e+12 *electronvolt;
-static const double petaelectronvolt = 1.e+15 *electronvolt;
+static constexpr double     electronvolt = 1.e-09 *GeV;
+static constexpr double kiloelectronvolt = 1.e+03 *electronvolt;
+static constexpr double megaelectronvolt = 1.e+06 *electronvolt ;
+static constexpr double teraelectronvolt = 1.e+12 *electronvolt;
+static constexpr double petaelectronvolt = 1.e+15 *electronvolt;
 
-static const double  eV = electronvolt;
-static const double keV = kiloelectronvolt;
-static const double MeV = megaelectronvolt;
-static const double TeV = teraelectronvolt;
-static const double PeV = petaelectronvolt;
+static constexpr double  eV = electronvolt;
+static constexpr double keV = kiloelectronvolt;
+static constexpr double MeV = megaelectronvolt;
+static constexpr double TeV = teraelectronvolt;
+static constexpr double PeV = petaelectronvolt;
 
-static const double GeV2 = GeV * GeV;
-static const double GeV3 = GeV * GeV2;
-static const double GeV4 = GeV * GeV3;
-static const double GeV5 = GeV * GeV4;
+static constexpr double GeV2 = GeV * GeV;
+static constexpr double GeV3 = GeV * GeV2;
+static constexpr double GeV4 = GeV * GeV3;
+static constexpr double GeV5 = GeV * GeV4;
 
 //-- [M: Mass]
 
-static const double      gram = 1.e-3 *kilogram;
-static const double milligram = 1.e-3 *gram;
+static constexpr double      gram = 1.e-3 *kilogram;
+static constexpr double milligram = 1.e-3 *gram;
 
-static const double  kg = kilogram;
-static const double   g = gram;
-static const double  mg = milligram;
+static constexpr double  kg = kilogram;
+static constexpr double   g = gram;
+static constexpr double  mg = milligram;
 
 //-- [Density]
 
-static const double  kilogram_meter3  = kilogram / meter3;
-static const double  gram_centimeter3 = gram     / centimeter3;
+static constexpr double  kilogram_meter3  = kilogram / meter3;
+static constexpr double  gram_centimeter3 = gram     / centimeter3;
 
-static const double kg_m3 = kilogram_meter3;
-static const double g_cm3 = gram_centimeter3;
+static constexpr double kg_m3 = kilogram_meter3;
+static constexpr double g_cm3 = gram_centimeter3;
 
 //-- [Dimensionless quantities]
 
 // Angle
 
-static const double radian      = 1.;
-static const double milliradian = 1.e-3*radian;
-static const double degree      = (3.14159265358979323846/180.0)*radian;
-static const double steradian   = 1.;
+static constexpr double radian      = 1.;
+static constexpr double milliradian = 1.e-3*radian;
+static constexpr double degree      = (3.14159265358979323846/180.0)*radian;
+static constexpr double steradian   = 1.;
 
-static const double rad  = radian;
-static const double mrad = milliradian;
-static const double sr   = steradian;
-static const double deg  = degree;
+static constexpr double rad  = radian;
+static constexpr double mrad = milliradian;
+static constexpr double sr   = steradian;
+static constexpr double deg  = degree;
 
 //-- [Etc]
 
-static const double clhep_def_density_unit = g_cm3/(0.62415185185E+19);
+static constexpr double clhep_def_density_unit = g_cm3/(0.62415185185E+19);
 
 } // namespace units
 } // namespace genie

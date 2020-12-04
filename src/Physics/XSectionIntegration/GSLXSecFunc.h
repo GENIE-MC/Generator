@@ -95,6 +95,28 @@ private:
 
 //.....................................................................................
 //
+// genie::utils::gsl::d2XSec_dlog10xdlog10Q2_E
+// A 2-D cross section function: d2xsec/dlog10xdQlog102 = f(log10x,log10Q2)|(fixed E)
+//
+class d2XSec_dlog10xdlog10Q2_E: public ROOT::Math::IBaseFunctionMultiDim
+{
+public:
+  d2XSec_dlog10xdlog10Q2_E(const XSecAlgorithmI * m, const Interaction * i, double scale=1.);
+ ~d2XSec_dlog10xdlog10Q2_E();
+
+  // ROOT::Math::IBaseFunctionMultiDim interface
+  unsigned int                        NDim   (void)               const;
+  double                              DoEval (const double * xin) const;
+  ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
+
+private:
+  const XSecAlgorithmI * fModel;
+  const Interaction *    fInteraction;
+  double                 fScale; // can set to -1. for use with GSL minimizer
+};
+
+//.....................................................................................
+//
 // genie::utils::gsl::d2XSec_dQ2dy_E
 // A 2-D cross section function: d2xsec/dQ2dy = f(Q^2,y)|(fixed E)
 //

@@ -19,9 +19,9 @@
 #include <TFile.h>
 #include <TNtuple.h>
 
-#include "Conventions/Constants.h"
-#include "Conventions/Units.h"
-#include "Utils/PREM.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Utils/PREM.h"
 
 using namespace genie;
 

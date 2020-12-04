@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+<!--
+Configuration for the GLRES d^xsec / dy xsec algorithm
+-->
+
 <alg_conf>
   <param_set name="Default"> 
+     <param type="string" name="CommonParam">                HEDIS-PYTHIA </param>
+     <param type="alg" name="XSec-Integrator">   genie::GLRESXSec/Default </param>
   </param_set>
 </alg_conf>
-

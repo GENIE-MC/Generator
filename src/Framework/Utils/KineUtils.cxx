@@ -25,6 +25,9 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Numerical/MathUtils.h"
+#include "Framework/Interaction/InteractionException.h"
+
+#include <sstream>
 
 using namespace genie;
 using namespace genie::constants;
@@ -155,9 +158,16 @@ double genie::utils::kinematics::Jacobian(
   bool forward;
   const Kinematics & kine = i->Kine();
 
+  // cover the simple case
+  if ( fromps == tops )
+  {
+    forward = true;
+    J = 1.;
+  }
   //
   // transformation: {Q2}|E -> {lnQ2}|E
   //
+  else
   if ( TransformMatched(fromps,tops,kPSQ2fE,kPSlogQ2fE,forward) )
   {
     J = 1. / kine.Q2();
@@ -179,6 +189,15 @@ double genie::utils::kinematics::Jacobian(
   if ( TransformMatched(fromps,tops,kPSxyfE,kPSlogxlogyfE,forward) )
   {
     J = 1. / (kine.x() * kine.y());
+  }
+
+  //
+  // transformation: {log10x,log10Q2}|E -> {x,Q2}|E
+  //
+  else
+  if ( TransformMatched(fromps,tops,kPSxQ2fE,kPSlog10xlog10Q2fE,forward) )
+  {
+    J = TMath::Log(10.)*kine.x() * TMath::Log(10.)*kine.Q2();
   }
 
   //
@@ -254,11 +273,13 @@ double genie::utils::kinematics::Jacobian(
   }
 
   else {
-     SLOG("KineLimits", pFATAL)
-       << "*** Can not compute Jacobian for transforming: "
+     std::ostringstream msg;
+     msg << "Can not compute Jacobian for transforming: "
        << KinePhaseSpace::AsString(fromps) << " --> "
        << KinePhaseSpace::AsString(tops);
-     exit(1);
+     SLOG("KineLimits", pFATAL) << "*** " << msg.str();
+     throw genie::exceptions::InteractionException(msg.str());
+     //exit(1);
   }
 
   // if any of the above transforms was reverse, invert the jacobian
@@ -397,8 +418,8 @@ Range1D_t genie::utils::kinematics::InelXLim(double Ev, double M, double ml)
   assert (s>M2);
 
   Range1D_t x;
-  x.min = ml2/(s-M2) + controls::kASmallNum;
-  x.max = 1.         - controls::kASmallNum;
+  x.min = ml2/(s-M2) + controls::kAVerySmallNum;
+  x.max = 1.         - controls::kAVerySmallNum;
 
   return x;
 }
@@ -428,8 +449,8 @@ Range1D_t genie::utils::kinematics::InelYLim(double Ev, double M, double ml)
   }
 
   if(y.max >= 0 && y.max <= 1 && y.min >= 0 && y.min <= 1) {
-    y.min = TMath::Max(y.min,     controls::kASmallNum);
-    y.max = TMath::Min(y.max, 1 - controls::kASmallNum);
+    y.min = TMath::Max(y.min,     controls::kAVerySmallNum);
+    y.max = TMath::Min(y.max, 1 - controls::kAVerySmallNum);
   } else {
     y.min = -1;
     y.max = -1;
@@ -465,8 +486,8 @@ Range1D_t genie::utils::kinematics::InelYLim_X(
   double A = 0.5 * (1-a-0.5*b)/c;
   double B = 0.5 * TMath::Sqrt(d)/c;
 
-  y.min = TMath::Max(0., A-B) + controls::kASmallNum;
-  y.max = TMath::Min(1., A+B) - controls::kASmallNum;
+  y.min = TMath::Max(0., A-B) + controls::kAVerySmallNum;
+  y.max = TMath::Min(1., A+B) - controls::kAVerySmallNum;
 
   return y;
 }
@@ -1099,6 +1120,25 @@ void genie::utils::kinematics::XYtoWQ2(
       << "(x=" << x << ",y=" << y << " => (W=" << W << ",Q2=" << Q2 << ")";
 }
 //___________________________________________________________________________
+void genie::utils::kinematics::XQ2toWY(
+            double Ev, double M, double & W, double Q2, double x, double & y)
+{
+// Converts (x,Q2) => (W,Y)
+// Uses the system: a) W^2 - M^2 = 2*Ev*M*y*(1-x) and b) Q^2 = 2*x*y*M*Ev
+// Ev is the neutrino energy at the struck nucleon rest frame
+// M is the nucleon mass - it does not need to be on the mass shell
+
+  double M2  = TMath::Power(M,2);
+  y = Q2 / (2 * x * M * Ev);
+  y = TMath::Min(1.,y);
+
+  double W2  = M2 + 2*Ev*M*y*(1-x);
+  W  = TMath::Sqrt(TMath::Max(0., W2));
+
+  LOG("KineLimits", pDEBUG)
+      << "(x=" << x << ",Q2=" << Q2 << " => (W=" << W << ",Y=" << y << ")";
+}
+//___________________________________________________________________________
 double genie::utils::kinematics::XYtoW(
                                      double Ev, double M, double x, double y)
 {
@@ -1229,6 +1269,24 @@ void genie::utils::kinematics::UpdateXYFromWQ2(const Interaction * in)
     double x=-1,y=-1;
     kinematics::WQ2toXY(Ev,M,W,Q2,x,y);
     kine->Setx(x);
+    kine->Sety(y);
+  }
+}
+//___________________________________________________________________________
+void genie::utils::kinematics::UpdateWYFromXQ2(const Interaction * in)
+{
+  Kinematics * kine = in->KinePtr();
+
+  if(kine->KVSet(kKVx) && kine->KVSet(kKVQ2)) {
+    const InitialState & init_state = in->InitState();
+    double Ev = init_state.ProbeE(kRfHitNucRest);
+    double M  = init_state.Tgt().HitNucP4Ptr()->M(); // can be off mass shell
+    double x  = kine->x();
+    double Q2 = kine->Q2();
+
+    double W=-1,y=-1;
+    kinematics::XQ2toWY(Ev,M,W,Q2,x,y);
+    kine->SetW(W);
     kine->Sety(y);
   }
 }

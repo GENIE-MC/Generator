@@ -1160,13 +1160,12 @@ void GetCommandLineArgs(int argc, char ** argv)
             // create a local copy of the input histogram
             TString origname = ihst->GetName();
             TString tmpname; tmpname.Form("%s_", origname.Data());
-            TH1D * spectrum = new TH1D(
-                 tmpname.Data(), ihst->GetName(), ihst->GetNbinsX(),
-                 ihst->GetXaxis()->GetXmin(), ihst->GetXaxis()->GetXmax());
+            // Copy in the flux histogram from the root file
+            // use Clone rather than assuming fix bin widths and rebooking
+            TH1D* spectrum = (TH1D*)ihst->Clone();
+            spectrum->SetNameTitle(tmpname.Data(),ihst->GetName());
             spectrum->SetDirectory(0);
-            for(int ibin = 1; ibin <= ihst->GetNbinsX(); ibin++) {
-               spectrum->SetBinContent(ibin, ihst->GetBinContent(ibin));
-            }
+
             // get rid of original
             delete ihst;
             // rename copy

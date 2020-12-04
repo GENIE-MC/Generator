@@ -8,7 +8,7 @@
 
          Syntax :
            gspl2root -f xml_file -p nu -t tgt [-e emax]
-                     [-o root_file] [-w] [-k]
+                     [-o root_file] [-w] [-k] [-l]
                      [--message-thresholds xml_file]
                      [--event-generator-list list_name]
 
@@ -22,11 +22,13 @@
            -t
               the target pdg code (format: 10LZZZAAAI)
            -e
-              the maximum energy (in generated plots -- use it to zoom at low E)
+              the minimum and maximum energy (in generated plots -- use it to zoom at low E)
            -o
               output ROOT file name
            -w
               write out plots in a postscipt file
+           -l
+              energy bins in log10 scale
            -k
               keep spline knot points  (not yet implemented).
            --message-thresholds
@@ -98,6 +100,7 @@
 #include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/XmlParserStatus.h"
 #include "Framework/Conventions/Units.h"
+#include "Framework/Conventions/Controls.h"
 #include "Framework/EventGen/InteractionList.h"
 #include "Framework/EventGen/GEVGDriver.h"
 #include "Framework/Interaction/Interaction.h"
@@ -112,6 +115,9 @@
 #include "Framework/Utils/XSecSplineList.h"
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Utils/CmdLnArgParser.h"
+#include "Framework/Registry/Registry.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+
 
 using std::string;
 using std::vector;
@@ -133,7 +139,6 @@ PDGCodeList GetPDGCodeListFromString(std::string s);
 //User-specified options:
 string gOptXMLFilename;  // input XML filename
 string gOptROOTFilename; // output ROOT filename
-double gOptNuEnergy;     // Ev(max)
 PDGCodeList gOptProbePdgList;  // list of probe PDG codes
 PDGCodeList gOptTgtPdgList;    // list of target PDG codes
 int    gOptProbePdgCode; // probe PDG code (currently being processed)
@@ -144,10 +149,10 @@ bool   gWriteOutPlots;   // write out a postscript file with plots
 //Globals & constants
 double gEmin;
 double gEmax;
+bool gInlogE;
 int    kNP       = 300;
 int    kNSplineP = 1000;
 const int    kPsType   = 111;  // ps type: portrait
-const double kEmin     = 0.01; // minimum energy in plots (GeV)
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -567,9 +572,9 @@ void SaveGraphsToRootFile(void)
   topdir = froot->mkdir(dptr.str().c_str(),dtitle.str().c_str());
   topdir->cd();
 
-  double   de = (gEmax-gEmin)/(kNSplineP-1);
+  double   de = (gInlogE) ? (TMath::Log(gEmax)-TMath::Log(gEmin))/(kNSplineP-1) : (gEmax-gEmin)/(kNSplineP-1);
   double * e  = new double[kNSplineP];
-  for(int i=0; i<kNSplineP; i++) {  e[i]  = gEmin + i*de; }
+  for(int i=0; i<kNSplineP; i++) {  e[i]  = (gInlogE) ? TMath::Exp(TMath::Log(gEmin) + i*de) : gEmin + i*de; }
 
   double * xs = new double[kNSplineP];
 
@@ -603,6 +608,7 @@ void SaveGraphsToRootFile(void)
     else if (proc.IsInverseMuDecay()   ) { title << "imd";   }
     else if (proc.IsIMDAnnihilation()  ) { title << "imdanh";}
     else if (proc.IsNuElectronElastic()) { title << "ve";    }
+    else if (proc.IsGlashowResonance() ) { title << "glres"; }
     else                                 { continue;         }
 
     if      (proc.IsWeakCC())  { title << "_cc";      }
@@ -636,10 +642,12 @@ void SaveGraphsToRootFile(void)
         else if ( pdg::IsDQuark(qrkpdg)     ) { title << "_d";    }
         else if ( pdg::IsSQuark(qrkpdg)     ) { title << "_s";    }
         else if ( pdg::IsCQuark(qrkpdg)     ) { title << "_c";    }
+        else if ( pdg::IsBQuark(qrkpdg)     ) { title << "_b";    }
         else if ( pdg::IsAntiUQuark(qrkpdg) ) { title << "_ubar"; }
         else if ( pdg::IsAntiDQuark(qrkpdg) ) { title << "_dbar"; }
         else if ( pdg::IsAntiSQuark(qrkpdg) ) { title << "_sbar"; }
         else if ( pdg::IsAntiCQuark(qrkpdg) ) { title << "_cbar"; }
+        else if ( pdg::IsAntiBQuark(qrkpdg) ) { title << "_bbar"; }
 
         if(insea) { title << "sea"; }
         else      { title << "val"; }
@@ -661,6 +669,29 @@ void SaveGraphsToRootFile(void)
     if(xcls.IsCharmEvent()) {
         title << "_charm";
         if(!xcls.IsInclusiveCharm()) { title << xcls.CharmHadronPdg(); }
+    }
+
+    if(xcls.IsFinalQuarkEvent()) {
+        int  qrkpdg = xcls.FinalQuarkPdg();
+        if      ( pdg::IsUQuark(qrkpdg)     ) { title << "_u";    }
+        else if ( pdg::IsDQuark(qrkpdg)     ) { title << "_d";    }
+        else if ( pdg::IsSQuark(qrkpdg)     ) { title << "_s";    }
+        else if ( pdg::IsCQuark(qrkpdg)     ) { title << "_c";    }
+        else if ( pdg::IsBQuark(qrkpdg)     ) { title << "_b";    }
+        else if ( pdg::IsTQuark(qrkpdg)     ) { title << "_t";    }
+        else if ( pdg::IsAntiUQuark(qrkpdg) ) { title << "_ubar"; }
+        else if ( pdg::IsAntiDQuark(qrkpdg) ) { title << "_dbar"; }
+        else if ( pdg::IsAntiSQuark(qrkpdg) ) { title << "_sbar"; }
+        else if ( pdg::IsAntiCQuark(qrkpdg) ) { title << "_cbar"; }
+        else if ( pdg::IsAntiBQuark(qrkpdg) ) { title << "_bbar"; }
+        else if ( pdg::IsAntiTQuark(qrkpdg) ) { title << "_tbar"; }
+    }
+    if(xcls.IsFinalLeptonEvent()) {
+        int  leppdg = xcls.FinalLeptonPdg();
+        if      ( pdg::IsMuon(leppdg)     ) { title << "_mu";     }
+        else if ( pdg::IsElectron(leppdg) ) { title << "_e";      }
+        else if ( pdg::IsTau(leppdg)      ) { title << "_tau";    }
+        else if ( pdg::IsPion(leppdg)     ) { title << "_had";    }
     }
 
     const Spline * spl = evg_driver.XSecSpline(interaction);
@@ -1354,15 +1385,33 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(1);
   }
 
-  // max neutrino energy
+  // min,max neutrino energy
   if( parser.OptionExists('e') ) {
     LOG("gspl2root", pINFO) << "Reading neutrino energy";
-    gOptNuEnergy = parser.ArgAsDouble('e');
+    string nue = parser.ArgAsString('e');
+    // is it just a value or a range (comma separated set of values)
+    if(nue.find(",") != string::npos) {
+       // split the comma separated list
+       vector<string> nurange = utils::str::Split(nue, ",");
+       assert(nurange.size() == 2);
+       gEmin = atof(nurange[0].c_str());
+       gEmax = atof(nurange[1].c_str());
+    } else {
+      const Registry * val_reg = AlgConfigPool::Instance() -> CommonList( "Param", "Validation" ) ;
+      gEmin = val_reg -> GetDouble( "GVLD-Emin" ) ; 
+      gEmax = atof(nue.c_str());
+      LOG("gspl2root", pDEBUG)
+	<< "Unspecified Emin - Setting to " << gEmin << " GeV as per configuration";
+    }
   } else {
+    const Registry * val_reg = AlgConfigPool::Instance() -> CommonList("Param", "Validation" ) ;
+    gEmin = val_reg -> GetDouble( "GVLD-Emin" ) ; 
+    gEmax = 100;
     LOG("gspl2root", pDEBUG)
-       << "Unspecified Emax - Setting to 100 GeV";
-    gOptNuEnergy = 100;
+      << "Unspecified Emin,Emax - Setting to " << gEmin << ",100 GeV ";
+
   }
+  assert(gEmin<gEmax);
 
   // output ROOT file name:
   if( parser.OptionExists('o') ) {
@@ -1380,17 +1429,16 @@ void GetCommandLineArgs(int argc, char ** argv)
   // use same abscissa points as splines
   //not yet//gKeepSplineKnots = parser.OptionExists('k');
 
-
-  gEmin  = kEmin;
-  gEmax  = gOptNuEnergy;
-  assert(gEmin<gEmax);
+  gInlogE = parser.OptionExists('l');
 
   // print the options you got from command line arguments
   LOG("gspl2root", pINFO) << "Command line arguments:";
   LOG("gspl2root", pINFO) << "  Input XML file  = " << gOptXMLFilename;
   LOG("gspl2root", pINFO) << "  Probe PDG code  = " << gOptProbePdgCode;
   LOG("gspl2root", pINFO) << "  Target PDG code = " << gOptTgtPdgCode;
-  LOG("gspl2root", pINFO) << "  Max neutrino E  = " << gOptNuEnergy;
+  LOG("gspl2root", pINFO) << "  Min neutrino E  = " << gEmin;
+  LOG("gspl2root", pINFO) << "  Max neutrino E  = " << gEmax;
+  LOG("gspl2root", pINFO) << "  In logE         = " << gInlogE;
   //not yet//LOG("gspl2root", pINFO) << "  Keep spline knots  = " << (gKeepSplineKnots?"true":"false");
 }
 //____________________________________________________________________________
@@ -1399,7 +1447,7 @@ void PrintSyntax(void)
   LOG("gspl2root", pNOTICE)
       << "\n\n" << "Syntax:" << "\n"
       << "   gspl2root -f xml_file -p probe_pdg -t target_pdg"
-      << "            [-e emax] [-o output_root_file] [-w]\n"
+      << "            [-e emin,emax] [-o output_root_file] [-w] [-l]\n"
       << "            [--message-thresholds xml_file]\n";
 }
 //____________________________________________________________________________

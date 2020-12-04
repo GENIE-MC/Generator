@@ -18,8 +18,8 @@
 
 #include <TH1F.h>
 
-#include "Registry/Registry.h"
-#include "Messenger/Messenger.h"
+#include "Framework/Registry/Registry.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 

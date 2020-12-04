@@ -231,7 +231,16 @@ bool genie::pdg::IsDiQuark(int pdgc)
            pdgc == kPdgUDDiquarkS1 || pdgc == kPdgUUDiquarkS1 ||
            pdgc == kPdgSDDiquarkS0 || pdgc == kPdgSDDiquarkS1 ||
            pdgc == kPdgSUDiquarkS0 || pdgc == kPdgSUDiquarkS1 ||
-           pdgc == kPdgSSDiquarkS1
+           pdgc == kPdgSSDiquarkS1 || 
+           pdgc == kPdgCDDiquarkS0 || pdgc == kPdgCDDiquarkS1 || 
+           pdgc == kPdgCUDiquarkS0 || pdgc == kPdgCUDiquarkS1 || 
+           pdgc == kPdgCSDiquarkS0 || pdgc == kPdgCSDiquarkS1 || 
+           pdgc == kPdgCCDiquarkS1 || 
+           pdgc == kPdgBDDiquarkS0 || pdgc == kPdgBDDiquarkS1 || 
+           pdgc == kPdgBUDiquarkS0 || pdgc == kPdgBUDiquarkS1 || 
+           pdgc == kPdgBSDiquarkS0 || pdgc == kPdgBSDiquarkS1 || 
+           pdgc == kPdgBCDiquarkS0 || pdgc == kPdgBCDiquarkS1 || 
+           pdgc == kPdgBBDiquarkS1
          );
 }
 //____________________________________________________________________________
@@ -271,6 +280,16 @@ bool genie::pdg::IsCQuark(int pdgc)
   return (pdgc == kPdgCQuark);
 }
 //____________________________________________________________________________
+bool genie::pdg::IsBQuark(int pdgc)
+{
+  return (pdgc == kPdgBQuark);
+}
+//____________________________________________________________________________
+bool genie::pdg::IsTQuark(int pdgc)
+{
+  return (pdgc == kPdgTQuark);
+}
+//____________________________________________________________________________
 bool genie::pdg::IsAntiUQuark(int pdgc)
 {
   return (pdgc == kPdgAntiUQuark);
@@ -289,6 +308,16 @@ bool genie::pdg::IsAntiSQuark(int pdgc)
 bool genie::pdg::IsAntiCQuark(int pdgc)
 {
   return (pdgc == kPdgAntiCQuark);
+}
+//____________________________________________________________________________
+bool genie::pdg::IsAntiBQuark(int pdgc)
+{
+  return (pdgc == kPdgAntiBQuark);
+}
+//____________________________________________________________________________
+bool genie::pdg::IsAntiTQuark(int pdgc)
+{
+  return (pdgc == kPdgAntiTQuark);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsPion(int pdgc)

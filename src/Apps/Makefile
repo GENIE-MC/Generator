@@ -31,7 +31,8 @@ TGT_BASE =  gevgen          \
             gspl2root       \
             gntpc           \
             gpdfcomp        \
-            gsfcomp
+            gsfcomp         \
+            gmkhedissf
 
 ifeq ($(strip $(GOPT_ENABLE_FNAL)),YES)
 TGT_BASE += gevgen_fnal
@@ -42,6 +43,9 @@ endif
 ifeq ($(strip $(GOPT_ENABLE_ATMO)),YES)
 TGT_BASE += gevgen_atmo
 TGT_BASE += gevgen_upmu
+endif
+ifeq ($(strip $(GOPT_ENABLE_NEUTRAL_HEAVY_LEPTON)),YES)
+TGT_BASE += gevgen_nhl
 endif
 ifeq ($(strip $(GOPT_ENABLE_NUCLEON_DECAY)),YES)
 TGT_BASE += gevgen_ndcy
@@ -124,6 +128,12 @@ $(GENIE_BIN_PATH)/gevgen_upmu: gUpMuFluxGen.o $(call find_libs,gevgen_upmu)
 $(GENIE_BIN_PATH)/gevgen_hadron: gEvGenHadronNucleus.o $(call find_libs,gevgen_hadron)
 	@echo "** Building gevgen_hadron"
 	$(LD) $(LDFLAGS) gEvGenHadronNucleus.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_hadron
+
+# neutral heavy lepton event generation app
+#
+$(GENIE_BIN_PATH)/gevgen_nhl: gNeutralHeavyLeptonEvGen.o $(call find_libs,gevgen_nhl)
+	@echo "** Building gevgen_nhl"
+	$(LD) $(LDFLAGS) gNeutralHeavyLeptonEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_nhl
 
 # nucleon decay event generation app
 #
@@ -232,6 +242,12 @@ $(GENIE_BIN_PATH)/gpdfcomp: gPDFComp.o $(call find_libs,gpdfcomp)
 $(GENIE_BIN_PATH)/gsfcomp: gSFComp.o $(call find_libs,gsfcomp)
 	@echo "** Building gsfcomp"
 	$(LD) $(LDFLAGS) gSFComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gsfcomp
+
+# App to create structure functions suitable for HEDIS
+#
+$(GENIE_BIN_PATH)/gmkhedissf: gMakeHEDISStrucFunc.o $(call find_libs,gmkhedissf)
+	@echo "** Building gmkhedissf"
+	$(LD) $(LDFLAGS) gMakeHEDISStrucFunc.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmkhedissf
 
 # CLEANING-UP
 

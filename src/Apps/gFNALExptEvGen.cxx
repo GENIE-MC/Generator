@@ -1680,14 +1680,23 @@ void ParseFluxHst(string flux)
       PrintSyntax();
       exit(1);
     }
-    // create a local copy of the input histogram
-    TH1D * spectrum = new TH1D(
-            histo.c_str(), histo.c_str(), ihst->GetNbinsX(),
-            ihst->GetXaxis()->GetXmin(), ihst->GetXaxis()->GetXmax());
+
+    // Copy in the flux histogram from the root file
+    // use Clone rather than assuming fix bin widths and rebooking
+    TH1D* spectrum = (TH1D*)ihst->Clone();
+    spectrum->SetNameTitle("spectrum","neutrino_flux");
     spectrum->SetDirectory(0);
-    for(int ibin = 1; ibin <= ihst->GetNbinsX(); ibin++) {
-      spectrum->SetBinContent(ibin, ihst->GetBinContent(ibin));
-    }
+    //// and remove bins outside the emin,emax range (not for gFNALExptEvGen)
+    //for(int ibin = 1; ibin <= hst->GetNbinsX(); ibin++) {
+    //  if(hst->GetBinLowEdge(ibin) + hst->GetBinWidth(ibin) > emax ||
+    //     hst->GetBinLowEdge(ibin) < emin) {
+    //    spectrum->SetBinContent(ibin, 0);
+    //  }
+    //}
+
+    // get rid of original
+    delete ihst;
+
     // convert neutrino name -> pdg code
     int pdg = atoi(nutype.c_str());
     if(!pdg::IsNeutrino(pdg) && !pdg::IsAntiNeutrino(pdg)) {
