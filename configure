@@ -32,6 +32,9 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    nnbar-oscillation    Simulation of nbar annihilation [n-nbar oscillation]        default: disabled \n";
   print "    boosted-dark-matter  Boosted dark matter simulation                              default: disabled \n";
   print "    neutral-heavy-lepton Neutral Heavy Lepton simulation                             default: disabled \n";
+  print "    event-library        External event library based generation                     default: disabled \n";
+  print "    incl                 Interface with INCL++ for nuclear transport                 default: disabled \n";
+  print "    geant4               Interface with Geant4 for nuclear transport                 default: disabled \n";
   print "    masterclass          Enable GENIE neutrino masterclass app                       default: disabled (Experimental) \n";
   print "    test                 Build test programs                                         default: disabled \n";
   print "    debug                Adds -g in the compiler options to request debug info       default: disabled \n";
@@ -157,6 +160,7 @@ my $gopt_enable_nucleon_decay        = "NO";
 my $gopt_enable_nnbar_oscillation    = "NO";
 my $gopt_enable_boosted_dark_mat     = "NO";
 my $gopt_enable_neutral_heavy_lepton = "NO";
+my $gopt_enable_evtlib               = "NO";
 my $gopt_enable_incl                 = "NO";
 my $gopt_enable_geant4_interface     = "NO";
 my $gopt_enable_masterclass          = "NO";
@@ -187,6 +191,7 @@ if(($match = grep(/--enable-nucleon-decay/i,        @ARGV)) > 0) { $gopt_enable_
 if(($match = grep(/--enable-nnbar-oscillation/i,    @ARGV)) > 0) { $gopt_enable_nnbar_oscillation    = "YES"; }
 if(($match = grep(/--enable-boosted-dark-matter/i,  @ARGV)) > 0) { $gopt_enable_boosted_dark_mat     = "YES"; }
 if(($match = grep(/--enable-neutral-heavy-lepton/i, @ARGV)) > 0) { $gopt_enable_neutral_heavy_lepton = "YES"; }
+if(($match = grep(/--enable-event-library/i,        @ARGV)) > 0) { $gopt_enable_evtlib               = "YES"; }
 if(($match = grep(/--enable-incl/i,                 @ARGV)) > 0) { $gopt_enable_incl                 = "YES"; }
 if(($match = grep(/--enable-geant4/i,               @ARGV)) > 0) { $gopt_enable_geant4_interface     = "YES"; }
 if(($match = grep(/--enable-masterclass/i,          @ARGV)) > 0) { $gopt_enable_masterclass          = "YES"; }
@@ -956,6 +961,9 @@ print MKCONF "GOPT_ENABLE_NUCLEON_DECAY=$gopt_enable_nucleon_decay\n";
 print MKCONF "GOPT_ENABLE_NNBAR_OSCILLATION=$gopt_enable_nnbar_oscillation\n";
 print MKCONF "GOPT_ENABLE_BOOSTED_DARK_MATTER=$gopt_enable_boosted_dark_mat\n";
 print MKCONF "GOPT_ENABLE_NEUTRAL_HEAVY_LEPTON=$gopt_enable_neutral_heavy_lepton\n";
+print MKCONF "GOPT_ENABLE_EVTLIB=$gopt_enable_evtlib\n";
+print MKCONF "GOPT_ENABLE_INCL=$gopt_enable_incl\n";
+print MKCONF "GOPT_ENABLE_GEANT4_INTERFACE=$gopt_enable_geant4_interface\n";
 print MKCONF "GOPT_ENABLE_MASTERCLASS=$gopt_enable_masterclass\n";
 print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
 print MKCONF "GOPT_ENABLE_DYLIBVERSION=$gopt_enable_dylibversion\n";

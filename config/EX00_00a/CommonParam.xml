@@ -336,6 +336,14 @@ Or changing the name of this parameter set
   </param_set>
 
 
+  <param_set name="EventLib">
+    <!-- This parameter supports env var expansion, like
+    $MY_LIB_DIR/my_lib.root -->
+    <param type="string" name="EventLibraryPath"> Dummy.root </param>
+  </param_set>
+
+
+
   <param_set name="Validation">
     <!--
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

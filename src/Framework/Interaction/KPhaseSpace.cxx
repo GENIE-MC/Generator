@@ -86,6 +86,8 @@ double KPhaseSpace::Threshold(void) const
 
   double ml = fInteraction->FSPrimLepton()->Mass();
 
+  if( ! pi.IsKnown() ) return 0;
+  
   if (pi.IsSingleKaon()) {
     int kaon_pdgc = xcls.StrangeHadronPdg();
     double Mi   = tgt.HitNucP4Ptr()->M(); // initial nucleon mass
@@ -200,6 +202,7 @@ double KPhaseSpace::Threshold(void) const
     double Ethr = 0.5 * (ml*ml-kElectronMass2)/kElectronMass;
     return TMath::Max(0.,Ethr);
   }
+
 
   SLOG("KPhaseSpace", pERROR)
          << "Can't compute threshold for \n" << *fInteraction;
