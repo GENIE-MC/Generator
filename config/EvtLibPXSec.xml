@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- 
+Configuration sets for the  EvtLibPXSec
+
+Configurable Parameters:
+................................................................................................
+Name                        Type     Optional   Comment                   Default
+EventLibraryPath            string   No         path to the lib files     CommonParam[EventLib]
+                                                File requirements defined 
+                                                in the manual
+................................................................................................
+-->
+
+
+
+
+<alg_conf>
+  <param_set name="Default">
+
+    <param type="string"  name="CommonParam"> EventLib </param>
+    
+  </param_set>
+</alg_conf>
