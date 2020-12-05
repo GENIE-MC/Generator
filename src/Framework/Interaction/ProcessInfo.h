@@ -80,6 +80,7 @@ public:
   bool IsWeakNC                  (void) const;
   bool IsWeakMix                 (void) const;
   bool IsDarkMatter              (void) const;
+  bool IsKnown                   (void) const;
 
   // Get scattering and interaction type enumerations
   ScatteringType_t  ScatteringTypeId  (void) const;

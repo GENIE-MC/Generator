@@ -377,7 +377,7 @@ void GAtmoFlux::SetRadii(double Rlongitudinal, double Rtransverse)
 
 double GAtmoFlux::GetFluxSurfaceArea(void)
 {
-  return M_PI*pow(fRt,2);
+  return kPi*pow(fRt,2);
 }
 
 double GAtmoFlux::GetLongitudinalRadius(void)
