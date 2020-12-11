@@ -27,7 +27,7 @@
 #include "Framework/ParticleData/BaryonResUtils.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Physics/Coherent/XSection/ARConstants.h"
-
+#include <complex>
 
 namespace genie {
 

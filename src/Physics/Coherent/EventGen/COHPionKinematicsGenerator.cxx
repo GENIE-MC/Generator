@@ -677,17 +677,12 @@ void COHPionKinematicsGenerator::SetKinematics( const double E_l,
   
 }
 //___________________________________________________________________________
-<<<<<<< HEAD:src/Physics/Coherent/EventGen/COHPionKinematicsGenerator.cxx
 bool COHPionKinematicsGenerator::CheckKinematics(const double E_l,
-                                             const double /*  theta_l    */ ,  
-=======
-bool COHKinematicsGenerator::CheckKinematics(const double E_l,
-                                             const double /*  theta_l    */ ,
->>>>>>> ff323523470b473f70a93e26723a5293a5e86cd3:src/Physics/Coherent/EventGen/COHKinematicsGenerator.cxx
-                                             const double /*  phi_l      */ ,
-                                             const double /*  theta_pi   */ ,
-                                             const double /*  phi_pi     */ ,
-                                             const Interaction* interaction) const
+						 const double /*  theta_l    */ ,  
+						 const double /*  phi_l      */ ,
+						 const double /*  theta_pi   */ ,
+						 const double /*  phi_pi     */ ,
+						 const Interaction* interaction) const
 {
   const TLorentzVector * P4_nu = interaction->InitStatePtr()->GetProbeP4(kRfLab) ;
   double E_nu       = P4_nu -> E();
