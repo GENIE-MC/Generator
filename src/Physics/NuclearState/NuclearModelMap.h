@@ -7,14 +7,14 @@
           one of them with specific nuclei.
           Is a concrete implementation of the NuclearModelI interface.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 07, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+          
 */
 //____________________________________________________________________________
 
@@ -52,6 +52,10 @@ public:
     return Prob(p,w,t,0.0);
   }
   NuclearModel_t ModelType       (const Target & t) const;
+
+  virtual double FermiMomentum( const Target & t, int nucleon_pdg ) const ;
+  virtual double LocalFermiMomentum( const Target & t, int nucleon_pdg, double radius ) const ;
+
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members

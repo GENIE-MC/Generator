@@ -5,15 +5,20 @@
 
 \brief    A ROOT/GEANT4 geometry driver
 
-\author   Anselmo Meregaglia <anselmo.meregaglia \at cern.ch>, ETH Zurich
-          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, STFC, Rutherford Lab
-          Robert Hatcher <rhatcher \at fnal.gov>, Fermilab
+\author   Anselmo Meregaglia <anselmo.meregaglia \at cern.ch>
+          ETH Zurich
+
+          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
+
+          Robert Hatcher <rhatcher \at fnal.gov>
+          Fermilab
 
 \created  May 24, 2005
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+
 */
 //____________________________________________________________________________
 
@@ -59,9 +64,9 @@ public :
   virtual const  PDGCodeList &    ListOfTargetNuclei    (void);
   virtual const  PathLengthList & ComputeMaxPathLengths (void);
 
-  virtual const  PathLengthList & ComputePathLengths(const TLorentzVector & x, 
+  virtual const  PathLengthList & ComputePathLengths(const TLorentzVector & x,
                                                      const TLorentzVector & p);
-  virtual const  TVector3 &       GenerateVertex(const TLorentzVector & x, 
+  virtual const  TVector3 &       GenerateVertex(const TLorentzVector & x,
                                                  const TLorentzVector & p, int tgtpdg);
 
   /// set geometry driver's configuration options
@@ -92,7 +97,7 @@ public :
   virtual string        TopVolName        (void) const { return fTopVolumeName;     }
   virtual TGeoManager * GetGeometry       (void) const { return fGeometry;          }
   virtual bool          GetKeepSegPath    (void) const { return fKeepSegPath;       }
-  virtual const PathLengthList& GetMaxPathLengths(void) const { return *fCurrMaxPathLengthList; } // call only after ComputeMaxPathLengths() has been called 
+  virtual const PathLengthList& GetMaxPathLengths(void) const { return *fCurrMaxPathLengthList; } // call only after ComputeMaxPathLengths() has been called
 
   /// access to geometry coordinate/unit transforms for validation/test purposes
 
@@ -169,7 +174,7 @@ protected:
   int              fiface, fipoint, firay;
   bool             fnewpnt;
   double           fdx, fdy, fdz, fox, foy, foz;  ///< top vol size/origin (top vol units)
-  
+
   // test purposes
   double           fmxddist, fmxdstep;   ///< max errors in pathsegmentlist
   int              fDebugFlags;

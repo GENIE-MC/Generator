@@ -1,22 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Mar 27, 2010 - CA
-   This class was first added in 2.7.1.
- @ Feb 22, 2011 - JD
-   Implemented dummy versions of the new GFluxI::Clear and GFluxI::Index as 
-   these methods needed for pre-generation of flux interaction probabilities 
-   in GMCJDriver. 
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -120,11 +108,11 @@ bool GAstroFlux::GenerateNext(void)
   }
 
   int        pnupdg = fNuPropg->NuPdgAtDetVolBoundary();
-  TVector3 & px3    = fNuPropg->X3AtDetVolBoundary(); 
-  TVector3 & pp3    = fNuPropg->P3AtDetVolBoundary(); 
+  TVector3 & px3    = fNuPropg->X3AtDetVolBoundary();
+  TVector3 & pp3    = fNuPropg->P3AtDetVolBoundary();
 
   //
-  // Rotate vectors: 
+  // Rotate vectors:
 
   // GEF translated to detector centre -> THZ
   px3 = fRotGEF2THz * px3;
@@ -161,7 +149,7 @@ void GAstroFlux::ForceMaxEnergy(double emax)
 //___________________________________________________________________________
 void GAstroFlux::Clear(Option_t * opt)
 {
-// Dummy clear method needed to conform to GFluxI interface 
+// Dummy clear method needed to conform to GFluxI interface
 //
   LOG("Flux", pERROR) << "No clear method implemented for option:"<< opt;
 }
@@ -183,11 +171,11 @@ void GAstroFlux::SetDetectorPosition(
   // set inputs
   fDetGeoLatitude   = latitude;
   fDetGeoLongitude  = longitude;
-  fDetGeoDepth      = depth; 
+  fDetGeoDepth      = depth;
   fDetSize          = size;
 
   //
-  // Compute detector/topocentric coordinate system center in the 
+  // Compute detector/topocentric coordinate system center in the
   // geocentric coordinate system.
   //
 
@@ -218,7 +206,7 @@ void GAstroFlux::SetDetectorPosition(
 }
 //___________________________________________________________________________
 void GAstroFlux::SetRelNuPopulations(
-  double nnue,    double nnumu,    double nnutau, 
+  double nnue,    double nnumu,    double nnutau,
   double nnuebar, double nnumubar, double nnutaubar)
 {
   fRelNuPopulations.clear();
@@ -274,7 +262,7 @@ void GAstroFlux::SetEnergyPowLawIdx(double n)
   double log10Emin = TMath::Log10(kAstroDefMinEv);
   double log10Emax = TMath::Log10(kAstroDefMaxEv);
 
-  fEnergySpectrum = 
+  fEnergySpectrum =
     new TH1D("fEnergySpectrum","",kAstroNlog10EvBins,log10Emin,log10Emax);
   fEnergySpectrum->SetDirectory(0);
 
@@ -310,10 +298,10 @@ void GAstroFlux::Initialize(void)
   fGenWeighted = true;
 
   // Detector position & size
-  fDetGeoLatitude  = -1.; 
-  fDetGeoLongitude = -1.; 
-  fDetGeoDepth     = -1.; 
-  fDetSize         = -1.;  
+  fDetGeoLatitude  = -1.;
+  fDetGeoLongitude = -1.;
+  fDetGeoDepth     = -1.;
+  fDetSize         = -1.;
   fDetCenter.SetXYZ(0,0,0); // in the geocentric coord system
 
   // Normalized 2-D histogram (phi,costheta): detector solid angle
@@ -373,7 +361,7 @@ void GAstroFlux::CleanUp(void)
 //
 //___________________________________________________________________________
 bool GAstroFlux::NuGenerator::SelectNuPdg (
-   bool weighted, const map<int,double> & nupdgpdf, 
+   bool weighted, const map<int,double> & nupdgpdf,
    int & nupdg, double & wght)
 {
 // select neutrino species based on relative neutrino species populations
@@ -421,7 +409,7 @@ bool GAstroFlux::NuGenerator::SelectNuPdg (
 }
 //___________________________________________________________________________
 bool GAstroFlux::NuGenerator::SelectEnergy(
-  bool weighted, TH1D & log10Epdf, double log10Emin, double log10Emax, 
+  bool weighted, TH1D & log10Epdf, double log10Emin, double log10Emax,
   double & log10E, double & wght)
 {
 // select neutrino energy
@@ -440,7 +428,7 @@ bool GAstroFlux::NuGenerator::SelectEnergy(
      RandomGen * rnd = RandomGen::Instance();
      log10E  = log10Emin + (log10Emax-log10Emin) * rnd->RndFlux().Rndm();
      wght    = log10Epdf.GetBinContent(log10Epdf.FindBin(log10E));
-  } 
+  }
 
   // Generate un-weighted flux:
   //
@@ -456,7 +444,7 @@ bool GAstroFlux::NuGenerator::SelectEnergy(
 }
 //___________________________________________________________________________
 bool GAstroFlux::NuGenerator::SelectOrigin(
-  bool weighted, TH2D & opdf, 
+  bool weighted, TH2D & opdf,
   double & phi, double & costheta, double & wght)
 {
   wght     = 0;
@@ -470,7 +458,7 @@ bool GAstroFlux::NuGenerator::SelectOrigin(
      phi      = 2.*kPi * rnd->RndFlux().Rndm();
      costheta = -1. + 2.*rnd->RndFlux().Rndm();
      wght     = opdf.GetBinContent(opdf.FindBin(phi,costheta));
-  } 
+  }
 
   // Generate un-weighted flux:
   //
@@ -483,14 +471,14 @@ bool GAstroFlux::NuGenerator::SelectOrigin(
 }
 //___________________________________________________________________________
 bool GAstroFlux::NuPropagator::Go(
-  double phi, double costheta, const TVector3 & detector_centre, 
+  double phi, double costheta, const TVector3 & detector_centre,
   double detector_sz, int nu_pdg, double Ev)
 {
   // initialize neutrino code
   fNuPdg = nu_pdg;
 
   //
-  // initialize neutrino position vector 
+  // initialize neutrino position vector
   //
   double sintheta  = TMath::Sqrt(1-costheta*costheta);
   double cosphi    = TMath::Cos(phi);
@@ -504,7 +492,7 @@ bool GAstroFlux::NuPropagator::Go(
   fX3 = start_position - detector_centre;
 
   //
-  // initialize neutrino momentum 4-vector 
+  // initialize neutrino momentum 4-vector
   //
   TVector3 direction_unit_vec = -1. * fX3.Unit();
   fP3 = Ev * direction_unit_vec;
@@ -520,7 +508,7 @@ bool GAstroFlux::NuPropagator::Go(
     double currdist = fX3.Mag();
     if(currdist <= detector_sz - 0.1) break;
 
-    double stepsz = (currdist-detector_sz > fStepSize) ? 
+    double stepsz = (currdist-detector_sz > fStepSize) ?
                          fStepSize : currdist-detector_sz;
     if(stepsz <= 0.) break;
 
@@ -551,7 +539,7 @@ GAstroFlux()
 
 }
 //___________________________________________________________________________
-GDiffuseAstroFlux::~GDiffuseAstroFlux() 
+GDiffuseAstroFlux::~GDiffuseAstroFlux()
 {
 
 }
@@ -565,15 +553,15 @@ GDiffuseAstroFlux::~GDiffuseAstroFlux()
 GPointSourceAstroFlux::GPointSourceAstroFlux() :
 GAstroFlux()
 {
-  fPntSrcName.clear(); 
-  fPntSrcRA.  clear(); 
+  fPntSrcName.clear();
+  fPntSrcRA.  clear();
   fPntSrcDec. clear();
   fPntSrcRelI.clear();
 
   fPntSrcTotI = 0;
 }
 //___________________________________________________________________________
-GPointSourceAstroFlux::~GPointSourceAstroFlux() 
+GPointSourceAstroFlux::~GPointSourceAstroFlux()
 {
 
 }
@@ -586,7 +574,7 @@ bool GPointSourceAstroFlux::GenerateNext(void)
 void GPointSourceAstroFlux::AddPointSource(
    string name, double ra, double dec, double rel_intensity)
 {
-  bool accept = 
+  bool accept =
          (ra  >= 0.      && ra  < 2.*kPi)  &&
          (dec >= -kPi/2. && dec <= kPi/2.) &&
          (rel_intensity > 0) &&
@@ -602,7 +590,7 @@ void GPointSourceAstroFlux::AddPointSource(
 
      fPntSrcTotI += rel_intensity;
   }
-}  
+}
 //___________________________________________________________________________
 bool GPointSourceAstroFlux::SelectSource(void)
 {
@@ -651,4 +639,3 @@ bool GPointSourceAstroFlux::SelectSource(void)
   return true;
 }
 //___________________________________________________________________________
-

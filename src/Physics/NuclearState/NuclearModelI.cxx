@@ -1,11 +1,11 @@
  //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+ 
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
@@ -28,6 +28,7 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Numerical/RandomGen.h"
+#include "Physics/NuclearState/FermiMomentumTablePool.h"
 
 using std::ostringstream;
 using namespace genie;
@@ -49,3 +50,43 @@ double NuclearModelI::Prob(double p, double w, const Target & tgt,
   }
 
 //____________________________________________________________________________
+
+double NuclearModelI::FermiMomentum( const Target & t, int nucleon_pdg ) const {
+
+  if ( ! fKFTable ) return 0. ; 
+
+  return fKFTable->FindClosestKF( t.Pdg(), nucleon_pdg);
+
+}
+
+//____________________________________________________________________________
+
+double NuclearModelI::LocalFermiMomentum( const Target & t, int nucleon_pdg, 
+					  double /*radius*/ ) const {
+  return FermiMomentum( t, nucleon_pdg ) ;
+
+}
+
+//____________________________________________________________________________
+
+void NuclearModelI::LoadConfig() {
+
+  string fermi_table_key = "FermiMomentumTable" ;
+
+  // first try to get the Fermi Momentum table from the specific model configurtaion
+  if ( ! GetParam( fermi_table_key, fKFTableName, false ) ) {
+
+    // if that fails, the information should come from the Global Config 
+    Registry * algos = AlgConfigPool::Instance() -> GlobalParameterList() ;
+    fKFTableName = algos -> GetString( fermi_table_key ) ;
+    
+  }
+
+  FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+  fKFTable = kftp->GetTable(fKFTableName);
+
+  // Note that model specifications can abvoid the usage of the table
+  // but if this configuration is called it's necessary that the table is set.
+  assert(fKFTable);
+  
+}

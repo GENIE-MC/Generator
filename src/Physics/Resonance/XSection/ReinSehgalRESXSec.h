@@ -6,13 +6,13 @@
 \brief    Computes the cross section for an exclusive 1pi reaction through
           resonance neutrinoproduction according to the Rein-Sehgal model.
 
-          This algorithm produces in principle what you could also get from 
-          the genie::RESXSec algorithm (RES cross section integrator) by 
-          specifying the genie::ReinSehgalRESPXSec as the differential 
-          cross section model. However, ReinSehgalRESXSec offers a faster 
-          alternative. Before computing any RES cross section this algorithm 
-          computes and caches splines for resonance neutrino-production cross 
-          sections. This improves the speed of the GENIE spline construction 
+          This algorithm produces in principle what you could also get from
+          the genie::RESXSec algorithm (RES cross section integrator) by
+          specifying the genie::ReinSehgalRESPXSec as the differential
+          cross section model. However, ReinSehgalRESXSec offers a faster
+          alternative. Before computing any RES cross section this algorithm
+          computes and caches splines for resonance neutrino-production cross
+          sections. This improves the speed of the GENIE spline construction
           phase if splines for multiple nuclear targets are to be computed.
 
           Is a concrete implementation of the XSecAlgorithmI interface.\n
@@ -20,14 +20,13 @@
 \ref      D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
           and Single Pion Production, Ann.Phys.133, 79 (1981)
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  March 09, 2006
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration   
-          For the full text of the license visit http://copyright.genie-mc.org                         
-          or see $GENIE/LICENSE 
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org                                    
 */
 //____________________________________________________________________________
 
@@ -55,10 +54,9 @@ public:
 
 private:
   void LoadConfig(void);
-  
+
   bool fUsePauliBlocking;      ///< account for Pauli blocking?
 };
 
 }       // genie namespace
 #endif  // _REIN_SEHGAL_RES_XSEC_H_
-

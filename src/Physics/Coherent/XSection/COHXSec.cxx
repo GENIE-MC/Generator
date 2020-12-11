@@ -1,21 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Mar 03, 2009 - CA
-   Renamed COHPiXSec -> COHXSec. Adapt to naming changes made to the coherent 
-   generator for including coherent vector meson production.
- @ Sep 07, 2009 - CA
-   Integrated with GNU Numerical Library (GSL) via ROOT's MathMore library.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -87,11 +76,11 @@ double COHXSec::Integrate(
     LOG("COHXSec", pINFO)
       << "y integration range = [" << yl.min << ", " << yl.max << "]";
 
-    ROOT::Math::IBaseFunctionMultiDim * func = 
+    ROOT::Math::IBaseFunctionMultiDim * func =
       new utils::gsl::d2XSec_dxdy_E(model, interaction);
-    ROOT::Math::IntegrationMultiDim::Type ig_type = 
+    ROOT::Math::IntegrationMultiDim::Type ig_type =
       utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-      
+
     double abstol = 1; //We mostly care about relative tolerance.
     ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
     if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) {
@@ -100,17 +89,17 @@ double COHXSec::Integrate(
       assert(cast);
       cast->SetMinPts(fGSLMinEval);
     }
-  
+
     double kine_min[2] = { xl.min, yl.min };
     double kine_max[2] = { xl.max, yl.max };
     xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
     delete func;
-  } 
+  }
   else if (model->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015")
   {
-    ROOT::Math::IBaseFunctionMultiDim * func = 
+    ROOT::Math::IBaseFunctionMultiDim * func =
       new utils::gsl::d2XSec_dQ2dy_E(model, interaction);
-    ROOT::Math::IntegrationMultiDim::Type ig_type = 
+    ROOT::Math::IntegrationMultiDim::Type ig_type =
       utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
     ROOT::Math::IntegratorMultiDim ig(ig_type);
     ig.SetRelTolerance(fGSLRelTol);
@@ -126,15 +115,15 @@ double COHXSec::Integrate(
     xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
     delete func;
   }
-  else if (model->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015") 
+  else if (model->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015")
   {
     Range1D_t tl;
     tl.min = controls::kASmallNum;
     tl.max = fTMax;
 
-    ROOT::Math::IBaseFunctionMultiDim * func = 
+    ROOT::Math::IBaseFunctionMultiDim * func =
       new utils::gsl::d2XSec_dQ2dydt_E(model, interaction);
-    ROOT::Math::IntegrationMultiDim::Type ig_type = 
+    ROOT::Math::IntegrationMultiDim::Type ig_type =
       utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
     ROOT::Math::IntegratorMultiDim ig(ig_type);
     ig.SetRelTolerance(fGSLRelTol);

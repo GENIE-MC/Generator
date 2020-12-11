@@ -1,20 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Jun 23, 2008 - CA
-   fCpuTime wasn't initialized.
- @ Jan 30, 2013 - CA
-   Added SetRefreshRate(int rate)
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -50,14 +40,14 @@ GMCJMonitor::~GMCJMonitor()
 
 }
 //____________________________________________________________________________
-void GMCJMonitor::SetRefreshRate(int rate) 
-{ 
-  fRefreshRate = TMath::Max(1,rate); 
+void GMCJMonitor::SetRefreshRate(int rate)
+{
+  fRefreshRate = TMath::Max(1,rate);
 }
 //____________________________________________________________________________
 void GMCJMonitor::Update(int iev, const EventRecord * event)
 {
-  if(iev%fRefreshRate) return; // continue only every fRefreshRate events 
+  if(iev%fRefreshRate) return; // continue only every fRefreshRate events
 
   fWatch.Stop();
   fCpuTime += (fWatch.CpuTime());
@@ -69,9 +59,9 @@ void GMCJMonitor::Update(int iev, const EventRecord * event)
   status << endl;
   status << "Current Event Number: " << iev << endl;
 
-  status << "Approximate total processing time: " 
+  status << "Approximate total processing time: "
                              << fCpuTime << " s" << endl;
-  status << "Approximate processing time/event: " 
+  status << "Approximate processing time/event: "
                      << fCpuTime/(iev+1) << " s" << endl;
 
   if(!event) status << "NULL" << endl;
@@ -91,7 +81,7 @@ void GMCJMonitor::Init(void)
   fStatusFile = filename.str();
 
   // create a stopwatch
-  fWatch.Reset(); 
+  fWatch.Reset();
   fWatch.Start();
   fCpuTime = 0;
 

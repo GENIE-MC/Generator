@@ -6,7 +6,7 @@
 \brief    An implementation of the neutrino - (free) nucleon [inverse beta
           decay] cross section, valid from the threshold energy (1.806MeV)
           up to hundreds of MeV. Currently cut off at 1/2 nucleon mass.
-	  Based on the Strumia/Vissani paper Phys.Lett.B564:42-54,2003
+	        Based on the Strumia/Vissani paper Phys.Lett.B564:42-54,2003
 
 \ref      Strumia A., Vissani F., Phys. Lett. B564, pp42-54 (2003)
 
@@ -15,9 +15,8 @@
 
 \created  June 22, 2009
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -50,7 +49,7 @@ public:
 
 private:
   void LoadConfig (void);
-  
+
   //-- Routines for calculating the scattering amplitute
   double dSigDt(const double sMinusU,
 		const double sMinusMnuc,
@@ -88,7 +87,7 @@ private:
 
   const XSecIntegratorI * fXSecIntegrator; //! the integrator to get total xsec
 
-public:      
+public:
   ClassDef(StrumiaVissaniIBDPXSec, 1) // Inverse Beta Decay partial cross section calculation based on a Strumia/Vissani paper
 };
 }       // genie namespace

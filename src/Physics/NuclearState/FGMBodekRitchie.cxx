@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+ 
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
@@ -138,37 +138,11 @@ TH1D * FGMBodekRitchie::ProbDistro(const Target & target) const
                << "P(cut-off) = " << fPCutOff << ", P(max) = " << fPMax;
 
   //-- get information for the nuclear target
-  int target_pdgc  = pdg::IonPdgCode(target.A(), target.Z());
+  //int target_pdgc  = pdg::IonPdgCode(target.A(), target.Z());
   int nucleon_pdgc = target.HitNucPdg();
   assert( pdg::IsProton(nucleon_pdgc) || pdg::IsNeutron(nucleon_pdgc) );
-  double Z = (double) target.Z();
-  double N = (double) target.N();
-  double A = (double) target.A();
-  double KF;
-  if (A<6 || !fUseParametrization)
-  {
-     //-- look up the Fermi momentum for this Target
-     FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
-     const FermiMomentumTable * kft = kftp->GetTable(fKFTable);
-     KF = kft->FindClosestKF(target_pdgc, nucleon_pdgc);
-     LOG("BodekRitchie", pNOTICE) << "KF = " << KF;
-  }
-  else
-  {
-      //-- define the Fermi momentum for this Target
-      //
-      KF = nuclear::FermiMomentumForIsoscalarNucleonParametrization(target);
-      //-- correct the Fermi momentum for the struck nucleon
-      assert(target.HitNucIsSet());
-      bool is_p = pdg::IsProton(nucleon_pdgc);
-      if(is_p) KF *= TMath::Power( 2*Z/A, 1./3.);
-      else
-         KF *= TMath::Power( 2*N/A, 1./3.);
-      LOG("BodekRitchie", pINFO) << "Corrected KF = " << KF;
-   }
 
-
-
+  double KF = FermiMomentum( target, nucleon_pdgc ) ;
 
   double a  = 2.0;
   double C  = 4. * kPi * TMath::Power(KF,3) / 3.;
@@ -218,6 +192,40 @@ TH1D * FGMBodekRitchie::ProbDistro(const Target & target) const
   return prob;
 }
 //____________________________________________________________________________
+double FGMBodekRitchie::FermiMomentum( const Target & t, int nucleon_pdg ) const {
+
+  assert( pdg::IsProton(nucleon_pdg) || pdg::IsNeutron(nucleon_pdg) );
+
+  if ( t.A()<6 || !fUseParametrization ) {
+    //-- look up the Fermi momentum for this Target from tables
+    return NuclearModelI::FermiMomentum( t, nucleon_pdg ) ;
+  }
+  else
+  {
+    //-- define the Fermi momentum for this Target
+    double kF = nuclear::FermiMomentumForIsoscalarNucleonParametrization(t);
+
+    //-- correct the Fermi momentum for the struck nucleon
+    assert(t.HitNucIsSet());
+
+    double A = (double) t.A() ;
+    if( pdg::IsProton(nucleon_pdg) ) {
+      double Z = (double) t.Z() ; 
+      kF *= TMath::Power( 2*Z/A, 1./3.);
+    }
+    else {
+      double N = (double) t.N() ;
+      kF *= TMath::Power( 2*N/A, 1./3.);
+    }
+    
+    LOG("BodekRitchie", pINFO) << "Corrected KF = " << kF;
+    
+    return kF ; 
+
+  }
+
+}
+//____________________________________________________________________________
 void FGMBodekRitchie::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -232,8 +240,8 @@ void FGMBodekRitchie::Configure(string param_set)
 //____________________________________________________________________________
 void FGMBodekRitchie::LoadConfig(void)
 {
-  this->GetParam( "FermiMomentumTable", fKFTable);
 
+  NuclearModelI::LoadConfig() ; 
   
   // Default value 4.0 from original paper by A. Bodek and J. L. Ritchie. Phys. Rev. D 23, 1070
   this->GetParamDef("MomentumMax", fPMax, 4.0);

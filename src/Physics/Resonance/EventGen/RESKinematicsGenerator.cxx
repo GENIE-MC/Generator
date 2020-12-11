@@ -1,29 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Mar 03, 2009 - CA
-   Moved into the new RES package from its previous location (EVGModules)
- @ Sep 21, 2009 - CA
-   In ComputeMaxXSec() protect against NW=1 when calculating the step size dW
-   as pointed out by Robert.
- @ Oct 20, 2009 - CA
-   For charged lepton scattering do a more brute force kinematical selection
-   and do not use the importance sampling envelope used for v scattering
-   (was very inefficient)
- @ Feb 06, 2013 - CA
-   When the value of the differential cross-section for the selected kinematics
-   is set to the event, set the corresponding KinePhaseSpace_t value too.
- @ Jul 26, 2018 - IL (Afroditi Papadopoulou, Adi Ashkenazi - Massachusetts Institute of Technology)
-   Included importance sampling envelop both for neutrino and electron scattering
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -176,7 +157,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
             if (is_em) { Q2min  = Q2.min + kASmallNum; }
             else { Q2min  = 0 + kASmallNum; }
             double Q2max  = Q2.max - kASmallNum;
-            
+
 	    // In unweighted mode - use transform that takes out the dipole form
             double QD2min = utils::kinematics::Q2toQD2(Q2max);
             double QD2max = utils::kinematics::Q2toQD2(Q2min);
@@ -344,8 +325,8 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
   const InitialState & init_state = interaction -> InitState();
   double E = init_state.ProbeE(kRfHitNucRest);
-  bool is_em = interaction->ProcInfo().IsEM(); 
-  double Q2Thres = is_em ? utils::kinematics::electromagnetic::kMinQ2Limit : controls::kMinQ2Limit; 
+  bool is_em = interaction->ProcInfo().IsEM();
+  double Q2Thres = is_em ? utils::kinematics::electromagnetic::kMinQ2Limit : controls::kMinQ2Limit;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("RESKinematics", pDEBUG) << "Scanning phase space for E= " << E;

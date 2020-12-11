@@ -1,17 +1,19 @@
-////////////////////////////////////////////////////////////////////////
-/// \file  GFluxFileConfigI.h
-/// \class genie::flux::GFluxFileConfigI
-/// \brief GENIE interface for uniform flux exposure iterface
-///
-///        Unified flux exposure interface to be used by flux drivers
-///        that can support such.
-///
-/// \author  Robert Hatcher <rhatcher \at fnal.gov>
-///          Fermi National Accelerator Laboratory
-///
-/// \created 2015-03-17  initial version
-/// \version $Id: $
-////////////////////////////////////////////////////////////////////////
+//____________________________________________________________________________
+/*!
+
+\class   genie::flux::GFluxFileConfigI
+
+\brief
+
+\author  Robert Hatcher <rhatcher \at fnal.gov>
+         Fermi National Accelerator Laboratory
+
+\created 2015-03-17
+
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
+         for the full text of the license visit http://copyright.genie-mc.org
+*/
+//____________________________________________________________________________
 
 #ifndef GENIE_FLUX_GFLUXFILECONFIGI_H
 #define GENIE_FLUX_GFLUXFILECONFIGI_H
@@ -27,9 +29,9 @@ namespace genie {
 namespace flux {
 
   class GFluxFileConfigI {
-    
+
   public:
-  
+
     GFluxFileConfigI();
     virtual ~GFluxFileConfigI();
 
@@ -47,7 +49,7 @@ namespace flux {
     virtual void  LoadBeamSimData(const std::set<std::string>&    filenames,
                                   const std::string&              det_loc);
 
-    virtual void  LoadBeamSimData(const std::string&              filename, 
+    virtual void  LoadBeamSimData(const std::string&              filename,
                                   const std::string&              det_loc);
 
     virtual void         SetXMLFileBase(std::string xmlbasename="");
@@ -59,7 +61,7 @@ namespace flux {
     /// Assumes that branch object pointers will not change
     /// which may require either a copy be made or, if using the class
     /// directly for reading the branch, one must force ROOT to
-    /// not autodelete: 
+    /// not autodelete:
     ///   myns::MyClassType* fCurrMyClass = new myns::MyClassType;
     ///   myTree->SetBranchAddress("bname",&fCurMyClass);
     ///   //? TBranch* b = myTree->GetBranch("bname");
@@ -91,13 +93,13 @@ namespace flux {
 
   protected:  // visible to derived classes
 
-    PDGCodeList * fPdgCList;     ///< list of neutrino pdg-codes to generate  
+    PDGCodeList * fPdgCList;     ///< list of neutrino pdg-codes to generate
     PDGCodeList * fPdgCListRej;  ///< list of nu pdg-codes seen but rejected
     std::string   fXMLbasename;  ///< XML file that might hold config param_sets
     long int      fNCycles;      ///< # times to cycle through the ntuple(s)
     long int      fICycle;       ///< current file cycle
                                  ///< default 0 = infinitely
-    double        fZ0;           ///< configurable starting z position for 
+    double        fZ0;           ///< configurable starting z position for
                                  ///< each flux neutrino (in detector coord system)
   };
 

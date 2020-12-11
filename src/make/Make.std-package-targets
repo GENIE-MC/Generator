@@ -1,7 +1,7 @@
 # -*-mode: Makefile-*-
 # Make.target for GENIE Neutrino Generator
 #
-# Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
 #
 
 #
@@ -38,7 +38,7 @@ PACKAGE_ROOTMAP_WITH_PATH := $(GENIE_LIB_PATH)/$(PACKAGE_ROOTMAP)
 
 LIB_DEPEND=
 ifeq ($(strip $(DICTIONARY)),undefined)
-  LIB_DEPEND = $(PACKAGE_OBJECTS) 
+  LIB_DEPEND = $(PACKAGE_OBJECTS)
 else
   LIB_DEPEND = $(PACKAGE_ALL_OBJECTS)
 endif
@@ -73,13 +73,11 @@ else
                   -rmf $(PACKAGE_ROOTMAP) \
                   $(ROOT_DICT_GEN_INCLUDES) $(DICTGEN_HEADERS) LinkDef.h
 # clean rootmap output up a bit ... (magic?)
-# -e "s/\.dylib\.so/\.dylib/g" 
+# -e "s/\.dylib\.so/\.dylib/g"
 #   order matters here
 	  sed -i.bak \
-                     -e "s/_rdict.pcm/.so/g"  \
+	             -e "s/_rdict.pcm/.so/g"  \
 	             -e "s%^header *%header $(PACKAGE)/%g" \
-                     -e "s%Nuclear/NuclearModel.h%Types/NuclearModel.h%g" \
-                     -e "s%Nuclear/NuclearModelI.h%Interfaces/NuclearModelI.h%g" \
 	             -e "s%$(GENIE_LIB_PATH)/%%g" \
 	     $(PACKAGE_ROOTMAP)
 endif

@@ -39,7 +39,7 @@
 #   University of Liverpool & STFC Rutherford Appleton Laboratory
 #
 # Copyright:
-#   Copyright (c) 2003-2019, The GENIE Collaboration
+#   Copyright (c) 2003-2020, The GENIE Collaboration
 #   For the full text of the license visit http://copyright.genie-mc.org
 #----------------------------------------------------------------------------------------------------------------
 
@@ -286,6 +286,7 @@ foreach $nu ( @nu_list ) {
         print HTC "Error                  = $filename_template.err \n";
 	print HTC "priority               = -1 \n" if ( $priority ) ;
         print HTC "Request_memory         = 4 GB \n";
+        print HTC "requirements           = (Opsys =?= \"LINUX\") && (AccessToData =?= True) && (OpSysAndVer =?= \"CentOS7\")  \n";
         print HTC "Queue \n";
         close(HTC);
 

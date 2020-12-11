@@ -22,5 +22,8 @@
 #pragma link C++ class genie::EffectiveSF;
 #pragma link C++ class genie::FermiMover;
 #pragma link C++ class genie::PauliBlocker;
+#pragma link C++ class genie::SRCNuclearRecoil;
+#pragma link C++ class genie::SecondNucleonEmissionI;
+#pragma link C++ class genie::SpectralFunction2p2h;
 
 #endif

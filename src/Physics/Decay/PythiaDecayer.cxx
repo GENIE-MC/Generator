@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -102,7 +102,6 @@ bool PythiaDecayer::Decay(int decay_particle_id, GHepRecord * event) const
 
   // Get the particle 4-momentum, 4-position and PDG code
   TLorentzVector decay_particle_p4 = *(decay_particle->P4());
-  TLorentzVector decay_particle_x4 = *(decay_particle->X4());
   int decay_particle_pdg_code = decay_particle->Pdg();
 
   // Convert to PYTHIA6 particle code and check whether decay is inhibited
@@ -151,6 +150,14 @@ bool PythiaDecayer::Decay(int decay_particle_id, GHepRecord * event) const
   GHepParticle * target_nucleus = event->TargetNucleus();
   bool in_nucleus = (target_nucleus!=0);
 
+  // the values of space coordinates from pythia are in mm.
+  // our conventions want it in fm
+  constexpr double space_scale = units::mm / units::fm ; 
+
+  //  the values of time coordinate from pythia is in mm/c.
+  // our conventions want it in ys 
+  constexpr double time_scale = 1e21 * units::m / units::s ; 
+
   TMCParticle * p = 0;
   TIter particle_iter(impl);
   while( (p = (TMCParticle *) particle_iter.Next()) ) {
@@ -166,10 +173,10 @@ bool PythiaDecayer::Decay(int decay_particle_id, GHepRecord * event) const
         p->GetPy(),                // py
         p->GetPz(),                // pz
         p->GetEnergy(),            // e
-        p->GetVx(),                // x
-        p->GetVy(),                // y
-        p->GetVz(),                // z
-        p->GetTime()               // t
+        p->GetVx() * space_scale , // x
+        p->GetVy() * space_scale , // y
+        p->GetVz() * space_scale , // z
+        p->GetTime() * time_scale  // t
     );
 
     if(mcp.Status()==kIStNucleonTarget) continue; // mother particle, already in GHEP
@@ -188,10 +195,11 @@ bool PythiaDecayer::Decay(int decay_particle_id, GHepRecord * event) const
 
     TLorentzVector daughter_p4(
        mcp.Px(),mcp.Py(),mcp.Pz(),mcp.Energy());
+
     event->AddParticle(
        daughter_pdg_code, daughter_status_code,
        decay_particle_id,-1,-1,-1,
-       daughter_p4, decay_particle_x4);
+       daughter_p4, * mcp.X4() );
   }
 
   // Update the event weight for each weighted particle decay

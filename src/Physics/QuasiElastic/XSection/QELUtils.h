@@ -1,3 +1,18 @@
+//____________________________________________________________________________
+/*!
+
+\brief    QE utilities
+
+\author   Steven Gardiner <gardiner \at fnal.gov>
+          Fermilab
+
+\created  May 04, 2004
+
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org
+*/
+//____________________________________________________________________________
+
 #ifndef _QEL_UTILS_H_
 #define _QEL_UTILS_H_
 

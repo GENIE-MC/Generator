@@ -28,14 +28,14 @@
 
          based on gtestRewght by
 
-         Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
          STFC, Rutherford Appleton Laboratory
 
 \created Dec 26, 2014
 
-\cpright Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //____________________________________________________________________________
 

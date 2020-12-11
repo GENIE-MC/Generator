@@ -1,18 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Nov 03, 2008 - CA
-   First added in v2.7.1
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -52,7 +44,7 @@ EventRecordVisitorI("genie::NucleonDecayPrimaryVtxGenerator",config)
 
 }
 //____________________________________________________________________________
-NucleonDecayPrimaryVtxGenerator::~NucleonDecayPrimaryVtxGenerator() 
+NucleonDecayPrimaryVtxGenerator::~NucleonDecayPrimaryVtxGenerator()
 {
 
 }
@@ -86,39 +78,39 @@ void NucleonDecayPrimaryVtxGenerator::AddInitialState(
 // If the decayed nucleon is one bound in a nucleus, the event record is
 // initialized as follows:
 //    id: 0, nucleus (kIStInitialState)
-//    |     
+//    |
 //    |---> { id: 1, nucleon         (kIStDecayedState)
 //          { id: 2, remnant nucleus (kIStStableFinalState)
 //
 // If the decayed nucleon is a free one, the event record is initialized as
 // follows:
 //    id: 0, nucleon (kIStInitialState)
-//    |     
+//    |
 //    |---> id: 1, nucleon (kIStDecayedState)
 //
 
   TLorentzVector v4(0,0,0,0);
-  
+
   GHepStatus_t stis = kIStInitialState;
   GHepStatus_t stdc = kIStDecayedState;
   GHepStatus_t stfs = kIStStableFinalState;
 
   int ipdg = fCurrInitStatePdg;
-  
+
   // Decayed nucleon is a bound one.
-  if(fNucleonIsBound) 
+  if(fNucleonIsBound)
   {
     // add initial nucleus
     double Mi  = PDGLibrary::Instance()->Find(ipdg)->Mass();
     TLorentzVector p4i(0,0,0,Mi);
     event->AddParticle(ipdg,stis,-1,-1,-1,-1, p4i, v4);
-               
+
     // add decayed nucleon
     int dpdg = fCurrDecayedNucleon;
     double mn = PDGLibrary::Instance()->Find(dpdg)->Mass();
-    TLorentzVector p4n(0,0,0,mn);  
+    TLorentzVector p4n(0,0,0,mn);
     event->AddParticle(dpdg,stdc, 0,-1,-1,-1, p4n, v4);
-     
+
     // add nuclear remnant
     int A = pdg::IonPdgCodeToA(ipdg);
     int Z = pdg::IonPdgCodeToZ(ipdg);
@@ -140,12 +132,12 @@ void NucleonDecayPrimaryVtxGenerator::AddInitialState(
     if(ipdg == kPdgTgtFreeP) ipdg_short = kPdgProton;
     if(ipdg == kPdgTgtFreeN) ipdg_short = kPdgNeutron;
 
-    // Decayed nucleon code 
+    // Decayed nucleon code
     int dpdg = fCurrDecayedNucleon;
 
     if(dpdg != ipdg_short) {
        LOG("NucleonDecay", pWARN)
-           << "Couldn't generate given decay (" 
+           << "Couldn't generate given decay ("
            << utils::nucleon_decay::AsString(fCurrDecayMode, fCurrDecayedNucleon) << ")"
            << " for given initial state (PDG = " << ipdg_short << ")";
        genie::exceptions::EVGThreadException exception;
@@ -176,7 +168,7 @@ void NucleonDecayPrimaryVtxGenerator::GenerateDecayedNucleonPosition(
   double R0 = 1.3;
   double dA = (double)A;
   double R = R0 * TMath::Power(dA, 1./3.);
-            
+
   LOG("NucleonDecay", pINFO)
       << "Generating vertex according to a realistic nuclear density profile";
 
@@ -188,8 +180,8 @@ void NucleonDecayPrimaryVtxGenerator::GenerateDecayedNucleonPosition(
       ymax = TMath::Max(ymax, r*r * utils::nuclear::Density(r,A));
   }
   ymax *= 1.2;
-  
-  // select a vertex using the rejection method 
+
+  // select a vertex using the rejection method
   TLorentzVector vtx(0,0,0,0);
   unsigned int iter = 0;
   while(1) {
@@ -204,11 +196,11 @@ void NucleonDecayPrimaryVtxGenerator::GenerateDecayedNucleonPosition(
        exception.SwitchOnFastForward();
        throw exception;
     }
-           
+
     double r = rmax * rnd->RndFsi().Rndm();
     double t = ymax * rnd->RndFsi().Rndm();
     double y = r*r * utils::nuclear::Density(r,A);
-    if(y > ymax) {   
+    if(y > ymax) {
        LOG("NucleonDecay", pERROR)
           << "y = " << y << " > ymax = " << ymax << " for r = " << r << ", A = " << A;
     }
@@ -253,13 +245,13 @@ void NucleonDecayPrimaryVtxGenerator::GenerateFermiMomentum(
   TVector3 p3 = fNuclModel->Momentum3();
   double w    = fNuclModel->RemovalEnergy();
 
-  LOG("FermiMover", pINFO) 
+  LOG("FermiMover", pINFO)
      << "Generated nucleon momentum: ("
      << p3.Px() << ", " << p3.Py() << ", " << p3.Pz() << "), "
      << "|p| = " << p3.Mag();
-  LOG("NucleonDecay", pINFO) 
+  LOG("NucleonDecay", pINFO)
      << "Generated nucleon removal energy: w = " << w;
-  
+
   double pF2 = p3.Mag2(); // (fermi momentum)^2
 
   double Mi  = PDGLibrary::Instance()->Find(initial_nucleus->Pdg())-> Mass(); // initial nucleus mass
@@ -298,7 +290,7 @@ void NucleonDecayPrimaryVtxGenerator::GenerateDecayProducts(
     sum += m;
   }
 
-  LOG("NucleonDecay", pINFO)  
+  LOG("NucleonDecay", pINFO)
     << "Decaying N = " << pdgv.size() << " particles / total mass = " << sum;
 
   int decayed_nucleon_id = 1;
@@ -307,20 +299,20 @@ void NucleonDecayPrimaryVtxGenerator::GenerateDecayProducts(
   TLorentzVector * p4d = decayed_nucleon->GetP4();
   TLorentzVector * v4d = decayed_nucleon->GetX4();
 
-  LOG("NucleonDecay", pINFO) 
+  LOG("NucleonDecay", pINFO)
     << "Decaying system p4 = " << utils::print::P4AsString(p4d);
 
   // Set the decay
   bool permitted = fPhaseSpaceGenerator.SetDecay(*p4d, pdgv.size(), mass);
   if(!permitted) {
-     LOG("NucleonDecay", pERROR) 
+     LOG("NucleonDecay", pERROR)
        << " *** Phase space decay is not permitted \n"
        << " Total particle mass = " << sum << "\n"
        << " Decaying system p4 = " << utils::print::P4AsString(p4d);
-     // clean-up 
+     // clean-up
      delete [] mass;
      delete p4d;
-     delete v4d; 
+     delete v4d;
      // throw exception
      genie::exceptions::EVGThreadException exception;
      exception.SetReason("Decay not permitted kinematically");
@@ -332,13 +324,13 @@ void NucleonDecayPrimaryVtxGenerator::GenerateDecayProducts(
   //double wmax = fPhaseSpaceGenerator.GetWtMax();
   double wmax = -1;
   for(int idec=0; idec<200; idec++) {
-     double w = fPhaseSpaceGenerator.Generate();   
+     double w = fPhaseSpaceGenerator.Generate();
      wmax = TMath::Max(wmax,w);
   }
   assert(wmax>0);
   wmax *= 2;
 
-  LOG("NucleonDecay", pNOTICE) 
+  LOG("NucleonDecay", pNOTICE)
      << "Max phase space gen. weight @ current hadronic system: " << wmax;
 
   // Generate an unweighted decay
@@ -346,14 +338,14 @@ void NucleonDecayPrimaryVtxGenerator::GenerateDecayProducts(
 
   bool accept_decay=false;
   unsigned int itry=0;
-  while(!accept_decay) 
+  while(!accept_decay)
   {
      itry++;
 
      if(itry > controls::kMaxUnweightDecayIterations) {
        // report, clean-up and return
-       LOG("NucleonDecay", pWARN) 
-           << "Couldn't generate an unweighted phase space decay after " 
+       LOG("NucleonDecay", pWARN)
+           << "Couldn't generate an unweighted phase space decay after "
            << itry << " attempts";
        // clean up
        delete [] mass;
@@ -365,27 +357,27 @@ void NucleonDecayPrimaryVtxGenerator::GenerateDecayProducts(
        exception.SwitchOnFastForward();
        throw exception;
      }
-     double w  = fPhaseSpaceGenerator.Generate();   
+     double w  = fPhaseSpaceGenerator.Generate();
      if(w > wmax) {
-        LOG("NucleonDecay", pWARN) 
+        LOG("NucleonDecay", pWARN)
            << "Decay weight = " << w << " > max decay weight = " << wmax;
      }
      double gw = wmax * rnd->RndHadro().Rndm();
      accept_decay = (gw<=w);
 
-     LOG("NucleonDecay", pINFO) 
-        << "Decay weight = " << w << " / R = " << gw 
+     LOG("NucleonDecay", pINFO)
+        << "Decay weight = " << w << " / R = " << gw
         << " - accepted: " << accept_decay;
 
   } //!accept_decay
 
   // Insert final state products into a TClonesArray of GHepParticle's
-  TLorentzVector v4(*v4d); 
+  TLorentzVector v4(*v4d);
   int idp = 0;
   for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
      int pdgc = *pdg_iter;
      TLorentzVector * p4fin = fPhaseSpaceGenerator.GetDecay(idp);
-     GHepStatus_t ist = 
+     GHepStatus_t ist =
         utils::nucleon_decay::DecayProductStatus(fNucleonIsBound, pdgc);
      event->AddParticle(pdgc, ist, decayed_nucleon_id,-1,-1,-1, *p4fin, v4);
      idp++;
@@ -399,7 +391,7 @@ void NucleonDecayPrimaryVtxGenerator::GenerateDecayProducts(
 //____________________________________________________________________________
 void NucleonDecayPrimaryVtxGenerator::Configure(const Registry & config)
 {
-  Algorithm::Configure(config);   
+  Algorithm::Configure(config);
   this->LoadConfig();
 }
 //___________________________________________________________________________
@@ -413,12 +405,11 @@ void NucleonDecayPrimaryVtxGenerator::LoadConfig(void)
 {
 //  AlgConfigPool * confp = AlgConfigPool::Instance();
 //  const Registry * gc = confp->GlobalParameterList();
-    
+
   fNuclModel = 0;
-  
+
   RgKey nuclkey = "NuclearModel";
   fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
-  assert(fNuclModel);  
+  assert(fNuclModel);
 }
 //___________________________________________________________________________
-

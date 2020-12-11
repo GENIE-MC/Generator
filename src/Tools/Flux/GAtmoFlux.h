@@ -7,14 +7,14 @@
           The driver depends on data files provided by the atmospheric neutrino
           flux simulation authors in order to determine the angular and energy
           dependence for each neutrino species.
-          The position of each flux neutrino [going towards a detector centered 
-          at (0,0,0)] is generated uniformly on a plane that is perpendicular 
-          to a sphere of radius Rl at the point that is determined by the 
-          generated neutrino direction (theta,phi). The size of the area of 
-          that plane, where flux neutrinos are generated, is determined by the 
-          transverse radius Rt. You can tweak Rl, Rt to match the size of your 
-          detector. 
-          Initially, neutrino coordinates are generated in a default detector 
+          The position of each flux neutrino [going towards a detector centered
+          at (0,0,0)] is generated uniformly on a plane that is perpendicular
+          to a sphere of radius Rl at the point that is determined by the
+          generated neutrino direction (theta,phi). The size of the area of
+          that plane, where flux neutrinos are generated, is determined by the
+          transverse radius Rt. You can tweak Rl, Rt to match the size of your
+          detector.
+          Initially, neutrino coordinates are generated in a default detector
           coordinate system (Topocentric Horizontal Coordinate -THZ-):
              +z: Points towards the local zenith.
              +x: On same plane as local meridian, pointing south.
@@ -23,17 +23,16 @@
           Alternative user-defined topocentric systems can
           be defined by specifying the appropriate rotation from THZ.
           The driver allows minimum and maximum energy cuts.
-          Also it provides the options to generate wither unweighted or weighted 
+          Also it provides the options to generate wither unweighted or weighted
           flux neutrinos (the latter giving smoother distributions at the tails).
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  January 26, 2008
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -86,14 +85,23 @@ public :
   long int NFluxNeutrinos     (void) const; ///< Number of flux nu's generated. Not the same as the number of nu's thrown towards the geometry (if there are cuts).
   void     ForceMinEnergy     (double emin);
   void     ForceMaxEnergy     (double emax);
-  void     SetSpectralIndex   (double index); 
+  void     SetSpectralIndex   (double index);
   void     SetRadii           (double Rlongitudinal, double Rtransverse);
+  double   GetFluxSurfaceArea(void);
+  double   GetLongitudinalRadius(void);
+  double   GetTransverseRadius(void);
+
   void     SetUserCoordSystem (TRotation & rotation); ///< Rotation: Topocentric Horizontal -> User-defined Topocentric Coord System.
   void     AddFluxFile        (int neutrino_pdg, string filename);
   void     AddFluxFile        (string filename);
   bool     LoadFluxData       (void);
 
   TH3D*    GetFluxHistogram   (int flavour);
+  /* Returns the total integrated flux in units of 1/(m^2 s). */
+  double   GetTotalFlux       (void);
+  /* Returns the total integrated flux in units of 1/(m^2 s) between the
+   * minimum and maximum energy .*/
+  double   GetTotalFluxInEnergyRange(void);
   double   GetFlux            (int flavour);
   double   GetFlux            (int flavour, double energy);
   double   GetFlux            (int flavour, double energy, double costh);
@@ -113,7 +121,7 @@ protected:
   TH3D *  CreateFluxHisto   (string name, string title);
   void    ZeroFluxHisto     (TH3D * hist);
   void    AddAllFluxes      (void);
-  int     SelectNeutrino    (double Ev, double costheta, double phi); 
+  int     SelectNeutrino    (double Ev, double costheta, double phi);
   TH3D*   CreateNormalisedFluxHisto ( TH3D* hist);  // normalise flux files
 
   // pure virtual methods; to be implemented by concrete flux drivers
@@ -127,8 +135,8 @@ protected:
   TLorentzVector   fgX4;                ///< current generated nu 4-position
   double           fWeight;             ///< current generated nu weight
   long int         fNNeutrinos;         ///< number of flux neutrinos thrown so far
-  double           fMaxEvCut;           ///< user-defined cut: maximum energy 
-  double           fMinEvCut;           ///< user-defined cut: minimum energy  
+  double           fMaxEvCut;           ///< user-defined cut: maximum energy
+  double           fMinEvCut;           ///< user-defined cut: minimum energy
   double           fRl;                 ///< defining flux neutrino generation surface: longitudinal radius
   double           fRt;                 ///< defining flux neutrino generation surface: transverse radius
   TRotation        fRotTHz2User;        ///< coord. system rotation: THZ -> Topocentric user-defined
@@ -142,7 +150,7 @@ protected:
   double           fSpectralIndex;      ///< power law function used for weighted flux
   bool             fInitialized;        ///< flag to check that initialization is run
   TH3D *           fTotalFluxHisto;     ///< flux = f(Ev,cos8,phi) summed over neutrino species
-  double           fTotalFluxHistoIntg; ///< fFluxSum2D integral 
+  double           fTotalFluxHistoIntg; ///< fFluxSum2D integral
   map<int, TH3D*>  fFluxHistoMap;       ///< flux = f(Ev,cos8,phi) for each neutrino species
   map<int, TH3D*>  fRawFluxHistoMap;    ///< flux = f(Ev,cos8,phi) for each neutrino species
   vector<int>      fFluxFlavour;        ///< input flux file for each neutrino species
@@ -153,4 +161,3 @@ protected:
 } // genie namespace
 
 #endif // _GATMO_FLUX_H_
-

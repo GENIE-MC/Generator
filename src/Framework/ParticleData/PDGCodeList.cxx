@@ -1,19 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Sep 30, 2009 - CA
-   Const correctness: Methods CheckPDGCode(), ExistsInPDGLibrary() and
-   ExistsInPDGCodeList() were made const.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -41,13 +32,13 @@ namespace genie {
  }
 }
 //___________________________________________________________________________
-PDGCodeList::PDGCodeList(bool allowdup) : 
+PDGCodeList::PDGCodeList(bool allowdup) :
 vector<int>()
 {
   fAllowDuplicateEntries = allowdup;
 }
 //___________________________________________________________________________
-PDGCodeList::PDGCodeList(size_type n, bool allowdup) : 
+PDGCodeList::PDGCodeList(size_type n, bool allowdup) :
 vector<int>(n)
 {
   fAllowDuplicateEntries = allowdup;
@@ -117,7 +108,7 @@ bool PDGCodeList::ExistsInPDGCodeList(int pdg_code) const
   PDGCodeList::const_iterator eci = this->end();
 
   if(find(bci,eci,pdg_code) != eci) return true;
-  
+
   return false;
 /*
   int n = count(this->begin(), this->end(), pdg_code);
@@ -143,8 +134,8 @@ void PDGCodeList::Print(ostream & stream) const
       stream << " |---o ** ERR: no particle with PDG code: " << pdg_code;
     } else {
       string name = p->GetName();
-      stream << " |---o " 
-             << setfill(' ') << setw(15) << name 
+      stream << " |---o "
+             << setfill(' ') << setw(15) << name
              << " (PDG code = " << pdg_code << ")";
     }
     if( (--nc) > 0) stream << endl;
@@ -170,4 +161,3 @@ PDGCodeList & PDGCodeList::operator = (const PDGCodeList & list)
   return (*this);
 }
 //___________________________________________________________________________
-

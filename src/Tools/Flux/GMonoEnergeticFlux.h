@@ -5,18 +5,17 @@
 
 \brief    A simple GENIE flux driver for monoenergetic neutrinos along the
           z direction. Can handle a mix of neutrinos with their corresponding
-          weight. This trivial flux driver was added in so that single energy 
-          neutrinos can be easily used with the event generation driver that 
+          weight. This trivial flux driver was added in so that single energy
+          neutrinos can be easily used with the event generation driver that
           can handle a target mix or detailed geometries.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  Feb 08, 2008
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 

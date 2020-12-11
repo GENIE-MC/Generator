@@ -1,12 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Daniel Scully ( d.i.scully \at warwick.ac.uk)
-   University of Warwick
-
+ Daniel Scully ( d.i.scully \at warwick.ac.uk)
+ University of Warwick
 */
 //____________________________________________________________________________
 
@@ -24,43 +22,43 @@ typedef std::complex<double> cdouble;
 namespace genie {
 namespace alvarezruso {
 
-cdouble AREikonalSolution::Element(const double radius, const double cosine_rz, 
+cdouble AREikonalSolution::Element(const double radius, const double cosine_rz,
                                    const double e_pion)
 {
-  
+
   const double mpik = this->Parent()->GetPiMass();
   const double mpi = this->Con()->PiPMass();
   const double hb = this->Con()->HBar() * 1000.0;
-  
+
   const double r = (radius);
-  
+
   const double ekin = (e_pion - mpik) * hb;
-  
+
   const double cosa = cosine_rz;
 
   const double rmax = this->Nucleus()->RadiusMax();
-  
+
   const unsigned int nz = 1;
-  
+
   const double za = r * cosa;
   const double be = r * TMath::Sqrt(1.0 - cosa*cosa);
   const double omepi = ekin / hb + mpi;
   const double ppim = TMath::Sqrt(omepi*omepi - mpi*mpi);
   unsigned int sampling = (this->Nucleus())->GetSampling();
-  
+
   double absiz[sampling];
   double decoy[sampling];
-  
+
   unsigned int junk;
-  
+
   integrationtools::SGNR(za, rmax, nz, sampling, absiz, junk, decoy);
-  
+
   //do i=1,nzs
 //  cdouble ordez[sampling];
   cdouble * ordez = new cdouble[sampling]; // CA
   double zp, rp;
   cdouble piself;
-  
+
   unsigned int A = fNucleus->A();
   unsigned int Z = fNucleus->Z();
 
@@ -68,29 +66,29 @@ cdouble AREikonalSolution::Element(const double radius, const double cosine_rz,
   {
     // Sample point in nucleus
     zp = absiz[i];
-    
+
     // Radius in nucleus
     rp = TMath::Sqrt( be*be + zp*zp );
-    
+
     // Get nuclear densities
     double dens_cent = fNucleus->CalcNumberDensity(rp);
     double dens_p_cent = dens_cent * Z / A ;
     double dens_n_cent = dens_cent * (A-Z)/A;
-    
+
     // Calculate pion self energy
     piself = this->PionSelfEnergy(dens_p_cent, dens_n_cent, omepi, ppim);
-    
+
     // Optical potential at each point in the nucleus
     ordez[i] = piself / 2.0 / ppim;
-    
+
   }
 
   //Integrate the optical potential through the nucleus
   cdouble resu = integrationtools::RGN1D(za, rmax, nz, sampling, ordez);
-    
-  // Eikonal approximation to the wave function  
+
+  // Eikonal approximation to the wave function
   cdouble uwaveik = exp( - cdouble(0,1) * ( ppim*za + resu ) );
-  
+
   delete [] ordez; // CA
 
   return uwaveik;
@@ -107,21 +105,21 @@ cdouble AREikonalSolution::PionSelfEnergy(const double rhop_cent, const double r
   const double mdel = this->Con()->DeltaPMass();
   const double mpi = this->Con()->PiPMass();
   const double fs_mpi2 = fs*fs/(mpi*mpi);
-  
-  
+
+
   const cdouble ui(0,1);
-  
+
   const double resig = -53.0/hb;
   const double rho = rhop_cent + rhon_cent;
   const double rat = rho / rho0;
   const double pf = TMath::Power( (3.*pi*pi/2.*rho), (1.0/3.0) );
-            
+
   const double sdel = mn*mn + mpi*mpi + 2.*omepi*(mn+3./5.*pf*pf/2./mn);
   const double sqsdel = TMath::Sqrt(sdel);
-  
+
   double gamdpb, imsig;
   this->Deltamed(sdel, pf, rat, gamdpb, imsig, ppim, omepi);
-  
+
   const cdouble pe = -1./6./pi*fs_mpi2*
     ( rhop_cent/(sqsdel-mdel-resig*(2.*rhon_cent/rho0)+ui*(gamdpb/2.-imsig)) +
     1./3.*rhon_cent/(sqsdel-mdel-resig*2./3.*(2.*rhon_cent+rhop_cent)/rho0+ui*(gamdpb/2.-imsig)) +
@@ -131,7 +129,7 @@ cdouble AREikonalSolution::PionSelfEnergy(const double rhop_cent, const double r
   const cdouble efe = 4.*pi*mn*mn/sdel*pe/(1.+4.*pi*0.63*pe);
 
   const cdouble piself = -1.0*efe*(1.-1./2.*omepi/mn)*ppim*ppim/(1.+efe*(1.-1./2.*omepi/mn));
-  
+
   return piself;
 }
 
@@ -139,10 +137,10 @@ cdouble AREikonalSolution::PionSelfEnergy(const double rhop_cent, const double r
 void AREikonalSolution::Deltamed(const double sdel, const double pf, const double rat, double& gamdpb, double& imsig, const double ppim, const double omepi)
 {
   unsigned int iapr = 1; // approximation chosen to calculate gamdpb
-           
+
   // Calculation of the pauli-blocked width
   double gamdfree = this->Gamd(sdel);
-                      
+
   if( gamdfree == 0.0)
   {
     gamdpb = 0.0;
@@ -152,10 +150,10 @@ void AREikonalSolution::Deltamed(const double sdel, const double pf, const doubl
     double f;
     if( iapr == 1 )
     {
-      // Approximation from Nieves et al. NPA 554(93)554           
+      // Approximation from Nieves et al. NPA 554(93)554
       const double r = this->Qcm(sdel) / pf;
       if( r > 1.0 )
-      {  
+      {
                                 // f=1.+(-2./5./r**2+9./35./r**4-2./21./r**6)
         f = 1.0 + ( -2.0 / 5.0 / (r*r) + 9.0 / 35.0 / (r*r*r*r) - 2.0 / 21.0 / (r*r*r*r*r*r) );
       }
@@ -168,7 +166,7 @@ void AREikonalSolution::Deltamed(const double sdel, const double pf, const doubl
     else
     {
       //Approximation from Garcia-Recio, NPA 526(91)685
-      
+
       const double mn = this->Con()->NucleonMass();
       const double wd = TMath::Sqrt(sdel); // Delta inv. mass
       const double ef = TMath::Sqrt(mn*mn + pf*pf); // Fermi energy
@@ -182,11 +180,11 @@ void AREikonalSolution::Deltamed(const double sdel, const double pf, const doubl
     }
     gamdpb = gamdfree * f;
   }
-  
+
   //Calculation of the delta selfenergy
 
   // Imaginary part: using Oset, Salcedo, NPA 468(87)631
-  // Using eq. (3.5) to relate the energy of the delta with the pion energy used 
+  // Using eq. (3.5) to relate the energy of the delta with the pion energy used
   // in the parametrization
 
   // Prescriptions for the effective pion energy
@@ -195,7 +193,7 @@ void AREikonalSolution::Deltamed(const double sdel, const double pf, const doubl
   // ! ome=(sdel-mn**2-mpi**2)/2./mn
   // nucleon with an average momentum
   // ! ekp=3./5.*pf**2/2./mn
-  // ! ome=p(0)-mn-ekp    
+  // ! ome=p(0)-mn-ekp
   // ! ome=(sdel-mn**2-mpi**2-ekp**2)/2./(mn+ekp)
   double ome = omepi;
   double mpi = this->Parent()->GetPiMass();
@@ -204,7 +202,7 @@ void AREikonalSolution::Deltamed(const double sdel, const double pf, const doubl
   const double hb = this->Con()->HBar() * 1000.0;
   if( ome <= (mpi + 85.0 / hb) ) ome = mpi + 85.0 / hb;
   if( ome >= (mpi + 315.0 / hb) ) ome = mpi + 315.0 / hb;
-           
+
   // The parameterization of Oset, Salcedo, with ca3 extrapolated to zero at low kin. energies
   const double cq   = this->Cc(-5.19,15.35,2.06,ome)/hb;
   const double ca2  = this->Cc(1.06,-6.64,22.66,ome)/hb;
@@ -272,7 +270,7 @@ AREikonalSolution::AREikonalSolution(bool debug, ARSampledNucleus* nucl): ARWFSo
 AREikonalSolution::~AREikonalSolution(){
   if (owns_constants) delete constants_;
 }
-             
+
 void AREikonalSolution::Solve()
 {
   if(false) std::cout << "Hi!" << std::endl;

@@ -11,23 +11,19 @@
 
 \created  August 04, 2014
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
-
 #ifndef _QEL_EVENT_GENERATOR_H_
 #define _QEL_EVENT_GENERATOR_H_
-
 
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Physics/Common/KineGeneratorWithCache.h"
 #include "Physics/QuasiElastic/XSection/QELUtils.h"
 #include "Framework/Utils/Range1.h"
 #include "Framework/Conventions/Controls.h"
-
 
 namespace genie {
 

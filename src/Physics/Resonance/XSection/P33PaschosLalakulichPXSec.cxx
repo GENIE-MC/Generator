@@ -1,17 +1,12 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: This class is based on code written by the model authors (Olga
-         Lalakulich, 17.02.2005). The code was modified to fit into the
-         GENIE framework by Costas Andreopoulos.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
+ based on code written by the model authors (Olga Lalakulich, 17.02.2005).
 */
 //____________________________________________________________________________
 
@@ -370,5 +365,3 @@ double P33PaschosLalakulichPXSec::NuStar(double Q2, double W, double MN) const
   return (TMath::Power(W,2) - TMath::Power(MN,2) - Q2)/2/W;
 }
 //____________________________________________________________________________
-
-

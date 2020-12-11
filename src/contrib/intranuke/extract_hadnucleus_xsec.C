@@ -43,7 +43,7 @@
  *
  * ....................................................................................
  *
- * C.Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+ * C.Andreopoulos <constantinos.andreopoulos \at cern.ch>
  *
  */
 

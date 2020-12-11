@@ -5,14 +5,14 @@
 
 \brief   Test program for atmospheric flux drivers
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created August 22, 2005
 
-\cpright Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //____________________________________________________________________________
 
@@ -22,10 +22,10 @@
 #include <TH1D.h>
 #include <TF1.h>
 
-#include "FluxDrivers/GFlukaAtmo3DFlux.h"
-#include "FluxDrivers/GBartolAtmoFlux.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
+#include "Tools/Flux/GFLUKAAtmoFlux.h"
+#include "Tools/Flux/GBGLRSAtmoFlux.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
 
 using namespace genie;
 using namespace genie::flux;
@@ -68,7 +68,7 @@ TNtuple * runGFlukaAtmo3DFluxDriver(void)
   double Rlongitudinal  = 1000.; //m
   double Rtransverse    = 100.;  //m
 
-  GFlukaAtmo3DFlux * flux = new GFlukaAtmo3DFlux;
+  GFLUKAAtmoFlux * flux = new GFLUKAAtmoFlux;
 
   LOG("test", pINFO) << base_dir + "/sdave_numu07.dat";
   LOG("test", pINFO) << base_dir + "/sdave_anumu07.dat";
@@ -76,10 +76,10 @@ TNtuple * runGFlukaAtmo3DFluxDriver(void)
   LOG("test", pINFO) << base_dir + "/sdave_anue07.dat";
 
 
-  flux -> SetFluxFile ( kPdgNuMu,     base_dir + "/sdave_numu07.dat"  );
-  flux -> SetFluxFile ( kPdgAntiNuMu, base_dir + "/sdave_anumu07.dat" );
-  flux -> SetFluxFile ( kPdgNuE,      base_dir + "/sdave_nue07.dat"   );
-  flux -> SetFluxFile ( kPdgAntiNuE,  base_dir + "/sdave_anue07.dat"  );
+  flux -> AddFluxFile ( kPdgNuMu,     base_dir + "/sdave_numu07.dat"  );
+  flux -> AddFluxFile ( kPdgAntiNuMu, base_dir + "/sdave_anumu07.dat" );
+  flux -> AddFluxFile ( kPdgNuE,      base_dir + "/sdave_nue07.dat"   );
+  flux -> AddFluxFile ( kPdgAntiNuE,  base_dir + "/sdave_anue07.dat"  );
   flux -> SetRadii(Rlongitudinal, Rtransverse);
   flux -> LoadFluxData();
   flux -> GenerateWeighted(true);
@@ -99,12 +99,12 @@ TNtuple * runGBartolAtmoFluxDriver(void)
   double Rlongitudinal  = 1000.; //m
   double Rtransverse    = 100.;  //m
 
-  GBartolAtmoFlux * flux = new GBartolAtmoFlux;
+  GBGLRSAtmoFlux * flux = new GBGLRSAtmoFlux;
 
-  flux -> SetFluxFile ( kPdgNuMu,     base_dir + "/f210_3_z.kam_num" );
-  flux -> SetFluxFile ( kPdgAntiNuMu, base_dir + "/f210_3_z.kam_nbm" );
-  flux -> SetFluxFile ( kPdgNuE,      base_dir + "/f210_3_z.kam_nue" );
-  flux -> SetFluxFile ( kPdgAntiNuE,  base_dir + "/f210_3_z.kam_nbe" );
+  flux -> AddFluxFile ( kPdgNuMu,     base_dir + "/f210_3_z.kam_num" );
+  flux -> AddFluxFile ( kPdgAntiNuMu, base_dir + "/f210_3_z.kam_nbm" );
+  flux -> AddFluxFile ( kPdgNuE,      base_dir + "/f210_3_z.kam_nue" );
+  flux -> AddFluxFile ( kPdgAntiNuE,  base_dir + "/f210_3_z.kam_nbe" );
   flux -> SetRadii(Rlongitudinal, Rtransverse);
   flux -> LoadFluxData();
   flux -> GenerateWeighted(true);

@@ -10,18 +10,18 @@
 
 \created May 30, 2008
 
-\cpright Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //____________________________________________________________________________
 
 #include <iomanip>
 #include <string>
 
-#include "Messenger/Messenger.h"
-#include "Utils/NaturalIsotopes.h"
-#include "PDG/PDGLibrary.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/NaturalIsotopes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "TParticlePDG.h"
 #include "TMath.h"
 

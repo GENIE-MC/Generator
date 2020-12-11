@@ -8,13 +8,13 @@
           rescattering -if rescattering is switched off- or to call one of the 
           supported hadron transport MCs -if rescattering is switched on-
          
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk> STFC, Rutherford Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch> STFC, Rutherford Lab
 
 \created  September 14, 2006
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+          
 */
 //____________________________________________________________________________
 

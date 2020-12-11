@@ -5,15 +5,15 @@
 
 \brief    Enumeration of scattering types
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
           Changes required to implement the GENIE Boosted Dark Matter module
           were installed by Josh Berger (Univ. of Wisconsin)
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -34,6 +34,7 @@ namespace genie {
 // append to the end of the total list and set a new enum counter value.
 typedef enum EScatteringType {
 
+  kScUnknown = -100, 
   kScNull = 0,
   kScQuasiElastic,
   kScSingleKaon,
@@ -52,7 +53,6 @@ typedef enum EScatteringType {
   kScDarkMatterElastic = 101,
   kScDarkMatterDeepInelastic,
   kScDarkMatterElectron
-
 } ScatteringType_t;
 
 class ScatteringType
@@ -63,7 +63,7 @@ public:
   static string AsString(ScatteringType_t type)
   {
     switch (type) {
-
+      case(kScUnknown) :                 return "Uknown to GENIE"; break;
       case(kScQuasiElastic) :            return "QES";       break;
       case(kScSingleKaon) :              return "1Kaon";     break;
       case(kScDeepInelastic) :           return "DIS";       break;
@@ -78,9 +78,9 @@ public:
       case(kScInverseBetaDecay) :        return "IBD";       break;
       case(kScGlashowResonance) :        return "GLR";       break;
       case(kScIMDAnnihilation) :         return "IMDAnh";    break;
-      case(kScDarkMatterElastic) :       return "DMEL";       break;
+      case(kScDarkMatterElastic) :       return "DMEL";      break;
       case(kScDarkMatterDeepInelastic) : return "DMDIS";     break;
-      case(kScDarkMatterElectron) :      return "DME";     break;
+      case(kScDarkMatterElectron) :      return "DME";       break;
       default :                          return "Unknown";   break;
     }
     return "Unknown";

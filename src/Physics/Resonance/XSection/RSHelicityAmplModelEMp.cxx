@@ -1,19 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Oct 05, 2009 - CA
-   Compute() now returns a `const RSHelicityAmpl &' and avoids creating a new
-   RSHelicityAmpl at each call.                      
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -43,7 +34,7 @@ RSHelicityAmplModelEMp::~RSHelicityAmplModelEMp()
 
 }
 //____________________________________________________________________________
-const RSHelicityAmpl & 
+const RSHelicityAmpl &
     RSHelicityAmplModelEMp::Compute(
           Resonance_t res, const FKR & fkr) const
 {
@@ -264,5 +255,3 @@ const RSHelicityAmpl &
   return fAmpl;
 }
 //____________________________________________________________________________
-
-

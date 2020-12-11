@@ -8,14 +8,13 @@
           'spectator' nuclear target with a Hit nucleon, a free nucleon or
           a free particle (eg a e- target in the inverse muon decay reaction)
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 03, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -36,7 +35,7 @@ class TRootIOCtor;
 namespace genie {
 
 class Target;
-ostream & operator << (ostream & stream, const Target & t); 
+ostream & operator << (ostream & stream, const Target & t);
 
 class Target : public TObject {
 
@@ -91,7 +90,7 @@ public:
 
   const TLorentzVector & HitNucP4    (void) const { return *this->HitNucP4Ptr(); }
   TLorentzVector *       HitNucP4Ptr (void) const;
-  
+
   //-- Copy, reset, compare, print itself and build string code
   void   Reset    (void);
   void   Copy     (const Target & t);
@@ -130,4 +129,3 @@ ClassDef(Target,2)
 }      // genie namespace
 
 #endif // _TARGET_H_
-

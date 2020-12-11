@@ -1,20 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Mar 03, 2009 - CA
-   Moved into the new QEL package from its previous location (EVGModules)
- @ Sep 15, 2009 - CA
-   Generate interaction lists for charged lepton scattering too.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -51,19 +41,19 @@ InteractionList * QELInteractionListGenerator::CreateInteractionList(
   LOG("IntLst", pINFO)
      << "InitialState = " << init_state.AsString();
 
-  if (fIsCC && !fIsCharm && !fIsStrange) 
+  if (fIsCC && !fIsCharm && !fIsStrange)
      return this->CreateInteractionListCC(init_state);
-  else 
-  if (fIsNC && !fIsCharm && !fIsStrange) 
+  else
+  if (fIsNC && !fIsCharm && !fIsStrange)
      return this->CreateInteractionListNC(init_state);
-  else 
-  if (fIsEM) 
+  else
+  if (fIsEM)
      return this->CreateInteractionListEM(init_state);
-  else 
-  if (fIsCC &&  fIsCharm) 
+  else
+  if (fIsCC &&  fIsCharm)
      return this->CreateInteractionListCharmCC(init_state);
-  else 
-  if (fIsCC &&  fIsStrange) 
+  else
+  if (fIsCC &&  fIsStrange)
      return this->CreateInteractionListStrangeCC(init_state);
   else {
      LOG("IntLst", pWARN)
@@ -203,7 +193,7 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListEM(
   return intlist;
 }
 //___________________________________________________________________________
-InteractionList * 
+InteractionList *
   QELInteractionListGenerator::CreateInteractionListCharmCC(
     const InitialState & init_state) const
 {
@@ -253,11 +243,11 @@ InteractionList *
   return intlist;
 }
 //___________________________________________________________________________
-InteractionList * 
+InteractionList *
   QELInteractionListGenerator::CreateInteractionListStrangeCC(
     const InitialState & init_state) const
 {
-  // v + n --> mu+ + Sigma^{-} 
+  // v + n --> mu+ + Sigma^{-}
   // v + p --> mu+ + Lambda^{0}
   // v + p --> mu+ + Sigma^{0}
 
@@ -324,4 +314,3 @@ void QELInteractionListGenerator::LoadConfigData(void)
   GetParamDef( "is-Strange", fIsStrange, false  ) ;
 }
 //____________________________________________________________________________
-

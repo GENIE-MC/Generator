@@ -5,14 +5,13 @@
 
 \brief     Misc GENIE control constants
 
-\author    Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-           University of Liverpool & STFC Rutherford Appleton Lab
+\author    Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+           University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created   May 03, 2004
 
-\cpright   Copyright (c) 2003-2019, The GENIE Collaboration
-           For the full text of the license visit http://copyright.genie-mc.org
-           or see $GENIE/LICENSE
+\cpright   Copyright (c) 2003-2020, The GENIE Collaboration
+           For the full text of the license visit http://copyright.genie-mc.org     
 */
 //____________________________________________________________________________
 
@@ -37,8 +36,8 @@ static const unsigned int kMaxEVGThreadExceptions = 350;
 // setting the $GSEED env. var. or by using RandomGen::SetSeed(int)
 static const unsigned int kDefaultRandSeed = 65539;
 
-static const double kAVerySmallNum  = 1E-12;  
-static const double kASmallNum      = 1E-6;  
+static const double kAVerySmallNum  = 1E-12;
+static const double kASmallNum      = 1E-6;
 static const double kMinQ2Limit     = 1E-4;  // GeV^2
 static const double kMinQ2Limit_VLE = 1E-10; // GeV^2
 static const double kMinX           = 1E-5;
@@ -51,23 +50,21 @@ static const double kMaxY           = 1.-kASmallNum;
 // Default 'maximum' multiplicity for multiplicity probability distributions.
 // This is not a 'hard limit'. If it is needed it will be extended internally
 // by the KNO hadronization model.
-static const int kMaxMultiplicity = 35;  
+static const int kMaxMultiplicity = 35;
 
 // Maximum number of attempts by the KNO hadronizer for finding a valid f/s
 // hadronic system before going in error and quiting
-static const unsigned int kMaxKNOHadSystIterations = 400;  
+static const unsigned int kMaxKNOHadSystIterations = 400;
 
 // Maximum number of attempts before producing an unweighted decay using the
 // TGenPhaseSpace phase space generator
-static const unsigned int kMaxUnweightDecayIterations = 1000;  
+static const unsigned int kMaxUnweightDecayIterations = 1000;
 
-// Ma-like parameter used in variable transformations taking out the dipole 
+// Ma-like parameter used in variable transformations taking out the dipole
 // form factor form speeding up kinematical selection for QEL and RES events
-static const double kMQD2 = 0.7;  
+static const double kMQD2 = 0.7;
 
 } // namespace controls
 } // namespace genie
 
 #endif // _CONTROLS_H_
-
-

@@ -1,12 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -109,18 +107,18 @@ TVector3 VertexGenerator::GenerateVertex(const Interaction * interaction,
 
   //if(!nucltgt) {
   //vtx.SetXYZ(0.,0.,0.);
-  //} 
+  //}
   //else {
     //double A = nucltgt->A();
   double R = fR0 * TMath::Power(A, 1./3.);
-  
+
   //Interaction * interaction = evrec->Summary();
   const ProcessInfo & proc_info = interaction->ProcInfo();
   bool is_coh = proc_info.IsCoherentProduction() || proc_info.IsCoherentElastic();
   bool is_ve  = proc_info.IsInverseMuDecay() ||
     proc_info.IsIMDAnnihilation() ||
     proc_info.IsNuElectronElastic();
-  
+
   if(is_coh||is_ve) {
     // ** For COH or ve- set a vertex positon on the nuclear boundary
     //
@@ -134,30 +132,30 @@ TVector3 VertexGenerator::GenerateVertex(const Interaction * interaction,
     vtx.SetY(R*sintheta*sinphi);
     vtx.SetZ(R*costheta);
   }
-  else {  
+  else {
     // ** For other events on nuclear targets set the interaction vertex
-    // ** using the requested method: either using a realistic nuclear 
+    // ** using the requested method: either using a realistic nuclear
     // ** density or by setting it uniformly within the nucleus
     //
     if(realistic) {
       // Generate the vertex using a realistic nuclear density
       //
-      LOG("Vtx", pINFO) 
+      LOG("Vtx", pINFO)
 	<< "Generating vertex according to a realistic nuclear density profile";
       // get inputs to the rejection method
       double ymax = -1;
       double rmax = 3*R;
       double dr   = R/40.;
-      for(double r = 0; r < rmax; r+=dr) { 
-	ymax = TMath::Max(ymax, r*r * utils::nuclear::Density(r,(int)A)); 
+      for(double r = 0; r < rmax; r+=dr) {
+	ymax = TMath::Max(ymax, r*r * utils::nuclear::Density(r,(int)A));
       }
       ymax *= 1.2;
-        
+
       // select a vertex using the rejection method
       unsigned int iter = 0;
       while(1) {
 	iter++;
-	
+
 	// throw an exception if it hasn't find a solution after many attempts
 	if(iter > kRjMaxIterations) {
 	  LOG("Vtx", pWARN)
@@ -168,13 +166,13 @@ TVector3 VertexGenerator::GenerateVertex(const Interaction * interaction,
 	  exception.SwitchOnFastForward();
 	  throw exception;
 	}
-	
+
 	double r = rmax * rnd->RndFsi().Rndm();
 	double t = ymax * rnd->RndFsi().Rndm();
 	double y = r*r * utils::nuclear::Density(r,(int)A);
 	if(y > ymax) {
 	  LOG("Vtx", pERROR)
-	    << "y = " << y << " > ymax = " << ymax 
+	    << "y = " << y << " > ymax = " << ymax
 	    << " for r = " << r << ", A = " << A;
 	}
 	bool accept = (t < y);
@@ -191,24 +189,24 @@ TVector3 VertexGenerator::GenerateVertex(const Interaction * interaction,
 	}
       }//w(1)
     } //use density?
-    
+
     if(uniform) {
       // Generate the vertex uniformly within the nucleus
       //
-      LOG("Vtx", pINFO) 
+      LOG("Vtx", pINFO)
 	<< "Generating intranuclear vertex uniformly in volume";
       while(vtx.Mag() > R) {
 	vtx.SetX(-R + 2*R * rnd->RndFsi().Rndm());
 	vtx.SetY(-R + 2*R * rnd->RndFsi().Rndm());
 	vtx.SetZ(-R + 2*R * rnd->RndFsi().Rndm());
       }
-    }// uniform? 
-    
+    }// uniform?
+
   } // coh or ve-?
     //} // nuclear target ?
-  
-  LOG("Vtx", pINFO) 
-    << "Generated vtx @ r = " << vtx.Mag() << " fm / " 
+
+  LOG("Vtx", pINFO)
+    << "Generated vtx @ r = " << vtx.Mag() << " fm / "
     << print::Vec3AsString(&vtx);
   return vtx;
 }

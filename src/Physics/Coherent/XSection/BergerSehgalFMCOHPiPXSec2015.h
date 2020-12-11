@@ -1,26 +1,23 @@
 //____________________________________________________________________________
 /*!
 
-  \class    genie::BergerSehgalFMCOHPiPXSec2015
+\class    genie::BergerSehgalFMCOHPiPXSec2015
 
-  \brief    Computes the triple differential cross section for CC & NC coherent
-  pion production according to the \b Berger-Sehgal model.
-  v(vbar)A->v(vbar)Api0, vA->l-Api+, vbarA->l+Api-
+\brief    Computes the triple differential cross section for CC & NC coherent
+          pion production according to the \b Berger-Sehgal model.
+          v(vbar)A->v(vbar)Api0, vA->l-Api+, vbarA->l+Api-
 
-  Is a concrete implementation of the XSecAlgorithmI interface.
+         Is a concrete implementation of the XSecAlgorithmI interface.
 
-  \ref  PRD 79, 053003 (2009) by Berger and Sehgal  
+\ref     PRD 79, 053003 (2009) by Berger and Sehgal
 
+\author  G. Perdue, H. Gallagher, D. Cherdack
 
+\created 2014
 
-  \author  G. Perdue, H. Gallagher, D. Cherdack 
-
-  \created 2014 
-
-  \cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-  For the full text of the license visit http://copyright.genie-mc.org
-  or see $GENIE/LICENSE
-  */
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
+         For the full text of the license visit http://copyright.genie-mc.org
+*/
 //____________________________________________________________________________
 
 #ifndef _BERGER_SEHGAL_FM_COHPI_PXSEC_2015_H_

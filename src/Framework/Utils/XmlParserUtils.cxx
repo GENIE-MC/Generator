@@ -1,13 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For documentation see the corresponding header file.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -141,11 +138,11 @@ xmlNodePtr genie::utils::xml::FindNode(xmlDocPtr xml_doc, string node_path)
   unsigned int ndepth = node_path_vec.size();
   unsigned int idepth = 0;
 
-  xmlNodePtr curr_node = root_node; 
+  xmlNodePtr curr_node = root_node;
 
   while (curr_node != NULL) {
     if( (!xmlStrcmp(
-       curr_node->name, (const xmlChar *) node_path_vec[idepth].c_str())) ) 
+       curr_node->name, (const xmlChar *) node_path_vec[idepth].c_str())) )
     {
         idepth++;
         if(idepth == ndepth) {
@@ -167,29 +164,29 @@ bool genie::utils::xml::GetBool(xmlDocPtr xml_doc, string node_path)
   if(node==NULL) {
     return false;
   }
-  string content = genie::utils::xml::TrimSpaces( 
+  string content = genie::utils::xml::TrimSpaces(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
 
-  if(content == "true" || 
-     content == "TRUE" || 
-     content == "True" || 
+  if(content == "true" ||
+     content == "TRUE" ||
+     content == "True" ||
      content == "on"   ||
      content == "ON"   ||
      content == "On"   ||
-     content == "1"    || 
+     content == "1"    ||
      content == "I") return true;
 
-  if(content == "false" || 
-     content == "FALSE" || 
+  if(content == "false" ||
+     content == "FALSE" ||
      content == "False" ||
      content == "off"   ||
      content == "OFF"   ||
      content == "Off"   ||
-     content == "0"     || 
+     content == "0"     ||
      content == "O") return false;
 
-  LOG("XML", pERROR) 
-       << "Could not interpret content (" << content 
+  LOG("XML", pERROR)
+       << "Could not interpret content (" << content
        << ") found at node_path: " << node_path << " as a boolean!";
   return false;
 }
@@ -200,7 +197,7 @@ int genie::utils::xml::GetInt(xmlDocPtr xml_doc, string node_path)
   if(node==NULL) {
     return -999999;
   }
-  string content = genie::utils::xml::TrimSpaces( 
+  string content = genie::utils::xml::TrimSpaces(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
   int value = atoi(content.c_str());
   return value;
@@ -215,9 +212,9 @@ vector<int> genie::utils::xml::GetIntArray(xmlDocPtr xml_doc, string node_path)
     return array;
   }
 
-  string content = genie::utils::xml::TrimSpaces( 
+  string content = genie::utils::xml::TrimSpaces(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
-  
+
   vector<string> str_tokens = genie::utils::str::Split(content, ",");
   vector<string>::const_iterator str_tokens_iter = str_tokens.begin();
   for( ; str_tokens_iter != str_tokens.end(); ++str_tokens_iter) {
@@ -234,13 +231,13 @@ double genie::utils::xml::GetDouble(xmlDocPtr xml_doc, string node_path)
   if(node==NULL) {
     return -999999;
   }
-  string content = genie::utils::xml::TrimSpaces( 
+  string content = genie::utils::xml::TrimSpaces(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
   double value = atof(content.c_str());
   return value;
 }
 //____________________________________________________________________________
-vector<double> 
+vector<double>
   genie::utils::xml::GetDoubleArray(xmlDocPtr xml_doc, string node_path)
 {
   vector<double> array;
@@ -250,9 +247,9 @@ vector<double>
     return array;
   }
 
-  string content = genie::utils::xml::TrimSpaces( 
+  string content = genie::utils::xml::TrimSpaces(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
-  
+
   vector<string> str_tokens = genie::utils::str::Split(content, ",");
   vector<string>::const_iterator str_tokens_iter = str_tokens.begin();
   for( ; str_tokens_iter != str_tokens.end(); ++str_tokens_iter) {
@@ -269,7 +266,7 @@ string genie::utils::xml::GetString(xmlDocPtr xml_doc, string node_path)
   if(node==NULL) {
     return "";
   }
-  string content = genie::utils::xml::TrimSpaces( 
+  string content = genie::utils::xml::TrimSpaces(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
   return content;
 }
@@ -301,7 +298,7 @@ TFile * genie::utils::xml::GetTFile(
     used_base_dir = gSystem->Getenv("GENIE");
   }
 
-  const char * full_filename = 
+  const char * full_filename =
      Form("%s/%s", used_base_dir.c_str(), filename.c_str());
   TFile * file = new TFile(full_filename,"read");
   if(!file) {

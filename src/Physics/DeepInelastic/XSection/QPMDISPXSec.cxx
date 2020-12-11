@@ -1,27 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Oct 09, 2009 - CA
-   Modified to handle charged lepton - nucleon(nucleus) scattering.
-   Renamed QPMDISPXSec from DISPartonModelPXSec following code reorganization.
- @ Oct 11, 2009 - CA
-   Implemented ValidProcess()
- @ Jan 29, 2013 - CA
-   Don't look-up depreciated $GDISABLECACHING environmental variable.
-   Use the RunOpt singleton instead.
- @ 2019 Jan - Marco Roda <mroda@liverpool.ac.uk>
-   DIS model cleaned of the joint rescaling with RES. The re-scaling is available
-   in an higher level algorithm that will take this model and will re-scale it accordingly.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -98,18 +81,18 @@ double QPMDISPXSec::XSec(
   double Mnuc2 = Mnuc * Mnuc;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISPXSec", pDEBUG)  
+  LOG("DISPXSec", pDEBUG)
    << "Computing d2xsec/dxdy @ E = " << E << ", x = " << x << ", y = " << y;
 #endif
 
   // One of the xsec terms changes sign for antineutrinos @ DIS/CC
 
-  bool is_nubar_cc = pdg::IsAntiNeutrino(init_state.ProbePdg()) && 
+  bool is_nubar_cc = pdg::IsAntiNeutrino(init_state.ProbePdg()) &&
                      proc_info.IsWeakCC();
   int sign = (is_nubar_cc) ? -1 : 1;
 
   // Calculate the DIS structure functions
-  fDISSF.Calculate(interaction); 
+  fDISSF.Calculate(interaction);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISPXSec", pDEBUG) << fDISSF;
@@ -133,7 +116,7 @@ double QPMDISPXSec::XSec(
   double Q2 = utils::kinematics::XYtoQ2(E,Mnuc,x,y);
   double Q4 = Q2*Q2;
   if(proc_info.IsEM()) {
-    g2 = kAem2 * kPi2 / (2.0 * fSin48w * Q4); 
+    g2 = kAem2 * kPi2 / (2.0 * fSin48w * Q4);
   }
   if (proc_info.IsWeakCC()) {
     g2 = kGF2 * kMw2 * kMw2 / TMath::Power((Q2 + kMw2), 2);
@@ -150,8 +133,8 @@ double QPMDISPXSec::XSec(
   double term5 = -1.*ml2/(2*Mnuc*E);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISPXSec", pDEBUG)  
-    << "\nd2xsec/dxdy ~ (" << term1 << ")*F1+(" << term2 << ")*F2+(" 
+  LOG("DISPXSec", pDEBUG)
+    << "\nd2xsec/dxdy ~ (" << term1 << ")*F1+(" << term2 << ")*F2+("
                   << term3 << ")*F3+(" << term4 << ")*F4+(" << term5 << ")*F5";
 #endif
 
@@ -166,7 +149,7 @@ double QPMDISPXSec::XSec(
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISPXSec", pINFO)
-        << "d2xsec/dxdy[FreeN] (E= " << E 
+        << "d2xsec/dxdy[FreeN] (E= " << E
                       << ", x= " << x << ", y= " << y << ") = " << xsec;
 #endif
 
@@ -177,15 +160,15 @@ double QPMDISPXSec::XSec(
     xsec *= J;
   }
 
-  // If requested return the free nucleon xsec even for input nuclear tgt 
+  // If requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
   // Compute nuclear cross section (simple scaling here, corrections must
   // have been included in the structure functions)
   const Target & target = init_state.Tgt();
   int nucpdgc = target.HitNucPdg();
-  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
-  xsec *= NNucl; 
+  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
+  xsec *= NNucl;
 
   // Apply scaling / if required to reach well known asymmptotic value
   xsec *= fScale;
@@ -195,7 +178,7 @@ double QPMDISPXSec::XSec(
   double xsec_charm = fCharmProdModel->XSec(interaction,kps);
   interaction->ExclTagPtr()->UnsetCharm();
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISPXSec", pINFO) 
+  LOG("DISPXSec", pINFO)
        << "Subtracting charm piece: " << xsec_charm << " / out of " << xsec;
 #endif
   xsec = TMath::Max(0., xsec-xsec_charm);
@@ -253,7 +236,7 @@ void QPMDISPXSec::LoadConfig(void)
   // Access global defaults to use in case of missing parameters
 
   fDISSFModel = 0;
-  fDISSFModel = 
+  fDISSFModel =
      dynamic_cast<const DISStructureFuncModelI *> (this->SubAlg("SFAlg"));
   assert(fDISSFModel);
 
@@ -268,7 +251,7 @@ void QPMDISPXSec::LoadConfig(void)
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
 
 
-  // Since this method would be called every time the current algorithm is 
+  // Since this method would be called every time the current algorithm is
   // reconfigured at run-time, remove all the data cached by this algorithm
   // since they depend on the previous configuration
 
@@ -295,4 +278,3 @@ void QPMDISPXSec::LoadConfig(void)
   assert(fCharmProdModel);
 }
 //____________________________________________________________________________
-

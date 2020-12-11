@@ -8,15 +8,15 @@
           It is a container of an InitialState, a ProcessInfo, an XclsTag
           and a Kinematics object.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
           Changes required to implement the GENIE Boosted Dark Matter module 
           were installed by Josh Berger (Univ. of Wisconsin)
 
 \created  April 25, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -102,10 +102,12 @@ public:
   // Use the "Named Constructor" C++ idiom for fast creation of typical interactions
   static Interaction * DISCC     (int tgt, int nuc, int probe, double E=0);
   static Interaction * DISCC     (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
+  static Interaction * DISCC     (int tgt, int nuc, int qrk, bool sea, int fqrk, int probe, double E=0);
   static Interaction * DISCC     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * DISCC     (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
   static Interaction * DISNC     (int tgt, int nuc, int probe, double E=0);
   static Interaction * DISNC     (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
+  static Interaction * DISNC     (int tgt, int nuc, int qrk, bool sea, int fqrk, int probe, double E=0);
   static Interaction * DISNC     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * DISNC     (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
   static Interaction * DISEM     (int tgt, int nuc, int probe, double E=0);
@@ -147,11 +149,13 @@ public:
   static Interaction * MECNC     (int tgt, int nuccluster, int probe, double E=0);
   static Interaction * MECNC     (int tgt, int nuccluster, int probe, const TLorentzVector & p4probe);
   static Interaction * MECEM     (int tgt, int nuccluster, int probe, double E=0);
+  static Interaction * MECEM     (int tgt, int probe, double E=0);
   static Interaction * MECEM     (int tgt, int nuccluster, int probe, const TLorentzVector & p4probe);
   static Interaction * GLR       (int tgt, double E=0);
   static Interaction * GLR       (int tgt, const TLorentzVector & p4probe);
   static Interaction * NDecay    (int tgt, int decay_mode=-1, int decayed_nucleon = 0);
   static Interaction * NOsc      (int tgt, int annihilation_mode=-1);
+  static Interaction * NHL       (double E=0, int decayed_mode=-1);
   static Interaction * ASK       (int tgt, int probe, double E=0);
   static Interaction * ASK       (int tgt, int probe, const TLorentzVector & p4probe);
   static Interaction * DME       (int tgt, int nuc, int probe, double E=0);

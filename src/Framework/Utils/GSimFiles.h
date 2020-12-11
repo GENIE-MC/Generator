@@ -3,7 +3,7 @@
 
 \class    GSimFiles
 
-\brief    Holds GENIE simulation outputs (cross-section ROOT files, simulated 
+\brief    Holds GENIE simulation outputs (cross-section ROOT files, simulated
           event samples in GHEP, GST or other format) typically used as inputs
           in physics validation / tuning apps.
 
@@ -31,14 +31,13 @@
              ...
           </genie_simulation_outputs>
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
           University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  Oct 12, 2009
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //__________________________________________________________________________
 
@@ -60,7 +59,7 @@ using std::vector;
 namespace genie {
 
 class GSimFiles;
-ostream & operator << (ostream & stream, const GSimFiles & gsimf);  
+ostream & operator << (ostream & stream, const GSimFiles & gsimf);
 
 class GSimFiles
 {
@@ -75,11 +74,11 @@ public:
   string           XSecFileName  (int imodel)       const;
   TChain *         EvtChain      (int imodel)       const;
   vector<string> & EvtFileNames  (int imodel)       const;
-  const string   & PathToXMLFile(void)              const;             
+  const string   & PathToXMLFile(void)              const;
   void             Print         (ostream & stream) const;
   bool             LoadFromFile  (string xmlfile);
 
-  friend ostream & operator << (ostream & stream, const GSimFiles & gsimf);  
+  friend ostream & operator << (ostream & stream, const GSimFiles & gsimf);
 
 private:
 
@@ -99,4 +98,3 @@ private:
 }      // genie namespace
 
 #endif // _GSIM_FILES_H_
-
