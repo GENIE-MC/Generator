@@ -5,18 +5,17 @@
 
 \brief    Generates nuclear de-excitation gamma rays
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
-\ref      16O: 
-           H.Ejiri,Phys.Rev.C48,1442(1993); 
+\ref      16O:
+           H.Ejiri,Phys.Rev.C48,1442(1993);
            K.Kobayashi et al., Nucl.Phys.B (proc Suppl) 139 (2005)
 
 \created  March 05, 2008
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 

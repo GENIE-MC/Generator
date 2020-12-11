@@ -5,14 +5,14 @@
 
 \brief   Example event loop. Use that as a template for your analysis code.
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created May 4, 2004
 
-\cpright Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //____________________________________________________________________________
 
@@ -25,16 +25,16 @@
 #include <TH1.h>
 #include <TText.h>
 
-#include "EVGCore/EventRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "Ntuple/NtpMCFormat.h"
-#include "Ntuple/NtpMCTreeHeader.h"
-#include "Ntuple/NtpMCEventRecord.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "Utils/CmdLnArgParser.h"
-#include "NucleonDecay/NucleonDecayUtils.h"
-#include "NucleonDecay/NucleonDecayMode.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/Ntuple/NtpMCFormat.h"
+#include "Framework/Ntuple/NtpMCTreeHeader.h"
+#include "Framework/Ntuple/NtpMCEventRecord.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/Utils/CmdLnArgParser.h"
+#include "Physics/NucleonDecay/NucleonDecayUtils.h"
+#include "Physics/NucleonDecay/NucleonDecayMode.h"
 
 
 using std::string;

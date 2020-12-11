@@ -90,6 +90,7 @@
   <priority msgstream="GROOTGeom">             NOTICE </priority>
   <priority msgstream="GHEP">                  WARN   </priority>
   <priority msgstream="GHepParticle">          INFO   </priority>
+  <priority msgstream="GHepUtils">             INFO   </priority>
   <priority msgstream="GuiUtils">              INFO   </priority>
   <priority msgstream="GRV98LO">               NOTICE </priority>
   <priority msgstream="GXSecFunc">             WARN   </priority>
@@ -119,6 +120,8 @@
   <priority msgstream="INukeUtils">            NOTICE </priority> <!-- notice-->
   <priority msgstream="INukeUtils2018">        NOTICE </priority> <!-- notice-->
   <priority msgstream="INukeUtils2019">        NOTICE </priority> <!-- notice-->
+  <priority msgstream="HINCLCascadeIntranuke"> NOTICE </priority>
+  <priority msgstream="HG4BertCascIntranuke">  NOTICE </priority>
   <priority msgstream="INukeNucleonCorr">      NOTICE </priority>
   <priority msgstream="ISApp">                 INFO   </priority>
   <priority msgstream="IntGenMap">             WARN   </priority>

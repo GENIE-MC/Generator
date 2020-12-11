@@ -1,11 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
-
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+ 
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -47,8 +46,8 @@ PDFModelI("genie::LHAPDF6", config)
 #endif
 }
 //____________________________________________________________________________
-LHAPDF6::~LHAPDF6() 
-{ 
+LHAPDF6::~LHAPDF6()
+{
 //#ifdef __GENIE_LHAPDF6_ENABLED__
 //  if(fLHAPDF) delete fLHAPDF;
 //#endif
@@ -114,7 +113,7 @@ PDF_t LHAPDF6::AllPDFs(double x, double Q2) const
   pdf.bot  = pdfvec[11];
   pdf.top  = pdfvec[12];
   pdf.gl   = pdfvec[6];
-  return pdf;                                               
+  return pdf;
 }
 #else
 PDF_t LHAPDF6::AllPDFs(double, double) const
@@ -134,11 +133,11 @@ void LHAPDF6::Configure(const Registry & config)
 void LHAPDF6::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadConfig();          
+  this->LoadConfig();
   fAllowReconfig=false;
 }
 //____________________________________________________________________________
-void LHAPDF6::LoadConfig(void) 
+void LHAPDF6::LoadConfig(void)
 {
   this->GetParam("SetName",  fSetName );
   this->GetParam("MemberID", fMemberID);
@@ -147,11 +146,10 @@ void LHAPDF6::LoadConfig(void)
   fLHAPDF = LHAPDF::mkPDF(fSetName, fMemberID);
   if(!fLHAPDF) {
      LOG("LHAPDF6",pFATAL)
-       << "Couldn't retrieve LHADPF6 pdf set: " 
+       << "Couldn't retrieve LHADPF6 pdf set: "
        << fSetName << ", member id: " << fMemberID;
      exit(1);
   }
 #endif
 }
 //____________________________________________________________________________
-

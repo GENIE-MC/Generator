@@ -1,16 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -67,7 +61,7 @@ double AivazisCharmPXSecLO::XSec(
   const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
   const Target &       target     = init_state.Tgt();
-  
+
   //----- get target information (hit nucleon and quark)
   int  nu    = init_state.ProbePdg();
   int  nuc   = target.HitNucPdg();
@@ -82,7 +76,7 @@ double AivazisCharmPXSecLO::XSec(
   bool issb  = (qset) ? pdg::IsAntiSQuark (qpdg) : false;
   bool isnu  = pdg::IsNeutrino(nu);
   bool isnub = pdg::IsAntiNeutrino(nu);
-  
+
   //----- compute kinematic & auxiliary parameters
   double E           = init_state.ProbeE(kRfHitNucRest);
   double x           = kinematics.x();
@@ -114,7 +108,7 @@ double AivazisCharmPXSecLO::XSec(
 
   //----- if the hit nucleon is a neutron, swap u<->d
   double tmp;
-  if (isN) { 
+  if (isN) {
     tmp = uv; uv = dv; dv = tmp;
     tmp = us; us = ds; ds = tmp;
   }
@@ -127,7 +121,7 @@ double AivazisCharmPXSecLO::XSec(
     ds = ( (isd||isdb) &&  sea) ? ds : 0.;
     s  = ( (iss||issb) &&  sea) ? s  : 0.;
   }
-  //----- in case of a \bar{v}+N calculation (quark not set) zero the d/val contribution 
+  //----- in case of a \bar{v}+N calculation (quark not set) zero the d/val contribution
   if(isnub) dv=0;
 
   //----- calculate the cross section

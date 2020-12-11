@@ -33,28 +33,30 @@
 *                    mhso+/:------------------:/+oyhyo/----------:/+syhm                                        *
 *                           NmddhyyyssssyyyhdmmNNNmhhhyyyyhhddmN                                                *
 *                                                                                                               *
-*                                                             Copyright (c) 2003-2019, The GENIE Collaboration  *
+*                                                             Copyright (c) 2003-2020, The GENIE Collaboration  *
 *                                                                                                               *
 *                                                                                                               *
-*            Luis Alvarez-Ruso [8], Costas Andreopoulos [4,6], Christopher Barry [4], Francis Bench [4],        *
-*            Steve Dennis [4], Steve Dytman [5], Hugh Gallagher [7], Steven Gardiner [3], Walter Giele [3],     *
-*            Robert Hatcher [3], Libo Jiang [5], Rhiannon Jones [4], Igor Kakorin [2], Konstantin Kuzmin [2],   *
-*            Anselmo Meregaglia [1], Donna Naples [5], Vadim Naumov [2], Gabriel Perdue [3], Marco Roda [4],    *
-*            Vladyslav Syrotenko [7], Julia Tena Vidal [4], Jeremy Wolcott [7], and Julia Yarba [3]             *
+*             Luis Alvarez-Ruso [9], Costas Andreopoulos [5,7], Adi Ashkenazi [4], Christopher Barry [5],       *
+*                Glória de Sá Pereira [5,7], Steve Dennis [5], Steve Dytman [6], Hugh Gallagher [8],            *
+*               Steven Gardiner [3], Walter Giele [3], Robert Hatcher [3], Or Hen [4], Libo Jiang [6],          *
+*              Igor Kakorin [2], Konstantin Kuzmin [2], Anselmo Meregaglia [1], Donna Naples [6],               *
+*               Vadim Naumov [2], Afroditi Papadopoulou [4], Gabriel Perdue [3], Marco Roda [5],                *
+*            Vladyslav Syrotenko [8], Júlia Tena Vidal [5], Jeremy Wolcott [8], and Julia Yarba [3]             *
 *                                                                                                               *
 *                                               (The GENIE Collaboration)                                       *
 *                                                                                                               *
 *                      [1] CENBG, Université de Bordeaux, CNRS/IN2P3, 33175 Gradignan, France                   *
 *              [2] Joint Institute for Nuclear Research (JINR), Dubna, Moscow region, 141980, Russia            *
 *                     [3] Fermi National Accelerator Laboratory, Batavia, Illinois 60510, USA                   *
-*                      [4] University of Liverpool, Dept. of Physics, Liverpool L69 7ZE, UK                     *
-*              [5] University of Pittsburgh, Dept. of Physics and Astronomy, Pittsburgh PA 15260, USA           *
-*             [6] STFC Rutherford Appleton Laboratory, Particle Physics Dept., Oxfordshire OX11 0QX, UK         *
-*                    [7] Tufts University, Dept. of Physics and Astronomy, Medford MA 02155, USA                *
-*                                       [8] University of Valencia, Valencia, Spain                             *
+*            [4] Massachusetts Institute of Technology (MIT) Dept. of Physics, Cambridge, MA 02139, USA         *
+*                      [5] University of Liverpool, Dept. of Physics, Liverpool L69 7ZE, UK                     *
+*              [6] University of Pittsburgh, Dept. of Physics and Astronomy, Pittsburgh PA 15260, USA           *
+*             [7] STFC Rutherford Appleton Laboratory, Particle Physics Dept., Oxfordshire OX11 0QX, UK         *
+*                    [8] Tufts University, Dept. of Physics and Astronomy, Medford MA 02155, USA                *
+*                                  [9] University of Valencia, Valencia, Spain                                  *
 *                                                                                                               *
 *  Corresponding Author:                                                                                        *
-*  Dr. Costas Andreopoulos  <costas.andreopoulos \at stfc.ac.uk>                                                *
+*  Prof. Costas Andreopoulos  <constantinos.andreopoulos \at cern.ch>                                           *
 *                                                                                                               *
 *  University of Liverpool  |  STFC Rutherford Appleton Laboratory                                              *
 *  Physics Department       |  Particle Physics Department                                                      *

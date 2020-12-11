@@ -1,21 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 09, 2009 - CA
-   Moved into the NuE package from its previous location (EVGModules package)
- @ Feb 06, 2013 - CA
-   When the value of the differential cross-section for the selected kinematics
-   is set to the event, set the corresponding KinePhaseSpace_t value too.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -76,7 +65,7 @@ void NuEKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //   If the kinematics are generated uniformly over the allowed phase
   //   space the max xsec is irrelevant
   double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
-  
+
   //-- y range
   const KPhaseSpace & kps = evrec->Summary()->PhaseSpace();
   Range1D_t yl = kps.Limits(kKVy);

@@ -1,21 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Sep 19, 2009 - CA
-   First included in v2.5.1.
- @ Nov 26, 2009 - CA
-   Fix mistake in convertion from dsigma/dOmega --> dsigma/dQ2 uncovered at
-   the first comparison against electron QE data.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -102,7 +91,7 @@ double RosenbluthPXSec::XSec(
 
   // Calculate the scattered lepton energy
   double Ep  = E / (1. + 2.*(E/M)*sin2_halftheta);
-  //double Ep2 = Ep*Ep; // unused variable
+  double Ep2 = Ep*Ep;
 
   // Calculate the Mott cross section dsigma/dOmega
   double xsec_mott = (0.25 * kAem2 * Ep / E3) * (cos2_halftheta/sin4_halftheta);
@@ -111,7 +100,8 @@ double RosenbluthPXSec::XSec(
   double xsec = xsec_mott * (Ge2 + (tau/epsilon)*Gm2) / (1+tau);
 
   // Convert dsigma/dOmega --> dsigma/dQ2
-  xsec *= (kPi/(Ep*E));
+  // xsec *= (kPi/(Ep*E)); // bug introduced in v3.0.6
+  xsec *= (kPi/(Ep2)); // fixed before v3.2
 
   // The algorithm computes dxsec/dQ2
   // Check whether variable tranformation is needed

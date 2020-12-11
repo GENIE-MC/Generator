@@ -3,8 +3,8 @@
 
 \class    genie::ReinSehgalSPPPXSec
 
-\brief    Computes the differential cross section for an exclusive 1-pion 
-          reaction through resonance neutrinoproduction according to the 
+\brief    Computes the differential cross section for an exclusive 1-pion
+          reaction through resonance neutrinoproduction according to the
           Rein-Sehgal model.
 
           The cross section is computed for an input list of resonances
@@ -32,14 +32,13 @@
 \ref      D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
           and Single Pion Production, Ann.Phys.133, 79 (1981)
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  November 22, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -64,7 +63,7 @@ public:
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
-	
+
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
   void Configure(const Registry & config);
@@ -72,7 +71,7 @@ public:
 
 private:
 
-  //-- load algorithm configuration when Algorithm::Configure() 
+  //-- load algorithm configuration when Algorithm::Configure()
   void LoadConfig (void);
 
   double XSecNRES(const Interaction * i, KinePhaseSpace_t k) const;

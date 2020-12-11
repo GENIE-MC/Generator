@@ -12,7 +12,7 @@
          still be a more appropriate tool to use for the simpler event generation cases
          required for many 4-vector level / systematic studies.
          Please see the GENIE documentation (http://www.genie-mc.org) and contact me
-         <costas.andreopoulos \at stfc.ac.uk> if in doubt.
+         <constantinos.andreopoulos \at cern.ch> if in doubt.
 
          *** Synopsis :
 
@@ -400,14 +400,14 @@
 
          Please read the GENIE User Manual for more information.
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created February 05, 2008
 
-\cpright Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //_________________________________________________________________________________________
 
@@ -1160,13 +1160,12 @@ void GetCommandLineArgs(int argc, char ** argv)
             // create a local copy of the input histogram
             TString origname = ihst->GetName();
             TString tmpname; tmpname.Form("%s_", origname.Data());
-            TH1D * spectrum = new TH1D(
-                 tmpname.Data(), ihst->GetName(), ihst->GetNbinsX(),
-                 ihst->GetXaxis()->GetXmin(), ihst->GetXaxis()->GetXmax());
+            // Copy in the flux histogram from the root file
+            // use Clone rather than assuming fix bin widths and rebooking
+            TH1D* spectrum = (TH1D*)ihst->Clone();
+            spectrum->SetNameTitle(tmpname.Data(),ihst->GetName());
             spectrum->SetDirectory(0);
-            for(int ibin = 1; ibin <= ihst->GetNbinsX(); ibin++) {
-               spectrum->SetBinContent(ibin, ihst->GetBinContent(ibin));
-            }
+
             // get rid of original
             delete ihst;
             // rename copy

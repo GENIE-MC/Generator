@@ -1,8 +1,8 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+ 
 
  Author: Joe Johnston, University of Pittsburgh (Advisor Steven Dytman)
 
@@ -117,19 +117,17 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
   LOG("LocalFGM", pNOTICE)
              << ", P(max) = " << fPMax;
 
+  assert(target.HitNucIsSet());
+
   //-- get information for the nuclear target
   int nucleon_pdgc = target.HitNucPdg();
   assert(pdg::IsProton(nucleon_pdgc) || pdg::IsNeutron(nucleon_pdgc));
-  int A = target.A();
 
-  assert(target.HitNucIsSet());
-  bool is_p = pdg::IsProton(nucleon_pdgc);
-  double numNuc = (is_p) ? (double)target.Z():(double)target.N();
+  // bool is_p = pdg::IsProton(nucleon_pdgc);
+  // double numNuc = (is_p) ? (double)target.Z():(double)target.N();
 
   // Calculate Fermi Momentum using Local FG equations
-  double hbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
-  double KF= TMath::Power(3*kPi2*numNuc*genie::utils::nuclear::Density(r,A),
-			    1.0/3.0) *hbarc;
+  double KF = LocalFermiMomentum( target, nucleon_pdgc, r ) ; 
 
   LOG("LocalFGM",pNOTICE) << "KF = " << KF;
 
@@ -183,6 +181,22 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
   return prob;
 }
 //____________________________________________________________________________
+double LocalFGM::LocalFermiMomentum( const Target & t, int nucleon_pdg, double radius ) const {
+
+  assert(pdg::IsProton(nucleon_pdg) || pdg::IsNeutron(nucleon_pdg)) ;
+
+  bool is_p = pdg::IsProton(nucleon_pdg);
+  double numNuc = (double) ( (is_p) ? t.Z() : t.N() );
+
+  //  double hbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
+  
+  double kF = TMath::Power( 3*kPi2*numNuc*genie::utils::nuclear::Density( radius, t.A() ),
+			   1.0/3.0 ) 
+    / genie::units::fermi ;
+
+  return kF ;
+}
+//____________________________________________________________________________
 void LocalFGM::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -197,6 +211,9 @@ void LocalFGM::Configure(string param_set)
 //____________________________________________________________________________
 void LocalFGM::LoadConfig(void)
 {
+
+  NuclearModelI::LoadConfig() ;
+
   this->GetParamDef("LFG-MomentumMax", fPMax, 1.0);
   assert(fPMax > 0);
 

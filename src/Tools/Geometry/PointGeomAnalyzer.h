@@ -10,17 +10,16 @@
          to use a detailed GEANT/ROOT geometry description but you only need
          to generate events for a 'single' nuclear target while you still want
          to use the GENIE MC job driver 'loaded' with a GENIE flux driver.
-         The geometry can also support a mix of targets, each with its 
+         The geometry can also support a mix of targets, each with its
          corresponding weight.
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+         University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created July 14, 2005
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
+         For the full text of the license visit http://copyright.genie-mc.org        
 */
 //____________________________________________________________________________
 

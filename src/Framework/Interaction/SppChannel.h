@@ -5,14 +5,13 @@
 
 \brief    Enumeration of single pion production channels
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  December 16, 2004
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
@@ -69,7 +68,7 @@ public:
 
       case (kSpp_vp_cc_10100) : return "v p -> l- p pi+";   break;
       case (kSpp_vn_cc_10010) : return "v n -> l- p pi0";   break;
-      case (kSpp_vn_cc_01100) : return "v n -> l- n pi+";   break; 
+      case (kSpp_vn_cc_01100) : return "v n -> l- n pi+";   break;
 
       case (kSpp_vp_nc_10010) : return "v p -> v p pi0";    break;
       case (kSpp_vp_nc_01100) : return "v p -> v n pi+";    break;
@@ -240,7 +239,7 @@ public:
     return 0;
   }
   //__________________________________________________________________________
-  // The values of resonance branching ratio is taken from 
+  // The values of resonance branching ratio is taken from
   //  K.A. Olive et al. (Particle Data Group), Chin. Phys. C, 38, 090001 (2014)
   static double BranchingRatio(SppChannel_t /*channel*/, Resonance_t res)
   {
@@ -300,7 +299,7 @@ public:
     int probe = init_state.ProbePdg();
 
     // figure out spp channel
-    if( pdg::IsNeutrino(probe) ) { 
+    if( pdg::IsNeutrino(probe) ) {
 
        if ( proc_info.IsWeakCC() ) {
           if      (hit_p && fs_p && fs_pi_plus ) return kSpp_vp_cc_10100;
@@ -315,7 +314,7 @@ public:
           else                                   return kSppNull;
        } else return kSppNull;
 
-    } else if( pdg::IsAntiNeutrino(probe) ) { 
+    } else if( pdg::IsAntiNeutrino(probe) ) {
 
        if ( proc_info.IsWeakCC() ) {
           if      (hit_n && fs_n && fs_pi_minus) return kSpp_vbn_cc_01001;

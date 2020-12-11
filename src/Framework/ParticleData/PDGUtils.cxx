@@ -1,11 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
-
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ 
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
          Changes required to implement the GENIE Boosted Dark Matter module
          were installed by Josh Berger (Univ. of Wisconsin)
@@ -33,7 +32,7 @@ bool genie::pdg::IsPseudoParticle(int pdgc)
        (pdgc > 2000000000 && pdgc < 2000100000) ||
        (pdgc == kPdgCluster || pdgc == kPdgString || pdgc == kPdgIndep)
      );
-      
+
   return is_fake;
 }
 //____________________________________________________________________________
@@ -232,7 +231,16 @@ bool genie::pdg::IsDiQuark(int pdgc)
            pdgc == kPdgUDDiquarkS1 || pdgc == kPdgUUDiquarkS1 ||
            pdgc == kPdgSDDiquarkS0 || pdgc == kPdgSDDiquarkS1 ||
            pdgc == kPdgSUDiquarkS0 || pdgc == kPdgSUDiquarkS1 ||
-           pdgc == kPdgSSDiquarkS1
+           pdgc == kPdgSSDiquarkS1 || 
+           pdgc == kPdgCDDiquarkS0 || pdgc == kPdgCDDiquarkS1 || 
+           pdgc == kPdgCUDiquarkS0 || pdgc == kPdgCUDiquarkS1 || 
+           pdgc == kPdgCSDiquarkS0 || pdgc == kPdgCSDiquarkS1 || 
+           pdgc == kPdgCCDiquarkS1 || 
+           pdgc == kPdgBDDiquarkS0 || pdgc == kPdgBDDiquarkS1 || 
+           pdgc == kPdgBUDiquarkS0 || pdgc == kPdgBUDiquarkS1 || 
+           pdgc == kPdgBSDiquarkS0 || pdgc == kPdgBSDiquarkS1 || 
+           pdgc == kPdgBCDiquarkS0 || pdgc == kPdgBCDiquarkS1 || 
+           pdgc == kPdgBBDiquarkS1
          );
 }
 //____________________________________________________________________________
@@ -272,6 +280,16 @@ bool genie::pdg::IsCQuark(int pdgc)
   return (pdgc == kPdgCQuark);
 }
 //____________________________________________________________________________
+bool genie::pdg::IsBQuark(int pdgc)
+{
+  return (pdgc == kPdgBQuark);
+}
+//____________________________________________________________________________
+bool genie::pdg::IsTQuark(int pdgc)
+{
+  return (pdgc == kPdgTQuark);
+}
+//____________________________________________________________________________
 bool genie::pdg::IsAntiUQuark(int pdgc)
 {
   return (pdgc == kPdgAntiUQuark);
@@ -290,6 +308,16 @@ bool genie::pdg::IsAntiSQuark(int pdgc)
 bool genie::pdg::IsAntiCQuark(int pdgc)
 {
   return (pdgc == kPdgAntiCQuark);
+}
+//____________________________________________________________________________
+bool genie::pdg::IsAntiBQuark(int pdgc)
+{
+  return (pdgc == kPdgAntiBQuark);
+}
+//____________________________________________________________________________
+bool genie::pdg::IsAntiTQuark(int pdgc)
+{
+  return (pdgc == kPdgAntiTQuark);
 }
 //____________________________________________________________________________
 bool genie::pdg::IsPion(int pdgc)
@@ -382,9 +410,9 @@ int genie::pdg::GeantToPdg(int geant_code)
   if(geant_code ==  3) return kPdgElectron;     //    11 / e-
   if(geant_code ==  2) return kPdgPositron;     //   -11 / e+
   if(geant_code ==  6) return kPdgMuon;         //    13 / mu-
-  if(geant_code ==  5) return kPdgAntiMuon;     //   -13 / mu+             
+  if(geant_code ==  5) return kPdgAntiMuon;     //   -13 / mu+
   if(geant_code == 34) return kPdgTau;          //    15 / tau-
-  if(geant_code == 33) return kPdgAntiTau;      //   -15 / tau+              
+  if(geant_code == 33) return kPdgAntiTau;      //   -15 / tau+
   if(geant_code ==  8) return kPdgPiP;          //   211 / pi+
   if(geant_code ==  9) return kPdgPiM;          //  -211 / pi-
   if(geant_code ==  7) return kPdgPi0;          //   111 / pi0
@@ -437,4 +465,3 @@ int genie::pdg::GeantToPdg(int geant_code)
   return 0;
 }
 //____________________________________________________________________________
-

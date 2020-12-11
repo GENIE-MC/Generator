@@ -5,14 +5,13 @@
 
 \brief   Validity Context for an Event Generator
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created November 20, 2004
 
-\cpright Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -45,9 +44,9 @@ public :
 
   double Emin    (void) const { return fEmin; }
   double Emax    (void) const { return fEmax; }
-  
+
   void   Print   (ostream & stream) const;
- 
+
   friend ostream & operator<< (ostream & stream, const GVldContext & vldc);
 
 private:
@@ -55,7 +54,7 @@ private:
   void Init(void);
 
   void DecodeENERGY (string encoded_values);
-    
+
   double fEmin;  // min probe energy in validity range
   double fEmax;  // max probe energy in validity range
 };

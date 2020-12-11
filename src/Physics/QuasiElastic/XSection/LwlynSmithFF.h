@@ -11,17 +11,13 @@
           (related to the Llewellyn-Smith model for QEL vN scattering) to its
           concrete subclasses: LwlynSmithFFCC, LwlynSmithFFNC.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  May 03, 2004
 
-
-\update   AM - Changed axial form factor calculation to an algorithm with a
-          configurable model
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -66,15 +62,15 @@ protected:
   virtual double GVE    (const Interaction * interaction) const;
   virtual double GVM    (const Interaction * interaction) const;
 
-  virtual double F1P    (const Interaction * interaction) const;  
-  virtual double F2P    (const Interaction * interaction) const;  
-  virtual double F1N    (const Interaction * interaction) const;  
-  virtual double F2N    (const Interaction * interaction) const;  
- 
+  virtual double F1P    (const Interaction * interaction) const;
+  virtual double F2P    (const Interaction * interaction) const;
+  virtual double F1N    (const Interaction * interaction) const;
+  virtual double F2N    (const Interaction * interaction) const;
+
   virtual double StrangeF1V   (const Interaction * interaction) const;
   virtual double StrangexiF2V (const Interaction * interaction) const;
   virtual double StrangeFA    (const Interaction * interaction) const;
-  
+
   const ELFormFactorsModelI   * fElFFModel;
   const AxialFormFactorModelI * fAxFFModel;
 
@@ -84,11 +80,10 @@ protected:
   double fMuP;
   double fMuN;
   double fSin28w;
-  double fFDratio;   
+  double fFDratio;
   bool fCleanUpfElFFModel;
 };
 
 }       // genie namespace
 
-#endif  
-
+#endif

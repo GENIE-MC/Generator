@@ -1,7 +1,7 @@
 #
 # Makefile for GENIE test programs
 #
-# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
 #
 
 SHELL = /bin/sh
@@ -15,13 +15,14 @@ include $(GENIE)/src/make/Make.include
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
+#gtestDecay		 \
+#gtestHadronization	 \
 
 TGT =	gtestAlgorithms 	 \
 	gtestAxialFormFactor     \
 	gtestBLI2DUnifGrid       \
 	gtestCmdLnArg		 \
  	gtestConfigPool		 \
- 	gtestDecay		 \
  	gtestDISSF		 \
  	gtestElFormFactors	 \
  	gtestEventLoop 		 \
@@ -30,7 +31,6 @@ TGT =	gtestAlgorithms 	 \
  	gtestFluxSimple 	 \
 	gtestFGPauliBlockSuppr   \
         gtestGiBUUData           \
-	gtestHadronization	 \
 	gtestINukeHadroData      \
 	gtestMessenger		 \
 	gtestNaturalIsotopes	 \
@@ -43,7 +43,8 @@ TGT =	gtestAlgorithms 	 \
 	gtestRegistry		 \
 	gtestInteraction	 \
 	gtestResonances		 \
-	gtestKPhaseSpace	
+	gtestKPhaseSpace	 \
+	gtestGAtmoFlux	
 
 all: $(TGT)
 
@@ -191,6 +192,10 @@ else
 	@echo "You need to enable the geometry drivers to build the gtestROOTGeometry program"
 endif
 
+gtestGAtmoFlux: FORCE
+	$(CXX) $(CXXFLAGS) -c gtestGAtmoFlux.cxx $(CPP_INCLUDES)
+	$(LD) $(LDFLAGS) gtestGAtmoFlux.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestGAtmoFlux
+
 #################### CLEANING
 
 purge: FORCE
@@ -224,6 +229,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_PATH)/gtestResonances		
 	$(RM) $(GENIE_BIN_PATH)/gtestKPhaseSpace	
+	$(RM) $(GENIE_BIN_PATH)/gtestGAtmoFlux	
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
 	$(RM) $(GENIE_BIN_PATH)/gtestMuELoss		
 endif
@@ -258,6 +264,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestResonances		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestKPhaseSpace	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestGAtmoFlux	
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMuELoss		
 endif

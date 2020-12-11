@@ -1,60 +1,17 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Feb 05, 2008 - CA
-   This class was added in 2.3.1 by code factored out from the concrete
-   GFLUKAAtmoFlux driver & the newer, largely similar, GBGLRSAtmoFlux
-   driver.
- @ Feb 23, 2010 - CA
-   Re-structuring and clean-up. Added option to generate weighted flux.
-   Added option to specify a maximum energy cut.
- @ Feb 24, 2010 - CA
-   Added option to specify a minimum energy cut.
- @ Sep 22, 2010 - TF, CA
-   Added SetUserCoordSystem(TRotation &) to specify a rotation from the
-   Topocentric Horizontal (THZ) coordinate system to a user-defined
-   topocentric coordinate system. Added NFluxNeutrinos() to get number of
-   flux neutrinos generated for sample normalization purposes (note that, in
-   the presence of cuts, this is not the same as the number of flux neutrinos
-   thrown towards the geometry).
- @ Feb 22, 2011 - JD
-   Implemented dummy versions of the new GFluxI::Clear and GFluxI::Index as
-   these methods needed for pre-generation of flux interaction probabilities
-   in GMCJDriver.
- @ Feb 03, 2011 - TF
-   Bug fixed: events are now generated randomly and uniformly on a disc with
-   R = R_{transverse}
- @ Feb 23, 2012 - AB
-   Bug fixed: events were being generated according to the differential flux
-   in each energy bin, dPhi/dE, rather than the total flux, Phi, in each bin.
-   This has now been fixed.
- @ Jul 13, 2015 - CA
-   Changed all internal flux histograms from 2-D to 3-D to accomodate fluxes
-   (HAKKM) with phi dependence. Changed several names accordingly. For FLUKA
-   and BGLRS fluxes, just add a single phi bin from 0 to 2*pi.
- @ Apr 13, 2016 - CA
-   Added AddFluxFile() without neutrino PDG code argument for the case that
-   the input data file (as it is the case for HAKKM) includes all species.
-   The pure virtual method FillFluxHisto() now takes a neutrino PDG code
-   rather than a TH3D ptr input and it is expected to retrieve the TH3D flux
-   itself. This change was made to easily fit HAKKM in the code already used
-   by FLUKA and BGLRS.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
 #include <cassert>
 #include <iostream>
 #include <fstream>
+#include <cmath>
 
 #include <TH3D.h>
 #include <TMath.h>
@@ -417,6 +374,22 @@ void GAtmoFlux::SetRadii(double Rlongitudinal, double Rtransverse)
   fRl = Rlongitudinal;
   fRt = Rtransverse;
 }
+
+double GAtmoFlux::GetFluxSurfaceArea(void)
+{
+  return kPi*pow(fRt,2);
+}
+
+double GAtmoFlux::GetLongitudinalRadius(void)
+{
+  return fRl;
+}
+
+double GAtmoFlux::GetTransverseRadius(void)
+{
+  return fRt;
+}
+
 //___________________________________________________________________________
 void GAtmoFlux::AddFluxFile(int nu_pdg, string filename)
 {
@@ -454,7 +427,7 @@ void GAtmoFlux::AddFluxFile(string filename)
   fFluxFlavour.push_back(kPdgAntiNuE);  fFluxFile.push_back(filename);
   fFluxFlavour.push_back(kPdgNuMu);     fFluxFile.push_back(filename);
   fFluxFlavour.push_back(kPdgAntiNuMu); fFluxFile.push_back(filename);
-  
+
 }
 //___________________________________________________________________________
 //void GAtmoFlux::SetFluxFile(int nu_pdg, string filename)
@@ -483,16 +456,20 @@ bool GAtmoFlux::LoadFluxData(void)
     TH3D* hist = 0;
     std::map<int,TH3D*>::iterator myMapEntry = fRawFluxHistoMap.find(nu_pdg);
     if( myMapEntry == fRawFluxHistoMap.end() ){
-//      hist = myMapEntry->second;
-//      if(hist==0) {
         hist = this->CreateFluxHisto(pname.c_str(), pname.c_str());
         fRawFluxHistoMap.insert( map<int,TH3D*>::value_type(nu_pdg,hist) );
-//      }
     }
     // now let concrete instances to read the flux-specific data files
     // and fill the histogram
     bool loaded = this->FillFluxHisto(nu_pdg, filename);
+
     loading_status = loading_status && loaded;
+
+    if (!loaded) {
+        LOG("Flux", pERROR)
+          << "Error loading atmospheric neutrino flux simulation data from " << filename;
+        break;
+    }
   }
 
   if(loading_status) {
@@ -658,6 +635,78 @@ TH3D* GAtmoFlux::GetFluxHistogram(int flavour)
   }
   return histogram;
 }
+
+/* Returns the total integrated flux in units of 1/(m^2 s). */
+double GAtmoFlux::GetTotalFlux(void)
+{
+  double flux = 0.0;
+  map<int,TH3D*>::iterator rawiter;
+
+  rawiter = fRawFluxHistoMap.begin();
+  for (; rawiter != fRawFluxHistoMap.end(); ++rawiter) {
+    TH3D *h = rawiter->second;
+    if (h) {
+      flux += h->Integral("width");
+      LOG("Flux", pDEBUG) << "Total flux for " << rawiter->first << " equals " << h->Integral("width") << ".";
+    }
+  }
+
+  return flux;
+}
+
+/* Returns the total integrated flux in units of * 1/(m^2 s) between the
+ * minimum and maximum energy. */
+double GAtmoFlux::GetTotalFluxInEnergyRange(void)
+{
+  double flux = 0.0;
+  map<int,TH3D*>::iterator rawiter;
+  int e_min_bin, e_max_bin;
+  double Emin, Emax;
+
+  Emin = this->MinEnergy();
+  Emax = this->MaxEnergy();
+
+  if (Emax < Emin) {
+      LOG("Flux", pFATAL) << "Emax = " << Emax << " is less than Emin = " << Emin;
+      exit(-1);
+  }
+
+  rawiter = fRawFluxHistoMap.begin();
+  for (; rawiter != fRawFluxHistoMap.end(); ++rawiter) {
+    TH3D *h = rawiter->second;
+
+    if (!h) continue;
+
+    /* Get the bins containing `emin` and `emax`. */
+    e_min_bin = h->GetXaxis()->FindBin(Emin);
+    e_max_bin = h->GetXaxis()->FindBin(Emax);
+
+    if (e_min_bin > h->GetXaxis()->GetNbins()) {
+      /* If the minimum bin is past the end, continue. */
+      continue;
+    } else if (e_min_bin == e_max_bin) {
+      /* If they both end up in the same bin, we just take the total bin
+       * contents in that energy bin and multiply by the difference between
+       * the energies. */
+      flux += h->Integral(e_min_bin,e_min_bin,1,h->GetYaxis()->GetNbins(),1,h->GetZaxis()->GetNbins(),"width")*(Emax - Emin)/(h->GetXaxis()->GetBinUpEdge(e_min_bin)-h->GetXaxis()->GetBinLowEdge(e_min_bin));
+    } else {
+      /* First we calculate the integral within that bin from `emin` to the top
+       * edge of the bin. */
+      if (e_min_bin > 0)
+          flux += h->Integral(e_min_bin,e_min_bin,1,h->GetYaxis()->GetNbins(),1,h->GetZaxis()->GetNbins(),"width")*(h->GetXaxis()->GetBinUpEdge(e_min_bin) - Emin)/(h->GetXaxis()->GetBinUpEdge(e_min_bin)-h->GetXaxis()->GetBinLowEdge(e_min_bin));
+      /* Next, we calculate the integral for all the bins between the min and
+       * max bin. */
+      if (e_min_bin < h->GetXaxis()->GetNbins())
+          flux += h->Integral(e_min_bin+1,e_max_bin-1,1,h->GetYaxis()->GetNbins(),1,h->GetZaxis()->GetNbins(),"width");
+      /* Finally, we calculate the integral for the last bin. */
+      if (e_max_bin <= h->GetXaxis()->GetNbins())
+          flux += h->Integral(e_max_bin,e_max_bin,1,h->GetYaxis()->GetNbins(),1,h->GetZaxis()->GetNbins(),"width")*(Emax - h->GetXaxis()->GetBinLowEdge(e_max_bin))/(h->GetXaxis()->GetBinUpEdge(e_max_bin)-h->GetXaxis()->GetBinLowEdge(e_max_bin));
+    }
+  }
+
+  return flux;
+}
+
 //___________________________________________________________________________
 double GAtmoFlux::GetFlux(int flavour)
 {

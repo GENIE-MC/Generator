@@ -18,7 +18,7 @@
          event generation casesrequired for many 4-vector level / systematic
          studies.
          Please see the GENIE documentation (http://www.genie-mc.org) and
-         contact me <costas.andreopoulos \at stfc.ac.uk> if in doubt.
+         contact me <constantinos.andreopoulos \at cern.ch> if in doubt.
 
          *** Synopsis :
 
@@ -257,17 +257,17 @@
 
          Please read the GENIE user manual for more information.
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
          Robert Hatcher <rhatcher \at fnal.gov>
          Fermi National Accelerator Laboratory
 
 \created August 20, 2008
 
-\cpright Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //_________________________________________________________________________________________
 
@@ -1680,14 +1680,23 @@ void ParseFluxHst(string flux)
       PrintSyntax();
       exit(1);
     }
-    // create a local copy of the input histogram
-    TH1D * spectrum = new TH1D(
-            histo.c_str(), histo.c_str(), ihst->GetNbinsX(),
-            ihst->GetXaxis()->GetXmin(), ihst->GetXaxis()->GetXmax());
+
+    // Copy in the flux histogram from the root file
+    // use Clone rather than assuming fix bin widths and rebooking
+    TH1D* spectrum = (TH1D*)ihst->Clone();
+    spectrum->SetNameTitle("spectrum","neutrino_flux");
     spectrum->SetDirectory(0);
-    for(int ibin = 1; ibin <= ihst->GetNbinsX(); ibin++) {
-      spectrum->SetBinContent(ibin, ihst->GetBinContent(ibin));
-    }
+    //// and remove bins outside the emin,emax range (not for gFNALExptEvGen)
+    //for(int ibin = 1; ibin <= hst->GetNbinsX(); ibin++) {
+    //  if(hst->GetBinLowEdge(ibin) + hst->GetBinWidth(ibin) > emax ||
+    //     hst->GetBinLowEdge(ibin) < emin) {
+    //    spectrum->SetBinContent(ibin, 0);
+    //  }
+    //}
+
+    // get rid of original
+    delete ihst;
+
     // convert neutrino name -> pdg code
     int pdg = atoi(nutype.c_str());
     if(!pdg::IsNeutrino(pdg) && !pdg::IsAntiNeutrino(pdg)) {

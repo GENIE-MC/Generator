@@ -5,21 +5,21 @@
 
 \brief   Program used for testing / debugging GENIE's Registry
 
-\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created May 4, 2004
 
-\cpright Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //____________________________________________________________________________
 
 #include <TH1F.h>
 
-#include "Registry/Registry.h"
-#include "Messenger/Messenger.h"
+#include "Framework/Registry/Registry.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 

@@ -1,11 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
-
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ 
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -48,7 +47,7 @@ MCTruthDisplay::~MCTruthDisplay()
 
 }
 //______________________________________________________________________________
-void MCTruthDisplay::DrawDiagram(EventRecord * event) 
+void MCTruthDisplay::DrawDiagram(EventRecord * event)
 {
    if(!fEmbeddedCanvas) return;
 
@@ -62,7 +61,7 @@ void MCTruthDisplay::DrawDiagram(EventRecord * event)
    fEmbeddedCanvas->GetCanvas()->SetBorderMode(0);
 
    GHepParticle * target = event->TargetNucleus();
-   if(target) {  
+   if(target) {
       int A = target->A();
       double R = nuclear::Radius(A);
       TEllipse grpx_target(0,0,R,R);
@@ -91,7 +90,7 @@ void MCTruthDisplay::PrintEventRecord(EventRecord * event)
   ostringstream ghep;
   ghep << *event;
   string ghepstr = ghep.str(); // GHEP record as a single string
-  
+
   // split GHEP string to get 1 line per particle - use '\n' as delimiter
   vector<string> lines;
   string delim = string("\n");
@@ -101,13 +100,12 @@ void MCTruthDisplay::PrintEventRecord(EventRecord * event)
      ghepstr = ghepstr.substr(
           ghepstr.find_first_of(delim)+1, ghepstr.length());
   }
-  lines.push_back(ghepstr);  
+  lines.push_back(ghepstr);
 
   // print GHEP entries to TGTextView
   vector<string>::iterator line_iter;
   for(line_iter = lines.begin(); line_iter != lines.end(); ++line_iter) {
     fGTxt->AddLine( line_iter->c_str() );
-  }                                                                             
+  }
 }
 //______________________________________________________________________________
-

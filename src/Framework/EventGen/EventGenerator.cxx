@@ -1,21 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
- For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+ Copyright (c) 2003-2020, The GENIE Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org 
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Mar 05, 2010 - CA
-   User options regarding whether to pass-through unphysical events take
-   precedence over processing instructions read from caught exception.
- @ Feb 01, 2013 - CA
-   The GUNPHYSMASK env. var is no longer used. The bit-field mask is stored
-   in the GHEP record and GHepRecord::Accept() is now checked.
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 

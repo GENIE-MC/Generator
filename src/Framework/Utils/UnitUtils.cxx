@@ -1,18 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - May 06, 2004
-
- For documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ June 3, 2008 - CA
-   Added clhep_def_density_unit. Setting unknown units causes GENIE to exit.
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
@@ -95,7 +87,7 @@ double genie::utils::units::UnitFromString(string u)
   else if (u == "mg"              ) return  genie::units::mg;
 
   else if (u == "kilogram_meter3" ) return  genie::units::kilogram_meter3;
-  else if (u == "gram_centimeter3") return  genie::units::gram_centimeter3; 
+  else if (u == "gram_centimeter3") return  genie::units::gram_centimeter3;
   else if (u == "kg_m3"           ) return  genie::units::kg_m3;
   else if (u == "g_cm3"           ) return  genie::units::g_cm3;
 
@@ -125,7 +117,7 @@ double genie::utils::units::UnitFromString(string u)
   else if (u == "nb"              ) return  genie::units::nb;
   else if (u == "pb"              ) return  genie::units::pb;
 
-  else if (u == "clhep_def_density_unit") 
+  else if (u == "clhep_def_density_unit")
                 return  genie::units::clhep_def_density_unit;
 
   else {
@@ -135,5 +127,3 @@ double genie::utils::units::UnitFromString(string u)
   return 1.;
 }
 //____________________________________________________________________________
-
-

@@ -1,16 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - December 10, 2003
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -58,7 +52,7 @@ double BetheBlochModel::dE_dx(double E, MuELMaterial_t mt) const
    double Na      = kNA;              // Avogadro's number
    double lamda2 =  kLe2/units::cm2;  // (e compton wavelength)^2 in cm^2
    double me      = kElectronMass;    // in GeV
-   double me2     = kElectronMass2; 
+   double me2     = kElectronMass2;
    double mmu     = kMuonMass;        // in GeV
    double mmu2    = kMuonMass2;
    double E2      = TMath::Power(E,2);
@@ -66,7 +60,7 @@ double BetheBlochModel::dE_dx(double E, MuELMaterial_t mt) const
    double beta2   = TMath::Power(beta,2);
    double gamma   = E/mmu;
    double gamma2  = TMath::Power(gamma,2);
-   double I       = BetheBlochMaterialParams::IonizationPotential(mt) * units::eV; 
+   double I       = BetheBlochMaterialParams::IonizationPotential(mt) * units::eV;
    double I2      = TMath::Power(I,2); // in GeV^2
 
    // Calculate the maximum energy transfer to the electron (in GeV)
@@ -96,12 +90,10 @@ double BetheBlochModel::dE_dx(double E, MuELMaterial_t mt) const
 
    // Calculate the -dE/dx
    double de_dx =  a2 * (2*kPi*Na*lamda2) * Z_A * (me/beta2) *
-                    (TMath::Log( 2*me*beta2*gamma2*Emaxt/I2 ) - 
+                    (TMath::Log( 2*me*beta2*gamma2*Emaxt/I2 ) -
                                       2*beta2 + 0.25*(Emaxt2/E2) - delta);
 
    de_dx *= (units::GeV/(units::g/units::cm2));
    return de_dx; // in GeV^-2
 }
 //____________________________________________________________________________
-
-

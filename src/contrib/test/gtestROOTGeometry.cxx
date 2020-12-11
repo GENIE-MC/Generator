@@ -49,14 +49,14 @@
 \Author  Anselmo Meregaglia <anselmo.meregaglia@cern.ch>
          ETH Zurich
 
-         Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
          STFC, Rutherford Appleton Lab
 
 \created August 11, 2005
 
-\cpright Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         or see $GENIE/LICENSE
+         
 */
 //____________________________________________________________________________
 
@@ -72,13 +72,13 @@
 #include <TApplication.h>
 #include <TPolyMarker3D.h>
 
-#include "Conventions/Constants.h"
-#include "Geo/ROOTGeomAnalyzer.h"
-#include "EVGDrivers/PathLengthList.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "Utils/StringUtils.h"
-#include "Utils/CmdLnArgParser.h"
+#include "Framework/Conventions/Constants.h"
+#include "Tools/Geometry/ROOTGeomAnalyzer.h"
+#include "Framework/EventGen/PathLengthList.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/Utils/StringUtils.h"
+#include "Framework/Utils/CmdLnArgParser.h"
 
 using std::string;
 using std::vector;

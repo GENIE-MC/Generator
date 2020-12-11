@@ -5,14 +5,13 @@
 
 \brief      Simple utilities for integrating GSL in the GENIE framework
 
-\author     Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-            University of Liverpool & STFC Rutherford Appleton Lab
+\author     Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+            University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created    May 06, 2004
 
-\cpright    Copyright (c) 2003-2019, The GENIE Collaboration
-            For the full text of the license visit http://copyright.genie-mc.org
-            or see $GENIE/LICENSE
+\cpright    Copyright (c) 2003-2020, The GENIE Collaboration
+            For the full text of the license visit http://copyright.genie-mc.org            
 */
 //____________________________________________________________________________
 
@@ -25,10 +24,10 @@ namespace genie {
 namespace utils {
 namespace gsl   {
 
-  ROOT::Math::IntegrationOneDim::Type   
+  ROOT::Math::IntegrationOneDim::Type
        Integration1DimTypeFromString (string type);
 
-  ROOT::Math::IntegrationMultiDim::Type 
+  ROOT::Math::IntegrationMultiDim::Type
        IntegrationNDimTypeFromString (string type);
 
 } // namespace gsl
@@ -36,4 +35,3 @@ namespace gsl   {
 } // namespace genie
 
 #endif // _GSL_UTILS_H_
-
