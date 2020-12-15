@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<global_param_list>
+
+  <param_set name="Default">
+    <param type="alg" name="XSecModel@genie::EventGenerator/EventLibraryInterface"> genie::evtlib::EvtLibPXSec/Default </param>
+   </param_set>
+
+
+</global_param_list>

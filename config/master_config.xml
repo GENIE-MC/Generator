@@ -244,4 +244,8 @@
    <!-- ****** CONFIGURATION FOR REWEIGHT ALGORITHMS ****** -->
    <config alg="genie::rew::GSystUncertaintyTable">     GSystUncertaintyTable.xml        </config>
 
+ <!-- ****** EvtLib / EventLibraryInterface ****** -->
+   <config alg="genie::evtlib::EventLibraryInterface">          EventLibraryInterface.xml          </config>
+   <config alg="genie::evtlib::EvtLibInteractionListGenerator"> EvtLibInteractionListGenerator.xml </config>
+   <config alg="genie::evtlib::EvtLibPXSec">                    EvtLibPXSec.xml                    </config>
 </genie_config>

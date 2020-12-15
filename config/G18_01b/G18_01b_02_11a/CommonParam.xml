@@ -24,9 +24,9 @@ University of Liverpool
 
   <param_set name="Tunable">
     <!-- Reserved register for tuning -->
-    <param type="double" name="RES-Ma"> 1.093718 </param>
-    <param type="double" name="DIS-XSecScale"> 1.031873 </param>
-    <param type="double" name="RES-CC-XSecScale"> 0.887983 </param>
+    <param type="double" name="RES-Ma">   0.989013 </param>
+    <param type="double" name="DIS-XSecScale"> 1.058279 </param>
+    <param type="double" name="RES-CC-XSecScale"> 0.870225 </param>
   </param_set>
 
   <param_set name="KNO2Pythia">
@@ -95,27 +95,27 @@ University of Liverpool
 
     -->
     <param type="bool"   name="UseDRJoinScheme"> true </param>
-    <param type="double" name="Wcut"> 1.936000 </param>
+    <param type="double" name="Wcut">  2.280200  </param>
 
     <!--
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	NEUGEN parameters applied to DIS hadronic multiplicity distributions
 	to avoid 2-ble counting with RES
     -->
-    <param type="double" name="DIS-HMultWgt-vp-CC-m2">  0.065472 </param>
-    <param type="double" name="DIS-HMultWgt-vp-CC-m3">  1.109669 </param>
+    <param type="double" name="DIS-HMultWgt-vp-CC-m2">  0.151143 </param>
+    <param type="double" name="DIS-HMultWgt-vp-CC-m3">  0.622996 </param>
     <param type="double" name="DIS-HMultWgt-vp-NC-m2">  0.100  </param>
     <param type="double" name="DIS-HMultWgt-vp-NC-m3">  1.000  </param>
-    <param type="double" name="DIS-HMultWgt-vn-CC-m2">  0.142992  </param>
-    <param type="double" name="DIS-HMultWgt-vn-CC-m3">  2.783974  </param>
+    <param type="double" name="DIS-HMultWgt-vn-CC-m2">  0.158376  </param>
+    <param type="double" name="DIS-HMultWgt-vn-CC-m3">  1.335991  </param>
     <param type="double" name="DIS-HMultWgt-vn-NC-m2">  0.300  </param>
     <param type="double" name="DIS-HMultWgt-vn-NC-m3">  1.000  </param>
-    <param type="double" name="DIS-HMultWgt-vbp-CC-m2"> 0.142992  </param>
-    <param type="double" name="DIS-HMultWgt-vbp-CC-m3"> 2.783974  </param>
+    <param type="double" name="DIS-HMultWgt-vbp-CC-m2"> 0.158376  </param>
+    <param type="double" name="DIS-HMultWgt-vbp-CC-m3"> 1.335991  </param>
     <param type="double" name="DIS-HMultWgt-vbp-NC-m2"> 0.300  </param>
     <param type="double" name="DIS-HMultWgt-vbp-NC-m3"> 1.000  </param>
-    <param type="double" name="DIS-HMultWgt-vbn-CC-m2"> 0.065472 </param>
-    <param type="double" name="DIS-HMultWgt-vbn-CC-m3"> 1.109669 </param>
+    <param type="double" name="DIS-HMultWgt-vbn-CC-m2"> 0.151143 </param>
+    <param type="double" name="DIS-HMultWgt-vbn-CC-m3"> 0.622996 </param>
     <param type="double" name="DIS-HMultWgt-vbn-NC-m2"> 0.100  </param>
     <param type="double" name="DIS-HMultWgt-vbn-NC-m3"> 1.000  </param>
 
@@ -247,7 +247,7 @@ Or changing the name of this parameter set
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Axial and vector masses for quasi-elastic scattering
     -->
-    <param type="double" name="QEL-Ma"> 1.000892 </param>
+    <param type="double" name="QEL-Ma"> 0.990 </param>
     <param type="double" name="QEL-Mv"> 0.840 </param>
 
   </param_set>
