@@ -239,7 +239,8 @@ void event_proc( TTree * in_tree, TFile & ofile ) {
         double theta_g = gamma.Angle( probe.Vect() ) ;
         double phi_g = GammaPhi( probe, gamma, lep ) ;
 
-        if ( theta_l < theta_l_lim.first || theta_l > theta_l_lim.second )  {  mcrec->Clear(); continue; }
+        // Follow the ROOT histogram convection of bin lower limit inclusive upper limit exclusive
+        if ( theta_l <= theta_l_lim.first || theta_l > theta_l_lim.second )  {  mcrec->Clear(); continue; }
         
         h_Eg_thetag_phig -> Fill( gamma.E(), theta_g, phi_g ) ;
 
@@ -336,8 +337,8 @@ void ComputeCOHGammXSec( double xsec, TH3 * h_Eg_thetag_phig ) {
         // Calculate xsec from events
         xsec_i_arr[b-1] = ( 1.e3 ) * xsec * ( Ni / g_nevts ) / ( Eg_width * g_theta_l_width * theta_g_width * phi_g_width );
 
-        x_err[b] = Eg_width / 2.;
-        y_err[b] = ( xsec_i_arr[b-1] / Ni ) * h_E_g -> GetBinError( b );
+        x_err[b-1] = Eg_width / 2.;
+        y_err[b-1] = ( xsec_i_arr[b-1] / Ni ) * h_E_g -> GetBinError( b );
 
         // Get the xsec from the functor at given 4d point
         std::array<double, 4> point = {Eg, g_theta_l, theta_g, phi_g};
