@@ -17,9 +17,9 @@ University of Sussex
 <common_Dark_list>
 
     <param_set name="Mixing">
-      <param type="double" name="Dark-KineticMixing"> 1.7e-4 </param>
+      <param type="double" name="Dark-KineticMixing"> 1.66e-4 </param>
       <param type="bool" name="Dark-Mixing-ForceUnitarity"> true </param>
-      <param type="vec-double" name="Dark-Mixings2" delim=";"> 1e-10 ; 1e-8 ; 1e-10 </param>
+      <param type="vec-double" name="Dark-Mixings2" delim=";"> 1e-10 ; 9e-7 ; 1e-10 </param>
       <param type="double" name="Dark-Alpha"> 0.25 </param>
     </param_set>
 
