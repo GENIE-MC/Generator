@@ -76,7 +76,8 @@ private:
 
   void  LoadConfig (void);
   void  BuildInitialState(const InitialState & init_state);
-  bool  ToBeDecayed       (GHepParticle * particle) const;
+  bool  ToBeDecayed        (GHepParticle * particle) const;
+  bool  ParticleWasRadiated(GHepParticle * particle) const;
 
   bool 		 fISR;                 ///< to distinguish between ISR and FSR
   std::string	 fModel;               ///< to distinguish between differnt models, right now simc / vanderhagen
