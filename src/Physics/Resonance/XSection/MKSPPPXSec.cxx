@@ -43,7 +43,6 @@
 #include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Physics/NuclearState/NuclearUtils.h"
 
-#include <limits>
 #include <algorithm>
 
 
@@ -99,13 +98,15 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double W2  = W*W;
   double Wt2 = W*2;
   
+  
+  // dimension of kine phase space
+  std::string s = KinePhaseSpace::AsString(kps);
+  int kpsdim = 1 + std::count(s.begin(), s.end(), ',');
   // Pion angles should be given in Adler frame
   double CosTheta = kinematics.GetKV(kKVctp);
-  double Phi;      
-  if (kps == kPSWQ2ctpphipfE)
+  double Phi = 0.;      
+  if (kpsdim == 4)
     Phi = kinematics.GetKV(kKVphip);
-  else
-    Phi = 0;
   
   double SinTheta   = TMath::Sqrt(1. - CosTheta*CosTheta);
   double SinHalfTheta = TMath::Sqrt((1 - CosTheta)/2);
@@ -124,7 +125,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double q_0               = (W2 - M2 + m_pi2)/Wt2;
   double q_02              = q_0*q_0;
   double k_0               = (W2 - M2 - Q2)/Wt2;
-  double abs_mom_q         = (q_02 - m_pi2)<=0?std::numeric_limits<double>::epsilon():TMath::Sqrt(q_02 - m_pi2);
+  double abs_mom_q         = TMath::Sqrt(q_02 - m_pi2);
   double abs_mom_k         = TMath::Sqrt(k_0*k_0 + Q2);
   //double E_2L              = (M2 - W2 - Q2 + Mt2*E)/Mt2;
   double abs_mom_k_L       = W*abs_mom_k/M;
@@ -134,37 +135,38 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double p_10              = (W2 + M2 + Q2)/Wt2;
   double qk                = q_0*k_0 - abs_mom_k*abs_mom_q*CosTheta; 
   //double k_2L              = TMath::Sqrt(E_2L*E_2L - ml2);         //magnitude of lepton momentum in lab frame
-  double k_2_iso           = (k_2 - ml)<0?0:TMath::Sqrt(k_2*k_2 - ml2);   //magnitude of lepton momentum in isobaric frame
-  double cos_theta         = k_2_iso==0?0:(2*k_1*k_2  - Q2 - ml2)/2/k_1/k_2_iso;
+  double k_2_iso           = TMath::Sqrt(k_2*k_2 - ml2);   //magnitude of lepton momentum in isobaric frame
+  double cos_theta         = (2*k_1*k_2 - Q2 - ml2)/2/k_1/k_2_iso;
+
   // Eq. 7 of ref. 1
-  double A_plus            = (k_1*(k_2 - k_2_iso))<0?0:TMath::Sqrt( k_1*(k_2 - k_2_iso) );
-  double A_minus           = (k_1*(k_2 + k_2_iso))<0?0:TMath::Sqrt( k_1*(k_2 + k_2_iso) );
+  double A_plus            = TMath::Sqrt( k_1*(k_2 - k_2_iso) );
+  double A_minus           = TMath::Sqrt( k_1*(k_2 + k_2_iso) );
+  //Eq. 6 of ref. 1
+  double eps_1_plus        =  2.*A_plus *(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1. + cos_theta);
+  double eps_1_minus       =  -2.*A_minus*(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1. - cos_theta);
+  double eps_2_plus        =  2.*A_plus *TMath::Sqrt(1. + cos_theta);
+  double eps_2_minus       =  2.*A_minus*TMath::Sqrt(1. - cos_theta);
+  //Eq. 9 of ref. 1
+  double eps_zero_L        = -2.*A_minus*TMath::Sqrt(1. + cos_theta);       // L->lambda = -1
+  double eps_zero_R        = 2.*A_plus *TMath::Sqrt(1. - cos_theta);       // R->lambda = +1
+  double eps_z_L           = -2.*A_minus*(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1. + cos_theta);
+  double eps_z_R           = 2.*A_plus *(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1. - cos_theta);
   // This ``recipe'' of transition from neutrino to antineutrino case is promoted by Minoo Kabirnezhad.
   // However, it is not correct in our opinion. All details can be found in Ref. [12], see 
   // section "Problem with transition from neutrino to antineutrino case".
-  //Eq. 6 of ref. 1
-  double eps_1_plus        =  (1. + cos_theta)<0?0:2.*A_plus *(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1. + cos_theta);
-  double eps_1_minus       =  (1. - cos_theta)<0?0:-2.*A_minus*(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1. - cos_theta);
-  double eps_2_plus        =  (1. + cos_theta)<0?0:2.*A_plus *TMath::Sqrt(1. + cos_theta);
-  double eps_2_minus       =  (1. - cos_theta)<0?0:2.*A_minus*TMath::Sqrt(1. - cos_theta);
-  //Eq. 9 of ref. 1
-  double eps_zero_L        = (1. + cos_theta)<0?0:-2.*A_minus*TMath::Sqrt(1. + cos_theta);       // L->lambda = -1
-  double eps_zero_R        = (1. - cos_theta)<0?0:2.*A_plus *TMath::Sqrt(1. - cos_theta);       // R->lambda = +1
-  double eps_z_L           = (1. + cos_theta)<0?0:-2.*A_minus*(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1. + cos_theta);
-  double eps_z_R           = (1. - cos_theta)<0?0:2.*A_plus *(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1. - cos_theta);
   if (is_nubar)
   {
-	  Phi = -Phi;
-	 //Eq. 6 of ref. 1
-     eps_1_plus        =  (1. + cos_theta)<0?0:-2.*A_minus *(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1. - cos_theta);
-     eps_1_minus       =  (1. - cos_theta)<0?0:-2.*A_plus*(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1. + cos_theta);
-     eps_2_plus        =  (1. + cos_theta)<0?0:-2.*A_minus *TMath::Sqrt(1. - cos_theta);
-     eps_2_minus       =  (1. - cos_theta)<0?0:2.*A_plus*TMath::Sqrt(1. + cos_theta);
+     Phi = -Phi;
+     //Eq. 6 of ref. 1
+     eps_1_plus        =  -2.*A_minus *(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1. - cos_theta);
+     eps_1_minus       =  -2.*A_plus*(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1. + cos_theta);
+     eps_2_plus        =  -2.*A_minus *TMath::Sqrt(1. - cos_theta);
+     eps_2_minus       =  2.*A_plus*TMath::Sqrt(1. + cos_theta);
      //Eq. 9 of ref. 1
-     eps_zero_L        = (1. + cos_theta)<0?0:2.*A_plus*TMath::Sqrt(1. - cos_theta);       // L->lambda = -1
-     eps_zero_R        = (1. - cos_theta)<0?0:2.*A_minus *TMath::Sqrt(1. + cos_theta);       // R->lambda = +1
-     eps_z_L           = (1. + cos_theta)<0?0:2.*A_plus*(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1. - cos_theta);
-     eps_z_R           = (1. - cos_theta)<0?0:2.*A_minus *(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1. + cos_theta);
+     eps_zero_L        = 2.*A_plus*TMath::Sqrt(1. - cos_theta);       // L->lambda = -1
+     eps_zero_R        = 2.*A_minus *TMath::Sqrt(1. + cos_theta);       // R->lambda = +1
+     eps_z_L           = 2.*A_plus*(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1. - cos_theta);
+     eps_z_R           = 2.*A_minus *(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1. + cos_theta);
   }
   //Eq. 10 of ref. 1
   double C_L_plus          =  k1_Sqrt2*(eps_1_plus  - eps_2_plus);
@@ -190,9 +192,9 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double W_plus2           = W_plus*W_plus;
   double W_minus2          = W_minus*W_minus;
   double O_1_plus          = TMath::Sqrt((W_plus2 + Q2)*( W_plus2 - m_pi2 ))/Wt2;
-  double O_1_minus         = (W_minus - m_pi)<0?0:TMath::Sqrt((W_minus2 + Q2)*(W_minus2 - m_pi2))/Wt2;
+  double O_1_minus         = TMath::Sqrt((W_minus2 + Q2)*(W_minus2 - m_pi2))/Wt2;
   double O_2_plus          = TMath::Sqrt((W_plus2 + Q2)/(W_plus2 - m_pi2));
-  double O_2_minus         = (W_minus - m_pi)<=0?0:TMath::Sqrt((W_minus2 + Q2)/(W_minus2 - m_pi2));
+  double O_2_minus         = TMath::Sqrt((W_minus2 + Q2)/(W_minus2 - m_pi2));
   double s_minus_M2        = W*W - M*M;
   double u_minus_M2        = m_pi2 - 2*(q_0*p_10 + abs_mom_q*abs_mom_k*CosTheta);
   double t_minus_mpi2      = -(Q2 + 2*qk);
@@ -204,14 +206,12 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   
   //Vector_helicity amplituds for bkg
   // vector cut
-  double FV_cut;           
+  double FV_cut = 0.;           
   //virtual form symmetry_factor to kill the bkg smothly
   if (W < fBkgVWmin)
     FV_cut = 1.;           
   else if (W >= fBkgVWmin && W < fBkgVWmax)
     FV_cut = fBkgV0 + W*(fBkgV1 + W*(fBkgV2 + W*fBkgV3));
-  else 
-    FV_cut = 0;
   
   fFormFactors.Calculate(interaction);
   double g_A     = -FA0;
@@ -295,8 +295,8 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double K_2_V = W_plus*O_1_minus; 
   double K_3_V = abs_mom_q*abs_mom_q*W_plus*O_2_minus; 
   double K_4_V = abs_mom_q*abs_mom_q*W_minus*O_2_plus; 
-  double K_5_V = 1/O_2_plus; 
-  double K_6_V = (W_minus - m_pi)<=0?0:1/O_2_minus; 
+  double K_5_V = 1./O_2_plus; 
+  double K_6_V = 1./O_2_minus; 
 
   double F_1 =   V_1 + qk*(V_3 - V_4)/W_minus + W_minus*V_4; 
   double F_2 =  -V_1 + qk*(V_3 - V_4)/W_plus  + W_plus *V_4; 
@@ -617,7 +617,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   }
     
   double K_1_A = abs_mom_q*O_2_plus;
-  double K_2_A = (W_minus - m_pi)<=0?TMath::Sqrt(mpi2_minus_k2):abs_mom_q*O_2_minus;
+  double K_2_A = abs_mom_q*O_2_minus;
   double K_3_A = abs_mom_q*O_1_minus;
   double K_4_A = abs_mom_q* O_1_plus;
   double K_5_A = O_1_minus;
@@ -1181,9 +1181,6 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double xsec0 = TMath::Power(g/8/kPi/kPi, 2)*abs_mom_q*Lcoeff*Lcoeff/abs_mom_k_L2/2; 
   // We divide xsec0 by Q2 due to redifinition of Lcoeff
   
-  // dimension of kine phase space
-  std::string s = KinePhaseSpace::AsString(kps);
-  int kpsdim = 1 + std::count(s.begin(), s.end(), ',');
   
   if (kpsdim == 4)
   {
@@ -1275,7 +1272,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
      double J = 1.;
      if (kpsdim == 3)
        J = utils::kinematics::Jacobian(interaction, kPSWQ2ctpfE, kps);
-     else if (kpsdim == 3)
+     else if (kpsdim == 4)
        J = utils::kinematics::Jacobian(interaction, kPSWQ2ctpphipfE, kps);
      xsec *= J;
   }
