@@ -13,6 +13,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <limits>
 
 #include <TMath.h>
 
@@ -981,8 +982,8 @@ Range1D_t KPhaseSpace::WLim_RSPP(void) const
     
     double s = M*(M + 2*Enu);
   
-    Wl.min  = M + mpi;
-    Wl.max  = TMath::Sqrt(s) - ml;
+    Wl.min = (M + mpi)*(1. + std::numeric_limits<double>::epsilon());
+    Wl.max = (TMath::Sqrt(s) - ml)*(1. - std::numeric_limits<double>::epsilon());
     
     return Wl;
     
@@ -1012,8 +1013,9 @@ Range1D_t KPhaseSpace::Q2Lim_W_RSPP(void) const
     double Enu_CM = (s - M*M)/2/sqrt_s;
     double El_CM  = (s + ml*ml - W*W)/2/sqrt_s;
     double Pl_CM  = (El_CM - ml)<0?0:TMath::Sqrt(El_CM*El_CM - ml2);
-    Q2l.min = TMath::Max(0., 2*Enu_CM*(El_CM - Pl_CM) - ml2);
-    Q2l.max  = TMath::Max(0., 2*Enu_CM*(El_CM + Pl_CM) - ml2);
+    Q2l.min = (2*Enu_CM*(El_CM - Pl_CM) - ml2)*(1. + std::numeric_limits<double>::epsilon());
+    Q2l.max = (2*Enu_CM*(El_CM + Pl_CM) - ml2)*(1. - std::numeric_limits<double>::epsilon());
+    
     return Q2l;
     
  
