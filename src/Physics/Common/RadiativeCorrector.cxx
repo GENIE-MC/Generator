@@ -252,7 +252,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
           evrec->AddParticle(p->Pdg(), kIStCorrectedProbe, ipos,-1,-1,-1, p4tag, x4);
           LOG("RadiativeCorrector", pDEBUG) << "Adding daughter... PDG= 22";
           evrec->AddParticle(22, kIStStableFinalState, ipos,-1,-1,-1, p4RadGamma, x4);
-	  evrec->SetWeight(evrec->Weight() * 1.000000001); //changing the weight to identify events with radiated photon
+	  //evrec->SetWeight(evrec->Weight() * 1.000000001); //changing the weight to identify events with radiated photon
 	  radDone = true;
           //evrec->Print();
 	}
@@ -362,11 +362,11 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	   //GHepParticle * p1 = 0;
            //while( (p1 = (GHepParticle *) piter.Next()) ) { if (ParticleWasRadiated(p1)) radiatedPhoton = true;}
 
- 	   if ( energyLoss > 0 || evrec->Weight() > 1)
-	   { LOG("RadiativeCorrector", pDEBUG) << "Applying radiative correction weight "<<evrec->Weight()<<" radcor_weight " <<radcor_weight;
+ 	   //if ( energyLoss > 0 || evrec->Weight() > 1)
+	   //{ LOG("RadiativeCorrector", pDEBUG) << "Applying radiative correction weight "<<evrec->Weight()<<" radcor_weight " <<radcor_weight;
 	     std::cout << "Applying radiative correction weight "<<evrec->Weight()<<" radcor_weight " <<radcor_weight<<std::endl;
 	     evrec->SetWeight(evrec->Weight() * radcor_weight);
-	   }
+	   //}
 	}
 	/* //code no longer needed now with FSL before and after radiation are keptand PrimaryLeptonPosition method is changed  
            if (!fISR && radDone && (p->Status() == kIStStableFinalState) && (p->Pdg()==11)) {    
