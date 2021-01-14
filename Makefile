@@ -38,6 +38,7 @@ INITIAL_BUILD_TARGETS = print-make-info \
 		   physics-dark-neutrino \
 		   tools-flux-drivers \
 		   tools-geometry-drivers \
+		   tools-evtlib \
 		   tools-masterclass
 FINAL_BUILD_TARGETS = doxygen-doc \
 		   apps \
@@ -237,6 +238,18 @@ else
 	@echo "** Building geometry-drivers was not enabled. Skipping..."
 endif
 
+tools-evtlib: FORCE
+ifeq ($(strip $(GOPT_ENABLE_EVTLIB)),YES)
+	@echo " "
+	@echo "** Building EvtLib..."
+	cd ${GENIE}/src/Tools/EvtLib && \
+	$(MAKE) && \
+	cd ${GENIE}
+else
+	@echo " "
+	@echo "** Building EvtLib was not enabled. Skipping..."
+endif
+
 
 tools-masterclass: FORCE
 ifeq ($(strip $(GOPT_ENABLE_MASTERCLASS)),YES)
@@ -411,6 +424,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools/Flux
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools/Geometry
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools/Masterclass
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools/EvtLib
 
 
 copy-install-files: FORCE
@@ -473,6 +487,7 @@ copy-install-files: FORCE
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) install && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) install && \
 	cd ${GENIE}/src/Tools/Masterclass                        &&  $(MAKE) install && \
+	cd ${GENIE}/src/Tools/EvtLib                             &&  $(MAKE) install && \
 	cd ${GENIE}
 
 
@@ -534,6 +549,7 @@ purge: FORCE
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Tools/Masterclass                        &&  $(MAKE) purge && \
+	cd ${GENIE}/src/Tools/EvtLib                             &&  $(MAKE) purge && \
 	cd ${GENIE}
 
 clean: clean-files clean-dir clean-etc
@@ -596,6 +612,7 @@ clean-files: FORCE
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Tools/Masterclass                        &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Tools/EvtLib                             &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Apps                                     &&  $(MAKE) clean && \
 	cd ${GENIE}/src/scripts                                  &&  $(MAKE) clean && \
 	cd ${GENIE}
@@ -671,6 +688,7 @@ distclean: FORCE
 	cd ${GENIE}/src/Tools/Flux                               &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Tools/Geometry                           &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Tools/Masterclass                        &&  $(MAKE) distclean && \
+	cd ${GENIE}/src/Tools/EvtLib                             &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Apps                                     &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/scripts                                  &&  $(MAKE) distclean && \
 	cd ${GENIE}
