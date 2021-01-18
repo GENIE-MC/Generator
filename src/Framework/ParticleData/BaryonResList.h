@@ -21,6 +21,7 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <iterator>
 
 #include "Framework/ParticleData/BaryonResonance.h"
 
@@ -54,6 +55,12 @@ public:
   void Print (ostream & stream) const;
 
   friend ostream & operator << (ostream & stream, const BaryonResList & rl);
+  auto begin() noexcept -> typename vector<Resonance_t>::iterator;
+  auto end()  noexcept -> typename vector<Resonance_t>::iterator;
+  auto begin() const noexcept -> typename vector<Resonance_t>::const_iterator;
+  auto end() const noexcept -> typename vector<Resonance_t>::const_iterator;
+  auto cbegin() const noexcept -> typename vector<Resonance_t>::const_iterator;
+  auto cend() const noexcept -> typename vector<Resonance_t>::const_iterator;
 
 private:
 
