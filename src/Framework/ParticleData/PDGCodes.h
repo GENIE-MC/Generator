@@ -150,7 +150,9 @@ const int kPdgF37m1950_DeltaP  =  2218; // F37(1950) Delta+
 const int kPdgF37m1950_DeltaPP =  2228; // F37(1950) Delta++
 const int kPdgP11m1710_N0      = 42112; // P11(1710) N0
 const int kPdgP11m1710_NP      = 42212; // P11(1710) N+
-
+const int kPdgF17m1970_N0      = 212118; // F17(1970) N0(1990)
+const int kPdgF17m1970_NP      = 212218; // F17(1970) N+(1990)
+  
 const int kPdgPiP              =   211; // pi+
 const int kPdgPiM              =  -211; // pi-
 const int kPdgPi0              =   111; // pi0
