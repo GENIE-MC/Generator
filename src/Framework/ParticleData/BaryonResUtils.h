@@ -52,9 +52,9 @@ namespace genie {
             double      Mass              (Resonance_t res); 			 ///< resonance mass (GeV)
             double      Width             (Resonance_t res); 			 ///< resonance width (GeV)
             double      BWNorm            (Resonance_t res, 
-            double      N0ResMaxNWidths=6, 
-            double      N2ResMaxNWidths=2, 
-            double      GnResMaxNWidths=4);  ///< breit-wigner normalization factor
+					   double      N0ResMaxNWidths=6, 
+					   double      N2ResMaxNWidths=2, 
+					   double      GnResMaxNWidths=4);  ///< breit-wigner normalization factor
             int         OrbitalAngularMom (Resonance_t res);  		///< orbital angular momentum
             int         ResonanceIndex    (Resonance_t res);  		///< resonance idx, quark model / SU(6)
             int         Isospin           (Resonance_t res);
