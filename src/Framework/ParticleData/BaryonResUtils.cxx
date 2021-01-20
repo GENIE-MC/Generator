@@ -265,6 +265,7 @@ int genie::utils::res::PdgCode(Resonance_t res, int Q)
             if(Q ==  0) return  kPdgP33m1600_Delta0;  /* Delta0  */
             if(Q ==  1) return  kPdgP33m1600_DeltaP;  /* Delta+  */
             if(Q ==  2) return  kPdgP33m1600_DeltaPP; /* Delta++ */
+            break;
 
         case kP13_1720:
             if(Q ==  0) return  kPdgP13m1720_N0; /* N0  */
@@ -461,11 +462,11 @@ bool genie::utils::res::IsN(Resonance_t res)
 double genie::utils::res::Mass(Resonance_t res)
 {
   // Hardcoded data are removed, now they are taken from PDG table via TDatabasePDG and cached
-  static double cm[18];
+  static double cm[EResonance::kTotalResonances] = { -1. };
   if (res == kNoResonance)      
     return -1;
   double mass = cm[res];
-  if ( mass != 0)
+  if ( mass > 0. )
     return mass;
   
   PDGLibrary * pdglib = PDGLibrary::Instance();
@@ -487,11 +488,11 @@ double genie::utils::res::Mass(Resonance_t res)
 double genie::utils::res::Width(Resonance_t res)
 {
   // Hardcoded data are removed, now they are taken from PDG table via TDatabasePDG and cached
-  static double cw[18];
+  static double cw[ EResonance::kTotalResonances] = { -1. };
   if (res == kNoResonance)      
     return -1;
   double width = cw[res];
-  if ( width != 0)
+  if ( width > 0. )
     return width;
 
   PDGLibrary * pdglib = PDGLibrary::Instance();
@@ -513,12 +514,12 @@ double genie::utils::res::Width(Resonance_t res)
 //____________________________________________________________________________
 double genie::utils::res::BWNorm(Resonance_t res, double N0ResMaxNWidths, double N2ResMaxNWidths, double GnResMaxNWidths)
 {
-    static double cbwn[18];   // cache resonance BWNorm
+  static double cbwn[ EResonance::kTotalResonances ] = { -1. };   // cache resonance BWNorm
     if (res == kNoResonance)      
       return -1;
     
     double norm = cbwn[res];
-    if ( norm != 0)   
+    if ( norm > 0. )   
       return norm;
 
     // Get baryon resonance parameters

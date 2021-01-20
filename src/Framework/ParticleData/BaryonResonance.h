@@ -40,7 +40,11 @@ namespace genie {
        kF35_1905    = 14,
        kF37_1950    = 15,
        kP11_1710    = 16,
-       kF17_1970    = 17
+       kF17_1970    = 17,
+       kTotalResonances   // this definition is useful in other contexts.
+                          // In some part of the code some resonance properties are
+                          // cached into arrays that are statically allocated
+                          // So knowing the size of this object is useful
   } Resonance_t;
 
 }        // genie namespace
