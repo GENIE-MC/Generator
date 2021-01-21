@@ -83,6 +83,10 @@ void PDGParticleLibrary::LoadConfig( void ) {
   fDatabase.reset( new TDatabasePDG() ) ;
   fDatabase -> ReadPDGTable( file_name.c_str() );
 
+  // To keep things consistent we also update with the same file
+  // also the global
+  TDatabasePDG::Instance() -> ReadPDGTable( file_name.c_str() );
+
 }
 //___________________________________________________________________________
 std::string PDGParticleLibrary::PDGTableFile() const {
