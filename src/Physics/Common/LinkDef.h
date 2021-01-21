@@ -19,4 +19,7 @@
 #pragma link C++ class genie::HadronicSystemGenerator;
 #pragma link C++ class genie::KineGeneratorWithCache;
 
+#pragma link C++ class genie::ParticleLibrary ;
+#pragma link C++ class genie::PDGParticleLibrary ;
+
 #endif

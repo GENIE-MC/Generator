@@ -24,7 +24,7 @@
 
 #include <memory>
 
-#include "Framework/Common/ParticleLibrary.h" 
+#include "Physics/Common/ParticleLibrary.h" 
 
 #include "TDatabasePDG.h"
 

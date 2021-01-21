@@ -14,6 +14,8 @@
 
 #include "Physics/Common/PDGParticleLibrary.h"
 
+#include <TSystem.h>
+
 #include <string>
 
 using namespace genie;
@@ -47,7 +49,7 @@ PDGParticleLibrary::PDGParticleLibrary( const string & config )  :
   ParticleLibrary( "genie::PDGParticleLibrary", config ),
   fDatabase( nullptr ) {
 
-  TPDGDatabase::Instance() ;
+  TDatabasePDG::Instance() ;
   // see default constructor for the explanation of the previous call
 } 
 //___________________________________________________________________________
@@ -79,7 +81,7 @@ void PDGParticleLibrary::LoadConfig( void ) {
 
   // actual allocation 
   fDatabase.reset( new TDatabasePDG() ) ;
-  fDataset -> ReadPDGTable( file_name.c_str() );
+  fDatabase -> ReadPDGTable( file_name.c_str() );
 
 }
 //___________________________________________________________________________
@@ -110,7 +112,7 @@ std::string PDGParticleLibrary::PDGTableFile() const {
     string path = base_dir + string("/data/evgen/catalogues/pdg/");
 
     string file_name ;
-    GetParamDef( "PDG-TableName", file_name, "genie_pdg_table.txt" ) ;
+    GetParam( "PDG-TableName", file_name ) ;
 
     string file = path + file_name ;
     LOG("PDGParticleLibrary", pINFO) << "Trying to load PDG data from: " << file;
