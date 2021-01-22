@@ -17,8 +17,10 @@
 #include <TSystem.h>
 
 #include "Framework/Messenger/Messenger.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGLibrary.h"
+
 
 using std::string;
 
@@ -82,8 +84,15 @@ bool PDGLibrary::LoadDBase(void)
 
   if ( gSystem->Getenv("GENIE") ) {
     string base_dir = string( gSystem->Getenv("GENIE") );
-    string path = base_dir +
-      string("/data/evgen/catalogues/pdg/genie_pdg_table.txt");
+    base_dir += string("/data/evgen/catalogues/pdg/") ; 
+
+    string file_name = "genie_pdg_table.txt" ; 
+    const Registry * reg = AlgConfigPool::Instance()->CommonList("Param", "PDG");
+    if( reg ) {
+      file_name = reg -> GetString("PDG-TableName") ;
+    }
+    
+    string path = base_dir + file_name ;
 
     if ( ! (gSystem->AccessPathName(path.c_str()) ) ) {
         LOG("PDG", pINFO) << "Load PDG data from: " << path;
