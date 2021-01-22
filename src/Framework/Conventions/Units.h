@@ -83,16 +83,24 @@ static constexpr double pb  = picobarn;
 
 //-- [T: time]
 
-static constexpr double millisecond = 1.e-03 *second;
-static constexpr double microsecond = 1.e-06 *second;
-static constexpr double nanosecond  = 1.e-09 *second;
-static constexpr double picosecond  = 1.e-12 *second;
+static constexpr double millisecond   = 1.e-03 *second;
+static constexpr double microsecond   = 1.e-06 *second;
+static constexpr double nanosecond    = 1.e-09 *second;
+static constexpr double picosecond    = 1.e-12 *second;
+static constexpr double femptosecond  = 1.e-15 *second;
+static constexpr double attosecond    = 1.e-18 *second;
+static constexpr double zeptosecond   = 1.e-21 *second;
+static constexpr double yoctosecond   = 1.e-24 *second;
 
 static constexpr double s  = second;
 static constexpr double ms = millisecond;
 static constexpr double us = microsecond;
 static constexpr double ns = nanosecond;
 static constexpr double ps = picosecond;
+static constexpr double fs = femptosecond;
+static constexpr double as = attosecond;
+static constexpr double zs = zeptosecond;
+static constexpr double ys = yoctosecond; 
 
 static constexpr double hertz     = 1./second;
 static constexpr double kilohertz = 1.e+3*hertz;
