@@ -216,7 +216,7 @@ double HEDISKinematicsGenerator::Scan(Interaction * interaction, Range1D_t xrang
 
 }
 //___________________________________________________________________________
-double HEDISKinematicsGenerator::ComputeMaxXSec(const Interaction * interaction) const
+double HEDISKinematicsGenerator::ComputeMaxXSec(const Interaction * /* interaction */ ) const
 {
   return 0;
 }
