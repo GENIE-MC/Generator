@@ -59,9 +59,20 @@ TDatabasePDG * PDGLibrary::DBase(void)
   return fDatabasePDG;
 }
 //____________________________________________________________________________
-TParticlePDG * PDGLibrary::Find(int pdgc)
+TParticlePDG * PDGLibrary::Find(int pdgc, bool must_exist )
 {
 // save some typing in the most frequently typed TDatabasePDG method
+
+  if ( must_exist ) {
+
+    auto p = fDatabasePDG->GetParticle(pdgc);
+    if ( ! p ) {
+      LOG("PDG", pERROR) << "Requested missing particle with PDG: " << pdgc ;
+
+    }
+    return p ;
+
+  }
 
   return fDatabasePDG->GetParticle(pdgc);
 }

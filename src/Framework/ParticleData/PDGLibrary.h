@@ -33,7 +33,7 @@ public:
   static PDGLibrary * Instance(void);
 
   TDatabasePDG * DBase (void);
-  TParticlePDG * Find  (int pdgc);
+  TParticlePDG * Find  (int pdgc, bool must_exist = true );
   void           ReloadDBase (void);
 
   // Add dark matter and mediator with parameters from Boosted Dark Matter app configuration
