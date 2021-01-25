@@ -90,6 +90,8 @@ bool PDGLibrary::LoadDBase(void)
     const Registry * reg = AlgConfigPool::Instance()->CommonList("Param", "PDG");
     if( reg ) {
       file_name = reg -> GetString("PDG-TableName") ;
+      LOG("PDG", pINFO) << "Found file name specification: " << file_name ;
+
     }
     
     string path = base_dir + file_name ;
