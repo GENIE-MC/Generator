@@ -350,7 +350,7 @@ TLorentzVector MECGenerator::GetFinalStateLepton(GHepRecord * event, double E, d
 {
           Interaction * interaction = event->Summary();
           const InitialState & init_state = interaction->InitState();
-          LOG("QELKinematics", pNOTICE) << "Event selected for radiative correction Selected in kRfHitNucRest: Q^2 = " << gQ2<<" gy = ";
+          LOG("MEC",pINFO) << "Event selected for radiative correction Selected in kRfHitNucRest: Q^2 = " << gQ2<<" gy = ";
           const TLorentzVector & pnuc4 = init_state.Tgt().HitNucP4(); //[@LAB]
           TVector3 beta = pnuc4.BoostVector();
           double El  = (1-gy)*E;
@@ -358,7 +358,7 @@ TLorentzVector MECGenerator::GetFinalStateLepton(GHepRecord * event, double E, d
           double ml2 = TMath::Power(ml,2);
           double plp = El - 0.5*(gQ2+ml2)/E;                          // p(//)
           double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
-          LOG("QELKinematics", pNOTICE) << "Calulating temp final state for radiative correction fsl @ Nucleon rest frame: E = " << El << ", |p//| = " << plp << ", [pT] = " << plt;
+          LOG("MEC", pINFO) << "Calulating temp final state for radiative correction fsl @ Nucleon rest frame: E = " << El << ", |p//| = " << plp << ", [pT] = " << plt;
           // Randomize transverse components
                     RandomGen * rnd_temp = RandomGen::Instance();
           double phi  = 2*kPi * rnd_temp->RndLep().Rndm();
@@ -375,7 +375,7 @@ TLorentzVector MECGenerator::GetFinalStateLepton(GHepRecord * event, double E, d
           // Lepton 4-momentum in the nucleon rest frame
           TLorentzVector p4l(p3l,El);
           p4l.Boost(beta); // active Lorentz transform
-          LOG("QELKinematics", pNOTICE) << "Calulating temp final state for radiative correction fsl @ LAB: E " <<p4l.E() << " px "<<p4l.Px() << " py "<<p4l.Py() << " pz "<<p4l.Pz() ;
+          LOG("MEC", pNOTICE) << "Calulating temp final state for radiative correction fsl @ LAB: E " <<p4l.E() << " px "<<p4l.Px() << " py "<<p4l.Py() << " pz "<<p4l.Pz() ;
           return p4l;
 }
 

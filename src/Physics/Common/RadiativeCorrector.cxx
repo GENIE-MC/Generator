@@ -286,11 +286,14 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	
 		radcor_weight = 1 + (2*kAem /kPi) * ( (13./12.)* (TMath::Log(kine->Q2(true)/pow(kElectronMass,2)) - 1)
 						    - (17./36.)
-						    - (1./4.) * pow(TMath::Log(init_state_ptr->ProbeE(kRfLab)*kine->FSLeptonP4().E()),2)
+						    //- (1./4.) * pow(TMath::Log(init_state_ptr->ProbeE(kRfLab)*kine->FSLeptonP4().E()),2)
+						    - (1./4.) * pow(TMath::Log(init_state_ptr->ProbeE(kRfLab)*p4tag.E()),2)
 						    - (1./2.) * ( (pow(kPi,2)/6) -  TMath::DiLog(TMath::Power(TMath::Cos(0.5*p4tag.Theta()),2.)) ) );
 
 
 		std::cout<<"(13./12.)* (TMath::Log(kine->Q2(true)/pow(kElectronMass,2)) - 1) "<<(13./12.)* (TMath::Log(kine->Q2(true)/pow(kElectronMass,2)) - 1)<<std::endl;
+		std::cout<<"init_state_ptr->ProbeE(kRfLab) "<<init_state_ptr->ProbeE(kRfLab)<<std::endl;
+                std::cout<<"kine->FSLeptonP4().E() " <<kine->FSLeptonP4().E()<<" fP4l.E() "<<fP4l.E()<<" p4tag.E() "<<p4tag.E()<<std::endl;
                 std::cout<<"(1./4.) * pow(TMath::Log(init_state_ptr->ProbeE(kRfLab)*kine->FSLeptonP4().E()),2) "<< (1./4.) * pow(TMath::Log(init_state_ptr->ProbeE(kRfLab)*kine->FSLeptonP4().E()),2)<<std::endl;
                 std::cout<<"TMath::DiLog(TMath::Power(TMath::Cos(0.5*p4tag.Theta()),2.)) " <<TMath::DiLog(TMath::Power(TMath::Cos(0.5*p4tag.Theta()),2.))<<std::endl;
 		std::cout<<"radcor_weight "<<radcor_weight<<std::endl;
