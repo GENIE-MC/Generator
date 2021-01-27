@@ -23,6 +23,11 @@ QEL-FA0     double  No         FA(q2 = 0)                 CommonParam[QuasiElast
     <param type="double" name="QEL-Ma"> 0.990 </param>
     <param type="double" name="QEL-FA0"> -1.2670 </param>
   </param_set>
+  
+  <param_set name="MK"> 
+    <param type="double" name="QEL-Ma"> 1.03 </param>
+    <param type="double" name="QEL-FA0"> -1.26 </param>
+  </param_set>
  
 </alg_conf>
 
