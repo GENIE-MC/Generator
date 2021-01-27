@@ -44,12 +44,12 @@
   <priority msgstream="BardinIMD">             NOTICE </priority>
   <priority msgstream="BaryonResList">         WARN   </priority>
   <priority msgstream="BaryonResUtils">        WARN   </priority>
-  <priority msgstream="SppChannel">            WARN   </priority>
+￼  <priority msgstream="SppChannel">            WARN   </priority>
   <priority msgstream="BaseHad">               NOTICE </priority>
   <priority msgstream="BSKLNBaseRESPXSec2014"> NOTICE </priority>
   <priority msgstream="MKSPPPXSec2014">        NOTICE </priority>
-  <priority msgstream="MKSPPXSec2014">         NOTICE </priority>
-  <priority msgstream="MKSPPCache">            NOTICE </priority>
+￼  <priority msgstream="MKSPPXSec2014">         NOTICE </priority>
+￼  <priority msgstream="MKSPPCache">            NOTICE </priority>
   <priority msgstream="BreitWignet">           INFO   </priority>
   <priority msgstream="Bardin">                INFO   </priority>
   <priority msgstream="BodekYang">             INFO   </priority>
@@ -105,7 +105,6 @@
   <priority msgstream="GuiUtils">              INFO   </priority>
   <priority msgstream="GRV98LO">               WARN   </priority>
   <priority msgstream="GXSecFunc">             WARN   </priority>
-  <priority msgstream="GLRES">                 WARN   </priority>
   <priority msgstream="HadTransp">             WARN   </priority>
   <priority msgstream="HadronicVtx">           WARN   </priority>
   <priority msgstream="HybridHad">             WARN   </priority>
@@ -146,7 +145,7 @@
   <priority msgstream="LwlynSmith">            NOTICE </priority>
   <priority msgstream="LHAPDF6">               NOTICE </priority>
   <priority msgstream="Math">                  NOTICE </priority>
-  <priority msgstream="MEC">                   INFO   </priority>
+  <priority msgstream="MEC">                   WARN  </priority>
   <priority msgstream="MuELoss">               NOTICE </priority>
   <priority msgstream="MultProb">              INFO   </priority>
   <priority msgstream="Nieves">                NOTICE </priority>
@@ -178,9 +177,7 @@
   <priority msgstream="QELEvent">              NOTICE </priority>
   <priority msgstream="QELHadronicVtx">        WARN   </priority>
   <priority msgstream="QELKinematics">         WARN   </priority>
-  <priority msgstream="RSPPEventGen">          NOTICE </priority>
   <priority msgstream="RESXSec">               INFO   </priority>
-  <priority msgstream="RESPXSec">              WARN   </priority>
   <priority msgstream="RESPXSec">              WARN   </priority>
   <priority msgstream="ReinSehgalCohPi">       WARN   </priority>
   <priority msgstream="ReinDFR">               INFO   </priority>
@@ -188,9 +185,10 @@
   <priority msgstream="ReinSehgalResT">        NOTICE </priority>
   <priority msgstream="ReinSehgalResC">        NOTICE </priority>
   <priority msgstream="ReinSehgalResTF">       NOTICE </priority>
-  <priority msgstream="ReinSehgalResCF">       NOTICE </priority>
+￼  <priority msgstream="ReinSehgalResCF">       NOTICE </priority>
   <priority msgstream="ReinSehgalSpp">         NOTICE </priority>
   <priority msgstream="RSHAmpl">               WARN   </priority>
+  <priority msgstream="RSPPEventGen">          NOTICE </priority>
   <priority msgstream="Registry">              WARN   </priority>
   <priority msgstream="ReW">                   NOTICE </priority>
   <priority msgstream="RESHadronicVtx">        WARN   </priority>
@@ -211,6 +209,15 @@
   <priority msgstream="XSecAlgMap">            NOTICE </priority>
   <priority msgstream="XSecSplLst">            NOTICE </priority>
   <priority msgstream="ZExpAxialFormFactorModel"> NOTICE </priority>
+  <priority msgstream="GLRESXSec">             WARN    </priority>
+  <priority msgstream="GLRESPXSec">            WARN    </priority>
+  <priority msgstream="GLRESGenerator">        WARN    </priority>
+  <priority msgstream="GLRESKinematics">       WARN    </priority>
+  <priority msgstream="HEDISXSec">             WARN    </priority>
+  <priority msgstream="HEDISPXSec">            WARN    </priority>
+  <priority msgstream="HEDISGenerator">        WARN    </priority>
+  <priority msgstream="HEDISKinematics">       WARN    </priority>
+  <priority msgstream="LeptoHad">              ERROR   </priority>
 
   <priority msgstream="gevgen">              NOTICE </priority>
   <priority msgstream="gevgen_dm">           NOTICE </priority>
