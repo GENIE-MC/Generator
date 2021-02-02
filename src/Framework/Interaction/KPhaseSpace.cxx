@@ -87,7 +87,7 @@ double KPhaseSpace::Threshold(void) const
   double ml = fInteraction->FSPrimLepton()->Mass();
 
   if( ! pi.IsKnown() ) return 0;
-  
+
   if (pi.IsSingleKaon()) {
     int kaon_pdgc = xcls.StrangeHadronPdg();
     double Mi   = tgt.HitNucP4Ptr()->M(); // initial nucleon mass
@@ -967,5 +967,74 @@ Range1D_t KPhaseSpace::TLim(void) const
   // IMD
   LOG("KPhaseSpace", pWARN) << "It is not sensible to ask for t limits for events that are not coherent or diffractive.";
   return tl;
+}
+//____________________________________________________________________________
+double KPhaseSpace::Threshold_RSPP(void) const
+{
+    PDGLibrary * pdglib = PDGLibrary::Instance();
+
+    // imply isospin symmetry
+    double mpi  = (pdglib->Find(kPdgPiP)->Mass() + pdglib->Find(kPdgPi0)->Mass() + pdglib->Find(kPdgPiM)->Mass())/3;
+    double M = (pdglib->Find(kPdgProton)->Mass() + pdglib->Find(kPdgNeutron)->Mass())/2;
+    double ml = fInteraction->FSPrimLepton()->Mass();
+    double E_thr = (TMath::Power(M + ml + mpi, 2) - M*M)/2/M;
+    return E_thr;
+
+}
+//____________________________________________________________________________
+Range1D_t KPhaseSpace::WLim_RSPP(void) const
+{
+
+    Range1D_t Wl;
+
+    PDGLibrary * pdglib = PDGLibrary::Instance();
+
+    const InitialState & init_state = fInteraction->InitState();
+    double Enu = init_state.ProbeE(kRfHitNucRest);
+
+    // imply isospin symmetry
+    double mpi  = (pdglib->Find(kPdgPiP)->Mass() + pdglib->Find(kPdgPi0)->Mass() + pdglib->Find(kPdgPiM)->Mass())/3;
+    double M = (pdglib->Find(kPdgProton)->Mass() + pdglib->Find(kPdgNeutron)->Mass())/2;
+    double ml = fInteraction->FSPrimLepton()->Mass();
+
+    double s = M*(M + 2*Enu);
+
+    Wl.min = (M + mpi)*(1. + std::numeric_limits<double>::epsilon());
+    Wl.max = (TMath::Sqrt(s) - ml)*(1. - std::numeric_limits<double>::epsilon());
+
+    return Wl;
+
+
+}
+//____________________________________________________________________________
+Range1D_t KPhaseSpace::Q2Lim_W_RSPP(void) const
+{
+
+    Range1D_t Q2l;
+
+    double W = kinematics::W(fInteraction);
+
+    PDGLibrary * pdglib = PDGLibrary::Instance();
+
+    const InitialState & init_state = fInteraction->InitState();
+    double Enu = init_state.ProbeE(kRfHitNucRest);
+
+    // imply isospin symmetry
+    double M = (pdglib->Find(kPdgProton)->Mass() + pdglib->Find(kPdgNeutron)->Mass())/2;
+    double ml = fInteraction->FSPrimLepton()->Mass();
+    double ml2 = ml*ml;
+
+    double s = M*(M + 2*Enu);
+    double sqrt_s = TMath::Sqrt(s);
+
+    double Enu_CM = (s - M*M)/2/sqrt_s;
+    double El_CM  = (s + ml*ml - W*W)/2/sqrt_s;
+    double Pl_CM  = (El_CM - ml)<0?0:TMath::Sqrt(El_CM*El_CM - ml2);
+    Q2l.min = (2*Enu_CM*(El_CM - Pl_CM) - ml2)*(1. + std::numeric_limits<double>::epsilon());
+    Q2l.max = (2*Enu_CM*(El_CM + Pl_CM) - ml2)*(1. - std::numeric_limits<double>::epsilon());
+
+    return Q2l;
+
+
 }
 //____________________________________________________________________________
