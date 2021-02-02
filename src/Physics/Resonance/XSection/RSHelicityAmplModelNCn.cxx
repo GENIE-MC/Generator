@@ -82,6 +82,7 @@ const RSHelicityAmpl &
    {
      double xt      = 2* xi * fkr.T;
      double xr      =    xi * fkr.R;
+     if ( fMKCorrection ) xr *= 3 ;
      double Tm2xiT  = fkr.Tminus + xt;
      double Tp2xiT  = fkr.Tplus  + xt;
      double LRmxiR  = fkr.Lamda  * (fkr.Rminus + xr);
@@ -367,5 +368,8 @@ void RSHelicityAmplModelNCn::LoadConfig(void)
   double thw ;
   GetParam( "WeinbergAngle", thw ) ;
   fSin28w = TMath::Power( TMath::Sin(thw), 2 );
+
+
+  GetParamDef( "MKcorrection", fMKCorrection, false ) ;
 }
 //____________________________________________________________________________
