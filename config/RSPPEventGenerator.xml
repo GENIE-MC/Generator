@@ -23,13 +23,15 @@ ResonanceNameList        string  No    List of resonances to be taken into accou
 
   <param_set name="Default">
     <param type="string" name="CommonParam"> Resonances </param>
-    
+
+<!--    
     <param type="string" name="ResonanceNameList">
          P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),
          S31(1620),D33(1700),P11(1440),P33(1600),P13(1720),F15(1680),
          P31(1910),P33(1920),F35(1905),F37(1950),P11(1710)
     </param>
-    
+-->    
+
   </param_set>
 
 
