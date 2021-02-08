@@ -366,6 +366,8 @@ public:
       return it -> second ;
     }
 
+    double BR = 0. ;
+    
     PDGLibrary * pdglib = PDGLibrary::Instance();
     // the charge of resonance does not matter
     int pdg = genie::utils::res::PdgCode(res, 0);
@@ -381,8 +383,8 @@ public:
           int second_daughter_pdg = ch->DaughterPdgCode (1);
           if ((genie::pdg::IsNucleon(first_daughter_pdg ) && genie::pdg::IsPion(second_daughter_pdg)) ||
               (genie::pdg::IsNucleon(second_daughter_pdg) && genie::pdg::IsPion(first_daughter_pdg )))
-          {
-             BR += ch->BranchingRatio();
+	    {
+	      BR += ch->BranchingRatio();
           }
         }
       }
