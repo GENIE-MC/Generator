@@ -37,7 +37,6 @@ typedef enum EKinePhaseSpace {
   kPSyfEx,
   kPSlogyfEx,
   kPSxyfE,
-  kPSlogxlogyfE,
   kPSQ2fE,
   kPSQD2fE,
   kPSlogQ2fE,
@@ -68,9 +67,10 @@ typedef enum EKinePhaseSpace {
   kPSTAfE,
   kPSEgTlOgfE,
   kPSDMELEvGen, // Equivalent to kPSQELEvGen for Dark Matter scattering  
+  kPSxQ2fE,
+  kPSlog10xlog10Q2fE,
   kPSWQ2ctpphipfE,
   kPSWQ2ctpfE
-
 } KinePhaseSpace_t;
 
 class KinePhaseSpace
