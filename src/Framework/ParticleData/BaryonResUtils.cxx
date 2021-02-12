@@ -11,32 +11,6 @@
 
   For the namespace documentation see the corresponding header file.
  
-
-  Important revisions after version 2.0.0 :
-  @ Dec 11, 2008 - CA
-  Fixed a bug with the Delta- pdg code. It was incorrectly set to -2214.
-  Now set to 1114. The bug affected the final state nubar RES events.
-  @ Jun 17, 2009 - CA
-  Used resonance codes from PDG/PDGCodes.h
-  @ Oct 20, 2009 - CA
-  Modified ResonanceCharge() to take into account the probe charge (so as
-  to conserve charge in charged lepton scattering)
-  @ Jul 23, 2010 - CA
-  Moved ResonanceCharge(Interaction) to EVGModules/HadronicSystemGenerator 
-  to avoid dependency of BaryonResonance package on the Interaction package.
-  Added OrbitalAngularMom(Resonance_t), ResonanceIndex(Resonance_t)
-  Width(Resonance_t) and BWNorm(Resonance_t) functions, previously available
-  through a BaryonResDataSetI implementation. Simplified BaryonResonance
-  package by removing the redundant BaryonResDataPDG, BaryonResDataSetI
-  BreitWignerI, BreitWignerRes, BreitWignerLRes and BaryonResParams classes.
-  @ May 9, 2016 -IK
-  BWNorm is calculated on-fly.
-  @ Nov 12, 2019 -IK
-  Updated resonance masses and widths according to PDG-2018.
-  Added previously missing resonances P33(1600) and F17(1970).
-  Now mass and widths are taken from PDG table via TDatabasePDG and cached.
-  Add extra function needed for MK model.
-
 */
 //____________________________________________________________________________
 
