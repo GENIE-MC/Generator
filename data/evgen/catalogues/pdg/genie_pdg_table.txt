@@ -943,7 +943,7 @@
         10     0   1.88701E-03   4     -211        -11     12      22                    pi-        e+         nu_e        gamma
         11     0   2.81309E-04   4      211         13    -14      22                    pi+        mu-        nu_mu_bar   gamma
         12     0   2.81309E-04   4     -211        -13     14      22                    pi-        mu+        nu_mu       gamma
-        13     0   5.44694E-04     5.47000E-04         2       22     22                            gamma      gamma                 
+        13     0   5.44694E-04   2       22         22                                   gamma      gamma                 
    96 pi_diffr+           210  1 100 Meson       3 0.00000e+00 0.00000e+00 -100 -1 -100 -1   -1   0
    97 pi_diffr-        -210      96     0
 ## We don't include decay modes with BR<1E-05, conflicting with limits from astrophysical and cosmological arguments
