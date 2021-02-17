@@ -304,7 +304,7 @@ Or changing the name of this parameter set
     <param type="double" name="ZpCoupling"> 0.1 </param>
     <param type="double" name="DarkLeftCharge"> 1.0 </param>
     <param type="double" name="DarkRightCharge"> 1.0 </param>
-    <param type="double" name="DarkScalarCharge"> 1.0 </param> 
+    <param type="double" name="DarkScalarCharge"> 1.0 </param>
     <param type="double" name="UpLeftCharge"> 1.0 </param>
     <param type="double" name="UpRightCharge"> 1.0 </param>
     <param type="double" name="DownLeftCharge"> 1.0 </param>
@@ -326,7 +326,7 @@ Or changing the name of this parameter set
 
   <param_set name="KNO2Pythia">
     <!--
-	
+
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Invariant mass window for the transition from KNO model to PYTHIA
     -->
@@ -334,6 +334,15 @@ Or changing the name of this parameter set
     <param type="double" name="KNO2PYTHIA-Wmin">  2.30 </param>
     <param type="double" name="KNO2PYTHIA-Wmax">  3.00 </param>
   </param_set>
+
+  <param_set name="PDG">
+    <!-- when using the PDG table provideed by genie,
+         that are contained in $GENIE/data/evgen/catalogues/pdg
+         this string specifies the file to be used.
+         Please be aware that changing the PDG table might invalidated the selected tune -->
+    <param type="string" name="PDG-TableName"> genie_pdg_table.txt </param>
+  </param_set>
+
 
 
   <param_set name="Validation">
