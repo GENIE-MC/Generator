@@ -398,11 +398,10 @@ void ConvertToGST(void)
                                  //  - ((e/h) * energy)   for pi0, gamma, e-, e+, where e/h is set to 1.3
                                  //  - (kinetic energy) for other particles
 
-  double brXSec;              // the event cross section in 1E-38cm^2
-  double brDXSec;             // is the differential cross section for the selected in 1E-38cm^2/{K^n}
-  int    brKPS;               // phase space that the xsec has been evaluated into as defined in
-                              // https://github.com/afropapp13/Generator/blob/master/src/Framework/Conventions/KinePhaseSpace.h
-
+  Double_t  brXSec;              // the event cross section in 1E-38cm^2
+  Double_t  brDXSec;             // is the differential cross section for the selected in 1E-38cm^2/{K^n}
+  UInt_t    brKPS;               // phase space that the xsec has been evaluated into
+                              
   // Open output file & create output summary tree & create the tree branches
   //
   LOG("gntpc", pNOTICE) 
@@ -509,7 +508,7 @@ void ConvertToGST(void)
   s_tree->Branch("calresp0",     &brCalResp0,	    "calresp0/D"    );
   s_tree->Branch("XSec",         &brXSec,	    "XSec/D"    );
   s_tree->Branch("DXSec",         &brDXSec,	    "DXSec/D"    );
-  s_tree->Branch("KPS",          &brKPS,	    "KPS/I"    );
+  s_tree->Branch("KPS",          &brKPS,	    "KPS/i"    );
 
   // Open the ROOT file and get the TTree & its header
   TFile fin(gOptInpFileName.c_str(),"READ");
