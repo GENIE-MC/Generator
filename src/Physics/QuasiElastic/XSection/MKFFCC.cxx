@@ -66,7 +66,7 @@ double MKFFCC::tau(const Interaction * interaction) const
 
   //-- get kinematics & initial state parameters
   const Kinematics &   kinematics = interaction->Kine();
-  const InitialState & init_state = interaction->InitState();
+  //const InitialState & init_state = interaction->InitState();
   double q2     = kinematics.q2();
  
   PDGLibrary * pdglib = PDGLibrary::Instance();

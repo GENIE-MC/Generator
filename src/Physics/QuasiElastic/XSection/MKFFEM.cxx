@@ -97,12 +97,12 @@ double MKFFEM::xiF2V(const Interaction * interaction) const
   return _xiF2V;
 }
 //____________________________________________________________________________
-double MKFFEM::FA(const Interaction * interaction) const
+double MKFFEM::FA(const Interaction * /*interaction*/ ) const
 {
   return 0.;
 }
 //____________________________________________________________________________
-double MKFFEM::Fp(const Interaction * interaction) const
+double MKFFEM::Fp(const Interaction * /*interaction*/ ) const
 {
   return 0.;
 }
@@ -137,7 +137,7 @@ double MKFFEM::tau(const Interaction * interaction) const
 
   //-- get kinematics & initial state parameters
   const Kinematics &   kinematics = interaction->Kine();
-  const InitialState & init_state = interaction->InitState();
+  //  const InitialState & init_state = interaction->InitState();
   double q2     = kinematics.q2();
   
   PDGLibrary * pdglib = PDGLibrary::Instance();
