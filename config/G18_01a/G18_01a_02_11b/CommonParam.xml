@@ -21,7 +21,6 @@ University of Liverpool
 
 <common_Param_list>
 
-
   <param_set name="Tunable">
     <!-- Reserved register for tuning -->
     <param type="double" name="RES-Ma"> 1.093718 </param>

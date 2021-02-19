@@ -29,11 +29,11 @@ static constexpr double GeV               = gigaelectronvolt;
 
 //-- Conversion of conventionl [L], [M], [T] units in physical units
 
-static constexpr double kSpeedOfLight = 2.99792458e+08;   // [m/s]
-static constexpr double hbarc         = 1.973269788e-16;  // [GeV*m]
-static constexpr double qe_coulomb    = 1.6021766208e-19; // electron charge magnitude
-static constexpr double meter         = 1. / hbarc / GeV;
-static constexpr double kilogram      = kSpeedOfLight * kSpeedOfLight / qe_coulomb * 10e-9 * GeV;
+static constexpr double kSpeedOfLight = 2.99792458e+08;   // [m/s]  exact by definition
+static constexpr double qe_coulomb    = 1.602176634e-19; // electron charge magnitude, exact by definition since 20 May 2019
+static constexpr double hbarc         = 1.973269804e-16;  // [GeV*m] exact by definition although approxicamted here
+static constexpr double meter         = 1. / (hbarc * GeV);
+static constexpr double kilogram      = kSpeedOfLight * kSpeedOfLight * 10e-9 * GeV / qe_coulomb ;
 static constexpr double second        = meter * kSpeedOfLight / GeV;
 
 

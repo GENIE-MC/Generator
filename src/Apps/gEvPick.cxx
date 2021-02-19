@@ -4,10 +4,12 @@
 \program gevpick
 
 \brief   Reads a list of GENIE event files (GHEP format), `cherry-picks' events with a given 
-         topology and writes them out in a separate file. The output event tree contains two
-         additional branches to aid book-keeping by maintaining a link to the source location
-         of each cherry-picked event. For each such event we store a) the name of the original
-         file and b) its original event number.
+         final state topology (or true interaction mode) and writes them out in a separate file. 
+
+         The output event tree contains 2 additional branches to aid book-keeping by maintaining 
+         a link to the source location of each cherry-picked event. For each such event we store 
+         a) the name of the original file, and 
+         b) its original event number.
 
          This is the _only_recommended_ way to obtain event files that contain specific final 
          states (by cherry-picking events from files generated running GENIE in a comprehensive 
@@ -33,10 +35,11 @@
            Each such NC1pi0 source contributes differently to the pion momentum distribution.
 
          Synopsis:
-           gevpick -i list_of_input_files -t topology  
-                   [-o output_file]
-                   [--message-thresholds xmfile]
-                   [--event-record-print-level level]
+           gevpick -i list_of_input_files 
+                   -t type
+                  [-o output_file]
+                  [--message-thresholds xmfile]
+                  [--event-record-print-level level]
 
          Options:
 
@@ -45,11 +48,19 @@
            -i 
               Specify input file(s).
               Wildcards accepted, eg `-i "/data/genie/t2k/gntp.*.ghep.root"'
+
            -t 
-              Specify event topology to cherry-pick.
-              The input topology can be any of
+              Specify the type of events to cherry-pick.
+              The following options are suported currently:
+
                 - all 
                     all (basically merges all files into one)
+
+              .................................................................................
+              Event types based on final-state topology.
+              Include all reaction modes contributing to the selected topology.
+              .................................................................................
+
                 - numu_cc_1pip 
                     numu CC with 1 \pi^{+} (and no other pion) in final state
                 - numu_cc_1pi0 
@@ -71,7 +82,29 @@
                 - cc_hyperon         
                     any (anti)neutrino CC with at least one hyperon 
                     (\Sigma^{+,0,-}, \Lambda^{0}, \Xi^{0,-}, \Omega^{-}) in final state
-                - <can add more / please send request to constantinos.andreopoulos \at cern.ch>
+
+              .................................................................................
+              Event types based on true reaction mode.
+              Includes all events with the specified mode, regardless of the resulting f/s.
+              .................................................................................
+
+                - cc_qe 
+                - numu_cc_qe 
+                    Genuine CCQE
+                - cc_mec 
+                - numu_cc_mec 
+                    Genuine CCMEC
+                - cc_qe_mec
+                - numu_cc_qe_mec
+                    Genuine CCQE or genuine CCMEC
+                - not_cc_qe_mec
+                - numu_not_cc_qe_mec
+                    Anything other than genuine CCQE or genuine CCMEC
+
+              .................................................................................
+
+                <can add more / please send request to constantinos.andreopoulos \at cern.ch>
+
            -o 
               Specify output filename.
               (optional, default: gntp.<topology>.ghep.root)
@@ -142,26 +175,40 @@ bool   AcceptEvent        (const EventRecord & event);
 void   PrintSyntax        (void);
 string DefaultOutputFile  (void);
 
-// cherry-picked topologies
-typedef enum EGPickTopo {
-  kPtUndefined = 0,
+// cherry-picked event types
+typedef enum EGPickType {
+  kPtUndefined = 0,  
   kPtAll,
-  kPtNumuCC1pip,
-  kPtNumuCC1pi0,
-  kPtNumuCC1pim,
-  kPtNumuNC1pip,
-  kPtNumuNC1pi0,
-  kPtNumuNC1pim,
-  kPtNumuCChyperon,
-  kPtNumubarCChyperon,
-  kPtCChyperon
+  //
+  // Types based on final state topology, regardless of reaction mode
+  //
+  kPtTopoNumuCC1pip,
+  kPtTopoNumuCC1pi0,
+  kPtTopoNumuCC1pim,
+  kPtTopoNumuNC1pip,
+  kPtTopoNumuNC1pi0,
+  kPtTopoNumuNC1pim,
+  kPtTopoNumuCChyperon,
+  kPtTopoNumubarCChyperon,
+  kPtTopoCChyperon,
+  //
+  // Types based on true reaction mode, regardless of final state topology
+  //
+  kPtReacModeCCQE,
+  kPtReacModeNumuCCQE,
+  kPtReacModeCCMEC,
+  kPtReacModeNumuCCMEC,
+  kPtReacModeCCQEMEC,
+  kPtReacModeNumuCCQEMEC,
+  kPtReacModeNotCCQEMEC,
+  kPtReacModeNumuNotCCQEMEC
 
-} GPickTopo_t;
+} GPickType_t;
 
 // input options (from command line arguments):
 string      gOptInpFileNames;  ///< input file name
 string      gOptOutFileName;   ///< output file name
-GPickTopo_t gPickedTopology;   ///< output file format id
+GPickType_t gPickedType;       ///< output file format id
 
 //____________________________________________________________________________________
 int main(int argc, char ** argv)
@@ -270,8 +317,8 @@ void RunCherryPicker(void)
 //____________________________________________________________________________________
 bool AcceptEvent(const EventRecord & event)
 {
-  if ( gPickedTopology == kPtAll       ) return true;
-  if ( gPickedTopology == kPtUndefined ) return false;
+  if ( gPickedType == kPtAll       ) return true;
+  if ( gPickedType == kPtUndefined ) return false;
 
   const Interaction * interaction = event.Summary();
 
@@ -280,6 +327,10 @@ bool AcceptEvent(const EventRecord & event)
   bool isnumubar = (nupdg == kPdgAntiNuMu);
   bool iscc      = interaction->ProcInfo().IsWeakCC();
   bool isnc      = interaction->ProcInfo().IsWeakNC();
+  bool isqe      = interaction->ProcInfo().IsQuasiElastic();
+  bool ismec     = interaction->ProcInfo().IsMEC();
+  bool isstr     = interaction->ExclTag().IsStrangeEvent();
+  bool ischm     = interaction->ExclTag().IsCharmEvent();
 
   int NfP        = 0; // number of protons         in final state
   int NfPbar     = 0; // number of anti-protons    in final state
@@ -341,40 +392,80 @@ bool AcceptEvent(const EventRecord & event)
   bool is1pimX  = (NfPip==0 && NfPi0==0 && NfPim==1);
   bool has_hype = (NfSigmap+NfSigma0+NfSigmam+NfLambda0+NfXi0+NfXim+NfOmegam > 0);
 
-  if ( gPickedTopology == kPtNumuCC1pip ) {
+  if ( gPickedType == kPtTopoNumuCC1pip ) {
     if(isnumu && iscc && is1pipX) return true;
   }
   else
-  if ( gPickedTopology == kPtNumuCC1pi0 ) {
+  if ( gPickedType == kPtTopoNumuCC1pi0 ) {
     if(isnumu && iscc && is1pi0X) return true;
   }
   else
-  if ( gPickedTopology == kPtNumuCC1pim ) {
+  if ( gPickedType == kPtTopoNumuCC1pim ) {
     if(isnumu && iscc && is1pimX) return true;
   }
   else
-  if ( gPickedTopology == kPtNumuNC1pip ) {
+  if ( gPickedType == kPtTopoNumuNC1pip ) {
     if(isnumu && isnc && is1pipX) return true;
   }
   else
-  if ( gPickedTopology == kPtNumuNC1pi0 ) {
+  if ( gPickedType == kPtTopoNumuNC1pi0 ) {
     if(isnumu && isnc && is1pi0X) return true;
   }
   else
-  if ( gPickedTopology == kPtNumuNC1pim ) {
+  if ( gPickedType == kPtTopoNumuNC1pim ) {
     if(isnumu && isnc && is1pimX) return true;
   }
   else
-  if ( gPickedTopology == kPtNumuCChyperon ) {
+  if ( gPickedType == kPtTopoNumuCChyperon ) {
     if(isnumu && iscc && has_hype) return true;
   }
   else
-  if ( gPickedTopology == kPtNumubarCChyperon ) {
+  if ( gPickedType == kPtTopoNumubarCChyperon ) {
     if(isnumubar && iscc && has_hype) return true;
   }
   else
-  if ( gPickedTopology == kPtCChyperon ) {
+  if ( gPickedType == kPtTopoCChyperon ) {
     if(iscc && has_hype) return true;
+  }
+  else 
+  if ( gPickedType == kPtReacModeCCQE ) {
+    if(isstr || ischm) return false;
+    if(iscc && isqe) return true;
+  }
+  else 
+  if ( gPickedType == kPtReacModeNumuCCQE ) {
+    if(isstr || ischm) return false;
+    if(isnumu && iscc && isqe) return true;
+  }
+  else 
+  if ( gPickedType == kPtReacModeCCMEC ) {
+    if(isstr || ischm) return false;
+    if(iscc && ismec) return true;
+  }
+  else 
+  if ( gPickedType == kPtReacModeNumuCCMEC ) {
+    if(isstr || ischm) return false;
+    if(isnumu && iscc && ismec) return true;
+  }
+  else 
+  if ( gPickedType == kPtReacModeCCQEMEC ) {
+    if(isstr || ischm) return false;
+    if(iscc && (isqe || ismec)) return true;
+  }
+  else 
+  if ( gPickedType == kPtReacModeNumuCCQEMEC ) {
+    if(isstr || ischm) return false;
+    if(isnumu && iscc && (isqe || ismec)) return true;
+  }
+  else 
+  if ( gPickedType == kPtReacModeNotCCQEMEC ) {
+    if(isstr || ischm) return false;
+    if(iscc && !(isqe || ismec)) return true;
+  }
+  else 
+  if ( gPickedType == kPtReacModeNumuNotCCQEMEC ) {
+    if(isstr || ischm) return false;
+    if(isnumu && iscc && !(isqe || ismec)) return true;
   }
 
   return false;
@@ -400,30 +491,41 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(1);
   }
 
-  // requested topology
-  string topo = "";
+  // requested event type
+  string evtype = "";
   if( parser.OptionExists('t') ) {
-    topo = parser.ArgAsString('t');
-    if      ( topo == "all"                ) { gPickedTopology = kPtAll;              }
-    else if ( topo == "numu_cc_1pip"       ) { gPickedTopology = kPtNumuCC1pip;       }
-    else if ( topo == "numu_cc_1pi0"       ) { gPickedTopology = kPtNumuCC1pi0;       }
-    else if ( topo == "numu_cc_1pim"       ) { gPickedTopology = kPtNumuCC1pim;       }
-    else if ( topo == "numu_nc_1pip"       ) { gPickedTopology = kPtNumuNC1pip;       }
-    else if ( topo == "numu_nc_1pi0"       ) { gPickedTopology = kPtNumuNC1pi0;       }
-    else if ( topo == "numu_nc_1pim"       ) { gPickedTopology = kPtNumuNC1pim;       }
-    else if ( topo == "numu_cc_hyperon"    ) { gPickedTopology = kPtNumuCChyperon;    }
-    else if ( topo == "numubar_cc_hyperon" ) { gPickedTopology = kPtNumubarCChyperon; }
-    else if ( topo == "cc_hyperon"         ) { gPickedTopology = kPtCChyperon;        }
-    else                                     { gPickedTopology = kPtUndefined;        }
+    evtype = parser.ArgAsString('t');
+    if      ( evtype == "all"                ) { gPickedType = kPtAll;                    }
 
-    if(gPickedTopology == kPtUndefined) {
-      LOG("gevpick", pFATAL) << "Unknown topology (" << topo << ")";
+    else if ( evtype == "numu_cc_1pip"       ) { gPickedType = kPtTopoNumuCC1pip;         }
+    else if ( evtype == "numu_cc_1pi0"       ) { gPickedType = kPtTopoNumuCC1pi0;         }
+    else if ( evtype == "numu_cc_1pim"       ) { gPickedType = kPtTopoNumuCC1pim;         }
+    else if ( evtype == "numu_nc_1pip"       ) { gPickedType = kPtTopoNumuNC1pip;         }
+    else if ( evtype == "numu_nc_1pi0"       ) { gPickedType = kPtTopoNumuNC1pi0;         }
+    else if ( evtype == "numu_nc_1pim"       ) { gPickedType = kPtTopoNumuNC1pim;         }
+    else if ( evtype == "numu_cc_hyperon"    ) { gPickedType = kPtTopoNumuCChyperon;      }
+    else if ( evtype == "numubar_cc_hyperon" ) { gPickedType = kPtTopoNumubarCChyperon;   }
+    else if ( evtype == "cc_hyperon"         ) { gPickedType = kPtTopoCChyperon;          }
+
+    else if ( evtype == "cc_qe"              ) { gPickedType = kPtReacModeCCQE;           }
+    else if ( evtype == "numu_cc_qe"         ) { gPickedType = kPtReacModeNumuCCQE;       }
+    else if ( evtype == "cc_mec"             ) { gPickedType = kPtReacModeCCMEC;          }
+    else if ( evtype == "numu_cc_mec"        ) { gPickedType = kPtReacModeNumuCCMEC;      }
+    else if ( evtype == "cc_qe_mec"          ) { gPickedType = kPtReacModeCCQEMEC;        }
+    else if ( evtype == "numu_cc_qe_mec"     ) { gPickedType = kPtReacModeNumuCCQEMEC;    }
+    else if ( evtype == "not_cc_qe_mec"      ) { gPickedType = kPtReacModeNotCCQEMEC;     }
+    else if ( evtype == "numu_not_cc_qe_mec" ) { gPickedType = kPtReacModeNumuNotCCQEMEC; }
+
+    else                                       { gPickedType = kPtUndefined;              }
+
+    if(gPickedType == kPtUndefined) {
+      LOG("gevpick", pFATAL) << "Unknown event type (" << evtype << ")";
       gAbortingInErr = true;
       exit(1);
     }
 
   } else {
-    LOG("gevpick", pFATAL) << "Unspecified event topology";
+    LOG("gevpick", pFATAL) << "Unspecified event type";
     gAbortingInErr = true;
     exit(1);
   }
@@ -442,7 +544,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     << "\n\n gevpick job info: "
     << "\n - input file(s)          : " << gOptInpFileNames
     << "\n - output file            : " << gOptOutFileName
-    << "\n - cherry-picked topology : " << topo
+    << "\n - cherry-picked topology : " << evtype
     << "\n";
 }
 //____________________________________________________________________________________
@@ -450,16 +552,26 @@ string DefaultOutputFile(void)
 {
   string tp = "";
 
-  if      (gPickedTopology == kPtAll              ) { tp = "all";                }
-  else if (gPickedTopology == kPtNumuCC1pip       ) { tp = "numu_cc_1pip";       }
-  else if (gPickedTopology == kPtNumuCC1pi0       ) { tp = "numu_cc_1pi0";       }
-  else if (gPickedTopology == kPtNumuCC1pim       ) { tp = "numu_cc_1pim";       }
-  else if (gPickedTopology == kPtNumuNC1pip       ) { tp = "numu_nc_1pip";       }
-  else if (gPickedTopology == kPtNumuNC1pi0       ) { tp = "numu_nc_1pi0";       }
-  else if (gPickedTopology == kPtNumuNC1pim       ) { tp = "numu_nc_1pim";       }
-  else if (gPickedTopology == kPtNumuCChyperon    ) { tp = "numu_cc_hyperon";    }
-  else if (gPickedTopology == kPtNumubarCChyperon ) { tp = "numubar_cc_hyperon"; }
-  else if (gPickedTopology == kPtCChyperon        ) { tp = "cc_hyperon";         } 
+  if      (gPickedType == kPtAll                    ) { tp = "all";                }
+
+  else if (gPickedType == kPtTopoNumuCC1pip         ) { tp = "numu_cc_1pip";       }
+  else if (gPickedType == kPtTopoNumuCC1pi0         ) { tp = "numu_cc_1pi0";       }
+  else if (gPickedType == kPtTopoNumuCC1pim         ) { tp = "numu_cc_1pim";       }
+  else if (gPickedType == kPtTopoNumuNC1pip         ) { tp = "numu_nc_1pip";       }
+  else if (gPickedType == kPtTopoNumuNC1pi0         ) { tp = "numu_nc_1pi0";       }
+  else if (gPickedType == kPtTopoNumuNC1pim         ) { tp = "numu_nc_1pim";       }
+  else if (gPickedType == kPtTopoNumuCChyperon      ) { tp = "numu_cc_hyperon";    }
+  else if (gPickedType == kPtTopoNumubarCChyperon   ) { tp = "numubar_cc_hyperon"; }
+  else if (gPickedType == kPtTopoCChyperon          ) { tp = "cc_hyperon";         } 
+
+  else if (gPickedType == kPtReacModeCCQE           ) { tp = "cc_qe";              }
+  else if (gPickedType == kPtReacModeNumuCCQE       ) { tp = "numu_cc_qe";         }
+  else if (gPickedType == kPtReacModeCCMEC          ) { tp = "cc_mec";             }
+  else if (gPickedType == kPtReacModeNumuCCMEC      ) { tp = "numu_cc_mec";        }
+  else if (gPickedType == kPtReacModeCCQEMEC        ) { tp = "cc_qe_mec";          }
+  else if (gPickedType == kPtReacModeNumuCCQEMEC    ) { tp = "numu_cc_qe_mec";     }
+  else if (gPickedType == kPtReacModeNotCCQEMEC     ) { tp = "not_cc_qe_mec";      }
+  else if (gPickedType == kPtReacModeNumuNotCCQEMEC ) { tp = "numu_not_cc_qe_mec"; }
 
   ostringstream fnm;
   fnm << "gntp." << tp << ".ghep.root";
