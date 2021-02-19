@@ -1173,8 +1173,8 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double C3         = SppChannel::Isospin3Coefficients(spp_channel);
 
 
-  double g = kGF;
-  if(is_CC) g = kGF*fVud;
+  double g = fFermiConstant ;
+  if(is_CC) g *= fVud;
 
   double Lcoeff= abs_mom_k_L/2/kSqrt2/E;
   // Eq. 3.59 of ref. 2, which is multiplied by Q to avoid singularity at Q2=0
@@ -1442,6 +1442,8 @@ void MKSPPPXSec::LoadConfig(void)
   fMv2 = mv*mv;
   this->GetParam( "RES-CA50" , fCA50) ;
 
+  this->GetParam( "FermiConstant", fFermiConstant );
+  
   double thw;
   this->GetParam( "WeinbergAngle", thw );
   fSin2Wein = TMath::Power( TMath::Sin(thw), 2 );

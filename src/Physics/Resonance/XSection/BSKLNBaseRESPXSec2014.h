@@ -80,6 +80,9 @@ namespace genie {
       const RSHelicityAmplModelI * fHAmplModelEMp;
       const RSHelicityAmplModelI * fHAmplModelEMn;
 
+      double fFermiConstant2 ;
+      double fFineStructure2 ;
+
       // configuration data
       bool     fWghtBW;            ///< weight with resonance breit-wigner?
       bool     fNormBW;            ///< normalize resonance breit-wigner to 1?

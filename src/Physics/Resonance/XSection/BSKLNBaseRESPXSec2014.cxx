@@ -444,7 +444,7 @@ double BSKLNBaseRESPXSec2014::XSec(
   const RSHelicityAmplModelI * hamplmod_BRS_plus = 0;
 
   // These lines were ~ 100 lines below, which means that, for EM interactions, the coefficients below were still calculated using the weak coupling constant - Afro
-  double g2 = kGF2;
+  double g2 = fFermiConstant2;
 
   // For EM interaction replace  G_{Fermi} with :
   // a_{em} * pi / ( sqrt(2) * sin^2(theta_weinberg) * Mass_{W}^2 }
@@ -459,10 +459,10 @@ double BSKLNBaseRESPXSec2014::XSec(
 
   if(is_EM) {
     double q4 = q2*q2;
-    g2 = kAem2 * kPi2 / (2.0 * fSin48w * q4);
+    g2 = fFineStructure2 * kPi2 / (2.0 * fSin48w * q4);
   }
 
-  if(is_CC) g2 = kGF2*fVud2;
+  if(is_CC) g2 = fFermiConstant2*fVud2;
 
   double sig0 = 0.125*(g2/kPi)*(-q2/Q2)*(W/Mnuc);
   double scLR = W/Mnuc;
@@ -772,6 +772,14 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   this->GetParam( "RES-Omega"  , fOmega ) ;
   this->GetParam( "minibooneGA", fGA    ) ;
   this->GetParam( "minibooneGV", fGV    ) ;
+
+  double fermi_constant ; 
+  this->GetParam( "FermiConstant", fermi_constant ) ;
+  fFermiConstant2 = fermi_constant * fermi_constant ;
+
+  double alpha ;
+  this->GetParam( "FineStructureConstant", alpha ) ;
+  fFineStructure2 = alpha * alpha ;
 
   double ma, mv ;
   this->GetParam( "RES-Ma", ma ) ;

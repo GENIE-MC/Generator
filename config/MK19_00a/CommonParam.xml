@@ -344,7 +344,7 @@ Or changing the name of this parameter set
            that are contained in $GENIE/data/evgen/catalogues/pdg
            this string specifies the file to be used.
            Please be aware that changing the PDG table might invalidated the selected tune -->
-      <param type="string" name="PDG-TableName"> genie_mk_single_pion_table.txt </param>
+      <param type="string" name="PDG-TableName"> genie_pdg_table_mk_single_pion.txt </param>
   </param_set>
 
 

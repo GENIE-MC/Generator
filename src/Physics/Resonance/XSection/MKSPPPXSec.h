@@ -375,6 +375,7 @@ namespace genie {
 
 
       // configuration data
+      double   fFermiConstant ;
       double   fCA50;              ///< FKR parameter Zeta
       double   fOmega;             ///< FKR parameter Omega
       double   fMa2;               ///< (axial mass)^2
