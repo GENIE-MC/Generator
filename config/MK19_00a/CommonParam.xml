@@ -34,7 +34,8 @@ University of Liverpool
 
   <param_set name="WeakInt">
     <param type="double" name="WeinbergAngle"> 0.501716712132 </param> <!-- 0.501568 -->
-
+    <param type="double" name="FermiConstant"> 1.1663787E-5 </param> <!-- GeV^-2 --> <!-- historical GENIE value -->
+    <param type="double" name="FineStructureConstant"> 7.2973525663549764998E-3 </param> <!-- historical GENIE value -->
   </param_set>
 
   <param_set name="StrongInt">
