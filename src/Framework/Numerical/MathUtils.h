@@ -1,17 +1,17 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::utils::math
+  \namespace  genie::utils::math
 
-\brief      Simple mathematical utilities not found in ROOT's TMath
+  \brief      Simple mathematical utilities not found in ROOT's TMath
 
-\author     Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-            University of Liverpool & STFC Rutherford Appleton Laboratory
+  \author     Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+              University of Liverpool & STFC Rutherford Appleton Laboratory
 
-\created    May 06, 2004
+  \created    May 06, 2004
 
-\cpright    Copyright (c) 2003-2020, The GENIE Collaboration
-            For the full text of the license visit http://copyright.genie-mc.org            
+  \cpright    Copyright (c) 2003-2020, The GENIE Collaboration
+              For the full text of the license visit http://copyright.genie-mc.org            
 */
 //____________________________________________________________________________
 
@@ -19,6 +19,8 @@
 #define _MATH_UTILS_H_
 
 #include <vector>
+#include <array>
+#include <complex>
 #include <TMatrixD.h>
 #include <TVectorD.h>
 #include <TLorentzVector.h>

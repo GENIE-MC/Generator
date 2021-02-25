@@ -37,7 +37,8 @@
    <config alg="genie::RESKinematicsGenerator">          RESKinematicsGenerator.xml          </config>
    <config alg="genie::NuEKinematicsGenerator">          NuEKinematicsGenerator.xml          </config>
    <config alg="genie::DMEKinematicsGenerator">          DMEKinematicsGenerator.xml          </config>
-   <config alg="genie::COHKinematicsGenerator">          COHKinematicsGenerator.xml          </config>
+   <config alg="genie::COHPionKinematicsGenerator">      COHPionKinematicsGenerator.xml      </config>
+   <config alg="genie::COHGammaKinematicsGenerator">     COHGammaKinematicsGenerator.xml     </config>
    <config alg="genie::DFRKinematicsGenerator">          DFRKinematicsGenerator.xml          </config>
    <config alg="genie::SKKinematicsGenerator">           SKKinematicsGenerator.xml           </config>
    <config alg="genie::DMELKinematicsGenerator">         DMELKinematicsGenerator.xml         </config>
@@ -63,8 +64,8 @@
    <config alg="genie::QELEventGeneratorSuSA">           QELEventGeneratorSuSA.xml           </config>
    <config alg="genie::NucleonDecayPrimaryVtxGenerator"> NucleonDecayPrimaryVtxGenerator.xml </config>
    <config alg="genie::NNBarOscPrimaryVtxGenerator">     NNBarOscPrimaryVtxGenerator.xml     </config>
-   <config alg="genie::SpectralFunction2p2h">        SpectralFunction2p2h.xml        </config>
-   <config alg="genie::SRCNuclearRecoil">             SRCNuclearRecoil.xml             </config>
+   <config alg="genie::SpectralFunction2p2h">            SpectralFunction2p2h.xml            </config>
+   <config alg="genie::SRCNuclearRecoil">                SRCNuclearRecoil.xml                </config>
    <config alg="genie::NHLPrimaryVtxGenerator">          NHLPrimaryVtxGenerator.xml          </config>
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
@@ -135,6 +136,14 @@
    <config alg="genie::RSHelicityAmplModelNCn">                  RSHelicityAmplModelNCn.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMp">                  RSHelicityAmplModelEMp.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMn">                  RSHelicityAmplModelEMn.xml                  </config>
+   <config alg="genie::DeVriesFormFactor">                       DeVriesFormFactor.xml                       </config>
+   <config alg="genie::DeVriesFormFactorMap">                    DeVriesFormFactorMap.xml                    </config>
+   <config alg="genie::DeVriesFormFactorInterpolation">          DeVriesFormFactorInterpolation.xml          </config>
+   <config alg="genie::COHProtonFormFactorInterpolation">        COHProtonFormFactorInterpolation.xml        </config>
+   <config alg="genie::COHDeltaCurrent">                         COHDeltaCurrent.xml                         </config>
+   <config alg="genie::DeltaInMediumCorrections">                DeltaInMediumCorrections.xml                </config>
+   <config alg="genie::DeltaTransitionFormFactor">               DeltaTransitionFormFactor.xml               </config>
+
 
    <!--  ****** CONFIGURATION GENERIC CROSS SECTION INTEGRATORS ****** -->
    <config alg="genie::QELXSec">                     QELXSec.xml                     </config>
@@ -155,11 +164,13 @@
    <config alg="genie::DMDISXSec">                   DMDISXSec.xml                   </config>
    <config alg="genie::GLRESXSec">                   GLRESXSec.xml                   </config>
    <config alg="genie::HEDISXSec">                   HEDISXSec.xml                   </config>
+   <config alg="genie::COHGammaIntegrationLimits">   COHGammaIntegrationLimits.xml   </config>
 
    <!--  ****** CONFIGURATION FOR XSEC ALGORITHMS ****** -->
    <config alg="genie::AhrensNCELPXSec">                    AhrensNCELPXSec.xml                    </config>
    <config alg="genie::AhrensDMELPXSec">                    AhrensDMELPXSec.xml                    </config>
    <config alg="genie::AlvarezRusoCOHPiPXSec">              AlvarezRusoCOHPiPXSec.xml              </config>
+   <config alg="genie::AlvarezRusoSalaCOHGammaPXSec">       AlvarezRusoSalaCOHGammaPXSec.xml       </config>
    <config alg="genie::BergerSehgalCOHPiPXSec2015">         BergerSehgalCOHPiPXSec2015.xml         </config>
    <config alg="genie::BergerSehgalFMCOHPiPXSec2015">       BergerSehgalFMCOHPiPXSec2015.xml       </config>
    <config alg="genie::LwlynSmithQELCCPXSec">               LwlynSmithQELCCPXSec.xml               </config>
@@ -213,11 +224,12 @@
    <config alg="genie::SmithMonizUtils">             SmithMonizUtils.xml             </config>
 
    <!-- ****** CONFIGURATION FOR MODELS IN MUELOSS UTILITY PACKAGE ****** -->
-   <config alg="genie::mueloss::BetheBlochModel">         BetheBlochModel.xml        </config>
-   <config alg="genie::mueloss::BezrukovBugaevModel">     BezrukovBugaevModel.xml    </config>
-   <config alg="genie::mueloss::KokoulinPetrukhinModel">  KokoulinPetrukhinModel.xml </config>
-   <config alg="genie::mueloss::PetrukhinShestakovModel"> PetrukhinShestakovModel.xml</config>
-   
+   <config alg="genie::mueloss::BetheBlochModel">         BetheBlochModel.xml            </config>
+   <config alg="genie::mueloss::BezrukovBugaevModel">     BezrukovBugaevModel.xml        </config>
+   <config alg="genie::mueloss::KokoulinPetrukhinModel">  KokoulinPetrukhinModel.xml     </config>
+   <config alg="genie::mueloss::PetrukhinShestakovModel"> PetrukhinShestakovModel.xml    </config>
+   <config alg="genie::DeltaInMediumCorrections">         DeltaInMediumCorrections.xml   </config>
+
    <!-- ****** CONFIGURATION FOR MODELS IN VLE PACKAGE ****** -->
    <config alg="genie::IBDHadronicSystemGenerator">     IBDHadronicSystemGenerator.xml   </config>
    <config alg="genie::IBDKinematicsGenerator">         IBDKinematicsGenerator.xml       </config>

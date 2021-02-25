@@ -7,7 +7,8 @@
 #pragma link C++ namespace genie;
 
 #pragma link C++ class genie::COHInteractionListGenerator;
-#pragma link C++ class genie::COHKinematicsGenerator;
+#pragma link C++ class genie::COHPionKinematicsGenerator;
+#pragma link C++ class genie::COHGammaKinematicsGenerator;
 #pragma link C++ class genie::COHPrimaryLeptonGenerator;
 #pragma link C++ class genie::COHHadronicSystemGenerator;
 

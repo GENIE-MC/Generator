@@ -39,13 +39,13 @@ CoHAR_mA	 double   yes       Coherent axial mass        1.28
 <alg_conf>
 
   <param_set name="Default"> 
-      <param type="alg" name="XSec-Integrator"> genie::COHXSecAR/Default </param>
+      <param type="alg" name="XSec-Integrator"> genie::COHXSecAR/Pion </param>
       <param type="bool" name="UseLookupTable"> false </param>
 
    </param_set>
   
   <param_set name="Fast"> 
-      <param type="alg" name="XSec-Integrator"> genie::COHXSecAR/Fast </param>
+      <param type="alg" name="XSec-Integrator"> genie::COHXSecAR/Fast_Pion </param>
       <param type="bool" name="UseLookupTable"> false </param>
   </param_set>
 
