@@ -18,7 +18,7 @@
 #   [--cycle]          : default: 01
 #   [--use-valgrind]   : default: off
 #   [--batch-system]   : <PBS, LyonPBS, LSF, slurm, HTCondor, HTCondor_PBS, none>, default: PBS
-#   [--queue]          : default: prod
+#   [--queue]          : default: prod. LyonPBS default: P_gdrnu_genie
 #   [--softw-topdir]   : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
 #   [--jobs-topdir]    : top level dir for job files, default: $PWD
 #   [--freenucsplines] : Absolute path to free nucleon splines, default: $softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml
@@ -88,6 +88,9 @@ $freenucsplines = "$softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xm
 $priority       = 0                             unless defined $priority ;
 $e_max          = 200                           unless defined $e_max ;
 $n_knots        = 100                           unless defined $n_knots ;
+if ( $batch_system eq 'LyonPBS' ) {
+    $queue = "P_gdrnu_genie" ;
+}
 
 
 $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
@@ -247,7 +250,7 @@ foreach $nu ( @nu_list ) {
          $batch_script = "$filename_template.pbs";
          open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
          print PBS "#!/bin/bash \n";
-         print PBS "#\$ -P P_$ENV{'GROUP'} \n";
+         print PBS "#\$ -P $queue \n";
          print PBS "#\$ -N $jobname \n";
          print PBS "#\$ -o $filename_template.pbsout.log \n";
          print PBS "#\$ -e $filename_template.pbserr.log \n";
