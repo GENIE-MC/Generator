@@ -17,7 +17,7 @@
 #   [--cycle]            : default: 01
 #   [--use-valgrind]     : default: off
 #   [--batch-system]     : <PBS, LSF>, default: PBS
-#   [--queue]            : default: prod
+#   [--queue]            : default: prod. LyonPBS default: P_gdrnu_genie
 #   [--softw-topdir]     : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE
 #   [--jobs-topdir]      : top level dir for job files, default: /opt/ppd/t2k/scratch/GENIE/
 #
@@ -88,6 +88,9 @@ $geom_lunits       = "mm";
 $file_prefix       = "genie_nd280";
 $mcrun             = $mcrun_base  + $flux_run; 
 $mcseed            = $mcseed_base + $flux_run;
+if ( $batch_system eq 'LyonPBS' ) {
+    $queue = "P_gdrnu_genie" ;
+}
 
 die("** Aborting [Can not find GENIE setup script: ....... $genie_setup]") 
 unless -e $genie_setup;

@@ -16,7 +16,7 @@
 #   [--production]    : default: routine_validation
 #   [--cycle]         : default: 01
 #   [--batch-system]  : <PBS, LyonPBS, LSF, slurm, HTCondor, HTCondor_PBS, none>, default: HTCondor_PBS
-#   [--queue]         : default: prod
+#   [--queue]         : default: prod. LyonPBS default: P_gdrnu_genie
 #   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
 #   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/scratch/GENIE/
 #   [--spline-file]   : absoluyte path to xsec_spline_file, default: $softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml
@@ -90,6 +90,9 @@ $genie_setup     = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $xspl_file       = "$softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml" unless defined $xspl_file ;
 $jobs_dir        = "$jobs_topdir/$genie_version-$production\_$cycle-miniboone";
 $mcseed          = 210921029;
+if ( $batch_system eq 'LyonPBS' ) {
+    $queue = "P_gdrnu_genie" ;
+}
 
 %nevents_hash = ( 
   '10' => '100000',
@@ -178,7 +181,7 @@ for my $curr_runtype (keys %nupdg_hash)  {
          $batch_script = "$filename_template.pbs";
          open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
          print PBS "#!/bin/bash \n";
-         print PBS "#\$ -P P_$ENV{'GROUP'} \n";
+         print PBS "#\$ -P $queue \n";
          print PBS "#\$ -N $jobname \n";
          print PBS "#\$ -o $filename_template.pbsout.log \n";
          print PBS "#\$ -e $filename_template.pbserr.log \n";

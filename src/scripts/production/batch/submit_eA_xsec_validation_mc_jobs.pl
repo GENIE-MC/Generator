@@ -18,7 +18,7 @@
 #   [--cycle]        : cycle in current production, default: 01
 #   [--use-valgrind] : default: off
 #   [--batch-system] : <PBS, LSF, slurm, none>, default: PBS
-#   [--queue]        : default: prod
+#   [--queue]        : default: prod. LyonPBS default: P_gdrnu_genie
 #   [--softw-topdir] : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
 #   [--jobs-topdir]  : top level dir for job files, default: /opt/ppd/t2k/scratch/GENIE/
 #
@@ -84,6 +84,9 @@ $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$jobs_topdir/eA-$production\_$cycle";
 $mcseed         = 210921029;
 $nev_per_subrun = 100000;
+if ( $batch_system eq 'LyonPBS' ) {
+    $queue = "P_gdrnu_genie" ;
+}
 
 #
 # MC runs required for generating predictions for all datasets described

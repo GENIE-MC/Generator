@@ -17,7 +17,7 @@
 #   [--ref-samples]   : Path for reference samples, default: no reference samples / no plots will be generated
 #   [--use-valgrind]  : default: off
 #   [--batch-system]  : <PBS, LSF, slurm, HTCondor, HTCondor_PBS, none>, default: PBS
-#   [--queue]         : default: prod
+#   [--queue]         : default: prod. LyonPBS default: P_gdrnu_genie
 #   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
 #   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/scratch/GENIE/
 #
@@ -104,6 +104,9 @@ $genie_setup     = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $xspl_file       = "$softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml";
 $jobs_dir        = "$jobs_topdir/$genie_version-$production\_$cycle-mctest";
 $mcseed          = 210921029;
+if ( $batch_system eq 'LyonPBS' ) {
+    $queue = "P_gdrnu_genie" ;
+}
 
 %nevents_hash = ( 
   '1000' => '100000',
