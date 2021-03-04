@@ -76,6 +76,9 @@ $production     = "routine_validation"          unless defined $production;
 $cycle          = "01"                          unless defined $cycle;
 $batch_system   = "PBS"                         unless defined $batch_system;
 $queue          = "prod"                        unless defined $queue;
+if ( $batch_system eq 'LyonPBS' ) {
+    $queue      = "P_gdrnu_genie"               unless defined $queue;
+}
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = $ENV{'PWD'}                   unless defined $jobs_topdir;
 $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
@@ -83,9 +86,6 @@ $jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec\_vN";
 $priority       = 0                             unless defined $priority ;
 $e_max          = 200                           unless defined $e_max ;
 $n_knots        = 100                           unless defined $n_knots ;
-if ( $batch_system eq 'LyonPBS' ) {
-    $queue = "P_gdrnu_genie" ;
-}
 
 
 %nucleons_pdg = ( 'n'  =>  1000000010,
