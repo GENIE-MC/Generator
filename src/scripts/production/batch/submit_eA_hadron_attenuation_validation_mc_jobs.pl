@@ -19,7 +19,7 @@
 #   [--cycle]         : cycle in current production, default: 01
 #   [--use-valgrind]  : default: off
 #   [--batch-system]  : <PBS, LSF, slurm, none>, default: PBS
-#   [--queue]         : default: prod. LyonPBS default: P_gdrnu_genie
+#   [--queue]         : default: prod
 #   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
 #   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/softw/scratch/GENIE/
 #
@@ -99,9 +99,6 @@ $jobs_dir       = "$jobs_topdir/vld\_hadroatten-$production\_$cycle";
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-eA-$genie_version.xml";
 $mcseed         = 210921029;
 $nev_per_subrun = 50000;
-if ( $batch_system eq 'LyonPBS' ) {
-    $queue = "P_gdrnu_genie" ;
-}
 
 # inputs for event generation jobs
 %evg_pdg_hash = ( 

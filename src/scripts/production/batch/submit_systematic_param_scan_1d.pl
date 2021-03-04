@@ -21,7 +21,7 @@
 #   [--cycle]          : Cycle in current production. Default: 01
 #   [--use-valgrind]   : Use Valgrind? Default: off
 #   [--batch-system]   : Batch system: <PBS, LSF, slurm, none>. Default: PBS
-#   [--queue]          : Batch queue. Default: prod. LyonPBS default: P_gdrnu_genie
+#   [--queue]          : Batch queue. Default: prod
 #   [--softw-topdir]   : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
 #   [--jobs-topdir]    : top level dir for job files, default: /opt/ppd/t2k/softw/scratch/GENIE/
 #
@@ -75,9 +75,6 @@ $time_limit     = "60:00:00";
 $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$jobs_topdir/rwght1scan-$production\_$cycle";
 $gexec          = "grwght1scan"; 
-if ( $batch_system eq 'LyonPBS' ) {
-    $queue = "P_gdrnu_genie" ;
-}
 
 %def_ntwkdials = ( 
  'MaNCEL'              =>  '3',

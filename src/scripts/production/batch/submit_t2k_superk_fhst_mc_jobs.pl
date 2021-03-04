@@ -16,7 +16,7 @@
 #   [--cycle]          : default: 01
 #   [--use-valgrind]   : default: off
 #   [--batch-system]   : <PBS, LSF>, default: PBS
-#   [--queue]          : default: prod. LyonPBS default: P_gdrnu_genie
+#   [--queue]          : default: prod
 #   [--softw-topdir]   : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE
 #   [--jobs-topdir]    : top level dir for job files, default: /opt/ppd/t2k/scratch/GENIE/
 #
@@ -83,9 +83,6 @@ $xspl_file      = "$inputs_dir/xspl/gxspl-t2k-$genie_version.xml";
 $flux_file      = "$inputs_dir/t2k_flux/$flux_version/sk/$flux_config/$flux_hist_file";
 $job_dir        = "$jobs_topdir/skmc-$production\_$cycle-$neutrino";
 $file_prefix    = "genie_sk";
-if ( $batch_system eq 'LyonPBS' ) {
-    $queue = "P_gdrnu_genie" ;
-}
 
 %mcseed_base    = ( 'numu'    => '183221029',
                     'numubar' => '283221029',

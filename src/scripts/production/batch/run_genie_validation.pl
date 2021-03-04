@@ -14,7 +14,7 @@
 #   [--production]      : default: routine_validation
 #   [--cycle]           : default: 01
 #   [--batch-system]    : <PBS, LSF>, default: PBS (currently works only for PBS)
-#   [--queue]           : default: prod. Default for LyonPBS : P_gdrnu_genie
+#   [--queue]           : default: prod
 #   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
 #   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/softw/scratch/GENIE/
 #
@@ -57,9 +57,7 @@ $batch_system   = "PBS"                         unless defined $batch_system;
 $queue          = "prod"                        unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE"    unless defined $softw_topdir;
 $jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
-if ( $batch_system eq 'LyonPBS' ) {
-    $queue = "P_gdrnu_genie" ;
-}
+
 $out_data_dir   = "$softw_topdir/data/stage/$genie_version-$production\_$cycle";
 $inp_data_dir   = "$softw_topdir/data/job_inputs/";
 $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";

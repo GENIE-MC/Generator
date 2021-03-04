@@ -15,7 +15,7 @@
 #   [--cycle]         : default: 01
 #   [--use-valgrind]  : default: off
 #   [--batch-system]  : <PBS, LSF, slurm, HTCondor, HTCondor_PBS, none>, default: PBS
-#   [--queue]         : default: prod. LyonPBS default: P_gdrnu_genie
+#   [--queue]         : default: prod
 #   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
 #   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/softw/scratch/GENIE/
 #
@@ -67,9 +67,6 @@ $jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
 $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec\_vN/";
 $time_limit     = "60:00:00";
-if ( $batch_system eq 'LyonPBS' ) {
-    $queue = "P_gdrnu_genie" ;
-}
 
 $nkots = 500;
 $emax  = 500;

@@ -103,6 +103,9 @@ $production     = "routine_validation"          unless defined $production;
 $cycle          = "01"                          unless defined $cycle;
 $batch_system   = "PBS"                         unless defined $batch_system;
 $queue          = "prod"                        unless defined $queue;
+if ( $batch_system eq 'LyonPBS' ) {
+    $queue = "P_gdrnu_genie" unless defined $queue ;
+}
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml" unless defined $xspl_file ;
@@ -111,9 +114,6 @@ $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup $co
 $jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec_validation";
 $mcseed         = 210921029;
 $nev_per_subrun = 100000;
-if ( $batch_system eq 'LyonPBS' ) {
-    $queue = "P_gdrnu_genie" ;
-}
 
 # inputs for event generation jobs
 %evg_nupdg_hash = ( 

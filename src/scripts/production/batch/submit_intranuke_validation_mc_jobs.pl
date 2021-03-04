@@ -21,7 +21,7 @@
 #   [--cycle]         : Cycle in current production, default: 01
 #   [--use-valgrind]  : Use valgrind? default: off
 #   [--batch-system]  : <PBS, LSF, slurm, HTCondor, HTCondor_PBS, none>, default: PBS
-#   [--queue]         : Batch queue, default: prod. LyonPBS default: P_gdrnu_genie
+#   [--queue]         : Batch queue, default: prod
 #   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
 #   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/scratch/GENIE/
 #
@@ -186,9 +186,6 @@ $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$jobs_topdir/vld\_inuke-$production\_$cycle";
 $mcseed         = 210921029;
 $nev_per_subrun = 100000;
-if ( $batch_system eq 'LyonPBS' ) {
-    $queue = "P_gdrnu_genie" ;
-}
 
 # inputs for event generation jobs
 %evg_probepdg_hash = ( 
