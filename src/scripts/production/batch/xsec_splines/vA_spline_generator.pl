@@ -81,10 +81,11 @@ $arch           = "SL6.x86_64"                  unless defined $arch;
 $production     = "routine_validation"          unless defined $production;
 $cycle          = "01"                          unless defined $cycle;
 $batch_system   = "PBS"                         unless defined $batch_system;
-$queue          = "prod"                        unless defined $queue;
+$queue_default  = "prod";
 if ( $batch_system eq 'LyonPBS' ) {
-    $queue      = "P_gdrnu_genie"               unless defined $queue;
+    $queue_default      = "P_gdrnu_genie" ;
 }
+$queue          = $queue_default                unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = $ENV{'PWD'}                   unless defined $jobs_topdir;
 $freenucsplines = "$softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml" unless defined $freenucsplines;
@@ -157,13 +158,13 @@ if ( defined $target_list ) {
 }
 else {
 @tgt_pdg = ( 1000060120, #C12
+	     1000080160,  #O16
              1000100200, #Ne20
              1000130270, #Al27
              1000140300, #Si30
 	     1000180400, #Ar40
              1000260560, #Fe56
-             1000822070, #Pb207
-	     1000080160  #O16
+             1000822070 #Pb207
            );
 }
 print "\n Target List: @tgt_pdg \n";

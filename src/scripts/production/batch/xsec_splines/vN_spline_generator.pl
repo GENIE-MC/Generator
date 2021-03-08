@@ -75,10 +75,11 @@ $arch           = "SL6.x86_64"                  unless defined $arch;
 $production     = "routine_validation"          unless defined $production;
 $cycle          = "01"                          unless defined $cycle;
 $batch_system   = "PBS"                         unless defined $batch_system;
-$queue          = "prod"                        unless defined $queue;
+$queue_default  = "prod";
 if ( $batch_system eq 'LyonPBS' ) {
-    $queue      = "P_gdrnu_genie"               unless defined $queue;
+    $queue_default  = "P_gdrnu_genie" ;
 }
+$queue          = $queue_default                unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = $ENV{'PWD'}                   unless defined $jobs_topdir;
 $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
