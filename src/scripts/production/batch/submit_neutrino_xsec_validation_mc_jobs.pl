@@ -102,10 +102,11 @@ $arch           = "SL6.x86_64"                  unless defined $arch;
 $production     = "routine_validation"          unless defined $production;
 $cycle          = "01"                          unless defined $cycle;
 $batch_system   = "PBS"                         unless defined $batch_system;
-$queue          = "prod"                        unless defined $queue;
+$queue          = "prod" ;
 if ( $batch_system eq 'LyonPBS' ) {
-    $queue = "P_gdrnu_genie" unless defined $queue ;
+    $queue = "P_gdrnu_genie" ;
 }
+$queue          = $queue_default                unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml" unless defined $xspl_file ;
