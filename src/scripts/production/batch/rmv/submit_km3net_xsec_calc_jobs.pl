@@ -15,7 +15,7 @@
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
 #   [--batch-system] : <PBS, LSF, slurm>, default: PBS
-#   [--queue]        : default: prod. LyonPBS default: P_gdrnu_genie
+#   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
 #
 # Notes:
@@ -56,10 +56,6 @@ $softw_topdir   = "/opt/ppd/t2k/softw/GENIE" unless defined $softw_topdir;
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$softw_topdir/scratch/xsec\_km3net-$production\_$cycle/";
 $freenucsplines = "$softw_topdir/data/job_inputs/xspl/gxspl-vN-UHE-$genie_version.xml";
-if ( $batch_system eq 'LyonPBS' ) {
-    $queue = "P_gdrnu_genie" ;
-}
-
 $nkots     = 100;
 $emax      = 500;
 $neutrinos = "12,-12,14,-14";
