@@ -601,8 +601,8 @@ void SaveGraphsToRootFile(void)
     else if (proc.IsResonant()         ) { title << "res";   }
     else if (proc.IsDeepInelastic()    ) { title << "dis";   }
     else if (proc.IsDiffractive()      ) { title << "dfr";   }
-    else if (proc.IsCoherentProduction() ) { 
-      title << "coh"; 
+    else if (proc.IsCoherentProduction() ) {
+      title << "coh";
       if      ( xcls.NSingleGammas() > 0 ) title << "_gamma" ;
       else if ( xcls.NPions() > 0 )        title << "_pion"  ;
       else if ( xcls.NRhos() > 0 )         title << "_rho"   ;
@@ -618,15 +618,14 @@ void SaveGraphsToRootFile(void)
 			      << " scattering type not recognised: spline not added" ;
       continue;         }
     
-
     if      (proc.IsWeakCC())  { title << "_cc";      }
     else if (proc.IsWeakNC())  { title << "_nc";      }
     else if (proc.IsWeakMix()) { title << "_ccncmix"; }
     else if (proc.IsEM()    )  { title << "_em";      }
     else if (proc.IsDarkNeutralCurrent() )  { title << "_dark";  }
-    else                       { 
-      LOG("gspl2root", pWARN) << "Process " << proc 
-			      << " interaction type has not recongnised: spline not added " ;
+    else                       {
+      LOG("gspl2root", pWARN) << "Process " << proc
+                              << " interaction type has not recongnised: spline not added " ;
       continue;            }
 
     if(tgt.HitNucIsSet()) {

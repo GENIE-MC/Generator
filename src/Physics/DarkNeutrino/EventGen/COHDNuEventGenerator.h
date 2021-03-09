@@ -5,7 +5,7 @@
 \brief    Generates complete COHDNu events.
           Is a concrete implementation of the EventRecordVisitorI interface.
 
-\author   Author: Iker de Icaza <i.de-icaza-astiz \at sussex.ac.uk>
+\author   Iker de Icaza <i.de-icaza-astiz \at sussex.ac.uk>
           University of Sussex
 
           Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>

@@ -8,22 +8,12 @@ Configurable Parameters:
 ..........................................................................................................
 Name                          Type        Optional   Comment
 ..........................................................................................................
-FFScaling                     double      No         Scaling factor for Form Factor for Gamma Delta coupling
-                                                     This value is coming from an MiniBooNE technical note
-
-Delta-ThetaOnly               bool        yes        Pion angolar distribution from delta decay isotropic in phi
-
-Delta-R33                     vec-double  No         Values for the R33 parameter of the
-                                                     pion angular distribution in the Delta reference frame.
 
 -->
-
-
 
 <alg_conf>
 
   <param_set name="Default">
-    <param type="string" name="CommonDecay"> DecayFlags </param>
     <param type="string" name="CommonDark"> Mixing,Masses </param>
   </param_set>
 

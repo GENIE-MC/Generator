@@ -44,7 +44,15 @@ EngelFormFactor::~EngelFormFactor()
 //____________________________________________________________________________
 double EngelFormFactor::FormFactor(const double Q2, const Target & target) const {
 
-  if(!target.IsValidNucleus()) return 0.;
+  if(!target.IsValidNucleus()) {
+    LOG("EngelFormFactor", pWARN)
+      << "target: " << target.AsString() << " is not a valid nucleus. ";
+    return 0.;
+  }
+
+  LOG("EngelFormFactor", pDEBUG)
+    << "Running Engel Form Factor with Q2: " << Q2
+    << " and target: " << target.AsString();
 
   const double A = target.A();
 

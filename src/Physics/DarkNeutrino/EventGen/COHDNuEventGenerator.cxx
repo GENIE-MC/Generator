@@ -11,8 +11,6 @@
 */
 //____________________________________________________________________________
 
-#include <cstdlib>
-
 #include <TMath.h>
 #include <Math/IFunction.h>
 #include <Math/GSLMinimizer1D.h>
@@ -92,28 +90,9 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
 
   // Generate kinematics
   if(fGenerateUniformly) {
-    LOG("CEvNS", pFATAL)
+    LOG("COHDNu", pFATAL)
       << "Option to generate kinematics uniformly not supported";
     exit(1);
-/*
-  gQ2 = Q2min + dQ2 * rnd->RndKine().Rndm();
-  LOG("CEvNS", pINFO) << "Trying: Q2 = " << gQ2;
-  interaction->KinePtr()->SetQ2(gQ2);
-
-  // Computing cross section for the current kinematics
-  gxsec = fXSecModel->XSec(interaction, kPSQ2fE);
-  if(gxsec<=0){
-  LOG("CEvNS", pWARN)
-  << "Non-positive x-section for selected Q2 = " << gQ2 << "GeV^2";
-  }
-
-  double weight = 1; // to implement if fGenerateUniformly option is enabled
-  LOG("CEvNS", pDEBUG)  << "Kinematics wght = "<< weight;
-  // apply computed weight to the current event weight
-  weight *= event->Weight();
-  LOG("CEvNS", pDEBUG) << "Current event wght = " << weight;
-  event->SetWeight(weight);
-*/
   }
   else {
     // For the subsequent kinematic selection with the rejection method:
@@ -134,7 +113,7 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
     while(1) {
       iter++;
       if(iter > kRjMaxIterations) {
-        LOG("COHDNuEventGenerator", pWARN)
+        LOG("COHDNu", pWARN)
           << "*** Could not select a valid DNuE after " << iter << " iterations";
         event->EventFlags()->SetBitNumber(kKineGenErr, true);
         genie::exceptions::EVGThreadException exception;
@@ -144,7 +123,7 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
       } // max iterations
 
       gDNuE = DNuEnergy.min + dDNuE * rnd->RndKine().Rndm();
-      LOG("CEvNS", pINFO) << "Trying: E_N = " << gDNuE;
+      LOG("COHDNu", pINFO) << "Trying: E_N = " << gDNuE;
 
       // Computing cross section for the current kinematics
       gxsec = -1. * xsec_func(gDNuE);
@@ -152,7 +131,7 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
       if(gxsec > xsec_max) {
         double frac = TMath::Abs(gxsec-xsec_max)/xsec_max;
         if(frac > fMaxXSecDiffTolerance) {
-          LOG("CEvNS", pWARN)
+          LOG("COHDNu", pWARN)
             << "Current computed cross-section (" << gxsec/(units::cm2)
             << " cm2/GeV^2) exceeds the maximum cross-section ("
             << xsec_max/(units::cm2) << " beyond the specified tolerance";
@@ -162,7 +141,7 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
       // Decide whether to accept the current kinematic point
       double t = fSafetyFactor * xsec_max * rnd->RndKine().Rndm();
       //this->AssertXSecLimits(interaction, gxsec, xsec_max);
-      LOG("CEvNS", pINFO)
+      LOG("COHDNu", pINFO)
         << "dxsec/dQ2 = " << gxsec/(units::cm2) << " cm2/GeV^2"
         << "J = 1, rnd = " << t;
       bool accept = (t<gxsec);
@@ -170,16 +149,10 @@ void COHDNuEventGenerator::GenerateKinematics(GHepRecord * event) const
     } // 1
   } // generate uniformly
 
-  // LOG("CEvNS", pNOTICE) << "Selected Q2 = " << gQ2 << " GeV^2";
-
   // reset bits
   interaction->ResetBit(kISkipProcessChk);
   interaction->ResetBit(kISkipKinematicChk);
 
-  // double fDNuMass2 = fDNuMass*fDNuMass;
-
-  // Kinematics * kinematics = fInteraction->KinePtr();
-  // const TLorentzVector * P4_nu = fInteraction->InitStatePtr()->GetProbeP4(kRfLab);
   double M_target = interaction->InitState().Tgt().Mass();
 
   double ETimesM = E_nu * M_target;
@@ -217,9 +190,9 @@ void COHDNuEventGenerator::AddFinalStateDarkNeutrino(GHepRecord * event) const
   TLorentzVector x4l(vtx);  // position 4-vector
 
   event->AddParticle(probe -> Pdg() > 0 ? kPdgDarkNeutrino : kPdgAntiDarkNeutrino,
-                     kIStDecayedState, event->ProbePosition(),
-                     -1,-1,-1, event->Summary()->Kine().FSLeptonP4(), x4l);
-
+                     kIStDecayedState,
+                     event->ProbePosition(), event->TargetNucleusPosition(),
+                     -1,-1, event->Summary()->Kine().FSLeptonP4(), x4l);
 }
 //___________________________________________________________________________
 void COHDNuEventGenerator::AddRecoilNucleus(GHepRecord * event) const
@@ -234,16 +207,15 @@ void COHDNuEventGenerator::AddRecoilNucleus(GHepRecord * event) const
 
   const TLorentzVector & p4recoil = p4probe + p4target - p4fsl;
 
-  LOG("CEvNS", pNOTICE)
+  LOG("COHDNu", pNOTICE)
     << "Recoil 4-momentum: " << utils::print::P4AsString(&p4recoil);
 
   const TLorentzVector & vtx = *(probe->X4());
 
-  event->AddParticle(
-    event->TargetNucleus()->Pdg(),
-    kIStStableFinalState,
-    event->TargetNucleusPosition(),
-    -1,-1,-1, p4recoil, vtx);
+  event->AddParticle(event->TargetNucleus()->Pdg(),
+                     kIStStableFinalState,
+                     event->TargetNucleusPosition(), event->ProbePosition(),
+                     -1,-1, p4recoil, vtx);
 }
 //___________________________________________________________________________
 void COHDNuEventGenerator::Configure(const Registry & config)

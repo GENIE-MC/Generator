@@ -17,20 +17,14 @@
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
-#include "Framework/Conventions/RefFrame.h"
-#include "Framework/Conventions/KineVar.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
-#include "Framework/Numerical/MathUtils.h"
-#include "Framework/Numerical/GSLUtils.h"
-#include "Physics/NuclearState/NuclearUtils.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Physics/DarkNeutrino/XSection/BertuzzoDNuCOHPXSec.h"
 #include "Physics/DarkNeutrino/XSection/EngelFormFactor.h"
-// #include "Physics/Coherent/XSection/NuclDensityMomentIntegrand.h"
 
 using namespace genie;
 using namespace genie::utils;
@@ -65,10 +59,9 @@ double BertuzzoDNuCOHPXSec::XSec(
   const Target &       target     = init_state.Tgt();
 
   // User inputs to the calculation
-  const int nu_pdg = init_state.ProbePdg(); // neutrino energy, units: GeV
+  const int nu_pdg = init_state.ProbePdg();
   const double E  = init_state.ProbeE(kRfLab); // neutrino energy, units: GeV
   const double Q2 = kinematics.Q2(); // momentum transfer, units: GeV^2
-  // const double DNuE =  kinematics.FSLeptonP4().E(); // E_N is the energy of the dark neutrino
   const double TE =  kinematics.HadSystP4().E(); // energy of the target
   const unsigned int Z = target.Z(); // number of protons
 
@@ -82,16 +75,11 @@ double BertuzzoDNuCOHPXSec::XSec(
   // Target atomic mass number and mass calculated from inputs
   const double M = target.Mass(); // units: GeV
 
-  // LOG("DNu", pDEBUG)
-  //   << "Q2 = " << Q2 << " GeV^2, E = " << E << " GeV "
-  //   << "--> TA = " << TA << " GeV";
-
   const double FF = fFF->FormFactor(Q2, target);
   const double TT = TE - M;
 
   // auxiliary variables
   const double E2  = E * E;
-  // const double DNuE2  = DNuE * DNuE;
   const double Z2 = Z * Z;
   const double FF2 = FF * FF;
   const double TTDiff = TT - M;
@@ -174,7 +162,7 @@ void BertuzzoDNuCOHPXSec::LoadConfig(void)
 
   bool good_configuration = true ;
 
-  double DKineticMixing = 0.;    // \varepsilon in the note
+  double DKineticMixing = 0.;
   this->GetParam("Dark-KineticMixing", DKineticMixing);
   fEps2 = DKineticMixing * DKineticMixing;
 
@@ -186,18 +174,20 @@ void BertuzzoDNuCOHPXSec::LoadConfig(void)
   std::vector<double> DMixing2s;  // |U_{\alpha 4}|^2
   this->GetParamVect("Dark-Mixings2", DMixing2s);
 
-  // check whther we go enough mixing elements
+  // check whether we have enough mixing elements
   if ( DMixing2s.size () < n_min_mixing ) {
     good_configuration = false ;
-    LOG("BertuzzoDNuCOHPXSec", pERROR ) << "Not enough mixing elements specified, only specified "
-                                        << DMixing2s.size() << " / " << n_min_mixing ;
+    LOG("BertuzzoDNuCOH", pERROR )
+      << "Not enough mixing elements specified, only specified "
+      << DMixing2s.size() << " / " << n_min_mixing ;
   }
 
-  double tot_mix = 0. ;
+  double tot_mix = 0.;
   for( unsigned int i = 0; i < n_min_mixing ; ++i ) {
     if ( DMixing2s[i] < 0. ) {
       good_configuration = false ;
-      LOG("BertuzzoDNuCOHPXSec", pERROR ) << "Mixign " << i << " non positive: " << DMixing2s[i] ;
+      LOG("BertuzzoDNuCOH", pERROR )
+        << "Mixing " << i << " non positive: " << DMixing2s[i] ;
       continue ;
     }
     tot_mix += fMixing2s[i] = DMixing2s[i] ;
@@ -224,7 +214,7 @@ void BertuzzoDNuCOHPXSec::LoadConfig(void)
   assert(fFF);
 
   if ( ! good_configuration ) {
-    LOG("BertuzzoDNuCOHPXSec", pFATAL ) << "Wrong configuration. Exiting" ;
+    LOG("BertuzzoDNuCOH", pFATAL ) << "Wrong configuration. Exiting" ;
     exit ( 78 ) ;
   }
 

@@ -126,8 +126,8 @@ public:
       case(kPSQELEvGen)   : return "<QELEvGen>"; break;
       case(kPSDMELEvGen)  : return "<DMELEvGen>"; break;
       case(kPSTAfE)       : return "<{TA}|E>";   break;
-      case(kPSEDNufE)     : return "<{EDNu}|E>"; break; 
       case(kPSlog10xlog10Q2fE) : return "<{log10x,log10Q2}|E>"; break;
+      case(kPSEDNufE)     : return "<{EDNu}|E>"; break;
     }
     return "** Undefined kinematic phase space **";
   }

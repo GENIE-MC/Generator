@@ -68,6 +68,7 @@ namespace genie {
     void SetSpaceTime(std::vector<GHepParticle> & pp, const GHepParticle & mother,
                       double total_amplitude) const;
 
+    string ParticleGunKineAsString(const TLorentzVector * vec4) const;
     mutable TGenPhaseSpace fPhaseSpaceGenerator;
     mutable double         fWeight;
 
