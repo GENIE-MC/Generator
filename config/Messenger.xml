@@ -100,7 +100,6 @@
   <priority msgstream="GuiUtils">              INFO   </priority>
   <priority msgstream="GRV98LO">               WARN   </priority>
   <priority msgstream="GXSecFunc">             WARN   </priority>
-  <priority msgstream="GLRES">                 WARN   </priority>
   <priority msgstream="HadTransp">             WARN   </priority>
   <priority msgstream="HadronicVtx">           WARN   </priority>
   <priority msgstream="HybridHad">             WARN   </priority>
@@ -202,6 +201,15 @@
   <priority msgstream="XSecAlgMap">            NOTICE </priority>
   <priority msgstream="XSecSplLst">            NOTICE </priority>
   <priority msgstream="ZExpAxialFormFactorModel"> NOTICE </priority>
+  <priority msgstream="GLRESXSec">             WARN    </priority>
+  <priority msgstream="GLRESPXSec">            WARN    </priority>
+  <priority msgstream="GLRESGenerator">        WARN    </priority>
+  <priority msgstream="GLRESKinematics">       WARN    </priority>
+  <priority msgstream="HEDISXSec">             WARN    </priority>
+  <priority msgstream="HEDISPXSec">            WARN    </priority>
+  <priority msgstream="HEDISGenerator">        WARN    </priority>
+  <priority msgstream="HEDISKinematics">       WARN    </priority>
+  <priority msgstream="LeptoHad">              ERROR   </priority>
 
   <priority msgstream="gevgen">              NOTICE </priority>
   <priority msgstream="gevgen_dm">           NOTICE </priority>

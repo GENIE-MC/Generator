@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  <!-- 
+       Configuration sets for the EventLibraryInterface 
+
+Configurable Parameters:
+................................................................................................
+Name                        Type     Optional   Comment                   Default
+EventLibraryPath            string   No         path to the lib files     CommonParam[EventLib]
+                                                File requirements defined 
+                                                in the manual
+OnDemand                    bool     no         Controls if the file 
+                                                is to be read from disk 
+                                                on-demand (true) recommended
+                                                or read completely into memory
+                                                upfront (false)
+                                                
+................................................................................................
+-->
+
+
+
+
+  <param_set name="Default">
+
+    <param type="string"  name="CommonParam"> EventLib </param>
+
+    <param type="bool" name="OnDemand"> true </param>
+
+  </param_set>
+</alg_conf>

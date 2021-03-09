@@ -154,6 +154,20 @@ LHAPDF_LIBRARIES += -L$(GOPT_WITH_LHAPDF5_LIB) -lLHAPDF $(FORT_LIBRARIES)
 endif
 
 #-------------------------------------------------------------------
+#                             APFEL
+#-------------------------------------------------------------------
+
+APFEL_LIBRARIES = 
+APFEL_INCLUDES  =
+
+ifeq ($(strip $(GOPT_ENABLE_APFEL)),YES) 
+
+APFEL_INCLUDES  = -I$(GOPT_WITH_APFEL_INC)
+APFEL_LIBRARIES = -L$(GOPT_WITH_APFEL_LIB) -lAPFEL 
+
+endif
+
+#-------------------------------------------------------------------
 #                             INCL
 #-------------------------------------------------------------------
 

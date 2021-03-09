@@ -286,6 +286,7 @@ foreach $nu ( @nu_list ) {
         print HTC "Error                  = $filename_template.err \n";
 	print HTC "priority               = -1 \n" if ( $priority ) ;
         print HTC "Request_memory         = 4 GB \n";
+        print HTC "requirements           = (Opsys =?= \"LINUX\") && (AccessToData =?= True) && (OpSysAndVer =?= \"CentOS7\")  \n";
         print HTC "Queue \n";
         close(HTC);
 

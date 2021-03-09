@@ -31,7 +31,8 @@ TGT_BASE =  gevgen          \
             gspl2root       \
             gntpc           \
             gpdfcomp        \
-            gsfcomp
+            gsfcomp         \
+            gmkhedissf
 
 ifeq ($(strip $(GOPT_ENABLE_FNAL)),YES)
 TGT_BASE += gevgen_fnal
@@ -241,6 +242,12 @@ $(GENIE_BIN_PATH)/gpdfcomp: gPDFComp.o $(call find_libs,gpdfcomp)
 $(GENIE_BIN_PATH)/gsfcomp: gSFComp.o $(call find_libs,gsfcomp)
 	@echo "** Building gsfcomp"
 	$(LD) $(LDFLAGS) gSFComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gsfcomp
+
+# App to create structure functions suitable for HEDIS
+#
+$(GENIE_BIN_PATH)/gmkhedissf: gMakeHEDISStrucFunc.o $(call find_libs,gmkhedissf)
+	@echo "** Building gmkhedissf"
+	$(LD) $(LDFLAGS) gMakeHEDISStrucFunc.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmkhedissf
 
 # CLEANING-UP
 

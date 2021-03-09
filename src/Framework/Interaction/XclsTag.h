@@ -68,6 +68,10 @@ public:
   bool KnownResonance     (void) const { return (fResonance != kNoResonance); }
   Resonance_t Resonance   (void) const { return fResonance; }
   int  DecayMode          (void) const { return fDecayMode; }
+  bool IsFinalQuarkEvent  (void) const { return fIsFinalQuarkEvent;  }
+  int  FinalQuarkPdg      (void) const { return fFinalQuarkPdg;      }
+  bool IsFinalLeptonEvent (void) const { return fIsFinalLeptonEvent; }
+  int  FinalLeptonPdg     (void) const { return fFinalLeptonPdg;     }
 
   // Ssetting exclusive final state information
   void SetCharm           (int charm_pdgc = 0);
@@ -86,6 +90,8 @@ public:
   void ResetNRhos         (void);
   void SetResonance       (Resonance_t res);
   void SetDecayMode       (int decay_mode);
+  void SetFinalQuark  (int finalquark_pdgc = 0);
+  void SetFinalLepton (int finallepton_pdgc = 0);
 
   // Copy, reset, print itself and build string code
   void   Reset    (void);                          ///< reset object
@@ -114,8 +120,12 @@ private:
   int         fNRhoMinus;             ///< # of rho^-'s in the hadronic system after this Xcls reaction (before FSI)
   Resonance_t fResonance;             ///< baryon resonance excited by probe
   int         fDecayMode;
+  bool        fIsFinalQuarkEvent;     ///< true if we have define final quark
+  int         fFinalQuarkPdg;         ///< final quark pdg-code
+  bool        fIsFinalLeptonEvent;    ///< true if we have define final lepton
+  int         fFinalLeptonPdg;        ///< final lepton pdg-code
 
-ClassDef(XclsTag,4)
+ClassDef(XclsTag,5)
 };
 
 }      // namespace
