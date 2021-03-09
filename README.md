@@ -55,7 +55,6 @@ Luis Alvarez-Ruso [9] < Luis.Alvarez \at ific.uv.es >,
 Costas Andreopoulos (*) [5,7] < constantinos.andreopoulos \at cern.ch >, 
 Adi Ashkenazi [4] < adishka \at gmail.com >, 
 Christopher Barry [5] < C.Barry \at liverpool.ac.uk >, 
-Glória de Sá Pereira [5,7] < gloriadsp \at hep.ph.liv.ac.uk >, 
 Steve Dennis [5] < s.r.dennis \at liverpool.ac.uk >, 
 Steve Dytman [6] < dytman \at pitt.edu >, 
 Hugh Gallagher [8] < hugh.gallagher \at tufts.edu >, 
@@ -107,7 +106,7 @@ Julia Yarba [3]  < yarba_j \at fnal.gov >
 
 ## Copyright
 
-Copyright (c) 2003-2020, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
+Copyright (c) 2003-2021, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
 
 
 ## Physics & User manual

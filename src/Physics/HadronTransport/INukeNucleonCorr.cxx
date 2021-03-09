@@ -2,7 +2,7 @@
 /*
  Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- 
+
 
  Author: Tomek Golan <tomasz.golan@uwr.edu.pl>, FNAL/Rochester
          Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
@@ -33,7 +33,9 @@ potential in (e,e'p).  GENIE code was adapted from NuWro implementation.
 #include "Framework/Conventions/Units.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Messenger/Messenger.h"
+#include "Framework/Conventions/Constants.h"
 using namespace genie;
+using namespace genie::constants;
 
 #include <vector>
 #include <string>
@@ -98,7 +100,7 @@ double INukeNucleonCorr::mstar (const double rho, const double k2)
 //! \f$k_F = (\frac{3}{2}\pi^2\rho)^{1/3}\f$
 double INukeNucleonCorr :: localFermiMom (const double rho, const int A, const int Z, const int pdg)
 {
-  static double factor = 3.0 * M_PI * M_PI / 2.0;
+  static double factor = 3.0 * kPi * kPi / 2.0;
 
   return pdg == kPdgProton ? pow (factor * rho * Z / A, 1.0 / 3.0) / (units::fermi) :
                              pow (factor * rho * (A - Z) / A, 1.0 / 3.0) / (units::fermi);
@@ -119,7 +121,7 @@ TLorentzVector INukeNucleonCorr :: generateTargetNucleon (const double mass, con
   // get random momentum direction
   const double costheta = 2.0 * rnd->RndGen().Rndm() - 1.0;  // random cos (theta)
   const double sintheta = sqrt (1.0 - costheta * costheta);  // sin (theta)
-  const double      phi = 2.0 * M_PI * rnd->RndGen().Rndm(); // random phi
+  const double      phi = 2.0 * kPi * rnd->RndGen().Rndm(); // random phi
 
   // set nucleon 4-momentum
   const double p = rnd->RndGen().Rndm() * fermiMom; // random nucleon momentum up to Fermi level

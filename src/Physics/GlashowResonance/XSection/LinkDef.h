@@ -6,6 +6,7 @@
 
 #pragma link C++ namespace genie;
 
+#pragma link C++ class genie::GLRESXSec;
 #pragma link C++ class genie::GLRESPXSec;
 
 #endif
