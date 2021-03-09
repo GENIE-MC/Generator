@@ -53,7 +53,7 @@ XSec-Integrator             alg     No
 <!-- Helicity amplitudes models -->
     <param type="alg"    name="HelictyAmplCCAlg">    genie::RSHelicityAmplModelCC/Default           </param>
     <param type="alg"    name="HelictyAmplNCpAlg">   genie::RSHelicityAmplModelNCp/Default          </param>
-    <param type="alg"    name="HelictyAmplNCnAlg">   genie::RSHelicityAmplModelNCn/MKConfiguration  </param>
+    <param type="alg"    name="HelictyAmplNCnAlg">   genie::RSHelicityAmplModelNCn/Default          </param>
   </param_set>
 
 
