@@ -40,8 +40,7 @@ PDGLibrary::PDGLibrary()
 
 #ifdef __GENIE_DARK_NEUTRINO_ENABLED__
   LOG("PDG", pINFO) << "Loading Dark sector Info";
-  if ( AddDarkSector() ) 
-  else {
+  if ( ! AddDarkSector() ) { 
     LOG("PDG", pFATAL) << "Could not load Dark Neutrino data";
     exit(78);
   }
