@@ -49,11 +49,10 @@ namespace genie {
 
     // Implement the EventRecordVisitorI interface
     void ProcessEventRecord(GHepRecord * event) const;
-
+    
   protected:
     virtual void LoadConfig(void);
 
-  private:
     bool ToBeDecayed(const GHepParticle & p) const;
     // comments later
     std::vector<GHepParticle> Decay(const GHepParticle & mother,
@@ -67,10 +66,12 @@ namespace genie {
     std::vector<DecayChannel> DarkNeutrinoDecayChannels( int mother_pdg ) const;
     void SetSpaceTime(std::vector<GHepParticle> & pp, const GHepParticle & mother,
                       double total_amplitude) const;
+    
+  private:
 
-    string ParticleGunKineAsString(const TLorentzVector * vec4) const;
+    static string ParticleGunKineAsString(const TLorentzVector & vec4 ) ;
+
     mutable TGenPhaseSpace fPhaseSpaceGenerator;
-    mutable double         fWeight;
 
     double fEps2;
     std::array<double, 4> fMixing2s;

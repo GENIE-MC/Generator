@@ -98,21 +98,21 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
     double total_amplitude = std::accumulate(dcs.begin(), dcs.end(), 0.,
                                              [](double total,
                                                 const DarkSectorDecayer::DecayChannel& dc)
-                                               {return total + dc.second;});
-
+					     {return total + dc.second;});
+    
     int dcid = SelectDecayChannel(dcs, total_amplitude);
     std::vector<GHepParticle> daughters = Decay(mother, dcs[dcid].first);
     SetSpaceTime(daughters, mother, total_amplitude);
-
+    
     for(auto & daughter: daughters){
       daughter.SetFirstMother(ipos);
       event->AddParticle(daughter);
     }
   }
-
+  
   LOG("DarkSectorDecayer", pNOTICE)
-     << "Done finding & decaying dark sector particles";
-
+    << "Done finding & decaying dark sector particles";
+  
 }
 //____________________________________________________________________________
 std::vector<GHepParticle> DarkSectorDecayer::Decay(
@@ -138,10 +138,10 @@ std::vector<GHepParticle> DarkSectorDecayer::Decay(
       << daughter->GetName() << " (pdg-code = "
       << pdg_daughters[iparticle] << ", mass = " << mass[iparticle] << ")";
   }
-
+  
   bool is_permitted = fPhaseSpaceGenerator.SetDecay(mother_p4, nd, mass);
   assert(is_permitted);
-
+  
   // Find the maximum phase space decay weight
   double wmax = -1;
   for(int i=0; i<50; i++) {
@@ -161,20 +161,20 @@ std::vector<GHepParticle> DarkSectorDecayer::Decay(
   while(!accept_decay){
     itry++;
     assert(itry<kMaxUnweightDecayIterations);
-
+    
     double w  = fPhaseSpaceGenerator.Generate();
     double gw = wmax * rnd->RndDec().Rndm();
-
+    
     if(w>wmax) {
       LOG("DarkSectorDecayer", pWARN)
         << "Current decay weight = " << w << " > wmax = " << wmax;
     }
     LOG("DarkSectorDecayer", pINFO)
       << "Current decay weight = " << w << " / R = " << gw;
-
+    
     accept_decay = (gw<=w);
   }
-
+  
   // A decay was generated - Copy to the event record
   std::vector<GHepParticle> particles;
   // Loop over daughter list and add corresponding GHepParticles
@@ -182,11 +182,11 @@ std::vector<GHepParticle> DarkSectorDecayer::Decay(
     const TLorentzVector * daughter_p4 = fPhaseSpaceGenerator.GetDecay(id);
     SLOG("DarkSectorDecayer", pINFO)
       << "Adding daughter particle with PDG code = " << pdg_daughters[id]
-      << " with P4 = " << utils::print::P4AsShortString(daughter_p4);
+      << " with P4 = " << utils::print::P4AsShortString( daughter_p4 );
     SLOG("DarkSectorDecayer", pDEBUG)
       << "Particle Gun Kinematics: "
       << "PDG : " << pdg_daughters[id] << ", "
-      << ParticleGunKineAsString(daughter_p4);
+      << DarkSectorDecayer::ParticleGunKineAsString( *daughter_p4 );
     GHepStatus_t daughter_status_code = (pdg_daughters[id]==kPdgDNuMediator)
       ? kIStDecayedState : kIStStableFinalState;
     particles.push_back(GHepParticle(pdg_daughters[id], daughter_status_code,
@@ -217,8 +217,8 @@ std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkMediatorDeca
 {
   // eq (4) and (5) and maybe some other higher order variations
 
-  std::array<int, 3> neutrinos = {kPdgNuE, kPdgNuMu, kPdgNuTau};
-  std::array<int, 3> antineutrinos = {kPdgAntiNuE, kPdgAntiNuMu, kPdgAntiNuTau};
+  static constexpr std::array<int, 3> neutrinos = {kPdgNuE, kPdgNuMu, kPdgNuTau};
+  static constexpr std::array<int, 3> antineutrinos = {kPdgAntiNuE, kPdgAntiNuMu, kPdgAntiNuTau};
   std::vector<DarkSectorDecayer::DecayChannel> dcs;
 
   for(size_t i=0; i<neutrinos.size(); ++i){
@@ -228,7 +228,9 @@ std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkMediatorDeca
     }
   }
 
-  if(fDMediatorMass > 2.*PDGLibrary::Instance()->Find(kPdgElectron)->Mass()){
+  static const double electron_threshold = 2.*PDGLibrary::Instance()->Find(kPdgElectron)->Mass() ;
+  
+  if(fDMediatorMass > electron_threshold ){
     const double decay_width = kAem*fEps2/3. * fDMediatorMass;
     dcs.push_back(DecayChannel{{kPdgElectron, kPdgPositron}, decay_width});
   }
@@ -244,10 +246,10 @@ std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkNeutrinoDeca
 {
   // eq (3) and higher order variations
 
-  std::array<int, 3> neutrinos = {kPdgNuE, kPdgNuMu, kPdgNuTau};
-  std::array<int, 3> antineutrinos = {kPdgAntiNuE, kPdgAntiNuMu, kPdgAntiNuTau};
+  static constexpr std::array<int, 3> neutrinos = {kPdgNuE, kPdgNuMu, kPdgNuTau};
+  static constexpr std::array<int, 3> antineutrinos = {kPdgAntiNuE, kPdgAntiNuMu, kPdgAntiNuTau};
   std::vector<DarkSectorDecayer::DecayChannel> dcs;
-
+  
   if(fDNuMass > fDMediatorMass){
     for(size_t i=0; i<neutrinos.size(); ++i){
       const double mass2ratio = fDMediatorMass2/fDNuMass2;
@@ -278,7 +280,7 @@ void DarkSectorDecayer::SetSpaceTime(
 
   RandomGen * rnd = RandomGen::Instance();
   double t = rnd->RndDec().Exp(lifetime);
-
+  
   // t is the decay time in the mother reference frame
   // it needs to be boosted by a factor gamma
   t *= mother.P4() -> Gamma() ;
@@ -288,7 +290,7 @@ void DarkSectorDecayer::SetSpaceTime(
   TVector3 mother_boost = mother.P4()->BoostVector();
 
   // transport decay_particle with respect to their mother
-  double speed_of_light = units::second/units::meter; // this gives us the speed of light in m/s
+  constexpr double speed_of_light = units::second/units::meter; // this gives us the speed of light in m/s
   TVector3 daughter_position = mother_X4.Vect() + mother_boost * (speed_of_light * t * 1e-9);// in fm
   TLorentzVector daughter_X4 = TLorentzVector(daughter_position, (mother_X4.T() + t));
 
@@ -317,13 +319,13 @@ bool DarkSectorDecayer::ToBeDecayed(const GHepParticle & p) const
   return is_handled;
 }
 //____________________________________________________________________________
-string DarkSectorDecayer::ParticleGunKineAsString(const TLorentzVector * vec4) const
+string DarkSectorDecayer::ParticleGunKineAsString(const TLorentzVector & vec4) 
 {
   std::ostringstream fmt;
 
-  double P0 = vec4->Vect().Mag();
-  double thetaYZ = TMath::ASin(vec4->Py()/P0);
-  double thetaXZ = TMath::ASin(vec4->Px()/(P0 * TMath::Cos(thetaYZ)));
+  double P0 = vec4.Vect().Mag();
+  double thetaYZ = TMath::ASin(vec4.Py()/P0);
+  double thetaXZ = TMath::ASin(vec4.Px()/(P0 * TMath::Cos(thetaYZ)));
   double rad_to_degrees = 180./kPi;
 
   fmt << "P0 = "  << P0
@@ -349,8 +351,9 @@ void DarkSectorDecayer::LoadConfig(void)
 {
 
   // Check particles are in the PDG library, quit if they don't exist
-  std::array<int, 3> pdgc_mothers = {kPdgDNuMediator, kPdgDarkNeutrino,
-    kPdgAntiDarkNeutrino};
+  constexpr std::array<int, 3> pdgc_mothers = {kPdgDNuMediator, 
+					       kPdgDarkNeutrino,
+					       kPdgAntiDarkNeutrino};
   for (auto & pdg_code : pdgc_mothers){
     TParticlePDG * mother = PDGLibrary::Instance()->Find(pdg_code);
     if(!mother) {
@@ -360,30 +363,30 @@ void DarkSectorDecayer::LoadConfig(void)
       exit(78);
     }
   }
-
+  
   bool good_configuration = true ;
-
+  
   double DKineticMixing = 0.;    // \varepsilon
   this->GetParam("Dark-KineticMixing", DKineticMixing);
   fEps2 = DKineticMixing * DKineticMixing;
 
   bool force_unitarity = false ;
   GetParam("Dark-Mixing-ForceUnitarity", force_unitarity ) ;
-
+  
   unsigned int n_min_mixing = force_unitarity ? 3 : 4 ;
-
+  
   std::vector<double> DMixing2s;  // |U_{\alpha 4}|^2
   this->GetParamVect("Dark-Mixings2", DMixing2s);
-
+  
   // check whether we have enough mixing elements
   if ( DMixing2s.size () < n_min_mixing ) {
-
+    
     good_configuration = false ;
     LOG("DarkSectorDecayer", pERROR )
       << "Not enough mixing elements specified, only specified "
       << DMixing2s.size() << " / " << n_min_mixing ;
   }
-
+  
   double tot_mix = 0. ;
   for( unsigned int i = 0; i < n_min_mixing ; ++i ) {
     if ( DMixing2s[i] < 0. ) {
@@ -398,13 +401,13 @@ void DarkSectorDecayer::LoadConfig(void)
   if ( force_unitarity ) {
     fMixing2s[3] = 1. - tot_mix ;
   }
-
+  
   this->GetParam("Dark-Alpha", fAlpha_D);
 
   fDNuMass = 0.;
   this->GetParam("Dark-NeutrinoMass", fDNuMass);
   fDNuMass2 = fDNuMass * fDNuMass;
-
+  
   fDMediatorMass = 0.;
   this->GetParam("Dark-MediatorMass", fDMediatorMass);
   fDMediatorMass2 = fDMediatorMass * fDMediatorMass;
@@ -423,6 +426,21 @@ void DarkSectorDecayer::LoadConfig(void)
       << "Dark mediator mass (" <<  fDMediatorMass
       << " GeV) too heavy for the dark neutrino ("
       << fDNuMass << " GeV) to decay" ;
+  }
+
+  // The other check we need is that the mass of the mediator
+  // has to be smaller than twice the pion mass
+  // Because again in that case we would not be able to 
+  // have a proper decay rate since the Mediator would decay in
+  // pion but since we don't have the decay amplitude the 
+  // decay rate would be wrong
+  double pion_threshold = 2 * PDGLibrary::Instance()->Find( kPdgPiP )->Mass() ;
+  if ( fDMediatorMass >= pion_threshold ) {
+    good_configuration = false ;
+    LOG("DarkSectorDecayer", pERROR )
+      << "Dark mediator mass (" <<  fDMediatorMass
+      << " GeV) too heavy with respect to the pion decay threshold ("
+      << pion_threshold << " GeV)" ;
   }
 
   if ( ! good_configuration ) {
