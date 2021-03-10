@@ -229,16 +229,20 @@ std::vector<DarkSectorDecayer::DecayChannel> DarkSectorDecayer::DarkMediatorDeca
   }
 
   static const double electron_threshold = 2.*PDGLibrary::Instance()->Find(kPdgElectron)->Mass() ;
-  
   if(fDMediatorMass > electron_threshold ){
-    const double decay_width = kAem*fEps2/3. * fDMediatorMass;
+    double ratio = electron_threshold / fDMediatorMass ; 
+    double phase_space_correction = sqrt(1. - ratio*ratio ) ;
+    const double decay_width = kAem*fEps2/3. * fDMediatorMass * phase_space_correction ;
     dcs.push_back(DecayChannel{{kPdgElectron, kPdgPositron}, decay_width});
   }
-  // In the future for the decay to muons
-  // if(fDMediatorMass > 2.*PDGLibrary::Instance()->Find(kPdgMuon)->Mass()){
-  //   const double decay_width = kAem*epsilon2/3. * fDMediatorMass;
-  //   dcs.push_back(DecayChannel{{kPdgMuon, kPdgAntiMuon}, decay_width});
-  // }
+
+  static const double muon_threshold = 2.*PDGLibrary::Instance()->Find(kPdgMuon)->Mass() ;
+  if(fDMediatorMass > muon_threshold ){
+    double ratio = muon_threshold / fDMediatorMass ; 
+    double phase_space_correction = sqrt(1. - ratio*ratio ) ;
+    const double decay_width = kAem*fEps2/3. * fDMediatorMass * phase_space_correction ;
+    dcs.push_back(DecayChannel{{kPdgMuon, kPdgAntiMuon}, decay_width});
+  }
   return dcs;
 }
 //____________________________________________________________________________
@@ -434,7 +438,7 @@ void DarkSectorDecayer::LoadConfig(void)
   // have a proper decay rate since the Mediator would decay in
   // pion but since we don't have the decay amplitude the 
   // decay rate would be wrong
-  double pion_threshold = 2 * PDGLibrary::Instance()->Find( kPdgPiP )->Mass() ;
+  double pion_threshold = PDGLibrary::Instance()->Find( kPdgPiP )->Mass() ;
   if ( fDMediatorMass >= pion_threshold ) {
     good_configuration = false ;
     LOG("DarkSectorDecayer", pERROR )
