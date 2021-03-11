@@ -87,7 +87,8 @@ void dnu_plots( TString in_file_name  = "gntp.0.ghep.root" ,
     if ( !proc_info.IsDarkNeutralCurrent() ) { continue; }
 
     const GHepParticle & N = * event.Particle(2) ;
-    if(N.Name() != "nu_D"){
+    if(N.Pdg() != kPdgDarkNeutrino && 
+       N.Pdg() != kPdgAntiDarkNeutrino ){
       LOG("DNuPlots", pERROR)
         << "WARNING!\n Dark Neutrino wasn't found.\n"
         << "N.Name(): " << N.Name() << "\n";
