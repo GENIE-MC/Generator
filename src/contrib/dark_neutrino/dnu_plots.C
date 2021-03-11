@@ -3,6 +3,8 @@
 #include "TTree.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TProfile.h"
+#include "TProfile2D.h"
 
 #include "Framework/EventGen/EventRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
