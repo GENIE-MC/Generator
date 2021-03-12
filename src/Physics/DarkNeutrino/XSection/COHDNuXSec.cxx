@@ -55,20 +55,19 @@ double COHDNuXSec::Integrate(
   interaction.SetBit(kISkipKinematicChk);
 
   ROOT::Math::IntegrationOneDim::Type ig_type =
-          utils::gsl::Integration1DimTypeFromString(fGSLIntgType);
-
+    utils::gsl::Integration1DimTypeFromString(fGSLIntgType);
+  
   utils::gsl::dXSec_dEDNu_E func( model, & interaction, fDNuMass );
   Range1D_t DNuEnergy = func.IntegrationRange();
-
-  double abstol = 1; // We mostly care about relative tolerance
-  ROOT::Math::Integrator ig( func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
+  
+  ROOT::Math::Integrator ig( func, ig_type, fGSLAbsTol, fGSLRelTol, fGSLMaxSizeOfSubintervals );
   double xsec = ig.Integral(DNuEnergy.min, DNuEnergy.max) * (1E-38 * units::cm2); // units: GeV^-2
 
   const InitialState & init_state = in->InitState();
   double Ev = init_state.ProbeE(kRfLab);
   LOG("COHDNuXSec", pINFO)
     << "XSec[COHDNu] (E = " << Ev << " GeV) = " << xsec/(units::cm2) << " cm^2";
-
+  
   return xsec;
 }
 //____________________________________________________________________________
@@ -92,12 +91,13 @@ void COHDNuXSec::LoadConfig(void)
   // Get GSL integration type & relative tolerance
   this->GetParamDef("gsl-integration-type",   fGSLIntgType, string("adaptive"));
   this->GetParamDef("gsl-relative-tolerance", fGSLRelTol,   1E-2);
+  this->GetParamDef("gsl-absolute-tolerance", fGSLAbsTol,   1.);
+  
+  int max_subint = 0 ;
+  this->GetParamDef("gsl-max-subintervals",   max_subint,   500);
+  fGSLMaxSizeOfSubintervals = (unsigned int) max_subint ;
 
-  // max and minimum number of integrand evaluations
-  int max_eval, min_eval ;
-  this->GetParamDef("gsl-max-eval", max_eval, 500000);
-  this->GetParamDef("gsl-min-eval", min_eval, 5000  );
-  fGSLMaxEval = (unsigned int) max_eval ;
-  fGSLMinEval = (unsigned int) min_eval ;
+  // unused parameters from XSecIntegratorI
+  fGSLMaxEval = fGSLMinEval = 0 ;
 }
 //____________________________________________________________________________

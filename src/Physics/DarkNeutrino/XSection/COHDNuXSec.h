@@ -45,6 +45,7 @@ public:
 
   void LoadConfig (void);
 
+  double fGSLAbsTol ;
   double fDNuMass;
 };
 

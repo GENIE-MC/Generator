@@ -196,7 +196,12 @@ void BertuzzoDNuCOHPXSec::LoadConfig(void)
   if ( force_unitarity ) {
     fMixing2s[3] = 1. - tot_mix ;
   }
-
+  if ( DMixing2s[3] < 0. ) {
+    good_configuration = false ;
+    LOG("BertuzzoDNuCOH", pERROR )
+      << "Mixing D4 non positive: " << DMixing2s[3] ;
+  }
+  
   this->GetParam("Dark-Alpha", fAlpha_D);
 
   fDNuMass = 0.;
