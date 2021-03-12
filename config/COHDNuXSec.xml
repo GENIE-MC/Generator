@@ -11,18 +11,17 @@ Name                       Type     Optional   Comment                     Defau
 ........................................................................................................
 gsl-integration-type       string   Yes                                                     "adaptive"
 gsl-relative-tolerance     double   Yes                                                     0.01
-gsl-absolute-tolerance     double   Yes        in 10^-38 cm^2                               1
+gsl-absolute-tolerance     double   Yes        in 10^-38 cm^2                               a very large number
 gsl-max-subintervals       int      Yes                                                     500
 -->
 
   <param_set name="Default">
     <param type="string" name="CommonDark"> Masses </param>
 
-    <param type="string" name ="gsl-integration-type">    adaptive  </param>
-    <param type="double" name ="gsl-relative-tolerance"  >   0.001  </param>
-    <param type="double" name ="gsl-absolute-tolerance"  >       1  </param>
-    <param type="int" name ="gsl-max-subintervals"  >     1000   </param>
-
+    <param type="string" name ="gsl-integration-type">    adaptive   </param>
+    <param type="double" name ="gsl-relative-tolerance"  >    1e-5   </param>
+    <param type="int" name ="gsl-max-subintervals"  >          200   </param>
+ 
 
   </param_set>
 

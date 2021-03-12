@@ -11,6 +11,8 @@
 */
 //____________________________________________________________________________
 
+#include <limits>
+
 #include <TMath.h>
 #include <Math/IFunction.h>
 #include <Math/Integrator.h>
@@ -91,7 +93,7 @@ void COHDNuXSec::LoadConfig(void)
   // Get GSL integration type & relative tolerance
   this->GetParamDef("gsl-integration-type",   fGSLIntgType, string("adaptive"));
   this->GetParamDef("gsl-relative-tolerance", fGSLRelTol,   1E-2);
-  this->GetParamDef("gsl-absolute-tolerance", fGSLAbsTol,   1.);
+  this->GetParamDef("gsl-absolute-tolerance", fGSLAbsTol,   std::numeric_limits<double>::max());
   
   int max_subint = 0 ;
   this->GetParamDef("gsl-max-subintervals",   max_subint,   500);
