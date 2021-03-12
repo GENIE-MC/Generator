@@ -98,8 +98,12 @@
                 - numu_cc_qe_mec
                     Genuine CCQE or genuine CCMEC
                 - not_cc_qe_mec
-                - numu_not_cc_qe_mec
+                - not_numu_cc_qe_mec
                     Anything other than genuine CCQE or genuine CCMEC
+                - cc_not_qe_mec
+                    CC but not genuine CCQE or genuine CCMEC
+                - numu_not_cc_qe_mec
+                    numu but not genuine CCQE or genuine CCMEC
 
               .................................................................................
 
@@ -201,6 +205,8 @@ typedef enum EGPickType {
   kPtReacModeCCQEMEC,
   kPtReacModeNumuCCQEMEC,
   kPtReacModeNotCCQEMEC,
+  kPtReacModeCCNotQEMEC,
+  kPtReacModeNotNumuCCQEMEC,
   kPtReacModeNumuNotCCQEMEC
 
 } GPickType_t;
@@ -208,6 +214,7 @@ typedef enum EGPickType {
 // input options (from command line arguments):
 string      gOptInpFileNames;  ///< input file name
 string      gOptOutFileName;   ///< output file name
+string      gPickedTypeStr;    ///< output file name
 GPickType_t gPickedType;       ///< output file format id
 
 //____________________________________________________________________________________
@@ -247,7 +254,7 @@ void RunCherryPicker(void)
 
   TObjArray * file_array = gchain.GetListOfFiles();
   int nfiles = file_array->GetEntries();
-  LOG("gevpick", pFATAL) 
+  LOG("gevpick", pNOTICE) 
       << "Processing " << nfiles
       << (nfiles==1 ? " file " : " files ");
 
@@ -257,6 +264,9 @@ void RunCherryPicker(void)
 
   TIter next_file(file_array);
   TChainElement *chEl=0;
+
+  unsigned int total_events  = 0;
+  unsigned int picked_events = 0;
 
   while (( chEl=(TChainElement*)next_file() )) {
 
@@ -293,12 +303,14 @@ void RunCherryPicker(void)
      //
 
      for(Long64_t iev = 0; iev < nmax; iev++) {
+       total_events++;
        ghep_tree->GetEntry(iev);
        NtpMCRecHeader rec_header = mcrec->hdr;
        EventRecord &  event      = *(mcrec->event);
        LOG("gevpick", pDEBUG) << rec_header;
        LOG("gevpick", pDEBUG) << event;
        if(AcceptEvent(event)) {
+         picked_events++;
           brOrigFilename->SetString(chEl->GetTitle());
           brOrigEvtNum = iev;
           ntpw.AddEventRecord( iev_glob, &event );
@@ -312,7 +324,8 @@ void RunCherryPicker(void)
   // save the cherry-picked MC events
   ntpw.Save();
   
-  LOG("gevpick", pFATAL) << "Done!";
+  LOG("gevpick", pNOTICE) << "Picked " << picked_events << " / " << total_events << " events of type " << gPickedTypeStr;
+  LOG("gevpick", pNOTICE) << "Done!";
 }
 //____________________________________________________________________________________
 bool AcceptEvent(const EventRecord & event)
@@ -460,12 +473,22 @@ bool AcceptEvent(const EventRecord & event)
   else 
   if ( gPickedType == kPtReacModeNotCCQEMEC ) {
     if(isstr || ischm) return false;
+    if(!(iscc && (isqe || ismec))) return true;
+  }
+  else 
+  if ( gPickedType == kPtReacModeNotNumuCCQEMEC ) {
+    if(isstr || ischm) return false;
+    if(!(isnumu && iscc && (isqe || ismec))) return true;
+  }
+  else 
+  if ( gPickedType == kPtReacModeCCNotQEMEC ) {
+    if(isstr || ischm) return false;
     if(iscc && !(isqe || ismec)) return true;
   }
   else 
   if ( gPickedType == kPtReacModeNumuNotCCQEMEC ) {
     if(isstr || ischm) return false;
-    if(isnumu && iscc && !(isqe || ismec)) return true;
+    if(isnumu && !(iscc && (isqe || ismec))) return true;
   }
 
   return false;
@@ -514,6 +537,8 @@ void GetCommandLineArgs(int argc, char ** argv)
     else if ( evtype == "cc_qe_mec"          ) { gPickedType = kPtReacModeCCQEMEC;        }
     else if ( evtype == "numu_cc_qe_mec"     ) { gPickedType = kPtReacModeNumuCCQEMEC;    }
     else if ( evtype == "not_cc_qe_mec"      ) { gPickedType = kPtReacModeNotCCQEMEC;     }
+    else if ( evtype == "cc_not_qe_mec"      ) { gPickedType = kPtReacModeCCNotQEMEC;     }
+    else if ( evtype == "not_numu_cc_qe_mec" ) { gPickedType = kPtReacModeNotNumuCCQEMEC; }
     else if ( evtype == "numu_not_cc_qe_mec" ) { gPickedType = kPtReacModeNumuNotCCQEMEC; }
 
     else                                       { gPickedType = kPtUndefined;              }
@@ -523,6 +548,7 @@ void GetCommandLineArgs(int argc, char ** argv)
       gAbortingInErr = true;
       exit(1);
     }
+    gPickedTypeStr = evtype;
 
   } else {
     LOG("gevpick", pFATAL) << "Unspecified event type";
@@ -571,6 +597,8 @@ string DefaultOutputFile(void)
   else if (gPickedType == kPtReacModeCCQEMEC        ) { tp = "cc_qe_mec";          }
   else if (gPickedType == kPtReacModeNumuCCQEMEC    ) { tp = "numu_cc_qe_mec";     }
   else if (gPickedType == kPtReacModeNotCCQEMEC     ) { tp = "not_cc_qe_mec";      }
+  else if (gPickedType == kPtReacModeCCNotQEMEC     ) { tp = "cc_not_qe_mec";      }
+  else if (gPickedType == kPtReacModeNotNumuCCQEMEC ) { tp = "not_numu_cc_qe_mec"; }
   else if (gPickedType == kPtReacModeNumuNotCCQEMEC ) { tp = "numu_not_cc_qe_mec"; }
 
   ostringstream fnm;
