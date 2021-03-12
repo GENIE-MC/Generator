@@ -21,7 +21,7 @@ gsl-max-subintervals       int      Yes                                         
     <param type="string" name ="gsl-integration-type">    adaptive  </param>
     <param type="double" name ="gsl-relative-tolerance"  >   0.001  </param>
     <param type="double" name ="gsl-absolute-tolerance"  >       1  </param>
-    <param type="double" name ="gsl-max-subintervals"  >     1000   </param>
+    <param type="int" name ="gsl-max-subintervals"  >     1000   </param>
 
 
   </param_set>
