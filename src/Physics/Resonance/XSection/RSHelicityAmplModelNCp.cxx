@@ -197,7 +197,7 @@ const RSHelicityAmpl &
      double L2RpxiR = L2 * (fkr.Rplus  + xr);
 
      fAmpl.fMinus1 =  k1_Sqrt6 * L2RmxiR;
-     fAmpl.fPlus1  = -k1_Sqrt6 * L2RmxiR;
+     fAmpl.fPlus1  = -k1_Sqrt6 * L2RpxiR;
      fAmpl.fMinus3 =  k1_Sqrt2 * L2RmxiR;
      fAmpl.fPlus3  = -k1_Sqrt2 * L2RpxiR;
      fAmpl.f0Minus = -kSqrt2_3 * (L2 * fkr.C - 2 * fkr.Lamda * fkr.B);

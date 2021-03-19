@@ -86,6 +86,8 @@ double KPhaseSpace::Threshold(void) const
 
   double ml = fInteraction->FSPrimLepton()->Mass();
 
+  if( ! pi.IsKnown() ) return 0;
+  
   if (pi.IsSingleKaon()) {
     int kaon_pdgc = xcls.StrangeHadronPdg();
     double Mi   = tgt.HitNucP4Ptr()->M(); // initial nucleon mass
@@ -99,7 +101,7 @@ double KPhaseSpace::Threshold(void) const
   }
 
   if(pi.IsCoherentElastic()) {
-    return 0;
+    return ml + 0.5*ml*ml/tgt.Mass();
   }
 
   if (pi.IsCoherentProduction()) {
@@ -128,7 +130,7 @@ double KPhaseSpace::Threshold(void) const
      pi.IsResonant()                ||
      pi.IsDeepInelastic()           ||
      pi.IsDarkMatterDeepInelastic() ||
-     pi.IsDiffractive()) 
+     pi.IsDiffractive())
   {
     assert(tgt.HitNucIsSet());
     double Mn   = tgt.HitNucP4Ptr()->M();
@@ -201,9 +203,11 @@ double KPhaseSpace::Threshold(void) const
     return TMath::Max(0.,Ethr);
   }
 
+
   SLOG("KPhaseSpace", pERROR)
          << "Can't compute threshold for \n" << *fInteraction;
-  exit(1);
+  throw genie::exceptions::InteractionException("Can't compute threshold");
+  //exit(1);
 
   return 99999999;
 }
@@ -256,8 +260,8 @@ bool KPhaseSpace::IsAboveThreshold(void) const
       pi.IsIMDAnnihilation()    ||
       pi.IsNuElectronElastic()  ||
       pi.IsDarkMatterElectronElastic() ||
-      pi.IsMEC()                || 
-      pi.IsGlashowResonance()) 
+      pi.IsMEC()                ||
+      pi.IsGlashowResonance())
   {
       E = init_state.ProbeE(kRfLab);
   }
@@ -270,7 +274,7 @@ bool KPhaseSpace::IsAboveThreshold(void) const
      pi.IsDarkMatterDeepInelastic() ||
      pi.IsDiffractive()             ||
      pi.IsSingleKaon()              ||
-     pi.IsAMNuGamma()) 
+     pi.IsAMNuGamma())
   {
       E = init_state.ProbeE(kRfHitNucRest);
   }

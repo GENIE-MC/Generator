@@ -179,7 +179,7 @@ private:
   int              fFirstDaughter;  ///< first daughter idx
   int              fLastDaughter;   ///< last daughter idx
   TLorentzVector * fP4;             ///< momentum 4-vector (GeV)
-  TLorentzVector * fX4;             ///< position 4-vector (in the target nucleus coordinate system / x,y,z in fm / t=0)
+  TLorentzVector * fX4;             ///< position 4-vector (in the target nucleus coordinate system / x,y,z in fm / t from the moment of the primary interaction in ys(yocto second = 10^-24 s)
   double           fPolzTheta;      ///< polar polarization angle (rad)
   double           fPolzPhi;        ///< azimuthal polarization angle (rad)
   double           fRemovalEnergy;  ///< removal energy for bound nucleons (GeV)

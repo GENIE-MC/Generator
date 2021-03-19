@@ -8,6 +8,9 @@
 
  Changes required to implement the GENIE Boosted Dark Matter module
  were installed by Josh Berger (Univ. of Wisconsin)
+
+ Changes required to implement the GENIE Dark Neutrino module
+ were installed by Iker de Icaza (Univ. of Sussex)
 */
 //____________________________________________________________________________
 
@@ -159,7 +162,9 @@ int Interaction::FSPrimLeptonPdg(void) const
       clpdgc = pdg::Neutrino2ChargedLepton(pdgc);
     return clpdgc;
   }
-
+  else if (proc_info.IsDarkNeutralCurrent()){
+    return kPdgDarkNeutrino;
+  }
   LOG("Interaction", pWARN)
         << "Could not figure out the final state primary lepton pdg code!!";
 

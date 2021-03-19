@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the COHDNuXSec xsec algorithm.
+
+Configurable Parameters:
+........................................................................................................
+Name                       Type     Optional   Comment                     Default
+........................................................................................................
+gsl-integration-type       string   Yes                                                     "adaptive"
+gsl-relative-tolerance     double   Yes                                                     0.01
+gsl-absolute-tolerance     double   Yes        in 10^-38 cm^2                               a very large number
+gsl-max-subintervals       int      Yes                                                     500
+-->
+
+  <param_set name="Default">
+    <param type="string" name="CommonDark"> Masses </param>
+
+    <param type="string" name ="gsl-integration-type">    adaptive   </param>
+    <param type="double" name ="gsl-relative-tolerance"  >    1e-5   </param>
+    <param type="int" name ="gsl-max-subintervals"  >          200   </param>
+ 
+
+  </param_set>
+
+</alg_conf>

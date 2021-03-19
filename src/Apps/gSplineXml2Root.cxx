@@ -530,7 +530,11 @@ void SaveGraphsToRootFile(void)
 
   //-- check whether the splines will be saved in a ROOT file - if not, exit now
   bool save_in_root = gOptROOTFilename.size()>0;
-  if(!save_in_root) return;
+  if(!save_in_root) {
+
+    LOG("gspl2root", pWARN) << "No Interaction  List available" ;
+    return;
+  }
 
   //-- get pdglibrary for mapping pdg codes to names
   PDGLibrary * pdglib = PDGLibrary::Instance();
@@ -597,8 +601,8 @@ void SaveGraphsToRootFile(void)
     else if (proc.IsResonant()         ) { title << "res";   }
     else if (proc.IsDeepInelastic()    ) { title << "dis";   }
     else if (proc.IsDiffractive()      ) { title << "dfr";   }
-    else if (proc.IsCoherentProduction() ) { 
-      title << "coh"; 
+    else if (proc.IsCoherentProduction() ) {
+      title << "coh";
       if      ( xcls.NSingleGammas() > 0 ) title << "_gamma" ;
       else if ( xcls.NPions() > 0 )        title << "_pion"  ;
       else if ( xcls.NRhos() > 0 )         title << "_rho"   ;
@@ -609,13 +613,20 @@ void SaveGraphsToRootFile(void)
     else if (proc.IsIMDAnnihilation()  ) { title << "imdanh";}
     else if (proc.IsNuElectronElastic()) { title << "ve";    }
     else if (proc.IsGlashowResonance() ) { title << "glres"; }
-    else                                 { continue;         }
-
+    else                                 { 
+      LOG("gspl2root", pWARN) << "Process " << proc
+			      << " scattering type not recognised: spline not added" ;
+      continue;         }
+    
     if      (proc.IsWeakCC())  { title << "_cc";      }
     else if (proc.IsWeakNC())  { title << "_nc";      }
     else if (proc.IsWeakMix()) { title << "_ccncmix"; }
     else if (proc.IsEM()    )  { title << "_em";      }
-    else                       { continue;            }
+    else if (proc.IsDarkNeutralCurrent() )  { title << "_dark";  }
+    else                       {
+      LOG("gspl2root", pWARN) << "Process " << proc
+                              << " interaction type has not recongnised: spline not added " ;
+      continue;            }
 
     if(tgt.HitNucIsSet()) {
       int hitnuc = tgt.HitNucPdg();
@@ -1397,14 +1408,14 @@ void GetCommandLineArgs(int argc, char ** argv)
        gEmin = atof(nurange[0].c_str());
        gEmax = atof(nurange[1].c_str());
     } else {
-      const Registry * val_reg = AlgConfigPool::Instance() -> CommonList( "Validation", "Param" ) ;
+      const Registry * val_reg = AlgConfigPool::Instance() -> CommonList( "Param", "Validation" ) ;
       gEmin = val_reg -> GetDouble( "GVLD-Emin" ) ; 
       gEmax = atof(nue.c_str());
       LOG("gspl2root", pDEBUG)
 	<< "Unspecified Emin - Setting to " << gEmin << " GeV as per configuration";
     }
   } else {
-    const Registry * val_reg = AlgConfigPool::Instance() -> CommonList( "Validation", "Param" ) ;
+    const Registry * val_reg = AlgConfigPool::Instance() -> CommonList("Param", "Validation" ) ;
     gEmin = val_reg -> GetDouble( "GVLD-Emin" ) ; 
     gEmax = 100;
     LOG("gspl2root", pDEBUG)

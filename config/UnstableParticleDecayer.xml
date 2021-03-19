@@ -23,4 +23,12 @@ Name             Type     Optional   Comment               Default
      <param type="alg" name="Decayer-1">  genie::BaryonResonanceDecayer/AfterHadronTransport   </param>
   </param_set>
 
+  <param_set name="DarkSector">
+     <param type="int" name="NDecayers">  3                                                    </param>
+     <param type="alg" name="Decayer-0">  genie::PythiaDecayer/AfterHadronTransport            </param>
+     <param type="alg" name="Decayer-1">  genie::BaryonResonanceDecayer/AfterHadronTransport   </param>
+     <param type="alg" name="Decayer-2">  genie::DarkSectorDecayer/Default </param>
+  </param_set>
+
+
 </alg_conf>
