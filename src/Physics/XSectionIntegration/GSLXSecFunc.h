@@ -20,6 +20,7 @@
 
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
+#include "Framework/Utils/Range1.h"
 
 namespace genie {
 
@@ -74,6 +75,31 @@ private:
 
 //.....................................................................................
 //
+// genie::utils::gsl::dXSec_dEDNu_E
+// A 1-D cross section function: dxsec/dEDNu = f(EDNu)|(fixed E)
+//
+class dXSec_dEDNu_E: public ROOT::Math::IBaseFunctionOneDim
+{
+public:
+  dXSec_dEDNu_E(const XSecAlgorithmI * m, const Interaction * i,
+                double DNuMass, double scale=1.);
+  ~dXSec_dEDNu_E();
+
+  // ROOT::Math::IBaseFunctionOneDim interface
+  unsigned int                      NDim   (void)       const;
+  double                            DoEval (double xin) const;
+  ROOT::Math::IBaseFunctionOneDim * Clone  (void)       const;
+  Range1D_t IntegrationRange(void)  const;
+
+private:
+  const XSecAlgorithmI * fModel;
+  const Interaction *    fInteraction;
+  double                 fDNuMass;
+  double                 fScale; // can set to -1. for use with GSL minimizer
+};
+
+//.....................................................................................
+//
 // genie::utils::gsl::d2XSec_dxdy_E
 // A 2-D cross section function: d2xsec/dxdy = f(x,y)|(fixed E)
 //
@@ -91,6 +117,28 @@ public:
 private:
   const XSecAlgorithmI * fModel;
   const Interaction *    fInteraction;
+};
+
+//.....................................................................................
+//
+// genie::utils::gsl::d2XSec_dlog10xdlog10Q2_E
+// A 2-D cross section function: d2xsec/dlog10xdQlog102 = f(log10x,log10Q2)|(fixed E)
+//
+class d2XSec_dlog10xdlog10Q2_E: public ROOT::Math::IBaseFunctionMultiDim
+{
+public:
+  d2XSec_dlog10xdlog10Q2_E(const XSecAlgorithmI * m, const Interaction * i, double scale=1.);
+ ~d2XSec_dlog10xdlog10Q2_E();
+
+  // ROOT::Math::IBaseFunctionMultiDim interface
+  unsigned int                        NDim   (void)               const;
+  double                              DoEval (const double * xin) const;
+  ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
+
+private:
+  const XSecAlgorithmI * fModel;
+  const Interaction *    fInteraction;
+  double                 fScale; // can set to -1. for use with GSL minimizer
 };
 
 //.....................................................................................

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<common_Param_list>
+
+  <param_set name="Tunable">
+  </param_set>
+
+  <param_set name="HEDIS-SF">
+    <param type="string" name="BaseDir">                                       </param>
+    <param type="string" name="LHAPDF-set">                              cteq6 </param>
+    <param type="int"    name="LHAPDF-member">                               0 </param>
+    <param type="bool"   name="Is-NLO">                                  false </param>
+    <param type="string" name="Scheme">                                        </param>
+    <param type="int"    name="Quark-Threshold">                             0 </param>
+    <param type="int"    name="NGridX">                                    400 </param>
+    <param type="int"    name="NGridQ2">                                   400 </param>
+    <param type="double" name="XGrid-Min">                                1e-6 </param>
+    <param type="double" name="Q2Grid-Min">                                0.1 </param>
+    <param type="double" name="Q2Grid-Max">                               1e10 </param>
+    <param type="double" name="MassW">                                 79.1770 </param>
+    <param type="double" name="MassZ">                                90.34202 </param>
+    <param type="double" name="Rho">                                        0. </param>
+    <param type="double" name="Sin2ThW">                                0.2319 </param>
+    <param type="double" name="Mud">                                   0.97467 </param>
+    <param type="double" name="Mus">                                   0.22360 </param>
+    <param type="double" name="Mub">                                   0.00000 </param>
+    <param type="double" name="Mcd">                                   0.22360 </param>
+    <param type="double" name="Mcs">                                   0.97360 </param>
+    <param type="double" name="Mcb">                                   0.04470 </param>
+    <param type="double" name="Mtd">                                   0.00000 </param>
+    <param type="double" name="Mts">                                   0.04470 </param>
+    <param type="double" name="Mtb">                                   0.99989 </param>
+  </param_set>
+
+  <param_set name="HEDIS-PYTHIA">
+    <param type="double" name="Xsec-Wmin">                           2. </param>
+    <param type="int"    name="Warnings">                        100000 </param>
+    <param type="int"    name="Errors">                          100000 </param>
+    <param type="int"    name="QuarkMass">                            1 </param>
+  </param_set>
+
+  <param_set name="NUCL">
+    <param type="double" name="NUCL-R0">             1.4 </param>
+  </param_set>
+
+  <param_set name="Validation">
+    <param type="double" name="GVLD-Emin">           100.000  </param>
+    <param type="double" name="GVLD-Emax"> 1000000000000.000  </param>
+  </param_set>
+
+</common_Param_list>

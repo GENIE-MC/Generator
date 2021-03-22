@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+Configuration for the SRCNuclearRecoil
+
+Configurable Parameters:
+.............................................................................................................
+Name                          Type    Optional   Comment                                           Default
+.............................................................................................................
+PNPairPercentage              double  Yes        Fraction of PN pairs in high momentum tail        0.95
+NuclearModel                  alg     No         Nuclear model                                     
+FermiMomentumTable            string  Yes        Definition of Fermi Momenta                       CommonParam [FermiGas]
+-->
+
+<alg_conf>
+
+  <param_set name="Default"> 
+   <param type="double" name="PNPairPercentage"> 0.95 </param>
+
+   <param type="alg"    name="NuclearModel">   genie::NuclearModelMap/Default    </param>
+
+   <param type="string"  name="CommonParam"> FermiGas  </param>
+
+  </param_set>
+
+</alg_conf>
+

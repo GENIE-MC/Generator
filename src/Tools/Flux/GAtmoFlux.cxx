@@ -11,6 +11,7 @@
 #include <cassert>
 #include <iostream>
 #include <fstream>
+#include <cmath>
 
 #include <TH3D.h>
 #include <TMath.h>
@@ -373,6 +374,22 @@ void GAtmoFlux::SetRadii(double Rlongitudinal, double Rtransverse)
   fRl = Rlongitudinal;
   fRt = Rtransverse;
 }
+
+double GAtmoFlux::GetFluxSurfaceArea(void)
+{
+  return kPi*pow(fRt,2);
+}
+
+double GAtmoFlux::GetLongitudinalRadius(void)
+{
+  return fRl;
+}
+
+double GAtmoFlux::GetTransverseRadius(void)
+{
+  return fRt;
+}
+
 //___________________________________________________________________________
 void GAtmoFlux::AddFluxFile(int nu_pdg, string filename)
 {
@@ -618,6 +635,78 @@ TH3D* GAtmoFlux::GetFluxHistogram(int flavour)
   }
   return histogram;
 }
+
+/* Returns the total integrated flux in units of 1/(m^2 s). */
+double GAtmoFlux::GetTotalFlux(void)
+{
+  double flux = 0.0;
+  map<int,TH3D*>::iterator rawiter;
+
+  rawiter = fRawFluxHistoMap.begin();
+  for (; rawiter != fRawFluxHistoMap.end(); ++rawiter) {
+    TH3D *h = rawiter->second;
+    if (h) {
+      flux += h->Integral("width");
+      LOG("Flux", pDEBUG) << "Total flux for " << rawiter->first << " equals " << h->Integral("width") << ".";
+    }
+  }
+
+  return flux;
+}
+
+/* Returns the total integrated flux in units of * 1/(m^2 s) between the
+ * minimum and maximum energy. */
+double GAtmoFlux::GetTotalFluxInEnergyRange(void)
+{
+  double flux = 0.0;
+  map<int,TH3D*>::iterator rawiter;
+  int e_min_bin, e_max_bin;
+  double Emin, Emax;
+
+  Emin = this->MinEnergy();
+  Emax = this->MaxEnergy();
+
+  if (Emax < Emin) {
+      LOG("Flux", pFATAL) << "Emax = " << Emax << " is less than Emin = " << Emin;
+      exit(-1);
+  }
+
+  rawiter = fRawFluxHistoMap.begin();
+  for (; rawiter != fRawFluxHistoMap.end(); ++rawiter) {
+    TH3D *h = rawiter->second;
+
+    if (!h) continue;
+
+    /* Get the bins containing `emin` and `emax`. */
+    e_min_bin = h->GetXaxis()->FindBin(Emin);
+    e_max_bin = h->GetXaxis()->FindBin(Emax);
+
+    if (e_min_bin > h->GetXaxis()->GetNbins()) {
+      /* If the minimum bin is past the end, continue. */
+      continue;
+    } else if (e_min_bin == e_max_bin) {
+      /* If they both end up in the same bin, we just take the total bin
+       * contents in that energy bin and multiply by the difference between
+       * the energies. */
+      flux += h->Integral(e_min_bin,e_min_bin,1,h->GetYaxis()->GetNbins(),1,h->GetZaxis()->GetNbins(),"width")*(Emax - Emin)/(h->GetXaxis()->GetBinUpEdge(e_min_bin)-h->GetXaxis()->GetBinLowEdge(e_min_bin));
+    } else {
+      /* First we calculate the integral within that bin from `emin` to the top
+       * edge of the bin. */
+      if (e_min_bin > 0)
+          flux += h->Integral(e_min_bin,e_min_bin,1,h->GetYaxis()->GetNbins(),1,h->GetZaxis()->GetNbins(),"width")*(h->GetXaxis()->GetBinUpEdge(e_min_bin) - Emin)/(h->GetXaxis()->GetBinUpEdge(e_min_bin)-h->GetXaxis()->GetBinLowEdge(e_min_bin));
+      /* Next, we calculate the integral for all the bins between the min and
+       * max bin. */
+      if (e_min_bin < h->GetXaxis()->GetNbins())
+          flux += h->Integral(e_min_bin+1,e_max_bin-1,1,h->GetYaxis()->GetNbins(),1,h->GetZaxis()->GetNbins(),"width");
+      /* Finally, we calculate the integral for the last bin. */
+      if (e_max_bin <= h->GetXaxis()->GetNbins())
+          flux += h->Integral(e_max_bin,e_max_bin,1,h->GetYaxis()->GetNbins(),1,h->GetZaxis()->GetNbins(),"width")*(Emax - h->GetXaxis()->GetBinLowEdge(e_max_bin))/(h->GetXaxis()->GetBinUpEdge(e_max_bin)-h->GetXaxis()->GetBinLowEdge(e_max_bin));
+    }
+  }
+
+  return flux;
+}
+
 //___________________________________________________________________________
 double GAtmoFlux::GetFlux(int flavour)
 {

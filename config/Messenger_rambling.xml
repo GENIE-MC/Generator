@@ -38,6 +38,7 @@
   <priority msgstream="BardinIMD">             NOTICE </priority>
   <priority msgstream="BaryonResList">         WARN   </priority>
   <priority msgstream="BaseHad">               NOTICE </priority>
+  <priority msgstream="BertuzzoDNuCOH">        INFO </priority>
   <priority msgstream="BSKLNBaseRESPXSec2014"> INFO   </priority>
   <priority msgstream="BreitWignet">           INFO   </priority>
   <priority msgstream="Bardin">                INFO   </priority>
@@ -49,11 +50,14 @@
   <priority msgstream="CharmHad">              NOTICE </priority>
   <priority msgstream="CFracTab">              INFO   </priority>
   <priority msgstream="CEvNS">                 NOTICE </priority>
+  <priority msgstream="COHDNu">                NOTICE </priority>
+  <priority msgstream="COHDNuXSec">            NOTICE </priority>
   <priority msgstream="COHXSec">               NOTICE </priority>
   <priority msgstream="COHXSecAR">             NOTICE </priority>
   <priority msgstream="CLAP">                  NOTICE </priority>
   <priority msgstream="COHHadronicVtx">        INFO   </priority>
   <priority msgstream="COHKinematics">         NOTICE </priority>
+  <priority msgstream="DarkSectorDecayer">     INFO   </priority>
   <priority msgstream="DFRHadronicVtx">        DEBUG  </priority>
   <priority msgstream="DFRKinematics">         DEBUG  </priority>
   <priority msgstream="Decay">                 NOTICE </priority>
@@ -77,6 +81,7 @@
   <priority msgstream="EVGChain">              INFO   </priority>
   <priority msgstream="EvGenListAssembler">    WARN   </priority>
   <priority msgstream="ELFormFactors">         INFO   </priority>
+  <priority msgstream="EngelFormFactor">       INFO   </priority>
   <priority msgstream="FermiMover">            INFO   </priority>
   <priority msgstream="FermiP">                NOTICE </priority>
   <priority msgstream="Flux">                  NOTICE </priority>

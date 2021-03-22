@@ -19,6 +19,7 @@ Name             Type     Optional   Comment               Default
          Want `true` for EmpiricalMEC, `false` for NSV
     -->
     <param type="bool" name="SetDiNucleonCode"> true </param>
+    <param type="bool" name="SetDiNucleonCodeEM"> true </param>
 
   </param_set>
 

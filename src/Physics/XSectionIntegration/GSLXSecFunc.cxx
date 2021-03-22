@@ -8,6 +8,9 @@
 
  Changes required to implement the GENIE Boosted Dark Matter module
  were installed by Josh Berger (Univ. of Wisconsin)
+
+ Changes required to implement the GENIE Dark Neutrino module
+ were installed by Iker de Icaza (Univ. of Sussex)
 */
 //____________________________________________________________________________
 
@@ -108,6 +111,90 @@ ROOT::Math::IBaseFunctionOneDim *
     new genie::utils::gsl::dXSec_dy_E(fModel,fInteraction);
 }
 //____________________________________________________________________________
+genie::utils::gsl::dXSec_dEDNu_E::dXSec_dEDNu_E(
+  const XSecAlgorithmI * m, const Interaction * i,
+  double DNuMass, double scale) :
+  ROOT::Math::IBaseFunctionOneDim(),
+  fModel(m),
+  fInteraction(i),
+  fDNuMass(DNuMass),
+  fScale(scale)
+{
+
+}
+genie::utils::gsl::dXSec_dEDNu_E::~dXSec_dEDNu_E()
+{
+
+}
+unsigned int genie::utils::gsl::dXSec_dEDNu_E::NDim(void) const
+{
+  return 1;
+}
+double genie::utils::gsl::dXSec_dEDNu_E::DoEval(double xin) const
+{
+// inputs:
+//    DNuEnergy [GeV]
+// outputs:
+//   differential cross section [10^-38 cm^2 / GeV]
+//
+
+  double DNuEnergy = xin;
+  double fDNuMass2 = fDNuMass*fDNuMass;
+
+  Kinematics * kinematics = fInteraction->KinePtr();
+  const TLorentzVector * P4_nu = fInteraction->InitStatePtr()->GetProbeP4(kRfLab);
+  double E_nu = P4_nu->E();
+  double M_target = fInteraction->InitState().Tgt().Mass();
+
+  double ETimesM = E_nu * M_target;
+  double EPlusM  = E_nu + M_target;
+
+  double p_DNu = TMath::Sqrt(DNuEnergy*DNuEnergy - fDNuMass2);
+  double cos_theta_DNu = (DNuEnergy*(EPlusM) - ETimesM - 0.5*fDNuMass2) / (E_nu * p_DNu);
+  double theta_DNu = TMath::ACos(cos_theta_DNu);
+  TVector3 DNu_3vector = TVector3(0,0,0);
+  DNu_3vector.SetMagThetaPhi(p_DNu, theta_DNu, 0.);
+  TLorentzVector P4_DNu = TLorentzVector(DNu_3vector, DNuEnergy);
+  kinematics->SetFSLeptonP4(P4_DNu);
+
+  TVector3 target_3vector = P4_nu->Vect() - DNu_3vector;
+  double E_target = E_nu + M_target - DNuEnergy;
+  TLorentzVector P4_target = TLorentzVector(target_3vector , E_target);
+  kinematics->SetHadSystP4(P4_target);
+  kinematics->SetQ2(2.*M_target*(E_target-M_target));
+
+  delete P4_nu;
+  double xsec = fModel->XSec(fInteraction, kPSEDNufE);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("GSLXSecFunc", pDEBUG) << "xsec(DNuEnergy = " << DNuEnergy << ") = " << xsec;
+#endif
+
+  return fScale*xsec/(1E-38 * units::cm2);
+}
+ROOT::Math::IBaseFunctionOneDim *
+genie::utils::gsl::dXSec_dEDNu_E::Clone() const
+{
+  return
+    new genie::utils::gsl::dXSec_dEDNu_E(fModel, fInteraction, fDNuMass);
+}
+Range1D_t genie::utils::gsl::dXSec_dEDNu_E::IntegrationRange() const
+{
+  // look at valid angles section at tech note
+  const double E  = fInteraction->InitState().ProbeE(kRfLab);
+  const double M = fInteraction->InitState().Tgt().Mass();
+  const double M2 = M * M;
+  double fDNuMass2 = fDNuMass*fDNuMass;
+
+  const double A = M2 +  2.*M*E;
+  const double B = (M+E) * (E*M + 0.5*fDNuMass2);
+  const double C = E*E *(M2 + fDNuMass2) + E*M*fDNuMass2 + 0.25*fDNuMass2*fDNuMass2;
+  const double D = sqrt(B*B - A*C);
+
+  Range1D_t DNuEnergy((B - D)/A, (B + D)/A);
+  return DNuEnergy;
+
+}
+//____________________________________________________________________________
 genie::utils::gsl::d2XSec_dxdy_E::d2XSec_dxdy_E(
      const XSecAlgorithmI * m, const Interaction * i) :
 ROOT::Math::IBaseFunctionMultiDim(),
@@ -184,6 +271,44 @@ ROOT::Math::IBaseFunctionMultiDim *
 {
   return
     new genie::utils::gsl::d2XSec_dQ2dy_E(fModel,fInteraction);
+}
+//____________________________________________________________________________
+genie::utils::gsl::d2XSec_dlog10xdlog10Q2_E::d2XSec_dlog10xdlog10Q2_E(
+     const XSecAlgorithmI * m, const Interaction * i, double scale) :
+ROOT::Math::IBaseFunctionMultiDim(),
+fModel(m),
+fInteraction(i),
+fScale(scale)
+{
+  
+}
+genie::utils::gsl::d2XSec_dlog10xdlog10Q2_E::~d2XSec_dlog10xdlog10Q2_E()
+{
+
+}
+unsigned int genie::utils::gsl::d2XSec_dlog10xdlog10Q2_E::NDim(void) const
+{
+  return 2;
+}
+double genie::utils::gsl::d2XSec_dlog10xdlog10Q2_E::DoEval(const double * xin) const
+{
+// inputs:  
+//  log10(x) [-]
+// log10(Q2) [-]
+// outputs: 
+//   differential cross section [10^-38 cm^2]
+//
+  fInteraction->KinePtr()->Setx(TMath::Power(10,xin[0]));
+  fInteraction->KinePtr()->SetQ2(TMath::Power(10,xin[1]));
+  kinematics::UpdateWYFromXQ2(fInteraction);
+  double xsec = fModel->XSec(fInteraction, kPSlog10xlog10Q2fE);
+  return fScale*xsec/(1E-38 * units::cm2);
+}
+ROOT::Math::IBaseFunctionMultiDim * 
+   genie::utils::gsl::d2XSec_dlog10xdlog10Q2_E::Clone() const
+{
+  return 
+    new genie::utils::gsl::d2XSec_dlog10xdlog10Q2_E(fModel,fInteraction);
 }
 //____________________________________________________________________________
 genie::utils::gsl::d2XSec_dQ2dydt_E::d2XSec_dQ2dydt_E(

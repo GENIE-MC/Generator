@@ -14,6 +14,9 @@
          Changes required to implement the GENIE Boosted Dark Matter module
           were installed by Josh Berger (Univ. of Wisconsin)
 
+          Changes required to implement the GENIE Dark Neutrino module
+          were installed by Iker de Icaza (Univ. of Sussex)
+
 \created  May 04, 2004
 
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
@@ -80,6 +83,8 @@ public:
   bool IsWeakNC                  (void) const;
   bool IsWeakMix                 (void) const;
   bool IsDarkMatter              (void) const;
+  bool IsDarkNeutralCurrent      (void) const;
+  bool IsKnown                   (void) const;
 
   // Get scattering and interaction type enumerations
   ScatteringType_t  ScatteringTypeId  (void) const;

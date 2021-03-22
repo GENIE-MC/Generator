@@ -22,6 +22,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    geant4               Interface with Geant4 for nuclear transport                 default: disabled \n";  
   print "    lhapdf5              Use the LHAPDF5 parton density function library             default: enabled  \n";
   print "    lhapdf6              Use the LHAPDF6 parton density function library             default: disabled \n";
+  print "    apfel                Use APFEL to compute NLO structure functions                default: disabled \n";
   print "    flux-drivers         Built-in flux drivers                                       default: enabled  \n";
   print "    geom-drivers         Built-in detector geometry drivers                          default: enabled  \n";
   print "    t2k                  T2K-specific event generation app                           default: disabled \n";
@@ -31,6 +32,10 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    nnbar-oscillation    Simulation of nbar annihilation [n-nbar oscillation]        default: disabled \n";
   print "    boosted-dark-matter  Boosted dark matter simulation                              default: disabled \n";
   print "    neutral-heavy-lepton Neutral Heavy Lepton simulation                             default: disabled \n";
+  print "    dark-neutrino        Dark Neutrino simulation                                    default: disabled \n";
+  print "    event-library        External event library based generation                     default: disabled \n";
+  print "    incl                 Interface with INCL++ for nuclear transport                 default: disabled \n";
+  print "    geant4               Interface with Geant4 for nuclear transport                 default: disabled \n";
   print "    masterclass          Enable GENIE neutrino masterclass app                       default: disabled (Experimental) \n";
   print "    test                 Build test programs                                         default: disabled \n";
   print "    debug                Adds -g in the compiler options to request debug info       default: disabled \n";
@@ -57,6 +62,8 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    lhapdf5-lib       LHAPDF5 libraries path       needed if you --enable-lhapdf5      (if unset: checks for a \$LHAPDF5_LIB env.var.. then tries to auto-detect it) \n";
   print "    lhapdf6-inc       LHAPDF6 includes path        needed if you --enable-lhapdf6      (if unset: checks for a \$LHAPDF6_INC env.var., then tries to auto-detect it) \n";
   print "    lhapdf6-lib       LHAPDF6 libraries path       needed if you --enable-lhapdf6      (if unset: checks for a \$LHAPDF6_LIB env.var.. then tries to auto-detect it) \n";
+  print "    apfel-inc         APFEL includes path          needed if you --enable-apfel        (if unset: checks for a \$APFEL_INC env.var., then tries to auto-detect it) \n";
+  print "    apfel-lib         APFEL libraries path         needed if you --enable-apfel        (if unset: checks for a \$APFEL_LIB env.var.. then tries to auto-detect it) \n";
   print "    libxml2-inc       libxml2 includes path        always needed                       (if unset: tries to auto-detect it) \n";
   print "    libxml2-lib       libxml2 libraries path       always needed                       (if unset: tries to auto-detect it) \n";
   print "    log4cpp-inc       log4cpp includes path        always needed                       (if unset: tries to auto-detect it) \n";
@@ -144,6 +151,7 @@ print MKCONF "GENIE_INSTALLATION_PATH=$prefix\n";
 my $gopt_enable_pythia8              = "NO";
 my $gopt_enable_lhapdf5              = "YES";
 my $gopt_enable_lhapdf6              = "NO";
+my $gopt_enable_apfel                = "NO";
 my $gopt_enable_flux_drivers         = "YES";
 my $gopt_enable_geom_drivers         = "YES";
 my $gopt_enable_t2k                  = "NO";
@@ -153,6 +161,8 @@ my $gopt_enable_nucleon_decay        = "NO";
 my $gopt_enable_nnbar_oscillation    = "NO";
 my $gopt_enable_boosted_dark_mat     = "NO";
 my $gopt_enable_neutral_heavy_lepton = "NO";
+my $gopt_enable_dark_neutrino        = "NO";
+my $gopt_enable_evtlib               = "NO";
 my $gopt_enable_incl                 = "NO";
 my $gopt_enable_geant4_interface     = "NO";
 my $gopt_enable_masterclass          = "NO";
@@ -172,6 +182,8 @@ if(($match = grep(/--enable-lhapdf5/i,              @ARGV)) > 0) { $gopt_enable_
 if(($match = grep(/--disable-lhapdf5/i,             @ARGV)) > 0) { $gopt_enable_lhapdf5              = "NO";  }
 if(($match = grep(/--enable-lhapdf6/i,              @ARGV)) > 0) { $gopt_enable_lhapdf6              = "YES"; }
 if(($match = grep(/--disable-lhapdf6/i,             @ARGV)) > 0) { $gopt_enable_lhapdf6              = "NO";  }
+if(($match = grep(/--enable-apfel/i,                @ARGV)) > 0) { $gopt_enable_apfel                = "YES"; }
+if(($match = grep(/--disable-apfel/i,               @ARGV)) > 0) { $gopt_enable_apfel                = "NO";  }
 if(($match = grep(/--disable-flux-drivers/i,        @ARGV)) > 0) { $gopt_enable_flux_drivers         = "NO";  }
 if(($match = grep(/--disable-geom-drivers/i,        @ARGV)) > 0) { $gopt_enable_geom_drivers         = "NO";  }
 if(($match = grep(/--enable-t2k/i,                  @ARGV)) > 0) { $gopt_enable_t2k                  = "YES"; }
@@ -181,6 +193,8 @@ if(($match = grep(/--enable-nucleon-decay/i,        @ARGV)) > 0) { $gopt_enable_
 if(($match = grep(/--enable-nnbar-oscillation/i,    @ARGV)) > 0) { $gopt_enable_nnbar_oscillation    = "YES"; }
 if(($match = grep(/--enable-boosted-dark-matter/i,  @ARGV)) > 0) { $gopt_enable_boosted_dark_mat     = "YES"; }
 if(($match = grep(/--enable-neutral-heavy-lepton/i, @ARGV)) > 0) { $gopt_enable_neutral_heavy_lepton = "YES"; }
+if(($match = grep(/--enable-dark-neutrino/i,        @ARGV)) > 0) { $gopt_enable_dark_neutrino        = "YES"; }
+if(($match = grep(/--enable-event-library/i,        @ARGV)) > 0) { $gopt_enable_evtlib               = "YES"; }
 if(($match = grep(/--enable-incl/i,                 @ARGV)) > 0) { $gopt_enable_incl                 = "YES"; }
 if(($match = grep(/--enable-geant4/i,               @ARGV)) > 0) { $gopt_enable_geant4_interface     = "YES"; }
 if(($match = grep(/--enable-masterclass/i,          @ARGV)) > 0) { $gopt_enable_masterclass          = "YES"; }
@@ -531,6 +545,78 @@ if($gopt_enable_lhapdf6 eq "YES") {
 }
 
 # ------------------------------------------------
+# APFEL paths
+# ------------------------------------------------
+
+# If --enable-apfel was set then the full path to the APFEL library must be specified
+#
+my $gopt_with_apfel_lib = "";
+if($gopt_enable_apfel eq "YES") {
+  if(($match = grep(/--with-apfel-lib/i, @ARGV)) > 0) {
+    $options=~m/--with-apfel-lib=(\S*)/i;
+    $gopt_with_apfel_lib = $1;
+  }
+  if(! -d $gopt_with_apfel_lib)  {
+    print "\n*** Warning *** APFEL has been enabled but you didn't specify the APFEL library path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_apfel_lib eq "" && defined $ENV{'APFEL_LIB'}) {
+     $gopt_with_apfel_lib = $ENV{'APFEL_LIB'};
+     print "The \$APFEL_LIB env var is defined. I will pick that and use --with-apfel-lib=$gopt_with_apfel_lib\n";
+  }
+  # if it still not set, try autodetecting it
+  if(! -d $gopt_with_apfel_lib && $auto_detect)  {
+    print "Auto-detecting APFEL library path...\n";
+    $matched = auto_detect("libAPFEL.la");
+    if( $matched=~m/(\S*)\/libAPFEL.la/i ) {
+       $gopt_with_apfel_lib = $1;
+    }
+    print "Setting --with-apfel-lib=$gopt_with_apfel_lib\n";
+  }
+  # check
+  my $file    = "$gopt_with_apfel_lib/libAPFEL.la";
+  if(! -e $file) {
+     print "*** Error *** You need to specify the path to APFEL library using --with-apfel-lib=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-apfel\n\n";
+     exit 1;
+  }
+}
+
+# If --enable-apfel was set then the full path to the APFEL includes must be specified
+#
+my $gopt_with_apfel_inc = "";
+if($gopt_enable_apfel eq "YES") {
+  if(($match = grep(/--with-apfel-inc/i, @ARGV)) > 0) {
+    $options=~m/--with-apfel-inc=(\S*)/i;
+    $gopt_with_apfel_inc = $1;
+  }
+  if(! -d $gopt_with_apfel_inc)  {
+    print "\n*** Warning *** APFEL has been enabled but you didn't specify the APFEL include path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_apfel_inc eq "" && defined $ENV{'APFEL_INC'}) {
+     $gopt_with_apfel_inc = $ENV{'APFEL_INC'};
+     print "The \$APFEL_INC env var is defined. I will pick that and use --with-apfel-inc=$gopt_with_apfel_inc\n";
+  }
+  # if it still not set, try autodetecting it
+  if(! -d $gopt_with_apfel_inc && $auto_detect)  {
+    print "Auto-detecting the APFEL include path...\n";
+    $matched = auto_detect("APFEL.h","APFEL/APFEL.h");
+    if( $matched=~m/(\S*)\/APFEL\/APFEL.h/i ) {
+       $gopt_with_apfel_inc = $1;
+    }
+    print "Setting --with-apfel-inc=$gopt_with_apfel_inc\n";
+  }
+  # check
+  my $file = "$gopt_with_apfel_inc/APFEL/APFEL.h";
+  if(! -e $file) {
+     print "*** Error *** You need to specify the APFEL includes path using --with-apfel-inc=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-apfel\n\n";
+     exit 1;
+  }
+}
+
+# ------------------------------------------------
 # LIBXML2 paths
 # ------------------------------------------------
 
@@ -868,6 +954,7 @@ print MKCONF "GOPT_ENABLE_INCL=$gopt_enable_incl\n";
 print MKCONF "GOPT_ENABLE_GEANT4_INTERFACE=$gopt_enable_geant4_interface\n";
 print MKCONF "GOPT_ENABLE_LHAPDF5=$gopt_enable_lhapdf5\n";
 print MKCONF "GOPT_ENABLE_LHAPDF6=$gopt_enable_lhapdf6\n";
+print MKCONF "GOPT_ENABLE_APFEL=$gopt_enable_apfel\n";
 print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
 print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
 print MKCONF "GOPT_ENABLE_T2K=$gopt_enable_t2k\n";
@@ -877,6 +964,10 @@ print MKCONF "GOPT_ENABLE_NUCLEON_DECAY=$gopt_enable_nucleon_decay\n";
 print MKCONF "GOPT_ENABLE_NNBAR_OSCILLATION=$gopt_enable_nnbar_oscillation\n";
 print MKCONF "GOPT_ENABLE_BOOSTED_DARK_MATTER=$gopt_enable_boosted_dark_mat\n";
 print MKCONF "GOPT_ENABLE_NEUTRAL_HEAVY_LEPTON=$gopt_enable_neutral_heavy_lepton\n";
+print MKCONF "GOPT_ENABLE_DARK_NEUTRINO=$gopt_enable_dark_neutrino\n";
+print MKCONF "GOPT_ENABLE_EVTLIB=$gopt_enable_evtlib\n";
+print MKCONF "GOPT_ENABLE_INCL=$gopt_enable_incl\n";
+print MKCONF "GOPT_ENABLE_GEANT4_INTERFACE=$gopt_enable_geant4_interface\n";
 print MKCONF "GOPT_ENABLE_MASTERCLASS=$gopt_enable_masterclass\n";
 print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
 print MKCONF "GOPT_ENABLE_DYLIBVERSION=$gopt_enable_dylibversion\n";
@@ -897,6 +988,8 @@ print MKCONF "GOPT_WITH_LHAPDF5_LIB=$gopt_with_lhapdf5_lib\n";
 print MKCONF "GOPT_WITH_LHAPDF5_INC=$gopt_with_lhapdf5_inc\n";
 print MKCONF "GOPT_WITH_LHAPDF6_LIB=$gopt_with_lhapdf6_lib\n";
 print MKCONF "GOPT_WITH_LHAPDF6_INC=$gopt_with_lhapdf6_inc\n";
+print MKCONF "GOPT_WITH_APFEL_LIB=$gopt_with_apfel_lib\n";
+print MKCONF "GOPT_WITH_APFEL_INC=$gopt_with_apfel_inc\n";
 print MKCONF "GOPT_WITH_LIBXML2_INC=$gopt_with_libxml2_inc\n";
 print MKCONF "GOPT_WITH_LIBXML2_LIB=$gopt_with_libxml2_lib\n";
 print MKCONF "GOPT_WITH_LOG4CPP_INC=$gopt_with_log4cpp_inc\n";

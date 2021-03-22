@@ -39,6 +39,7 @@
   <priority msgstream="BardinIMD">                     WARN   </priority>
   <priority msgstream="BaryonResList">                 WARN   </priority>
   <priority msgstream="BaseHad">                       WARN   </priority>
+  <priority msgstream="BertuzzoDNuCOH">                WARN   </priority>
   <priority msgstream="BreitWignet">                   WARN   </priority>
   <priority msgstream="Bardin">                        WARN   </priority>
   <priority msgstream="BSKLNBaseRESPXSec2014">         WARN   </priority>
@@ -48,6 +49,8 @@
   <priority msgstream="SMQELXSec">                     WARN   </priority>
   <priority msgstream="Cache">                         WARN   </priority>
   <priority msgstream="CEvNS">                         WARN   </priority>
+  <priority msgstream="COHDNu">                        WARN   </priority>
+  <priority msgstream="COHDNuXSec">                    WARN   </priority>
   <priority msgstream="CharmHad">                      WARN   </priority>
   <priority msgstream="CFracTab">                      WARN   </priority>
   <priority msgstream="COHXSec">                       WARN   </priority>
@@ -55,6 +58,7 @@
   <priority msgstream="CLAP">                          WARN   </priority>
   <priority msgstream="COHHadronicVtx">                WARN   </priority>
   <priority msgstream="COHKinematics">                 WARN   </priority>
+  <priority msgstream="DarkSectorDecayer">             WARN   </priority>
   <priority msgstream="Decay">                         WARN   </priority>
   <priority msgstream="DISSF">                         WARN   </priority>
   <priority msgstream="DISXSec">                       WARN   </priority>
@@ -76,6 +80,7 @@
   <priority msgstream="EVGChain">                      WARN   </priority>
   <priority msgstream="EvGenListAssembler">            WARN   </priority>
   <priority msgstream="ELFormFactors">                 WARN   </priority>
+  <priority msgstream="EngelFormFactor">               WARN   </priority>
   <priority msgstream="FermiMover">                    WARN   </priority>
   <priority msgstream="FermiP">                        WARN   </priority>
   <priority msgstream="Flux">                          WARN   </priority>

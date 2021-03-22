@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the hybrid xsec algorithm.
+
+Configurable Parameters:
+......................................................................................................................
+Name                   Type     Optional   Comment                                       Default
+......................................................................................................................
+DefaultXSecAlg         alg      Yes        Algorithm to use by default
+XSecAlg@Interaction=XX alg      Yes        Algorithm to use to handle interaction XX
+                                           The interaction specification has the same
+                                           format as in the cross section splines
+-->
+
+  <param_set name="Default">
+
+  </param_set>
+
+
+  <param_set name="SuSAv2-QEL">
+
+    <!-- Use the SuSAv2 CCQE model for complex nuclear targets (default) -->
+    <param type="alg" name="DefaultXSecAlg"> genie::SuSAv2QELPXSec/Default </param>
+
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+
+    <!-- TODO: add entries for muon EMQE scattering, etc. -->
+    <!-- Delegate handling of EMQE scattering on a free nucleon to the Rosenbluth model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:11;tgt:1000000010;N:2112;proc:EM,QES;">
+      genie::RosenbluthPXSec/Default </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:11;tgt:1000010010;N:2212;proc:EM,QES;">
+      genie::RosenbluthPXSec/Default </param>
+
+  </param_set>
+
+</alg_conf>

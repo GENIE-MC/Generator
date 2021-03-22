@@ -8,6 +8,9 @@
 
  Changes required to implement the GENIE Boosted Dark Matter module
  were installed by Josh Berger (Univ. of Wisconsin)
+
+ Changes required to implement the GENIE Dark Neutrino module
+ were installed by Iker de Icaza (Univ. of Sussex)
 */
 //____________________________________________________________________________
 
@@ -132,6 +135,7 @@ int Interaction::FSPrimLeptonPdg(void) const
 {
   const ProcessInfo &  proc_info  = this -> ProcInfo();
   const InitialState & init_state = this -> InitState();
+  const XclsTag &      xclstag    = this -> ExclTag();
 
   int pdgc = init_state.ProbePdg();
 
@@ -148,11 +152,19 @@ int Interaction::FSPrimLeptonPdg(void) const
     int clpdgc;
     if (proc_info.IsIMDAnnihilation())
       clpdgc = kPdgMuon;
+    else if (proc_info.IsGlashowResonance()) {
+      if      ( pdg::IsMuon(xclstag.FinalLeptonPdg())     ) clpdgc = kPdgMuon;
+      else if ( pdg::IsTau(xclstag.FinalLeptonPdg())      ) clpdgc = kPdgTau;
+      else if ( pdg::IsElectron(xclstag.FinalLeptonPdg()) ) clpdgc = kPdgElectron;
+      else if ( pdg::IsPion(xclstag.FinalLeptonPdg())     ) clpdgc = kPdgPiP;
+    }
     else
       clpdgc = pdg::Neutrino2ChargedLepton(pdgc);
     return clpdgc;
   }
-
+  else if (proc_info.IsDarkNeutralCurrent()){
+    return kPdgDarkNeutrino;
+  }
   LOG("Interaction", pWARN)
         << "Could not figure out the final state primary lepton pdg code!!";
 
@@ -338,6 +350,21 @@ Interaction * Interaction::DISCC(
 }
 //___________________________________________________________________________
 Interaction * Interaction::DISCC(
+   int target, int hitnuc, int hitqrk, bool fromsea, int fqrk, int probe, double E)
+{
+  Interaction* interaction = Interaction::DISCC(target,hitnuc,probe,E);
+
+  Target * tgt = interaction->InitStatePtr()->TgtPtr();
+  tgt -> SetHitQrkPdg (hitqrk);
+  tgt -> SetHitSeaQrk (fromsea);
+
+  XclsTag * xclstag = interaction->ExclTagPtr();
+  xclstag->SetFinalQuark(fqrk);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DISCC(
    int target, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
   Interaction * interaction =
@@ -383,6 +410,21 @@ Interaction * Interaction::DISNC(
   Target * tgt = interaction->InitStatePtr()->TgtPtr();
   tgt -> SetHitQrkPdg (hitqrk);
   tgt -> SetHitSeaQrk (fromsea);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DISNC(
+   int target, int hitnuc, int hitqrk, bool fromsea, int fqrk, int probe, double E)
+{
+  Interaction* interaction = Interaction::DISNC(target,hitnuc,probe,E);
+
+  Target * tgt = interaction->InitStatePtr()->TgtPtr();
+  tgt -> SetHitQrkPdg (hitqrk);
+  tgt -> SetHitSeaQrk (fromsea);
+
+  XclsTag * xclstag = interaction->ExclTagPtr();
+  xclstag->SetFinalQuark(fqrk);
 
   return interaction;
 }
@@ -869,6 +911,18 @@ Interaction * Interaction::MECNC(
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
   init_state->TgtPtr()->SetHitNucPdg(ncluster);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::MECEM(int tgt, int probe, double E)
+{
+
+  Interaction * interaction = 
+     Interaction::Create(tgt, probe, kScMEC, kIntEM);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
 
   return interaction;
 }
