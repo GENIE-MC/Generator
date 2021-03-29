@@ -14,7 +14,7 @@
 \created  May 06, 2004
 
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -40,7 +40,8 @@ typedef enum EInteractionType {
   kIntDarkMatter,  //
   kIntNDecay,      //
   kIntNOsc,        //
-  kIntNHL          //
+  kIntNHL,         //
+  kIntDarkNC       //
 
 } InteractionType_t;
 
@@ -62,6 +63,7 @@ public:
       case(kIntNDecay)     : return "NucleonDecay";              break;
       case(kIntNOsc)       : return "NeutronOsc";                break;
       case(kIntNHL)        : return "NHL";                       break;
+      case(kIntDarkNC)     : return "Dark[NC]";                  break;
       default :              return "Unknown";                   break;
     }
     return "Unknown";
@@ -103,6 +105,8 @@ public:
 
     else if ( strcmp(t,"NHL") == 0 ) return kIntNHL;
 
+    else if ( strcmp(t,"DARK-NC") == 0 ) return kIntDarkNC;
+    
     else return kIntNull;
   }
   //__________________________________________________________________________

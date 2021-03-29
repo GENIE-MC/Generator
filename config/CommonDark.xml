@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+***************************************************************************************************
+This file defines parameters sets for parameters which are common between algorithms and therefore
+has to be the same for those parameters to be meaningful.
+
+This is file is read from the AlgConfigPool and the parameters set are expected to be used by the
+algorithms to configure these common parameters.
+
+Author:
+Iker de Icaza <i.de-icaza-astiz \at sussex.ac.uk>
+University of Sussex
+***************************************************************************************************
+-->
+
+<common_Dark_list>
+
+    <param_set name="Mixing">
+      <param type="double" name="Dark-KineticMixing"> 1.66e-4 </param>
+      <param type="bool" name="Dark-Mixing-ForceUnitarity"> true </param>
+      <param type="vec-double" name="Dark-Mixings2" delim=";"> 1e-10 ; 9e-7 ; 1e-10 </param>
+      <param type="double" name="Dark-Alpha"> 0.25 </param>
+    </param_set>
+
+    <param_set name="Masses">
+        <param type="double" name="Dark-NeutrinoMass"> 0.420 </param> <!-- GeV -->
+        <param type="double" name="Dark-MediatorMass"> 0.03 </param> <!-- GeV -->
+    </param_set>
+
+</common_Dark_list>

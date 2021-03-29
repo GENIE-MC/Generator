@@ -70,6 +70,7 @@ typedef enum EKinePhaseSpace {
   kPSDMELEvGen, // Equivalent to kPSQELEvGen for Dark Matter scattering  
   kPSxQ2fE,
   kPSlog10xlog10Q2fE,
+  kPSEDNufE, // Used for Dark Neutrinos, two body final state
   kPSWQ2ctpphipfE,
   kPSWQ2ctpfE
 } KinePhaseSpace_t;
@@ -123,11 +124,12 @@ public:
       case(kPSTkTlctl)     : return "<{Tk,Tl,cos(theta_l)}|E>";  break;
       case(kPSQ2vfE)       : return "<{Q2,v}|E>"; break;
       // TODO: update this string when the appropriate kinematic variables are known
-      case(kPSQELEvGen)    : return "<QELEvGen>"; break;
-      case(kPSDMELEvGen)   : return "<DMELEvGen>"; break;
-      case(kPSTAfE)        : return "<{TA}|E>";   break;
-      case(kPSxQ2fE)      : return "<{x,Q2}|E>";      break;
+      case(kPSQELEvGen)   : return "<QELEvGen>"; break;
+      case(kPSDMELEvGen)  : return "<DMELEvGen>"; break;
+      case(kPSTAfE)       : return "<{TA}|E>";   break;
       case(kPSlog10xlog10Q2fE) : return "<{log10x,log10Q2}|E>"; break;
+      case(kPSEDNufE)     : return "<{EDNu}|E>"; break;
+      case(kPSxQ2fE)      : return "<{x,Q2}|E>";      break;
       case(kPSWQ2ctpphipfE): return "<W, Q2, cost(theta_pion), phi_pion|E>"; break;
       case(kPSWQ2ctpfE)    : return "<W, Q2, cost(theta_pion)|E>"; break;
     }

@@ -20,6 +20,7 @@
 
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
+#include "Framework/Utils/Range1.h"
 
 namespace genie {
 
@@ -70,6 +71,31 @@ public:
 private:
   const XSecAlgorithmI * fModel;
   const Interaction *    fInteraction;
+};
+
+//.....................................................................................
+//
+// genie::utils::gsl::dXSec_dEDNu_E
+// A 1-D cross section function: dxsec/dEDNu = f(EDNu)|(fixed E)
+//
+class dXSec_dEDNu_E: public ROOT::Math::IBaseFunctionOneDim
+{
+public:
+  dXSec_dEDNu_E(const XSecAlgorithmI * m, const Interaction * i,
+                double DNuMass, double scale=1.);
+  ~dXSec_dEDNu_E();
+
+  // ROOT::Math::IBaseFunctionOneDim interface
+  unsigned int                      NDim   (void)       const;
+  double                            DoEval (double xin) const;
+  ROOT::Math::IBaseFunctionOneDim * Clone  (void)       const;
+  Range1D_t IntegrationRange(void)  const;
+
+private:
+  const XSecAlgorithmI * fModel;
+  const Interaction *    fInteraction;
+  double                 fDNuMass;
+  double                 fScale; // can set to -1. for use with GSL minimizer
 };
 
 //.....................................................................................
