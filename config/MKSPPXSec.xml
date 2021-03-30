@@ -16,13 +16,17 @@ gsl-integration-type        string  Yes  name of GSL numerical integrator       
                                          (adaptive, vegas, miser, plain)                   
 gsl-max-eval                int     Yes  GSL number of function calls                          1000000000
 gsl-relative-tolerance      double  Yes  relative tolerance of integration                     1e-9
-ESplineMax                  double  Yes  Emax in RES splines, xsec(E>Emax)=xsec(E=Emax)        500
+ESplineMax                  double  Yes  This integrator caches some splines on free nulceons  500
+                                         These splines have plateauing so for simplicity we 
+					 set the maximum to be used here. After that value
+					 we simply use the xsec(E=Emax).
+                                         Value in GeV                            
 
 -->
 
 
   <param_set name="Default"> 
-    <param type="double" name ="ESplineMax">                   500  </param>     
+    <param type="double" name ="ESplineMax">                   250  </param>     
     <param type="string" name ="gsl-integration-type">     adaptive </param>
     <param type="int"    name ="gsl-max-eval">           1000000000 </param>
     <param type="double" name ="gsl-relative-tolerance">      1e-9  </param>
