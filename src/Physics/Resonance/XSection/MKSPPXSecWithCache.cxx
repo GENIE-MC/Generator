@@ -147,7 +147,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
   }
   // knots >= energy threshold
   double E0  = TMath::Max(Ethr,Emin);
-  double dEa = (TMath::Log10(EMax) - TMath::Log10(E0)) /(nka-1);
+  double dEa = (TMath::Log10(Emax) - TMath::Log10(E0)) /(nka-1);
   for(int i=0; i<nka; i++) {
      E[i+nkb] = TMath::Power(10., TMath::Log10(E0) + i*dEa);
   }
