@@ -213,15 +213,35 @@ void MKSPPXSec::Configure(string config)
 void MKSPPXSec::LoadConfig(void)
 {
   
+  bool good_conf = true ;
+
    // Get GSL integration type & relative tolerance
   GetParamDef( "gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
   GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 0.01 ) ;
   GetParamDef( "gsl-max-eval", fGSLMaxEval, 100000 ) ;
   GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
   // Get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
-  GetParamDef( "ESplineMax", fEMax, 100. ) ;
-  fEMax = TMath::Max(fEMax, 20.); // don't accept user Emax if less than 20 GeV
+  GetParamDef( "ESplineMax", fEMax, 500. ) ;
 
+  if ( fEMax < 20. ) {
+
+    LOG("MKSPPXSec", pERROR) << "E max is required to be at least 20 GeV, you set " << fEMax << " GeV" ;
+    good_conf = false ;
+  }
+
+  if ( ! good_conf ) {
+    LOG("MKSPPXSec", pFATAL)
+      << "Invalid configuration: Exiting" ;
+    
+    // From the FreeBSD Library Functions Manual
+    //
+    // EX_CONFIG (78)   Something was found in an unconfigured or miscon-
+    //                  figured state.
+    
+    exit( 78 ) ;
+    
+  }
+  
 }
 //____________________________________________________________________________
 
