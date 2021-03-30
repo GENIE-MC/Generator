@@ -16,6 +16,7 @@
 //____________________________________________________________________________
 
 #include <sstream>
+#include <algorithm>
 #include <cassert>
 
 #include <TMath.h>
@@ -43,7 +44,7 @@
 #include "Framework/Utils/CacheBranchFx.h"
 #include "Framework/Numerical/GSLUtils.h"
 #include "Framework/Utils/Range1.h"
-
+#include "Framework/Utils/XSecSplineList.h"
 
 using std::ostringstream;
 
@@ -85,15 +86,20 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
   
   SppChannel_t spp_channel = SppChannel::FromInteraction(in);
 
+  // Splines parameters are taken from Splines configuration
+  XSecSplineList * xsl = XSecSplineList::Instance();
+
   // Compute the number of spline knots - use at least 10 knots per decade
   // && at least 40 knots in the full energy range
-  const double Emin       = 0.01;
-  const int    nknots_min = (int) (10*(TMath::Log(fEMax)-TMath::Log(Emin)));
-  const int    nknots     = TMath::Max(100, nknots_min);
-  double * E = new double[nknots]; // knot 'x'
+  const double Emin = xsl -> Emin() ;
+  const double Emax = std::min( fEMax, xsl -> Emax() ) ; // here we ignore the run configuration 
+                                                         // since we know that the splines have a plateau
+  const int    nknots     = xsl -> NKnots() ;
 
+  vector<double> E( nknots, 0. ) ; 
+  
   TLorentzVector p4(0,0,0,0);
-
+  
   int nu_code  = in->InitState().ProbePdg();
   int nuc_code = in->InitState().Tgt().HitNucPdg();
   int tgt_code = (nuc_code==kPdgProton) ? kPdgTgtFreeP : kPdgTgtFreeN;
@@ -141,7 +147,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
   }
   // knots >= energy threshold
   double E0  = TMath::Max(Ethr,Emin);
-  double dEa = (TMath::Log10(fEMax) - TMath::Log10(E0)) /(nka-1);
+  double dEa = (TMath::Log10(EMax) - TMath::Log10(E0)) /(nka-1);
   for(int i=0; i<nka; i++) {
      E[i+nkb] = TMath::Power(10., TMath::Log10(E0) + i*dEa);
   }
@@ -188,7 +194,6 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
   // Build the spline
   cache_branch->CreateSpline();
 
-  delete [] E;
   delete interaction;
   
 }
