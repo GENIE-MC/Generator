@@ -691,6 +691,8 @@ void SaveGraphsToRootFile(void)
 	else if ( xcls.NPi0() == 1 ) {
 	  channel = "pi0" ;
 	}
+	
+	title << '_' << channel ;
       }  // single resonsance or single pion
     }  // resonance case
 
