@@ -1,16 +1,16 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
- For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+  Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+  For the full text of the license visit http://copyright.genie-mc.org
+  or see $GENIE/LICENSE
 
- Authors: Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
-          Konstantin Kuzmin <kkuzmin@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
-          Vadim Naumov <vnaumov@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
-          based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+  Authors: Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
+  Konstantin Kuzmin <kkuzmin@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
+  Vadim Naumov <vnaumov@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
+  based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+  University of Liverpool & STFC Rutherford Appleton Lab
 
- For the class documentation see the corresponding header file.
+  For the class documentation see the corresponding header file.
 
 */
 //____________________________________________________________________________
@@ -54,19 +54,19 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 MKSPPXSecWithCache::MKSPPXSecWithCache() :
-XSecIntegratorI()
+  XSecIntegratorI()
 {
 
 }
 //____________________________________________________________________________
 MKSPPXSecWithCache::MKSPPXSecWithCache(string nm) :
-XSecIntegratorI(nm)
+  XSecIntegratorI(nm)
 {
 
 }
 //____________________________________________________________________________
 MKSPPXSecWithCache::MKSPPXSecWithCache(string nm,string conf):
-XSecIntegratorI(nm,conf)
+  XSecIntegratorI(nm,conf)
 {
 
 }
@@ -78,7 +78,7 @@ MKSPPXSecWithCache::~MKSPPXSecWithCache()
 //____________________________________________________________________________
 void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
 {
-// Cache resonance neutrino production data from free nucleons
+  // Cache resonance neutrino production data from free nucleons
 
   Cache * cache = Cache::Instance();
 
@@ -98,34 +98,32 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
 
   vector<double> E( nknots, 0. ) ; 
   
-  TLorentzVector p4(0,0,0,0);
-  
   int nu_code  = in->InitState().ProbePdg();
   int nuc_code = in->InitState().Tgt().HitNucPdg();
   int tgt_code = (nuc_code==kPdgProton) ? kPdgTgtFreeP : kPdgTgtFreeN;
 
-  Interaction * interaction = new Interaction(*in);
-  interaction->InitStatePtr()->SetPdgs(tgt_code, nu_code);
-  interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(nuc_code);
+  Interaction local_interaction(*in);
+  local_interaction.InitStatePtr()->SetPdgs(tgt_code, nu_code);
+  local_interaction.InitStatePtr()->TgtPtr()->SetHitNucPdg(nuc_code);
 
-  InteractionType_t wkcur = interaction->ProcInfo().InteractionTypeId();
+  InteractionType_t wkcur = local_interaction.ProcInfo().InteractionTypeId();
 
   // Get a unique cache branch name
   string key = this->CacheBranchName(spp_channel, wkcur, nu_code);
 
   // Make sure the cache branch does not already exists
   CacheBranchFx * cache_branch =
-      dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
+    dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
   assert(!cache_branch);
-
+  
   // Create the new cache branch
   LOG("MKSPPCache", pNOTICE)
-                 << "\n ** Creating cache branch - key = " << key;
+    << "\n ** Creating cache branch - key = " << key;
   cache_branch = new CacheBranchFx("ResSPP XSec");
   cache->AddCacheBranch(key, cache_branch);
   assert(cache_branch);
   
-  double ml   = interaction->FSPrimLepton()->Mass();
+  double ml   = local_interaction.FSPrimLepton()->Mass();
   PDGLibrary * pdglib = PDGLibrary::Instance();
   
   // imply isospin symmetry  
@@ -143,65 +141,61 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
   // knots < energy threshold
   double dEb =  (Ethr>Emin) ? (Ethr - Emin) / nkb : 0;
   for(int i=0; i<nkb; i++) {
-     E[i] = Emin + i*dEb;
+    E[i] = Emin + i*dEb;
   }
   // knots >= energy threshold
   double E0  = TMath::Max(Ethr,Emin);
   double dEa = (TMath::Log10(Emax) - TMath::Log10(E0)) /(nka-1);
   for(int i=0; i<nka; i++) {
-     E[i+nkb] = TMath::Power(10., TMath::Log10(E0) + i*dEa);
+    E[i+nkb] = TMath::Power(10., TMath::Log10(E0) + i*dEa);
   }
-
+  
   // Compute cross sections at the given set of energies
   for(int ie=0; ie<nknots; ie++) {
-      double xsec = 0.;
-      double Ev   = E[ie];
-      p4.SetPxPyPzE(0,0,Ev,Ev);
-      interaction->InitStatePtr()->SetProbeP4(p4);
-
-      if(Ev>Ethr+kASmallNum) 
-      {
-
-        LOG("MKSPPCache", pINFO)
-          << "*** Integrating d^4 XSec/dWdQ^2dCosThetadPhi for Ch: "
-          << SppChannel::AsString(spp_channel) << " at Ev = " << Ev;
-
-        
-        ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d3XSecMK_dWQ2CosTheta_E(fSingleResXSecModel, interaction);
-        ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-        ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
-        ig.SetFunction(*func);
-        double kine_min[3] = { 0., 0., 0.};
-        double kine_max[3] = { 1., 1., 1.};
-        xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
-        delete func;
-       
-      } 
-      else 
-          LOG("MKSPPCache", pINFO) << "** Below threshold E = " << Ev << " <= " << Ethr;
+    double xsec = 0.;
+    double Ev   = E[ie];
+    
+    TLorentzVector p4(0., 0., Ev, Ev);
+    local_interaction.InitStatePtr()->SetProbeP4(p4);
+    
+    if(Ev>Ethr+kASmallNum) {
       
-      cache_branch->AddValues(Ev,xsec);
+      LOG("MKSPPCache", pINFO)
+	<< "*** Integrating d^4 XSec/dWdQ^2dCosThetadPhi for Ch: "
+	<< SppChannel::AsString(spp_channel) << " at Ev = " << Ev;
       
-
-      string nc_nuc   = ((pdg::IsNeutrino(nu_code)) ? ";v:" : ";vb:");
-  
+      utils::gsl::d3XSecMK_dWQ2CosTheta_E func(fSingleResXSecModel, & local_interaction ) ; 
+      ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
+      ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
+      ig.SetFunction(func);
+      double kine_min[3] = { 0., 0., 0.};
+      double kine_max[3] = { 1., 1., 1.};
+      xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
       
-      SLOG("MKSPPCache", pNOTICE)
-        << "ResSPP XSec (Ch:" << SppChannel::AsString(spp_channel) << nc_nuc  << nu_code
-        << ", E="<< Ev << ") = "<< xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
+    } 
+    else 
+      LOG("MKSPPCache", pINFO) << "** Below threshold E = " << Ev << " <= " << Ethr;
+    
+    cache_branch->AddValues(Ev,xsec);
+    
+    
+    string nc_nuc   = ((pdg::IsNeutrino(nu_code)) ? ";v:" : ";vb:");
+    
+    
+    SLOG("MKSPPCache", pNOTICE)
+      << "ResSPP XSec (Ch:" << SppChannel::AsString(spp_channel) << nc_nuc  << nu_code
+      << ", E="<< Ev << ") = "<< xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
   }//spline knots
-
+  
   // Build the spline
   cache_branch->CreateSpline();
-
-  delete interaction;
-  
+    
 }
 //____________________________________________________________________________
 string MKSPPXSecWithCache::CacheBranchName(
-     SppChannel_t spp_channel, InteractionType_t it, int nupdgc) const
+					   SppChannel_t spp_channel, InteractionType_t it, int nupdgc) const
 {
-// Build a unique name for the cache branch
+  // Build a unique name for the cache branch
 
   Cache * cache = Cache::Instance();
   string spp_channel_name = SppChannel::AsString(spp_channel);
@@ -210,7 +204,7 @@ string MKSPPXSecWithCache::CacheBranchName(
   
   ostringstream intk;
   intk << "ResSPPXSec/Ch:" << spp_channel_name << nc_nuc  << nupdgc
-           << ";int:" << it_name;
+       << ";int:" << it_name;
 
   string algkey = fSingleResXSecModel->Id().Key();
   string ikey   = intk.str();
@@ -222,9 +216,9 @@ string MKSPPXSecWithCache::CacheBranchName(
 // GSL wrappers
 //____________________________________________________________________________
 genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::d3XSecMK_dWQ2CosTheta_E(
-     const XSecAlgorithmI * m, const Interaction * interaction) :
-ROOT::Math::IBaseFunctionMultiDim(),
-fModel(m)
+								    const XSecAlgorithmI * m, const Interaction * interaction) :
+  ROOT::Math::IBaseFunctionMultiDim(),
+  fModel(m)
 {
 
   isZero = false;
@@ -240,10 +234,10 @@ fModel(m)
 
 
   if (Enu < kps->Threshold_RSPP())
-  {
-    isZero = true;
-    return;
-  }
+    {
+      isZero = true;
+      return;
+    }
   
   Wl  = kps->WLim_RSPP();
   
@@ -260,9 +254,9 @@ unsigned int genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::NDim(void) const
 double genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::DoEval(const double * xin) const
 {
 
-// outputs:
-//   differential cross section [10^-38 cm^2/GeV^3] for Resonance single pion production production
-//
+  // outputs:
+  //   differential cross section [10^-38 cm^2/GeV^3] for Resonance single pion production production
+  //
 
   if (isZero) return 0.;
   
@@ -281,7 +275,7 @@ double genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::DoEval(const double * xin) co
   return xsec/(1E-38 * units::cm2);
 }
 ROOT::Math::IBaseFunctionMultiDim *
-   genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::Clone() const
+genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::Clone() const
 {
   return
     new genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E(fModel,fInteraction);
