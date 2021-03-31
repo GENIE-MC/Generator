@@ -284,6 +284,22 @@ double NievesSimoVacasMECPXSec2016::XSec(
   // Apply given scaling factor
   xsec *= fXSecScale;
 
+  int PDGn = interaction->InitState().Tgt().HitNucPdg(); // hit nucleon pdg 
+  double Mn = PDGLibrary::Instance()->Find(PDGn)->Mass() ;
+
+  double Q0_limit = -Mn + sqrt( pow(Q3,2) + pow(fW2Limit,2) ) ; 
+  
+  if( Q0_limit < 0 ) {
+    LOG("NievesSimoVacasMEC", pWARN)
+      << "Q0_limit is negative"
+      << "xsec is not scaled by fXSecScaleQELRegion or fXSecScaleRESRegion" ;
+    return xsec ;
+  }
+
+  // Apply scaling factors on the corresponding region : 
+  if( Q0 < Q0_limit ) xsec *= fXSecScaleQELRegion;
+  else if( Q0 >= Q0_limit ) xsec *= fXSecScaleRESRegion;
+
   if ( kps != kPSTlctl ) {
     LOG("NievesSimoVacasMEC", pWARN)
       << "Doesn't support transformation from "
@@ -330,6 +346,9 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
 {
 	// Cross section scaling factor
 	GetParam( "MEC-CC-XSecScale", fXSecScale ) ;
+	GetParam( "MEC-CC-W2-Limit", fW2Limit ) ;
+	GetParam( "MEC-CC-XSecScale-QELRegion", fXSecScaleQELRegion ) ;
+	GetParam( "MEC-CC-XSecScale-RESRegion", fXSecScaleRESRegion ) ;
 
 	fHadronTensorModel = dynamic_cast<const HadronTensorModelI *> (
           this->SubAlg("HadronTensorAlg") );

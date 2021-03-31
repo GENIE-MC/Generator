@@ -59,6 +59,9 @@ private:
   void LoadConfig (void);
 
   double fXSecScale; ///< external xsec scaling factor
+  double fW2Limit; ///< This determines the W2 for which we enter the Dip region
+  double fXSecScaleQELRegion; ///< external xsec scaling factor applied to the QEL region
+  double fXSecScaleRESRegion; ///< external xsec scaling factor applied to the RES region
 
   const HadronTensorModelI* fHadronTensorModel;
 
