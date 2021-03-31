@@ -170,8 +170,6 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
   // rwh -- uncomment to catch NaN
   // feenableexcept(FE_DIVBYZERO|FE_INVALID|FE_OVERFLOW);
 
-  double xsec[nknots];
-  double E   [nknots];
 
   SLOG("XSecSplLst", pNOTICE)
      << "Creating cross section spline using the algorithm: " << *alg;
@@ -185,6 +183,9 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
   if (e_max   < 0.) e_max = this->Emax();
   if (nknots <= 2) nknots = this->NKnots();
   assert( e_min < e_max );
+
+  std::vector<double> xsec( nknots, 0. ) ;
+  std::vector<double> E( nknots, 0. ) ;
 
   // Distribute the knots in the energy range (e_min,e_max) :
   // - Will use 5 knots linearly spaced below the energy thresholds so that the
@@ -272,7 +273,7 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
 
   // Build
   //
-  Spline * spline = new Spline(nknots, E, xsec);
+  Spline * spline = new Spline(nknots, E.data(), xsec.data());
 
   // Save
   //
