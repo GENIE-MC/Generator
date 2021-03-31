@@ -7,9 +7,13 @@ Configuration for the Nieves, Simo and Vacas (Valencia) MEC cross-section model
 
 Configurable Parameters:
 .....................................................................................................
-Name                  Type     Optional   Comment                      Default
+Name                           Type     Optional   Comment                      Default
 .....................................................................................................
-MEC-CC-XSecScale      double   Yes        XSec Scaling factor          GPL value
+MEC-CC-XSecScale               double   Yes        XSec Scaling factor          GPL value
+MEC-CC-W2-Limit                double   Yes        Parameter that defines       GPL value
+                                                   the QEL and Delta regions
+MEC-CC-XSecScale-QELRegion     double   Yes        XSec Scaling factor for QEL  GPL value
+MEC-CC-XSecScale-RESRegion     double   Yes        XSec Scaling factor for RES  GPL value
 -->
   <param_set name="Default"> 
       <param type="alg"  name="NumericalIntegrationAlg"> genie::MECXSec/Default </param>
@@ -17,6 +21,9 @@ MEC-CC-XSecScale      double   Yes        XSec Scaling factor          GPL value
       <param type="alg" name="HadronTensorAlg"> genie::NievesMECHadronTensorModel/Default </param>
 
       <param type="double" name="MEC-CC-XSecScale"> 1.000 </param>
+      <param type="double" name="MEC-CC-W2-Limit"> 1.120 </param>
+      <param type="double" name="MEC-CC-XSecScale-QELRegion"> 1.000 </param>
+      <param type="double" name="MEC-CC-XSecScale-RESRegion"> 1.000 </param>
   </param_set>
 
 </alg_conf>
