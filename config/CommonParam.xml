@@ -27,7 +27,9 @@ University of Liverpool
 
     <!-- <param type="double" name="DIS-XSecScale">    1.032 </param> -->
     <!-- <param type="double" name="MEC-CC-XSecScale"> 1.000 </param> -->
-
+    <!-- <param type="double" name="MEC-CC-W2-Limit"> 1.120 </param> -->
+    <!-- <param type="double" name="MEC-CC-XSecScale-QELRegion"> 1.000 </param> -->
+    <!-- <param type="double" name="MEC-CC-XSecScale-RESRegion"> 1.000 </param> -->
 
   </param_set>
 
