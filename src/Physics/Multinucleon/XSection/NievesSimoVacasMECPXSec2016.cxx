@@ -286,19 +286,43 @@ double NievesSimoVacasMECPXSec2016::XSec(
 
   int PDGn = interaction->InitState().Tgt().HitNucPdg(); // hit nucleon pdg 
   double Mn = PDGLibrary::Instance()->Find(PDGn)->Mass() ;
+  double MDelta = PDGLibrary::Instance()->Find(kPdgP33m1232_DeltaP)->Mass();
 
-  double Q0_limit = -Mn + sqrt( pow(Q3,2) + pow(fW2Limit,2) ) ; 
-  
-  if( Q0_limit < 0 ) {
-    LOG("NievesSimoVacasMEC", pWARN)
-      << "Q0_limit is negative"
-      << "xsec is not scaled by fXSecScaleQELRegion or fXSecScaleRESRegion" ;
-    return xsec ;
+  // Calculate W_1 and W_2 for a given event
+  double W_1 = sqrt( pow(Mn,2) + 2*Mn*Q0min - pow(Q3min,2) + pow(Q0min,2) ) ;
+  double W_2 = sqrt( pow(Mn,2) + 2*Mn*Q0max - pow(Q3max,2) + pow(Q0max,2) ) ;
+  double W_dip = 1.12 ;
+
+  // Calculate event 
+  double W = pow(Mn,2) + 2*Mn*Q0 - pow(Q3,2) + pow(Q0,2) ;
+
+  // Get scaling factor depending on the W value. There are four possible regions:
+  // 1) W_1<= W < Mn
+  // 2) Mn <= W < W_dip
+  // 2) W_dip <= W < MDelta
+  // 3) MDelta<= W < W_2
+
+  double scale_region = 1; 
+  if ( W >= W_1 && W < Mn ) {
+    scale_region = ( W_1 * fXSecScaleQELRegion - Mn ) ; 
+    scale_region += ( 1 - fXSecScaleQELRegion ) * W ;
+    scale_region /=  ( W_1 - Mn ) ;
+  } else if ( W >= Mn && W < W_dip ) {
+    scale_region = ( Mn - W_dip * fXSecScaleQELRegion ) ; 
+    scale_region += ( fXSecScaleQELRegion - 1 ) * W ;
+    scale_region /= ( Mn - W_dip) ; 
+  } else if ( W >= W_dip && W < MDelta ) {
+    scale_region = ( W_dip * fXSecScaleRESRegion - MDelta ) ;
+    scale_region += ( 1 - fXSecScaleRESRegion ) ; 
+    scale_region /= ( W_dip - MDelta ) ; 
+  } else if ( W >= MDelta && W < W_2 ) {
+    scale_region = ( MDelta - W_2 * fXSecScaleRESRegion ) ;
+    scale_region += ( fXSecScaleRESRegion - 1 ) * W ;
+    scale_region /= ( MDelta - W_2 ) ; 
   }
 
   // Apply scaling factors on the corresponding region : 
-  if( Q0 < Q0_limit ) xsec *= fXSecScaleQELRegion;
-  else if( Q0 >= Q0_limit ) xsec *= fXSecScaleRESRegion;
+  xsec *= scale_region ;
 
   if ( kps != kPSTlctl ) {
     LOG("NievesSimoVacasMEC", pWARN)
@@ -346,7 +370,6 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
 {
 	// Cross section scaling factor
 	GetParam( "MEC-CC-XSecScale", fXSecScale ) ;
-	GetParam( "MEC-CC-W2-Limit", fW2Limit ) ;
 	GetParam( "MEC-CC-XSecScale-QELRegion", fXSecScaleQELRegion ) ;
 	GetParam( "MEC-CC-XSecScale-RESRegion", fXSecScaleRESRegion ) ;
 
