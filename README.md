@@ -75,7 +75,8 @@ Gabriel Perdue [2] < perdue \at fnal.gov >,
 Marco Roda [7]  < marco.roda \at liverpool.ac.uk >, 
 Vladyslav Syrotenko [11]  < Vladyslav.Syrotenko \at tufts.edu >, 
 Júlia Tena Vidal [7]  < j.tena-vidal \at liverpool.ac.uk >, 
-Jeremy Wolcott [11]  < jwolcott \at fnal.gov >, and 
+Jeremy Wolcott [11]  < jwolcott \at fnal.gov >, 
+Natalie Wright [8], and 
 Julia Yarba [2]  < yarba_j \at fnal.gov >
 
 (The GENIE Collaboration)
