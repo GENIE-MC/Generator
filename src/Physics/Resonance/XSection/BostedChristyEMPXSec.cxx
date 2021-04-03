@@ -207,7 +207,6 @@ double BostedChristyEMPXSec::XSec(
   double xsec = Gamma*(sigmaT+eps*sigmaL);                // Eq. (3) d2xsec/dOmegadEprime
   double jacobian = W*kPi/E/Eprime/Mp;  
   xsec*= jacobian;                                            // d2xsec/dOmegadEprime-> d2xsec/dWdQ2
-  xsec*= fXSecScaleEM;
   
   // The algorithm computes d^2xsec/dWdQ2
   // Check whether variable tranformation is needed
@@ -265,10 +264,7 @@ void BostedChristyEMPXSec::Configure(string config)
 }
 //____________________________________________________________________________
 void BostedChristyEMPXSec::LoadConfig(void)
-{
-  
-  this->GetParam   ("RES-EM-XSecScale", fXSecScaleEM ) ;
-  
+{  
   // single pion branching ratios
   fbr[0][0] = 1.0;       //  P33(1232)       
   fbr[1][0] = 0.45;      //  S11(1535)   

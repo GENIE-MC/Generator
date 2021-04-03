@@ -8,13 +8,11 @@ Configuration for the Bosted-Christy fit for ep scattering  d^xsec / dQ^2 dW xse
 Configurable Parameters:
 ......................................................................................................................................
 Name                        Type Optional Comment                                                        Default
-......................................................................................................................................
-RES-EM-XSecScale            double  No    XSec rescaling factor                                           
+......................................................................................................................................                                         
 XSec-Integrator             alg     No                    
 -->
 
   <param_set name="Default"> 
-     <param type="double" name="RES-EM-XSecScale"> 1.000 </param>
      <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/NoPauliBlock      </param>
   </param_set>
   

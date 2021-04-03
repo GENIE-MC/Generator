@@ -67,7 +67,6 @@ private:
   double fnrcoefT[2][5];       ///< tunable parameters from Table III for resonance \sigma_T
   double fnrcoefL[5];       ///< tunable parameters from Table III for resonance \sigma_L
   
-  double fXSecScaleEM;         ///< external EM xsec scaling factor
 
   const XSecIntegratorI * fXSecIntegrator;
 };
