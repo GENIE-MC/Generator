@@ -304,21 +304,13 @@ double NievesSimoVacasMECPXSec2016::XSec(
 
   double scale_region = 1; 
   if ( W >= W_1 && W < Mn ) {
-    scale_region = ( W_1 * fXSecScaleQELRegion - Mn ) ; 
-    scale_region += ( 1 - fXSecScaleQELRegion ) * W ;
-    scale_region /=  ( W_1 - Mn ) ;
+    scale_region = ScaleFunction( W, W_1, Mn, 1, fXSecScaleQELRegion ) ; 
   } else if ( W >= Mn && W < W_dip ) {
-    scale_region = ( Mn - W_dip * fXSecScaleQELRegion ) ; 
-    scale_region += ( fXSecScaleQELRegion - 1 ) * W ;
-    scale_region /= ( Mn - W_dip) ; 
+    scale_region = ScaleFunction( W, Mn, W_dip, fXSecScaleQELRegion, 1 ) ; 
   } else if ( W >= W_dip && W < MDelta ) {
-    scale_region = ( W_dip * fXSecScaleRESRegion - MDelta ) ;
-    scale_region += ( 1 - fXSecScaleRESRegion ) ; 
-    scale_region /= ( W_dip - MDelta ) ; 
+    scale_region = ScaleFunction( W, W_dip, MDelta, 1, fXSecScaleRESRegion ) ; 
   } else if ( W >= MDelta && W < W_2 ) {
-    scale_region = ( MDelta - W_2 * fXSecScaleRESRegion ) ;
-    scale_region += ( fXSecScaleRESRegion - 1 ) * W ;
-    scale_region /= ( MDelta - W_2 ) ; 
+    scale_region = ScaleFunction( W, MDelta, W_2, fXSecScaleRESRegion, 1 ) ;
   }
 
   // Apply scaling factors on the corresponding region : 
@@ -353,6 +345,15 @@ bool NievesSimoVacasMECPXSec2016::ValidProcess(
     }
     return true;
 }
+//_________________________________________________________________________
+double NievesSimoVacasMECPXSec2016::ScaleFunction(const double W, const double W1, const double W2, const double s1, const double s2) const {
+
+  double scale = W1 * s2 - W2 * s1 + ( s1 - s2 ) * W ;
+  scale /= W1 - W2 ; 
+
+  return scale ; 
+}
+
 //_________________________________________________________________________
 void NievesSimoVacasMECPXSec2016::Configure(const Registry & config)
 {
