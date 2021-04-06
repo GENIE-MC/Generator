@@ -294,7 +294,7 @@ double NievesSimoVacasMECPXSec2016::XSec(
   double W_dip = 1.12 ;
 
   // Calculate event 
-  double W = pow(Mn,2) + 2*Mn*Q0 - pow(Q3,2) + pow(Q0,2) ;
+  double W = sqrt( pow(Mn,2) + 2*Mn*Q0 - pow(Q3,2) + pow(Q0,2) ) ;
 
   // Get scaling factor depending on the W value. There are four possible regions:
   // 1) W_1<= W < Mn
