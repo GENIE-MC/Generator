@@ -285,7 +285,9 @@ double NievesSimoVacasMECPXSec2016::XSec(
   xsec *= fXSecScale;
 
   int PDGn = interaction->InitState().Tgt().HitNucPdg(); // hit nucleon pdg 
-  double Mn = PDGLibrary::Instance()->Find(PDGn)->Mass() ;
+  double Mn ;
+  if( pn ) Mn = PDGLibrary::Instance()->Find(kPdgClusterNP)->Mass() ;
+  else Mn = PDGLibrary::Instance()->Find(kPdgClusterNN)->Mass() ;
   double MDelta = PDGLibrary::Instance()->Find(kPdgP33m1232_DeltaP)->Mass();
 
   // Calculate W_1 and W_2 for a given event
@@ -348,7 +350,7 @@ bool NievesSimoVacasMECPXSec2016::ValidProcess(
 //_________________________________________________________________________
 double NievesSimoVacasMECPXSec2016::ScaleFunction(const double W, const double W1, const double W2, const double s1, const double s2) const {
 
-  double scale = W1 * s2 - W2 * s1 + ( s1 - s2 ) * W ;
+  double scale = ( W1 * s2 - W2 * s1 ) + ( s1 - s2 ) * W ;
   scale /= W1 - W2 ; 
 
   return scale ; 
