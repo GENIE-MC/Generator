@@ -284,7 +284,7 @@ double NievesSimoVacasMECPXSec2016::XSec(
   // Apply given scaling factor
   xsec *= fXSecScale;
 
-  int PDGn = interaction->InitState().Tgt().HitNucPdg(); // hit nucleon pdg 
+  //  int PDGn = interaction->InitState().Tgt().HitNucPdg(); // hit nucleon pdg 
   double Mn ;
   if( pn ) Mn = PDGLibrary::Instance()->Find(kPdgClusterNP)->Mass() ;
   else Mn = PDGLibrary::Instance()->Find(kPdgClusterNN)->Mass() ;
