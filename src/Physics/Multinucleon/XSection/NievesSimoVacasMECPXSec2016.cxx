@@ -284,20 +284,32 @@ double NievesSimoVacasMECPXSec2016::XSec(
   // Apply given scaling factor
   xsec *= fXSecScale;
 
-  //  int PDGn = interaction->InitState().Tgt().HitNucPdg(); // hit nucleon pdg 
-  double Mn ;
-  if( pn ) Mn = PDGLibrary::Instance()->Find(kPdgClusterNP)->Mass() ;
-  else Mn = PDGLibrary::Instance()->Find(kPdgClusterNN)->Mass() ;
+  if ( kps != kPSTlctl ) {
+    LOG("NievesSimoVacasMEC", pWARN)
+      << "Doesn't support transformation from "
+      << KinePhaseSpace::AsString(kPSTlctl) << " to "
+      << KinePhaseSpace::AsString(kps);
+    xsec = 0;
+  }
+
+  // The Scaling is done using the "experimenter's W", which assumes a single nucleon
+  // See motivation in : https://arxiv.org/pdf/1601.02038.pdf 
+  // Store average nucleon mass and Delta mass: 
+  double Mn = ( PDGLibrary::Instance()->Find(kPdgProton)->Mass() + PDGLibrary::Instance()->Find(kPdgNeutron)->Mass() ) * 0.5 ;  
   double MDelta = PDGLibrary::Instance()->Find(kPdgP33m1232_DeltaP)->Mass();
 
-  // Calculate W_1 and W_2 for a given event
+  // Calculate experimental W_1 and W_2 for a given event.
+  // These are the Minimum and Maximum W values for a given interaction:
   double W_1 = sqrt( pow(Mn,2) + 2*Mn*Q0min - pow(Q3min,2) + pow(Q0min,2) ) ;
-  double W_2 = sqrt( pow(Mn,2) + 2*Mn*Q0max - pow(Q3max,2) + pow(Q0max,2) ) ;
-  double W_dip = 1.12 ;
+  double W_2 = sqrt( pow(Mn,2) + 2*Mn*Q0 ) ; // Imposing Q2 = 0 
+  double W_dip = 1.12 ; // GeV. See reference
 
   // Calculate event 
   double W = sqrt( pow(Mn,2) + 2*Mn*Q0 - pow(Q3,2) + pow(Q0,2) ) ;
-
+  
+  //std::cout<< " Q0 = " << Q0 << " Q3 = " << Q3 << std::endl;
+  //std::cout<< " W = " << W << " W_1 = " << W_1 << " Mn= " << Mn << " Wdip= " << W_dip << " MDelta "<< MDelta << " W_2 = " << W_2 << std::endl;
+  
   // Get scaling factor depending on the W value. There are four possible regions:
   // 1) W_1<= W < Mn
   // 2) Mn <= W < W_dip
@@ -315,16 +327,10 @@ double NievesSimoVacasMECPXSec2016::XSec(
     scale_region = ScaleFunction( W, MDelta, W_2, fXSecScaleRESRegion, 1 ) ;
   }
 
+  //std::cout<< " scale = " << scale_region << std::endl;
+  
   // Apply scaling factors on the corresponding region : 
   xsec *= scale_region ;
-
-  if ( kps != kPSTlctl ) {
-    LOG("NievesSimoVacasMEC", pWARN)
-      << "Doesn't support transformation from "
-      << KinePhaseSpace::AsString(kPSTlctl) << " to "
-      << KinePhaseSpace::AsString(kps);
-    xsec = 0;
-  }
 
   return xsec;
 }
