@@ -12,7 +12,7 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/LinearCombination/XSection/XSecLinearCombinations.h"
+#include "Physics/LinearCombination/XSecLinearCombinations.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
 using namespace genie;
