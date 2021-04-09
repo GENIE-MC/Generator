@@ -73,7 +73,7 @@ double XSecLinearCombinations::Integral( const Interaction * interaction ) const
 
   // Store xsec prediction for each entry :
   for( unsigned int i = 0 ; i < fXSections.size() ; ++ i ) {
-    vect_xsec.push_back( fXSecIntegrator->Integrate( fXSections[i] , interaction ) ) ; 
+    vect_xsec.push_back( fXSections[i] -> Integral( interaction ) ) ; 
   }
 
   // Check if we need to normalize the weights: 
@@ -128,7 +128,7 @@ void XSecLinearCombinations::Configure(string config)
 void XSecLinearCombinations::LoadConfig(void)
 {
   GetParamVect( "LinearCoefficients", fLinearCoefficients ) ; 
-  GetParamDef( "Normalise", fNormalise, true ) ;
+  GetParam( "Normalise", fNormalise ) ;
 
   GetParamVectKeys( "CrossSection", fXSectionsKeys ) ;
 
@@ -142,8 +142,5 @@ void XSecLinearCombinations::LoadConfig(void)
     fXSections.push_back( dynamic_cast<const XSecAlgorithmI *> ( this->SubAlg( fXSectionsKeys[i] ) ) );
     assert( fXSections[i] ) ;
   }
-
-  fXSecIntegrator = dynamic_cast<const XSecIntegratorI *> ( this->SubAlg("NumericalIntegrationAlg") );
-  assert(fXSecIntegrator);
 
 }
