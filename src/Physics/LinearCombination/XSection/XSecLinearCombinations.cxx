@@ -74,19 +74,49 @@ double XSecLinearCombinations::XSec(
 //_________________________________________________________________________
 double XSecLinearCombinations::Integral( const Interaction * interaction ) const
 {
-  // I dont understand what this does yet - figure out before coding ;
-  //    double xsec = fXSecIntegrator->Integrate(this,interaction);
-  //  return xsec;
 
-  return 0 ; 
+  double xsec = 0 ; 
+  std::vector<double> vect_xsec ;
+
+  // Store xsec prediction for each entry :
+  for( unsigned int i = 0 ; i < fXSections.size() ; ++ i ) {
+    vect_xsec.push_back( fXSecIntegrator->Integrate( fXSections[i] , interaction ) ) ; 
+  }
+
+  // Check if we need to normalize the weights: 
+  double total_w = 1 ; 
+  if( fNormalise ) {
+    double sum = 0 ; 
+    for( unsigned int j = 0 ; j < fLinearCoefficients.size() ; ++j ) {
+      sum += fLinearCoefficients[i] ;
+    }
+    total_w = sum ; 
+  }
+
+  for( unsigned int k = 0; k < vect_xsec.size() ; ++k ) {
+    xsec += vect_xsec[k] * fLinearCoefficients[k] ; 
+    xsec *= total_w ; 
+  }  
+  
+  return xsec;
 }
+
 //_________________________________________________________________________
+
 bool XSecLinearCombinations::ValidProcess(
         const Interaction * interaction) const
 {
+  bool is_valid = true ;
+
   // CHECK THAT THE XSEC USED CONSIDER A VALID PROCESS
+  for( unsigned int i = 0 ; i < fXSections.size() ; ++ i ) {
+    if( ! fXSections[i] -> ValidProcess( interaction ) ) {
+      is_valid = false ;
+      break ; 
+    }
+  }
   
-    return true;
+  return is_valid ;
 }
 
 //_________________________________________________________________________
