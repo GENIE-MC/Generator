@@ -69,6 +69,10 @@ STFC, Rutherford Appleton Laboratory
 
 
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::NievesQELCCPXSec/Dipole         </param>
+  <!--  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::XSecLinearCombinations/QuasiElastic </param> -->
+  <!--  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::XSecLinearCombinations/QuasiElasticNoRPA </param> -->
+  <!--  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::XSecLinearCombinations/QuasiElasticNoCoulomb </param> -->
+  <!--  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::XSecLinearCombinations/QuasiElasticNoPauli </param> -->
 
   <!-- <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::LwlynSmithQELCCPXSec/Dipole   </param> -->
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-NC">         genie::AhrensNCELPXSec/Default          </param>
