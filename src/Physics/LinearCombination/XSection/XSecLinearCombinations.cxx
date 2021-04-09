@@ -12,14 +12,7 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/ParticleData/PDGCodes.h"
-#include "Framework/ParticleData/PDGLibrary.h"
-#include "Framework/ParticleData/PDGUtils.h"
-#include "Framework/Utils/KineUtils.h"
-#include "Physics/HadronTensors/NievesMECHadronTensorModel.h"
-#include "Physics/HadronTensors/LabFrameHadronTensorI.h"
-#include "Physics/Multinucleon/XSection/NievesSimoVacasMECPXSec2016.h"
-#include "Physics/Multinucleon/XSection/MECUtils.h"
+#include "Physics/LinearCombination/XSection/XSecLinearCombinations.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
 using namespace genie;
@@ -27,13 +20,13 @@ using namespace genie::constants;
 
 //_________________________________________________________________________
 XSecLinearCombinations::XSecLinearCombinations() :
-XSecLinearCombinations("genie::XSecLinearCombinations")
+  XSecAlgorithmI("genie::XSecLinearCombinations")
 {
 
 }
 //_________________________________________________________________________
 XSecLinearCombinations::XSecLinearCombinations(string config) :
-XSecLinearCombinations("genie::XSecLinearCombinations", config)
+  XSecAlgorithmI("genie::XSecLinearCombinations", config)
 {
 
 }
@@ -59,7 +52,7 @@ double XSecLinearCombinations::XSec(
   if( fNormalise ) {
     double sum = 0 ; 
     for( unsigned int j = 0 ; j < fLinearCoefficients.size() ; ++j ) {
-      sum += fLinearCoefficients[i] ;
+      sum += fLinearCoefficients[j] ;
     }
     total_w = sum ; 
   }
@@ -88,7 +81,7 @@ double XSecLinearCombinations::Integral( const Interaction * interaction ) const
   if( fNormalise ) {
     double sum = 0 ; 
     for( unsigned int j = 0 ; j < fLinearCoefficients.size() ; ++j ) {
-      sum += fLinearCoefficients[i] ;
+      sum += fLinearCoefficients[j] ;
     }
     total_w = sum ; 
   }
@@ -137,7 +130,7 @@ void XSecLinearCombinations::LoadConfig(void)
   GetParamVect( "LinearCoefficients", fLinearCoefficients ) ; 
   GetParamDef( "Normalise", fNormalise, true ) ;
 
-  GetParamVectorKeys( "CrossSection", fXSectionsKeys ) ;
+  GetParamVectKeys( "CrossSection", fXSectionsKeys ) ;
 
   if( fXSectionsKeys.size() != fLinearCoefficients.size() ) {
     LOG("XSecLinearCombinations", pFATAL) << "Entries don't match" ;
