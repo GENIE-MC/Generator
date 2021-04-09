@@ -14,8 +14,22 @@ Configuration for the XSec LinearCombination
 
   <param_set name="QuasiElasticNoRPA">  
     <param type="alg"  name="NumericalIntegrationAlg"> genie::MECXSec/Default </param>
-    <param type="vec-alg"  name="CrossSection"> genie::LwlynSmithQELCCPXSec/Dipole ; NievesQELCCPXSec/Dipole ; NievesQELCCPXSec/DipoleNoRPA </param>
-    <param type="vec-double"  name="LinearCoefficients"> 1. ; 1. ; 1. </param>   
+    <param type="vec-alg"  name="CrossSection"> NievesQELCCPXSec/Dipole ; NievesQELCCPXSec/DipoleNoRPA </param>
+    <param type="vec-double"  name="LinearCoefficients"> 1. ; 1. </param>   
+    <param type="bool"  name="Normalise"> false </param>   
+  </param_set>
+
+  <param_set name="QuasiElasticNoCoulomb">  
+    <param type="alg"  name="NumericalIntegrationAlg"> genie::MECXSec/Default </param>
+    <param type="vec-alg"  name="CrossSection"> NievesQELCCPXSec/Dipole ; NievesQELCCPXSec/DipoleNoCoulomb </param>
+    <param type="vec-double"  name="LinearCoefficients"> 1. ; 1. </param>   
+    <param type="bool"  name="Normalise"> false </param>   
+  </param_set>
+
+  <param_set name="QuasiElasticNoPauli">  
+    <param type="alg"  name="NumericalIntegrationAlg"> genie::MECXSec/Default </param>
+    <param type="vec-alg"  name="CrossSection"> NievesQELCCPXSec/Dipole ; NievesQELCCPXSec/DipoleNoPauli </param>
+    <param type="vec-double"  name="LinearCoefficients"> 1. ; 1. </param>   
     <param type="bool"  name="Normalise"> false </param>   
   </param_set>
 
