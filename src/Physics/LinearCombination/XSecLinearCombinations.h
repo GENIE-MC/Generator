@@ -64,8 +64,6 @@ private:
   std::vector<double> fLinearCoefficients ;
   bool fNormalise ;
 
-  const XSecIntegratorI *  fXSecIntegrator; // Numerical integrator (GSL)
-
 };
 
 }       // genie namespace

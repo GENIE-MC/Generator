@@ -12,14 +12,7 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/ParticleData/PDGCodes.h"
-#include "Framework/ParticleData/PDGLibrary.h"
-#include "Framework/ParticleData/PDGUtils.h"
-#include "Framework/Utils/KineUtils.h"
-#include "Physics/HadronTensors/NievesMECHadronTensorModel.h"
-#include "Physics/HadronTensors/LabFrameHadronTensorI.h"
-#include "Physics/Multinucleon/XSection/NievesSimoVacasMECPXSec2016.h"
-#include "Physics/Multinucleon/XSection/MECUtils.h"
+#include "Physics/LinearCombination/XSecLinearCombinations.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
 using namespace genie;
@@ -27,13 +20,13 @@ using namespace genie::constants;
 
 //_________________________________________________________________________
 XSecLinearCombinations::XSecLinearCombinations() :
-XSecLinearCombinations("genie::XSecLinearCombinations")
+  XSecAlgorithmI("genie::XSecLinearCombinations")
 {
 
 }
 //_________________________________________________________________________
 XSecLinearCombinations::XSecLinearCombinations(string config) :
-XSecLinearCombinations("genie::XSecLinearCombinations", config)
+  XSecAlgorithmI("genie::XSecLinearCombinations", config)
 {
 
 }
@@ -59,7 +52,7 @@ double XSecLinearCombinations::XSec(
   if( fNormalise ) {
     double sum = 0 ; 
     for( unsigned int j = 0 ; j < fLinearCoefficients.size() ; ++j ) {
-      sum += fLinearCoefficients[i] ;
+      sum += fLinearCoefficients[j] ;
     }
     total_w = sum ; 
   }
@@ -74,19 +67,49 @@ double XSecLinearCombinations::XSec(
 //_________________________________________________________________________
 double XSecLinearCombinations::Integral( const Interaction * interaction ) const
 {
-  // I dont understand what this does yet - figure out before coding ;
-  //    double xsec = fXSecIntegrator->Integrate(this,interaction);
-  //  return xsec;
 
-  return 0 ; 
+  double xsec = 0 ; 
+  std::vector<double> vect_xsec ;
+
+  // Store xsec prediction for each entry :
+  for( unsigned int i = 0 ; i < fXSections.size() ; ++ i ) {
+    vect_xsec.push_back( fXSections[i] -> Integral( interaction ) ) ; 
+  }
+
+  // Check if we need to normalize the weights: 
+  double total_w = 1 ; 
+  if( fNormalise ) {
+    double sum = 0 ; 
+    for( unsigned int j = 0 ; j < fLinearCoefficients.size() ; ++j ) {
+      sum += fLinearCoefficients[j] ;
+    }
+    total_w = sum ; 
+  }
+
+  for( unsigned int k = 0; k < vect_xsec.size() ; ++k ) {
+    xsec += vect_xsec[k] * fLinearCoefficients[k] ; 
+    xsec *= total_w ; 
+  }  
+  
+  return xsec;
 }
+
 //_________________________________________________________________________
+
 bool XSecLinearCombinations::ValidProcess(
         const Interaction * interaction) const
 {
+  bool is_valid = true ;
+
   // CHECK THAT THE XSEC USED CONSIDER A VALID PROCESS
+  for( unsigned int i = 0 ; i < fXSections.size() ; ++ i ) {
+    if( ! fXSections[i] -> ValidProcess( interaction ) ) {
+      is_valid = false ;
+      break ; 
+    }
+  }
   
-    return true;
+  return is_valid ;
 }
 
 //_________________________________________________________________________
@@ -105,9 +128,9 @@ void XSecLinearCombinations::Configure(string config)
 void XSecLinearCombinations::LoadConfig(void)
 {
   GetParamVect( "LinearCoefficients", fLinearCoefficients ) ; 
-  GetParamDef( "Normalise", fNormalise, true ) ;
+  GetParam( "Normalise", fNormalise ) ;
 
-  GetParamVectorKeys( "CrossSection", fXSectionsKeys ) ;
+  GetParamVectKeys( "CrossSection", fXSectionsKeys ) ;
 
   if( fXSectionsKeys.size() != fLinearCoefficients.size() ) {
     LOG("XSecLinearCombinations", pFATAL) << "Entries don't match" ;
@@ -119,8 +142,5 @@ void XSecLinearCombinations::LoadConfig(void)
     fXSections.push_back( dynamic_cast<const XSecAlgorithmI *> ( this->SubAlg( fXSectionsKeys[i] ) ) );
     assert( fXSections[i] ) ;
   }
-
-  fXSecIntegrator = dynamic_cast<const XSecIntegratorI *> ( this->SubAlg("NumericalIntegrationAlg") );
-  assert(fXSecIntegrator);
 
 }

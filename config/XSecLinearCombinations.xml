@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the XSec LinearCombination 
+-->
+  <param_set name="QuasiElastic"> 
+    <param type="vec-alg"  name="CrossSection"> genie::LwlynSmithQELCCPXSec/Dipole ; NievesQELCCPXSec/Dipole </param>   
+    <param type="vec-double"  name="LinearCoefficients"> 1. ; 1. </param>   
+    <param type="bool"  name="Normalise"> false </param>   
+  </param_set>
+
+  <param_set name="QuasiElasticNoRPA">  
+    <param type="vec-alg"  name="CrossSection"> NievesQELCCPXSec/Dipole ; NievesQELCCPXSec/DipoleNoRPA </param>
+    <param type="vec-double"  name="LinearCoefficients"> 1. ; 1. </param>   
+    <param type="bool"  name="Normalise"> false </param>   
+  </param_set>
+
+  <param_set name="QuasiElasticNoCoulomb">  
+    <param type="vec-alg"  name="CrossSection"> NievesQELCCPXSec/Dipole ; NievesQELCCPXSec/DipoleNoCoulomb </param>
+    <param type="vec-double"  name="LinearCoefficients"> 1. ; 1. </param>   
+    <param type="bool"  name="Normalise"> false </param>   
+  </param_set>
+
+  <param_set name="QuasiElasticNoPauli">  
+    <param type="vec-alg"  name="CrossSection"> NievesQELCCPXSec/Dipole ; NievesQELCCPXSec/DipoleNoPauli </param>
+    <param type="vec-double"  name="LinearCoefficients"> 1. ; 1. </param>   
+    <param type="bool"  name="Normalise"> false </param>   
+  </param_set>
+
+  <!-- Include other param_sets here -->
+
+</alg_conf>
