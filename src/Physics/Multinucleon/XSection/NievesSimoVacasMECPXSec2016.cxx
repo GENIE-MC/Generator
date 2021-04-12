@@ -307,9 +307,6 @@ double NievesSimoVacasMECPXSec2016::XSec(
   // Calculate event 
   double W = sqrt( pow(Mn,2) + 2*Mn*Q0 - pow(Q3,2) + pow(Q0,2) ) ;
   
-  //std::cout<< " Q0 = " << Q0 << " Q3 = " << Q3 << std::endl;
-  //std::cout<< " W = " << W << " W_1 = " << W_1 << " Mn= " << Mn << " Wdip= " << W_dip << " MDelta "<< MDelta << " W_2 = " << W_2 << std::endl;
-  
   // Get scaling factor depending on the W value. There are four possible regions:
   // 1) W_1<= W < Mn
   // 2) Mn <= W < W_dip
@@ -326,8 +323,6 @@ double NievesSimoVacasMECPXSec2016::XSec(
   } else if ( W >= MDelta && W < W_2 ) {
     scale_region = ScaleFunction( W, MDelta, W_2, fXSecScaleRESRegion, 1 ) ;
   }
-
-  //std::cout<< " scale = " << scale_region << std::endl;
   
   // Apply scaling factors on the corresponding region : 
   xsec *= scale_region ;
