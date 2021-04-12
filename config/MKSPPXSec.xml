@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the MK SPP xsec algorithm.
+This algorithm offers precomputes and caches free nucleon neutrino resonance SPP  cross sections. 
+
+
+Algorithm Configurable Parameters:
+...........................................................................................................
+Name                        Type    Opt  Comment                                               Default
+...........................................................................................................
+UsePauliBlockingForRES      bool    No   Use Pauli blocking for resonance model?               
+gsl-integration-type        string  Yes  name of GSL numerical integrator                      adaptive
+                                         (adaptive, vegas, miser, plain)                   
+gsl-max-eval                int     Yes  GSL number of function calls                          1000000000
+gsl-relative-tolerance      double  Yes  relative tolerance of integration                     1e-9
+ESplineMax                  double  Yes  This integrator caches some splines on free nulceons  500
+                                         These splines have plateauing so for simplicity we 
+					 set the maximum to be used here. After that value
+					 we simply use the xsec(E=Emax).
+                                         Value in GeV                            
+
+-->
+
+
+  <param_set name="Default"> 
+    <param type="double" name ="ESplineMax">                   250  </param>     
+    <param type="string" name ="gsl-integration-type">     adaptive </param>
+    <param type="int"    name ="gsl-max-eval">           1000000000 </param>
+    <param type="double" name ="gsl-relative-tolerance">      1e-9  </param>
+  </param_set>
+
+  <param_set name="WithPauliBlock"> 
+  <!--   
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Account for Pauli blocking in MK model?
+   If this option is true, when caching for free nucleons is disabled.
+  -->   
+    <param type="bool"   name="UsePauliBlockingForRES">  true  </param>
+  
+  </param_set>
+  
+  <param_set name="NoPauliBlock"> 
+   <!--   
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Account for Pauli blocking in MK model?
+   If this option is true, when caching for free nucleons is disabled.
+  -->  
+    <param type="bool"   name="UsePauliBlockingForRES">  false  </param>
+  
+  </param_set>
+
+</alg_conf>
+
+

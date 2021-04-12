@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the RSPPEventGenerator EventRecordVisitorI
+
+Algorithm Configurable Parameters:
+.......................................................................................................................
+Name                     Type    Opt   Comment                                                                Default
+.......................................................................................................................
+UniformOverPhaseSpace    bool    Yes   kinematics uniformly over allowd phase space                            false
+                                       wgt = (phase_space_volume)*(diff_xsec)/(xsec)
+MaxXSec-SafetyFactor     double  Yes   multiplies max xsec in rejection method                                  1.25
+MaxXSec-DiffTolerance    double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)                          999999 
+                                       (disable) if xsec>xsecmax
+Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cached                               0.5
+
+Maximum-Depth            int     Yes   maximum depth of dividing parent cell                                       3
+ResonanceNameList        string  No    List of resonances to be taken into account                CommonParam[Resonances]
+                                       for low-energy maximum search algorithm                   
+-->
+
+  <param_set name="Default">
+    <param type="string" name="CommonParam"> Resonances </param>
+
+<!--    
+    <param type="string" name="ResonanceNameList">
+         P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),
+         S31(1620),D33(1700),P11(1440),P33(1600),P13(1720),F15(1680),
+         P31(1910),P33(1920),F35(1905),F37(1950),P11(1710)
+    </param>
+-->    
+
+  </param_set>
+
+
+
+</alg_conf>
+

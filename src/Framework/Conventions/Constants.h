@@ -51,9 +51,9 @@ static const double kLe    = 3.8616E-11 *units::cm;
 static const double kLe2   = TMath::Power(kLe,2);
 
 //
-// Coupling constants
+// Coupling constants  -> Deprecated, please use the values from CommonParam[WeakInt]
 //
-static const double kAem   = 1./137.03599976;       // EM coupling const, dimensionless
+static const double kAem   = 1./137.03599976;       // EM coupling const, dimensionless  
 static const double kAem2  = TMath::Power(kAem,2);
 static const double kGF    = 1.16639E-5;            // Fermi const from b-decay, in GeV^-2
 static const double kGF2   = TMath::Power(kGF,2);
