@@ -344,6 +344,14 @@ endif
 make-install-dirs: FORCE
 	@echo " "
 	@echo "** Creating directory structure for GENIE installation..."
+ifeq (${GENIE_INSTALLATION_PATH},/usr)
+	cd ${GENIE}
+	$(warning Installation in /usr or /usr/local is discouraged)
+endif
+ifeq (${GENIE_INSTALLATION_PATH},/usr/local)
+	cd ${GENIE}
+	$(warning Installation in /usr or /usr/local is discouraged)
+endif
 	[ -d ${GENIE_INSTALLATION_PATH} ] || mkdir ${GENIE_INSTALLATION_PATH}
 	cd ${GENIE_INSTALLATION_PATH}
 	[ -d ${GENIE_BIN_INSTALLATION_PATH}     ] || mkdir ${GENIE_BIN_INSTALLATION_PATH}
@@ -631,6 +639,18 @@ clean-etc: FORCE
 distclean: FORCE
 	@echo " "
 	@echo "** Cleaning GENIE installation... "
+ifeq (${GENIE_INSTALLATION_PATH},/usr)
+	cd ${GENIE}
+	$(warning Installation in /usr or /usr/local is discouraged)
+	$(warning   as "distclean" is too aggressive and removes more than just GENIE libraries)
+	$(error Installation directory ${GENIE_INSTALLATION_PATH} is too precious.  Must be removed by hand)
+endif
+ifeq (${GENIE_INSTALLATION_PATH},/usr/local)
+	cd ${GENIE}
+	$(warning Installation in /usr or /usr/local is discouraged)
+	$(warning   as "distclean" is too aggressive and removes more than just GENIE libraries)
+	$(error Installation directory ${GENIE_INSTALLATION_PATH} is too precious.  Must be removed by hand)
+endif
 	[ ! -d ${GENIE_INSTALLATION_PATH}/include/GENIE ] || rm -rf ${GENIE_INSTALLATION_PATH}/include/GENIE/
 	cd ${GENIE}/src/Framework/Algorithm                      &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Framework/Conventions                    &&  $(MAKE) distclean && \
@@ -692,5 +712,6 @@ distclean: FORCE
 	cd ${GENIE}/src/Apps                                     &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/scripts                                  &&  $(MAKE) distclean && \
 	cd ${GENIE}
+
 
 FORCE:
