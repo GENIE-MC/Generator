@@ -116,7 +116,7 @@ void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   fXSecModel = evg->CrossSectionAlg();
   
   // function gives differential cross section and depends on reduced variables W,Q2,cos(theta) and phi -> 1
-  genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E * f   = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction);
+  genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E * f   = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction, fWcut);
   
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
@@ -338,6 +338,8 @@ void RSPPEventGenerator::LoadConfig(void)
   // an event weight?
   this->GetParamDef("UniformOverPhaseSpace", fGenerateUniformly, false);
   
+  this->GetParamDef("Wcut", fWcut, -1.);
+  
 
 }
 //____________________________________________________________________________
@@ -349,7 +351,7 @@ double RSPPEventGenerator::ComputeMaxXSec(
    double dW = Wl.max - Wl.min;
    const InitialState & init_state = interaction -> InitState();
    ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit", "Minimize");
-   ROOT::Math::IBaseFunctionMultiDim * f = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction);
+   ROOT::Math::IBaseFunctionMultiDim * f = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction, fWcut);
    min->SetFunction( *f );
    min->SetMaxFunctionCalls(10000);  // for Minuit/Minuit2
    min->SetMaxIterations(10000);     // for GSL
@@ -474,8 +476,8 @@ double RSPPEventGenerator::ComputeMaxXSec(
 // GSL wrappers
 //____________________________________________________________________________
 genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::d4XSecMK_dWQ2CosThetaPhi_E(
-     const XSecAlgorithmI * m, const Interaction * interaction) :
-ROOT::Math::IBaseFunctionMultiDim(), fModel(m)
+     const XSecAlgorithmI * m, const Interaction * interaction, double  wcut) :
+ROOT::Math::IBaseFunctionMultiDim(), fModel(m), fWcut(wcut)
 {
 
   isZero = false;
@@ -498,6 +500,8 @@ ROOT::Math::IBaseFunctionMultiDim(), fModel(m)
   }
   
   Wl  = kps->WLim_RSPP();
+  if (fWcut >= 0.)
+    Wl.max = TMath::Min(fWcut,Wl.max);
 
 }
 genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::~d4XSecMK_dWQ2CosThetaPhi_E()
@@ -535,6 +539,6 @@ ROOT::Math::IBaseFunctionMultiDim *
    genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::Clone() const
 {
   return
-    new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fModel,fInteraction);
+    new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fModel,fInteraction,fWcut);
 }
 
