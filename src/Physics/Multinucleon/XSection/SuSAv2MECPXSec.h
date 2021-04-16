@@ -64,6 +64,7 @@ private:
 
   /// External scaling factor for this cross section
   double fXSecScale;
+  double fQvalueShift ; // Qvalue variation - tunable parameter
 
   const genie::HadronTensorModelI* fHadronTensorModel;
 
