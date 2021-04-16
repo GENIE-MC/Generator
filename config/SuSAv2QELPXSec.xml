@@ -26,6 +26,8 @@ Name                                 Type     Optional   Comment
 
      <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
 
+     <param type="double" name="QEL-CC-Qvalue1p1hShift"> 0.000 </param>
+
      <param type="alg"  name="HadronTensorAlg">  genie::SuSAv2QELHadronTensorModel/Default </param>
 
      <!-- Using the MEC integrator rather than the QELXSec as we need to integrate in q0,q3 and not in Q2. -->
