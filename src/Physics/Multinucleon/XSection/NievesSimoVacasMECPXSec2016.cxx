@@ -169,6 +169,7 @@ double NievesSimoVacasMECPXSec2016::XSec(
   /// \todo Shouldn't we get this from the nuclear model?
   int nu_pdg = interaction->InitState().ProbePdg();
   double Q_value = genie::utils::mec::Qvalue(target_pdg, nu_pdg);
+  Q_value += fQvalueShift ; 
 
   // By default, we will compute the full cross-section. If a resonance is
   // set, we will calculate the part of the cross-section with an internal
@@ -300,7 +301,7 @@ double NievesSimoVacasMECPXSec2016::XSec(
 
   // Calculate experimental W_1 and W_2 for a given event.
   // These are the Minimum and Maximum W values for a given interaction:
-  double W_1 = sqrt( pow(Mn,2) + 2*Mn*Q0min - pow(Q3min,2) + pow(Q0min,2) ) ;
+  double W_1 = sqrt( pow(Mn,2) - 2*Mn*Q_value ) ;
   double W_2 = sqrt( pow(Mn,2) + 2*Mn*Q0 ) ; // Imposing Q2 = 0 
   double W_dip = 1.12 ; // GeV. See reference
 
@@ -312,6 +313,7 @@ double NievesSimoVacasMECPXSec2016::XSec(
   // 2) Mn <= W < W_dip
   // 2) W_dip <= W < MDelta
   // 3) MDelta<= W < W_2
+  std::cout<< "W1 = " << W_1 << " Mn = " << Mn << " W_dip = " << W_dip << " MDelta = " << MDelta <<" W_2= "<< W_2 << std::endl;
 
   double scale_region = 1; 
   if ( W >= W_1 && W < Mn ) {
@@ -376,6 +378,7 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
 	GetParam( "MEC-CC-XSecScale", fXSecScale ) ;
 	GetParam( "MEC-CC-XSecScale-QELRegion", fXSecScaleQELRegion ) ;
 	GetParam( "MEC-CC-XSecScale-RESRegion", fXSecScaleRESRegion ) ;
+	GetParam( "MEC-CC-QvalueShift", fQvalueShift ) ;
 
 	fHadronTensorModel = dynamic_cast<const HadronTensorModelI *> (
           this->SubAlg("HadronTensorAlg") );
