@@ -21,6 +21,7 @@ MEC-CC-XSecScale-RESRegion     double   Yes        XSec Scaling factor for RES  
       <param type="double" name="MEC-CC-XSecScale"> 1.000 </param>
       <param type="double" name="MEC-CC-XSecScale-QELRegion"> 1.000 </param>
       <param type="double" name="MEC-CC-XSecScale-RESRegion"> 1.000 </param>
+      <param type="double" name="MEC-CC-QvalueShift"> 0.0 </param>
   </param_set>
 
 </alg_conf>
