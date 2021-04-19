@@ -164,7 +164,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
 	<< "*** Integrating d^4 XSec/dWdQ^2dCosThetadPhi for Ch: "
 	<< SppChannel::AsString(spp_channel) << " at Ev = " << Ev;
       
-      utils::gsl::d3XSecMK_dWQ2CosTheta_E func(fSingleResXSecModel, & local_interaction ) ; 
+      utils::gsl::d3XSecMK_dWQ2CosTheta_E func(fSingleResXSecModel, & local_interaction, fWcut ) ; 
       ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
       ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
       ig.SetFunction(func);
@@ -216,9 +216,10 @@ string MKSPPXSecWithCache::CacheBranchName(
 // GSL wrappers
 //____________________________________________________________________________
 genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::d3XSecMK_dWQ2CosTheta_E(
-								    const XSecAlgorithmI * m, const Interaction * interaction) :
+								    const XSecAlgorithmI * m, const Interaction * interaction, double  wcut) :
   ROOT::Math::IBaseFunctionMultiDim(),
-  fModel(m)
+  fModel(m),
+  fWcut(wcut)
 {
 
   isZero = false;
@@ -240,6 +241,8 @@ genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::d3XSecMK_dWQ2CosTheta_E(
     }
   
   Wl  = kps->WLim_RSPP();
+  if (fWcut >= 0.)
+    Wl.max = TMath::Min(fWcut,Wl.max);
   
   
 }
@@ -278,5 +281,5 @@ ROOT::Math::IBaseFunctionMultiDim *
 genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::Clone() const
 {
   return
-    new genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E(fModel,fInteraction);
+    new genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E(fModel,fInteraction,fWcut);
 }

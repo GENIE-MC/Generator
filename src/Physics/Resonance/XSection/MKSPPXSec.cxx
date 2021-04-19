@@ -184,7 +184,7 @@ double MKSPPXSec::Integrate(
           << "*** Integrating d^4 XSec/dWdQ^2dCosThetadPhi for Ch: "
           << SppChannel::AsString(spp_channel) << " at Ev = " << Enu;
     
-    ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d3XSecMK_dWQ2CosTheta_E(model, interaction);
+    ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d3XSecMK_dWQ2CosTheta_E(model, interaction, fWcut);
     ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
     ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
     ig.SetFunction(*func);
@@ -220,6 +220,7 @@ void MKSPPXSec::LoadConfig(void)
   GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 0.01 ) ;
   GetParamDef( "gsl-max-eval", fGSLMaxEval, 100000 ) ;
   GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
+  GetParamDef("Wcut", fWcut, -1.);
   // Get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
   GetParamDef( "ESplineMax", fEMax, 500. ) ;
 

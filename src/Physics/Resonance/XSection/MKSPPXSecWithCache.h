@@ -80,7 +80,7 @@ namespace gsl   {
 class d3XSecMK_dWQ2CosTheta_E: public ROOT::Math::IBaseFunctionMultiDim
 {
 public:
-  d3XSecMK_dWQ2CosTheta_E(const XSecAlgorithmI * m, const Interaction * i);
+  d3XSecMK_dWQ2CosTheta_E(const XSecAlgorithmI * m, const Interaction * i, double wcut);
  ~d3XSecMK_dWQ2CosTheta_E();
 
   // ROOT::Math::IBaseFunctionMultiDim interface
@@ -94,6 +94,7 @@ private:
   Range1D_t Wl;
   bool isZero;
   KPhaseSpace * kps;
+  double fWcut;
 };
 
 } // gsl   namespace
