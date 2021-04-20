@@ -9,11 +9,8 @@
 //_________________________________________________________________________
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-//#include "Framework/Conventions/Constants.h"
-//#include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Common/XSecLinearCombinations.h"
-//#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
 using namespace genie;
 
