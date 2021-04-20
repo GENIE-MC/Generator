@@ -1,32 +1,41 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <alg_conf>
-
 <!--
 Configuration for the XSec LinearCombination 
+Configurable Parameters:
+......................................................................................................................
+Name                   Type     Optional   Comment                                       Default
+......................................................................................................................
+CrossSection           vec-alg    No         List of xsec algorithms                     genie::LwlynSmithQELCCPXSec/Dipole 
+LinearCoefficients     vec-double No         Linear coefficient values                   1.
+Normalise              bool       No         Sum of coefficients = 1                     false
 -->
+
+  <param_set name="Default"> 
+    <param type="vec-alg"  name="CrossSection"> genie::LwlynSmithQELCCPXSec/Dipole </param>   
+    <param type="vec-double"  name="LinearCoefficients"> 1. </param>   
+    <param type="bool"  name="Normalise"> false </param>   
+  </param_set>
+
   <param_set name="QuasiElastic"> 
     <param type="vec-alg"  name="CrossSection"> genie::LwlynSmithQELCCPXSec/Dipole ; NievesQELCCPXSec/Dipole </param>   
     <param type="vec-double"  name="LinearCoefficients"> 1. ; 1. </param>   
-    <param type="bool"  name="Normalise"> false </param>   
   </param_set>
 
   <param_set name="QuasiElasticNoRPA">  
     <param type="vec-alg"  name="CrossSection"> NievesQELCCPXSec/Dipole ; NievesQELCCPXSec/DipoleNoRPA </param>
-    <param type="vec-double"  name="LinearCoefficients"> 1. ; 1. </param>   
-    <param type="bool"  name="Normalise"> false </param>   
+    <param type="vec-double"  name="LinearCoefficients"> 1. ; 2. </param>   
   </param_set>
 
   <param_set name="QuasiElasticNoCoulomb">  
     <param type="vec-alg"  name="CrossSection"> NievesQELCCPXSec/Dipole ; NievesQELCCPXSec/DipoleNoCoulomb </param>
     <param type="vec-double"  name="LinearCoefficients"> 1. ; 1. </param>   
-    <param type="bool"  name="Normalise"> false </param>   
   </param_set>
 
   <param_set name="QuasiElasticNoPauli">  
     <param type="vec-alg"  name="CrossSection"> NievesQELCCPXSec/Dipole ; NievesQELCCPXSec/DipoleNoPauli </param>
     <param type="vec-double"  name="LinearCoefficients"> 1. ; 1. </param>   
-    <param type="bool"  name="Normalise"> false </param>   
   </param_set>
 
   <!-- Include other param_sets here -->
