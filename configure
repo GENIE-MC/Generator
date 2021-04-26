@@ -786,10 +786,10 @@ if($gopt_enable_incl eq "YES") {
   }
 
   # check
-  my $fileso = "$gopt_with_boost_lib/libboost_program_options-mt.so";
-  my $filea  = "$gopt_with_boost_lib/libboost_program_options-mt.a";
+  my $fileso = "$gopt_with_boost_lib/libboost_program_options.so";
+  my $filea  = "$gopt_with_boost_lib/libboost_program_options.a";
   if(! -e $fileso && ! -e $filea) {
-    print "*** Error *** You need to specify the path to libboost_program_options-mt.so using --with-boost-lib=/some/path/\n";
+    print "*** Error *** You need to specify the path to libboost_program_options.so using --with-boost-lib=/some/path/\n";
     print "*** Error *** Otherwise, you should --disable-incl\n\n";
     exit 1;
   }

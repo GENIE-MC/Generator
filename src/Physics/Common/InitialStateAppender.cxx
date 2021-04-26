@@ -60,7 +60,7 @@ void InitialStateAppender::ProcessEventRecord(GHepRecord * evrec) const
   //   If the interaction was ve- elastic, inverse muon decay or Glashow
   //   resonance then it will add the target e- instead.
   this->AddStruckParticle(evrec);
-  evrec->Print();
+  LOG("ISApp", pINFO) << *evrec;
 }
 //___________________________________________________________________________
 void InitialStateAppender::AddNeutrino(GHepRecord * evrec) const

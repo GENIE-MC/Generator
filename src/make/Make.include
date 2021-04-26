@@ -352,6 +352,10 @@ endif
 GCC_GE_4_1_0  = $(shell awk 'BEGIN {\
 		if($(CXXVRS_MAJ)>=4 && $(CXXVRS_MIN)>0) print "YES"}')
 
+# gcc version >= 8.0.0 ?
+GCC_GE_8_0_0  = $(shell awk 'BEGIN {\
+		if($(CXXVRS_MAJ)>=8 && $(CXXVRS_MIN)>0) print "YES"}')
+
 
 # MAC OS X with gcc or clang, 32-bit mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -384,34 +388,6 @@ OutPutOpt     = -o
 SOMINF        =
 EXTRALIBS     =
 endif
-
-#ifeq ($(strip $(ARCH)),macosx)
-#ARCH_OK       = YES
-#IS_MACOSX     = YES
-#CXXFLAGS      = -pipe -W -Wall -Wno-long-double \
-#		-fsigned-char -fno-common -flat_namespace \#
-#		$(GOPT_WITH_CXX_DEBUG_FLAG) \
-#		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
-#		$(GOPT_WITH_CXX_USERDEF_FLAGS)
-#ifeq ($(strip $(GCC_GE_4_1_0)), YES)
-#  CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
-#endif
-#LDFLAGS       = -bind_at_load
-#SOFLAGS       = -dynamiclib -flat_namespace \
-#		-single_module -undefined dynamic_lookup
-#DllSuf       := dylib
-#DllLinkSuf   := so
-#StaticLibSuf := a
-#ObjSuf       := o
-#SrcSuf       := cxx
-#FORT         := g77
-#FORTOPTS     := $(FFLAGS) -g -c -O -DLINUX $(F77INCS) -fno-second-underscore
-#RANLIB       := ranlib
-#SOCMD         = $(LD)
-#OutPutOpt     = -o
-#SOMINF        =
-#EXTRALIBS     =
-#endif
 
 # MAC OS X with gcc or clang, 64-bit mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -472,33 +448,6 @@ SOMINF        =
 EXTRALIBS     =
 endif
 
-#ifeq ($(strip $(ARCH)),macosx64)
-#ARCH_OK       = YES
-#IS_MACOSX     = YES
-#CXXFLAGS      = -m64 -pipe -W -Wall \
-#		-fsigned-char -fno-common -flat_namespace \
-#		$(GOPT_WITH_CXX_DEBUG_FLAG) \
-#		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
-#		$(GOPT_WITH_CXX_USERDEF_FLAGS)
-#ifeq ($(strip $(GCC_GE_4_1_0)), YES)
-#  CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
-#endif
-#LDFLAGS       = -bind_at_load
-#SOFLAGS       = -dynamiclib -flat_namespace \
-#		-single_module -undefined dynamic_lookup
-#DllSuf       := dylib
-#DllLinkSuf   := so
-#StaticLibSuf := a
-#ObjSuf       := o
-#SrcSuf       := cxx
-#FORT         := g77
-#FORTOPTS     := $(FFLAGS) -g -c -O -DLINUX $(F77INCS) -fno-second-underscore
-#RANLIB       := ranlib
-#SOCMD         = $(LD)
-#OutPutOpt     = -o
-#SOMINF        =
-#EXTRALIBS     =
-#endif
 
 # LINUX / 32-bit x86 / with gcc
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -509,8 +458,13 @@ CXXFLAGS      = -W -Wall -fPIC -Wshadow \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
 		$(GOPT_WITH_CXX_USERDEF_FLAGS)
-ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
-  CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
+ifeq ($(strip $(GCC_GE_8_0_0)), YES)
+  # -ffriend-injection is deprecated, soon to go away
+  CXXFLAGS += -Wno-strict-aliasing
+else
+  ifeq ($(strip $(GCC_GE_4_1_0)), YES)
+    CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
+  endif
 endif
 LDFLAGS       = -g -Wl,--no-as-needed -Wl,--no-undefined
 SOFLAGS       = -shared
@@ -537,8 +491,13 @@ CXXFLAGS      = -W -Wall -fPIC -Wshadow \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
 		$(GOPT_WITH_CXX_USERDEF_FLAGS)
-ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
-  CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
+ifeq ($(strip $(GCC_GE_8_0_0)), YES)
+  # -ffriend-injection is deprecated, soon to go away
+  CXXFLAGS += -Wno-strict-aliasing
+else
+  ifeq ($(strip $(GCC_GE_4_1_0)), YES)
+    CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
+  endif
 endif
 LDFLAGS       = -g -Wl,--no-as-needed -Wl,--no-undefined
 SOFLAGS       = -shared
