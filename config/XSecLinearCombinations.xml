@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+<!--
+Configuration for the XSec LinearCombination 
+Configurable Parameters:
+......................................................................................................................
+Name                   Type     Optional   Comment                                       Default
+......................................................................................................................
+CrossSection           vec-alg    No         List of xsec algorithms                     genie::LwlynSmithQELCCPXSec/Dipole 
+LinearCoefficients     vec-double No         Linear coefficient values                   1.
+Normalise              bool       No         Sum of coefficients = 1                     false
+-->
+
+  <param_set name="Default"> 
+    <param type="bool"  name="Normalise"> false </param>   
+  </param_set>
+
+  <param_set name="QuasiElastic"> 
+    <param type="vec-alg"  name="CrossSection" delim=";"> genie::LwlynSmithQELCCPXSec/Dipole ; genie::NievesQELCCPXSec/Dipole </param>   
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. </param>   
+  </param_set>
+
+  <param_set name="QuasiElasticNoRPA">  
+    <param type="vec-alg"  name="CrossSection" delim=";"> genie::NievesQELCCPXSec/Dipole ; genie::NievesQELCCPXSec/DipoleNoRPA </param>
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 2. </param>   
+  </param_set>
+
+  <param_set name="QuasiElasticNoCoulomb">  
+    <param type="vec-alg"  name="CrossSection" delim=";"> genie::NievesQELCCPXSec/Dipole ; genie::NievesQELCCPXSec/DipoleNoCoulomb </param>
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. </param>   
+  </param_set>
+
+  <param_set name="QuasiElasticNoPauli">  
+    <param type="vec-alg"  name="CrossSection" delim=";"> genie::NievesQELCCPXSec/Dipole ; genie::NievesQELCCPXSec/DipoleNoPauli </param>
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. </param>   
+  </param_set>
+
+  <!-- Include other param_sets here -->
+
+</alg_conf>
