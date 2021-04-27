@@ -72,7 +72,7 @@ SmithMonizQELCCPXSec::~SmithMonizQELCCPXSec()
 double SmithMonizQELCCPXSec::XSec(
    const Interaction * interaction, KinePhaseSpace_t kps) const
 {
-  double xsec;
+  double xsec = 0. ;
   // dimension of kine phase space
   std::string s = KinePhaseSpace::AsString(kps);
   int kpsdim = 1 + std::count(s.begin(), s.end(), ',');

@@ -75,13 +75,13 @@ double genie::utils::nuclear::BindEnergy(int nucA, int nucZ)
 // formula from Wapstra (Handbuch der Physik, XXXVIII/1)
 
   if (nucA<=0 || nucZ<=0) return 0;
-  // see http://www.worldscientificnews.com/wp-content/uploads/2019/09/WSN-136-2019-148-158.pdf
+  
   if (nucZ == 2)
   {
    if (nucA == 3)
-     return 7.718e-3;
+     return 7.5e-3;
    if (nucA == 4)
-     return 28.296e-3;
+     return 28.4e-3;
    return 0.;
   }
 

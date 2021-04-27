@@ -237,7 +237,7 @@ double P33PaschosLalakulichPXSec::XSec(
                + W4 * Mmu2*(Q2+Mmu2)/2.
                - W5 * 2*Mmu2*pk;
 
-  double xsec = kGF2/4./kPi*fCos28c/MN2/E2*W*MR*Gamma_R/kPi/Breit_Wigner*pauli*s1;
+  double xsec = fFermiConstant2/4./kPi*fCos28c/MN2/E2*W*MR*Gamma_R/kPi/Breit_Wigner*pauli*s1;
 
   //-- The algorithm computes d^2xsec/dWdQ2
   //   Check whether variable tranformation is needed
@@ -286,6 +286,10 @@ void P33PaschosLalakulichPXSec::Configure(string config)
 //____________________________________________________________________________
 void P33PaschosLalakulichPXSec::LoadConfig(void)
 {
+  double fermi_constant ;
+  GetParam( "FermiConstant", fermi_constant ) ;
+  fFermiConstant2 = fermi_constant * fermi_constant ;
+
   GetParam( "RES-Ma", fMa ) ;
   GetParam( "RES-Mv", fMv ) ;
 

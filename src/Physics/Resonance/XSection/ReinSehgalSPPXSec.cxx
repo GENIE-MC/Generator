@@ -112,7 +112,7 @@ double ReinSehgalSPPXSec::Integrate(
      double rxsec = (Ev<fEMax-1) ? cbranch(Ev) : cbranch(fEMax-1);
 
      //-- Get the BR for the (resonance) -> (exclusive final state)
-     double br = SppChannel::BranchingRatio(spp_channel, res);
+     double br = SppChannel::BranchingRatio(/*spp_channel,*/ res);
 
      //-- Get the Isospin Clebsch-Gordon coefficient for the given resonance
      //   and exclusive final state
