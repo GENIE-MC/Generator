@@ -7,8 +7,8 @@ Configurable Parameters:
 ......................................................................................................................
 Name                   Type     Optional   Comment                                       Default
 ......................................................................................................................
-CrossSection           vec-alg    No         List of xsec algorithms                     genie::LwlynSmithQELCCPXSec/Dipole 
-LinearCoefficients     vec-double No         Linear coefficient values                   1.
+CrossSection           vec-alg    No         List of xsec algorithms                     
+LinearCoefficients     vec-double No         Linear coefficient values                   
 Normalise              bool       No         Sum of coefficients = 1                     false
 -->
 
@@ -16,24 +16,39 @@ Normalise              bool       No         Sum of coefficients = 1            
     <param type="bool"  name="Normalise"> false </param>   
   </param_set>
 
-  <param_set name="QuasiElastic"> 
+  <param_set name="QuasiElastic1p1h"> 
     <param type="vec-alg"  name="CrossSection" delim=";"> genie::LwlynSmithQELCCPXSec/Dipole ; genie::NievesQELCCPXSec/Dipole </param>   
     <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. </param>   
   </param_set>
 
-  <param_set name="QuasiElasticNoRPA">  
+  <param_set name="RESXSec"> 
+    <param type="vec-alg"  name="CrossSection" delim=";"> genie::ReinSehgalRESPXSec/NoPauliBlock ; genie::BergerSehgalRESPXSec2014/NoPauliBlock </param>   
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. </param>   
+  </param_set>
+
+  <param_set name="MECXSec">
+    <param type="vec-alg"  name="CrossSection" delim=";"> genie::EmpiricalMECPXSec2015/Default ; genie::NievesSimoVacasMECPXSec2016/Default ; genie::SuSAv2MECPXsec/Default </param>   
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. ; 1. </param>   
+  </param_set>
+
+  <param_set name="NievesQELCCPXSecNoRPA">  
     <param type="vec-alg"  name="CrossSection" delim=";"> genie::NievesQELCCPXSec/Dipole ; genie::NievesQELCCPXSec/DipoleNoRPA </param>
     <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 2. </param>   
   </param_set>
 
-  <param_set name="QuasiElasticNoCoulomb">  
+  <param_set name="NievesQELCCPXSecNoCoulomb">  
     <param type="vec-alg"  name="CrossSection" delim=";"> genie::NievesQELCCPXSec/Dipole ; genie::NievesQELCCPXSec/DipoleNoCoulomb </param>
     <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. </param>   
   </param_set>
 
-  <param_set name="QuasiElasticNoPauli">  
+  <param_set name="NievesQELCCPXSecNoPauli">  
     <param type="vec-alg"  name="CrossSection" delim=";"> genie::NievesQELCCPXSec/Dipole ; genie::NievesQELCCPXSec/DipoleNoPauli </param>
     <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. </param>   
+  </param_set>
+
+  <param_set name="HadronTransport">  
+    <param type="vec-alg"  name="CrossSection" delim=";">  genie::HAIntranuke/Default ; genie::HAIntranuke2018/Default ; genie::HNIntranuke2018/Default ; genie::HNIntranuke2018/OsetOff  </param>
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. ; 1. ; 1. </param>   
   </param_set>
 
   <!-- Include other param_sets here -->
