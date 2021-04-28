@@ -33,7 +33,7 @@ Normalise              bool       No         Sum of coefficients = 1            
 
   <param_set name="NievesQELCCPXSecNoRPA">  
     <param type="vec-alg"  name="CrossSection" delim=";"> genie::NievesQELCCPXSec/Dipole ; genie::NievesQELCCPXSec/DipoleNoRPA </param>
-    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 2. </param>   
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. </param>   
   </param_set>
 
   <param_set name="NievesQELCCPXSecNoCoulomb">  
