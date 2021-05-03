@@ -169,6 +169,7 @@ double NievesSimoVacasMECPXSec2016::XSec(
   /// \todo Shouldn't we get this from the nuclear model?
   int nu_pdg = interaction->InitState().ProbePdg();
   double Q_value = genie::utils::mec::Qvalue(target_pdg, nu_pdg);
+  Q_value += fQvalue2p2hShift ; 
 
   // By default, we will compute the full cross-section. If a resonance is
   // set, we will calculate the part of the cross-section with an internal
@@ -330,6 +331,7 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
 {
 	// Cross section scaling factor
 	GetParam( "MEC-CC-XSecScale", fXSecScale ) ;
+	GetParam( "MEC-CC-Qvalue2p2hShift", fQvalue2p2hShift ) ;
 
 	fHadronTensorModel = dynamic_cast<const HadronTensorModelI *> (
           this->SubAlg("HadronTensorAlg") );

@@ -59,6 +59,7 @@ private:
   void LoadConfig (void);
 
   double fXSecScale; ///< external xsec scaling factor
+  double fQvalue2p2hShift ; // Qvalue variation - tunable parameter
 
   const HadronTensorModelI* fHadronTensorModel;
 
