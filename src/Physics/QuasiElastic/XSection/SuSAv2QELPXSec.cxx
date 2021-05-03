@@ -134,7 +134,6 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   // However, if I want to scale I need to account for the altered
   // binding energy. To first order I can use the Q_value for this
   double Q_value = Eb_tgt-Eb_ten;
-  Q_value += fQvalue1p1hShift ;
  
   genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
 
@@ -282,8 +281,7 @@ void SuSAv2QELPXSec::LoadConfig(void)
 {
   // Cross section scaling factor
   GetParam( "QEL-CC-XSecScale", fXSecScale ) ;
-  GetParam( "QEL-CC-Qvalue1p1hShift", fQvalue1p1hShift, 0. ) ;
-
+  
   fHadronTensorModel = dynamic_cast< const SuSAv2QELHadronTensorModel* >(
     this->SubAlg("HadronTensorAlg") );
   assert( fHadronTensorModel );
