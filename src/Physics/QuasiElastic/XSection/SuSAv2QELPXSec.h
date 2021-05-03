@@ -61,6 +61,7 @@ private:
 
   /// External scaling factor for this cross section
   double fXSecScale;
+  double fQvalue1p1hShift ; 
 
   const HadronTensorModelI* fHadronTensorModel;
 
