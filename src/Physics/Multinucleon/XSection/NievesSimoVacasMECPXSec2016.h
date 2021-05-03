@@ -62,7 +62,6 @@ private:
   double fXSecScale; ///< external xsec scaling factor
   double fXSecScaleQELRegion; ///< external xsec scaling factor applied to the QEL region
   double fXSecScaleRESRegion; ///< external xsec scaling factor applied to the RES region
-  double fQvalue2p2hShift ; // Qvalue variation - tunable parameter
 
   const HadronTensorModelI* fHadronTensorModel;
 

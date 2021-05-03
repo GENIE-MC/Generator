@@ -154,8 +154,7 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
 
   int nu_pdg = interaction->InitState().ProbePdg();
   double Q_value = 2*(Eb_tgt-Eb_ten);
-  Q_value += fQvalue2p2hShift ; 
-
+  
   // We apply an extra Q-value shift here to account for differences between
   // the 12C EM MEC tensors currently in use (which have a "baked in" Q-value
   // already incorporated) and the treatment in Guille's thesis. Differences
@@ -355,8 +354,7 @@ void SuSAv2MECPXSec::LoadConfig(void)
 {
   // Cross section scaling factor
   GetParamDef("MEC-XSecScale", fXSecScale, 1.) ;
-  GetParamDef("MEC-Qvalue2p2hShift", fQvalue2p2hShift, 0. ); 
-
+  
   fHadronTensorModel = dynamic_cast<const HadronTensorModelI*> (
     this->SubAlg("HadronTensorAlg") );
   assert( fHadronTensorModel );
