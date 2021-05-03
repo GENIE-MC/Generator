@@ -7,11 +7,12 @@ Configuration for the SuSAv2-MEC cross-section model
 
 Configurable Parameters:
 .....................................................................................................
-Name                  Type     Optional   Comment                                    Default
+Name                    Type     Optional   Comment                                    Default
 .....................................................................................................
-MEC-XSecScale         double   Yes        XSec Scaling factor                        1.
-CKM-Vud               double   No         Vud element of CKM matrix                  CommonParam[CKM]
-FermiMomentumTable    string   No         Table of Fermi momentum (kF) constants     CommonParam[FermiGas]
+MEC-XSecScale           double   Yes        XSec Scaling factor                        1.
+CKM-Vud                 double   No         Vud element of CKM matrix                  CommonParam[CKM]
+QEL-CC-Qvalue2p2hShift  double   yes        Qvalue variation                 0.
+FermiMomentumTable      string   No         Table of Fermi momentum (kF) constants     CommonParam[FermiGas]
 
 -->
   <param_set name="Default"> 
@@ -19,6 +20,7 @@ FermiMomentumTable    string   No         Table of Fermi momentum (kF) constants
       <param type="alg"  name="NumericalIntegrationAlg"> genie::MECXSec/Default </param>
       <param type="alg" name="HadronTensorAlg"> genie::SuSAv2MECHadronTensorModel/Default </param>
       <param type="double" name="MEC-XSecScale"> 1.000 </param>
+      <param type="double" name="MEC-Qvalue2p2hShift"> 0.000 </param>
       <param type="string" name="CommonParam"> FermiGas  </param> <!-- For Kf lookups -->
   </param_set>
 
