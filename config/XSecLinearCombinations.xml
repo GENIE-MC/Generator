@@ -46,11 +46,6 @@ Normalise              bool       No         Sum of coefficients = 1            
     <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. </param>   
   </param_set>
 
-  <param_set name="HadronTransport">  
-    <param type="vec-alg"  name="CrossSection" delim=";">  genie::HAIntranuke/Default ; genie::HAIntranuke2018/Default ; genie::HNIntranuke2018/Default ; genie::HNIntranuke2018/OsetOff  </param>
-    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. ; 1. ; 1. </param>   
-  </param_set>
-
   <!-- Include other param_sets here -->
 
 </alg_conf>
