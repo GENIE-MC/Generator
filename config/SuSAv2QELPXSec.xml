@@ -11,6 +11,9 @@ Name                    Type     Optional   Comment                          Def
 .....................................................................................................
 XSec-Integrator         alg      No
 QEL-CC-XSecScale        double   yes        XSec Scaling factor              1. 
+QEL-CC-Qvalue1p1hShift  double   yes        Qvalue variation, can be         0.
+                                            positive or negative. 
+					    Variation of [0,10] MeV                             
 QEL-CC-Qvalue1p1hShift  double   yes        Qvalue variation                 0.
 FermiMomentumTable      string   No         Table of Fermi momentum (kF) constants     CommonParam[FermiGas]
 
@@ -26,8 +29,6 @@ Name                                 Type     Optional   Comment
      <param type="string" name="CommonParam"> FermiGas </param> <!-- For Kf lookups -->   
 
      <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
-
-     <param type="double" name="QEL-CC-Qvalue1p1hShift"> 0.000 </param>
 
      <param type="alg"  name="HadronTensorAlg">  genie::SuSAv2QELHadronTensorModel/Default </param>
 
