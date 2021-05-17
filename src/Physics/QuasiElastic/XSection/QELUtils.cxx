@@ -361,15 +361,22 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
         // the radial dependence if using the LFG.
         double hit_nucleon_radius = tgt->HitNucPosition();
 
+        // Average of the proton and neutron masses. It may actually be better
+        // to use the exact on-shell masses here. However, the original paper
+        // uses the same value for protons and neutrons when computing the
+        // difference in Fermi energies. For consistency with the Valencia
+        // model publication, I'll do the same.
+        const double mN = genie::constants::kNucleonMass;
+
         double kF_Ni = nucl_model.LocalFermiMomentum( *tgt,
           tgt->HitNucPdg(), hit_nucleon_radius );
-        double EFermi_Ni = std::sqrt( std::max(0., mNi*mNi + kF_Ni*kF_Ni) );
+        double EFermi_Ni = std::sqrt( std::max(0., mN*mN + kF_Ni*kF_Ni) );
 
         double kF_Nf = nucl_model.LocalFermiMomentum( *tgt,
           interaction.RecoilNucleonPdg(), hit_nucleon_radius );
         // (On-shell) final nucleon mass
-        double mNf = interaction.RecoilNucleon()->Mass();
-        double EFermi_Nf = std::sqrt( std::max(0., mNf*mNf + kF_Nf*kF_Nf) );
+        //double mNf = interaction.RecoilNucleon()->Mass();
+        double EFermi_Nf = std::sqrt( std::max(0., mN*mN + kF_Nf*kF_Nf) );
 
         // The difference in Fermi energies is Q_LFG
         Q_LFG = EFermi_Nf - EFermi_Ni;
