@@ -27,8 +27,8 @@ Normalise              bool       No         Sum of coefficients = 1            
   </param_set>
 
   <param_set name="MECXSec">
-    <param type="vec-alg"  name="CrossSection" delim=";"> genie::EmpiricalMECPXSec2015/Default ; genie::NievesSimoVacasMECPXSec2016/Default ; genie::SuSAv2MECPXsec/Default </param>   
-    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. ; 1. </param>   
+    <param type="vec-alg"  name="CrossSection" delim=";"> genie::NievesSimoVacasMECPXSec2016/Default ; genie::SuSAv2MECPXsec/Default </param>   
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. </param>   
   </param_set>
 
   <param_set name="NievesQELCCPXSecNoRPA">  
