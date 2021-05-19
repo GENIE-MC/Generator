@@ -74,6 +74,7 @@ University of Liverpool
      <param type="bool" name="DecayParticleWithCode=-4132">  false </param>  <!--  xi_c0            -->
      <param type="bool" name="DecayParticleWithCode=4332">   false </param>  <!--  omega_c0         -->
      <param type="bool" name="DecayParticleWithCode=-4332">  false </param>  <!--  omega_c0         -->
+     <param type="bool" name="DecayParticleWithCode=111">    false </param>  <!--  pi0              -->
 
   </param_set>
 

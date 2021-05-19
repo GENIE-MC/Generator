@@ -225,6 +225,12 @@ HEDISStrucFunc::HEDISStrucFunc(string basedir, SF_info sfinfo)
       APFEL::SetMassScheme("ZM-VFNS");
       APFEL::SetPoleMasses(mPDFQrk[4],mPDFQrk[5],mPDFQrk[5]+0.1);
     }
+    else if (fSF.Scheme=="GGHR") {
+      APFEL::SetMassScheme("FFNS5");
+      APFEL::SetPoleMasses(mPDFQrk[4],mPDFQrk[5],mPDFQrk[6]);
+      APFEL::SetMaxFlavourPDFs(5);
+      APFEL::SetMaxFlavourAlpha(5);
+    }
     else {
       LOG("HEDISStrucFunc", pERROR) << "Mass Scheme is not set properly";
       assert(0);
