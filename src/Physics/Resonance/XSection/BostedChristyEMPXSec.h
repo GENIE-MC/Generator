@@ -62,7 +62,7 @@ private:
   void BranchingRatios(int, double&, double&) const;
   void FermiSmearingD(double, double, double&, double&, double&, double&, bool) const;
   void FermiSmearingA(double, double, double, double, double&, double&, double&, double&) const;
-  double FitEMC(double, int, bool&) const;
+  double FitEMC(double, int) const;
   double MEC2009(int, double, double) const;
 
   bool   fUseMEC;                                      ///< account for MEC contribution?
@@ -92,9 +92,15 @@ private:
   
   std::array<std::array<double, 5>, 2> fNRcoefTp;      ///< tunable parameters from Ref.1, Table III for nonres bkg \sigma_T
   std::array<std::array<double, 5>, 2> fNRcoefTD;      ///< tunable parameters from Ref.1, Table IV  for nonres bkg \sigma_T
-  std::array<double, 6> fNRcoefL;                      ///< tunable parameters from Ref.1, Table III for nonres bkg \sigma_L
-  std::array<double, 6> fMECcoef;                      ///< tunable parameters for Eqs.(20), (21) Ref.2
+  std::array<double, 6>  fNRcoefL;                     ///< tunable parameters from Ref.1, Table III for nonres bkg \sigma_L
+  std::array<double, 6>  fMECcoef;                     ///< tunable parameters for Eqs.(20), (21) Ref.2
+  std::array<double, 8>  fMEC2009coef;                 ///< tunable parameters for MEC2009 function
+  std::array<double, 13> fAfitcoef;                    ///< tunable parameters for nuclei fit
   
+  std::array<double, 9> fEMCalpha;                    ///< tunable parameters for EMC fit
+  std::array<double, 3> fEMCc;                        ///< tunable parameters for EMC fit
+  
+  map<int, double> fMEC2009p18;                            
   map<int, double> fKFTable; 
   map<int, double> fNucRmvE;
 

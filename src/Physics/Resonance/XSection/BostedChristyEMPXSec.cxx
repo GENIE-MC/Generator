@@ -196,7 +196,9 @@ double BostedChristyEMPXSec::sigmaNR(int sf, double Q2, double W, bool isDeuteri
 // Calculate proton and neutron with Fermi smearing of a nulei
 void BostedChristyEMPXSec::FermiSmearingA(double Q2, double W, double pF, double Es, double & F1p, double & F1d, double & sigmaT, double & sigmaL) const
 {
-  std::array<double, 99> fyp
+  // The numbers in arrays bellow were not supposed to change in the original 
+  // fortran code and therefore are not configurable
+  static constexpr std::array<double, 99> fyp
   {0.0272,0.0326,0.0390,0.0464,0.0551,0.0651,0.0766,0.0898,0.1049,
    0.1221,0.1416,0.1636,0.1883,0.2159,0.2466,0.2807,0.3182,0.3595,
    0.4045,0.4535,0.5066,0.5637,0.6249,0.6901,0.7593,0.8324,0.9090,
@@ -209,7 +211,7 @@ void BostedChristyEMPXSec::FermiSmearingA(double Q2, double W, double pF, double
    0.3595,0.3182,0.2807,0.2466,0.2159,0.1883,0.1636,0.1416,0.1221,
    0.1049,0.0898,0.0766,0.0651,0.0551,0.0464,0.0390,0.0326,0.0272};
    
-  std::array<double, 99> xxp
+  static constexpr std::array<double, 99> xxp
   {-3.000,-2.939,-2.878,-2.816,-2.755,-2.694,-2.633,-2.571,-2.510,
    -2.449,-2.388,-2.327,-2.265,-2.204,-2.143,-2.082,-2.020,-1.959,
    -1.898,-1.837,-1.776,-1.714,-1.653,-1.592,-1.531,-1.469,-1.408,
@@ -261,23 +263,25 @@ void BostedChristyEMPXSec::FermiSmearingA(double Q2, double W, double pF, double
 // Calculate proton and neutron with Fermi smearing of a deuteron 
 void BostedChristyEMPXSec::FermiSmearingD(double Q2, double W, double & F1, double & R, double & sigmaT, double & sigmaL, bool isDeuterium=false) const
 {
-  std::array<double, 20> fyd
+  // The numbers in arrays bellow were not supposed to change in the original 
+  // fortran code and therefore are not configurable
+  static constexpr std::array<double, 20> fyd
   {0.4965, 0.4988, 0.4958, 0.5008, 0.5027, 0.5041, 0.5029, 0.5034, 
    0.4993, 0.5147, 0.5140, 0.4975, 0.5007, 0.4992, 0.4994, 0.4977, 
    0.5023, 0.4964, 0.4966, 0.4767};
    
-  std::array<double, 20> avpz
+  static constexpr std::array<double, 20> avpz
   {-0.1820,-0.0829,-0.0590,-0.0448,-0.0345,-0.0264,-0.0195, -0.0135,
    -0.0079,-0.0025, 0.0029, 0.0083, 0.0139, 0.0199, 0.0268,  0.0349, 
     0.0453, 0.0598, 0.0844, 0.1853};
   
-  std::array<double, 20> avp2
+  static constexpr std::array<double, 20> avp2
   {0.0938, 0.0219, 0.0137, 0.0101, 0.0081, 0.0068, 0.0060, 0.0054, 
    0.0051, 0.0049, 0.0050, 0.0051, 0.0055, 0.0060, 0.0069, 0.0081, 
    0.0102, 0.0140, 0.0225, 0.0964};
   
   // Look up tables for deuteron in fine bins for sub threshold
-  std::array<double, 200> fydf
+  static constexpr std::array<double, 200> fydf
   {0.00001,0.00002,0.00003,0.00005,0.00006,0.00009,0.00010,0.00013,
    0.00015,0.00019,0.00021,0.00026,0.00029,0.00034,0.00038,0.00044,
    0.00049,0.00057,0.00062,0.00071,0.00078,0.00089,0.00097,0.00109,
@@ -304,7 +308,7 @@ void BostedChristyEMPXSec::FermiSmearingD(double Q2, double W, double & F1, doub
    0.00044,0.00038,0.00034,0.00029,0.00026,0.00021,0.00019,0.00015,
    0.00013,0.00010,0.00009,0.00006,0.00005,0.00003,0.00002,0.00001};
   
-  std::array<double, 200> avp2f
+  static constexpr std::array<double, 200> avp2f
   {1.0,0.98974,0.96975,0.96768,0.94782,0.94450,0.92494,0.92047,
    0.90090,0.89563,0.87644,0.87018,0.85145,0.84434,0.82593,0.81841,
    0.80021,0.79212,0.77444,0.76553,0.74866,0.73945,0.72264,0.71343,
@@ -387,7 +391,8 @@ void BostedChristyEMPXSec::FermiSmearingD(double Q2, double W, double & F1, doub
      }
   }
   if (isDeuterium && fUseMEC)
-       F1 += fMECcoef[0]*TMath::Exp(-(W - fMECcoef[1])*(W - fMECcoef[1])/fMECcoef[2])/
+     // Ref.2, Eq. (20)
+     F1 += fMECcoef[0]*TMath::Exp(-(W - fMECcoef[1])*(W - fMECcoef[1])/fMECcoef[2])/
              TMath::Power(1. + TMath::Max(0.3,Q2)/fMECcoef[3],fMECcoef[4])*TMath::Power(nu, fMECcoef[5]);
   if(!isDeuterium && sigmaT!=0.) 
     R = sigmaL/sigmaT;
@@ -407,25 +412,19 @@ double BostedChristyEMPXSec::MEC2009(int A, double Q2, double W) const
   
   if(A<=2) 
     return F1;
+    
+  double p18;
+  for (const auto& kv : fMEC2009p18) 
+  {
+    p18 = kv.second;
+    if (A<=kv.first)
+      break;
+  }
   
-  double p18 = 206.13;
-  // special case for 3He
-  if(A==3) 
-    p18 = 70.;
-  // special case for 4He
-  if(A==4) 
-    p18 = 170.;
-  // new values for C, Al, Cu
-  if(A>=5) 
-    p18 = 215.;
-  if(A>20) 
-    p18 = 235.;
-  if(A>50) 
-    p18 = 230.;
-  
-  F1 = 5.1377E-03*TMath::Exp(-(W - 0.98071)*(W - 0.98071)/4.6379E-02)/TMath::Power(1.0 + TMath::Max(0.3, Q2)/1.6433, 6.9826)*
-                  TMath::Power(nu, -0.22655)*(1.0 + p18*TMath::Power(A, 1.0 - 4.5536E-02*x));
-  
+  F1 = fMEC2009coef[0]*TMath::Exp(-(W - fMEC2009coef[1])*(W - fMEC2009coef[1])/fMEC2009coef[2])/
+             TMath::Power(1. + TMath::Max(0.3,Q2)/fMEC2009coef[3],fMEC2009coef[4])*TMath::Power(nu, fMEC2009coef[5])*(1.0 + 
+                                                                     p18*TMath::Power(A, fMEC2009coef[6] + fMEC2009coef[7]*x));
+                                                                     
   if(F1<=1.0E-9) 
     F1 = 0.0;
     
@@ -515,21 +514,19 @@ double BostedChristyEMPXSec::XSec(
       R = sigmaL/sigmaT;
     W1 = (2.*Z*F1d + (A - 2.*Z)*(2.*F1d - F1p))/MN; 
 
-    W1 *= (1.0 + x*(0.10414 + x*(-0.26852 + x*(0.96653 + x*(-1.9055 + x*0.98965)))));
+    W1 *= (fAfitcoef[0] + x*(fAfitcoef[1] + x*(fAfitcoef[2] + x*(fAfitcoef[3] + x*(fAfitcoef[4] + x*fAfitcoef[5])))));
 
     if(W>0.) 
-      W1 *= TMath::Power(1.0 + (0.24902*W + -0.13728*W2)/(1.0 + 29.201*Q2),2);
-
+      W1 *= TMath::Power(fAfitcoef[6] + (fAfitcoef[7]*W + fAfitcoef[8]*W2)/(fAfitcoef[9] + fAfitcoef[10]*Q2),2);
+      
     double F1M = MEC2009(A, Q2, W);
 
     W1 += F1M;
     if(W2>0.) 
-      R *= (1.110952 + 4.928E-03*A);
-    
-    
+      R *= (fAfitcoef[11] + fAfitcoef[12]*A);
   }
-  bool goodfit;
-  double emcfac = FitEMC(x, A, goodfit);
+  
+  double emcfac = FitEMC(x, A);
 
   double F1 = MN*W1*emcfac;  
     
@@ -581,19 +578,8 @@ double BostedChristyEMPXSec::XSec(
 //    already are taking that into account with the y-smearing of
 //    the inelastic
 //____________________________________________________________________________
-double BostedChristyEMPXSec::FitEMC(double x, int A, bool & goodfit) const
-{                                                                   
-  std::array<double, 9> alpha_coef                                  
-  {-6.98871401E-02, 2.18888887E+00, -2.46673765E+01, 
-    1.45290967E+02, -4.97236711E+02, 1.01312929E+03, 
-   -1.20839250E+03, 7.75766802E+02, -2.05872410E+02};
-
-
-  //Value and error for 6 term fit to 
-  std::array<double, 3> c_coef
-  {1.69029097E-02, 1.80889367E-02, 5.04268396E-03};
-  
-  
+double BostedChristyEMPXSec::FitEMC(double x, int A) const
+{                                                                     
   double fitemc = 1.;
   if(A<=2) 
     return fitemc;
@@ -606,23 +592,19 @@ double BostedChristyEMPXSec::FitEMC(double x, int A, bool & goodfit) const
      x_u = .0085;
    if(x>0.70) 
      x_u = 0.70;
-   goodfit = false;
   }
   else
-  {
    x_u = x;
-   goodfit = true;
-  }
   
-  double ln_c = c_coef[0];               
+  double ln_c = fEMCc[0];               
   for (int i = 1; i<=2; i++)
-     ln_c += c_coef[i]*TMath::Power(TMath::Log(x_u), i); 
+     ln_c += fEMCc[i]*TMath::Power(TMath::Log(x_u), i); 
   double c = TMath::Exp(ln_c);                  
   
-  double alpha = alpha_coef[0];          
+  double alpha = fEMCalpha[0];          
   for (int i = 1; i<=8; i++)                                 
-   alpha += alpha_coef[i]*TMath::Power(x_u, i);               
-                        
+   alpha += fEMCalpha[i]*TMath::Power(x_u, i);
+                           
   fitemc = c*TMath::Power(A, alpha); 
   return fitemc;
 }
@@ -937,237 +919,306 @@ void BostedChristyEMPXSec::LoadConfig(void)
     for (int i=0; i<7; i++)
       fWidthRes[i] =  vResWidth[i];
 
+  int length;
   
   std::vector<double> vRescoef;
-  bool isOk = (GetParamVect("BostedChristyFitEM-ResAT0p", vRescoef)>=7);
+  length = 7;
+  bool isOk = (GetParamVect("BostedChristyFitEM-ResAT0p", vRescoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough proton AT(0)-parameters for xsec^R_T in the config file!";
     exit(1);
   }
   // Ref.1, Table III, AT(0)
-  for (int i=0;i<7;i++)
+  for (int i=0;i<length;i++)
     fRescoefTp[i][0] = vRescoef[i];
     
-  isOk = (GetParamVect("BostedChristyFitEM-Resap", vRescoef)>=7);
+  length = 7;
+  isOk = (GetParamVect("BostedChristyFitEM-Resap", vRescoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough proton a-parameters for xsec^R_T  in the config file!";
     exit(1);
   }
   // Ref.1, Table III, a
-  for (int i=0;i<7;i++)
+  for (int i=0;i<length;i++)
     fRescoefTp[i][1] = vRescoef[i];
     
-  isOk = (GetParamVect("BostedChristyFitEM-Resbp", vRescoef)>=7);
+  length = 7;
+  isOk = (GetParamVect("BostedChristyFitEM-Resbp", vRescoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough proton b-parameters parameters for xsec^R_T  in the config file!";
     exit(1);
   }
   // Ref.1, Table III, b
-  for (int i=0;i<7;i++)
+  for (int i=0;i<length;i++)
     fRescoefTp[i][2] = vRescoef[i];
     
-  isOk = (GetParamVect("BostedChristyFitEM-Rescp", vRescoef)>=7);
+  length = 7;
+  isOk = (GetParamVect("BostedChristyFitEM-Rescp", vRescoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough proton c-parameters parameters for xsec^R_T  in the config file!";
     exit(1);
   }
   // Ref.1, Table III, c
-  for (int i=0;i<7;i++)
+  for (int i=0;i<length;i++)
     fRescoefTp[i][3] = vRescoef[i];
 
-  isOk = (GetParamVect("BostedChristyFitEM-ResAT0D", vRescoef)>=7);
+  length = 7;
+  isOk = (GetParamVect("BostedChristyFitEM-ResAT0D", vRescoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough deuterium AT(0)-parameters for xsec^R_T in the config file!";
     exit(1);
   }
   // Ref.2, Table III, AT(0)
-  for (int i=0;i<7;i++)
+  for (int i=0;i<length;i++)
     fRescoefTD[i][0] = vRescoef[i];
     
-  isOk = (GetParamVect("BostedChristyFitEM-ResaD", vRescoef)>=7);
+  length = 7;
+  isOk = (GetParamVect("BostedChristyFitEM-ResaD", vRescoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough deuterium a-parameters for xsec^R_T  in the config file!";
     exit(1);
   }
   // Ref.2, Table III, a
-  for (int i=0;i<7;i++)
+  for (int i=0;i<length;i++)
     fRescoefTD[i][1] = vRescoef[i];
     
-  isOk = (GetParamVect("BostedChristyFitEM-ResbD", vRescoef)>=7);
+  length = 7;
+  isOk = (GetParamVect("BostedChristyFitEM-ResbD", vRescoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough deuterium b-parameters parameters for xsec^R_T  in the config file!";
     exit(1);
   }
   // Ref.2, Table III, b
-  for (int i=0;i<7;i++)
+  for (int i=0;i<length;i++)
     fRescoefTD[i][2] = vRescoef[i];
     
-  isOk = (GetParamVect("BostedChristyFitEM-RescD", vRescoef)>=7);
+  length = 7;
+  isOk = (GetParamVect("BostedChristyFitEM-RescD", vRescoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough deuterium c-parameters parameters for xsec^R_T  in the config file!";
     exit(1);
   }
   // Ref.2, Table III, c
-  for (int i=0;i<7;i++)
+  for (int i=0;i<length;i++)
     fRescoefTD[i][3] = vRescoef[i];
     
-  isOk = (GetParamVect("BostedChristyFitEM-ResAL0", vRescoef)>=7);
+  length = 7;
+  isOk = (GetParamVect("BostedChristyFitEM-ResAL0", vRescoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough proton AL0-parameters parameters for xsec^R_T  in the config file!";
     exit(1);
   }
   // Ref.1, Table III, AL(0)
-  for (int i=0;i<7;i++)
+  for (int i=0;i<length;i++)
     fRescoefL[i][0] = vRescoef[i];
       
-  isOk = (GetParamVect("BostedChristyFitEM-Resd", vRescoef)>=7);
+  length = 7;
+  isOk = (GetParamVect("BostedChristyFitEM-Resd", vRescoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough proton d-parameters parameters for xsec^R_L  in the config file!";
     exit(1);
   }
   // Ref.1, Table III, d
-  for (int i=0;i<7;i++)
+  for (int i=0;i<length;i++)
     fRescoefL[i][1] = vRescoef[i];
  
-  isOk = (GetParamVect("BostedChristyFitEM-Rese", vRescoef)>=7);
+  length = 7; 
+  isOk = (GetParamVect("BostedChristyFitEM-Rese", vRescoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough proton e-parameters parameters for xsec^R_L  in the config file!";
     exit(1);
   }
   // Ref.1, Table III, e
-  for (int i=0;i<7;i++)
+  for (int i=0;i<length;i++)
     fRescoefL[i][2] = vRescoef[i];
     
     
   std::vector<double> vNRcoef;
-  isOk = (GetParamVect("BostedChristyFitEM-NRXSecT1p", vNRcoef)>=5);
+  length = 5; 
+  isOk = (GetParamVect("BostedChristyFitEM-NRXSecT1p", vNRcoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough proton bkg parameters for xsec^NR_T in the config file!";
     exit(1);
   }
   // Ref.1, Table IV: \sigma^NR,1_T(0), aT_1, bT_1, cT_1, dT_1
-  for (int i=0;i<5;i++)
+  for (int i=0;i<length;i++)
     fNRcoefTp[0][i] = vNRcoef[i];
     
-  isOk = (GetParamVect("BostedChristyFitEM-NRXSecT2p", vNRcoef)>=5);
+  length = 5; 
+  isOk = (GetParamVect("BostedChristyFitEM-NRXSecT2p", vNRcoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough proton bkg parameters for xsec^NR_T in the config file!";
     exit(1);
   }
   // Ref.1, Table IV: \sigma^NR,2_T(0), aT_2, bT_2, cT_2, dT_2
-  for (int i=0;i<5;i++)
+  for (int i=0;i<length;i++)
     fNRcoefTp[1][i] = vNRcoef[i];
     
-  isOk = (GetParamVect("BostedChristyFitEM-NRXSecT1D", vNRcoef)>=5);
+  length = 5; 
+  isOk = (GetParamVect("BostedChristyFitEM-NRXSecT1D", vNRcoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough deuterium bkg parameters for xsec^NR_T in the config file!";
     exit(1);
   }
   // Ref.2, Table IV: \sigma^NR,1_T(0), aT_1, bT_1, cT_1, dT_1
-  for (int i=0;i<5;i++)
+  for (int i=0;i<length;i++)
     fNRcoefTD[0][i] = vNRcoef[i];
     
-  isOk = (GetParamVect("BostedChristyFitEM-NRXSecT2D", vNRcoef)>=5);
+  length = 5; 
+  isOk = (GetParamVect("BostedChristyFitEM-NRXSecT2D", vNRcoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough deuterium bkg parameters for xsec^NR_T in the config file!";
     exit(1);
   }
   // Ref.2, Table IV: \sigma^NR,2_T(0), aT_2, bT_2, cT_2, dT_2
-  for (int i=0;i<5;i++)
+  for (int i=0;i<length;i++)
     fNRcoefTD[1][i] = vNRcoef[i];
     
-  isOk = (GetParamVect("BostedChristyFitEM-NRXSecL", vNRcoef)>=6);
+  length = 6; 
+  isOk = (GetParamVect("BostedChristyFitEM-NRXSecL", vNRcoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough proton bkg parameters for xsec^NR_L in the config file!";
     exit(1);
   }
   // Ref.1, Table IV: \sigma^NR_L, aL, bL, cL, dL, eL
-  for (int i=0;i<6;i++)
+  for (int i=0;i<length;i++)
     fNRcoefL[i] = vNRcoef[i];
     
-  isOk = (GetParamVect("BostedChristyFitEM-MEC", vNRcoef)>=6);
+  length = 6; 
+  isOk = (GetParamVect("BostedChristyFitEM-MEC", vNRcoef)>=length);
   if (!isOk)
   {
     LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough parameters for MEC in the config file!";
     exit(1);
   }
-  for (int i=0;i<6;i++)
+  for (int i=0;i<length;i++)
     fMECcoef[i] = vNRcoef[i];
+       
+  length = 8; 
+  isOk = (GetParamVect("BostedChristyFitEM-MEC2009", vNRcoef)>=length);
+  if (!isOk)
+  {
+    LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough parameters for MEC2009 in the config file!";
+    exit(1);
+  }
+  for (int i=0;i<length;i++)
+    fMEC2009coef[i] = vNRcoef[i];
     
-
-   std::string keyStart = "BostedChristy-SeparationE@Pdg=";
-   RgIMap entries = GetConfig().GetItemMap();
-   for(RgIMap::const_iterator it = entries.begin(); it != entries.end(); ++it)
-   {
-     const std::string& key = it->first;
-     int pdg = 0;
-     int A = 0;
-     if (0 == key.compare(0, keyStart.size(), keyStart.c_str()))
-     {
-       pdg = atoi(key.c_str() + keyStart.size());
-       A = pdg::IonPdgCodeToA(pdg);
-     }
-     if (0 != pdg && A != 0) 
-     {
-       std::ostringstream key_ss ;
-       key_ss << keyStart << pdg;
-       RgKey rgkey   = key_ss.str();
-       double eb;
-       GetParam( rgkey, eb) ;
-       eb = TMath::Max(eb, 0.);
-       fNucRmvE.insert(map<int,double>::value_type(A,eb));
-     }
-   }
-   
-   keyStart = "BostedChristy-FermiMomentum@Pdg=";
-   for(RgIMap::const_iterator it = entries.begin(); it != entries.end(); ++it)
-   {
-     const std::string& key = it->first;
-     int pdg = 0;
-     int A = 0;
-     if (0 == key.compare(0, keyStart.size(), keyStart.c_str()))
-     {
-       pdg = atoi(key.c_str() + keyStart.size());
-       A = pdg::IonPdgCodeToA(pdg);
-     }
-     if (0 != pdg && A != 0) 
-     {
-       std::ostringstream key_ss ;
-       key_ss << keyStart << pdg;
-       RgKey rgkey   = key_ss.str();
-       double pf;
-       GetParam( rgkey, pf) ;
-       pf = TMath::Max(pf, 0.);
-       fKFTable.insert(map<int,double>::value_type(A,pf));
-     }
-   }
+  length = 13; 
+  isOk = (GetParamVect("BostedChristyFitEM-Afit", vNRcoef)>=length);
+  if (!isOk)
+  {
+    LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough parameters for nuclei fit (A-fit) in the config file!";
+    exit(1);
+  }
+  for (int i=0;i<length;i++)
+    fAfitcoef[i] = vNRcoef[i]; 
     
-/*      
-  std::string delim=",\n";
-  std::cout.precision(5);
-  std::cout.setf(std::ios::fixed, std::ios::floatfield);
-  for (int j=0;j<2;j++)
-    for (int i=0;i<5;i++)
+    
+  length = 9; 
+  isOk = (GetParamVect("BostedChristyFitEM-EMCalpha", vNRcoef)>=length);
+  if (!isOk)
+  {
+    LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough alpha coefficients for EMC correction in the config file!";
+    exit(1);
+  }
+  for (int i=0;i<length;i++)
+    fEMCalpha[i] = vNRcoef[i];
+    
+  length = 3; 
+  isOk = (GetParamVect("BostedChristyFitEM-EMCc", vNRcoef)>=length);
+  if (!isOk)
+  {
+    LOG("BostedChristyEMPXSec", pFATAL)  << "*** Can't find enough c coefficients for EMC correction in the config file!";
+    exit(1);
+  }
+  for (int i=0;i<length;i++)
+    fEMCc[i] = vNRcoef[i]; 
+    
+    
+  std::string keyStart = "BostedChristy-SeparationE@Pdg=";
+  RgIMap entries = GetConfig().GetItemMap();
+  for(RgIMap::const_iterator it = entries.begin(); it != entries.end(); ++it)
+  {
+    const std::string& key = it->first;
+    int pdg = 0;
+    int A = 0;
+    if (0 == key.compare(0, keyStart.size(), keyStart.c_str()))
     {
-      std::cout.width(5);
-      std::cout << fNRcoefT[j][i] << delim[i==4];
+      pdg = atoi(key.c_str() + keyStart.size());
+      A = pdg::IonPdgCodeToA(pdg);
     }
-*/    
+    if (0 != pdg && A != 0) 
+    {
+      std::ostringstream key_ss ;
+      key_ss << keyStart << pdg;
+      RgKey rgkey   = key_ss.str();
+      double eb;
+      GetParam( rgkey, eb) ;
+      eb = TMath::Max(eb, 0.);
+      fNucRmvE.insert(map<int,double>::value_type(A,eb));
+    }
+  }
+  
+  keyStart = "BostedChristy-FermiMomentum@Pdg=";
+  for(RgIMap::const_iterator it = entries.begin(); it != entries.end(); ++it)
+  {
+    const std::string& key = it->first;
+    int pdg = 0;
+    int A = 0;
+    if (0 == key.compare(0, keyStart.size(), keyStart.c_str()))
+    {
+      pdg = atoi(key.c_str() + keyStart.size());
+      A = pdg::IonPdgCodeToA(pdg);
+    }
+    if (0 != pdg && A != 0) 
+    {
+      std::ostringstream key_ss ;
+      key_ss << keyStart << pdg;
+      RgKey rgkey   = key_ss.str();
+      double pf;
+      GetParam( rgkey, pf) ;
+      pf = TMath::Max(pf, 0.);
+      fKFTable.insert(map<int,double>::value_type(A,pf));
+    }
+  }
+  
+  keyStart = "BostedChristy-p18@Pdg=";
+  for(RgIMap::const_iterator it = entries.begin(); it != entries.end(); ++it)
+  {
+    const std::string& key = it->first;
+    int pdg = 0;
+    int A = 0;
+    if (0 == key.compare(0, keyStart.size(), keyStart.c_str()))
+    {
+      pdg = atoi(key.c_str() + keyStart.size());
+      A = pdg::IonPdgCodeToA(pdg);
+    }
+    if (0 != pdg && A != 0) 
+    {
+      std::ostringstream key_ss ;
+      key_ss << keyStart << pdg;
+      RgKey rgkey   = key_ss.str();
+      double p18;
+      GetParam( rgkey, p18) ;
+      fMEC2009p18.insert(map<int,double>::value_type(A,p18));
+    }
+  }
   
 }
