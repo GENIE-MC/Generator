@@ -5,7 +5,7 @@
          HEDIS package.
          Syntax :
            gcalchedisdiffxsec -p nu -t tgt -o root_file
-                              -table table_type
+                              -x table_type
                               --tune genie_tune
                               --event-generator-list list_name
          Note :
@@ -17,7 +17,7 @@
               the neutrino pdg code
            -t
               the target pdg code (format: 10LZZZAAAI)
-           -table
+           -x
               differential cross section as function of:
               1 = Energy of outgoing lepton (Eo)
               2 = Inelasticity (y = 1 - Eo/Ei)
@@ -321,7 +321,7 @@ void DecodeCommandLine(int argc, char * argv[]) {
     exit(1);
   }
   
-  if( parser.OptionExists("x") ){ 
+  if( parser.OptionExists('x') ){ 
     fTableType = parser.ArgAsInt('x');
     LOG("gcalchedisdiffxsec", pINFO) << "TableType = " << fTableType;
   }          
@@ -331,7 +331,7 @@ void DecodeCommandLine(int argc, char * argv[]) {
     exit(1);
   }
 
-  if( parser.OptionExists("o") ){ 
+  if( parser.OptionExists('o') ){ 
     fOutFileName = parser.ArgAsString('o');
     LOG("gcalchedisdiffxsec", pINFO) << "OutFileName = " << fOutFileName;
   }          
@@ -348,7 +348,7 @@ void PrintSyntax(void)
 {
   LOG("gcalchedisdiffxsec", pNOTICE)
       << "\n\n" << "Syntax:" << "\n"
-      << "   gcalchedisdiffxsec -p nu -t tgt -o root_file -table table_type\n"
+      << "   gcalchedisdiffxsec -p nu -t tgt -o root_file -x table_type\n"
       << "            --tune genie_tune\n"
       << "            --event-generator-list list_name\n"
       << "            [--message-thresholds xml_file]\n";
