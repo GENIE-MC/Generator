@@ -33,6 +33,7 @@ TGT_BASE =  gevgen          \
             gpdfcomp        \
             gsfcomp         \
             gmkhedissf      \
+            gcalchedisdiffxsec \
             gconfigdump
 
 ifeq ($(strip $(GOPT_ENABLE_FNAL)),YES)
@@ -243,6 +244,12 @@ $(GENIE_BIN_PATH)/gpdfcomp: gPDFComp.o $(call find_libs,gpdfcomp)
 $(GENIE_BIN_PATH)/gsfcomp: gSFComp.o $(call find_libs,gsfcomp)
 	@echo "** Building gsfcomp"
 	$(LD) $(LDFLAGS) gSFComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gsfcomp
+
+# App to calculate differential cross sections from HEDIS
+#
+$(GENIE_BIN_PATH)/gcalchedisdiffxsec: gCalcHEDISDiffXsec.o $(call find_libs,gcalchedisdiffxsec)
+	@echo "** Building gcalchedisdiffxsec"
+	$(LD) $(LDFLAGS) gCalcHEDISDiffXsec.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gcalchedisdiffxsec
 
 # App to create structure functions suitable for HEDIS
 #
