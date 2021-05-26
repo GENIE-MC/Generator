@@ -76,9 +76,9 @@ void   WriteDiffXSecDYDX    (GEVGDriver evg_driver, TH3D * hist);
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
-const int    nlog10e   = 500;
+const int    nlog10e   = 501;
 const double log10emin = 2.;
-const double log10emax = 10.;
+const double log10emax = 12.;
 
 const int    nlog10y   = 500;
 const double log10ymin = -10.;
@@ -123,14 +123,18 @@ int main(int argc, char ** argv) {
 
   LOG("gcalchedisdiffxsec", pDEBUG) << sufix;
 
+  //the energy knots should be in the center of the bins
+  double mine = log10emin - (log10emax-log10emin)/(nlog10e-1.)/2.;
+  double maxe = log10emax + (log10emax-log10emin)/(nlog10e-1.)/2.;
+
   TH3D * h3d;
   TH2D * h2d;
   if (fTableType==1) {
     
-    h3d = new TH3D("dxsec_deodx_"+sufix,";log_{10}(E_{#nu}[GeV]);log_{10}(E_{out}[GeV]);log_{10}(x)",nlog10e,log10emin,log10emax,nlog10e,log10emin,log10emax,nlog10x,log10xmin,log10xmax);
+    h3d = new TH3D("dxsec_deodx_"+sufix,";log_{10}(E_{#nu}[GeV]);log_{10}(E_{out}[GeV]);log_{10}(x)",nlog10e,mine,maxe,nlog10e,mine,maxe,nlog10x,log10xmin,log10xmax);
     WriteDiffXSecDEDX(evg_driver,h3d);
     
-    h2d = new TH2D("dxsec_deo_"+sufix,";log_{10}(E_{#nu}[GeV]);log_{10}(E_{out}[GeV]);d#sigma/dE_{out}",nlog10e,log10emin,log10emax,nlog10e,log10emin,log10emax);
+    h2d = new TH2D("dxsec_deo_"+sufix,";log_{10}(E_{#nu}[GeV]);log_{10}(E_{out}[GeV]);d#sigma/dE_{out}",nlog10e,mine,maxe,nlog10e,mine,maxe);
     for ( int ix=1; ix<=h3d->GetNbinsX(); ix++ ) {
       double ei = TMath::Power(10.,h3d->GetXaxis()->GetBinCenter(ix));
       for ( int iy=1; iy<=h3d->GetNbinsY(); iy++ ) {
@@ -148,10 +152,10 @@ int main(int argc, char ** argv) {
   }
   else if (fTableType==2) {
     
-    h3d = new TH3D("dxsec_dydx_"+sufix,";log_{10}(E_{#nu}[GeV]);log_{10}(y);log_{10}(x)",nlog10e,log10emin,log10emax,nlog10y,log10ymin,log10ymax,nlog10x,log10xmin,log10xmax);
+    h3d = new TH3D("dxsec_dydx_"+sufix,";log_{10}(E_{#nu}[GeV]);log_{10}(y);log_{10}(x)",nlog10e,mine,maxe,nlog10y,log10ymin,log10ymax,nlog10x,log10xmin,log10xmax);
     WriteDiffXSecDYDX(evg_driver,h3d);
     
-    h2d = new TH2D("dxsec_dy_"+sufix,";log_{10}(E_{#nu}[GeV]);log_{10}(y);d#sigma/dy",nlog10e,log10emin,log10emax,nlog10y,log10ymin,log10ymax);
+    h2d = new TH2D("dxsec_dy_"+sufix,";log_{10}(E_{#nu}[GeV]);log_{10}(y);d#sigma/dy",nlog10e,mine,maxe,nlog10y,log10ymin,log10ymax);
     for ( int ix=1; ix<=h3d->GetNbinsX(); ix++ ) {
       for ( int iy=1; iy<=h3d->GetNbinsY(); iy++ ) {
         double dxsec = 0.;
