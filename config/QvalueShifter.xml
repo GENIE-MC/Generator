@@ -16,17 +16,11 @@ QvalueShift@Pdg=PDG    double   Yes        Add possible Relative Qvalue shifts g
   </param_set>
 
   <param_set name="1p1h"> 
-    <param type="double" name="QvalueShift@Pdg=1000060120">  0. </param> <!-- C12    -->
-    <param type="double" name="QvalueShift@Pdg=1000080160">  0. </param> <!-- O16    -->
-    <param type="double" name="QvalueShift@Pdg=1000180400">  0. </param> <!-- Ar40   -->
-    <param type="double" name="QvalueShift@Pdg=1000260560">  0. </param> <!-- Fe56   -->
+    <param type="double" name="QvalueShift@Pdg=1000060120">  1.2 </param> <!-- C12    -->
   </param_set>
 
   <param_set name="2p2h"> 
-    <param type="double" name="QvalueShift@Pdg=1000060120">  0. </param> <!-- C12    -->
-    <param type="double" name="QvalueShift@Pdg=1000080160">  0. </param> <!-- O16    -->
-    <param type="double" name="QvalueShift@Pdg=1000180400">  0. </param> <!-- Ar40   -->
-    <param type="double" name="QvalueShift@Pdg=1000260560">  0. </param> <!-- Fe56   -->
+    <param type="double" name="QvalueShift@Pdg=1000060120">  2.4 </param> <!-- C12    -->
   </param_set>
 
 </alg_conf>
