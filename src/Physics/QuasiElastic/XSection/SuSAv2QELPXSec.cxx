@@ -135,6 +135,9 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   // binding energy. To first order I can use the Q_value for this
   double Q_value = Eb_tgt-Eb_ten;
 
+  // Apply Qvalue relative shift if needed:
+  if( fQvalueShifter ) Q_value += Q_value * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
+
   genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
 
   double Q0min = tensor->q0Min();
@@ -307,5 +310,8 @@ void SuSAv2QELPXSec::LoadConfig(void)
   this->GetParam( "RFG-NucRemovalE@Pdg=1000501190", fEbSn );
   this->GetParam( "RFG-NucRemovalE@Pdg=1000791970", fEbAu );
   this->GetParam( "RFG-NucRemovalE@Pdg=1000822080", fEbPb );
+
+  // Read optional QvalueShifter:
+  fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
 
 }
