@@ -155,6 +155,9 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   int nu_pdg = interaction->InitState().ProbePdg();
   double Q_value = 2*(Eb_tgt-Eb_ten);
 
+  // Apply Qvalue relative shift if needed:
+  if( fQvalueShifter ) Q_value += Q_value * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
+
   // We apply an extra Q-value shift here to account for differences between
   // the 12C EM MEC tensors currently in use (which have a "baked in" Q-value
   // already incorporated) and the treatment in Guille's thesis. Differences
@@ -379,4 +382,9 @@ void SuSAv2MECPXSec::LoadConfig(void)
   this->GetParam( "RFG-NucRemovalE@Pdg=1000501190", fEbSn );
   this->GetParam( "RFG-NucRemovalE@Pdg=1000791970", fEbAu );
   this->GetParam( "RFG-NucRemovalE@Pdg=1000822080", fEbPb );
+
+
+  // Read optional QvalueShifter:
+  fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
+
 }

@@ -170,8 +170,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
   int nu_pdg = interaction->InitState().ProbePdg();
   double Q_value = genie::utils::mec::Qvalue(target_pdg, nu_pdg);
 
-  // Apply Qvalue shift if needed:
-  if( fQvalueShifter ) Q_value += fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
+  // Apply Qvalue relative shift if needed:
+  if( fQvalueShifter ) Q_value += Q_value * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
 
   // By default, we will compute the full cross-section. If a resonance is
   // set, we will calculate the part of the cross-section with an internal
