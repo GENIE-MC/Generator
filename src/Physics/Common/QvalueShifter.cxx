@@ -17,13 +17,13 @@ using namespace genie;
 
 //_________________________________________________________________________
 QvalueShifter::QvalueShifter() : 
-  XSecAlgorithmI("genie::QvalueShifter") 
+  Algorithm("genie::QvalueShifter") 
 {
   
 }
 //_________________________________________________________________________
 QvalueShifter::QvalueShifter(string config) : 
-  XSecAlgorithmI("genie::QvalueShifter",config) 
+  Algorithm("genie::QvalueShifter",config) 
 {
   
 }

@@ -17,7 +17,7 @@
 #ifndef _QVALUE_SHIFTER_H_
 #define _QVALUE_SHIFTER_H_
 
-#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Framework/Algorithm/Algorithm.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Interaction/Target.h"
 #include <map>
@@ -26,7 +26,7 @@ using std::map;
 
 namespace genie {
   
-  class QvalueShifter: public XSecAlgorithmI {
+  class QvalueShifter: public Algorithm {
     
   public:
     QvalueShifter();
