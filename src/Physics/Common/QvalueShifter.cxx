@@ -16,11 +16,15 @@
 using namespace genie;
 
 //_________________________________________________________________________
-QvalueShifter::QvalueShifter() : XSecAlgorithmI("genie::QvalueShifter") {
+QvalueShifter::QvalueShifter() : 
+  XSecAlgorithmI("genie::QvalueShifter") 
+{
   
 }
 //_________________________________________________________________________
-QvalueShifter::QvalueShifter(string config) : XSecAlgorithmI("genie::QvalueShifter",config) {
+QvalueShifter::QvalueShifter(string config) : 
+  XSecAlgorithmI("genie::QvalueShifter",config) 
+{
   
 }
 //_________________________________________________________________________
@@ -28,17 +32,13 @@ QvalueShifter::~QvalueShifter()
 {
 
 }
-
 //_________________________________________________________________________
-
 void QvalueShifter::Configure(const Registry & config)
 {
     Algorithm::Configure(config);
     this->LoadConfig();
 }
-
 //____________________________________________________________________________
-
 void QvalueShifter::Configure(string config)
 {
     Algorithm::Configure(config);
@@ -47,14 +47,14 @@ void QvalueShifter::Configure(string config)
 //_________________________________________________________________________
 
   double QvalueShifter::Shift( const Target & target ) const {
-
+    // Get Target pdg
     int pdg_target = target.Pdg() ;
 
     // Find Pdg in map:
     if ( fRelShift.find(pdg_target) == fRelShift.end() ) {
       return fRelShift.at(pdg_target);
     } else {
-      // return default if t
+      // return default 
       return fRelShiftDefault ;
     }
 
