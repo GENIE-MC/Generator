@@ -9,6 +9,7 @@ Name                   Type     Optional   Comment                              
 ......................................................................................................................
 QvalueShiftDefault     double   No         Default Qvalue Shift for all targets          0.
 QvalueShift@Pdg=PDG    double   Yes        Add possible Relative Qvalue shifts given a PDG code
+                                           Values can be positive or negative
 -->
 
   <param_set name="Default"> 
@@ -16,11 +17,11 @@ QvalueShift@Pdg=PDG    double   Yes        Add possible Relative Qvalue shifts g
   </param_set>
 
   <param_set name="1p1h"> 
-    <param type="double" name="QvalueShift@Pdg=1000060120">  1.2 </param> <!-- C12    -->
+    <param type="double" name="QvalueShift@Pdg=1000060120">  1.2 </param> <!-- C12 - this is the recomended max variation -->
   </param_set>
 
   <param_set name="2p2h"> 
-    <param type="double" name="QvalueShift@Pdg=1000060120">  2.4 </param> <!-- C12    -->
+    <param type="double" name="QvalueShift@Pdg=1000060120">  2.4 </param> <!-- C12 - this is the recomended max variation -->
   </param_set>
 
 </alg_conf>
