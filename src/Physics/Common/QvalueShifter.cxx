@@ -74,8 +74,6 @@ void QvalueShifter::Configure(string config)
 
 void QvalueShifter::LoadConfig(void)
 {
-
-  std::cout <<" in configure" << std::endl;
   // Store default value
   GetParam( "QvalueShiftDefault", fRelShiftDefault, 0. ) ;
 
@@ -88,7 +86,7 @@ void QvalueShifter::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"=");
     assert(kv.size()==2);
     int pdg_target = atoi(kv[1].c_str());
-    fRelShift[pdg_target] = rshift ;
+    fRelShift.insert( std::pair<int,double>( pdg_target , rshift ) );
   }
 }
 
