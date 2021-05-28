@@ -331,18 +331,36 @@ void NievesSimoVacasMECPXSec2016::Configure(string config)
 //_________________________________________________________________________
 void NievesSimoVacasMECPXSec2016::LoadConfig(void)
 {
-	// Cross section scaling factor
-	GetParam( "MEC-CC-XSecScale", fXSecScale ) ;
+  bool good_config = true;
 
-	fHadronTensorModel = dynamic_cast<const HadronTensorModelI *> (
-          this->SubAlg("HadronTensorAlg") );
-        assert( fHadronTensorModel );
+  // Cross section scaling factor
+  GetParam( "MEC-CC-XSecScale", fXSecScale ) ;
+  
+  fHadronTensorModel = dynamic_cast<const HadronTensorModelI *> ( this->SubAlg("HadronTensorAlg") );
+  if( !fHadronTensorModel ) {
+    good_config = false ; 
+    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required HadronTensorAlg does not exist : " << SubAlg("HadronTensorAlg") ;
+  }
 
-	fXSecIntegrator =
-        dynamic_cast<const XSecIntegratorI *> (
-          this->SubAlg("NumericalIntegrationAlg"));
-        assert(fXSecIntegrator);
+  fXSecIntegrator = dynamic_cast<const XSecIntegratorI *> (this->SubAlg("NumericalIntegrationAlg"));
+  if( !fXSecIntegrator ) {
+    good_config = false ; 
+    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required NumericalIntegrationAlg does not exist : " << SubAlg("NumericalIntegrationAlg");
+  }
+  
+  // Read optional QvalueShifter:
+  fQvalueShifter = nullptr; 
+  if( GetConfig().Exists("QvalueShifterAlg") ) {
+    fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
+    if( !fQvalueShifter ) {
+      good_config = false ; 
+      LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required QvalueShifterAlg does not exist : " << SubAlg("QvalueShifterAlg") ; 
+    }
+  }
 
-	// Read optional QvalueShifter:
-	fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
+  if( ! good_config ) {
+    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "NievesSimoVacasMECPXSec2016 Configuration has failed.";
+    exit(78) ;
+  }
+
 }

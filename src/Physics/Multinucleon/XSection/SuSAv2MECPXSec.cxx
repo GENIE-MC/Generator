@@ -355,16 +355,22 @@ void SuSAv2MECPXSec::Configure(std::string config)
 //_________________________________________________________________________
 void SuSAv2MECPXSec::LoadConfig(void)
 {
+  bool good_config = true ; 
   // Cross section scaling factor
   GetParamDef("MEC-XSecScale", fXSecScale, 1.) ;
 
-  fHadronTensorModel = dynamic_cast<const HadronTensorModelI*> (
-    this->SubAlg("HadronTensorAlg") );
-  assert( fHadronTensorModel );
+  fHadronTensorModel = dynamic_cast<const HadronTensorModelI*> ( this->SubAlg("HadronTensorAlg") );
+  if( !fHadronTensorModel ) {
+    good_config = false ; 
+    LOG("SuSAv2MECPXSec", pERROR) << "The required HadronTensorAlg does not exist : " << SubAlg("HadronTensorAlg");
+  }
+  
 
-  fXSecIntegrator = dynamic_cast<const XSecIntegratorI*> (
-    this->SubAlg("NumericalIntegrationAlg"));
-  assert(fXSecIntegrator);
+  fXSecIntegrator = dynamic_cast<const XSecIntegratorI*> (this->SubAlg("NumericalIntegrationAlg"));
+  if( !fXSecIntegrator ) {
+    good_config = false ; 
+    LOG("SuSAv2MECPXSec", pERROR) << "The required NumericalIntegrationAlg does not exist : " << SubAlg("NumericalIntegrationAlg") ;
+  }
 
   //Fermi momentum tables for scaling
   this->GetParam( "FermiMomentumTable", fKFTable);
@@ -385,6 +391,18 @@ void SuSAv2MECPXSec::LoadConfig(void)
 
 
   // Read optional QvalueShifter:
-  fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
+  fQvalueShifter = nullptr; 
+  if( GetConfig().Exists("QvalueShifterAlg") ) {
+    fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
+    if( !fQvalueShifter ) {
+      good_config = false ; 
+      LOG("SuSAv2MECPXSec", pERROR) << "The required QvalueShifterAlg does not exist : " << SubAlg("QvalueShifterAlg") ; 
+    }
+  }
+
+  if( ! good_config ) {
+    LOG("SuSAv2MECPXSec", pERROR) << "SuSAv2MECPXSec Configuration has failed.";
+    exit(78) ;
+  }
 
 }
