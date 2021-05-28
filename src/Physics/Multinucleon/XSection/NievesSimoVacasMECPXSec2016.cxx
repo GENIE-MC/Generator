@@ -284,6 +284,10 @@ double NievesSimoVacasMECPXSec2016::XSec(
   // Apply given scaling factor
   xsec *= fXSecScale;
 
+  if( fScaleMECW ) {
+    xsec *= fScaleMECW->GetScaling(Q0,Q3);
+  }
+
   if ( kps != kPSTlctl ) {
     LOG("NievesSimoVacasMEC", pWARN)
       << "Doesn't support transformation from "
@@ -328,15 +332,36 @@ void NievesSimoVacasMECPXSec2016::Configure(string config)
 //_________________________________________________________________________
 void NievesSimoVacasMECPXSec2016::LoadConfig(void)
 {
-	// Cross section scaling factor
-	GetParam( "MEC-CC-XSecScale", fXSecScale ) ;
+  bool good_config = true;
 
-	fHadronTensorModel = dynamic_cast<const HadronTensorModelI *> (
-          this->SubAlg("HadronTensorAlg") );
-        assert( fHadronTensorModel );
+  // Cross section scaling factor
+  GetParam( "MEC-CC-XSecScale", fXSecScale ) ;
+  
+  fHadronTensorModel = dynamic_cast<const HadronTensorModelI *> ( this->SubAlg("HadronTensorAlg") );
+  if( !fHadronTensorModel ) {
+    good_config = false ; 
+    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required HadronTensorAlg does not exist : " << SubAlg("HadronTensorAlg") ;
+  }
 
-	fXSecIntegrator =
-        dynamic_cast<const XSecIntegratorI *> (
-          this->SubAlg("NumericalIntegrationAlg"));
-        assert(fXSecIntegrator);
+  fXSecIntegrator = dynamic_cast<const XSecIntegratorI *> (this->SubAlg("NumericalIntegrationAlg"));
+  if( !fXSecIntegrator ) {
+    good_config = false ; 
+    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required NumericalIntegrationAlg does not exist : " << SubAlg("NumericalIntegrationAlg");
+  }
+  
+  // Read optional ScaleMECW
+  fScaleMECW = nullptr; 
+  if( GetConfig().Exists("ScaleMECWAlg") ) {
+    fScaleMECW = dynamic_cast<const ScaleMECW *> ( this->SubAlg("ScaleMECWAlg") );
+    if( !fScaleMECW ) {
+      good_config = false ; 
+      LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required ScaleMECWAlg does not exist : " << SubAlg("ScaleMECWAlg") ; 
+    }
+  }
+
+  if( ! good_config ) {
+    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "NievesSimoVacasMECPXSec2016 Configuration has failed.";
+    exit(78) ;
+  }
+
 }

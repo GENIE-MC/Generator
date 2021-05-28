@@ -33,7 +33,7 @@ namespace genie {
     ScaleMECW(string config);
     virtual ~ScaleMECW();
     
-    virtual double GetScaling( double q0, double q1 ) ; 
+    virtual double GetScaling( double q0, double q3 ) const ; 
     
     void Configure (const Registry & config);
     void Configure (string config);

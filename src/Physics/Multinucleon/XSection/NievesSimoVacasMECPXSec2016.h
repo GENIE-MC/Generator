@@ -31,6 +31,7 @@
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/HadronTensors/HadronTensorModelI.h"
+#include "Physics/Multinucleon/XSection/ScaleMECW.h"
 
 namespace genie {
 
@@ -63,6 +64,8 @@ private:
   const HadronTensorModelI* fHadronTensorModel;
 
   const XSecIntegratorI *  fXSecIntegrator; // Numerical integrator (GSL)
+
+  const ScaleMECW * fScaleMECW ; // Optional algorithm to retrieve the MEC scale as a function of W
 
 };
 
