@@ -12,6 +12,7 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Common/QvalueShifter.h"
 #include "Framework/Utils/StringUtils.h" 
+#include "Framework/ParticleData/PDGLibrary.h"
 
 using namespace genie;
 
@@ -50,9 +51,9 @@ void QvalueShifter::Configure(string config)
     // Get Target pdg
     int pdg_target = target.Pdg() ;
 
-    // Find Pdg in map:
-    if ( fRelShift.find(pdg_target) != fRelShift.end() ) {
-      return fRelShift.at(pdg_target);
+    const auto it = fRelShift.find(pdg_target) ;
+    if ( it != fRelShift.end() ) {
+      return it -> second ;
     } else {
       // return default 
       return fRelShiftDefault ;
@@ -66,10 +67,9 @@ void QvalueShifter::Configure(string config)
     // This function allows the flexibility to add shift as a function of 
     // the interaction type.
     // Right now, we just call the default :
-
-    return Shift( * interaction.InitState().TgtPtr() ) ;
-    
+    return Shift( interaction.InitState().Tgt() ) ;    
   } 
+
 //_________________________________________________________________________
 
 void QvalueShifter::LoadConfig(void)
@@ -77,16 +77,22 @@ void QvalueShifter::LoadConfig(void)
   // Store default value
   GetParam( "QvalueShiftDefault", fRelShiftDefault, 0. ) ;
 
+  // Clear map
+  fRelShift.clear() ; 
+
   // Get possible entries to pdg - shift map 
-  RgKeyList kpdg_list = GetConfig().FindKeys("QvalueShift@Pdg=") ;
-  RgKeyList::const_iterator kiter = kpdg_list.begin();
-  for( ; kiter != kpdg_list.end(); ++kiter ) {
-    RgKey key = *kiter ; 
-    double rshift = GetConfig().GetDouble(key);
+  auto kpdg_list = GetConfig().FindKeys("QvalueShift@Pdg=") ;
+
+  for( auto kiter = kpdg_list.begin(); kiter != kpdg_list.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
     vector<string> kv = genie::utils::str::Split(key,"=");
     assert(kv.size()==2);
-    int pdg_target = atoi(kv[1].c_str());
-    fRelShift.insert( std::pair<int,double>( pdg_target , rshift ) );
+    int pdg_target = stoi( kv[1] );
+    if( ! PDGLibrary::Instance()->Find(pdg_target) ) {
+      LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The Pdg code associated to the QvalueShift is not valid : " << pdg_target ; 
+      continue ; 
+    }
+    GetParam( key, fRelShift[pdg_target] ) ;
   }
 }
 
