@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+<!--
+Configuration for the ScaleMECW
+Configurable Parameters:
+......................................................................................................................
+Name                       Type     Optional   Comment                                       Default
+......................................................................................................................
+ScaleMECW-Weight-Default   double   Yes        Default Qvalue Shift for all targets          1.
+ScaleMECW-Weight-QELRegion double   Yes        Weight factor applied at W=Mn                 
+ScaleMECW-Weight-RESRegion double   Yes        Weight factor applied at W=MDelta
+-->
+
+  <param_set name="Default"> 
+    <param type="double"  name="ScaleMECW-Weight-Default"> 1. </param>   
+    <param type="double"  name="ScaleMECW-Weight-QELRegion"> 1. </param>   
+    <param type="double"  name="ScaleMECW-Weight-RESRegion"> 1. </param>   
+  </param_set>
+
+</alg_conf>
