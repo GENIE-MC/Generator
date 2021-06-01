@@ -354,7 +354,7 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
     fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
     if( !fQvalueShifter ) {
       good_config = false ; 
-      LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required QvalueShifterAlg does not exist : " << SubAlg("QvalueShifterAlg") ; 
+      LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required QvalueShifterAlg does not exist. AlgID is : " << SubAlg("QvalueShifterAlg")->Id() ;
     }
   }
 
