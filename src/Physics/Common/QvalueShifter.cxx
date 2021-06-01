@@ -13,6 +13,7 @@
 #include "Physics/Common/QvalueShifter.h"
 #include "Framework/Utils/StringUtils.h" 
 #include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGUtils.h"
 
 using namespace genie;
 
@@ -90,11 +91,17 @@ void QvalueShifter::LoadConfig(void)
     assert(kv.size()==2);
     int pdg_target = stoi( kv[1] );
     if( ! PDGLibrary::Instance()->Find(pdg_target) ) {
-      LOG("QvalueShifter", pERROR) << "The Pdg code associated to the QvalueShift is not valid : " << pdg_target ; 
+      LOG("QvalueShifter", pERROR) << "The target Pdg code associated to the QvalueShift is not valid : " << pdg_target ; 
       good_config = false ; 
       continue ; 
     }
-    GetParam( key, fRelShift[pdg_target] ) ;
+
+    if( ! pdg::IsIon(pdg_target) ) {
+      LOG("QvalueShifter", pERROR) << "The target Pdg code does not correspond to a Ion : " << pdg_target ; 
+      good_config = false ; 
+      continue ; 
+    } 
+   GetParam( key, fRelShift[pdg_target] ) ;
   }
 
   if( ! good_config ) {
