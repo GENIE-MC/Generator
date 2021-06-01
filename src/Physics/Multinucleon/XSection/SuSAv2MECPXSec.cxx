@@ -396,7 +396,7 @@ void SuSAv2MECPXSec::LoadConfig(void)
     fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
     if( !fQvalueShifter ) {
       good_config = false ; 
-      LOG("SuSAv2MECPXSec", pERROR) << "The required QvalueShifterAlg does not exist : " << SubAlg("QvalueShifterAlg") ; 
+      LOG("SuSAv2MECPXSec", pERROR) << "The required QvalueShifterAlg does not exist. AlgId is : " << SubAlg("QvalueShifterAlg")->Id() ; 
     }
   }
 
