@@ -74,6 +74,7 @@ void QvalueShifter::Configure(string config)
 
 void QvalueShifter::LoadConfig(void)
 {
+  bool good_config = true ;
   // Store default value
   GetParam( "QvalueShiftDefault", fRelShiftDefault, 0. ) ;
 
@@ -89,11 +90,18 @@ void QvalueShifter::LoadConfig(void)
     assert(kv.size()==2);
     int pdg_target = stoi( kv[1] );
     if( ! PDGLibrary::Instance()->Find(pdg_target) ) {
-      LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The Pdg code associated to the QvalueShift is not valid : " << pdg_target ; 
+      LOG("QvalueShifter", pERROR) << "The Pdg code associated to the QvalueShift is not valid : " << pdg_target ; 
+      good_config = false ; 
       continue ; 
     }
     GetParam( key, fRelShift[pdg_target] ) ;
   }
+
+  if( ! good_config ) {
+    LOG("QvalueShifter", pERROR) << "QvalueShifter Configuration has failed.";
+    exit(78) ;
+  }
+
 }
 
 //_________________________________________________________________________
