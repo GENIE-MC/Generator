@@ -339,13 +339,13 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
   fHadronTensorModel = dynamic_cast<const HadronTensorModelI *> ( this->SubAlg("HadronTensorAlg") );
   if( !fHadronTensorModel ) {
     good_config = false ; 
-    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required HadronTensorAlg does not exist : " << SubAlg("HadronTensorAlg") ;
+    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required HadronTensorAlg does not exist. AlgID is : " << SubAlg("HadronTensorAlg")->Id() ;
   }
 
   fXSecIntegrator = dynamic_cast<const XSecIntegratorI *> (this->SubAlg("NumericalIntegrationAlg"));
   if( !fXSecIntegrator ) {
     good_config = false ; 
-    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required NumericalIntegrationAlg does not exist : " << SubAlg("NumericalIntegrationAlg");
+    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required NumericalIntegrationAlg does not exist. AlgID is : " << SubAlg("NumericalIntegrationAlg")->Id();
   }
   
   // Read optional QvalueShifter:
@@ -359,7 +359,7 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
   }
 
   if( ! good_config ) {
-    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "NievesSimoVacasMECPXSec2016 Configuration has failed.";
+    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "Configuration has failed.";
     exit(78) ;
   }
 
