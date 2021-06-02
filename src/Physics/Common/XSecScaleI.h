@@ -45,7 +45,7 @@ namespace genie {
     void LoadConfig (void);
     
  private: 
-    double fXSecScaleDefault ; 
+    const XSecScaleI * fXSecScaleDefault ; 
     std::map<double,XSecScaleI *> fXSecScaleMap ;
 
   };
