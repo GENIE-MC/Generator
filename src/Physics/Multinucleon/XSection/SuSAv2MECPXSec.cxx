@@ -362,14 +362,13 @@ void SuSAv2MECPXSec::LoadConfig(void)
   fHadronTensorModel = dynamic_cast<const HadronTensorModelI*> ( this->SubAlg("HadronTensorAlg") );
   if( !fHadronTensorModel ) {
     good_config = false ; 
-    LOG("SuSAv2MECPXSec", pERROR) << "The required HadronTensorAlg does not exist : " << SubAlg("HadronTensorAlg");
+    LOG("SuSAv2MECPXSec", pERROR) << "The required HadronTensorAlg does not exist. AlgoID is : " << SubAlg("HadronTensorAlg")->Id();
   }
-  
 
   fXSecIntegrator = dynamic_cast<const XSecIntegratorI*> (this->SubAlg("NumericalIntegrationAlg"));
   if( !fXSecIntegrator ) {
     good_config = false ; 
-    LOG("SuSAv2MECPXSec", pERROR) << "The required NumericalIntegrationAlg does not exist : " << SubAlg("NumericalIntegrationAlg") ;
+    LOG("SuSAv2MECPXSec", pERROR) << "The required NumericalIntegrationAlg does not exist. AlgId is : " << SubAlg("NumericalIntegrationAlg")->Id() ;
   }
 
   //Fermi momentum tables for scaling
@@ -401,7 +400,7 @@ void SuSAv2MECPXSec::LoadConfig(void)
   }
 
   if( ! good_config ) {
-    LOG("SuSAv2MECPXSec", pERROR) << "SuSAv2MECPXSec Configuration has failed.";
+    LOG("SuSAv2MECPXSec", pERROR) << "Configuration has failed.";
     exit(78) ;
   }
 
