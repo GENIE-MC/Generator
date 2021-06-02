@@ -69,7 +69,7 @@ double ScaleMECW::GetScaling( const double q0, const double q3 ) const
     } 
   }
 
-  return 0; 
+  return 1. ; 
 } 
 
 //_________________________________________________________________________
