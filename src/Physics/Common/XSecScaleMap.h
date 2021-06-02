@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::XSecScaleI
+\class    genie::XSecScaleMap
 
 \brief    This class is responsible to compute a scaling factor for the XSec
 
@@ -14,10 +14,10 @@
 */
 //____________________________________________________________________________
 
-#ifndef _XSEC_SCALE_I_H_
-#define _XSEC_SCALE_I_H_
+#ifndef _XSEC_SCALE_MAP_H_
+#define _XSEC_SCALE_MAP_H_
 
-#include "Framework/Algorithm/Algorithm.h"
+#include "Physics/Common/XSecScaleI.h"
 #include "Framework/Interaction/Interaction.h"
 #include <map>
 #include <TSpline.h>
@@ -26,20 +26,29 @@ using std::map;
 
 namespace genie {
   
-  class XSecScaleI: public Algorithm {
+  class XSecScaleMap: public XSecScaleI {
     
   public:
-    XSecScaleI();
-    XSecScaleI(string config);
-    virtual ~XSecScaleI();
+    XSecScaleMap();
+    XSecScaleMap(string config);
+    virtual ~XSecScaleMap();
     
     // This function returns the scaling value for a given interaction:
-    virtual double GetScaling( const Interaction & ) const = 0 ; 
+    virtual double GetScaling( const Interaction & ) const ; 
     
     void Configure (const Registry & config);
     void Configure (string config);
     
+  protected:
+    
+    // Load algorithm configuration
+    void LoadConfig (void);
+    
+ private: 
+    const XSecScaleI * fXSecScaleDefault ; 
+    std::map<double,XSecScaleI *> fXSecScaleMap ;
+
   };
   
 }       // genie namespace
-#endif  // _XSEC_SCALE_I_H_
+#endif  // _XSEC_SCALE_MAP_H_
