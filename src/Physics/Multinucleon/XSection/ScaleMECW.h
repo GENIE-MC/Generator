@@ -33,7 +33,8 @@ namespace genie {
     ScaleMECW(string config);
     virtual ~ScaleMECW();
     
-    virtual double GetScaling( double q0, double q3 ) const ; 
+    // This function returns the scaling value at a given q0 q3:
+    virtual double GetScaling( const double q0, const double q3 ) const ; 
     
     void Configure (const Registry & config);
     void Configure (string config);
@@ -43,7 +44,10 @@ namespace genie {
     // Load algorithm configuration
     void LoadConfig (void);
     
-    virtual double ScaleFunction( double W, double Win, double Wmax, double scale_min, double scale_max ) const ; 
+    // Thist function calculates the scale factor value at W as a linear interpolation
+    // between two W values (Wmin,Wmax) with weights (scale_min,scale_max).
+    virtual double ScaleFunction( double W, double Win, double Wmax, 
+				  double scale_min, double scale_max ) const ; 
 
  private: 
     std::vector<double> fWeights ; 

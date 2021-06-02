@@ -47,7 +47,7 @@ void ScaleMECW::Configure(string config)
     this->LoadConfig();
 }
 //_________________________________________________________________________
-double ScaleMECW::GetScaling( double q0, double q3 ) const
+double ScaleMECW::GetScaling( const double q0, const double q3 ) const
 {
   // The Scaling is done using the "experimenter's W", which assumes a single nucleon
   // See motivation in : https://arxiv.org/pdf/1601.02038.pdf
