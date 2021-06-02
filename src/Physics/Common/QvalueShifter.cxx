@@ -77,7 +77,7 @@ void QvalueShifter::LoadConfig(void)
 {
   bool good_config = true ;
   // Store default value
-  GetParam( "QvalueShiftDefault", fRelShiftDefault, 0. ) ;
+  GetParam( "QvalueShiftDefault", fRelShiftDefault ) ;
 
   // Clear map
   fRelShift.clear() ; 
