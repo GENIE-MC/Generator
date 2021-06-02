@@ -105,7 +105,7 @@ void QvalueShifter::LoadConfig(void)
   }
 
   if( ! good_config ) {
-    LOG("QvalueShifter", pERROR) << "QvalueShifter Configuration has failed.";
+    LOG("QvalueShifter", pERROR) << "Configuration has failed.";
     exit(78) ;
   }
 
