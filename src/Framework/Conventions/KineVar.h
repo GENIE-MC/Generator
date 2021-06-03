@@ -31,8 +31,6 @@ typedef enum EKineVar {
   kKVx,
   kKVy,
   kKVQ2,
-  kKVQ0,
-  kKVQ3,
   kKVq2,
   kKVW,
   kKVt,
@@ -55,6 +53,8 @@ typedef enum EKineVar {
   kKVv,
   kKVSelPn,
   kKVSelv,
+  kKVQ0,
+  kKVQ3,
   // put all new enum names right before this line
   // do not change any previous ordering (neither insert nor delete)
   kNumOfKineVar
