@@ -49,21 +49,23 @@ void MECScaleVsW::Configure(string config)
 //_________________________________________________________________________
 double MECScaleVsW::GetScaling( const Interaction & interaction ) const
 {
+  double Q0 = interaction.Kine().Q0() ; 
+  double Q3 = interaction.Kine().Q3() ; 
 
-  return 1 ; 
+  return GetScaling( Q0, Q3 ) ; 
 }
 //_________________________________________________________________________
-double MECScaleVsW::GetScaling( const double q0, const double q3 ) const
+double MECScaleVsW::GetScaling( const double Q0, const double Q3 ) const
 {
   // Get the vectors that include the kinematic limits of W for a given event:
   std::vector<double> W_limits, weights ; 
-  GetVectorWithLimits( W_limits, weights,q0, q3, fDefaultWeight ) ;
+  GetVectorWithLimits( W_limits, weights,Q0, Q3, fDefaultWeight ) ;
 
   // The Scaling is done using the "experimenter's W", which assumes a single nucleon
   // See motivation in : https://arxiv.org/pdf/1601.02038.pdf
   // Calculate event W:
   double Mn = ( PDGLibrary::Instance()->Find(kPdgProton)->Mass() + PDGLibrary::Instance()->Find(kPdgNeutron)->Mass() ) * 0.5 ;  // Nucleon mass
-  double W = sqrt( pow(Mn,2) + 2*Mn*q0 - pow(q0,2) + pow(q0,2) ) ;
+  double W = sqrt( pow(Mn,2) + 2*Mn*Q0 - pow(Q0,2) + pow(Q0,2) ) ;
 
   // Calculate scaling:
 
@@ -78,13 +80,13 @@ double MECScaleVsW::GetScaling( const double q0, const double q3 ) const
 
 //_________________________________________________________________________
 void MECScaleVsW::GetVectorWithLimits( std::vector<double> & W_limits, std::vector<double> & weights,
-				       const double q0, const double q3 , const double weight ) const {
+				       const double Q0, const double Q3 , const double weight ) const {
   // This function is responsible to add the phase space limits in the WValues vector in case they are not included
   // in the configuration setup.
 
   double Mn = ( PDGLibrary::Instance()->Find(kPdgProton)->Mass() + PDGLibrary::Instance()->Find(kPdgNeutron)->Mass() ) * 0.5 ;  // Nucleon mass
-  double W_min = sqrt( pow(Mn,2) + 2*Mn*fW1_q0q3_limits->Eval(q3) - pow(q3,2) + pow(fW1_q0q3_limits->Eval(q3),2) ) ;
-  double W_max = sqrt( pow(Mn,2) + 2*Mn*q0 ) ; // Imposing Q2 = 0 
+  double W_min = sqrt( pow(Mn,2) + 2*Mn*fW1_Q0Q3_limits->Eval(Q3) - pow(Q3,2) + pow(fW1_Q0Q3_limits->Eval(Q3),2) ) ;
+  double W_max = sqrt( pow(Mn,2) + 2*Mn*Q0 ) ; // Imposing Q2 = 0 
 
   W_limits = fWValues ; 
   weights = fWeights ; 
@@ -132,27 +134,27 @@ void MECScaleVsW::LoadConfig(void)
     LOG("MECScaleVsW", pERROR) << "WValues size: " << fWValues.size() ;
   }
 
-  std::vector<double> limit_q0, limit_q3 ;
+  std::vector<double> limit_Q0, limit_Q3 ;
   if( GetConfig().Exists("MECScaleVsW-LowerLimitQ0") ) {
-    GetParamVect( "MECScaleVsW-LowerLimitQ0", limit_q0 ) ;
+    GetParamVect( "MECScaleVsW-LowerLimitQ0", limit_Q0 ) ;
     good_config = false ; 
     LOG("MECScaleVsW", pERROR) << "Lower limit of the phase space for Q0 is not specified" ;
   }
 
   if( GetConfig().Exists("MECScaleVsW-LowerLimitQ3") ) {
-    GetParamVect( "MECScaleVsW-LowerLimitQ0", limit_q3 ) ;
+    GetParamVect( "MECScaleVsW-LowerLimitQ0", limit_Q3 ) ;
     good_config = false ; 
     LOG("MECScaleVsW", pERROR) << "Lower limit of the phase space for Q3 is not specified" ;
   }
 
-  if( limit_q0.size() != limit_q3.size() ) {
+  if( limit_Q0.size() != limit_Q3.size() ) {
     good_config = false ; 
     LOG("MECScaleVsW", pERROR) << "Entries don't match" ;
-    LOG("MECScaleVsW", pERROR) << "Lower limit for q0 size: " << limit_q0.size() ;
-    LOG("MECScaleVsW", pERROR) << "Lower limit for q3 size: " << limit_q3.size() ;
+    LOG("MECScaleVsW", pERROR) << "Lower limit for Q0 size: " << limit_Q0.size() ;
+    LOG("MECScaleVsW", pERROR) << "Lower limit for Q3 size: " << limit_Q3.size() ;
   }
 
-  fW1_q0q3_limits = new TSpline3("fW1_q0q3_limits",&limit_q0[0],&limit_q3[0],limit_q0.size());
+  fW1_Q0Q3_limits = new TSpline3("fW1_Q0Q3_limits",&limit_Q0[0],&limit_Q3[0],limit_Q0.size());
   
   if( ! good_config ) {
     LOG("MECScaleVsW", pERROR) << "Configuration has failed.";
