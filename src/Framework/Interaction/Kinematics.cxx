@@ -228,24 +228,6 @@ double Kinematics::Log10W(bool selected) const
   return (Ws>0) ? TMath::Log10(Ws) : -99999;
 }
 //____________________________________________________________________________
-double Kinematics::Q0(void) const
-{
-  // returns the energy transfered
-  if (this->KVSet(kKVQ0) ) { return this->GetKV(kKVQ0); }
-
-  LOG("Interaction", pWARN) << "Kinematic variable Q0 was not set";
-  return -99999;
-}
-//____________________________________________________________________________
-double Kinematics::Q3(void) const
-{
-  // returns the three momentum transfered
-  if (this->KVSet(kKVQ3) ) { return this->GetKV(kKVQ3); }
-
-  LOG("Interaction", pWARN) << "Kinematic variable Q3 was not set";
-  return -99999;
-}
-//____________________________________________________________________________
 void Kinematics::Setx(double xbj, bool selected)
 {
 // sets the running or selected value of Bjorken scaling variable x
@@ -330,30 +312,6 @@ void Kinematics::SetHadSystP4(const TLorentzVector & p4)
 void Kinematics::SetHadSystP4(double px, double py, double pz, double E)
 {
   fP4HadSyst->SetPxPyPzE(px,py,pz,E);
-}
-//____________________________________________________________________________
-void Kinematics::SetQ0(double Q0)
-{
-// sets the energy transfer
-
-  if(Q0<0) {
-     LOG("Interaction", pWARN)
-                 << "Setting unphysical value for Q0 (Q0 = " << Q0 << ")";
-  }
-  KineVar_t kvar = kKVQ0;
-  this->SetKV(kvar, Q0);
-}
-//____________________________________________________________________________
-void Kinematics::SetQ3(double Q3)
-{
-// sets the momentum transfer
-
-  if(Q3<0) {
-     LOG("Interaction", pWARN)
-                 << "Setting unphysical value for Q3 (Q3 = " << Q3 << ")";
-  }
-  KineVar_t kvar = kKVQ3;
-  this->SetKV(kvar, Q3);
 }
 //____________________________________________________________________________
 bool Kinematics::KVSet(KineVar_t kv) const
