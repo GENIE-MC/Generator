@@ -79,6 +79,8 @@ double MECScaleVsW::GetScaling( const double q0, const double q3 ) const
 //_________________________________________________________________________
 void MECScaleVsW::GetVectorWithLimits( std::vector<double> & W_limits, std::vector<double> & weights,
 				       const double q0, const double q3 , const double weight ) const {
+  // This function is responsible to add the phase space limits in the WValues vector in case they are not included
+  // in the configuration setup.
 
   double Mn = ( PDGLibrary::Instance()->Find(kPdgProton)->Mass() + PDGLibrary::Instance()->Find(kPdgNeutron)->Mass() ) * 0.5 ;  // Nucleon mass
   double W_min = sqrt( pow(Mn,2) + 2*Mn*fW1_q0q3_limits->Eval(q3) - pow(q3,2) + pow(fW1_q0q3_limits->Eval(q3),2) ) ;
