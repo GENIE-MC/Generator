@@ -23,7 +23,7 @@
 
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          
+
 */
 //____________________________________________________________________________
 
@@ -61,7 +61,7 @@ public :
   Intranuke2018(string name, string config);
  ~Intranuke2018();
 
-  // implement the EventRecordVisitorI interface 
+  // implement the EventRecordVisitorI interface
   virtual void ProcessEventRecord(GHepRecord * event_rec) const;
 
   // override the Algorithm::Configure methods to load configuration
@@ -71,6 +71,19 @@ public :
 
   virtual string GetINukeMode() const {return "XX2018";};
   virtual string GetGenINukeMode() const {return "XX";};
+
+  inline double GetR0() const { return fR0; }
+  inline double GetNR() const { return fNR; }
+
+  inline double GetDelRPion() const { return fDelRPion; }
+  inline double GetDelRNucleon() const { return fDelRNucleon; }
+
+  inline double GetNucRmvE() const { return fNucRmvE; }
+  inline double GetHadStep() const { return fHadStep; }
+
+  inline bool GetUseOset() const { return fUseOset; }
+  inline bool GetAltOset() const { return fAltOset; }
+  inline bool GetXsecNNCorr() const { return fXsecNNCorr; }
 
 protected:
 
@@ -105,15 +118,15 @@ protected:
   double       fR0;           ///< effective nuclear size param
   double       fNR;           ///< param multiplying the nuclear radius, determining how far to track hadrons beyond the "nuclear boundary"
   double       fNucRmvE;      ///< binding energy to subtract from cascade nucleons
-  double       fDelRPion;     ///< factor by which Pion Compton wavelength gets multiplied to become nuclear size enhancement 
-  double       fDelRNucleon;  ///< factor by which Nucleon Compton wavelength gets multiplied to become nuclear size enhancement 
+  double       fDelRPion;     ///< factor by which Pion Compton wavelength gets multiplied to become nuclear size enhancement
+  double       fDelRNucleon;  ///< factor by which Nucleon Compton wavelength gets multiplied to become nuclear size enhancement
   double       fHadStep;      ///< step size for intranuclear hadron transport
   double       fNucAbsFac;    ///< absorption xsec correction factor (hN Mode)
   double       fNucCEXFac;    ///< charge exchange xsec correction factor (hN Mode)
   double       fEPreEq;       ///< threshold for pre-equilibrium reaction
   double       fFermiFac;     ///< testing parameter to modify fermi momentum
   double       fFermiMomentum;     ///< whether or not particle collision is pauli blocked
-  bool         fDoFermi;      ///< whether or not to do fermi mom. 
+  bool         fDoFermi;      ///< whether or not to do fermi mom.
   bool         fDoMassDiff;   ///< whether or not to do mass diff. mode
   bool         fDoCompoundNucleus; ///< whether or not to do compound nucleus considerations
   bool         fUseOset;      ///< Oset model for low energy pion in hN

@@ -18,7 +18,7 @@
 
 \cpright   Copyright (c) 2003-2020, The GENIE Collaboration
            For the full text of the license visit http://copyright.genie-mc.org
-           
+
 */
 //____________________________________________________________________________
 
@@ -38,6 +38,7 @@ namespace genie {
 
 class GHepRecord;
 class GHepParticle;
+class Intranuke2018;
 class PDGCodeList;
 
 namespace utils {
@@ -46,26 +47,25 @@ namespace intranuke2018
   //! Hadron survival probability
   double ProbSurvival(
     int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A,
-    double Z, double mfp_scale_factor=1.0,
-    double nRpi=0.5, double nRnuc=1.0, double NR=3, double R0=1.4);
+    double Z, double mfp_scale_factor, const Intranuke2018& fsi_model );
 
   //! Mean free path (pions, nucleons)
   double MeanFreePath(
     int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A,
     double Z, double nRpi=0.5, double nRnuc=1.0, const bool useOset = false, const bool altOset = false, const bool xsecNNCorr = false, string INukeMode = "XX2018");
- 
+
   //! Mean free path (Delta++ **test**)
   double MeanFreePath_Delta(
 			    int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A );
 
   //! Distance to exit
   double Dist2Exit(
-    const TLorentzVector & x4, const TLorentzVector & p4, 
+    const TLorentzVector & x4, const TLorentzVector & p4,
     double A, double NR=3, double R0=1.4);
 
   //! Distance to exit
   double Dist2ExitMFP(
-   int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, 
+   int pdgc, const TLorentzVector & x4, const TLorentzVector & p4,
     double A, double Z, double NR=3, double R0=1.4);
 
   //! Step particle
@@ -80,7 +80,7 @@ namespace intranuke2018
     GHepParticle* t, int &RemnA, int &RemnZ, TLorentzVector &RemnP4, EINukeMode mode=kIMdHA);
 
   bool TwoBodyKinematics(
-    double M3, double M4, TLorentzVector tP1L, TLorentzVector tP2L, 
+    double M3, double M4, TLorentzVector tP1L, TLorentzVector tP2L,
     TLorentzVector &tP3L, TLorentzVector &tP4L, double C3CM, TLorentzVector &RemnP4, double bindE=0);
 
   bool ThreeBodyKinematics(
