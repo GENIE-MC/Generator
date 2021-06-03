@@ -49,8 +49,8 @@ void MECScaleVsW::Configure(string config)
 //_________________________________________________________________________
 double MECScaleVsW::GetScaling( const Interaction & interaction ) const
 {
-  double Q0 = interaction.Kine().Q0() ; 
-  double Q3 = interaction.Kine().Q3() ; 
+  double Q0 = interaction.Kine().GetKV(kKVQ0) ; 
+  double Q3 = interaction.Kine().GetKV(kKVQ3) ; 
 
   return GetScaling( Q0, Q3 ) ; 
 }
