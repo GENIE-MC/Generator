@@ -209,7 +209,9 @@
    <config alg="genie::ReinSehgalRESXSecFast">              ReinSehgalRESXSecFast.xml              </config>
    <config alg="genie::BertuzzoDNuCOHPXSec">                BertuzzoDNuCOHPXSec.xml                </config>
    <config alg="genie::HybridXSecAlgorithm">                HybridXSecAlgorithm.xml                </config>
-   <config alg="genie::HEDISPXSec">                         HEDISPXSec.xml                          </config>
+   <config alg="genie::HEDISPXSec">                         HEDISPXSec.xml                         </config>
+   <config alg="genie::XSecScaleMap">                       XSecScaleMap.xml                       </config>
+   <config alg="genie::MECScaleVsW">                        MECScaleVsW.xml                        </config>
 
    <!--  ****** CONFIGURATION FOR NUCLEAR ENV. ALGORITHMS ****** -->
    <config alg="genie::NuclearModelMap">             NuclearModelMap.xml             </config>
