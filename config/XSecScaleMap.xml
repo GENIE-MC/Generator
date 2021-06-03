@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+<!--
+Configuration for the XSecScaleMap
+Configurable Parameters:
+......................................................................................................................
+Name                    Type     Optional   Comment                                       Default
+......................................................................................................................
+XSecScaleMapAlgDefault  alg      No         Default Algoritm to be used for all targets
+XSecScaleMap@Pdg=PDG    alg      Yes        This defines the Algorithm to be used for each target
+-->
+
+  <param_set name="Default"> 
+    
+  </param_set>
+
+  <param_set name="Nieves2p2h"> 
+    <param type="alg"  name="XSecScaleMapAlgDefault"> MECScaleVsW </param>   
+    <param type="alg" name="XSecScaleMap@Pdg=1000060120">  MECScaleVsW </param> <!-- C12 -->
+    <param type="alg" name="XSecScaleMap@Pdg=1000080160">  MECScaleVsW </param> <!-- O16 -->
+  </param_set>
+
+</alg_conf>
