@@ -141,6 +141,16 @@ double NievesSimoVacasMECPXSec2016::XSec(
 
   genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
 
+  // Store in interaction Q0 and Q3
+  Interaction * temp_int = const_cast<Interaction*>( interaction ) ;
+  Kinematics * temp_kin = temp_int->KinePtr() ; 
+  temp_kin->SetKV( kKVQ0, Q0 ) ; 
+  temp_kin->SetKV( kKVQ3, Q3 ) ; 
+  interaction = dynamic_cast<const Interaction*>( temp_int );
+  // remove copies:
+  delete temp_int ; 
+  delete temp_kin ; 
+
   const LabFrameHadronTensorI* tensor
     = dynamic_cast<const LabFrameHadronTensorI*>(
     fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_FullAll) );
