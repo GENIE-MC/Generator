@@ -61,7 +61,9 @@ public:
   double Log10y  (bool selected=false) const;
   double Log10Q2 (bool selected=false) const;
   double Log10W  (bool selected=false) const;
-
+  double Q3      (void) const;
+  double Q0      (void) const;
+  
   const TLorentzVector & FSLeptonP4(void) const { return *fP4Fsl;     }
   const TLorentzVector & HadSystP4 (void) const { return *fP4HadSyst; }
 
@@ -71,6 +73,8 @@ public:
   void   Setq2 (double q2, bool selected=false);
   void   SetW  (double W,  bool selected=false);
   void   Sett  (double t,  bool selected=false);
+  void   SetQ0 (double Q0);
+  void   SetQ3 (double Q3);
 
   void   SetFSLeptonP4 (const TLorentzVector & p4);
   void   SetFSLeptonP4 (double px, double py, double pz, double E);
