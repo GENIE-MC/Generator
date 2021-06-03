@@ -31,6 +31,8 @@ typedef enum EKineVar {
   kKVx,
   kKVy,
   kKVQ2,
+  kKVQ0,
+  kKVQ3,
   kKVq2,
   kKVW,
   kKVt,
