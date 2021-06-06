@@ -72,6 +72,13 @@ public :
   virtual string GetINukeMode() const {return "XX2018";};
   virtual string GetGenINukeMode() const {return "XX";};
 
+  // Setters used in reweighting
+  inline void SetRemnA( int A ) { fRemnA = A; }
+  inline void SetRemnZ( int Z ) { fRemnZ = Z; }
+
+  inline double GetRemnA() const { return fRemnA; }
+  inline double GetRemnZ() const { return fRemnZ; }
+
   inline double GetR0() const { return fR0; }
   inline double GetNR() const { return fNR; }
 

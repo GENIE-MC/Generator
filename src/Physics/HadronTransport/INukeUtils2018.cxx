@@ -282,7 +282,7 @@ double genie::utils::intranuke2018::MeanFreePath_Delta(
 }
 //____________________________________________________________________________
 double genie::utils::intranuke2018::ProbSurvival(
-  int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A, double Z,
+  int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A, double /*Z*/,
   double mfp_scale_factor, const Intranuke2018& fsi_model )
 {
 // Calculate the survival probability for a hadron inside a nucleus
@@ -291,7 +291,7 @@ double genie::utils::intranuke2018::ProbSurvival(
 //  pdgc : Hadron PDG code
 //  x4 : Hadron 4-position in the nucleus coordinate system (units: fm)
 //  p4 : Hadron 4-momentum (units: GeV)
-//  A : Nucleus atomic mass number
+//  A : Target nucleus atomic mass number
 //  mfp_scale_factor: Tweaks the mean free path (mfp -> mfp*scale). Def: 1.0
 
    double prob = 1.0;
@@ -323,11 +323,16 @@ double genie::utils::intranuke2018::ProbSurvival(
    // Intranuke mode setting ("HA2018", etc.)
    std::string inuke_mode = fsi_model.GetINukeMode();
 
-   // Maximum radius to use in the stepping loop
+   // Maximum radius to use in the stepping loop. Note that Intranuke2018 uses
+   // the *target* mass number to choose this radius, not the value for the
+   // pre- or post-FSI remnant.
    double R = NR * R0 * TMath::Power(A, 1./3.);
 
    TVector3 dr3 = p4.Vect().Unit();  // unit vector along its direction
    TLorentzVector dr4(dr3,0);
+
+   int remnA = fsi_model.GetRemnA();
+   int remnZ = fsi_model.GetRemnZ();
 
    LOG("INukeUtils", pDEBUG)
      << "Calculating survival probability for hadron with PDG code = " << pdgc
@@ -347,7 +352,7 @@ double genie::utils::intranuke2018::ProbSurvival(
      rnow = x4_curr.Vect().Mag();
 
      double mfp = genie::utils::intranuke2018::MeanFreePath( pdgc, x4_curr, p4,
-       A, Z, nRpi, nRnuc, useOset, altOset, xsecNNCorr, inuke_mode );
+       remnA, remnZ, nRpi, nRnuc, useOset, altOset, xsecNNCorr, inuke_mode );
      double mfp_twk = mfp * mfp_scale_factor;
 
      double dprob = (mfp_twk>0) ? TMath::Exp(-step/mfp_twk) : 0.;
