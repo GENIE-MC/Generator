@@ -19,13 +19,13 @@ using namespace genie;
 
 //_________________________________________________________________________
 MECScaleVsW::MECScaleVsW() : 
-  XSecScaleMap()
+  XSecScaleI("MECScaleVsW")
 {
   
 }
 //_________________________________________________________________________
 MECScaleVsW::MECScaleVsW(string config) : 
-  XSecScaleMap(config) 
+  XSecScaleI(config,"MECScaleVsW") 
 {
   
 }
@@ -33,18 +33,6 @@ MECScaleVsW::MECScaleVsW(string config) :
 MECScaleVsW::~MECScaleVsW()
 {
 
-}
-//_________________________________________________________________________
-void MECScaleVsW::Configure(const Registry & config)
-{
-    Algorithm::Configure(config);
-    this->LoadConfig();
-}
-//____________________________________________________________________________
-void MECScaleVsW::Configure(string config)
-{
-    Algorithm::Configure(config);
-    this->LoadConfig();
 }
 //_________________________________________________________________________
 double MECScaleVsW::GetScaling( const Interaction & interaction ) const
@@ -58,61 +46,58 @@ double MECScaleVsW::GetScaling( const Interaction & interaction ) const
 double MECScaleVsW::GetScaling( const double Q0, const double Q3 ) const
 {
   // Get the vectors that include the kinematic limits of W for a given event:
-  std::vector<double> W_limits, weights ; 
-  GetVectorWithLimits( W_limits, weights,Q0, Q3, fDefaultWeight ) ;
-
+  weight_type_map weight_map = GetMapWithLimits( Q0, Q3 ) ;
+  
   // The Scaling is done using the "experimenter's W", which assumes a single nucleon
   // See motivation in : https://arxiv.org/pdf/1601.02038.pdf
   // Calculate event W:
-  double Mn = ( PDGLibrary::Instance()->Find(kPdgProton)->Mass() + PDGLibrary::Instance()->Find(kPdgNeutron)->Mass() ) * 0.5 ;  // Nucleon mass
+  static double Mn = ( PDGLibrary::Instance()->Find(kPdgProton)->Mass() + PDGLibrary::Instance()->Find(kPdgNeutron)->Mass() ) * 0.5 ;  // Nucleon mass
   double W = sqrt( pow(Mn,2) + 2*Mn*Q0 - pow(Q0,2) + pow(Q0,2) ) ;
 
   // Calculate scaling:
-
-  for ( unsigned int i = 0 ; i < weights.size() - 1 ; ++i ) {
-    if ( W >= W_limits[i] && W < W_limits[i+1] ) {
-      return ScaleFunction( W, W_limits[i], W_limits[i+1], weights[i], weights[i+1] ) ; 
-    } 
+  for( weight_type_map::iterator it = weight_map.begin() ; it!= weight_map.end() ; ++it ) {
+    weight_type_map::iterator it_next = std::next(it) ;
+    if ( W >= it->first && W < it_next->first ) {
+      weight_type_pair min_pair ( it->first, it->second );
+      weight_type_pair max_pair ( it_next->first, it_next->second );
+      return ScaleFunction( W, min_pair, max_pair ) ; 
+    }
   }
+  // TO DO : Need to do it more efficiently
 
   return 1. ; 
 } 
 
 //_________________________________________________________________________
-void MECScaleVsW::GetVectorWithLimits( std::vector<double> & W_limits, std::vector<double> & weights,
-				       const double Q0, const double Q3 , const double weight ) const {
+weight_type_map MECScaleVsW::GetMapWithLimits( double Q0, double Q3 ) const {
   // This function is responsible to add the phase space limits in the WValues vector in case they are not included
   // in the configuration setup.
 
-  double Mn = ( PDGLibrary::Instance()->Find(kPdgProton)->Mass() + PDGLibrary::Instance()->Find(kPdgNeutron)->Mass() ) * 0.5 ;  // Nucleon mass
-  double W_min = sqrt( pow(Mn,2) + 2*Mn*fW1_Q0Q3_limits->Eval(Q3) - pow(Q3,2) + pow(fW1_Q0Q3_limits->Eval(Q3),2) ) ;
+  static double Mn = ( PDGLibrary::Instance()->Find(kPdgProton)->Mass() + PDGLibrary::Instance()->Find(kPdgNeutron)->Mass() ) * 0.5 ;  // Nucleon mass
+  double W_min = sqrt( pow(Mn,2) + 2*Mn*fW1_Q0Q3_limits.Eval(Q3) - pow(Q3,2) + pow(fW1_Q0Q3_limits.Eval(Q3),2) ) ;
   double W_max = sqrt( pow(Mn,2) + 2*Mn*Q0 ) ; // Imposing Q2 = 0 
+  
+  // Insert phase space limits:
+  weight_type_map w_map = fWeightsMap ; 
+  w_map.insert( weight_type_pair( W_max, fDefaultWeight ) ) ;
+  w_map.insert( weight_type_pair( W_min, fDefaultWeight ) ) ;
 
-  W_limits = fWValues ; 
-  weights = fWeights ; 
-
-  if( W_limits[W_limits.size()-1] < W_max ){
-    // Add upper limit
-    W_limits.push_back( W_max ) ; 
-    weights.push_back( weight ) ; 
-  } 
-
-  if( W_limits[0] > W_min ) {
-    // Add lower limit from spline:
-    W_limits.insert( W_limits.begin(), W_min ) ; 
-    weights.insert( fWeights.begin(), weight ) ; 
-  }
-                                                
+  return w_map ; 
 } 
 //_________________________________________________________________________
     
-double MECScaleVsW::ScaleFunction( double W, double W_min, double W_max, double scale_min, double scale_max ) const 
+double MECScaleVsW::ScaleFunction( double W, weight_type_pair min, weight_type_pair max ) const 
 {
   // This function is responsible to calculate the scale at a given W
   // It interpolates the value between scale_min (W_min) and scale_max (W_max) linearly 
-
-  double scale = ( W_min * scale_max - W_max * scale_min ) + ( scale_min - scale_max ) * W ;
-  scale /= W_min - W_max ; 
+  // Get Wpoints from pair:
+  double W_min = min.first ; 
+  double W_max = max.first ; 
+  // Get scale coeficients at W_min and W_max:
+  double scale_min = min.second ; 
+  double scale_max = max.second ; 
+  
+  double scale = ( scale_min - scale_max ) * ( W - W_min ) / ( W_min - W_max ) + scale_min ; 
 
   return scale ; 
 
@@ -123,26 +108,38 @@ double MECScaleVsW::ScaleFunction( double W, double W_min, double W_max, double 
 void MECScaleVsW::LoadConfig(void)
 {
   bool good_config = true ; 
-  GetParam( "MECScaleVsW-Weight-Default", fDefaultWeight ) ;
-  GetParamVect( "MECScaleVsW-Weights", fWeights ) ; 
-  GetParamVect( "MECScaleVsW-WValues", fWValues ) ; 
+  // Reset members
+  fWeightsMap.clear(); 
+  fW1_Q0Q3_limits = nullptr ; 
 
-  if( fWeights.size() != fWValues.size() ) {
+  std::vector<double> Weights, WValues ;
+  GetParam( "MECScaleVsW-Weight-Default", fDefaultWeight ) ;
+  GetParamVect( "MECScaleVsW-Weights", Weights ) ; 
+  GetParamVect( "MECScaleVsW-WValues", WValues ) ; 
+
+  if( Weights.size() != WValues.size() ) {
     good_config = false ; 
     LOG("MECScaleVsW", pERROR) << "Entries don't match" ;
-    LOG("MECScaleVsW", pERROR) << "Weights size: " << fWeights.size() ;
-    LOG("MECScaleVsW", pERROR) << "WValues size: " << fWValues.size() ;
+    LOG("MECScaleVsW", pERROR) << "Weights size: " << Weights.size() ;
+    LOG("MECScaleVsW", pERROR) << "WValues size: " << WValues.size() ;
+  }
+
+  // Store weights and WValues in map:
+  for( unsigned int i = 0 ; i<Weights.size() ; ++i ) {
+    fWeightsMap.insert( weight_type_pair( WValues[i], Weights[i] ) ) ;
   }
 
   std::vector<double> limit_Q0, limit_Q3 ;
   if( GetConfig().Exists("MECScaleVsW-LowerLimitQ0") ) {
     GetParamVect( "MECScaleVsW-LowerLimitQ0", limit_Q0 ) ;
+  } else {
     good_config = false ; 
     LOG("MECScaleVsW", pERROR) << "Lower limit of the phase space for Q0 is not specified" ;
   }
 
   if( GetConfig().Exists("MECScaleVsW-LowerLimitQ3") ) {
     GetParamVect( "MECScaleVsW-LowerLimitQ0", limit_Q3 ) ;
+  } else {
     good_config = false ; 
     LOG("MECScaleVsW", pERROR) << "Lower limit of the phase space for Q3 is not specified" ;
   }
@@ -154,7 +151,7 @@ void MECScaleVsW::LoadConfig(void)
     LOG("MECScaleVsW", pERROR) << "Lower limit for Q3 size: " << limit_Q3.size() ;
   }
 
-  fW1_Q0Q3_limits = new TSpline3("fW1_Q0Q3_limits",&limit_Q0[0],&limit_Q3[0],limit_Q0.size());
+  fW1_Q0Q3_limits = TSpline3("fW1_Q0Q3_limits",&limit_Q0[0],&limit_Q3[0],limit_Q0.size());
   
   if( ! good_config ) {
     LOG("MECScaleVsW", pERROR) << "Configuration has failed.";

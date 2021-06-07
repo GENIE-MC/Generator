@@ -294,8 +294,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
   // Apply given scaling factor
   xsec *= fXSecScale;
 
-  if( fMECScaleVsW ) 
-    xsec *= fMECScaleVsW->GetScaling( * interaction ) ;
+  if( fMECScaleAlg ) 
+    xsec *= fMECScaleAlg->GetScaling( * interaction ) ;
   
   if ( kps != kPSTlctl ) {
     LOG("NievesSimoVacasMEC", pWARN)
@@ -355,12 +355,12 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
 
 	bool good_config = true ; 
 	// Read optional MECScaleVsW:
-	fMECScaleVsW = nullptr; 
-	if( GetConfig().Exists("MECScaleVsWAlg") ) {
-	  fMECScaleVsW = dynamic_cast<const MECScaleVsW *> ( this->SubAlg("MECScaleVsWAlg") );
-	  if( !fMECScaleVsW ) {
+	fMECScaleAlg = nullptr; 
+	if( GetConfig().Exists("MECScaleAlg") ) {
+	  fMECScaleAlg = dynamic_cast<const XSecScaleI *> ( this->SubAlg("MECScaleAlg") );
+	  if( !fMECScaleAlg ) {
 	    good_config = false ; 
-	    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required MECScaleVsWAlg does not exist. AlgID is : " << SubAlg("MECScaleVsWAlg")->Id() ;
+	    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required MECScaleAlg cannot be casted. AlgID is : " << SubAlg("MECScaleAlg")->Id() ;
 	  }
 	}
 	

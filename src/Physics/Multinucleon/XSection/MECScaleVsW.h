@@ -19,12 +19,15 @@
 #ifndef _MEC_SCALE_VS_W_H_
 #define _MEC_SCALE_VS_W_H_
 
-#include "Physics/Common/XSecScaleMap.h"
+#include "Physics/Common/XSecScaleI.h"
 #include <TSpline.h>
+
+using weight_type_map = std::map<double,double> ;
+using weight_type_pair = std::pair<double,double> ;
 
 namespace genie {
   
-  class MECScaleVsW: public XSecScaleMap {
+  class MECScaleVsW: public XSecScaleI {
     
   public:
     MECScaleVsW();
@@ -32,33 +35,28 @@ namespace genie {
     virtual ~MECScaleVsW();
     
     // This function returns the scaling value at a given Q0 Q3:
-    virtual double GetScaling( const Interaction & ) const ; 
-    
-    void Configure (const Registry & config);
-    void Configure (string config);
+    virtual double GetScaling( const Interaction & ) const override ; 
     
   protected:
     
     // Load algorithm configuration
-    void LoadConfig (void);
+    void LoadConfig (void) override;
 
     // This function returns the scaling value at a given Q0 Q3:
     virtual double GetScaling( const double Q0, const double Q3 ) const ; 
 
     // This function adds the limits of the phase space if they are not set by the user
-    void GetVectorWithLimits( std::vector<double> & W_limits, std::vector<double> & weights,
-			      const double Q0, const double Q3 , const double weight ) const ;
+    weight_type_map GetMapWithLimits( double Q0, double Q3 ) const ;
 
     // Thist function calculates the scale factor value at W as a linear interpolation
     // between two W values (Wmin,Wmax) with weights (scale_min,scale_max).
-    virtual double ScaleFunction( const double W, const double Win, const double Wmax, 
-				  const double scale_min, const double scale_max ) const ; 
+    virtual double ScaleFunction( double W, weight_type_pair min, weight_type_pair max ) const ;
 
  private: 
     double fDefaultWeight ; 
-    std::vector<double> fWeights ; 
-    std::vector<double> fWValues ; 
-    TSpline3 * fW1_Q0Q3_limits ; 
+    weight_type_map fWeightsMap ;
+    // Adding optional Spline to handle the limits of W1:
+    TSpline3 fW1_Q0Q3_limits ; 
 
   };
   
