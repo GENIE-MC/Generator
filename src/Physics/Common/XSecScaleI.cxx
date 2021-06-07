@@ -13,17 +13,12 @@
 using namespace genie;
 
 //_________________________________________________________________________
-XSecScaleI::XSecScaleI() : 
-  Algorithm("genie::XSecScaleI") 
+XSecScaleI::XSecScaleI( string name, string config /*"Default"*/ ) :
+  Algorithm(name, config) 
 {
-  
+
 }
-//_________________________________________________________________________
-XSecScaleI::XSecScaleI(string config) : 
-  Algorithm("genie::XSecScaleI",config) 
-{
-  
-}
+
 //_________________________________________________________________________
 XSecScaleI::~XSecScaleI()
 {
@@ -32,7 +27,8 @@ XSecScaleI::~XSecScaleI()
 //_________________________________________________________________________
 void XSecScaleI::Configure(const Registry & config)
 {
-    Algorithm::Configure(config);
+  this->LoadConfig(); 
+  Algorithm::Configure(config);
 }
 //____________________________________________________________________________
 void XSecScaleI::Configure(string config)

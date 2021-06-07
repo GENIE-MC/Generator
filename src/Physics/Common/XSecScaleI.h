@@ -19,25 +19,23 @@
 
 #include "Framework/Algorithm/Algorithm.h"
 #include "Framework/Interaction/Interaction.h"
-#include <map>
-#include <TSpline.h>
-
-using std::map; 
 
 namespace genie {
   
   class XSecScaleI: public Algorithm {
     
-  public:
-    XSecScaleI();
-    XSecScaleI(string config);
-    virtual ~XSecScaleI();
-    
+  public:    
     // This function returns the scaling value for a given interaction:
     virtual double GetScaling( const Interaction & ) const = 0 ; 
+
+  protected:
+    XSecScaleI( string name, string config = "Default" );
+    virtual ~XSecScaleI();
+
+    void Configure(const Registry & config) override ;
+    virtual void Configure (string config) override ;
     
-    void Configure (const Registry & config);
-    void Configure (string config);
+    virtual void LoadConfig(void) = 0 ;
     
   };
   

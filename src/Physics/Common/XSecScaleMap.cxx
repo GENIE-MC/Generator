@@ -78,7 +78,7 @@ void XSecScaleMap::LoadConfig(void)
       good_config = false ; 
       LOG("XSecScaleMap", pERROR) << "The subalgorithm with ID " << fXSecScaleDefault->Id() << " does not exist " ;
     }  
-  }
+  } 
   
   // Clear map
   fXSecScaleMap.clear() ; 
