@@ -20,9 +20,6 @@
 #include "Physics/Common/XSecScaleI.h"
 #include "Framework/Interaction/Interaction.h"
 #include <map>
-#include <TSpline.h>
-
-using std::map; 
 
 namespace genie {
   
@@ -34,10 +31,7 @@ namespace genie {
     virtual ~XSecScaleMap();
     
     // This function returns the scaling value for a given interaction:
-    virtual double GetScaling( const Interaction & ) const ; 
-    
-    void Configure (const Registry & config);
-    void Configure (string config);
+    virtual double GetScaling( const Interaction & ) const override ; 
     
   protected:
     
@@ -46,7 +40,7 @@ namespace genie {
     
  private: 
     const XSecScaleI * fXSecScaleDefault ; 
-    std::map<double,XSecScaleI *> fXSecScaleMap ;
+    std::map<int,const XSecScaleI *> fXSecScaleMap ;
 
   };
   

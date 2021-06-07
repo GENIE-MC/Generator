@@ -36,18 +36,6 @@ XSecScaleMap::~XSecScaleMap()
 
 }
 //_________________________________________________________________________
-void XSecScaleMap::Configure(const Registry & config)
-{
-    XSecScaleI::Configure(config);
-    this->LoadConfig();
-}
-//____________________________________________________________________________
-void XSecScaleMap::Configure(string config)
-{
-    XSecScaleI::Configure(config);
-    this->LoadConfig();
-}
-//_________________________________________________________________________
 double XSecScaleMap::GetScaling( const Interaction & interaction ) const {
   // This function accesses the Algoritm given the Pdg code and 
   // retrieves the appropiate scaling.
@@ -57,7 +45,8 @@ double XSecScaleMap::GetScaling( const Interaction & interaction ) const {
   const auto it = fXSecScaleMap.find(pdg_target) ;
   if ( it != fXSecScaleMap.end() ) {
     return (it -> second)->GetScaling( interaction ) ;
-  } else if ( fXSecScaleDefault ) {
+  }
+  if ( fXSecScaleDefault ) {
     // return default 
     return fXSecScaleDefault->GetScaling( interaction ) ;
   }
@@ -70,21 +59,22 @@ double XSecScaleMap::GetScaling( const Interaction & interaction ) const {
 void XSecScaleMap::LoadConfig(void)
 {
   bool good_config = true ; 
+  fXSecScaleDefault = nullptr ; 
+  fXSecScaleMap.clear() ; 
 
   // Store default value
-  if( GetConfig().Exists("XSecScaleMapAlgDefault") ) {
-    fXSecScaleDefault = dynamic_cast<const XSecScaleMap *> ( this->SubAlg("XSecScaleMapAlgDefault") );
+  static RgKey default_algo_name = "XSecScaleDefaultAlg" ;
+  if( GetConfig().Exists(default_algo_name) ) {
+    fXSecScaleDefault = dynamic_cast<const XSecScaleMap *> ( this->SubAlg(default_algo_name) );
     if( !fXSecScaleDefault ) {
       good_config = false ; 
       LOG("XSecScaleMap", pERROR) << "The subalgorithm with ID " << fXSecScaleDefault->Id() << " does not exist " ;
     }  
   } 
   
-  // Clear map
-  fXSecScaleMap.clear() ; 
-
+ 
   // Get possible entries to pdg - shift map 
-  auto kpdg_list = GetConfig().FindKeys("XSecScaleMap@Pdg=") ;
+  auto kpdg_list = GetConfig().FindKeys("XSecScaleAlg@Pdg=") ;
 
   for( auto kiter = kpdg_list.begin(); kiter != kpdg_list.end(); ++kiter ) {
     const RgKey & key = *kiter ;
@@ -103,10 +93,10 @@ void XSecScaleMap::LoadConfig(void)
       continue ; 
     } 
 
-    fXSecScaleMap[pdg_target] = (XSecScaleMap*) ( this->SubAlg( key ) ); 
-    if( ! fXSecScaleMap[pdg_target] ) {
+    const auto algo = fXSecScaleMap[pdg_target] = dynamic_cast<const XSecScaleMap*> ( this->SubAlg( key ) ); 
+    if( ! algo ) {
       good_config = false ; 
-      LOG("XSecScaleMap", pERROR) << "The subalgorithm with ID " << fXSecScaleMap[pdg_target]->Id() 
+      LOG("XSecScaleMap", pERROR) << "The subalgorithm with ID " << algo->Id() 
 				<< " and target pdg " << pdg_target << " does not exist" ;
       continue ; 
     } 
