@@ -96,8 +96,8 @@ void XSecScaleMap::LoadConfig(void)
     const auto algo = fXSecScaleMap[pdg_target] = dynamic_cast<const XSecScaleMap*> ( this->SubAlg( key ) ); 
     if( ! algo ) {
       good_config = false ; 
-      LOG("XSecScaleMap", pERROR) << "The subalgorithm with ID " << algo->Id() 
-				<< " and target pdg " << pdg_target << " does not exist" ;
+      LOG("XSecScaleMap", pERROR) << "The subalgorithm " << GetConfig().GetAlg(key).name 
+				<< " and target pdg " << pdg_target << " do not exist" ;
       continue ; 
     } 
 
