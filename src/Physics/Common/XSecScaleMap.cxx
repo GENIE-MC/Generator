@@ -8,8 +8,6 @@
 */
 //_________________________________________________________________________
 
-#include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/Messenger/Messenger.h"
 #include "Physics/Common/XSecScaleMap.h"
 #include "Framework/Utils/StringUtils.h" 
 #include "Framework/ParticleData/PDGCodes.h"
@@ -26,7 +24,7 @@ XSecScaleMap::XSecScaleMap() :
 }
 //_________________________________________________________________________
 XSecScaleMap::XSecScaleMap(string config) : 
-  XSecScaleI(config) 
+  XSecScaleI("genie::XSecScaleMap",config) 
 {
   
 }
@@ -37,8 +35,8 @@ XSecScaleMap::~XSecScaleMap()
 }
 //_________________________________________________________________________
 double XSecScaleMap::GetScaling( const Interaction & interaction ) const {
-  // This function accesses the Algoritm given the Pdg code and 
-  // retrieves the appropiate scaling.
+  // This function accesses the requested Algoritm given the Pdg code and 
+  // it retrieves the appropiate scaling.
   // Get Target pdg
   int pdg_target = interaction.InitState().Tgt().Pdg() ;
   
@@ -68,7 +66,7 @@ void XSecScaleMap::LoadConfig(void)
     fXSecScaleDefault = dynamic_cast<const XSecScaleMap *> ( this->SubAlg(default_algo_name) );
     if( !fXSecScaleDefault ) {
       good_config = false ; 
-      LOG("XSecScaleMap", pERROR) << "The subalgorithm with ID " << fXSecScaleDefault->Id() << " does not exist " ;
+      LOG("XSecScaleMap", pERROR) << "The subalgorithm with ID " << SubAlg(default_algo_name)->Id() << " couldn't be casted " ;
     }  
   } 
   
@@ -97,12 +95,12 @@ void XSecScaleMap::LoadConfig(void)
     if( ! algo ) {
       good_config = false ; 
       LOG("XSecScaleMap", pERROR) << "The subalgorithm " << GetConfig().GetAlg(key).name 
-				<< " and target pdg " << pdg_target << " do not exist" ;
+				  << " and target pdg " << pdg_target << " do not exist" ;
       continue ; 
     } 
 
   }
-
+  
   if( ! good_config ) {
     LOG("XSecScaleMap", pERROR) << "Configuration has failed.";
     exit(78) ;

@@ -35,7 +35,7 @@ namespace genie {
   protected:
     
     // Load algorithm configuration
-    virtual void LoadConfig (void) ;
+    virtual void LoadConfig (void) override ;
     
  private: 
     const XSecScaleI * fXSecScaleDefault ; 
