@@ -7,7 +7,7 @@ Configurable Parameters:
 ......................................................................................................................
 Name                         Type         Optional   Comment                                       Default
 ......................................................................................................................
-MECScaleVsW-Weight-Default   double       No         Default Weight
+MECScaleVsW-Default-Weight   double       No         Default Weight
 MECScaleVsW-LowerLimitQ0     vec-double   No         Vector of q0 at the lower limit of the        
                                                      phase space
 MECScaleVsW-LowerLimitQ3     vec-double   No         Vector of q3 at the lower limit of the        
@@ -17,7 +17,7 @@ MECScaleVsW-WValues          vec-double   Yes        Vector of W values         
 -->
 
   <param_set name="Default"> 
-    <param type="double"  name="MECScaleVsW-Weight-Default"> 1. </param>
+    <param type="double"  name="MECScaleVsW-Default-Weight"> 1. </param>
     <!-- Parameterization to define the lower limit of the phase space --> 
     <param type="vec-double"  name="MECScaleVsW-LowerLimitQ0" delim=";"> 0.0479; 0.0288; 0.0192; 0.0288; 0.029; 0.0415; 0.0511; 0.0735; 0.1054; 0.1374; 0.1821; 0.2300; 0.2843; 0.3546; 0.4313; 0.4824 </param>  
     <param type="vec-double"  name="MECScaleVsW-LowerLimitQ3" delim=";"> 0.054; 0.0963; 0.2139; 0.299; 0.3719; 0.4451; 0.5125; 0.5973; 0.6802; 0.7630; 0.8401; 0.9114; 1.0058; 1.0790; 1.1676; 1.1946 </param>  
