@@ -18,7 +18,6 @@
 #define _XSEC_SCALE_MAP_H_
 
 #include "Physics/Common/XSecScaleI.h"
-#include "Framework/Interaction/Interaction.h"
 #include <map>
 
 namespace genie {
@@ -36,7 +35,7 @@ namespace genie {
   protected:
     
     // Load algorithm configuration
-    void LoadConfig (void);
+    virtual void LoadConfig (void) ;
     
  private: 
     const XSecScaleI * fXSecScaleDefault ; 
