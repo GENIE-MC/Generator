@@ -109,7 +109,7 @@ void MECScaleVsW::LoadConfig(void)
   fW1_Q0Q3_limits = nullptr ; 
 
   std::vector<double> Weights, WValues ;
-  GetParam( "MECScaleVsW-Weight-Default", fDefaultWeight ) ;
+  GetParam( "MECScaleVsW-Default-Weight", fDefaultWeight ) ;
   GetParamVect( "MECScaleVsW-Weights", Weights ) ; 
   GetParamVect( "MECScaleVsW-WValues", WValues ) ; 
 
