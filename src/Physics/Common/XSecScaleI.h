@@ -25,12 +25,12 @@ namespace genie {
   class XSecScaleI: public Algorithm {
     
   public:    
+    virtual ~XSecScaleI();
     // This function returns the scaling value for a given interaction:
     virtual double GetScaling( const Interaction & ) const = 0 ; 
 
   protected:
     XSecScaleI( string name, string config = "Default" );
-    virtual ~XSecScaleI();
 
     void Configure(const Registry & config) override ;
     virtual void Configure (string config) override ;

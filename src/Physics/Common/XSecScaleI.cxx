@@ -33,6 +33,7 @@ void XSecScaleI::Configure(const Registry & config)
 //____________________________________________________________________________
 void XSecScaleI::Configure(string config)
 {
-    Algorithm::Configure(config);
+  this->LoadConfig(); 
+  Algorithm::Configure(config);
 }
 //_________________________________________________________________________
