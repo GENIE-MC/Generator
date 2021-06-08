@@ -8,8 +8,6 @@
 */
 //_________________________________________________________________________
 
-#include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/Messenger/Messenger.h"
 #include "Physics/Multinucleon/XSection/MECScaleVsW.h"
 #include "Framework/Utils/StringUtils.h" 
 #include "Framework/ParticleData/PDGCodes.h"
@@ -19,13 +17,13 @@ using namespace genie;
 
 //_________________________________________________________________________
 MECScaleVsW::MECScaleVsW() : 
-  XSecScaleI("MECScaleVsW")
+  XSecScaleI("genie::MECScaleVsW")
 {
   
 }
 //_________________________________________________________________________
 MECScaleVsW::MECScaleVsW(string config) : 
-  XSecScaleI(config,"MECScaleVsW") 
+  XSecScaleI("genie::MECScaleVsW",config) 
 {
   
 }
@@ -55,15 +53,13 @@ double MECScaleVsW::GetScaling( const double Q0, const double Q3 ) const
   double W = sqrt( pow(Mn,2) + 2*Mn*Q0 - pow(Q0,2) + pow(Q0,2) ) ;
 
   // Calculate scaling:
-  for( weight_type_map::iterator it = weight_map.begin() ; it!= weight_map.end() ; ++it ) {
-    weight_type_map::iterator it_next = std::next(it) ;
-    if ( W >= it->first && W < it_next->first ) {
-      weight_type_pair min_pair ( it->first, it->second );
-      weight_type_pair max_pair ( it_next->first, it_next->second );
-      return ScaleFunction( W, min_pair, max_pair ) ; 
-    }
+  weight_type_map::iterator W_min, W_max ; 
+  W_min = weight_map.lower_bound( W ) ;
+ 
+  if( W_min != weight_map.end() ) {
+    W_max = std::next( W_min ) ;
+    return ScaleFunction( W, *W_min, *W_max ) ; 
   }
-  // TO DO : Need to do it more efficiently
 
   return 1. ; 
 } 

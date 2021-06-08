@@ -40,7 +40,7 @@ namespace genie {
   protected:
     
     // Load algorithm configuration
-    void LoadConfig (void) override;
+    virtual void LoadConfig (void) override ;
 
     // This function returns the scaling value at a given Q0 Q3:
     virtual double GetScaling( const double Q0, const double Q3 ) const ; 
