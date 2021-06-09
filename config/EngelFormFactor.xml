@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+<!--
+Configuration sets for the EngelFormFactor
+No configurable parameters.
+..........................................................................................................
+Name                          Type        Optional   Comment
+..........................................................................................................
+
+-->
+
+
+
+<alg_conf>
+
+  <param_set name="Default">
+
+  </param_set>
+
+</alg_conf>

@@ -16,6 +16,7 @@
 
   \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
   For the full text of the license visit http://copyright.genie-mc.org           
+
 */
 //____________________________________________________________________________
 
@@ -218,7 +219,10 @@ namespace genie {
   const int kPdgAntiDarkMatter  = -2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
   const int kPdgMediator        =  2000010001; // Mediator particle for GENIE Boosted Dark Matter mode
   const int kPdgNHL             =  2000020000; // Neutral Heavy Lepton PDG code
-
+  const int kPdgDarkNeutrino    =  2000030000; // Dark matter particle for GENIE Dark Neutrino mode
+  const int kPdgAntiDarkNeutrino= -2000030000; // Dark matter particle for GENIE Dark Neutrino mode
+  const int kPdgDNuMediator     =  2000030001; // Mediator particle for GENIE Dark Neutrino mode
+  
   //
   // PDG codes for special particles used by external generators interfaced with GENIE
   //

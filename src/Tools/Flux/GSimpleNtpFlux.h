@@ -11,7 +11,7 @@
 \created  Jan 25, 2010
 
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -68,12 +68,13 @@ ostream & operator << (ostream & stream, const GSimpleNtpEntry & info);
 
     Double_t   wgt;      ///< nu weight
 
-    Double_t   vtxx;     ///< x position in lab frame
+    Double_t   vtxx;     ///< x position in lab frame (meters)
     Double_t   vtxy;     ///< y position in lab frame
     Double_t   vtxz;     ///< z position in lab frame
+    Double_t   vtxt;     ///< time of ray start (seconds)
     Double_t   dist;     ///< distance from hadron decay
 
-    Double_t   px;       ///< x momentum in lab frame
+    Double_t   px;       ///< x momentum in lab frame (GeV)
     Double_t   py;       ///< y momentum in lab frame
     Double_t   pz;       ///< z momentum in lab frame
     Double_t   E;        ///< energy in lab frame
@@ -81,7 +82,7 @@ ostream & operator << (ostream & stream, const GSimpleNtpEntry & info);
     Int_t      pdg;      ///< nu pdg-code
     UInt_t     metakey;  ///< key to meta data
 
-    ClassDef(GSimpleNtpEntry,1)
+    ClassDef(GSimpleNtpEntry,2)
   };
 
 
@@ -245,6 +246,9 @@ public :
   double    GetDecayDist() const; ///< dist (user units) from dk to current pos
   void      MoveToZ0(double z0);  ///< move ray origin to user coord Z0
 
+  void      SetIncludeVtxt(bool it=true); ///< should X4 include CurEntry.vtxt
+  bool      GetIncludeVtxt() { return fIncludeVtxt; }
+
   //
   // information about the current state
   //
@@ -324,7 +328,6 @@ private:
 
   long int  fNUse;                ///< how often to use same entry in a row
   long int  fIUse;                ///< current # of times an entry has been used
-
   double    fSumWeight;           ///< sum of weights for nus thrown so far
   long int  fNNeutrinos;          ///< number of flux neutrinos thrown so far
   long int  fNEntriesUsed;        ///< number of entries read from files
@@ -346,6 +349,8 @@ private:
   GSimpleNtpEntry* fCurEntryCopy;  ///< current entry
   GSimpleNtpNuMI*  fCurNuMICopy;   ///< current "numi" branch extra info
   GSimpleNtpAux*   fCurAuxCopy;    ///< current "aux" branch extra info
+
+  bool             fIncludeVtxt;   ///< does fX4 include CurEntry.vtxt or 0
 
 };
 

@@ -17,7 +17,7 @@
 #   [--cycle]         : cycle in current production, default: 01
 #   [--use-valgrind]  : default: off
 #   [--batch-system]  : <PBS, LyonPBS, LSF, slurm, HTCondor, HTCondor_PBS, none>, default: PBS
-#   [--queue]         : default: prod
+#   [--queue]         : default: prod. LyonPBS default: P_gdrnu_genie
 #   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
 #   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/softw/scratch/GENIE/
 #   [--spline-file]   : absoluyte path to xsec_spline_file, default: $softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml
@@ -102,7 +102,11 @@ $arch           = "SL6.x86_64"                  unless defined $arch;
 $production     = "routine_validation"          unless defined $production;
 $cycle          = "01"                          unless defined $cycle;
 $batch_system   = "PBS"                         unless defined $batch_system;
-$queue          = "prod"                        unless defined $queue;
+$queue_default  = "prod" ;
+if ( $batch_system eq 'LyonPBS' ) {
+    $queue_default = "P_gdrnu_genie" ;
+}
+$queue          = $queue_default                unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml" unless defined $xspl_file ;
@@ -111,7 +115,6 @@ $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup $co
 $jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec_validation";
 $mcseed         = 210921029;
 $nev_per_subrun = 100000;
-
 
 # inputs for event generation jobs
 %evg_nupdg_hash = ( 
@@ -247,7 +250,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
          $batch_script = "$filename_template.pbs";
          open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
          print PBS "#!/bin/bash \n";
-         print PBS "#\$ -P P_$ENV{'GROUP'} \n";
+         print PBS "#\$ -P $queue \n";
          print PBS "#\$ -N $jobname \n";
          print PBS "#\$ -o $filename_template.pbsout.log \n";
          print PBS "#\$ -e $filename_template.pbserr.log \n";
@@ -366,7 +369,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
      $batch_script = "$filename_template.pbs";
      open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
      print PBS "#!/bin/bash \n";
-     print PBS "#\$ -P P_$ENV{'GROUP'} \n";
+     print PBS "#\$ -P $queue \n";
      print PBS "#\$ -N $jobname \n";
      print PBS "#\$ -o $filename_template.pbsout.log \n";
      print PBS "#\$ -e $filename_template.pbserr.log \n";

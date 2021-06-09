@@ -12,4 +12,6 @@
 
 #pragma link C++ class genie::UnstableParticleDecayer;
 
+#pragma link C++ class genie::DarkSectorDecayer;
+
 #endif
