@@ -92,7 +92,7 @@ void XSecScaleMap::LoadConfig(void)
       continue ; 
     } 
 
-    const auto algo = fXSecScaleMap[pdg_target] = dynamic_cast<const XSecScaleMap*> ( this->SubAlg( key ) ); 
+    const auto algo = fXSecScaleMap[pdg_target] = dynamic_cast<const XSecScaleI*> ( this->SubAlg( key ) ); 
     if( ! algo ) {
       good_config = false ; 
       LOG("XSecScaleMap", pERROR) << "The subalgorithm " << GetConfig().GetAlg(key).name 
