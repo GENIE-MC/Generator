@@ -39,7 +39,7 @@ double XSecScaleMap::GetScaling( const Interaction & interaction ) const {
   // it retrieves the appropiate scaling.
   // Get Target pdg
   int pdg_target = interaction.InitState().Tgt().Pdg() ;
-  
+
   const auto it = fXSecScaleMap.find(pdg_target) ;
   if ( it != fXSecScaleMap.end() ) {
     return (it -> second)->GetScaling( interaction ) ;
@@ -63,17 +63,18 @@ void XSecScaleMap::LoadConfig(void)
   // Store default value
   static RgKey default_algo_name = "XSecScaleDefaultAlg" ;
   if( GetConfig().Exists(default_algo_name) ) {
-    fXSecScaleDefault = dynamic_cast<const XSecScaleMap *> ( this->SubAlg(default_algo_name) );
+    fXSecScaleDefault = dynamic_cast<const XSecScaleI *> ( this->SubAlg(default_algo_name) );
     if( !fXSecScaleDefault ) {
       good_config = false ; 
-      LOG("XSecScaleMap", pERROR) << "The subalgorithm with ID " << SubAlg(default_algo_name)->Id() << " couldn't be casted " ;
+      LOG("XSecScaleMap", pERROR) << "The subalgorithm with ID  couldn't be casted " ; 
+      // << SubAlg(default_algo_name)->Id() << " couldn't be casted " ;
     }  
-  } 
-  
- 
+
+  }
+   
   // Get possible entries to pdg - shift map 
   auto kpdg_list = GetConfig().FindKeys("XSecScaleAlg@Pdg=") ;
-
+  
   for( auto kiter = kpdg_list.begin(); kiter != kpdg_list.end(); ++kiter ) {
     const RgKey & key = *kiter ;
     vector<string> kv = genie::utils::str::Split(key,"=");
