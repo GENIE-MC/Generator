@@ -27,13 +27,13 @@ XSecScaleI::~XSecScaleI()
 //_________________________________________________________________________
 void XSecScaleI::Configure(const Registry & config)
 {
-  this->LoadConfig(); 
   Algorithm::Configure(config);
+  this->LoadConfig(); 
 }
 //____________________________________________________________________________
 void XSecScaleI::Configure(string config)
 {
-  this->LoadConfig(); 
   Algorithm::Configure(config);
+  this->LoadConfig(); 
 }
 //_________________________________________________________________________
