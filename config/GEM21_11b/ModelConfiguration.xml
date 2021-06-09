@@ -72,6 +72,10 @@ STFC, Rutherford Appleton Laboratory
 
   <param type="alg" name="XSecModel@genie::EventGenerator/MEC-EM">         genie::SuSAv2MECPXSec/Default </param>
 
+  <!-- this is required for the proper configuration of the DIS model -->
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC-CHARM">   genie::AivazisCharmPXSecLO/CC-Default </param>
+
+
  </param_set>
 
 </global_param_list>
