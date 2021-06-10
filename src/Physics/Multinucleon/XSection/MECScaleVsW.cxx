@@ -44,7 +44,7 @@ double MECScaleVsW::GetScaling( const Interaction & interaction ) const
 double MECScaleVsW::GetScaling( const double Q0, const double Q3 ) const
 {
   // Get the vectors that include the kinematic limits of W for a given event:
-  weight_type_map weight_map = GetMapWithLimits( Q0, Q3 ) ;
+  MECScaleVsW::weight_type_map weight_map = GetMapWithLimits( Q0, Q3 ) ;
   
   // The Scaling is done using the "experimenter's W", which assumes a single nucleon
   // See motivation in : https://arxiv.org/pdf/1601.02038.pdf
@@ -53,11 +53,11 @@ double MECScaleVsW::GetScaling( const double Q0, const double Q3 ) const
   double W = sqrt( pow(Mn,2) + 2*Mn*Q0 - pow(Q3,2) + pow(Q0,2) ) ;
 
   // Calculate scaling:
-  int step = ( weight_map.size() -1 ) / 2 ;
-  weight_type_map::iterator it = std::next( weight_map.begin(), step ) ; 
+  unsigned int step = ( weight_map.size() -1 ) / 2 ;
+  MECScaleVsW::weight_type_map::iterator it = std::next( weight_map.begin(), step ) ; 
   
   while ( step < weight_map.size() && step > 1 ) {
-    weight_type_map::iterator it_next = std::next( it ) ; 
+    MECScaleVsW::weight_type_map::iterator it_next = std::next( it ) ; 
     if( W > it -> first ) {
       if( W < it_next -> first ) {
 	return ScaleFunction( W, *it, *it_next ) ;  
@@ -75,7 +75,7 @@ double MECScaleVsW::GetScaling( const double Q0, const double Q3 ) const
 } 
 
 //_________________________________________________________________________
-weight_type_map MECScaleVsW::GetMapWithLimits( double Q0, double Q3 ) const {
+MECScaleVsW::weight_type_map MECScaleVsW::GetMapWithLimits( double Q0, double Q3 ) const {
   // This function is responsible to add the phase space limits in the WValues vector in case they are not included
   // in the configuration setup.
 
@@ -84,7 +84,7 @@ weight_type_map MECScaleVsW::GetMapWithLimits( double Q0, double Q3 ) const {
   double W_max = sqrt( pow(Mn,2) + 2*Mn*Q0 ) ; // Imposing Q2 = 0 
 
   // Insert phase space limits:
-  weight_type_map w_map = fWeightsMap ; 
+  MECScaleVsW::weight_type_map w_map = fWeightsMap ; 
   w_map.insert( weight_type_pair( W_max, fDefaultWeight ) ) ;
   w_map.insert( weight_type_pair( W_min, fDefaultWeight ) ) ;
 
@@ -163,7 +163,7 @@ void MECScaleVsW::LoadConfig(void)
     exit(78) ;
   }
 
-  fW1_Q0Q3_limits = TSpline3("fW1_Q0Q3_limits",std::vector::data(&limit_Q3),std::vector::data(limit_Q0),limit_Q3.size()); 
+  fW1_Q0Q3_limits = TSpline3("fW1_Q0Q3_limits",limit_Q3.data(),limit_Q0.data(),limit_Q3.size()); 
 
 }
 
