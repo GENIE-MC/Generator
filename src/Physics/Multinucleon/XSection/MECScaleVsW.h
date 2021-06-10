@@ -22,13 +22,13 @@
 #include "Physics/Common/XSecScaleI.h"
 #include <TSpline.h>
 
-using weight_type_map = std::map<double,double> ;
-using weight_type_pair = std::pair<double,double> ;
-
 namespace genie {
   
   class MECScaleVsW: public XSecScaleI {
-    
+
+    using weight_type_map = std::map<double,double> ;
+    using weight_type_pair = std::pair<double,double> ;
+
   public:
     MECScaleVsW();
     MECScaleVsW(string config);
@@ -55,7 +55,7 @@ namespace genie {
  private: 
     double fDefaultWeight ; 
     weight_type_map fWeightsMap ;
-    // Adding optional Spline to handle the limits of W1:
+    // Adding Spline to handle the limits of W1:
     TSpline3 fW1_Q0Q3_limits ; 
 
   };

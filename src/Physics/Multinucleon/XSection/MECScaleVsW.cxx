@@ -163,7 +163,7 @@ void MECScaleVsW::LoadConfig(void)
     exit(78) ;
   }
 
-  fW1_Q0Q3_limits = TSpline3("fW1_Q0Q3_limits",&limit_Q3[0],&limit_Q0[0],limit_Q3.size()); 
+  fW1_Q0Q3_limits = TSpline3("fW1_Q0Q3_limits",std::vector::data(&limit_Q3),std::vector::data(limit_Q0),limit_Q3.size()); 
 
 }
 
