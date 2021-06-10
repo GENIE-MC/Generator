@@ -106,7 +106,6 @@ void MECScaleVsW::LoadConfig(void)
   bool good_config = true ; 
   // Reset members
   fWeightsMap.clear(); 
-  fW1_Q0Q3_limits = nullptr ; 
 
   std::vector<double> Weights, WValues ;
   GetParam( "MECScaleVsW-Default-Weight", fDefaultWeight ) ;
