@@ -50,15 +50,25 @@ double MECScaleVsW::GetScaling( const double Q0, const double Q3 ) const
   // See motivation in : https://arxiv.org/pdf/1601.02038.pdf
   // Calculate event W:
   static double Mn = ( PDGLibrary::Instance()->Find(kPdgProton)->Mass() + PDGLibrary::Instance()->Find(kPdgNeutron)->Mass() ) * 0.5 ;  // Nucleon mass
-  double W = sqrt( pow(Mn,2) + 2*Mn*Q0 - pow(Q0,2) + pow(Q0,2) ) ;
+  double W = sqrt( pow(Mn,2) + 2*Mn*Q0 - pow(Q3,2) + pow(Q0,2) ) ;
 
   // Calculate scaling:
-  weight_type_map::iterator W_min, W_max ; 
-  W_min = weight_map.lower_bound( W ) ;
- 
-  if( W_min != weight_map.end() ) {
-    W_max = std::next( W_min ) ;
-    return ScaleFunction( W, *W_min, *W_max ) ; 
+  int step = ( weight_map.size() -1 ) / 2 ;
+  weight_type_map::iterator it = std::next( weight_map.begin(), step ) ; 
+  
+  while ( step < weight_map.size() && step > 1 ) {
+    weight_type_map::iterator it_next = std::next( it ) ; 
+    if( W > it -> first ) {
+      if( W < it_next -> first ) {
+	return ScaleFunction( W, *it, *it_next ) ;  
+      } else { 
+	step += step / 2 ; 
+	it = std::next( weight_map.begin(), step  ) ; 
+      }
+    } else {
+      step -= step / 2 ; 
+      it = std::next( weight_map.begin(), step  ) ; 
+    }
   }
 
   return 1. ; 
@@ -72,7 +82,7 @@ weight_type_map MECScaleVsW::GetMapWithLimits( double Q0, double Q3 ) const {
   static double Mn = ( PDGLibrary::Instance()->Find(kPdgProton)->Mass() + PDGLibrary::Instance()->Find(kPdgNeutron)->Mass() ) * 0.5 ;  // Nucleon mass
   double W_min = sqrt( pow(Mn,2) + 2*Mn*fW1_Q0Q3_limits.Eval(Q3) - pow(Q3,2) + pow(fW1_Q0Q3_limits.Eval(Q3),2) ) ;
   double W_max = sqrt( pow(Mn,2) + 2*Mn*Q0 ) ; // Imposing Q2 = 0 
-  
+
   // Insert phase space limits:
   weight_type_map w_map = fWeightsMap ; 
   w_map.insert( weight_type_pair( W_max, fDefaultWeight ) ) ;
@@ -92,7 +102,7 @@ double MECScaleVsW::ScaleFunction( double W, weight_type_pair min, weight_type_p
   // Get scale coeficients at W_min and W_max:
   double scale_min = min.second ; 
   double scale_max = max.second ; 
-  
+
   double scale = ( scale_min - scale_max ) * ( W - W_min ) / ( W_min - W_max ) + scale_min ; 
 
   return scale ; 
@@ -107,11 +117,17 @@ void MECScaleVsW::LoadConfig(void)
   // Reset members
   fWeightsMap.clear(); 
 
-  std::vector<double> Weights, WValues ;
-  GetParam( "MECScaleVsW-Default-Weight", fDefaultWeight ) ;
-  GetParamVect( "MECScaleVsW-Weights", Weights ) ; 
-  GetParamVect( "MECScaleVsW-WValues", WValues ) ; 
+  if( GetConfig().Exists("MECScaleVsW-Default-Weight") ) {
+    GetParam( "MECScaleVsW-Default-Weight", fDefaultWeight ) ;
+  } else {
+    good_config = false ; 
+    LOG("MECScaleVsW", pERROR) << "Default weight is not specified " ;
+  }
 
+  std::vector<double> Weights, WValues ;
+  GetParamVect( "MECScaleVsW-Weights", Weights, false ) ; 
+  GetParamVect( "MECScaleVsW-WValues", WValues, false ) ; 
+  
   if( Weights.size() != WValues.size() ) {
     good_config = false ; 
     LOG("MECScaleVsW", pERROR) << "Entries don't match" ;
@@ -123,22 +139,18 @@ void MECScaleVsW::LoadConfig(void)
   for( unsigned int i = 0 ; i<Weights.size() ; ++i ) {
     fWeightsMap.insert( weight_type_pair( WValues[i], Weights[i] ) ) ;
   }
-
+  
   std::vector<double> limit_Q0, limit_Q3 ;
-  if( GetConfig().Exists("MECScaleVsW-LowerLimitQ0") ) {
-    GetParamVect( "MECScaleVsW-LowerLimitQ0", limit_Q0 ) ;
-  } else {
+  if( GetParamVect( "MECScaleVsW-LowerLimitQ0", limit_Q0 ) == 0 ) {
     good_config = false ; 
-    LOG("MECScaleVsW", pERROR) << "Lower limit of the phase space for Q0 is not specified" ;
+    LOG("MECScaleVsW", pERROR) << "MECScaleVsW-LowerLimitQ0 is empty" ;
   }
 
-  if( GetConfig().Exists("MECScaleVsW-LowerLimitQ3") ) {
-    GetParamVect( "MECScaleVsW-LowerLimitQ0", limit_Q3 ) ;
-  } else {
+  if( GetParamVect( "MECScaleVsW-LowerLimitQ3", limit_Q3 ) == 0 ) {
     good_config = false ; 
-    LOG("MECScaleVsW", pERROR) << "Lower limit of the phase space for Q3 is not specified" ;
+    LOG("MECScaleVsW", pERROR) << "MECScaleVsW-LowerLimitQ3 is empty" ;
   }
-
+  
   if( limit_Q0.size() != limit_Q3.size() ) {
     good_config = false ; 
     LOG("MECScaleVsW", pERROR) << "Entries don't match" ;
@@ -146,12 +158,12 @@ void MECScaleVsW::LoadConfig(void)
     LOG("MECScaleVsW", pERROR) << "Lower limit for Q3 size: " << limit_Q3.size() ;
   }
 
-  fW1_Q0Q3_limits = TSpline3("fW1_Q0Q3_limits",&limit_Q0[0],&limit_Q3[0],limit_Q0.size());
-  
   if( ! good_config ) {
     LOG("MECScaleVsW", pERROR) << "Configuration has failed.";
     exit(78) ;
   }
+
+  fW1_Q0Q3_limits = TSpline3("fW1_Q0Q3_limits",&limit_Q3[0],&limit_Q0[0],limit_Q3.size()); 
 
 }
 
