@@ -25,7 +25,7 @@ MECScaleVsW-WValues          vec-double   Yes        Vector of W values         
 
   <param_set name="MECScaleNieves">
     <param type="vec-double" name="MECScaleVsW-Weights" delim=";"> 1.; 1.; 1. </param> <!-- These are the weights at Mn, Mdip, Mdelta -->
-    <param type="vec-double" name="MECScaleVsW-Weights" delim=";"> 0.938; 1.12; 1.232 </param> <!-- These are the Wvalues at Mn, Mdip, Mdelta -->
+    <param type="vec-double" name="MECScaleVsW-WValues" delim=";"> 0.938; 1.12; 1.232 </param> <!-- These are the Wvalues at Mn, Mdip, Mdelta -->
   </param_set>
 
 </alg_conf>
