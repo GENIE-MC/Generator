@@ -21,6 +21,7 @@
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Multinucleon/XSection/MECXSec.h"
+#include "Physics/Multinucleon/XSection/MECUtils.h"
 #include "Framework/Numerical/Spline.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
@@ -169,6 +170,15 @@ double genie::utils::gsl::d2Xsec_dTCosth::DoEval(const double * xin) const
   Kinematics * kinematics = fInteraction->KinePtr();
   kinematics->SetKV(kKVTl, T);
   kinematics->SetKV(kKVctl, costh);
+
+  double Enu = fInteraction->InitState().ProbeE(kRfHitNucRest);
+  double LepMass = fInteraction->FSPrimLepton()->Mass();
+  double Q0 = 0 ;
+  double Q3 = 0 ; 
+  genie::utils::mec::Getq0q3FromTlCostl(T, costh, Enu, LepMass, Q0, Q3);
+
+  kinematics ->SetKV(kKVQ0, Q0) ; 
+  kinematics ->SetKV(kKVQ3, Q3) ; 
 
   double xsec = fModel->XSec(fInteraction, kPSTlctl);
   return xsec;
