@@ -53,9 +53,20 @@ double MECScaleVsW::GetScaling( const double Q0, const double Q3 ) const
   double W = sqrt( pow(Mn,2) + 2*Mn*Q0 - pow(Q3,2) + pow(Q0,2) ) ;
 
   // Calculate scaling:
-  unsigned int step = ( weight_map.size() -1 ) / 2 ;
-  MECScaleVsW::weight_type_map::iterator it = std::next( weight_map.begin(), step ) ; 
-  
+  MECScaleVsW::weight_type_map::iterator it_min = weight_map.begin() ; 
+  MECScaleVsW::weight_type_map::iterator it_max = weight_map.end() ; 
+
+  if ( W < it_min->first || W > it_max->first ) return fDefaultWeight ; 
+
+  while ( std::distance( it_min, it_max ) > 1 ) {
+    unsigned int step = ( weight_map.size() - 1 ) / 2 ;
+    MECScaleVsW::weight_type_map::iterator it_middle = std::next( weight_map.begin(), step ) ; 
+    
+    if ( W < it_middle->first ) it_max = it_middle ; 
+    else it_min = it_middle ; 
+  }
+
+  /*
   while ( step < weight_map.size() && step > 1 ) {
     MECScaleVsW::weight_type_map::iterator it_next = std::next( it ) ; 
     if( W > it -> first ) {
@@ -70,8 +81,9 @@ double MECScaleVsW::GetScaling( const double Q0, const double Q3 ) const
       it = std::next( weight_map.begin(), step  ) ; 
     }
   }
+  */
 
-  return 1. ; 
+  return ScaleFunction( W, *it_min, *it_max ) ; 
 } 
 
 //_________________________________________________________________________
@@ -96,16 +108,8 @@ double MECScaleVsW::ScaleFunction( double W, weight_type_pair min, weight_type_p
 {
   // This function is responsible to calculate the scale at a given W
   // It interpolates the value between scale_min (W_min) and scale_max (W_max) linearly 
-  // Get Wpoints from pair:
-  double W_min = min.first ; 
-  double W_max = max.first ; 
-  // Get scale coeficients at W_min and W_max:
-  double scale_min = min.second ; 
-  double scale_max = max.second ; 
 
-  double scale = ( scale_min - scale_max ) * ( W - W_min ) / ( W_min - W_max ) + scale_min ; 
-
-  return scale ; 
+  return ( max.second - min.second ) * ( W - min.first ) / ( max.first - min.first ) + min.second ; 
 
 } 
 
@@ -164,7 +168,7 @@ void MECScaleVsW::LoadConfig(void)
   }
 
   fW1_Q0Q3_limits = TSpline3("fW1_Q0Q3_limits",limit_Q3.data(),limit_Q0.data(),limit_Q3.size()); 
-
+  
 }
 
 //_________________________________________________________________________
