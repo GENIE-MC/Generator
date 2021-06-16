@@ -180,6 +180,16 @@
   <priority msgstream="XSecBase">              NOTICE </priority>
   <priority msgstream="XSecAlgMap">            NOTICE </priority>
   <priority msgstream="XSecSplLst">            NOTICE </priority>
+  <priority msgstream="GLRESXSec">             WARN   </priority>
+  <priority msgstream="GLRESPXSec">            WARN   </priority>
+  <priority msgstream="GLRESGenerator">        WARN   </priority>
+  <priority msgstream="GLRESKinematics">       WARN   </priority>
+  <priority msgstream="HEDISXSec">             WARN   </priority>
+  <priority msgstream="HEDISPXSec">            WARN   </priority>
+  <priority msgstream="HEDISGenerator">        WARN   </priority>
+  <priority msgstream="HEDISKinematics">       WARN   </priority>
+  <priority msgstream="HEDISStrucFunc">        WARN    </priority>
+  <priority msgstream="LeptoHad">              ERROR  </priority>
 
   <priority msgstream="gevgen">                NOTICE </priority>
   <priority msgstream="gevgen_ndcy">           NOTICE </priority>
@@ -193,5 +203,6 @@
   <priority msgstream="gtune">                 INFO   </priority>
   <priority msgstream="gntpc">                 INFO   </priority>
   <priority msgstream="gmkspl">                INFO   </priority>
+  <priority msgstream="gcalchedisdiffxsec">    INFO   </priority>
 
 </messenger_config>
