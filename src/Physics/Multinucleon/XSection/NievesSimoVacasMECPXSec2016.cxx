@@ -284,9 +284,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
   // Apply given scaling factor
   xsec *= fXSecScale;
 
-  if( fMECScaleAlg ) 
-    xsec *= fMECScaleAlg->GetScaling( * interaction ) ;
-  
+  if( fMECScaleAlg ) xsec *= fMECScaleAlg->GetScaling( * interaction ) ;
+
   if ( kps != kPSTlctl ) {
     LOG("NievesSimoVacasMEC", pWARN)
       << "Doesn't support transformation from "

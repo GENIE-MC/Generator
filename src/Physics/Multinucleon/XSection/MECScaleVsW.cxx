@@ -37,7 +37,7 @@ double MECScaleVsW::GetScaling( const Interaction & interaction ) const
 {
   double Q0 = interaction.Kine().GetKV(kKVQ0) ; 
   double Q3 = interaction.Kine().GetKV(kKVQ3) ; 
-
+  
   return GetScaling( Q0, Q3 ) ; 
 }
 //_________________________________________________________________________
