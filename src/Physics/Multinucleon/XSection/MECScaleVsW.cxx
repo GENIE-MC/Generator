@@ -55,33 +55,16 @@ double MECScaleVsW::GetScaling( const double Q0, const double Q3 ) const
   // Calculate scaling:
   MECScaleVsW::weight_type_map::iterator it_min = weight_map.begin() ; 
   MECScaleVsW::weight_type_map::iterator it_max = weight_map.end() ; 
-
   if ( W < it_min->first || W > it_max->first ) return fDefaultWeight ; 
 
+  //  std::cout << " Q0 = " << Q0 << " Q3 = "<< Q3 <<"  W = " << W << " Mn = " << Mn << " pow(Mn,2) + 2*Mn*Q0 - pow(Q3,2) + pow(Q0,2) = " << pow(Mn,2) + 2*Mn*Q0 - pow(Q3,2) + pow(Q0,2) <<  std::endl; 
+  
   while ( std::distance( it_min, it_max ) > 1 ) {
-    unsigned int step = ( weight_map.size() - 1 ) / 2 ;
+    unsigned int step = std::distance( weight_map.begin(), it_min ) + std::distance( it_min, it_max ) / 2 ; 
     MECScaleVsW::weight_type_map::iterator it_middle = std::next( weight_map.begin(), step ) ; 
-    
     if ( W < it_middle->first ) it_max = it_middle ; 
     else it_min = it_middle ; 
   }
-
-  /*
-  while ( step < weight_map.size() && step > 1 ) {
-    MECScaleVsW::weight_type_map::iterator it_next = std::next( it ) ; 
-    if( W > it -> first ) {
-      if( W < it_next -> first ) {
-	return ScaleFunction( W, *it, *it_next ) ;  
-      } else { 
-	step += step / 2 ; 
-	it = std::next( weight_map.begin(), step  ) ; 
-      }
-    } else {
-      step -= step / 2 ; 
-      it = std::next( weight_map.begin(), step  ) ; 
-    }
-  }
-  */
 
   return ScaleFunction( W, *it_min, *it_max ) ; 
 } 
