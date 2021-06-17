@@ -692,7 +692,7 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
       Plep = TMath::Sqrt( T * (T + (2.0 * LepMass)));  // ok is sqrt(E2 - m2)
 
       genie::utils::mec::Getq0q3FromTlCostl(T, Costh, Enu, LepMass, Q0, Q3);
-      
+
       // Don't bother doing hard work if the selected Q3 is greater than Q3Max
       if (Q3 < fQ3Max){
 	
@@ -858,7 +858,6 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 
   // -- Store Values ------------------------------------------//
   // -- Interaction: Q2
-  Q0 = Enu - Elep;
   Q2 = Q3*Q3 - Q0*Q0;
   double gy = Q0 / Enu;
   double gx = kinematics::Q2YtoX(Enu, 2 * kNucleonMass, Q2, gy);
