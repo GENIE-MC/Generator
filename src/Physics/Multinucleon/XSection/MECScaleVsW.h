@@ -46,18 +46,17 @@ namespace genie {
     virtual double GetScaling( const double Q0, const double Q3 ) const ; 
 
     // This function adds the limits of the phase space if they are not set by the user
-    weight_type_map GetMapWithLimits( double Q0, double Q3 ) const ;
+    weight_type_map GetMapWithLimits( const double Q0, const double Q3 ) const ;
 
     // Thist function calculates the scale factor value at W as a linear interpolation
     // between two W values (Wmin,Wmax) with weights (scale_min,scale_max).
-    virtual double ScaleFunction( double W, weight_type_pair min, weight_type_pair max ) const ;
+    virtual double ScaleFunction( const double W, const weight_type_pair min, const weight_type_pair max ) const ;
 
  private: 
     double fDefaultWeight ; 
     weight_type_map fWeightsMap ;
     // Adding Spline to handle the limits of W1:
     TSpline3 fW1_Q0Q3_limits ; 
-
   };
   
 }       // genie namespace

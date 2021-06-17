@@ -45,20 +45,24 @@ double MECScaleVsW::GetScaling( const double Q0, const double Q3 ) const
 {
   // Get the vectors that include the kinematic limits of W for a given event:
   MECScaleVsW::weight_type_map weight_map = GetMapWithLimits( Q0, Q3 ) ;
-  
+    
   // The Scaling is done using the "experimenter's W", which assumes a single nucleon
   // See motivation in : https://arxiv.org/pdf/1601.02038.pdf
   // Calculate event W:
   static double Mn = ( PDGLibrary::Instance()->Find(kPdgProton)->Mass() + PDGLibrary::Instance()->Find(kPdgNeutron)->Mass() ) * 0.5 ;  // Nucleon mass
-  double W = sqrt( pow(Mn,2) + 2*Mn*Q0 - pow(Q3,2) + pow(Q0,2) ) ;
+  double W = pow(Mn,2) + 2*Mn*Q0 - pow(Q3,2) + pow(Q0,2) ;
+  // Do not scale if W<0. This can happen while we try to get the correct kinematics.
+  // If the kinematics is not correct, W can be negative, and we scale with a nan.
+  // To avoid this we do this check.
+  if ( W < 0 ) return fDefaultWeight ; 
+  W = sqrt( W ) ; 
 
   // Calculate scaling:
   MECScaleVsW::weight_type_map::iterator it_min = weight_map.begin() ; 
-  MECScaleVsW::weight_type_map::iterator it_max = weight_map.end() ; 
+  MECScaleVsW::weight_type_map::iterator it_max = std::next( weight_map.begin(), weight_map.size() -1 ) ; 
+
   if ( W < it_min->first || W > it_max->first ) return fDefaultWeight ; 
 
-  //  std::cout << " Q0 = " << Q0 << " Q3 = "<< Q3 <<"  W = " << W << " Mn = " << Mn << " pow(Mn,2) + 2*Mn*Q0 - pow(Q3,2) + pow(Q0,2) = " << pow(Mn,2) + 2*Mn*Q0 - pow(Q3,2) + pow(Q0,2) <<  std::endl; 
-  
   while ( std::distance( it_min, it_max ) > 1 ) {
     unsigned int step = std::distance( weight_map.begin(), it_min ) + std::distance( it_min, it_max ) / 2 ; 
     MECScaleVsW::weight_type_map::iterator it_middle = std::next( weight_map.begin(), step ) ; 
@@ -70,7 +74,7 @@ double MECScaleVsW::GetScaling( const double Q0, const double Q3 ) const
 } 
 
 //_________________________________________________________________________
-MECScaleVsW::weight_type_map MECScaleVsW::GetMapWithLimits( double Q0, double Q3 ) const {
+MECScaleVsW::weight_type_map MECScaleVsW::GetMapWithLimits( const double Q0, const double Q3 ) const {
   // This function is responsible to add the phase space limits in the WValues vector in case they are not included
   // in the configuration setup.
 
@@ -87,13 +91,11 @@ MECScaleVsW::weight_type_map MECScaleVsW::GetMapWithLimits( double Q0, double Q3
 } 
 //_________________________________________________________________________
     
-double MECScaleVsW::ScaleFunction( double W, weight_type_pair min, weight_type_pair max ) const 
+double MECScaleVsW::ScaleFunction( const double W, const weight_type_pair min, const weight_type_pair max ) const 
 {
   // This function is responsible to calculate the scale at a given W
   // It interpolates the value between scale_min (W_min) and scale_max (W_max) linearly 
-
   return ( max.second - min.second ) * ( W - min.first ) / ( max.first - min.first ) + min.second ; 
-
 } 
 
 //_________________________________________________________________________
