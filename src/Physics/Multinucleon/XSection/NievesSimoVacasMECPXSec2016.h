@@ -31,6 +31,7 @@
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/HadronTensors/HadronTensorModelI.h"
+#include "Physics/Common/XSecScaleI.h"
 
 namespace genie {
 
@@ -63,6 +64,8 @@ private:
   const HadronTensorModelI* fHadronTensorModel;
 
   const XSecIntegratorI *  fXSecIntegrator; // Numerical integrator (GSL)
+
+  const XSecScaleI * fMECScaleAlg ; // Optional algorithm to scale the xsec as a function of W
 
 };
 

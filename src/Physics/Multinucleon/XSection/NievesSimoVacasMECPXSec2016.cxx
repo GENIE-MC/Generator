@@ -284,6 +284,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
   // Apply given scaling factor
   xsec *= fXSecScale;
 
+  if( fMECScaleAlg ) xsec *= fMECScaleAlg->GetScaling( * interaction ) ;
+
   if ( kps != kPSTlctl ) {
     LOG("NievesSimoVacasMEC", pWARN)
       << "Doesn't support transformation from "
@@ -339,4 +341,21 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
         dynamic_cast<const XSecIntegratorI *> (
           this->SubAlg("NumericalIntegrationAlg"));
         assert(fXSecIntegrator);
+
+	bool good_config = true ; 
+	// Read optional MECScaleVsW:
+	fMECScaleAlg = nullptr; 
+	if( GetConfig().Exists("MECScaleAlg") ) {
+	  fMECScaleAlg = dynamic_cast<const XSecScaleI *> ( this->SubAlg("MECScaleAlg") );
+	  if( !fMECScaleAlg ) {
+	    good_config = false ; 
+	    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required MECScaleAlg cannot be casted. AlgID is : " << SubAlg("MECScaleAlg")->Id() ;
+	  }
+	}
+	
+	if( ! good_config ) {
+	  LOG("NievesSimoVacasMECPXSec2016", pERROR) << "Configuration has failed.";
+	  exit(78) ;
+	}
+
 }
