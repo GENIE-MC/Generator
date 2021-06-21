@@ -4,6 +4,7 @@
 \class    genie::XSecLinearCombinations
 
 \brief    Computes the xsec as a linear combination of different XSecSlgorithmI
+          See GENIE docdb 252
 
 \author   Code contributed by J.Tena Vidal and M.Roda
 
