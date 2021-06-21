@@ -3,6 +3,7 @@
 <alg_conf>
 <!--
 Configuration for the XSec LinearCombination 
+GENIE docdb 252
 Configurable Parameters:
 ......................................................................................................................
 Name                   Type     Optional   Comment                                       Default
