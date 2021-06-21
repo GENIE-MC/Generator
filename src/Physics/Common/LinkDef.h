@@ -19,6 +19,6 @@
 #pragma link C++ class genie::HadronicSystemGenerator;
 #pragma link C++ class genie::KineGeneratorWithCache;
 #pragma link C++ class genie::XSecLinearCombinations;
-
+#pragma link C++ class genie::QvalueShifter;
 
 #endif

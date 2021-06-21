@@ -205,6 +205,9 @@ genie::QELEvGen_BindingMode_t genie::utils::StringToQELBindingMode(
   else if ( binding_mode == "OnShell" ) {
     return kOnShell;
   }
+  else if ( binding_mode == "ValenciaStyleQValue" ) {
+    return kValenciaStyleQValue;
+  }
   else {
     LOG("QELEvent", pFATAL) << "Unrecognized setting \"" << binding_mode
       << "\" requested in genie::utils::StringToQELBindingMode()";
@@ -311,6 +314,98 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
       // Deduce the binding energy from the final nucleus mass
       Eb = Mf - Mi + mNi;
     }
+    // A third option is to assign the binding energy and final nuclear
+    // mass in a way that is equivalent to the original Valencia model
+    // treatment
+    else if ( hitNucleonBindingMode == genie::kValenciaStyleQValue ) {
+      // Compute the Q-value needed for the ground-state-to-ground-state
+      // transition without nucleon removal (see Sec. III B of
+      // https://arxiv.org/abs/nucl-th/0408005). Note that this will be
+      // zero for NC and EM scattering since the proton and nucleon numbers
+      // are unchanged. Also get Q_LFG, the difference in Fermi energies
+      // between the final and initial struck nucleon species. This will
+      // likewise be zero for NC and EM interactions.
+      const genie::ProcessInfo& info = interaction.ProcInfo();
+      double Qvalue = 0.;
+      double Q_LFG = 0.;
+      if ( info.IsWeakCC() ) {
+        // Without nucleon removal, the final nucleon number remains the same
+        int Af = tgt->A();
+        // For CC interactions, the proton number will change by one. Choose
+        // the right change by checking whether we're working with a neutrino
+        // or an antineutrino.
+        int Zf = tgt->Z();
+        int probe_pdg = interaction.InitState().ProbePdg();
+        if ( genie::pdg::IsAntiNeutrino(probe_pdg) ) {
+          --Zf;
+        }
+        else if ( genie::pdg::IsNeutrino(probe_pdg) ) {
+          ++Zf;
+        }
+        else {
+          LOG( "QELEvent", pFATAL ) << "Unhandled probe PDG code " << probe_pdg
+            << " encountered for a CC interaction in"
+            << " genie::utils::BindHitNucleon()";
+          gAbortingInErr = true;
+          std::exit( 1 );
+        }
+
+        // We have what we need to get the Q-value. Get the final nuclear
+        // mass (without nucleon removal)
+        double mf_keep_nucleon = genie::PDGLibrary::Instance()
+          ->Find( genie::pdg::IonPdgCode(Af, Zf) )->Mass();
+
+        Qvalue = mf_keep_nucleon - Mi;
+
+        // Get the Fermi energies for the initial and final nucleons. Include
+        // the radial dependence if using the LFG.
+        double hit_nucleon_radius = tgt->HitNucPosition();
+
+        // Average of the proton and neutron masses. It may actually be better
+        // to use the exact on-shell masses here. However, the original paper
+        // uses the same value for protons and neutrons when computing the
+        // difference in Fermi energies. For consistency with the Valencia
+        // model publication, I'll do the same.
+        const double mN = genie::constants::kNucleonMass;
+
+        double kF_Ni = nucl_model.LocalFermiMomentum( *tgt,
+          tgt->HitNucPdg(), hit_nucleon_radius );
+        double EFermi_Ni = std::sqrt( std::max(0., mN*mN + kF_Ni*kF_Ni) );
+
+        double kF_Nf = nucl_model.LocalFermiMomentum( *tgt,
+          interaction.RecoilNucleonPdg(), hit_nucleon_radius );
+        // (On-shell) final nucleon mass
+        //double mNf = interaction.RecoilNucleon()->Mass();
+        double EFermi_Nf = std::sqrt( std::max(0., mN*mN + kF_Nf*kF_Nf) );
+
+        // The difference in Fermi energies is Q_LFG
+        Q_LFG = EFermi_Nf - EFermi_Ni;
+      }
+      // Fail here for interactions that aren't one of EM/NC/CC. This is
+      // intended to help avoid silently doing the wrong thing in the future.
+      else if ( !info.IsEM() && !info.IsWeakNC() ) {
+        LOG( "QELEvent", pFATAL ) << "Unhandled process type \"" << info
+          << "\" encountered in genie::utils::BindHitNucleon()";
+        gAbortingInErr = true;
+        std::exit( 1 );
+      }
+
+      // On-shell total energy of the initial struck nucleon
+      double ENi_OnShell = std::sqrt( std::max(0., mNi*mNi + p3Ni.Mag2()) );
+
+      // Total energy of the remnant nucleus (with the hit nucleon removed)
+      double Ef = Mi - ENi_OnShell + Qvalue - Q_LFG;
+
+      // Mass and kinetic energy of the remnant nucleus (with the hit nucleon
+      // removed)
+      Mf = std::sqrt( std::max(0., Ef*Ef - p3Ni.Mag2()) );
+
+      // Deduce the binding energy from the final nucleus mass
+      Eb = Mf - Mi + mNi;
+
+      LOG( "QELEvent", pDEBUG ) << "Qvalue = " << Qvalue
+        << ", Q_LFG = " << Q_LFG << " at radius = " << tgt->HitNucPosition();
+    }
 
     // The (lab-frame) off-shell initial nucleon energy is the difference
     // between the lab frame total energies of the initial and remnant nuclei
@@ -329,6 +424,9 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
     // models (an on-shell nucleon *is* a free nucleon)
     if ( tgt->IsNucleus() ) interaction.SetBit( kIAssumeFreeNucleon );
   }
+
+  LOG( "QELEvent", pDEBUG ) << "Eb = " << Eb << ", pNi = " << p3Ni.Mag()
+    << ", ENi = " << ENi;
 
   // Update the initial nucleon lab-frame 4-momentum in the interaction with
   // its current components

@@ -161,6 +161,7 @@
    <config alg="genie::DMDISXSec">                   DMDISXSec.xml                   </config>
    <config alg="genie::GLRESXSec">                   GLRESXSec.xml                   </config>
    <config alg="genie::HEDISXSec">                   HEDISXSec.xml                   </config>
+   <config alg="genie::BostedChristyEMPXSec">        BostedChristyEMPXSec.xml        </config>
 
    <!--  ****** CONFIGURATION FOR XSEC ALGORITHMS ****** -->
    <config alg="genie::AhrensNCELPXSec">                    AhrensNCELPXSec.xml                    </config>
@@ -211,6 +212,7 @@
    <config alg="genie::HybridXSecAlgorithm">                HybridXSecAlgorithm.xml                </config>
    <config alg="genie::HEDISPXSec">                         HEDISPXSec.xml                         </config>
    <config alg="genie::XSecLinearCombinations">             XSecLinearCombinations.xml             </config>
+   <config alg="genie::QvalueShifter">                      QvalueShifter.xml                      </config>
 
    <!--  ****** CONFIGURATION FOR NUCLEAR ENV. ALGORITHMS ****** -->
    <config alg="genie::NuclearModelMap">             NuclearModelMap.xml             </config>

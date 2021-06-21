@@ -170,6 +170,9 @@ double NievesSimoVacasMECPXSec2016::XSec(
   int nu_pdg = interaction->InitState().ProbePdg();
   double Q_value = genie::utils::mec::Qvalue(target_pdg, nu_pdg);
 
+  // Apply Qvalue relative shift if needed:
+  if( fQvalueShifter ) Q_value += Q_value * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
+
   // By default, we will compute the full cross-section. If a resonance is
   // set, we will calculate the part of the cross-section with an internal
   // Delta line without a final state pion (usually called PPD for pioness
@@ -328,15 +331,36 @@ void NievesSimoVacasMECPXSec2016::Configure(string config)
 //_________________________________________________________________________
 void NievesSimoVacasMECPXSec2016::LoadConfig(void)
 {
-	// Cross section scaling factor
-	GetParam( "MEC-CC-XSecScale", fXSecScale ) ;
+  bool good_config = true;
 
-	fHadronTensorModel = dynamic_cast<const HadronTensorModelI *> (
-          this->SubAlg("HadronTensorAlg") );
-        assert( fHadronTensorModel );
+  // Cross section scaling factor
+  GetParam( "MEC-CC-XSecScale", fXSecScale ) ;
+  
+  fHadronTensorModel = dynamic_cast<const HadronTensorModelI *> ( this->SubAlg("HadronTensorAlg") );
+  if( !fHadronTensorModel ) {
+    good_config = false ; 
+    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required HadronTensorAlg does not exist. AlgID is : " << SubAlg("HadronTensorAlg")->Id() ;
+  }
 
-	fXSecIntegrator =
-        dynamic_cast<const XSecIntegratorI *> (
-          this->SubAlg("NumericalIntegrationAlg"));
-        assert(fXSecIntegrator);
+  fXSecIntegrator = dynamic_cast<const XSecIntegratorI *> (this->SubAlg("NumericalIntegrationAlg"));
+  if( !fXSecIntegrator ) {
+    good_config = false ; 
+    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required NumericalIntegrationAlg does not exist. AlgID is : " << SubAlg("NumericalIntegrationAlg")->Id();
+  }
+  
+  // Read optional QvalueShifter:
+  fQvalueShifter = nullptr; 
+  if( GetConfig().Exists("QvalueShifterAlg") ) {
+    fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
+    if( !fQvalueShifter ) {
+      good_config = false ; 
+      LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required QvalueShifterAlg does not exist. AlgID is : " << SubAlg("QvalueShifterAlg")->Id() ;
+    }
+  }
+
+  if( ! good_config ) {
+    LOG("NievesSimoVacasMECPXSec2016", pERROR) << "Configuration has failed.";
+    exit(78) ;
+  }
+
 }
