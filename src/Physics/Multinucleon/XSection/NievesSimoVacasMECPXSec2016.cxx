@@ -136,10 +136,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
   double Tl    = interaction->Kine().GetKV(kKVTl);
   double costl = interaction->Kine().GetKV(kKVctl);
   double ml    = interaction->FSPrimLepton()->Mass();
-  double Q0    = 0;
-  double Q3    = 0;
-
-  genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
+  double Q0    = interaction->Kine().GetKV(kKVQ0);
+  double Q3    = interaction->Kine().GetKV(kKVQ3);
 
   const LabFrameHadronTensorI* tensor
     = dynamic_cast<const LabFrameHadronTensorI*>(
