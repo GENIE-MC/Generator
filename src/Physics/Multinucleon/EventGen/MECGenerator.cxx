@@ -663,7 +663,7 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
   Range1D_t Tl_range ( TMin, TMax ) ; 
   Range1D_t ctl_range ( CosthMin, CosthMax ) ;
   double XSecMax = GetNSVXSecMaxTlctl( interaction, Tl_range, ctl_range ) ;
-
+  
   // -- Generate and Test the Kinematics----------------------------------//
 
   RandomGen * rnd = RandomGen::Instance();
@@ -1346,7 +1346,7 @@ double MECGenerator::GetNSVXSecMaxTlctl( const Interaction * in,
 
   // Define starting point in the center
   for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
-    start[i] = ( ranges[i].max - ranges[i].min ) * 0.5  ; 
+    start[i] = ranges[i].min + ( ranges[i].max - ranges[i].min ) * 0.5  ; 
   }
 
   for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
