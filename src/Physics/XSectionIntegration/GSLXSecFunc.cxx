@@ -1089,7 +1089,8 @@ genie::utils::gsl::d2Xsec_dTCosth::d2Xsec_dTCosth(
      const XSecAlgorithmI * m, const Interaction * i) :
 ROOT::Math::IBaseFunctionMultiDim(),
 fModel(m),
-fInteraction(i)
+fInteraction(i),
+fFactor(1.) 
 {
 
 }
@@ -1131,6 +1132,7 @@ double genie::utils::gsl::d2Xsec_dTCosth::DoEval(const double * xin) const
 
   double xsec = fModel->XSec(fInteraction, kPSTlctl);
   return fFactor * xsec;
+  
 }
 //____________________________________________________________________________
 ROOT::Math::IBaseFunctionMultiDim *
