@@ -1351,7 +1351,7 @@ double MECGenerator::GetNSVXSecMaxTlctl( const Interaction * in,
 
   for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
     double width = ranges[i].max - ranges[i].min ;
-    steps[i] = width / 100. ; 
+    steps[i] = width / 10. ; 
   }
  
   for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
