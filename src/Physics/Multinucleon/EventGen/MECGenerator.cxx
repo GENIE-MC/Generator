@@ -12,6 +12,9 @@
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <TROOT.h>
+#include "Math/Minimizer.h"
+#include "Math/Factory.h"
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/EventGen/XSecAlgorithmI.h"
@@ -39,6 +42,7 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/PrintUtils.h"
+#include "Physics/XSectionIntegration/GSLXSecFunc.h"
 
 using namespace genie;
 using namespace genie::utils;
@@ -592,13 +596,6 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
   // But could in principle get the no-delta component if they want (deactivated incode)
   int FullDeltaNodelta = 1;  // 1:  full, 2:  only delta, 3:  zero delta
 
-  // -- limit the maximum XS for the accept/reject loop -- //
-  //
-  // MaxXSec parameters.  This whole calculation could be in it's own function?
-  // these need to lead to a number that is safely large enough, or crash the run.
-  double XSecMaxPar1 = 2.2504;
-  double XSecMaxPar2 = 9.41158;
-
   // -- Event Properties -----------------------------//
   Interaction * interaction = event->Summary();
   Kinematics * kinematics = interaction->KinePtr();
@@ -663,6 +660,10 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
     }
   }
 
+  Range1D_t Tl_range ( TMin, TMax ) ; 
+  Range1D_t ctl_range ( CosthMin, CosthMax ) ;
+  double XSecMax = GetNSVXSecMaxTlctl( interaction, Tl_range, ctl_range ) ;
+
   // -- Generate and Test the Kinematics----------------------------------//
 
   RandomGen * rnd = RandomGen::Instance();
@@ -704,21 +705,9 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
           // decide whether to accept or reject these kinematics
           // AND set the chosen two-nucleon system
 
-          // to save time, use a pre-calculated max cross-section XSecMax
-          // it doesn't matter what it is, as long as it is big enough.
-          // RIK asks can XSecMax can be pushed to the q0q3 part of the calculation
-          // where the XS doesn't depend much on Enu.
-          // instead, this implementation uses a rough dependence on log10(Enu).
-          // starting around 0.5 GeV, the log10(max) is linear vs. log10(Enu)
-          // 1.10*TMath::Power(10.0, 2.2504 * TMath::Log10(Enu) - 9.41158)
-
           if (FullDeltaNodelta == 1){
               // this block for the user who wants all CC QE-like 2p2h events
 
-              // extract xsecmax from the spline making process for C12 and other nuclei.
-              //  plot Log10(E) on horizontal and Log10(xsecmax) vertical
-              //  and fit a line.  Use that plus 1.35 safety factors to limit the accept/reject loop.
-              double XSecMax = 1.35 * TMath::Power(10.0, XSecMaxPar1 * TMath::Log10(Enu) - XSecMaxPar2);
               if (NuclearA > 12) XSecMax *=  NuclearAfactorXSecMax;  // Scale it by A, precomputed above.
 
               LOG("MEC", pDEBUG) << " T, Costh: " << T << ", " << Costh ;
@@ -1327,6 +1316,8 @@ void MECGenerator::LoadConfig(void)
     fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
     assert(fNuclModel);
 
+    GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor, 1.6 ) ;
+
     GetParam( "NSV-Q3Max", fQ3Max ) ;
 
     // Maximum allowed percentage deviation from the maximum cross section used
@@ -1334,4 +1325,48 @@ void MECGenerator::LoadConfig(void)
     // Similar to the tolerance used by QELEventGenerator.
     GetParamDef( "SuSA-MaxXSec-DiffTolerance", fSuSAMaxXSecDiffTolerance, 999999. );
 }
+//___________________________________________________________________________
+double MECGenerator::GetNSVXSecMaxTlctl( const Interaction * in, 
+			   const Range1D_t Tl_range, 
+			   const Range1D_t ctl_range ) const {
+
+  ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit2");
+
+  gsl::d2Xsec_dTCosth f(fXSecModel,in) ; 
+  f.SetFactor(-1.); // Make it return negative of cross-section so we can minimize
+  
+  min->SetFunction( f );
+  min->SetMaxFunctionCalls(10000);
+  min->SetTolerance(0.05);
+
+  std::array<string,2> names = { "Tl", "CosThetal" } ;
+  std::array<Range1D_t,2> ranges = { Tl_range, ctl_range } ; 
+
+  std::array<double,2> start, steps ;
+
+  // Define starting point in the center
+  for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
+    start[i] = ( ranges[i].max - ranges[i].min ) * 0.5  ; 
+  }
+
+  for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
+    double width = ranges[i].max - ranges[i].min ;
+    steps[i] = width / 100. ; 
+  }
+ 
+  for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
+    min -> SetLimitedVariable( i, names[i], start[i], steps[i], ranges[i].min, ranges[i].max ) ;
+  }
+  
+  min->Minimize();
+  
+  double max_xsec = -min->MinValue(); //back to positive xsec
+
+  // Apply safety factor, since value retrieved from the cache might
+  // correspond to a slightly different energy.
+  max_xsec *= fSafetyFactor;
+
+  return max_xsec ;   
+}
+
 //___________________________________________________________________________

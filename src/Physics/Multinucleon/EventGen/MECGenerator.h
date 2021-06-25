@@ -22,6 +22,7 @@
 #define _MEC_GENERATOR_H_
 
 #include <TGenPhaseSpace.h>
+#include "Framework/Utils/Range1.h"
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/ParticleData/PDGCodeList.h"
@@ -66,10 +67,13 @@ private:
   // in the kPSTlctl phase space
   double GetXSecMaxTlctl( const Interaction& inter ) const;
 
+  double GetNSVXSecMaxTlctl( const Interaction * inter, const Range1D_t Tl_range, const Range1D_t ctl_range ) const;
+
   mutable const XSecAlgorithmI * fXSecModel;
   mutable TGenPhaseSpace         fPhaseSpaceGenerator;
   const NuclearModelI *          fNuclModel;
 
+  double fSafetyFactor ; 
   double fQ3Max;
 
   // Tolerate this maximum percent deviation above the calculated maximum cross
