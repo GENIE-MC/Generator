@@ -30,7 +30,7 @@
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Numerical/GSLUtils.h"
-
+#include "Physics/Multinucleon/XSection/MECUtils.h"
 using namespace genie;
 
 //____________________________________________________________________________
@@ -1051,12 +1051,14 @@ genie::utils::gsl::dXSec_Log_Wrapper::dXSec_Log_Wrapper(
 genie::utils::gsl::dXSec_Log_Wrapper::~dXSec_Log_Wrapper()
 {
 }
+//____________________________________________________________________________
 
 // ROOT::Math::IBaseFunctionMultiDim interface
 unsigned int genie::utils::gsl::dXSec_Log_Wrapper::NDim   (void) const
 {
   return fFn->NDim();
 }
+//____________________________________________________________________________
 double genie::utils::gsl::dXSec_Log_Wrapper::DoEval (const double * xin) const
 {
   double * toEval = new double[this->NDim()];
@@ -1083,3 +1085,59 @@ ROOT::Math::IBaseFunctionMultiDim * genie::utils::gsl::dXSec_Log_Wrapper::Clone 
 }
 
 //____________________________________________________________________________
+genie::utils::gsl::d2Xsec_dTCosth::d2Xsec_dTCosth(
+     const XSecAlgorithmI * m, const Interaction * i) :
+ROOT::Math::IBaseFunctionMultiDim(),
+fModel(m),
+fInteraction(i)
+{
+
+}
+//____________________________________________________________________________
+genie::utils::gsl::d2Xsec_dTCosth::~d2Xsec_dTCosth()
+{
+
+}
+//____________________________________________________________________________
+unsigned int genie::utils::gsl::d2Xsec_dTCosth::NDim(void) const
+{
+  return 2;
+}
+//____________________________________________________________________________
+double genie::utils::gsl::d2Xsec_dTCosth::DoEval(const double * xin) const
+{
+// inputs:
+//    T [GeV]
+//    cos(theta)
+// outputs:
+//   differential cross section (hbar=c=1 units)
+//
+
+  double T     = xin[0];
+  double costh = xin[1];
+
+  Kinematics * kinematics = fInteraction->KinePtr();
+  kinematics->SetKV(kKVTl, T);
+  kinematics->SetKV(kKVctl, costh);
+
+  double Enu = fInteraction->InitState().ProbeE(kRfHitNucRest);
+  double LepMass = fInteraction->FSPrimLepton()->Mass();
+  double Q0 = 0 ;
+  double Q3 = 0 ; 
+  genie::utils::mec::Getq0q3FromTlCostl(T, costh, Enu, LepMass, Q0, Q3);
+  
+  kinematics ->SetKV(kKVQ0, Q0) ; 
+  kinematics ->SetKV(kKVQ3, Q3) ; 
+
+  double xsec = fModel->XSec(fInteraction, kPSTlctl);
+  return xsec;
+}
+//____________________________________________________________________________
+ROOT::Math::IBaseFunctionMultiDim *
+   genie::utils::gsl::d2Xsec_dTCosth::Clone() const
+{
+  return
+    new genie::utils::gsl::d2Xsec_dTCosth(fModel,fInteraction);
+}
+//____________________________________________________________________________
+
