@@ -642,28 +642,11 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
     CosthMin = TMath::Sqrt(1 - TMath::Power((fQ3Max / Enu ), 2));
   }
 
-  // The accept/reject loop tests a rand against a maxxsec - must scale with A.
-  int NuclearA = 12;
-  double NuclearAfactorXSecMax = 1.0;
-  if (TgtPDG != kPdgTgtC12) {
-    if (TgtPDG > kPdgTgtFreeN && TgtPDG) {
-      NuclearA = pdg::IonPdgCodeToA(TgtPDG);
-      // The QE-like portion scales as A, but the Delta portion increases faster, not simple.
-      // so this gives additional safety factor.  Remember, we need a safe max, not precise max.
-      if (NuclearA < 12) NuclearAfactorXSecMax *= NuclearA / 12.0;
-      else NuclearAfactorXSecMax *= TMath::Power(NuclearA/12.0, 1.4);
-    }
-    else {
-      LOG("MEC", pERROR) << "Trying to scale XSecMax for larger nuclei, but "
-          << TgtPDG << " isn't a nucleus?";
-      assert(false);
-    }
-  }
-
+  // Compute the maximum xsec value:
   Range1D_t Tl_range ( TMin, TMax ) ; 
   Range1D_t ctl_range ( CosthMin, CosthMax ) ;
   double XSecMax = GetNSVXSecMaxTlctl( interaction, Tl_range, ctl_range ) ;
-  
+
   // -- Generate and Test the Kinematics----------------------------------//
 
   RandomGen * rnd = RandomGen::Instance();
@@ -706,105 +689,99 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
           // AND set the chosen two-nucleon system
 
           if (FullDeltaNodelta == 1){
-              // this block for the user who wants all CC QE-like 2p2h events
-
-              if (NuclearA > 12) XSecMax *=  NuclearAfactorXSecMax;  // Scale it by A, precomputed above.
-
-              LOG("MEC", pDEBUG) << " T, Costh: " << T << ", " << Costh ;
-
-
-              // We need four different cross sections. Right now, pursue the
-              // inelegant method of calling XSec four times - there is
-              // definitely some runtime inefficiency here, but it is not awful
-
-              // first, get delta-less all
-              if (NuPDG > 0) {
-                  interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNN);
-              }
-              else {
-                  interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterPP);
-              }
-              double XSec = fXSecModel->XSec(interaction, kPSTlctl);
-              // now get all with delta
-              interaction->ExclTagPtr()->SetResonance(genie::kP33_1232);
-              double XSecDelta = fXSecModel->XSec(interaction, kPSTlctl);
-              // get PN with delta
-              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNP);
-              double XSecDeltaPN = fXSecModel->XSec(interaction, kPSTlctl);
-              // now get delta-less PN
-              interaction->ExclTagPtr()->SetResonance(genie::kNoResonance);
-              double XSecPN = fXSecModel->XSec(interaction, kPSTlctl);
-
-              if (XSec > XSecMax) {
-                  LOG("MEC", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG << " "
-				   << XSec << " > " << XSecMax
-				   << " don't let this happen.";
-              }
-              assert(XSec <= XSecMax);
-              accept = XSec > XSecMax*rnd->RndKine().Rndm();
-              LOG("MEC", pINFO) << "Xsec, Max, Accept: " << XSec << ", "
-                  << XSecMax << ", " << accept;
-
-              if(accept){
-                  // If it passes the All cross section we still need to do two things:
-                  // * Was the initial state pn or not?
-                  // * Do we assign the reaction to have had a Delta on the inside?
-
-                  // PDD means from the part of the XSec with an internal Delta line
-                  // that (at the diagram level) did not produce a pion in the final state.
-
-                  bool isPDD = false;
-
-                  // Find out if we should use a pn initial state
-                  double myrand = rnd->RndKine().Rndm();
-                  double pnFraction = XSecPN / XSec;
-                  LOG("MEC", pDEBUG) << "Test for pn: xsec_pn = " << XSecPN
-                      << "; xsec = " << XSec
-                      << "; pn_fraction = " << pnFraction
-                      << "; random number val = " << myrand;
-
-                  if (myrand <= pnFraction) {
-                      // yes it is, add a PN initial state to event record
-                      event->AddParticle(kPdgClusterNP, kIStNucleonTarget,
-                              1, -1, -1, -1, tempp4, v4);
-                      interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNP);
-
-                      // Its a pn, so test for Delta by comparing DeltaPN/PN
-                      if (rnd->RndKine().Rndm() <= XSecDeltaPN / XSecPN) {
-                          isPDD = true;
-                      }
-                  }
-                  else {
-                      // no it is not a PN, add either NN or PP initial state to event record.
-                      if (NuPDG > 0) {
-                          event->AddParticle(kPdgClusterNN, kIStNucleonTarget,
-                                  1, -1, -1, -1, tempp4, v4);
-                          interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNN);
-                      }
-                      else {
-                          event->AddParticle(kPdgClusterPP, kIStNucleonTarget,
-                                  1, -1, -1, -1, tempp4, v4);
-                          interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterPP);
-                      }
-                      // its not pn, so test for Delta (XSecDelta-XSecDeltaPN)/(XSec-XSecPN)
-                      // right, both numerator and denominator are total not pn.
-                      if (rnd->RndKine().Rndm() <=
-                              (XSecDelta - XSecDeltaPN) / (XSec - XSecPN)) {
-                          isPDD = true;
-                      }
-                  }
-
-                  // now test whether we tagged this as a pion event
-                  // and assign that fact to the Exclusive State tag
-                  // later, we can query const XclsTag & xcls = interaction->ExclTag()
-                  if (isPDD){
-                      interaction->ExclTagPtr()->SetResonance(genie::kP33_1232);
-                  }
-
-
-              } // end if accept
+	    // this block for the user who wants all CC QE-like 2p2h events
+	    // We need four different cross sections. Right now, pursue the
+	    // inelegant method of calling XSec four times - there is
+	    // definitely some runtime inefficiency here, but it is not awful
+	    
+	    // first, get delta-less all
+	    if (NuPDG > 0) {
+	      interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNN);
+	    }
+	    else {
+	      interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterPP);
+	    }
+	    double XSec = fXSecModel->XSec(interaction, kPSTlctl);
+	    // now get all with delta
+	    interaction->ExclTagPtr()->SetResonance(genie::kP33_1232);
+	    double XSecDelta = fXSecModel->XSec(interaction, kPSTlctl);
+	    // get PN with delta
+	    interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNP);
+	    double XSecDeltaPN = fXSecModel->XSec(interaction, kPSTlctl);
+	    // now get delta-less PN
+	    interaction->ExclTagPtr()->SetResonance(genie::kNoResonance);
+	    double XSecPN = fXSecModel->XSec(interaction, kPSTlctl);
+	    
+	    if (XSec > XSecMax) {
+	      LOG("MEC", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG << " "
+				 << XSec << " > " << XSecMax
+				 << " don't let this happen.";
+	    }
+	    assert(XSec <= XSecMax);
+	    accept = XSec > XSecMax*rnd->RndKine().Rndm();
+	    LOG("MEC", pINFO) << "Xsec, Max, Accept: " << XSec << ", "
+			      << XSecMax << ", " << accept;
+	    
+	    if(accept){
+	      // If it passes the All cross section we still need to do two things:
+	      // * Was the initial state pn or not?
+	      // * Do we assign the reaction to have had a Delta on the inside?
+	      
+	      // PDD means from the part of the XSec with an internal Delta line
+	      // that (at the diagram level) did not produce a pion in the final state.
+	      
+	      bool isPDD = false;
+	      
+	      // Find out if we should use a pn initial state
+	      double myrand = rnd->RndKine().Rndm();
+	      double pnFraction = XSecPN / XSec;
+	      LOG("MEC", pDEBUG) << "Test for pn: xsec_pn = " << XSecPN
+				 << "; xsec = " << XSec
+				 << "; pn_fraction = " << pnFraction
+				 << "; random number val = " << myrand;
+	      
+	      if (myrand <= pnFraction) {
+		// yes it is, add a PN initial state to event record
+		event->AddParticle(kPdgClusterNP, kIStNucleonTarget,
+				   1, -1, -1, -1, tempp4, v4);
+		interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNP);
+		
+		// Its a pn, so test for Delta by comparing DeltaPN/PN
+		if (rnd->RndKine().Rndm() <= XSecDeltaPN / XSecPN) {
+		  isPDD = true;
+		}
+	      }
+	      else {
+		// no it is not a PN, add either NN or PP initial state to event record.
+		if (NuPDG > 0) {
+		  event->AddParticle(kPdgClusterNN, kIStNucleonTarget,
+				     1, -1, -1, -1, tempp4, v4);
+		  interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNN);
+		}
+		else {
+		  event->AddParticle(kPdgClusterPP, kIStNucleonTarget,
+				     1, -1, -1, -1, tempp4, v4);
+		  interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterPP);
+		}
+		// its not pn, so test for Delta (XSecDelta-XSecDeltaPN)/(XSec-XSecPN)
+		// right, both numerator and denominator are total not pn.
+		if (rnd->RndKine().Rndm() <=
+		    (XSecDelta - XSecDeltaPN) / (XSec - XSecPN)) {
+		  isPDD = true;
+		}
+	      }
+	      
+	      // now test whether we tagged this as a pion event
+	      // and assign that fact to the Exclusive State tag
+	      // later, we can query const XclsTag & xcls = interaction->ExclTag()
+	      if (isPDD){
+		interaction->ExclTagPtr()->SetResonance(genie::kP33_1232);
+	      }
+	      
+	      
+	    } // end if accept
           } // end if delta == 1
-
+	  
           /* One can make simpler versions of the above for the
              FullDeltaNodelta == 2 (only delta)
              or
