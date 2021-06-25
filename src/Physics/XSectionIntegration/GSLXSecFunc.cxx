@@ -1130,7 +1130,7 @@ double genie::utils::gsl::d2Xsec_dTCosth::DoEval(const double * xin) const
   kinematics ->SetKV(kKVQ3, Q3) ; 
 
   double xsec = fModel->XSec(fInteraction, kPSTlctl);
-  return xsec;
+  return fFactor * xsec;
 }
 //____________________________________________________________________________
 ROOT::Math::IBaseFunctionMultiDim *

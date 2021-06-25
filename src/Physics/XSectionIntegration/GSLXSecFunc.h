@@ -484,9 +484,12 @@ class dXSec_Log_Wrapper: public ROOT::Math::IBaseFunctionMultiDim
    unsigned int                        NDim   (void)               const;
    double                              DoEval (const double * xin) const;
    ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
+   void                                SetFactor(double factor) { fFactor = factor ; }
+ 
  private:
    const XSecAlgorithmI * fModel;
    const Interaction *    fInteraction;
+   double fFactor;
  };
  
  
