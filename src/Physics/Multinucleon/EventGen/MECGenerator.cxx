@@ -1319,18 +1319,30 @@ double MECGenerator::GetNSVXSecMaxTlctl( const Interaction * in,
   std::array<string,2> names = { "Tl", "CosThetal" } ;
   std::array<Range1D_t,2> ranges = { Tl_range, ctl_range } ; 
 
-  std::array<double,2> start, steps ;
-
-  // Define starting point in the center
-  for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
-    start[i] = ranges[i].min + ( ranges[i].max - ranges[i].min ) * 0.5  ; 
-  }
-
+  std::array<double,2> start, steps, temp_point ;
+  double MinimScanPoints = 20. ; 
   for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
     double width = ranges[i].max - ranges[i].min ;
-    steps[i] = width / 10. ; 
+    steps[i] = width / MinimScanPoints ;
   }
- 
+
+  double xsec = 0 ;
+  
+  // preliimnary scan 
+  for ( unsigned int i = 1 ; i <= MinimScanPoints ; ++i ) {
+    temp_point[0] = ranges[0].min + steps[0]*i ;
+
+    for ( unsigned int j = 1 ; j <= MinimScanPoints ; ++j ) {
+      temp_point[1] = ranges[1].min + steps[1]*j ;
+
+      double temp_xsec = - f( temp_point.data() ) ;
+      if ( temp_xsec > xsec ) {
+	start = temp_point ;
+	xsec = temp_xsec ;
+      }
+    }
+  }
+
   for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
     min -> SetLimitedVariable( i, names[i], start[i], steps[i], ranges[i].min, ranges[i].max ) ;
   }
