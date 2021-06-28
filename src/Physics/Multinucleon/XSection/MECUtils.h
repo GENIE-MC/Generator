@@ -18,6 +18,9 @@
 #define _MEC_UTILS_H_
 
 #include "Physics/HadronTensors/HadronTensorI.h"
+#include <Math/Integrator.h>
+#include <Math/IFunction.h>
+#include <Math/IntegratorMultiDim.h>
 
 namespace genie {
 
@@ -81,6 +84,32 @@ namespace mec   {
 
   // Maximum tabulated momentum transfer (GeV)
   const double QMagLimitMaxXSec = 2.;
+
+  namespace gsl { 
+
+    //_____________________________________________________________________________________
+    //
+    // GSL wrappers
+    //
+    //_____________________________________________________________________________________
+    
+    class d2Xsec_dTCosth: public ROOT::Math::IBaseFunctionMultiDim
+    {
+    public:
+      d2Xsec_dTCosth(const XSecAlgorithmI * m, const Interaction * i);
+      ~d2Xsec_dTCosth();
+      // ROOT::Math::IBaseFunctionMultiDim interface
+      unsigned int                        NDim   (void)               const;
+      double                              DoEval (const double * xin) const;
+      ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
+      void                                SetFactor(double factor) { fFactor = factor ; }
+      
+    private:
+      const XSecAlgorithmI * fModel;
+      const Interaction *    fInteraction;
+      double fFactor;
+    };
+  } // gsl   namespace
 
 } // mec   namespace
 } // utils namespace
