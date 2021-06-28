@@ -645,7 +645,7 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
   // Compute the maximum xsec value:
   Range1D_t Tl_range ( TMin, TMax ) ; 
   Range1D_t ctl_range ( CosthMin, CosthMax ) ;
-  double XSecMax = GetNSVXSecMaxTlctl( interaction, Tl_range, ctl_range ) ;
+  double XSecMax = GetXSecMaxTlctl( *interaction, Tl_range, ctl_range ) ;
 
   // -- Generate and Test the Kinematics----------------------------------//
 
@@ -1303,13 +1303,13 @@ void MECGenerator::LoadConfig(void)
     GetParamDef( "SuSA-MaxXSec-DiffTolerance", fSuSAMaxXSecDiffTolerance, 999999. );
 }
 //___________________________________________________________________________
-double MECGenerator::GetNSVXSecMaxTlctl( const Interaction * in, 
-			   const Range1D_t Tl_range, 
-			   const Range1D_t ctl_range ) const {
-
+double MECGenerator::GetXSecMaxTlctl( const Interaction & in, 
+				      const Range1D_t Tl_range, 
+				      const Range1D_t ctl_range ) const {
+  
   ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit2");
 
-  gsl::d2Xsec_dTCosth f(fXSecModel,in) ; 
+  gsl::d2Xsec_dTCosth f(fXSecModel,&in) ; 
   f.SetFactor(-1.); // Make it return negative of cross-section so we can minimize
   
   min->SetFunction( f );
