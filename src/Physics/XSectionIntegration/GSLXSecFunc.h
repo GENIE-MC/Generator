@@ -468,30 +468,6 @@ class dXSec_Log_Wrapper: public ROOT::Math::IBaseFunctionMultiDim
     double * fMins;
     double * fMaxes;
 };
-
-//_____________________________________________________________________________________
-//
-// GSL wrappers
-//
-//_____________________________________________________________________________________
-
- class d2Xsec_dTCosth: public ROOT::Math::IBaseFunctionMultiDim
- {
- public:
-   d2Xsec_dTCosth(const XSecAlgorithmI * m, const Interaction * i);
-   ~d2Xsec_dTCosth();
-   // ROOT::Math::IBaseFunctionMultiDim interface
-   unsigned int                        NDim   (void)               const;
-   double                              DoEval (const double * xin) const;
-   ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
-   void                                SetFactor(double factor) { fFactor = factor ; }
- 
- private:
-   const XSecAlgorithmI * fModel;
-   const Interaction *    fInteraction;
-   double fFactor;
- };
- 
  
 } // gsl   namespace
 } // utils namespace
