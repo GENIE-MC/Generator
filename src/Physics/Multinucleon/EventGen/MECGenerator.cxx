@@ -12,7 +12,6 @@
 //____________________________________________________________________________
 
 #include <TMath.h>
-#include <TROOT.h>
 #include "Math/Minimizer.h"
 #include "Math/Factory.h"
 
