@@ -10,7 +10,8 @@ Configurable Parameters:
 Name                  Type     Optional   Comment                      Default
 .....................................................................................................
 MEC-CC-XSecScale      double   Yes        XSec Scaling factor          GPL value
-MECScaleAlg           alg      Yes        XSecScale algorithm used to scale the cross section
+MECScaleAlg           alg      Yes        XSecScale algorithm used     The cross section is not scaled
+                                          to scale the cross section
 -->
   <param_set name="Default"> 
       <param type="alg"  name="NumericalIntegrationAlg"> genie::MECXSec/Default </param>
