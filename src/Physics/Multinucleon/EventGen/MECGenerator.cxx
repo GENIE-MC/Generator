@@ -1292,7 +1292,12 @@ void MECGenerator::LoadConfig(void)
     GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor, 1.6 ) ;
     GetParam( "MaxXSec-FunctionCalls", fFunctionCalls ) ;
     GetParam( "MaxXSec-Tolerance", fTolerance ) ;
+    GetParamVect( "MaxXSec-MinScanPoints", fMinScanPoints ) ;
 
+    if ( fMinScanPoints.size() != 2 ) {
+      LOG( "MECGenerator", pERROR ) << "Not enough information for phase space scan. Size of MinScanPoints is " << fMinScanPoints.size() ;
+      exit(78); 
+    }
     GetParam( "NSV-Q3Max", fQ3Max ) ;
 
     // Maximum allowed percentage deviation from the maximum cross section used
@@ -1319,19 +1324,18 @@ double MECGenerator::GetXSecMaxTlctl( const Interaction & in,
   static std::array<Range1D_t,2> ranges = { Tl_range, ctl_range } ; 
 
   std::array<double,2> start, steps, temp_point ;
-  double MinimScanPoints = 20. ; 
   for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
     double width = ranges[i].max - ranges[i].min ;
-    steps[i] = width / MinimScanPoints ;
+    steps[i] = width / fMinScanPoints[i] ;
   }
 
   double xsec = 0 ;
   
-  // preliimnary scan 
-  for ( unsigned int i = 1 ; i <= MinimScanPoints ; ++i ) {
+  // preliminary scan 
+  for ( unsigned int i = 1 ; i <= fMinScanPoints[0] ; ++i ) {
     temp_point[0] = ranges[0].min + steps[0]*i ;
 
-    for ( unsigned int j = 1 ; j <= MinimScanPoints ; ++j ) {
+    for ( unsigned int j = 1 ; j <= fMinScanPoints[1] ; ++j ) {
       temp_point[1] = ranges[1].min + steps[1]*j ;
 
       double temp_xsec = - f( temp_point.data() ) ;
