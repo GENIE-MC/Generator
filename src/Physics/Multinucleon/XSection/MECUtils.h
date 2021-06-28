@@ -97,7 +97,7 @@ namespace mec   {
     {
     public:
       d2Xsec_dTCosth(const XSecAlgorithmI * m, const Interaction * i, 
-		     const double Enu, const double LepMass, const double Factor );
+		     const double Enu, const double LepMass, const double Factor = 1.);
       ~d2Xsec_dTCosth();
       // ROOT::Math::IBaseFunctionMultiDim interface
       unsigned int                        NDim   (void)               const;
