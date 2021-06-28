@@ -1326,7 +1326,7 @@ double MECGenerator::GetXSecMaxTlctl( const Interaction & in,
   std::array<double,2> start, steps, temp_point ;
   for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
     double width = ranges[i].max - ranges[i].min ;
-    steps[i] = width / fMinScanPoints[i] ;
+    steps[i] = width / ( fMinScanPoints[i] + 1 );
   }
 
   double xsec = 0 ;
