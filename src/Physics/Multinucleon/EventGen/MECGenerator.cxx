@@ -41,7 +41,6 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/PrintUtils.h"
-#include "Physics/XSectionIntegration/GSLXSecFunc.h"
 
 using namespace genie;
 using namespace genie::utils;
@@ -1306,15 +1305,15 @@ double MECGenerator::GetXSecMaxTlctl( const Interaction & in,
   
   ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit2");
 
-  gsl::d2Xsec_dTCosth f(fXSecModel,&in) ; 
+  genie::utils::mec::gsl::d2Xsec_dTCosth f(fXSecModel,&in) ; 
   f.SetFactor(-1.); // Make it return negative of cross-section so we can minimize
   
   min->SetFunction( f );
   min->SetMaxFunctionCalls(10000);
   min->SetTolerance(0.05);
 
-  std::array<string,2> names = { "Tl", "CosThetal" } ;
-  std::array<Range1D_t,2> ranges = { Tl_range, ctl_range } ; 
+  static std::array<string,2> names = { "Tl", "CosThetal" } ;
+  static std::array<Range1D_t,2> ranges = { Tl_range, ctl_range } ; 
 
   std::array<double,2> start, steps, temp_point ;
   double MinimScanPoints = 20. ; 
