@@ -1290,6 +1290,8 @@ void MECGenerator::LoadConfig(void)
     assert(fNuclModel);
 
     GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor, 1.6 ) ;
+    GetParam( "MaxXSec-FunctionCalls", fFunctionCalls ) ;
+    GetParam( "MaxXSec-Tolerance", fTolerance ) ;
 
     GetParam( "NSV-Q3Max", fQ3Max ) ;
 
@@ -1305,12 +1307,13 @@ double MECGenerator::GetXSecMaxTlctl( const Interaction & in,
   
   ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit2");
 
-  genie::utils::mec::gsl::d2Xsec_dTCosth f(fXSecModel,&in) ; 
-  f.SetFactor(-1.); // Make it return negative of cross-section so we can minimize
+  double Enu = in.InitState().ProbeE(kRfHitNucRest);
+  double LepMass = in.FSPrimLepton()->Mass();
+  genie::utils::mec::gsl::d2Xsec_dTCosth f(fXSecModel,&in,Enu,LepMass,-1.) ; 
   
   min->SetFunction( f );
-  min->SetMaxFunctionCalls(10000);
-  min->SetTolerance(0.05);
+  min->SetMaxFunctionCalls(fFunctionCalls);
+  min->SetTolerance(fTolerance);
 
   static std::array<string,2> names = { "Tl", "CosThetal" } ;
   static std::array<Range1D_t,2> ranges = { Tl_range, ctl_range } ; 
