@@ -76,7 +76,8 @@ private:
   double fSafetyFactor ; 
   double fTolerance ;
   int fFunctionCalls; 
-  std::vector<int> fMinScanPoints ; 
+  int fMinScanPointsTmu ; 
+  int fMinScanPointsCosth ; 
   double fQ3Max;
 
   // Tolerate this maximum percent deviation above the calculated maximum cross
