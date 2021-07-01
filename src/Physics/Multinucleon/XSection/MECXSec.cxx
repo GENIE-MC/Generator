@@ -92,7 +92,7 @@ double MECXSec::Integrate(
 
   double abstol = 1; //We mostly care about relative tolerance.
   ROOT::Math::IBaseFunctionMultiDim * func =
-    new utils::mec::gsl::d2Xsec_dTCosth(model, interaction,Enu,LepMass);
+    new genie::utils::mec::gsl::d2Xsec_dTCosth(model, interaction, Enu, LepMass );
   ROOT::Math::IntegrationMultiDim::Type ig_type =
     utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
   ROOT::Math::IntegratorMultiDim ig(

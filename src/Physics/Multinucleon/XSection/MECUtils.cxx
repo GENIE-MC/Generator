@@ -467,14 +467,14 @@ double genie::utils::mec::GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
   return XSecMax;
 }
 //___________________________________________________________________________
-genie::utils::mec::gsl::d2Xsec_dTCosth::d2Xsec_dTCosth( const XSecAlgorithmI * m, const Interaction * i,
-							const double Enu, const double LepMass, const double Factor ) :
-  ROOT::Math::IBaseFunctionMultiDim(),
-  fModel(m),
-  fInteraction(i),
-  fEnu(Enu),
-  fLepMass(LepMass),
-  fFactor(Factor) 
+genie::utils::mec::gsl::d2Xsec_dTCosth::d2Xsec_dTCosth(const XSecAlgorithmI * m, const Interaction * i, 
+						       const double Enu, const double LepMass, const double Factor ) :
+ROOT::Math::IBaseFunctionMultiDim(),
+fModel(m),
+fInteraction(i),
+fEnu(Enu),
+fLepMass(LepMass),
+fFactor(Factor) 
 {
 
 }
@@ -518,10 +518,10 @@ double genie::utils::mec::gsl::d2Xsec_dTCosth::DoEval(const double * xin) const
 }
 //____________________________________________________________________________
 ROOT::Math::IBaseFunctionMultiDim *
-   genie::utils::mec::gsl::d2Xsec_dTCosth::Clone() const
+genie::utils::mec::gsl::d2Xsec_dTCosth::Clone() const
 {
   return
-    new genie::utils::mec::gsl::d2Xsec_dTCosth(fModel,fInteraction,fEnu,fLepMass,fFactor);
+    new genie::utils::mec::gsl::d2Xsec_dTCosth(fModel,fInteraction, fEnu, fLepMass, fFactor );
 }
 //____________________________________________________________________________
 
