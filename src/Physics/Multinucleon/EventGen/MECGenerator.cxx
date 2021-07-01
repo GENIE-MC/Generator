@@ -1294,6 +1294,7 @@ void MECGenerator::LoadConfig(void)
     GetParam( "MaxXSec-Tolerance", fTolerance ) ;
     GetParam( "MaxXSec-MinScanPointsTmu", fMinScanPointsTmu ) ;
     GetParam( "MaxXSec-MinScanPointsCosth", fMinScanPointsCosth ) ;
+
     GetParam( "NSV-Q3Max", fQ3Max ) ;
 
     // Maximum allowed percentage deviation from the maximum cross section used
@@ -1310,14 +1311,15 @@ double MECGenerator::GetXSecMaxTlctl( const Interaction & in,
 
   double Enu = in.InitState().ProbeE(kRfHitNucRest);
   double LepMass = in.FSPrimLepton()->Mass();
-  genie::utils::mec::gsl::d2Xsec_dTCosth f(fXSecModel,&in,Enu,LepMass,-1.) ; 
+
+  genie::utils::mec::gsl::d2Xsec_dTCosth f(fXSecModel,&in, Enu, LepMass, -1.) ; 
   
   min->SetFunction( f );
   min->SetMaxFunctionCalls(fFunctionCalls);
   min->SetTolerance(fTolerance);
 
-  static std::array<string,2> names = { "Tl", "CosThetal" } ;
-  static std::array<Range1D_t,2> ranges = { Tl_range, ctl_range } ; 
+  std::array<string,2> names = { "Tl", "CosThetal" } ;
+  std::array<Range1D_t,2> ranges = { Tl_range, ctl_range } ; 
 
   std::array<double,2> start, steps, temp_point ;
   steps[0] = ( ranges[0].max - ranges[0].min ) / ( fMinScanPointsTmu + 1 ) ;
@@ -1325,7 +1327,7 @@ double MECGenerator::GetXSecMaxTlctl( const Interaction & in,
 
   double xsec = 0 ;
   
-  // preliminary scan 
+  // preliimnary scan 
   for ( unsigned int i = 1 ; i <= (unsigned int) fMinScanPointsTmu ; ++i ) {
     temp_point[0] = ranges[0].min + steps[0]*i ;
 

@@ -74,10 +74,11 @@ private:
   const NuclearModelI *          fNuclModel;
 
   double fSafetyFactor ; 
-  double fTolerance ;
-  int fFunctionCalls; 
+  int fFunctionCalls ; 
+  double fTolerance ; 
   int fMinScanPointsTmu ; 
   int fMinScanPointsCosth ; 
+  
   double fQ3Max;
 
   // Tolerate this maximum percent deviation above the calculated maximum cross
