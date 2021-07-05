@@ -7,14 +7,14 @@ Configuration for MECGenerator
 
 Configurable Parameters:
 .......................................................................................................
-Name                      Type     Optional   Comment                                      Default
-NSV-Q3Max                 double   No         Q3 max for 2p2h model                        CommonParam[MultiNucleons]
-MaxXSec-SafetyFactor      double   Yes        Safety factor applied to the max xsec value  1.6
-MaxXSec-FunctionCalls     int      No         Maximum number of function calls to find the 
-                                           cross section maximum 
-MaxXSec-Tolerance         double   No         Tolerance for the minuit minimization
-MaxXSec-MinScanPointsTmu  int No         Number of scan points for Tmu required for the minimization of d2XSec/dTmudCosth  
-MaxXSec-MinScanPointsCosth  int No         Number of scan points for Costh required for the minimization of d2XSec/dTmudCosth  
+Name                       Type     Optional   Comment                                      Default
+NSV-Q3Max                  double   No         Q3 max for 2p2h model                        CommonParam[MultiNucleons]
+MaxXSec-SafetyFactor       double   Yes        Safety factor applied to the max xsec value  1.6
+MaxXSec-FunctionCalls      int      No         Maximum number of function calls to find the 
+                                               cross section maximum 
+MaxXSec-RelativeTolerance  double   No         Relative tolerance for the minuit minimization
+MaxXSec-MinScanPointsTmu   int      No         Number of scan points for Tmu required for the minimization of d2XSec/dTmudCosth  
+MaxXSec-MinScanPointsCosth int      No         Number of scan points for Costh required for the minimization of d2XSec/dTmudCosth  
 .........................................................................................................................
 -->
 
@@ -28,7 +28,7 @@ MaxXSec-MinScanPointsCosth  int No         Number of scan points for Costh requi
     
     <param type="double" name="MaxXSec-SafetyFactor"> 1.3 </param>
     <param type="int" name="MaxXSec-FunctionCalls"> 1000 </param>
-    <param type="double" name="MaxXSec-Tolerance"> 0.05 </param>
+    <param type="double" name="MaxXSec-RelativeTolerance"> 0.05 </param>
     <param type="int" name="MaxXSec-MinScanPointsTmu" > 20 </param>
     <param type="int" name="MaxXSec-MinScanPointsCosth" > 20 </param>
      
