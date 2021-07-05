@@ -1291,7 +1291,7 @@ void MECGenerator::LoadConfig(void)
 
     GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor, 1.6 ) ;
     GetParam( "MaxXSec-FunctionCalls", fFunctionCalls ) ;
-    GetParam( "MaxXSec-Tolerance", fTolerance ) ;
+    GetParam( "MaxXSec-RelativeTolerance", fRelTolerance ) ;
     GetParam( "MaxXSec-MinScanPointsTmu", fMinScanPointsTmu ) ;
     GetParam( "MaxXSec-MinScanPointsCosth", fMinScanPointsCosth ) ;
 
@@ -1314,10 +1314,6 @@ double MECGenerator::GetXSecMaxTlctl( const Interaction & in,
 
   genie::utils::mec::gsl::d2Xsec_dTCosth f(fXSecModel,&in, Enu, LepMass, -1.) ; 
   
-  min->SetFunction( f );
-  min->SetMaxFunctionCalls(fFunctionCalls);
-  min->SetTolerance(fTolerance);
-
   std::array<string,2> names = { "Tl", "CosThetal" } ;
   std::array<Range1D_t,2> ranges = { Tl_range, ctl_range } ; 
 
@@ -1341,6 +1337,11 @@ double MECGenerator::GetXSecMaxTlctl( const Interaction & in,
       }
     }
   }
+
+  // Set minimizer function and absolute tolerance :
+  min->SetFunction( f );
+  min->SetMaxFunctionCalls(fFunctionCalls);
+  min->SetTolerance( fRelTolerance * xsec );
 
   for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
     min -> SetLimitedVariable( i, names[i], start[i], steps[i], ranges[i].min, ranges[i].max ) ;

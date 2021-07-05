@@ -75,7 +75,7 @@ private:
 
   double fSafetyFactor ; 
   int fFunctionCalls ; 
-  double fTolerance ; 
+  double fRelTolerance ; // Relative tolerance 
   int fMinScanPointsTmu ; 
   int fMinScanPointsCosth ; 
   
