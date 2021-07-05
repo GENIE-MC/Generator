@@ -1304,8 +1304,8 @@ void MECGenerator::LoadConfig(void)
 }
 //___________________________________________________________________________
 double MECGenerator::GetXSecMaxTlctl( const Interaction & in, 
-				      const Range1D_t Tl_range, 
-				      const Range1D_t ctl_range ) const {
+				      const Range1D_t & Tl_range, 
+				      const Range1D_t & ctl_range ) const {
   
   ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit2");
 

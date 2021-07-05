@@ -67,7 +67,7 @@ private:
   // in the kPSTlctl phase space
   double GetXSecMaxTlctl( const Interaction& inter ) const;
 
-  double GetXSecMaxTlctl( const Interaction & inter, const Range1D_t Tl_range, const Range1D_t ctl_range ) const;
+  double GetXSecMaxTlctl( const Interaction & inter, const Range1D_t & Tl_range, const Range1D_t & ctl_range ) const;
 
   mutable const XSecAlgorithmI * fXSecModel;
   mutable TGenPhaseSpace         fPhaseSpaceGenerator;
