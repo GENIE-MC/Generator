@@ -26,11 +26,11 @@ MaxXSec-MinScanPointsCosth int      No         Number of scan points for Costh r
 
     <!-- <param type="double" name="SuSA-MaxXSec-DiffTolerance"> 0.0 </param> -->
     
-    <param type="double" name="MaxXSec-SafetyFactor"> 1.3 </param>
+    <param type="double" name="MaxXSec-SafetyFactor"> 1.5 </param>
     <param type="int" name="MaxXSec-FunctionCalls"> 1000 </param>
-    <param type="double" name="MaxXSec-RelativeTolerance"> 0.05 </param>
-    <param type="int" name="MaxXSec-MinScanPointsTmu" > 20 </param>
-    <param type="int" name="MaxXSec-MinScanPointsCosth" > 20 </param>
+    <param type="double" name="MaxXSec-RelativeTolerance"> 0.8 </param>
+    <param type="int" name="MaxXSec-MinScanPointsTmu" > 120 </param>
+    <param type="int" name="MaxXSec-MinScanPointsCosth" > 100 </param>
      
   </param_set>
   
