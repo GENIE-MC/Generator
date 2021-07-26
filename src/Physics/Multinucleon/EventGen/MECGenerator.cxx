@@ -1341,7 +1341,7 @@ double MECGenerator::GetXSecMaxTlctl( const Interaction & in,
   // Set minimizer function and absolute tolerance :
   min->SetFunction( f );
   min->SetMaxFunctionCalls(fFunctionCalls);
-  min->SetTolerance( fRelTolerance * xsec );
+  //  min->SetTolerance( fRelTolerance * xsec );
 
   for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
     min -> SetLimitedVariable( i, names[i], start[i], steps[i], ranges[i].min, ranges[i].max ) ;
