@@ -18,9 +18,11 @@
            -t
               the target pdg code (format: 10LZZZAAAI)
            -x
-              differential cross section as function of:
-              1 = Energy of outgoing lepton (Eo)
-              2 = Inelasticity (y = 1 - Eo/Ei)
+              path to ascii file with x values
+           -y
+              path to ascii file with y values
+           -e
+              path to ascii file with energy values
            -o
               output ROOT file name
            --tune
@@ -44,8 +46,7 @@
 
 #include "TMath.h"
 #include "TSystem.h"
-#include "TH3D.h"
-#include "TH2D.h"
+#include "TTree.h"
 #include "TFile.h"
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
@@ -60,33 +61,19 @@
 #include "Framework/Interaction/InitialState.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Conventions/Units.h"
 
+#include <fstream>
 #include <iostream>
 
 using namespace genie;
 
 void   PrintSyntax          (void);
 void   DecodeCommandLine    (int argc, char * argv[]);
-void   WriteDiffXSecDEDX    (GEVGDriver evg_driver, TH3D * hist);
-void   WriteDiffXSecDYDX    (GEVGDriver evg_driver, TH3D * hist);
 
-//----------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------
-//GLOBAL VARIABLES
-//----------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------
+vector<double> ReadListFromPath (string path);
 
-const int    nlog10e   = 501;
-const double log10emin = 2.;
-const double log10emax = 12.;
-
-const int    nlog10y   = 500;
-const double log10ymin = -10.;
-const double log10ymax = 0.;
-
-const int    nlog10x   = 500;
-const double log10xmin = -10.;
-const double log10xmax = 0.;
+const double epsilon = 1e-5;
 
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
@@ -96,8 +83,11 @@ const double log10xmax = 0.;
 
 int fNu             = -1;
 int fTgt            = -1;
-int fTableType      = -1;
+string fPathXlist   = "";
+string fPathYlist   = "";
+string fPathElist   = "";
 string fOutFileName = "";
+bool fSaveAll       = false;
 
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
@@ -119,59 +109,109 @@ int main(int argc, char ** argv) {
   evg_driver.SetEventGeneratorList(fChannel);
   evg_driver.Configure(init_state);
 
-  TString sufix = Form("%d_%d_%s",fNu,fTgt,fChannel.c_str());
+  vector<double> ve = ReadListFromPath(fPathElist);
+  vector<double> vx = ReadListFromPath(fPathXlist);
+  vector<double> vy = ReadListFromPath(fPathYlist);
 
-  LOG("gcalchedisdiffxsec", pDEBUG) << sufix;
+  double widthx = (TMath::Log10(vx[1])-TMath::Log10(vx[0]));
 
-  //the energy knots should be in the center of the bins
-  double mine = log10emin - (log10emax-log10emin)/(nlog10e-1.)/2.;
-  double maxe = log10emax + (log10emax-log10emin)/(nlog10e-1.)/2.;
+  LOG("gcalchedisdiffxsec", pINFO) << widthx;
 
-  TH3D * h3d;
-  TH2D * h2d;
-  if (fTableType==1) {
-    
-    h3d = new TH3D("dxsec_deodx_"+sufix,";log_{10}(E_{#nu}[GeV]);log_{10}(E_{out}[GeV]);log_{10}(x)",nlog10e,mine,maxe,nlog10e,mine,maxe,nlog10x,log10xmin,log10xmax);
-    WriteDiffXSecDEDX(evg_driver,h3d);
-    
-    h2d = new TH2D("dxsec_deo_"+sufix,";log_{10}(E_{#nu}[GeV]);log_{10}(E_{out}[GeV]);d#sigma/dE_{out}",nlog10e,mine,maxe,nlog10e,mine,maxe);
-    for ( int ix=1; ix<=h3d->GetNbinsX(); ix++ ) {
-      double ei = TMath::Power(10.,h3d->GetXaxis()->GetBinCenter(ix));
-      for ( int iy=1; iy<=h3d->GetNbinsY(); iy++ ) {
-        double dxsec = 0.;
-        for ( int iz=1; iz<=h3d->GetNbinsZ(); iz++ ) {
-          double x = TMath::Power(10.,h3d->GetZaxis()->GetBinCenter(iz));
-          dxsec += h3d->GetBinContent(ix,iy,iz) * x;
-        }          
-        dxsec *= h3d->GetZaxis()->GetBinWidth(1) * TMath::Log(10.) / ei;
-        h2d->SetBinContent(ix,iy,dxsec);
-      }
-    }
-    
+  int quark;
+  double ei;
+  double bx;
+  double by;
+  double dxsec;
   
-  }
-  else if (fTableType==2) {
-    
-    h3d = new TH3D("dxsec_dydx_"+sufix,";log_{10}(E_{#nu}[GeV]);log_{10}(y);log_{10}(x)",nlog10e,mine,maxe,nlog10y,log10ymin,log10ymax,nlog10x,log10xmin,log10xmax);
-    WriteDiffXSecDYDX(evg_driver,h3d);
-    
-    h2d = new TH2D("dxsec_dy_"+sufix,";log_{10}(E_{#nu}[GeV]);log_{10}(y);d#sigma/dy",nlog10e,mine,maxe,nlog10y,log10ymin,log10ymax);
-    for ( int ix=1; ix<=h3d->GetNbinsX(); ix++ ) {
-      for ( int iy=1; iy<=h3d->GetNbinsY(); iy++ ) {
-        double dxsec = 0.;
-        for ( int iz=1; iz<=h3d->GetNbinsZ(); iz++ ) {
-          double x = TMath::Power(10.,h3d->GetZaxis()->GetBinCenter(iz));
-          dxsec += h3d->GetBinContent(ix,iy,iz) * x;
-        }          
-        dxsec *= h3d->GetZaxis()->GetBinWidth(1) * TMath::Log(10.);
-        h2d->SetBinContent(ix,iy,dxsec);
-      }
+  TString treename = Form("diffxsec_nu%d_tgt%d_%s",fNu,fTgt,fChannel.c_str());
+
+  LOG("gcalchedisdiffxsec", pINFO) << treename;
+
+  TTree * tree = new TTree(treename,treename);
+  tree->Branch( "Quark",    &quark, "Quark/I"    );
+  tree->Branch( "Ei",       &ei,    "Ei/D"       );
+  tree->Branch( "Bx",       &bx,    "Bx/D"       );
+  tree->Branch( "By",       &by,    "By/D"       );
+  tree->Branch( "DiffXsec", &dxsec, "DiffXsec/D" );
+
+  const InteractionList * intlst   = evg_driver.Interactions();
+
+  InteractionList::const_iterator intliter;
+  for(intliter = intlst->begin(); intliter != intlst->end(); ++intliter) {
+
+    const Interaction * interaction = *intliter;
+
+    quark = 10000 * interaction->InitState().Tgt().HitQrkPdg();
+    if (!interaction->InitState().Tgt().HitSeaQrk()) {
+      if ( quark>0 ) quark += 100;
+      else           quark -= 100;
     }
+    quark += 1 * interaction->ExclTag().FinalQuarkPdg();
+
+    LOG("gcalchedisdiffxsec", pINFO) << "Current interaction: " << interaction->AsString();
+
+    const XSecAlgorithmI * xsec_alg = evg_driver.FindGenerator(interaction)->CrossSectionAlg();
+
+    for ( unsigned i=0; i<ve.size(); i++ ) {
+
+      ei = ve[i];
+
+      LOG("gcalchedisdiffxsec", pINFO) << "Energy: " << ei << " [GeV]";
+
+      TLorentzVector p4(0,0,ei,ei);
+      interaction->InitStatePtr()->SetProbeP4(p4);
+
+      for ( unsigned j=0; j<vy.size(); j++ ) {
+
+        double z = vy[j]; // z = (eo-em)/(ei-em)
+
+        by = (1-z)*(ei-10.)/ei; // y = 1 - eo/ei;
+
+        LOG("gcalchedisdiffxsec", pDEBUG) << "  z: " << z << "  y: " << by;
+
+        if      ( by==1. ) by -= 1e-4; 
+        else if ( by==0. ) {
+          by = 5./ei;
+          double by_prev = (1-vy[j-1])*(ei-10.)/ei;
+          LOG("gcalchedisdiffxsec", pDEBUG) << "  by: " << by << "  by_prev: " << by_prev << "  " << vy[j-1];
+          if (by>by_prev) by = 1e-4;
+        }
+        
+        if ( by<0 || by>1 ) continue;
+        
+        interaction->KinePtr()->Sety(by);
+        
+        if (fSaveAll) {
+          for ( unsigned k=0; k<vx.size(); k++ ) {
+            bx = vx[k];
+            interaction->KinePtr()->Setx(bx);
+            utils::kinematics::UpdateWQ2FromXY(interaction);
+            dxsec = xsec_alg->XSec(interaction, kPSxyfE) / units::cm2;
+            LOG("gcalchedisdiffxsec", pDEBUG) << "x: " << bx << "  y: " << by << " -> d2sigmadxdy[E=" << ei << "GeV] = " << dxsec << " cm2";
+            tree->Fill();
+          }
+        }
+        else {
+          dxsec = 0.;
+          for ( unsigned k=0; k<vx.size(); k++ ) {
+            bx = vx[k];
+            interaction->KinePtr()->Setx(bx);
+            utils::kinematics::UpdateWQ2FromXY(interaction);
+            dxsec += xsec_alg->XSec(interaction, kPSxyfE) * bx;
+          }
+          dxsec *=  widthx*TMath::Log(10) / units::cm2;
+          LOG("gcalchedisdiffxsec", pDEBUG) << "  y: " << by << " -> d2sigmady[E=" << ei << "GeV] = " << dxsec << " cm2";
+          tree->Fill();
+        }
+        
+      }
+    
+    }
+
   }
 
   TFile * outfile = new TFile(fOutFileName.c_str(),"RECREATE");
-  h3d->Write(h3d->GetName());
-  h2d->Write(h2d->GetName());
+  tree->Write(tree->GetName());
   outfile->Close();
 
 }
@@ -179,114 +219,25 @@ int main(int argc, char ** argv) {
 
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
-//DIFFERENTIAL CROSS SECTION AS FUNCTION OF THE ENERGY OF OUTGOING LEPTON
+//READ LIST
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
+vector<double> ReadListFromPath(string path) {
 
-void WriteDiffXSecDEDX(GEVGDriver evg_driver, TH3D * hist) {
+  vector<double> list;
 
-  const InteractionList * intlst   = evg_driver.Interactions();
+  std::ifstream infile(path.c_str());
 
-  LOG("gcalchedisdiffxsec", pDEBUG) << *intlst;
-
-  InteractionList::const_iterator intliter;
-  for(intliter = intlst->begin(); intliter != intlst->end(); ++intliter) {
-
-    const Interaction * interaction = *intliter;
-    const XSecAlgorithmI * xsec_alg = evg_driver.FindGenerator(interaction)->CrossSectionAlg();
-
-    LOG("gcalchedisdiffxsec", pINFO) << "Current interaction: " << interaction->AsString();
-
-    for ( int ix=1; ix<=hist->GetNbinsX(); ix++ ) {
-
-      double ei = TMath::Power(10.,hist->GetXaxis()->GetBinCenter(ix));
-
-      LOG("gcalchedisdiffxsec", pINFO) << "Energy: " << ei << " [GeV]";
-
-      TLorentzVector p4(0,0,ei,ei);
-      interaction->InitStatePtr()->SetProbeP4(p4);
-
-      for ( int iy=1; iy<=hist->GetNbinsY(); iy++ ) {
-
-        double eo = TMath::Power(10.,hist->GetYaxis()->GetBinCenter(iy));
-     
-        double y = 1. - eo / ei;
-        if (y<0 || y>1) continue;
-        interaction->KinePtr()->Sety(y);
-        
-        for ( int iz=1; iz<=hist->GetNbinsZ(); iz++ ) {
-
-          double x = TMath::Power(10.,hist->GetZaxis()->GetBinCenter(iz));
-          interaction->KinePtr()->Setx(x);
-          utils::kinematics::UpdateWQ2FromXY(interaction);
-          double dxsec = xsec_alg->XSec(interaction, kPSxyfE);
-
-          LOG("gcalchedisdiffxsec", pDEBUG) << "x: " << x << "  eo: " << eo << " -> dsdxdeo[E=" << ei << "GeV] = " << dxsec;
-
-          hist->SetBinContent(ix,iy,iz,hist->GetBinContent(ix,iy,iz)+dxsec);
-
-        }
-
-      }
-    
-    }
-
+  //check to see that the file was opened correctly:
+  if (!infile.is_open()) {
+    LOG("gcalchedisdiffxsec", pFATAL) << "There was a problem opening the input file!";
+    exit(1);//exit or do additional error checking
   }
 
-}
+  double val = 0.;
+  while (infile >> val) list.push_back(val);
 
-
-//----------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------
-//DIFFERENTIAL CROSS SECTION AS FUNCTION OF THE INELASTICITY
-//----------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------
-
-void WriteDiffXSecDYDX(GEVGDriver evg_driver, TH3D * hist) {
-
-  const InteractionList * intlst   = evg_driver.Interactions();
-
-  InteractionList::const_iterator intliter;
-  for(intliter = intlst->begin(); intliter != intlst->end(); ++intliter) {
-
-    const Interaction * interaction = *intliter;
-    const XSecAlgorithmI * xsec_alg = evg_driver.FindGenerator(interaction)->CrossSectionAlg();
-
-    LOG("gcalchedisdiffxsec", pINFO) << "Current interaction: " << interaction->AsString();
-
-    for ( int ix=1; ix<=hist->GetNbinsX(); ix++ ) {
-
-      double ei = TMath::Power(10.,hist->GetXaxis()->GetBinCenter(ix));
-
-      LOG("gcalchedisdiffxsec", pINFO) << "Energy: " << ei << " [GeV]";
-
-      TLorentzVector p4(0,0,ei,ei);
-      interaction->InitStatePtr()->SetProbeP4(p4);
-
-      for ( int iy=1; iy<=hist->GetNbinsY(); iy++ ) {
-
-        double y = TMath::Power(10.,hist->GetYaxis()->GetBinCenter(iy));
-     
-        interaction->KinePtr()->Sety(y);
-
-        for ( int iz=1; iz<=hist->GetNbinsZ(); iz++ ) {
-
-          double x = TMath::Power(10.,hist->GetZaxis()->GetBinCenter(iz));
-          interaction->KinePtr()->Setx(x);
-          utils::kinematics::UpdateWQ2FromXY(interaction);
-          double dxsec = xsec_alg->XSec(interaction, kPSxyfE);
-
-          LOG("gcalchedisdiffxsec", pDEBUG) << "x: " << x << "  y: " << y << " -> dsdxdy[E=" << ei << "GeV] = " << dxsec;
-
-          hist->SetBinContent(ix,iy,iz,hist->GetBinContent(ix,iy,iz)+dxsec);
-
-        }
-        
-      }
-    
-    }
-
-  }
+  return list;
 
 }
 
@@ -326,14 +277,39 @@ void DecodeCommandLine(int argc, char * argv[]) {
   }
   
   if( parser.OptionExists('x') ){ 
-    fTableType = parser.ArgAsInt('x');
-    LOG("gcalchedisdiffxsec", pINFO) << "TableType = " << fTableType;
+    fPathXlist = parser.ArgAsString('x');
+    LOG("gcalchedisdiffxsec", pINFO) << "PathXlist = " << fPathXlist;
   }          
   else {
-    LOG("gcalchedisdiffxsec", pFATAL) << "Unspecified input table type!";
+    LOG("gcalchedisdiffxsec", pFATAL) << "Unspecified input path to Xlist!";
     PrintSyntax();
     exit(1);
   }
+
+  if( parser.OptionExists('y') ){ 
+    fPathYlist = parser.ArgAsString('y');
+    LOG("gcalchedisdiffxsec", pINFO) << "PathYlist = " << fPathYlist;
+  }          
+  else {
+    LOG("gcalchedisdiffxsec", pFATAL) << "Unspecified input path to Ylist!";
+    PrintSyntax();
+    exit(1);
+  }
+
+  if( parser.OptionExists('e') ){ 
+    fPathElist = parser.ArgAsString('e');
+    LOG("gcalchedisdiffxsec", pINFO) << "PathElist = " << fPathElist;
+  }          
+  else {
+    LOG("gcalchedisdiffxsec", pFATAL) << "Unspecified input path to Elist!";
+    PrintSyntax();
+    exit(1);
+  }
+
+  if( parser.OptionExists('s') ) {
+    fSaveAll = true;
+    LOG("gcalchedisdiffxsec", pINFO) << "SaveAll = " << fSaveAll;
+  }          
 
   if( parser.OptionExists('o') ){ 
     fOutFileName = parser.ArgAsString('o');
@@ -352,7 +328,10 @@ void PrintSyntax(void)
 {
   LOG("gcalchedisdiffxsec", pNOTICE)
       << "\n\n" << "Syntax:" << "\n"
-      << "   gcalchedisdiffxsec -p nu -t tgt -o root_file -x table_type\n"
+      << "   gcalchedisdiffxsec -p nu -t tgt -o root_file\n"
+      << "            -x pathxlist\n"
+      << "            -y pathylist\n"
+      << "            -e pathelist\n"
       << "            --tune genie_tune\n"
       << "            --event-generator-list list_name\n"
       << "            [--message-thresholds xml_file]\n";
