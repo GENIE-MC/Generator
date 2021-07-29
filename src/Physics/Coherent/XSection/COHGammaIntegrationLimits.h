@@ -56,7 +56,7 @@ protected:
 private:
 
   const COHFormFactorI * fFF ;
-  double fMaxEg ;
+  double fDeltaW ;
   double fMaxThetag ;
 
 };

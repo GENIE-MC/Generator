@@ -28,13 +28,13 @@ using namespace genie;
 COHGammaIntegrationLimits::COHGammaIntegrationLimits() :
   Algorithm("genie::COHGammaIntegrationLimits"), 
   fFF( nullptr ), 
-  fMaxEg( std::numeric_limits<double>::infinity() ) 
+  fDeltaW( std::numeric_limits<double>::infinity() ) 
 { ; }
 //____________________________________________________________________________
 COHGammaIntegrationLimits::COHGammaIntegrationLimits(string config) :
   Algorithm("genie::COHGammaIntegrationLimits", config),
   fFF( nullptr ),
-  fMaxEg( std::numeric_limits<double>::infinity() ) 
+  fDeltaW( std::numeric_limits<double>::infinity() ) 
  { ; }
 //____________________________________________________________________________
 COHGammaIntegrationLimits::~COHGammaIntegrationLimits()
@@ -44,9 +44,22 @@ COHGammaIntegrationLimits::~COHGammaIntegrationLimits()
 //____________________________________________________________________________
 Range1D_t COHGammaIntegrationLimits::EGamma( const Interaction & in ) const {
 
+
+  double max_t = t( in ).max ;
+  double target_mass = in.InitState().Tgt().Mass() ;
+
+  double mt2 = target_mass * target_mass ;
+  double twice_mt2 = 2 * mt2 ;
+  double max_recoil_gamma = ( twice_mt2 + max_t*max_t ) / twice_mt2 ;
+
+  double max_beta = sqrt( 1. - 1./(max_recoil_gamma*max_recoil_gamma) );
+
+  double max_W = target_mass + fDeltaW ;
+  double max_gamma_energy = ( max_W*max_W - mt2 ) / (2*target_mass*(1.-max_beta) );
+  
   return Range1D_t( controls::kASmallNum, 
 		    std::min( in.InitState().ProbeE( kRfLab ) - controls::kASmallNum, 
-			      fMaxEg ) 
+			      max_gamma_energy ) 
 		    ) ; 
 }
 //____________________________________________________________________________
@@ -120,7 +133,7 @@ void COHGammaIntegrationLimits::LoadConfig(void)
     LOG("COHGammaIntegrationLimits", pERROR ) << "Form factor not retrieved" ;
   }
 
-  GetParam( "MaxGammaEnergy", fMaxEg ) ;
+  GetParam( "AsymptoticMaxGammaEnergy", fDeltaW ) ;
 
   GetParamDef( "MaxGammaTheta", fMaxThetag, 180. - controls::kASmallNum ) ;
   fMaxThetag *= constants::kPi / 180. ; 
