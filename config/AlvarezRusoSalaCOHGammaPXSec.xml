@@ -11,7 +11,10 @@ Name                          Type     Optional   Comment                       
 COH-HadronicCurrents          vec-alg  No         Vector of hadronic current sub algos                         -
 XSec-Integrator               alg      No         Cross section integrator sub algo                            - 
 COH-FormFactor                alg      yes        DeVries form facor sub algo                    The one of the integrator              
+AsymptoticMaxGammaEnergy      double   No         Configuration parameter for maximum W for      taken from subalgo
+                                                  the cross section. 
 -->
+
 
 
 
