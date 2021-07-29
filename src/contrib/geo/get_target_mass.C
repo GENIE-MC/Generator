@@ -28,11 +28,11 @@
 #include <iostream>
 #include <iomanip>
 
-#include "Conventions/Units.h"
+#include "Framework/Conventions/Units.h"
 
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "PDG/PDGLibrary.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 
 // #define _debug_
 
@@ -45,9 +45,9 @@ void  get_mass      (double length_unit, double density_unit);
 string gFileName;
 
 //____________________________________________________________________________
-void get_target_mass ( 
-  string geometry_file, string topvolname = "", 
-  double length_unit=units::cm, double density_unit=units::g_cm3, 
+void get_target_mass (
+  string geometry_file, string topvolname = "",
+  double length_unit=units::cm, double density_unit=units::g_cm3,
   Bool_t checkoverlaps = kFALSE)
 {
   PDGLibrary* pdglib = PDGLibrary::Instance(); // get message out of the way
@@ -57,7 +57,7 @@ void get_target_mass (
    TGeoManager *tgeo = new TGeoManager("TGeo","TGeo");
    tgeo->Import( geometry_file.c_str() );
 
-   // set top volume 
+   // set top volume
    if( ! set_top_volume(topvolname) ) return;
 
    // draw
@@ -74,8 +74,8 @@ void get_target_mass (
 
 //____________________________________________________________________________
 Int_t set_top_volume(string topvolname)
-{	
-   // no user input, set to overal top volume 
+{
+   // no user input, set to overal top volume
    if( topvolname=="" ) {
       topvolname = gGeoManager->GetTopVolume()->GetName();
    }
@@ -105,9 +105,9 @@ void get_mass(Double_t length_unit, Double_t density_unit)
 
    // get materials in geometry
    TList *matlist = gGeoManager->GetListOfMaterials();
-   if (!matlist ) { 
-     cout << "Null list of materials!" << endl; 
-     return; 
+   if (!matlist ) {
+     cout << "Null list of materials!" << endl;
+     return;
    } else {
 #ifdef _debug_
      matlist->Print();
@@ -128,7 +128,7 @@ void get_mass(Double_t length_unit, Double_t density_unit)
    for( Int_t imat = 0; imat < nmat; imat++ )
    {
       if( !checkindex[imat] ) checkindex[imat] = 1;
-      else 
+      else
       {
          cout << "material index is not unique" << endl;
         return;
@@ -155,7 +155,7 @@ void get_mass(Double_t length_unit, Double_t density_unit)
 
    for( Int_t i = 0; i<max_idx+1; i++ ){ volume[i]=0.; mass[i]=0.; } // IMPORTANT! force empty arrays, allows repated calls without ending ROOT session
 
-   volume[ topvol->GetMaterial()->GetIndex() ] = topvol->Capacity() * volume_unit_to_SI; //iterator does not include topvolume  
+   volume[ topvol->GetMaterial()->GetIndex() ] = topvol->Capacity() * volume_unit_to_SI; //iterator does not include topvolume
 
    while ( (node=NodeIter()) )
    {
@@ -182,7 +182,7 @@ void get_mass(Double_t length_unit, Double_t density_unit)
          TGeoMixture * lgeo_Mix = dynamic_cast <TGeoMixture*> ( lgeo_Mat );
          Int_t lint_Nelements = lgeo_Mix->GetNelements();
 
-         for ( Int_t j=0; j<lint_Nelements; j++) 
+         for ( Int_t j=0; j<lint_Nelements; j++)
          {
             Int_t lint_Z = TMath::Nint( (Double_t) lgeo_Mix->GetZmixt()[j] );
             Int_t lint_A = TMath::Nint( (Double_t) lgeo_Mix->GetAmixt()[j] );
@@ -203,13 +203,13 @@ void get_mass(Double_t length_unit, Double_t density_unit)
 
    cout << endl
         << " Geometry: \"" <<  gFileName << "\"" << endl
-        << " TopVolume: \"" << topvol->GetName() << "\"" 
+        << " TopVolume: \"" << topvol->GetName() << "\""
         << endl;
 
    cout <<endl << "materials:" << endl;
    cout << setw(5) << "index"
         << setw(15) << "name"
-        << setprecision(6) 
+        << setprecision(6)
         << setw(14) << "volume (m^3)"
         << setw(14) << "mass (kg)"
         << setw(14) << "mass (%)"
@@ -235,11 +235,11 @@ void get_mass(Double_t length_unit, Double_t density_unit)
       mass[idx] = density * volume[idx];
 
       if( volume[idx] > ldou_MinimumVolume ) {
-        cout << setw(5) << i 
-             << setw(15) << gGeoManager->GetMaterial(i)->GetName() 
-             << setprecision(6) 
-             << setw(14) << volume[idx] 
-             << setw(14) << mass[idx] 
+        cout << setw(5) << i
+             << setw(15) << gGeoManager->GetMaterial(i)->GetName()
+             << setprecision(6)
+             << setw(14) << volume[idx]
+             << setw(14) << mass[idx]
              << setw(14) << mass[idx]*100./total_mass_materials
              <<  endl;
       }
@@ -252,7 +252,7 @@ void get_mass(Double_t length_unit, Double_t density_unit)
    PDGLibrary* pdglib = PDGLibrary::Instance();
 
    cout <<endl << "isotopes:" << endl;
-   cout << setw(4) << "Z" 
+   cout << setw(4) << "Z"
         << setw(4) << "A"
         << setw(14) << "PDG isotope"
         << setw(6) << "      "
@@ -281,9 +281,9 @@ void get_mass(Double_t length_unit, Double_t density_unit)
              << setw(4)<< j
              << setw(14) << pdgcode
              << setw(6) << pdglib->Find(pdgcode)->GetName()
-             << setprecision(6) 
+             << setprecision(6)
              << setw(14) << larr_VolumeIsotopes[ i ][ j ]
-             << setw(14) << larr_MassIsotopes[ i ][ j ] 
+             << setw(14) << larr_MassIsotopes[ i ][ j ]
              << setw(14) << larr_MassIsotopes[ i ][ j ]*100.0/total_mass_isotopes
              <<  endl;
          }
@@ -293,7 +293,7 @@ void get_mass(Double_t length_unit, Double_t density_unit)
       }
    }
 
-   cout << endl << " mass totals: " << total_mass_materials << " " << total_mass_isotopes 
+   cout << endl << " mass totals: " << total_mass_materials << " " << total_mass_isotopes
         << endl << endl;
 
    delete [] volume;
@@ -301,4 +301,3 @@ void get_mass(Double_t length_unit, Double_t density_unit)
 
 }
 //____________________________________________________________________________
-

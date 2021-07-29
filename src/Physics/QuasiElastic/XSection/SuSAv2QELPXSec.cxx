@@ -135,6 +135,9 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   // binding energy. To first order I can use the Q_value for this
   double Q_value = Eb_tgt-Eb_ten;
 
+  // Apply Qvalue relative shift if needed:
+  if( fQvalueShifter ) Q_value += Q_value * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
+
   genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
 
   double Q0min = tensor->q0Min();
@@ -210,8 +213,8 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
     const FermiMomentumTable * kft = kftp->GetTable(fKFTable);
     double KF_tgt = kft->FindClosestKF(target_pdg, kPdgProton);
     double KF_ten = kft->FindClosestKF(tensor_pdg, kPdgProton);
-    LOG("SuSAv2MEC", pDEBUG) << "KF_tgt = " << KF_tgt;
-    LOG("SuSAv2MEC", pDEBUG) << "KF_ten = " << KF_ten;
+    LOG("SuSAv2QE", pDEBUG) << "KF_tgt = " << KF_tgt;
+    LOG("SuSAv2QE", pDEBUG) << "KF_ten = " << KF_ten;
     double scaleFact = (KF_ten/KF_tgt); // A-scaling already applied in section above
     xsec *= scaleFact;
   }
@@ -279,6 +282,8 @@ void SuSAv2QELPXSec::Configure(std::string config)
 //_________________________________________________________________________
 void SuSAv2QELPXSec::LoadConfig(void)
 {
+  bool good_config = true ;
+
   // Cross section scaling factor
   GetParam( "QEL-CC-XSecScale", fXSecScale ) ;
 
@@ -307,5 +312,26 @@ void SuSAv2QELPXSec::LoadConfig(void)
   this->GetParam( "RFG-NucRemovalE@Pdg=1000501190", fEbSn );
   this->GetParam( "RFG-NucRemovalE@Pdg=1000791970", fEbAu );
   this->GetParam( "RFG-NucRemovalE@Pdg=1000822080", fEbPb );
+
+  // Read optional QvalueShifter:
+  // Read optional QvalueShifter:                                                                                   
+  fQvalueShifter = nullptr;                                                                                        
+  if( GetConfig().Exists("QvalueShifterAlg") ) {            
+    
+    fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );      
+
+    if( !fQvalueShifter ) {                                                      
+
+      good_config = false ;                                                    
+                                  
+      LOG("SuSAv2QE", pERROR) << "The required QvalueShifterAlg is not valid. AlgID is : " 
+			      << SubAlg("QvalueShifterAlg")->Id() ;    
+    }                                                                                                               
+  }  // if there is a requested QvalueShifteralgo                                                                                                                
+  if( ! good_config ) {
+    LOG("SuSAv2QE", pERROR) << "Configuration has failed.";
+    exit(78) ;
+  }
+ 
 
 }

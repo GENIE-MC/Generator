@@ -38,6 +38,7 @@
   <priority msgstream="BardinIMD">             FATAL </priority>
   <priority msgstream="BaryonResList">         FATAL </priority>
   <priority msgstream="BaseHad">               FATAL </priority>
+  <priority msgstream="BertuzzoDNuCOH">        FATAL </priority>
   <priority msgstream="BSKLNBaseRESPXSec2014"> FATAL </priority>
   <priority msgstream="BreitWignet">           FATAL </priority>
   <priority msgstream="Bardin">                FATAL </priority>
@@ -49,11 +50,14 @@
   <priority msgstream="CharmHad">              FATAL </priority>
   <priority msgstream="CFracTab">              FATAL </priority>
   <priority msgstream="CEvNS">                 FATAL </priority>
+  <priority msgstream="COHDNu">                FATAL </priority>
+  <priority msgstream="COHDNuXSec">            FATAL </priority>
   <priority msgstream="COHXSec">               FATAL </priority>
   <priority msgstream="COHXSecAR">             FATAL </priority>
   <priority msgstream="CLAP">                  FATAL </priority>
   <priority msgstream="COHHadronicVtx">        FATAL </priority>
   <priority msgstream="COHKinematics">         FATAL </priority>
+  <priority msgstream="DarkSectorDecayer">     FATAL </priority>
   <priority msgstream="DFRHadronicVtx">        FATAL </priority>
   <priority msgstream="DFRKinematics">         FATAL </priority>
   <priority msgstream="Decay">                 FATAL </priority>
@@ -77,6 +81,7 @@
   <priority msgstream="EVGChain">              FATAL </priority>
   <priority msgstream="EvGenListAssembler">    FATAL </priority>
   <priority msgstream="ELFormFactors">         FATAL </priority>
+  <priority msgstream="EngelFormFactor">       FATAL </priority>
   <priority msgstream="FermiMover">            FATAL </priority>
   <priority msgstream="FermiP">                FATAL </priority>
   <priority msgstream="Flux">                  FATAL </priority>

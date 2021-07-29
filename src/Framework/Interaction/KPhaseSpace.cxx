@@ -101,7 +101,7 @@ double KPhaseSpace::Threshold(void) const
   }
 
   if(pi.IsCoherentElastic()) {
-    return 0;
+    return ml + 0.5*ml*ml/tgt.Mass();
   }
 
   if (pi.IsCoherentProduction()) {

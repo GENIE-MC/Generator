@@ -72,7 +72,8 @@ typedef enum EKinePhaseSpace {
   kPSEgTlTgPgfE,
   kPSEgOlOgfE,
   kPSEgtTgPgfE,
-  kPSlog10xlog10Q2fE
+  kPSlog10xlog10Q2fE,
+  kPSEDNufE // Used for Dark Neutrinos, two body final state
 } KinePhaseSpace_t;
 
 class KinePhaseSpace
@@ -129,9 +130,10 @@ public:
       case(kPSQ2vfE)      : return "<{Q2,v}|E>"; break;
       // TODO: update this string when the appropriate kinematic variables are known
       case(kPSQELEvGen)   : return "<QELEvGen>"; break;
-      case(kPSDMELEvGen)   : return "<DMELEvGen>"; break;
+      case(kPSDMELEvGen)  : return "<DMELEvGen>"; break;
       case(kPSTAfE)       : return "<{TA}|E>";   break;
       case(kPSlog10xlog10Q2fE) : return "<{log10x,log10Q2}|E>"; break;
+      case(kPSEDNufE)     : return "<{EDNu}|E>"; break;
     }
     return "** Undefined kinematic phase space **";
   }

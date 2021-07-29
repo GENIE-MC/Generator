@@ -5,10 +5,20 @@
 
 \brief     Baryon Resonance utilities.
 
-\author    Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-           University of Liverpool & STFC Rutherford Appleton Laboratory
 
-\created   November 25, 2004
+  \authors    Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+              University of Liverpool & STFC Rutherford Appleton Lab \n
+              Updates were made by 
+              Igor Kakorin <kakorin@jinr.ru> Joint Institute for Nuclear Research 
+  
+  \created   November 25, 2004
+  
+  \update   November 12, 2019
+            Added extra functions for MK model. \n
+            Updated resonance masses and widths according to PDG-2018. \n
+            Added previously missing resonances P33(1600) and F17(1970). \n
+            Now mass and widths are taken from PDG table via TDatabasePDG and cached. \n
+
 
 \cpright   Copyright (c) 2003-2020, The GENIE Collaboration
            For the full text of the license visit http://copyright.genie-mc.org
@@ -41,36 +51,23 @@ namespace genie {
             bool        IsN               (Resonance_t res);  		 ///< is it an N resonance?
             double      Mass              (Resonance_t res); 			 ///< resonance mass (GeV)
             double      Width             (Resonance_t res); 			 ///< resonance width (GeV)
-            double      BWNorm            (Resonance_t res,
-                    double N0ResMaxNWidths=6,
-                    double N2ResMaxNWidths=2,
-                    double GnResMaxNWidths=4);  ///< breit-wigner normalization factor
+            double      BWNorm            (Resonance_t res, 
+					   double      N0ResMaxNWidths=6, 
+					   double      N2ResMaxNWidths=2, 
+					   double      GnResMaxNWidths=4);  ///< breit-wigner normalization factor
             int         OrbitalAngularMom (Resonance_t res);  		///< orbital angular momentum
             int         ResonanceIndex    (Resonance_t res);  		///< resonance idx, quark model / SU(6)
-            struct      CacheBWNorm		{
-                CacheBWNorm()
-                {
-                    cache[kP33_1232] = 0.0;
-                    cache[kS11_1535] = 0.0;
-                    cache[kD13_1520] = 0.0;
-                    cache[kS11_1650] = 0.0;
-                    cache[kD13_1700] = 0.0;
-                    cache[kD15_1675] = 0.0;
-                    cache[kS31_1620] = 0.0;
-                    cache[kD33_1700] = 0.0;
-                    cache[kP11_1440] = 0.0;
-                    cache[kP33_1600] = 0.0;
-                    cache[kP13_1720] = 0.0;
-                    cache[kF15_1680] = 0.0;
-                    cache[kP31_1910] = 0.0;
-                    cache[kP33_1920] = 0.0;
-                    cache[kF35_1905] = 0.0;
-                    cache[kF37_1950] = 0.0;
-                    cache[kP11_1710] = 0.0;
-                    cache[kF17_1970] = 0.0;
-                }
-                std::map <genie::EResonance, double> cache;
-            };															///< cached breit-wigner normalization factor
+            int         Isospin           (Resonance_t res);
+            int         AngularMom        (Resonance_t res);
+            int         Cjsgn_plus        (Resonance_t res);
+            int         Dsgn              (Resonance_t res);
+/*
+            // Not used in the latest version
+            double      VectorPhase       (Resonance_t res);
+            double      AxialPhase        (Resonance_t res);
+            double      CV40              (Resonance_t res);
+            double      CA50              (Resonance_t res);
+*/ 
 
         }        // res   namespace
     }        // utils namespace

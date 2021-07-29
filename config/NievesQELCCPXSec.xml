@@ -60,10 +60,25 @@ RmaxMode                             string   Yes        Method to use to comput
   <param_set name="Dipole">
     <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithFFCC/Dipole </param>
   </param_set>
+  
+  <param_set name = "DipoleNoRPA">
+    <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithFFCC/Dipole </param>    
+    <param type="bool" name="RPA">            false                        </param>
+  </param_set>
 
+  <param_set name = "DipoleNoCoulomb">
+    <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithFFCC/Dipole </param>    
+    <param type="bool" name="Coulomb">        false                        </param>
+  </param_set>
+
+  <param_set name = "DipoleNoPauli">
+    <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Dipole </param>    
+    <param type="bool" name="DoPauliBlocking"> false                        </param>
+  </param_set>
 
   <param_set name="ZExp">
     <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithFFCC/ZExp </param>
   </param_set>
+
 
 </alg_conf>
