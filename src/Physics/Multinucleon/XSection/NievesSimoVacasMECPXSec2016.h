@@ -31,6 +31,7 @@
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/HadronTensors/HadronTensorModelI.h"
+#include "Physics/Common/QvalueShifter.h"
 
 namespace genie {
 
@@ -64,6 +65,7 @@ private:
 
   const XSecIntegratorI *  fXSecIntegrator; // Numerical integrator (GSL)
 
+  const QvalueShifter * fQvalueShifter ; // Optional algorithm to retrieve the qvalue shift for a given target
 };
 
 }       // genie namespace

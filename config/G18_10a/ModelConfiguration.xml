@@ -59,7 +59,6 @@ STFC, Rutherford Appleton Laboratory
   <param type="bool" name="HadronTransp-Enable"> true </param>
   <param type="alg"  name="HadronTransp-Model">  genie::HAIntranuke2018/Default  </param>
 
-
  <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Specify which cross section model is to be used by each GENIE event generation thread.

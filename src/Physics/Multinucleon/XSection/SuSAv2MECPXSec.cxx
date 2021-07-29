@@ -155,6 +155,9 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   int nu_pdg = interaction->InitState().ProbePdg();
   double Q_value = 2*(Eb_tgt-Eb_ten);
 
+  // Apply Qvalue relative shift if needed:
+  if( fQvalueShifter ) Q_value += Q_value * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
+
   // We apply an extra Q-value shift here to account for differences between
   // the 12C EM MEC tensors currently in use (which have a "baked in" Q-value
   // already incorporated) and the treatment in Guille's thesis. Differences
@@ -352,16 +355,21 @@ void SuSAv2MECPXSec::Configure(std::string config)
 //_________________________________________________________________________
 void SuSAv2MECPXSec::LoadConfig(void)
 {
+  bool good_config = true ; 
   // Cross section scaling factor
   GetParamDef("MEC-XSecScale", fXSecScale, 1.) ;
 
-  fHadronTensorModel = dynamic_cast<const HadronTensorModelI*> (
-    this->SubAlg("HadronTensorAlg") );
-  assert( fHadronTensorModel );
+  fHadronTensorModel = dynamic_cast<const HadronTensorModelI*> ( this->SubAlg("HadronTensorAlg") );
+  if( !fHadronTensorModel ) {
+    good_config = false ; 
+    LOG("SuSAv2MECPXSec", pERROR) << "The required HadronTensorAlg does not exist. AlgoID is : " << SubAlg("HadronTensorAlg")->Id();
+  }
 
-  fXSecIntegrator = dynamic_cast<const XSecIntegratorI*> (
-    this->SubAlg("NumericalIntegrationAlg"));
-  assert(fXSecIntegrator);
+  fXSecIntegrator = dynamic_cast<const XSecIntegratorI*> (this->SubAlg("NumericalIntegrationAlg"));
+  if( !fXSecIntegrator ) {
+    good_config = false ; 
+    LOG("SuSAv2MECPXSec", pERROR) << "The required NumericalIntegrationAlg does not exist. AlgId is : " << SubAlg("NumericalIntegrationAlg")->Id() ;
+  }
 
   //Fermi momentum tables for scaling
   this->GetParam( "FermiMomentumTable", fKFTable);
@@ -379,4 +387,21 @@ void SuSAv2MECPXSec::LoadConfig(void)
   this->GetParam( "RFG-NucRemovalE@Pdg=1000501190", fEbSn );
   this->GetParam( "RFG-NucRemovalE@Pdg=1000791970", fEbAu );
   this->GetParam( "RFG-NucRemovalE@Pdg=1000822080", fEbPb );
+
+
+  // Read optional QvalueShifter:
+  fQvalueShifter = nullptr; 
+  if( GetConfig().Exists("QvalueShifterAlg") ) {
+    fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
+    if( !fQvalueShifter ) {
+      good_config = false ; 
+      LOG("SuSAv2MECPXSec", pERROR) << "The required QvalueShifterAlg does not exist. AlgId is : " << SubAlg("QvalueShifterAlg")->Id() ; 
+    }
+  }
+
+  if( ! good_config ) {
+    LOG("SuSAv2MECPXSec", pERROR) << "Configuration has failed.";
+    exit(78) ;
+  }
+
 }

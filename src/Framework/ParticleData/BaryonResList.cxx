@@ -152,3 +152,34 @@ void BaryonResList::Print(ostream & stream) const
   }
 }
 //____________________________________________________________________________
+auto BaryonResList::begin() noexcept -> typename vector<Resonance_t>::iterator
+{
+  return fResVec->begin();
+}
+//____________________________________________________________________________
+auto BaryonResList::end() noexcept -> typename vector<Resonance_t>::iterator
+{
+  return fResVec->end();
+}
+//____________________________________________________________________________
+auto BaryonResList::begin() const noexcept -> typename vector<Resonance_t>::const_iterator
+{
+  return fResVec->begin();
+}
+//____________________________________________________________________________
+auto BaryonResList::end() const noexcept -> typename vector<Resonance_t>::const_iterator
+{
+  return fResVec->end();
+}
+//____________________________________________________________________________
+auto BaryonResList::cbegin() const noexcept -> typename vector<Resonance_t>::const_iterator
+{
+  return fResVec->cbegin();
+}
+//____________________________________________________________________________
+auto BaryonResList::cend() const noexcept -> typename vector<Resonance_t>::const_iterator
+{
+  return fResVec->cend();
+}
+//____________________________________________________________________________
+

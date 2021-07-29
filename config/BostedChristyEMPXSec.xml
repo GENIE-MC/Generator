@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the Bosted-Christy fit for electron scattering  d^xsec / dQ^2 dW xsec algorithm
+
+Configurable Parameters:
+..............................................................................................................................................
+Name                                        Type         Optional Comment                                                   Default
+..............................................................................................................................................                                         
+BostedChristyFitEM-PM                       double       Yes      Proton mass                                               PDG table value
+BostedChristyFitEM-MP                       double       Yes      Proton mass                                               PDG table value
+BostedChristyFitEM-AM                       double       Yes      Proton mass                                               PDG table value
+BostedChristyFitEM-MD                       double       Yes      Deuterium mass                                            PDG table value
+BostedChristyFitEM-Mpi0                     double       Yes      pi0 mass                                                  PDG table value
+BostedChristyFitEM-Meta                     double       Yes      eta mass                                                  PDG table value
+BostedChristyFitEM-Wmin                     double       Yes      validity range: minimal W(GeV)                            0.0
+BostedChristyFitEM-Wmax                     double       Yes      validity range: maximal W(GeV)                            3.0
+BostedChristyFitEM-Q2min                    double       Yes      validity range: minimal Q2(GeV^2)                         0.0
+BostedChristyFitEM-Q2max                    double       Yes      validity range: maximal Q2(GeV^2)                         10.0
+BostedChristyFitEM-UseMEC                   bool         Yes      use MEC                                                   PDG table value
+BostedChristyFitEM-PionBRp                  vec-double   Yes      pion branching ratios for proton fit                      PDG table value
+BostedChristyFitEM-PionBRD                  vec-double   Yes      pion branching ratios for deuterium fit                   PDG table value
+BostedChristyFitEM-EtaBR                    vec-double   Yes      eta branching ratios for proton fit                       PDG table value
+BostedChristyFitEM-ResMass                  vec-double   Yes      resonance masses                                          PDG table value
+BostedChristyFitEM-ResWidth                 vec-double   Yes      resonance widths                                          PDG table value
+BostedChristyFitEM-ResAT0p                  vec-double   No       resonance parameters for proton fit
+BostedChristyFitEM-ResAT0D                  vec-double   No       resonance parameters for deuterium fit
+BostedChristyFitEM-Resap                    vec-double   No       resonance parameters for proton fit
+BostedChristyFitEM-ResaD                    vec-double   No       resonance parameters for deuterium fit
+BostedChristyFitEM-Resbp                    vec-double   No       resonance parameters for proton fit
+BostedChristyFitEM-ResbD                    vec-double   No       resonance parameters for deuterium fit
+BostedChristyFitEM-Rescp                    vec-double   No       resonance parameters for proton fit
+BostedChristyFitEM-RescD                    vec-double   No       resonance parameters for deuterium fit
+BostedChristyFitEM-ResAL0                   vec-double   No       resonance parameters for proton fit
+BostedChristyFitEM-Resd                     vec-double   No       resonance parameters for proton fit
+BostedChristyFitEM-Rese                     vec-double   No       resonance parameters for proton fit
+BostedChristyFitEM-NRXSecT1p                vec-double   No       non-resonance parameters for proton fit
+BostedChristyFitEM-NRXSecT1D                vec-double   No       non-resonance parameters for deuterium fit
+BostedChristyFitEM-NRXSecT2p                vec-double   No       non-resonance parameters for proton fit
+BostedChristyFitEM-NRXSecT2D                vec-double   No       non-resonance parameters for deuterium fit
+BostedChristyFitEM-NRXSecL                  vec-double   No       non-resonance parameters for proton fit
+BostedChristyFitEM-MEC                      vec-double   No       MEC fit parameters
+BostedChristyFitEM-MEC2009                  vec-double   No       MEC2009 fit parameters
+BostedChristyFitEM-Afit                     vec-double   No       parameters for nuclei fit
+BostedChristyFitEM-EMCalpha                 vec-double   No       parameters for EMC fit
+BostedChristyFitEM-EMCc                     vec-double   No       parameters for EMC fit
+BostedChristy-SeparationE@Pdg=10LZZZAAAI    double       No       separation energy for the nucleus with the specified pdg
+BostedChristy-FermiMomentum@Pdg=10LZZZAAAI  double       No       Fermi momentum for the nucleus with the specified pdg
+BostedChristy-p18@Pdg=10LZZZAAAI            double       No       MEC2019 paramete for the nucleus with the specified pdg
+XSec-Integrator                             alg          No                    
+-->
+
+  <param_set name="Default"> 
+     <param type="alg"    name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/NoPauliBlock      </param>
+  </param_set>
+  
+  <param_set name="Fit">
+    <param type="double" name="BostedChristyFitEM-PM">      0.93828   </param>
+    <param type="double" name="BostedChristyFitEM-MP">      0.9382727 </param>
+    <param type="double" name="BostedChristyFitEM-AM">      0.9383    </param>
+    <param type="double" name="BostedChristyFitEM-MD">      1.8756    </param>
+    <param type="double" name="BostedChristyFitEM-Mpi0">    0.135     </param>
+    <param type="double" name="BostedChristyFitEM-Meta">    0.547     </param>
+    <param type="bool"   name="BostedChristyFitEM-UseMEC">  true      </param>
+   <!--                                                                      P33(1232); S11(1535); D13(1520); F15(1680); S11(1650); P11(1440); F37(1950)      -->
+   <param type="vec-double" name="BostedChristyFitEM-PionBRp"    delim=";">  1.0;       0.45;      0.65;      0.65;      0.4;       0.65;      0.50     </param>
+   <param type="vec-double" name="BostedChristyFitEM-PionBRD"    delim=";">  1.0;       0.5;       0.65;      0.65;      0.4;       0.65;      0.6      </param>
+   <param type="vec-double" name="BostedChristyFitEM-EtaBR"      delim=";">  0.0;       0.45;      0.0;       0.0;       0.1;       0.0;       0.0      </param>
+   <param type="vec-double" name="BostedChristyFitEM-ResMass"    delim=";">  1.2298;    1.5304;    1.5057;    1.6980;    1.6650;    1.4333;    1.9341   </param>
+   <param type="vec-double" name="BostedChristyFitEM-ResWidth"   delim=";">  0.135730;  0.220000;  0.082956;  0.095782;  0.109360;  0.379440;  0.380000 </param>
+   <param type="vec-double" name="BostedChristyFitEM-ResAT0p"    delim=";">  7.7805;    6.3351;    0.60347;   2.3305;    1.979;     0.022506;  3.4187   </param>
+   <param type="vec-double" name="BostedChristyFitEM-ResAT0D"    delim=";">  8.122;     6.11;      0.04335;   2.088;     0.02276;   0.02321;   3.3190   </param>
+   <param type="vec-double" name="BostedChristyFitEM-Resap"      delim=";">  4.2291;    6823.2;    21.24;    -0.28789;  -0.56175;   462.13;    0.       </param>
+   <param type="vec-double" name="BostedChristyFitEM-ResaD"      delim=";">  5.189;    -34.64;     191.5;    -0.3029;   -0.4562;    541.9;     0.       </param>
+   <param type="vec-double" name="BostedChristyFitEM-Resbp"      delim=";">  1.2598;    33521.0;   0.055746;  0.18607;   0.38964;   0.19221;   0.       </param>
+   <param type="vec-double" name="BostedChristyFitEM-ResbD"      delim=";">  3.29;      900.0;     0.2232;    0.2012;    0.2397;    0.2247;    0.       </param>
+   <param type="vec-double" name="BostedChristyFitEM-Rescp"      delim=";">  2.1242;    2.5686;    2.4886;    0.063534;  0.54883;   1.9141;    1.       </param>
+   <param type="vec-double" name="BostedChristyFitEM-RescD"      delim=";">  1.87;      1.717;     2.119;     0.001104;  1.204;     2.168;     2.       </param>
+   <param type="vec-double" name="BostedChristyFitEM-ResAL0"     delim=";">  29.414;    0.;        157.92;    4.216;     13.764;    5.5124;    11.0     </param>
+   <param type="vec-double" name="BostedChristyFitEM-Resd"       delim=";">  19.91;     3856.5;    97.046;    0.0382;    0.31393;   0.053743;  1.8951   </param>
+   <param type="vec-double" name="BostedChristyFitEM-Rese"       delim=";">  0.22587;   0.65717;   0.31042;   1.2182;    2.9997;    1.3091;    0.51376  </param>
+   
+   <!--                                                                     \sigma^NR,i_T(0);  aT_i;       bT_i;    cT_i;        dT_i                              -->
+   <param type="vec-double" name="BostedChristyFitEM-NRXSecT1p"  delim=";">  246.06;           0.067469;   1.3501;  0.12054;    -0.38495E-02   </param>
+   <param type="vec-double" name="BostedChristyFitEM-NRXSecT1D"  delim=";">  226.6;            0.07649;    1.457;   0.1318;     -0.5596E-02    </param>
+   <param type="vec-double" name="BostedChristyFitEM-NRXSecT2p"  delim=";"> -89.36;            0.20977;    1.5715;  0.90736E-01; 1.03620E-02   </param>
+   <param type="vec-double" name="BostedChristyFitEM-NRXSecT2D"  delim=";"> -75.34;            0.1776;     1.636;   0.135;       0.5883E-02    </param>
+    
+    <!--                                                                   \sigma^NR_L(0);    aL          bL;      cL;          dL;       eL                      -->
+   <param type="vec-double" name="BostedChristyFitEM-NRXSecL"  delim=";">  86.746;            4.0864E-05; 4.0294;  3.1285;      0.33403;  4.9623    </param>
+   
+   <param type="vec-double"   name="BostedChristyFitEM-MEC" delim=";">     1.964;  1.086;  0.005313;  1.265;  8.0;  0.2979  </param>
+  
+   
+   <!--                              Separation energies                              -->
+   <param type="double" name="BostedChristy-SeparationE@Pdg=1000020030">  0.001  </param>    <!--  2  < A <= 3   -->
+   <param type="double" name="BostedChristy-SeparationE@Pdg=1000040070">  0.017  </param>    <!--  3  < A <= 7   -->
+   <param type="double" name="BostedChristy-SeparationE@Pdg=1000080160">  0.0165 </param>    <!--  7  < A <= 16  -->
+   <param type="double" name="BostedChristy-SeparationE@Pdg=1000120250">  0.025  </param>    <!--  16 < A <= 25  -->
+   <param type="double" name="BostedChristy-SeparationE@Pdg=1000190380">  0.018  </param>    <!--  25 < A <= 38  -->
+   <param type="double" name="BostedChristy-SeparationE@Pdg=1000230550">  0.028  </param>    <!--  38 < A <= 55  -->
+   <param type="double" name="BostedChristy-SeparationE@Pdg=1000300600">  0.018  </param>    <!--  55 < A <= 60  -->
+   <param type="double" name="BostedChristy-SeparationE@Pdg=1000310610">  0.028  </param>    <!--  60 < A        -->
+   
+   
+   <!-- Fermi momentum are not the same as provided by the FermiMomentumTable
+                          (not distinguished between proton and neutron)                                          -->
+   <param type="double" name="BostedChristy-FermiMomentum@Pdg=1000020030">  0.115 </param>    <!--  2  < A <= 3   -->
+   <param type="double" name="BostedChristy-FermiMomentum@Pdg=1000040070">  0.190 </param>    <!--  3  < A <= 7   -->
+   <param type="double" name="BostedChristy-FermiMomentum@Pdg=1000080160">  0.228 </param>    <!--  7  < A <= 16  -->
+   <param type="double" name="BostedChristy-FermiMomentum@Pdg=1000120250">  0.230 </param>    <!--  16 < A <= 25  -->
+   <param type="double" name="BostedChristy-FermiMomentum@Pdg=1000190380">  0.236 </param>    <!--  25 < A <= 38  -->
+   <param type="double" name="BostedChristy-FermiMomentum@Pdg=1000300600">  0.241 </param>    <!--  38 < A <= 60  -->
+   <param type="double" name="BostedChristy-FermiMomentum@Pdg=1000310610">  0.245 </param>    <!--  60 < A        -->
+   
+   
+   <!--                              parameters for MEC2009                                                       -->            
+   <param type="vec-double"   name="BostedChristyFitEM-MEC2009" delim=";">  5.1377E-03;  0.98071;  4.6379E-02;  1.6433;  6.9826;  -0.22655;  1.0;  -4.5536E-02  </param>
+   <param type="double" name="BostedChristy-p18@Pdg=1000010020">  206.13  </param>    <!--  1  < A <= 2   -->
+   <param type="double" name="BostedChristy-p18@Pdg=1000010030">  70.     </param>    <!--  2  < A <= 3   -->
+   <param type="double" name="BostedChristy-p18@Pdg=1000020040">  170.    </param>    <!--  3  < A <= 4   -->
+   <param type="double" name="BostedChristy-p18@Pdg=1000100200">  215.    </param>    <!--  4  < A <= 20  -->
+   <param type="double" name="BostedChristy-p18@Pdg=1000250500">  235.    </param>    <!--  20 < A <= 50  -->
+   <param type="double" name="BostedChristy-p18@Pdg=1000260510">  230.    </param>    <!--  50 < A        -->
+   
+   
+   <!--                             parameters for nuclei fit                                             -->
+   <param type="vec-double"   name="BostedChristyFitEM-Afit" delim=";">  1.0;  0.10414;  -0.26852;  0.96653;  -1.9055;  0.98965;  1.0;  0.24902;  -0.13728;  1.0;  29.201;  1.110952;  4.928E-03  </param>
+   
+   
+   <!--                             parameters for EMC correction                                         -->
+   <param type="vec-double"   name="BostedChristyFitEM-EMCalpha" delim=";">  -6.98871401E-02; 2.18888887E+00; -2.46673765E+01; 1.45290967E+02; -4.97236711E+02; 1.01312929E+03; -1.20839250E+03; 7.75766802E+02; -2.05872410E+02  </param>
+   <param type="vec-double"   name="BostedChristyFitEM-EMCc"     delim=";">   1.69029097E-02; 1.80889367E-02; 5.04268396E-03 </param>
+   
+  </param_set>
+  
+
+</alg_conf>
+
+

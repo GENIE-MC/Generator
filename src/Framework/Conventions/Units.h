@@ -11,7 +11,7 @@
 \created    May 03, 2004
 
 \cpright    Copyright (c) 2003-2020, The GENIE Collaboration
-            For the full text of the license visit http://copyright.genie-mc.org    
+            For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -29,20 +29,13 @@ static constexpr double GeV               = gigaelectronvolt;
 
 //-- Conversion of conventionl [L], [M], [T] units in physical units
 
-static constexpr double meter    = 5.07e+15 / GeV;
-static constexpr double kilogram = 5.61e+26 * GeV;
-static constexpr double second   = 1.52e+24 / GeV;
+static constexpr double kSpeedOfLight = 2.99792458e+08;   // [m/s]  exact by definition
+static constexpr double qe_coulomb    = 1.602176634e-19; // electron charge magnitude, exact by definition since 20 May 2019
+static constexpr double hbarc         = 1.973269804e-16;  // [GeV*m] exact by definition although approxicamted here
+static constexpr double meter         = 1. / (hbarc * GeV);
+static constexpr double kilogram      = kSpeedOfLight * kSpeedOfLight * 10e-9 * GeV / qe_coulomb ;
+static constexpr double second        = meter * kSpeedOfLight / GeV;
 
-// GeV^-2  -> mbarns : x 0.389;
-// mbarns  -> cm^2   : x 1.00E-27;
-// m       -> GeV^-1 : x 5.07E+15;
-// cm      -> GeV^-1 : x 5.07E+13;
-// kgr     -> GeV    : x 5.61E+26;
-// gr      -> GeV    : x 5.61E+23;
-// sec     -> GeV^-1 : x 1.52E+24;
-// gr/cm^3 -> GeV^4  : x 4.30466E-18;
-
-//-- [L: length],[S: area],[V: volume]
 
 static constexpr double kilometer   = 1000.*meter;
 static constexpr double millimeter  = 0.001*meter;
@@ -90,15 +83,14 @@ static constexpr double pb  = picobarn;
 
 //-- [T: time]
 
-static constexpr double millisecond = 1.e-03 *second;
-static constexpr double microsecond = 1.e-06 *second;
-static constexpr double nanosecond  = 1.e-09 *second;
-static constexpr double picosecond  = 1.e-12 *second;
+static constexpr double millisecond   = 1.e-03 *second;
+static constexpr double microsecond   = 1.e-06 *second;
+static constexpr double nanosecond    = 1.e-09 *second;
+static constexpr double picosecond    = 1.e-12 *second;
 static constexpr double femptosecond  = 1.e-15 *second;
-static constexpr double attosecond  = 1.e-18 *second;
-static constexpr double zeptosecond  = 1.e-21 *second;
-static constexpr double yoctosecond  = 1.e-24 *second;
-
+static constexpr double attosecond    = 1.e-18 *second;
+static constexpr double zeptosecond   = 1.e-21 *second;
+static constexpr double yoctosecond   = 1.e-24 *second;
 
 static constexpr double s  = second;
 static constexpr double ms = millisecond;
@@ -123,7 +115,6 @@ static constexpr double  GHz = gigahertz;
 //-- [Q: Charge]
 
 static constexpr double qe          = 1.;
-static constexpr double qe_coulomb  = 1.60217733e-19;
 
 //-- [E: Energy]
 

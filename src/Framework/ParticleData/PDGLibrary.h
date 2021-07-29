@@ -11,10 +11,13 @@
           Changes required to implement the GENIE Boosted Dark Matter module
           were installed by Josh Berger (Univ. of Wisconsin)
 
+          Changes required to implement the GENIE Dark Neutrino module
+          were installed by Iker de Icaza (Univ. of Sussex)
+
 \created  May 06, 2004
 
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -33,7 +36,7 @@ public:
   static PDGLibrary * Instance(void);
 
   TDatabasePDG * DBase (void);
-  TParticlePDG * Find  (int pdgc);
+  TParticlePDG * Find  (int pdgc, bool must_exist = true );
   void           ReloadDBase (void);
 
   // Add dark matter and mediator with parameters from Boosted Dark Matter app configuration
@@ -50,6 +53,7 @@ private:
   virtual ~PDGLibrary();
 
   bool LoadDBase(void);
+  bool AddDarkSector ();
 
   static PDGLibrary * fInstance;
   TDatabasePDG      * fDatabasePDG;
