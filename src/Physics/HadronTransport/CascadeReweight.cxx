@@ -49,12 +49,54 @@ CascadeReweight::~CascadeReweight()
 //___________________________________________________________________________
 void CascadeReweight::ProcessEventRecord(GHepRecord * evrec) const
 {
+  // Get Associated weight
+  // Set weight 
 
 }
 //___________________________________________________________________________
 void CascadeReweight::GetEventWeight (const GHepRecord & ev) const{
+  // Get faith
+  // Return weight given the faith
+  // List of faiths
 
+  /*
+  //__________________________________________________________________________
+  static string AsString(INukeFateHN_t fate) {
+     switch (fate) {
+      case kIHNFtUndefined : return "** Undefined HN-mode fate **"; break;
+      case kIHNFtCEx       : return "HN-mode / cex";    break;
+      case kIHNFtElas      : return "HN-mode / elas";   break;
+      case kIHNFtInelas    : return "HN-mode / inelas"; break;
+      case kIHNFtAbs       : return "HN-mode / abs";    break;
+      case kIHNFtCmp   : return "HN-mode / compound"; break;
+      case kIHNFtNoInteraction : return "HN-mode / no interaction"; break;
+      default              : break; 
+     }
+     return "** Undefined HN-mode fate **"; 
+  }
+  //__________________________________________________________________________
+  static string AsString(INukeFateHA_t fate) {
+     switch (fate) {
+      case kIHAFtUndefined : return "** Undefined HA-mode fate **"; break;
+      case kIHAFtNoInteraction : return "HA-mode / no interaction"; break;
+      case kIHAFtCEx       : return "HA-mode / cex";            break;
+      //      case kIHAFtElas      : return "HA-mode / elas";           break;
+      case kIHAFtInelas    : return "HA-mode / inelas";         break;
+      case kIHAFtAbs       : return "HA-mode / abs";            break;
+      case kIHAFtKo        : return "HA-mode / knock-out";      break;
+      case kIHAFtCmp       : return "HA-mode / compound";       break;
+      case kIHAFtPiProd    : return "HA-mode / pi-production" ; break;
+      case kIHAFtInclPip   : return "HA-mode / pi-prod incl pi+";   break;
+      case kIHAFtInclPim   : return "HA-mode / pi-prod incl pi-";   break;
+      case kIHAFtInclPi0   : return "HA-mode / pi-prod incl pi0";   break;
+      case kIHAFtDCEx      : return "HA-mode / dcex";           break;
+      default              : break;
+     }
+     return "** Undefined HA-mode fate **"; 
+  }
+   */
 }
+
 //___________________________________________________________________________
 void CascadeReweight::Configure(const Registry & config)
 {
@@ -76,6 +118,9 @@ void CascadeReweight::Configure(string param_set)
 //___________________________________________________________________________
 void CascadeReweight::LoadConfig(void)
 {
+
+  // Read xml configuration
+  // Here we need to store the scaling factors associated to each weight
 
 }
 //___________________________________________________________________________
