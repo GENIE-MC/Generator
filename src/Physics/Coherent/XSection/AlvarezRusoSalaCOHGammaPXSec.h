@@ -71,6 +71,8 @@ private:
 
   const XSecIntegratorI * fXSecIntegrator;
 
+  double fDeltaW;
+
 };
 
 }      // genie namespace

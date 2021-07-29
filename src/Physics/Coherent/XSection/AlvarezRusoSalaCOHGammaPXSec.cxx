@@ -181,8 +181,13 @@ bool AlvarezRusoSalaCOHGammaPXSec::ValidKinematics(const Interaction * interacti
     return false;
   }
 
-  // here we can add cuts on gamma energy to avoid peaks at maximum energy which are clearly unphysical  
+  // The cross section is only valid in a small range of W
+  // From the target mass
+  // if we are outside of this range, the cross section is cut
 
+  if ( interaction -> Kine().W() > interaction -> InitState().Tgt().Mass() + fDeltaW )
+    return false ;
+  
   return true;
 }
 //____________________________________________________________________________
@@ -310,6 +315,13 @@ void AlvarezRusoSalaCOHGammaPXSec::LoadConfig(void)
   if ( ! fXSecIntegrator ) {
     good_configuration = false ;
     LOG("AlvarezRusoSalaCOHGammaPXSec", pERROR ) << "Integrator not retrieved" ;
+  }
+
+
+  GetParam( "AsymptoticMaxGammaEnergy", fDeltaW );
+  if ( fDeltaW <= 0. ) {
+    good_configuration = false ;
+    LOG("AlvarezRusoSalaCOHGammaPXSec", pERROR ) << "Delta W is negative" ;
   }
 
   if ( ! good_configuration ) {
