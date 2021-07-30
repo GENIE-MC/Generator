@@ -122,10 +122,13 @@ void CascadeReweight::LoadConfig(void)
   // Clean maps
   fMapFateWeights.clear();
   // Create vector with list of possible keys (follows the order of the fates enumeration)
-  std::vector<string> list_keys { "Undefined", "NoInteraction", "CEx", "Elastic", "Inelastic", "Abs", "Cmp" } ;
+  std::map<int,string> map_keys { {kIHNFtUndefined,"Undefined"}, {kIHNFtNoInteraction,"NoInteraction"}, 
+				  {kIHNFtCEx,"CEx"}, {kIHNFtElas,"Elastic"}, {kIHNFtInelas,"Inelastic"},
+				  {kIHNFtAbs,"Abs"}, {kIHNFtCmp,"Cmp"} } ;
 
-  for( unsigned int i = 0 ; i < list_keys.size() ; i++ ) { 
-    std::string to_find = "CascadeReweight-Weight-"+list_keys[i]+"@Pdg=" ;
+
+  for ( map<int,string>::iterator it_keys = map_keys.begin(); it_keys != map_keys.end(); it_keys++) {
+    std::string to_find = "CascadeReweight-Weight-"+(it_keys->second)+"@Pdg=" ;
     auto kpdg_list = GetConfig().FindKeys( to_find.c_str() ) ;
     for( auto kiter = kpdg_list.begin(); kiter != kpdg_list.end(); ++kiter ) {
       const RgKey & key = *kiter ;
@@ -141,7 +144,7 @@ void CascadeReweight::LoadConfig(void)
       GetParam( key, weight ) ;
       std::map<int,double> MapWeight ; 
       MapWeight.insert( std::pair<int,double>( pdg_target, weight ) ) ;
-      fMapFateWeights[i] = MapWeight ; 
+      fMapFateWeights[it_keys->first] = MapWeight ; 
     }
   }  
 
