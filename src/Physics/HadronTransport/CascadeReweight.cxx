@@ -14,7 +14,7 @@
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Conventions/Constants.h"
-#include "Physics/HadronTransport/HadronTransporter.h"
+#include "Physics/HadronTransport/CascadeReweight.h"
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
@@ -24,6 +24,11 @@
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 #include "Physics/NuclearState/NuclearUtils.h"
+
+#include "Physics/HadronTransport/INukeHadroFates.h" 
+#include "Framework/Utils/StringUtils.h" 
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGUtils.h"
 
 using namespace genie;
 using namespace genie::utils;
@@ -49,54 +54,46 @@ CascadeReweight::~CascadeReweight()
 //___________________________________________________________________________
 void CascadeReweight::ProcessEventRecord(GHepRecord * evrec) const
 {
+  if( !evrec ){
+    LOG("CascadeReweight", pERROR) << "** Null input!" ;
+    return ; 
+  }
   // Get Associated weight
+  double weight = GetEventWeight( * evrec ) ;
   // Set weight 
+  evrec->SetWeight( weight ) ;
 
+  return ;
 }
 //___________________________________________________________________________
-void CascadeReweight::GetEventWeight (const GHepRecord & ev) const{
-  // Get faith
-  // Return weight given the faith
-  // List of faiths
+double CascadeReweight::GetEventWeight ( const GHepRecord & event ) const{
 
-  /*
-  //__________________________________________________________________________
-  static string AsString(INukeFateHN_t fate) {
-     switch (fate) {
-      case kIHNFtUndefined : return "** Undefined HN-mode fate **"; break;
-      case kIHNFtCEx       : return "HN-mode / cex";    break;
-      case kIHNFtElas      : return "HN-mode / elas";   break;
-      case kIHNFtInelas    : return "HN-mode / inelas"; break;
-      case kIHNFtAbs       : return "HN-mode / abs";    break;
-      case kIHNFtCmp   : return "HN-mode / compound"; break;
-      case kIHNFtNoInteraction : return "HN-mode / no interaction"; break;
-      default              : break; 
-     }
-     return "** Undefined HN-mode fate **"; 
-  }
-  //__________________________________________________________________________
-  static string AsString(INukeFateHA_t fate) {
-     switch (fate) {
-      case kIHAFtUndefined : return "** Undefined HA-mode fate **"; break;
-      case kIHAFtNoInteraction : return "HA-mode / no interaction"; break;
-      case kIHAFtCEx       : return "HA-mode / cex";            break;
-      //      case kIHAFtElas      : return "HA-mode / elas";           break;
-      case kIHAFtInelas    : return "HA-mode / inelas";         break;
-      case kIHAFtAbs       : return "HA-mode / abs";            break;
-      case kIHAFtKo        : return "HA-mode / knock-out";      break;
-      case kIHAFtCmp       : return "HA-mode / compound";       break;
-      case kIHAFtPiProd    : return "HA-mode / pi-production" ; break;
-      case kIHAFtInclPip   : return "HA-mode / pi-prod incl pi+";   break;
-      case kIHAFtInclPim   : return "HA-mode / pi-prod incl pi-";   break;
-      case kIHAFtInclPi0   : return "HA-mode / pi-prod incl pi0";   break;
-      case kIHAFtDCEx      : return "HA-mode / dcex";           break;
-      default              : break;
-     }
-     return "** Undefined HA-mode fate **"; 
-  }
-   */
+  GHepParticle * p = 0;
+  TIter event_iter(&event);
+  double total_weight = fDefaultWeight ;
+  while((p=dynamic_cast<GHepParticle *>(event_iter.Next())))
+    {  
+      if( p->Status() != kIStStableFinalState ) continue;
+      // Get particle fate
+      int fate = event.Particle(p->FirstMother())->RescatterCode() ;
+      const auto map_it = fMapFateWeights.find(fate) ; 
+
+      // Get weight given a pdg code.
+      if( map_it != fMapFateWeights.end() ) {
+	int pdg_target = p->Pdg() ;
+	const auto weight_it = (map_it->second).find(pdg_target) ; 
+	if( weight_it != (map_it->second).end() ) {
+	  total_weight *= weight_it->second ; 
+	} else { 
+	  total_weight *= fDefaultWeight ;
+	}
+      } else { 
+	// Fate does not exist. Use default weight
+	total_weight *= fDefaultWeight ;
+      }
+    }// end loop over particles
+  return total_weight ; 
 }
-
 //___________________________________________________________________________
 void CascadeReweight::Configure(const Registry & config)
 {
@@ -107,22 +104,51 @@ void CascadeReweight::Configure(const Registry & config)
 void CascadeReweight::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
-
-  Registry * algos = AlgConfigPool::Instance() -> GlobalParameterList() ;
-  Registry r( "CascadeReweight_specific", false ) ;
-
-  Algorithm::Configure(r) ;
-
   this->LoadConfig();
 }
 //___________________________________________________________________________
 void CascadeReweight::LoadConfig(void)
 {
+  bool good_config = true ; 
 
-  // Read xml configuration
-  // Here we need to store the scaling factors associated to each weight
+  // Get default weight 
+  if( GetConfig().Exists("CascadeReweight-Default-Weight") ) {
+    GetParam( "CascadeReweight-Default-Weight", fDefaultWeight ) ;
+  } else {
+    good_config = false ; 
+    LOG("CascadeReweight", pERROR) << "Default weight is not specified " ;
+  }
 
+  // Clean maps
+  fMapFateWeights.clear();
+  // Create vector with list of possible keys (follows the order of the fates enumeration)
+  std::vector<string> list_keys { "Undefined", "NoInteraction", "CEx", "Elastic", "Inelastic", "Abs", "Cmp" } ;
+
+  for( unsigned int i = 0 ; i < list_keys.size() ; i++ ) { 
+    std::string to_find = "CascadeReweight-Weight-"+list_keys[i]+"@Pdg=" ;
+    auto kpdg_list = GetConfig().FindKeys( to_find.c_str() ) ;
+    for( auto kiter = kpdg_list.begin(); kiter != kpdg_list.end(); ++kiter ) {
+      const RgKey & key = *kiter ;
+      vector<string> kv = genie::utils::str::Split(key,"=");
+      assert(kv.size()==2);
+      int pdg_target = stoi( kv[1] );
+      if( ! PDGLibrary::Instance()->Find(pdg_target) ) {
+	LOG("CascadeReweight", pERROR) << "The target Pdg code associated to " << to_find << " is not valid : " << pdg_target ; 
+	good_config = false ; 
+	continue ; 
+      }
+      double weight ;
+      GetParam( key, weight ) ;
+      std::map<int,double> MapWeight ; 
+      MapWeight.insert( std::pair<int,double>( pdg_target, weight ) ) ;
+      fMapFateWeights[i] = MapWeight ; 
+    }
+  }  
+
+  if( ! good_config ) {
+    LOG("CascadeReweight", pERROR) << "Configuration has failed.";
+    exit(78) ;
+  }
+  
 }
 //___________________________________________________________________________
-
-

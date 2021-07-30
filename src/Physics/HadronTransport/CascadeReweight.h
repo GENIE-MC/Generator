@@ -36,10 +36,15 @@ public :
   // data to private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
+ protected:
+  double GetEventWeight (const GHepRecord & ev) const; ///< get weight from fate and configuration
 
 private:
   void LoadConfig     (void); ///< read configuration from xml file
-  void GetEventWeight (const GHepRecord & ev) const; ///< get weight from fate and configuration
+
+  // Class member
+  double fDefaultWeight ; 
+  std::map< int , map<int,double> > fMapFateWeights ;
 
 };
 
