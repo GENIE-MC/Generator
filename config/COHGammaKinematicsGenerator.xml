@@ -32,7 +32,7 @@ MaxIterations            int     yes     Maximum number of iterations to try    
 
     <param type="double" name="MaxXSec-SafetyFactor"> 1.05 </param>
 
-    <param type="int" name="MaxIterations"> 5000 </param>
+    <param type="int" name="MaxIterations"> 10000 </param>
     
     <param type="vec-int" name="MinimScanPoint" delim=";" > 10 ; 200 ; 10 ; 1 </param> 
 

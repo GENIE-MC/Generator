@@ -67,16 +67,22 @@ double g_Eg_max ;
 double g_nevts;
 int g_nu ;
 int g_target ;
+int g_min_number_of_events = 0;
 
 // COH Gamma xsec config set ("Default" or "Consistent")
 std::string config = "Default" ;
 
 
-void event_valid( int nbins  = 5, //use 10 bins
-                  TString in_file_name  = "../12c/vmu/0.5/vmu_on_1000060120_COHGAMMA_0.5GeV.gntp.root" , 
-                  TString out_file_name = "test_line_fast_out_05gev.root"
+void event_valid( int nbins  = 10, //use 10 bins
+                  TString in_file_name  = "fixed_energy_file.gntp.root" , 
+                  TString out_file_name = "",
+		  int min_number_of_events = 0,
+		  std::string _config = "Default"
                 ) {
 
+  config = _config ;
+  g_min_number_of_events = min_number_of_events ;
+  
   g_nbins = nbins ;
 
   if ( out_file_name == "" ) {
@@ -363,6 +369,9 @@ void ComputeCOHGammXSec( double xsec, TH3 * h_Eg_thetag_phig ) {
 
 void GraphIntegratedCOHGammaXsec( int nbin, double nevts, double *xsec_i_arr, double *xsec_arr, double *eg_arr, double *x_err, double *y_err ) {
   
+
+  if ( nevts < g_min_number_of_events ) return ;
+
   auto evt_xsec = new TGraphErrors( nbin, eg_arr, xsec_i_arr, x_err, y_err); 
   evt_xsec -> SetLineColor(1); evt_xsec -> SetLineWidth(1); evt_xsec -> SetMarkerStyle(8); evt_xsec -> SetMarkerSize(0.5);
 
