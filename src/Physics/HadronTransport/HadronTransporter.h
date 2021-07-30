@@ -46,6 +46,7 @@ private:
 
   bool  fEnabled;                              ///< hadron transport enabled?
   const EventRecordVisitorI * fHadTranspModel; ///< hadron transport MC to use
+  const EventRecordVisitorI * fCascadeReweight; ///< Cascade reweight member
 
 };
 
