@@ -44,7 +44,8 @@ private:
 
   // Class member
   double fDefaultWeight ; 
-  std::map< int , map<int,double> > fMapFateWeights ;
+  std::map< int , double > fDefaultMap ; // fate, weight 
+  std::map< int , map<int,double> > fFateWeightsMap ; // < fate, <pdg,weight> > 
 
 };
 
