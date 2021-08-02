@@ -66,9 +66,9 @@ double MECXSec::Integrate(
      return 0;
   }
 
-  Interaction * interaction = new Interaction(*in);
-  interaction->SetBit(kISkipProcessChk);
-  interaction->SetBit(kISkipKinematicChk);
+  Interaction interaction(*in);
+  interaction.SetBit(kISkipProcessChk);
+  interaction.SetBit(kISkipKinematicChk);
 
   // T, costh limits
   double Enu = in->InitState().ProbeE(kRfLab);
@@ -91,17 +91,12 @@ double MECXSec::Integrate(
   double xsec = 0;
 
   double abstol = 1; //We mostly care about relative tolerance.
-  ROOT::Math::IBaseFunctionMultiDim * func =
-    new genie::utils::mec::gsl::d2Xsec_dTCosth(model, interaction, Enu, LepMass );
+  genie::utils::mec::gsl::d2Xsec_dTCosth func(model, interaction, Enu, LepMass );
   ROOT::Math::IntegrationMultiDim::Type ig_type =
     utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-  ROOT::Math::IntegratorMultiDim ig(
-    *func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
+  ROOT::Math::IntegratorMultiDim ig(func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
 
   xsec = ig.Integral(kine_min, kine_max);
-
-  delete func;
-  delete interaction;
 
   return xsec;
 }

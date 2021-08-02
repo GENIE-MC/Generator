@@ -95,7 +95,7 @@ namespace mec   {
     class d2Xsec_dTCosth: public ROOT::Math::IBaseFunctionMultiDim
     {
     public:
-      d2Xsec_dTCosth(const XSecAlgorithmI * m, const Interaction * i, const double Enu, 
+      d2Xsec_dTCosth(const XSecAlgorithmI * m, const Interaction & i, const double Enu, 
 		     const double LepMass, const double Factor = 1. );
       ~d2Xsec_dTCosth();
       // ROOT::Math::IBaseFunctionMultiDim interface
@@ -105,7 +105,7 @@ namespace mec   {
       
     private:
       const XSecAlgorithmI * fModel;
-      const Interaction *    fInteraction;
+      const Interaction fInteraction;
       const double fEnu ; 
       const double fLepMass ;
       const double fFactor;

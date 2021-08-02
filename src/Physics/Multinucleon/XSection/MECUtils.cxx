@@ -467,7 +467,7 @@ double genie::utils::mec::GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
   return XSecMax;
 }
 //___________________________________________________________________________
-genie::utils::mec::gsl::d2Xsec_dTCosth::d2Xsec_dTCosth(const XSecAlgorithmI * m, const Interaction * i, 
+genie::utils::mec::gsl::d2Xsec_dTCosth::d2Xsec_dTCosth(const XSecAlgorithmI * m, const Interaction & i, 
 						       const double Enu, const double LepMass, const double Factor ) :
 ROOT::Math::IBaseFunctionMultiDim(),
 fModel(m),
@@ -501,7 +501,7 @@ double genie::utils::mec::gsl::d2Xsec_dTCosth::DoEval(const double * xin) const
   double T     = xin[0];
   double costh = xin[1];
 
-  Kinematics * kinematics = fInteraction->KinePtr();
+  Kinematics * kinematics = fInteraction.KinePtr();
   kinematics->SetKV(kKVTl, T);
   kinematics->SetKV(kKVctl, costh);
 
@@ -512,7 +512,7 @@ double genie::utils::mec::gsl::d2Xsec_dTCosth::DoEval(const double * xin) const
   kinematics ->SetKV(kKVQ0, Q0) ; 
   kinematics ->SetKV(kKVQ3, Q3) ; 
 
-  double xsec = fModel->XSec(fInteraction, kPSTlctl);
+  double xsec = fModel->XSec( &fInteraction, kPSTlctl);
   return fFactor * xsec;
   
 }
