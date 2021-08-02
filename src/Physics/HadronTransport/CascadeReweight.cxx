@@ -145,6 +145,7 @@ void CascadeReweight::LoadConfig(void)
       std::map<int,double> MapWeight ; 
       MapWeight.insert( std::pair<int,double>( pdg_target, weight ) ) ;
       fMapFateWeights[it_keys->first] = MapWeight ; 
+      std::cout << " Fate : " << it_keys->first << " Weight = " << weight << " PDG = " << pdg_target << std::endl;
     }
   }  
 
