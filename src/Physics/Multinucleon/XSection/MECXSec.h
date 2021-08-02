@@ -25,7 +25,6 @@
 #include <Math/Integrator.h>
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
-#include "Physics/XSectionIntegration/GSLXSecFunc.h"
 
 namespace genie {
 
