@@ -1312,7 +1312,7 @@ double MECGenerator::GetXSecMaxTlctl( const Interaction & in,
   double Enu = in.InitState().ProbeE(kRfHitNucRest);
   double LepMass = in.FSPrimLepton()->Mass();
 
-  genie::utils::mec::gsl::d2Xsec_dTCosth f(fXSecModel,&in, Enu, LepMass, -1.) ; 
+  genie::utils::mec::gsl::d2Xsec_dTCosth f(fXSecModel,in, Enu, LepMass, -1.) ; 
   
   std::array<string,2> names = { "Tl", "CosThetal" } ;
   std::array<Range1D_t,2> ranges = { Tl_range, ctl_range } ; 
