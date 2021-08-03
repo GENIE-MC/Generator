@@ -9,7 +9,10 @@ Configurable Parameters:
 .....................................................................................................
 Name                  Type     Optional   Comment                          Default
 .....................................................................................................
+<<<<<<< HEAD
 MEC-CC-XSecScale      double   Yes        XSec Scaling factor              GPL value
+MECScaleAlg           alg      Yes        XSecScale algorithm used         The cross section is not scaled
+                                          to scale the cross section
 QvalueShifterAlg      algo     yes        Possible Qshift algo             none
 -->
   <param_set name="Default"> 
@@ -18,6 +21,7 @@ QvalueShifterAlg      algo     yes        Possible Qshift algo             none
       <param type="alg" name="HadronTensorAlg"> genie::NievesMECHadronTensorModel/Default </param>
 
       <param type="double" name="MEC-CC-XSecScale"> 1.000 </param>
+
   </param_set>
 
 </alg_conf>

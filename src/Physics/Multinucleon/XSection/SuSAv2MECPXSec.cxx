@@ -220,6 +220,9 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   // Apply given overall scaling factor
   xsec *= fXSecScale;
 
+  // Scale given a scaling algorithm:
+  if( fMECScaleAlg ) xsec *= fMECScaleAlg->GetScaling( * interaction ) ;
+
   if ( kps != kPSTlctl ) {
     LOG("SuSAv2MEC", pWARN)
       << "Doesn't support transformation from "
@@ -388,7 +391,17 @@ void SuSAv2MECPXSec::LoadConfig(void)
   this->GetParam( "RFG-NucRemovalE@Pdg=1000791970", fEbAu );
   this->GetParam( "RFG-NucRemovalE@Pdg=1000822080", fEbPb );
 
-
+  // Read optional MECScaleVsW:
+  bool good_config = true ; 
+  fMECScaleAlg = nullptr; 
+  if( GetConfig().Exists("MECScaleAlg") ) {
+    fMECScaleAlg = dynamic_cast<const XSecScaleI *> ( this->SubAlg("MECScaleAlg") );
+    if( !fMECScaleAlg ) {
+      good_config = false ; 
+      LOG("Susav2MECPXSec", pERROR) << "The required MECScaleAlg cannot be casted. AlgID is : " << SubAlg("MECScaleAlg")->Id() ;
+    }
+  }
+  
   // Read optional QvalueShifter:
   fQvalueShifter = nullptr; 
   if( GetConfig().Exists("QvalueShifterAlg") ) {
