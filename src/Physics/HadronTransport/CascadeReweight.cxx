@@ -127,11 +127,10 @@ void CascadeReweight::LoadConfig(void)
   for ( map<INukeFateHN_t,string>::iterator it_keys = EINukeFate_map_keys.begin(); it_keys != EINukeFate_map_keys.end(); it_keys++) {
     // Find fate specifications
     std::string to_find_def = "CascadeReweight-Default-Weight-"+(it_keys->second) ;
+    std::cout << " to_find_def = " << to_find_def << std::endl;
     auto kdef_list = GetConfig().FindKeys( to_find_def.c_str() ) ;
     for( auto kiter = kdef_list.begin(); kiter != kdef_list.end(); ++kiter ) {
       const RgKey & key = *kiter ;
-      vector<string> kv = genie::utils::str::Split(key,"=");
-      assert(kv.size()==2);
       double weight ;
       GetParam( key, weight ) ;
       // Add check weight > 0
