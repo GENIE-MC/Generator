@@ -19,7 +19,7 @@
 #define _CASCADE_REWEIGHT_H_
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
-#include "Physics/HadronTransport/INukeHadroFates.h" 
+#include "Physics/HadronTransport/INukeHadroFates2018.h" 
 
 namespace genie {
 

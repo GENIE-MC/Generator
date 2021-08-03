@@ -123,9 +123,7 @@ void CascadeReweight::LoadConfig(void)
   fFateWeightsMap.clear();
 
   // Create vector with list of possible keys (follows the order of the fates enumeration)
-  std::map<int,string> EINukeFate_map_keys { {kIHNFtUndefined,"Undefined"}, {kIHNFtNoInteraction,"NoInteraction"}, 
-      					     {kIHNFtCEx,"CEx"}, {kIHNFtElas,"Elastic"}, {kIHNFtInelas,"Inelastic"},
-	                                     {kIHNFtAbs,"Abs"}, {kIHNFtCmp,"Cmp"} } ;
+  std::map<int,string> EINukeFate_map_keys = INukeHadroFates::GetEINukeFateKeysMap() ; 
 
   for ( map<int,string>::iterator it_keys = EINukeFate_map_keys.begin(); it_keys != EINukeFate_map_keys.end(); it_keys++) {
     // Find fate specifications

@@ -116,6 +116,15 @@ public:
      return "undefined"; 
   }
   //__________________________________________________________________________
+
+  static std::map<int,string> GetEINukeFateKeysMap( void ) {
+    static std::map<int,string> map_keys { {kIHNFtUndefined,"Undefined"}, {kIHNFtNoInteraction,"NoInteraction"}, 
+      				           {kIHNFtCEx,"CEx"}, {kIHNFtElas,"Elastic"}, {kIHNFtInelas,"Inelastic"},
+	                                   {kIHNFtAbs,"Abs"}, {kIHNFtCmp,"Cmp"} } ;
+    return map_keys ; 
+  }
+  //__________________________________________________________________________
+
 };
 
 }      // genie
