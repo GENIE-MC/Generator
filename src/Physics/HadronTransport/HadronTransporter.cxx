@@ -139,9 +139,9 @@ void HadronTransporter::Configure(string param_set)
 
   r.Set("HadronTransp-Enable", algos -> GetBool("HadronTransp-Enable") ) ;
   r.Set("HadronTransp-Model",  algos -> GetAlg("HadronTransp-Model")   ) ;
-  //  if( r.Exists("CascadeReweightAlg") ) {
+  if( algos->Exists("CascadeReweightAlg") ) {
     r.Set("CascadeReweightAlg",  algos -> GetAlg("CascadeReweightAlg")   ) ;
-    //}
+  }
 
   Algorithm::Configure(r) ;
 
