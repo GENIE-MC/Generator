@@ -392,7 +392,6 @@ void SuSAv2MECPXSec::LoadConfig(void)
   this->GetParam( "RFG-NucRemovalE@Pdg=1000822080", fEbPb );
 
   // Read optional MECScaleVsW:
-  bool good_config = true ; 
   fMECScaleAlg = nullptr; 
   if( GetConfig().Exists("MECScaleAlg") ) {
     fMECScaleAlg = dynamic_cast<const XSecScaleI *> ( this->SubAlg("MECScaleAlg") );
