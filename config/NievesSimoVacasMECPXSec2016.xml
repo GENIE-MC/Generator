@@ -9,7 +9,7 @@ Configurable Parameters:
 .....................................................................................................
 Name                  Type     Optional   Comment                          Default
 .....................................................................................................
-<<<<<<< HEAD
+
 MEC-CC-XSecScale      double   Yes        XSec Scaling factor              GPL value
 MECScaleAlg           alg      Yes        XSecScale algorithm used         The cross section is not scaled
                                           to scale the cross section
