@@ -72,11 +72,13 @@ double CascadeReweight::GetEventWeight ( const GHepRecord & event ) const{
   double total_weight = 1. ;
   while((p=dynamic_cast<GHepParticle *>(event_iter.Next())))
     {  
-      if( p->Status() != kIStStableFinalState ) continue;
       // Get particle fate
-      INukeFateHN_t fate = (INukeFateHN_t) event.Particle(p->FirstMother())->RescatterCode() ;
-      const auto map_it = fFateWeightsMap.find(fate) ; 
+      INukeFateHN_t fate = (INukeFateHN_t) p->RescatterCode() ;
+      // Only look at particles that had FSI
+      if( fate < 0 ) continue ; 
 
+      // Read map weight:
+      const auto map_it = fFateWeightsMap.find(fate) ; 
       // Get weight given a pdg code.
       if( map_it != fFateWeightsMap.end() ) {
 	int pdg_target = p->Pdg() ;
@@ -90,10 +92,7 @@ double CascadeReweight::GetEventWeight ( const GHepRecord & event ) const{
       const auto def_it = fDefaultMap.find(fate) ; 
       if( def_it != fDefaultMap.end() ) {
 	total_weight *= def_it->second ; 
-      } else { 
-	// Fate not specified in xml config. Use default weight
-	total_weight *= fDefaultWeight ;
-      }
+      } else total_weight *= fDefaultWeight ;
     }// end loop over particles
 
   return total_weight ; 
@@ -146,6 +145,7 @@ void CascadeReweight::LoadConfig(void)
 
     // Find Pdg specifications
     std::string to_find_pdg = "CascadeReweight-Weight-"+(it_keys->second)+"@Pdg=" ;
+    std::map<int,double> WeightMap ; // define map that stores <pdg, weight>
     auto kpdg_list = GetConfig().FindKeys( to_find_pdg.c_str() ) ;
     for( auto kiter = kpdg_list.begin(); kiter != kpdg_list.end(); ++kiter ) {
       const RgKey & key = *kiter ;
@@ -165,11 +165,11 @@ void CascadeReweight::LoadConfig(void)
 	good_config = false ; 
 	continue ; 
       }
-
-      std::map<int,double> WeightMap ; 
+      // Add pdg and weight in map
       WeightMap.insert( std::pair<int,double>( pdg_target, weight ) ) ;
-      fFateWeightsMap[it_keys->first] = WeightMap ; 
     }
+    // store information in class member
+    fFateWeightsMap[it_keys->first] = WeightMap ; 
   }  
 
   if( ! good_config ) {
