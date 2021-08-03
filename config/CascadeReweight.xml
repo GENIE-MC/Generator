@@ -20,7 +20,7 @@ CascadeReweight-Weight-Abs           double   Yes        Weight associated to th
 CascadeReweight-Weight-Cmp           double   Yes        Weight associated to the Cmp fate
 ..............................................................................................................
 For the CascadeReweight-Weight-Fate parameters, we can assign a weight to all particles with a given fate, 
-or specify a particular pdg by setting @Pdg= after the string.
+CascadeReweight-Default-Weight-Fate parameters, or specify a particular pdg by setting @Pdg= after the string.
 If not specified, the default is CascadeReweight-Default-Weight for all fates.
 ..............................................................................................................
 -->
@@ -29,13 +29,13 @@ If not specified, the default is CascadeReweight-Default-Weight for all fates.
   </param_set>
 
   <param_set name="FatesReweight"> 
-    <param type="double" name="CascadeReweight-Weight-Undefined"> 1. </param>
-    <param type="double" name="CascadeReweight-Weight-NoInteraction"> 1. </param>
-    <param type="double" name="CascadeReweight-Weight-CEx"> 1. </param>
-    <param type="double" name="CascadeReweight-Weight-Abs"> 1. </param>
-    <param type="double" name="CascadeReweight-Weight-Elastic"> 1. </param>
-    <param type="double" name="CascadeReweight-Weight-Inelastic"> 1. </param>
-    <param type="double" name="CascadeReweight-Weight-Cmp"> 1. </param>
+    <param type="double" name="CascadeReweight-Default-Weight-Undefined"> 1. </param>
+    <param type="double" name="CascadeReweight-Default-Weight-NoInteraction"> 1. </param>
+    <param type="double" name="CascadeReweight-Default-Weight-CEx"> 1. </param>
+    <param type="double" name="CascadeReweight-Default-Weight-Abs"> 1. </param>
+    <param type="double" name="CascadeReweight-Default-Weight-Elastic"> 1. </param>
+    <param type="double" name="CascadeReweight-Default-Weight-Inelastic"> 1. </param>
+    <param type="double" name="CascadeReweight-Default-Weight-Cmp"> 1. </param>
   </param_set>
   
   <param_set name="PionReweight">
