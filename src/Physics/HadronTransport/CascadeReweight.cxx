@@ -25,7 +25,6 @@
 #include "Framework/Utils/PrintUtils.h"
 #include "Physics/NuclearState/NuclearUtils.h"
 
-#include "Physics/HadronTransport/INukeHadroFates.h" 
 #include "Framework/Utils/StringUtils.h" 
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGUtils.h"
@@ -117,22 +116,18 @@ void CascadeReweight::LoadConfig(void)
   bool good_config = true ; 
 
   // Get default weight 
-  if( GetConfig().Exists("CascadeReweight-Default-Weight") ) {
-    GetParam( "CascadeReweight-Default-Weight", fDefaultWeight ) ;
-  } else {
-    good_config = false ; 
-    LOG("CascadeReweight", pERROR) << "Default weight is not specified " ;
-  }
-
+  GetParamDef( "CascadeReweight-Default-Weight", fDefaultWeight, 1. ) ;
+  
   // Clean maps
   fDefaultMap.clear(); 
   fFateWeightsMap.clear();
-  // Create vector with list of possible keys (follows the order of the fates enumeration)
-  std::map<int,string> map_keys { {kIHNFtUndefined,"Undefined"}, {kIHNFtNoInteraction,"NoInteraction"}, 
-				  {kIHNFtCEx,"CEx"}, {kIHNFtElas,"Elastic"}, {kIHNFtInelas,"Inelastic"},
-				  {kIHNFtAbs,"Abs"}, {kIHNFtCmp,"Cmp"} } ;
 
-  for ( map<int,string>::iterator it_keys = map_keys.begin(); it_keys != map_keys.end(); it_keys++) {
+  // Create vector with list of possible keys (follows the order of the fates enumeration)
+  std::map<int,string> EINukeFate_map_keys { {kIHNFtUndefined,"Undefined"}, {kIHNFtNoInteraction,"NoInteraction"}, 
+      					     {kIHNFtCEx,"CEx"}, {kIHNFtElas,"Elastic"}, {kIHNFtInelas,"Inelastic"},
+	                                     {kIHNFtAbs,"Abs"}, {kIHNFtCmp,"Cmp"} } ;
+
+  for ( map<int,string>::iterator it_keys = EINukeFate_map_keys.begin(); it_keys != EINukeFate_map_keys.end(); it_keys++) {
     // Find fate specifications
     std::string to_find_def = "CascadeReweight-Default-Weight-"+(it_keys->second) ;
     auto kdef_list = GetConfig().FindKeys( to_find_def.c_str() ) ;
