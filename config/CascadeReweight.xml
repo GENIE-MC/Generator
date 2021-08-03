@@ -10,7 +10,7 @@ Configurable Parameters:
 ..............................................................................................................
 Name                                 Type     Optional   Comment                                  Default
 ..............................................................................................................
-CascadeReweight-Default-Weight       double   No         Default weight associated to a FSI fate
+CascadeReweight-Default-Weight       double   Yes        Default weight associated to a FSI fate  1.
 CascadeReweight-Weight-Undefined     double   Yes        Weight associated to the undefined fate
 CascadeReweight-Weight-NoInteraction double   Yes        Weight associated to the nointeraction fate
 CascadeReweight-Weight-CEx           double   Yes        Weight associated to the CEx fate
@@ -19,10 +19,13 @@ CascadeReweight-Weight-Inelastic     double   Yes        Weight associated to th
 CascadeReweight-Weight-Abs           double   Yes        Weight associated to the Abs fate
 CascadeReweight-Weight-Cmp           double   Yes        Weight associated to the Cmp fate
 ..............................................................................................................
+For the CascadeReweight-Weight-Fate parameters, we can assign a weight to all particles with a given fate, 
+or specify a particular pdg by setting @Pdg= after the string.
+If not specified, the default is CascadeReweight-Default-Weight for all fates.
+..............................................................................................................
 -->
 
   <param_set name="Default"> 
-    <param type="double"  name="CascadeReweight-Default-Weight"> 1. </param>   
   </param_set>
   
   <param_set name="PionReweight">
