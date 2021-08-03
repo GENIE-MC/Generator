@@ -32,4 +32,6 @@
 
 #pragma link C++ class genie::P33PaschosLalakulichPXSec;
 
+#pragma link C++ class genie::BostedChristyEMPXSec;
+
 #endif

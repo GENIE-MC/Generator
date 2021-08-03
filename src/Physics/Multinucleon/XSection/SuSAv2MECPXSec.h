@@ -31,6 +31,7 @@
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/HadronTensors/HadronTensorModelI.h"
 #include "Physics/Common/XSecScaleI.h"
+#include "Physics/Common/QvalueShifter.h"
 
 namespace genie {
 
@@ -89,6 +90,7 @@ private:
   const XSecIntegratorI*  fXSecIntegrator;
 
   const XSecScaleI * fMECScaleAlg ; // Optional algorithm to scale the xsec as a function of W
+  const QvalueShifter * fQvalueShifter ; // Optional algorithm to retrieve the qvalue shift for a given target
 
 };
 

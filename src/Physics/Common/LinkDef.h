@@ -21,5 +21,7 @@
 
 #pragma link C++ class genie::XSecScaleI;
 #pragma link C++ class genie::XSecScaleMap;
+#pragma link C++ class genie::XSecLinearCombinations;
+#pragma link C++ class genie::QvalueShifter;
 
 #endif
