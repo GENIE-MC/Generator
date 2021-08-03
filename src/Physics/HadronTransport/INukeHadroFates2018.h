@@ -117,8 +117,8 @@ public:
   }
   //__________________________________________________________________________
 
-  static std::map<int,string> GetEINukeFateKeysMap( void ) {
-    static std::map<int,string> map_keys { {kIHNFtUndefined,"Undefined"}, {kIHNFtNoInteraction,"NoInteraction"}, 
+  static std::map<INukeFateHN_t,string> GetEINukeFateKeysMap( void ) {
+    static std::map<INukeFateHN_t,string> map_keys { {kIHNFtUndefined,"Undefined"}, {kIHNFtNoInteraction,"NoInteraction"}, 
       				           {kIHNFtCEx,"CEx"}, {kIHNFtElas,"Elastic"}, {kIHNFtInelas,"Inelastic"},
 	                                   {kIHNFtAbs,"Abs"}, {kIHNFtCmp,"Cmp"} } ;
     return map_keys ; 

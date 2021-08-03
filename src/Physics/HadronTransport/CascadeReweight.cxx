@@ -74,7 +74,7 @@ double CascadeReweight::GetEventWeight ( const GHepRecord & event ) const{
     {  
       if( p->Status() != kIStStableFinalState ) continue;
       // Get particle fate
-      int fate = event.Particle(p->FirstMother())->RescatterCode() ;
+      INukeFateHN_t fate = (INukeFateHN_t) event.Particle(p->FirstMother())->RescatterCode() ;
       const auto map_it = fFateWeightsMap.find(fate) ; 
 
       // Get weight given a pdg code.
@@ -123,9 +123,9 @@ void CascadeReweight::LoadConfig(void)
   fFateWeightsMap.clear();
 
   // Create vector with list of possible keys (follows the order of the fates enumeration)
-  std::map<int,string> EINukeFate_map_keys = INukeHadroFates::GetEINukeFateKeysMap() ; 
+  std::map<INukeFateHN_t,string> EINukeFate_map_keys = INukeHadroFates::GetEINukeFateKeysMap() ; 
 
-  for ( map<int,string>::iterator it_keys = EINukeFate_map_keys.begin(); it_keys != EINukeFate_map_keys.end(); it_keys++) {
+  for ( map<INukeFateHN_t,string>::iterator it_keys = EINukeFate_map_keys.begin(); it_keys != EINukeFate_map_keys.end(); it_keys++) {
     // Find fate specifications
     std::string to_find_def = "CascadeReweight-Default-Weight-"+(it_keys->second) ;
     auto kdef_list = GetConfig().FindKeys( to_find_def.c_str() ) ;
