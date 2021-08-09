@@ -73,9 +73,10 @@ double CascadeReweight::GetEventWeight ( const GHepRecord & event ) const{
   while((p=dynamic_cast<GHepParticle *>(event_iter.Next())))
     {  
       // Get particle fate
-      INukeFateHN_t fate = (INukeFateHN_t) p->RescatterCode() ;
+      auto fate_rescatter = p->RescatterCode() ; 
       // Only look at particles that had FSI
-      if( fate < 0 ) continue ; 
+      if( fate_rescatter < 0 || fate_rescatter == kIHNFtUndefined ) continue ; 
+      INukeFateHN_t fate = (INukeFateHN_t) fate_rescatter ; 
 
       // Read map weight:
       const auto map_it = fFateWeightsMap.find(fate) ; 
