@@ -108,8 +108,7 @@ void CascadeReweight::LoadConfig(void) {
 
   // Create vector with list of possible keys (follows the order of the fates
   // enumeration)
-  std::map<INukeFateHN_t, string> EINukeFate_map_keys =
-      INukeHadroFates::GetEINukeFateKeysMap();
+  std::map<INukeFateHN_t, string> EINukeFate_map_keys = GetEINukeFateKeysMap();
 
   for (map<INukeFateHN_t, string>::iterator it_keys =
            EINukeFate_map_keys.begin();
