@@ -125,6 +125,7 @@ void CascadeReweight::LoadConfig(void)
   for ( map<INukeFateHN_t,string>::iterator it_keys = EINukeFate_map_keys.begin(); it_keys != EINukeFate_map_keys.end(); it_keys++) {
     // Find fate specifications
     std::string to_find_def = "CascadeReweight-Default-Weight-"+(it_keys->second) ;
+    std::map<int,double> WeightMap ; // define map that stores <pdg, weight>
 
     auto kdef_list = GetConfig().FindKeys( to_find_def.c_str() ) ;
     for( auto kiter = kdef_list.begin(); kiter != kdef_list.end(); ++kiter ) {
@@ -142,7 +143,6 @@ void CascadeReweight::LoadConfig(void)
 
     // Find Pdg specifications
     std::string to_find_pdg = "CascadeReweight-Weight-"+(it_keys->second)+"@Pdg=" ;
-    std::map<int,double> WeightMap ; // define map that stores <pdg, weight>
     auto kpdg_list = GetConfig().FindKeys( to_find_pdg.c_str() ) ;
     for( auto kiter = kpdg_list.begin(); kiter != kpdg_list.end(); ++kiter ) {
       const RgKey & key = *kiter ;
@@ -170,7 +170,7 @@ void CascadeReweight::LoadConfig(void)
   }  
 
   if( ! good_config ) {
-    LOG("CascadeReweight", pERROR) << "Configuration has failed.";
+    LOG("CascadeReweight", pFATAL) << "Configuration has failed.";
     exit(78) ;
   }
   
