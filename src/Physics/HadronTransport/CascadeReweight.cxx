@@ -125,7 +125,6 @@ void CascadeReweight::LoadConfig(void)
   for ( map<INukeFateHN_t,string>::iterator it_keys = EINukeFate_map_keys.begin(); it_keys != EINukeFate_map_keys.end(); it_keys++) {
     // Find fate specifications
     std::string to_find_def = "CascadeReweight-Default-Weight-"+(it_keys->second) ;
-    std::map<int,double> WeightMap ; // define map that stores <pdg, weight>
 
     auto kdef_list = GetConfig().FindKeys( to_find_def.c_str() ) ;
     for( auto kiter = kdef_list.begin(); kiter != kdef_list.end(); ++kiter ) {
@@ -144,6 +143,7 @@ void CascadeReweight::LoadConfig(void)
     // Find Pdg specifications
     std::string to_find_pdg = "CascadeReweight-Weight-"+(it_keys->second)+"@Pdg=" ;
     auto kpdg_list = GetConfig().FindKeys( to_find_pdg.c_str() ) ;
+    std::map<int,double> WeightMap ; // define map that stores <pdg, weight>
     for( auto kiter = kpdg_list.begin(); kiter != kpdg_list.end(); ++kiter ) {
       const RgKey & key = *kiter ;
       vector<string> kv = genie::utils::str::Split(key,"=");
@@ -166,7 +166,7 @@ void CascadeReweight::LoadConfig(void)
       WeightMap.insert( std::pair<int,double>( pdg_target, weight ) ) ;
     }
     // store information in class member
-    fFateWeightsMap[it_keys->first] = WeightMap ; 
+    fFateWeightsMap[it_keys->first] = std::move(WeightMap) ; 
   }  
 
   if( ! good_config ) {
