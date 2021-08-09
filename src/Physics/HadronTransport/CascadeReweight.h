@@ -5,9 +5,9 @@
 
 \brief    In this module, the event weight is set depending on the FSI fate. 
           The weights are set depending on the xml configuration defined by the user
-\author    Julia Tena-Vidal <j.tena-vidal \at liverpool.ac.uk>
+\author   Julia Tena-Vidal <j.tena-vidal \at liverpool.ac.uk>
 
-\created  July 2020
+\created  July 2021
 
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -44,7 +44,6 @@ private:
   void LoadConfig     (void); ///< read configuration from xml file
 
   // Class member
-  double fDefaultWeight ; 
   std::map< INukeFateHN_t, double > fDefaultMap ; // fate, weight 
   std::map< INukeFateHN_t, map<int,double> > fFateWeightsMap ; // < fate, <pdg,weight> > 
 

@@ -92,7 +92,7 @@ double CascadeReweight::GetEventWeight ( const GHepRecord & event ) const{
       const auto def_it = fDefaultMap.find(fate) ; 
       if( def_it != fDefaultMap.end() ) {
 	total_weight *= def_it->second ; 
-      } else total_weight *= fDefaultWeight ;
+      }
     }// end loop over particles
   
   return total_weight ; 
@@ -114,9 +114,6 @@ void CascadeReweight::LoadConfig(void)
 {
   bool good_config = true ; 
 
-  // Get default weight 
-  GetParamDef( "CascadeReweight-Default-Weight", fDefaultWeight, 1. ) ;
-  
   // Clean maps
   fDefaultMap.clear(); 
   fFateWeightsMap.clear();
