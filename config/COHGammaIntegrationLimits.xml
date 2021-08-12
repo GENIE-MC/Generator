@@ -20,7 +20,6 @@ MaxGammaTheta                 double   yes        Theta cut off for gamma [deg] 
 
 
 <alg_conf>
-
     
   <param_set name="Default">
     <param type="double" name="AsymptoticMaxGammaEnergy"> 1.4 </param>
@@ -29,12 +28,5 @@ MaxGammaTheta                 double   yes        Theta cut off for gamma [deg] 
     <param type="alg"  name="COH-FormFactor"> genie::COHProtonFormFactorInterpolation/Default </param>
     
   </param_set>
-
-  <param_set name="Interpolation">
-    <param type="alg"  name="COH-FormFactor"> genie::DeVriesFormFactorInterpolation/Default </param>
-    
-  </param_set>
-
-
 
 </alg_conf>
