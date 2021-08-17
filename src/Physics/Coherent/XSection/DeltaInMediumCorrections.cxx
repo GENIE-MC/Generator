@@ -92,7 +92,6 @@ double DeltaInMediumCorrections::AverageDensity( int nucleus_pdg ) const {
 //____________________________________________________________________________
 double DeltaInMediumCorrections::Sigma( int nucleus_pdg ) const {
 
-  // TODO verify there isn't an extra factor of 1/2 in Sigma compared to slides
   double sigma = -0.5 * fDeltaV0 * AverageDensity( nucleus_pdg ) / fRho0 ; 
   return sigma ; 
 }
