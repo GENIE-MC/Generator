@@ -69,11 +69,11 @@ typedef enum EKinePhaseSpace {
   kPSTAfE,
   kPSEgTlOgfE,
   kPSDMELEvGen, // Equivalent to kPSQELEvGen for Dark Matter scattering  
+  kPSlog10xlog10Q2fE,
+  kPSEDNufE, // Used for Dark Neutrinos, two body final state
   kPSEgTlTgPgfE,
   kPSEgOlOgfE,
   kPSEgtTgPgfE,
-  kPSlog10xlog10Q2fE,
-  kPSEDNufE // Used for Dark Neutrinos, two body final state
 } KinePhaseSpace_t;
 
 class KinePhaseSpace
@@ -96,8 +96,8 @@ public:
       case(kPSlogyfE)     : return "<{logy}|E>";      break;
       case(kPSyfEx)       : return "<{y}|E,x>";       break;
       case(kPSlogyfEx)    : return "<{logy}|E,x>";    break;
-      case(kPSlogxlogyfE) : return "<{logx,logy}|E>"; break;
       case(kPSxyfE)       : return "<{x,y}|E>";       break;
+      case(kPSlogxlogyfE) : return "<{logx,logy}|E>"; break;
       case(kPSxQ2fE)      : return "<{x,Q2}|E>";      break;
       case(kPSQ2fE)       : return "<{Q2}|E>";        break;
       case(kPSQD2fE)      : return "<{QD2}|E>";       break;
@@ -121,19 +121,18 @@ public:
       case(kPSlogQ2logyfE): return "<{Q2,y}|E>";      break;
       case(kPSTlctl)      : return "<{Tl,cos(theta_l)}|E>";     break;
       case(kPSElOlOpifE)  : return "<{El,Omega_l,Omega_pi}|E>"; break;
-      case(kPSEgTlOgfE)   : return "<{Egamma,Theta_l,Omega_gamma}|E>"; break;
-      case(kPSEgTlTgPgfE) : return "<{Egamma,Theta_l,Theta_gamma,Phi_gamma}|E>"; break;
-      case(kPSEgOlOgfE)   : return "<{Egamma,Omega_l,Omega_gamma}|E>"; break;
-      case(kPSEgtTgPgfE)  : return "<{Egamma,t,Theta_gamma,Phi_gamma}|E>"; break;
       case(kPSElOlTpifE)  : return "<{El,Omega_l,Theta_pi}|E>"; break;
       case(kPSTkTlctl)    : return "<{Tk,Tl,cos(theta_l)}|E>";  break;
       case(kPSQ2vfE)      : return "<{Q2,v}|E>"; break;
-      // TODO: update this string when the appropriate kinematic variables are known
       case(kPSQELEvGen)   : return "<QELEvGen>"; break;
-      case(kPSDMELEvGen)  : return "<DMELEvGen>"; break;
       case(kPSTAfE)       : return "<{TA}|E>";   break;
+      case(kPSEgTlOgfE)   : return "<{Egamma,Theta_l,Omega_gamma}|E>"; break;
+      case(kPSDMELEvGen)  : return "<DMELEvGen>"; break;
       case(kPSlog10xlog10Q2fE) : return "<{log10x,log10Q2}|E>"; break;
       case(kPSEDNufE)     : return "<{EDNu}|E>"; break;
+      case(kPSEgTlTgPgfE) : return "<{Egamma,Theta_l,Theta_gamma,Phi_gamma}|E>"; break;
+      case(kPSEgOlOgfE)   : return "<{Egamma,Omega_l,Omega_gamma}|E>"; break;
+      case(kPSEgtTgPgfE)  : return "<{Egamma,t,Theta_gamma,Phi_gamma}|E>"; break;
     }
     return "** Undefined kinematic phase space **";
   }
