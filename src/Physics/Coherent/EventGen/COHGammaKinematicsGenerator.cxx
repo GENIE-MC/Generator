@@ -272,7 +272,7 @@ COHGammaKinematicsGenerator::ComputeMaxXSec(const Interaction *in) const {
       fGammaLimits->ThetaGamma(*in), fGammaLimits->PhiGamma(*in)};
 
   std::array<double, 4> start, steps, temp_point;
-  // Please not that if Minuit2 minimizer is used, the steps are not used
+  // Please note that if Minuit2 minimizer is used, the steps are not used
   // but for consistency we are evaluating it
 
   for (unsigned int i = 0; i < ranges.size(); ++i) {
