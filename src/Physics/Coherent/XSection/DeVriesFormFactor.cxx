@@ -71,9 +71,12 @@ void DeVriesFormFactor::LoadConfig(void)
   double Qmax, Qmin;
   GetParamDef( "DV-QMin", Qmin, 0. ) ;
   GetParam( "DV-QMax", Qmax ) ;
+  // Qmax and Qmin are released in the DeVries paper in fm. 
+  // and so is the input in the xml file
+  // So we need to convert it back to natural units
   Qmin /= units::fm ;
   Qmax /= units::fm ;
-
+  
   fCalculator = FourierBesselFFCalculator( cs, r, Qmin, Qmax ) ;
 
   GetParam( "DV-Nucleus", fPDG ) ;
