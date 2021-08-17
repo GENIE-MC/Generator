@@ -55,7 +55,7 @@ public:
     Hence, the density is not space dependent and it's an average on the nucleus.
     It is also the average of the two nucleon densities, that is why there are two methods.
 
-    The model is developed in the context of a Local Fermi Gas model, so tempering with 
+    The model is developed in the context of a Local Fermi Gas model, so tampering with 
     the density means tempering with the fermi momentum. Some degrees of consistency need to be granted.
 
     Because in these model the nuclear corrections are applied as averages, the FermiMomentum cannot be evaluated
@@ -81,7 +81,7 @@ public:
 
   static double Q2_cm( double s, 
 		       const std::array<double,2> & masses2 = { constants::kNucleonMass2, constants::kPionMass2 } ) ;
-  // Given a partilce that decays into 2 bodies 
+  // Given a particle that decays into 2 bodies 
   // this function returns the momentum module of each of the daughters in the centre of mass
   // s is the mother mass square, or in general the square of the CM energy
   // the array specifies the square masses of the two daughters
