@@ -10,7 +10,7 @@ Algorithm Configurable Parameters:
 Name                     Type    Optional   Comment                           Default
 .........................................................................................
 N-Delta-Ma               double  No         Nucleon to Delta Ma in GeV^2
-WeinbergAngle            double  yes        Weimber angle                     CommonParam[WeakInt]
+WeinbergAngle            double  yes        Weimberg angle                    CommonParam[WeakInt]
 NCG-Param03              double  No         GeV^{-1/2}          
 NCG-Param001             double  No         GeV^-2          
 NCG-Param023             double  No         GeV^-2          
