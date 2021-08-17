@@ -247,11 +247,6 @@ COHGammaKinematicsGenerator::ComputeMaxXSec(const Interaction *in) const {
   SLOG("COHKinematics", pDEBUG)
       << "Scanning the allowed phase space {K} for the max(dxsec/d{K})";
 #endif
-  if (!fXSecModel->ValidProcess(in)) {
-    LOG("COHGammaKinematicsGenerator", pFATAL)
-        << "Cannot calculate max-xsec for " << fXSecModel->Id().Name();
-    exit(0);
-  }
 
   ROOT::Math::Minimizer *min = ROOT::Math::Factory::CreateMinimizer("Minuit2");
   //  min -> SetPrintLevel(3) ;
