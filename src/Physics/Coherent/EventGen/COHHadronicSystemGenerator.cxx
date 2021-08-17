@@ -384,7 +384,7 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_AlvarezRuso(GHepRecord 
 		      other_p4, vtx ) ; 
   
   // evaluate Recoil mmomentum
-  TLorentzVector nucl_p4 = *nu->P4() + *Ni->P4() - *fsl->P4() - other_p4 ;
+  TLorentzVector nucl_p4 = *(nu->P4()) + *(Ni->P4()) - *(fsl->P4()) - other_p4 ;
   
   // Fill the records
   evrec->AddParticle( Ni->Pdg(),kIStStableFinalState, 
