@@ -30,6 +30,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 #include <functional>   
 #include <numeric>      // std::accumulate
 
@@ -98,8 +99,8 @@ void COHGammaKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   fXSecModel = evg->CrossSectionAlg();
   
   if ( ! fXSecModel -> ValidProcess( in )  ) {
-    std::stringstream message = "Cannot calculate kinematics for " ;
-    message << fXSecModel->Id().Name();
+    std::stringstream message; 
+    message << "Cannot calculate kinematics for " << fXSecModel->Id().Name();
  
     LOG("COHGammaKinematicsGenerator",pFATAL) << message.str() ;
 
