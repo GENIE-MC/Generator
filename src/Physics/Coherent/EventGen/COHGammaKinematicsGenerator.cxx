@@ -98,9 +98,15 @@ void COHGammaKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   fXSecModel = evg->CrossSectionAlg();
   
   if ( ! fXSecModel -> ValidProcess( in )  ) {
-    LOG("COHGammaKinematicsGenerator",pFATAL) << "Cannot calculate kinematics for " 
-					      << fXSecModel->Id().Name();
-    exit(0) ;
+    std::stringstream message = "Cannot calculate kinematics for " ;
+    message << fXSecModel->Id().Name();
+ 
+    LOG("COHGammaKinematicsGenerator",pFATAL) << message.str() ;
+
+    exceptions::EVGThreadException ex;
+    ex.SetReason( message.str() );
+    ex.SwitchOnFastForward() ;
+    throw ex;
   }
 
   in -> SetBit(kISkipProcessChk);
