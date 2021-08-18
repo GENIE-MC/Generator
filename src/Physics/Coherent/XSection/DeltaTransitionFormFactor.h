@@ -65,7 +65,8 @@ private:
   double fDeltaMass2 ; 
 
   double fN_Delta_Ma2 ; 
-  
+  double fN_Delta_CA5_0 ; 
+
   double fKgcm0 ; 
   double fMpw2, fMmw2 ; 
 
