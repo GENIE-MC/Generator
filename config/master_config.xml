@@ -145,6 +145,7 @@
   <config alg="genie::COHDeltaCurrent">                         COHDeltaCurrent.xml                         </config>
   <config alg="genie::DeltaInMediumCorrections">                DeltaInMediumCorrections.xml                </config>
   <config alg="genie::DeltaTransitionFormFactor">               DeltaTransitionFormFactor.xml               </config>
+  <config alg="genie::DeltaInMediumCorrections">         DeltaInMediumCorrections.xml   </config>
   <config alg="genie::EngelFormFactor">                         EngelFormFactor.xml                         </config>
 
 
@@ -220,6 +221,8 @@
   <config alg="genie::BertuzzoDNuCOHPXSec">                BertuzzoDNuCOHPXSec.xml                </config>
   <config alg="genie::HybridXSecAlgorithm">                HybridXSecAlgorithm.xml                </config>
   <config alg="genie::HEDISPXSec">                         HEDISPXSec.xml                         </config>
+  <config alg="genie::XSecScaleMap">                       XSecScaleMap.xml                       </config>
+  <config alg="genie::MECScaleVsW">                        MECScaleVsW.xml                        </config>
   <config alg="genie::XSecLinearCombinations">             XSecLinearCombinations.xml             </config>
   <config alg="genie::QvalueShifter">                      QvalueShifter.xml                      </config>
 
@@ -237,7 +240,6 @@
   <config alg="genie::mueloss::BezrukovBugaevModel">     BezrukovBugaevModel.xml        </config>
   <config alg="genie::mueloss::KokoulinPetrukhinModel">  KokoulinPetrukhinModel.xml     </config>
   <config alg="genie::mueloss::PetrukhinShestakovModel"> PetrukhinShestakovModel.xml    </config>
-  <config alg="genie::DeltaInMediumCorrections">         DeltaInMediumCorrections.xml   </config>
 
   <!-- ****** CONFIGURATION FOR MODELS IN VLE PACKAGE ****** -->
   <config alg="genie::IBDHadronicSystemGenerator">     IBDHadronicSystemGenerator.xml   </config>
