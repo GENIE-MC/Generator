@@ -136,10 +136,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
   double Tl    = interaction->Kine().GetKV(kKVTl);
   double costl = interaction->Kine().GetKV(kKVctl);
   double ml    = interaction->FSPrimLepton()->Mass();
-  double Q0    = 0;
-  double Q3    = 0;
-
-  genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
+  double Q0    = interaction->Kine().GetKV(kKVQ0);
+  double Q3    = interaction->Kine().GetKV(kKVQ3);
 
   const LabFrameHadronTensorI* tensor
     = dynamic_cast<const LabFrameHadronTensorI*>(
@@ -287,6 +285,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
   // Apply given scaling factor
   xsec *= fXSecScale;
 
+  if( fMECScaleAlg ) xsec *= fMECScaleAlg->GetScaling( * interaction ) ;
+
   if ( kps != kPSTlctl ) {
     LOG("NievesSimoVacasMEC", pWARN)
       << "Doesn't support transformation from "
@@ -358,6 +358,16 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
     }
   }
 
+  // Read optional MECScaleVsW:
+  fMECScaleAlg = nullptr; 
+  if( GetConfig().Exists("MECScaleAlg") ) {
+    fMECScaleAlg = dynamic_cast<const XSecScaleI *> ( this->SubAlg("MECScaleAlg") );
+    if( !fMECScaleAlg ) {
+      good_config = false ; 
+      LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required MECScaleAlg cannot be casted. AlgID is : " << SubAlg("MECScaleAlg")->Id() ;
+    }
+  }
+	
   if( ! good_config ) {
     LOG("NievesSimoVacasMECPXSec2016", pERROR) << "Configuration has failed.";
     exit(78) ;

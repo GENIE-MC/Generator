@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+<!--
+Configuration for the XSecScaleMap
+Configurable Parameters:
+......................................................................................................................
+Name                    Type     Optional   Comment                                       Default
+......................................................................................................................
+XSecScaleAlgDefault     alg      Yes        Default Algoritm to be used for all targets
+XSecScaleAlg@Pdg=PDG    alg      Yes        This defines the Algorithm to be used for each target
+-->
+
+  <param_set name="Default"> 
+    
+  </param_set>
+
+  <param_set name="Nieves2p2h"> 
+    <param type="alg" name="XSecScaleDefaultAlg"> genie::MECScaleVsW/Default </param>   
+    <param type="alg" name="XSecScaleAlg@Pdg=1000060120">  genie::MECScaleVsW/MECScaleNieves1000060120 </param> <!-- C12 -->
+    <param type="alg" name="XSecScaleAlg@Pdg=1000080160">  genie::MECScaleVsW/MECScaleNieves1000080160 </param> <!-- O16 -->
+  </param_set>
+
+</alg_conf>
