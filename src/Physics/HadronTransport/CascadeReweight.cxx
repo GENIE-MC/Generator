@@ -61,6 +61,8 @@ double CascadeReweight::GetEventWeight(const GHepRecord &event) const {
   TIter event_iter(&event);
   double total_weight = 1.;
   while ((p = dynamic_cast<GHepParticle *>(event_iter.Next()))) {
+    // Look only at stable particles in the nucleus:
+    if ( p->Status() != kIStHadronInTheNucleus ) continue ; 
     // Get particle fate
     auto fate_rescatter = p->RescatterCode();
     // Only look at particles that had FSI
