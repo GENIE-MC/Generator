@@ -64,6 +64,9 @@ private:
   /// Load algorithm configuration
   void LoadConfig (void);
 
+  // Calculate Qvalue Shift for susa:
+  double Qvalue(const Interaction & interaction ) const ;
+
   /// External scaling factor for this cross section
   double fXSecScale;
 
