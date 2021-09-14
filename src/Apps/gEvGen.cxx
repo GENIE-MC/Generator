@@ -281,7 +281,7 @@ void GenerateEventsAtFixedInitState(void)
   evg_driver.Configure(init_state);
 
   // Initialize an Ntuple Writer
-  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
+  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
 
   // If an output file name has been specified... use it
   if (!gOptOutFileName.empty()){
@@ -354,7 +354,7 @@ void GenerateEventsUsingFluxOrTgtMix(void)
         mcj_driver->ForceSingleProbScale();
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
-  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
+  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
 
   // If an output file name has been specified... use it
   if (!gOptOutFileName.empty()){
