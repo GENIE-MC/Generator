@@ -46,7 +46,23 @@ typedef enum HadronTensorType {
   kHT_MEC_FullAll_Param,
   kHT_MEC_FullAll_wImag,
   kHT_QE_Full,
-  kHT_MEC_EM_wImag
+  kHT_MEC_EM_wImag,
+
+  kHT_QE_CRPA_Low,
+  kHT_QE_CRPA_Medium,
+  kHT_QE_CRPA_High,
+
+  kHT_QE_CRPA_anu_Low,
+  kHT_QE_CRPA_anu_Medium,
+  kHT_QE_CRPA_anu_High,
+
+  kHT_QE_HF_Low,
+  kHT_QE_HF_Medium,
+  kHT_QE_HF_High,
+
+  kHT_QE_HF_anu_Low,
+  kHT_QE_HF_anu_Medium,
+  kHT_QE_HF_anu_High
 }
 HadronTensorType_t;
 

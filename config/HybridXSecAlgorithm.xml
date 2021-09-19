@@ -21,10 +21,8 @@ XSecAlg@Interaction=XX alg      Yes        Algorithm to use to handle interactio
 
 
   <param_set name="SuSAv2-QEL">
-
     <!-- Use the SuSAv2 CCQE model for complex nuclear targets (default) -->
-    <param type="alg" name="DefaultXSecAlg"> genie::SuSAv2QELPXSec/Default </param>
-
+    <param type="alg" name="DefaultXSecAlg"> genie::SuSAv2QELPXSec/SuSAv2 </param>
     <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
     <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
       genie::LwlynSmithQELCCPXSec/Dipole </param>
@@ -45,7 +43,107 @@ XSecAlg@Interaction=XX alg      Yes        Algorithm to use to handle interactio
       genie::RosenbluthPXSec/Default </param>
     <param type="alg" name="XSecAlg@Interaction=nu:11;tgt:1000010010;N:2212;proc:EM,QES;">
       genie::RosenbluthPXSec/Default </param>
-
   </param_set>
+
+  <param_set name="CRPA-QEL">
+    <!-- Use the SuSAv2 CCQE model for complex nuclear targets (default) -->
+    <param type="alg" name="DefaultXSecAlg"> genie::SuSAv2QELPXSec/CRPA </param>
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+
+    <!-- TODO: add entries for muon EMQE scattering, etc. -->
+    <!-- Delegate handling of EMQE scattering on a free nucleon to the Rosenbluth model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:11;tgt:1000000010;N:2112;proc:EM,QES;">
+      genie::RosenbluthPXSec/Default </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:11;tgt:1000010010;N:2212;proc:EM,QES;">
+      genie::RosenbluthPXSec/Default </param>
+  </param_set>
+
+  <param_set name="HF-QEL">
+    <!-- Use the SuSAv2 CCQE model for complex nuclear targets (default) -->
+    <param type="alg" name="DefaultXSecAlg"> genie::SuSAv2QELPXSec/HF </param>
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+
+    <!-- TODO: add entries for muon EMQE scattering, etc. -->
+    <!-- Delegate handling of EMQE scattering on a free nucleon to the Rosenbluth model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:11;tgt:1000000010;N:2112;proc:EM,QES;">
+      genie::RosenbluthPXSec/Default </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:11;tgt:1000010010;N:2212;proc:EM,QES;">
+      genie::RosenbluthPXSec/Default </param>
+  </param_set>
+
+  <param_set name="CRPASuSAv2Hybrid-QEL">
+    <!-- Use the SuSAv2 CCQE model for complex nuclear targets (default) -->
+    <param type="alg" name="DefaultXSecAlg"> genie::SuSAv2QELPXSec/CRPASuSAv2Hybrid </param>
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+
+    <!-- TODO: add entries for muon EMQE scattering, etc. -->
+    <!-- Delegate handling of EMQE scattering on a free nucleon to the Rosenbluth model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:11;tgt:1000000010;N:2112;proc:EM,QES;">
+      genie::RosenbluthPXSec/Default </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:11;tgt:1000010010;N:2212;proc:EM,QES;">
+      genie::RosenbluthPXSec/Default </param>
+  </param_set>
+
+  <param_set name="HFSuSAv2Hybrid-QEL">
+    <!-- Use the SuSAv2 CCQE model for complex nuclear targets (default) -->
+    <param type="alg" name="DefaultXSecAlg"> genie::SuSAv2QELPXSec/HFSuSAv2Hybrid </param>
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+
+    <!-- TODO: add entries for muon EMQE scattering, etc. -->
+    <!-- Delegate handling of EMQE scattering on a free nucleon to the Rosenbluth model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:11;tgt:1000000010;N:2112;proc:EM,QES;">
+      genie::RosenbluthPXSec/Default </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:11;tgt:1000010010;N:2212;proc:EM,QES;">
+      genie::RosenbluthPXSec/Default </param>
+  </param_set>
+
 
 </alg_conf>
