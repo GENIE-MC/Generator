@@ -468,7 +468,7 @@ class dXSec_Log_Wrapper: public ROOT::Math::IBaseFunctionMultiDim
     double * fMins;
     double * fMaxes;
 };
-
+ 
 } // gsl   namespace
 } // utils namespace
 } // genie namespace

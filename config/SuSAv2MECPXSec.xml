@@ -12,7 +12,9 @@ Name                  Type     Optional   Comment                               
 MEC-XSecScale         double   Yes        XSec Scaling factor                        1.
 CKM-Vud               double   No         Vud element of CKM matrix                  CommonParam[CKM]
 FermiMomentumTable    string   No         Table of Fermi momentum (kF) constants     CommonParam[FermiGas]
-
+MECScaleAlg           alg      Yes        XSecScale algorithm used                   The cross section is unscaled
+                                          to scale the cross section
+QvalueShifterAlg      algo     yes        Qvalue shifter algo                        none 
 -->
   <param_set name="Default"> 
       <!-- <param type="string" name="CommonParam"> CKM </param> No longer needed -->

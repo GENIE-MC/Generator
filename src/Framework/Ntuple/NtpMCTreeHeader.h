@@ -11,7 +11,7 @@
 \created October 1, 2004
 
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -57,11 +57,12 @@ public :
   TObjString    cvstag;     ///< GENIE CVS Tag (to keep track of GENIE's version)
   NtpMCDTime    datime;     ///< Date and Time that the event ntuple was generated
   Long_t        runnu;      ///< MC Job run number
+  Long_t        runseed;    ///< Random seed used in the MC run
   TObjString    tune;       ///< GENIE Tune Name
   TObjString    tuneDir;    ///< directory from when tune config came
   TObjString    customDirs; ///< any custom directories
 
-  ClassDef(NtpMCTreeHeader, 3)
+  ClassDef(NtpMCTreeHeader, 4)
 };
 
 }      // genie namespace

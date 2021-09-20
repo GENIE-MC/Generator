@@ -7,10 +7,15 @@ Configuration for MECGenerator
 
 Configurable Parameters:
 .......................................................................................................
-Name             Type     Optional   Comment                                      Default
-NSV-Q3Max        double   No         Q3 max for 2p2h model                        CommonParam[MultiNucleons]
-
-.......................................................................................................
+Name                       Type     Optional   Comment                                      Default
+NSV-Q3Max                  double   No         Q3 max for 2p2h model                        CommonParam[MultiNucleons]
+MaxXSec-SafetyFactor       double   Yes        Safety factor applied to the max xsec value  1.6
+MaxXSec-FunctionCalls      int      No         Maximum number of function calls to find the 
+                                               cross section maximum 
+MaxXSec-RelativeTolerance  double   No         Relative tolerance for the minuit minimization
+MaxXSec-MinScanPointsTmu   int      No         Number of scan points for Tmu required for the minimization of d2XSec/dTmudCosth  
+MaxXSec-MinScanPointsCosth int      No         Number of scan points for Costh required for the minimization of d2XSec/dTmudCosth  
+.........................................................................................................................
 -->
 
   <param_set name="Default"> 
@@ -20,6 +25,12 @@ NSV-Q3Max        double   No         Q3 max for 2p2h model                      
     <param type="alg" name="NuclearModel"> genie::NuclearModelMap/Default </param>
 
     <!-- <param type="double" name="SuSA-MaxXSec-DiffTolerance"> 0.0 </param> -->
+    
+    <param type="double" name="MaxXSec-SafetyFactor"> 1.5 </param>
+    <param type="int" name="MaxXSec-FunctionCalls"> 1000 </param>
+    <param type="double" name="MaxXSec-RelativeTolerance"> 0.8 </param>
+    <param type="int" name="MaxXSec-MinScanPointsTmu" > 120 </param>
+    <param type="int" name="MaxXSec-MinScanPointsCosth" > 100 </param>
      
   </param_set>
   

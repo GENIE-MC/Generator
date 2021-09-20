@@ -139,14 +139,14 @@
               Specifies the neutrino energy in GeV.
               Must be a comma-separated pair of numbers, eg `-E 0.3,70'
               [default: 0.5,50]
-           --flux-ray-generation-surface-distance               
-           --flux-ray-generation-surface-radius   
-              See the User & Physics Manual for a graphical representation of the flux 
+           --flux-ray-generation-surface-distance
+           --flux-ray-generation-surface-radius
+              See the User & Physics Manual for a graphical representation of the flux
               ray generation surface: For a given zenith \theta and azimuthal angle \phi,
               flux rays are produced within the area of a circle of radius Rt,
-              which is tangetial to a point P on a sphere of radius Rl, centred at the 
+              which is tangetial to a point P on a sphere of radius Rl, centred at the
               detector. The point P has polar coordinates \theta and \phi.
-              The argument --flux-ray-generation-surface-distance sets Rl, while              
+              The argument --flux-ray-generation-surface-distance sets Rl, while
               the argument --flux-ray-generation-surface-distance sets Rt.
               SI units are used.
            -o
@@ -225,7 +225,7 @@
 
 \cpright Copyright (c) 2003-2020, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         
+
 */
 //_________________________________________________________________________________________
 
@@ -377,7 +377,7 @@ int main(int argc, char** argv)
   mcj_driver->ForceSingleProbScale();
 
   // initialize an ntuple writer
-  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
+  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
   ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);
   ntpw.Initialize();
 
@@ -565,7 +565,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 // Get the command line arguments
 
   RunOpt::Instance()->ReadFromCommandLine(argc,argv);
-  
+
   LOG("gevgen_atmo", pNOTICE) << "Parsing command line arguments";
 
   CmdLnArgParser parser(argc,argv);
@@ -758,22 +758,22 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
 
   // *** options to fine tune the flux ray generation surface
- 
+
   if( parser.OptionExists("flux-ray-generation-surface-distance") ) {
-    LOG("gevgen_atmo", pINFO) 
+    LOG("gevgen_atmo", pINFO)
       << "Reading distance of flux ray generation surface";
     gOptRL = parser.ArgAsDouble("flux-ray-generation-surface-distance");
   } else {
-    LOG("gevgen_atmo", pINFO) 
+    LOG("gevgen_atmo", pINFO)
       << "Unspecified distance of flux ray generation surface - Using default";
   }
 
   if( parser.OptionExists("flux-ray-generation-surface-radius") ) {
-    LOG("gevgen_atmo", pINFO) 
+    LOG("gevgen_atmo", pINFO)
       << "Reading radius of flux ray generation surface";
     gOptRT = parser.ArgAsDouble("flux-ray-generation-surface-radius");
   } else {
-    LOG("gevgen_atmo", pINFO) 
+    LOG("gevgen_atmo", pINFO)
       << "Unspecified radius of flux ray generation surface - Using default";
   }
 
@@ -1002,7 +1002,7 @@ void GetCommandLineArgs(int argc, char ** argv)
         fluxinfo << "(" << name << ") -> " << filename << " / ";
      }
   }
-  fluxinfo << "Flux ray generation surface - Distance = " 
+  fluxinfo << "Flux ray generation surface - Distance = "
            << gOptRL << " m, Radius = " << gOptRT << " m";
 
   ostringstream expinfo;
@@ -1066,7 +1066,7 @@ void PrintSyntax(void)
    << "\n            -T exposure_in_seconds>"
    << "\n            -E min_energy,max_energy"
    << "\n           [-o output_event_file_prefix]"
-   << "\n           [--flux-ray-generation-surface-distance]"               
+   << "\n           [--flux-ray-generation-surface-distance]"
    << "\n           [--flux-ray-generation-surface-radius]"
    << "\n           [--seed random_number_seed]"
    << "\n            --cross-sections xml_file"
