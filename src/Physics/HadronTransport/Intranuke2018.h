@@ -123,7 +123,8 @@ protected:
   double       fPionMFPScale;       ///< tweaking factors for tuning
   double       fPionFracCExScale;
   double       fPionFracInelScale;
-  double       fPionFracAbsScale;
+  double       fChPionFracAbsScale;
+  double       fNeutralPionFracAbsScale;
   double       fPionFracPiProdScale;
   double       fNucleonMFPScale;
   double       fNucleonFracCExScale;
