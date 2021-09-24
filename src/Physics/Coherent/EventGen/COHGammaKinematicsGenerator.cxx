@@ -343,7 +343,7 @@ void COHGammaKinematicsGenerator::throwOnTooManyIterations(unsigned int iters,
   genie::exceptions::EVGThreadException exception;
   exception.SetReason("Couldn't select kinematics");
   exception.SwitchOnStepBack() ;
-  exception.SetReturnStep(2) ; // this is the kinematic generator
+  exception.SetReturnStep(0) ; // this is the kinematic generator
   throw exception;
 }
 //___________________________________________________________________________
