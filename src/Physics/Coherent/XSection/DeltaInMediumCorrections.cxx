@@ -82,9 +82,9 @@ double DeltaInMediumCorrections::AverageDensity( int nucleus_pdg ) const {
   }
   else {
     
-    static double __rho = 3. / (4. * constants::kPi * pow( 1.2 * units::fermi, 3 ) ) ; 
+    double rho = 3. / (4. * constants::kPi * pow( fNuclR0, 3 ) ) ; 
 
-    return __rho ;
+    return rho ;
   }
 
  
@@ -92,7 +92,6 @@ double DeltaInMediumCorrections::AverageDensity( int nucleus_pdg ) const {
 //____________________________________________________________________________
 double DeltaInMediumCorrections::Sigma( int nucleus_pdg ) const {
 
-  // TODO verify there isn't an extra factor of 1/2 in Sigma compared to slides
   double sigma = -0.5 * fDeltaV0 * AverageDensity( nucleus_pdg ) / fRho0 ; 
   return sigma ; 
 }
@@ -190,6 +189,10 @@ void DeltaInMediumCorrections::LoadConfig(void)
   double deltaN_coupling = 0. ;
   GetParam( "Delta-N-Coupling", deltaN_coupling ) ;
   fDeltaNCoupling2 = deltaN_coupling * deltaN_coupling ;
+
+  GetParam( "NUCL-R0", fNuclR0 );
+  fNuclR0 *= units::fm ;
+
 
 }
 //____________________________________________________________________________

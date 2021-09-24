@@ -74,7 +74,7 @@ double DeltaTransitionFormFactor::C3VNC( double Q2 ) const {
 double DeltaTransitionFormFactor::C5ANC( double Q2 ) const {
 
   double Fd = pow( 1.0 + Q2 / fN_Delta_Ma2, -2 ) ;
-  return 1.2 * Fd;
+  return fN_Delta_CA5_0 * Fd;
 
 }
 //____________________________________________________________________________
@@ -99,6 +99,8 @@ void DeltaTransitionFormFactor::LoadConfig(void)
   double n_Delta_Ma ;
   GetParam( "N-Delta-Ma", n_Delta_Ma ) ;
   fN_Delta_Ma2 = pow( n_Delta_Ma, 2 ) ;
+
+  GetParam( "N-Delta-CA5_0", fN_Delta_CA5_0 ) ;
 
   double mN2 = pow( constants::kProtonMass, 2 ) ; 
 

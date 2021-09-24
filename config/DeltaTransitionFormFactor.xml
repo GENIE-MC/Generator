@@ -7,10 +7,11 @@ Configuration sets for the Delta Transition Form Factors used in the COH NC Gamm
 
 Algorithm Configurable Parameters:
 .........................................................................................
-Name                     Type    Optional   Comment                           Default
+Name                     Type    Optional   Comment                               Default
 .........................................................................................
 N-Delta-Ma               double  No         Nucleon to Delta Ma in GeV^2
-WeinbergAngle            double  yes        Weimber angle                     CommonParam[WeakInt]
+N-Delta-CA5_0            double  No         Nucleon to Delta Axial value at Q=0 
+WeinbergAngle            double  yes        Weimberg angle                        CommonParam[WeakInt]
 NCG-Param03              double  No         GeV^{-1/2}          
 NCG-Param001             double  No         GeV^-2          
 NCG-Param023             double  No         GeV^-2          
@@ -22,11 +23,15 @@ NCG-Param071             double  No         GeV^2
 
     <param type="string" name="CommonParam"> WeakInt </param>
 
-    <param type="double" name="N-Delta-Ma"> 0.93 </param>  <!-- reference-->
-    <param type="double" name="NCG-Param03">  0.3 </param> <!-- reference-->
-    <param type="double" name="NCG-Param001"> 0.01 </param> <!-- reference-->
-    <param type="double" name="NCG-Param023"> 0.23 </param> <!-- reference-->
-    <param type="double" name="NCG-Param071"> 0.71 </param> <!-- reference-->
+    <param type="double" name="N-Delta-Ma">    0.93 </param>  <!-- reference-->
+    <param type="double" name="N-Delta-CA5_0"> 1.22 </param>  
+    <!-- B.~Golli et al. ``$N-\Delta$ axial transition form-factors,
+	 '' Bled Workshops Phys. \textbf{3} (2002) no.3, 47-58
+	 [arXiv:hep-ph/0211293 [hep-ph]]. -->
+    <param type="double" name="NCG-Param03">   0.3  </param> <!-- reference-->
+    <param type="double" name="NCG-Param001">  0.01 </param> <!-- reference-->
+    <param type="double" name="NCG-Param023">  0.23 </param> <!-- reference-->
+    <param type="double" name="NCG-Param071">  0.71 </param> <!-- reference-->
 
     
   </param_set>

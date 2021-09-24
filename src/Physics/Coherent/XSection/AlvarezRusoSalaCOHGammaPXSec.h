@@ -5,7 +5,7 @@
   \brief    Implementation of the Alvarez-Ruso Sala coherent gamma production model
             Is a concrete implementation of the XSecAlgorithmI interface.
 
-\ref
+\ref      https://link.aps.org/doi/10.1103/PhysRevC.89.015503
 
 \author   Marco Roda
           University of Liverpool

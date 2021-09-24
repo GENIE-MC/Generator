@@ -21,6 +21,7 @@
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Multinucleon/XSection/MECXSec.h"
+#include "Physics/Multinucleon/XSection/MECUtils.h"
 #include "Framework/Numerical/Spline.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
@@ -65,9 +66,9 @@ double MECXSec::Integrate(
      return 0;
   }
 
-  Interaction * interaction = new Interaction(*in);
-  interaction->SetBit(kISkipProcessChk);
-  interaction->SetBit(kISkipKinematicChk);
+  Interaction interaction(*in);
+  interaction.SetBit(kISkipProcessChk);
+  interaction.SetBit(kISkipKinematicChk);
 
   // T, costh limits
   double Enu = in->InitState().ProbeE(kRfLab);
@@ -90,17 +91,12 @@ double MECXSec::Integrate(
   double xsec = 0;
 
   double abstol = 1; //We mostly care about relative tolerance.
-  ROOT::Math::IBaseFunctionMultiDim * func =
-        new utils::gsl::d2Xsec_dTCosth(model, interaction);
+  genie::utils::mec::gsl::d2Xsec_dTCosth func(model, interaction, Enu, LepMass );
   ROOT::Math::IntegrationMultiDim::Type ig_type =
     utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-  ROOT::Math::IntegratorMultiDim ig(
-    *func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
+  ROOT::Math::IntegratorMultiDim ig(func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
 
   xsec = ig.Integral(kine_min, kine_max);
-
-  delete func;
-  delete interaction;
 
   return xsec;
 }
@@ -132,52 +128,3 @@ void MECXSec::LoadConfig(void)
   GetParamDef( "split-integral", fSplitIntegral, true ) ;
 
 }
-//_____________________________________________________________________________
-// GSL wrappers
-//____________________________________________________________________________
-genie::utils::gsl::d2Xsec_dTCosth::d2Xsec_dTCosth(
-     const XSecAlgorithmI * m, const Interaction * i) :
-ROOT::Math::IBaseFunctionMultiDim(),
-fModel(m),
-fInteraction(i)
-{
-
-}
-//____________________________________________________________________________
-genie::utils::gsl::d2Xsec_dTCosth::~d2Xsec_dTCosth()
-{
-
-}
-//____________________________________________________________________________
-unsigned int genie::utils::gsl::d2Xsec_dTCosth::NDim(void) const
-{
-  return 2;
-}
-//____________________________________________________________________________
-double genie::utils::gsl::d2Xsec_dTCosth::DoEval(const double * xin) const
-{
-// inputs:
-//    T [GeV]
-//    cos(theta)
-// outputs:
-//   differential cross section (hbar=c=1 units)
-//
-
-  double T     = xin[0];
-  double costh = xin[1];
-
-  Kinematics * kinematics = fInteraction->KinePtr();
-  kinematics->SetKV(kKVTl, T);
-  kinematics->SetKV(kKVctl, costh);
-
-  double xsec = fModel->XSec(fInteraction, kPSTlctl);
-  return xsec;
-}
-//____________________________________________________________________________
-ROOT::Math::IBaseFunctionMultiDim *
-   genie::utils::gsl::d2Xsec_dTCosth::Clone() const
-{
-  return
-    new genie::utils::gsl::d2Xsec_dTCosth(fModel,fInteraction);
-}
-//____________________________________________________________________________
