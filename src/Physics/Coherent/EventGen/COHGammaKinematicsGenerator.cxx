@@ -32,7 +32,7 @@
 #include <iostream>
 #include <functional>   
 #include <numeric>      // std::accumulate
-
+#include <memory>
 
 #include <TROOT.h>
 #include <TMath.h>
@@ -137,9 +137,9 @@ void COHGammaKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   
   Interaction local_interaction( * in ) ;
 
-  ROOT::Math::IBaseFunctionMultiDim * func = nullptr ;
-  if ( ftPhaseSpace ) func = new utils::gsl::d4Xsec_dEgdtdThetagdPhig( fXSecModel, & local_interaction ) ;
-  else func = new utils::gsl::d4Xsec_dEgdThetaldThetagdPhig( fXSecModel, & local_interaction ) ;
+  std::unique_ptr<ROOT::Math::IBaseFunctionMultiDim> func = nullptr ;
+  if ( ftPhaseSpace ) func.reset( new utils::gsl::d4Xsec_dEgdtdThetagdPhig( fXSecModel, & local_interaction ) );
+  else func.reset( new utils::gsl::d4Xsec_dEgdThetaldThetagdPhig( fXSecModel, & local_interaction ) ) ;
   
   while(1) {
     iter++;
@@ -232,8 +232,6 @@ void COHGammaKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 		  
   }//while still throwing events
   
-  delete func ;   
-
   return;
 }
 //___________________________________________________________________________
@@ -254,7 +252,7 @@ double COHGammaKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
     exit(0) ;
   }
   
-  ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit2" );
+  std::unique_ptr<ROOT::Math::Minimizer> min( ROOT::Math::Factory::CreateMinimizer("Minuit2" ) );
   //  min -> SetPrintLevel(3) ;
   
   gsl::d4Xsec_dEgdThetaldThetagdPhig f(fXSecModel,in);
@@ -347,7 +345,7 @@ double COHGammaKinematicsGenerator::Energy(const Interaction * interaction) cons
 }
 //___________________________________________________________________________
 void COHGammaKinematicsGenerator::throwOnTooManyIterations(unsigned int iters,
-                                                      GHepRecord* evrec) const
+							   GHepRecord* evrec) const
 {
   LOG("COHKinematics", pWARN)
     << "*** Could not select valid kinematics after "
@@ -355,7 +353,8 @@ void COHGammaKinematicsGenerator::throwOnTooManyIterations(unsigned int iters,
   evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
   genie::exceptions::EVGThreadException exception;
   exception.SetReason("Couldn't select kinematics");
-  exception.SwitchOnFastForward();
+  exception.SwitchOnStepBack() ;
+  exception.SetReturnStep(2) ; // this is the kinematic generator
   throw exception;
 }
 //___________________________________________________________________________
