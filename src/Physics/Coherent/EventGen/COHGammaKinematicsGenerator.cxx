@@ -271,44 +271,59 @@ COHGammaKinematicsGenerator::ComputeMaxXSec(const Interaction *in) const {
   // Please note that if Minuit2 minimizer is used, the steps are not used
   // but for consistency we are evaluating it
 
-  for (unsigned int i = 0; i < ranges.size(); ++i) {
-    double width = ranges[i].max - ranges[i].min;
-    steps[i] = width / (fMinimScanPoints[i] + 1);
-  }
+  double max_xsec = -1. ;
 
-  double xsec = 0;
+  auto scan_points = fMinimScanPoints ;
 
-  // preliimnary scan
-  for (unsigned int i = 1; i <= fMinimScanPoints[0]; ++i) {
-    temp_point[0] = ranges[0].min + steps[0] * i;
+  unsigned int max_xsec_iteractions = 0 ;
 
-    for (unsigned int j = 1; j <= fMinimScanPoints[1]; ++j) {
-      temp_point[1] = ranges[1].min + steps[1] * j;
+  while ( max_xsec <= 0. ) {
 
-      for (unsigned int k = 1; k <= fMinimScanPoints[2]; ++k) {
-        temp_point[2] = ranges[2].min + steps[2] * k;
+    for( auto & p : scan_points ) {
+      p += max_xsec_iteractions ;
+    }
+    
+    for (unsigned int i = 0; i < ranges.size(); ++i) {
+      double width = ranges[i].max - ranges[i].min;
+      steps[i] = width / (scan_points[i] + 1);
+    }
+    
+    double xsec = 0;
 
-        for (unsigned int l = 1; l <= fMinimScanPoints[3]; ++l) {
-          temp_point[3] = ranges[3].min + steps[3] * l;
-
-          double temp_xsec = -f(temp_point.data());
-          if (temp_xsec > xsec) {
-            start = temp_point;
-            xsec = temp_xsec;
-          }
-        }
+    // preliimnary scan
+    for (unsigned int i = 1; i <= scan_points[0]; ++i) {
+      temp_point[0] = ranges[0].min + steps[0] * i;
+      
+      for (unsigned int j = 1; j <= scan_points[1]; ++j) {
+	temp_point[1] = ranges[1].min + steps[1] * j;
+	
+	for (unsigned int k = 1; k <= scan_points[2]; ++k) {
+	  temp_point[2] = ranges[2].min + steps[2] * k;
+	  
+	  for (unsigned int l = 1; l <= scan_points[3]; ++l) {
+	    temp_point[3] = ranges[3].min + steps[3] * l;
+	    
+	    double temp_xsec = -f(temp_point.data());
+	    if (temp_xsec > xsec) {
+	      start = temp_point;
+	      xsec = temp_xsec;
+	    }
+	  }
+	}
       }
     }
-  }
-
-  for (unsigned int i = 0; i < ranges.size(); ++i) {
-    min->SetLimitedVariable(i, names[i], start[i], steps[i], ranges[i].min,
-                            ranges[i].max);
-  }
-
-  min->Minimize();
-
-  double max_xsec = -min->MinValue(); // back to positive xsec
+    
+    for (unsigned int i = 0; i < ranges.size(); ++i) {
+      min->SetLimitedVariable(i, names[i], start[i], steps[i], ranges[i].min,
+			      ranges[i].max);
+    }
+    
+    min->Minimize();
+    
+    double max_xsec = -min->MinValue(); // back to positive xsec
+    
+    ++ max_xsec_iteractions ;
+  }  // while max_xsec <= 0. 
 
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy.
