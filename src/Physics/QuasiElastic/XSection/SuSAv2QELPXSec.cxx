@@ -132,11 +132,20 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   // binding energy in the Valencia model but this effect is already
   // in Guille's tensors so I'll set it to 0.
   // However, if I want to scale I need to account for the altered
-  // binding energy. To first order I can use the Q_value for this
-  double Q_value = Eb_tgt-Eb_ten;
+  // binding energy. To first order I can use the Delta_Q_value for this
+  double Delta_Q_value = Eb_tgt-Eb_ten;
 
   // Apply Qvalue relative shift if needed:
-  if( fQvalueShifter ) Q_value += Q_value * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
+  if( fQvalueShifter ) {
+    // We have the option to add an additional shift on top of the binding energy correction
+    // The QvalueShifter, is a relative shift to the Q_value. 
+    // The Q_value was already taken into account in the hadron tensor. Here we recalculate it
+    // to get the right absolute shift. 
+    double tensor_Q_value = genie::utils::mec::Qvalue(tensor_pdg,probe_pdg);
+    double total_Q_value = tensor_Q_value + Delta_Q_value ; 
+    double Q_value_shift = total_Q_value * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ; 
+    Delta_Q_value += Q_value_shift ;
+  }
 
   genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
 
@@ -144,7 +153,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   double Q0max = tensor->q0Max();
   double Q3min = tensor->qMagMin();
   double Q3max = tensor->qMagMax();
-  if (Q0-Q_value < Q0min || Q0-Q_value > Q0max || Q3 < Q3min || Q3 > Q3max) {
+  if (Q0-Delta_Q_value < Q0min || Q0-Delta_Q_value > Q0max || Q3 < Q3min || Q3 > Q3max) {
     return 0.0;
   }
 
@@ -162,7 +171,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   if ( Q2 < Q2min ) return 0.;
 
   // Compute the cross section using the hadron tensor
-  double xsec = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value);
+  double xsec = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value);
   LOG("SuSAv2QE", pDEBUG) << "XSec in cm2 / neutron is  " << xsec/(units::cm2);
 
   // Currently the SuSAv2 QE hadron tensors are given per active nucleon, but
