@@ -979,7 +979,8 @@ void HNIntranuke2018::LoadConfig(void)
   GetParam( "HNINUKE-DelRPion",    fDelRPion ) ;
   GetParam( "HNINUKE-DelRNucleon", fDelRNucleon ) ;
 
-  GetParamDef( "FSI-Pion-MFPScale",              fPionMFPScale,           1.0 ) ;
+  GetParamDef( "FSI-ChargedPion-MFPScale",       fChPionMFPScale,         1.0 ) ;
+  GetParamDef( "FSI-NeutralPion-MFPScale",       fNeutralPionMFPScale,    1.0 ) ;
   GetParamDef( "FSI-Nucleon-MFPScale",           fNucleonMFPScale,        1.0 ) ;
 
   // report
@@ -1000,7 +1001,8 @@ void HNIntranuke2018::LoadConfig(void)
   LOG("HNIntranuke2018", pWARN) << "useOset     = " << fUseOset;
   LOG("HNIntranuke2018", pWARN) << "altOset     = " << fAltOset;
   LOG("HNIntranuke2018", pWARN) << "XsecNNCorr? = " << ((fXsecNNCorr)?(true):(false));
-  LOG("HNIntranuke2018", pWARN) << "FSI-Pion-MFPScale     = " << fPionMFPScale;
+  LOG("HNIntranuke2018", pWARN) << "FSI-ChargedPion-MFPScale     = " << fChPionMFPScale;
+  LOG("HNIntranuke2018", pWARN) << "FSI-NeutralPion-MFPScale     = " << fNeutralPionMFPScale;
 }
 //___________________________________________________________________________
 
