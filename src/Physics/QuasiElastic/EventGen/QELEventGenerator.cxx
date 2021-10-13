@@ -167,8 +167,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
         // Put the hit nucleon off-shell (if needed) so that we can get the correct
         // value of cos_theta0_max
-        genie::utils::BindHitNucleon(*interaction, *fNuclModel,
-          fEb, fHitNucleonBindingMode);
+        genie::utils::BindHitNucleon(*interaction, *fNuclModel, fEb, fHitNucleonBindingMode, fQvalueShifter);
 
         double cos_theta0_max = std::min(1., CosTheta0Max(*interaction));
 
@@ -188,8 +187,8 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // Set the "bind_nucleon" flag to false in this call to ComputeFullQELPXSec
         // since we've already done that above
         LOG("QELEvent", pDEBUG) << "cth0 = " << costheta << ", phi0 = " << phi;
-        double xsec = genie::utils::ComputeFullQELPXSec(interaction, fNuclModel,
-          fXSecModel, costheta, phi, fEb, fHitNucleonBindingMode, fMinAngleEM, false);
+        double xsec = genie::utils::ComputeFullQELPXSec(interaction, fNuclModel, fXSecModel, costheta, phi, 
+							fEb, fHitNucleonBindingMode, fMinAngleEM, false, fQvalueShifter);
 
         // select/reject event
         this->AssertXSecLimits(interaction, xsec, xsec_max);
@@ -369,41 +368,63 @@ void QELEventGenerator::Configure(string config)
 //____________________________________________________________________________
 void QELEventGenerator::LoadConfig(void)
 {
-    // Load sub-algorithms and config data to reduce the number of registry
-    // lookups
-        fNuclModel = 0;
+  // Load sub-algorithms and config data to reduce the number of registry
+  // lookups
+  fNuclModel = 0;
+  bool good_config = true ; 
+  RgKey nuclkey = "NuclearModel";
+  
+  fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
+  if( !fNuclModel ) {
+    good_config = false ; 
+    LOG("QELEventGenerator", pERROR) << "The requested Nuclear Model does not exist" ;
+  }
+  
+  // Safety factor for the maximum differential cross section
+  GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor, 1.6  ) ;
+  
+  // Minimum energy for which max xsec would be cached, forcing explicit
+  // calculation for lower eneries
+  GetParamDef( "Cache-MinEnergy", fEMin, 1.00 ) ;
+  
+  // Maximum allowed fractional cross section deviation from maxim cross
+  // section used in rejection method
+  GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
+  if( fMaxXSecDiffTolerance<=0 ) {
+    good_config = false ; 
+    LOG("QELEventGenerator", pERROR) << "fMaxXSecDiffTolerance <= 0!" ; 
+  }
+  
+  // Generate kinematics uniformly over allowed phase space and compute
+  // an event weight?
+  GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false ) ;
+  
+  GetParamDef( "SF-MinAngleEMscattering", fMinAngleEM, 0. ) ;
+  
+  // Decide how to handle the binding energy of the initial state struck
+  // nucleon
+  std::string binding_mode;
+  GetParamDef( "HitNucleonBindingMode", binding_mode, std::string("UseNuclearModel") );
+  
+  fHitNucleonBindingMode = genie::utils::StringToQELBindingMode( binding_mode );
+  
+  GetParamDef( "MaxXSecNucleonThrows", fMaxXSecNucleonThrows, 800 );
+  
+  // Read optional QvalueShifter:
+  fQvalueShifter = nullptr; 
+  if( GetConfig().Exists("QvalueShifterAlg") ) {
+    fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
+    if( !fQvalueShifter ) {
+      good_config = false ; 
+      LOG("QELEventGenerator", pERROR) << "The required QvalueShifterAlg does not exist. AlgID is : " << SubAlg("QvalueShifterAlg")->Id() ;
+    }
+  }
 
-    RgKey nuclkey = "NuclearModel";
+  if( ! good_config ) {
+    LOG("QELEventGenerator", pERROR) << "Configuration has failed.";
+    exit(78) ;
+  }
 
-    fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
-    assert(fNuclModel);
-
-    // Safety factor for the maximum differential cross section
-    GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor, 1.6  ) ;
-
-    // Minimum energy for which max xsec would be cached, forcing explicit
-    // calculation for lower eneries
-    GetParamDef( "Cache-MinEnergy", fEMin, 1.00 ) ;
-
-    // Maximum allowed fractional cross section deviation from maxim cross
-    // section used in rejection method
-    GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
-    assert(fMaxXSecDiffTolerance>=0);
-
-    // Generate kinematics uniformly over allowed phase space and compute
-    // an event weight?
-    GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false ) ;
-
-    GetParamDef( "SF-MinAngleEMscattering", fMinAngleEM, 0. ) ;
-
-    // Decide how to handle the binding energy of the initial state struck
-    // nucleon
-    std::string binding_mode;
-    GetParamDef( "HitNucleonBindingMode", binding_mode, std::string("UseNuclearModel") );
-
-    fHitNucleonBindingMode = genie::utils::StringToQELBindingMode( binding_mode );
-
-    GetParamDef( "MaxXSecNucleonThrows", fMaxXSecNucleonThrows, 800 );
 }
 //____________________________________________________________________________
 double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
@@ -443,7 +464,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
 
       // Set the nucleon total energy to be on-shell with a quick call to
       // BindHitNucleon()
-      genie::utils::BindHitNucleon(*interaction, *fNuclModel, dummy_Eb, kOnShell);
+      genie::utils::BindHitNucleon(*interaction, *fNuclModel, dummy_Eb, kOnShell, fQvalueShifter);
 
       // TODO: document this, won't work for spectral functions
       double dummy_w = -1.;
@@ -463,7 +484,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
 
         // Set the nucleon total energy to be on-shell with a quick call to
         // BindHitNucleon()
-        genie::utils::BindHitNucleon(*interaction, *fNuclModel, dummy_Eb, kOnShell);
+        genie::utils::BindHitNucleon(*interaction, *fNuclModel, dummy_Eb, kOnShell, fQvalueShifter);
 
         // Just a scoping block for now
         // OK, we're going to scan the COM frame angles to get the point of max xsec
@@ -495,8 +516,9 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
                   // put the nucleon on-shell and call it good. The last
                   // argument is false because we've already called
                   // BindHitNucleon() above
-                  double xs = genie::utils::ComputeFullQELPXSec(interaction,
-                    fNuclModel, fXSecModel, costh, phi, dummy_Eb, kOnShell, fMinAngleEM, false);
+                  double xs = genie::utils::ComputeFullQELPXSec(interaction, fNuclModel, fXSecModel, 
+								costh, phi, dummy_Eb, kOnShell, fMinAngleEM,
+								false, fQvalueShifter);
 
                   if (xs > this_nuc_xsec_max){
                       phi_at_xsec_max = phi;

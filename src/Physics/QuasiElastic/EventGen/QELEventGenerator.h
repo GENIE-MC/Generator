@@ -24,6 +24,7 @@
 #include "Physics/QuasiElastic/XSection/QELUtils.h"
 #include "Framework/Utils/Range1.h"
 #include "Framework/Conventions/Controls.h"
+#include "Physics/Common/QvalueShifter.h"
 
 namespace genie {
 
@@ -63,6 +64,8 @@ private:
   /// momentum to use in ComputeMaxXSec()
   int fMaxXSecNucleonThrows;
 
+  // Add container for optional QvalueShift
+  const QvalueShifter * fQvalueShifter ; // Optional algorithm to retrieve the qvalue shift for a given target
 }; // class definition
 
 } // genie namespace
