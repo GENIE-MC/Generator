@@ -19,6 +19,7 @@
 #include "Framework/Interaction/Interaction.h"
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Physics/Common/QvalueShifter.h"
 
 #include "TLorentzVector.h"
 #include "TVector3.h"
@@ -59,12 +60,12 @@ namespace genie {
 			       const NuclearModelI* nucl_model, const XSecAlgorithmI* xsec_model,
 			       double cos_theta_0, double phi_0, double& Eb,
 			       QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM = 0.,
-			       bool bind_nucleon = true, double * shift_Eb = nullptr );
+			       bool bind_nucleon = true, const QvalueShifter * QvalueShift = nullptr );
     
     double CosTheta0Max(const genie::Interaction& interaction);
 
     void BindHitNucleon(Interaction& interaction, const NuclearModelI& nucl_model,
-			double& Eb, QELEvGen_BindingMode_t hitNucleonBindingMode, double * shift_Eb = nullptr);
+			double& Eb, QELEvGen_BindingMode_t hitNucleonBindingMode, const QvalueShifter * QvalueShift = nullptr);
   }
 }
 

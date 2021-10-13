@@ -94,12 +94,12 @@ double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
 					 const genie::NuclearModelI* nucl_model, const genie::XSecAlgorithmI* xsec_model,
 					 double cos_theta_0, double phi_0, double& Eb,
 					 genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM,
-					 bool bind_nucleon, double * shift_Eb )
+					 bool bind_nucleon, const QvalueShifter * QvalueShift )
 {
   // If requested, set the initial hit nucleon 4-momentum to be off-shell
   // according to the binding mode specified in the function call
   if ( bind_nucleon ) {
-    genie::utils::BindHitNucleon(*interaction, *nucl_model, Eb, hitNucleonBindingMode, shift_Eb );
+    genie::utils::BindHitNucleon(*interaction, *nucl_model, Eb, hitNucleonBindingMode, QvalueShift );
   }
 
   // Mass of the outgoing lepton
@@ -259,7 +259,7 @@ double genie::utils::CosTheta0Max(const genie::Interaction& interaction) {
 
 void genie::utils::BindHitNucleon(genie::Interaction& interaction,
 				  const genie::NuclearModelI& nucl_model, double& Eb,
-				  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double * shift )
+				  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, const QvalueShifter * QvalueShift )
 {
   genie::Target* tgt = interaction.InitState().TgtPtr();
   TLorentzVector* p4Ni = tgt->HitNucP4Ptr();
@@ -309,7 +309,6 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
       int Zf = tgt->Z();
       if ( genie::pdg::IsProton( tgt->HitNucPdg()) ) --Zf;
       Mf = genie::PDGLibrary::Instance()->Find( genie::pdg::IonPdgCode(Af, Zf) )->Mass();
-
       // Deduce the binding energy from the final nucleus mass
       Eb = Mf - Mi + mNi;
     }
@@ -356,7 +355,7 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
 
         Qvalue = mf_keep_nucleon - Mi;
 	// Shift Qvalue
-	if( shift ) Qvalue += * shift ; 
+	if( QvalueShift ) Qvalue += Qvalue * QvalueShift->Shift( interaction.InitState().Tgt() ) ; 
 
         // Get the Fermi energies for the initial and final nucleons. Include
         // the radial dependence if using the LFG.
