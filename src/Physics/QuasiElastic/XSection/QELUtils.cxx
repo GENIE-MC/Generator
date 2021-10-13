@@ -91,16 +91,15 @@ double genie::utils::EnergyDeltaFunctionSolutionQEL(
 }
 
 double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
-  const genie::NuclearModelI* nucl_model, const genie::XSecAlgorithmI* xsec_model,
-  double cos_theta_0, double phi_0, double& Eb,
-  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM,
-  bool bind_nucleon)
+					 const genie::NuclearModelI* nucl_model, const genie::XSecAlgorithmI* xsec_model,
+					 double cos_theta_0, double phi_0, double& Eb,
+					 genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM,
+					 bool bind_nucleon, double * shift_Eb )
 {
   // If requested, set the initial hit nucleon 4-momentum to be off-shell
   // according to the binding mode specified in the function call
   if ( bind_nucleon ) {
-    genie::utils::BindHitNucleon(*interaction, *nucl_model, Eb,
-      hitNucleonBindingMode);
+    genie::utils::BindHitNucleon(*interaction, *nucl_model, Eb, hitNucleonBindingMode, shift_Eb );
   }
 
   // Mass of the outgoing lepton
@@ -259,8 +258,8 @@ double genie::utils::CosTheta0Max(const genie::Interaction& interaction) {
 }
 
 void genie::utils::BindHitNucleon(genie::Interaction& interaction,
-  const genie::NuclearModelI& nucl_model, double& Eb,
-  genie::QELEvGen_BindingMode_t hitNucleonBindingMode)
+				  const genie::NuclearModelI& nucl_model, double& Eb,
+				  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double * shift )
 {
   genie::Target* tgt = interaction.InitState().TgtPtr();
   TLorentzVector* p4Ni = tgt->HitNucP4Ptr();
@@ -356,6 +355,8 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
           ->Find( genie::pdg::IonPdgCode(Af, Zf) )->Mass();
 
         Qvalue = mf_keep_nucleon - Mi;
+	// Shift Qvalue
+	if( shift ) Qvalue += * shift ; 
 
         // Get the Fermi energies for the initial and final nucleons. Include
         // the radial dependence if using the LFG.
