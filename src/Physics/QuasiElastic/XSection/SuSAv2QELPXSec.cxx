@@ -92,7 +92,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   HadronTensorType_t tensor_type_susa = kHT_Undefined;
   HadronTensorType_t tensor_type_crpa = kHT_Undefined;
 
-  if ( pdg::IsNeutrino(probe_pdg) || pdg::IsAntiNeutrino(probe_pdg) ) {
+  if ( pdg::IsNeutrino(probe_pdg) ) {
     tensor_type_susa = kHT_QE_Full;
     // CRPA/HF tensors having q0 dependent binning, so are split
     // CRPA
@@ -311,7 +311,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
     int N_tensor = A_tensor-Z_tensor;
 
     if ( pdg::IsNeutrino(probe_pdg) ) xsec_crpa *= 1.0/N_tensor;
-    else if ( pdg::IsAntiNeutrino(probe_pdg) ) xsec_crpa *= 1.0/A_tensor;
+    else if ( pdg::IsAntiNeutrino(probe_pdg) ) xsec_crpa *= 1.0/Z_tensor;
 
     // TODO: When we add EM for CRPA need to add how this case it dealt with here
 
