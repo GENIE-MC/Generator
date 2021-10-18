@@ -168,7 +168,8 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // Put the hit nucleon off-shell (if needed) so that we can get the correct
         // value of cos_theta0_max
         genie::utils::BindHitNucleon(*interaction, *fNuclModel,
-          fEb, fHitNucleonBindingMode);
+				     fEb, fHitNucleonBindingMode,
+				     fQvalueShifter->Shift(*interaction));
 
         double cos_theta0_max = std::min(1., CosTheta0Max(*interaction));
 
@@ -369,41 +370,60 @@ void QELEventGenerator::Configure(string config)
 //____________________________________________________________________________
 void QELEventGenerator::LoadConfig(void)
 {
-    // Load sub-algorithms and config data to reduce the number of registry
-    // lookups
-        fNuclModel = 0;
+  bool good_config = true ; 
+  // Load sub-algorithms and config data to reduce the number of registry
+  // lookups
+  fNuclModel = 0;
+  
+  RgKey nuclkey = "NuclearModel";
+  
+  fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
+  if( !fNuclModel ) {
+    good_config = false ; 
+    LOG("QELEventGenerator",pERROR) << "Required NuclearModelI does not exist" ;
+  }
 
-    RgKey nuclkey = "NuclearModel";
+  fQvalueShifter = nullptr; 
+  if( GetConfig().Exists("QvalueShifterAlg") ) {
+    fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
+    if( !fQvalueShifter ) {
+      good_config = false ; 
+      LOG("QELEventGenerator", pERROR) << "The required QvalueShifterAlg does not exist. AlgID is : " << SubAlg("QvalueShifterAlg")->Id() ;
+    }
+  }
 
-    fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
-    assert(fNuclModel);
+  // Safety factor for the maximum differential cross section
+  GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor, 1.6  ) ;
+  
+  // Minimum energy for which max xsec would be cached, forcing explicit
+  // calculation for lower eneries
+  GetParamDef( "Cache-MinEnergy", fEMin, 1.00 ) ;
 
-    // Safety factor for the maximum differential cross section
-    GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor, 1.6  ) ;
+  // Maximum allowed fractional cross section deviation from maxim cross
+  // section used in rejection method
+  GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
+  assert(fMaxXSecDiffTolerance>=0);
 
-    // Minimum energy for which max xsec would be cached, forcing explicit
-    // calculation for lower eneries
-    GetParamDef( "Cache-MinEnergy", fEMin, 1.00 ) ;
+  // Generate kinematics uniformly over allowed phase space and compute
+  // an event weight?
+  GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false ) ;
+  
+  GetParamDef( "SF-MinAngleEMscattering", fMinAngleEM, 0. ) ;
+  
+  // Decide how to handle the binding energy of the initial state struck
+  // nucleon
+  std::string binding_mode;
+  GetParamDef( "HitNucleonBindingMode", binding_mode, std::string("UseNuclearModel") );
+  
+  fHitNucleonBindingMode = genie::utils::StringToQELBindingMode( binding_mode );
+  
+  GetParamDef( "MaxXSecNucleonThrows", fMaxXSecNucleonThrows, 800 );
 
-    // Maximum allowed fractional cross section deviation from maxim cross
-    // section used in rejection method
-    GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
-    assert(fMaxXSecDiffTolerance>=0);
+  if( ! good_config ) {
+    LOG("QELEventGenerator", pERROR) << "Configuration has failed.";
+    exit(78) ;
+  }
 
-    // Generate kinematics uniformly over allowed phase space and compute
-    // an event weight?
-    GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false ) ;
-
-    GetParamDef( "SF-MinAngleEMscattering", fMinAngleEM, 0. ) ;
-
-    // Decide how to handle the binding energy of the initial state struck
-    // nucleon
-    std::string binding_mode;
-    GetParamDef( "HitNucleonBindingMode", binding_mode, std::string("UseNuclearModel") );
-
-    fHitNucleonBindingMode = genie::utils::StringToQELBindingMode( binding_mode );
-
-    GetParamDef( "MaxXSecNucleonThrows", fMaxXSecNucleonThrows, 800 );
 }
 //____________________________________________________________________________
 double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
@@ -463,7 +483,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
 
         // Set the nucleon total energy to be on-shell with a quick call to
         // BindHitNucleon()
-        genie::utils::BindHitNucleon(*interaction, *fNuclModel, dummy_Eb, kOnShell);
+        genie::utils::BindHitNucleon(*interaction, *fNuclModel, dummy_Eb, kOnShell );
 
         // Just a scoping block for now
         // OK, we're going to scan the COM frame angles to get the point of max xsec
