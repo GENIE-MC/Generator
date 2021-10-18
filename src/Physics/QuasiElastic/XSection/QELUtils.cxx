@@ -357,7 +357,7 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
         Qvalue = mf_keep_nucleon - Mi;
 
 	// shift Qvaue if requested
-	if ( shift != 0 ) Qvalue += shift ; 
+	if ( shift != 0 ) Qvalue += Qvalue * shift ; 
 
         // Get the Fermi energies for the initial and final nucleons. Include
         // the radial dependence if using the LFG.
@@ -455,8 +455,9 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
     double Emu = ( s - mNf*mNf + lepMass*lepMass ) / (2 * std::sqrt(s));
     double Enu = interaction.InitState().GetProbeP4( genie::kRfLab )->E();
 
-    // calculate effective Q0:
-    double Eff_Q0 = Enu - Emu + shift ; 
+    // calculate effective Q0 by applying a relative shift to Q0:
+    double Eff_Q0 = Enu - Emu ;
+    Eff_Q0 += Eff_Q0 * shift ; 
     
     // Revert back to Eb and Ni : 
     double Mi = tgt->Mass();  // Initial nucleus mass
