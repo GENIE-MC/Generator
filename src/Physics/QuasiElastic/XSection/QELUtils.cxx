@@ -92,15 +92,14 @@ double genie::utils::EnergyDeltaFunctionSolutionQEL(
 
 double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
   const genie::NuclearModelI* nucl_model, const genie::XSecAlgorithmI* xsec_model,
-  double cos_theta_0, double phi_0, double& Eb,
-  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM,
-  bool bind_nucleon)
+					 double cos_theta_0, double phi_0, double& Eb,
+					 genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM,
+					 bool bind_nucleon, double shift )
 {
   // If requested, set the initial hit nucleon 4-momentum to be off-shell
   // according to the binding mode specified in the function call
   if ( bind_nucleon ) {
-    genie::utils::BindHitNucleon(*interaction, *nucl_model, Eb,
-      hitNucleonBindingMode);
+    genie::utils::BindHitNucleon(*interaction, *nucl_model, Eb, hitNucleonBindingMode, shift );
   }
 
   // Mass of the outgoing lepton
@@ -259,8 +258,8 @@ double genie::utils::CosTheta0Max(const genie::Interaction& interaction) {
 }
 
 void genie::utils::BindHitNucleon(genie::Interaction& interaction,
-  const genie::NuclearModelI& nucl_model, double& Eb,
-  genie::QELEvGen_BindingMode_t hitNucleonBindingMode)
+				  const genie::NuclearModelI& nucl_model, double& Eb,
+				  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double shift )
 {
   genie::Target* tgt = interaction.InitState().TgtPtr();
   TLorentzVector* p4Ni = tgt->HitNucP4Ptr();
@@ -357,6 +356,9 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
 
         Qvalue = mf_keep_nucleon - Mi;
 
+	// shift Qvaue if requested
+	if ( shift != 0 ) Qvalue += shift ; 
+
         // Get the Fermi energies for the initial and final nucleons. Include
         // the radial dependence if using the LFG.
         double hit_nucleon_radius = tgt->HitNucPosition();
@@ -432,5 +434,51 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
   // its current components
   p4Ni->SetVect( p3Ni );
   p4Ni->SetE( ENi );
+
+  if( shift == 0 ) return ; 
+
+  // After we set the initial nucleon information, we can apply a shift to the Q0
+  // for the kUseNuclearModel or kUseGroundStateRemnant modes.
+  // The shift of the Q0 will modify the binding energy and final nucleon energy.
+  // This information is updated accordingly following this recipy:
+  if ( tgt->IsNucleus() && ( hitNucleonBindingMode == genie::kUseNuclearModel || hitNucleonBindingMode == genie::kUseGroundStateRemnant ) ) {
+    // Get muon Energy from CM:
+    double lepMass = interaction.FSPrimLepton()->Mass();
+
+    // Mandelstam s for the probe/hit nucleon system
+    double s = std::pow( interaction.InitState().CMEnergy(), 2 );
+
+    // Check if we are bellow the threshold : 
+    double mNf = tb->GetParticle( interaction.RecoilNucleonPdg() )->Mass();
+    if ( std::sqrt(s) < lepMass + mNf ) return ;
+
+    double Emu = ( s - mNf*mNf + lepMass*lepMass ) / (2 * std::sqrt(s));
+    double Enu = interaction.InitState().GetProbeP4( genie::kRfLab )->E();
+
+    // calculate effective Q0:
+    double Eff_Q0 = Enu - Emu + shift ; 
+    
+    // Revert back to Eb and Ni : 
+    double Mi = tgt->Mass();  // Initial nucleus mass
+    double ENi_OnShell = std::sqrt( std::max(0., mNi*mNi + p3Ni.Mag2()) );
+    double Ef = Mi - ENi_OnShell + Eff_Q0 ;
+    double Mf = std::sqrt( std::max(0., Ef*Ef - p3Ni.Mag2()) );
+
+    // Deduce the binding energy from the final nucleus mass
+    Eb = Mf - Mi + mNi;
+    
+    // The (lab-frame) off-shell initial nucleon energy is the difference
+    // between the lab frame total energies of the initial and remnant nuclei
+    ENi = Mi - std::sqrt( Mf*Mf + p3Ni.Mag2() );
+
+    LOG( "QELEvent", pDEBUG ) << "After shift, Eb = " << Eb << ", pNi = " << p3Ni.Mag()
+			      << ", ENi = " << ENi;
+    
+    // Update the initial nucleon lab-frame 4-momentum in the interaction with
+    // its current components after the shift:
+    p4Ni->SetVect( p3Ni );
+    p4Ni->SetE( ENi );
+    
+  }
 
 }
