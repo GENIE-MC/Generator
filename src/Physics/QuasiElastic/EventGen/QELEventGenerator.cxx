@@ -167,9 +167,12 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
         // Put the hit nucleon off-shell (if needed) so that we can get the correct
         // value of cos_theta0_max
+	double shift = 0 ; 
+	if ( fQvalueShifter ) shift = fQvalueShifter->Shift(*interaction) ; 
+
         genie::utils::BindHitNucleon(*interaction, *fNuclModel,
 				     fEb, fHitNucleonBindingMode,
-				     fQvalueShifter->Shift(*interaction));
+				     shift );
 
         double cos_theta0_max = std::min(1., CosTheta0Max(*interaction));
 
