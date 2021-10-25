@@ -703,6 +703,16 @@ void ROOTGeomAnalyzer::Load(string filename)
        << "The ROOT geometry doesn't exist! Initialization failed!";
      exit(1);
   }
+
+// ROOT versions 6.16 - 6.24 defaulted to kG4Units [ugh]
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,16,0)
+  if (TGeoManager::GetDefaultUnits() != TGeoManager::kRootUnits) {
+    TGeoManager::LockDefaultUnits(false);
+    TGeoManager::SetDefaultUnits(TGeoManager::kRootUnits);
+    TGeoManager::LockDefaultUnits(true);
+  }
+#endif
+
   TGeoManager * gm = TGeoManager::Import(filename.c_str());
 
   this->Load(gm);
