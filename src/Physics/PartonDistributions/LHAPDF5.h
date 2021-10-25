@@ -20,6 +20,8 @@
 #define _LHAPDF5_H_
 
 #include "Physics/PartonDistributions/PDFModelI.h"
+#include <string>
+using std::string;
 
 namespace genie {
 

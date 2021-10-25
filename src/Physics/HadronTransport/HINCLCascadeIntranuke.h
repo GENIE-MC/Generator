@@ -5,6 +5,7 @@
 #define _HINCLCascadeIntranuke_H_
 
 #include <string>
+using std::string;
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/Conventions/GMode.h"

@@ -30,6 +30,9 @@
 #include <TLorentzVector.h>
 class TVector3;
 
+#include <string>
+using std::string;
+
 class G4ParticleDefinition;
 class G4KineticTrackVector;
 

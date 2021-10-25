@@ -21,6 +21,8 @@
 
 #include "Framework/Conventions/GBuild.h"
 #include "Physics/PartonDistributions/PDFModelI.h"
+#include <string>
+using std::string;
 
 namespace LHAPDF
 {

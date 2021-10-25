@@ -22,6 +22,9 @@
 #include <Math/IntegratorMultiDim.h>
 #include "Framework/Utils/Range1.h"
 
+#include <string>
+using std::string;
+
 namespace genie {
 
 class XSecAlgorithmI;
