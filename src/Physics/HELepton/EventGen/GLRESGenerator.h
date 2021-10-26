@@ -21,10 +21,12 @@
 #define __GENIE_PYTHIA6_ENABLED__
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Physics/HELepton/XSection/Born.h"
 
 #ifdef __GENIE_PYTHIA6_ENABLED__
 #include <TPythia6.h>
 #endif
+#include <TComplex.h>
 
 namespace genie {
 
@@ -51,7 +53,7 @@ private:
   mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
 #endif
 
-  double fWmin;               // Minimum value of W
+  Born * born;
 
 };
 

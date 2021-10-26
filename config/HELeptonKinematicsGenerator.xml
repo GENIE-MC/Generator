@@ -21,6 +21,9 @@ Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cach
 
   <param_set name="Default"> 
      <param type="double" name="MaxXSec-SafetyFactor">   1.05                                </param>
+     <param type="double" name="Delta-X1-NuE">           0.000001                            </param>
+     <param type="double" name="Delta-X1-NuMu">          0.1                                 </param>
+     <param type="double" name="Delta-X1-NuTau">         1.0                                 </param>
   </param_set>
 
 </alg_conf>

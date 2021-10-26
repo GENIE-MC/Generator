@@ -152,11 +152,8 @@ int Interaction::FSPrimLeptonPdg(void) const
     int clpdgc;
     if (proc_info.IsIMDAnnihilation())
       clpdgc = kPdgMuon;
-    else if (proc_info.IsGlashowResonance()) {
-      if      ( pdg::IsMuon(xclstag.FinalLeptonPdg())     ) clpdgc = kPdgMuon;
-      else if ( pdg::IsTau(xclstag.FinalLeptonPdg())      ) clpdgc = kPdgTau;
-      else if ( pdg::IsElectron(xclstag.FinalLeptonPdg()) ) clpdgc = kPdgElectron;
-      else if ( pdg::IsPion(xclstag.FinalLeptonPdg())     ) clpdgc = kPdgPiP;
+    else if (proc_info.IsGlashowResonance() || proc_info.IsPhotonRES() ) {
+      clpdgc = xclstag.FinalLeptonPdg();
     }
     else
       clpdgc = pdg::Neutrino2ChargedLepton(pdgc);

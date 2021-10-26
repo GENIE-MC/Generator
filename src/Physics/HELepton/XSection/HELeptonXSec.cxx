@@ -1,16 +1,5 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
- For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
-
- Author: Alfonso Garcia <alfonsog \at nikhef.nl>
-         NIKHEF (Amsterdam)
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
 */
 //____________________________________________________________________________
 
@@ -18,7 +7,7 @@
 #include <Math/IFunction.h>
 #include <Math/Integrator.h>
 
-#include "Physics/GlashowResonance/XSection/GLRESXSec.h"
+#include "Physics/HELepton/XSection/HELeptonXSec.h"
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Controls.h"
@@ -40,39 +29,38 @@ using namespace genie::controls;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-GLRESXSec::GLRESXSec() :
-XSecIntegratorI("genie::GLRESXSec")
+HELeptonXSec::HELeptonXSec() :
+XSecIntegratorI("genie::HELeptonXSec")
 {
 
 }
 //____________________________________________________________________________
-GLRESXSec::GLRESXSec(string config) :
-XSecIntegratorI("genie::GLRESXSec", config)
+HELeptonXSec::HELeptonXSec(string config) :
+XSecIntegratorI("genie::HELeptonXSec", config)
 {
 
 }
 //____________________________________________________________________________
-GLRESXSec::~GLRESXSec()
+HELeptonXSec::~HELeptonXSec()
 {
 
 }
 //____________________________________________________________________________
-double GLRESXSec::Integrate(
+double HELeptonXSec::Integrate(
                  const XSecAlgorithmI * model, const Interaction * in) const
 {
   if(! model->ValidProcess(in) ) return 0.;
 
   const KPhaseSpace & kps = in->PhaseSpace();
   if(!kps.IsAboveThreshold()) {
-     LOG("GLRESXSec", pDEBUG)  << "*** Below energy threshold";
+     LOG("HELeptonXSec", pDEBUG)  << "*** Below energy threshold";
      return 0;
   }
 
 
+  const ProcessInfo &  proc_info  = in->ProcInfo();
   const InitialState & init_state = in->InitState();
   double Ev = init_state.ProbeE(kRfLab);
-
-  int NNucl   = init_state.Tgt().Z();
   
   // If the input interaction is off a nuclear target, then chek whether 
   // the corresponding free nucleon cross section already exists at the 
@@ -80,64 +68,92 @@ double GLRESXSec::Integrate(
   // If yes, calculate the nuclear cross section based on that value.
   //
   XSecSplineList * xsl = XSecSplineList::Instance();
-  if( !xsl->IsEmpty() ) {
+  if( !xsl->IsEmpty() && !proc_info.IsPhotonCOH() ) {
+
     Interaction * interaction = new Interaction(*in);
     Target * target = interaction->InitStatePtr()->TgtPtr();
-    target->SetId(kPdgTgtFreeP);
-    if(xsl->SplineExists(model,interaction)) {
+
+    int NNucl = 0;
+    bool skip = false;
+    if ( proc_info.IsGlashowResonance() ) {
+      NNucl = init_state.Tgt().Z();
+      target->SetId(kPdgTgtFreeP);
+    }
+    else if ( proc_info.IsPhotonRES() ) {
+      int nucpdgc = init_state.Tgt().HitNucPdg();
+      if (pdg::IsProton(nucpdgc)) {
+        NNucl = init_state.Tgt().Z();
+        target->SetId(kPdgTgtFreeP);
+      }
+      else {
+        NNucl = init_state.Tgt().N();
+        target->SetId(kPdgTgtFreeN);
+      }
+    }
+
+    if( xsl->SplineExists(model,interaction) ) {
       const Spline * spl = xsl->GetSpline(model, interaction);
       double xsec = spl->Evaluate(Ev);
-      LOG("GLRESXSec", pINFO)  << "From XSecSplineList: XSec[ve-,free nucleon] (E = " << Ev << " GeV) = " << xsec;
+      LOG("HELeptonXSec", pINFO)  << "From XSecSplineList: XSec["<<init_state.ProbePdg()<<","<<proc_info.ScatteringTypeAsString()<<","<<interaction->ExclTag().FinalLeptonPdg()<< ",free nucleon] (E = " << Ev << " GeV) = " << xsec;
       if( !interaction->TestBit(kIAssumeFreeNucleon) ) { 
-      	xsec *= NNucl; 
-        LOG("GLRESXSec", pINFO)  << "XSec[ve-] (E = " << Ev << " GeV) = " << xsec;
+        xsec *= NNucl; 
+        LOG("HELeptonXSec", pINFO)  << "XSec["<<init_state.ProbePdg()<<","<<proc_info.ScatteringTypeAsString()<<","<<interaction->ExclTag().FinalLeptonPdg()<< "] (E = " << Ev << " GeV) = " << xsec;
       }
       delete interaction;
       return xsec;
     }
     delete interaction;
+    
   }
-
-
-  Range1D_t yl = kps.Limits(kKVy);
-
-  LOG("GLRESXSec", pDEBUG) << "y = (" << yl.min << ", " << yl.max << ")";
-
+   
   Interaction * interaction = new Interaction(*in);
   interaction->SetBit(kISkipProcessChk);
-  //interaction->SetBit(kISkipKinematicChk);
 
-  ROOT::Math::IBaseFunctionOneDim * func = 
-     new utils::gsl::dXSec_dy_E(model, interaction);
-  ROOT::Math::IntegrationOneDim::Type ig_type = 
-     utils::gsl::Integration1DimTypeFromString(fGSLIntgType);
-  ROOT::Math::Integrator ig(*func,ig_type,1,fGSLRelTol,fGSLMaxEval);
-  double xsec = ig.Integral(yl.min, yl.max) * (1E-38 * units::cm2);
+  ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
 
-  LOG("GLRESXSec", pDEBUG) << "*** XSec[ve-] (E=" << interaction->InitState().ProbeE(kRfLab) << ") = " << xsec;
+  double xsec = 0.;
+  ROOT::Math::IBaseFunctionMultiDim * func;
+  if ( proc_info.IsPhotonCOH() ) {
+    double kine_min[3] = { -1.,  0.,  0. }; 
+    double kine_max[3] = {  1.,  1.,  1. }; 
+    func = new utils::gsl::d2Xsec_dn1dn2dn3_E(model, interaction);
+    ROOT::Math::IntegratorMultiDim ig(*func,ig_type,0,0,fGSLMaxEval);
+    xsec = ig.Integral(kine_min, kine_max);
+  }
+  else {
+    double kine_min[2] = { -1.,  0. }; 
+    double kine_max[2] = {  1.,  1. }; 
+    func = new utils::gsl::d2Xsec_dn1dn2_E(model, interaction);
+    ROOT::Math::IntegratorMultiDim ig(*func,ig_type,0,0,fGSLMaxEval);
+    xsec = ig.Integral(kine_min, kine_max);
+  }
+  delete func;
+
+  xsec *= (1E-38 * units::cm2);
+
+  LOG("HELeptonXSec", pDEBUG) << "*** XSec["<<init_state.ProbePdg()<<","<<proc_info.ScatteringTypeAsString()<<","<<interaction->ExclTag().FinalLeptonPdg()<< "] (E=" << interaction->InitState().ProbeE(kRfLab) << ") = " << xsec;
 
   delete interaction;
-  delete func;
   return xsec;
 }
 //____________________________________________________________________________
-void GLRESXSec::Configure(const Registry & config)
+void HELeptonXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void GLRESXSec::Configure(string config)
+void HELeptonXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void GLRESXSec::LoadConfig(void)
+void HELeptonXSec::LoadConfig(void)
 {
   // Get GSL integration type & relative tolerance
-  GetParamDef("gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
-  GetParamDef("gsl-relative-tolerance", fGSLRelTol, 1E-2 ) ;
+  GetParamDef("gsl-integration-type", fGSLIntgType, string("vegas") ) ;
+
   int max_eval ;
   GetParamDef( "gsl-max-eval", max_eval, 500000 ) ;
   fGSLMaxEval  = (unsigned int) max_eval ;

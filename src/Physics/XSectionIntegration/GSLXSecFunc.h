@@ -472,6 +472,47 @@ class dXSec_Log_Wrapper: public ROOT::Math::IBaseFunctionMultiDim
     double * fMaxes;
 };
  
+//.....................................................................................
+//
+// genie::utils::gsl::d2Xsec_dn1dn2_E
+// A 2-D cross section function: d2xsec/dn1dn2 = f(n1,n2)|(fixed E)
+//
+class d2Xsec_dn1dn2_E: public ROOT::Math::IBaseFunctionMultiDim
+{
+  public:
+    d2Xsec_dn1dn2_E(const XSecAlgorithmI * m, const Interaction * i, double scale=1. );
+   ~d2Xsec_dn1dn2_E();
+    // ROOT::Math::IBaseFunctionMultiDim interface
+    unsigned int                        NDim   (void)               const;
+    double                              DoEval (const double * xin) const;
+    ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
+  private:
+    const XSecAlgorithmI * fModel;
+    const Interaction *    fInteraction;
+    double                 fScale; // can set to -1. for use with GSL minimizer
+};
+
+//.....................................................................................
+//
+// genie::utils::gsl::d2Xsec_dn1dn2dn3_E
+// A 3-D cross section function: d2xsec/dn1dn2dn3 = f(n1,n2,n3)|(fixed E)
+//
+class d2Xsec_dn1dn2dn3_E: public ROOT::Math::IBaseFunctionMultiDim
+{
+  public:
+    d2Xsec_dn1dn2dn3_E(const XSecAlgorithmI * m, const Interaction * i, double scale=1. );
+   ~d2Xsec_dn1dn2dn3_E();
+    // ROOT::Math::IBaseFunctionMultiDim interface
+    unsigned int                        NDim   (void)               const;
+    double                              DoEval (const double * xin) const;
+    ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
+  private:
+    const XSecAlgorithmI * fModel;
+    const Interaction *    fInteraction;
+    double                 fScale; // can set to -1. for use with GSL minimizer
+};
+ 
+
 } // gsl   namespace
 } // utils namespace
 } // genie namespace

@@ -148,6 +148,16 @@ bool ProcessInfo::IsGlashowResonance(void) const
   return (fScatteringType == kScGlashowResonance);
 }
 //____________________________________________________________________________
+bool ProcessInfo::IsPhotonCOH(void) const
+{
+  return (fScatteringType == kScPhotonCOH);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsPhotonRES(void) const
+{
+  return (fScatteringType == kScPhotonRES);
+}
+//____________________________________________________________________________
 bool ProcessInfo::IsAMNuGamma(void) const
 {
   return (fScatteringType == kScAMNuGamma);

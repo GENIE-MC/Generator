@@ -12,8 +12,8 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = Physics/GlashowResonance/XSection
-PACKAGE_ABBREV    = PhGlwResXS
+PACKAGE           = Physics/HELepton/EventGen
+PACKAGE_ABBREV    = PhHELptnEG
 DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)
 LIBNAME           = libG$(PACKAGE_ABBREV)
 EXTRA_EXT_LIBS    =
