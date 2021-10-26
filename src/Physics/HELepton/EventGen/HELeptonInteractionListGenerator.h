@@ -37,6 +37,8 @@ private:
   bool fIsGLRESTau;
   bool fIsGLRESEle;
   bool fIsGLRESHad;
+  bool fIsHENuElCC;
+  bool fIsHENuElNC;
   bool fIsPhotonRESMu;
   bool fIsPhotonRESEle;
   bool fIsPhotonRESTau;

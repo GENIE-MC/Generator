@@ -60,6 +60,48 @@ InteractionList *
 }
 //___________________________________________________________________________
 InteractionList *
+   HELeptonInteractionListGenerator::HENuElectronInteraction(
+                                       const InitialState & init_state) const
+{
+
+
+  InteractionList * intlist = new InteractionList;
+
+  int probepdg = init_state.ProbePdg();
+
+  if (fIsHENuElCC) {
+    ProcessInfo proc_info(kScGlashowResonance, kIntWeakCC);
+    InitialState init(init_state);
+    init_state.TgtPtr()->SetHitNucPdg(0);  
+    Interaction * interaction = new Interaction(init_state, proc_info);
+    XclsTag exclusive_tag;
+    if      ( pdg::IsNuMu(probepdg)      ) exclusive_tag.SetFinalLepton(kPdgMuon);
+    else if ( pdg::IsNuTau(probepdg)     ) exclusive_tag.SetFinalLepton(kPdgTau);
+    else if ( pdg::IsAntiNuMu(probepdg)  ) exclusive_tag.SetFinalLepton(kPdgAntiNuMu);
+    else if ( pdg::IsAntiNuTau(probepdg) ) exclusive_tag.SetFinalLepton(kPdgAntiNuTau);
+    else if ( pdg::IsNuE(probepdg)       ) exclusive_tag.SetFinalLepton(kPdgElectron);
+    interaction->SetExclTag(exclusive_tag);
+    intlist->push_back(interaction);
+  }
+  else if (fIsHENuElNC) {
+    ProcessInfo proc_info(kScGlashowResonance, kIntWeakNC);
+    InitialState init(init_state);
+    init_state.TgtPtr()->SetHitNucPdg(0);  
+    Interaction * interaction = new Interaction(init_state, proc_info);
+    XclsTag exclusive_tag;
+    if      ( pdg::IsNuMu(probepdg)      ) exclusive_tag.SetFinalLepton(kPdgNuMu);
+    else if ( pdg::IsNuTau(probepdg)     ) exclusive_tag.SetFinalLepton(kPdgNuTau);
+    else if ( pdg::IsAntiNuMu(probepdg)  ) exclusive_tag.SetFinalLepton(kPdgAntiNuMu);
+    else if ( pdg::IsAntiNuTau(probepdg) ) exclusive_tag.SetFinalLepton(kPdgAntiNuTau);
+    interaction->SetExclTag(exclusive_tag);
+    intlist->push_back(interaction);
+  }
+
+  return intlist;
+
+}
+//___________________________________________________________________________
+InteractionList *
    HELeptonInteractionListGenerator::PhotonRESInteraction(
                                        const InitialState & init_state) const
 {
@@ -80,10 +122,10 @@ InteractionList *
       Target * target = interaction->InitStatePtr()->TgtPtr();
       target->SetHitNucPdg(struck_nucleon);
       XclsTag exclusive_tag;
-      if      (fIsPhotonRESMu)  exclusive_tag.SetFinalLepton( (probepdg>0) ? kPdgAntiMuon : kPdgMuon );
-      else if (fIsPhotonRESTau) exclusive_tag.SetFinalLepton( (probepdg>0) ? kPdgAntiTau : kPdgTau );
+      if      (fIsPhotonRESMu)  exclusive_tag.SetFinalLepton( (probepdg>0) ? kPdgAntiMuon : kPdgMuon     );
+      else if (fIsPhotonRESTau) exclusive_tag.SetFinalLepton( (probepdg>0) ? kPdgAntiTau  : kPdgTau      );
       else if (fIsPhotonRESEle) exclusive_tag.SetFinalLepton( (probepdg>0) ? kPdgPositron : kPdgElectron );
-      else if (fIsPhotonRESHad) exclusive_tag.SetFinalLepton( (probepdg>0) ? kPdgPiP : kPdgPiM );
+      else if (fIsPhotonRESHad) exclusive_tag.SetFinalLepton( (probepdg>0) ? kPdgPiP      : kPdgPiM      );
       interaction->SetExclTag(exclusive_tag);
       intlist->push_back(interaction);
     }
@@ -111,17 +153,34 @@ InteractionList *
                                        const InitialState & init_state) const
 {
 // channels:
-// nuebar + e-     -> W- -> nuebar + e-
-// nuebar + e-     -> W- -> nuebar + mu-
-// nuebar + e-     -> W- -> nuebar + tau-
-// nuebar + e-     -> W- -> hadrons
+// nuebar   + e-   -> W- -> nuebar + e-   [CC+NC]
+// nuebar   + e-   -> W- -> nuebar + mu-  [CC]
+// nuebar   + e-   -> W- -> nuebar + tau- [CC]
+// nuebar   + e-   -> W- -> hadrons       [CC]
+// nue      + e-   -> e     + nue         [CC+NC]
+// numu     + e-   -> mu    + nue         [CC]
+// nutau    + e-   -> tau   + nue         [CC]
+// numu     + e-   -> numu  + e           [NC]
+// nutau    + e-   -> nutau + e           [NC]
+// numubar  + e-   -> numubar  + e        [NC]
+// nutaubar + e-   -> nutaubar + e        [NC]
 // nu     + gamma* -> l- + W+ (coherent & resonant)
 // nubar  + gamma* -> l+ + W- (coherent & resonant)
+
+  int ppdg = init_state.ProbePdg();
+  if( !pdg::IsNeutralLepton(ppdg) ) {
+     LOG("IntLst", pWARN)
+       << "Can not handle probe! Returning NULL InteractionList "
+       << "for init-state: " << init_state.AsString();
+     return 0;
+  }
 
   if      (fIsGLRESMu)      return GLRESInteraction(init_state);
   else if (fIsGLRESTau)     return GLRESInteraction(init_state);
   else if (fIsGLRESEle)     return GLRESInteraction(init_state);
   else if (fIsGLRESHad)     return GLRESInteraction(init_state);
+  else if (fIsHENuElCC)     return HENuElectronInteraction(init_state);
+  else if (fIsHENuElNC)     return HENuElectronInteraction(init_state);
   else if (fIsPhotonRESMu)  return PhotonRESInteraction(init_state);
   else if (fIsPhotonRESTau) return PhotonRESInteraction(init_state);
   else if (fIsPhotonRESEle) return PhotonRESInteraction(init_state);
@@ -154,6 +213,8 @@ void HELeptonInteractionListGenerator::LoadConfigData(void)
   GetParamDef("is-GLRES-Tau",     fIsGLRESTau,     false ) ;
   GetParamDef("is-GLRES-Ele",     fIsGLRESEle,     false ) ;
   GetParamDef("is-GLRES-Had",     fIsGLRESHad,     false ) ;
+  GetParamDef("is-HENuEl-CC",     fIsHENuElCC,     false ) ;
+  GetParamDef("is-HENuEl-NC",     fIsHENuElNC,     false ) ;
   GetParamDef("is-PhotonRES-Mu",  fIsPhotonRESMu,  false ) ;
   GetParamDef("is-PhotonRES-Tau", fIsPhotonRESTau, false ) ;
   GetParamDef("is-PhotonRES-Ele", fIsPhotonRESEle, false ) ;
