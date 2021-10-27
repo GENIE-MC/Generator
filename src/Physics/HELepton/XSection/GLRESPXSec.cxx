@@ -50,25 +50,29 @@ double GLRESPXSec::XSec(
   int loutpdg  = xclstag.FinalLeptonPdg();
 
   double mlout = interaction->FSPrimLepton()->Mass(); //mass of charged lepton
+  double mlin  = kElectronMass;                       //mass of incoming charged lepton
 
-  double E = init_state.ProbeE(kRfLab);
-  double s = 2 * kElectronMass * E + kElectronMass2;
+  double Enuin = init_state.ProbeE(kRfLab);
+  double s = born->GetS(mlin,Enuin);
 
   double n1 = kinematics.GetKV(kKVn1);
   double n2 = kinematics.GetKV(kKVn2);
-  double t  = born->GetT(0.,kElectronMass,mlout,0.,s,n1);
+  double t  = born->GetT3(mlin,mlout,s,n1);
   if (t>0) return 0.;
 
   //nlo correction
-  double zeta = born->GetReAlpha()/kPi*(2.*TMath::Log(TMath::Sqrt(-t)/kElectronMass)-1.);
-  double omx  = TMath::Power(n2, 1./zeta );
+  double zeta     = born->GetReAlpha()/kPi*(2.*TMath::Log(TMath::Sqrt(-t)/kElectronMass)-1.);
+  double omx      = TMath::Power(n2, 1./zeta );
+  double pdf_soft = TMath::Exp(zeta*(3./4.-TMath::EulerGamma()))/TMath::Gamma(1.+zeta) + omx*(omx-2.)/2./n2;
   if ( omx<0. || omx>1. ) return 0.;
-
   double s_r = s*(1. - omx);
   double t_r = t*(1. - omx);
 
-  double pdf_soft = TMath::Exp(zeta*(3./4.-TMath::EulerGamma()))/TMath::Gamma(1.+zeta) + omx*(omx-2.)/2./n2;
-  double xsec = kPi/4./(s-kElectronMass2) * pdf_soft ;
+  double Enuout = born->GetELab4( mlin, mlout, t_r  );
+
+  if ( !born->IsInPhaseSpace(mlin,mlout,Enuin,Enuout) ) return 0.;
+
+  double xsec = kPi/4./(s-mlin*mlin) * pdf_soft ;
   
   if ( pdg::IsPion(loutpdg) ) {
     if ( TMath::Sqrt(s_r)<fWmin ) return 0.; // The W limit is because hadronization might have issues at low W (as in PYTHIA6).
@@ -76,8 +80,8 @@ double GLRESPXSec::XSec(
   }
 
   double ME = 0.;
-  if ( loutpdg == kPdgElectron ) ME = born->PXSecCCRNC(s_r,t_r,kElectronMass2,mlout*mlout);
-  else                           ME = born->PXSecCCR  (s_r,t_r,kElectronMass2,mlout*mlout); 
+  if ( loutpdg == kPdgElectron ) ME = born->PXSecCCRNC(s_r,t_r,mlin,mlout);
+  else                           ME = born->PXSecCCR  (s_r,t_r,mlin,mlout); 
   xsec *= TMath::Max(0.,ME);
 
   //----- If requested return the free electron xsec even for nuclear target
@@ -95,7 +99,7 @@ double GLRESPXSec::XSec(
       xsec = 0;
   }
 
-  LOG("GLRESPXSec", pINFO) << "dxsec/dn1dn2 (E= " << E << ", n1= " << n1 << ", n2=" << n2 << ") = " << xsec;
+  LOG("GLRESPXSec", pINFO) << "dxsec/dn1dn2 (E= " << Enuin << ", n1= " << n1 << ", n2=" << n2 << ") = " << xsec;
 
   return xsec;
 

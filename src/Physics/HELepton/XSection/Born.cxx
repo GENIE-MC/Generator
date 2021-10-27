@@ -48,72 +48,72 @@ Born::~Born()
 
 }
 //____________________________________________________________________________
-double Born::PXSecCCR(double s, double t, double mlin2, double mlout2)
+double Born::PXSecCCR(double s, double t, double mlin, double mlout)
 {
 /*
-nu \  W.  / nu
-    ------
- l /      \ l
+1 nu \  W.  / l  3
+      ------
+2  l /      \ nu 4
 */
 
   TComplex prop = falpha/fsw2/(s-fmw2c);
 
-  return (t-mlout2)*(t-mlin2) * prop.Rho2();
+  return (t-mlout*mlout)*(t-mlin*mlin) * prop.Rho2();
 
 }
 //____________________________________________________________________________
-double Born::PXSecCCV(double s, double t, double mlin2, double mlout2)
+double Born::PXSecCCV(double s, double t, double mlin, double mlout)
 {
 /*
-nu -------- l
-      | W
- l -------- nu
+1 nu -------- l  3
+        | W
+2  l -------- nu 4
 */
 
   return 0.;
 
 }
 //____________________________________________________________________________
-double Born::PXSecNCV(double s, double t, double mlin2, double mlout2)
+double Born::PXSecNCV(double s, double t, double mlin, double mlout)
 {
 /*
-nu -------- nu
-      | Z
- l -------- l
+1 nu -------- nu 3
+        | Z
+2  l -------- l  4
 */
 
-  double u = mlin2 + mlout2 - s - t;
+  double u = GetU(mlin,mlout,s,t);
   
   TComplex a = 4.*fgLnu*fgRe/(u-fmz2c);
   TComplex b = 2.*fgLnu*fgLe/(u-fmz2c);   
 
-  return falpha.Rho2() * ( (s-mlout2)*(s-mlin2)*a.Rho2() + (t-mlout2)*(t-mlin2)*b.Rho2() );
+  return falpha.Rho2() * ( (s-mlout*mlout)*(s-mlin*mlin)*a.Rho2() + (t-mlout*mlout)*(t-mlin*mlin)*b.Rho2() );
 
 }
 //____________________________________________________________________________
-double Born::PXSecCCRNC(double s, double t, double mlin2, double mlout2)
+double Born::PXSecCCRNC(double s, double t, double mlin, double mlout)
 {
 /*
-nu \  W.  / nu     nu -------- nu
-    ------      +        | Z
- l /      \ l       l -------- l
+1 nu \  W.  / l  3    nu -------- nu
+      ------        +        | Z
+2  l /      \ nu 4     l -------- l
 */
 
-  double u = mlin2 + mlout2 - s - t;
+  double u = GetU(mlin,mlout,s,t);
   
   TComplex a = 4.*fgLnu*fgRe/(u-fmz2c);
   TComplex b = 2.*fgLnu*fgLe/(u-fmz2c)+1./fsw2/(s-fmw2c);   
 
-  return falpha.Rho2() * ( (s-mlout2)*(s-mlin2)*a.Rho2() + (t-mlout2)*(t-mlin2)*b.Rho2() );
+  return falpha.Rho2() * ( (s-mlout*mlout)*(s-mlin*mlin)*a.Rho2() + (t-mlout*mlout)*(t-mlin*mlin)*b.Rho2() );
 
 }
 //____________________________________________________________________________
-double Born::PXSecCCVNC(double s, double t, double mlin2, double mlout2)
+double Born::PXSecCCVNC(double s, double t, double mlin, double mlout)
 {
 /*
-nu -------- l     nu -------- nu
-      | W       +        | Z
- l -------- nu       l -------- l
+1 nu -------- l  3    nu -------- nu
+        | W           +     | Z
+2  l -------- nu 4     l -------- l
 */
 
   return 0.;
@@ -135,7 +135,8 @@ double Born::PXSecPhoton(double s, double t, double mlout2)
 
 }
 //____________________________________________________________________________
-double Born::PXSecPhoton_T(double s12, double s13, double Q2, double ml2){
+double Born::PXSecPhoton_T(double s12, double s13, double Q2, double ml2)
+{
   double ME2 = 0.0;
   ME2 = (4*falpha.Rho2()*kPi2*(TMath::Power(ml2,4)*s12*(2*TMath::Power(kMw2,2)*TMath::Power(s12,2) - 2*kMw2*Q2*s12*s13 + TMath::Power(Q2,2)*s13*(-s12 + s13)) + 
      TMath::Power(ml2,3)*(-2*TMath::Power(kMw2,3)*TMath::Power(s12,3) + TMath::Power(Q2,2)*(s12 - s13)*s13*(-(Q2*s12) + TMath::Power(s12,2) + Q2*s13 - 3*s12*s13) + 
@@ -162,7 +163,8 @@ double Born::PXSecPhoton_T(double s12, double s13, double Q2, double ml2){
   return TMath::Max(0.,ME2);
 }
 //____________________________________________________________________________
-double Born::PXSecPhoton_L(double s12, double s13, double Q2, double ml2){
+double Born::PXSecPhoton_L(double s12, double s13, double Q2, double ml2)
+{
   double ME2 = 0.0;
   ME2 = 2*falpha.Rho2()*Q2*TMath::Power(kMw2,-3)*kPi2*TMath::Power(s12,-2)*TMath::Power(ml2 - kMw2 + s13,-2)*TMath::Power(ml2 - kMw2 - s12 + s13,-2)*
  ((s12 - s13)*TMath::Power(ml2,5)*TMath::Power(s12,2) - 2*s12*TMath::Power(ml2,4)*(2*kMw2*TMath::Power(s12,2) - (Q2 - s12)*(-3*s12*s13 + TMath::Power(s12,2) + 2*TMath::Power(s13,2))) + 
@@ -193,9 +195,59 @@ double Born::Lambda(double a, double b, double c)
   return a*a + b*b + c*c - 2*a*b - 2*a*c - 2*b*c;
 }
 //____________________________________________________________________________
-double Born::GetT(double m1, double m2, double m3, double m4, double s, double costh)
+double Born::GetS(double mlin, double Enuin)
+{
+  return 2. * mlin * Enuin + mlin*mlin;
+}
+//____________________________________________________________________________
+double Born::GetT3(double mlin, double mlout, double s, double costhCM)
 {
   //http://edu.itp.phys.ethz.ch/hs10/ppp1/PPP1_2.pdf [Sec 2.2.1]
-  double sum = m1*m1+m2*m2+m3*m3+m4*m4;
-  return ( (TMath::Sqrt(Lambda(s,m1*m1,m2*m2)*Lambda(s,m3*m3,m4*m4))*costh-(m1*m1-m2*m2)*(m3*m3-m4*m4))/s + sum - s ) /2.;
+  double sum = mlin*mlin+mlout*mlout;
+  return ( (TMath::Sqrt(Lambda(s,0.,mlin*mlin)*Lambda(s,mlout*mlout,0.))*costhCM+mlin*mlin*mlout*mlout)/s + sum - s ) /2.;
 }
+
+//____________________________________________________________________________
+double Born::GetT4(double mlin, double mlout, double s, double costhCM)
+{
+  //http://edu.itp.phys.ethz.ch/hs10/ppp1/PPP1_2.pdf [Sec 2.2.1]
+  double sum = mlin*mlin+mlout*mlout;
+  return ( (TMath::Sqrt(Lambda(s,0.,mlin*mlin)*Lambda(s,0.,mlout*mlout))*costhCM-mlin*mlin*mlout*mlout)/s + sum - s ) /2.;
+}
+//____________________________________________________________________________
+double Born::GetU(double mlin, double mlout, double s, double t)
+{
+    return mlin*mlin+mlout*mlout-s-t;
+}
+//____________________________________________________________________________
+double Born::GetELab3(double mlin, double mlout, double u)
+{
+
+  //http://users.jyu.fi/~tulappi/fysh300sl11/l2.pdf [slide 22]
+  return -(u-mlin*mlin-mlout*mlout)/2./mlin;
+
+}
+//____________________________________________________________________________
+double Born::GetELab4(double mlin, double mlout, double t)
+{
+
+  //http://users.jyu.fi/~tulappi/fysh300sl11/l2.pdf [slide 22]
+  return -(t-mlin*mlin-mlout*mlout)/2./mlin;
+
+}
+//____________________________________________________________________________
+bool Born::IsInPhaseSpace(double mlin, double mlout, double Enuin, double Enuout)
+{
+
+  //https://arxiv.org/pdf/2007.14426.pdf [section 2.2]
+  double frac = Enuout/Enuin;
+  if      ( frac < mlin/(mlin+2.*Enuin)+(mlout*mlout-mlin*mlin)/2./Enuin/(mlin+2.*Enuin)  ) return false;
+  else if ( frac > 1.-(mlout*mlout-mlin*mlin)/2./Enuin/mlin ) return false;
+
+  return true;
+
+}
+
+
+
+

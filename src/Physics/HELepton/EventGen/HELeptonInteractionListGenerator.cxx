@@ -74,7 +74,7 @@ InteractionList *
     InitialState init(init_state);
     init_state.TgtPtr()->SetHitNucPdg(0);  
     Interaction * interaction = new Interaction(init_state, proc_info);
-    XclsTag exclusive_tag;
+    XclsTag exclusive_tag; //charged lepton
     if      ( pdg::IsNuMu(probepdg)      ) exclusive_tag.SetFinalLepton(kPdgMuon);
     else if ( pdg::IsNuTau(probepdg)     ) exclusive_tag.SetFinalLepton(kPdgTau);
     else if ( pdg::IsNuE(probepdg)       ) exclusive_tag.SetFinalLepton(kPdgElectron);
@@ -86,7 +86,7 @@ InteractionList *
     InitialState init(init_state);
     init_state.TgtPtr()->SetHitNucPdg(0);  
     Interaction * interaction = new Interaction(init_state, proc_info);
-    XclsTag exclusive_tag;
+    XclsTag exclusive_tag; //charged lepton
     if      ( pdg::IsNuMu(probepdg)      ) exclusive_tag.SetFinalLepton(kPdgElectron);
     else if ( pdg::IsNuTau(probepdg)     ) exclusive_tag.SetFinalLepton(kPdgElectron);
     else if ( pdg::IsAntiNuMu(probepdg)  ) exclusive_tag.SetFinalLepton(kPdgElectron);

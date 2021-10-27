@@ -61,10 +61,9 @@ HENuElGenerator::~HENuElGenerator()
 void HENuElGenerator::ProcessEventRecord(GHepRecord * event) const
 {
 
-
   Interaction * interaction = event->Summary();
   const InitialState & init_state = interaction->InitState();
-  const ProcessInfo & proc_info   = interaction->ProcInfo();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
   //incoming v & struck particle & remnant nucleus
   GHepParticle * nu = event->Probe();
@@ -75,41 +74,66 @@ void HENuElGenerator::ProcessEventRecord(GHepRecord * event) const
 
   TVector3 unit_nu = nu->P4()->Vect().Unit();
 
-  long double Ev = init_state.ProbeE(kRfLab); 
-  long double mlout = interaction->FSPrimLepton()->Mass();
-  long double mlout2  = mlout*mlout;
-  
-  long double s = 2 * kElectronMass * Ev + kElectronMass2;
+  bool isCC = proc_info.IsWeakCC();
+
+  long double mlout = interaction->FSPrimLepton()->Mass(); //mass of charged lepton
+  long double mlin  = kElectronMass;                       //mass of incoming charged lepton
+
+  long double Enuin = init_state.ProbeE(kRfLab);
+  long double s = born->GetS(mlin,Enuin);
 
   long double n1 = interaction->Kine().GetKV(kKVn1);
   long double n2 = interaction->Kine().GetKV(kKVn2);
 
-  long double costh = n1;
-  long double sinth = sqrtl(1-costh*costh);
+  long double costhCM = n1;
+  long double sinthCM = sqrtl(1-costhCM*costhCM);
   
-  long double t = born->GetT(0.,kElectronMass,mlout,0.,s,n1);
+  long double t  = 1.;
+  if ( isCC ) t = born->GetT3( mlin, mlout, s, n1 );
+  else        t = born->GetT4( mlin, mlout, s, n1 );
   long double zeta  = born->GetReAlpha()/kPi*(2.0*logl(sqrtl(-t)/kElectronMass)-1.0);
   long double omx   = powl(n2, 1.0/zeta );
   long double s_r = s*( 1.-omx );
 
   // Boost velocity CM -> LAB
-  long double EvCM = (s_r-kElectronMass2)/sqrtl(s_r)/2.;
-  long double beta = (powl(Ev,2)-powl(EvCM,2))/(powl(Ev,2)+powl(EvCM,2));
+  long double EnuinCM = (s_r-mlin*mlin)/sqrtl(s_r)/2.;
+  long double beta = (powl(Enuin,2)-powl(EnuinCM,2))/(powl(Enuin,2)+powl(EnuinCM,2));
 
   // Final state primary lepton PDG code
   int pdgl = interaction->FSPrimLeptonPdg();
   assert(pdgl!=0);
 
-  long double Elpout = (s_r+mlout2)/sqrtl(s_r)/2.;
-  long double Enuout = (s_r-mlout2)/sqrtl(s_r)/2.;
-  LongLorentzVector p4_lpout( 0.,  Enuout*sinth,  Enuout*costh, Elpout );
-  LongLorentzVector p4_nuout( 0., -Enuout*sinth, -Enuout*costh, Enuout );
+  long double ElpoutCM = 0.;
+  long double EnuoutCM = 0.;
+  if ( isCC ) {
+    ElpoutCM = (s_r+mlout*mlout)/sqrtl(s_r)/2.;
+    EnuoutCM = (s_r-mlout*mlout)/sqrtl(s_r)/2.;
+  }
+  else {
+    ElpoutCM = (s_r-mlout*mlout)/sqrtl(s_r)/2.;
+    EnuoutCM = (s_r+mlout*mlout)/sqrtl(s_r)/2.;
+  }
+  LongLorentzVector p4_lpout( 0.,  EnuoutCM*sinthCM,  EnuoutCM*costhCM, ElpoutCM );
+  LongLorentzVector p4_nuout( 0., -EnuoutCM*sinthCM, -EnuoutCM*costhCM, EnuoutCM );
 
   p4_lpout.BoostZ(beta);
   p4_nuout.BoostZ(beta);
 
   TLorentzVector p4lp_o( (double)p4_lpout.Px(), (double)p4_lpout.Py(), (double)p4_lpout.Pz(), (double)p4_lpout.E() );
   TLorentzVector p4nu_o( (double)p4_nuout.Px(), (double)p4_nuout.Py(), (double)p4_nuout.Pz(), (double)p4_nuout.E() );
+
+  double Enuout = 0.;
+  double Elpout = 0.;
+  if (isCC) {
+    Enuout = born->GetELab4( mlin, mlout, t*(1-omx) );
+    Elpout = born->GetELab3( mlin, mlout, t*(1-omx) );
+  }
+  else {
+    Enuout = born->GetELab3( mlin, mlout, t*(1-omx) );
+    Elpout = born->GetELab4( mlin, mlout, t*(1-omx) );
+  }
+  LOG("GLRESGenerator", pWARN) << p4nu_o.E() << "  " << Enuout << " -> " << p4nu_o.E()/Enuout;
+  LOG("GLRESGenerator", pWARN) << p4lp_o.E() << "  " << Elpout << " -> " << p4lp_o.E()/Elpout;
 
   // Randomize transverse components
   RandomGen * rnd = RandomGen::Instance();
@@ -122,12 +146,8 @@ void HENuElGenerator::ProcessEventRecord(GHepRecord * event) const
   p4nu_o.RotateUz(unit_nu);
 
   int pdgvout = 0;
-  if      ( pdg::IsElectron(pdgl) ) pdgvout = kPdgAntiNuE;
-  else if ( pdg::IsPositron(pdgl) ) pdgvout = kPdgNuE;
-  else if ( pdg::IsMuon(pdgl)     ) pdgvout = kPdgAntiNuMu;
-  else if ( pdg::IsAntiMuon(pdgl) ) pdgvout = kPdgNuMu;
-  else if ( pdg::IsTau(pdgl)      ) pdgvout = kPdgAntiNuTau;
-  else if ( pdg::IsAntiTau(pdgl)  ) pdgvout = kPdgNuTau;
+  if (isCC) pdgvout = kPdgNuE;
+  else      pdgvout = nu->Pdg();
 
   // Create a GHepParticle and add it to the event record
   event->AddParticle( pdgl,     kIStStableFinalState, 4, -1, -1, -1, p4lp_o,              *(nu->X4()) );

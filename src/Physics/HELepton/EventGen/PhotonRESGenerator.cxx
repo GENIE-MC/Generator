@@ -90,27 +90,31 @@ void PhotonRESGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   TVector3 unit_nu = nu->P4()->Vect().Unit();
 
-  long double Ev = init_state.ProbeE(kRfLab); 
+  int probepdg = init_state.ProbePdg();
 
   long double Mtarget = init_state.Tgt().HitNucMass();
-  long double mlout   = interaction->FSPrimLepton()->Mass();
-  long double mlout2  = mlout*mlout;
+  long double mlout = interaction->FSPrimLepton()->Mass(); //mass of charged lepton
+  long double mlin  = 0.;
+  if      (pdg::IsNuE  (TMath::Abs(probepdg))) mlin = kElectronMass;
+  else if (pdg::IsNuMu (TMath::Abs(probepdg))) mlin = kMuonMass;
+  else if (pdg::IsNuTau(TMath::Abs(probepdg))) mlin = kTauMass;
   
-  long double s = 2 * Mtarget * Ev + Mtarget*Mtarget;
+  long double Enuin = init_state.ProbeE(kRfLab); 
+  long double s = born->GetS(Mtarget,Enuin);
 
   long double n1 = interaction->Kine().GetKV(kKVn1);
   long double n2 = interaction->Kine().GetKV(kKVn2);
 
-  long double costh = n1;
-  long double sinth = sqrtl(1-costh*costh);
+  long double costhCM = n1;
+  long double sinthCM = sqrtl(1-costhCM*costhCM);
   
-  long double xmin = fQ2PDFmin/2./Ev/Mtarget;
+  long double xmin = fQ2PDFmin/2./Enuin/Mtarget;
   long double x = expl( logl(xmin) + (logl(1.0)-logl(xmin))*n2 );
   long double s_r = s*x;
 
   // Boost velocity CM -> LAB
-  long double EvCM = sqrtl(s_r)/2.;
-  long double beta = (powl(Ev,2)-powl(EvCM,2))/(powl(Ev,2)+powl(EvCM,2));
+  long double EnuinCM = sqrtl(s_r)/2.;
+  long double beta = (powl(Enuin,2)-powl(EnuinCM,2))/(powl(Enuin,2)+powl(EnuinCM,2));
 
   // Final state primary lepton PDG code
   int pdgl = interaction->FSPrimLeptonPdg();
@@ -118,16 +122,22 @@ void PhotonRESGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   if ( pdg::IsElectron(TMath::Abs(pdgl)) || pdg::IsMuon(TMath::Abs(pdgl)) || pdg::IsTau(TMath::Abs(pdgl)) ) {
 
-    long double Elpout = (s_r+mlout2)/sqrtl(s_r)/2.;
-    long double Enuout = (s_r-mlout2)/sqrtl(s_r)/2.;
-    LongLorentzVector p4_lpout( 0.,  Enuout*sinth,  Enuout*costh, Elpout );
-    LongLorentzVector p4_nuout( 0., -Enuout*sinth, -Enuout*costh, Enuout );
+    long double ElpoutCM = (s_r+mlout*mlout)/sqrtl(s_r)/2.;
+    long double EnuoutCM = (s_r-mlout*mlout)/sqrtl(s_r)/2.;
+    LongLorentzVector p4_lpout( 0.,  EnuoutCM*sinthCM,  EnuoutCM*costhCM, ElpoutCM );
+    LongLorentzVector p4_nuout( 0., -EnuoutCM*sinthCM, -EnuoutCM*costhCM, EnuoutCM );
 
     p4_lpout.BoostZ(beta);
     p4_nuout.BoostZ(beta);
 
     TLorentzVector p4lp_o( (double)p4_lpout.Px(), (double)p4_lpout.Py(), (double)p4_lpout.Pz(), (double)p4_lpout.E() );
     TLorentzVector p4nu_o( (double)p4_nuout.Px(), (double)p4_nuout.Py(), (double)p4_nuout.Pz(), (double)p4_nuout.E() );
+
+    double t_r = born->GetT3(mlin,mlout,s_r,n1);
+    double Enuout = born->GetELab4( mlin, mlout, t_r*x );
+    double Elpout = born->GetELab3( mlin, mlout, t_r*x );
+    LOG("GLRESGenerator", pWARN) << p4nu_o.E() << "  " << Enuout << " -> " << p4nu_o.E()/Enuout;
+    LOG("GLRESGenerator", pWARN) << p4lp_o.E() << "  " << Elpout << " -> " << p4lp_o.E()/Elpout;
 
     // Randomize transverse components
     RandomGen * rnd = RandomGen::Instance();
@@ -147,7 +157,7 @@ void PhotonRESGenerator::ProcessEventRecord(GHepRecord * evrec) const
     else if ( pdg::IsTau(pdgl)      ) pdgvout = kPdgAntiNuTau;
     else if ( pdg::IsAntiTau(pdgl)  ) pdgvout = kPdgNuTau;
 
-    int pdgboson = pdg::IsNeutrino(init_state.ProbePdg()) ? kPdgWP : kPdgWM;
+    int pdgboson = pdg::IsNeutrino(probepdg) ? kPdgWP : kPdgWM;
 
     // Create a GHepParticle and add it to the event record
     evrec->AddParticle( pdgboson, kIStDecayedState,     0, -1,  5,  6, *nu->P4()+*el->P4(), *(nu->X4()) ); //W [mothers: nuebar_in,e_in][daugthers: nulbar_out,lp_out]

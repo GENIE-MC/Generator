@@ -29,19 +29,26 @@ public:
   Born ();
   virtual ~Born ();
 
-  double PXSecCCR       (double s, double t, double mlin2, double mlout2);
-  double PXSecCCV       (double s, double t, double mlin2, double mlout2);
-  double PXSecNCV       (double s, double t, double mlin2, double mlout2) ;
-  double PXSecCCRNC     (double s, double t, double mlin2, double mlout2) ;
-  double PXSecCCVNC     (double s, double t, double mlin2, double mlout2) ;
-  double PXSecPhoton    (double s, double t, double ml2) ;
-  double PXSecPhoton_T  (double s12, double s13, double Q2, double ml2) ;
-  double PXSecPhoton_L  (double s12, double s13, double Q2, double ml2) ;
-  double GetReAlpha     (void) { return falpha.Re(); }
-  double Lambda         (double a, double b, double c);
-  double GetT           (double m1, double m2, double m3, double m4, double s, double costh);
+  double GetReAlpha (void) { return falpha.Re(); }
+  double PXSecCCR      (double s, double t, double mlin, double mlout);
+  double PXSecCCV      (double s, double t, double mlin, double mlout);
+  double PXSecNCV      (double s, double t, double mlin, double mlout);
+  double PXSecCCRNC    (double s, double t, double mlin, double mlout);
+  double PXSecCCVNC    (double s, double t, double mlin, double mlout);
+  double PXSecPhoton   (double s, double t, double mlout2);
+  double PXSecPhoton_T (double s12, double s13, double Q2, double ml2);
+  double PXSecPhoton_L (double s12, double s13, double Q2, double ml2);
+  double GetS           (double mlin, double Enuin);
+  double GetT3          (double mlin, double mlout, double s, double costhCM);
+  double GetT4          (double mlin, double mlout, double s, double costhCM);
+  double GetU           (double mlin, double mlout, double s, double t);
+  double GetELab3       (double mlin, double mlout, double u );
+  double GetELab4       (double mlin, double mlout, double t );
+  bool   IsInPhaseSpace (double mlin, double mlout, double Enuin, double Enuout);
 
 private:
+
+  double Lambda(double a, double b, double c);
 
   double fGw;
   double fGz;

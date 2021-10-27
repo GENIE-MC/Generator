@@ -60,19 +60,23 @@ double PhotonRESPXSec::XSec(
 
   double Mnuc = init_state.Tgt().HitNucMass();
 
-  double E = init_state.ProbeE(kRfLab);
-  double s = (2 * Mnuc * E + Mnuc*Mnuc);
+  double Enuin = init_state.ProbeE(kRfLab);
+  double s = born->GetS(Mnuc,Enuin);
 
   double n1 = kinematics.GetKV(kKVn1);
   double n2 = kinematics.GetKV(kKVn2);
 
-  double xmin = fQ2PDFmin/2./E/Mnuc;
+  double xmin = fQ2PDFmin/2./Enuin/Mnuc;
   double x = TMath::Exp( TMath::Log(xmin) + (TMath::Log(1.0)-TMath::Log(xmin))*n2 );
 
   if (x<fxPDFmin) return 0.;
 
   double s_r = x*s;
-  double t_r = born->GetT(0.,mlin,interaction->FSPrimLepton()->Mass(),0.,s_r,n1);
+  double t_r = born->GetT3(mlin,mlout,s_r,n1);
+
+  double Enuout = born->GetELab4( mlin, mlout, t_r  );
+
+  if ( !born->IsInPhaseSpace(mlin,mlout,Enuin,Enuout) ) return 0.;
 
   double xsec = kPi/4./(s_r-Mnuc*Mnuc) * sf_tbl->EvalSF(tgtpdg,probepdg,x) * (TMath::Log(1.0)-TMath::Log(xmin)) ;
   
@@ -82,8 +86,8 @@ double PhotonRESPXSec::XSec(
   }
 
   double ME = 0.;
-  if ( TMath::Abs(loutpdg)+1 == TMath::Abs(probepdg) ) ME = born->PXSecCCRNC(s_r,t_r,mlin*mlin,mlout*mlout);
-  else                                                 ME = born->PXSecCCR  (s_r,t_r,mlin*mlin,mlout*mlout); 
+  if ( TMath::Abs(loutpdg)+1 == TMath::Abs(probepdg) ) ME = born->PXSecCCRNC(s_r,t_r,mlin,mlout);
+  else                                                 ME = born->PXSecCCR  (s_r,t_r,mlin,mlout); 
   xsec *= TMath::Max(0.,ME);
    
   if(kps!=kPSn1n2fE) {
@@ -101,7 +105,7 @@ double PhotonRESPXSec::XSec(
   int NNucl = (pdg::IsProton(tgtpdg)) ? init_state.Tgt().Z() : init_state.Tgt().N(); 
   xsec *= NNucl; 
 
-  LOG("PhotonRESPXSec", pINFO) << "dxsec/dn1dn2 (E= " << E << ", n1= " << n1 << ", n2=" << n2 << ") = " << xsec;
+  LOG("PhotonRESPXSec", pINFO) << "dxsec/dn1dn2 (E= " << Enuin << ", n1= " << n1 << ", n2=" << n2 << ") = " << xsec;
 
   return xsec;
 
