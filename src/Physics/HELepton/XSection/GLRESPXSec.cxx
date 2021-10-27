@@ -47,8 +47,9 @@ double GLRESPXSec::XSec(
   const Kinematics &   kinematics = interaction -> Kine();
   const XclsTag &      xclstag    = interaction -> ExclTag();
 
-  int lout     = xclstag.FinalLeptonPdg();
-  double mlout = interaction->FSPrimLepton()->Mass();
+  int loutpdg  = xclstag.FinalLeptonPdg();
+
+  double mlout = interaction->FSPrimLepton()->Mass(); //mass of charged lepton
 
   double E = init_state.ProbeE(kRfLab);
   double s = 2 * kElectronMass * E + kElectronMass2;
@@ -69,12 +70,15 @@ double GLRESPXSec::XSec(
   double pdf_soft = TMath::Exp(zeta*(3./4.-TMath::EulerGamma()))/TMath::Gamma(1.+zeta) + omx*(omx-2.)/2./n2;
   double xsec = kPi/4./(s-kElectronMass2) * pdf_soft ;
   
-  if ( pdg::IsPion(xclstag.FinalLeptonPdg()) ) {
+  if ( pdg::IsPion(loutpdg) ) {
     if ( TMath::Sqrt(s_r)<fWmin ) return 0.; // The W limit is because hadronization might have issues at low W (as in PYTHIA6).
     xsec *= 64.41/10.63;    
   }
 
-  xsec *= born->PXSecLepton(s_r,t_r,kPdgAntiNuE,lout);
+  double ME = 0.;
+  if ( loutpdg == kPdgElectron ) ME = PXSecCCRNC(s,t,kElectronMass2,mlout*mlout);
+  else                           ME = PXSecCCR  (s,t,kElectronMass2,mlout*mlout); 
+  xsec *= TMath::Max(0.,ME);
 
   //----- If requested return the free electron xsec even for nuclear target
   if( interaction->TestBit(kIAssumeFreeElectron) ) return xsec;

@@ -49,11 +49,15 @@ double PhotonRESPXSec::XSec(
   const XclsTag &      xclstag    = interaction -> ExclTag();
 
   int probepdg = init_state.ProbePdg();
-  int lout     = xclstag.FinalLeptonPdg();
-  double mlout = interaction->FSPrimLepton()->Mass();
-  double mlout2 = mlout*mlout;
+  int loutpdg  = xclstag.FinalLeptonPdg();
+  int tgtpdg   = init_state.Tgt().HitNucPdg();
 
-  int tgtpdg        = init_state.Tgt().HitNucPdg();
+  double mlin  = 0.;
+  if      (pdg::IsNuE  (TMath::Abs(probepdg))) mlin = kElectronMass;
+  else if (pdg::IsNuMu (TMath::Abs(probepdg))) mlin = kMuonMass;
+  else if (pdg::IsNuTau(TMath::Abs(probepdg))) mlin = kTauMass;
+  double mlout = interaction->FSPrimLepton()->Mass(); //mass of charged lepton
+
   double Mnuc = init_state.Tgt().HitNucMass();
 
   double E = init_state.ProbeE(kRfLab);
@@ -68,16 +72,19 @@ double PhotonRESPXSec::XSec(
   if (x<fxPDFmin) return 0.;
 
   double s_r = x*s;
-  double t_r = born->GetT(0.,0.,mlout,0.,s_r,n1);
+  double t_r = born->GetT(0.,mlin,interaction->FSPrimLepton()->Mass(),0.,s_r,n1);
 
   double xsec = kPi/4./(s_r-Mnuc*Mnuc) * sf_tbl->EvalSF(tgtpdg,probepdg,x) * (TMath::Log(1.0)-TMath::Log(xmin)) ;
   
-  if ( pdg::IsPion(lout) ) {
+  if ( pdg::IsPion(loutpdg) ) {
     if ( TMath::Sqrt(s_r)<fWmin ) return 0.; // The W limit is because hadronization might have issues at low W (as in PYTHIA6).
     xsec *= 64.41/10.63;    
   }
 
-  xsec *= born->PXSecLepton(s_r,t_r,probepdg,lout,0.,mlout2);
+  double ME = 0.;
+  if ( TMath::Abs(loutpdg)+1 == TMath::Abs(probepdg) ) ME = PXSecCCRNC(s,t,mlin*mlin,mlout*mlout);
+  else                                                 ME = PXSecCCR  (s,t,mlin*mlin,mlout*mlout); 
+  xsec *= TMath::Max(0.,ME);
    
   if(kps!=kPSn1n2fE) {
       LOG("PhotonRESPXSec", pWARN)

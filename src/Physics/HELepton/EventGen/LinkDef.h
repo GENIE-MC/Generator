@@ -10,6 +10,7 @@
 #pragma link C++ class genie::HELeptonKinematicsGenerator;
 
 #pragma link C++ class genie::GLRESGenerator;
+#pragma link C++ class genie::HENuElGenerator;
 #pragma link C++ class genie::PhotonRESGenerator;
 #pragma link C++ class genie::PhotonCOHGenerator;
 

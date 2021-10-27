@@ -3,8 +3,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _HE_NUELECTRON_PXSEC_H_
-#define _HE_NUELECTRON_PXSEC_H_
+#ifndef _HE_NUEL_PXSEC_H_
+#define _HE_NUEL_PXSEC_H_
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/HELepton/XSection/Born.h"
@@ -13,12 +13,12 @@ namespace genie {
 
 class XSecIntegratorI;
 
-class HENuElectronPXSec : public XSecAlgorithmI {
+class HENuElPXSec : public XSecAlgorithmI {
 
 public:
-  HENuElectronPXSec ();
-  HENuElectronPXSec (string config);
-  virtual ~HENuElectronPXSec ();
+  HENuElPXSec ();
+  HENuElPXSec (string config);
+  virtual ~HENuElPXSec ();
 
   // XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;

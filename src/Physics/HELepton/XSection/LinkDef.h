@@ -9,8 +9,8 @@
 #pragma link C++ class genie::HELeptonXSec;
 
 #pragma link C++ class genie::GLRESPXSec;
+#pragma link C++ class genie::HENuElPXSec;
 #pragma link C++ class genie::PhotonRESPXSec;
 #pragma link C++ class genie::PhotonCOHPXSec;
-#pragma link C++ class genie::LeptonElasticPXSec;
 
 #endif

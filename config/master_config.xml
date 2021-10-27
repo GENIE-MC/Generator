@@ -59,6 +59,7 @@
    <config alg="genie::AMNuGammaGenerator">              AMNuGammaGenerator.xml              </config>
    <config alg="genie::MECGenerator">                    MECGenerator.xml                    </config>
    <config alg="genie::GLRESGenerator">                  GLRESGenerator.xml                  </config>
+   <config alg="genie::HENuElGenerator">                 HENuElGenerator.xml                 </config>
    <config alg="genie::PhotonCOHGenerator">              PhotonCOHGenerator.xml              </config>
    <config alg="genie::PhotonRESGenerator">              PhotonRESGenerator.xml              </config>
    <config alg="genie::HEDISGenerator">                  HEDISGenerator.xml                  </config>
@@ -195,6 +196,7 @@
    <config alg="genie::NuElectronPXSec">                    NuElectronPXSec.xml                    </config>
    <config alg="genie::DMElectronPXSec">                    DMElectronPXSec.xml                    </config>
    <config alg="genie::GLRESPXSec">                         GLRESPXSec.xml                         </config>
+   <config alg="genie::HENuElPXSec">                        HENuElPXSec.xml                        </config>
    <config alg="genie::PhotonCOHPXSec">                     PhotonCOHPXSec.xml                     </config>
    <config alg="genie::PhotonRESPXSec">                     PhotonRESPXSec.xml                     </config>
    <config alg="genie::BergerSehgalRESPXSec2014">           BergerSehgalRESPXSec2014.xml           </config>

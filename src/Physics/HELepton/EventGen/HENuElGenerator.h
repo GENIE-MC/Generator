@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::GLRESGenerator
+\class    genie::HENuElGenerator
 
 \brief    Glashow resonance event generator
 
@@ -15,26 +15,22 @@
 */
 //____________________________________________________________________________
 
-#ifndef _GLASHOW_RESONANCE_GENERATOR_H_
-#define _GLASHOW_RESONANCE_GENERATOR_H_
+#ifndef _HE_NUEL_GENERATOR_H_
+#define _HE_NUEL_GENERATOR_H_
 
 #define __GENIE_PYTHIA6_ENABLED__
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Physics/HELepton/XSection/Born.h"
 
-#ifdef __GENIE_PYTHIA6_ENABLED__
-#include <TPythia6.h>
-#endif
-
 namespace genie {
 
-class GLRESGenerator : public EventRecordVisitorI {
+class HENuElGenerator : public EventRecordVisitorI {
 
 public :
-  GLRESGenerator();
-  GLRESGenerator(string config);
- ~GLRESGenerator();
+  HENuElGenerator();
+  HENuElGenerator(string config);
+ ~HENuElGenerator();
 
   // implement the EventRecordVisitorI interface
   void ProcessEventRecord (GHepRecord * event) const;
@@ -47,10 +43,6 @@ public :
 private:
 
   void LoadConfig(void);
-
-#ifdef __GENIE_PYTHIA6_ENABLED__
-  mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
-#endif
 
   Born * born;
 

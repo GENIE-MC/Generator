@@ -48,8 +48,13 @@ Born::~Born()
 
 }
 //____________________________________________________________________________
-double Born::PXSecCC(double s, double t, double mlin2, double mlout2)
+double Born::PXSecCCR(double s, double t, double mlin2, double mlout2)
 {
+/*
+nu \  W.  / nu
+    ------
+ l /      \ l
+*/
 
   TComplex prop = falpha/fsw2/(s-fmw2c);
 
@@ -57,15 +62,25 @@ double Born::PXSecCC(double s, double t, double mlin2, double mlout2)
 
 }
 //____________________________________________________________________________
-double Born::PXSecCC2(double s, double t, double mlin2, double mlout2)
+double Born::PXSecCCV(double s, double t, double mlin2, double mlout2)
 {
+/*
+nu -------- l
+      | W
+ l -------- nu
+*/
 
   return 0.;
 
 }
 //____________________________________________________________________________
-double Born::PXSecNC(double s, double t, double mlin2, double mlout2)
+double Born::PXSecNCV(double s, double t, double mlin2, double mlout2)
 {
+/*
+nu -------- nu
+      | Z
+ l -------- l
+*/
 
   double u = mlin2 + mlout2 - s - t;
   
@@ -76,8 +91,13 @@ double Born::PXSecNC(double s, double t, double mlin2, double mlout2)
 
 }
 //____________________________________________________________________________
-double Born::PXSecCCNC(double s, double t, double mlin2, double mlout2)
+double Born::PXSecCCRNC(double s, double t, double mlin2, double mlout2)
 {
+/*
+nu \  W.  / nu     nu -------- nu
+    ------      +        | Z
+ l /      \ l       l -------- l
+*/
 
   double u = mlin2 + mlout2 - s - t;
   
@@ -88,31 +108,44 @@ double Born::PXSecCCNC(double s, double t, double mlin2, double mlout2)
 
 }
 //____________________________________________________________________________
-double Born::PXSecCCNC2(double s, double t, double mlin2, double mlout2)
+double Born::PXSecCCVNC(double s, double t, double mlin2, double mlout2)
 {
+/*
+nu -------- l     nu -------- nu
+      | W       +        | Z
+ l -------- nu       l -------- l
+*/
 
   return 0.;
 
 }
 
 //____________________________________________________________________________
-double Born::PXSecLepton(double s, double t, int nu, int lp)
+double Born::PXSecLeptonR(double s, double t, int nu, int lp)
 {
 
   double ME = 0.;
 
-  if ( pdg::IsAntiNuE(nu) ) {
-    if      ( pdg::IsElectron(lp) ) ME = PXSecCCNC(s,t,kElectronMass2,kElectronMass2);
-    else if ( pdg::IsMuon(lp)     ) ME = PXSecCC  (s,t,kElectronMass2,kMuonMass2); 
-    else if ( pdg::IsTau(lp)      ) ME = PXSecCC  (s,t,kElectronMass2,kTauMass2); 
-    else if ( pdg::IsPion(lp)     ) ME = PXSecCC  (s,t,kElectronMass2,kPionMass2) * 64.41/10.63; 
-  }
-  else if ( pdg::IsAntiNuMu(nu)  ) ME = PXSecNC   (s,t,kElectronMass2,kElectronMass2);
-  else if ( pdg::IsAntiNuTau(nu) ) ME = PXSecNC   (s,t,kElectronMass2,kElectronMass2);
-  else if ( pdg::IsANuE(nu)      ) ME = PXSecCCNC2(s,t,kElectronMass2,kElectronMass2);
-  else if ( pdg::IsANuMu(nu)     ) ME = PXSecCC2  (s,t,kElectronMass2,kMuonMass2);
-  else if ( pdg::IsANuTau(nu)    ) ME = PXSecCC2  (s,t,kElectronMass2,kTauMass2);
-
+  int anu = TMath::Abs(nu);
+  int alp = TMath::Abs(lp);
+  if      ( pdg::IsNuE(anu) ) {
+    if      ( pdg::IsElectron(alp) ) ME = PXSecCCRNC(s,t,kElectronMass2,kElectronMass2);
+    else if ( pdg::IsMuon(alp)     ) ME = PXSecCCR  (s,t,kElectronMass2,kMuonMass2); 
+    else if ( pdg::IsTau(alp)      ) ME = PXSecCCR  (s,t,kElectronMass2,kTauMass2); 
+    else if ( pdg::IsPion(alp)     ) ME = PXSecCCR  (s,t,kElectronMass2,kPionMass2) * 64.41/10.63; 
+  }  
+  else if ( pdg::IsNuMu(anu) ) {
+    if      ( pdg::IsElectron(alp) ) ME = PXSecCCR  (s,t,kMuonMass2,kElectronMass2);
+    else if ( pdg::IsMuon(alp)     ) ME = PXSecCCRNC(s,t,kMuonMass2,kMuonMass2); 
+    else if ( pdg::IsTau(alp)      ) ME = PXSecCCR  (s,t,kMuonMass2,kTauMass2); 
+    else if ( pdg::IsPion(alp)     ) ME = PXSecCCR  (s,t,kMuonMass2,kPionMass2) * 64.41/10.63; 
+  } 
+  else if ( pdg::IsNuTau(anu) ) {
+    if      ( pdg::IsElectron(alp) ) ME = PXSecCCR  (s,t,kTauMass2,kElectronMass2);
+    else if ( pdg::IsMuon(alp)     ) ME = PXSecCCR  (s,t,kTauMass2,kMuonMass2); 
+    else if ( pdg::IsTau(alp)      ) ME = PXSecCCRNC(s,t,kTauMass2,kTauMass2); 
+    else if ( pdg::IsPion(alp)     ) ME = PXSecCCR  (s,t,kTauMass2,kPionMass2) * 64.41/10.63; 
+  } 
   return TMath::Max(0.,ME);
 
 }

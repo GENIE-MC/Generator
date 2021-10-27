@@ -7,7 +7,6 @@
 #define _PHOTON_RES_GENERATOR_H_
 
 #include <TPythia6.h>
-#include <TComplex.h>
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Physics/HELepton/XSection/Born.h"

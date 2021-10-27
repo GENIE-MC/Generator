@@ -29,7 +29,7 @@ public:
   Born ();
   virtual ~Born ();
 
-  double PXSecLepton    (double s, double t, int nu, int lp) ;
+  double PXSecLeptonR   (double s, double t, int nu, int lp) ;
   double PXSecPhoton    (double s, double t, double ml2) ;
   double PXSecPhoton_T  (double s12, double s13, double Q2, double ml2) ;
   double PXSecPhoton_L  (double s12, double s13, double Q2, double ml2) ;
@@ -39,11 +39,11 @@ public:
 
 private:
 
-  double PXSecCC        (double s, double t, double mlin2, double mlout2);
-  double PXSecCC2       (double s, double t, double mlin2, double mlout2);
-  double PXSecCCNC      (double s, double t, double mlin2, double mlout2) ;
-  double PXSecCCNC2     (double s, double t, double mlin2, double mlout2) ;
-  double PXSecNC        (double s, double t, double mlin2, double mlout2) ;
+  double PXSecCCR       (double s, double t, double mlin2, double mlout2);
+  double PXSecCCV       (double s, double t, double mlin2, double mlout2);
+  double PXSecNCV       (double s, double t, double mlin2, double mlout2) ;
+  double PXSecCCRNC     (double s, double t, double mlin2, double mlout2) ;
+  double PXSecCCVNC     (double s, double t, double mlin2, double mlout2) ;
 
   double fGw;
   double fGz;

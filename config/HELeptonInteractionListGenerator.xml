@@ -27,6 +27,14 @@ Name             Type     Optional   Comment               Default
         <param type="bool" name="is-GLRES-Had">         true  </param>
   </param_set>
 
+  <param_set name="HENuEl-CC-Default">
+        <param type="bool" name="is-HENuEl-CC">         true  </param>
+  </param_set>
+
+  <param_set name="HENuEl-NC-Default">
+        <param type="bool" name="is-HENuEl-NC">         true  </param>
+  </param_set>
+
   <param_set name="PhotonRES-Mu-Default">
         <param type="bool" name="is-PhotonRES-Mu">      true  </param>
   </param_set>
