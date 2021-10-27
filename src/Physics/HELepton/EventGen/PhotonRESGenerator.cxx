@@ -80,7 +80,6 @@ void PhotonRESGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   Interaction * interaction = evrec->Summary();
   const InitialState & init_state = interaction->InitState();
-  const ProcessInfo & proc_info   = interaction->ProcInfo();
 
   //incoming v & struck particle & remnant nucleus
   GHepParticle * nu = evrec->Probe();

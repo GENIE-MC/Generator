@@ -46,10 +46,10 @@ double HENuElPXSec::XSec(
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
   const InitialState & init_state = interaction -> InitState();
   const Kinematics &   kinematics = interaction -> Kine();
-  const XclsTag &      xclstag    = interaction -> ExclTag();
 
-  bool isCC = proc_info.isCC();
+  bool isCC = proc_info.IsWeakCC();
 
+  int probepdg = init_state.ProbePdg();
   double mlout = interaction->FSPrimLepton()->Mass(); //mass of charged lepton
   
   double E = init_state.ProbeE(kRfLab);
@@ -74,7 +74,7 @@ double HENuElPXSec::XSec(
   double xsec = kPi/4./(s-kElectronMass2) * pdf_soft ;
   
   double ME = 0;
-  if ( pdg::IsNuE(nu) ) ME = PXSecCCVNC(s,t,kElectronMass2,mlout*mlout);
+  if ( pdg::IsNuE(probepdg) ) ME = born->PXSecCCVNC(s_r,t_r,kElectronMass2,mlout*mlout);
   else {
     if (isCC) ME = born->PXSecCCV(s_r,t_r,kElectronMass2,mlout*mlout);
     else      ME = born->PXSecNCV(s_r,t_r,kElectronMass2,mlout*mlout);

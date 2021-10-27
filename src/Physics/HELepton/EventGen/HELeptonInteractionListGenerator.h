@@ -27,9 +27,10 @@ public :
 
 private:
 
-  InteractionList * GLRESInteraction     (const InitialState & init_state) const;
-  InteractionList * PhotonRESInteraction (const InitialState & init_state) const;
-  InteractionList * PhotonCOHInteraction (const InitialState & init_state) const;
+  InteractionList * GLRESInteraction        (const InitialState & init_state) const;
+  InteractionList * HENuElectronInteraction (const InitialState & init_state) const;
+  InteractionList * PhotonRESInteraction    (const InitialState & init_state) const;
+  InteractionList * PhotonCOHInteraction    (const InitialState & init_state) const;
 
   void LoadConfigData(void);
   

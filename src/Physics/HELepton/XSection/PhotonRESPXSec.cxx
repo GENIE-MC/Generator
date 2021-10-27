@@ -82,8 +82,8 @@ double PhotonRESPXSec::XSec(
   }
 
   double ME = 0.;
-  if ( TMath::Abs(loutpdg)+1 == TMath::Abs(probepdg) ) ME = PXSecCCRNC(s,t,mlin*mlin,mlout*mlout);
-  else                                                 ME = PXSecCCR  (s,t,mlin*mlin,mlout*mlout); 
+  if ( TMath::Abs(loutpdg)+1 == TMath::Abs(probepdg) ) ME = born->PXSecCCRNC(s_r,t_r,mlin*mlin,mlout*mlout);
+  else                                                 ME = born->PXSecCCR  (s_r,t_r,mlin*mlin,mlout*mlout); 
   xsec *= TMath::Max(0.,ME);
    
   if(kps!=kPSn1n2fE) {

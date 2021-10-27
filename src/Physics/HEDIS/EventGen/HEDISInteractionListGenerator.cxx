@@ -82,8 +82,8 @@ InteractionList * HEDISInteractionListGenerator::CreateHEDISlist(
   InteractionList * intlist = new InteractionList;
 
   vector<int> nucl;
-  if (init->Tgt().Z()>0)                nucl.push_back(kPdgProton);
-  if (init->Tgt().A()-init->Tgt().Z()>0) nucl.push_back(kPdgNeutron);
+  if (init_state.Tgt().Z()>0)                nucl.push_back(kPdgProton);
+  if (init_state.Tgt().A()-init_state.Tgt().Z()>0) nucl.push_back(kPdgNeutron);
 
   vector<int>::const_iterator inucl = nucl.begin();
   for( ; inucl != nucl.end(); ++inucl) {    

@@ -69,7 +69,6 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord *
 
   Interaction * interaction = event->Summary();
   const InitialState & init_state = interaction->InitState();
-  const ProcessInfo & proc_info   = interaction->ProcInfo();
 
   //incoming v & struck particle & remnant nucleus
   GHepParticle * nu = event->Probe();

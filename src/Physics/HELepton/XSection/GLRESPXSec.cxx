@@ -76,8 +76,8 @@ double GLRESPXSec::XSec(
   }
 
   double ME = 0.;
-  if ( loutpdg == kPdgElectron ) ME = PXSecCCRNC(s,t,kElectronMass2,mlout*mlout);
-  else                           ME = PXSecCCR  (s,t,kElectronMass2,mlout*mlout); 
+  if ( loutpdg == kPdgElectron ) ME = born->PXSecCCRNC(s_r,t_r,kElectronMass2,mlout*mlout);
+  else                           ME = born->PXSecCCR  (s_r,t_r,kElectronMass2,mlout*mlout); 
   xsec *= TMath::Max(0.,ME);
 
   //----- If requested return the free electron xsec even for nuclear target

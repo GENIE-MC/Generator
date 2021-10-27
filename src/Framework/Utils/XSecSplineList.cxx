@@ -195,6 +195,13 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
   SLOG("XSecSplLst", pNOTICE)
     << "Energy threshold for current interaction = " << Ethr << " GeV";
 
+  if (Ethr>e_max) {
+    SLOG("XSecSplLst", pFATAL) << "Energy threshold higher than maximum.";
+    SLOG("XSecSplLst", pFATAL) << "Energy threshold = " << Ethr << " GeV";
+    SLOG("XSecSplLst", pFATAL) << "Energy maximum = " << e_max << " GeV";
+    return;
+  }
+
   int nkb = (Ethr>e_min) ? 5 : 0; // number of knots <  threshold
   int nka = nknots-nkb;           // number of knots >= threshold
 

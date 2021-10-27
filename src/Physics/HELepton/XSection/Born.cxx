@@ -119,36 +119,6 @@ nu -------- l     nu -------- nu
   return 0.;
 
 }
-
-//____________________________________________________________________________
-double Born::PXSecLeptonR(double s, double t, int nu, int lp)
-{
-
-  double ME = 0.;
-
-  int anu = TMath::Abs(nu);
-  int alp = TMath::Abs(lp);
-  if      ( pdg::IsNuE(anu) ) {
-    if      ( pdg::IsElectron(alp) ) ME = PXSecCCRNC(s,t,kElectronMass2,kElectronMass2);
-    else if ( pdg::IsMuon(alp)     ) ME = PXSecCCR  (s,t,kElectronMass2,kMuonMass2); 
-    else if ( pdg::IsTau(alp)      ) ME = PXSecCCR  (s,t,kElectronMass2,kTauMass2); 
-    else if ( pdg::IsPion(alp)     ) ME = PXSecCCR  (s,t,kElectronMass2,kPionMass2) * 64.41/10.63; 
-  }  
-  else if ( pdg::IsNuMu(anu) ) {
-    if      ( pdg::IsElectron(alp) ) ME = PXSecCCR  (s,t,kMuonMass2,kElectronMass2);
-    else if ( pdg::IsMuon(alp)     ) ME = PXSecCCRNC(s,t,kMuonMass2,kMuonMass2); 
-    else if ( pdg::IsTau(alp)      ) ME = PXSecCCR  (s,t,kMuonMass2,kTauMass2); 
-    else if ( pdg::IsPion(alp)     ) ME = PXSecCCR  (s,t,kMuonMass2,kPionMass2) * 64.41/10.63; 
-  } 
-  else if ( pdg::IsNuTau(anu) ) {
-    if      ( pdg::IsElectron(alp) ) ME = PXSecCCR  (s,t,kTauMass2,kElectronMass2);
-    else if ( pdg::IsMuon(alp)     ) ME = PXSecCCR  (s,t,kTauMass2,kMuonMass2); 
-    else if ( pdg::IsTau(alp)      ) ME = PXSecCCRNC(s,t,kTauMass2,kTauMass2); 
-    else if ( pdg::IsPion(alp)     ) ME = PXSecCCR  (s,t,kTauMass2,kPionMass2) * 64.41/10.63; 
-  } 
-  return TMath::Max(0.,ME);
-
-}
 //____________________________________________________________________________
 double Born::PXSecPhoton(double s, double t, double mlout2)
 {
