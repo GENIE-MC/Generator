@@ -44,9 +44,9 @@ InteractionList * HEDISInteractionListGenerator::CreateInteractionList(
   LOG("IntLst", pINFO)
      << "InitialState = " << init_state.AsString();
 
-  InteractionType_t inttype;
-  if      (fIsCC) inttype = kIntWeakCC;
-  else if (fIsNC) inttype = kIntWeakNC;
+  vector<InteractionType_t> inttype;
+  if      (fIsCC) inttype.push_back(kIntWeakCC);
+  else if (fIsNC) inttype.push_back(kIntWeakNC);
   else {
      LOG("IntLst", pWARN)
        << "Unknown InteractionType! Returning NULL InteractionList "
@@ -55,14 +55,16 @@ InteractionList * HEDISInteractionListGenerator::CreateInteractionList(
   }
 
   int ppdg = init_state.ProbePdg();
-  if( !pdg::IsNeutralLepton(ppdg) ) {
+  if( !pdg::IsLepton(ppdg) ) {
      LOG("IntLst", pWARN)
        << "Can not handle probe! Returning NULL InteractionList "
        << "for init-state: " << init_state.AsString();
      return 0;
   }
 
-  InteractionList * intlist = this->CreateHEDISlist(init_state,inttype);
+  vector<InitialState> init;
+  init.push_back(init_state);
+  InteractionList * intlist = this->CreateHEDISlist(init,inttype);
 
   if(intlist->size() == 0) {
      LOG("IntLst", pERROR)
@@ -76,38 +78,47 @@ InteractionList * HEDISInteractionListGenerator::CreateInteractionList(
 }
 //____________________________________________________________________________
 InteractionList * HEDISInteractionListGenerator::CreateHEDISlist(
-    const InitialState & init_state, InteractionType_t inttype) const
+    vector<InitialState> vinit, vector<InteractionType_t> vinttype) const
 {
 
   InteractionList * intlist = new InteractionList;
 
-  vector<int> nucl;
-  if (init_state.Tgt().Z()>0)                nucl.push_back(kPdgProton);
-  if (init_state.Tgt().A()-init_state.Tgt().Z()>0) nucl.push_back(kPdgNeutron);
+  vector<InitialState>::const_iterator init = vinit.begin();
+  for( ; init != vinit.end(); ++init) {
 
-  vector<int>::const_iterator inucl = nucl.begin();
-  for( ; inucl != nucl.end(); ++inucl) {    
-    ProcessInfo proc(kScDeepInelastic,inttype);
-    Interaction * interaction = new Interaction(init_state, proc);
-    interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(*inucl);
-    multimap<int,bool> hq = this->GetHitQuarks(interaction);
-    multimap<int,bool>::const_iterator hqi = hq.begin();
-    for( ; hqi != hq.end(); ++hqi) {
-      int  quark_code = hqi->first;
-      bool from_sea   = hqi->second;
-      interaction->InitStatePtr()->TgtPtr()->SetHitQrkPdg(quark_code);
-      interaction->InitStatePtr()->TgtPtr()->SetHitSeaQrk(from_sea);
-      vector<int> fq = this->GetFinalQuarks(interaction);
-      vector<int>::const_iterator fqi = fq.begin();
-      for( ; fqi != fq.end(); ++fqi) {
-        XclsTag exclusive_tag;
-        exclusive_tag.SetFinalQuark (*fqi);
-        interaction->SetExclTag(exclusive_tag);
-        Interaction * intq = new Interaction(*interaction);
-        intlist->push_back(intq);
-      }   
+    vector<int> nucl;
+    if (init->Tgt().Z()>0)                nucl.push_back(kPdgProton);
+    if (init->Tgt().A()-init->Tgt().Z()>0) nucl.push_back(kPdgNeutron);
+
+    vector<int>::const_iterator inucl = nucl.begin();
+    for( ; inucl != nucl.end(); ++inucl) {
+
+      vector<InteractionType_t>::const_iterator inttype = vinttype.begin();
+      for( ; inttype != vinttype.end(); ++inttype) {
+      
+        ProcessInfo proc(kScDeepInelastic,*inttype);
+        Interaction * interaction = new Interaction(*init, proc);
+        interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(*inucl);
+        multimap<int,bool> hq = this->GetHitQuarks(interaction);
+        multimap<int,bool>::const_iterator hqi = hq.begin();
+        for( ; hqi != hq.end(); ++hqi) {
+          int  quark_code = hqi->first;
+          bool from_sea   = hqi->second;
+          interaction->InitStatePtr()->TgtPtr()->SetHitQrkPdg(quark_code);
+          interaction->InitStatePtr()->TgtPtr()->SetHitSeaQrk(from_sea);
+          vector<int> fq = this->GetFinalQuarks(interaction);
+          vector<int>::const_iterator fqi = fq.begin();
+          for( ; fqi != fq.end(); ++fqi) {
+            XclsTag exclusive_tag;
+            exclusive_tag.SetFinalQuark (*fqi);
+            interaction->SetExclTag(exclusive_tag);
+            Interaction * intq = new Interaction(*interaction);
+            intlist->push_back(intq);
+          }   
+        }
+        delete interaction;
+      }
     }
-    delete interaction;
   }
 
   return intlist;
@@ -216,3 +227,5 @@ void HEDISInteractionListGenerator::LoadConfigData(void)
   GetParamDef("is-NC", fIsNC, false ) ;
 
 }
+
+

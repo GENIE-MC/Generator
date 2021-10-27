@@ -41,8 +41,8 @@ public :
 
   // implement the InteractionListGeneratorI interface
   InteractionList * CreateInteractionList(const InitialState & init) const;
-  InteractionList * CreateHEDISlist(const InitialState & init, 
-                                  InteractionType_t inttype) const;
+  InteractionList * CreateHEDISlist(vector<InitialState> vinit, 
+                                  vector<InteractionType_t> vinttype) const;
 
   // overload the Algorithm::Configure() methods to load private data
   // members from configuration options
