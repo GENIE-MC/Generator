@@ -123,6 +123,7 @@ bool HENuElPXSec::ValidProcess(const Interaction* interaction) const
 
   const InitialState & init_state = interaction -> InitState();
   if(pdg::IsAntiNuE(init_state.ProbePdg())) return false;
+  if(pdg::IsNuE(init_state.ProbePdg()) && !proc_info.IsWeakCC()) return false;
 
   if(init_state.Tgt().HitNucIsSet()) return false;
  

@@ -513,12 +513,18 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES-Had    </param>
   </param_set>
 
-  <param_set name="HENuEl-CC"> 
+  <param_set name="HENuEl"> 
+     <param type="int" name="NGenerators">  2                                  </param>
+     <param type="alg" name="Generator-0">  genie::EventGenerator/HENuEl-CC    </param>
+     <param type="alg" name="Generator-1">  genie::EventGenerator/HENuEl-NC    </param>
+  </param_set>
+
+  <param_set name="CCHENuEl"> 
      <param type="int" name="NGenerators">  1                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/HENuEl-CC    </param>
   </param_set>
 
-  <param_set name="HENuEl-CC"> 
+  <param_set name="NCHENuEl"> 
      <param type="int" name="NGenerators">  1                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/HENuEl-NC    </param>
   </param_set>
