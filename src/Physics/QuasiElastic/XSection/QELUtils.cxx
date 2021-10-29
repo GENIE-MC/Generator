@@ -91,16 +91,16 @@ double genie::utils::EnergyDeltaFunctionSolutionQEL(
 }
 
 double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
-  const genie::NuclearModelI* nucl_model, const genie::XSecAlgorithmI* xsec_model,
-  double cos_theta_0, double phi_0, double& Eb,
-  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM,
-  bool bind_nucleon)
+					 const genie::NuclearModelI* nucl_model, const genie::XSecAlgorithmI* xsec_model,
+					 double cos_theta_0, double phi_0, double& Eb,
+					 genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM,
+					 bool bind_nucleon, double shift )
 {
   // If requested, set the initial hit nucleon 4-momentum to be off-shell
   // according to the binding mode specified in the function call
   if ( bind_nucleon ) {
     genie::utils::BindHitNucleon(*interaction, *nucl_model, Eb,
-      hitNucleonBindingMode);
+				 hitNucleonBindingMode, shift );
   }
 
   // Mass of the outgoing lepton
@@ -259,8 +259,8 @@ double genie::utils::CosTheta0Max(const genie::Interaction& interaction) {
 }
 
 void genie::utils::BindHitNucleon(genie::Interaction& interaction,
-  const genie::NuclearModelI& nucl_model, double& Eb,
-  genie::QELEvGen_BindingMode_t hitNucleonBindingMode)
+				  const genie::NuclearModelI& nucl_model, double& Eb,
+				  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double shift )
 {
   genie::Target* tgt = interaction.InitState().TgtPtr();
   TLorentzVector* p4Ni = tgt->HitNucP4Ptr();
@@ -294,6 +294,8 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
     // nucleus mass
     if ( hitNucleonBindingMode == genie::kUseNuclearModel ) {
       Eb = nucl_model.RemovalEnergy();
+      // Apply optional shift to the binding energy
+      Eb += Eb * shift ; 
       // This equation is the definition that we assume
       // here for the "removal energy" (Eb) returned by the
       // nuclear model. It matches GENIE's convention for
@@ -313,6 +315,8 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
 
       // Deduce the binding energy from the final nucleus mass
       Eb = Mf - Mi + mNi;
+      // Apply optional shift to the binding energy
+      Eb += Eb * shift ; 
     }
     // A third option is to assign the binding energy and final nuclear
     // mass in a way that is equivalent to the original Valencia model
@@ -356,6 +360,9 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
           ->Find( genie::pdg::IonPdgCode(Af, Zf) )->Mass();
 
         Qvalue = mf_keep_nucleon - Mi;
+
+	// Apply optional shift to the Qvalue
+	Qvalue += Qvalue * shift ; 
 
         // Get the Fermi energies for the initial and final nucleons. Include
         // the radial dependence if using the LFG.
