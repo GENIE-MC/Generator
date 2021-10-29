@@ -94,10 +94,6 @@ void PhotonRESGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   long double Mtarget = init_state.Tgt().HitNucMass();
   long double mlout = interaction->FSPrimLepton()->Mass(); //mass of charged lepton
-  long double mlin  = 0.;
-  if      (pdg::IsNuE  (TMath::Abs(probepdg))) mlin = kElectronMass;
-  else if (pdg::IsNuMu (TMath::Abs(probepdg))) mlin = kMuonMass;
-  else if (pdg::IsNuTau(TMath::Abs(probepdg))) mlin = kTauMass;
   
   long double Enuin = init_state.ProbeE(kRfLab); 
   long double s = born->GetS(Mtarget,Enuin);
@@ -132,12 +128,6 @@ void PhotonRESGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
     TLorentzVector p4lp_o( (double)p4_lpout.Px(), (double)p4_lpout.Py(), (double)p4_lpout.Pz(), (double)p4_lpout.E() );
     TLorentzVector p4nu_o( (double)p4_nuout.Px(), (double)p4_nuout.Py(), (double)p4_nuout.Pz(), (double)p4_nuout.E() );
-
-    double t_r = born->GetT3(mlin,mlout,s_r,n1);
-    double Enuout = born->GetELab4( mlin, mlout, t_r*x );
-    double Elpout = born->GetELab3( mlin, mlout, t_r*x );
-    LOG("GLRESGenerator", pWARN) << p4nu_o.E() << "  " << Enuout << " -> " << p4nu_o.E()/Enuout;
-    LOG("GLRESGenerator", pWARN) << p4lp_o.E() << "  " << Elpout << " -> " << p4lp_o.E()/Elpout;
 
     // Randomize transverse components
     RandomGen * rnd = RandomGen::Instance();

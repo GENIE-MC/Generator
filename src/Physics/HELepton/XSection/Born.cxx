@@ -37,9 +37,9 @@ Born::Born()
   fcw2     = 1.-fsw2;
   falpha   = TMath::Sqrt(2.)*kGF/kPi * fmw2c * fsw2;
   
-  fgLe     = (-1./2.+fsw2)*TMath::Sqrt(1./(fsw2*fcw2) );
-  fgRe     = TMath::Sqrt(fsw2/fcw2);
-  fgLnu    = 1./2./TMath::Sqrt(fsw2/fcw2);
+  fgae = -1./2. + 2.*fsw2;
+  fgbe = -1./2.;
+  fgav = 1./2.;
 
 }
 //____________________________________________________________________________
@@ -70,24 +70,11 @@ double Born::PXSecCCV(double s, double t, double mlin, double mlout)
 2  l -------- nu 4
 */
 
-  return 0.;
-
-}
-//____________________________________________________________________________
-double Born::PXSecNCV(double s, double t, double mlin, double mlout)
-{
-/*
-1 nu -------- nu 3
-        | Z
-2  l -------- l  4
-*/
-
   double u = GetU(mlin,mlout,s,t);
-  
-  TComplex a = 4.*fgLnu*fgRe/(u-fmz2c);
-  TComplex b = 2.*fgLnu*fgLe/(u-fmz2c);   
 
-  return falpha.Rho2() * ( (s-mlout*mlout)*(s-mlin*mlin)*a.Rho2() + (t-mlout*mlout)*(t-mlin*mlin)*b.Rho2() );
+  TComplex prop = falpha/fsw2/(u-fmw2c);
+
+  return (s-mlout*mlout)*(s-mlin*mlin) * prop.Rho2();
 
 }
 //____________________________________________________________________________
@@ -101,10 +88,9 @@ double Born::PXSecCCRNC(double s, double t, double mlin, double mlout)
 
   double u = GetU(mlin,mlout,s,t);
   
-  TComplex a = 4.*fgLnu*fgRe/(u-fmz2c);
-  TComplex b = 2.*fgLnu*fgLe/(u-fmz2c)+1./fsw2/(s-fmw2c);   
-
-  return falpha.Rho2() * ( (s-mlout*mlout)*(s-mlin*mlin)*a.Rho2() + (t-mlout*mlout)*(t-mlin*mlin)*b.Rho2() );
+  TComplex a = fgav*(fgae-fgbe)/(u-fmz2c)/fcw2/fsw2;
+  TComplex b = fgav*(fgae+fgbe)/(u-fmz2c)/fcw2/fsw2 + 1./(s-fmw2c)/fsw2;
+  return falpha.Rho2() * ( (t-mlout*mlout)*(t-mlin*mlin)*b.Rho2() + (s-mlout*mlout)*(s-mlin*mlin)*a.Rho2() );
 
 }
 //____________________________________________________________________________
@@ -116,7 +102,43 @@ double Born::PXSecCCVNC(double s, double t, double mlin, double mlout)
 2  l -------- nu 4     l -------- l
 */
 
-  return 0.;
+  double u = GetU(mlin,mlout,s,t);
+  
+  TComplex a = fgav*(fgae+fgbe)/(u-fmz2c)/fcw2/fsw2 + 1./(u-fmw2c)/fsw2;
+  TComplex b = fgav*(fgae-fgbe)/(u-fmz2c)/fcw2/fsw2;
+  return falpha.Rho2() * ( (t-mlout*mlout)*(t-mlin*mlin)*b.Rho2() + (s-mlout*mlout)*(s-mlin*mlin)*a.Rho2() );
+
+}
+//____________________________________________________________________________
+double Born::PXSecNCVnu(double s, double t, double mlin, double mlout)
+{
+/*
+1 nu -------- nu 3
+        | Z
+2  l -------- l  4
+*/
+
+  double u = GetU(mlin,mlout,s,t);
+  
+  TComplex a = fgav*(fgae+fgbe)/(u-fmz2c)/fcw2/fsw2;
+  TComplex b = fgav*(fgae-fgbe)/(u-fmz2c)/fcw2/fsw2;
+  return falpha.Rho2() * ( (t-mlout*mlout)*(t-mlin*mlin)*b.Rho2() + (s-mlout*mlout)*(s-mlin*mlin)*a.Rho2() );
+
+}
+//____________________________________________________________________________
+double Born::PXSecNCVnubar(double s, double t, double mlin, double mlout)
+{
+/*
+1 nub -------- nub 3
+         | Z
+2   l -------- l   4
+*/
+
+  double u = GetU(mlin,mlout,s,t);
+  
+  TComplex a = fgav*(fgae-fgbe)/(u-fmz2c)/fcw2/fsw2;
+  TComplex b = fgav*(fgae+fgbe)/(u-fmz2c)/fcw2;
+  return falpha.Rho2() * ( (t-mlout*mlout)*(t-mlin*mlin)*b.Rho2()/fsw2.Rho2() + (s-mlout*mlout)*(s-mlin*mlin)*a.Rho2() );
 
 }
 //____________________________________________________________________________

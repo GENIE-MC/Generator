@@ -68,8 +68,7 @@ double GLRESPXSec::XSec(
   double s_r = s*(1. - omx);
   double t_r = t*(1. - omx);
 
-  double Enuout = born->GetELab4( mlin, mlout, t_r  );
-
+  double Enuout = born->GetELab4( mlin, 0., t_r  );
   if ( !born->IsInPhaseSpace(mlin,mlout,Enuin,Enuout) ) return 0.;
 
   double xsec = kPi/4./(s-mlin*mlin) * pdf_soft ;

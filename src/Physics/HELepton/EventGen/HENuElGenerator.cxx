@@ -67,7 +67,6 @@ void HENuElGenerator::ProcessEventRecord(GHepRecord * event) const
 
   //incoming v & struck particle & remnant nucleus
   GHepParticle * nu = event->Probe();
-  GHepParticle * el = event->HitElectron();
 
   GHepParticle * target = event -> TargetNucleus();
   if(target) event->AddParticle(target->Pdg(), kIStFinalStateNuclearRemnant, 1,-1,-1,-1, *(target->P4()), *(target->X4()) );
@@ -103,37 +102,19 @@ void HENuElGenerator::ProcessEventRecord(GHepRecord * event) const
   int pdgl = interaction->FSPrimLeptonPdg();
   assert(pdgl!=0);
 
-  long double ElpoutCM = 0.;
-  long double EnuoutCM = 0.;
-  if ( isCC ) {
-    ElpoutCM = (s_r+mlout*mlout)/sqrtl(s_r)/2.;
-    EnuoutCM = (s_r-mlout*mlout)/sqrtl(s_r)/2.;
-  }
-  else {
-    ElpoutCM = (s_r-mlout*mlout)/sqrtl(s_r)/2.;
-    EnuoutCM = (s_r+mlout*mlout)/sqrtl(s_r)/2.;
-  }
-  LongLorentzVector p4_lpout( 0.,  EnuoutCM*sinthCM,  EnuoutCM*costhCM, ElpoutCM );
-  LongLorentzVector p4_nuout( 0., -EnuoutCM*sinthCM, -EnuoutCM*costhCM, EnuoutCM );
+  long double ElpoutCM = (s_r+mlout*mlout)/sqrtl(s_r)/2.;
+  long double EnuoutCM = (s_r-mlout*mlout)/sqrtl(s_r)/2.;
+  long double sign = 0.;
+  if ( isCC ) sign =  1;
+  else        sign = -1;
+  LongLorentzVector p4_lpout( 0.,  sign*EnuoutCM*sinthCM,  sign*EnuoutCM*costhCM, ElpoutCM );
+  LongLorentzVector p4_nuout( 0., -sign*EnuoutCM*sinthCM, -sign*EnuoutCM*costhCM, EnuoutCM );
 
   p4_lpout.BoostZ(beta);
   p4_nuout.BoostZ(beta);
 
   TLorentzVector p4lp_o( (double)p4_lpout.Px(), (double)p4_lpout.Py(), (double)p4_lpout.Pz(), (double)p4_lpout.E() );
   TLorentzVector p4nu_o( (double)p4_nuout.Px(), (double)p4_nuout.Py(), (double)p4_nuout.Pz(), (double)p4_nuout.E() );
-
-  double Enuout = 0.;
-  double Elpout = 0.;
-  if (isCC) {
-    Enuout = born->GetELab4( mlin, mlout, t*(1-omx) );
-    Elpout = born->GetELab3( mlin, mlout, t*(1-omx) );
-  }
-  else {
-    Enuout = born->GetELab3( mlin, mlout, t*(1-omx) );
-    Elpout = born->GetELab4( mlin, mlout, t*(1-omx) );
-  }
-  LOG("GLRESGenerator", pWARN) << p4nu_o.E() << "  " << Enuout << " -> " << p4nu_o.E()/Enuout;
-  LOG("GLRESGenerator", pWARN) << p4lp_o.E() << "  " << Elpout << " -> " << p4lp_o.E()/Elpout;
 
   // Randomize transverse components
   RandomGen * rnd = RandomGen::Instance();

@@ -117,11 +117,6 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord *
     TLorentzVector p4lp_o( (double)p4_lpout.Px(), (double)p4_lpout.Py(), (double)p4_lpout.Pz(), (double)p4_lpout.E() );
     TLorentzVector p4nu_o( (double)p4_nuout.Px(), (double)p4_nuout.Py(), (double)p4_nuout.Pz(), (double)p4_nuout.E() );
 
-    double Enuout = born->GetELab4( mlin, mlout, t*(1-omx) );
-    double Elpout = born->GetELab3( mlin, mlout, t*(1-omx) );
-    LOG("GLRESGenerator", pWARN) << p4nu_o.E() << "  " << Enuout << " -> " << p4nu_o.E()/Enuout;
-    LOG("GLRESGenerator", pWARN) << p4lp_o.E() << "  " << Elpout << " -> " << p4lp_o.E()/Elpout;
-
     // Randomize transverse components
     RandomGen * rnd = RandomGen::Instance();
     double phi  = 2* kPi * rnd->RndLep().Rndm();

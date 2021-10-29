@@ -32,9 +32,10 @@ public:
   double GetReAlpha (void) { return falpha.Re(); }
   double PXSecCCR      (double s, double t, double mlin, double mlout);
   double PXSecCCV      (double s, double t, double mlin, double mlout);
-  double PXSecNCV      (double s, double t, double mlin, double mlout);
   double PXSecCCRNC    (double s, double t, double mlin, double mlout);
   double PXSecCCVNC    (double s, double t, double mlin, double mlout);
+  double PXSecNCVnu    (double s, double t, double mlin, double mlout);
+  double PXSecNCVnubar (double s, double t, double mlin, double mlout);
   double PXSecPhoton   (double s, double t, double mlout2);
   double PXSecPhoton_T (double s12, double s13, double Q2, double ml2);
   double PXSecPhoton_L (double s12, double s13, double Q2, double ml2);
@@ -58,9 +59,9 @@ private:
   TComplex fcw2;
   TComplex fmw2c;
   TComplex fmz2c;
-  TComplex fgLe;
-  TComplex fgRe;
-  TComplex fgLnu;
+  TComplex fgae;
+  TComplex fgbe;
+  TComplex fgav;
 
 };
 

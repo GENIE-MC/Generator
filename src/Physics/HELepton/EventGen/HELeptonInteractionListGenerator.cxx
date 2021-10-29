@@ -78,6 +78,7 @@ InteractionList *
     if      ( pdg::IsNuMu(probepdg)      ) exclusive_tag.SetFinalLepton(kPdgMuon);
     else if ( pdg::IsNuTau(probepdg)     ) exclusive_tag.SetFinalLepton(kPdgTau);
     else if ( pdg::IsNuE(probepdg)       ) exclusive_tag.SetFinalLepton(kPdgElectron);
+    else return intlist;
     interaction->SetExclTag(exclusive_tag);
     intlist->push_back(interaction);
   }
@@ -91,6 +92,7 @@ InteractionList *
     else if ( pdg::IsNuTau(probepdg)     ) exclusive_tag.SetFinalLepton(kPdgElectron);
     else if ( pdg::IsAntiNuMu(probepdg)  ) exclusive_tag.SetFinalLepton(kPdgElectron);
     else if ( pdg::IsAntiNuTau(probepdg) ) exclusive_tag.SetFinalLepton(kPdgElectron);
+    else return intlist;
     interaction->SetExclTag(exclusive_tag);
     intlist->push_back(interaction);
   }

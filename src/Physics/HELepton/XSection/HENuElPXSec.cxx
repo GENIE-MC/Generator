@@ -49,6 +49,8 @@ double HENuElPXSec::XSec(
 
   bool isCC = proc_info.IsWeakCC();
 
+  int probepdg = init_state.ProbePdg();
+
   double mlout = interaction->FSPrimLepton()->Mass(); //mass of outgoing charged lepton
   double mlin  = kElectronMass;                       //mass of incoming charged lepton
   
@@ -71,8 +73,8 @@ double HENuElPXSec::XSec(
   double t_r = t*(1. - omx);
 
   double Enuout = 0.;
-  if   (isCC) Enuout = born->GetELab4( mlin, mlout, t_r  );
-  else        Enuout = born->GetELab3( mlin, mlout, born->GetU(mlin,mlout,s_r,t_r) );
+  if   (isCC) Enuout = born->GetELab4( mlin, 0., t_r  );
+  else        Enuout = born->GetELab3( mlin, 0., born->GetU(mlin,mlout,s_r,t_r) );
 
   if ( !born->IsInPhaseSpace(mlin,mlout,Enuin,Enuout) ) return 0.;
 
@@ -82,7 +84,10 @@ double HENuElPXSec::XSec(
   if ( pdg::IsNuE(init_state.ProbePdg()) ) ME = born->PXSecCCVNC(s_r,t_r,mlin,mlout);
   else {
     if (isCC) ME = born->PXSecCCV(s_r,t_r,mlin,mlout);
-    else      ME = born->PXSecNCV(s_r,t_r,mlin,mlout);
+    else {
+      if (probepdg>0) ME = born->PXSecNCVnu   (s_r,t_r,mlin,mlout);
+      else            ME = born->PXSecNCVnubar(s_r,t_r,mlin,mlout);
+    } 
   }  
   xsec *= TMath::Max(0.,ME);
 
@@ -122,8 +127,10 @@ bool HENuElPXSec::ValidProcess(const Interaction* interaction) const
   if(!proc_info.IsGlashowResonance()) return false;
 
   const InitialState & init_state = interaction -> InitState();
-  if(pdg::IsAntiNuE(init_state.ProbePdg())) return false;
+  if(pdg::IsAntiNuE(init_state.ProbePdg())) return false;  
   if(pdg::IsNuE(init_state.ProbePdg()) && !proc_info.IsWeakCC()) return false;
+  if(pdg::IsAntiNuMu(init_state.ProbePdg()) && proc_info.IsWeakCC()) return false;
+  if(pdg::IsAntiNuTau(init_state.ProbePdg()) && proc_info.IsWeakCC()) return false;
 
   if(init_state.Tgt().HitNucIsSet()) return false;
  

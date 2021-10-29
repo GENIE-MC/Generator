@@ -52,10 +52,6 @@ double PhotonRESPXSec::XSec(
   int loutpdg  = xclstag.FinalLeptonPdg();
   int tgtpdg   = init_state.Tgt().HitNucPdg();
 
-  double mlin  = 0.;
-  if      (pdg::IsNuE  (TMath::Abs(probepdg))) mlin = kElectronMass;
-  else if (pdg::IsNuMu (TMath::Abs(probepdg))) mlin = kMuonMass;
-  else if (pdg::IsNuTau(TMath::Abs(probepdg))) mlin = kTauMass;
   double mlout = interaction->FSPrimLepton()->Mass(); //mass of charged lepton
 
   double Mnuc = init_state.Tgt().HitNucMass();
@@ -72,11 +68,7 @@ double PhotonRESPXSec::XSec(
   if (x<fxPDFmin) return 0.;
 
   double s_r = x*s;
-  double t_r = born->GetT3(mlin,mlout,s_r,n1);
-
-  double Enuout = born->GetELab4( mlin, mlout, t_r  );
-
-  if ( !born->IsInPhaseSpace(mlin,mlout,Enuin,Enuout) ) return 0.;
+  double t_r = born->GetT3(0.,mlout,s_r,n1);
 
   double xsec = kPi/4./(s_r-Mnuc*Mnuc) * sf_tbl->EvalSF(tgtpdg,probepdg,x) * (TMath::Log(1.0)-TMath::Log(xmin)) ;
   
@@ -86,8 +78,8 @@ double PhotonRESPXSec::XSec(
   }
 
   double ME = 0.;
-  if ( TMath::Abs(loutpdg)+1 == TMath::Abs(probepdg) ) ME = born->PXSecCCRNC(s_r,t_r,mlin,mlout);
-  else                                                 ME = born->PXSecCCR  (s_r,t_r,mlin,mlout); 
+  if ( TMath::Abs(loutpdg)+1 == TMath::Abs(probepdg) ) ME = born->PXSecCCRNC(s_r,t_r,0.,mlout);
+  else                                                 ME = born->PXSecCCR  (s_r,t_r,0.,mlout); 
   xsec *= TMath::Max(0.,ME);
    
   if(kps!=kPSn1n2fE) {
