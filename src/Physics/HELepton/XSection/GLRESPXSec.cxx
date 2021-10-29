@@ -57,7 +57,7 @@ double GLRESPXSec::XSec(
 
   double n1 = kinematics.GetKV(kKVn1);
   double n2 = kinematics.GetKV(kKVn2);
-  double t  = born->GetT3(mlin,mlout,s,n1);
+  double t  = born->GetT(mlin,mlout,s,n1);
   if (t>0) return 0.;
 
   //nlo correction
@@ -68,7 +68,9 @@ double GLRESPXSec::XSec(
   double s_r = s*(1. - omx);
   double t_r = t*(1. - omx);
 
-  double Enuout = born->GetELab4( mlin, 0., t_r  );
+  //http://users.jyu.fi/~tulappi/fysh300sl11/l2.pdf [slide 22]
+  //remember we always define nuout as p4
+  double Enuout = (mlin*mlin-t_r)/2./mlin;
   if ( !born->IsInPhaseSpace(mlin,mlout,Enuin,Enuout) ) return 0.;
 
   double xsec = kPi/4./(s-mlin*mlin) * pdf_soft ;

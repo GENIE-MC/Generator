@@ -68,7 +68,7 @@ double PhotonRESPXSec::XSec(
   if (x<fxPDFmin) return 0.;
 
   double s_r = x*s;
-  double t_r = born->GetT3(0.,mlout,s_r,n1);
+  double t_r = born->GetT(0.,mlout,s_r,n1);
 
   double xsec = kPi/4./(s_r-Mnuc*Mnuc) * sf_tbl->EvalSF(tgtpdg,probepdg,x) * (TMath::Log(1.0)-TMath::Log(xmin)) ;
   

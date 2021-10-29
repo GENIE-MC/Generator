@@ -87,9 +87,7 @@ void HENuElGenerator::ProcessEventRecord(GHepRecord * event) const
   long double costhCM = n1;
   long double sinthCM = sqrtl(1-costhCM*costhCM);
   
-  long double t  = 1.;
-  if ( isCC ) t = born->GetT3( mlin, mlout, s, n1 );
-  else        t = born->GetT4( mlin, mlout, s, n1 );
+  long double t  = born->GetT( mlin, mlout, s, n1 );
   long double zeta  = born->GetReAlpha()/kPi*(2.0*logl(sqrtl(-t)/kElectronMass)-1.0);
   long double omx   = powl(n2, 1.0/zeta );
   long double s_r = s*( 1.-omx );
@@ -104,11 +102,8 @@ void HENuElGenerator::ProcessEventRecord(GHepRecord * event) const
 
   long double ElpoutCM = (s_r+mlout*mlout)/sqrtl(s_r)/2.;
   long double EnuoutCM = (s_r-mlout*mlout)/sqrtl(s_r)/2.;
-  long double sign = 0.;
-  if ( isCC ) sign =  1;
-  else        sign = -1;
-  LongLorentzVector p4_lpout( 0.,  sign*EnuoutCM*sinthCM,  sign*EnuoutCM*costhCM, ElpoutCM );
-  LongLorentzVector p4_nuout( 0., -sign*EnuoutCM*sinthCM, -sign*EnuoutCM*costhCM, EnuoutCM );
+  LongLorentzVector p4_lpout( 0.,  EnuoutCM*sinthCM,  EnuoutCM*costhCM, ElpoutCM );
+  LongLorentzVector p4_nuout( 0., -EnuoutCM*sinthCM, -EnuoutCM*costhCM, EnuoutCM );
 
   p4_lpout.BoostZ(beta);
   p4_nuout.BoostZ(beta);

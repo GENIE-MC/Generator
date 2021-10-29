@@ -91,7 +91,7 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord *
   long double costhCM = n1;
   long double sinthCM = sqrtl(1-costhCM*costhCM);
   
-  long double t = born->GetT3(mlin,mlout,s,n1);
+  long double t = born->GetT(mlin,mlout,s,n1);
   long double zeta  = born->GetReAlpha()/kPi*(2.0*logl(sqrtl(-t)/kElectronMass)-1.0);
   long double omx   = powl(n2, 1.0/zeta );
   long double s_r = s*( 1.-omx );

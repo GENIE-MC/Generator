@@ -127,11 +127,12 @@ double HELeptonXSec::Integrate(
     ROOT::Math::IntegratorMultiDim ig(*func,ig_type,0,0,fGSLMaxEval);
     xsec = ig.Integral(kine_min, kine_max);
   }
+
   delete func;
 
   xsec *= (1E-38 * units::cm2);
 
-  LOG("HELeptonXSec", pDEBUG) << "*** XSec["<<init_state.ProbePdg()<<","<<proc_info.ScatteringTypeAsString()<<","<<interaction->ExclTag().FinalLeptonPdg()<< "] (E=" << interaction->InitState().ProbeE(kRfLab) << ") = " << xsec;
+  LOG("HELeptonXSec", pDEBUG) << "*** XSec["<<init_state.ProbePdg()<<","<<proc_info.ScatteringTypeAsString()<<","<<interaction->ExclTag().FinalLeptonPdg()<< "] (E=" << interaction->InitState().ProbeE(kRfLab) << ") = " << xsec / (1E-38 * units::cm2);
 
   delete interaction;
   return xsec;

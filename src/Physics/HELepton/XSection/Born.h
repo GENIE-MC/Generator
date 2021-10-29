@@ -40,11 +40,8 @@ public:
   double PXSecPhoton_T (double s12, double s13, double Q2, double ml2);
   double PXSecPhoton_L (double s12, double s13, double Q2, double ml2);
   double GetS           (double mlin, double Enuin);
-  double GetT3          (double mlin, double mlout, double s, double costhCM);
-  double GetT4          (double mlin, double mlout, double s, double costhCM);
+  double GetT           (double mlin, double mlout, double s, double costhCM);
   double GetU           (double mlin, double mlout, double s, double t);
-  double GetELab3       (double mlin, double mlout, double u );
-  double GetELab4       (double mlin, double mlout, double t );
   bool   IsInPhaseSpace (double mlin, double mlout, double Enuin, double Enuout);
 
 private:
