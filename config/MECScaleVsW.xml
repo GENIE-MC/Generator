@@ -14,6 +14,11 @@ MECScaleVsW-LowerLimitQ3     vec-double   No         Vector of q3 at the lower l
                                                      phase space
 MECScaleVsW-Weights          vec-double   Yes        Vector of weights                             Default weight at the phase-space limits
 MECScaleVsW-WValues          vec-double   Yes        Vector of W values                            Default W values at phase-space limits
+
+MECScleVsW-LowerLimit-Weight double       Yes        Weight associated to the low limit of         MECScaleVsW-Default-Weight
+                                                     the phase space
+MECScleVsW-UpperLimit-Weight double       Yes        Weight associated to the upper limit of       MECScaleVsW-Default-Weight
+                                                     the phase space
 -->
 
   <param_set name="Default"> 
