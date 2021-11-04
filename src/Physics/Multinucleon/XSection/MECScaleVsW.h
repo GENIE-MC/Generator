@@ -58,8 +58,8 @@ namespace genie {
     // Adding Spline to handle the limits of W1:
     TSpline3 fW1_Q0Q3_limits ; 
 
-    double * fLowLimitWeight ; 
-    double * fUpperLimitWeight ; 
+    double fLowLimitWeight ; 
+    double fUpperLimitWeight ; 
 
   };
   

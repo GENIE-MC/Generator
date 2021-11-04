@@ -84,14 +84,8 @@ MECScaleVsW::weight_type_map MECScaleVsW::GetMapWithLimits( const double Q0, con
 
   // Insert phase space limits:
   MECScaleVsW::weight_type_map w_map = fWeightsMap ; 
-  double min_weight = fDefaultWeight ; 
-  double max_weight = fDefaultWeight ; 
-
-  if( fLowLimitWeight ) min_weight = *fLowLimitWeight ; 
-  if( fUpperLimitWeight ) max_weight = *fUpperLimitWeight ; 
-
-  w_map.insert( weight_type_pair( W_max, max_weight ) ) ;
-  w_map.insert( weight_type_pair( W_min, min_weight ) ) ;
+  w_map.insert( weight_type_pair( W_max, fUpperLimitWeight ) ) ;
+  w_map.insert( weight_type_pair( W_min, fLowLimitWeight ) ) ;
 
   return w_map ; 
 } 
@@ -115,11 +109,8 @@ void MECScaleVsW::LoadConfig(void)
   if( GetConfig().Exists("MECScaleVsW-Default-Weight") ) {
     GetParam( "MECScaleVsW-Default-Weight", fDefaultWeight ) ;
   } else {
-    if( ! GetConfig().Exists("MECScleVsW-LowLimit-Weight") || 
-	! GetConfig().Exists("MECScleVsW-UpperLimit-Weight") ) {
       good_config = false ; 
-      LOG("MECScaleVsW", pERROR) << "Default weight is not specified. The physical limits weight cannot be set. " ;
-    }
+      LOG("MECScaleVsW", pERROR) << "Default weight is not specified." ;
   }
 
   std::vector<double> Weights, WValues ;
@@ -156,15 +147,13 @@ void MECScaleVsW::LoadConfig(void)
     LOG("MECScaleVsW", pERROR) << "Lower limit for Q3 size: " << limit_Q3.size() ;
   }
 
-  fLowLimitWeight = nullptr ; 
   if( GetConfig().Exists("MECScleVsW-LowerLimit-Weight") ) {
-    GetParam("MECScleVsW-LowerLimit-Weight", *fLowLimitWeight ) ; 
-  }
+    GetParam("MECScleVsW-LowerLimit-Weight", fLowLimitWeight ) ; 
+  } else { fLowLimitWeight = fDefaultWeight; } 
 
-  fUpperLimitWeight = nullptr ; 
   if( GetConfig().Exists("MECScleVsW-UpperLimit-Weight") ) {
-    GetParam("MECScleVsW-UpperLimit-Weight", *fUpperLimitWeight ) ; 
-  }
+    GetParam("MECScleVsW-UpperLimit-Weight", fUpperLimitWeight ) ; 
+  } else { fUpperLimitWeight = fDefaultWeight ; }
 
   if( ! good_config ) {
     LOG("MECScaleVsW", pERROR) << "Configuration has failed.";
