@@ -115,8 +115,11 @@ void MECScaleVsW::LoadConfig(void)
   if( GetConfig().Exists("MECScaleVsW-Default-Weight") ) {
     GetParam( "MECScaleVsW-Default-Weight", fDefaultWeight ) ;
   } else {
-    good_config = false ; 
-    LOG("MECScaleVsW", pERROR) << "Default weight is not specified " ;
+    if( ! GetConfig().Exists("MECScleVsW-LowLimit-Weight") || 
+	! GetConfig().Exists("MECScleVsW-UpperLimit-Weight") ) {
+      good_config = false ; 
+      LOG("MECScaleVsW", pERROR) << "Default weight is not specified. The physical limits weight cannot be set. " ;
+    }
   }
 
   std::vector<double> Weights, WValues ;
