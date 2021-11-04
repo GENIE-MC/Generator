@@ -88,7 +88,7 @@ MECScaleVsW::weight_type_map MECScaleVsW::GetMapWithLimits( const double Q0, con
   double max_weight = fDefaultWeight ; 
 
   if( fLowLimitWeight ) min_weight = *fLowLimitWeight ; 
-  if( fLowLimitWeight ) max_weight = *fUpperLimitWeight ; 
+  if( fUpperLimitWeight ) max_weight = *fUpperLimitWeight ; 
 
   w_map.insert( weight_type_pair( W_max, max_weight ) ) ;
   w_map.insert( weight_type_pair( W_min, min_weight ) ) ;
