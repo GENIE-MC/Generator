@@ -54,7 +54,7 @@ double MECScaleVsW::GetScaling( const double Q0, const double Q3 ) const
   // Do not scale if W<0. This can happen while we try to get the correct kinematics.
   // If the kinematics is not correct, W can be negative, and we scale with a nan.
   // To avoid this we do this check.
-  if ( W < 0 ) return fDefaultWeight ; 
+  if ( W < 0 ) return 1. ; 
   W = sqrt( W ) ; 
 
   // Calculate scaling:
