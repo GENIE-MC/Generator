@@ -147,13 +147,8 @@ void MECScaleVsW::LoadConfig(void)
     LOG("MECScaleVsW", pERROR) << "Lower limit for Q3 size: " << limit_Q3.size() ;
   }
 
-  if( GetConfig().Exists("MECScleVsW-LowerLimit-Weight") ) {
-    GetParam("MECScleVsW-LowerLimit-Weight", fLowLimitWeight ) ; 
-  } else { fLowLimitWeight = fDefaultWeight; } 
-
-  if( GetConfig().Exists("MECScleVsW-UpperLimit-Weight") ) {
-    GetParam("MECScleVsW-UpperLimit-Weight", fUpperLimitWeight ) ; 
-  } else { fUpperLimitWeight = fDefaultWeight ; }
+  GetParamDef("MECScleVsW-LowerLimit-Weight", fLowLimitWeight, fDefaultWeight ) ; 
+  GetParamDef("MECScleVsW-UpperLimit-Weight", fUpperLimitWeight, fDefaultWeight ) ; 
 
   if( ! good_config ) {
     LOG("MECScaleVsW", pERROR) << "Configuration has failed.";
