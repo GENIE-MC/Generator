@@ -120,7 +120,8 @@ protected:
   bool         fAltOset;      ///< NuWro's table-based implementation (not recommended)
   bool         fXsecNNCorr;   ///< use nuclear medium correction for NN cross section
 
-  double       fPionMFPScale;       ///< tweaking factors for tuning
+  double       fChPionMFPScale;       ///< tweaking factors for tuning
+  double       fNeutralPionMFPScale;
   double       fPionFracCExScale;
   double       fPionFracInelScale;
   double       fChPionFracAbsScale;
