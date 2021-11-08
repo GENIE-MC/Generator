@@ -84,8 +84,8 @@ MECScaleVsW::weight_type_map MECScaleVsW::GetMapWithLimits( const double Q0, con
 
   // Insert phase space limits:
   MECScaleVsW::weight_type_map w_map = fWeightsMap ; 
-  w_map.insert( weight_type_pair( W_max, fDefaultWeight ) ) ;
-  w_map.insert( weight_type_pair( W_min, fDefaultWeight ) ) ;
+  w_map.insert( weight_type_pair( W_max, fUpperLimitWeight ) ) ;
+  w_map.insert( weight_type_pair( W_min, fLowLimitWeight ) ) ;
 
   return w_map ; 
 } 
@@ -109,8 +109,8 @@ void MECScaleVsW::LoadConfig(void)
   if( GetConfig().Exists("MECScaleVsW-Default-Weight") ) {
     GetParam( "MECScaleVsW-Default-Weight", fDefaultWeight ) ;
   } else {
-    good_config = false ; 
-    LOG("MECScaleVsW", pERROR) << "Default weight is not specified " ;
+      good_config = false ; 
+      LOG("MECScaleVsW", pERROR) << "Default weight is not specified." ;
   }
 
   std::vector<double> Weights, WValues ;
@@ -146,6 +146,9 @@ void MECScaleVsW::LoadConfig(void)
     LOG("MECScaleVsW", pERROR) << "Lower limit for Q0 size: " << limit_Q0.size() ;
     LOG("MECScaleVsW", pERROR) << "Lower limit for Q3 size: " << limit_Q3.size() ;
   }
+
+  GetParamDef("MECScleVsW-LowerLimit-Weight", fLowLimitWeight, fDefaultWeight ) ; 
+  GetParamDef("MECScleVsW-UpperLimit-Weight", fUpperLimitWeight, fDefaultWeight ) ; 
 
   if( ! good_config ) {
     LOG("MECScaleVsW", pERROR) << "Configuration has failed.";
