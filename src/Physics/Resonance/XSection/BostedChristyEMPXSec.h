@@ -34,6 +34,8 @@
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
 
+class XSecIntegratorI;
+
 namespace genie {
 
 class BostedChristyEMPXSec : public XSecAlgorithmI {
