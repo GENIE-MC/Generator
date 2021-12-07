@@ -347,9 +347,6 @@ void Intranuke2018::TransportHadrons(GHepRecord * evrec) const
       if(has_interacted) break;
     }//stepping
 
-    //updating the position of the original particle with the position of the clone
-    evrec->Particle(sp->FirstMother())->SetPosition(*(sp->X4()));
-
     if(has_interacted && fRemnA>0)  {
         // the particle interacts - simulate the hadronic interaction
       LOG("Intranuke2018", pNOTICE)
