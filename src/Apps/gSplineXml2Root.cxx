@@ -700,7 +700,7 @@ void SaveGraphsToRootFile(void)
         else if ( pdg::IsAntiTQuark(qrkpdg) ) { title << "_tbar"; }
     }
     if(xcls.IsFinalLeptonEvent()) {
-        int  leppdg = xcls.FinalLeptonPdg();
+        int  leppdg = TMath::Abs(xcls.FinalLeptonPdg());
         if      ( pdg::IsMuon(leppdg)     ) { title << "_mu";     }
         else if ( pdg::IsElectron(leppdg) ) { title << "_e";      }
         else if ( pdg::IsTau(leppdg)      ) { title << "_tau";    }
@@ -1038,11 +1038,13 @@ void SaveGraphsToRootFile(void)
     // add-up all glres and photon-res channels
     //
 
-    double * xsglres = new double[kNSplineP];
-    double * xsphres = new double[kNSplineP];
+    double * xsglrescc = new double[kNSplineP];
+    double * xsglresnc = new double[kNSplineP];
+    double * xsphrescc = new double[kNSplineP];
     for(int i=0; i<kNSplineP; i++) {
-       xsglres[i] = 0;
-       xsphres[i] = 0;
+       xsglrescc[i] = 0;
+       xsglresnc[i] = 0;
+       xsphrescc[i] = 0;
     }
     for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
        const Interaction * interaction = *ilistiter;
@@ -1050,26 +1052,35 @@ void SaveGraphsToRootFile(void)
 
        const Spline * spl = evg_driver.XSecSpline(interaction);
  
-       if (proc.IsGlashowResonance()) {
+       if (proc.IsGlashowResonance() && proc.IsWeakCC()) {
          for(int i=0; i<kNSplineP; i++) { 
-             xsglres[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+             xsglrescc[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+         }        
+       } 
+       if (proc.IsGlashowResonance() && proc.IsWeakNC()) {
+         for(int i=0; i<kNSplineP; i++) { 
+             xsglresnc[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
          }        
        } 
        if (proc.IsPhotonRES()) {
          for(int i=0; i<kNSplineP; i++) { 
-             xsphres[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+             xsphrescc[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
          }    
              
        } 
     }
-    TGraph * gr_glres = new TGraph(kNSplineP, e, xsglres);
-    gr_glres->SetName("glres_cc");
-    FormatXSecGraph(gr_glres);
-    topdir->Add(gr_glres);
-    TGraph * gr_phres = new TGraph(kNSplineP, e, xsphres);
-    gr_phres->SetName("phres_cc");
-    FormatXSecGraph(gr_phres);
-    topdir->Add(gr_phres);
+    TGraph * gr_glrescc = new TGraph(kNSplineP, e, xsglrescc);
+    gr_glrescc->SetName("glres_cc");
+    FormatXSecGraph(gr_glrescc);
+    topdir->Add(gr_glrescc);
+    TGraph * gr_glresnc = new TGraph(kNSplineP, e, xsglresnc);
+    gr_glresnc->SetName("glres_nc");
+    FormatXSecGraph(gr_glresnc);
+    topdir->Add(gr_glresnc);
+    TGraph * gr_phrescc = new TGraph(kNSplineP, e, xsphrescc);
+    gr_phrescc->SetName("phres_cc");
+    FormatXSecGraph(gr_phrescc);
+    topdir->Add(gr_phrescc);
 
 
     //
@@ -1175,8 +1186,9 @@ void SaveGraphsToRootFile(void)
     delete [] xscohcc;
     delete [] xscohnc;
     delete [] xscohtot;
-    delete [] xsglres;
-    delete [] xsphres;
+    delete [] xsglrescc;
+    delete [] xsglresnc;
+    delete [] xsphrescc;
     delete [] xstotcc;
     delete [] xstotccp;
     delete [] xstotccn;
