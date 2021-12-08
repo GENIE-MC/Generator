@@ -1,3 +1,25 @@
+//____________________________________________________________________________
+/*!
+\program gmkspl
+\brief   GENIE utility program building Structure Functions needed for HEDIS
+         package.
+         Syntax :
+           gmkphotonsf [-h]
+         Note :
+           [] marks optional arguments.
+           <> marks a list of arguments out of which only one can be
+              selected at any given time.
+         Options :
+        ***  See the User Manual for more details and examples. ***
+\author  Alfonso Garcia <aagarciasoto \at km3net.de>
+         Harvard University & IFIC
+\created Dev 8, 2020
+\cpright Copyright (c) 2003-2019, The GENIE Collaboration
+         For the full text of the license visit http://copyright.genie-mc.org
+         or see $GENIE/LICENSE
+*/
+//____________________________________________________________________________
+
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/ParticleData/PDGCodes.h"
