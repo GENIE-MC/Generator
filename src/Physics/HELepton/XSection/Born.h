@@ -43,10 +43,9 @@ public:
   double GetT           (double mlin, double mlout, double s, double costhCM);
   double GetU           (double mlin, double mlout, double s, double t);
   bool   IsInPhaseSpace (double mlin, double mlout, double Enuin, double Enuout);
+  double Lambda         (double a, double b, double c);
 
 private:
-
-  double Lambda(double a, double b, double c);
 
   double fGw;
   double fGz;
