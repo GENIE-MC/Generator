@@ -93,7 +93,7 @@
   <priority msgstream="Flux">                  NOTICE </priority>
   <priority msgstream="FMap">                  WARN   </priority>
   <priority msgstream="FragmRecUtils">         NOTICE </priority>
-  <priority msgstream="GEVGDriver">            NOTICE </priority>
+  <priority msgstream="GEVGDriver">            WARN </priority>
   <priority msgstream="GMCJDriver">            NOTICE </priority>
   <priority msgstream="GEVGPool">              INFO   </priority>
   <priority msgstream="GMCJob">                INFO   </priority>
@@ -111,7 +111,7 @@
   <priority msgstream="IBD">                   NOTICE </priority>
   <priority msgstream="IMDXSec">               NOTICE </priority>
   <priority msgstream="IMDAnnihilation">       WARN   </priority>
-  <priority msgstream="IntSel">                NOTICE </priority>
+  <priority msgstream="IntSel">                WARN </priority>
   <priority msgstream="IntLst">                NOTICE </priority>
   <priority msgstream="Interaction">           NOTICE </priority>
   <priority msgstream="Intranuke">             WARN   </priority>
@@ -151,7 +151,7 @@
   <priority msgstream="Nieves">                NOTICE </priority>
   <priority msgstream="NucDeEx">               WARN   </priority>
   <priority msgstream="NucleonDecay">          NOTICE </priority>
-  <priority msgstream="ResonanceDecay">        NOTICE </priority>
+  <priority msgstream="ResonanceDecay">        WARN </priority>
   <priority msgstream="NucleonP">              INFO   </priority>
   <priority msgstream="Nuclear">               NOTICE </priority>
   <priority msgstream="Numerical">             INFO   </priority>
@@ -164,12 +164,12 @@
   <priority msgstream="PauliBlock">            NOTICE </priority>
   <priority msgstream="ParticleDecayer">       NOTICE </priority>
   <priority msgstream="PaschLal">              INFO   </priority>
-  <priority msgstream="PythiaDec">             NOTICE </priority>
-  <priority msgstream="Pythia6Decay">          NOTICE </priority>
+  <priority msgstream="PythiaDec">             WARN </priority>
+  <priority msgstream="Pythia6Decay">          WARN </priority>
   <priority msgstream="PythiaHad">             WARN   </priority>
   <priority msgstream="Pythia6Had">            WARN   </priority>
   <priority msgstream="Pythia8Had">            WARN   </priority>
-  <priority msgstream="PDG">                   INFO   </priority>
+  <priority msgstream="PDG">                   WARN   </priority>
   <priority msgstream="PathL">                 NOTICE </priority>
   <priority msgstream="PhysUtil">              WARN   </priority>
   <priority msgstream="QELXSec">               NOTICE </priority>
@@ -204,12 +204,18 @@
   <priority msgstream="VldTestInputs">         WARN   </priority>
   <priority msgstream="XSecBase">              NOTICE </priority>
   <priority msgstream="XSecAlgMap">            NOTICE </priority>
-  <priority msgstream="XSecSplLst">            NOTICE </priority>
+  <priority msgstream="XSecSplLst">            WARN </priority>
   <priority msgstream="ZExpAxialFormFactorModel"> NOTICE </priority>
-  <priority msgstream="GLRESXSec">             WARN    </priority>
+  <priority msgstream="HELeptonXSec">          WARN    </priority>
+  <priority msgstream="HELeptonKinematics">    WARN    </priority>
   <priority msgstream="GLRESPXSec">            WARN    </priority>
   <priority msgstream="GLRESGenerator">        WARN    </priority>
-  <priority msgstream="GLRESKinematics">       WARN    </priority>
+  <priority msgstream="HENuElPXSec">           WARN    </priority>
+  <priority msgstream="HENuElGenerator">       WARN    </priority>
+  <priority msgstream="PhotonRESPXSec">        WARN    </priority>
+  <priority msgstream="PhotonRESGenerator">    WARN    </priority>
+  <priority msgstream="PhotonCOHPXSec">        WARN    </priority>
+  <priority msgstream="PhotonCOHGenerator">    WARN    </priority>
   <priority msgstream="HEDISXSec">             WARN    </priority>
   <priority msgstream="HEDISPXSec">            WARN    </priority>
   <priority msgstream="HEDISGenerator">        WARN    </priority>
@@ -217,7 +223,7 @@
   <priority msgstream="HEDISStrucFunc">        WARN    </priority>
   <priority msgstream="LeptoHad">              ERROR   </priority>
 
-  <priority msgstream="gevgen">              NOTICE </priority>
+  <priority msgstream="gevgen">              WARN </priority>
   <priority msgstream="gevgen_dm">           NOTICE </priority>
   <priority msgstream="gevgen_ndcy">         NOTICE </priority>
   <priority msgstream="gevgen_atmo">         NOTICE </priority>
@@ -228,9 +234,11 @@
   <priority msgstream="gvldtest">            NOTICE </priority>
   <priority msgstream="grwght1scan">         INFO   </priority>
   <priority msgstream="gtune">               INFO   </priority>
-  <priority msgstream="gntpc">               INFO   </priority>
+  <priority msgstream="gntpc">               WARN   </priority>
   <priority msgstream="gmkspl">              INFO   </priority>
   <priority msgstream="gmkspl_dm">           INFO   </priority>
   <priority msgstream="gcalchedisdiffxsec">  INFO   </priority>
+  <priority msgstream="gmkhedissf">          INFO   </priority>
+  <priority msgstream="gmkphotonsf">         INFO   </priority>
 
 </messenger_config>

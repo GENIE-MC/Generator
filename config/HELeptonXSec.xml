@@ -3,16 +3,12 @@
 <alg_conf>
 
 <!--
-Configuration for the GLRES xsec algorithm.
+Configuration for the HELepton xsec algorithm.
 
 Configurable Parameters:
 ....................................................................................
 Name           Type     Optional   Comment                 Default
 ....................................................................................
-
-500000 for COH
-500000 for RES
-50000 for GL except in peak (50000)
 -->
 
   <param_set name="Default"> 
