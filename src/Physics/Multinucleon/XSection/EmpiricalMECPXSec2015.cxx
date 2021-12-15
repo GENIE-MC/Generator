@@ -52,6 +52,48 @@ double EmpiricalMECPXSec2015::XSec(
                       const Interaction * interaction, KinePhaseSpace_t kps) const
 {
 
+  // If we've been asked for the kPSTlctl phase space, get W and Q^2 from those
+  // variables. You actually need the lepton phi set in order to do the
+  // conversion (see the "important note" in src/Framework/Utils/KineUtils.cxx
+  // about the kPSTlctl --> kPSWQ2fE Jacobian) when Fermi motion is properly
+  // taken into account. For now, I neglect Fermi motion as a stopgap solution.
+  // - S. Gardiner, 29 July 2020
+  if ( kps == kPSTlctl ) {
+
+    // {Tl, ctl} --> {W, Q2}
+
+    // Probe properties (mass, energy, momentum)
+    const InitialState& init_state = interaction->InitState();
+    double mv = init_state.Probe()->Mass();
+    double Ev = init_state.ProbeE( kRfLab );
+    double pv = std::sqrt( std::max(0., Ev*Ev - mv*mv) );
+
+    // Invariant mass of the initial hit nucleon
+    const TLorentzVector& hit_nuc_P4 = init_state.Tgt().HitNucP4();
+    double M = hit_nuc_P4.M();
+
+    // Outgoing lepton mass
+    double ml = interaction->FSPrimLepton()->Mass();
+
+    // Lab-frame lepton kinetic energy and scattering cosine
+    double Tl = interaction->Kine().GetKV( kKVTl );
+    double ctl = interaction->Kine().GetKV( kKVctl );
+
+    // Q^2 from Tl and ctl
+    double El = Tl + ml;
+    double pl = std::sqrt( Tl*Tl + 2.*ml*Tl );
+    double Q2 = -mv*mv - ml*ml + 2.*Ev*El - 2.*pv*pl*ctl;
+
+    // Energy transfer
+    double omega = Ev - El;
+
+    double W = std::sqrt( std::max(0., M*M - Q2 + 2.*omega*M) );
+
+    interaction->KinePtr()->SetW( W );
+    interaction->KinePtr()->SetQ2( Q2 );
+  }
+
+
 // meson exchange current contribution depends a lot on QE model.
 // This is an empirical model in development, not used in default event generation.
 
@@ -145,7 +187,7 @@ double EmpiricalMECPXSec2015::XSec(
     xsec = A + smufac*smufac*C;   // CC or NC case - Llewelyn-Smith for transverse vector process.
   }
   // Check whether variable tranformation is needed
-  if(kps!=kPSWQ2fE) {
+  if ( kps!=kPSWQ2fE && xsec != 0. ) {
     double J = utils::kinematics::Jacobian(interaction,kPSWQ2fE,kps);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("MEC", pDEBUG)
@@ -160,6 +202,14 @@ double EmpiricalMECPXSec2015::XSec(
 //____________________________________________________________________________
 double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
 {
+  // Normally the empirical MEC splines are computed as a fraction of the CCQE
+  // ones. In cases where we want to integrate the differential cross section
+  // directly (e.g., for reweighting via the XSecShape_CCMEC dial), do that
+  // instead.
+  if ( fIntegrateForReweighting ) {
+    return fXSecIntegrator->Integrate( this, interaction );
+  }
+
 // Calculate the CCMEC cross section as a fraction of the CCQE cross section
 // for the given nuclear target at the given energy.
 // Alternative strategy is to calculate the MEC cross section as the difference
@@ -356,5 +406,15 @@ void EmpiricalMECPXSec2015::LoadConfig(void)
   fXSecAlgEMQE =
      dynamic_cast<const XSecAlgorithmI *> ( this -> SubAlg( key_head + "QEL-EM" ) ) ;
   assert(fXSecAlgEMQE);
+
+  // Get the "fast" configuration of MECXSec. This will be used when integrating
+  // the total cross section for reweighting purposes.
+  genie::AlgFactory* algf = genie::AlgFactory::Instance();
+  fXSecIntegrator = dynamic_cast<const XSecIntegratorI*>( algf->AdoptAlgorithm(
+    "genie::MECXSec", "Fast") );
+  assert( fXSecIntegrator );
+
+  fIntegrateForReweighting = false;
+  GetParamDef( "IntegrateForReweighting", fIntegrateForReweighting, false );
 }
 //____________________________________________________________________________

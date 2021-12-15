@@ -55,5 +55,12 @@ EmpiricalMEC-FracPN_NC  double   Yes        Fraction of pairs in the nucleus tha
  
   </param_set>
 
+  <!-- Integrates total cross sections using the differential expression
+       directly instead of scaling the CCQE cross section. This behavior
+       is needed for the XSecShape_CCMEC weight calculator. -->
+  <param_set name="Reweight">
+    <param type="bool" name="IntegrateForReweighting"> true </param>
+  </param_set>
+
 </alg_conf>
 

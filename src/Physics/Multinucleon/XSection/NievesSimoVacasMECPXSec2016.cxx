@@ -46,8 +46,42 @@ NievesSimoVacasMECPXSec2016::~NievesSimoVacasMECPXSec2016()
 double NievesSimoVacasMECPXSec2016::XSec(
   const Interaction * interaction, KinePhaseSpace_t kps) const
 {
-  // This function returns d2sigma/(dTmu dcos_mu) in GeV^(-3)
+  // If {W,Q2} have been supplied instead, compute {Tl, ctl}
+  // NOTE: The expressions used here neglect Fermi motion and
+  // should eventually be revisited. See the "important note"
+  // in src/Framework/Utils/KineUtils.cxx about the
+  // Jacobian for transforming {W,Q2} --> {Tl, ctl}.
+  // - S. Gardiner, 29 July 2020
+  if ( kps == kPSWQ2fE ) {
 
+    double Q2 = interaction->Kine().GetKV( kKVQ2 );
+    double W = interaction->Kine().GetKV( kKVW );
+
+    // Probe properties (mass, energy, momentum)
+    const InitialState& init_state = interaction->InitState();
+    double mv = init_state.Probe()->Mass();
+    double Ev = init_state.ProbeE( kRfLab );
+    double pv = std::sqrt( std::max(0., Ev*Ev - mv*mv) );
+
+    // Invariant mass of the initial hit nucleon
+    const TLorentzVector& hit_nuc_P4 = init_state.Tgt().HitNucP4();
+    double M = hit_nuc_P4.M();
+
+    // Get the outgoing lepton kinetic energy
+    double ml = interaction->FSPrimLepton()->Mass();
+    double Tl = Ev - ml - ( (W*W + Q2 - M*M) / (2.*M) );
+
+    // Get the outgoing lepton scattering cosine
+    double El = Tl + ml;
+    double pl = std::sqrt( std::max(0., El*El - ml*ml) );
+    double ctl = ( 2.*Ev*El - Q2 - mv*mv - ml*ml ) / ( 2. * pv * pl );
+
+    // Set Tl, ctl in the interaction
+    interaction->KinePtr()->SetKV( kKVTl, Tl );
+    interaction->KinePtr()->SetKV( kKVctl, ctl );
+  }
+
+  // This function returns d2sigma/(dTmu dcos_mu) in GeV^(-3)
   int target_pdg = interaction->InitState().Tgt().Pdg();
 
   int A_request = pdg::IonPdgCodeToA(target_pdg);
@@ -287,12 +321,16 @@ double NievesSimoVacasMECPXSec2016::XSec(
 
   if( fMECScaleAlg ) xsec *= fMECScaleAlg->GetScaling( * interaction ) ;
 
-  if ( kps != kPSTlctl ) {
-    LOG("NievesSimoVacasMEC", pWARN)
-      << "Doesn't support transformation from "
-      << KinePhaseSpace::AsString(kPSTlctl) << " to "
-      << KinePhaseSpace::AsString(kps);
-    xsec = 0;
+  if ( kps != kPSTlctl && kps != kPSWQ2fE ) {
+      LOG("NievesSimoVacasMEC", pWARN)
+          << "Doesn't support transformation from "
+          << KinePhaseSpace::AsString(kPSTlctl) << " to "
+          << KinePhaseSpace::AsString(kps);
+      xsec = 0;
+  }
+  else if ( kps == kPSWQ2fE && xsec != 0. ) {
+    double J = utils::kinematics::Jacobian( interaction, kPSTlctl, kps );
+    xsec *= J;
   }
 
   return xsec;
@@ -335,39 +373,39 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
 
   // Cross section scaling factor
   GetParam( "MEC-CC-XSecScale", fXSecScale ) ;
-  
+
   fHadronTensorModel = dynamic_cast<const HadronTensorModelI *> ( this->SubAlg("HadronTensorAlg") );
   if( !fHadronTensorModel ) {
-    good_config = false ; 
+    good_config = false ;
     LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required HadronTensorAlg does not exist. AlgID is : " << SubAlg("HadronTensorAlg")->Id() ;
   }
 
   fXSecIntegrator = dynamic_cast<const XSecIntegratorI *> (this->SubAlg("NumericalIntegrationAlg"));
   if( !fXSecIntegrator ) {
-    good_config = false ; 
+    good_config = false ;
     LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required NumericalIntegrationAlg does not exist. AlgID is : " << SubAlg("NumericalIntegrationAlg")->Id();
   }
-  
+
   // Read optional QvalueShifter:
-  fQvalueShifter = nullptr; 
+  fQvalueShifter = nullptr;
   if( GetConfig().Exists("QvalueShifterAlg") ) {
     fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
     if( !fQvalueShifter ) {
-      good_config = false ; 
+      good_config = false ;
       LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required QvalueShifterAlg does not exist. AlgID is : " << SubAlg("QvalueShifterAlg")->Id() ;
     }
   }
 
   // Read optional MECScaleVsW:
-  fMECScaleAlg = nullptr; 
+  fMECScaleAlg = nullptr;
   if( GetConfig().Exists("MECScaleAlg") ) {
     fMECScaleAlg = dynamic_cast<const XSecScaleI *> ( this->SubAlg("MECScaleAlg") );
     if( !fMECScaleAlg ) {
-      good_config = false ; 
+      good_config = false ;
       LOG("NievesSimoVacasMECPXSec2016", pERROR) << "The required MECScaleAlg cannot be casted. AlgID is : " << SubAlg("MECScaleAlg")->Id() ;
     }
   }
-	
+
   if( ! good_config ) {
     LOG("NievesSimoVacasMECPXSec2016", pERROR) << "Configuration has failed.";
     exit(78) ;
