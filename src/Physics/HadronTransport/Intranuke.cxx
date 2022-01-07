@@ -401,8 +401,11 @@ double Intranuke::GenerateStep(GHepRecord* /*evrec*/, GHepParticle* p) const
   int pdgc = p->Pdg();
 
   double scale = 1.;
-  if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
-    scale = fPionMFPScale; 
+  if (pdgc==kPdgPiP || pdgc==kPdgPiM) {
+    scale = fChPionMFPScale; 
+  }
+  if (pdgc==kPdgPi0) {
+    scale = fNeutralPionMFPScale; 
   }
   else if (pdgc==kPdgProton || pdgc==kPdgNeutron) {
     scale = fNucleonMFPScale;

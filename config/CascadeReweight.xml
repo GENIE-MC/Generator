@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration sets for the CascadeReweight EventRecordVisitorI
+
+..............................................................................................................
+Configurable Parameters:
+..............................................................................................................
+Name                                 Type     Optional   Comment                                  Default
+..............................................................................................................
+CascadeReweight-Weight-NoInteraction double   Yes        Weight associated to the nointeraction fate
+CascadeReweight-Weight-CEx           double   Yes        Weight associated to the CEx fate
+CascadeReweight-Weight-Elastic       double   Yes        Weight associated to the Elastic fate
+CascadeReweight-Weight-Inelastic     double   Yes        Weight associated to the Inelastic fate
+CascadeReweight-Weight-Abs           double   Yes        Weight associated to the Abs fate
+CascadeReweight-Weight-Cmp           double   Yes        Weight associated to the Cmp fate
+..............................................................................................................
+CascadeReweight-Default-Weight-Fate parameters, or specify the weight for a specific incoming particle 
+(pion, proton, etc) by setting @Pdg= after the string.
+..............................................................................................................
+This configuration file is used for tuning purposes only.
+The present configurations are here only as an example.
+..............................................................................................................
+-->
+
+  <param_set name="Default"> 
+    <param type="double" name="CascadeReweight-Default-Weight-NoInteraction"> 1. </param>
+    <param type="double" name="CascadeReweight-Default-Weight-CEx"> 1. </param>
+    <param type="double" name="CascadeReweight-Default-Weight-Abs"> 1. </param>
+    <param type="double" name="CascadeReweight-Default-Weight-Elastic"> 1. </param>
+    <param type="double" name="CascadeReweight-Default-Weight-Inelastic"> 1. </param>
+    <param type="double" name="CascadeReweight-Default-Weight-Cmp"> 1. </param>
+  </param_set>
+  
+  <param_set name="PionReweight">
+    <param type="double" name="CascadeReweight-Weight-Undefined@Pdg=211"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-NoInteraction@Pdg=211"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-CEx@Pdg=211"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-Abs@Pdg=211"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-Elastic@Pdg=211"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-Inelastic@Pdg=211"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-Cmp@Pdg=211"> 1. </param>
+    <!--pimin-->    
+    <param type="double" name="CascadeReweight-Weight-NoInteraction@Pdg=-211"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-CEx@Pdg=-211"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-Abs@Pdg=-211"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-Elastic@Pdg=-211"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-Inelastic@Pdg=-211"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-Cmp@Pdg=-211"> 1. </param>
+    <!--pi0-->
+    <param type="double" name="CascadeReweight-Weight-NoInteraction@Pdg=111"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-CEx@Pdg=111"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-Abs@Pdg=111"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-Elastic@Pdg=111"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-Inelastic@Pdg=111"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-Cmp@Pdg=111"> 1. </param>
+
+  </param_set>
+
+  <param_set name="ProtonReweight">
+    <param type="double" name="CascadeReweight-Weight-NoInteraction@Pdg=2212"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-CEx@Pdg=2212"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-Abs@Pdg=2212"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-Elastic@Pdg=2212"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-Inelastic@Pdg=2212"> 1. </param>
+    <param type="double" name="CascadeReweight-Weight-Cmp@Pdg=2212"> 1. </param>
+  </param_set>
+
+  <!-- Add other combinations here -->
+
+</alg_conf>
+

@@ -2,7 +2,7 @@
 /*
  Copyright (c) 2003-2020, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- 
+
 
  Author: Jim Dobson <j.dobson07 \at imperial.ac.uk>
          Imperial College London
@@ -49,6 +49,7 @@
 #include "Framework/EventGen/EVGThreadException.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
+#include "Physics/HadronTransport/Intranuke2018.h"
 #include "Physics/HadronTransport/INukeException.h"
 #include "Physics/HadronTransport/INukeUtils2018.h"
 #include "Physics/HadronTransport/INukeHadroData2018.h"
@@ -281,8 +282,8 @@ double genie::utils::intranuke2018::MeanFreePath_Delta(
 }
 //____________________________________________________________________________
 double genie::utils::intranuke2018::ProbSurvival(
-  int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A, double Z,
-  double mfp_scale_factor, double nRpi, double nRnuc, double NR, double R0)
+  int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A, double /*Z*/,
+  double mfp_scale_factor, const Intranuke2018& fsi_model )
 {
 // Calculate the survival probability for a hadron inside a nucleus
 //
@@ -290,21 +291,48 @@ double genie::utils::intranuke2018::ProbSurvival(
 //  pdgc : Hadron PDG code
 //  x4 : Hadron 4-position in the nucleus coordinate system (units: fm)
 //  p4 : Hadron 4-momentum (units: GeV)
-//  A : Nucleus atomic mass number
+//  A : Target nucleus atomic mass number
 //  mfp_scale_factor: Tweaks the mean free path (mfp -> mfp*scale). Def: 1.0
-//  nRpi: Controls the pion ring size in terms of de-Broglie wavelengths
-//  nRnuc: Controls the nuclepn ring size in terms of de-Broglie wavelengths
-//  NR: How far away to track the hadron, in terms of the corresponding
-//      nuclear radius. Def: 3
-//  R0: R0 in R=R0*A^1/3 (units:fm). Def. 1.4
 
    double prob = 1.0;
 
-   double step = 0.05; // fermi
-   double R    = NR * R0 * TMath::Power(A, 1./3.);
+   // Get extra parameters from the FSI model that we need to compute the
+   // mean free path
+
+   //  nRpi: Controls the pion ring size in terms of de-Broglie wavelengths
+   double nRpi = fsi_model.GetDelRPion();
+
+   //  nRnuc: Controls the nuclepn ring size in terms of de-Broglie wavelengths
+   double nRnuc = fsi_model.GetDelRNucleon();
+
+   //  NR: How far away to track the hadron, in terms of the corresponding
+   //      nuclear radius. Def: 3
+   double NR = fsi_model.GetNR();
+
+   //  R0: R0 in R=R0*A^1/3 (units:fm). Def. 1.4
+   double R0 = fsi_model.GetR0();
+
+   // step: Step size (fm) to use when tracking hadrons
+   double step = fsi_model.GetHadStep();
+
+   // Boolean model configuration options
+   bool useOset = fsi_model.GetUseOset();
+   bool altOset = fsi_model.GetAltOset();
+   bool xsecNNCorr = fsi_model.GetXsecNNCorr();
+
+   // Intranuke mode setting ("HA2018", etc.)
+   std::string inuke_mode = fsi_model.GetINukeMode();
+
+   // Maximum radius to use in the stepping loop. Note that Intranuke2018 uses
+   // the *target* mass number to choose this radius, not the value for the
+   // pre- or post-FSI remnant.
+   double R = NR * R0 * TMath::Power(A, 1./3.);
 
    TVector3 dr3 = p4.Vect().Unit();  // unit vector along its direction
    TLorentzVector dr4(dr3,0);
+
+   int remnA = fsi_model.GetRemnA();
+   int remnZ = fsi_model.GetRemnZ();
 
    LOG("INukeUtils", pDEBUG)
      << "Calculating survival probability for hadron with PDG code = " << pdgc
@@ -322,8 +350,9 @@ double genie::utils::intranuke2018::ProbSurvival(
 
      x4_curr += (step*dr4);
      rnow = x4_curr.Vect().Mag();
-     double mfp =
-       genie::utils::intranuke2018::MeanFreePath(pdgc,x4_curr,p4,A,Z,nRpi,nRnuc);
+
+     double mfp = genie::utils::intranuke2018::MeanFreePath( pdgc, x4_curr, p4,
+       remnA, remnZ, nRpi, nRnuc, useOset, altOset, xsecNNCorr, inuke_mode );
      double mfp_twk = mfp * mfp_scale_factor;
 
      double dprob = (mfp_twk>0) ? TMath::Exp(-step/mfp_twk) : 0.;

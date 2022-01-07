@@ -21,6 +21,8 @@
 #define _G_MC_JOB_MONITOR_H_
 
 #include <TStopwatch.h>
+#include <string>
+using std::string;
 
 namespace genie {
 

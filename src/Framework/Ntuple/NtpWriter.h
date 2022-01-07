@@ -12,7 +12,7 @@
 \created October 1, 2004
 
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -39,7 +39,7 @@ class NtpMCTreeHeader;
 class NtpWriter {
 
 public :
-  NtpWriter(NtpMCFormat_t fmt = kNFGHEP, Long_t runnu = 0);
+  NtpWriter(NtpMCFormat_t fmt = kNFGHEP, Long_t runnu = 0, Long_t runseed = -1);
  ~NtpWriter();
 
   ///< initialize the ntuple writer
@@ -70,6 +70,7 @@ private:
 
   NtpMCFormat_t      fNtpFormat;          ///< enumeration of event formats
   Long_t             fRunNu;              ///< run nu
+  Long_t             fRunSeed;            ///< run seed
   string             fOutFilename;        ///< output filename
   TFile *            fOutFile;            ///< output file
   TTree *            fOutTree;            ///< output tree

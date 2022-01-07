@@ -204,6 +204,9 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
 
   double q0Tilde = outNucleonMom.E() - inNucleonMomOnShell.E();
 
+  // Shift the q0Tilde if required:
+  if( fQvalueShifter ) q0Tilde += q0Tilde * fQvalueShifter->Shift(*interaction) ;
+
   // If binding energy effects pull us into an unphysical region, return
   // zero for the differential cross section
   if ( q0Tilde <= 0. && target.IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) ) return 0.;
@@ -390,6 +393,7 @@ void NievesQELCCPXSec::Configure(string config)
 //____________________________________________________________________________
 void NievesQELCCPXSec::LoadConfig(void)
 {
+  bool good_config = true ;
   double thc;
   GetParam( "CabibboAngle", thc ) ;
   fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
@@ -485,6 +489,24 @@ void NievesQELCCPXSec::LoadConfig(void)
 
   // Decide whether or not it should be used in XSec()
   GetParamDef( "DoPauliBlocking", fDoPauliBlocking, true );
+
+  // Read optional QvalueShifter:
+  fQvalueShifter = nullptr;
+  if( GetConfig().Exists("QvalueShifterAlg") ) {
+    fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
+    if( !fQvalueShifter ) {
+      good_config = false ;
+      LOG("NievesQELCCPXSec", pERROR) << "The required QvalueShifterAlg does not exist. AlgID is : " << SubAlg("QvalueShifterAlg")->Id() ;
+    }
+  }
+
+  if( ! good_config ) {
+    LOG("NievesQELCCPXSec", pERROR) << "Configuration has failed.";
+    exit(78) ;
+  }
+
+  // Scaling factor for the Coulomb potential
+  GetParamDef( "CoulombScale", fCoulombScale, 1.0 );
 }
 //___________________________________________________________________________
 void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
@@ -851,7 +873,8 @@ double NievesQELCCPXSec::vcr(const Target * target, double Rcurr) const{
 
     // Multiply by Z to normalize densities to number of protons
     // Multiply by hbarc to put result in GeV instead of fm
-    return -kAem*4*kPi*result*fhbarc;
+    // Multiply by an extra configurable scaling factor that defaults to unity
+    return -kAem*4*kPi*result*fhbarc*fCoulombScale;
   }else{
     // If target is not a nucleus the potential will be 0
     return 0.0;

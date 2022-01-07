@@ -54,6 +54,10 @@ typedef enum EKineVar {
   kKVphip,
   kKVctp,
   kKVSelv,
+  kKVQ0,
+  kKVQ3,
+  kKVSelQ0,
+  kKVSelQ3,
   kKVSelphip,
   kKVSelctp,
   // put all new enum names right before this line
@@ -97,6 +101,10 @@ public:
       case(kKVphip)    : return " *Running* MK final pion phi";          break;
       case(kKVctp)     : return " *Running* MK cosine final pion theta"; break;
       case(kKVSelv)    : return "*Selected* Energy transfer";            break;
+      case(kKVQ0)      : return " *Running* Energy transfer (Q0)" ;      break;
+      case(kKVQ3)      : return " *Running* three momentum transfer" ;   break;
+      case(kKVSelQ0)   : return "*Selected* energy transfer (Q0) " ;     break;
+      case(kKVSelQ3)   : return "*Selected* three momentum transfer" ;   break;
       case(kKVSelphip) : return "*Selected* MK final pion phi";          break;
       case(kKVSelctp)  : return "*Selected* MK cosine final pion theta"; break;
       default          : return "** Unknown kinematic variable **";      break;

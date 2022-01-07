@@ -13,4 +13,6 @@
 
 #pragma link C++ class genie::MECXSec;
 
+#pragma link C++ class genie::MECScaleVsW;
+
 #endif

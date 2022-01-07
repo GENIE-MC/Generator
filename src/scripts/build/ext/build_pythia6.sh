@@ -2,8 +2,8 @@
 #
 # A script to download and build pythia6.
 #
-# Build both a static library for use with fortran and a shared object 
-# library for use with ROOT.  Strips out the dummy routines that would 
+# Build both a static library for use with fortran and a shared object
+# library for use with ROOT.  Strips out the dummy routines that would
 # hide the real ones found in pdflib.  Currently does *not* extract include
 # files from the downloaded source, but uses definitions embedded in this
 # script. Should work on both Linux and Mac OS X.
@@ -12,7 +12,7 @@
 #                [--refetch] [gfortran|g77|g95] [-m32]
 #
 # where [version] takes a form like "6.4.28", "6428" or "6_428" w/ or
-# without an optional leading "v".  It will created a subdirectory named 
+# without an optional leading "v".  It will created a subdirectory named
 # "v6_428" so it is probably wise to run this in a directory named "pythia6"
 # or some such.  The --dummies=XYZZY controls whether the dummy PDFSET,
 # STRUCTM and STRUCTP routines are removed.  The -m32 forces a 32-bit
@@ -46,11 +46,11 @@
 #                   --keep-dummies : force the keeping of pdflib dummies
 #                   --refetch : force refetch of source code
 #                 look around for CERNLIB pdflib[804], mathlib, kernlib
-#                 libraries with which to link against in order 
+#                 libraries with which to link against in order
 #                 to satisfy removed dummies
 #    2007-10-17:  change to --dummmies=[besttry|remove|keep]
 #                    besttry (default) means try to link to CERNLIB
-#                      if any of the libraries can't be found then 
+#                      if any of the libraries can't be found then
 #                      don't remove dummmies
 #                    remove always removes dummy routine and tries to link
 #                      to what ever libraries that it can find
@@ -103,9 +103,33 @@ while [ $# -gt 0 ] ; do
 done
 
 ############################################################################
+  export ESCCHAR="\x1B" # or \033 # Mac OS X bash doesn't support \e as esc?
+  export OUTBLACK="${ESCCHAR}[0;30m"
+  export OUTBLUE="${ESCCHAR}[0;34m"
+  export OUTGREEN="${ESCCHAR}[0;32m"
+  export OUTCYAN="${ESCCHAR}[0;36m"
+  export OUTRED="${ESCCHAR}[0;31m"
+  export OUTPURPLE="${ESCCHAR}[0;35m"
+  export OUTORANGE="${ESCCHAR}[0;33m" # orange, more brownish?
+  export OUTLTGRAY="${ESCCHAR}[0;37m"
+  export OUTDKGRAY="${ESCCHAR}[1;30m"
+  # labelled "light but appear in some cases to show as "bold"
+  export OUTLTBLUE="${ESCCHAR}[1;34m"
+  export OUTLTGREEN="${ESCCHAR}[1;32m"
+  export OUTLTCYAN="${ESCCHAR}[1;36m"
+  export OUTLTRED="${ESCCHAR}[1;31m"
+  export OUTLTPURPLE="${ESCCHAR}[1;35m"
+  export OUTYELLOW="${ESCCHAR}[1;33m"
+  export OUTWHITE="${ESCCHAR}[1;37m"
+  export OUTNOCOL="${ESCCHAR}[0m" # No Color
+# use as:   echo -e "${OUTRED} this is red ${OUTNOCOL}"
+##############################################################################
+
+
+############################################################################
 #
 # decompose version string which could take any of the forms:
-#   [v]{Major}.{minor}.{tiny}, [v]{Major}_{minor}{tiny} or 
+#   [v]{Major}.{minor}.{tiny}, [v]{Major}_{minor}{tiny} or
 #   [v]{Major}{minor}{tiny}, with the assumption that {Major} is always "6"
 #   and {tiny} is two digits.
 #
@@ -142,7 +166,7 @@ fi
 # script only works for pythia6
 #
 if [ "${major}" != "6" ] ; then
-  echo "sorry this script only works for pythia6, not ${major}"
+  echo -e "${OUTRED}sorry this script only works for pythia6, not ${major}${OUTNOCOL}"
   exit
 fi
 
@@ -154,8 +178,8 @@ fi
 topdir=v${major}_${minor}${tiny}
 toppath=`pwd`/${topdir}
 
-echo version $version major $major minor $minor tiny $tiny
-echo full path: $toppath
+echo -e ${OUTCYAN}version $version major $major minor $minor tiny $tiny ${OUTNOCOL}
+echo -e ${OUTGREEN}full path: $toppath ${OUTNOCOL}
 
 if [ ! -d ${topdir} ] ; then
   mkdir $topdir
@@ -174,17 +198,17 @@ done
 if [ "$whichftn" == "unknown" ] ; then
 # for now not g95 option ...
 #  whichg95=`which g95 | grep -v "no g95 in"`
-  if [ ! -z "${whichg95}" ] ; then 
+  if [ ! -z "${whichg95}" ] ; then
      whichftn="g95"
   else
 #    echo "no g95"
     whichgfortran=`which gfortran | grep -v "no gfortran in"`
-    if [ ! -z "${whichgfortran}" ] ; then 
+    if [ ! -z "${whichgfortran}" ] ; then
        whichftn="gfortran"
     else
 #      echo "no gfortran"
       whichg77=`which g77 | grep -v "no g77 in"`
-      if [ ! -z "${whichg77}" ] ; then 
+      if [ ! -z "${whichg77}" ] ; then
          whichftn="g77"
       else
          echo "could not find a fortran compiler (g95, gfortran, g77)"
@@ -193,11 +217,11 @@ if [ "$whichftn" == "unknown" ] ; then
   fi
 fi
 export FORT=$whichftn
-echo "using $FORT as fortran compiler"
+echo -e "${OUTGREEN}using $FORT as fortran compiler${OUTNOCOL}"
 
 ############################################################################
 #
-# make "inc" symlink 
+# make "inc" symlink
 # (various scripts disagree about where the include files should live)
 #
 cd src
@@ -214,8 +238,8 @@ cd ${toppath}
 #
 add2link()
 {
- # routine for building up linkage "-Lpath -llibrary" in variable 
- # given by varname (arg 1) for library (arg 2) in potential locations 
+ # routine for building up linkage "-Lpath -llibrary" in variable
+ # given by varname (arg 1) for library (arg 2) in potential locations
  # (args 3+).  Don't repeat location in string.  Look for various extensions
  #
  varname=$1
@@ -247,7 +271,7 @@ add2link()
 #
 ############################################################################
 #
-# look for the CERNLIB libraries:  pdflib[804], mathlib, kernlib 
+# look for the CERNLIB libraries:  pdflib[804], mathlib, kernlib
 # these are needed in order to satisfy the removed dummy routines
 # if they can't be found then don't remove the dummies
 #
@@ -256,18 +280,18 @@ if [ "$dummyaction" = "keep" ] ; then
   echo requested to keep dummy PDFSET, STRUCTM and STRUCTP
 else
   missinglib=""
-  add2link CERNLINK pdflib $CERNLIB $CERNLIBS $CERN_DIR/lib $CERN_ROOT/lib 
+  add2link CERNLINK pdflib $CERNLIB $CERNLIBS $CERN_DIR/lib $CERN_ROOT/lib
   if [ ${foundlib} -eq 0 ] ; then
-    add2link CERNLINK pdflib804 $CERNLIB $CERNLIBS $CERN_DIR/lib $CERN_ROOT/lib 
-    if [ ${foundlib} -eq 0 ] ; then 
+    add2link CERNLINK pdflib804 $CERNLIB $CERNLIBS $CERN_DIR/lib $CERN_ROOT/lib
+    if [ ${foundlib} -eq 0 ] ; then
       missinglib="$missinglib pdflib[804]"
     fi
   fi
-  add2link CERNLINK mathlib $CERNLIB $CERNLIBS $CERN_DIR/lib $CERN_ROOT/lib 
+  add2link CERNLINK mathlib $CERNLIB $CERNLIBS $CERN_DIR/lib $CERN_ROOT/lib
   if [ ${foundlib} -eq 0 ] ; then
     missinglib="$missinglib mathlib"
   fi
-  add2link CERNLINK kernlib $CERNLIB $CERNLIBS $CERN_DIR/lib $CERN_ROOT/lib 
+  add2link CERNLINK kernlib $CERNLIB $CERNLIBS $CERN_DIR/lib $CERN_ROOT/lib
   if [ ${foundlib} -eq 0 ] ; then
     missinglib="$missinglib kernlib"
   fi
@@ -306,7 +330,7 @@ cd ${toppath}/download
 whichfetchit=`which wget | grep -v "no wget in"`
 if [ ! -z "${whichfetchit}" ] ; then
   echo use \"wget\" for fetching files
-  fetchit='wget '
+  fetchit='wget --no-check-certificate '
 else
   whichfetchit=`which curl | grep -v "no curl in"`
   if [ ! -z "${whichfetchit}" ] ; then
@@ -329,7 +353,7 @@ if [ $mt -lt 410 ] ; then
 # old location, unzip .f file
   basef=pythia${major}${minor}${tiny}.f
   #location=http://www.thep.lu.se/~torbjorn/pythia
-  location=http://home.thep.lu.se/~torbjorn/pythia
+  #location=http://home.thep.lu.se/~torbjorn/pythia
   gzipped=""
 elif [ $mt -eq 410 ] ; then
 # not a case we can handle
@@ -340,15 +364,16 @@ else
 # new location, .f file is gzipped
   basef=pythia${major}${minor}${tiny}.f
   #location=hhttp://home.thep.lu.se/~torbjorn/pythia6
-  location=http://home.thep.lu.se/~torbjorn/pythia6
+  #location=http://home.thep.lu.se/~torbjorn/pythia6
+  location=https://pythia.org/download/pythia6
   gzipped=""
 fi
 # if we don't already have it, fetch the .f file
 if [ ! -f ${basef}_with_dummies -o ${refetch} -ne 0 ] ; then
-  echo "${fetchit} ${location}/${basef}${gzipped}"
+  echo -e "${OUTCYAN}${fetchit} ${location}/${basef}${gzipped} ${OUTNOCOL}"
   $fetchit ${location}/${basef}${gzipped}
   if [ ! ${basef}${gzipped} ] ; then
-    echo "Sorry could not fetch ${basef}${gzipped} from ${location}"
+    echo -e "${OUTRED}Sorry could not fetch ${basef}${gzipped} from ${location}${OUTNOCOL}"
     exit 1
   fi
   if [ -n "${gzipped}" ] ; then
@@ -365,7 +390,7 @@ fi
 if [ ! -f pythia6.tar.gz -o ${refetch} -ne 0 ] ; then
   # rooti="ftp://root.cern.ch/root/pythia6.tar.gz"
   rooti=https://root.cern.ch/download/pythia6.tar.gz
-  echo "${fetchit} ${rooti}" 
+  echo -e "${OUTCYAN}${fetchit} ${rooti}${OUTNOCOL}"
   ${fetchit} ${rooti}
 fi
 
@@ -412,7 +437,7 @@ ifeq "\$(UNAME)" "Linux"
     AR=ar
     F77=$FORT
     FFLAG= -O -fno-second-underscore -fPIC $m32flag
-    CPP = gcc -E 
+    CPP = gcc -E
     CPPFLG= -C -P
 endif
 ifeq "\$(UNAME)" "Darwin"
@@ -433,10 +458,10 @@ FOBJS = \$(filter-out pdfdum.o,\$(FOBJSALL))
 
 #------------------------------------------
 
-all: \$(LIB)/liblund.a \$(LIB)/pydata.o 
+all: \$(LIB)/liblund.a \$(LIB)/pydata.o
 
-\$(LIB)/liblund.a: \$(FOBJS) 
-	\$(AR) -urs \$(LIB)/liblund.a \$(FOBJS) 
+\$(LIB)/liblund.a: \$(FOBJS)
+	\$(AR) -urs \$(LIB)/liblund.a \$(FOBJS)
 
 \$(LIB)/pydata.o: pydata.o
 	cp -p pydata.o \$(LIB)/pydata.o
@@ -458,7 +483,7 @@ veryclean:
 .f.o:
 	\$(F77) \$(FFLAG) -c \$<
 
-.F.o: 
+.F.o:
 	\$(F77) \$(FFLAG) -c \$<
 
 EOF
@@ -472,17 +497,21 @@ echo initial ${whichfsplit}
 if [ -z "${whichfsplit}" ] ; then
   echo "No 'fsplit' -- can't build library without it"
   echo "try to build fsplit"
-  echo "$fetchit -O http://home.fnal.gov/~rhatcher/fsplit.c"
-  $fetchit http://home.fnal.gov/~rhatcher/fsplit.c
+#  echo -e "${OUTCYAN}$fetchit -O http://home.fnal.gov/~rhatcher/fsplit.c ${OUTNOCOL}"
+#  $fetchit http://home.fnal.gov/~rhatcher/fsplit.c
+  echo -e "${OUTCYAN}$fetchit https://scisoft.fnal.gov/scisoft/packages/fsplit/fsplit.c ${OUTNOCOL}"
+  $fetchit https://scisoft.fnal.gov/scisoft/packages/fsplit/fsplit.c
+
   gcc -o fsplit fsplit.c
   PATH=.:${PATH}
   whichfsplit=`which fsplit`
   echo "built ${whichfsplit}"
+
 fi
 if [ ! -z "${whichfsplit}" ] ; then
   echo "build static lund library"
   if [ ${doclean} -gt 0 ] ; then rm -f *.f ; fi
-  if [ ! -f pydata.f ] ; then 
+  if [ ! -f pydata.f ] ; then
     fsplit ${toppath}/download/${basef}
 # hack for illegal computation in DATA statement in some versions
 # apparently works for g77 but not gfortran
@@ -509,7 +538,7 @@ fi
 
 ############################################################################
 #
-# build the ROOT interface library libPythia6.so 
+# build the ROOT interface library libPythia6.so
 #
 echo "build ROOT accessable shared library"
 cd ${toppath}/tpythia6_build

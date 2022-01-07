@@ -182,7 +182,7 @@ int main(int argc, char ** argv)
   const EventRecordVisitorI * intranuke = GetIntranuke();
 
   // Initialize an Ntuple Writer to save GHEP records into a ROOT tree
-  NtpWriter ntpw(kNFGHEP, gOptRunNu);
+  NtpWriter ntpw(kNFGHEP, gOptRunNu, gOptRanSeed);
   ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);
   ntpw.Initialize();
 
