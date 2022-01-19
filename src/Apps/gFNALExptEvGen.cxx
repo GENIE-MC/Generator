@@ -143,6 +143,15 @@
                     be repeated multiple times (separated by commas), once for
                     each flux neutrino species you want to consider, eg
                     '-f somefile.root,12[nuehst],-12[nuebarhst],14[numuhst]'
+                  - Code implicitly assumes the binning for multiple flavors
+                    is the same for all histograms
+                  - Variable bin width flux histograms are modified to account
+                    for incorrect sampling of TH1D::GetRandom() prior to ROOT
+                    version 9.99.99
+                    + notation such as "12[nuehst]WIDTH" forces bin width adjustment
+                      no matter variable bin width histogram or not
+                    + notation such as "12[nuehst]NOWIDTH" prevents bin width
+                      adjustment 
                   - When using flux from histograms then there is no point in
                     using a 'detailed detector geometry description' as your
                     flux input contains no directional information for those
@@ -1671,6 +1680,9 @@ void ParseFluxHst(string flux)
     string::size_type jend = close_bracket;
     string nutype = nutype_and_histo.substr(ibeg,iend-ibeg);
     string histo  = nutype_and_histo.substr(jbeg,jend-jbeg);
+    string extra  = nutype_and_histo.substr(jend+1,string::npos);
+    LOG("gevgen_fnal", pNOTICE) // pDEBUG
+      << " =======> nutype " << nutype << " histo " << histo << " extra " << extra;
     // access specified histogram from the input root file
     TH1D * ihst = (TH1D*) flux_file.Get(histo.c_str());
     if(!ihst) {
@@ -1686,16 +1698,27 @@ void ParseFluxHst(string flux)
     TH1D* spectrum = (TH1D*)ihst->Clone();
     spectrum->SetNameTitle("spectrum","neutrino_flux");
     spectrum->SetDirectory(0);
-    //// and remove bins outside the emin,emax range (not for gFNALExptEvGen)
-    //for(int ibin = 1; ibin <= hst->GetNbinsX(); ibin++) {
-    //  if(hst->GetBinLowEdge(ibin) + hst->GetBinWidth(ibin) > emax ||
-    //     hst->GetBinLowEdge(ibin) < emin) {
-    //    spectrum->SetBinContent(ibin, 0);
-    //  }
-    //}
-
     // get rid of original
     delete ihst;
+
+    bool force_binwidth = false;
+#if ROOT_VERSION_CODE <= ROOT_VERSION(9,99,99)
+    // GetRandom() sampling on variable bin width histograms does not
+    // correctly account for bin widths for all versions of ROOT prior
+    // to (currently forever).  At some point this might change and
+    // the necessity of this code snippet will go away
+    TAxis* xaxis = spectrum->GetXaxis();
+    if (xaxis->IsVariableBinSize()) force_binwidth = true;
+#endif
+    if ( extra == "WIDTH"   ) force_binwidth = true;
+    if ( extra == "NOWIDTH" ) force_binwidth = false;
+    if ( force_binwidth ) {
+      for(int ibin = 1; ibin <= spectrum->GetNbinsX(); ++ibin) {
+        double data = spectrum->GetBinContent(ibin);
+        double width = spectrum->GetBinWidth(ibin);
+        spectrum->SetBinContent(ibin,data*width);
+      }
+    }
 
     // convert neutrino name -> pdg code
     int pdg = atoi(nutype.c_str());
