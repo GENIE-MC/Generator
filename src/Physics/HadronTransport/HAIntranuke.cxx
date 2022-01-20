@@ -1408,7 +1408,8 @@ void HAIntranuke::LoadConfig(void)
   GetParam( "HAINUKE-DelRPion",    fDelRPion ) ;
   GetParam( "HAINUKE-DelRNucleon", fDelRNucleon ) ;
 
-  GetParamDef( "FSI-Pion-MFPScale",              fPionMFPScale,           1.0 ) ;
+  GetParamDef( "FSI-ChargedPion-MFPScale",       fChPionMFPScale,         1.0 ) ;
+  GetParamDef( "FSI-NeutralPion-MFPScale",       fNeutralPionMFPScale,    1.0 ) ;
   GetParamDef( "FSI-Pion-FracCExScale",          fPionFracCExScale,       1.0 ) ;
   GetParamDef( "FSI-Pion-FracAbsScale",          fPionFracAbsScale,       1.0 ) ;
   GetParamDef( "FSI-Pion-FracElasScale",         fPionFracElasScale,      1.0 ) ;

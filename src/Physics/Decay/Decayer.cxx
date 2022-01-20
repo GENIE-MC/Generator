@@ -157,6 +157,7 @@ void Decayer::LoadConfig(void)
   // should be decay before the event is passed to the detector particle
   // transport MC.
   //
+
   this->GetParam("RunBeforeHadronTransport", fRunBefHadroTransp) ;
 
   // Allow user to specify a list of particles to be decayed
@@ -170,6 +171,12 @@ void Decayer::LoadConfig(void)
     assert(kv.size()==2);
     int pdgc = atoi(kv[1].c_str());
     TParticlePDG * p = PDGLibrary::Instance()->Find(pdgc);
+    if ( ! p ) {
+      LOG("Decay",pFATAL) << "No PDGLibrary entry for pdgc=" << pdgc
+                          << " (" << kv[1].c_str()
+                          << "), check CommonDecay.xml";
+      continue;
+    }
     if(decay) {
        LOG("Decay", pDEBUG)
             << "Configured to decay " <<  p->GetName();

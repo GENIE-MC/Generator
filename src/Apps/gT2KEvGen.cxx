@@ -772,7 +772,7 @@ int main(int argc, char ** argv)
   // *************************************************************************
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
-  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
+  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
   ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);
   ntpw.Initialize();
 

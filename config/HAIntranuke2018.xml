@@ -57,16 +57,18 @@ DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength
     <!-- Note that now all these parameters are not mandatory and their default is 1
          they are reported just to inform the user what can be tweaked -->
     <!--
-    <param type="double" name="FSI-Pion-MFPScale">           1.000 </param>
-    <param type="double" name="FSI-Pion-FracCExScale">       1.000 </param>
-    <param type="double" name="FSI-Pion-FracInelScale">      1.000 </param>
-    <param type="double" name="FSI-Pion-FracAbsScale">       1.000 </param>
-    <param type="double" name="FSI-Pion-FracPiProdScale">    1.000 </param>
-    <param type="double" name="FSI-Nucleon-MFPScale">        1.000 </param>
-    <param type="double" name="FSI-Nucleon-FracCExScale">    1.000 </param>
-    <param type="double" name="FSI-Nucleon-FracInelScale">   1.000 </param>
-    <param type="double" name="FSI-Nucleon-FracAbsScale">    1.000 </param>
-    <param type="double" name="FSI-Nucleon-FracPiProdScale"> 1.000 </param>
+    <param type="double" name="FSI-ChargedPion-MFPScale">     1.000 </param>
+    <param type="double" name="FSI-NeutralPion-MFPScale">     1.000 </param>
+    <param type="double" name="FSI-Pion-FracCExScale">        1.000 </param>
+    <param type="double" name="FSI-Pion-FracInelScale">       1.000 </param>
+    <param type="double" name="FSI-ChargedPion-FracAbsScale"> 1.000 </param>
+    <param type="double" name="FSI-NeutralPion-FracAbsScale"> 1.000 </param>
+    <param type="double" name="FSI-Pion-FracPiProdScale">     1.000 </param>
+    <param type="double" name="FSI-Nucleon-MFPScale">         1.000 </param>
+    <param type="double" name="FSI-Nucleon-FracCExScale">     1.000 </param>
+    <param type="double" name="FSI-Nucleon-FracInelScale">    1.000 </param>
+    <param type="double" name="FSI-Nucleon-FracAbsScale">     1.000 </param>
+    <param type="double" name="FSI-Nucleon-FracPiProdScale">  1.000 </param>
     -->
     
   </param_set>

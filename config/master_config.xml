@@ -11,6 +11,7 @@
    <config alg="genie::HNIntranuke2018">                 HNIntranuke2018.xml                 </config>
    <config alg="genie::HINCLCascadeIntranuke">           HINCLCascadeIntranuke.xml           </config>
    <config alg="genie::HG4BertCascIntranuke">            HG4BertCascIntranuke.xml            </config>
+   <config alg="genie::CascadeReweight">                 CascadeReweight.xml                 </config>
    <config alg="genie::UnstableParticleDecayer">         UnstableParticleDecayer.xml         </config>
    <config alg="genie::PauliBlocker">                    PauliBlocker.xml                    </config>
    <config alg="genie::NucDeExcitationSim">              NucDeExcitationSim.xml              </config>
@@ -161,6 +162,7 @@
    <config alg="genie::DMDISXSec">                   DMDISXSec.xml                   </config>
    <config alg="genie::GLRESXSec">                   GLRESXSec.xml                   </config>
    <config alg="genie::HEDISXSec">                   HEDISXSec.xml                   </config>
+   <config alg="genie::BostedChristyEMPXSec">        BostedChristyEMPXSec.xml        </config>
 
    <!--  ****** CONFIGURATION FOR XSEC ALGORITHMS ****** -->
    <config alg="genie::AhrensNCELPXSec">                    AhrensNCELPXSec.xml                    </config>
@@ -209,7 +211,11 @@
    <config alg="genie::ReinSehgalRESXSecFast">              ReinSehgalRESXSecFast.xml              </config>
    <config alg="genie::BertuzzoDNuCOHPXSec">                BertuzzoDNuCOHPXSec.xml                </config>
    <config alg="genie::HybridXSecAlgorithm">                HybridXSecAlgorithm.xml                </config>
-   <config alg="genie::HEDISPXSec">                         HEDISPXSec.xml                          </config>
+   <config alg="genie::HEDISPXSec">                         HEDISPXSec.xml                         </config>
+   <config alg="genie::XSecScaleMap">                       XSecScaleMap.xml                       </config>
+   <config alg="genie::MECScaleVsW">                        MECScaleVsW.xml                        </config>
+   <config alg="genie::XSecLinearCombinations">             XSecLinearCombinations.xml             </config>
+   <config alg="genie::QvalueShifter">                      QvalueShifter.xml                      </config>
 
    <!--  ****** CONFIGURATION FOR NUCLEAR ENV. ALGORITHMS ****** -->
    <config alg="genie::NuclearModelMap">             NuclearModelMap.xml             </config>

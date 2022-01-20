@@ -85,7 +85,7 @@ void DipoleELFormFactorsModel::Configure(string param_set)
 void DipoleELFormFactorsModel::LoadConfig(void)
 {
   // vector mass
-  GetParam( "EL-Mv", fMv ) ;
+  GetParam( "QEL-Mv", fMv ) ;
   fMv2 = TMath::Power(fMv,2);
 
   // anomalous magnetic moments

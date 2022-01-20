@@ -20,6 +20,9 @@
 #ifndef _APP_INIT_UTILS_H_
 #define _APP_INIT_UTILS_H_
 
+#include <string>
+using std::string;
+
 namespace genie {
 namespace utils {
 

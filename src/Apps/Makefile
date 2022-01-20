@@ -32,7 +32,8 @@ TGT_BASE =  gevgen          \
             gntpc           \
             gpdfcomp        \
             gsfcomp         \
-            gmkhedissf
+            gmkhedissf      \
+            gconfigdump
 
 ifeq ($(strip $(GOPT_ENABLE_FNAL)),YES)
 TGT_BASE += gevgen_fnal
@@ -248,6 +249,13 @@ $(GENIE_BIN_PATH)/gsfcomp: gSFComp.o $(call find_libs,gsfcomp)
 $(GENIE_BIN_PATH)/gmkhedissf: gMakeHEDISStrucFunc.o $(call find_libs,gmkhedissf)
 	@echo "** Building gmkhedissf"
 	$(LD) $(LDFLAGS) gMakeHEDISStrucFunc.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmkhedissf
+
+# App to dump the full configuration
+#
+$(GENIE_BIN_PATH)/gconfigdump: gConfigDump.o $(call find_libs,gconfigdump)
+	@echo "** Building gconfigdump"
+	$(LD) $(LDFLAGS) gConfigDump.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gconfigdump
+
 
 # CLEANING-UP
 

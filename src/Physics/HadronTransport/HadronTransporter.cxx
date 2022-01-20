@@ -24,6 +24,7 @@
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Conventions/Constants.h"
 #include "Physics/HadronTransport/HadronTransporter.h"
+#include "Physics/HadronTransport/CascadeReweight.h"
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
@@ -79,6 +80,11 @@ void HadronTransporter::ProcessEventRecord(GHepRecord * evrec) const
   // Use the specified intrsnuclear rescattering model
   LOG("HadTransp", pINFO)  << "Calling the selected hadron transport MC";
   fHadTranspModel->ProcessEventRecord(evrec);
+
+  // Process Event record for the cascade reweight if required:
+  if(fCascadeReweight) fCascadeReweight->ProcessEventRecord(evrec);
+
+  return ;
 }
 //___________________________________________________________________________
 void HadronTransporter::TransportInTransparentNuc(GHepRecord * evrec) const
@@ -133,6 +139,9 @@ void HadronTransporter::Configure(string param_set)
 
   r.Set("HadronTransp-Enable", algos -> GetBool("HadronTransp-Enable") ) ;
   r.Set("HadronTransp-Model",  algos -> GetAlg("HadronTransp-Model")   ) ;
+  if( algos->Exists("CascadeReweightAlg") ) {
+    r.Set("CascadeReweightAlg",  algos -> GetAlg("CascadeReweightAlg")   ) ;
+  }
 
   Algorithm::Configure(r) ;
 
@@ -141,6 +150,8 @@ void HadronTransporter::Configure(string param_set)
 //___________________________________________________________________________
 void HadronTransporter::LoadConfig(void)
 {
+  bool good_config = true ;
+
   fHadTranspModel = 0;
   GetParam("HadronTransp-Enable", fEnabled ) ;
 
@@ -154,7 +165,26 @@ void HadronTransporter::LoadConfig(void)
 
      fHadTranspModel = 
          dynamic_cast<const EventRecordVisitorI *> ( this -> SubAlg("HadronTransp-Model") );
-     assert(fHadTranspModel);
+
+     if(!fHadTranspModel){
+       good_config = false ;
+       LOG("HadronTransporter", pERROR) << "The SubAlg HadronTransp-Model is not a XSecAlgorithmI";
+     }
+
+     // Read optional CascadeReweight EventRecordVisitorI
+     fCascadeReweight = nullptr; 
+     if( GetConfig().Exists("CascadeReweightAlg") ) {
+       fCascadeReweight = dynamic_cast<const CascadeReweight *> ( this->SubAlg("CascadeReweightAlg") );
+       if( !fCascadeReweight ) {
+	 good_config = false ; 
+	 LOG("HadronTransporter", pERROR) << "The required CascadeReweightAlg does not exist. AlgID is : " << SubAlg("CascadeReweightAlg")->Id() ;
+       }
+     }
+
+     if( ! good_config ) {
+       LOG("HadronTransporter", pERROR) << "Configuration has failed.";
+       exit(78) ;
+     }
   }
 }
 //___________________________________________________________________________

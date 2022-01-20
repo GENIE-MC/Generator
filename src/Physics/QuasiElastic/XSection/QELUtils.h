@@ -38,8 +38,15 @@ namespace genie {
     // ground state
     kUseGroundStateRemnant,
 
-    // Leave the struck nucleon on shell, effectively ignoring its binding energy
-    kOnShell
+    // Leave the struck nucleon on shell, effectively ignoring its binding
+    // energy
+    kOnShell,
+
+    // Use a prescription equivalent to that of the Valencia model (see
+    // Eq. (43) in https://arxiv.org/abs/nucl-th/0408005). In this case,
+    // the effective energy transfer implies an off-shell hit nucleon
+    // total energy in the initial state.
+    kValenciaStyleQValue,
   } QELEvGen_BindingMode_t;
 
   namespace utils {

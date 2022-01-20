@@ -51,43 +51,47 @@ For more information, visit http://www.genie-mc.org
 ## Authors
 
 <pre>
-Luis Alvarez-Ruso [9] < Luis.Alvarez \at ific.uv.es >, 
-Costas Andreopoulos (*) [5,7] < constantinos.andreopoulos \at cern.ch >, 
-Adi Ashkenazi [4] < adishka \at gmail.com >, 
-Christopher Barry [5] < C.Barry \at liverpool.ac.uk >, 
-Steve Dennis [5] < s.r.dennis \at liverpool.ac.uk >, 
-Steve Dytman [6] < dytman \at pitt.edu >, 
-Hugh Gallagher [8] < hugh.gallagher \at tufts.edu >, 
-Steven Gardiner[3] < gardiner \at fnal.gov >, 
-Walter Giele [3] < giele \at fnal.gov >, 
-Robert Hatcher [3] < rhatcher \at fnal.gov >, 
-Or Hen [4] < hen \at mit.edu >, 
-Libo Jiang [6] < libojiang8584 \at gmail.com >, 
-Rhiannon Jones [5] < rhiannon.jones \at liverpool.ac.uk >, 
-Igor Kakorin [2] < idkakorin \at gmail.com >, 
-Konstantin Kuzmin [2] < kkuzmin \at theor.jinr.ru >, 
+Luis Alvarez-Ruso [4] < Luis.Alvarez \at ific.uv.es >, 
+Costas Andreopoulos (*) [7,10] < constantinos.andreopoulos \at cern.ch >, 
+Adi Ashkenazi [8] < adishka \at gmail.com >, 
+Christopher Barry [7] < C.Barry \at liverpool.ac.uk >, 
+Steve Dennis [7] < s.r.dennis \at liverpool.ac.uk >, 
+Steve Dytman [9] < dytman \at pitt.edu >, 
+Hugh Gallagher [11] < hugh.gallagher \at tufts.edu >, 
+Alfonso Andres Garcia Soto [3,4]  < aagarciasoto \at km3net.de >,
+Steven Gardiner[2] < gardiner \at fnal.gov >, 
+Walter Giele [2] < giele \at fnal.gov >, 
+Robert Hatcher [2] < rhatcher \at fnal.gov >, 
+Or Hen [8] < hen \at mit.edu >, 
+Libo Jiang [9] < libojiang8584 \at gmail.com >, 
+Rhiannon Jones [7] < rhiannon.jones \at liverpool.ac.uk >, 
+Igor Kakorin [6] < idkakorin \at gmail.com >, 
+Konstantin Kuzmin [5,6] < kkuzmin \at theor.jinr.ru >, 
 Anselmo Meregaglia [1] < anselmo.meregaglia \at cern.ch >, 
-Donna Naples [6], 
-Vadim Naumov [2] < vnaumov \at theor.jinr.ru >,  
-Afroditi Papadopoulou [4] < apapadop \at mit.edu >, 
-Gabriel Perdue [3] < perdue \at fnal.gov >, 
-Marco Roda [5]  < marco.roda \at liverpool.ac.uk >, 
-Vladyslav Syrotenko [8]  < Vladyslav.Syrotenko \at tufts.edu >, 
-Júlia Tena Vidal [5]  < j.tena-vidal \at liverpool.ac.uk >, 
-Jeremy Wolcott [8]  < jwolcott \at fnal.gov >, and 
-Julia Yarba [3]  < yarba_j \at fnal.gov >
+Donna Naples [9], 
+Vadim Naumov [6] < vnaumov \at theor.jinr.ru >,  
+Afroditi Papadopoulou [8] < apapadop \at mit.edu >, 
+Gabriel Perdue [2] < perdue \at fnal.gov >, 
+Marco Roda [7]  < marco.roda \at liverpool.ac.uk >, 
+Vladyslav Syrotenko [11]  < Vladyslav.Syrotenko \at tufts.edu >, 
+Júlia Tena Vidal [7]  < j.tena-vidal \at liverpool.ac.uk >, 
+Jeremy Wolcott [11]  < jwolcott \at fnal.gov >, 
+Natalie Wright [8], and 
+Julia Yarba [2]  < yarba_j \at fnal.gov >
 
 (The GENIE Collaboration)
 
 (1) CENBG, Université de Bordeaux, CNRS/IN2P3, 33175 Gradignan, France
-(2) Joint Institute for Nuclear Research (JINR), Dubna, Moscow region, 141980, Russia
-(3) Fermi National Accelerator Laboratory, Batavia, Illinois 60510, USA
-(4) Massachusetts Institute of Technology, Dept. of Physics, Cambridge, MA 02139, USA
-(5) University of Liverpool, Dept. of Physics, Liverpool L69 7ZE, UK 
-(6) University of Pittsburgh, Dept. of Physics and Astronomy, Pittsburgh PA 15260, USA
-(7) STFC Rutherford Appleton Laboratory, Particle Physics Dept., Oxfordshire OX11 0QX, UK
-(8) Tufts University, Dept. of Physics and Astronomy, Medford MA 02155, USA
-(9) University of Valencia, Valencia, Spain
+(2) Fermi National Accelerator Laboratory, Batavia, Illinois 60510, USA
+(3) Harvard University, Dept. of Physics, Cambridge, MA 02138, USA
+(4) Instituto de Física Corpuscular (IFIC), Consejo Superior de Investigaciones Científicas (CSIC) y de la Universitat de Valéncia (UV), 46980, Paterna, Valéncia, Spain
+(5) Alikhanov Institute for Theoretical and Experimental Physics (ITEP) of NRC "Kurchatov Institute", Moscow, 117218, Russia 
+(6) Joint Institute for Nuclear Research (JINR), Dubna, Moscow region, 141980, Russia
+(7) University of Liverpool, Dept. of Physics, Liverpool L69 7ZE, UK 
+(8) Massachusetts Institute of Technology, Dept. of Physics, Cambridge, MA 02139, USA
+(9) University of Pittsburgh, Dept. of Physics and Astronomy, Pittsburgh PA 15260, USA
+(10) STFC Rutherford Appleton Laboratory, Particle Physics Dept., Harwell Oxford Campus, Oxfordshire OX11 0QX, UK
+(11) Tufts University, Dept. of Physics and Astronomy, Medford MA 02155, USA
 
 --------------------
 (*) Corresponding Author:

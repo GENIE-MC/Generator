@@ -16,7 +16,7 @@
 #   [--cycle]         : default: 01
 #   [--use-valgrind]  : default: off
 #   [--batch-system]  : <PBS, LyonPBS, LSF, slurm, HTCondor, HTCondor_PBS, none>, default: PBS
-#   [--queue]         : default: prod
+#   [--queue]         : default: prod. LyonPBS default: P_gdrnu_genie
 #   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
 #   [--jobs-topdir]   : top level dir for job files, default: $PWD
 #   [--gen-list]      : comma separated list of event generator list, default all
@@ -75,7 +75,11 @@ $arch           = "SL6.x86_64"                  unless defined $arch;
 $production     = "routine_validation"          unless defined $production;
 $cycle          = "01"                          unless defined $cycle;
 $batch_system   = "PBS"                         unless defined $batch_system;
-$queue          = "prod"                        unless defined $queue;
+$queue_default  = "prod";
+if ( $batch_system eq 'LyonPBS' ) {
+    $queue_default  = "P_gdrnu_genie" ;
+}
+$queue          = $queue_default                unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = $ENV{'PWD'}                   unless defined $jobs_topdir;
 $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
@@ -225,7 +229,7 @@ foreach $nu ( @nu_list ) {
          $batch_script = "$filename_template.pbs";
          open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
          print PBS "#!/bin/bash \n";
-         print PBS "#\$ -P P_$ENV{'GROUP'} \n";
+         print PBS "#\$ -P $queue \n";
          print PBS "#\$ -N $jobname \n";
          print PBS "#\$ -o $filename_template.pbsout.log \n";
          print PBS "#\$ -e $filename_template.pbserr.log \n";
