@@ -113,7 +113,7 @@ InteractionList *
 
   InteractionList * intlist = new InteractionList;
 
-  ProcessInfo proc_info(kScPhotonRES, kIntWeakCC);
+  ProcessInfo proc_info(kScPhotonResonance, kIntWeakCC);
 
   int probepdg = init_state.ProbePdg();
   bool hasP = (init_state.Tgt().Z() > 0);
@@ -146,7 +146,7 @@ InteractionList *
 {
 
   InteractionList * intlist = new InteractionList;
-  ProcessInfo   proc_info(kScPhotonCOH, kIntWeakCC);
+  ProcessInfo   proc_info(kScPhotonCoherent, kIntWeakCC);
   Interaction * interaction = new Interaction(init_state, proc_info);
   intlist->push_back(interaction);
   return intlist;

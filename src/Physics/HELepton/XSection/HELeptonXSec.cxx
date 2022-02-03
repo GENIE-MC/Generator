@@ -73,7 +73,7 @@ double HELeptonXSec::Integrate(
   // If yes, calculate the nuclear cross section based on that value.
   //
   XSecSplineList * xsl = XSecSplineList::Instance();
-  if( !xsl->IsEmpty() && !proc_info.IsPhotonCOH() ) {
+  if( !xsl->IsEmpty() && !proc_info.IsPhotonCoherent() ) {
 
     Interaction * interaction = new Interaction(*in);
     Target * target = interaction->InitStatePtr()->TgtPtr();
@@ -84,7 +84,7 @@ double HELeptonXSec::Integrate(
       NNucl = init_state.Tgt().Z();
       target->SetId(kPdgTgtFreeP);
     }
-    else if ( proc_info.IsPhotonRES() ) {
+    else if ( proc_info.IsPhotonResonance() ) {
       int nucpdgc = init_state.Tgt().HitNucPdg();
       if (pdg::IsProton(nucpdgc)) {
         NNucl = init_state.Tgt().Z();
@@ -118,7 +118,7 @@ double HELeptonXSec::Integrate(
 
   double xsec = 0.;
   ROOT::Math::IBaseFunctionMultiDim * func;
-  if ( proc_info.IsPhotonCOH() ) {
+  if ( proc_info.IsPhotonCoherent() ) {
     double kine_min[3] = { -1.,  0.,  0. }; 
     double kine_max[3] = {  1.,  1.,  1. }; 
     func = new utils::gsl::d2Xsec_dn1dn2dn3_E(model, interaction);

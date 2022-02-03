@@ -144,7 +144,7 @@ int Interaction::FSPrimLeptonPdg(void) const
   if (proc_info.IsNuElectronElastic())
     return kPdgElectron;
 
-  if (proc_info.IsGlashowResonance() || proc_info.IsPhotonRES())
+  if (proc_info.IsGlashowResonance() || proc_info.IsPhotonResonance())
     return xclstag.FinalLeptonPdg();
 
   // vN (Weak-NC) or eN (EM)

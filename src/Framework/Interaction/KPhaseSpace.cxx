@@ -202,12 +202,12 @@ double KPhaseSpace::Threshold(void) const
     double Ethr = 0.5 * (ml*ml-kElectronMass2)/kElectronMass;
     return TMath::Max(0.,Ethr);
   }
-  if(pi.IsPhotonRES()) {
+  if(pi.IsPhotonResonance()) {
     double Mn = tgt.HitNucP4Ptr()->M();
     double Ethr = 0.5 * (ml*ml-TMath::Power(Mn,2))/Mn;
     return TMath::Max(0.,Ethr);
   }
-  if(pi.IsPhotonCOH()) {
+  if(pi.IsPhotonCoherent()) {
     double ml = 0;
     if      (pdg::IsNuE  (TMath::Abs(init_state.ProbePdg()))) ml = kElectronMass;
     else if (pdg::IsNuMu (TMath::Abs(init_state.ProbePdg()))) ml = kMuonMass;
@@ -275,8 +275,8 @@ bool KPhaseSpace::IsAboveThreshold(void) const
       pi.IsNuElectronElastic()  ||
       pi.IsDarkMatterElectronElastic() ||
       pi.IsMEC()                ||
-      pi.IsPhotonCOH()          || 
-      pi.IsPhotonRES()          || 
+      pi.IsPhotonCoherent()          || 
+      pi.IsPhotonResonance()          || 
       pi.IsGlashowResonance())
   {
       E = init_state.ProbeE(kRfLab);

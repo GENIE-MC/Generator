@@ -74,8 +74,8 @@ public:
   bool IsDarkMatterElectronElastic (void) const;
   bool IsInverseBetaDecay        (void) const;
   bool IsGlashowResonance        (void) const;
-  bool IsPhotonRES               (void) const;
-  bool IsPhotonCOH               (void) const;
+  bool IsPhotonResonance         (void) const;
+  bool IsPhotonCoherent          (void) const;
   bool IsAMNuGamma               (void) const;
   bool IsMEC                     (void) const;
   bool IsDiffractive             (void) const;

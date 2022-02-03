@@ -119,8 +119,8 @@ TVector3 VertexGenerator::GenerateVertex(const Interaction * interaction,
     proc_info.IsIMDAnnihilation() ||
     proc_info.IsNuElectronElastic() ||
     proc_info.IsGlashowResonance() ||
-    proc_info.IsPhotonRES() ||
-    proc_info.IsPhotonCOH();
+    proc_info.IsPhotonResonance() ||
+    proc_info.IsPhotonCoherent();
 
   if(is_coh||is_ve) {
     // ** For COH or ve- set a vertex positon on the nuclear boundary

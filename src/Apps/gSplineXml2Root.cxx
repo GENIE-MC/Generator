@@ -613,8 +613,8 @@ void SaveGraphsToRootFile(void)
     else if (proc.IsIMDAnnihilation()  ) { title << "imdanh";}
     else if (proc.IsNuElectronElastic()) { title << "ve";    }
     else if (proc.IsGlashowResonance() ) { title << "glres"; }
-    else if (proc.IsPhotonRES() )        { title << "phres"; }
-    else if (proc.IsPhotonCOH() )        { title << "phcoh"; }
+    else if (proc.IsPhotonResonance() )  { title << "phres"; }
+    else if (proc.IsPhotonCoherent() )   { title << "phcoh"; }
     else                                 { 
       LOG("gspl2root", pWARN) << "Process " << proc
 			      << " scattering type not recognised: spline not added" ;
@@ -1062,7 +1062,7 @@ void SaveGraphsToRootFile(void)
              xsglresnc[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
          }        
        } 
-       if (proc.IsPhotonRES()) {
+       if (proc.IsPhotonResonance()) {
          for(int i=0; i<kNSplineP; i++) { 
              xsphrescc[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
          }    

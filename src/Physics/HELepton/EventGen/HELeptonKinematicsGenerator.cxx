@@ -74,7 +74,7 @@ void HELeptonKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double xsec_max = this->MaxXSec(evrec);
 
   const ProcessInfo & proc_info  = interaction->ProcInfo();
-  if(proc_info.IsPhotonCOH()) {
+  if(proc_info.IsPhotonCoherent()) {
 
     double nupdg = interaction->InitState().ProbePdg(); 
 
@@ -223,7 +223,7 @@ double HELeptonKinematicsGenerator::ComputeMaxXSec(
   ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit");
 
   const ProcessInfo & proc_info  = interaction->ProcInfo();
-  if(proc_info.IsPhotonCOH()) {
+  if(proc_info.IsPhotonCoherent()) {
 
     utils::gsl::d2Xsec_dn1dn2dn3_E f(fXSecModel,interaction,-1);
     min->SetFunction( f );

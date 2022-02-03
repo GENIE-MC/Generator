@@ -130,7 +130,7 @@ bool PhotonCOHPXSec::ValidProcess(const Interaction* interaction) const
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
   const ProcessInfo & proc_info  = interaction->ProcInfo();
-  if(!proc_info.IsPhotonCOH()) return false;
+  if(!proc_info.IsPhotonCoherent()) return false;
 
   const InitialState & init_state = interaction -> InitState();
   if(!pdg::IsLepton(init_state.ProbePdg())) return false;
