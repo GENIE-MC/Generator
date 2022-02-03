@@ -544,6 +544,23 @@ GFluxI * TH1FluxDriver(void)
         spectrum->SetBinContent(ibin, 0);
       }
     }
+    bool force_binwidth = false;
+#if ROOT_VERSION_CODE <= ROOT_VERSION(9,99,99)
+    // GetRandom() sampling on variable bin width histograms does not
+    // correctly account for bin widths for all versions of ROOT prior
+    // to (currently forever).  At some point this might change and
+    // the necessity of this code snippet will go away
+    TAxis* xaxis = spectrum->GetXaxis();
+    if (xaxis->IsVariableBinSize()) force_binwidth = true;
+#endif
+    if ( force_binwidth ) {
+      for(int ibin = 1; ibin <= spectrum->GetNbinsX(); ++ibin) {
+        double data = spectrum->GetBinContent(ibin);
+        double width = spectrum->GetBinWidth(ibin);
+        spectrum->SetBinContent(ibin,data*width);
+      }
+    }
+
 
     LOG("gevgen_dm", pNOTICE) << spectrum->GetEntries();
 

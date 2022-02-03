@@ -39,6 +39,8 @@ public:
 
   // Read options from the command line. Call from all GENIE command-line apps.
   void ReadFromCommandLine(int argc, char ** argv);
+  // Centralized printout of what ReadFromCommandLine() will look for
+  static std::string RunOptSyntaxString(bool include_generator_specific);
 
   // Get options set.
   TuneId * Tune                 (void) const { return fTune;                   }
