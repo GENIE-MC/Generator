@@ -68,7 +68,10 @@
                  The vector file should contain 2 columns corresponding to
                  energy,flux (see $GENIE/data/flux/ for few examples).
               -- A 1-D ROOT histogram (TH1D):
-                 The general syntax is `-f /full/path/file.root,object_name'
+                 The general syntax is `-f /full/path/file.root,object_name<,[NO]WIDTH>'
+                 by default variable bin histograms are multiplied by bin width
+                 if ,NOWIDTH then they are not
+                 if ,WIDTH then they are alway multiplied by bin width
            -o
               Specifies the name of the output file events will be saved in.
            -w
@@ -487,7 +490,7 @@ GFluxI * TH1FluxDriver(void)
     // ** extract specified flux histogram from the input root file
     //
     vector<string> fv = utils::str::Split(gOptFlux,",");
-    assert(fv.size()==2);
+    assert(fv.size()==2 || fv.size()==3);
     assert( !gSystem->AccessPathName(fv[0].c_str()) );
 
     LOG("gevgen", pNOTICE) << "Getting input flux from root file: " << fv[0];
@@ -501,6 +504,8 @@ GFluxI * TH1FluxDriver(void)
       std::exit(1);
     }
     assert(hst);
+    std::string extra = (fv.size()==3) ? fv[2] : "";
+    std::transform(extra.begin(),extra.end(),extra.begin(),::toupper);
 
     LOG("gevgen", pNOTICE) << hst->GetEntries();
 
@@ -523,7 +528,13 @@ GFluxI * TH1FluxDriver(void)
     TAxis* xaxis = spectrum->GetXaxis();
     if (xaxis->IsVariableBinSize()) force_binwidth = true;
 #endif
+    if ( extra == "WIDTH"   ) force_binwidth = true;
+    if ( extra == "NOWIDTH" ) force_binwidth = false;
     if ( force_binwidth ) {
+      LOG("gevgen", pNOTICE)
+        << "multiplying by bin width for histogram " << fv[1]
+        << " as " << spectrum->GetName()
+        << " from " << fv[0];
       for(int ibin = 1; ibin <= spectrum->GetNbinsX(); ++ibin) {
         double data = spectrum->GetBinContent(ibin);
         double width = spectrum->GetBinWidth(ibin);

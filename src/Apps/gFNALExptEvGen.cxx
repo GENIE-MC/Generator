@@ -1639,6 +1639,9 @@ void ParseFluxHst(string flux)
   // Using flux from histograms
   // Extract the root file name & the list of histogram names & neutrino
   // species (specified as 'filename,histo1[species1],histo2[species2],...')
+  // for variable width histograms, default to multiply in the width
+  //   histo1[species1]WIDTH = multiply in the width
+  //   histo1[species1]NOWIDTH = don't multiply in the width
   // possibly with configuration ";r=1.1,dir=(0.1,0.2,0.3),spot=(-1,-2,-3)"
   // appended
   // See documentation on top section of this file.
@@ -1767,6 +1770,10 @@ void ParseFluxHst(string flux)
     if ( extra == "WIDTH"   ) force_binwidth = true;
     if ( extra == "NOWIDTH" ) force_binwidth = false;
     if ( force_binwidth ) {
+      LOG("gevgen_fnal", pNOTICE)
+        << "multiplying by bin width for histogram " << histo
+        << " as " << spectrum->GetName() << " for nutype " << nutype
+        << " from " << gOptFluxFile;
       for(int ibin = 1; ibin <= spectrum->GetNbinsX(); ++ibin) {
         double data = spectrum->GetBinContent(ibin);
         double width = spectrum->GetBinWidth(ibin);
