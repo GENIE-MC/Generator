@@ -233,7 +233,7 @@ std::vector< std::pair<double, const TGeoMaterial*> > ROOTGeomAnalyzer::ComputeM
   for ( sitr = segments.begin(); sitr != segments.end(); ++sitr) {
     const PathSegment& seg = *sitr;
     double pl = seg.GetSummedStepRange();
-    if (seg.fMaterial->GetDensity()>0) MatLengthList.push_back(std::make_pair(pl,seg.fMaterial));
+    MatLengthList.push_back(std::make_pair(pl,seg.fMaterial));
   }
 
   return MatLengthList;
