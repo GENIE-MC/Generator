@@ -47,13 +47,20 @@ Generator-%d                alg     No
 -->
 
   <param_set name="Default"> 
-     <param type="int" name="NGenerators">   6                                    </param>
+     <param type="int" name="NGenerators">   13                                    </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/HEDIS-CC        </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/HEDIS-NC        </param>
      <param type="alg" name="Generator-2">   genie::EventGenerator/GLRES-Mu        </param>
      <param type="alg" name="Generator-3">   genie::EventGenerator/GLRES-Tau       </param>
      <param type="alg" name="Generator-4">   genie::EventGenerator/GLRES-Ele       </param>
      <param type="alg" name="Generator-5">   genie::EventGenerator/GLRES-Had       </param>
+     <param type="alg" name="Generator-6">   genie::EventGenerator/HENuEl-CC       </param>
+     <param type="alg" name="Generator-7">   genie::EventGenerator/HENuEl-NC       </param>
+     <param type="alg" name="Generator-8">   genie::EventGenerator/PhotonRES-Mu    </param>
+     <param type="alg" name="Generator-9">   genie::EventGenerator/PhotonRES-Ele   </param>
+     <param type="alg" name="Generator-10">  genie::EventGenerator/PhotonRES-Tau   </param>
+     <param type="alg" name="Generator-11">  genie::EventGenerator/PhotonRES-Had   </param>
+     <param type="alg" name="Generator-12">  genie::EventGenerator/PhotonCOH       </param>
   </param_set>
 
 </tune_generator_list>
