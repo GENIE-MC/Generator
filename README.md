@@ -63,6 +63,7 @@ Steven Gardiner[2] < gardiner \at fnal.gov >,
 Walter Giele [2] < giele \at fnal.gov >, 
 Robert Hatcher [2] < rhatcher \at fnal.gov >, 
 Or Hen [8] < hen \at mit.edu >, 
+Timothy Hobbs [2] < thobbs \at fnal.gov >, 
 Libo Jiang [9] < libojiang8584 \at gmail.com >, 
 Rhiannon Jones [7] < rhiannon.jones \at liverpool.ac.uk >, 
 Igor Kakorin [6] < idkakorin \at gmail.com >, 
@@ -73,6 +74,7 @@ Vadim Naumov [6] < vnaumov \at theor.jinr.ru >,
 Afroditi Papadopoulou [8] < apapadop \at mit.edu >, 
 Gabriel Perdue [2] < perdue \at fnal.gov >, 
 Marco Roda [7]  < marco.roda \at liverpool.ac.uk >, 
+Noah Steinberg [2],  
 Vladyslav Syrotenko [11]  < Vladyslav.Syrotenko \at tufts.edu >, 
 Júlia Tena Vidal [7]  < j.tena-vidal \at liverpool.ac.uk >, 
 Jeremy Wolcott [11]  < jwolcott \at fnal.gov >, 
@@ -110,7 +112,7 @@ Julia Yarba [2]  < yarba_j \at fnal.gov >
 
 ## Copyright
 
-Copyright (c) 2003-2021, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
+Copyright (c) 2003-2022, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
 
 
 ## Physics & User manual
@@ -155,11 +157,7 @@ If you use GENIE, please **always** cite the following reference:
 }
 </pre>
 
-If you used any of the new model configurations and tunes provided in the GENIE v3* series, please **add the following reference**:
-<pre>
-</pre>
-
-Finally, if you used any of the standard GENIE applications, built-in flux and geometry drivers, or if you used any of its event reweightng and error propagation tools, please **add the following reference**:
+If you used any of the standard GENIE applications, built-in flux and geometry drivers, or if you used any of its event reweightng and error propagation tools, please **add the following reference**:
 <pre>
 @article{Andreopoulos:2015wxa,
       author         = "Andreopoulos, Costas and Barry, Christopher and Dytman,
@@ -173,6 +171,62 @@ Finally, if you used any of the standard GENIE applications, built-in flux and g
       primaryClass   = "hep-ph",
       reportNumber   = "FERMILAB-FN-1004-CD",
       SLACcitation   = "%%CITATION = ARXIV:1510.05494;%%"
+}
+</pre>
+
+Finally, if you used any of the new model configurations and tunes provided in the GENIE v3* series, please consider adding any of the following references is relevant:
+
+<pre>
+@article{GENIE:2021npt,
+    author = "Alvarez-Ruso, Luis and others",
+    collaboration = "GENIE",
+    title = "{Recent highlights from GENIE v3}",
+    eprint = "2106.09381",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ph",
+    reportNumber = "FERMILAB-PUB-21-266-SCD-T",
+    doi = "10.1140/epjs/s11734-021-00295-7",
+    journal = "Eur. Phys. J. ST",
+    volume = "230",
+    number = "24",
+    pages = "4449--4467",
+    year = "2021"
+}
+</pre>
+
+<pre>
+@article{GENIE:2021zuu,
+    author = "Tena-Vidal, J\'ulia and others",
+    collaboration = "GENIE",
+    title = "{Neutrino-nucleon cross-section model tuning in GENIE v3}",
+    eprint = "2104.09179",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ph",
+    reportNumber = "FERMILAB-PUB-20-531-SCD-T",
+    doi = "10.1103/PhysRevD.104.072009",
+    journal = "Phys. Rev. D",
+    volume = "104",
+    number = "7",
+    pages = "072009",
+    year = "2021"
+}
+</pre>
+
+<pre>
+@article{GENIE:2021wox,
+    author = "Tena-Vidal, J\'ulia and others",
+    collaboration = "GENIE",
+    title = "{Hadronization model tuning in genie v3}",
+    eprint = "2106.05884",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ph",
+    reportNumber = "FERMILAB-PUB-21-024-QIS-SCD-T",
+    doi = "10.1103/PhysRevD.105.012009",
+    journal = "Phys. Rev. D",
+    volume = "105",
+    number = "1",
+    pages = "012009",
+    year = "2022"
 }
 </pre>
 

@@ -3,15 +3,16 @@
 
 \class    genie::GLRESGenerator
 
-\brief    Glashow resonance event generator
+\brief    Generator for glashow resonance.
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Alfonso Garcia <aagarciasoto \at km3net.de>
+          IFIC & Harvard University
 
-\created  Feb 15, 2008
+\created  Dec 8, 2021
 
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
+          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -21,6 +22,7 @@
 #define __GENIE_PYTHIA6_ENABLED__
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Physics/HELepton/XSection/Born.h"
 
 #ifdef __GENIE_PYTHIA6_ENABLED__
 #include <TPythia6.h>
@@ -51,7 +53,7 @@ private:
   mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
 #endif
 
-  double fWmin;               // Minimum value of W
+  Born * born;
 
 };
 

@@ -14,7 +14,7 @@
     <param type="int"    name="Quark-Threshold">                             1 </param>
     <param type="int"    name="NGridX">                                    400 </param>
     <param type="int"    name="NGridQ2">                                   400 </param>
-    <param type="double" name="XGrid-Min">                                1e-6 </param>
+    <param type="double" name="XGrid-Min">                                1e-8 </param>
     <param type="double" name="Q2Grid-Min">                                 1. </param>
     <param type="double" name="Q2Grid-Max">                                1e9 </param>
     <param type="double" name="MassW">                                  80.398 </param>
