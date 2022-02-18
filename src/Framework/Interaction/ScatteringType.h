@@ -50,6 +50,8 @@ typedef enum EScatteringType {
   kScInverseBetaDecay,
   kScGlashowResonance,
   kScIMDAnnihilation,
+  kScPhotonCoherent,
+  kScPhotonResonance,
   kScDarkMatterElastic = 101,
   kScDarkMatterDeepInelastic,
   kScDarkMatterElectron
@@ -78,6 +80,8 @@ public:
       case(kScInverseBetaDecay) :        return "IBD";       break;
       case(kScGlashowResonance) :        return "GLR";       break;
       case(kScIMDAnnihilation) :         return "IMDAnh";    break;
+      case(kScPhotonCoherent) :          return "PhotonCOH"; break;
+      case(kScPhotonResonance) :         return "PhotonRES"; break;
       case(kScDarkMatterElastic) :       return "DMEL";      break;
       case(kScDarkMatterDeepInelastic) : return "DMDIS";     break;
       case(kScDarkMatterElectron) :      return "DME";       break;

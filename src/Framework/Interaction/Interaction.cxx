@@ -144,6 +144,9 @@ int Interaction::FSPrimLeptonPdg(void) const
   if (proc_info.IsNuElectronElastic())
     return kPdgElectron;
 
+  if (proc_info.IsGlashowResonance() || proc_info.IsPhotonResonance())
+    return xclstag.FinalLeptonPdg();
+
   // vN (Weak-NC) or eN (EM)
   if (proc_info.IsWeakNC() || proc_info.IsEM() || proc_info.IsWeakMix() || proc_info.IsDarkMatter()) return pdgc;  // EDIT: DM does not change in FS
 
@@ -152,12 +155,6 @@ int Interaction::FSPrimLeptonPdg(void) const
     int clpdgc;
     if (proc_info.IsIMDAnnihilation())
       clpdgc = kPdgMuon;
-    else if (proc_info.IsGlashowResonance()) {
-      if      ( pdg::IsMuon(xclstag.FinalLeptonPdg())     ) clpdgc = kPdgMuon;
-      else if ( pdg::IsTau(xclstag.FinalLeptonPdg())      ) clpdgc = kPdgTau;
-      else if ( pdg::IsElectron(xclstag.FinalLeptonPdg()) ) clpdgc = kPdgElectron;
-      else if ( pdg::IsPion(xclstag.FinalLeptonPdg())     ) clpdgc = kPdgPiP;
-    }
     else
       clpdgc = pdg::Neutrino2ChargedLepton(pdgc);
     return clpdgc;
