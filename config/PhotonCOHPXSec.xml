@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the PhotonCOH xsec algorithm
+-->
+
+  <param_set name="Default"> 
+     <param type="string" name="CommonParam">                 HEDIS-PYTHIA </param>
+     <param type="alg" name="XSec-Integrator"> genie::HELeptonXSec/Default </param>
+  </param_set>
+
+</alg_conf>

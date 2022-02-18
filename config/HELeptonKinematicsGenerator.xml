@@ -3,7 +3,7 @@
 <alg_conf>
 
 <!--
-Configuration for the GLRESKinematicsGenerator EventRecordVisitorI
+Configuration for the HELeptonKinematicsGenerator EventRecordVisitorI
 
 Algorithm Configurable Parameters:
 .......................................................................................................................
@@ -17,10 +17,17 @@ MaxXSec-DiffTolerance    double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsec
                                        if xsec>xsecmax
 Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cached    100.
                                        if xsec>xsecmax
+
+Delta-X1-NuE             double  Yes   Region of X sampled in NuE interactions        0.
+Delta-X1-NuMu            double  Yes   Region of X sampled in NuMu interactions       0.
+Delta-X1-NuTa            double  Yes   Region of X sampled in NuTau interactions      0.
 -->
 
   <param_set name="Default"> 
      <param type="double" name="MaxXSec-SafetyFactor">   1.05                                </param>
+     <param type="double" name="Delta-X1-NuE">           0.000001                            </param>
+     <param type="double" name="Delta-X1-NuMu">          0.1                                 </param>
+     <param type="double" name="Delta-X1-NuTau">         1.0                                 </param>
   </param_set>
 
 </alg_conf>

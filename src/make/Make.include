@@ -527,6 +527,7 @@ CPP_INCLUDES := \
     $(LOG_INCLUDES) \
     $(ROOT_INCLUDES) \
     $(LHAPDF_INCLUDES) \
+    $(APFEL_INCLUDES) \
     $(GSL_INCLUDES) \
     $(GENIE_INCLUDES)
 
@@ -542,6 +543,7 @@ LIBRARIES := $(SYSLIBS) \
              $(ROOT_LIBRARIES) \
              $(PYTHIA6_LIBRARIES) \
              $(LHAPDF_LIBRARIES) \
+             $(APFEL_LIBRARIES) \
              $(XML_LIBRARIES) \
              $(LOG_LIBRARIES) \
              $(GSL_LIBRARIES) \

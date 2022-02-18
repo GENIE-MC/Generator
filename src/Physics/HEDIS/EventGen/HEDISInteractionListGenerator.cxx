@@ -227,3 +227,5 @@ void HEDISInteractionListGenerator::LoadConfigData(void)
   GetParamDef("is-NC", fIsNC, false ) ;
 
 }
+
+
