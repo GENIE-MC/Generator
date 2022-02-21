@@ -33,27 +33,39 @@
 *                    mhso+/:------------------:/+oyhyo/----------:/+syhm                                        *
 *                           NmddhyyyssssyyyhdmmNNNmhhhyyyyhhddmN                                                *
 *                                                                                                               *
-*                                                             Copyright (c) 2003-2020, The GENIE Collaboration  *
+*                                                             Copyright (c) 2003-2022, The GENIE Collaboration  *
 *                                                                                                               *
 *                                                                                                               *
-*             Luis Alvarez-Ruso [9], Costas Andreopoulos [5,7], Adi Ashkenazi [4], Christopher Barry [5],       *
-*                Glória de Sá Pereira [5,7], Steve Dennis [5], Steve Dytman [6], Hugh Gallagher [8],            *
-*               Steven Gardiner [3], Walter Giele [3], Robert Hatcher [3], Or Hen [4], Libo Jiang [6],          *
-*              Igor Kakorin [2], Konstantin Kuzmin [2], Anselmo Meregaglia [1], Donna Naples [6],               *
-*               Vadim Naumov [2], Afroditi Papadopoulou [4], Gabriel Perdue [3], Marco Roda [5],                *
-*            Vladyslav Syrotenko [8], Júlia Tena Vidal [5], Jeremy Wolcott [8], and Julia Yarba [3]             *
+*  Luis Alvarez-Ruso [4], Costas Andreopoulos [7,10], Adi Ashkenazi [8], Steve Dytman [9], Hugh Gallagher [11], *
+*   Alfonso Andres Garcia Soto [3,4], Steven Gardiner [2], Robert Hatcher [2], Or Hen [8], Timothy Hobbs [2],   *
+* Igor Kakorin [6], Konstantin Kuzmin [5,6], Anselmo Meregaglia [1], Vadim Naumov [6], Afroditi Papadopoulou [8]* 
+*    Gabriel Perdue [2], Marco Roda [7], Noah Steinberg [2], Vladyslav Syrotenko [11], Júlia Tena Vidal [7],    *
+*                                      Jeremy Wolcott [11], and Natalie Wright [8]                              *
 *                                                                                                               *
-*                                               (The GENIE Collaboration)                                       *
+*                                             (The GENIE Collaboration)                                         *
 *                                                                                                               *
-*                      [1] CENBG, Université de Bordeaux, CNRS/IN2P3, 33175 Gradignan, France                   *
-*              [2] Joint Institute for Nuclear Research (JINR), Dubna, Moscow region, 141980, Russia            *
-*                     [3] Fermi National Accelerator Laboratory, Batavia, Illinois 60510, USA                   *
-*            [4] Massachusetts Institute of Technology (MIT) Dept. of Physics, Cambridge, MA 02139, USA         *
-*                      [5] University of Liverpool, Dept. of Physics, Liverpool L69 7ZE, UK                     *
-*              [6] University of Pittsburgh, Dept. of Physics and Astronomy, Pittsburgh PA 15260, USA           *
-*             [7] STFC Rutherford Appleton Laboratory, Particle Physics Dept., Oxfordshire OX11 0QX, UK         *
-*                    [8] Tufts University, Dept. of Physics and Astronomy, Medford MA 02155, USA                *
-*                                  [9] University of Valencia, Valencia, Spain                                  *
+*                                  [1] CENBG, Université de Bordeaux, CNRS/IN2P3                                *
+*                                               33175 Gradignan, France                                         *
+*                                    [2] Fermi National Accelerator Laboratory                                  *
+*                                             Batavia, Illinois 60510, USA                                      *
+*                                    [3] Harvard University, Dept. of Physics                                   * 
+*                                               Cambridge, MA 02138, USA                                        *
+*                                    [4] Instituto de Física Corpuscular (IFIC)                                 *
+*                                          46980, Paterna, Valéncia, Spain                                      *
+*      [5] Alikhanov Institute for Theoretical and Experimental Physics (ITEP) of NRC "Kurchatov Institute"     *
+*                                              Moscow, 117218, Russia                                           *
+*                                 [6] Joint Institute for Nuclear Research (JINR)                               *
+*                                        Dubna, Moscow region, 141980, Russia                                   *
+*                                  [7] University of Liverpool, Dept. of Physics                                *
+*                                               Liverpool L69 7ZE, UK                                           *
+*                        [8] Massachusetts Institute of Technology (MIT), Dept. of Physics                      *
+*                                              Cambridge, MA 02139, USA                                         *
+*                          [9] University of Pittsburgh, Dept. of Physics and Astronomy                         *
+*                                              Pittsburgh PA 15260, USA                                         *
+*                        [10] STFC Rutherford Appleton Laboratory, Particle Physics Dept.                       *
+*                                              Oxfordshire OX11 0QX, UK                                         *
+*                             [11] Tufts University, Dept. of Physics and Astronomy                             *
+*                                                Medford MA 02155, USA                                          *
 *                                                                                                               *
 *  Corresponding Author:                                                                                        *
 *  Prof. Costas Andreopoulos  <constantinos.andreopoulos \at cern.ch>                                           *
