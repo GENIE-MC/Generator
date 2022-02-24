@@ -309,8 +309,8 @@ foreach $nu ( @nu_list ) {
 	print SLURM "#!/bin/bash \n";
 	print SLURM "#SBATCH -J $jobname \n";
         print SLURM "#SBATCH -p $queue \n";
-        print SLURM "#SBATCH -o $filename_template.lsfout.log \n";
-        print SLURM "#SBATCH -e $filename_template.lsferr.log \n";
+        print SLURM "#SBATCH -o $filename_template.slurmout.log \n";
+        print SLURM "#SBATCH -e $filename_template.slurmerr.log \n";
 	print SLURM "#SBATCH -t 20:0:0 \n";
 	print SLURM "#SBATCH -L sps \n" if ($batch_system eq 'LyonSlurm');
 	print SLURM "#SBATCH --priority -1 \n" if ( $priority ) ;
