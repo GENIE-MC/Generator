@@ -209,6 +209,18 @@
                     repeated multiple times (separated by commas), once for each
                     flux neutrino species you want to consider, eg
                     '-f somefile.root,12[nuehst],-12[nuebarhst],14[numuhst]'
+                  - Code implicitly assumes the binning for multiple flavors
+                    is the same for all histograms (no checks are made)
+                  - Note that the relative normalization of the flux histograms
+                    is taken into account and is reflected in the relative
+                    frequency of flux neutrinos thrown by the flux driver
+                  - Variable bin width flux histograms are modified to account
+                    for incorrect sampling of TH1D::GetRandom() prior to ROOT
+                    version 9.99.99
+                    + notation such as "12[nuehst]WIDTH" forces bin width
+                      adjustment no matter variable bin width histogram or not
+                    + notation such as "12[nuehst]NOWIDTH" prevents bin width
+                      adjustment
                   - When using flux from histograms then there is no point in using
                     a 'detailed detector geometry description' as your flux input
                     contains no directional information for those flux neutrinos.
@@ -405,7 +417,7 @@
 
 \created February 05, 2008
 
-\cpright Copyright (c) 2003-2020, The GENIE Collaboration
+\cpright Copyright (c) 2003-2022, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          
 */
@@ -1109,6 +1121,9 @@ void GetCommandLineArgs(int argc, char ** argv)
         // Using flux from histograms
         // Extract the root file name & the list of histogram names & neutrino
         // species (specified as 'filename,histo1[species1],histo2[species2],...')
+        // for variable width histograms, default to multiply in the width
+        //   histo1[species1]WIDTH = multiply in the width
+        //   histo1[species1]NOWIDTH = don't multiply in the width
         // See documentation on top section of this file.
         //
         vector<string> fluxv = utils::str::Split(flux,",");
@@ -1148,6 +1163,8 @@ void GetCommandLineArgs(int argc, char ** argv)
             string::size_type jend = close_bracket;
             string nutype = nutype_and_histo.substr(ibeg,iend-ibeg);
             string histo  = nutype_and_histo.substr(jbeg,jend-jbeg);
+            string extra  = nutype_and_histo.substr(jend+1,string::npos);
+            std::transform(extra.begin(),extra.end(),extra.begin(),::toupper);
             // access specified histogram from the input root file
             TH1D * ihst = (TH1D*) flux_file.Get(histo.c_str());
             if(!ihst) {
@@ -1170,6 +1187,29 @@ void GetCommandLineArgs(int argc, char ** argv)
             delete ihst;
             // rename copy
             spectrum->SetName(origname.Data());
+
+            bool force_binwidth = false;
+#if ROOT_VERSION_CODE <= ROOT_VERSION(9,99,99)
+            // GetRandom() sampling on variable bin width histograms does not
+            // correctly account for bin widths for all versions of ROOT prior
+            // to (currently forever).  At some point this might change and
+            // the necessity of this code snippet will go away
+            TAxis* xaxis = spectrum->GetXaxis();
+            if (xaxis->IsVariableBinSize()) force_binwidth = true;
+#endif
+            if ( extra == "WIDTH"   ) force_binwidth = true;
+            if ( extra == "NOWIDTH" ) force_binwidth = false;
+            if ( force_binwidth ) {
+              LOG("gevgen_t2k", pNOTICE)
+                << "multiplying by bin width for histogram " << histo
+                << " as " << spectrum->GetName() << " for nutype " << nutype
+                << " from " << gOptFluxFile;
+              for(int ibin = 1; ibin <= spectrum->GetNbinsX(); ++ibin) {
+                double data = spectrum->GetBinContent(ibin);
+                double width = spectrum->GetBinWidth(ibin);
+                spectrum->SetBinContent(ibin,data*width);
+              }
+            }
 
             // convert neutrino name -> pdg code
             int pdg = atoi(nutype.c_str());

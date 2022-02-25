@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Anselmo Meregaglia <anselmo.meregaglia \at cern.ch>
@@ -201,6 +201,42 @@ const PathLengthList & ROOTGeomAnalyzer::ComputePathLengths(
   this->Local2SI(*fCurrPathLengthList); // curr geom units -> SI
 
   return *fCurrPathLengthList;
+}
+
+//___________________________________________________________________________
+std::vector< std::pair<double, const TGeoMaterial*> > ROOTGeomAnalyzer::ComputeMatLengths(
+                          const TLorentzVector & x, const TLorentzVector & p)
+{
+
+  // if trimming configure with neutrino ray's info
+  if ( fGeomVolSelector ) {
+    fGeomVolSelector->SetCurrentRay(x,p);
+    fGeomVolSelector->SetSI2Local(1/this->LengthUnits());
+  }
+
+  TVector3 udir = p.Vect().Unit(); // unit vector along direction
+  TVector3 pos = x.Vect();         // initial position
+  this->SI2Local(pos);             // SI -> curr geom units
+  
+  if (!fMasterToTopIsIdentity) {
+    this->Master2Top(pos);         // transform position (master -> top)
+    this->Master2TopDir(udir);     // transform direction (master -> top)
+  }
+
+  this->SwimOnce(pos,udir);
+
+  std::vector<std::pair<double, const TGeoMaterial*>> MatLengthList;
+
+  const PathSegmentList::PathSegmentV_t& segments = fCurrPathSegmentList->GetPathSegmentV();
+
+  PathSegmentList::PathSegVCItr_t sitr;
+  for ( sitr = segments.begin(); sitr != segments.end(); ++sitr) {
+    const PathSegment& seg = *sitr;
+    double pl = seg.GetSummedStepRange();
+    MatLengthList.push_back(std::make_pair(pl,seg.fMaterial));
+  }
+
+  return MatLengthList;
 }
 
 //___________________________________________________________________________
@@ -703,6 +739,21 @@ void ROOTGeomAnalyzer::Load(string filename)
        << "The ROOT geometry doesn't exist! Initialization failed!";
      exit(1);
   }
+
+// ROOT versions 6.16 - 6.24 defaulted to kG4Units [ugh]
+// worse yet the interface for setting it also changed at 6.22
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,16,0)
+  if (TGeoManager::GetDefaultUnits() != TGeoManager::kRootUnits) {
+  #if ROOT_VERSION_CODE >= ROOT_VERSION(6,22,0)
+    TGeoManager::LockDefaultUnits(false);
+    TGeoManager::SetDefaultUnits(TGeoManager::kRootUnits);
+    TGeoManager::LockDefaultUnits(true);
+  #else
+    TGeoManager::SetDefaultRootUnits();
+  #endif
+  }
+#endif
+
   TGeoManager * gm = TGeoManager::Import(filename.c_str());
 
   this->Load(gm);

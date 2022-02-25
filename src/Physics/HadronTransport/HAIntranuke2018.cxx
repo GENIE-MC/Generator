@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
@@ -1548,7 +1548,8 @@ void HAIntranuke2018::LoadConfig(void)
   GetParam( "HAINUKE-DelRPion",    fDelRPion ) ;
   GetParam( "HAINUKE-DelRNucleon", fDelRNucleon ) ;
 
-  GetParamDef( "FSI-Pion-MFPScale",              fPionMFPScale,           1.0 ) ;
+  GetParamDef( "FSI-ChargedPion-MFPScale",       fChPionMFPScale,         1.0 ) ;
+  GetParamDef( "FSI-NeutralPion-MFPScale",       fNeutralPionMFPScale,    1.0 ) ;
   GetParamDef( "FSI-Pion-FracCExScale",          fPionFracCExScale,       1.0 ) ;
   GetParamDef( "FSI-ChargedPion-FracAbsScale",   fChPionFracAbsScale,     1.0 ) ;
   GetParamDef( "FSI-NeutralPion-FracAbsScale",   fNeutralPionFracAbsScale,1.0 ) ;

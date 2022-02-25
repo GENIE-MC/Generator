@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
@@ -401,8 +401,11 @@ double Intranuke::GenerateStep(GHepRecord* /*evrec*/, GHepParticle* p) const
   int pdgc = p->Pdg();
 
   double scale = 1.;
-  if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
-    scale = fPionMFPScale; 
+  if (pdgc==kPdgPiP || pdgc==kPdgPiM) {
+    scale = fChPionMFPScale; 
+  }
+  if (pdgc==kPdgPi0) {
+    scale = fNeutralPionMFPScale; 
   }
   else if (pdgc==kPdgProton || pdgc==kPdgNeutron) {
     scale = fNucleonMFPScale;

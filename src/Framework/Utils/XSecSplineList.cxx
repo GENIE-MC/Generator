@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -194,6 +194,13 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
   double Ethr = interaction->PhaseSpace().Threshold();
   SLOG("XSecSplLst", pNOTICE)
     << "Energy threshold for current interaction = " << Ethr << " GeV";
+
+  if (Ethr>e_max) {
+    SLOG("XSecSplLst", pFATAL) << "Energy threshold higher than maximum.";
+    SLOG("XSecSplLst", pFATAL) << "Energy threshold = " << Ethr << " GeV";
+    SLOG("XSecSplLst", pFATAL) << "Energy maximum = " << e_max << " GeV";
+    return;
+  }
 
   int nkb = (Ethr>e_min) ? 5 : 0; // number of knots <  threshold
   int nka = nknots-nkb;           // number of knots >= threshold

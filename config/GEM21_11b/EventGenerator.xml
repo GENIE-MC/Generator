@@ -426,15 +426,6 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="ILstGen">    genie::AMNuGammaInteractionListGenerator/Default    </param>
   </param_set>
 
-  <param_set name="GLRES">
-     <param type="string" name="VldContext"> </param>
-     <param type="int"    name="NModules">   3                                                   </param>
-     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                 </param>
-     <param type="alg"    name="Module-1">   genie::GLRESGenerator/Default                       </param>
-     <param type="alg"    name="Module-2">   genie::UnstableParticleDecayer/AfterHadronTransport </param>
-     <param type="alg"    name="ILstGen">    genie::GLRESInteractionListGenerator/Default        </param>
-  </param_set>
-
   <param_set name="MEC-CC">
      <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   5                                                   </param>

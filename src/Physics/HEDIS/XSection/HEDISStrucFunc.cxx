@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -224,6 +224,12 @@ HEDISStrucFunc::HEDISStrucFunc(string basedir, SF_info sfinfo)
     else if (fSF.Scheme=="CSMS") {
       APFEL::SetMassScheme("ZM-VFNS");
       APFEL::SetPoleMasses(mPDFQrk[4],mPDFQrk[5],mPDFQrk[5]+0.1);
+    }
+    else if (fSF.Scheme=="GGHR") {
+      APFEL::SetMassScheme("FFNS5");
+      APFEL::SetPoleMasses(mPDFQrk[4],mPDFQrk[5],mPDFQrk[6]);
+      APFEL::SetMaxFlavourPDFs(5);
+      APFEL::SetMaxFlavourAlpha(5);
     }
     else {
       LOG("HEDISStrucFunc", pERROR) << "Mass Scheme is not set properly";

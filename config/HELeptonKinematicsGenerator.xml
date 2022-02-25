@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the HELeptonKinematicsGenerator EventRecordVisitorI
+
+Algorithm Configurable Parameters:
+.......................................................................................................................
+Name                     Type    Opt   Comment                                        Default
+.......................................................................................................................
+UniformOverPhaseSpace    bool    Yes   kinematics uniformly over allowd phase space   false
+                                       wgt = (phase_space_volume)*(diff_xsec)/(xsec) 
+
+MaxXSec-SafetyFactor     double  Yes   multiplies max xsec in rejection method        2.
+MaxXSec-DiffTolerance    double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)  999999.00 (disable)
+                                       if xsec>xsecmax
+Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cached    100.
+                                       if xsec>xsecmax
+
+Delta-X1-NuE             double  Yes   Region of X sampled in NuE interactions        0.
+Delta-X1-NuMu            double  Yes   Region of X sampled in NuMu interactions       0.
+Delta-X1-NuTa            double  Yes   Region of X sampled in NuTau interactions      0.
+-->
+
+  <param_set name="Default"> 
+     <param type="double" name="MaxXSec-SafetyFactor">   1.05                                </param>
+     <param type="double" name="Delta-X1-NuE">           0.000001                            </param>
+     <param type="double" name="Delta-X1-NuMu">          0.1                                 </param>
+     <param type="double" name="Delta-X1-NuTau">         1.0                                 </param>
+  </param_set>
+
+</alg_conf>
+

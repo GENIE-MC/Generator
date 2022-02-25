@@ -14,7 +14,7 @@
 
 \created  May 05, 2009
 
-\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
@@ -23,6 +23,7 @@
 #define _MEC_PXSEC_H_
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
 namespace genie {
 
@@ -64,6 +65,12 @@ private:
   const XSecAlgorithmI * fXSecAlgNCQE; ///< cross section algorithm for NCQE
   const XSecAlgorithmI * fXSecAlgEMQE; ///< cross section algorithm for EMQE
 
+  /// Integrator used for reweighting
+  const XSecIntegratorI* fXSecIntegrator;
+
+  /// Whether to integrate in the usual way (false) or in "reweighting mode"
+  /// (true)
+  bool fIntegrateForReweighting;
 };
 
 }       // genie namespace

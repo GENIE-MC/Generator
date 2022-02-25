@@ -30,9 +30,9 @@ University of Liverpool
   </param_set>
 
   <param_set name="KNO2Pythia">
-    <!--                                                                                                              
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~            
-         Invariant mass window for the transition from KNO model to PYTHIA                                            
+    <!--
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         Invariant mass window for the transition from KNO model to PYTHIA
     -->
 
     <param type="double" name="KNO2PYTHIA-Wmin">  2.30 </param>
@@ -173,7 +173,6 @@ Probably these should all be moved in the local configurations
     <param type="double" name="INUKE-NucCEXFac">         1.0   </param>
     <param type="double" name="INUKE-Energy_Pre_Eq">     0.041 </param>
     <param type="double" name="INUKE-FermiFac">          1.0   </param>
-    <param type="double" name="INUKE-FreeStep">          0.0   </param>
     <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
     <param type="bool"   name="INUKE-DoFermi">           true  </param>
     <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
@@ -310,6 +309,16 @@ Or changing the name of this parameter set
     <param type="bool" name="ApplyCoulombCorrection"> false </param>
 
   </param_set>
+
+
+  <param_set name="PDG">
+    <!-- when using the PDG table provideed by genie,
+         that are contained in $GENIE/data/evgen/catalogues/pdg
+         this string specifies the file to be used.
+         Please be aware that changing the PDG table might invalidated the selected tune -->
+    <param type="string" name="PDG-TableName"> genie_pdg_table.txt </param>
+  </param_set>
+
 
   <param_set name="Validation">
     <!--
