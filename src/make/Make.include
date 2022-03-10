@@ -515,6 +515,39 @@ SOMINF        =
 EXTRALIBS     = -lnsl
 endif
 
+# LINUX / 64-bit arm / linuxarm64
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ifeq ($(strip $(ARCH)),linuxarm64) 
+ARCH_OK       = YES
+CXXFLAGS      = -W -Wall -fPIC -Wshadow \
+    $(ROOT_FLAGS) \
+    $(GOPT_WITH_CXX_DEBUG_FLAG) \
+    $(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
+    $(GOPT_WITH_CXX_USERDEF_FLAGS)
+ifeq ($(strip $(GCC_GE_8_0_0)), YES)
+  # -ffriend-injection is deprecated, soon to go away
+  CXXFLAGS += -Wno-strict-aliasing
+else
+  ifeq ($(strip $(GCC_GE_4_1_0)), YES)
+    CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
+  endif
+endif
+LDFLAGS       = -g -Wl,--no-as-needed -Wl,--no-undefined
+SOFLAGS       = -shared
+DllSuf       := so
+DllLinkSuf   :=
+StaticLibSuf := a
+ObjSuf       := o
+SrcSuf       := cxx
+FORT         := g77
+FORTOPTS     := $(FFLAGS) -g -c -O -DLINUX $(F77INCS) -fno-second-underscore
+RANLIB       := ranlib
+SOCMD         = $(LD)
+OutPutOpt     = -o
+SOMINF        =
+EXTRALIBS     = -lnsl
+endif
+
 #-------------------------------------------------------------------
 # SUMMING-UP
 #-------------------------------------------------------------------
