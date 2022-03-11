@@ -10,7 +10,7 @@
 *               Nh+//om   Nh+/yN       o///s                                                                    *
 *              d+//+d   my+/smmyhN    m///h                                      NEUTRINO MONTE CARLO GENERATOR *   
 *            Ns///yN NdyoshNNs///d   h////yN                                                                    *
-*           mo//om        ms///+m   d///////oyhmN                                           Version 999.999.999 *
+*           mo//om        ms///+m   d///////oyhmN                                               Version 3.02.00 *
 *          N+//yN       ms////+N    h////////////oym                                                            *
 *          s//h       ho/+///sN     N///////////////od                                  http://www.genie-mc.org *
 *         N+/h     my++yh+//y       s/////////////////oN                                                        *
