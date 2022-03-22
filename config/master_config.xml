@@ -93,6 +93,7 @@
    <config alg="genie::HEDISInteractionListGenerator">         HEDISInteractionListGenerator.xml     </config>
    <config alg="genie::DummyInteractionListGenerator">         Default.xml                           </config>
    <config alg="genie::NNBarOscDummyInteractionListGenerator"> Default.xml                           </config>
+   <config alg="genie::DummyHNLInteractionListGenerator">      Default.xml                           </config>
    <config alg="genie::InteractionListAssembler">              InteractionListAssembler.xml          </config>
    <config alg="genie::EventGeneratorListAssembler">           EventGeneratorListAssembler.xml       </config>
 
