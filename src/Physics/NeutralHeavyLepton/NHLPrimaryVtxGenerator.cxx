@@ -77,9 +77,9 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
       << "Setting couplings to (1,1,0). This will change.";
     
     // SetNHLCouplings( event->Vertex()->X(), event->Vertex()->Y(), event->Vertex()->Z() );
-    fUe42 == 1.0;
-    fUm42 == 1.0;
-    fUt42 == 0.0;
+    fUe42 = 1.0;
+    fUm42 = 1.0;
+    fUt42 = 0.0;
   }
 
   Interaction * interaction = event->Summary();

@@ -22,7 +22,7 @@ string genie::utils::nhl::AsString(NHLDecayMode_t nhldm)
   switch(nhldm) {
 
   case (kNHLDcyNull):
-    return "Invalid NHL decay mode!";
+    return "Unspecified";
     break;
 
   case (kNHLDcyPiMu):

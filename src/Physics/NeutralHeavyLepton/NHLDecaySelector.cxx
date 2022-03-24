@@ -18,7 +18,7 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
     LOG("NHL", pDEBUG)
       << "\n\n!!! ValidChannel stats:\n"
       << "!!! M = " << M
-      << "\n!!! Ue42, Umu42 = " << Ue42 << ", " << Umu42
+      << "\n!!! Ue42, Umu42, Ut42 = " << Ue42 << ", " << Umu42 << ", " << Ut42
       << "\n!!! IsMajorana = " << IsMajorana << "\n\n";
 
     std::map< NHLDecayMode_t, double > allChannels;

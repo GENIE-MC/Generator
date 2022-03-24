@@ -111,6 +111,7 @@
 #include "Framework/Ntuple/NtpWriter.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayMode.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayUtils.h"
+#include "Physics/NeutralHeavyLepton/SimpleNHL.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
@@ -133,6 +134,7 @@ using namespace genie::NHL;
 void  GetCommandLineArgs (int argc, char ** argv);
 void  PrintSyntax        (void);
 void  InitBoundingBox    (void);
+int   SelectDecayMode    (std::vector<NHLDecayMode_t> *intChannels, SimpleNHL sh);
 TLorentzVector GeneratePosition(void);
 const EventRecordVisitorI * NHLGenerator(void);
 
@@ -145,9 +147,15 @@ string          kDefOptEvFilePrefix = "gntp";
 //
 Long_t           gOptRunNu        = 1000;                // run number
 int              gOptNev          = 10;                  // number of events to generate
+
 double           gOptEnergyNHL    = -1;                  // NHL energy
 double           gOptMassNHL      = -1;                  // NHL mass
+double           gOptECoupling    = -1;                  // |U_e4|^2
+double           gOptMCoupling    = -1;                  // |U_m4|^2
+double           gOptTCoupling    = -1;                  // |U_t4|^2
+
 NHLDecayMode_t   gOptDecayMode    = kNHLDcyNull;         // NHL decay mode
+
 string           gOptEvFilePrefix = kDefOptEvFilePrefix; // event file prefix
 bool             gOptUsingRootGeom = false;              // using root geom or target mix?
 string           gOptRootGeom;                           // input ROOT file with realistic detector geometry
@@ -173,6 +181,8 @@ int main(int argc, char ** argv)
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
   utils::app_init::RandGen(gOptRanSeed);
 
+  RandomGen * rnd = RandomGen::Instance();
+
   // Initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
   ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);
@@ -180,6 +190,14 @@ int main(int argc, char ** argv)
 
   LOG("gevgen_nhl", pNOTICE)
     << "Initialised Ntuple Writer";
+
+  // add another few branches to tree.
+  ntpw.EventTree()->Branch("nhl_mass", &gOptMassNHL, "gOptMassNHL/D");
+  ntpw.EventTree()->Branch("nhl_coup_e", &gOptECoupling, "gOptECoupling/D");
+  ntpw.EventTree()->Branch("nhl_coup_m", &gOptMCoupling, "gOptMCoupling/D");
+  ntpw.EventTree()->Branch("nhl_coup_t", &gOptTCoupling, "gOptTCoupling/D");
+  //ntpw.EventTree()->Branch("nhl_ismaj", &gOptIsMajorana, "gOptIsMajorana/I");
+  //ntpw.EventTree()->Branch("nhl_type", &gOptNHLKind, "gOptNHLKind/I");
 
   // Create a MC job monitor for a periodically updated status file
   GMCJMonitor mcjmonitor(gOptRunNu);
@@ -197,6 +215,14 @@ int main(int argc, char ** argv)
   // Get the nucleon decay generator
   const EventRecordVisitorI * mcgen = NHLGenerator();
 
+  // RETHERE either seek out input flux or loop over some flux tuples
+  // WIP
+
+  // RETHERE do some initial configuration re. couplings in job
+  gOptECoupling = 1.0;
+  gOptMCoupling = 1.0;
+  gOptTCoupling = 0.0;
+
   // Event loop
   int ievent = 0;
   while (1)
@@ -206,9 +232,44 @@ int main(int argc, char ** argv)
      LOG("gevgen_nhl", pNOTICE)
           << " *** Generating event............ " << ievent;
 
+     // for now, let's make 50% nu and 50% nubar - placeholder
+     double nuVsBar = rnd->RndGen().Uniform( 0.0, 1.0 );
+     int typeMod = ( nuVsBar < 0.5 ) ? 1 : -1;
+     
+     int hpdg = genie::kPdgNHL * typeMod;
+
      EventRecord * event = new EventRecord;
      // int target = SelectInitState();
      int decay  = (int)gOptDecayMode;
+
+     if( gOptDecayMode == kNHLDcyNull ){ // select from available modes
+       LOG("gevgen_nhl", pNOTICE)
+	 << "No decay mode specified - sampling from all available modes.";
+
+       LOG("gevgen_nhl", pDEBUG)
+	 << "Couplings are: "
+	 << "\n|U_e4|^2 = " << gOptECoupling
+	 << "\n|U_m4|^2 = " << gOptMCoupling
+	 << "\n|U_t4|^2 = " << gOptTCoupling;
+
+       assert( gOptECoupling >= 0.0 && gOptMCoupling >= 0.0 && gOptTCoupling >= 0.0 );
+
+       // RETHERE assuming all these NHL have K+- parent. This is wrong 
+       // (but not very wrong for interesting masses)
+       LOG("gevgen_nhl", pDEBUG)
+	 << " Building SimpleNHL object ";
+       SimpleNHL sh( "NHL", ievent, hpdg, genie::kPdgKP, 
+				 gOptMassNHL, gOptECoupling, gOptMCoupling, gOptTCoupling, false );
+     
+       LOG("gevgen_nhl", pDEBUG)
+	 << " Creating interesting channels vector ";
+       std::vector< NHLDecayMode_t > * intChannels = new std::vector< NHLDecayMode_t >();
+       intChannels->emplace_back( kNHLDcyPiE );
+       intChannels->emplace_back( kNHLDcyPiMu );
+
+       decay = SelectDecayMode( intChannels, sh );
+     }
+
      Interaction * interaction = Interaction::NHL(gOptEnergyNHL, decay);
      event->AttachSummary(interaction);
 
@@ -326,6 +387,49 @@ const EventRecordVisitorI * NHLGenerator(void)
   return mcgen;
 }
 //_________________________________________________________________________________________
+int SelectDecayMode( std::vector< NHLDecayMode_t > * intChannels, SimpleNHL sh )
+{
+  LOG("gevgen_nhl", pDEBUG)
+    << " Getting valid channels ";
+  const std::map< NHLDecayMode_t, double > gammaMap = sh.GetValidChannels();
+
+  for( std::vector< NHLDecayMode_t >::iterator it = intChannels->begin(); it != intChannels->end(); ++it ){
+    NHLDecayMode_t mode = *it;
+    auto mapG = gammaMap.find( mode );
+    double theGamma = mapG->second;
+    LOG("gevgen_nhl", pDEBUG)
+      << "For mode " << utils::nhl::AsString( mode ) << " gamma = " << theGamma;
+  }
+
+  LOG("gevgen_nhl", pDEBUG)
+    << " Setting interesting channels map ";
+  std::map< NHLDecayMode_t, double > intMap =
+    NHLSelector::SetInterestingChannels( (*intChannels), gammaMap );
+     
+  LOG("gevgen_nhl", pDEBUG)
+    << " Telling SimpleNHL about interesting channels ";
+  sh.SetInterestingChannels( intMap );
+
+  // get probability that channels in intChannels will be selected
+  LOG("gevgen_nhl", pDEBUG)
+    << " Building probablilities of interesting channels ";
+  std::map< NHLDecayMode_t, double > PMap = 
+    NHLSelector::GetProbabilities( intMap );
+     
+  // now do a random throw
+  RandomGen * rnd = RandomGen::Instance();
+  double ranThrow = rnd->RndGen().Uniform( 0., 1. ); // NHL's fate is sealed.
+
+  LOG("gevgen_nhl", pDEBUG)
+    << "Random throw = " << ranThrow;
+
+  NHLDecayMode_t selectedDecayChan =
+    NHLSelector::SelectChannelInclusive( PMap, ranThrow );
+
+  int decay = ( int ) selectedDecayChan;
+  return decay;
+}
+//_________________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gevgen_nhl", pINFO) << "Parsing command line arguments";
@@ -401,10 +505,8 @@ void GetCommandLineArgs(int argc, char ** argv)
         << "Reading NHL decay mode";
     mode = parser.ArgAsInt('m');
   } else {
-    LOG("gevgen_nhl", pFATAL)
-        << "You need to specify the decay mode";
-    PrintSyntax();
-    exit(0);
+    LOG("gevgen_nhl", pNOTICE)
+        << "No decay mode specified - will sample from allowed decay modes";
   } //-m
   gOptDecayMode = (NHLDecayMode_t) mode;
 
