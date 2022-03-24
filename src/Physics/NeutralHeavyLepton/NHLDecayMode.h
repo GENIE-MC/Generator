@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::NHLDecayMode
+\class    genie::NHL::NHLDecayMode
 
 \brief    Enumeration of NHL decay modes.
 
@@ -22,6 +22,7 @@
 #endif
 
 namespace genie {
+  namespace NHL {
 
  typedef enum ENHLDecayMode {
 
@@ -40,5 +41,6 @@ namespace genie {
 
  } NHLDecayMode_t;
 
-}
+  } // namespace NHL
+} // namespace genie
 #endif

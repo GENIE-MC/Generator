@@ -30,9 +30,9 @@ namespace genie
  {
   namespace nhl 
   {
-      string       AsString                (NHLDecayMode_t nhldm);
-      bool         IsKinematicallyAllowed  (NHLDecayMode_t nhldm, double Mnhl);
-      PDGCodeList  DecayProductList        (NHLDecayMode_t nhldm);
+      string       AsString                (genie::NHL::NHLDecayMode_t nhldm);
+      bool         IsKinematicallyAllowed  (genie::NHL::NHLDecayMode_t nhldm, double Mnhl);
+      PDGCodeList  DecayProductList        (genie::NHL::NHLDecayMode_t nhldm);
 
    } // nhl 
  } // utils 

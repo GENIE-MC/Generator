@@ -14,6 +14,7 @@
 #include "Physics/NeutralHeavyLepton/NHLDecayUtils.h"
 
 using namespace genie;
+using namespace genie::NHL;
 
 //____________________________________________________________________________
 string genie::utils::nhl::AsString(NHLDecayMode_t nhldm)

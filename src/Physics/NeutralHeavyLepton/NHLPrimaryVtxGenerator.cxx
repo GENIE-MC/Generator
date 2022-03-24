@@ -28,6 +28,7 @@
 #include "Physics/NeutralHeavyLepton/NHLDecayMode.h"
 
 using namespace genie;
+using namespace genie::NHL;
 
 //____________________________________________________________________________
 NHLPrimaryVtxGenerator::NHLPrimaryVtxGenerator() :

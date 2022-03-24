@@ -46,7 +46,7 @@ private:
    void AddInitialState       (GHepRecord * event) const;
    void GenerateDecayProducts (GHepRecord * event) const;
 
-   mutable NHLDecayMode_t fCurrDecayMode;
+   mutable genie::NHL::NHLDecayMode_t fCurrDecayMode;
    mutable TGenPhaseSpace fPhaseSpaceGenerator;
 };
 

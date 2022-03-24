@@ -127,6 +127,7 @@ using std::vector;
 using std::ostringstream;
 
 using namespace genie;
+using namespace genie::NHL;
 
 // function prototypes
 void  GetCommandLineArgs (int argc, char ** argv);
@@ -144,7 +145,7 @@ string          kDefOptEvFilePrefix = "gntp";
 //
 Long_t           gOptRunNu        = 1000;                // run number
 int              gOptNev          = 10;                  // number of events to generate
-double           gOptEnergyNHL    = -1;                  // NHL mass
+double           gOptEnergyNHL    = -1;                  // NHL energy
 double           gOptMassNHL      = -1;                  // NHL mass
 NHLDecayMode_t   gOptDecayMode    = kNHLDcyNull;         // NHL decay mode
 string           gOptEvFilePrefix = kDefOptEvFilePrefix; // event file prefix
@@ -177,9 +178,15 @@ int main(int argc, char ** argv)
   ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);
   ntpw.Initialize();
 
+  LOG("gevgen_nhl", pNOTICE)
+    << "Initialised Ntuple Writer";
+
   // Create a MC job monitor for a periodically updated status file
   GMCJMonitor mcjmonitor(gOptRunNu);
   mcjmonitor.SetRefreshRate(RunOpt::Instance()->MCJobStatusRefreshRate());
+
+  LOG("gevgen_nhl", pNOTICE)
+    << "Initialised MC job monitor";
 
   // Set GHEP print level
   GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
@@ -235,6 +242,9 @@ void InitBoundingBox(void)
 {
 // Initialise geometry bounding box, used for generating NHL vertex positions
 
+  LOG("gevgen_nhl", pINFO)
+    << "Initialising geometry bounding box.";
+
   fdx = 0; // half-length - x
   fdy = 0; // half-length - y
   fdz = 0; // half-length - z
@@ -270,6 +280,9 @@ void InitBoundingBox(void)
   fox *= gOptGeomLUnits;
   foy *= gOptGeomLUnits;
   foz *= gOptGeomLUnits;
+
+  LOG("gevgen_nhl", pINFO)
+    << "Initialised bounding box successfully.";
 }
 //_________________________________________________________________________________________
 TLorentzVector GeneratePosition(void)
@@ -295,6 +308,10 @@ const EventRecordVisitorI * NHLGenerator(void)
   string sname   = "genie::EventGenerator";
   string sconfig = "NeutralHeavyLepton";
   AlgFactory * algf = AlgFactory::Instance();
+
+  LOG("gevgen_nhl", pINFO)
+    << "Instantiating NHL generator.";
+
   const EventRecordVisitorI * mcgen =
      dynamic_cast<const EventRecordVisitorI *> (algf->GetAlgorithm(sname,sconfig));
   if(!mcgen) {
@@ -302,6 +319,10 @@ const EventRecordVisitorI * NHLGenerator(void)
      gAbortingInErr = true;
      exit(1);
   }
+
+  LOG("gevgen_nhl", pINFO)
+    << "NHL generator instantiated successfully.";
+
   return mcgen;
 }
 //_________________________________________________________________________________________
