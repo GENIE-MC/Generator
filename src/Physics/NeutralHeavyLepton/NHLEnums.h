@@ -3,7 +3,7 @@
 
   All enums used in the NHL simulation (should) live here.
 
-\namespace  genie::NHL::enums
+\namespace  genie::NHL::NHLenums
 
 \brief      Typedef enums
 
@@ -27,41 +27,14 @@
 
 #include <map>
 
+// -- GENIE includes
+
+#include "Framework/Conventions/Units.h"
+
 namespace genie {
 namespace NHL {
 
     namespace NHLenums {
-
-	/// The NHL decay channels
-	typedef enum t_NHLDecay {
-	    
-	    kInit          = -1, // dummy to initialise NHLDecay_t with
-	    kPiMu          = 0,  // N --> \pi^{\pm} \mu^{\mp}
-	    kPiE           = 1,  // N --> \pi^{\pm}   e^{\mp}
-	    kPi0Nu         = 2,  // N --> \pi^{0}   \nu (any kind)
-	    kNuNuNu        = 3,  // N --> 3 nus. Summed over all flavours
-	    kNuMuMu        = 4,  // N --> nu_{a}    \mu^{\mp} \mu^{\pm}. W and Z interfere
-	    kNuEE          = 5,  // N --> nu_{a}      e^{\mp}   e^{\pm}. W and Z interfere
-	    kNuMuE         = 6,  // N --> nu_{\mu/e}  e^{\mp} \mu^{\pm}. Only W. Summed over nue and numu
-	    kPiPi0E        = 7,  // N --> \pi^{\pm} \pi^{0}   e^{\mp}
-	    kPiPi0Mu       = 8,  // N --> \pi^{\pm} \pi^{0} \mu^{\mp}
-	    kPi0Pi0Nu      = 9,  // N --> \pi^{0}   \pi^{0} \nu (any kind)
-	    kOther         = 99  // unknown decay 
-	    
-	} NHLDecay_t;
-
-	/* // can't use strings in enum!
-	/// Coupling configurations
-	typedef enum t_coup {
-
-	    kInit     = std::string("Init"),            // dummy for initialisation
-	    kEqual    = std::string("EqualCouplings"),  // |U_e4|^2 : |U_mu4|^2 = 1:1
-	    kMuon     = std::string("MuonOnly"),        // |U_e4|^2 : |U_mu4|^2 = 0:1
-	    kElectron = std::string("ElectronOnly"),    // |U_e4|^2 : |U_mu4|^2 = 1:0
-	    kOther    = std::string("OtherCouplings")   // Different ratio of e to mu
-	    
-	} coup_t;
-	*/
 
 	/// Coupling configuration indices
 	typedef enum t_coupIdx {
