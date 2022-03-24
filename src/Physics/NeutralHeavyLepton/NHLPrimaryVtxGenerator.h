@@ -7,6 +7,7 @@
 
 \author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
           University of Liverpool & STFC Rutherford Appleton Laboratory
+	  John Plows <komninos-john.plows \at physics.ox.ac.uk>
 
 \created  February 10, 2020
 
@@ -21,7 +22,11 @@
 #include <TGenPhaseSpace.h>
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Framework/Numerical/RandomGen.h"
+
 #include "Physics/NeutralHeavyLepton/NHLDecayMode.h"
+#include "Physics/NeutralHeavyLepton/NHLEnums.h" // to be removed later
+#include "Physics/NeutralHeavyLepton/SimpleNHL.h"
 
 namespace genie {
 
@@ -45,9 +50,18 @@ private:
    void LoadConfig            (void);
    void AddInitialState       (GHepRecord * event) const;
    void GenerateDecayProducts (GHepRecord * event) const;
+   // to be introduced later!
+   //void GenerateDecayPosition (GHepRecord * event) const;
+   void SetNHLCouplings          (double Ue42, double Um42, double Ut42) const;
 
+   mutable int                        fCurrInitStatePdg;
    mutable genie::NHL::NHLDecayMode_t fCurrDecayMode;
-   mutable TGenPhaseSpace fPhaseSpaceGenerator;
+   mutable TGenPhaseSpace             fPhaseSpaceGenerator;
+
+   mutable double                     fEnergy;
+   mutable double                     fUe42 = -1.0, fUm42 = -1.0, fUt42 = -1.0;
+   // to be implemented!
+   //mutable TH3D *                     fProdVtxHist = 0;
 };
 
 } // genie namespace

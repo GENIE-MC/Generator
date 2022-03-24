@@ -5,6 +5,8 @@
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
  University of Liverpool & STFC Rutherford Appleton Laboratory
+ John Plows <komninos-john.plows \at physics.ox.ac.uk>
+ University of Oxford
 */
 //____________________________________________________________________________
 
@@ -52,25 +54,53 @@ void NHLPrimaryVtxGenerator::ProcessEventRecord(GHepRecord * event) const
 {
   Interaction * interaction = event->Summary();
 
+  fCurrInitStatePdg = interaction->InitState().ProbePdg();
   fCurrDecayMode = (NHLDecayMode_t) interaction->ExclTag().DecayMode();
 
+  // interaction->ExclTag().SetHNL(); // need to modify Interaction/XclsTag
+
   LOG("NHL", pNOTICE)
-    << "Simulating NHL decay " << utils::nhl::AsString(fCurrDecayMode);
+    << "Simulating NHL decay " << utils::nhl::AsString(fCurrDecayMode)
+    << " for an initial state with PDG code " << fCurrInitStatePdg;
 
   this->AddInitialState(event);
+  //this->GenerateDecayPosition(event);
   this->GenerateDecayProducts(event);
 }
 //____________________________________________________________________________
 void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
 {
-  TLorentzVector v4(0,0,0,0);
+  TLorentzVector v4(0,0,0,0); // RETHERE make a way to sample the decay vertex position
+
+  if( fUe42 == -1.0 && fUm42 == -1.0 && fUt42 == -1.0 ){
+    LOG( "NHL", pINFO )
+      << "Setting couplings to (1,1,0). This will change.";
+    
+    // SetNHLCouplings( event->Vertex()->X(), event->Vertex()->Y(), event->Vertex()->Z() );
+    fUe42 == 1.0;
+    fUm42 == 1.0;
+    fUt42 == 0.0;
+  }
 
   Interaction * interaction = event->Summary();
   double E = interaction->InitState().ProbeE(kRfLab);
   double M = PDGLibrary::Instance()->Find(kPdgNHL)->Mass();
   double p = TMath::Sqrt(E*E-M*M);
 
-  TLorentzVector p4(0,0,p,E);
+  // set some initial deviation from beam axis due to collimation effect
+  // RETHERE make this configurable
+  double thetaDev = 0.06; // deg
+  thetaDev *= genie::constants::kPi / 180.0; // rad
+  RandomGen * Rng = RandomGen::Instance();
+  double theta = Rng->RndGen().Gaus(0.0, thetaDev);
+  if( theta < 0.0 ) theta *= -1.0;
+  double phi = Rng->RndGen().Uniform(0.0, 2.0 * genie::constants::kPi);
+
+  double px = p * std::sin(theta) * std::cos(phi);
+  double py = p * std::sin(theta) * std::sin(phi);
+  double pz = p * std::cos(theta);
+  
+  TLorentzVector p4(px,py,pz,E);
 
   event->AddParticle(kPdgNHL, kIStInitialState, 0,-1,-1,-1, p4, v4);
 }
@@ -79,10 +109,20 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
 {
   LOG("NHL", pINFO) << "Generating decay...";
 
-  PDGCodeList pdgv = utils::nhl::DecayProductList(fCurrDecayMode);
-  LOG("NHL", pINFO) << "Decay product IDs: " << pdgv;
-  assert ( pdgv.size() >  1);
+  // do we have nubar?
+  PDGCodeList pdgv0 = utils::nhl::DecayProductList(fCurrDecayMode);
+  int typeMod = ( fCurrInitStatePdg >= 0 ) ? 1 : -1; 
+  PDGCodeList pdgv(true);
+  for( std::vector<int>::iterator it = pdgv0.begin(); it != pdgv0.end(); ++it ){
+    int pdgc = *it;
+    pdgv.push_back( typeMod * pdgc );
+    LOG("NHL", pDEBUG) << "Adding " << pdgc << " --> " << typeMod*pdgc;
+  }
 
+  LOG("NHL", pINFO) << "Decay product IDs: " << pdgv;
+  assert ( pdgv.size() > 1);
+
+  // RETHERE may not want a phase space decay!
   LOG("NHL", pINFO) << "Performing a phase space decay...";
 
   // Get the decay product masses
@@ -213,3 +253,9 @@ void NHLPrimaryVtxGenerator::LoadConfig(void)
 
 }
 //___________________________________________________________________________
+void NHLPrimaryVtxGenerator::SetNHLCouplings( double Ue42, double Um42, double Ut42 ) const
+{
+  fUe42 = Ue42;
+  fUm42 = Um42;
+  fUt42 = Ut42;
+}
