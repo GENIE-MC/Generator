@@ -8,7 +8,9 @@
 #pragma link C++ namespace genie::utils::nhl;
 
 #pragma link C++ namespace genie::NHL;
-// #pragma link C++ class genie::NHLDummyPXSec;
+#pragma link C++ namespace genie::NHL::NHLenums;
+#pragma link C++ namespace genie::NHL::NHLSelector;
+
 #pragma link C++ class genie::NHLPrimaryVtxGenerator;
 #pragma link C++ class genie::DummyHNLInteractionListGenerator;
 
