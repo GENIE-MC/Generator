@@ -238,9 +238,11 @@ int main(int argc, char ** argv)
      
      int hpdg = genie::kPdgNHL * typeMod;
 
+     LOG("gevgen_nhl", pDEBUG) << "typeMod = " << typeMod;
+
      EventRecord * event = new EventRecord;
      // int target = SelectInitState();
-     int decay  = (int)gOptDecayMode;
+     int decay  = (int)gOptDecayMode * typeMod;
 
      if( gOptDecayMode == kNHLDcyNull ){ // select from available modes
        LOG("gevgen_nhl", pNOTICE)
@@ -266,11 +268,19 @@ int main(int argc, char ** argv)
        std::vector< NHLDecayMode_t > * intChannels = new std::vector< NHLDecayMode_t >();
        intChannels->emplace_back( kNHLDcyPiE );
        intChannels->emplace_back( kNHLDcyPiMu );
+       intChannels->emplace_back( kNHLDcyPi0Nu );
+       intChannels->emplace_back( kNHLDcyNuNuNu );
+       intChannels->emplace_back( kNHLDcyNuMuMu );
+       intChannels->emplace_back( kNHLDcyNuEE );
+       intChannels->emplace_back( kNHLDcyNuMuE );
+       intChannels->emplace_back( kNHLDcyPiPi0E );
+       intChannels->emplace_back( kNHLDcyPiPi0Mu );
+       intChannels->emplace_back( kNHLDcyPi0Pi0Nu );
 
        decay = SelectDecayMode( intChannels, sh );
      }
 
-     Interaction * interaction = Interaction::NHL(gOptEnergyNHL, decay);
+     Interaction * interaction = Interaction::NHL(typeMod * genie::kPdgNHL, gOptEnergyNHL, decay);
      event->AttachSummary(interaction);
 
      // Simulate decay

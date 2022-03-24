@@ -45,6 +45,7 @@ public:
   void AddDarkMatter  (double mass, double med_ratio);
   // Similarly for the NHL app
   void AddNHL  (double mass);
+  bool AddNHLFromConfig (void);
 
 private:
 

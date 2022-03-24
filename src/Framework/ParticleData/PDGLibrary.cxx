@@ -170,9 +170,28 @@ void PDGLibrary::AddNHL(double mass)
   if (!nhl) {
     // Name Title Mass Stable Width Charge Class PDG
     fDatabasePDG->AddParticle("NHL","NHL",mass,true,0.,0,"NHL",kPdgNHL);
+    fDatabasePDG->AddParticle("NHLBar","NHLBar",mass,true,0.,0,"NHL",-1*kPdgNHL);
   }
   else {
     assert(nhl->Mass() == mass);
+  }
+}
+//____________________________________________________________________________
+bool PDGLibrary::AddNHLFromConfig()
+{
+  // Add NHL to PDG database
+  // Follows AddDarkSector() below
+
+  const Registry * reg = AlgConfigPool::Instance()->CommonList("NHL", "Mass");
+  if (!reg) {
+    LOG("PDG", pERROR) << "NHL mass is unavailable.";
+    return false;
+  }
+  TParticlePDG * nhl = fDatabasePDG->GetParticle(kPdgNHL);
+  if (!nhl) {
+    // Name Title Mass Stable Width Charge Class PDG
+    fDatabasePDG->AddParticle("NHL","NHL",reg->GetDouble("NHLMass"),true,0.,0,"NHL",kPdgNHL);
+    fDatabasePDG->AddParticle("NHLBar","NHLBar",reg->GetDouble("NHLMass"),true,0.,0,"NHL",-1*kPdgNHL);
   }
 }
 //____________________________________________________________________________

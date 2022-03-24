@@ -102,7 +102,8 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
   
   TLorentzVector p4(px,py,pz,E);
 
-  event->AddParticle(kPdgNHL, kIStInitialState, 0,-1,-1,-1, p4, v4);
+  int hpdg = interaction->InitState().ProbePdg();
+  event->AddParticle(hpdg, kIStInitialState, 0,-1,-1,-1, p4, v4);
 }
 //____________________________________________________________________________
 void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
@@ -115,7 +116,8 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
   PDGCodeList pdgv(true);
   for( std::vector<int>::iterator it = pdgv0.begin(); it != pdgv0.end(); ++it ){
     int pdgc = *it;
-    pdgv.push_back( typeMod * pdgc );
+    if( pdgc != genie::kPdgPi0 ) pdgv.push_back( typeMod * pdgc );
+    else pdgv.push_back( typeMod );
     LOG("NHL", pDEBUG) << "Adding " << pdgc << " --> " << typeMod*pdgc;
   }
 
