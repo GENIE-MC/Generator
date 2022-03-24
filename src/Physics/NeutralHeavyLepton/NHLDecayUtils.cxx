@@ -24,14 +24,50 @@ string genie::utils::nhl::AsString(NHLDecayMode_t nhldm)
     return "Invalid NHL decay mode!";
     break;
 
-// add all other cases and specify a string for the decay channel
-//
-//
-  case(kNHLDcyTEST):
-  return "N -> e+e-";
+  case (kNHLDcyPiMu):
+    return "N -> pi+- mu-+";
+    break;
 
+  case (kNHLDcyPiE):
+    return "N -> pi+- e-+";
+    break;
+
+  case (kNHLDcyPi0Nu):
+    return "N -> pi0 v";
+    break;
+
+  case (kNHLDcyNuNuNu):
+    return "N -> v v v";
+    break;
+
+  case (kNHLDcyNuMuMu):
+    return "N -> v mu+ mu-";
+    break;
+
+  case (kNHLDcyNuEE):
+    return "N -> v e+ e-";
+    break;
+
+  case (kNHLDcyNuMuE):
+    return "N -> v mu+- e-+";
+    break;
+
+  case (kNHLDcyPiPi0E):
+    return "N -> pi+- pi0 e-+";
+    break;
+
+  case (kNHLDcyPiPi0Mu):
+    return "N -> pi+- pi0 mu-+";
+    break;
+
+  case (kNHLDcyPi0Pi0Nu):
+    return "N -> v pi0 pi0";
+    break;
+
+  case (kNHLDcyTEST):
+  return "N -> e+ e-";
   }
-  return "Invalid HL decay mode!";
+  return "Invalid NHL decay mode!";
 }
 //____________________________________________________________________________
 bool genie::utils::nhl::IsKinematicallyAllowed(NHLDecayMode_t nhldm, double M)
@@ -68,15 +104,63 @@ PDGCodeList genie::utils::nhl::DecayProductList(NHLDecayMode_t nhldm)
 
   switch(nhldm) {
 
-  // Specify the final state particles in each NHL decay channel,
-  // adding sections that look like
-  //
-  //  case (kNHLDcy...):
-  //     decay_products.push_back(kPdgPositron);
-  //     decay_products.push_back(kPdgElectron);
-  //     decay_products.push_back(... some other particle PDG code);
-  //     break;
-  //
+  case(kNHLDcyPiMu):
+    decay_products.push_back(kPdgPiP);
+    decay_products.push_back(kPdgMuon);
+    break;
+
+  case(kNHLDcyPiE):
+    decay_products.push_back(kPdgPiP);
+    decay_products.push_back(kPdgElectron);
+    break;
+
+  case(kNHLDcyPi0Nu):
+    decay_products.push_back(kPdgPi0);
+    decay_products.push_back(kPdgNuMu); // could be nue or nutau too!
+    break;
+
+  case(kNHLDcyNuNuNu):
+    decay_products.push_back(kPdgNuE);
+    decay_products.push_back(kPdgNuMu);
+    decay_products.push_back(kPdgNuTau); // again, any permutation of {e,mu,tau}^3 works
+    break;
+
+  case(kNHLDcyNuMuMu):
+    decay_products.push_back(kPdgNuMu);
+    decay_products.push_back(kPdgMuon);
+    decay_products.push_back(kPdgAntiMuon);
+    break;
+
+  case(kNHLDcyNuEE):
+    decay_products.push_back(kPdgNuE);
+    decay_products.push_back(kPdgElectron);
+    decay_products.push_back(kPdgPositron);
+    break;
+
+  case(kNHLDcyNuMuE):
+    decay_products.push_back(kPdgNuMu);
+    decay_products.push_back(kPdgMuon);
+    decay_products.push_back(kPdgPositron);
+    break;
+
+  case(kNHLDcyPiPi0E):
+    decay_products.push_back(kPdgPiP);
+    decay_products.push_back(kPdgPi0);
+    decay_products.push_back(kPdgElectron);
+    break;
+
+  case(kNHLDcyPiPi0Mu):
+    decay_products.push_back(kPdgPiP);
+    decay_products.push_back(kPdgPi0);
+    decay_products.push_back(kPdgMuon);
+    break;
+
+  case(kNHLDcyPi0Pi0Nu):
+    decay_products.push_back(kPdgNuMu);
+    decay_products.push_back(kPdgPi0);
+    decay_products.push_back(kPdgPi0);
+    break;
+
   case(kNHLDcyTEST):
     decay_products.push_back(kPdgPositron);
     decay_products.push_back(kPdgElectron);
