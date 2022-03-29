@@ -11,6 +11,8 @@
 #pragma link C++ namespace genie::NHL::NHLenums;
 #pragma link C++ namespace genie::NHL::NHLSelector;
 
+#pragma link C++ class genie::NHL::SimpleNHL;
+
 #pragma link C++ class genie::NHLPrimaryVtxGenerator;
 #pragma link C++ class genie::DummyHNLInteractionListGenerator;
 
