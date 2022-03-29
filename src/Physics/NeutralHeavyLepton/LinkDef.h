@@ -10,6 +10,7 @@
 #pragma link C++ namespace genie::NHL;
 #pragma link C++ namespace genie::NHL::NHLenums;
 #pragma link C++ namespace genie::NHL::NHLSelector;
+#pragma link C++ namespace genie::NHL::NHLFluxReader;
 
 #pragma link C++ class genie::NHL::SimpleNHL;
 
