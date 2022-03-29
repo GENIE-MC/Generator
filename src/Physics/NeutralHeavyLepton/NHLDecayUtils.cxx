@@ -66,9 +66,13 @@ string genie::utils::nhl::AsString(NHLDecayMode_t nhldm)
     break;
 
   case (kNHLDcyTEST):
-  return "N -> e+ e-";
+    return "N -> e+ e-";
+    break;
+
+  default:
+    return "Invalid NHL decay mode!";
   }
-  return "Invalid NHL decay mode!";
+  //return "Invalid NHL decay mode!";
 }
 //____________________________________________________________________________
 bool genie::utils::nhl::IsKinematicallyAllowed(NHLDecayMode_t nhldm, double M)

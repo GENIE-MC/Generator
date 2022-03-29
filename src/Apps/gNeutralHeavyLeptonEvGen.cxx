@@ -242,7 +242,7 @@ int main(int argc, char ** argv)
 
      EventRecord * event = new EventRecord;
      // int target = SelectInitState();
-     int decay  = (int)gOptDecayMode * typeMod;
+     int decay  = (int) gOptDecayMode;
 
      if( gOptDecayMode == kNHLDcyNull ){ // select from available modes
        LOG("gevgen_nhl", pNOTICE)
@@ -282,6 +282,9 @@ int main(int argc, char ** argv)
 
      Interaction * interaction = Interaction::NHL(typeMod * genie::kPdgNHL, gOptEnergyNHL, decay);
      event->AttachSummary(interaction);
+
+     LOG("gevgen_nhl", pDEBUG)
+       << "Note decay mode is " << utils::nhl::AsString(gOptDecayMode);
 
      // Simulate decay
      mcgen->ProcessEventRecord(event);

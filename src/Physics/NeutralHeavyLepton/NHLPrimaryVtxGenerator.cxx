@@ -115,10 +115,10 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
   int typeMod = ( fCurrInitStatePdg >= 0 ) ? 1 : -1; 
   PDGCodeList pdgv(true);
   for( std::vector<int>::iterator it = pdgv0.begin(); it != pdgv0.end(); ++it ){
-    int pdgc = *it;
-    if( pdgc != genie::kPdgPi0 ) pdgv.push_back( typeMod * pdgc );
-    else pdgv.push_back( typeMod );
-    LOG("NHL", pDEBUG) << "Adding " << pdgc << " --> " << typeMod*pdgc;
+    int pdgc = *it; 
+    int newpdgc = ( pdgc == genie::kPdgPi0 ) ? pdgc : typeMod * pdgc; // pi-0 is its own antiparticle
+    LOG("NHL", pDEBUG) << "Adding " << pdgc << " --> " << newpdgc;
+    pdgv.push_back( newpdgc );
   }
 
   LOG("NHL", pINFO) << "Decay product IDs: " << pdgv;
