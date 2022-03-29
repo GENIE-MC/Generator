@@ -72,8 +72,8 @@ int NHLFluxReader::selectMass( const double mN ){
     
 }
 
-void NHLFluxReader::selectFile( const double mN ){
-  std::string filePath = std::string( "" );
+void NHLFluxReader::selectFile( std::string fin, const double mN ){
+  std::string filePath = fin;
   filePath.append( "/FHC/" ); // RETHERE make this configurable!!!
   filePath.append( "EqualCouplings/" );
   const int mp = selectMass( mN );
@@ -97,6 +97,9 @@ TH1F * NHLFluxReader::getFluxHist1F( std::string fin, std::string hName, int HTy
     }
     TDirectory *deepDir = baseDir->GetDirectory( strType.c_str( ) );
     assert( deepDir );
+
+    LOG( "NHL", pDEBUG )
+      << "Getting flux from histo with base name " << hName.c_str();
 
     // construct standardised name
     std::string strHist = std::string( hName.c_str( ) );

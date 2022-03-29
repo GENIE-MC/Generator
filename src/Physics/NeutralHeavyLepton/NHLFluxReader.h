@@ -64,7 +64,7 @@ namespace NHL{
 
     /// perform selections from input files
     int selectMass( const double mN );
-    void selectFile( const double mN ); // find but don't open the file
+    void selectFile( std::string fin, const double mN ); // find but don't open the file
 
     /// get the histogram and energy from it
     TH1F * getFluxHist1F( std::string fin, std::string hName, int HType );

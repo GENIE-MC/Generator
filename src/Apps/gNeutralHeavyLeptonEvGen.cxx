@@ -10,11 +10,11 @@
          gevgen_nhl [-h]
                    [-r run#]
                     -n n_of_events
-                    -E nhl_energy (temporary)
+		    -f path/to/flux/files
+                   [-E nhl_energy]
                     --mass nhl_mass
-                    -m decay_mode
-                    -f nhl_flux
-	                 [-g geometry]
+                   [-m decay_mode]
+		   [-g geometry]
                    [-L geometry_length_units]
                    [-t geometry_top_volume_name]
                    [-o output_event_file_prefix]
@@ -39,7 +39,6 @@
               NHL decay mode ID:
            -f
               Input NHL flux.
-              *** not implemented for gevgen_nhl yet ***
            -g
               Input detector geometry.
               *** not implemented for gevgen_nhl yet ***
@@ -87,7 +86,7 @@
 
 */
 //_________________________________________________________________________________________
-// TODO: NEED TO POINT DEFAULT TUNE TO GNHL20_00a!!
+// TODO: Make a NuMI alternative to input fluxes!
 //_________________________________________________________________________________________
 
 #include <cassert>
@@ -111,6 +110,7 @@
 #include "Framework/Ntuple/NtpWriter.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayMode.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayUtils.h"
+#include "Physics/NeutralHeavyLepton/NHLFluxReader.h"
 #include "Physics/NeutralHeavyLepton/SimpleNHL.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -129,6 +129,13 @@ using std::ostringstream;
 
 using namespace genie;
 using namespace genie::NHL;
+using namespace genie::NHL::NHLFluxReader;
+using namespace genie::NHL::NHLenums;
+
+#ifdef __GENIE_FLUX_DRIVERS_ENABLED__
+#define __CAN_GENERATE_EVENTS_USING_A_FLUX__
+#include "Tools/Flux/GCylindTH1Flux.h"
+#endif // #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 
 // function prototypes
 void  GetCommandLineArgs (int argc, char ** argv);
@@ -138,11 +145,17 @@ int   SelectDecayMode    (std::vector<NHLDecayMode_t> *intChannels, SimpleNHL sh
 TLorentzVector GeneratePosition(void);
 const EventRecordVisitorI * NHLGenerator(void);
 
+#ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
+void     GenerateEventsUsingFlux (void);
+GFluxI * TH1FluxDriver           (void);
+#endif // #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
+
 //
 string          kDefOptGeomLUnits   = "mm";    // default geometry length units
 string          kDefOptGeomDUnits   = "g_cm3"; // default geometry density units
 NtpMCFormat_t   kDefOptNtpFormat    = kNFGHEP; // default event tree format
 string          kDefOptEvFilePrefix = "gntp";
+string          kDefOptFluxFilePath = "./input-flux.root";
 
 //
 Long_t           gOptRunNu        = 1000;                // run number
@@ -153,6 +166,14 @@ double           gOptMassNHL      = -1;                  // NHL mass
 double           gOptECoupling    = -1;                  // |U_e4|^2
 double           gOptMCoupling    = -1;                  // |U_m4|^2
 double           gOptTCoupling    = -1;                  // |U_t4|^2
+
+bool             gOptIsMajorana   = false;               // is this Majorana?
+int              gOptNHLKind      = -1;                  // 0 = nu, 1 = nubar, 2 = mix
+
+#ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
+string           gOptFluxFilePath = kDefOptFluxFilePath; // where flux files live
+#endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
+bool             gOptIsMonoEnFlux = true;                // do we have monoenergetic flux?
 
 NHLDecayMode_t   gOptDecayMode    = kNHLDcyNull;         // NHL decay mode
 
@@ -196,8 +217,8 @@ int main(int argc, char ** argv)
   ntpw.EventTree()->Branch("nhl_coup_e", &gOptECoupling, "gOptECoupling/D");
   ntpw.EventTree()->Branch("nhl_coup_m", &gOptMCoupling, "gOptMCoupling/D");
   ntpw.EventTree()->Branch("nhl_coup_t", &gOptTCoupling, "gOptTCoupling/D");
-  //ntpw.EventTree()->Branch("nhl_ismaj", &gOptIsMajorana, "gOptIsMajorana/I");
-  //ntpw.EventTree()->Branch("nhl_type", &gOptNHLKind, "gOptNHLKind/I");
+  ntpw.EventTree()->Branch("nhl_ismaj", &gOptIsMajorana, "gOptIsMajorana/I");
+  ntpw.EventTree()->Branch("nhl_type", &gOptNHLKind, "gOptNHLKind/I");
 
   // Create a MC job monitor for a periodically updated status file
   GMCJMonitor mcjmonitor(gOptRunNu);
@@ -217,6 +238,10 @@ int main(int argc, char ** argv)
 
   // RETHERE either seek out input flux or loop over some flux tuples
   // WIP
+  GFluxI * ff = 0; // only use this if the flux is not monoenergetic!
+  if( !gOptIsMonoEnFlux ){
+    ff = TH1FluxDriver();
+  }
 
   // RETHERE do some initial configuration re. couplings in job
   gOptECoupling = 1.0;
@@ -359,6 +384,186 @@ void InitBoundingBox(void)
     << "Initialised bounding box successfully.";
 }
 //_________________________________________________________________________________________
+// This is supposed to resolve the correct flux file
+// Open question: Do I want to invoke gevgen from within here? I'd argue not.
+//............................................................................
+#ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
+GFluxI * TH1FluxDriver(void)
+{
+  //
+  //
+  flux::GCylindTH1Flux * flux = new flux::GCylindTH1Flux;
+  TH1D * spectrum = 0;
+
+  double emin = 0.0; // RETHERE need to make this configurable.
+  double emax = 0.0+100.0; 
+
+  // read in mass of NHL and decide which fluxes to use
+  
+  assert(gOptMassNHL > 0.0);
+
+  // select mass point
+
+  int closest_masspoint = selectMass( gOptMassNHL );
+
+  LOG("gevgen_nhl", pDEBUG)
+    << "Mass inserted: " << gOptMassNHL << " GeV ==> mass point " << closest_masspoint;
+  LOG("gevgen_nhl", pDEBUG)
+    << "Using fluxes in base path " << gOptFluxFilePath.c_str();
+  
+  selectFile( gOptFluxFilePath, gOptMassNHL );
+  string finPath = NHLFluxReader::fPath; // is it good practice to keep this explicit?
+  LOG("gevgen_nhl", pDEBUG)
+    << "Looking for fluxes in " << finPath.c_str();
+  assert( !gSystem->AccessPathName( finPath.c_str()) );
+
+  // extract specified flux histogram from input root file
+
+  string hFluxName = string( "hHNLFluxCenterAcc" );
+  hFluxName.append( Form( "_%d", closest_masspoint ) );
+
+  TH1F *hfluxAllMu    = getFluxHist1F( finPath, hFluxName, kNumu );
+  TH1F *hfluxAllMubar = getFluxHist1F( finPath, hFluxName, kNumubar );
+  TH1F *hfluxAllE     = getFluxHist1F( finPath, hFluxName, kNue );
+  TH1F *hfluxAllEbar  = getFluxHist1F( finPath, hFluxName, kNuebar );
+
+  assert(hfluxAllMu);
+  assert(hfluxAllMubar);
+  assert(hfluxAllE);
+  assert(hfluxAllEbar);
+
+  LOG("gevgen_nhl", pDEBUG)
+    << "The histos have entries and max: "
+    << "\nNumu:    " << hfluxAllMu->GetEntries() << " entries with max = " << hfluxAllMu->GetMaximum()
+    << "\nNumubar: " << hfluxAllMubar->GetEntries() << " entries with max = " << hfluxAllMubar->GetMaximum()
+    << "\nNue:     " << hfluxAllE->GetEntries() << " entries with max = " << hfluxAllE->GetMaximum()
+    << "\nNuebar:  " << hfluxAllEbar->GetEntries() << " entries with max = " << hfluxAllEbar->GetMaximum();
+
+  // let's build the mixed flux.
+  
+  TH1F * spectrumF = (TH1F*) hfluxAllMu->Clone(0);
+
+  if( gOptECoupling == 0.0 ){ // no e coupling
+    if( gOptIsMajorana || gOptNHLKind == 2 ){
+      spectrumF->Add( hfluxAllMu, 1.0 );
+      spectrumF->Add( hfluxAllMubar, 1.0 );
+    }
+    else if( gOptNHLKind == 0 ){
+      spectrumF->Add( hfluxAllMu, 1.0 );
+    }
+    else{
+      spectrumF->Add( hfluxAllMubar, 1.0 );
+    }
+  }
+  else if( gOptMCoupling == 0.0 ){ // no mu coupling
+    if( gOptIsMajorana || gOptNHLKind == 2 ){
+      spectrumF->Add( hfluxAllE, 1.0 );
+      spectrumF->Add( hfluxAllEbar, 1.0 );
+    }
+    else if( gOptNHLKind == 0 ){
+      spectrumF->Add( hfluxAllE, 1.0 );
+    }
+    else{
+      spectrumF->Add( hfluxAllEbar, 1.0 );
+    }
+  }
+  else{ // add larger coupling as 1
+    double ratio = gOptECoupling / gOptMCoupling;
+    double rE = ( gOptECoupling > gOptMCoupling ) ? 1.0 : ratio;
+    double rM = ( gOptMCoupling > gOptECoupling ) ? 1.0 : 1.0 / ratio;
+    if( gOptIsMajorana || gOptNHLKind == 2 ){
+      spectrumF->Add( hfluxAllMu, rM );
+      spectrumF->Add( hfluxAllMubar, rM );
+      spectrumF->Add( hfluxAllE, rE );
+      spectrumF->Add( hfluxAllEbar, rE );
+    }
+    else if( gOptNHLKind == 0 ){
+      spectrumF->Add( hfluxAllMu, rM );
+      spectrumF->Add( hfluxAllE, rE );
+    }
+    else{
+      spectrumF->Add( hfluxAllMubar, rM );
+      spectrumF->Add( hfluxAllEbar, rE );
+    }
+  }
+
+  LOG( "gevgen_nhl", pDEBUG )
+    << "\n\n !!! ------------------------------------------------"
+    << "\n !!! gOptECoupling, gOptMCoupling, gOptTCoupling = " << gOptECoupling << ", " << gOptMCoupling << ", " << gOptTCoupling
+    << "\n !!! gOptNHLKind = " << gOptNHLKind
+    << "\n !!! gOptIsMajorana = " << gOptIsMajorana
+    << "\n !!! ------------------------------------------------"
+    << "\n !!! Flux spectrum has ** " << spectrumF->GetEntries() << " ** entries"
+    << "\n !!! Flux spectrum has ** " << spectrumF->GetMaximum() << " ** maximum"
+    << "\n !!! ------------------------------------------------ \n";
+
+  // copy into TH1D, *do not use the Copy() function!*
+  const int nbins = spectrumF->GetNbinsX();
+  spectrum = new TH1D( "s", "s", nbins, spectrumF->GetBinLowEdge(1), 
+		       spectrumF->GetBinLowEdge(nbins) + spectrumF->GetBinWidth(nbins) );
+  for( Int_t ib = 0; ib <= nbins; ib++ ){
+    spectrum->SetBinContent( ib, spectrumF->GetBinContent(ib) );
+  }
+  
+  spectrum->SetNameTitle("spectrum","NHL_flux");
+  spectrum->SetDirectory(0);
+  for(int ibin = 1; ibin <= hfluxAllMu->GetNbinsX(); ibin++) {
+    if(hfluxAllMu->GetBinLowEdge(ibin) + hfluxAllMu->GetBinWidth(ibin) > emax ||
+       hfluxAllMu->GetBinLowEdge(ibin) < emin) {
+      spectrum->SetBinContent(ibin, 0);
+    }
+  } // do I want to kill the overflow / underflow bins? Why?
+  
+  LOG("gevgen_nhl", pINFO) << spectrum->GetEntries() << " entries in spectrum";
+
+  // save input flux
+
+  TFile f("./input-flux.root","RECREATE");
+  spectrum->Write();
+
+  // store integrals in histo if not Majorana and mixed flux
+  // usual convention: bin 0+1 ==> numu etc
+  if( !gOptIsMajorana && gOptNHLKind == 2 ){
+    TH1D * hIntegrals = new TH1D( "hIntegrals", "hIntegrals", 4, 0.0, 1.0 );
+    hIntegrals->SetBinContent( 1, hfluxAllMu->Integral() );
+    hIntegrals->SetBinContent( 2, hfluxAllMubar->Integral() );
+    hIntegrals->SetBinContent( 3, hfluxAllE->Integral() );
+    hIntegrals->SetBinContent( 4, hfluxAllEbar->Integral() );
+
+    hIntegrals->SetDirectory(0);
+    hIntegrals->Write();
+
+    LOG( "gevgen_nhl", pDEBUG )
+      << "\n\nIntegrals asked for and stored. Here are their values by type:"
+      << "\nNumu: " << hfluxAllMu->Integral()
+      << "\nNumubar: " << hfluxAllMubar->Integral()
+      << "\nNue: " << hfluxAllE->Integral()
+      << "\nNuebar: " << hfluxAllEbar->Integral() << "\n\n";
+  }
+
+  f.Close();
+  LOG("gevgen_nhl", pDEBUG) 
+    << "Written spectrum to ./input-flux.root";
+
+  // keep "beam" == SM-neutrino beam direction at z s.t. cos(theta_z) == 1
+  // angular deviation of NHL (which is tiny, if assumption of collimated parents is made) made in main
+  
+  // Don't use GCylindTH1Flux's in-built methods - yet.
+
+  TVector3 bdir (0.0,0.0,1.0);
+  TVector3 bspot(0.0,0.0,1.0);
+
+  flux->SetNuDirection      (bdir);
+  flux->SetBeamSpot         (bspot);
+  flux->SetTransverseRadius (-1);
+  flux->AddEnergySpectrum   (genie::kPdgNHL, spectrum);
+
+  GFluxI * flux_driver = dynamic_cast<GFluxI *>(flux);
+  return flux_driver;
+}
+//............................................................................
+#endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
+//_________________________________________________________________________________________
 TLorentzVector GeneratePosition(void)
 {
   RandomGen * rnd = RandomGen::Instance();
@@ -497,19 +702,37 @@ void GetCommandLineArgs(int argc, char ** argv)
   PDGLibrary * pdglib = PDGLibrary::Instance();
   pdglib->AddNHL(gOptMassNHL);
 
-  // NHL energy (temporary - will disappear once we add an option to read a flux)
-  gOptEnergyNHL = -1;
-  if( parser.OptionExists('E') ) {
+  bool isMonoEnergeticFlux = true;
+#ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
+  if( parser.OptionExists('f') ) {
     LOG("gevgen_nhl", pDEBUG)
-        << "Reading NHL energy";
-    gOptEnergyNHL = parser.ArgAsDouble('E');
+      << "A flux has been offered. Searching this path: " << parser.ArgAsString('f');
+    isMonoEnergeticFlux = false;
+    gOptFluxFilePath = parser.ArgAsString('f');
   } else {
-    LOG("gevgen_nhl", pFATAL)
+    // we need the 'E' option! Log it and pass below
+    LOG("gevgen_nhl", pINFO)
+      << "No flux file offered. Assuming monoenergetic flux.";
+  } //-f
+#endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
+
+  // NHL energy (only relevant if we do not have an input flux)
+  gOptEnergyNHL = -1;
+  if( isMonoEnergeticFlux ){
+    if( parser.OptionExists('E') ) {
+      LOG("gevgen_nhl", pDEBUG)
+        << "Reading NHL energy";
+      gOptEnergyNHL = parser.ArgAsDouble('E');
+    } else {
+      LOG("gevgen_nhl", pFATAL)
         << "You need to specify the NHL energy";
-    PrintSyntax();
-    exit(0);
-  } //-E
-  assert(gOptEnergyNHL > gOptMassNHL);
+      PrintSyntax();
+      exit(0);
+    } //-E
+    assert(gOptEnergyNHL > gOptMassNHL);
+  }
+
+  gOptIsMonoEnFlux = isMonoEnergeticFlux;
 
   // NHL decay mode
   int mode = -1;
@@ -518,7 +741,7 @@ void GetCommandLineArgs(int argc, char ** argv)
         << "Reading NHL decay mode";
     mode = parser.ArgAsInt('m');
   } else {
-    LOG("gevgen_nhl", pNOTICE)
+    LOG("gevgen_nhl", pINFO)
         << "No decay mode specified - will sample from allowed decay modes";
   } //-m
   gOptDecayMode = (NHLDecayMode_t) mode;
@@ -642,14 +865,14 @@ void PrintSyntax(void)
    << "\n **Syntax**"
    << "\n gevgen_nhl [-h] "
    << "\n            [-r run#]"
-   << "\n             -E nhl_energy (temporary)"
+   << "\n             -n n_of_events"
+   << "\n             -f path/to/flux/files"
+   << "\n            [-E nhl_energy]"
    << "\n             --mass nhl_mass"
-   << "\n             -m decay_mode"
-   << "\n             -f flux ** not installed yet **"
+   << "\n            [-m decay_mode]"
    << "\n            [-g geometry]"
    << "\n            [-t top_volume_name_at_geom]"
    << "\n            [-L length_units_at_geom]"
-   << "\n             -n n_of_events "
    << "\n            [-o output_event_file_prefix]"
    << "\n            [--seed random_number_seed]"
    << "\n            [--message-thresholds xml_file]"
