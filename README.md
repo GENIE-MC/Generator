@@ -50,27 +50,30 @@ For more information, visit http://www.genie-mc.org
 
 ## Current authors:
 
-- Luis Alvarez-Ruso (*Instituto de Física Corpuscular (IFIC)*)
-- Costas Andreopoulos (**+**) (*University of Liverpool; Science & Technology Facilities Council (STFC), Rutherford Appleton Laboratory*)
-- Adi Ashkenazi (*Tel Aviv University*)
-- Steve Dytman (*University of Pittsburgh*)
-- Hugh Gallagher (*Tufts University*)
-- Alfonso Andres Garcia Soto (*Harvard University; Instituto de Física Corpuscular (IFIC)*)
-- Steven Gardiner (*Fermi National Accelerator Laboratory*)
-- Robert Hatcher (*Fermi National Accelerator Laboratory*)
-- Or Hen (*Massachusetts Institute of Technology*)
-- Timothy Hobbs (*Fermi National Accelerator Laboratory*)
-- Igor Kakorin (*Joint Institute for Nuclear Research (JINR)*)
-- Konstantin Kuzmin (*Alikhanov Institute for Theoretical and Experimental Physics (ITEP) of NRC "Kurchatov Institute"; Joint Institute for Nuclear Research (JINR)*)
-- Anselmo Meregaglia (*CENBG, Université de Bordeaux, CNRS/IN2P3*)
-- Vadim Naumov (*Joint Institute for Nuclear Research (JINR)*)
-- Afroditi Papadopoulou (*Massachusetts Institute of Technology*)
-- Gabriel Perdue (*Fermi National Accelerator Laboratory*)
-- Marco Roda (*University of Liverpool*)
-- Noah Steinberg (*Fermi National Accelerator Laboratory*)
-- Vladyslav Syrotenko (*Tufts University*)
-- Júlia Tena Vidal (*University of Liverpool*)
-- Jeremy Wolcott (*Tufts University*)
+- Luis Alvarez-Ruso (*IFIC*)
+- Costas Andreopoulos (+) (*Liverpool and STFC/RAL*)
+- Adi Ashkenazi (*Tel Aviv*)
+- Joshua Barrow (*Tel Aviv; MIT*)
+- Steve Dytman (*Pittsburgh*)
+- Hugh Gallagher (*Tufts*)
+- Alfonso Andres Garcia Soto (*Harvard and IFIC*)
+- Steven Gardiner (*Fermilab*)
+- Matan Goldenberg (*Tel Aviv*)
+- Robert Hatcher (*Fermilab*)
+- Or Hen (*MIT*)
+- Timothy Hobbs (*Fermilab*)
+- Igor Kakorin (*JINR*)
+- Konstantin Kuzmin (*ITEP and JINR*)
+- Anselmo Meregaglia (*Bordeaux, CNRS/IN2P3*)
+- Vadim Naumov (*JINR*)
+- Afroditi Papadopoulou (*MIT*)
+- Gabriel Perdue (*Fermilab*)
+- Marco Roda (*Liverpool*)
+- Alon Sportes (*Tel Aviv*)
+- Noah Steinberg (*Fermilab*)
+- Vladyslav Syrotenko (*Tufts*)
+- Júlia Tena Vidal (*Liverpool*)
+- Jeremy Wolcott (*Tufts*)
 
 ---
 (+) Corresponding Author:
@@ -90,13 +93,13 @@ For more information, visit http://www.genie-mc.org
 ## Past authors and other key contributors
 
 Past authors: 
-- Christopher Barry (*University of Liverpool*)
-- Steve Dennis (*University of Liverpool*)
-- Walter Giele (*Fermi National Accelerator Laboratory*)
-- Libo Jiang (*University of Pittsburgh*)
-- Rhiannon Jones (*University of Liverpool*)
-- Donna Naples (*University of Pittsburgh*)
-- Julia Yarba (*Fermi National Accelerator Laboratory*) 
+- Christopher Barry (*Liverpool*)
+- Steve Dennis (*Liverpool*)
+- Walter Giele (*Fermilab*)
+- Libo Jiang (*Pittsburgh*)
+- Rhiannon Jones (*Liverpool*)
+- Donna Naples (*Pittsburgh*)
+- Julia Yarba (*Fermilab*) 
 
 
 ## Copyright
