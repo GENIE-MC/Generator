@@ -150,6 +150,7 @@ const EventRecordVisitorI * NHLGenerator(void);
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 void     GenerateEventsUsingFlux (void);
 GFluxI * TH1FluxDriver           (void);
+int      DecideType              (TFile * spectrumFile);
 #endif // #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 
 //
@@ -207,9 +208,12 @@ int main(int argc, char ** argv)
   RandomGen * rnd = RandomGen::Instance();
 
   // RETHERE do some initial configuration re. couplings in job
+  // same for kind and Majorana!
   gOptECoupling = 1.0;
   gOptMCoupling = 1.0;
   gOptTCoupling = 0.0;
+  gOptNHLKind = 2; // for mixing
+  gOptIsMajorana = false;
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
@@ -247,20 +251,17 @@ int main(int argc, char ** argv)
   // WIP
   GFluxI * ff = 0; // only use this if the flux is not monoenergetic!
   TH1D * spectrum = 0;
-  TFile * f = 0;
+  TFile * spectrumFile = 0;
   if( !gOptIsMonoEnFlux ){
     ff = TH1FluxDriver();
 
     // ask the TH1FluxDriver which flux it used
-    f = TFile::Open("./input-flux.root", "READ");
-    TDirectory * baseDir = f->GetDirectory("");
+    spectrumFile = TFile::Open("./input-flux.root", "READ");
+    TDirectory * baseDir = spectrumFile->GetDirectory("");
     std::string fluxName = std::string( "spectrum" );
     assert( baseDir->GetListOfKeys()->Contains( fluxName.c_str() ) );
     spectrum = ( TH1D * ) baseDir->Get( fluxName.c_str() );
     assert( spectrum && spectrum != NULL );
-
-    LOG( "gevgen_nhl", pDEBUG )
-      << "Spectrum read out with " << spectrum->GetEntries() << " entries and " << spectrum->GetMaximum() << " maximum";
   }
 
   // Event loop
@@ -289,14 +290,30 @@ int main(int argc, char ** argv)
      }
      assert( gOptEnergyNHL > gOptMassNHL );
 
-     // for now, let's make 50% nu and 50% nubar - placeholder
-     // can query flux-spectrum to assign correct chances
-     double nuVsBar = rnd->RndGen().Uniform( 0.0, 1.0 );
-     int typeMod = ( nuVsBar < 0.5 ) ? 1 : -1;
+     int hpdg = genie::kPdgNHL;
+     int typeMod = 1;
      
-     int hpdg = genie::kPdgNHL * typeMod;
-
-     LOG("gevgen_nhl", pDEBUG) << "typeMod = " << typeMod;
+     // if not Majorana, check if we should be doing mixing
+     // if yes, get from fluxes
+     // if not, enforce nu vs nubar
+     if( !gOptIsMajorana ){
+       switch( gOptNHLKind ){
+       case 0: // always nu
+	 break;
+       case 1: // always nubar
+	 typeMod = -1;
+	 break;
+#ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
+       case 2:
+	 typeMod = DecideType( spectrumFile );
+	 break;
+#endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
+       default:
+	 typeMod = 1; // for now;
+       }
+       hpdg *= typeMod;
+       LOG("gevgen_nhl", pDEBUG) << "typeMod = " << typeMod;
+     }
 
      EventRecord * event = new EventRecord;
      // int target = SelectInitState();
@@ -680,6 +697,32 @@ int SelectDecayMode( std::vector< NHLDecayMode_t > * intChannels, SimpleNHL sh )
   int decay = ( int ) selectedDecayChan;
   return decay;
 }
+//_________________________________________________________________________________________
+#ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
+/// based on the mixing of nu vs nubar in beam, return 1 (nu) or -1 (nubar)
+int DecideType(TFile * spectrumFile){
+  string intName = "hIntegrals";
+  TDirectory * baseDir = spectrumFile->GetDirectory("");
+  assert( baseDir->GetListOfKeys()->Contains( intName.c_str() ) );
+
+  // 4 integrals, depending on co-produced lepton pdg. Group mu + e and mubar + ebar
+  TH1D * hIntegrals = ( TH1D * ) baseDir->Get( intName.c_str() );
+  double muInt    = hIntegrals->GetBinContent(1);
+  double eInt     = hIntegrals->GetBinContent(3);
+  double mubarInt = hIntegrals->GetBinContent(2);
+  double ebarInt  = hIntegrals->GetBinContent(4);
+
+  double nuInt    = muInt + eInt;
+  double nubarInt = mubarInt + ebarInt;
+  double totInt   = nuInt + nubarInt;
+
+  RandomGen * rnd = RandomGen::Instance();
+  double ranthrow = rnd->RndGen().Uniform(0.0, 1.0);
+
+  int typeMod = ( ranthrow <= nuInt / totInt ) ? 1 : -1;
+  return typeMod;
+}
+#endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 //_________________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
