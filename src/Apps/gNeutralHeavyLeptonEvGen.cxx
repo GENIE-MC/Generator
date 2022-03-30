@@ -102,6 +102,7 @@
 #include <TGeoBBox.h>
 
 #include "Framework/Algorithm/AlgFactory.h"
+#include "Framework/Conventions/Controls.h"
 #include "Framework/EventGen/EventRecord.h"
 #include "Framework/EventGen/EventGeneratorI.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
@@ -135,6 +136,7 @@ using namespace genie::NHL::NHLenums;
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #define __CAN_GENERATE_EVENTS_USING_A_FLUX__
 #include "Tools/Flux/GCylindTH1Flux.h"
+#include "TH1.h"
 #endif // #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 
 // function prototypes
@@ -204,6 +206,11 @@ int main(int argc, char ** argv)
 
   RandomGen * rnd = RandomGen::Instance();
 
+  // RETHERE do some initial configuration re. couplings in job
+  gOptECoupling = 1.0;
+  gOptMCoupling = 1.0;
+  gOptTCoupling = 0.0;
+
   // Initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
   ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);
@@ -239,14 +246,22 @@ int main(int argc, char ** argv)
   // RETHERE either seek out input flux or loop over some flux tuples
   // WIP
   GFluxI * ff = 0; // only use this if the flux is not monoenergetic!
+  TH1D * spectrum = 0;
+  TFile * f = 0;
   if( !gOptIsMonoEnFlux ){
     ff = TH1FluxDriver();
-  }
 
-  // RETHERE do some initial configuration re. couplings in job
-  gOptECoupling = 1.0;
-  gOptMCoupling = 1.0;
-  gOptTCoupling = 0.0;
+    // ask the TH1FluxDriver which flux it used
+    f = TFile::Open("./input-flux.root", "READ");
+    TDirectory * baseDir = f->GetDirectory("");
+    std::string fluxName = std::string( "spectrum" );
+    assert( baseDir->GetListOfKeys()->Contains( fluxName.c_str() ) );
+    spectrum = ( TH1D * ) baseDir->Get( fluxName.c_str() );
+    assert( spectrum && spectrum != NULL );
+
+    LOG( "gevgen_nhl", pDEBUG )
+      << "Spectrum read out with " << spectrum->GetEntries() << " entries and " << spectrum->GetMaximum() << " maximum";
+  }
 
   // Event loop
   int ievent = 0;
@@ -257,7 +272,20 @@ int main(int argc, char ** argv)
      LOG("gevgen_nhl", pNOTICE)
           << " *** Generating event............ " << ievent;
 
+     if( !gOptIsMonoEnFlux ){
+       LOG( "gevgen_nhl", pDEBUG )
+	 << "Getting energy from flux...";
+       gOptEnergyNHL = spectrum->GetRandom();
+       unsigned int ien = 0;
+       while( gOptEnergyNHL <= gOptMassNHL && ien < controls::kRjMaxIterations ){
+	 gOptEnergyNHL = spectrum->GetRandom(); // to prevent binning throwing E <= M
+	 ien++;
+       }
+     }
+     assert( gOptEnergyNHL > gOptMassNHL );
+
      // for now, let's make 50% nu and 50% nubar - placeholder
+     // can query flux-spectrum to assign correct chances
      double nuVsBar = rnd->RndGen().Uniform( 0.0, 1.0 );
      int typeMod = ( nuVsBar < 0.5 ) ? 1 : -1;
      
