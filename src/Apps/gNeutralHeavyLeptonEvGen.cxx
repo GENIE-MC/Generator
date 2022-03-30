@@ -14,7 +14,7 @@
                    [-E nhl_energy]
                     --mass nhl_mass
                    [-m decay_mode]
-		   [-g geometry]
+		   [-g geometry (ROOT file)]
                    [-L geometry_length_units]
                    [-t geometry_top_volume_name]
                    [-o output_event_file_prefix]
@@ -41,7 +41,6 @@
               Input NHL flux.
            -g
               Input detector geometry.
-              *** not implemented for gevgen_nhl yet ***
               If a geometry is specified, NHL decay vertices will be distributed
               in the desired detector volume.
               Using this argument, you can pass a ROOT file containing your
@@ -87,6 +86,7 @@
 */
 //_________________________________________________________________________________________
 // TODO: Make a NuMI alternative to input fluxes!
+//       Implement geometry read-in for InitBoundingBox()
 //_________________________________________________________________________________________
 
 #include <cassert>
@@ -96,10 +96,6 @@
 #include <sstream>
 
 #include <TSystem.h>
-#include <TGeoVolume.h>
-#include <TGeoManager.h>
-#include <TGeoShape.h>
-#include <TGeoBBox.h>
 
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Conventions/Controls.h"
@@ -136,15 +132,22 @@ using namespace genie::NHL::NHLenums;
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #define __CAN_GENERATE_EVENTS_USING_A_FLUX__
 #include "Tools/Flux/GCylindTH1Flux.h"
-#include "TH1.h"
+#include <TH1.h>
 #endif // #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
+
+#ifdef __GENIE_GEOM_DRIVERS_ENABLED__
+#define __CAN_USE_ROOT_GEOM__
+#include <TGeoVolume.h>
+#include <TGeoManager.h>
+#include <TGeoShape.h>
+#include <TGeoBBox.h>
+#endif // #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
 
 // function prototypes
 void  GetCommandLineArgs (int argc, char ** argv);
 void  PrintSyntax        (void);
-void  InitBoundingBox    (void);
+
 int   SelectDecayMode    (std::vector<NHLDecayMode_t> *intChannels, SimpleNHL sh);
-TLorentzVector GeneratePosition(void);
 const EventRecordVisitorI * NHLGenerator(void);
 
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
@@ -152,6 +155,11 @@ void     GenerateEventsUsingFlux (void);
 GFluxI * TH1FluxDriver           (void);
 int      DecideType              (TFile * spectrumFile);
 #endif // #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
+
+TLorentzVector GeneratePosition(void);
+#ifdef __CAN_USE_ROOT_GEOM__
+void  InitBoundingBox    (void);
+#endif // #ifdef __CAN_USE_ROOT_GEOM__
 
 //
 string          kDefOptGeomLUnits   = "mm";    // default geometry length units
@@ -241,8 +249,13 @@ int main(int argc, char ** argv)
   // Set GHEP print level
   GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
 
+#ifdef __CAN_USE_ROOT_GEOM__
   // Read geometry bounding box - for vertex position generation
-  InitBoundingBox();
+  // RETHERE this is /* decay vertex!!! */ position
+  if( gOptUsingRootGeom ){
+    InitBoundingBox();
+  }
+#endif // #ifdef __CAN_USE_ROOT_GEOM__
 
   // Get the nucleon decay generator
   const EventRecordVisitorI * mcgen = NHLGenerator();
@@ -390,6 +403,8 @@ int main(int argc, char ** argv)
   return 0;
 }
 //_________________________________________________________________________________________
+//............................................................................
+#ifdef __CAN_USE_ROOT_GEOM__
 void InitBoundingBox(void)
 {
 // Initialise geometry bounding box, used for generating NHL vertex positions
@@ -425,6 +440,11 @@ void InitBoundingBox(void)
   foy = (box->GetOrigin())[1];
   foz = (box->GetOrigin())[2];
 
+  LOG("gevgen_nhl", pINFO)
+    << "Before conversion the bounding box has:"
+    << "\nOrigin = ( " << fox << " , " << foy << " , " << foz << " )"
+    << "\nDimensions = " << fdx << " x " << fdy << " x " << fdz;
+
   // Convert from local to SI units
   fdx *= gOptGeomLUnits;
   fdy *= gOptGeomLUnits;
@@ -436,9 +456,9 @@ void InitBoundingBox(void)
   LOG("gevgen_nhl", pINFO)
     << "Initialised bounding box successfully.";
 }
+#endif // #ifdef __CAN_USE_ROOT_GEOM__
+//............................................................................
 //_________________________________________________________________________________________
-// This is supposed to resolve the correct flux file
-// Open question: Do I want to invoke gevgen from within here? I'd argue not.
 //............................................................................
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 GFluxI * TH1FluxDriver(void)
@@ -612,6 +632,8 @@ GFluxI * TH1FluxDriver(void)
   flux->AddEnergySpectrum   (genie::kPdgNHL, spectrum);
 
   GFluxI * flux_driver = dynamic_cast<GFluxI *>(flux);
+  LOG("gevgen_nhl", pDEBUG)
+    << "Returning flux driver and exiting method.";
   return flux_driver;
 }
 //............................................................................
@@ -839,6 +861,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   string geom = "";
   string lunits;
+#ifdef __CAN_USE_ROOT_GEOM__
   // string dunits;
   if( parser.OptionExists('g') ) {
     LOG("gevgen_nhl", pDEBUG) << "Getting input geometry";
@@ -850,6 +873,11 @@ void GetCommandLineArgs(int argc, char ** argv)
     if (accessible_geom_file) {
       gOptRootGeom      = geom;
       gOptUsingRootGeom = true;
+    } else {
+      LOG("gevgen_nhl", pFATAL)
+	<< "Geometry option is not a ROOT file. This is a work in progress; please use ROOT geom.";
+      PrintSyntax();
+      exit(1);
     }
   } else {
       // LOG("gevgen_nhl", pFATAL)
@@ -861,7 +889,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   if(gOptUsingRootGeom) {
      // using a ROOT geometry - get requested geometry units
 
-     // legth units:
+     // length units:
      if( parser.OptionExists('L') ) {
         LOG("gevgen_nhl", pDEBUG)
            << "Checking for input geometry length units";
@@ -892,6 +920,7 @@ void GetCommandLineArgs(int argc, char ** argv)
      } // -t
 
   } // using root geom?
+#endif // #ifdef __CAN_USE_ROOT_GEOM__
 
   // event file prefix
   if( parser.OptionExists('o') ) {
@@ -949,7 +978,7 @@ void PrintSyntax(void)
    << "\n            [-E nhl_energy]"
    << "\n             --mass nhl_mass"
    << "\n            [-m decay_mode]"
-   << "\n            [-g geometry]"
+   << "\n            [-g geometry (ROOT file)]"
    << "\n            [-t top_volume_name_at_geom]"
    << "\n            [-L length_units_at_geom]"
    << "\n            [-o output_event_file_prefix]"
