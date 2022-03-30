@@ -48,58 +48,38 @@ For more information, visit http://www.genie-mc.org
                            NmddhyyyssssyyyhdmmNNNmhhhyyyyhhddmN                                                
 </pre>
 
-## Authors
+## Current authors:
 
-<pre>
-Luis Alvarez-Ruso [4] < Luis.Alvarez \at ific.uv.es >, 
-Costas Andreopoulos (*) [7,10] < constantinos.andreopoulos \at cern.ch >, 
-Adi Ashkenazi [8] < adishka \at gmail.com >, 
-Christopher Barry [7] < C.Barry \at liverpool.ac.uk >, 
-Steve Dennis [7] < s.r.dennis \at liverpool.ac.uk >, 
-Steve Dytman [9] < dytman \at pitt.edu >, 
-Hugh Gallagher [11] < hugh.gallagher \at tufts.edu >, 
-Alfonso Andres Garcia Soto [3,4]  < aagarciasoto \at km3net.de >,
-Steven Gardiner[2] < gardiner \at fnal.gov >, 
-Walter Giele [2] < giele \at fnal.gov >, 
-Robert Hatcher [2] < rhatcher \at fnal.gov >, 
-Or Hen [8] < hen \at mit.edu >, 
-Timothy Hobbs [2] < thobbs \at fnal.gov >, 
-Libo Jiang [9] < libojiang8584 \at gmail.com >, 
-Rhiannon Jones [7] < rhiannon.jones \at liverpool.ac.uk >, 
-Igor Kakorin [6] < idkakorin \at gmail.com >, 
-Konstantin Kuzmin [5,6] < kkuzmin \at theor.jinr.ru >, 
-Anselmo Meregaglia [1] < anselmo.meregaglia \at cern.ch >, 
-Donna Naples [9], 
-Vadim Naumov [6] < vnaumov \at theor.jinr.ru >,  
-Afroditi Papadopoulou [8] < apapadop \at mit.edu >, 
-Gabriel Perdue [2] < perdue \at fnal.gov >, 
-Marco Roda [7]  < marco.roda \at liverpool.ac.uk >, 
-Noah Steinberg [2],  
-Vladyslav Syrotenko [11]  < Vladyslav.Syrotenko \at tufts.edu >, 
-Júlia Tena Vidal [7]  < j.tena-vidal \at liverpool.ac.uk >, 
-Jeremy Wolcott [11]  < jwolcott \at fnal.gov >, 
-Natalie Wright [8], and 
-Julia Yarba [2]  < yarba_j \at fnal.gov >
+- Luis Alvarez-Ruso (*IFIC*)
+- Costas Andreopoulos (+) (*Liverpool and STFC/RAL*)
+- Adi Ashkenazi (*Tel Aviv*)
+- Joshua Barrow (*Tel Aviv; MIT*)
+- Steve Dytman (*Pittsburgh*)
+- Hugh Gallagher (*Tufts*)
+- Alfonso Andres Garcia Soto (*Harvard and IFIC*)
+- Steven Gardiner (*Fermilab*)
+- Matan Goldenberg (*Tel Aviv*)
+- Robert Hatcher (*Fermilab*)
+- Or Hen (*MIT*)
+- Timothy Hobbs (*Fermilab*)
+- Igor Kakorin (*JINR*)
+- Konstantin Kuzmin (*ITEP and JINR*)
+- Anselmo Meregaglia (*Bordeaux, CNRS/IN2P3*)
+- Vadim Naumov (*JINR*)
+- Afroditi Papadopoulou (*MIT*)
+- Gabriel Perdue (*Fermilab*)
+- Marco Roda (*Liverpool*)
+- Alon Sportes (*Tel Aviv*)
+- Noah Steinberg (*Fermilab*)
+- Vladyslav Syrotenko (*Tufts*)
+- Júlia Tena Vidal (*Liverpool*)
+- Jeremy Wolcott (*Tufts*)
 
-(The GENIE Collaboration)
+---
+(+) Corresponding Author:
 
-(1) CENBG, Université de Bordeaux, CNRS/IN2P3, 33175 Gradignan, France
-(2) Fermi National Accelerator Laboratory, Batavia, Illinois 60510, USA
-(3) Harvard University, Dept. of Physics, Cambridge, MA 02138, USA
-(4) Instituto de Física Corpuscular (IFIC), Consejo Superior de Investigaciones Científicas (CSIC) y de la Universitat de Valéncia (UV), 46980, Paterna, Valéncia, Spain
-(5) Alikhanov Institute for Theoretical and Experimental Physics (ITEP) of NRC "Kurchatov Institute", Moscow, 117218, Russia 
-(6) Joint Institute for Nuclear Research (JINR), Dubna, Moscow region, 141980, Russia
-(7) University of Liverpool, Dept. of Physics, Liverpool L69 7ZE, UK 
-(8) Massachusetts Institute of Technology, Dept. of Physics, Cambridge, MA 02139, USA
-(9) University of Pittsburgh, Dept. of Physics and Astronomy, Pittsburgh PA 15260, USA
-(10) STFC Rutherford Appleton Laboratory, Particle Physics Dept., Harwell Oxford Campus, Oxfordshire OX11 0QX, UK
-(11) Tufts University, Dept. of Physics and Astronomy, Medford MA 02155, USA
-
---------------------
-(*) Corresponding Author:
-
- Prof. Costas Andreopoulos < constantinos.andreopoulos \at cern.ch >
-    
+**Prof. Costas Andreopoulos < constantinos.andreopoulos \at cern.ch >**
+<pre>    
  University of Liverpool          |  U.K. Research & Innovation (UKRI)
  Faculty of Science & Engineering |  Science & Technology Facilities Council (STFC)
  School of Physical Sciences      |  Rutherford Appleton Laboratory 
@@ -107,8 +87,20 @@ Julia Yarba [2]  < yarba_j \at fnal.gov >
  Oliver Lodge Lab 316             |  Harwell Oxford Campus, R1 2.89
  Liverpool L69 7ZE, UK            |  Oxfordshire OX11 0QX, UK          
  tel: +44-(0)1517-943201          |  tel: +44-(0)1235-445091 
+
 </pre>
  
+## Past authors and other key contributors
+
+Past authors: 
+- Christopher Barry (*Liverpool*)
+- Steve Dennis (*Liverpool*)
+- Walter Giele (*Fermilab*)
+- Libo Jiang (*Pittsburgh*)
+- Rhiannon Jones (*Liverpool*)
+- Donna Naples (*Pittsburgh*)
+- Julia Yarba (*Fermilab*) 
+
 
 ## Copyright
 
