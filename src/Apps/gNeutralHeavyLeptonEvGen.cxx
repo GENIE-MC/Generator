@@ -268,13 +268,16 @@ int main(int argc, char ** argv)
   int ievent = 0;
   while (1)
   {
-    if( ievent % (gOptNev / 1000 ) == 0 ){
-      int irat = ievent / ( gOptNev / 1000 );
-      std::cerr << 0.1 * irat << " % " << " ( " << ievent
-		<< " / " << gOptNev << " ) \r" << std::flush;
+    if( gOptNev >= 10000 ){
+      if( ievent % (gOptNev / 1000 ) == 0 ){
+	int irat = ievent / ( gOptNev / 1000 );
+	std::cerr << 0.1 * irat << " % " << " ( " << ievent
+		  << " / " << gOptNev << " ) \r" << std::flush;
+      }
     }
-     if(ievent == gOptNev) break;
 
+    if(ievent == gOptNev) break;
+      
      LOG("gevgen_nhl", pNOTICE)
           << " *** Generating event............ " << ievent;
 
