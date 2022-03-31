@@ -70,8 +70,6 @@ void NHLPrimaryVtxGenerator::ProcessEventRecord(GHepRecord * event) const
 //____________________________________________________________________________
 void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
 {
-  TLorentzVector v4(0,0,0,0);
-
   if( fUe42 == -1.0 && fUm42 == -1.0 && fUt42 == -1.0 ){
     LOG( "NHL", pINFO )
       << "Setting couplings to (1,1,0). This will change.";
@@ -82,43 +80,28 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
     fUt42 = 0.0;
   }
 
-  // let's query *where* the NHL decayed from.
-  // RETHERE - perhaps should return to GCylindTH1Flux-like implementation?
-  if( !fProdVtxHist || fProdVtxHist == 0 ){
-    std::string pvPath = "/GENIEv2/Generator/data/flux/HNL/HNL_vertex_positions.root"; // RETHERE - need to fix this!
-    std::string pdName = "/numu";
-    std::string pvName = "hHNLVtxPos";
-    fProdVtxHist = NHLFluxReader::getFluxHist3D( pvPath, pdName, pvName );
-  }
-  assert( fProdVtxHist );
-  LOG( "NHL", pDEBUG )
-    << "Found production vertex histo with " << fProdVtxHist->GetEntries() << " entries. Good!";
+  std::vector< double > * prodVtx = this->GenerateDecayPosition( event );
+  std::vector< double > * p3NHL = this->GenerateMomentum( event );
 
-  std::vector< double > * prodVtx = NHLFluxReader::generateVtx3X( fProdVtxHist );
-  LOG( "NHL", pDEBUG )
-    << "Production vertex at: ( " << prodVtx->at(0) << ", " << prodVtx->at(1) << ", " << prodVtx->at(2) << ") [cm]";
-
-  v4.SetXYZT( prodVtx->at(0), prodVtx->at(1), prodVtx->at(2), 0.0 );
+  TLorentzVector v4( prodVtx->at(0), prodVtx->at(1), prodVtx->at(2), 0.0 );
 
   Interaction * interaction = event->Summary();
+
+  double px = p3NHL->at(0);
+  double py = p3NHL->at(1);
+  double pz = p3NHL->at(2);
   double E = interaction->InitState().ProbeE(kRfLab);
-  double M = PDGLibrary::Instance()->Find(kPdgNHL)->Mass();
-  double p = TMath::Sqrt(E*E-M*M);
-
-  // set some initial deviation from beam axis due to collimation effect
-  // RETHERE make this configurable
-  double thetaDev = 0.06; // deg
-  thetaDev *= genie::constants::kPi / 180.0; // rad
-  RandomGen * Rng = RandomGen::Instance();
-  double theta = Rng->RndGen().Gaus(0.0, thetaDev);
-  if( theta < 0.0 ) theta *= -1.0;
-  double phi = Rng->RndGen().Uniform(0.0, 2.0 * genie::constants::kPi);
-
-  double px = p * std::sin(theta) * std::cos(phi);
-  double py = p * std::sin(theta) * std::sin(phi);
-  double pz = p * std::cos(theta);
   
-  TLorentzVector p4(px,py,pz,E);
+  TLorentzVector p4( px, py, pz, E );
+
+  LOG( "NHL", pDEBUG )
+    << "Probe p4 = ( " << px << ", " << py << ", " << pz << ", " << E << " )";
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4( p4 );
+  
+  // RETHERE this is a hack to get the position!
+  init_state->SetTgtP4( v4 );
 
   int hpdg = interaction->InitState().ProbePdg();
   event->AddParticle(hpdg, kIStInitialState, 0,-1,-1,-1, p4, v4);
@@ -250,10 +233,65 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
      idp++;
   }
 
+  LOG("NHL", pNOTICE)
+    << "Finished with decay products. Clean up and exit!";
+
   // Clean-up
   delete [] mass;
   delete p4d;
   delete v4d;
+}
+//____________________________________________________________________________
+std::vector< double > * NHLPrimaryVtxGenerator::GenerateDecayPosition( GHepRecord * event ) const
+{
+  // let's query *where* the NHL decayed from.
+  // RETHERE - perhaps should return to GCylindTH1Flux-like implementation?
+  if( !fProdVtxHist || fProdVtxHist == 0 ){
+    std::string pvPath = "/GENIEv2/Generator/data/flux/HNL/HNL_vertex_positions.root"; // RETHERE - need to fix this!
+    std::string pdName = "";
+    std::string pvName = "hHNLVtxPos";
+    fProdVtxHist = NHLFluxReader::getFluxHist3D( pvPath, pdName, pvName );
+  }
+  assert( fProdVtxHist );
+  LOG( "NHL", pDEBUG )
+    << "Found production vertex histo with " << fProdVtxHist->GetEntries() << " entries. Good!";
+  
+  std::vector< double > * prodVtx = NHLFluxReader::generateVtx3X( fProdVtxHist );
+  LOG( "NHL", pDEBUG )
+    << "Production vertex at: ( " << prodVtx->at(0) << ", " << prodVtx->at(1) << ", " << prodVtx->at(2) << ") [cm]";
+
+  return prodVtx;
+}
+//____________________________________________________________________________
+std::vector< double > * NHLPrimaryVtxGenerator::GenerateMomentum( GHepRecord * event ) const
+{
+  Interaction * interaction = event->Summary();
+  double E = interaction->InitState().ProbeE(kRfLab);
+  double M = PDGLibrary::Instance()->Find(kPdgNHL)->Mass();
+  double p = TMath::Sqrt(E*E-M*M);
+
+  // set some initial deviation from beam axis due to collimation effect
+  // RETHERE make this configurable
+  double thetaDev = 0.06; // deg
+  thetaDev *= genie::constants::kPi / 180.0; // rad
+  RandomGen * Rng = RandomGen::Instance();
+  double theta = Rng->RndGen().Gaus(0.0, thetaDev);
+  if( theta < 0.0 ) theta *= -1.0;
+  double phi = Rng->RndGen().Uniform(0.0, 2.0 * genie::constants::kPi);
+
+  double px = p * std::sin(theta) * std::cos(phi);
+  double py = p * std::sin(theta) * std::sin(phi);
+  double pz = p * std::cos(theta);
+
+  std::vector< double > * p3NHL = new std::vector< double >();
+  p3NHL->emplace_back(px);
+  p3NHL->emplace_back(py);
+  p3NHL->emplace_back(pz);
+
+  LOG( "NHL", pDEBUG )
+    << "Generated momentum: ( " << px << ", " << py << ", " << pz << " )"; 
+
+  return p3NHL;
 }
 //____________________________________________________________________________
 void NHLPrimaryVtxGenerator::Configure(const Registry & config)

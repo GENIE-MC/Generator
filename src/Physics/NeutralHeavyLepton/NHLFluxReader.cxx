@@ -114,7 +114,8 @@ TH1F * NHLFluxReader::getFluxHist1F( std::string fin, std::string hName, int HTy
 TH3D * NHLFluxReader::getFluxHist3D( std::string fin, std::string dirName, std::string hName ){
   TFile * f = TFile::Open( fin.c_str() );
 
-  TDirectory * deepDir = f->GetDirectory( dirName.c_str() );
+  TDirectory * baseDir = f->GetDirectory( "" );
+  TDirectory * deepDir = baseDir->GetDirectory( dirName.c_str() );
   assert( deepDir );
   assert( deepDir->GetListOfKeys()->Contains( hName.c_str() ) );
 

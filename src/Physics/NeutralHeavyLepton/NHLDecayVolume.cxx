@@ -262,9 +262,14 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   fSx = sx; fSy = sy; fSz = sz;
   fPx = px; fPy = py; fPz = pz;
 
-  // put first point at z = const 2m behind the bounding box
+  // RETHERE I am hacking to set MINERvA ID tracker as top volume.
+  TGeoVolume * tracker = gm->FindVolumeFast("DetectorlvTracker");
+  assert(tracker);
+  gm->SetTopVolume(tracker);
+
+  // put first point at z = const 0.5m behind the bounding box
   // RETHERE, this is a placeholder
-  double firstZOffset = 2.0; // m
+  double firstZOffset = 0.1; // m
   firstZOffset *= genie::units::m / lunits;
 
   double firstZ = fOx - fLz/2.0 - firstZOffset;
@@ -283,33 +288,33 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   gm->SetCurrentPoint( firstX, firstY, firstZ );
   gm->SetCurrentDirection( px, py, pz );
 
-  assert( gm->FindNode() == NULL ); // need to be outside volume!
+  LOG( "NHL", pDEBUG )
+    << "\nCurrent point     is: ( " << firstX << ", " << firstY << ", " << firstZ << " )"
+    << "\nCurrent direction is: ( " << px << ", " << py << ", " << pz << " )";
 
-  double stepmax = 1.0e+6; // cm
+  assert( gm->FindNode() == NULL || gm->FindNode() == gm->GetTopNode() ); // need to be outside volume!
+
+  // RETHERE - the root file units are cm! Gotta implement or use -L option
+  double stepmax = 1.0e+6; // cm 
   stepmax *= genie::units::cm / lunits;
+  double stepreg = 1.0; // mm
+  stepreg *= genie::units::mm / lunits;
   double stepsmall = 1.0e-2; // cm
   stepsmall *= genie::units::cm / lunits;
 
   int ibound = 0;
   const int imax = 10;
+
+  LOG( "NHL", pDEBUG )
+    << "Starting to search for intersections...";
   
-  // enter the volume. If rounding errors keep us out, start stepping forwards until we enter 
-  TGeoNode * tmpNode = gm->FindNextBoundaryAndStep( stepmax );
-  if( tmpNode == NULL ){ // need to manually step now
-    while( tmpNode == NULL && ibound < imax ){
-      double xnew = (gm->GetCurrentPoint())[0] + (gm->GetCurrentDirection())[0] * stepsmall;
-      double ynew = (gm->GetCurrentPoint())[1] + (gm->GetCurrentDirection())[1] * stepsmall;
-      double znew = (gm->GetCurrentPoint())[2] + (gm->GetCurrentDirection())[2] * stepsmall;
-      gm->SetCurrentPoint( xnew, ynew, znew );
-      tmpNode = gm->FindNode();
-      ibound++;
-    }
-    if( tmpNode == NULL ){ // we are still not inside a volume. Reroll.
-      LOG( "NHL", pWARN )
-	<< "Failed to find an intersection with the volume. Dropping this trajectory.";
-      return false;
-    }
-  }
+  // enter the volume. If rounding errors keep us out, do one step forwards
+  TGeoNode * tmpNode = gm->FindNextBoundary( stepmax ); 
+  
+  if( tmpNode == NULL ) return false;
+  
+  Double_t sFirst = gm->GetStep();
+  tmpNode = gm->Step();
 
   // entered the detector, let's save this point
   fEx = ( gm->GetCurrentPoint() )[0];
@@ -321,16 +326,51 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
     << "Entry point found at ( " << fEx << ", " << fEy << ", " << fEz << " )"; 
 
   // now propagate until we exit again
-  // This will make tmpNode NULL
   
-  while( tmpNode != NULL ){
-    gm->FindNextBoundaryAndStep( stepmax );
+  int bdIdx = 0;
+  const int bdIdxMax = 1e+4;
+  double stepDist = -1.0; double stepDistMax = 10.0; //std::sqrt(3)/2 * std::sqrt( fLx*fLx + fLy*fLy + fLz*fLz ); // diagonal of bounding box. Can't step outside without leaving detector
+
+  bool isFrontRay = ( gm->FindNextBoundary( stepmax ) );
+
+  double sfx = 0.0, sfy = 0.0, sfz = 0.0; // coords of the "safe" points
+
+  while( isFrontRay && bdIdx < bdIdxMax && stepDist <= stepDistMax ){
+    const Double_t * oldPoint = gm->GetCurrentPoint();
+
+    isFrontRay = ( gm->FindNextBoundary(stepmax) );
+    if( isFrontRay ){
+      Double_t sNext = gm->GetStep();
+      TGeoNode * nextNode = gm->Step();
+    }
+    const Double_t * currPoint = gm->GetCurrentPoint();
+
+    double dx = currPoint[0] - oldPoint[0];
+    double dy = currPoint[1] - oldPoint[1];
+    double dz = currPoint[2] - oldPoint[2];
+
+    stepDist = std::sqrt( dx*dx + dy*dy + dz*dz );
+
+    if( stepDist < stepDistMax ){ // legal step!
+      sfx = currPoint[0];
+      sfy = currPoint[1];
+      sfz = currPoint[2];
+    }
+
+    LOG( "NHL", pDEBUG )
+      << "Step " << bdIdx << " : ( " << currPoint[0] << ", " << currPoint[1] << ", " << currPoint[2] << " )";
+    bdIdx++;
+  }
+  if( bdIdx == bdIdxMax ){
+    LOG( "NHL", pWARN )
+      << "Failed to exit this volume. Dropping this trajectory.";
+    return false;
   }
 
   // exited the detector, let's save this point
-  fXx = ( gm->GetCurrentPoint() )[0];
-  fXy = ( gm->GetCurrentPoint() )[1];
-  fXz = ( gm->GetCurrentPoint() )[2];
+  fXx = sfx;
+  fXy = sfy;
+  fXz = sfz;
   exitPoint.SetXYZ( fXx, fXy, fXz );
 
   LOG( "NHL", pDEBUG )

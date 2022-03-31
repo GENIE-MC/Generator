@@ -110,6 +110,7 @@
 #include "Physics/NeutralHeavyLepton/NHLDecayUtils.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayVolume.h"
 #include "Physics/NeutralHeavyLepton/NHLFluxReader.h"
+#include "Physics/NeutralHeavyLepton/NHLPrimaryVtxGenerator.h"
 #include "Physics/NeutralHeavyLepton/SimpleNHL.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -383,29 +384,58 @@ int main(int argc, char ** argv)
      mcgen->ProcessEventRecord(event);
 
      // Generate a position for the decay vertex
+
+     LOG("gevgen_nhl", pDEBUG)
+       << "Set startPoint and momentum";
+       
      TLorentzVector x4;
      TVector3 startPoint, momentum, entryPoint, exitPoint;
 
      // sample production vertex
-     const TLorentzVector * x4NHL = event->Probe()->GetX4();
+     const TLorentzVector * x4NHL = interaction->InitState().GetTgtP4( kRfLab );
+     LOG("gevgen_nhl", pDEBUG)
+       << "Detected vertex at ( " << x4NHL->Px() << ", " << x4NHL->Py() << ", " << x4NHL->Pz() << ")";
      startPoint.SetXYZ( x4NHL->Px(), x4NHL->Py(), x4NHL->Pz() );
      LOG( "gevgen_nhl", pDEBUG )
        << "Set start point for this trajectory = ( " << startPoint.X() << ", " << startPoint.Y() << ", " << startPoint.Z() << " )";
 
      // get momentum of this channel
      const TLorentzVector * p4NHL = interaction->InitState().GetProbeP4( kRfLab );
-     momentum.SetXYZ( p4NHL->Px(), p4NHL->Py(), p4NHL->Pz() );
+     momentum.SetXYZ( p4NHL->Px() / p4NHL->P(), p4NHL->Py() / p4NHL->P(), p4NHL->Pz() / p4NHL->P() );
      LOG( "gevgen_nhl", pDEBUG )
        << "Set momentum for trajectory = ( " << momentum.X() << ", " << momentum.Y() << ", " << momentum.Z() << " )";
 
      TGeoManager * gm = 0;
      TGeoVolume * vol = 0;
+     NHLPrimaryVtxGenerator * nhlgen = new NHLPrimaryVtxGenerator();;
      if( gOptUsingRootGeom ){
        x4 = GeneratePosition(); // RETHERE, want to remove this!
        gm = TGeoManager::Import(gOptRootGeom.c_str());
        // RETHERE I only make this for some plots. Must remove
        vol = gm->FindVolumeFast("DetectorlvTracker");
-       NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gm, vol );
+       
+       int trajIdx = 0;
+       bool didIntersectDet = NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gm, vol );
+       while( !didIntersectDet && trajIdx < 1e+2 ){
+	 // sample prod vtx and momentum... again
+	 LOG( "gevgen_nhl", pDEBUG )
+	   << "Sampling another trajectory (index = " << trajIdx << ")";
+	 std::vector< double > * newProdVtx  = nhlgen->GenerateDecayPosition( event );
+	 //std::vector< double > * newMomentum = nhlgen->GenerateMomentum( event );
+
+	 startPoint.SetXYZ( newProdVtx->at(0), newProdVtx->at(1), newProdVtx->at(2) );
+	 LOG( "gevgen_nhl", pDEBUG )
+	   << "Set start point for this trajectory = ( " << startPoint.X() << ", " << startPoint.Y() << ", " << startPoint.Z() << " )";
+
+	 trajIdx++;
+	 didIntersectDet = NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gm, vol );
+       }
+       
+       if( trajIdx == 1e+2 && !didIntersectDet ){
+	 LOG( "gevgen_nhl", pFATAL )
+	   << "Unable to make a single good trajectory that intersects the detector after 100 tries! Exiting...";
+	 exit(1);
+       }
      } else{
        x4 = GeneratePosition();
      }

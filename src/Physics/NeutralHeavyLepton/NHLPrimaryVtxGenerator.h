@@ -48,13 +48,15 @@ public:
   void Configure(const Registry & config);
   void Configure(string config);
 
+  // required public to reroll vertex positioning in main app 
+  std::vector< double > * GenerateDecayPosition (GHepRecord * event) const;
+  std::vector< double > * GenerateMomentum (GHepRecord * event) const;
+
 private:
 
    void LoadConfig            (void);
    void AddInitialState       (GHepRecord * event) const;
    void GenerateDecayProducts (GHepRecord * event) const;
-   // to be introduced later!
-   //void GenerateDecayPosition (GHepRecord * event) const;
    void SetNHLCouplings          (double Ue42, double Um42, double Ut42) const;
 
    mutable int                        fCurrInitStatePdg;
