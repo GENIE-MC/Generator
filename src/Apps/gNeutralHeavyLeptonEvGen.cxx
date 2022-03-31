@@ -103,10 +103,12 @@
 #include "Framework/EventGen/EventGeneratorI.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/EventGen/GMCJMonitor.h"
+#include "Framework/GHEP/GHepParticle.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Ntuple/NtpWriter.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayMode.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayUtils.h"
+#include "Physics/NeutralHeavyLepton/NHLDecayVolume.h"
 #include "Physics/NeutralHeavyLepton/NHLFluxReader.h"
 #include "Physics/NeutralHeavyLepton/SimpleNHL.h"
 #include "Framework/Numerical/RandomGen.h"
@@ -191,6 +193,7 @@ NHLDecayMode_t   gOptDecayMode    = kNHLDcyNull;         // NHL decay mode
 string           gOptEvFilePrefix = kDefOptEvFilePrefix; // event file prefix
 bool             gOptUsingRootGeom = false;              // using root geom or target mix?
 string           gOptRootGeom;                           // input ROOT file with realistic detector geometry
+
 string           gOptRootGeomTopVol = "";                // input geometry top event generation volume
 double           gOptGeomLUnits = 0;                     // input geometry length units
 long int         gOptRanSeed = -1;                       // random number seed
@@ -251,7 +254,6 @@ int main(int argc, char ** argv)
 
 #ifdef __CAN_USE_ROOT_GEOM__
   // Read geometry bounding box - for vertex position generation
-  // RETHERE this is /* decay vertex!!! */ position
   if( gOptUsingRootGeom ){
     InitBoundingBox();
   }
@@ -359,14 +361,14 @@ int main(int argc, char ** argv)
        std::vector< NHLDecayMode_t > * intChannels = new std::vector< NHLDecayMode_t >();
        intChannels->emplace_back( kNHLDcyPiE );
        intChannels->emplace_back( kNHLDcyPiMu );
-       intChannels->emplace_back( kNHLDcyPi0Nu );
-       intChannels->emplace_back( kNHLDcyNuNuNu );
-       intChannels->emplace_back( kNHLDcyNuMuMu );
-       intChannels->emplace_back( kNHLDcyNuEE );
-       intChannels->emplace_back( kNHLDcyNuMuE );
-       intChannels->emplace_back( kNHLDcyPiPi0E );
-       intChannels->emplace_back( kNHLDcyPiPi0Mu );
-       intChannels->emplace_back( kNHLDcyPi0Pi0Nu );
+       //intChannels->emplace_back( kNHLDcyPi0Nu );
+       //intChannels->emplace_back( kNHLDcyNuNuNu );
+       //intChannels->emplace_back( kNHLDcyNuMuMu );
+       //intChannels->emplace_back( kNHLDcyNuEE );
+       //intChannels->emplace_back( kNHLDcyNuMuE );
+       //intChannels->emplace_back( kNHLDcyPiPi0E );
+       //intChannels->emplace_back( kNHLDcyPiPi0Mu );
+       //intChannels->emplace_back( kNHLDcyPi0Pi0Nu );
 
        decay = SelectDecayMode( intChannels, sh );
      }
@@ -380,8 +382,33 @@ int main(int argc, char ** argv)
      // Simulate decay
      mcgen->ProcessEventRecord(event);
 
-     // Generate a position within the geometry bounding box
-     TLorentzVector x4 = GeneratePosition();
+     // Generate a position for the decay vertex
+     TLorentzVector x4;
+     TVector3 startPoint, momentum, entryPoint, exitPoint;
+
+     // sample production vertex
+     const TLorentzVector * x4NHL = event->Probe()->GetX4();
+     startPoint.SetXYZ( x4NHL->Px(), x4NHL->Py(), x4NHL->Pz() );
+     LOG( "gevgen_nhl", pDEBUG )
+       << "Set start point for this trajectory = ( " << startPoint.X() << ", " << startPoint.Y() << ", " << startPoint.Z() << " )";
+
+     // get momentum of this channel
+     const TLorentzVector * p4NHL = interaction->InitState().GetProbeP4( kRfLab );
+     momentum.SetXYZ( p4NHL->Px(), p4NHL->Py(), p4NHL->Pz() );
+     LOG( "gevgen_nhl", pDEBUG )
+       << "Set momentum for trajectory = ( " << momentum.X() << ", " << momentum.Y() << ", " << momentum.Z() << " )";
+
+     TGeoManager * gm = 0;
+     TGeoVolume * vol = 0;
+     if( gOptUsingRootGeom ){
+       x4 = GeneratePosition(); // RETHERE, want to remove this!
+       gm = TGeoManager::Import(gOptRootGeom.c_str());
+       // RETHERE I only make this for some plots. Must remove
+       vol = gm->FindVolumeFast("DetectorlvTracker");
+       NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gm, vol );
+     } else{
+       x4 = GeneratePosition();
+     }
      event->SetVertex(x4);
 
      LOG("gevgen_nhl", pINFO)
@@ -430,8 +457,20 @@ void InitBoundingBox(void)
 
   TGeoManager * gm = TGeoManager::Import(gOptRootGeom.c_str());
   TGeoVolume * top_volume = gm->GetTopVolume();
-  TGeoShape * ts  = top_volume->GetShape();
+  
+
+  // RETHERE I only make this for some plots. Must remove
+  TGeoVolume * tracker = gm->FindVolumeFast("DetectorlvTracker");
+  assert(tracker);
+  gm->SetTopVolume( tracker );
+  TGeoShape * ts  = tracker->GetShape();
+  
+  //TGeoShape * ts  = top_volume->GetShape();
   TGeoBBox *  box = (TGeoBBox *)ts;
+  
+  // pass this box to NHLDecayVolume
+  NHLDecayVolume::ImportBoundingBox( box );
+
   //get box origin and dimensions (in the same units as the geometry)
   fdx = box->GetDX(); // half-length
   fdy = box->GetDY(); // half-length

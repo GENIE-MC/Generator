@@ -20,6 +20,7 @@
 #define _NEUTRAL_HEAVY_LEPTON_PRIMARY_VTX_GENERATOR_H_
 
 #include <TGenPhaseSpace.h>
+#include <TH3.h>
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/Numerical/RandomGen.h"
@@ -27,6 +28,7 @@
 
 #include "Physics/NeutralHeavyLepton/NHLDecayMode.h"
 #include "Physics/NeutralHeavyLepton/NHLEnums.h" // to be removed later
+#include "Physics/NeutralHeavyLepton/NHLFluxReader.h"
 #include "Physics/NeutralHeavyLepton/SimpleNHL.h"
 
 namespace genie {
@@ -61,8 +63,7 @@ private:
 
    mutable double                     fEnergy;
    mutable double                     fUe42 = -1.0, fUm42 = -1.0, fUt42 = -1.0;
-   // to be implemented!
-   //mutable TH3D *                     fProdVtxHist = 0;
+   mutable TH3D *                     fProdVtxHist = 0;
 };
 
 } // genie namespace

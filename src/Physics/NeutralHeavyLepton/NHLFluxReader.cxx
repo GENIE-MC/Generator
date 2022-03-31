@@ -111,6 +111,30 @@ TH1F * NHLFluxReader::getFluxHist1F( std::string fin, std::string hName, int HTy
     return histPtr;
 }
 
+TH3D * NHLFluxReader::getFluxHist3D( std::string fin, std::string dirName, std::string hName ){
+  TFile * f = TFile::Open( fin.c_str() );
+
+  TDirectory * deepDir = f->GetDirectory( dirName.c_str() );
+  assert( deepDir );
+  assert( deepDir->GetListOfKeys()->Contains( hName.c_str() ) );
+
+  TH3D * histPtr = dynamic_cast< TH3D* >( deepDir->Get( hName.c_str() ) );
+  return histPtr;
+}
+
+std::vector< double > * NHLFluxReader::generateVtx3X( TH3D * prodVtxHist )
+{
+  double ux = 0.0, uy = 0.0, uz = 0.0;
+  prodVtxHist->GetRandom3( ux, uy, uz );
+
+  std::vector< double > * vtxDir = new std::vector< double >();
+  vtxDir->emplace_back( ux );
+  vtxDir->emplace_back( uy );
+  vtxDir->emplace_back( uz );
+
+  return vtxDir;
+}
+
 SimpleNHL generateNHL( const int PDG, const int parPDG, const double mN,
 		       const double Ue42, const double Um42, const double Ut42 ){
   return SimpleNHL( "NHL", 0, PDG, parPDG, mN, Ue42, Um42, Ut42, false );

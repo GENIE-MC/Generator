@@ -70,7 +70,7 @@ void NHLPrimaryVtxGenerator::ProcessEventRecord(GHepRecord * event) const
 //____________________________________________________________________________
 void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
 {
-  TLorentzVector v4(0,0,0,0); // RETHERE make a way to sample the decay vertex position
+  TLorentzVector v4(0,0,0,0);
 
   if( fUe42 == -1.0 && fUm42 == -1.0 && fUt42 == -1.0 ){
     LOG( "NHL", pINFO )
@@ -81,6 +81,24 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
     fUm42 = 1.0;
     fUt42 = 0.0;
   }
+
+  // let's query *where* the NHL decayed from.
+  // RETHERE - perhaps should return to GCylindTH1Flux-like implementation?
+  if( !fProdVtxHist || fProdVtxHist == 0 ){
+    std::string pvPath = "/GENIEv2/Generator/data/flux/HNL/HNL_vertex_positions.root"; // RETHERE - need to fix this!
+    std::string pdName = "/numu";
+    std::string pvName = "hHNLVtxPos";
+    fProdVtxHist = NHLFluxReader::getFluxHist3D( pvPath, pdName, pvName );
+  }
+  assert( fProdVtxHist );
+  LOG( "NHL", pDEBUG )
+    << "Found production vertex histo with " << fProdVtxHist->GetEntries() << " entries. Good!";
+
+  std::vector< double > * prodVtx = NHLFluxReader::generateVtx3X( fProdVtxHist );
+  LOG( "NHL", pDEBUG )
+    << "Production vertex at: ( " << prodVtx->at(0) << ", " << prodVtx->at(1) << ", " << prodVtx->at(2) << ") [cm]";
+
+  v4.SetXYZT( prodVtx->at(0), prodVtx->at(1), prodVtx->at(2), 0.0 );
 
   Interaction * interaction = event->Summary();
   double E = interaction->InitState().ProbeE(kRfLab);

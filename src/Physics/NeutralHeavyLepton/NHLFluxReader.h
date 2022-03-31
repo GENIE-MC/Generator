@@ -68,6 +68,10 @@ namespace NHL{
 
     /// get the histogram and energy from it
     TH1F * getFluxHist1F( std::string fin, std::string hName, int HType );
+
+    TH3D * getFluxHist3D( std::string fin, std::string dirName, std::string hName );
+
+    std::vector< double > * generateVtx3X( TH3D * prodVtxHist );
     
     /// interface to SimpleNHL constructor
     genie::NHL::SimpleNHL generateNHL( const int PDG, const int parPDG, const double mN,
