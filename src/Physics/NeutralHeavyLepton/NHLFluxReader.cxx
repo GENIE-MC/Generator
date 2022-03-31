@@ -39,7 +39,7 @@ int NHLFluxReader::selectMass( const double mN ){
       massHyp_t thisHyp = massesHyp[i];
       auto pos = massHypMap.find( thisHyp );
       masses[i] = pos->second;
-      LOG("SimpleNHL", pINFO) 
+      LOG("NHL", pINFO) 
 	<< "At position " << i << " the mass hypothesis is " << masses[i];
     }
 

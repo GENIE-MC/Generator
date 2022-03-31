@@ -31,7 +31,7 @@ double NHLDecayVolume::ft = 0.0; // elapsed time
 
 double NHLDecayVolume::kNewSpeedOfLight = genie::units::kSpeedOfLight 
   * (genie::units::m / genie::units::mm)
-  / (genie::units::ns / genie::units::s);
+  / (genie::units::s / genie::units::ns);
 
 //____________________________________________________________________________
 void NHLDecayVolume::EnforceUnits( std::string length_units, std::string angle_units, std::string time_units ){
@@ -48,22 +48,22 @@ void NHLDecayVolume::EnforceUnits( std::string length_units, std::string angle_u
   tunits = utils::units::UnitFromString( time_units );
 
   // convert to new units
-  fSx *= lunits/old_lunits; fSy *= lunits/old_lunits; fSz *= lunits/old_lunits;
-  fPx *= lunits/old_lunits; fPy *= lunits/old_lunits; fPz *= lunits/old_lunits;
-  fEx *= lunits/old_lunits; fEy *= lunits/old_lunits; fEz *= lunits/old_lunits;
-  fXx *= lunits/old_lunits; fXy *= lunits/old_lunits; fXz *= lunits/old_lunits;
+  fSx /= lunits/old_lunits; fSy /= lunits/old_lunits; fSz /= lunits/old_lunits;
+  fPx /= lunits/old_lunits; fPy /= lunits/old_lunits; fPz /= lunits/old_lunits;
+  fEx /= lunits/old_lunits; fEy /= lunits/old_lunits; fEz /= lunits/old_lunits;
+  fXx /= lunits/old_lunits; fXy /= lunits/old_lunits; fXz /= lunits/old_lunits;
 
-  fDx *= lunits/old_lunits; fDy *= lunits/old_lunits; fDz *= lunits/old_lunits;
-  fOx *= lunits/old_lunits; fOy *= lunits/old_lunits; fOz *= lunits/old_lunits;
+  fDx /= lunits/old_lunits; fDy /= lunits/old_lunits; fDz /= lunits/old_lunits;
+  fOx /= lunits/old_lunits; fOy /= lunits/old_lunits; fOz /= lunits/old_lunits;
 
-  fAx *= lunits/old_lunits; fAy *= lunits/old_lunits; fAz *= lunits/old_lunits;
-  fAlpha *= aunits/old_aunits;
-  ft *= tunits/old_tunits;
+  fAx /= lunits/old_lunits; fAy /= lunits/old_lunits; fAz /= lunits/old_lunits;
+  fAlpha /= aunits/old_aunits;
+  ft /= tunits/old_tunits;
 
-  kNewSpeedOfLight *= (lunits / old_lunits) / (tunits / old_tunits);
+  kNewSpeedOfLight /= (lunits / old_lunits) / (tunits / old_tunits);
 
   LOG( "NHL", pDEBUG )
-    << "kNewSpeedOfLight = " << kNewSpeedOfLight;
+    << "kNewSpeedOfLight = " << kNewSpeedOfLight << " [mm/ns]";
 }
 //____________________________________________________________________________
 double NHLDecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, double maxLength )
@@ -72,21 +72,21 @@ double NHLDecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, dou
   // t   = time-of-flight (in rest frame)
   // tau = CoMLifetime
 
-  // Since P(survives till exit) > 0, enforce decay-in-detector by the following:
-  // --> Map P(surv-to-entry) |-> 1, P(exit) |-> 0 ==> S0 |-> (S0 - P(exit))/(1 - P(exit)), S0 = 1-P0
-  // This is set equal to random throw in Uniform(0,1), from which we retrieve S0 and then t ==> L = ct
-
   double maxLabTime = maxLength / kNewSpeedOfLight;
   assert( betaMag > 0.0 && betaMag < 1.0 ); // massive moving particle
   double gamma = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
   double maxRestTime = maxLabTime / ( betaMag * gamma ); // this is how "wide" the detector looks like
 
-  double PExit = 1.0 - std::exp( -maxRestTime / CoMLifetime ); // == P( no decay | enters detector )
+  // if P(DL=0) = 1, P(DL = LMax) = exp( - LMax / c * 1/( beta * gamma ) * 1 / CoMLifetime )
+  double PExit = std::exp( - maxRestTime / CoMLifetime );
+
+  // from [0,1] we'd reroll anything in [0, PExit] and keep (PExit, 1]. That's expensive.
+  // Instead, let 1 ==> maxRestTime, 0 ==> 0, exponential decay
   
   RandomGen * rnd = RandomGen::Instance();
-  double ranthrow = rnd->RndGen().Uniform(); // big throw ==> big survival P ==> short distance
+  double ranthrow = rnd->RndGen().Uniform();
 
-  double S0 = (1.0 - PExit) * ranthrow + PExit; // == 1 - P( decay | enters detector ) == 1 - P0
+  double S0 = (1.0 - PExit) * ranthrow + PExit; 
   double elapsed_time = CoMLifetime * std::log( 1.0 / S0 );
   double elapsed_length = elapsed_time * kNewSpeedOfLight;
 
@@ -95,7 +95,7 @@ double NHLDecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, dou
     << "\nbetaMag = " << betaMag << " ==> gamma = " << gamma
     << "\n==> maxLength = " << maxRestTime << " (rest frame) = " << maxLabTime << " (lab frame)"
     << "\nranthrow = " << ranthrow << ", PExit = " << PExit
-    << "\n==> S0 = " << S0 << " (P0 = " << 1.0 - S0 << ") ==> elapsed_time = " << elapsed_time << " ==> elapsed_length = " << elapsed_length;
+    << "\n==> S0 = " << S0 << " ==> elapsed_time = " << elapsed_time << " ==> elapsed_length = " << elapsed_length;
 
   return elapsed_length;
 }
@@ -317,9 +317,9 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   tmpNode = gm->Step();
 
   // entered the detector, let's save this point
-  fEx = ( gm->GetCurrentPoint() )[0];
-  fEy = ( gm->GetCurrentPoint() )[1];
-  fEz = ( gm->GetCurrentPoint() )[2];
+  fEx = ( gm->GetCurrentPoint() )[0] * genie::units::cm / genie::units::mm; // RETHERE fix this conversion!
+  fEy = ( gm->GetCurrentPoint() )[1] * genie::units::cm / genie::units::mm;
+  fEz = ( gm->GetCurrentPoint() )[2] * genie::units::cm / genie::units::mm;
   entryPoint.SetXYZ( fEx, fEy, fEz );
 
   LOG( "NHL", pDEBUG )
@@ -357,8 +357,8 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
       sfz = currPoint[2];
     }
 
-    LOG( "NHL", pDEBUG )
-      << "Step " << bdIdx << " : ( " << currPoint[0] << ", " << currPoint[1] << ", " << currPoint[2] << " )";
+    //LOG( "NHL", pDEBUG )
+    //  << "Step " << bdIdx << " : ( " << currPoint[0] << ", " << currPoint[1] << ", " << currPoint[2] << " )";
     bdIdx++;
   }
   if( bdIdx == bdIdxMax ){
@@ -368,9 +368,9 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   }
 
   // exited the detector, let's save this point
-  fXx = sfx;
-  fXy = sfy;
-  fXz = sfz;
+  fXx = sfx * genie::units::cm / genie::units::mm; // RETHERE fix this conversion!
+  fXy = sfy * genie::units::cm / genie::units::mm;
+  fXz = sfz * genie::units::cm / genie::units::mm;
   exitPoint.SetXYZ( fXx, fXy, fXz );
 
   LOG( "NHL", pDEBUG )
