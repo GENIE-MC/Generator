@@ -727,9 +727,9 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     }
     
     if( trajIdx == 1e+2 && !didIntersectDet ){
-      LOG( "gevgen_nhl", pFATAL )
-	<< "Unable to make a single good trajectory that intersects the detector after 100 tries! Exiting...";
-      exit(1);
+      LOG( "gevgen_nhl", pERROR )
+	<< "Unable to make a single good trajectory that intersects the detector after " << trajIdx << " tries! Bailing...";
+      return *x4NHL;
     }
 
     // make sure we have a consistent unit system
