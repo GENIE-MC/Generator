@@ -217,6 +217,9 @@ double evWeight = 1.0;
 //_________________________________________________________________________________________
 int main(int argc, char ** argv)
 {
+  // suppress ROOT Info messages
+  gErrorIgnoreLevel = kWarning;
+
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
