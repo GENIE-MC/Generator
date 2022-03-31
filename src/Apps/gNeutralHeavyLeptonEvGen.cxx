@@ -86,7 +86,6 @@
 */
 //_________________________________________________________________________________________
 // TODO: Make a NuMI alternative to input fluxes!
-//       Implement geometry read-in for InitBoundingBox()
 //_________________________________________________________________________________________
 
 #include <cassert>
@@ -195,6 +194,11 @@ string           gOptEvFilePrefix = kDefOptEvFilePrefix; // event file prefix
 bool             gOptUsingRootGeom = false;              // using root geom or target mix?
 string           gOptRootGeom;                           // input ROOT file with realistic detector geometry
 
+#ifdef __CAN_USE_ROOT_GEOM__
+TGeoManager *    gOptRootGeoManager = 0;                 // the workhorse geometry manager
+TGeoVolume  *    gOptRootGeoVolume  = 0;
+#endif // #ifdef __CAN_USE_ROOT_GEOM__
+
 string           gOptRootGeomTopVol = "";                // input geometry top event generation volume
 double           gOptGeomLUnits = 0;                     // input geometry length units
 long int         gOptRanSeed = -1;                       // random number seed
@@ -207,6 +211,7 @@ double fox = 0; // origin - x
 double foy = 0; // origin - y
 double foz = 0; // origin - z
 
+NHLPrimaryVtxGenerator * nhlgen = 0;
 // HNL lifetime in rest frame
 double CoMLifetime = -1.0; // GeV^{-1}
 // an array to keep production vertex
@@ -444,14 +449,12 @@ void InitBoundingBox(void)
     exit(1);
   }
 
-  TGeoManager * gm = TGeoManager::Import(gOptRootGeom.c_str());
-  TGeoVolume * top_volume = gm->GetTopVolume();
-  
+  if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
 
   // RETHERE I only make this for some plots. Must remove
-  TGeoVolume * tracker = gm->FindVolumeFast("DetectorlvTracker");
+  TGeoVolume * tracker = gOptRootGeoManager->FindVolumeFast("DetectorlvTracker");
   assert(tracker);
-  gm->SetTopVolume( tracker );
+  gOptRootGeoManager->SetTopVolume( tracker );
   TGeoShape * ts  = tracker->GetShape();
   
   //TGeoShape * ts  = top_volume->GetShape();
@@ -483,6 +486,10 @@ void InitBoundingBox(void)
 
   LOG("gevgen_nhl", pINFO)
     << "Initialised bounding box successfully.";
+
+  //delete tracker;
+  //delete ts;
+  //delete box;
 }
 #endif // #ifdef __CAN_USE_ROOT_GEOM__
 //............................................................................
@@ -670,7 +677,6 @@ GFluxI * TH1FluxDriver(void)
 TLorentzVector GeneratePosition( GHepRecord * event )
 {
   double weight = 1.0;
-
   if( gOptUsingRootGeom ){
 
     Interaction * interaction = event->Summary();
@@ -699,18 +705,26 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     LOG( "gevgen_nhl", pDEBUG )
       << "Set momentum for trajectory = ( " << momentum.X() << ", " << momentum.Y() << ", " << momentum.Z() << " ) [GeV]";
   
-    TGeoManager * gm = TGeoManager::Import(gOptRootGeom.c_str());
+    if( !gOptRootGeoManager ){ 
+      gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str());
+      // RETHERE I only make this for some plots. Must remove
+      TGeoVolume * tracker = gOptRootGeoManager->FindVolumeFast("DetectorlvTracker");
+      assert(tracker);
+      gOptRootGeoManager->SetTopVolume( tracker );
+    }
     // RETHERE I only make this for some plots. Must remove
-    TGeoVolume * vol = gm->FindVolumeFast("DetectorlvTracker");
-    NHLPrimaryVtxGenerator * nhlgen = new NHLPrimaryVtxGenerator();;
+    if( !gOptRootGeoVolume ) gOptRootGeoVolume = gOptRootGeoManager->FindVolumeFast("DetectorlvTracker");
+
+    if( !nhlgen ) nhlgen = new NHLPrimaryVtxGenerator(); // do NOT remove this if( !nhlgen ), it causes a MASSIVE memleak if you do.
     
     int trajIdx = 0;
-    bool didIntersectDet = NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gm, vol );
+    bool didIntersectDet = NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gOptRootGeoManager, gOptRootGeoVolume );
+    std::vector< double > * newProdVtx = new std::vector< double >();
     while( !didIntersectDet && trajIdx < 1e+2 ){
       // sample prod vtx and momentum... again
       LOG( "gevgen_nhl", pDEBUG )
 	<< "Sampling another trajectory (index = " << trajIdx << ")";
-      std::vector< double > * newProdVtx  = nhlgen->GenerateDecayPosition( event );
+      newProdVtx  = nhlgen->GenerateDecayPosition( event );
       //std::vector< double > * newMomentum = nhlgen->GenerateMomentum( event );
       
       startPoint.SetXYZ( newProdVtx->at(0), newProdVtx->at(1), newProdVtx->at(2) );
@@ -723,7 +737,9 @@ TLorentzVector GeneratePosition( GHepRecord * event )
       evProdVtx[2] = 10.0 * newProdVtx->at(2);
       
       trajIdx++;
-      didIntersectDet = NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gm, vol );
+      didIntersectDet = NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gOptRootGeoManager, gOptRootGeoVolume );
+
+      newProdVtx->clear();
     }
     
     if( trajIdx == 1e+2 && !didIntersectDet ){
@@ -731,6 +747,9 @@ TLorentzVector GeneratePosition( GHepRecord * event )
 	<< "Unable to make a single good trajectory that intersects the detector after " << trajIdx << " tries! Bailing...";
       return *x4NHL;
     }
+
+    // something between L719 and here causes an O(10x) slowdown. Not *terrible*, but might want to RETHERE to investigate.
+    // (T(100k events) x 10)
 
     // make sure we have a consistent unit system
     NHLDecayVolume::EnforceUnits( "mm", "rad", "ns" );
@@ -787,8 +806,12 @@ TLorentzVector GeneratePosition( GHepRecord * event )
 
     TVector3 decayPoint = NHLDecayVolume::GetDecayPoint( elapsed_length, entryPoint, momentum );
 
-    // RETHERE move to decay vertex!!!
     TLorentzVector x4( decayPoint.X(), decayPoint.Y(), decayPoint.Z(), 0.0 );
+
+    delete x4NHL;
+    delete p4NHL;
+
+    newProdVtx->clear();
     
     return x4;
   }

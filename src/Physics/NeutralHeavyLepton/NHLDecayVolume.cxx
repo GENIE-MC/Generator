@@ -263,9 +263,11 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   fPx = px; fPy = py; fPz = pz;
 
   // RETHERE I am hacking to set MINERvA ID tracker as top volume.
+  /*
   TGeoVolume * tracker = gm->FindVolumeFast("DetectorlvTracker");
   assert(tracker);
   gm->SetTopVolume(tracker);
+  */
 
   // put first point at z = const 0.5m behind the bounding box
   // RETHERE, this is a placeholder
@@ -311,7 +313,9 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   // enter the volume. If rounding errors keep us out, do one step forwards
   TGeoNode * tmpNode = gm->FindNextBoundary( stepmax ); 
   
-  if( tmpNode == NULL ) return false;
+  if( tmpNode == NULL ){
+    return false;
+  }
   
   Double_t sFirst = gm->GetStep();
   tmpNode = gm->Step();
@@ -360,6 +364,8 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
     //LOG( "NHL", pDEBUG )
     //  << "Step " << bdIdx << " : ( " << currPoint[0] << ", " << currPoint[1] << ", " << currPoint[2] << " )";
     bdIdx++;
+    //delete[] oldPoint;
+    //delete[] currPoint;
   }
   if( bdIdx == bdIdxMax ){
     LOG( "NHL", pWARN )
