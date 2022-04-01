@@ -211,6 +211,11 @@ double fox = 0; // origin - x
 double foy = 0; // origin - y
 double foz = 0; // origin - z
 
+double NTP_IS_E = 0., NTP_IS_PX = 0., NTP_IS_PY = 0., NTP_IS_PZ = 0.;
+double NTP_FS0_E = 0., NTP_FS0_PX = 0., NTP_FS0_PY = 0., NTP_FS0_PZ = 0.;
+double NTP_FS1_E = 0., NTP_FS1_PX = 0., NTP_FS1_PY = 0., NTP_FS1_PZ = 0.;
+double NTP_FS2_E = 0., NTP_FS2_PX = 0., NTP_FS2_PY = 0., NTP_FS2_PZ = 0.;
+
 NHLPrimaryVtxGenerator * nhlgen = 0;
 // HNL lifetime in rest frame
 double CoMLifetime = -1.0; // GeV^{-1}
@@ -257,6 +262,24 @@ int main(int argc, char ** argv)
   ntpw.EventTree()->Branch("nhl_coup_t", &gOptTCoupling, "gOptTCoupling/D");
   ntpw.EventTree()->Branch("nhl_ismaj", &gOptIsMajorana, "gOptIsMajorana/I");
   ntpw.EventTree()->Branch("nhl_type", &gOptNHLKind, "gOptNHLKind/I");
+
+  // let's make NHL-specific FS branches until we get gntpc sorted out
+  ntpw.EventTree()->Branch("nhl_IS_E", &NTP_IS_E, "NTP_IS_E/D");
+  ntpw.EventTree()->Branch("nhl_IS_PX", &NTP_IS_PX, "NTP_IS_PX/D");
+  ntpw.EventTree()->Branch("nhl_IS_PY", &NTP_IS_PY, "NTP_IS_PY/D");
+  ntpw.EventTree()->Branch("nhl_IS_PZ", &NTP_IS_PZ, "NTP_IS_PZ/D");
+  ntpw.EventTree()->Branch("nhl_FS0_E", &NTP_FS0_E, "NTP_FS0_E/D");
+  ntpw.EventTree()->Branch("nhl_FS0_PX", &NTP_FS0_PX, "NTP_FS0_PX/D");
+  ntpw.EventTree()->Branch("nhl_FS0_PY", &NTP_FS0_PY, "NTP_FS0_PY/D");
+  ntpw.EventTree()->Branch("nhl_FS0_PZ", &NTP_FS0_PZ, "NTP_FS0_PZ/D");
+  ntpw.EventTree()->Branch("nhl_FS1_E", &NTP_FS1_E, "NTP_FS1_E/D");
+  ntpw.EventTree()->Branch("nhl_FS1_PX", &NTP_FS1_PX, "NTP_FS1_PX/D");
+  ntpw.EventTree()->Branch("nhl_FS1_PY", &NTP_FS1_PY, "NTP_FS1_PY/D");
+  ntpw.EventTree()->Branch("nhl_FS1_PZ", &NTP_FS1_PZ, "NTP_FS1_PZ/D");
+  ntpw.EventTree()->Branch("nhl_FS2_E", &NTP_FS2_E, "NTP_FS2_E/D");
+  ntpw.EventTree()->Branch("nhl_FS2_PX", &NTP_FS2_PX, "NTP_FS2_PX/D");
+  ntpw.EventTree()->Branch("nhl_FS2_PY", &NTP_FS2_PY, "NTP_FS2_PY/D");
+  ntpw.EventTree()->Branch("nhl_FS2_PZ", &NTP_FS2_PZ, "NTP_FS2_PZ/D");
 
   // Create a MC job monitor for a periodically updated status file
   GMCJMonitor mcjmonitor(gOptRunNu);
@@ -397,6 +420,23 @@ int main(int argc, char ** argv)
 
      // Simulate decay
      mcgen->ProcessEventRecord(event);
+
+     // add the FS 4-momenta to special branches
+     // Quite inelegant. Gets the job done, though
+     NTP_FS0_E  = ((event->Particle(1))->P4())->E();
+     NTP_FS0_PX = ((event->Particle(1))->P4())->Px();
+     NTP_FS0_PY = ((event->Particle(1))->P4())->Py();
+     NTP_FS0_PZ = ((event->Particle(1))->P4())->Pz();
+     NTP_FS1_E  = ((event->Particle(2))->P4())->E();
+     NTP_FS1_PX = ((event->Particle(2))->P4())->Px();
+     NTP_FS1_PY = ((event->Particle(2))->P4())->Py();
+     NTP_FS1_PZ = ((event->Particle(2))->P4())->Pz();
+     if( event->Particle(3) ){
+       NTP_FS2_E  = ((event->Particle(3))->P4())->E();
+       NTP_FS2_PX = ((event->Particle(3))->P4())->Px();
+       NTP_FS2_PY = ((event->Particle(3))->P4())->Py();
+       NTP_FS2_PZ = ((event->Particle(3))->P4())->Pz();
+     }
 
      // Generate a position for the decay vertex
      // also currently handles the event weight
@@ -701,6 +741,9 @@ TLorentzVector GeneratePosition( GHepRecord * event )
   
     // get momentum of this channel
     const TLorentzVector * p4NHL = interaction->InitState().GetProbeP4( kRfLab );
+    
+    NTP_IS_E = p4NHL->E(); NTP_IS_PX = p4NHL->Px(); NTP_IS_PY = p4NHL->Py(); NTP_IS_PZ = p4NHL->Pz();
+    
     momentum.SetXYZ( p4NHL->Px() / p4NHL->P(), p4NHL->Py() / p4NHL->P(), p4NHL->Pz() / p4NHL->P() );
     LOG( "gevgen_nhl", pDEBUG )
       << "Set momentum for trajectory = ( " << momentum.X() << ", " << momentum.Y() << ", " << momentum.Z() << " ) [GeV]";

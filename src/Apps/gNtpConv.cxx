@@ -333,6 +333,22 @@ void ConvertToGST(void)
   double brNHLTCoup    = 0;      // |U_t4|^2
   int    brNHLType     = 0;      // 0 = N, 1 = Nbar, 2 = mix
   bool   brNHLMajorana = false;  // Is NHL Majorana?
+  double brNHLE        = 0;      // IS E
+  double brNHLPx       = 0;      // IS Px
+  double brNHLPy       = 0;      // IS Py
+  double brNHLPz       = 0;      // IS Pz
+  double brNHLFS0E     = 0;      // FS0 E
+  double brNHLFS0Px    = 0;      // FS0 Px
+  double brNHLFS0Py    = 0;      // FS0 Py
+  double brNHLFS0Pz    = 0;      // FS0 Pz
+  double brNHLFS1E     = 0;      // FS1 E
+  double brNHLFS1Px    = 0;      // FS1 Px
+  double brNHLFS1Py    = 0;      // FS1 Py
+  double brNHLFS1Pz    = 0;      // FS1 Pz
+  double brNHLFS2E     = 0;      // FS2 E
+  double brNHLFS2Px    = 0;      // FS2 Px
+  double brNHLFS2Py    = 0;      // FS2 Py
+  double brNHLFS2Pz    = 0;      // FS2 Pz
   // ---
   double brWeight      = 0;      // Event weight
   double brKineXs      = 0;      // Bjorken x as was generated during kinematical selection; takes fermi momentum / off-shellness into account
@@ -454,6 +470,22 @@ void ConvertToGST(void)
   s_tree->Branch("nhl_t_coup",    &brNHLTCoup,      "nhl_t_coup/D"  );
   s_tree->Branch("nhl_type",      &brNHLType,       "nhl_type/I"    );
   s_tree->Branch("nhl_majorana",  &brNHLMajorana,   "nhl_majorana/O");
+  s_tree->Branch("nhl_E",         &brNHLE,          "nhl_E/D"       );
+  s_tree->Branch("nhl_Px",        &brNHLPx,         "nhl_Px/D"      );
+  s_tree->Branch("nhl_Py",        &brNHLPy,         "nhl_Py/D"      );
+  s_tree->Branch("nhl_Pz",        &brNHLPz,         "nhl_Pz/D"      );
+  s_tree->Branch("nhl_FS0_E",     &brNHLFS0E,       "nhl_FS0_E/D"   );
+  s_tree->Branch("nhl_FS0_Px",    &brNHLFS0Px,      "nhl_FS0_Px/D"  );
+  s_tree->Branch("nhl_FS0_Py",    &brNHLFS0Py,      "nhl_FS0_Py/D"  );
+  s_tree->Branch("nhl_FS0_Pz",    &brNHLFS0Pz,      "nhl_FS0_Pz/D"  );
+  s_tree->Branch("nhl_FS1_E",     &brNHLFS1E,       "nhl_FS1_E/D"   );
+  s_tree->Branch("nhl_FS1_Px",    &brNHLFS1Px,      "nhl_FS1_Px/D"  );
+  s_tree->Branch("nhl_FS1_Py",    &brNHLFS1Py,      "nhl_FS1_Py/D"  );
+  s_tree->Branch("nhl_FS1_Pz",    &brNHLFS1Pz,      "nhl_FS1_Pz/D"  );
+  s_tree->Branch("nhl_FS2_E",     &brNHLFS2E,       "nhl_FS2_E/D"   );
+  s_tree->Branch("nhl_FS2_Px",    &brNHLFS2Px,      "nhl_FS2_Px/D"  );
+  s_tree->Branch("nhl_FS2_Py",    &brNHLFS2Py,      "nhl_FS2_Py/D"  );
+  s_tree->Branch("nhl_FS2_Pz",    &brNHLFS2Pz,      "nhl_FS2_Pz/D"  );
   // --
   s_tree->Branch("wght",          &brWeight,        "wght/D"	    );
   s_tree->Branch("xs",	          &brKineXs,        "xs/D"	    );
@@ -558,15 +590,40 @@ void ConvertToGST(void)
 
   TLorentzVector pdummy(0,0,0,0);
 
-  // if NHL, pick up branches about mass + couplings + nature
+  // if NHL, pick up branches 
   double locNHLMass, locNHLECoup, locNHLMCoup, locNHLTCoup; 
   bool locNHLIsMajorana; int locNHLType;
+  double locNHLE, locNHLPx, locNHLPy, locNHLPz;
+  double locNHLFS0E, locNHLFS0Px, locNHLFS0Py, locNHLFS0Pz;
+  double locNHLFS1E, locNHLFS1Px, locNHLFS1Py, locNHLFS1Pz;
+  double locNHLFS2E, locNHLFS2Px, locNHLFS2Py, locNHLFS2Pz;
+
   TBranch * BRNHLMass = er_tree->GetBranch( "nhl_mass" ); BRNHLMass->SetAddress( &locNHLMass );
   TBranch * BRNHLECoup = er_tree->GetBranch( "nhl_coup_e" ); BRNHLECoup->SetAddress( &locNHLECoup );
   TBranch * BRNHLMCoup = er_tree->GetBranch( "nhl_coup_m" ); BRNHLMCoup->SetAddress( &locNHLMCoup );
   TBranch * BRNHLTCoup = er_tree->GetBranch( "nhl_coup_t" ); BRNHLTCoup->SetAddress( &locNHLTCoup );
   TBranch * BRNHLIsMajorana = er_tree->GetBranch( "nhl_ismaj" ); BRNHLIsMajorana->SetAddress( &locNHLIsMajorana );
   TBranch * BRNHLType = er_tree->GetBranch( "nhl_type" ); BRNHLType->SetAddress( &locNHLType );
+  //
+  TBranch * BRNHLE  = er_tree->GetBranch( "nhl_IS_E" );  BRNHLE->SetAddress( &locNHLE );
+  TBranch * BRNHLPx = er_tree->GetBranch( "nhl_IS_PX" ); BRNHLPx->SetAddress( &locNHLPx );
+  TBranch * BRNHLPy = er_tree->GetBranch( "nhl_IS_PY" ); BRNHLPy->SetAddress( &locNHLPy );
+  TBranch * BRNHLPz = er_tree->GetBranch( "nhl_IS_PZ" ); BRNHLPz->SetAddress( &locNHLPz );
+  //
+  TBranch * BRNHLFS0E  = er_tree->GetBranch( "nhl_FS0_E" );  BRNHLFS0E->SetAddress( &locNHLFS0E );
+  TBranch * BRNHLFS0Px = er_tree->GetBranch( "nhl_FS0_PX" ); BRNHLFS0Px->SetAddress( &locNHLFS0Px );
+  TBranch * BRNHLFS0Py = er_tree->GetBranch( "nhl_FS0_PY" ); BRNHLFS0Py->SetAddress( &locNHLFS0Py );
+  TBranch * BRNHLFS0Pz = er_tree->GetBranch( "nhl_FS0_PZ" ); BRNHLFS0Pz->SetAddress( &locNHLFS0Pz );
+  //
+  TBranch * BRNHLFS1E  = er_tree->GetBranch( "nhl_FS1_E" );  BRNHLFS1E->SetAddress( &locNHLFS1E );
+  TBranch * BRNHLFS1Px = er_tree->GetBranch( "nhl_FS1_PX" ); BRNHLFS1Px->SetAddress( &locNHLFS1Px );
+  TBranch * BRNHLFS1Py = er_tree->GetBranch( "nhl_FS1_PY" ); BRNHLFS1Py->SetAddress( &locNHLFS1Py );
+  TBranch * BRNHLFS1Pz = er_tree->GetBranch( "nhl_FS1_PZ" ); BRNHLFS1Pz->SetAddress( &locNHLFS1Pz );
+  //
+  TBranch * BRNHLFS2E  = er_tree->GetBranch( "nhl_FS2_E" );  BRNHLFS2E->SetAddress( &locNHLFS2E );
+  TBranch * BRNHLFS2Px = er_tree->GetBranch( "nhl_FS2_PX" ); BRNHLFS2Px->SetAddress( &locNHLFS2Px );
+  TBranch * BRNHLFS2Py = er_tree->GetBranch( "nhl_FS2_PY" ); BRNHLFS2Py->SetAddress( &locNHLFS2Py );
+  TBranch * BRNHLFS2Pz = er_tree->GetBranch( "nhl_FS2_PZ" ); BRNHLFS2Pz->SetAddress( &locNHLFS2Pz );
 
   // Event loop
   for(Long64_t iev = 0; iev < nmax; iev++) {
@@ -942,6 +999,30 @@ void ConvertToGST(void)
     brIsNC       = is_weaknc;  
     brIsCharmPro = charm;
     brIsAMNuGamma= is_amnugamma;
+    // -- NHL
+    brNHLMass    = locNHLMass;
+    brNHLECoup   = locNHLECoup;
+    brNHLMCoup   = locNHLMCoup;
+    brNHLTCoup   = locNHLTCoup;
+    brNHLType    = locNHLType;
+    brNHLMajorana = locNHLIsMajorana;
+    brNHLE       = locNHLE;
+    brNHLPx      = locNHLPx;
+    brNHLPy      = locNHLPy;
+    brNHLPz      = locNHLPz;
+    brNHLFS0E    = locNHLFS0E;
+    brNHLFS0Px   = locNHLFS0Px;
+    brNHLFS0Py   = locNHLFS0Py;
+    brNHLFS0Pz   = locNHLFS0Pz;
+    brNHLFS1E    = locNHLFS1E;
+    brNHLFS1Px   = locNHLFS1Px;
+    brNHLFS1Py   = locNHLFS1Py;
+    brNHLFS1Pz   = locNHLFS1Pz;
+    brNHLFS2E    = locNHLFS2E;
+    brNHLFS2Px   = locNHLFS2Px;
+    brNHLFS2Py   = locNHLFS2Py;
+    brNHLFS2Pz   = locNHLFS2Pz;
+    // --
     brWeight     = weight;      
     brKineXs     = xs;      
     brKineYs     = ys;      
