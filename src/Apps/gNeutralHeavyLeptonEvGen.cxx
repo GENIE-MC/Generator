@@ -376,24 +376,29 @@ int main(int argc, char ** argv)
      // int target = SelectInitState();
      int decay  = (int) gOptDecayMode;
 
+     LOG("gevgen_nhl", pDEBUG)
+       << "Couplings are: "
+       << "\n|U_e4|^2 = " << gOptECoupling
+       << "\n|U_m4|^2 = " << gOptMCoupling
+       << "\n|U_t4|^2 = " << gOptTCoupling;
+     
+     assert( gOptECoupling >= 0.0 && gOptMCoupling >= 0.0 && gOptTCoupling >= 0.0 );
+     
+     // RETHERE assuming all these NHL have K+- parent. This is wrong 
+     // (but not very wrong for interesting masses)
+     LOG("gevgen_nhl", pDEBUG)
+       << " Building SimpleNHL object ";
+     SimpleNHL sh( "NHL", ievent, hpdg, genie::kPdgKP, 
+		   gOptMassNHL, gOptECoupling, gOptMCoupling, gOptTCoupling, false );
+
+     const std::map< NHLDecayMode_t, double > gammaMap = sh.GetValidChannels();
+     LOG( "gevgen_nhl", pDEBUG )
+       << "CoMLifetime = " << sh.GetCoMLifetime();
+     CoMLifetime = sh.GetCoMLifetime();
+
      if( gOptDecayMode == kNHLDcyNull ){ // select from available modes
        LOG("gevgen_nhl", pNOTICE)
 	 << "No decay mode specified - sampling from all available modes.";
-
-       LOG("gevgen_nhl", pDEBUG)
-	 << "Couplings are: "
-	 << "\n|U_e4|^2 = " << gOptECoupling
-	 << "\n|U_m4|^2 = " << gOptMCoupling
-	 << "\n|U_t4|^2 = " << gOptTCoupling;
-
-       assert( gOptECoupling >= 0.0 && gOptMCoupling >= 0.0 && gOptTCoupling >= 0.0 );
-
-       // RETHERE assuming all these NHL have K+- parent. This is wrong 
-       // (but not very wrong for interesting masses)
-       LOG("gevgen_nhl", pDEBUG)
-	 << " Building SimpleNHL object ";
-       SimpleNHL sh( "NHL", ievent, hpdg, genie::kPdgKP, 
-				 gOptMassNHL, gOptECoupling, gOptMCoupling, gOptTCoupling, false );
      
        LOG("gevgen_nhl", pDEBUG)
 	 << " Creating interesting channels vector ";
