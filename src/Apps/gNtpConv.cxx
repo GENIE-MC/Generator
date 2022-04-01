@@ -326,6 +326,14 @@ void ConvertToGST(void)
   bool   brIsAMNuGamma = false;  // is anomaly mediated nu gamma
   int    brCodeNeut    = 0;      // The equivalent NEUT reaction code (if any)
   int    brCodeNuance  = 0;      // The equivalent NUANCE reaction code (if any)
+  // -- NHL variables
+  double brNHLMass     = 0;      // NHL mass in GeV
+  double brNHLECoup    = 0;      // |U_e4|^2
+  double brNHLMCoup    = 0;      // |U_m4|^2
+  double brNHLTCoup    = 0;      // |U_t4|^2
+  int    brNHLType     = 0;      // 0 = N, 1 = Nbar, 2 = mix
+  bool   brNHLMajorana = false;  // Is NHL Majorana?
+  // ---
   double brWeight      = 0;      // Event weight
   double brKineXs      = 0;      // Bjorken x as was generated during kinematical selection; takes fermi momentum / off-shellness into account
   double brKineYs      = 0;      // Inelasticity y as was generated during kinematical selection; takes fermi momentum / off-shellness into account
@@ -414,7 +422,7 @@ void ConvertToGST(void)
   //
   s_tree->Branch("iev",           &brIev,           "iev/I"         );
   s_tree->Branch("neu",	          &brNeutrino,      "neu/I"	    );
-  s_tree->Branch("fspl",	      &brFSPrimLept,    "fspl/I"	    );
+  s_tree->Branch("fspl",	  &brFSPrimLept,    "fspl/I"	    );
   s_tree->Branch("tgt",           &brTarget,        "tgt/I"	    );
   s_tree->Branch("Z",             &brTargetZ,       "Z/I"	    );
   s_tree->Branch("A",             &brTargetA,       "A/I"	    );
@@ -436,9 +444,17 @@ void ConvertToGST(void)
   s_tree->Branch("cc",	          &brIsCC,	    "cc/O"	    );
   s_tree->Branch("nc",	          &brIsNC,	    "nc/O"	    );
   s_tree->Branch("charm",         &brIsCharmPro,    "charm/O"	    );
-  s_tree->Branch("amnugamma",     &brIsAMNuGamma,    "amnugamma/O"	    );
+  s_tree->Branch("amnugamma",     &brIsAMNuGamma,   "amnugamma/O"   );
   s_tree->Branch("neut_code",     &brCodeNeut,      "neut_code/I"   );
   s_tree->Branch("nuance_code",   &brCodeNuance,    "nuance_code/I" );
+  // -- NHL
+  s_tree->Branch("nhl_mass",      &brNHLMass,       "nhl_mass/D"    );
+  s_tree->Branch("nhl_e_coup",    &brNHLECoup,      "nhl_e_coup/D"  );
+  s_tree->Branch("nhl_m_coup",    &brNHLMCoup,      "nhl_m_coup/D"  );
+  s_tree->Branch("nhl_t_coup",    &brNHLTCoup,      "nhl_t_coup/D"  );
+  s_tree->Branch("nhl_type",      &brNHLType,       "nhl_type/I"    );
+  s_tree->Branch("nhl_majorana",  &brNHLMajorana,   "nhl_majorana/O");
+  // --
   s_tree->Branch("wght",          &brWeight,        "wght/D"	    );
   s_tree->Branch("xs",	          &brKineXs,        "xs/D"	    );
   s_tree->Branch("ys",	          &brKineYs,        "ys/D"	    );
@@ -541,6 +557,16 @@ void ConvertToGST(void)
   LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
 
   TLorentzVector pdummy(0,0,0,0);
+
+  // if NHL, pick up branches about mass + couplings + nature
+  double locNHLMass, locNHLECoup, locNHLMCoup, locNHLTCoup; 
+  bool locNHLIsMajorana; int locNHLType;
+  TBranch * BRNHLMass = er_tree->GetBranch( "nhl_mass" ); BRNHLMass->SetAddress( &locNHLMass );
+  TBranch * BRNHLECoup = er_tree->GetBranch( "nhl_coup_e" ); BRNHLECoup->SetAddress( &locNHLECoup );
+  TBranch * BRNHLMCoup = er_tree->GetBranch( "nhl_coup_m" ); BRNHLMCoup->SetAddress( &locNHLMCoup );
+  TBranch * BRNHLTCoup = er_tree->GetBranch( "nhl_coup_t" ); BRNHLTCoup->SetAddress( &locNHLTCoup );
+  TBranch * BRNHLIsMajorana = er_tree->GetBranch( "nhl_ismaj" ); BRNHLIsMajorana->SetAddress( &locNHLIsMajorana );
+  TBranch * BRNHLType = er_tree->GetBranch( "nhl_type" ); BRNHLType->SetAddress( &locNHLType );
 
   // Event loop
   for(Long64_t iev = 0; iev < nmax; iev++) {
