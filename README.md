@@ -69,6 +69,7 @@ For more information, visit http://www.genie-mc.org
 - Afroditi Papadopoulou (*MIT*)
 - Gabriel Perdue (*Fermilab*)
 - Marco Roda (*Liverpool*)
+- Beth Slater (*Liverpool*)
 - Alon Sportes (*Tel Aviv*)
 - Noah Steinberg (*Fermilab*)
 - Vladyslav Syrotenko (*Tufts*)
