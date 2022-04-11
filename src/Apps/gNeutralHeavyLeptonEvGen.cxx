@@ -170,6 +170,9 @@ NtpMCFormat_t   kDefOptNtpFormat    = kNFGHEP; // default event tree format
 string          kDefOptEvFilePrefix = "gntp";
 string          kDefOptFluxFilePath = "./input-flux.root";
 
+string          kDefOptSName   = "genie::EventGenerator";
+string          kDefOptSConfig = "NeutralHeavyLepton";
+
 //
 Long_t           gOptRunNu        = 1000;                // run number
 int              gOptNev          = 10;                  // number of events to generate
@@ -241,6 +244,26 @@ int main(int argc, char ** argv)
 
   // RETHERE do some initial configuration re. couplings in job
   // same for kind and Majorana!
+
+  // goal: make gevgen_nhl aware of CommonNHL.xml
+  // Get the NHL generator first to load config
+  // config loaded upon instantiation of NHLGenerator algorithm 
+  // ==> NHLPrimaryVtxGenerator::LoadConfig()
+  const EventRecordVisitorI * mcgen = NHLGenerator();
+  if( !nhlgen ){
+    nhlgen = new NHLPrimaryVtxGenerator(); // do NOT remove this if( !nhlgen ), it causes a MASSIVE memleak if you do.
+  }
+  string confString = kDefOptSName + kDefOptSConfig;
+  const double confMass = nhlgen->GetNHLMass( confString );
+  const std::vector< double > confCoups = nhlgen->GetNHLCouplings( confString );
+
+  LOG( "gevgen_nhl", pDEBUG )
+    << "At app stage we see:"
+    << "\nMass = " << confMass << " GeV"
+    << "\nECoup = " << confCoups.at(0)
+    << "\nMCoup = " << confCoups.at(1)
+    << "\nTCoup = " << confCoups.at(2);
+
   gOptECoupling = 1.0e-4;
   gOptMCoupling = 1.0e-4;
   gOptTCoupling = 0.0;
@@ -297,9 +320,6 @@ int main(int argc, char ** argv)
     InitBoundingBox();
   }
 #endif // #ifdef __CAN_USE_ROOT_GEOM__
-
-  // Get the nucleon decay generator
-  const EventRecordVisitorI * mcgen = NHLGenerator();
 
   // RETHERE either seek out input flux or loop over some flux tuples
   // WIP
@@ -762,8 +782,6 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     }
     // RETHERE I only make this for some plots. Must remove
     if( !gOptRootGeoVolume ) gOptRootGeoVolume = gOptRootGeoManager->FindVolumeFast("DetectorlvTracker");
-
-    if( !nhlgen ) nhlgen = new NHLPrimaryVtxGenerator(); // do NOT remove this if( !nhlgen ), it causes a MASSIVE memleak if you do.
     
     int trajIdx = 0;
     bool didIntersectDet = NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gOptRootGeoManager, gOptRootGeoVolume );
@@ -885,15 +903,19 @@ TLorentzVector GeneratePosition( GHepRecord * event )
 //_________________________________________________________________________________________
 const EventRecordVisitorI * NHLGenerator(void)
 {
-  string sname   = "genie::EventGenerator";
-  string sconfig = "NeutralHeavyLepton";
+  //string sname   = "genie::EventGenerator";
+  //string sconfig = "NeutralHeavyLepton";
   AlgFactory * algf = AlgFactory::Instance();
 
   LOG("gevgen_nhl", pINFO)
     << "Instantiating NHL generator.";
 
-  const EventRecordVisitorI * mcgen =
-     dynamic_cast<const EventRecordVisitorI *> (algf->GetAlgorithm(sname,sconfig));
+  const Algorithm * algmcgen = algf->GetAlgorithm(kDefOptSName, kDefOptSConfig);
+  LOG("gevgen_nhl", pDEBUG)
+    << "Got algorithm " << kDefOptSName.c_str() << "/" << kDefOptSConfig.c_str();;
+
+  const EventRecordVisitorI * mcgen = 
+    dynamic_cast< const EventRecordVisitorI * >( algmcgen );
   if(!mcgen) {
      LOG("gevgen_nhl", pFATAL) << "Couldn't instantiate the NHL generator";
      gAbortingInErr = true;

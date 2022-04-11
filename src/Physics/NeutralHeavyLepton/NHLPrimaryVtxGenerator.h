@@ -52,6 +52,9 @@ public:
   std::vector< double > * GenerateDecayPosition (GHepRecord * event) const;
   std::vector< double > * GenerateMomentum (GHepRecord * event) const;
 
+  double GetNHLMass(string config);
+  std::vector< double > GetNHLCouplings(string config);
+
 private:
 
    void LoadConfig            (void);
@@ -63,8 +66,10 @@ private:
    mutable genie::NHL::NHLDecayMode_t fCurrDecayMode;
    mutable TGenPhaseSpace             fPhaseSpaceGenerator;
 
+   mutable bool                       fIsConfigLoaded = false;
+   
    mutable double                     fEnergy;
-   mutable double                     fMass;
+   mutable double                     fMass; //RETHERE either remove argv --mass or this.
    mutable double                     fUe42 = -1.0, fUm42 = -1.0, fUt42 = -1.0;
    mutable TH3D *                     fProdVtxHist = 0;
 };

@@ -322,6 +322,8 @@ void NHLPrimaryVtxGenerator::LoadConfig(void)
     << "\nECoup = " << fUe42
     << "\nMCoup = " << fUm42
     << "\nTCoup = " << fUt42;
+
+  fIsConfigLoaded = true;
 }
 //___________________________________________________________________________
 void NHLPrimaryVtxGenerator::SetNHLCouplings( double Ue42, double Um42, double Ut42 ) const
@@ -329,4 +331,17 @@ void NHLPrimaryVtxGenerator::SetNHLCouplings( double Ue42, double Um42, double U
   fUe42 = Ue42;
   fUm42 = Um42;
   fUt42 = Ut42;
+}
+//___________________________________________________________________________
+double NHLPrimaryVtxGenerator::GetNHLMass(string config)
+{
+  if( !fIsConfigLoaded ) this->Configure(config);
+  return fMass;
+}
+//___________________________________________________________________________
+std::vector< double > NHLPrimaryVtxGenerator::GetNHLCouplings(string config)
+{
+  if( !fIsConfigLoaded ) this->Configure(config);
+  std::vector< double > coupVec = { fUe42, fUm42, fUt42 };
+  return coupVec;
 }
