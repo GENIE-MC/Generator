@@ -165,6 +165,28 @@ namespace genie {
 	    inline const std::map< genie::NHL::NHLDecayMode_t, double > GetInterestingChannels( ) {
 		return fInterestingChannels; }
 
+	    inline int GetType( ) { return fType; }
+
+	    inline double GetAngularDeviation( ) { return fAngularDeviation; }
+
+	    inline std::vector<double> GetBeam2UserTranslation( ) {
+	      std::vector<double> tVec = { fTx, fTy, fTz };
+	      return tVec;
+	    }
+
+	    inline std::vector<double> GetBeam2UserRotation( ) {
+	      std::vector<double> rVec = { fR1, fR2, fR3 };
+	      return rVec;
+	    }
+
+	    inline std::vector<std::vector<double>> GetBeam2UserRotationMatrix( ) {
+	      std::vector<double> rm1Vec = { fRM11, fRM12, fRM13 };
+	      std::vector<double> rm2Vec = { fRM21, fRM22, fRM23 };
+	      std::vector<double> rm3Vec = { fRM31, fRM32, fRM33 };
+	      std::vector<std::vector<double>> rmVec = { rm1Vec, rm2Vec, rm3Vec };
+	      return rmVec;
+	    }
+
 	    // setters
 
 	    inline void SetName( const std::string name ) { fName = name; }
@@ -282,6 +304,28 @@ namespace genie {
 
 	    inline void SetHType( const genie::NHL::NHLenums::nutype_t HType ){
 		fHType = HType; }
+
+	    inline void SetType( const int type ) { fType = type; }
+
+	    inline void SetAngularDeviation( const double adev ) { fAngularDeviation = adev; }
+
+	    inline void SetBeam2UserTranslation( const double tx, const double ty, const double tz ){
+	      fTx = tx; fTy = ty; fTz = tz;
+	    }
+
+	    inline void SetBeam2UserRotation( const double r1, const double r2, const double r3 ){
+	      fR1 = r1; fR2 = r2; fR3 = r3;
+	      // and the rotation matrix
+	      fRM11 = std::cos( fR2 );
+	      fRM12 = -std::cos( fR3 ) * std::sin( fR2 );
+	      fRM13 = std::sin( fR2 ) * std::sin( fR3 );
+	      fRM21 = std::cos( fR1 ) * std::sin( fR2 );
+	      fRM22 = std::cos( fR1 ) * std::cos( fR2 ) * std::cos( fR3 ) - std::sin( fR1 ) * std::sin( fR3 );
+	      fRM23 = -std::cos( fR3 ) * std::sin( fR1 ) - std::cos( fR1 ) * std::cos( fR2 ) * std::sin( fR3 );
+	      fRM31 = std::sin( fR1 ) * std::sin( fR2 );
+	      fRM32 = std::cos( fR1 ) * std::sin( fR3 ) + std::cos( fR2 ) * std::cos( fR3 ) * std::sin( fR1 );
+	      fRM33 = std::cos( fR1 ) * std::cos( fR3 ) - std::cos( fR2 ) * std::sin( fR1 ) * std::sin( fR3 );
+	    }
 	    
 	protected:
 	    // default c'tor values
@@ -317,11 +361,12 @@ namespace genie {
 	    mutable int              fIndex;
 	    mutable int              fPDG;
 	    mutable int              fParentPDG;
-	    mutable double     fMass;
-	    mutable double     fUe42, fUmu42, fUt42;
-	    mutable bool       fIsMajorana;
+	    mutable double           fMass;
+	    mutable double           fUe42, fUmu42, fUt42;
+	    mutable bool             fIsMajorana;
+	    mutable int              fType;
 	    mutable std::map< genie::NHL::NHLDecayMode_t, double > fValidChannels;
-	    mutable double     fCoMLifetime;
+	    mutable double           fCoMLifetime;
 
 	    mutable genie::NHL::NHLenums::nutype_t    fHType;
 	    
@@ -339,6 +384,11 @@ namespace genie {
 	    mutable double                  fPol; // polarisation magnitude
 	    mutable double                  fPolUx, fPolUy, fPolUz;
 	    mutable std::vector< double > * fPolDir; // polarisation direction
+
+	    mutable double                  fAngularDeviation; // ang dev from beam axis, deg
+	    mutable double                  fTx, fTy, fTz; // beam origin in user coordinates [m]
+	    mutable double                  fR1, fR2, fR3; // Euler angles (extrinsic x-z-x) [rad]
+	    mutable double                  fRM11, fRM12, fRM13, fRM21, fRM22, fRM23, fRM31, fRM32, fRM33; // rotation matrix (RM * BEAM = USER)
 	    
 	}; // class SimpleNHL
 

@@ -242,10 +242,6 @@ int main(int argc, char ** argv)
 
   RandomGen * rnd = RandomGen::Instance();
 
-  // RETHERE do some initial configuration re. couplings in job
-  // same for kind and Majorana!
-
-  // goal: make gevgen_nhl aware of CommonNHL.xml
   // Get the NHL generator first to load config
   // config loaded upon instantiation of NHLGenerator algorithm 
   // ==> NHLPrimaryVtxGenerator::LoadConfig()
@@ -254,21 +250,40 @@ int main(int argc, char ** argv)
     nhlgen = new NHLPrimaryVtxGenerator(); // do NOT remove this if( !nhlgen ), it causes a MASSIVE memleak if you do.
   }
   string confString = kDefOptSName + kDefOptSConfig;
-  const double confMass = nhlgen->GetNHLMass( confString );
-  const std::vector< double > confCoups = nhlgen->GetNHLCouplings( confString );
+  //const double confMass = nhlgen->GetNHLMass( confString );
+  //const std::vector< double > confCoups = nhlgen->GetNHLCouplings( confString );
+
+  SimpleNHL confsh = nhlgen->GetNHLInstance( confString );
+  const double confMass = confsh.GetMass();
+  const std::vector< double > confCoups = confsh.GetCouplings();
+  const bool confIsMajorana = confsh.GetIsMajorana();
+  const int confType = confsh.GetType();
+  const double confAngDev = confsh.GetAngularDeviation();
+  const std::vector< double > confT = confsh.GetBeam2UserTranslation();
+  const std::vector< double > confR = confsh.GetBeam2UserRotation();
+  const std::vector< std::vector< double > > confRM = confsh.GetBeam2UserRotationMatrix();
 
   LOG( "gevgen_nhl", pDEBUG )
     << "At app stage we see:"
     << "\nMass = " << confMass << " GeV"
     << "\nECoup = " << confCoups.at(0)
     << "\nMCoup = " << confCoups.at(1)
-    << "\nTCoup = " << confCoups.at(2);
+    << "\nTCoup = " << confCoups.at(2)
+    << "\nIsMajorana = " << confIsMajorana
+    << "\nType = " << confType
+    << "\nAngular deviation = " << confAngDev << " deg"
+    << "\nBEAM origin is USER ( " << confT.at(0) << ", " << confT.at(1) << ", " << confT.at(2) << " ) [m]"
+    << "\nEuler angles (extrinsic x-z-x == 1-2-3) are ( " << confR.at(0) << ", " << confR.at(1) << "," << confR.at(2) << " )"
+    << "\nRotation matrix RM = Rx(1) * Rz(2) * Rx(3) : RM * BEAM = USER"
+    << "\n = ( " << (confRM.at(0)).at(0) << ", " << (confRM.at(0)).at(1) << ", " << (confRM.at(0)).at(2) << " )"
+    << "\n = ( " << (confRM.at(1)).at(0) << ", " << (confRM.at(1)).at(1) << ", " << (confRM.at(1)).at(2) << " )"
+    << "\n = ( " << (confRM.at(2)).at(0) << ", " << (confRM.at(2)).at(1) << ", " << (confRM.at(2)).at(2) << " )";
 
-  gOptECoupling = 1.0e-4;
-  gOptMCoupling = 1.0e-4;
-  gOptTCoupling = 0.0;
-  gOptNHLKind = 2; // for mixing
-  gOptIsMajorana = false;
+  gOptECoupling = confCoups.at(0);
+  gOptMCoupling = confCoups.at(1);
+  gOptTCoupling = confCoups.at(2);
+  gOptNHLKind = confType; // for mixing
+  gOptIsMajorana = confIsMajorana;
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);

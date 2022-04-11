@@ -20,6 +20,8 @@ April 11th, 2022
   <param_set name="ParameterSpace">
     <param type="double" name="NHL-Mass"> 0.476 </param> <!-- GeV -->
     <param type="vec-double" name="NHL-LeptonMixing" delim=";"> 1.0e-5 ; 1.0e-5 ; 0.0 </param>
+    <param type="bool" name="NHL-Majorana"> false </param>
+    <param type="int" name="NHL-Type"> 2 </param> <!-- 0 = pure-N, 1 = pure-Nbar, 2 = mix -->
   </param_set>
 
   <param_set name="InterestingChannels">
@@ -37,13 +39,14 @@ April 11th, 2022
     <param type="bool" name="NHL-3B_nu_pi0_pi0"> false </param>
   </param_set>
 
-  <param_set name="InitialKinematics">
+  <param_set name="InitialState">
     <param type="double" name="NHL-angular_deviation"> 2.15 </param> <!-- deg -->
   </param_set>
 
   <param_set name="CoordinateXForm">
     <param type="vec-double" name="Beam2User_T" delim=";"> 0.2486 ; 60.350 ; -1022.74 </param> <!-- m -->
-    <param type="vec-double" name="Beam2User_R" delim=";"> -0.05830 ; 0.0 ; 0.0 </param> <!-- rad -->
+    <param type="vec-double" name="Beam2User_R" delim=";"> 0.0 ; 0.0 ; -0.05830 </param> <!-- rad -->
+    <!-- Euler angles, extrinsic x-z-x = 1-2-3, RM * BEAM = USER, RM = Rx(1) * Rz(2) * Rz(3) -->
   </param_set>
 
   <!--

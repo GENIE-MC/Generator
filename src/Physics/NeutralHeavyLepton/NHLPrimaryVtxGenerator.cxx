@@ -315,13 +315,22 @@ void NHLPrimaryVtxGenerator::LoadConfig(void)
   std::vector< double > U4l2s;
   this->GetParamVect( "NHL-LeptonMixing", U4l2s );
   SetNHLCouplings( U4l2s.at(0), U4l2s.at(1), U4l2s.at(2) );
+  this->GetParam( "NHL-Majorana", fIsMajorana );
+  this->GetParam( "NHL-Type", fType );
+  this->GetParam( "NHL-angular_deviation", fAngularDeviation );
+  this->GetParamVect( "Beam2User_T", fB2UTranslation );
+  this->GetParamVect( "Beam2User_R", fB2URotation );
+  SetBeam2User( fB2UTranslation, fB2URotation );
 
   LOG("NHL", pDEBUG)
     << "Read the following params:"
     << "\nMass = " << fMass << " GeV"
     << "\nECoup = " << fUe42
     << "\nMCoup = " << fUm42
-    << "\nTCoup = " << fUt42;
+    << "\nTCoup = " << fUt42
+    << "\nIsMajorana = " << fIsMajorana
+    << "\nType = " << fType
+    << "\nAngular deviation = " << fAngularDeviation << " deg";
 
   fIsConfigLoaded = true;
 }
@@ -331,6 +340,40 @@ void NHLPrimaryVtxGenerator::SetNHLCouplings( double Ue42, double Um42, double U
   fUe42 = Ue42;
   fUm42 = Um42;
   fUt42 = Ut42;
+}
+//___________________________________________________________________________
+void NHLPrimaryVtxGenerator::SetBeam2User( std::vector< double > translation, std::vector< double > rotation ) const
+{
+  fTx = translation.at(0);
+  fTy = translation.at(1);
+  fTz = translation.at(2);
+
+  fR1 = rotation.at(0);
+  fR2 = rotation.at(1);
+  fR3 = rotation.at(2);
+
+  fRM11 = std::cos( fR2 );
+  fRM12 = -std::cos( fR3 ) * std::sin( fR2 );
+  fRM13 = std::sin( fR2 ) * std::sin( fR3 );
+  fRM21 = std::cos( fR1 ) * std::sin( fR2 );
+  fRM22 = std::cos( fR1 ) * std::cos( fR2 ) * std::cos( fR3 ) - std::sin( fR1 ) * std::sin( fR3 );
+  fRM23 = -std::cos( fR3 ) * std::sin( fR1 ) - std::cos( fR1 ) * std::cos( fR2 ) * std::sin( fR3 );
+  fRM31 = std::sin( fR1 ) * std::sin( fR2 );
+  fRM32 = std::cos( fR1 ) * std::sin( fR3 ) + std::cos( fR2 ) * std::cos( fR3 ) * std::sin( fR1 );
+  fRM33 = std::cos( fR1 ) * std::cos( fR3 ) - std::cos( fR2 ) * std::sin( fR1 ) * std::sin( fR3 );
+
+  fRTx = fTx * fRM11 + fTy * fRM12 + fTz * fRM13;
+  fRTy = fTx * fRM21 + fTy * fRM22 + fTz * fRM23;
+  fRTz = fTx * fRM31 + fTy * fRM32 + fTz * fRM33;
+
+  LOG( "NHL", pDEBUG )
+    << "Set BEAM origin = (0,0,0) to UNROTATED USER coordinates = ( " << fTx << ", " << fTy << ", " << fTz << " ) [m]"
+    << "\nSet Euler (extrinsic x-z-x) angles to ( " << fR1 << ", " << fR2 << ", " << fR3 << " ) [rad]"
+    << "\nThe rotation matrix is as follows:"
+    << "\nROW 1 = ( " << fRM11 << ", " << fRM12 << ", " << fRM13 << " )"
+    << "\nROW 2 = ( " << fRM21 << ", " << fRM22 << ", " << fRM23 << " )"
+    << "\nROW 3 = ( " << fRM31 << ", " << fRM32 << ", " << fRM33 << " )"
+    << "\nROTATED USER corrdinates = ( " << fRTx << ", " << fRTy << ", " << fRTz << " )";  
 }
 //___________________________________________________________________________
 double NHLPrimaryVtxGenerator::GetNHLMass(string config)
@@ -344,4 +387,16 @@ std::vector< double > NHLPrimaryVtxGenerator::GetNHLCouplings(string config)
   if( !fIsConfigLoaded ) this->Configure(config);
   std::vector< double > coupVec = { fUe42, fUm42, fUt42 };
   return coupVec;
+}
+//___________________________________________________________________________
+SimpleNHL NHLPrimaryVtxGenerator::GetNHLInstance(string config)
+{
+  if( !fIsConfigLoaded ) this->Configure(config);
+  SimpleNHL sh = SimpleNHL( "NHLInstance", 0, genie::kPdgNHL, genie::kPdgKP,
+			    fMass, fUe42, fUm42, fUt42, fIsMajorana );
+  sh.SetType( fType );
+  sh.SetAngularDeviation( fAngularDeviation );
+  sh.SetBeam2UserTranslation( fTx, fTy, fTz );
+  sh.SetBeam2UserRotation( fR1, fR2, fR3 );
+  return sh;
 }

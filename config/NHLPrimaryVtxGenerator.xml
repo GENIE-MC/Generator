@@ -30,15 +30,17 @@ NHL-3B_mu_pi_pi0          bool        no    N -> mu + pi  + pi0
 NHL-3B_nu_pi0_pi0         bool        no    N -> nu + pi0 + pi0
 
 **********************                      *******************************
-set InitialKinematics:                      Modify incoming NHL phase-space
+set InitialState:                           Modify incoming NHL phase-space
 **********************                      *******************************
 NHL-angular_deviation     double      yes   Gaussian spread of NHL 3-momentum off-beam-axis   0.06
+NHL-Type                  bool        yes   Can define pure N / Nbar beam (0,1) or mix (2)    2
 
 ********************                        ********************************
 set CoordinateXForm:                        Define beam -> local coord xform
 ********************                        ********************************
 Beam2User_T               vec-double  yes   Beam origin -> user origin [m]                    (0,0,0)
 Beam2User_R               vec-double  yes   Euler angles about beam axes [rad]                (0,0,0)
+                                            These are *extrinsic* rotations about x-z-x
 
 *************                               ***************************************
 set FluxCalc:                               Specific hooks for NHL flux calculation
@@ -65,7 +67,7 @@ IncludeMultipleNHL        bool        yes   Allow 2 quasi-degenerate NHL        
   
   <param_set name="Default">
     
-    <param type="string" name="CommonNHL"> ParameterSpace,InterestingChannels,InitialKinematics,CoordinateXForm </param>
+    <param type="string" name="CommonNHL"> ParameterSpace,InterestingChannels,InitialState,CoordinateXForm </param>
 
   </param_set>
 

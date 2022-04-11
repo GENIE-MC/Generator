@@ -54,13 +54,15 @@ public:
 
   double GetNHLMass(string config);
   std::vector< double > GetNHLCouplings(string config);
+  genie::NHL::SimpleNHL GetNHLInstance(string config);
 
 private:
 
    void LoadConfig            (void);
    void AddInitialState       (GHepRecord * event) const;
    void GenerateDecayProducts (GHepRecord * event) const;
-   void SetNHLCouplings          (double Ue42, double Um42, double Ut42) const;
+   void SetNHLCouplings       (double Ue42, double Um42, double Ut42) const;
+   void SetBeam2User          (std::vector<double> translation, std::vector<double> rotation) const; 
 
    mutable int                        fCurrInitStatePdg;
    mutable genie::NHL::NHLDecayMode_t fCurrDecayMode;
@@ -71,6 +73,19 @@ private:
    mutable double                     fEnergy;
    mutable double                     fMass; //RETHERE either remove argv --mass or this.
    mutable double                     fUe42 = -1.0, fUm42 = -1.0, fUt42 = -1.0;
+   mutable bool                       fIsMajorana = false;
+   mutable int                        fType = 2;
+
+   mutable double                     fAngularDeviation = -1.0;
+   mutable std::vector< double >      fB2UTranslation;
+   mutable double                     fTx = -1.0, fTy = -1.0, fTz = -1.0;
+   mutable std::vector< double >      fB2URotation;
+   mutable double                     fR1 = -1.0, fR2 = -1.0, fR3 = -1.0;
+   mutable double                     fRM11 = -1.0, fRM12 = -1.0, fRM13 = -1.0,
+                                      fRM21 = -1.0, fRM22 = -1.0, fRM23 = -1.0,
+                                      fRM31 = -1.0, fRM32 = -1.0, fRM33 = -1.0;
+   mutable double                     fRTx = -1.0, fRTy = -1.0, fRTz = -1.0;
+
    mutable TH3D *                     fProdVtxHist = 0;
 };
 
