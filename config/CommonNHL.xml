@@ -32,8 +32,8 @@ April 11th, 2022
     <!-- 3-body decays -->
     <param type="bool" name="NHL-3B_nu_nu_nu"> false </param>
     <param type="bool" name="NHL-3B_nu_mu_mu"> false </param>
-    <param type="bool" name="NHL-3B_nu_mu_e"> false </param>
     <param type="bool" name="NHL-3B_nu_e_e"> false </param>
+    <param type="bool" name="NHL-3B_nu_mu_e"> false </param>
     <param type="bool" name="NHL-3B_e_pi_pi0"> false </param>
     <param type="bool" name="NHL-3B_mu_pi_pi0"> false </param>
     <param type="bool" name="NHL-3B_nu_pi0_pi0"> false </param>

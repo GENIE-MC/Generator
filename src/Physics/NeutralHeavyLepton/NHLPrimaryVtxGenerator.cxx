@@ -271,8 +271,7 @@ std::vector< double > * NHLPrimaryVtxGenerator::GenerateMomentum( GHepRecord * e
   double p = TMath::Sqrt(E*E-M*M);
 
   // set some initial deviation from beam axis due to collimation effect
-  // RETHERE make this configurable
-  double thetaDev = 0.06; // deg
+  double thetaDev = fAngularDeviation; // deg
   thetaDev *= genie::constants::kPi / 180.0; // rad
   RandomGen * Rng = RandomGen::Instance();
   double theta = Rng->RndGen().Gaus(0.0, thetaDev);
@@ -317,10 +316,25 @@ void NHLPrimaryVtxGenerator::LoadConfig(void)
   SetNHLCouplings( U4l2s.at(0), U4l2s.at(1), U4l2s.at(2) );
   this->GetParam( "NHL-Majorana", fIsMajorana );
   this->GetParam( "NHL-Type", fType );
+
   this->GetParam( "NHL-angular_deviation", fAngularDeviation );
+
   this->GetParamVect( "Beam2User_T", fB2UTranslation );
   this->GetParamVect( "Beam2User_R", fB2URotation );
   SetBeam2User( fB2UTranslation, fB2URotation );
+
+  fIntChannels = {}; bool itChan = false;
+  // RETHERE for now I parse the channels manually... need to add automatic recognition?
+  this->GetParam( "NHL-2B_mu_pi",  itChan ); if( itChan ) fIntChannels.push_back( kNHLDcyPiMu );
+  this->GetParam( "NHL-2B_e_pi",   itChan ); if( itChan ) fIntChannels.push_back( kNHLDcyPiE );
+  this->GetParam( "NHL-2B_nu_pi0", itChan ); if( itChan ) fIntChannels.push_back( kNHLDcyPi0Nu );
+  this->GetParam( "NHL-3B_nu_nu_nu",   itChan ); if( itChan ) fIntChannels.push_back( kNHLDcyNuNuNu );
+  this->GetParam( "NHL-3B_nu_mu_mu",   itChan ); if( itChan ) fIntChannels.push_back( kNHLDcyNuMuMu );
+  this->GetParam( "NHL-3B_nu_e_e",     itChan ); if( itChan ) fIntChannels.push_back( kNHLDcyNuEE );
+  this->GetParam( "NHL-3B_nu_mu_e",    itChan ); if( itChan ) fIntChannels.push_back( kNHLDcyNuMuE );
+  this->GetParam( "NHL-3B_e_pi_pi0",   itChan ); if( itChan ) fIntChannels.push_back( kNHLDcyPiPi0E );
+  this->GetParam( "NHL-3B_mu_pi_pi0",  itChan ); if( itChan ) fIntChannels.push_back( kNHLDcyPiPi0Mu );
+  this->GetParam( "NHL-3B_nu_pi0_pi0", itChan ); if( itChan ) fIntChannels.push_back( kNHLDcyPi0Pi0Nu );
 
   LOG("NHL", pDEBUG)
     << "Read the following params:"
@@ -395,6 +409,7 @@ SimpleNHL NHLPrimaryVtxGenerator::GetNHLInstance(string config)
   SimpleNHL sh = SimpleNHL( "NHLInstance", 0, genie::kPdgNHL, genie::kPdgKP,
 			    fMass, fUe42, fUm42, fUt42, fIsMajorana );
   sh.SetType( fType );
+  sh.SetInterestingChannelsVec( fIntChannels );
   sh.SetAngularDeviation( fAngularDeviation );
   sh.SetBeam2UserTranslation( fTx, fTy, fTz );
   sh.SetBeam2UserRotation( fR1, fR2, fR3 );

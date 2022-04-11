@@ -165,6 +165,9 @@ namespace genie {
 	    inline const std::map< genie::NHL::NHLDecayMode_t, double > GetInterestingChannels( ) {
 		return fInterestingChannels; }
 
+	    inline std::vector< genie::NHL::NHLDecayMode_t > GetInterestingChannelsVec( ) {
+	        return fInterestingChannelsVec; }
+
 	    inline int GetType( ) { return fType; }
 
 	    inline double GetAngularDeviation( ) { return fAngularDeviation; }
@@ -293,6 +296,11 @@ namespace genie {
 		const std::map< genie::NHL::NHLDecayMode_t, double > gammaMap ){
 		fInterestingChannels = gammaMap; }
 
+
+	    inline void SetInterestingChannelsVec( 
+	        const std::vector< genie::NHL::NHLDecayMode_t > decVec ){
+	        fInterestingChannelsVec = decVec; }
+
 	    inline void SetDecayMode( const genie::NHL::NHLDecayMode_t decayMode ){
 		fDecayMode = decayMode; }
 
@@ -375,6 +383,7 @@ namespace genie {
 	    mutable genie::NHL::NHLDecayMode_t  fDecayMode;
 	    
 	    mutable std::map< genie::NHL::NHLDecayMode_t, double > fInterestingChannels;
+	    mutable std::vector< genie::NHL::NHLDecayMode_t >      fInterestingChannelsVec;
 	    
 	    mutable double                  fBeta, fGamma;
 	    mutable double                  fLifetime;

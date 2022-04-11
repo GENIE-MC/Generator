@@ -192,6 +192,7 @@ string           gOptFluxFilePath = kDefOptFluxFilePath; // where flux files liv
 bool             gOptIsMonoEnFlux = true;                // do we have monoenergetic flux?
 
 NHLDecayMode_t   gOptDecayMode    = kNHLDcyNull;         // NHL decay mode
+std::vector< NHLDecayMode_t > gOptIntChannels;           // decays to un-inhibit
 
 string           gOptEvFilePrefix = kDefOptEvFilePrefix; // event file prefix
 bool             gOptUsingRootGeom = false;              // using root geom or target mix?
@@ -262,6 +263,7 @@ int main(int argc, char ** argv)
   const std::vector< double > confT = confsh.GetBeam2UserTranslation();
   const std::vector< double > confR = confsh.GetBeam2UserRotation();
   const std::vector< std::vector< double > > confRM = confsh.GetBeam2UserRotationMatrix();
+  const std::vector< NHLDecayMode_t > confIntChan = confsh.GetInterestingChannelsVec();
 
   LOG( "gevgen_nhl", pDEBUG )
     << "At app stage we see:"
@@ -284,6 +286,8 @@ int main(int argc, char ** argv)
   gOptTCoupling = confCoups.at(2);
   gOptNHLKind = confType; // for mixing
   gOptIsMajorana = confIsMajorana;
+
+  gOptIntChannels = confIntChan;
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
@@ -434,7 +438,12 @@ int main(int argc, char ** argv)
      if( gOptDecayMode == kNHLDcyNull ){ // select from available modes
        LOG("gevgen_nhl", pNOTICE)
 	 << "No decay mode specified - sampling from all available modes.";
+
+       LOG("gevgen_nhl", pDEBUG)
+	 << "Reading interesting channels vector from config";
+       std::vector< NHLDecayMode_t > * intChannels = &gOptIntChannels;
      
+       /*
        LOG("gevgen_nhl", pDEBUG)
 	 << " Creating interesting channels vector ";
        std::vector< NHLDecayMode_t > * intChannels = new std::vector< NHLDecayMode_t >();

@@ -76,6 +76,8 @@ private:
    mutable bool                       fIsMajorana = false;
    mutable int                        fType = 2;
 
+   mutable std::vector< genie::NHL::NHLDecayMode_t > fIntChannels;
+
    mutable double                     fAngularDeviation = -1.0;
    mutable std::vector< double >      fB2UTranslation;
    mutable double                     fTx = -1.0, fTy = -1.0, fTz = -1.0;
