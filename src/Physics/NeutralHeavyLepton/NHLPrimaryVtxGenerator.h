@@ -64,6 +64,7 @@ private:
    mutable TGenPhaseSpace             fPhaseSpaceGenerator;
 
    mutable double                     fEnergy;
+   mutable double                     fMass;
    mutable double                     fUe42 = -1.0, fUm42 = -1.0, fUt42 = -1.0;
    mutable TH3D *                     fProdVtxHist = 0;
 };

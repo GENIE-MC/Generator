@@ -1,10 +1,72 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<alg_conf>
+<!--
+Configuration for the NHLPrimaryVtxGenerator EventRecordVisitorI
 
-  <param_set name="Default"> 
+Algorithm Configurable Parameters:
+..............................................................................................................................
+Name                      Type        Opt   Comment                                           Default
+..............................................................................................................................
+
+*******************                         **********************************
+set ParameterSpace:                         Choice of parameter space position
+*******************                         **********************************
+NHL-Mass                  double      no
+NHL-LeptonMixing          vec-double  no    Mixing to charged leptons: e-mu-tau
+
+************************                    *****************************************
+set InterestingChannels:                    Which decays to un-inhibit
+                                            Each decay set to true is added to vector
+************************                    *****************************************
+NHL-2B_mu_pi              bool        no    N -> mu + pi
+NHL-2B_e_pi               bool        no    N -> e  + pi
+NHL-2B_nu_pi0             bool        no    N -> nu + pi0
+NHL-3B_nu_nu_nu           bool        no    N -> nu + nu  + nu
+NHL-3B_nu_mu_mu           bool        no    N -> nu + mu  + mu
+NHL-3B_nu_mu_e            bool        no    N -> nu + mu  + e
+NHL-3B_nu_e_e             bool        no    N -> nu + e   + e
+NHL-3B_e_pi_pi0           bool        no    N -> e  + pi  + pi0
+NHL-3B_mu_pi_pi0          bool        no    N -> mu + pi  + pi0
+NHL-3B_nu_pi0_pi0         bool        no    N -> nu + pi0 + pi0
+
+**********************                      *******************************
+set InitialKinematics:                      Modify incoming NHL phase-space
+**********************                      *******************************
+NHL-angular_deviation     double      yes   Gaussian spread of NHL 3-momentum off-beam-axis   0.06
+
+********************                        ********************************
+set CoordinateXForm:                        Define beam -> local coord xform
+********************                        ********************************
+Beam2User_T               vec-double  yes   Beam origin -> user origin [m]                    (0,0,0)
+Beam2User_R               vec-double  yes   Euler angles about beam axes [rad]                (0,0,0)
+
+*************                               ***************************************
+set FluxCalc:                               Specific hooks for NHL flux calculation
+*************                               ***************************************
+CalcKaonFluxOnly          bool        yes   Focus only on kaon parents in dk2nu               false
+AttemptCharmCalculation   bool        yes   Predict charm-parent (D,Ds...) contribution       false
+IsNHLOnAxis               bool        yes   Incoming NHL placed on SM-nu beam axis            true
+NHL-PolDir                vec-double  yes   Set NHL beam polarisation direction               (0,0,1)
+                                            (beam coordinates!)
+
+**********                                  *******************************************
+set Hooks:                                  Switches for various calculations / effects
+**********                                  *******************************************
+UseRhos                   bool        yes   Use published decay widths from Coloma et al for  false
+                                            3-body FS with pi0.
+					    Default is Mathematica FeynArts+FeynCalc width
+IncludePolarisation       bool        yes   Include NHL polarisation effects 
+WeightEventsUsingGeometry bool        yes   Apply weight = P(survival) * P(decay)             true
+SampleDecayVtxFirst       bool        yes   Determine prod vtx based on sampled decay vtx     false
+IncludeMultipleNHL        bool        yes   Allow 2 quasi-degenerate NHL                      false
+-->
+
+<alg_conf>
+  
+  <param_set name="Default">
+    
+    <param type="string" name="CommonNHL"> ParameterSpace,InterestingChannels,InitialKinematics,CoordinateXForm </param>
 
   </param_set>
 
 </alg_conf>
-

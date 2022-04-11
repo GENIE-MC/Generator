@@ -308,7 +308,20 @@ void NHLPrimaryVtxGenerator::Configure(string config)
 //___________________________________________________________________________
 void NHLPrimaryVtxGenerator::LoadConfig(void)
 {
+  LOG("NHL", pDEBUG)
+    << "Loading configuration from file...";
 
+  this->GetParam( "NHL-Mass", fMass );
+  std::vector< double > U4l2s;
+  this->GetParamVect( "NHL-LeptonMixing", U4l2s );
+  SetNHLCouplings( U4l2s.at(0), U4l2s.at(1), U4l2s.at(2) );
+
+  LOG("NHL", pDEBUG)
+    << "Read the following params:"
+    << "\nMass = " << fMass << " GeV"
+    << "\nECoup = " << fUe42
+    << "\nMCoup = " << fUm42
+    << "\nTCoup = " << fUt42;
 }
 //___________________________________________________________________________
 void NHLPrimaryVtxGenerator::SetNHLCouplings( double Ue42, double Um42, double Ut42 ) const
