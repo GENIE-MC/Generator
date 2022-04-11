@@ -80,41 +80,41 @@ namespace genie {
 
 	    // Getters
 
-	    inline const std::string GetName( ) { return fName; }
+	    inline std::string GetName( ) { return fName; }
 
-	    inline const int    GetIndex( ) { return fIndex; }
+	    inline int    GetIndex( ) { return fIndex; }
 
-	    inline const double GetMass( ) { return fMass; }
+	    inline double GetMass( ) { return fMass; }
 
-	    inline const std::vector< double > GetCouplings( ) {
+	    inline std::vector< double > GetCouplings( ) {
 		std::vector< double > coupVec;
 		coupVec.emplace_back( fUe42 );
 		coupVec.emplace_back( fUmu42 );
 		coupVec.emplace_back( fUt42 );
 		return coupVec; }
 
-	    inline const bool   GetIsMajorana( ) { return fIsMajorana; }
+	    inline bool   GetIsMajorana( ) { return fIsMajorana; }
 
-	    inline const double GetBeta( ) { return fBeta; }
+	    inline double GetBeta( ) { return fBeta; }
 
-	    inline const double GetGamma( ) { return fGamma; }
+	    inline double GetGamma( ) { return fGamma; }
 
-	    inline const double GetCoMLifetime( ) { return fCoMLifetime; }
+	    inline double GetCoMLifetime( ) { return fCoMLifetime; }
 
-	    inline const double GetLifetime( ) { /* return fLifetime; */
+	    inline double GetLifetime( ) { /* return fLifetime; */
 		return CalcLifetime( fGamma ); }
 
-	    inline const int    GetPDG( ) { return fPDG; }
+	    inline int    GetPDG( ) { return fPDG; }
 
-	    inline const int    GetParentPDG( ) { return fParentPDG; }
+	    inline int    GetParentPDG( ) { return fParentPDG; }
 
-	    inline const genie::NHL::NHLenums::nutype_t GetHType( ) { return fHType; }
+	    inline genie::NHL::NHLenums::nutype_t GetHType( ) { return fHType; }
 
-	    inline const double GetDecayThrow( ) { return fDecayThrow; }
+	    inline double GetDecayThrow( ) { return fDecayThrow; }
 
-	    inline const double GetSelectThrow( ) { return fSelectThrow; }
+	    inline double GetSelectThrow( ) { return fSelectThrow; }
 
-	    inline const genie::NHL::NHLDecayMode_t GetDecayMode( ) { return fDecayMode; }
+	    inline genie::NHL::NHLDecayMode_t GetDecayMode( ) { return fDecayMode; }
 
 	    inline std::vector< double > GetDecay4VX( ) {
 		std::vector< double > decVec;
@@ -151,18 +151,18 @@ namespace genie {
 		betaVec.emplace_back( pzMod * fPz / fE * fPz / mom );
 		return betaVec; }
 
-	    inline const double GetMomentum( ) { 
+	    inline double GetMomentum( ) { 
 	      return fPmag; 
 	    }
 
-	    inline const double GetPolarisationMag( ) { return fPol; }
-	    inline const std::vector< double > * GetPolarisationDir( ) {
+	    inline double GetPolarisationMag( ) { return fPol; }
+	    inline std::vector< double > * GetPolarisationDir( ) {
 		return fPolDir; }
 
-	    inline const std::map< genie::NHL::NHLDecayMode_t, double > GetValidChannels( ) {
+	    inline std::map< genie::NHL::NHLDecayMode_t, double > GetValidChannels( ) {
 		return fValidChannels; }
 
-	    inline const std::map< genie::NHL::NHLDecayMode_t, double > GetInterestingChannels( ) {
+	    inline std::map< genie::NHL::NHLDecayMode_t, double > GetInterestingChannels( ) {
 		return fInterestingChannels; }
 
 	    inline std::vector< genie::NHL::NHLDecayMode_t > GetInterestingChannelsVec( ) {
@@ -354,13 +354,13 @@ namespace genie {
 	  */
 
 	    // basic calculators
-	    inline const double CalcBeta( const double E, const double P3 ) {
+	    inline double CalcBeta( const double E, const double P3 ) {
 		return P3 / E; }
 	    
-	    inline const double CalcGamma( const double bet ) {
+	    inline double CalcGamma( const double bet ) {
 		return std::sqrt( 1.0 / ( 1.0 - bet*bet ) ); }
 
-	    inline const double CalcLifetime( const double gam ) {
+	    inline double CalcLifetime( const double gam ) {
 	      return fCoMLifetime * gam; } // rest-to-lab transf
 
 	private:
