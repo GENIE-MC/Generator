@@ -356,6 +356,20 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
     return false;
   }
 
+  // check to see if we're outside the bounding box.
+  // If yes, we've overstepped, return to detector!
+  const Double_t * ffPoint = gm->GetCurrentPoint();
+  if( std::abs(ffPoint[0] - fOx) > fLx/2.0 || std::abs(ffPoint[1] - fOy) > fLy/2.0 || std::abs(ffPoint[2] - fOz) > fLz/2.0 ){
+    LOG( "NHL", pDEBUG )
+      << "Overstepped bounding box: we're at ( " << ffPoint[0] << ", " << ffPoint[1] << ", " << ffPoint[2] << " )";
+    const Double_t * sfDir = gm->GetCurrentDirection();
+    gm->SetCurrentDirection( -sfDir[0], -sfDir[1], -sfDir[2] );
+    TGeoNode * tmpNode = gm->FindNextBoundaryAndStep();
+    LOG( "NHL", pDEBUG )
+      << "We turned back with new step = " << gm->GetStep();
+    // and set direction back to normal
+    gm->SetCurrentDirection( sfDir[0], sfDir[1], sfDir[2] );
+  }
   const Double_t * sfPoint = gm->GetCurrentPoint();
   sfx = sfPoint[0]; sfy = sfPoint[1]; sfz = sfPoint[2];
 
