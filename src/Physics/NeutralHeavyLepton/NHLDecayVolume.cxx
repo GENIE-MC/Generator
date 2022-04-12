@@ -310,15 +310,10 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   LOG( "NHL", pDEBUG )
     << "Starting to search for intersections...";
   
-  // enter the volume. If rounding errors keep us out, do one step forwards
-  TGeoNode * tmpNode = gm->FindNextBoundary( stepmax ); 
-  
-  if( tmpNode == NULL ){
-    return false;
-  }
-  
-  Double_t sFirst = gm->GetStep();
-  tmpNode = gm->Step();
+  // enter the volume.
+  TGeoNode * nextNode = gm->FindNextBoundaryAndStep( stepmax ); 
+
+  if( nextNode == NULL ) return false;
 
   // entered the detector, let's save this point
   fEx = ( gm->GetCurrentPoint() )[0] * genie::units::cm / genie::units::mm; // RETHERE fix this conversion!
@@ -327,45 +322,27 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   entryPoint.SetXYZ( fEx, fEy, fEz );
 
   LOG( "NHL", pDEBUG )
-    << "Entry point found at ( " << fEx << ", " << fEy << ", " << fEz << " )"; 
+    << "Entry point found at ( " << fEx << ", " << fEy << ", " << fEz << " ) [mm]"; 
 
   // now propagate until we exit again
   
   int bdIdx = 0;
   const int bdIdxMax = 1e+4;
-  double stepDist = -1.0; double stepDistMax = 10.0; //std::sqrt(3)/2 * std::sqrt( fLx*fLx + fLy*fLy + fLz*fLz ); // diagonal of bounding box. Can't step outside without leaving detector
-
-  bool isFrontRay = ( gm->FindNextBoundary( stepmax ) );
 
   double sfx = 0.0, sfy = 0.0, sfz = 0.0; // coords of the "safe" points
 
-  while( isFrontRay && bdIdx < bdIdxMax && stepDist <= stepDistMax ){
-    const Double_t * oldPoint = gm->GetCurrentPoint();
+  // do one big step first, half of largest BBox dimension
+  // then if not outside yet, step by ever smaller steps until reach threshold of GetStep()
+  //Double_t sNext = std::max( fLx, std::max( fLy, fLz ) ) / 2.0;
+  //gm->SetStep( sNext );
+  //LOG( "NHL", pINFO )
+  //  << "fLx, fLy, fLz = " << fLx << ", " << fLy << ", " << fLz << " ==> sNext = " << sNext;
 
-    isFrontRay = ( gm->FindNextBoundary(stepmax) );
-    if( isFrontRay ){
-      Double_t sNext = gm->GetStep();
-      TGeoNode * nextNode = gm->Step();
-    }
+  while( gm->FindNextBoundaryAndStep() && bdIdx < bdIdxMax ){
     const Double_t * currPoint = gm->GetCurrentPoint();
-
-    double dx = currPoint[0] - oldPoint[0];
-    double dy = currPoint[1] - oldPoint[1];
-    double dz = currPoint[2] - oldPoint[2];
-
-    stepDist = std::sqrt( dx*dx + dy*dy + dz*dz );
-
-    if( stepDist < stepDistMax ){ // legal step!
-      sfx = currPoint[0];
-      sfy = currPoint[1];
-      sfz = currPoint[2];
-    }
-
-    //LOG( "NHL", pDEBUG )
-    //  << "Step " << bdIdx << " : ( " << currPoint[0] << ", " << currPoint[1] << ", " << currPoint[2] << " )";
+    LOG( "NHL", pINFO )
+      << "Step " << bdIdx << " : ( " << currPoint[0] << ", " << currPoint[1] << ", " << currPoint[2] << " )";
     bdIdx++;
-    //delete[] oldPoint;
-    //delete[] currPoint;
   }
   if( bdIdx == bdIdxMax ){
     LOG( "NHL", pWARN )
@@ -380,7 +357,7 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   exitPoint.SetXYZ( fXx, fXy, fXz );
 
   LOG( "NHL", pDEBUG )
-    << "Exit point found at ( " << fXx << ", " << fXy << ", " << fXz << " )"; 
+    << "Exit point found at ( " << fXx << ", " << fXy << ", " << fXz << " ) [mm]"; 
 
   return true;
   
