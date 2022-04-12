@@ -332,16 +332,22 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   double sfx = 0.0, sfy = 0.0, sfz = 0.0; // coords of the "safe" points
 
   // do one big step first, half of largest BBox dimension
-  // then if not outside yet, step by ever smaller steps until reach threshold of GetStep()
-  //Double_t sNext = std::max( fLx, std::max( fLy, fLz ) ) / 2.0;
-  //gm->SetStep( sNext );
-  //LOG( "NHL", pINFO )
-  //  << "fLx, fLy, fLz = " << fLx << ", " << fLy << ", " << fLz << " ==> sNext = " << sNext;
-
+  // then if not outside yet, step by ever smaller steps until some threshold
+  Double_t sNext = std::max( fLx, std::max( fLy, fLz ) ) / 2.0;
+  gm->SetStep( sNext );
+  LOG( "NHL", pINFO )
+    << "fLx, fLy, fLz = " << fLx << ", " << fLy << ", " << fLz << " ==> sNext = " << sNext;
+  gm->Step();
+  
+  // FindNextBoundaryAndStep() sets step size to distance to next boundary and executes that step
+  // so one "step" here is actually one big step + one small step
   while( gm->FindNextBoundaryAndStep() && bdIdx < bdIdxMax ){
     const Double_t * currPoint = gm->GetCurrentPoint();
     LOG( "NHL", pINFO )
       << "Step " << bdIdx << " : ( " << currPoint[0] << ", " << currPoint[1] << ", " << currPoint[2] << " )";
+    sNext *= 0.5;
+    gm->SetStep( sNext );
+    gm->Step();
     bdIdx++;
   }
   if( bdIdx == bdIdxMax ){
