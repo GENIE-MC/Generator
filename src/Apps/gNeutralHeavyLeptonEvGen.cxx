@@ -401,7 +401,7 @@ int main(int argc, char ** argv)
 	 break;
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
        case 2:
-	 typeMod = DecideType( spectrumFile );
+	 if( !gOptIsMonoEnFlux ) typeMod = DecideType( spectrumFile );
 	 break;
 #endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
        default:
@@ -457,6 +457,7 @@ int main(int argc, char ** argv)
        //intChannels->emplace_back( kNHLDcyPiPi0E );
        //intChannels->emplace_back( kNHLDcyPiPi0Mu );
        //intChannels->emplace_back( kNHLDcyPi0Pi0Nu );
+       */
 
        decay = SelectDecayMode( intChannels, sh );
      }
@@ -593,7 +594,7 @@ GFluxI * TH1FluxDriver(void)
   TH1D * spectrum = 0;
 
   double emin = 0.0; // RETHERE need to make this configurable.
-  double emax = 0.0+100.0; 
+  double emax = 20.0; 
 
   // read in mass of NHL and decide which fluxes to use
   
@@ -797,7 +798,8 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     LOG( "gevgen_nhl", pDEBUG )
       << "Set momentum for trajectory = ( " << momentum.X() << ", " << momentum.Y() << ", " << momentum.Z() << " ) [GeV]";
   
-    if( !gOptRootGeoManager ){ 
+    if( !gOptRootGeoManager ){
+      LOG("gevgen_nhl", pFATAL) << "Importing TGeoManager and doing top-volume business";
       gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str());
       // RETHERE I only make this for some plots. Must remove
       TGeoVolume * tracker = gOptRootGeoManager->FindVolumeFast("DetectorlvTracker");
@@ -807,10 +809,10 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     // RETHERE I only make this for some plots. Must remove
     if( !gOptRootGeoVolume ) gOptRootGeoVolume = gOptRootGeoManager->FindVolumeFast("DetectorlvTracker");
     
-    int trajIdx = 0;
+    int trajIdx = 0; int trajMax = 20; // 1e+2;
     bool didIntersectDet = NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gOptRootGeoManager, gOptRootGeoVolume );
     std::vector< double > * newProdVtx = new std::vector< double >();
-    while( !didIntersectDet && trajIdx < 1e+2 ){
+    while( !didIntersectDet && trajIdx < trajMax ){
       // sample prod vtx and momentum... again
       LOG( "gevgen_nhl", pDEBUG )
 	<< "Sampling another trajectory (index = " << trajIdx << ")";
@@ -831,8 +833,9 @@ TLorentzVector GeneratePosition( GHepRecord * event )
 
       newProdVtx->clear();
     }
+    LOG("gevgen_nhl", pFATAL) << "I called NHLDecayVolume::VolumeEntryAndExitPoints " << trajIdx + 1 << " times";
     
-    if( trajIdx == 1e+2 && !didIntersectDet ){
+    if( trajIdx == trajMax && !didIntersectDet ){
       LOG( "gevgen_nhl", pERROR )
 	<< "Unable to make a single good trajectory that intersects the detector after " << trajIdx << " tries! Bailing...";
       return *x4NHL;
