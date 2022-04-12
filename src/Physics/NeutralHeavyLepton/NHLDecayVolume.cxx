@@ -350,6 +350,9 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
     return false;
   }
 
+  const Double_t * sfPoint = gm->GetCurrentPoint();
+  sfx = sfPoint[0]; sfy = sfPoint[1]; sfz = sfPoint[2];
+
   // exited the detector, let's save this point
   fXx = sfx * genie::units::cm / genie::units::mm; // RETHERE fix this conversion!
   fXy = sfy * genie::units::cm / genie::units::mm;
