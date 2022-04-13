@@ -463,10 +463,10 @@ Generator-%d                alg     No
   <param_set name="CCHEDISGLRES"> 
      <param type="int" name="NGenerators">    5                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/HEDIS-CC  </param>
-     <param type="alg" name="Generator-2">    genie::EventGenerator/GLRES-Mu  </param>
-     <param type="alg" name="Generator-3">    genie::EventGenerator/GLRES-Tau </param>
-     <param type="alg" name="Generator-4">    genie::EventGenerator/GLRES-Ele </param>
-     <param type="alg" name="Generator-5">    genie::EventGenerator/GLRES-Had </param>
+     <param type="alg" name="Generator-1">    genie::EventGenerator/GLRES-Mu  </param>
+     <param type="alg" name="Generator-2">    genie::EventGenerator/GLRES-Tau </param>
+     <param type="alg" name="Generator-3">    genie::EventGenerator/GLRES-Ele </param>
+     <param type="alg" name="Generator-4">    genie::EventGenerator/GLRES-Had </param>
   </param_set>
 
   <param_set name="HEDIS"> 
