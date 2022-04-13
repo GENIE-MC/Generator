@@ -3,9 +3,40 @@
 using namespace genie;
 using namespace genie::NHL;
 
+// initialise the parameters
+void NHLSelector::InitParameters() {
+  LOG( "NHL", pDEBUG ) << "Initialising parameters from config files. . .";
+
+  wAng = utils::nhl::GetCfgDouble( "Param", "WeakInt", "WeinbergAngle" );
+  s2w = std::pow( std::sin( wAng ), 2.0 );
+
+  Vud = utils::nhl::GetCfgDouble( "Param", "CKM", "CKM-Vud" );
+  Vud2 = Vud * Vud;
+
+  fpi = utils::nhl::GetCfgDouble( "NHL", "External", "Pion-FFactor" );
+  fpi2 = fpi * fpi;
+
+  BR_C1 = 1./4. * ( 1. - 4. * s2w + 8. * s2w * s2w );
+  BR_C2 = 1./2. * ( -s2w + 2. * s2w * s2w );
+
+  Ue1 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Ue1" );
+  Ue2 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Ue2" );
+  Ue3 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Ue3" );
+  Um1 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Um1" );
+  Um2 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Um2" );
+  Um3 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Um3" );
+  Ut1 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Ut1" );
+  Ut2 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Ut2" );
+  Ut3 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Ut3" );
+
+  fParamsInitialised = true;
+}
+
 // Get Coloma et al's form factor functions
 double NHLSelector::GetColomaF1( double x ) {
-  if( x < 0. || x > 0.5 ) { LOG( "SimpleNHL", pERROR ) << "BRFunctions::GetColomaF1:: Illegal x = " << x; exit( 3 ); }
+  if( !fParamsInitialised ) InitParameters();
+
+  if( x < 0. || x > 0.5 ) { LOG( "NHL", pERROR ) << "BRFunctions::GetColomaF1:: Illegal x = " << x; exit( 3 ); }
   if( x == 0.5 ) return 0.;
   int i = x/NHLSelector::PARTWIDTH;
   if( x - i*NHLSelector::PARTWIDTH ==0 ) return NHLSelector::ColomaF1[i];
@@ -13,7 +44,9 @@ double NHLSelector::GetColomaF1( double x ) {
 }
 
 double NHLSelector::GetColomaF2( double x ) {
-  if( x < 0. || x > 0.5 ) { LOG( "SimpleNHL", pERROR ) << "BRFunctions::GetColomaF2:: Illegal x = " << x; exit( 3 ); }
+  if( !fParamsInitialised ) InitParameters();
+
+  if( x < 0. || x > 0.5 ) { LOG( "NHL", pERROR ) << "BRFunctions::GetColomaF2:: Illegal x = " << x; exit( 3 ); }
   if( x == 0.5 ) return 0.;
   int i = x/NHLSelector::PARTWIDTH;
   if( x - i*NHLSelector::PARTWIDTH==0 ) return NHLSelector::ColomaF2[i];
@@ -22,6 +55,8 @@ double NHLSelector::GetColomaF2( double x ) {
 
 // total decay widths, various channels
 double NHLSelector::DWidth_PiZeroAndNu( const double M, const double Ue42, const double Umu42, const double Ut42 ) {
+  if( !fParamsInitialised ) InitParameters();
+
   const double x       = genie::utils::nhl::MassX( mPi0, M );
   const double preFac  = GF2 * M*M*M / ( 32. * pi );
   const double kinPart = ( 1. - x*x ) * ( 1. - x*x );
@@ -29,21 +64,26 @@ double NHLSelector::DWidth_PiZeroAndNu( const double M, const double Ue42, const
 }
 
 double NHLSelector::DWidth_PiAndLepton( const double M, const double Ua42, const double ma ) {
+  if( !fParamsInitialised ) InitParameters();
+
   const double xPi     = genie::utils::nhl::MassX( mPi, M );
   const double xLep    = genie::utils::nhl::MassX( ma, M );
   const double preFac  = GF2 * M*M*M / ( 16. * pi );
   const double kalPart = TMath::Sqrt( genie::utils::nhl::Kallen( 1, xPi*xPi, xLep*xLep ) );
   const double othPart = 1. - xPi*xPi - xLep*xLep * ( 2. + xPi*xPi - xLep*xLep );
-
   return preFac * fpi2 * Ua42 * Vud2 * kalPart * othPart;
 }
 
 double NHLSelector::DWidth_Invisible( const double M, const double Ue42, const double Umu42, const double Ut42 ) {
+  if( !fParamsInitialised ) InitParameters();
+  
   const double preFac = GF2 * TMath::Power( M, 5. ) / ( 192. * pi*pi*pi );
   return preFac * ( Ue42 + Umu42 + Ut42 );
 }
 
 double NHLSelector::DWidth_SameLepton( const double M, const double Ue42, const double Umu42, const double Ut42, const double mb, bool bIsMu ) {
+  if( !fParamsInitialised ) InitParameters();
+
   const double preFac = GF2 * TMath::Power( M, 5. ) / ( 192. * pi*pi*pi );
   const double x      = genie::utils::nhl::MassX( mb, M );
   const double f1     = GetColomaF1( x );
@@ -56,6 +96,8 @@ double NHLSelector::DWidth_SameLepton( const double M, const double Ue42, const 
 }
 
 double NHLSelector::DWidth_DiffLepton( const double M, const double Ua42, const double Ub42, const int IsMajorana ) {
+  if( !fParamsInitialised ) InitParameters();
+
   const double preFac = GF2 * TMath::Power( M, 5. ) / ( 192. * pi*pi*pi );
   const double x = genie::utils::nhl::MassX( mMu, M );
   const double kinPol = 1. - 8. * x*x + 8. * TMath::Power( x, 6. ) - TMath::Power( x, 8. );
@@ -70,6 +112,8 @@ double NHLSelector::DWidth_PiPi0Ell( const double M, const double ml,
 					      const double Ue42, const double Umu42, const double Ut42,
 					      const bool isElectron)
 {
+  if( !fParamsInitialised ) InitParameters();
+
   // because the actual decay width is very hard to integrate onto a full DWidth,
   // build 2Differential and then integrate numerically
   // using Simpson's method for 2D.
@@ -155,6 +199,8 @@ double NHLSelector::DWidth_PiPi0Ell( const double M, const double ml,
 double NHLSelector::DWidth_Pi0Pi0Nu( const double M,
 					      const double Ue42, const double Umu42, const double Ut42 )
 { 
+  if( !fParamsInitialised ) InitParameters();
+
   const double preFac = fpi2 * fpi2 * GF2 * GF2 * std::pow( M, 5.0 ) / ( 64.0 * pi*pi*pi );
 
   const double Ue4 = std::sqrt( Ue42 );
@@ -229,6 +275,8 @@ void NHLSelector::Diff1Width_PiAndLepton_CosTheta( const double M, const double 
 							    double &thePreFac, 
 							    double &theCnstPart,
 							    double &thePropPart ) {
+  if( !fParamsInitialised ) InitParameters();
+
   const double preFac   = 1. / ( 32.0 * pi * M*M*M );
   const double sqrKal   = std::sqrt( genie::utils::nhl::Kallen( M*M, mPi*mPi, ml*ml ) );
   const double formPart = fpi2 * Ua42 * Vud2 * GF2;
@@ -270,6 +318,8 @@ double NHLSelector::PiPi0EllForm( double *x, double *par ){
 
 // formula for N --> pi0 pi0 nu decay rate
 double NHLSelector::Pi0Pi0NuForm( double *x, double *par ){
+  if( !fParamsInitialised ) InitParameters();
+  
     double MN = par[0];
     double MPi0 = par[1];
     

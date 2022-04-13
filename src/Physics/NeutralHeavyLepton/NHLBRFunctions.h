@@ -16,8 +16,7 @@
 
 */
 //----------------------------------------------------------------------------
-// TODO: add in decays to ~pi pi0 ell~ and pi0 pi0 nuell
-//       Figure out how to read Ue4, Umu4, Ut4 from config
+// TODO: recheck decays to ~pi pi0 ell~ and pi0 pi0 nuell
 //----------------------------------------------------------------------------
 
 #ifndef _NHL_BRFUNCTIONS_H_
@@ -37,43 +36,40 @@
 #include "Framework/Messenger/Messenger.h"
 
 #include "Physics/NeutralHeavyLepton/ColomaTables.h"
+#include "Physics/NeutralHeavyLepton/NHLDecayUtils.h"
 #include "Physics/NeutralHeavyLepton/NHLKinUtils.h"
 
 namespace genie {
-namespace NHL {
+  
+  namespace NHL {
 
     namespace NHLSelector {
 
-	// physical constants, PDG 2021
-	static const double s2w = 0.22767; // Weinberg mixing angle consistent with genie kMw, kMz
+        // are parameters initialised?
+        static bool fParamsInitialised = false;
+
+	// physical constants
+
+	// RETHERE why does this cause a segfault?
+        //static const double wAng = genie::utils::nhl::GetCfgDouble( "Param", "WeakInt", "WeinbergAngle" );
+        static double wAng, s2w;
 	static const double GF  = genie::constants::kGF; // GeV^{-2}
 	static const double GF2 = GF*GF;
 	static const double pi  = genie::constants::kPi;
-	static const double fpi = 0.130 * genie::units::GeV; // GeV
-	static const double fpi2 = fpi*fpi;
-    
+	static double fpi, fpi2;
+	static double BR_C1, BR_C2;
+		
 	static const double mPi0 = genie::constants::kPi0Mass;
 	static const double mPi  = genie::constants::kPionMass;
 	static const double mMu  = genie::constants::kMuonMass;
 
-	static const double Vud  = 0.9737; // PDG 2021
-	static const double Vud2 = Vud * Vud;
+	static double Vud, Vud2;
 
-	// PMNS matrix elements, assumed real
-	// using CV values from v5.1 of www.nu-fit.org - accessed Jan 25th 2022
-	// using SK-atm data but ignoring correlations!
-	static const double Ue1 = 1./2. * ( 0.801 + 0.845 );
-	static const double Ue2 = 1./2. * ( 0.513 + 0.579 );
-	static const double Ue3 = 1./2. * ( 0.144 + 0.156 );
-	static const double Um1 = 1./2. * ( 0.244 + 0.499 );
-	static const double Um2 = 1./2. * ( 0.505 + 0.693 );
-	static const double Um3 = 1./2. * ( 0.631 + 0.763 );
-	static const double Ut1 = 1./2. * ( 0.272 + 0.518 );
-	static const double Ut2 = 1./2. * ( 0.471 + 0.669 );
-	static const double Ut3 = 1./2. * ( 0.623 + 0.761 );
-    
-	static const double BR_C1 = 1./4. * ( 1. - 4. * s2w + 8. * s2w * s2w );
-	static const double BR_C2 = 1./2. * ( -s2w + 2. * s2w * s2w );
+	// PMNS matrix elements
+	static double Ue1, Ue2, Ue3, Um1, Um2, Um3, Ut1, Ut2, Ut3;
+
+	// initialise these parameters from config files!
+	void InitParameters();
 
 	// declaration of PiPi0EllForm as extern?
 	extern double PiPi0EllForm( double *x, double *par );

@@ -40,13 +40,33 @@ April 11th, 2022
   </param_set>
 
   <param_set name="InitialState">
-    <param type="double" name="NHL-angular_deviation"> 2.15 </param> <!-- deg -->
+    <param type="double" name="NHL-angular_deviation"> 0.06 </param> <!-- deg -->
+    <param type="vec-double" name="NHL-energy_range" delim=";"> 0.0 ; 20.0 </param> <!-- GeV -->
   </param_set>
 
   <param_set name="CoordinateXForm">
     <param type="vec-double" name="Beam2User_T" delim=";"> 0.2486 ; 60.350 ; -1022.74 </param> <!-- m -->
     <param type="vec-double" name="Beam2User_R" delim=";"> 0.0 ; 0.0 ; -0.05830 </param> <!-- rad -->
     <!-- Euler angles, extrinsic x-z-x = 1-2-3, RM * BEAM = USER, RM = Rx(1) * Rz(2) * Rz(3) -->
+  </param_set>
+
+  <param_set name="External">
+    <!-- should these be migrated elsewhere? -->
+
+    <!-- from Coloma et al in EPJ C -->
+    <param type="double" name="Pion-FFactor"> 0.130 </param> <!-- GeV -->
+
+    <!-- www.nu-fit.org v5.1 w/ SK-atm data, no correlations -->
+    <!-- value = 1/2 * (min + max) -->
+    <param type="double" name="PMNS-Ue1"> 0.823 </param>
+    <param type="double" name="PMNS-Ue2"> 0.546 </param>
+    <param type="double" name="PMNS-Ue3"> 0.150 </param>
+    <param type="double" name="PMNS-Um1"> 0.3715 </param>
+    <param type="double" name="PMNS-Um2"> 0.599 </param>
+    <param type="double" name="PMNS-Um3"> 0.697 </param>
+    <param type="double" name="PMNS-Ut1"> 0.430 </param>
+    <param type="double" name="PMNS-Ut2"> 0.570 </param>
+    <param type="double" name="PMNS-Ut3"> 0.692 </param>
   </param_set>
 
   <!--
