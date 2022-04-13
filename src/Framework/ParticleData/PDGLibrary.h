@@ -43,9 +43,6 @@ public:
   // Ideally, this code should be in the Dark Matter app, not here.
   // But presently there is no way to edit the PDGLibrary after it has been created.
   void AddDarkMatter  (double mass, double med_ratio);
-  // Similarly for the NHL app
-  void AddNHL  (double mass);
-  bool AddNHLFromConfig (void);
 
 private:
 
@@ -55,6 +52,7 @@ private:
 
   bool LoadDBase(void);
   bool AddDarkSector ();
+  bool AddNHL  (void);
 
   static PDGLibrary * fInstance;
   TDatabasePDG      * fDatabasePDG;

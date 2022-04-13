@@ -1083,7 +1083,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(0);
   } //--mass
   PDGLibrary * pdglib = PDGLibrary::Instance();
-  pdglib->AddNHL(gOptMassNHL);
+  //pdglib->AddNHL(gOptMassNHL);
 
   bool isMonoEnergeticFlux = true;
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__

@@ -45,6 +45,14 @@ PDGLibrary::PDGLibrary()
     exit(78);
   }
 #endif // __GENIE_DARK_NEUTRINO_ENABLED__
+
+#ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
+  LOG("PDG", pINFO) << "Loading Neutral Heavy Lepton data";
+  if( ! AddNHL() ){
+    LOG("PDG", pFATAL) << "Could not load Neutral Heavy Lepton data";
+    exit(78);
+  }
+#endif // #ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
   
   fInstance =  0;
 }
@@ -162,37 +170,21 @@ void PDGLibrary::AddDarkMatter(double mass, double med_ratio)
   }
 }
 //____________________________________________________________________________
-void PDGLibrary::AddNHL(double mass)
-{
-// Add NHL to PDG database
-
-  TParticlePDG * nhl = fDatabasePDG->GetParticle(kPdgNHL);
-  if (!nhl) {
-    // Name Title Mass Stable Width Charge Class PDG
-    fDatabasePDG->AddParticle("NHL","NHL",mass,true,0.,0,"NHL",kPdgNHL);
-    fDatabasePDG->AddParticle("NHLBar","NHLBar",mass,true,0.,0,"NHL",-1*kPdgNHL);
-  }
-  else {
-    assert(nhl->Mass() == mass);
-  }
-}
-//____________________________________________________________________________
-bool PDGLibrary::AddNHLFromConfig()
+bool PDGLibrary::AddNHL()
 {
   // Add NHL to PDG database
-  // Follows AddDarkSector() below
-
-  const Registry * reg = AlgConfigPool::Instance()->CommonList("NHL", "Mass");
+  const Registry * reg = AlgConfigPool::Instance()->CommonList("NHL", "ParameterSpace");
   if (!reg) {
-    LOG("PDG", pERROR) << "NHL mass is unavailable.";
+    LOG("PDG", pERROR) << "Cannot find NHL ParameterSpace param_set";
     return false;
   }
   TParticlePDG * nhl = fDatabasePDG->GetParticle(kPdgNHL);
   if (!nhl) {
     // Name Title Mass Stable Width Charge Class PDG
-    fDatabasePDG->AddParticle("NHL","NHL",reg->GetDouble("NHLMass"),true,0.,0,"NHL",kPdgNHL);
-    fDatabasePDG->AddParticle("NHLBar","NHLBar",reg->GetDouble("NHLMass"),true,0.,0,"NHL",-1*kPdgNHL);
+    fDatabasePDG->AddParticle("NHL","NHL",reg->GetDouble("NHL-Mass"),true,0.,0,"NHL",kPdgNHL);
+    fDatabasePDG->AddParticle("NHLBar","NHLBar",reg->GetDouble("NHL-Mass"),true,0.,0,"NHL",-1*kPdgNHL);
   }
+  return true;
 }
 //____________________________________________________________________________
 bool PDGLibrary::AddDarkSector()
