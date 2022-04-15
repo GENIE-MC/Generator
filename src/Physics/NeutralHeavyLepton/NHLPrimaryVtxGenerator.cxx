@@ -66,6 +66,35 @@ void NHLPrimaryVtxGenerator::ProcessEventRecord(GHepRecord * event) const
   this->AddInitialState(event);
   //this->GenerateDecayPosition(event);
   this->GenerateDecayProducts(event);
+
+  // update kinematics now
+  interaction->KinePtr()->Sett( 0.0 );
+  interaction->KinePtr()->SetW( interaction->InitState().Probe()->Mass() );
+  TLorentzVector * p4NHL = interaction->InitState().GetProbeP4( genie::kRfLab ); assert( p4NHL );
+  // primary lepton is FirstDaughter() of Probe()
+  // need Probe() as a GHepParticle(), not a TParticlePDG()!
+  // get from event record position 0
+  LOG( "NHL", pDEBUG ) << "Particle(0) has PDG code " << event->Particle(0)->Pdg();
+  int iFSL = event->Particle(0)->FirstDaughter();
+  LOG( "NHL", pDEBUG ) << "First daughter = " << iFSL << " with status " 
+		       << (int) (event->Particle( iFSL ))->Status();
+  assert( event->Particle( iFSL ) );
+  TLorentzVector * p4FSL = ( event->Particle( iFSL ) )->GetP4(); 
+  assert( p4FSL );
+  TLorentzVector p4DIF( p4NHL->Px() - p4FSL->Px(),
+			p4NHL->Py() - p4FSL->Py(),
+			p4NHL->Pz() - p4FSL->Pz(),
+			p4NHL->E() - p4FSL->E() );
+  interaction->KinePtr()->SetQ2( p4DIF.M2() );
+
+  LOG( "NHL", pDEBUG )
+    << "\nNHL p4 = ( " << p4NHL->E() << ", " << p4NHL->Px() << ", " << p4NHL->Py() << ", " << p4NHL->Pz() << " )"
+    << "\nFSL p4 = ( " << p4FSL->E() << ", " << p4FSL->Px() << ", " << p4FSL->Py() << ", " << p4FSL->Pz() << " )"
+    << "\nDIF p4 = ( " << p4DIF.E() << ", " << p4DIF.Px() << ", " << p4DIF.Py() << ", " << p4DIF.Pz() << " )";
+
+  // clean up
+  delete p4NHL;
+  delete p4FSL;
 }
 //____________________________________________________________________________
 void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
@@ -232,6 +261,41 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
      event->AddParticle(pdgc, ist, nhl_id,-1,-1,-1, *p4fin, v4);
      idp++;
   }
+
+  // Manually set up some mother-daughter links
+  // find primary (=leading) lepton
+  double Elead = -1.0; int ilead = -1;
+  std::vector< int > lpdgv = { 11, 12, 13, 14, 15, 16 };
+  for( std::vector<int>::iterator lit = lpdgv.begin(); lit != lpdgv.end(); ++lit ) {
+    GHepParticle * tmpPart = event->FindParticle( (*lit), kIStStableFinalState, 1 );
+    if( !tmpPart ) tmpPart = event->FindParticle( -1 * (*lit), kIStStableFinalState, 1 ); //antiparticle?
+    if( tmpPart ){
+      double tmpE = tmpPart->E();
+      LOG( "NHL", pDEBUG )
+	<< "Particle with PDG = " << tmpPart->Pdg() << " and position "
+	<< event->ParticlePosition( tmpPart ) << " has energy "
+	<< tmpPart->E() << " GeV";
+      if( tmpE > Elead ){ Elead = tmpE; ilead = event->ParticlePosition( tmpPart ); }
+    }
+  }
+  event->Particle( 0 )->SetFirstDaughter( ilead );
+  event->Particle( 0 )->SetFirstMother(-1); // why do I need to do this explicitly?
+  event->Particle( 0 )->SetLastMother(-1);
+  
+  // loop over all FS particles and set their mother to NHL
+  int itmp = 1, ilast = 1;
+  while( event->Particle( itmp ) ){
+    if( event->Particle(itmp)->Status() != kIStStableFinalState ){ itmp++; continue; }
+    event->Particle(itmp)->SetFirstMother(0);
+    event->Particle(itmp)->SetLastMother(-1);
+    if( itmp != ilead ) ilast = itmp;
+    itmp++;
+  }
+  event->Particle( 0 )->SetLastDaughter( ilast );
+  // "last daughter" of NHL means last non-primary-FS-lepton, so can be less than "first" daughter
+  
+  LOG( "NHL", pDEBUG )
+    << " Set primary daughter lepton to position " << ilead;
 
   LOG("NHL", pNOTICE)
     << "Finished with decay products. Clean up and exit!";

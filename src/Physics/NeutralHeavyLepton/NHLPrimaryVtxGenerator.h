@@ -19,6 +19,8 @@
 #ifndef _NEUTRAL_HEAVY_LEPTON_PRIMARY_VTX_GENERATOR_H_
 #define _NEUTRAL_HEAVY_LEPTON_PRIMARY_VTX_GENERATOR_H_
 
+#include <cassert>
+
 #include <TGenPhaseSpace.h>
 #include <TH3.h>
 
