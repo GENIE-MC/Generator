@@ -57,8 +57,6 @@ void NHLPrimaryVtxGenerator::ProcessEventRecord(GHepRecord * event) const
   fCurrInitStatePdg = interaction->InitState().ProbePdg();
   fCurrDecayMode = (NHLDecayMode_t) interaction->ExclTag().DecayMode();
 
-  // interaction->ExclTag().SetHNL(); // need to modify Interaction/XclsTag
-
   LOG("NHL", pNOTICE)
     << "Simulating NHL decay " << utils::nhl::AsString(fCurrDecayMode)
     << " for an initial state with PDG code " << fCurrInitStatePdg;
@@ -253,14 +251,21 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
 
   // Insert final state products into a TClonesArray of GHepParticle's
   TLorentzVector v4(*v4d);
-  int idp = 0;
+  int idp = 0; int npip = 0, npi0 = 0, npim = 0;
   for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
      int pdgc = *pdg_iter;
      TLorentzVector * p4fin = fPhaseSpaceGenerator.GetDecay(idp);
      GHepStatus_t ist = kIStStableFinalState;
      event->AddParticle(pdgc, ist, nhl_id,-1,-1,-1, *p4fin, v4);
+     switch( pdgc ){
+     case kPdgPiP: npip++; break;
+     case kPdgPi0: npi0++; break;
+     case kPdgPiM: npim++; break;
+     }
      idp++;
   }
+  Interaction * interaction = event->Summary();
+  interaction->ExclTagPtr()->SetNPions( npip, npi0, npim );
 
   // Manually set up some mother-daughter links
   // find primary (=leading) lepton
