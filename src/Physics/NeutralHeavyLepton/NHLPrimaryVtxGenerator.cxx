@@ -240,9 +240,9 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
   interaction->ExclTagPtr()->SetNPions( npip, npi0, npim );
 
   // Manually set up some mother-daughter links
-  // find primary (=leading) lepton
+  // find primary (=leading) *charged!* lepton
   double Elead = -1.0; int ilead = -1;
-  std::vector< int > lpdgv = { 11, 12, 13, 14, 15, 16 };
+  std::vector< int > lpdgv = { 11, 13, 15 };
   for( std::vector<int>::iterator lit = lpdgv.begin(); lit != lpdgv.end(); ++lit ) {
     GHepParticle * tmpPart = event->FindParticle( (*lit), kIStStableFinalState, 1 );
     if( !tmpPart ) tmpPart = event->FindParticle( -1 * (*lit), kIStStableFinalState, 1 ); //antiparticle?
