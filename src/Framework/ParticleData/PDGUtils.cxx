@@ -413,6 +413,11 @@ bool genie::pdg::IsDarkSectorParticle(int pdgc)
     );
 }
 //____________________________________________________________________________
+bool genie::pdg::IsNHL(int pdgc)
+{
+  return ( std::abs( pdgc ) == kPdgNHL );
+}
+//____________________________________________________________________________
 int genie::pdg::GeantToPdg(int geant_code)
 {
   if(geant_code ==  3) return kPdgElectron;     //    11 / e-

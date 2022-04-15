@@ -72,9 +72,7 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
 {
   if( fUe42 == -1.0 && fUm42 == -1.0 && fUt42 == -1.0 ){
     LOG( "NHL", pINFO )
-      << "Setting couplings to (1,1,0). This will change.";
-    
-    // SetNHLCouplings( event->Vertex()->X(), event->Vertex()->Y(), event->Vertex()->Z() );
+      << "Setting couplings to (1,1,0).";
     fUe42 = 1.0;
     fUm42 = 1.0;
     fUt42 = 0.0;
@@ -83,6 +81,7 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
   std::vector< double > * prodVtx = this->GenerateDecayPosition( event );
   std::vector< double > * p3NHL = this->GenerateMomentum( event );
 
+  // RETHERE don't sample production vtx if user isn't asking for geom! It's pointless.
   TLorentzVector v4( prodVtx->at(0), prodVtx->at(1), prodVtx->at(2), 0.0 );
 
   Interaction * interaction = event->Summary();
@@ -249,16 +248,15 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
     if( !tmpPart ) tmpPart = event->FindParticle( -1 * (*lit), kIStStableFinalState, 1 ); //antiparticle?
     if( tmpPart ){
       double tmpE = tmpPart->E();
-      LOG( "NHL", pDEBUG )
-	<< "Particle with PDG = " << tmpPart->Pdg() << " and position "
-	<< event->ParticlePosition( tmpPart ) << " has energy "
-	<< tmpPart->E() << " GeV";
       if( tmpE > Elead ){ Elead = tmpE; ilead = event->ParticlePosition( tmpPart ); }
     }
   }
   event->Particle( 0 )->SetFirstDaughter( ilead );
   event->Particle( 0 )->SetFirstMother(-1); // why do I need to do this explicitly?
   event->Particle( 0 )->SetLastMother(-1);
+
+  assert( event->Probe() );
+  assert( event->FinalStatePrimaryLepton() );
   
   // loop over all FS particles and set their mother to NHL
   int itmp = 1, ilast = 1;
@@ -271,9 +269,6 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
   }
   event->Particle( 0 )->SetLastDaughter( ilast );
   // "last daughter" of NHL means last non-primary-FS-lepton, so can be less than "first" daughter
-  
-  LOG( "NHL", pDEBUG )
-    << " Set primary daughter lepton to position " << ilead;
 
   LOG("NHL", pNOTICE)
     << "Finished with decay products. Clean up and exit!";
@@ -339,8 +334,8 @@ void NHLPrimaryVtxGenerator::UpdateEventRecord(GHepRecord * event) const
 {
   Interaction * interaction = event->Summary();
 
-  interaction->KinePtr()->Sett( 0.0 );
-  interaction->KinePtr()->SetW( interaction->InitState().Probe()->Mass() );
+  interaction->KinePtr()->Sett( 0.0, true );
+  interaction->KinePtr()->SetW( interaction->InitState().Probe()->Mass(), true );
   TLorentzVector * p4NHL = interaction->InitState().GetProbeP4( genie::kRfLab ); assert( p4NHL );
   // primary lepton is FirstDaughter() of Probe()
   // need Probe() as a GHepParticle(), not a TParticlePDG()!
@@ -356,17 +351,20 @@ void NHLPrimaryVtxGenerator::UpdateEventRecord(GHepRecord * event) const
 			p4NHL->Py() - p4FSL->Py(),
 			p4NHL->Pz() - p4FSL->Pz(),
 			p4NHL->E() - p4FSL->E() );
-  interaction->KinePtr()->SetQ2( p4DIF.M2() );
+  interaction->KinePtr()->SetQ2( p4DIF.M2(), true );
 
   LOG( "NHL", pDEBUG )
     << "\nNHL p4 = ( " << p4NHL->E() << ", " << p4NHL->Px() << ", " << p4NHL->Py() << ", " << p4NHL->Pz() << " )"
     << "\nFSL p4 = ( " << p4FSL->E() << ", " << p4FSL->Px() << ", " << p4FSL->Py() << ", " << p4FSL->Pz() << " )"
     << "\nDIF p4 = ( " << p4DIF.E() << ", " << p4DIF.Px() << ", " << p4DIF.Py() << ", " << p4DIF.Pz() << " )";
+
+  // Set probe
+  interaction->InitStatePtr()->SetProbePdg( event->Particle(0)->Pdg() );
+  interaction->InitStatePtr()->SetProbeP4( *(event->Particle(0)->P4()) );
   
   // Set target: always Particle(1)
   // This is the charged pion in channels that have it, the pi0 in N --> pi0 pi0 v,
   // and the SM neutrino in 3-lepton channels (for N --> v v v it is the one marked "nu_e")
-
   interaction->InitStatePtr()->SetTgtPdg( event->Particle(1)->Pdg() );
   interaction->InitStatePtr()->SetTgtP4( *(event->Particle(1)->P4()) );
   

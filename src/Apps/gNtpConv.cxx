@@ -758,7 +758,7 @@ void ConvertToGST(void)
 
     double M  = kNucleonMass; 
     TLorentzVector q  = k1-k2;                     // q=k1-k2, 4-p transfer
-    double Q2 = -1 * q.M2();                       // momemtum transfer
+    double Q2 = -1 * q.M2();                       // momentum transfer
     
     double v  = (hitnucl) ? q.Energy()       : -1; // v (E transfer to the nucleus)
     double x, y, W2, W;
@@ -769,6 +769,16 @@ void ConvertToGST(void)
 
        W2 = (hitnucl) ? M*M + 2*M*v - Q2 : -1; // Hadronic Invariant mass ^ 2
        W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
+    } else if( is_nhl ) {
+      
+       x = -1;
+       y = -1;
+
+       LOG("gntpc", pDEBUG)
+	 << "Here is k1 = ( " << k1.E() << ", " << k1.Px() << ", " << k1.Py() << ", " << k1.Pz() << " )";
+
+       W2 = k1.M2(); // Invariant mass ^ 2 of NHL
+       W = TMath::Sqrt(W2);
     } else{
 
        v = q.Energy();
@@ -802,8 +812,9 @@ void ConvertToGST(void)
 
     // Extract more info on the hadronic system
     // Only for QEL/RES/DIS/COH/MEC events
+    // Edit: Add in NHL events
     //
-    bool study_hadsyst = (is_qel || is_res || is_dis || is_coh || is_dfr || is_mec || is_singlek);
+    bool study_hadsyst = (is_qel || is_res || is_dis || is_coh || is_dfr || is_mec || is_singlek || is_nhl);
     
     //
     TObjArrayIter piter(&event);
@@ -823,11 +834,12 @@ void ConvertToGST(void)
       ip++;
       // don't count final state lepton as part hadronic system 
       //if(!is_coh && event.Particle(ip)->FirstMother()==0) continue;
-      if(event.Particle(ip)->FirstMother()==0) continue;
+      if(!is_nhl && event.Particle(ip)->FirstMother()==0) continue;
+      if(is_nhl && event.Particle(0)->FirstDaughter()==ip) continue;
       if(pdg::IsPseudoParticle(p->Pdg())) continue;
       int pdgc = p->Pdg();
       int ist  = p->Status();
-      if(ist==kIStStableFinalState) {
+      if(ist==kIStStableFinalState && !is_nhl) {
          if (pdgc == kPdgGamma || pdgc == kPdgElectron || pdgc == kPdgPositron)  {
             int igmom = p->FirstMother();
             if(igmom!=-1) {
@@ -835,9 +847,21 @@ void ConvertToGST(void)
 	      if(event.Particle(igmom)->Pdg() != kPdgPi0) { final_had_syst.push_back(ip); }
             }
          } else {
-            final_had_syst.push_back(ip);
+	   final_had_syst.push_back(ip);
          }
       }
+      else if(ist==kIStStableFinalState && is_nhl) {
+	// NHL have decays with multiple leptons, such as v + mu + mu
+	// only one of these will be primary, so don't add this to hadronic system
+	if( std::abs(pdgc) == kPdgElectron || 
+	    std::abs(pdgc) == kPdgNuE ||
+	    std::abs(pdgc) == kPdgMuon || 
+	    std::abs(pdgc) == kPdgNuMu ||
+	    std::abs(pdgc) == kPdgTau || 
+	    std::abs(pdgc) == kPdgNuTau ) continue;
+	LOG( "gntpc", pDEBUG ) << "Adding pdg code " << ip << " to FS hadronic system";
+	final_had_syst.push_back(ip);
+      } 
       // now add pi0's that were decayed as short lived particles
       else if(pdgc == kPdgPi0){
 	int ifd = p->FirstDaughter();
@@ -872,8 +896,9 @@ void ConvertToGST(void)
     vector<int> prim_had_syst;
     if(study_hadsyst) {
       // if coherent or free nucleon target set primary states equal to final states
+      // Edit: same for NHL
       
-      if(!pdg::IsIon(target->Pdg()) || (is_coh)) {
+      if(!pdg::IsIon(target->Pdg()) || (is_coh) || (is_nhl)) {
 
 	for( vector<int>::const_iterator hiter = final_had_syst.begin();
 	     hiter != final_had_syst.end(); ++hiter) {

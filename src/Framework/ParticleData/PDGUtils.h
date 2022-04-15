@@ -87,6 +87,7 @@ namespace pdg
   bool Is2NucleonCluster  (int pdgc);
 
   bool IsDarkSectorParticle   (int pdgc);
+  bool IsNHL              (int pdgc);
 
   int  SwitchProtonNeutron    (int pdgc);
   int  ModifyNucleonCluster   (int pdgc, int dQ);
