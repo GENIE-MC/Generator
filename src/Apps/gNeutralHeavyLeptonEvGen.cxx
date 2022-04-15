@@ -780,7 +780,9 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     TVector3 startPoint, momentum, entryPoint, exitPoint;
   
     // sample production vertex
-    const TLorentzVector * x4NHL = interaction->InitState().GetTgtP4( kRfLab );
+    //const TLorentzVector * x4NHL = interaction->InitState().GetTgtP4( kRfLab );
+    if( !nhlgen ) nhlgen = new NHLPrimaryVtxGenerator(); 
+    const TLorentzVector * x4NHL = nhlgen->GetProdVtxPosition();
     
     LOG("gevgen_nhl", pDEBUG)
       << "Detected vertex at ( " << x4NHL->Px() << ", " << x4NHL->Py() << ", " << x4NHL->Pz() << ")";
