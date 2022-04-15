@@ -210,6 +210,11 @@ bool ProcessInfo::IsWeakMix(void) const
   return (fInteractionType == kIntWeakMix);
 }
 //____________________________________________________________________________
+bool ProcessInfo::IsNHLDecay(void) const
+{
+  return (fInteractionType == kIntNHL);
+}
+//____________________________________________________________________________
 InteractionType_t ProcessInfo::InteractionTypeId(void) const
 {
   return fInteractionType;

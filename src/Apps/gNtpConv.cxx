@@ -324,6 +324,7 @@ void ConvertToGST(void)
   bool   brIsNC        = false;  // Is Weak NC process?
   bool   brIsCharmPro  = false;  // Produces charm?
   bool   brIsAMNuGamma = false;  // is anomaly mediated nu gamma
+  bool   brIsNHL       = false;  // is NHL decay?
   int    brCodeNeut    = 0;      // The equivalent NEUT reaction code (if any)
   int    brCodeNuance  = 0;      // The equivalent NUANCE reaction code (if any)
   // -- NHL variables
@@ -461,6 +462,7 @@ void ConvertToGST(void)
   s_tree->Branch("nc",	          &brIsNC,	    "nc/O"	    );
   s_tree->Branch("charm",         &brIsCharmPro,    "charm/O"	    );
   s_tree->Branch("amnugamma",     &brIsAMNuGamma,   "amnugamma/O"   );
+  s_tree->Branch("nhl",           &brIsNHL,         "nhl/O"         );
   s_tree->Branch("neut_code",     &brCodeNeut,      "neut_code/I"   );
   s_tree->Branch("nuance_code",   &brCodeNuance,    "nuance_code/I" );
   // -- NHL
@@ -707,9 +709,10 @@ void ConvertToGST(void)
     bool is_weaknc    = proc_info.IsWeakNC();
     bool is_mec       = proc_info.IsMEC();
     bool is_amnugamma = proc_info.IsAMNuGamma();
+    bool is_nhl       = proc_info.IsNHLDecay();
 
     if (!hitnucl && neutrino) {
-        assert(is_coh || is_imd || is_imdanh || is_nuel | is_amnugamma || is_coh_el);
+        assert(is_coh || is_imd || is_imdanh || is_nuel | is_amnugamma || is_coh_el || is_nhl);
     }
   
     // Hit quark - set only for DIS events
@@ -737,7 +740,7 @@ void ConvertToGST(void)
     bool get_selected = true;
     double xs  = kine.x (get_selected);
     double ys  = kine.y (get_selected);
-    double ts  = (is_coh || is_dfr) ? kine.t (get_selected) : -1;
+    double ts  = (is_coh || is_dfr || is_nhl) ? kine.t (get_selected) : -1;
     double Q2s = kine.Q2(get_selected);
     double Ws  = kine.W (get_selected);
 
@@ -777,7 +780,7 @@ void ConvertToGST(void)
 
     }
   
-    double t  = (is_coh || is_dfr) ? kine.t (get_selected) : -1;
+    double t  = (is_coh || is_dfr || is_nhl) ? kine.t (get_selected) : -1;
 
     // Get v 4-p at hit nucleon rest-frame
     TLorentzVector k1_rf = k1;         
@@ -999,6 +1002,7 @@ void ConvertToGST(void)
     brIsNC       = is_weaknc;  
     brIsCharmPro = charm;
     brIsAMNuGamma= is_amnugamma;
+    brIsNHL      = is_nhl;
     // -- NHL
     brNHLMass    = locNHLMass;
     brNHLECoup   = locNHLECoup;

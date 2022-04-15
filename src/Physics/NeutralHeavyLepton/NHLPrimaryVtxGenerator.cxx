@@ -64,35 +64,8 @@ void NHLPrimaryVtxGenerator::ProcessEventRecord(GHepRecord * event) const
   this->AddInitialState(event);
   //this->GenerateDecayPosition(event);
   this->GenerateDecayProducts(event);
+  this->UpdateEventRecord(event);
 
-  // update kinematics now
-  interaction->KinePtr()->Sett( 0.0 );
-  interaction->KinePtr()->SetW( interaction->InitState().Probe()->Mass() );
-  TLorentzVector * p4NHL = interaction->InitState().GetProbeP4( genie::kRfLab ); assert( p4NHL );
-  // primary lepton is FirstDaughter() of Probe()
-  // need Probe() as a GHepParticle(), not a TParticlePDG()!
-  // get from event record position 0
-  LOG( "NHL", pDEBUG ) << "Particle(0) has PDG code " << event->Particle(0)->Pdg();
-  int iFSL = event->Particle(0)->FirstDaughter();
-  LOG( "NHL", pDEBUG ) << "First daughter = " << iFSL << " with status " 
-		       << (int) (event->Particle( iFSL ))->Status();
-  assert( event->Particle( iFSL ) );
-  TLorentzVector * p4FSL = ( event->Particle( iFSL ) )->GetP4(); 
-  assert( p4FSL );
-  TLorentzVector p4DIF( p4NHL->Px() - p4FSL->Px(),
-			p4NHL->Py() - p4FSL->Py(),
-			p4NHL->Pz() - p4FSL->Pz(),
-			p4NHL->E() - p4FSL->E() );
-  interaction->KinePtr()->SetQ2( p4DIF.M2() );
-
-  LOG( "NHL", pDEBUG )
-    << "\nNHL p4 = ( " << p4NHL->E() << ", " << p4NHL->Px() << ", " << p4NHL->Py() << ", " << p4NHL->Pz() << " )"
-    << "\nFSL p4 = ( " << p4FSL->E() << ", " << p4FSL->Px() << ", " << p4FSL->Py() << ", " << p4FSL->Pz() << " )"
-    << "\nDIF p4 = ( " << p4DIF.E() << ", " << p4DIF.Px() << ", " << p4DIF.Py() << ", " << p4DIF.Pz() << " )";
-
-  // clean up
-  delete p4NHL;
-  delete p4FSL;
 }
 //____________________________________________________________________________
 void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
@@ -127,8 +100,8 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4( p4 );
   
-  // RETHERE this is a hack to get the position!
-  init_state->SetTgtP4( v4 );
+  //init_state->SetTgtP4( v4 );
+  SetProdVtxPosition( v4 );
 
   int hpdg = interaction->InitState().ProbePdg();
   event->AddParticle(hpdg, kIStInitialState, 0,-1,-1,-1, p4, v4);
@@ -362,6 +335,49 @@ std::vector< double > * NHLPrimaryVtxGenerator::GenerateMomentum( GHepRecord * e
   return p3NHL;
 }
 //____________________________________________________________________________
+void NHLPrimaryVtxGenerator::UpdateEventRecord(GHepRecord * event) const
+{
+  Interaction * interaction = event->Summary();
+
+  interaction->KinePtr()->Sett( 0.0 );
+  interaction->KinePtr()->SetW( interaction->InitState().Probe()->Mass() );
+  TLorentzVector * p4NHL = interaction->InitState().GetProbeP4( genie::kRfLab ); assert( p4NHL );
+  // primary lepton is FirstDaughter() of Probe()
+  // need Probe() as a GHepParticle(), not a TParticlePDG()!
+  // get from event record position 0
+  LOG( "NHL", pDEBUG ) << "Particle(0) has PDG code " << event->Particle(0)->Pdg();
+  int iFSL = event->Particle(0)->FirstDaughter();
+  LOG( "NHL", pDEBUG ) << "First daughter = " << iFSL << " with status " 
+		       << (int) (event->Particle( iFSL ))->Status();
+  assert( event->Particle( iFSL ) );
+  TLorentzVector * p4FSL = ( event->Particle( iFSL ) )->GetP4(); 
+  assert( p4FSL );
+  TLorentzVector p4DIF( p4NHL->Px() - p4FSL->Px(),
+			p4NHL->Py() - p4FSL->Py(),
+			p4NHL->Pz() - p4FSL->Pz(),
+			p4NHL->E() - p4FSL->E() );
+  interaction->KinePtr()->SetQ2( p4DIF.M2() );
+
+  LOG( "NHL", pDEBUG )
+    << "\nNHL p4 = ( " << p4NHL->E() << ", " << p4NHL->Px() << ", " << p4NHL->Py() << ", " << p4NHL->Pz() << " )"
+    << "\nFSL p4 = ( " << p4FSL->E() << ", " << p4FSL->Px() << ", " << p4FSL->Py() << ", " << p4FSL->Pz() << " )"
+    << "\nDIF p4 = ( " << p4DIF.E() << ", " << p4DIF.Px() << ", " << p4DIF.Py() << ", " << p4DIF.Pz() << " )";
+  
+  // Set target: always Particle(1)
+  // This is the charged pion in channels that have it, the pi0 in N --> pi0 pi0 v,
+  // and the SM neutrino in 3-lepton channels (for N --> v v v it is the one marked "nu_e")
+
+  interaction->InitStatePtr()->SetTgtPdg( event->Particle(1)->Pdg() );
+  interaction->InitStatePtr()->SetTgtP4( *(event->Particle(1)->P4()) );
+  
+  LOG( "NHL", pDEBUG )
+    << "Target info: " << Target();
+  
+  // clean up
+  delete p4NHL;
+  delete p4FSL;
+}
+//____________________________________________________________________________
 void NHLPrimaryVtxGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -483,4 +499,16 @@ SimpleNHL NHLPrimaryVtxGenerator::GetNHLInstance(string config)
   sh.SetBeam2UserTranslation( fTx, fTy, fTz );
   sh.SetBeam2UserRotation( fR1, fR2, fR3 );
   return sh;
+}
+//____________________________________________________________________________
+void NHLPrimaryVtxGenerator::SetProdVtxPosition(const TLorentzVector & v4) const
+{
+  TLorentzVector * pv4 = new TLorentzVector();
+  pv4->SetXYZT( v4.X(), v4.Y(), v4.Z(), v4.T() );
+  fProdVtx = pv4;
+}
+//____________________________________________________________________________
+TLorentzVector * NHLPrimaryVtxGenerator::GetProdVtxPosition(void)
+{
+  return fProdVtx;
 }

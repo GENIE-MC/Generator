@@ -57,14 +57,17 @@ public:
   double GetNHLMass(string config);
   std::vector< double > GetNHLCouplings(string config);
   genie::NHL::SimpleNHL GetNHLInstance(string config);
+  TLorentzVector * GetProdVtxPosition(void);
 
 private:
 
    void LoadConfig            (void);
    void AddInitialState       (GHepRecord * event) const;
    void GenerateDecayProducts (GHepRecord * event) const;
+   void UpdateEventRecord     (GHepRecord * event) const;
    void SetNHLCouplings       (double Ue42, double Um42, double Ut42) const;
    void SetBeam2User          (std::vector<double> translation, std::vector<double> rotation) const; 
+   void SetProdVtxPosition    (const TLorentzVector & v4) const; // in detector coordinates
 
    mutable int                        fCurrInitStatePdg;
    mutable genie::NHL::NHLDecayMode_t fCurrDecayMode;
@@ -91,6 +94,7 @@ private:
    mutable double                     fRTx = -1.0, fRTy = -1.0, fRTz = -1.0;
 
    mutable TH3D *                     fProdVtxHist = 0;
+   mutable TLorentzVector *           fProdVtx = 0;
 };
 
 } // genie namespace

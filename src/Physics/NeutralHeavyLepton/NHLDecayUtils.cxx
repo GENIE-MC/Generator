@@ -1,3 +1,4 @@
+
 //____________________________________________________________________________
 /*
  Copyright (c) 2003-2022, The GENIE Collaboration
@@ -161,9 +162,9 @@ PDGCodeList genie::utils::nhl::DecayProductList(NHLDecayMode_t nhldm)
     break;
 
   case(kNHLDcyPi0Pi0Nu):
+    decay_products.push_back(kPdgPi0);
+    decay_products.push_back(kPdgPi0);
     decay_products.push_back(kPdgNuMu);
-    decay_products.push_back(kPdgPi0);
-    decay_products.push_back(kPdgPi0);
     break;
 
   case(kNHLDcyTEST):
