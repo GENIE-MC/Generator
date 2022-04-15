@@ -12,7 +12,7 @@
                     -n n_of_events
 		    -f path/to/flux/files
                    [-E nhl_energy]
-                    --mass nhl_mass
+                   ~ --mass nhl_mass ~ [DEPRECATED]
                    [-m decay_mode]
 		   [-g geometry (ROOT file)]
                    [-L geometry_length_units]
@@ -33,8 +33,11 @@
               Specifies the MC run number [default: 1000].
            -n
               Specifies how many events to generate.
+	   -------- DEPRECATED --------
            --mass
               Specifies the NHL mass (in GeV)
+	      DEPRECATED: Set this from config/CommonNHL.xml instead.
+	   -------- DEPRECATED --------
            -m
               NHL decay mode ID:
            -f
@@ -1070,6 +1073,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(0);
   } //-n
 
+  /*
   // NHL mass
   gOptMassNHL = -1;
   if( parser.OptionExists("mass") ) {
@@ -1084,6 +1088,11 @@ void GetCommandLineArgs(int argc, char ** argv)
   } //--mass
   PDGLibrary * pdglib = PDGLibrary::Instance();
   //pdglib->AddNHL(gOptMassNHL);
+  */
+
+  // get NHL mass directly from config
+  gOptMassNHL = genie::utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Mass" );
+  // RETHERE check to see if mass is (not) given from config!
 
   bool isMonoEnergeticFlux = true;
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
@@ -1258,7 +1267,7 @@ void PrintSyntax(void)
    << "\n             -n n_of_events"
    << "\n             -f path/to/flux/files"
    << "\n            [-E nhl_energy]"
-   << "\n             --mass nhl_mass"
+    //<< "\n             --mass nhl_mass"
    << "\n            [-m decay_mode]"
    << "\n            [-g geometry (ROOT file)]"
    << "\n            [-t top_volume_name_at_geom]"
