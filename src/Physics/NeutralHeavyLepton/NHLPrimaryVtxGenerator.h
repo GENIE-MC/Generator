@@ -53,11 +53,12 @@ public:
   // required public to reroll vertex positioning in main app 
   std::vector< double > * GenerateDecayPosition (GHepRecord * event) const;
   std::vector< double > * GenerateMomentum (GHepRecord * event) const;
+  TLorentzVector * GetProdVtxPosition(GHepRecord * event);
+  TLorentzVector * GetNHLMomentum(GHepRecord * event);
 
   double GetNHLMass(string config);
   std::vector< double > GetNHLCouplings(string config);
   genie::NHL::SimpleNHL GetNHLInstance(string config);
-  TLorentzVector * GetProdVtxPosition(void);
 
 private:
 
@@ -68,6 +69,7 @@ private:
    void SetNHLCouplings       (double Ue42, double Um42, double Ut42) const;
    void SetBeam2User          (std::vector<double> translation, std::vector<double> rotation) const; 
    void SetProdVtxPosition    (const TLorentzVector & v4) const; // in detector coordinates
+   void SetNHLMomentum (const TLorentzVector & p4) const;
 
    mutable int                        fCurrInitStatePdg;
    mutable genie::NHL::NHLDecayMode_t fCurrDecayMode;
@@ -95,6 +97,7 @@ private:
 
    mutable TH3D *                     fProdVtxHist = 0;
    mutable TLorentzVector *           fProdVtx = 0;
+   mutable TLorentzVector *           fISMom = 0;
 };
 
 } // genie namespace

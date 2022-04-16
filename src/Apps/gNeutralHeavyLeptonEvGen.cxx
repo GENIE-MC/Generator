@@ -493,8 +493,11 @@ int main(int argc, char ** argv)
 
      // Generate a position for the decay vertex
      // also currently handles the event weight
-     TLorentzVector x4 = GeneratePosition( event );
-     event->SetVertex(x4);
+     TLorentzVector x4mm = GeneratePosition( event );
+     // convert vertex from mm to m
+     const double mmtom = genie::units::mm / genie::units::m;
+     TLorentzVector x4m( x4mm.X() * mmtom, x4mm.Y() * mmtom, x4mm.Z() * mmtom, 0.0 );
+     event->SetVertex(x4m);
      event->SetWeight( evWeight );
      LOG("gevgen_nhl", pDEBUG) << "Weight = " << evWeight;
 
@@ -781,8 +784,9 @@ TLorentzVector GeneratePosition( GHepRecord * event )
   
     // sample production vertex
     //const TLorentzVector * x4NHL = interaction->InitState().GetTgtP4( kRfLab );
-    if( !nhlgen ) nhlgen = new NHLPrimaryVtxGenerator(); 
-    const TLorentzVector * x4NHL = nhlgen->GetProdVtxPosition();
+    //if( !nhlgen ) nhlgen = new NHLPrimaryVtxGenerator();
+    //const TLorentzVector * x4NHL = nhlgen->GetProdVtxPosition(event);
+    const TLorentzVector * x4NHL = event->Probe()->GetX4();
     
     LOG("gevgen_nhl", pDEBUG)
       << "Detected vertex at ( " << x4NHL->Px() << ", " << x4NHL->Py() << ", " << x4NHL->Pz() << ")";
@@ -795,7 +799,8 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     evProdVtx[2] = 10.0 * x4NHL->Pz();
   
     // get momentum of this channel
-    const TLorentzVector * p4NHL = interaction->InitState().GetProbeP4( kRfLab );
+    //const TLorentzVector * p4NHL = interaction->InitState().GetProbeP4( kRfLab );
+    const TLorentzVector * p4NHL = event->Probe()->GetP4();
     
     NTP_IS_E = p4NHL->E(); NTP_IS_PX = p4NHL->Px(); NTP_IS_PY = p4NHL->Py(); NTP_IS_PZ = p4NHL->Pz();
     

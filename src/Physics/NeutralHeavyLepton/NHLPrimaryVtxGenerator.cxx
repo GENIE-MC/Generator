@@ -100,7 +100,6 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
   init_state->SetProbeP4( p4 );
   
   //init_state->SetTgtP4( v4 );
-  SetProdVtxPosition( v4 );
 
   int hpdg = interaction->InitState().ProbePdg();
   event->AddParticle(hpdg, kIStInitialState, 0,-1,-1,-1, p4, v4);
@@ -256,7 +255,12 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
   event->Particle( 0 )->SetLastMother(-1);
 
   assert( event->Probe() );
-  assert( event->FinalStatePrimaryLepton() );
+  if( !event->FinalStatePrimaryLepton() ){ // no charged lepton means invisible or pi0 nu
+    LOG( "NHL", pWARN )
+      << "No final state primary lepton for this event.";
+    assert( fCurrDecayMode == kNHLDcyPi0Nu || fCurrDecayMode == kNHLDcyNuNuNu );
+  }
+  //assert( event->FinalStatePrimaryLepton() );
   
   // loop over all FS particles and set their mother to NHL
   int itmp = 1, ilast = 1;
@@ -296,6 +300,9 @@ std::vector< double > * NHLPrimaryVtxGenerator::GenerateDecayPosition( GHepRecor
   std::vector< double > * prodVtx = NHLFluxReader::generateVtx3X( fProdVtxHist );
   LOG( "NHL", pDEBUG )
     << "Production vertex at: ( " << prodVtx->at(0) << ", " << prodVtx->at(1) << ", " << prodVtx->at(2) << ") [cm]";
+  
+  TLorentzVector v4( prodVtx->at(0), prodVtx->at(1), prodVtx->at(2), 0.0 );
+  SetProdVtxPosition( v4 );
 
   return prodVtx;
 }
@@ -341,23 +348,27 @@ void NHLPrimaryVtxGenerator::UpdateEventRecord(GHepRecord * event) const
   // need Probe() as a GHepParticle(), not a TParticlePDG()!
   // get from event record position 0
   LOG( "NHL", pDEBUG ) << "Particle(0) has PDG code " << event->Particle(0)->Pdg();
-  int iFSL = event->Particle(0)->FirstDaughter();
-  LOG( "NHL", pDEBUG ) << "First daughter = " << iFSL << " with status " 
-		       << (int) (event->Particle( iFSL ))->Status();
-  assert( event->Particle( iFSL ) );
-  TLorentzVector * p4FSL = ( event->Particle( iFSL ) )->GetP4(); 
-  assert( p4FSL );
-  TLorentzVector p4DIF( p4NHL->Px() - p4FSL->Px(),
-			p4NHL->Py() - p4FSL->Py(),
-			p4NHL->Pz() - p4FSL->Pz(),
-			p4NHL->E() - p4FSL->E() );
-  interaction->KinePtr()->SetQ2( p4DIF.M2(), true );
+  TLorentzVector * p4FSL = 0;
+  if( event->FinalStatePrimaryLepton() ){
+    int iFSL = event->Particle(0)->FirstDaughter();
+    LOG( "NHL", pDEBUG ) << "First daughter = " << iFSL << " with status " 
+			 << (int) (event->Particle( iFSL ))->Status();
+    assert( event->Particle( iFSL ) );
+    p4FSL = ( event->Particle( iFSL ) )->GetP4(); 
+    assert( p4FSL );
+    TLorentzVector p4DIF( p4NHL->Px() - p4FSL->Px(),
+			  p4NHL->Py() - p4FSL->Py(),
+			  p4NHL->Pz() - p4FSL->Pz(),
+			  p4NHL->E() - p4FSL->E() );
+    interaction->KinePtr()->SetQ2( p4DIF.M2(), true );
+    
+    LOG( "NHL", pDEBUG )
+      << "\nNHL p4 = ( " << p4NHL->E() << ", " << p4NHL->Px() << ", " << p4NHL->Py() << ", " << p4NHL->Pz() << " )"
+      << "\nFSL p4 = ( " << p4FSL->E() << ", " << p4FSL->Px() << ", " << p4FSL->Py() << ", " << p4FSL->Pz() << " )"
+      << "\nDIF p4 = ( " << p4DIF.E() << ", " << p4DIF.Px() << ", " << p4DIF.Py() << ", " << p4DIF.Pz() << " )";
 
-  LOG( "NHL", pDEBUG )
-    << "\nNHL p4 = ( " << p4NHL->E() << ", " << p4NHL->Px() << ", " << p4NHL->Py() << ", " << p4NHL->Pz() << " )"
-    << "\nFSL p4 = ( " << p4FSL->E() << ", " << p4FSL->Px() << ", " << p4FSL->Py() << ", " << p4FSL->Pz() << " )"
-    << "\nDIF p4 = ( " << p4DIF.E() << ", " << p4DIF.Px() << ", " << p4DIF.Py() << ", " << p4DIF.Pz() << " )";
-
+  }
+    
   // Set probe
   interaction->InitStatePtr()->SetProbePdg( event->Particle(0)->Pdg() );
   interaction->InitStatePtr()->SetProbeP4( *(event->Particle(0)->P4()) );
@@ -373,7 +384,7 @@ void NHLPrimaryVtxGenerator::UpdateEventRecord(GHepRecord * event) const
   
   // clean up
   delete p4NHL;
-  delete p4FSL;
+  if(p4FSL) delete p4FSL;
 }
 //____________________________________________________________________________
 void NHLPrimaryVtxGenerator::Configure(const Registry & config)
@@ -506,7 +517,29 @@ void NHLPrimaryVtxGenerator::SetProdVtxPosition(const TLorentzVector & v4) const
   fProdVtx = pv4;
 }
 //____________________________________________________________________________
-TLorentzVector * NHLPrimaryVtxGenerator::GetProdVtxPosition(void)
+TLorentzVector * NHLPrimaryVtxGenerator::GetProdVtxPosition(GHepRecord * event)
 {
+  if( !fProdVtx ){
+    LOG( "NHL", pWARN )
+      << "Production vertex not set. Setting it now.";
+    this->GenerateDecayPosition(event);
+  }
   return fProdVtx;
+}
+//____________________________________________________________________________
+void NHLPrimaryVtxGenerator::SetNHLMomentum(const TLorentzVector & p4) const
+{
+  TLorentzVector * pp4 = new TLorentzVector();
+  pp4->SetPxPyPzE( p4.Px(), p4.Py(), p4.Pz(), p4.E() );
+  fISMom = pp4;
+}
+//____________________________________________________________________________
+TLorentzVector * NHLPrimaryVtxGenerator::GetNHLMomentum(GHepRecord * event)
+{
+  if( !fISMom ){
+    LOG( "NHL", pWARN )
+      << "Momentum not set. Setting it now.";
+    this->GenerateMomentum(event);
+  }
+  return fISMom;
 }
