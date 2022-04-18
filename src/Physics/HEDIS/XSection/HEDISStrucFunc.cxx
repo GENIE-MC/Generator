@@ -44,12 +44,14 @@ std::map<int, double> mPDFQrk;   // Mass of the quark from LHAPDF set
 //_________________________________________________________________________
 HEDISStrucFunc * HEDISStrucFunc::fgInstance = 0;
 //_________________________________________________________________________
-HEDISStrucFunc::HEDISStrucFunc(string basedir, SF_info sfinfo)
+HEDISStrucFunc::HEDISStrucFunc(SF_info sfinfo)
 {
 
   fSF = sfinfo;
 
-  if (basedir=="") basedir=string(gSystem->Getenv("GENIE")) + "/data/evgen/hedis-sf";
+  string basedir = "";
+  if ( gSystem->Getenv("HEDIS_SF_DATA_PATH")==NULL ) basedir = string(gSystem->Getenv("GENIE")) + "/data/evgen/hedis-sf";
+  else                                               basedir = string(gSystem->Getenv("HEDIS_SF_DATA_PATH"));
   LOG("HEDISStrucFunc", pERROR) << "Base diretory: " << basedir;
 
   if ( gSystem->AccessPathName( basedir.c_str(), kWritePermission ) ) {
@@ -327,13 +329,13 @@ HEDISStrucFunc::~HEDISStrucFunc()
 
 }
 //_________________________________________________________________________
-HEDISStrucFunc * HEDISStrucFunc::Instance(string basedir, SF_info sfinfo)
+HEDISStrucFunc * HEDISStrucFunc::Instance(SF_info sfinfo)
 {
   if(fgInstance == 0) {
     LOG("HEDISStrucFunc", pINFO) << "Late initialization";
     static HEDISStrucFunc::Cleaner cleaner;
     cleaner.DummyMethodAndSilentCompiler();
-    fgInstance = new HEDISStrucFunc(basedir,sfinfo);
+    fgInstance = new HEDISStrucFunc(sfinfo);
   }  
   return fgInstance;
 }
