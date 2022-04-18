@@ -117,7 +117,7 @@ int main(int argc, char ** argv)
   LOG("gmkphotonsf", pERROR) << "Base diretory: " << basedir;
 
   if ( gSystem->AccessPathName( basedir.c_str(), kWritePermission ) ) {
-      LOG("gmkphotonsf", pERROR) << "Base diretory doesnt exist or you dont have write permission.";
+      LOG("gmkphotonsf", pFATAL) << "Base diretory doesnt exist or you dont have write permission.";
       assert(0);
   }
 

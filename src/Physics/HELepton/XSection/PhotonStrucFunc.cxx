@@ -34,7 +34,7 @@ PhotonStrucFunc::PhotonStrucFunc()
     for(int j=0; j<6; j++) {
       string SFname = basedir + "/PhotonSF_hitnuc"+std::to_string(nucs[k])+"_hitlep"+std::to_string(pdgs[j])+".dat";
       if ( gSystem->AccessPathName( SFname.c_str()) ) {
-        LOG("PhotonStrucFunc", pWARN) << "File doesnt exist. SF table must be compute with gmkglressf.";        
+        LOG("PhotonStrucFunc", pFATAL) << "File doesnt exist. SF table must be compute with gmkglressf.";        
         assert(0);
       }
       fSFTables[nucs[k]].Table[pdgs[j]] = new genie::Spline();

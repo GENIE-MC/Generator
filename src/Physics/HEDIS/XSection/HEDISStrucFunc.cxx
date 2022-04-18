@@ -55,7 +55,7 @@ HEDISStrucFunc::HEDISStrucFunc(SF_info sfinfo)
   LOG("HEDISStrucFunc", pERROR) << "Base diretory: " << basedir;
 
   if ( gSystem->AccessPathName( basedir.c_str(), kWritePermission ) ) {
-      LOG("HEDISStrucFunc", pERROR) << "Base diretory doesnt exist or you dont have write permission.";
+      LOG("HEDISStrucFunc", pFATAL) << "Base diretory doesnt exist or you dont have write permission.";
       assert(0);
   }
 
@@ -85,12 +85,12 @@ HEDISStrucFunc::HEDISStrucFunc(SF_info sfinfo)
       LOG("HEDISStrucFunc", pINFO) << "Info from MetaFile and Tune match";
     }
     else {
-      LOG("HEDISStrucFunc", pERROR) << "Info from MetaFile and Tune doesnt match";
-      LOG("HEDISStrucFunc", pERROR) << "MetaFile Path : " << SFname << "/Inputs.txt";        
-      LOG("HEDISStrucFunc", pERROR) << "From Tune : ";        
-      LOG("HEDISStrucFunc", pERROR) << cm;        
-      LOG("HEDISStrucFunc", pERROR) << "From MetaFile : ";        
-      LOG("HEDISStrucFunc", pERROR) << fSF;        
+      LOG("HEDISStrucFunc", pFATAL) << "Info from MetaFile and Tune doesnt match";
+      LOG("HEDISStrucFunc", pFATAL) << "MetaFile Path : " << SFname << "/Inputs.txt";        
+      LOG("HEDISStrucFunc", pFATAL) << "From Tune : ";        
+      LOG("HEDISStrucFunc", pFATAL) << cm;        
+      LOG("HEDISStrucFunc", pFATAL) << "From MetaFile : ";        
+      LOG("HEDISStrucFunc", pFATAL) << fSF;        
       assert(0);
     }
   }
