@@ -52,10 +52,10 @@ HEDISStrucFunc::HEDISStrucFunc(SF_info sfinfo)
   string basedir = "";
   if ( gSystem->Getenv("HEDIS_SF_DATA_PATH")==NULL ) basedir = string(gSystem->Getenv("GENIE")) + "/data/evgen/hedis-sf";
   else                                               basedir = string(gSystem->Getenv("HEDIS_SF_DATA_PATH"));
-  LOG("HEDISStrucFunc", pERROR) << "Base diretory: " << basedir;
+  LOG("HEDISStrucFunc", pERROR) << "Base directory: " << basedir;
 
   if ( gSystem->AccessPathName( basedir.c_str(), kWritePermission ) ) {
-      LOG("HEDISStrucFunc", pFATAL) << "Base diretory doesnt exist or you dont have write permission.";
+      LOG("HEDISStrucFunc", pFATAL) << "Base directory doesnt exist or you dont have write permission.";
       assert(0);
   }
 

@@ -114,10 +114,10 @@ int main(int argc, char ** argv)
   string basedir = "";
   if ( gSystem->Getenv("PHOTON_SF_DATA_PATH")==NULL ) basedir = string(gSystem->Getenv("GENIE")) + "/data/evgen/photon-sf";
   else                                                basedir = string(gSystem->Getenv("PHOTON_SF_DATA_PATH"));
-  LOG("gmkphotonsf", pERROR) << "Base diretory: " << basedir;
+  LOG("gmkphotonsf", pERROR) << "Base directory: " << basedir;
 
   if ( gSystem->AccessPathName( basedir.c_str(), kWritePermission ) ) {
-      LOG("gmkphotonsf", pFATAL) << "Base diretory doesnt exist or you dont have write permission.";
+      LOG("gmkphotonsf", pFATAL) << "Base directory doesnt exist or you dont have write permission.";
       assert(0);
   }
 
