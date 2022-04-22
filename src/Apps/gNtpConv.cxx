@@ -338,14 +338,17 @@ void ConvertToGST(void)
   double brNHLPx       = 0;      // IS Px
   double brNHLPy       = 0;      // IS Py
   double brNHLPz       = 0;      // IS Pz
+  int    brNHLFS0Pdg   = 0;      // FS0 PDG
   double brNHLFS0E     = 0;      // FS0 E
   double brNHLFS0Px    = 0;      // FS0 Px
   double brNHLFS0Py    = 0;      // FS0 Py
   double brNHLFS0Pz    = 0;      // FS0 Pz
+  int    brNHLFS1Pdg   = 0;      // FS1 PDG
   double brNHLFS1E     = 0;      // FS1 E
   double brNHLFS1Px    = 0;      // FS1 Px
   double brNHLFS1Py    = 0;      // FS1 Py
   double brNHLFS1Pz    = 0;      // FS1 Pz
+  int    brNHLFS2Pdg   = 0;      // FS2 PDG
   double brNHLFS2E     = 0;      // FS2 E
   double brNHLFS2Px    = 0;      // FS2 Px
   double brNHLFS2Py    = 0;      // FS2 Py
@@ -476,14 +479,17 @@ void ConvertToGST(void)
   s_tree->Branch("nhl_Px",        &brNHLPx,         "nhl_Px/D"      );
   s_tree->Branch("nhl_Py",        &brNHLPy,         "nhl_Py/D"      );
   s_tree->Branch("nhl_Pz",        &brNHLPz,         "nhl_Pz/D"      );
+  s_tree->Branch("nhl_FS0_Pdg",   &brNHLFS0Pdg,     "nhl_FS0_Pdg/I" );
   s_tree->Branch("nhl_FS0_E",     &brNHLFS0E,       "nhl_FS0_E/D"   );
   s_tree->Branch("nhl_FS0_Px",    &brNHLFS0Px,      "nhl_FS0_Px/D"  );
   s_tree->Branch("nhl_FS0_Py",    &brNHLFS0Py,      "nhl_FS0_Py/D"  );
   s_tree->Branch("nhl_FS0_Pz",    &brNHLFS0Pz,      "nhl_FS0_Pz/D"  );
+  s_tree->Branch("nhl_FS1_Pdg",   &brNHLFS1Pdg,     "nhl_FS1_Pdg/I" );
   s_tree->Branch("nhl_FS1_E",     &brNHLFS1E,       "nhl_FS1_E/D"   );
   s_tree->Branch("nhl_FS1_Px",    &brNHLFS1Px,      "nhl_FS1_Px/D"  );
   s_tree->Branch("nhl_FS1_Py",    &brNHLFS1Py,      "nhl_FS1_Py/D"  );
   s_tree->Branch("nhl_FS1_Pz",    &brNHLFS1Pz,      "nhl_FS1_Pz/D"  );
+  s_tree->Branch("nhl_FS2_Pdg",   &brNHLFS2Pdg,     "nhl_FS2_Pdg/I" );
   s_tree->Branch("nhl_FS2_E",     &brNHLFS2E,       "nhl_FS2_E/D"   );
   s_tree->Branch("nhl_FS2_Px",    &brNHLFS2Px,      "nhl_FS2_Px/D"  );
   s_tree->Branch("nhl_FS2_Py",    &brNHLFS2Py,      "nhl_FS2_Py/D"  );
@@ -599,6 +605,7 @@ void ConvertToGST(void)
   double locNHLFS0E, locNHLFS0Px, locNHLFS0Py, locNHLFS0Pz;
   double locNHLFS1E, locNHLFS1Px, locNHLFS1Py, locNHLFS1Pz;
   double locNHLFS2E, locNHLFS2Px, locNHLFS2Py, locNHLFS2Pz;
+  int locNHLFS0PDG, locNHLFS1PDG, locNHLFS2PDG;
 
   TBranch * BRNHLMass = er_tree->GetBranch( "nhl_mass" ); BRNHLMass->SetAddress( &locNHLMass );
   TBranch * BRNHLECoup = er_tree->GetBranch( "nhl_coup_e" ); BRNHLECoup->SetAddress( &locNHLECoup );
@@ -612,16 +619,19 @@ void ConvertToGST(void)
   TBranch * BRNHLPy = er_tree->GetBranch( "nhl_IS_PY" ); BRNHLPy->SetAddress( &locNHLPy );
   TBranch * BRNHLPz = er_tree->GetBranch( "nhl_IS_PZ" ); BRNHLPz->SetAddress( &locNHLPz );
   //
+  TBranch * BRNHLFS0PDG = er_tree->GetBranch( "nhl_FS0_PDG" ); BRNHLFS0PDG->SetAddress( &locNHLFS0PDG );
   TBranch * BRNHLFS0E  = er_tree->GetBranch( "nhl_FS0_E" );  BRNHLFS0E->SetAddress( &locNHLFS0E );
   TBranch * BRNHLFS0Px = er_tree->GetBranch( "nhl_FS0_PX" ); BRNHLFS0Px->SetAddress( &locNHLFS0Px );
   TBranch * BRNHLFS0Py = er_tree->GetBranch( "nhl_FS0_PY" ); BRNHLFS0Py->SetAddress( &locNHLFS0Py );
   TBranch * BRNHLFS0Pz = er_tree->GetBranch( "nhl_FS0_PZ" ); BRNHLFS0Pz->SetAddress( &locNHLFS0Pz );
   //
+  TBranch * BRNHLFS1PDG = er_tree->GetBranch( "nhl_FS1_PDG" ); BRNHLFS1PDG->SetAddress( &locNHLFS1PDG );
   TBranch * BRNHLFS1E  = er_tree->GetBranch( "nhl_FS1_E" );  BRNHLFS1E->SetAddress( &locNHLFS1E );
   TBranch * BRNHLFS1Px = er_tree->GetBranch( "nhl_FS1_PX" ); BRNHLFS1Px->SetAddress( &locNHLFS1Px );
   TBranch * BRNHLFS1Py = er_tree->GetBranch( "nhl_FS1_PY" ); BRNHLFS1Py->SetAddress( &locNHLFS1Py );
   TBranch * BRNHLFS1Pz = er_tree->GetBranch( "nhl_FS1_PZ" ); BRNHLFS1Pz->SetAddress( &locNHLFS1Pz );
   //
+  TBranch * BRNHLFS2PDG = er_tree->GetBranch( "nhl_FS2_PDG" ); BRNHLFS2PDG->SetAddress( &locNHLFS2PDG );
   TBranch * BRNHLFS2E  = er_tree->GetBranch( "nhl_FS2_E" );  BRNHLFS2E->SetAddress( &locNHLFS2E );
   TBranch * BRNHLFS2Px = er_tree->GetBranch( "nhl_FS2_PX" ); BRNHLFS2Px->SetAddress( &locNHLFS2Px );
   TBranch * BRNHLFS2Py = er_tree->GetBranch( "nhl_FS2_PY" ); BRNHLFS2Py->SetAddress( &locNHLFS2Py );
@@ -672,6 +682,28 @@ void ConvertToGST(void)
     assert(target);
     GHepParticle * fsl = event.FinalStatePrimaryLepton();
     GHepParticle * hitnucl = event.HitNucleon();
+
+    if( neutrino ) { LOG("gntpc", pDEBUG) << "neutrino p4 = ( " 
+					  << neutrino->GetP4()->E() << ", "
+					  << neutrino->GetP4()->Px() << ", "
+					  << neutrino->GetP4()->Py() << ", "
+					  << neutrino->GetP4()->Pz() << " )"; }
+    if( target ) { LOG("gntpc", pDEBUG) << "target p4 = ( " 
+					  << target->GetP4()->E() << ", "
+					  << target->GetP4()->Px() << ", "
+					  << target->GetP4()->Py() << ", "
+					  << target->GetP4()->Pz() << " )"; }
+    if( fsl ) { LOG("gntpc", pDEBUG) << "fsl p4 = ( " 
+					  << fsl->GetP4()->E() << ", "
+					  << fsl->GetP4()->Px() << ", "
+					  << fsl->GetP4()->Py() << ", "
+					  << fsl->GetP4()->Pz() << " )"; }
+
+    if( hitnucl ) { LOG("gntpc", pDEBUG) << "hitnucl p4 = ( " 
+					  << hitnucl->GetP4()->E() << ", "
+					  << hitnucl->GetP4()->Px() << ", "
+					  << hitnucl->GetP4()->Py() << ", "
+					  << hitnucl->GetP4()->Pz() << " )"; }
 
     int tgtZ = 0;
     int tgtA = 0;
@@ -1039,14 +1071,17 @@ void ConvertToGST(void)
     brNHLPx      = locNHLPx;
     brNHLPy      = locNHLPy;
     brNHLPz      = locNHLPz;
+    brNHLFS0Pdg  = locNHLFS0PDG;
     brNHLFS0E    = locNHLFS0E;
     brNHLFS0Px   = locNHLFS0Px;
     brNHLFS0Py   = locNHLFS0Py;
     brNHLFS0Pz   = locNHLFS0Pz;
+    brNHLFS1Pdg  = locNHLFS1PDG;
     brNHLFS1E    = locNHLFS1E;
     brNHLFS1Px   = locNHLFS1Px;
     brNHLFS1Py   = locNHLFS1Py;
     brNHLFS1Pz   = locNHLFS1Pz;
+    brNHLFS2Pdg  = locNHLFS2PDG;
     brNHLFS2E    = locNHLFS2E;
     brNHLFS2Px   = locNHLFS2Px;
     brNHLFS2Py   = locNHLFS2Py;

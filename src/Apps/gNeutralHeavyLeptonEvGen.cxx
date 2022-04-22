@@ -222,6 +222,7 @@ double NTP_IS_E = 0., NTP_IS_PX = 0., NTP_IS_PY = 0., NTP_IS_PZ = 0.;
 double NTP_FS0_E = 0., NTP_FS0_PX = 0., NTP_FS0_PY = 0., NTP_FS0_PZ = 0.;
 double NTP_FS1_E = 0., NTP_FS1_PX = 0., NTP_FS1_PY = 0., NTP_FS1_PZ = 0.;
 double NTP_FS2_E = 0., NTP_FS2_PX = 0., NTP_FS2_PY = 0., NTP_FS2_PZ = 0.;
+int NTP_FS0_PDG = 0, NTP_FS1_PDG = 0, NTP_FS2_PDG = 0;
 
 NHLPrimaryVtxGenerator * nhlgen = 0;
 // HNL lifetime in rest frame
@@ -313,14 +314,17 @@ int main(int argc, char ** argv)
   ntpw.EventTree()->Branch("nhl_IS_PX", &NTP_IS_PX, "NTP_IS_PX/D");
   ntpw.EventTree()->Branch("nhl_IS_PY", &NTP_IS_PY, "NTP_IS_PY/D");
   ntpw.EventTree()->Branch("nhl_IS_PZ", &NTP_IS_PZ, "NTP_IS_PZ/D");
+  ntpw.EventTree()->Branch("nhl_FS0_PDG", &NTP_FS0_PDG, "NTP_FS0_PDG/I");
   ntpw.EventTree()->Branch("nhl_FS0_E", &NTP_FS0_E, "NTP_FS0_E/D");
   ntpw.EventTree()->Branch("nhl_FS0_PX", &NTP_FS0_PX, "NTP_FS0_PX/D");
   ntpw.EventTree()->Branch("nhl_FS0_PY", &NTP_FS0_PY, "NTP_FS0_PY/D");
   ntpw.EventTree()->Branch("nhl_FS0_PZ", &NTP_FS0_PZ, "NTP_FS0_PZ/D");
+  ntpw.EventTree()->Branch("nhl_FS1_PDG", &NTP_FS1_PDG, "NTP_FS1_PDG/I");
   ntpw.EventTree()->Branch("nhl_FS1_E", &NTP_FS1_E, "NTP_FS1_E/D");
   ntpw.EventTree()->Branch("nhl_FS1_PX", &NTP_FS1_PX, "NTP_FS1_PX/D");
   ntpw.EventTree()->Branch("nhl_FS1_PY", &NTP_FS1_PY, "NTP_FS1_PY/D");
   ntpw.EventTree()->Branch("nhl_FS1_PZ", &NTP_FS1_PZ, "NTP_FS1_PZ/D");
+  ntpw.EventTree()->Branch("nhl_FS2_PDG", &NTP_FS2_PDG, "NTP_FS2_PDG/I");
   ntpw.EventTree()->Branch("nhl_FS2_E", &NTP_FS2_E, "NTP_FS2_E/D");
   ntpw.EventTree()->Branch("nhl_FS2_PX", &NTP_FS2_PX, "NTP_FS2_PX/D");
   ntpw.EventTree()->Branch("nhl_FS2_PY", &NTP_FS2_PY, "NTP_FS2_PY/D");
@@ -476,19 +480,29 @@ int main(int argc, char ** argv)
 
      // add the FS 4-momenta to special branches
      // Quite inelegant. Gets the job done, though
+     NTP_FS0_PDG = (event->Particle(1))->Pdg();
      NTP_FS0_E  = ((event->Particle(1))->P4())->E();
      NTP_FS0_PX = ((event->Particle(1))->P4())->Px();
      NTP_FS0_PY = ((event->Particle(1))->P4())->Py();
      NTP_FS0_PZ = ((event->Particle(1))->P4())->Pz();
+     NTP_FS1_PDG = (event->Particle(2))->Pdg();
      NTP_FS1_E  = ((event->Particle(2))->P4())->E();
      NTP_FS1_PX = ((event->Particle(2))->P4())->Px();
      NTP_FS1_PY = ((event->Particle(2))->P4())->Py();
      NTP_FS1_PZ = ((event->Particle(2))->P4())->Pz();
      if( event->Particle(3) ){
+       NTP_FS2_PDG = (event->Particle(3))->Pdg();
        NTP_FS2_E  = ((event->Particle(3))->P4())->E();
        NTP_FS2_PX = ((event->Particle(3))->P4())->Px();
        NTP_FS2_PY = ((event->Particle(3))->P4())->Py();
        NTP_FS2_PZ = ((event->Particle(3))->P4())->Pz();
+     }
+     else{
+       NTP_FS2_PDG = 0;
+       NTP_FS2_E = 0.0;
+       NTP_FS2_PX = 0.0;
+       NTP_FS2_PY = 0.0;
+       NTP_FS2_PZ = 0.0;
      }
 
      // Generate a position for the decay vertex
