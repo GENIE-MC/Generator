@@ -53,7 +53,6 @@ namespace genie {
     
       double fWmin;            ///< Minimum value of W
       bool fMassTerms;         ///< Account for second order effects in DDxsec
-      string fSFBaseDir;       ///< Directory were SF will be stored
       SF_info fSFinfo;         ///< Information used to computed SF
   };
 

@@ -44,16 +44,18 @@ std::map<int, double> mPDFQrk;   // Mass of the quark from LHAPDF set
 //_________________________________________________________________________
 HEDISStrucFunc * HEDISStrucFunc::fgInstance = 0;
 //_________________________________________________________________________
-HEDISStrucFunc::HEDISStrucFunc(string basedir, SF_info sfinfo)
+HEDISStrucFunc::HEDISStrucFunc(SF_info sfinfo)
 {
 
   fSF = sfinfo;
 
-  if (basedir=="") basedir=string(gSystem->Getenv("GENIE")) + "/data/evgen/hedis-sf";
-  LOG("HEDISStrucFunc", pERROR) << "Base diretory: " << basedir;
+  string basedir = "";
+  if ( gSystem->Getenv("HEDIS_SF_DATA_PATH")==NULL ) basedir = string(gSystem->Getenv("GENIE")) + "/data/evgen/hedis-sf";
+  else                                               basedir = string(gSystem->Getenv("HEDIS_SF_DATA_PATH"));
+  LOG("HEDISStrucFunc", pERROR) << "Base directory: " << basedir;
 
   if ( gSystem->AccessPathName( basedir.c_str(), kWritePermission ) ) {
-      LOG("HEDISStrucFunc", pERROR) << "Base diretory doesnt exist or you dont have write permission.";
+      LOG("HEDISStrucFunc", pFATAL) << "Base directory doesnt exist or you dont have write permission.";
       assert(0);
   }
 
@@ -83,12 +85,12 @@ HEDISStrucFunc::HEDISStrucFunc(string basedir, SF_info sfinfo)
       LOG("HEDISStrucFunc", pINFO) << "Info from MetaFile and Tune match";
     }
     else {
-      LOG("HEDISStrucFunc", pERROR) << "Info from MetaFile and Tune doesnt match";
-      LOG("HEDISStrucFunc", pERROR) << "MetaFile Path : " << SFname << "/Inputs.txt";        
-      LOG("HEDISStrucFunc", pERROR) << "From Tune : ";        
-      LOG("HEDISStrucFunc", pERROR) << cm;        
-      LOG("HEDISStrucFunc", pERROR) << "From MetaFile : ";        
-      LOG("HEDISStrucFunc", pERROR) << fSF;        
+      LOG("HEDISStrucFunc", pFATAL) << "Info from MetaFile and Tune doesnt match";
+      LOG("HEDISStrucFunc", pFATAL) << "MetaFile Path : " << SFname << "/Inputs.txt";        
+      LOG("HEDISStrucFunc", pFATAL) << "From Tune : ";        
+      LOG("HEDISStrucFunc", pFATAL) << cm;        
+      LOG("HEDISStrucFunc", pFATAL) << "From MetaFile : ";        
+      LOG("HEDISStrucFunc", pFATAL) << fSF;        
       assert(0);
     }
   }
@@ -327,13 +329,13 @@ HEDISStrucFunc::~HEDISStrucFunc()
 
 }
 //_________________________________________________________________________
-HEDISStrucFunc * HEDISStrucFunc::Instance(string basedir, SF_info sfinfo)
+HEDISStrucFunc * HEDISStrucFunc::Instance(SF_info sfinfo)
 {
   if(fgInstance == 0) {
     LOG("HEDISStrucFunc", pINFO) << "Late initialization";
     static HEDISStrucFunc::Cleaner cleaner;
     cleaner.DummyMethodAndSilentCompiler();
-    fgInstance = new HEDISStrucFunc(basedir,sfinfo);
+    fgInstance = new HEDISStrucFunc(sfinfo);
   }  
   return fgInstance;
 }
