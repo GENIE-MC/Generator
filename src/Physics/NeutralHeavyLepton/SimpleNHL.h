@@ -202,7 +202,7 @@ namespace genie {
 		    "genie::NHL::SimpleNHL:: Set E too low." <<
 			"\nE = " << E << ", M = " << fMass; exit(3); }
 		double mom3 = std::sqrt( E*E - fMass*fMass );
-		double oldmom = GetMomentum( );
+		__attribute__((unused)) double oldmom = GetMomentum( );
 		fPmag = mom3;		    
 		fPx = mom3 / std::sqrt(3.0); fPy = mom3 / std::sqrt(3.0); fPz = mom3 / std::sqrt(3.0);
 		fE = E;

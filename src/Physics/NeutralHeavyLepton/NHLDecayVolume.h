@@ -89,16 +89,16 @@ namespace NHL {
     extern double aunits;
     extern double tunits;
 
-    extern double fSx, fSy, fSz;
-    extern double fPx, fPy, fPz;
-    extern double fEx, fEy, fEz;
-    extern double fXx, fXy, fXz;
+    extern double fSx, fSy, fSz; //start point
+    extern double fPx, fPy, fPz; //momentum
+    extern double fEx, fEy, fEz; //entry point
+    extern double fXx, fXy, fXz; //exit  point
 
-    extern double fDx, fDy, fDz;
-    extern double fOx, fOy, fOz;
-    extern double fLx, fLy, fLz;
+    extern double fDx, fDy, fDz; //decay point
+    extern double fOx, fOy, fOz; //origin
+    extern double fLx, fLy, fLz; //dimensions
 
-    extern double fAx, fAy, fAz;
+    extern double fAx, fAy, fAz; //
     extern double fAlpha;
     extern double ft;
     

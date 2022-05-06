@@ -46,27 +46,25 @@ namespace genie {
     namespace NHLSelector {
 
         // are parameters initialised?
-        static bool fParamsInitialised = false;
+        static __attribute__((unused)) bool fParamsInitialised = false;
 
 	// physical constants
 
 	// RETHERE why does this cause a segfault?
         //static const double wAng = genie::utils::nhl::GetCfgDouble( "Param", "WeakInt", "WeinbergAngle" );
-        static double wAng, s2w;
-	static const double GF  = genie::constants::kGF; // GeV^{-2}
-	static const double GF2 = GF*GF;
-	static const double pi  = genie::constants::kPi;
-	static double fpi, fpi2;
-	static double BR_C1, BR_C2;
+        static __attribute__((unused)) double wAng, s2w;
+	static __attribute__((unused)) const double GF  = genie::constants::kGF; // GeV^{-2}
+	static __attribute__((unused)) const double GF2 = GF*GF;
+	static __attribute__((unused)) const double pi  = genie::constants::kPi;
+	static __attribute__((unused)) double fpi, fpi2;
+	static __attribute__((unused)) double BR_C1, BR_C2;
 		
-	static const double mPi0 = genie::constants::kPi0Mass;
-	static const double mPi  = genie::constants::kPionMass;
-	static const double mMu  = genie::constants::kMuonMass;
+	static __attribute__((unused)) double mPi0, mPi, mMu, mK, mK0, mE;
 
-	static double Vud, Vud2;
+	static __attribute__((unused)) double Vud, Vud2;
 
 	// PMNS matrix elements
-	static double Ue1, Ue2, Ue3, Um1, Um2, Um3, Ut1, Ut2, Ut3;
+	static __attribute__((unused)) double Ue1, Ue2, Ue3, Um1, Um2, Um3, Ut1, Ut2, Ut3;
 
 	// initialise these parameters from config files!
 	void InitParameters();

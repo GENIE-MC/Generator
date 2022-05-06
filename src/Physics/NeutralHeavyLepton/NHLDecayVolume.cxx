@@ -252,7 +252,7 @@ void NHLDecayVolume::ImportBoundingBox( TGeoBBox * box )
 //____________________________________________________________________________
 bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 & momentum,
 					       TVector3 & entryPoint, TVector3 & exitPoint,
-					       TGeoManager * gm, TGeoVolume * vol )
+					       TGeoManager * gm, TGeoVolume * /* vol */ )
 {
   double sx = startPoint.X(); double sy = startPoint.Y(); double sz = startPoint.Z();
   double px = momentum.X(); double py = momentum.Y(); double pz = momentum.Z();
@@ -304,8 +304,8 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   double stepsmall = 1.0e-2; // cm
   stepsmall *= genie::units::cm / lunits;
 
-  int ibound = 0;
-  const int imax = 10;
+  // int ibound = 0;
+  // const int imax = 10;
 
   LOG( "NHL", pDEBUG )
     << "Starting to search for intersections...";
@@ -364,7 +364,7 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
       << "Overstepped bounding box: we're at ( " << ffPoint[0] << ", " << ffPoint[1] << ", " << ffPoint[2] << " )";
     const Double_t * sfDir = gm->GetCurrentDirection();
     gm->SetCurrentDirection( -sfDir[0], -sfDir[1], -sfDir[2] );
-    TGeoNode * tmpNode = gm->FindNextBoundaryAndStep();
+    __attribute__((unused)) TGeoNode * tmpNode = gm->FindNextBoundaryAndStep();
     LOG( "NHL", pDEBUG )
       << "We turned back with new step = " << gm->GetStep();
     // and set direction back to normal

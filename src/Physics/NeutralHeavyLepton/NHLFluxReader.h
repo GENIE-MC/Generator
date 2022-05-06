@@ -11,11 +11,11 @@
 
 \namespace  genie::NHL::NHLFluxReader
 
-\brief      Reads in flux at MINERvA centre
+\brief      Reads in user inout flux from histograms
 
 \author     John Plows <komninos-john.plows@physics.ox.ac.uk>
 
-\created    January 5th, 2021
+\created    January 5th, 2022
 
 \cpright    ??? - TBD
 

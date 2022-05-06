@@ -283,7 +283,7 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
   delete v4d;
 }
 //____________________________________________________________________________
-std::vector< double > * NHLPrimaryVtxGenerator::GenerateDecayPosition( GHepRecord * event ) const
+std::vector< double > * NHLPrimaryVtxGenerator::GenerateDecayPosition( GHepRecord * /* event */ ) const
 {
   // let's query *where* the NHL decayed from.
   // RETHERE - perhaps should return to GCylindTH1Flux-like implementation?

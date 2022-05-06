@@ -69,7 +69,7 @@ std::vector< double > NHLSelector::PropagateTilDecay( SimpleNHL sh ){
 // Exclusive stepper
 void NHLSelector::PropagateAndSelectChannel( SimpleNHL sh ){
 
-    const double COMlifetime = sh.GetCoMLifetime( );
+    __attribute__((unused)) const double COMlifetime = sh.GetCoMLifetime( );
     const double LABlifetime = sh.GetLifetime( );
 
     // first get the valid and the interesting channels with their widths
