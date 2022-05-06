@@ -111,6 +111,7 @@
 #include "Physics/NeutralHeavyLepton/NHLDecayMode.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayUtils.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayVolume.h"
+#include "Physics/NeutralHeavyLepton/NHLFluxCreator.h"
 #include "Physics/NeutralHeavyLepton/NHLFluxReader.h"
 #include "Physics/NeutralHeavyLepton/NHLPrimaryVtxGenerator.h"
 #include "Physics/NeutralHeavyLepton/SimpleNHL.h"
@@ -191,6 +192,8 @@ int              gOptNHLKind      = -1;                  // 0 = nu, 1 = nubar, 2
 
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 string           gOptFluxFilePath = kDefOptFluxFilePath; // where flux files live
+map<string,string> gOptFluxShortNames;
+bool             gOptIsUsingDk2nu = false;               // using flat dk2nu files?
 #endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 bool             gOptIsMonoEnFlux = true;                // do we have monoenergetic flux?
 
@@ -246,6 +249,16 @@ int main(int argc, char ** argv)
   utils::app_init::RandGen(gOptRanSeed);
 
   RandomGen * rnd = RandomGen::Instance();
+
+  if( gOptIsUsingDk2nu ){
+    // let's test dk2nu integration!
+    __attribute__((unused)) int thisintisuseless = NHLFluxCreator::TestTwoFunction( gOptFluxFilePath );
+    
+    LOG( "gevgen_nhl", pDEBUG )
+      << "Exiting now.";
+    exit(1312);
+
+  }
 
   // Get the NHL generator first to load config
   // config loaded upon instantiation of NHLGenerator algorithm 
@@ -1131,6 +1144,13 @@ void GetCommandLineArgs(int argc, char ** argv)
       << "A flux has been offered. Searching this path: " << parser.ArgAsString('f');
     isMonoEnergeticFlux = false;
     gOptFluxFilePath = parser.ArgAsString('f');
+    
+    // check if this is dk2nu
+    if( gOptFluxFilePath.find( "dk2nu" ) != string::npos ){
+      gOptIsUsingDk2nu = true;
+      LOG("gevgen_nhl", pDEBUG)
+	<< "dk2nu flux files detected. Will create flux spectrum dynamically.";
+    }
   } else {
     // we need the 'E' option! Log it and pass below
     LOG("gevgen_nhl", pINFO)

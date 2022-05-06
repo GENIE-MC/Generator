@@ -17,6 +17,9 @@
 #ifndef _NHL_KINUTILS_H_
 #define _NHL_KINUTILS_H_
 
+// -- C++ includes
+#include <cmath>
+
 // -- GENIE includes
 #include "Framework/Messenger/Messenger.h"
 
@@ -32,6 +35,14 @@ namespace utils {
 	
 	inline double Kallen( double x, double y, double z ) {
 	    return x*x + y*y + z*z - 2. * ( x*y + y*z + z*x );
+	}
+
+	inline double symmdiff( double x, double y ) {
+	  return x + y - ( x-y ) * ( x-y );
+	}
+
+	inline double rhofunc( double x, double y ) {
+	  return symmdiff( x, y ) * std::sqrt( Kallen( 1, x, y ) );
 	}
 	
     } // namespace nhl

@@ -38,6 +38,37 @@ void NHLSelector::InitParameters() {
   Ut2 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Ut2" );
   Ut3 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Ut3" );
 
+  // RETHERE pass this to config / data?
+  kscale_K3e = { 
+    { 0.0, 1.0 }, { 0.01, (2.0 + 0.968309)/3.0 },
+    { 0.019970, 0.968309 }, { 0.029963, 0.952842 }, { 0.040037, 0.922646 }, { 0.049839, 0.907908 },
+    { 0.060075, 0.879136 }, { 0.070117, 0.824297 }, { 0.080272, 0.772880 }, { 0.090139, 0.736432 },
+    { 0.099924, 0.679466 }, { 0.110059, 0.607039 }, { 0.120445, 0.560082 }, { 0.130123, 0.508503 },
+    { 0.140579, 0.461674 }, { 0.150900, 0.405874 }, { 0.159906, 0.356819 }, { 0.170544, 0.303751 },
+    { 0.180722, 0.267038 }, { 0.190278, 0.227323 }, { 0.200340, 0.193514 }, { 0.209579, 0.159513 },
+    { 0.219244, 0.129386 }, { 0.230837, 0.101623 }, { 0.239932, 0.081113 }, { 0.249386, 0.060704 },
+    { 0.260887, 0.043990 }, { 0.269425, 0.031878 }, { 0.280041, 0.021660 }, { 0.289206, 0.014251 },
+    { 0.300601, 0.007729 }, { 0.310440, 0.004059 }, { 0.320600, 0.001935 }, { 0.330028, 0.000713 },
+    { 0.339733, 0.000184 }, { 0.350852, 0.00000953 }
+  };
+
+  kscale_K3mu = {
+    { 0.0, 1.0 }, { 0.01, (2.0 + 0.968309)/3.0 },
+    { 0.019970, 0.968309 }, { 0.029963, 0.937622 }, { 0.040037, 0.907908 }, { 0.049839, 0.879136 },
+    { 0.060075, 0.824297 }, { 0.070117, 0.772880 }, { 0.079757, 0.713094 }, { 0.090139, 0.647424 },
+    { 0.100570, 0.578413 }, { 0.110059, 0.525146 }, { 0.120045, 0.454300 }, { 0.130964, 0.393012 },
+    { 0.140127, 0.334561 }, { 0.149932, 0.275778 }, { 0.159906, 0.227323 }, { 0.170544, 0.181443 },
+    { 0.180722, 0.137994 }, { 0.190278, 0.101623 }, { 0.200340, 0.071309 }, { 0.210933, 0.046917 },
+    { 0.220661, 0.025445 }, { 0.229355, 0.013362 }, { 0.239932, 0.003930 }, { 0.250997, 0.000037 }
+  };
+
+  kscale_mu3e = {
+    { 0.0, 1.0 }, { 0.01, (2.0 + 0.772880)/3.0 },
+    { 0.020099, 0.772880 }, { 0.029963, 0.560082 }, { 0.040037, 0.356819 }, { 0.050161, 0.193514 },
+    { 0.060075, 0.089341 }, { 0.069667, 0.032922 }, { 0.080272, 0.007247 }, { 0.090139, 0.000713 },
+    { 0.100570, 0.00000363 }
+  };
+
   fParamsInitialised = true;
 }
 
@@ -60,6 +91,84 @@ double NHLSelector::GetColomaF2( double x ) {
   int i = x/NHLSelector::PARTWIDTH;
   if( x - i*NHLSelector::PARTWIDTH==0 ) return NHLSelector::ColomaF2[i];
   return 1./2. * ( NHLSelector::ColomaF2[i] + NHLSelector::ColomaF2[i+1] );
+}
+
+// NHL production widths
+double NHLSelector::KScale_PseudoscalarToLepton( const double mP, const double M, const double ma ){
+  if( !fParamsInitialised ) InitParameters();
+  
+  double da = std::pow( utils::nhl::MassX( ma, mP ) , 2.0 );
+  double di = std::pow( utils::nhl::MassX( M,  mP ) , 2.0 );
+  double num = utils::nhl::rhofunc( da, di );
+  double den = da * std::pow( (1.0 - da), 2.0 );
+  return num/den;
+}
+
+double NHLSelector::DWidth_PseudoscalarToLepton( const double mP, const double M, const double Ua42, const double ma ){
+  if( !fParamsInitialised ) InitParameters();
+  assert( M + ma <= mP );
+
+  double KScale = KScale_PseudoscalarToLepton( mP, M, ma );
+  return Ua42 * KScale;
+}
+
+double NHLSelector::KScale_PseudoscalarToPiLepton( const double mP, const double M, const double ma ){
+  if( !fParamsInitialised ) InitParameters();
+
+  assert( mP == mK ); // RETHERE remove this when/if heavier pseudoscalars are considered
+  assert( ma == mE || ma == mMu );
+  
+  std::map< double, double > scaleMap = ( ma == mE ) ? kscale_K3e : kscale_K3mu;
+  std::map< double, double >::iterator scmit = scaleMap.begin();
+  // iterate until we know between which two map points M is
+  // if we're very lucky, M will coincide with a map point
+  while( (*scmit).first <= M && scmit != scaleMap.end() ){ ++scmit; }
+  std::map< double, double >::iterator scpit = std::prev( scmit, 1 );
+  LOG( "NHL", pDEBUG )
+    << "Requested map for M = " << M << ": iter at ( " << (*scpit).first << ", " << (*scmit).first << " ]";
+  assert( scmit != scaleMap.end() );
+  // if coincide then return scale there
+  if( scaleMap.find( M ) != scaleMap.end() ) return (*scmit).second;
+  // otherwise transform scmit-1 and scmit second to log, do a linear extrapolation and return
+  double l1 = TMath::Log( (*scpit).second );
+  double l2 = TMath::Log( (*scmit).second );
+  double t  = ( M - (*scpit).first ) / ( (*scmit).first - (*scpit).first );
+  return TMath::Exp( l1 + ( l2 - l1 ) * t );
+}
+
+double NHLSelector::DWidth_PseudoscalarToPiLepton( const double mP, const double M, const double Ua42, const double ma ){
+  if( !fParamsInitialised ) InitParameters();
+  assert( M + ma + mPi0 <= mP );
+
+  double KScale = KScale_PseudoscalarToPiLepton( mP, M, ma );
+  return Ua42 * KScale;
+}
+
+double NHLSelector::KScale_MuonToNuElectron( const double M ){
+  if( !fParamsInitialised ) InitParameters();
+
+  std::map< double, double > scaleMap = kscale_mu3e;
+  std::map< double, double >::iterator scmit = scaleMap.begin();
+  while( (*scmit).first <= M && scmit != scaleMap.end() ){ ++scmit; }
+  std::map< double, double >::iterator scpit = std::prev( scmit, 1 );
+  LOG( "NHL", pDEBUG )
+    << "Requested map for M = " << M << ": iter at ( " << (*scpit).first << ", " << (*scmit).first << " ]";
+  assert( scmit != scaleMap.end() );
+
+  if( scaleMap.find( M ) != scaleMap.end() ) return (*scmit).second;
+
+  double l1 = TMath::Log( (*scpit).second );
+  double l2 = TMath::Log( (*scmit).second );
+  double t  = ( M - (*scpit).first ) / ( (*scmit).first - (*scpit).first );
+  return TMath::Exp( l1 + ( l2 - l1 ) * t );
+}
+
+double NHLSelector::DWidth_MuonToNuElectron( const double M, const double Ue42, const double Umu42, const double Ut42 ){
+  if( !fParamsInitialised ) InitParameters();
+  assert( M + mE <= mMu );
+
+  double KScale = KScale_MuonToNuElectron( M );
+  return ( Ue42 + Umu42 + Ut42 ) * KScale;
 }
 
 // total decay widths, various channels

@@ -81,6 +81,27 @@ namespace genie {
 	double GetColomaF1( double x );
 	double GetColomaF2( double x );
 
+	// scaling factors (3-body decays) from Ballett et al, JHEP 2020 (2019) 3 Fig. 2
+	// this figure was digitised so write as map between x = NHL mass [GeV] and y = scaling
+	// Digitisation done using WebPlotDigitizer (https://apps.automeris.io/wpd ; https://github.com/ankitrohatgi/WebPlotDigitizer)
+	static std::map< double, double > kscale_K3mu, kscale_K3e, kscale_mu3e;
+
+	//============================================
+	// total decay widths, parents to NHL
+	//============================================
+
+	// P --> N + \ell_{\alpha} 
+	double DWidth_PseudoscalarToLepton( const double mP, const double M, const double Ua42, const double ma );
+	double KScale_PseudoscalarToLepton( const double mP, const double M, const double ma ); // uses formulae (2.12)-(2.14) from Shrock, Phys. Rev. D 24 (1981) 5
+	
+	// P --> N + \ell_{\alpha} + \pi^0
+	double DWidth_PseudoscalarToPiLepton( const double mP, const double M, const double Ua42, const double ma );
+	double KScale_PseudoscalarToPiLepton( const double mP, const double M, const double ma );
+
+	// mu --> N + \nu_{\alpha} + e
+	double DWidth_MuonToNuElectron( const double M, const double Ue42, const double Umu42, const double Ut42 );
+	double KScale_MuonToNuElectron( const double M );
+
 	//============================================
 	// total decay widths for NHL channels
 	//============================================
