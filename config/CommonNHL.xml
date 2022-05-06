@@ -18,8 +18,11 @@ April 11th, 2022
 <common_NHL_list>
 
   <param_set name="ParameterSpace">
-    <param type="double" name="NHL-Mass"> 0.476 </param> <!-- GeV -->
+    <param type="double" name="NHL-Mass"> 0.3956 </param> <!-- GeV -->
     <param type="vec-double" name="NHL-LeptonMixing" delim=";"> 1.0e-5 ; 1.0e-5 ; 0.0 </param>
+    <param type="double" name="NHL-Ue42"> 1.0e-5; </param>
+    <param type="double" name="NHL-Um42"> 1.0e-5; </param>
+    <param type="double" name="NHL-Ut42"> 0.0; </param>
     <param type="bool" name="NHL-Majorana"> false </param>
     <param type="int" name="NHL-Type"> 2 </param> <!-- 0 = pure-N, 1 = pure-Nbar, 2 = mix -->
   </param_set>
@@ -27,12 +30,12 @@ April 11th, 2022
   <param_set name="InterestingChannels">
     <!-- 2-body decays -->
     <param type="bool" name="NHL-2B_mu_pi"> true </param>
-    <param type="bool" name="NHL-2B_e_pi"> false </param>
+    <param type="bool" name="NHL-2B_e_pi"> true </param>
     <param type="bool" name="NHL-2B_nu_pi0"> true </param>
     <!-- 3-body decays -->
     <param type="bool" name="NHL-3B_nu_nu_nu"> false </param>
-    <param type="bool" name="NHL-3B_nu_mu_mu"> false </param>
-    <param type="bool" name="NHL-3B_nu_e_e"> false </param>
+    <param type="bool" name="NHL-3B_nu_mu_mu"> true </param>
+    <param type="bool" name="NHL-3B_nu_e_e"> true </param>
     <param type="bool" name="NHL-3B_nu_mu_e"> false </param>
     <param type="bool" name="NHL-3B_e_pi_pi0"> false </param>
     <param type="bool" name="NHL-3B_mu_pi_pi0"> false </param>
@@ -46,8 +49,14 @@ April 11th, 2022
 
   <param_set name="CoordinateXForm">
     <param type="vec-double" name="Beam2User_T" delim=";"> 0.2486 ; 60.350 ; -1022.74 </param> <!-- m -->
+    <param type="double" name="DetCentreXInBeam"> -0.2486 </param> <!-- unrotated -->
+    <param type="double" name="DetCentreYInBeam"> -60.350 </param>
+    <param type="double" name="DetCentreZInBeam"> 1022.74 </param>
     <param type="vec-double" name="Beam2User_R" delim=";"> 0.0 ; 0.0 ; -0.05830 </param> <!-- rad -->
-    <!-- Euler angles, extrinsic x-z-x = 1-2-3, RM * BEAM = USER, RM = Rx(1) * Rz(2) * Rz(3) -->
+    <param type="double" name="EulerExtrinsicX1"> 0.0 </param>
+    <param type="double" name="EulerExtrinsicZ">  0.0 </param>
+    <param type="double" name="EulerExtrinsicX2"> -0.05830 </param>
+    <!-- Euler angles, extrinsic x-z-x = 1-2-3, RM * BEAM = USER, RM = Rx(1) * Rz(2) * Rx(3) -->
   </param_set>
 
   <param_set name="External">
@@ -69,14 +78,20 @@ April 11th, 2022
     <param type="double" name="PMNS-Ut3"> 0.692 </param>
   </param_set>
 
-  <!--
-      <param_set name="FluxCalc">
-          <param type="bool" name="CalcKaonFluxOnly"> false </param>
-	  <param type="bool" name="AttemptCharmCalculation"> false </param>
-	  <param type="bool" name="IsNHLOnAxis"> true </param>
-	  <param type="vec-double" name="NHL-PolDir" delim=";"> 0.0 ; 0.0 ; 1.0 </param> 
-      </param_set>
-  -->
+  <param_set name="FluxCalc">
+    <param type="bool" name="CalcKaonFluxOnly"> false </param>
+    <param type="bool" name="AttemptCharmCalculation"> false </param>
+    <param type="bool" name="IsParentOnAxis"> true </param>
+    <param type="vec-double" name="NHL-PolDir" delim=";"> 0.0 ; 0.0 ; 1.0 </param> 
+
+    <param type="int" name="TEST-NEVENTS"> 1000 </param>
+
+    <param type="double" name="Raycast-PartitionX"> 20.0 </param>
+    <param type="double" name="Raycast-PartitionY"> 20.0 </param>
+    <param type="double" name="Raycast-PartitionZ"> 20.0 </param>
+    <param type="double" name="Raycast-NParallels"> 1800.0 </param>
+    <param type="double" name="Raycast-NMeridians"> 3600.0 </param>
+  </param_set>
 
   <!--
       <param_set name="Hooks">
