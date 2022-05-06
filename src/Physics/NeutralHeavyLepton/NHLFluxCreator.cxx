@@ -182,10 +182,12 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
       s1 += (*pdit).second;
       ssts << "[" << imap << "] ==> " << s1 << " ";
       asts << "\n[" << imap << "] ==> " << s1;
-      imap++; pdit++;
+      if( score >= s1 ){
+	imap++; pdit++;
+      }
     }
     LOG( "NHL", pDEBUG ) << (asts.str()).c_str();
-    assert( imap <= dynamicScores.size() ); // should have decayed to *some* NHL
+    assert( imap < dynamicScores.size() ); // should have decayed to *some* NHL
     prodChan = (*pdit).first;
     
 
@@ -211,6 +213,8 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
   
   LOG( "NHL", pDEBUG )
     << "TestTwoFunction OK";
+
+  dynamicScores.clear();
 
   return 0;
 }
