@@ -129,6 +129,38 @@ string genie::utils::nhl::AsString(NHLDecayMode_t nhldm)
   //return "Invalid NHL decay mode!";
 }
 //____________________________________________________________________________
+bool genie::utils::nhl::IsProdKinematicallyAllowed(NHLProd_t nhldm, double M)
+{
+// Check the input mass of the NHL (M) against the sum of the masses of the
+// particles to be produced in the input production mode
+
+  PDGCodeList decay_products = ProductionProductList(nhldm);
+
+  PDGLibrary * pdglib = PDGLibrary::Instance();
+
+  double Msum = 0.; double Mpar = 0.;
+  PDGCodeList::const_iterator it = decay_products.begin();
+  for ( ; it != decay_products.end(); ++it)
+  {
+    int pdg_code = *it;
+    TParticlePDG * p = pdglib->Find(pdg_code);
+    if(p) {
+      if( it == decay_products.begin() ) Mpar = p->Mass();
+      else Msum += p->Mass();
+    } else {
+       LOG("NHL", pERROR)
+        << "Decay list includes particle with unrecognised PDG code: "
+        << pdg_code;
+    }
+  }
+  Msum += M;
+
+  LOG( "NHL", pDEBUG )
+    << "Mpar = " << Mpar << ", Msum = " << Msum;
+
+  return (Mpar > Msum);
+}
+//____________________________________________________________________________
 bool genie::utils::nhl::IsKinematicallyAllowed(NHLDecayMode_t nhldm, double M)
 {
 // Check the input mass of the NHL (M) against the sum of the masses of the
@@ -154,6 +186,84 @@ bool genie::utils::nhl::IsKinematicallyAllowed(NHLDecayMode_t nhldm, double M)
   }
 
   return (M > Msum);
+}
+//____________________________________________________________________________
+PDGCodeList genie::utils::nhl::ProductionProductList(NHLProd_t nhldm)
+{
+  // 0th element is parent
+  // 1st and 2nd are siblings to NHL
+  bool allow_duplicate = true;
+  PDGCodeList decay_products(allow_duplicate);
+
+  switch(nhldm) {
+    
+  case(kNHLProdPion2Muon):
+    decay_products.push_back(kPdgPiP);
+    decay_products.push_back(kPdgMuon);
+    break;
+    
+  case(kNHLProdPion2Electron):
+    decay_products.push_back(kPdgPiP);
+    decay_products.push_back(kPdgElectron);
+    break;
+    
+  case(kNHLProdKaon2Muon):
+    decay_products.push_back(kPdgKP);
+    decay_products.push_back(kPdgMuon);
+    break;
+
+  case(kNHLProdKaon2Electron):
+    decay_products.push_back(kPdgKP);
+    decay_products.push_back(kPdgElectron);
+    break;
+
+  case(kNHLProdKaon3Muon):
+    decay_products.push_back(kPdgKP);
+    decay_products.push_back(kPdgMuon);
+    decay_products.push_back(kPdgPi0);
+    break;
+    
+  case(kNHLProdKaon3Electron):
+    decay_products.push_back(kPdgKP);
+    decay_products.push_back(kPdgElectron);
+    decay_products.push_back(kPdgPi0);
+    break;
+
+  case(kNHLProdNeuk3Muon):
+    decay_products.push_back(kPdgK0L);
+    decay_products.push_back(kPdgMuon);
+    decay_products.push_back(kPdgPiP);
+    break;
+    
+  case(kNHLProdNeuk3Electron):
+    decay_products.push_back(kPdgK0L);
+    decay_products.push_back(kPdgElectron);
+    decay_products.push_back(kPdgPiP);
+    break;
+
+  case(kNHLProdMuon3Numu):
+    decay_products.push_back(kPdgMuon);
+    decay_products.push_back(kPdgElectron);
+    decay_products.push_back(kPdgAntiNuMu);
+    break;
+
+  case(kNHLProdMuon3Nue):
+    decay_products.push_back(kPdgMuon);
+    decay_products.push_back(kPdgElectron);
+    decay_products.push_back(kPdgAntiNuE);
+    break;
+
+  case(kNHLProdMuon3Nutau):
+    decay_products.push_back(kPdgMuon);
+    decay_products.push_back(kPdgElectron);
+    decay_products.push_back(kPdgAntiNuTau);
+    break;
+
+  default :
+    break;
+  }
+
+  return decay_products;
 }
 //____________________________________________________________________________
 PDGCodeList genie::utils::nhl::DecayProductList(NHLDecayMode_t nhldm)

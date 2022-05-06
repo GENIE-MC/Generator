@@ -110,7 +110,7 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
   MakeBBox();
 
   int nEntries = utils::nhl::GetCfgInt( "NHL", "FluxCalc", "TEST-NEVENTS" );
-  for( unsigned int i = 0; i < nEntries; i++ ){
+  for( int i = 0; i < nEntries; i++ ){
     tree->GetEntry(i);
     
     // turn cm to m and make origin wrt detector 
@@ -146,8 +146,28 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
 		      parentEnergy ) :
       TLorentzVector( decay_pdpx, decay_pdpy, decay_pdpz, parentEnergy );
 
+    if( parentMass <= utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Mass" ) ){
+      
+      LOG( "NHL", pDEBUG )
+	<< "For entry = " << i << ": "
+	<< "\nDetector centre [beam, m] = ( " << fCx << ", " << fCy << ", " << fCz << " )"
+	<< "\nDetector x-z-x   by [rad] = ( " << fAx1 << ", " << fAz << ", " << fAx2 << " )"
+	<< "\nDecay vertex    [beam, m] = ( " << fDx << ", " << fDy << ", " << fDz << " )" 
+	<< "\nDisplacement          [m] = ( " << fCx - fDx << ", " << fCy - fDy << ", " << fCz - fDz << " )"
+	<< "\nParent PDG = " << decay_ptype
+	<< "\nParent momentum [beam, GeV] = ( " << decay_pdpx << ", " << decay_pdpy << ", " << decay_pdpz << " )"
+	<< "\nMomentum angle with centre = "
+	<< TMath::ACos( (detO.X()*decay_pdpx + detO.Y()*decay_pdpy + detO.Z()*decay_pdpz)/(detO.Mag() * parentMomentum) ) * 180.0 / constants::kPi << " deg"
+	<< "\nParent mass, energy [GeV] = " << parentMass << ", " << parentEnergy << "\n"
+	<< "\nIs parent on axis ? " << ( ( isParentOnAxis ) ? "TRUE" : "FALSE" )
+	<< "\nNew parent momentum [GeV] = ( " << p4par.Px() << ", " << p4par.Py() << ", " << p4par.Z() << " )"
+	<< "\nImportance weight = " << decay_nimpwt
+	<< "\n\nSkipping this light parent";
+
+      continue;
+    }
     // now calculate which decay channel produces the NHL.
-    GetProductionProbs( decay_ptype, dynamicScores );
+    dynamicScores = GetProductionProbs( decay_ptype );
     assert( dynamicScores.size() > 0 );
 
     RandomGen * rnd = RandomGen::Instance();
@@ -157,13 +177,15 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
     
     unsigned int imap = 0; double s1 = 0.0;
     std::map< NHLProd_t, double >::iterator pdit = dynamicScores.begin();
-    std::ostringstream ssts;
+    std::ostringstream ssts, asts;
     while( score >= s1 && pdit != dynamicScores.end() ){
       s1 += (*pdit).second;
       ssts << "[" << imap << "] ==> " << s1 << " ";
+      asts << "\n[" << imap << "] ==> " << s1;
       imap++; pdit++;
     }
-    assert( imap < dynamicScores.size() ); // should have decayed to *some* NHL
+    LOG( "NHL", pDEBUG ) << (asts.str()).c_str();
+    assert( imap <= dynamicScores.size() ); // should have decayed to *some* NHL
     prodChan = (*pdit).first;
     
 
@@ -277,13 +299,9 @@ void NHLFluxCreator::ReadBRs()
   BR_K03e  = 2.0 * neuk3elChannel->BranchingRatio();
 }
 //----------------------------------------------------------------------------
-void NHLFluxCreator::GetProductionProbs( int parPDG, std::map< NHLProd_t, double > dynScores )
+std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
 {
-  if( dynScores.size() != 0 ){
-    LOG( "NHL", pWARN )
-      << "Attempted to re-calculate production probabilities for parents. This should be done once per job. Returning.";
-    return;
-  }
+  std::map< NHLProd_t, double > dynScores;
 
   // first get branching ratios to SM
   ReadBRs();
@@ -301,9 +319,10 @@ void NHLFluxCreator::GetProductionProbs( int parPDG, std::map< NHLProd_t, double
   double totalMix = 0.0;
   switch( std::abs( parPDG ) ){
   case genie::kPdgMuon:
-    KScale[0] = NHLSelector::KScale_MuonToNuElectron( M );
-    KScale[1] = NHLSelector::KScale_MuonToNuElectron( M ); // same, convenience for later
-    KScale[2] = NHLSelector::KScale_MuonToNuElectron( M ); // same, convenience for later
+    LOG( "NHL", pDEBUG ) << "DOING A MUON PRODUCTION";
+    KScale[0] = NHLSelector::KScale_Global( kNHLProdMuon3Numu, M );
+    KScale[1] = NHLSelector::KScale_Global( kNHLProdMuon3Nue, M ); // same, convenience for later
+    KScale[2] = NHLSelector::KScale_Global( kNHLProdMuon3Nutau, M ); // same, convenience for later
     mixScale[0] = Um42 * KScale[0]; totalMix += mixScale[0];
     mixScale[1] = Ue42 * KScale[1]; totalMix += mixScale[1];
     mixScale[2] = Ut42 * KScale[2]; totalMix += mixScale[2];
@@ -313,10 +332,11 @@ void NHLFluxCreator::GetProductionProbs( int parPDG, std::map< NHLProd_t, double
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdMuon3Nutau, mixScale[2] / totalMix } ) );
     break;
   case genie::kPdgKP:
-    KScale[0] = NHLSelector::KScale_PseudoscalarToLepton( mP, M, constants::kMuonMass );
-    KScale[1] = NHLSelector::KScale_PseudoscalarToLepton( mP, M, constants::kElectronMass );
-    KScale[2] = NHLSelector::KScale_PseudoscalarToPiLepton( mP, M, constants::kMuonMass );
-    KScale[3] = NHLSelector::KScale_PseudoscalarToPiLepton( mP, M, constants::kElectronMass );
+    LOG( "NHL", pDEBUG ) << "DOING A KAON PRODUCTION";
+    KScale[0] = NHLSelector::KScale_Global( kNHLProdKaon2Muon, M );
+    KScale[1] = NHLSelector::KScale_Global( kNHLProdKaon2Electron, M );
+    KScale[2] = NHLSelector::KScale_Global( kNHLProdKaon3Muon, M );
+    KScale[3] = NHLSelector::KScale_Global( kNHLProdKaon3Electron, M );
     mixScale[0] = Um42 * KScale[0]; totalMix += mixScale[0];
     mixScale[1] = Ue42 * KScale[1]; totalMix += mixScale[1];
     mixScale[2] = Um42 * KScale[2]; totalMix += mixScale[2];
@@ -328,8 +348,10 @@ void NHLFluxCreator::GetProductionProbs( int parPDG, std::map< NHLProd_t, double
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdKaon3Electron, mixScale[3] / totalMix } ) );
     break;
   case genie::kPdgPiP:
-    KScale[0] = NHLSelector::KScale_PseudoscalarToLepton( mP, M, constants::kMuonMass );
-    KScale[1] = NHLSelector::KScale_PseudoscalarToLepton( mP, M, constants::kElectronMass );
+    LOG( "NHL", pDEBUG ) << "DOING A PION PRODUCTION";
+
+    KScale[0] = NHLSelector::KScale_Global( kNHLProdPion2Muon, M );
+    KScale[1] = NHLSelector::KScale_Global( kNHLProdPion2Electron, M );
     mixScale[0] = Um42 * KScale[0]; totalMix += mixScale[0];
     mixScale[1] = Ue42 * KScale[1]; totalMix += mixScale[1];
 
@@ -337,8 +359,10 @@ void NHLFluxCreator::GetProductionProbs( int parPDG, std::map< NHLProd_t, double
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdPion2Electron, mixScale[1] / totalMix } ) );
     break;
   case genie::kPdgK0L:
-    KScale[0] = NHLSelector::KScale_PseudoscalarToPiLepton( mP, M, constants::kMuonMass );
-    KScale[1] = NHLSelector::KScale_PseudoscalarToPiLepton( mP, M, constants::kElectronMass );
+    LOG( "NHL", pDEBUG ) << "DOING A NEUK PRODUCTION";
+
+    KScale[0] = NHLSelector::KScale_Global( kNHLProdNeuk3Muon, M );
+    KScale[1] = NHLSelector::KScale_Global( kNHLProdNeuk3Electron, M );
     mixScale[0] = Um42 * KScale[0]; totalMix += mixScale[0];
     mixScale[1] = Ue42 * KScale[1]; totalMix += mixScale[1];
 
@@ -352,7 +376,7 @@ void NHLFluxCreator::GetProductionProbs( int parPDG, std::map< NHLProd_t, double
 
   LOG( "NHL", pDEBUG )
     << "Score map now has " << dynScores.size() << " elements. Returning.";
-  return;
+  return dynScores;
 
 }
 //----------------------------------------------------------------------------

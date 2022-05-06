@@ -96,7 +96,7 @@ namespace genie{
       TVector3 GetBoostBetaVec( TLorentzVector parp4, TLorentzVector restp4 );
 
       void ReadBRs();
-      void GetProductionProbs( int parPDG, std::map< genie::NHL::NHLProd_t, double > dynScores );
+      std::map< genie::NHL::NHLProd_t, double > GetProductionProbs( int parPDG );
       
       // Obtain detector dimensions + position
       // RETHERE: BBox isn't good enough! But roll with it for now

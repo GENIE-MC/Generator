@@ -248,7 +248,7 @@ int main(int argc, char ** argv)
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
   utils::app_init::RandGen(gOptRanSeed);
 
-  RandomGen * rnd = RandomGen::Instance();
+  __attribute__((unused)) RandomGen * rnd = RandomGen::Instance();
 
   if( gOptIsUsingDk2nu ){
     // let's test dk2nu integration!

@@ -24,6 +24,7 @@
 
 // -- C++ includes
 #include <iterator>
+#include <sstream>
 
 // -- ROOT includes
 #include "TF1.h"
@@ -40,6 +41,7 @@
 #include "Physics/NeutralHeavyLepton/ColomaTables.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayUtils.h"
 #include "Physics/NeutralHeavyLepton/NHLKinUtils.h"
+#include "Physics/NeutralHeavyLepton/NHLProductionMode.h"
 
 namespace genie {
 
@@ -89,6 +91,8 @@ namespace genie {
 	//============================================
 	// total decay widths, parents to NHL
 	//============================================
+
+	double KScale_Global( genie::NHL::NHLProd_t nhldm, const double M );
 
 	// P --> N + \ell_{\alpha} 
 	double DWidth_PseudoscalarToLepton( const double mP, const double M, const double Ua42, const double ma );
