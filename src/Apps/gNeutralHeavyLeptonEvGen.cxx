@@ -349,19 +349,28 @@ int main(int argc, char ** argv)
 
   // RETHERE either seek out input flux or loop over some flux tuples
   // WIP
-  GFluxI * ff = 0; // only use this if the flux is not monoenergetic!
+  __attribute__((unused)) GFluxI * ff = 0; // only use this if the flux is not monoenergetic!
   TH1D * spectrum = 0;
   TFile * spectrumFile = 0;
   if( !gOptIsMonoEnFlux ){
-    ff = TH1FluxDriver();
+    if( !gOptIsUsingDk2nu ){ 
+      ff = TH1FluxDriver();
 
-    // ask the TH1FluxDriver which flux it used
-    spectrumFile = TFile::Open("./input-flux.root", "READ");
-    TDirectory * baseDir = spectrumFile->GetDirectory("");
-    std::string fluxName = std::string( "spectrum" );
-    assert( baseDir->GetListOfKeys()->Contains( fluxName.c_str() ) );
-    spectrum = ( TH1D * ) baseDir->Get( fluxName.c_str() );
-    assert( spectrum && spectrum != NULL );
+      // read flux from file
+      spectrumFile = TFile::Open("./input-flux.root", "READ");
+      TDirectory * baseDir = spectrumFile->GetDirectory("");
+      std::string fluxName = std::string( "spectrum" );
+      assert( baseDir->GetListOfKeys()->Contains( fluxName.c_str() ) );
+      spectrum = ( TH1D * ) baseDir->Get( fluxName.c_str() );
+      assert( spectrum && spectrum != NULL );
+
+    } else{
+      LOG( "gevgen_nhl", pFATAL )
+	<< "You are attempting to use dk2nu, but we don't have a method for this flux yet..."
+	<< "\ngenie::nhl::FluxCreator is WIP. Come back once this is done."
+	<< "\nExiting now.";
+      exit(1312);
+    }
   }
 
   // Event loop
@@ -789,7 +798,7 @@ TLorentzVector GeneratePosition( GHepRecord * event )
   double weight = 1.0;
   if( gOptUsingRootGeom ){
 
-    Interaction * interaction = event->Summary();
+    __attribute__((unused)) Interaction * interaction = event->Summary();
 
     LOG("gevgen_nhl", pDEBUG)
       << "Set startPoint and momentum";
@@ -891,7 +900,7 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     double gamma = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
 
     double elapsed_length = NHLDecayVolume::CalcTravelLength( betaMag, CoMLifetime, maxLength );
-    double ratio_length = elapsed_length / maxLength;
+    __attribute__((unused)) double ratio_length = elapsed_length / maxLength;
 
     // from these we can also make the weight. It's P( survival ) * P( decay in detector | survival )
     
@@ -933,7 +942,7 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     return x4;
   }
   else{
-    RandomGen * rnd = RandomGen::Instance();
+    __attribute__((unused)) RandomGen * rnd = RandomGen::Instance();
     TRandom3 & rnd_geo = rnd->RndGeom();
     
     double rndx = 2 * (rnd_geo.Rndm() - 0.5); // [-1,1]

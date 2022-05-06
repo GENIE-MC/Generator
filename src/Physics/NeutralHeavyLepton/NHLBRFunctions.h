@@ -23,7 +23,7 @@
 #define _NHL_BRFUNCTIONS_H_
 
 // -- C++ includes
-#include <TMath.h>
+#include <iterator>
 
 // -- ROOT includes
 #include "TF1.h"
@@ -34,12 +34,16 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 
 #include "Physics/NeutralHeavyLepton/ColomaTables.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayUtils.h"
 #include "Physics/NeutralHeavyLepton/NHLKinUtils.h"
 
 namespace genie {
+
+  class PDGLibrary;
   
   namespace NHL {
 

@@ -5,7 +5,16 @@ using namespace genie::NHL;
 
 // initialise the parameters
 void NHLSelector::InitParameters() {
+  if( fParamsInitialised ) return;
+
   LOG( "NHL", pDEBUG ) << "Initialising parameters from config files. . .";
+
+  mPi0 = PDGLibrary::Instance()->Find(genie::kPdgPi0)->Mass();     
+  mPi  = PDGLibrary::Instance()->Find(genie::kPdgPiP)->Mass();     
+  mMu  = PDGLibrary::Instance()->Find(genie::kPdgMuon)->Mass();    
+  mK   = PDGLibrary::Instance()->Find(genie::kPdgKP)->Mass();	     
+  mK0  = PDGLibrary::Instance()->Find(genie::kPdgK0)->Mass();	     
+  mE   = PDGLibrary::Instance()->Find(genie::kPdgElectron)->Mass();
 
   wAng = utils::nhl::GetCfgDouble( "Param", "WeakInt", "WeinbergAngle" );
   s2w = std::pow( std::sin( wAng ), 2.0 );
@@ -122,7 +131,7 @@ double NHLSelector::DWidth_PiPi0Ell( const double M, const double ml,
   const double Ua1 = isElectron ? Ue1 : Um1;
   const double Ua2 = isElectron ? Ue2 : Um2;
   const double Ua3 = isElectron ? Ue3 : Um3;
-  const double Ua4 = isElectron ? std::sqrt( Ue42 ) : std::sqrt( Umu42 );
+  __attribute__((unused)) const double Ua4 = isElectron ? std::sqrt( Ue42 ) : std::sqrt( Umu42 );
 
   const double Ue4 = std::sqrt( Ue42 );
   const double Um4 = std::sqrt( Umu42 );
