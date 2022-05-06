@@ -21,6 +21,7 @@
 
 #include "Framework/ParticleData/PDGCodeList.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayMode.h"
+#include "Physics/NeutralHeavyLepton/NHLProductionMode.h"
 
 // -- for retrieval of parameters from config
 #include "Framework/Algorithm/AlgConfigPool.h"
@@ -35,6 +36,7 @@ namespace genie
  {
   namespace nhl 
   {
+      string       ProdAsString            (genie::NHL::NHLProd_t nhlprod);
       string       AsString                (genie::NHL::NHLDecayMode_t nhldm);
       bool         IsKinematicallyAllowed  (genie::NHL::NHLDecayMode_t nhldm, double Mnhl);
       PDGCodeList  DecayProductList        (genie::NHL::NHLDecayMode_t nhldm);

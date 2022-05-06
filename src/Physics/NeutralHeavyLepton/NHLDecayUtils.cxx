@@ -18,6 +18,59 @@ using namespace genie;
 using namespace genie::NHL;
 
 //____________________________________________________________________________
+string genie::utils::nhl::ProdAsString(NHLProd_t nhlprod)
+{
+  switch(nhlprod) {
+
+  case (kNHLProdPion2Muon):
+    return "pi+- --> N + mu+-";
+    break;
+    
+  case (kNHLProdPion2Electron):
+    return "pi+- --> N + e+-";
+    break;
+
+  case (kNHLProdKaon2Muon):
+    return "K+- --> N + mu+-";
+    break;
+
+  case (kNHLProdKaon2Electron):
+    return "K+- --> N + e+-";
+    break;
+
+  case (kNHLProdKaon3Muon):
+    return "K+- --> N + mu+- + pi0";
+    break;
+
+  case (kNHLProdKaon3Electron):
+    return "K+- --> N + e+- + pi0";
+    break;
+
+  case (kNHLProdNeuk3Muon):
+    return "K0L --> N + mu+- + pi-+";
+    break;
+
+  case (kNHLProdNeuk3Electron):
+    return "K0L --> N + e+- + pi-+";
+    break;
+
+  case (kNHLProdMuon3Numu):
+    return "mu-+ --> N + numu(bar) + e-+";
+    break;
+
+  case (kNHLProdMuon3Nue):
+    return "mu-+ --> N + nue(bar) + e-+";
+    break;
+
+  case (kNHLProdMuon3Nutau):
+    return "mu-+ --> N + nutau(bar) + e-+";
+    break;
+
+  default:
+    return "Invalid NHL production mode!";
+  }
+}
+//____________________________________________________________________________
 string genie::utils::nhl::AsString(NHLDecayMode_t nhldm)
 {
   switch(nhldm) {
