@@ -145,7 +145,7 @@ double NHLSelector::KScale_PseudoscalarToPiLepton( const double mP, const double
 
   if( !fParamsInitialised ) InitParameters();
 
-  assert( mP == mK ); // RETHERE remove this when/if heavier pseudoscalars are considered
+  assert( mP == mK || mP == mK0 ); // RETHERE remove this when/if heavier pseudoscalars are considered
   assert( ma == mE || ma == mMu );
   
   std::map< double, double > scaleMap = ( ma == mE ) ? kscale_K3e : kscale_K3mu;
