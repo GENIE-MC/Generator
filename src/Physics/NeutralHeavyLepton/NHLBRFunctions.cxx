@@ -122,7 +122,6 @@ double NHLSelector::KScale_Global( NHLProd_t nhldm, const double M ){
 
 // NHL production widths
 double NHLSelector::KScale_PseudoscalarToLepton( const double mP, const double M, const double ma ){
-  LOG( "NHL", pDEBUG ) << "PseudoscalarToLepton";
   if( !fParamsInitialised ) InitParameters();
   
   double da = std::pow( utils::nhl::MassX( ma, mP ) , 2.0 );
@@ -141,7 +140,6 @@ double NHLSelector::DWidth_PseudoscalarToLepton( const double mP, const double M
 }
 
 double NHLSelector::KScale_PseudoscalarToPiLepton( const double mP, const double M, const double ma ){
-  LOG( "NHL", pDEBUG ) << "PseudoscalarToPiLepton";
 
   if( !fParamsInitialised ) InitParameters();
 
@@ -149,24 +147,11 @@ double NHLSelector::KScale_PseudoscalarToPiLepton( const double mP, const double
   assert( ma == mE || ma == mMu );
   
   std::map< double, double > scaleMap = ( ma == mE ) ? kscale_K3e : kscale_K3mu;
-  if( ma == mE ){
-    LOG( "NHL", pDEBUG )
-      << "We have an ELECTRON";
-  } else {
-    LOG( "NHL", pDEBUG )
-      << "We have a MUON";
-  }
-  std::ostringstream asts;
+
   std::map< double, double >::iterator scmit = scaleMap.begin();
   // iterate until we know between which two map points M is
   // if we're very lucky, M will coincide with a map point
-  while( (*scmit).first <= M && scmit != scaleMap.end() ){ asts << "\n { " 
-								<< (*scmit).first
-								<< ", "
-								<< (*scmit).second
-								<< " }"; ++scmit; }
-  LOG( "NHL", pDEBUG )
-    << (asts.str()).c_str();
+  while( (*scmit).first <= M && scmit != scaleMap.end() ){ ++scmit; }
   std::map< double, double >::iterator scpit = std::prev( scmit, 1 );
   LOG( "NHL", pDEBUG )
     << "Requested map for M = " << M << ": iter at ( " << (*scpit).first << ", " << (*scmit).first << " ]";
@@ -189,8 +174,6 @@ double NHLSelector::DWidth_PseudoscalarToPiLepton( const double mP, const double
 }
 
 double NHLSelector::KScale_MuonToNuElectron( const double M ){
-  LOG( "NHL", pDEBUG ) << "MuonToNuElectron";
-
   if( !fParamsInitialised ) InitParameters();
 
   std::map< double, double > scaleMap = kscale_mu3e;

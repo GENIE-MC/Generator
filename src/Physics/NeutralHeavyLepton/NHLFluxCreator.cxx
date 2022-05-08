@@ -28,6 +28,8 @@ double NHLFluxCreator::fDx, NHLFluxCreator::fDy, NHLFluxCreator::fDz;
 
 double NHLFluxCreator::parentMass, NHLFluxCreator::parentMomentum, NHLFluxCreator::parentEnergy;
 
+TGenPhaseSpace NHLFluxCreator::fPhaseSpaceGenerator;
+
 double NHLFluxCreator::potnum;
 int    NHLFluxCreator::decay_ptype;
 double NHLFluxCreator::decay_vx, NHLFluxCreator::decay_vy, NHLFluxCreator::decay_vz;
@@ -146,6 +148,8 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
 		      parentEnergy ) :
       TLorentzVector( decay_pdpx, decay_pdpy, decay_pdpz, parentEnergy );
 
+    TVector3 boost_beta = GetBoostBetaVec( p4par );
+
     if( parentMass <= utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Mass" ) ){
       
       LOG( "NHL", pDEBUG )
@@ -161,6 +165,7 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
 	<< "\nParent mass, energy [GeV] = " << parentMass << ", " << parentEnergy << "\n"
 	<< "\nIs parent on axis ? " << ( ( isParentOnAxis ) ? "TRUE" : "FALSE" )
 	<< "\nNew parent momentum [GeV] = ( " << p4par.Px() << ", " << p4par.Py() << ", " << p4par.Z() << " )"
+	<< "\nBoost beta = ( " << boost_beta.X() << ", " << boost_beta.Y() << ", " << boost_beta.Z() << " )"
 	<< "\nImportance weight = " << decay_nimpwt
 	<< "\n\nSkipping this light parent";
 
@@ -175,13 +180,18 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
     NHLProd_t prodChan;
     // compare with cumulative prob. If < 1st in map, pick 1st chan. If >= 1st and < (1st+2nd), pick 2nd, etc
     
-    unsigned int imap = 0; double s1 = 0.0;
+    unsigned int imap = 0, iii = 0; double s1 = 0.0; double s2 = 0.0;
     std::map< NHLProd_t, double >::iterator pdit = dynamicScores.begin();
+    std::map< NHLProd_t, double >::iterator adit = dynamicScores.begin();
     std::ostringstream ssts, asts;
+    while( adit != dynamicScores.end() ){
+      s2 += (*adit).second;
+      ssts << "[" << iii << "] ==> " << s2 << " ";
+      asts << "\n[" << iii << "] ==> " << s2;
+      iii++; adit++;
+    }
     while( score >= s1 && pdit != dynamicScores.end() ){
       s1 += (*pdit).second;
-      ssts << "[" << imap << "] ==> " << s1 << " ";
-      asts << "\n[" << imap << "] ==> " << s1;
       if( score >= s1 ){
 	imap++; pdit++;
       }
@@ -189,7 +199,9 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
     LOG( "NHL", pDEBUG ) << (asts.str()).c_str();
     assert( imap < dynamicScores.size() ); // should have decayed to *some* NHL
     prodChan = (*pdit).first;
-    
+
+    // decay channel specified, now time to make kinematics
+    double ENHL = NHLEnergy( prodChan, p4par );
 
     LOG( "NHL", pDEBUG )
       << "For entry = " << i << ": "
@@ -204,10 +216,12 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
       << "\nParent mass, energy [GeV] = " << parentMass << ", " << parentEnergy << "\n"
       << "\nIs parent on axis ? " << ( ( isParentOnAxis ) ? "TRUE" : "FALSE" )
       << "\nNew parent momentum [GeV] = ( " << p4par.Px() << ", " << p4par.Py() << ", " << p4par.Z() << " )"
+      << "\nBoost beta = ( " << boost_beta.X() << ", " << boost_beta.Y() << ", " << boost_beta.Z() << " )"
       << "\nImportance weight = " << decay_nimpwt << "\n"
       << "\nScore = " << score
       << "\nPossible scores: " << (ssts.str()).c_str()
       << "\nSelected channel: " << utils::nhl::ProdAsString( prodChan )
+      << "\nNHL lab-frame energy = " << ENHL
       << "\n\n";
   }
   
@@ -303,6 +317,15 @@ void NHLFluxCreator::ReadBRs()
   BR_K03e  = 2.0 * neuk3elChannel->BranchingRatio();
 }
 //----------------------------------------------------------------------------
+TVector3 NHLFluxCreator::GetBoostBetaVec( TLorentzVector parp4 )
+{
+  double px = parp4.Px(), py = parp4.Py(), pz = parp4.Pz(), pE = parp4.E();
+  double p = parp4.P();
+  double beta_mag = p/pE;
+  TVector3 bvec( beta_mag * px/p, beta_mag * py/p, beta_mag * pz/p );
+  return bvec;
+}
+//----------------------------------------------------------------------------
 std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
 {
   std::map< NHLProd_t, double > dynScores;
@@ -378,6 +401,115 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
     << "Score map now has " << dynScores.size() << " elements. Returning.";
   return dynScores;
 
+}
+//----------------------------------------------------------------------------
+double NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par )
+{
+  LOG( "NHL", pDEBUG )
+    << "Attempting to decay system p4 = " << utils::print::P4AsString(&p4par)
+    << " as " << utils::nhl::ProdAsString( nhldm );
+  
+  // get PDGCodeList and truncate 1st member
+  PDGCodeList fullList  = utils::nhl::ProductionProductList( nhldm );
+  bool        allow_duplicate = true;
+  PDGCodeList decayList( allow_duplicate );
+  double * mass = new double[decayList.size()];
+  double   sum  = 0.0;
+
+  for( std::vector<int>::const_iterator pdg_iter = fullList.begin(); pdg_iter != fullList.end(); ++pdg_iter )
+    {
+      if( pdg_iter != fullList.begin() ){
+	int pdgc = *pdg_iter;
+	decayList.push_back( pdgc );
+      }
+    }
+
+  int iv = 0;
+  for( std::vector<int>::const_iterator pdg_iter = decayList.begin(); pdg_iter != decayList.end(); ++pdg_iter )
+    {
+      int pdgc = *pdg_iter;
+      double m = PDGLibrary::Instance()->Find(pdgc)->Mass();
+      mass[iv++] = m; sum += m;
+    }
+  
+  // Set the decay
+  bool permitted = fPhaseSpaceGenerator.SetDecay( p4par, decayList.size(), mass );
+  if(!permitted) {
+    LOG("NHL", pERROR)
+      << " *** Phase space decay is not permitted \n"
+      << " Total particle mass = " << sum << "\n"
+      << " Decaying system p4 = " << utils::print::P4AsString(&p4par);
+    // clean-up
+    delete [] mass;
+    // throw exception
+    genie::exceptions::EVGThreadException exception;
+    exception.SetReason("Decay not permitted kinematically");
+    exception.SwitchOnFastForward();
+    throw exception;
+  }
+
+  // Get the maximum weight
+  //double wmax = fPhaseSpaceGenerator.GetWtMax();
+  double wmax = -1;
+  for(int idec=0; idec<200; idec++) {
+     double w = fPhaseSpaceGenerator.Generate();
+     wmax = TMath::Max(wmax,w);
+  }
+  assert(wmax>0);
+  wmax *= 2;
+
+  LOG("NHL", pNOTICE)
+     << "Max phase space gen. weight @ current NHL system: " << wmax;
+
+  // Generate an unweighted decay
+  RandomGen * rnd = RandomGen::Instance();
+  
+  bool accept_decay=false;
+  unsigned int itry=0;
+  while(!accept_decay)
+    {
+      itry++;
+      
+      if(itry > controls::kMaxUnweightDecayIterations) {
+	// report, clean-up and return
+	LOG("NHL", pWARN)
+	  << "Couldn't generate an unweighted phase space decay after "
+	  << itry << " attempts";
+	// clean up
+	delete [] mass;
+	// throw exception
+	genie::exceptions::EVGThreadException exception;
+	exception.SetReason("Couldn't select decay after N attempts");
+	exception.SwitchOnFastForward();
+	throw exception;
+      }
+      double w  = fPhaseSpaceGenerator.Generate();
+      if(w > wmax) {
+        LOG("NHL", pWARN)
+	  << "Decay weight = " << w << " > max decay weight = " << wmax;
+      }
+      double gw = wmax * rnd->RndHadro().Rndm();
+      accept_decay = (gw<=w);
+      
+      LOG("NHL", pINFO)
+        << "Decay weight = " << w << " / R = " << gw
+        << " - accepted: " << accept_decay;
+      
+    } //!accept_decay
+  
+  // [DON'T] Insert final state products into a TClonesArray of GHepParticle's
+  // Grab 0th entry energy and return that
+  int idp = 0; TLorentzVector p4NHL;
+  for(std::vector<int>::const_iterator pdg_iter = decayList.begin(); pdg_iter != decayList.end(); ++pdg_iter) {
+     int pdgc = *pdg_iter;
+     TLorentzVector * p4fin = fPhaseSpaceGenerator.GetDecay(idp);
+     if( std::abs( pdgc ) == kPdgNHL ) p4NHL = *p4fin;
+     idp++;
+  }
+  return p4NHL.E();
+  
+  LOG( "NHL", pERROR ) << "Could not calculate energy. Returning 0.0";
+  return 0.0;
 }
 //----------------------------------------------------------------------------
 void NHLFluxCreator::MakeBBox()

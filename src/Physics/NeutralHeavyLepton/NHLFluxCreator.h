@@ -24,9 +24,9 @@
  */
 //----------------------------------------------------------------------------
 /*
-  TODO: Add hooks for SAA vs DRC
+  TODO: (Add hooks for SAA vs DRC) -- default: SAA (DRC takes long!)
         Make DRC config in CommonNHL re. partitioning BBox
-	Make config for where the detector is
+	Remove DRC sphere-partition, calc directly from {theta,phi}x{min,max}
 	Make BBox from geometry file! (untit BBox if no geom-file?)
  */
 //----------------------------------------------------------------------------
@@ -44,6 +44,7 @@
 #include "TChain.h"
 #include "TDecayChannel.h"
 #include "TFile.h"
+#include "TGenPhaseSpace.h"
 #include "TLorentzVector.h"
 #include "TMath.h"
 #include "TObjArray.h"
@@ -52,11 +53,14 @@
 
 // -- GENIE includes
 #include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/Units.h"
+#include "Framework/EventGen/EVGThreadException.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Utils/PrintUtils.h"
 
 #include "Physics/NeutralHeavyLepton/NHLBRFunctions.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayVolume.h"
@@ -70,6 +74,7 @@
 const double kRDET = 1.0; // calculate fluxes per m^2
 
 namespace genie{
+
   namespace NHL{
     
     class SimpleNHL;
@@ -91,9 +96,8 @@ namespace genie{
 
       // Custom NHL kinematics, POT scaling, production probabilities
       double ScalePOT( double sm_pot );
-      TLorentzVector restFrameNHL( TLorentzVector parp4, int parPDG ); // lab frame parent p4
-      TLorentzVector labFrameNHL( TLorentzVector parp4, TLorentzVector restp4 );
-      TVector3 GetBoostBetaVec( TLorentzVector parp4, TLorentzVector restp4 );
+      double NHLEnergy( genie::NHL::NHLProd_t nhldm, TLorentzVector p4par ); // NHL energy in lab frame
+      TVector3 GetBoostBetaVec( TLorentzVector parp4 );
 
       void ReadBRs();
       std::map< genie::NHL::NHLProd_t, double > GetProductionProbs( int parPDG );
@@ -103,8 +107,7 @@ namespace genie{
       void MakeBBox();
       
       // calculate detector acceptance (== solid angle of proj of det onto unit-radius sphere / (4pi))
-      // RETHERE add hook to choose double-raycast or small-angle-approx as wanted
-      // (SAA emulates dk2nu, double-raycast is more general (smaller errors?))
+      // NOTE THIS IS A LAB FRAME (==GEOMETRICAL) ACCEPTANCE!!!!
       // detO == detector BBox centre wrt NHL prod vertex, L{x,y,z} BBox length on each axis. Both [m]
       double CalculateDetectorAcceptanceSAA( TVector3 detO );
       double CalculateDetectorAcceptanceDRC( TVector3 detO, double Lx, double Ly, double Lz );
@@ -146,6 +149,8 @@ namespace genie{
       //std::vector< double > trVec, roVec;
 
       extern double parentMass, parentMomentum, parentEnergy; // GeV
+
+      extern TGenPhaseSpace fPhaseSpaceGenerator;
 
       // tree variables. Add as per necessary.
       extern double potnum;                             ///< N POT for this SM-v
