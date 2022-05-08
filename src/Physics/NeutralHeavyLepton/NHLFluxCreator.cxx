@@ -323,28 +323,26 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
   double totalMix = 0.0;
   switch( std::abs( parPDG ) ){
   case genie::kPdgMuon:
-    LOG( "NHL", pDEBUG ) << "DOING A MUON PRODUCTION";
     KScale[0] = NHLSelector::KScale_Global( kNHLProdMuon3Numu, M );
     KScale[1] = NHLSelector::KScale_Global( kNHLProdMuon3Nue, M ); // same, convenience for later
     KScale[2] = NHLSelector::KScale_Global( kNHLProdMuon3Nutau, M ); // same, convenience for later
-    mixScale[0] = Um42 * KScale[0]; totalMix += mixScale[0];
-    mixScale[1] = Ue42 * KScale[1]; totalMix += mixScale[1];
-    mixScale[2] = Ut42 * KScale[2]; totalMix += mixScale[2];
+    mixScale[0] = 1.0 * Um42 * KScale[0]; totalMix += mixScale[0];
+    mixScale[1] = 1.0 * Ue42 * KScale[1]; totalMix += mixScale[1];
+    mixScale[2] = 1.0 * Ut42 * KScale[2]; totalMix += mixScale[2];
 
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdMuon3Numu,  mixScale[0] / totalMix } ) );
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdMuon3Nue,   mixScale[1] / totalMix } ) );
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdMuon3Nutau, mixScale[2] / totalMix } ) );
     break;
   case genie::kPdgKP:
-    LOG( "NHL", pDEBUG ) << "DOING A KAON PRODUCTION";
     KScale[0] = NHLSelector::KScale_Global( kNHLProdKaon2Muon, M );
     KScale[1] = NHLSelector::KScale_Global( kNHLProdKaon2Electron, M );
     KScale[2] = NHLSelector::KScale_Global( kNHLProdKaon3Muon, M );
     KScale[3] = NHLSelector::KScale_Global( kNHLProdKaon3Electron, M );
-    mixScale[0] = Um42 * KScale[0]; totalMix += mixScale[0];
-    mixScale[1] = Ue42 * KScale[1]; totalMix += mixScale[1];
-    mixScale[2] = Um42 * KScale[2]; totalMix += mixScale[2];
-    mixScale[3] = Ue42 * KScale[3]; totalMix += mixScale[3];
+    mixScale[0] = BR_K2mu * Um42 * KScale[0]; totalMix += mixScale[0];
+    mixScale[1] = BR_K2e  * Ue42 * KScale[1]; totalMix += mixScale[1];
+    mixScale[2] = BR_K3mu * Um42 * KScale[2]; totalMix += mixScale[2];
+    mixScale[3] = BR_K3e  * Ue42 * KScale[3]; totalMix += mixScale[3];
 
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdKaon2Muon,     mixScale[0] / totalMix } ) );
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdKaon2Electron, mixScale[1] / totalMix } ) );
@@ -352,23 +350,21 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdKaon3Electron, mixScale[3] / totalMix } ) );
     break;
   case genie::kPdgPiP:
-    LOG( "NHL", pDEBUG ) << "DOING A PION PRODUCTION";
 
     KScale[0] = NHLSelector::KScale_Global( kNHLProdPion2Muon, M );
     KScale[1] = NHLSelector::KScale_Global( kNHLProdPion2Electron, M );
-    mixScale[0] = Um42 * KScale[0]; totalMix += mixScale[0];
-    mixScale[1] = Ue42 * KScale[1]; totalMix += mixScale[1];
+    mixScale[0] = BR_pi2mu * Um42 * KScale[0]; totalMix += mixScale[0];
+    mixScale[1] = BR_pi2e  * Ue42 * KScale[1]; totalMix += mixScale[1];
 
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdPion2Muon,     mixScale[0] / totalMix } ) );
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdPion2Electron, mixScale[1] / totalMix } ) );
     break;
   case genie::kPdgK0L:
-    LOG( "NHL", pDEBUG ) << "DOING A NEUK PRODUCTION";
 
     KScale[0] = NHLSelector::KScale_Global( kNHLProdNeuk3Muon, M );
     KScale[1] = NHLSelector::KScale_Global( kNHLProdNeuk3Electron, M );
-    mixScale[0] = Um42 * KScale[0]; totalMix += mixScale[0];
-    mixScale[1] = Ue42 * KScale[1]; totalMix += mixScale[1];
+    mixScale[0] = BR_K03mu * Um42 * KScale[0]; totalMix += mixScale[0];
+    mixScale[1] = BR_K03e  * Ue42 * KScale[1]; totalMix += mixScale[1];
 
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdNeuk3Muon,     mixScale[0] / totalMix } ) );
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdNeuk3Electron, mixScale[1] / totalMix } ) );

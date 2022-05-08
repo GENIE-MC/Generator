@@ -112,12 +112,14 @@ double NHLSelector::KScale_Global( NHLProd_t nhldm, const double M ){
   case kNHLProdKaon3Muon: return KScale_PseudoscalarToPiLepton( mK, M, mMu );
   case kNHLProdKaon3Electron: return KScale_PseudoscalarToPiLepton( mK, M, mE );
   case kNHLProdNeuk3Muon: return KScale_PseudoscalarToPiLepton( mK0, M, mMu );
-  case kNHLProdNeuk3Electron: return KScale_PseudoscalarToPiLepton( mK0, M, mMu );
+  case kNHLProdNeuk3Electron: return KScale_PseudoscalarToPiLepton( mK0, M, mE );
   case kNHLProdMuon3Numu:
   case kNHLProdMuon3Nue:
   case kNHLProdMuon3Nutau:
     return KScale_MuonToNuElectron( M );
   }
+
+  return 0.0;
 }
 
 // NHL production widths
