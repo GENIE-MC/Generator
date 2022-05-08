@@ -103,8 +103,8 @@ namespace genie {
 	double KScale_PseudoscalarToPiLepton( const double mP, const double M, const double ma );
 
 	// mu --> N + \nu_{\alpha} + e
-	double DWidth_MuonToNuElectron( const double M, const double Ue42, const double Umu42, const double Ut42 );
-	double KScale_MuonToNuElectron( const double M );
+	double DWidth_MuonToNuAndElectron( const double M, const double Ue42, const double Umu42, const double Ut42 );
+	double KScale_MuonToNuAndElectron( const double M );
 
 	//============================================
 	// total decay widths for NHL channels

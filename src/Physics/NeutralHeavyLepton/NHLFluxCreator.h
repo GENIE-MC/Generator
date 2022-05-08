@@ -131,8 +131,13 @@ namespace genie{
       double GetPOTFromMeta( TChain * cmeta );
       void   LoopEntries( TChain * cflux, TChain * cmeta );
       
-      // map to keep P( production )
-      extern std::map< genie::NHL::NHLProd_t, double > dynamicScores;
+      // maps to keep P( production )
+      extern std::map< genie::NHL::NHLProd_t, double > dynamicScores; // map in use
+      extern std::map< genie::NHL::NHLProd_t, double > dynamicScores_pion;
+      extern std::map< genie::NHL::NHLProd_t, double > dynamicScores_kaon;
+      extern std::map< genie::NHL::NHLProd_t, double > dynamicScores_muon;
+      extern std::map< genie::NHL::NHLProd_t, double > dynamicScores_neuk;
+      
       extern double BR_pi2mu, BR_pi2e, BR_K2mu, BR_K2e, BR_K3mu, BR_K3e, BR_K03mu, BR_K03e;
 
       extern bool doProduceHists;

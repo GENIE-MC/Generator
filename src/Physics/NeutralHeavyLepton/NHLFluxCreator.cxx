@@ -13,6 +13,10 @@ using namespace genie::NHL;
 
 // extern definitions
 std::map< NHLProd_t, double > NHLFluxCreator::dynamicScores;
+std::map< NHLProd_t, double > NHLFluxCreator::dynamicScores_pion;
+std::map< NHLProd_t, double > NHLFluxCreator::dynamicScores_kaon;
+std::map< NHLProd_t, double > NHLFluxCreator::dynamicScores_muon;
+std::map< NHLProd_t, double > NHLFluxCreator::dynamicScores_neuk;
 double NHLFluxCreator::BR_pi2mu, NHLFluxCreator::BR_pi2e;
 double NHLFluxCreator::BR_K2mu,  NHLFluxCreator::BR_K2e;
 double NHLFluxCreator::BR_K3mu,  NHLFluxCreator::BR_K3e;
@@ -328,6 +332,15 @@ TVector3 NHLFluxCreator::GetBoostBetaVec( TLorentzVector parp4 )
 //----------------------------------------------------------------------------
 std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
 {
+  // check if we've calculated scores before
+  switch( std::abs( parPDG ) ){
+  case kPdgPiP : if( dynamicScores_pion.size() > 0 ) return dynamicScores_pion; break;
+  case kPdgKP  : if( dynamicScores_kaon.size() > 0 ) return dynamicScores_kaon; break;
+  case kPdgMuon: if( dynamicScores_muon.size() > 0 ) return dynamicScores_muon; break;
+  case kPdgK0L : if( dynamicScores_neuk.size() > 0 ) return dynamicScores_neuk; break;
+  default: LOG( "NHL", pWARN ) << "Unknown parent. Proceeding, but results may be unphysical"; break;
+  }
+
   std::map< NHLProd_t, double > dynScores;
 
   // first get branching ratios to SM
@@ -339,7 +352,7 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
   double Ut42 = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Ut42" );
 
   // now get parent mass
-  double mP = PDGLibrary::Instance()->Find( std::abs( parPDG ) )->Mass();
+  //double mP = PDGLibrary::Instance()->Find( std::abs( parPDG ) )->Mass();
   
   // first get pure kinematic part of the BRs
   double KScale[4] = { -1.0, -1.0, -1.0, -1.0 }, mixScale[4] = { -1.0, -1.0, -1.0, -1.0 };
@@ -356,6 +369,8 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdMuon3Numu,  mixScale[0] / totalMix } ) );
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdMuon3Nue,   mixScale[1] / totalMix } ) );
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdMuon3Nutau, mixScale[2] / totalMix } ) );
+
+    dynamicScores_muon = dynScores;
     break;
   case genie::kPdgKP:
     KScale[0] = NHLSelector::KScale_Global( kNHLProdKaon2Muon, M );
@@ -371,6 +386,8 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdKaon2Electron, mixScale[1] / totalMix } ) );
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdKaon3Muon,     mixScale[2] / totalMix } ) );
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdKaon3Electron, mixScale[3] / totalMix } ) );
+
+    dynamicScores_kaon = dynScores;
     break;
   case genie::kPdgPiP:
 
@@ -381,6 +398,8 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
 
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdPion2Muon,     mixScale[0] / totalMix } ) );
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdPion2Electron, mixScale[1] / totalMix } ) );
+
+    dynamicScores_pion = dynScores;
     break;
   case genie::kPdgK0L:
 
@@ -391,6 +410,8 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
 
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdNeuk3Muon,     mixScale[0] / totalMix } ) );
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdNeuk3Electron, mixScale[1] / totalMix } ) );
+
+    dynamicScores_neuk = dynScores;
     break;
   default:
     LOG( "NHL", pERROR )

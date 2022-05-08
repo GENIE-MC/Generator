@@ -114,7 +114,7 @@ double NHLSelector::KScale_Global( NHLProd_t nhldm, const double M ){
   case kNHLProdMuon3Numu:
   case kNHLProdMuon3Nue:
   case kNHLProdMuon3Nutau:
-    return KScale_MuonToNuElectron( M );
+    return KScale_MuonToNuAndElectron( M );
   }
 
   return 0.0;
@@ -173,7 +173,7 @@ double NHLSelector::DWidth_PseudoscalarToPiLepton( const double mP, const double
   return Ua42 * KScale;
 }
 
-double NHLSelector::KScale_MuonToNuElectron( const double M ){
+double NHLSelector::KScale_MuonToNuAndElectron( const double M ){
   if( !fParamsInitialised ) InitParameters();
 
   std::map< double, double > scaleMap = kscale_mu3e;
@@ -192,11 +192,11 @@ double NHLSelector::KScale_MuonToNuElectron( const double M ){
   return TMath::Exp( l1 + ( l2 - l1 ) * t );
 }
 
-double NHLSelector::DWidth_MuonToNuElectron( const double M, const double Ue42, const double Umu42, const double Ut42 ){
+double NHLSelector::DWidth_MuonToNuAndElectron( const double M, const double Ue42, const double Umu42, const double Ut42 ){
   if( !fParamsInitialised ) InitParameters();
   assert( M + mE <= mMu );
 
-  double KScale = KScale_MuonToNuElectron( M );
+  double KScale = KScale_MuonToNuAndElectron( M );
   return ( Ue42 + Umu42 + Ut42 ) * KScale;
 }
 
