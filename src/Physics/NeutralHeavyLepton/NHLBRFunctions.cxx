@@ -97,13 +97,11 @@ double NHLSelector::GetColomaF2( double x ) {
 double NHLSelector::KScale_Global( NHLProd_t nhldm, const double M ){
   if( !fParamsInitialised ) InitParameters();
 
-  if( !utils::nhl::IsProdKinematicallyAllowed( nhldm, M ) ){
+  if( !utils::nhl::IsProdKinematicallyAllowed( nhldm ) ){
     LOG( "NHL", pDEBUG ) << "Not allowed. Moving on.";
     return 0.0;
   }
   
-  LOG( "NHL", pDEBUG ) << "About to do calc with M = " << M 
-		       << " and mode " << (utils::nhl::ProdAsString(nhldm)).c_str();
   switch( nhldm ){
   case kNHLProdPion2Muon: return KScale_PseudoscalarToLepton( mPi, M, mMu );
   case kNHLProdPion2Electron: return KScale_PseudoscalarToLepton( mPi, M, mE );

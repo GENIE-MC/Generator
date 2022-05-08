@@ -38,7 +38,7 @@ namespace genie
   {
       string       ProdAsString            (genie::NHL::NHLProd_t nhlprod);
       string       AsString                (genie::NHL::NHLDecayMode_t nhldm);
-      bool         IsProdKinematicallyAllowed (genie::NHL::NHLProd_t nhldm, double M);
+      bool         IsProdKinematicallyAllowed (genie::NHL::NHLProd_t nhlprod);
       bool         IsKinematicallyAllowed  (genie::NHL::NHLDecayMode_t nhldm, double Mnhl);
       PDGCodeList  ProductionProductList   (genie::NHL::NHLProd_t nhldm);
       PDGCodeList  DecayProductList        (genie::NHL::NHLDecayMode_t nhldm);

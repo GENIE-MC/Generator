@@ -129,12 +129,12 @@ string genie::utils::nhl::AsString(NHLDecayMode_t nhldm)
   //return "Invalid NHL decay mode!";
 }
 //____________________________________________________________________________
-bool genie::utils::nhl::IsProdKinematicallyAllowed(NHLProd_t nhldm, double M)
+bool genie::utils::nhl::IsProdKinematicallyAllowed(NHLProd_t nhlprod)
 {
 // Check the input mass of the NHL (M) against the sum of the masses of the
 // particles to be produced in the input production mode
 
-  PDGCodeList decay_products = ProductionProductList(nhldm);
+  PDGCodeList decay_products = ProductionProductList(nhlprod);
 
   PDGLibrary * pdglib = PDGLibrary::Instance();
 
@@ -153,10 +153,6 @@ bool genie::utils::nhl::IsProdKinematicallyAllowed(NHLProd_t nhldm, double M)
         << pdg_code;
     }
   }
-  Msum += M;
-
-  LOG( "NHL", pDEBUG )
-    << "Mpar = " << Mpar << ", Msum = " << Msum;
 
   return (Mpar > Msum);
 }
@@ -191,7 +187,8 @@ bool genie::utils::nhl::IsKinematicallyAllowed(NHLDecayMode_t nhldm, double M)
 PDGCodeList genie::utils::nhl::ProductionProductList(NHLProd_t nhldm)
 {
   // 0th element is parent
-  // 1st and 2nd are siblings to NHL
+  // 1st is NHL
+  // the rest are the NHL's siblings
   bool allow_duplicate = true;
   PDGCodeList decay_products(allow_duplicate);
 
@@ -199,62 +196,73 @@ PDGCodeList genie::utils::nhl::ProductionProductList(NHLProd_t nhldm)
     
   case(kNHLProdPion2Muon):
     decay_products.push_back(kPdgPiP);
+    decay_products.push_back(kPdgNHL);
     decay_products.push_back(kPdgMuon);
     break;
     
   case(kNHLProdPion2Electron):
     decay_products.push_back(kPdgPiP);
+    decay_products.push_back(kPdgNHL);
     decay_products.push_back(kPdgElectron);
     break;
     
   case(kNHLProdKaon2Muon):
     decay_products.push_back(kPdgKP);
+    decay_products.push_back(kPdgNHL);
     decay_products.push_back(kPdgMuon);
     break;
 
   case(kNHLProdKaon2Electron):
     decay_products.push_back(kPdgKP);
+    decay_products.push_back(kPdgNHL);
     decay_products.push_back(kPdgElectron);
     break;
 
   case(kNHLProdKaon3Muon):
     decay_products.push_back(kPdgKP);
+    decay_products.push_back(kPdgNHL);
     decay_products.push_back(kPdgMuon);
     decay_products.push_back(kPdgPi0);
     break;
     
   case(kNHLProdKaon3Electron):
     decay_products.push_back(kPdgKP);
+    decay_products.push_back(kPdgNHL);
     decay_products.push_back(kPdgElectron);
     decay_products.push_back(kPdgPi0);
     break;
 
   case(kNHLProdNeuk3Muon):
     decay_products.push_back(kPdgK0L);
+    decay_products.push_back(kPdgNHL);
     decay_products.push_back(kPdgMuon);
     decay_products.push_back(kPdgPiP);
     break;
     
   case(kNHLProdNeuk3Electron):
     decay_products.push_back(kPdgK0L);
+    decay_products.push_back(kPdgNHL);
     decay_products.push_back(kPdgElectron);
     decay_products.push_back(kPdgPiP);
     break;
 
   case(kNHLProdMuon3Numu):
     decay_products.push_back(kPdgMuon);
+    decay_products.push_back(kPdgNHL);
     decay_products.push_back(kPdgElectron);
     decay_products.push_back(kPdgAntiNuMu);
     break;
 
   case(kNHLProdMuon3Nue):
     decay_products.push_back(kPdgMuon);
+    decay_products.push_back(kPdgNHL);
     decay_products.push_back(kPdgElectron);
     decay_products.push_back(kPdgAntiNuE);
     break;
 
   case(kNHLProdMuon3Nutau):
     decay_products.push_back(kPdgMuon);
+    decay_products.push_back(kPdgNHL);
     decay_products.push_back(kPdgElectron);
     decay_products.push_back(kPdgAntiNuTau);
     break;
