@@ -116,7 +116,7 @@ namespace genie{
       double CalculateDetectorAcceptanceSAA( TVector3 detO );
       double CalculateDetectorAcceptanceDRC( TVector3 detO, double Lx, double Ly, double Lz );
       // collimation effect calc, returns NHL_acc / geom_acc
-      double CalculateAcceptanceCorrection( TLorentzVector p4par, TLorentzVector p4NHL, double zm, double zp );
+      double CalculateAcceptanceCorrection( TLorentzVector p4par, TLorentzVector p4NHL, double SMECM, double zm, double zp );
       double labangle( double * x, double * par );
       // get minimum and maximum deviation from parent momentum to hit detector, [deg]
       double GetAngDeviation( TLorentzVector p4par, TVector3 detO, bool seekingMax );
@@ -172,6 +172,7 @@ namespace genie{
       extern int    decay_ptype;                        ///< PDG code of parent
       extern double decay_vx, decay_vy, decay_vz;       ///< coordinates of prod vtx [cm]
       extern double decay_pdpx, decay_pdpy, decay_pdpz; ///< final parent momentum [GeV]
+      extern double decay_necm;                         ///< SM v CM energy [GeV]
       extern double decay_nimpwt;                       ///< Importance weight from beamsim
 
       // meta variables. Add as necessary

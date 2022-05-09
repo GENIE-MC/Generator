@@ -40,6 +40,7 @@ double NHLFluxCreator::potnum;
 int    NHLFluxCreator::decay_ptype;
 double NHLFluxCreator::decay_vx, NHLFluxCreator::decay_vy, NHLFluxCreator::decay_vz;
 double NHLFluxCreator::decay_pdpx, NHLFluxCreator::decay_pdpy, NHLFluxCreator::decay_pdpz;
+double NHLFluxCreator::decay_necm;
 double NHLFluxCreator::decay_nimpwt;
 
 int    NHLFluxCreator::job;
@@ -220,7 +221,7 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
       GetAngDeviation( p4par, detO, false ) * 180.0 / constants::kPi;
     double zp = GetAngDeviation( p4par, detO, true ) * 180.0 / constants::kPi;
     // now get the actual acceptance correction
-    double accCorr = CalculateAcceptanceCorrection( p4par, p4NHL_rest, zm, zp );
+    double accCorr = CalculateAcceptanceCorrection( p4par, p4NHL_rest, decay_necm, zm, zp );
 
     // which means a true acceptance of
     double acceptance = acc_saa * accCorr;
@@ -299,6 +300,7 @@ void NHLFluxCreator::InitialiseTree()
   tree->SetBranchAddress( "decay_pdpx",   &decay_pdpx   );
   tree->SetBranchAddress( "decay_pdpy",   &decay_pdpy   );
   tree->SetBranchAddress( "decay_pdpz",   &decay_pdpz   );
+  tree->SetBranchAddress( "decay_necm",   &decay_necm   );
   tree->SetBranchAddress( "decay_nimpwt", &decay_nimpwt );
 }
 //----------------------------------------------------------------------------
@@ -683,7 +685,7 @@ double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
 }
 //----------------------------------------------------------------------------
 double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLorentzVector p4NHL,
-						      double zm, double zp )
+						      double SMECM, double zm, double zp )
 {
   /*
    * This method calculates NHL acceptance by taking into account the collimation effect
@@ -760,16 +762,16 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
   fSMv->SetParameter( 1, p4par.Px() );
   fSMv->SetParameter( 2, p4par.Py() );
   fSMv->SetParameter( 3, p4par.Pz() );
-  fSMv->SetParameter( 4, p4NHL.E()  ); // assuming massless nu of same energy
-  fSMv->SetParameter( 5, p4NHL.E()  );
+  fSMv->SetParameter( 4, SMECM ); // assuming massless nu & reading in from flux tuple
+  fSMv->SetParameter( 5, SMECM );
   LOG( "NHL", pDEBUG )
     << "fSMv initialised with parameters:"
     << "\n[0]: p4par.E()  = " << fSMv->GetParameter(0)
     << "\n[1]: p4par.Px() = " << fSMv->GetParameter(1)
     << "\n[2]: p4par.Py() = " << fSMv->GetParameter(2)
     << "\n[3]: p4par.Pz() = " << fSMv->GetParameter(3)
-    << "\n[4]: p4NHL.E()  = " << fSMv->GetParameter(4)
-    << "\n[5]: p4NHL.E()  = " << fSMv->GetParameter(5);
+    << "\n[4]: p4SMv.E()  = " << fSMv->GetParameter(4)
+    << "\n[5]: p4SMv.E()  = " << fSMv->GetParameter(5);
 
   double range2 = fSMv->GetX( zp ) - fSMv->GetX( zm ); // monotonous increasing
   assert( range2 > 0.0 );
