@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 /*!
 
-  This is a module for GENIE to read in (dk2nu) flux ntuples and construct NHL fluxes
+  This is a module for GENIE to read in (gnumi) flux ntuples and construct NHL fluxes
   on the fly. 
   
   Core loop: + Open dk2nu entry
@@ -28,6 +28,9 @@
         Make DRC config in CommonNHL re. partitioning BBox
 	Remove DRC sphere-partition, calc directly from {theta,phi}x{min,max}
 	Make BBox from geometry file! (untit BBox if no geom-file?)
+	Fix detector dimension calculation in GetAngDev()
+	Migrate flux readin to use gnumi --> can put in POT scaling + weight!
+	Write POT scaling + weight
  */
 //----------------------------------------------------------------------------
 
@@ -97,6 +100,7 @@ namespace genie{
       // Custom NHL kinematics, POT scaling, production probabilities
       double ScalePOT( double sm_pot );
       double NHLEnergy( genie::NHL::NHLProd_t nhldm, TLorentzVector p4par ); // NHL energy in lab frame
+      TLorentzVector NHLFourMomentum( double ENHL, double M );
       TVector3 GetBoostBetaVec( TLorentzVector parp4 );
 
       void ReadBRs();
@@ -111,9 +115,12 @@ namespace genie{
       // detO == detector BBox centre wrt NHL prod vertex, L{x,y,z} BBox length on each axis. Both [m]
       double CalculateDetectorAcceptanceSAA( TVector3 detO );
       double CalculateDetectorAcceptanceDRC( TVector3 detO, double Lx, double Ly, double Lz );
-      // calculate acceptance correction
-      double CalculateAcceptanceCorrection(); //args??
-      // calculate area normalisation
+      // collimation effect calc, returns NHL_acc / geom_acc
+      double CalculateAcceptanceCorrection( TLorentzVector p4par, TLorentzVector p4NHL, double zm, double zp );
+      double labangle( double * x, double * par );
+      // get minimum and maximum deviation from parent momentum to hit detector, [deg]
+      double GetAngDeviation( TLorentzVector p4par, TVector3 detO, bool seekingMax );
+      // returns 1.0 / (area of flux calc)
       double CalculateAreaNormalisation();
 
       /*
@@ -156,6 +163,9 @@ namespace genie{
       extern double parentMass, parentMomentum, parentEnergy; // GeV
 
       extern TGenPhaseSpace fPhaseSpaceGenerator;
+
+      // functions for acceptance correction
+      extern TF1 * fNHL, * fSMv;
 
       // tree variables. Add as per necessary.
       extern double potnum;                             ///< N POT for this SM-v

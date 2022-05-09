@@ -34,6 +34,8 @@ double NHLFluxCreator::parentMass, NHLFluxCreator::parentMomentum, NHLFluxCreato
 
 TGenPhaseSpace NHLFluxCreator::fPhaseSpaceGenerator;
 
+TF1 * NHLFluxCreator::fNHL, * NHLFluxCreator::fSMv;
+
 double NHLFluxCreator::potnum;
 int    NHLFluxCreator::decay_ptype;
 double NHLFluxCreator::decay_vx, NHLFluxCreator::decay_vy, NHLFluxCreator::decay_vz;
@@ -141,9 +143,6 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
     double acc_saa = CalculateDetectorAcceptanceSAA( detO );
     //double acc_drc = CalculateDetectorAcceptanceDRC( detO, fLx, fLy, fLz );
 
-    LOG( "NHL", pDEBUG )
-      << "Acceptance (geometrical) = " << acc_saa << "\n";
-
     isParentOnAxis = utils::nhl::GetCfgBool( "NHL", "FluxCalc", "IsParentOnAxis" );
     TLorentzVector p4par = ( isParentOnAxis ) ?
       TLorentzVector( parentMomentum * (detO.Unit()).X(), 
@@ -154,7 +153,8 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
 
     TVector3 boost_beta = GetBoostBetaVec( p4par );
 
-    if( parentMass <= utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Mass" ) ){
+    double nhlMass = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Mass" );
+    if( parentMass <= nhlMass ){
       
       LOG( "NHL", pDEBUG )
 	<< "For entry = " << i << ": "
@@ -169,7 +169,8 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
 	<< "\nParent mass, energy [GeV] = " << parentMass << ", " << parentEnergy << "\n"
 	<< "\nIs parent on axis ? " << ( ( isParentOnAxis ) ? "TRUE" : "FALSE" )
 	<< "\nNew parent momentum [GeV] = ( " << p4par.Px() << ", " << p4par.Py() << ", " << p4par.Z() << " )"
-	<< "\nBoost beta = ( " << boost_beta.X() << ", " << boost_beta.Y() << ", " << boost_beta.Z() << " )"
+	<< "\nBoost beta = ( " << boost_beta.X() << ", " << boost_beta.Y() << ", " << boost_beta.Z() << " )\n"
+	<< "\nAcceptance (geometrical) = " << acc_saa
 	<< "\nImportance weight = " << decay_nimpwt
 	<< "\n\nSkipping this light parent";
 
@@ -206,6 +207,23 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
 
     // decay channel specified, now time to make kinematics
     double ENHL = NHLEnergy( prodChan, p4par );
+    // find random point in BBox and force momentum to point to that point
+    TLorentzVector p4NHL = NHLFourMomentum( ENHL, nhlMass );
+    TLorentzVector p4NHL_rest = p4NHL;
+    p4NHL_rest.Boost( -boost_beta ); // boost this to parent rest frame first!
+
+    LOG( "NHL", pDEBUG ) << utils::print::P4AsString( &p4NHL );
+
+    //calculate acceptance correction
+    //first, get minimum and maximum deviation from parent momentum to hit detector in degrees
+    double zm = ( isParentOnAxis ) ? 0.0 : 
+      GetAngDeviation( p4par, detO, false ) * 180.0 / constants::kPi;
+    double zp = GetAngDeviation( p4par, detO, true ) * 180.0 / constants::kPi;
+    // now get the actual acceptance correction
+    double accCorr = CalculateAcceptanceCorrection( p4par, p4NHL_rest, zm, zp );
+
+    // which means a true acceptance of
+    double acceptance = acc_saa * accCorr;
 
     LOG( "NHL", pDEBUG )
       << "For entry = " << i << ": "
@@ -220,12 +238,17 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
       << "\nParent mass, energy [GeV] = " << parentMass << ", " << parentEnergy << "\n"
       << "\nIs parent on axis ? " << ( ( isParentOnAxis ) ? "TRUE" : "FALSE" )
       << "\nNew parent momentum [GeV] = ( " << p4par.Px() << ", " << p4par.Py() << ", " << p4par.Z() << " )"
-      << "\nBoost beta = ( " << boost_beta.X() << ", " << boost_beta.Y() << ", " << boost_beta.Z() << " )"
-      << "\nImportance weight = " << decay_nimpwt << "\n"
+      << "\nBoost beta = ( " << boost_beta.X() << ", " << boost_beta.Y() << ", " << boost_beta.Z() << " )\n"
       << "\nScore = " << score
       << "\nPossible scores: " << (ssts.str()).c_str()
       << "\nSelected channel: " << utils::nhl::ProdAsString( prodChan )
       << "\nNHL lab-frame energy = " << ENHL
+      << "\nNHL lab-frame p4 = " << utils::print::P4AsString( &p4NHL )
+      << "\nAcceptance (geometrical) = " << acc_saa
+      << "\nMinimum, maximum angular deviation = " << zm << ", " << zp << " deg"
+      << "\nAcceptance correction = " << accCorr
+      << "\nAcceptance (calculated) = " << acceptance
+      << "\nImportance weight = " << decay_nimpwt << "\n"
       << "\n\n";
   }
   
@@ -533,6 +556,252 @@ double NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par )
   return 0.0;
 }
 //----------------------------------------------------------------------------
+TLorentzVector NHLFluxCreator::NHLFourMomentum( double ENHL, double M )
+{
+  // get random point in BBox
+  RandomGen * rng = RandomGen::Instance();
+  double rndx = (rng->RndGen()).Uniform( fCx - fLx/2.0, fCx + fLx/2.0 );
+  double rndy = (rng->RndGen()).Uniform( fCy - fLy/2.0, fCy + fLy/2.0 );
+  double rndz = (rng->RndGen()).Uniform( fCz - fLz/2.0, fCz + fLz/2.0 );
+
+  TVector3 delv( rndx - fDx, rndy - fDy, rndz - fDz );
+  TVector3 delu = delv.Unit();
+
+  double P = std::sqrt( ENHL*ENHL - M*M );
+  TLorentzVector nfv( P * delu.X(), P * delu.Y(), P * delu.Z(), ENHL );
+  return nfv;
+}
+//----------------------------------------------------------------------------
+double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, bool seekingMax )
+{
+  TVector3 ppar = p4par.Vect(); assert( ppar.Mag() > 0.0 );
+  TVector3 pparUnit = ppar.Unit();
+  // px . (x-x0) + py . (y-y0) + pz . (z-z0) = 0
+  // ==> px . x + py . y + pz . z = ppar . detO
+  double dterm = pparUnit.X() * detO.X() + pparUnit.Y() * detO.Y() + pparUnit.Z() * detO.Z();
+  // trajectory parallel to ppar and passes through (0,0,0)
+  // ==> v(t) = ( px, py, pz ) t
+  // ==> (px^2 + py^2 + pz^2) t = ppar . detO
+  // ==> t = ppar . detO / ppar.Mag2()
+  double t = dterm / 1.0;
+  double x_incp = t * pparUnit.X(), y_incp = t * pparUnit.Y(), z_incp = t * pparUnit.Z();
+
+  // sweep over plane perp to ppar, passing through centre, and calc intersection point
+  // special case: parent is perfectly on axis so hits detector centre
+  TVector3 IPdev( detO.X() - x_incp, detO.Y() - y_incp, detO.Z() - z_incp );
+  bool parentHitsCentre = ( IPdev.Mag() < controls::kASmallNum );
+
+  LOG( "NHL", pDEBUG )
+    << "\nppar = ( " << ppar.X() << ", " << ppar.Y() << ", " << ppar.Z() << " )"
+    << "\nunit = ( " << pparUnit.X() << ", " << pparUnit.Y() << ", " << pparUnit.Z() << " )"
+    << "\ndetO = ( " << detO.X() << ", " << detO.Y() << ", " << detO.Z() << " )"
+    << "\nt = " << t
+    << "\nIP = ( " << x_incp << ", " << y_incp << ", " << z_incp << " )"
+    << "\nIPdev = ( " << IPdev.X() << ", " << IPdev.Y() << ", " << IPdev.Z() << " )";
+
+  // RETHERE: Approximating detector dimension as BBox z dimension (NHL running on almost-z)
+  double detRadius = fLz / 2.0;
+
+  if( parentHitsCentre ){
+    // calculate angles for four points and return largest (smallest) of them
+
+    // randomly select a phi to go with, make 2 perpendicular vectors from it
+    double phi = ( RandomGen::Instance()->RndGen() ).Uniform( 0., 2.0 * constants::kPi );
+    TVector3 r1VecPrim( -pparUnit.Y(), pparUnit.X(), 0.0 ); // perp to ppar == on plane
+    TVector3 r1Vec = r1VecPrim.Unit();
+    r1Vec.Rotate( phi, pparUnit );
+    TVector3 r2Vec( r1Vec ); r2Vec.Rotate( 0.5 * constants::kPi, pparUnit );
+
+    double rprod = r1Vec.X() * r2Vec.X() + r1Vec.Y() * r2Vec.Y() + r1Vec.Z() * r2Vec.Z();
+
+    assert( std::abs( rprod ) < controls::kASmallNum );
+
+    // four IP with det. All have distance detRadius from centre.
+    TVector3 p1( detO.X() + detRadius*r1Vec.X(),
+		 detO.Y() + detRadius*r1Vec.Y(),
+		 detO.Z() + detRadius*r1Vec.Z() );
+    TVector3 p2( detO.X() - detRadius*r1Vec.X(),
+		 detO.Y() - detRadius*r1Vec.Y(),
+		 detO.Z() - detRadius*r1Vec.Z() );
+    TVector3 p3( detO.X() + detRadius*r2Vec.X(),
+		 detO.Y() + detRadius*r2Vec.Y(),
+		 detO.Z() + detRadius*r2Vec.Z() );
+    TVector3 p4( detO.X() - detRadius*r2Vec.X(),
+		 detO.Y() - detRadius*r2Vec.Y(),
+		 detO.Z() - detRadius*r2Vec.Z() );
+
+    // Return largest(smallest) angle using inner product magic
+    double thLarge = -999.9; double thSmall = 999.9;
+    double th1 = TMath::ACos( ( p1.X()*pparUnit.X() + p1.Y()*pparUnit.Y() + p1.Z()*pparUnit.Z() ) / p1.Mag() ); if( th1 > thLarge ){ thLarge = th1; } else if( th1 < thSmall ){ thSmall = th1; }
+    double th2 = TMath::ACos( ( p2.X()*pparUnit.X() + p2.Y()*pparUnit.Y() + p2.Z()*pparUnit.Z() ) / p2.Mag() ); if( th2 > thLarge ){ thLarge = th2; } else if( th2 < thSmall ){ thSmall = th2; }
+    double th3 = TMath::ACos( ( p3.X()*pparUnit.X() + p3.Y()*pparUnit.Y() + p3.Z()*pparUnit.Z() ) / p3.Mag() ); if( th3 > thLarge ){ thLarge = th3; } else if( th3 < thSmall ){ thSmall = th3; }
+    double th4 = TMath::ACos( ( p4.X()*pparUnit.X() + p4.Y()*pparUnit.Y() + p4.Z()*pparUnit.Z() ) / p4.Mag() ); if( th4 > thLarge ){ thLarge = th4; } else if( th4 < thSmall ){ thSmall = th4; }
+
+    LOG( "NHL", pDEBUG )
+      << "Parent hits centre, do four vectors"
+      << "\nphi = " << phi * 180.0 / constants::kPi << " deg"
+      << "\nr1Vec = ( " << r1Vec.X() << ", " << r1Vec.Y() << ", " << r1Vec.Z() << " )"
+      << "\nr2Vec = ( " << r2Vec.X() << ", " << r2Vec.Y() << ", " << r2Vec.Z() << " )"
+      << "\np1 = ( " << p1.X() << ", " << p1.Y() << ", " << p1.Z() << " )"
+      << "\np2 = ( " << p2.X() << ", " << p2.Y() << ", " << p2.Z() << " )"
+      << "\np3 = ( " << p3.X() << ", " << p3.Y() << ", " << p3.Z() << " )"
+      << "\np4 = ( " << p4.X() << ", " << p4.Y() << ", " << p4.Z() << " )"
+      << "\nth1, th2, th3, th4 = " << th1 * 180.0 / constants::kPi << ", "
+      << th2 * 180.0 / constants::kPi << ", " << th3 * 180.0 / constants::kPi
+      << ", " << th4 * 180.0 / constants::kPi << " deg"
+      << "\nthLarge, thSmall = " << thLarge * 180.0 / constants::kPi << ", "
+      << thSmall * 180.0 / constants::kPi << " deg";
+
+    return ( seekingMax ) ? thLarge * 180.0 / constants::kPi : thSmall * 180.0 / constants::kPi;
+  } else {
+    // find direction from IP to det centre.
+    TVector3 rVec = IPdev.Unit(); double dist = IPdev.Mag();
+    // two IP with det. Closer(farther) has distance detRadius -(+) d( IP, detO )
+    double dh = detRadius + dist, dl = detRadius - dist;
+    // get those vectors and do inner product magic
+    TVector3 ph( x_incp + dh * rVec.X(), y_incp + dh * rVec.Y(), z_incp + dh * rVec.Z() );
+    TVector3 pl( x_incp - dl * rVec.X(), y_incp - dl * rVec.Y(), z_incp - dl * rVec.Z() );
+    double thh = TMath::ACos( ( ph.X()*pparUnit.X() + ph.Y()*pparUnit.Y() + ph.Z()*pparUnit.Z() ) / ph.Mag() );
+    double thl = TMath::ACos( ( pl.X()*pparUnit.X() + pl.Y()*pparUnit.Y() + pl.Z()*pparUnit.Z() ) / pl.Mag() );
+
+    LOG( "NHL", pDEBUG )
+      << "Parent does not hit centre, do two vectors"
+      << "\nrVec = ( " << rVec.X() << ", " << rVec.Y() << ", " << rVec.Z() << " )"
+      << "\ndist, dh, dl = " << dist << ", " << dh << ", " << dl
+      << "\nph = " << ph.X() << ", " << ph.Y() << ", " << ph.Z() << " )"
+      << "\npl = " << pl.X() << ", " << pl.Y() << ", " << pl.Z() << " )"
+      << "\nthh, thl = " << thh * 180.0 / constants::kPi << ", " << thl * 180.0 / constants::kPi;
+
+    return ( seekingMax ) ? thh * 180.0 / constants::kPi : thl * 180.0 / constants::kPi;
+  }
+
+  LOG( "NHL", pERROR )
+    << "Could not calculate the angle range for detector at ( " << detO.X() << ", " 
+    << detO.Y() << ", " << detO.Z() << " ) [m] from NHL production point with parent momentum = ( "
+    << ppar.X() << ", " << ppar.Y() << ", " << ppar.Z() << " ) [GeV]. Returning zero.";
+  return 0.0;
+}
+//----------------------------------------------------------------------------
+double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLorentzVector p4NHL,
+						      double zm, double zp )
+{
+  /*
+   * This method calculates NHL acceptance by taking into account the collimation effect
+   * NHL are massive so Lorentz boost from parent CM ==> lab is more effective
+   * This means that, given a desired range of lab-frame emission angles, there are
+   * more rest-frame emission angles that map into this range. 
+   * The calculation works in 3 steps:
+   * 1. Calculate the pre-image of [zm, zp] for the NHL. The boost is not neccesarily monotonous.
+   * 2. Calculate the pre-image of [zm, zp] for a massless neutrino. This boost would be monotonous.
+   * 3. Return the ratio of 1. / 2.
+   */
+  
+  assert( zm >= 0.0 && zp >= zm );
+  if( zp == zm ) return 0.0;
+
+  double M = p4NHL.M();
+  if( M == 0.0 ) return 1.0;
+
+  fNHL = (TF1*) gROOT->GetListOfFunctions()->FindObject( "fNHL" );
+  if( !fNHL ){
+    LOG( "NHL", pDEBUG ) << "Initialising fNHL";
+    fNHL = new TF1( "fNHL", labangle, 0.0, 180.0, 6 );
+  }
+  fNHL->SetParameter( 0, p4par.E()  );
+  fNHL->SetParameter( 1, p4par.Px() );
+  fNHL->SetParameter( 2, p4par.Py() );
+  fNHL->SetParameter( 3, p4par.Pz() );
+  fNHL->SetParameter( 4, p4NHL.P()  );
+  fNHL->SetParameter( 5, p4NHL.E()  );
+  LOG( "NHL", pDEBUG )
+    << "fNHL with parameters:"
+    << "\n[0]: p4par.E()  = " << fNHL->GetParameter(0)
+    << "\n[1]: p4par.Px() = " << fNHL->GetParameter(1)
+    << "\n[2]: p4par.Py() = " << fNHL->GetParameter(2)
+    << "\n[3]: p4par.Pz() = " << fNHL->GetParameter(3)
+    << "\n[4]: p4NHL.P()  = " << fNHL->GetParameter(4)
+    << "\n[5]: p4NHL.E()  = " << fNHL->GetParameter(5);
+
+  double ymax = fNHL->GetMaximum(), xmax = fNHL->GetMaximumX();
+  double range1 = 0.0;
+
+  std::ostringstream asts;
+  asts << "Acceptance correction finished. Here is the output:"
+       << "\nxmax = " << xmax << ", ymax = " << ymax
+       << "\nN preimages: ";
+  
+  if( ymax <= zm ){
+    asts << "0";
+    LOG( "NHL", pDEBUG ) << (asts.str()).c_str();
+    return 0.0; // there is no pre-image in step 1
+  } else if( ymax > zp ){ // there are 2 distinct pre-images in step 1. Add them together.
+    // Boost hits a global maximum without any other local maxima so is monotonous on either side
+    double xl1 = fNHL->GetX( zm, 0., xmax    ), xh1 = fNHL->GetX( zp, 0., xmax    ); // increasing
+    double xl2 = fNHL->GetX( zm, xmax, 180.0 ), xh2 = fNHL->GetX( zp, xmax, 180.0 ); // decreasing
+    range1 = ( xh1 - xl1 ) + ( xl2 - xh2 );
+    asts << "2"
+	 << "\nFirst  preimage = [ " << xl1 << ", " << xh1 << " ]"
+	 << "\nSecond preimage = [ " << xh2 << ", " << xl2 << " ]";
+  } else if( zm < ymax && ymax <= zp ){ // there is 1 pre-image in step 1
+    double xl = fNHL->GetX( zm ), xh = fNHL->GetX( zp );
+    range1 = xh - xl;
+    asts << "1"
+	 << "\nOnly preimage = [ " << xl << ", " << xh << " ]";
+  }
+
+  asts << "\nNHL range = " << range1;
+  
+  fSMv = (TF1*) gROOT->GetListOfFunctions()->FindObject( "fSMv" );
+  if( !fSMv ){
+    LOG( "NHL", pDEBUG ) << "Initialising fSMv";
+    fSMv = new TF1( "fSMv", labangle, 0.0, 180.0, 6 );
+  }
+  fSMv->SetParameter( 0, p4par.E()  );
+  fSMv->SetParameter( 1, p4par.Px() );
+  fSMv->SetParameter( 2, p4par.Py() );
+  fSMv->SetParameter( 3, p4par.Pz() );
+  fSMv->SetParameter( 4, p4NHL.E()  ); // assuming massless nu of same energy
+  fSMv->SetParameter( 5, p4NHL.E()  );
+  LOG( "NHL", pDEBUG )
+    << "fSMv initialised with parameters:"
+    << "\n[0]: p4par.E()  = " << fSMv->GetParameter(0)
+    << "\n[1]: p4par.Px() = " << fSMv->GetParameter(1)
+    << "\n[2]: p4par.Py() = " << fSMv->GetParameter(2)
+    << "\n[3]: p4par.Pz() = " << fSMv->GetParameter(3)
+    << "\n[4]: p4NHL.E()  = " << fSMv->GetParameter(4)
+    << "\n[5]: p4NHL.E()  = " << fSMv->GetParameter(5);
+
+  double range2 = fSMv->GetX( zp ) - fSMv->GetX( zm ); // monotonous increasing
+  assert( range2 > 0.0 );
+
+  asts << "\nSMv preimage = [ " << fSMv->GetX( zm ) << ", " << fSMv->GetX( zp ) << " ]"
+       << "\nSMv range = " << range2
+       << "\n\nAcceptance correction = " << range1 / range2;
+
+  LOG( "NHL", pDEBUG ) << (asts.str()).c_str();
+  
+  return range1 / range2;
+}
+//----------------------------------------------------------------------------
+double NHLFluxCreator::labangle( double * x, double * par )
+{
+  double xrad = x[0] * TMath::DegToRad();
+  double Ehad = par[0], pxhad = par[1], pyhad = par[2], pzhad = par[3];
+  double pnhl = par[4], Enhl = par[5];
+
+  TLorentzVector p4had( pxhad, pyhad, pzhad, Ehad );
+  TVector3 boost_vec = p4had.BoostVector(); // beta of parent in lab frame
+
+  // assume phi invariance so create NHL rest-frame momentum along y'z' plane
+  TLorentzVector pncm( 0.0, pnhl * TMath::Sin( xrad ), pnhl * TMath::Cos( xrad ), Enhl );
+  // boost into lab frame
+  pncm.Boost( boost_vec );
+  
+  // return lab frame theta wrt z axis in deg
+  double theta = TMath::ACos( pncm.Pz() / pncm.P() ) * 180.0 / constants::kPi;
+  return theta;
+}
+//----------------------------------------------------------------------------
 void NHLFluxCreator::MakeBBox()
 {
   LOG( "NHL", pWARN )
@@ -771,4 +1040,11 @@ double NHLFluxCreator::CalculateDetectorAcceptanceDRC( TVector3 detO, double Lx,
 
   // return this / 4pi == acceptance
   return areaElem / (4.0 * constants::kPi);
+}
+//----------------------------------------------------------------------------
+double NHLFluxCreator::CalculateAreaNormalisation()
+{
+  // for now this is just a square of length kRDET
+  // returns 1 / area
+  return 1.0 / ( kRDET * kRDET );
 }
