@@ -731,24 +731,53 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
   asts << "Acceptance correction finished. Here is the output:"
        << "\nxmax = " << xmax << ", ymax = " << ymax
        << "\nN preimages: ";
-  
-  if( ymax <= zm ){
-    asts << "0";
-    LOG( "NHL", pDEBUG ) << (asts.str()).c_str();
-    return 0.0; // there is no pre-image in step 1
-  } else if( ymax > zp ){ // there are 2 distinct pre-images in step 1. Add them together.
-    // Boost hits a global maximum without any other local maxima so is monotonous on either side
-    double xl1 = fNHL->GetX( zm, 0., xmax    ), xh1 = fNHL->GetX( zp, 0., xmax    ); // increasing
-    double xl2 = fNHL->GetX( zm, xmax, 180.0 ), xh2 = fNHL->GetX( zp, xmax, 180.0 ); // decreasing
-    range1 = ( xh1 - xl1 ) + ( xl2 - xh2 );
-    asts << "2"
-	 << "\nFirst  preimage = [ " << xl1 << ", " << xh1 << " ]"
-	 << "\nSecond preimage = [ " << xh2 << ", " << xl2 << " ]";
-  } else if( zm < ymax && ymax <= zp ){ // there is 1 pre-image in step 1
-    double xl = fNHL->GetX( zm ), xh = fNHL->GetX( zp );
-    range1 = xh - xl;
-    asts << "1"
-	 << "\nOnly preimage = [ " << xl << ", " << xh << " ]";
+
+  if( zm < fNHL->GetMinimum() ){ // really good collimation. There will be *some* angular deviation, so ignore checks on zm
+    double z0 = fNHL->GetMinimum();
+    LOG( "NHL", pDEBUG )
+      << "zm < fNHL->GetMinimum() = " << z0;
+    if( ymax > zp && xmax < 180.0 ){ // there are 2 distinct pre-images in step 1. Add them together.
+      // Boost hits a global maximum without any other local maxima so is monotonous on either side
+      double xl1 = fNHL->GetX( z0, 0., xmax    ), xh1 = fNHL->GetX( zp, 0., xmax    ); // increasing
+      double xl2 = fNHL->GetX( z0, xmax, 180.0 ), xh2 = fNHL->GetX( zp, xmax, 180.0 ); // decreasing
+      range1 = ( xh1 - xl1 ) + ( xl2 - xh2 );
+      asts << "2"
+	   << "\nFirst  preimage = [ " << xl1 << ", " << xh1 << " ]"
+	   << "\nSecond preimage = [ " << xh2 << ", " << xl2 << " ]";
+    } else if( ymax > zp && xmax == 180.0 ){ // 1 pre-image, SMv-like case
+      double xl = fNHL->GetX( z0 ), xh = fNHL->GetX( zp );
+      range1 = ( xh - xl );
+      asts << "1"
+	   << "\nOnly preimage = [ " << xl << ", " << xh << " ]";
+    } else if( ymax <= zp ){ // there is 1 pre-image in step 1. Any and all emission reaches the detector.
+      range1 = 180.0;
+      asts << "1"
+	   << "\nOnly preimage = [ 0.0, 180.0 ]";
+    }
+  } else { // collimation is not so good, need to make some angular deviation. Enforce checks on zm
+    if( ymax <= zm ){ // there is no pre-image in step 1
+      asts << "0";
+      LOG( "NHL", pDEBUG ) << (asts.str()).c_str();
+      return 0.0;
+    } else if( ymax > zp && xmax < 180.0 ){ // there are 2 distinct pre-images in step 1. Add them together.
+      // Boost hits a global maximum without any other local maxima so is monotonous on either side
+      double xl1 = fNHL->GetX( zm, 0., xmax    ), xh1 = fNHL->GetX( zp, 0., xmax    ); // increasing
+      double xl2 = fNHL->GetX( zm, xmax, 180.0 ), xh2 = fNHL->GetX( zp, xmax, 180.0 ); // decreasing
+      range1 = ( xh1 - xl1 ) + ( xl2 - xh2 );
+      asts << "2"
+	   << "\nFirst  preimage = [ " << xl1 << ", " << xh1 << " ]"
+	   << "\nSecond preimage = [ " << xh2 << ", " << xl2 << " ]";
+    } else if ( ymax > zp && xmax == 180.0 ){ // 1 pre-image, SMv-like case
+      double xl = fNHL->GetX( zm ), xh = fNHL->GetX( zp );
+      range1 = ( xh - xl );
+      asts << "1"
+	   << "\nOnly preimage = [ " << xl << ", " << xh << " ]";
+    } else if( zm < ymax && ymax <= zp ){ // there is 1 pre-image in step 1
+      double xl = fNHL->GetX( zm, 0.0, xmax ), xh = fNHL->GetX( zm, xmax, 180.0 );
+      range1 = xh - xl;
+      asts << "1"
+	   << "\nOnly preimage = [ " << xl << ", " << xh << " ]";
+    }
   }
 
   asts << "\nNHL range = " << range1;
@@ -796,6 +825,7 @@ double NHLFluxCreator::labangle( double * x, double * par )
 
   // assume phi invariance so create NHL rest-frame momentum along y'z' plane
   TLorentzVector pncm( 0.0, pnhl * TMath::Sin( xrad ), pnhl * TMath::Cos( xrad ), Enhl );
+
   // boost into lab frame
   pncm.Boost( boost_vec );
   
