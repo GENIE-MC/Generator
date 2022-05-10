@@ -143,6 +143,9 @@ namespace genie{
 
       double GetPOTFromMeta( TChain * cmeta );
       void   LoopEntries( TChain * cflux, TChain * cmeta );
+
+      // current path to keep track of what is loaded
+      extern std::string fCurrPath;
       
       // maps to keep P( production )
       extern std::map< genie::NHL::NHLProd_t, double > dynamicScores; // map in use
@@ -158,7 +161,7 @@ namespace genie{
 
       extern TFile * fin;
       extern TTree * tree, * meta;
-      extern bool isTreeInit, isMetaInit;
+      extern bool isTreeInit, isMetaInit, isBoxInit;
 
       extern double fLx, fLy, fLz;   //BBox length [m]
       extern double fCx, fCy, fCz;   //BBox centre wrt NHL prod [m]

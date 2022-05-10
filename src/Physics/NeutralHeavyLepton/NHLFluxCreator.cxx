@@ -12,6 +12,8 @@ using namespace genie;
 using namespace genie::NHL;
 
 // extern definitions
+std::string NHLFluxCreator::fCurrPath;
+
 std::map< NHLProd_t, double > NHLFluxCreator::dynamicScores;
 std::map< NHLProd_t, double > NHLFluxCreator::dynamicScores_pion;
 std::map< NHLProd_t, double > NHLFluxCreator::dynamicScores_kaon;
@@ -48,7 +50,7 @@ double NHLFluxCreator::pots;
 
 TFile * NHLFluxCreator::fin = 0;
 TTree * NHLFluxCreator::tree = 0, * NHLFluxCreator::meta = 0;
-bool NHLFluxCreator::isTreeInit = false, NHLFluxCreator::isMetaInit = false;
+bool NHLFluxCreator::isTreeInit = false, NHLFluxCreator::isMetaInit = false, NHLFluxCreator::isBoxInit = false;
 
 //----------------------------------------------------------------------------
 int NHLFluxCreator::TestFunction(std::string finpath)
@@ -638,6 +640,10 @@ void NHLFluxCreator::FillNonsense( int iEntry, flux::GNuMIFluxPassThroughInfo * 
 //----------------------------------------------------------------------------
 void NHLFluxCreator::OpenFluxInput( std::string finpath )
 {
+  if( std::strcmp( finpath.c_str(), fCurrPath.c_str() ) == 0 ) return;
+
+  fCurrPath = finpath;
+
   LOG( "NHL", pDEBUG )
     << "Getting flux input from finpath = " << finpath.c_str();
 
@@ -1219,6 +1225,8 @@ double NHLFluxCreator::labangle( double * x, double * par )
 //----------------------------------------------------------------------------
 void NHLFluxCreator::MakeBBox()
 {
+  if( isBoxInit ) return;
+
   LOG( "NHL", pWARN )
     << "WARNING: This is a dummy (==unit-side) bounding box centred at config-given point";
 
@@ -1233,16 +1241,20 @@ void NHLFluxCreator::MakeBBox()
   fAx2 = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "EulerExtrinsicX2" );
 
   // fAx2 first
-  fCy = fCy * std::cos( fAx2 ) - fCz * std::sin( fAx2 );
-  fCz = fCy * std::sin( fAx2 ) + fCz * std::cos( fAx2 );
+  double x = fCx, y = fCy, z = fCz;
+  fCy = y * std::cos( fAx2 ) - z * std::sin( fAx2 );
+  fCz = y * std::sin( fAx2 ) + z * std::cos( fAx2 );
+  y = fCy; z = fCz;
   // then fAz
-  fCx = fCx * std::cos( fAz )  - fCy * std::sin( fAz );
-  fCy = fCx * std::sin( fAz )  + fCy * std::cos( fAz );
+  fCx = x * std::cos( fAz )  - y * std::sin( fAz );
+  fCy = x * std::sin( fAz )  + y * std::cos( fAz );
   // fAx1 last
-  fCy = fCy * std::cos( fAx1 ) - fCz * std::sin( fAx1 );
-  fCz = fCy * std::sin( fAx1 ) + fCz * std::cos( fAx1 );
+  fCy = y * std::cos( fAx1 ) - z * std::sin( fAx1 );
+  fCz = y * std::sin( fAx1 ) + z * std::cos( fAx1 );
 
   fLx = 1.0; fLy = 1.0; fLz = 1.0;
+
+  isBoxInit = true;
 }
 //----------------------------------------------------------------------------
 double NHLFluxCreator::CalculateDetectorAcceptanceSAA( TVector3 detO )
