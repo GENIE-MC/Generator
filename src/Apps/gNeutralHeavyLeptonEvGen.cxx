@@ -138,6 +138,7 @@ using namespace genie::NHL::NHLenums;
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #define __CAN_GENERATE_EVENTS_USING_A_FLUX__
 #include "Tools/Flux/GCylindTH1Flux.h"
+#include "Tools/Flux/GNuMIFlux.h"
 #include <TH1.h>
 #endif // #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 
@@ -160,6 +161,8 @@ const EventRecordVisitorI * NHLGenerator(void);
 void     GenerateEventsUsingFlux (void);
 GFluxI * TH1FluxDriver           (void);
 int      DecideType              (TFile * spectrumFile);
+int      InitialiseTupleFlux     (std::string finpath);
+void     MakeNHLFromTuple        (int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath, int run);
 #endif // #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 
 TLorentzVector GeneratePosition( GHepRecord * event );
@@ -249,16 +252,6 @@ int main(int argc, char ** argv)
   utils::app_init::RandGen(gOptRanSeed);
 
   __attribute__((unused)) RandomGen * rnd = RandomGen::Instance();
-
-  if( gOptIsUsingDk2nu ){
-    // let's test dk2nu integration!
-    __attribute__((unused)) int thisintisuseless = NHLFluxCreator::TestTwoFunction( gOptFluxFilePath );
-    
-    LOG( "gevgen_nhl", pDEBUG )
-      << "Exiting now.";
-    exit(1312);
-
-  }
 
   // Get the NHL generator first to load config
   // config loaded upon instantiation of NHLGenerator algorithm 
@@ -377,12 +370,17 @@ int main(int argc, char ** argv)
       spectrum = ( TH1D * ) baseDir->Get( fluxName.c_str() );
       assert( spectrum && spectrum != NULL );
 
-    } else{
-      LOG( "gevgen_nhl", pFATAL )
-	<< "You are attempting to use dk2nu, but we don't have a method for this flux yet..."
-	<< "\ngenie::nhl::FluxCreator is WIP. Come back once this is done."
-	<< "\nExiting now.";
-      exit(1312);
+    } else{ // RETHERE gotta make non-flat trees
+      LOG( "gevgen_nhl", pWARN )
+	<< "Using input flux files. These are *flat dk2nu-like ROOT trees, so far...*";
+
+      int maxFluxEntries = InitialiseTupleFlux( gOptFluxFilePath );
+      if( gOptNev > maxFluxEntries ){
+	LOG( "gevgen_nhl", pWARN )
+	  << "You have asked for " << gOptNev << " events, but only provided "
+	  << maxFluxEntries << " flux entries. Truncating events to " << maxFluxEntries << ".";
+	gOptNev = maxFluxEntries;
+      }
     }
   }
 
@@ -403,14 +401,35 @@ int main(int argc, char ** argv)
      LOG("gevgen_nhl", pNOTICE)
           << " *** Generating event............ " << ievent;
 
+     flux::GNuMIFluxPassThroughInfo * gnmf = ( !gOptIsMonoEnFlux && gOptIsUsingDk2nu ) ? 
+       new flux::GNuMIFluxPassThroughInfo() : 0;
+
      if( !gOptIsMonoEnFlux ){
-       LOG( "gevgen_nhl", pDEBUG )
-	 << "Getting energy from flux...";
-       gOptEnergyNHL = spectrum->GetRandom();
-       unsigned int ien = 0;
-       while( gOptEnergyNHL <= gOptMassNHL && ien < controls::kRjMaxIterations ){
-	 gOptEnergyNHL = spectrum->GetRandom(); // to prevent binning throwing E <= M
-	 ien++;
+       if( !gOptIsUsingDk2nu ){
+	 LOG( "gevgen_nhl", pDEBUG )
+	   << "Getting energy from flux...";
+	 gOptEnergyNHL = spectrum->GetRandom();
+	 unsigned int ien = 0;
+	 while( gOptEnergyNHL <= gOptMassNHL && ien < controls::kRjMaxIterations ){
+	   gOptEnergyNHL = spectrum->GetRandom(); // to prevent binning throwing E <= M
+	   ien++;
+	 }
+       } else { // get a full NHL from flux tuples
+	 LOG( "gevgen_nhl", pDEBUG )
+	   << "Making NHL from tuple for event " << ievent;
+	 MakeNHLFromTuple( ievent, gnmf, gOptFluxFilePath, gOptRunNu );
+       }
+
+       if( gnmf ){ 
+	 TLorentzVector gnmfP4 = gnmf->fgP4;
+	 gOptEnergyNHL = (gnmf->fgP4User).E();
+	 LOG( "gevgen_nhl", pDEBUG )
+	   << "Got TLorentzVector from gnmf: " << utils::print::P4AsString(&gnmfP4);
+
+	 if( gOptEnergyNHL < 0.0 ){
+	   ievent++;
+	   continue; // hit nonsense & could not generate NHL
+	 }
        }
      }
      assert( gOptEnergyNHL > gOptMassNHL );
@@ -421,7 +440,7 @@ int main(int argc, char ** argv)
      // if not Majorana, check if we should be doing mixing
      // if yes, get from fluxes
      // if not, enforce nu vs nubar
-     if( !gOptIsMajorana ){
+     if( !gOptIsMajorana && !gOptIsUsingDk2nu ){
        switch( gOptNHLKind ){
        case 0: // always nu
 	 break;
@@ -802,6 +821,26 @@ GFluxI * TH1FluxDriver(void)
   LOG("gevgen_nhl", pDEBUG)
     << "Returning flux driver and exiting method.";
   return flux_driver;
+}
+//_________________________________________________________________________________________
+int InitialiseTupleFlux( std::string finpath )
+{
+  LOG( "gevgen_nhl", pDEBUG )
+    << "Opening input flux now from path " << finpath.c_str();
+
+  NHLFluxCreator::OpenFluxInput( gOptFluxFilePath );
+  assert( NHLFluxCreator::tree && NHLFluxCreator::meta && NHLFluxCreator::tree->GetEntries() > 0 );
+  return NHLFluxCreator::tree->GetEntries();
+}
+//_________________________________________________________________________________________
+void MakeNHLFromTuple( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath, int run )
+{
+  // This genereates a full NHL from the flux tuples
+  // by interfacing with NHLFluxCreator
+
+  NHLFluxCreator::MakeTupleFluxEntry( iEntry, gnmf, finpath, run );
+  
+  LOG( "gevgen_nhl", pDEBUG ) << "MakeNHLFromTuple complete.";
 }
 //............................................................................
 #endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__

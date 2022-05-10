@@ -48,6 +48,7 @@ double NHLFluxCreator::pots;
 
 TFile * NHLFluxCreator::fin = 0;
 TTree * NHLFluxCreator::tree = 0, * NHLFluxCreator::meta = 0;
+bool NHLFluxCreator::isTreeInit = false, NHLFluxCreator::isMetaInit = false;
 
 //----------------------------------------------------------------------------
 int NHLFluxCreator::TestFunction(std::string finpath)
@@ -220,6 +221,9 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
     double zm = ( isParentOnAxis ) ? 0.0 : 
       GetAngDeviation( p4par, detO, false ) * 180.0 / constants::kPi;
     double zp = GetAngDeviation( p4par, detO, true ) * 180.0 / constants::kPi;
+
+    LOG( "NHL", pDEBUG ) << "\nzm, zp = " << zm << ", " << zp << "\n";
+    
     // now get the actual acceptance correction
     double accCorr = CalculateAcceptanceCorrection( p4par, p4NHL_rest, decay_necm, zm, zp );
 
@@ -261,6 +265,377 @@ int NHLFluxCreator::TestTwoFunction( std::string finpath )
   return 0;
 }
 //----------------------------------------------------------------------------
+void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath, int run )
+{
+  // This method creates 1 NHL from the flux info and saves the information
+  // Essentially, it replaces a SMv with an NHL
+
+  // Open flux input and initialise trees
+  OpenFluxInput( finpath );
+  InitialiseTree();
+  InitialiseMeta();
+
+  MakeBBox();
+
+  tree->GetEntry(iEntry);
+    
+  // turn cm to m and make origin wrt detector 
+  fDx = decay_vx * units::cm / units::m;
+  fDy = decay_vy * units::cm / units::m;
+  fDz = decay_vz * units::cm / units::m;
+  
+  // set parent mass
+  switch( std::abs( decay_ptype ) ){
+  case kPdgPiP: case kPdgKP: case kPdgMuon: case kPdgK0L:
+    parentMass = PDGLibrary::Instance()->Find(decay_ptype)->Mass(); break;
+  default:
+    LOG( "NHL", pERROR ) << "Parent with PDG code " << decay_ptype << " not handled!"
+			 << "\n\tProceeding, but results are possibly unphysical.";
+    parentMass = PDGLibrary::Instance()->Find(decay_ptype)->Mass(); break;
+  }
+  parentMomentum = std::sqrt( decay_pdpx*decay_pdpx + decay_pdpy*decay_pdpy + decay_pdpz*decay_pdpz );
+  parentEnergy = std::sqrt( parentMass*parentMass + parentMomentum*parentMomentum );
+  
+  TVector3 detO( fCx - fDx, fCy - fDy, fCz - fDz ); // separation in beam coords
+  
+  double acc_saa = CalculateDetectorAcceptanceSAA( detO );
+  //double acc_drc = CalculateDetectorAcceptanceDRC( detO, fLx, fLy, fLz );
+  
+  isParentOnAxis = utils::nhl::GetCfgBool( "NHL", "FluxCalc", "IsParentOnAxis" );
+  TLorentzVector p4par = ( isParentOnAxis ) ?
+    TLorentzVector( parentMomentum * (detO.Unit()).X(), 
+		    parentMomentum * (detO.Unit()).Y(),
+		    parentMomentum * (detO.Unit()).Z(),
+		    parentEnergy ) :
+    TLorentzVector( decay_pdpx, decay_pdpy, decay_pdpz, parentEnergy );
+  
+  TVector3 boost_beta = GetBoostBetaVec( p4par );
+  
+  double nhlMass = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Mass" );
+  if( parentMass <= nhlMass ){ FillNonsense( iEntry, gnmf, run ); return; }
+  // now calculate which decay channel produces the NHL.
+  dynamicScores = GetProductionProbs( decay_ptype );
+  assert( dynamicScores.size() > 0 );
+  
+  RandomGen * rnd = RandomGen::Instance();
+  double score = rnd->RndGen().Uniform( 0.0, 1.0 );
+  NHLProd_t prodChan;
+  // compare with cumulative prob. If < 1st in map, pick 1st chan. If >= 1st and < (1st+2nd), pick 2nd, etc
+  
+  unsigned int imap = 0; double s1 = 0.0;
+  std::map< NHLProd_t, double >::iterator pdit = dynamicScores.begin();
+  while( score >= s1 && pdit != dynamicScores.end() ){
+    s1 += (*pdit).second;
+    if( score >= s1 ){
+      imap++; pdit++;
+    }
+  }
+  assert( imap < dynamicScores.size() ); // should have decayed to *some* NHL
+  prodChan = (*pdit).first;
+
+  LOG( "NHL", pDEBUG )
+    << "Selected channel: " << utils::nhl::ProdAsString( prodChan );
+  
+  // decay channel specified, now time to make kinematics
+  double ENHL = NHLEnergy( prodChan, p4par );
+  // find random point in BBox and force momentum to point to that point
+  TLorentzVector p4NHL = NHLFourMomentum( ENHL, nhlMass );
+
+  TLorentzVector p4NHL_rest = p4NHL;
+  p4NHL_rest.Boost( -boost_beta ); // boost this to parent rest frame first!
+  
+  // calculate acceptance correction
+  // first, get minimum and maximum deviation from parent momentum to hit detector in degrees
+  // RETHERE generalise condition in case momentum hits detector
+  double zm = ( isParentOnAxis ) ? 0.0 : 
+    GetAngDeviation( p4par, detO, false ) * 180.0 / constants::kPi;
+  double zp = GetAngDeviation( p4par, detO, true ) * 180.0 / constants::kPi;
+  
+  // now get the actual acceptance correction
+  LOG( "NHL", pDEBUG )
+    << "Entering CalculateAcceptanceCorrection with:"
+    << "\np4par = " << utils::print::P4AsString(&p4par)
+    << "\np4NHL_rest = " << utils::print::P4AsString(&p4NHL_rest)
+    << "\ndecay_necm = " << decay_necm
+    << "\nzm = " << zm
+    << "\nzp = " << zp;
+  double accCorr = CalculateAcceptanceCorrection( p4par, p4NHL_rest, decay_necm, zm, zp );
+
+  LOG( "NHL", pDEBUG )
+    << "accCorr = " << accCorr;
+  
+  // which means a true acceptance of...
+  double acceptance = acc_saa * accCorr;
+
+  // write 4-position all this happens at
+  TLorentzVector x4NHL( decay_vx, decay_vy, decay_vz, 0.0 );
+
+  LOG( "NHL", pDEBUG )
+    << "Filling some stuff";
+
+  // fill all the GNuMIFlux stuff
+  // comments as seeon on https://www.hep.utexas.edu/~zarko/wwwgnumi/v19/v19/output_gnumi.html
+
+  gnmf->pcodes = 1;                          ///< converted to PDG
+  gnmf->units = 0;                           ///< cm
+  
+  int typeMod = ( decay_ptype > 0 ) ? 1 : -1;
+  gnmf->fgPdgC = typeMod * kPdgNHL;          ///< PDG code
+
+  gnmf->fgXYWgt = acceptance;                ///< geometrical * collimation correction
+
+  gnmf->fgP4 = p4NHL;                        ///< generated 4-momentum, beam coord
+  gnmf->fgX4 = x4NHL;                        ///< generated 4-position, beam coord
+  gnmf->fgP4User = p4NHL;                    ///< generated 4-momentum, user coord
+  gnmf->fgX4User = x4NHL;                    ///< generated 4-position, user coord
+
+  gnmf->run      = run;                      ///< Run number
+  gnmf->evtno    = iEntry;                   ///< Event number (proton on target) 
+                                                 // RETHERE which is it?
+  gnmf->ndxdz    = p4NHL.Px() / p4NHL.Pz();  ///< Neutrino direction slope for a random decay
+  gnmf->ndydz    = p4NHL.Py() / p4NHL.Pz();  ///< See above
+  gnmf->npz      = p4NHL.Pz();               ///< Neutrino momentum [GeV] along z direction (beam axis)
+  gnmf->nenergy  = p4NHL.E();                ///< Neutrino energy [GeV] for a random decay
+  gnmf->ndxdznea = -9999.9;                  ///< Neutrino direction slope for a decay forced to ND
+  gnmf->ndydznea = -9999.9;                  ///< See above
+  gnmf->nenergyn = -9999.9;                  ///< Neutrino energy for decay forced to ND
+  gnmf->nwtnear  = -9999.9;                  ///< weight for decay forced to ND
+  gnmf->ndxdzfar = -9999.9;                  ///< Same as ND but FD
+  gnmf->ndydzfar = -9999.9;                  ///< See above
+  gnmf->nenergyf = -9999.9;                  ///< See above
+  gnmf->nwtfar   = -9999.9;                  ///< See above
+  gnmf->norig    = -9999;                    ///< Obsolete...
+  
+  int iNdecay = -1, iNtype = -1;
+  switch( prodChan ){
+  case kNHLProdNeuk3Electron: iNdecay = 1; iNtype = 53; break;
+  case kNHLProdNeuk3Muon: iNdecay = 3; iNtype = 56; break;
+  case kNHLProdKaon2Electron: iNdecay = 5; iNtype = 53; break;
+  case kNHLProdKaon2Muon: iNdecay = 7; iNtype = 56; break;
+  case kNHLProdKaon3Electron: iNdecay = 9; iNtype = 53; break;
+  case kNHLProdKaon3Muon: iNdecay = 11; iNtype = 56; break;
+  case kNHLProdMuon3Nue: iNdecay = 13; iNtype = 53; break;
+  case kNHLProdMuon3Numu: iNdecay = 15; iNtype = 53; break;
+  case kNHLProdMuon3Nutau: iNdecay = 17; iNtype = 53; break;
+  case kNHLProdPion2Electron: iNdecay = 19; iNtype = 53; break;
+  case kNHLProdPion2Muon: iNdecay = 21; iNtype = 56; break;
+  default: iNdecay = -2; iNtype = -2; break;
+  }
+  if( decay_ptype < 0 ){ iNdecay++; iNtype--; }
+  if( iNdecay > 0 ) iNdecay += 30; // horrendous hack to fit all the 22 decay channels...
+  if( iNtype > 0 ) iNtype += 10; // and a hack for "NHL type" (referring to co-produced leptons)
+
+  gnmf->ndecay = iNdecay;                    ///< Decay mode that produced neutrino
+  gnmf->ntype  = iNtype;                     ///< Neutrino "flavour" (i.e. of co-produced lepton)
+
+  gnmf->vx = decay_vx;                       ///< X position of hadron/muon decay
+  gnmf->vy = decay_vy;                       ///< Y position of hadron/muon decay
+  gnmf->vz = decay_vz;                       ///< Z position of hadron/muon decay
+
+  gnmf->pdpx = decay_pdpx;                   ///< Parent X momentum at decay point
+  gnmf->pdpy = decay_pdpy;                   ///< Parent Y momentum at decay point
+  gnmf->pdpz = decay_pdpz;                   ///< Parent Z momentum at decay point
+
+  gnmf->ppdxdz = -9999.9;                    ///< Parent dxdz direction at production
+  gnmf->ppdydz = -9999.9;                    ///< Parent dydz direction at production
+  gnmf->pppz = -9999.9;                      ///< Parent energy at production
+
+  gnmf->ppmedium = -9999;                    ///< Tracking medium number where parent was produced
+  gnmf->ptype = decay_ptype;                 ///< Parent GEANT code particle ID converted to PDG
+
+  gnmf->ppvx = -9999.9;                      ///< Parent production vertex X (cm)
+  gnmf->ppvy = -9999.9;                      ///< Parent production vertex Y (cm)
+  gnmf->ppvz = -9999.9;                      ///< Parent production vertex Z (cm)
+
+  gnmf->necm = p4NHL_rest.E();               ///< Neutrino energy in COM frame
+  gnmf->nimpwt = decay_nimpwt;               ///< Weight of neutrino parent
+
+  gnmf->xpoint = -9999.9;                    ///< Debugging hook (unused)
+  gnmf->ypoint = -9999.9;                    ///< Debugging hook (unused)
+  gnmf->zpoint = -9999.9;                    ///< Debugging hook (unused)
+
+  gnmf->tvx = -9999.9;                       ///< X exit point of parent particle at the target
+  gnmf->tvy = -9999.9;                       ///< Y exit point of parent particle at the target
+  gnmf->tvz = -9999.9;                       ///< Z exit point of parent particle at the target
+
+  gnmf->tpx = -9999.9;                       ///< Parent momentum exiting the target (X)
+  gnmf->tpy = -9999.9;                       ///< Parent momentum exiting the target (Y)
+  gnmf->tpz = -9999.9;                       ///< Parent momentum exiting the target (Z)
+
+  gnmf->tptype = -9999;                      ///< Parent particle ID exiting the target conv to PDG
+  gnmf->tgen = -9999;                        ///< Parent generation in cascade
+
+  gnmf->tgptype = -9999;                     ///< Type of particle that created a particle...
+  
+  gnmf->tgppx = -9999.9;                     ///< Momentum of particle that created particle at IP
+  gnmf->tgppy = -9999.9;                     ///< Momentum of particle that created particle at IP
+  gnmf->tgppz = -9999.9;                     ///< Momentum of particle that created particle at IP
+
+  gnmf->tprivx = -9999.9;                    ///< Primary particle interaction vertex
+  gnmf->tprivy = -9999.9;                    ///< Primary particle interaction vertex
+  gnmf->tprivz = -9999.9;                    ///< Primary particle interaction vertex
+
+  gnmf->beamx = -9999.9;                     ///< Primary proton origin
+  gnmf->beamy = -9999.9;                     ///< Primary proton origin
+  gnmf->beamz = -9999.9;                     ///< Primary proton origin
+
+  gnmf->beampx = -9999.9;                    ///< Primary proton momentum
+  gnmf->beampy = -9999.9;                    ///< Primary proton momentum
+  gnmf->beampz = -9999.9;                    ///< Primary proton momentum
+
+#ifndef SKIP_MINERVA_MODS
+  gnmf->ntrajectory = -9;
+  gnmf->overflow = false;
+
+  for( unsigned int i = 0; i < 10; i++ ){
+    gnmf->pdgcode[i] = -9;
+    gnmf->trackId[i] = -9;
+    gnmf->parentId[i] = -9;
+    
+    gnmf->startx[i] = -9999.9;
+    gnmf->starty[i] = -9999.9;
+    gnmf->startz[i] = -9999.9;
+    gnmf->startpx[i] = -9999.9;
+    gnmf->startpy[i] = -9999.9;
+    gnmf->startpz[i] = -9999.9;
+    gnmf->stopx[i] = -9999.9;
+    gnmf->stopy[i] = -9999.9;
+    gnmf->stopz[i] = -9999.9;
+    gnmf->pprodpx[i] = -9999.9;
+    gnmf->pprodpy[i] = -9999.9;
+    gnmf->pprodpz[i] = -9999.9;
+
+    gnmf->proc[i] = -9;
+    gnmf->ivol[i] = -9;
+    gnmf->fvol[i] = -9;
+  }
+#endif
+
+  LOG( "NHL", pDEBUG )
+    << "Finished MakeTupleFluxEntry(). Returning to App";
+  
+}
+//----------------------------------------------------------------------------
+void NHLFluxCreator::FillNonsense( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, int run )
+{
+  gnmf->pcodes = 1;                          ///< converted to PDG
+  gnmf->units = 0;                           ///< cm
+  
+  gnmf->fgPdgC = -9999;                      ///< PDG code
+
+  gnmf->fgXYWgt = -9999.9;                   ///< geometrical * collimation correction
+
+  TLorentzVector dv( -9999.9, -9999.9, -9999.9, -9999.9 );
+  gnmf->fgP4 = dv;                           ///< generated 4-momentum, beam coord
+  gnmf->fgX4 = dv;                           ///< generated 4-position, beam coord
+  gnmf->fgP4User = dv;                       ///< generated 4-momentum, user coord
+  gnmf->fgX4User = dv;                       ///< generated 4-position, user coord
+
+  gnmf->run      = run;                      ///< Run number
+  gnmf->evtno    = iEntry;                   ///< Event number (proton on target) 
+                                                 // RETHERE which is it?
+  gnmf->ndxdz    = -9999.9;                  ///< Neutrino direction slope for a random decay
+  gnmf->ndydz    = -9999.9;                  ///< See above
+  gnmf->npz      = -9999.9;                  ///< Neutrino momentum [GeV] along z direction (beam axis)
+  gnmf->nenergy  = -9999.9;                  ///< Neutrino energy [GeV] for a random decay
+  gnmf->ndxdznea = -9999.9;                  ///< Neutrino direction slope for a decay forced to ND
+  gnmf->ndydznea = -9999.9;                  ///< See above
+  gnmf->nenergyn = -9999.9;                  ///< Neutrino energy for decay forced to ND
+  gnmf->nwtnear  = -9999.9;                  ///< weight for decay forced to ND
+  gnmf->ndxdzfar = -9999.9;                  ///< Same as ND but FD
+  gnmf->ndydzfar = -9999.9;                  ///< See above
+  gnmf->nenergyf = -9999.9;                  ///< See above
+  gnmf->nwtfar   = -9999.9;                  ///< See above
+  gnmf->norig    = -9999;                    ///< Obsolete...
+  
+  int iNdecay = -1, iNtype = -1;
+  gnmf->ndecay = iNdecay;                    ///< Decay mode that produced neutrino
+  gnmf->ntype  = iNtype;                     ///< Neutrino "flavour" (i.e. of co-produced lepton)
+
+  gnmf->vx = decay_vx;                       ///< X position of hadron/muon decay
+  gnmf->vy = decay_vy;                       ///< Y position of hadron/muon decay
+  gnmf->vz = decay_vz;                       ///< Z position of hadron/muon decay
+
+  gnmf->pdpx = decay_pdpx;                   ///< Parent X momentum at decay point
+  gnmf->pdpy = decay_pdpy;                   ///< Parent Y momentum at decay point
+  gnmf->pdpz = decay_pdpz;                   ///< Parent Z momentum at decay point
+
+  gnmf->ppdxdz = -9999.9;                    ///< Parent dxdz direction at production
+  gnmf->ppdydz = -9999.9;                    ///< Parent dydz direction at production
+  gnmf->pppz = -9999.9;                      ///< Parent energy at production
+
+  gnmf->ppmedium = -9999;                    ///< Tracking medium number where parent was produced
+  gnmf->ptype = decay_ptype;                 ///< Parent GEANT code particle ID converted to PDG
+
+  gnmf->ppvx = -9999.9;                      ///< Parent production vertex X (cm)
+  gnmf->ppvy = -9999.9;                      ///< Parent production vertex Y (cm)
+  gnmf->ppvz = -9999.9;                      ///< Parent production vertex Z (cm)
+  
+  gnmf->necm = -9999.9;                      ///< Neutrino energy in COM frame
+  gnmf->nimpwt = decay_nimpwt;               ///< Weight of neutrino parent
+
+  gnmf->xpoint = -9999.9;                    ///< Debugging hook (unused)
+  gnmf->ypoint = -9999.9;                    ///< Debugging hook (unused)
+  gnmf->zpoint = -9999.9;                    ///< Debugging hook (unused)
+
+  gnmf->tvx = -9999.9;                       ///< X exit point of parent particle at the target
+  gnmf->tvy = -9999.9;                       ///< Y exit point of parent particle at the target
+  gnmf->tvz = -9999.9;                       ///< Z exit point of parent particle at the target
+
+  gnmf->tpx = -9999.9;                       ///< Parent momentum exiting the target (X)
+  gnmf->tpy = -9999.9;                       ///< Parent momentum exiting the target (Y)
+  gnmf->tpz = -9999.9;                       ///< Parent momentum exiting the target (Z)
+
+  gnmf->tptype = -9999;                      ///< Parent particle ID exiting the target conv to PDG
+  gnmf->tgen = -9999;                        ///< Parent generation in cascade
+
+  gnmf->tgptype = -9999;                     ///< Type of particle that created a particle...
+  
+  gnmf->tgppx = -9999.9;                     ///< Momentum of particle that created particle at IP
+  gnmf->tgppy = -9999.9;                     ///< Momentum of particle that created particle at IP
+  gnmf->tgppz = -9999.9;                     ///< Momentum of particle that created particle at IP
+
+  gnmf->tprivx = -9999.9;                    ///< Primary particle interaction vertex
+  gnmf->tprivy = -9999.9;                    ///< Primary particle interaction vertex
+  gnmf->tprivz = -9999.9;                    ///< Primary particle interaction vertex
+
+  gnmf->beamx = -9999.9;                     ///< Primary proton origin
+  gnmf->beamy = -9999.9;                     ///< Primary proton origin
+  gnmf->beamz = -9999.9;                     ///< Primary proton origin
+
+  gnmf->beampx = -9999.9;                    ///< Primary proton momentum
+  gnmf->beampy = -9999.9;                    ///< Primary proton momentum
+  gnmf->beampz = -9999.9;                    ///< Primary proton momentum
+
+#ifndef SKIP_MINERVA_MODS
+  gnmf->ntrajectory = -9;
+  gnmf->overflow = false;
+
+  for( unsigned int i = 0; i < 10; i++ ){
+    gnmf->pdgcode[i] = -9;
+    gnmf->trackId[i] = -9;
+    gnmf->parentId[i] = -9;
+    
+    gnmf->startx[i] = -9999.9;
+    gnmf->starty[i] = -9999.9;
+    gnmf->startz[i] = -9999.9;
+    gnmf->startpx[i] = -9999.9;
+    gnmf->startpy[i] = -9999.9;
+    gnmf->startpz[i] = -9999.9;
+    gnmf->stopx[i] = -9999.9;
+    gnmf->stopy[i] = -9999.9;
+    gnmf->stopz[i] = -9999.9;
+    gnmf->pprodpx[i] = -9999.9;
+    gnmf->pprodpy[i] = -9999.9;
+    gnmf->pprodpz[i] = -9999.9;
+
+    gnmf->proc[i] = -9;
+    gnmf->ivol[i] = -9;
+    gnmf->fvol[i] = -9;
+  }
+#endif
+}
+//----------------------------------------------------------------------------
 void NHLFluxCreator::OpenFluxInput( std::string finpath )
 {
   LOG( "NHL", pDEBUG )
@@ -286,6 +661,8 @@ void NHLFluxCreator::OpenFluxInput( std::string finpath )
 //----------------------------------------------------------------------------
 void NHLFluxCreator::InitialiseTree()
 {
+  if( isTreeInit ) return;
+
   potnum = 0.0;
   decay_ptype = 0;
   decay_vx = 0.0; decay_vy = 0.0; decay_vz = 0.0;
@@ -306,6 +683,8 @@ void NHLFluxCreator::InitialiseTree()
 //----------------------------------------------------------------------------
 void NHLFluxCreator::InitialiseMeta()
 {
+  if( isMetaInit ) return;
+  
   job = 0;
   pots = 0.0;
 
@@ -808,6 +1187,10 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
   asts << "\nSMv preimage = [ " << fSMv->GetX( zm ) << ", " << fSMv->GetX( zp ) << " ]"
        << "\nSMv range = " << range2
        << "\n\nAcceptance correction = " << range1 / range2;
+
+  LOG( "NHL", pDEBUG ) 
+    << "\nNHL func values (rest, lab) = ( 0, " << fNHL->Eval(0.) << " ), ( 1, " << fNHL->Eval(1.) << " ), ( 179, " << fNHL->Eval(179.) << " ), ( 180, " << fNHL->Eval(180.) << " )"
+    << "\nSMv func values (rest, lab) = ( 0, " << fSMv->Eval(0.) << " ), ( 1, " << fSMv->Eval(1.) << " ), ( 179, " << fSMv->Eval(179.) << " ), ( 180, " << fSMv->Eval(180.) << " )";
 
   LOG( "NHL", pDEBUG ) << (asts.str()).c_str();
   

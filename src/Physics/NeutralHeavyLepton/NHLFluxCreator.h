@@ -65,6 +65,8 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/PrintUtils.h"
 
+#include "Tools/Flux/GNuMIFlux.h"
+
 #include "Physics/NeutralHeavyLepton/NHLBRFunctions.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayVolume.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayUtils.h"
@@ -89,6 +91,10 @@ namespace genie{
       int TestFunction(std::string finpath);
       
       int TestTwoFunction( std::string finpath );
+
+      // workhorse method
+      void MakeTupleFluxEntry( int iEntry, genie::flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath, int run );
+      void FillNonsense( int iEntry, genie::flux::GNuMIFluxPassThroughInfo * gnmf, int run );
 
       // init
       void OpenFluxInput( std::string finpath );
@@ -152,6 +158,7 @@ namespace genie{
 
       extern TFile * fin;
       extern TTree * tree, * meta;
+      extern bool isTreeInit, isMetaInit;
 
       extern double fLx, fLy, fLz;   //BBox length [m]
       extern double fCx, fCy, fCz;   //BBox centre wrt NHL prod [m]
