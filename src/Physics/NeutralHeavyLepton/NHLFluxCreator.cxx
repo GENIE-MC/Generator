@@ -83,8 +83,8 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   fDx = decay_vx * units::cm / units::m;
   fDy = decay_vy * units::cm / units::m;
   fDz = decay_vz * units::cm / units::m;
-  TVector3 fDvec_beam( fDx, fDy, fDz );
-  TVector3 fDvec = ApplyUserRotation( fDvec_beam );
+  TVector3 fDvec( fDx, fDy, fDz );
+  TVector3 fDvec_beam = ApplyUserRotation( fDvec, true );
   
   // set parent mass
   switch( std::abs( decay_ptype ) ){
