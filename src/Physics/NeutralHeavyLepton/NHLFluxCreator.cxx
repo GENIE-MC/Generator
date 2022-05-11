@@ -1044,7 +1044,24 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
     } else { // due to monotonicity all of [0.0, fSMv->GetX( zp )] is good
       range2 = fSMv->GetX( zp );
     }
-  } else { range2 = range1; }
+  } else { // can't decide based on SMv analytically. 
+    // return dx/dz and dy/dz product
+    TVector3 bv = p4par.BoostVector();
+
+    TLorentzVector vcx( p4NHL.P(), 0.0, 0.0, p4NHL.E() ), 
+      vcy( 0.0, p4NHL.P(), 0.0, p4NHL.E() ), 
+      vcz( 0.0, 0.0, p4NHL.P(), p4NHL.E() );
+    vcx.Boost( bv ); vcy.Boost( bv ); vcz.Boost( bv );
+
+    TLorentzVector vsx( SMECM, 0.0, 0.0, SMECM ),
+      vsy( 0.0, SMECM, 0.0, SMECM ),
+      vsz( 0.0, 0.0, SMECM, SMECM );
+    vsx.Boost( bv ); vsy.Boost( bv ); vsz.Boost( bv );
+
+    double xpart = ( vcx.X() / vcz.Z() ) / ( vsx.X() / vsz.Z() );
+    double ypart = ( vcy.Y() / vcz.Z() ) / ( vsy.Y() / vsz.Z() );
+    return 1.0 / ( xpart * ypart );
+  }
 
   asts << "\nSMv preimage = [ " << fSMv->GetX( zm ) << ", " << fSMv->GetX( zp ) << " ]"
        << "\nSMv range = " << range2
