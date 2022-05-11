@@ -105,7 +105,8 @@ namespace genie{
 
       // Custom NHL kinematics, POT scaling, production probabilities
       double ScalePOT( double sm_pot );
-      double NHLEnergy( genie::NHL::NHLProd_t nhldm, TLorentzVector p4par ); // NHL energy in lab frame
+      //double NHLEnergy( genie::NHL::NHLProd_t nhldm, TLorentzVector p4par ); // NHL energy in lab frame
+      TLorentzVector NHLEnergy( genie::NHL::NHLProd_t nhldm, TLorentzVector p4par );
       TLorentzVector NHLFourMomentum( double ENHL, double M );
       TVector3 GetBoostBetaVec( TLorentzVector parp4 );
 

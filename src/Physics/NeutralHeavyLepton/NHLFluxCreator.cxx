@@ -55,215 +55,11 @@ bool NHLFluxCreator::isTreeInit = false, NHLFluxCreator::isMetaInit = false, NHL
 //----------------------------------------------------------------------------
 int NHLFluxCreator::TestFunction(std::string finpath)
 {
-  LOG( "NHL", pDEBUG )
-    << "Entering TestFunction with finpath = " << finpath.c_str();
-
-  TFile * fint = TFile::Open( finpath.c_str() );
-  assert( fint );
-
-  // show some stuff from dkmeta and dk2nu as proof
-  TTree * dk2nuTree  = dynamic_cast<TTree *>( fint->Get( "dkRootTree" ) );
-  TTree * dkmetaTree = dynamic_cast<TTree *>( fint->Get( "dkRootMeta" ) );
-
-  assert( dk2nuTree && dkmetaTree );
-
-  const int nFilesInMeta = dkmetaTree->GetEntries();
-  int nEntries = dk2nuTree->GetEntries();
-
-  LOG( "NHL", pDEBUG )
-    << "There were " << nFilesInMeta << " files in meta with " << nEntries << " total nus";
-
-  int pot_total = 0;
-  double pot_meta  = 0;
-  dkmetaTree->SetBranchAddress( "pots", &pot_meta );
-  for( int i = 0; i < nFilesInMeta; i++ ){
-    dkmetaTree->GetEntry( i );
-    pot_total += (int) pot_meta;
-  }
-
-  LOG( "NHL", pDEBUG )
-    << "This corresponds to " << pot_total << " total POT";
-
-  LOG( "NHL", pDEBUG )
-    << "Here are the parent-type, and decay vertex of the first 100 nus:";
-
-  int parent    = 0;
-  double vx = 0.0, vy = 0.0, vz = 0.0;
-  dk2nuTree->SetBranchAddress( "decay_ptype", &parent    );
-  dk2nuTree->SetBranchAddress( "decay_vx",    &vx        );
-  dk2nuTree->SetBranchAddress( "decay_vy",    &vy        );
-  dk2nuTree->SetBranchAddress( "decay_vz",    &vz        );
-  for( int i = 0; i < 100; i++ ){
-    dk2nuTree->GetEntry( i );
-    LOG( "NHL", pDEBUG )
-      << i << ",  "
-      << parent << ",  ( "
-      << vx << ",  "
-      << vy << ",  "
-      << vz << " )";
-  }
-
-  LOG( "NHL", pDEBUG )
-    << "TestFunction OK";
-
   return 0;
 }
 //----------------------------------------------------------------------------
 int NHLFluxCreator::TestTwoFunction( std::string finpath )
 {
-  LOG( "NHL", pDEBUG )
-    << "Entering TestTwoFunction with finpath = " << finpath.c_str();
-
-  // Open flux input and initialise trees
-  OpenFluxInput( finpath );
-  InitialiseTree();
-  InitialiseMeta();
-
-  MakeBBox();
-
-  int nEntries = utils::nhl::GetCfgInt( "NHL", "FluxCalc", "TEST-NEVENTS" );
-  for( int i = 0; i < nEntries; i++ ){
-    tree->GetEntry(i);
-    
-    // turn cm to m and make origin wrt detector 
-    fDx = decay_vx * units::cm / units::m;
-    fDy = decay_vy * units::cm / units::m;
-    fDz = decay_vz * units::cm / units::m;
-
-    // set parent mass
-    switch( std::abs( decay_ptype ) ){
-    case kPdgPiP: case kPdgKP: case kPdgMuon: case kPdgK0L:
-      parentMass = PDGLibrary::Instance()->Find(decay_ptype)->Mass(); break;
-    default:
-      LOG( "NHL", pERROR ) << "Parent with PDG code " << decay_ptype << " not handled!"
-			   << "\n\tProceeding, but results are possibly unphysical.";
-      parentMass = PDGLibrary::Instance()->Find(decay_ptype)->Mass(); break;
-    }
-    parentMomentum = std::sqrt( decay_pdpx*decay_pdpx + decay_pdpy*decay_pdpy + decay_pdpz*decay_pdpz );
-    parentEnergy = std::sqrt( parentMass*parentMass + parentMomentum*parentMomentum );
-
-    TVector3 detO( fCx - fDx, fCy - fDy, fCz - fDz );
-    
-    double acc_saa = CalculateDetectorAcceptanceSAA( detO );
-    //double acc_drc = CalculateDetectorAcceptanceDRC( detO, fLx, fLy, fLz );
-
-    isParentOnAxis = utils::nhl::GetCfgBool( "NHL", "FluxCalc", "IsParentOnAxis" );
-    TLorentzVector p4par = ( isParentOnAxis ) ?
-      TLorentzVector( parentMomentum * (detO.Unit()).X(), 
-		      parentMomentum * (detO.Unit()).Y(),
-		      parentMomentum * (detO.Unit()).Z(),
-		      parentEnergy ) :
-      TLorentzVector( decay_pdpx, decay_pdpy, decay_pdpz, parentEnergy );
-
-    TVector3 boost_beta = GetBoostBetaVec( p4par );
-
-    double nhlMass = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Mass" );
-    if( parentMass <= nhlMass ){
-      
-      LOG( "NHL", pDEBUG )
-	<< "For entry = " << i << ": "
-	<< "\nDetector centre [beam, m] = ( " << fCx << ", " << fCy << ", " << fCz << " )"
-	<< "\nDetector x-z-x   by [rad] = ( " << fAx1 << ", " << fAz << ", " << fAx2 << " )"
-	<< "\nDecay vertex    [beam, m] = ( " << fDx << ", " << fDy << ", " << fDz << " )" 
-	<< "\nDisplacement          [m] = ( " << fCx - fDx << ", " << fCy - fDy << ", " << fCz - fDz << " )"
-	<< "\nParent PDG = " << decay_ptype
-	<< "\nParent momentum [beam, GeV] = ( " << decay_pdpx << ", " << decay_pdpy << ", " << decay_pdpz << " )"
-	<< "\nMomentum angle with centre = "
-	<< TMath::ACos( (detO.X()*decay_pdpx + detO.Y()*decay_pdpy + detO.Z()*decay_pdpz)/(detO.Mag() * parentMomentum) ) * 180.0 / constants::kPi << " deg"
-	<< "\nParent mass, energy [GeV] = " << parentMass << ", " << parentEnergy << "\n"
-	<< "\nIs parent on axis ? " << ( ( isParentOnAxis ) ? "TRUE" : "FALSE" )
-	<< "\nNew parent momentum [GeV] = ( " << p4par.Px() << ", " << p4par.Py() << ", " << p4par.Z() << " )"
-	<< "\nBoost beta = ( " << boost_beta.X() << ", " << boost_beta.Y() << ", " << boost_beta.Z() << " )\n"
-	<< "\nAcceptance (geometrical) = " << acc_saa
-	<< "\nImportance weight = " << decay_nimpwt
-	<< "\n\nSkipping this light parent";
-
-      continue;
-    }
-    // now calculate which decay channel produces the NHL.
-    dynamicScores = GetProductionProbs( decay_ptype );
-    assert( dynamicScores.size() > 0 );
-
-    RandomGen * rnd = RandomGen::Instance();
-    double score = rnd->RndGen().Uniform( 0.0, 1.0 );
-    NHLProd_t prodChan;
-    // compare with cumulative prob. If < 1st in map, pick 1st chan. If >= 1st and < (1st+2nd), pick 2nd, etc
-    
-    unsigned int imap = 0, iii = 0; double s1 = 0.0; double s2 = 0.0;
-    std::map< NHLProd_t, double >::iterator pdit = dynamicScores.begin();
-    std::map< NHLProd_t, double >::iterator adit = dynamicScores.begin();
-    std::ostringstream ssts, asts;
-    while( adit != dynamicScores.end() ){
-      s2 += (*adit).second;
-      ssts << "[" << iii << "] ==> " << s2 << " ";
-      asts << "\n[" << iii << "] ==> " << s2;
-      iii++; adit++;
-    }
-    while( score >= s1 && pdit != dynamicScores.end() ){
-      s1 += (*pdit).second;
-      if( score >= s1 ){
-	imap++; pdit++;
-      }
-    }
-    LOG( "NHL", pDEBUG ) << (asts.str()).c_str();
-    assert( imap < dynamicScores.size() ); // should have decayed to *some* NHL
-    prodChan = (*pdit).first;
-
-    // decay channel specified, now time to make kinematics
-    double ENHL = NHLEnergy( prodChan, p4par );
-    // find random point in BBox and force momentum to point to that point
-    TLorentzVector p4NHL = NHLFourMomentum( ENHL, nhlMass );
-    TLorentzVector p4NHL_rest = p4NHL;
-    p4NHL_rest.Boost( -boost_beta ); // boost this to parent rest frame first!
-
-    LOG( "NHL", pDEBUG ) << utils::print::P4AsString( &p4NHL );
-
-    //calculate acceptance correction
-    //first, get minimum and maximum deviation from parent momentum to hit detector in degrees
-    double zm = ( isParentOnAxis ) ? 0.0 : 
-      GetAngDeviation( p4par, detO, false ) * 180.0 / constants::kPi;
-    double zp = GetAngDeviation( p4par, detO, true ) * 180.0 / constants::kPi;
-
-    LOG( "NHL", pDEBUG ) << "\nzm, zp = " << zm << ", " << zp << "\n";
-    
-    // now get the actual acceptance correction
-    double accCorr = CalculateAcceptanceCorrection( p4par, p4NHL_rest, decay_necm, zm, zp );
-
-    // which means a true acceptance of
-    double acceptance = acc_saa * accCorr;
-
-    LOG( "NHL", pDEBUG )
-      << "For entry = " << i << ": "
-      << "\nDetector centre [beam, m] = ( " << fCx << ", " << fCy << ", " << fCz << " )"
-      << "\nDetector x-z-x   by [rad] = ( " << fAx1 << ", " << fAz << ", " << fAx2 << " )"
-      << "\nDecay vertex    [beam, m] = ( " << fDx << ", " << fDy << ", " << fDz << " )" 
-      << "\nDisplacement          [m] = ( " << fCx - fDx << ", " << fCy - fDy << ", " << fCz - fDz << " )"
-      << "\nParent PDG = " << decay_ptype
-      << "\nParent momentum [beam, GeV] = ( " << decay_pdpx << ", " << decay_pdpy << ", " << decay_pdpz << " )"
-      << "\nMomentum angle with centre = "
-      << TMath::ACos( (detO.X()*decay_pdpx + detO.Y()*decay_pdpy + detO.Z()*decay_pdpz)/(detO.Mag() * parentMomentum) ) * 180.0 / constants::kPi << " deg"
-      << "\nParent mass, energy [GeV] = " << parentMass << ", " << parentEnergy << "\n"
-      << "\nIs parent on axis ? " << ( ( isParentOnAxis ) ? "TRUE" : "FALSE" )
-      << "\nNew parent momentum [GeV] = ( " << p4par.Px() << ", " << p4par.Py() << ", " << p4par.Z() << " )"
-      << "\nBoost beta = ( " << boost_beta.X() << ", " << boost_beta.Y() << ", " << boost_beta.Z() << " )\n"
-      << "\nScore = " << score
-      << "\nPossible scores: " << (ssts.str()).c_str()
-      << "\nSelected channel: " << utils::nhl::ProdAsString( prodChan )
-      << "\nNHL lab-frame energy = " << ENHL
-      << "\nNHL lab-frame p4 = " << utils::print::P4AsString( &p4NHL )
-      << "\nAcceptance (geometrical) = " << acc_saa
-      << "\nMinimum, maximum angular deviation = " << zm << ", " << zp << " deg"
-      << "\nAcceptance correction = " << accCorr
-      << "\nAcceptance (calculated) = " << acceptance
-      << "\nImportance weight = " << decay_nimpwt << "\n"
-      << "\n\n";
-  }
-  
-  LOG( "NHL", pDEBUG )
-    << "TestTwoFunction OK";
-
-  dynamicScores.clear();
-
   return 0;
 }
 //----------------------------------------------------------------------------
@@ -339,19 +135,21 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     << "Selected channel: " << utils::nhl::ProdAsString( prodChan );
   
   // decay channel specified, now time to make kinematics
-  double ENHL = NHLEnergy( prodChan, p4par );
+  //double ENHL = NHLEnergy( prodChan, p4par );
+  TLorentzVector p4NHL = NHLEnergy( prodChan, p4par );
+  double ENHL = p4NHL.E();
   // find random point in BBox and force momentum to point to that point
-  TLorentzVector p4NHL = NHLFourMomentum( ENHL, nhlMass );
+  //TLorentzVector p4NHL = NHLFourMomentum( ENHL, nhlMass );
 
   TLorentzVector p4NHL_rest = p4NHL;
   p4NHL_rest.Boost( -boost_beta ); // boost this to parent rest frame first!
   
+  
   // calculate acceptance correction
   // first, get minimum and maximum deviation from parent momentum to hit detector in degrees
   // RETHERE generalise condition in case momentum hits detector
-  double zm = ( isParentOnAxis ) ? 0.0 : 
-    GetAngDeviation( p4par, detO, false ) * 180.0 / constants::kPi;
-  double zp = GetAngDeviation( p4par, detO, true ) * 180.0 / constants::kPi;
+  double zm = ( isParentOnAxis ) ? 0.0 : GetAngDeviation( p4par, detO, false );
+  double zp = GetAngDeviation( p4par, detO, true );
   
   // now get the actual acceptance correction
   LOG( "NHL", pDEBUG )
@@ -834,7 +632,7 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
 
 }
 //----------------------------------------------------------------------------
-double NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par )
+TLorentzVector NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par )
 {
   LOG( "NHL", pDEBUG )
     << "Attempting to decay system p4 = " << utils::print::P4AsString(&p4par)
@@ -937,10 +735,11 @@ double NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par )
      if( std::abs( pdgc ) == kPdgNHL ) p4NHL = *p4fin;
      idp++;
   }
-  return p4NHL.E();
+  //return p4NHL.E();
+  return p4NHL;
   
   LOG( "NHL", pERROR ) << "Could not calculate energy. Returning 0.0";
-  return 0.0;
+  //return 0.0;
 }
 //----------------------------------------------------------------------------
 TLorentzVector NHLFluxCreator::NHLFourMomentum( double ENHL, double M )
@@ -1187,8 +986,17 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
     << "\n[4]: p4SMv.E()  = " << fSMv->GetParameter(4)
     << "\n[5]: p4SMv.E()  = " << fSMv->GetParameter(5);
 
-  double range2 = fSMv->GetX( zp ) - fSMv->GetX( zm ); // monotonous increasing
-  assert( range2 > 0.0 );
+  double range2 = -1.0;
+  // SMv deviates more from parent than NHL due to masslessness. This means a larger minimum of labangle
+  // Sometimes the angle is so small, that this calculation fails as there is no SMv preimage to compare
+  // with. Default to accCorr = 1.0 in that case ==> range2 = range1
+  if( fSMv->GetMinimum() < zp ){
+    if( fSMv->GetMinimum() < zm ){
+      range2 = fSMv->GetX( zp ) - fSMv->GetX( zm ); // monotonous increasing
+    } else { // due to monotonicity all of [0.0, fSMv->GetX( zp )] is good
+      range2 = fSMv->GetX( zp );
+    }
+  } else { range2 = range1; }
 
   asts << "\nSMv preimage = [ " << fSMv->GetX( zm ) << ", " << fSMv->GetX( zp ) << " ]"
        << "\nSMv range = " << range2
@@ -1199,6 +1007,8 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
     << "\nSMv func values (rest, lab) = ( 0, " << fSMv->Eval(0.) << " ), ( 1, " << fSMv->Eval(1.) << " ), ( 179, " << fSMv->Eval(179.) << " ), ( 180, " << fSMv->Eval(180.) << " )";
 
   LOG( "NHL", pDEBUG ) << (asts.str()).c_str();
+
+  assert( range2 > 0.0 );
   
   return range1 / range2;
 }
@@ -1218,8 +1028,11 @@ double NHLFluxCreator::labangle( double * x, double * par )
   // boost into lab frame
   pncm.Boost( boost_vec );
   
-  // return lab frame theta wrt z axis in deg
-  double theta = TMath::ACos( pncm.Pz() / pncm.P() ) * 180.0 / constants::kPi;
+  // return lab frame theta wrt parent momentum in deg
+  // double theta = TMath::ACos( pncm.Pz() / pncm.P() ) * 180.0 / constants::kPi;
+  double num = pxhad * pncm.X() + pyhad * pncm.Y() + pzhad * pncm.Z();
+  double den = p4had.P() * pncm.P();
+  double theta = TMath::ACos( num / den ) * 180.0 / constants::kPi;
   return theta;
 }
 //----------------------------------------------------------------------------
