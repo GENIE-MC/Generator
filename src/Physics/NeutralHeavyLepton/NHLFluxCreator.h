@@ -105,9 +105,10 @@ namespace genie{
 
       // Custom NHL kinematics, POT scaling, production probabilities
       double ScalePOT( double sm_pot );
-      //double NHLEnergy( genie::NHL::NHLProd_t nhldm, TLorentzVector p4par ); // NHL energy in lab frame
+      // returns NHL 4-momentum from random decay in same frame as p4par
       TLorentzVector NHLEnergy( genie::NHL::NHLProd_t nhldm, TLorentzVector p4par );
-      TLorentzVector NHLFourMomentum( double ENHL, double M );
+      // gets random point in BBox and returns separation to it in BEAM FRAME
+      TVector3 PointToRandomPointInBBox( TVector3 detO_beam );
       TVector3 GetBoostBetaVec( TLorentzVector parp4 );
 
       void ReadBRs();
@@ -116,6 +117,7 @@ namespace genie{
       // Obtain detector dimensions + position
       // RETHERE: BBox isn't good enough! But roll with it for now
       void MakeBBox();
+      TVector3 ApplyUserRotation( TVector3 vec, bool doBackwards = false );
       
       // calculate detector acceptance (== solid angle of proj of det onto unit-radius sphere / (4pi))
       // NOTE THIS IS A LAB FRAME (==GEOMETRICAL) ACCEPTANCE!!!!

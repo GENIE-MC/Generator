@@ -74,6 +74,8 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   InitialiseMeta();
 
   MakeBBox();
+  TVector3 fCvec_beam( fCx, fCy, fCz );
+  TVector3 fCvec = ApplyUserRotation( fCvec_beam );
 
   tree->GetEntry(iEntry);
     
@@ -81,6 +83,8 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   fDx = decay_vx * units::cm / units::m;
   fDy = decay_vy * units::cm / units::m;
   fDz = decay_vz * units::cm / units::m;
+  TVector3 fDvec_beam( fDx, fDy, fDz );
+  TVector3 fDvec = ApplyUserRotation( fDvec_beam );
   
   // set parent mass
   switch( std::abs( decay_ptype ) ){
@@ -94,7 +98,23 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   parentMomentum = std::sqrt( decay_pdpx*decay_pdpx + decay_pdpy*decay_pdpy + decay_pdpz*decay_pdpz );
   parentEnergy = std::sqrt( parentMass*parentMass + parentMomentum*parentMomentum );
   
-  TVector3 detO( fCx - fDx, fCy - fDy, fCz - fDz ); // separation in beam coords
+  TVector3 detO_beam( fCvec_beam.X() - fDvec_beam.X(),
+		      fCvec_beam.Y() - fDvec_beam.Y(),
+		      fCvec_beam.Z() - fDvec_beam.Z() ); // separation in beam coords
+  TVector3 detO( fCvec.X() - fDvec.X(),
+		 fCvec.Y() - fDvec.Y(),
+		 fCvec.Z() - fDvec.Z() ); // separation in user coords
+
+  LOG( "NHL", pDEBUG )
+    << "\n\n\t***** In BEAM coords: *****"
+    << "\nCentre     = " << utils::print::Vec3AsString( &fCvec_beam )
+    << "\nDecay      = " << utils::print::Vec3AsString( &fDvec_beam )
+    << "\nSeparation = " << utils::print::Vec3AsString( &detO_beam )
+    << "\n\t***** In USER coords: *****"
+    << "\nCentre     = " << utils::print::Vec3AsString( &fCvec )
+    << "\nDecay      = " << utils::print::Vec3AsString( &fDvec )
+    << "\nSeparation = " << utils::print::Vec3AsString( &detO )
+    << "\n\n";
   
   double acc_saa = CalculateDetectorAcceptanceSAA( detO );
   //double acc_drc = CalculateDetectorAcceptanceDRC( detO, fLx, fLy, fLz );
@@ -135,15 +155,29 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     << "Selected channel: " << utils::nhl::ProdAsString( prodChan );
   
   // decay channel specified, now time to make kinematics
-  //double ENHL = NHLEnergy( prodChan, p4par );
-  TLorentzVector p4NHL = NHLEnergy( prodChan, p4par );
-  double ENHL = p4NHL.E();
+  TLorentzVector p4NHL_rand = NHLEnergy( prodChan, p4par ); // this points to a random direction
+
   // find random point in BBox and force momentum to point to that point
-  //TLorentzVector p4NHL = NHLFourMomentum( ENHL, nhlMass );
+  // first, separation in beam frame
+  TVector3 fRVec_beam = PointToRandomPointInBBox( detO_beam );
+  // rotate it and get unit
+  TVector3 fRVec_unit = (ApplyUserRotation( fRVec_beam )).Unit();
+  // force NHL to point along this direction
+  TLorentzVector p4NHL( p4NHL_rand.P() * fRVec_unit.X(),
+			p4NHL_rand.P() * fRVec_unit.Y(),
+			p4NHL_rand.P() * fRVec_unit.Z(),
+			p4NHL_rand.E() );
+
+  TVector3 pNHL_beam = ApplyUserRotation( p4NHL.Vect(), true );
+  TLorentzVector p4NHL_beam( pNHL_beam.X(), pNHL_beam.Y(), pNHL_beam.Z(), p4NHL.E() );
 
   TLorentzVector p4NHL_rest = p4NHL;
   p4NHL_rest.Boost( -boost_beta ); // boost this to parent rest frame first!
   
+  LOG( "NHL", pDEBUG )
+    << "\nRandom:  " << utils::print::P4AsString( &p4NHL_rand )
+    << "\nPointed: " << utils::print::P4AsString( &p4NHL )
+    << "\nRest:    " << utils::print::P4AsString( &p4NHL_rest );
   
   // calculate acceptance correction
   // first, get minimum and maximum deviation from parent momentum to hit detector in degrees
@@ -167,8 +201,11 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   // which means a true acceptance of...
   double acceptance = acc_saa * accCorr;
 
+  // RETHERE add delay! 
   // write 4-position all this happens at
-  TLorentzVector x4NHL( decay_vx, decay_vy, decay_vz, 0.0 );
+  TLorentzVector x4NHL_beam( decay_vx, decay_vy, decay_vz, 0.0 );
+  TVector3 xNHL = ApplyUserRotation( x4NHL_beam.Vect() );
+  TLorentzVector x4NHL( xNHL.X(), xNHL.Y(), xNHL.Z(), 0.0 );
 
   LOG( "NHL", pDEBUG )
     << "Filling some stuff";
@@ -184,10 +221,10 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
 
   gnmf->fgXYWgt = acceptance;                ///< geometrical * collimation correction
 
-  gnmf->fgP4 = p4NHL;                        ///< generated 4-momentum, beam coord
-  gnmf->fgX4 = x4NHL;                        ///< generated 4-position, beam coord
-  gnmf->fgP4User = p4NHL;                    ///< generated 4-momentum, user coord
-  gnmf->fgX4User = x4NHL;                    ///< generated 4-position, user coord
+  gnmf->fgP4 = p4NHL_beam;                   ///< generated 4-momentum, beam coord [GeV]
+  gnmf->fgX4 = x4NHL_beam;                   ///< generated 4-position, beam coord [cm]
+  gnmf->fgP4User = p4NHL;                    ///< generated 4-momentum, user coord [GeV]
+  gnmf->fgX4User = x4NHL;                    ///< generated 4-position, user coord [cm]
 
   gnmf->run      = run;                      ///< Run number
   gnmf->evtno    = iEntry;                   ///< Event number (proton on target) 
@@ -742,20 +779,17 @@ TLorentzVector NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par 
   //return 0.0;
 }
 //----------------------------------------------------------------------------
-TLorentzVector NHLFluxCreator::NHLFourMomentum( double ENHL, double M )
+TVector3 NHLFluxCreator::PointToRandomPointInBBox( TVector3 detO_beam )
 {
-  // get random point in BBox
-  RandomGen * rng = RandomGen::Instance();
-  double rndx = (rng->RndGen()).Uniform( fCx - fLx/2.0, fCx + fLx/2.0 );
-  double rndy = (rng->RndGen()).Uniform( fCy - fLy/2.0, fCy + fLy/2.0 );
-  double rndz = (rng->RndGen()).Uniform( fCz - fLz/2.0, fCz + fLz/2.0 );
-
-  TVector3 delv( rndx - fDx, rndy - fDy, rndz - fDz );
-  TVector3 delu = delv.Unit();
-
-  double P = std::sqrt( ENHL*ENHL - M*M );
-  TLorentzVector nfv( P * delu.X(), P * delu.Y(), P * delu.Z(), ENHL );
-  return nfv;
+  RandomGen * rnd = RandomGen::Instance();
+  double ox = detO_beam.X(), oy = detO_beam.Y(), oz = detO_beam.Z();
+  double rx = (rnd->RndGen()).Uniform( ox - fLx/2.0, ox + fLx/2.0 ), 
+         ry = (rnd->RndGen()).Uniform( oy - fLy/2.0, oy + fLy/2.0 ),
+         rz = (rnd->RndGen()).Uniform( oz - fLz/2.0, oz + fLz/2.0 );
+  TVector3 vec( rx, ry, rz );
+  LOG( "NHL", pDEBUG )
+    << utils::print::Vec3AsString( &vec );
+  return vec;
 }
 //----------------------------------------------------------------------------
 double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, bool seekingMax )
@@ -911,23 +945,31 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
   double ymax = fNHL->GetMaximum(), xmax = fNHL->GetMaximumX();
   double range1 = 0.0;
 
-  std::ostringstream asts;
+  std::ostringstream asts, xlsts, xhsts;
   asts << "Acceptance correction finished. Here is the output:"
        << "\nxmax = " << xmax << ", ymax = " << ymax
        << "\nN preimages: ";
+
+  if( fNHL->GetMinimum() == fNHL->GetMaximum() ) return 1.0; // bail on constant function
 
   if( zm < fNHL->GetMinimum() ){ // really good collimation. There will be *some* angular deviation, so ignore checks on zm
     double z0 = fNHL->GetMinimum();
     LOG( "NHL", pDEBUG )
       << "zm < fNHL->GetMinimum() = " << z0;
-    if( ymax > zp && xmax < 180.0 ){ // there are 2 distinct pre-images in step 1. Add them together.
-      // Boost hits a global maximum without any other local maxima so is monotonous on either side
-      double xl1 = fNHL->GetX( z0, 0., xmax    ), xh1 = fNHL->GetX( zp, 0., xmax    ); // increasing
-      double xl2 = fNHL->GetX( z0, xmax, 180.0 ), xh2 = fNHL->GetX( zp, xmax, 180.0 ); // decreasing
-      range1 = ( xh1 - xl1 ) + ( xl2 - xh2 );
-      asts << "2"
-	   << "\nFirst  preimage = [ " << xl1 << ", " << xh1 << " ]"
-	   << "\nSecond preimage = [ " << xh2 << ", " << xl2 << " ]";
+    if( ymax > zp && xmax < 180.0 ){ // there are >=2 distinct pre-images in step 1. Add them together.
+      int nPreim = 0;
+
+      // RETHERE: Make this more sophisticated! Assumes 2 preimages, 1 before and 1 after max
+      double xl1 = fNHL->GetX( z0, 0.0, xmax );
+      double xh1 = fNHL->GetX( zp, 0.0, xmax );
+      double xl2 = fNHL->GetX( z0, xmax, 180.0 );
+      double xh2 = fNHL->GetX( zp, xmax, 180.0 );
+      
+      range1 += std::abs( xl1 - xh1 ) + std::abs( xh2 - xl2 ); nPreim = 2;
+
+      asts << nPreim
+         << "\nFirst  preimage = [ " << xl1 << ", " << xh1 << " ]"
+         << "\nSecond preimage = [ " << xh2 << ", " << xl2 << " ]";
     } else if( ymax > zp && xmax == 180.0 ){ // 1 pre-image, SMv-like case
       double xl = fNHL->GetX( z0 ), xh = fNHL->GetX( zp );
       range1 = ( xh - xl );
@@ -943,14 +985,16 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
       asts << "0";
       LOG( "NHL", pDEBUG ) << (asts.str()).c_str();
       return 0.0;
-    } else if( ymax > zp && xmax < 180.0 ){ // there are 2 distinct pre-images in step 1. Add them together.
-      // Boost hits a global maximum without any other local maxima so is monotonous on either side
-      double xl1 = fNHL->GetX( zm, 0., xmax    ), xh1 = fNHL->GetX( zp, 0., xmax    ); // increasing
-      double xl2 = fNHL->GetX( zm, xmax, 180.0 ), xh2 = fNHL->GetX( zp, xmax, 180.0 ); // decreasing
-      range1 = ( xh1 - xl1 ) + ( xl2 - xh2 );
-      asts << "2"
-	   << "\nFirst  preimage = [ " << xl1 << ", " << xh1 << " ]"
-	   << "\nSecond preimage = [ " << xh2 << ", " << xl2 << " ]";
+    } else if( ymax > zp && xmax < 180.0 ){ // there are >=2 distinct pre-images in step 1. Add them together.
+      int nPreim = 0;
+
+      // RETHERE: Make this more sophisticated! Assumes 2 preimages, 1 before and 1 after max
+      double xl1 = fNHL->GetX( zm, 0.0, xmax );
+      double xh1 = fNHL->GetX( zp, 0.0, xmax );
+      double xl2 = fNHL->GetX( zm, xmax, 180.0 );
+      double xh2 = fNHL->GetX( zp, xmax, 180.0 );
+      
+      range1 += std::abs( xl1 - xh1 ) + std::abs( xh2 - xl2 ); nPreim = 2;
     } else if ( ymax > zp && xmax == 180.0 ){ // 1 pre-image, SMv-like case
       double xl = fNHL->GetX( zm ), xh = fNHL->GetX( zp );
       range1 = ( xh - xl );
@@ -990,6 +1034,10 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
   // SMv deviates more from parent than NHL due to masslessness. This means a larger minimum of labangle
   // Sometimes the angle is so small, that this calculation fails as there is no SMv preimage to compare
   // with. Default to accCorr = 1.0 in that case ==> range2 = range1
+
+  // RETHERE!: Assume that fSMv is, if not monotonous increasing over [0, 180],
+  //           then at least 1-1 over Preim( max{zm, fSMv->GetMinimum()}, min{zp, fSMv->GetMaximum()} )
+  //           Otherwise this calculation will yield incorrect results
   if( fSMv->GetMinimum() < zp ){
     if( fSMv->GetMinimum() < zm ){
       range2 = fSMv->GetX( zp ) - fSMv->GetX( zm ); // monotonous increasing
@@ -1048,26 +1096,38 @@ void NHLFluxCreator::MakeBBox()
   fCy = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "DetCentreYInBeam" );
   fCz = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "DetCentreZInBeam" );
 
-  // get Euler angles and apply these rotations
   fAx1 = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "EulerExtrinsicX1" );
   fAz  = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "EulerExtrinsicZ"  );
   fAx2 = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "EulerExtrinsicX2" );
 
-  // fAx2 first
-  double x = fCx, y = fCy, z = fCz;
-  fCy = y * std::cos( fAx2 ) - z * std::sin( fAx2 );
-  fCz = y * std::sin( fAx2 ) + z * std::cos( fAx2 );
-  y = fCy; z = fCz;
-  // then fAz
-  fCx = x * std::cos( fAz )  - y * std::sin( fAz );
-  fCy = x * std::sin( fAz )  + y * std::cos( fAz );
-  // fAx1 last
-  fCy = y * std::cos( fAx1 ) - z * std::sin( fAx1 );
-  fCz = y * std::sin( fAx1 ) + z * std::cos( fAx1 );
-
   fLx = 1.0; fLy = 1.0; fLz = 1.0;
 
   isBoxInit = true;
+}
+//----------------------------------------------------------------------------
+TVector3 NHLFluxCreator::ApplyUserRotation( TVector3 vec, bool doBackwards )
+{
+  double vx = vec.X(), vy = vec.Y(), vz = vec.Z();
+
+  double Ax2 = ( doBackwards ) ? -fAx2 : fAx2;
+  double Az  = ( doBackwards ) ? -fAz  : fAz;
+  double Ax1 = ( doBackwards ) ? -fAx1 : fAx1;
+
+  // Ax2 first
+  double x = vx, y = vy, z = vz;
+  vy = y * std::cos( Ax2 ) - z * std::sin( Ax2 );
+  vz = y * std::sin( Ax2 ) + z * std::cos( Ax2 );
+  y = vy; z = vz;
+  // then Az
+  vx = x * std::cos( Az )  - y * std::sin( Az );
+  vy = x * std::sin( Az )  + y * std::cos( Az );
+  x = vx; y = vy;
+  // Ax1 last
+  vy = y * std::cos( Ax1 ) - z * std::sin( Ax1 );
+  vz = y * std::sin( Ax1 ) + z * std::cos( Ax1 );
+
+  TVector3 nvec( vx, vy, vz );
+  return nvec;
 }
 //----------------------------------------------------------------------------
 double NHLFluxCreator::CalculateDetectorAcceptanceSAA( TVector3 detO )
