@@ -103,17 +103,20 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
 		      fCvec_beam.Z() - fDvec_beam.Z() ); // separation in beam coords
   TVector3 detO( fCvec.X() - fDvec.X(),
 		 fCvec.Y() - fDvec.Y(),
-		 fCvec.Z() - fDvec.Z() ); // separation in user coords
+		 fCvec.Z() - fDvec.Z() ); // separation in rotated coords
+  TVector3 detO_user( -detO.X(), -detO.Y(), -detO.Z() );
 
   LOG( "NHL", pDEBUG )
     << "\n\n\t***** In BEAM coords: *****"
     << "\nCentre     = " << utils::print::Vec3AsString( &fCvec_beam )
     << "\nDecay      = " << utils::print::Vec3AsString( &fDvec_beam )
     << "\nSeparation = " << utils::print::Vec3AsString( &detO_beam )
-    << "\n\t***** In USER coords: *****"
+    << "\n\t***** In ROTATED coords: *****"
     << "\nCentre     = " << utils::print::Vec3AsString( &fCvec )
     << "\nDecay      = " << utils::print::Vec3AsString( &fDvec )
     << "\nSeparation = " << utils::print::Vec3AsString( &detO )
+    << "\n\t***** In USER coords: *****"
+    << "\nSeparation = " << utils::print::Vec3AsString( &detO_user )
     << "\n\n";
   
   double acc_saa = CalculateDetectorAcceptanceSAA( detO );
@@ -205,10 +208,13 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   // write 4-position all this happens at
   TLorentzVector x4NHL_beam( decay_vx, decay_vy, decay_vz, 0.0 );
   TVector3 xNHL = ApplyUserRotation( x4NHL_beam.Vect() );
-  TLorentzVector x4NHL( xNHL.X(), xNHL.Y(), xNHL.Z(), 0.0 );
+  TLorentzVector x4NHL( xNHL.X() - detO_user.X(), 
+			xNHL.Y() - detO_user.Y(),
+			xNHL.Z() - detO_user.Z(), 0.0 );
 
   LOG( "NHL", pDEBUG )
-    << "Filling some stuff";
+    << "\nx4NHL_beam = " << utils::print::X4AsString( &x4NHL_beam )
+    << "\nx4NHL_user = " << utils::print::X4AsString( &x4NHL );
 
   // fill all the GNuMIFlux stuff
   // comments as seeon on https://www.hep.utexas.edu/~zarko/wwwgnumi/v19/v19/output_gnumi.html

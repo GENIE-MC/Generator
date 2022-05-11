@@ -78,28 +78,46 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
     fUt42 = 0.0;
   }
 
-  std::vector< double > * prodVtx = this->GenerateDecayPosition( event );
-  std::vector< double > * p3NHL = this->GenerateMomentum( event );
+  std::vector< double > * prodVtx = 0;
+
+  Interaction * interaction = event->Summary();
+  InitialState * init_state = interaction->InitStatePtr();
+
+  LOG( "NHL", pDEBUG )
+    << "\n*!*\n" << utils::print::P4AsString( init_state->GetProbeP4() );
+
+  TLorentzVector p4;
+  if( (init_state->GetProbeP4())->P() < (init_state->GetProbeP4())->E() ){
+    // p4 was already set using NHLFluxCreator. No action needed.
+    // Read event vertex == NHL production vertex. We will find the decay vertex later.
+    p4 = *( init_state->GetProbeP4() );
+
+    prodVtx = new std::vector< double >();
+    prodVtx->emplace_back( event->Vertex()->X() );
+    prodVtx->emplace_back( event->Vertex()->Y() );
+    prodVtx->emplace_back( event->Vertex()->Z() );
+    prodVtx->emplace_back( event->Vertex()->T() );
+  } else {
+    std::vector< double > * p3NHL = this->GenerateMomentum( event );
+
+    double px = p3NHL->at(0);
+    double py = p3NHL->at(1);
+    double pz = p3NHL->at(2);
+    double E = interaction->InitState().ProbeE(kRfLab);
+
+    p4 = TLorentzVector( px, py, pz, E );
+
+    prodVtx = this->GenerateDecayPosition( event );
+  }
 
   // RETHERE don't sample production vtx if user isn't asking for geom! It's pointless.
   TLorentzVector v4( prodVtx->at(0), prodVtx->at(1), prodVtx->at(2), 0.0 );
 
-  Interaction * interaction = event->Summary();
-
-  double px = p3NHL->at(0);
-  double py = p3NHL->at(1);
-  double pz = p3NHL->at(2);
-  double E = interaction->InitState().ProbeE(kRfLab);
-  
-  TLorentzVector p4( px, py, pz, E );
+  init_state->SetProbeP4( p4 );
 
   LOG( "NHL", pDEBUG )
-    << "Probe p4 = ( " << px << ", " << py << ", " << pz << ", " << E << " )";
-
-  InitialState * init_state = interaction->InitStatePtr();
-  init_state->SetProbeP4( p4 );
-  
-  //init_state->SetTgtP4( v4 );
+    << "\nProbe p4 = " << utils::print::P4AsString( &p4 )
+    << "\nProd vtx = " << utils::print::X4AsString( &v4 );
 
   int hpdg = interaction->InitState().ProbePdg();
   event->AddParticle(hpdg, kIStInitialState, 0,-1,-1,-1, p4, v4);
@@ -371,6 +389,10 @@ void NHLPrimaryVtxGenerator::UpdateEventRecord(GHepRecord * event) const
     
   // Set probe
   interaction->InitStatePtr()->SetProbePdg( event->Particle(0)->Pdg() );
+
+  LOG( "NHL", pWARN )
+    << "\n*!*!*" << utils::print::P4AsString( (event->Particle(0))->P4() );
+
   interaction->InitStatePtr()->SetProbeP4( *(event->Particle(0)->P4()) );
   
   // Set target: always Particle(1)

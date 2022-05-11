@@ -460,6 +460,7 @@ int main(int argc, char ** argv)
      }
 
      EventRecord * event = new EventRecord;
+
      // int target = SelectInitState();
      int decay  = (int) gOptDecayMode;
 
@@ -511,6 +512,10 @@ int main(int argc, char ** argv)
      }
 
      Interaction * interaction = Interaction::NHL(typeMod * genie::kPdgNHL, gOptEnergyNHL, decay);
+     if( gnmf ){ // we have an NHL with definite momentum, so let's set it now
+       interaction->InitStatePtr()->SetProbeP4( gnmf->fgP4User );
+       event->SetVertex( gnmf->fgX4User );
+     }
      event->AttachSummary(interaction);
 
      LOG("gevgen_nhl", pDEBUG)
@@ -554,6 +559,12 @@ int main(int argc, char ** argv)
      TLorentzVector x4m( x4mm.X() * mmtom, x4mm.Y() * mmtom, x4mm.Z() * mmtom, 0.0 );
      event->SetVertex(x4m);
      event->SetWeight( evWeight );
+
+     // why does InitState show the wrong p4 here?
+     interaction->InitStatePtr()->SetProbeP4( *(event->Particle(0)->P4()) );
+     LOG( "gevgen_nhl", pDEBUG ) << 
+       "\n!*!*!*! " << utils::print::P4AsString( event->Particle(0)->P4() );
+     
      LOG("gevgen_nhl", pDEBUG) << "Weight = " << evWeight;
 
      LOG("gevgen_nhl", pINFO)
