@@ -551,13 +551,15 @@ int main(int argc, char ** argv)
        NTP_FS2_PZ = 0.0;
      }
 
-     // Generate a position for the decay vertex
+     // Generate (or read) a position for the decay vertex
      // also currently handles the event weight
      TLorentzVector x4mm = GeneratePosition( event );
-     // convert vertex from mm to m
-     const double mmtom = genie::units::mm / genie::units::m;
-     TLorentzVector x4m( x4mm.X() * mmtom, x4mm.Y() * mmtom, x4mm.Z() * mmtom, 0.0 );
-     event->SetVertex(x4m);
+     if( !gOptIsUsingDk2nu ){
+       // convert vertex from mm to m
+       const double mmtom = genie::units::mm / genie::units::m;
+       TLorentzVector x4m( x4mm.X() * mmtom, x4mm.Y() * mmtom, x4mm.Z() * mmtom, 0.0 );
+       event->SetVertex(x4m);
+     }
      event->SetWeight( evWeight );
 
      // why does InitState show the wrong p4 here?
@@ -618,8 +620,13 @@ void InitBoundingBox(void)
   assert(tracker);
   gOptRootGeoManager->SetTopVolume( tracker );
   TGeoShape * ts  = tracker->GetShape();
-  
-  //TGeoShape * ts  = top_volume->GetShape();
+
+  /*
+  TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
+  assert( top_volume );
+  TGeoShape * ts  = top_volume->GetShape();
+  */
+
   TGeoBBox *  box = (TGeoBBox *)ts;
   
   // pass this box to NHLDecayVolume
@@ -872,11 +879,11 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     //const TLorentzVector * x4NHL = interaction->InitState().GetTgtP4( kRfLab );
     //if( !nhlgen ) nhlgen = new NHLPrimaryVtxGenerator();
     //const TLorentzVector * x4NHL = nhlgen->GetProdVtxPosition(event);
-    const TLorentzVector * x4NHL = event->Probe()->GetX4();
+    TLorentzVector * x4NHL = event->Probe()->GetX4();
     
     LOG("gevgen_nhl", pDEBUG)
-      << "Detected vertex at ( " << x4NHL->Px() << ", " << x4NHL->Py() << ", " << x4NHL->Pz() << ")";
-    startPoint.SetXYZ( x4NHL->Px(), x4NHL->Py(), x4NHL->Pz() );
+      << "Detected vertex at ( " << x4NHL->X() << ", " << x4NHL->Y() << ", " << x4NHL->Z() << ")";
+    startPoint.SetXYZ( x4NHL->X(), x4NHL->Y(), x4NHL->Z() );
     LOG( "gevgen_nhl", pDEBUG )
       << "Set start point for this trajectory = ( " << startPoint.X() << ", " << startPoint.Y() << ", " << startPoint.Z() << " ) [cm]";
 
@@ -907,7 +914,14 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     
     int trajIdx = 0; int trajMax = 20; // 1e+2;
     bool didIntersectDet = NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gOptRootGeoManager, gOptRootGeoVolume );
+
+    if( gOptIsUsingDk2nu ) assert( didIntersectDet ); // forced to hit detector somewhere!
+
     std::vector< double > * newProdVtx = new std::vector< double >();
+    newProdVtx->emplace_back( startPoint.X() );
+    newProdVtx->emplace_back( startPoint.Y() );
+    newProdVtx->emplace_back( startPoint.Z() );
+
     while( !didIntersectDet && trajIdx < trajMax ){
       // sample prod vtx and momentum... again
       LOG( "gevgen_nhl", pDEBUG )

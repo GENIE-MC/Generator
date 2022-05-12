@@ -206,11 +206,8 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
 
   // RETHERE add delay! 
   // write 4-position all this happens at
-  TLorentzVector x4NHL_beam( decay_vx, decay_vy, decay_vz, 0.0 );
-  TVector3 xNHL = ApplyUserRotation( x4NHL_beam.Vect() );
-  TLorentzVector x4NHL( xNHL.X() - detO_user.X(), 
-			xNHL.Y() - detO_user.Y(),
-			xNHL.Z() - detO_user.Z(), 0.0 );
+  TLorentzVector x4NHL_beam( decay_vx, decay_vy, decay_vz, 0.0 ); // in cm
+  TLorentzVector x4NHL( -detO.X(), -detO.Y(), -detO.Z(), 0.0 );
 
   LOG( "NHL", pDEBUG )
     << "\nx4NHL_beam = " << utils::print::X4AsString( &x4NHL_beam )

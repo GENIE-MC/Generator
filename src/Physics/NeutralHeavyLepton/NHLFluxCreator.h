@@ -31,6 +31,7 @@
 	Fix detector dimension calculation in GetAngDev()
 	Migrate flux readin to use gnumi --> can put in POT scaling + weight!
 	Write POT scaling + weight
+	Implement TChain solution for OpenFluxInput
  */
 //----------------------------------------------------------------------------
 
