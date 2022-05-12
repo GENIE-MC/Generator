@@ -554,12 +554,9 @@ int main(int argc, char ** argv)
      // Generate (or read) a position for the decay vertex
      // also currently handles the event weight
      TLorentzVector x4mm = GeneratePosition( event );
-     if( !gOptIsUsingDk2nu ){
-       // convert vertex from mm to m
-       const double mmtom = genie::units::mm / genie::units::m;
-       TLorentzVector x4m( x4mm.X() * mmtom, x4mm.Y() * mmtom, x4mm.Z() * mmtom, 0.0 );
-       event->SetVertex(x4m);
-     }
+     const double mmtom = genie::units::mm / genie::units::m;
+     TLorentzVector x4m( x4mm.X() * mmtom, x4mm.Y() * mmtom, x4mm.Z() * mmtom, 0.0 );
+     event->SetVertex(x4m);
      event->SetWeight( evWeight );
 
      // why does InitState show the wrong p4 here?
@@ -881,15 +878,22 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     //const TLorentzVector * x4NHL = nhlgen->GetProdVtxPosition(event);
     TLorentzVector * x4NHL = event->Probe()->GetX4();
     
+    std::ostringstream msts;
+    if( gOptIsUsingDk2nu ){ msts << "[m]"; }
+    else{ msts << "[cm]"; }
     LOG("gevgen_nhl", pDEBUG)
-      << "Detected vertex at ( " << x4NHL->X() << ", " << x4NHL->Y() << ", " << x4NHL->Z() << ")";
+      << "Detected vertex at ( " << x4NHL->X() << ", " << x4NHL->Y() << ", " << x4NHL->Z() << " )";
     startPoint.SetXYZ( x4NHL->X(), x4NHL->Y(), x4NHL->Z() );
-    LOG( "gevgen_nhl", pDEBUG )
-      << "Set start point for this trajectory = ( " << startPoint.X() << ", " << startPoint.Y() << ", " << startPoint.Z() << " ) [cm]";
+    
+    double uMult = ( gOptIsUsingDk2nu ) ?
+      units::m / units::mm : units::cm / units::mm;
 
-    evProdVtx[0] = 10.0 * x4NHL->Px();
-    evProdVtx[1] = 10.0 * x4NHL->Py();
-    evProdVtx[2] = 10.0 * x4NHL->Pz();
+    evProdVtx[0] = uMult * x4NHL->X();
+    evProdVtx[1] = uMult * x4NHL->Y();
+    evProdVtx[2] = uMult * x4NHL->Z();
+
+    LOG( "gevgen_nhl", pDEBUG )
+      << "Set start point for this trajectory = ( " << startPoint.X() << ", " << startPoint.Y() << ", " << startPoint.Z() << " ) [mm]";
   
     // get momentum of this channel
     //const TLorentzVector * p4NHL = interaction->InitState().GetProbeP4( kRfLab );
@@ -934,9 +938,9 @@ TLorentzVector GeneratePosition( GHepRecord * event )
 	<< "Set start point for this trajectory = ( " << startPoint.X() << ", " << startPoint.Y() << ", " << startPoint.Z() << " ) [cm]";
 
       // update the production vertex
-      evProdVtx[0] = 10.0 * newProdVtx->at(0);
-      evProdVtx[1] = 10.0 * newProdVtx->at(1);
-      evProdVtx[2] = 10.0 * newProdVtx->at(2);
+      evProdVtx[0] = uMult * newProdVtx->at(0);
+      evProdVtx[1] = uMult * newProdVtx->at(1);
+      evProdVtx[2] = uMult * newProdVtx->at(2);
       
       trajIdx++;
       didIntersectDet = NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gOptRootGeoManager, gOptRootGeoVolume );
@@ -976,7 +980,7 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     double betaMag = p4NHL->P() / p4NHL->E();
     double gamma = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
 
-    double elapsed_length = NHLDecayVolume::CalcTravelLength( betaMag, CoMLifetime, maxLength );
+    double elapsed_length = NHLDecayVolume::CalcTravelLength( betaMag, CoMLifetime, maxLength ); //mm
     __attribute__((unused)) double ratio_length = elapsed_length / maxLength;
 
     // from these we can also make the weight. It's P( survival ) * P( decay in detector | survival )

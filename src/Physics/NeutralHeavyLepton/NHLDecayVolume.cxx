@@ -95,7 +95,7 @@ double NHLDecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, dou
     << "\nbetaMag = " << betaMag << " ==> gamma = " << gamma
     << "\n==> maxLength = " << maxRestTime << " (rest frame) = " << maxLabTime << " (lab frame)"
     << "\nranthrow = " << ranthrow << ", PExit = " << PExit
-    << "\n==> S0 = " << S0 << " ==> elapsed_time = " << elapsed_time << " ==> elapsed_length = " << elapsed_length;
+    << "\n==> S0 = " << S0 << " ==> elapsed_time [ns] = " << elapsed_time << " ==> elapsed_length [mm] = " << elapsed_length;
 
   return elapsed_length;
 }
@@ -112,7 +112,7 @@ TVector3 NHLDecayVolume::GetDecayPoint( double travelLength, TVector3 & entryPoi
   double dz = ez + travelLength * pz; fDz = dz;
 
   LOG( "NHL", pDEBUG )
-    << "decayPoint = (" << dx << ", " << dy << ", " << dz << ")";
+    << "decayPoint = (" << dx << ", " << dy << ", " << dz << ") [mm]";
 
   TVector3 decayPoint( dx, dy, dz );
   return decayPoint;
