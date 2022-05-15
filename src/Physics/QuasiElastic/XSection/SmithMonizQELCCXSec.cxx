@@ -11,9 +11,6 @@
  Konstantin Kuzmin <kkuzmin@theor.jinr.ru>
  Joint Institute for Nuclear Research
 
- Vladimir Lyubushkin
- Joint Institute for Nuclear Research
-
  Vadim Naumov <vnaumov@theor.jinr.ru>
  Joint Institute for Nuclear Research
 
@@ -70,7 +67,7 @@ double SmithMonizQELCCXSec::Integrate(
 
   const InitialState & init_state = in -> InitState();
   const Target & target = init_state.Tgt();
-  if (target.A()<3)
+  if (target.A()<4)
   {
      const KPhaseSpace & kps = in->PhaseSpace();
      if(!kps.IsAboveThreshold()) {
@@ -95,7 +92,10 @@ double SmithMonizQELCCXSec::Integrate(
   {
      Interaction * interaction = new Interaction(*in);
      sm_utils->SetInteraction(in);
-     if (interaction->InitState().ProbeE(kRfLab)<sm_utils->E_nu_thr_SM()) return 0;
+     if (interaction->InitState().ProbeE(kRfLab)<sm_utils->E_nu_thr_SM()) 
+     {
+        return 0;
+     }
      interaction->SetBit(kISkipProcessChk);
      interaction->SetBit(kISkipKinematicChk);
      double xsec = 0;
@@ -194,7 +194,6 @@ double genie::utils::gsl::d2Xsec_dQ2dv::DoEval(const double * xin) const
 //   differential cross section [10^-38 cm^2]
 //
 
-  Range1D_t rQ2 = sm_utils->Q2QES_SM_lim();
   double Q2     = (rQ2.max-rQ2.min)*xin[0]+rQ2.min;
   Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
   double v      = (rv.max-rv.min)*xin[1]+rv.min;

@@ -11,10 +11,17 @@
           (retrieving, creating, searching, adding to) the cache.
           The various super-classes should implement the ComputeMaxXSec(...)
           method for computing the maximum xsec in case it has not already
-          being pushed into the cache at a previous iteration.
+          being pushed into the cache at a previous iteration. \n
+          
+          Update May 15, 2022 IK: 
+          It makes possible to cache several values having different keys. 
+          The example of using this opportunity see in 
+          the class QELEventGeneratorSM.
 
 \author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Laboratory \n
+          Igor Kakorin <kakorin@jinr.ru>
+          Joint Institute for Nuclear Research
 
 \created  December 15, 2004
 
@@ -48,21 +55,26 @@ protected:
   ~KineGeneratorWithCache();
 
   virtual double ComputeMaxXSec (const Interaction * in) const = 0;
-  virtual double MaxXSec        (GHepRecord * evrec) const;
-  virtual double FindMaxXSec    (const Interaction * in) const;
-  virtual void   CacheMaxXSec   (const Interaction * in, double xsec) const;
+  virtual double ComputeMaxXSec (const Interaction * in, const int nkey) const;
+  virtual double MaxXSec        (GHepRecord * evrec, const int nkey=0) const;
+  virtual double FindMaxXSec    (const Interaction * in, const int nkey=0) const;
+  virtual void   CacheMaxXSec   (const Interaction * in, double xsec, const int nkey=0) const;
   virtual double Energy         (const Interaction * in) const;
 
-  virtual CacheBranchFx * AccessCacheBranch (const Interaction * in) const;
+  virtual CacheBranchFx * AccessCacheBranch (const Interaction * in, const int nkey=0) const;
 
   virtual void AssertXSecLimits (const Interaction * in, double xsec, double xsec_max) const;
 
   mutable const XSecAlgorithmI * fXSecModel;
 
-  double fSafetyFactor;         ///< maxxsec -> maxxsec * safety_factor
-  double fMaxXSecDiffTolerance; ///< max{100*(xsec-maxxsec)/.5*(xsec+maxxsec)} if xsec>maxxsec
-  double fEMin;                 ///< min E for which maxxsec is cached - forcing explicit calc.
-  bool   fGenerateUniformly;    ///< uniform over allowed phase space + event weight?
+  double fSafetyFactor;                     ///< ComputeMaxXSec -> ComputeMaxXSec * fSafetyFactor
+  std::vector<double> vSafetyFactors;       ///< MaxXSec -> MaxXSec * fSafetyFactors[nkey]
+  int fNumOfSafetyFactors;                  ///< Number of given safety factors
+  std::vector<string> vInterpolatorTypes;   ///< Type of interpolator for each key in a branch
+  int fNumOfInterpolatorTypes;              ///< Number of given interpolators types
+  double fMaxXSecDiffTolerance;             ///< max{100*(xsec-maxxsec)/.5*(xsec+maxxsec)} if xsec>maxxsec
+  double fEMin;                             ///< min E for which maxxsec is cached - forcing explicit calc.
+  bool   fGenerateUniformly;                ///< uniform over allowed phase space + event weight?
 };
 
 }      // genie namespace

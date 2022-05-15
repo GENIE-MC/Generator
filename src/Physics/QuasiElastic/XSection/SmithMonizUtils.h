@@ -6,7 +6,9 @@
 \brief    Contains auxiliary functions for Smith-Moniz model. \n
 
 \ref      [1] R.A.Smith and E.J.Moniz, Nuclear Physics  B43, (1972) 605-622 \n
-          [2] K.S. Kuzmin, V.V. Lyubushkin, V.A.Naumov Eur. Phys. J. C54, (2008) 517-538
+          [2] K.S. Kuzmin, V.V. Lyubushkin, V.A.Naumov, Eur. Phys. J. C54, (2008) 517-538 \n
+          [3] K.S.Kuzmin, V.A.Naumov, V.V.Lyubushkin, I.D.Kakorin, Kinematic formulas for GENIE implementation of Smith-Monitz model: \n
+              living document for internal use (http://theor.jinr.ru/NeutrinoOscillations/Papers/GENIE_formulas.pdf)
 
 \author   Igor Kakorin <kakorin@jinr.ru>
           Joint Institute for Nuclear Research \n
@@ -65,15 +67,26 @@ public:
         Range1D_t kFQES_SM_lim(double nu, double Q2) const;
         static double rho(double P_Fermi, double T_Fermi, double p);
         double PhaseSpaceVolume(KinePhaseSpace_t ps) const;
-
+        double vQES_SM_min(double Q2min, double Q2max) const;
+        double vQES_SM_max(double Q2min, double Q2max) const;
         //! methods overloading the Algorithm() interface implementation
         //! to build the fragmentation function from configuration data
         void Configure(const Registry & config);
         void Configure(string config);
+        
+double QEL_EnuMin_SM(double E_nu) const;
 
 private:
+        class Functor1D
+        {
+           public:
+               virtual ~Functor1D() {}
+               virtual double operator()(double d) = 0;
+        };
+        
+        
         template <class C>
-        class Func1D
+        class Func1D : public Functor1D
         {
             public:
                 Func1D(const C &obj, double (C::*f)(double) const):obj_(obj), f_(f){}
@@ -83,15 +96,27 @@ private:
                 const C &obj_;
                 double (C::*f_)(double) const;
         };
+        
+        template <class C>
+        class Func1Dpar : public Functor1D
+        {
+            public:
+                Func1Dpar(const C &obj, double (C::*f)(double,double) const, double par):obj_(obj), f_(f), parameter(par){}
+                ~Func1Dpar(){}
+                double operator()(double d) {return (obj_.*f_)( d, parameter);}
+            private:
+                const C &obj_;
+                double (C::*f_)(double, double) const;
+                double parameter;
+        };
 
         void   LoadConfig (void);
-        double QEL_EnuMin_SM(double E_nu) const;
-        double Q2lim1_SM(double Q2) const;
+ //       double QEL_EnuMin_SM(double E_nu) const;
+        double Q2lim1_SM(double Q2, double Enu) const;
         double Q2lim2_SM(double Q2) const;
-        double LambdaFUNCTION(double a, double b, double c) const;
-        void DMINFC(Func1D<SmithMonizUtils> &F, double A,double B, double EPS, double DELTA, double &X, double &Y, bool &LLM) const;
-        double vQES_SM_low_bound  (double Q2) const;
-        double vQES_SM_upper_bound(double Q2) const;
+        void DMINFC(Functor1D &F, double A,double B, double EPS, double DELTA, double &X, double &Y, bool &LLM) const;
+        double vlim1_SM(double Q2) const;
+        double vlim2_SM(double Q2) const;
 
         map<int, double> fNucRmvE;
         string fKFTable;
@@ -115,7 +140,6 @@ private:
         double  mm_rnu;     ///<  Squared mass of residual nucleus (GeV)
         double  P_Fermi;    ///<  Maximum value of Fermi momentum of target nucleon (GeV)
         double  E_BIN;      ///<  Binding energy (GeV)
-mutable	double  Enu_in;     ///<  Running neutrino energy (GeV)
 
 
 };

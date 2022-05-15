@@ -316,6 +316,7 @@ void ConvertToGST(void)
   bool   brIsMec       = false;  // Is MEC?
   bool   brIsDfr       = false;  // Is Diffractive?
   bool   brIsImd       = false;  // Is IMD?
+  bool   brIsNrm       = false;  // Is Norm?
   bool   brIsSingleK   = false;  // Is single kaon?  
   bool   brIsImdAnh    = false;  // Is IMD annihilation?
   bool   brIsNuEL      = false;  // Is ve elastic?
@@ -429,6 +430,7 @@ void ConvertToGST(void)
   s_tree->Branch("coh",           &brIsCoh,         "coh/O"	    );
   s_tree->Branch("dfr",           &brIsDfr,         "dfr/O"	    );
   s_tree->Branch("imd",	          &brIsImd,	    "imd/O"	    );
+  s_tree->Branch("norm",          &brIsNrm,         "norm/O"	    );
   s_tree->Branch("imdanh",        &brIsImdAnh,	    "imdanh/O"	    );
   s_tree->Branch("singlek",       &brIsSingleK,     "singlek/O"     );  
   s_tree->Branch("nuel",          &brIsNuEL,        "nuel/O"	    );
@@ -624,9 +626,10 @@ void ConvertToGST(void)
     bool is_weaknc    = proc_info.IsWeakNC();
     bool is_mec       = proc_info.IsMEC();
     bool is_amnugamma = proc_info.IsAMNuGamma();
+    bool is_norm      = proc_info.IsNorm(); 
 
     if (!hitnucl && neutrino) {
-        assert(is_coh || is_imd || is_imdanh || is_nuel | is_amnugamma || is_coh_el);
+        assert(is_coh || is_imd || is_imdanh || is_nuel | is_amnugamma || is_coh_el || is_norm);
     }
   
     // Hit quark - set only for DIS events
@@ -908,6 +911,7 @@ void ConvertToGST(void)
     brIsCoh      = is_coh;  
     brIsDfr      = is_dfr;  
     brIsImd      = is_imd;
+    brIsNrm      = is_norm;
     brIsSingleK  = is_singlek;    
     brIsNuEL     = is_nuel;  
     brIsEM       = is_em;  
