@@ -965,9 +965,6 @@ TLorentzVector GeneratePosition( GHepRecord * event )
       return *x4NHL;
     }
 
-    // something between L719 and here causes an O(10x) slowdown. Not *terrible*, but might want to RETHERE to investigate.
-    // (T(100k events) x 10)
-
     // make sure we have a consistent unit system
     NHLDecayVolume::EnforceUnits( "mm", "rad", "ns" );
 
@@ -981,7 +978,7 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     double maxDz = exitPoint.Z() - entryPoint.Z();
 
     LOG( "gevgen_nhl", pDEBUG )
-      << "maxDx, maxDy, maxDz = " << maxDx << ", " << maxDy << ", " << maxDz;
+      << "maxDx, maxDy, maxDz = " << maxDx << ", " << maxDy << ", " << maxDz << "[mm]";
 
     double maxLength = std::sqrt( std::pow( maxDx , 2.0 ) +
 				  std::pow( maxDy , 2.0 ) +
@@ -994,13 +991,9 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     __attribute__((unused)) double ratio_length = elapsed_length / maxLength;
 
     // from these we can also make the weight. It's P( survival ) * P( decay in detector | survival )
-    
-    double sptx = ( gOptIsUsingDk2nu ) ? uMult * startPoint.X() : startPoint.X();
-    double spty = ( gOptIsUsingDk2nu ) ? uMult * startPoint.Y() : startPoint.Y();
-    double sptz = ( gOptIsUsingDk2nu ) ? uMult * startPoint.Z() : startPoint.Z();
-    double distanceBeforeDet = std::sqrt( std::pow( (entryPoint.X() - sptx), 2.0 ) + 
-					  std::pow( (entryPoint.Y() - spty), 2.0 ) + 
-					  std::pow( (entryPoint.Y() - sptz), 2.0 ) ); // mm
+    double distanceBeforeDet = std::sqrt( std::pow( (entryPoint.X() - startPoint.X()), 2.0 ) + 
+					  std::pow( (entryPoint.Y() - startPoint.Y()), 2.0 ) + 
+					  std::pow( (entryPoint.Y() - startPoint.Z()), 2.0 ) ); // mm
 
     double timeBeforeDet = distanceBeforeDet / NHLDecayVolume::kNewSpeedOfLight; // ns lab
     double timeInsideDet = maxLength / NHLDecayVolume::kNewSpeedOfLight; // ns lab
