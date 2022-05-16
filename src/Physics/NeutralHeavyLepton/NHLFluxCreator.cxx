@@ -882,10 +882,9 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
    * NHL are massive so Lorentz boost from parent CM ==> lab is more effective
    * This means that, given a desired range of lab-frame emission angles, there are
    * more rest-frame emission angles that map into this range. 
-   * The calculation works in 3 steps:
-   * 1. Calculate the pre-image of [zm, zp] for the NHL. The boost is not neccesarily monotonous.
-   * 2. Calculate the pre-image of [zm, zp] for a massless neutrino. This boost would be monotonous.
-   * 3. Return the ratio of 1. / 2.
+   * The calculation works as follows:
+   * Calculate the dx/dz and dy/dz for NHL and for SMv.
+   * Return ( dx/dz * dy/dz ) | SMv / ( dx/dz * dy/dz ) | NHL ( > 1 due to collimation!)
    */
   
   assert( zm >= 0.0 && zp >= zm );
@@ -894,138 +893,21 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
   double M = p4NHL.M();
   if( M == 0.0 ) return 1.0;
 
-  fNHL = (TF1*) gROOT->GetListOfFunctions()->FindObject( "fNHL" );
-  if( !fNHL ){
-    LOG( "NHL", pDEBUG ) << "Initialising fNHL";
-    fNHL = new TF1( "fNHL", labangle, 0.0, 180.0, 6 );
-  }
-  fNHL->SetParameter( 0, p4par.E()  );
-  fNHL->SetParameter( 1, p4par.Px() );
-  fNHL->SetParameter( 2, p4par.Py() );
-  fNHL->SetParameter( 3, p4par.Pz() );
-  fNHL->SetParameter( 4, p4NHL.P()  );
-  fNHL->SetParameter( 5, p4NHL.E()  );
-
-  double ymax = fNHL->GetMaximum(), xmax = fNHL->GetMaximumX();
-  double range1 = 0.0;
-
-  std::ostringstream asts, xlsts, xhsts;
-  asts << "Acceptance correction finished. Here is the output:"
-       << "\nxmax = " << xmax << ", ymax = " << ymax
-       << "\nN preimages: ";
-
-  if( fNHL->GetMinimum() == fNHL->GetMaximum() ) return 1.0; // bail on constant function
-
-  if( zm < fNHL->GetMinimum() ){ // really good collimation. There will be *some* angular deviation, so ignore checks on zm
-    double z0 = fNHL->GetMinimum();
-    if( ymax > zp && xmax < 180.0 ){ // there are >=2 distinct pre-images in step 1. Add them together.
-      int nPreim = 0;
-
-      // RETHERE: Make this more sophisticated! Assumes 2 preimages, 1 before and 1 after max
-      double xl1 = fNHL->GetX( z0, 0.0, xmax );
-      double xh1 = fNHL->GetX( zp, 0.0, xmax );
-      double xl2 = fNHL->GetX( z0, xmax, 180.0 );
-      double xh2 = fNHL->GetX( zp, xmax, 180.0 );
-      
-      range1 += std::abs( xl1 - xh1 ) + std::abs( xh2 - xl2 ); nPreim = 2;
-
-      asts << nPreim
-         << "\nFirst  preimage = [ " << xl1 << ", " << xh1 << " ]"
-         << "\nSecond preimage = [ " << xh2 << ", " << xl2 << " ]";
-    } else if( ymax > zp && xmax == 180.0 ){ // 1 pre-image, SMv-like case
-      double xl = fNHL->GetX( z0 ), xh = fNHL->GetX( zp );
-      range1 = ( xh - xl );
-      asts << "1"
-	   << "\nOnly preimage = [ " << xl << ", " << xh << " ]";
-    } else if( ymax <= zp ){ // there is 1 pre-image in step 1. Any and all emission reaches the detector.
-      range1 = 180.0;
-      asts << "1"
-	   << "\nOnly preimage = [ 0.0, 180.0 ]";
-    }
-  } else { // collimation is not so good, need to make some angular deviation. Enforce checks on zm
-    if( ymax <= zm ){ // there is no pre-image in step 1
-      asts << "0";
-      LOG( "NHL", pDEBUG ) << (asts.str()).c_str();
-      return 0.0;
-    } else if( ymax > zp && xmax < 180.0 ){ // there are >=2 distinct pre-images in step 1. Add them together.
-      int nPreim = 0;
-
-      // RETHERE: Make this more sophisticated! Assumes 2 preimages, 1 before and 1 after max
-      double xl1 = fNHL->GetX( zm, 0.0, xmax );
-      double xh1 = fNHL->GetX( zp, 0.0, xmax );
-      double xl2 = fNHL->GetX( zm, xmax, 180.0 );
-      double xh2 = fNHL->GetX( zp, xmax, 180.0 );
-      
-      range1 += std::abs( xl1 - xh1 ) + std::abs( xh2 - xl2 ); nPreim = 2;
-    } else if ( ymax > zp && xmax == 180.0 ){ // 1 pre-image, SMv-like case
-      double xl = fNHL->GetX( zm ), xh = fNHL->GetX( zp );
-      range1 = ( xh - xl );
-      asts << "1"
-	   << "\nOnly preimage = [ " << xl << ", " << xh << " ]";
-    } else if( zm < ymax && ymax <= zp ){ // there is 1 pre-image in step 1
-      double xl = fNHL->GetX( zm, 0.0, xmax ), xh = fNHL->GetX( zm, xmax, 180.0 );
-      range1 = xh - xl;
-      asts << "1"
-	   << "\nOnly preimage = [ " << xl << ", " << xh << " ]";
-    }
-  }
-
-  asts << "\nNHL range = " << range1;
+  TVector3 bv = p4par.BoostVector();
   
-  fSMv = (TF1*) gROOT->GetListOfFunctions()->FindObject( "fSMv" );
-  if( !fSMv ){
-    LOG( "NHL", pDEBUG ) << "Initialising fSMv";
-    fSMv = new TF1( "fSMv", labangle, 0.0, 180.0, 6 );
-  }
-  fSMv->SetParameter( 0, p4par.E()  );
-  fSMv->SetParameter( 1, p4par.Px() );
-  fSMv->SetParameter( 2, p4par.Py() );
-  fSMv->SetParameter( 3, p4par.Pz() );
-  fSMv->SetParameter( 4, SMECM ); // assuming massless nu & reading in from flux tuple
-  fSMv->SetParameter( 5, SMECM );
-
-  double range2 = -1.0;
-  // SMv deviates more from parent than NHL due to masslessness. This means a larger minimum of labangle
-  // Sometimes the angle is so small, that this calculation fails as there is no SMv preimage to compare
-  // with. Default to accCorr = 1.0 in that case ==> range2 = range1
-
-  // RETHERE!: Assume that fSMv is, if not monotonous increasing over [0, 180],
-  //           then at least 1-1 over Preim( max{zm, fSMv->GetMinimum()}, min{zp, fSMv->GetMaximum()} )
-  //           Otherwise this calculation will yield incorrect results
-  if( fSMv->GetMinimum() < zp ){
-    if( fSMv->GetMinimum() < zm ){
-      range2 = fSMv->GetX( zp ) - fSMv->GetX( zm ); // monotonous increasing
-    } else { // due to monotonicity all of [0.0, fSMv->GetX( zp )] is good
-      range2 = fSMv->GetX( zp );
-    }
-  } else { // can't decide based on SMv analytically. 
-    // return dx/dz and dy/dz product
-    TVector3 bv = p4par.BoostVector();
-
-    TLorentzVector vcx( p4NHL.P(), 0.0, 0.0, p4NHL.E() ), 
-      vcy( 0.0, p4NHL.P(), 0.0, p4NHL.E() ), 
-      vcz( 0.0, 0.0, p4NHL.P(), p4NHL.E() );
-    vcx.Boost( bv ); vcy.Boost( bv ); vcz.Boost( bv );
-
-    TLorentzVector vsx( SMECM, 0.0, 0.0, SMECM ),
-      vsy( 0.0, SMECM, 0.0, SMECM ),
-      vsz( 0.0, 0.0, SMECM, SMECM );
-    vsx.Boost( bv ); vsy.Boost( bv ); vsz.Boost( bv );
-
-    double xpart = ( vcx.X() / vcz.Z() ) / ( vsx.X() / vsz.Z() );
-    double ypart = ( vcy.Y() / vcz.Z() ) / ( vsy.Y() / vsz.Z() );
-    return 1.0 / ( xpart * ypart );
-  }
-
-  asts << "\nSMv preimage = [ " << fSMv->GetX( zm ) << ", " << fSMv->GetX( zp ) << " ]"
-       << "\nSMv range = " << range2
-       << "\n\nAcceptance correction = " << range1 / range2;
-
-  LOG( "NHL", pDEBUG ) << (asts.str()).c_str();
-
-  assert( range2 > 0.0 );
+  TLorentzVector vcx( p4NHL.P(), 0.0, 0.0, p4NHL.E() ), 
+    vcy( 0.0, p4NHL.P(), 0.0, p4NHL.E() ), 
+    vcz( 0.0, 0.0, p4NHL.P(), p4NHL.E() );
+  vcx.Boost( bv ); vcy.Boost( bv ); vcz.Boost( bv );
   
-  return range1 / range2;
+  TLorentzVector vsx( SMECM, 0.0, 0.0, SMECM ),
+    vsy( 0.0, SMECM, 0.0, SMECM ),
+    vsz( 0.0, 0.0, SMECM, SMECM );
+  vsx.Boost( bv ); vsy.Boost( bv ); vsz.Boost( bv );
+  
+  double xpart = ( vcx.X() / vcz.Z() ) / ( vsx.X() / vsz.Z() );
+  double ypart = ( vcy.Y() / vcz.Z() ) / ( vsy.Y() / vsz.Z() );
+  return 1.0 / ( xpart * ypart );
 }
 //----------------------------------------------------------------------------
 double NHLFluxCreator::labangle( double * x, double * par )
