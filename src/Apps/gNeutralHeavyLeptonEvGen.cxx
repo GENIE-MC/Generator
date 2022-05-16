@@ -618,16 +618,17 @@ void InitBoundingBox(void)
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
 
   // RETHERE I only make this for some plots. Must remove
+  /*
   TGeoVolume * tracker = gOptRootGeoManager->FindVolumeFast("DetectorlvTracker");
   assert(tracker);
   gOptRootGeoManager->SetTopVolume( tracker );
   TGeoShape * ts  = tracker->GetShape();
+  */
 
-  /*
+  // RETHERE implement top volume option from cmd line
   TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
   assert( top_volume );
   TGeoShape * ts  = top_volume->GetShape();
-  */
 
   TGeoBBox *  box = (TGeoBBox *)ts;
   
@@ -635,9 +636,9 @@ void InitBoundingBox(void)
   NHLDecayVolume::ImportBoundingBox( box );
 
   //get box origin and dimensions (in the same units as the geometry)
-  fdx = box->GetDX(); // half-length
-  fdy = box->GetDY(); // half-length
-  fdz = box->GetDZ(); // half-length
+  fdx = box->GetDX();
+  fdy = box->GetDY();
+  fdz = box->GetDZ();
   fox = (box->GetOrigin())[0];
   foy = (box->GetOrigin())[1];
   foz = (box->GetOrigin())[2];
@@ -645,7 +646,8 @@ void InitBoundingBox(void)
   LOG("gevgen_nhl", pINFO)
     << "Before conversion the bounding box has:"
     << "\nOrigin = ( " << fox << " , " << foy << " , " << foz << " )"
-    << "\nDimensions = " << fdx << " x " << fdy << " x " << fdz;
+    << "\nDimensions = " << fdx << " x " << fdy << " x " << fdz
+    << "\n1cm = 1.0 unit";
 
   // Convert from local to SI units
   fdx *= gOptGeomLUnits;
@@ -913,6 +915,7 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     if( !gOptRootGeoManager ){
       LOG("gevgen_nhl", pFATAL) << "Importing TGeoManager and doing top-volume business";
       gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str());
+      /*
       // RETHERE I only make this for some plots. Must remove
       TGeoVolume * tracker = gOptRootGeoManager->FindVolumeFast("DetectorlvTracker");
       assert(tracker);
@@ -920,6 +923,8 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     }
     // RETHERE I only make this for some plots. Must remove
     if( !gOptRootGeoVolume ) gOptRootGeoVolume = gOptRootGeoManager->FindVolumeFast("DetectorlvTracker");
+      */
+    }
     
     int trajIdx = 0; int trajMax = 20; // 1e+2;
     bool didIntersectDet = NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gOptRootGeoManager, gOptRootGeoVolume );

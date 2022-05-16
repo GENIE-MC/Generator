@@ -30,6 +30,7 @@
 //#endif // #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
 
 //#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
@@ -85,18 +86,26 @@ namespace NHL {
 
     // --------------------------------------------------
 
-    extern double lunits;
+    extern double lunits; extern std::string lunitString;
     extern double aunits;
-    extern double tunits;
+    extern double tunits; extern std::string tunitString;
 
     extern double fSx, fSy, fSz; //start point
     extern double fPx, fPy, fPz; //momentum
     extern double fEx, fEy, fEz; //entry point
     extern double fXx, fXy, fXz; //exit  point
 
+    extern double fSxROOT, fSyROOT, fSzROOT; // start point in cm
+    extern double fExROOT, fEyROOT, fEzROOT; // entry point in cm
+    extern double fXxROOT, fXyROOT, fXzROOT; // exit  point in cm
+
     extern double fDx, fDy, fDz; //decay point
     extern double fOx, fOy, fOz; //origin
     extern double fLx, fLy, fLz; //dimensions
+
+    extern double fDxROOT, fDyROOT, fDzROOT; // decay point in cm
+    extern double fOxROOT, fOyROOT, fOzROOT; // origin in cm
+    extern double fLxROOT, fLyROOT, fLzROOT; // dimensions in cm
 
     extern double fAx, fAy, fAz; //
     extern double fAlpha;
