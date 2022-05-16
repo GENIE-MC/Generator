@@ -83,9 +83,6 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
   Interaction * interaction = event->Summary();
   InitialState * init_state = interaction->InitStatePtr();
 
-  LOG( "NHL", pDEBUG )
-    << "\n*!*\n" << utils::print::P4AsString( init_state->GetProbeP4() );
-
   TLorentzVector p4;
   if( (init_state->GetProbeP4())->P() < (init_state->GetProbeP4())->E() ){
     // p4 was already set using NHLFluxCreator. No action needed.
@@ -389,9 +386,6 @@ void NHLPrimaryVtxGenerator::UpdateEventRecord(GHepRecord * event) const
     
   // Set probe
   interaction->InitStatePtr()->SetProbePdg( event->Particle(0)->Pdg() );
-
-  LOG( "NHL", pWARN )
-    << "\n*!*!*" << utils::print::P4AsString( (event->Particle(0))->P4() );
 
   interaction->InitStatePtr()->SetProbeP4( *(event->Particle(0)->P4()) );
   

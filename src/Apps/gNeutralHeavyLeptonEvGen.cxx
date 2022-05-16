@@ -421,10 +421,15 @@ int main(int argc, char ** argv)
        }
 
        if( gnmf ){ 
-	 TLorentzVector gnmfP4 = gnmf->fgP4;
+	 TLorentzVector gnmfP4 = gnmf->fgP4User;
 	 gOptEnergyNHL = (gnmf->fgP4User).E();
 	 LOG( "gevgen_nhl", pDEBUG )
 	   << "Got TLorentzVector from gnmf: " << utils::print::P4AsString(&gnmfP4);
+
+	 LOG( "gevgen_nhl", pDEBUG )
+	   << "\nIn user coordinates, the decay happened at " << utils::print::X4AsString( &(gnmf->fgX4User) ) << " [m]"
+	   << "\nAnd the trajectory is pointing towards ( "
+	   << (gnmfP4.Px()/gnmfP4.P()) << ", " << (gnmfP4.Py()/gnmfP4.P()) << ", " << (gnmfP4.Pz()/gnmfP4.P());
 
 	 if( gOptEnergyNHL < 0.0 ){
 	   ievent++;
@@ -863,6 +868,8 @@ void MakeNHLFromTuple( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, std::s
 TLorentzVector GeneratePosition( GHepRecord * event )
 {
   double weight = 1.0;
+  double uMult = ( gOptIsUsingDk2nu ) ?
+    units::m / units::mm : units::cm / units::mm;
   if( gOptUsingRootGeom ){
 
     __attribute__((unused)) Interaction * interaction = event->Summary();
@@ -883,10 +890,8 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     else{ msts << "[cm]"; }
     LOG("gevgen_nhl", pDEBUG)
       << "Detected vertex at ( " << x4NHL->X() << ", " << x4NHL->Y() << ", " << x4NHL->Z() << " )";
-    startPoint.SetXYZ( x4NHL->X(), x4NHL->Y(), x4NHL->Z() );
-    
-    double uMult = ( gOptIsUsingDk2nu ) ?
-      units::m / units::mm : units::cm / units::mm;
+    double xmult = ( gOptIsUsingDk2nu ) ? 1000.0 : 1.0; // m to mm in dk2nu case
+    startPoint.SetXYZ( xmult * x4NHL->X(), xmult * x4NHL->Y(), xmult * x4NHL->Z() );
 
     evProdVtx[0] = uMult * x4NHL->X();
     evProdVtx[1] = uMult * x4NHL->Y();
@@ -985,9 +990,12 @@ TLorentzVector GeneratePosition( GHepRecord * event )
 
     // from these we can also make the weight. It's P( survival ) * P( decay in detector | survival )
     
-    double distanceBeforeDet = std::sqrt( std::pow( (entryPoint.X() - startPoint.X()), 2.0 ) + 
-					  std::pow( (entryPoint.Y() - startPoint.Y()), 2.0 ) + 
-					  std::pow( (entryPoint.Y() - startPoint.Z()), 2.0 ) ); // mm
+    double sptx = ( gOptIsUsingDk2nu ) ? uMult * startPoint.X() : startPoint.X();
+    double spty = ( gOptIsUsingDk2nu ) ? uMult * startPoint.Y() : startPoint.Y();
+    double sptz = ( gOptIsUsingDk2nu ) ? uMult * startPoint.Z() : startPoint.Z();
+    double distanceBeforeDet = std::sqrt( std::pow( (entryPoint.X() - sptx), 2.0 ) + 
+					  std::pow( (entryPoint.Y() - spty), 2.0 ) + 
+					  std::pow( (entryPoint.Y() - sptz), 2.0 ) ); // mm
 
     double timeBeforeDet = distanceBeforeDet / NHLDecayVolume::kNewSpeedOfLight; // ns lab
     double timeInsideDet = maxLength / NHLDecayVolume::kNewSpeedOfLight; // ns lab

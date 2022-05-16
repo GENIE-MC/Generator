@@ -791,7 +791,7 @@ TVector3 NHLFluxCreator::PointToRandomPointInBBox( TVector3 detO_beam )
          rz = (rnd->RndGen()).Uniform( oz - fLz/2.0, oz + fLz/2.0 );
   TVector3 vec( rx, ry, rz );
   LOG( "NHL", pDEBUG )
-    << utils::print::Vec3AsString( &vec );
+    << "Pointing to this point in BBox (beam coords): " << utils::print::Vec3AsString( &vec );
   return vec;
 }
 //----------------------------------------------------------------------------
@@ -813,14 +813,6 @@ double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
   // special case: parent is perfectly on axis so hits detector centre
   TVector3 IPdev( detO.X() - x_incp, detO.Y() - y_incp, detO.Z() - z_incp );
   bool parentHitsCentre = ( IPdev.Mag() < controls::kASmallNum );
-
-  LOG( "NHL", pDEBUG )
-    << "\nppar = ( " << ppar.X() << ", " << ppar.Y() << ", " << ppar.Z() << " )"
-    << "\nunit = ( " << pparUnit.X() << ", " << pparUnit.Y() << ", " << pparUnit.Z() << " )"
-    << "\ndetO = ( " << detO.X() << ", " << detO.Y() << ", " << detO.Z() << " )"
-    << "\nt = " << t
-    << "\nIP = ( " << x_incp << ", " << y_incp << ", " << z_incp << " )"
-    << "\nIPdev = ( " << IPdev.X() << ", " << IPdev.Y() << ", " << IPdev.Z() << " )";
 
   // RETHERE: Approximating detector dimension as BBox z dimension (NHL running on almost-z)
   double detRadius = fLz / 2.0;
@@ -860,21 +852,6 @@ double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
     double th3 = TMath::ACos( ( p3.X()*pparUnit.X() + p3.Y()*pparUnit.Y() + p3.Z()*pparUnit.Z() ) / p3.Mag() ); if( th3 > thLarge ){ thLarge = th3; } else if( th3 < thSmall ){ thSmall = th3; }
     double th4 = TMath::ACos( ( p4.X()*pparUnit.X() + p4.Y()*pparUnit.Y() + p4.Z()*pparUnit.Z() ) / p4.Mag() ); if( th4 > thLarge ){ thLarge = th4; } else if( th4 < thSmall ){ thSmall = th4; }
 
-    LOG( "NHL", pDEBUG )
-      << "Parent hits centre, do four vectors"
-      << "\nphi = " << phi * 180.0 / constants::kPi << " deg"
-      << "\nr1Vec = ( " << r1Vec.X() << ", " << r1Vec.Y() << ", " << r1Vec.Z() << " )"
-      << "\nr2Vec = ( " << r2Vec.X() << ", " << r2Vec.Y() << ", " << r2Vec.Z() << " )"
-      << "\np1 = ( " << p1.X() << ", " << p1.Y() << ", " << p1.Z() << " )"
-      << "\np2 = ( " << p2.X() << ", " << p2.Y() << ", " << p2.Z() << " )"
-      << "\np3 = ( " << p3.X() << ", " << p3.Y() << ", " << p3.Z() << " )"
-      << "\np4 = ( " << p4.X() << ", " << p4.Y() << ", " << p4.Z() << " )"
-      << "\nth1, th2, th3, th4 = " << th1 * 180.0 / constants::kPi << ", "
-      << th2 * 180.0 / constants::kPi << ", " << th3 * 180.0 / constants::kPi
-      << ", " << th4 * 180.0 / constants::kPi << " deg"
-      << "\nthLarge, thSmall = " << thLarge * 180.0 / constants::kPi << ", "
-      << thSmall * 180.0 / constants::kPi << " deg";
-
     return ( seekingMax ) ? thLarge * 180.0 / constants::kPi : thSmall * 180.0 / constants::kPi;
   } else {
     // find direction from IP to det centre.
@@ -886,14 +863,6 @@ double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
     TVector3 pl( x_incp - dl * rVec.X(), y_incp - dl * rVec.Y(), z_incp - dl * rVec.Z() );
     double thh = TMath::ACos( ( ph.X()*pparUnit.X() + ph.Y()*pparUnit.Y() + ph.Z()*pparUnit.Z() ) / ph.Mag() );
     double thl = TMath::ACos( ( pl.X()*pparUnit.X() + pl.Y()*pparUnit.Y() + pl.Z()*pparUnit.Z() ) / pl.Mag() );
-
-    LOG( "NHL", pDEBUG )
-      << "Parent does not hit centre, do two vectors"
-      << "\nrVec = ( " << rVec.X() << ", " << rVec.Y() << ", " << rVec.Z() << " )"
-      << "\ndist, dh, dl = " << dist << ", " << dh << ", " << dl
-      << "\nph = " << ph.X() << ", " << ph.Y() << ", " << ph.Z() << " )"
-      << "\npl = " << pl.X() << ", " << pl.Y() << ", " << pl.Z() << " )"
-      << "\nthh, thl = " << thh * 180.0 / constants::kPi << ", " << thl * 180.0 / constants::kPi;
 
     return ( seekingMax ) ? thh * 180.0 / constants::kPi : thl * 180.0 / constants::kPi;
   }
@@ -936,14 +905,6 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
   fNHL->SetParameter( 3, p4par.Pz() );
   fNHL->SetParameter( 4, p4NHL.P()  );
   fNHL->SetParameter( 5, p4NHL.E()  );
-  LOG( "NHL", pDEBUG )
-    << "fNHL with parameters:"
-    << "\n[0]: p4par.E()  = " << fNHL->GetParameter(0)
-    << "\n[1]: p4par.Px() = " << fNHL->GetParameter(1)
-    << "\n[2]: p4par.Py() = " << fNHL->GetParameter(2)
-    << "\n[3]: p4par.Pz() = " << fNHL->GetParameter(3)
-    << "\n[4]: p4NHL.P()  = " << fNHL->GetParameter(4)
-    << "\n[5]: p4NHL.E()  = " << fNHL->GetParameter(5);
 
   double ymax = fNHL->GetMaximum(), xmax = fNHL->GetMaximumX();
   double range1 = 0.0;
@@ -957,8 +918,6 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
 
   if( zm < fNHL->GetMinimum() ){ // really good collimation. There will be *some* angular deviation, so ignore checks on zm
     double z0 = fNHL->GetMinimum();
-    LOG( "NHL", pDEBUG )
-      << "zm < fNHL->GetMinimum() = " << z0;
     if( ymax > zp && xmax < 180.0 ){ // there are >=2 distinct pre-images in step 1. Add them together.
       int nPreim = 0;
 
@@ -1024,14 +983,6 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
   fSMv->SetParameter( 3, p4par.Pz() );
   fSMv->SetParameter( 4, SMECM ); // assuming massless nu & reading in from flux tuple
   fSMv->SetParameter( 5, SMECM );
-  LOG( "NHL", pDEBUG )
-    << "fSMv initialised with parameters:"
-    << "\n[0]: p4par.E()  = " << fSMv->GetParameter(0)
-    << "\n[1]: p4par.Px() = " << fSMv->GetParameter(1)
-    << "\n[2]: p4par.Py() = " << fSMv->GetParameter(2)
-    << "\n[3]: p4par.Pz() = " << fSMv->GetParameter(3)
-    << "\n[4]: p4SMv.E()  = " << fSMv->GetParameter(4)
-    << "\n[5]: p4SMv.E()  = " << fSMv->GetParameter(5);
 
   double range2 = -1.0;
   // SMv deviates more from parent than NHL due to masslessness. This means a larger minimum of labangle
@@ -1069,10 +1020,6 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
   asts << "\nSMv preimage = [ " << fSMv->GetX( zm ) << ", " << fSMv->GetX( zp ) << " ]"
        << "\nSMv range = " << range2
        << "\n\nAcceptance correction = " << range1 / range2;
-
-  LOG( "NHL", pDEBUG ) 
-    << "\nNHL func values (rest, lab) = ( 0, " << fNHL->Eval(0.) << " ), ( 1, " << fNHL->Eval(1.) << " ), ( 179, " << fNHL->Eval(179.) << " ), ( 180, " << fNHL->Eval(180.) << " )"
-    << "\nSMv func values (rest, lab) = ( 0, " << fSMv->Eval(0.) << " ), ( 1, " << fSMv->Eval(1.) << " ), ( 179, " << fSMv->Eval(179.) << " ), ( 180, " << fSMv->Eval(180.) << " )";
 
   LOG( "NHL", pDEBUG ) << (asts.str()).c_str();
 

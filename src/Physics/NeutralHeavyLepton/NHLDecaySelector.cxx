@@ -15,12 +15,6 @@ using namespace genie::NHL;
 // Takes parameter space, outputs all available channels + widths
 std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const double M, const double Ue42, const double Umu42, const double Ut42, const bool IsMajorana ){
 
-    LOG("NHL", pDEBUG)
-      << "\n\n!!! ValidChannel stats:\n"
-      << "!!! M = " << M
-      << "\n!!! Ue42, Umu42, Ut42 = " << Ue42 << ", " << Umu42 << ", " << Ut42
-      << "\n!!! IsMajorana = " << IsMajorana << "\n\n";
-
     std::map< NHLDecayMode_t, double > allChannels;
 
     // invisible decay is always possible

@@ -93,7 +93,7 @@ double NHLDecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, dou
   LOG( "NHL", pDEBUG )
     << "betaMag, maxLength, CoMLifetime = " << betaMag << ", " << maxLength << ", " << CoMLifetime
     << "\nbetaMag = " << betaMag << " ==> gamma = " << gamma
-    << "\n==> maxLength = " << maxRestTime << " (rest frame) = " << maxLabTime << " (lab frame)"
+    << "\n==> maxLength [ns] = " << maxRestTime << " (rest frame) = " << maxLabTime << " (lab frame)"
     << "\nranthrow = " << ranthrow << ", PExit = " << PExit
     << "\n==> S0 = " << S0 << " ==> elapsed_time [ns] = " << elapsed_time << " ==> elapsed_length [mm] = " << elapsed_length;
 
@@ -262,14 +262,7 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   fSx = sx; fSy = sy; fSz = sz;
   fPx = px; fPy = py; fPz = pz;
 
-  // RETHERE I am hacking to set MINERvA ID tracker as top volume.
-  /*
-  TGeoVolume * tracker = gm->FindVolumeFast("DetectorlvTracker");
-  assert(tracker);
-  gm->SetTopVolume(tracker);
-  */
-
-  // put first point at z = const 0.5m behind the bounding box
+  // put first point at z = const 0.1 m behind the bounding box
   // RETHERE, this is a placeholder
   double firstZOffset = 0.1; // m
   firstZOffset *= genie::units::m / lunits;
