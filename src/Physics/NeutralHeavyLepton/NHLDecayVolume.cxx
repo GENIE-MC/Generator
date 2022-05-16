@@ -84,7 +84,7 @@ double NHLDecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, dou
   double maxLabTime = maxLength / kNewSpeedOfLight;
   assert( betaMag > 0.0 && betaMag < 1.0 ); // massive moving particle
   double gamma = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
-  double maxRestTime = maxLabTime / ( betaMag * gamma ); // this is how "wide" the detector looks like
+  double maxRestTime = maxLabTime / gamma ; // this is how "wide" the detector looks like
 
   // if P(DL=0) = 1, P(DL = LMax) = exp( - LMax / c * 1/( beta * gamma ) * 1 / CoMLifetime )
   double PExit = std::exp( - maxRestTime / CoMLifetime );
@@ -96,8 +96,9 @@ double NHLDecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, dou
   double ranthrow = rnd->RndGen().Uniform();
 
   double S0 = (1.0 - PExit) * ranthrow + PExit; 
-  double elapsed_time = CoMLifetime * std::log( 1.0 / S0 );
-  double elapsed_length = elapsed_time * kNewSpeedOfLight;
+  double rest_time = CoMLifetime * std::log( 1.0 / S0 );
+  double elapsed_time = rest_time * gamma;
+  double elapsed_length = elapsed_time * betaMag * kNewSpeedOfLight;
 
   LOG( "NHL", pDEBUG )
     << "betaMag, maxLength, CoMLifetime = " << betaMag << ", " << maxLength << ", " << CoMLifetime
@@ -105,7 +106,8 @@ double NHLDecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, dou
     << "\n==> maxLength [" << tunitString.c_str()
     << "] = " << maxRestTime << " (rest frame) = " << maxLabTime << " (lab frame)"
     << "\nranthrow = " << ranthrow << ", PExit = " << PExit
-    << "\n==> S0 = " << S0 << " ==> elapsed_time [" << tunitString.c_str()
+    << "\n==> S0 = " << S0 << " ==> rest_time [" << lunitString.c_str() << "] = " << rest_time
+    << " ==> elapsed_time [" << tunitString.c_str()
     << "] = " << elapsed_time << " ==> elapsed_length [" << lunitString.c_str()
     << "] = " << elapsed_length;
 
@@ -402,8 +404,10 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   // so one "step" here is actually one big step + one small step
   while( gm->FindNextBoundaryAndStep() && bdIdx < bdIdxMax ){
     const Double_t * currPoint = gm->GetCurrentPoint();
-    LOG( "NHL", pDEBUG )
-      << "Step " << bdIdx << " : ( " << currPoint[0] << ", " << currPoint[1] << ", " << currPoint[2] << " ) [cm]";
+    if( bdIdx % 100 == 0 ){
+      LOG( "NHL", pDEBUG )
+	<< "Step " << bdIdx << " : ( " << currPoint[0] << ", " << currPoint[1] << ", " << currPoint[2] << " ) [cm]";
+    }
     sfxROOT = currPoint[0]; sfyROOT = currPoint[1]; sfzROOT = currPoint[2];
     sNextROOT *= 0.5;
     gm->SetStep( sNextROOT );
