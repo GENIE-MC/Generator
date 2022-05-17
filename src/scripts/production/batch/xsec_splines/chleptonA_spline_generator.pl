@@ -152,7 +152,7 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 foreach $chlepton ( @chlepton_list ) {
   foreach $tgt ( @tgt_pdg ) {
 
-      $jobname  = $nu."_on_".$tgt."_EM";
+      $jobname  = $chlepton."_on_".$tgt."_EM";
       $filename_template = "$jobs_dir/$jobname";
       $grep_pipe  = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
       if ( defined $free_nuc_dir ) {
