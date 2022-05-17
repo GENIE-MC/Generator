@@ -276,9 +276,9 @@ foreach $chlepton ( @chlepton_list ) {
       } #slurm
 
       # run interactively
-    }
   }
 }
+
 
 
 if ( $batch_system eq 'none' ) {
