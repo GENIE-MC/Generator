@@ -107,7 +107,7 @@ $n_knots        = 200                           unless defined $n_knots ;
 
 ##create the list of neutrino to be produced
 if ( defined $req_chlepton_list ) {
-  my @nu_temp_list = split( ",", $req_chlepton_list );
+  my @chlepton_temp_list = split( ",", $req_chlepton_list );
   @chlepton_list = ();
   foreach my $chlepton ( @chlepton_temp_list ) {
     if ( exists $chlepton_pdg_def{$chlepton} ) { push @chlepton_list, $chlepton ; }
