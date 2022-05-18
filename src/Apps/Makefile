@@ -50,6 +50,9 @@ endif
 ifeq ($(strip $(GOPT_ENABLE_NEUTRAL_HEAVY_LEPTON)),YES)
 TGT_BASE += gevgen_nhl
 endif
+ifeq ($(strip $(GOPT_ENABLE_NHL_VALIDATION)), YES)
+TGT_BASE += gevald_nhl
+endif
 ifeq ($(strip $(GOPT_ENABLE_NUCLEON_DECAY)),YES)
 TGT_BASE += gevgen_ndcy
 endif
@@ -137,6 +140,12 @@ $(GENIE_BIN_PATH)/gevgen_hadron: gEvGenHadronNucleus.o $(call find_libs,gevgen_h
 $(GENIE_BIN_PATH)/gevgen_nhl: gNeutralHeavyLeptonEvGen.o $(call find_libs,gevgen_nhl)
 	@echo "** Building gevgen_nhl"
 	$(LD) $(LDFLAGS) gNeutralHeavyLeptonEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_nhl
+
+# validation for NHL ev gen
+#
+$(GENIE_BIN_PATH)/gevald_nhl: gNHLValidationApp.o $(call find_libs,gevald_nhl)
+	@echo "** Building gevald_nhl"
+	$(LD) $(LDFLAGS) gNHLValidationApp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevald_nhl
 
 # nucleon decay event generation app
 #
