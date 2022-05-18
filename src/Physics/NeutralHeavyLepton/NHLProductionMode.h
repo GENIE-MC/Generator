@@ -26,6 +26,7 @@ namespace genie {
     
     typedef enum t_NHLProd {
       
+      kNHLProdNull          = -1,
       kNHLProdPion2Muon     = 0, // pi --> NHL + mu
       kNHLProdPion2Electron = 1, // pi --> NHL + e
       kNHLProdKaon2Muon     = 2, // K  --> NHL + mu
@@ -39,6 +40,24 @@ namespace genie {
       kNHLProdMuon3Nutau    = 10 // mu --> NHL + nutau + e (LFV!)
       
     } NHLProd_t;
+
+    // nomenclature to use in GNuMIFluxPassThroughInfo
+    typedef enum t_NHLGNuMIProd {
+      
+      kNHLGProdNull          = -2,
+      kNHLGProdNeuk3Electron =  1,
+      kNHLGProdNeuk3Muon     =  3,
+      kNHLGProdKaon2Electron =  5,
+      kNHLGProdKaon2Muon     =  7,
+      kNHLGProdKaon3Electron =  9,
+      kNHLGProdKaon3Muon     = 11,
+      kNHLGProdMuon3Nue      = 13,
+      kNHLGProdMuon3Numu     = 15,
+      kNHLGProdMuon3Nutau    = 17,
+      kNHLGProdPion2Electron = 19,
+      kNHLGProdPion2Muon     = 21
+
+    } NHLGNuMIProd_t;
 
   } // namespace NHL
 } // namespace genie

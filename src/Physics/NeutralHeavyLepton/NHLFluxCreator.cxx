@@ -129,7 +129,12 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
 		    parentMomentum * (detO.Unit()).Z(),
 		    parentEnergy ) :
     TLorentzVector( decay_pdpx, decay_pdpy, decay_pdpz, parentEnergy );
-  
+
+  // rotate p4par to user coordinates if not forced to be on axis
+  if( !isParentOnAxis ){
+    TVector3 tmpv3 = ApplyUserRotation( p4par.Vect() );
+    p4par.SetPxPyPzE( tmpv3.Px(), tmpv3.Py(), tmpv3.Pz(), p4par.E() );
+  }
   TVector3 boost_beta = GetBoostBetaVec( p4par );
   
   double nhlMass = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Mass" );
@@ -207,11 +212,15 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   // RETHERE add delay! 
   // write 4-position all this happens at
   TLorentzVector x4NHL_beam( decay_vx, decay_vy, decay_vz, 0.0 ); // in cm
-  TLorentzVector x4NHL( -detO.X(), -detO.Y(), -detO.Z(), 0.0 );
+  TLorentzVector x4NHL( -detO.X(), -detO.Y(), -detO.Z(), 0.0 ); // in m
+  TLorentzVector x4NHL_cm( units::m / units::cm * ( -detO.X() ),
+			   units::m / units::cm * ( -detO.Y() ),
+			   units::m / units::cm * ( -detO.Z() ), 0.0 ); // in cm
 
   LOG( "NHL", pDEBUG )
-    << "\nx4NHL_beam = " << utils::print::X4AsString( &x4NHL_beam )
-    << "\nx4NHL_user = " << utils::print::X4AsString( &x4NHL );
+    << "\nx4NHL_beam    = " << utils::print::X4AsString( &x4NHL_beam )
+    << "\nx4NHL_user    = " << utils::print::X4AsString( &x4NHL )
+    << "\nx4NHL_user_cm = " << utils::print::X4AsString( &x4NHL_cm );
 
   // fill all the GNuMIFlux stuff
   // comments as seeon on https://www.hep.utexas.edu/~zarko/wwwgnumi/v19/v19/output_gnumi.html
@@ -227,7 +236,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   gnmf->fgP4 = p4NHL_beam;                   ///< generated 4-momentum, beam coord [GeV]
   gnmf->fgX4 = x4NHL_beam;                   ///< generated 4-position, beam coord [cm]
   gnmf->fgP4User = p4NHL;                    ///< generated 4-momentum, user coord [GeV]
-  gnmf->fgX4User = x4NHL;                    ///< generated 4-position, user coord [cm]
+  gnmf->fgX4User = x4NHL_cm;                  ///< generated 4-position, user coord [cm]
 
   gnmf->run      = run;                      ///< Run number
   gnmf->evtno    = iEntry;                   ///< Event number (proton on target) 
@@ -239,12 +248,12 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   gnmf->ndxdznea = -9999.9;                  ///< Neutrino direction slope for a decay forced to ND
   gnmf->ndydznea = -9999.9;                  ///< See above
   gnmf->nenergyn = -9999.9;                  ///< Neutrino energy for decay forced to ND
-  gnmf->nwtnear  = -9999.9;                  ///< weight for decay forced to ND
+  gnmf->nwtnear  = accCorr;                  ///< weight for decay forced to ND / now acceptance correction
   gnmf->ndxdzfar = -9999.9;                  ///< Same as ND but FD
   gnmf->ndydzfar = -9999.9;                  ///< See above
   gnmf->nenergyf = -9999.9;                  ///< See above
   gnmf->nwtfar   = -9999.9;                  ///< See above
-  gnmf->norig    = -9999;                    ///< Obsolete...
+  gnmf->norig    = -9999.9;                  ///< Obsolete...
   
   int iNdecay = -1, iNtype = -1;
   switch( prodChan ){
@@ -290,9 +299,9 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   gnmf->necm = p4NHL_rest.E();               ///< Neutrino energy in COM frame
   gnmf->nimpwt = decay_nimpwt;               ///< Weight of neutrino parent
 
-  gnmf->xpoint = -9999.9;                    ///< Debugging hook (unused)
-  gnmf->ypoint = -9999.9;                    ///< Debugging hook (unused)
-  gnmf->zpoint = -9999.9;                    ///< Debugging hook (unused)
+  gnmf->xpoint = p4par.Px();                 ///< Used here to store parent px in user coords
+  gnmf->ypoint = p4par.Py();                 ///< Used here to store parent py in user coords
+  gnmf->zpoint = p4par.Pz();                 ///< Used here to store parent pz in user coords
 
   gnmf->tvx = -9999.9;                       ///< X exit point of parent particle at the target
   gnmf->tvy = -9999.9;                       ///< Y exit point of parent particle at the target
