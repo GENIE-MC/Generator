@@ -327,6 +327,8 @@ int TestFluxFromDk2nu()
   double accCorr;
   double nimpwt; // hadroproduction importance weight
 
+  flux::GNuMIFluxPassThroughInfo * gnmf = new flux::GNuMIFluxPassThroughInfo();
+
   int ievent = 0;
   while(true)
     {
@@ -340,7 +342,6 @@ int TestFluxFromDk2nu()
       
       if( ievent == gOptNev ) break;
 
-      flux::GNuMIFluxPassThroughInfo * gnmf = new flux::GNuMIFluxPassThroughInfo();
       MakeNHLFromTuple( ievent, gnmf, gOptFluxFilePath, gOptRunNu );
       
       // reject nonsense

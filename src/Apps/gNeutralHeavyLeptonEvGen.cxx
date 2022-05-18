@@ -386,6 +386,9 @@ int main(int argc, char ** argv)
 
   // Event loop
   int ievent = 0;
+  flux::GNuMIFluxPassThroughInfo * gnmf = ( !gOptIsMonoEnFlux && gOptIsUsingDk2nu ) ? 
+    new flux::GNuMIFluxPassThroughInfo() : 0;
+
   while (1)
   {
     if( gOptNev >= 10000 ){
@@ -400,9 +403,6 @@ int main(int argc, char ** argv)
       
      LOG("gevgen_nhl", pNOTICE)
           << " *** Generating event............ " << ievent;
-
-     flux::GNuMIFluxPassThroughInfo * gnmf = ( !gOptIsMonoEnFlux && gOptIsUsingDk2nu ) ? 
-       new flux::GNuMIFluxPassThroughInfo() : 0;
 
      if( !gOptIsMonoEnFlux ){
        if( !gOptIsUsingDk2nu ){
@@ -496,22 +496,6 @@ int main(int argc, char ** argv)
        LOG("gevgen_nhl", pDEBUG)
 	 << "Reading interesting channels vector from config";
        std::vector< NHLDecayMode_t > * intChannels = &gOptIntChannels;
-     
-       /*
-       LOG("gevgen_nhl", pDEBUG)
-	 << " Creating interesting channels vector ";
-       std::vector< NHLDecayMode_t > * intChannels = new std::vector< NHLDecayMode_t >();
-       intChannels->emplace_back( kNHLDcyPiE );
-       intChannels->emplace_back( kNHLDcyPiMu );
-       //intChannels->emplace_back( kNHLDcyPi0Nu );
-       //intChannels->emplace_back( kNHLDcyNuNuNu );
-       //intChannels->emplace_back( kNHLDcyNuMuMu );
-       //intChannels->emplace_back( kNHLDcyNuEE );
-       //intChannels->emplace_back( kNHLDcyNuMuE );
-       //intChannels->emplace_back( kNHLDcyPiPi0E );
-       //intChannels->emplace_back( kNHLDcyPiPi0Mu );
-       //intChannels->emplace_back( kNHLDcyPi0Pi0Nu );
-       */
 
        decay = SelectDecayMode( intChannels, sh );
      }

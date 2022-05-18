@@ -69,11 +69,13 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   // Essentially, it replaces a SMv with an NHL
 
   // Open flux input and initialise trees
-  OpenFluxInput( finpath );
-  InitialiseTree();
-  InitialiseMeta();
+  if( !isTreeInit || !isMetaInit || !isBoxInit ){
+    OpenFluxInput( finpath );
+    InitialiseTree();
+    InitialiseMeta();
+    MakeBBox();
+  }
 
-  MakeBBox();
   TVector3 fCvec_beam( fCx, fCy, fCz );
   TVector3 fCvec = ApplyUserRotation( fCvec_beam );
 
@@ -135,7 +137,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     TVector3 tmpv3 = ApplyUserRotation( p4par.Vect() );
     p4par.SetPxPyPzE( tmpv3.Px(), tmpv3.Py(), tmpv3.Pz(), p4par.E() );
   }
-  TVector3 boost_beta = GetBoostBetaVec( p4par );
+  TVector3 boost_beta = p4par.BoostVector();
   
   double nhlMass = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Mass" );
   if( parentMass <= nhlMass ){ FillNonsense( iEntry, gnmf, run ); return; }
