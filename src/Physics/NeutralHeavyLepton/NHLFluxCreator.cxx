@@ -165,7 +165,9 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     << "Selected channel: " << utils::nhl::ProdAsString( prodChan );
   
   // decay channel specified, now time to make kinematics
-  TLorentzVector p4NHL_rand = NHLEnergy( prodChan, p4par ); // this points to a random direction
+  TLorentzVector p4NHL_rest = NHLEnergy( prodChan, p4par ); // this points to a random direction
+  TLorentzVector p4NHL_rand = p4NHL_rest;
+  p4NHL_rand.Boost( boost_beta );
 
   // find random point in BBox and force momentum to point to that point
   // first, separation in beam frame
@@ -180,9 +182,6 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
 
   TVector3 pNHL_beam = ApplyUserRotation( p4NHL.Vect(), true );
   TLorentzVector p4NHL_beam( pNHL_beam.X(), pNHL_beam.Y(), pNHL_beam.Z(), p4NHL.E() );
-
-  TLorentzVector p4NHL_rest = p4NHL;
-  p4NHL_rest.Boost( -boost_beta ); // boost this to parent rest frame first!
   
   LOG( "NHL", pDEBUG )
     << "\nRandom:  " << utils::print::P4AsString( &p4NHL_rand )
@@ -685,8 +684,13 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
 //----------------------------------------------------------------------------
 TLorentzVector NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par )
 {
+  // first boost to parent rest frame
+  TVector3 boost_beta = p4par.BoostVector();
+  TLorentzVector p4par_rest = p4par;
+  p4par_rest.Boost( -boost_beta );
+
   LOG( "NHL", pDEBUG )
-    << "Attempting to decay system p4 = " << utils::print::P4AsString(&p4par)
+    << "Attempting to decay rest-system p4 = " << utils::print::P4AsString(&p4par_rest)
     << " as " << utils::nhl::ProdAsString( nhldm );
   
   // get PDGCodeList and truncate 1st member
@@ -713,12 +717,12 @@ TLorentzVector NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par 
     }
   
   // Set the decay
-  bool permitted = fPhaseSpaceGenerator.SetDecay( p4par, decayList.size(), mass );
+  bool permitted = fPhaseSpaceGenerator.SetDecay( p4par_rest, decayList.size(), mass );
   if(!permitted) {
     LOG("NHL", pERROR)
       << " *** Phase space decay is not permitted \n"
       << " Total particle mass = " << sum << "\n"
-      << " Decaying system p4 = " << utils::print::P4AsString(&p4par);
+      << " Decaying system p4 = " << utils::print::P4AsString(&p4par_rest);
     // clean-up
     delete [] mass;
     // throw exception
@@ -779,18 +783,15 @@ TLorentzVector NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par 
   
   // [DON'T] Insert final state products into a TClonesArray of GHepParticle's
   // Grab 0th entry energy and return that
-  int idp = 0; TLorentzVector p4NHL;
+  int idp = 0; TLorentzVector p4NHL, p4NHL_rest;
   for(std::vector<int>::const_iterator pdg_iter = decayList.begin(); pdg_iter != decayList.end(); ++pdg_iter) {
      int pdgc = *pdg_iter;
      TLorentzVector * p4fin = fPhaseSpaceGenerator.GetDecay(idp);
      if( std::abs( pdgc ) == kPdgNHL ) p4NHL = *p4fin;
      idp++;
   }
-  //return p4NHL.E();
-  return p4NHL;
   
-  LOG( "NHL", pERROR ) << "Could not calculate energy. Returning 0.0";
-  //return 0.0;
+  return p4NHL; // rest frame momentum!
 }
 //----------------------------------------------------------------------------
 TVector3 NHLFluxCreator::PointToRandomPointInBBox( TVector3 detO_beam )
