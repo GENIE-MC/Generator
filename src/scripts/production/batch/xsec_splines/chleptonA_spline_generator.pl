@@ -21,6 +21,7 @@
 #   [--jobs-topdir]    : top level dir for job files, default: $PWD
 #   [--freenucsplines] : Absolute path to free nucleon splines, default: $softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml
 #   [--free-nuc-dir]   : Absolute path to free nuclear spline directory
+#   [--gen-list]       : comma separated list of event generator list, default all
 #   [--target-list]    : comma separated list of targets' PDGs, default De,He4,C12,O16,Ar40,Fe56,Pb207.
 #                        Note that it needs the PDG code, not chemical name.
 #   [--chlepton-list]  : comma separeted list of charged lepton flavors. Both PDGs or names like e, mu, tau. Default e
@@ -60,6 +61,7 @@ foreach (@ARGV) {
   if($_ eq '--jobs-topdir')    { $jobs_topdir    = $ARGV[$iarg+1]; }
   if($_ eq '--freenucsplines') { $freenucsplines = $ARGV[$iarg+1]; }
   if($_ eq '--free-nuc-dir' )  { $free_nuc_dir   = $ARGV[$iarg+1]; }
+  if($_ eq '--gen-list'   )    { $req_gen_list   = $ARGV[$iarg+1]; }
   if($_ eq '--target-list'   ) { $target_list	   = $ARGV[$iarg+1]; }
   if($_ eq '--chlepton-list' ) { $req_chlepton_list    = $ARGV[$iarg+1]; }
   if($_ eq '--e-max' )         { $e_max	        = $ARGV[$iarg+1]; }
@@ -124,6 +126,24 @@ else {
 }
 print "\n Charged lepton List: @nu_list \n";
 
+@nuclei_proc = ( 'none',
+                 'EMMEC',
+                 'EMQE'
+    );
+
+# create the lsit of processes to be generated for composite nuclei
+if ( defined $req_gen_list ) {
+    my @temp_list = split( ",", $req_gen_list );
+    @nuclei_proc_list = ();
+    foreach my $proc ( @temp_list ) {
+	if ( grep  {$_ eq $proc} @nuclei_proc ) { push @nuclei_proc_list, $proc ; }
+    }
+}
+else {
+    @nuclei_proc_list = @nuclei_proc ;
+}
+print "\n List of processes on composite nuclei: @nuclei_proc_list \n";
+
 if ( defined $target_list ) {
 @tgt_pdg = split( ",", $target_list );
 }
@@ -161,134 +181,145 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 
 foreach $chlepton ( @chlepton_list ) {
   foreach $tgt ( @tgt_pdg ) {
+      foreach $proc ( @nuclei_proc_list ) {
+	  if ( $proc eq "none" ) {
+	      next ;
+	  }
 
-      $jobname  = $chlepton."_on_".$tgt."_EM";
-      $filename_template = "$jobs_dir/$jobname";
-      $grep_pipe  = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
-      if ( defined $free_nuc_dir ) {
-        $in_splines=$free_nuc_dir."/"."total_xsec.xml";
+	  if ( $proc eq 'Fast' ) {
+	      $event_gen_list = 'FastOnNuclei' ;
+	  }
+	  else {
+	      $event_gen_list = $proc ;
+	  }
+
+	  $jobname  = $chlepton."_on_".$tgt."_$proc";
+	  $filename_template = "$jobs_dir/$jobname";
+	  $grep_pipe  = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
+	  if ( defined $free_nuc_dir ) {
+	      $in_splines=$free_nuc_dir."/"."total_xsec.xml";
+	  }
+	  else {
+	      $in_splines = $freenucsplines;
+	  }
+	  $gmkspl_opt = "-p $chlepton_pdg_def{$chlepton} -t $tgt -n $n_knots -e $e_max --input-cross-sections $in_splines --output-cross-sections $filename_template.xml --event-generator-list $event_gen_list --no-copy";
+	  $gmkspl_opt .= " --tune $tune " if ( defined $tune ) ;
+	  $gmkspl_cmd = "gmkspl $gmkspl_opt ";
+	  print "@@ exec: $gmkspl_cmd \n";
+
+
+	  # create sh file 
+	  $shell_script = "$filename_template.sh";
+	  open(COMMANDS, ">$shell_script") or die("Can not create the bash script");
+	  print COMMANDS "#!/bin/bash \n";
+	  print COMMANDS "cd $jobs_dir \n";
+	  print COMMANDS "source $genie_setup $config_dir \n";
+	  print COMMANDS "$gmkspl_cmd \n";
+	  close(COMMANDS);
+	  
+	  # set executing privileges to the script 
+	  `chmod ugo+x $filename_template.sh` ;
+	  
+	  #
+	  # submit
+	  #
+	  
+	  push( @direct_commands, "bash $shell_script " ) ;
+	  
+	  
+	  # PBS case
+	  if($batch_system eq 'PBS' || $batch_system eq 'HTCondor_PBS') {
+	      $batch_script = "$filename_template.pbs";
+	      open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
+	      print PBS "#!/bin/bash \n";
+	      print PBS "#PBS -N $jobname \n";
+	      print PBS "#PBS -o $filename_template.pbsout.log \n";
+	      print PBS "#PBS -e $filename_template.pbserr.log \n";
+	      print PBS "source $shell_script \n";
+	      close(PBS);
+	      $job_submission_command = "qsub";
+	      if($batch_system eq 'HTCondor_PBS') {
+		  $job_submission_command = "condor_qsub";
+	      }
+	      
+	      push( @batch_commands, "$job_submission_command -q $queue $batch_script" ) ;
+	      
+	  } #PBS
+	  
+	  # LyonPBS case
+	  if($batch_system eq 'LyonPBS' ) {
+	      $batch_script = "$filename_template.pbs";
+	      open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
+	      print PBS "#!/bin/bash \n";
+	      print PBS "#\$ -P $queue \n";
+	      print PBS "#\$ -N $jobname \n";
+	      print PBS "#\$ -o $filename_template.pbsout.log \n";
+	      print PBS "#\$ -e $filename_template.pbserr.log \n";
+	      print PBS "#\$ -l ct=30:00:00,sps=1,s_rss=4G \n";
+	      print PBS "#\$ -p -1 \n" if ( $priority ) ;
+	      print PBS "source $shell_script \n";
+	      close(PBS);
+	      $job_submission_command = "qsub";
+
+	      push( @batch_commands, "$job_submission_command  $batch_script " ) ;
+	      
+	  } #LyonPBS
+	  
+	  # LSF case
+	  if($batch_system eq 'LSF') {
+	      $batch_script = "$filename_template.sh";
+	      open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
+	      print LSF "#!/bin/bash \n";
+	      print LSF "#BSUB-j $jobname \n";
+	      print LSF "#BSUB-o $filename_template.lsfout.log \n";
+	      print LSF "#BSUB-e $filename_template.lsferr.log \n";
+	      print LSF "source $shell_script \n";
+	      close(LSF);
+
+	      push( @batch_commands, "bsub < $batch_script" ) ;
+	  } #LSF
+	  
+	  # HTCondor
+	  if($batch_system eq 'HTCondor') {
+	      $batch_script = "$filename_template.htc";
+	      open(HTC, ">$batch_script") or die("Can not create the Condor submit description file: $batch_script");
+	      print HTC "Universe               = vanilla \n";
+	      print HTC "Executable             = $shell_script \n";
+	      print HTC "Log                    = $filename_template.log \n";
+	      print HTC "Output                 = $filename_template.out \n";
+	      print HTC "Error                  = $filename_template.err \n";
+	      print HTC "priority               = -1 \n" if ( $priority ) ;
+	      print HTC "Request_memory         = 4 GB \n";
+	      print HTC "requirements           = (Opsys =?= \"LINUX\") && (AccessToData =?= True) && (OpSysAndVer =?= \"CentOS7\")  \n";
+	      print HTC "Queue \n";
+	      close(HTC);
+	      
+	      push( @batch_commands, "condor_submit $batch_script" ) ;
+	      
+	  } #HTCondor
+	  
+	  # slurm case
+	  if($batch_system eq 'slurm' || $batch_system eq 'LyonSlurm') {
+	      $batch_script = "$filename_template.slr";
+	      open(SLURM, ">$batch_script") or die("Can not create the SLURM batch script");
+	      print SLURM "#!/bin/bash \n";
+	      print SLURM "#SBATCH -J $jobname \n";
+	      print SLURM "#SBATCH -p $queue \n";
+	      print SLURM "#SBATCH -o $filename_template.slurmout.log \n";
+	      print SLURM "#SBATCH -e $filename_template.slurmerr.log \n";
+	      print SLURM "#SBATCH -t 20:0:0 \n";
+	      print SLURM "#SBATCH -L sps \n" if ($batch_system eq 'LyonSlurm');
+	      print SLURM "#SBATCH --priority -1 \n" if ( $priority ) ;
+	      print SLURM "source $shell_script \n";
+	      close(SLURM);
+	      
+	      push( @batch_commands, "sbatch $batch_script" );
+	  } #slurm
+	  
+	  # run interactively
       }
-      else {
-        $in_splines = $freenucsplines;
-      }
-      $gmkspl_opt = "-p $chlepton_pdg_def{$chlepton} -t $tgt -n $n_knots -e $e_max --input-cross-sections $in_splines --output-cross-sections $filename_template.xml --event-generator-list EM --no-copy";
-      $gmkspl_opt .= " --tune $tune " if ( defined $tune ) ;
-      $gmkspl_cmd = "gmkspl $gmkspl_opt ";
-      print "@@ exec: $gmkspl_cmd \n";
-
-
-      # create sh file 
-      $shell_script = "$filename_template.sh";
-      open(COMMANDS, ">$shell_script") or die("Can not create the bash script");
-      print COMMANDS "#!/bin/bash \n";
-      print COMMANDS "cd $jobs_dir \n";
-      print COMMANDS "source $genie_setup $config_dir \n";
-      print COMMANDS "$gmkspl_cmd \n";
-      close(COMMANDS);
-
-      # set executing privileges to the script 
-      `chmod ugo+x $filename_template.sh` ;
-
-      #
-      # submit
-      #
-
-      push( @direct_commands, "bash $shell_script " ) ;
-
-
-      # PBS case
-      if($batch_system eq 'PBS' || $batch_system eq 'HTCondor_PBS') {
-   	$batch_script = "$filename_template.pbs";
-  	open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
-	print PBS "#!/bin/bash \n";
-        print PBS "#PBS -N $jobname \n";
-        print PBS "#PBS -o $filename_template.pbsout.log \n";
-        print PBS "#PBS -e $filename_template.pbserr.log \n";
-	print PBS "source $shell_script \n";
-        close(PBS);
-        $job_submission_command = "qsub";
-        if($batch_system eq 'HTCondor_PBS') {
-           $job_submission_command = "condor_qsub";
-        }
-
-	push( @batch_commands, "$job_submission_command -q $queue $batch_script" ) ;
-
-      } #PBS
-
-      # LyonPBS case
-      if($batch_system eq 'LyonPBS' ) {
-         $batch_script = "$filename_template.pbs";
-         open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
-         print PBS "#!/bin/bash \n";
-         print PBS "#\$ -P $queue \n";
-         print PBS "#\$ -N $jobname \n";
-         print PBS "#\$ -o $filename_template.pbsout.log \n";
-         print PBS "#\$ -e $filename_template.pbserr.log \n";
-         print PBS "#\$ -l ct=30:00:00,sps=1,s_rss=4G \n";
-         print PBS "#\$ -p -1 \n" if ( $priority ) ;
-	 print PBS "source $shell_script \n";
-	 close(PBS);
-         $job_submission_command = "qsub";
-
-	 push( @batch_commands, "$job_submission_command  $batch_script " ) ;
-
-       } #LyonPBS
-
-      # LSF case
-      if($batch_system eq 'LSF') {
-	$batch_script = "$filename_template.sh";
-	open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
-	print LSF "#!/bin/bash \n";
-        print LSF "#BSUB-j $jobname \n";
-        print LSF "#BSUB-o $filename_template.lsfout.log \n";
-        print LSF "#BSUB-e $filename_template.lsferr.log \n";
-	print LSF "source $shell_script \n";
-        close(LSF);
-
-	push( @batch_commands, "bsub < $batch_script" ) ;
-      } #LSF
-
-      # HTCondor
-      if($batch_system eq 'HTCondor') {
-        $batch_script = "$filename_template.htc";
-        open(HTC, ">$batch_script") or die("Can not create the Condor submit description file: $batch_script");
-        print HTC "Universe               = vanilla \n";
-        print HTC "Executable             = $shell_script \n";
-        print HTC "Log                    = $filename_template.log \n";
-        print HTC "Output                 = $filename_template.out \n";
-        print HTC "Error                  = $filename_template.err \n";
-	print HTC "priority               = -1 \n" if ( $priority ) ;
-        print HTC "Request_memory         = 4 GB \n";
-        print HTC "requirements           = (Opsys =?= \"LINUX\") && (AccessToData =?= True) && (OpSysAndVer =?= \"CentOS7\")  \n";
-        print HTC "Queue \n";
-        close(HTC);
-
-	push( @batch_commands, "condor_submit $batch_script" ) ;
-
-      } #HTCondor
-
-      # slurm case
-      if($batch_system eq 'slurm' || $batch_system eq 'LyonSlurm') {
-	$batch_script = "$filename_template.slr";
-	open(SLURM, ">$batch_script") or die("Can not create the SLURM batch script");
-	print SLURM "#!/bin/bash \n";
-	print SLURM "#SBATCH -J $jobname \n";
-        print SLURM "#SBATCH -p $queue \n";
-        print SLURM "#SBATCH -o $filename_template.slurmout.log \n";
-        print SLURM "#SBATCH -e $filename_template.slurmerr.log \n";
-	print SLURM "#SBATCH -t 20:0:0 \n";
-	print SLURM "#SBATCH -L sps \n" if ($batch_system eq 'LyonSlurm');
-	print SLURM "#SBATCH --priority -1 \n" if ( $priority ) ;
-	print SLURM "source $shell_script \n";
-        close(SLURM);
-
-	push( @batch_commands, "sbatch $batch_script" );
-      } #slurm
-
-      # run interactively
   }
 }
-
 
 
 if ( $batch_system eq 'none' ) {
