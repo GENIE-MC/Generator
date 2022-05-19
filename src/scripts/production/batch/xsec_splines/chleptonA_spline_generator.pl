@@ -185,10 +185,6 @@ foreach $chlepton ( @chlepton_list ) {
 	  if ( $proc eq "none" ) {
 	      next ;
 	  }
-
-	  if ( $proc eq 'Fast' ) {
-	      $event_gen_list = 'FastOnNuclei' ;
-	  }
 	  else {
 	      $event_gen_list = $proc ;
 	  }

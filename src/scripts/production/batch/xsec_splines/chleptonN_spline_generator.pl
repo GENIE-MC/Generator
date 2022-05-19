@@ -156,15 +156,6 @@ foreach $chlepton ( @chlepton_list ) {
 	  if ( $proc eq "none" ) {
 	      next ;
 	  }
-
-	  if ( $proc eq 'EMQE' ) {
-	      if ( ($tgt eq 'n' ) && ( $chlepton_pdg_def{$chlepton} > 0 ) ) { next ; }
-	      if ( ($tgt eq 'p' ) && ( $chlepton_pdg_def{$chlepton} < 0 ) ) { next ; }
-	  }
-
-	  if ( $proc eq 'Fast' ) {
-	      $event_gen_list = 'FastOn' . ( uc $tgt );
-	  }
 	  else {
 	      $event_gen_list = $proc ;
 	  }
