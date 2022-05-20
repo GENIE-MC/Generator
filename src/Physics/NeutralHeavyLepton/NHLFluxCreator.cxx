@@ -77,19 +77,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   fDz = decay_vz * units::cm / units::m;
   TVector3 fDvec( fDx, fDy, fDz );
   TVector3 fDvec_beam = ApplyUserRotation( fDvec, true );
-  
-  // set parent mass
-  switch( std::abs( decay_ptype ) ){
-  case kPdgPiP: case kPdgKP: case kPdgMuon: case kPdgK0L:
-    parentMass = PDGLibrary::Instance()->Find(decay_ptype)->Mass(); break;
-  default:
-    LOG( "NHL", pERROR ) << "Parent with PDG code " << decay_ptype << " not handled!"
-			 << "\n\tProceeding, but results are possibly unphysical.";
-    parentMass = PDGLibrary::Instance()->Find(decay_ptype)->Mass(); break;
-  }
-  parentMomentum = std::sqrt( decay_pdpx*decay_pdpx + decay_pdpy*decay_pdpy + decay_pdpz*decay_pdpz );
-  parentEnergy = std::sqrt( parentMass*parentMass + parentMomentum*parentMomentum );
-  
+    
   TVector3 detO_beam( fCvec_beam.X() - fDvec_beam.X(),
 		      fCvec_beam.Y() - fDvec_beam.Y(),
 		      fCvec_beam.Z() - fDvec_beam.Z() ); // separation in beam coords
@@ -114,23 +102,35 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   double acc_saa = CalculateDetectorAcceptanceSAA( detO );
   //double acc_drc = CalculateDetectorAcceptanceDRC( detO, fLx, fLy, fLz );
   
+  // set parent mass
+  switch( std::abs( decay_ptype ) ){
+  case kPdgPiP: case kPdgKP: case kPdgMuon: case kPdgK0L:
+    parentMass = PDGLibrary::Instance()->Find(decay_ptype)->Mass(); break;
+  default:
+    LOG( "NHL", pERROR ) << "Parent with PDG code " << decay_ptype << " not handled!"
+			 << "\n\tProceeding, but results are possibly unphysical.";
+    parentMass = PDGLibrary::Instance()->Find(decay_ptype)->Mass(); break;
+  }
+  parentMomentum = std::sqrt( decay_pdpx*decay_pdpx + decay_pdpy*decay_pdpy + decay_pdpz*decay_pdpz );
+  parentEnergy = std::sqrt( parentMass*parentMass + parentMomentum*parentMomentum );
+
   isParentOnAxis = utils::nhl::GetCfgBool( "NHL", "FluxCalc", "IsParentOnAxis" );
-  TLorentzVector p4par = ( isParentOnAxis ) ?
+  // CAUTION: p4par is in USER coords
+  TLorentzVector p4par = ( isParentOnAxis ) ? 
     TLorentzVector( parentMomentum * (detO.Unit()).X(), 
 		    parentMomentum * (detO.Unit()).Y(),
 		    parentMomentum * (detO.Unit()).Z(),
 		    parentEnergy ) :
     TLorentzVector( decay_pdpx, decay_pdpy, decay_pdpz, parentEnergy );
 
-  // rotate p4par to user coordinates if not forced to be on axis
   if( !isParentOnAxis ){
+    // rotate p4par to user coordinates
     TVector3 tmpv3 = ApplyUserRotation( p4par.Vect() );
     p4par.SetPxPyPzE( tmpv3.Px(), tmpv3.Py(), tmpv3.Pz(), p4par.E() );
   }
+
+
   TVector3 boost_beta = p4par.BoostVector();
-  
-  double nhlMass = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Mass" );
-  if( parentMass <= nhlMass ){ FillNonsense( iEntry, gnmf, run ); return; }
 
   // explicitly check if there are any allowed decays for this parent
   bool canGoForward = true;
@@ -168,6 +168,11 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   std::map< NHLProd_t, double >::iterator pdit = dynamicScores.begin();
   while( score >= s1 && pdit != dynamicScores.end() ){
     s1 += (*pdit).second;
+    if( parentMass > 0.495 ){
+      LOG( "NHL", pDEBUG )
+	<< "(*pdit).first = " << utils::nhl::ProdAsString( (*pdit).first )
+	<< " : (*pdit).second = " << (*pdit).second;
+    }
     if( score >= s1 ){
       imap++; pdit++;
     }
@@ -179,9 +184,44 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     << "Selected channel: " << utils::nhl::ProdAsString( prodChan );
   
   // decay channel specified, now time to make kinematics
-  TLorentzVector p4NHL_rest = NHLEnergy( prodChan, p4par ); // this points to a random direction
-  TLorentzVector p4NHL_rand = p4NHL_rest;
-  p4NHL_rand.Boost( boost_beta );
+  TLorentzVector p4NHL_rest = NHLEnergy( prodChan, p4par ); // this is a random direction rest-frame NHL. We don't care about where it's pointing
+
+  /* 
+   * it is NOT sufficient to boost this into lab frame! 
+   * Only a small portion of the CM decays can possibly reach the detector, 
+   * imposing a constraint on the allowed directions of p4NHL_rest. 
+   * You will miscalculate the NHL energy if you just Boost here. 
+   */
+  // explicitly calculate the boost correction to lab-frame energy
+  // in a dk2nu-like fashion. See bsim::CalcEnuWgt()
+  double betaMag = boost_beta.Mag();
+  double gamma   = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
+  double betaNHL = p4NHL_rest.P() / p4NHL_rest.E();
+  double boost_correction = 0.0;
+  double costh_pardet = 0.0;
+  if( parentMomentum > 0.0 ){
+    costh_pardet = ( p4par.Px() * detO.X() +
+		     p4par.Py() * detO.Y() +
+		     p4par.Pz() * detO.Z() ) / ( parentMomentum * detO.Mag() );
+    if( costh_pardet < -1.0 ) costh_pardet = -1.0;
+    if( costh_pardet > 1.0 ) costh_pardet = 1.0;
+    // assume boost is on z' direction where z' = parent momentum direction, subbing betaMag ==> betaMag * costh_pardet
+    boost_correction = 1.0 / ( gamma * ( 1.0 - betaMag * betaNHL * costh_pardet ) );
+  }
+
+  LOG( "NHL", pDEBUG )
+    << "\nbetaMag = " << betaMag
+    << "\ngamma   = " << gamma
+    << "\nbetaNHL = " << betaNHL
+    << "\ncosth_pardet     = " << costh_pardet
+    << "\nboost_correction = " << boost_correction;
+
+  assert( boost_correction > 0.0 );
+
+  // so now we have the random decay. Direction = parent direction, energy = what we calculated
+  double ENHL = p4NHL_rest.E() * boost_correction;
+  TVector3 pdu = ( p4par.Vect() ).Unit();
+  TLorentzVector p4NHL_rand( ENHL * pdu.X(), ENHL * pdu.Y(), ENHL * pdu.Z(), ENHL );
 
   // find random point in BBox and force momentum to point to that point
   // first, separation in beam frame
@@ -205,24 +245,29 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   // calculate acceptance correction
   // first, get minimum and maximum deviation from parent momentum to hit detector in degrees
   // RETHERE generalise condition in case momentum hits detector
+
   double zm = ( isParentOnAxis ) ? 0.0 : GetAngDeviation( p4par, detO, false );
   double zp = GetAngDeviation( p4par, detO, true );
   
   // now get the actual acceptance correction
   LOG( "NHL", pDEBUG )
     << "Entering CalculateAcceptanceCorrection with:"
-    << "\np4par = " << utils::print::P4AsString(&p4par)
+    << "\np4par      = " << utils::print::P4AsString(&p4par)
     << "\np4NHL_rest = " << utils::print::P4AsString(&p4NHL_rest)
     << "\ndecay_necm = " << decay_necm
     << "\nzm = " << zm
     << "\nzp = " << zp;
   double accCorr = CalculateAcceptanceCorrection( p4par, p4NHL_rest, decay_necm, zm, zp );
+  
+  // also have to factor in boost correction itself... that's same as energy boost correction squared
+  // which means a true acceptance of...
+  double acceptance = acc_saa * boost_correction * boost_correction * accCorr;
 
   LOG( "NHL", pDEBUG )
-    << "accCorr = " << accCorr;
-  
-  // which means a true acceptance of...
-  double acceptance = acc_saa * accCorr;
+    << "\nacc_saa    = " << acc_saa
+    << "\nboost_correction^2 = " << boost_correction * boost_correction
+    << "\naccCorr    = " << accCorr
+    << "\nacceptance = " << acceptance;
 
   // RETHERE add delay! 
   // write 4-position all this happens at
@@ -699,8 +744,8 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
 TLorentzVector NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par )
 {
   // first boost to parent rest frame
-  TVector3 boost_beta = p4par.BoostVector();
   TLorentzVector p4par_rest = p4par;
+  TVector3 boost_beta = p4par.BoostVector();
   p4par_rest.Boost( -boost_beta );
 
   LOG( "NHL", pDEBUG )
@@ -984,6 +1029,8 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
   fSMv->SetParameter( 5, SMECM      );
   double range2 = -1.0;
 
+  if( fSMv->GetMaximum() == fSMv->GetMinimum() ) return 1.0; // bail
+
   // SMv deviates more from parent than NHL due to masslessness. This means a larger minimum of labangle
   // Sometimes the angle is so small, that this calculation fails as there is not SMv preimage to compare
   // with. Default to estimating dx/dz * dy/dz ratio in that case.
@@ -993,6 +1040,7 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
       range2 = std::abs( fSMv->GetX( zp ) - fSMv->GetX( zm ) );
     } else { // due to monotonicity all of [0.0, fSMv->GetX(zp)] is good
       range2 = fSMv->GetX( zp );
+      if( range2 == 0 ) return 1.0; // sometimes this happens, gotta bail!
     }
   } else { // can't decide based on SMv analytically.
 
