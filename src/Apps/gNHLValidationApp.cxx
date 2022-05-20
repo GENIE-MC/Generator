@@ -295,6 +295,7 @@ int TestFluxFromDk2nu()
   TH1D hCounters;
   TH2D hAccCorrVsBoostBeta;
   TH1D hBAll, hBPion, hBKaon, hBMuon, hBNeuk;
+  TH1D hParamSpace; // to store mass + couplings
 
   hEAll  = TH1D( "hEAll",  "NHL energy - all parents", 100, 0., 100. );
   hEPion = TH1D( "hEPion", "NHL energy - pion parent", 100, 0., 100. );
@@ -305,16 +306,18 @@ int TestFluxFromDk2nu()
   hProdVtxPos = TH3D( "hProdVtxPos", "NHL production vertex (user coordinates, cm)",
 		      200, -100., 100., 200, -100., 100., 1100, -110000., 0.);
   
-  hCounters = TH1D( "hCounters", "NHL production channel counters", 11, 0, 10 );
+  hCounters = TH1D( "hCounters", "NHL production channel counters", 11, 0, 11 );
   
   hAccCorrVsBoostBeta = TH2D( "hAccCorrVsBoostBeta", "Acceptance correction vs boost beta",
-			      100, 0., 1., 500, 0., 50.);
+			      100, 0., 1., 1000, 0., 100.);
   
   hBAll  = TH1D( "hBAll",  "Boost beta - all parents", 100, 0., 1. );
   hBPion = TH1D( "hBPion", "Boost beta - pion parent", 100, 0., 1. );
   hBKaon = TH1D( "hBKaon", "Boost beta - kaon parent", 100, 0., 1. );
   hBMuon = TH1D( "hBMuon", "Boost beta - muon parent", 100, 0., 1. );
   hBNeuk = TH1D( "hBNeuk", "Boost beta - neuk parent", 100, 0., 1. );
+
+  hParamSpace = TH1D( "hParamSpace", "Parameter space", 4, 0., 4. );
 
   int parPDG;
   TLorentzVector p4NHL;
@@ -473,6 +476,11 @@ int TestFluxFromDk2nu()
     << "\n" << utils::nhl::ProdAsString( kNHLProdMuon3Numu ) << ": " << nMuon3Numu
     << "\n" << utils::nhl::ProdAsString( kNHLProdMuon3Nue ) << ": " << nMuon3Nue
     << "\n" << utils::nhl::ProdAsString( kNHLProdMuon3Nutau ) << ": " << nMuon3Nutau;
+
+  hParamSpace.SetBinContent( 1, 1000.0 * gCfgMassNHL ); // MeV
+  hParamSpace.SetBinContent( 2, gCfgECoupling );
+  hParamSpace.SetBinContent( 3, gCfgMCoupling );
+  hParamSpace.SetBinContent( 4, gCfgTCoupling );
 
   fout->Write();
   fout->Close();

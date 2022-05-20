@@ -87,12 +87,6 @@ namespace genie{
     
     namespace NHLFluxCreator{
 
-      // function forwards
-
-      int TestFunction(std::string finpath);
-      
-      int TestTwoFunction( std::string finpath );
-
       // workhorse method
       void MakeTupleFluxEntry( int iEntry, genie::flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath, int run );
       void FillNonsense( int iEntry, genie::flux::GNuMIFluxPassThroughInfo * gnmf, int run );

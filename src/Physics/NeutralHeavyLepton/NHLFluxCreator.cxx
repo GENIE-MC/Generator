@@ -53,16 +53,6 @@ TTree * NHLFluxCreator::tree = 0, * NHLFluxCreator::meta = 0;
 bool NHLFluxCreator::isTreeInit = false, NHLFluxCreator::isMetaInit = false, NHLFluxCreator::isBoxInit = false;
 
 //----------------------------------------------------------------------------
-int NHLFluxCreator::TestFunction(std::string finpath)
-{
-  return 0;
-}
-//----------------------------------------------------------------------------
-int NHLFluxCreator::TestTwoFunction( std::string finpath )
-{
-  return 0;
-}
-//----------------------------------------------------------------------------
 void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath, int run )
 {
   // This method creates 1 NHL from the flux info and saves the information
@@ -141,6 +131,30 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   
   double nhlMass = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Mass" );
   if( parentMass <= nhlMass ){ FillNonsense( iEntry, gnmf, run ); return; }
+
+  // explicitly check if there are any allowed decays for this parent
+  bool canGoForward = true;
+  switch( std::abs( decay_ptype ) ){
+  case kPdgPiP:
+    canGoForward = 
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdPion2Muon ) ||
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdPion2Electron ); break;
+  case kPdgKP:
+    canGoForward =
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon2Muon ) || 
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon2Electron ) ||
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon3Muon ) ||
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon3Electron ); break;
+  case kPdgMuon:
+    canGoForward =
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdMuon3Nue ); break; // SM nus are massless so doesn't matter
+  case kPdgK0L:
+    canGoForward =
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdNeuk3Muon ) ||
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdNeuk3Electron ); break;
+  }
+
+  if( !canGoForward ){ FillNonsense( iEntry, gnmf, run ); return; }
   // now calculate which decay channel produces the NHL.
   dynamicScores = GetProductionProbs( decay_ptype );
   assert( dynamicScores.size() > 0 );
