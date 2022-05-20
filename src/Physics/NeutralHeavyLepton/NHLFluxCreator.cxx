@@ -66,6 +66,11 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     MakeBBox();
   }
 
+  // All these in m
+  // Beam (0,0,0) is user (0.2486, 60.35,   -1022.74) // = -(fCx, fCy, fCz)
+  // Beam (0,1,0) is user (0.2486, 61.3483, -1022.68)
+  // Beam (0,0,1) is user (0.2486, 60.2917, -1021.74)
+
   TVector3 fCvec_beam( fCx, fCy, fCz );
   TVector3 fCvec = ApplyUserRotation( fCvec_beam );
 
@@ -77,7 +82,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   fDz = decay_vz * units::cm / units::m;
   TVector3 fDvec( fDx, fDy, fDz );
   TVector3 fDvec_beam = ApplyUserRotation( fDvec, true );
-    
+
   TVector3 detO_beam( fCvec_beam.X() - fDvec_beam.X(),
 		      fCvec_beam.Y() - fDvec_beam.Y(),
 		      fCvec_beam.Z() - fDvec_beam.Z() ); // separation in beam coords
@@ -99,7 +104,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     << "\nSeparation = " << utils::print::Vec3AsString( &detO_user )
     << "\n\n";
   
-  double acc_saa = CalculateDetectorAcceptanceSAA( detO );
+  double acc_saa = CalculateDetectorAcceptanceSAA( detO_user );
   //double acc_drc = CalculateDetectorAcceptanceDRC( detO, fLx, fLy, fLz );
   
   // set parent mass
@@ -200,21 +205,26 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   double boost_correction = 0.0;
   double costh_pardet = 0.0;
   if( parentMomentum > 0.0 ){
-    costh_pardet = ( p4par.Px() * detO.X() +
-		     p4par.Py() * detO.Y() +
-		     p4par.Pz() * detO.Z() ) / ( parentMomentum * detO.Mag() );
+    costh_pardet = ( decay_pdpx * detO.X() +
+		     decay_pdpy * detO.Y() +
+		     decay_pdpz * detO.Z() ) / ( parentMomentum * detO.Mag() );
     if( costh_pardet < -1.0 ) costh_pardet = -1.0;
     if( costh_pardet > 1.0 ) costh_pardet = 1.0;
     // assume boost is on z' direction where z' = parent momentum direction, subbing betaMag ==> betaMag * costh_pardet
     boost_correction = 1.0 / ( gamma * ( 1.0 - betaMag * betaNHL * costh_pardet ) );
   }
 
-  LOG( "NHL", pDEBUG )
+  LOG( "NHL", pFATAL )
+    << "\n *** Event " << iEntry << " *** :"
     << "\nbetaMag = " << betaMag
     << "\ngamma   = " << gamma
     << "\nbetaNHL = " << betaNHL
     << "\ncosth_pardet     = " << costh_pardet
-    << "\nboost_correction = " << boost_correction;
+    << "\nboost_correction = " << boost_correction
+    << "\nChannel = " << utils::nhl::ProdAsString( prodChan )
+    << "\nCM ENHL = " << p4NHL_rest.E()
+    << "\nENHL = " << p4NHL_rest.E() * boost_correction
+    << "\nacceptance = " << acc_saa * boost_correction * boost_correction;
 
   assert( boost_correction > 0.0 );
 
