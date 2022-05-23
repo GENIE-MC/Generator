@@ -26,8 +26,14 @@ Name                                 Type     Optional   Comment
 
      <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
 
+     <param type="int" name="Blend-Mode"> 0 </param>
+
      <param type="double" name="q0-Blend-Start"> -1.000 </param>
      <param type="double" name="q0-Blend-End"> -1.000 </param>
+
+     <param type="double" name="q-Blend-del"> -1.000 </param>
+     <param type="double" name="q-Blend-ref"> -1.000 </param>
+
 
      <param type="alg"  name="HadronTensorAlg">  genie::SuSAv2QELHadronTensorModel/Default </param>
 
@@ -48,13 +54,44 @@ Name                                 Type     Optional   Comment
  </param_set>
  <param_set name="CRPASuSAv2Hybrid">
  	<param type="int" name="Model-Config"> 4 </param>
- 	<param type="double" name="q0-Blend-Start"> 0.5 </param>
+  <param type="int" name="Blend-Mode"> 2 </param>
+  <param type="double" name="q0-Blend-Start"> 0.5 </param>
  	<param type="double" name="q0-Blend-End"> 1.0 </param>
+  <param type="double" name="q-Blend-del"> 0.1 </param>
+  <param type="double" name="q-Blend-ref"> 0.6 </param>
  </param_set>
  <param_set name="HFSuSAv2Hybrid">
  	<param type="int" name="Model-Config"> 5 </param>
- 	<param type="double" name="q0-Blend-Start"> 0.5 </param>
+ 	<param type="int" name="Blend-Mode"> 2 </param>
+  <param type="double" name="q0-Blend-Start"> 0.5 </param>
  	<param type="double" name="q0-Blend-End"> 1.0 </param>
+  <param type="double" name="q-Blend-del"> 0.1 </param>
+  <param type="double" name="q-Blend-ref"> 0.6 </param>
+ </param_set>
+ <param_set name="CRPAPW">
+  <param type="int" name="Model-Config"> 6 </param>
+ </param_set>
+ <param_set name="HFPW">
+  <param type="int" name="Model-Config"> 7 </param>
+ </param_set>
+ <param_set name="CRPAPWSuSAv2Hybrid">
+  <param type="int" name="Model-Config"> 8 </param>
+  <param type="int" name="Blend-Mode"> 2 </param>
+  <param type="double" name="q0-Blend-Start"> 0.5 </param>
+  <param type="double" name="q0-Blend-End"> 1.0 </param>
+  <param type="double" name="q-Blend-del"> 0.1 </param>
+  <param type="double" name="q-Blend-ref"> 0.6 </param>
+ </param_set>
+ <param_set name="HFPWSuSAv2Hybrid">
+  <param type="int" name="Model-Config"> 9 </param>
+  <param type="int" name="Blend-Mode"> 2 </param>
+  <param type="double" name="q0-Blend-Start"> 0.5 </param>
+  <param type="double" name="q0-Blend-End"> 1.0 </param>
+  <param type="double" name="q-Blend-del"> 0.1 </param>
+  <param type="double" name="q-Blend-ref"> 0.6 </param>
+ </param_set>
+ <param_set name="SuSAv2Blend">
+  <param type="int" name="Model-Config"> 10 </param>
  </param_set>
 
 </alg_conf>

@@ -69,8 +69,11 @@ private:
   double fXSecScale;
 
   /// Blending start/end q0 value for the combined models
+  int blendMode;
   double q0BlendStart;
   double q0BlendEnd;
+  double qBlendDel;
+  double qBlendRef;
 
   // Which model to run
   enum modelType {
@@ -79,7 +82,12 @@ private:
     kMd_CRPA = 2,
     kMd_HF = 3,
     kMd_CRPASuSAv2Hybrid = 4,
-    kMd_HFSuSAv2Hybrid = 5
+    kMd_HFSuSAv2Hybrid = 5,
+    kMd_CRPAPW = 6,
+    kMd_HFPW = 7,
+    kMd_CRPAPWSuSAv2Hybrid = 8,
+    kMd_HFPWSuSAv2Hybrid = 9,
+    kMd_SuSAv2Blend = 10
   };
 
   modelType modelConfig;

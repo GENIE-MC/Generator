@@ -22,6 +22,10 @@
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
+#include "Framework/Conventions/Constants.h"
+
+#include <TMath.h>
+
 
 using namespace genie;
 
@@ -91,9 +95,11 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 
   HadronTensorType_t tensor_type_susa = kHT_Undefined;
   HadronTensorType_t tensor_type_crpa = kHT_Undefined;
+  HadronTensorType_t tensor_type_blen = kHT_Undefined;
 
   if ( pdg::IsNeutrino(probe_pdg) ) {
     tensor_type_susa = kHT_QE_Full;
+    tensor_type_blen = kHT_QE_SuSABlend;
     // CRPA/HF tensors having q0 dependent binning, so are split
     // CRPA
     if (modelConfig == kMd_CRPA || modelConfig == kMd_CRPASuSAv2Hybrid){
@@ -107,11 +113,27 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
       else if(Q0<0.150) tensor_type_crpa = kHT_QE_HF_Medium;
       else tensor_type_crpa = kHT_QE_HF_High;
     }
+    if (modelConfig == kMd_CRPAPW || modelConfig == kMd_CRPAPWSuSAv2Hybrid){
+      if(Q0<0.060) tensor_type_crpa = kHT_QE_CRPAPW_Low;
+      else if(Q0<0.150) tensor_type_crpa = kHT_QE_CRPAPW_Medium;
+      else tensor_type_crpa = kHT_QE_CRPAPW_High;
+    }
+    // Hartree-Fock
+    if (modelConfig == kMd_HFPW || modelConfig == kMd_HFPWSuSAv2Hybrid){
+      if(Q0<0.060) tensor_type_crpa = kHT_QE_HFPW_Low;
+      else if(Q0<0.150) tensor_type_crpa = kHT_QE_HFPW_Medium;
+      else tensor_type_crpa = kHT_QE_HFPW_High;
+    }
   }
   else if ( pdg::IsAntiNeutrino(probe_pdg) ){
     // SuSA implementation doesn't accoutn for asymmetry between protons
     // and neutrons. In general this is a small effect.
     tensor_type_susa = kHT_QE_Full;
+    //For the blending case, Ar40 is treated specially:
+    if(A_request == 40 && Z_request == 18){
+      tensor_type_blen = kHT_QE_SuSABlend_anu;
+    }
+    else tensor_type_blen = kHT_QE_SuSABlend;
     // CRPA tensors having q0 dependent binning, so are split:
     //CRPA
     if (modelConfig == kMd_CRPA || modelConfig == kMd_CRPASuSAv2Hybrid){
@@ -125,10 +147,21 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
       else if(Q0<0.150) tensor_type_crpa = kHT_QE_HF_anu_Medium;
       else tensor_type_crpa = kHT_QE_HF_anu_High;
     }
+    if (modelConfig == kMd_CRPAPW || modelConfig == kMd_CRPAPWSuSAv2Hybrid){
+      if(Q0<0.060) tensor_type_crpa = kHT_QE_CRPAPW_anu_Low;
+      else if(Q0<0.150) tensor_type_crpa = kHT_QE_CRPAPW_anu_Medium;
+      else tensor_type_crpa = kHT_QE_CRPAPW_anu_High;
+    }
+    // Hartree-Fock
+    if (modelConfig == kMd_HFPW || modelConfig == kMd_HFPWSuSAv2Hybrid){
+      if(Q0<0.060) tensor_type_crpa = kHT_QE_HFPW_anu_Low;
+      else if(Q0<0.150) tensor_type_crpa = kHT_QE_HFPW_anu_Medium;
+      else tensor_type_crpa = kHT_QE_HFPW_anu_High;
+    }
   }
   else {
     // If the probe is not a neutrino, assume that it's an electron
-    // Currently only avaialble for SuSA. CRPA coming soon!
+    // Currently only avaialble for SuSA. CRPA coming soon(ish)!
     tensor_pdg_susa = kHT_QE_EM;
   }
 
@@ -216,14 +249,12 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 
   const LabFrameHadronTensorI* tensor_susa;
   const LabFrameHadronTensorI* tensor_crpa;
+  const LabFrameHadronTensorI* tensor_blen;
 
-  if( modelConfig == kMd_SuSAv2 || modelConfig == kMd_CRPASuSAv2Hybrid ||
-      modelConfig == kMd_HFSuSAv2Hybrid ){
-
+  if( modelConfig == kMd_SuSAv2 ){
     tensor_susa = dynamic_cast<const LabFrameHadronTensorI*>
       ( fHadronTensorModel->GetTensor (tensor_pdg_susa, tensor_type_susa) );
 
-    // If retrieving the tensor failed, complain and return zero
     if ( !tensor_susa ) {
       LOG("SuSAv2QE", pWARN) << "Failed to load a SuSAv2 hadronic tensor for the"
         " nuclide " << tensor_pdg_susa;
@@ -231,7 +262,21 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
     }
   }
 
-  if( modelConfig != kMd_SuSAv2 ){
+  if( modelConfig == kMd_CRPASuSAv2Hybrid   || modelConfig == kMd_HFSuSAv2Hybrid || 
+      modelConfig == kMd_CRPAPWSuSAv2Hybrid || modelConfig == kMd_HFPWSuSAv2Hybrid ||
+      modelConfig == kMd_SuSAv2Blend){
+    tensor_blen = dynamic_cast<const LabFrameHadronTensorI*>
+      ( fHadronTensorModel->GetTensor (tensor_pdg_crpa, tensor_type_blen) );
+
+    // If retrieving the tensor failed, complain and return zero
+    if ( !tensor_blen ) {
+      LOG("SuSAv2QE", pWARN) << "Failed to load a blending SuSAv2 hadronic tensor for the"
+        " nuclide " << tensor_pdg_crpa;
+      return 0.;
+    }
+  }
+
+  if( modelConfig != kMd_SuSAv2 && modelConfig != kMd_SuSAv2Blend){
 
     tensor_crpa = dynamic_cast<const LabFrameHadronTensorI*>
       ( fHadronTensorModel->GetTensor (tensor_pdg_crpa, tensor_type_crpa) );
@@ -255,17 +300,20 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   // binding energy. To first order I can use the Q_value for this
   double Q_value_susa = Eb_tgt-Eb_ten_susa;
   double Q_value_crpa = Eb_tgt-Eb_ten_crpa;
+  double Q_value_blen = Eb_tgt-Eb_ten_crpa;
 
   // Apply Qvalue relative shift if needed:
   if( fQvalueShifter ){
     Q_value_susa += Q_value_susa * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
     Q_value_crpa += Q_value_crpa * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
+    Q_value_blen += Q_value_blen * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
   }
 
   // Set the xsec to zero for interactions with q0,q3 outside the requested range
 
-  if( modelConfig == kMd_SuSAv2 || modelConfig == kMd_CRPASuSAv2Hybrid ||
-      modelConfig == kMd_HFSuSAv2Hybrid ){
+  // THIS IS A BUG: SHOULD NOT APPLY SUSA QVAL TO HYBRID CASES!
+
+  if( modelConfig == kMd_SuSAv2){
     double Q0min = tensor_susa->q0Min();
     double Q0max = tensor_susa->q0Max();
     double Q3min = tensor_susa->qMagMin();
@@ -275,14 +323,35 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
     }
   }
 
-  if ( modelConfig == kMd_CRPA || modelConfig == kMd_HF ){
-   double Q0min = tensor_crpa->q0Min();
-   double Q0max = tensor_crpa->q0Max();
-   double Q3min = tensor_crpa->qMagMin();
-   double Q3max = tensor_crpa->qMagMax();
-   if (Q0-Q_value_crpa < Q0min || Q0-Q_value_crpa > Q0max || Q3 < Q3min || Q3 > Q3max) {
-     return 0.0;
-   } 
+  else if ( modelConfig == kMd_CRPA   || modelConfig == kMd_HF || 
+            modelConfig == kMd_CRPAPW || modelConfig == kMd_HFPW ){
+    double Q0min = tensor_crpa->q0Min();
+    double Q0max = tensor_crpa->q0Max();
+    double Q3min = tensor_crpa->qMagMin();
+    double Q3max = tensor_crpa->qMagMax();
+    if (Q0-Q_value_crpa < Q0min || Q0-Q_value_crpa > Q0max || Q3 < Q3min || Q3 > Q3max) {
+      return 0.0;
+    } 
+  }
+
+  else if ( modelConfig == kMd_SuSAv2Blend){
+    double Q0min = tensor_blen->q0Min();
+    double Q0max = tensor_blen->q0Max();
+    double Q3min = tensor_blen->qMagMin();
+    double Q3max = tensor_blen->qMagMax();
+    if (Q0-Q_value_blen < Q0min || Q0-Q_value_blen > Q0max || Q3 < Q3min || Q3 > Q3max) {
+      return 0.0;
+    } 
+  }
+
+  else{ // hybrid (blending) cases. Low kinematics handled by CRPA/HF, high kinematics by blended SuSA
+    double Q0min = tensor_crpa->q0Min();
+    double Q0max = tensor_blen->q0Max();
+    double Q3min = tensor_crpa->qMagMin();
+    double Q3max = tensor_blen->qMagMax();
+    if (Q0-Q_value_crpa < Q0min || Q0-Q_value_blen > Q0max || Q3 < Q3min || Q3 > Q3max) {
+      return 0.0;
+    } 
   }
 
   // ******************************
@@ -291,19 +360,38 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 
   double xsec_susa = 0;
   double xsec_crpa = 0;
+  double xsec_blen = 0;
 
-  if( modelConfig == kMd_SuSAv2 || modelConfig == kMd_CRPASuSAv2Hybrid ||
-      modelConfig == kMd_HFSuSAv2Hybrid ){
+  if( modelConfig == kMd_SuSAv2 ){
     // Compute the cross section using the hadron tensor
     xsec_susa = tensor_susa->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value_susa);
     LOG("SuSAv2QE", pDEBUG) << "SuSAv2 XSec in cm2 / neutron is  " << xsec_susa/(units::cm2);
     xsec_susa = XSecScaling(xsec_susa, interaction, target_pdg, tensor_pdg_susa, need_to_scale_susa);
   }
 
-  if( modelConfig != kMd_SuSAv2 ){
+
+  if( modelConfig == kMd_CRPASuSAv2Hybrid   || modelConfig == kMd_HFSuSAv2Hybrid || 
+      modelConfig == kMd_CRPAPWSuSAv2Hybrid || modelConfig == kMd_HFPWSuSAv2Hybrid ||
+      modelConfig == kMd_SuSAv2Blend){
+    // Compute the cross section using the hadron tensor
+    xsec_blen = tensor_blen->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value_blen);
+    LOG("SuSAv2QE", pDEBUG) << "SuSAv2 (blending) XSec in cm2 / atom is  " << xsec_blen/(units::cm2);
+    // The blended SuSAv2 calculation already gives the xsec per atom
+    // For the A-scaling below to make sense we need to transform them to per active nucleon
+    int A_tensor = pdg::IonPdgCodeToA(tensor_pdg_crpa);
+    int Z_tensor = pdg::IonPdgCodeToZ(tensor_pdg_crpa);
+    int N_tensor = A_tensor-Z_tensor;
+
+    if ( pdg::IsNeutrino(probe_pdg) ) xsec_blen *= 1.0/N_tensor;
+    else if ( pdg::IsAntiNeutrino(probe_pdg) ) xsec_blen *= 1.0/Z_tensor;
+
+    xsec_blen = XSecScaling(xsec_blen, interaction, target_pdg, tensor_pdg_crpa, need_to_scale_crpa);
+  }
+
+  if( modelConfig != kMd_SuSAv2 && modelConfig != kMd_SuSAv2Blend){
     // Compute the cross section using the hadron tensor
     xsec_crpa = tensor_crpa->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value_crpa);
-    LOG("SuSAv2QE", pDEBUG) << "CRPA or HF XSec in cm2 / neutron is  " << xsec_crpa/(units::cm2);
+    LOG("SuSAv2QE", pDEBUG) << "CRPA or HF XSec in cm2 / atom is  " << xsec_crpa/(units::cm2);
     // The CRPA calculation already gives the xsec per atom
     // For the A-scaling below to make sense we need to transform them to per active nucleon
     int A_tensor = pdg::IonPdgCodeToA(tensor_pdg_crpa);
@@ -322,19 +410,32 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   // Apply blending if needed
   double xsec = 0;
 
-  if( modelConfig == kMd_SuSAv2 ) xsec = xsec_susa;
-  if( modelConfig == kMd_CRPA || modelConfig == kMd_HF ) xsec = xsec_crpa;
-  else if( modelConfig == kMd_CRPASuSAv2Hybrid || 
-           modelConfig == kMd_HFSuSAv2Hybrid      ){  // blending cases
-    if      (Q0 < q0BlendStart)  xsec = xsec_crpa;
-    else if (Q0 > q0BlendEnd)    xsec = xsec_susa;
-    else{
-      double SuSAFrac = (Q0 - q0BlendStart) / (q0BlendEnd - q0BlendStart);
-      double CRPAFrac = 1 - SuSAFrac;
-      xsec = SuSAFrac*xsec_susa + CRPAFrac*xsec_crpa;
-      LOG("SuSAv2QE", pDEBUG) << "Q0 is  " << Q0;
-      LOG("SuSAv2QE", pDEBUG) << "SuSAFrac is  " << SuSAFrac;
-      LOG("SuSAv2QE", pDEBUG) << "CRPAFrac is  " << CRPAFrac;
+  if( modelConfig == kMd_SuSAv2 )      xsec = xsec_susa;
+  if( modelConfig == kMd_SuSAv2Blend ) xsec = xsec_blen;
+  if( modelConfig == kMd_CRPA   || modelConfig == kMd_HF ||  
+      modelConfig == kMd_CRPAPW || modelConfig == kMd_HFPW ) xsec = xsec_crpa;
+  else if( modelConfig == kMd_CRPASuSAv2Hybrid   || 
+           modelConfig == kMd_HFSuSAv2Hybrid     ||
+           modelConfig == kMd_CRPAPWSuSAv2Hybrid ||
+           modelConfig == kMd_HFPWSuSAv2Hybrid ){  // blending cases
+    if(blendMode == 1) // Linear blending in q0
+      if      (Q0 < q0BlendStart)  xsec = xsec_crpa;
+      else if (Q0 > q0BlendEnd)    xsec = xsec_blen;
+      else{
+        double SuSAFrac = (Q0 - q0BlendStart) / (q0BlendEnd - q0BlendStart);
+        double CRPAFrac = 1 - SuSAFrac;
+        xsec = SuSAFrac*xsec_blen + CRPAFrac*xsec_crpa;
+        LOG("SuSAv2QE", pDEBUG) << "Q0 is  " << Q0;
+        LOG("SuSAv2QE", pDEBUG) << "SuSAFrac is  " << SuSAFrac;
+        LOG("SuSAv2QE", pDEBUG) << "CRPAFrac is  " << CRPAFrac;
+        LOG("SuSAv2QE", pDEBUG) << "xsec is  " << xsec;
+      }
+    else if(blendMode == 2){ // Exp blending in q (from Alexis)
+      double phi_q = (genie::constants::kPi / 2.) * (1 - 1./(1+std::exp( (Q3 - qBlendRef)/qBlendDel)) );
+      xsec = TMath::Sin(phi_q)*TMath::Sin(phi_q)*xsec_blen + TMath::Cos(phi_q)*TMath::Cos(phi_q)*xsec_crpa;
+      LOG("SuSAv2QE", pDEBUG) << "Q3 is  " << Q3;
+      LOG("SuSAv2QE", pDEBUG) << "SuSAFrac is  " << TMath::Sin(phi_q)*TMath::Sin(phi_q);
+      LOG("SuSAv2QE", pDEBUG) << "CRPAFrac is  " << TMath::Cos(phi_q)*TMath::Cos(phi_q);
       LOG("SuSAv2QE", pDEBUG) << "xsec is  " << xsec;
     }
   }
@@ -481,9 +582,12 @@ void SuSAv2QELPXSec::LoadConfig(void)
   GetParam( "Model-Config", modelChoice ) ;
   modelConfig = (modelType)modelChoice;
 
-  // Cross section model choice
-  GetParam( "q0-Blend-Start", q0BlendStart ) ;
-  GetParam( "q0-Blend-End", q0BlendEnd ) ;
+  // Blending parameters
+  GetParam( "Blend-Mode", blendMode ) ; // 1 = linear, 2 = exp
+  GetParam( "q0-Blend-Start", q0BlendStart ) ; // Used for linear
+  GetParam( "q0-Blend-End", q0BlendEnd ) ; // Used for linear
+  GetParam( "q-Blend-del", qBlendDel ) ; // Used for exp
+  GetParam( "q-Blend-ref", qBlendRef ) ; // Used for exp
 
   fHadronTensorModel = dynamic_cast< const SuSAv2QELHadronTensorModel* >(
     this->SubAlg("HadronTensorAlg") );

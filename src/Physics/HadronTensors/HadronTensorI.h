@@ -62,7 +62,26 @@ typedef enum HadronTensorType {
 
   kHT_QE_HF_anu_Low,
   kHT_QE_HF_anu_Medium,
-  kHT_QE_HF_anu_High
+  kHT_QE_HF_anu_High,
+
+  kHT_QE_CRPAPW_Low,
+  kHT_QE_CRPAPW_Medium,
+  kHT_QE_CRPAPW_High,
+
+  kHT_QE_CRPAPW_anu_Low,
+  kHT_QE_CRPAPW_anu_Medium,
+  kHT_QE_CRPAPW_anu_High,
+
+  kHT_QE_HFPW_Low,
+  kHT_QE_HFPW_Medium,
+  kHT_QE_HFPW_High,
+
+  kHT_QE_HFPW_anu_Low,
+  kHT_QE_HFPW_anu_Medium,
+  kHT_QE_HFPW_anu_High,
+
+  kHT_QE_SuSABlend,
+  kHT_QE_SuSABlend_anu
 }
 HadronTensorType_t;
 
