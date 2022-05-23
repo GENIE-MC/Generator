@@ -1050,10 +1050,9 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
       range2 = std::abs( fSMv->GetX( zp ) - fSMv->GetX( zm ) );
     } else { // due to monotonicity all of [0.0, fSMv->GetX(zp)] is good
       range2 = fSMv->GetX( zp );
-      if( range2 == 0 ) return 1.0; // sometimes this happens, gotta bail!
     }
+    if( range2 < 1.0e-6 || range1 / range2 > 10.0 ) return 1.0; // sometimes this happens, gotta bail!
   } else { // can't decide based on SMv analytically.
-
     TVector3 bv = p4par.BoostVector();
     
     TLorentzVector vcx( p4NHL.P(), 0.0, 0.0, p4NHL.E() ), 
