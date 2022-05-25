@@ -268,7 +268,7 @@ int main(int argc, char ** argv)
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 int TestFluxFromDk2nu()
 {
-  assert( gOptIsUsingDk2nu );
+  assert( !gOptIsMonoEnFlux && gOptIsUsingDk2nu );
 
   string foutName("test_flux_dk2nu.root");
   
@@ -291,17 +291,25 @@ int TestFluxFromDk2nu()
 
   TFile * fout = TFile::Open( foutName.c_str(), "RECREATE" );
   TH1D hEAll, hEPion, hEKaon, hEMuon, hENeuk;
+  TH1D hPop, hImpwt, hAcceptance;
   TH3D hProdVtxPos;
   TH1D hCounters;
   TH2D hAccCorrVsBoostBeta;
   TH1D hBAll, hBPion, hBKaon, hBMuon, hBNeuk;
   TH1D hParamSpace; // to store mass + couplings
 
-  hEAll  = TH1D( "hEAll",  "NHL energy - all parents", 100, 0., 100. );
-  hEPion = TH1D( "hEPion", "NHL energy - pion parent", 100, 0., 100. );
-  hEKaon = TH1D( "hEKaon", "NHL energy - kaon parent", 100, 0., 100. );
-  hEMuon = TH1D( "hEMuon", "NHL energy - muon parent", 100, 0., 100. );
-  hENeuk = TH1D( "hENeuk", "NHL energy - neuk parent", 100, 0., 100. );
+  hEAll  = TH1D( "hEAll",  "NHL energy - all parents", 1000, 0., 100. );
+  hEPion = TH1D( "hEPion", "NHL energy - pion parent", 1000, 0., 100. );
+  hEKaon = TH1D( "hEKaon", "NHL energy - kaon parent", 1000, 0., 100. );
+  hEMuon = TH1D( "hEMuon", "NHL energy - muon parent", 1000, 0., 100. );
+  hENeuk = TH1D( "hENeuk", "NHL energy - neuk parent", 1000, 0., 100. );
+
+  hPop   = TH1D( "hPop",   "NHL populations in energy bins", 1000, 0., 100. );
+  hImpwt = TH1D( "hImpwt", "NHL importance weights", 1000, 0., 100. );
+
+  static const Double_t accbins[] = { 0.0, 2.5e-7, 5.0e-7, 7.5e-7, 1.0e-6, 2.5e-6, 5.0e-6, 7.5e-6, 1.0e-5, 2.5e-5, 5.0e-5, 7.5e-5, 1.0e-4, 2.5e-4, 5.0e-4, 7.5e-4, 1.0e-3, 2.5e-3, 5.0e-3, 7.5e-3, 1.0e-2, 2.5e-2, 5.0e-2, 7.5e-2, 1.0e-1, 2.5e-1, 5.0e-1, 7.5e-1, 1.0e+0, 2.5e+0, 5.0e+0, 7.5e+0, 1.0e+1 };
+  const Int_t naccbins = sizeof(accbins)/sizeof(accbins[0]) - 1;
+  hAcceptance = TH1D( "hAcceptance", "NHL acceptances", naccbins, accbins );
       
   hProdVtxPos = TH3D( "hProdVtxPos", "NHL production vertex (user coordinates, cm)",
 		      200, -100., 100., 200, -100., 100., 1100, -110000., 0.);
@@ -317,7 +325,7 @@ int TestFluxFromDk2nu()
   hBMuon = TH1D( "hBMuon", "Boost beta - muon parent", 100, 0., 1. );
   hBNeuk = TH1D( "hBNeuk", "Boost beta - neuk parent", 100, 0., 1. );
 
-  hParamSpace = TH1D( "hParamSpace", "Parameter space", 4, 0., 4. );
+  hParamSpace = TH1D( "hParamSpace", "Parameter space", 5, 0., 5. );
 
   int parPDG;
   TLorentzVector p4NHL;
@@ -326,6 +334,7 @@ int TestFluxFromDk2nu()
     nKaon2Electron = 0, nKaon3Muon = 0, nKaon3Electron = 0,
     nNeuk3Muon = 0, nNeuk3Electron = 0, nMuon3Numu = 0,
     nMuon3Nue = 0, nMuon3Nutau = 0;
+  double nPOT;
   double betaMag;
   double accCorr;
   double nimpwt; // hadroproduction importance weight
@@ -407,12 +416,17 @@ int TestFluxFromDk2nu()
 	double acceptance = gnmf->fgXYWgt; // full acceptance
 	accCorr    = gnmf->nwtnear;   // just the correction
 	nimpwt = gnmf->nimpwt;
+	nPOT = gnmf->norig;
 	
 	// fill the histos!
 	hEAll.Fill( p4NHL.E(), acceptance * nimpwt );
 	hProdVtxPos.Fill( x4NHL.X(), x4NHL.Y(), x4NHL.Z(), nimpwt );
 	hAccCorrVsBoostBeta.Fill( betaMag, accCorr, nimpwt );
 	hBAll.Fill( betaMag, nimpwt );
+	  
+	hPop.Fill( p4NHL.E(), 1.0 );
+	hImpwt.Fill( p4NHL.E(), nimpwt );
+	hAcceptance.Fill( acceptance, nimpwt );
 	
 	switch( parPDG ){
 	case kPdgPiP:
@@ -463,24 +477,11 @@ int TestFluxFromDk2nu()
   hCounters.SetBinContent( 10, nMuon3Nue );
   hCounters.SetBinContent( 11, nMuon3Nutau );
 
-  LOG( "gevald_nhl", pDEBUG )
-    << "Showing production channel stats:"
-    << "\n" << utils::nhl::ProdAsString( kNHLProdPion2Muon ) << ": " << nPion2Muon
-    << "\n" << utils::nhl::ProdAsString( kNHLProdPion2Electron ) << ": " << nPion2Electron
-    << "\n" << utils::nhl::ProdAsString( kNHLProdKaon2Muon ) << ": " << nKaon2Muon
-    << "\n" << utils::nhl::ProdAsString( kNHLProdKaon2Electron ) << ": " << nKaon2Electron
-    << "\n" << utils::nhl::ProdAsString( kNHLProdKaon3Muon ) << ": " << nKaon3Muon
-    << "\n" << utils::nhl::ProdAsString( kNHLProdKaon3Electron ) << ": " << nKaon3Electron
-    << "\n" << utils::nhl::ProdAsString( kNHLProdNeuk3Muon ) << ": " << nNeuk3Muon
-    << "\n" << utils::nhl::ProdAsString( kNHLProdNeuk3Electron ) << ": " << nNeuk3Electron
-    << "\n" << utils::nhl::ProdAsString( kNHLProdMuon3Numu ) << ": " << nMuon3Numu
-    << "\n" << utils::nhl::ProdAsString( kNHLProdMuon3Nue ) << ": " << nMuon3Nue
-    << "\n" << utils::nhl::ProdAsString( kNHLProdMuon3Nutau ) << ": " << nMuon3Nutau;
-
   hParamSpace.SetBinContent( 1, 1000.0 * gCfgMassNHL ); // MeV
   hParamSpace.SetBinContent( 2, gCfgECoupling );
   hParamSpace.SetBinContent( 3, gCfgMCoupling );
   hParamSpace.SetBinContent( 4, gCfgTCoupling );
+  hParamSpace.SetBinContent( 5, nPOT );
 
   fout->Write();
   fout->Close();

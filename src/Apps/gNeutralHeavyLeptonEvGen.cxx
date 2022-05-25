@@ -872,11 +872,11 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     TLorentzVector * x4NHL = event->Probe()->GetX4();
     
     std::ostringstream msts;
-    if( gOptIsUsingDk2nu ){ msts << "[m]"; }
+    if( gOptIsUsingDk2nu ){ msts << "[cm]"; }
     else{ msts << "[cm]"; }
     LOG("gevgen_nhl", pDEBUG)
-      << "Detected vertex at ( " << x4NHL->X() << ", " << x4NHL->Y() << ", " << x4NHL->Z() << " )";
-    double xmult = ( gOptIsUsingDk2nu ) ? 1000.0 : 1.0; // m to mm in dk2nu case
+      << "Detected vertex at ( " << x4NHL->X() << ", " << x4NHL->Y() << ", " << x4NHL->Z() << " )" << msts.str();
+    double xmult = ( gOptIsUsingDk2nu ) ? 10.0 : 1.0; // cm to mm in dk2nu case
     startPoint.SetXYZ( xmult * x4NHL->X(), xmult * x4NHL->Y(), xmult * x4NHL->Z() );
 
     evProdVtx[0] = uMult * x4NHL->X();

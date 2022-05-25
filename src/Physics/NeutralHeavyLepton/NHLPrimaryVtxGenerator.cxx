@@ -84,7 +84,7 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
   InitialState * init_state = interaction->InitStatePtr();
 
   TLorentzVector p4;
-  if( (init_state->GetProbeP4())->P() < (init_state->GetProbeP4())->E() ){
+  if( (init_state->GetProbeP4())->P() <= (init_state->GetProbeP4())->E() ){
     // p4 was already set using NHLFluxCreator. No action needed.
     // Read event vertex == NHL production vertex. We will find the decay vertex later.
     p4 = *( init_state->GetProbeP4() );

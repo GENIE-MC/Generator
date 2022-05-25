@@ -191,6 +191,23 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   // decay channel specified, now time to make kinematics
   TLorentzVector p4NHL_rest = NHLEnergy( prodChan, p4par ); // this is a random direction rest-frame NHL. We don't care about where it's pointing
 
+  // we will now boost detO into rest frame, force rest to point to the new direction, boost the result, and compare the boost corrections
+  double boost_correction_two = 0.0;
+  
+  TLorentzVector detO_4v( detO.X(), detO.Y(), detO.Z(), 0.0 ); detO_4v.Boost( -boost_beta );
+  TVector3 detO_rest_unit = (detO_4v.Vect()).Unit();
+  TLorentzVector p4NHL_rest_good( p4NHL_rest.P() * detO_rest_unit.X(),
+				  p4NHL_rest.P() * detO_rest_unit.Y(),
+				  p4NHL_rest.P() * detO_rest_unit.Z(),
+				  p4NHL_rest.E() );
+  // boost that into lab frame!
+  TLorentzVector p4NHL_good = p4NHL_rest_good;
+  p4NHL_good.Boost( boost_beta );
+  boost_correction_two = p4NHL_good.E() / p4NHL_rest.E();
+
+  // but we don't care about that. We just want to obtain a proxy for betaNHL in lab frame.
+  // Then we can use the dk2nu-style formula modified for betaNHL!
+
   /* 
    * it is NOT sufficient to boost this into lab frame! 
    * Only a small portion of the CM decays can possibly reach the detector, 
@@ -201,7 +218,8 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   // in a dk2nu-like fashion. See bsim::CalcEnuWgt()
   double betaMag = boost_beta.Mag();
   double gamma   = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
-  double betaNHL = p4NHL_rest.P() / p4NHL_rest.E();
+  //double betaNHL = p4NHL_rest.P() / p4NHL_rest.E();
+  double betaNHL = p4NHL_good.P() / p4NHL_good.E();
   double boost_correction = 0.0;
   double costh_pardet = 0.0;
   if( parentMomentum > 0.0 ){
@@ -211,6 +229,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     if( costh_pardet < -1.0 ) costh_pardet = -1.0;
     if( costh_pardet > 1.0 ) costh_pardet = 1.0;
     // assume boost is on z' direction where z' = parent momentum direction, subbing betaMag ==> betaMag * costh_pardet
+    //boost_correction = gamma * ( 1.0 + betaNHL * betaMag * costh_pardet );
     boost_correction = 1.0 / ( gamma * ( 1.0 - betaMag * betaNHL * costh_pardet ) );
   }
 
@@ -226,12 +245,14 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     << "\nENHL = " << p4NHL_rest.E() * boost_correction
     << "\nacceptance = " << acc_saa * boost_correction * boost_correction;
 
-  assert( boost_correction > 0.0 );
+  assert( boost_correction > 0.0 && boost_correction_two > 0.0 );
 
   // so now we have the random decay. Direction = parent direction, energy = what we calculated
   double ENHL = p4NHL_rest.E() * boost_correction;
+  double MNHL = p4NHL_rest.M();
+  double PNHL = std::sqrt( ENHL * ENHL - MNHL * MNHL );
   TVector3 pdu = ( p4par.Vect() ).Unit();
-  TLorentzVector p4NHL_rand( ENHL * pdu.X(), ENHL * pdu.Y(), ENHL * pdu.Z(), ENHL );
+  TLorentzVector p4NHL_rand( PNHL * pdu.X(), PNHL * pdu.Y(), PNHL * pdu.Z(), ENHL );
 
   // find random point in BBox and force momentum to point to that point
   // first, separation in beam frame
@@ -258,26 +279,11 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
 
   double zm = ( isParentOnAxis ) ? 0.0 : GetAngDeviation( p4par, detO, false );
   double zp = GetAngDeviation( p4par, detO, true );
-  
-  // now get the actual acceptance correction
-  LOG( "NHL", pDEBUG )
-    << "Entering CalculateAcceptanceCorrection with:"
-    << "\np4par      = " << utils::print::P4AsString(&p4par)
-    << "\np4NHL_rest = " << utils::print::P4AsString(&p4NHL_rest)
-    << "\ndecay_necm = " << decay_necm
-    << "\nzm = " << zm
-    << "\nzp = " << zp;
   double accCorr = CalculateAcceptanceCorrection( p4par, p4NHL_rest, decay_necm, zm, zp );
   
   // also have to factor in boost correction itself... that's same as energy boost correction squared
   // which means a true acceptance of...
   double acceptance = acc_saa * boost_correction * boost_correction * accCorr;
-
-  LOG( "NHL", pDEBUG )
-    << "\nacc_saa    = " << acc_saa
-    << "\nboost_correction^2 = " << boost_correction * boost_correction
-    << "\naccCorr    = " << accCorr
-    << "\nacceptance = " << acceptance;
 
   // RETHERE add delay! 
   // write 4-position all this happens at
@@ -286,11 +292,6 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   TLorentzVector x4NHL_cm( units::m / units::cm * ( -detO.X() ),
 			   units::m / units::cm * ( -detO.Y() ),
 			   units::m / units::cm * ( -detO.Z() ), 0.0 ); // in cm
-
-  LOG( "NHL", pDEBUG )
-    << "\nx4NHL_beam    = " << utils::print::X4AsString( &x4NHL_beam )
-    << "\nx4NHL_user    = " << utils::print::X4AsString( &x4NHL )
-    << "\nx4NHL_user_cm = " << utils::print::X4AsString( &x4NHL_cm );
 
   // fill all the GNuMIFlux stuff
   // comments as seeon on https://www.hep.utexas.edu/~zarko/wwwgnumi/v19/v19/output_gnumi.html
@@ -317,13 +318,13 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   gnmf->nenergy  = p4NHL.E();                ///< Neutrino energy [GeV] for a random decay
   gnmf->ndxdznea = -9999.9;                  ///< Neutrino direction slope for a decay forced to ND
   gnmf->ndydznea = -9999.9;                  ///< See above
-  gnmf->nenergyn = -9999.9;                  ///< Neutrino energy for decay forced to ND
+  gnmf->nenergyn = boost_correction_two / boost_correction;                  ///< Neutrino energy for decay forced to ND // now houses ratio of boost calcs
   gnmf->nwtnear  = accCorr;                  ///< weight for decay forced to ND / now acceptance correction
   gnmf->ndxdzfar = -9999.9;                  ///< Same as ND but FD
   gnmf->ndydzfar = -9999.9;                  ///< See above
   gnmf->nenergyf = -9999.9;                  ///< See above
   gnmf->nwtfar   = -9999.9;                  ///< See above
-  gnmf->norig    = -9999.9;                  ///< Obsolete...
+  gnmf->norig    = potnum;                  ///< Obsolete...
   
   int iNdecay = -1, iNtype = -1;
   switch( prodChan ){
