@@ -39,8 +39,16 @@ InteractionList * NormInteractionListGenerator::CreateInteractionList(
                                       const InitialState & init_state) const
 {
   InteractionList * intlist = new InteractionList;
-  bool isNC = init_state.ProbePdg()==kPdgNuE      || init_state.ProbePdg()==kPdgAntiNuE  || init_state.ProbePdg()==kPdgNuMu || init_state.ProbePdg()==kPdgAntiNuMu || init_state.ProbePdg()==kPdgNuTau || init_state.ProbePdg()==kPdgAntiNuTau;
-  bool isEM = init_state.ProbePdg()==kPdgElectron || init_state.ProbePdg()==kPdgPositron || init_state.ProbePdg()==kPdgMuon || init_state.ProbePdg()==kPdgAntiMuon || init_state.ProbePdg()==kPdgTau   || init_state.ProbePdg()==kPdgAntiTau;
+  int probe = init_state.ProbePdg();
+  
+  bool isNC = probe == kPdgNuE   || probe == kPdgAntiNuE  || 
+              probe == kPdgNuMu  || probe == kPdgAntiNuMu || 
+              probe == kPdgNuTau || probe == kPdgAntiNuTau;
+  
+  bool isEM = probe == kPdgElectron || probe == kPdgPositron || 
+              probe == kPdgMuon     || probe == kPdgAntiMuon || 
+              probe == kPdgTau      || probe == kPdgAntiTau;
+              
   if (!isNC && !isEM)
   {
       LOG("IntLst", pWARN)

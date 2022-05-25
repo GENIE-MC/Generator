@@ -50,12 +50,12 @@ typedef enum EScatteringType {
   kScInverseBetaDecay,
   kScGlashowResonance,
   kScIMDAnnihilation,
-  kScNorm,
   kScPhotonCoherent,
   kScPhotonResonance,
   kScDarkMatterElastic = 101,
   kScDarkMatterDeepInelastic,
-  kScDarkMatterElectron
+  kScDarkMatterElectron,
+  kScNorm
 } ScatteringType_t;
 
 class ScatteringType

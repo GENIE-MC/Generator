@@ -116,7 +116,7 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
   const EventGeneratorI * evg = rtinfo->RunningThread();
   fXSecModel = evg->CrossSectionAlg();
 
-  // heavy nucleus is nucleus that heavier than hydrogen and deuterium
+  // heavy nucleus is nucleus that heavier than tritium or 3He.
   bool isHeavyNucleus = tgt->A()>3;
 
   sm_utils->SetInteraction(interaction);
@@ -139,7 +139,7 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
   while(1)
   {
      LOG("QELEvent", pINFO) << "Attempt #: " << iter;
-     if(iter > 100*kRjMaxIterations)
+     if(iter > kRjMaxIterations)
      {
         LOG("QELEvent", pWARN)
           << "Couldn't select a valid kinematics after " << iter << " iterations";

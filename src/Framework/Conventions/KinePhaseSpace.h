@@ -64,7 +64,6 @@ typedef enum EKinePhaseSpace {
   kPSElOlTpifE,
   kPSTkTlctl,
   kPSQ2vfE,
-  kPSQ2vpfE,
   kPSQELEvGen,// Phase space used by genie::QELEventGenerator for sampling kinematic variables
               // TODO: rename this value when the correct variables are identified
   kPSTAfE,
@@ -73,7 +72,8 @@ typedef enum EKinePhaseSpace {
   kPSlog10xlog10Q2fE,
   kPSEDNufE, // Used for Dark Neutrinos, two body final state
   kPSn1n2fE,
-  kPSn1n2n3fE
+  kPSn1n2n3fE,
+  kPSQ2vpfE
 } KinePhaseSpace_t;
 
 class KinePhaseSpace

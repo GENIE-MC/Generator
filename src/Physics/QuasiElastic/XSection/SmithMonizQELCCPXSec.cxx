@@ -201,14 +201,14 @@ double SmithMonizQELCCPXSec::d3sQES_dQ2dvdkF_SM(const Interaction * interaction)
   // Assuming that variables E_nu, Q2, \nu and kF are within allowable kinematic region
   // which are specified in methods: genie::utils::gsl::d2Xsec_dQ2dv::DoEval and QELEventGeneratorSM::ProcessEventRecord
   // Get kinematics & init-state parameters
-  Kinematics *  kinematics = interaction -> KinePtr();
+  const Kinematics &  kinematics = interaction -> Kine();
   sm_utils->SetInteraction(interaction);
   const InitialState & init_state = interaction -> InitState();
   const Target & target = init_state.Tgt();
   double E_nu    = init_state.ProbeE(kRfLab);
-  double Q2      = kinematics->GetKV(kKVQ2);
-  double v       = kinematics->GetKV(kKVv);
-  double kF      = kinematics->GetKV(kKVPn);
+  double Q2      = kinematics.GetKV(kKVQ2);
+  double v       = kinematics.GetKV(kKVv);
+  double kF      = kinematics.GetKV(kKVPn);
   double kkF     = kF*kF;
   int nucl_pdg_ini = target.HitNucPdg();
   int nucl_pdg_fin = genie::pdg::SwitchProtonNeutron(nucl_pdg_ini);

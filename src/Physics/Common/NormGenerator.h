@@ -4,7 +4,8 @@
 \class    genie::NormGenerator
 
 \brief    Normalization channel. Its main property is a constant cross section 
-          per nucleon over the whole energy range.
+          per nucleon over the whole energy range. For nu/charged probes this produces 
+          NC/EM events with the probe & target "echoed" back as final state particles.
 
 \ref      [1] GENIE docdb 297
 

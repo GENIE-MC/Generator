@@ -23,7 +23,7 @@ namespace controls {
 
 // Maximum allowed number of iterations in rejection MC method
 // before selecting a valid number
-static const unsigned int kRjMaxIterations = 1000;
+static const unsigned int kRjMaxIterations = 100000;
 
 // Maximum allowed depth when GENIE is running in recursive mode
 static const unsigned int kRecursiveModeMaxDepth = 100;
