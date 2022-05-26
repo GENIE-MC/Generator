@@ -12,7 +12,7 @@
                     -n n_of_events
 		    -f path/to/flux/files
                    [-E nhl_energy]
-                   ~ --mass nhl_mass ~ [DEPRECATED]
+		   [--firstEvent first event for dk2nu flux readin]
                    [-m decay_mode]
 		   [-g geometry (ROOT file)]
                    [-L geometry_length_units]
@@ -33,15 +33,12 @@
               Specifies the MC run number [default: 1000].
            -n
               Specifies how many events to generate.
-	   -------- DEPRECATED --------
-           --mass
-              Specifies the NHL mass (in GeV)
-	      DEPRECATED: Set this from config/CommonNHL.xml instead.
-	   -------- DEPRECATED --------
            -m
               NHL decay mode ID:
            -f
               Input NHL flux.
+	   --firstEvent
+	      If using dk2nu fluxes, start reading at this entry
            -g
               Input detector geometry.
               If a geometry is specified, NHL decay vertices will be distributed
@@ -197,6 +194,7 @@ int              gOptNHLKind      = -1;                  // 0 = nu, 1 = nubar, 2
 string           gOptFluxFilePath = kDefOptFluxFilePath; // where flux files live
 map<string,string> gOptFluxShortNames;
 bool             gOptIsUsingDk2nu = false;               // using flat dk2nu files?
+int              gOptFirstEvent   = -1;                  // skip to this entry in dk2nu
 #endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 bool             gOptIsMonoEnFlux = true;                // do we have monoenergetic flux?
 
@@ -399,7 +397,7 @@ int main(int argc, char ** argv)
       }
     }
 
-    if(ievent == gOptNev) break;
+    if((ievent-gOptFirstEvent) == gOptNev) break;
       
      LOG("gevgen_nhl", pNOTICE)
           << " *** Generating event............ " << ievent;
@@ -415,6 +413,11 @@ int main(int argc, char ** argv)
 	   ien++;
 	 }
        } else { // get a full NHL from flux tuples
+	 LOG( "gevgen_nhl", pDEBUG )
+	   << "Starting reading from event " << gOptFirstEvent;
+	 while( ievent < gOptFirstEvent ){
+	   ievent++;
+	 }
 	 LOG( "gevgen_nhl", pDEBUG )
 	   << "Making NHL from tuple for event " << ievent;
 	 MakeNHLFromTuple( ievent, gnmf, gOptFluxFilePath, gOptRunNu );
@@ -673,8 +676,8 @@ GFluxI * TH1FluxDriver(void)
   flux::GCylindTH1Flux * flux = new flux::GCylindTH1Flux;
   TH1D * spectrum = 0;
 
-  double emin = 0.0; // RETHERE need to make this configurable.
-  double emax = 20.0; 
+  double emin = 0.0; 
+  double emax = utils::nhl::GetCfgDouble( "NHL", "InitialState", "NHL-max-energy" ); 
 
   // read in mass of NHL and decide which fluxes to use
   
@@ -850,8 +853,10 @@ int InitialiseTupleFlux( std::string finpath )
     << "Opening input flux now from path " << finpath.c_str();
 
   NHLFluxCreator::OpenFluxInput( gOptFluxFilePath );
-  assert( NHLFluxCreator::tree && NHLFluxCreator::meta && NHLFluxCreator::tree->GetEntries() > 0 );
-  return NHLFluxCreator::tree->GetEntries();
+  //assert( NHLFluxCreator::tree && NHLFluxCreator::meta && NHLFluxCreator::tree->GetEntries() > 0 );
+  //return NHLFluxCreator::tree->GetEntries();
+  assert( NHLFluxCreator::ctree && NHLFluxCreator::cmeta && NHLFluxCreator::ctree->GetEntries() > 0 );
+  return NHLFluxCreator::ctree->GetEntries();
 }
 //_________________________________________________________________________________________
 void MakeNHLFromTuple( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath, int run )
@@ -1248,6 +1253,13 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
 
   gOptIsMonoEnFlux = isMonoEnergeticFlux;
+
+  // first flux entry to read
+  if( parser.OptionExists("firstEvent") ) {
+    gOptFirstEvent = parser.ArgAsInt("firstEvent");
+    LOG( "gevgen_nhl", pINFO )
+      << "Starting flux readin at first event = " << gOptFirstEvent;
+  } // --firstEvent
 
   // NHL decay mode
   int mode = -1;

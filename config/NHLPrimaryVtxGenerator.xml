@@ -13,6 +13,14 @@ set ParameterSpace:                         Choice of parameter space position
 *******************                         **********************************
 NHL-Mass                  double      no
 NHL-LeptonMixing          vec-double  no    Mixing to charged leptons: e-mu-tau
+NHL-Ue42
+NHL-Um42
+NHL-Ut42                  double      no    Same as NHL-LeptonMixing. Needed by flux routines.
+NHL-Majorana              bool        no    Majorana vs Dirac NHL
+NHL-Type                  int         no    [Only relevant for Dirac && hist flux generation]:
+                                            0 ==> pure particle beam
+                                            1 ==> pure antiparticle beam
+                                            2 ==> mix of the two
 
 ************************                    *****************************************
 set InterestingChannels:                    Which decays to un-inhibit
@@ -32,15 +40,35 @@ NHL-3B_nu_pi0_pi0         bool        no    N -> nu + pi0 + pi0
 **********************                      *******************************
 set InitialState:                           Modify incoming NHL phase-space
 **********************                      *******************************
-NHL-angular_deviation     double      yes   Gaussian spread of NHL 3-momentum off-beam-axis   0.06
-NHL-Type                  bool        yes   Can define pure N / Nbar beam (0,1) or mix (2)    2
+NHL-angular_deviation     double      no    [Only relevant for hist flux generation]
+                                            Gaussian spread of NHL 3-momentum off-beam-axis
+NHL-max-energy            double      no    Cutoff energy for flux spectrum
 
 ********************                        ********************************
 set CoordinateXForm:                        Define beam -> local coord xform
 ********************                        ********************************
-Beam2User_T               vec-double  yes   Beam origin -> user origin [m]                    (0,0,0)
-Beam2User_R               vec-double  yes   Euler angles about beam axes [rad]                (0,0,0)
+Beam2User_T               vec-double  no    Beam origin -> user origin translation [m]             
+DetCentreXInBeam          
+DetCentreYInBeam
+DetCentreZInBeam          double      no    (-1) * components of Beam2User_T, i.e. detector centre
+                                            position in beam frame
+
+Beam2User_R               vec-double  no    Euler angles about beam axes [rad]                
                                             These are *extrinsic* rotations about x-z-x
+EulerExtrinsicX1
+EulerExtrinsicZ
+EulerExtrinsicX2          double      no    Same as components of Beam2User_R.
+
+****************                            ******************************************
+set ParticleGun:                            Define NHL trajectory for Particle Gun app
+****************                            ******************************************
+PG-OriginX
+PG-OriginY
+PG-OriginZ                double      no    Origin of the NHL trajectory in user coordinates [m]
+
+PG-cx
+PG-cy
+PG-cz                     double      no    Directional cosines of the NHL momentum in user coordinates
 
 *************                               ***************************************
 set FluxCalc:                               Specific hooks for NHL flux calculation
@@ -61,6 +89,18 @@ IncludePolarisation       bool        yes   Include NHL polarisation effects
 WeightEventsUsingGeometry bool        yes   Apply weight = P(survival) * P(decay)             true
 SampleDecayVtxFirst       bool        yes   Determine prod vtx based on sampled decay vtx     false
 IncludeMultipleNHL        bool        yes   Allow 2 quasi-degenerate NHL                      false
+
+
+***************                             ************************************
+set Validation:                             Extra options for validation scripts
+***************                             ************************************
+
+
+*************                               ***************************************
+set External:                               Physics data needed for BR calculations
+*************                               ***************************************
+PMNS-U\alphaj             double      no    PMNS matrix elements
+Pion-FFactor              double      no    See Coloma et al, EPJ C 81 (2021) 78
 -->
 
 <alg_conf>

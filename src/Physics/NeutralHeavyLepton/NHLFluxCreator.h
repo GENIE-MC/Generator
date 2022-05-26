@@ -24,14 +24,8 @@
  */
 //----------------------------------------------------------------------------
 /*
-  TODO: (Add hooks for SAA vs DRC) -- default: SAA (DRC takes long!)
-        Make DRC config in CommonNHL re. partitioning BBox
-	Remove DRC sphere-partition, calc directly from {theta,phi}x{min,max}
-	Make BBox from geometry file! (untit BBox if no geom-file?)
-	Fix detector dimension calculation in GetAngDev()
-	Migrate flux readin to use gnumi --> can put in POT scaling + weight!
-	Write POT scaling + weight
-	Implement TChain solution for OpenFluxInput
+  TODO: Make BBox from geometry file! (unit BBox if no geom-file?)
+	Write POT scaling
  */
 //----------------------------------------------------------------------------
 
@@ -52,6 +46,10 @@
 #include "TLorentzVector.h"
 #include "TMath.h"
 #include "TObjArray.h"
+#include "TROOT.h"
+#include "TString.h"
+#include "TSystemDirectory.h"
+#include "TSystem.h"
 #include "TTree.h"
 #include "TVector3.h"
 

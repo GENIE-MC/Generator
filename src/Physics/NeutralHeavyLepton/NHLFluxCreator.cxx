@@ -1,3 +1,4 @@
+
 //----------------------------------------------------------------------------
 /*!
 
@@ -49,7 +50,7 @@ int    NHLFluxCreator::job;
 double NHLFluxCreator::pots;
 
 TFile * NHLFluxCreator::fin = 0;
-TTree * NHLFluxCreator::tree = 0, * NHLFluxCreator::meta = 0;
+TChain * NHLFluxCreator::ctree = 0, * NHLFluxCreator::cmeta = 0;
 bool NHLFluxCreator::isTreeInit = false, NHLFluxCreator::isMetaInit = false, NHLFluxCreator::isBoxInit = false;
 
 //----------------------------------------------------------------------------
@@ -74,7 +75,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   TVector3 fCvec_beam( fCx, fCy, fCz );
   TVector3 fCvec = ApplyUserRotation( fCvec_beam );
 
-  tree->GetEntry(iEntry);
+  ctree->GetEntry(iEntry);
     
   // turn cm to m and make origin wrt detector 
   fDx = decay_vx * units::cm / units::m;
@@ -563,22 +564,41 @@ void NHLFluxCreator::OpenFluxInput( std::string finpath )
   LOG( "NHL", pDEBUG )
     << "Getting flux input from finpath = " << finpath.c_str();
 
-  fin = TFile::Open( finpath.c_str() );
-  assert( fin );
+  // recurse over files in this directory and add to chain
+  ctree = new TChain( "dkRootTree" );
+  cmeta = new TChain( "dkRootMeta" );
 
-  // show some stuff from dkmeta and dk2nu as proof
-  tree = dynamic_cast<TTree *>( fin->Get( "dkRootTree" ) );
-  meta = dynamic_cast<TTree *>( fin->Get( "dkRootMeta" ) );
+  TSystemDirectory dir( finpath.c_str(), finpath.c_str() );
+  TList * files = dir.GetListOfFiles(); int nFiles = 0;
+  assert( files );
 
-  if( !tree ){ LOG( "NHL", pFATAL ) << "Could not open flux tree!"; }
-  if( !meta ){ LOG( "NHL", pFATAL ) << "Could not open meta tree!"; }
-  assert( tree && meta );
+  TSystemFile * file;
+  TString fname;
+  TIter next(files);
+  
+  while( (file=( TSystemFile * ) next()) ){
+    fname = file->GetName();
+    if( !file->IsDirectory() ){
+      TString fullpath = TString( finpath.c_str() ) + fname;
+      nFiles++;
+      ctree->Add( fullpath );
+      cmeta->Add( fullpath );
+    }
+  }
 
-  const int nFilesInMeta = meta->GetEntries();
-  int nEntries = tree->GetEntries();
+  if( !ctree ){ LOG( "NHL", pFATAL ) << "Could not open flux tree!"; }
+  if( !cmeta ){ LOG( "NHL", pFATAL ) << "Could not open meta tree!"; }
+  assert( ctree && cmeta );
+
+  const int nEntriesInMeta = cmeta->GetEntries();
+  int nEntries = ctree->GetEntries();
 
   LOG( "NHL", pDEBUG )
-    << "There were " << nFilesInMeta << " files in meta with " << nEntries << " total nus";
+    << "\nThere were " << nEntriesInMeta << " entries in meta with " << nEntries << " total nus"
+    << "\n got from " << nFiles << " files";
+
+  delete file;
+  delete files;
 }
 //----------------------------------------------------------------------------
 void NHLFluxCreator::InitialiseTree()
@@ -591,16 +611,16 @@ void NHLFluxCreator::InitialiseTree()
   decay_pdpx = 0.0; decay_pdpy = 0.0; decay_pdpz = 0.0;
   decay_nimpwt = 0.0;
   
-  tree->SetBranchAddress( "potnum",       &potnum       );
-  tree->SetBranchAddress( "decay_ptype",  &decay_ptype  );
-  tree->SetBranchAddress( "decay_vx",     &decay_vx     );
-  tree->SetBranchAddress( "decay_vy",     &decay_vy     );
-  tree->SetBranchAddress( "decay_vz",     &decay_vz     );
-  tree->SetBranchAddress( "decay_pdpx",   &decay_pdpx   );
-  tree->SetBranchAddress( "decay_pdpy",   &decay_pdpy   );
-  tree->SetBranchAddress( "decay_pdpz",   &decay_pdpz   );
-  tree->SetBranchAddress( "decay_necm",   &decay_necm   );
-  tree->SetBranchAddress( "decay_nimpwt", &decay_nimpwt );
+  ctree->SetBranchAddress( "potnum",       &potnum       );
+  ctree->SetBranchAddress( "decay_ptype",  &decay_ptype  );
+  ctree->SetBranchAddress( "decay_vx",     &decay_vx     );
+  ctree->SetBranchAddress( "decay_vy",     &decay_vy     );
+  ctree->SetBranchAddress( "decay_vz",     &decay_vz     );
+  ctree->SetBranchAddress( "decay_pdpx",   &decay_pdpx   );
+  ctree->SetBranchAddress( "decay_pdpy",   &decay_pdpy   );
+  ctree->SetBranchAddress( "decay_pdpz",   &decay_pdpz   );
+  ctree->SetBranchAddress( "decay_necm",   &decay_necm   );
+  ctree->SetBranchAddress( "decay_nimpwt", &decay_nimpwt );
 }
 //----------------------------------------------------------------------------
 void NHLFluxCreator::InitialiseMeta()
@@ -610,8 +630,8 @@ void NHLFluxCreator::InitialiseMeta()
   job = 0;
   pots = 0.0;
 
-  meta->SetBranchAddress( "job",  &job  );
-  meta->SetBranchAddress( "pots", &pots );
+  cmeta->SetBranchAddress( "job",  &job  );
+  cmeta->SetBranchAddress( "pots", &pots );
 }
 //----------------------------------------------------------------------------
 void NHLFluxCreator::ReadBRs()

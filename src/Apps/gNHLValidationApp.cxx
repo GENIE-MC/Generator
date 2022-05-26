@@ -620,6 +620,14 @@ int TestFluxFromHists()
 
   LOG( "gevald_nhl", pDEBUG )
     << "\nnPart, nAntipart = " << nPart << ", " << nAntipart;
+
+  hNHLPx.Write();
+  hNHLPy.Write();
+  hNHLPz.Write();
+  hNHLAngDev.Write();
+  hNHLParticleRates.Write();
+  hParamSpace.Write();
+  fout->Close();
   
   return 0;
 }
@@ -630,8 +638,8 @@ int InitialiseTupleFlux( std::string finpath )
     << "Opening input flux now from path " << finpath.c_str();
 
   NHLFluxCreator::OpenFluxInput( gOptFluxFilePath );
-  assert( NHLFluxCreator::tree && NHLFluxCreator::meta && NHLFluxCreator::tree->GetEntries() > 0 );
-  return NHLFluxCreator::tree->GetEntries();
+  assert( NHLFluxCreator::ctree && NHLFluxCreator::cmeta && NHLFluxCreator::ctree->GetEntries() > 0 );
+  return NHLFluxCreator::ctree->GetEntries();
 }
 //_________________________________________________________________________________________
 void MakeNHLFromTuple( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath, int run )
