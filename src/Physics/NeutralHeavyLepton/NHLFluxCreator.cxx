@@ -231,7 +231,11 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     if( costh_pardet > 1.0 ) costh_pardet = 1.0;
     // assume boost is on z' direction where z' = parent momentum direction, subbing betaMag ==> betaMag * costh_pardet
     //boost_correction = gamma * ( 1.0 + betaNHL * betaMag * costh_pardet );
-    boost_correction = 1.0 / ( gamma * ( 1.0 - betaMag * betaNHL * costh_pardet ) );
+    if( std::abs( costh_pardet ) >= 0.9 ){
+      boost_correction = 1.0 / ( gamma * ( 1.0 - betaMag * betaNHL * costh_pardet ) );
+    } else {
+      boost_correction = p4NHL_good.E() / p4NHL_rest_good.E();
+    }
   }
 
   LOG( "NHL", pDEBUG )
