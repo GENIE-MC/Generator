@@ -165,6 +165,10 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   dynamicScores = GetProductionProbs( decay_ptype );
   assert( dynamicScores.size() > 0 );
   
+  if( dynamicScores.find( kNHLProdNull ) != dynamicScores.end() ){ // exists kin allowed channel but 0 coupling
+    FillNonsense( iEntry, gnmf, run ); return; 
+  }
+  
   RandomGen * rnd = RandomGen::Instance();
   double score = rnd->RndGen().Uniform( 0.0, 1.0 );
   NHLProd_t prodChan;
@@ -564,6 +568,7 @@ void NHLFluxCreator::OpenFluxInput( std::string finpath )
   if( std::strcmp( finpath.c_str(), fCurrPath.c_str() ) == 0 ) return;
 
   fCurrPath = finpath;
+  finpath.append("/");
 
   LOG( "NHL", pDEBUG )
     << "Getting flux input from finpath = " << finpath.c_str();
@@ -720,6 +725,14 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdMuon3Nue,   mixScale[1] / totalMix } ) );
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdMuon3Nutau, mixScale[2] / totalMix } ) );
 
+    // it can happen that NHL is not coupled to the only kinematically available channel.
+    // Return bogus map if that happens
+    if( totalMix <= 0.0 ){
+      dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdNull, -999.9 } ) );
+      dynamicScores_muon = dynScores;
+      return dynScores;
+    }
+
     dynamicScores_muon = dynScores;
     break;
   case genie::kPdgKP:
@@ -731,6 +744,14 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
     mixScale[1] = BR_K2e  * Ue42 * KScale[1]; totalMix += mixScale[1];
     mixScale[2] = BR_K3mu * Um42 * KScale[2]; totalMix += mixScale[2];
     mixScale[3] = BR_K3e  * Ue42 * KScale[3]; totalMix += mixScale[3];
+
+    // it can happen that NHL is not coupled to the only kinematically available channel.
+    // Return bogus map if that happens
+    if( totalMix <= 0.0 ){
+      dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdNull, -999.9 } ) );
+      dynamicScores_pion = dynScores;
+      return dynScores;
+    }
 
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdKaon2Muon,     mixScale[0] / totalMix } ) );
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdKaon2Electron, mixScale[1] / totalMix } ) );
@@ -746,6 +767,14 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
     mixScale[0] = BR_pi2mu * Um42 * KScale[0]; totalMix += mixScale[0];
     mixScale[1] = BR_pi2e  * Ue42 * KScale[1]; totalMix += mixScale[1];
 
+    // it can happen that NHL is not coupled to the only kinematically available channel.
+    // Return bogus map if that happens
+    if( totalMix <= 0.0 ){
+      dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdNull, -999.9 } ) );
+      dynamicScores_pion = dynScores;
+      return dynScores;
+    }
+
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdPion2Muon,     mixScale[0] / totalMix } ) );
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdPion2Electron, mixScale[1] / totalMix } ) );
 
@@ -757,6 +786,14 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
     KScale[1] = NHLSelector::KScale_Global( kNHLProdNeuk3Electron, M );
     mixScale[0] = BR_K03mu * Um42 * KScale[0]; totalMix += mixScale[0];
     mixScale[1] = BR_K03e  * Ue42 * KScale[1]; totalMix += mixScale[1];
+    
+    // it can happen that NHL is not coupled to the only kinematically available channel.
+    // Return bogus map if that happens
+    if( totalMix <= 0.0 ){
+      dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdNull, -999.9 } ) );
+      dynamicScores_neuk = dynScores;
+      return dynScores;
+    }
 
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdNeuk3Muon,     mixScale[0] / totalMix } ) );
     dynScores.insert( std::pair< NHLProd_t, double >( { kNHLProdNeuk3Electron, mixScale[1] / totalMix } ) );
@@ -1025,8 +1062,10 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
     } else if( ymax > zp && xmax == 180.0 ){ // 1 pre-image, SMv-like case
       double xl = fNHL->GetX( z0 ), xh = fNHL->GetX( zp );
       range1 = std::abs( xh - xl );
+
     } else if( ymax <= zp ){ // 1 pre-image but all emissions reach detector
       range1 = 180.0;
+
     }
   } else { // not so good collimation, enforce checks on zm
     if( ymax <= zm ){ // 0 pre-images
@@ -1044,6 +1083,7 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
     } else if( ymax > zp && xmax == 180.0 ){ // 1 pre-image, SMv-like case
       double xl = fNHL->GetX( zm ), xh = fNHL->GetX( zp );
       range1 = std::abs( xh - xl );
+
     } else if( zm < ymax && ymax <= zp ){ // 1 pre-image
       double xl = fNHL->GetX( zm, 0., xmax ), xh = fNHL->GetX( zm, xmax, 180.0 );
       range1 = std::abs( xh - xl );
@@ -1090,10 +1130,15 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
     
     double xpart = std::abs( ( vcx.X() / vcz.Z() ) / ( vsx.X() / vsz.Z() ) );
     double ypart = std::abs( ( vcy.Y() / vcz.Z() ) / ( vsy.Y() / vsz.Z() ) );
+
     return 1.0 / ( xpart * ypart );
   }
 
   assert( range2 > 0.0 );
+
+  LOG( "NHL", pINFO )
+    << "\n range1 = " << range1 << " / range2 = " << range2;
+
   return range1 / range2;
 
 }
