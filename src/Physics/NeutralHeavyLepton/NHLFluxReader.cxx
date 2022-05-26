@@ -111,6 +111,25 @@ TH1F * NHLFluxReader::getFluxHist1F( std::string fin, std::string hName, int HTy
     return histPtr;
 }
 
+// overload to new interface
+TH1F * NHLFluxReader::getFluxHist1F( std::string fin, int masspoint, bool isParticle ){
+  
+  TFile *f = TFile::Open( fin.c_str() );
+  assert( f );
+  
+  std::string histName( Form("hHNLFluxCenterAcc_%d", masspoint) );
+  if( !isParticle ) histName.append("_bar");
+  TObject * histObj = f->Get( histName.c_str() );
+  
+  LOG( "NHL", pDEBUG )
+    << "Getting flux from histo with name " << histObj->GetName()
+    << " and title " << histObj->GetTitle();
+
+  TH1F * histPtr = dynamic_cast< TH1F* >( histObj );
+
+  return histPtr;
+}
+
 TH3D * NHLFluxReader::getFluxHist3D( std::string fin, std::string dirName, std::string hName ){
   TFile * f = TFile::Open( fin.c_str() );
 

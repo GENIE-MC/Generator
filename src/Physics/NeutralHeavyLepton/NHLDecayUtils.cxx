@@ -445,3 +445,11 @@ std::vector<bool> genie::utils::nhl::GetCfgBoolVec( string file_id, string set_n
   return vect;
 }
 //____________________________________________________________________________
+string genie::utils::nhl::GetCfgString( string file_id, string set_name, string par_name )
+{
+  const genie::Registry * tmpReg = genie::AlgConfigPool::Instance()
+    ->CommonList( file_id, set_name );
+  string param = tmpReg->GetString( par_name );
+  return param;
+}
+//____________________________________________________________________________

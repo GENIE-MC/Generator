@@ -50,6 +50,7 @@ namespace genie
       std::vector<double> GetCfgDoubleVec  (string file_id, string set_name, string par_name);
       bool                GetCfgBool       (string file_id, string set_name, string par_name);
       std::vector<bool>   GetCfgBoolVec    (string file_id, string set_name, string par_name);
+      std::string         GetCfgString     (string file_id, string set_name, string par_name);
 
    } // nhl 
  } // utils 

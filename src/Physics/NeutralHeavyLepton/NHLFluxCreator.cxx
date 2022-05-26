@@ -233,17 +233,15 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     boost_correction = 1.0 / ( gamma * ( 1.0 - betaMag * betaNHL * costh_pardet ) );
   }
 
-  LOG( "NHL", pFATAL )
-    << "\n *** Event " << iEntry << " *** :"
-    << "\nbetaMag = " << betaMag
-    << "\ngamma   = " << gamma
-    << "\nbetaNHL = " << betaNHL
-    << "\ncosth_pardet     = " << costh_pardet
-    << "\nboost_correction = " << boost_correction
-    << "\nChannel = " << utils::nhl::ProdAsString( prodChan )
-    << "\nCM ENHL = " << p4NHL_rest.E()
-    << "\nENHL = " << p4NHL_rest.E() * boost_correction
-    << "\nacceptance = " << acc_saa * boost_correction * boost_correction;
+  LOG( "NHL", pDEBUG )
+    << "\ndetO            = " << utils::print::Vec3AsString( &detO )
+    << "\ndetO_rest_unit  = " << utils::print::Vec3AsString( &detO_rest_unit )
+    << "\np4NHL_rest_good = " << utils::print::P4AsString( &p4NHL_rest_good )
+    << "\np4NHL_good      = " << utils::print::P4AsString( &p4NHL_good )
+    << "\nbetaNHL         = " << betaNHL
+    << "\nboost_corr_two  = " << boost_correction_two
+    << "\nboost_corr_one  = " << boost_correction
+    << "\nratio           = " << boost_correction_two / boost_correction;
 
   assert( boost_correction > 0.0 && boost_correction_two > 0.0 );
 

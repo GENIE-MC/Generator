@@ -501,10 +501,23 @@ int main(int argc, char ** argv)
      }
 
      Interaction * interaction = Interaction::NHL(typeMod * genie::kPdgNHL, gOptEnergyNHL, decay);
+
+     if( event->Vertex() ){
+       LOG( "gevgen_nhl", pDEBUG )
+	 << "\nIS p4  = " << utils::print::P4AsString( interaction->InitStatePtr()->GetProbeP4() )
+	 << "\nIS vtx = " << utils::print::X4AsString( event->Vertex() );
+     } else {
+       LOG( "gevgen_nhl", pDEBUG )
+	 << "\nIS p4  = " << utils::print::P4AsString( interaction->InitStatePtr()->GetProbeP4() );
+     }
+
      if( gnmf ){ // we have an NHL with definite momentum, so let's set it now
        interaction->InitStatePtr()->SetProbeP4( gnmf->fgP4User );
+       LOG( "gevgen_nhl", pDEBUG )
+	 << "\ngnmf->fgP4User setting probe p4 = " << utils::print::P4AsString( &gnmf->fgP4User );
        event->SetVertex( gnmf->fgX4User );
      }
+
      event->AttachSummary(interaction);
 
      LOG("gevgen_nhl", pDEBUG)
@@ -678,6 +691,8 @@ GFluxI * TH1FluxDriver(void)
   
   selectFile( gOptFluxFilePath, gOptMassNHL );
   string finPath = NHLFluxReader::fPath; // is it good practice to keep this explicit?
+  string prodVtxPath = gOptFluxFilePath; prodVtxPath.append("/NHL_vertex_positions.root");
+  __attribute__((unused)) int iset = setenv( "PRODVTXDIR", prodVtxPath.c_str(), 1 );
   LOG("gevgen_nhl", pDEBUG)
     << "Looking for fluxes in " << finPath.c_str();
   assert( !gSystem->AccessPathName( finPath.c_str()) );
@@ -716,7 +731,7 @@ GFluxI * TH1FluxDriver(void)
     else if( gOptNHLKind == 0 ){
       spectrumF->Add( hfluxAllMu, 1.0 );
     }
-    else{
+    else if( gOptNHLKind == 1 ){
       spectrumF->Add( hfluxAllMubar, 1.0 );
     }
   }
@@ -941,7 +956,7 @@ TLorentzVector GeneratePosition( GHepRecord * event )
 
       newProdVtx->clear();
     }
-    LOG("gevgen_nhl", pFATAL) << "I called NHLDecayVolume::VolumeEntryAndExitPoints " << trajIdx + 1 << " times";
+    LOG("gevgen_nhl", pNOTICE) << "Called NHLDecayVolume::VolumeEntryAndExitPoints " << trajIdx + 1 << " times";
     
     if( trajIdx == trajMax && !didIntersectDet ){
       LOG( "gevgen_nhl", pERROR )

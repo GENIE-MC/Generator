@@ -68,6 +68,8 @@ namespace NHL{
 
     /// get the histogram and energy from it
     TH1F * getFluxHist1F( std::string fin, std::string hName, int HType );
+    // and overloaded method for the newer interface
+    TH1F * getFluxHist1F( std::string fin, int masspoint, bool isParticle );
 
     TH3D * getFluxHist3D( std::string fin, std::string dirName, std::string hName );
 

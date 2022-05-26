@@ -84,10 +84,12 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
   InitialState * init_state = interaction->InitStatePtr();
 
   TLorentzVector p4;
-  if( (init_state->GetProbeP4())->P() <= (init_state->GetProbeP4())->E() ){
+  if( (init_state->GetProbeP4())->P() <= (init_state->GetProbeP4())->E() && 
+      event->Vertex() && (event->Vertex()->Vect()).Mag() > 0.0 ){
     // p4 was already set using NHLFluxCreator. No action needed.
     // Read event vertex == NHL production vertex. We will find the decay vertex later.
     p4 = *( init_state->GetProbeP4() );
+    LOG( "NHL", pDEBUG ) << "\nHere's the p4 seen at InitialState(): " << utils::print::P4AsString( &p4 );
 
     prodVtx = new std::vector< double >();
     prodVtx->emplace_back( event->Vertex()->X() );
@@ -303,7 +305,9 @@ std::vector< double > * NHLPrimaryVtxGenerator::GenerateDecayPosition( GHepRecor
   // let's query *where* the NHL decayed from.
   // RETHERE - perhaps should return to GCylindTH1Flux-like implementation?
   if( !fProdVtxHist || fProdVtxHist == 0 ){
-    std::string pvPath = "/GENIEv2/Generator/data/flux/HNL/HNL_vertex_positions.root"; // RETHERE - need to fix this!
+    //std::string pvPath = "/GENIEv2/Generator/data/flux/HNL/HNL_vertex_positions.root"; // RETHERE - need to fix this!
+    std::string pvPath = std::getenv( "PRODVTXDIR" );
+    LOG( "NHL", pDEBUG ) << "pvPath = " << pvPath.c_str();
     std::string pdName = "";
     std::string pvName = "hHNLVtxPos";
     fProdVtxHist = NHLFluxReader::getFluxHist3D( pvPath, pdName, pvName );
