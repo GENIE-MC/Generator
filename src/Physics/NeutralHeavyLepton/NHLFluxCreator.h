@@ -156,7 +156,7 @@ namespace genie{
       extern bool isParentOnAxis;
 
       extern TFile * fin;
-      extern TTree * tree, * meta;
+      extern TChain * ctree, * cmeta;
       extern bool isTreeInit, isMetaInit, isBoxInit;
 
       extern double fLx, fLy, fLz;   //BBox length [m]
