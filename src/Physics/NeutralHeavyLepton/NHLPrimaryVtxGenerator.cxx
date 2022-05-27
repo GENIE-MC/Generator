@@ -283,7 +283,8 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
   if( !event->FinalStatePrimaryLepton() ){ // no charged lepton means invisible or pi0 nu
     LOG( "NHL", pWARN )
       << "No final state primary lepton for this event.";
-    assert( fCurrDecayMode == kNHLDcyPi0Nu || fCurrDecayMode == kNHLDcyNuNuNu );
+    assert( fCurrDecayMode == kNHLDcyPi0Nu || fCurrDecayMode == kNHLDcyNuNuNu
+	    || fCurrDecayMode == kNHLDcyPi0Pi0Nu );
   }
   //assert( event->FinalStatePrimaryLepton() );
   
