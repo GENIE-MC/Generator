@@ -106,7 +106,15 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
 
     p4 = TLorentzVector( px, py, pz, E );
 
-    prodVtx = this->GenerateDecayPosition( event );
+    if( !event->Vertex() || (event->Vertex()->Vect()).Mag() == 0.0 )
+      prodVtx = this->GenerateDecayPosition( event );
+    else{
+      prodVtx = new std::vector< double >();
+      prodVtx->emplace_back( event->Vertex()->X() );
+      prodVtx->emplace_back( event->Vertex()->Y() );
+      prodVtx->emplace_back( event->Vertex()->Z() );
+      prodVtx->emplace_back( event->Vertex()->T() );
+    }
   }
 
   // RETHERE don't sample production vtx if user isn't asking for geom! It's pointless.

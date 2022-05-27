@@ -49,6 +49,7 @@ TGT_BASE += gevgen_upmu
 endif
 ifeq ($(strip $(GOPT_ENABLE_NEUTRAL_HEAVY_LEPTON)),YES)
 TGT_BASE += gevgen_nhl
+TGT_BASE += gevgen_pgnhl
 endif
 ifeq ($(strip $(GOPT_ENABLE_NHL_VALIDATION)), YES)
 TGT_BASE += gevald_nhl
@@ -140,6 +141,12 @@ $(GENIE_BIN_PATH)/gevgen_hadron: gEvGenHadronNucleus.o $(call find_libs,gevgen_h
 $(GENIE_BIN_PATH)/gevgen_nhl: gNeutralHeavyLeptonEvGen.o $(call find_libs,gevgen_nhl)
 	@echo "** Building gevgen_nhl"
 	$(LD) $(LDFLAGS) gNeutralHeavyLeptonEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_nhl
+
+# particle gun with NHL
+#
+$(GENIE_BIN_PATH)/gevgen_pgnhl: gNHLParticleGun.o $(call find_libs,gevgen_pgnhl)
+	@echo "** Building gevgen_pgnhl"
+	$(LD) $(LDFLAGS) gNHLParticleGun.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_pgnhl
 
 # validation for NHL ev gen
 #

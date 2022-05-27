@@ -18,11 +18,11 @@ April 11th, 2022
 <common_NHL_list>
 
   <param_set name="ParameterSpace">
-    <param type="double" name="NHL-Mass"> 0.3956 </param> <!-- GeV -->
-    <param type="vec-double" name="NHL-LeptonMixing" delim=";"> 1.0e-5 ; 1.0e-5 ; 0.0 </param>
-    <param type="double" name="NHL-Ue42"> 1.0e-5; </param>
-    <param type="double" name="NHL-Um42"> 1.0e-5; </param>
-    <param type="double" name="NHL-Ut42"> 0.0; </param>
+    <param type="double" name="NHL-Mass"> 0.300 </param> <!-- GeV -->
+    <param type="vec-double" name="NHL-LeptonMixing" delim=";"> 1.0e-5 ; 1.0e-5 ; 0.0e+0 </param>
+    <param type="double" name="NHL-Ue42"> 1.0e-5 </param>
+    <param type="double" name="NHL-Um42"> 1.0e-5 </param>
+    <param type="double" name="NHL-Ut42"> 0.0e+0 </param>
     <param type="bool" name="NHL-Majorana"> false </param>
     <param type="int" name="NHL-Type"> 2 </param> <!-- 0 = pure-N, 1 = pure-Nbar, 2 = mix -->
   </param_set>
@@ -31,7 +31,7 @@ April 11th, 2022
     <!-- 2-body decays -->
     <param type="bool" name="NHL-2B_mu_pi"> true </param>
     <param type="bool" name="NHL-2B_e_pi"> true </param>
-    <param type="bool" name="NHL-2B_nu_pi0"> true </param>
+    <param type="bool" name="NHL-2B_nu_pi0"> false </param>
     <!-- 3-body decays -->
     <param type="bool" name="NHL-3B_nu_nu_nu"> false </param>
     <param type="bool" name="NHL-3B_nu_mu_mu"> true </param>
@@ -45,6 +45,7 @@ April 11th, 2022
   <param_set name="InitialState">
     <param type="double" name="NHL-angular_deviation"> 0.06 </param> <!-- deg -->
     <param type="vec-double" name="NHL-energy_range" delim=";"> 0.0 ; 20.0 </param> <!-- GeV -->
+    <param type="double" name="NHL-max-energy"> 20.0 </param> <!-- GeV -->
   </param_set>
 
   <param_set name="CoordinateXForm">
@@ -59,23 +60,23 @@ April 11th, 2022
     <!-- Euler angles, extrinsic x-z-x = 1-2-3, RM * BEAM = USER, RM = Rx(1) * Rz(2) * Rx(3) -->
   </param_set>
 
-  <param_set name="External">
-    <!-- should these be migrated elsewhere? -->
+  <param_set name="ParticleGun">
+    <param type="double" name="PG-OriginX"> 0.0 </param> <!-- user, m -->
+    <param type="double" name="PG-OriginY"> 0.0 </param> <!-- user, m -->
+    <param type="double" name="PG-OriginZ"> -10.0 </param> <!-- user, m -->
 
-    <!-- from Coloma et al in EPJ C -->
-    <param type="double" name="Pion-FFactor"> 0.130 </param> <!-- GeV -->
+    <param type="double" name="PG-OriginDX"> 0.1 </param> <!-- user, m, >= 0 -->
+    <param type="double" name="PG-OriginDY"> 0.1 </param> <!-- user, m, >= 0 -->
+    <param type="double" name="PG-OriginDZ"> 0.5 </param> <!-- user, m, >= 0 -->
 
-    <!-- www.nu-fit.org v5.1 w/ SK-atm data, no correlations -->
-    <!-- value = 1/2 * (min + max) -->
-    <param type="double" name="PMNS-Ue1"> 0.823 </param>
-    <param type="double" name="PMNS-Ue2"> 0.546 </param>
-    <param type="double" name="PMNS-Ue3"> 0.150 </param>
-    <param type="double" name="PMNS-Um1"> 0.3715 </param>
-    <param type="double" name="PMNS-Um2"> 0.599 </param>
-    <param type="double" name="PMNS-Um3"> 0.697 </param>
-    <param type="double" name="PMNS-Ut1"> 0.430 </param>
-    <param type="double" name="PMNS-Ut2"> 0.570 </param>
-    <param type="double" name="PMNS-Ut3"> 0.692 </param>
+    <param type="double" name="PG-cx"> -0.01 </param> <!-- user, GeV/GeV -->
+    <param type="double" name="PG-cy"> 0.03 </param> <!-- user, GeV/GeV -->
+    <param type="double" name="PG-cz"> 0.9995 </param> <!-- user, GeV/GeV -->
+
+    <param type="double" name="PG-DTheta"> 1.0 </param> <!-- deg, >= 0 -->
+    <param type="double" name="PG-DPhi"> 10.0 </param> <!-- deg, >= 0 -->
+
+    <param type="double" name="PG-Energy"> 0.500 </param> <!-- GeV -->
   </param_set>
 
   <param_set name="FluxCalc">
@@ -102,5 +103,42 @@ April 11th, 2022
 	  <param type="bool" name="IncludeMultipleNHL"> false </param>
       </param_set>
   -->
+
+  <param_set name="Validation">
+    <!-- See $GENIE/src/Physics/NeutralHeavyLepton/NHL{Production,Decay}Mode.h for enum -->
+    <param type="int" name="NHL-ProdMode">  0 </param>
+    <param type="int" name="NHL-DecayMode"> 0 </param>
+
+    <param type="double" name="BoxLx"> 1.0 </param> <!-- m -->
+    <param type="double" name="BoxLy"> 1.0 </param> <!-- m -->
+    <param type="double" name="BoxLz"> 1.0 </param> <!-- m -->
+
+    <param type="double" name="Parent-E">     5.0 </param> <!-- GeV -->
+    <param type="double" name="Parent-Theta"> 0.0 </param> <!-- wrt beam axis, rad -->
+    <param type="double" name="Parent-Phi">   0.0 </param> <!-- 0 == x, pi/2 == y -->
+    <param type="double" name="Parent-Ox">    0.0 </param> <!-- user, m -->
+    <param type="double" name="Parent-Oy">    0.0 </param> <!-- user, m -->
+    <param type="double" name="Parent-Oz">    0.0 </param> <!-- user, m -->
+    
+  </param_set>
+
+  <param_set name="External">
+    <!-- should these be migrated elsewhere? -->
+
+    <!-- from Coloma et al in EPJ C -->
+    <param type="double" name="Pion-FFactor"> 0.130 </param> <!-- GeV -->
+
+    <!-- www.nu-fit.org v5.1 w/ SK-atm data, no correlations -->
+    <!-- value = 1/2 * (min + max) -->
+    <param type="double" name="PMNS-Ue1"> 0.823 </param>
+    <param type="double" name="PMNS-Ue2"> 0.546 </param>
+    <param type="double" name="PMNS-Ue3"> 0.150 </param>
+    <param type="double" name="PMNS-Um1"> 0.3715 </param>
+    <param type="double" name="PMNS-Um2"> 0.599 </param>
+    <param type="double" name="PMNS-Um3"> 0.697 </param>
+    <param type="double" name="PMNS-Ut1"> 0.430 </param>
+    <param type="double" name="PMNS-Ut2"> 0.570 </param>
+    <param type="double" name="PMNS-Ut3"> 0.692 </param>
+  </param_set>
 
 </common_NHL_list>
