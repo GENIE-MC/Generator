@@ -519,7 +519,7 @@ int TestFluxFromHists()
   assert( spectrum );
 
   TH1D hNHLPx, hNHLPy, hNHLPz;
-  TH1D hNHLAngDev;
+  TH1D hNHLAngDev, hNHLPhi;
   TH1D hNHLParticleRates; int nPart = 0, nAntipart = 0;
   TH1D hParamSpace;
 
@@ -527,7 +527,9 @@ int TestFluxFromHists()
   hNHLPy = TH1D( "hNHLPy", "NHL p_y (user coordinates, GeV)", 100, -0.5, 0.5 );
   hNHLPz = TH1D( "hNHLPz", "NHL p_z (user coordinates, GeV)", 1050, -0.5, 100 );
 
-  hNHLAngDev = TH1D( "hNHLAngDev", "NHL angular deviation [deg]", 100, 0., 0.1 );
+  double angdev = utils::nhl::GetCfgDouble( "NHL", "InitialState", "NHL-angular_deviation" );
+  hNHLAngDev = TH1D( "hNHLAngDev", "NHL angular deviation [deg]", 100, -5.0 * angdev, 5.0 * angdev );
+  hNHLPhi    = TH1D( "hNHLPhi", "NHL #phi [deg]", 100, 0.0, 360.0 );
 
   hNHLParticleRates = TH1D( "hNHLParticleRates", "N (particles && antiparticles)", 2, 0., 2. );
   hParamSpace = TH1D( "hParamSpace", "Parameter space", 5, 0., 5. );
@@ -544,7 +546,7 @@ int TestFluxFromHists()
 	}
       }
 
-      if( ievent == gOptNev ) break;
+      if( ievent == gOptNev ){ std::cerr << " \n"; break; }
 
       gOptEnergyNHL = spectrum->GetRandom();
       unsigned int ien = 0;
@@ -570,8 +572,8 @@ int TestFluxFromHists()
 	  break;
 	case 2:
 	  typeMod = DecideType( spectrumFile );
-	  nPart++;
-	  nAntipart++;
+	  if( typeMod > 0 ) nPart++;
+	  else nAntipart++;
 	  break;
 	default:
 	  nPart++;
@@ -596,14 +598,17 @@ int TestFluxFromHists()
       
       double px = p4NHL->Px(), py = p4NHL->Py(), pz = p4NHL->Pz();
       double theta = TMath::ACos( pz / p4NHL->P() );
+      double phi = TMath::ACos( px / ( p4NHL->P() * TMath::Sin( theta ) ) );
+      if( py < 0.0 ) phi = 2.0 * constants::kPi - phi;
+      if( constants::kPi <= phi && phi < 2.0 * constants::kPi ) theta *= -1;
       
       // fill histos here
 
       hNHLPx.Fill( px, 1.0 );
       hNHLPy.Fill( py, 1.0 );
       hNHLPz.Fill( pz, 1.0 );
-      hNHLAngDev.Fill( theta, 1.0 );
-      
+      hNHLAngDev.Fill( theta * 180.0 / constants::kPi, 1.0 );
+      hNHLPhi.Fill( phi * 180.0 / constants::kPi, 1.0 );
       
       delete event;
       
@@ -621,12 +626,15 @@ int TestFluxFromHists()
   LOG( "gevald_nhl", pDEBUG )
     << "\nnPart, nAntipart = " << nPart << ", " << nAntipart;
 
+  fout->cd();
   hNHLPx.Write();
   hNHLPy.Write();
   hNHLPz.Write();
   hNHLAngDev.Write();
+  hNHLPhi.Write();
   hNHLParticleRates.Write();
   hParamSpace.Write();
+  fout->Write();
   fout->Close();
   
   return 0;
@@ -664,7 +672,7 @@ GFluxI * TH1FluxDriver(void)
 
   // read in mass of NHL and decide which fluxes to use
 
-  assert(gCfgMassNHL > 0.0);
+  assert(gCfgMassNHL >= 0.0);
 
   // select mass point
 
