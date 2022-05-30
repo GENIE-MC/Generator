@@ -120,7 +120,7 @@ string genie::utils::nhl::AsString(NHLDecayMode_t nhldm)
     break;
 
   case (kNHLDcyTEST):
-    return "N -> e+ e-";
+    return "N -> v v";
     break;
 
   default:
@@ -339,8 +339,8 @@ PDGCodeList genie::utils::nhl::DecayProductList(NHLDecayMode_t nhldm)
     break;
 
   case(kNHLDcyTEST):
-    decay_products.push_back(kPdgPositron);
-    decay_products.push_back(kPdgElectron);
+    decay_products.push_back(kPdgNuMu);
+    decay_products.push_back(kPdgAntiNuMu);
     break;
 
   default :
