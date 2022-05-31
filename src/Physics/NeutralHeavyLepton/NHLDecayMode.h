@@ -37,7 +37,7 @@ namespace genie {
    kNHLDcyPiPi0E   = 7,	 // N --> \pi^{\pm} \pi^{0}   e^{\mp}	  
    kNHLDcyPiPi0Mu  = 8,	 // N --> \pi^{\pm} \pi^{0} \mu^{\mp}	  
    kNHLDcyPi0Pi0Nu = 9,	 // N --> \pi^{0}   \pi^{0} \nu (any kind)
-   kNHLDcyTEST     = 99, // N --> ee. Test only, not a valid FS.
+   kNHLDcyTEST     = 99, // N --> vv. Test only, not a valid FS.
 
  } NHLDecayMode_t;
 
