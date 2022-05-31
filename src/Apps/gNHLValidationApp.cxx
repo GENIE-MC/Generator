@@ -137,14 +137,15 @@ typedef enum t_NHLValidation {
   kValNone            = 0,
   kValFluxFromDk2nu   = 1,
   kValFluxFromHists   = 2,
-  kValProdEvtRates    = 3,
-  kValProdKinematics  = 4,
-  kValDecayEvtRates   = 5,
-  kValDecayKinematics = 6,
-  kValEntryExit       = 7,
-  kValVtxPlacement    = 8,
-  kValParentGun       = 9,
-  kValFullSim         = 10
+  //kValProdEvtRates    = 3,
+  //kValProdKinematics  = 4,
+  kValDecay           = 3,
+  //kValDecayEvtRates   = 3,
+  //kValDecayKinematics = 4,
+  kValEntryExit       = 4,
+  kValVtxPlacement    = 5,
+  kValParentTrajectory  = 6,
+  kValFullSim         = 7
   
 } NHLValidation_t;
 
@@ -162,6 +163,8 @@ void     MakeNHLFromTuple   (int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, 
 GFluxI * TH1FluxDriver      (void);
 int      DecideType         (TFile * spectrumFile);
 #endif
+
+int      TestDecay          (void);
 
 //
 string          kDefOptGeomLUnits   = "mm";    // default geometry length units
@@ -214,6 +217,10 @@ double           gCfgParentOx     = -1;                  // user x of parent ori
 double           gCfgParentOy     = -1;                  // user y of parent origin
 double           gCfgParentOz     = -1;                  // user z of parent origin
 
+double           gCfgNHLCx        = -1;                  // directional cosine for x for NHL traj
+double           gCfgNHLCy        = -1;                  // directional cosine for y for NHL traj
+double           gCfgNHLCz        = -1;                  // directional cosine for z for NHL traj
+
 // ---- end config section
 
 double           gOptEnergyNHL    = -1;                  // NHL energy in GeV
@@ -265,6 +272,7 @@ int main(int argc, char ** argv)
     
   case kValFluxFromDk2nu: return TestFluxFromDk2nu(); break;
   case kValFluxFromHists: return TestFluxFromHists(); break;
+  case kValDecay:         return TestDecay();         break;
   default: LOG( "gevald_nhl", pFATAL ) << "I didn't recognise this mode. Goodbye world!"; break;
   }
 
@@ -810,6 +818,234 @@ int DecideType(TFile * spectrumFile){
 //............................................................................
 #endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX_
 //_________________________________________________________________________________________
+int TestDecay(void)
+{
+  string foutName("test_decay.root");
+
+  TFile * fout = TFile::Open( foutName.c_str(), "RECREATE" );
+
+  const EventRecordVisitorI * mcgen = NHLGenerator();
+
+  SimpleNHL sh = SimpleNHL( "NHLInstance", 0, kPdgNHL, kPdgKP,
+			    gCfgMassNHL, gCfgECoupling, gCfgMCoupling, gCfgTCoupling, false );
+  std::map< NHLDecayMode_t, double > valMap = sh.GetValidChannels();
+
+  assert( valMap.size() > 0 ); // must be able to decay to something!
+
+  LOG( "gevald_nhl", pINFO )
+    << "\n\nTesting decay modes for the NHL."
+    << "\nFor the purposes of testing, this NHL will have total energy 1 GeV and point on z axis."
+    << "\nWill process gOptNev = " << gOptNev << " x ( N_channels = " << valMap.size()
+    << " ) = " << valMap.size() * gOptNev << " events, 1 for each valid channel."
+    << "\nWill produce 1 ROOT file ( " << foutName << ") with:"
+    << "\n--> Energy spectrum for the decay products for each channel"
+    << "\n--> Rates of each decay channel";
+
+  // Initialize an Ntuple Writer to save GHEP records into a TTree
+  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
+  ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);
+  ntpw.Initialize();
+
+  // Create a MC job monitor for a periodically updated status file
+  GMCJMonitor mcjmonitor(gOptRunNu);
+  mcjmonitor.SetRefreshRate(RunOpt::Instance()->MCJobStatusRefreshRate());
+
+  // Set GHEP print level
+  GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
+
+  // first set the 4-momentum of the NHL
+  gOptEnergyNHL = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-Energy" );
+  double p3NHL = std::sqrt( gOptEnergyNHL * gOptEnergyNHL - gCfgMassNHL * gCfgMassNHL );
+  assert( p3NHL >= 0.0 );
+  TLorentzVector * p4NHL = new TLorentzVector( p3NHL * gCfgNHLCx, 
+					       p3NHL * gCfgNHLCy, 
+					       p3NHL * gCfgNHLCz, gOptEnergyNHL );
+
+  LOG( "gevald_nhl", pDEBUG )
+    << "\nUsing NHL with 4-momentum " << utils::print::P4AsString( p4NHL );
+  sh.SetEnergy( gOptEnergyNHL );
+  sh.SetMomentumDirection( gCfgNHLCx, gCfgNHLCy, gCfgNHLCz );
+
+  TLorentzVector * x4NHL = new TLorentzVector( 1.0, 2.0, 3.0, 0.0 ); // dummy
+
+  // now build array with indices of valid decay modes for speedy access
+  NHLDecayMode_t validModes[10] = { kNHLDcyNull, kNHLDcyNull, kNHLDcyNull, kNHLDcyNull, kNHLDcyNull, kNHLDcyNull, kNHLDcyNull, kNHLDcyNull, kNHLDcyNull, kNHLDcyNull };
+  double validRates[10] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+  std::map< NHLDecayMode_t, double >::iterator vmit = valMap.begin(); int modeIdx = 0;
+  for( ; vmit != valMap.end(); ++vmit ){
+    validModes[ modeIdx ] = (*vmit).first;
+    validRates[ modeIdx ] = (*vmit).second;
+    modeIdx++;
+  }
+
+  // declare histos
+  // hSpectrum[i][j]: i iterates over NHLDecayMode_t, j over FS particle in same order as event record
+  TH1D hSpectrum[10][3], hRates;
+  hRates = TH1D( "hRates", "Rates of NHL decay channels", 10, 0, 10 );
+
+  std::string shortModes[10] = { "pimu", "pie", "pi0v", "vvv", "vmumu", "vee", "vmue", "pipi0e",
+				 "pipi0mu", "pi0pi0v" };
+  std::string part0names[10] = { "pi", "pi", "pi0", "v1", "v", "v", "v", "pi", "pi", "pi01" };
+  std::string part1names[10] = { "mu", "e", "v", "v2", "mu1", "e1", "mu", "pi0", "pi0", "pi02" };
+  std::string part2names[10] = { "NA", "NA", "NA", "v3", "mu2", "e2", "e", "e", "mu", "v" };
+  std::string partNames[3][10] = { part0names, part1names, part2names };
+  for( Int_t iChan = 0; iChan < 10; iChan++ ){
+
+    std::string shortMode = shortModes[iChan];
+
+    for( Int_t iPart = 0; iPart < 3; iPart++ ){
+      std::string ParticleName = partNames[iPart][iChan];
+
+      hSpectrum[iChan][iPart] = TH1D( Form( "hSpectrum_%s_%s", shortMode.c_str(), ParticleName.c_str() ),
+				      Form( "Energy of particle: %s  in decay: %s", 
+					    ParticleName.c_str(), 
+					    (utils::nhl::AsString( validModes[iChan] )).c_str() ), 
+				      100, 0., 10.);
+    }
+  }
+
+  // fill hRates now
+  double rnununu = ( (*valMap.find( kNHLDcyNuNuNu )) ).second;
+  double rnuee = ( valMap.find( kNHLDcyNuEE ) != valMap.end() ) ? (*(valMap.find( kNHLDcyNuEE ))).second : 0.0;
+  double rnumue = ( valMap.find( kNHLDcyNuMuE ) != valMap.end() ) ? (*(valMap.find( kNHLDcyNuMuE ))).second : 0.0;
+  double rpi0nu = ( valMap.find( kNHLDcyPi0Nu ) != valMap.end() ) ? (*(valMap.find( kNHLDcyPi0Nu ))).second : 0.0;
+  double rpie = ( valMap.find( kNHLDcyPiE ) != valMap.end() ) ? (*(valMap.find( kNHLDcyPiE ))).second : 0.0;
+  double rnumumu = ( valMap.find( kNHLDcyNuMuMu ) != valMap.end() ) ? (*(valMap.find( kNHLDcyNuMuMu ))).second : 0.0;
+  double rpimu = ( valMap.find( kNHLDcyPiMu ) != valMap.end() ) ? (*(valMap.find( kNHLDcyPiMu ))).second : 0.0;
+  double rpi0pi0nu = ( valMap.find( kNHLDcyPi0Pi0Nu ) != valMap.end() ) ? (*(valMap.find( kNHLDcyPi0Pi0Nu ))).second : 0.0;
+  double rpipi0e = ( valMap.find( kNHLDcyPiPi0E ) != valMap.end() ) ? (*(valMap.find( kNHLDcyPiPi0E ))).second : 0.0;
+  double rpipi0mu = ( valMap.find( kNHLDcyPiPi0Mu ) != valMap.end() ) ? (*(valMap.find( kNHLDcyPiPi0Mu ))).second : 0.0;
+
+  hRates.SetBinContent(  1, rpimu );
+  hRates.SetBinContent(  2, rpie );
+  hRates.SetBinContent(  3, rpi0nu );
+  hRates.SetBinContent(  4, rnununu );
+  hRates.SetBinContent(  5, rnumumu );
+  hRates.SetBinContent(  6, rnuee );
+  hRates.SetBinContent(  7, rnumue );
+  hRates.SetBinContent(  8, rpipi0e );
+  hRates.SetBinContent(  9, rpipi0mu );
+  hRates.SetBinContent( 10, rpi0pi0nu );
+
+  int ievent = 0;
+  while( true ){
+    
+    if( gOptNev >= 10000 ){
+      if( ievent % (gOptNev / 1000) == 0 ){
+	int irat = ievent / (gOptNev / 1000);
+	std::cerr << Form("%2.2f", 0.1 * irat) << " % ( " << ievent << " / "
+		  << gOptNev << " ) \r" << std::flush;
+      }
+    }
+    
+    if( ievent == gOptNev ){ std::cerr << " \n"; break; }
+
+    ostringstream asts;
+    for( Int_t iMode = 0; iMode < valMap.size(); iMode++ ){
+      if( ievent == 0 ){
+	asts
+	  << "\nDecay mode " << iMode << " is " << utils::nhl::AsString( validModes[ iMode ] );
+      }
+
+      // build an event
+      EventRecord * event = new EventRecord;
+      Interaction * interaction = Interaction::NHL( genie::kPdgNHL, gOptEnergyNHL, validModes[ iMode ] );
+      // set p4 and a dummy vertex so NHLPrimaryVtxGenerator doesn't attempt to regenerate init state
+      interaction->InitStatePtr()->SetProbeP4( *p4NHL );
+      event->SetVertex( *x4NHL );
+
+      event->AttachSummary( interaction );
+      LOG( "gevald_nhl", pDEBUG )
+	<< "Simulating decay with mode " 
+	<< utils::nhl::AsString( (NHLDecayMode_t) interaction->ExclTag().DecayMode() );
+
+      // simulate the decay
+      mcgen->ProcessEventRecord( event );
+
+      // now get a weight. It will be P( decay in unit side box ).
+      // = exp( - T_{box} / \tau_{NHL} ) = exp( - L_{box} / ( \beta_{NHL} \gamma_{NHL} c ) * h / \Gamma_{tot} )
+      // placing the NHL at a point configured by the user
+      NHLDecayVolume::MakeSDV();
+      double ox = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-OriginX" );
+      double oy = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-OriginY" );
+      double oz = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-OriginZ" );
+      ox *= units::m / units::mm; oy *= units::m / units::mm; oz *= units::m / units::mm;
+      TVector3 startPoint( ox, oy, oz ); TVector3 entryPoint, exitPoint;
+
+      LOG( "NHL", pDEBUG )
+	<< "Setting origin to " << utils::print::Vec3AsString( &startPoint ) << " [mm]";
+      
+      bool didIntersectBox = NHLDecayVolume::SDVEntryAndExitPoints( startPoint, p4NHL->Vect(), 
+								    entryPoint, exitPoint );
+      if( !didIntersectBox ){ //user didn't choose a sensible point. Put NHL 2m upstream of SDV centre
+	// gCfgNHLCx
+	std::ostringstream bsts;
+	bsts << "Could not find entry and exit points into a box of unit side for an NHL with:"
+	     << "\nMomentum    = " << utils::print::P4AsString( p4NHL )
+	     << "\nStart point = " << utils::print::Vec3AsString( &startPoint );
+	startPoint = TVector3( -2.0*gCfgNHLCx, -2.0*gCfgNHLCy, -2.0*gCfgNHLCz );
+
+	bsts << "\nTrying again with new starting point "
+	     << utils::print::Vec3AsString( &startPoint );
+
+	LOG( "gevald_nhl", pWARN ) << bsts.str();
+
+	didIntersectBox = NHLDecayVolume::SDVEntryAndExitPoints( startPoint, p4NHL->Vect(),
+								 entryPoint, exitPoint );
+      }
+      
+      double maxLength = std::sqrt( std::pow( (exitPoint.X() - entryPoint.X()), 2.0 ) +
+				    std::pow( (exitPoint.Y() - entryPoint.Y()), 2.0 ) +
+				    std::pow( (exitPoint.Z() - entryPoint.Z()), 2.0 ) ); // mm
+      double betaMag = p4NHL->P() / p4NHL->E();
+      double gamma = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
+      double CoMLifetime = sh.GetCoMLifetime() / ( units::ns * units::GeV ); // ns lab
+      double timeInsideDet = maxLength / NHLDecayVolume::kNewSpeedOfLight; // ns lab
+
+      double wgt = std::exp( - timeInsideDet / CoMLifetime ); // note this is same for all events...
+      event->SetWeight(wgt);
+
+      LOG( "gevald_nhl", pDEBUG )
+	<< "Weight = " << wgt << ", CoMLifetime [ns] = " << CoMLifetime << ", timeInsideDet [ns] = " << timeInsideDet
+	<< "\nmaxLength = " << maxLength;
+      
+      LOG( "gevald_nhl", pDEBUG ) << *event;
+
+      // now fill the histos!
+      hSpectrum[iMode][0].Fill( (event->Particle(1))->E(), wgt );
+      hSpectrum[iMode][1].Fill( (event->Particle(2))->E(), wgt );
+      if( event->Particle(3) ) hSpectrum[iMode][2].Fill( (event->Particle(3))->E(), wgt );
+
+      // Add event at the output ntuple, refresh the mc job monitor & clean-up
+      ntpw.AddEventRecord(ievent, event);
+      mcjmonitor.Update(ievent,event);
+      delete event;
+
+    } // loop over valid decay channels
+    
+    if( ievent == 0 ) LOG( "gevald_nhl", pDEBUG ) << asts.str();
+
+    ievent++;
+  
+  } // event loop
+
+  ntpw.Save();
+
+  fout->cd();
+  hRates.Write();
+  for( Int_t i = 0; i < 10; i++ ){
+    for( Int_t j = 0; j < 3; j++ ){
+      if( i > 2 || j < 2 ) hSpectrum[i][j].Write(); // 3 first channels are 2-body
+    }
+  }
+  fout->Write();
+  fout->Close();
+  
+  delete p4NHL;
+  delete x4NHL;
+  return 0;
+}
+//_________________________________________________________________________________________
 const EventRecordVisitorI * NHLGenerator(void)
 {
   //string sname   = "genie::EventGenerator";
@@ -995,6 +1231,19 @@ void ReadInConfig(void)
 
   gCfgProdMode  = (NHLProd_t) utils::nhl::GetCfgInt( "NHL", "Validation", "NHL-ProdMode"  );
   gCfgDecayMode = (NHLDecayMode_t) utils::nhl::GetCfgInt( "NHL", "Validation", "NHL-DecayMode" );
+
+  gOptEnergyNHL = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-Energy" );
+  gCfgNHLCx     = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-cx" );
+  gCfgNHLCy     = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-cy" );
+  gCfgNHLCz     = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-cz" );
+
+  double dircosMag2 = std::pow( gCfgNHLCx, 2.0 ) + 
+    std::pow( gCfgNHLCy, 2.0 ) + 
+    std::pow( gCfgNHLCz, 2.0 );
+  double invdircosmag = 1.0 / std::sqrt( dircosMag2 );
+  gCfgNHLCx *= invdircosmag;
+  gCfgNHLCy *= invdircosmag;
+  gCfgNHLCz *= invdircosmag;
   
   gCfgIntChannels = {};
   if( utils::nhl::GetCfgBool( "NHL", "InterestingChannels", "NHL-2B_mu_pi" ) )
@@ -1083,7 +1332,9 @@ void ReadInConfig(void)
        << "\nParent theta = " << gCfgParentTheta << " [" << aunits.c_str() << "]"
        << "\nParent phi   = " << gCfgParentPhi << " [" << aunits.c_str() << "]"
        << "\nParent origin = ( " << gCfgParentOx << ", " << gCfgParentOy << ", "
-       << gCfgParentOz << " ) [" << lunits.c_str() << "]";
+       << gCfgParentOz << " ) [" << lunits.c_str() << "]"
+       << "\nNHL particle-gun directional cosines: ( " << gCfgNHLCx << ", " << gCfgNHLCy 
+       << ", " << gCfgNHLCz << ") [ GeV / GeV ]";
 
   LOG("gevald_nhl", pDEBUG) << csts.str();
   
