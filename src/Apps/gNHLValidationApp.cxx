@@ -831,6 +831,7 @@ int TestDecay(void)
   std::map< NHLDecayMode_t, double > valMap = sh.GetValidChannels();
 
   assert( valMap.size() > 0 ); // must be able to decay to something!
+  assert( (*valMap.begin()).first == kNHLDcyNuNuNu );
 
   LOG( "gevald_nhl", pINFO )
     << "\n\nTesting decay modes for the NHL."
@@ -872,35 +873,41 @@ int TestDecay(void)
   NHLDecayMode_t validModes[10] = { kNHLDcyNull, kNHLDcyNull, kNHLDcyNull, kNHLDcyNull, kNHLDcyNull, kNHLDcyNull, kNHLDcyNull, kNHLDcyNull, kNHLDcyNull, kNHLDcyNull };
   double validRates[10] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
   std::map< NHLDecayMode_t, double >::iterator vmit = valMap.begin(); int modeIdx = 0;
+  std::ostringstream msts;
   for( ; vmit != valMap.end(); ++vmit ){
     validModes[ modeIdx ] = (*vmit).first;
     validRates[ modeIdx ] = (*vmit).second;
+    msts << "\n" << utils::nhl::AsString( (*vmit).first );
     modeIdx++;
   }
+
+  LOG( "gevald_nhl", pDEBUG ) << "Here are the modes in order : " << msts.str();
 
   // declare histos
   // hSpectrum[i][j]: i iterates over NHLDecayMode_t, j over FS particle in same order as event record
   TH1D hSpectrum[10][3], hRates;
   hRates = TH1D( "hRates", "Rates of NHL decay channels", 10, 0, 10 );
 
-  std::string shortModes[10] = { "pimu", "pie", "pi0v", "vvv", "vmumu", "vee", "vmue", "pipi0e",
-				 "pipi0mu", "pi0pi0v" };
-  std::string part0names[10] = { "pi", "pi", "pi0", "v1", "v", "v", "v", "pi", "pi", "pi01" };
-  std::string part1names[10] = { "mu", "e", "v", "v2", "mu1", "e1", "mu", "pi0", "pi0", "pi02" };
-  std::string part2names[10] = { "NA", "NA", "NA", "v3", "mu2", "e2", "e", "e", "mu", "v" };
+  std::string shortModes[10] = { "vvv", "vee", "vmue", "pi0v", "pie", "vmumu", "pimu", "pi0pi0v", 
+				 "pipi0e", "pipi0mu" };
+  std::string part0names[10] = { "v1", "v", "v", "pi0", "pi", "v", "pi", "pi01", "pi", "pi" };
+  std::string part1names[10] = { "v2", "e1", "mu", "v", "e", "mu1", "mu", "pi02", "pi0", "pi0" };
+  std::string part2names[10] = { "v3", "e2", "e", "None", "None", "mu2", "None", "v", "e", "mu" };
   std::string partNames[3][10] = { part0names, part1names, part2names };
-  for( Int_t iChan = 0; iChan < 10; iChan++ ){
+  for( Int_t iChan = 0; iChan < valMap.size(); iChan++ ){
 
     std::string shortMode = shortModes[iChan];
 
     for( Int_t iPart = 0; iPart < 3; iPart++ ){
       std::string ParticleName = partNames[iPart][iChan];
-
-      hSpectrum[iChan][iPart] = TH1D( Form( "hSpectrum_%s_%s", shortMode.c_str(), ParticleName.c_str() ),
-				      Form( "Energy of particle: %s  in decay: %s", 
-					    ParticleName.c_str(), 
-					    (utils::nhl::AsString( validModes[iChan] )).c_str() ), 
-				      100, 0., 10.);
+      if( strcmp( ParticleName.c_str(), "None" ) != 0 ){
+	hSpectrum[iChan][iPart] = TH1D( Form( "hSpectrum_%s_%s", shortMode.c_str(), ParticleName.c_str() ),
+					Form( "Energy of particle: %s  in decay: %s", 
+					      ParticleName.c_str(), 
+					      (utils::nhl::AsString( validModes[iChan] )).c_str() ), 
+					100, 0., gOptEnergyNHL );
+      } // only declare histos of particles that exist in decay
+        // and are of allowed decays
     }
   }
 
@@ -1033,9 +1040,10 @@ int TestDecay(void)
 
   fout->cd();
   hRates.Write();
-  for( Int_t i = 0; i < 10; i++ ){
+  for( Int_t i = 0; i < valMap.size(); i++ ){
     for( Int_t j = 0; j < 3; j++ ){
-      if( i > 2 || j < 2 ) hSpectrum[i][j].Write(); // 3 first channels are 2-body
+      std::string ParticleName = partNames[j][i];
+      if( strcmp( ParticleName.c_str(), "None" ) != 0 ) hSpectrum[i][j].Write();
     }
   }
   fout->Write();

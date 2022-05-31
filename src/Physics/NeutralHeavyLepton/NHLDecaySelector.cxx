@@ -25,7 +25,7 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
       LOG("NHL", pDEBUG)
 	<< " Invisible decay gamma = " << GINV;
     } else GINV = fDecayGammas[0];
-    allChannels.insert( std::pair< NHLDecayMode_t, double >( kNHLDcyNuNuNu, GINV ) );
+    allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyNuNuNu, GINV ) );
 
     assert( GINV >= 0.0 );
 
@@ -39,7 +39,7 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
       LOG("NHL", pDEBUG)
 	<< " Nu-e-e gamma = " << GNEE;
     } else GNEE = fDecayGammas[1];
-    allChannels.insert( std::pair< NHLDecayMode_t, double >( kNHLDcyNuEE, GNEE ) );
+    allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyNuEE, GNEE ) );
 
     assert( GNEE >= 0.0 );
 
@@ -53,7 +53,7 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
       LOG("NHL", pDEBUG)
 	<< " Nu-e-mu gamma = " << GNEM;
     } else GNEM = fDecayGammas[2];
-    allChannels.insert( std::pair< NHLDecayMode_t, double >( kNHLDcyNuMuE, GNEM ) );
+    allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyNuMuE, GNEM ) );
 
     assert( GNEM >= 0.0 );
 
@@ -67,7 +67,7 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
       LOG("NHL", pDEBUG)
 	<< " Pi0-nu gamma = " << GP0N;
     } else GP0N = fDecayGammas[3];
-    allChannels.insert( std::pair< NHLDecayMode_t, double >( kNHLDcyPi0Nu, GP0N ) );
+    allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyPi0Nu, GP0N ) );
 
     assert( GP0N >= 0.0 );
 
@@ -81,7 +81,7 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
       LOG("NHL", pDEBUG)
 	<< " Pi-e gamma = " << GPIE;
     } else GPIE = fDecayGammas[4];
-    allChannels.insert( std::pair< NHLDecayMode_t, double >( kNHLDcyPiE, GPIE) );
+    allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyPiE, GPIE) );
 
     assert( GPIE >= 0.0 );
 
@@ -95,12 +95,12 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
       LOG("NHL", pDEBUG)
 	<< " Nu-mu-mu gamma = " << GNMM;
     } else GNMM = fDecayGammas[5];
-    allChannels.insert( std::pair< NHLDecayMode_t, double >( kNHLDcyNuMuMu, GNMM ) );
+    allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyNuMuMu, GNMM ) );
 
     assert( GNMM >= 0.0 );
 
     // pi-mu is next lightest
-    if( M < genie::constants::kPionMass + genie::constants::kMuonMass ) return allChannels;
+    if( M < genie::constants::kPionMass + genie::constants::kMuonMass ) return allChannels; 
 
     double GPIM = 0.0;
     if( fDecayGammas[6] < 0.0 ){
@@ -109,7 +109,7 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
       LOG("NHL", pDEBUG)
 	<< " Pi-mu gamma  = " << GPIM;
     } else GPIM = fDecayGammas[6];
-    allChannels.insert( std::pair< NHLDecayMode_t, double >( kNHLDcyPiMu, GPIM ) );
+    allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyPiMu, GPIM ) );
 
     assert( GPIM >= 0.0 );
 
@@ -123,7 +123,7 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
       LOG("NHL", pDEBUG)
 	<< " Pi0-pi0-nu gamma = " << GP02;
     } else fDecayGammas[7] = GP02;
-    allChannels.insert( std::pair< NHLDecayMode_t, double >( kNHLDcyPi0Pi0Nu, GP02 ) );
+    allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyPi0Pi0Nu, GP02 ) );
 
     assert( GP02 >= 0.0 );
 
@@ -137,7 +137,7 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
       LOG("NHL", pDEBUG)
 	<< " Pi-pi0-e gamma = " << GP0E;
     } else GP0E = fDecayGammas[8];
-    allChannels.insert( std::pair< NHLDecayMode_t, double >( kNHLDcyPiPi0E, GP0E ) );
+    allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyPiPi0E, GP0E ) );
 
     assert( GP0E >= 0.0 );
 
@@ -151,7 +151,7 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
       LOG("NHL", pDEBUG)
 	<< " Pi-pi0-mu gamma = " << GP0M;
     } else GP0M = fDecayGammas[9];
-    allChannels.insert( std::pair< NHLDecayMode_t, double >( kNHLDcyPiPi0Mu, GP0M ) );
+    allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyPiPi0Mu, GP0M ) );
 
     assert( GP0M >= 0.0 );
 
