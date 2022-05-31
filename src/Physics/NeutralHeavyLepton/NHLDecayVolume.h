@@ -66,7 +66,7 @@ namespace NHL {
 
     // in case of SDV, calculate entry and exit points (if any) of some trajectory
     // if no entry/exit points return false
-    bool SDVEntryAndExitPoints( TVector3 & startPoint, TVector3 & momentum,
+    bool SDVEntryAndExitPoints( TVector3 & startPoint, TVector3 momentum,
 				TVector3 & entryPoint,
 				TVector3 & exitPoint );
 

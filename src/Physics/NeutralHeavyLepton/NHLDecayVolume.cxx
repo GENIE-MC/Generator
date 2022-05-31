@@ -60,6 +60,7 @@ void NHLDecayVolume::EnforceUnits( std::string length_units, std::string angle_u
   fPx /= lunits/old_lunits; fPy /= lunits/old_lunits; fPz /= lunits/old_lunits;
   fEx /= lunits/old_lunits; fEy /= lunits/old_lunits; fEz /= lunits/old_lunits;
   fXx /= lunits/old_lunits; fXy /= lunits/old_lunits; fXz /= lunits/old_lunits;
+  fLx /= lunits/old_lunits; fLy /= lunits/old_lunits; fLz /= lunits/old_lunits;
 
   fDx /= lunits/old_lunits; fDy /= lunits/old_lunits; fDz /= lunits/old_lunits;
   fOx /= lunits/old_lunits; fOy /= lunits/old_lunits; fOz /= lunits/old_lunits;
@@ -149,27 +150,35 @@ double NHLDecayVolume::GetMaxLength( TVector3 & entryPoint, TVector3 & exitPoint
 void NHLDecayVolume::MakeSDV()
 {
   fOx = 0.0; fOy = 0.0; fOz = 0.0;
-  fLx = 1.0 * units::m; fLy = 1.0 * units::m; fLz = 1.0 * units::m;
+  fLx = 1.0; fLy = 1.0; fLz = 1.0; // m
+
+  lunits = utils::units::UnitFromString( "m" );
+  aunits = utils::units::UnitFromString( "rad" );
+  tunits = utils::units::UnitFromString( "ns" );
+  
+  kNewSpeedOfLight = genie::units::kSpeedOfLight 
+  * (genie::units::m / lunits)
+  / (genie::units::s / tunits);
 
   LOG("NHL", pDEBUG)
     << "Setting simple decay volume with unit-m side."
-    << "\nSetting units to \"m\", \"rad\", \"ns\"";
+    << "\nSetting units to \"mm\", \"rad\", \"ns\"";
 
-  EnforceUnits("m","rad","ns");
+  EnforceUnits("mm","rad","ns");
 }
 //____________________________________________________________________________
 // if entry and exit points, populate TVector3's with their coords. If not, return false
-bool NHLDecayVolume::SDVEntryAndExitPoints( TVector3 & startPoint, TVector3 & momentum,
+bool NHLDecayVolume::SDVEntryAndExitPoints( TVector3 & startPoint, TVector3 momentum,
 					    TVector3 & entryPoint, TVector3 & exitPoint )
 {
   assert( fOx == 0.0 && fOy == 0.0 && fOz == 0.0 && 
-	  fLx == 1.0 && fLy == 1.0 && fLz == 1.0 ); // SDV
-  fSx = startPoint.X(); fSy = startPoint.Y(); fSz = startPoint.Z();
-  fPx = momentum.X(); fPy = momentum.Y(); fPz = momentum.Z();
-  double fP2 = fPx*fPx + fPy*fPy + fPz*fPz; double fP = std::sqrt(fP2);
-  fPx *= 1.0/fP; fPy *= 1.0/fP; fPz *= 1.0/fP;
+	  fLx == 1000.0 && fLy == 1000.0 && fLz == 1000.0 ); // SDV, mm
+  fSx = startPoint.X(); fSy = startPoint.Y(); fSz = startPoint.Z(); // mm
+  fPx = momentum.X(); fPy = momentum.Y(); fPz = momentum.Z(); // GeV
+  double fP2 = fPx*fPx + fPy*fPy + fPz*fPz; double fP = std::sqrt(fP2); // GeV
+  fPx *= 1.0/fP; fPy *= 1.0/fP; fPz *= 1.0/fP; // GeV / GeV
 
-  // calc parameter for line at each face
+  // calc parameter for line at each face [mm]
   double txP = (  fLx - fSx ) / fPx;
   double txM = ( -fLx - fSx ) / fPx;
   double tyP = (  fLy - fSy ) / fPy;
