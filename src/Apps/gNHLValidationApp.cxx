@@ -842,15 +842,6 @@ int TestDecay(void)
     << "\n--> Energy spectrum for the decay products for each channel"
     << "\n--> Rates of each decay channel";
 
-  // Initialize an Ntuple Writer to save GHEP records into a TTree
-  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
-  ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);
-  ntpw.Initialize();
-
-  // Create a MC job monitor for a periodically updated status file
-  GMCJMonitor mcjmonitor(gOptRunNu);
-  mcjmonitor.SetRefreshRate(RunOpt::Instance()->MCJobStatusRefreshRate());
-
   // Set GHEP print level
   GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
 
@@ -885,7 +876,14 @@ int TestDecay(void)
 
   // declare histos
   // hSpectrum[i][j]: i iterates over NHLDecayMode_t, j over FS particle in same order as event record
-  TH1D hSpectrum[10][3], hRates;
+  TH1D hSpectrum[10][3], hCMSpectrum[10][3], hRates;
+  TH1D hParamSpace = TH1D( "hParamSpace", "Parameter space", 5, 0., 5. );
+
+  hParamSpace.SetBinContent( 1, 1000.0 * gCfgMassNHL ); // MeV
+  hParamSpace.SetBinContent( 2, gCfgECoupling );
+  hParamSpace.SetBinContent( 3, gCfgMCoupling );
+  hParamSpace.SetBinContent( 4, gCfgTCoupling );
+
   hRates = TH1D( "hRates", "Rates of NHL decay channels", 10, 0, 10 );
 
   std::string shortModes[10] = { "vvv", "vee", "vmue", "pi0v", "pie", "vmumu", "pimu", "pi0pi0v", 
@@ -901,11 +899,16 @@ int TestDecay(void)
     for( Int_t iPart = 0; iPart < 3; iPart++ ){
       std::string ParticleName = partNames[iPart][iChan];
       if( strcmp( ParticleName.c_str(), "None" ) != 0 ){
-	hSpectrum[iChan][iPart] = TH1D( Form( "hSpectrum_%s_%s", shortMode.c_str(), ParticleName.c_str() ),
-					Form( "Energy of particle: %s  in decay: %s", 
-					      ParticleName.c_str(), 
-					      (utils::nhl::AsString( validModes[iChan] )).c_str() ), 
-					100, 0., gOptEnergyNHL );
+	hSpectrum[iChan][iPart]   = TH1D( Form( "hSpectrum_%s_%s", shortMode.c_str(), ParticleName.c_str() ),
+					  Form( "Fractional energy of particle: %s  in decay: %s", 
+						ParticleName.c_str(), 
+						(utils::nhl::AsString( validModes[iChan] )).c_str() ), 
+					  100, 0., 1.0 );
+	hCMSpectrum[iChan][iPart] = TH1D( Form( "hCMSpectrum_%s_%s", shortMode.c_str(), ParticleName.c_str() ),
+					  Form( "Rest frame energy of particle: %s  in decay: %s", 
+						ParticleName.c_str(), 
+						(utils::nhl::AsString( validModes[iChan] )).c_str() ), 
+					  100, 0., gCfgMassNHL );
       } // only declare histos of particles that exist in decay
         // and are of allowed decays
     }
@@ -1019,13 +1022,28 @@ int TestDecay(void)
       LOG( "gevald_nhl", pDEBUG ) << *event;
 
       // now fill the histos!
-      hSpectrum[iMode][0].Fill( (event->Particle(1))->E(), wgt );
-      hSpectrum[iMode][1].Fill( (event->Particle(2))->E(), wgt );
-      if( event->Particle(3) ) hSpectrum[iMode][2].Fill( (event->Particle(3))->E(), wgt );
+      hSpectrum[iMode][0].Fill( (event->Particle(1))->E() / gOptEnergyNHL, wgt );
+      hSpectrum[iMode][1].Fill( (event->Particle(2))->E() / gOptEnergyNHL, wgt );
+      if( event->Particle(3) ) hSpectrum[iMode][2].Fill( (event->Particle(3))->E() / gOptEnergyNHL, wgt );
 
-      // Add event at the output ntuple, refresh the mc job monitor & clean-up
-      ntpw.AddEventRecord(ievent, event);
-      mcjmonitor.Update(ievent,event);
+      // let's also fill the CM spectra
+      // get particle 4-momenta and boost back to rest frame!
+      TLorentzVector * p4p1 = (event->Particle(1))->GetP4();
+      TLorentzVector * p4p2 = (event->Particle(2))->GetP4();
+      TLorentzVector * p4p3 = 0;
+      if( event->Particle(3) ) p4p3 = (event->Particle(3))->GetP4();
+
+      TVector3 boostVec = p4NHL->BoostVector();
+
+      p4p1->Boost( -boostVec );
+      p4p2->Boost( -boostVec );
+      if( p4p3 ) p4p3->Boost( -boostVec );
+
+      hCMSpectrum[iMode][0].Fill( p4p1->E(), wgt );
+      hCMSpectrum[iMode][1].Fill( p4p2->E(), wgt );
+      if( p4p3 ) hCMSpectrum[iMode][2].Fill( p4p3->E(), wgt );
+
+      // clean-up
       delete event;
 
     } // loop over valid decay channels
@@ -1036,14 +1054,16 @@ int TestDecay(void)
   
   } // event loop
 
-  ntpw.Save();
-
   fout->cd();
+  hParamSpace.Write();
   hRates.Write();
   for( Int_t i = 0; i < valMap.size(); i++ ){
     for( Int_t j = 0; j < 3; j++ ){
       std::string ParticleName = partNames[j][i];
-      if( strcmp( ParticleName.c_str(), "None" ) != 0 ) hSpectrum[i][j].Write();
+      if( strcmp( ParticleName.c_str(), "None" ) != 0 ){
+	hSpectrum[i][j].Write();
+	hCMSpectrum[i][j].Write();
+      }
     }
   }
   fout->Write();
