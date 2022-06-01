@@ -762,15 +762,14 @@ void Spline::BuildSpline(int nentries, double x[], double y[])
   if(fInterpolator) delete fInterpolator;
 
   fInterpolator = new TSpline3("spl3", x, y, nentries, "0");
-  
-  fX = std::vector<double> (x, x + nentries);
-  fY = std::vector<double> (y, y + nentries);
-  
+    
   LOG("Spline", pDEBUG) << "...done building spline";
 }
 //___________________________________________________________________________
 void Spline::SetType(string type)
 {
+  if(!fInterpolator) return;
+  
   fInterpolatorType = genie::utils::str::ToUpper(type);
   
   ROOT::Math::Interpolation::Type gsltype;
@@ -782,13 +781,14 @@ void Spline::SetType(string type)
   }
   else if ( fInterpolatorType == "TSPLINE5" )
   {
-    fInterpolatorType == "TSpline5";
-    if ( fInterpolator )
+    fInterpolatorType = "TSpline5";
+    if(fInterpolator5) delete fInterpolator5;
+    double x[fNKnots], y[fNKnots];
+    for (int i=0; i<fNKnots; i++)
     {
-       if(fInterpolator5) delete fInterpolator5;
-       size_t size = std::min( fX.size(), fY.size() );
-       fInterpolator5 = new TSpline5("spl5", &fX.front(), &fY.front(), size, "0");
+       fInterpolator->GetKnot(i, x[i], y[i]);
     }
+    fInterpolator5 = new TSpline5("spl5", x, y, fNKnots, "0");
     return;
   }
   else if ( fInterpolatorType ==  "LINEAR" )
@@ -823,11 +823,14 @@ void Spline::SetType(string type)
     return;
   }
   
-  if ( fInterpolator )
+  if(fGSLInterpolator) delete fGSLInterpolator;
+  vector<double> x(fNKnots);
+  vector<double> y(fNKnots);
+  for (int i=0; i<fNKnots; i++)
   {
-     if(fGSLInterpolator) delete fGSLInterpolator;
-     fGSLInterpolator = new ROOT::Math::Interpolator(fX, fY, gsltype );
+     fInterpolator->GetKnot(i, x[i], y[i]);
   }
+  fGSLInterpolator = new ROOT::Math::Interpolator(x, y, gsltype);
 
    
 }

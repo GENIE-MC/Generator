@@ -145,7 +145,6 @@ private:
   TSpline5 * fInterpolator5;
   ROOT::Math::Interpolator * fGSLInterpolator;
   string     fInterpolatorType;
-  std::vector<double> fX, fY;
 
 ClassDef(Spline,1)
 };

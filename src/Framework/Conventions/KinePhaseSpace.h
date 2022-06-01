@@ -24,7 +24,7 @@
 using std::string;
 
 namespace genie {
-
+// Note: please attach new phase space enum element to the end of the list .
 typedef enum EKinePhaseSpace {
   kPSNull = 0,
   kPSfE,
