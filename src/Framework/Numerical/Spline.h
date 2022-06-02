@@ -146,7 +146,7 @@ private:
   ROOT::Math::Interpolator * fGSLInterpolator;
   string     fInterpolatorType;
 
-ClassDef(Spline,1)
+ClassDef(Spline,2)
 };
 
 }
