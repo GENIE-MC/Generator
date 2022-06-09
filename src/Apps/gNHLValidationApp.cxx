@@ -137,15 +137,9 @@ typedef enum t_NHLValidation {
   kValNone            = 0,
   kValFluxFromDk2nu   = 1,
   kValFluxFromHists   = 2,
-  //kValProdEvtRates    = 3,
-  //kValProdKinematics  = 4,
   kValDecay           = 3,
-  //kValDecayEvtRates   = 3,
-  //kValDecayKinematics = 4,
-  kValEntryExit       = 4,
-  kValVtxPlacement    = 5,
-  kValParentTrajectory  = 6,
-  kValFullSim         = 7
+  kValGeom            = 4,
+  kValFullSim         = 5
   
 } NHLValidation_t;
 
@@ -165,6 +159,11 @@ int      DecideType         (TFile * spectrumFile);
 #endif
 
 int      TestDecay          (void);
+
+#ifdef __CAN_USE_ROOT_GEOM__
+int      TestGeom           (void);
+void     InitBoundingBox    (void);
+#endif // #ifdef __CAN_USE_ROOT_GEOM__
 
 //
 string          kDefOptGeomLUnits   = "mm";    // default geometry length units
@@ -235,6 +234,7 @@ string           gOptEvFilePrefix = kDefOptEvFilePrefix; // event file prefix
 bool             gOptUsingRootGeom = false;              // using root geom?
 string           gOptRootGeom;                           // input ROOT file with realistic detector geometry
 
+string           geom;
 string           lunits, aunits, tunits;
 double           gOptGeomLUnits = 0;                     // input geometry length units
 double           gOptGeomAUnits = 0;                     // input geometry angle units
@@ -244,6 +244,14 @@ TGeoManager *    gOptRootGeoManager = 0;                 // the workhorse geomet
 TGeoVolume  *    gOptRootGeoVolume  = 0;
 #endif // #ifdef __CAN_USE_ROOT_GEOM__
 string           gOptRootGeomTopVol = "";                // input geometry top event generation volume
+
+// Geometry bounding box and origin - read from the input geometry file (if any)
+double fdx = 0; // half-length - x
+double fdy = 0; // half-length - y
+double fdz = 0; // half-length - z
+double fox = 0; // origin - x
+double foy = 0; // origin - y
+double foz = 0; // origin - z
 
 long int         gOptRanSeed = -1;                       // random number seed
 
@@ -273,6 +281,7 @@ int main(int argc, char ** argv)
   case kValFluxFromDk2nu: return TestFluxFromDk2nu(); break;
   case kValFluxFromHists: return TestFluxFromHists(); break;
   case kValDecay:         return TestDecay();         break;
+  case kValGeom:          return TestGeom();          break;
   default: LOG( "gevald_nhl", pFATAL ) << "I didn't recognise this mode. Goodbye world!"; break;
   }
 
@@ -835,10 +844,9 @@ int TestDecay(void)
 
   LOG( "gevald_nhl", pINFO )
     << "\n\nTesting decay modes for the NHL."
-    << "\nFor the purposes of testing, this NHL will have total energy 1 GeV and point on z axis."
     << "\nWill process gOptNev = " << gOptNev << " x ( N_channels = " << valMap.size()
     << " ) = " << valMap.size() * gOptNev << " events, 1 for each valid channel."
-    << "\nWill produce 1 ROOT file ( " << foutName << ") with:"
+    << "\nWill produce 1 ROOT file ( " << foutName << " ) with:"
     << "\n--> Energy spectrum for the decay products for each channel"
     << "\n--> Rates of each decay channel";
 
@@ -1073,6 +1081,353 @@ int TestDecay(void)
   delete x4NHL;
   return 0;
 }
+//............................................................................
+#ifdef __CAN_USE_ROOT_GEOM__
+//_________________________________________________________________________________________
+int TestGeom(void)
+{
+  string foutName("test_geom.root");
+
+  TFile * fout = TFile::Open( foutName.c_str(), "RECREATE" );
+
+  LOG( "gevald_nhl", pINFO )
+    << "\n\nTesting ROOT geometry for ROOT file " << gOptRootGeom
+    << "\nWill produce 1 ROOT file ( " << foutName << " ) with:"
+    << "\n--> Specified geometry"
+    << "\n--> TTree containing the following branch structure:"
+    << "\n    |"
+    << "\n    |---- start x,y,z [mm]"
+    << "\n    |"
+    << "\n    |---- NHL 4-momentum [GeV]"
+    << "\n    |"
+    << "\n    |---- did intersect detector?"
+    << "\n    |"
+    << "\n    |---- entry x,y,z [mm]"
+    << "\n    |"
+    << "\n    |---- exit  x,y,z [mm]"
+    << "\n    |"
+    << "\n    |---- weight"
+    << "\n    |"
+    << "\n    |---- NHL lifetime (rest frame) [ns]"
+    << "\n    |"
+    << "\n    |---- NHL lifetime (lab  frame) [ns]"
+    << "\n    |"
+    << "\n    |---- decay x,y,z [mm]"
+    << "\n--> Weight histogram"
+    << "\n--> Travel-length histogram"
+    << "\n"
+    << "\n(where same coordinate system as user's is used and weight == P(NHL decays in detector) )";
+
+  double dev_start[3]    = { -9999.9, -9999.9, -9999.9 };
+  double dev_sphere[2]   = { -9999.9, -9999.9 };
+  double use_start[3]    = { -9999.9, -9999.9, -9999.9 };
+  double use_entry[3]    = { -9999.9, -9999.9, -9999.9 };
+  double use_exit[3]     = { -9999.9, -9999.9, -9999.9 };
+  double use_decay[3]    = { -9999.9, -9999.9, -9999.9 };
+  double use_momentum[4] = { -9999.9, -9999.9, -9999.9, -9999.9 };
+  double use_wgt = -9999.9;
+  double use_lifetime = -9999.9, use_CMlifetime = -9999.9;
+  bool   didIntersectDet = false;
+  
+  TTree * outTree = new TTree( "outTree", "Trajectory information tree" );
+  outTree->Branch( "startPoint",   use_start,        "startPoint[3]/D"   );
+  outTree->Branch( "fourMomentum", use_momentum,     "fourMomentum[4]/D" );
+  outTree->Branch( "startDeviate", dev_start,        "startDeviate[3]/D" );
+  outTree->Branch( "spherDeviate", dev_sphere,       "spherDeviate[2]/D" );
+  outTree->Branch( "didIntersect", &didIntersectDet, "didIntersect/O"    );
+  outTree->Branch( "entryPoint",   use_entry,        "entryPoint[3]/D"   );
+  outTree->Branch( "exitPoint",    use_exit,         "exitPoint[3]/D"    );
+  outTree->Branch( "decayPoint",   use_decay,        "decayPoint[3]/D"   );
+  outTree->Branch( "weight",       &use_wgt,         "weight/D"          );
+  outTree->Branch( "lifetime_LAB", &use_lifetime,    "lifetime_LAB/D"    );
+  outTree->Branch( "lifetime_CM",  &use_CMlifetime,  "lifetime_CM/D"     );
+
+  TH1D hWeight( "hWeight", "Log_{10} ( P( decay in detector ) )", 
+		80, -7.0, 1.0  );
+  TH1D hLength( "hLength", "Length travelled in detector / max possible length in detector",
+		100, 0., 1.0 );
+
+  gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str());
+  TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
+  assert( top_volume );
+
+  // Read geometry bounding box - for vertex position generation
+  InitBoundingBox();
+
+  // get SimpleNHL for lifetime
+  SimpleNHL sh = SimpleNHL( "NHLInstance", 0, kPdgNHL, kPdgKP,
+			    gCfgMassNHL, gCfgECoupling, gCfgMCoupling, gCfgTCoupling, false );
+
+  // first set the 4-momentum of the NHL
+  gOptEnergyNHL = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-Energy" );
+  double p3NHL = std::sqrt( gOptEnergyNHL * gOptEnergyNHL - gCfgMassNHL * gCfgMassNHL );
+  assert( p3NHL >= 0.0 );
+  TLorentzVector * p4NHL = new TLorentzVector( p3NHL * gCfgNHLCx, 
+					       p3NHL * gCfgNHLCy, 
+					       p3NHL * gCfgNHLCz, gOptEnergyNHL );
+  
+  LOG( "gevald_nhl", pDEBUG )
+    << "\nUsing NHL with 4-momentum " << utils::print::P4AsString( p4NHL );
+  sh.SetEnergy( gOptEnergyNHL );
+  sh.SetMomentumDirection( gCfgNHLCx, gCfgNHLCy, gCfgNHLCz );
+
+  double betaMag = p4NHL->P() / p4NHL->E();
+  double gamma = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
+
+  use_CMlifetime = sh.GetCoMLifetime() / ( units::ns * units::GeV );
+  use_lifetime   = sh.GetLifetime() / ( units::ns * units::GeV ); // ns
+
+  const double PGox = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-OriginX" );
+  const double PGoy = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-OriginY" );
+  const double PGoz = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-OriginZ" ); // m
+
+  const double PGdx = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-OriginDX" );
+  const double PGdy = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-OriginDY" );
+  const double PGdz = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-OriginDZ" ); // m
+  assert( PGdx > 0.0 && PGdy > 0.0 && PGdz > 0.0 );
+
+  double c2 = std::sqrt( std::pow( gCfgNHLCx, 2.0 ) + std::pow( gCfgNHLCy, 2.0 ) + std::pow( gCfgNHLCz, 2.0 ) );
+  const double PGcx = gCfgNHLCx / c2;
+  const double PGcy = gCfgNHLCy / c2;
+  const double PGcz = gCfgNHLCz / c2; // unit-normalised
+
+  const double PGtheta = std::acos( PGcz );
+  const double PGphi = ( std::sin( PGtheta ) < controls::kASmallNum ) ? 0.0 :
+    ( PGcy >= 0.0 ) ? std::acos( PGcx / PGcz ) : 2.0 * constants::kPi - std::acos( PGcx / PGcz );
+
+  const double PGdtheta = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-DTheta" ) * constants::kPi / 180.0;
+  const double PGdphi   = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-DPhi" ) * constants::kPi / 180.0; // rad
+
+  /*
+   * The event loop works out a bit differently here.
+   * It reads in the origin point and momentum from file and treats them as CV
+   * Then it partitions each axis in R^3 (x-y-z, for origin position) and R^2 (theta-phi, for
+   * origin momentum) into either 5 points (x,y,z) or 9 points (theta, phi)
+   * There is exactly one trajectory that matches both origin position and momentum.
+   * For each of these trajectories, the entry and exit points are calculated.
+   * The length to decay is also calculated and a histo is filled with L(to decay) / L(max).
+   */
+
+  // first make the points
+  const int NCARTESIAN = 5;
+  const int NSPHERICAL = 9;
+  const int NMAX = NCARTESIAN * NCARTESIAN * NCARTESIAN * NSPHERICAL * NSPHERICAL;
+
+  double arr_ox[ NCARTESIAN ] = { PGox - PGdx, PGox - PGdx/2.0, PGox, PGox + PGdx/2.0, PGox + PGdx };
+  double arr_oy[ NCARTESIAN ] = { PGoy - PGdy, PGoy - PGdy/2.0, PGoy, PGoy + PGdy/2.0, PGoy + PGdy };
+  double arr_oz[ NCARTESIAN ] = { PGoz - PGdz, PGoz - PGdz/2.0, PGoz, PGoz + PGdz/2.0, PGoz + PGdz };
+
+  double arr_theta[ NSPHERICAL ] = { PGtheta - PGdtheta, PGtheta - 3.0/4.0 * PGdtheta, PGtheta - 1.0/2.0 * PGdtheta, PGtheta - 1.0/4.0 * PGdtheta, PGtheta, PGtheta + 1.0/4.0 * PGdtheta, PGtheta + 1.0/2.0 * PGdtheta, PGtheta + 3.0/4.0 * PGdtheta, PGtheta + PGdtheta };
+  double arr_phi[ NSPHERICAL ] = { PGphi - PGdphi, PGphi - 3.0/4.0 * PGdphi, PGphi - 1.0/2.0 * PGdphi, PGphi - 1.0/4.0 * PGdphi, PGphi, PGphi + 1.0/4.0 * PGdphi, PGphi + 1.0/2.0 * PGdphi, PGphi + 3.0/4.0 * PGdphi, PGphi + PGdphi };
+
+  // so now we have NCARTESIAN ^3 x NSPHERICAL ^2 points to iterate over. That's 10125 events for 5 and 9
+  
+  int ievent = 0;
+  ostringstream asts;
+  while( true ){
+
+    if( ievent == NMAX ) break;
+
+    /*
+     * Iterate over events as follows:
+     * Least significant --> most significant (with period in brackets)
+     * ox (NCART) --> oy (NCART) --> oz (NCART) --> phi (NSPHE) --> theta (NSPHE)
+     */
+    
+    int ix = ievent % NCARTESIAN;
+    int iy = ( ievent / NCARTESIAN ) % NCARTESIAN;
+    int iz = ( ievent / NCARTESIAN / NCARTESIAN ) % NCARTESIAN;
+    int ip = ( ievent / NCARTESIAN / NCARTESIAN / NCARTESIAN ) % NSPHERICAL;
+    int it = ( ievent / NCARTESIAN / NCARTESIAN / NCARTESIAN / NSPHERICAL ) % NSPHERICAL;
+
+    double use_ox = arr_ox[ ix ] * units::m / units::mm;
+    double use_oy = arr_oy[ iy ] * units::m / units::mm;
+    double use_oz = arr_oz[ iz ] * units::m / units::mm;
+
+    dev_start[0] = use_ox - PGox * units::m / units::mm;
+    dev_start[1] = use_oy - PGoy * units::m / units::mm;
+    dev_start[2] = use_oz - PGoz * units::m / units::mm;
+
+    double use_theta = arr_theta[ it ];
+    double use_phi   = arr_phi[ ip ];
+
+    dev_sphere[0] = (use_theta - PGtheta) * 180.0 / constants::kPi; // deg
+    dev_sphere[1] = (use_phi - PGphi) * 180.0 / constants::kPi;
+
+    double use_cx = std::cos( use_phi ) * std::sin( use_theta );
+    double use_cy = std::sin( use_phi ) * std::sin( use_theta );
+    double use_cz = std::cos( use_theta );
+
+    // now, we set the correct start point and momentum.
+    p4NHL->SetPxPyPzE( p3NHL * use_cx, p3NHL * use_cy, p3NHL * use_cz, gOptEnergyNHL );
+
+    LOG( "gevald_nhl", pDEBUG )
+      << "Set startPoint and momentum";
+
+    TVector3 startPoint, momentum, entryPoint, exitPoint;
+
+    startPoint.SetXYZ( use_ox, use_oy, use_oz );
+    momentum.SetXYZ( p4NHL->Px(), p4NHL->Py(), p4NHL->Pz() );
+
+    use_start[0] = use_ox;
+    use_start[1] = use_oy;
+    use_start[2] = use_oz;
+
+    use_momentum[0] = p4NHL->Px();
+    use_momentum[1] = p4NHL->Py();
+    use_momentum[2] = p4NHL->Pz();
+    use_momentum[3] = p4NHL->E();
+
+    LOG( "gevald_nhl", pDEBUG )
+      << "Set start point for this trajectory = " << utils::print::Vec3AsString( &startPoint )
+      << " [mm]";
+    LOG( "gevald_nhl", pDEBUG )
+      << "Set momentum for this trajectory = " << utils::print::Vec3AsString( &momentum )
+      << " [GeV/c]";
+
+    didIntersectDet = NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gOptRootGeoManager, gOptRootGeoVolume );
+    
+    if( !didIntersectDet ){ // don't re-evaluate, this trajectory just didn't work.
+      for( Int_t itmp = 0; itmp < 3; itmp++ ){
+	use_entry[itmp] = -9999.9;
+	use_exit[itmp]  = -9999.9;
+	use_decay[itmp] = -9999.9;
+      }
+      use_wgt = -9999.9;
+    } else {
+
+      double maxDx = exitPoint.X() - entryPoint.X();
+      double maxDy = exitPoint.Y() - entryPoint.Y();
+      double maxDz = exitPoint.Z() - entryPoint.Z();
+
+      LOG( "gevald_nhl", pDEBUG )
+	<< "maxDx, maxDy, maxDz = " << maxDx << ", " << maxDy << ", " << maxDz << " [mm]";
+
+      double maxLength = std::sqrt( std::pow( maxDx, 2.0 ) +
+				    std::pow( maxDy, 2.0 ) +
+				    std::pow( maxDz, 2.0 ) );
+      
+      double elapsed_length = NHLDecayVolume::CalcTravelLength( betaMag, use_CMlifetime, maxLength ); //mm
+      __attribute__((unused)) double ratio_length = elapsed_length / maxLength;
+      
+      // from these we can also make the weight. Only calculate P( decay in detector )
+      double timeInsideDet = maxLength / ( betaMag * NHLDecayVolume::kNewSpeedOfLight ); // ns lab
+      
+      double LabToRestTime = 1.0 / ( gamma );
+      timeInsideDet *= LabToRestTime; // ns rest
+      
+      use_wgt = ( 1.0 - std::exp( - timeInsideDet / use_CMlifetime ) );
+      
+      LOG( "gevald_nhl", pDEBUG )
+	<< "Decay probability with betaMag, gamma, CoMLifetime, maxLength = "
+	<< betaMag << ", " << gamma << ", " << use_CMlifetime << ", "
+	<< maxLength << " [mm, ns, ns^{-1}, mm/ns] "
+	<< "\nand entry, exit vertices = ( " << entryPoint.X() << ", " << entryPoint.Y() << ", " << entryPoint.Z() << " ) , ( " << exitPoint.X() << ", " << exitPoint.Y() << " , " << exitPoint.Z() << " ) [mm] :"
+	<< "\nLabToRestTime, timeInsideDet = " << LabToRestTime << ", " << timeInsideDet << " [ns, rest]"
+	<< "\nweight = " << use_wgt
+	<< "\nSpeed of light = " << NHLDecayVolume::kNewSpeedOfLight << " [mm / ns]";
+      
+      TVector3 decayPoint = NHLDecayVolume::GetDecayPoint( elapsed_length, entryPoint, momentum );
+
+      // set the branch entries now
+      use_entry[0] = entryPoint.X();
+      use_entry[1] = entryPoint.Y();
+      use_entry[2] = entryPoint.Z();
+
+      use_exit[0]  = exitPoint.X();
+      use_exit[1]  = exitPoint.Y();
+      use_exit[2]  = exitPoint.Z();
+
+      use_decay[0] = decayPoint.X();
+      use_decay[1] = decayPoint.Y();
+      use_decay[2] = decayPoint.Z();
+
+      // also fill the histos
+      hWeight.Fill( std::log10( use_wgt ), 1.0 );
+      hLength.Fill( ratio_length, 1.0 );
+      
+    } // didIntersectDet
+
+    outTree->Fill();
+    ievent++;
+  }
+
+  // save to file and exit
+  
+  fout->cd();
+  outTree->Write();
+  hWeight.Write();
+  hLength.Write();
+  top_volume->Write();
+  fout->Close();
+    
+  return 0;
+}
+//_________________________________________________________________________________________
+void InitBoundingBox(void)
+{
+// Initialise geometry bounding box, used for generating NHL vertex positions
+
+  LOG("gevald_nhl", pINFO)
+    << "Initialising geometry bounding box.";
+
+  fdx = 0; // half-length - x
+  fdy = 0; // half-length - y
+  fdz = 0; // half-length - z
+  fox = 0; // origin - x
+  foy = 0; // origin - y
+  foz = 0; // origin - z
+
+  if(!gOptUsingRootGeom) return;
+
+  bool geom_is_accessible = ! (gSystem->AccessPathName(gOptRootGeom.c_str()));
+  if (!geom_is_accessible) {
+    LOG("gevald_nhl", pFATAL)
+      << "The specified ROOT geometry doesn't exist! Initialization failed!";
+    exit(1);
+  }
+
+  if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
+
+  // RETHERE implement top volume option from cmd line
+  TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
+  assert( top_volume );
+  TGeoShape * ts  = top_volume->GetShape();
+
+  TGeoBBox *  box = (TGeoBBox *)ts;
+  
+  // pass this box to NHLDecayVolume
+  NHLDecayVolume::ImportBoundingBox( box );
+
+  //get box origin and dimensions (in the same units as the geometry)
+  fdx = box->GetDX();
+  fdy = box->GetDY();
+  fdz = box->GetDZ();
+  fox = (box->GetOrigin())[0];
+  foy = (box->GetOrigin())[1];
+  foz = (box->GetOrigin())[2];
+
+  LOG("gevald_nhl", pINFO)
+    << "Before conversion the bounding box has:"
+    << "\nOrigin = ( " << fox << " , " << foy << " , " << foz << " )"
+    << "\nDimensions = " << fdx << " x " << fdy << " x " << fdz
+    << "\n1cm = 1.0 unit";
+
+  // Convert from local to SI units
+  fdx *= gOptGeomLUnits;
+  fdy *= gOptGeomLUnits;
+  fdz *= gOptGeomLUnits;
+  fox *= gOptGeomLUnits;
+  foy *= gOptGeomLUnits;
+  foz *= gOptGeomLUnits;
+
+  LOG("gevald_nhl", pINFO)
+    << "Initialised bounding box successfully.";
+
+}
+//_________________________________________________________________________________________
+#endif // #ifdef __CAN_USE_ROOT_GEOM__
+//............................................................................
 //_________________________________________________________________________________________
 const EventRecordVisitorI * NHLGenerator(void)
 {
@@ -1173,6 +1528,31 @@ void GetCommandLineArgs(int argc, char ** argv)
   } //-f
   gOptIsMonoEnFlux = isMonoEnergeticFlux;
 #endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
+  
+#ifdef __CAN_USE_ROOT_GEOM__
+  if( parser.OptionExists('g') ) {
+    LOG("gevald_nhl", pDEBUG) << "Getting input geometry";
+    geom = parser.ArgAsString('g');
+    
+    // is it a ROOT file that contains a ROOT geometry?
+    bool accessible_geom_file =
+      ! (gSystem->AccessPathName(geom.c_str()));
+    if (accessible_geom_file) {
+      gOptRootGeom      = geom;
+      gOptUsingRootGeom = true;
+    } else {
+      LOG("gevald_nhl", pFATAL)
+	<< "Geometry option is not a ROOT file. This is a work in progress; please use ROOT geom.";
+      PrintSyntax();
+      exit(1);
+    }
+  } else if( gOptValidationMode == kValGeom ) {
+    
+    LOG("gevald_nhl", pFATAL)
+      << "No geometry option specified - Exiting";
+    PrintSyntax();
+    exit(1);
+  } //-g
 
   if( parser.OptionExists('L') ) {
     lunits = parser.ArgAsString('L');
@@ -1200,6 +1580,8 @@ void GetCommandLineArgs(int argc, char ** argv)
     tunits = kDefOptGeomTUnits;
   } // -T
   gOptGeomTUnits = utils::units::UnitFromString(tunits);
+
+#endif // #ifdef __CAN_USE_ROOT_GEOM__
 
   // event file prefix
   if( parser.OptionExists('o') ) {
@@ -1261,6 +1643,7 @@ void ReadInConfig(void)
   gCfgDecayMode = (NHLDecayMode_t) utils::nhl::GetCfgInt( "NHL", "Validation", "NHL-DecayMode" );
 
   gOptEnergyNHL = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-Energy" );
+
   gCfgNHLCx     = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-cx" );
   gCfgNHLCy     = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-cy" );
   gCfgNHLCz     = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-cz" );
@@ -1380,18 +1763,13 @@ void PrintSyntax(void)
    << "\n             -M mode:"
    << "\n                1: Flux prediction from dk2nu files. Needs -f option"
    << "\n                2: Flux prediction from histograms.  Needs -f option"
-   << "\n                3: NHL production event rates from dk2nu. Needs -f option"
-   << "\n                4: NHL production kinematics. Specify selected mode and"
-   << "\n                   parent energy in config"
-   << "\n                5: NHL decay event rates. Specify modes to uninhibit"
-   << "\n                   in config"
-   << "\n                6: NHL decay kinematics. Specify selected mode in config"
-   << "\n                7: Custom geometry file entry/exit validation.  Needs -g option"
-   << "\n                   Define trajectory in config"
-   << "\n                8: Particle-gun for decay vertex placement + survival"
-   << "\n                   probability (define energy, trajectory, and detector"
-   << "\n                   box in config)"
-   << "\n                9: Parent particle gun. Define energy and trajectory in config"
+   << "\n                3: NHL decay validation. Specify an origin point and 4-momentum"
+   << "\n                   in the \"ParticleGun\" section in config"
+   << "\n                4: Custom geometry file validation.  Needs -g option"
+   << "\n                   Specify origin, momentum, and wiggle room for both of these in the"
+   << "\n                   \"ParticleGun\" section in config"
+   << "\n                   Regardless of how many events you ask for, this will evaluate 125x81"
+   << "\n                   events: 5^3 from wiggling origin and 9^2 from wiggling momentum direction"
    << "\n               10: Full simulation (like gevgen_nhl but with lots of debug!)"
    << "\n"
    << "\n The configuration file lives at $GENIE/config/CommonNHL.xml - see"
