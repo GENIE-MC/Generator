@@ -726,9 +726,9 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     __attribute__((unused)) double ratio_length = elapsed_length / maxLength;
 
     // from these we can also make the weight. Only calculate P( decay in detector )
-    double timeInsideDet = maxLength / NHLDecayVolume::kNewSpeedOfLight; // ns lab
+    double timeInsideDet = maxLength / ( betaMag *  NHLDecayVolume::kNewSpeedOfLight ); // ns lab
     
-    double LabToRestTime = 1.0 / ( betaMag * gamma );
+    double LabToRestTime = 1.0 / ( gamma );
     timeInsideDet *= LabToRestTime; // ns rest
 
     weight = ( 1.0 - std::exp( - timeInsideDet / CoMLifetime ) );

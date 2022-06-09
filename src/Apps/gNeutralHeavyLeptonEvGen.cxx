@@ -980,10 +980,10 @@ TLorentzVector GeneratePosition( GHepRecord * event )
 					  std::pow( (entryPoint.Y() - startPoint.Y()), 2.0 ) + 
 					  std::pow( (entryPoint.Y() - startPoint.Z()), 2.0 ) ); // mm
 
-    double timeBeforeDet = distanceBeforeDet / NHLDecayVolume::kNewSpeedOfLight; // ns lab
-    double timeInsideDet = maxLength / NHLDecayVolume::kNewSpeedOfLight; // ns lab
+    double timeBeforeDet = distanceBeforeDet / ( betaMag * NHLDecayVolume::kNewSpeedOfLight ); // ns lab
+    double timeInsideDet = maxLength / ( betaMag * NHLDecayVolume::kNewSpeedOfLight ); // ns lab
     
-    double LabToRestTime = 1.0 / ( betaMag * gamma );
+    double LabToRestTime = 1.0 / ( gamma );
     timeBeforeDet *= LabToRestTime; // ns rest
     timeInsideDet *= LabToRestTime; // ns rest
 

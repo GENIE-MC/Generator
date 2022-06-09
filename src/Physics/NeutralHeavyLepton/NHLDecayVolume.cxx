@@ -82,8 +82,8 @@ double NHLDecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, dou
   // t   = time-of-flight (in rest frame)
   // tau = CoMLifetime
 
-  double maxLabTime = maxLength / kNewSpeedOfLight;
   assert( betaMag > 0.0 && betaMag < 1.0 ); // massive moving particle
+  double maxLabTime = maxLength / ( betaMag * kNewSpeedOfLight );
   double gamma = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
   double maxRestTime = maxLabTime / gamma ; // this is how "wide" the detector looks like
 
