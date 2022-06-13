@@ -194,7 +194,7 @@ int              gOptNHLKind      = -1;                  // 0 = nu, 1 = nubar, 2
 string           gOptFluxFilePath = kDefOptFluxFilePath; // where flux files live
 map<string,string> gOptFluxShortNames;
 bool             gOptIsUsingDk2nu = false;               // using flat dk2nu files?
-int              gOptFirstEvent   = -1;                  // skip to this entry in dk2nu
+int              gOptFirstEvent   = 0;                  // skip to this entry in dk2nu
 #endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 bool             gOptIsMonoEnFlux = true;                // do we have monoenergetic flux?
 
