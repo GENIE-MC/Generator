@@ -562,6 +562,12 @@ int main(int argc, char ** argv)
      const double mmtom = genie::units::mm / genie::units::m;
      TLorentzVector x4m( x4mm.X() * mmtom, x4mm.Y() * mmtom, x4mm.Z() * mmtom, 0.0 );
      event->SetVertex(x4m);
+     // update weight to scale for couplings
+     LOG( "gevgen_nhl", pDEBUG )
+       << "\nWeight modifications:"
+       << "\nCouplings^(-1) = " << 1.0 / ( gOptECoupling + gOptMCoupling + gOptTCoupling )
+       << "\nGeometry^(-1) = " << evWeight;
+     evWeight *= 1.0 / ( gOptECoupling + gOptMCoupling + gOptTCoupling );
      event->SetWeight( evWeight );
 
      // why does InitState show the wrong p4 here?
@@ -987,10 +993,10 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     timeBeforeDet *= LabToRestTime; // ns rest
     timeInsideDet *= LabToRestTime; // ns rest
 
-    weight = std::exp( - timeBeforeDet / CoMLifetime );
-    double survProb = weight;
-    weight *= ( 1.0 - std::exp( - timeInsideDet / CoMLifetime ) );
-    double decayProb = weight / survProb;
+    double survProb = std::exp( - timeBeforeDet / CoMLifetime );
+    weight *= 1.0 / survProb;
+    double decayProb = 1.0 - std::exp( - timeInsideDet / CoMLifetime );
+    weight *= 1.0 / decayProb;
 
     LOG( "gevgen_nhl", pDEBUG )
       << "Decay probability with betaMag, gamma, CoMLifetime, distanceBeforeDet, maxLength = "
