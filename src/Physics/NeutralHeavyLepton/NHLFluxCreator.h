@@ -25,7 +25,6 @@
 //----------------------------------------------------------------------------
 /*
   TODO: Make BBox from geometry file! (unit BBox if no geom-file?)
-	Write POT scaling
  */
 //----------------------------------------------------------------------------
 
@@ -116,7 +115,6 @@ namespace genie{
       // NOTE THIS IS A LAB FRAME (==GEOMETRICAL) ACCEPTANCE!!!!
       // detO == detector BBox centre wrt NHL prod vertex, L{x,y,z} BBox length on each axis. Both [m]
       double CalculateDetectorAcceptanceSAA( TVector3 detO );
-      double CalculateDetectorAcceptanceDRC( TVector3 detO, double Lx, double Ly, double Lz );
       // collimation effect calc, returns NHL_acc / geom_acc
       double CalculateAcceptanceCorrection( TLorentzVector p4par, TLorentzVector p4NHL, double SMECM, double zm, double zp );
       double labangle( double * x, double * par ); // function formula for correction

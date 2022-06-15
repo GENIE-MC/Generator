@@ -106,7 +106,6 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     << "\n\n";
   
   double acc_saa = CalculateDetectorAcceptanceSAA( detO_user );
-  //double acc_drc = CalculateDetectorAcceptanceDRC( detO, fLx, fLy, fLz );
   
   // set parent mass
   switch( std::abs( decay_ptype ) ){
@@ -235,7 +234,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     if( costh_pardet > 1.0 ) costh_pardet = 1.0;
     // assume boost is on z' direction where z' = parent momentum direction, subbing betaMag ==> betaMag * costh_pardet
     //boost_correction = gamma * ( 1.0 + betaNHL * betaMag * costh_pardet );
-    if( std::abs( costh_pardet ) >= 0.9 ){
+    if( std::abs( costh_pardet ) >= 0.9 && boost_correction * p4NHL_rest.E() > p4NHL_rest.M() ){
       boost_correction = 1.0 / ( gamma * ( 1.0 - betaMag * betaNHL * costh_pardet ) );
     } else {
       boost_correction = p4NHL_good.E() / p4NHL_rest_good.E();
@@ -250,6 +249,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     << "\nbetaNHL         = " << betaNHL
     << "\nboost_corr_two  = " << boost_correction_two
     << "\nboost_corr_one  = " << boost_correction
+    << "\n\tcostheta = " << costh_pardet << ", betaMag = " << betaMag
     << "\nratio           = " << boost_correction_two / boost_correction;
 
   assert( boost_correction > 0.0 && boost_correction_two > 0.0 );
@@ -292,13 +292,26 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   // which means a true acceptance of...
   double acceptance = acc_saa * boost_correction * boost_correction * accCorr;
 
-  // RETHERE add delay! 
+  // finally, a delay calculation
+  // if SMv arrives at t=0, then NHL arrives at t = c * ( 1 - beta_NHL ) / L
+
+  double detDist = std::sqrt( detO.X() * detO.X() +
+			      detO.Y() * detO.Y() +
+			      detO.Z() * detO.Z() ); // m
+  const double kSpeedOfLightNs = units::kSpeedOfLight * units::ns / units::s; // m / ns
+  double delay = detDist / kSpeedOfLightNs * ( 1.0 / betaNHL - 1.0 );
+
+  LOG( "NHL", pDEBUG )
+    << "\ndetDist = " << detDist << " [m]"
+    << "\nbetaNHL = " << betaNHL
+    << "\ndelay = " << delay << " [ns]";
+  
   // write 4-position all this happens at
-  TLorentzVector x4NHL_beam( decay_vx, decay_vy, decay_vz, 0.0 ); // in cm
-  TLorentzVector x4NHL( -detO.X(), -detO.Y(), -detO.Z(), 0.0 ); // in m
+  TLorentzVector x4NHL_beam( decay_vx, decay_vy, decay_vz, delay ); // in cm, ns
+  TLorentzVector x4NHL( -detO.X(), -detO.Y(), -detO.Z(), delay ); // in m, ns
   TLorentzVector x4NHL_cm( units::m / units::cm * ( -detO.X() ),
 			   units::m / units::cm * ( -detO.Y() ),
-			   units::m / units::cm * ( -detO.Z() ), 0.0 ); // in cm
+			   units::m / units::cm * ( -detO.Z() ), delay ); // in cm, ns
 
   // fill all the GNuMIFlux stuff
   // comments as seeon on https://www.hep.utexas.edu/~zarko/wwwgnumi/v19/v19/output_gnumi.html
@@ -1218,210 +1231,6 @@ double NHLFluxCreator::CalculateDetectorAcceptanceSAA( TVector3 detO )
   double rad = std::sqrt( detO.X() * detO.X() + detO.Y() * detO.Y() + detO.Z() * detO.Z() );
   double sang = 1.0 - TMath::Cos( TMath::ATan( kRDET / rad ) ); sang *= 0.5;
   return sang;
-}
-//----------------------------------------------------------------------------
-double NHLFluxCreator::CalculateDetectorAcceptanceDRC( TVector3 detO, double Lx, double Ly, double Lz )
-{
-  /* This method does two steps to calculate the acceptance
-   * 1 : Partition the BBox into a number of smaller boxes.
-   *     Project the centre of each of these boxes onto the unit sphere as P = (\theta, \phi)
-   * 2 : Partition the unit sphere into parallels and meridians
-   *     For each area that contains at least one P_i, calculate the volume element
-   *     A = \int_{\theta_min}^{\theta_{max}}d\theta \int_{\phi_{min}}^{\phi_{max}} d\phi sin\theta
-   *     = \Delta\phi * ( cos(\theta_{min}) - cos(\theta_{max}) ) 
-   *     and add that to the solid angle (max = 4pi)
-   * // RETHERE STEP 3 SHOULD BE ITS OWN METHOD (need to know flux area-norm)
-   *    See CalculateAreaNormalisation()
-   * 3 : Project the entire BBox onto the plane tangent to the unit sphere at the point
-   *     O' := P( O ) where O the centre of the BBox.
-   *     Calculate its area iteratively, and scale up by r(O).
-   *     This gives an estimate for the effective area of the BBox.
-   */
-  LOG( "NHL", pDEBUG )
-    << "Starting the calculation with DRC using O = ( "
-    << detO.X() << ", " << detO.Y() << ", " << detO.Z() << " ) [m] and lengths = ( " 
-    << Lx << ", " << Ly << ", " << Lz << " ) [m]. . .";
-
-  // the lower face
-  double xA = detO.X() - Lx/2.0, yA = detO.Y() - Ly/2.0, zA = detO.Z() - Lz/2.0;
-  double xB = detO.X() + Lx/2.0, yB = detO.Y() - Ly/2.0, zB = detO.Z() - Lz/2.0;
-  double xC = detO.X() + Lx/2.0, yC = detO.Y() + Ly/2.0, zC = detO.Z() - Lz/2.0;
-  double xD = detO.X() - Lx/2.0, yD = detO.Y() + Ly/2.0, zD = detO.Z() - Lz/2.0;
-  // the upper face is symmetric
-  double xE = detO.X() - Lx/2.0, yE = detO.Y() - Ly/2.0, zE = detO.Z() + Lz/2.0;
-  double xF = detO.X() + Lx/2.0, yF = detO.Y() - Ly/2.0, zF = detO.Z() + Lz/2.0;
-  double xG = detO.X() + Lx/2.0, yG = detO.Y() + Ly/2.0, zG = detO.Z() + Lz/2.0;
-  double xH = detO.X() - Lx/2.0, yH = detO.Y() + Ly/2.0, zH = detO.Z() + Lz/2.0;
-
-  LOG( "NHL", pDEBUG )
-    << "\nEdge points for this BBox are:"
-    << "\nA = ( " << xA << ", " << yA << ", " << zA << " )"
-    << "\nB = ( " << xB << ", " << yB << ", " << zB << " )"
-    << "\nC = ( " << xC << ", " << yC << ", " << zC << " )"
-    << "\nD = ( " << xD << ", " << yD << ", " << zD << " )"
-    << "\nE = ( " << xE << ", " << yE << ", " << zE << " )"
-    << "\nF = ( " << xF << ", " << yF << ", " << zF << " )"
-    << "\nG = ( " << xG << ", " << yG << ", " << zG << " )"
-    << "\nH = ( " << xH << ", " << yH << ", " << zH << " )";
-
-  // hard-code this partition
-  // double nx = 10.0, ny = 10.0, nz = 10.0;
-  double nx = utils::nhl::GetCfgDouble( "NHL", "FluxCalc", "Raycast-PartitionX" );
-  double ny = utils::nhl::GetCfgDouble( "NHL", "FluxCalc", "Raycast-PartitionY" );
-  double nz = utils::nhl::GetCfgDouble( "NHL", "FluxCalc", "Raycast-PartitionZ" );
-  int nix = nx, niy = ny, niz = nz; int nia = nix * niy * niz;
-
-  LOG( "NHL", pDEBUG )
-    << "Step 1: Partition the BBox into " << nix << " x " << niy << " x " << niz << " sub-boxes.";
-  double xs[nix], ys[niy], zs[niz];
-  double centres[nia][3];
-  double thetas[nia], phis[nia]; // avoid vectors for speed
-  std::array< double, 2 > points[nia]; // 2D array with sort capability. Note it's in degrees!
-  for( int ix = 0; ix < nix; ix++ ){ xs[ix] = xA + (ix+0.5) * Lx / nx; }
-  for( int iy = 0; iy < niy; iy++ ){ ys[iy] = yA + (iy+0.5) * Ly / ny; }
-  for( int iz = 0; iz < niz; iz++ ){ zs[iz] = zA + (iz+0.5) * Lz / nz; }
-  LOG( "NHL", pDEBUG )
-    << "The small-(x,y,z) centre is at ( " << xs[0] << ", " << ys[0] << ", " << zs[0] << " )";
-
-  for( int ix = 0; ix < nix; ix++ ){
-    for( int iy = 0; iy < niy; iy++ ){
-      for( int iz = 0; iz < niz; iz++ ){
-	int ia = ix*niy*niz + iy*niz +iz;
-	centres[ia][0] = xs[ix];
-	centres[ia][1] = ys[iy];
-	centres[ia][2] = zs[iz];
-      }
-    }
-  }
-
-  double minTheta = 9999.9, maxTheta = -9999.9;
-  double minPhi = 9999.0, maxPhi = -9999.9;
-
-  for( int ia = 0; ia < nia; ia++ ){ points[ia] = { 0.0, 0.0 }; }
-
-  for( int ia = 0; ia < nia; ia++ ){
-    double rad = TMath::Sqrt(
-			     TMath::Power( centres[ia][0], 2.0 ) +
-			     TMath::Power( centres[ia][1], 2.0 ) +
-			     TMath::Power( centres[ia][2], 2.0 ) );
-    thetas[ia] = TMath::ACos( centres[ia][2] / rad );
-    phis[ia] = TMath::ACos( centres[ia][0] / ( rad * TMath::Sin( thetas[ia] ) ) );
-    points[ia] = { thetas[ia] * 180.0 / constants::kPi, phis[ia] * 180.0 / constants::kPi };
-    
-    if( thetas[ia] > maxTheta ) maxTheta = thetas[ia];
-    if( thetas[ia] < minTheta ) minTheta = thetas[ia];
-    if( phis[ia] > maxPhi ) maxPhi = phis[ia];
-    if( phis[ia] < minPhi ) minPhi = phis[ia];
-  }
-
-  // sort by theta
-  double tmpmin = points[0][0], tmpmax = points[0][0]; int tmpi = -1;
-  for( int ia = 1; ia < nia; ia++ ){
-    //std::ostringstream osts, psts;
-    tmpi = -1; // to avoid nonsense
-    //LOG( "NHL", pDEBUG ) << "tmpmin, tmpmax = " << tmpmin << ", " << tmpmax;
-    if( points[ia][0] >= tmpmax ){ // if greater than max, then must be end point! Don't reorganise
-      tmpmax = points[ia][0]; 
-      //LOG( "NHL", pDEBUG ) << "tmpmax is now " << tmpmax << " and tmpi = -1";
-    } else if( points[ia][0] < tmpmin ){ // if smaller than min, then must be first point! Set tmpi to 0
-      tmpmin = points[ia][0]; tmpi = 0; 
-      //LOG( "NHL", pDEBUG ) << "tmpmin is now " << tmpmin << " and tmpi = 0";
-    } else { // find where the push must go and push
-      tmpi = ia;
-      while( points[ia][0] < points[tmpi-1][0] && tmpi > 0 ){ 
-	//psts << "\n@tmpi = " << tmpi << ": " << points[tmpi-1][0]; 
-	tmpi--; 
-      }
-      //psts << "\nFINAL: tmpi = " << tmpi;
-      //LOG( "NHL", pDEBUG ) << (psts.str()).c_str();
-    }
-    //LOG( "NHL", pDEBUG ) << "ia = " << ia << ", tmpi = " << tmpi << ", theta = " << points[ia][0];
-    // now push every entry in [tmpi, ia-1] to +1 and insert ia in tmpi
-    double tmptheta = points[ia][0]; double tmpphi = points[ia][1];
-    for( int ib = ia; ib > tmpi; ib-- ){
-      points[ib] = points[ib-1];
-    }
-    points[tmpi] = { tmptheta, tmpphi };
-
-    /*
-    for( int is = 0; is <= ia; is++ ){
-      osts << "\n[ " << is << " ] " << points[is][0]; 
-    }
-    LOG( "NHL", pDEBUG ) << (osts.str()).c_str();
-    */
-  }
-
-  /*
-  std::ostringstream asts;
-  // check sorting
-  for( int ia = 0; ia < nia; ia++ ){
-    asts << "\n[" << ia << "]: " << points[ia][0];
-  }
-  LOG( "NHL", pDEBUG ) << (asts.str()).c_str();
-  */
-
-  // sort these arrays by theta
-  // See https://stackoverflow.com/questions/20931669/sort-a-2d-array-in-c-using-built-in-functionsor-any-other-method
-  //std::sort( std::begin( points ), std::end( points ) );
-
-  // now the spherical partition
-  //double ntheta = 18000.0, nphi = 36000.0;
-  double ntheta = utils::nhl::GetCfgDouble( "NHL", "FluxCalc", "Raycast-NParallels" );
-  double nphi   = utils::nhl::GetCfgDouble( "NHL", "FluxCalc", "Raycast-NMeridians" );
-  int nitheta = ntheta, niphi = nphi;
-
-  LOG( "NHL", pDEBUG )
-    << "Step 2: Partition the unit sphere into " << nitheta << " parallels and " << niphi << " meridians";
-  LOG( "NHL", pDEBUG )
-    << "\nThe minimum theta is " << minTheta * 180.0 / constants::kPi << " deg,"
-    << " and the maximum theta is " << maxTheta * 180.0 / constants::kPi << " deg"
-    << "\nThe minimum phi is " << minPhi * 180.0 / constants::kPi << " deg,"
-    << " and the maximum phi is " << maxPhi * 180.0 / constants::kPi << " deg";
-
-  double areaElem = 0.0;
-  for( int ith = 0; ith < nitheta; ith++ ){
-    double thetaSmall = ith / ntheta * 180.0;
-    double thetaLarge = (ith+1) / ntheta * 180.0;
-    if( minTheta * 180.0 / constants::kPi > thetaLarge ) continue;
-    if( maxTheta * 180.0 / constants::kPi < thetaSmall ) break; // done!
-    for( int iph = 0; iph < niphi; iph++ ){
-      double phiSmall = iph / nphi * 360.0;
-      double phiLarge = (iph+1) / nphi * 360.0;
-      if( minPhi * 180.0 / constants::kPi > phiLarge ) continue;
-      if( maxPhi * 180.0 / constants::kPi < phiSmall ) break; // done, on to next theta
-      LOG( "NHL", pDEBUG ) << "theta in [ " << thetaSmall << ", " << thetaLarge
-			   << " ]; phi in [ " << phiSmall << ", " << phiLarge << " ]";
-      // tag this volume-element only if we haven't seen this region before to avoid double-counting
-      bool foundPoint = false;
-      int npoints = 0;
-      while( !foundPoint && npoints <= nia ){
-	foundPoint = ( points[npoints][0] <= thetaLarge &&
-		       points[npoints][0] >= thetaSmall &&
-		       points[npoints][1] <= phiLarge   &&
-		       points[npoints][1] >= phiSmall );
-	npoints++;
-      }
-      if( foundPoint ){ // calculate area element in sterad and add it
-	double dPhi = ( phiLarge - phiSmall ) * constants::kPi / 180.0 ;
-	double dTheta = TMath::Cos( thetaSmall * constants::kPi / 180.0 ) - TMath::Cos( thetaLarge * constants::kPi / 180.0 );
-	areaElem += dPhi * dTheta;
-	LOG( "NHL", pDEBUG )
-	  << "Tagging element: area = " << dPhi * dTheta;
-	continue; // exit out of this region and onto the next
-      }
-      if( foundPoint ){ // you should never be seeing this, double counting WILL happen here.
-	LOG( "NHL", pERROR )
-	  << "Double-counting is occurring here. Crashing now...";
-	assert( false );
-      }
-    }
-  }
-
-  LOG( "NHL", pDEBUG )
-    << "Solid angle = " << areaElem << " sterad";
-
-  // return this / 4pi == acceptance
-  return areaElem / (4.0 * constants::kPi);
 }
 //----------------------------------------------------------------------------
 double NHLFluxCreator::CalculateAreaNormalisation()
