@@ -514,11 +514,14 @@ int main(int argc, char ** argv)
 	 << "\nIS p4  = " << utils::print::P4AsString( interaction->InitStatePtr()->GetProbeP4() );
      }
 
+     double acceptance = 1.0; // need to weight a spectrum by acceptance and nimpwt as well
+
      if( gnmf ){ // we have an NHL with definite momentum, so let's set it now
        interaction->InitStatePtr()->SetProbeP4( gnmf->fgP4User );
        LOG( "gevgen_nhl", pDEBUG )
 	 << "\ngnmf->fgP4User setting probe p4 = " << utils::print::P4AsString( &gnmf->fgP4User );
        event->SetVertex( gnmf->fgX4User );
+       acceptance = gnmf->nimpwt * gnmf->fgXYWgt;
      }
 
      event->AttachSummary(interaction);
@@ -566,8 +569,10 @@ int main(int argc, char ** argv)
      LOG( "gevgen_nhl", pDEBUG )
        << "\nWeight modifications:"
        << "\nCouplings^(-1) = " << 1.0 / ( gOptECoupling + gOptMCoupling + gOptTCoupling )
+       << "\n(Acceptance * nimpwt)^(-1) = " << acceptance
        << "\nGeometry^(-1) = " << evWeight;
      evWeight *= 1.0 / ( gOptECoupling + gOptMCoupling + gOptTCoupling );
+     evWeight *= 1.0 / acceptance;
      event->SetWeight( evWeight );
 
      // why does InitState show the wrong p4 here?
