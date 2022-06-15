@@ -969,7 +969,8 @@ double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
   bool parentHitsCentre = ( IPdev.Mag() < controls::kASmallNum );
 
   // RETHERE: Approximating detector dimension as BBox z dimension (NHL running on almost-z)
-  double detRadius = fLz / 2.0;
+  double fLT = std::max( fLx, fLy );
+  double detRadius = fLT / 2.0;
 
   if( parentHitsCentre ){
     // calculate angles for four points and return largest (smallest) of them
