@@ -20,6 +20,8 @@
 #define _EVENT_GENERATOR_LIST_ASSEMBLER_H_
 
 #include "Framework/Algorithm/Algorithm.h"
+#include <string>
+using std::string;
 
 namespace genie {
 

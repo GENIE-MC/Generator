@@ -16,7 +16,7 @@ AnomMagnMoment-N      double  No         n Anomalous Magn Moment    CommonParam[
 -->
 
   <param_set name="Default"> 
-    <param type="string" name="CommonParam"> MagnMoments  </param>
+    <param type="string" name="CommonParam"> MagnMoments,QuasiElastic </param>
 
     
 

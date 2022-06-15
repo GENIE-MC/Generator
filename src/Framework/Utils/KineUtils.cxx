@@ -272,6 +272,43 @@ double genie::utils::kinematics::Jacobian(
     J = 2*constants::kPi;
   }
 
+  // Transformation: {Tl,ctl} -> {W,Q2}|E
+  // IMPORTANT NOTE: This transformation can't be done exactly in two
+  // dimensions due to Fermi motion. For fixed {W,Q2}, the azimuthal angle phi
+  // is uniformly distributed in the hit nucleon rest frame, while for fixed
+  // {Tl,ctl} it is uniform in the lab frame (i.e., the target nucleus rest
+  // frame). A 3D Jacobian is needed in order to account for the relationship
+  // between these two azimuthal angles. In the implementation below, I choose
+  // to neglect Fermi motion. Under this approximation, the lab and hit nucleon
+  // rest frames are the same. Doing things this way is a stopgap solution for
+  // the new XSecShape_CCMEC reweighting dial developed for MicroBooNE. A full
+  // solution should use the Jacobian that connects the 3D phase spaces which
+  // each include phi. - S. Gardiner, 29 July 2020
+  else if ( TransformMatched(fromps, tops, kPSTlctl, kPSWQ2fE, forward) )
+  {
+    // Probe properties (mass, energy, momentum)
+    const InitialState& init_state = i->InitState();
+    double mv = init_state.Probe()->Mass();
+    double Ev = init_state.ProbeE( kRfLab );
+    double pv = std::sqrt( std::max(0., Ev*Ev - mv*mv) );
+
+    // Invariant mass of the initial hit nucleon
+    const TLorentzVector& hit_nuc_P4 = init_state.Tgt().HitNucP4();
+    double M = hit_nuc_P4.M();
+
+    // Outgoing lepton mass
+    double ml = i->FSPrimLepton()->Mass();
+
+    double W = i->Kine().GetKV( kKVW );
+    double Q2 = i->Kine().GetKV( kKVQ2 );
+    double El = Ev - ( (W*W + Q2 - M*M) / (2.*M) );
+    double pl = std::sqrt( std::max(0., El*El - ml*ml) );
+
+    // Compute the Jacobian for {Tl, ctl} --> {W, Q2}
+    // (it will be inverted below for the inverse transformation)
+    J = W / ( 2. * pv * pl * M );
+  }
+
   else {
      std::ostringstream msg;
      msg << "Can not compute Jacobian for transforming: "

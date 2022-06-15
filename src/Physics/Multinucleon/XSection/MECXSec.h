@@ -53,32 +53,6 @@ private:
   double fQ3Max;
 };
 
-//_____________________________________________________________________________________
-//
-// GSL wrappers
-//
-//_____________________________________________________________________________________
-
- namespace utils {
-  namespace gsl   {
-
-   class d2Xsec_dTCosth: public ROOT::Math::IBaseFunctionMultiDim
-   {
-    public:
-      d2Xsec_dTCosth(const XSecAlgorithmI * m, const Interaction * i);
-     ~d2Xsec_dTCosth();
-      // ROOT::Math::IBaseFunctionMultiDim interface
-      unsigned int                        NDim   (void)               const;
-      double                              DoEval (const double * xin) const;
-      ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
-    private:
-      const XSecAlgorithmI * fModel;
-      const Interaction *    fInteraction;
-   };
-
-  } // gsl   namespace
- } // utils namespace
-
 } // genie namespace
 
 #endif  // _MEC_XSEC_H_

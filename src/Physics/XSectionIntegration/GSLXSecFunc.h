@@ -22,6 +22,9 @@
 #include <Math/IntegratorMultiDim.h>
 #include "Framework/Utils/Range1.h"
 
+#include <string>
+using std::string;
+
 namespace genie {
 
 class XSecAlgorithmI;
@@ -468,7 +471,7 @@ class dXSec_Log_Wrapper: public ROOT::Math::IBaseFunctionMultiDim
     double * fMins;
     double * fMaxes;
 };
-
+ 
 } // gsl   namespace
 } // utils namespace
 } // genie namespace

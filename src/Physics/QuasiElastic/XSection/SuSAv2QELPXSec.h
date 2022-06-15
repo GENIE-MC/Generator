@@ -31,6 +31,7 @@
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/HadronTensors/HadronTensorI.h"
 #include "Physics/HadronTensors/HadronTensorModelI.h"
+#include "Physics/Common/QvalueShifter.h"
 
 namespace genie {
 
@@ -87,6 +88,7 @@ private:
   /// Alternate cross section model for free nucleon targets
   const XSecAlgorithmI* fFreeNucleonXSecAlg;
 
+  const QvalueShifter * fQvalueShifter ; // Gives the option to retrieve a qvalue shift for a given target
 };
 
 } // genie namespace

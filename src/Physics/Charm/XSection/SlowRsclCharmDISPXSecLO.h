@@ -25,7 +25,7 @@
 namespace genie {
 
 class PDFModelI;
-class XSecIntegrator;
+class XSecIntegratorI;
 
 class SlowRsclCharmDISPXSecLO : public XSecAlgorithmI {
 

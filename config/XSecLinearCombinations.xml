@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+<!--
+Configuration for the XSec LinearCombination 
+
+Validation plots can be seen in GENIE docdb 252
+
+Configurable Parameters:
+......................................................................................................................
+Name                   Type     Optional   Comment                                       Default
+......................................................................................................................
+CrossSection           vec-alg    No         List of xsec algorithms                     
+LinearCoefficients     vec-double No         Linear coefficient values                   
+Normalise              bool       No         Sum of coefficients = 1                     false
+-->
+
+  <param_set name="Default"> 
+    <param type="bool"  name="Normalise"> false </param>   
+  </param_set>
+
+  <param_set name="QuasiElastic1p1h"> 
+    <param type="vec-alg"  name="CrossSection" delim=";"> genie::LwlynSmithQELCCPXSec/Dipole ; genie::NievesQELCCPXSec/Dipole </param>   
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. </param>   
+  </param_set>
+
+  <param_set name="RESXSec"> 
+    <param type="vec-alg"  name="CrossSection" delim=";"> genie::ReinSehgalRESPXSec/NoPauliBlock ; genie::BergerSehgalRESPXSec2014/NoPauliBlock </param>   
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. </param>   
+  </param_set>
+
+  <param_set name="NievesQELCCPXSecNoRPA">  
+    <param type="vec-alg"  name="CrossSection" delim=";"> genie::NievesQELCCPXSec/Dipole ; genie::NievesQELCCPXSec/DipoleNoRPA </param>
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. </param>   
+  </param_set>
+
+  <param_set name="NievesQELCCPXSecNoCoulomb">  
+    <param type="vec-alg"  name="CrossSection" delim=";"> genie::NievesQELCCPXSec/Dipole ; genie::NievesQELCCPXSec/DipoleNoCoulomb </param>
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. </param>   
+  </param_set>
+
+  <param_set name="NievesQELCCPXSecNoPauli">  
+    <param type="vec-alg"  name="CrossSection" delim=";"> genie::NievesQELCCPXSec/Dipole ; genie::NievesQELCCPXSec/DipoleNoPauli </param>
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1. ; 1. </param>   
+  </param_set>
+
+  <!-- Include other param_sets here -->
+
+</alg_conf>

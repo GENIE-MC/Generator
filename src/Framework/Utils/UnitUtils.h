@@ -18,6 +18,9 @@
 #ifndef _UNIT_UTILS_H_
 #define _UNIT_UTILS_H_
 
+#include <string>
+using std::string;
+
 namespace genie {
 namespace utils {
 

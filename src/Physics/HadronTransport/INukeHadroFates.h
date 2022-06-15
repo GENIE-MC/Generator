@@ -23,8 +23,6 @@
 
 #include <string>
 
-
-
 namespace genie {
 
 using std::string;
@@ -118,6 +116,7 @@ public:
      return "undefined"; 
   }
   //__________________________________________________________________________
+
 };
 
 }      // genie

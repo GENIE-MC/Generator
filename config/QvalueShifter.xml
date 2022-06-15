@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+<!--
+Configuration for the QvalueShifter
+Configurable Parameters:
+......................................................................................................................
+Name                   Type     Optional   Comment                                       Default
+......................................................................................................................
+QvalueShiftDefault     double   No         Default Qvalue Shift for all targets          0.
+QvalueShift@Pdg=PDG    double   Yes        Add possible Relative Qvalue shifts given a PDG code
+                                           Values can be positive or negative
+-->
+
+  <param_set name="Default"> 
+    <param type="double"  name="QvalueShiftDefault"> 0. </param>   
+  </param_set>
+
+  <param_set name="1p1h"> 
+    <param type="double" name="QvalueShift@Pdg=1000060120">  1.2 </param> <!-- C12 - this is the recomended max variation -->
+  </param_set>
+
+  <param_set name="2p2h"> 
+    <param type="double" name="QvalueShift@Pdg=1000060120">  2.4 </param> <!-- C12 - this is the recomended max variation -->
+  </param_set>
+
+</alg_conf>

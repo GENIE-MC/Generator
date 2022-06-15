@@ -30,6 +30,7 @@
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Physics/NuclearState/PauliBlocker.h"
 #include "Physics/QuasiElastic/XSection/QELUtils.h"
+#include "Physics/Common/QvalueShifter.h"
 
 namespace genie {
 
@@ -70,6 +71,7 @@ private:
   double                       fCos8c2;           ///< cos^2(cabibbo angle)
 
   double                       fXSecScale;        ///< external xsec scaling factor
+  const QvalueShifter *        fQvalueShifter ;   ///< Optional algorithm to retrieve the qvalue shift for a given target
 
   double                       fhbarc;            ///< hbar*c in GeV*fm
 
@@ -101,6 +103,9 @@ private:
   /// maximum radius for integration of the Coulomb potential
   /// when matching the VertexGenerator method
   double fR0;
+
+  /// Scaling factor for the Coulomb potential
+  double fCoulombScale;
 
   /// Enum variable describing which method of computing Rmax should be used
   /// for integrating the Coulomb potential

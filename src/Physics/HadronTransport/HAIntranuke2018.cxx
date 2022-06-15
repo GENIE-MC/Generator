@@ -260,7 +260,8 @@ INukeFateHA_t HAIntranuke2018::HadronFateHA(const GHepParticle * p) const
      // apply external tweaks to fractions
      frac_cex    *= fPionFracCExScale;
      frac_inel   *= fPionFracInelScale;
-     frac_abs    *= fPionFracAbsScale;
+     if (pdgc==kPdgPiP || pdgc==kPdgPiM) frac_abs *= fChPionFracAbsScale;
+     if (pdgc==kPdgPi0) frac_abs *= fNeutralPionFracAbsScale;
      frac_piprod *= fPionFracPiProdScale;
 
      double frac_rescale = 1./(frac_cex + frac_inel + frac_abs + frac_piprod);
@@ -1547,9 +1548,11 @@ void HAIntranuke2018::LoadConfig(void)
   GetParam( "HAINUKE-DelRPion",    fDelRPion ) ;
   GetParam( "HAINUKE-DelRNucleon", fDelRNucleon ) ;
 
-  GetParamDef( "FSI-Pion-MFPScale",              fPionMFPScale,           1.0 ) ;
+  GetParamDef( "FSI-ChargedPion-MFPScale",       fChPionMFPScale,         1.0 ) ;
+  GetParamDef( "FSI-NeutralPion-MFPScale",       fNeutralPionMFPScale,    1.0 ) ;
   GetParamDef( "FSI-Pion-FracCExScale",          fPionFracCExScale,       1.0 ) ;
-  GetParamDef( "FSI-Pion-FracAbsScale",          fPionFracAbsScale,       1.0 ) ;
+  GetParamDef( "FSI-ChargedPion-FracAbsScale",   fChPionFracAbsScale,     1.0 ) ;
+  GetParamDef( "FSI-NeutralPion-FracAbsScale",   fNeutralPionFracAbsScale,1.0 ) ;
   GetParamDef( "FSI-Pion-FracInelScale",         fPionFracInelScale,      1.0 ) ;
   GetParamDef( "FSI-Pion-FracPiProdScale",       fPionFracPiProdScale,    1.0 ) ;
   GetParamDef( "FSI-Nucleon-MFPScale",           fNucleonMFPScale,        1.0 ) ;
@@ -1558,7 +1561,7 @@ void HAIntranuke2018::LoadConfig(void)
   GetParamDef( "FSI-Nucleon-FracAbsScale",       fNucleonFracAbsScale,    1.0 ) ;
   GetParamDef( "FSI-Nucleon-FracPiProdScale",    fNucleonFracPiProdScale, 1.0 ) ;
 
-    // report
+  // report
   LOG("HAIntranuke2018", pINFO) << "Settings for INTRANUKE mode: " << INukeMode::AsString(kIMdHA);
   LOG("HAIntranuke2018", pINFO) << "R0          = " << fR0 << " fermi";
   LOG("HAIntranuke2018", pINFO) << "NR          = " << fNR;

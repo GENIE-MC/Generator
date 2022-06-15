@@ -276,7 +276,8 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
   // Update the curr neutrino p4/x4 lorentz vector
   double Ev =  fCurEntry->E;
   fP4.SetPxPyPzE(fCurEntry->px,fCurEntry->py,fCurEntry->pz,Ev);
-  fX4.SetXYZT(fCurEntry->vtxx,fCurEntry->vtxy,fCurEntry->vtxz,0);
+  double t0 = ((fIncludeVtxt) ? fCurEntry->vtxt : 0 );
+  fX4.SetXYZT(fCurEntry->vtxx,fCurEntry->vtxy,fCurEntry->vtxz,t0);
 
   fWeight = fCurEntry->wgt;
 
@@ -737,6 +738,8 @@ void GSimpleNtpFlux::Initialize(void)
   fAllFilesMeta    = true;
   fAlreadyUnwgt    = false;
 
+  fIncludeVtxt     = false;
+
   this->SetDefaults();
   this->ResetCurrent();
 }
@@ -835,6 +838,7 @@ void GSimpleNtpEntry::Reset()
   vtxx     = 0.;
   vtxy     = 0.;
   vtxz     = 0.;
+  vtxt     = 0.;
   dist     = 0.;
   px       = 0.;
   py       = 0.;
@@ -968,7 +972,7 @@ namespace flux  {
              << " wgt " << entry.wgt
              << " ( metakey " << entry.metakey << " )"
              << "\n   vtx [" << entry.vtxx << "," << entry.vtxy << ","
-             << entry.vtxz << "] dist " << entry.dist
+             << entry.vtxz << ", t=" << entry.vtxt << "] dist " << entry.dist
              << "\n   p4  [" << entry.px << "," << entry.py << ","
              << entry.pz << "," << entry.E << "]";
      return stream;

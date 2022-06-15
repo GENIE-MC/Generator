@@ -1051,12 +1051,14 @@ genie::utils::gsl::dXSec_Log_Wrapper::dXSec_Log_Wrapper(
 genie::utils::gsl::dXSec_Log_Wrapper::~dXSec_Log_Wrapper()
 {
 }
+//____________________________________________________________________________
 
 // ROOT::Math::IBaseFunctionMultiDim interface
 unsigned int genie::utils::gsl::dXSec_Log_Wrapper::NDim   (void) const
 {
   return fFn->NDim();
 }
+//____________________________________________________________________________
 double genie::utils::gsl::dXSec_Log_Wrapper::DoEval (const double * xin) const
 {
   double * toEval = new double[this->NDim()];

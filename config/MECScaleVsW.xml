@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+<!--
+Configuration for the MECScaleVsW
+Configurable Parameters:
+......................................................................................................................
+Name                         Type         Optional   Comment                                       Default
+......................................................................................................................
+MECScaleVsW-Default-Weight   double       No         Default Weight
+MECScaleVsW-LowerLimitQ0     vec-double   No         Vector of q0 at the lower limit of the        
+                                                     phase space
+MECScaleVsW-LowerLimitQ3     vec-double   No         Vector of q3 at the lower limit of the        
+                                                     phase space
+MECScaleVsW-Weights          vec-double   Yes        Vector of weights                             Default weight at the phase-space limits
+MECScaleVsW-WValues          vec-double   Yes        Vector of W values                            Default W values at phase-space limits
+
+MECScleVsW-LowerLimit-Weight double       Yes        Weight associated to the low limit of         MECScaleVsW-Default-Weight
+                                                     the phase space
+MECScleVsW-UpperLimit-Weight double       Yes        Weight associated to the upper limit of       MECScaleVsW-Default-Weight
+                                                     the phase space
+-->
+
+  <param_set name="Default"> 
+    <param type="double"  name="MECScaleVsW-Default-Weight"> 1. </param>
+    <param type="vec-double" name="MECScaleVsW-Weights" delim=";"> 1.; </param> <!-- These are the weights at Mn, Mdip, Mdelta -->
+    <param type="vec-double" name="MECScaleVsW-WValues" delim=";"> 1.; </param> <!-- These are the Wvalues at Mn, Mdip, Mdelta -->
+
+    <!-- Parameterization to define the lower limit of the phase space --> 
+    <param type="vec-double"  name="MECScaleVsW-LowerLimitQ0" delim=";"> 0.0479; 0.0288; 0.0192; 0.0288; 0.029; 0.0415; 0.0511; 0.0735; 0.1054; 0.1374; 0.1821; 0.2300; 0.2843; 0.3546; 0.4313; 0.4824 </param>  
+    <param type="vec-double"  name="MECScaleVsW-LowerLimitQ3" delim=";"> 0.054; 0.0963; 0.2139; 0.299; 0.3719; 0.4451; 0.5125; 0.5973; 0.6802; 0.7630; 0.8401; 0.9114; 1.0058; 1.0790; 1.1676; 1.1946 </param>  
+  </param_set>
+
+  <param_set name="MECScaleNieves1000060120">
+    <param type="vec-double" name="MECScaleVsW-Weights" delim=";"> 1.; 1.; 1. </param> <!-- These are the weights at Mn, Mdip, Mdelta -->
+    <param type="vec-double" name="MECScaleVsW-WValues" delim=";"> 0.938; 1.12; 1.232 </param> <!-- These are the Wvalues at Mn, Mdip, Mdelta -->
+  </param_set>
+
+  <param_set name="MECScaleNieves1000060120">
+    <param type="vec-double" name="MECScaleVsW-Weights" delim=";"> 1.; 1.; 1. </param> <!-- These are the weights at Mn, Mdip, Mdelta -->
+    <param type="vec-double" name="MECScaleVsW-WValues" delim=";"> 0.938; 1.12; 1.232 </param> <!-- These are the Wvalues at Mn, Mdip, Mdelta -->
+  </param_set>
+
+</alg_conf>
