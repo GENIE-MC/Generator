@@ -589,6 +589,7 @@ int main(int argc, char ** argv)
      // Add event at the output ntuple, refresh the mc job monitor & clean-up
      ntpw.AddEventRecord(ievent, event);
      mcjmonitor.Update(ievent,event);
+
      delete event;
 
      ievent++;
@@ -874,6 +875,7 @@ void MakeNHLFromTuple( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, std::s
 //_________________________________________________________________________________________
 TLorentzVector GeneratePosition( GHepRecord * event )
 {
+  
   double weight = 1.0;
   double uMult = ( gOptIsUsingDk2nu ) ?
     units::m / units::mm : units::cm / units::mm;
@@ -1015,9 +1017,10 @@ TLorentzVector GeneratePosition( GHepRecord * event )
       << "\nsurvProb, decayProb, weight = " << survProb << ", " << decayProb << ", " << weight;
     evWeight = weight;
 
+
     TVector3 decayPoint = NHLDecayVolume::GetDecayPoint( elapsed_length, entryPoint, momentum );
 
-    TLorentzVector x4( decayPoint.X(), decayPoint.Y(), decayPoint.Z(), 0.0 );
+    TLorentzVector x4( decayPoint.X(), decayPoint.Y(), decayPoint.Z(), x4NHL->T() );
 
     delete x4NHL;
     delete p4NHL;
