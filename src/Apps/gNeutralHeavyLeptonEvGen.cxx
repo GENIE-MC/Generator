@@ -232,7 +232,7 @@ NHLPrimaryVtxGenerator * nhlgen = 0;
 // HNL lifetime in rest frame
 double CoMLifetime = -1.0; // GeV^{-1}
 // an array to keep production vertex
-double evProdVtx[3] = {0.0, 0.0, 0.0}; // mm
+double evProdVtx[4] = {0.0, 0.0, 0.0, 0.0}; // x,y,z,t: mm, ns
 // event weight
 double evWeight = 1.0;
 
@@ -562,8 +562,9 @@ int main(int argc, char ** argv)
      // Generate (or read) a position for the decay vertex
      // also currently handles the event weight
      TLorentzVector x4mm = GeneratePosition( event );
+
      const double mmtom = genie::units::mm / genie::units::m;
-     TLorentzVector x4m( x4mm.X() * mmtom, x4mm.Y() * mmtom, x4mm.Z() * mmtom, 0.0 );
+     TLorentzVector x4m( x4mm.X() * mmtom, x4mm.Y() * mmtom, x4mm.Z() * mmtom, evProdVtx[3] );
      event->SetVertex(x4m);
      // update weight to scale for couplings
      LOG( "gevgen_nhl", pDEBUG )
@@ -895,13 +896,14 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     if( gOptIsUsingDk2nu ){ msts << "[cm]"; }
     else{ msts << "[cm]"; }
     LOG("gevgen_nhl", pDEBUG)
-      << "Detected vertex at ( " << x4NHL->X() << ", " << x4NHL->Y() << ", " << x4NHL->Z() << " )" << msts.str();
+      << "Detected vertex at ( " << x4NHL->X() << ", " << x4NHL->Y() << ", " << x4NHL->Z() << " )" << msts.str() << ": delay = " << x4NHL->T() << " [ns]";
     double xmult = ( gOptIsUsingDk2nu ) ? 10.0 : 1.0; // cm to mm in dk2nu case
     startPoint.SetXYZ( xmult * x4NHL->X(), xmult * x4NHL->Y(), xmult * x4NHL->Z() );
 
     evProdVtx[0] = uMult * x4NHL->X();
     evProdVtx[1] = uMult * x4NHL->Y();
     evProdVtx[2] = uMult * x4NHL->Z();
+    evProdVtx[3] = x4NHL->T(); // ns
 
     LOG( "gevgen_nhl", pDEBUG )
       << "Set start point for this trajectory = ( " << startPoint.X() << ", " << startPoint.Y() << ", " << startPoint.Z() << " ) [mm]";

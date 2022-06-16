@@ -89,7 +89,8 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
     // p4 was already set using NHLFluxCreator. No action needed.
     // Read event vertex == NHL production vertex. We will find the decay vertex later.
     p4 = *( init_state->GetProbeP4() );
-    LOG( "NHL", pDEBUG ) << "\nHere's the p4 seen at InitialState(): " << utils::print::P4AsString( &p4 );
+    LOG( "NHL", pDEBUG ) << "\nHere's the p4 seen at InitialState(): " << utils::print::P4AsString( &p4 )
+			 << "\nand the v4 seen at InitialState(): " << utils::print::X4AsString( event->Vertex() ) << " [cm, ns]";
 
     prodVtx = new std::vector< double >();
     prodVtx->emplace_back( event->Vertex()->X() );
@@ -118,7 +119,7 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
   }
 
   // RETHERE don't sample production vtx if user isn't asking for geom! It's pointless.
-  TLorentzVector v4( prodVtx->at(0), prodVtx->at(1), prodVtx->at(2), 0.0 );
+  TLorentzVector v4( prodVtx->at(0), prodVtx->at(1), prodVtx->at(2), prodVtx->at(3) );
 
   init_state->SetProbeP4( p4 );
 
