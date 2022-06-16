@@ -231,6 +231,8 @@ int NTP_FS0_PDG = 0, NTP_FS1_PDG = 0, NTP_FS2_PDG = 0;
 NHLPrimaryVtxGenerator * nhlgen = 0;
 // HNL lifetime in rest frame
 double CoMLifetime = -1.0; // GeV^{-1}
+// == Gamma( all valid channels ) / Gamma( all interesting channels )
+double decayMod = 1.0;
 // an array to keep production vertex
 double evProdVtx[4] = {0.0, 0.0, 0.0, 0.0}; // x,y,z,t: mm, ns
 // event weight
@@ -386,7 +388,7 @@ int main(int argc, char ** argv)
   int ievent = 0;
   flux::GNuMIFluxPassThroughInfo * gnmf = ( !gOptIsMonoEnFlux && gOptIsUsingDk2nu ) ? 
     new flux::GNuMIFluxPassThroughInfo() : 0;
-
+  
   while (1)
   {
     if( gOptNev >= 10000 ){
@@ -566,14 +568,16 @@ int main(int argc, char ** argv)
      const double mmtom = genie::units::mm / genie::units::m;
      TLorentzVector x4m( x4mm.X() * mmtom, x4mm.Y() * mmtom, x4mm.Z() * mmtom, evProdVtx[3] );
      event->SetVertex(x4m);
-     // update weight to scale for couplings
+     // update weight to scale for couplings, acceptance, inhibited decays + geometry
      LOG( "gevgen_nhl", pDEBUG )
        << "\nWeight modifications:"
        << "\nCouplings^(-1) = " << 1.0 / ( gOptECoupling + gOptMCoupling + gOptTCoupling )
        << "\n(Acceptance * nimpwt)^(-1) = " << acceptance
+       << "\nDecays^(-1) = " << decayMod
        << "\nGeometry^(-1) = " << evWeight;
      evWeight *= 1.0 / ( gOptECoupling + gOptMCoupling + gOptTCoupling );
      evWeight *= 1.0 / acceptance;
+     evWeight *= 1.0 / decayMod;
      event->SetWeight( evWeight );
 
      // why does InitState show the wrong p4 here?
@@ -1105,6 +1109,20 @@ int SelectDecayMode( std::vector< NHLDecayMode_t > * intChannels, SimpleNHL sh )
   LOG("gevgen_nhl", pDEBUG)
     << " Telling SimpleNHL about interesting channels ";
   sh.SetInterestingChannels( intMap );
+
+  // update fraction of total decay width that is not in inhibited channels
+  double gammaAll = 0.0, gammaInt = 0.0;
+  for( std::map< NHLDecayMode_t, double >::const_iterator itall = gammaMap.begin() ;
+       itall != gammaMap.end() ; ++itall ){
+    gammaAll += (*itall).second;
+  }
+  for( std::map< NHLDecayMode_t, double >::iterator itint = intMap.begin() ;
+       itint != intMap.end() ; ++itint ){
+    gammaInt += (*itint).second;
+  }
+  assert( gammaInt > 0.0 && gammaAll >= gammaInt );
+  decayMod = gammaInt / gammaAll;
+  
 
   // get probability that channels in intChannels will be selected
   LOG("gevgen_nhl", pDEBUG)
