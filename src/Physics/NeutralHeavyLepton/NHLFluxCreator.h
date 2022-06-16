@@ -25,6 +25,9 @@
 //----------------------------------------------------------------------------
 /*
   TODO: Make BBox from geometry file! (unit BBox if no geom-file?)
+        Fix fLT (see above)
+        Fix zm in case !parentHistCentre && IPdev.Mag() < fLT/2 (in this case zm = 0.0)
+	  ==> parentHitsCentre should become parentInDetector
  */
 //----------------------------------------------------------------------------
 

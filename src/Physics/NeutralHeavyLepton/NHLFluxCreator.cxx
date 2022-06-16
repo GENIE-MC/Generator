@@ -953,14 +953,17 @@ double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
 {
   TVector3 ppar = p4par.Vect(); assert( ppar.Mag() > 0.0 );
   TVector3 pparUnit = ppar.Unit();
-  // px . (x-x0) + py . (y-y0) + pz . (z-z0) = 0
-  // ==> px . x + py . y + pz . z = ppar . detO
-  double dterm = pparUnit.X() * detO.X() + pparUnit.Y() * detO.Y() + pparUnit.Z() * detO.Z();
-  // trajectory parallel to ppar and passes through (0,0,0)
-  // ==> v(t) = ( px, py, pz ) t
-  // ==> (px^2 + py^2 + pz^2) t = ppar . detO
-  // ==> t = ppar . detO / ppar.Mag2()
-  double t = dterm / 1.0;
+  // let face be planar and perpendicular to vector Q
+  // RETHERE: assuming Q = ( 0, 0, 1 ) == face perpendicular to z
+  double Qx = 0.0, Qy = 0.0, Qz = 1.0;
+  // plane: Qx . (x-xC) + Qy . (y-yC) + Qz . (z-zC) = 0
+  // line: r(t) - r(D) = t * ppar
+  // V0 \in plane && line
+  // ==> Qx * ( x(t) - x(C) ) + Qy * ( y(t) - y(C) ) + Qz * ( z(t) - z(C) ) = 0
+  // ==> t = ( \vec{Q} \cdot \vec{detO} ) / ( \vec{Q} \cdot \vec{ppar} )
+  double nterm = Qx * detO.X() + Qy * detO.Y() + Qz * detO.Z();
+  double dterm = Qx * ppar.X() + Qy * ppar.Y() + Qz * ppar.Z();
+  double t = nterm / dterm;
   double x_incp = t * pparUnit.X(), y_incp = t * pparUnit.Y(), z_incp = t * pparUnit.Z();
 
   // sweep over plane perp to ppar, passing through centre, and calc intersection point
@@ -968,9 +971,23 @@ double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
   TVector3 IPdev( detO.X() - x_incp, detO.Y() - y_incp, detO.Z() - z_incp );
   bool parentHitsCentre = ( IPdev.Mag() < controls::kASmallNum );
 
-  // RETHERE: Approximating detector dimension as BBox z dimension (NHL running on almost-z)
-  double fLT = std::max( fLx, fLy );
-  double detRadius = fLT / 2.0;
+  // RETHERE: see assumption about Q
+  // to fix probably with a rotation of fLx, fLy by Euler angles onto Q-plane?
+  // line: r(t) - r(incp) = t * IPdev
+  // RETHERE: assume square face
+  double ttx = ( IPdev.X() != 0.0 ) ? fLx / std::abs( IPdev.X() ) : 99999.9;
+  double tty = ( IPdev.Y() != 0.0 ) ? fLy / std::abs( IPdev.Y() ) : 99999.9;
+  double tt = std::min( ttx, tty ); // this defines how much the least sweep goes
+  TVector3 atilde( tt * IPdev.X(), tt * IPdev.Y(), tt * IPdev.Z() );
+  
+  // fLT = d0 + dtilde = IPdev.Mag()
+  // dist = dtilde
+
+  double fLT = IPdev.Mag();
+  double dist = atilde.Mag();
+  
+  assert( fLT > 0.0 );
+  double detRadius = std::max( fLx, fLy ) / 2.0;
 
   if( parentHitsCentre ){
     // calculate angles for four points and return largest (smallest) of them
@@ -1010,9 +1027,10 @@ double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
     return ( seekingMax ) ? thLarge * 180.0 / constants::kPi : thSmall * 180.0 / constants::kPi;
   } else {
     // find direction from IP to det centre.
-    TVector3 rVec = IPdev.Unit(); double dist = IPdev.Mag();
+    TVector3 rVec = IPdev.Unit();
     // two IP with det. Closer(farther) has distance detRadius -(+) d( IP, detO )
-    double dh = detRadius + dist, dl = detRadius - dist;
+    // actually, RETHERE: if IPdev endpoint lies inside detector have to go other way
+    double dh = fLT + dist, dl = fLT - dist;
     // get those vectors and do inner product magic
     TVector3 ph( x_incp + dh * rVec.X(), y_incp + dh * rVec.Y(), z_incp + dh * rVec.Z() );
     TVector3 pl( x_incp - dl * rVec.X(), y_incp - dl * rVec.Y(), z_incp - dl * rVec.Z() );
