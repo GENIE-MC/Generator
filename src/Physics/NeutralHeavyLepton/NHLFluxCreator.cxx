@@ -977,7 +977,7 @@ double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
   // RETHERE: assume square face
   double ttx = ( IPdev.X() != 0.0 ) ? fLx / std::abs( IPdev.X() ) : 99999.9;
   double tty = ( IPdev.Y() != 0.0 ) ? fLy / std::abs( IPdev.Y() ) : 99999.9;
-  double tt = std::min( ttx, tty ); // this defines how much the least sweep goes
+  double tt = std::max( ttx, tty ); // this defines how much the least sweep goes
   TVector3 atilde( tt * IPdev.X(), tt * IPdev.Y(), tt * IPdev.Z() );
   
   // fLT = d0 + dtilde = IPdev.Mag()
