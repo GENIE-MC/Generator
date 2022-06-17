@@ -331,6 +331,7 @@ std::vector< double > * NHLPrimaryVtxGenerator::GenerateDecayPosition( GHepRecor
     << "Production vertex at: ( " << prodVtx->at(0) << ", " << prodVtx->at(1) << ", " << prodVtx->at(2) << ") [cm]";
   
   TLorentzVector v4( prodVtx->at(0), prodVtx->at(1), prodVtx->at(2), 0.0 );
+
   SetProdVtxPosition( v4 );
 
   return prodVtx;

@@ -348,31 +348,6 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
     << "Starting to search for intersections...";
   
   // enter the volume.
-  /*
-  // Do 10 cm steps. Once we hit the detector, reverse that step. Then we can use ROOT's geom stuff.
-  double stepOffset = 1.0; // cm
-  stepOffset *= units::cm / lunits; gm->SetStep( stepOffset );
-  int iOffset = 0;
-  TGeoVolume * gvol = gm->GetCurrentNode()->GetVolume();
-  while( gvol->IsTopVolume() && iOffset < controls::kRjMaxIterations ){
-    gm->Step( stepOffset );
-    gvol = gm->GetCurrentNode()->GetVolume();
-    iOffset++;
-  }
-  LOG( "NHL", pDEBUG )
-    << "\nReached detector element at ( " << (gm->GetCurrentPoint())[0] << ", "
-    << (gm->GetCurrentPoint())[1] << ", " << (gm->GetCurrentPoint())[2] << " ) after "
-    << iOffset << " steps. Going back one...";
-
-  gm->SetCurrentDirection( -px, -py, -pz ); gm->Step(); gm->SetCurrentDirection( px, py, pz );
-  LOG( "NHL", pDEBUG )
-    << "\nCurrent point     is: ( " << (gm->GetCurrentPoint())[0] << ", "
-    << (gm->GetCurrentPoint())[1] << ", " << (gm->GetCurrentPoint())[2] 
-    << " ) [" << lunitString.c_str() << "]"
-    << "\nFrom start point    : ( " << sx << ", " << sy << ", " << sz << " ) [" << lunitString.c_str() << "]"
-    << "\nCurrent direction is: ( " << px << ", " << py << ", " << pz << " ) [GeV/GeV]";
-  */
-
   TGeoNode * nextNode = gm->FindNextBoundaryAndStep( stepmax );
 
   if( nextNode == NULL ) return false;

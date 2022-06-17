@@ -151,6 +151,7 @@ std::vector< double > * NHLFluxReader::generateVtx3X( TH3D * prodVtxHist )
   vtxDir->emplace_back( ux );
   vtxDir->emplace_back( uy );
   vtxDir->emplace_back( uz );
+  vtxDir->emplace_back( 0.0 ); // RETHERE: add some timing information?
 
   return vtxDir;
 }

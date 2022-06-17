@@ -562,7 +562,7 @@ int main(int argc, char ** argv)
      }
 
      // Generate (or read) a position for the decay vertex
-     // also currently handles the event weight
+     // also currently handles the geometrical weight
      TLorentzVector x4mm = GeneratePosition( event );
 
      const double mmtom = genie::units::mm / genie::units::m;

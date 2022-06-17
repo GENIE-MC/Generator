@@ -1639,8 +1639,8 @@ void ReadInConfig(void)
   gCfgMCoupling = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Um42" );
   gCfgTCoupling = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Ut42" );
 
-  gCfgProdMode  = (NHLProd_t) utils::nhl::GetCfgInt( "NHL", "Validation", "NHL-ProdMode"  );
-  gCfgDecayMode = (NHLDecayMode_t) utils::nhl::GetCfgInt( "NHL", "Validation", "NHL-DecayMode" );
+  //gCfgProdMode  = (NHLProd_t) utils::nhl::GetCfgInt( "NHL", "Validation", "NHL-ProdMode"  );
+  //gCfgDecayMode = (NHLDecayMode_t) utils::nhl::GetCfgInt( "NHL", "Validation", "NHL-DecayMode" );
 
   gOptEnergyNHL = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-Energy" );
 
@@ -1686,6 +1686,7 @@ void ReadInConfig(void)
   gCfgUserAz    = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "EulerExtrinsicZ"  );
   gCfgUserAx2   = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "EulerExtrinsicX2" );
 
+  /*
   gCfgBoxLx     = utils::nhl::GetCfgDouble( "NHL", "Validation", "BoxLx" );
   gCfgBoxLy     = utils::nhl::GetCfgDouble( "NHL", "Validation", "BoxLy" );
   gCfgBoxLz     = utils::nhl::GetCfgDouble( "NHL", "Validation", "BoxLz" );
@@ -1697,6 +1698,7 @@ void ReadInConfig(void)
   gCfgParentOx  = utils::nhl::GetCfgDouble( "NHL", "Validation", "Parent-Ox" );
   gCfgParentOy  = utils::nhl::GetCfgDouble( "NHL", "Validation", "Parent-Oy" );
   gCfgParentOz  = utils::nhl::GetCfgDouble( "NHL", "Validation", "Parent-Oz" );
+  */
 
   // now transform the lengths and angles to the correct units
   gCfgUserOx   *= units::m / gOptGeomLUnits;
@@ -1707,6 +1709,7 @@ void ReadInConfig(void)
   gCfgUserAz   *= units::rad / gOptGeomAUnits;
   gCfgUserAx2  *= units::rad / gOptGeomAUnits;
 
+  /*
   gCfgBoxLx    *= units::m / gOptGeomLUnits;
   gCfgBoxLy    *= units::m / gOptGeomLUnits;
   gCfgBoxLz    *= units::m / gOptGeomLUnits;
@@ -1717,6 +1720,7 @@ void ReadInConfig(void)
   gCfgParentOx *= units::m / gOptGeomLUnits;
   gCfgParentOy *= units::m / gOptGeomLUnits;
   gCfgParentOz *= units::m / gOptGeomLUnits;
+  */
 
   ostringstream csts; 
   csts << "Read out the following config:"
@@ -1726,8 +1730,8 @@ void ReadInConfig(void)
        << "\n|U_m4|^2 = " << gCfgMCoupling
        << "\n|U_t4|^2 = " << gCfgTCoupling
        << "\n"
-       << "\nProduction mode = " << utils::nhl::ProdAsString( gCfgProdMode )
-       << "\nDecay mode      = " << utils::nhl::AsString( gCfgDecayMode )
+    //<< "\nProduction mode = " << utils::nhl::ProdAsString( gCfgProdMode )
+    //<< "\nDecay mode      = " << utils::nhl::AsString( gCfgDecayMode )
        << "\nInteresting decay channels:";
   for( std::vector< NHLDecayMode_t >::iterator chit = gCfgIntChannels.begin();
        chit != gCfgIntChannels.end(); ++chit ){ csts << "\n\t" << utils::nhl::AsString(*chit); }
@@ -1736,14 +1740,14 @@ void ReadInConfig(void)
        << ", " << gCfgUserOy << ", " << gCfgUserOz << " ) [" << lunits.c_str() << "]"
        << "\nEuler extrinsic x-z-x rotation = ( " << gCfgUserAx1
        << ", " << gCfgUserAz << ", " << gCfgUserAx2 << " ) [" << aunits.c_str() << "]"
-       << "\nBox dimensions in user x-y-z: " << gCfgBoxLx << " x " << gCfgBoxLy
-       << " x " << gCfgBoxLz << " [" << lunits.c_str() << "^3]"
-       << "\n"
-       << "\nParent energy = " << gCfgParentEnergy << " [GeV]"
-       << "\nParent theta = " << gCfgParentTheta << " [" << aunits.c_str() << "]"
-       << "\nParent phi   = " << gCfgParentPhi << " [" << aunits.c_str() << "]"
-       << "\nParent origin = ( " << gCfgParentOx << ", " << gCfgParentOy << ", "
-       << gCfgParentOz << " ) [" << lunits.c_str() << "]"
+    //<< "\nBox dimensions in user x-y-z: " << gCfgBoxLx << " x " << gCfgBoxLy
+    // << " x " << gCfgBoxLz << " [" << lunits.c_str() << "^3]"
+    // << "\n"
+    // << "\nParent energy = " << gCfgParentEnergy << " [GeV]"
+    // << "\nParent theta = " << gCfgParentTheta << " [" << aunits.c_str() << "]"
+    // << "\nParent phi   = " << gCfgParentPhi << " [" << aunits.c_str() << "]"
+    // << "\nParent origin = ( " << gCfgParentOx << ", " << gCfgParentOy << ", "
+    // << gCfgParentOz << " ) [" << lunits.c_str() << "]"
        << "\nNHL particle-gun directional cosines: ( " << gCfgNHLCx << ", " << gCfgNHLCy 
        << ", " << gCfgNHLCz << ") [ GeV / GeV ]";
 
