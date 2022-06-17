@@ -198,16 +198,41 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   // we will now boost detO into rest frame, force rest to point to the new direction, boost the result, and compare the boost corrections
   double boost_correction_two = 0.0;
   
-  TLorentzVector detO_4v( detO.X(), detO.Y(), detO.Z(), 0.0 ); detO_4v.Boost( -boost_beta );
+  // 17-Jun-22: Notice the time component needs to be nonzero to get this to work!
+  // horrible maths but it is what it is
+  double betaStar  = p4NHL_rest.P() / p4NHL_rest.E();
+  double betaMag = boost_beta.Mag();
+  double gamma   = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
+  double bigBeta = betaMag * gamma / betaStar;
+
+  double rootArg = gamma * gamma * detO.Z() * detO.Z() -
+    ( gamma * gamma - bigBeta * bigBeta ) * ( detO.Z() * detO.Z() - bigBeta * bigBeta * ( detO.X() * detO.X() + detO.Y() * detO.Y() ) );
+
+  double timeBit = ( 1.0 - 1.0 / gamma ) * detO.Z() / ( betaMag * gamma );
+  timeBit = ( rootArg >= 0.0 ) ? timeBit - std::sqrt( rootArg ) / ( betaMag * gamma * gamma * gamma ) : timeBit;
+  
+  TLorentzVector detO_4v( detO.X(), detO.Y(), detO.Z(), timeBit ); detO_4v.Boost( -boost_beta );
   TVector3 detO_rest_unit = (detO_4v.Vect()).Unit();
   TLorentzVector p4NHL_rest_good( p4NHL_rest.P() * detO_rest_unit.X(),
 				  p4NHL_rest.P() * detO_rest_unit.Y(),
 				  p4NHL_rest.P() * detO_rest_unit.Z(),
 				  p4NHL_rest.E() );
+
   // boost that into lab frame!
   TLorentzVector p4NHL_good = p4NHL_rest_good;
   p4NHL_good.Boost( boost_beta );
   boost_correction_two = p4NHL_good.E() / p4NHL_rest.E();
+
+  TVector3 detO_unit = detO.Unit();
+
+  TVector3 p4NHL_good_vect = p4NHL_good.Vect();
+  TVector3 p4NHL_good_unit = p4NHL_good_vect.Unit();
+
+  LOG( "NHL", pDEBUG )
+    << "\nTimelike bit = " << timeBit
+    << "\ndetO_rest_unit = " << utils::print::Vec3AsString( &detO_rest_unit )
+    << "\ndetO_unit = " << utils::print::Vec3AsString( &detO_unit )
+    << "\np4NHL_good_unit = " << utils::print::Vec3AsString( &p4NHL_good_unit );
 
   // but we don't care about that. We just want to obtain a proxy for betaNHL in lab frame.
   // Then we can use the dk2nu-style formula modified for betaNHL!
@@ -220,8 +245,6 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
    */
   // explicitly calculate the boost correction to lab-frame energy
   // in a dk2nu-like fashion. See bsim::CalcEnuWgt()
-  double betaMag = boost_beta.Mag();
-  double gamma   = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
   //double betaNHL = p4NHL_rest.P() / p4NHL_rest.E();
   double betaNHL = p4NHL_good.P() / p4NHL_good.E();
   double boost_correction = 0.0;
