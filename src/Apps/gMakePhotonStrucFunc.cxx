@@ -118,6 +118,9 @@ int main(int argc, char ** argv)
 
   if ( gSystem->AccessPathName( basedir.c_str(), kWritePermission ) ) {
       LOG("gmkphotonsf", pFATAL) << "Base directory doesnt exist or you dont have write permission.";
+      LOG("gmkphotonsf", pFATAL) << "Remember!!!";
+      LOG("gmkphotonsf", pFATAL) << "Path to base directory is defined with the enviroment variable PHOTON_SF_DATA_PATH.";
+      LOG("gmkphotonsf", pFATAL) << "If not defined, default location is $GENIE/data/evgen/photon-sf";
       assert(0);
   }
 
