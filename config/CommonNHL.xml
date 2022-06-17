@@ -49,7 +49,7 @@ April 11th, 2022
   </param_set>
 
   <param_set name="CoordinateXForm">
-    <param type="vec-double" name="Beam2User_T" delim=";"> 0.2486 ; 60.350 ; -1022.74 </param> <!-- m -->
+    <param type="vec-double" name="Beam2User_T" delim=";"> -0.2486 ; -60.350 ; 1022.74 </param> <!-- m -->
     <param type="double" name="DetCentreXInBeam"> -0.2486 </param> <!-- unrotated -->
     <param type="double" name="DetCentreYInBeam"> -60.350 </param>
     <param type="double" name="DetCentreZInBeam"> 1022.74 </param>

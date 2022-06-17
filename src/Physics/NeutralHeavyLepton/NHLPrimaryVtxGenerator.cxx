@@ -445,6 +445,7 @@ void NHLPrimaryVtxGenerator::LoadConfig(void)
   this->GetParam( "NHL-angular_deviation", fAngularDeviation );
 
   this->GetParamVect( "Beam2User_T", fB2UTranslation );
+  // for compat with new config, "Beam2User_T" is now -1 * fB2UTranslation
   this->GetParamVect( "Beam2User_R", fB2URotation );
   SetBeam2User( fB2UTranslation, fB2URotation );
 
@@ -483,9 +484,9 @@ void NHLPrimaryVtxGenerator::SetNHLCouplings( double Ue42, double Um42, double U
 //___________________________________________________________________________
 void NHLPrimaryVtxGenerator::SetBeam2User( std::vector< double > translation, std::vector< double > rotation ) const
 {
-  fTx = translation.at(0);
-  fTy = translation.at(1);
-  fTz = translation.at(2);
+  fTx = -1.0 * translation.at(0);
+  fTy = -1.0 * translation.at(1);
+  fTz = -1.0 * translation.at(2);
 
   fR1 = rotation.at(0);
   fR2 = rotation.at(1);
