@@ -309,7 +309,7 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   double firstZOffset = -0.1; // m
   firstZOffset *= units::m / lunits;
 
-  double firstZ = fOx - fLz/2.0 - firstZOffset;
+  double firstZ = fOz - fLz/2.0 - firstZOffset;
 
   LOG( "NHL", pDEBUG )
     << "\nfirstZ = " << firstZ << " [" << lunitString.c_str() << "]";
@@ -393,7 +393,7 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
 	<< "Step " << bdIdx << " : ( " << currPoint[0] << ", " << currPoint[1] << ", " << currPoint[2] << " ) [cm]";
     }
     sfxROOT = currPoint[0]; sfyROOT = currPoint[1]; sfzROOT = currPoint[2];
-    sNextROOT *= 0.5;
+    if( sNextROOT >= 2.0 * lunits / units::cm ) sNextROOT *= 0.5;
     gm->SetStep( sNextROOT );
     gm->Step();
     bdIdx++;
