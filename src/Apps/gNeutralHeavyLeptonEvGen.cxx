@@ -1093,18 +1093,30 @@ int SelectDecayMode( std::vector< NHLDecayMode_t > * intChannels, SimpleNHL sh )
       << "Rest frame CoMLifetime = " << CoMLifetime << " [GeV^{-1}]";
   }
 
+  std::vector< NHLDecayMode_t > intAndValidChannels;
   for( std::vector< NHLDecayMode_t >::iterator it = intChannels->begin(); it != intChannels->end(); ++it ){
     NHLDecayMode_t mode = *it;
+    
+    //check if this is a valid mode
+    if( !utils::nhl::IsKinematicallyAllowed( mode, gOptMassNHL ) ) continue;
+
+    intAndValidChannels.emplace_back( mode );
     auto mapG = gammaMap.find( mode );
     double theGamma = mapG->second;
     LOG("gevgen_nhl", pDEBUG)
       << "For mode " << utils::nhl::AsString( mode ) << " gamma = " << theGamma;
   }
 
+  if( intAndValidChannels.size() == 0 ){ // all the modes picked by user are too heavy. Abort.
+    LOG( "gevgen_nhl", pFATAL )
+      << "None of the channels specified as interesting are kinematically allowed. Please either increase the NHL mass or change interesting channels in config.";
+    exit(1);
+  }
+
   LOG("gevgen_nhl", pDEBUG)
     << " Setting interesting channels map ";
   std::map< NHLDecayMode_t, double > intMap =
-    NHLSelector::SetInterestingChannels( (*intChannels), gammaMap );
+    NHLSelector::SetInterestingChannels( intAndValidChannels, gammaMap );
      
   LOG("gevgen_nhl", pDEBUG)
     << " Telling SimpleNHL about interesting channels ";
@@ -1124,7 +1136,7 @@ int SelectDecayMode( std::vector< NHLDecayMode_t > * intChannels, SimpleNHL sh )
   decayMod = gammaInt / gammaAll;
   
 
-  // get probability that channels in intChannels will be selected
+  // get probability that channels in intAndValidChannels will be selected
   LOG("gevgen_nhl", pDEBUG)
     << " Building probablilities of interesting channels ";
   std::map< NHLDecayMode_t, double > PMap = 
