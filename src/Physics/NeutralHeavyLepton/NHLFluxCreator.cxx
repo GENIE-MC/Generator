@@ -272,7 +272,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     << "\nbetaNHL         = " << betaNHL
     << "\nboost_corr_two  = " << boost_correction_two
     << "\nboost_corr_one  = " << boost_correction
-    << "\n\tcostheta = " << costh_pardet << ", betaMag = " << betaMag
+    << "\ncostheta = " << costh_pardet << ", betaMag = " << betaMag
     << "\nratio           = " << boost_correction_two / boost_correction;
 
   assert( boost_correction > 0.0 && boost_correction_two > 0.0 );
@@ -335,6 +335,12 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   TLorentzVector x4NHL_cm( units::m / units::cm * ( -detO.X() ),
 			   units::m / units::cm * ( -detO.Y() ),
 			   units::m / units::cm * ( -detO.Z() ), delay ); // in cm, ns
+
+  LOG( "NHL", pDEBUG )
+    << "\nnimpwt           = " << decay_nimpwt
+    << "\nacc_saa          = " << acc_saa
+    << "\nboost_correction = " << boost_correction
+    << "\naccCorr          = " << accCorr;
 
   // fill all the GNuMIFlux stuff
   // comments as seeon on https://www.hep.utexas.edu/~zarko/wwwgnumi/v19/v19/output_gnumi.html
@@ -1083,7 +1089,7 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
    */
   
   assert( zm >= 0.0 && zp >= zm );
-  if( zp == zm ) return 0.0;
+  if( zp == zm ) return 1.0;
 
   double M = p4NHL.M();
   if( M == 0.0 ) return 1.0;
