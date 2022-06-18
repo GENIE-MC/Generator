@@ -572,13 +572,13 @@ int main(int argc, char ** argv)
      LOG( "gevgen_nhl", pDEBUG )
        << "\nWeight modifications:"
        << "\nCouplings^(-1) = " << 1.0 / ( gOptECoupling + gOptMCoupling + gOptTCoupling )
-       << "\n(Acceptance * nimpwt)^(-1) = " << acceptance
-       << "\nDecays^(-1) = " << decayMod
+       << "\n(Acceptance * nimpwt)^(-1) = " << 1.0 / acceptance
+       << "\nDecays^(-1) = " << 1.0 / decayMod
        << "\nGeometry^(-1) = " << evWeight;
      evWeight *= 1.0 / ( gOptECoupling + gOptMCoupling + gOptTCoupling );
      evWeight *= 1.0 / acceptance;
      evWeight *= 1.0 / decayMod;
-     event->SetWeight( evWeight );
+     event->SetWeight( evWeight / 1.0e+20 ); // in units of 1e+20 POT
 
      // why does InitState show the wrong p4 here?
      interaction->InitStatePtr()->SetProbeP4( *(event->Particle(0)->P4()) );
