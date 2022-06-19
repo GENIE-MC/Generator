@@ -144,6 +144,15 @@ TH3D * NHLFluxReader::getFluxHist3D( std::string fin, std::string dirName, std::
 
 std::vector< double > * NHLFluxReader::generateVtx3X( TH3D * prodVtxHist )
 {
+  if( prodVtxHist->GetEntries() == 0 ){ // no production vtx? ok, set NHL to be 1km upstream
+    std::vector< double > * vtxDir = new std::vector< double >();
+    vtxDir->emplace_back( 0.0 );
+    vtxDir->emplace_back( 0.0 );
+    vtxDir->emplace_back( -100000.0 );
+    vtxDir->emplace_back( 0.0 );
+    return vtxDir;
+  }
+
   double ux = 0.0, uy = 0.0, uz = 0.0;
   prodVtxHist->GetRandom3( ux, uy, uz );
 

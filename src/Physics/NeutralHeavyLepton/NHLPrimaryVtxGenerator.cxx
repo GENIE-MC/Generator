@@ -313,18 +313,21 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
 std::vector< double > * NHLPrimaryVtxGenerator::GenerateDecayPosition( GHepRecord * /* event */ ) const
 {
   // let's query *where* the NHL decayed from.
-  // RETHERE - perhaps should return to GCylindTH1Flux-like implementation?
-  if( !fProdVtxHist || fProdVtxHist == 0 ){
-    //std::string pvPath = "/GENIEv2/Generator/data/flux/HNL/HNL_vertex_positions.root"; // RETHERE - need to fix this!
-    std::string pvPath = std::getenv( "PRODVTXDIR" );
-    LOG( "NHL", pDEBUG ) << "pvPath = " << pvPath.c_str();
-    std::string pdName = "";
-    std::string pvName = "hHNLVtxPos";
-    fProdVtxHist = NHLFluxReader::getFluxHist3D( pvPath, pdName, pvName );
+  if( std::strcmp( std::getenv( "PRODVTXDIR" ), "NODIR" ) != 0 ){
+    if( ( !fProdVtxHist || fProdVtxHist == 0 ) ){
+      std::string pvPath = std::getenv( "PRODVTXDIR" );
+      LOG( "NHL", pDEBUG ) << "pvPath = " << pvPath.c_str();
+      std::string pdName = "";
+      std::string pvName = "hHNLVtxPos";
+      fProdVtxHist = NHLFluxReader::getFluxHist3D( pvPath, pdName, pvName );
+    }
+    LOG( "NHL", pDEBUG )
+      << "Found production vertex histo with " << fProdVtxHist->GetEntries() << " entries. Good!";
+  }
+  else{
+    if( !fProdVtxHist ) fProdVtxHist = new TH3D( "dummy", "dummy", 100, 0, 1, 100, 0, 1, 100, 0, 1 );
   }
   assert( fProdVtxHist );
-  LOG( "NHL", pDEBUG )
-    << "Found production vertex histo with " << fProdVtxHist->GetEntries() << " entries. Good!";
   
   std::vector< double > * prodVtx = NHLFluxReader::generateVtx3X( fProdVtxHist );
   LOG( "NHL", pDEBUG )

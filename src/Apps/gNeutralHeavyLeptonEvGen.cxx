@@ -382,6 +382,8 @@ int main(int argc, char ** argv)
 	gOptNev = maxFluxEntries;
       }
     }
+  } else { // ok, we have monoenergetic flux. Let's flag this now
+    __attribute__((unused)) int iset = setenv( "PRODVTXDIR", "NODIR", 1 );
   }
 
   // Event loop
