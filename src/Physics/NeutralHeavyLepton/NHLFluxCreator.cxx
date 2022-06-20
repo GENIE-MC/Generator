@@ -205,11 +205,14 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   double gamma   = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
   double bigBeta = betaMag * gamma / betaStar;
 
-  double rootArg = gamma * gamma * detO.Z() * detO.Z() -
-    ( gamma * gamma - bigBeta * bigBeta ) * ( detO.Z() * detO.Z() - bigBeta * bigBeta * ( detO.X() * detO.X() + detO.Y() * detO.Y() ) );
+  double rootArg = detO.Z()*detO.Z() + 
+    ( betaMag*betaMag/(betaStar*betaStar) - 1.0 ) * 
+    ( ( betaMag*betaMag*gamma*gamma / (betaStar*betaStar) * ( detO.X() * detO.X() + detO.Y() * detO.Y() ) ) + detO.Z() * detO.Z() );
 
-  double timeBit = ( 1.0 - 1.0 / gamma ) * detO.Z() / ( betaMag * gamma );
-  timeBit = ( rootArg >= 0.0 ) ? timeBit - std::sqrt( rootArg ) / ( betaMag * gamma * gamma * gamma ) : timeBit;
+  // tau = gamma * detO.Z() - betaMag*betaStar*T
+  double tau = 1.0 / ( gamma * ( 1.0 - betaMag*betaMag / ( betaStar * betaStar ) ) ) * ( detO.Z() + rootArg );
+  
+  double timeBit = ( gamma * detO.Z() - tau ) / ( betaMag * gamma );
   
   TLorentzVector detO_4v( detO.X(), detO.Y(), detO.Z(), timeBit ); detO_4v.Boost( -boost_beta );
   TVector3 detO_rest_unit = (detO_4v.Vect()).Unit();
@@ -952,15 +955,68 @@ TLorentzVector NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par 
       
     } //!accept_decay
   
-  // [DON'T] Insert final state products into a TClonesArray of GHepParticle's
   // Grab 0th entry energy and return that
   int idp = 0; TLorentzVector p4NHL, p4NHL_rest;
+
+  //std::vector< int > pdgprd;
+  //std::vector< TLorentzVector > p4prd, p4prd_rest;
+  //TLorentzVector p4all, p4all_rest;
+
+  //p4all_rest = TLorentzVector( 0.0, 0.0, 0.0, 0.0 );
+
   for(std::vector<int>::const_iterator pdg_iter = decayList.begin(); pdg_iter != decayList.end(); ++pdg_iter) {
      int pdgc = *pdg_iter;
      TLorentzVector * p4fin = fPhaseSpaceGenerator.GetDecay(idp);
+
+     //p4prd_rest.emplace_back( *p4fin ); pdgprd.emplace_back( pdgc );
+     //p4all_rest.SetPxPyPzE( p4all_rest.Px() + p4fin->Px(),
+     //			    p4all_rest.Py() + p4fin->Py(),
+     //			    p4all_rest.Pz() + p4fin->Pz(),
+     //			    p4all_rest.E() + p4fin->E() );
+
      if( std::abs( pdgc ) == kPdgNHL ) p4NHL = *p4fin;
      idp++;
   }
+
+  /*
+  p4all = p4all_rest;
+  p4all.Boost( boost_beta );
+
+  for( Int_t ivec = 0; ivec < p4prd_rest.size(); ivec++ ){
+    TLorentzVector p4tmp = p4prd_rest.at(ivec);
+    p4tmp.Boost( boost_beta );
+    p4prd.emplace_back( p4tmp );
+  }
+
+  std::ostringstream bsts;
+  bsts << "\n*=*=*=*=*=*=*=*=*=*=*=*   BALANCE STATS AT NHL PRODUCTION   *=*=*=*=*=*=*=*=*=*=*=*"
+       << "\n\nX=================================================================================X"
+       << "\n|     PDG     |     Index     |     Px     |     Py     |     Pz     |     E      |"
+       << "\n|" << std::setw(13) << *(fullList.begin()) << "|       0       |";
+  bsts << std::fixed << std::setprecision(3);
+  bsts << std::setw(12) << p4par.Px() << "|" << std::setw(12) << p4par.Py() << "|"
+       << std::setw(12) << p4par.Pz() << "|" << std::setw(12) << p4par.E() << "|";
+
+  for( Int_t ivec = 0; ivec < p4prd_rest.size(); ivec++ ){
+    TLorentzVector p4now = p4prd.at(ivec);
+    bsts << "\n|";
+    bsts << std::setw(13) << pdgprd.at(ivec) << "|" << std::setw(8) << ivec+1 << "       |"
+	 << std::setw(12) << p4now.Px() << "|" << std::setw(12) << p4now.Py() << "|"
+	 << std::setw(12) << p4now.Pz() << "|" << std::setw(12) << p4now.E() << "|";
+  }
+  bsts << "\nX=================================================================================X";
+  bsts << "\n|     NONE    |     ALL FS    |"
+       << std::setw(12) << p4all.Px() << "|" << std::setw(12) << p4all.Py() << "|"
+       << std::setw(12) << p4all.Pz() << "|" << std::setw(12) << p4all.E() << "|";
+  bsts << "\n|     NONE    |   Fin - Init  |"
+       << std::setw(12) << p4all.Px() - p4par.Px() << "|" << std::setw(12) << p4all.Py() - p4par.Py() << "|"
+       << std::setw(12) << p4all.Pz() - p4par.Pz() << "|" << std::setw(12) << p4all.E() - p4par.E() << "|";
+  bsts << "\nX=================================================================================X"
+       << "\n\n*=*=*=*=*=*=*=*=*=*=*=*   BALANCE STATS AT NHL PRODUCTION   *=*=*=*=*=*=*=*=*=*=*=*\n";
+
+  LOG( "NHL", pDEBUG ) << bsts.str();
+
+  */
   
   return p4NHL; // rest frame momentum!
 }
