@@ -139,7 +139,7 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
   while(1)
   {
      LOG("QELEvent", pINFO) << "Attempt #: " << iter;
-     if(iter > kRjMaxIterations)
+     if(iter > 100*kRjMaxIterations)
      {
         LOG("QELEvent", pWARN)
           << "Couldn't select a valid kinematics after " << iter << " iterations";
