@@ -130,8 +130,8 @@ public:
       case(kPSlog10xlog10Q2fE) : return "<{log10x,log10Q2}|E>"; break;
       case(kPSEDNufE)     : return "<{EDNu}|E>"; break;
       case(kPSxQ2fE)      : return "<{x,Q2}|E>";      break;
-      case(kPSWQ2ctpphipfE): return "<W, Q2, cost(theta_pion), phi_pion|E>"; break;
-      case(kPSWQ2ctpfE)    : return "<W, Q2, cost(theta_pion)|E>"; break;
+      case(kPSWQ2ctpphipfE): return "<{W, Q2, cost(theta_pion), phi_pion}|E>"; break;
+      case(kPSWQ2ctpfE)    : return "<{W, Q2, cost(theta_pion)}|E>"; break;
     }
     return "** Undefined kinematic phase space **";
   }
