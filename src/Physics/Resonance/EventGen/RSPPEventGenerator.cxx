@@ -355,7 +355,7 @@ double RSPPEventGenerator::ComputeMaxXSec(
    Range1D_t Wl = kps->WLim_RSPP();
    if (fWcut >= Wl.min)
      Wl.max = TMath::Min(fWcut,Wl.max);
-   double dQ2, dW = Wl.max - Wl.min;
+   double dW = Wl.max - Wl.min;
    const InitialState & init_state = interaction -> InitState();
    ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit", "Minimize");
    ROOT::Math::IBaseFunctionMultiDim * f = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction);
@@ -373,50 +373,38 @@ double RSPPEventGenerator::ComputeMaxXSec(
      // low-energy heuristic algorithm for maximum search
      int N3 = 2;
      int N4 = 4;
-     double x2max;
-     
-     if (Enu < 1.)
-       x2max = 1.;
-     else 
-       x2max = 1./3;
      for (auto res : fResList)
      {
        double MR  = utils::res::Mass(res);
        double WR  = utils::res::Width(res);
-       double x1 = (MR - Wl.min)/dW;
-       double x1min = (MR - WR - Wl.min)/dW;
-       x1min = x1min<0?0:x1min;
-       double x1max = (MR + WR - Wl.min)/dW;
-       x1max = x1max>1?1:x1max;
+       double W = MR;
+       double Wmin = TMath::Max(Wl.min, MR - WR);
+       double Wmax = TMath::Min(Wl.max, MR + WR);
+       interaction->KinePtr()->SetW(W);
+       Range1D_t Q2l = kps->Q2Lim_W_RSPP();
+       double dQ2 = Q2l.max-Q2l.min;
+       double Q2 = Q2l.min + dQ2/6.;
+       double Q2min = Q2l.min;
+       double Q2max = Q2l.min + dQ2/(Enu < 1?1.:3.);
        for (int i3 = 0; i3 < N3; i3++)
        {
-         double x3 = 1.*i3;
-         double x3min = .5*i3;
-         double x3max = .5*(i3 + 1);
-         for (int i4 = 0; i4 <= N4; i4++)
+         double cost    = i3 - 1;
+         double costmin = i3 - 1;
+         double costmax = i3;
+         for (int i4 = 0; i4 < N4; i4++)
          {
-           double x4 = 1.*i4/N4;
-           double x4min = 1.*i4/N4;
-           double x4max = 1.*(i4 + 1)/N4;
-           if (i4 == N4)
-           {
-             x4min = 3./N4;
-             x4max = 1;
-           }
+           double phi = 2*kPi*i4/N4;
+           double phimin = 2*kPi*i4/N4;
+           double phimax = 2*kPi*(i4 + 1)/N4;
            
-           double W  = Wl.min + dW*x1;
-           interaction->KinePtr()->SetW(W);
-           Range1D_t Q2l = kps->Q2Lim_W_RSPP();
-           dQ2 = Q2l.max-Q2l.min;
-           
-           min->SetVariable(0, "x1", W, step);
-           min->SetVariable(1, "x2", Q2l.min + dQ2/6., step);
-           min->SetVariable(2, "x3", -1. + 2.*x3, step);
-           min->SetVariable(3, "x4", 2*kPi*x4, step);
-           min->SetVariableLimits(0, Wl.min + dW*x1min, Wl.min + dW*x1max);
-           min->SetVariableLimits(1, Q2l.min, Q2l.min + dQ2*x2max);
-           min->SetVariableLimits(2, -1. + 2.*x3min, -1. + 2.*x3max);
-           min->SetVariableLimits(3, 2*kPi*x4min, 2*kPi*x4max);
+           min->SetVariable(0, "x1", W, (Wmax - Wmin)*step);
+           min->SetVariable(1, "x2", Q2, (Q2max - Q2min)*step);
+           min->SetVariable(2, "x3", cost, (costmax - costmin)*step);
+           min->SetVariable(3, "x4", phi, (phimax - phimin)*step);
+           min->SetVariableLimits(0, Wmin, Wmax);
+           min->SetVariableLimits(1, Q2min, Q2max);
+           min->SetVariableLimits(2, costmin, costmax);
+           min->SetVariableLimits(3, phimin, phimax);
            min->Minimize();
            xsec = min->MinValue();
            if (xsec < min_xsec)
@@ -451,7 +439,7 @@ double RSPPEventGenerator::ComputeMaxXSec(
          double W  = Wl.min + dW*x1m;
          interaction->KinePtr()->SetW(W);
          Range1D_t Q2l = kps->Q2Lim_W_RSPP();
-         dQ2 = Q2l.max-Q2l.min;
+         double dQ2 = Q2l.max-Q2l.min;
          
          min->SetVariable(0, "x1", W, step);
          min->SetVariable(1, "x2", Q2l.min + dQ2*x2m, step);
