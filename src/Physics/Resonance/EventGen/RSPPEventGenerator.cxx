@@ -116,7 +116,7 @@ void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   fXSecModel = evg->CrossSectionAlg();
   
   // function gives differential cross section and depends on reduced variables W,Q2,cos(theta) and phi -> 1
-  genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E * f   = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction, fWcut);
+  genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E * f   = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction);
   
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
@@ -134,6 +134,11 @@ void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   // generate W, Q2, cos(theta) and phi by accept-reject method
   unsigned int iter = 0;
   bool accept = false;
+  Range1D_t Q2l;
+  double W, Q2, CosTheta_isb, SinTheta_isb, Phi_isb;
+  Range1D_t Wl  = kps.WLim_RSPP();
+  if (fWcut >= Wl.min)
+    Wl.max = TMath::Min(fWcut,Wl.max);
   while(1) 
   {
      iter++;
@@ -148,10 +153,19 @@ void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
          throw exception;
      }
 
-     xin[0] = rnd->RndKine().Rndm();
-     xin[1] = rnd->RndKine().Rndm();
-     xin[2] = rnd->RndKine().Rndm();
-     xin[3] = rnd->RndKine().Rndm();
+     
+     W  = Wl.min + (Wl.max - Wl.min)*rnd->RndKine().Rndm();
+     interaction->KinePtr()->SetW(W);
+     Q2l = kps.Q2Lim_W_RSPP();
+     Q2 = Q2l.min + (Q2l.max - Q2l.min)*rnd->RndKine().Rndm();
+     CosTheta_isb = -1. + 2.*rnd->RndKine().Rndm();
+     SinTheta_isb = (1 - CosTheta_isb*CosTheta_isb)<0?0:TMath::Sqrt(1 - CosTheta_isb*CosTheta_isb);
+     Phi_isb = 2*kPi*rnd->RndKine().Rndm();
+     
+     xin[0] = W;
+     xin[1] = Q2;
+     xin[2] = CosTheta_isb;
+     xin[3] = Phi_isb;
      
      
      //-- Computing cross section for the current kinematics
@@ -180,16 +194,6 @@ void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
      iter++;
    }
 
-  // W,Q2,cos(theta) and phi from reduced variables
-  Range1D_t Wl  = kps.WLim_RSPP();
-  Range1D_t Q2l = kps.Q2Lim_W_RSPP();
-  double W  = Wl.min + (Wl.max - Wl.min)*xin[0];
-  double W2 = W*W;
-  interaction->KinePtr()->SetW(W);
-  double Q2 = Q2l.min + (Q2l.max - Q2l.min)*xin[1];
-  double CosTheta_isb = -1. + 2.*xin[2];
-  double SinTheta_isb = (1 - CosTheta_isb*CosTheta_isb)<0?0:TMath::Sqrt(1 - CosTheta_isb*CosTheta_isb);
-  double Phi_isb = 2*kPi*xin[3];
   
   // compute x,y for selected W,Q2
   double x=-1, y=-1;
@@ -216,7 +220,7 @@ void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   interaction->KinePtr()->ClearRunningValues();
   
   
-  
+  double W2 = W*W;
   // Kinematical values of all participating particles in the isobaric frame
   double Enu_isb = (Ev*M - (ml2 + Q2)/2)/W;
   double El_isb  = (Ev*M - (ml2 + W2 - M2)/2)/W;
@@ -344,14 +348,17 @@ void RSPPEventGenerator::LoadConfig(void)
 }
 //____________________________________________________________________________
 double RSPPEventGenerator::ComputeMaxXSec(
-                                       const Interaction * interaction) const
+                                       const Interaction * in) const
 {
+   Interaction *interaction = const_cast<Interaction*>(in);
    KPhaseSpace * kps = interaction->PhaseSpacePtr();
    Range1D_t Wl = kps->WLim_RSPP();
-   double dW = Wl.max - Wl.min;
+   if (fWcut >= Wl.min)
+     Wl.max = TMath::Min(fWcut,Wl.max);
+   double dQ2, dW = Wl.max - Wl.min;
    const InitialState & init_state = interaction -> InitState();
    ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit", "Minimize");
-   ROOT::Math::IBaseFunctionMultiDim * f = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction, fWcut);
+   ROOT::Math::IBaseFunctionMultiDim * f = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction);
    min->SetFunction( *f );
    min->SetMaxFunctionCalls(10000);  // for Minuit/Minuit2
    min->SetMaxIterations(10000);     // for GSL
@@ -396,14 +403,20 @@ double RSPPEventGenerator::ComputeMaxXSec(
              x4min = 3./N4;
              x4max = 1;
            }
-           min->SetVariable(0, "x1", x1, step);
-           min->SetVariable(1, "x2", 1./6, step);
-           min->SetVariable(2, "x3", x3, step);
-           min->SetVariable(3, "x4", x4, step);
-           min->SetVariableLimits(0, x1min, x1max);
-           min->SetVariableLimits(1, 0, x2max);
-           min->SetVariableLimits(2, x3min, x3max);
-           min->SetVariableLimits(3, x4min, x4max);
+           
+           double W  = Wl.min + dW*x1;
+           interaction->KinePtr()->SetW(W);
+           Range1D_t Q2l = kps->Q2Lim_W_RSPP();
+           dQ2 = Q2l.max-Q2l.min;
+           
+           min->SetVariable(0, "x1", W, step);
+           min->SetVariable(1, "x2", Q2l.min + dQ2/6., step);
+           min->SetVariable(2, "x3", -1. + 2.*x3, step);
+           min->SetVariable(3, "x4", 2*kPi*x4, step);
+           min->SetVariableLimits(0, Wl.min + dW*x1min, Wl.min + dW*x1max);
+           min->SetVariableLimits(1, Q2l.min, Q2l.min + dQ2*x2max);
+           min->SetVariableLimits(2, -1. + 2.*x3min, -1. + 2.*x3max);
+           min->SetVariableLimits(3, 2*kPi*x4min, 2*kPi*x4max);
            min->Minimize();
            xsec = min->MinValue();
            if (xsec < min_xsec)
@@ -434,20 +447,26 @@ double RSPPEventGenerator::ComputeMaxXSec(
          double x2m = (cells[cell].Vertex1.x2 + cells[cell].Vertex2.x2)/2;
          double x3m = (cells[cell].Vertex1.x3 + cells[cell].Vertex2.x3)/2;
          double x4m = (cells[cell].Vertex1.x4 + cells[cell].Vertex2.x4)/2;
-         min->SetVariable(0, "x1", x1m, step);
-         min->SetVariable(1, "x2", x2m, step);
-         min->SetVariable(2, "x3", x3m, step);
-         min->SetVariable(3, "x4", x4m, step);
-         min->SetVariableLimits(0, cells[cell].Vertex1.x1, cells[cell].Vertex2.x1);
-         min->SetVariableLimits(1, cells[cell].Vertex1.x2, cells[cell].Vertex2.x2);
-         min->SetVariableLimits(2, cells[cell].Vertex1.x3, cells[cell].Vertex2.x3);
-         min->SetVariableLimits(3, cells[cell].Vertex1.x4, cells[cell].Vertex2.x4);
+         
+         double W  = Wl.min + dW*x1m;
+         interaction->KinePtr()->SetW(W);
+         Range1D_t Q2l = kps->Q2Lim_W_RSPP();
+         dQ2 = Q2l.max-Q2l.min;
+         
+         min->SetVariable(0, "x1", W, step);
+         min->SetVariable(1, "x2", Q2l.min + dQ2*x2m, step);
+         min->SetVariable(2, "x3", -1. + 2.*x3m, step);
+         min->SetVariable(3, "x4", 2*kPi*x4m, step);
+         min->SetVariableLimits(0, Wl.min + dW*cells[cell].Vertex1.x1, Wl.min + dW*cells[cell].Vertex2.x1);
+         min->SetVariableLimits(1, Q2l.min + dQ2*cells[cell].Vertex1.x2, Q2l.min + dQ2*cells[cell].Vertex2.x2);
+         min->SetVariableLimits(2, -1. + 2.*cells[cell].Vertex1.x3, -1. + 2.*cells[cell].Vertex2.x3);
+         min->SetVariableLimits(3, 2*kPi*cells[cell].Vertex1.x4, 2*kPi*cells[cell].Vertex2.x4);
          min->Minimize();
          xsec = min->MinValue();
          if (xsec < min_xsec)
            min_xsec = xsec;
          const double *xs = min->X();
-         Vertex minv(xs[0], xs[1], xs[2], xs[3]);
+         Vertex minv((xs[0]-Wl.min)/dW, (xs[1]-Q2l.min)/dQ2, (xs[2]+1)/2., xs[3]/2./kPi);
          if (minv == cells[cell].Vertex1 || minv == cells[cell].Vertex2)
            minv = Vertex (x1m, x2m, x3m, x4m);
      
@@ -476,8 +495,8 @@ double RSPPEventGenerator::ComputeMaxXSec(
 // GSL wrappers
 //____________________________________________________________________________
 genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::d4XSecMK_dWQ2CosThetaPhi_E(
-     const XSecAlgorithmI * m, const Interaction * interaction, double  wcut) :
-ROOT::Math::IBaseFunctionMultiDim(), fModel(m), fWcut(wcut)
+     const XSecAlgorithmI * m, const Interaction * interaction) :
+ROOT::Math::IBaseFunctionMultiDim(), fModel(m)
 {
 
   isZero = false;
@@ -499,10 +518,6 @@ ROOT::Math::IBaseFunctionMultiDim(), fModel(m), fWcut(wcut)
     return;
   }
   
-  Wl  = kps->WLim_RSPP();
-  if (fWcut >= 0.)
-    Wl.max = TMath::Min(fWcut,Wl.max);
-
 }
 genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::~d4XSecMK_dWQ2CosThetaPhi_E()
 {
@@ -520,25 +535,21 @@ double genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::DoEval(const double * xin)
 //
   if (isZero) return 0.;
   
-  double W  = Wl.min + (Wl.max - Wl.min)*xin[0];
-  fInteraction->KinePtr()->SetW(W);
+  fInteraction->KinePtr()->SetW(xin[0]); 
    
-  Range1D_t Q2l = kps->Q2Lim_W_RSPP(); 
-   
-  double Q2 = Q2l.min + (Q2l.max - Q2l.min)*xin[1];
-  fInteraction->KinePtr()->SetQ2(Q2);
+  fInteraction->KinePtr()->SetQ2(xin[1]);
   
-  fInteraction->KinePtr()->SetKV(kKVctp, -1. + 2.*xin[2]); // cosine of pion theta in resonance rest frame
+  fInteraction->KinePtr()->SetKV(kKVctp,  xin[2]); // cosine of pion theta in resonance rest frame
   
-  fInteraction->KinePtr()->SetKV(kKVphip , 2.*kPi*xin[3]); // pion phi in resonance rest frame
+  fInteraction->KinePtr()->SetKV(kKVphip, xin[3]); // pion phi in resonance rest frame
     
-  double xsec = -fModel->XSec(fInteraction, kPSWQ2ctpphipfE)*(Wl.max-Wl.min)*(Q2l.max-Q2l.min)*4*kPi;
+  double xsec = -fModel->XSec(fInteraction, kPSWQ2ctpphipfE);
   return xsec/(1E-38 * units::cm2);
 }
 ROOT::Math::IBaseFunctionMultiDim *
    genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::Clone() const
 {
   return
-    new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fModel,fInteraction,fWcut);
+    new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fModel,fInteraction);
 }
 
