@@ -441,10 +441,10 @@ double RSPPEventGenerator::ComputeMaxXSec(
          Range1D_t Q2l = kps->Q2Lim_W_RSPP();
          double dQ2 = Q2l.max-Q2l.min;
          
-         min->SetVariable(0, "x1", W, step);
-         min->SetVariable(1, "x2", Q2l.min + dQ2*x2m, step);
-         min->SetVariable(2, "x3", -1. + 2.*x3m, step);
-         min->SetVariable(3, "x4", 2*kPi*x4m, step);
+         min->SetVariable(0, "x1", W, dW*TMath::Abs(cells[cell].Vertex2.x1-cells[cell].Vertex1.x1)*step);
+         min->SetVariable(1, "x2", Q2l.min + dQ2*x2m, dQ2*TMath::Abs(cells[cell].Vertex2.x2-cells[cell].Vertex1.x2)*step);
+         min->SetVariable(2, "x3", -1. + 2.*x3m, 2.*TMath::Abs(cells[cell].Vertex2.x3-cells[cell].Vertex1.x3)*step);
+         min->SetVariable(3, "x4", 2*kPi*x4m, 2.*kPi*TMath::Abs(cells[cell].Vertex2.x4-cells[cell].Vertex1.x4)*step);
          min->SetVariableLimits(0, Wl.min + dW*cells[cell].Vertex1.x1, Wl.min + dW*cells[cell].Vertex2.x1);
          min->SetVariableLimits(1, Q2l.min + dQ2*cells[cell].Vertex1.x2, Q2l.min + dQ2*cells[cell].Vertex2.x2);
          min->SetVariableLimits(2, -1. + 2.*cells[cell].Vertex1.x3, -1. + 2.*cells[cell].Vertex2.x3);
