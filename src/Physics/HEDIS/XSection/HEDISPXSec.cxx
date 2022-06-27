@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -50,7 +50,7 @@ double HEDISPXSec::XSec(
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
   // Load SF tables 
-  HEDISStrucFunc * sf_tbl = HEDISStrucFunc::Instance(fSFBaseDir,fSFinfo);
+  HEDISStrucFunc * sf_tbl = HEDISStrucFunc::Instance(fSFinfo);
 
   // W limits are computed using kinematics assumption.
   // The lower limit is tuneable because hadronization might have issues at low W (as in PYTHIA6).
@@ -197,8 +197,6 @@ void HEDISPXSec::LoadConfig(void)
   // Minimum value of W (typically driven by hadronization limitation)
   GetParam("Xsec-Wmin",       fWmin);
   GetParam("Mass-Terms", fMassTerms);
-
-  GetParamDef("BaseDir", fSFBaseDir, string(""));
 
   // Information about Structure Functions
   GetParam("LHAPDF-set",      fSFinfo.LHAPDFset    );

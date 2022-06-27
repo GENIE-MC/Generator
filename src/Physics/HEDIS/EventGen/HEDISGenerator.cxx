@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -60,6 +60,8 @@ void HEDISGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   //-- Add the target remnant
   this->AddTargetNucleusRemnant(evrec);
+  GHepParticle * target = evrec -> TargetNucleus();
+  if(target) evrec->Particle(evrec->RemnantNucleusPosition())->SetStatus(kIStFinalStateNuclearRemnant);
 
   //-- Add the primary lepton
   this->AddPrimaryLepton(evrec);

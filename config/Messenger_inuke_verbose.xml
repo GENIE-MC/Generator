@@ -186,6 +186,22 @@
   <priority msgstream="XSecBase">              NOTICE </priority>
   <priority msgstream="XSecAlgMap">            NOTICE </priority>
   <priority msgstream="XSecSplLst">            NOTICE </priority>
+  <priority msgstream="HELeptonXSec">          WARN   </priority>
+  <priority msgstream="HELeptonKinematics">    WARN   </priority>
+  <priority msgstream="GLRESPXSec">            WARN   </priority>
+  <priority msgstream="GLRESGenerator">        WARN   </priority>
+  <priority msgstream="HENuElPXSec">           WARN   </priority>
+  <priority msgstream="HENuElGenerator">       WARN   </priority>
+  <priority msgstream="PhotonRESPXSec">        WARN   </priority>
+  <priority msgstream="PhotonRESGenerator">    WARN   </priority>
+  <priority msgstream="PhotonCOHPXSec">        WARN   </priority>
+  <priority msgstream="PhotonCOHGenerator">    WARN   </priority>
+  <priority msgstream="HEDISXSec">             WARN   </priority>
+  <priority msgstream="HEDISPXSec">            WARN   </priority>
+  <priority msgstream="HEDISGenerator">        WARN   </priority>
+  <priority msgstream="HEDISKinematics">       WARN   </priority>
+  <priority msgstream="HEDISStrucFunc">        WARN   </priority>
+  <priority msgstream="LeptoHad">              ERROR  </priority>
 
   <priority msgstream="gevgen">                NOTICE </priority>
   <priority msgstream="gevgen_ndcy">           NOTICE </priority>
@@ -199,5 +215,8 @@
   <priority msgstream="gtune">                 INFO   </priority>
   <priority msgstream="gntpc">                 INFO   </priority>
   <priority msgstream="gmkspl">                INFO   </priority>
+  <priority msgstream="gcalchedisdiffxsec">    INFO   </priority>
+  <priority msgstream="gmkhedissf">            INFO   </priority>
+  <priority msgstream="gmkphotonsf">           INFO   </priority>
 
 </messenger_config>

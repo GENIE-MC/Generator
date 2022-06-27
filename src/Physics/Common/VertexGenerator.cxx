@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -117,7 +117,10 @@ TVector3 VertexGenerator::GenerateVertex(const Interaction * interaction,
   bool is_coh = proc_info.IsCoherentProduction() || proc_info.IsCoherentElastic();
   bool is_ve  = proc_info.IsInverseMuDecay() ||
     proc_info.IsIMDAnnihilation() ||
-    proc_info.IsNuElectronElastic();
+    proc_info.IsNuElectronElastic() ||
+    proc_info.IsGlashowResonance() ||
+    proc_info.IsPhotonResonance() ||
+    proc_info.IsPhotonCoherent();
 
   if(is_coh||is_ve) {
     // ** For COH or ve- set a vertex positon on the nuclear boundary

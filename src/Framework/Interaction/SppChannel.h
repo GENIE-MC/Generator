@@ -11,12 +11,13 @@
 
 \created  December 16, 2004
 
+
 \update   November 12, 2019
           Added extra functions for MK model. \n
           Branching ratios are looked in particle database now.
 
-\cpright  Copyright (c) 2003-2020, The GENIE Collaboration		￼\update   November 12, 2019
-￼          For the full text of the license visit http://copyright.genie-mc.org
+\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 

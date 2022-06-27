@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -44,16 +44,21 @@ std::map<int, double> mPDFQrk;   // Mass of the quark from LHAPDF set
 //_________________________________________________________________________
 HEDISStrucFunc * HEDISStrucFunc::fgInstance = 0;
 //_________________________________________________________________________
-HEDISStrucFunc::HEDISStrucFunc(string basedir, SF_info sfinfo)
+HEDISStrucFunc::HEDISStrucFunc(SF_info sfinfo)
 {
 
   fSF = sfinfo;
 
-  if (basedir=="") basedir=string(gSystem->Getenv("GENIE")) + "/data/evgen/hedis-sf";
-  LOG("HEDISStrucFunc", pERROR) << "Base diretory: " << basedir;
+  string basedir = "";
+  if ( gSystem->Getenv("HEDIS_SF_DATA_PATH")==NULL ) basedir = string(gSystem->Getenv("GENIE")) + "/data/evgen/hedis-sf";
+  else                                               basedir = string(gSystem->Getenv("HEDIS_SF_DATA_PATH"));
+  LOG("HEDISStrucFunc", pWARN) << "Base directory: " << basedir;
 
-  if ( gSystem->AccessPathName( basedir.c_str(), kWritePermission ) ) {
-      LOG("HEDISStrucFunc", pERROR) << "Base diretory doesnt exist or you dont have write permission.";
+  if ( gSystem->AccessPathName( basedir.c_str(), kReadPermission ) ) {
+      LOG("HEDISStrucFunc", pFATAL) << "Base directory doesnt exist or you dont have read permission.";
+      LOG("HEDISStrucFunc", pFATAL) << "Remember!!!";
+      LOG("HEDISStrucFunc", pFATAL) << "Path to base directory is defined with the enviroment variable HEDIS_SF_DATA_PATH.";
+      LOG("HEDISStrucFunc", pFATAL) << "If not defined, default location is $GENIE/data/evgen/hedis-sf";
       assert(0);
   }
 
@@ -61,15 +66,25 @@ HEDISStrucFunc::HEDISStrucFunc(string basedir, SF_info sfinfo)
   string SFname = basedir + "/" + RunOpt::Instance()->Tune()->Name();
 
   // Check that the directory where SF tables are stored exists
-  LOG("HEDISStrucFunc", pINFO) << "SF are (or will be) in following directory: " << SFname;
-  if ( gSystem->mkdir(SFname.c_str())==0 ) {
+  LOG("HEDISStrucFunc", pWARN) << "SF are (or will be) in following directory: " << SFname;
+  if ( gSystem->AccessPathName( SFname.c_str(), kReadPermission ) ) {
     LOG("HEDISStrucFunc", pWARN) << "Bad news! Directory doesnt exists.";
     LOG("HEDISStrucFunc", pWARN) << "HEDIS package requires computation of SF";        
     LOG("HEDISStrucFunc", pWARN) << "This will be SLOW!!!!!";        
-    LOG("HEDISStrucFunc", pINFO) << "Creating Metafile with input information";
-    std::ofstream meta_stream((SFname+"/Inputs.txt").c_str());
-    meta_stream << fSF;
-    meta_stream.close();
+    if ( gSystem->mkdir(SFname.c_str())==0 ) {
+      LOG("HEDISStrucFunc", pINFO) << "Creating Metafile with input information";
+      std::ofstream meta_stream((SFname+"/Inputs.txt").c_str());
+      meta_stream << fSF;
+      meta_stream.close();      
+    }
+    else {
+      LOG("HEDISStrucFunc", pFATAL) << "You dont have write permission in the following directory:";
+      LOG("HEDISStrucFunc", pFATAL) << SFname;
+      LOG("HEDISStrucFunc", pFATAL) << "Remember!!!";
+      LOG("HEDISStrucFunc", pFATAL) << "Path to base directory is defined with the enviroment variable HEDIS_SF_DATA_PATH.";
+      LOG("HEDISStrucFunc", pFATAL) << "If not defined, default location is $GENIE/data/evgen/hedis-sf";
+      assert(0);
+    }
   }
   else {
     LOG("HEDISStrucFunc", pWARN) << "Good news! Directory already exists.";
@@ -83,12 +98,12 @@ HEDISStrucFunc::HEDISStrucFunc(string basedir, SF_info sfinfo)
       LOG("HEDISStrucFunc", pINFO) << "Info from MetaFile and Tune match";
     }
     else {
-      LOG("HEDISStrucFunc", pERROR) << "Info from MetaFile and Tune doesnt match";
-      LOG("HEDISStrucFunc", pERROR) << "MetaFile Path : " << SFname << "/Inputs.txt";        
-      LOG("HEDISStrucFunc", pERROR) << "From Tune : ";        
-      LOG("HEDISStrucFunc", pERROR) << cm;        
-      LOG("HEDISStrucFunc", pERROR) << "From MetaFile : ";        
-      LOG("HEDISStrucFunc", pERROR) << fSF;        
+      LOG("HEDISStrucFunc", pFATAL) << "Info from MetaFile and Tune doesnt match";
+      LOG("HEDISStrucFunc", pFATAL) << "MetaFile Path : " << SFname << "/Inputs.txt";        
+      LOG("HEDISStrucFunc", pFATAL) << "From Tune : ";        
+      LOG("HEDISStrucFunc", pFATAL) << cm;        
+      LOG("HEDISStrucFunc", pFATAL) << "From MetaFile : ";        
+      LOG("HEDISStrucFunc", pFATAL) << fSF;        
       assert(0);
     }
   }
@@ -225,6 +240,12 @@ HEDISStrucFunc::HEDISStrucFunc(string basedir, SF_info sfinfo)
       APFEL::SetMassScheme("ZM-VFNS");
       APFEL::SetPoleMasses(mPDFQrk[4],mPDFQrk[5],mPDFQrk[5]+0.1);
     }
+    else if (fSF.Scheme=="GGHR") {
+      APFEL::SetMassScheme("FFNS5");
+      APFEL::SetPoleMasses(mPDFQrk[4],mPDFQrk[5],mPDFQrk[6]);
+      APFEL::SetMaxFlavourPDFs(5);
+      APFEL::SetMaxFlavourAlpha(5);
+    }
     else {
       LOG("HEDISStrucFunc", pERROR) << "Mass Scheme is not set properly";
       assert(0);
@@ -321,13 +342,13 @@ HEDISStrucFunc::~HEDISStrucFunc()
 
 }
 //_________________________________________________________________________
-HEDISStrucFunc * HEDISStrucFunc::Instance(string basedir, SF_info sfinfo)
+HEDISStrucFunc * HEDISStrucFunc::Instance(SF_info sfinfo)
 {
   if(fgInstance == 0) {
     LOG("HEDISStrucFunc", pINFO) << "Late initialization";
     static HEDISStrucFunc::Cleaner cleaner;
     cleaner.DummyMethodAndSilentCompiler();
-    fgInstance = new HEDISStrucFunc(basedir,sfinfo);
+    fgInstance = new HEDISStrucFunc(sfinfo);
   }  
   return fgInstance;
 }

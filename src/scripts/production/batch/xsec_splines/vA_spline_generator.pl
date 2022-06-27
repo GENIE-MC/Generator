@@ -17,7 +17,7 @@
 #   [--production]     : default: routine_validation
 #   [--cycle]          : default: 01
 #   [--use-valgrind]   : default: off
-#   [--batch-system]   : <PBS, LyonPBS, LSF, slurm, HTCondor, HTCondor_PBS, none>, default: PBS
+#   [--batch-system]   : <PBS, LyonPBS, LSF, slurm, LyonSlurm, HTCondor, HTCondor_PBS, none>, default: PBS
 #   [--queue]          : default: prod. LyonPBS default: P_gdrnu_genie
 #   [--softw-topdir]   : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
 #   [--jobs-topdir]    : top level dir for job files, default: $PWD
@@ -39,7 +39,7 @@
 #   University of Liverpool & STFC Rutherford Appleton Laboratory
 #
 # Copyright:
-#   Copyright (c) 2003-2020, The GENIE Collaboration
+#   Copyright (c) 2003-2022, The GENIE Collaboration
 #   For the full text of the license visit http://copyright.genie-mc.org
 #----------------------------------------------------------------------------------------------------------------
 
@@ -84,6 +84,9 @@ $batch_system   = "PBS"                         unless defined $batch_system;
 $queue_default  = "prod";
 if ( $batch_system eq 'LyonPBS' ) {
     $queue_default      = "P_gdrnu_genie" ;
+}
+if ( $batch_system eq 'LyonSlurm' ) {
+    $queue_default  = "htc" ;
 }
 $queue          = $queue_default                unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
@@ -300,17 +303,21 @@ foreach $nu ( @nu_list ) {
       } #HTCondor
 
       # slurm case
-      if($batch_system eq 'slurm') {
-	$batch_script = "$filename_template.sh";
+      if($batch_system eq 'slurm' || $batch_system eq 'LyonSlurm') {
+	$batch_script = "$filename_template.slr";
 	open(SLURM, ">$batch_script") or die("Can not create the SLURM batch script");
 	print SLURM "#!/bin/bash \n";
-        print SLURM "#SBATCH-p $queue \n";
-        print SLURM "#SBATCH-o $filename_template.lsfout.log \n";
-        print SLURM "#SBATCH-e $filename_template.lsferr.log \n";
+	print SLURM "#SBATCH -J $jobname \n";
+        print SLURM "#SBATCH -p $queue \n";
+        print SLURM "#SBATCH -o $filename_template.slurmout.log \n";
+        print SLURM "#SBATCH -e $filename_template.slurmerr.log \n";
+	print SLURM "#SBATCH -t 20:0:0 \n";
+	print SLURM "#SBATCH -L sps \n" if ($batch_system eq 'LyonSlurm');
+	print SLURM "#SBATCH --priority -1 \n" if ( $priority ) ;
 	print SLURM "source $shell_script \n";
         close(SLURM);
 
-	push( @batch_commands, "sbatch --job-name=$jobname $batch_script" );
+	push( @batch_commands, "sbatch $batch_script" );
       } #slurm
 
       # run interactively

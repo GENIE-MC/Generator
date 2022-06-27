@@ -6,7 +6,6 @@
   </param_set>
 
   <param_set name="HEDIS-SF">
-    <param type="string" name="BaseDir">                                       </param>
     <param type="string" name="LHAPDF-set">                              cteq6 </param>
     <param type="int"    name="LHAPDF-member">                               0 </param>
     <param type="bool"   name="Is-NLO">                                  false </param>

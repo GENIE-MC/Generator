@@ -48,56 +48,39 @@ For more information, visit http://www.genie-mc.org
                            NmddhyyyssssyyyhdmmNNNmhhhyyyyhhddmN                                                
 </pre>
 
-## Authors
+## Current authors:
 
-<pre>
-Luis Alvarez-Ruso [4] < Luis.Alvarez \at ific.uv.es >, 
-Costas Andreopoulos (*) [7,10] < constantinos.andreopoulos \at cern.ch >, 
-Adi Ashkenazi [8] < adishka \at gmail.com >, 
-Christopher Barry [7] < C.Barry \at liverpool.ac.uk >, 
-Steve Dennis [7] < s.r.dennis \at liverpool.ac.uk >, 
-Steve Dytman [9] < dytman \at pitt.edu >, 
-Hugh Gallagher [11] < hugh.gallagher \at tufts.edu >, 
-Alfonso Andres Garcia Soto [3,4]  < aagarciasoto \at km3net.de >,
-Steven Gardiner[2] < gardiner \at fnal.gov >, 
-Walter Giele [2] < giele \at fnal.gov >, 
-Robert Hatcher [2] < rhatcher \at fnal.gov >, 
-Or Hen [8] < hen \at mit.edu >, 
-Libo Jiang [9] < libojiang8584 \at gmail.com >, 
-Rhiannon Jones [7] < rhiannon.jones \at liverpool.ac.uk >, 
-Igor Kakorin [6] < idkakorin \at gmail.com >, 
-Konstantin Kuzmin [5,6] < kkuzmin \at theor.jinr.ru >, 
-Anselmo Meregaglia [1] < anselmo.meregaglia \at cern.ch >, 
-Donna Naples [9], 
-Vadim Naumov [6] < vnaumov \at theor.jinr.ru >,  
-Afroditi Papadopoulou [8] < apapadop \at mit.edu >, 
-Gabriel Perdue [2] < perdue \at fnal.gov >, 
-Marco Roda [7]  < marco.roda \at liverpool.ac.uk >, 
-Vladyslav Syrotenko [11]  < Vladyslav.Syrotenko \at tufts.edu >, 
-Júlia Tena Vidal [7]  < j.tena-vidal \at liverpool.ac.uk >, 
-Jeremy Wolcott [11]  < jwolcott \at fnal.gov >, 
-Natalie Wright [8], and 
-Julia Yarba [2]  < yarba_j \at fnal.gov >
+- Luis Alvarez-Ruso (*IFIC*)
+- Costas Andreopoulos (+) (*Liverpool and STFC/RAL*)
+- Adi Ashkenazi (*Tel Aviv*)
+- Joshua Barrow (*Tel Aviv; MIT*)
+- Steve Dytman (*Pittsburgh*)
+- Hugh Gallagher (*Tufts*)
+- Alfonso Andres Garcia Soto (*Harvard and IFIC*)
+- Steven Gardiner (*Fermilab*)
+- Matan Goldenberg (*Tel Aviv*)
+- Robert Hatcher (*Fermilab*)
+- Or Hen (*MIT*)
+- Timothy Hobbs (*Fermilab*)
+- Igor Kakorin (*JINR*)
+- Konstantin Kuzmin (*ITEP and JINR*)
+- Anselmo Meregaglia (*Bordeaux, CNRS/IN2P3*)
+- Vadim Naumov (*JINR*)
+- Afroditi Papadopoulou (*MIT*)
+- Gabriel Perdue (*Fermilab*)
+- Marco Roda (*Liverpool*)
+- Beth Slater (*Liverpool*)
+- Alon Sportes (*Tel Aviv*)
+- Noah Steinberg (*Fermilab*)
+- Vladyslav Syrotenko (*Tufts*)
+- Júlia Tena Vidal (*Tel Aviv*)
+- Jeremy Wolcott (*Tufts*)
 
-(The GENIE Collaboration)
+---
+(+) Corresponding Author:
 
-(1) CENBG, Université de Bordeaux, CNRS/IN2P3, 33175 Gradignan, France
-(2) Fermi National Accelerator Laboratory, Batavia, Illinois 60510, USA
-(3) Harvard University, Dept. of Physics, Cambridge, MA 02138, USA
-(4) Instituto de Física Corpuscular (IFIC), Consejo Superior de Investigaciones Científicas (CSIC) y de la Universitat de Valéncia (UV), 46980, Paterna, Valéncia, Spain
-(5) Alikhanov Institute for Theoretical and Experimental Physics (ITEP) of NRC "Kurchatov Institute", Moscow, 117218, Russia 
-(6) Joint Institute for Nuclear Research (JINR), Dubna, Moscow region, 141980, Russia
-(7) University of Liverpool, Dept. of Physics, Liverpool L69 7ZE, UK 
-(8) Massachusetts Institute of Technology, Dept. of Physics, Cambridge, MA 02139, USA
-(9) University of Pittsburgh, Dept. of Physics and Astronomy, Pittsburgh PA 15260, USA
-(10) STFC Rutherford Appleton Laboratory, Particle Physics Dept., Harwell Oxford Campus, Oxfordshire OX11 0QX, UK
-(11) Tufts University, Dept. of Physics and Astronomy, Medford MA 02155, USA
-
---------------------
-(*) Corresponding Author:
-
- Prof. Costas Andreopoulos < constantinos.andreopoulos \at cern.ch >
-    
+**Prof. Costas Andreopoulos < constantinos.andreopoulos \at cern.ch >**
+<pre>    
  University of Liverpool          |  U.K. Research & Innovation (UKRI)
  Faculty of Science & Engineering |  Science & Technology Facilities Council (STFC)
  School of Physical Sciences      |  Rutherford Appleton Laboratory 
@@ -105,12 +88,24 @@ Julia Yarba [2]  < yarba_j \at fnal.gov >
  Oliver Lodge Lab 316             |  Harwell Oxford Campus, R1 2.89
  Liverpool L69 7ZE, UK            |  Oxfordshire OX11 0QX, UK          
  tel: +44-(0)1517-943201          |  tel: +44-(0)1235-445091 
+
 </pre>
  
+## Past authors and other key contributors
+
+Past authors: 
+- Christopher Barry (*Liverpool*)
+- Steve Dennis (*Liverpool*)
+- Walter Giele (*Fermilab*)
+- Libo Jiang (*Pittsburgh*)
+- Rhiannon Jones (*Liverpool*)
+- Donna Naples (*Pittsburgh*)
+- Julia Yarba (*Fermilab*) 
+
 
 ## Copyright
 
-Copyright (c) 2003-2021, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
+Copyright (c) 2003-2022, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
 
 
 ## Physics & User manual
@@ -155,11 +150,7 @@ If you use GENIE, please **always** cite the following reference:
 }
 </pre>
 
-If you used any of the new model configurations and tunes provided in the GENIE v3* series, please **add the following reference**:
-<pre>
-</pre>
-
-Finally, if you used any of the standard GENIE applications, built-in flux and geometry drivers, or if you used any of its event reweightng and error propagation tools, please **add the following reference**:
+If you used any of the standard GENIE applications, built-in flux and geometry drivers, or if you used any of its event reweightng and error propagation tools, please **add the following reference**:
 <pre>
 @article{Andreopoulos:2015wxa,
       author         = "Andreopoulos, Costas and Barry, Christopher and Dytman,
@@ -173,6 +164,62 @@ Finally, if you used any of the standard GENIE applications, built-in flux and g
       primaryClass   = "hep-ph",
       reportNumber   = "FERMILAB-FN-1004-CD",
       SLACcitation   = "%%CITATION = ARXIV:1510.05494;%%"
+}
+</pre>
+
+Finally, if you used any of the new model configurations and tunes provided in the GENIE v3* series, please consider adding any of the following references is relevant:
+
+<pre>
+@article{GENIE:2021npt,
+    author = "Alvarez-Ruso, Luis and others",
+    collaboration = "GENIE",
+    title = "{Recent highlights from GENIE v3}",
+    eprint = "2106.09381",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ph",
+    reportNumber = "FERMILAB-PUB-21-266-SCD-T",
+    doi = "10.1140/epjs/s11734-021-00295-7",
+    journal = "Eur. Phys. J. ST",
+    volume = "230",
+    number = "24",
+    pages = "4449--4467",
+    year = "2021"
+}
+</pre>
+
+<pre>
+@article{GENIE:2021zuu,
+    author = "Tena-Vidal, J\'ulia and others",
+    collaboration = "GENIE",
+    title = "{Neutrino-nucleon cross-section model tuning in GENIE v3}",
+    eprint = "2104.09179",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ph",
+    reportNumber = "FERMILAB-PUB-20-531-SCD-T",
+    doi = "10.1103/PhysRevD.104.072009",
+    journal = "Phys. Rev. D",
+    volume = "104",
+    number = "7",
+    pages = "072009",
+    year = "2021"
+}
+</pre>
+
+<pre>
+@article{GENIE:2021wox,
+    author = "Tena-Vidal, J\'ulia and others",
+    collaboration = "GENIE",
+    title = "{Hadronization model tuning in genie v3}",
+    eprint = "2106.05884",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ph",
+    reportNumber = "FERMILAB-PUB-21-024-QIS-SCD-T",
+    doi = "10.1103/PhysRevD.105.012009",
+    journal = "Phys. Rev. D",
+    volume = "105",
+    number = "1",
+    pages = "012009",
+    year = "2022"
 }
 </pre>
 

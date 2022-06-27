@@ -204,6 +204,20 @@
   <priority msgstream="XSecBase">              FATAL </priority>
   <priority msgstream="XSecAlgMap">            FATAL </priority>
   <priority msgstream="XSecSplLst">            FATAL </priority>
+  <priority msgstream="GLRESPXSec">            FATAL </priority>
+  <priority msgstream="GLRESGenerator">        FATAL </priority>
+  <priority msgstream="HENuElPXSec">           FATAL </priority>
+  <priority msgstream="HENuElGenerator">       FATAL </priority>
+  <priority msgstream="PhotonRESPXSec">        FATAL </priority>
+  <priority msgstream="PhotonRESGenerator">    FATAL </priority>
+  <priority msgstream="PhotonCOHPXSec">        FATAL </priority>
+  <priority msgstream="PhotonCOHGenerator">    FATAL </priority>
+  <priority msgstream="HEDISXSec">             FATAL </priority>
+  <priority msgstream="HEDISPXSec">            FATAL </priority>
+  <priority msgstream="HEDISGenerator">        FATAL </priority>
+  <priority msgstream="HEDISKinematics">       FATAL </priority>
+  <priority msgstream="HEDISStrucFunc">        FATAL </priority>
+  <priority msgstream="LeptoHad">              FATAL </priority>
 
   <priority msgstream="gevgen">              FATAL </priority>
   <priority msgstream="gevgen_dm">           FATAL </priority>
@@ -219,5 +233,8 @@
   <priority msgstream="gntpc">               FATAL </priority>
   <priority msgstream="gmkspl">              FATAL </priority>
   <priority msgstream="gmkspl_dm">           FATAL </priority>
+  <priority msgstream="gcalchedisdiffxsec">  FATAL </priority>
+  <priority msgstream="gmkhedissf">          FATAL </priority>
+  <priority msgstream="gmkphotonsf">         FATAL </priority>
 
 </messenger_config>

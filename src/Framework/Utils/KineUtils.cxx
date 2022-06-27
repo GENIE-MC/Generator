@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -207,6 +207,19 @@ double genie::utils::kinematics::Jacobian(
   if ( TransformMatched(fromps,tops,kPSQ2yfE,kPSlogQ2logyfE,forward) )
   {
     J = 1. / (kine.Q2() * kine.y());
+  }
+
+  //
+  // transformation: {x,y}|E -> {x,Q2}|E
+  //
+  else
+  if ( TransformMatched(fromps,tops,kPSxQ2fE,kPSxyfE,forward) )
+  {
+    const InitialState & init_state = i->InitState();
+    double Ev = init_state.ProbeE(kRfHitNucRest);
+    double M  = init_state.Tgt().HitNucP4Ptr()->M();
+    double x  = kine.x();
+    J = 2*x*Ev*M;
   }
 
   //
