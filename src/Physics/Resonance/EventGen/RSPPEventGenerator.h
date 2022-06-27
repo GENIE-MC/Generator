@@ -132,7 +132,7 @@ namespace gsl   {
 class d4XSecMK_dWQ2CosThetaPhi_E: public ROOT::Math::IBaseFunctionMultiDim
 {
 public:
-  d4XSecMK_dWQ2CosThetaPhi_E(const XSecAlgorithmI * m, const Interaction * i, double wcut);
+  d4XSecMK_dWQ2CosThetaPhi_E(const XSecAlgorithmI * m, const Interaction * i);
  ~d4XSecMK_dWQ2CosThetaPhi_E();
 
   // ROOT::Math::IBaseFunctionMultiDim interface
@@ -146,7 +146,6 @@ private:
   Range1D_t Wl;
   bool isZero;
   KPhaseSpace * kps;
-  double fWcut;
 };
 
 

@@ -235,13 +235,13 @@ genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::d3XSecMK_dWQ2CosTheta_E(
 
 
   if (Enu < kps->Threshold_RSPP())
-    {
-      isZero = true;
-      return;
-    }
+  {
+    isZero = true;
+    return;
+  }
   
   Wl  = kps->WLim_RSPP();
-  if (fWcut >= 0.)
+  if (fWcut >= Wl.min)
     Wl.max = TMath::Min(fWcut,Wl.max);
   
   
