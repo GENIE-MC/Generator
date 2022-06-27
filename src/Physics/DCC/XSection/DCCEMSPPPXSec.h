@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::DCCPhotonSPPPXSec
+\class    genie::DCCEMSPPPXSec
 
 \brief    Class calculate differental cross-section d^4(sig)/d(Q2)d(W)d(cost)d(phi),
           for specific W, Q2, neutrino energy(in lab frame) & pion angles in the Adler frame, where \n
@@ -12,14 +12,16 @@
 
 for the following channels:      
 
-          1       gamma* + p -> N + pi
-          2       gamma* + n -> N + pi
+          1       l + p -> l + p + pi0
+          2       l + p -> l + n + pi+
+          3       l + n -> l + n + pi0
+          4       l + n -> l + p + pi-
                                                                                            
                                                           
 \ref      
           1. T. Sato , T.-S. H. Lee, Phys. Rev. C 54, 2660(1996)
           2. A. Matsuyama , T.-S. H. Lee, T. Sato, Phys. Rept. 439, 193(2007)
-          3. https://www.phy.anl.gov/theory/research/anl-osaka-pwa/ (with other refs in it)
+          3. https://www.phy.anl.gov/theory/research/anl-osaka-pwa/ (and other references in it)
     
 
 \authors  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
@@ -32,8 +34,8 @@ for the following channels:
 */
 //____________________________________________________________________________
 
-#ifndef _DCC_SPP_PXSEC_H_
-#define _DCC_SPP_PXSEC_H_
+#ifndef _DCC_EM_SPP_PXSEC_H_
+#define _DCC_EM_SPP_PXSEC_H_
 
 #include <vector>
 #include <complex>
@@ -57,13 +59,13 @@ namespace genie {
   
   class XSecIntegratorI;
 
-  class DCCPhotonSPPPXSec: public XSecAlgorithmI {
+  class DCCEMSPPPXSec: public XSecAlgorithmI {
 
     
     public:
-      DCCPhotonSPPPXSec();
-      DCCPhotonSPPPXSec(string config);
-      virtual ~DCCPhotonSPPPXSec();
+      DCCEMSPPPXSec();
+      DCCEMSPPPXSec(string config);
+      virtual ~DCCEMSPPPXSec();
 
       // implement the XSecAlgorithmI interface 
       double XSec         (const Interaction * i, KinePhaseSpace_t k) const;
@@ -125,4 +127,4 @@ namespace genie {
   
 }       // genie namespace
 
-#endif  // _DCC_SPP_PXSEC_H_
+#endif  // _DCC_EM_SPP_PXSEC_H_

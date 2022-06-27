@@ -30,7 +30,7 @@
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/Range1.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
-#include "Physics/Resonance/XSection/DCCPhotonSPPPXSec.h"
+#include "Physics/Resonance/XSection/DCCEMSPPPXSec.h"
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Physics/NuclearState/NuclearUtils.h"
@@ -42,24 +42,24 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-DCCPhotonSPPPXSec::DCCPhotonSPPPXSec() :
-XSecAlgorithmI("genie::DCCPhotonSPPPXSec")
+DCCEMSPPPXSec::DCCEMSPPPXSec() :
+XSecAlgorithmI("genie::DCCEMSPPPXSec")
 {
 
 }
 //____________________________________________________________________________
-DCCPhotonSPPPXSec::DCCPhotonSPPPXSec(string config) :
-XSecAlgorithmI("genie::DCCPhotonSPPPXSec", config)
+DCCEMSPPPXSec::DCCEMSPPPXSec(string config) :
+XSecAlgorithmI("genie::DCCEMSPPPXSec", config)
 {
 
 }
 //____________________________________________________________________________
-DCCPhotonSPPPXSec::~DCCPhotonSPPPXSec()
+DCCEMSPPPXSec::~DCCEMSPPPXSec()
 {
 
 }
 //____________________________________________________________________________
-double DCCPhotonSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) const
+double DCCEMSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
@@ -277,7 +277,7 @@ double DCCPhotonSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t
     default:
                  // should not be here - meaningless to return anything
                  gAbortingInErr = true;
-                 LOG("DCCPhotonSPPPXSec", pFATAL) << "Unknown resonance production channel: " << spp_channel;
+                 LOG("DCCEMSPPPXSec", pFATAL) << "Unknown resonance production channel: " << spp_channel;
                  exit(1);
 
 
@@ -436,7 +436,7 @@ double DCCPhotonSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t
        default:
              // should not be here - meaningless to return anything
              gAbortingInErr = true;
-             LOG("DCCPhotonSPPPXSec", pFATAL) << "CC channel in NC mode " << spp_channel;
+             LOG("DCCEMSPPPXSec", pFATAL) << "CC channel in NC mode " << spp_channel;
              exit(1);
     }
     double Vem_25 = (W_plus*W_minus)*Vem_2 + Vem_5;
@@ -605,7 +605,7 @@ double DCCPhotonSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t
     default:
         // should not be here - meaningless to return anything
         gAbortingInErr = true;
-        LOG("DCCPhotonSPPPXSec", pFATAL) << "Unknown resonance production channel: " << spp_channel;
+        LOG("DCCEMSPPPXSec", pFATAL) << "Unknown resonance production channel: " << spp_channel;
         exit(1);
   }
 
@@ -1332,13 +1332,13 @@ double DCCPhotonSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t
 }
 
 //____________________________________________________________________________
-double DCCPhotonSPPPXSec::Integral(const Interaction * interaction) const
+double DCCEMSPPPXSec::Integral(const Interaction * interaction) const
 {
   double xsec = fXSecIntegrator->Integrate(this,interaction);
   return xsec;
 }
 //____________________________________________________________________________
-bool DCCPhotonSPPPXSec::ValidProcess(const Interaction * interaction) const
+bool DCCEMSPPPXSec::ValidProcess(const Interaction * interaction) const
 {
 
   if(interaction->TestBit(kISkipProcessChk)) return true;
@@ -1347,7 +1347,7 @@ bool DCCPhotonSPPPXSec::ValidProcess(const Interaction * interaction) const
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
   if( spp_channel == kSppNull ) {
 
-    LOG("DCCPhotonSPPPXSec", pERROR)
+    LOG("DCCEMSPPPXSec", pERROR)
             << "Insufficient SPP exclusive final state information!\n";
     return false;
   }
@@ -1356,22 +1356,22 @@ bool DCCPhotonSPPPXSec::ValidProcess(const Interaction * interaction) const
 
 }
 //____________________________________________________________________________
-inline int DCCPhotonSPPPXSec::Lambda (NucleonPolarization l) const
+inline int DCCEMSPPPXSec::Lambda (NucleonPolarization l) const
 {
   return 2*l-1;
 }
 //____________________________________________________________________________
-inline int DCCPhotonSPPPXSec::Lambda (BosonPolarization l) const
+inline int DCCEMSPPPXSec::Lambda (BosonPolarization l) const
 {
   return (l*(l*(4*l-21)+29)-6)/3;
 }
 //____________________________________________________________________________
-inline int DCCPhotonSPPPXSec::PhaseFactor(BosonPolarization lk, NucleonPolarization l1, NucleonPolarization l2) const
+inline int DCCEMSPPPXSec::PhaseFactor(BosonPolarization lk, NucleonPolarization l1, NucleonPolarization l2) const
 {
   return lk*(lk*(4*lk-21)+29)/6-l1-l2;
 }
 //____________________________________________________________________________
-bool DCCPhotonSPPPXSec::ValidKinematics(const Interaction * interaction) const
+bool DCCEMSPPPXSec::ValidKinematics(const Interaction * interaction) const
 {
   // call only after ValidProcess
   if ( interaction->TestBit(kISkipKinematicChk) ) return true;
@@ -1401,19 +1401,19 @@ bool DCCPhotonSPPPXSec::ValidKinematics(const Interaction * interaction) const
 
 }
 //____________________________________________________________________________
-void DCCPhotonSPPPXSec::Configure(const Registry & config)
+void DCCEMSPPPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void DCCPhotonSPPPXSec::Configure(string config)
+void DCCEMSPPPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void DCCPhotonSPPPXSec::LoadConfig(void)
+void DCCEMSPPPXSec::LoadConfig(void)
 {
 
   fResList.Clear();
