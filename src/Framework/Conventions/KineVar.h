@@ -62,7 +62,7 @@ typedef enum EKineVar {
   kKVn2,
   kKVn3,
   kKVSelphip,
-  kKVSelctp
+  kKVSelctp,
   // put all new enum names right before this line
   // do not change any previous ordering (neither insert nor delete)
   kNumOfKineVar
@@ -101,8 +101,8 @@ public:
       case(kKVSelRad)  : return "*Selected* Struck particle position";   break;
       case(kKVPn)      : return " *Running* Hit nucleon momentum";       break;
       case(kKVv)       : return " *Running* Energy transfer";            break;
-      case(kKVphip)    : return " *Running* MK final pion phi";          break;
-      case(kKVctp)     : return " *Running* MK cosine final pion theta"; break;
+      case(kKVphip)    : return " *Running* SPP final pion phi";          break;
+      case(kKVctp)     : return " *Running* SPP cosine final pion theta"; break;
       case(kKVSelv)    : return "*Selected* Energy transfer";            break;
       case(kKVQ0)      : return " *Running* Energy transfer (Q0)" ;      break;
       case(kKVQ3)      : return " *Running* three momentum transfer" ;   break;
@@ -110,9 +110,9 @@ public:
       case(kKVSelQ3)   : return "*Selected* three momentum transfer" ;   break;
       case(kKVn1)      : return " *Running* Normalized variable n1"  ;   break;
       case(kKVn2)      : return " *Running* Normalized variable n2"  ;   break;
-      case(kKVn3)       : return " *Running* Normalized variable n3"  ;   break;
-      case(kKVSelphip) : return "*Selected* MK final pion phi";          break;
-      case(kKVSelctp)  : return "*Selected* MK cosine final pion theta"; break;
+      case(kKVn3)      : return " *Running* Normalized variable n3"  ;   break;
+      case(kKVSelphip) : return "*Selected* SPP final pion phi";          break;
+      case(kKVSelctp)  : return "*Selected* SPP cosine final pion theta"; break;
       default          : return "** Unknown kinematic variable **";      break;
     }
     return "** Unknown kinematic variable **";
