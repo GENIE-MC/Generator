@@ -243,8 +243,8 @@ public:
 
     bool is_delta = utils::res::IsDelta(res);
 
-    double iw_1_3 = 0.33333333;
-    double iw_2_3 = 0.66666666;
+    double iw_1_3 = 1./3;
+    double iw_2_3 = 2./3;
 
     switch (channel) {
 
