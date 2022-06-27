@@ -266,8 +266,8 @@ public:
       
       case (kSpp_lp_em_10010):  return  1;   break;
       case (kSpp_lp_em_01100):  return  1;   break;
-      case (kSpp_ln_em_01010):  return  0;   break;
-      case (kSpp_ln_em_10001):  return  0;   break;
+      case (kSpp_ln_em_01010):  return  1;   break;
+      case (kSpp_ln_em_10001):  return  1;   break;
 
       default : return 0;  break;
     }
@@ -281,8 +281,8 @@ public:
 
     bool is_delta = utils::res::IsDelta(res);
 
-    double iw_1_3 = 0.33333333;
-    double iw_2_3 = 0.66666666;
+    double iw_1_3 = 1./3;
+    double iw_2_3 = 2./3;
 
     switch (channel) {
 
