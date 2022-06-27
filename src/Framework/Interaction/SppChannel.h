@@ -309,6 +309,12 @@ public:
       case (kSpp_vbp_nc_01100): return (is_delta) ? (iw_1_3) : (iw_2_3); break;
       case (kSpp_vbn_nc_01010): return (is_delta) ? (iw_2_3) : (iw_1_3); break;
       case (kSpp_vbn_nc_10001): return (is_delta) ? (iw_1_3) : (iw_2_3); break;
+      
+      //--- charged lepton EM
+      case (kSpp_lp_em_10010):  return (is_delta) ? (iw_2_3) : (iw_1_3); break;
+      case (kSpp_lp_em_01100):  return (is_delta) ? (iw_1_3) : (iw_2_3); break;
+      case (kSpp_ln_em_01010):  return (is_delta) ? (iw_2_3) : (iw_1_3); break;
+      case (kSpp_ln_em_10001):  return (is_delta) ? (iw_1_3) : (iw_2_3); break;
 
       default : return 0;  break;
     }
@@ -326,12 +332,12 @@ public:
 
       //-- v CC
       case (kSpp_vp_cc_10100) : return  kSqrt3;
-      case (kSpp_vn_cc_10010) : return -kSqrt2_3;
+      case (kSpp_vn_cc_10010) : return  kSqrt2_3;
       case (kSpp_vn_cc_01100) : return  k1_Sqrt3;
 
       //-- v NC
       case (kSpp_vp_nc_10010) : return  kSqrt2_3;
-      case (kSpp_vp_nc_01100) : return -k1_Sqrt3;
+      case (kSpp_vp_nc_01100) : return  k1_Sqrt3;
       case (kSpp_vn_nc_01010) : return  kSqrt2_3;
       case (kSpp_vn_nc_10001) : return  k1_Sqrt3;
 
@@ -339,14 +345,21 @@ public:
 
       //-- vbar CC
       case (kSpp_vbn_cc_01001): return  kSqrt3;
-      case (kSpp_vbp_cc_01010): return -kSqrt2_3;
+      case (kSpp_vbp_cc_01010): return  kSqrt2_3;
       case (kSpp_vbp_cc_10001): return  k1_Sqrt3;
 
       //-- vbar NC
       case (kSpp_vbp_nc_10010): return  kSqrt2_3;
-      case (kSpp_vbp_nc_01100): return -k1_Sqrt3;
+      case (kSpp_vbp_nc_01100): return  k1_Sqrt3;
       case (kSpp_vbn_nc_01010): return  kSqrt2_3;
       case (kSpp_vbn_nc_10001): return  k1_Sqrt3;
+      
+      
+      //--- charged lepton EM
+      case (kSpp_lp_em_10010):  return  kSqrt2_3;
+      case (kSpp_lp_em_01100):  return  k1_Sqrt3;
+      case (kSpp_ln_em_01010):  return  kSqrt2_3;
+      case (kSpp_ln_em_10001):  return  k1_Sqrt3;
 
       default : return 0;
     }
@@ -363,12 +376,12 @@ public:
 
       //-- v CC
       case (kSpp_vp_cc_10100) : return  0.;
-      case (kSpp_vn_cc_10010) : return  k1_Sqrt3;
+      case (kSpp_vn_cc_10010) : return  -k1_Sqrt3;
       case (kSpp_vn_cc_01100) : return  kSqrt2_3;
 
       //-- v NC
       case (kSpp_vp_nc_10010) : return -k1_Sqrt3;
-      case (kSpp_vp_nc_01100) : return -kSqrt2_3;
+      case (kSpp_vp_nc_01100) : return  kSqrt2_3;
       case (kSpp_vn_nc_01010) : return  k1_Sqrt3;
       case (kSpp_vn_nc_10001) : return -kSqrt2_3;
 
@@ -376,14 +389,21 @@ public:
 
       //-- vbar CC
       case (kSpp_vbn_cc_01001): return  0.;
-      case (kSpp_vbp_cc_01010): return  k1_Sqrt3;
+      case (kSpp_vbp_cc_01010): return  -k1_Sqrt3;
       case (kSpp_vbp_cc_10001): return  kSqrt2_3;
 
       //-- vbar NC
       case (kSpp_vbp_nc_10010): return -k1_Sqrt3;
-      case (kSpp_vbp_nc_01100): return -kSqrt2_3;
+      case (kSpp_vbp_nc_01100): return  kSqrt2_3;
       case (kSpp_vbn_nc_01010): return  k1_Sqrt3;
       case (kSpp_vbn_nc_10001): return -kSqrt2_3;
+      
+      
+      //--- charged lepton EM
+      case (kSpp_lp_em_10010):  return -k1_Sqrt3;
+      case (kSpp_lp_em_01100):  return  kSqrt2_3;
+      case (kSpp_ln_em_01010):  return  k1_Sqrt3;
+      case (kSpp_ln_em_10001):  return -kSqrt2_3;
 
       default : return 0;
     }
@@ -493,7 +513,15 @@ public:
           else if (hit_n && fs_p && fs_pi_minus) return kSpp_vbn_nc_10001;
           else                                   return kSppNull;
        } else return kSppNull;
-    }
+    } else if( pdg::IsNegChargedLepton(probe) || pdg::IsPosChargedLepton(probe) ) {
+       if ( proc_info.IsEM() ) {
+         if      (hit_p && fs_p && fs_pi_0    ) return kSpp_lp_em_10010;
+         else if (hit_p && fs_n && fs_pi_plus ) return kSpp_lp_em_01100;
+         else if (hit_n && fs_n && fs_pi_0    ) return kSpp_ln_em_01010;
+         else if (hit_n && fs_p && fs_pi_minus) return kSpp_ln_em_10001;
+         else                                   return kSppNull;
+       }  else return kSppNull;
+    } 
 
     return kSppNull;
   }
