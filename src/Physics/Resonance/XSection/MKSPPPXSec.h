@@ -64,8 +64,8 @@ for the following channels:
 */
 //____________________________________________________________________________
 
-#ifndef _MK_SPP_PXSEC_2014_H_
-#define _MK_SPP_PXSEC_2014_H_
+#ifndef _MK_SPP_PXSEC_H_
+#define _MK_SPP_PXSEC_H_
 
 #include <vector>
 #include <complex>
@@ -433,4 +433,4 @@ namespace genie {
   
 }       // genie namespace
 
-#endif  // _MK_SPP_PXSEC_2014_H_
+#endif  // _MK_SPP_PXSEC_H_
