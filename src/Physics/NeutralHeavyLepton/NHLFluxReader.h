@@ -38,7 +38,6 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGCodes.h"
 //#include "Framework/ParticleData/PDGLibrary.h"
-
 #include "Physics/NeutralHeavyLepton/NHLEnums.h"
 #include "Physics/NeutralHeavyLepton/NHLKinUtils.h"
 #include "Physics/NeutralHeavyLepton/SimpleNHL.h"

@@ -29,9 +29,6 @@
 
 #include "Physics/NeutralHeavyLepton/NHLDecayMode.h"
 #include "Physics/NeutralHeavyLepton/NHLDecaySelector.h"
-#include "Physics/NeutralHeavyLepton/NHLEnums.h" // to remove later
-//#include "Physics/NeutralHeavyLepton/NHLDefaults.h" 
-#include "Physics/NeutralHeavyLepton/NHLStepper.h"
 
 namespace genie {
     
@@ -72,7 +69,7 @@ namespace genie {
 			genie::NHL::NHLSelector::CalcCoMLifetime( mass,
 					      Ue42, Umu42, Ut42,
 					      IsMajorana ) )
-	    { } /// normal constructor
+		      { LOG("NHL", pDEBUG) << "SimpleNHL built"; } /// normal constructor
 
 	    inline ~SimpleNHL( ) { }
 
@@ -107,8 +104,6 @@ namespace genie {
 	    inline int    GetPDG( ) { return fPDG; }
 
 	    inline int    GetParentPDG( ) { return fParentPDG; }
-
-	    inline genie::NHL::NHLenums::nutype_t GetHType( ) { return fHType; }
 
 	    inline double GetDecayThrow( ) { return fDecayThrow; }
 
@@ -310,9 +305,6 @@ namespace genie {
 	    inline void SetPDG( const int PDG ){
 		fPDG = PDG; }
 
-	    inline void SetHType( const genie::NHL::NHLenums::nutype_t HType ){
-		fHType = HType; }
-
 	    inline void SetType( const int type ) { fType = type; }
 
 	    inline void SetAngularDeviation( const double adev ) { fAngularDeviation = adev; }
@@ -338,20 +330,12 @@ namespace genie {
 	protected:
 	    // default c'tor values
 
-	  int defPDG = 1900;
-	  int defParPDG = genie::kPdgKP;
-	  double defMass = 0.250 * genie::units::GeV;
-	  double defUe42 = 1.0e-4;
-	  double defUmu42 = 1.0e-4;
-	  double defUt42 = 0.0;
-	  /*
-	    int defPDG = genie::NHL::NHLdefaults::NHLDefaultPDG; 
-	    int defParPDG = genie::NHL::NHLdefaults::NHLDefaultParPDG;
-	    double defMass  = genie::NHL::NHLdefaults::NHLDefaultMass;
-	    double defUe42  = genie::NHL::NHLdefaults::NHLDefaultECoup;
-	    double defUmu42 = genie::NHL::NHLdefaults::NHLDefaultMuCoup;
-	    double defUt42  = genie::NHL::NHLdefaults::NHLDefaultTauCoup;
-	  */
+	    int defPDG = 2000020000;
+	    int defParPDG = genie::kPdgKP;
+	    double defMass = 0.250 * genie::units::GeV;
+	    double defUe42 = 1.0e-4;
+	    double defUmu42 = 1.0e-4;
+	    double defUt42 = 0.0;
 
 	    // basic calculators
 	    inline double CalcBeta( const double E, const double P3 ) {
@@ -375,8 +359,6 @@ namespace genie {
 	    mutable int              fType;
 	    mutable std::map< genie::NHL::NHLDecayMode_t, double > fValidChannels;
 	    mutable double           fCoMLifetime;
-
-	    mutable genie::NHL::NHLenums::nutype_t    fHType;
 	    
 	    mutable double           fDecayThrow;  // determines where decay happens
 	    mutable double           fSelectThrow; // determines what channel to decay to

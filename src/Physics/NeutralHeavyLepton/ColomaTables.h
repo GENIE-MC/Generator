@@ -25,8 +25,9 @@ namespace NHL {
 
     namespace NHLSelector {
 
+	static const double UNUSED_VARIABLE = 9999.9;
+
 	// lookup tables, 50x10 + 1
-	
 	static const double PARTWIDTH = 1e-3;
 	
 	static const double ColomaX[] = { 0.000, 0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.010, 0.011, 0.012, 0.013, 0.014, 0.015, 0.016, 0.017, 0.018, 0.019, 

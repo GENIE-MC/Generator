@@ -71,7 +71,6 @@
 #include "Physics/NeutralHeavyLepton/NHLBRFunctions.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayVolume.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayUtils.h"
-#include "Physics/NeutralHeavyLepton/NHLEnums.h"
 #include "Physics/NeutralHeavyLepton/NHLKinUtils.h"
 #include "Physics/NeutralHeavyLepton/SimpleNHL.h"
 

@@ -29,7 +29,6 @@
 #include "Framework/ParticleData/PDGCodes.h"
 
 #include "Physics/NeutralHeavyLepton/NHLDecayMode.h"
-#include "Physics/NeutralHeavyLepton/NHLEnums.h" // to be removed later
 #include "Physics/NeutralHeavyLepton/NHLFluxReader.h"
 #include "Physics/NeutralHeavyLepton/SimpleNHL.h"
 

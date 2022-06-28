@@ -171,22 +171,13 @@ namespace NHL {
 
 	typedef enum t_nutype {
 
-	    kNone = -1,
-	    kNumu = 1,
-	    kNumubar = 2,
-	    kNue = 3,
-	    kNuebar = 4
-	    
+	  kNone = -1,
+	  kNumu = 1,
+	  kNumubar = 2,
+	  kNue = 3,
+	  kNuebar = 4
+
 	} nutype_t;
-
-	typedef enum t_NHLPDG {
-
-	    kPdgHMu = 1914,
-	    kPdgHMubar = -1914,
-	    kPdgHE = 1912,
-	    kPdgHEbar = -1912
-
-	} NHLPDG_t;
 
     } // namespace NHLenums
 
