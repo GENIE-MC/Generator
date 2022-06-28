@@ -22,6 +22,7 @@ for the following channels:
           1. T. Sato , T.-S. H. Lee, Phys. Rev. C 54, 2660(1996)
           2. A. Matsuyama , T.-S. H. Lee, T. Sato, Phys. Rept. 439, 193(2007)
           3. https://www.phy.anl.gov/theory/research/anl-osaka-pwa/ (and other references in it)
+          4. https://www.phy.anl.gov/theory/research/anl-osaka-pwa/crst-eepi.pdf
     
 
 \authors  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
@@ -39,9 +40,7 @@ for the following channels:
 
 #include <vector>
 #include <complex>
-#include <functional>
-#include <algorithm>
-#include <type_traits>
+
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Framework/ParticleData/BaryonResonance.h"
@@ -84,14 +83,6 @@ namespace genie {
       
       // configuration data
       double   fFermiConstant ;
-      double   fCA50;              ///< FKR parameter Zeta
-      double   fOmega;             ///< FKR parameter Omega
-      double   fMa2;               ///< (axial mass)^2
-      double   fMv2;               ///< (vector mass)^2
-      double   fSin2Wein;          ///< sin^2(Weingberg angle)
-      double   fVud;               ///< |Vud| (magnitude ud-element of CKM-matrix)
-      double   fXSecScaleCC;       ///< external CC xsec scaling factor
-      double   fXSecScaleNC;       ///< external NC xsec scaling factor
       const ELFormFactorsModelI  * fElFFModel;          ///< Elastic form facors model for background contribution
       const QELFormFactorsModelI * fFormFactorsModel;   ///< Quasielastic form facors model for background contribution
       const QELFormFactorsModelI * fEMFormFactorsModel; ///< Electromagnetic form factors model for background contribution
@@ -101,23 +92,8 @@ namespace genie {
       bool fUsePauliBlocking;      ///< account for Pauli blocking?
 
       mutable QELFormFactors  fFormFactors;      ///<  Quasielastic form facors for background contribution
-      mutable QELFormFactors  fEMFormFactors;    ///<  Electromagnetic form facors for background contribution
       double  f_pi;                              ///<  Constant for pion-nucleon interaction
-      double  FA0;                               ///<  Axial coupling (value of axial form factor at Q2=0)
-      double  Frho0;                             ///<  Value of form fator F_rho at t=0 
-      /// Parameters for vector virtual form factor
-      /// for background contribution, which equal to:  
-      /// 1,                                              W<VWmin   
-      /// V3*W^3+V2*W^2+V1*W+V0                     VWmin<W<VWmax
-      /// 0                                               W>VWmax
-      double fBkgVWmin;
-      double fBkgVWmax; 
-      double fBkgV3;  
-      double fBkgV2;   
-      double fBkgV1;   
-      double fBkgV0;   
-      double fRho770Mass;                        ///< Mass of rho(770) meson 
-      
+
       const XSecIntegratorI * fXSecIntegrator;
       
       BaryonResList  fResList;
