@@ -288,12 +288,12 @@ public:
 
       //-- v CC
       case (kSpp_vp_cc_10100) : return  kSqrt3;
-      case (kSpp_vn_cc_10010) : return  kSqrt2_3;
+      case (kSpp_vn_cc_10010) : return -kSqrt2_3;
       case (kSpp_vn_cc_01100) : return  k1_Sqrt3;
 
       //-- v NC
       case (kSpp_vp_nc_10010) : return  kSqrt2_3;
-      case (kSpp_vp_nc_01100) : return  k1_Sqrt3;
+      case (kSpp_vp_nc_01100) : return -k1_Sqrt3;
       case (kSpp_vn_nc_01010) : return  kSqrt2_3;
       case (kSpp_vn_nc_10001) : return  k1_Sqrt3;
 
@@ -301,12 +301,12 @@ public:
 
       //-- vbar CC
       case (kSpp_vbn_cc_01001): return  kSqrt3;
-      case (kSpp_vbp_cc_01010): return  kSqrt2_3;
+      case (kSpp_vbp_cc_01010): return -kSqrt2_3;
       case (kSpp_vbp_cc_10001): return  k1_Sqrt3;
-
-      //-- vbar NC
+                                
+      //-- vbar NC              
       case (kSpp_vbp_nc_10010): return  kSqrt2_3;
-      case (kSpp_vbp_nc_01100): return  k1_Sqrt3;
+      case (kSpp_vbp_nc_01100): return -k1_Sqrt3;
       case (kSpp_vbn_nc_01010): return  kSqrt2_3;
       case (kSpp_vbn_nc_10001): return  k1_Sqrt3;
 
@@ -325,12 +325,12 @@ public:
 
       //-- v CC
       case (kSpp_vp_cc_10100) : return  0.;
-      case (kSpp_vn_cc_10010) : return  -k1_Sqrt3;
+      case (kSpp_vn_cc_10010) : return  k1_Sqrt3;
       case (kSpp_vn_cc_01100) : return  kSqrt2_3;
 
       //-- v NC
       case (kSpp_vp_nc_10010) : return -k1_Sqrt3;
-      case (kSpp_vp_nc_01100) : return  kSqrt2_3;
+      case (kSpp_vp_nc_01100) : return -kSqrt2_3;
       case (kSpp_vn_nc_01010) : return  k1_Sqrt3;
       case (kSpp_vn_nc_10001) : return -kSqrt2_3;
 
@@ -338,12 +338,12 @@ public:
 
       //-- vbar CC
       case (kSpp_vbn_cc_01001): return  0.;
-      case (kSpp_vbp_cc_01010): return  -k1_Sqrt3;
+      case (kSpp_vbp_cc_01010): return  k1_Sqrt3;
       case (kSpp_vbp_cc_10001): return  kSqrt2_3;
-
-      //-- vbar NC
+                                
+      //-- vbar NC              
       case (kSpp_vbp_nc_10010): return -k1_Sqrt3;
-      case (kSpp_vbp_nc_01100): return  kSqrt2_3;
+      case (kSpp_vbp_nc_01100): return -kSqrt2_3;
       case (kSpp_vbn_nc_01010): return  k1_Sqrt3;
       case (kSpp_vbn_nc_10001): return -kSqrt2_3;
 
