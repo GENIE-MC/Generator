@@ -25,7 +25,6 @@ double NHLFluxCreator::BR_K2mu,  NHLFluxCreator::BR_K2e;
 double NHLFluxCreator::BR_K3mu,  NHLFluxCreator::BR_K3e;
 double NHLFluxCreator::BR_K03mu, NHLFluxCreator::BR_K03e;
 
-bool NHLFluxCreator::doProduceHists = false;
 bool NHLFluxCreator::isParentOnAxis = true;
 
 double NHLFluxCreator::fLx, NHLFluxCreator::fLy, NHLFluxCreator::fLz;
@@ -49,7 +48,6 @@ double NHLFluxCreator::decay_nimpwt;
 int    NHLFluxCreator::job;
 double NHLFluxCreator::pots;
 
-TFile * NHLFluxCreator::fin = 0;
 TChain * NHLFluxCreator::ctree = 0, * NHLFluxCreator::cmeta = 0;
 bool NHLFluxCreator::isTreeInit = false, NHLFluxCreator::isMetaInit = false, NHLFluxCreator::isBoxInit = false;
 
@@ -719,15 +717,6 @@ void NHLFluxCreator::ReadBRs()
 
   BR_K03mu = 2.0 * neuk3muChannel->BranchingRatio(); // one from K0L-->mu+ and one from -->mu-
   BR_K03e  = 2.0 * neuk3elChannel->BranchingRatio();
-}
-//----------------------------------------------------------------------------
-TVector3 NHLFluxCreator::GetBoostBetaVec( TLorentzVector parp4 )
-{
-  double px = parp4.Px(), py = parp4.Py(), pz = parp4.Pz(), pE = parp4.E();
-  double p = parp4.P();
-  double beta_mag = p/pE;
-  TVector3 bvec( beta_mag * px/p, beta_mag * py/p, beta_mag * pz/p );
-  return bvec;
 }
 //----------------------------------------------------------------------------
 std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )

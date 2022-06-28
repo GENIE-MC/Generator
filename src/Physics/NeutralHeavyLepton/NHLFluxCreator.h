@@ -37,6 +37,7 @@
 // -- C++ includes
 #include <array>
 #include <cassert>
+#include <iomanip> // for momentum balance stream
 #include <map>
 #include <sstream>
 
@@ -94,16 +95,11 @@ namespace genie{
       void OpenFluxInput( std::string finpath );
       void InitialiseTree();
       void InitialiseMeta();
-      //RETHERE Should produce histograms for validation!
-      void InitialiseHists();
 
-      // Custom NHL kinematics, POT scaling, production probabilities
-      double ScalePOT( double sm_pot );
       // returns NHL 4-momentum from random decay in same frame as p4par
       TLorentzVector NHLEnergy( genie::NHL::NHLProd_t nhldm, TLorentzVector p4par );
       // gets random point in BBox and returns separation to it in BEAM FRAME
       TVector3 PointToRandomPointInBBox( TVector3 detO_beam );
-      TVector3 GetBoostBetaVec( TLorentzVector parp4 );
 
       void ReadBRs();
       std::map< genie::NHL::NHLProd_t, double > GetProductionProbs( int parPDG );
@@ -125,21 +121,6 @@ namespace genie{
       // returns 1.0 / (area of flux calc)
       double CalculateAreaNormalisation();
 
-      /*
-      // Obtain translation from beam to detector frame
-      std::vector< double > GetBeam2UserTranslation();
-      // Obtain rotation from beam to detector frame (Euler angles, extrinsic x-z-x)
-      std::vector< double > GetBeam2UserRotation();
-      // package the above two in a single call
-      void GetBeam2UserTransformation();
-      */
-
-      // get delay on top of a SM neutrino.
-      double GetTimeDelay(); //args?? 
-
-      double GetPOTFromMeta( TChain * cmeta );
-      void   LoopEntries( TChain * cflux, TChain * cmeta );
-
       // current path to keep track of what is loaded
       extern std::string fCurrPath;
       
@@ -152,10 +133,8 @@ namespace genie{
       
       extern double BR_pi2mu, BR_pi2e, BR_K2mu, BR_K2e, BR_K3mu, BR_K3e, BR_K03mu, BR_K03e;
 
-      extern bool doProduceHists;
       extern bool isParentOnAxis;
 
-      extern TFile * fin;
       extern TChain * ctree, * cmeta;
       extern bool isTreeInit, isMetaInit, isBoxInit;
 
