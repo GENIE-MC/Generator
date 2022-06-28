@@ -106,10 +106,6 @@ namespace NHL {
     extern double fDxROOT, fDyROOT, fDzROOT; // decay point in cm
     extern double fOxROOT, fOyROOT, fOzROOT; // origin in cm
     extern double fLxROOT, fLyROOT, fLzROOT; // dimensions in cm
-
-    extern double fAx, fAy, fAz; //
-    extern double fAlpha;
-    extern double ft;
     
     extern double kNewSpeedOfLight;
 

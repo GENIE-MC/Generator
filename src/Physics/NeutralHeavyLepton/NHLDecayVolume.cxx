@@ -33,10 +33,6 @@ double NHLDecayVolume::fDxROOT = 0.0, NHLDecayVolume::fDyROOT = 0.0, NHLDecayVol
 double NHLDecayVolume::fOxROOT = 0.0, NHLDecayVolume::fOyROOT = 0.0, NHLDecayVolume::fOzROOT = 0.0;
 double NHLDecayVolume::fLxROOT = 0.0, NHLDecayVolume::fLyROOT = 0.0, NHLDecayVolume::fLzROOT = 0.0;
 
-double NHLDecayVolume::fAx = 0.0, NHLDecayVolume::fAy = 0.0, NHLDecayVolume::fAz = 0.0; // axis of rotation
-double NHLDecayVolume::fAlpha = 0.0; // rotation angle;
-double NHLDecayVolume::ft = 0.0; // elapsed time
-
 double NHLDecayVolume::kNewSpeedOfLight = genie::units::kSpeedOfLight 
   * (genie::units::m / lunits)
   / (genie::units::s / tunits);
@@ -64,10 +60,6 @@ void NHLDecayVolume::EnforceUnits( std::string length_units, std::string angle_u
 
   fDx /= lunits/old_lunits; fDy /= lunits/old_lunits; fDz /= lunits/old_lunits;
   fOx /= lunits/old_lunits; fOy /= lunits/old_lunits; fOz /= lunits/old_lunits;
-
-  fAx /= lunits/old_lunits; fAy /= lunits/old_lunits; fAz /= lunits/old_lunits;
-  fAlpha /= aunits/old_aunits;
-  ft /= tunits/old_tunits;
 
   kNewSpeedOfLight /= (lunits / old_lunits) / (tunits / old_tunits);
 
