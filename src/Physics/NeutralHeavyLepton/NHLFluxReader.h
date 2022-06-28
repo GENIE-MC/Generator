@@ -51,13 +51,6 @@ namespace NHL{
 
     extern std::string fPath; // flux file to poke
     extern double fmN; // NHL mass
-
-    // RETHERE: will the following line behave?
-    //static const double kKaonMass = ( PDGLibrary::Instance() )->Find( genie::kPdgKP )->Mass();
-    static const double kKaonMass = 0.4936 * genie::units::GeV; // to match pdg table
-    
-    /// initialise bare NHL parameters
-    inline void bareInit( ){ fmN = 0.; }
     
     inline void setMass( const double mN ){ fmN = mN; }
 
@@ -73,10 +66,6 @@ namespace NHL{
     TH3D * getFluxHist3D( std::string fin, std::string dirName, std::string hName );
 
     std::vector< double > * generateVtx3X( TH3D * prodVtxHist );
-    
-    /// interface to SimpleNHL constructor
-    genie::NHL::SimpleNHL generateNHL( const int PDG, const int parPDG, const double mN,
-				       const double Ue42, const double Um42, const double Ut42 );
 
   } // namespace NHLFluxReader
 

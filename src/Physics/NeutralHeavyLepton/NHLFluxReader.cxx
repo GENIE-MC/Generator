@@ -164,8 +164,3 @@ std::vector< double > * NHLFluxReader::generateVtx3X( TH3D * prodVtxHist )
 
   return vtxDir;
 }
-
-SimpleNHL generateNHL( const int PDG, const int parPDG, const double mN,
-		       const double Ue42, const double Um42, const double Ut42 ){
-  return SimpleNHL( "NHL", 0, PDG, parPDG, mN, Ue42, Um42, Ut42, false );
-}
