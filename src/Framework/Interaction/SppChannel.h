@@ -404,8 +404,9 @@ public:
   {
     const InitialState & init_state = interaction->InitState();
     const ProcessInfo &  proc_info  = interaction->ProcInfo();
+    if ( !proc_info.IsSinglePion() ) return kSppNull;
+    
     const XclsTag &      xcls_tag   = interaction->ExclTag();
-
     if( xcls_tag.NPions()    != 1 ) return kSppNull;
     if( xcls_tag.NNucleons() != 1 ) return kSppNull;
 
