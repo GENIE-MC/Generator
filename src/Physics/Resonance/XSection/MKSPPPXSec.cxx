@@ -1354,9 +1354,6 @@ bool MKSPPPXSec::ValidProcess(const Interaction * interaction) const
   //-- Get the requested SPP channel
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
   if( spp_channel == kSppNull ) {
-
-    LOG("MKSPPPXSec", pERROR)
-            << "Insufficient SPP exclusive final state information!\n";
     return false;
   }
 

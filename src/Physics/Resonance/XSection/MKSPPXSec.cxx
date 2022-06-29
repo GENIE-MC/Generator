@@ -73,22 +73,16 @@ double MKSPPXSec::Integrate(
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
   const Target &       target     = init_state.Tgt();
   
+  const KPhaseSpace& kps = interaction->PhaseSpace();
+  
   double Enu = init_state.ProbeE(kRfHitNucRest);
-  double ml   = interaction->FSPrimLepton()->Mass();
   
   //-- Get the requested SPP channel
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
 
-  PDGLibrary * pdglib = PDGLibrary::Instance();
+  if (Enu < kps.Threshold_RSPP()) return 0.;
   
-  // imply isospin symmetry  
-  double mpi  = (pdglib->Find(kPdgPiP)->Mass() + pdglib->Find(kPdgPi0)->Mass() + pdglib->Find(kPdgPiM)->Mass())/3;
-  double M = (pdglib->Find(kPdgProton)->Mass() + pdglib->Find(kPdgNeutron)->Mass())/2;
-    
-  double E_thr = (TMath::Power(M + ml + mpi, 2) - M*M)/2/M;
-  if (Enu < E_thr) return 0.;
-  
-  fSingleResXSecModel = model;
+  fSinglePionProductionXSecModel = model;
 
   InteractionType_t it = proc_info.InteractionTypeId();
   int nucleon_pdgc = target.HitNucPdg();

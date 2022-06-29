@@ -82,7 +82,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
 
   Cache * cache = Cache::Instance();
 
-  assert(fSingleResXSecModel);
+  assert(fSinglePionProductionXSecModel);
   
   SppChannel_t spp_channel = SppChannel::FromInteraction(in);
 
@@ -123,14 +123,9 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
   cache->AddCacheBranch(key, cache_branch);
   assert(cache_branch);
   
-  double ml   = local_interaction.FSPrimLepton()->Mass();
-  PDGLibrary * pdglib = PDGLibrary::Instance();
-  
-  // imply isospin symmetry  
-  double mpi  = (pdglib->Find(kPdgPiP)->Mass() + pdglib->Find(kPdgPi0)->Mass() + pdglib->Find(kPdgPiM)->Mass())/3;
-  double M = (pdglib->Find(kPdgProton)->Mass() + pdglib->Find(kPdgNeutron)->Mass())/2;
+  const KPhaseSpace& kps = in->PhaseSpace();
     
-  double Ethr = (TMath::Power(M + ml + mpi, 2) - M*M)/2/M;
+  double Ethr = kps.Threshold_RSPP();
   LOG("MKSPPCache", pNOTICE) << "E threshold = " << Ethr;
 
   // Distribute the knots in the energy range as is being done in the
@@ -164,7 +159,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
 	<< "*** Integrating d^4 XSec/dWdQ^2dCosThetadPhi for Ch: "
 	<< SppChannel::AsString(spp_channel) << " at Ev = " << Ev;
       
-      utils::gsl::d3XSecMK_dWQ2CosTheta_E func(fSingleResXSecModel, & local_interaction, fWcut ) ; 
+      utils::gsl::d3XSecMK_dWQ2CosTheta_E func(fSinglePionProductionXSecModel, & local_interaction, fWcut ) ; 
       ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
       ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
       ig.SetFunction(func);
@@ -206,7 +201,7 @@ string MKSPPXSecWithCache::CacheBranchName(
   intk << "ResSPPXSec/Ch:" << spp_channel_name << nc_nuc  << nupdgc
        << ";int:" << it_name;
 
-  string algkey = fSingleResXSecModel->Id().Key();
+  string algkey = fSinglePionProductionXSecModel->Id().Key();
   string ikey   = intk.str();
   string key    = cache->CacheBranchKey(algkey, ikey);
 

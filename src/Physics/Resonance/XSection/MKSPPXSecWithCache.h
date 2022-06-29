@@ -59,7 +59,7 @@ protected:
   double fWcut;
   double fEMax;
 
-  mutable const XSecAlgorithmI * fSingleResXSecModel;
+  mutable const XSecAlgorithmI * fSinglePionProductionXSecModel;
   BaryonResList fResList;
 };
 

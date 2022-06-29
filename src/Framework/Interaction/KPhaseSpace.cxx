@@ -100,6 +100,23 @@ double KPhaseSpace::Threshold(void) const
     double Ethresh = (mtot*mtot - Mi*Mi)/(2. * Mf);
     return Ethresh;
   }
+  
+  if (pi.IsSinglePion()) {
+    double Mi   = tgt.HitNucP4Ptr()->M(); // initial nucleon mass
+    // Final nucleon can be different for K0 interaction
+    double Mf = (xcls.NProtons()==1) ? kProtonMass : kNeutronMass;
+    int pion_pdgc = kPdgPi0;
+    if ( xcls.NPiPlus() == 1 )
+       pion_pdgc = kPdgPiP;
+    else if ( xcls.NPiMinus() == 1 )
+       pion_pdgc = kPdgPiM;
+    else if ( xcls.NPi0() != 1 )
+       throw genie::exceptions::InteractionException("Can't compute threshold");
+    double mpi   = PDGLibrary::Instance()->Find(pion_pdgc)->Mass();
+    double mtot = ml + mpi + Mf; // total mass of FS particles
+    double Ethresh = (mtot*mtot - Mi*Mi)/(2. * Mf);
+    return Ethresh;
+  }
 
   if(pi.IsCoherentElastic()) {
     return ml + 0.5*ml*ml/tgt.Mass();

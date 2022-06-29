@@ -377,9 +377,10 @@ double RSPPEventGenerator::ComputeMaxXSec(
      {
        double MR  = utils::res::Mass(res);
        double WR  = utils::res::Width(res);
-       double W = MR;
+       if (MR-WR > Wl.max || MR+WR < Wl.min)  continue;
        double Wmin = TMath::Max(Wl.min, MR - WR);
        double Wmax = TMath::Min(Wl.max, MR + WR);
+       double W = 0.5*(Wmin+Wmax);
        interaction->KinePtr()->SetW(W);
        Range1D_t Q2l = kps->Q2Lim_W_RSPP();
        double dQ2 = Q2l.max-Q2l.min;
@@ -396,7 +397,6 @@ double RSPPEventGenerator::ComputeMaxXSec(
            double phi = 2*kPi*i4/N4;
            double phimin = 2*kPi*i4/N4;
            double phimax = 2*kPi*(i4 + 1)/N4;
-           
            min->SetVariable(0, "x1", W, (Wmax - Wmin)*step);
            min->SetVariable(1, "x2", Q2, (Q2max - Q2min)*step);
            min->SetVariable(2, "x3", cost, (costmax - costmin)*step);
