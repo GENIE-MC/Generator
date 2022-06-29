@@ -178,6 +178,7 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
     << "Decaying system p4 = " << utils::print::P4AsString(p4d);
 
   // Set the decay
+  TGenPhaseSpace fPhaseSpaceGenerator;
   bool permitted = fPhaseSpaceGenerator.SetDecay(*p4d, pdgv.size(), mass);
   if(!permitted) {
      LOG("NHL", pERROR)
@@ -495,28 +496,9 @@ void NHLPrimaryVtxGenerator::SetBeam2User( std::vector< double > translation, st
   fR2 = rotation.at(1);
   fR3 = rotation.at(2);
 
-  fRM11 = std::cos( fR2 );
-  fRM12 = -std::cos( fR3 ) * std::sin( fR2 );
-  fRM13 = std::sin( fR2 ) * std::sin( fR3 );
-  fRM21 = std::cos( fR1 ) * std::sin( fR2 );
-  fRM22 = std::cos( fR1 ) * std::cos( fR2 ) * std::cos( fR3 ) - std::sin( fR1 ) * std::sin( fR3 );
-  fRM23 = -std::cos( fR3 ) * std::sin( fR1 ) - std::cos( fR1 ) * std::cos( fR2 ) * std::sin( fR3 );
-  fRM31 = std::sin( fR1 ) * std::sin( fR2 );
-  fRM32 = std::cos( fR1 ) * std::sin( fR3 ) + std::cos( fR2 ) * std::cos( fR3 ) * std::sin( fR1 );
-  fRM33 = std::cos( fR1 ) * std::cos( fR3 ) - std::cos( fR2 ) * std::sin( fR1 ) * std::sin( fR3 );
-
-  fRTx = fTx * fRM11 + fTy * fRM12 + fTz * fRM13;
-  fRTy = fTx * fRM21 + fTy * fRM22 + fTz * fRM23;
-  fRTz = fTx * fRM31 + fTy * fRM32 + fTz * fRM33;
-
   LOG( "NHL", pDEBUG )
     << "Set BEAM origin = (0,0,0) to UNROTATED USER coordinates = ( " << fTx << ", " << fTy << ", " << fTz << " ) [m]"
-    << "\nSet Euler (extrinsic x-z-x) angles to ( " << fR1 << ", " << fR2 << ", " << fR3 << " ) [rad]"
-    << "\nThe rotation matrix is as follows:"
-    << "\nROW 1 = ( " << fRM11 << ", " << fRM12 << ", " << fRM13 << " )"
-    << "\nROW 2 = ( " << fRM21 << ", " << fRM22 << ", " << fRM23 << " )"
-    << "\nROW 3 = ( " << fRM31 << ", " << fRM32 << ", " << fRM33 << " )"
-    << "\nROTATED USER corrdinates = ( " << fRTx << ", " << fRTy << ", " << fRTz << " )";  
+    << "\nSet Euler (extrinsic x-z-x) angles to ( " << fR1 << ", " << fR2 << ", " << fR3 << " ) [rad]";  
 }
 //___________________________________________________________________________
 double NHLPrimaryVtxGenerator::GetNHLMass(string config)
@@ -550,31 +532,4 @@ void NHLPrimaryVtxGenerator::SetProdVtxPosition(const TLorentzVector & v4) const
   TLorentzVector * pv4 = new TLorentzVector();
   pv4->SetXYZT( v4.X(), v4.Y(), v4.Z(), v4.T() );
   fProdVtx = pv4;
-}
-//____________________________________________________________________________
-TLorentzVector * NHLPrimaryVtxGenerator::GetProdVtxPosition(GHepRecord * event)
-{
-  if( !fProdVtx ){
-    LOG( "NHL", pWARN )
-      << "Production vertex not set. Setting it now.";
-    this->GenerateDecayPosition(event);
-  }
-  return fProdVtx;
-}
-//____________________________________________________________________________
-void NHLPrimaryVtxGenerator::SetNHLMomentum(const TLorentzVector & p4) const
-{
-  TLorentzVector * pp4 = new TLorentzVector();
-  pp4->SetPxPyPzE( p4.Px(), p4.Py(), p4.Pz(), p4.E() );
-  fISMom = pp4;
-}
-//____________________________________________________________________________
-TLorentzVector * NHLPrimaryVtxGenerator::GetNHLMomentum(GHepRecord * event)
-{
-  if( !fISMom ){
-    LOG( "NHL", pWARN )
-      << "Momentum not set. Setting it now.";
-    this->GenerateMomentum(event);
-  }
-  return fISMom;
 }
