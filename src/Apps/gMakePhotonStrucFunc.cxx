@@ -111,6 +111,19 @@ void externalsetapfellept_(double* x, double* q, int* irep, double* xl, double* 
 int main(int argc, char ** argv)
 {
 
+  string basedir = "";
+  if ( gSystem->Getenv("PHOTON_SF_DATA_PATH")==NULL ) basedir = string(gSystem->Getenv("GENIE")) + "/data/evgen/photon-sf";
+  else                                                basedir = string(gSystem->Getenv("PHOTON_SF_DATA_PATH"));
+  LOG("gmkphotonsf", pERROR) << "Base directory: " << basedir;
+
+  if ( gSystem->AccessPathName( basedir.c_str(), kWritePermission ) ) {
+      LOG("gmkphotonsf", pFATAL) << "Base directory doesnt exist or you dont have write permission.";
+      LOG("gmkphotonsf", pFATAL) << "Remember!!!";
+      LOG("gmkphotonsf", pFATAL) << "Path to base directory is defined with the enviroment variable PHOTON_SF_DATA_PATH.";
+      LOG("gmkphotonsf", pFATAL) << "If not defined, default location is $GENIE/data/evgen/photon-sf";
+      assert(0);
+  }
+
   const int nx = 1000.;
 
   int nucs[2] = { kPdgProton, kPdgNeutron };
@@ -174,7 +187,8 @@ int main(int argc, char ** argv)
     for ( int i=0; i<nx; i++ ) x[i] = TMath::Power( 10, TMath::Log10(xPDFmin) + i*(TMath::Log10(1.)-TMath::Log10(xPDFmin))/(1000.-1) );
 
     for(int j=0; j<6; j++) {
-      string SFname = string(gSystem->Getenv("GENIE")) + "/data/evgen/photon-sf/PhotonSF_hitnuc"+to_string(fNucPdg)+"_hitlep"+to_string(pdgs[j])+".dat";
+
+      string SFname = basedir + "/PhotonSF_hitnuc"+to_string(fNucPdg)+"_hitlep"+to_string(pdgs[j])+".dat";
       std::ofstream sf_stream(SFname);
       for ( int i=0; i<nx; i++ ) {
         double tmp = 0;
