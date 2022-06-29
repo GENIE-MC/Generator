@@ -136,7 +136,6 @@ namespace genie{
       extern bool isParentOnAxis;
 
       extern TChain * ctree, * cmeta;
-      extern bool isTreeInit, isMetaInit, isBoxInit;
 
       extern double fLx, fLy, fLz;   //BBox length [m]
       extern double fCx, fCy, fCz;   //BBox centre wrt NHL prod [m]
@@ -146,11 +145,6 @@ namespace genie{
       //std::vector< double > trVec, roVec;
 
       extern double parentMass, parentMomentum, parentEnergy; // GeV
-
-      extern TGenPhaseSpace fPhaseSpaceGenerator;
-
-      // functions for acceptance correction
-      extern TF1 * fNHL, * fSMv;
 
       // tree variables. Add as per necessary.
       extern double potnum;                             ///< N POT for this SM-v

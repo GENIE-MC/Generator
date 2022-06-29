@@ -50,9 +50,6 @@ namespace NHL{
   namespace NHLFluxReader{
 
     extern std::string fPath; // flux file to poke
-    extern double fmN; // NHL mass
-    
-    inline void setMass( const double mN ){ fmN = mN; }
 
     /// perform selections from input files
     int selectMass( const double mN );

@@ -34,10 +34,6 @@ double NHLFluxCreator::fDx, NHLFluxCreator::fDy, NHLFluxCreator::fDz;
 
 double NHLFluxCreator::parentMass, NHLFluxCreator::parentMomentum, NHLFluxCreator::parentEnergy;
 
-TGenPhaseSpace NHLFluxCreator::fPhaseSpaceGenerator;
-
-TF1 * NHLFluxCreator::fNHL, * NHLFluxCreator::fSMv;
-
 double NHLFluxCreator::potnum;
 int    NHLFluxCreator::decay_ptype;
 double NHLFluxCreator::decay_vx, NHLFluxCreator::decay_vy, NHLFluxCreator::decay_vz;
@@ -49,7 +45,6 @@ int    NHLFluxCreator::job;
 double NHLFluxCreator::pots;
 
 TChain * NHLFluxCreator::ctree = 0, * NHLFluxCreator::cmeta = 0;
-bool NHLFluxCreator::isTreeInit = false, NHLFluxCreator::isMetaInit = false, NHLFluxCreator::isBoxInit = false;
 
 //----------------------------------------------------------------------------
 void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath, int run )
@@ -58,7 +53,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   // Essentially, it replaces a SMv with an NHL
 
   // Open flux input and initialise trees
-  if( !isTreeInit || !isMetaInit || !isBoxInit ){
+  if( ctree->GetBranch("decay_nimpwt") || cmeta->GetBranch("pots") ){
     OpenFluxInput( finpath );
     InitialiseTree();
     InitialiseMeta();
@@ -66,10 +61,6 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   }
 
   // All these in m
-  // Beam (0,0,0) is user (0.2486, 60.35,   -1022.74) // = -(fCx, fCy, fCz)
-  // Beam (0,1,0) is user (0.2486, 61.3483, -1022.68)
-  // Beam (0,0,1) is user (0.2486, 60.2917, -1021.74)
-
   TVector3 fCvec_beam( fCx, fCy, fCz );
   TVector3 fCvec = ApplyUserRotation( fCvec_beam );
 
@@ -655,8 +646,6 @@ void NHLFluxCreator::OpenFluxInput( std::string finpath )
 //----------------------------------------------------------------------------
 void NHLFluxCreator::InitialiseTree()
 {
-  if( isTreeInit ) return;
-
   potnum = 0.0;
   decay_ptype = 0;
   decay_vx = 0.0; decay_vy = 0.0; decay_vz = 0.0;
@@ -676,9 +665,7 @@ void NHLFluxCreator::InitialiseTree()
 }
 //----------------------------------------------------------------------------
 void NHLFluxCreator::InitialiseMeta()
-{
-  if( isMetaInit ) return;
-  
+{ 
   job = 0;
   pots = 0.0;
 
@@ -880,6 +867,7 @@ TLorentzVector NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par 
     }
   
   // Set the decay
+  TGenPhaseSpace fPhaseSpaceGenerator;
   bool permitted = fPhaseSpaceGenerator.SetDecay( p4par_rest, decayList.size(), mass );
   if(!permitted) {
     LOG("NHL", pERROR)
@@ -947,65 +935,13 @@ TLorentzVector NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par 
   // Grab 0th entry energy and return that
   int idp = 0; TLorentzVector p4NHL, p4NHL_rest;
 
-  //std::vector< int > pdgprd;
-  //std::vector< TLorentzVector > p4prd, p4prd_rest;
-  //TLorentzVector p4all, p4all_rest;
-
-  //p4all_rest = TLorentzVector( 0.0, 0.0, 0.0, 0.0 );
-
   for(std::vector<int>::const_iterator pdg_iter = decayList.begin(); pdg_iter != decayList.end(); ++pdg_iter) {
      int pdgc = *pdg_iter;
      TLorentzVector * p4fin = fPhaseSpaceGenerator.GetDecay(idp);
 
-     //p4prd_rest.emplace_back( *p4fin ); pdgprd.emplace_back( pdgc );
-     //p4all_rest.SetPxPyPzE( p4all_rest.Px() + p4fin->Px(),
-     //			    p4all_rest.Py() + p4fin->Py(),
-     //			    p4all_rest.Pz() + p4fin->Pz(),
-     //			    p4all_rest.E() + p4fin->E() );
-
      if( std::abs( pdgc ) == kPdgNHL ) p4NHL = *p4fin;
      idp++;
   }
-
-  /*
-  p4all = p4all_rest;
-  p4all.Boost( boost_beta );
-
-  for( Int_t ivec = 0; ivec < p4prd_rest.size(); ivec++ ){
-    TLorentzVector p4tmp = p4prd_rest.at(ivec);
-    p4tmp.Boost( boost_beta );
-    p4prd.emplace_back( p4tmp );
-  }
-
-  std::ostringstream bsts;
-  bsts << "\n*=*=*=*=*=*=*=*=*=*=*=*   BALANCE STATS AT NHL PRODUCTION   *=*=*=*=*=*=*=*=*=*=*=*"
-       << "\n\nX=================================================================================X"
-       << "\n|     PDG     |     Index     |     Px     |     Py     |     Pz     |     E      |"
-       << "\n|" << std::setw(13) << *(fullList.begin()) << "|       0       |";
-  bsts << std::fixed << std::setprecision(3);
-  bsts << std::setw(12) << p4par.Px() << "|" << std::setw(12) << p4par.Py() << "|"
-       << std::setw(12) << p4par.Pz() << "|" << std::setw(12) << p4par.E() << "|";
-
-  for( Int_t ivec = 0; ivec < p4prd_rest.size(); ivec++ ){
-    TLorentzVector p4now = p4prd.at(ivec);
-    bsts << "\n|";
-    bsts << std::setw(13) << pdgprd.at(ivec) << "|" << std::setw(8) << ivec+1 << "       |"
-	 << std::setw(12) << p4now.Px() << "|" << std::setw(12) << p4now.Py() << "|"
-	 << std::setw(12) << p4now.Pz() << "|" << std::setw(12) << p4now.E() << "|";
-  }
-  bsts << "\nX=================================================================================X";
-  bsts << "\n|     NONE    |     ALL FS    |"
-       << std::setw(12) << p4all.Px() << "|" << std::setw(12) << p4all.Py() << "|"
-       << std::setw(12) << p4all.Pz() << "|" << std::setw(12) << p4all.E() << "|";
-  bsts << "\n|     NONE    |   Fin - Init  |"
-       << std::setw(12) << p4all.Px() - p4par.Px() << "|" << std::setw(12) << p4all.Py() - p4par.Py() << "|"
-       << std::setw(12) << p4all.Pz() - p4par.Pz() << "|" << std::setw(12) << p4all.E() - p4par.E() << "|";
-  bsts << "\nX=================================================================================X"
-       << "\n\n*=*=*=*=*=*=*=*=*=*=*=*   BALANCE STATS AT NHL PRODUCTION   *=*=*=*=*=*=*=*=*=*=*=*\n";
-
-  LOG( "NHL", pDEBUG ) << bsts.str();
-
-  */
   
   return p4NHL; // rest frame momentum!
 }
@@ -1139,7 +1075,7 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
   double M = p4NHL.M();
   if( M == 0.0 ) return 1.0;
 
-  fNHL = ( TF1* ) gROOT->GetListOfFunctions()->FindObject( "fNHL" );
+  TF1 * fNHL = ( TF1* ) gROOT->GetListOfFunctions()->FindObject( "fNHL" );
   if( !fNHL ){ fNHL = new TF1( "fNHL", labangle, 0.0, 180.0, 6 ); }
   fNHL->SetParameter( 0, p4par.E()  );
   fNHL->SetParameter( 1, p4par.Px() );
@@ -1196,7 +1132,7 @@ double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
     }
   }
 
-  fSMv = ( TF1* ) gROOT->GetListOfFunctions()->FindObject( "fSMv" );
+  TF1 * fSMv = ( TF1* ) gROOT->GetListOfFunctions()->FindObject( "fSMv" );
   if( !fSMv ){
     fSMv = new TF1( "fSMv", labangle, 0.0, 180.0, 6 );
   }
@@ -1274,8 +1210,6 @@ double NHLFluxCreator::labangle( double * x, double * par )
 //----------------------------------------------------------------------------
 void NHLFluxCreator::MakeBBox()
 {
-  if( isBoxInit ) return;
-
   LOG( "NHL", pWARN )
     << "WARNING: This is a dummy (==unit-side) bounding box centred at config-given point";
 
@@ -1289,8 +1223,6 @@ void NHLFluxCreator::MakeBBox()
   fAx2 = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "EulerExtrinsicX2" );
 
   fLx = 1.0; fLy = 1.0; fLz = 1.0;
-
-  isBoxInit = true;
 }
 //----------------------------------------------------------------------------
 TVector3 NHLFluxCreator::ApplyUserRotation( TVector3 vec, bool doBackwards )

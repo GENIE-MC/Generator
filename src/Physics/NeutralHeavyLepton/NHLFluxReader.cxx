@@ -15,7 +15,6 @@ using namespace genie::NHL::NHLenums;
 
 // definition of extern variables
 std::string NHLFluxReader::fPath;
-double NHLFluxReader::fmN;
 
 int NHLFluxReader::selectMass( const double mN ){
     /// move mass to closest mass hypothesis
@@ -49,7 +48,7 @@ int NHLFluxReader::selectMass( const double mN ){
       exit(1); 
     }
 
-    int mp = -1; fmN = 0.0;
+    int mp = -1; double fmN = 0.0; // mass of the selected masspoint
     if( mN >= masses[ nMasses ] ){ mp = nMasses; fmN = masses[ nMasses ]; }
     while( masses[ mp + 1 ] < mN && mp < nMasses ){ mp++; } // decide interval
     
