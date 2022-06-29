@@ -53,8 +53,6 @@ public:
   std::vector< double > * GenerateDecayPosition (GHepRecord * event) const;
   std::vector< double > * GenerateMomentum (GHepRecord * event) const;
 
-  double GetNHLMass(string config);
-  std::vector< double > GetNHLCouplings(string config);
   genie::NHL::SimpleNHL GetNHLInstance(string config);
 
 private:

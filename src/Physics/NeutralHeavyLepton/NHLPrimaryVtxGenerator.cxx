@@ -501,19 +501,6 @@ void NHLPrimaryVtxGenerator::SetBeam2User( std::vector< double > translation, st
     << "\nSet Euler (extrinsic x-z-x) angles to ( " << fR1 << ", " << fR2 << ", " << fR3 << " ) [rad]";  
 }
 //___________________________________________________________________________
-double NHLPrimaryVtxGenerator::GetNHLMass(string config)
-{
-  if( !fIsConfigLoaded ) this->Configure(config);
-  return fMass;
-}
-//___________________________________________________________________________
-std::vector< double > NHLPrimaryVtxGenerator::GetNHLCouplings(string config)
-{
-  if( !fIsConfigLoaded ) this->Configure(config);
-  std::vector< double > coupVec = { fUe42, fUm42, fUt42 };
-  return coupVec;
-}
-//___________________________________________________________________________
 SimpleNHL NHLPrimaryVtxGenerator::GetNHLInstance(string config)
 {
   if( !fIsConfigLoaded ) this->Configure(config);
