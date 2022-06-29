@@ -177,14 +177,6 @@ namespace genie {
 	      return rVec;
 	    }
 
-	    inline std::vector<std::vector<double>> GetBeam2UserRotationMatrix( ) {
-	      std::vector<double> rm1Vec = { fRM11, fRM12, fRM13 };
-	      std::vector<double> rm2Vec = { fRM21, fRM22, fRM23 };
-	      std::vector<double> rm3Vec = { fRM31, fRM32, fRM33 };
-	      std::vector<std::vector<double>> rmVec = { rm1Vec, rm2Vec, rm3Vec };
-	      return rmVec;
-	    }
-
 	    // setters
 
 	    inline void SetName( const std::string name ) { fName = name; }

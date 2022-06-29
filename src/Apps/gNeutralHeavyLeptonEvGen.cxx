@@ -261,8 +261,6 @@ int main(int argc, char ** argv)
     nhlgen = new NHLPrimaryVtxGenerator(); // do NOT remove this if( !nhlgen ), it causes a MASSIVE memleak if you do.
   }
   string confString = kDefOptSName + kDefOptSConfig;
-  //const double confMass = nhlgen->GetNHLMass( confString );
-  //const std::vector< double > confCoups = nhlgen->GetNHLCouplings( confString );
 
   SimpleNHL confsh = nhlgen->GetNHLInstance( confString );
   const double confMass = confsh.GetMass();
@@ -272,7 +270,6 @@ int main(int argc, char ** argv)
   const double confAngDev = confsh.GetAngularDeviation();
   const std::vector< double > confT = confsh.GetBeam2UserTranslation();
   const std::vector< double > confR = confsh.GetBeam2UserRotation();
-  const std::vector< std::vector< double > > confRM = confsh.GetBeam2UserRotationMatrix();
   const std::vector< NHLDecayMode_t > confIntChan = confsh.GetInterestingChannelsVec();
 
   LOG( "gevgen_nhl", pDEBUG )
@@ -285,11 +282,7 @@ int main(int argc, char ** argv)
     << "\nType = " << confType
     << "\nAngular deviation = " << confAngDev << " deg"
     << "\nBEAM origin is USER ( " << confT.at(0) << ", " << confT.at(1) << ", " << confT.at(2) << " ) [m]"
-    << "\nEuler angles (extrinsic x-z-x == 1-2-3) are ( " << confR.at(0) << ", " << confR.at(1) << "," << confR.at(2) << " )"
-    << "\nRotation matrix RM = Rx(1) * Rz(2) * Rx(3) : RM * BEAM = USER"
-    << "\n = ( " << (confRM.at(0)).at(0) << ", " << (confRM.at(0)).at(1) << ", " << (confRM.at(0)).at(2) << " )"
-    << "\n = ( " << (confRM.at(1)).at(0) << ", " << (confRM.at(1)).at(1) << ", " << (confRM.at(1)).at(2) << " )"
-    << "\n = ( " << (confRM.at(2)).at(0) << ", " << (confRM.at(2)).at(1) << ", " << (confRM.at(2)).at(2) << " )";
+    << "\nEuler angles (extrinsic x-z-x == 1-2-3) are ( " << confR.at(0) << ", " << confR.at(1) << "," << confR.at(2) << " )";
 
   gOptECoupling = confCoups.at(0);
   gOptMCoupling = confCoups.at(1);
@@ -715,7 +708,7 @@ GFluxI * TH1FluxDriver(void)
 
   TH1F *hfluxAllMu    = getFluxHist1F( finPath, hFluxName, kNumu );
   TH1F *hfluxAllMubar = getFluxHist1F( finPath, hFluxName, kNumubar );
-  TH1F *hfluxAllE     = getFluxHist1F( finPath, hFluxName, kNue );
+  TH1F *hfluxAllE     = getFluxHist1F( finPath, hFluxName, kNue);
   TH1F *hfluxAllEbar  = getFluxHist1F( finPath, hFluxName, kNuebar );
 
   assert(hfluxAllMu);
@@ -895,9 +888,6 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     TVector3 startPoint, momentum, entryPoint, exitPoint;
   
     // sample production vertex
-    //const TLorentzVector * x4NHL = interaction->InitState().GetTgtP4( kRfLab );
-    //if( !nhlgen ) nhlgen = new NHLPrimaryVtxGenerator();
-    //const TLorentzVector * x4NHL = nhlgen->GetProdVtxPosition(event);
     TLorentzVector * x4NHL = event->Probe()->GetX4();
     
     std::ostringstream msts;

@@ -17,8 +17,8 @@
 */
 //----------------------------------------------------------------------------
 
-#ifndef _NHL_JOLOMATABLES_H_
-#define _NHL_JOLOMATABLES_H_
+#ifndef _NHL_JCOLOMATABLES_H_
+#define _NHL_JCOLOMATABLES_H_
 
 namespace genie {
 namespace NHL {
@@ -163,4 +163,4 @@ namespace NHL {
 } // namespace NHL
 } // namespace genie
 
-#endif // #ifndef _NHL_JOLOMATABLES_H_
+#endif // #ifndef _NHL_JCOLOMATABLES_H_
