@@ -13,7 +13,11 @@ using namespace genie;
 using namespace genie::NHL;
 
 // extern definitions
+/*
+flux::GNuMIFluxPassThroughInfo gflux;
+
 std::string NHLFluxCreator::fCurrPath;
+int iCurrEntry = 0, fNEntries = 0;
 
 std::map< NHLProd_t, double > NHLFluxCreator::dynamicScores;
 std::map< NHLProd_t, double > NHLFluxCreator::dynamicScores_pion;
@@ -45,25 +49,97 @@ int    NHLFluxCreator::job;
 double NHLFluxCreator::pots;
 
 TChain * NHLFluxCreator::ctree = 0, * NHLFluxCreator::cmeta = 0;
+*/
 
 //----------------------------------------------------------------------------
-void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath, int run )
+NHLFluxCreator::NHLFluxCreator() :
+  EventRecordVisitorI("genie::NHL::NHLFluxCreator")
+{
+
+}
+//----------------------------------------------------------------------------
+NHLFluxCreator::NHLFluxCreator(string config) :
+  EventRecordVisitorI("genie::NHL::NHLFluxCreator", config)
+{
+
+}
+//----------------------------------------------------------------------------
+NHLFluxCreator::~NHLFluxCreator()
+{
+
+}
+//----------------------------------------------------------------------------
+void NHLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
+{
+  // Adds the inital state NHL at the event record.
+  // Also assigns the production vertex to evrec (this will be overwritten by subsequent modules)
+  // Also adds (acceptance*nimpwt)^(-1) component of weight
+  flux::GNuMIFluxPassThroughInfo * gnmf = new flux::GNuMIFluxPassThroughInfo();
+  this->MakeTupleFluxEntry( iCurrEntry, gnmf, fCurrPath );
+
+  if( std::abs(gnmf->fgPdgC) == genie::kPdgNHL ){ // only add particle if parent is valid
+
+    double invAccWeight = gnmf->nimpwt * gnmf->fgXYWgt;
+    evrec->SetWeight( 1.0 / invAccWeight );
+  
+    evrec->SetVertex( gnmf->fgX4User ); // NHL production vertex. NOT where NHL decays to visible FS.
+    // construct Particle(0). Don't worry about daughter links at this stage.
+    GHepParticle ptNHL( gnmf->fgPdgC, kIStInitialState, -1, -1, -1, -1, gnmf->fgP4User, gnmf->fgX4User );
+    evrec->AddParticle( ptNHL );
+  }
+
+  // clean up
+  delete gnmf;
+
+  // update iCurrEntry. This should be the last thing to happen before returning.
+  iCurrEntry++;
+}
+//----------------------------------------------------------------------------
+void NHLFluxCreator::SetInputPath(std::string finpath)
+{
+  LOG( "NHL", pDEBUG ) << "Setting input path to " << finpath;
+  fCurrPath = finpath;
+}
+//----------------------------------------------------------------------------
+int NHLFluxCreator::GetNEntries() const
+{
+  LOG( "NHL", pDEBUG ) << "fNEntries = " << fNEntries;
+  if( fNEntries <= 0 ){
+    this->OpenFluxInput( fCurrPath );
+  }
+  return fNEntries;
+}
+//----------------------------------------------------------------------------
+void NHLFluxCreator::SetFirstEntry( int iFirst )
+{
+  fFirstEntry = iFirst;
+}
+//----------------------------------------------------------------------------
+flux::GNuMIFluxPassThroughInfo * NHLFluxCreator::RetrieveGNuMIFluxPassThroughInfo() const
+{
+  flux::GNuMIFluxPassThroughInfo * gnmf = new flux::GNuMIFluxPassThroughInfo();
+  this->MakeTupleFluxEntry( iCurrEntry, gnmf, fCurrPath );
+  return gnmf;
+}
+//----------------------------------------------------------------------------
+void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath ) const
 {
   // This method creates 1 NHL from the flux info and saves the information
   // Essentially, it replaces a SMv with an NHL
 
   // Open flux input and initialise trees
-  if( ctree->GetBranch("decay_nimpwt") || cmeta->GetBranch("pots") ){
-    OpenFluxInput( finpath );
-    InitialiseTree();
-    InitialiseMeta();
-    MakeBBox();
+  if( iEntry == fFirstEntry ){
+    this->OpenFluxInput( finpath );
+    this->InitialiseTree();
+    this->InitialiseMeta();
+    this->MakeBBox();
   }
 
   // All these in m
   TVector3 fCvec_beam( fCx, fCy, fCz );
-  TVector3 fCvec = ApplyUserRotation( fCvec_beam );
+  TVector3 fCvec = this->ApplyUserRotation( fCvec_beam );
 
+  LOG( "NHL", pDEBUG ) << "Getting entry " << iEntry;
   ctree->GetEntry(iEntry);
     
   // turn cm to m and make origin wrt detector 
@@ -71,7 +147,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   fDy = decay_vy * units::cm / units::m;
   fDz = decay_vz * units::cm / units::m;
   TVector3 fDvec( fDx, fDy, fDz );
-  TVector3 fDvec_beam = ApplyUserRotation( fDvec, true );
+  TVector3 fDvec_beam = this->ApplyUserRotation( fDvec, true );
 
   TVector3 detO_beam( fCvec_beam.X() - fDvec_beam.X(),
 		      fCvec_beam.Y() - fDvec_beam.Y(),
@@ -94,7 +170,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     << "\nSeparation = " << utils::print::Vec3AsString( &detO_user )
     << "\n\n";
   
-  double acc_saa = CalculateDetectorAcceptanceSAA( detO_user );
+  double acc_saa = this->CalculateDetectorAcceptanceSAA( detO_user );
   
   // set parent mass
   switch( std::abs( decay_ptype ) ){
@@ -148,13 +224,13 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
       utils::nhl::IsProdKinematicallyAllowed( kNHLProdNeuk3Electron ); break;
   }
 
-  if( !canGoForward ){ FillNonsense( iEntry, gnmf, run ); return; }
+  if( !canGoForward ){ this->FillNonsense( iEntry, gnmf ); return; }
   // now calculate which decay channel produces the NHL.
-  dynamicScores = GetProductionProbs( decay_ptype );
+  dynamicScores = this->GetProductionProbs( decay_ptype );
   assert( dynamicScores.size() > 0 );
   
   if( dynamicScores.find( kNHLProdNull ) != dynamicScores.end() ){ // exists kin allowed channel but 0 coupling
-    FillNonsense( iEntry, gnmf, run ); return; 
+    this->FillNonsense( iEntry, gnmf ); return;
   }
   
   RandomGen * rnd = RandomGen::Instance();
@@ -278,16 +354,16 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
 
   // find random point in BBox and force momentum to point to that point
   // first, separation in beam frame
-  TVector3 fRVec_beam = PointToRandomPointInBBox( detO_beam );
+  TVector3 fRVec_beam = this->PointToRandomPointInBBox( detO_beam );
   // rotate it and get unit
-  TVector3 fRVec_unit = (ApplyUserRotation( fRVec_beam )).Unit();
+  TVector3 fRVec_unit = (this->ApplyUserRotation( fRVec_beam )).Unit();
   // force NHL to point along this direction
   TLorentzVector p4NHL( p4NHL_rand.P() * fRVec_unit.X(),
 			p4NHL_rand.P() * fRVec_unit.Y(),
 			p4NHL_rand.P() * fRVec_unit.Z(),
 			p4NHL_rand.E() );
 
-  TVector3 pNHL_beam = ApplyUserRotation( p4NHL.Vect(), true );
+  TVector3 pNHL_beam = this->ApplyUserRotation( p4NHL.Vect(), true );
   TLorentzVector p4NHL_beam( pNHL_beam.X(), pNHL_beam.Y(), pNHL_beam.Z(), p4NHL.E() );
   
   LOG( "NHL", pDEBUG )
@@ -299,9 +375,9 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   // first, get minimum and maximum deviation from parent momentum to hit detector in degrees
   // RETHERE generalise condition in case momentum hits detector
 
-  double zm = ( isParentOnAxis ) ? 0.0 : GetAngDeviation( p4par, detO, false );
-  double zp = GetAngDeviation( p4par, detO, true );
-  double accCorr = CalculateAcceptanceCorrection( p4par, p4NHL_rest, decay_necm, zm, zp );
+  double zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par, detO, false );
+  double zp = this->GetAngDeviation( p4par, detO, true );
+  double accCorr = this->CalculateAcceptanceCorrection( p4par, p4NHL_rest, decay_necm, zm, zp );
   
   // also have to factor in boost correction itself... that's same as energy boost correction squared
   // which means a true acceptance of...
@@ -350,7 +426,6 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   gnmf->fgP4User = p4NHL;                    ///< generated 4-momentum, user coord [GeV]
   gnmf->fgX4User = x4NHL_cm;                  ///< generated 4-position, user coord [cm]
 
-  gnmf->run      = run;                      ///< Run number
   gnmf->evtno    = iEntry;                   ///< Event number (proton on target) 
                                                  // RETHERE which is it?
   gnmf->ndxdz    = p4NHL.Px() / p4NHL.Pz();  ///< Neutrino direction slope for a random decay
@@ -473,11 +548,11 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
 #endif
 
   LOG( "NHL", pDEBUG )
-    << "Finished MakeTupleFluxEntry(). Returning to App";
+    << "Finished MakeTupleFluxEntry()";
   
 }
 //----------------------------------------------------------------------------
-void NHLFluxCreator::FillNonsense( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, int run )
+void NHLFluxCreator::FillNonsense( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf ) const
 {
   gnmf->pcodes = 1;                          ///< converted to PDG
   gnmf->units = 0;                           ///< cm
@@ -492,7 +567,6 @@ void NHLFluxCreator::FillNonsense( int iEntry, flux::GNuMIFluxPassThroughInfo * 
   gnmf->fgP4User = dv;                       ///< generated 4-momentum, user coord
   gnmf->fgX4User = dv;                       ///< generated 4-position, user coord
 
-  gnmf->run      = run;                      ///< Run number
   gnmf->evtno    = iEntry;                   ///< Event number (proton on target) 
                                                  // RETHERE which is it?
   gnmf->ndxdz    = -9999.9;                  ///< Neutrino direction slope for a random decay
@@ -595,12 +669,14 @@ void NHLFluxCreator::FillNonsense( int iEntry, flux::GNuMIFluxPassThroughInfo * 
     gnmf->fvol[i] = -9;
   }
 #endif
+  
 }
 //----------------------------------------------------------------------------
-void NHLFluxCreator::OpenFluxInput( std::string finpath )
+void NHLFluxCreator::OpenFluxInput( std::string finpath ) const
 {
-  if( std::strcmp( finpath.c_str(), fCurrPath.c_str() ) == 0 ) return;
+  //if( std::strcmp( finpath.c_str(), fCurrPath.c_str() ) == 0 ) return;
 
+  iCurrEntry = fFirstEntry;
   fCurrPath = finpath;
   finpath.append("/");
 
@@ -636,6 +712,8 @@ void NHLFluxCreator::OpenFluxInput( std::string finpath )
   const int nEntriesInMeta = cmeta->GetEntries();
   int nEntries = ctree->GetEntries();
 
+  fNEntries = nEntries;
+
   LOG( "NHL", pDEBUG )
     << "\nThere were " << nEntriesInMeta << " entries in meta with " << nEntries << " total nus"
     << "\n got from " << nFiles << " files";
@@ -644,8 +722,9 @@ void NHLFluxCreator::OpenFluxInput( std::string finpath )
   delete files;
 }
 //----------------------------------------------------------------------------
-void NHLFluxCreator::InitialiseTree()
+void NHLFluxCreator::InitialiseTree() const
 {
+  LOG("NHL", pDEBUG) << "Tree initialised";
   potnum = 0.0;
   decay_ptype = 0;
   decay_vx = 0.0; decay_vy = 0.0; decay_vz = 0.0;
@@ -664,7 +743,7 @@ void NHLFluxCreator::InitialiseTree()
   ctree->SetBranchAddress( "decay_nimpwt", &decay_nimpwt );
 }
 //----------------------------------------------------------------------------
-void NHLFluxCreator::InitialiseMeta()
+void NHLFluxCreator::InitialiseMeta() const
 { 
   job = 0;
   pots = 0.0;
@@ -673,7 +752,7 @@ void NHLFluxCreator::InitialiseMeta()
   cmeta->SetBranchAddress( "pots", &pots );
 }
 //----------------------------------------------------------------------------
-void NHLFluxCreator::ReadBRs()
+void NHLFluxCreator::ReadBRs() const
 {
   TParticlePDG * pionParticle = PDGLibrary::Instance()->Find( kPdgPiP );
   TParticlePDG * kaonParticle = PDGLibrary::Instance()->Find( kPdgKP  );
@@ -706,7 +785,7 @@ void NHLFluxCreator::ReadBRs()
   BR_K03e  = 2.0 * neuk3elChannel->BranchingRatio();
 }
 //----------------------------------------------------------------------------
-std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
+std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG ) const
 {
   // check if we've calculated scores before
   switch( std::abs( parPDG ) ){
@@ -832,7 +911,7 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG )
 
 }
 //----------------------------------------------------------------------------
-TLorentzVector NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par )
+TLorentzVector NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par ) const
 {
   // first boost to parent rest frame
   TLorentzVector p4par_rest = p4par;
@@ -946,7 +1025,7 @@ TLorentzVector NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par 
   return p4NHL; // rest frame momentum!
 }
 //----------------------------------------------------------------------------
-TVector3 NHLFluxCreator::PointToRandomPointInBBox( TVector3 detO_beam )
+TVector3 NHLFluxCreator::PointToRandomPointInBBox( TVector3 detO_beam ) const
 {
   RandomGen * rnd = RandomGen::Instance();
   double ox = detO_beam.X(), oy = detO_beam.Y(), oz = detO_beam.Z();
@@ -959,7 +1038,7 @@ TVector3 NHLFluxCreator::PointToRandomPointInBBox( TVector3 detO_beam )
   return vec;
 }
 //----------------------------------------------------------------------------
-double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, bool seekingMax )
+double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, bool seekingMax ) const
 {
   TVector3 ppar = p4par.Vect(); assert( ppar.Mag() > 0.0 );
   TVector3 pparUnit = ppar.Unit();
@@ -1058,7 +1137,7 @@ double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
 }
 //----------------------------------------------------------------------------
 double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLorentzVector p4NHL,
-						      double SMECM, double zm, double zp )
+						      double SMECM, double zm, double zp ) const
 {
   /*
    * This method calculates NHL acceptance by taking into account the collimation effect
@@ -1208,7 +1287,7 @@ double NHLFluxCreator::labangle( double * x, double * par )
   return theta;
 }
 //----------------------------------------------------------------------------
-void NHLFluxCreator::MakeBBox()
+void NHLFluxCreator::MakeBBox() const
 {
   LOG( "NHL", pWARN )
     << "WARNING: This is a dummy (==unit-side) bounding box centred at config-given point";
@@ -1225,7 +1304,7 @@ void NHLFluxCreator::MakeBBox()
   fLx = 1.0; fLy = 1.0; fLz = 1.0;
 }
 //----------------------------------------------------------------------------
-TVector3 NHLFluxCreator::ApplyUserRotation( TVector3 vec, bool doBackwards )
+TVector3 NHLFluxCreator::ApplyUserRotation( TVector3 vec, bool doBackwards ) const
 {
   double vx = vec.X(), vy = vec.Y(), vz = vec.Z();
 
@@ -1250,7 +1329,7 @@ TVector3 NHLFluxCreator::ApplyUserRotation( TVector3 vec, bool doBackwards )
   return nvec;
 }
 //----------------------------------------------------------------------------
-double NHLFluxCreator::CalculateDetectorAcceptanceSAA( TVector3 detO )
+double NHLFluxCreator::CalculateDetectorAcceptanceSAA( TVector3 detO ) const
 {
   // sang is solid-angle / 4pi
   double rad = std::sqrt( detO.X() * detO.X() + detO.Y() * detO.Y() + detO.Z() * detO.Z() );

@@ -158,8 +158,6 @@ const EventRecordVisitorI * NHLGenerator(void);
 void     GenerateEventsUsingFlux (void);
 GFluxI * TH1FluxDriver           (void);
 int      DecideType              (TFile * spectrumFile);
-int      InitialiseTupleFlux     (std::string finpath);
-void     MakeNHLFromTuple        (int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath, int run);
 #endif // #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 
 TLorentzVector GeneratePosition( GHepRecord * event );
@@ -228,6 +226,7 @@ double NTP_FS1_E = 0., NTP_FS1_PX = 0., NTP_FS1_PY = 0., NTP_FS1_PZ = 0.;
 double NTP_FS2_E = 0., NTP_FS2_PX = 0., NTP_FS2_PY = 0., NTP_FS2_PZ = 0.;
 int NTP_FS0_PDG = 0, NTP_FS1_PDG = 0, NTP_FS2_PDG = 0;
 
+NHLFluxCreator * fluxCreator = 0;
 NHLPrimaryVtxGenerator * nhlgen = 0;
 // HNL lifetime in rest frame
 double CoMLifetime = -1.0; // GeV^{-1}
@@ -351,6 +350,9 @@ int main(int argc, char ** argv)
   __attribute__((unused)) GFluxI * ff = 0; // only use this if the flux is not monoenergetic!
   TH1D * spectrum = 0;
   TFile * spectrumFile = 0;
+
+  if( !fluxCreator && !gOptIsMonoEnFlux && gOptIsUsingDk2nu ){ fluxCreator = new NHLFluxCreator(); }
+
   if( !gOptIsMonoEnFlux ){
     if( !gOptIsUsingDk2nu ){ 
       ff = TH1FluxDriver();
@@ -367,7 +369,10 @@ int main(int argc, char ** argv)
       LOG( "gevgen_nhl", pWARN )
 	<< "Using input flux files. These are *flat dk2nu-like ROOT trees, so far...*";
 
-      int maxFluxEntries = InitialiseTupleFlux( gOptFluxFilePath );
+      fluxCreator->SetInputPath( gOptFluxFilePath );
+      int maxFluxEntries = fluxCreator->GetNEntries();
+      LOG( "gevgen_nhl", pDEBUG )
+	<< "Found " << maxFluxEntries << " flux entries.";
       if( gOptNev > maxFluxEntries ){
 	LOG( "gevgen_nhl", pWARN )
 	  << "You have asked for " << gOptNev << " events, but only provided "
@@ -381,8 +386,6 @@ int main(int argc, char ** argv)
 
   // Event loop
   int ievent = 0;
-  flux::GNuMIFluxPassThroughInfo * gnmf = ( !gOptIsMonoEnFlux && gOptIsUsingDk2nu ) ? 
-    new flux::GNuMIFluxPassThroughInfo() : 0;
   
   while (1)
   {
@@ -399,6 +402,8 @@ int main(int argc, char ** argv)
      LOG("gevgen_nhl", pNOTICE)
           << " *** Generating event............ " << ievent;
 
+     EventRecord * event = new EventRecord;
+
      if( !gOptIsMonoEnFlux ){
        if( !gOptIsUsingDk2nu ){
 	 LOG( "gevgen_nhl", pDEBUG )
@@ -412,30 +417,17 @@ int main(int argc, char ** argv)
        } else { // get a full NHL from flux tuples
 	 LOG( "gevgen_nhl", pDEBUG )
 	   << "Starting reading from event " << gOptFirstEvent;
-	 while( ievent < gOptFirstEvent ){
-	   ievent++;
-	 }
+	 fluxCreator->SetFirstEntry( gOptFirstEvent );
 	 LOG( "gevgen_nhl", pDEBUG )
 	   << "Making NHL from tuple for event " << ievent;
-	 MakeNHLFromTuple( ievent, gnmf, gOptFluxFilePath, gOptRunNu );
+	 fluxCreator->ProcessEventRecord( event );
+	 
+	 // check to see if this was nonsense
+	 if( ! event->Particle(0) ) continue;
+
+	 gOptEnergyNHL = event->Particle(0)->GetP4()->E();
        }
 
-       if( gnmf ){ 
-	 TLorentzVector gnmfP4 = gnmf->fgP4User;
-	 gOptEnergyNHL = (gnmf->fgP4User).E();
-	 LOG( "gevgen_nhl", pDEBUG )
-	   << "Got TLorentzVector from gnmf: " << utils::print::P4AsString(&gnmfP4);
-
-	 LOG( "gevgen_nhl", pDEBUG )
-	   << "\nIn user coordinates, the decay happened at " << utils::print::X4AsString( &(gnmf->fgX4User) ) << " [m]"
-	   << "\nAnd the trajectory is pointing towards ( "
-	   << (gnmfP4.Px()/gnmfP4.P()) << ", " << (gnmfP4.Py()/gnmfP4.P()) << ", " << (gnmfP4.Pz()/gnmfP4.P());
-
-	 if( gOptEnergyNHL < 0.0 ){
-	   ievent++;
-	   continue; // hit nonsense & could not generate NHL
-	 }
-       }
      }
      assert( gOptEnergyNHL > gOptMassNHL );
 
@@ -463,8 +455,6 @@ int main(int argc, char ** argv)
        hpdg *= typeMod;
        LOG("gevgen_nhl", pDEBUG) << "typeMod = " << typeMod;
      }
-
-     EventRecord * event = new EventRecord;
 
      // int target = SelectInitState();
      int decay  = (int) gOptDecayMode;
@@ -500,7 +490,15 @@ int main(int argc, char ** argv)
        decay = SelectDecayMode( intChannels, sh );
      }
 
+     LOG( "gevgen_nhl", pDEBUG )
+       << "typeMod = " << typeMod << ", PDG = " << typeMod * genie::kPdgNHL << ", E = " << gOptEnergyNHL << ", decay = " << utils::nhl::AsString(gOptDecayMode);
      Interaction * interaction = Interaction::NHL(typeMod * genie::kPdgNHL, gOptEnergyNHL, decay);
+
+     if( event->Particle(0) ){ // we have an NHL with definite momentum, so let's set it now
+       interaction->InitStatePtr()->SetProbeP4( *(event->Particle(0)->P4()) );
+       LOG( "gevgen_nhl", pDEBUG )
+	 << "\ngnmf->fgP4User setting probe p4 = " << utils::print::P4AsString( event->Particle(0)->P4() );
+     }
 
      if( event->Vertex() ){
        LOG( "gevgen_nhl", pDEBUG )
@@ -513,21 +511,14 @@ int main(int argc, char ** argv)
 
      double acceptance = 1.0; // need to weight a spectrum by acceptance and nimpwt as well
 
-     if( gnmf ){ // we have an NHL with definite momentum, so let's set it now
-       interaction->InitStatePtr()->SetProbeP4( gnmf->fgP4User );
-       LOG( "gevgen_nhl", pDEBUG )
-	 << "\ngnmf->fgP4User setting probe p4 = " << utils::print::P4AsString( &gnmf->fgP4User );
-       event->SetVertex( gnmf->fgX4User );
-       acceptance = gnmf->nimpwt * gnmf->fgXYWgt;
-     }
-
      event->AttachSummary(interaction);
 
      LOG("gevgen_nhl", pDEBUG)
        << "Note decay mode is " << utils::nhl::AsString(gOptDecayMode);
 
      // Simulate decay
-     mcgen->ProcessEventRecord(event);
+     //mcgen->ProcessEventRecord(event);
+     nhlgen->ProcessEventRecord(event);
 
      // add the FS 4-momenta to special branches
      // Quite inelegant. Gets the job done, though
@@ -556,6 +547,9 @@ int main(int argc, char ** argv)
        NTP_FS2_PZ = 0.0;
      }
 
+     LOG( "gevgen_nhl", pDEBUG )
+       << "Passed decay simulation.";
+
      // Generate (or read) a position for the decay vertex
      // also currently handles the geometrical weight
      TLorentzVector x4mm = GeneratePosition( event );
@@ -563,15 +557,14 @@ int main(int argc, char ** argv)
      const double mmtom = genie::units::mm / genie::units::m;
      TLorentzVector x4m( x4mm.X() * mmtom, x4mm.Y() * mmtom, x4mm.Z() * mmtom, evProdVtx[3] );
      event->SetVertex(x4m);
-     // update weight to scale for couplings, acceptance, inhibited decays + geometry
+     // update weight to scale for couplings, inhibited decays + geometry
+     // acceptance is already handled in NHLFluxCreator
      LOG( "gevgen_nhl", pDEBUG )
        << "\nWeight modifications:"
        << "\nCouplings^(-1) = " << 1.0 / ( gOptECoupling + gOptMCoupling + gOptTCoupling )
-       << "\n(Acceptance * nimpwt)^(-1) = " << 1.0 / acceptance
        << "\nDecays^(-1) = " << 1.0 / decayMod
        << "\nGeometry^(-1) = " << evWeight;
      evWeight *= 1.0 / ( gOptECoupling + gOptMCoupling + gOptTCoupling );
-     evWeight *= 1.0 / acceptance;
      evWeight *= 1.0 / decayMod;
      event->SetWeight( evWeight / 1.0e+20 ); // in units of 1e+20 POT
 
@@ -846,28 +839,6 @@ GFluxI * TH1FluxDriver(void)
   LOG("gevgen_nhl", pDEBUG)
     << "Returning flux driver and exiting method.";
   return flux_driver;
-}
-//_________________________________________________________________________________________
-int InitialiseTupleFlux( std::string finpath )
-{
-  LOG( "gevgen_nhl", pDEBUG )
-    << "Opening input flux now from path " << finpath.c_str();
-
-  NHLFluxCreator::OpenFluxInput( gOptFluxFilePath );
-  //assert( NHLFluxCreator::tree && NHLFluxCreator::meta && NHLFluxCreator::tree->GetEntries() > 0 );
-  //return NHLFluxCreator::tree->GetEntries();
-  assert( NHLFluxCreator::ctree && NHLFluxCreator::cmeta && NHLFluxCreator::ctree->GetEntries() > 0 );
-  return NHLFluxCreator::ctree->GetEntries();
-}
-//_________________________________________________________________________________________
-void MakeNHLFromTuple( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath, int run )
-{
-  // This genereates a full NHL from the flux tuples
-  // by interfacing with NHLFluxCreator
-
-  NHLFluxCreator::MakeTupleFluxEntry( iEntry, gnmf, finpath, run );
-  
-  LOG( "gevgen_nhl", pDEBUG ) << "MakeNHLFromTuple complete.";
 }
 //............................................................................
 #endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__

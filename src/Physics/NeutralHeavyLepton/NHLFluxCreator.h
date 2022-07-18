@@ -11,9 +11,10 @@
 	     + Calculate kinematics of NHL
 	     + Return NHL as SimpleNHL object.
 
-\namespace  genie::NHL::NHLFluxCreator
+\class      genie::NHL::NHLFluxCreator
 
-\brief      Calculates NHL production kinematics & vertex
+\brief      Calculates NHL production kinematics & vertex.
+            Is a concrete implementation of the EventRecordVisitorI interface
 
 \author     John Plows <komninos-john.plows@physics.ox.ac.uk>
 
@@ -60,7 +61,10 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/Units.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/EventGen/EVGThreadException.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -85,80 +89,110 @@ namespace genie{
     
     class SimpleNHL;
     
-    namespace NHLFluxCreator{
+    class NHLFluxCreator : public EventRecordVisitorI {
 
-      // workhorse method
-      void MakeTupleFluxEntry( int iEntry, genie::flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath, int run );
-      void FillNonsense( int iEntry, genie::flux::GNuMIFluxPassThroughInfo * gnmf, int run );
+    public:
+
+      NHLFluxCreator();
+      NHLFluxCreator(string config);
+      ~NHLFluxCreator();
+
+      //-- implement the EventRecordVisitorI interface
+      void ProcessEventRecord(GHepRecord * event_rec) const;
+
+      // set input path
+      void SetInputPath( std::string finpath );
+      // get N(flux input entries)
+      int GetNEntries() const;
+
+      void SetFirstEntry( int iFirst );
+
+      // legacy interface, for validation only
+      flux::GNuMIFluxPassThroughInfo * RetrieveGNuMIFluxPassThroughInfo() const;
+
+    private:
+
+      // workhorse methods
+      void MakeTupleFluxEntry( int iEntry, genie::flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath ) const;
+      void FillNonsense( int iEntry, genie::flux::GNuMIFluxPassThroughInfo * gnmf ) const;
 
       // init
-      void OpenFluxInput( std::string finpath );
-      void InitialiseTree();
-      void InitialiseMeta();
+      void OpenFluxInput( std::string finpath ) const;
+      void InitialiseTree() const;
+      void InitialiseMeta() const;
 
       // returns NHL 4-momentum from random decay in same frame as p4par
-      TLorentzVector NHLEnergy( genie::NHL::NHLProd_t nhldm, TLorentzVector p4par );
+      TLorentzVector NHLEnergy( genie::NHL::NHLProd_t nhldm, TLorentzVector p4par ) const;
       // gets random point in BBox and returns separation to it in BEAM FRAME
-      TVector3 PointToRandomPointInBBox( TVector3 detO_beam );
+      TVector3 PointToRandomPointInBBox( TVector3 detO_beam ) const;
 
-      void ReadBRs();
-      std::map< genie::NHL::NHLProd_t, double > GetProductionProbs( int parPDG );
+      void ReadBRs() const;
+      std::map< genie::NHL::NHLProd_t, double > GetProductionProbs( int parPDG ) const;
       
       // Obtain detector dimensions + position
       // RETHERE: BBox isn't good enough! But roll with it for now
-      void MakeBBox();
-      TVector3 ApplyUserRotation( TVector3 vec, bool doBackwards = false );
+      void MakeBBox() const;
+      TVector3 ApplyUserRotation( TVector3 vec, bool doBackwards = false ) const;
       
       // calculate detector acceptance (== solid angle of proj of det onto unit-radius sphere / (4pi))
       // NOTE THIS IS A LAB FRAME (==GEOMETRICAL) ACCEPTANCE!!!!
       // detO == detector BBox centre wrt NHL prod vertex, L{x,y,z} BBox length on each axis. Both [m]
-      double CalculateDetectorAcceptanceSAA( TVector3 detO );
+      double CalculateDetectorAcceptanceSAA( TVector3 detO ) const;
       // collimation effect calc, returns NHL_acc / geom_acc
-      double CalculateAcceptanceCorrection( TLorentzVector p4par, TLorentzVector p4NHL, double SMECM, double zm, double zp );
-      double labangle( double * x, double * par ); // function formula for correction
+      double CalculateAcceptanceCorrection( TLorentzVector p4par, TLorentzVector p4NHL, double SMECM, double zm, double zp ) const;
+      static double labangle( double * x, double * par ); // function formula for correction
       // get minimum and maximum deviation from parent momentum to hit detector, [deg]
-      double GetAngDeviation( TLorentzVector p4par, TVector3 detO, bool seekingMax );
+      double GetAngDeviation( TLorentzVector p4par, TVector3 detO, bool seekingMax ) const;
       // returns 1.0 / (area of flux calc)
       double CalculateAreaNormalisation();
 
+      // container of finally calculated stuff
+      // /* */ flux::GNuMIFluxPassThroughInfo gflux;
+
       // current path to keep track of what is loaded
-      extern std::string fCurrPath;
+      /* */ mutable std::string fCurrPath = "";
+      // and which entry we're on
+      /* */ mutable int iCurrEntry = 0;
+      // which one was first?
+      mutable int fFirstEntry = 0;
+      // out of how many?
+      /* */ mutable int fNEntries = 0;
       
       // maps to keep P( production )
-      extern std::map< genie::NHL::NHLProd_t, double > dynamicScores; // map in use
-      extern std::map< genie::NHL::NHLProd_t, double > dynamicScores_pion;
-      extern std::map< genie::NHL::NHLProd_t, double > dynamicScores_kaon;
-      extern std::map< genie::NHL::NHLProd_t, double > dynamicScores_muon;
-      extern std::map< genie::NHL::NHLProd_t, double > dynamicScores_neuk;
+      /* */ mutable std::map< genie::NHL::NHLProd_t, double > dynamicScores; // map in use
+      /* */ mutable std::map< genie::NHL::NHLProd_t, double > dynamicScores_pion;
+      /* */ mutable std::map< genie::NHL::NHLProd_t, double > dynamicScores_kaon;
+      /* */ mutable std::map< genie::NHL::NHLProd_t, double > dynamicScores_muon;
+      /* */ mutable std::map< genie::NHL::NHLProd_t, double > dynamicScores_neuk;
       
-      extern double BR_pi2mu, BR_pi2e, BR_K2mu, BR_K2e, BR_K3mu, BR_K3e, BR_K03mu, BR_K03e;
+      /* */ mutable double BR_pi2mu, BR_pi2e, BR_K2mu, BR_K2e, BR_K3mu, BR_K3e, BR_K03mu, BR_K03e;
 
-      extern bool isParentOnAxis;
+      /* */ mutable bool isParentOnAxis = true;
 
-      extern TChain * ctree, * cmeta;
+      /* */ mutable TChain * ctree = 0, * cmeta = 0;
 
-      extern double fLx, fLy, fLz;   //BBox length [m]
-      extern double fCx, fCy, fCz;   //BBox centre wrt NHL prod [m]
-      extern double fAx1, fAz, fAx2; //Euler angles, extrinsic x-z-x. Ax2 then Az then Ax1 
-      extern double fDx, fDy, fDz;   //NHL production point [m]
+      /* */ mutable double fLx, fLy, fLz;   //BBox length [m]
+      /* */ mutable double fCx, fCy, fCz;   //BBox centre wrt NHL prod [m]
+      /* */ mutable double fAx1, fAz, fAx2; //Euler angles, extrinsic x-z-x. Ax2 then Az then Ax1 
+      /* */ mutable double fDx, fDy, fDz; //NHL production point [m]
 
       //std::vector< double > trVec, roVec;
 
-      extern double parentMass, parentMomentum, parentEnergy; // GeV
+      /* */ mutable double parentMass, parentMomentum, parentEnergy; // GeV
 
       // tree variables. Add as per necessary.
-      extern double potnum;                             ///< N POT for this SM-v
-      extern int    decay_ptype;                        ///< PDG code of parent
-      extern double decay_vx, decay_vy, decay_vz;       ///< coordinates of prod vtx [cm]
-      extern double decay_pdpx, decay_pdpy, decay_pdpz; ///< final parent momentum [GeV]
-      extern double decay_necm;                         ///< SM v CM energy [GeV]
-      extern double decay_nimpwt;                       ///< Importance weight from beamsim
+      /* */ mutable double potnum;                             ///< N POT for this SM-v
+      /* */ mutable int    decay_ptype;                        ///< PDG code of parent
+      /* */ mutable double decay_vx, decay_vy, decay_vz;       ///< coordinates of prod vtx [cm]
+      /* */ mutable double decay_pdpx, decay_pdpy, decay_pdpz; ///< final parent momentum [GeV]
+      /* */ mutable double decay_necm;                         ///< SM v CM energy [GeV]
+      /* */ mutable double decay_nimpwt;                       ///< Importance weight from beamsim
 
       // meta variables. Add as necessary
-      extern int    job;                                ///< beamsim MC job number
-      extern double pots;                               ///< how many pot in this job?
+      /* */ mutable int    job;                                ///< beamsim MC job number
+      /* */ mutable double pots;                               ///< how many pot in this job?
 
-    } // namespace NHLFluxCreator
+    }; // class NHLFluxCreator
       
   } // namespace NHL
 } // namespace genie

@@ -152,8 +152,6 @@ const EventRecordVisitorI * NHLGenerator(void);
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 int      TestFluxFromDk2nu  (void);
 int      TestFluxFromHists  (void);
-int      InitialiseTupleFlux(string finpath);
-void     MakeNHLFromTuple   (int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, string finpath, int run);
 GFluxI * TH1FluxDriver      (void);
 int      DecideType         (TFile * spectrumFile);
 #endif
@@ -255,6 +253,7 @@ double foz = 0; // origin - z
 
 long int         gOptRanSeed = -1;                       // random number seed
 
+NHLFluxCreator * fluxCreator = 0;
 NHLPrimaryVtxGenerator * nhlgen = 0;
 
 //_________________________________________________________________________________________
@@ -304,8 +303,10 @@ int TestFluxFromDk2nu()
     << "\n--> Counters for each production mode"
     << "\n--> Spectrum of acceptance correction as function of parent boost factor"
     << "\n--> Boost factor spectrum of parents broken down by type";
-
-  int maxFluxEntries = InitialiseTupleFlux( gOptFluxFilePath );
+  
+  if( !fluxCreator ){ fluxCreator = new NHLFluxCreator(); }
+  fluxCreator->SetInputPath( gOptFluxFilePath );
+  int maxFluxEntries = fluxCreator->GetNEntries();
   if( gOptNev > maxFluxEntries ){
     LOG( "gevald_nhl", pWARN )
       << "You have asked for " << gOptNev << " events, but only provided "
@@ -359,8 +360,6 @@ int TestFluxFromDk2nu()
   double accCorr;
   double nimpwt; // hadroproduction importance weight
 
-  flux::GNuMIFluxPassThroughInfo * gnmf = new flux::GNuMIFluxPassThroughInfo();
-
   int ievent = 0;
   while(true)
     {
@@ -374,7 +373,12 @@ int TestFluxFromDk2nu()
       
       if( ievent == gOptNev ) break;
 
-      MakeNHLFromTuple( ievent, gnmf, gOptFluxFilePath, gOptRunNu );
+      EventRecord * event = new EventRecord;
+
+      // first retrieve gnmf and THEN ProcessEventRecord.
+      // This ensures both are looking at the same flux entry.
+      flux::GNuMIFluxPassThroughInfo * gnmf = fluxCreator->RetrieveGNuMIFluxPassThroughInfo();
+      fluxCreator->ProcessEventRecord(event);
       
       // reject nonsense
       if( gnmf->necm < 0 ){
@@ -436,6 +440,23 @@ int TestFluxFromDk2nu()
 	double acceptance = gnmf->fgXYWgt; // full acceptance
 	accCorr    = gnmf->nwtnear;   // just the correction
 	nimpwt = gnmf->nimpwt;
+
+	double gam = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
+	double gamStar = gnmf->necm / gCfgMassNHL;
+	double betaStar = std::sqrt( 1.0 - 1.0 / ( gamStar * gamStar ) );
+	double bigBeta = betaMag * gam / betaStar;
+
+	double Ox = -1.0 * x4NHL.X();
+	double Oy = -1.0 * x4NHL.Y();
+	double Oz = -1.0 * x4NHL.Z();
+
+	double rootArg = gam*gam*Oz*Oz - 
+	  (gam*gam - bigBeta*bigBeta)*(Oz*Oz - bigBeta*bigBeta*(Ox*Ox + Oy*Oy));
+
+	double timelikeBit = ( rootArg >= 0.0 ) ? std::sqrt( rootArg ) / ( betaMag * gam * gam * gam ) : 0.0;
+	
+	double fullTerm = (1.0 - 1.0 / gam) * Oz / ( betaMag * gam ) - timelikeBit;
+	if( std::abs( fullTerm ) > 100.0 ) fullTerm *= 100.0 / std::abs( fullTerm );
 	
 	nPOT = gnmf->norig;
 	
@@ -655,26 +676,6 @@ int TestFluxFromHists()
   fout->Close();
   
   return 0;
-}
-//_________________________________________________________________________________________
-int InitialiseTupleFlux( std::string finpath )
-{
-  LOG( "gevald_nhl", pDEBUG )
-    << "Opening input flux now from path " << finpath.c_str();
-
-  NHLFluxCreator::OpenFluxInput( gOptFluxFilePath );
-  assert( NHLFluxCreator::ctree && NHLFluxCreator::cmeta && NHLFluxCreator::ctree->GetEntries() > 0 );
-  return NHLFluxCreator::ctree->GetEntries();
-}
-//_________________________________________________________________________________________
-void MakeNHLFromTuple( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath, int run )
-{
-  // This genereates a full NHL from the flux tuples
-  // by interfacing with NHLFluxCreator
-
-  NHLFluxCreator::MakeTupleFluxEntry( iEntry, gnmf, finpath, run );
-  
-  LOG( "gevald_nhl", pDEBUG ) << "MakeNHLFromTuple complete.";
 }
 //_________________________________________________________________________________________
 GFluxI * TH1FluxDriver(void)

@@ -52,6 +52,10 @@ NHLPrimaryVtxGenerator::~NHLPrimaryVtxGenerator()
 //____________________________________________________________________________
 void NHLPrimaryVtxGenerator::ProcessEventRecord(GHepRecord * event) const
 {
+
+  LOG("NHL", pDEBUG)
+    << "Entering ProcessEventRecord...";
+
   Interaction * interaction = event->Summary();
 
   fCurrInitStatePdg = interaction->InitState().ProbePdg();
@@ -70,22 +74,13 @@ void NHLPrimaryVtxGenerator::ProcessEventRecord(GHepRecord * event) const
 //____________________________________________________________________________
 void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
 {
-  if( fUe42 == -1.0 && fUm42 == -1.0 && fUt42 == -1.0 ){
-    LOG( "NHL", pINFO )
-      << "Setting couplings to (1,1,0).";
-    fUe42 = 1.0;
-    fUm42 = 1.0;
-    fUt42 = 0.0;
-  }
-
   std::vector< double > * prodVtx = 0;
 
   Interaction * interaction = event->Summary();
   InitialState * init_state = interaction->InitStatePtr();
 
   TLorentzVector p4;
-  if( (init_state->GetProbeP4())->P() <= (init_state->GetProbeP4())->E() && 
-      event->Vertex() && (event->Vertex()->Vect()).Mag() > 0.0 ){
+  if( event->Particle(0) ){
     // p4 was already set using NHLFluxCreator. No action needed.
     // Read event vertex == NHL production vertex. We will find the decay vertex later.
     p4 = *( init_state->GetProbeP4() );
@@ -128,7 +123,8 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
     << "\nProd vtx = " << utils::print::X4AsString( &v4 );
 
   int hpdg = interaction->InitState().ProbePdg();
-  event->AddParticle(hpdg, kIStInitialState, 0,-1,-1,-1, p4, v4);
+  if( !event->Particle(0) )
+    event->AddParticle(hpdg, kIStInitialState, 0,-1,-1,-1, p4, v4);
 }
 //____________________________________________________________________________
 void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
@@ -138,6 +134,9 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
   // do we have nubar?
   PDGCodeList pdgv0 = utils::nhl::DecayProductList(fCurrDecayMode);
   int typeMod = ( fCurrInitStatePdg >= 0 ) ? 1 : -1; 
+  if( event->Particle(0) ){
+    typeMod = ( event->Particle(0)->Pdg() >= 0 ) ? 1 : -1;
+  }
   PDGCodeList pdgv(true);
   for( std::vector<int>::iterator it = pdgv0.begin(); it != pdgv0.end(); ++it ){
     int pdgc = *it; 
