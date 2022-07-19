@@ -10,7 +10,9 @@ Configurable Parameters:
 Name               Type     Optional   Comment                                    Default
 .....................................................................................................
 XSec-Integrator    alg      No
-QEL-CC-XSecScale   double   yes        XSec Scaling factor                        1. 
+QEL-CC-XSecScale   double   yes        XSec Scaling factor for CC                 1. 
+QEL-NC-XSecScale   double   yes        XSec Scaling factor for NC                 1. 
+QEL-EM-XSecScale   double   yes        XSec Scaling factor for EM                 1. 
 FermiMomentumTable string   No         Table of Fermi momentum (kF) constants     CommonParam[FermiGas]
 QvalueShifterAlg   alg      yes        QValue shifter algo                        none
 .....................................................................................................
@@ -25,6 +27,8 @@ Name                                 Type     Optional   Comment
      <param type="string" name="CommonParam"> FermiGas </param> <!-- For Kf lookups -->   
 
      <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
+     <param type="double" name="QEL-NC-XSecScale"> 1.000 </param>
+     <param type="double" name="QEL-EM-XSecScale"> 1.000 </param>
 
      <param type="alg"  name="HadronTensorAlg">  genie::SuSAv2QELHadronTensorModel/Default </param>
 
