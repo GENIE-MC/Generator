@@ -25,7 +25,7 @@ University of Liverpool
   <param_set name="Tunable">
     <!-- Reserved register for tuning -->
     <param type="double" name="RES-Ma">  1.088962  </param>
-    <param type="double" name="DIS-XSecScale"> 1.062213 </param>
+    <param type="double" name="DIS-CC-XSecScale"> 1.062213 </param>
     <param type="double" name="RES-CC-XSecScale"> 0.838730 </param>
   </param_set>
 
