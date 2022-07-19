@@ -54,6 +54,8 @@ private:
   const   ELFormFactorsModelI * fElFFModel;
   mutable ELFormFactors         fELFF;
   bool fCleanUpfElFFModel;
+  double fXSecEMScale;
+
 };
 
 }       // genie namespace

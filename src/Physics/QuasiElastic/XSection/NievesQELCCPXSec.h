@@ -70,7 +70,9 @@ private:
   const XSecIntegratorI *      fXSecIntegrator;   ///<
   double                       fCos8c2;           ///< cos^2(cabibbo angle)
 
-  double                       fXSecScale;        ///< external xsec scaling factor
+  double                       fXSecCCScale;        ///< external xsec scaling factor for CC
+  double                       fXSecNCScale;        ///< external xsec scaling factor for NC
+  double                       fXSecEMScale;        ///< external xsec scaling factor for EM
   const QvalueShifter *        fQvalueShifter ;   ///< Optional algorithm to retrieve the qvalue shift for a given target
 
   double                       fhbarc;            ///< hbar*c in GeV*fm

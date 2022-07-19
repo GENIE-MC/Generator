@@ -229,7 +229,12 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   }
 
   // Apply given overall scaling factor
-  xsec *= fXSecScale;
+  double xsec_scale = 1 ;
+  if( proc_info.IsWeakCC() ) xsec_scale = fXSecCCScale;
+  else if( proc_info.IsWeakNC() ) xsec_scale = fXSecNCScale;
+  else if( proc_info.IsEM() ) xsec_scale = fXSecEMScale;
+
+  xsec *= xsec_scale ;
 
   if ( kps != kPSTlctl ) {
     LOG("SuSAv2QE", pWARN)
@@ -294,7 +299,9 @@ void SuSAv2QELPXSec::LoadConfig(void)
   bool good_config = true ;
 
   // Cross section scaling factor
-  GetParam( "QEL-CC-XSecScale", fXSecScale ) ;
+  GetParam( "QEL-CC-XSecScale", fXSecCCScale ) ;
+  GetParam( "QEL-NC-XSecScale", fXSecNCScale ) ;
+  GetParam( "QEL-EM-XSecScale", fXSecEMScale ) ;
 
   fHadronTensorModel = dynamic_cast< const SuSAv2QELHadronTensorModel* >(
     this->SubAlg("HadronTensorAlg") );
