@@ -500,9 +500,8 @@ void NHLPrimaryVtxGenerator::SetBeam2User( std::vector< double > translation, st
     << "\nSet Euler (extrinsic x-z-x) angles to ( " << fR1 << ", " << fR2 << ", " << fR3 << " ) [rad]";  
 }
 //___________________________________________________________________________
-SimpleNHL NHLPrimaryVtxGenerator::GetNHLInstance(string config)
+SimpleNHL NHLPrimaryVtxGenerator::GetNHLInstance(string config) const
 {
-  if( !fIsConfigLoaded ) this->Configure(config);
   SimpleNHL sh = SimpleNHL( "NHLInstance", 0, genie::kPdgNHL, genie::kPdgKP,
 			    fMass, fUe42, fUm42, fUt42, fIsMajorana );
   sh.SetType( fType );

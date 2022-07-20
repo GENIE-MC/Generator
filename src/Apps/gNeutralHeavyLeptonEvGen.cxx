@@ -226,8 +226,6 @@ double NTP_FS1_E = 0., NTP_FS1_PX = 0., NTP_FS1_PY = 0., NTP_FS1_PZ = 0.;
 double NTP_FS2_E = 0., NTP_FS2_PX = 0., NTP_FS2_PY = 0., NTP_FS2_PZ = 0.;
 int NTP_FS0_PDG = 0, NTP_FS1_PDG = 0, NTP_FS2_PDG = 0;
 
-//NHLFluxCreator * fluxCreator = 0;
-NHLPrimaryVtxGenerator * nhlgen = 0;
 // HNL lifetime in rest frame
 double CoMLifetime = -1.0; // GeV^{-1}
 // == Gamma( all valid channels ) / Gamma( all interesting channels )
@@ -257,12 +255,11 @@ int main(int argc, char ** argv)
   // calls LoadConfig() of each sub-alg
   const EventRecordVisitorI * mcgen = NHLGenerator();
   const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLFluxCreator", "Default");
+  const Algorithm * algNHLGen = AlgFactory::Instance()->GetAlgorithm("genie::NHLPrimaryVtxGenerator", "Default");
 
   const NHLFluxCreator * fluxCreator = dynamic_cast< const NHLFluxCreator * >( algFluxCreator );
+  const NHLPrimaryVtxGenerator * nhlgen = dynamic_cast< const NHLPrimaryVtxGenerator * >( algNHLGen );
   
-  if( !nhlgen ){
-    nhlgen = new NHLPrimaryVtxGenerator(); // do NOT remove this if( !nhlgen ), it causes a MASSIVE memleak if you do.
-  }
   //string confString = kDefOptSName + "/" + kDefOptSConfig;
   string confString = kDefOptSConfig;
 
@@ -906,6 +903,10 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     newProdVtx->emplace_back( startPoint.X() );
     newProdVtx->emplace_back( startPoint.Y() );
     newProdVtx->emplace_back( startPoint.Z() );
+
+    const Algorithm * algNHLGen = AlgFactory::Instance()->GetAlgorithm("genie::NHLPrimaryVtxGenerator", "Default");
+    
+    const NHLPrimaryVtxGenerator * nhlgen = dynamic_cast< const NHLPrimaryVtxGenerator * >( algNHLGen );
 
     while( !didIntersectDet && trajIdx < trajMax ){
       // sample prod vtx and momentum... again
