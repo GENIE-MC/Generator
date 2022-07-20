@@ -74,6 +74,9 @@ void NHLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
   // Adds the inital state NHL at the event record.
   // Also assigns the production vertex to evrec (this will be overwritten by subsequent modules)
   // Also adds (acceptance*nimpwt)^(-1) component of weight
+
+  LOG( "NHL", pDEBUG ) << "Flux record processing now";
+
   flux::GNuMIFluxPassThroughInfo * gnmf = new flux::GNuMIFluxPassThroughInfo();
   this->MakeTupleFluxEntry( iCurrEntry, gnmf, fCurrPath );
 
@@ -95,9 +98,10 @@ void NHLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
   iCurrEntry++;
 }
 //----------------------------------------------------------------------------
-void NHLFluxCreator::SetInputPath(std::string finpath)
+void NHLFluxCreator::SetInputPath(std::string finpath) const
 {
   LOG( "NHL", pDEBUG ) << "Setting input path to " << finpath;
+  LOG( "NHL", pDEBUG ) << "Before setting, fCurrPath = " << fCurrPath;
   fCurrPath = finpath;
 }
 //----------------------------------------------------------------------------
@@ -110,7 +114,7 @@ int NHLFluxCreator::GetNEntries() const
   return fNEntries;
 }
 //----------------------------------------------------------------------------
-void NHLFluxCreator::SetFirstEntry( int iFirst )
+void NHLFluxCreator::SetFirstEntry( int iFirst ) const
 {
   fFirstEntry = iFirst;
 }
@@ -184,7 +188,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   parentMomentum = std::sqrt( decay_pdpx*decay_pdpx + decay_pdpy*decay_pdpy + decay_pdpz*decay_pdpz );
   parentEnergy = std::sqrt( parentMass*parentMass + parentMomentum*parentMomentum );
 
-  isParentOnAxis = utils::nhl::GetCfgBool( "NHL", "FluxCalc", "IsParentOnAxis" );
+  //if( !fIsConfigLoaded ) this->Configure( "genie::EventGenerator/NeutralHeavyLepton" );
   // CAUTION: p4par is in USER coords
   TLorentzVector p4par = ( isParentOnAxis ) ? 
     TLorentzVector( parentMomentum * (detO.Unit()).X(), 
@@ -801,10 +805,11 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG ) c
   // first get branching ratios to SM
   ReadBRs();
   // then get NHL parameter space
-  double M    = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Mass" );
-  double Ue42 = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Ue42" );
-  double Um42 = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Um42" );
-  double Ut42 = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Ut42" );
+  
+  double M    = fMass;
+  double Ue42 = fU4l2s.at(0);
+  double Um42 = fU4l2s.at(1);
+  double Ut42 = fU4l2s.at(2);
 
   // now get parent mass
   //double mP = PDGLibrary::Instance()->Find( std::abs( parPDG ) )->Mass();
@@ -1292,14 +1297,12 @@ void NHLFluxCreator::MakeBBox() const
   LOG( "NHL", pWARN )
     << "WARNING: This is a dummy (==unit-side) bounding box centred at config-given point";
 
-  // read config
-  fCx = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "DetCentreXInBeam" );
-  fCy = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "DetCentreYInBeam" );
-  fCz = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "DetCentreZInBeam" );
+  //if( !fIsConfigLoaded ) this->Configure( "genie::EventGenerator/NeutralHeavyLepton" );
 
-  fAx1 = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "EulerExtrinsicX1" );
-  fAz  = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "EulerExtrinsicZ"  );
-  fAx2 = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "EulerExtrinsicX2" );
+  LOG( "NHL", pDEBUG )
+    << "\nfCx, fCy, fCz = " << fCx << ", " << fCy << ", " << fCz
+    << "\nfAx1, fAz, fAx2 = " << fAx1 << ", " << fAz << ", " << fAx2;
+
 
   fLx = 1.0; fLy = 1.0; fLz = 1.0;
 }
@@ -1342,4 +1345,50 @@ double NHLFluxCreator::CalculateAreaNormalisation()
   // for now this is just a square of length kRDET
   // returns 1 / area
   return 1.0 / ( kRDET * kRDET );
+}
+//----------------------------------------------------------------------------
+void NHLFluxCreator::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//----------------------------------------------------------------------------
+void NHLFluxCreator::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//----------------------------------------------------------------------------
+void NHLFluxCreator::LoadConfig(void)
+{
+  if( fIsConfigLoaded ) return;
+
+  LOG("NHL", pDEBUG)
+    << "Loading flux-creation parameters from file...";
+
+  this->GetParam( "NHL-Mass", fMass );
+  this->GetParamVect( "NHL-LeptonMixing", fU4l2s );
+  
+  this->GetParamVect( "Beam2User_T", fB2UTranslation );
+  this->GetParamVect( "Beam2User_R", fB2URotation );
+
+  this->GetParam( "IsParentOnAxis", isParentOnAxis );
+
+  fCx = fB2UTranslation.at(0);
+  fCy = fB2UTranslation.at(1);
+  fCz = fB2UTranslation.at(2);
+  
+  fAx1 = fB2URotation.at(0);
+  fAz  = fB2URotation.at(1);
+  fAx2 = fB2URotation.at(2);
+
+  LOG( "NHL", pDEBUG )
+    << "Read the following parameters :"
+    << "\n Mass = " << fMass
+    << "\n couplings = " << fU4l2s.at(0) << " : " << fU4l2s.at(1) << " : " << fU4l2s.at(2)
+    << "\n translation = " << fB2UTranslation.at(0) << ", " << fB2UTranslation.at(1) << ", " << fB2UTranslation.at(2)
+    << "\n rotation = " << fB2URotation.at(0) << ", " << fB2URotation.at(1) << ", " << fB2URotation.at(2)
+    << "\n isParentOnAxis = " << isParentOnAxis;
+
+  fIsConfigLoaded = true;
 }

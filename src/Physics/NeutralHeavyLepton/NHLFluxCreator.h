@@ -100,17 +100,24 @@ namespace genie{
       //-- implement the EventRecordVisitorI interface
       void ProcessEventRecord(GHepRecord * event_rec) const;
 
+      // overload the Algorithm::Configure() methods to load private data
+      // members from configuration options
+      void Configure(const Registry & config);
+      void Configure(string config);
+
       // set input path
-      void SetInputPath( std::string finpath );
+      void SetInputPath( std::string finpath ) const;
       // get N(flux input entries)
       int GetNEntries() const;
 
-      void SetFirstEntry( int iFirst );
+      void SetFirstEntry( int iFirst ) const;
 
       // legacy interface, for validation only
       flux::GNuMIFluxPassThroughInfo * RetrieveGNuMIFluxPassThroughInfo() const;
 
     private:
+
+      void LoadConfig(void);
 
       // workhorse methods
       void MakeTupleFluxEntry( int iEntry, genie::flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath ) const;
@@ -146,51 +153,56 @@ namespace genie{
       // returns 1.0 / (area of flux calc)
       double CalculateAreaNormalisation();
 
-      // container of finally calculated stuff
-      // /* */ flux::GNuMIFluxPassThroughInfo gflux;
-
       // current path to keep track of what is loaded
-      /* */ mutable std::string fCurrPath = "";
+      mutable std::string fCurrPath = "";
       // and which entry we're on
-      /* */ mutable int iCurrEntry = 0;
+      mutable int iCurrEntry = 0;
       // which one was first?
       mutable int fFirstEntry = 0;
       // out of how many?
-      /* */ mutable int fNEntries = 0;
+      mutable int fNEntries = 0;
       
       // maps to keep P( production )
-      /* */ mutable std::map< genie::NHL::NHLProd_t, double > dynamicScores; // map in use
-      /* */ mutable std::map< genie::NHL::NHLProd_t, double > dynamicScores_pion;
-      /* */ mutable std::map< genie::NHL::NHLProd_t, double > dynamicScores_kaon;
-      /* */ mutable std::map< genie::NHL::NHLProd_t, double > dynamicScores_muon;
-      /* */ mutable std::map< genie::NHL::NHLProd_t, double > dynamicScores_neuk;
+      mutable std::map< genie::NHL::NHLProd_t, double > dynamicScores; // map in use
+      mutable std::map< genie::NHL::NHLProd_t, double > dynamicScores_pion;
+      mutable std::map< genie::NHL::NHLProd_t, double > dynamicScores_kaon;
+      mutable std::map< genie::NHL::NHLProd_t, double > dynamicScores_muon;
+      mutable std::map< genie::NHL::NHLProd_t, double > dynamicScores_neuk;
       
-      /* */ mutable double BR_pi2mu, BR_pi2e, BR_K2mu, BR_K2e, BR_K3mu, BR_K3e, BR_K03mu, BR_K03e;
+      mutable double BR_pi2mu, BR_pi2e, BR_K2mu, BR_K2e, BR_K3mu, BR_K3e, BR_K03mu, BR_K03e;
 
-      /* */ mutable bool isParentOnAxis = true;
+      mutable bool isParentOnAxis = true;
 
-      /* */ mutable TChain * ctree = 0, * cmeta = 0;
+      mutable TChain * ctree = 0, * cmeta = 0;
 
-      /* */ mutable double fLx, fLy, fLz;   //BBox length [m]
-      /* */ mutable double fCx, fCy, fCz;   //BBox centre wrt NHL prod [m]
-      /* */ mutable double fAx1, fAz, fAx2; //Euler angles, extrinsic x-z-x. Ax2 then Az then Ax1 
-      /* */ mutable double fDx, fDy, fDz; //NHL production point [m]
+      mutable double fMass; // NHL mass, GeV
+      mutable std::vector< double > fU4l2s; // couplings
+      
+      mutable double fLx, fLy, fLz;   //BBox length [m]
+
+      mutable std::vector< double > fB2UTranslation, fB2URotation;
+      mutable double fCx, fCy, fCz;   //BBox centre wrt NHL prod [m]
+      mutable double fAx1, fAz, fAx2; //Euler angles, extrinsic x-z-x. Ax2 then Az then Ax1 
+
+      mutable double fDx, fDy, fDz; //NHL production point [m]
 
       //std::vector< double > trVec, roVec;
 
-      /* */ mutable double parentMass, parentMomentum, parentEnergy; // GeV
+      mutable double parentMass, parentMomentum, parentEnergy; // GeV
 
       // tree variables. Add as per necessary.
-      /* */ mutable double potnum;                             ///< N POT for this SM-v
-      /* */ mutable int    decay_ptype;                        ///< PDG code of parent
-      /* */ mutable double decay_vx, decay_vy, decay_vz;       ///< coordinates of prod vtx [cm]
-      /* */ mutable double decay_pdpx, decay_pdpy, decay_pdpz; ///< final parent momentum [GeV]
-      /* */ mutable double decay_necm;                         ///< SM v CM energy [GeV]
-      /* */ mutable double decay_nimpwt;                       ///< Importance weight from beamsim
+      mutable double potnum;                             ///< N POT for this SM-v
+      mutable int    decay_ptype;                        ///< PDG code of parent
+      mutable double decay_vx, decay_vy, decay_vz;       ///< coordinates of prod vtx [cm]
+      mutable double decay_pdpx, decay_pdpy, decay_pdpz; ///< final parent momentum [GeV]
+      mutable double decay_necm;                         ///< SM v CM energy [GeV]
+      mutable double decay_nimpwt;                       ///< Importance weight from beamsim
 
       // meta variables. Add as necessary
-      /* */ mutable int    job;                                ///< beamsim MC job number
-      /* */ mutable double pots;                               ///< how many pot in this job?
+      mutable int    job;                                ///< beamsim MC job number
+      mutable double pots;                               ///< how many pot in this job?
+
+      mutable bool fIsConfigLoaded = false;
 
     }; // class NHLFluxCreator
       

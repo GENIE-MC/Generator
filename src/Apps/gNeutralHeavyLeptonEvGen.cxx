@@ -226,7 +226,7 @@ double NTP_FS1_E = 0., NTP_FS1_PX = 0., NTP_FS1_PY = 0., NTP_FS1_PZ = 0.;
 double NTP_FS2_E = 0., NTP_FS2_PX = 0., NTP_FS2_PY = 0., NTP_FS2_PZ = 0.;
 int NTP_FS0_PDG = 0, NTP_FS1_PDG = 0, NTP_FS2_PDG = 0;
 
-NHLFluxCreator * fluxCreator = 0;
+//NHLFluxCreator * fluxCreator = 0;
 NHLPrimaryVtxGenerator * nhlgen = 0;
 // HNL lifetime in rest frame
 double CoMLifetime = -1.0; // GeV^{-1}
@@ -254,12 +254,17 @@ int main(int argc, char ** argv)
 
   // Get the NHL generator first to load config
   // config loaded upon instantiation of NHLGenerator algorithm 
-  // ==> NHLPrimaryVtxGenerator::LoadConfig()
+  // calls LoadConfig() of each sub-alg
   const EventRecordVisitorI * mcgen = NHLGenerator();
+  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLFluxCreator", "Default");
+
+  const NHLFluxCreator * fluxCreator = dynamic_cast< const NHLFluxCreator * >( algFluxCreator );
+  
   if( !nhlgen ){
     nhlgen = new NHLPrimaryVtxGenerator(); // do NOT remove this if( !nhlgen ), it causes a MASSIVE memleak if you do.
   }
-  string confString = kDefOptSName + kDefOptSConfig;
+  //string confString = kDefOptSName + "/" + kDefOptSConfig;
+  string confString = kDefOptSConfig;
 
   SimpleNHL confsh = nhlgen->GetNHLInstance( confString );
   const double confMass = confsh.GetMass();
@@ -351,8 +356,6 @@ int main(int argc, char ** argv)
   TH1D * spectrum = 0;
   TFile * spectrumFile = 0;
 
-  if( !fluxCreator && !gOptIsMonoEnFlux && gOptIsUsingDk2nu ){ fluxCreator = new NHLFluxCreator(); }
-
   if( !gOptIsMonoEnFlux ){
     if( !gOptIsUsingDk2nu ){ 
       ff = TH1FluxDriver();
@@ -366,10 +369,12 @@ int main(int argc, char ** argv)
       assert( spectrum && spectrum != NULL );
 
     } else{ // RETHERE gotta make non-flat trees
+
       LOG( "gevgen_nhl", pWARN )
 	<< "Using input flux files. These are *flat dk2nu-like ROOT trees, so far...*";
 
       fluxCreator->SetInputPath( gOptFluxFilePath );
+      LOG( "gevgen_nhl", pDEBUG ) << "Input path set";
       int maxFluxEntries = fluxCreator->GetNEntries();
       LOG( "gevgen_nhl", pDEBUG )
 	<< "Found " << maxFluxEntries << " flux entries.";

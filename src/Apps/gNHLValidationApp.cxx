@@ -253,7 +253,6 @@ double foz = 0; // origin - z
 
 long int         gOptRanSeed = -1;                       // random number seed
 
-NHLFluxCreator * fluxCreator = 0;
 NHLPrimaryVtxGenerator * nhlgen = 0;
 
 //_________________________________________________________________________________________
@@ -304,7 +303,10 @@ int TestFluxFromDk2nu()
     << "\n--> Spectrum of acceptance correction as function of parent boost factor"
     << "\n--> Boost factor spectrum of parents broken down by type";
   
-  if( !fluxCreator ){ fluxCreator = new NHLFluxCreator(); }
+  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLFluxCreator", "Default");
+
+  const NHLFluxCreator * fluxCreator = dynamic_cast< const NHLFluxCreator * >( algFluxCreator );
+
   fluxCreator->SetInputPath( gOptFluxFilePath );
   int maxFluxEntries = fluxCreator->GetNEntries();
   if( gOptNev > maxFluxEntries ){

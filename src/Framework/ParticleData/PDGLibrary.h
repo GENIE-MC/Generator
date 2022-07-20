@@ -14,6 +14,9 @@
           Changes required to implement the GENIE Dark Neutrino module
           were installed by Iker de Icaza (Univ. of Sussex)
 
+	  Changes required to implement the GENIE NHL module
+	  were installed by John Plows (Univ. of Oxford)
+
 \created  May 06, 2004
 
 \cpright  Copyright (c) 2003-2022, The GENIE Collaboration
