@@ -12,45 +12,6 @@
 using namespace genie;
 using namespace genie::NHL;
 
-// extern definitions
-/*
-flux::GNuMIFluxPassThroughInfo gflux;
-
-std::string NHLFluxCreator::fCurrPath;
-int iCurrEntry = 0, fNEntries = 0;
-
-std::map< NHLProd_t, double > NHLFluxCreator::dynamicScores;
-std::map< NHLProd_t, double > NHLFluxCreator::dynamicScores_pion;
-std::map< NHLProd_t, double > NHLFluxCreator::dynamicScores_kaon;
-std::map< NHLProd_t, double > NHLFluxCreator::dynamicScores_muon;
-std::map< NHLProd_t, double > NHLFluxCreator::dynamicScores_neuk;
-double NHLFluxCreator::BR_pi2mu, NHLFluxCreator::BR_pi2e;
-double NHLFluxCreator::BR_K2mu,  NHLFluxCreator::BR_K2e;
-double NHLFluxCreator::BR_K3mu,  NHLFluxCreator::BR_K3e;
-double NHLFluxCreator::BR_K03mu, NHLFluxCreator::BR_K03e;
-
-bool NHLFluxCreator::isParentOnAxis = true;
-
-double NHLFluxCreator::fLx, NHLFluxCreator::fLy, NHLFluxCreator::fLz;
-double NHLFluxCreator::fCx, NHLFluxCreator::fCy, NHLFluxCreator::fCz;
-double NHLFluxCreator::fAx1, NHLFluxCreator::fAz, NHLFluxCreator::fAx2;
-double NHLFluxCreator::fDx, NHLFluxCreator::fDy, NHLFluxCreator::fDz;
-
-double NHLFluxCreator::parentMass, NHLFluxCreator::parentMomentum, NHLFluxCreator::parentEnergy;
-
-double NHLFluxCreator::potnum;
-int    NHLFluxCreator::decay_ptype;
-double NHLFluxCreator::decay_vx, NHLFluxCreator::decay_vy, NHLFluxCreator::decay_vz;
-double NHLFluxCreator::decay_pdpx, NHLFluxCreator::decay_pdpy, NHLFluxCreator::decay_pdpz;
-double NHLFluxCreator::decay_necm;
-double NHLFluxCreator::decay_nimpwt;
-
-int    NHLFluxCreator::job;
-double NHLFluxCreator::pots;
-
-TChain * NHLFluxCreator::ctree = 0, * NHLFluxCreator::cmeta = 0;
-*/
-
 //----------------------------------------------------------------------------
 NHLFluxCreator::NHLFluxCreator() :
   EventRecordVisitorI("genie::NHL::NHLFluxCreator")
