@@ -68,7 +68,9 @@ private:
   double Qvalue(const Interaction & interaction ) const ;
 
   /// External scaling factor for this cross section
-  double fXSecScale;
+  double fXSecCCScale;
+  double fXSecNCScale;
+  double fXSecEMScale;
 
   const genie::HadronTensorModelI* fHadronTensorModel;
 

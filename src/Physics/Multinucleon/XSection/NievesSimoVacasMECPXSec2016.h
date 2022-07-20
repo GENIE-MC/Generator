@@ -60,7 +60,8 @@ private:
   // Load algorithm configuration
   void LoadConfig (void);
 
-  double fXSecScale; ///< external xsec scaling factor
+  double fXSecCCScale; ///< external xsec scaling factor
+  double fXSecNCScale; ///< external xsec scaling factor
 
   const HadronTensorModelI* fHadronTensorModel;
 
