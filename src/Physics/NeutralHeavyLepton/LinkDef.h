@@ -14,6 +14,7 @@
 #pragma link C++ namespace genie::NHL::NHLDecayVolume;
 
 #pragma link C++ class genie::NHL::SimpleNHL;
+#pragma link C++ class genie::NHL::NHLBRFunctions;
 #pragma link C++ class genie::NHL::NHLFluxCreator;
 #pragma link C++ class genie::NHLPrimaryVtxGenerator;
 

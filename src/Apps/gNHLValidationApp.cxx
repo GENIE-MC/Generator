@@ -253,8 +253,6 @@ double foz = 0; // origin - z
 
 long int         gOptRanSeed = -1;                       // random number seed
 
-NHLPrimaryVtxGenerator * nhlgen = 0;
-
 //_________________________________________________________________________________________
 int main(int argc, char ** argv)
 {

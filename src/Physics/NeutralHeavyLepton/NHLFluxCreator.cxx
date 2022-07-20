@@ -149,7 +149,6 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   parentMomentum = std::sqrt( decay_pdpx*decay_pdpx + decay_pdpy*decay_pdpy + decay_pdpz*decay_pdpz );
   parentEnergy = std::sqrt( parentMass*parentMass + parentMomentum*parentMomentum );
 
-  //if( !fIsConfigLoaded ) this->Configure( "genie::EventGenerator/NeutralHeavyLepton" );
   // CAUTION: p4par is in USER coords
   TLorentzVector p4par = ( isParentOnAxis ) ? 
     TLorentzVector( parentMomentum * (detO.Unit()).X(), 
@@ -774,15 +773,19 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG ) c
 
   // now get parent mass
   //double mP = PDGLibrary::Instance()->Find( std::abs( parPDG ) )->Mass();
+
+  // also, construct an NHLBRFunctions * object to handle the scalings.
+  const Algorithm * algBRFunc = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLBRFunctions", "Default");
+  const NHLBRFunctions * BRFunc = dynamic_cast< const NHLBRFunctions * >( algBRFunc );
   
   // first get pure kinematic part of the BRs
   double KScale[4] = { -1.0, -1.0, -1.0, -1.0 }, mixScale[4] = { -1.0, -1.0, -1.0, -1.0 };
   double totalMix = 0.0;
   switch( std::abs( parPDG ) ){
   case genie::kPdgMuon:
-    KScale[0] = NHLSelector::KScale_Global( kNHLProdMuon3Numu, M );
-    KScale[1] = NHLSelector::KScale_Global( kNHLProdMuon3Nue, M ); // same, convenience for later
-    KScale[2] = NHLSelector::KScale_Global( kNHLProdMuon3Nutau, M ); // same, convenience for later
+    KScale[0] = BRFunc->KScale_Global( kNHLProdMuon3Numu, M );
+    KScale[1] = BRFunc->KScale_Global( kNHLProdMuon3Nue, M ); // same, convenience for later
+    KScale[2] = BRFunc->KScale_Global( kNHLProdMuon3Nutau, M ); // same, convenience for later
     mixScale[0] = 1.0 * Um42 * KScale[0]; totalMix += mixScale[0];
     mixScale[1] = 1.0 * Ue42 * KScale[1]; totalMix += mixScale[1];
     mixScale[2] = 1.0 * Ut42 * KScale[2]; totalMix += mixScale[2];
@@ -802,10 +805,10 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG ) c
     dynamicScores_muon = dynScores;
     break;
   case genie::kPdgKP:
-    KScale[0] = NHLSelector::KScale_Global( kNHLProdKaon2Muon, M );
-    KScale[1] = NHLSelector::KScale_Global( kNHLProdKaon2Electron, M );
-    KScale[2] = NHLSelector::KScale_Global( kNHLProdKaon3Muon, M );
-    KScale[3] = NHLSelector::KScale_Global( kNHLProdKaon3Electron, M );
+    KScale[0] = BRFunc->KScale_Global( kNHLProdKaon2Muon, M );
+    KScale[1] = BRFunc->KScale_Global( kNHLProdKaon2Electron, M );
+    KScale[2] = BRFunc->KScale_Global( kNHLProdKaon3Muon, M );
+    KScale[3] = BRFunc->KScale_Global( kNHLProdKaon3Electron, M );
     mixScale[0] = BR_K2mu * Um42 * KScale[0]; totalMix += mixScale[0];
     mixScale[1] = BR_K2e  * Ue42 * KScale[1]; totalMix += mixScale[1];
     mixScale[2] = BR_K3mu * Um42 * KScale[2]; totalMix += mixScale[2];
@@ -828,8 +831,8 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG ) c
     break;
   case genie::kPdgPiP:
 
-    KScale[0] = NHLSelector::KScale_Global( kNHLProdPion2Muon, M );
-    KScale[1] = NHLSelector::KScale_Global( kNHLProdPion2Electron, M );
+    KScale[0] = BRFunc->KScale_Global( kNHLProdPion2Muon, M );
+    KScale[1] = BRFunc->KScale_Global( kNHLProdPion2Electron, M );
     mixScale[0] = BR_pi2mu * Um42 * KScale[0]; totalMix += mixScale[0];
     mixScale[1] = BR_pi2e  * Ue42 * KScale[1]; totalMix += mixScale[1];
 
@@ -848,8 +851,8 @@ std::map< NHLProd_t, double > NHLFluxCreator::GetProductionProbs( int parPDG ) c
     break;
   case genie::kPdgK0L:
 
-    KScale[0] = NHLSelector::KScale_Global( kNHLProdNeuk3Muon, M );
-    KScale[1] = NHLSelector::KScale_Global( kNHLProdNeuk3Electron, M );
+    KScale[0] = BRFunc->KScale_Global( kNHLProdNeuk3Muon, M );
+    KScale[1] = BRFunc->KScale_Global( kNHLProdNeuk3Electron, M );
     mixScale[0] = BR_K03mu * Um42 * KScale[0]; totalMix += mixScale[0];
     mixScale[1] = BR_K03e  * Ue42 * KScale[1]; totalMix += mixScale[1];
     
@@ -1257,8 +1260,6 @@ void NHLFluxCreator::MakeBBox() const
 {
   LOG( "NHL", pWARN )
     << "WARNING: This is a dummy (==unit-side) bounding box centred at config-given point";
-
-  //if( !fIsConfigLoaded ) this->Configure( "genie::EventGenerator/NeutralHeavyLepton" );
 
   LOG( "NHL", pDEBUG )
     << "\nfCx, fCy, fCz = " << fCx << ", " << fCy << ", " << fCz

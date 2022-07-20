@@ -25,9 +25,10 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
 
   <param_set name="NeutralHeavyLepton">
      <param type="string" name="VldContext"> </param>
-     <param type="int"    name="NModules">   2                                                    </param>
-     <param type="alg"    name="Module-0">   genie::NHL::NHLFluxCreator/Default                   </param>
-     <param type="alg"    name="Module-1">   genie::NHLPrimaryVtxGenerator/Default                </param>
+     <param type="int"    name="NModules">   3                                                    </param>
+     <param type="alg"    name="Module-0">   genie::NHL::NHLBRFunctions/Default                   </param>
+     <param type="alg"    name="Module-1">   genie::NHL::NHLFluxCreator/Default                   </param>
+     <param type="alg"    name="Module-2">   genie::NHLPrimaryVtxGenerator/Default                </param>
      <param type="alg"    name="ILstGen">    genie::DummyHNLInteractionListGenerator/Default      </param>
   </param_set>
 

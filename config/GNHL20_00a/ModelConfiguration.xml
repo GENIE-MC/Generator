@@ -4,7 +4,7 @@
 
  <param_set name="Default"> 
 
-  <param type="alg" name="XSecModel@genie::EventGenerator/NeutralHeavyLepton"> genie::DummyPXSec/Default  </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/NeutralHeavyLepton"> genie::DummyNHLPXSec/Default  </param>
 
  </param_set>
 

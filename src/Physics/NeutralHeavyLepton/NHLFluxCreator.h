@@ -58,6 +58,7 @@
 #include "TVector3.h"
 
 // -- GENIE includes
+#include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/Units.h"

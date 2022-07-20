@@ -71,6 +71,7 @@
    <config alg="genie::SpectralFunction2p2h">        SpectralFunction2p2h.xml        </config>
    <config alg="genie::SRCNuclearRecoil">             SRCNuclearRecoil.xml             </config>
    <config alg="genie::NHL::NHLFluxCreator">             NHLPrimaryVtxGenerator.xml          </config>
+   <config alg="genie::NHL::NHLBRFunctions">             NHLPrimaryVtxGenerator.xml          </config>
    <config alg="genie::NHLPrimaryVtxGenerator">          NHLPrimaryVtxGenerator.xml          </config>
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->

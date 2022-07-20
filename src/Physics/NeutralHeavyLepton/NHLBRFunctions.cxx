@@ -1,13 +1,53 @@
-#include "NHLBRFunctions.h"
+
+//----------------------------------------------------------------------------
+/*!
+
+  Implementation of NHLBRFunctions
+
+ */
+//----------------------------------------------------------------------------
+
+#include "Physics/NeutralHeavyLepton/NHLBRFunctions.h"
 
 using namespace genie;
 using namespace genie::NHL;
 
-// initialise the parameters
-void NHLSelector::InitParameters() {
-  if( fParamsInitialised ) return;
+//----------------------------------------------------------------------------
+NHLBRFunctions::NHLBRFunctions() :
+  Algorithm("genie::NHL::NHLBRFunctions")
+{
 
-  LOG( "NHL", pDEBUG ) << "Initialising parameters from config files. . .";
+}
+//----------------------------------------------------------------------------
+NHLBRFunctions::NHLBRFunctions(string config) :
+  Algorithm("genie::NHL::NHLBRFunctions", config)
+{
+
+}
+//----------------------------------------------------------------------------
+NHLBRFunctions::~NHLBRFunctions()
+{
+
+}
+//----------------------------------------------------------------------------
+void NHLBRFunctions::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//----------------------------------------------------------------------------
+void NHLBRFunctions::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//----------------------------------------------------------------------------
+void NHLBRFunctions::LoadConfig(void)
+{
+  if( fIsConfigLoaded ) return;
+
+  LOG("NHL", pDEBUG)
+    << "Loading BR-function parameters from file...";
 
   mPi0 = PDGLibrary::Instance()->Find(genie::kPdgPi0)->Mass();     
   mPi  = PDGLibrary::Instance()->Find(genie::kPdgPiP)->Mass();     
@@ -16,27 +56,27 @@ void NHLSelector::InitParameters() {
   mK0  = PDGLibrary::Instance()->Find(genie::kPdgK0)->Mass();	     
   mE   = PDGLibrary::Instance()->Find(genie::kPdgElectron)->Mass();
 
-  wAng = utils::nhl::GetCfgDouble( "Param", "WeakInt", "WeinbergAngle" );
+  this->GetParam( "WeinbergAngle", wAng );
   s2w = std::pow( std::sin( wAng ), 2.0 );
 
-  Vud = utils::nhl::GetCfgDouble( "Param", "CKM", "CKM-Vud" );
+  this->GetParam( "CKM-Vud", Vud );
   Vud2 = Vud * Vud;
 
-  fpi = utils::nhl::GetCfgDouble( "NHL", "External", "Pion-FFactor" );
+  this->GetParam( "Pion-FFactor", fpi );
   fpi2 = fpi * fpi;
 
   BR_C1 = 1./4. * ( 1. - 4. * s2w + 8. * s2w * s2w );
   BR_C2 = 1./2. * ( -s2w + 2. * s2w * s2w );
 
-  Ue1 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Ue1" );
-  Ue2 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Ue2" );
-  Ue3 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Ue3" );
-  Um1 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Um1" );
-  Um2 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Um2" );
-  Um3 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Um3" );
-  Ut1 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Ut1" );
-  Ut2 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Ut2" );
-  Ut3 = genie::utils::nhl::GetCfgDouble( "NHL", "External", "PMNS-Ut3" );
+  this->GetParam( "PMNS-Ue1", Ue1 );
+  this->GetParam( "PMNS-Ue2", Ue2 );
+  this->GetParam( "PMNS-Ue3", Ue3 );
+  this->GetParam( "PMNS-Um1", Um1 );
+  this->GetParam( "PMNS-Um2", Um2 );
+  this->GetParam( "PMNS-Um3", Um3 );
+  this->GetParam( "PMNS-Ut1", Ut1 );
+  this->GetParam( "PMNS-Ut2", Ut2 );
+  this->GetParam( "PMNS-Ut3", Ut3 );
 
   // RETHERE pass this to config / data?
   kscale_K3e = { 
@@ -69,34 +109,37 @@ void NHLSelector::InitParameters() {
     { 0.100570, 0.00000363 }
   };
 
-  fParamsInitialised = true;
+  LOG( "NHL", pDEBUG )
+    << "Captured the following parameters:"
+    << "\n wAng = " << wAng
+    << "\n Vud = " << Vud
+    << "\n fpi = " << fpi
+    << "\n Ue1,2,3 = " << Ue1 << ", " << Ue2 << ", " << Ue3
+    << "\n Um1,2,3 = " << Um1 << ", " << Um2 << ", " << Um3
+    << "\n Ut1,2,3 = " << Ut1 << ", " << Ut2 << ", " << Ut3;
+
+  fIsConfigLoaded = true;
 }
-
+//----------------------------------------------------------------------------
 // Get Coloma et al's form factor functions
-double NHLSelector::GetColomaF1( double x ) {
-  if( !fParamsInitialised ) InitParameters();
-
+double NHLBRFunctions::GetColomaF1( double x ) const {
   if( x < 0. || x > 0.5 ) { LOG( "NHL", pERROR ) << "BRFunctions::GetColomaF1:: Illegal x = " << x; exit( 3 ); }
   if( x == 0.5 ) return 0.;
   int i = x/NHLSelector::PARTWIDTH;
   if( x - i*NHLSelector::PARTWIDTH ==0 ) return NHLSelector::ColomaF1[i];
   return 1./2. * ( NHLSelector::ColomaF1[i] + NHLSelector::ColomaF1[i+1] );
 }
-
-double NHLSelector::GetColomaF2( double x ) {
-  if( !fParamsInitialised ) InitParameters();
-
+//----------------------------------------------------------------------------
+double NHLBRFunctions::GetColomaF2( double x ) const {
   if( x < 0. || x > 0.5 ) { LOG( "NHL", pERROR ) << "BRFunctions::GetColomaF2:: Illegal x = " << x; exit( 3 ); }
   if( x == 0.5 ) return 0.;
   int i = x/NHLSelector::PARTWIDTH;
   if( x - i*NHLSelector::PARTWIDTH==0 ) return NHLSelector::ColomaF2[i];
   return 1./2. * ( NHLSelector::ColomaF2[i] + NHLSelector::ColomaF2[i+1] );
 }
-
+//----------------------------------------------------------------------------
 // interface to scale factors
-double NHLSelector::KScale_Global( NHLProd_t nhldm, const double M ){
-  if( !fParamsInitialised ) InitParameters();
-
+double NHLBRFunctions::KScale_Global( NHLProd_t nhldm, const double M ) const {
   if( !utils::nhl::IsProdKinematicallyAllowed( nhldm ) ){
     LOG( "NHL", pDEBUG ) << "Not allowed. Moving on.";
     return 0.0;
@@ -119,30 +162,24 @@ double NHLSelector::KScale_Global( NHLProd_t nhldm, const double M ){
 
   return 0.0;
 }
-
+//----------------------------------------------------------------------------
 // NHL production widths
-double NHLSelector::KScale_PseudoscalarToLepton( const double mP, const double M, const double ma ){
-  if( !fParamsInitialised ) InitParameters();
-  
+double NHLBRFunctions::KScale_PseudoscalarToLepton( const double mP, const double M, const double ma ) const {
   double da = std::pow( utils::nhl::MassX( ma, mP ) , 2.0 );
   double di = std::pow( utils::nhl::MassX( M,  mP ) , 2.0 );
   double num = utils::nhl::rhofunc( da, di );
   double den = da * std::pow( (1.0 - da), 2.0 );
   return num/den;
 }
-
-double NHLSelector::DWidth_PseudoscalarToLepton( const double mP, const double M, const double Ua42, const double ma ){
-  if( !fParamsInitialised ) InitParameters();
+//----------------------------------------------------------------------------
+double NHLBRFunctions::DWidth_PseudoscalarToLepton( const double mP, const double M, const double Ua42, const double ma ) const {
   assert( M + ma <= mP );
 
   double KScale = KScale_PseudoscalarToLepton( mP, M, ma );
   return Ua42 * KScale;
 }
-
-double NHLSelector::KScale_PseudoscalarToPiLepton( const double mP, const double M, const double ma ){
-
-  if( !fParamsInitialised ) InitParameters();
-
+//----------------------------------------------------------------------------
+double NHLBRFunctions::KScale_PseudoscalarToPiLepton( const double mP, const double M, const double ma ) const {
   assert( mP == mK || mP == mK0 ); // RETHERE remove this when/if heavier pseudoscalars are considered
   assert( ma == mE || ma == mMu );
   
@@ -164,18 +201,15 @@ double NHLSelector::KScale_PseudoscalarToPiLepton( const double mP, const double
   double t  = ( M - (*scpit).first ) / ( (*scmit).first - (*scpit).first );
   return TMath::Exp( l1 + ( l2 - l1 ) * t );
 }
-
-double NHLSelector::DWidth_PseudoscalarToPiLepton( const double mP, const double M, const double Ua42, const double ma ){
-  if( !fParamsInitialised ) InitParameters();
+//----------------------------------------------------------------------------
+double NHLBRFunctions::DWidth_PseudoscalarToPiLepton( const double mP, const double M, const double Ua42, const double ma ) const {
   assert( M + ma + mPi0 <= mP );
 
   double KScale = KScale_PseudoscalarToPiLepton( mP, M, ma );
   return Ua42 * KScale;
 }
-
-double NHLSelector::KScale_MuonToNuAndElectron( const double M ){
-  if( !fParamsInitialised ) InitParameters();
-
+//----------------------------------------------------------------------------
+double NHLBRFunctions::KScale_MuonToNuAndElectron( const double M ) const {
   std::map< double, double > scaleMap = kscale_mu3e;
   std::map< double, double >::iterator scmit = scaleMap.begin();
   while( (*scmit).first <= M && scmit != scaleMap.end() ){ ++scmit; }
@@ -191,28 +225,23 @@ double NHLSelector::KScale_MuonToNuAndElectron( const double M ){
   double t  = ( M - (*scpit).first ) / ( (*scmit).first - (*scpit).first );
   return TMath::Exp( l1 + ( l2 - l1 ) * t );
 }
-
-double NHLSelector::DWidth_MuonToNuAndElectron( const double M, const double Ue42, const double Umu42, const double Ut42 ){
-  if( !fParamsInitialised ) InitParameters();
+//----------------------------------------------------------------------------
+double NHLBRFunctions::DWidth_MuonToNuAndElectron( const double M, const double Ue42, const double Umu42, const double Ut42 ) const {
   assert( M + mE <= mMu );
 
   double KScale = KScale_MuonToNuAndElectron( M );
   return ( Ue42 + Umu42 + Ut42 ) * KScale;
 }
-
+//----------------------------------------------------------------------------
 // total decay widths, various channels
-double NHLSelector::DWidth_PiZeroAndNu( const double M, const double Ue42, const double Umu42, const double Ut42 ) {
-  if( !fParamsInitialised ) InitParameters();
-
+double NHLBRFunctions::DWidth_PiZeroAndNu( const double M, const double Ue42, const double Umu42, const double Ut42 ) const {
   const double x       = genie::utils::nhl::MassX( mPi0, M );
   const double preFac  = GF2 * M*M*M / ( 32. * pi );
   const double kinPart = ( 1. - x*x ) * ( 1. - x*x );
   return preFac * ( Ue42 + Umu42 + Ut42 ) * fpi2 * kinPart;
 }
-
-double NHLSelector::DWidth_PiAndLepton( const double M, const double Ua42, const double ma ) {
-  if( !fParamsInitialised ) InitParameters();
-
+//----------------------------------------------------------------------------
+double NHLBRFunctions::DWidth_PiAndLepton( const double M, const double Ua42, const double ma ) const {
   const double xPi     = genie::utils::nhl::MassX( mPi, M );
   const double xLep    = genie::utils::nhl::MassX( ma, M );
   const double preFac  = GF2 * M*M*M / ( 16. * pi );
@@ -220,17 +249,13 @@ double NHLSelector::DWidth_PiAndLepton( const double M, const double Ua42, const
   const double othPart = 1. - xPi*xPi - xLep*xLep * ( 2. + xPi*xPi - xLep*xLep );
   return preFac * fpi2 * Ua42 * Vud2 * kalPart * othPart;
 }
-
-double NHLSelector::DWidth_Invisible( const double M, const double Ue42, const double Umu42, const double Ut42 ) {
-  if( !fParamsInitialised ) InitParameters();
-  
+//----------------------------------------------------------------------------
+double NHLBRFunctions::DWidth_Invisible( const double M, const double Ue42, const double Umu42, const double Ut42 ) const {
   const double preFac = GF2 * TMath::Power( M, 5. ) / ( 192. * pi*pi*pi );
   return preFac * ( Ue42 + Umu42 + Ut42 );
 }
-
-double NHLSelector::DWidth_SameLepton( const double M, const double Ue42, const double Umu42, const double Ut42, const double mb, bool bIsMu ) {
-  if( !fParamsInitialised ) InitParameters();
-
+//----------------------------------------------------------------------------
+double NHLBRFunctions::DWidth_SameLepton( const double M, const double Ue42, const double Umu42, const double Ut42, const double mb, bool bIsMu ) const {
   const double preFac = GF2 * TMath::Power( M, 5. ) / ( 192. * pi*pi*pi );
   const double x      = genie::utils::nhl::MassX( mb, M );
   const double f1     = GetColomaF1( x );
@@ -241,10 +266,8 @@ double NHLSelector::DWidth_SameLepton( const double M, const double Ue42, const 
   const double D2Part = bIsMu ? s2w * Umu42 * f2 : s2w * Ue42 * f2;
   return preFac * ( C1Part + C2Part + D1Part + D2Part );
 }
-
-double NHLSelector::DWidth_DiffLepton( const double M, const double Ua42, const double Ub42, const int IsMajorana ) {
-  if( !fParamsInitialised ) InitParameters();
-
+//----------------------------------------------------------------------------
+double NHLBRFunctions::DWidth_DiffLepton( const double M, const double Ua42, const double Ub42, const int IsMajorana ) const {
   const double preFac = GF2 * TMath::Power( M, 5. ) / ( 192. * pi*pi*pi );
   const double x = genie::utils::nhl::MassX( mMu, M );
   const double kinPol = 1. - 8. * x*x + 8. * TMath::Power( x, 6. ) - TMath::Power( x, 8. );
@@ -253,14 +276,12 @@ double NHLSelector::DWidth_DiffLepton( const double M, const double Ua42, const 
   const double coupPart = IsMajorana ? Ua42 : Ua42 + Ub42; // 2nd diagram in Majorana case!
   return preFac * kinPart * coupPart;
 }
-
+//----------------------------------------------------------------------------
 // note that these BR are very very tiny.
-double NHLSelector::DWidth_PiPi0Ell( const double M, const double ml,
+double NHLBRFunctions::DWidth_PiPi0Ell( const double M, const double ml,
 					      const double Ue42, const double Umu42, const double Ut42,
-					      const bool isElectron)
+					      const bool isElectron) const
 {
-  if( !fParamsInitialised ) InitParameters();
-
   // because the actual decay width is very hard to integrate onto a full DWidth,
   // build 2Differential and then integrate numerically
   // using Simpson's method for 2D.
@@ -340,14 +361,12 @@ double NHLSelector::DWidth_PiPi0Ell( const double M, const double ml,
   return intNow;
 	    
 }
-
+//----------------------------------------------------------------------------
 // *especially* this channel, there's N4 in the propagator so it emits *both* the pi-zeros!!!
 // It is subleading in |U_\ell 4|^2, therefore not important to get this exactly right
-double NHLSelector::DWidth_Pi0Pi0Nu( const double M,
-					      const double Ue42, const double Umu42, const double Ut42 )
+double NHLBRFunctions::DWidth_Pi0Pi0Nu( const double M,
+					      const double Ue42, const double Umu42, const double Ut42 ) const
 { 
-  if( !fParamsInitialised ) InitParameters();
-
   const double preFac = fpi2 * fpi2 * GF2 * GF2 * std::pow( M, 5.0 ) / ( 64.0 * pi*pi*pi );
 
   const double Ue4 = std::sqrt( Ue42 );
@@ -414,16 +433,14 @@ double NHLSelector::DWidth_Pi0Pi0Nu( const double M,
 
   return intNow;
 }
-
+//----------------------------------------------------------------------------
 // differential decay width for NHL channels!
 
-void NHLSelector::Diff1Width_PiAndLepton_CosTheta( const double M, const double Ua42,
+void NHLBRFunctions::Diff1Width_PiAndLepton_CosTheta( const double M, const double Ua42,
 							    const double ml,
 							    double &thePreFac, 
 							    double &theCnstPart,
-							    double &thePropPart ) {
-  if( !fParamsInitialised ) InitParameters();
-
+							    double &thePropPart ) const {
   const double preFac   = 1. / ( 32.0 * pi * M*M*M );
   const double sqrKal   = std::sqrt( genie::utils::nhl::Kallen( M*M, mPi*mPi, ml*ml ) );
   const double formPart = fpi2 * Ua42 * Vud2 * GF2;
@@ -434,9 +451,9 @@ void NHLSelector::Diff1Width_PiAndLepton_CosTheta( const double M, const double 
   theCnstPart = parConst;
   thePropPart = parCoeff; // modulo |P| * cos(theta)
 }
-
+//----------------------------------------------------------------------------
 // formula for N --> pi pi0 ell decay rate
-double NHLSelector::PiPi0EllForm( double *x, double *par ){
+double NHLBRFunctions::PiPi0EllForm( double *x, double *par ){
     double MN = par[0];
     double MMu = par[1];
     double MPi = par[2];
@@ -462,11 +479,9 @@ double NHLSelector::PiPi0EllForm( double *x, double *par ){
     
     return ETerm * FracNum / FracDen;
 }
-
+//----------------------------------------------------------------------------
 // formula for N --> pi0 pi0 nu decay rate
-double NHLSelector::Pi0Pi0NuForm( double *x, double *par ){
-  if( !fParamsInitialised ) InitParameters();
-  
+double NHLBRFunctions::Pi0Pi0NuForm( double *x, double *par ){
     double MN = par[0];
     double MPi0 = par[1];
     
