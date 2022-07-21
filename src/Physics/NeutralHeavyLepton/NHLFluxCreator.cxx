@@ -44,7 +44,7 @@ void NHLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
   if( std::abs(gnmf->fgPdgC) == genie::kPdgNHL ){ // only add particle if parent is valid
 
     double invAccWeight = gnmf->nimpwt * gnmf->fgXYWgt;
-    evrec->SetWeight( 1.0 / invAccWeight );
+    evrec->SetWeight( evrec->Weight() / invAccWeight );
   
     evrec->SetVertex( gnmf->fgX4User ); // NHL production vertex. NOT where NHL decays to visible FS.
     // construct Particle(0). Don't worry about daughter links at this stage.

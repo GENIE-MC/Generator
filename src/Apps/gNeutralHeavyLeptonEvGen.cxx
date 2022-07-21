@@ -405,6 +405,8 @@ int main(int argc, char ** argv)
           << " *** Generating event............ " << ievent;
 
      EventRecord * event = new EventRecord;
+     event->SetWeight(1.0);
+     evWeight = 1.0;
 
      if( !gOptIsMonoEnFlux ){
        if( !gOptIsUsingDk2nu ){
@@ -556,12 +558,14 @@ int main(int argc, char ** argv)
      // also currently handles the geometrical weight
      TLorentzVector x4mm = GeneratePosition( event );
 
-     // update weight to scale for couplings, inhibited decays + geometry
+     // update weight to scale for couplings, inhibited decays
      // acceptance is already handled in NHLFluxCreator
+     // geometry handled in NHLDecayVolume
      LOG( "gevgen_nhl", pDEBUG )
        << "\nWeight modifications:"
        << "\nCouplings^(-1) = " << 1.0 / ( gOptECoupling + gOptMCoupling + gOptTCoupling )
        << "\nDecays^(-1) = " << 1.0 / decayMod;
+     evWeight = event->Weight();
      evWeight *= 1.0 / ( gOptECoupling + gOptMCoupling + gOptTCoupling );
      evWeight *= 1.0 / decayMod;
      event->SetWeight( evWeight / 1.0e+20 ); // in units of 1e+20 POT
