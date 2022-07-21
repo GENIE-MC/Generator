@@ -12,33 +12,132 @@ using namespace genie;
 using namespace genie::NHL;
 using namespace genie::units;
 
-double NHLDecayVolume::lunits = genie::units::mm; string NHLDecayVolume::lunitString = "mm";
-double NHLDecayVolume::aunits = genie::units::rad;
-double NHLDecayVolume::tunits = genie::units::ns; string NHLDecayVolume::tunitString = "ns";
-
-double NHLDecayVolume::fSx = 0.0, NHLDecayVolume::fSy = 0.0, NHLDecayVolume::fSz = 0.0; // start point
-double NHLDecayVolume::fPx = 0.0, NHLDecayVolume::fPy = 0.0, NHLDecayVolume::fPz = 0.0; // momentum direction
-double NHLDecayVolume::fEx = 0.0, NHLDecayVolume::fEy = 0.0, NHLDecayVolume::fEz = 0.0; // entry point
-double NHLDecayVolume::fXx = 0.0, NHLDecayVolume::fXy = 0.0, NHLDecayVolume::fXz = 0.0; // exit  point
-
-double NHLDecayVolume::fSxROOT = 0.0, NHLDecayVolume::fSyROOT = 0.0, NHLDecayVolume::fSzROOT = 0.0;
-double NHLDecayVolume::fExROOT = 0.0, NHLDecayVolume::fEyROOT = 0.0, NHLDecayVolume::fEzROOT = 0.0;
-double NHLDecayVolume::fXxROOT = 0.0, NHLDecayVolume::fXyROOT = 0.0, NHLDecayVolume::fXzROOT = 0.0;
-
-double NHLDecayVolume::fDx = 0.0, NHLDecayVolume::fDy = 0.0, NHLDecayVolume::fDz = 0.0; // decay point
-double NHLDecayVolume::fOx = 0.0, NHLDecayVolume::fOy = 0.0, NHLDecayVolume::fOz = 0.0; // origin of DV
-double NHLDecayVolume::fLx = 0.0, NHLDecayVolume::fLy = 0.0, NHLDecayVolume::fLz = 0.0; // DV bounding box lengths
-
-double NHLDecayVolume::fDxROOT = 0.0, NHLDecayVolume::fDyROOT = 0.0, NHLDecayVolume::fDzROOT = 0.0;
-double NHLDecayVolume::fOxROOT = 0.0, NHLDecayVolume::fOyROOT = 0.0, NHLDecayVolume::fOzROOT = 0.0;
-double NHLDecayVolume::fLxROOT = 0.0, NHLDecayVolume::fLyROOT = 0.0, NHLDecayVolume::fLzROOT = 0.0;
-
-double NHLDecayVolume::kNewSpeedOfLight = genie::units::kSpeedOfLight 
-  * (genie::units::m / lunits)
-  / (genie::units::s / tunits);
-
 //____________________________________________________________________________
-void NHLDecayVolume::EnforceUnits( std::string length_units, std::string angle_units, std::string time_units ){
+NHLDecayVolume::NHLDecayVolume() :
+  EventRecordVisitorI("genie::NHL::NHLDecayVolume")
+{
+
+}
+//____________________________________________________________________________
+NHLDecayVolume::NHLDecayVolume(string config) :
+  EventRecordVisitorI("genie::NHL::NHLDecayVolume", config)
+{
+
+}
+//____________________________________________________________________________
+NHLDecayVolume::~NHLDecayVolume()
+{
+
+}
+//____________________________________________________________________________
+void NHLDecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
+{
+  /*!
+   *  Uses ROOT's TGeoManager to find out where the intersections with the detector volume live
+   *  Label them as entry and exit point. Then use them to determine:
+   *  1) A decay vertex within the detector
+   *  2) A time-of-decay (== delay of NHL to reach the decay vertex wrt a massless SM v)
+   *  3) Geom weight: Survival to detector * decay within detector.
+   */
+
+  int trajIdx = 0, trajMax = 20;
+  double weight = 1.0; // pure geom weight
+
+  TVector3 startPoint, momentum, entryPoint, exitPoint;
+  startPoint.SetXYZ( fSx, fSy, fSz );
+  momentum.SetXYZ( fPx, fPy, fPz );
+  
+  bool didIntersectDet = this->VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, fGeoManager, fGeoVolume );
+
+  if( isUsingDk2nu ) assert( didIntersectDet ); // forced to hit detector somewhere!
+  else {
+
+    const Algorithm * algNHLGen = AlgFactory::Instance()->GetAlgorithm("genie::NHLPrimaryVtxGenerator", "Default");
+    
+    const NHLPrimaryVtxGenerator * nhlgen = dynamic_cast< const NHLPrimaryVtxGenerator * >( algNHLGen );
+    
+    std::vector< double > * newProdVtx = new std::vector< double >();
+    newProdVtx->emplace_back( startPoint.X() );
+    newProdVtx->emplace_back( startPoint.Y() );
+    newProdVtx->emplace_back( startPoint.Z() );
+
+    while( !didIntersectDet && trajIdx < trajMax ){
+      // sample prod vtx and momentum... again
+      LOG( "NHL", pDEBUG )
+	<< "Sampling another trajectory (index = " << trajIdx << ")";
+      newProdVtx  = nhlgen->GenerateDecayPosition( event_rec );
+      
+      startPoint.SetXYZ( newProdVtx->at(0), newProdVtx->at(1), newProdVtx->at(2) );
+      LOG( "NHL", pDEBUG )
+	<< "Set start point for this trajectory = ( " << startPoint.X() << ", " << startPoint.Y() << ", " << startPoint.Z() << " ) [cm]";
+      
+      trajIdx++;
+      didIntersectDet = this->VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, fGeoManager, fGeoVolume );
+
+      newProdVtx->clear();
+    }
+    LOG("NHL", pNOTICE) << "Called NHLDecayVolume::VolumeEntryAndExitPoints " << trajIdx + 1 << " times";
+
+  }
+  if( trajIdx == trajMax && !didIntersectDet ){ // bail
+    LOG( "NHL", pERROR )
+      << "Unable to make a single good trajectory that intersects the detector after " << trajIdx << " tries! Bailing...";
+    return;
+  }
+
+  this->EnforceUnits( "mm", "rad", "ns" );
+
+  // move fCoMLifetime to ns from GeV^{-1}
+  fCoMLifetime *= 1.0 / ( units::ns * units::GeV );
+
+  double maxDx = exitPoint.X() - entryPoint.X();
+  double maxDy = exitPoint.Y() - entryPoint.Y();
+  double maxDz = exitPoint.Z() - entryPoint.Z();
+
+  double maxLength = std::sqrt( std::pow( maxDx , 2.0 ) +
+				std::pow( maxDy , 2.0 ) +
+				std::pow( maxDz , 2.0 ) );
+  
+  TLorentzVector * p4NHL = event_rec->Probe()->GetP4();
+  double betaMag = p4NHL->P() / p4NHL->E();
+  double gamma = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
+  
+  double elapsed_length = this->CalcTravelLength( betaMag, fCoMLifetime, maxLength ); //mm
+  __attribute__((unused)) double ratio_length = elapsed_length / maxLength;
+  
+  // from these we can also make the weight. It's P( survival ) * P( decay in detector | survival )
+  double distanceBeforeDet = std::sqrt( std::pow( (entryPoint.X() - startPoint.X()), 2.0 ) + 
+					std::pow( (entryPoint.Y() - startPoint.Y()), 2.0 ) + 
+					std::pow( (entryPoint.Y() - startPoint.Z()), 2.0 ) ); // mm
+  
+  double timeBeforeDet = distanceBeforeDet / ( betaMag * kNewSpeedOfLight ); // ns lab
+  double timeInsideDet = maxLength / ( betaMag * kNewSpeedOfLight ); // ns lab
+  
+  double LabToRestTime = 1.0 / ( gamma );
+  timeBeforeDet *= LabToRestTime; // ns rest
+  timeInsideDet *= LabToRestTime; // ns rest
+  
+  double survProb = std::exp( - timeBeforeDet / fCoMLifetime );
+  weight *= 1.0 / survProb;
+  double decayProb = 1.0 - std::exp( - timeInsideDet / fCoMLifetime );
+  weight *= 1.0 / decayProb;
+
+  // update the weight
+  event_rec->SetWeight( event_rec->Weight() * weight );
+
+  TVector3 decayPoint = this->GetDecayPoint( elapsed_length, entryPoint, momentum );
+
+  // write out vtx in [m, ns]
+  TLorentzVector x4( decayPoint.X() * units::mm / units::m,
+		     decayPoint.Y() * units::mm / units::m,
+		     decayPoint.Z() * units::mm / units::m,
+		     event_rec->Vertex()->T() );
+
+  event_rec->SetVertex(x4);
+  
+}
+//____________________________________________________________________________
+void NHLDecayVolume::EnforceUnits( std::string length_units, std::string angle_units, std::string time_units ) const{
   
   LOG( "NHL", pDEBUG )
     << "Switching units to " << length_units.c_str() << " , " << angle_units.c_str() << " , " << time_units.c_str();
@@ -68,7 +167,7 @@ void NHLDecayVolume::EnforceUnits( std::string length_units, std::string angle_u
     << tunitString.c_str() << "]";
 }
 //____________________________________________________________________________
-double NHLDecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, double maxLength )
+double NHLDecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, double maxLength ) const
 {
   // decay probability P0(t) = 1 - exp( -t/tau ) where:
   // t   = time-of-flight (in rest frame)
@@ -107,7 +206,7 @@ double NHLDecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, dou
   return elapsed_length;
 }
 //____________________________________________________________________________
-TVector3 NHLDecayVolume::GetDecayPoint( double travelLength, TVector3 & entryPoint, TVector3 & momentum )
+TVector3 NHLDecayVolume::GetDecayPoint( double travelLength, TVector3 & entryPoint, TVector3 & momentum ) const
 {
   double ex = entryPoint.X(); double ey = entryPoint.Y(); double ez = entryPoint.Z();
   double px = momentum.X(); double py = momentum.Y(); double pz = momentum.Z();
@@ -131,7 +230,7 @@ TVector3 NHLDecayVolume::GetDecayPoint( double travelLength, TVector3 & entryPoi
   return decayPoint;
 }
 //____________________________________________________________________________
-double NHLDecayVolume::GetMaxLength( TVector3 & entryPoint, TVector3 & exitPoint )
+double NHLDecayVolume::GetMaxLength( TVector3 & entryPoint, TVector3 & exitPoint ) const
 {
   double ex = entryPoint.X(); double ey = entryPoint.Y(); double ez = entryPoint.Z();
   double xx = exitPoint.X(); double xy = exitPoint.Y(); double xz = exitPoint.Z();
@@ -139,7 +238,7 @@ double NHLDecayVolume::GetMaxLength( TVector3 & entryPoint, TVector3 & exitPoint
   return std::sqrt( (ex-xx)*(ex-xx) + (ey-xy)*(ey-xy) + (ez-xz)*(ez-xz) );
 }
 //____________________________________________________________________________
-void NHLDecayVolume::MakeSDV()
+void NHLDecayVolume::MakeSDV() const
 {
   fOx = 0.0; fOy = 0.0; fOz = 0.0;
   fLx = 1.0; fLy = 1.0; fLz = 1.0; // m
@@ -161,7 +260,7 @@ void NHLDecayVolume::MakeSDV()
 //____________________________________________________________________________
 // if entry and exit points, populate TVector3's with their coords. If not, return false
 bool NHLDecayVolume::SDVEntryAndExitPoints( TVector3 & startPoint, TVector3 momentum,
-					    TVector3 & entryPoint, TVector3 & exitPoint )
+					    TVector3 & entryPoint, TVector3 & exitPoint ) const
 {
   assert( fOx == 0.0 && fOy == 0.0 && fOz == 0.0 && 
 	  fLx == 1000.0 && fLy == 1000.0 && fLz == 1000.0 ); // SDV, mm
@@ -259,7 +358,7 @@ bool NHLDecayVolume::SDVEntryAndExitPoints( TVector3 & startPoint, TVector3 mome
 }
 //____________________________________________________________________________
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
-void NHLDecayVolume::ImportBoundingBox( TGeoBBox * box )
+void NHLDecayVolume::ImportBoundingBox( TGeoBBox * box ) const
 {
   fLx = 2.0 * box->GetDX() * units::cm / lunits;
   fLy = 2.0 * box->GetDY() * units::cm / lunits;
@@ -281,9 +380,34 @@ void NHLDecayVolume::ImportBoundingBox( TGeoBBox * box )
     << "\nIn ROOT units this is origin at ( " << fOxROOT << ", " << fOyROOT << ", " << fOzROOT << " ) and sides " << fLxROOT << " x " << fLyROOT << " x " << fLzROOT << " [cm]";
 }
 //____________________________________________________________________________
+void NHLDecayVolume::SetStartingParameters( GHepRecord * event_rec, double NHLCoMTau, bool usingDk2nu, bool usingRootGeom, string geomfile ) const
+{
+  isUsingDk2nu = usingDk2nu;
+  uMult = ( isUsingDk2nu ) ? units::m / units::mm : units::cm / units::mm;
+  xMult = ( isUsingDk2nu ) ? units::cm / units::mm : 1.0;
+
+  isUsingRootGeom = usingRootGeom;
+
+  fCoMLifetime = NHLCoMTau;
+
+  TLorentzVector * x4NHL = event_rec->Probe()->GetX4();
+  TVector3 startPoint( xMult * x4NHL->X(), xMult * x4NHL->Y(), xMult * x4NHL->Z() );
+  TLorentzVector * p4NHL = event_rec->Probe()->GetP4();
+  TVector3 momentum( p4NHL->Px(), p4NHL->Py(), p4NHL->Pz() );
+
+  fSx = startPoint.X(); fSy = startPoint.Y(); fSz = startPoint.Z();
+  fSxROOT = fSx * units::mm / units::cm;
+  fSyROOT = fSy * units::mm / units::cm;
+  fSzROOT = fSz * units::mm / units::cm;
+  fPx = momentum.X(); fPy = momentum.Y(); fPz = momentum.Z();
+
+  if( !fGeoManager )
+    fGeoManager = TGeoManager::Import(geomfile.c_str());
+}
+//____________________________________________________________________________
 bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 & momentum,
 					       TVector3 & entryPoint, TVector3 & exitPoint,
-					       TGeoManager * gm, TGeoVolume * /* vol */ )
+					       TGeoManager * gm, TGeoVolume * /* vol */ ) const
 {
   const double mmtolunits = units::mm / lunits;
 
@@ -432,4 +556,35 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   
 }
 #endif // #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
+//____________________________________________________________________________
+void NHLDecayVolume::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void NHLDecayVolume::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void NHLDecayVolume::LoadConfig()
+{
+  if( fIsConfigLoaded ) return;
+
+  LOG( "NHL", pDEBUG )
+    << "Nothing to load for NHLDecayVolume...";
+  fIsConfigLoaded = true;
+  
+  // nothing to load. Everything happens in user-local coordinate system provided
+  // by the input ROOT geometry.
+}
+//____________________________________________________________________________
+void NHLDecayVolume::GetInterestingPoints( TVector3 & entryPoint, TVector3 & exitPoint, TVector3 & decayPoint ) const
+{
+  entryPoint.SetXYZ( fEx, fEy, fEz );
+  exitPoint.SetXYZ( fXx, fXy, fXz );
+  decayPoint.SetXYZ( fDx, fDy, fDz );
+}
 //____________________________________________________________________________

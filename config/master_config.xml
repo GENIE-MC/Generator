@@ -73,6 +73,7 @@
    <config alg="genie::NHL::NHLFluxCreator">             NHLPrimaryVtxGenerator.xml          </config>
    <config alg="genie::NHL::NHLBRFunctions">             NHLPrimaryVtxGenerator.xml          </config>
    <config alg="genie::NHLPrimaryVtxGenerator">          NHLPrimaryVtxGenerator.xml          </config>
+   <config alg="genie::NHL::NHLDecayVolume">             NHLPrimaryVtxGenerator.xml          </config>
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
    <config alg="genie::QELInteractionListGenerator">           QELInteractionListGenerator.xml       </config>

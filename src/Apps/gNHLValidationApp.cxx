@@ -981,56 +981,30 @@ int TestDecay(void)
       // simulate the decay
       mcgen->ProcessEventRecord( event );
 
+      const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLDecayVolume", "Default");
+      
+      const NHLDecayVolume * dkVol = dynamic_cast< const NHLDecayVolume * >( algDkVol );
+
       // now get a weight. It will be P( decay in unit side box ).
       // = exp( - T_{box} / \tau_{NHL} ) = exp( - L_{box} / ( \beta_{NHL} \gamma_{NHL} c ) * h / \Gamma_{tot} )
       // placing the NHL at a point configured by the user
-      NHLDecayVolume::MakeSDV();
+      dkVol->MakeSDV();
       double ox = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-OriginX" );
       double oy = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-OriginY" );
       double oz = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-OriginZ" );
       ox *= units::m / units::mm; oy *= units::m / units::mm; oz *= units::m / units::mm;
       TVector3 startPoint( ox, oy, oz ); TVector3 entryPoint, exitPoint;
+      TLorentzVector tmpVtx( ox, oy, oz, 0.0 );
+      event->SetVertex( tmpVtx );
+      std::string dummyGeom = "";
+      dkVol->SetStartingParameters( event, 1.0e+20, false, false, dummyGeom );
 
-      LOG( "NHL", pDEBUG )
-	<< "Setting origin to " << utils::print::Vec3AsString( &startPoint ) << " [mm]";
-      
-      bool didIntersectBox = NHLDecayVolume::SDVEntryAndExitPoints( startPoint, p4NHL->Vect(), 
-								    entryPoint, exitPoint );
-      if( !didIntersectBox ){ //user didn't choose a sensible point. Put NHL 2m upstream of SDV centre
-	// gCfgNHLCx
-	std::ostringstream bsts;
-	bsts << "Could not find entry and exit points into a box of unit side for an NHL with:"
-	     << "\nMomentum    = " << utils::print::P4AsString( p4NHL )
-	     << "\nStart point = " << utils::print::Vec3AsString( &startPoint );
-	startPoint = TVector3( -2.0*gCfgNHLCx, -2.0*gCfgNHLCy, -2.0*gCfgNHLCz );
+      dkVol->ProcessEventRecord(event);
 
-	bsts << "\nTrying again with new starting point "
-	     << utils::print::Vec3AsString( &startPoint );
-
-	LOG( "gevald_nhl", pWARN ) << bsts.str();
-
-	didIntersectBox = NHLDecayVolume::SDVEntryAndExitPoints( startPoint, p4NHL->Vect(),
-								 entryPoint, exitPoint );
-      }
-      
-      double maxLength = std::sqrt( std::pow( (exitPoint.X() - entryPoint.X()), 2.0 ) +
-				    std::pow( (exitPoint.Y() - entryPoint.Y()), 2.0 ) +
-				    std::pow( (exitPoint.Z() - entryPoint.Z()), 2.0 ) ); // mm
-      double betaMag = p4NHL->P() / p4NHL->E();
-      double gamma = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
-      double CoMLifetime = sh.GetCoMLifetime() / ( units::ns * units::GeV ); // ns lab
-      double timeInsideDet = maxLength / NHLDecayVolume::kNewSpeedOfLight; // ns lab
-
-      double wgt = std::exp( - timeInsideDet / CoMLifetime ); // note this is same for all events...
-      event->SetWeight(wgt);
-
-      LOG( "gevald_nhl", pDEBUG )
-	<< "Weight = " << wgt << ", CoMLifetime [ns] = " << CoMLifetime << ", timeInsideDet [ns] = " << timeInsideDet
-	<< "\nmaxLength = " << maxLength;
-      
       LOG( "gevald_nhl", pDEBUG ) << *event;
 
       // now fill the histos!
+      double wgt = event->Weight();
       hSpectrum[iMode][0].Fill( (event->Particle(1))->E() / gOptEnergyNHL, wgt );
       hSpectrum[iMode][1].Fill( (event->Particle(2))->E() / gOptEnergyNHL, wgt );
       if( event->Particle(3) ) hSpectrum[iMode][2].Fill( (event->Particle(3))->E() / gOptEnergyNHL, wgt );
@@ -1229,6 +1203,8 @@ int TestGeom(void)
 
     if( ievent == NMAX ) break;
 
+    EventRecord * event = new EventRecord;
+
     /*
      * Iterate over events as follows:
      * Least significant --> most significant (with period in brackets)
@@ -1262,10 +1238,8 @@ int TestGeom(void)
     // now, we set the correct start point and momentum.
     p4NHL->SetPxPyPzE( p3NHL * use_cx, p3NHL * use_cy, p3NHL * use_cz, gOptEnergyNHL );
 
-    LOG( "gevald_nhl", pDEBUG )
-      << "Set startPoint and momentum";
-
-    TVector3 startPoint, momentum, entryPoint, exitPoint;
+    TVector3 startPoint, momentum;
+    TVector3 entryPoint, exitPoint, decayPoint;
 
     startPoint.SetXYZ( use_ox, use_oy, use_oz );
     momentum.SetXYZ( p4NHL->Px(), p4NHL->Py(), p4NHL->Pz() );
@@ -1286,68 +1260,35 @@ int TestGeom(void)
       << "Set momentum for this trajectory = " << utils::print::Vec3AsString( &momentum )
       << " [GeV/c]";
 
-    didIntersectDet = NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gOptRootGeoManager, gOptRootGeoVolume );
+    const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLDecayVolume", "Default");
+      
+    const NHLDecayVolume * dkVol = dynamic_cast< const NHLDecayVolume * >( algDkVol );
+
+    TLorentzVector tmpVtx( use_ox, use_oy, use_oz , 0.0);
+    event->SetVertex( tmpVtx );
+    event->AddParticle( genie::kPdgNHL, kIStInitialState, -1, -1, -1, -1, *p4NHL, tmpVtx );
+    dkVol->SetStartingParameters( event, 1.0e+20, false, true, gOptRootGeom );
+
+    dkVol->ProcessEventRecord(event);
+
+    dkVol->GetInterestingPoints( entryPoint, exitPoint, decayPoint );
+    use_wgt = event->Weight();
+
+    // set the branch entries now
+    use_entry[0] = entryPoint.X();
+    use_entry[1] = entryPoint.Y();
+    use_entry[2] = entryPoint.Z();
     
-    if( !didIntersectDet ){ // don't re-evaluate, this trajectory just didn't work.
-      for( Int_t itmp = 0; itmp < 3; itmp++ ){
-	use_entry[itmp] = -9999.9;
-	use_exit[itmp]  = -9999.9;
-	use_decay[itmp] = -9999.9;
-      }
-      use_wgt = -9999.9;
-    } else {
-
-      double maxDx = exitPoint.X() - entryPoint.X();
-      double maxDy = exitPoint.Y() - entryPoint.Y();
-      double maxDz = exitPoint.Z() - entryPoint.Z();
-
-      LOG( "gevald_nhl", pDEBUG )
-	<< "maxDx, maxDy, maxDz = " << maxDx << ", " << maxDy << ", " << maxDz << " [mm]";
-
-      double maxLength = std::sqrt( std::pow( maxDx, 2.0 ) +
-				    std::pow( maxDy, 2.0 ) +
-				    std::pow( maxDz, 2.0 ) );
-      
-      double elapsed_length = NHLDecayVolume::CalcTravelLength( betaMag, use_CMlifetime, maxLength ); //mm
-      __attribute__((unused)) double ratio_length = elapsed_length / maxLength;
-      
-      // from these we can also make the weight. Only calculate P( decay in detector )
-      double timeInsideDet = maxLength / ( betaMag * NHLDecayVolume::kNewSpeedOfLight ); // ns lab
-      
-      double LabToRestTime = 1.0 / ( gamma );
-      timeInsideDet *= LabToRestTime; // ns rest
-      
-      use_wgt = ( 1.0 - std::exp( - timeInsideDet / use_CMlifetime ) );
-      
-      LOG( "gevald_nhl", pDEBUG )
-	<< "Decay probability with betaMag, gamma, CoMLifetime, maxLength = "
-	<< betaMag << ", " << gamma << ", " << use_CMlifetime << ", "
-	<< maxLength << " [mm, ns, ns^{-1}, mm/ns] "
-	<< "\nand entry, exit vertices = ( " << entryPoint.X() << ", " << entryPoint.Y() << ", " << entryPoint.Z() << " ) , ( " << exitPoint.X() << ", " << exitPoint.Y() << " , " << exitPoint.Z() << " ) [mm] :"
-	<< "\nLabToRestTime, timeInsideDet = " << LabToRestTime << ", " << timeInsideDet << " [ns, rest]"
-	<< "\nweight = " << use_wgt
-	<< "\nSpeed of light = " << NHLDecayVolume::kNewSpeedOfLight << " [mm / ns]";
-      
-      TVector3 decayPoint = NHLDecayVolume::GetDecayPoint( elapsed_length, entryPoint, momentum );
-
-      // set the branch entries now
-      use_entry[0] = entryPoint.X();
-      use_entry[1] = entryPoint.Y();
-      use_entry[2] = entryPoint.Z();
-
-      use_exit[0]  = exitPoint.X();
-      use_exit[1]  = exitPoint.Y();
-      use_exit[2]  = exitPoint.Z();
-
-      use_decay[0] = decayPoint.X();
-      use_decay[1] = decayPoint.Y();
-      use_decay[2] = decayPoint.Z();
-
-      // also fill the histos
-      hWeight.Fill( std::log10( use_wgt ), 1.0 );
-      hLength.Fill( ratio_length, 1.0 );
-      
-    } // didIntersectDet
+    use_exit[0]  = exitPoint.X();
+    use_exit[1]  = exitPoint.Y();
+    use_exit[2]  = exitPoint.Z();
+    
+    use_decay[0] = decayPoint.X();
+    use_decay[1] = decayPoint.Y();
+    use_decay[2] = decayPoint.Z();
+    
+    // also fill the histos
+    hWeight.Fill( std::log10( use_wgt ), 1.0 );
 
     outTree->Fill();
     ievent++;
@@ -1398,7 +1339,10 @@ void InitBoundingBox(void)
   TGeoBBox *  box = (TGeoBBox *)ts;
   
   // pass this box to NHLDecayVolume
-  NHLDecayVolume::ImportBoundingBox( box );
+  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLDecayVolume", "Default");
+  
+  const NHLDecayVolume * dkVol = dynamic_cast< const NHLDecayVolume * >( algDkVol );
+  dkVol->ImportBoundingBox( box );
 
   //get box origin and dimensions (in the same units as the geometry)
   fdx = box->GetDX();

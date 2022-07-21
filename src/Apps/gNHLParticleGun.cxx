@@ -428,9 +428,6 @@ int main(int argc, char ** argv)
      // Generate (or read) a position for the decay vertex
      // also currently handles the event weight
      TLorentzVector x4mm = GeneratePosition( event );
-     const double mmtom = genie::units::mm / genie::units::m;
-     TLorentzVector x4m( x4mm.X() * mmtom, x4mm.Y() * mmtom, x4mm.Z() * mmtom, 0.0 );
-     event->SetVertex(x4m);
      event->SetWeight( evWeight );
 
      // why does InitState show the wrong p4 here?
@@ -493,8 +490,12 @@ void InitBoundingBox(void)
 
   TGeoBBox *  box = (TGeoBBox *)ts;
   
+  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLDecayVolume", "Default");
+
+  const NHLDecayVolume * dkVol = dynamic_cast< const NHLDecayVolume * >( algDkVol );
+  
   // pass this box to NHLDecayVolume
-  NHLDecayVolume::ImportBoundingBox( box );
+  dkVol->ImportBoundingBox( box );
 
   //get box origin and dimensions (in the same units as the geometry)
   fdx = box->GetDX();
@@ -619,139 +620,16 @@ TLorentzVector * GenerateOriginPosition( GHepRecord * event )
 //_________________________________________________________________________________________
 TLorentzVector GeneratePosition( GHepRecord * event )
 {
-  double weight = 1.0;
-  double uMult = units::m / units::mm;
   if( gOptUsingRootGeom ){
-
-    __attribute__((unused)) Interaction * interaction = event->Summary();
-
-    LOG("gevgen_pgnhl", pDEBUG)
-      << "Set startPoint and momentum";
   
-    TVector3 startPoint, momentum, entryPoint, exitPoint;
-  
-    // origin vertex
-    TLorentzVector * x4NHL = event->Probe()->GetX4();
+    const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLDecayVolume", "Default");
     
-    std::ostringstream msts; msts << "[m]";
-    LOG("gevgen_pgnhl", pDEBUG)
-      << "Detected vertex at ( " << x4NHL->X() << ", " << x4NHL->Y() << ", " << x4NHL->Z() << " )" << msts.str();
-    startPoint.SetXYZ( uMult * x4NHL->X(), uMult * x4NHL->Y(), uMult * x4NHL->Z() );
-
-    evProdVtx[0] = uMult * x4NHL->X();
-    evProdVtx[1] = uMult * x4NHL->Y();
-    evProdVtx[2] = uMult * x4NHL->Z();
-
-    LOG( "gevgen_pgnhl", pDEBUG )
-      << "Set start point for this trajectory = ( " << startPoint.X() << ", " << startPoint.Y() << ", " << startPoint.Z() << " ) [mm]";
-  
-    // get momentum of this NHL
-    const TLorentzVector * p4NHL = event->Probe()->GetP4();
+    const NHLDecayVolume * dkVol = dynamic_cast< const NHLDecayVolume * >( algDkVol );
+    dkVol->SetStartingParameters( event, CoMLifetime, true, gOptUsingRootGeom, gOptRootGeom.c_str() );
     
-    NTP_IS_E = p4NHL->E(); NTP_IS_PX = p4NHL->Px(); NTP_IS_PY = p4NHL->Py(); NTP_IS_PZ = p4NHL->Pz();
+    dkVol->ProcessEventRecord( event );
     
-    momentum.SetXYZ( p4NHL->Px() / p4NHL->P(), p4NHL->Py() / p4NHL->P(), p4NHL->Pz() / p4NHL->P() );
-    LOG( "gevgen_pgnhl", pDEBUG )
-      << "Set momentum for trajectory = ( " << momentum.X() << ", " << momentum.Y() << ", " << momentum.Z() << " ) [GeV]";
-  
-    if( !gOptRootGeoManager ){
-      LOG("gevgen_pgnhl", pFATAL) << "Importing TGeoManager and doing top-volume business";
-      gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str());
-    }
-    
-    int trajIdx = 0; int trajMax = 20; // 1e+2;
-    bool didIntersectDet = NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gOptRootGeoManager, gOptRootGeoVolume );
-    
-    std::vector< double > * newProdVtx = new std::vector< double >();
-    newProdVtx->emplace_back( startPoint.X() );
-    newProdVtx->emplace_back( startPoint.Y() );
-    newProdVtx->emplace_back( startPoint.Z() );
-
-    while( !didIntersectDet && trajIdx < trajMax ){
-      // sample prod vtx and momentum... again
-      LOG( "gevgen_pgnhl", pDEBUG )
-	<< "Sampling another trajectory (index = " << trajIdx << ")";
-      x4NHL = GenerateOriginPosition( event );
-      p4NHL = GenerateOriginMomentum( event );
-      newProdVtx->clear();
-      newProdVtx->emplace_back( x4NHL->X() ); newProdVtx->emplace_back( x4NHL->Y() ); newProdVtx->emplace_back( x4NHL->Z() );
-      
-      startPoint.SetXYZ( uMult * newProdVtx->at(0), uMult * newProdVtx->at(1), uMult * newProdVtx->at(2) );
-      LOG( "gevgen_pgnhl", pDEBUG )
-	<< "Set start point for this trajectory = ( " << startPoint.X() << ", " << startPoint.Y() << ", " << startPoint.Z() << " ) [mm]";
-
-      // update the production vertex
-      evProdVtx[0] = newProdVtx->at(0);
-      evProdVtx[1] = newProdVtx->at(1);
-      evProdVtx[2] = newProdVtx->at(2);
-
-      momentum.SetXYZ( p4NHL->Px() / p4NHL->P(), p4NHL->Py() / p4NHL->P(), p4NHL->Pz() / p4NHL->P() );
-      
-      trajIdx++;
-      didIntersectDet = NHLDecayVolume::VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, gOptRootGeoManager, gOptRootGeoVolume );
-
-      newProdVtx->clear();
-    }
-    LOG("gevgen_pgnhl", pNOTICE) << "Called NHLDecayVolume::VolumeEntryAndExitPoints " << trajIdx + 1 << " times";
-    
-    if( trajIdx == trajMax && !didIntersectDet ){
-      LOG( "gevgen_pgnhl", pERROR )
-	<< "Unable to make a single good trajectory that intersects the detector after " << trajIdx << " tries! Bailing...";
-      return *x4NHL;
-    }
-
-    // make sure we have a consistent unit system
-    NHLDecayVolume::EnforceUnits( "mm", "rad", "ns" );
-
-    // move CoMLifetime to ns from GeV^{-1}
-    CoMLifetime *= 1.0 / ( units::ns * units::GeV );
-    LOG( "gevgen_pgnhl", pDEBUG )
-      << "CoMLifetime = " << CoMLifetime << " [ns]";
-
-    double maxDx = exitPoint.X() - entryPoint.X();
-    double maxDy = exitPoint.Y() - entryPoint.Y();
-    double maxDz = exitPoint.Z() - entryPoint.Z();
-
-    LOG( "gevgen_pgnhl", pDEBUG )
-      << "maxDx, maxDy, maxDz = " << maxDx << ", " << maxDy << ", " << maxDz << "[mm]";
-
-    double maxLength = std::sqrt( std::pow( maxDx , 2.0 ) +
-				  std::pow( maxDy , 2.0 ) +
-				  std::pow( maxDz , 2.0 ) );
-
-    double betaMag = p4NHL->P() / p4NHL->E();
-    double gamma = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
-
-    double elapsed_length = NHLDecayVolume::CalcTravelLength( betaMag, CoMLifetime, maxLength ); //mm
-    __attribute__((unused)) double ratio_length = elapsed_length / maxLength;
-
-    // from these we can also make the weight. Only calculate P( decay in detector )
-    double timeInsideDet = maxLength / ( betaMag *  NHLDecayVolume::kNewSpeedOfLight ); // ns lab
-    
-    double LabToRestTime = 1.0 / ( gamma );
-    timeInsideDet *= LabToRestTime; // ns rest
-
-    weight = ( 1.0 - std::exp( - timeInsideDet / CoMLifetime ) );
-    double decayProb = 1.0 - weight;
-
-    LOG( "gevgen_pgnhl", pDEBUG )
-      << "Decay probability with betaMag, gamma, CoMLifetime, maxLength = "
-      << betaMag << ", " << gamma << ", " << CoMLifetime << ", "
-      << maxLength << " [mm, ns, ns^{-1}, mm/ns] "
-      << "\nand entry, exit vertices = ( " << entryPoint.X() << ", " << entryPoint.Y() << ", " << entryPoint.Z() << " ) , ( " << exitPoint.X() << ", " << exitPoint.Y() << " , " << exitPoint.Z() << " ) [mm] :"
-      << "\nLabToRestTime, timeInsideDet = " << LabToRestTime << ", " << timeInsideDet
-      << "\ndecayProb, weight = " << decayProb << ", " << weight;
-    evWeight = weight;
-
-    TVector3 decayPoint = NHLDecayVolume::GetDecayPoint( elapsed_length, entryPoint, momentum );
-
-    TLorentzVector x4( decayPoint.X(), decayPoint.Y(), decayPoint.Z(), 0.0 );
-
-    delete x4NHL;
-    delete p4NHL;
-
-    newProdVtx->clear();
-    
+    TLorentzVector x4 = *(event->Vertex());
     return x4;
   }
   else{
