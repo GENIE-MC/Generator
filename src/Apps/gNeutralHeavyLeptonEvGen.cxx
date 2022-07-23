@@ -109,7 +109,7 @@
 #include "Physics/NeutralHeavyLepton/NHLDecayUtils.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayVolume.h"
 #include "Physics/NeutralHeavyLepton/NHLFluxCreator.h"
-#include "Physics/NeutralHeavyLepton/NHLFluxReader.h"
+//#include "Physics/NeutralHeavyLepton/NHLFluxReader.h"
 #include "Physics/NeutralHeavyLepton/NHLPrimaryVtxGenerator.h"
 #include "Physics/NeutralHeavyLepton/SimpleNHL.h"
 #include "Framework/Numerical/RandomGen.h"
@@ -129,7 +129,6 @@ using std::ostringstream;
 
 using namespace genie;
 using namespace genie::NHL;
-using namespace genie::NHL::NHLFluxReader;
 using namespace genie::NHL::NHLenums;
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
@@ -676,6 +675,9 @@ GFluxI * TH1FluxDriver(void)
   flux::GCylindTH1Flux * flux = new flux::GCylindTH1Flux;
   TH1D * spectrum = 0;
 
+  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLFluxCreator", "Default");
+  const NHLFluxCreator * fluxCreator = dynamic_cast< const NHLFluxCreator * >( algFluxCreator );
+
   double emin = 0.0; 
   double emax = utils::nhl::GetCfgDouble( "NHL", "InitialState", "NHL-max-energy" ); 
 
@@ -684,16 +686,16 @@ GFluxI * TH1FluxDriver(void)
   assert(gOptMassNHL > 0.0);
 
   // select mass point
-
-  int closest_masspoint = selectMass( gOptMassNHL );
+  int closest_masspoint = fluxCreator->SelectMass( gOptMassNHL );
 
   LOG("gevgen_nhl", pDEBUG)
     << "Mass inserted: " << gOptMassNHL << " GeV ==> mass point " << closest_masspoint;
   LOG("gevgen_nhl", pDEBUG)
     << "Using fluxes in base path " << gOptFluxFilePath.c_str();
   
-  selectFile( gOptFluxFilePath, gOptMassNHL );
-  string finPath = NHLFluxReader::fPath; // is it good practice to keep this explicit?
+  //string finPath = NHLFluxReader::fPath; // is it good practice to keep this explicit?
+  //string finPath = fluxCreator->SelectFile( gOptFluxFilePath, gOptMassNHL );
+  string finPath = gOptFluxFilePath; finPath.append("/histFluxes.root");
   string prodVtxPath = gOptFluxFilePath; prodVtxPath.append("/NHL_vertex_positions.root");
   __attribute__((unused)) int iset = setenv( "PRODVTXDIR", prodVtxPath.c_str(), 1 );
   LOG("gevgen_nhl", pDEBUG)
@@ -702,72 +704,25 @@ GFluxI * TH1FluxDriver(void)
 
   // extract specified flux histogram from input root file
 
-  string hFluxName = string( "hHNLFluxCenterAcc" );
-  hFluxName.append( Form( "_%d", closest_masspoint ) );
+  TH1F *hfluxAll    = fluxCreator->GetFluxHist1F( finPath, closest_masspoint, true );
+  TH1F *hfluxAllbar = fluxCreator->GetFluxHist1F( finPath, closest_masspoint, false );
 
-  TH1F *hfluxAllMu    = getFluxHist1F( finPath, hFluxName, kNumu );
-  TH1F *hfluxAllMubar = getFluxHist1F( finPath, hFluxName, kNumubar );
-  TH1F *hfluxAllE     = getFluxHist1F( finPath, hFluxName, kNue);
-  TH1F *hfluxAllEbar  = getFluxHist1F( finPath, hFluxName, kNuebar );
-
-  assert(hfluxAllMu);
-  assert(hfluxAllMubar);
-  assert(hfluxAllE);
-  assert(hfluxAllEbar);
-
-  LOG("gevgen_nhl", pDEBUG)
-    << "The histos have entries and max: "
-    << "\nNumu:    " << hfluxAllMu->GetEntries() << " entries with max = " << hfluxAllMu->GetMaximum()
-    << "\nNumubar: " << hfluxAllMubar->GetEntries() << " entries with max = " << hfluxAllMubar->GetMaximum()
-    << "\nNue:     " << hfluxAllE->GetEntries() << " entries with max = " << hfluxAllE->GetMaximum()
-    << "\nNuebar:  " << hfluxAllEbar->GetEntries() << " entries with max = " << hfluxAllEbar->GetMaximum();
+  assert(hfluxAll);
+  assert(hfluxAllbar);
 
   // let's build the mixed flux.
   
-  TH1F * spectrumF = (TH1F*) hfluxAllMu->Clone(0);
+  TH1F * spectrumF = (TH1F*) hfluxAll->Clone(0);
 
-  if( gOptECoupling == 0.0 ){ // no e coupling
-    if( gOptIsMajorana || gOptNHLKind == 2 ){
-      spectrumF->Add( hfluxAllMu, 1.0 );
-      spectrumF->Add( hfluxAllMubar, 1.0 );
-    }
-    else if( gOptNHLKind == 0 ){
-      spectrumF->Add( hfluxAllMu, 1.0 );
-    }
-    else if( gOptNHLKind == 1 ){
-      spectrumF->Add( hfluxAllMubar, 1.0 );
-    }
+  if( gOptIsMajorana || gOptNHLKind == 2 ){
+    spectrumF->Add( hfluxAll, 1.0 );
+    spectrumF->Add( hfluxAllbar, 1.0 );
   }
-  else if( gOptMCoupling == 0.0 ){ // no mu coupling
-    if( gOptIsMajorana || gOptNHLKind == 2 ){
-      spectrumF->Add( hfluxAllE, 1.0 );
-      spectrumF->Add( hfluxAllEbar, 1.0 );
-    }
-    else if( gOptNHLKind == 0 ){
-      spectrumF->Add( hfluxAllE, 1.0 );
-    }
-    else{
-      spectrumF->Add( hfluxAllEbar, 1.0 );
-    }
+  else if( gOptNHLKind == 0 ){
+    spectrumF->Add( hfluxAll, 1.0 );
   }
-  else{ // add larger coupling as 1
-    double ratio = gOptECoupling / gOptMCoupling;
-    double rE = ( gOptECoupling > gOptMCoupling ) ? 1.0 : ratio;
-    double rM = ( gOptMCoupling > gOptECoupling ) ? 1.0 : 1.0 / ratio;
-    if( gOptIsMajorana || gOptNHLKind == 2 ){
-      spectrumF->Add( hfluxAllMu, rM );
-      spectrumF->Add( hfluxAllMubar, rM );
-      spectrumF->Add( hfluxAllE, rE );
-      spectrumF->Add( hfluxAllEbar, rE );
-    }
-    else if( gOptNHLKind == 0 ){
-      spectrumF->Add( hfluxAllMu, rM );
-      spectrumF->Add( hfluxAllE, rE );
-    }
-    else{
-      spectrumF->Add( hfluxAllMubar, rM );
-      spectrumF->Add( hfluxAllEbar, rE );
-    }
+  else if( gOptNHLKind == 1 ){
+    spectrumF->Add( hfluxAllbar, 1.0 );
   }
 
   LOG( "gevgen_nhl", pDEBUG )
@@ -790,12 +745,12 @@ GFluxI * TH1FluxDriver(void)
   
   spectrum->SetNameTitle("spectrum","NHL_flux");
   spectrum->SetDirectory(0);
-  for(int ibin = 1; ibin <= hfluxAllMu->GetNbinsX(); ibin++) {
-    if(hfluxAllMu->GetBinLowEdge(ibin) + hfluxAllMu->GetBinWidth(ibin) > emax ||
-       hfluxAllMu->GetBinLowEdge(ibin) < emin) {
+  for(int ibin = 1; ibin <= hfluxAll->GetNbinsX(); ibin++) {
+    if(hfluxAll->GetBinLowEdge(ibin) + hfluxAll->GetBinWidth(ibin) > emax ||
+       hfluxAll->GetBinLowEdge(ibin) < emin) {
       spectrum->SetBinContent(ibin, 0);
     }
-  } // do I want to kill the overflow / underflow bins? Why?
+  }
   
   LOG("gevgen_nhl", pINFO) << spectrum->GetEntries() << " entries in spectrum";
 
@@ -805,23 +760,18 @@ GFluxI * TH1FluxDriver(void)
   spectrum->Write();
 
   // store integrals in histo if not Majorana and mixed flux
-  // usual convention: bin 0+1 ==> numu etc
   if( !gOptIsMajorana && gOptNHLKind == 2 ){
     TH1D * hIntegrals = new TH1D( "hIntegrals", "hIntegrals", 4, 0.0, 1.0 );
-    hIntegrals->SetBinContent( 1, hfluxAllMu->Integral() );
-    hIntegrals->SetBinContent( 2, hfluxAllMubar->Integral() );
-    hIntegrals->SetBinContent( 3, hfluxAllE->Integral() );
-    hIntegrals->SetBinContent( 4, hfluxAllEbar->Integral() );
+    hIntegrals->SetBinContent( 1, hfluxAll->Integral() );
+    hIntegrals->SetBinContent( 2, hfluxAllbar->Integral() );
 
     hIntegrals->SetDirectory(0);
     hIntegrals->Write();
 
     LOG( "gevgen_nhl", pDEBUG )
       << "\n\nIntegrals asked for and stored. Here are their values by type:"
-      << "\nNumu: " << hfluxAllMu->Integral()
-      << "\nNumubar: " << hfluxAllMubar->Integral()
-      << "\nNue: " << hfluxAllE->Integral()
-      << "\nNuebar: " << hfluxAllEbar->Integral() << "\n\n";
+      << "\nParticle: " << hfluxAll->Integral()
+      << "\nAntiparticle: " << hfluxAllbar->Integral() << "\n\n";
   }
 
   f.Close();

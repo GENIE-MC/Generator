@@ -11,6 +11,9 @@
 	     + Calculate kinematics of NHL
 	     + Return NHL as SimpleNHL object.
 
+  From 23/Jul/2022: Merge NHLFluxReader into this class.
+  Reads in flux histograms and returns appropriate stuff.
+
 \class      genie::NHL::NHLFluxCreator
 
 \brief      Calculates NHL production kinematics & vertex.
@@ -47,6 +50,8 @@
 #include "TDecayChannel.h"
 #include "TFile.h"
 #include "TGenPhaseSpace.h"
+#include "TH1.h"
+#include "TH3.h"
 #include "TLorentzVector.h"
 #include "TMath.h"
 #include "TObjArray.h"
@@ -77,6 +82,7 @@
 #include "Physics/NeutralHeavyLepton/NHLBRFunctions.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayVolume.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayUtils.h"
+#include "Physics/NeutralHeavyLepton/NHLEnums.h"
 #include "Physics/NeutralHeavyLepton/NHLKinUtils.h"
 #include "Physics/NeutralHeavyLepton/SimpleNHL.h"
 
@@ -112,6 +118,17 @@ namespace genie{
       int GetNEntries() const;
 
       void SetFirstEntry( int iFirst ) const;
+
+      // FluxReader-inherited functions
+      // only if not using dk2nu!
+      int SelectMass( const double mN ) const;
+      std::string SelectFile( std::string fin, const double mN ) const; // find but don't open the file
+
+      /// get the histogram and energy from it
+      TH1F * GetFluxHist1F( std::string fin, int masspoint, bool isParticle ) const;
+      /// sample production vertex from this histogram
+      TH3D * GetFluxHist3D( std::string fin, std::string dirName, std::string hName ) const;
+      std::vector< double > * GenerateVtx3X( TH3D * prodVtxHist ) const;
 
       // legacy interface, for validation only
       flux::GNuMIFluxPassThroughInfo * RetrieveGNuMIFluxPassThroughInfo() const;
@@ -204,6 +221,8 @@ namespace genie{
       mutable double pots;                               ///< how many pot in this job?
 
       mutable bool fIsConfigLoaded = false;
+
+      mutable bool fUsingDk2nu = true;
 
     }; // class NHLFluxCreator
       

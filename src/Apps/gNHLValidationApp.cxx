@@ -94,7 +94,7 @@
 #include "Physics/NeutralHeavyLepton/NHLDecayUtils.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayVolume.h"
 #include "Physics/NeutralHeavyLepton/NHLFluxCreator.h"
-#include "Physics/NeutralHeavyLepton/NHLFluxReader.h"
+//#include "Physics/NeutralHeavyLepton/NHLFluxReader.h"
 #include "Physics/NeutralHeavyLepton/NHLPrimaryVtxGenerator.h"
 #include "Physics/NeutralHeavyLepton/NHLProductionMode.h"
 #include "Physics/NeutralHeavyLepton/SimpleNHL.h"
@@ -680,6 +680,13 @@ int TestFluxFromHists()
 //_________________________________________________________________________________________
 GFluxI * TH1FluxDriver(void)
 {
+  AlgFactory * algf = AlgFactory::Instance();
+
+  const Algorithm * algFluxCreator = algf->GetAlgorithm("genie::EventGenerator", "NeutralHeavyLepton");
+
+  const NHLFluxCreator * fluxCreator = 
+    dynamic_cast< const NHLFluxCreator * >( algFluxCreator );
+
   //
   //
   flux::GCylindTH1Flux * flux = new flux::GCylindTH1Flux;
@@ -694,17 +701,13 @@ GFluxI * TH1FluxDriver(void)
 
   // select mass point
 
-  int closest_masspoint = NHLFluxReader::selectMass( gCfgMassNHL );
+  int closest_masspoint = fluxCreator->SelectMass( gCfgMassNHL );
 
   LOG("gevald_nhl", pDEBUG)
     << "Mass inserted: " << gCfgMassNHL << " GeV ==> mass point " << closest_masspoint;
   LOG("gevald_nhl", pDEBUG)
     << "Using fluxes in base path " << gOptFluxFilePath.c_str();
   
-  /*
-  NHLFluxReader::selectFile( gOptFluxFilePath, gOptMassNHL );
-  string finPath = NHLFluxReader::fPath;
-  */
   string finPath = gOptFluxFilePath; finPath.append("./histFluxes.root");
   string prodVtxPath = gOptFluxFilePath; prodVtxPath.append("/NHL_vertex_positions.root");
   __attribute__((unused)) int iset = setenv( "PRODVTXDIR", prodVtxPath.c_str(), 1 );
@@ -714,8 +717,8 @@ GFluxI * TH1FluxDriver(void)
 
   // extract specified flux histogram from input root file
 
-  TH1F * hfluxAll    = NHLFluxReader::getFluxHist1F( finPath, closest_masspoint, true );
-  TH1F * hfluxAllbar = NHLFluxReader::getFluxHist1F( finPath, closest_masspoint, false );
+  TH1F * hfluxAll    = fluxCreator->GetFluxHist1F( finPath, closest_masspoint, true );
+  TH1F * hfluxAllbar = fluxCreator->GetFluxHist1F( finPath, closest_masspoint, false );
   assert(hfluxAll && hfluxAllbar);
 
   LOG("gevald_nhl", pDEBUG)

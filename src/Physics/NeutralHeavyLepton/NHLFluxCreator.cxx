@@ -11,6 +11,7 @@
 
 using namespace genie;
 using namespace genie::NHL;
+using namespace genie::NHL::NHLenums;
 
 //----------------------------------------------------------------------------
 NHLFluxCreator::NHLFluxCreator() :
@@ -40,21 +41,21 @@ void NHLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
 
   flux::GNuMIFluxPassThroughInfo * gnmf = new flux::GNuMIFluxPassThroughInfo();
   this->MakeTupleFluxEntry( iCurrEntry, gnmf, fCurrPath );
-
+  
   if( std::abs(gnmf->fgPdgC) == genie::kPdgNHL ){ // only add particle if parent is valid
-
+    
     double invAccWeight = gnmf->nimpwt * gnmf->fgXYWgt;
     evrec->SetWeight( evrec->Weight() / invAccWeight );
-  
+    
     evrec->SetVertex( gnmf->fgX4User ); // NHL production vertex. NOT where NHL decays to visible FS.
     // construct Particle(0). Don't worry about daughter links at this stage.
     GHepParticle ptNHL( gnmf->fgPdgC, kIStInitialState, -1, -1, -1, -1, gnmf->fgP4User, gnmf->fgX4User );
     evrec->AddParticle( ptNHL );
   }
-
+  
   // clean up
   delete gnmf;
-
+  
   // update iCurrEntry. This should be the last thing to happen before returning.
   iCurrEntry++;
 }
@@ -1254,6 +1255,120 @@ double NHLFluxCreator::labangle( double * x, double * par )
   double den = p4had.P() * pncm.P();
   double theta = TMath::ACos( num / den ) * 180.0 / constants::kPi;
   return theta;
+}
+//----------------------------------------------------------------------------
+int NHLFluxCreator::SelectMass( const double mN ) const
+{
+  const massHyp_t massesHyp[] = {
+    kLight0Hyp,  kLight1Hyp,  kLight2Hyp,  kLight3Hyp,  kLight4Hyp,
+    kLight5Hyp,  kLight6Hyp,  kLight7Hyp,  kLight8Hyp,  kLight9Hyp,
+    kLightAHyp,  kLightBHyp,  kLightCHyp,  kLightDHyp,  kLightEHyp,
+    kLightFHyp,  kLightGHyp,  kLightHHyp,  kLightIHyp,  kLightJHyp,
+    kMedium0Hyp, kMedium1Hyp, kMedium2Hyp, kMedium3Hyp, kMedium4Hyp,
+    kMedium5Hyp, kMedium6Hyp, kMedium7Hyp, kMedium8Hyp, kMedium9Hyp,
+    kHeavy0Hyp,  kHeavy1Hyp,  kHeavy2Hyp,  kHeavy3Hyp,  kHeavy4Hyp,
+    kHeavy5Hyp,  kHeavy6Hyp,  kHeavy7Hyp,  kHeavy8Hyp,  kHeavy9Hyp,
+    kHeavyAHyp,  kHeavyBHyp,  kHeavyCHyp,  kHeavyDHyp,  kHeavyEHyp,
+    kHeavyFHyp,  kHeavyGHyp,  kHeavyHHyp,  kHeavyIHyp,  kHeavyJHyp };
+  const int nMasses = sizeof(massesHyp)/sizeof(massesHyp[0]) - 1;
+  
+  // because masses are kept in a *map*, gotta build array of the second elements!
+  double masses[ nMasses + 1 ];
+    for( int i = 0; i <= nMasses; i++ ){
+      massHyp_t thisHyp = massesHyp[i];
+      auto pos = massHypMap.find( thisHyp );
+      masses[i] = pos->second;
+      LOG("NHL", pINFO) 
+	<< "At position " << i << " the mass hypothesis is " << masses[i];
+    }
+    
+    assert( mN >= 0.0 );
+    
+    int mp = -1; double fmN = 0.0; // mass of the selected masspoint
+    if( mN >= masses[ nMasses ] ){ mp = nMasses; fmN = masses[ nMasses ]; }
+    while( masses[ mp + 1 ] < mN && mp < nMasses ){ mp++; } // decide interval
+    
+    // generally decide mass + point by closest endpoint in interval
+    const double dLeft  = std::abs( mN - masses[ mp ] );
+    const double dRight = masses[ mp + 1 ] - mN;
+    
+    LOG("NHL", pDEBUG) <<
+      "Stats:" <<
+      "\n Input mass: " << mN <<
+      "\n Choice interval: [ " << masses[mp] << ", " << masses[mp+1] << " ] " <<
+      "\n Left and right distance: " << dLeft << ", " << dRight <<
+      "\n Chosen point: " << ( ( dLeft < dRight ) ? mp : mp + 1 ) << " ( " <<
+      ( ( dLeft < dRight ) ? "LEFT )" : "RIGHT )" );
+    
+    fmN = ( dLeft < dRight ) ? masses[ mp ] : masses[ mp + 1 ];
+    mp  = ( dLeft < dRight ) ? mp : mp + 1;
+    
+    return mp;
+}
+//----------------------------------------------------------------------------
+std::string NHLFluxCreator::SelectFile( std::string fin, const double mN ) const
+{
+  std::string filePath = fin;
+  filePath.append( "/FHC/" ); // RETHERE make this configurable!!!
+  filePath.append( "EqualCouplings/" );
+  const int mp = SelectMass( mN );
+  filePath.append( Form( "mp%02d", mp ) );
+  filePath.append( ".root" );
+  return filePath;
+}
+//----------------------------------------------------------------------------
+TH1F * NHLFluxCreator::GetFluxHist1F( std::string fin, int masspoint, bool isParticle ) const
+{
+  TFile * f = TFile::Open( fin.c_str() );
+  assert( f );
+
+  std::string histName( Form("hHNLFluxCenterAcc_%d", masspoint) );
+  if( !isParticle ) histName.append("_bar");
+  TObject * histObj = f->Get( histName.c_str() );
+  
+  LOG( "NHL", pDEBUG )
+    << "Getting flux from histo with name " << histObj->GetName()
+    << " and title " << histObj->GetTitle();
+  
+  TH1F * histPtr = dynamic_cast< TH1F* >( histObj );
+
+  return histPtr;
+}
+//----------------------------------------------------------------------------
+TH3D * NHLFluxCreator::GetFluxHist3D( std::string fin, std::string dirName, std::string hName ) const
+{
+  TFile * f = TFile::Open( fin.c_str() );
+  
+  TDirectory * baseDir = f->GetDirectory( "" );
+  TDirectory * deepDir = baseDir->GetDirectory( dirName.c_str() );
+  assert( deepDir );
+  assert( deepDir->GetListOfKeys()->Contains( hName.c_str() ) );
+  
+  TH3D * histPtr = dynamic_cast< TH3D* >( deepDir->Get( hName.c_str() ) );
+  return histPtr;
+}
+//----------------------------------------------------------------------------
+std::vector< double > * NHLFluxCreator::GenerateVtx3X( TH3D * prodVtxHist ) const
+{
+  if( prodVtxHist->GetEntries() == 0 ){ // no production vtx? ok, set NHL to be 1km upstream
+    std::vector< double > * vtxDir = new std::vector< double >();
+    vtxDir->emplace_back( 0.0 );
+    vtxDir->emplace_back( 0.0 );
+    vtxDir->emplace_back( -100000.0 );
+    vtxDir->emplace_back( 0.0 );
+    return vtxDir;
+  }
+
+  double ux = 0.0, uy = 0.0, uz = 0.0;
+  prodVtxHist->GetRandom3( ux, uy, uz );
+  
+  std::vector< double > * vtxDir = new std::vector< double >();
+  vtxDir->emplace_back( ux );
+  vtxDir->emplace_back( uy );
+  vtxDir->emplace_back( uz );
+  vtxDir->emplace_back( 0.0 ); // RETHERE: add some timing information?
+  
+  return vtxDir;
 }
 //----------------------------------------------------------------------------
 void NHLFluxCreator::MakeBBox() const
