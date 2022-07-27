@@ -44,7 +44,6 @@ Is a concrete implementation of the EventRecordVisitorI interface.
 
 #include "Framework/Utils/Range1.h"
 #include "Physics/Common/KineGeneratorWithCache.h"
-#include "Framework/ParticleData/BaryonResList.h"
 
 
 namespace genie {
@@ -110,8 +109,6 @@ private:
 
   int fMaxDepth;  ///< Maximum depth of dividing parent cell
   
-  BaryonResList  fResList;
-
 };
 
 
@@ -132,7 +129,7 @@ namespace gsl   {
 class d4XSecMK_dWQ2CosThetaPhi_E: public ROOT::Math::IBaseFunctionMultiDim
 {
 public:
-  d4XSecMK_dWQ2CosThetaPhi_E(const XSecAlgorithmI * m, const Interaction * i);
+  d4XSecMK_dWQ2CosThetaPhi_E(const XSecAlgorithmI * m, const Interaction * i, double wcut);
  ~d4XSecMK_dWQ2CosThetaPhi_E();
 
   // ROOT::Math::IBaseFunctionMultiDim interface
@@ -144,6 +141,7 @@ private:
   const XSecAlgorithmI * fModel;
   Interaction *    fInteraction;
   Range1D_t Wl;
+  double fWcut;
   bool isZero;
   KPhaseSpace * kps;
 };
