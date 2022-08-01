@@ -441,7 +441,8 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   // now we gotta return everything to cm for ROOT to work its magic.
   double firstXROOT = firstX * lunits / units::cm,
     firstYROOT = firstY * lunits / units::cm, firstZROOT = firstZ * lunits / units::cm;
-
+  
+  assert( gm );
   gm->SetCurrentPoint( firstXROOT, firstYROOT, firstZROOT );
   gm->SetCurrentDirection( px, py, pz );
 

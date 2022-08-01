@@ -201,7 +201,7 @@ double NTP_FS1_E = 0., NTP_FS1_PX = 0., NTP_FS1_PY = 0., NTP_FS1_PZ = 0.;
 double NTP_FS2_E = 0., NTP_FS2_PX = 0., NTP_FS2_PY = 0., NTP_FS2_PZ = 0.;
 int NTP_FS0_PDG = 0, NTP_FS1_PDG = 0, NTP_FS2_PDG = 0;
 
-NHLPrimaryVtxGenerator * nhlgen = 0;
+//NHLPrimaryVtxGenerator * nhlgen = 0;
 // HNL lifetime in rest frame
 double CoMLifetime = -1.0; // GeV^{-1}
 // an array to keep production vertex
@@ -228,9 +228,24 @@ int main(int argc, char ** argv)
   // config loaded upon instantiation of NHLGenerator algorithm 
   // ==> NHLPrimaryVtxGenerator::LoadConfig()
   const EventRecordVisitorI * mcgen = NHLGenerator();
-  if( !nhlgen ){
-    nhlgen = new NHLPrimaryVtxGenerator(); // do NOT remove this if( !nhlgen ), it causes a MASSIVE memleak if you do.
-  }
+  const Algorithm * algNHLGen = AlgFactory::Instance()->GetAlgorithm("genie::NHLPrimaryVtxGenerator", "Default");
+  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLDecayVolume", "Default");
+  
+  const NHLPrimaryVtxGenerator * nhlgen = dynamic_cast< const NHLPrimaryVtxGenerator * >( algNHLGen );
+  const NHLDecayVolume * dkVol = dynamic_cast< const NHLDecayVolume * >( algDkVol );
+
+  if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
+
+  // RETHERE implement top volume option from cmd line
+  TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
+  assert( top_volume );
+  TGeoShape * ts  = top_volume->GetShape();
+
+  TGeoBBox *  box = (TGeoBBox *)ts;
+
+  // pass this box to NHLDecayVolume
+  dkVol->ImportBoundingBox( box );
+
   string confString = kDefOptSName + kDefOptSConfig;
   //const double confMass = nhlgen->GetNHLMass( confString );
   //const std::vector< double > confCoups = nhlgen->GetNHLCouplings( confString );
@@ -390,13 +405,13 @@ int main(int argc, char ** argv)
 	 << "\nIS p4  = " << utils::print::P4AsString( interaction->InitStatePtr()->GetProbeP4() );
      }
 
-     
-
      LOG("gevgen_pgnhl", pDEBUG)
        << "Note decay mode is " << utils::nhl::AsString(gOptDecayMode);
 
      // Simulate decay
-     mcgen->ProcessEventRecord(event);
+     nhlgen->ProcessEventRecord(event);
+     dkVol->SetStartingParameters( event, CoMLifetime, false, gOptUsingRootGeom, gOptRootGeom.c_str() );
+     dkVol->ProcessEventRecord(event);
 
      // add the FS 4-momenta to special branches
      // Quite inelegant. Gets the job done, though
@@ -542,7 +557,7 @@ TLorentzVector * GenerateOriginMomentum( GHepRecord * event )
   cx *= 1.0 / c2; cy *= 1.0 / c2; cz *= 1.0 / c2;
 
   double theta = TMath::ACos( cz / c2 );
-  double phi   = TMath::ACos( cx / ( c2 * TMath::Sin( theta ) ) );
+  double phi   = ( TMath::Sin( theta ) != 0.0 ) ? TMath::ACos( cx / ( c2 * TMath::Sin( theta ) ) ) : 0.0;
 
   // apply uniform random deviation
   double dthetaDeg = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-DTheta" );
