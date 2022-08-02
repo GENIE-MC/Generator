@@ -22,7 +22,7 @@ Wcut                        double  no                                        Co
 
     <param type="alg" name="DISModel">   genie::QPMDISPXSec/Default      </param>
     <param type="alg" name="Hadronizer"> genie::AGKYLowW2019/Default </param>
-
+    <param type="double" name="NRB-EM-XSecScale"> 1. </param>
   </param_set>
 
 </alg_conf>
