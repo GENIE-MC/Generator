@@ -547,6 +547,8 @@ int TestFluxFromHists()
   TFile * fout = TFile::Open( foutName.c_str(), "RECREATE" );
 
   const EventRecordVisitorI * mcgen = NHLGenerator();
+  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLFluxCreator", "Default");
+  const NHLFluxCreator * fluxCreator = dynamic_cast< const NHLFluxCreator * >( algFluxCreator );
 
   __attribute__((unused)) GFluxI * ff = TH1FluxDriver();
   TFile * spectrumFile = TFile::Open("./input-flux.root", "READ");
@@ -625,7 +627,7 @@ int TestFluxFromHists()
       Interaction * interaction = Interaction::NHL( hpdg, gOptEnergyNHL, kNHLDcyTEST );
       event->AttachSummary( interaction );
 
-      mcgen->ProcessEventRecord(event);
+      fluxCreator->ProcessEventRecord(event);
       
       // now grab momentum from event
       const TLorentzVector * p4NHL = event->Probe()->GetP4();
@@ -838,6 +840,8 @@ int TestDecay(void)
   TFile * fout = TFile::Open( foutName.c_str(), "RECREATE" );
 
   const EventRecordVisitorI * mcgen = NHLGenerator();
+  const Algorithm * algNHLGen = AlgFactory::Instance()->GetAlgorithm("genie::NHLPrimaryVtxGenerator", "Default");
+  const NHLPrimaryVtxGenerator * nhlgen = dynamic_cast< const NHLPrimaryVtxGenerator * >( algNHLGen );
 
   SimpleNHL sh = SimpleNHL( "NHLInstance", 0, kPdgNHL, kPdgKP,
 			    gCfgMassNHL, gCfgECoupling, gCfgMCoupling, gCfgTCoupling, false );
@@ -982,7 +986,7 @@ int TestDecay(void)
 	<< utils::nhl::AsString( (NHLDecayMode_t) interaction->ExclTag().DecayMode() );
 
       // simulate the decay
-      mcgen->ProcessEventRecord( event );
+      nhlgen->ProcessEventRecord( event );
 
       const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLDecayVolume", "Default");
       
@@ -1132,6 +1136,9 @@ int TestGeom(void)
   // Read geometry bounding box - for vertex position generation
   InitBoundingBox();
 
+  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLDecayVolume", "Default");
+  const NHLDecayVolume * dkVol = dynamic_cast< const NHLDecayVolume * >( algDkVol );
+
   // get SimpleNHL for lifetime
   SimpleNHL sh = SimpleNHL( "NHLInstance", 0, kPdgNHL, kPdgKP,
 			    gCfgMassNHL, gCfgECoupling, gCfgMCoupling, gCfgTCoupling, false );
@@ -1199,6 +1206,15 @@ int TestGeom(void)
   double arr_phi[ NSPHERICAL ] = { PGphi - PGdphi, PGphi - 3.0/4.0 * PGdphi, PGphi - 1.0/2.0 * PGdphi, PGphi - 1.0/4.0 * PGdphi, PGphi, PGphi + 1.0/4.0 * PGdphi, PGphi + 1.0/2.0 * PGdphi, PGphi + 3.0/4.0 * PGdphi, PGphi + PGdphi };
 
   // so now we have NCARTESIAN ^3 x NSPHERICAL ^2 points to iterate over. That's 10125 events for 5 and 9
+
+  if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
+  
+  TGeoShape * ts  = top_volume->GetShape();
+  
+  TGeoBBox *  box = (TGeoBBox *)ts;
+
+  // pass this box to NHLDecayVolume
+  dkVol->ImportBoundingBox( box );
   
   int ievent = 0;
   ostringstream asts;
@@ -1206,7 +1222,12 @@ int TestGeom(void)
 
     if( ievent == NMAX ) break;
 
+    LOG( "gevald_nhl", pDEBUG )
+      << "*** Building event = " << ievent;
+
     EventRecord * event = new EventRecord;
+    Interaction * interaction = Interaction::NHL( genie::kPdgNHL, gOptEnergyNHL, NHL::kNHLDcyTEST );
+    event->AttachSummary( interaction );
 
     /*
      * Iterate over events as follows:
@@ -1263,36 +1284,55 @@ int TestGeom(void)
       << "Set momentum for this trajectory = " << utils::print::Vec3AsString( &momentum )
       << " [GeV/c]";
 
-    const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLDecayVolume", "Default");
-      
-    const NHLDecayVolume * dkVol = dynamic_cast< const NHLDecayVolume * >( algDkVol );
-
-    TLorentzVector tmpVtx( use_ox, use_oy, use_oz , 0.0);
+    TLorentzVector tmpVtx( use_ox, use_oy, use_oz, 0.0);
     event->SetVertex( tmpVtx );
-    event->AddParticle( genie::kPdgNHL, kIStInitialState, -1, -1, -1, -1, *p4NHL, tmpVtx );
-    dkVol->SetStartingParameters( event, 1.0e+20, false, true, gOptRootGeom );
+    TLorentzVector tmpMom = *p4NHL;
+    GHepParticle ptNHL( genie::kPdgNHL, kIStInitialState, -1, -1, -1, -1, tmpMom, tmpVtx );
+    event->AddParticle( ptNHL );
+    LOG( "gevald_nhl", pDEBUG ) 
+      << "\nProbe p4 = " << utils::print::P4AsString( event->Particle(0)->P4() );
+    setenv( "PRODVTXDIR", "NODIR", 1 ); // needed to prevent nhlgen from crashing
+    dkVol->SetStartingParameters( event, 1.0e+20, false, true, gOptRootGeom ); LOG( "gevald_nhl", pDEBUG ) << "Line 4";
 
     dkVol->ProcessEventRecord(event);
 
-    dkVol->GetInterestingPoints( entryPoint, exitPoint, decayPoint );
-    use_wgt = event->Weight();
+    if( event->Vertex()->T() != -999.9 ){
+      dkVol->GetInterestingPoints( entryPoint, exitPoint, decayPoint );
+      use_wgt = event->Weight();
 
-    // set the branch entries now
-    use_entry[0] = entryPoint.X();
-    use_entry[1] = entryPoint.Y();
-    use_entry[2] = entryPoint.Z();
-    
-    use_exit[0]  = exitPoint.X();
-    use_exit[1]  = exitPoint.Y();
-    use_exit[2]  = exitPoint.Z();
-    
-    use_decay[0] = decayPoint.X();
-    use_decay[1] = decayPoint.Y();
-    use_decay[2] = decayPoint.Z();
-    
-    // also fill the histos
-    hWeight.Fill( std::log10( use_wgt ), 1.0 );
+      // set the branch entries now
+      use_entry[0] = entryPoint.X();
+      use_entry[1] = entryPoint.Y();
+      use_entry[2] = entryPoint.Z();
+      
+      use_exit[0]  = exitPoint.X();
+      use_exit[1]  = exitPoint.Y();
+      use_exit[2]  = exitPoint.Z();
+      
+      use_decay[0] = decayPoint.X();
+      use_decay[1] = decayPoint.Y();
+      use_decay[2] = decayPoint.Z();
+      
+      // also fill the histos
+      hWeight.Fill( std::log10( use_wgt ), 1.0 );
+      didIntersectDet = true;
 
+    } else { // didn't intersect vertex, use nonsense
+
+      use_entry[0] = -999.9;
+      use_entry[1] = -999.9;
+      use_entry[2] = -999.9;
+
+      use_exit[0] = -999.9;
+      use_exit[1] = -999.9;
+      use_exit[2] = -999.9;
+
+      use_decay[0] = -999.9;
+      use_decay[1] = -999.9;
+      use_decay[2] = -999.9;
+
+      didIntersectDet = false;
+    }
     outTree->Fill();
     ievent++;
   }
