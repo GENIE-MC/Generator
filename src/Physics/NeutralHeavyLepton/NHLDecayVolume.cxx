@@ -40,6 +40,9 @@ void NHLDecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
    *  3) Geom weight: Survival to detector * decay within detector.
    */
 
+  LOG( "NHL", pDEBUG )
+    << "Entering ProcessEventRecord...";
+
   int trajIdx = 0, trajMax = 20;
   double weight = 1.0; // pure geom weight
 
@@ -82,9 +85,13 @@ void NHLDecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
   if( trajIdx == trajMax && !didIntersectDet ){ // bail
     LOG( "NHL", pERROR )
       << "Unable to make a single good trajectory that intersects the detector after " << trajIdx << " tries! Bailing...";
+    TLorentzVector v4dummy( -999.9, -999.9, -999.9, -999.9 );
+    event_rec->SetVertex( v4dummy );
     return;
   }
 
+  LOG( "NHL", pDEBUG )
+    << "Intersected detector";
   this->EnforceUnits( "mm", "rad", "ns" );
 
   // move fCoMLifetime to ns from GeV^{-1}
@@ -98,7 +105,7 @@ void NHLDecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
 				std::pow( maxDy , 2.0 ) +
 				std::pow( maxDz , 2.0 ) );
   
-  TLorentzVector * p4NHL = event_rec->Probe()->GetP4();
+  TLorentzVector * p4NHL = event_rec->Particle(0)->GetP4();
   double betaMag = p4NHL->P() / p4NHL->E();
   double gamma = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
   
@@ -390,9 +397,11 @@ void NHLDecayVolume::SetStartingParameters( GHepRecord * event_rec, double NHLCo
 
   fCoMLifetime = NHLCoMTau;
 
-  TLorentzVector * x4NHL = event_rec->Probe()->GetX4();
+  assert( event_rec->Particle(0) );
+
+  TLorentzVector * x4NHL = event_rec->Particle(0)->GetX4();
   TVector3 startPoint( xMult * x4NHL->X(), xMult * x4NHL->Y(), xMult * x4NHL->Z() );
-  TLorentzVector * p4NHL = event_rec->Probe()->GetP4();
+  TLorentzVector * p4NHL = event_rec->Particle(0)->GetP4();
   TVector3 momentum( p4NHL->Px(), p4NHL->Py(), p4NHL->Pz() );
 
   fSx = startPoint.X(); fSy = startPoint.Y(); fSz = startPoint.Z();
@@ -584,6 +593,7 @@ void NHLDecayVolume::LoadConfig()
 //____________________________________________________________________________
 void NHLDecayVolume::GetInterestingPoints( TVector3 & entryPoint, TVector3 & exitPoint, TVector3 & decayPoint ) const
 {
+  LOG( "NHL", pDEBUG ) << "Getting interesting points...";
   entryPoint.SetXYZ( fEx, fEy, fEz );
   exitPoint.SetXYZ( fXx, fXy, fXz );
   decayPoint.SetXYZ( fDx, fDy, fDz );
