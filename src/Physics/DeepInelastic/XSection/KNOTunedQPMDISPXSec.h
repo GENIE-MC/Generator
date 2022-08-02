@@ -56,6 +56,7 @@ private:
 
   bool   fUseCache;         ///< cache reduction factors used in joining scheme
   double fWcut;             ///< apply DIS/RES joining scheme < Wcut
+  double fNRBEMScale;       ///< apply NRB EM Scale factor
 };
 
 }       // genie namespace
