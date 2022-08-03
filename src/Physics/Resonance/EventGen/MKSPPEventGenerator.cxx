@@ -37,7 +37,7 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Conventions/Constants.h"
-#include "Physics/Resonance/EventGen/RSPPEventGenerator.h"
+#include "Physics/Resonance/EventGen/MKSPPEventGenerator.h"
 
 using namespace genie;
 using namespace genie::controls;
@@ -45,31 +45,31 @@ using namespace genie::utils;
 using namespace genie::constants;
 
 //___________________________________________________________________________
-RSPPEventGenerator::RSPPEventGenerator() :
-KineGeneratorWithCache("genie::RSPPEventGenerator")
+MKSPPEventGenerator::MKSPPEventGenerator() :
+KineGeneratorWithCache("genie::MKSPPEventGenerator")
 {
 
 }
 //___________________________________________________________________________
-RSPPEventGenerator::RSPPEventGenerator(string config) :
-KineGeneratorWithCache("genie::RSPPEventGenerator", config)
+MKSPPEventGenerator::MKSPPEventGenerator(string config) :
+KineGeneratorWithCache("genie::MKSPPEventGenerator", config)
 {
   
 }
 //___________________________________________________________________________
-RSPPEventGenerator::~RSPPEventGenerator()
+MKSPPEventGenerator::~MKSPPEventGenerator()
 {
   
 }
 //___________________________________________________________________________
-void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
+void MKSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
     
   
-  LOG("RSPPEventGen", pINFO) << "Generating resonance single pion production event kinematics...";
+  LOG("MKSPPEventGen", pINFO) << "Generating resonance single pion production event kinematics...";
 
   if(fGenerateUniformly) {
-    LOG("RSPPEventGen", pNOTICE)
+    LOG("MKSPPEventGen", pNOTICE)
           << "Generating kinematics uniformly over the allowed phase space";
   }
   
@@ -138,7 +138,7 @@ void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   {
      iter++;
      if(iter > 100*kRjMaxIterations) {
-         LOG("RSPPEventGen", pWARN)
+         LOG("MKSPPEventGen", pWARN)
               << "*** Could not select a valid kinematics variable after "
                                                     << iter << " iterations";
          evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
@@ -181,10 +181,10 @@ void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
    }
 
   // W,Q2,cos(theta) and phi from reduced variables
-  Range1D_t Wl  = kps.WLim_RSPP();
+  Range1D_t Wl  = kps.WLim_MKSPP();
   if (fWcut >= Wl.min)
     Wl.max = TMath::Min(fWcut,Wl.max);
-  Range1D_t Q2l = kps.Q2Lim_W_RSPP();
+  Range1D_t Q2l = kps.Q2Lim_W_MKSPP();
   double W  = Wl.min + (Wl.max - Wl.min)*xin[0];
   interaction->KinePtr()->SetW(W);
   double Q2 = Q2l.min + (Q2l.max - Q2l.min)*xin[1];
@@ -281,7 +281,7 @@ void RSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
 }
 //___________________________________________________________________________
-int RSPPEventGenerator::GetRecoilNucleonPdgCode(Interaction * interaction) const
+int MKSPPEventGenerator::GetRecoilNucleonPdgCode(Interaction * interaction) const
 {
    const XclsTag & xcls = interaction->ExclTag();
    if (xcls.NProtons() == 1)
@@ -291,7 +291,7 @@ int RSPPEventGenerator::GetRecoilNucleonPdgCode(Interaction * interaction) const
 
 }
 //___________________________________________________________________________
-int RSPPEventGenerator::GetFinalPionPdgCode(Interaction * interaction) const
+int MKSPPEventGenerator::GetFinalPionPdgCode(Interaction * interaction) const
 {
    const XclsTag & xcls = interaction->ExclTag();
    if (xcls.NPiPlus() == 1)
@@ -302,19 +302,19 @@ int RSPPEventGenerator::GetFinalPionPdgCode(Interaction * interaction) const
 
 }
 //___________________________________________________________________________
-void RSPPEventGenerator::Configure(const Registry & config)
+void MKSPPEventGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void RSPPEventGenerator::Configure(string config)
+void MKSPPEventGenerator::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void RSPPEventGenerator::LoadConfig(void)
+void MKSPPEventGenerator::LoadConfig(void)
 {
   
     // Safety factor for the maximum differential cross section
@@ -340,10 +340,10 @@ void RSPPEventGenerator::LoadConfig(void)
 
 }
 //____________________________________________________________________________
-double RSPPEventGenerator::ComputeMaxXSec(const Interaction * interaction) const
+double MKSPPEventGenerator::ComputeMaxXSec(const Interaction * interaction) const
 {
    KPhaseSpace * kps = interaction->PhaseSpacePtr();
-   Range1D_t Wl = kps->WLim_RSPP();
+   Range1D_t Wl = kps->WLim_MKSPP();
    ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit", "Minimize");
    ROOT::Math::IBaseFunctionMultiDim * f = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction, fWcut);
    min->SetFunction( *f );
@@ -485,13 +485,13 @@ ROOT::Math::IBaseFunctionMultiDim(), fModel(m), fWcut(wcut)
   double Enu = init_state.ProbeE(kRfHitNucRest);
 
 
-  if (Enu < kps->Threshold_RSPP())
+  if (Enu < kps->Threshold_MKSPP())
   {
     isZero = true;
     return;
   }
   
-  Wl  = kps->WLim_RSPP();
+  Wl  = kps->WLim_MKSPP();
   if (fWcut >= Wl.min)
     Wl.max = TMath::Min(fWcut,Wl.max);
   
@@ -515,7 +515,7 @@ double genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::DoEval(const double * xin)
   double W  = Wl.min + (Wl.max - Wl.min)*xin[0];
   fInteraction->KinePtr()->SetW(W);
    
-  Range1D_t Q2l = kps->Q2Lim_W_RSPP(); 
+  Range1D_t Q2l = kps->Q2Lim_W_MKSPP(); 
   double Q2 = Q2l.min + (Q2l.max - Q2l.min)*xin[1];
   fInteraction->KinePtr()->SetQ2(Q2);
   

@@ -993,7 +993,7 @@ Range1D_t KPhaseSpace::TLim(void) const
   return tl;
 }
 //____________________________________________________________________________
-double KPhaseSpace::Threshold_RSPP(void) const
+double KPhaseSpace::Threshold_MKSPP(void) const
 {
     PDGLibrary * pdglib = PDGLibrary::Instance();
 
@@ -1006,7 +1006,7 @@ double KPhaseSpace::Threshold_RSPP(void) const
 
 }
 //____________________________________________________________________________
-Range1D_t KPhaseSpace::WLim_RSPP(void) const
+Range1D_t KPhaseSpace::WLim_MKSPP(void) const
 {
 
     Range1D_t Wl;
@@ -1031,7 +1031,7 @@ Range1D_t KPhaseSpace::WLim_RSPP(void) const
 
 }
 //____________________________________________________________________________
-Range1D_t KPhaseSpace::Q2Lim_W_RSPP(void) const
+Range1D_t KPhaseSpace::Q2Lim_W_MKSPP(void) const
 {
 
     Range1D_t Q2l;

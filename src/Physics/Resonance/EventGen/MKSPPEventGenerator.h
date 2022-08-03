@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::RSPPEventGenerator
+\class    genie::MKSPPEventGenerator
 
 \brief    Generates resonance single pion production event for the following channels:      
 
@@ -36,8 +36,8 @@ Is a concrete implementation of the EventRecordVisitorI interface.
 */
 //____________________________________________________________________________
 
-#ifndef _RSPP_EVENT_GENERATOR_H_
-#define _RSPP_EVENT_GENERATOR_H_
+#ifndef _MKSPP_EVENT_GENERATOR_H_
+#define _MKSPP_EVENT_GENERATOR_H_
 
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
@@ -48,12 +48,12 @@ Is a concrete implementation of the EventRecordVisitorI interface.
 
 namespace genie {
 
-class RSPPEventGenerator : public KineGeneratorWithCache {
+class MKSPPEventGenerator : public KineGeneratorWithCache {
 
 public :
-  RSPPEventGenerator();
-  RSPPEventGenerator(string config);
- ~RSPPEventGenerator();
+  MKSPPEventGenerator();
+  MKSPPEventGenerator(string config);
+ ~MKSPPEventGenerator();
 
   // implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
@@ -151,4 +151,4 @@ private:
 } // utils namespace
 
 }      // genie namespace
-#endif // _RSPP_EVENT_GENERATOR_H_
+#endif // _MKSPP_EVENT_GENERATOR_H_
