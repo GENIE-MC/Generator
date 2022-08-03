@@ -922,6 +922,8 @@ int SelectDecayMode( std::vector< NHLDecayMode_t > * intChannels, SimpleNHL sh )
   assert( gammaInt > 0.0 && gammaAll >= gammaInt );
   decayMod = gammaInt / gammaAll;
   
+  LOG( "gevgen_nhl", pDEBUG )
+    << "\ndecayMod = " << decayMod;
 
   // get probability that channels in intAndValidChannels will be selected
   LOG("gevgen_nhl", pDEBUG)
