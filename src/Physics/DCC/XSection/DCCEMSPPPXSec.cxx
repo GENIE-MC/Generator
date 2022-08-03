@@ -207,7 +207,7 @@ double DCCEMSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps
     double d = W_plus2 + Q2;
     double sq2omg = TMath::Sqrt(2./fOmega);
     double nomg = NR*fOmega;
-
+  }
 
 
 
