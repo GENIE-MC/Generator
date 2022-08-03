@@ -401,6 +401,8 @@ void NHLDecayVolume::SetStartingParameters( GHepRecord * event_rec, double NHLCo
 
   TLorentzVector * x4NHL = event_rec->Particle(0)->GetX4();
   TVector3 startPoint( xMult * x4NHL->X(), xMult * x4NHL->Y(), xMult * x4NHL->Z() );
+  if( fUseBeamMomentum )
+    startPoint = this->ApplyUserRotation( startPoint, true ); // return to unrotated coordinates
   TLorentzVector * p4NHL = event_rec->Particle(0)->GetP4();
   TVector3 momentum( p4NHL->Px(), p4NHL->Py(), p4NHL->Pz() );
 
@@ -584,7 +586,14 @@ void NHLDecayVolume::LoadConfig()
   if( fIsConfigLoaded ) return;
 
   LOG( "NHL", pDEBUG )
-    << "Nothing to load for NHLDecayVolume...";
+    << "Loading geometry parameters from file. . .";
+
+  this->GetParam( "UseBeamMomentum", fUseBeamMomentum );
+  this->GetParamVect( "Beam2User_T", fB2UTranslation );
+  this->GetParamVect( "Beam2User_R", fB2URotation );
+  fCx = fB2UTranslation.at(0); fCy = fB2UTranslation.at(1); fCz = fB2UTranslation.at(2);
+  fAx1 = fB2URotation.at(0); fAz = fB2URotation.at(1); fAx2 = fB2URotation.at(2);
+
   fIsConfigLoaded = true;
   
   // nothing to load. Everything happens in user-local coordinate system provided
@@ -597,5 +606,30 @@ void NHLDecayVolume::GetInterestingPoints( TVector3 & entryPoint, TVector3 & exi
   entryPoint.SetXYZ( fEx, fEy, fEz );
   exitPoint.SetXYZ( fXx, fXy, fXz );
   decayPoint.SetXYZ( fDx, fDy, fDz );
+}
+//____________________________________________________________________________
+TVector3 NHLDecayVolume::ApplyUserRotation( TVector3 vec, bool doBackwards ) const
+{
+  double vx = vec.X(), vy = vec.Y(), vz = vec.Z();
+
+  double Ax2 = ( doBackwards ) ? -fAx2 : fAx2;
+  double Az  = ( doBackwards ) ? -fAz  : fAz;
+  double Ax1 = ( doBackwards ) ? -fAx1 : fAx1;
+
+  // Ax2 first
+  double x = vx, y = vy, z = vz;
+  vy = y * std::cos( Ax2 ) - z * std::sin( Ax2 );
+  vz = y * std::sin( Ax2 ) + z * std::cos( Ax2 );
+  y = vy; z = vz;
+  // then Az
+  vx = x * std::cos( Az )  - y * std::sin( Az );
+  vy = x * std::sin( Az )  + y * std::cos( Az );
+  x = vx; y = vy;
+  // Ax1 last
+  vy = y * std::cos( Ax1 ) - z * std::sin( Ax1 );
+  vz = y * std::sin( Ax1 ) + z * std::cos( Ax1 );
+
+  TVector3 nvec( vx, vy, vz );
+  return nvec;
 }
 //____________________________________________________________________________

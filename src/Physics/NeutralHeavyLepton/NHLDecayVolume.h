@@ -116,6 +116,8 @@ namespace NHL {
 				   TGeoManager * gm, TGeoVolume * vol ) const;
 #endif // #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
 
+    TVector3 ApplyUserRotation( TVector3 vec, bool doBackwards ) const;
+
     // --------------------------------------------------
 
     mutable bool fIsConfigLoaded = false;
@@ -151,6 +153,11 @@ namespace NHL {
     mutable bool isUsingDk2nu = false;
     mutable bool isUsingRootGeom = false;
     mutable double uMult = 1.0, xMult = 1.0; // these need to be different.
+
+    mutable bool fUseBeamMomentum = false; // use this if your detector hall is parallel to tgt hall
+    mutable double fCx, fCy, fCz;
+    mutable double fAx1, fAz, fAx2;
+    mutable std::vector< double > fB2UTranslation, fB2URotation;
 
   }; // class NHLDecayVolume
 

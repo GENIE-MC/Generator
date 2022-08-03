@@ -49,7 +49,8 @@ void NHLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
     
     evrec->SetVertex( gnmf->fgX4User ); // NHL production vertex. NOT where NHL decays to visible FS.
     // construct Particle(0). Don't worry about daughter links at this stage.
-    GHepParticle ptNHL( gnmf->fgPdgC, kIStInitialState, -1, -1, -1, -1, gnmf->fgP4User, gnmf->fgX4User );
+    TLorentzVector probeP4 = ( fUseBeamMomentum ) ? gnmf->fgP4 : gnmf->fgP4User;
+    GHepParticle ptNHL( gnmf->fgPdgC, kIStInitialState, -1, -1, -1, -1, probeP4, gnmf->fgX4User );
     evrec->AddParticle( ptNHL );
   }
   
@@ -356,6 +357,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
 			      detO.Z() * detO.Z() ); // m
   const double kSpeedOfLightNs = units::kSpeedOfLight * units::ns / units::s; // m / ns
   double delay = detDist / kSpeedOfLightNs * ( 1.0 / betaNHL - 1.0 );
+  delay *= units::ns / units::s;
 
   LOG( "NHL", pDEBUG )
     << "\ndetDist = " << detDist << " [m]"
@@ -389,7 +391,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   gnmf->fgP4 = p4NHL_beam;                   ///< generated 4-momentum, beam coord [GeV]
   gnmf->fgX4 = x4NHL_beam;                   ///< generated 4-position, beam coord [cm]
   gnmf->fgP4User = p4NHL;                    ///< generated 4-momentum, user coord [GeV]
-  gnmf->fgX4User = x4NHL_cm;                  ///< generated 4-position, user coord [cm]
+  gnmf->fgX4User = x4NHL_cm;                 ///< generated 4-position, user coord [cm]
 
   gnmf->evtno    = iEntry;                   ///< Event number (proton on target) 
                                                  // RETHERE which is it?
@@ -1450,6 +1452,7 @@ void NHLFluxCreator::LoadConfig(void)
   this->GetParamVect( "Beam2User_R", fB2URotation );
 
   this->GetParam( "IsParentOnAxis", isParentOnAxis );
+  this->GetParam( "UseBeamMomentum", fUseBeamMomentum );
 
   fCx = fB2UTranslation.at(0);
   fCy = fB2UTranslation.at(1);
