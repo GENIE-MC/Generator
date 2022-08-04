@@ -450,9 +450,6 @@ bool DCCEMSPPPXSec::ValidProcess(const Interaction * interaction) const
   //-- Get the requested SPP channel
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
   if( spp_channel == kSppNull ) {
-
-    LOG("DCCEMSPPPXSec", pERROR)
-            << "Insufficient SPP exclusive final state information!\n";
     return false;
   }
 

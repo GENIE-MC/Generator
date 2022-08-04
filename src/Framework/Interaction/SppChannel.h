@@ -500,7 +500,6 @@ public:
        } else return kSppNull;
 
     } else if( pdg::IsAntiNeutrino(probe) ) {
-
        if ( proc_info.IsWeakCC() ) {
           if      (hit_n && fs_n && fs_pi_minus) return kSpp_vbn_cc_01001;
           else if (hit_p && fs_n && fs_pi_0    ) return kSpp_vbp_cc_01010;
