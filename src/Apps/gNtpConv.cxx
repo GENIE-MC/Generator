@@ -607,36 +607,44 @@ void ConvertToGST(void)
   double locNHLFS2E, locNHLFS2Px, locNHLFS2Py, locNHLFS2Pz;
   int locNHLFS0PDG, locNHLFS1PDG, locNHLFS2PDG;
 
-  TBranch * BRNHLMass = er_tree->GetBranch( "nhl_mass" ); BRNHLMass->SetAddress( &locNHLMass );
-  TBranch * BRNHLECoup = er_tree->GetBranch( "nhl_coup_e" ); BRNHLECoup->SetAddress( &locNHLECoup );
-  TBranch * BRNHLMCoup = er_tree->GetBranch( "nhl_coup_m" ); BRNHLMCoup->SetAddress( &locNHLMCoup );
-  TBranch * BRNHLTCoup = er_tree->GetBranch( "nhl_coup_t" ); BRNHLTCoup->SetAddress( &locNHLTCoup );
-  TBranch * BRNHLIsMajorana = er_tree->GetBranch( "nhl_ismaj" ); BRNHLIsMajorana->SetAddress( &locNHLIsMajorana );
-  TBranch * BRNHLType = er_tree->GetBranch( "nhl_type" ); BRNHLType->SetAddress( &locNHLType );
-  //
-  TBranch * BRNHLE  = er_tree->GetBranch( "nhl_IS_E" );  BRNHLE->SetAddress( &locNHLE );
-  TBranch * BRNHLPx = er_tree->GetBranch( "nhl_IS_PX" ); BRNHLPx->SetAddress( &locNHLPx );
-  TBranch * BRNHLPy = er_tree->GetBranch( "nhl_IS_PY" ); BRNHLPy->SetAddress( &locNHLPy );
-  TBranch * BRNHLPz = er_tree->GetBranch( "nhl_IS_PZ" ); BRNHLPz->SetAddress( &locNHLPz );
-  //
-  TBranch * BRNHLFS0PDG = er_tree->GetBranch( "nhl_FS0_PDG" ); BRNHLFS0PDG->SetAddress( &locNHLFS0PDG );
-  TBranch * BRNHLFS0E  = er_tree->GetBranch( "nhl_FS0_E" );  BRNHLFS0E->SetAddress( &locNHLFS0E );
-  TBranch * BRNHLFS0Px = er_tree->GetBranch( "nhl_FS0_PX" ); BRNHLFS0Px->SetAddress( &locNHLFS0Px );
-  TBranch * BRNHLFS0Py = er_tree->GetBranch( "nhl_FS0_PY" ); BRNHLFS0Py->SetAddress( &locNHLFS0Py );
-  TBranch * BRNHLFS0Pz = er_tree->GetBranch( "nhl_FS0_PZ" ); BRNHLFS0Pz->SetAddress( &locNHLFS0Pz );
-  //
-  TBranch * BRNHLFS1PDG = er_tree->GetBranch( "nhl_FS1_PDG" ); BRNHLFS1PDG->SetAddress( &locNHLFS1PDG );
-  TBranch * BRNHLFS1E  = er_tree->GetBranch( "nhl_FS1_E" );  BRNHLFS1E->SetAddress( &locNHLFS1E );
-  TBranch * BRNHLFS1Px = er_tree->GetBranch( "nhl_FS1_PX" ); BRNHLFS1Px->SetAddress( &locNHLFS1Px );
-  TBranch * BRNHLFS1Py = er_tree->GetBranch( "nhl_FS1_PY" ); BRNHLFS1Py->SetAddress( &locNHLFS1Py );
-  TBranch * BRNHLFS1Pz = er_tree->GetBranch( "nhl_FS1_PZ" ); BRNHLFS1Pz->SetAddress( &locNHLFS1Pz );
-  //
-  TBranch * BRNHLFS2PDG = er_tree->GetBranch( "nhl_FS2_PDG" ); BRNHLFS2PDG->SetAddress( &locNHLFS2PDG );
-  TBranch * BRNHLFS2E  = er_tree->GetBranch( "nhl_FS2_E" );  BRNHLFS2E->SetAddress( &locNHLFS2E );
-  TBranch * BRNHLFS2Px = er_tree->GetBranch( "nhl_FS2_PX" ); BRNHLFS2Px->SetAddress( &locNHLFS2Px );
-  TBranch * BRNHLFS2Py = er_tree->GetBranch( "nhl_FS2_PY" ); BRNHLFS2Py->SetAddress( &locNHLFS2Py );
-  TBranch * BRNHLFS2Pz = er_tree->GetBranch( "nhl_FS2_PZ" ); BRNHLFS2Pz->SetAddress( &locNHLFS2Pz );
+  TBranch * BRNHLMass = 0, * BRNHLECoup = 0, * BRNHLMCoup = 0, * BRNHLTCoup = 0, * BRNHLIsMajorana = 0,
+    * BRNHLType = 0, * BRNHLE = 0, * BRNHLPx = 0, * BRNHLPy = 0, * BRNHLPz = 0,
+    * BRNHLFS0E = 0, * BRNHLFS0Px = 0, * BRNHLFS0Py = 0, * BRNHLFS0Pz = 0, * BRNHLFS0PDG = 0, 
+    * BRNHLFS1E = 0, * BRNHLFS1Px = 0, * BRNHLFS1Py = 0, * BRNHLFS1Pz = 0, * BRNHLFS1PDG = 0, 
+    * BRNHLFS2E = 0, * BRNHLFS2Px = 0, * BRNHLFS2Py = 0, * BRNHLFS2Pz = 0, * BRNHLFS2PDG = 0;
 
+  if( er_tree->GetBranch( "nhl_mass" ) ){
+    BRNHLMass = er_tree->GetBranch( "nhl_mass" ); BRNHLMass->SetAddress( &locNHLMass );
+    BRNHLECoup = er_tree->GetBranch( "nhl_coup_e" ); BRNHLECoup->SetAddress( &locNHLECoup );
+    BRNHLMCoup = er_tree->GetBranch( "nhl_coup_m" ); BRNHLMCoup->SetAddress( &locNHLMCoup );
+    BRNHLTCoup = er_tree->GetBranch( "nhl_coup_t" ); BRNHLTCoup->SetAddress( &locNHLTCoup );
+    BRNHLIsMajorana = er_tree->GetBranch( "nhl_ismaj" ); BRNHLIsMajorana->SetAddress( &locNHLIsMajorana );
+    BRNHLType = er_tree->GetBranch( "nhl_type" ); BRNHLType->SetAddress( &locNHLType );
+    //
+    BRNHLE  = er_tree->GetBranch( "nhl_IS_E" );  BRNHLE->SetAddress( &locNHLE );
+    BRNHLPx = er_tree->GetBranch( "nhl_IS_PX" ); BRNHLPx->SetAddress( &locNHLPx );
+    BRNHLPy = er_tree->GetBranch( "nhl_IS_PY" ); BRNHLPy->SetAddress( &locNHLPy );
+    BRNHLPz = er_tree->GetBranch( "nhl_IS_PZ" ); BRNHLPz->SetAddress( &locNHLPz );
+    //
+    BRNHLFS0PDG = er_tree->GetBranch( "nhl_FS0_PDG" ); BRNHLFS0PDG->SetAddress( &locNHLFS0PDG );
+    BRNHLFS0E  = er_tree->GetBranch( "nhl_FS0_E" );  BRNHLFS0E->SetAddress( &locNHLFS0E );
+    BRNHLFS0Px = er_tree->GetBranch( "nhl_FS0_PX" ); BRNHLFS0Px->SetAddress( &locNHLFS0Px );
+    BRNHLFS0Py = er_tree->GetBranch( "nhl_FS0_PY" ); BRNHLFS0Py->SetAddress( &locNHLFS0Py );
+    BRNHLFS0Pz = er_tree->GetBranch( "nhl_FS0_PZ" ); BRNHLFS0Pz->SetAddress( &locNHLFS0Pz );
+    //
+    BRNHLFS1PDG = er_tree->GetBranch( "nhl_FS1_PDG" ); BRNHLFS1PDG->SetAddress( &locNHLFS1PDG );
+    BRNHLFS1E  = er_tree->GetBranch( "nhl_FS1_E" );  BRNHLFS1E->SetAddress( &locNHLFS1E );
+    BRNHLFS1Px = er_tree->GetBranch( "nhl_FS1_PX" ); BRNHLFS1Px->SetAddress( &locNHLFS1Px );
+    BRNHLFS1Py = er_tree->GetBranch( "nhl_FS1_PY" ); BRNHLFS1Py->SetAddress( &locNHLFS1Py );
+    BRNHLFS1Pz = er_tree->GetBranch( "nhl_FS1_PZ" ); BRNHLFS1Pz->SetAddress( &locNHLFS1Pz );
+    //
+    BRNHLFS2PDG = er_tree->GetBranch( "nhl_FS2_PDG" ); BRNHLFS2PDG->SetAddress( &locNHLFS2PDG );
+    BRNHLFS2E  = er_tree->GetBranch( "nhl_FS2_E" );  BRNHLFS2E->SetAddress( &locNHLFS2E );
+    BRNHLFS2Px = er_tree->GetBranch( "nhl_FS2_PX" ); BRNHLFS2Px->SetAddress( &locNHLFS2Px );
+    BRNHLFS2Py = er_tree->GetBranch( "nhl_FS2_PY" ); BRNHLFS2Py->SetAddress( &locNHLFS2Py );
+    BRNHLFS2Pz = er_tree->GetBranch( "nhl_FS2_PZ" ); BRNHLFS2Pz->SetAddress( &locNHLFS2Pz );
+  }
+    
   // Event loop
   for(Long64_t iev = 0; iev < nmax; iev++) {
     er_tree->GetEntry(iev);
