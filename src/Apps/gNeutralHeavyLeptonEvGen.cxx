@@ -297,6 +297,15 @@ int main(int argc, char ** argv)
   ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);
   ntpw.Initialize();
 
+  // if using dk2nu, add flux info to the tree!
+  flux::GNuMIFluxPassThroughInfo * gnmf = 0;
+  if( gOptIsUsingDk2nu ) {
+    TBranch * flux = ntpw.EventTree()->Branch( "flux",
+					       "genie::flux::GNuMIFluxPassThroughInfo",
+					       &gnmf, 32000, 1 );
+    flux->SetAutoDelete(kFALSE);
+  }
+
   LOG("gevgen_nhl", pNOTICE)
     << "Initialised Ntuple Writer";
 
@@ -431,6 +440,7 @@ int main(int argc, char ** argv)
 	 LOG( "gevgen_nhl", pDEBUG )
 	   << "Making NHL from tuple for event " << ievent;
 	 fluxCreator->ProcessEventRecord( event );
+	 gnmf = fluxCreator->RetrieveGNuMIFluxPassThroughInfo();
 	 
 	 // check to see if this was nonsense
 	 if( ! event->Particle(0) ) continue;
