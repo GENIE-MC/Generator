@@ -130,7 +130,6 @@ namespace genie{
       TH3D * GetFluxHist3D( std::string fin, std::string dirName, std::string hName ) const;
       std::vector< double > * GenerateVtx3X( TH3D * prodVtxHist ) const;
 
-      // legacy interface, for validation only
       flux::GNuMIFluxPassThroughInfo * RetrieveGNuMIFluxPassThroughInfo() const;
 
     private:

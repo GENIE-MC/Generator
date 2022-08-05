@@ -1,4 +1,3 @@
-
 //----------------------------------------------------------------------------
 /*!
 
@@ -37,25 +36,31 @@ void NHLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
   // Also assigns the production vertex to evrec (this will be overwritten by subsequent modules)
   // Also adds (acceptance*nimpwt)^(-1) component of weight
 
-  LOG( "NHL", pDEBUG ) << "Flux record processing now";
+  if( iCurrEntry < fFirstEntry ) iCurrEntry = fFirstEntry;
 
-  flux::GNuMIFluxPassThroughInfo * gnmf = new flux::GNuMIFluxPassThroughInfo();
-  this->MakeTupleFluxEntry( iCurrEntry, gnmf, fCurrPath );
+  LOG( "NHL", pDEBUG ) << "Flux record processing now, current entry = " << iCurrEntry;
+
+  if( iCurrEntry >= fFirstEntry ) {
+
+    flux::GNuMIFluxPassThroughInfo * gnmf = new flux::GNuMIFluxPassThroughInfo();
+    this->MakeTupleFluxEntry( iCurrEntry, gnmf, fCurrPath );
   
-  if( std::abs(gnmf->fgPdgC) == genie::kPdgNHL ){ // only add particle if parent is valid
+    if( std::abs(gnmf->fgPdgC) == genie::kPdgNHL ){ // only add particle if parent is valid
+      
+      double invAccWeight = gnmf->nimpwt * gnmf->fgXYWgt;
+      evrec->SetWeight( evrec->Weight() / invAccWeight );
+      
+      evrec->SetVertex( gnmf->fgX4User ); // NHL production vertex. NOT where NHL decays to visible FS.
+      // construct Particle(0). Don't worry about daughter links at this stage.
+      TLorentzVector probeP4 = ( fUseBeamMomentum ) ? gnmf->fgP4 : gnmf->fgP4User;
+      GHepParticle ptNHL( gnmf->fgPdgC, kIStInitialState, -1, -1, -1, -1, probeP4, gnmf->fgX4User );
+      evrec->AddParticle( ptNHL );
+    }
     
-    double invAccWeight = gnmf->nimpwt * gnmf->fgXYWgt;
-    evrec->SetWeight( evrec->Weight() / invAccWeight );
-    
-    evrec->SetVertex( gnmf->fgX4User ); // NHL production vertex. NOT where NHL decays to visible FS.
-    // construct Particle(0). Don't worry about daughter links at this stage.
-    TLorentzVector probeP4 = ( fUseBeamMomentum ) ? gnmf->fgP4 : gnmf->fgP4User;
-    GHepParticle ptNHL( gnmf->fgPdgC, kIStInitialState, -1, -1, -1, -1, probeP4, gnmf->fgX4User );
-    evrec->AddParticle( ptNHL );
+    // clean up
+    delete gnmf;
+
   }
-  
-  // clean up
-  delete gnmf;
   
   // update iCurrEntry. This should be the last thing to happen before returning.
   iCurrEntry++;
@@ -100,6 +105,8 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     this->InitialiseTree();
     this->InitialiseMeta();
     this->MakeBBox();
+  } else if( iEntry < fFirstEntry ){
+    return;
   }
 
   // All these in m
@@ -651,8 +658,8 @@ void NHLFluxCreator::OpenFluxInput( std::string finpath ) const
     << "Getting flux input from finpath = " << finpath.c_str();
 
   // recurse over files in this directory and add to chain
-  ctree = new TChain( "dkRootTree" );
-  cmeta = new TChain( "dkRootMeta" );
+  ctree = new TChain( "dkTree" ); // "dkRootTree"
+  cmeta = new TChain( "dkMeta" ); // "dkRootMeta"
 
   TSystemDirectory dir( finpath.c_str(), finpath.c_str() );
   TList * files = dir.GetListOfFiles(); int nFiles = 0;

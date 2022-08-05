@@ -385,20 +385,30 @@ int main(int argc, char ** argv)
     __attribute__((unused)) int iset = setenv( "PRODVTXDIR", "NODIR", 1 );
   }
 
+  if( !gOptIsMonoEnFlux && gOptIsUsingDk2nu ){
+    LOG( "gevgen_nhl", pDEBUG )
+      << "Starting reading from event " << gOptFirstEvent;
+    fluxCreator->SetFirstEntry( gOptFirstEvent );
+  }
+
   // Event loop
   int ievent = 0;
   
   while (1)
   {
     if( gOptNev >= 10000 ){
-      if( ievent % (gOptNev / 1000 ) == 0 ){
-	int irat = ievent / ( gOptNev / 1000 );
-	std::cerr << 0.1 * irat << " % " << " ( " << ievent
+      if( (ievent-gOptFirstEvent) % (gOptNev / 1000 ) == 0 ){
+	int irat = (ievent-gOptFirstEvent) / ( gOptNev / 1000 );
+	std::cerr << 0.1 * irat << " % " << " ( " << (ievent-gOptFirstEvent)
 		  << " / " << gOptNev << " ) \r" << std::flush;
       }
     }
 
-    if((ievent-gOptFirstEvent) == gOptNev) break;
+    if( (ievent-gOptFirstEvent) == gOptNev ) break;
+
+    if( ievent < gOptFirstEvent ){ ievent++; continue; }
+
+    assert( ievent >= gOptFirstEvent && gOptFirstEvent >= 0 );
       
      LOG("gevgen_nhl", pNOTICE)
           << " *** Generating event............ " << ievent;
@@ -418,9 +428,6 @@ int main(int argc, char ** argv)
 	   ien++;
 	 }
        } else { // get a full NHL from flux tuples
-	 LOG( "gevgen_nhl", pDEBUG )
-	   << "Starting reading from event " << gOptFirstEvent;
-	 fluxCreator->SetFirstEntry( gOptFirstEvent );
 	 LOG( "gevgen_nhl", pDEBUG )
 	   << "Making NHL from tuple for event " << ievent;
 	 fluxCreator->ProcessEventRecord( event );
