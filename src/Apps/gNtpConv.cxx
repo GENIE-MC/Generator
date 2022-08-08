@@ -327,6 +327,7 @@ void ConvertToGST(void)
   bool   brIsNHL       = false;  // is NHL decay?
   int    brCodeNeut    = 0;      // The equivalent NEUT reaction code (if any)
   int    brCodeNuance  = 0;      // The equivalent NUANCE reaction code (if any)
+#ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
   // -- NHL variables
   double brNHLMass     = 0;      // NHL mass in GeV
   double brNHLECoup    = 0;      // |U_e4|^2
@@ -354,6 +355,7 @@ void ConvertToGST(void)
   double brNHLFS2Py    = 0;      // FS2 Py
   double brNHLFS2Pz    = 0;      // FS2 Pz
   // ---
+#endif // #ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
   double brWeight      = 0;      // Event weight
   double brKineXs      = 0;      // Bjorken x as was generated during kinematical selection; takes fermi momentum / off-shellness into account
   double brKineYs      = 0;      // Inelasticity y as was generated during kinematical selection; takes fermi momentum / off-shellness into account
@@ -468,6 +470,7 @@ void ConvertToGST(void)
   s_tree->Branch("nhl",           &brIsNHL,         "nhl/O"         );
   s_tree->Branch("neut_code",     &brCodeNeut,      "neut_code/I"   );
   s_tree->Branch("nuance_code",   &brCodeNuance,    "nuance_code/I" );
+#ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
   // -- NHL
   s_tree->Branch("nhl_mass",      &brNHLMass,       "nhl_mass/D"    );
   s_tree->Branch("nhl_e_coup",    &brNHLECoup,      "nhl_e_coup/D"  );
@@ -495,6 +498,7 @@ void ConvertToGST(void)
   s_tree->Branch("nhl_FS2_Py",    &brNHLFS2Py,      "nhl_FS2_Py/D"  );
   s_tree->Branch("nhl_FS2_Pz",    &brNHLFS2Pz,      "nhl_FS2_Pz/D"  );
   // --
+#endif // #ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
   s_tree->Branch("wght",          &brWeight,        "wght/D"	    );
   s_tree->Branch("xs",	          &brKineXs,        "xs/D"	    );
   s_tree->Branch("ys",	          &brKineYs,        "ys/D"	    );
@@ -598,6 +602,7 @@ void ConvertToGST(void)
 
   TLorentzVector pdummy(0,0,0,0);
 
+#ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
   // if NHL, pick up branches 
   double locNHLMass, locNHLECoup, locNHLMCoup, locNHLTCoup; 
   bool locNHLIsMajorana; int locNHLType;
@@ -644,6 +649,7 @@ void ConvertToGST(void)
     BRNHLFS2Py = er_tree->GetBranch( "nhl_FS2_PY" ); BRNHLFS2Py->SetAddress( &locNHLFS2Py );
     BRNHLFS2Pz = er_tree->GetBranch( "nhl_FS2_PZ" ); BRNHLFS2Pz->SetAddress( &locNHLFS2Pz );
   }
+#endif // #ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
     
   // Event loop
   for(Long64_t iev = 0; iev < nmax; iev++) {
@@ -1069,6 +1075,7 @@ void ConvertToGST(void)
     brIsAMNuGamma= is_amnugamma;
     brIsNHL      = is_nhl;
     // -- NHL
+#ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
     brNHLMass    = locNHLMass;
     brNHLECoup   = locNHLECoup;
     brNHLMCoup   = locNHLMCoup;
@@ -1095,6 +1102,7 @@ void ConvertToGST(void)
     brNHLFS2Py   = locNHLFS2Py;
     brNHLFS2Pz   = locNHLFS2Pz;
     // --
+#endif // #ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
     brWeight     = weight;      
     brKineXs     = xs;      
     brKineYs     = ys;      
@@ -2067,6 +2075,8 @@ void ConvertToGRooTracker(void)
                                           // - 12  mu- -> numu nuebar e-
                                           // - 13  pi+ -> numu mu+
                                           // - 14  pi- -> numubar mu-
+                                          // Decay modes > 30 are NHL
+                                          // See NeutralHeavyLepton/NHLFluxCreator.cxx
   int        brNumiFluxNtype;             // Neutrino flavor
   double     brNumiFluxVx;                // Position of hadron/muon decay, X coordinate
   double     brNumiFluxVy;                // Position of hadron/muon decay, Y coordinate
@@ -2287,6 +2297,20 @@ void ConvertToGRooTracker(void)
    rootracker_tree->Branch("NumiFluxBeampz",   &brNumiFluxBeampz,    "NumiFluxBeampz/D");
   }
 
+  // extra branches for NHL if wanted
+#ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
+
+  double brNHLMass, brNHLECoup, brNHLMCoup, brNHLTCoup;
+  bool brNHLMajorana;
+  
+  rootracker_tree->Branch( "NHL_mass",     &brNHLMass,     "NHL_mass/D"     );
+  rootracker_tree->Branch( "NHL_coup_e",   &brNHLECoup,    "NHL_coup_e/D"   );
+  rootracker_tree->Branch( "NHL_coup_m",   &brNHLMCoup,    "NHL_coup_m/D"   );
+  rootracker_tree->Branch( "NHL_coup_t",   &brNHLTCoup,    "NHL_coup_t/D"   );
+  rootracker_tree->Branch( "NHL_Majorana", &brNHLMajorana, "NHL_Majorana/O" );
+  
+#endif // #ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
+
   //-- open the input GENIE ROOT file and get the TTree & its header
   TFile fin(gOptInpFileName.c_str(),"READ");
   TTree *           gtree = 0;
@@ -2334,6 +2358,26 @@ void ConvertToGRooTracker(void)
     << "\n If this isn't what you are supposed to be doing then build GENIE by adding "
     << "--with-flux-drivers in the configuration step.";
 #endif
+
+#ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
+    brNHLMass     = -9999.9;
+    brNHLECoup    = -9999.9;
+    brNHLMCoup    = -9999.9;
+    brNHLTCoup    = -9999.9;
+    brNHLMajorana =   false;
+
+    TBranch * BRNHLMass = 0, * BRNHLECoup = 0, * BRNHLMCoup = 0, * BRNHLTCoup = 0, * BRNHLMaj = 0;
+    double locNHLMass, locNHLECoup, locNHLMCoup, locNHLTCoup;
+    bool locNHLMajorana;
+    
+    if( gtree->GetBranch( "nhl_mass" ) ) {
+      BRNHLMass = gtree->GetBranch( "nhl_mass" ); BRNHLMass->SetAddress( &locNHLMass );
+      BRNHLECoup = gtree->GetBranch( "nhl_coup_e" ); BRNHLECoup->SetAddress( &locNHLECoup );
+      BRNHLMCoup = gtree->GetBranch( "nhl_coup_m" ); BRNHLMCoup->SetAddress( &locNHLMCoup );
+      BRNHLTCoup = gtree->GetBranch( "nhl_coup_t" ); BRNHLTCoup->SetAddress( &locNHLTCoup );
+      BRNHLMaj = gtree->GetBranch( "nhl_ismaj" ); BRNHLMaj->SetAddress( &locNHLMajorana );
+    }
+#endif // #ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
 
   //-- figure out how many events to analyze
   Long64_t nmax = (gOptN<0) ? 
@@ -2668,6 +2712,17 @@ void ConvertToGRooTracker(void)
      } // gnumi_flux_info
 #endif
     } // kConvFmt_numi_rootracker
+
+    //
+    // if NHL, fill in additional branch info
+    //
+#ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
+    brNHLMass = locNHLMass;
+    brNHLECoup = locNHLECoup;
+    brNHLMCoup = locNHLMCoup;
+    brNHLTCoup = locNHLTCoup;
+    brNHLMajorana = locNHLMajorana;
+#endif // #ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
 
     // fill tree
     rootracker_tree->Fill();
