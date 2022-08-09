@@ -53,11 +53,19 @@ DetCentreYInBeam
 DetCentreZInBeam          double      no    (-1) * components of Beam2User_T, i.e. detector centre
                                             position in beam frame
 
+DetCentre_User            vec-double  no    User origin -> detector centre translation [m]
+                                            Important if the input ROOT geometry is not centred at the
+                                            detector centre
+
 Beam2User_R               vec-double  no    Euler angles about beam axes [rad]                
                                             These are *extrinsic* rotations about x-z-x
+					    Describe rotation: target-hall (x,y,z) ==> beam (X,Y,Z)
 EulerExtrinsicX1
 EulerExtrinsicZ
 EulerExtrinsicX2          double      no    Same as components of Beam2User_R.
+
+Beam2Det_R                vec-double  no    Same as Beam2User_R, but describe
+                                            rotation: target-hall (x,y,z) ==> detector (X,Y,Z)
 
 ****************                            ******************************************
 set ParticleGun:                            Define NHL trajectory for Particle Gun app

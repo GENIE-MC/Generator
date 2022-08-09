@@ -52,6 +52,10 @@ void NHLDecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
   
   bool didIntersectDet = this->VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, fGeoManager, fGeoVolume );
 
+  LOG( "NHL", pDEBUG )
+    << "\n startPoint = " << utils::print::Vec3AsString( &startPoint )
+    << "\n momentum = " << utils::print::Vec3AsString( &momentum );
+
   if( isUsingDk2nu ) assert( didIntersectDet ); // forced to hit detector somewhere!
   else {
 
@@ -400,9 +404,21 @@ void NHLDecayVolume::SetStartingParameters( GHepRecord * event_rec, double NHLCo
   assert( event_rec->Particle(0) );
 
   TLorentzVector * x4NHL = event_rec->Particle(0)->GetX4();
-  TVector3 startPoint( xMult * x4NHL->X(), xMult * x4NHL->Y(), xMult * x4NHL->Z() );
-  if( fUseBeamMomentum )
-    startPoint = this->ApplyUserRotation( startPoint, true ); // return to unrotated coordinates
+  TVector3 startPoint( xMult * x4NHL->X(), xMult * x4NHL->Y(), xMult * x4NHL->Z() ); // mm
+  if( fUseBeamMomentum ){
+    double mtomm = units::m / units::mm;
+    // passive transformation. First return to tgt-hall frame, then to detector frame
+    TVector3 beamOrigin( 0.0, 0.0, 0.0 ), detOrigin( fUx * mtomm, fUy * mtomm, fUz * mtomm );
+    TVector3 startUnrotated = startPoint;
+    startPoint = this->ApplyUserRotation( startPoint, beamOrigin, fB2URotation, true ); // beam --> tgt-hall
+    TVector3 startTgt = startPoint;
+    startPoint = this->ApplyUserRotation( startPoint, detOrigin, fDetRotation, true ); // tgt-hall --> det
+    
+    LOG( "NHL", pDEBUG )
+      << "\n\n Unrotated startPoint: " << utils::print::Vec3AsString( &startUnrotated )
+      << "\n Tgt-hall startPoint: " << utils::print::Vec3AsString( &startTgt )
+      << "\n Final startPoint: " << utils::print::Vec3AsString( &startPoint );
+  }
   TLorentzVector * p4NHL = event_rec->Particle(0)->GetP4();
   TVector3 momentum( p4NHL->Px(), p4NHL->Py(), p4NHL->Pz() );
 
@@ -412,6 +428,7 @@ void NHLDecayVolume::SetStartingParameters( GHepRecord * event_rec, double NHLCo
   fSzROOT = fSz * units::mm / units::cm;
   fPx = momentum.X(); fPy = momentum.Y(); fPz = momentum.Z();
 
+  fGeomFile = geomfile;
   if( !fGeoManager )
     fGeoManager = TGeoManager::Import(geomfile.c_str());
 }
@@ -477,6 +494,12 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   
   // enter the volume.
   TGeoNode * nextNode = gm->FindNextBoundaryAndStep( stepmax );
+  // sometimes the TGeoManager likes to hit the BBox and call this an entry point. Step forward again.
+  const double * tmpPoint = gm->GetCurrentPoint();
+  if( std::abs(tmpPoint[0]) == fLx/2.0 * lunits / units::cm ||
+      std::abs(tmpPoint[1]) == fLy/2.0 * lunits / units::cm ||
+      std::abs(tmpPoint[2]) == fLz/2.0 * lunits / units::cm )
+    nextNode = gm->FindNextBoundaryAndStep();
 
   if( nextNode == NULL ) return false;
 
@@ -591,13 +614,14 @@ void NHLDecayVolume::LoadConfig()
   this->GetParam( "UseBeamMomentum", fUseBeamMomentum );
   this->GetParamVect( "Beam2User_T", fB2UTranslation );
   this->GetParamVect( "Beam2User_R", fB2URotation );
+  this->GetParamVect( "Beam2Det_R", fDetRotation );
+  this->GetParamVect( "DetCentre_User", fDetTranslation );
   fCx = fB2UTranslation.at(0); fCy = fB2UTranslation.at(1); fCz = fB2UTranslation.at(2);
+  fUx = fDetTranslation.at(0); fUy = fDetTranslation.at(1); fUz = fDetTranslation.at(2);
   fAx1 = fB2URotation.at(0); fAz = fB2URotation.at(1); fAx2 = fB2URotation.at(2);
+  fBx1 = fDetRotation.at(0); fBz = fDetRotation.at(1); fBx2 = fDetRotation.at(2);
 
   fIsConfigLoaded = true;
-  
-  // nothing to load. Everything happens in user-local coordinate system provided
-  // by the input ROOT geometry.
 }
 //____________________________________________________________________________
 void NHLDecayVolume::GetInterestingPoints( TVector3 & entryPoint, TVector3 & exitPoint, TVector3 & decayPoint ) const
@@ -630,6 +654,43 @@ TVector3 NHLDecayVolume::ApplyUserRotation( TVector3 vec, bool doBackwards ) con
   vz = y * std::sin( Ax1 ) + z * std::cos( Ax1 );
 
   TVector3 nvec( vx, vy, vz );
+  return nvec;
+}
+//____________________________________________________________________________
+TVector3 NHLDecayVolume::ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::vector<double> rotVec, bool doBackwards ) const
+{
+  double vx = vec.X(), vy = vec.Y(), vz = vec.Z();
+  double ox = oriVec.X(), oy = oriVec.Y(), oz = oriVec.Z();
+
+  LOG( "NHL", pDEBUG )
+    << "\t original vec [mm] : " << utils::print::Vec3AsString( &vec )
+    << "\t origin vec [mm] : " << utils::print::Vec3AsString( &oriVec );
+  
+  vx -= ox; vy -= oy; vz -= oz; // make this rotation about detector origin
+
+  assert( rotVec.size() == 3 ); // want 3 Euler angles, otherwise this is unphysical.
+  double Ax2 = ( doBackwards ) ? -rotVec.at(2) : rotVec.at(2);
+  double Az  = ( doBackwards ) ? -rotVec.at(1) : rotVec.at(1);
+  double Ax1 = ( doBackwards ) ? -rotVec.at(0) : rotVec.at(0);
+
+  // Ax2 first
+  double x = vx, y = vy, z = vz;
+  vy = y * std::cos( Ax2 ) - z * std::sin( Ax2 );
+  vz = y * std::sin( Ax2 ) + z * std::cos( Ax2 );
+  y = vy; z = vz;
+  // then Az
+  vx = x * std::cos( Az )  - y * std::sin( Az );
+  vy = x * std::sin( Az )  + y * std::cos( Az );
+  x = vx; y = vy;
+  // Ax1 last
+  vy = y * std::cos( Ax1 ) - z * std::sin( Ax1 );
+  vz = y * std::sin( Ax1 ) + z * std::cos( Ax1 );
+
+  // back to beam frame
+  vx += ox; vy += oy; vz += oz;
+  TVector3 nvec( vx, vy, vz );
+  LOG( "NHL", pDEBUG )
+    << "\nVector is now " << utils::print::Vec3AsString( &nvec );
   return nvec;
 }
 //____________________________________________________________________________

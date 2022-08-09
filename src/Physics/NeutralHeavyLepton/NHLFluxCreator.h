@@ -157,6 +157,7 @@ namespace genie{
       // RETHERE: BBox isn't good enough! But roll with it for now
       void MakeBBox() const;
       TVector3 ApplyUserRotation( TVector3 vec, bool doBackwards = false ) const;
+      TVector3 ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::vector<double> rotVec, bool doBackwards = false ) const;
       
       // calculate detector acceptance (== solid angle of proj of det onto unit-radius sphere / (4pi))
       // NOTE THIS IS A LAB FRAME (==GEOMETRICAL) ACCEPTANCE!!!!
@@ -199,8 +200,10 @@ namespace genie{
       mutable double fLx, fLy, fLz;   //BBox length [m]
 
       mutable std::vector< double > fB2UTranslation, fB2URotation;
-      mutable double fCx, fCy, fCz;   //BBox centre wrt NHL prod [m]
-      mutable double fAx1, fAz, fAx2; //Euler angles, extrinsic x-z-x. Ax2 then Az then Ax1 
+      mutable std::vector< double > fDetRotation; // rotation of detector wrt tgt hall
+      mutable double fCx, fCy, fCz;   // BBox centre wrt NHL prod [m]
+      mutable double fAx1, fAz, fAx2; // Euler angles, extrinsic x-z-x. Tgt-hall to beam
+      //mutable double fBx1, fBx, fBx2; // Tgt-hall to detector frame
 
       mutable double fDx, fDy, fDz; //NHL production point [m]
 

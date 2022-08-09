@@ -37,6 +37,7 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Utils/UnitUtils.h"
+#include "Framework/Utils/PrintUtils.h"
 
 #include "Physics/NeutralHeavyLepton/NHLPrimaryVtxGenerator.h"
 
@@ -117,6 +118,7 @@ namespace NHL {
 #endif // #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
 
     TVector3 ApplyUserRotation( TVector3 vec, bool doBackwards ) const;
+    TVector3 ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::vector<double> rotVec, bool doBackwards ) const;
 
     // --------------------------------------------------
 
@@ -147,6 +149,7 @@ namespace NHL {
     
     mutable double kNewSpeedOfLight = genie::units::kSpeedOfLight * ( genie::units::m / lunits ) / ( genie::units::s / tunits );
 
+    mutable string fGeomFile = "";
     mutable TGeoManager * fGeoManager = 0;
     mutable TGeoVolume * fGeoVolume = 0;
     
@@ -155,9 +158,11 @@ namespace NHL {
     mutable double uMult = 1.0, xMult = 1.0; // these need to be different.
 
     mutable bool fUseBeamMomentum = false; // use this if your detector hall is parallel to tgt hall
-    mutable double fCx, fCy, fCz;
-    mutable double fAx1, fAz, fAx2;
-    mutable std::vector< double > fB2UTranslation, fB2URotation;
+    mutable double fCx, fCy, fCz; // translation: from beamline origin to user origin
+    mutable double fUx, fUy, fUz; // translation: from user origin to detector centre
+    mutable double fAx1, fAz, fAx2; // rotation: from target-hall frame to beam frame
+    mutable double fBx1, fBz, fBx2;  // rotation: from target-hall frame to user frame
+    mutable std::vector< double > fB2UTranslation, fB2URotation, fDetTranslation, fDetRotation;
 
   }; // class NHLDecayVolume
 

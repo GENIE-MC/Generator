@@ -267,9 +267,9 @@ int main(int argc, char ** argv)
   const std::vector< double > confCoups = confsh.GetCouplings();
   const bool confIsMajorana = confsh.GetIsMajorana();
   const int confType = confsh.GetType();
-  const double confAngDev = confsh.GetAngularDeviation();
-  const std::vector< double > confT = confsh.GetBeam2UserTranslation();
-  const std::vector< double > confR = confsh.GetBeam2UserRotation();
+  //const double confAngDev = confsh.GetAngularDeviation();
+  //const std::vector< double > confT = confsh.GetBeam2UserTranslation();
+  //const std::vector< double > confR = confsh.GetBeam2UserRotation();
   const std::vector< NHLDecayMode_t > confIntChan = confsh.GetInterestingChannelsVec();
 
   LOG( "gevgen_nhl", pDEBUG )
@@ -278,11 +278,7 @@ int main(int argc, char ** argv)
     << "\nECoup = " << confCoups.at(0)
     << "\nMCoup = " << confCoups.at(1)
     << "\nTCoup = " << confCoups.at(2)
-    << "\nIsMajorana = " << confIsMajorana
-    << "\nType = " << confType
-    << "\nAngular deviation = " << confAngDev << " deg"
-    << "\nBEAM origin is USER ( " << confT.at(0) << ", " << confT.at(1) << ", " << confT.at(2) << " ) [m]"
-    << "\nEuler angles (extrinsic x-z-x == 1-2-3) are ( " << confR.at(0) << ", " << confR.at(1) << "," << confR.at(2) << " )";
+    << "\nIsMajorana = " << confIsMajorana;
 
   gOptECoupling = confCoups.at(0);
   gOptMCoupling = confCoups.at(1);
@@ -298,6 +294,7 @@ int main(int argc, char ** argv)
   ntpw.Initialize();
 
   // if using dk2nu, add flux info to the tree!
+  // TODO add other formats?
   flux::GNuMIFluxPassThroughInfo * gnmf = 0;
   if( gOptIsUsingDk2nu ) {
     TBranch * flux = ntpw.EventTree()->Branch( "flux",

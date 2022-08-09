@@ -53,6 +53,11 @@ void NHLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
       evrec->SetVertex( gnmf->fgX4User ); // NHL production vertex. NOT where NHL decays to visible FS.
       // construct Particle(0). Don't worry about daughter links at this stage.
       TLorentzVector probeP4 = ( fUseBeamMomentum ) ? gnmf->fgP4 : gnmf->fgP4User;
+      if( fUseBeamMomentum ){
+	TVector3 probeP3 = probeP4.Vect(); TVector3 dumor( 0.0, 0.0, 0.0 );
+	probeP3 = this->ApplyUserRotation( probeP3, dumor, fDetRotation, false ); // active transformation
+	probeP4.SetPxPyPzE( probeP3.X(), probeP3.Y(), probeP3.Z(), probeP4.E() );
+      }
       GHepParticle ptNHL( gnmf->fgPdgC, kIStInitialState, -1, -1, -1, -1, probeP4, gnmf->fgX4User );
       evrec->AddParticle( ptNHL );
     }
@@ -1418,6 +1423,41 @@ TVector3 NHLFluxCreator::ApplyUserRotation( TVector3 vec, bool doBackwards ) con
   return nvec;
 }
 //----------------------------------------------------------------------------
+TVector3 NHLFluxCreator::ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::vector<double> rotVec, bool doBackwards ) const
+{
+  double vx = vec.X(), vy = vec.Y(), vz = vec.Z();
+  double ox = oriVec.X(), oy = oriVec.Y(), oz = oriVec.Z();
+
+  LOG( "NHL", pDEBUG )
+    << "\t original vec [mm] : " << utils::print::Vec3AsString( &vec )
+    << "\t origin vec [mm] : " << utils::print::Vec3AsString( &oriVec );
+  
+  vx -= ox; vy -= oy; vz -= oz; // make this rotation about detector origin
+
+  assert( rotVec.size() == 3 ); // want 3 Euler angles, otherwise this is unphysical.
+  double Ax2 = ( doBackwards ) ? -rotVec.at(2) : rotVec.at(2);
+  double Az  = ( doBackwards ) ? -rotVec.at(1) : rotVec.at(1);
+  double Ax1 = ( doBackwards ) ? -rotVec.at(0) : rotVec.at(0);
+
+  // Ax2 first
+  double x = vx, y = vy, z = vz;
+  vy = y * std::cos( Ax2 ) - z * std::sin( Ax2 );
+  vz = y * std::sin( Ax2 ) + z * std::cos( Ax2 );
+  y = vy; z = vz;
+  // then Az
+  vx = x * std::cos( Az )  - y * std::sin( Az );
+  vy = x * std::sin( Az )  + y * std::cos( Az );
+  x = vx; y = vy;
+  // Ax1 last
+  vy = y * std::cos( Ax1 ) - z * std::sin( Ax1 );
+  vz = y * std::sin( Ax1 ) + z * std::cos( Ax1 );
+
+  // back to beam frame
+  vx += ox; vy += oy; vz += oz;
+  TVector3 nvec( vx, vy, vz );
+  return nvec;
+}
+//____________________________________________________________________________
 double NHLFluxCreator::CalculateDetectorAcceptanceSAA( TVector3 detO ) const
 {
   // sang is solid-angle / 4pi
@@ -1457,6 +1497,7 @@ void NHLFluxCreator::LoadConfig(void)
   
   this->GetParamVect( "Beam2User_T", fB2UTranslation );
   this->GetParamVect( "Beam2User_R", fB2URotation );
+  this->GetParamVect( "Beam2Det_R", fDetRotation );
 
   this->GetParam( "IsParentOnAxis", isParentOnAxis );
   this->GetParam( "UseBeamMomentum", fUseBeamMomentum );
