@@ -50,6 +50,8 @@ void NHLDecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
   startPoint.SetXYZ( fSx, fSy, fSz );
   momentum.SetXYZ( fPx, fPy, fPz );
   
+  if( !fGeoManager )
+    fGeoManager = TGeoManager::Import(fGeomFile.c_str());
   bool didIntersectDet = this->VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, fGeoManager, fGeoVolume );
 
   LOG( "NHL", pDEBUG )
@@ -470,7 +472,8 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   double firstXROOT = firstX * lunits / units::cm,
     firstYROOT = firstY * lunits / units::cm, firstZROOT = firstZ * lunits / units::cm;
   
-  assert( gm );
+  //assert( gm );
+  gm = TGeoManager::Import(fGeomFile.c_str());
   gm->SetCurrentPoint( firstXROOT, firstYROOT, firstZROOT );
   gm->SetCurrentDirection( px, py, pz );
 

@@ -120,6 +120,29 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
 
   LOG( "NHL", pDEBUG ) << "Getting entry " << iEntry;
   ctree->GetEntry(iEntry);
+
+  // explicitly check if there are any allowed decays for this parent
+  bool canGoForward = true;
+  switch( std::abs( decay_ptype ) ){
+  case kPdgPiP:
+    canGoForward = 
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdPion2Muon ) ||
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdPion2Electron ); break;
+  case kPdgKP:
+    canGoForward =
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon2Muon ) || 
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon2Electron ) ||
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon3Muon ) ||
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon3Electron ); break;
+  case kPdgMuon:
+    canGoForward =
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdMuon3Nue ); break; // SM nus are massless so doesn't matter
+  case kPdgK0L:
+    canGoForward =
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdNeuk3Muon ) ||
+      utils::nhl::IsProdKinematicallyAllowed( kNHLProdNeuk3Electron ); break;
+  }
+  if( !canGoForward ){ this->FillNonsense( iEntry, gnmf ); return; }
     
   // turn cm to m and make origin wrt detector 
   fDx = decay_vx * units::cm / units::m;
@@ -171,6 +194,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
 		    parentEnergy ) :
     TLorentzVector( decay_pdpx, decay_pdpy, decay_pdpz, parentEnergy );
 
+  TLorentzVector p4par_beam( decay_pdpx, decay_pdpy, decay_pdpz, parentEnergy );
   if( !isParentOnAxis ){
     // rotate p4par to user coordinates
     TVector3 tmpv3 = ApplyUserRotation( p4par.Vect() );
@@ -180,29 +204,6 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
 
   TVector3 boost_beta = p4par.BoostVector();
 
-  // explicitly check if there are any allowed decays for this parent
-  bool canGoForward = true;
-  switch( std::abs( decay_ptype ) ){
-  case kPdgPiP:
-    canGoForward = 
-      utils::nhl::IsProdKinematicallyAllowed( kNHLProdPion2Muon ) ||
-      utils::nhl::IsProdKinematicallyAllowed( kNHLProdPion2Electron ); break;
-  case kPdgKP:
-    canGoForward =
-      utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon2Muon ) || 
-      utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon2Electron ) ||
-      utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon3Muon ) ||
-      utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon3Electron ); break;
-  case kPdgMuon:
-    canGoForward =
-      utils::nhl::IsProdKinematicallyAllowed( kNHLProdMuon3Nue ); break; // SM nus are massless so doesn't matter
-  case kPdgK0L:
-    canGoForward =
-      utils::nhl::IsProdKinematicallyAllowed( kNHLProdNeuk3Muon ) ||
-      utils::nhl::IsProdKinematicallyAllowed( kNHLProdNeuk3Electron ); break;
-  }
-
-  if( !canGoForward ){ this->FillNonsense( iEntry, gnmf ); return; }
   // now calculate which decay channel produces the NHL.
   dynamicScores = this->GetProductionProbs( decay_ptype );
   assert( dynamicScores.size() > 0 );
@@ -351,10 +352,25 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   
   // calculate acceptance correction
   // first, get minimum and maximum deviation from parent momentum to hit detector in degrees
-  // RETHERE generalise condition in case momentum hits detector
-
+  
+  /*
   double zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par, detO, false );
   double zp = this->GetAngDeviation( p4par, detO, true );
+  */
+
+  //if( !fGeoManager )
+  fGeoManager = TGeoManager::Import(fGeomFile.c_str());
+  double zm = 0.0, zp = 0.0;
+  if( fUseBeamMomentum )
+    this->GetAngDeviation( p4par_beam, detO_beam, fGeoManager, zm, zp );
+  else
+    this->GetAngDeviation( p4par, detO, fGeoManager, zm, zp );
+  if( isParentOnAxis ){ 
+    double tzm = zm, tzp = zp;
+    zm = 0.0;
+    zp = (tzp - tzm)/2.0; // 1/2 * angular opening
+  }
+
   double accCorr = this->CalculateAcceptanceCorrection( p4par, p4NHL_rest, decay_necm, zm, zp );
   
   // also have to factor in boost correction itself... that's same as energy boost correction squared
@@ -1120,6 +1136,182 @@ double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
   return 0.0;
 }
 //----------------------------------------------------------------------------
+void NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, TGeoManager * gm, double &zm, double &zp ) const
+{ 
+  // implementation of GetAngDeviation that uses ROOT geometry. More robust than analytical geom
+  // (fewer assumptions about detector position)
+  
+  LOG( "NHL", pDEBUG )
+    << "Entering GetAngDeviation( TLorentzVector, TVector3, TGeoManager * )...";
+
+  assert( gm );
+  TVector3 ppar = p4par.Vect(); assert( ppar.Mag() > 0.0 );
+  TVector3 pparUnit = ppar.Unit();
+
+  const double sx1 = TMath::Sin(fBx1), cx1 = TMath::Cos(fBx1);
+  const double sz = TMath::Sin(fBz), cz = TMath::Cos(fBz);
+  const double sx2 = TMath::Sin(fBx2), cx2 = TMath::Cos(fBx2);
+
+  const double xun[3] = { cz, -cx1*sz, sx1*sz };
+  const double yun[3] = { sz*cx2, cx1*cz*cx2 - sx1*sx2, -sx1*cz*cx2 - cx1*sx2 };
+  const double zun[3] = { sz*sx2, cx1*cz*sx2 + sx1*cx2, -sx1*cz*sx2 + cx1*cx2 };
+  
+  //--- each unit vector{x,y,z}un has a theta and a phi. Extract these.
+  
+  double thx = TMath::ACos( xun[2] );
+  double phx = 0.0;
+  if( TMath::Sin( thx ) != 0.0 ){
+    double xtmp = TMath::ACos( xun[0] / TMath::Sin( thx ) );
+    phx = ( xun[1] > 0.0 ) ? xtmp : -1.0 * xtmp;
+  }
+  thx *= TMath::RadToDeg(); phx *= TMath::RadToDeg();
+  
+  double thy = TMath::ACos( yun[2] );
+  double phy = 0.0;
+  if( TMath::Sin( thy ) != 0.0 ){
+    double ytmp = TMath::ACos( yun[0] / TMath::Sin( thy ) );
+    phy = ( yun[1] > 0.0 ) ? ytmp : -1.0 * ytmp;
+  }
+  thy *= TMath::RadToDeg(); phy *= TMath::RadToDeg();
+
+  double thz = TMath::ACos( zun[2] );
+  double phz = 0.0;
+  if( TMath::Sin( thz ) != 0.0 ){
+    double ztmp = TMath::ACos( zun[0] / TMath::Sin( thz ) );
+    phz = ( zun[1] > 0.0 ) ? ztmp : -1.0 * ztmp;
+  }
+  thz *= TMath::RadToDeg(); phz *= TMath::RadToDeg();
+
+  /* plane is perpendicular to unit vector zun. Find where the momentum intersects this.
+   * Formula for plane passing through point (x0, y0, z0) and perpendicular to vector (a,b,c) is
+   * a.(x-x0) + b.(y-y0) + c.(z-z0) = 0 (1)
+   * Formula for line passing through point (i0, j0, k0) and parallel to vector (u,v,w) is
+   * (i,j,k)(t) = (i0, j0, k0) + t*(u,v,w) (2)
+   * For x0, y0, z0, i0, j0, k0, a, b, c, u, v, w known, subbing in (2) in (1) gives
+   * a.(u*t - detO.X()) + b.(v*t - detO.Y()) + c.(w*t - detO.Z()) = 0 (3)
+   * ==> (\vec{ppar}.\vec{zun})*t = \vec{zun}.\vec{detO}
+   * ==> t = \vec{zun}.\vec{detO} / \vec{ppar}.\vec{zun} [cm]
+   */
+
+  TVector3 detO_cm( (detO.X() + fDetOffset.at(0)) * units::m / units::cm, 
+		    (detO.Y() + fDetOffset.at(1)) * units::m / units::cm,
+		    (detO.Z() + fDetOffset.at(2)) * units::m / units::cm );
+  double inProd = zun[0] * detO_cm.X() + zun[1] * detO_cm.Y() + zun[2] * detO_cm.Z(); // cm
+  assert( pparUnit.X() * zun[0] + pparUnit.Y() * zun[1] + pparUnit.Z() * zun[2] != 0.0 );
+  inProd /= ( pparUnit.X() * zun[0] + pparUnit.Y() * zun[1] + pparUnit.Z() * zun[2] );
+  const double startPoint[3] = { fDx * units::m / units::cm + inProd * pparUnit.X(),
+				 fDy * units::m / units::cm + inProd * pparUnit.Y(),
+				 fDz * units::m / units::cm + inProd * pparUnit.Z() }; // cm
+  const double sweepVect[3] = { (fCx + fDetOffset.at(0)) * units::m / units::cm - startPoint[0],
+				(fCy + fDetOffset.at(1)) * units::m / units::cm - startPoint[1],
+				(fCz + fDetOffset.at(2)) * units::m / units::cm - startPoint[2] }; // cm
+  const double swvMag = std::sqrt( sweepVect[0]*sweepVect[0] + sweepVect[1]*sweepVect[1] + sweepVect[2]*sweepVect[2] ); assert( swvMag > 0.0 );
+
+  // Note the geometry manager works in the *detector frame*. Transform to that.
+  TVector3 detStartPoint( startPoint[0] - fCx * units::m / units::cm,
+			  startPoint[1] - fCy * units::m / units::cm,
+			  startPoint[2] - fCz * units::m / units::cm );
+  TVector3 detSweepVect( sweepVect[0] / swvMag, sweepVect[1] / swvMag, sweepVect[2] / swvMag );
+
+  TVector3 detPpar = ppar;
+
+  TVector3 dumori(0.0, 0.0, 0.0); // tgt-hall frame origin is 0
+  TVector3 detori( (fDetOffset.at(0)) * units::m / units::cm,
+		   (fDetOffset.at(1)) * units::m / units::cm,
+		   (fDetOffset.at(2)) * units::m / units::cm ); // for rotations of the detector
+
+  LOG( "NHL", pDEBUG )
+    << "\nPURE TRANSLATION HERE. NO ROTATION YET."
+    << "\nStartPoint = " << utils::print::Vec3AsString( &detStartPoint )
+    << "\nSweepVect  = " << utils::print::Vec3AsString( &detSweepVect )
+    << "\nparent p3  = " << utils::print::Vec3AsString( &detPpar );
+  
+  detStartPoint = this->ApplyUserRotation( detStartPoint, detori, fDetRotation, false ); // passive transformation
+  detSweepVect = this->ApplyUserRotation( detSweepVect, dumori, fDetRotation, true );
+  detPpar = this->ApplyUserRotation( detPpar, dumori, fDetRotation, true );
+  
+  // now sweep along sweepVect until we hit either side of the detector. 
+  // This will give us two points in space
+
+  LOG( "NHL", pDEBUG )
+    << "\npparUnit = ( " << pparUnit.X() << ", " << pparUnit.Y() << ", " << pparUnit.Z() << " )"
+    << "\ndetO = ( " << detO_cm.X() << ", " << detO_cm.Y() << ", " << detO_cm.Z() << " ) [cm]"
+    << "\nDecay point = ( " << fDx * units::m / units::cm << ", " << fDy * units::m / units::cm << ", " << fDz * units::m / units::cm << " ) [cm]"
+    << "\nDetector centre at ( " << fCx * units::m / units::cm << ", " << fCy * units::m / units::cm << ", " << fCz * units::m / units::cm << " ) [cm]"
+    << "\nDetector offset is ( " << fDetOffset.at(0) * units::m / units::cm << ", " << fDetOffset.at(1) * units::m / units::cm << ", " << fDetOffset.at(2) * units::m / units::cm << " ) [cm]"
+    << "\ninProd = " << inProd << " [cm]"
+    << "\nDetector rotation in extrinsic x-z-x = ( " << fBx1 << ", " << fBz << ", " << fBx2 << " ) [rad]"
+    << "\nCurrent point (in user coords) = ( " << detStartPoint.X() << ", " << detStartPoint.Y() << ", " << detStartPoint.Z() << " ) [cm]"
+    << "\nCurrent direction = ( " << detSweepVect.X() << ", " << detSweepVect.Y() << ", " << detSweepVect.Z() << " )";
+
+  gm->SetCurrentPoint( detStartPoint.X(), detStartPoint.Y(), detStartPoint.Z() );
+  gm->SetCurrentDirection( detSweepVect.X(), detSweepVect.Y(), detSweepVect.Z() );
+
+  TGeoNode * nextNode = gm->FindNextBoundaryAndStep( );
+  // sometimes the TGeoManager likes to hit the BBox and call this an entry point. Step forward again.
+  const double * tmpPoint = gm->GetCurrentPoint();
+
+  LOG( "NHL", pDEBUG )
+    << "\ntmpPoint = ( " << tmpPoint[0] << ", " << tmpPoint[1] << ", " << tmpPoint[2] << " ) [ local, cm ]";
+
+  /*
+  if( std::abs(tmpPoint[0]) == fLxR/2.0 * units::m / units::cm ||
+      std::abs(tmpPoint[1]) == fLyR/2.0 * units::m / units::cm ||
+      std::abs(tmpPoint[2]) == fLzR/2.0 * units::m / units::cm )
+    nextNode = gm->FindNextBoundaryAndStep();
+  */
+  
+  assert( nextNode != NULL );
+
+  double minusPoint[3] = { (gm->GetCurrentPoint())[0], (gm->GetCurrentPoint())[1], (gm->GetCurrentPoint())[2] };
+  
+  int bdIdx = 0; const int bdIdxMax = 1e+4;
+  double plusPoint[3] = { (gm->GetCurrentPoint())[0], (gm->GetCurrentPoint())[1], (gm->GetCurrentPoint())[2] };
+  while( gm->FindNextBoundaryAndStep() && bdIdx < bdIdxMax ){
+    bdIdx++;
+    if( bdIdx % 100  == 0 )
+      LOG( "NHL", pDEBUG ) << "bdIdx = " << bdIdx;
+    // explicit check against runaway exit
+    if( std::abs( (gm->GetCurrentPoint())[0] ) != fLxR/2.0 * units::m / units::cm &&
+	std::abs( (gm->GetCurrentPoint())[1] ) != fLyR/2.0 * units::m / units::cm &&
+	std::abs( (gm->GetCurrentPoint())[2] ) != fLzR/2.0 * units::m / units::cm ){
+      plusPoint[0] = (gm->GetCurrentPoint())[0];
+      plusPoint[1] = (gm->GetCurrentPoint())[1];
+      plusPoint[2] = (gm->GetCurrentPoint())[2]; 
+    }
+  }
+
+  // with 3 points and 1 vector we calculate the angles.
+  // Points: D(decay), E(entry), X(exit) [all in local, cm]. Vector: detPpar [local, GeV/GeV]
+  // angles are <DE, detPpar> and <DX, detPpar>
+
+  // now obtain the angles themselves and return in deg.
+  TVector3 decVec( (fDx - fCx) * units::m / units::cm, 
+		   (fDy - fCy) * units::m / units::cm, 
+		   (fDz - fCz) * units::m / units::cm );
+  decVec = this->ApplyUserRotation( decVec, detori, fDetRotation, false ); // passive transformation
+  TVector3 minusVec( minusPoint[0] - decVec.X(), minusPoint[1] - decVec.Y(), minusPoint[2] - decVec[2] );
+  TVector3 plusVec( plusPoint[0] - decVec.X(), plusPoint[1] - decVec.Y(), plusPoint[2] - decVec[2] );
+
+  double minusNum = detPpar.X() * minusVec.X() + detPpar.Y() * minusVec.Y() + detPpar.Z() * minusVec.Z();
+  double minusDen = detPpar.Mag() * minusVec.Mag(); assert( minusDen > 0.0 );
+
+  zm = TMath::ACos( minusNum / minusDen ) * TMath::RadToDeg();
+
+  double plusNum = detPpar.X() * plusVec.X() + detPpar.Y() * plusVec.Y() + detPpar.Z() * plusVec.Z();
+  double plusDen = detPpar.Mag() * plusVec.Mag(); assert( plusDen > 0.0 );
+
+  zp = TMath::ACos( plusNum / plusDen ) * TMath::RadToDeg();
+
+  LOG( "NHL", pDEBUG )
+    << "\nIn DETECTOR coordinates:"
+    << "\nentered at ( " << minusPoint[0] << ", " << minusPoint[1] << ", " << minusPoint[2] << " ) [cm]"
+    << "\nexited  at ( " << plusPoint[0] << ", " << plusPoint[1] << ", " << plusPoint[2] << " ) [cm]"
+    << "\nstarted at ( " << decVec.X() << ", " << decVec.Y() << ", " << decVec.Z() << " ) [cm]"
+    << "\nmomentum   ( " << detPpar.X() << ", " << detPpar.Y() << ", " << detPpar.Z() << " )"
+    << "\nmeaning zm = " << zm << ", zp = " << zp << " [deg]";
+}
+//----------------------------------------------------------------------------
 double NHLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLorentzVector p4NHL,
 						      double SMECM, double zm, double zp ) const
 {
@@ -1429,8 +1621,8 @@ TVector3 NHLFluxCreator::ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::
   double ox = oriVec.X(), oy = oriVec.Y(), oz = oriVec.Z();
 
   LOG( "NHL", pDEBUG )
-    << "\t original vec [mm] : " << utils::print::Vec3AsString( &vec )
-    << "\t origin vec [mm] : " << utils::print::Vec3AsString( &oriVec );
+    << "\n original vec : " << utils::print::Vec3AsString( &vec )
+    << "\n origin vec : " << utils::print::Vec3AsString( &oriVec );
   
   vx -= ox; vy -= oy; vz -= oz; // make this rotation about detector origin
 
@@ -1455,6 +1647,7 @@ TVector3 NHLFluxCreator::ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::
   // back to beam frame
   vx += ox; vy += oy; vz += oz;
   TVector3 nvec( vx, vy, vz );
+  LOG( "NHL", pDEBUG ) << "\nFinal vector: " << utils::print::Vec3AsString( &nvec );
   return nvec;
 }
 //____________________________________________________________________________
@@ -1497,6 +1690,7 @@ void NHLFluxCreator::LoadConfig(void)
   
   this->GetParamVect( "Beam2User_T", fB2UTranslation );
   this->GetParamVect( "Beam2User_R", fB2URotation );
+  this->GetParamVect( "DetCentre_User", fDetOffset );
   this->GetParamVect( "Beam2Det_R", fDetRotation );
 
   this->GetParam( "IsParentOnAxis", isParentOnAxis );
@@ -1510,6 +1704,10 @@ void NHLFluxCreator::LoadConfig(void)
   fAz  = fB2URotation.at(1);
   fAx2 = fB2URotation.at(2);
 
+  fBx1 = fDetRotation.at(0);
+  fBz  = fDetRotation.at(1);
+  fBx2 = fDetRotation.at(2);
+
   LOG( "NHL", pDEBUG )
     << "Read the following parameters :"
     << "\n Mass = " << fMass
@@ -1520,3 +1718,16 @@ void NHLFluxCreator::LoadConfig(void)
 
   fIsConfigLoaded = true;
 }
+//____________________________________________________________________________
+void NHLFluxCreator::SetGeomFile( string geomfile ) const
+{
+  fGeomFile = geomfile;
+}
+//____________________________________________________________________________
+void NHLFluxCreator::ImportBoundingBox( TGeoBBox * box ) const
+{
+  fLxR = 2.0 * box->GetDX() * units::cm / units::m;
+  fLyR = 2.0 * box->GetDY() * units::cm / units::m;
+  fLzR = 2.0 * box->GetDZ() * units::cm / units::m;
+}
+//____________________________________________________________________________

@@ -118,6 +118,8 @@ namespace genie{
       int GetNEntries() const;
 
       void SetFirstEntry( int iFirst ) const;
+      void SetGeomFile( string geomfile ) const;
+      void ImportBoundingBox( TGeoBBox * box ) const;
 
       // FluxReader-inherited functions
       // only if not using dk2nu!
@@ -168,6 +170,7 @@ namespace genie{
       static double labangle( double * x, double * par ); // function formula for correction
       // get minimum and maximum deviation from parent momentum to hit detector, [deg]
       double GetAngDeviation( TLorentzVector p4par, TVector3 detO, bool seekingMax ) const;
+      void GetAngDeviation( TLorentzVector p4par, TVector3 detO, TGeoManager * gm, double &zm, double &zp ) const;
       // returns 1.0 / (area of flux calc)
       double CalculateAreaNormalisation();
 
@@ -191,19 +194,24 @@ namespace genie{
 
       mutable bool isParentOnAxis = true;
       mutable bool fUseBeamMomentum = false; // use this if your detector hall is parallel to tgt hall
+      mutable TGeoManager * fGeoManager = 0;
+      mutable TGeoVolume * fTopVol = 0;
+      mutable string fGeomFile;
 
       mutable TChain * ctree = 0, * cmeta = 0;
 
       mutable double fMass; // NHL mass, GeV
       mutable std::vector< double > fU4l2s; // couplings
       
-      mutable double fLx, fLy, fLz;   //BBox length [m]
+      mutable double fLx, fLy, fLz;
+      mutable double fLxR, fLyR, fLzR; // BBox side [m]
 
       mutable std::vector< double > fB2UTranslation, fB2URotation;
       mutable std::vector< double > fDetRotation; // rotation of detector wrt tgt hall
+      mutable std::vector< double > fDetOffset; // offset of det centre wrt geom file origin
       mutable double fCx, fCy, fCz;   // BBox centre wrt NHL prod [m]
       mutable double fAx1, fAz, fAx2; // Euler angles, extrinsic x-z-x. Tgt-hall to beam
-      //mutable double fBx1, fBx, fBx2; // Tgt-hall to detector frame
+      mutable double fBx1, fBz, fBx2; // Tgt-hall to detector frame
 
       mutable double fDx, fDy, fDz; //NHL production point [m]
 

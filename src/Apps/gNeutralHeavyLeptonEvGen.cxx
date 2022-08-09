@@ -376,6 +376,7 @@ int main(int argc, char ** argv)
 	<< "Using input flux files. These are *flat dk2nu-like ROOT trees, so far...*";
 
       fluxCreator->SetInputPath( gOptFluxFilePath );
+      fluxCreator->SetGeomFile( gOptRootGeom );
       LOG( "gevgen_nhl", pDEBUG ) << "Input path set";
       int maxFluxEntries = fluxCreator->GetNEntries();
       LOG( "gevgen_nhl", pDEBUG )
@@ -645,11 +646,14 @@ void InitBoundingBox(void)
   TGeoBBox *  box = (TGeoBBox *)ts;
 
   const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLDecayVolume", "Default");
+  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLFluxCreator", "Default");
 
   const NHLDecayVolume * dkVol = dynamic_cast< const NHLDecayVolume * >( algDkVol );
+  const NHLFluxCreator * fluxCreator = dynamic_cast< const NHLFluxCreator * >( algFluxCreator );
   
-  // pass this box to NHLDecayVolume
+  // pass this box to NHLDecayVolume and NHLFluxCreator
   dkVol->ImportBoundingBox( box );
+  fluxCreator->ImportBoundingBox( box );
 
   //get box origin and dimensions (in the same units as the geometry)
   fdx = box->GetDX();
