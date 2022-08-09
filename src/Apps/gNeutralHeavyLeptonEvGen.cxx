@@ -417,7 +417,7 @@ int main(int argc, char ** argv)
     assert( ievent >= gOptFirstEvent && gOptFirstEvent >= 0 );
       
      LOG("gevgen_nhl", pNOTICE)
-          << " *** Generating event............ " << ievent;
+       << " *** Generating event............ " << (ievent-gOptFirstEvent);
 
      EventRecord * event = new EventRecord;
      event->SetWeight(1.0);
@@ -435,7 +435,7 @@ int main(int argc, char ** argv)
 	 }
        } else { // get a full NHL from flux tuples
 	 LOG( "gevgen_nhl", pDEBUG )
-	   << "Making NHL from tuple for event " << ievent;
+	   << "Making NHL from tuple for event " << (ievent-gOptFirstEvent);
 	 fluxCreator->ProcessEventRecord( event );
 	 gnmf = fluxCreator->RetrieveGNuMIFluxPassThroughInfo();
 	 
