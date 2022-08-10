@@ -193,7 +193,7 @@
 ￼  <priority msgstream="ReinSehgalResCF">       NOTICE </priority>
   <priority msgstream="ReinSehgalSpp">         NOTICE </priority>
   <priority msgstream="RSHAmpl">               WARN   </priority>
-  <priority msgstream="RSPPEventGen">          NOTICE </priority>
+  <priority msgstream="MKSPPEventGen">          NOTICE </priority>
   <priority msgstream="Registry">              WARN   </priority>
   <priority msgstream="ReW">                   NOTICE </priority>
   <priority msgstream="RESHadronicVtx">        WARN   </priority>

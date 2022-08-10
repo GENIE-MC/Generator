@@ -173,7 +173,7 @@
   <priority msgstream="QELEvent">              FATAL </priority>
   <priority msgstream="QELHadronicVtx">        FATAL </priority>
   <priority msgstream="QELKinematics">         FATAL </priority>
-  <priority msgstream="RSPPEventGen">          FATAL  </priority>
+  <priority msgstream="MKSPPEventGen">          FATAL  </priority>
   <priority msgstream="RESXSec">               FATAL </priority>
   <priority msgstream="RESPXSec">              FATAL </priority>
   <priority msgstream="ReinSehgalCohPi">       FATAL </priority>
