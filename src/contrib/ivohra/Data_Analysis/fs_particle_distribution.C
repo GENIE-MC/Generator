@@ -39,7 +39,7 @@
 
 
 
-void exercise3()
+void fs_particle_distribution()
 {
 
 using namespace genie;
@@ -162,7 +162,7 @@ myHist->GetYaxis()->SetBinLabel(x.second, part->GetName());
    normh->Scale(1./normh->GetEntries());
   normh->SetStats(false);
 
-TFile *outfile = new TFile("exercise3.root","RECREATE"); 
+TFile *outfile = new TFile("fs_particle_distribution.root","RECREATE"); 
 outfile->cd();
 normh->Write();   
 outfile->Close();
