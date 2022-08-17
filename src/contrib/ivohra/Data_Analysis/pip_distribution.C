@@ -36,7 +36,7 @@
 
 
 
-void exercise2()
+void pip_distribution()
 {
 
 using namespace genie;
@@ -100,7 +100,7 @@ auto myHist = new TH1D("h1","Distribution of Number of π+ Produced in Each Even
    normh->SetStats(false);
 
 
-TFile *outfile = new TFile("exercise2.root","RECREATE"); 
+TFile *outfile = new TFile("pip_distribution.root","RECREATE"); 
 outfile->cd();
 normh->Write();   
 outfile->Close();
