@@ -35,7 +35,7 @@
 
 
 
-void exercise1()
+void scattering_type_interaction_type()
 {
 
 using namespace genie;
@@ -97,7 +97,7 @@ myHist->Fill(proc.ScatteringTypeId(), proc.InteractionTypeId());
   }
 
 myHist->SetStats(false);
-TFile *outfile = new TFile("exercise1.root","RECREATE"); 
+TFile *outfile = new TFile("scattering_type_interaction_type.root","RECREATE"); 
 outfile->cd();
 myHist->Write();   
 outfile->Close();
