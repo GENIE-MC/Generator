@@ -88,9 +88,7 @@ double DCCEMSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps
   double Q2  = kinematics.Q2();
   double W   = kinematics.W();
   double W2  = W*W;
-  double Wt2 = W*2;
-
-
+  
   // dimension of kine phase space
   std::string s = KinePhaseSpace::AsString(kps);
   int kpsdim = s!="<|E>"?1 + std::count(s.begin(), s.begin()+s.find('}'), ','):0;
@@ -106,21 +104,27 @@ double DCCEMSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps
   double CosHalfTheta = TMath::Sqrt((1 + CosTheta)/2);
 
   PDGLibrary * pdglib = PDGLibrary::Instance();
-
-  // imply isospin symmetry
-  double m_pi  = (pdglib->Find(kPdgPiP)->Mass() + pdglib->Find(kPdgPi0)->Mass() + pdglib->Find(kPdgPiM)->Mass())/3;
+  double MN   = pdglib->Find(SppChannel::InitStateNucleon(spp_channel))->Mass();
+  double MN2  = MN*MN;
+  double mpi  = pdglib->Find(SppChannel::FinStatePion(spp_channel))->Mass();
   double m_pi2 = m_pi*m_pi;
 
-  double M = (pdglib->Find(kPdgProton)->Mass() + pdglib->Find(kPdgNeutron)->Mass())/2;
-  double M2  = M*M;
-  double Mt2 = M*2;
 
-  double q_0               = (W2 - M2 + m_pi2)/Wt2;
-  double q_02              = q_0*q_0;
-  double k_0               = (W2 - M2 - Q2)/Wt2;
-  double abs_mom_q         = TMath::Sqrt(q_02 - m_pi2);
-  double abs_mom_k         = TMath::Sqrt(k_0*k_0 + Q2);
-  //double E_2L              = (M2 - W2 - Q2 + Mt2*E)/Mt2;
+  // Eq. 14 of ref. 4
+  double omega             = (W2 - MN2 - Q2)/2./W;
+  // Eq. 15 of ref. 4
+  double q                 = TMath::Sqrt(Q2 + omega*omega);
+  // Eq. 16 of ref. 4
+  double k0                = (W2 - M2 + m_pi2)/2./W;
+  double k                 = TMath::Sqrt(k0*k0 - mpi2);
+  // Eq. 17 of ref. 4
+  double q_gamma           = (W2 - MN2)/2./W;
+  // Eq. 3 of ref. 4
+  double qL                = (W2 - MN2)/2./MN;
+  // Eq. 4 of ref. 4
+  double epsilon           = (1 + 2*)
+  
+    
   double abs_mom_k_L       = W*abs_mom_k/M;
   double abs_mom_k_L2      = abs_mom_k_L*abs_mom_k_L;
   double k_2               = (M2 + Mt2*E - W2 -ml2)/Wt2;
