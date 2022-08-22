@@ -32,6 +32,8 @@
 #   [--with-priority]  : (boolean) set a prioirty to optimize bulk productions. Default false
 #   [--run-one]        : (boolean) If called, one of the jobs is run as part of the script instead of submitted
 #                        via the batch system. Default all the jobs are submitted
+#   [--fnal-subjob]   : (boolean) Call if the job is a subjob of the main script to run at the FNAL grid
+#   [--fnal-subfile]  : name of sumibmission file to be stored  
 #
 #
 # Author:
@@ -64,12 +66,14 @@ foreach (@ARGV) {
   if($_ eq '--freenucsplines') { $freenucsplines = $ARGV[$iarg+1]; }
   if($_ eq '--free-nuc-dir' )  { $free_nuc_dir   = $ARGV[$iarg+1]; }
   if($_ eq '--gen-list'   )    { $req_gen_list   = $ARGV[$iarg+1]; }
-  if($_ eq '--target-list'   ) { $target_list	   = $ARGV[$iarg+1]; }
+  if($_ eq '--target-list'   ) { $target_list	 = $ARGV[$iarg+1]; }
   if($_ eq '--nu-list'   )     { $req_nu_list    = $ARGV[$iarg+1]; }
-  if($_ eq '--e-max' )         { $e_max	        = $ARGV[$iarg+1]; }
-  if($_ eq '--n-knots' )       { $n_knots    	  = $ARGV[$iarg+1]; }
+  if($_ eq '--e-max' )         { $e_max	         = $ARGV[$iarg+1]; }
+  if($_ eq '--n-knots' )       { $n_knots    	 = $ARGV[$iarg+1]; }
   if($_ eq '--with-priority' ) { $priority       = 1; }
   if($_ eq '--run-one' )       { $run_one        = 1; }
+  if($_ eq '--fnal-subjob' )   { $fnal_subjob	 = 1; }
+  if($_ eq '--fnal-subfile' )  { $fnal_subfile	 = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
@@ -88,16 +92,30 @@ if ( $batch_system eq 'LyonPBS' ) {
 if ( $batch_system eq 'LyonSlurm' ) {
     $queue_default  = "htc" ;
 }
+if ( $batch_system eq 'FNAL' ) { 
+    $queue_default = "genie" ; 
+}
 $queue          = $queue_default                unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = $ENV{'PWD'}                   unless defined $jobs_topdir;
+$genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
+if ( $batch_system eq 'FNAL' ){
+    $genie_setup = "setup.sh";
+}
 $freenucsplines = "$softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml" unless defined $freenucsplines;
+# Define path to free nucleon spline
+if ( defined $free_nuc_dir ) {
+    $in_splines=$free_nuc_dir."/"."total_xsec.xml";
+}
+else {
+    $in_splines = $freenucsplines;
+}
 $priority       = 0                             unless defined $priority ;
 $e_max          = 200                           unless defined $e_max ;
 $n_knots        = 100                           unless defined $n_knots ;
+$fnal_subfile   = "fnal_vA"                     unless defined $fnal_subfile ;
+$fnal_subjob    = 0                             unless defined $fnal_subjob ;
 
-
-$genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec\_vA";
 
 %nu_pdg_def = ( 've'      =>   12,
@@ -140,8 +158,7 @@ print "\n Neutrino List: @nu_list \n";
 @nuclei_proc_def = ( 'none',
                      'WeakMEC',
                      'CCCOHPION',    'NCCOHPION',
-                     'Fast'
-	             );
+                     'Fast' );
 
 # create the lsit of processes to be generated for composite nuclei
 if ( defined $req_gen_list ) {
@@ -172,11 +189,34 @@ else {
 }
 print "\n Target List: @tgt_pdg \n";
 
-
 #
 # make the jobs directory
 #
 mkpath ($jobs_dir, {verbose => 1, mode=>0777});
+
+# Store information required to setup requirements at the FNAL grid
+if($batch_system eq 'FNAL'){
+    if( ! $fnal_subjob ) {
+	open(FNAL, ">", "$fnal_subfile.fnal") or die("Can not create the slurm batch script");
+	print FNAL "#!/bin/bash \n";
+	print FNAL "source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups \n";
+	print FNAL "setup fife_utils \n\n";
+
+	$fnal_opt  = "-G $queue --memory=1GB --disk=20GB --expected-lifetime=8h -N 1 --role=Analysis ";
+	$fnal_opt .= "-f $jobs_topdir/$genie_setup -f $in_splines ";
+	$fnal_opt .= "-d OUTPUT $jobs_dir ";
+	$fnal_opt .= "--resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE ";
+  
+	print FNAL "jobsub_submit_dag $fnal_opt file://$fnal_subfile.xml\n"; 
+	close(FNAL);
+
+        # Open xml file
+	open(FNAL, ">>", "$fnal_subfile.xml") or die("Can not create the slurm batch script");
+	print FNAL "<parallel> \n";
+	close(FNAL);
+
+    }
+}
 
 @batch_commands = ();
 @direct_commands = () ;
@@ -200,12 +240,6 @@ foreach $nu ( @nu_list ) {
       $jobname  = $nu."_on_".$tgt."_$proc";
       $filename_template = "$jobs_dir/$jobname";
       $grep_pipe  = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
-      if ( defined $free_nuc_dir ) {
-        $in_splines=$free_nuc_dir."/"."total_xsec.xml";
-      }
-      else {
-        $in_splines = $freenucsplines;
-      }
       $gmkspl_opt = "-p $nu_pdg_def{$nu} -t $tgt -n $n_knots -e $e_max --input-cross-sections $in_splines --output-cross-sections $filename_template.xml --event-generator-list $event_gen_list --no-copy";
       $gmkspl_opt .= " --tune $tune " if ( defined $tune ) ;
       $gmkspl_cmd = "gmkspl $gmkspl_opt ";
@@ -320,6 +354,19 @@ foreach $nu ( @nu_list ) {
 	push( @batch_commands, "sbatch $batch_script" );
       } #slurm
 
+      # FNAL farm
+      if($batch_system eq 'FNAL'){
+	  open(FNAL, ">>", "$fnal_subfile.xml") or die("Can not create the slurm batch script");
+	  $fnal_opt  = "-n --memory=1GB --disk=20GB --expected-lifetime=8h ";
+	  $fnal_opt .= "-f $jobs_topdir/$genie_setup -f $in_splines ";
+	  $fnal_opt .= "-d OUTPUT $jobs_dir ";
+	  $fnal_opt .= "--resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE ";  
+	  print FNAL "jobsub_submit $fnal_opt file://$shell_script\n"; 
+
+	  close(FNAL);
+      } #FNAL
+      
+
       # run interactively
     }
   }
@@ -328,13 +375,18 @@ foreach $nu ( @nu_list ) {
 
 if ( $batch_system eq 'none' ) {
     ## run all of them interactively
-
+    
     for my $run_cmd ( @direct_commands ) {
 	print "Executin: $run_cmd \n" ;
 	`$run_cmd` ;
     }
-}
-else {
+} elsif ($batch_system eq 'FNAL') {
+    if( ! $fnal_subjob ){
+	open(FNAL, ">>", "$fnal_subfile.xml") or die("Can not create the slurm batch script");
+	print FNAL "</parallel> \n";
+	close(FNAL);
+    }
+} else {
     ## submit all except the first
     foreach my $i ( 1 .. $#batch_commands ) {
         `$batch_commands[$i]` ;
@@ -348,5 +400,5 @@ else {
     else {
         `$batch_commands[0]` ;
     }
-
 }
+    

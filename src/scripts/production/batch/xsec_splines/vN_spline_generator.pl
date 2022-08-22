@@ -26,6 +26,8 @@
 #   [--with-priority] : (boolean) set a priority to optimize bulk productions. Default false
 #   [--run-one]       : (boolean) If called, one of the jobs is run as part of the script instead of submitted
 #                       via the batch system. Default all the jobs are submitted
+#   [--fnal-subjob]   : (boolean) Call if the job is a subjob of the main script to run at the FNAL grid
+#   [--fnal-subfile]  : name of sumibmission file to be stored  
 #
 # Examples:
 #   shell% perl submit_vN_xsec_calc_jobs.pl --version v2.6.0
@@ -59,11 +61,13 @@ foreach (@ARGV) {
   if($_ eq '--softw-topdir')   { $softw_topdir  = $ARGV[$iarg+1]; }
   if($_ eq '--jobs-topdir')    { $jobs_topdir   = $ARGV[$iarg+1]; }
   if($_ eq '--gen-list'   )    { $req_gen_list  = $ARGV[$iarg+1]; }
-  if($_ eq '--nu-list' )       { $req_nu_list	  = $ARGV[$iarg+1]; }
+  if($_ eq '--nu-list' )       { $req_nu_list	= $ARGV[$iarg+1]; }
   if($_ eq '--e-max' )         { $e_max	        = $ARGV[$iarg+1]; }
-  if($_ eq '--n-knots' )       { $n_knots    	  = $ARGV[$iarg+1]; }
-  if($_ eq '--with-priority' ) { $priority	    = 1; }
-  if($_ eq '--run-one' )       { $run_one	      = 1; }
+  if($_ eq '--n-knots' )       { $n_knots    	= $ARGV[$iarg+1]; }
+  if($_ eq '--with-priority' ) { $priority      = 1; }
+  if($_ eq '--run-one' )       { $run_one       = 1; }
+  if($_ eq '--fnal-subjob' )   { $fnal_subjob	= 1; }
+  if($_ eq '--fnal-subfile' )  { $fnal_subfile	= $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
@@ -82,14 +86,24 @@ if ( $batch_system eq 'LyonPBS' ) {
 if ( $batch_system eq 'LyonSlurm' ) {
     $queue_default  = "htc" ;
 }
+if ( $batch_system eq 'FNAL' ) { 
+    $queue_default = "genie" ; 
+}
 $queue          = $queue_default                unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = $ENV{'PWD'}                   unless defined $jobs_topdir;
 $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
+if ( $batch_system eq 'FNAL' ){
+    $genie_setup = "setup.sh";
+}
 $jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec\_vN";
 $priority       = 0                             unless defined $priority ;
 $e_max          = 200                           unless defined $e_max ;
 $n_knots        = 100                           unless defined $n_knots ;
+$fnal_subjob    = 0                             unless defined $fnal_subjob ;
+$fnal_subfile   = "fnal_vN"                     unless defined $fnal_subfile ;
+$batch_script = "$fnal_subfile.fnal";
+$xml_script = "$fnal_subfile.xml";
 
 
 %nucleons_pdg = ( 'n'  =>  1000000010,
@@ -155,6 +169,33 @@ print "Process List: @nucleons_proc_list \n";
 print "@@ Creating job directory: $jobs_dir \n";
 mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 
+# Store information required to setup requirements at the FNAL grid
+if($batch_system eq 'FNAL'){
+    if( ! $fnal_subjob ) {
+	open(FNAL, ">", "$batch_script") or die("Can not create the slurm batch script");
+	print FNAL "#!/bin/bash \n";
+	print FNAL "source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups \n";
+	print FNAL "setup fife_utils \n\n";
+	$fnal_opt  = "-G $queue --memory=1GB --disk=20GB --expected-lifetime=8h -N 1 --role=Analysis ";
+#	$fnal_opt .= "--lines '+FERMIHTC_AutoRelease=True' ";
+#	$fnal_opt .= "--lines '+FERMIHTC_GraceMemory=4096' --lines '+FERMIHTC_GraceLifetime=6000' ";
+#	$fnal_opt .= "-l '+SingularityImage=\"/cvmfs/singularity.opensciencegrid.org/fermilab/fnal-wn-sl7:latest\"' --append_condor_requirements='(TARGET.HAS_Singularity==true)' ";
+	$fnal_opt .= "-f $jobs_topdir/$genie_setup ";
+	$fnal_opt .= "-d OUTPUT $jobs_dir ";
+	$fnal_opt .= "--resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE ";
+  
+	print FNAL "jobsub_submit_dag $fnal_opt file://$xml_script\n"; 
+	
+	close(FNAL);
+
+        # Open xml file
+	open(FNAL, ">>", "$xml_script") or die("Can not create the slurm batch script");
+	print FNAL "<parallel> \n";
+	close(FNAL);
+ 
+    }
+}
+
 foreach $nu ( @nu_list ) {
   foreach $tgt ( keys %nucleons_pdg ) {
     foreach $proc ( @nucleons_proc_list ) {
@@ -184,7 +225,15 @@ foreach $nu ( @nu_list ) {
 
       $grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
       $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-      $gmkspl_opt    = "-p $nu_pdg_def{$nu} -t $nucleons_pdg{$tgt} -n $n_knots -e $e_max -o $filename_template.xml --event-generator-list $event_gen_list ";
+      $gmkspl_opt    = "-p $nu_pdg_def{$nu} -t $nucleons_pdg{$tgt} -n $n_knots -e $e_max --event-generator-list $event_gen_list ";
+
+      if( $batch_system eq 'FNAL' ) {
+	  $gmkspl_opt   .= "-o $jobname.xml ";
+      }
+      else {
+	  $gmkspl_opt   .= "-o $filename_template.xml ";
+      }
+
       if ( defined $tune ) {
 	  $gmkspl_opt.= " --tune $tune ";
       }
@@ -196,8 +245,14 @@ foreach $nu ( @nu_list ) {
       $shell_script = "$filename_template.sh";
       open(COMMANDS, ">$shell_script") or die("Can not create the bash script");
       print COMMANDS "#!/bin/bash \n";
-      print COMMANDS "cd $jobs_dir \n";
-      print COMMANDS "source $genie_setup $config_dir \n";
+     
+      if($batch_system ne 'FNAL'){
+	  print COMMANDS "cd $jobs_dir \n";
+	  print COMMANDS "source $genie_setup $config_dir \n";
+      } else {
+	  print COMMANDS "cd \$CONDOR_DIR_INPUT\n\n";
+	  print COMMANDS "source $genie_setup $config_dir \n\n";
+      }
       print COMMANDS "$gmkspl_cmd \n";
       close(COMMANDS);
 
@@ -206,7 +261,6 @@ foreach $nu ( @nu_list ) {
       
       push( @direct_commands, "bash $filename_template.sh" ) ;
 
-      
       # PBS case
       if($batch_system eq 'PBS' || $batch_system eq 'HTCondor_PBS') {
          $batch_script = "$filename_template.pbs";
@@ -298,31 +352,44 @@ foreach $nu ( @nu_list ) {
 
       } #slurm
 
+      # FNAL farm
+      if($batch_system eq 'FNAL'){
+	  open(FNAL, ">>", "$xml_script") or die("Can not create the slurm batch script");
+	  
+	  $fnal_opt  = "-n --memory=1GB --disk=20GB --expected-lifetime=8h ";
+	  $fnal_opt .= "-f $jobs_topdir/$genie_setup ";
+	  $fnal_opt .= "-d OUTPUT $jobs_dir ";
+	  $fnal_opt .= "--resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE ";  
+	  print FNAL "jobsub_submit $fnal_opt file://$shell_script\n"; 
+
+	  close(FNAL);
+      } #slurm
+      
     }
   }
 }
 
-
 #
 # submit
 #
-
-
-
 
 if ( $batch_system eq 'none' ) {
     ## run all of them interactively
     for my $run_cmd ( @direct_commands ) {
 	print "Executing: $run_cmd \n" ; 
 	`$run_cmd` ;
+   }
+} elsif ($batch_system eq 'FNAL') {
+    if( ! $fnal_subjob ){
+	open(FNAL, ">>", "$xml_script") or die("Can not create the slurm batch script");
+	print FNAL "</parallel> \n";
+	close(FNAL);
     }
-}
-else {
+} else {
     ## submit all except the first
     foreach my $i ( 1 .. $#batch_commands ) {
 	`$batch_commands[$i]` ;
     }
-
     # handle the first according to script options
     if ( defined $run_one ) {
 	print "Executing: $direct_commands[0] \n" ;
@@ -331,5 +398,4 @@ else {
     else {
 	`$batch_commands[0]` ;
     }
-
 }
