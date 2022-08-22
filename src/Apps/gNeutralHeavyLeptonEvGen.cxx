@@ -399,7 +399,7 @@ int main(int argc, char ** argv)
   }
 
   // Event loop
-  int ievent = 0;
+  int ievent = gOptFirstEvent, iflux = gOptFirstEvent;
   
   while (1)
   {
@@ -437,13 +437,15 @@ int main(int argc, char ** argv)
        } else { // get a full NHL from flux tuples
 	 LOG( "gevgen_nhl", pDEBUG )
 	   << "Making NHL from tuple for event " << (ievent-gOptFirstEvent);
+	 fluxCreator->SetCurrentEntry( iflux );
 	 fluxCreator->ProcessEventRecord( event );
 	 gnmf = fluxCreator->RetrieveGNuMIFluxPassThroughInfo();
 	 
 	 // check to see if this was nonsense
-	 if( ! event->Particle(0) ) continue;
+	 if( ! event->Particle(0) ){ iflux++; continue; }
 
 	 gOptEnergyNHL = event->Particle(0)->GetP4()->E();
+	 iflux++;
        }
 
      }
