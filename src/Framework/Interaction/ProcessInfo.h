@@ -80,6 +80,7 @@ public:
   bool IsEM                      (void) const;
   bool IsWeak                    (void) const;
   bool IsWeakCC                  (void) const;
+  bool IsWeakECC                 (void) const;
   bool IsWeakNC                  (void) const;
   bool IsWeakMix                 (void) const;
   bool IsDarkMatter              (void) const;

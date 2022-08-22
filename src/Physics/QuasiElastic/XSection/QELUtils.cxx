@@ -328,7 +328,7 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
       const genie::ProcessInfo& info = interaction.ProcInfo();
       double Qvalue = 0.;
       double Q_LFG = 0.;
-      if ( info.IsWeakCC() ) {
+      if ( info.IsWeakCC() || info.IsWeakECC() ) {
         // Without nucleon removal, the final nucleon number remains the same
         int Af = tgt->A();
         // For CC interactions, the proton number will change by one. Choose
@@ -336,10 +336,10 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
         // or an antineutrino.
         int Zf = tgt->Z();
         int probe_pdg = interaction.InitState().ProbePdg();
-        if ( genie::pdg::IsAntiNeutrino(probe_pdg) ) {
+        if ( (info.IsWeakCC() && genie::pdg::IsAntiNeutrino(probe_pdg)) || (info.IsWeakECC() && genie::pdg::IsNegChargedLepton(probe_pdg)) ) {
           --Zf;
         }
-        else if ( genie::pdg::IsNeutrino(probe_pdg) ) {
+        else if ( (info.IsWeakCC() && genie::pdg::IsNeutrino(probe_pdg)) || (info.IsWeakECC() && genie::pdg::IsPosChargedLepton(probe_pdg)) ) {
           ++Zf;
         }
         else {

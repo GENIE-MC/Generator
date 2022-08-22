@@ -35,6 +35,7 @@ typedef enum EInteractionType {
   kIntNull   = 0,
   kIntEM,          //
   kIntWeakCC,      //
+  kIntWeakECC,     // CC electron ptobe
   kIntWeakNC,      //
   kIntWeakMix,     // CC + NC + interference
   kIntDarkMatter,  //
@@ -57,6 +58,7 @@ public:
 
       case(kIntEM)         : return "EM";                        break;
       case(kIntWeakCC)     : return "Weak[CC]";                  break;
+      case(kIntWeakECC)    : return "Weak[ECC]";                  break;
       case(kIntWeakNC)     : return "Weak[NC]";                  break;
       case(kIntWeakMix)    : return "Weak[CC+NC+interference]";  break;
       case(kIntDarkMatter) : return "DarkMatter";                break;

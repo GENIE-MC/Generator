@@ -33,5 +33,19 @@ Name             Type     Optional   Comment               Default
        <param type="bool" name="is-Strange"> true  </param>
   </param_set> 
 
+  <param_set name="ECC-Default"> 
+        <param type="bool" name="is-ECC"> true  </param>
+  </param_set>
+  
+  <param_set name="ECC-Charm-Default"> 
+        <param type="bool" name="is-ECC">    true  </param>
+        <param type="bool" name="is-Charm"> true  </param>
+  </param_set>
+  
+  <param_set name="ECC-Lambda-Default"> 
+       <param type="bool" name="is-ECC">      true  </param>
+       <param type="bool" name="is-Strange"> true  </param>
+  </param_set> 
+
 </alg_conf>
 

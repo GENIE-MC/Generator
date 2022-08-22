@@ -177,12 +177,17 @@ bool ProcessInfo::IsEM(void) const
 //____________________________________________________________________________
 bool ProcessInfo::IsWeak(void) const
 {
-  return ( this->IsWeakCC() || this->IsWeakNC() || this->IsWeakMix());
+  return ( this->IsWeakCC() || this->IsWeakNC() || this->IsWeakMix() || this->IsWeakECC() );
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsWeakCC(void) const
 {
   return (fInteractionType == kIntWeakCC);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsWeakECC(void) const
+{
+  return (fInteractionType == kIntWeakECC);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsWeakNC(void) const

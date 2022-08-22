@@ -116,6 +116,8 @@ public:
   static Interaction * DISEM     (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
   static Interaction * QELCC     (int tgt, int nuc, int probe, double E=0);
   static Interaction * QELCC     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * QELECC    (int tgt, int nuc, int probe, double E=0);
+  static Interaction * QELECC    (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * QELNC     (int tgt, int nuc, int probe, double E=0);
   static Interaction * QELNC     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * QELEM     (int tgt, int nuc, int probe, double E=0);

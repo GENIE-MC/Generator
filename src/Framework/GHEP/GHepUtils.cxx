@@ -46,6 +46,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
   const Target &       tgt  = init.Tgt();
 
   bool is_cc    = proc.IsWeakCC();
+  bool is_ecc    = proc.IsWeakECC();
   bool is_nc    = proc.IsWeakNC();
   bool is_charm = xcls.IsCharmEvent();
   bool is_qel   = proc.IsQuasiElastic();
@@ -298,6 +299,7 @@ int genie::utils::ghep::NuanceReactionCode(const GHepRecord * event)
   const InitialState & init = interaction->InitState();
   if      (proc.IsQuasiElastic()   && proc.IsWeakCC()) evtype =  1;
   else if (proc.IsQuasiElastic()   && proc.IsWeakNC()) evtype =  2;
+  else if (proc.IsQuasiElastic()   && proc.IsWeakECC()) evtype =  81;
   else if (proc.IsDeepInelastic()  && proc.IsWeakCC()) evtype = 91;
   else if (proc.IsDeepInelastic()  && proc.IsWeakNC()) evtype = 92;
   else if (proc.IsCoherentProduction() && proc.IsWeakNC()) evtype = 96;

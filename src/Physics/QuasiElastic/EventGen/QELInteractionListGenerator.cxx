@@ -41,8 +41,11 @@ InteractionList * QELInteractionListGenerator::CreateInteractionList(
   LOG("IntLst", pINFO)
      << "InitialState = " << init_state.AsString();
 
-  if (fIsCC && !fIsCharm && !fIsStrange)
+  if (fIsCC && !fIsCharm && !fIsStrange && !fIsECC)
      return this->CreateInteractionListCC(init_state);
+  else
+  if (fIsECC && !fIsCharm && !fIsStrange)
+     return this->CreateInteractionListECC(init_state);
   else
   if (fIsNC && !fIsCharm && !fIsStrange)
      return this->CreateInteractionListNC(init_state);
@@ -55,6 +58,12 @@ InteractionList * QELInteractionListGenerator::CreateInteractionList(
   else
   if (fIsCC &&  fIsStrange)
      return this->CreateInteractionListStrangeCC(init_state);
+  //else 
+  //if (fIsECC &&  fIsCharm)
+  //   return this->CreateInteractionListCharmECC(init_state);
+  //else
+  //if (fIsECC &&  fIsStrange)
+  //   return this->CreateInteractionListStrangeECC(init_state);
   else {
      LOG("IntLst", pWARN)
        << "Unknown InteractionType! Returning NULL InteractionList "
@@ -82,7 +91,7 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListCC(
 
   if(!isnu && !isnubar) {
      LOG("IntLst", pWARN)
-       << "Can not handle probe! Returning NULL InteractionList "
+       << "CC Can not handle probe! Returning NULL InteractionList "
        << "for init-state: " << init_state.AsString();
      delete intlist;
      return 0;
@@ -93,6 +102,51 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListCC(
      intlist->push_back(interaction);
 
   } else if (isnubar && hasP) {
+     target->SetHitNucPdg(kPdgProton);
+     intlist->push_back(interaction);
+
+  } else {
+     LOG("IntLst", pINFO)
+       << "Returning NULL InteractionList for init-state: "
+       << init_state.AsString();
+     delete interaction;
+     delete intlist;
+     return 0;
+  }
+  return intlist;
+}
+//___________________________________________________________________________
+InteractionList * QELInteractionListGenerator::CreateInteractionListECC(
+   const InitialState & init_state) const
+{
+  InteractionList * intlist = new InteractionList;
+
+  ProcessInfo   proc_info(kScQuasiElastic, kIntWeakECC);
+  Interaction * interaction = new Interaction(init_state, proc_info);
+
+  int tgtpdg = init_state.Tgt().Pdg();
+  int ppdg   = init_state.ProbePdg();
+
+  bool ischgl = pdg::IsChargedLepton(ppdg);
+  if(!ischgl) {
+     LOG("IntLst", pWARN)
+       << "ECC Can not handle probe! Returning NULL InteractionList "
+       << "for init-state: " << init_state.AsString();
+     delete intlist;
+     return 0;
+  }
+
+  bool isPos = (tgtpdg < 0);
+ 
+  Target * target  = interaction->InitStatePtr()->TgtPtr();
+  bool     hasP    = (target->Z() > 0);
+  bool     hasN    = (target->N() > 0);
+
+  if (isPos && hasN) {
+     target->SetHitNucPdg(kPdgNeutron);
+     intlist->push_back(interaction);
+
+  } else if (!isPos && hasP) {
      target->SetHitNucPdg(kPdgProton);
      intlist->push_back(interaction);
 
@@ -308,6 +362,7 @@ void QELInteractionListGenerator::Configure(string config)
 void QELInteractionListGenerator::LoadConfigData(void)
 {
   GetParamDef( "is-CC", fIsCC, false ) ;
+  GetParamDef( "is-ECC", fIsECC, false ) ;
   GetParamDef( "is-NC", fIsNC, false ) ;
   GetParamDef( "is-EM", fIsEM, false ) ;
   GetParamDef( "is-Charm", fIsCharm, false  ) ;

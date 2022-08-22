@@ -44,12 +44,14 @@ private:
   void LoadConfigData(void);
 
   InteractionList * CreateInteractionListCC        (const InitialState & init) const;
+  InteractionList * CreateInteractionListECC        (const InitialState & init) const;
   InteractionList * CreateInteractionListNC        (const InitialState & init) const;
   InteractionList * CreateInteractionListEM        (const InitialState & init) const;
   InteractionList * CreateInteractionListCharmCC   (const InitialState & init) const;
   InteractionList * CreateInteractionListStrangeCC (const InitialState & init) const;
 
   bool fIsCC;
+  bool fIsECC;
   bool fIsNC;
   bool fIsEM;
   bool fIsCharm;

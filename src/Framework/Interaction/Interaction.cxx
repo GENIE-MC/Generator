@@ -148,7 +148,7 @@ int Interaction::FSPrimLeptonPdg(void) const
   if (proc_info.IsWeakNC() || proc_info.IsEM() || proc_info.IsWeakMix() || proc_info.IsDarkMatter()) return pdgc;  // EDIT: DM does not change in FS
 
   // vN (Weak-CC)
-  else if (proc_info.IsWeakCC()) {
+  else if (proc_info.IsWeakCC() && !proc_info.IsWeakECC() ) {
     int clpdgc;
     if (proc_info.IsIMDAnnihilation())
       clpdgc = kPdgMuon;
@@ -161,6 +161,9 @@ int Interaction::FSPrimLeptonPdg(void) const
     else
       clpdgc = pdg::Neutrino2ChargedLepton(pdgc);
     return clpdgc;
+  }
+  else if (proc_info.IsWeakECC()) {
+    return pdg::ChargedLepton2Neutrino(pdgc);
   }
   else if (proc_info.IsDarkNeutralCurrent()){
     return kPdgDarkNeutrino;
@@ -194,7 +197,7 @@ int Interaction::RecoilNucleonPdg(void) const
     bool is_em   = fProcInfo->IsEM();
     bool is_dm   = fProcInfo->IsDarkMatter();
     assert(struck_is_nuc && (is_weak || is_em || is_dm));
-    if(fProcInfo->IsWeakCC()) {
+    if(fProcInfo->IsWeakCC() || fProcInfo->IsWeakECC()) {
        recoil_nuc = pdg::SwitchProtonNeutron(struck_nuc); // CC
     } else {
        recoil_nuc = struck_nuc; // NC, EM
@@ -517,11 +520,36 @@ Interaction * Interaction::QELCC(int target, int hitnuc, int probe, double E)
   return interaction;
 }
 //___________________________________________________________________________
+Interaction * Interaction::QELECC(int target, int hitnuc, int probe, double E)
+{
+  Interaction * interaction =
+     Interaction::Create(target,probe,kScQuasiElastic, kIntWeakECC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
 Interaction * Interaction::QELCC(
    int target, int hitnuc, int probe, const TLorentzVector & p4probe)
 {
   Interaction * interaction =
      Interaction::Create(target,probe,kScQuasiElastic, kIntWeakCC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::QELECC(
+   int target, int hitnuc, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction =
+     Interaction::Create(target,probe,kScQuasiElastic, kIntWeakECC);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);

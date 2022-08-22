@@ -225,6 +225,19 @@ int genie::pdg::Neutrino2ChargedLepton(int pdgc)
   return -1;
 }
 //____________________________________________________________________________
+int genie::pdg::ChargedLepton2Neutrino(int pdgc)
+{
+  switch(pdgc) {
+       case (kPdgElectron) : return kPdgNuE; break;
+       case (kPdgPositron) : return kPdgAntiNuE; break;
+       case (kPdgMuon)     : return kPdgNuMu;     break;
+       case (kPdgAntiMuon) : return kPdgAntiNuMu; break;
+       case (kPdgTau)      : return kPdgNuTau;      break;
+       case (kPdgAntiTau)  : return kPdgAntiNuTau;  break;
+  }
+  return -1;
+}
+//____________________________________________________________________________
 bool genie::pdg::IsDiQuark(int pdgc)
 {
   return ( pdgc == kPdgDDDiquarkS1 || pdgc == kPdgUDDiquarkS0 ||

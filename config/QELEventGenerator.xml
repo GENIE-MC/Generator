@@ -34,6 +34,10 @@ HitNucleonBindingMode    string  Yes   Method used to handle the binding energy 
 
   </param_set>
 
+  <param_set name="ECC-Default">
+
+  </param_set>
+
   <param_set name="NC-Default">
 
   </param_set>

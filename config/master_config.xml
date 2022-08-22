@@ -172,6 +172,7 @@
    <config alg="genie::BertuzzoDNuCOHPXSec">                BertuzzoDNuCOHPXSec.xml                </config>
    <config alg="genie::LwlynSmithQELCCPXSec">               LwlynSmithQELCCPXSec.xml               </config>
    <config alg="genie::NievesQELCCPXSec">                   NievesQELCCPXSec.xml                   </config>
+   <config alg="genie::NievesQELECCPXSec">                  NievesQELECCPXSec.xml                   </config>
    <config alg="genie::SuSAv2QELPXSec">                     SuSAv2QELPXSec.xml                     </config>
    <config alg="genie::SmithMonizQELCCPXSec">               SmithMonizQELCCPXSec.xml               </config>
    <config alg="genie::QPMDMDISPXSec">                      QPMDMDISPXSec.xml                      </config>

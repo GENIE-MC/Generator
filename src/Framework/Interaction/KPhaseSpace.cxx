@@ -85,7 +85,6 @@ double KPhaseSpace::Threshold(void) const
   const Target &       tgt        = init_state.Tgt();
 
   double ml = fInteraction->FSPrimLepton()->Mass();
-
   if( ! pi.IsKnown() ) return 0;
   
   if (pi.IsSingleKaon()) {
@@ -138,7 +137,7 @@ double KPhaseSpace::Threshold(void) const
     double Wmin = kNucleonMass + kPionMass;
     if ( pi.IsQuasiElastic() || pi.IsDarkMatterElastic() || pi.IsInverseBetaDecay() ) {
       int finalNucPDG = tgt.HitNucPdg();
-      if ( pi.IsWeakCC() ) finalNucPDG = pdg::SwitchProtonNeutron( finalNucPDG );
+      if ( pi.IsWeakCC() || pi.IsWeakECC() ) finalNucPDG = pdg::SwitchProtonNeutron( finalNucPDG );
       Wmin = PDGLibrary::Instance()->Find( finalNucPDG )->Mass();
     }
     if (pi.IsResonant()) {

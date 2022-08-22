@@ -91,6 +91,7 @@ namespace pdg
   int  SwitchProtonNeutron    (int pdgc);
   int  ModifyNucleonCluster   (int pdgc, int dQ);
   int  Neutrino2ChargedLepton (int pdgc);
+  int  ChargedLepton2Neutrino (int pdgc);
 
   int  GeantToPdg (int geant_code);
 
