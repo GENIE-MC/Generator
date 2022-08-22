@@ -57,29 +57,38 @@ April 11th, 2022
     <param type="double" name="EulerExtrinsicX1"> 0.0 </param>
     <param type="double" name="EulerExtrinsicZ">  0.0 </param>
     <param type="double" name="EulerExtrinsicX2"> -0.05830 </param>
-    <!-- Euler angles, extrinsic x-z-x = 1-2-3, RM * BEAM = USER, RM = Rx(1) * Rz(2) * Rx(3) -->
+    <!-- Euler angles, extrinsic x-z-x = 1-2-3, RM * BEAM = USER, RM = Rx(1) * Rz(2) * Rx(3). -->
+    <!-- Describes rotation of beam wrt target hall frame -->
+    <!-- <param type="vec-double" name="Beam2Det_R" delim=";"> 0.0 ; 0.0 ; 0.0 </param> -->
+    <param type="vec-double" name="Beam2Det_R" delim=";"> -1.570796 ; 0.785398 ; 1.570796 </param> <!-- rad -->
+    <!-- Euler angles, extrinsic x-z-x -->
+    <!-- Describes rotation of detector wrt target hall frame -->
+    <param type="vec-double" name="DetCentre_User" delim=";"> 0.0 ; 0.0 ; 6.44 </param> <!-- m -->
+    <!-- <param type="vec-double" name="DetCentre_User" delim=";"> 0.0 ; 0.0 ; 0.0 </param> --> <!-- m -->
+    <!-- Position of detector centre in user frame, in case it is not at user origin -->
   </param_set>
 
   <param_set name="ParticleGun">
-    <param type="double" name="PG-OriginX"> 0.0 </param> <!-- user, m -->
-    <param type="double" name="PG-OriginY"> 0.0 </param> <!-- user, m -->
-    <param type="double" name="PG-OriginZ"> -10.0 </param> <!-- user, m -->
+    <param type="double" name="PG-OriginX"> REPLACE_PGOX </param> <!-- user, m -->
+    <param type="double" name="PG-OriginY"> REPLACE_PGOY </param> <!-- user, m -->
+    <param type="double" name="PG-OriginZ"> REPLACE_PGOZ </param> <!-- user, m -->
 
-    <param type="double" name="PG-OriginDX"> 1.0 </param> <!-- user, m, >= 0 -->
-    <param type="double" name="PG-OriginDY"> 1.0 </param> <!-- user, m, >= 0 -->
-    <param type="double" name="PG-OriginDZ"> 2.5 </param> <!-- user, m, >= 0 -->
+    <param type="double" name="PG-OriginDX"> REPLACE_PGODX </param> <!-- user, m, >= 0 -->
+    <param type="double" name="PG-OriginDY"> REPLACE_PGODY </param> <!-- user, m, >= 0 -->
+    <param type="double" name="PG-OriginDZ"> REPLACE_PGODZ </param> <!-- user, m, >= 0 -->
 
-    <param type="double" name="PG-cx"> 0.0 </param> <!-- user, GeV/GeV -->
-    <param type="double" name="PG-cy"> 0.0 </param> <!-- user, GeV/GeV -->
-    <param type="double" name="PG-cz"> 1.0 </param> <!-- user, GeV/GeV -->
+    <param type="double" name="PG-cx"> REPLACE_PGCX </param> <!-- user, GeV/GeV -->
+    <param type="double" name="PG-cy"> REPLACE_PGCY </param> <!-- user, GeV/GeV -->
+    <param type="double" name="PG-cz"> REPLACE_PGCZ </param> <!-- user, GeV/GeV -->
 
-    <param type="double" name="PG-DTheta"> 20.0 </param> <!-- deg, >= 0 -->
-    <param type="double" name="PG-DPhi"> 50.0 </param> <!-- deg, >= 0 -->
+    <param type="double" name="PG-DTheta"> REPLACE_PGDTHETA </param> <!-- deg, >= 0 -->
+    <param type="double" name="PG-DPhi"> REPLACE_PGDPHI </param> <!-- deg, >= 0 -->
 
-    <param type="double" name="PG-Energy"> 1.0 </param> <!-- GeV -->
+    <param type="double" name="PG-Energy"> REPLACE_PGENERGY </param> <!-- GeV -->
   </param_set>
 
   <param_set name="FluxCalc">
+    <param type="vec-double" name="ParentPOTScalings" delim=";"> 1.0 ; 1.005 ; 9.353 ; 10.458 </param> <!-- All parents -> no muons -> no pions -> no K0L -->
     <param type="bool" name="CalcKaonFluxOnly"> false </param>
     <param type="bool" name="AttemptCharmCalculation"> false </param>
     <param type="bool" name="IsParentOnAxis"> true </param>
