@@ -117,6 +117,7 @@ namespace genie{
       // get N(flux input entries)
       int GetNEntries() const;
 
+      void SetCurrentEntry( int iCurr ) const;
       void SetFirstEntry( int iFirst ) const;
       void SetGeomFile( string geomfile ) const;
       void ImportBoundingBox( TGeoBBox * box ) const;
@@ -230,6 +231,17 @@ namespace genie{
       // meta variables. Add as necessary
       mutable int    job;                                ///< beamsim MC job number
       mutable double pots;                               ///< how many pot in this job?
+
+      mutable genie::flux::GNuMIFluxPassThroughInfo * fGnmf = 0;
+
+      //mutable double EntryPOT; // how many POT simulated since the last NHL parent?
+      //mutable int potnum_prev; // value of potnum for previous entry
+      //mutable int potnum_now; // value of potnum for current entry
+      //mutable int deltaPotnum; // how many POT between 2 POT that made NHL-producing hadrons
+      //mutable double multiplicity; // how many NHL-producing hadrons made by one POT?
+      //mutable int iMultReset; // if reached end of one POT family, reset multiplicity
+      mutable double POTScaleWeight;
+      mutable std::vector<double> fScales;
 
       mutable bool fIsConfigLoaded = false;
 

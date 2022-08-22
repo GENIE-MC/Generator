@@ -42,33 +42,40 @@ void NHLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
 
   if( iCurrEntry >= fFirstEntry ) {
 
-    flux::GNuMIFluxPassThroughInfo * gnmf = new flux::GNuMIFluxPassThroughInfo();
-    this->MakeTupleFluxEntry( iCurrEntry, gnmf, fCurrPath );
+    //flux::GNuMIFluxPassThroughInfo * gnmf = new flux::GNuMIFluxPassThroughInfo();
+    if( !fGnmf ) fGnmf = new flux::GNuMIFluxPassThroughInfo();
+    this->MakeTupleFluxEntry( iCurrEntry, fGnmf, fCurrPath );
   
-    if( std::abs(gnmf->fgPdgC) == genie::kPdgNHL ){ // only add particle if parent is valid
+    if( std::abs(fGnmf->fgPdgC) == genie::kPdgNHL ){ // only add particle if parent is valid
       
-      double invAccWeight = gnmf->nimpwt * gnmf->fgXYWgt;
+      double invAccWeight = fGnmf->nimpwt * fGnmf->fgXYWgt;
       evrec->SetWeight( evrec->Weight() / invAccWeight );
+      // update POT-counting variables
+      //potnum_prev = potnum_now; EntryPOT = 0.0; potnum_now = 0.0;
+      //if( iCurrEntry == iMultReset ){ multiplicity = 1.0; iMultReset = 0; }
       
-      evrec->SetVertex( gnmf->fgX4User ); // NHL production vertex. NOT where NHL decays to visible FS.
+      // scale by how many POT it takes to make the appropriate parent
+      evrec->SetWeight( evrec->Weight() * POTScaleWeight );
+      
+      evrec->SetVertex( fGnmf->fgX4User ); // NHL production vertex. NOT where NHL decays to visible FS.
       // construct Particle(0). Don't worry about daughter links at this stage.
-      TLorentzVector probeP4 = ( fUseBeamMomentum ) ? gnmf->fgP4 : gnmf->fgP4User;
+      TLorentzVector probeP4 = ( fUseBeamMomentum ) ? fGnmf->fgP4 : fGnmf->fgP4User;
       if( fUseBeamMomentum ){
 	TVector3 probeP3 = probeP4.Vect(); TVector3 dumor( 0.0, 0.0, 0.0 );
 	probeP3 = this->ApplyUserRotation( probeP3, dumor, fDetRotation, false ); // active transformation
 	probeP4.SetPxPyPzE( probeP3.X(), probeP3.Y(), probeP3.Z(), probeP4.E() );
       }
-      GHepParticle ptNHL( gnmf->fgPdgC, kIStInitialState, -1, -1, -1, -1, probeP4, gnmf->fgX4User );
+      GHepParticle ptNHL( fGnmf->fgPdgC, kIStInitialState, -1, -1, -1, -1, probeP4, fGnmf->fgX4User );
       evrec->AddParticle( ptNHL );
     }
     
     // clean up
-    delete gnmf;
+    //delete gnmf;
 
   }
   
   // update iCurrEntry. This should be the last thing to happen before returning.
-  iCurrEntry++;
+  // iCurrEntry++;
 }
 //----------------------------------------------------------------------------
 void NHLFluxCreator::SetInputPath(std::string finpath) const
@@ -92,11 +99,14 @@ void NHLFluxCreator::SetFirstEntry( int iFirst ) const
   fFirstEntry = iFirst;
 }
 //----------------------------------------------------------------------------
+void NHLFluxCreator::SetCurrentEntry( int iCurr ) const
+{
+  iCurrEntry = iCurr;
+}
+//----------------------------------------------------------------------------
 flux::GNuMIFluxPassThroughInfo * NHLFluxCreator::RetrieveGNuMIFluxPassThroughInfo() const
 {
-  flux::GNuMIFluxPassThroughInfo * gnmf = new flux::GNuMIFluxPassThroughInfo();
-  this->MakeTupleFluxEntry( iCurrEntry, gnmf, fCurrPath );
-  return gnmf;
+  return fGnmf;
 }
 //----------------------------------------------------------------------------
 void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath ) const
@@ -110,6 +120,8 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     this->InitialiseTree();
     this->InitialiseMeta();
     this->MakeBBox();
+    //EntryPOT = 0.0; multiplicity = 1.0; iMultReset = 0;
+    //potnum_prev = 0; potnum_now = 0; deltaPotnum = 0;
   } else if( iEntry < fFirstEntry ){
     return;
   }
@@ -118,8 +130,81 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   TVector3 fCvec_beam( fCx, fCy, fCz );
   TVector3 fCvec = this->ApplyUserRotation( fCvec_beam );
 
+  /*
+  if( iEntry > 0 && potnum_prev == 0 ){
+    // figure out what potnum was for previous entry.
+    // dk2nu adds up all POT. If you fire 10 POT and #3, #10 make hadrons, potnum will be 3 and 10, not 3 and 7.
+    ctree->GetEntry( iEntry-1 );
+    //potnum_prev = potnum;
+  }
+  */
+  
   LOG( "NHL", pDEBUG ) << "Getting entry " << iEntry;
   ctree->GetEntry(iEntry);
+
+  /*
+  potnum_now = potnum;
+  if( potnum_now == potnum_prev && iEntry == fFirstEntry ){ 
+    // firstEntry happened to hit a hadron made with the same POT as the previous entry. 
+    // Bail, and assume no previous entries were made by the same POT
+      potnum_prev = potnum_now - 1;
+  }
+
+  // only update deltaPotnum if we've switched to a different POT's children
+  deltaPotnum = ( potnum_now - potnum_prev == 0 ) ? deltaPotnum : potnum_now - potnum_prev;
+
+  // some POT give out multiple charged hadrons.
+  // Find out how many share the same POT, and how many of these get processed in this loop.
+  // Then for each of the good hadrons in that POT family tree, downscale weight by multiplicity
+  // skip this loop if multiplicity was already calculated in a previous child of the same POT
+  if( multiplicity == 1.0 ){
+    int potnum_next = potnum; int iCheckEntry = iEntry+1;
+    int parent_next = 0; double mNHLHad = 1.0;
+    std::ostringstream asts;
+    while( potnum_next == potnum_now && iCheckEntry < ctree->GetEntries() ){
+      asts << "\nChecking entry " << iCheckEntry;
+      iMultReset = iCheckEntry;
+      // first, how many of these share the same ancestor POT?
+      ctree->GetEntry( iCheckEntry );
+      potnum_next = potnum;
+      parent_next = decay_ptype;
+      bool nextParentGood = false;
+      switch( std::abs( parent_next ) ){
+      case kPdgPiP:
+	nextParentGood = 
+	  ( fU4l2s.at(1) != 0.0 && utils::nhl::IsProdKinematicallyAllowed( kNHLProdPion2Muon ) ) ||
+	  ( fU4l2s.at(0) != 0.0 && utils::nhl::IsProdKinematicallyAllowed( kNHLProdPion2Electron ) );
+	break;
+      case kPdgKP:
+	nextParentGood =
+	  ( fU4l2s.at(1) != 0.0 && utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon2Muon ) ) || 
+	  ( fU4l2s.at(0) != 0.0 && utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon2Electron ) ) ||
+	  ( fU4l2s.at(1) != 0.0 && utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon3Muon ) ) ||
+	  ( fU4l2s.at(0) != 0.0 && utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon3Electron ) ); 
+	break;
+      case kPdgMuon:
+	nextParentGood = false; // muons are produced from hadron decay, don't contribute to multiplicity
+      case kPdgK0L:
+	nextParentGood =
+	  ( fU4l2s.at(1) != 0.0 && utils::nhl::IsProdKinematicallyAllowed( kNHLProdNeuk3Muon ) ) ||
+	  ( fU4l2s.at(0) != 0.0 && utils::nhl::IsProdKinematicallyAllowed( kNHLProdNeuk3Electron ) );
+	break;
+      }
+      if( nextParentGood ) mNHLHad += 1.0;
+      
+      iCheckEntry++;
+    }
+    multiplicity = 1.0 / mNHLHad;
+
+    LOG( "NHL", pDEBUG )
+      << "\nStarting from entry " << iCurrEntry << ":"
+      << asts.str()
+      << "\n==> multiplicity = " << multiplicity;
+    
+    // back to current entry.
+    ctree->GetEntry(iEntry);
+  }
+  */
 
   // explicitly check if there are any allowed decays for this parent
   bool canGoForward = true;
@@ -142,7 +227,19 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
       utils::nhl::IsProdKinematicallyAllowed( kNHLProdNeuk3Muon ) ||
       utils::nhl::IsProdKinematicallyAllowed( kNHLProdNeuk3Electron ); break;
   }
-  if( !canGoForward ){ this->FillNonsense( iEntry, gnmf ); return; }
+
+  LOG( "NHL", pDEBUG )
+    << "\niEntry       = " << iEntry
+    << "\nnimpwt       = " << decay_nimpwt
+    //<< "\npotnum       = " << potnum
+    //<< "\ndeltaPotnum  = " << deltaPotnum
+    << "\ncanGoForward ? " << canGoForward;
+    //<< "\nmultiplicity = " << 1.0 / multiplicity;
+
+  if( !canGoForward ){ // return, but update the NPOT it took to make this rejected parent
+    //EntryPOT += multiplicity * deltaPotnum / decay_nimpwt; potnum_prev = potnum;
+    this->FillNonsense( iEntry, gnmf ); return; 
+  }
     
   // turn cm to m and make origin wrt detector 
   fDx = decay_vx * units::cm / units::m;
@@ -209,6 +306,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   assert( dynamicScores.size() > 0 );
   
   if( dynamicScores.find( kNHLProdNull ) != dynamicScores.end() ){ // exists kin allowed channel but 0 coupling
+    //EntryPOT += multiplicity * deltaPotnum / decay_nimpwt; potnum_prev = potnum;
     this->FillNonsense( iEntry, gnmf ); return;
   }
   
@@ -399,11 +497,20 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
 			   units::m / units::cm * ( -detO.Y() ),
 			   units::m / units::cm * ( -detO.Z() ), delay ); // in cm, ns
 
+  // EntryPOT measures the total elapsed weight since the previous admitted NHL
+  //EntryPOT +=  multiplicity * deltaPotnum / decay_nimpwt;
+  // thisEntryPOT measures how much weight this particular parent has.
+  //double thisEntryPOT = multiplicity * deltaPotnum / decay_nimpwt;
+
   LOG( "NHL", pDEBUG )
-    << "\nnimpwt           = " << decay_nimpwt
-    << "\nacc_saa          = " << acc_saa
-    << "\nboost_correction = " << boost_correction
-    << "\naccCorr          = " << accCorr;
+    << "\nnimpwt                 = " << decay_nimpwt
+    //<< "\nmultiplicity           = " << multiplicity
+    //<< "\ndeltaPotnum            = " << deltaPotnum
+    //<< "\nEntryPOT (all parents) = " << EntryPOT
+    //<< "\nEntryPOT (this parent) = " << thisEntryPOT
+    << "\nacc_saa                = " << acc_saa
+    << "\nboost_correction       = " << boost_correction
+    << "\naccCorr                = " << accCorr;
 
   // fill all the GNuMIFlux stuff
   // comments as seeon on https://www.hep.utexas.edu/~zarko/wwwgnumi/v19/v19/output_gnumi.html
@@ -480,6 +587,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
 
   gnmf->necm = p4NHL_rest.E();               ///< Neutrino energy in COM frame
   gnmf->nimpwt = decay_nimpwt;               ///< Weight of neutrino parent
+  //gnmf->nimpwt = thisEntryPOT / EntryPOT;    ///< Weight of this parent / total elapsed weight
 
   gnmf->xpoint = p4par.Px();                 ///< Used here to store parent px in user coords
   gnmf->ypoint = p4par.Py();                 ///< Used here to store parent py in user coords
@@ -1221,7 +1329,6 @@ void NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, TGeoM
 		   (fDetOffset.at(2)) * units::m / units::cm ); // for rotations of the detector
 
   LOG( "NHL", pDEBUG )
-    << "\nPURE TRANSLATION HERE. NO ROTATION YET."
     << "\nStartPoint = " << utils::print::Vec3AsString( &detStartPoint )
     << "\nSweepVect  = " << utils::print::Vec3AsString( &detSweepVect )
     << "\nparent p3  = " << utils::print::Vec3AsString( &detPpar );
@@ -1693,6 +1800,8 @@ void NHLFluxCreator::LoadConfig(void)
   this->GetParamVect( "DetCentre_User", fDetOffset );
   this->GetParamVect( "Beam2Det_R", fDetRotation );
 
+  this->GetParamVect( "ParentPOTScalings", fScales );
+
   this->GetParam( "IsParentOnAxis", isParentOnAxis );
   this->GetParam( "UseBeamMomentum", fUseBeamMomentum );
 
@@ -1708,13 +1817,29 @@ void NHLFluxCreator::LoadConfig(void)
   fBz  = fDetRotation.at(1);
   fBx2 = fDetRotation.at(2);
 
+  POTScaleWeight = 1.0;
+  if( utils::nhl::IsProdKinematicallyAllowed( kNHLProdMuon3Nue ) ) 
+    POTScaleWeight = fScales[0]; // all POT contribute
+  else if( utils::nhl::IsProdKinematicallyAllowed( kNHLProdPion2Muon ) ||
+	   utils::nhl::IsProdKinematicallyAllowed( kNHLProdPion2Electron ) ) 
+    POTScaleWeight = fScales[1]; // muons do not contribute
+  else if( utils::nhl::IsProdKinematicallyAllowed( kNHLProdNeuk3Muon ) ||
+	   utils::nhl::IsProdKinematicallyAllowed( kNHLProdNeuk3Electron ) )
+    POTScaleWeight = fScales[2]; // only kaons contribute
+  else if( utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon2Muon ) || 
+	   utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon2Electron ) ||
+	   utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon3Muon ) ||
+	   utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon3Electron ) )
+    POTScaleWeight = fScales[3]; // only charged kaons contribute
+
   LOG( "NHL", pDEBUG )
     << "Read the following parameters :"
     << "\n Mass = " << fMass
     << "\n couplings = " << fU4l2s.at(0) << " : " << fU4l2s.at(1) << " : " << fU4l2s.at(2)
     << "\n translation = " << fB2UTranslation.at(0) << ", " << fB2UTranslation.at(1) << ", " << fB2UTranslation.at(2)
     << "\n rotation = " << fB2URotation.at(0) << ", " << fB2URotation.at(1) << ", " << fB2URotation.at(2)
-    << "\n isParentOnAxis = " << isParentOnAxis;
+    << "\n isParentOnAxis = " << isParentOnAxis
+    << "\n POTScaleWeight = " << POTScaleWeight;
 
   fIsConfigLoaded = true;
 }
