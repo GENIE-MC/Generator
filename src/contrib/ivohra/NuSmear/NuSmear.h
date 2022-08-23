@@ -169,7 +169,7 @@ double Positron_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
 
 double Muon_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
 {
-        if (myKE >= 0.03){ //100 MeV Threshold for Muon
+        if (myKE >= 0.03){ //30 MeV Threshold for Muon
 
         if (exit == 1){
             return 0.3; //particle exits
@@ -184,7 +184,7 @@ double Muon_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
 
 double AntiMuon_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
 {
-        if (myKE >= 0.03){ //100 MeV Threshold for Muon
+        if (myKE >= 0.03){ //30 MeV Threshold for Muon
 
         if (exit == 1){
             return 0.3; //particle exits
