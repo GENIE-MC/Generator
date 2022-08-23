@@ -321,7 +321,7 @@ TVector3 Z (0,0,1); //vector pointing downstream along Z axis
 
 double myPmag = P.Mag(); //particle momentum magnitude
 
-double theta = P.Angle(Z); //angle away from Z vector
+double theta = (P.Angle(Z))/M_PI*180; //angle away from Z vector in degrees
 
 int exit = 0;
 
@@ -517,7 +517,7 @@ TVector3 P (myPx, myPy, myPz); //particle momentum vector
 
 TVector3 Z (0,0,1); //vector pointing downstream along Z axis
 
-double theta = P.Angle(Z); //angle away from Z vector
+double theta = (P.Angle(Z))/M_PI*180; //angle away from Z vector in degrees
 
 int in = myMap.find(myPdg)->second; //in is the index number for the given particle
 
@@ -571,11 +571,11 @@ double resolution = 0;
 
 if (model == "duneCdr"){
 
-resolution += (angularResDeg_DuneCdr[in])*M_PI/180; //resolution (coverted to radians)
+resolution += (angularResDeg_DuneCdr[in]); //DUNE-CDR angular resolution
 
 } else if (model == "default") {
 
-resolution += (angularResDeg_Default[in])*M_PI/180; //resolution (coverted to radians)  
+resolution += (angularResDeg_Default[in]); //Default angular resolution
 
 }
      
