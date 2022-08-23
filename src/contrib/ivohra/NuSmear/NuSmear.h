@@ -465,7 +465,7 @@ double eSq = 0;
           if (distUni(gen) < chanceToSee){ //i.e. particle is observed
 
 
-                     if(myKE > 0.05){ //Threshold of 50 MeV for nucleons and antinucleons (detection thresholds use KE)
+                     if(myKE > 0.05){ //Threshold of 50 MeV
                         return distLognorm(gen);
                      } else {
                         return 0;
