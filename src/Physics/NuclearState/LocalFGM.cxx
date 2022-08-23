@@ -87,8 +87,29 @@ bool LocalFGM::GenerateNucleon(const Target & target,
   //
   int Z = target.Z();
   map<int,double>::const_iterator it = fNucRmvE.find(Z);
-  if(it != fNucRmvE.end()) fCurrRemovalEnergy = it->second;
-  else fCurrRemovalEnergy = nuclear::BindEnergyPerNucleon(target);
+
+  double nucl_mass = target.HitNucMass();
+  double KF = LocalFermiMomentum( target, target.HitNucPdg(), hitNucleonRadius) ; 
+  //nucleon kinetic energy
+  double T_F = TMath::Sqrt(TMath::Power(nucl_mass,2)+TMath::Power(KF,2)) - nucl_mass;
+  double localEb = T_F;
+  double T_nucl = TMath::Sqrt(TMath::Power(fCurrMomentum.Mag(),2)+TMath::Power(nucl_mass,2))- nucl_mass;
+  double q_val_offset;
+  if(it != fNucRmvE.end()) q_val_offset = it->second;
+  else q_val_offset = nuclear::BindEnergyPerNucleon(target);
+  fCurrRemovalEnergy = localEb - T_nucl + q_val_offset;
+
+ /* std::cout << "In local FGM : " << std::endl;
+
+  std::cout << "localEb " << localEb << std::endl;
+  std::cout << "T_nucl " << T_nucl << std::endl;
+  std::cout << "q_val_offset " << q_val_offset << std::endl;
+  std::cout << "fCurrRemovalEnergy " << fCurrRemovalEnergy << std::endl;
+
+  std::cout << "KF " << KF << std::endl;
+  std::cout << "nucleon mass " << nucl_mass << std::endl;*/
+  //if(it != fNucRmvE.end()) fCurrRemovalEnergy = it->second;
+  //else fCurrRemovalEnergy = nuclear::BindEnergyPerNucleon(target);
 
   return true;
 }
