@@ -103,7 +103,7 @@ auto myHist = new TH2D("h1","Smearing Matrix;True Angle (Deg);Reconstructed Angl
 
     TVector3 Z (0,0,1);
 
-    double thetaI = P.Angle(Z);
+    double thetaI = (P.Angle(Z))/M_PI*180; //in degrees
 
     double thetaF = smearA(myPdg, myPx, myPy, myPz, "duneCdr");
 
