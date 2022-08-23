@@ -72,7 +72,7 @@ using namespace genie;
 
   //Make histogram
 
-auto myHist = new TH2D("h1","Smearing Matrix;True Angle (Rad);Reconstructed Angle (Rad)",100,0,3.6,100,0,3.6);
+auto myHist = new TH2D("h1","Smearing Matrix;True Angle (Deg);Reconstructed Angle (Deg)",100,0,180,100,0,180);
 
 
   // Event loop
