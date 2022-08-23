@@ -110,7 +110,7 @@ auto myHist = new TH2D("h1","Smearing Matrix;True Energy (GeV);Reconstructed Ene
         eSumPreSm += myE;
         }
 
-        eSumPosSm += smearE(myPdg, myE, myKE, myPx, myPy, myPz, "default", (M_PI/4));
+        eSumPosSm += smearE(myPdg, myE, myKE, myPx, myPy, myPz, "default", 45);
     }
 
       }
