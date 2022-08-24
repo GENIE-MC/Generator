@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::DCCEMSPPPXSec
+\class    genie::DCCSPPPXSec
 
 \brief    Class calculate differental cross-section d^4(sig)/d(Q2)d(W)d(cost)d(phi),
           for specific W, Q2, neutrino energy(in lab frame) & pion angles in the Adler frame, where \n
@@ -35,8 +35,8 @@ for the following channels:
 */
 //____________________________________________________________________________
 
-#ifndef _DCC_EM_SPP_PXSEC_H_
-#define _DCC_EM_SPP_PXSEC_H_
+#ifndef _DCC_SPP_PXSEC_H_
+#define _DCC_SPP_PXSEC_H_
 
 #include <vector>
 #include <complex>
@@ -58,13 +58,13 @@ namespace genie {
   
   class XSecIntegratorI;
 
-  class DCCEMSPPPXSec: public XSecAlgorithmI {
+  class DCCSPPPXSec: public XSecAlgorithmI {
 
     
     public:
-      DCCEMSPPPXSec();
-      DCCEMSPPPXSec(string config);
-      virtual ~DCCEMSPPPXSec();
+      DCCSPPPXSec();
+      DCCSPPPXSec(string config);
+      virtual ~DCCSPPPXSec();
 
       // implement the XSecAlgorithmI interface 
       double XSec         (const Interaction * i, KinePhaseSpace_t k) const;
@@ -82,25 +82,15 @@ namespace genie {
       void LoadConfig (void);
       
       // configuration data
-      double   fFermiConstant ;
-      const ELFormFactorsModelI  * fElFFModel;          ///< Elastic form facors model for background contribution
-      const QELFormFactorsModelI * fFormFactorsModel;   ///< Quasielastic form facors model for background contribution
-      const QELFormFactorsModelI * fEMFormFactorsModel; ///< Electromagnetic form factors model for background contribution
-      
       string fKFTable;             ///< table of Fermi momentum (kF) constants for various nuclei
       bool fUseRFGParametrization; ///< use parametrization for fermi momentum insted of table?
       bool fUsePauliBlocking;      ///< account for Pauli blocking?
 
-      mutable QELFormFactors  fFormFactors;      ///<  Quasielastic form facors for background contribution
-      double  f_pi;                              ///<  Constant for pion-nucleon interaction
-
       const XSecIntegratorI * fXSecIntegrator;
-      
-      BaryonResList  fResList;
                  
   };
   
   
 }       // genie namespace
 
-#endif  // _DCC_EM_SPP_PXSEC_H_
+#endif  // _DCC_SPP_PXSEC_H_
