@@ -129,82 +129,9 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   // All these in m
   TVector3 fCvec_beam( fCx, fCy, fCz );
   TVector3 fCvec = this->ApplyUserRotation( fCvec_beam );
-
-  /*
-  if( iEntry > 0 && potnum_prev == 0 ){
-    // figure out what potnum was for previous entry.
-    // dk2nu adds up all POT. If you fire 10 POT and #3, #10 make hadrons, potnum will be 3 and 10, not 3 and 7.
-    ctree->GetEntry( iEntry-1 );
-    //potnum_prev = potnum;
-  }
-  */
   
   LOG( "NHL", pDEBUG ) << "Getting entry " << iEntry;
   ctree->GetEntry(iEntry);
-
-  /*
-  potnum_now = potnum;
-  if( potnum_now == potnum_prev && iEntry == fFirstEntry ){ 
-    // firstEntry happened to hit a hadron made with the same POT as the previous entry. 
-    // Bail, and assume no previous entries were made by the same POT
-      potnum_prev = potnum_now - 1;
-  }
-
-  // only update deltaPotnum if we've switched to a different POT's children
-  deltaPotnum = ( potnum_now - potnum_prev == 0 ) ? deltaPotnum : potnum_now - potnum_prev;
-
-  // some POT give out multiple charged hadrons.
-  // Find out how many share the same POT, and how many of these get processed in this loop.
-  // Then for each of the good hadrons in that POT family tree, downscale weight by multiplicity
-  // skip this loop if multiplicity was already calculated in a previous child of the same POT
-  if( multiplicity == 1.0 ){
-    int potnum_next = potnum; int iCheckEntry = iEntry+1;
-    int parent_next = 0; double mNHLHad = 1.0;
-    std::ostringstream asts;
-    while( potnum_next == potnum_now && iCheckEntry < ctree->GetEntries() ){
-      asts << "\nChecking entry " << iCheckEntry;
-      iMultReset = iCheckEntry;
-      // first, how many of these share the same ancestor POT?
-      ctree->GetEntry( iCheckEntry );
-      potnum_next = potnum;
-      parent_next = decay_ptype;
-      bool nextParentGood = false;
-      switch( std::abs( parent_next ) ){
-      case kPdgPiP:
-	nextParentGood = 
-	  ( fU4l2s.at(1) != 0.0 && utils::nhl::IsProdKinematicallyAllowed( kNHLProdPion2Muon ) ) ||
-	  ( fU4l2s.at(0) != 0.0 && utils::nhl::IsProdKinematicallyAllowed( kNHLProdPion2Electron ) );
-	break;
-      case kPdgKP:
-	nextParentGood =
-	  ( fU4l2s.at(1) != 0.0 && utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon2Muon ) ) || 
-	  ( fU4l2s.at(0) != 0.0 && utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon2Electron ) ) ||
-	  ( fU4l2s.at(1) != 0.0 && utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon3Muon ) ) ||
-	  ( fU4l2s.at(0) != 0.0 && utils::nhl::IsProdKinematicallyAllowed( kNHLProdKaon3Electron ) ); 
-	break;
-      case kPdgMuon:
-	nextParentGood = false; // muons are produced from hadron decay, don't contribute to multiplicity
-      case kPdgK0L:
-	nextParentGood =
-	  ( fU4l2s.at(1) != 0.0 && utils::nhl::IsProdKinematicallyAllowed( kNHLProdNeuk3Muon ) ) ||
-	  ( fU4l2s.at(0) != 0.0 && utils::nhl::IsProdKinematicallyAllowed( kNHLProdNeuk3Electron ) );
-	break;
-      }
-      if( nextParentGood ) mNHLHad += 1.0;
-      
-      iCheckEntry++;
-    }
-    multiplicity = 1.0 / mNHLHad;
-
-    LOG( "NHL", pDEBUG )
-      << "\nStarting from entry " << iCurrEntry << ":"
-      << asts.str()
-      << "\n==> multiplicity = " << multiplicity;
-    
-    // back to current entry.
-    ctree->GetEntry(iEntry);
-  }
-  */
 
   // explicitly check if there are any allowed decays for this parent
   bool canGoForward = true;
