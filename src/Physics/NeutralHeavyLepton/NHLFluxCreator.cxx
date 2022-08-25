@@ -268,6 +268,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   double boost_correction_two = 0.0;
   
   // 17-Jun-22: Notice the time component needs to be nonzero to get this to work!
+  /*
   // horrible maths but it is what it is
   double betaStar  = p4NHL_rest.P() / p4NHL_rest.E();
   double betaMag = boost_beta.Mag();
@@ -282,7 +283,16 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   double tau = 1.0 / ( gamma * ( 1.0 - betaMag*betaMag / ( betaStar * betaStar ) ) ) * ( detO.Z() + rootArg );
   
   double timeBit = ( gamma * detO.Z() - tau ) / ( betaMag * gamma );
-  
+  */
+
+  // first guess: betaNHL ~= 1 . Do the Lorentz boosts knocking betaNHL downwards until we hit det centre
+  double betaStar  = p4NHL_rest.P() / p4NHL_rest.E();
+  double betaMag = boost_beta.Mag();
+  double gamma   = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
+  double betaLab = 1.0; // first guess
+
+  // now make a TLorentzVector in lab frame to boost back to rest. 
+  double timeBit = detO.Mag() / units::kSpeedOfLight ; // s
   TLorentzVector detO_4v( detO.X(), detO.Y(), detO.Z(), timeBit ); detO_4v.Boost( -boost_beta );
   TVector3 detO_rest_unit = (detO_4v.Vect()).Unit();
   TLorentzVector p4NHL_rest_good( p4NHL_rest.P() * detO_rest_unit.X(),
@@ -300,8 +310,41 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   TVector3 p4NHL_good_vect = p4NHL_good.Vect();
   TVector3 p4NHL_good_unit = p4NHL_good_vect.Unit();
 
+  // now calculate how far away from det centre we are.
+  // dist = || ( rC - rD ) x p4NHL || / || p4NHL_good || where x == cross product
+  TVector3 distNum = detO.Cross( p4NHL_good_unit );
+  double dist = distNum.Mag(); // m
+
+  while( dist >= 1.0e-3 && betaLab > 0.0 ){ // 1mm tolerance
+    // that didn't work. Knock betaLab down a little bit and try again.
+    betaLab -= 1.0e-3;
+    timeBit = detO.Mag() / ( betaLab * units::kSpeedOfLight );
+    detO_4v.SetXYZT( detO.X(), detO.Y(), detO.Z(), timeBit );
+    detO_4v.Boost( -boost_beta );
+    detO_rest_unit = (detO_4v.Vect()).Unit();
+    p4NHL_rest_good.SetPxPyPzE( p4NHL_rest.P() * detO_rest_unit.X(),
+				p4NHL_rest.P() * detO_rest_unit.Y(),
+				p4NHL_rest.P() * detO_rest_unit.Z(),
+				p4NHL_rest.E() );
+
+    // boost into lab frame
+    p4NHL_good = p4NHL_rest_good;
+    p4NHL_good.Boost( boost_beta );
+    
+    detO_unit = detO.Unit();
+    p4NHL_good_vect = p4NHL_good.Vect();
+    p4NHL_good_unit = p4NHL_good_vect.Unit();
+
+    distNum = detO.Cross( p4NHL_good_unit );
+    dist = distNum.Mag(); // m
+  }
+
   LOG( "NHL", pDEBUG )
     << "\nTimelike bit = " << timeBit
+    << "\ndetO = " << utils::print::Vec3AsString( &detO ) << " [m]"
+    << "\np4NHL_good = " << utils::print::P4AsString( &p4NHL_good ) << " GeV"
+    << "\ndistNum = " << utils::print::Vec3AsString( &distNum ) << " [m GeV]"
+    << "\ndist = " << dist << " [m]"
     << "\ndetO_rest_unit = " << utils::print::Vec3AsString( &detO_rest_unit )
     << "\ndetO_unit = " << utils::print::Vec3AsString( &detO_unit )
     << "\np4NHL_good_unit = " << utils::print::Vec3AsString( &p4NHL_good_unit );
