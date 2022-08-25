@@ -377,19 +377,24 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   
   // calculate acceptance correction
   // first, get minimum and maximum deviation from parent momentum to hit detector in degrees
-  
+
   /*
   double zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par, detO, false );
   double zp = this->GetAngDeviation( p4par, detO, true );
   */
 
-  //if( !fGeoManager )
-  fGeoManager = TGeoManager::Import(fGeomFile.c_str());
+  if( !fGeoManager )
+    fGeoManager = TGeoManager::Import(fGeomFile.c_str());
   double zm = 0.0, zp = 0.0;
   if( fUseBeamMomentum )
     this->GetAngDeviation( p4par_beam, detO_beam, fGeoManager, zm, zp );
   else
     this->GetAngDeviation( p4par, detO, fGeoManager, zm, zp );
+
+  if( zm == -999.9 && zp == 999.9 ){
+    this->FillNonsense( iEntry, gnmf ); return;
+  }
+
   if( isParentOnAxis ){ 
     double tzm = zm, tzp = zp;
     zm = 0.0;
@@ -720,6 +725,7 @@ void NHLFluxCreator::OpenFluxInput( std::string finpath ) const
   TSystemDirectory dir( finpath.c_str(), finpath.c_str() );
   TList * files = dir.GetListOfFiles(); int nFiles = 0;
   assert( files );
+  files->Sort(); // for sanity!
 
   TSystemFile * file;
   TString fname;
@@ -1282,6 +1288,13 @@ void NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, TGeoM
   gm->SetCurrentDirection( detSweepVect.X(), detSweepVect.Y(), detSweepVect.Z() );
 
   TGeoNode * nextNode = gm->FindNextBoundaryAndStep( );
+  
+  if( nextNode == NULL ){
+    LOG( "NHL", pWARN )
+      << "Calculation failed. Returning nonsense.";
+    zm = -999.9; zp = 999.9; return;
+  }
+
   // sometimes the TGeoManager likes to hit the BBox and call this an entry point. Step forward again.
   const double * tmpPoint = gm->GetCurrentPoint();
 
@@ -1336,6 +1349,12 @@ void NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, TGeoM
   double plusDen = detPpar.Mag() * plusVec.Mag(); assert( plusDen > 0.0 );
 
   zp = TMath::ACos( plusNum / plusDen ) * TMath::RadToDeg();
+
+  if( zm > zp ){
+    double tmpzp = zp;
+    zp = zm;
+    zm = zp;
+  }
 
   LOG( "NHL", pDEBUG )
     << "\nIn DETECTOR coordinates:"
