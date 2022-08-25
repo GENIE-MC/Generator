@@ -306,6 +306,7 @@ int TestFluxFromDk2nu()
   const NHLFluxCreator * fluxCreator = dynamic_cast< const NHLFluxCreator * >( algFluxCreator );
 
   fluxCreator->SetInputPath( gOptFluxFilePath );
+  fluxCreator->SetGeomFile( gOptRootGeom );
   int maxFluxEntries = fluxCreator->GetNEntries();
   if( gOptNev > maxFluxEntries ){
     LOG( "gevald_nhl", pWARN )
@@ -313,6 +314,15 @@ int TestFluxFromDk2nu()
       << maxFluxEntries << " flux entries. Truncating events to " << maxFluxEntries << ".";
     gOptNev = maxFluxEntries;
   }
+
+  if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
+
+  // RETHERE implement top volume option from cmd line
+  TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
+  assert( top_volume );
+  TGeoShape * ts  = top_volume->GetShape();
+  TGeoBBox *  box = (TGeoBBox *)ts;
+  fluxCreator->ImportBoundingBox( box );
 
   TFile * fout = TFile::Open( foutName.c_str(), "RECREATE" );
   TH1D hEAll, hEPion, hEKaon, hEMuon, hENeuk;
@@ -372,13 +382,13 @@ int TestFluxFromDk2nu()
       }
       
       if( ievent == gOptNev ) break;
+      
+      fluxCreator->SetCurrentEntry( ievent );
 
       EventRecord * event = new EventRecord;
 
-      // first retrieve gnmf and THEN ProcessEventRecord.
-      // This ensures both are looking at the same flux entry.
-      flux::GNuMIFluxPassThroughInfo * gnmf = fluxCreator->RetrieveGNuMIFluxPassThroughInfo();
       fluxCreator->ProcessEventRecord(event);
+      flux::GNuMIFluxPassThroughInfo * gnmf = fluxCreator->RetrieveGNuMIFluxPassThroughInfo();
       
       // reject nonsense
       if( gnmf->necm < 0 ){
@@ -501,6 +511,9 @@ int TestFluxFromDk2nu()
 	  << "\nProduction channel = " << utils::nhl::ProdAsString( pChannel );
 
       } // if not nonsense
+
+      // clean up
+      delete event;
 
       ievent++;
     }
