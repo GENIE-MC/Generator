@@ -325,8 +325,8 @@ double theta = (P.Angle(Z))/M_PI*180; //angle away from Z vector in degrees
 
 int exit = 0;
 
-if (theta > theta_lim){
-    exit += 1; //if angle away from Z vector is larger than limiting angle, particle is considered "exited".
+if (theta < theta_lim){
+    exit += 1; //if angle away from Z vector is less than limiting angle, particle is considered "exited".
 }
 
 int in = myMap.find(myPdg)->second; //in is the index number for the given particle
