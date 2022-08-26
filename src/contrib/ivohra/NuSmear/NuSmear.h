@@ -494,7 +494,7 @@ std::map<int,int> myMap;
 
 myMap[kPdgPiP] = 0;
 myMap[kPdgPiM] = 1;
-myMap[kPdgPi0] = 1;
+myMap[kPdgPi0] = 2;
 myMap[kPdgKP] = 3;
 myMap[kPdgKM] = 4;
 myMap[kPdgGamma] = 5;
