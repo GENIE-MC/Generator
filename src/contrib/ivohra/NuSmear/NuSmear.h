@@ -579,8 +579,8 @@ resolution += (angularResDeg_Default[in]); //Default angular resolution
 
 }
      
-std::uniform_real_distribution<double> distUni((theta - resolution/2),(theta + resolution/2)); //uniform distribution centered at true theta
-return distUni(gen);
+std::normal_distribution<double> distNorm(theta,resolution); //gaussian distribution centered at true theta with standard deviation = resolution
+return distNorm(gen);
 
 }
 
