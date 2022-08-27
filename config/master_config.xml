@@ -222,6 +222,7 @@
    <config alg="genie::MECScaleVsW">                        MECScaleVsW.xml                        </config>
    <config alg="genie::XSecLinearCombinations">             XSecLinearCombinations.xml             </config>
    <config alg="genie::QvalueShifter">                      QvalueShifter.xml                      </config>
+   <config alg="genie::DCCSPPPXSec">                        DCCSPPPXSec.xml                        </config>
 
    <!--  ****** CONFIGURATION FOR NUCLEAR ENV. ALGORITHMS ****** -->
    <config alg="genie::NuclearModelMap">             NuclearModelMap.xml             </config>

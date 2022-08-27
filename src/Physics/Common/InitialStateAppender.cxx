@@ -72,8 +72,11 @@ void InitialStateAppender::AddNeutrino(GHepRecord * evrec) const
   const TLorentzVector v4(0.,0.,0.,0.);
 
   int pdgc = init_state.ProbePdg();
-
-  LOG("ISApp", pINFO) << "Adding neutrino [pdgc = " << pdgc << "]";
+  
+  if ( pdg::IsNeutrino(pdgc) || pdg::IsAntiNeutrino(pdgc) )
+     LOG("ISApp", pINFO) << "Adding neutrino [pdgc = " << pdgc << "]";
+  else if ( pdg::IsNegChargedLepton(pdgc) || pdg::IsPosChargedLepton(pdgc) )
+     LOG("ISApp", pINFO) << "Adding charged lepton [pdgc = " << pdgc << "]";
 
   evrec->AddParticle(pdgc,kIStInitialState, -1,-1,-1,-1, *p4, v4);
 

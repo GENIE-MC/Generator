@@ -413,8 +413,11 @@ string InitialState::AsString(void) const
 
   ostringstream init_state;
 
-  if (this->Probe()->Mass() > 0) {
+  if ( (pdg::IsDarkMatter(fProbePdg) ||  pdg::IsAntiDarkMatter(fProbePdg) ) && this->Probe()->Mass() > 0) {
     init_state << "dm_mass:" << this->Probe()->Mass() << ";";
+  }
+  else if ( pdg::IsNegChargedLepton(fProbePdg) ||  pdg::pdg::IsPosChargedLepton(fProbePdg) ) {
+    init_state << "lep-pdg:"  << this->ProbePdg()  << "(" << fProbeHelicity << ");";
   }
   else {
     init_state << "nu-pdg:"  << this->ProbePdg()  << ";";
@@ -430,7 +433,7 @@ void InitialState::Print(ostream & stream) const
 
   stream << " |--> probe        : "
          << "PDG-code = " << fProbePdg
-         << " (" << this->Probe()->GetName() << ")" << endl;
+         << " (" << this->Probe()->GetName() << "),   helicity = " << fProbeHelicity << endl;
 
   stream << " |--> nucl. target : "
          << "Z = "          << fTgt->Z()
@@ -513,5 +516,19 @@ InitialState & InitialState::operator = (const InitialState & init_state)
 {
   this->Copy(init_state);
   return (*this);
+}
+//___________________________________________________________________________
+int  ProbeHelicity () const
+{
+   return fProbeHelicity;
+}
+//___________________________________________________________________________
+void SetProbeHelicity (int helicity)
+{
+   fProbeHelicity = helicity;
+   if pdg::IsNeutrino(fProbePdg)
+     fProbeHelicity = 1;
+   else if IsAntiNeutrino(fProbePdg)
+     fProbeHelicity = -1;
 }
 //___________________________________________________________________________

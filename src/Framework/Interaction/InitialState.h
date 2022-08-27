@@ -76,6 +76,9 @@ public:
   void SetTgtP4    (const TLorentzVector & P4); // in LAB-frame
   void SetProbeP4  (const TLorentzVector & P4); // in LAB-frame
   void SetProbeE   (double E);                  // in LAB-frame (0,0,E,E)
+  
+  int  ProbeHelicity () const;
+  void SetProbeHelicity (int helicity);
 
   bool IsNuP    (void) const; ///< is neutrino      + proton?
   bool IsNuN    (void) const; ///< is neutrino      + neutron?
@@ -106,10 +109,11 @@ private:
   void CleanUp    (void);
 
   //-- Private data members
-  int              fProbePdg; ///< probe PDG code
-  Target *         fTgt;      ///< nuclear target
-  TLorentzVector * fProbeP4;  ///< probe 4-momentum in LAB-frame
-  TLorentzVector * fTgtP4;    ///< nuclear target 4-momentum in LAB-frame
+  int              fProbePdg;      ///< probe PDG code
+  Target *         fTgt;           ///< nuclear target
+  TLorentzVector * fProbeP4;       ///< probe 4-momentum in LAB-frame
+  TLorentzVector * fTgtP4;         ///< nuclear target 4-momentum in LAB-frame
+  int              fProbeHelicity; ///< probe helicity
 
 ClassDef(InitialState,1)
 };

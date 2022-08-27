@@ -7,8 +7,8 @@
           for specific W, Q2, neutrino energy(in lab frame) & pion angles in the Adler frame, where \n
           Q2          : Sqaured 4-momentum transfer, Q2 = -k*k         \n                        
           W           : Invariant mass                                 \n                      
-          cost        : Cosine of pion polar angle in Adler frame      \n                      
-          phi         : Pion azimuthal angle in Adler frame            \n
+          cost        : Cosine of pion polar angle in N\pi rest frame  \n                      
+          phi         : Pion azimuthal angle in N\pi rest frame        \n
 
 for the following channels:      
 
@@ -40,18 +40,13 @@ for the following channels:
 
 #include <vector>
 #include <complex>
+#include <map>
+#include <memory>
+#include <string>
 
-
-#include "Framework/EventGen/XSecAlgorithmI.h"
-#include "Framework/ParticleData/BaryonResonance.h"
-#include "Framework/ParticleData/BaryonResList.h"
-#include "Physics/Resonance/XSection/RSHelicityAmplModelI.h"
-#include "Physics/Resonance/XSection/RSHelicityAmpl.h"
-#include "Physics/Resonance/XSection/FKR.h"
-#include "Physics/QuasiElastic/XSection/ELFormFactorsModelI.h"
-#include "Physics/QuasiElastic/XSection/QELFormFactorsModelI.h"
-#include "Physics/QuasiElastic/XSection/ELFormFactors.h"
-#include "Physics/QuasiElastic/XSection/QELFormFactors.h"
+#include "Framework/Interaction/SppChannel.h"
+//#include "Framework/EventGen/XSecAlgorithmI.h"
+//#include "Framework/ParticleData/BaryonResonance.h"
 
 namespace genie {
 
@@ -63,7 +58,7 @@ namespace genie {
     
     public:
       DCCSPPPXSec();
-      DCCSPPPXSec(string config);
+      DCCSPPPXSec(std::string config);
       virtual ~DCCSPPPXSec();
 
       // implement the XSecAlgorithmI interface 
@@ -75,16 +70,53 @@ namespace genie {
       // overload the Algorithm::Configure() methods to load private data
       // members from configuration options
       void Configure(const Registry & config);
-      void Configure(string config);
+      void Configure(std::string config);
 
     private:
             
+      using VAmpl = std::vector < std::complex<double> >;
+      using CPtrDT  = const std::vector<std::vector<double> > *;
+      using UPtrDT = std::unique_ptr < std::vector<std::vector<double> > >;
+      
       void LoadConfig (void);
+      VAmpl Amplitudes(double W, double Q2, unsigned int L, SppChannel_t spp_chn) const;
+      CPtrDT GetDataTable(SppChannel_t spp_chn) const;
+      CPtrDT BuildDataTable(SppChannel_t spp_chn) const;
+      UPtrDT ParseDataTableFile( std::string full_file_name ) const;
+      void GetTablePos(double W, double Q2, unsigned int L, TablePos & tabpos) const;
+      std::string FindDataTableFile(const std::string &basename, bool &ok) const;
+      std::string GetDataTableFileBasename(SppChannel_t spp_chn) const;
+      double dPdx (unsigned int L, double x) const;
+      double d2Pdx2 (unsigned int L, double x) const;
       
       // configuration data
-      string fKFTable;             ///< table of Fermi momentum (kF) constants for various nuclei
-      bool fUseRFGParametrization; ///< use parametrization for fermi momentum insted of table?
-      bool fUsePauliBlocking;      ///< account for Pauli blocking?
+      struct TablePos
+      {
+        unsigned int lo_row_W; 
+        unsigned int hi_row_W; 
+        unsigned int lo_row_Q2; 
+        unsigned int hi_row_Q2; 
+        double lo_W;
+        double hi_W; 
+        double lo_Q2; 
+        double hi_Q2;
+      };
+      
+      /// Cache of tables with amplitudes that have been fully loaded into memory
+      ///
+      /// Keys are SPP channels IDs, values are pointers to table with amplitudes
+      mutable std::map<SppChannel_t, UPtrDT> fTables;
+      /// If true, logging messages will be issued when a requested hadron tensor
+      /// file cannot be found
+      bool fWarnIfMissing;
+      /// Paths to check when searching for hadron tensor data files
+      std::vector<std::string> fDataPaths;
+      /// Table of Fermi momentum (kF) constants for various nuclei
+      std::string fKFTable;
+      /// Use parametrization for fermi momentum insted of table?
+      bool fUseRFGParametrization;
+      /// Account for Pauli blocking?
+      bool fUsePauliBlocking;
 
       const XSecIntegratorI * fXSecIntegrator;
                  

@@ -59,13 +59,19 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
   //     vb p -> vb n pi+
   //     vb n -> vb n pi0
   //     vb n -> vb p pi-
-  //
+  // charged lepton  EM
+  //     l p -> l p pi0
+  //     l p -> l n pi+
+  //     l n -> l n pi0
+  //     l n -> l p pi-
 
   const int n_nucc_channels = 3;
   const int n_nunc_channels = 4;
+  const int n_lem_channels = 4;
 
   SppChannel_t nucc_channels[n_nucc_channels] = {kSppNull};
   SppChannel_t nunc_channels[n_nunc_channels] = {kSppNull};
+  SppChannel_t lem_channels[n_lem_channels]   = {kSppNull};
 
   int nupdg  = init_state.ProbePdg();
 
@@ -86,6 +92,12 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
     nunc_channels[1] = kSpp_vbp_nc_01100;
     nunc_channels[2] = kSpp_vbn_nc_01010;
     nunc_channels[3] = kSpp_vbn_nc_10001;
+  }
+  else if ( (pdg::IsNegChargedLepton(nupdg) || pdg::IsPosChargedLepton(nupdg)) ) {
+    lem_channels[0] = kSpp_lp_em_10010;
+    lem_channels[1] = kSpp_lp_em_01100;
+    lem_channels[2] = kSpp_ln_em_01010;
+    lem_channels[3] = kSpp_ln_em_10001;
   }
   else {
      LOG("IntLst", pWARN)
@@ -109,7 +121,7 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
        if( (struck_nucleon == kPdgProton  && hasP) ||
            (struck_nucleon == kPdgNeutron && hasN) ) {
 
-          ProcessInfo proc_info(kScResonant, kIntWeakCC);
+          ProcessInfo proc_info(kScSinglePion, kIntWeakCC);
           Interaction * interaction = new Interaction(init_state, proc_info);
 
           Target * target = interaction->InitStatePtr()->TgtPtr();
@@ -130,7 +142,7 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
        if( (struck_nucleon == kPdgProton  && hasP) ||
            (struck_nucleon == kPdgNeutron && hasN) ) {
 
-          ProcessInfo proc_info(kScResonant, kIntWeakNC);
+          ProcessInfo proc_info(kScSinglePion, kIntWeakNC);
           Interaction * interaction = new Interaction(init_state, proc_info);
 
           Target * target = interaction->InitStatePtr()->TgtPtr();
@@ -141,7 +153,27 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
           intlist->push_back(interaction);
        }
     }//nc channels
-  }//cc/nc
+  }  else if (fIsEM) {
+
+    // EM
+    for(int i=0; i<n_lem_channels; i++) {
+       int struck_nucleon = SppChannel::InitStateNucleon(lem_channels[i]);
+
+       if( (struck_nucleon == kPdgProton  && hasP) ||
+           (struck_nucleon == kPdgNeutron && hasN) ) {
+
+          ProcessInfo proc_info(kScSinglePion, kIntEM);
+          Interaction * interaction = new Interaction(init_state, proc_info);
+
+          Target * target = interaction->InitStatePtr()->TgtPtr();
+
+          target->SetHitNucPdg(struck_nucleon);
+          this->AddFinalStateInfo(interaction, lem_channels[i]);
+
+          intlist->push_back(interaction);
+       }
+    }//em channels
+  }
 
   if(intlist->size() == 0) {
      LOG("IntLst", pERROR)
@@ -206,5 +238,6 @@ void RSPPInteractionListGenerator::LoadConfigData(void)
 {
   this->GetParamDef("is-CC", fIsCC, false);
   this->GetParamDef("is-NC", fIsNC, false);
+  this->GetParamDef("is-EM", fIsEM, false);
 }
 //____________________________________________________________________________

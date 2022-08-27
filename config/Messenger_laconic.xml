@@ -173,6 +173,7 @@
   <priority msgstream="QELKinematics">                 WARN   </priority>
   <priority msgstream="RESXSec">                       WARN   </priority>
   <priority msgstream="RESPXSec">                      WARN   </priority>
+  <priority msgstream="DCCSPPPXSec">                   WARN   </priority>
   <priority msgstream="ReinSehgalCohPi">               WARN   </priority>
   <priority msgstream="ReinSehgalRes">                 WARN   </priority>
   <priority msgstream="ReinSehgalResT">                WARN   </priority>
