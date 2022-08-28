@@ -701,14 +701,14 @@ double BSKLNBaseRESPXSec2014::XSec(
         k = TMath::Sqrt(k0*k0+Q2);  // previous value of k is overridden
         q0 = (W2-Mnuc2+kPionMass2)/(2*W);
         q = TMath::Sqrt(q0*q0-kPionMass2);
-     }
 
-     if ( 2*P_Fermi < k-q )
-        FactorPauli_RES = 1.0;
-     if ( 2*P_Fermi >= k+q )
-        FactorPauli_RES = ((3*k*k+q*q)/(2*P_Fermi)-(5*TMath::Power(k,4)+TMath::Power(q,4)+10*k*k*q*q)/(40*TMath::Power(P_Fermi,3)))/(2*k);
-     if ( 2*P_Fermi >= k-q && 2*P_Fermi <= k+q )
-        FactorPauli_RES = ((q+k)*(q+k)-4*P_Fermi*P_Fermi/5-TMath::Power(k-q, 3)/(2*P_Fermi)+TMath::Power(k-q, 5)/(40*TMath::Power(P_Fermi, 3)))/(4*q*k);
+        if ( 2*P_Fermi < k-q )
+           FactorPauli_RES = 1.0;
+        if ( 2*P_Fermi >= k+q )
+           FactorPauli_RES = ((3*k*k+q*q)/(2*P_Fermi)-(5*TMath::Power(k,4)+TMath::Power(q,4)+10*k*k*q*q)/(40*TMath::Power(P_Fermi,3)))/(2*k);
+        if ( 2*P_Fermi >= k-q && 2*P_Fermi <= k+q )
+           FactorPauli_RES = ((q+k)*(q+k)-4*P_Fermi*P_Fermi/5-TMath::Power(k-q, 3)/(2*P_Fermi)+TMath::Power(k-q, 5)/(40*TMath::Power(P_Fermi, 3)))/(4*q*k);
+     }
 
      xsec *= FactorPauli_RES;
   }

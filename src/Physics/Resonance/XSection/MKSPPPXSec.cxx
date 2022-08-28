@@ -1316,23 +1316,15 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
 
      double FactorPauli_RES = 1.0;
 
-     double k0 = 0., q = 0., q0 = 0., k = 0.;
-
      if (P_Fermi > 0.)
      {
-        k0 = (W2 - M2 - Q2)/(2*W);
-        k = TMath::Sqrt(k0*k0 + Q2);  // previous value of k is overridden
-        q0 = (W2 - M2 + kPionMass2)/(2*W);
-        q = TMath::Sqrt(q0*q0 - kPionMass2);
+        if ( 2*P_Fermi < abs_mom_k-abs_mom_q )
+           FactorPauli_RES = 1.0;
+        if ( 2*P_Fermi >= abs_mom_k+abs_mom_q )
+           FactorPauli_RES = ((3*abs_mom_k*abs_mom_k + abs_mom_q*abs_mom_q)/(2*P_Fermi) - (5*TMath::Power(abs_mom_k,4) + TMath::Power(abs_mom_q,4) + 10*abs_mom_k*abs_mom_k*abs_mom_q*abs_mom_q)/(40*TMath::Power(P_Fermi,3)))/(2*abs_mom_k);
+        if ( 2*P_Fermi >= abs_mom_k-abs_mom_q && 2*P_Fermi <= abs_mom_k+abs_mom_q )
+           FactorPauli_RES = ((abs_mom_q + abs_mom_k)*(abs_mom_q + abs_mom_k) - 4*P_Fermi*P_Fermi/5 - TMath::Power(abs_mom_k - abs_mom_q, 3)/(2*P_Fermi)+TMath::Power(abs_mom_k - abs_mom_q, 5)/(40*TMath::Power(P_Fermi, 3)))/(4*abs_mom_q*abs_mom_k);
      }
-
-     if ( 2*P_Fermi < k-q )
-        FactorPauli_RES = 1.0;
-     if ( 2*P_Fermi >= k+q )
-        FactorPauli_RES = ((3*k*k + q*q)/(2*P_Fermi) - (5*TMath::Power(k,4) + TMath::Power(q,4) + 10*k*k*q*q)/(40*TMath::Power(P_Fermi,3)))/(2*k);
-     if ( 2*P_Fermi >= k-q && 2*P_Fermi <= k+q )
-        FactorPauli_RES = ((q + k)*(q + k) - 4*P_Fermi*P_Fermi/5 - TMath::Power(k - q, 3)/(2*P_Fermi)+TMath::Power(k - q, 5)/(40*TMath::Power(P_Fermi, 3)))/(4*q*k);
-
      xsec *= FactorPauli_RES;
   }
   return xsec;
