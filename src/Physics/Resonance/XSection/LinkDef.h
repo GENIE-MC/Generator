@@ -34,4 +34,6 @@
 
 #pragma link C++ class genie::BostedChristyEMPXSec;
 
+#pragma link C++ class genie::DCCSPPPXSec;
+
 #endif

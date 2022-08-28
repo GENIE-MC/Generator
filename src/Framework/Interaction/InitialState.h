@@ -77,7 +77,7 @@ public:
   void SetProbeP4  (const TLorentzVector & P4); // in LAB-frame
   void SetProbeE   (double E);                  // in LAB-frame (0,0,E,E)
   
-  int  ProbeHelicity () const;
+  int  ProbeHelicity    (void) const;
   void SetProbeHelicity (int helicity);
 
   bool IsNuP    (void) const; ///< is neutrino      + proton?

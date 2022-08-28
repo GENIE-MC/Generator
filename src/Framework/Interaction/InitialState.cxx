@@ -416,7 +416,7 @@ string InitialState::AsString(void) const
   if ( (pdg::IsDarkMatter(fProbePdg) ||  pdg::IsAntiDarkMatter(fProbePdg) ) && this->Probe()->Mass() > 0) {
     init_state << "dm_mass:" << this->Probe()->Mass() << ";";
   }
-  else if ( pdg::IsNegChargedLepton(fProbePdg) ||  pdg::pdg::IsPosChargedLepton(fProbePdg) ) {
+  else if ( pdg::IsChargedLepton(fProbePdg) ) {
     init_state << "lep-pdg:"  << this->ProbePdg()  << "(" << fProbeHelicity << ");";
   }
   else {
@@ -518,17 +518,17 @@ InitialState & InitialState::operator = (const InitialState & init_state)
   return (*this);
 }
 //___________________________________________________________________________
-int  ProbeHelicity () const
+int InitialState::ProbeHelicity (void) const
 {
    return fProbeHelicity;
 }
 //___________________________________________________________________________
-void SetProbeHelicity (int helicity)
+void InitialState::SetProbeHelicity (int helicity)
 {
    fProbeHelicity = helicity;
-   if pdg::IsNeutrino(fProbePdg)
+   if ( pdg::IsNeutrino(fProbePdg) )
      fProbeHelicity = 1;
-   else if IsAntiNeutrino(fProbePdg)
+   else if ( pdg::IsAntiNeutrino(fProbePdg) )
      fProbeHelicity = -1;
 }
 //___________________________________________________________________________

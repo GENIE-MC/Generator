@@ -10,31 +10,31 @@
 */
 //____________________________________________________________________________
 
-//#include <TSystem.h>
+#include <TSystem.h>
 #include <TMath.h>
-//
-//#include "Framework/Algorithm/AlgFactory.h"
-//#include "Framework/Algorithm/AlgConfigPool.h"
-//#include "Framework/ParticleData/BaryonResUtils.h"
-//#include "Framework/Conventions/GBuild.h"
-//#include "Framework/Conventions/Constants.h"
-//#include "Framework/Conventions/RefFrame.h"
-//#include "Framework/Conventions/KineVar.h"
+#include <Math/SpecFuncMathMore.h>
+
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/RefFrame.h"
+#include "Framework/Conventions/KineVar.h"
 #include "Framework/Conventions/Units.h"
-//#include <Framework/Conventions/KinePhaseSpace.h>
+#include <Framework/Conventions/KinePhaseSpace.h>
 #include "Framework/Messenger/Messenger.h"
-//#include "Framework/ParticleData/PDGCodes.h"
-//#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGLibrary.h"
-//#include "Framework/Utils/KineUtils.h"
-//#include "Framework/Utils/Range1.h"
+#include "Framework/Utils/KineUtils.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Physics/Resonance/XSection/DCCSPPPXSec.h"
-//#include "Physics/NuclearState/FermiMomentumTablePool.h"
-//#include "Physics/NuclearState/FermiMomentumTable.h"
-//#include "Physics/NuclearState/NuclearUtils.h"
+#include "Physics/NuclearState/FermiMomentumTablePool.h"
+#include "Physics/NuclearState/FermiMomentumTable.h"
+#include "Physics/NuclearState/NuclearUtils.h"
+#include "Physics/Resonance/XSection/DCCSPPPXSec.h"
 
-#include <cmath>
+#include <fstream>
 #include <limits>
 
 using namespace genie;
@@ -74,11 +74,12 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
 
   int  nucpdgc   = target.HitNucPdg();
-  int  probepdgc = init_state.ProbePdg();
+//  int  probepdgc = init_state.ProbePdg();
   int  helicity  = init_state.ProbeHelicity();
-  bool is_nubar  = pdg::IsAntiNeutrino     (probepdgc);
-  bool is_CC     = proc_info.IsWeakCC();
-  bool is_NC     = proc_info.IsWeakNC();
+//  bool is_nubar  = pdg::IsAntiNeutrino     (probepdgc);
+    bool is_EM     = proc_info.IsEM();
+//  bool is_CC     = proc_info.IsWeakCC();
+//  bool is_NC     = proc_info.IsWeakNC();
   bool is_p      = pdg::IsProton  (nucpdgc);
 
 
@@ -193,8 +194,8 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
   }
   
   // Eq. 21 of ref. 4
-  double Fxx, Fyy, F00, ReFx0, ImFx0;
-  std::complex<double> Fx0;
+  double ReFxx, ReFyy, ReF00, ReFx0, ImFx0;
+  std::complex<double> Fxx, Fyy, F00, Fx0;
   for (int sf = 0; sf<2; sf++)
   {
     for (int si = 0; si<2; si++)
@@ -205,31 +206,32 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
       Fx0 += Fx[sf][si]*std::conj(F0[sf][si]);
     }
   }
-  Fxx*=0.5;
-  Fyy*=0.5;
-  F00*=0.5;
+  ReFxx = 0.5*Fxx.real();
+  ReFyy = 0.5*Fyy.real();
+  ReF00 = 0.5*F00.real();
   ReFx0 = 0.5*Fx0.real();
   ImFx0 = 0.5*Fx0.imag();
   
   // Eq. 9 of ref. 4
-  dsigmaTdOmega_pi    = k*(Fxx + Fyy)/q_gamma/2.;
+  double dsigmaTdOmega_pi    = k*(ReFxx + ReFyy)/q_gamma/2.;
   // Eq. 10 of ref. 4
-  dsigmaLdOmega_pi    = k*Q2*F00/q_gamma/q/q;
+  double dsigmaLdOmega_pi    = k*Q2*ReF00/q_gamma/q/q;
   // Eq. 11 of ref. 4
-  dsigmaTTdOmega_pi   = k*(Fxx - Fyy)/q_gamma/2.;
+  double dsigmaTTdOmega_pi   = k*(ReFxx - ReFyy)/q_gamma/2.;
   // Eq. 12 of ref. 4
-  dsigmaLTdOmega_pi   = -k*TMath::Sqrt(Q2)*ReFx0/q_gamma/q;
+  double dsigmaLTdOmega_pi   = -k*TMath::Sqrt(Q2)*ReFx0/q_gamma/q;
   // Eq. 13 of ref. 4
-  dsigmaLTpdOmega_pi  = k*TMath::Sqrt(Q2)*ImFx0/q_gamma/q;
+  double dsigmaLTpdOmega_pi  = k*TMath::Sqrt(Q2)*ImFx0/q_gamma/q;
 
+  double dsigmavdOmega_pi;
   if (kpsdim == 4)
   {
     // Eq. 8 of ref. 4
     dsigmavdOmega_pi = 
        dsigmaTdOmega_pi + epsilon*dsigmaLdOmega_pi +
        epsilon*dsigmaTTdOmega_pi*TMath::Cos(2.*phi_pi) +
-       TMath::Sqrt(2*epsilon(1. + epsilon))*dsigmaLTdOmega_pi*TMath::Cos(phi_pi) + 
-       TMath::Sqrt(2*epsilon(1. - epsilon))*dsigmaLTpdOmega_pi*TMath::Sin(phi_pi)*helicity;
+       TMath::Sqrt(2*epsilon*(1. + epsilon))*dsigmaLTdOmega_pi*TMath::Cos(phi_pi) + 
+       TMath::Sqrt(2*epsilon*(1. - epsilon))*dsigmaLTpdOmega_pi*TMath::Sin(phi_pi)*helicity;
   }
   else if (kpsdim == 3)
   {
@@ -293,22 +295,15 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
 
      double FactorPauli_RES = 1.0;
 
-     double k0 = 0., q = 0., q0 = 0., k = 0.;
-
      if (P_Fermi > 0.)
      {
-        k0 = (W2 - M2 - Q2)/(2*W);
-        k = TMath::Sqrt(k0*k0 + Q2);  // previous value of k is overridden
-        q0 = (W2 - M2 + kPionMass2)/(2*W);
-        q = TMath::Sqrt(q0*q0 - kPionMass2);
+        if ( 2*P_Fermi < q-k )
+           FactorPauli_RES = 1.0;
+        if ( 2*P_Fermi >= q+k )
+           FactorPauli_RES = ((3*q*q + k*k)/(2*P_Fermi) - (5*TMath::Power(q,4) + TMath::Power(k,4) + 10*q*q*k*k)/(40*TMath::Power(P_Fermi,3)))/(2*q);
+        if ( 2*P_Fermi >= q-k && 2*P_Fermi <= q+k )
+           FactorPauli_RES = ((k + q)*(k + q) - 4*P_Fermi*P_Fermi/5 - TMath::Power(q - k, 3)/(2*P_Fermi)+TMath::Power(q - k, 5)/(40*TMath::Power(P_Fermi, 3)))/(4*k*q);
      }
-
-     if ( 2*P_Fermi < k-q )
-        FactorPauli_RES = 1.0;
-     if ( 2*P_Fermi >= k+q )
-        FactorPauli_RES = ((3*k*k + q*q)/(2*P_Fermi) - (5*TMath::Power(k,4) + TMath::Power(q,4) + 10*k*k*q*q)/(40*TMath::Power(P_Fermi,3)))/(2*k);
-     if ( 2*P_Fermi >= k-q && 2*P_Fermi <= k+q )
-        FactorPauli_RES = ((q + k)*(q + k) - 4*P_Fermi*P_Fermi/5 - TMath::Power(k - q, 3)/(2*P_Fermi)+TMath::Power(k - q, 5)/(40*TMath::Power(P_Fermi, 3)))/(4*q*k);
 
      xsec *= FactorPauli_RES;
   }
@@ -375,8 +370,8 @@ bool DCCSPPPXSec::ValidKinematics(const Interaction * interaction) const
   double Enu_CM = (s - Mi*Mi)/2./ECM;
   double El_CM  = (s + ml2 - W*W)/2./ECM;
   double Pl_CM  = (El_CM - ml)<0?0:TMath::Sqrt(El_CM*El_CM - ml2);
-  Q2min = (2*Enu_CM*(El_CM - Pl_CM) - ml2)*(1. + std::numeric_limits<double>::epsilon());
-  Q2max = (2*Enu_CM*(El_CM + Pl_CM) - ml2)*(1. - std::numeric_limits<double>::epsilon());
+  double Q2min = (2*Enu_CM*(El_CM - Pl_CM) - ml2)*(1. + std::numeric_limits<double>::epsilon());
+  double Q2max = (2*Enu_CM*(El_CM + Pl_CM) - ml2)*(1. - std::numeric_limits<double>::epsilon());
   
   // model restrictions
   Wmin  = TMath::Max (Wmin,  1.08);
@@ -443,7 +438,7 @@ void DCCSPPPXSec::LoadConfig(void)
 
 }
 //____________________________________________________________________________
-Ampl::CPtrDT DCCSPPPXSec::GetDataTable(SppChannel_t spp_chn) const
+DCCSPPPXSec::CPtrDT DCCSPPPXSec::GetDataTable(SppChannel_t spp_chn) const
 {
 
   // First check to see if the data table object already exists in memory.
@@ -462,7 +457,7 @@ Ampl::CPtrDT DCCSPPPXSec::GetDataTable(SppChannel_t spp_chn) const
   return dt;
 }
 //____________________________________________________________________________
-Ampl::CPtrDT DCCSPPPXSec::BuildDataTable(SppChannel_t spp_chn) const
+DCCSPPPXSec::CPtrDT DCCSPPPXSec::BuildDataTable(SppChannel_t spp_chn) const
 {
   bool table_ok = true;
 
@@ -505,7 +500,7 @@ Ampl::CPtrDT DCCSPPPXSec::BuildDataTable(SppChannel_t spp_chn) const
   return NULL;
 }
 //____________________________________________________________________________
-Ampl::UPtrDT DCCSPPPXSec::ParseDataTableFile( std::string full_file_name ) const
+DCCSPPPXSec::UPtrDT DCCSPPPXSec::ParseDataTableFile( std::string full_file_name ) const
 {
   UPtrDT dt = std::make_unique< std::vector<std::vector<double> > >();
   std::ifstream infile( full_file_name.c_str() );
@@ -713,7 +708,7 @@ std::string DCCSPPPXSec::GetDataTableFileBasename(SppChannel_t spp_chn) const
   }
 }
 //____________________________________________________________________________
-Ampl::VAmpl DCCSPPPXSec::Amplitudes(double W, double Q2, unsigned int L, SppChannel_t spp_chn) const
+DCCSPPPXSec::VAmpl DCCSPPPXSec::Amplitudes(double W, double Q2, unsigned int L, SppChannel_t spp_chn) const
 {
   CPtrDT pdt = GetDataTable(spp_chn);
   VAmpl vampl(6);

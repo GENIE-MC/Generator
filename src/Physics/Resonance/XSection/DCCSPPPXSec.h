@@ -3,21 +3,30 @@
 
 \class    genie::DCCSPPPXSec
 
-\brief    Class calculate differental cross-section d^4(sig)/d(Q2)d(W)d(cost)d(phi),
-          for specific W, Q2, neutrino energy(in lab frame) & pion angles in the Adler frame, where \n
-          Q2          : Sqaured 4-momentum transfer, Q2 = -k*k         \n                        
-          W           : Invariant mass                                 \n                      
-          cost        : Cosine of pion polar angle in N\pi rest frame  \n                      
-          phi         : Pion azimuthal angle in N\pi rest frame        \n
+\brief    
+Class calculate differental cross-sections  
+\f[
+\frac{d^4\sigma}{dQ^2dWd\cos\theta_\pi d\phi_\pi}
+\f]
+or
+\f[
+\frac{d^3\sigma}{dQ^2dWd\cos\theta_\pi}
+\f]
+for specific neutrino energy (in lab frame), where:
 
-for the following channels:      
 
-          1       l + p -> l + p + pi0
-          2       l + p -> l + n + pi+
-          3       l + n -> l + n + pi0
-          4       l + n -> l + p + pi-
-                                                                                           
-                                                          
+Variable             | Description
+---------------------|-----------------------------------------------------
+\f$W\f$              | Invariant mass
+\f$Q^2\f$            | Sqaured 4-momentum transfer
+\f$\cos\theta_\pi\f$ | Cosine of pion polar angle in \f$\pi\f$N rest frame
+\f$\phi_\pi\f$       | Pion azimuthal angle in \f$\pi\f$N rest frame
+for the following channels:
+-#  \f$\ell + p \to \ell + p + \pi^0\f$
+-#  \f$\ell + p \to \ell + n + \pi^+\f$
+-#  \f$\ell + n \to \ell + n + \pi^0\f$
+-#  \f$\ell + n \to \ell + p + \pi^-\f$
+                                                                                      
 \ref      
           1. T. Sato , T.-S. H. Lee, Phys. Rev. C 54, 2660(1996)
           2. A. Matsuyama , T.-S. H. Lee, T. Sato, Phys. Rept. 439, 193(2007)
@@ -45,8 +54,7 @@ for the following channels:
 #include <string>
 
 #include "Framework/Interaction/SppChannel.h"
-//#include "Framework/EventGen/XSecAlgorithmI.h"
-//#include "Framework/ParticleData/BaryonResonance.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 
 namespace genie {
 
@@ -78,18 +86,7 @@ namespace genie {
       using CPtrDT  = const std::vector<std::vector<double> > *;
       using UPtrDT = std::unique_ptr < std::vector<std::vector<double> > >;
       
-      void LoadConfig (void);
-      VAmpl Amplitudes(double W, double Q2, unsigned int L, SppChannel_t spp_chn) const;
-      CPtrDT GetDataTable(SppChannel_t spp_chn) const;
-      CPtrDT BuildDataTable(SppChannel_t spp_chn) const;
-      UPtrDT ParseDataTableFile( std::string full_file_name ) const;
-      void GetTablePos(double W, double Q2, unsigned int L, TablePos & tabpos) const;
-      std::string FindDataTableFile(const std::string &basename, bool &ok) const;
-      std::string GetDataTableFileBasename(SppChannel_t spp_chn) const;
-      double dPdx (unsigned int L, double x) const;
-      double d2Pdx2 (unsigned int L, double x) const;
-      
-      // configuration data
+       
       struct TablePos
       {
         unsigned int lo_row_W; 
@@ -102,6 +99,19 @@ namespace genie {
         double hi_Q2;
       };
       
+      void LoadConfig (void);
+      VAmpl Amplitudes(double W, double Q2, unsigned int L, SppChannel_t spp_chn) const;
+      CPtrDT GetDataTable(SppChannel_t spp_chn) const;
+      CPtrDT BuildDataTable(SppChannel_t spp_chn) const;
+      UPtrDT ParseDataTableFile( std::string full_file_name ) const;
+      void GetTablePos(double W, double Q2, unsigned int L, TablePos & tabpos) const;
+      std::string FindDataTableFile(const std::string &basename, bool &ok) const;
+      std::string GetDataTableFileBasename(SppChannel_t spp_chn) const;
+      double dPdx (unsigned int L, double x) const;
+      double d2Pdx2 (unsigned int L, double x) const;
+            
+      
+      // configuration data
       /// Cache of tables with amplitudes that have been fully loaded into memory
       ///
       /// Keys are SPP channels IDs, values are pointers to table with amplitudes
@@ -117,7 +127,8 @@ namespace genie {
       bool fUseRFGParametrization;
       /// Account for Pauli blocking?
       bool fUsePauliBlocking;
-
+      /// External EM xsec scaling factor
+      double fXSecScaleEM;
       const XSecIntegratorI * fXSecIntegrator;
                  
   };

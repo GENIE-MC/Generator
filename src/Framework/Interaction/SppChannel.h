@@ -512,7 +512,7 @@ public:
           else if (hit_n && fs_p && fs_pi_minus) return kSpp_vbn_nc_10001;
           else                                   return kSppNull;
        } else return kSppNull;
-    } else if( pdg::IsNegChargedLepton(probe) || pdg::IsPosChargedLepton(probe) ) {
+    } else if( pdg::IsChargedLepton(probe) ) {
        if ( proc_info.IsEM() ) {
          if      (hit_p && fs_p && fs_pi_0    ) return kSpp_lp_em_10010;
          else if (hit_p && fs_n && fs_pi_plus ) return kSpp_lp_em_01100;

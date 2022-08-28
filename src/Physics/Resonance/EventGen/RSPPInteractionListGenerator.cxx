@@ -93,7 +93,7 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
     nunc_channels[2] = kSpp_vbn_nc_01010;
     nunc_channels[3] = kSpp_vbn_nc_10001;
   }
-  else if ( (pdg::IsNegChargedLepton(nupdg) || pdg::IsPosChargedLepton(nupdg)) ) {
+  else if ( pdg::IsChargedLepton(nupdg) ) {
     lem_channels[0] = kSpp_lp_em_10010;
     lem_channels[1] = kSpp_lp_em_01100;
     lem_channels[2] = kSpp_ln_em_01010;
