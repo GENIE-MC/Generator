@@ -175,7 +175,7 @@ double MKSPPXSec::Integrate(
   else 
   {
     LOG("MKSPPXSec", pINFO)
-          << "*** Integrating d^4 XSec/dWdQ^2dCosThetadPhi for Ch: "
+          << "*** Integrating d^3 XSec/dWdQ^2dCosTheta for Ch: "
           << SppChannel::AsString(spp_channel) << " at Ev = " << Enu;
     
     ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d3XSecMK_dWQ2CosTheta_E(model, interaction, fWcut);
