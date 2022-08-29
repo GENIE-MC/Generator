@@ -50,9 +50,6 @@ void NHLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
       
       double invAccWeight = fGnmf->nimpwt * fGnmf->fgXYWgt;
       evrec->SetWeight( evrec->Weight() / invAccWeight );
-      // update POT-counting variables
-      //potnum_prev = potnum_now; EntryPOT = 0.0; potnum_now = 0.0;
-      //if( iCurrEntry == iMultReset ){ multiplicity = 1.0; iMultReset = 0; }
       
       // scale by how many POT it takes to make the appropriate parent
       evrec->SetWeight( evrec->Weight() * POTScaleWeight );
@@ -120,8 +117,6 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     this->InitialiseTree();
     this->InitialiseMeta();
     this->MakeBBox();
-    //EntryPOT = 0.0; multiplicity = 1.0; iMultReset = 0;
-    //potnum_prev = 0; potnum_now = 0; deltaPotnum = 0;
   } else if( iEntry < fFirstEntry ){
     return;
   }
@@ -164,7 +159,6 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
     //<< "\nmultiplicity = " << 1.0 / multiplicity;
 
   if( !canGoForward ){ // return, but update the NPOT it took to make this rejected parent
-    //EntryPOT += multiplicity * deltaPotnum / decay_nimpwt; potnum_prev = potnum;
     this->FillNonsense( iEntry, gnmf ); return; 
   }
     
@@ -233,7 +227,6 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   assert( dynamicScores.size() > 0 );
   
   if( dynamicScores.find( kNHLProdNull ) != dynamicScores.end() ){ // exists kin allowed channel but 0 coupling
-    //EntryPOT += multiplicity * deltaPotnum / decay_nimpwt; potnum_prev = potnum;
     this->FillNonsense( iEntry, gnmf ); return;
   }
   
@@ -268,22 +261,6 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   double boost_correction_two = 0.0;
   
   // 17-Jun-22: Notice the time component needs to be nonzero to get this to work!
-  /*
-  // horrible maths but it is what it is
-  double betaStar  = p4NHL_rest.P() / p4NHL_rest.E();
-  double betaMag = boost_beta.Mag();
-  double gamma   = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
-  double bigBeta = betaMag * gamma / betaStar;
-
-  double rootArg = detO.Z()*detO.Z() + 
-    ( betaMag*betaMag/(betaStar*betaStar) - 1.0 ) * 
-    ( ( betaMag*betaMag*gamma*gamma / (betaStar*betaStar) * ( detO.X() * detO.X() + detO.Y() * detO.Y() ) ) + detO.Z() * detO.Z() );
-
-  // tau = gamma * detO.Z() - betaMag*betaStar*T
-  double tau = 1.0 / ( gamma * ( 1.0 - betaMag*betaMag / ( betaStar * betaStar ) ) ) * ( detO.Z() + rootArg );
-  
-  double timeBit = ( gamma * detO.Z() - tau ) / ( betaMag * gamma );
-  */
 
   // first guess: betaNHL ~= 1 . Do the Lorentz boosts knocking betaNHL downwards until we hit det centre
   double betaStar  = p4NHL_rest.P() / p4NHL_rest.E();
@@ -472,17 +449,8 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
 			   units::m / units::cm * ( -detO.Y() ),
 			   units::m / units::cm * ( -detO.Z() ), delay ); // in cm, ns
 
-  // EntryPOT measures the total elapsed weight since the previous admitted NHL
-  //EntryPOT +=  multiplicity * deltaPotnum / decay_nimpwt;
-  // thisEntryPOT measures how much weight this particular parent has.
-  //double thisEntryPOT = multiplicity * deltaPotnum / decay_nimpwt;
-
   LOG( "NHL", pDEBUG )
     << "\nnimpwt                 = " << decay_nimpwt
-    //<< "\nmultiplicity           = " << multiplicity
-    //<< "\ndeltaPotnum            = " << deltaPotnum
-    //<< "\nEntryPOT (all parents) = " << EntryPOT
-    //<< "\nEntryPOT (this parent) = " << thisEntryPOT
     << "\nacc_saa                = " << acc_saa
     << "\nboost_correction       = " << boost_correction
     << "\naccCorr                = " << accCorr;
@@ -562,7 +530,6 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
 
   gnmf->necm = p4NHL_rest.E();               ///< Neutrino energy in COM frame
   gnmf->nimpwt = decay_nimpwt;               ///< Weight of neutrino parent
-  //gnmf->nimpwt = thisEntryPOT / EntryPOT;    ///< Weight of this parent / total elapsed weight
 
   gnmf->xpoint = p4par.Px();                 ///< Used here to store parent px in user coords
   gnmf->ypoint = p4par.Py();                 ///< Used here to store parent py in user coords
