@@ -156,7 +156,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
     if(Ev>Ethr+kASmallNum) {
       
       LOG("MKSPPCache", pINFO)
-	<< "*** Integrating d^4 XSec/dWdQ^2dCosThetadPhi for Ch: "
+	<< "*** Integrating d^3 XSec/dWdQ^2dCosTheta for Ch: "
 	<< SppChannel::AsString(spp_channel) << " at Ev = " << Ev;
       
       utils::gsl::d3XSecMK_dWQ2CosTheta_E func(fSinglePionProductionXSecModel, & local_interaction, fWcut ) ; 
