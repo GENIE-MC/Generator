@@ -26,12 +26,12 @@ WarnIfMissing               bool    Yes   Warn, if some table is missing        
   </param_set>
     
   <param_set name="WithPauliBlock"> 
-     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/WithPauliBlock                    </param>
+     <param type="alg"  name="XSec-Integrator">  genie::DCCSPPXSec/WithPauliBlock                    </param>
   </param_set>
   
   
   <param_set name="NoPauliBlock"> 
-     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/NoPauliBlock                      </param>
+     <param type="alg"  name="XSec-Integrator">  genie::DCCSPPXSec/NoPauliBlock                      </param>
   </param_set> 
   
   

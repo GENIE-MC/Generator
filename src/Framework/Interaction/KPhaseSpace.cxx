@@ -30,6 +30,7 @@
 #include "Framework/Registry/Registry.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Numerical/MathUtils.h"
+#include "Framework/Interaction/SppChannel.h"
 
 using namespace genie;
 using namespace genie::utils;
@@ -993,3 +994,52 @@ Range1D_t KPhaseSpace::TLim(void) const
   return tl;
 }
 //____________________________________________________________________________
+Range1D_t KPhaseSpace::WLim_SPP(void) const
+{
+  Range1D_t Wl;
+  const InitialState & init_state = fInteraction->InitState();
+  double Enu = init_state.ProbeE(kRfHitNucRest);
+  SppChannel_t spp_channel  = SppChannel::FromInteraction(fInteraction);
+  PDGLibrary * pdglib = PDGLibrary::Instance();
+  double Mi   = pdglib->Find(SppChannel::InitStateNucleon(spp_channel))->Mass();
+  double Mf   = pdglib->Find(SppChannel::FinStateNucleon(spp_channel))->Mass();
+  double mpi  = pdglib->Find(SppChannel::FinStatePion(spp_channel))->Mass();
+  double ml   = fInteraction->FSPrimLepton()->Mass();
+  
+  double s = Mi*(Mi + 2*Enu);
+  double ECM = TMath::Sqrt(s);
+ 
+  // kinematic W-limits
+  Wl.min = Mf + mpi;
+  Wl.max  = ECM - ml;
+  
+  return Wl;
+  
+}
+//____________________________________________________________________________
+Range1D_t KPhaseSpace::Q2Lim_W_SPP (void) const
+{
+  Range1D_t Q2l;
+  const InitialState & init_state = fInteraction->InitState();
+  double Enu = init_state.ProbeE(kRfHitNucRest);
+  SppChannel_t spp_channel  = SppChannel::FromInteraction(fInteraction);
+  PDGLibrary * pdglib = PDGLibrary::Instance();
+  double Mi   = pdglib->Find(SppChannel::InitStateNucleon(spp_channel))->Mass();
+  double Mf   = pdglib->Find(SppChannel::FinStateNucleon(spp_channel))->Mass();
+  double mpi  = pdglib->Find(SppChannel::FinStatePion(spp_channel))->Mass();
+  double ml   = fInteraction->FSPrimLepton()->Mass();
+  double ml2  = ml*ml;
+  double W    = kinematics::W(fInteraction);
+  
+  double s = Mi*(Mi + 2*Enu);
+  double ECM = TMath::Sqrt(s);
+  
+  // kinematic Q2-limits
+  double Enu_CM = (s - Mi*Mi)/2./ECM;
+  double El_CM  = (s + ml2 - W*W)/2./ECM;
+  double Pl_CM  = (El_CM - ml)<0?0:TMath::Sqrt(El_CM*El_CM - ml2);
+  Q2l.min = (2*Enu_CM*(El_CM - Pl_CM) - ml2)*(1. + std::numeric_limits<double>::epsilon());
+  Q2l.max = (2*Enu_CM*(El_CM + Pl_CM) - ml2)*(1. - std::numeric_limits<double>::epsilon());
+  
+  return Q2l;
+}

@@ -14,14 +14,12 @@ Computes the cross section for an neutrino resonance SPP reaction
 
 
 \authors  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
-          Konstantin Kuzmin <kkuzmin@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
-          Vadim Naumov <vnaumov@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
-          based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          based on code of Costas Andreopoulos <costas.andreopoulos@stfc.ac.ukk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
-\created  November 12, 2019
+\created  Septemper 06, 2022
 
-\cpright  Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2022, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -53,14 +51,14 @@ protected:
   // Don't implement the XSecIntegratorI interface - leave it for the concrete
   // subclasses. Just define utility methods and data
   void   CacheResExcitationXSec (const Interaction * interaction) const;
-  string CacheBranchName(SppChannel_t spp_channel, InteractionType_t it, int nu) const;
+  string CacheBranchName(SppChannel_t spp_channel, InteractionType_t it, int nu, int helicity) const;
+  string ProbeAsString (int probe_pdg, int probe_helicity) const;
 
   bool   fUsingDisResJoin;
   double fWcut;
   double fEMax;
 
   mutable const XSecAlgorithmI * fSinglePionProductionXSecModel;
-  BaryonResList fResList;
 };
 
 
@@ -74,14 +72,14 @@ namespace gsl   {
 
 //.....................................................................................
 //
-// genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E
+// genie::utils::gsl::d3XSecDCC_dWQ2CosTheta_E
 // A 3-D cross section function: d3xsec/dWdQ2dCosTheta = f(W, Q2, CosTheta)|(fixed E)
 //
-class d3XSecMK_dWQ2CosTheta_E: public ROOT::Math::IBaseFunctionMultiDim
+class d3XSecSPP_dWQ2CosTheta_E: public ROOT::Math::IBaseFunctionMultiDim
 {
 public:
-  d3XSecMK_dWQ2CosTheta_E(const XSecAlgorithmI * m, const Interaction * i, double wcut);
- ~d3XSecMK_dWQ2CosTheta_E();
+  d3XSecSPP_dWQ2CosTheta_E(const XSecAlgorithmI * m, const Interaction * i, double wcut);
+ ~d3XSecSPP_dWQ2CosTheta_E();
 
   // ROOT::Math::IBaseFunctionMultiDim interface
   unsigned int                        NDim   (void)               const;

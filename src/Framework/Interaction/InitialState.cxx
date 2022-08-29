@@ -420,7 +420,7 @@ string InitialState::AsString(void) const
     init_state << "dm_mass:" << this->Probe()->Mass() << ";";
   }
   else if ( pdg::IsChargedLepton(fProbePdg) ) {
-    init_state << "lep-pdg:"  << this->ProbePdg()  << "(" << fProbeHelicity << ");";
+    init_state << "probe-pdg(helicity):"  << this->ProbePdg()  << "(" << fProbeHelicity << ");";
   }
   else {
     init_state << "nu-pdg:"  << this->ProbePdg()  << ";";
@@ -531,8 +531,8 @@ void InitialState::SetProbeHelicity (int helicity)
 {
    fProbeHelicity = helicity;
    if ( pdg::IsNeutrino(fProbePdg) )
-     fProbeHelicity = 1;
-   else if ( pdg::IsAntiNeutrino(fProbePdg) )
      fProbeHelicity = -1;
+   else if ( pdg::IsAntiNeutrino(fProbePdg) )
+     fProbeHelicity = 1;
 }
 //___________________________________________________________________________

@@ -16,14 +16,12 @@
 
 
 \authors  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
-          Konstantin Kuzmin <kkuzmin@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
-          Vadim Naumov <vnaumov@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
-          based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          based on code of Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
-\created  November 12, 2019
+\created  Septemper 06, 2022
 
-\cpright  Copyright (c) 2003-2019, GENIE Neutrino MC Generator Collaboration   
+\cpright  Copyright (c) 2003-2022, GENIE Neutrino MC Generator Collaboration   
           For the full text of the license visit http://copyright.genie-mc.org                         
           or see $GENIE/LICENSE 
 */

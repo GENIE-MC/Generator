@@ -19,6 +19,7 @@
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/RefFrame.h"
+#include "Framework/Utils/Range1.h"
 #include "Framework/Conventions/KineVar.h"
 #include "Framework/Conventions/Units.h"
 #include <Framework/Conventions/KinePhaseSpace.h>
@@ -341,7 +342,6 @@ bool DCCSPPPXSec::ValidKinematics(const Interaction * interaction) const
   if ( interaction->TestBit(kISkipKinematicChk) ) return true;
 
   const KPhaseSpace  & kps        = interaction->PhaseSpace();
-  SppChannel_t spp_channel        = SppChannel::FromInteraction(interaction);
   
   // Get kinematical parameters
   const InitialState & init_state = interaction -> InitState();
@@ -352,38 +352,20 @@ bool DCCSPPPXSec::ValidKinematics(const Interaction * interaction) const
 
   if (Enu < kps.Threshold())
     return false;
-    
-  PDGLibrary * pdglib = PDGLibrary::Instance();
-  double Mi   = pdglib->Find(SppChannel::InitStateNucleon(spp_channel))->Mass();
-  double Mf   = pdglib->Find(SppChannel::FinStateNucleon(spp_channel))->Mass();
-  double mpi  = pdglib->Find(SppChannel::FinStatePion(spp_channel))->Mass();
-  double ml   = interaction->FSPrimLepton()->Mass();
-  double ml2  = ml*ml;
   
-  double s = Mi*(Mi + 2*Enu);
-  double ECM = TMath::Sqrt(s);
- 
-  // kinematic W-limits
-  double Wmin = Mf + mpi;
-  double Wmax  = ECM - ml;
-  
-  // kinematic Q2-limits
-  double Enu_CM = (s - Mi*Mi)/2./ECM;
-  double El_CM  = (s + ml2 - W*W)/2./ECM;
-  double Pl_CM  = (El_CM - ml)<0?0:TMath::Sqrt(El_CM*El_CM - ml2);
-  double Q2min = (2*Enu_CM*(El_CM - Pl_CM) - ml2)*(1. + std::numeric_limits<double>::epsilon());
-  double Q2max = (2*Enu_CM*(El_CM + Pl_CM) - ml2)*(1. - std::numeric_limits<double>::epsilon());
-  
+  Range1D_t Wl  = kps.WLim_SPP();
+  Range1D_t Q2l = kps.Q2Lim_W_SPP();
+      
   // model restrictions
-  Wmin  = TMath::Max (Wmin,  1.08);
-  Wmax  = TMath::Min (Wmax,  2.00);
-  Q2min = TMath::Max (Q2min, 0.00);
-  Q2max = TMath::Min (Q2max, 3.00);
+  Wl.min  = TMath::Max (Wl.min,  1.08);
+  Wl.max  = TMath::Min (Wl.max,  2.00);
+  Q2l.min = TMath::Max (Q2l.min, 0.00);
+  Q2l.max = TMath::Min (Q2l.max, 3.00);
   
-  if (W < Wmin || W > Wmax)
+  if (W < Wl.min || W > Wl.max)
     return false;
 
-  if (Q2 < Q2min || Q2 > Q2max)
+  if (Q2 < Q2l.min || Q2 > Q2l.max)
     return false;
 
   return true;

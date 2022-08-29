@@ -1,13 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2022, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Authors: Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
-          Konstantin Kuzmin <kkuzmin@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
-          Vadim Naumov <vnaumov@theor.jinr.ru >,  Joint Institute for Nuclear Research \n        
-          based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          based on code of Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
  
  For the class documentation see the corresponding header file.
@@ -80,13 +78,14 @@ double DCCSPPXSec::Integrate(
   //-- Get the requested SPP channel
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
 
-  if (Enu < kps.Threshold_MKSPP()) return 0.;
+  if (Enu < kps.Threshold()) return 0.;
   
   fSinglePionProductionXSecModel = model;
 
-  InteractionType_t it = proc_info.InteractionTypeId();
-  int nucleon_pdgc = target.HitNucPdg();
-  int nu_pdgc      = init_state.ProbePdg();
+  InteractionType_t it    = proc_info.InteractionTypeId();
+  int nucleon_pdgc        = target.HitNucPdg();
+  int probe_pdgc          = init_state.ProbePdg();
+  int probe_helicity      = init_state.ProbeHelicity();
 
   
   // If the input interaction is off a nuclear target, then chek whether
@@ -131,15 +130,15 @@ double DCCSPPXSec::Integrate(
   if(bare_xsec_pre_calc && !fUsePauliBlocking) 
   {
      Cache * cache = Cache::Instance();
-     string key = this->CacheBranchName(spp_channel, it, nu_pdgc);
+     string key = this->CacheBranchName(spp_channel, it, probe_pdgc, probe_helicity);
      LOG("DCCSPPXSec", pINFO) 
          << "Finding cache branch with key: " << key;
      CacheBranchFx * cache_branch =
          dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
      if(!cache_branch) {
         LOG("DCCSPPXSec", pWARN)  
-           << "No cached ResSPP v-production data for input neutrino"
-           << " (pdgc: " << nu_pdgc << ")";
+           << "No cached ResSPP data for input probe with pdg = "
+           << probe_pdgc;
         LOG("DCCSPPXSec", pWARN)  
            << "Wait while computing/caching ResSPP production xsec first...";
 
@@ -154,13 +153,13 @@ double DCCSPPXSec::Integrate(
      }
      const CacheBranchFx & cbranch = (*cache_branch);
   
-    //-- Get cached resonance neutrinoproduction xsec
+    //-- Get cached resonance xsec
     //   (If E>Emax, assume xsec = xsec(Emax) - but do not evaluate the
-    //    cross section spline at the end of its energy range-)
+    //    cross section spline at the end of its energy range)
     double rxsec = (Enu<fEMax-1) ? cbranch(Enu) : cbranch(fEMax-1);
 
     SLOG("DCCSPPXSec", pNOTICE)  
-       << "XSec[Channel/" << SppChannel::AsString(spp_channel)<< "/free] (Ev = " 
+       << "XSec[Channel/" << SppChannel::AsString(spp_channel)<< "/free] (Eprobe = " 
                << Enu << " GeV) = " << rxsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
 
      if( interaction->TestBit(kIAssumeFreeNucleon) ) return rxsec;
@@ -175,16 +174,16 @@ double DCCSPPXSec::Integrate(
   else 
   {
     LOG("DCCSPPXSec", pINFO)
-          << "*** Integrating d^4 XSec/dWdQ^2dCosThetadPhi for Ch: "
+          << "*** Integrating d^3 XSec/dWdQ^2dCosTheta for Ch: "
           << SppChannel::AsString(spp_channel) << " at Ev = " << Enu;
     
-    ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d3XSecMK_dWQ2CosTheta_E(model, interaction, fWcut);
+    ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d3XSecSPP_dWQ2CosTheta_E(model, interaction, fWcut);
     ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
     ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
     ig.SetFunction(*func);
     double kine_min[3] = { 0., 0., 0.};
     double kine_max[3] = { 1., 1., 1.};
-    double xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+    double xsec = ig.Integral(kine_min, kine_max);
 
     delete func;
     return xsec;

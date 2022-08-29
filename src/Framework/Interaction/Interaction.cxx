@@ -261,6 +261,9 @@ string Interaction::AsString(void) const
   else if (fInitialState->Probe()->PdgCode() == kPdgAntiDarkMatter) {
     interaction << "dmb;";
   }
+  else if ( pdg::IsChargedLepton(fInitialState->ProbePdg()) ){
+     interaction << "probe(helicity):"  << fInitialState->ProbePdg()  << "(" << fInitialState->ProbeHelicity() << ");";
+  }
   else {
     interaction << "nu:"  << fInitialState->ProbePdg() << ";";
   }
