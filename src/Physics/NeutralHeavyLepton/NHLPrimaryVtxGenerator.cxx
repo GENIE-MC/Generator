@@ -130,10 +130,17 @@ void NHLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
 void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
 {
   LOG("NHL", pINFO) << "Generating decay...";
+  fDecLepPdg = 0; fDecHadPdg = 0;
 
   // do we have nubar?
   PDGCodeList pdgv0 = utils::nhl::DecayProductList(fCurrDecayMode);
   int typeMod = ( fCurrInitStatePdg >= 0 ) ? 1 : -1; 
+  if( fCurrDecayMode == kNHLDcyPi0Nu ){
+    fDecHadPdg = typeMod * kPdgPi0;
+  } else if( fCurrDecayMode != kNHLDcyNuNuNu ){
+    fDecHadPdg = typeMod * kPdgPiP;
+  }
+
   if( event->Particle(0) ){
     typeMod = ( event->Particle(0)->Pdg() >= 0 ) ? 1 : -1;
   }
@@ -148,8 +155,17 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
   LOG("NHL", pINFO) << "Decay product IDs: " << pdgv;
   assert ( pdgv.size() > 1);
 
-  // RETHERE may not want a phase space decay!
-  LOG("NHL", pINFO) << "Performing a phase space decay...";
+  // if user wants to include polarisation effects, start prep now
+  double fPolDirMag = ( fPolDir.at(0) * fPolDir.at(0) ) +
+    ( fPolDir.at(1) * fPolDir.at(1) ) + 
+    ( fPolDir.at(2) * fPolDir.at(2) );
+  bool doPol = ( fPolDirMag > 0.0 && !fIsMajorana );
+
+  std::ostringstream asts;
+  if( !doPol ) asts << "Performing a phase space decay...";
+  else asts << "Performing a polarised decay with polarisation vector:"
+	    << " ( " << fPolDir.at(0) << ", " << fPolDir.at(1) << ", " << fPolDir.at(2) << " )";
+  LOG("NHL", pINFO) << asts.str();
 
   // Get the decay product masses
 
@@ -170,15 +186,18 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
   int nhl_id = 0;
   GHepParticle * nhl = event->Particle(nhl_id);
   assert(nhl);
-  TLorentzVector * p4d = nhl->GetP4();
+  TLorentzVector * p4d = nhl->GetP4(); TVector3 NHLBVec = p4d->BoostVector();
+  TLorentzVector * p4d_rest = (TLorentzVector *) p4d->Clone(); p4d_rest->Boost( -NHLBVec );
   TLorentzVector * v4d = nhl->GetX4();
 
   LOG("NHL", pINFO)
-    << "Decaying system p4 = " << utils::print::P4AsString(p4d);
+    << "\nDecaying system p4 = " << utils::print::P4AsString(p4d) 
+    << "\nin rest frame, p4 = " << utils::print::P4AsString(p4d_rest);
 
   // Set the decay
   TGenPhaseSpace fPhaseSpaceGenerator;
-  bool permitted = fPhaseSpaceGenerator.SetDecay(*p4d, pdgv.size(), mass);
+  //bool permitted = fPhaseSpaceGenerator.SetDecay(*p4d, pdgv.size(), mass);
+  bool permitted = fPhaseSpaceGenerator.SetDecay(*p4d_rest, pdgv.size(), mass);
   if(!permitted) {
      LOG("NHL", pERROR)
        << " *** Phase space decay is not permitted \n"
@@ -186,7 +205,7 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
        << " Decaying system p4 = " << utils::print::P4AsString(p4d);
      // clean-up
      delete [] mass;
-     delete p4d;
+     delete p4d, p4d_rest;
      delete v4d;
      // throw exception
      genie::exceptions::EVGThreadException exception;
@@ -208,43 +227,33 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
   LOG("NHL", pNOTICE)
      << "Max phase space gen. weight @ current hadronic system: " << wmax;
 
-  // Generate an unweighted decay
-  RandomGen * rnd = RandomGen::Instance();
-
-  bool accept_decay=false;
-  unsigned int itry=0;
-  while(!accept_decay)
-  {
-     itry++;
-
-     if(itry > controls::kMaxUnweightDecayIterations) {
-       // report, clean-up and return
-       LOG("NHL", pWARN)
-           << "Couldn't generate an unweighted phase space decay after "
-           << itry << " attempts";
-       // clean up
-       delete [] mass;
-       delete p4d;
-       delete v4d;
-       // throw exception
-       genie::exceptions::EVGThreadException exception;
-       exception.SetReason("Couldn't select decay after N attempts");
-       exception.SwitchOnFastForward();
-       throw exception;
-     }
-     double w  = fPhaseSpaceGenerator.Generate();
-     if(w > wmax) {
-        LOG("NHL", pWARN)
-           << "Decay weight = " << w << " > max decay weight = " << wmax;
-     }
-     double gw = wmax * rnd->RndHadro().Rndm();
-     accept_decay = (gw<=w);
-
-     LOG("NHL", pINFO)
-        << "Decay weight = " << w << " / R = " << gw
-        << " - accepted: " << accept_decay;
-
-  } //!accept_decay
+  // Generate a decay
+  bool decayFailed = false;
+  if( doPol && fCurrDecayMode != kNHLDcyNuNuNu ){
+    // if polarisation is on we must calculate the polarisation modulus for comparison
+    // for now, assume 2-body production and 2-body decay describes the pol modulus
+    // see arXiv:1805.06419[hep-ph]
+    TVector3 vecPolDir( fPolDir.at(0), fPolDir.at(1), fPolDir.at(2) );
+    this->PolarisedDecay( fPhaseSpaceGenerator, pdgv, wmax, vecPolDir, decayFailed );
+  } else {
+    if( doPol && fCurrDecayMode == kNHLDcyNuNuNu ){
+      // no charged lepton here... warn the user about it, though
+      LOG( "NHL", pWARN )
+	<< "Polarisation for uncharged FS not implemented yet, defaulting to phase-space decay...";
+    }
+    this->UnpolarisedDecay( fPhaseSpaceGenerator, pdgv, wmax, decayFailed );
+  }
+  if( decayFailed ){
+    // clean up
+    delete [] mass;
+    delete p4d;
+    delete v4d;
+    // throw exception
+    genie::exceptions::EVGThreadException exception;
+    exception.SetReason("Couldn't select decay after N attempts");
+    exception.SwitchOnFastForward();
+    throw exception;
+  }
 
   // Insert final state products into a TClonesArray of GHepParticle's
   TLorentzVector v4(*v4d);
@@ -252,6 +261,7 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
   for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
      int pdgc = *pdg_iter;
      TLorentzVector * p4fin = fPhaseSpaceGenerator.GetDecay(idp);
+     p4fin->Boost( NHLBVec ); // from rest to lab again
      GHepStatus_t ist = kIStStableFinalState;
      event->AddParticle(pdgc, ist, nhl_id,-1,-1,-1, *p4fin, v4);
      switch( pdgc ){
@@ -517,4 +527,191 @@ void NHLPrimaryVtxGenerator::SetProdVtxPosition(const TLorentzVector & v4) const
   TLorentzVector * pv4 = new TLorentzVector();
   pv4->SetXYZT( v4.X(), v4.Y(), v4.Z(), v4.T() );
   fProdVtx = pv4;
+}
+//____________________________________________________________________________
+void NHLPrimaryVtxGenerator::ReadCreationInfo( flux::GNuMIFluxPassThroughInfo * gnmf ) const
+{
+  assert( gnmf );
+
+  if( fPolDir.size() > 0 ) fPolDir.clear();
+  fPolDir.emplace_back( gnmf->ppvx );
+  fPolDir.emplace_back( gnmf->ppvy );
+  fPolDir.emplace_back( gnmf->ppvz );
+
+  fParentPdg = gnmf->ptype;
+  fProdLepPdg = gnmf->ppmedium;
+}
+//____________________________________________________________________________
+void NHLPrimaryVtxGenerator::UnpolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, bool failed = false ) const
+{
+
+  RandomGen * rnd = RandomGen::Instance();
+  
+  bool accept_decay=false;
+  unsigned int itry=0;
+  while(!accept_decay)
+    {
+      itry++;
+      
+      if(itry > controls::kMaxUnweightDecayIterations) {
+	// report and return
+	LOG("NHL", pWARN)
+	  << "Couldn't generate an unweighted phase space decay after "
+	  << itry << " attempts";
+	failed = true;
+	return;
+      }
+      double w  = fPSG.Generate();
+      if(w > wm) {
+        LOG("NHL", pWARN)
+	  << "Decay weight = " << w << " > max decay weight = " << wm;
+      }
+      double gw = wm * rnd->RndHadro().Rndm();
+      accept_decay = (gw<=w);
+      
+      /*
+      LOG("NHL", pDEBUG)
+        << "Decay weight = " << w << " / R = " << gw
+        << " - accepted: " << accept_decay;
+      */
+      
+    } //!accept_decay
+
+}
+//____________________________________________________________________________
+void NHLPrimaryVtxGenerator::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, TVector3 vPolDir, bool failed = false ) const
+{ 
+  // calculate polarisation modulus
+  PDGLibrary * pdgl = PDGLibrary::Instance();
+  double MNHL = pdgl->Find( kPdgNHL )->Mass();
+  double polMag = this->CalcPolMag( fParentPdg, fProdLepPdg, MNHL );
+  double polMod = -999.99;
+
+  // do decays until weight \in Uniform[0.0, 2.0] < 1 \mp polMod * cos\theta
+  unsigned int iUPD = 0;
+  double polWgt = -999.9;
+  RandomGen * rnd = RandomGen::Instance();
+  double rwgt = 0.0;
+  bool isAccepted = false;
+
+  // first, check to see if we have pi0 + v. Then let the neutrino be a QLep.
+  bool isPi0Nu = ( pdgv.size() == 3 && 
+		   std::abs( pdgv.at(1) ) == kPdgPi0 &&
+		   std::abs( pdgv.at(2) ) == kPdgNuMu );
+
+  while( !isAccepted && iUPD < controls::kMaxUnweightDecayIterations ){
+    this->UnpolarisedDecay( fPSG, pdgv, wm, failed );
+
+    // find charged lepton of FS. If two, take the leading one.
+    // For now, this method doesn't handle vvv invisible decay mode.
+    
+    TVector3 lepDir;
+    vector<int>::const_iterator pdg_iter;
+    int idc = 0; double Elead = -1.0;
+    for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
+      int pdgc = *pdg_iter; Elead = -1.0;
+      bool isQLep = ( std::abs( pdgc ) == kPdgElectron ||
+		      std::abs( pdgc ) == kPdgMuon ||
+		      std::abs( pdgc ) == kPdgTau ||
+		      ( isPi0Nu && std::abs( pdgc ) == kPdgNuMu ) );
+      if( isQLep ){
+	TLorentzVector * p4lep = fPSG.GetDecay(idc);
+	LOG( "NHL", pDEBUG )
+	  << "Found QLep " << pdgc << " at idc = " << idc << " with E = " << p4lep->E();
+	if( p4lep->E() > Elead ){
+	  Elead = p4lep->E();
+	  lepDir = p4lep->Vect();
+	  fDecLepPdg = pdgc;
+	  if( std::abs(fDecLepPdg) != std::abs(pdgc) || polMod == -999.9 ){
+	    // update polarisation modulus for new leading lepton
+	    polMod = this->CalcPolMod( polMag, fDecLepPdg, fDecHadPdg, MNHL );
+	  } // std::abs(fDecLepPdg) != std::abs(pdgc) || polMod == -999.9
+	} // p4lep->E() > Elead
+      } // isQLep
+      
+      idc++;
+    }
+
+    LOG( "NHL", pDEBUG )
+    << "\nfParent, ProdLep, DecLep, DecHad Pdg = " << fParentPdg
+    << ", " << fProdLepPdg << ", " << fDecLepPdg << ", " << fDecHadPdg
+    << "\npolMag, polMod = " << polMag << ", " << polMod
+    << "\nvPolDir = " << utils::print::Vec3AsString( &vPolDir );
+
+    // find angle \theta of leading FS QLep with vPolDir
+    // assume differential decay rate \propto ( 1 \mp pMod * cos\theta )
+
+    double theta = vPolDir.Angle( lepDir ); // rad
+    double ctheta = TMath::Cos( theta );
+
+    rwgt = rnd->RndGen().Uniform(0.0, 2.0);
+    int typeMod = ( *(pdgv.begin()) > 0 ) ? 1 : -1;
+    polWgt = 1 - typeMod * polMod * ctheta;
+
+    isAccepted = ( rwgt >= polWgt );
+
+    LOG( "NHL", pDEBUG )
+      << "*** For polarised decay attempt " << iUPD << ":"
+      << "\nLeading lepton has direction " << utils::print::Vec3AsString( &lepDir )
+      << "\npolDir = " << utils::print::Vec3AsString( &vPolDir ) << ", angle = "
+      << theta * TMath::RadToDeg() << " [deg]"
+      << "\nrwgt, polWgt = " << rwgt << ", " << polWgt << ", isAccepted = " << isAccepted;
+
+    iUPD++;
+  } // while( rwgt >= polWgt && iUPD < controls::kMaxUnweightDecayIterations )
+
+  if( iUPD == controls::kMaxUnweightDecayIterations ){
+    // report and return
+    LOG("NHL", pWARN)
+      << "Couldn't generate a polarised decay after "
+      << iUPD << " attempts";
+    failed = true;
+    return;
+  }
+
+}
+//____________________________________________________________________________
+double NHLPrimaryVtxGenerator::CalcPolMag( int parPdg, int lepPdg, double M ) const
+{
+  PDGLibrary * pdgl = PDGLibrary::Instance();
+  double mPar = pdgl->Find( std::abs( parPdg ) )->Mass();
+  double mLep = pdgl->Find( std::abs( lepPdg ) )->Mass();
+
+  double num1 = mLep * mLep - M * M;
+  double num2 = TMath::Sqrt(utils::nhl::Kallen( mPar*mPar, M*M, mLep*mLep ));
+  
+  double den1 = mPar*mPar*( mLep*mLep + M*M );
+  double den2 = mLep*mLep - M*M;
+
+  // pMag is a modulus, not a magnitude... not positive semi-definite. See Fig.4 in 1805.06419[hep-ph]
+  double pMag = num1*num2 / ( den1 - den2*den2 );
+
+  LOG( "NHL", pDEBUG )
+    << "\nmPar, mLep, M = " << mPar << ", " << mLep << ", " << M << " GeV"
+    << "\nnum1, num2, den1, den2 = " << num1 << ", " << num2 << ", " << den1 << ", " << den2;
+
+  return pMag;
+}
+//____________________________________________________________________________
+double NHLPrimaryVtxGenerator::CalcPolMod( double polMag, int lepPdg, int hadPdg, double M ) const
+{
+  PDGLibrary * pdgl = PDGLibrary::Instance();
+  double mLep = pdgl->Find( std::abs( lepPdg ) )->Mass();
+  double mHad = pdgl->Find( std::abs( hadPdg ) )->Mass();
+  
+  double num1 = M*M - mLep*mLep;
+  double num2 = TMath::Sqrt(utils::nhl::Kallen( M*M, mLep*mLep, mHad*mHad ));
+  double num3 = polMag;
+
+  double den1 = M*M - mLep*mLep;
+  double den2 = mHad*mHad*( M*M + mLep*mLep );
+
+  double pMod = num1*num2*num3 / ( den1*den1 - den2 );
+
+  LOG( "NHL", pDEBUG )
+    << "\nM, mLep, mHad = " << M << ", " << mLep << ", " << mHad << " GeV"
+    << "\nnum1, num2, num3, den1, den2 = " << num1 << ", " << num2 << ", "
+    << num3 << ", " << den1 << ", " << den2;
+  
+  return pMod;
 }

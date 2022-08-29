@@ -124,6 +124,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   // All these in m
   TVector3 fCvec_beam( fCx, fCy, fCz );
   TVector3 fCvec = this->ApplyUserRotation( fCvec_beam );
+  fLepPdg = 0;
   
   LOG( "NHL", pDEBUG ) << "Getting entry " << iEntry;
   ctree->GetEntry(iEntry);
@@ -521,12 +522,12 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   gnmf->ppdydz = -9999.9;                    ///< Parent dydz direction at production
   gnmf->pppz = -9999.9;                      ///< Parent energy at production
 
-  gnmf->ppmedium = -9999;                    ///< Tracking medium number where parent was produced
+  gnmf->ppmedium = fLepPdg;                  ///< Co-produced lepton PDG code
   gnmf->ptype = decay_ptype;                 ///< Parent GEANT code particle ID converted to PDG
 
-  gnmf->ppvx = -9999.9;                      ///< Parent production vertex X (cm)
-  gnmf->ppvy = -9999.9;                      ///< Parent production vertex Y (cm)
-  gnmf->ppvz = -9999.9;                      ///< Parent production vertex Z (cm)
+  gnmf->ppvx = fLPx;                         ///< Used here to store NHL polarisation x in NHL rest
+  gnmf->ppvy = fLPy;                         ///< Used here to store NHL polarisation y in NHL rest
+  gnmf->ppvz = fLPz;                         ///< Used here to store NHL polarisation z in NHL rest
 
   gnmf->necm = p4NHL_rest.E();               ///< Neutrino energy in COM frame
   gnmf->nimpwt = decay_nimpwt;               ///< Weight of neutrino parent
@@ -1064,14 +1065,37 @@ TLorentzVector NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par 
   
   // Grab 0th entry energy and return that
   int idp = 0; TLorentzVector p4NHL, p4NHL_rest;
+  // search for the charged lepton in this stack, get the 4-vector in parent rest frame
+  TLorentzVector p4Lep, p4Lep_NHLRest;
 
   for(std::vector<int>::const_iterator pdg_iter = decayList.begin(); pdg_iter != decayList.end(); ++pdg_iter) {
      int pdgc = *pdg_iter;
      TLorentzVector * p4fin = fPhaseSpaceGenerator.GetDecay(idp);
 
      if( std::abs( pdgc ) == kPdgNHL ) p4NHL = *p4fin;
+     if( std::abs( pdgc ) == kPdgElectron || 
+	 std::abs( pdgc ) == kPdgMuon ||
+	 std::abs( pdgc ) == kPdgTau ){
+       p4Lep = *p4fin;
+       fLepPdg = pdgc;
+     }
      idp++;
   }
+  
+  if( doPol ){
+    // boost this to NHL rest frame.
+    TVector3 boostNHL = p4NHL.BoostVector();
+    p4Lep_NHLRest = p4Lep; p4Lep_NHLRest.Boost( boostNHL );
+    // write this
+    fLPx = ( fixPol ) ? fFixedPolarisation.at(0) : p4Lep.Px() / p4Lep.P();
+    fLPy = ( fixPol ) ? fFixedPolarisation.at(1) : p4Lep.Py() / p4Lep.P();
+    fLPz = ( fixPol ) ? fFixedPolarisation.at(2) : p4Lep.Pz() / p4Lep.P();
+  } else {
+    fLPx = 0.0;
+    fLPy = 0.0;
+    fLPz = 0.0;
+  }
+  
   
   return p4NHL; // rest frame momentum!
 }
@@ -1770,6 +1794,9 @@ void NHLFluxCreator::LoadConfig(void)
   this->GetParamVect( "Beam2Det_R", fDetRotation );
 
   this->GetParamVect( "ParentPOTScalings", fScales );
+  this->GetParam( "IncludePolarisation", doPol );
+  this->GetParam( "FixPolarisationDirection", fixPol );
+  this->GetParamVect( "NHL-PolDir", fFixedPolarisation );
 
   this->GetParam( "IsParentOnAxis", isParentOnAxis );
   this->GetParam( "UseBeamMomentum", fUseBeamMomentum );

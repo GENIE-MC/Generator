@@ -218,6 +218,11 @@ namespace genie{
 
       //std::vector< double > trVec, roVec;
 
+      mutable bool doPol = true, fixPol = false;
+      mutable double fLPx, fLPy, fLPz; // direction of co-produced lepton == polarisation vector
+      mutable std::vector< double > fFixedPolarisation;
+
+      mutable int fLepPdg; // pdg code of co-produced lepton
       mutable double parentMass, parentMomentum, parentEnergy; // GeV
 
       // tree variables. Add as per necessary.

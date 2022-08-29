@@ -28,6 +28,8 @@
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
 
+#include "Tools/Flux/GNuMIFlux.h"
+
 #include "Physics/NeutralHeavyLepton/NHLDecayMode.h"
 #include "Physics/NeutralHeavyLepton/NHLFluxReader.h"
 #include "Physics/NeutralHeavyLepton/SimpleNHL.h"
@@ -55,6 +57,9 @@ public:
 
   genie::NHL::SimpleNHL GetNHLInstance(string config) const;
 
+  // get information about parent and polarisation from NHLFluxCreator
+  void ReadCreationInfo( genie::flux::GNuMIFluxPassThroughInfo * gnmf ) const;
+
 private:
 
    void LoadConfig            (void);
@@ -65,8 +70,18 @@ private:
    void SetBeam2User          (std::vector<double> translation, std::vector<double> rotation) const; 
    void SetProdVtxPosition    (const TLorentzVector & v4) const; // in detector coordinates
 
+   // PolMag is a bit of a misnomer. It is a polarisation modulus, i.e. not positive semidefinite.
+   double CalcPolMag          (int parPdg, int lepPdg, double M) const;
+   double CalcPolMod          (double polMag, int lepPdg, int hadPdg, double M) const;
+
+   void UnpolarisedDecay      (TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, bool failed) const;
+   void PolarisedDecay        (TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, TVector3 vPolDir, bool failed)const;
+
    mutable int                        fCurrInitStatePdg;
    mutable genie::NHL::NHLDecayMode_t fCurrDecayMode;
+
+   mutable int                        fParentPdg, fProdLepPdg, fDecLepPdg, fDecHadPdg;
+   mutable std::vector<double>        fPolDir;
 
    mutable bool                       fIsConfigLoaded = false;
    

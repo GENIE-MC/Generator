@@ -538,6 +538,7 @@ int main(int argc, char ** argv)
 
      // Simulate decay
      //mcgen->ProcessEventRecord(event);
+     nhlgen->ReadCreationInfo( gnmf );
      nhlgen->ProcessEventRecord(event);
 
      // add the FS 4-momenta to special branches
