@@ -203,8 +203,7 @@ if($batch_system eq 'FNAL'){
 	print FNAL "setup fife_utils \n\n";
 
 	$fnal_opt  = "-G $queue --memory=1GB --disk=20GB --expected-lifetime=8h -N 1 --role=Analysis ";
-	$fnal_opt .= "-f $jobs_topdir/$genie_setup -f $in_splines ";
-	$fnal_opt .= "-d OUTPUT $jobs_dir ";
+	$fnal_opt .= "-f $jobs_topdir/$genie_setup ";
 	$fnal_opt .= "--resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE ";
   
 	print FNAL "jobsub_submit_dag $fnal_opt file://$fnal_subfile.xml\n"; 
@@ -240,19 +239,38 @@ foreach $nu ( @nu_list ) {
       $jobname  = $nu."_on_".$tgt."_$proc";
       $filename_template = "$jobs_dir/$jobname";
       $grep_pipe  = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
-      $gmkspl_opt = "-p $nu_pdg_def{$nu} -t $tgt -n $n_knots -e $e_max --input-cross-sections $in_splines --output-cross-sections $filename_template.xml --event-generator-list $event_gen_list --no-copy";
+      $gmkspl_opt = "-p $nu_pdg_def{$nu} -t $tgt -n $n_knots -e $e_max --output-cross-sections --event-generator-list $event_gen_list --no-copy ";
       $gmkspl_opt .= " --tune $tune " if ( defined $tune ) ;
+      if( $batch_system eq 'FNAL' ) {
+	  $gmkspl_opt   .= "--input-cross-sections \$CONDOR_DIR_INPUT/total_xsec.xml ";
+	  $gmkspl_opt   .= "-o $jobname.xml ";
+      }
+      else {
+	  $gmkspl_opt   .= "--input-cross-sections $in_splines ";
+	  $gmkspl_opt   .= "-o $filename_template.xml ";
+      }
+
       $gmkspl_cmd = "gmkspl $gmkspl_opt ";
       print "@@ exec: $gmkspl_cmd \n";
 
 
       # create sh file 
       $shell_script = "$filename_template.sh";
-      open(COMMANDS, ">$shell_script") or die("Can not create the bash script");
+      open(COMMANDS, ">$shell_script") or die("Can not create the bash script $filename_template.sh");
       print COMMANDS "#!/bin/bash \n";
-      print COMMANDS "cd $jobs_dir \n";
-      print COMMANDS "source $genie_setup $config_dir \n";
+     
+      if($batch_system ne 'FNAL'){
+	  print COMMANDS "cd $jobs_dir \n";
+	  print COMMANDS "source $genie_setup $config_dir \n";
+      } else {
+	  print COMMANDS "cd \$CONDOR_DIR_INPUT\n";
+	  print COMMANDS "source $genie_setup $config_dir \n";
+	  print COMMANDS "cd \$CONDOR_DIR_INPUT\n";
+	  print COMMANDS "ifdh cp $in_splines \$CONDOR_DIR_INPUT \n";
+      }
       print COMMANDS "$gmkspl_cmd \n";
+      print COMMANDS "ifdh cp $jobname.xml $jobs_dir \n";
+
       close(COMMANDS);
 
       # set executing privileges to the script 
@@ -358,8 +376,7 @@ foreach $nu ( @nu_list ) {
       if($batch_system eq 'FNAL'){
 	  open(FNAL, ">>", "$fnal_subfile.xml") or die("Can not create the slurm batch script");
 	  $fnal_opt  = "-n --memory=1GB --disk=20GB --expected-lifetime=8h ";
-	  $fnal_opt .= "-f $jobs_topdir/$genie_setup -f $in_splines ";
-	  $fnal_opt .= "-d OUTPUT $jobs_dir ";
+	  $fnal_opt .= "-f $jobs_topdir/$genie_setup ";
 	  $fnal_opt .= "--resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE ";  
 	  print FNAL "jobsub_submit $fnal_opt file://$shell_script\n"; 
 
