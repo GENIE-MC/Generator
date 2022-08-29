@@ -184,7 +184,7 @@ double MKSPPXSec::Integrate(
     ig.SetFunction(*func);
     double kine_min[3] = { 0., 0., 0.};
     double kine_max[3] = { 1., 1., 1.};
-    double xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+    double xsec = ig.Integral(kine_min, kine_max);
 
     delete func;
     return xsec;
