@@ -42,8 +42,8 @@
   <priority msgstream="BaseHad">               NOTICE </priority>
   <priority msgstream="BertuzzoDNuCOH">        INFO </priority>
   <priority msgstream="BSKLNBaseRESPXSec2014"> INFO   </priority>
-  <priority msgstream="MKSPPPXSec2014">        INFO   </priority>
-  <priority msgstream="MKSPPXSec2014">         INFO   </priority>  
+  <priority msgstream="MKSPPPXSec">            INFO   </priority>
+  <priority msgstream="MKSPPXSec">             INFO   </priority>  
   <priority msgstream="MKSPPCache">            INFO   </priority>  
   <priority msgstream="BreitWignet">           INFO   </priority>
   <priority msgstream="Bardin">                INFO   </priority>
@@ -174,7 +174,7 @@
   <priority msgstream="QELEvent">              INFO   </priority>
   <priority msgstream="QELHadronicVtx">        INFO   </priority>
   <priority msgstream="QELKinematics">         INFO   </priority>
-  <priority msgstream="MKSPPEventGen">          INFO   </priority>
+  <priority msgstream="MKSPPEventGen">         INFO   </priority>
   <priority msgstream="RESXSec">               INFO   </priority>
   <priority msgstream="RESPXSec">              WARN   </priority>
   <priority msgstream="ReinSehgalCohPi">       WARN   </priority>

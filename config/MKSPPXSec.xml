@@ -19,10 +19,9 @@ gsl-relative-tolerance      double  Yes  relative tolerance of integration      
 Wcut                        double  Yes  cut of W, if negative use kinematically allowed Wmax  -1.
 ESplineMax                  double  Yes  This integrator caches some splines on free nulceons  500
                                          These splines have plateauing so for simplicity we 
-					 set the maximum to be used here. After that value
-					 we simply use the xsec(E=Emax).
-                                         Value in GeV                            
-
+                                         set the maximum to be used here. After that value
+                                         we simply use the xsec(E=Emax). 
+                                         Values in GeV                            
 -->
 
 
