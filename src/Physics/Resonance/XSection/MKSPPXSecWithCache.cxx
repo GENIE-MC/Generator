@@ -165,7 +165,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
       ig.SetFunction(func);
       double kine_min[3] = { 0., 0., 0.};
       double kine_max[3] = { 1., 1., 1.};
-      xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+      xsec = ig.Integral(kine_min, kine_max);
       
     } 
     else 
@@ -253,7 +253,7 @@ double genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::DoEval(const double * xin) co
 {
 
   // outputs:
-  //   differential cross section [10^-38 cm^2/GeV^3] for Resonance single pion production production
+  //   differential cross section [1/GeV^3] for Resonance single pion production production
   //
 
   if (isZero) return 0.;
@@ -270,7 +270,7 @@ double genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::DoEval(const double * xin) co
   
   
   double xsec = fModel->XSec(fInteraction, kPSWQ2ctpfE)*(Wl.max-Wl.min)*(Q2l.max-Q2l.min)*2;
-  return xsec/(1E-38 * units::cm2);
+  return xsec;
 }
 ROOT::Math::IBaseFunctionMultiDim *
 genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::Clone() const
