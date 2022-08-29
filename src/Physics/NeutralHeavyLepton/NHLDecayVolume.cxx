@@ -473,9 +473,10 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
     firstYROOT = firstY * lunits / units::cm, firstZROOT = firstZ * lunits / units::cm;
   
   //assert( gm );
-  gm = TGeoManager::Import(fGeomFile.c_str());
-  gm->SetCurrentPoint( firstXROOT, firstYROOT, firstZROOT );
-  gm->SetCurrentDirection( px, py, pz );
+  if( !gGeoManager )
+    gm = TGeoManager::Import(fGeomFile.c_str());
+  gGeoManager->SetCurrentPoint( firstXROOT, firstYROOT, firstZROOT );
+  gGeoManager->SetCurrentDirection( px, py, pz );
 
   LOG( "NHL", pINFO )
     << "\nCurrent point     is: ( " << firstX << ", " << firstY << ", " << firstZ << " ) [" << lunitString.c_str() << "]"
@@ -484,7 +485,7 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
     << "\nIn ROOT, start is   : ( " << fSxROOT << ", " << fSxROOT << ", " << fSzROOT << " ) [cm]"
     << "\nCurrent direction is: ( " << px << ", " << py << ", " << pz << " ) [GeV/GeV]";
 
-  assert( gm->FindNode() == NULL || gm->FindNode() == gm->GetTopNode() ); // need to be outside volume!
+  assert( gGeoManager->FindNode() == NULL || gGeoManager->FindNode() == gGeoManager->GetTopNode() ); // need to be outside volume!
 
   double stepmax = 1.0e+6; // cm 
   stepmax *= genie::units::cm / lunits;
@@ -496,25 +497,25 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
     << "Starting to search for intersections...";
   
   // enter the volume.
-  TGeoNode * nextNode = gm->FindNextBoundaryAndStep( stepmax );
+  TGeoNode * nextNode = gGeoManager->FindNextBoundaryAndStep( stepmax );
   // sometimes the TGeoManager likes to hit the BBox and call this an entry point. Step forward again.
-  const double * tmpPoint = gm->GetCurrentPoint();
+  const double * tmpPoint = gGeoManager->GetCurrentPoint();
   if( std::abs(tmpPoint[0]) == fLx/2.0 * lunits / units::cm ||
       std::abs(tmpPoint[1]) == fLy/2.0 * lunits / units::cm ||
       std::abs(tmpPoint[2]) == fLz/2.0 * lunits / units::cm )
-    nextNode = gm->FindNextBoundaryAndStep();
+    nextNode = gGeoManager->FindNextBoundaryAndStep();
 
   if( nextNode == NULL ) return false;
 
   // entered the detector, let's save this point
-  fEx = ( gm->GetCurrentPoint() )[0] * genie::units::cm / lunits;
-  fEy = ( gm->GetCurrentPoint() )[1] * genie::units::cm / lunits;
-  fEz = ( gm->GetCurrentPoint() )[2] * genie::units::cm / lunits;
+  fEx = ( gGeoManager->GetCurrentPoint() )[0] * genie::units::cm / lunits;
+  fEy = ( gGeoManager->GetCurrentPoint() )[1] * genie::units::cm / lunits;
+  fEz = ( gGeoManager->GetCurrentPoint() )[2] * genie::units::cm / lunits;
   entryPoint.SetXYZ( fEx, fEy, fEz );
 
-  fExROOT = ( gm->GetCurrentPoint() )[0];
-  fEyROOT = ( gm->GetCurrentPoint() )[1];
-  fEzROOT = ( gm->GetCurrentPoint() )[2];
+  fExROOT = ( gGeoManager->GetCurrentPoint() )[0];
+  fEyROOT = ( gGeoManager->GetCurrentPoint() )[1];
+  fEzROOT = ( gGeoManager->GetCurrentPoint() )[2];
 
   LOG( "NHL", pDEBUG )
     << "\nEntry point found at ( " << fEx << ", " << fEy << ", " << fEz << " ) [" << lunitString.c_str() << "]"
@@ -533,23 +534,23 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   //Double_t sNext = std::max( fLx, std::max( fLy, fLz ) ) / 2.0;
   Double_t sNext = std::min( std::max( fLx, std::max( fLy, fLz ) ), 100.0 * lunits / units::cm ) / 2.0;
   Double_t sNextROOT = sNext * lunits / units::cm;
-  gm->SetStep( sNextROOT );
+  gGeoManager->SetStep( sNextROOT );
   LOG( "NHL", pINFO )
     << "fLx, fLy, fLz = " << fLx << ", " << fLy << ", " << fLz << " ==> sNextROOT = " << sNextROOT;
-  gm->Step();
+  gGeoManager->Step();
   
   // FindNextBoundaryAndStep() sets step size to distance to next boundary and executes that step
   // so one "step" here is actually one big step + one small step
-  while( gm->FindNextBoundaryAndStep() && bdIdx < bdIdxMax ){
-    const Double_t * currPoint = gm->GetCurrentPoint();
+  while( gGeoManager->FindNextBoundaryAndStep() && bdIdx < bdIdxMax ){
+    const Double_t * currPoint = gGeoManager->GetCurrentPoint();
     if( bdIdx % 100 == 0 ){
       LOG( "NHL", pDEBUG )
 	<< "Step " << bdIdx << " : ( " << currPoint[0] << ", " << currPoint[1] << ", " << currPoint[2] << " ) [cm]";
     }
     sfxROOT = currPoint[0]; sfyROOT = currPoint[1]; sfzROOT = currPoint[2];
     if( sNextROOT >= 2.0 * lunits / units::cm ) sNextROOT *= 0.5;
-    gm->SetStep( sNextROOT );
-    gm->Step();
+    gGeoManager->SetStep( sNextROOT );
+    gGeoManager->Step();
     bdIdx++;
   }
   if( bdIdx == bdIdxMax ){
@@ -560,21 +561,21 @@ bool NHLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
 
   // Always step back one step
   /*
-  const Double_t * ffPoint = gm->GetCurrentPoint();
+  const Double_t * ffPoint = gGeoManager->GetCurrentPoint();
   if( std::abs(ffPoint[0] - fOxROOT) > fLxROOT/2.0 || 
       std::abs(ffPoint[1] - fOyROOT) > fLyROOT/2.0 || 
       std::abs(ffPoint[2] - fOzROOT) > fLzROOT/2.0 ){
     LOG( "NHL", pDEBUG )
       << "Overstepped bounding box: we're at ( " << ffPoint[0] << ", " << ffPoint[1] << ", " << ffPoint[2] << " ) [cm]";
-    const Double_t * sfDir = gm->GetCurrentDirection();
-    gm->SetCurrentDirection( -sfDir[0], -sfDir[1], -sfDir[2] );
-    __attribute__((unused)) TGeoNode * tmpNode = gm->FindNextBoundaryAndStep();
+    const Double_t * sfDir = gGeoManager->GetCurrentDirection();
+    gGeoManager->SetCurrentDirection( -sfDir[0], -sfDir[1], -sfDir[2] );
+    __attribute__((unused)) TGeoNode * tmpNode = gGeoManager->FindNextBoundaryAndStep();
     LOG( "NHL", pDEBUG )
-      << "We turned back with new step = " << gm->GetStep();
+      << "We turned back with new step = " << gGeoManager->GetStep();
     // and set direction back to normal
-    gm->SetCurrentDirection( sfDir[0], sfDir[1], sfDir[2] );
+    gGeoManager->SetCurrentDirection( sfDir[0], sfDir[1], sfDir[2] );
   }
-  const Double_t * sfPoint = gm->GetCurrentPoint();
+  const Double_t * sfPoint = gGeoManager->GetCurrentPoint();
   sfxROOT = sfPoint[0]; sfyROOT = sfPoint[1]; sfzROOT = sfPoint[2];
   */
   sfx = sfxROOT * units::cm / lunits; sfy = sfyROOT * units::cm / lunits; sfz = sfzROOT * units::cm / lunits;

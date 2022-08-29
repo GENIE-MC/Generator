@@ -1188,7 +1188,7 @@ double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
 }
 //----------------------------------------------------------------------------
 void NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, TGeoManager * gm, double &zm, double &zp ) const
-{ 
+{
   // implementation of GetAngDeviation that uses ROOT geometry. More robust than analytical geom
   // (fewer assumptions about detector position)
   
@@ -1294,10 +1294,13 @@ void NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, TGeoM
     << "\nCurrent point (in user coords) = ( " << detStartPoint.X() << ", " << detStartPoint.Y() << ", " << detStartPoint.Z() << " ) [cm]"
     << "\nCurrent direction = ( " << detSweepVect.X() << ", " << detSweepVect.Y() << ", " << detSweepVect.Z() << " )";
 
-  gm->SetCurrentPoint( detStartPoint.X(), detStartPoint.Y(), detStartPoint.Z() );
-  gm->SetCurrentDirection( detSweepVect.X(), detSweepVect.Y(), detSweepVect.Z() );
+  //gm->SetCurrentPoint( detStartPoint.X(), detStartPoint.Y(), detStartPoint.Z() );
+  gGeoManager->SetCurrentPoint( detStartPoint.X(), detStartPoint.Y(), detStartPoint.Z() );
+  //gm->SetCurrentDirection( detSweepVect.X(), detSweepVect.Y(), detSweepVect.Z() );
+  gGeoManager->SetCurrentDirection( detSweepVect.X(), detSweepVect.Y(), detSweepVect.Z() );
 
-  TGeoNode * nextNode = gm->FindNextBoundaryAndStep( );
+  //TGeoNode * nextNode = gm->FindNextBoundaryAndStep( );
+  TGeoNode * nextNode = gGeoManager->FindNextBoundaryAndStep( );
   
   if( nextNode == NULL ){
     LOG( "NHL", pWARN )
@@ -1306,7 +1309,8 @@ void NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, TGeoM
   }
 
   // sometimes the TGeoManager likes to hit the BBox and call this an entry point. Step forward again.
-  const double * tmpPoint = gm->GetCurrentPoint();
+  //const double * tmpPoint = gm->GetCurrentPoint();
+  const double * tmpPoint = gGeoManager->GetCurrentPoint();
 
   LOG( "NHL", pDEBUG )
     << "\ntmpPoint = ( " << tmpPoint[0] << ", " << tmpPoint[1] << ", " << tmpPoint[2] << " ) [ local, cm ]";
@@ -1320,21 +1324,30 @@ void NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, TGeoM
   
   assert( nextNode != NULL );
 
-  double minusPoint[3] = { (gm->GetCurrentPoint())[0], (gm->GetCurrentPoint())[1], (gm->GetCurrentPoint())[2] };
+  //double minusPoint[3] = { (gm->GetCurrentPoint())[0], (gm->GetCurrentPoint())[1], (gm->GetCurrentPoint())[2] };
+  double minusPoint[3] = { (gGeoManager->GetCurrentPoint())[0], (gGeoManager->GetCurrentPoint())[1], (gGeoManager->GetCurrentPoint())[2] };
   
   int bdIdx = 0; const int bdIdxMax = 1e+4;
-  double plusPoint[3] = { (gm->GetCurrentPoint())[0], (gm->GetCurrentPoint())[1], (gm->GetCurrentPoint())[2] };
-  while( gm->FindNextBoundaryAndStep() && bdIdx < bdIdxMax ){
+  //double plusPoint[3] = { (gm->GetCurrentPoint())[0], (gm->GetCurrentPoint())[1], (gm->GetCurrentPoint())[2] };
+  double plusPoint[3] = { (gGeoManager->GetCurrentPoint())[0], (gGeoManager->GetCurrentPoint())[1], (gGeoManager->GetCurrentPoint())[2] };
+  //while( gm->FindNextBoundaryAndStep() && bdIdx < bdIdxMax ){
+  while( gGeoManager->FindNextBoundaryAndStep() && bdIdx < bdIdxMax ){
     bdIdx++;
     if( bdIdx % 100  == 0 )
       LOG( "NHL", pDEBUG ) << "bdIdx = " << bdIdx;
     // explicit check against runaway exit
-    if( std::abs( (gm->GetCurrentPoint())[0] ) != fLxR/2.0 * units::m / units::cm &&
-	std::abs( (gm->GetCurrentPoint())[1] ) != fLyR/2.0 * units::m / units::cm &&
-	std::abs( (gm->GetCurrentPoint())[2] ) != fLzR/2.0 * units::m / units::cm ){
-      plusPoint[0] = (gm->GetCurrentPoint())[0];
-      plusPoint[1] = (gm->GetCurrentPoint())[1];
-      plusPoint[2] = (gm->GetCurrentPoint())[2]; 
+    //if( std::abs( (gm->GetCurrentPoint())[0] ) != fLxR/2.0 * units::m / units::cm &&
+    //std::abs( (gm->GetCurrentPoint())[1] ) != fLyR/2.0 * units::m / units::cm &&
+    //	std::abs( (gm->GetCurrentPoint())[2] ) != fLzR/2.0 * units::m / units::cm ){
+    // plusPoint[0] = (gm->GetCurrentPoint())[0];
+    // plusPoint[1] = (gm->GetCurrentPoint())[1];
+    // plusPoint[2] = (gm->GetCurrentPoint())[2] ;
+    if( std::abs( (gGeoManager->GetCurrentPoint())[0] ) != fLxR/2.0 * units::m / units::cm &&
+	std::abs( (gGeoManager->GetCurrentPoint())[1] ) != fLyR/2.0 * units::m / units::cm &&
+    	std::abs( (gGeoManager->GetCurrentPoint())[2] ) != fLzR/2.0 * units::m / units::cm ){
+      plusPoint[0] = (gGeoManager->GetCurrentPoint())[0];
+      plusPoint[1] = (gGeoManager->GetCurrentPoint())[1];
+      plusPoint[2] = (gGeoManager->GetCurrentPoint())[2]; 
     }
   }
 
