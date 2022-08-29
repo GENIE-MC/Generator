@@ -3,7 +3,7 @@
 <alg_conf>
 
 <!--
-Configuration for the MK single pion production algorithm
+Configuration for the DCC single pion production algorithm
 
 Configurable Parameters:
 ......................................................................................................................................
@@ -23,14 +23,15 @@ WarnIfMissing               bool    Yes   Warn, if some table is missing        
     <param type="string" name="CommonParam"> FermiGas </param>
     <param type="double" name="DCC-EM-XSecScale"> 1.000 </param>
     <param type="string" name="DataPath"> data/evgen/dcc </param>
+  </param_set>
     
   <param_set name="WithPauliBlock"> 
-     <param type="alg"  name="XSec-Integrator">  genie::MKSPPXSec/WithPauliBlock                    </param>
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/WithPauliBlock                    </param>
   </param_set>
   
   
   <param_set name="NoPauliBlock"> 
-     <param type="alg"  name="XSec-Integrator">  genie::MKSPPXSec/NoPauliBlock                      </param>
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/NoPauliBlock                      </param>
   </param_set> 
   
   

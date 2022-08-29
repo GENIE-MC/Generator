@@ -145,7 +145,7 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
   double Gamma             = kAem*qL_gamma*Elf_L/2./kPi2/Q2/Eli_L/(1. - epsilon);
     
   
-  std::complex<double> F1, F2,F3, F4, F5, F6, F7, F8;
+  std::complex<double> F1, F2,F3, F4, F7, F8;
   for (unsigned int L = 0; L<5; L++)
   {
      VAmpl vampl = Amplitudes(W, Q2, L, spp_channel);
@@ -159,17 +159,17 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
      double & x = cos_theta_pi;
 
      // Eq. 26 of ref. 4
-     F1 += dPdx(L+1, x)*ELp + dPdx(L-1, x)*ELm + L*dPdx(L+1, x)*MLp + (L+1)*dPdx(L-1, x)*MLm;
+     F1 += dPdx(L+1, x)*(ELp + 1.*L*MLp) + dPdx(L-1, x)*(ELm + 1.*(L+1)*MLm);
      // Eq. 27 of ref. 4
-     F2 += (L+1)*dPdx(L, x)*MLp + L*dPdx(L, x)*MLm;
+     F2 += dPdx(L, x)*(1.*(L+1)*MLp + 1.*L*MLm);
      // Eq. 28 of ref. 4
-     F3 += d2Pdx2(L+1, x)*ELp + d2Pdx2(L-1, x)*ELm - d2Pdx2(L+1, x)*MLp + d2Pdx2(L-1, x)*MLm;
+     F3 += d2Pdx2(L+1, x)*(ELp - MLp) + d2Pdx2(L-1, x)*(ELm + MLm);
      // Eq. 29 of ref. 4
-     F4 += -d2Pdx2(L, x)*ELp - d2Pdx2(L, x)*ELm + d2Pdx2(L, x)*MLp - d2Pdx2(L, x)*MLm;
+     F4 += d2Pdx2(L, x)*(MLp - MLm - ELp - ELm);
      // Eq. 32 of ref. 4
-     F7 += -(L+1)*dPdx(L, x)*SLp + L*dPdx(L, x)*SLm;
+     F7 += dPdx(L, x)*(1.*L*SLm - 1.*(L+1)*SLp) ;
      // Eq. 33 of ref. 4
-     F8 += (L+1)*dPdx(L+1, x)*SLp - L*dPdx(L-1, x)*SLm;
+     F8 += (L+1)*dPdx(L+1, x)*SLp - L*dPdx(L-1, x)*SLm;      
   }
   
   // The Pauli matrices times by imaginary unit between the final and initial nucleon spins along z-axis 
@@ -177,7 +177,9 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
   std::vector<std::vector<std::complex<double> > > ISy = { {0., 1.}, {-1., 0.} };
   std::vector<std::vector<std::complex<double> > > ISz = { {1i, 0.}, {0., -1i} };
   
-  std::vector<std::vector<std::complex<double> > > Fx, Fy, F0;
+  std::vector<std::vector<std::complex<double> > > Fx(2, std::vector<std::complex<double> >(2));
+  std::vector<std::vector<std::complex<double> > > Fy(2, std::vector<std::complex<double> >(2));
+  std::vector<std::vector<std::complex<double> > > F0(2, std::vector<std::complex<double> >(2));
   
   for (int sf = 0; sf<2; sf++)
   {
@@ -237,7 +239,7 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
   {
     // Eq. 18 of ref. 4
     dsigmavdOmega_pi = dsigmaTdOmega_pi + epsilon*dsigmaLdOmega_pi;
-    xsec*= 2*kPi;
+    dsigmavdOmega_pi*= 2*kPi;
   }
   // convert to hbarc=1 units
   dsigmavdOmega_pi*=fermi2*1e-6;
@@ -360,7 +362,6 @@ bool DCCSPPPXSec::ValidKinematics(const Interaction * interaction) const
   
   double s = Mi*(Mi + 2*Enu);
   double ECM = TMath::Sqrt(s);
-  assert (ECM == init_state.CMEnergy());
  
   // kinematic W-limits
   double Wmin = Mf + mpi;
@@ -764,9 +765,9 @@ DCCSPPPXSec::VAmpl DCCSPPPXSec::Amplitudes(double W, double Q2, unsigned int L, 
   return vampl;
 }
 //____________________________________________________________________________
-double DCCSPPPXSec::dPdx (unsigned int L, double x) const
+double DCCSPPPXSec::dPdx (int L, double x) const
 {
-     if (L==0)
+     if (L<=0)
        return 0.;
        
      if (x == 1.0)
@@ -777,7 +778,7 @@ double DCCSPPPXSec::dPdx (unsigned int L, double x) const
      return ROOT::Math::assoc_legendre(L, 1, x)*TMath::Power(1 - x*x, -0.5);
 }
 //____________________________________________________________________________
-double DCCSPPPXSec::d2Pdx2 (unsigned int L, double x) const
+double DCCSPPPXSec::d2Pdx2 (int L, double x) const
 {
      if (L<=1)
        return 0.;

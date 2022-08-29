@@ -94,6 +94,7 @@ InitialState::~InitialState()
 void InitialState::Init(void)
 {
   fProbePdg  = 0;
+  fProbeHelicity = 0;
   fTgt       = new Target();
   fProbeP4   = new TLorentzVector(0, 0, 0, 0);
   fTgtP4     = new TLorentzVector(0, 0, 0, 0);
@@ -109,6 +110,7 @@ void InitialState::Init(int target_pdgc, int probe_pdgc)
   double m = p->Mass();
   double M = t->Mass();
 
+  fProbeHelicity = 0;
   fProbePdg  = probe_pdgc;
   fTgt       = new Target(target_pdgc);
   fProbeP4   = new TLorentzVector(0, 0, 0, m);
@@ -134,8 +136,9 @@ void InitialState::Copy(const InitialState & init_state)
 
   fTgt->Copy(*init_state.fTgt);
 
-  this -> SetProbeP4 ( *init_state.fProbeP4 );
-  this -> SetTgtP4   ( *init_state.fTgtP4   );
+  this -> SetProbeP4       ( *init_state.fProbeP4 );
+  this -> SetTgtP4         ( *init_state.fTgtP4   );
+  this -> SetProbeHelicity (  init_state.fProbeHelicity );
 }
 //___________________________________________________________________________
 int InitialState::TgtPdg(void) const
@@ -499,10 +502,11 @@ void InitialState::Print(ostream & stream) const
 //___________________________________________________________________________
 bool InitialState::Compare(const InitialState & init_state) const
 {
-  int            probe  = init_state.ProbePdg();
-  const Target & target = init_state.Tgt();
+  int            probe    = init_state.ProbePdg();
+  const Target & target   = init_state.Tgt();
+  int            helicity = init_state.ProbeHelicity();
 
-  bool equal = (fProbePdg == probe) && (*fTgt == target);
+  bool equal = (fProbePdg == probe) && (*fTgt == target) && (fProbeHelicity == helicity);
 
   return equal;
 }

@@ -107,8 +107,8 @@ namespace genie {
       void GetTablePos(double W, double Q2, unsigned int L, TablePos & tabpos) const;
       std::string FindDataTableFile(const std::string &basename, bool &ok) const;
       std::string GetDataTableFileBasename(SppChannel_t spp_chn) const;
-      double dPdx (unsigned int L, double x) const;
-      double d2Pdx2 (unsigned int L, double x) const;
+      double dPdx (int L, double x) const;
+      double d2Pdx2 (int L, double x) const;
             
       
       // configuration data

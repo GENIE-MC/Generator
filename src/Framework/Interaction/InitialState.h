@@ -115,7 +115,7 @@ private:
   TLorentzVector * fTgtP4;         ///< nuclear target 4-momentum in LAB-frame
   int              fProbeHelicity; ///< probe helicity
 
-ClassDef(InitialState,1)
+ClassDef(InitialState,2)
 };
 
 }      // namespace
