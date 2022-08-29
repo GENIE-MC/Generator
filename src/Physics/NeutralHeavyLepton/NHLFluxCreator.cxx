@@ -479,7 +479,7 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   gnmf->nenergy  = p4NHL.E();                ///< Neutrino energy [GeV] for a random decay
   gnmf->ndxdznea = -9999.9;                  ///< Neutrino direction slope for a decay forced to ND
   gnmf->ndydznea = -9999.9;                  ///< See above
-  gnmf->nenergyn = boost_correction_two / boost_correction;                  ///< Neutrino energy for decay forced to ND // now houses ratio of boost calcs
+  gnmf->nenergyn = boost_correction;         ///< Neutrino energy for decay forced to ND // now houses ratio of boost calcs
   gnmf->nwtnear  = accCorr;                  ///< weight for decay forced to ND / now acceptance correction
   gnmf->ndxdzfar = -9999.9;                  ///< Same as ND but FD
   gnmf->ndydzfar = -9999.9;                  ///< See above
