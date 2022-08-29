@@ -172,6 +172,7 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 # Store information required to setup requirements at the FNAL grid
 if($batch_system eq 'FNAL'){
     if( ! $fnal_subjob ) {
+	unlink "$batch_script" if -e "$batch_script" ; 
 	open(FNAL, ">", "$batch_script") or die("Can not create the slurm batch script");
 	print FNAL "#!/bin/bash \n";
 	print FNAL "source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups \n";
@@ -187,9 +188,9 @@ if($batch_system eq 'FNAL'){
 	close(FNAL);
 
         # Open xml file
-	open(FNAL, ">>", "$xml_script") or die("Can not create the slurm batch script");
-	print FNAL "<parallel> \n";
-	close(FNAL);
+	open(FNAL_XML, ">>", "$xml_script") or die("Can not create the slurm batch script");
+	print FNAL_XML "<parallel> \n";
+	close(FNAL_XML);
  
     }
 }
@@ -241,6 +242,7 @@ foreach $nu ( @nu_list ) {
 
       # create sh file 
       $shell_script = "$filename_template.sh";
+      unlink "$shell_script" if -e "$shell_script" ; 
       open(COMMANDS, ">$shell_script") or die("Can not create the bash script");
       print COMMANDS "#!/bin/bash \n";
      
@@ -355,14 +357,15 @@ foreach $nu ( @nu_list ) {
 
       # FNAL farm
       if($batch_system eq 'FNAL'){
-	  open(FNAL, ">>", "$xml_script") or die("Can not create the slurm batch script");
+	  unlink "$xml_script" if -e "$xml_script" ; 
+	  open(FNAL_XML, ">>", "$xml_script") or die("Can not create the slurm batch script");
 	  
 	  $fnal_opt  = "-n --memory=1GB --disk=20GB --expected-lifetime=8h ";
 	  $fnal_opt .= "-f $jobs_topdir/$genie_setup ";
 	  $fnal_opt .= "--resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE ";  
-	  print FNAL "jobsub_submit $fnal_opt file://$shell_script\n"; 
+	  print FNAL_XML "jobsub_submit $fnal_opt file://$shell_script\n"; 
 
-	  close(FNAL);
+	  close(FNAL_XML);
       } #slurm
       
     }
@@ -381,9 +384,9 @@ if ( $batch_system eq 'none' ) {
    }
 } elsif ($batch_system eq 'FNAL') {
     if( ! $fnal_subjob ){
-	open(FNAL, ">>", "$xml_script") or die("Can not create the slurm batch script");
-	print FNAL "</parallel> \n";
-	close(FNAL);
+	open(FNAL_XML, ">>", "$xml_script") or die("Can not create the slurm batch script");
+	print FNAL_XML "</parallel> \n";
+	close(FNAL_XML);
     }
 } else {
     ## submit all except the first

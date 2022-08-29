@@ -197,6 +197,7 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 # Store information required to setup requirements at the FNAL grid
 if($batch_system eq 'FNAL'){
     if( ! $fnal_subjob ) {
+	unlink "$fnal_subfile.fnal" if -e "$fnal_subfile.fnal" ; 
 	open(FNAL, ">", "$fnal_subfile.fnal") or die("Can not create the slurm batch script");
 	print FNAL "#!/bin/bash \n";
 	print FNAL "source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups \n";
@@ -210,7 +211,8 @@ if($batch_system eq 'FNAL'){
 	close(FNAL);
 
         # Open xml file
-	open(FNAL, ">>", "$fnal_subfile.xml") or die("Can not create the slurm batch script");
+	unlink "$fnal_subfile.xml" if -e "$fnal_subfile.xml" ; 
+	open(FNAL, ">", "$fnal_subfile.xml") or die("Can not create the slurm batch script");
 	print FNAL "<parallel> \n";
 	close(FNAL);
 
@@ -256,6 +258,8 @@ foreach $nu ( @nu_list ) {
 
       # create sh file 
       $shell_script = "$filename_template.sh";
+      
+      unlink "$shell_script" if -e "$shell_script" ; 
       open(COMMANDS, ">$shell_script") or die("Can not create the bash script $filename_template.sh");
       print COMMANDS "#!/bin/bash \n";
      
