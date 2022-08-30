@@ -462,7 +462,8 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   gnmf->pcodes = 1;                          ///< converted to PDG
   gnmf->units = 0;                           ///< cm
   
-  int typeMod = ( decay_ptype > 0 ) ? 1 : -1;
+  int typeMod = 1;
+  if( !fIsMajorana ) typeMod = ( decay_ptype > 0 ) ? 1 : -1;
   gnmf->fgPdgC = typeMod * kPdgNHL;          ///< PDG code
 
   gnmf->fgXYWgt = acceptance;                ///< geometrical * collimation correction
@@ -1787,6 +1788,7 @@ void NHLFluxCreator::LoadConfig(void)
 
   this->GetParam( "NHL-Mass", fMass );
   this->GetParamVect( "NHL-LeptonMixing", fU4l2s );
+  this->GetParam( "NHL-Majorana", fIsMajorana );
   
   this->GetParamVect( "Beam2User_T", fB2UTranslation );
   this->GetParamVect( "Beam2User_R", fB2URotation );

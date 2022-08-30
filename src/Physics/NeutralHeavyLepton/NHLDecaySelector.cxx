@@ -25,9 +25,10 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
   double GINV = 0.0;
   if( fDecayGammas[0] < 0.0 ){
     GINV = BRFunc->DWidth_Invisible( M, Ue42, Umu42, Ut42 );
+    if( IsMajorana ) GINV *= 2.0;
     fDecayGammas[0] = GINV;
     LOG("NHL", pDEBUG)
-      << " Invisible decay gamma = " << GINV;
+      << " Invisible decay gamma = " << fDecayGammas[0];
   } else GINV = fDecayGammas[0];
   allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyNuNuNu, GINV ) );
 
@@ -39,9 +40,10 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
   double GNEE = 0.0;
   if( fDecayGammas[1] < 0.0 ){
     GNEE = BRFunc->DWidth_SameLepton( M, Ue42, Umu42, Ut42, genie::constants::kElectronMass, false );
+    if( IsMajorana ) GNEE *= 2.0;
     fDecayGammas[1] = GNEE;
     LOG("NHL", pDEBUG)
-      << " Nu-e-e gamma = " << GNEE;
+      << " Nu-e-e gamma = " << fDecayGammas[1];
   } else GNEE = fDecayGammas[1];
   allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyNuEE, GNEE ) );
 
@@ -53,9 +55,10 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
   double GNEM = 0.0;
   if( fDecayGammas[2] < 0.0 ){
     GNEM = BRFunc->DWidth_DiffLepton( M, Ue42, Umu42, IsMajorana ); 
+    if( IsMajorana ) GNEM *= 2.0;
     fDecayGammas[2] = GNEM;
     LOG("NHL", pDEBUG)
-      << " Nu-e-mu gamma = " << GNEM;
+      << " Nu-e-mu gamma = " << fDecayGammas[2];
   } else GNEM = fDecayGammas[2];
   allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyNuMuE, GNEM ) );
 
@@ -67,9 +70,10 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
   double GP0N = 0.0;
   if( fDecayGammas[3] < 0.0 ){
     GP0N = BRFunc->DWidth_PiZeroAndNu( M, Ue42, Umu42, Ut42 );
+    if( IsMajorana ) GP0N *= 2.0;
     fDecayGammas[3] = GP0N;
     LOG("NHL", pDEBUG)
-      << " Pi0-nu gamma = " << GP0N;
+      << " Pi0-nu gamma = " << fDecayGammas[3];
   } else GP0N = fDecayGammas[3];
   allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyPi0Nu, GP0N ) );
 
@@ -81,9 +85,10 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
   double GPIE = 0.0;
   if( fDecayGammas[4] < 0.0 ){
     GPIE = BRFunc->DWidth_PiAndLepton( M, Ue42, genie::constants::kElectronMass );
+    if( IsMajorana ) GPIE *= 2.0;
     fDecayGammas[4] = GPIE;
     LOG("NHL", pDEBUG)
-      << " Pi-e gamma = " << GPIE;
+      << " Pi-e gamma = " << fDecayGammas[4];
   } else GPIE = fDecayGammas[4];
   allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyPiE, GPIE) );
 
@@ -95,9 +100,10 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
   double GNMM = 0.0;
   if( fDecayGammas[5] < 0.0 ){
     GNMM = BRFunc->DWidth_SameLepton( M, Ue42, Umu42, Ut42, genie::constants::kMuonMass, false );
+    if( IsMajorana ) GNMM *= 2.0;
     fDecayGammas[5] = GNMM;
     LOG("NHL", pDEBUG)
-      << " Nu-mu-mu gamma = " << GNMM;
+      << " Nu-mu-mu gamma = " << fDecayGammas[5];
   } else GNMM = fDecayGammas[5];
   allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyNuMuMu, GNMM ) );
 
@@ -109,9 +115,10 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
   double GPIM = 0.0;
   if( fDecayGammas[6] < 0.0 ){
     GPIM = BRFunc->DWidth_PiAndLepton( M, Umu42, genie::constants::kMuonMass );
+    if( IsMajorana ) GPIM *= 2.0;
     fDecayGammas[6] = GPIM;
     LOG("NHL", pDEBUG)
-      << " Pi-mu gamma  = " << GPIM;
+      << " Pi-mu gamma  = " << fDecayGammas[6];
   } else GPIM = fDecayGammas[6];
   allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyPiMu, GPIM ) );
 
@@ -123,9 +130,10 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
   double GP02 = 0.0;
   if( fDecayGammas[7] < 0.0 ){
     GP02 = BRFunc->DWidth_Pi0Pi0Nu( M, Ue42, Umu42, Ut42 );
+    if( IsMajorana ) GP02 *= 2.0;
     fDecayGammas[7] = GP02;
     LOG("NHL", pDEBUG)
-      << " Pi0-pi0-nu gamma = " << GP02;
+      << " Pi0-pi0-nu gamma = " << fDecayGammas[7];
   } else fDecayGammas[7] = GP02;
   allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyPi0Pi0Nu, GP02 ) );
 
@@ -137,9 +145,10 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
   double GP0E = 0.0;
   if( fDecayGammas[8] < 0.0 ){
     GP0E = BRFunc->DWidth_PiPi0Ell( M, genie::constants::kElectronMass, Ue42, Umu42, Ut42, true );
+    if( IsMajorana ) GP0E *= 2.0;
     fDecayGammas[8] = GP0E;
     LOG("NHL", pDEBUG)
-      << " Pi-pi0-e gamma = " << GP0E;
+      << " Pi-pi0-e gamma = " << fDecayGammas[8];
   } else GP0E = fDecayGammas[8];
   allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyPiPi0E, GP0E ) );
 
@@ -151,9 +160,10 @@ std::map< NHLDecayMode_t, double > NHLSelector::GetValidChannelWidths( const dou
   double GP0M = 0.0;
   if( fDecayGammas[9] < 0.0 ){
     GP0M = BRFunc->DWidth_PiPi0Ell( M, genie::constants::kMuonMass, Ue42, Umu42, Ut42, false );
+    if( IsMajorana ) GP0M *= 2.0;
     fDecayGammas[9] = GP0M;
     LOG("NHL", pDEBUG)
-      << " Pi-pi0-mu gamma = " << GP0M;
+      << " Pi-pi0-mu gamma = " << fDecayGammas[9];
   } else GP0M = fDecayGammas[9];
   allChannels.insert( allChannels.begin(), std::pair< NHLDecayMode_t, double >( kNHLDcyPiPi0Mu, GP0M ) );
 

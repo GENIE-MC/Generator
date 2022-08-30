@@ -203,6 +203,7 @@ namespace genie{
 
       mutable double fMass; // NHL mass, GeV
       mutable std::vector< double > fU4l2s; // couplings
+      mutable bool fIsMajorana;
       
       mutable double fLx, fLy, fLz;
       mutable double fLxR, fLyR, fLzR; // BBox side [m]

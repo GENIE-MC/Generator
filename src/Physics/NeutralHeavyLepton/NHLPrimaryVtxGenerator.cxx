@@ -141,8 +141,13 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
     fDecHadPdg = typeMod * kPdgPiP;
   }
 
-  if( event->Particle(0) ){
+  if( event->Particle(0) && !fIsMajorana ){
     typeMod = ( event->Particle(0)->Pdg() >= 0 ) ? 1 : -1;
+  } else if( event->Particle(0) && fIsMajorana ){
+    // equal probability to decay to 1 of 2 charge-conjugated states
+    RandomGen * Rng = RandomGen::Instance();
+    double rnd = Rng->RndGen().Uniform(0.0, 1.0);
+    typeMod = ( rnd >= 0.5 ) ? 1.0 : -1.0;
   }
   PDGCodeList pdgv(true);
   for( std::vector<int>::iterator it = pdgv0.begin(); it != pdgv0.end(); ++it ){
