@@ -38,15 +38,10 @@ using namespace genie;
 
 //duneCdr resolution functions
 
-double PiP_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
+double PiP_Res_duneCdr(double myE, double myKE, double myPmag)
 {
     if (myKE >= 0.1){ //100 MeV Threshold for PiP/M
-
-        if (exit == 1){
-            return 0.3; //particle exits
-        } else {
-            return 0.15; //doesn't exit
-        }
+            return 0.15;
 
     } else {
         return -1;
@@ -54,22 +49,17 @@ double PiP_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
 
 }
 
-double PiM_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
+double PiM_Res_duneCdr(double myE, double myKE, double myPmag)
 {
     if (myKE >= 0.1){ //100 MeV Threshold for PiP/M
-
-        if (exit == 1){
-            return 0.3; //particle exits
-        } else {
-            return 0.15; //doesn't exit
-        }
+            return 0.15;
 
     } else {
         return -1;
     }
 }
 
-double Pi0_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
+double Pi0_Res_duneCdr(double myE, double myKE, double myPmag)
 {
     if (myKE >= 0.05){ //50 MeV Threshold for other
 
@@ -79,7 +69,7 @@ double Pi0_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
     }
 }
 
-double KP_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
+double KP_Res_duneCdr(double myE, double myKE, double myPmag)
 {
     if (myKE >= 0.05){ //50 MeV Threshold for other
 
@@ -89,7 +79,7 @@ double KP_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
     }
 }
 
-double KM_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
+double KM_Res_duneCdr(double myE, double myKE, double myPmag)
 {
     if (myKE >= 0.05){ //50 MeV Threshold for other
 
@@ -100,7 +90,7 @@ double KM_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
     }
 }
 
-double Gamma_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
+double Gamma_Res_duneCdr(double myE, double myKE, double myPmag)
 {
     if (myKE >= 0.03){ //30 MeV Threshold for gamma
 
@@ -112,7 +102,7 @@ double Gamma_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
     }
 }
 
-double Proton_Res_duneCdr(double myE, double myKE, double myPmag, int exit)//Uses KE instead of E
+double Proton_Res_duneCdr(double myE, double myKE, double myPmag)//Uses KE instead of E
 {
     if (myKE >= 0.05){ //50 MeV Threshold for proton
 
@@ -128,7 +118,7 @@ double Proton_Res_duneCdr(double myE, double myKE, double myPmag, int exit)//Use
     }
 }
 
-double AntiProton_Res_duneCdr(double myE, double myKE, double myPmag, int exit)//Uses KE instead of E
+double AntiProton_Res_duneCdr(double myE, double myKE, double myPmag)//Uses KE instead of E
 {
         if (myKE >= 0.05){ //50 MeV Threshold for proton
 
@@ -143,7 +133,7 @@ double AntiProton_Res_duneCdr(double myE, double myKE, double myPmag, int exit)/
     }
 }
 
-double Electron_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
+double Electron_Res_duneCdr(double myE, double myKE, double myPmag)
 {
     if (myKE >= 0.03){ //30 MeV Threshold for electron
 
@@ -155,7 +145,7 @@ double Electron_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
     }
 }
 
-double Positron_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
+double Positron_Res_duneCdr(double myE, double myKE, double myPmag)
 {
         if (myKE >= 0.03){ //30 MeV Threshold for positron
 
@@ -167,37 +157,29 @@ double Positron_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
     }
 }
 
-double Muon_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
+double Muon_Res_duneCdr(double myE, double myKE, double myPmag)
 {
         if (myKE >= 0.03){ //30 MeV Threshold for Muon
 
-        if (exit == 1){
-            return 0.3; //particle exits
-        } else {
-            return 0.15; //doesn't exit
-        }
+            return 0.15;
 
     } else {
         return -1;
     }
 }
 
-double AntiMuon_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
+double AntiMuon_Res_duneCdr(double myE, double myKE, double myPmag)
 {
         if (myKE >= 0.03){ //30 MeV Threshold for Muon
 
-        if (exit == 1){
-            return 0.3; //particle exits
-        } else {
-            return 0.15; //doesn't exit
-        }
+            return 0.15;
 
     } else {
         return -1;
     }
 }
 
-double Neutron_Res_duneCdr(double myE, double myKE, double myPmag, int exit) //Uses KE instead of E
+double Neutron_Res_duneCdr(double myE, double myKE, double myPmag) //Uses KE instead of E
 {
         if (myKE >= 0.05){ //50 MeV Threshold for n
 
@@ -207,7 +189,7 @@ double Neutron_Res_duneCdr(double myE, double myKE, double myPmag, int exit) //U
     }
 }
 
-double AntiNeutron_Res_duneCdr(double myE, double myKE, double myPmag, int exit)//Uses KE instead of E
+double AntiNeutron_Res_duneCdr(double myE, double myKE, double myPmag)//Uses KE instead of E
 {
             if (myKE >= 0.05){ //50 MeV Threshold for n
 
@@ -217,7 +199,7 @@ double AntiNeutron_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
     }
 }
 
-double K0_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
+double K0_Res_duneCdr(double myE, double myKE, double myPmag)
 {
 if (myKE >= 0.05){ //50 MeV Threshold for other
 
@@ -227,7 +209,7 @@ if (myKE >= 0.05){ //50 MeV Threshold for other
     }
 }
 
-double AntiK0_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
+double AntiK0_Res_duneCdr(double myE, double myKE, double myPmag)
 {
 if (myKE >= 0.05){ //50 MeV Threshold for other
 
@@ -237,7 +219,7 @@ if (myKE >= 0.05){ //50 MeV Threshold for other
     }
 }
 
-double Lambda_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
+double Lambda_Res_duneCdr(double myE, double myKE, double myPmag)
 {
 if (myKE >= 0.05){ //50 MeV Threshold for other
 
@@ -247,7 +229,7 @@ if (myKE >= 0.05){ //50 MeV Threshold for other
     }
 }
 
-double SigmaP_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
+double SigmaP_Res_duneCdr(double myE, double myKE, double myPmag)
 {
 if (myKE >= 0.05){ //50 MeV Threshold for other
 
@@ -257,7 +239,7 @@ if (myKE >= 0.05){ //50 MeV Threshold for other
     }
 }
 
-double Sigma0_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
+double Sigma0_Res_duneCdr(double myE, double myKE, double myPmag)
 {
 if (myKE >= 0.05){ //50 MeV Threshold for other
 
@@ -267,7 +249,7 @@ if (myKE >= 0.05){ //50 MeV Threshold for other
     }
 }
 
-double SigmaM_Res_duneCdr(double myE, double myKE, double myPmag, int exit)
+double SigmaM_Res_duneCdr(double myE, double myKE, double myPmag)
 {
 if (myKE >= 0.05){ //50 MeV Threshold for other
 
@@ -286,7 +268,7 @@ if (myKE >= 0.05){ //50 MeV Threshold for other
 
 //SmearE energy smearing function
 
-double smearE(int myPdg, double myE, double myKE, double myPx, double myPy, double myPz, std::string model, double theta_lim)
+double smearE(int myPdg, double myE, double myKE, double myPx, double myPy, double myPz, std::string model)
 {
 
 //map from PDG to myMap index number
@@ -314,20 +296,13 @@ myMap[kPdgSigmaP] = 17;
 myMap[kPdgSigma0] = 18;
 myMap[kPdgSigmaM] = 19;
 
-
 TVector3 P (myPx, myPy, myPz); //particle momentum vector
 
 TVector3 Z (0,0,1); //vector pointing downstream along Z axis
 
 double myPmag = P.Mag(); //particle momentum magnitude
 
-double theta = (P.Angle(Z))/M_PI*180; //angle away from Z vector in degrees
 
-int exit = 0;
-
-if (theta < theta_lim){
-    exit += 1; //if angle away from Z vector is less than limiting angle, particle is considered "exited".
-}
 
 int in = myMap.find(myPdg)->second; //in is the index number for the given particle
 
@@ -335,7 +310,7 @@ if (model == "duneCdr"){
 
 //duneCdr resolution function pointers
 
-double (*resolution_ptr_duneCdr[20])(double, double, double, int) = {
+double (*resolution_ptr_duneCdr[20])(double, double, double) = {
 PiP_Res_duneCdr,
 PiM_Res_duneCdr,
 Pi0_Res_duneCdr,
@@ -359,7 +334,7 @@ SigmaM_Res_duneCdr
 };
 
 
-double resolution = (*resolution_ptr_duneCdr[in])(myE, myKE, myPmag, exit); //calls duneCdr resolution function corresponding to particle with index number 'in', and stores resulting resolution value
+double resolution = (*resolution_ptr_duneCdr[in])(myE, myKE, myPmag); //calls duneCdr resolution function corresponding to particle with index number 'in', and stores resulting resolution value
 
 if (resolution == -1){ //if the particle is below the threshold energy
     return 0; //i.e. particle was not detected at all
@@ -465,7 +440,7 @@ double eSq = 0;
           if (distUni(gen) < chanceToSee){ //i.e. particle is observed
 
 
-                     if(myKE > 0.05){ //Threshold of 50 MeV
+                     if(myKE > 0.05){ //Threshold of 50 MeV 
                         return distLognorm(gen);
                      } else {
                         return 0;
@@ -573,9 +548,10 @@ if (model == "duneCdr"){
 
 resolution += (angularResDeg_DuneCdr[in]); //DUNE-CDR angular resolution
 
+
 } else if (model == "default") {
 
-resolution += (angularResDeg_Default[in]); //Default angular resolution
+resolution += (angularResDeg_Default[in]); //Default angular resolution 
 
 }
      
