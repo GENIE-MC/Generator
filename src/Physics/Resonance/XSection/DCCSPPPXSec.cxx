@@ -116,13 +116,13 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
   double m_pi2 = m_pi*m_pi;
 
 
-  // Eq. 14 of ref. 4
+  // Eqs. 14, 15 of ref. 4
   double nu                = (W2 - Mi2 - Q2)/2./W;
-  double nu_L              = nu*W/Mi;
-  // Eq. 15 of ref. 4
   double q                 = TMath::Sqrt(Q2 + nu*nu);
-  double qL                = TMath::Sqrt(Q2 + nu_L*nu_L);
-  
+  double qL                = q*W/Mi;
+  double qL2               = qL*qL;
+  double nu_L              = TMath::Sqrt(qL2 - Q2);
+ 
   double k0                = (W2 - Mf2 + m_pi2)/2./W;
   // Eq. 16 of ref. 4
   double k                 = TMath::Sqrt(k0*k0 - m_pi2);
@@ -134,13 +134,13 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
   double Elf_L             = Eli_L - nu_L;
   double pli_L             = TMath::Sqrt(Eli_L*Eli_L - ml2);
   double plf_L             = TMath::Sqrt(Elf_L*Elf_L - ml2);
-  double cos_theta_l       = (Eli_L*Elf_L - Q2/2 - ml2)/pli_L/plf_L;
+  double cos_theta_l       = (Eli_L*Elf_L - Q2/2. - ml2)/pli_L/plf_L;
   // Eq. 4 of ref. 4
   double epsilon = 0.;
   if (cos_theta_l > -1.)
   {
     double tan_half_theta_l2  = (1. - cos_theta_l)/(1. + cos_theta_l);
-    epsilon                   = 1./(1. + 2.*qL*qL*tan_half_theta_l2/Q2);
+    epsilon                   = 1./(1. + 2.*qL2*tan_half_theta_l2/Q2);
   }
   // Eq. 2 of ref. 4
   double Gamma             = kAem*qL_gamma*Elf_L/2./kPi2/Q2/Eli_L/(1. - epsilon);
@@ -242,6 +242,7 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
     dsigmavdOmega_pi = dsigmaTdOmega_pi + epsilon*dsigmaLdOmega_pi;
     dsigmavdOmega_pi*= 2*kPi;
   }
+  //return dsigmavdOmega_pi/200./kPi;
   // convert to hbarc=1 units
   dsigmavdOmega_pi*=fermi2*1e-6;
   // Eq. 1 of ref. 4

@@ -207,58 +207,30 @@ string DCCSPPXSecWithCache::CacheBranchName(
 //____________________________________________________________________________
 string DCCSPPXSecWithCache::ProbeAsString (int probe_pdg, int probe_helicity) const
 {
+  string s_probe_pdg = std::to_string(probe_pdg);
+  string s_probe_helicity = std::to_string(probe_helicity);
   switch (probe_pdg)
   {
-    case kPdgNuE :
-        return ";v_e:";
-    case kPdgAntiNuE :
-        return ";vb_e:";
-    case kPdgNuMu :
-        return ";v_mu:";
-    case kPdgAntiNuMu :
-        return ";vb_mu:";
-    case kPdgNuTau :
-        return ";v_tau:";
-    case kPdgAntiNuTau :
-        return ";vb_tau:";
-    case kPdgElectron :
-        if (probe_helicity == 1)
-          return ";e-R:";
-        else if  (probe_helicity == -1)
-          return ";e-L:";
-        return ";e-:";
-    case kPdgPositron :
-        if (probe_helicity == 1)
-          return ";e+R:";
-        else if  (probe_helicity == -1)
-          return ";e+L:";
-        return ";e+:";
-    case kPdgMuon :
-        if (probe_helicity == 1)
-          return ";mu-R:";
-        else if  (probe_helicity == -1)
-          return ";mu-L:";
-        return ";mu-:";
-    case kPdgAntiMuon :
-        if (probe_helicity == 1)
-          return ";mu+R:";
-        else if  (probe_helicity == -1)
-          return ";mu+L:";
-        return ";mu+:";
-    case kPdgTau :
-        if (probe_helicity == 1)
-          return ";tau-R:";
-        else if  (probe_helicity == -1)
-          return ";tau-L:";
-        return ";tau-:";
-    case kPdgAntiTau :
-        if (probe_helicity == 1)
-          return ";tau+R:";
-        else if  (probe_helicity == -1)
-          return ";tau+L:";
-        return ";tau+:";
+    case kPdgNuE:
+    case kPdgNuMu:
+    case kPdgNuTau:
+        return ";v:" + s_probe_pdg;
+    case kPdgAntiNuE:
+    case kPdgAntiNuMu:
+    case kPdgAntiNuTau:
+        return ";vb:" + s_probe_pdg;
+    case kPdgElectron:
+    case kPdgPositron:
+    case kPdgMuon:
+    case kPdgAntiMuon:
+    case kPdgTau:
+    case kPdgAntiTau:
+        if (probe_helicity != 0)
+          return ";l:" + s_probe_pdg + "(" + s_probe_helicity + ")";
+        else
+          return ";l:" + s_probe_pdg;
   }
-  return ";probe(" + std::to_string(probe_helicity) + ")";
+  return ";probe:" + s_probe_pdg + "(" + s_probe_helicity + ")";
 }
 //____________________________________________________________________________
 // GSL wrappers
