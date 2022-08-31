@@ -758,7 +758,8 @@ double DCCSPPPXSec::dPdx (int L, double x) const
      if (x == -1.0)
        x += std::numeric_limits<double>::epsilon();
 
-     return ROOT::Math::assoc_legendre(L, 1, x)*TMath::Power(1 - x*x, -0.5);
+     return L*(ROOT::Math::legendre(L-1, x) - x*ROOT::Math::legendre(L, x))/(1. - x*x);
+     // return ROOT::Math::assoc_legendre(L, 1, x)*pow(1 - x*x, -0.5);
 }
 //____________________________________________________________________________
 double DCCSPPPXSec::d2Pdx2 (int L, double x) const
