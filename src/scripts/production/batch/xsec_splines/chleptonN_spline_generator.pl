@@ -171,9 +171,8 @@ if($batch_system eq 'FNAL'){
 	print FNAL "source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups \n";
 	print FNAL "setup fife_utils \n\n";
 	$fnal_opt  = "-G $queue --memory=1GB --disk=20GB --expected-lifetime=8h -N 1 --role=Analysis ";
-#	$fnal_opt .= "--lines '+FERMIHTC_AutoRelease=True' ";
-#	$fnal_opt .= "--lines '+FERMIHTC_GraceMemory=4096' --lines '+FERMIHTC_GraceLifetime=6000' ";
-#	$fnal_opt .= "-l '+SingularityImage=\"/cvmfs/singularity.opensciencegrid.org/fermilab/fnal-wn-sl7:latest\"' --append_condor_requirements='(TARGET.HAS_Singularity==true)' ";
+	$fnal_opt .= "--lines '+FERMIHTC_AutoRelease=True' ";
+	$fnal_opt .= "--lines '+FERMIHTC_GraceMemory=4096' --lines '+FERMIHTC_GraceLifetime=6000' ";
 	$fnal_opt .= "-f $jobs_topdir/$genie_setup ";
 	$fnal_opt .= "--resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE ";
   
@@ -335,7 +334,7 @@ foreach $chlepton ( @chlepton_list ) {
 	      
 	      open(FNAL_XML, ">>", "$xml_script") or die("Can not create the slurm batch script");
 	      
-	      $fnal_opt  = "-n --memory=1GB --disk=20GB --expected-lifetime=8h ";
+	      $fnal_opt  = "-n --memory=1GB --disk=20GB --expected-lifetime=10h ";
 	      $fnal_opt .= "-f $jobs_topdir/$genie_setup ";
 	      $fnal_opt .= "--resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE ";  
 	      $fnal_opt .= "--lines '+FERMIHTC_AutoRelease=True' ";

@@ -30,6 +30,8 @@
 #   [--with-priority]  : (boolean) set a prioirty to optimize bulk productions. Default false
 #   [--run-one]        : (boolean) If called, one of the jobs is run as part of the script instead of submitted
 #                        via the batch system. Default all the jobs are submitted
+#   [--fnal-subjob]   : (boolean) Call if the job is a subjob of the main script to run at the FNAL grid
+#   [--fnal-subfile]  : name of sumibmission file to be stored  
 #
 #
 # Author:
@@ -86,6 +88,9 @@ if ( $batch_system eq 'LyonPBS' ) {
 if ( $batch_system eq 'LyonSlurm' ) {
     $queue_default  = "htc" ;
 }
+if ( $batch_system eq 'FNAL' ) { 
+    $queue_default = "genie" ; 
+}
 $queue          = $queue_default                unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = $ENV{'PWD'}                   unless defined $jobs_topdir;
@@ -93,10 +98,14 @@ $freenucsplines = "$jobs_topdir/$genie_version-$production\_$cycle-xsec\_chlepto
 $priority       = 0                             unless defined $priority ;
 $e_max          = 35                            unless defined $e_max ;
 $n_knots        = 200                           unless defined $n_knots ;
-
-
 $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
+if ( $batch_system eq 'FNAL' ){
+    $genie_setup = "setup.sh";
+}
 $jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec\_chleptonA";
+$fnal_subfile   = "fnal_chleptonN"              unless defined $fnal_subfile ;
+$batch_script = "$fnal_subfile.fnal";
+$xml_script = "$fnal_subfile.xml";
 
 %chlepton_pdg_def = ( 'e'      =>   11,
 		      'ebar'   =>  -11,
@@ -171,6 +180,29 @@ print "\n Target List: @tgt_pdg \n";
 #
 mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 
+# Store information required to setup requirements at the FNAL grid
+if($batch_system eq 'FNAL'){
+    if( ! $fnal_subjob ) {
+	unlink "$batch_script" if -e "$batch_script" ; 
+	open(FNAL, ">", "$batch_script") or die("Can not create the slurm batch script");
+	print FNAL "#!/bin/bash \n";
+	print FNAL "source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups \n";
+	print FNAL "setup fife_utils \n\n";
+	$fnal_opt  = "-G $queue --memory=1GB --disk=20GB --expected-lifetime=8h -N 1 --role=Analysis ";
+	$fnal_opt .= "-f $jobs_topdir/$genie_setup ";
+	$fnal_opt .= "--resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE ";
+  
+	print FNAL "jobsub_submit_dag $fnal_opt file://$xml_script\n"; 
+	close(FNAL);
+
+        # Open xml file
+	unlink "$xml_script" if -e "$xml_script" ; 
+	open(FNAL_XML, ">", "$xml_script") or die("Can not create the slurm batch script");
+	print FNAL_XML "<parallel> \n";
+	close(FNAL_XML);
+    }
+}
+
 @batch_commands = ();
 @direct_commands = () ;
 
@@ -193,7 +225,14 @@ foreach $chlepton ( @chlepton_list ) {
 	  else {
 	      $in_splines = $freenucsplines;
 	  }
-	  $gmkspl_opt = "-p $chlepton_pdg_def{$chlepton} -t $tgt -n $n_knots -e $e_max --input-cross-sections $in_splines --output-cross-sections $filename_template.xml --event-generator-list $event_gen_list --no-copy";
+	  $gmkspl_opt = "-p $chlepton_pdg_def{$chlepton} -t $tgt -n $n_knots -e $e_max --input-cross-sections $in_splines --event-generator-list $event_gen_list --no-copy";
+	  if( $batch_system eq 'FNAL' ) {
+	      $gmkspl_opt   .= "--input-cross-sections \$CONDOR_DIR_INPUT/total_xsec.xml ";
+	      $gmkspl_opt   .= "-o $jobname.xml ";
+	  }
+	  else {
+	      $gmkspl_opt   .= "-o $filename_template.xml ";
+	  }
 	  $gmkspl_opt .= " --tune $tune " if ( defined $tune ) ;
 	  $gmkspl_cmd = "gmkspl $gmkspl_opt ";
 	  print "@@ exec: $gmkspl_cmd \n";
@@ -203,9 +242,17 @@ foreach $chlepton ( @chlepton_list ) {
 	  $shell_script = "$filename_template.sh";
 	  open(COMMANDS, ">$shell_script") or die("Can not create the bash script");
 	  print COMMANDS "#!/bin/bash \n";
-	  print COMMANDS "cd $jobs_dir \n";
-	  print COMMANDS "source $genie_setup $config_dir \n";
+	  if($batch_system ne 'FNAL'){
+	      print COMMANDS "cd $jobs_dir \n";
+	      print COMMANDS "source $genie_setup $config_dir \n";
+	  } else {
+	      print COMMANDS "cd \$CONDOR_DIR_INPUT\n";
+	      print COMMANDS "source $genie_setup $config_dir \n";
+	      print COMMANDS "cd \$CONDOR_DIR_INPUT\n";
+	      print COMMANDS "ifdh cp $in_splines \$CONDOR_DIR_INPUT \n";
+	  }
 	  print COMMANDS "$gmkspl_cmd \n";
+	  print COMMANDS "ifdh cp $jobname.xml $jobs_dir \n" if( $batch_system == 'FNAL');
 	  close(COMMANDS);
 	  
 	  # set executing privileges to the script 
@@ -306,6 +353,20 @@ foreach $chlepton ( @chlepton_list ) {
 	      
 	      push( @batch_commands, "sbatch $batch_script" );
 	  } #slurm
+
+	  # FNAL farm
+	  if($batch_system eq 'FNAL'){
+	      open(FNAL, ">>", "$fnal_subfile.xml") or die("Can not create the slurm batch script");
+	      $fnal_opt  = "-n --memory=1GB --disk=20GB --expected-lifetime=8h ";
+	      $fnal_opt .= "-f $jobs_topdir/$genie_setup ";
+	      $fnal_opt .= "--resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE ";  
+	      $fnal_opt .= "--lines '+FERMIHTC_AutoRelease=True' ";
+	      $fnal_opt .= "--lines '+FERMIHTC_GraceMemory=4096' --lines '+FERMIHTC_GraceLifetime=6000' ";
+	      print FNAL "jobsub_submit $fnal_opt file://$shell_script\n"; 
+
+	      close(FNAL);
+	  } #FNAL
+      
 	  
 	  # run interactively
       }
