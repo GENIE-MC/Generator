@@ -382,6 +382,8 @@ foreach $nu ( @nu_list ) {
 	  $fnal_opt  = "-n --memory=1GB --disk=20GB --expected-lifetime=8h ";
 	  $fnal_opt .= "-f $jobs_topdir/$genie_setup ";
 	  $fnal_opt .= "--resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE ";  
+	  $fnal_opt .= "--lines '+FERMIHTC_AutoRelease=True' ";
+	  $fnal_opt .= "--lines '+FERMIHTC_GraceMemory=4096' --lines '+FERMIHTC_GraceLifetime=6000' ";
 	  print FNAL "jobsub_submit $fnal_opt file://$shell_script\n"; 
 
 	  close(FNAL);

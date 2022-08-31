@@ -178,20 +178,17 @@ if($batch_system eq 'FNAL'){
 	print FNAL "source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups \n";
 	print FNAL "setup fife_utils \n\n";
 	$fnal_opt  = "-G $queue --memory=1GB --disk=20GB --expected-lifetime=8h -N 1 --role=Analysis ";
-	$fnal_opt .= "--lines '+FERMIHTC_AutoRelease=True' ";
-	$fnal_opt .= "--lines '+FERMIHTC_GraceMemory=4096' --lines '+FERMIHTC_GraceLifetime=6000' ";
-	$fnal_opt .= "-l '+SingularityImage=\"/cvmfs/singularity.opensciencegrid.org/fermilab/fnal-wn-sl7:latest\"' --append_condor_requirements='(TARGET.HAS_Singularity==true)' ";
-	$fnal_opt .= "-f $jobs_topdir/$genie_setup ";
+	$fnal_opt .= "-f $genie_setup ";
 	$fnal_opt .= "--resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE ";
   
 	print FNAL "jobsub_submit_dag $fnal_opt file://$xml_script\n"; 
 	close(FNAL);
 
         # Open xml file
-	open(FNAL_XML, ">>", "$xml_script") or die("Can not create the slurm batch script");
+	unlink "$xml_script" if -e "$xml_script" ; 
+	open(FNAL_XML, ">", "$xml_script") or die("Can not create the slurm batch script");
 	print FNAL_XML "<parallel> \n";
-	close(FNAL_XML);
- 
+	close(FNAL_XML); 
     }
 }
 
@@ -242,6 +239,7 @@ foreach $nu ( @nu_list ) {
 
       # create sh file 
       $shell_script = "$filename_template.sh";
+      print "$shell_script \n"; 
       unlink "$shell_script" if -e "$shell_script" ; 
       open(COMMANDS, ">$shell_script") or die("Can not create the bash script");
       print COMMANDS "#!/bin/bash \n";
@@ -253,10 +251,9 @@ foreach $nu ( @nu_list ) {
 	  print COMMANDS "cd \$CONDOR_DIR_INPUT\n";
 	  print COMMANDS "source $genie_setup $config_dir \n";
 	  print COMMANDS "cd \$CONDOR_DIR_INPUT\n";
-	  print COMMANDS "ifdh cp $in_splines \$CONDOR_DIR_INPUT \n";
       }
       print COMMANDS "$gmkspl_cmd \n";
-      print COMMANDS "ifdh cp $jobname.xml $jobs_dir \n";
+      print COMMANDS "ifdh cp $jobname.xml $jobs_dir \n" if( $batch_system == 'FNAL');
       close(COMMANDS);
 
       # set executing privileges to the script 
@@ -357,17 +354,17 @@ foreach $nu ( @nu_list ) {
 
       # FNAL farm
       if($batch_system eq 'FNAL'){
-	  unlink "$xml_script" if -e "$xml_script" ; 
-	  open(FNAL_XML, ">>", "$xml_script") or die("Can not create the slurm batch script");
+	  open(FNAL_XML, ">>", "$xml_script") or die("Can not create the $xml_script script");
 	  
 	  $fnal_opt  = "-n --memory=1GB --disk=20GB --expected-lifetime=8h ";
-	  $fnal_opt .= "-f $jobs_topdir/$genie_setup ";
+	  $fnal_opt .= "-f $genie_setup ";
 	  $fnal_opt .= "--resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE ";  
+	  $fnal_opt .= "--lines '+FERMIHTC_AutoRelease=True' ";
+	  $fnal_opt .= "--lines '+FERMIHTC_GraceMemory=4096' --lines '+FERMIHTC_GraceLifetime=6000' ";
 	  print FNAL_XML "jobsub_submit $fnal_opt file://$shell_script\n"; 
-
-	  close(FNAL_XML);
-      } #slurm
-      
+	  close FNAL_XML ;
+	  print "jobsub_submit $fnal_opt file://$shell_script\n $xml_script \n" 
+      } #FNAL      
     }
   }
 }
