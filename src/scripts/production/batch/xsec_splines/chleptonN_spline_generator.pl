@@ -237,7 +237,6 @@ foreach $chlepton ( @chlepton_list ) {
 	  
 	  push( @direct_commands, "bash $filename_template.sh" ) ;
 	  
-	  
 	  # PBS case
 	  if($batch_system eq 'PBS' || $batch_system eq 'HTCondor_PBS') {
 	      $batch_script = "$filename_template.pbs";

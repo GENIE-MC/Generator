@@ -70,6 +70,8 @@ foreach (@ARGV) {
   if($_ eq '--n-knots' )       { $n_knots    	  = $ARGV[$iarg+1]; }
   if($_ eq '--with-priority' ) { $priority       = 1; }
   if($_ eq '--run-one' )       { $run_one        = 1; }
+  if($_ eq '--fnal-subjob' )   { $fnal_subjob	 = 1; }
+  if($_ eq '--fnal-subfile' )  { $fnal_subfile	 = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
@@ -103,7 +105,7 @@ if ( $batch_system eq 'FNAL' ){
     $genie_setup = "setup.sh";
 }
 $jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec\_chleptonA";
-$fnal_subfile   = "fnal_chleptonN"              unless defined $fnal_subfile ;
+$fnal_subfile   = "fnal_chleptonA"              unless defined $fnal_subfile ;
 $batch_script = "$fnal_subfile.fnal";
 $xml_script = "$fnal_subfile.xml";
 
@@ -137,7 +139,9 @@ print "\n Charged lepton List: @nu_list \n";
 
 @nuclei_proc = ( 'none',
                  'EMMEC',
-                 'EMQE'
+                 'EMQE',
+                 'EMRES',
+                 'EMDIS'
     );
 
 # create the lsit of processes to be generated for composite nuclei
@@ -240,7 +244,8 @@ foreach $chlepton ( @chlepton_list ) {
 
 	  # create sh file 
 	  $shell_script = "$filename_template.sh";
-	  open(COMMANDS, ">$shell_script") or die("Can not create the bash script");
+	  unlink "$shell_script" if -e "$shell_script" ; 
+      	  open(COMMANDS, ">$shell_script") or die("Can not create the bash script");
 	  print COMMANDS "#!/bin/bash \n";
 	  if($batch_system ne 'FNAL'){
 	      print COMMANDS "cd $jobs_dir \n";
@@ -263,7 +268,6 @@ foreach $chlepton ( @chlepton_list ) {
 	  #
 	  
 	  push( @direct_commands, "bash $shell_script " ) ;
-	  
 	  
 	  # PBS case
 	  if($batch_system eq 'PBS' || $batch_system eq 'HTCondor_PBS') {
@@ -373,13 +377,18 @@ foreach $chlepton ( @chlepton_list ) {
   }
 }
 
-
 if ( $batch_system eq 'none' ) {
     ## run all of them interactively
 
     for my $run_cmd ( @direct_commands ) {
 	print "Executin: $run_cmd \n" ;
 	`$run_cmd` ;
+    }
+} elsif ($batch_system eq 'FNAL') {
+    if( ! $fnal_subjob ){
+	open(FNAL, ">>", "$fnal_subfile.xml") or die("Can not create the slurm batch script");
+	print FNAL "</parallel> \n";
+	close(FNAL);
     }
 }
 else {
