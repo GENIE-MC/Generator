@@ -544,17 +544,18 @@ void NHLPrimaryVtxGenerator::SetProdVtxPosition(const TLorentzVector & v4) const
   fProdVtx = pv4;
 }
 //____________________________________________________________________________
-void NHLPrimaryVtxGenerator::ReadCreationInfo( flux::GNuMIFluxPassThroughInfo * gnmf ) const
+void NHLPrimaryVtxGenerator::ReadCreationInfo( flux::GNuMIFluxPassThroughInfo gnmf ) const
 {
-  assert( gnmf );
+  LOG( "NHL", pDEBUG )
+    << "Reading creation info...";
 
   if( fPolDir.size() > 0 ) fPolDir.clear();
-  fPolDir.emplace_back( gnmf->ppvx );
-  fPolDir.emplace_back( gnmf->ppvy );
-  fPolDir.emplace_back( gnmf->ppvz );
+  fPolDir.emplace_back( gnmf.ppvx );
+  fPolDir.emplace_back( gnmf.ppvy );
+  fPolDir.emplace_back( gnmf.ppvz );
 
-  fParentPdg = gnmf->ptype;
-  fProdLepPdg = gnmf->ppmedium;
+  fParentPdg = gnmf.ptype;
+  fProdLepPdg = gnmf.ppmedium;
 }
 //____________________________________________________________________________
 void NHLPrimaryVtxGenerator::UnpolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, bool failed = false ) const

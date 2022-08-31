@@ -58,7 +58,7 @@ public:
   genie::NHL::SimpleNHL GetNHLInstance(string config) const;
 
   // get information about parent and polarisation from NHLFluxCreator
-  void ReadCreationInfo( genie::flux::GNuMIFluxPassThroughInfo * gnmf ) const;
+  void ReadCreationInfo( genie::flux::GNuMIFluxPassThroughInfo gnmf ) const;
 
 private:
 
@@ -103,6 +103,7 @@ private:
    mutable TH3D *                     fProdVtxHist = 0;
    mutable TLorentzVector *           fProdVtx = 0;
    mutable TLorentzVector *           fISMom = 0;
+
 };
 
 } // genie namespace

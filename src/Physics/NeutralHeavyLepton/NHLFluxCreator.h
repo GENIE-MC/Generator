@@ -137,13 +137,14 @@ namespace genie{
       std::vector< double > * GenerateVtx3X( TH3D * prodVtxHist ) const;
 
       flux::GNuMIFluxPassThroughInfo * RetrieveGNuMIFluxPassThroughInfo() const;
+      flux::GNuMIFluxPassThroughInfo RetrieveFluxInfo() const;
 
     private:
 
       void LoadConfig(void);
 
       // workhorse methods
-      void MakeTupleFluxEntry( int iEntry, genie::flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath ) const;
+      genie::flux::GNuMIFluxPassThroughInfo MakeTupleFluxEntry( int iEntry, std::string finpath ) const;
       void FillNonsense( int iEntry, genie::flux::GNuMIFluxPassThroughInfo * gnmf ) const;
 
       // init
@@ -241,7 +242,7 @@ namespace genie{
       mutable int    job;                                ///< beamsim MC job number
       mutable double pots;                               ///< how many pot in this job?
 
-      mutable genie::flux::GNuMIFluxPassThroughInfo * fGnmf = 0;
+      mutable genie::flux::GNuMIFluxPassThroughInfo fGnmf;
 
       //mutable double EntryPOT; // how many POT simulated since the last NHL parent?
       //mutable int potnum_prev; // value of potnum for previous entry
