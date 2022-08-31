@@ -376,8 +376,9 @@ int main(int argc, char ** argv)
 	<< "Using input flux files. These are *flat dk2nu-like ROOT trees, so far...*";
 
       fluxCreator->SetInputPath( gOptFluxFilePath );
-      fluxCreator->SetGeomFile( gOptRootGeom );
-      LOG( "gevgen_nhl", pDEBUG ) << "Input path set";
+      fluxCreator->SetUsingRootGeom( gOptUsingRootGeom );
+      if( gOptUsingRootGeom )
+	fluxCreator->SetGeomFile( gOptRootGeom );
       int maxFluxEntries = fluxCreator->GetNEntries();
       LOG( "gevgen_nhl", pDEBUG )
 	<< "Found " << maxFluxEntries << " flux entries.";
@@ -538,7 +539,8 @@ int main(int argc, char ** argv)
 
      // Simulate decay
      //mcgen->ProcessEventRecord(event);
-     nhlgen->ReadCreationInfo( gnmf );
+     if( gOptIsUsingDk2nu )
+       nhlgen->ReadCreationInfo( gnmf );
      nhlgen->ProcessEventRecord(event);
 
      // add the FS 4-momenta to special branches

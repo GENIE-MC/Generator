@@ -117,6 +117,9 @@ namespace genie{
       // get N(flux input entries)
       int GetNEntries() const;
 
+      // if using root geom, let this module know
+      void SetUsingRootGeom( bool IsUsingRootGeom ) const;
+
       void SetCurrentEntry( int iCurr ) const;
       void SetFirstEntry( int iFirst ) const;
       void SetGeomFile( string geomfile ) const;
@@ -171,7 +174,7 @@ namespace genie{
       static double labangle( double * x, double * par ); // function formula for correction
       // get minimum and maximum deviation from parent momentum to hit detector, [deg]
       double GetAngDeviation( TLorentzVector p4par, TVector3 detO, bool seekingMax ) const;
-      void GetAngDeviation( TLorentzVector p4par, TVector3 detO, TGeoManager * gm, double &zm, double &zp ) const;
+      void GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &zm, double &zp ) const;
       // returns 1.0 / (area of flux calc)
       double CalculateAreaNormalisation();
 
@@ -195,9 +198,9 @@ namespace genie{
 
       mutable bool isParentOnAxis = true;
       mutable bool fUseBeamMomentum = false; // use this if your detector hall is parallel to tgt hall
-      mutable TGeoManager * fGeoManager = 0;
       mutable TGeoVolume * fTopVol = 0;
       mutable string fGeomFile;
+      mutable bool fIsUsingRootGeom = true;
 
       mutable TChain * ctree = 0, * cmeta = 0;
 

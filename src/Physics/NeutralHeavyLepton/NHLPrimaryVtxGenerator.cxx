@@ -161,10 +161,15 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
   assert ( pdgv.size() > 1);
 
   // if user wants to include polarisation effects, start prep now
-  double fPolDirMag = ( fPolDir.at(0) * fPolDir.at(0) ) +
-    ( fPolDir.at(1) * fPolDir.at(1) ) + 
-    ( fPolDir.at(2) * fPolDir.at(2) );
-  bool doPol = ( fPolDirMag > 0.0 && !fIsMajorana );
+  double fPolDirMag = 0.0;
+  LOG( "NHL", pDEBUG ) << "fPolDir.size() = " << fPolDir.size();
+  if( fPolDir.size() == 3 ){
+    fPolDirMag = std::sqrt( ( fPolDir.at(0) * fPolDir.at(0) ) +
+			    ( fPolDir.at(1) * fPolDir.at(1) ) + 
+			    ( fPolDir.at(2) * fPolDir.at(2) ) );
+    LOG( "NHL", pDEBUG ) << "fPolDir = ( " << fPolDir.at(0) << ", " << fPolDir.at(1) << ", " << fPolDir.at(2) << " )";
+  }
+  bool doPol = fDoPol;
 
   std::ostringstream asts;
   if( !doPol ) asts << "Performing a phase space decay...";
@@ -239,6 +244,7 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
     // for now, assume 2-body production and 2-body decay describes the pol modulus
     // see arXiv:1805.06419[hep-ph]
     TVector3 vecPolDir( fPolDir.at(0), fPolDir.at(1), fPolDir.at(2) );
+    LOG( "NHL", pDEBUG ) << "Doing a polarised decay...";
     this->PolarisedDecay( fPhaseSpaceGenerator, pdgv, wmax, vecPolDir, decayFailed );
   } else {
     if( doPol && fCurrDecayMode == kNHLDcyNuNuNu ){
@@ -246,6 +252,8 @@ void NHLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
       LOG( "NHL", pWARN )
 	<< "Polarisation for uncharged FS not implemented yet, defaulting to phase-space decay...";
     }
+
+    LOG( "NHL", pDEBUG ) << "Doing a phase-space decay...";
     this->UnpolarisedDecay( fPhaseSpaceGenerator, pdgv, wmax, decayFailed );
   }
   if( decayFailed ){
@@ -462,6 +470,8 @@ void NHLPrimaryVtxGenerator::LoadConfig(void)
 
   this->GetParam( "NHL-angular_deviation", fAngularDeviation );
 
+  this->GetParam( "IncludePolarisation", fDoPol );
+
   this->GetParamVect( "Beam2User_T", fB2UTranslation );
   // for compat with new config, "Beam2User_T" is now -1 * fB2UTranslation
   this->GetParamVect( "Beam2User_R", fB2URotation );
@@ -554,34 +564,33 @@ void NHLPrimaryVtxGenerator::UnpolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeLis
   
   bool accept_decay=false;
   unsigned int itry=0;
-  while(!accept_decay)
-    {
-      itry++;
-      
-      if(itry > controls::kMaxUnweightDecayIterations) {
-	// report and return
-	LOG("NHL", pWARN)
-	  << "Couldn't generate an unweighted phase space decay after "
-	  << itry << " attempts";
-	failed = true;
-	return;
-      }
-      double w  = fPSG.Generate();
-      if(w > wm) {
-        LOG("NHL", pWARN)
-	  << "Decay weight = " << w << " > max decay weight = " << wm;
-      }
-      double gw = wm * rnd->RndHadro().Rndm();
-      accept_decay = (gw<=w);
-      
-      /*
+  while(!accept_decay) {
+    itry++;
+    
+    if(itry > controls::kMaxUnweightDecayIterations) {
+      // report and return
+      LOG("NHL", pWARN)
+	<< "Couldn't generate an unweighted phase space decay after "
+	<< itry << " attempts";
+      failed = true;
+      return;
+    }
+    double w  = fPSG.Generate();
+    if(w > wm) {
+      LOG("NHL", pWARN)
+	<< "Decay weight = " << w << " > max decay weight = " << wm;
+    }
+    double gw = wm * rnd->RndHadro().Rndm();
+    accept_decay = (gw<=w);
+    
+    /*
       LOG("NHL", pDEBUG)
-        << "Decay weight = " << w << " / R = " << gw
-        << " - accepted: " << accept_decay;
-      */
-      
-    } //!accept_decay
-
+      << "Decay weight = " << w << " / R = " << gw
+      << " - accepted: " << accept_decay;
+    */
+    
+  } //!accept_decay
+  
 }
 //____________________________________________________________________________
 void NHLPrimaryVtxGenerator::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, TVector3 vPolDir, bool failed = false ) const
@@ -591,7 +600,7 @@ void NHLPrimaryVtxGenerator::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList 
   double MNHL = pdgl->Find( kPdgNHL )->Mass();
   double polMag = this->CalcPolMag( fParentPdg, fProdLepPdg, MNHL );
   double polMod = -999.99;
-
+  
   // do decays until weight \in Uniform[0.0, 2.0] < 1 \mp polMod * cos\theta
   unsigned int iUPD = 0;
   double polWgt = -999.9;
@@ -603,10 +612,10 @@ void NHLPrimaryVtxGenerator::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList 
   bool isPi0Nu = ( pdgv.size() == 3 && 
 		   std::abs( pdgv.at(1) ) == kPdgPi0 &&
 		   std::abs( pdgv.at(2) ) == kPdgNuMu );
-
+  
   while( !isAccepted && iUPD < controls::kMaxUnweightDecayIterations ){
     this->UnpolarisedDecay( fPSG, pdgv, wm, failed );
-
+    
     // find charged lepton of FS. If two, take the leading one.
     // For now, this method doesn't handle vvv invisible decay mode.
     
@@ -694,7 +703,7 @@ double NHLPrimaryVtxGenerator::CalcPolMag( int parPdg, int lepPdg, double M ) co
   LOG( "NHL", pDEBUG )
     << "\nmPar, mLep, M = " << mPar << ", " << mLep << ", " << M << " GeV"
     << "\nnum1, num2, den1, den2 = " << num1 << ", " << num2 << ", " << den1 << ", " << den2;
-
+  
   return pMag;
 }
 //____________________________________________________________________________

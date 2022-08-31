@@ -90,6 +90,8 @@ private:
    mutable bool                       fIsMajorana = false;
    mutable int                        fType = 2;
 
+   mutable bool                       fDoPol = false;
+
    mutable std::vector< genie::NHL::NHLDecayMode_t > fIntChannels;
 
    mutable double                     fAngularDeviation = -1.0;

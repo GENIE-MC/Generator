@@ -107,6 +107,11 @@ flux::GNuMIFluxPassThroughInfo * NHLFluxCreator::RetrieveGNuMIFluxPassThroughInf
 }
 //----------------------------------------------------------------------------
 void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf, std::string finpath ) const
+void NHLFluxCreator::SetUsingRootGeom( bool IsUsingRootGeom ) const
+{
+  fIsUsingRootGeom = IsUsingRootGeom;
+}
+//____________________________________________________________________________
 {
   // This method creates 1 NHL from the flux info and saves the information
   // Essentially, it replaces a SMv with an NHL
@@ -404,13 +409,22 @@ void NHLFluxCreator::MakeTupleFluxEntry( int iEntry, flux::GNuMIFluxPassThroughI
   double zp = this->GetAngDeviation( p4par, detO, true );
   */
 
-  if( !fGeoManager )
-    fGeoManager = TGeoManager::Import(fGeomFile.c_str());
   double zm = 0.0, zp = 0.0;
-  if( fUseBeamMomentum )
-    this->GetAngDeviation( p4par_beam, detO_beam, fGeoManager, zm, zp );
-  else
-    this->GetAngDeviation( p4par, detO, fGeoManager, zm, zp );
+  if( fIsUsingRootGeom ){
+    if( fUseBeamMomentum )
+      this->GetAngDeviation( p4par_beam, detO_beam, zm, zp );
+    else
+      this->GetAngDeviation( p4par, detO, zm, zp );
+  } else { // !fIsUsingRootGeom
+    if( fUseBeamMomentum ){
+      zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par_beam, detO_beam, false );
+      zp = this->GetAngDeviation( p4par_beam, detO_beam, true );
+    }
+    else { // !fUseBeamMomentum && !fIsUsingRootGeom
+      zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par, detO, false );
+      zp = this->GetAngDeviation( p4par, detO, true );
+    }
+  }
 
   if( zm == -999.9 && zp == 999.9 ){
     this->FillNonsense( iEntry, gnmf ); return;
@@ -1212,15 +1226,14 @@ double NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
   return 0.0;
 }
 //----------------------------------------------------------------------------
-void NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, TGeoManager * gm, double &zm, double &zp ) const
+void NHLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &zm, double &zp ) const
 {
   // implementation of GetAngDeviation that uses ROOT geometry. More robust than analytical geom
   // (fewer assumptions about detector position)
   
   LOG( "NHL", pDEBUG )
-    << "Entering GetAngDeviation( TLorentzVector, TVector3, TGeoManager * )...";
+    << "Entering GetAngDeviation( TLorentzVector, TVector3, ... )";
 
-  assert( gm );
   TVector3 ppar = p4par.Vect(); assert( ppar.Mag() > 0.0 );
   TVector3 pparUnit = ppar.Unit();
 
