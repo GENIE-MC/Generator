@@ -2,12 +2,9 @@
 /*
 \name     NuSmear Smearing System
 \brief    Provides generic parameterized smearing presets for energy smearing 
-          and angular smearing, providing a choice between the default model 
-          and the DUNE CDR model. Note than smearing will not be performed on 
-          particles not listed in the map below, so if the user would like 
-          them to be smeared, they are advised to force them to decay via 
-          /Generator/config/CommonDecays.xml.
-\author   Ishaan Vohra <ishaanklv@gmail.com>
+          and angular smearing with two smearing models - the Default model 
+          and the DUNE CDR model.
+\author   Ishaan Vohra <ivohra@exeter.edu / ishaanklv@gmail.com>
           Phillips Exeter Academy
 \created  August 16, 2022
 */
