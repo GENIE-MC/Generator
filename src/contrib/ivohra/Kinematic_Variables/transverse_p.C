@@ -2,7 +2,7 @@
 /*
 \brief    Plot a 1D histogram depicting the distribution of the total final 
 state transverse momentum of each event
-\author   Ishaan Vohra <ishaanklv@gmail.com>
+\author   Ishaan Vohra <ivohra@exeter.edu / ishaanklv@gmail.com>
           Phillips Exeter Academy
 \created  August 16, 2022
 */
