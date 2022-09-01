@@ -186,13 +186,21 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
   {
     for (int si = 0; si<2; si++)
     {
-      // Eq. 23 of ref. 4
-      Fx[sf][si] = ISx[sf][si]*(F1 - F2*cos_theta_pi + F4*sin_theta_pi*sin_theta_pi) + 
+/*      // Eq. 23 of ref. 4
+      Fx[sf][si] = ISx[sf][si]*(F1 + F2*cos_theta_pi + F4*sin_theta_pi*sin_theta_pi) + 
                    ISz[sf][si]*sin_theta_pi*(F2 + F3 + F4*cos_theta_pi);
       // Eq. 24 of ref. 4
       Fy[sf][si] = ISy[sf][si]*(F1 - F2*cos_theta_pi) - F2*sin_theta_pi;
       // Eq. 25 of ref. 4
-      F0[sf][si] = ISz[sf][si]*(F7*cos_theta_pi + F8) - ISy[sf][si]*F2*sin_theta_pi;
+      F0[sf][si] = ISz[sf][si]*(F7*cos_theta_pi + F8) + ISx[sf][si]*F7*sin_theta_pi;
+*/
+    // Eq. 23 of ref. 4
+      Fx[sf][si] = ISx[sf][si]*(F1 + F2*cos_theta_pi + F4*sin_theta_pi*sin_theta_pi) + 
+                   ISz[sf][si]*sin_theta_pi*(F2 + F3 + F4*cos_theta_pi);
+      // Eq. 24 of ref. 4
+      Fy[sf][si] = ISy[sf][si]*(F1 - F2*cos_theta_pi) - F2*sin_theta_pi;
+      // Eq. 25 of ref. 4
+      F0[sf][si] = ISz[sf][si]*(F7*cos_theta_pi + F8) + ISx[sf][si]*F7*sin_theta_pi;
     }
   }
   
@@ -242,7 +250,7 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
     dsigmavdOmega_pi = dsigmaTdOmega_pi + epsilon*dsigmaLdOmega_pi;
     dsigmavdOmega_pi*= 2*kPi;
   }
-  //return dsigmavdOmega_pi/200./kPi;
+  return dsigmavdOmega_pi/200./kPi;
   // convert to hbarc=1 units
   dsigmavdOmega_pi*=fermi2*1e-6;
   // Eq. 1 of ref. 4
