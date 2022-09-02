@@ -292,7 +292,14 @@ flux::GNuMIFluxPassThroughInfo NHLFluxCreator::MakeTupleFluxEntry( int iEntry, s
 				  p4NHL_rest.P() * detO_rest_unit.Z(),
 				  p4NHL_rest.E() );
 
-  // boost that into lab frame!
+  double pLep_rest = std::sqrt( fLPx*fLPx + fLPy*fLPy + fLPz*fLPz );
+  double ELep_rest = fLPE;
+  TLorentzVector p4Lep_rest_good( -1.0 * pLep_rest * detO_rest_unit.X(),
+				  -1.0 * pLep_rest * detO_rest_unit.Y(),
+				  -1.0 * pLep_rest * detO_rest_unit.Z(),
+				  fLPE );
+
+  // boost NHL into lab frame!
   TLorentzVector p4NHL_good = p4NHL_rest_good;
   p4NHL_good.Boost( boost_beta );
   boost_correction_two = p4NHL_good.E() / p4NHL_rest.E();
@@ -404,11 +411,21 @@ flux::GNuMIFluxPassThroughInfo NHLFluxCreator::MakeTupleFluxEntry( int iEntry, s
 
   TVector3 pNHL_beam = this->ApplyUserRotation( p4NHL.Vect(), true );
   TLorentzVector p4NHL_beam( pNHL_beam.X(), pNHL_beam.Y(), pNHL_beam.Z(), p4NHL.E() );
-  
+
   LOG( "NHL", pDEBUG )
     << "\nRandom:  " << utils::print::P4AsString( &p4NHL_rand )
     << "\nPointed: " << utils::print::P4AsString( &p4NHL )
     << "\nRest:    " << utils::print::P4AsString( &p4NHL_rest );
+
+  // update polarisation
+  TLorentzVector p4Lep_good = p4Lep_rest_good; // in parent rest frame
+  p4Lep_good.Boost( boost_beta ); // in lab frame
+  TVector3 boost_beta_NHL = ( fUseBeamMomentum ) ? p4NHL_beam.BoostVector() : p4NHL.BoostVector();
+  p4Lep_good.Boost( -boost_beta_NHL ); // in NHL rest frame
+
+  fLPx = ( fixPol ) ? fFixedPolarisation.at(0) : p4Lep_good.Px() / p4Lep_good.P();
+  fLPy = ( fixPol ) ? fFixedPolarisation.at(1) : p4Lep_good.Py() / p4Lep_good.P();
+  fLPz = ( fixPol ) ? fFixedPolarisation.at(2) : p4Lep_good.Pz() / p4Lep_good.P();
   
   // calculate acceptance correction
   // first, get minimum and maximum deviation from parent momentum to hit detector in degrees
@@ -1111,11 +1128,12 @@ TLorentzVector NHLFluxCreator::NHLEnergy( NHLProd_t nhldm, TLorentzVector p4par 
   if( doPol ){
     // boost this to NHL rest frame.
     TVector3 boostNHL = p4NHL.BoostVector();
-    p4Lep_NHLRest = p4Lep; p4Lep_NHLRest.Boost( boostNHL );
-    // write this
-    fLPx = ( fixPol ) ? fFixedPolarisation.at(0) : p4Lep.Px() / p4Lep.P();
-    fLPy = ( fixPol ) ? fFixedPolarisation.at(1) : p4Lep.Py() / p4Lep.P();
-    fLPz = ( fixPol ) ? fFixedPolarisation.at(2) : p4Lep.Pz() / p4Lep.P();
+    p4Lep_NHLRest = p4Lep; fLPE = p4Lep_NHLRest.E(); // still in parent rest frame here
+    p4Lep_NHLRest.Boost( boostNHL );
+    // save this
+    fLPx = ( fixPol ) ? fFixedPolarisation.at(0) : p4Lep.Px() / p4Lep.P(); // note that this is for a true random decay.
+    fLPy = ( fixPol ) ? fFixedPolarisation.at(1) : p4Lep.Py() / p4Lep.P(); // We still need to take the geometrical
+    fLPz = ( fixPol ) ? fFixedPolarisation.at(2) : p4Lep.Pz() / p4Lep.P(); // constraint into account.
   } else {
     fLPx = 0.0;
     fLPy = 0.0;

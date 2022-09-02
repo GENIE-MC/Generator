@@ -225,6 +225,7 @@ namespace genie{
 
       mutable bool doPol = true, fixPol = false;
       mutable double fLPx, fLPy, fLPz; // direction of co-produced lepton == polarisation vector
+      mutable double fLPE;
       mutable std::vector< double > fFixedPolarisation;
 
       mutable int fLepPdg; // pdg code of co-produced lepton
