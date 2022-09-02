@@ -115,20 +115,6 @@ double Proton_Res_duneCdr(double myE, double myKE, double myPmag)//Uses KE inste
     }
 }
 
-double AntiProton_Res_duneCdr(double myE, double myKE, double myPmag)//Uses KE instead of E
-{
-        if (myKE >= 0.05){ //50 MeV Threshold for proton
-
-        if (myPmag < 0.4){ //if momentum is < 400 MeV
-            return 0.1;
-        } else { //if momentum is ≥ 400 MeV
-            return pow(pow(0.05,2) + pow((0.3/(pow(myKE,0.5))),2),0.5); // 5% (sum in quad) 30%/√(E)
-        }
-
-    } else {
-        return -1;
-    }
-}
 
 double Electron_Res_duneCdr(double myE, double myKE, double myPmag)
 {
@@ -179,16 +165,6 @@ double AntiMuon_Res_duneCdr(double myE, double myKE, double myPmag)
 double Neutron_Res_duneCdr(double myE, double myKE, double myPmag) //Uses KE instead of E
 {
         if (myKE >= 0.05){ //50 MeV Threshold for n
-
-        return 0.4/(pow(myKE,0.5)); // 40%/√(E)
-    } else {
-        return -1;
-    }
-}
-
-double AntiNeutron_Res_duneCdr(double myE, double myKE, double myPmag)//Uses KE instead of E
-{
-            if (myKE >= 0.05){ //50 MeV Threshold for n
 
         return 0.4/(pow(myKE,0.5)); // 40%/√(E)
     } else {
@@ -279,19 +255,17 @@ myMap[kPdgKP] = 3;
 myMap[kPdgKM] = 4;
 myMap[kPdgGamma] = 5;
 myMap[kPdgProton] = 6;
-myMap[kPdgAntiProton] = 7;
-myMap[kPdgElectron] = 8;
-myMap[kPdgPositron] = 9;
-myMap[kPdgMuon] = 10;
-myMap[kPdgAntiMuon] = 11;
-myMap[kPdgNeutron] = 12;
-myMap[kPdgAntiNeutron] = 13;
-myMap[kPdgK0] = 14;
-myMap[kPdgAntiK0] = 15;
-myMap[kPdgLambda] = 16;
-myMap[kPdgSigmaP] = 17;
-myMap[kPdgSigma0] = 18;
-myMap[kPdgSigmaM] = 19;
+myMap[kPdgElectron] = 7;
+myMap[kPdgPositron] = 8;
+myMap[kPdgMuon] = 9;
+myMap[kPdgAntiMuon] = 10;
+myMap[kPdgNeutron] = 11;
+myMap[kPdgK0] = 12;
+myMap[kPdgAntiK0] = 13;
+myMap[kPdgLambda] = 14;
+myMap[kPdgSigmaP] = 15;
+myMap[kPdgSigma0] = 16;
+myMap[kPdgSigmaM] = 17;
 
 TVector3 P (myPx, myPy, myPz); //particle momentum vector
 
@@ -307,7 +281,7 @@ if (model == "duneCdr"){
 
 //duneCdr resolution function pointers
 
-double (*resolution_ptr_duneCdr[20])(double, double, double) = {
+double (*resolution_ptr_duneCdr[18])(double, double, double) = {
 PiP_Res_duneCdr,
 PiM_Res_duneCdr,
 Pi0_Res_duneCdr,
@@ -315,13 +289,11 @@ KP_Res_duneCdr,
 KM_Res_duneCdr,
 Gamma_Res_duneCdr,
 Proton_Res_duneCdr,
-AntiProton_Res_duneCdr,
 Electron_Res_duneCdr,
 Positron_Res_duneCdr,
 Muon_Res_duneCdr,
 AntiMuon_Res_duneCdr,
 Neutron_Res_duneCdr,
-AntiNeutron_Res_duneCdr,
 K0_Res_duneCdr,
 AntiK0_Res_duneCdr,
 Lambda_Res_duneCdr,
@@ -387,7 +359,7 @@ if (resolution == -1){ //if the particle is below the threshold energy
 
 } else if (model == "default"){
 
-double info[20][2] = {
+double info[18][2] = {
 
 {0.15, 1}, //first element is resolution, second element is chance of being observed (chanceToSee)
 {0.15, 1},
@@ -398,10 +370,8 @@ double info[20][2] = {
 {0.4, 1},
 {0.4, 1},
 {0.4, 1},
-{0.4, 1},
 {0.15, 1},
 {0.15, 1},
-{0.5, 0.5},
 {0.5, 0.5},
 {0.2, 1},
 {0.2, 1},
@@ -471,19 +441,17 @@ myMap[kPdgKP] = 3;
 myMap[kPdgKM] = 4;
 myMap[kPdgGamma] = 5;
 myMap[kPdgProton] = 6;
-myMap[kPdgAntiProton] = 7;
-myMap[kPdgElectron] = 8;
-myMap[kPdgPositron] = 9;
-myMap[kPdgMuon] = 10;
-myMap[kPdgAntiMuon] = 11;
-myMap[kPdgNeutron] = 12;
-myMap[kPdgAntiNeutron] = 13;
-myMap[kPdgK0] = 14;
-myMap[kPdgAntiK0] = 15;
-myMap[kPdgLambda] = 16;
-myMap[kPdgSigmaP] = 17;
-myMap[kPdgSigma0] = 18;
-myMap[kPdgSigmaM] = 19;
+myMap[kPdgElectron] = 7;
+myMap[kPdgPositron] = 8;
+myMap[kPdgMuon] = 9;
+myMap[kPdgAntiMuon] = 10;
+myMap[kPdgNeutron] = 11;
+myMap[kPdgK0] = 12;
+myMap[kPdgAntiK0] = 13;
+myMap[kPdgLambda] = 14;
+myMap[kPdgSigmaP] = 15;
+myMap[kPdgSigma0] = 16;
+myMap[kPdgSigmaM] = 17;
 
 TVector3 P (myPx, myPy, myPz); //particle momentum vector
 
@@ -493,7 +461,7 @@ double theta = (P.Angle(Z))/M_PI*180; //angle away from Z vector in degrees
 
 int in = myMap.find(myPdg)->second; //in is the index number for the given particle
 
-double angularResDeg_DuneCdr[20] = {
+double angularResDeg_DuneCdr[18] = {
 1,
 1,
 5,
@@ -501,12 +469,10 @@ double angularResDeg_DuneCdr[20] = {
 5,
 1,
 5,
-5,
 1,
 1,
 1,
 1,
-5,
 5,
 5,
 5,
@@ -516,7 +482,7 @@ double angularResDeg_DuneCdr[20] = {
 5
 };
 
-double angularResDeg_Default[20] = {
+double angularResDeg_Default[18] = {
 2,
 2,
 8,
@@ -524,12 +490,10 @@ double angularResDeg_Default[20] = {
 2,
 3,
 8,
-8,
 2,
 2,
 2,
 2,
-10,
 10,
 8,
 8,
