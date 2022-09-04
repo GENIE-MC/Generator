@@ -159,9 +159,6 @@ double MKSPPXSec::Integrate(
     //    cross section spline at the end of its energy range-)
     double rxsec = (Enu<fEMax-1) ? cbranch(Enu) : cbranch(fEMax-1);
 
-    //SLOG("MKSPPXSec", pNOTICE)  
-       //<< "XSec[Channel/" << SppChannel::AsString(spp_channel)<< "/free] (Ev = " 
-               //<< Enu << " GeV) = " << rxsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
                
     SLOG("MKSPPXSec", pNOTICE)
       << "XSec[Channel: " << SppChannel::AsString(spp_channel) << nc_nuc  << nu_pdgc
@@ -191,10 +188,6 @@ double MKSPPXSec::Integrate(
     double xsec = ig.Integral(kine_min, kine_max);
 
     delete func;
-    
-    //SLOG("MKSPPXSec", pNOTICE)
-      //<< "ResSPP XSec (Ch:" << SppChannel::AsString(spp_channel) << nc_nuc  << nu_pdgc
-      //<< ", E="<< Enu << ") = "<< xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
       
     SLOG("MKSPPXSec", pNOTICE)
       << "XSec[Channel: " << SppChannel::AsString(spp_channel) << nc_nuc  << nu_pdgc
