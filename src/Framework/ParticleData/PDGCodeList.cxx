@@ -160,4 +160,3 @@ PDGCodeList & PDGCodeList::operator = (const PDGCodeList & list)
   this->Copy(list);
   return (*this);
 }
-//___________________________________________________________________________

@@ -415,12 +415,16 @@ string InitialState::AsString(void) const
 //     nu_pdg:code;tgt-pdg:code;
 
   ostringstream init_state;
-
+  char c_hel = 0;
+  if (fProbeHelicity == -1)
+    c_hel = 'L';
+  else if (fProbeHelicity == 1)
+    c_hel = 'R';
   if ( (pdg::IsDarkMatter(fProbePdg) ||  pdg::IsAntiDarkMatter(fProbePdg) ) && this->Probe()->Mass() > 0) {
     init_state << "dm_mass:" << this->Probe()->Mass() << ";";
   }
-  else if ( pdg::IsChargedLepton(fProbePdg) ) {
-    init_state << "probe-pdg(helicity):"  << this->ProbePdg()  << "(" << fProbeHelicity << ");";
+  else if ( pdg::IsChargedLepton(fProbePdg) && c_hel!=0 ) {
+    init_state << "probe-pdg:"  << this->ProbePdg()  << c_hel << ";";
   }
   else {
     init_state << "nu-pdg:"  << this->ProbePdg()  << ";";

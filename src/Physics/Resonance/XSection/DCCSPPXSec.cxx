@@ -14,6 +14,8 @@
 */
 //____________________________________________________________________________
 
+#include <string>
+
 #include <TMath.h>
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
@@ -136,9 +138,14 @@ double DCCSPPXSec::Integrate(
      CacheBranchFx * cache_branch =
          dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
      if(!cache_branch) {
+        char c_hel = 0;
+        if (probe_helicity == -1)
+          c_hel = 'L';
+        else if (probe_helicity == 1)
+          c_hel = 'R';
         LOG("DCCSPPXSec", pWARN)  
            << "No cached ResSPP data for input probe with pdg = "
-           << probe_pdgc;
+           << probe_pdgc << c_hel;
         LOG("DCCSPPXSec", pWARN)  
            << "Wait while computing/caching ResSPP production xsec first...";
 
@@ -184,8 +191,11 @@ double DCCSPPXSec::Integrate(
     double kine_min[3] = { 0., 0., 0.};
     double kine_max[3] = { 1., 1., 1.};
     double xsec = ig.Integral(kine_min, kine_max);
-
     delete func;
+    std::string nc_nuc   = this->ProbeAsString(probe_pdgc, probe_helicity);
+    SLOG("DCCSPPXSec", pNOTICE)
+      << "ResSPP XSec (Ch:" << SppChannel::AsString(spp_channel) << nc_nuc
+      << ", E="<< Enu << ") = "<< xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
     return xsec;
   }
   return 0;

@@ -208,7 +208,11 @@ string DCCSPPXSecWithCache::CacheBranchName(
 string DCCSPPXSecWithCache::ProbeAsString (int probe_pdg, int probe_helicity) const
 {
   string s_probe_pdg = std::to_string(probe_pdg);
-  string s_probe_helicity = std::to_string(probe_helicity);
+  char c_hel = 0;
+  if (probe_helicity == -1)
+   c_hel = 'L';
+  else if (probe_helicity == 1)
+   c_hel = 'R';
   switch (probe_pdg)
   {
     case kPdgNuE:
@@ -225,12 +229,9 @@ string DCCSPPXSecWithCache::ProbeAsString (int probe_pdg, int probe_helicity) co
     case kPdgAntiMuon:
     case kPdgTau:
     case kPdgAntiTau:
-        if (probe_helicity != 0)
-          return ";l:" + s_probe_pdg + "(" + s_probe_helicity + ")";
-        else
-          return ";l:" + s_probe_pdg;
+          return ";l:" + s_probe_pdg + c_hel;
   }
-  return ";probe:" + s_probe_pdg + "(" + s_probe_helicity + ")";
+  return ";probe:" + s_probe_pdg + c_hel;
 }
 //____________________________________________________________________________
 // GSL wrappers

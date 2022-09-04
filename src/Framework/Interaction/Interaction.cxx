@@ -253,6 +253,12 @@ string Interaction::AsString(void) const
   const Target & tgt = fInitialState->Tgt();
 
   ostringstream interaction;
+  
+  char c_hel = 0;
+  if (fInitialState->ProbePdg() == -1)
+    c_hel = 'L';
+  else if (fInitialState->ProbePdg() == 1)
+    c_hel = 'R';
 
   // If the probe has non-zero mass, then it is DM
   if (fInitialState->Probe()->PdgCode() == kPdgDarkMatter) {
@@ -261,8 +267,8 @@ string Interaction::AsString(void) const
   else if (fInitialState->Probe()->PdgCode() == kPdgAntiDarkMatter) {
     interaction << "dmb;";
   }
-  else if ( pdg::IsChargedLepton(fInitialState->ProbePdg()) ){
-     interaction << "probe(helicity):"  << fInitialState->ProbePdg()  << "(" << fInitialState->ProbeHelicity() << ");";
+  else if ( pdg::IsChargedLepton(fInitialState->ProbePdg()) && c_hel!=0 ){
+     interaction << "lep:"  << fInitialState->ProbePdg() << c_hel << ";";
   }
   else {
     interaction << "nu:"  << fInitialState->ProbePdg() << ";";
