@@ -87,7 +87,7 @@ double MKSPPXSec::Integrate(
   InteractionType_t it = proc_info.InteractionTypeId();
   int nucleon_pdgc = target.HitNucPdg();
   int nu_pdgc      = init_state.ProbePdg();
-
+  string nc_nuc   = ((pdg::IsNeutrino(nu_pdgc)) ? ";v:" : ";vb:");
   
   // If the input interaction is off a nuclear target, then chek whether
   // the corresponding free nucleon cross section already exists at the
@@ -159,9 +159,13 @@ double MKSPPXSec::Integrate(
     //    cross section spline at the end of its energy range-)
     double rxsec = (Enu<fEMax-1) ? cbranch(Enu) : cbranch(fEMax-1);
 
-    SLOG("MKSPPXSec", pNOTICE)  
-       << "XSec[Channel/" << SppChannel::AsString(spp_channel)<< "/free] (Ev = " 
-               << Enu << " GeV) = " << rxsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
+    //SLOG("MKSPPXSec", pNOTICE)  
+       //<< "XSec[Channel/" << SppChannel::AsString(spp_channel)<< "/free] (Ev = " 
+               //<< Enu << " GeV) = " << rxsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
+               
+    SLOG("MKSPPXSec", pNOTICE)
+      << "XSec[Channel: " << SppChannel::AsString(spp_channel) << nc_nuc  << nu_pdgc
+      << "/free]  (E="<< Enu << " GeV) = " << rxsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
 
      if( interaction->TestBit(kIAssumeFreeNucleon) ) return rxsec;
 
@@ -187,6 +191,14 @@ double MKSPPXSec::Integrate(
     double xsec = ig.Integral(kine_min, kine_max);
 
     delete func;
+    
+    //SLOG("MKSPPXSec", pNOTICE)
+      //<< "ResSPP XSec (Ch:" << SppChannel::AsString(spp_channel) << nc_nuc  << nu_pdgc
+      //<< ", E="<< Enu << ") = "<< xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
+      
+    SLOG("MKSPPXSec", pNOTICE)
+      << "XSec[Channel: " << SppChannel::AsString(spp_channel) << nc_nuc  << nu_pdgc
+      << "]  (E="<< Enu << " GeV) = " << xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
     return xsec;
   }
   return 0;
