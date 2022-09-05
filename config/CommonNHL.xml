@@ -92,7 +92,6 @@ April 11th, 2022
     <param type="bool" name="CalcKaonFluxOnly"> false </param>
     <param type="bool" name="AttemptCharmCalculation"> false </param>
     <param type="bool" name="IsParentOnAxis"> true </param>
-    <param type="bool" name="UseBeamMomentum"> true </param>
     <param type="vec-double" name="NHL-PolDir" delim=";"> 0.0 ; 0.0 ; 1.0 </param> 
   </param_set>
 

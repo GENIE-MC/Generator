@@ -56,20 +56,26 @@ void NHLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
       double invAccWeight = fGnmf.nimpwt * fGnmf.fgXYWgt;
       evrec->SetWeight( evrec->Weight() / invAccWeight );
       
-      // scale by how many POT it takes to make the appropriate parent
-      evrec->SetWeight( evrec->Weight() * POTScaleWeight );
+      fGnmf = this->MakeTupleFluxEntry( iCurrEntry, fCurrPath );
       
-      evrec->SetVertex( fGnmf.fgX4User ); // NHL production vertex. NOT where NHL decays to visible FS.
-
-      // construct Particle(0). Don't worry about daughter links at this stage.
-      TLorentzVector probeP4 = ( fUseBeamMomentum ) ? fGnmf.fgP4 : fGnmf.fgP4User;
-      if( fUseBeamMomentum ){
+      if( std::abs(fGnmf.fgPdgC) == genie::kPdgNHL ){ // only add particle if parent is valid
+	
+	double invAccWeight = fGnmf.nimpwt * fGnmf.fgXYWgt;
+	evrec->SetWeight( evrec->Weight() / invAccWeight );
+	
+	// scale by how many POT it takes to make the appropriate parent
+	evrec->SetWeight( evrec->Weight() * POTScaleWeight );
+	
+	evrec->SetVertex( fGnmf.fgX4User ); // NHL production vertex. NOT where NHL decays to visible FS.
+	
+	// construct Particle(0). Don't worry about daughter links at this stage.
+	TLorentzVector probeP4 = fGnmf.fgP4;
 	TVector3 probeP3 = probeP4.Vect(); TVector3 dumor( 0.0, 0.0, 0.0 );
 	probeP3 = this->ApplyUserRotation( probeP3, dumor, fDetRotation, false ); // active transformation
 	probeP4.SetPxPyPzE( probeP3.X(), probeP3.Y(), probeP3.Z(), probeP4.E() );
+	GHepParticle ptNHL( fGnmf.fgPdgC, kIStInitialState, -1, -1, -1, -1, probeP4, fGnmf.fgX4User );
+	evrec->AddParticle( ptNHL );
       }
-      GHepParticle ptNHL( fGnmf.fgPdgC, kIStInitialState, -1, -1, -1, -1, probeP4, fGnmf.fgX4User );
-      evrec->AddParticle( ptNHL );
     }
 
   }
@@ -420,7 +426,7 @@ flux::GNuMIFluxPassThroughInfo NHLFluxCreator::MakeTupleFluxEntry( int iEntry, s
   // update polarisation
   TLorentzVector p4Lep_good = p4Lep_rest_good; // in parent rest frame
   p4Lep_good.Boost( boost_beta ); // in lab frame
-  TVector3 boost_beta_NHL = ( fUseBeamMomentum ) ? p4NHL_beam.BoostVector() : p4NHL.BoostVector();
+  TVector3 boost_beta_NHL = p4NHL_beam.BoostVector();
   p4Lep_good.Boost( -boost_beta_NHL ); // in NHL rest frame
 
   fLPx = ( fixPol ) ? fFixedPolarisation.at(0) : p4Lep_good.Px() / p4Lep_good.P();
@@ -437,19 +443,10 @@ flux::GNuMIFluxPassThroughInfo NHLFluxCreator::MakeTupleFluxEntry( int iEntry, s
 
   double zm = 0.0, zp = 0.0;
   if( fIsUsingRootGeom ){
-    if( fUseBeamMomentum )
-      this->GetAngDeviation( p4par_beam, detO_beam, zm, zp );
-    else
-      this->GetAngDeviation( p4par, detO, zm, zp );
+    this->GetAngDeviation( p4par_beam, detO_beam, zm, zp );
   } else { // !fIsUsingRootGeom
-    if( fUseBeamMomentum ){
-      zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par_beam, detO_beam, false );
-      zp = this->GetAngDeviation( p4par_beam, detO_beam, true );
-    }
-    else { // !fUseBeamMomentum && !fIsUsingRootGeom
-      zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par, detO, false );
-      zp = this->GetAngDeviation( p4par, detO, true );
-    }
+    zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par_beam, detO_beam, false );
+    zp = this->GetAngDeviation( p4par_beam, detO_beam, true );
   }
 
   if( zm == -999.9 && zp == 999.9 ){
@@ -1843,7 +1840,6 @@ void NHLFluxCreator::LoadConfig(void)
   this->GetParamVect( "NHL-PolDir", fFixedPolarisation );
 
   this->GetParam( "IsParentOnAxis", isParentOnAxis );
-  this->GetParam( "UseBeamMomentum", fUseBeamMomentum );
 
   fCx = fB2UTranslation.at(0);
   fCy = fB2UTranslation.at(1);

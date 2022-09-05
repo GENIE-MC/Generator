@@ -157,7 +157,6 @@ namespace NHL {
     mutable bool isUsingRootGeom = false;
     mutable double uMult = 1.0, xMult = 1.0; // these need to be different.
 
-    mutable bool fUseBeamMomentum = false; // use this if your detector hall is parallel to tgt hall
     mutable double fCx, fCy, fCz; // translation: from beamline origin to user origin
     mutable double fUx, fUy, fUz; // translation: from user origin to detector centre
     mutable double fAx1, fAz, fAx2; // rotation: from target-hall frame to beam frame

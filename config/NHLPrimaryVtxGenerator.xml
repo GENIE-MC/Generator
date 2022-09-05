@@ -87,7 +87,6 @@ ParentPOTScalings         bool        no    Ratio of all POT in flux files / POT
 CalcKaonFluxOnly          bool        yes   Focus only on kaon parents in dk2nu               false
 AttemptCharmCalculation   bool        yes   Predict charm-parent (D,Ds...) contribution       false
 IsNHLOnAxis               bool        yes   Incoming NHL placed on SM-nu beam axis            true
-UseBeamMomentum           bool        yes   Corrects near detectors: z(det) || z(tgt)         true
 NHL-PolDir                vec-double  yes   Set NHL beam polarisation direction               (0,0,1)
                                             (beam coordinates!)
 

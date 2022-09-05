@@ -407,20 +407,18 @@ void NHLDecayVolume::SetStartingParameters( GHepRecord * event_rec, double NHLCo
 
   TLorentzVector * x4NHL = event_rec->Particle(0)->GetX4();
   TVector3 startPoint( xMult * x4NHL->X(), xMult * x4NHL->Y(), xMult * x4NHL->Z() ); // mm
-  if( fUseBeamMomentum ){
-    double mtomm = units::m / units::mm;
-    // passive transformation. First return to tgt-hall frame, then to detector frame
-    TVector3 beamOrigin( 0.0, 0.0, 0.0 ), detOrigin( fUx * mtomm, fUy * mtomm, fUz * mtomm );
-    TVector3 startUnrotated = startPoint;
-    startPoint = this->ApplyUserRotation( startPoint, beamOrigin, fB2URotation, true ); // beam --> tgt-hall
-    TVector3 startTgt = startPoint;
-    startPoint = this->ApplyUserRotation( startPoint, detOrigin, fDetRotation, true ); // tgt-hall --> det
-    
-    LOG( "NHL", pDEBUG )
-      << "\n\n Unrotated startPoint: " << utils::print::Vec3AsString( &startUnrotated )
-      << "\n Tgt-hall startPoint: " << utils::print::Vec3AsString( &startTgt )
-      << "\n Final startPoint: " << utils::print::Vec3AsString( &startPoint );
-  }
+  double mtomm = units::m / units::mm;
+  // passive transformation. First return to tgt-hall frame, then to detector frame
+  TVector3 beamOrigin( 0.0, 0.0, 0.0 ), detOrigin( fUx * mtomm, fUy * mtomm, fUz * mtomm );
+  TVector3 startUnrotated = startPoint;
+  startPoint = this->ApplyUserRotation( startPoint, beamOrigin, fB2URotation, true ); // beam --> tgt-hall
+  TVector3 startTgt = startPoint;
+  startPoint = this->ApplyUserRotation( startPoint, detOrigin, fDetRotation, true ); // tgt-hall --> det
+  
+  LOG( "NHL", pDEBUG )
+    << "\n\n Unrotated startPoint: " << utils::print::Vec3AsString( &startUnrotated )
+    << "\n Tgt-hall startPoint: " << utils::print::Vec3AsString( &startTgt )
+    << "\n Final startPoint: " << utils::print::Vec3AsString( &startPoint );
   TLorentzVector * p4NHL = event_rec->Particle(0)->GetP4();
   TVector3 momentum( p4NHL->Px(), p4NHL->Py(), p4NHL->Pz() );
 
@@ -615,7 +613,6 @@ void NHLDecayVolume::LoadConfig()
   LOG( "NHL", pDEBUG )
     << "Loading geometry parameters from file. . .";
 
-  this->GetParam( "UseBeamMomentum", fUseBeamMomentum );
   this->GetParamVect( "Beam2User_T", fB2UTranslation );
   this->GetParamVect( "Beam2User_R", fB2URotation );
   this->GetParamVect( "Beam2Det_R", fDetRotation );
