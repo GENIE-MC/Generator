@@ -153,7 +153,6 @@ const EventRecordVisitorI * NHLGenerator(void);
 int      TestFluxFromDk2nu  (void);
 int      TestFluxFromHists  (void);
 GFluxI * TH1FluxDriver      (void);
-int      DecideType         (TFile * spectrumFile);
 #endif
 
 int      TestDecay          (void);
@@ -563,7 +562,18 @@ int TestFluxFromHists()
   const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLFluxCreator", "Default");
   const NHLFluxCreator * fluxCreator = dynamic_cast< const NHLFluxCreator * >( algFluxCreator );
 
-  __attribute__((unused)) GFluxI * ff = TH1FluxDriver();
+  assert(gCfgMassNHL >= 0.0);
+  
+  string finPath = gOptFluxFilePath; finPath.append("./histFluxes.root");
+  string prodVtxPath = gOptFluxFilePath; prodVtxPath.append("/NHL_vertex_positions.root");
+  __attribute__((unused)) int iset = setenv( "PRODVTXDIR", prodVtxPath.c_str(), 1 );
+  LOG("gevald_nhl", pDEBUG)
+    << "Looking for fluxes in " << finPath.c_str();
+  assert( !gSystem->AccessPathName( finPath.c_str()) );
+  
+  fluxCreator->SetFinPaths( finPath, prodVtxPath );
+  fluxCreator->BuildInputFlux();
+
   TFile * spectrumFile = TFile::Open("./input-flux.root", "READ");
   TDirectory * baseDir = spectrumFile->GetDirectory("");
   std::string fluxName = std::string( "spectrum" );
@@ -601,49 +611,25 @@ int TestFluxFromHists()
 
       if( ievent == gOptNev ){ std::cerr << " \n"; break; }
 
-      gOptEnergyNHL = spectrum->GetRandom();
-      unsigned int ien = 0;
-      while( gOptEnergyNHL <= gCfgMassNHL && ien < controls::kRjMaxIterations ){
-	gOptEnergyNHL = spectrum->GetRandom(); // to prevent binning throwing E <= M
-	ien++;
-      }
+      gOptEnergyNHL = 100.0;
       
       int hpdg = genie::kPdgNHL;
-      int typeMod = 1;
       
-      // if not Majorana, check if we should be doing mixing
-      // if yes, get from fluxes
-      // if not, enforce nu vs nubar
-      if( !gCfgIsMajorana ){
-	switch( gCfgNHLKind ){
-	case 0: // always nu
-	  nPart++;
-	  break;
-	case 1: // always nubar
-	  typeMod = -1;
-	  nAntipart++;
-	  break;
-	case 2:
-	  typeMod = DecideType( spectrumFile );
-	  if( typeMod > 0 ) nPart++;
-	  else nAntipart++;
-	  break;
-	default:
-	  nPart++;
-	  nAntipart++;
-	  typeMod = 1;
-	}
-      }
-      hpdg *= typeMod;
-
       EventRecord * event = new EventRecord;
       Interaction * interaction = Interaction::NHL( hpdg, gOptEnergyNHL, kNHLDcyTEST );
       event->AttachSummary( interaction );
 
+      fluxCreator->SetUsingDk2nu( false );
       fluxCreator->ProcessEventRecord(event);
       
       // now grab momentum from event
-      const TLorentzVector * p4NHL = event->Probe()->GetP4();
+      const TLorentzVector * p4NHL = event->Particle(0)->GetP4();
+      gOptEnergyNHL = p4NHL->E();
+
+      interaction = event->Summary(); // it's been updated now
+      if( event->Particle(0)->Pdg() > 0 && !gCfgIsMajorana ) nPart++;
+      else if( event->Particle(0)->Pdg() < 0 && !gCfgIsMajorana ) nAntipart++;
+      else{ nPart++; nAntipart++; }
 
       LOG( "gevald_nhl", pDEBUG )
 	<< "*** Event " << ievent << ":"
@@ -710,106 +696,6 @@ GFluxI * TH1FluxDriver(void)
   double emin = 0.0; 
   double emax = utils::nhl::GetCfgDouble( "NHL", "InitialState", "NHL-max-energy" ); 
 
-  // read in mass of NHL and decide which fluxes to use
-
-  assert(gCfgMassNHL >= 0.0);
-
-  // select mass point
-
-  int closest_masspoint = fluxCreator->SelectMass( gCfgMassNHL );
-
-  LOG("gevald_nhl", pDEBUG)
-    << "Mass inserted: " << gCfgMassNHL << " GeV ==> mass point " << closest_masspoint;
-  LOG("gevald_nhl", pDEBUG)
-    << "Using fluxes in base path " << gOptFluxFilePath.c_str();
-  
-  string finPath = gOptFluxFilePath; finPath.append("./histFluxes.root");
-  string prodVtxPath = gOptFluxFilePath; prodVtxPath.append("/NHL_vertex_positions.root");
-  __attribute__((unused)) int iset = setenv( "PRODVTXDIR", prodVtxPath.c_str(), 1 );
-  LOG("gevald_nhl", pDEBUG)
-    << "Looking for fluxes in " << finPath.c_str();
-  assert( !gSystem->AccessPathName( finPath.c_str()) );
-
-  // extract specified flux histogram from input root file
-
-  TH1F * hfluxAll    = fluxCreator->GetFluxHist1F( finPath, closest_masspoint, true );
-  TH1F * hfluxAllbar = fluxCreator->GetFluxHist1F( finPath, closest_masspoint, false );
-  assert(hfluxAll && hfluxAllbar);
-
-  LOG("gevald_nhl", pDEBUG)
-    << "The histo has entries and max: "
-    << "\nParticle:     " << hfluxAll->GetEntries() << " entries with max = " << hfluxAll->GetMaximum()
-    << "\nAntiparticle: " << hfluxAllbar->GetEntries() << " entries with max = " << hfluxAllbar->GetMaximum();
-
-  // let's build the mixed flux.
-  
-  TH1F * spectrumF = (TH1F*) hfluxAll->Clone(0);
-  if( gCfgIsMajorana || gCfgNHLKind == 2 ){
-    spectrumF->Add( hfluxAll, 1.0 );
-    spectrumF->Add( hfluxAllbar, 1.0 );
-  } else if( gCfgNHLKind == 0 ) {
-    spectrumF->Add( hfluxAll, 1.0 );
-  } else if( gCfgNHLKind == 1 ){
-    spectrumF->Add( hfluxAllbar, 1.0 );
-  }
-
-  LOG( "gevald_nhl", pDEBUG )
-    << "\n\n !!! ------------------------------------------------"
-    << "\n !!! gCfgECoupling, gCfgMCoupling, gCfgTCoupling = " << gCfgECoupling << ", " << gCfgMCoupling << ", " << gCfgTCoupling
-    <<  "\n !!! gCfgNHLKind = " << gCfgNHLKind
-    << "\n !!! gCfgIsMajorana = " << gCfgIsMajorana
-    << "\n !!! ------------------------------------------------"
-    << "\n !!! Flux spectrum has ** " << spectrumF->GetEntries() << " ** entries"
-    << "\n !!! Flux spectrum has ** " << spectrumF->GetMaximum() << " ** maximum"
-    << "\n !!!  ------------------------------------------------ \n";
-
-  // copy into TH1D, *do not use the Copy() function!*
-  const int nbins = spectrumF->GetNbinsX();
-  spectrum = new TH1D( "s", "s", nbins, spectrumF->GetBinLowEdge(1), 
-		       spectrumF->GetBinLowEdge(nbins) + spectrumF->GetBinWidth(nbins) );
-  for( Int_t ib = 0; ib <= nbins; ib++ ){
-    spectrum->SetBinContent( ib, spectrumF->GetBinContent(ib) );
-  }
-  
-  spectrum->SetNameTitle("spectrum","NHL_flux");
-  spectrum->SetDirectory(0);
-  for(int ibin = 1; ibin <= hfluxAll->GetNbinsX(); ibin++) {
-    if(hfluxAll->GetBinLowEdge(ibin) + hfluxAll->GetBinWidth(ibin) > emax ||
-       hfluxAll->GetBinLowEdge(ibin) < emin) {
-      spectrum->SetBinContent(ibin, 0);
-    }
-  } // do I want to kill the overflow / underflow bins? Why?
-  
-  LOG("gevald_nhl", pINFO) << spectrum->GetEntries() << " entries in spectrum";
-
-  // save input flux
-
-  TFile f("./input-flux.root","RECREATE");
-  spectrum->Write();
-
-  // store integrals in histo if not Majorana and mixed flux
-  // bin 0 ==> nu, bin 1 ==> nubar
-  if( !gCfgIsMajorana && gCfgNHLKind == 2 ){
-    TH1D * hIntegrals = new TH1D( "hIntegrals", "hIntegrals", 2, 0.0, 1.0 );
-    hIntegrals->SetBinContent( 1, hfluxAll->Integral() );
-    hIntegrals->SetBinContent( 2, hfluxAllbar->Integral() );
-
-    hIntegrals->SetDirectory(0);
-    hIntegrals->Write();
-
-    LOG( "gevald_nhl", pDEBUG )
-      << "\n\nIntegrals asked for and stored. Here are their values by type:"
-      << "\nNu: " << hfluxAll->Integral()
-      << "\nNubar: " << hfluxAllbar->Integral() << "\n\n";
-  }
-
-  f.Close();
-  LOG("gevald_nhl", pDEBUG) 
-    << "Written spectrum to ./input-flux.root";
-
-  // keep "beam" == SM-neutrino beam direction at z s.t. cos(theta_z) == 1
-  // angular deviation of NHL (which is tiny, if assumption of collimated parents is made) made in main
-
   TVector3 bdir (0.0,0.0,1.0);
   TVector3 bspot(0.0,0.0,1.0);
 
@@ -822,26 +708,6 @@ GFluxI * TH1FluxDriver(void)
   LOG("gevald_nhl", pDEBUG)
     << "Returning flux driver and exiting method.";
   return flux_driver;
-}
-//_________________________________________________________________________________________
-/// based on the mixing of nu vs nubar in beam, return 1 (nu) or -1 (nubar)
-int DecideType(TFile * spectrumFile){
-  string intName = "hIntegrals";
-  TDirectory * baseDir = spectrumFile->GetDirectory("");
-  assert( baseDir->GetListOfKeys()->Contains( intName.c_str() ) );
-
-  // 4 integrals, depending on co-produced lepton pdg. Group mu + e and mubar + ebar
-  TH1D * hIntegrals = ( TH1D * ) baseDir->Get( intName.c_str() );
-
-  double nuInt    = hIntegrals->GetBinContent(1);
-  double nubarInt = hIntegrals->GetBinContent(2);
-  double totInt   = nuInt + nubarInt;
-
-  RandomGen * rnd = RandomGen::Instance();
-  double ranthrow = rnd->RndGen().Uniform(0.0, 1.0);
-
-  int typeMod = ( ranthrow <= nuInt / totInt ) ? 1 : -1;
-  return typeMod;
 }
 //............................................................................
 #endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX_
@@ -1635,13 +1501,15 @@ void ReadInConfig(void)
   LOG("gevald_nhl", pFATAL)
     << "Reading in validation configuration. . .";
 
-  gCfgMassNHL   = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Mass" );
-  gCfgECoupling = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Ue42" );
-  gCfgMCoupling = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Um42" );
-  gCfgTCoupling = utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Ut42" );
+  const Algorithm * algNHLGen = AlgFactory::Instance()->GetAlgorithm("genie::NHLPrimaryVtxGenerator", "Default");
+  const NHLPrimaryVtxGenerator * nhlgen = dynamic_cast< const NHLPrimaryVtxGenerator * >( algNHLGen );
 
-  //gCfgProdMode  = (NHLProd_t) utils::nhl::GetCfgInt( "NHL", "Validation", "NHL-ProdMode"  );
-  //gCfgDecayMode = (NHLDecayMode_t) utils::nhl::GetCfgInt( "NHL", "Validation", "NHL-DecayMode" );
+  SimpleNHL confsh = nhlgen->GetNHLInstance( "NeutralHeavyLepton" );
+  gCfgMassNHL   = confsh.GetMass();
+  const std::vector< double > confCoups = confsh.GetCouplings();
+  gCfgECoupling = confCoups.at(0);
+  gCfgMCoupling = confCoups.at(1);
+  gCfgTCoupling = confCoups.at(2);
 
   gOptEnergyNHL = utils::nhl::GetCfgDouble( "NHL", "ParticleGun", "PG-Energy" );
 
@@ -1657,49 +1525,20 @@ void ReadInConfig(void)
   gCfgNHLCy *= invdircosmag;
   gCfgNHLCz *= invdircosmag;
   
-  gCfgIntChannels = {};
-  if( utils::nhl::GetCfgBool( "NHL", "InterestingChannels", "NHL-2B_mu_pi" ) )
-    gCfgIntChannels.emplace_back( kNHLDcyPiMu );
-  if( utils::nhl::GetCfgBool( "NHL", "InterestingChannels", "NHL-2B_e_pi" ) )
-    gCfgIntChannels.emplace_back( kNHLDcyPiE );
-  if( utils::nhl::GetCfgBool( "NHL", "InterestingChannels", "NHL-2B_nu_pi0" ) )
-    gCfgIntChannels.emplace_back( kNHLDcyPi0Nu );
-  if( utils::nhl::GetCfgBool( "NHL", "InterestingChannels", "NHL-3B_nu_nu_nu" ) )
-    gCfgIntChannels.emplace_back( kNHLDcyNuNuNu );
-  if( utils::nhl::GetCfgBool( "NHL", "InterestingChannels", "NHL-3B_nu_mu_mu" ) )
-    gCfgIntChannels.emplace_back( kNHLDcyNuMuMu );
-  if( utils::nhl::GetCfgBool( "NHL", "InterestingChannels", "NHL-3B_nu_e_e" ) )
-    gCfgIntChannels.emplace_back( kNHLDcyNuEE );
-  if( utils::nhl::GetCfgBool( "NHL", "InterestingChannels", "NHL-3B_nu_mu_e" ) )
-    gCfgIntChannels.emplace_back( kNHLDcyNuMuE );
-  if( utils::nhl::GetCfgBool( "NHL", "InterestingChannels", "NHL-3B_e_pi_pi0" ) )
-    gCfgIntChannels.emplace_back( kNHLDcyPiPi0E );
-  if( utils::nhl::GetCfgBool( "NHL", "InterestingChannels", "NHL-3B_mu_pi_pi0" ) )
-    gCfgIntChannels.emplace_back( kNHLDcyPiPi0Mu );
-  if( utils::nhl::GetCfgBool( "NHL", "InterestingChannels", "NHL-3B_nu_pi0_pi0" ) )
-    gCfgIntChannels.emplace_back( kNHLDcyPi0Pi0Nu );
+  gCfgIntChannels = confsh.GetInterestingChannelsVec();
 
-  gCfgUserOx    = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "DetCentreXInBeam" );
-  gCfgUserOy    = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "DetCentreYInBeam" );
-  gCfgUserOz    = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "DetCentreZInBeam" );
+  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::NHL::NHLFluxCreator", "Default");
+  const NHLFluxCreator * fluxCreator = dynamic_cast< const NHLFluxCreator * >( algFluxCreator );
 
-  gCfgUserAx1   = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "EulerExtrinsicX1" );
-  gCfgUserAz    = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "EulerExtrinsicZ"  );
-  gCfgUserAx2   = utils::nhl::GetCfgDouble( "NHL", "CoordinateXForm", "EulerExtrinsicX2" );
+  std::vector< double > UserT = fluxCreator->GetB2UTranslation();
+  gCfgUserOx    = UserT.at(0);
+  gCfgUserOy    = UserT.at(1);
+  gCfgUserOz    = UserT.at(2);
 
-  /*
-  gCfgBoxLx     = utils::nhl::GetCfgDouble( "NHL", "Validation", "BoxLx" );
-  gCfgBoxLy     = utils::nhl::GetCfgDouble( "NHL", "Validation", "BoxLy" );
-  gCfgBoxLz     = utils::nhl::GetCfgDouble( "NHL", "Validation", "BoxLz" );
-
-  gCfgParentEnergy = utils::nhl::GetCfgDouble( "NHL", "Validation", "Parent-E"     );
-  gCfgParentTheta  = utils::nhl::GetCfgDouble( "NHL", "Validation", "Parent-Theta" );
-  gCfgParentPhi    = utils::nhl::GetCfgDouble( "NHL", "Validation", "Parent-Phi"   );
-
-  gCfgParentOx  = utils::nhl::GetCfgDouble( "NHL", "Validation", "Parent-Ox" );
-  gCfgParentOy  = utils::nhl::GetCfgDouble( "NHL", "Validation", "Parent-Oy" );
-  gCfgParentOz  = utils::nhl::GetCfgDouble( "NHL", "Validation", "Parent-Oz" );
-  */
+  std::vector< double > UserR = fluxCreator->GetB2URotation();
+  gCfgUserAx1   = UserR.at(0);
+  gCfgUserAz    = UserR.at(1);
+  gCfgUserAx2   = UserR.at(2);
 
   // now transform the lengths and angles to the correct units
   gCfgUserOx   *= units::m / gOptGeomLUnits;
@@ -1710,19 +1549,6 @@ void ReadInConfig(void)
   gCfgUserAz   *= units::rad / gOptGeomAUnits;
   gCfgUserAx2  *= units::rad / gOptGeomAUnits;
 
-  /*
-  gCfgBoxLx    *= units::m / gOptGeomLUnits;
-  gCfgBoxLy    *= units::m / gOptGeomLUnits;
-  gCfgBoxLz    *= units::m / gOptGeomLUnits;
-
-  gCfgParentTheta *= units::rad / gOptGeomAUnits;
-  gCfgParentPhi   *= units::rad / gOptGeomAUnits;
-
-  gCfgParentOx *= units::m / gOptGeomLUnits;
-  gCfgParentOy *= units::m / gOptGeomLUnits;
-  gCfgParentOz *= units::m / gOptGeomLUnits;
-  */
-
   ostringstream csts; 
   csts << "Read out the following config:"
        << "\n"
@@ -1731,8 +1557,6 @@ void ReadInConfig(void)
        << "\n|U_m4|^2 = " << gCfgMCoupling
        << "\n|U_t4|^2 = " << gCfgTCoupling
        << "\n"
-    //<< "\nProduction mode = " << utils::nhl::ProdAsString( gCfgProdMode )
-    //<< "\nDecay mode      = " << utils::nhl::AsString( gCfgDecayMode )
        << "\nInteresting decay channels:";
   for( std::vector< NHLDecayMode_t >::iterator chit = gCfgIntChannels.begin();
        chit != gCfgIntChannels.end(); ++chit ){ csts << "\n\t" << utils::nhl::AsString(*chit); }
@@ -1741,14 +1565,6 @@ void ReadInConfig(void)
        << ", " << gCfgUserOy << ", " << gCfgUserOz << " ) [" << lunits.c_str() << "]"
        << "\nEuler extrinsic x-z-x rotation = ( " << gCfgUserAx1
        << ", " << gCfgUserAz << ", " << gCfgUserAx2 << " ) [" << aunits.c_str() << "]"
-    //<< "\nBox dimensions in user x-y-z: " << gCfgBoxLx << " x " << gCfgBoxLy
-    // << " x " << gCfgBoxLz << " [" << lunits.c_str() << "^3]"
-    // << "\n"
-    // << "\nParent energy = " << gCfgParentEnergy << " [GeV]"
-    // << "\nParent theta = " << gCfgParentTheta << " [" << aunits.c_str() << "]"
-    // << "\nParent phi   = " << gCfgParentPhi << " [" << aunits.c_str() << "]"
-    // << "\nParent origin = ( " << gCfgParentOx << ", " << gCfgParentOy << ", "
-    // << gCfgParentOz << " ) [" << lunits.c_str() << "]"
        << "\nNHL particle-gun directional cosines: ( " << gCfgNHLCx << ", " << gCfgNHLCy 
        << ", " << gCfgNHLCz << ") [ GeV / GeV ]";
 
