@@ -47,12 +47,12 @@ ifeq ($(strip $(GOPT_ENABLE_ATMO)),YES)
 TGT_BASE += gevgen_atmo
 TGT_BASE += gevgen_upmu
 endif
-ifeq ($(strip $(GOPT_ENABLE_NEUTRAL_HEAVY_LEPTON)),YES)
-TGT_BASE += gevgen_nhl
-TGT_BASE += gevgen_pgnhl
+ifeq ($(strip $(GOPT_ENABLE_HEAVY_NEUTRAL_LEPTON)),YES)
+TGT_BASE += gevgen_hnl
+TGT_BASE += gevgen_pghnl
 endif
-ifeq ($(strip $(GOPT_ENABLE_NHL_VALIDATION)), YES)
-TGT_BASE += gevald_nhl
+ifeq ($(strip $(GOPT_ENABLE_HNL_VALIDATION)), YES)
+TGT_BASE += gevald_hnl
 endif
 ifeq ($(strip $(GOPT_ENABLE_NUCLEON_DECAY)),YES)
 TGT_BASE += gevgen_ndcy
@@ -136,23 +136,23 @@ $(GENIE_BIN_PATH)/gevgen_hadron: gEvGenHadronNucleus.o $(call find_libs,gevgen_h
 	@echo "** Building gevgen_hadron"
 	$(LD) $(LDFLAGS) gEvGenHadronNucleus.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_hadron
 
-# neutral heavy lepton event generation app
+# heavy neutral lepton event generation app
 #
-$(GENIE_BIN_PATH)/gevgen_nhl: gNeutralHeavyLeptonEvGen.o $(call find_libs,gevgen_nhl)
-	@echo "** Building gevgen_nhl"
-	$(LD) $(LDFLAGS) gNeutralHeavyLeptonEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_nhl
+$(GENIE_BIN_PATH)/gevgen_hnl: gBeamHNLEvGen.o $(call find_libs,gevgen_hnl)
+	@echo "** Building gevgen_hnl"
+	$(LD) $(LDFLAGS) gBeamHNLEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_hnl
 
-# particle gun with NHL
+# particle gun with HNL
 #
-$(GENIE_BIN_PATH)/gevgen_pgnhl: gNHLParticleGun.o $(call find_libs,gevgen_pgnhl)
-	@echo "** Building gevgen_pgnhl"
-	$(LD) $(LDFLAGS) gNHLParticleGun.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_pgnhl
+$(GENIE_BIN_PATH)/gevgen_pghnl: gBeamHNLParticleGun.o $(call find_libs,gevgen_pghnl)
+	@echo "** Building gevgen_pghnl"
+	$(LD) $(LDFLAGS) gBeamHNLParticleGun.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_pghnl
 
-# validation for NHL ev gen
+# validation for HNL ev gen
 #
-$(GENIE_BIN_PATH)/gevald_nhl: gNHLValidationApp.o $(call find_libs,gevald_nhl)
-	@echo "** Building gevald_nhl"
-	$(LD) $(LDFLAGS) gNHLValidationApp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevald_nhl
+$(GENIE_BIN_PATH)/gevald_hnl: gBeamHNLValidationApp.o $(call find_libs,gevald_hnl)
+	@echo "** Building gevald_hnl"
+	$(LD) $(LDFLAGS) gBeamHNLValidationApp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevald_hnl
 
 # nucleon decay event generation app
 #

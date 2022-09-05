@@ -413,9 +413,9 @@ bool genie::pdg::IsDarkSectorParticle(int pdgc)
     );
 }
 //____________________________________________________________________________
-bool genie::pdg::IsNHL(int pdgc)
+bool genie::pdg::IsHNL(int pdgc)
 {
-  return ( std::abs( pdgc ) == kPdgNHL );
+  return ( std::abs( pdgc ) == kPdgHNL );
 }
 //____________________________________________________________________________
 int genie::pdg::GeantToPdg(int geant_code)

@@ -324,38 +324,38 @@ void ConvertToGST(void)
   bool   brIsNC        = false;  // Is Weak NC process?
   bool   brIsCharmPro  = false;  // Produces charm?
   bool   brIsAMNuGamma = false;  // is anomaly mediated nu gamma
-  bool   brIsNHL       = false;  // is NHL decay?
+  bool   brIsHNL       = false;  // is HNL decay?
   int    brCodeNeut    = 0;      // The equivalent NEUT reaction code (if any)
   int    brCodeNuance  = 0;      // The equivalent NUANCE reaction code (if any)
-#ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
-  // -- NHL variables
-  double brNHLMass     = 0;      // NHL mass in GeV
-  double brNHLECoup    = 0;      // |U_e4|^2
-  double brNHLMCoup    = 0;      // |U_m4|^2
-  double brNHLTCoup    = 0;      // |U_t4|^2
-  int    brNHLType     = 0;      // 0 = N, 1 = Nbar, 2 = mix
-  bool   brNHLMajorana = false;  // Is NHL Majorana?
-  double brNHLE        = 0;      // IS E
-  double brNHLPx       = 0;      // IS Px
-  double brNHLPy       = 0;      // IS Py
-  double brNHLPz       = 0;      // IS Pz
-  int    brNHLFS0Pdg   = 0;      // FS0 PDG
-  double brNHLFS0E     = 0;      // FS0 E
-  double brNHLFS0Px    = 0;      // FS0 Px
-  double brNHLFS0Py    = 0;      // FS0 Py
-  double brNHLFS0Pz    = 0;      // FS0 Pz
-  int    brNHLFS1Pdg   = 0;      // FS1 PDG
-  double brNHLFS1E     = 0;      // FS1 E
-  double brNHLFS1Px    = 0;      // FS1 Px
-  double brNHLFS1Py    = 0;      // FS1 Py
-  double brNHLFS1Pz    = 0;      // FS1 Pz
-  int    brNHLFS2Pdg   = 0;      // FS2 PDG
-  double brNHLFS2E     = 0;      // FS2 E
-  double brNHLFS2Px    = 0;      // FS2 Px
-  double brNHLFS2Py    = 0;      // FS2 Py
-  double brNHLFS2Pz    = 0;      // FS2 Pz
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+  // -- HNL variables
+  double brHNLMass     = 0;      // HNL mass in GeV
+  double brHNLECoup    = 0;      // |U_e4|^2
+  double brHNLMCoup    = 0;      // |U_m4|^2
+  double brHNLTCoup    = 0;      // |U_t4|^2
+  int    brHNLType     = 0;      // 0 = N, 1 = Nbar, 2 = mix
+  bool   brHNLMajorana = false;  // Is HNL Majorana?
+  double brHNLE        = 0;      // IS E
+  double brHNLPx       = 0;      // IS Px
+  double brHNLPy       = 0;      // IS Py
+  double brHNLPz       = 0;      // IS Pz
+  int    brHNLFS0Pdg   = 0;      // FS0 PDG
+  double brHNLFS0E     = 0;      // FS0 E
+  double brHNLFS0Px    = 0;      // FS0 Px
+  double brHNLFS0Py    = 0;      // FS0 Py
+  double brHNLFS0Pz    = 0;      // FS0 Pz
+  int    brHNLFS1Pdg   = 0;      // FS1 PDG
+  double brHNLFS1E     = 0;      // FS1 E
+  double brHNLFS1Px    = 0;      // FS1 Px
+  double brHNLFS1Py    = 0;      // FS1 Py
+  double brHNLFS1Pz    = 0;      // FS1 Pz
+  int    brHNLFS2Pdg   = 0;      // FS2 PDG
+  double brHNLFS2E     = 0;      // FS2 E
+  double brHNLFS2Px    = 0;      // FS2 Px
+  double brHNLFS2Py    = 0;      // FS2 Py
+  double brHNLFS2Pz    = 0;      // FS2 Pz
   // ---
-#endif // #ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
+#endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
   double brWeight      = 0;      // Event weight
   double brKineXs      = 0;      // Bjorken x as was generated during kinematical selection; takes fermi momentum / off-shellness into account
   double brKineYs      = 0;      // Inelasticity y as was generated during kinematical selection; takes fermi momentum / off-shellness into account
@@ -467,38 +467,38 @@ void ConvertToGST(void)
   s_tree->Branch("nc",	          &brIsNC,	    "nc/O"	    );
   s_tree->Branch("charm",         &brIsCharmPro,    "charm/O"	    );
   s_tree->Branch("amnugamma",     &brIsAMNuGamma,   "amnugamma/O"   );
-  s_tree->Branch("nhl",           &brIsNHL,         "nhl/O"         );
+  s_tree->Branch("hnl",           &brIsHNL,         "hnl/O"         );
   s_tree->Branch("neut_code",     &brCodeNeut,      "neut_code/I"   );
   s_tree->Branch("nuance_code",   &brCodeNuance,    "nuance_code/I" );
-#ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
-  // -- NHL
-  s_tree->Branch("nhl_mass",      &brNHLMass,       "nhl_mass/D"    );
-  s_tree->Branch("nhl_e_coup",    &brNHLECoup,      "nhl_e_coup/D"  );
-  s_tree->Branch("nhl_m_coup",    &brNHLMCoup,      "nhl_m_coup/D"  );
-  s_tree->Branch("nhl_t_coup",    &brNHLTCoup,      "nhl_t_coup/D"  );
-  s_tree->Branch("nhl_type",      &brNHLType,       "nhl_type/I"    );
-  s_tree->Branch("nhl_majorana",  &brNHLMajorana,   "nhl_majorana/O");
-  s_tree->Branch("nhl_E",         &brNHLE,          "nhl_E/D"       );
-  s_tree->Branch("nhl_Px",        &brNHLPx,         "nhl_Px/D"      );
-  s_tree->Branch("nhl_Py",        &brNHLPy,         "nhl_Py/D"      );
-  s_tree->Branch("nhl_Pz",        &brNHLPz,         "nhl_Pz/D"      );
-  s_tree->Branch("nhl_FS0_Pdg",   &brNHLFS0Pdg,     "nhl_FS0_Pdg/I" );
-  s_tree->Branch("nhl_FS0_E",     &brNHLFS0E,       "nhl_FS0_E/D"   );
-  s_tree->Branch("nhl_FS0_Px",    &brNHLFS0Px,      "nhl_FS0_Px/D"  );
-  s_tree->Branch("nhl_FS0_Py",    &brNHLFS0Py,      "nhl_FS0_Py/D"  );
-  s_tree->Branch("nhl_FS0_Pz",    &brNHLFS0Pz,      "nhl_FS0_Pz/D"  );
-  s_tree->Branch("nhl_FS1_Pdg",   &brNHLFS1Pdg,     "nhl_FS1_Pdg/I" );
-  s_tree->Branch("nhl_FS1_E",     &brNHLFS1E,       "nhl_FS1_E/D"   );
-  s_tree->Branch("nhl_FS1_Px",    &brNHLFS1Px,      "nhl_FS1_Px/D"  );
-  s_tree->Branch("nhl_FS1_Py",    &brNHLFS1Py,      "nhl_FS1_Py/D"  );
-  s_tree->Branch("nhl_FS1_Pz",    &brNHLFS1Pz,      "nhl_FS1_Pz/D"  );
-  s_tree->Branch("nhl_FS2_Pdg",   &brNHLFS2Pdg,     "nhl_FS2_Pdg/I" );
-  s_tree->Branch("nhl_FS2_E",     &brNHLFS2E,       "nhl_FS2_E/D"   );
-  s_tree->Branch("nhl_FS2_Px",    &brNHLFS2Px,      "nhl_FS2_Px/D"  );
-  s_tree->Branch("nhl_FS2_Py",    &brNHLFS2Py,      "nhl_FS2_Py/D"  );
-  s_tree->Branch("nhl_FS2_Pz",    &brNHLFS2Pz,      "nhl_FS2_Pz/D"  );
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+  // -- HNL
+  s_tree->Branch("hnl_mass",      &brHNLMass,       "hnl_mass/D"    );
+  s_tree->Branch("hnl_e_coup",    &brHNLECoup,      "hnl_e_coup/D"  );
+  s_tree->Branch("hnl_m_coup",    &brHNLMCoup,      "hnl_m_coup/D"  );
+  s_tree->Branch("hnl_t_coup",    &brHNLTCoup,      "hnl_t_coup/D"  );
+  s_tree->Branch("hnl_type",      &brHNLType,       "hnl_type/I"    );
+  s_tree->Branch("hnl_majorana",  &brHNLMajorana,   "hnl_majorana/O");
+  s_tree->Branch("hnl_E",         &brHNLE,          "hnl_E/D"       );
+  s_tree->Branch("hnl_Px",        &brHNLPx,         "hnl_Px/D"      );
+  s_tree->Branch("hnl_Py",        &brHNLPy,         "hnl_Py/D"      );
+  s_tree->Branch("hnl_Pz",        &brHNLPz,         "hnl_Pz/D"      );
+  s_tree->Branch("hnl_FS0_Pdg",   &brHNLFS0Pdg,     "hnl_FS0_Pdg/I" );
+  s_tree->Branch("hnl_FS0_E",     &brHNLFS0E,       "hnl_FS0_E/D"   );
+  s_tree->Branch("hnl_FS0_Px",    &brHNLFS0Px,      "hnl_FS0_Px/D"  );
+  s_tree->Branch("hnl_FS0_Py",    &brHNLFS0Py,      "hnl_FS0_Py/D"  );
+  s_tree->Branch("hnl_FS0_Pz",    &brHNLFS0Pz,      "hnl_FS0_Pz/D"  );
+  s_tree->Branch("hnl_FS1_Pdg",   &brHNLFS1Pdg,     "hnl_FS1_Pdg/I" );
+  s_tree->Branch("hnl_FS1_E",     &brHNLFS1E,       "hnl_FS1_E/D"   );
+  s_tree->Branch("hnl_FS1_Px",    &brHNLFS1Px,      "hnl_FS1_Px/D"  );
+  s_tree->Branch("hnl_FS1_Py",    &brHNLFS1Py,      "hnl_FS1_Py/D"  );
+  s_tree->Branch("hnl_FS1_Pz",    &brHNLFS1Pz,      "hnl_FS1_Pz/D"  );
+  s_tree->Branch("hnl_FS2_Pdg",   &brHNLFS2Pdg,     "hnl_FS2_Pdg/I" );
+  s_tree->Branch("hnl_FS2_E",     &brHNLFS2E,       "hnl_FS2_E/D"   );
+  s_tree->Branch("hnl_FS2_Px",    &brHNLFS2Px,      "hnl_FS2_Px/D"  );
+  s_tree->Branch("hnl_FS2_Py",    &brHNLFS2Py,      "hnl_FS2_Py/D"  );
+  s_tree->Branch("hnl_FS2_Pz",    &brHNLFS2Pz,      "hnl_FS2_Pz/D"  );
   // --
-#endif // #ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
+#endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
   s_tree->Branch("wght",          &brWeight,        "wght/D"	    );
   s_tree->Branch("xs",	          &brKineXs,        "xs/D"	    );
   s_tree->Branch("ys",	          &brKineYs,        "ys/D"	    );
@@ -602,54 +602,54 @@ void ConvertToGST(void)
 
   TLorentzVector pdummy(0,0,0,0);
 
-#ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
-  // if NHL, pick up branches 
-  double locNHLMass, locNHLECoup, locNHLMCoup, locNHLTCoup; 
-  bool locNHLIsMajorana; int locNHLType;
-  double locNHLE, locNHLPx, locNHLPy, locNHLPz;
-  double locNHLFS0E, locNHLFS0Px, locNHLFS0Py, locNHLFS0Pz;
-  double locNHLFS1E, locNHLFS1Px, locNHLFS1Py, locNHLFS1Pz;
-  double locNHLFS2E, locNHLFS2Px, locNHLFS2Py, locNHLFS2Pz;
-  int locNHLFS0PDG, locNHLFS1PDG, locNHLFS2PDG;
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+  // if HNL, pick up branches 
+  double locHNLMass, locHNLECoup, locHNLMCoup, locHNLTCoup; 
+  bool locHNLIsMajorana; int locHNLType;
+  double locHNLE, locHNLPx, locHNLPy, locHNLPz;
+  double locHNLFS0E, locHNLFS0Px, locHNLFS0Py, locHNLFS0Pz;
+  double locHNLFS1E, locHNLFS1Px, locHNLFS1Py, locHNLFS1Pz;
+  double locHNLFS2E, locHNLFS2Px, locHNLFS2Py, locHNLFS2Pz;
+  int locHNLFS0PDG, locHNLFS1PDG, locHNLFS2PDG;
 
-  TBranch * BRNHLMass = 0, * BRNHLECoup = 0, * BRNHLMCoup = 0, * BRNHLTCoup = 0, * BRNHLIsMajorana = 0,
-    * BRNHLType = 0, * BRNHLE = 0, * BRNHLPx = 0, * BRNHLPy = 0, * BRNHLPz = 0,
-    * BRNHLFS0E = 0, * BRNHLFS0Px = 0, * BRNHLFS0Py = 0, * BRNHLFS0Pz = 0, * BRNHLFS0PDG = 0, 
-    * BRNHLFS1E = 0, * BRNHLFS1Px = 0, * BRNHLFS1Py = 0, * BRNHLFS1Pz = 0, * BRNHLFS1PDG = 0, 
-    * BRNHLFS2E = 0, * BRNHLFS2Px = 0, * BRNHLFS2Py = 0, * BRNHLFS2Pz = 0, * BRNHLFS2PDG = 0;
+  TBranch * BRHNLMass = 0, * BRHNLECoup = 0, * BRHNLMCoup = 0, * BRHNLTCoup = 0, * BRHNLIsMajorana = 0,
+    * BRHNLType = 0, * BRHNLE = 0, * BRHNLPx = 0, * BRHNLPy = 0, * BRHNLPz = 0,
+    * BRHNLFS0E = 0, * BRHNLFS0Px = 0, * BRHNLFS0Py = 0, * BRHNLFS0Pz = 0, * BRHNLFS0PDG = 0, 
+    * BRHNLFS1E = 0, * BRHNLFS1Px = 0, * BRHNLFS1Py = 0, * BRHNLFS1Pz = 0, * BRHNLFS1PDG = 0, 
+    * BRHNLFS2E = 0, * BRHNLFS2Px = 0, * BRHNLFS2Py = 0, * BRHNLFS2Pz = 0, * BRHNLFS2PDG = 0;
 
-  if( er_tree->GetBranch( "nhl_mass" ) ){
-    BRNHLMass = er_tree->GetBranch( "nhl_mass" ); BRNHLMass->SetAddress( &locNHLMass );
-    BRNHLECoup = er_tree->GetBranch( "nhl_coup_e" ); BRNHLECoup->SetAddress( &locNHLECoup );
-    BRNHLMCoup = er_tree->GetBranch( "nhl_coup_m" ); BRNHLMCoup->SetAddress( &locNHLMCoup );
-    BRNHLTCoup = er_tree->GetBranch( "nhl_coup_t" ); BRNHLTCoup->SetAddress( &locNHLTCoup );
-    BRNHLIsMajorana = er_tree->GetBranch( "nhl_ismaj" ); BRNHLIsMajorana->SetAddress( &locNHLIsMajorana );
-    BRNHLType = er_tree->GetBranch( "nhl_type" ); BRNHLType->SetAddress( &locNHLType );
+  if( er_tree->GetBranch( "hnl_mass" ) ){
+    BRHNLMass = er_tree->GetBranch( "hnl_mass" ); BRHNLMass->SetAddress( &locHNLMass );
+    BRHNLECoup = er_tree->GetBranch( "hnl_coup_e" ); BRHNLECoup->SetAddress( &locHNLECoup );
+    BRHNLMCoup = er_tree->GetBranch( "hnl_coup_m" ); BRHNLMCoup->SetAddress( &locHNLMCoup );
+    BRHNLTCoup = er_tree->GetBranch( "hnl_coup_t" ); BRHNLTCoup->SetAddress( &locHNLTCoup );
+    BRHNLIsMajorana = er_tree->GetBranch( "hnl_ismaj" ); BRHNLIsMajorana->SetAddress( &locHNLIsMajorana );
+    BRHNLType = er_tree->GetBranch( "hnl_type" ); BRHNLType->SetAddress( &locHNLType );
     //
-    BRNHLE  = er_tree->GetBranch( "nhl_IS_E" );  BRNHLE->SetAddress( &locNHLE );
-    BRNHLPx = er_tree->GetBranch( "nhl_IS_PX" ); BRNHLPx->SetAddress( &locNHLPx );
-    BRNHLPy = er_tree->GetBranch( "nhl_IS_PY" ); BRNHLPy->SetAddress( &locNHLPy );
-    BRNHLPz = er_tree->GetBranch( "nhl_IS_PZ" ); BRNHLPz->SetAddress( &locNHLPz );
+    BRHNLE  = er_tree->GetBranch( "hnl_IS_E" );  BRHNLE->SetAddress( &locHNLE );
+    BRHNLPx = er_tree->GetBranch( "hnl_IS_PX" ); BRHNLPx->SetAddress( &locHNLPx );
+    BRHNLPy = er_tree->GetBranch( "hnl_IS_PY" ); BRHNLPy->SetAddress( &locHNLPy );
+    BRHNLPz = er_tree->GetBranch( "hnl_IS_PZ" ); BRHNLPz->SetAddress( &locHNLPz );
     //
-    BRNHLFS0PDG = er_tree->GetBranch( "nhl_FS0_PDG" ); BRNHLFS0PDG->SetAddress( &locNHLFS0PDG );
-    BRNHLFS0E  = er_tree->GetBranch( "nhl_FS0_E" );  BRNHLFS0E->SetAddress( &locNHLFS0E );
-    BRNHLFS0Px = er_tree->GetBranch( "nhl_FS0_PX" ); BRNHLFS0Px->SetAddress( &locNHLFS0Px );
-    BRNHLFS0Py = er_tree->GetBranch( "nhl_FS0_PY" ); BRNHLFS0Py->SetAddress( &locNHLFS0Py );
-    BRNHLFS0Pz = er_tree->GetBranch( "nhl_FS0_PZ" ); BRNHLFS0Pz->SetAddress( &locNHLFS0Pz );
+    BRHNLFS0PDG = er_tree->GetBranch( "hnl_FS0_PDG" ); BRHNLFS0PDG->SetAddress( &locHNLFS0PDG );
+    BRHNLFS0E  = er_tree->GetBranch( "hnl_FS0_E" );  BRHNLFS0E->SetAddress( &locHNLFS0E );
+    BRHNLFS0Px = er_tree->GetBranch( "hnl_FS0_PX" ); BRHNLFS0Px->SetAddress( &locHNLFS0Px );
+    BRHNLFS0Py = er_tree->GetBranch( "hnl_FS0_PY" ); BRHNLFS0Py->SetAddress( &locHNLFS0Py );
+    BRHNLFS0Pz = er_tree->GetBranch( "hnl_FS0_PZ" ); BRHNLFS0Pz->SetAddress( &locHNLFS0Pz );
     //
-    BRNHLFS1PDG = er_tree->GetBranch( "nhl_FS1_PDG" ); BRNHLFS1PDG->SetAddress( &locNHLFS1PDG );
-    BRNHLFS1E  = er_tree->GetBranch( "nhl_FS1_E" );  BRNHLFS1E->SetAddress( &locNHLFS1E );
-    BRNHLFS1Px = er_tree->GetBranch( "nhl_FS1_PX" ); BRNHLFS1Px->SetAddress( &locNHLFS1Px );
-    BRNHLFS1Py = er_tree->GetBranch( "nhl_FS1_PY" ); BRNHLFS1Py->SetAddress( &locNHLFS1Py );
-    BRNHLFS1Pz = er_tree->GetBranch( "nhl_FS1_PZ" ); BRNHLFS1Pz->SetAddress( &locNHLFS1Pz );
+    BRHNLFS1PDG = er_tree->GetBranch( "hnl_FS1_PDG" ); BRHNLFS1PDG->SetAddress( &locHNLFS1PDG );
+    BRHNLFS1E  = er_tree->GetBranch( "hnl_FS1_E" );  BRHNLFS1E->SetAddress( &locHNLFS1E );
+    BRHNLFS1Px = er_tree->GetBranch( "hnl_FS1_PX" ); BRHNLFS1Px->SetAddress( &locHNLFS1Px );
+    BRHNLFS1Py = er_tree->GetBranch( "hnl_FS1_PY" ); BRHNLFS1Py->SetAddress( &locHNLFS1Py );
+    BRHNLFS1Pz = er_tree->GetBranch( "hnl_FS1_PZ" ); BRHNLFS1Pz->SetAddress( &locHNLFS1Pz );
     //
-    BRNHLFS2PDG = er_tree->GetBranch( "nhl_FS2_PDG" ); BRNHLFS2PDG->SetAddress( &locNHLFS2PDG );
-    BRNHLFS2E  = er_tree->GetBranch( "nhl_FS2_E" );  BRNHLFS2E->SetAddress( &locNHLFS2E );
-    BRNHLFS2Px = er_tree->GetBranch( "nhl_FS2_PX" ); BRNHLFS2Px->SetAddress( &locNHLFS2Px );
-    BRNHLFS2Py = er_tree->GetBranch( "nhl_FS2_PY" ); BRNHLFS2Py->SetAddress( &locNHLFS2Py );
-    BRNHLFS2Pz = er_tree->GetBranch( "nhl_FS2_PZ" ); BRNHLFS2Pz->SetAddress( &locNHLFS2Pz );
+    BRHNLFS2PDG = er_tree->GetBranch( "hnl_FS2_PDG" ); BRHNLFS2PDG->SetAddress( &locHNLFS2PDG );
+    BRHNLFS2E  = er_tree->GetBranch( "hnl_FS2_E" );  BRHNLFS2E->SetAddress( &locHNLFS2E );
+    BRHNLFS2Px = er_tree->GetBranch( "hnl_FS2_PX" ); BRHNLFS2Px->SetAddress( &locHNLFS2Px );
+    BRHNLFS2Py = er_tree->GetBranch( "hnl_FS2_PY" ); BRHNLFS2Py->SetAddress( &locHNLFS2Py );
+    BRHNLFS2Pz = er_tree->GetBranch( "hnl_FS2_PZ" ); BRHNLFS2Pz->SetAddress( &locHNLFS2Pz );
   }
-#endif // #ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
+#endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
     
   // Event loop
   for(Long64_t iev = 0; iev < nmax; iev++) {
@@ -755,10 +755,10 @@ void ConvertToGST(void)
     bool is_weaknc    = proc_info.IsWeakNC();
     bool is_mec       = proc_info.IsMEC();
     bool is_amnugamma = proc_info.IsAMNuGamma();
-    bool is_nhl       = proc_info.IsNHLDecay();
+    bool is_hnl       = proc_info.IsHNLDecay();
 
     if (!hitnucl && neutrino) {
-        assert(is_coh || is_imd || is_imdanh || is_nuel | is_amnugamma || is_coh_el || is_nhl);
+        assert(is_coh || is_imd || is_imdanh || is_nuel | is_amnugamma || is_coh_el || is_hnl);
     }
   
     // Hit quark - set only for DIS events
@@ -786,7 +786,7 @@ void ConvertToGST(void)
     bool get_selected = true;
     double xs  = kine.x (get_selected);
     double ys  = kine.y (get_selected);
-    double ts  = (is_coh || is_dfr || is_nhl) ? kine.t (get_selected) : -1;
+    double ts  = (is_coh || is_dfr || is_hnl) ? kine.t (get_selected) : -1;
     double Q2s = kine.Q2(get_selected);
     double Ws  = kine.W (get_selected);
 
@@ -815,7 +815,7 @@ void ConvertToGST(void)
 
        W2 = (hitnucl) ? M*M + 2*M*v - Q2 : -1; // Hadronic Invariant mass ^ 2
        W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
-    } else if( is_nhl ) {
+    } else if( is_hnl ) {
       
        x = -1;
        y = -1;
@@ -823,7 +823,7 @@ void ConvertToGST(void)
        LOG("gntpc", pDEBUG)
 	 << "Here is k1 = ( " << k1.E() << ", " << k1.Px() << ", " << k1.Py() << ", " << k1.Pz() << " )";
 
-       W2 = k1.M2(); // Invariant mass ^ 2 of NHL
+       W2 = k1.M2(); // Invariant mass ^ 2 of HNL
        W = TMath::Sqrt(W2);
     } else{
 
@@ -836,7 +836,7 @@ void ConvertToGST(void)
 
     }
   
-    double t  = (is_coh || is_dfr || is_nhl) ? kine.t (get_selected) : -1;
+    double t  = (is_coh || is_dfr || is_hnl) ? kine.t (get_selected) : -1;
 
     // Get v 4-p at hit nucleon rest-frame
     TLorentzVector k1_rf = k1;         
@@ -858,9 +858,9 @@ void ConvertToGST(void)
 
     // Extract more info on the hadronic system
     // Only for QEL/RES/DIS/COH/MEC events
-    // Edit: Add in NHL events
+    // Edit: Add in HNL events
     //
-    bool study_hadsyst = (is_qel || is_res || is_dis || is_coh || is_dfr || is_mec || is_singlek || is_nhl);
+    bool study_hadsyst = (is_qel || is_res || is_dis || is_coh || is_dfr || is_mec || is_singlek || is_hnl);
     
     //
     TObjArrayIter piter(&event);
@@ -880,12 +880,12 @@ void ConvertToGST(void)
       ip++;
       // don't count final state lepton as part hadronic system 
       //if(!is_coh && event.Particle(ip)->FirstMother()==0) continue;
-      if(!is_nhl && event.Particle(ip)->FirstMother()==0) continue;
-      if(is_nhl && event.Particle(0)->FirstDaughter()==ip) continue;
+      if(!is_hnl && event.Particle(ip)->FirstMother()==0) continue;
+      if(is_hnl && event.Particle(0)->FirstDaughter()==ip) continue;
       if(pdg::IsPseudoParticle(p->Pdg())) continue;
       int pdgc = p->Pdg();
       int ist  = p->Status();
-      if(ist==kIStStableFinalState && !is_nhl) {
+      if(ist==kIStStableFinalState && !is_hnl) {
          if (pdgc == kPdgGamma || pdgc == kPdgElectron || pdgc == kPdgPositron)  {
             int igmom = p->FirstMother();
             if(igmom!=-1) {
@@ -896,8 +896,8 @@ void ConvertToGST(void)
 	   final_had_syst.push_back(ip);
          }
       }
-      else if(ist==kIStStableFinalState && is_nhl) {
-	// NHL have decays with multiple leptons, such as v + mu + mu
+      else if(ist==kIStStableFinalState && is_hnl) {
+	// HNL have decays with multiple leptons, such as v + mu + mu
 	// only one of these will be primary, so don't add this to hadronic system
 	if( std::abs(pdgc) == kPdgElectron || 
 	    std::abs(pdgc) == kPdgNuE ||
@@ -942,9 +942,9 @@ void ConvertToGST(void)
     vector<int> prim_had_syst;
     if(study_hadsyst) {
       // if coherent or free nucleon target set primary states equal to final states
-      // Edit: same for NHL
+      // Edit: same for HNL
       
-      if(!pdg::IsIon(target->Pdg()) || (is_coh) || (is_nhl)) {
+      if(!pdg::IsIon(target->Pdg()) || (is_coh) || (is_hnl)) {
 
 	for( vector<int>::const_iterator hiter = final_had_syst.begin();
 	     hiter != final_had_syst.end(); ++hiter) {
@@ -1073,36 +1073,36 @@ void ConvertToGST(void)
     brIsNC       = is_weaknc;  
     brIsCharmPro = charm;
     brIsAMNuGamma= is_amnugamma;
-    brIsNHL      = is_nhl;
-    // -- NHL
-#ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
-    brNHLMass    = locNHLMass;
-    brNHLECoup   = locNHLECoup;
-    brNHLMCoup   = locNHLMCoup;
-    brNHLTCoup   = locNHLTCoup;
-    brNHLType    = locNHLType;
-    brNHLMajorana = locNHLIsMajorana;
-    brNHLE       = locNHLE;
-    brNHLPx      = locNHLPx;
-    brNHLPy      = locNHLPy;
-    brNHLPz      = locNHLPz;
-    brNHLFS0Pdg  = locNHLFS0PDG;
-    brNHLFS0E    = locNHLFS0E;
-    brNHLFS0Px   = locNHLFS0Px;
-    brNHLFS0Py   = locNHLFS0Py;
-    brNHLFS0Pz   = locNHLFS0Pz;
-    brNHLFS1Pdg  = locNHLFS1PDG;
-    brNHLFS1E    = locNHLFS1E;
-    brNHLFS1Px   = locNHLFS1Px;
-    brNHLFS1Py   = locNHLFS1Py;
-    brNHLFS1Pz   = locNHLFS1Pz;
-    brNHLFS2Pdg  = locNHLFS2PDG;
-    brNHLFS2E    = locNHLFS2E;
-    brNHLFS2Px   = locNHLFS2Px;
-    brNHLFS2Py   = locNHLFS2Py;
-    brNHLFS2Pz   = locNHLFS2Pz;
+    brIsHNL      = is_hnl;
+    // -- HNL
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+    brHNLMass    = locHNLMass;
+    brHNLECoup   = locHNLECoup;
+    brHNLMCoup   = locHNLMCoup;
+    brHNLTCoup   = locHNLTCoup;
+    brHNLType    = locHNLType;
+    brHNLMajorana = locHNLIsMajorana;
+    brHNLE       = locHNLE;
+    brHNLPx      = locHNLPx;
+    brHNLPy      = locHNLPy;
+    brHNLPz      = locHNLPz;
+    brHNLFS0Pdg  = locHNLFS0PDG;
+    brHNLFS0E    = locHNLFS0E;
+    brHNLFS0Px   = locHNLFS0Px;
+    brHNLFS0Py   = locHNLFS0Py;
+    brHNLFS0Pz   = locHNLFS0Pz;
+    brHNLFS1Pdg  = locHNLFS1PDG;
+    brHNLFS1E    = locHNLFS1E;
+    brHNLFS1Px   = locHNLFS1Px;
+    brHNLFS1Py   = locHNLFS1Py;
+    brHNLFS1Pz   = locHNLFS1Pz;
+    brHNLFS2Pdg  = locHNLFS2PDG;
+    brHNLFS2E    = locHNLFS2E;
+    brHNLFS2Px   = locHNLFS2Px;
+    brHNLFS2Py   = locHNLFS2Py;
+    brHNLFS2Pz   = locHNLFS2Pz;
     // --
-#endif // #ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
+#endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
     brWeight     = weight;      
     brKineXs     = xs;      
     brKineYs     = ys;      
@@ -2075,8 +2075,8 @@ void ConvertToGRooTracker(void)
                                           // - 12  mu- -> numu nuebar e-
                                           // - 13  pi+ -> numu mu+
                                           // - 14  pi- -> numubar mu-
-                                          // Decay modes > 30 are NHL
-                                          // See NeutralHeavyLepton/NHLFluxCreator.cxx
+                                          // Decay modes > 30 are HNL
+                                          // See BeamHNL/HNLFluxCreator.cxx
   int        brNumiFluxNtype;             // Neutrino flavor
   double     brNumiFluxVx;                // Position of hadron/muon decay, X coordinate
   double     brNumiFluxVy;                // Position of hadron/muon decay, Y coordinate
@@ -2297,19 +2297,19 @@ void ConvertToGRooTracker(void)
    rootracker_tree->Branch("NumiFluxBeampz",   &brNumiFluxBeampz,    "NumiFluxBeampz/D");
   }
 
-  // extra branches for NHL if wanted
-#ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
+  // extra branches for HNL if wanted
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
 
-  double brNHLMass, brNHLECoup, brNHLMCoup, brNHLTCoup;
-  bool brNHLMajorana;
+  double brHNLMass, brHNLECoup, brHNLMCoup, brHNLTCoup;
+  bool brHNLMajorana;
   
-  rootracker_tree->Branch( "NHL_mass",     &brNHLMass,     "NHL_mass/D"     );
-  rootracker_tree->Branch( "NHL_coup_e",   &brNHLECoup,    "NHL_coup_e/D"   );
-  rootracker_tree->Branch( "NHL_coup_m",   &brNHLMCoup,    "NHL_coup_m/D"   );
-  rootracker_tree->Branch( "NHL_coup_t",   &brNHLTCoup,    "NHL_coup_t/D"   );
-  rootracker_tree->Branch( "NHL_Majorana", &brNHLMajorana, "NHL_Majorana/O" );
+  rootracker_tree->Branch( "HNL_mass",     &brHNLMass,     "HNL_mass/D"     );
+  rootracker_tree->Branch( "HNL_coup_e",   &brHNLECoup,    "HNL_coup_e/D"   );
+  rootracker_tree->Branch( "HNL_coup_m",   &brHNLMCoup,    "HNL_coup_m/D"   );
+  rootracker_tree->Branch( "HNL_coup_t",   &brHNLTCoup,    "HNL_coup_t/D"   );
+  rootracker_tree->Branch( "HNL_Majorana", &brHNLMajorana, "HNL_Majorana/O" );
   
-#endif // #ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
+#endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
 
   //-- open the input GENIE ROOT file and get the TTree & its header
   TFile fin(gOptInpFileName.c_str(),"READ");
@@ -2359,25 +2359,25 @@ void ConvertToGRooTracker(void)
     << "--with-flux-drivers in the configuration step.";
 #endif
 
-#ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
-    brNHLMass     = -9999.9;
-    brNHLECoup    = -9999.9;
-    brNHLMCoup    = -9999.9;
-    brNHLTCoup    = -9999.9;
-    brNHLMajorana =   false;
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+    brHNLMass     = -9999.9;
+    brHNLECoup    = -9999.9;
+    brHNLMCoup    = -9999.9;
+    brHNLTCoup    = -9999.9;
+    brHNLMajorana =   false;
 
-    TBranch * BRNHLMass = 0, * BRNHLECoup = 0, * BRNHLMCoup = 0, * BRNHLTCoup = 0, * BRNHLMaj = 0;
-    double locNHLMass, locNHLECoup, locNHLMCoup, locNHLTCoup;
-    bool locNHLMajorana;
+    TBranch * BRHNLMass = 0, * BRHNLECoup = 0, * BRHNLMCoup = 0, * BRHNLTCoup = 0, * BRHNLMaj = 0;
+    double locHNLMass, locHNLECoup, locHNLMCoup, locHNLTCoup;
+    bool locHNLMajorana;
     
-    if( gtree->GetBranch( "nhl_mass" ) ) {
-      BRNHLMass = gtree->GetBranch( "nhl_mass" ); BRNHLMass->SetAddress( &locNHLMass );
-      BRNHLECoup = gtree->GetBranch( "nhl_coup_e" ); BRNHLECoup->SetAddress( &locNHLECoup );
-      BRNHLMCoup = gtree->GetBranch( "nhl_coup_m" ); BRNHLMCoup->SetAddress( &locNHLMCoup );
-      BRNHLTCoup = gtree->GetBranch( "nhl_coup_t" ); BRNHLTCoup->SetAddress( &locNHLTCoup );
-      BRNHLMaj = gtree->GetBranch( "nhl_ismaj" ); BRNHLMaj->SetAddress( &locNHLMajorana );
+    if( gtree->GetBranch( "hnl_mass" ) ) {
+      BRHNLMass = gtree->GetBranch( "hnl_mass" ); BRHNLMass->SetAddress( &locHNLMass );
+      BRHNLECoup = gtree->GetBranch( "hnl_coup_e" ); BRHNLECoup->SetAddress( &locHNLECoup );
+      BRHNLMCoup = gtree->GetBranch( "hnl_coup_m" ); BRHNLMCoup->SetAddress( &locHNLMCoup );
+      BRHNLTCoup = gtree->GetBranch( "hnl_coup_t" ); BRHNLTCoup->SetAddress( &locHNLTCoup );
+      BRHNLMaj = gtree->GetBranch( "hnl_ismaj" ); BRHNLMaj->SetAddress( &locHNLMajorana );
     }
-#endif // #ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
+#endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
 
   //-- figure out how many events to analyze
   Long64_t nmax = (gOptN<0) ? 
@@ -2714,15 +2714,15 @@ void ConvertToGRooTracker(void)
     } // kConvFmt_numi_rootracker
 
     //
-    // if NHL, fill in additional branch info
+    // if HNL, fill in additional branch info
     //
-#ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
-    brNHLMass = locNHLMass;
-    brNHLECoup = locNHLECoup;
-    brNHLMCoup = locNHLMCoup;
-    brNHLTCoup = locNHLTCoup;
-    brNHLMajorana = locNHLMajorana;
-#endif // #ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+    brHNLMass = locHNLMass;
+    brHNLECoup = locHNLECoup;
+    brHNLMCoup = locHNLMCoup;
+    brHNLTCoup = locHNLTCoup;
+    brHNLMajorana = locHNLMajorana;
+#endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
 
     // fill tree
     rootracker_tree->Fill();

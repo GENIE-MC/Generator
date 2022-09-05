@@ -46,13 +46,13 @@ PDGLibrary::PDGLibrary()
   }
 #endif // __GENIE_DARK_NEUTRINO_ENABLED__
 
-#ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
-  LOG("PDG", pINFO) << "Loading Neutral Heavy Lepton data";
-  if( ! AddNHL() ){
-    LOG("PDG", pFATAL) << "Could not load Neutral Heavy Lepton data";
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+  LOG("PDG", pINFO) << "Loading Heavy Neutral Lepton data";
+  if( ! AddHNL() ){
+    LOG("PDG", pFATAL) << "Could not load Heavy Neutral Lepton data";
     exit(78);
   }
-#endif // #ifdef __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__
+#endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
   
   fInstance =  0;
 }
@@ -170,19 +170,19 @@ void PDGLibrary::AddDarkMatter(double mass, double med_ratio)
   }
 }
 //____________________________________________________________________________
-bool PDGLibrary::AddNHL()
+bool PDGLibrary::AddHNL()
 {
-  // Add NHL to PDG database
-  const Registry * reg = AlgConfigPool::Instance()->CommonList("NHL", "ParameterSpace");
+  // Add HNL to PDG database
+  const Registry * reg = AlgConfigPool::Instance()->CommonList("HNL", "ParameterSpace");
   if (!reg) {
-    LOG("PDG", pERROR) << "Cannot find NHL ParameterSpace param_set";
+    LOG("PDG", pERROR) << "Cannot find HNL ParameterSpace param_set";
     return false;
   }
-  TParticlePDG * nhl = fDatabasePDG->GetParticle(kPdgNHL);
-  if (!nhl) {
+  TParticlePDG * hnl = fDatabasePDG->GetParticle(kPdgHNL);
+  if (!hnl) {
     // Name Title Mass Stable Width Charge Class PDG
-    fDatabasePDG->AddParticle("NHL","NHL",reg->GetDouble("NHL-Mass"),true,0.,0,"NHL",kPdgNHL);
-    fDatabasePDG->AddParticle("NHLBar","NHLBar",reg->GetDouble("NHL-Mass"),true,0.,0,"NHL",-1*kPdgNHL);
+    fDatabasePDG->AddParticle("HNL","HNL",reg->GetDouble("HNL-Mass"),true,0.,0,"HNL",kPdgHNL);
+    fDatabasePDG->AddParticle("HNLBar","HNLBar",reg->GetDouble("HNL-Mass"),true,0.,0,"HNL",-1*kPdgHNL);
   }
   return true;
 }

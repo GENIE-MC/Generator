@@ -134,12 +134,12 @@ if(@nret>0)
       { print GBLD   "#define __GENIE_DARK_NEUTRINO_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_DARK_NEUTRINO_ENABLED__\n"; }
 
-# NHL enabled?
+# HNL enabled?
 #
-@nret = `grep 'GOPT_ENABLE_NEUTRAL_HEAVY_LEPTON=YES' $GCONF_FILE`;
+@nret = `grep 'GOPT_ENABLE_HEAVY_NEUTRAL_LEPTON=YES' $GCONF_FILE`;
 if(@nret>0)
-      { print GBLD   "#define __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__\n"; }
-else  { print GBLD "//#define __GENIE_NEUTRAL_HEAVY_LEPTON_ENABLED__\n"; }
+      { print GBLD   "#define __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__\n"; }
+else  { print GBLD "//#define __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__\n"; }
 
 # grab libxml2 version information
 #

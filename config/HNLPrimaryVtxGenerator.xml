@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+Configuration for the HNLPrimaryVtxGenerator EventRecordVisitorI
+
+Algorithm Configurable Parameters:
+..............................................................................................................................
+Name                      Type        Opt   Comment                                           Default
+..............................................................................................................................
+
+*******************                         **********************************
+set ParameterSpace:                         Choice of parameter space position
+*******************                         **********************************
+HNL-Mass                  double      no
+HNL-LeptonMixing          vec-double  no    Mixing to charged leptons: e-mu-tau
+HNL-Ue42
+HNL-Um42
+HNL-Ut42                  double      no    Same as HNL-LeptonMixing. Needed by flux routines.
+HNL-Majorana              bool        no    Majorana vs Dirac HNL
+HNL-Type                  int         no    [Only relevant for Dirac && hist flux generation]:
+                                            0 ==> pure particle beam
+                                            1 ==> pure antiparticle beam
+                                            2 ==> mix of the two
+
+************************                    *****************************************
+set InterestingChannels:                    Which decays to un-inhibit
+                                            Each decay set to true is added to vector
+************************                    *****************************************
+HNL-2B_mu_pi              bool        no    N -> mu + pi
+HNL-2B_e_pi               bool        no    N -> e  + pi
+HNL-2B_nu_pi0             bool        no    N -> nu + pi0
+HNL-3B_nu_nu_nu           bool        no    N -> nu + nu  + nu
+HNL-3B_nu_mu_mu           bool        no    N -> nu + mu  + mu
+HNL-3B_nu_mu_e            bool        no    N -> nu + mu  + e
+HNL-3B_nu_e_e             bool        no    N -> nu + e   + e
+HNL-3B_e_pi_pi0           bool        no    N -> e  + pi  + pi0
+HNL-3B_mu_pi_pi0          bool        no    N -> mu + pi  + pi0
+HNL-3B_nu_pi0_pi0         bool        no    N -> nu + pi0 + pi0
+
+**********************                      *******************************
+set InitialState:                           Modify incoming HNL phase-space
+**********************                      *******************************
+HNL-angular_deviation     double      no    [Only relevant for hist flux generation]
+                                            Gaussian spread of HNL 3-momentum off-beam-axis
+HNL-max-energy            double      no    Cutoff energy for flux spectrum
+
+********************                        ********************************
+set CoordinateXForm:                        Define beam -> local coord xform
+********************                        ********************************
+Beam2User_T               vec-double  no    Beam origin -> user origin translation [m]             
+DetCentre_User            vec-double  no    User origin -> detector centre translation [m]
+                                            Important if the input ROOT geometry is not centred at the
+                                            detector centre
+Beam2User_R               vec-double  no    Euler angles about beam axes [rad]                
+                                            These are *extrinsic* rotations about x-z-x
+					    Describe rotation: target-hall (x,y,z) ==> beam (X,Y,Z)
+Beam2Det_R                vec-double  no    Same as Beam2User_R, but describe
+                                            rotation: target-hall (x,y,z) ==> detector (X,Y,Z)
+
+****************                            ******************************************
+set ParticleGun:                            Define HNL trajectory for Particle Gun app
+****************                            ******************************************
+PG-OriginX
+PG-OriginY
+PG-OriginZ                double      no    Origin of the HNL trajectory in user coordinates [m]
+
+PG-cx
+PG-cy
+PG-cz                     double      no    Directional cosines of the HNL momentum in user coordinates
+
+*************                               ***************************************
+set FluxCalc:                               Specific hooks for HNL flux calculation
+*************                               ***************************************
+ParentPOTScalings         bool        no    Ratio of all POT in flux files / POT making parent
+                                            species. 
+IsHNLOnAxis               bool        yes   Incoming HNL placed on SM-nu beam axis            true
+                                            For acceptance correction calculation only.
+UseBeamMomentum           bool        yes   Corrects near detectors: z(det) || z(tgt)         true
+IncludePolarisation       bool        yes   Include HNL polarisation effects 
+FixPolarisationDirection  bool        yes   Override event-by-event determination of pol dir
+                                            and set direction to follow HNL-PolDir
+HNL-PolDir                vec-double  yes   Set HNL beam polarisation direction               (0,0,1)
+                                            (HNL rest frame!)
+
+*************                               ***************************************
+set External:                               Physics data needed for BR calculations
+*************                               ***************************************
+PMNS-U\alphaj             double      no    PMNS matrix elements
+Pion-FFactor              double      no    See Coloma et al, EPJ C 81 (2021) 78
+-->
+
+<alg_conf>
+  
+  <param_set name="Default">
+    
+    <param type="string" name="CommonHNL"> ParameterSpace,InterestingChannels,InitialState,CoordinateXForm,FluxCalc,External </param>
+    <param type="string" name="CommonParam"> WeakInt,CKM </param>
+
+  </param_set>
+
+</alg_conf>

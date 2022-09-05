@@ -137,9 +137,9 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/NucleonDecay">   genie::DummyPXSec/Default             </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/NNBarOsc">       genie::NNBarOscDummyPXSec/Default     </param>
   
-  <param type="alg" name="XSecModel@genie::EventGenerator/NeutralHeavyLepton"> genie::DummyNHLPXSec/Default  </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/BeamHNL"> genie::DummyHNLPXSec/Default  </param>
   <!-- only use this for master branch
-  <param type="alg" name="XSecModel@genie::EventGenerator/NeutralHeavyLepton"> genie::DummyPXSec/Default  </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/BeamHNL"> genie::DummyPXSec/Default  </param>
   -->
 
 

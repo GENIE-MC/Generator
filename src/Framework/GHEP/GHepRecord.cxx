@@ -271,11 +271,11 @@ GEvGenMode_t GHepRecord::EventGenerationMode(void) const
      return kGMdNucleonDecay;
   }
 
-  // In NHL decay mode, the first entry is a NHL.
+  // In HNL decay mode, the first entry is a HNL.
   
-  if( pdg::IsNHL(p0pdg) && p0st == kIStInitialState )
+  if( pdg::IsHNL(p0pdg) && p0st == kIStInitialState )
   {
-     return kGMdNHLDecay;
+     return kGMdHNLDecay;
   }
 
   return kGMdUnknown;
@@ -360,7 +360,7 @@ int GHepRecord::ProbePosition(void) const
      mode == kGMdDarkMatterNucleus ||
      mode == kGMdHadronNucleus ||
      mode == kGMdPhotonNucleus ||
-     mode == kGMdNHLDecay)
+     mode == kGMdHNLDecay)
   {
     return 0;
   }
