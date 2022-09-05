@@ -637,7 +637,7 @@ void NHLPrimaryVtxGenerator::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList 
 	  Elead = p4lep->E();
 	  lepDir = p4lep->Vect();
 	  fDecLepPdg = pdgc;
-	  if( std::abs(fDecLepPdg) != std::abs(pdgc) || polMod == -999.9 ){
+	  if( std::abs(fDecLepPdg) != std::abs(pdgc) || polMod < -1.0 ){
 	    // update polarisation modulus for new leading lepton
 	    polMod = this->CalcPolMod( polMag, fDecLepPdg, fDecHadPdg, MNHL );
 	  } // std::abs(fDecLepPdg) != std::abs(pdgc) || polMod == -999.9
@@ -699,7 +699,7 @@ double NHLPrimaryVtxGenerator::CalcPolMag( int parPdg, int lepPdg, double M ) co
   double den2 = mLep*mLep - M*M;
 
   // pMag is a modulus, not a magnitude... not positive semi-definite. See Fig.4 in 1805.06419[hep-ph]
-  double pMag = num1*num2 / ( den1 - den2*den2 );
+  double pMag = -1.0 * num1*num2 / ( den1 - den2*den2 );
 
   LOG( "NHL", pDEBUG )
     << "\nmPar, mLep, M = " << mPar << ", " << mLep << ", " << M << " GeV"
