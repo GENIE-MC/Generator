@@ -178,7 +178,7 @@ if($batch_system eq 'FNAL'){
 	print FNAL "source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups \n";
 	print FNAL "setup fife_utils \n\n";
 	$fnal_opt  = "-G $queue --memory=1GB --disk=20GB --expected-lifetime=8h -N 1 --role=Analysis ";
-	$fnal_opt .= "-f $genie_setup ";
+	$fnal_opt .= "-f $jobs_topdir/$genie_setup ";
 	$fnal_opt .= "--resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE ";
   
 	print FNAL "jobsub_submit_dag $fnal_opt file://$xml_script\n"; 
@@ -224,10 +224,10 @@ foreach $nu ( @nu_list ) {
       $gmkspl_opt    = "-p $nu_pdg_def{$nu} -t $nucleons_pdg{$tgt} -n $n_knots -e $e_max --event-generator-list $event_gen_list ";
 
       if( $batch_system eq 'FNAL' ) {
-	  $gmkspl_opt   .= "-o $jobname.xml ";
+	  $gmkspl_opt   .= " -o $jobname.xml ";
       }
       else {
-	  $gmkspl_opt   .= "-o $filename_template.xml ";
+	  $gmkspl_opt   .= " -o $filename_template.xml ";
       }
 
       if ( defined $tune ) {
@@ -253,7 +253,7 @@ foreach $nu ( @nu_list ) {
 	  print COMMANDS "cd \$CONDOR_DIR_INPUT\n";
       }
       print COMMANDS "$gmkspl_cmd \n";
-      print COMMANDS "ifdh cp $jobname.xml $jobs_dir \n" if( $batch_system == 'FNAL');
+      print COMMANDS "ifdh cp -D $jobname.xml $jobs_dir \n" if( $batch_system == 'FNAL');
       close(COMMANDS);
 
       # set executing privileges to the script 
@@ -357,7 +357,7 @@ foreach $nu ( @nu_list ) {
 	  open(FNAL_XML, ">>", "$xml_script") or die("Can not create the $xml_script script");
 	  
 	  $fnal_opt  = "-n --memory=1GB --disk=20GB --expected-lifetime=8h ";
-	  $fnal_opt .= "-f $genie_setup ";
+	  $fnal_opt .= "-f $jobs_topdir/$genie_setup ";
 	  $fnal_opt .= "--resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE ";  
 	  $fnal_opt .= "--lines '+FERMIHTC_AutoRelease=True' ";
 	  $fnal_opt .= "--lines '+FERMIHTC_GraceMemory=4096' --lines '+FERMIHTC_GraceLifetime=6000' ";

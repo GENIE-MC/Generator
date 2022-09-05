@@ -241,7 +241,7 @@ foreach $nu ( @nu_list ) {
       $jobname  = $nu."_on_".$tgt."_$proc";
       $filename_template = "$jobs_dir/$jobname";
       $grep_pipe  = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
-      $gmkspl_opt = "-p $nu_pdg_def{$nu} -t $tgt -n $n_knots -e $e_max --output-cross-sections --event-generator-list $event_gen_list --no-copy ";
+      $gmkspl_opt = "-p $nu_pdg_def{$nu} -t $tgt -n $n_knots -e $e_max --event-generator-list $event_gen_list --no-copy ";
       $gmkspl_opt .= " --tune $tune " if ( defined $tune ) ;
       if( $batch_system eq 'FNAL' ) {
 	  $gmkspl_opt   .= "--input-cross-sections \$CONDOR_DIR_INPUT/total_xsec.xml ";
@@ -270,10 +270,10 @@ foreach $nu ( @nu_list ) {
 	  print COMMANDS "cd \$CONDOR_DIR_INPUT\n";
 	  print COMMANDS "source $genie_setup $config_dir \n";
 	  print COMMANDS "cd \$CONDOR_DIR_INPUT\n";
-	  print COMMANDS "ifdh cp $in_splines \$CONDOR_DIR_INPUT \n";
+	  print COMMANDS "ifdh cp -D $in_splines \$CONDOR_DIR_INPUT \n";
       }
       print COMMANDS "$gmkspl_cmd \n";
-      print COMMANDS "ifdh cp $jobname.xml $jobs_dir \n";
+      print COMMANDS "ifdh cp -D $jobname.xml $jobs_dir \n";
 
       close(COMMANDS);
 

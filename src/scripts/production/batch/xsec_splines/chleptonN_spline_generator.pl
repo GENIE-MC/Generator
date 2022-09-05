@@ -229,7 +229,7 @@ foreach $chlepton ( @chlepton_list ) {
 	      print COMMANDS "cd \$CONDOR_DIR_INPUT\n";
 	  }
 	  print COMMANDS "$gmkspl_cmd \n";
-	  print COMMANDS "ifdh cp $jobname.xml $jobs_dir \n" if( $batch_system == 'FNAL');
+	  print COMMANDS "ifdh cp -D $jobname.xml $jobs_dir \n" if( $batch_system == 'FNAL');
 	  close(COMMANDS);
 	  
 	  # set executing privileges to the script 

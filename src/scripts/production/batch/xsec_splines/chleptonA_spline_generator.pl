@@ -229,13 +229,13 @@ foreach $chlepton ( @chlepton_list ) {
 	  else {
 	      $in_splines = $freenucsplines;
 	  }
-	  $gmkspl_opt = "-p $chlepton_pdg_def{$chlepton} -t $tgt -n $n_knots -e $e_max --input-cross-sections $in_splines --event-generator-list $event_gen_list --no-copy";
+	  $gmkspl_opt = "-p $chlepton_pdg_def{$chlepton} -t $tgt -n $n_knots -e $e_max --event-generator-list $event_gen_list --no-copy ";
 	  if( $batch_system eq 'FNAL' ) {
-	      $gmkspl_opt   .= "--input-cross-sections \$CONDOR_DIR_INPUT/total_xsec.xml ";
-	      $gmkspl_opt   .= "-o $jobname.xml ";
+	      $gmkspl_opt   .= " --input-cross-sections \$CONDOR_DIR_INPUT/total_xsec.xml ";
+	      $gmkspl_opt   .= " -o $jobname.xml ";
 	  }
 	  else {
-	      $gmkspl_opt   .= "-o $filename_template.xml ";
+	      $gmkspl_opt   .= " -o $filename_template.xml ";
 	  }
 	  $gmkspl_opt .= " --tune $tune " if ( defined $tune ) ;
 	  $gmkspl_cmd = "gmkspl $gmkspl_opt ";
@@ -254,10 +254,10 @@ foreach $chlepton ( @chlepton_list ) {
 	      print COMMANDS "cd \$CONDOR_DIR_INPUT\n";
 	      print COMMANDS "source $genie_setup $config_dir \n";
 	      print COMMANDS "cd \$CONDOR_DIR_INPUT\n";
-	      print COMMANDS "ifdh cp $in_splines \$CONDOR_DIR_INPUT \n";
+	      print COMMANDS "ifdh cp -D $in_splines \$CONDOR_DIR_INPUT \n";
 	  }
 	  print COMMANDS "$gmkspl_cmd \n";
-	  print COMMANDS "ifdh cp $jobname.xml $jobs_dir \n" if( $batch_system == 'FNAL');
+	  print COMMANDS "ifdh cp -D $jobname.xml $jobs_dir \n" if( $batch_system == 'FNAL');
 	  close(COMMANDS);
 	  
 	  # set executing privileges to the script 
