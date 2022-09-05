@@ -122,20 +122,20 @@ void NHLBRFunctions::LoadConfig(void)
 }
 //----------------------------------------------------------------------------
 // Get Coloma et al's form factor functions
-double NHLBRFunctions::GetColomaF1( double x ) const {
-  if( x < 0. || x > 0.5 ) { LOG( "NHL", pERROR ) << "BRFunctions::GetColomaF1:: Illegal x = " << x; exit( 3 ); }
+double NHLBRFunctions::GetFormfactorF1( double x ) const {
+  if( x < 0. || x > 0.5 ) { LOG( "NHL", pERROR ) << "BRFunctions::GetFormfactorF1:: Illegal x = " << x; exit( 3 ); }
   if( x == 0.5 ) return 0.;
   int i = x/NHLSelector::PARTWIDTH;
-  if( x - i*NHLSelector::PARTWIDTH ==0 ) return NHLSelector::ColomaF1[i];
-  return 1./2. * ( NHLSelector::ColomaF1[i] + NHLSelector::ColomaF1[i+1] );
+  if( x - i*NHLSelector::PARTWIDTH ==0 ) return NHLSelector::FormfactorF1[i];
+  return 1./2. * ( NHLSelector::FormfactorF1[i] + NHLSelector::FormfactorF1[i+1] );
 }
 //----------------------------------------------------------------------------
-double NHLBRFunctions::GetColomaF2( double x ) const {
-  if( x < 0. || x > 0.5 ) { LOG( "NHL", pERROR ) << "BRFunctions::GetColomaF2:: Illegal x = " << x; exit( 3 ); }
+double NHLBRFunctions::GetFormfactorF2( double x ) const {
+  if( x < 0. || x > 0.5 ) { LOG( "NHL", pERROR ) << "BRFunctions::GetFormfactorF2:: Illegal x = " << x; exit( 3 ); }
   if( x == 0.5 ) return 0.;
   int i = x/NHLSelector::PARTWIDTH;
-  if( x - i*NHLSelector::PARTWIDTH==0 ) return NHLSelector::ColomaF2[i];
-  return 1./2. * ( NHLSelector::ColomaF2[i] + NHLSelector::ColomaF2[i+1] );
+  if( x - i*NHLSelector::PARTWIDTH==0 ) return NHLSelector::FormfactorF2[i];
+  return 1./2. * ( NHLSelector::FormfactorF2[i] + NHLSelector::FormfactorF2[i+1] );
 }
 //----------------------------------------------------------------------------
 // interface to scale factors
@@ -258,8 +258,8 @@ double NHLBRFunctions::DWidth_Invisible( const double M, const double Ue42, cons
 double NHLBRFunctions::DWidth_SameLepton( const double M, const double Ue42, const double Umu42, const double Ut42, const double mb, bool bIsMu ) const {
   const double preFac = GF2 * TMath::Power( M, 5. ) / ( 192. * pi*pi*pi );
   const double x      = genie::utils::nhl::MassX( mb, M );
-  const double f1     = GetColomaF1( x );
-  const double f2     = GetColomaF2( x );
+  const double f1     = GetFormfactorF1( x );
+  const double f2     = GetFormfactorF2( x );
   const double C1Part = ( Ue42 + Umu42 + Ut42 ) * f1 * BR_C1;
   const double C2Part = ( Ue42 + Umu42 + Ut42 ) * f2 * BR_C2;
   const double D1Part = bIsMu ? 2. * s2w * Umu42 * f1 : 2. * s2w * Ue42 * f1;

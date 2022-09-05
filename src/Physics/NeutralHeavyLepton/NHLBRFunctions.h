@@ -38,7 +38,7 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 
-#include "Physics/NeutralHeavyLepton/ColomaTables.h"
+#include "Physics/NeutralHeavyLepton/FormFactorTables.h"
 #include "Physics/NeutralHeavyLepton/NHLDecayUtils.h"
 #include "Physics/NeutralHeavyLepton/NHLKinUtils.h"
 #include "Physics/NeutralHeavyLepton/NHLProductionMode.h"
@@ -130,8 +130,8 @@ namespace genie {
       static double Pi0Pi0NuForm( double *x, double *par );
 
       // kinematic functions
-      double GetColomaF1( double x ) const;
-      double GetColomaF2( double x ) const;
+      double GetFormfactorF1( double x ) const;
+      double GetFormfactorF2( double x ) const;
      
       bool fIsConfigLoaded = false;
       
