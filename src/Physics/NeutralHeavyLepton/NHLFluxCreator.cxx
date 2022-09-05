@@ -36,25 +36,19 @@ void NHLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
   // Also assigns the production vertex to evrec (this will be overwritten by subsequent modules)
   // Also adds (acceptance*nimpwt)^(-1) component of weight
 
-  if( iCurrEntry < fFirstEntry ) iCurrEntry = fFirstEntry;
-
-  LOG( "NHL", pDEBUG ) << "Flux record processing now, current entry = " << iCurrEntry;
-
-  if( iCurrEntry >= fFirstEntry ) {
-
-    //flux::GNuMIFluxPassThroughInfo * gnmf = new flux::GNuMIFluxPassThroughInfo();
-    if( iCurrEntry == fFirstEntry ){
-      flux::GNuMIFluxPassThroughInfo * pfGnmf = new flux::GNuMIFluxPassThroughInfo();
-      fGnmf = *pfGnmf;
-      delete pfGnmf;
-    }
-
-    fGnmf = this->MakeTupleFluxEntry( iCurrEntry, fCurrPath );
-  
-    if( std::abs(fGnmf.fgPdgC) == genie::kPdgNHL ){ // only add particle if parent is valid
+  if( fUsingDk2nu ){
+    if( iCurrEntry < fFirstEntry ) iCurrEntry = fFirstEntry;
+    
+    LOG( "NHL", pDEBUG ) << "Flux record processing now, current entry = " << iCurrEntry;
+    
+    if( iCurrEntry >= fFirstEntry ) {
       
-      double invAccWeight = fGnmf.nimpwt * fGnmf.fgXYWgt;
-      evrec->SetWeight( evrec->Weight() / invAccWeight );
+      //flux::GNuMIFluxPassThroughInfo * gnmf = new flux::GNuMIFluxPassThroughInfo();
+      if( iCurrEntry == fFirstEntry ){
+	flux::GNuMIFluxPassThroughInfo * pfGnmf = new flux::GNuMIFluxPassThroughInfo();
+	fGnmf = *pfGnmf;
+	delete pfGnmf;
+      }
       
       fGnmf = this->MakeTupleFluxEntry( iCurrEntry, fCurrPath );
       
@@ -76,9 +70,86 @@ void NHLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
 	GHepParticle ptNHL( fGnmf.fgPdgC, kIStInitialState, -1, -1, -1, -1, probeP4, fGnmf.fgX4User );
 	evrec->AddParticle( ptNHL );
       }
+
+    }
+  } else { // if !fUsingDk2nu
+    LOG( "NHL", pDEBUG ) << "Flux record processing now, using hists";
+
+    // construct Particle(0). Don't worry about daughter links at this stage.
+
+    double ENHL = fSpectrum->GetRandom();
+    unsigned int ien = 0;
+    while( ( ENHL <= fMass || ENHL > fMaxE || ENHL < fMinE ) && ien < controls::kRjMaxIterations  ){
+      ENHL = fSpectrum->GetRandom(); ien++;
+    }
+    if( ien == controls::kRjMaxIterations ){
+      LOG( "NHL", pFATAL )
+	<< "Unable to get a good NHL energy after " << controls::kRjMaxIterations << "tries. Exiting";
+      exit(1);
     }
 
+    LOG( "NHL", pDEBUG ) << "Got energy = " << ENHL << " GeV";
+
+    // now decide if this should be particle or antiparticle.
+    // if fType == 2 decide this from the integrals of the spectrum
+    int typeMod = 1;
+    RandomGen * rnd = RandomGen::Instance();
+    if( fIsMajorana ){
+      typeMod = ( rnd->RndGen().Uniform(0.0,1.0) >= 0.5 ) ? -1 : 1;
+    } else {
+      switch( fType ){
+      case 0: typeMod = 1; break;
+      case 1: typeMod = -1; break;
+      case 2:
+	string intName = "hIntegrals";
+	
+	// 2 integrals, 1 for nu and 1 for nubar
+	double nuInt    = fIntegrals->GetBinContent(1);
+	double nubarInt = fIntegrals->GetBinContent(2);
+	double totInt   = nuInt + nubarInt;
+
+	double ranthrow = rnd->RndGen().Uniform(0.0, 1.0);
+	typeMod = ( ranthrow <= nuInt / totInt ) ? 1 : -1;
+	break;
+      }
+    } // if( !fIsMajorana )
+
+    LOG( "NHL", pDEBUG )
+      << "Decided type = " << typeMod;
+
+    // finally, add angular deviation and add to event record
+    // that's a Gaussian with mean fAngDev and sigma = 1 degree
+    double theta = rnd->RndGen().Gaus( fAngDev, 1.0 );
+    theta *= TMath::DegToRad();
+    double phi = rnd->RndGen().Uniform( 0.0, 2.0 * constants::kPi );
+    
+    TVector3 beamP3( TMath::Cos( phi ) * TMath::Sin( theta ),
+		     TMath::Sin( phi ) * TMath::Sin( theta ),
+		     TMath::Cos( theta ) ); // in BEAM coordinates
+    // rotate it to beam.
+    TVector3 dumor(0.0, 0.0, 0.0);
+    TVector3 NHLP3Unit = this->ApplyUserRotation( beamP3, dumor, fB2URotation, false );
+    
+    double PNHL = std::sqrt( ENHL*ENHL - fMass*fMass );
+    TLorentzVector P4NHL( PNHL * NHLP3Unit.X(), PNHL * NHLP3Unit.Y(), PNHL * NHLP3Unit.Z(), ENHL );
+    
+    // update the Interaction object
+    Interaction * interaction = evrec->Summary();
+    if( interaction->InitStatePtr() ){
+      interaction->InitStatePtr()->SetProbePdg( typeMod * genie::kPdgNHL );
+      interaction->InitStatePtr()->SetProbeP4( P4NHL );
+    } else {
+      InitialState init_state( 0, typeMod * genie::kPdgNHL );
+      interaction->SetInitState( init_state );
+      interaction->InitStatePtr()->SetProbeP4( P4NHL );
+    }
+    
+    TLorentzVector v4( 0.0, 0.0, 0.0, 0.0 );
+    evrec->AddParticle( typeMod * genie::kPdgNHL, kIStInitialState, -1, -1, -1, -1, P4NHL, v4 );
+
   }
+  
+  LOG( "NHL", pDEBUG ) << "Finished ProcessEventRecord";
 }
 //----------------------------------------------------------------------------
 void NHLFluxCreator::SetInputPath(std::string finpath) const
@@ -86,6 +157,81 @@ void NHLFluxCreator::SetInputPath(std::string finpath) const
   LOG( "NHL", pDEBUG ) << "Setting input path to " << finpath;
   LOG( "NHL", pDEBUG ) << "Before setting, fCurrPath = " << fCurrPath;
   fCurrPath = finpath;
+}
+//----------------------------------------------------------------------------
+void NHLFluxCreator::BuildInputFlux() const
+{
+  int closest_masspoint = this->SelectMass( fMass );
+  LOG("NHL", pDEBUG)
+    << "Mass inserted: " << fMass << " GeV ==> mass point " << closest_masspoint;
+  string finPath = fFinPath;
+  LOG("NHL", pDEBUG)
+    << "Using fluxes in path " << fFinPath.c_str();
+  
+  // extract specified flux histogram from input root file
+  TH1F * hfluxAll    = this->GetFluxHist1F( fFinPath, closest_masspoint, true );
+  TH1F * hfluxAllbar = this->GetFluxHist1F( fFinPath, closest_masspoint, false );
+  assert(hfluxAll && hfluxAllbar);
+  
+  LOG("NHL", pDEBUG)
+    << "The histo has entries and max: "
+    << "\nParticle:     " << hfluxAll->GetEntries() << " entries with max = " << hfluxAll->GetMaximum()
+    << "\nAntiparticle: " << hfluxAllbar->GetEntries() << " entries with max = " << hfluxAllbar->GetMaximum();
+  
+  // build the mixed flux
+  TH1F * spectrumF = ( TH1F * ) hfluxAll->Clone(0);
+  if( fIsMajorana || fType == 2 ){
+    spectrumF->Add( hfluxAll, 1.0 );
+    spectrumF->Add( hfluxAllbar, 1.0 );
+  } else if( fType == 0 ){
+    spectrumF->Add( hfluxAll, 1.0 );
+  } else if( fType == 1 ){
+    spectrumF->Add( hfluxAllbar, 1.0 );
+  }
+  
+  // copy into TH1D, *do not use the Copy() function!*
+  const int nbins = spectrumF->GetNbinsX();
+  fSpectrum = new TH1D( "s", "s", nbins, spectrumF->GetBinLowEdge(1), 
+			spectrumF->GetBinLowEdge(nbins) + spectrumF->GetBinWidth(nbins) );
+  for( Int_t ib = 0; ib <= nbins; ib++ ){
+    fSpectrum->SetBinContent( ib, spectrumF->GetBinContent(ib) );
+  }
+  
+  fSpectrum->SetNameTitle("spectrum","NHL_flux");
+  fSpectrum->SetDirectory(0);
+  for(int ibin = 1; ibin <= hfluxAll->GetNbinsX(); ibin++) {
+    if(hfluxAll->GetBinLowEdge(ibin) + hfluxAll->GetBinWidth(ibin) > fMaxE ||
+       hfluxAll->GetBinLowEdge(ibin) < fMinE) {
+      fSpectrum->SetBinContent(ibin, 0);
+    }
+  } // do I want to kill the overflow / underflow bins? Why?
+  
+  LOG("NHL", pINFO) << fSpectrum->GetEntries() << " entries in spectrum";
+  
+  // save input flux
+  
+  TFile f("./input-flux.root","RECREATE");
+  fSpectrum->Write();
+  
+  // store integrals in histo if not Majorana and mixed flux
+  // bin 0 ==> nu, bin 1 ==> nubar
+  if( !fIsMajorana && fType == 2 ){
+    fIntegrals = new TH1D( "hIntegrals", "hIntegrals", 2, 0.0, 1.0 );
+    fIntegrals->SetBinContent( 1, hfluxAll->Integral() );
+    fIntegrals->SetBinContent( 2, hfluxAllbar->Integral() );
+    
+    fIntegrals->SetDirectory(0);
+    fIntegrals->Write();
+    
+    LOG( "NHL", pDEBUG )
+      << "\n\nIntegrals asked for and stored. Here are their values by type:"
+      << "\nNu: " << hfluxAll->Integral()
+      << "\nNubar: " << hfluxAllbar->Integral() << "\n\n";
+  }
+  
+  f.Close();
+  LOG("NHL", pDEBUG) 
+    << "Written spectrum to ./input-flux.root";
 }
 //----------------------------------------------------------------------------
 int NHLFluxCreator::GetNEntries() const
@@ -1828,6 +1974,12 @@ void NHLFluxCreator::LoadConfig(void)
   this->GetParam( "NHL-Mass", fMass );
   this->GetParamVect( "NHL-LeptonMixing", fU4l2s );
   this->GetParam( "NHL-Majorana", fIsMajorana );
+  this->GetParam( "NHL-Type", fType );
+
+  this->GetParam( "NHL-angular_deviation", fAngDev );
+  std::vector< double > minmaxe;
+  this->GetParamVect( "NHL-energy_range", minmaxe );
+  fMinE = minmaxe.at(0); fMaxE = minmaxe.at(1);
   
   this->GetParamVect( "Beam2User_T", fB2UTranslation );
   this->GetParamVect( "Beam2User_R", fB2URotation );

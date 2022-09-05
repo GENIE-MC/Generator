@@ -27,13 +27,6 @@
 
  */
 //----------------------------------------------------------------------------
-/*
-  TODO: Make BBox from geometry file! (unit BBox if no geom-file?)
-        Fix fLT (see above)
-        Fix zm in case !parentHistCentre && IPdev.Mag() < fLT/2 (in this case zm = 0.0)
-	  ==> parentHitsCentre should become parentInDetector
- */
-//----------------------------------------------------------------------------
 
 #ifndef _NHL_FLUXCREATOR_H_
 #define _NHL_FLUXCREATOR_H_
@@ -127,7 +120,11 @@ namespace genie{
 
       // FluxReader-inherited functions
       // only if not using dk2nu!
+      void SetUsingDk2nu( const bool usingDk2nu ) const { fUsingDk2nu = usingDk2nu; }
+      
       int SelectMass( const double mN ) const;
+      void SetFinPaths( const string finH, const string finP ) const 
+      { fFinPath = finH; fProdHist = finP; }
       std::string SelectFile( std::string fin, const double mN ) const; // find but don't open the file
 
       /// get the histogram and energy from it
@@ -136,8 +133,18 @@ namespace genie{
       TH3D * GetFluxHist3D( std::string fin, std::string dirName, std::string hName ) const;
       std::vector< double > * GenerateVtx3X( TH3D * prodVtxHist ) const;
 
+      // build input flux from hists
+      void BuildInputFlux() const;
+
+      // get dk2nu flux info
       flux::GNuMIFluxPassThroughInfo * RetrieveGNuMIFluxPassThroughInfo() const;
       flux::GNuMIFluxPassThroughInfo RetrieveFluxInfo() const;
+
+      // return information about frames
+      std::vector< double > GetB2UTranslation() const { return fB2UTranslation; }
+      std::vector< double > GetB2URotation() const { return fB2URotation; }
+      std::vector< double > GetDetOffset() const { return fDetOffset; }
+      std::vector< double > GetDetRotation() const { return fDetRotation; }
 
     private:
 
@@ -207,6 +214,8 @@ namespace genie{
       mutable double fMass; // NHL mass, GeV
       mutable std::vector< double > fU4l2s; // couplings
       mutable bool fIsMajorana;
+      mutable int fType; // for hist fluxes. 0 ==> only particle, 1 ==> only anti, 2 ==> mix of both
+      mutable double fMinE = 0.0, fMaxE = 100.0, fAngDev = 0.0; // for hist fluxes
       
       mutable double fLx, fLy, fLz;
       mutable double fLxR, fLyR, fLzR; // BBox side [m]
@@ -256,6 +265,8 @@ namespace genie{
       mutable bool fIsConfigLoaded = false;
 
       mutable bool fUsingDk2nu = true;
+      mutable string fFinPath, fProdHist;
+      mutable TH1D * fSpectrum = 0, * fIntegrals = 0;
 
     }; // class NHLFluxCreator
       

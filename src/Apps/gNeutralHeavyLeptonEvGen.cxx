@@ -367,7 +367,16 @@ int main(int argc, char ** argv)
 
   if( !gOptIsMonoEnFlux ){
     if( !gOptIsUsingDk2nu ){ 
-      ff = TH1FluxDriver();
+      
+      LOG( "gevgen_nhl", pWARN )
+	<< "Using input flux histograms. These are frozen, and you should generally not be using these.";
+
+      fluxCreator->SetUsingDk2nu(false);
+      string finH = gOptFluxFilePath; finH.append("/histFluxes.root");
+      string finP = gOptFluxFilePath; finP.append("/NHL_vertex_positions.root");
+      __attribute__((unused)) int iset = setenv( "PRODVTXDIR", finP.c_str(), 1 );
+      fluxCreator->SetFinPaths( finH, finP );
+      fluxCreator->BuildInputFlux(); // this generates the input flux file now
 
       // read flux from file
       spectrumFile = TFile::Open("./input-flux.root", "READ");
@@ -377,7 +386,7 @@ int main(int argc, char ** argv)
       spectrum = ( TH1D * ) baseDir->Get( fluxName.c_str() );
       assert( spectrum && spectrum != NULL );
 
-    } else{ // RETHERE gotta make non-flat trees
+    } else{
 
       LOG( "gevgen_nhl", pWARN )
 	<< "Using input flux files. These are *flat dk2nu-like ROOT trees, so far...*";
@@ -436,7 +445,8 @@ int main(int argc, char ** argv)
        if( !gOptIsUsingDk2nu ){
 	 LOG( "gevgen_nhl", pDEBUG )
 	   << "Getting energy from flux...";
-	 gOptEnergyNHL = spectrum->GetRandom();
+	 fluxCreator->ProcessEventRecord( event );
+	 gOptEnergyNHL = event->Particle(0)->P4()->E();
 	 unsigned int ien = 0;
 	 while( gOptEnergyNHL <= gOptMassNHL && ien < controls::kRjMaxIterations ){
 	   gOptEnergyNHL = spectrum->GetRandom(); // to prevent binning throwing E <= M
@@ -466,28 +476,10 @@ int main(int argc, char ** argv)
 
      int hpdg = genie::kPdgNHL;
      int typeMod = 1;
-     
-     // if not Majorana, check if we should be doing mixing
-     // if yes, get from fluxes
-     // if not, enforce nu vs nubar
-     if( !gOptIsMajorana && !gOptIsUsingDk2nu ){
-       switch( gOptNHLKind ){
-       case 0: // always nu
-	 break;
-       case 1: // always nubar
-	 typeMod = -1;
-	 break;
-#ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
-       case 2:
-	 if( !gOptIsMonoEnFlux ) typeMod = DecideType( spectrumFile );
-	 break;
-#endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
-       default:
-	 typeMod = 1; // for now;
-       }
-       hpdg *= typeMod;
-       LOG("gevgen_nhl", pDEBUG) << "typeMod = " << typeMod;
-     }
+     RandomGen * rnd = RandomGen::Instance();
+     if( gOptIsMajorana ) typeMod = ( rnd->RndGen().Uniform( 0.0, 1.0 ) >= 0.5 ) ? -1 : 1;
+     else if( event->Particle(0)->Pdg() > 0 ) typeMod = 1;
+     else if( event->Particle(0)->Pdg() < 0 ) typeMod = -1;
 
      // int target = SelectInitState();
      int decay  = (int) gOptDecayMode;
@@ -1337,7 +1329,6 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // get NHL mass directly from config
   gOptMassNHL = genie::utils::nhl::GetCfgDouble( "NHL", "ParameterSpace", "NHL-Mass" );
-  // RETHERE check to see if mass is (not) given from config!
 
   bool isMonoEnergeticFlux = true;
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
