@@ -23,7 +23,7 @@ April 11th, 2022
     <param type="bool" name="HNL-Majorana"> false </param>
     <param type="int" name="HNL-Type"> 2 </param> <!-- 0 = pure-N, 1 = pure-Nbar, 2 = mix -->
     
-    <param type="bool" name="GetCMFrameInstead"> true </param> <!-- RETHERE REMOVE -->
+    <param type="bool" name="GetCMFrameInstead"> false </param> <!-- RETHERE REMOVE -->
   </param_set>
 
   <param_set name="InterestingChannels">

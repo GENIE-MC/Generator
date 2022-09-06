@@ -68,12 +68,12 @@
    <config alg="genie::QELEventGeneratorSuSA">           QELEventGeneratorSuSA.xml           </config>
    <config alg="genie::NucleonDecayPrimaryVtxGenerator"> NucleonDecayPrimaryVtxGenerator.xml </config>
    <config alg="genie::NNBarOscPrimaryVtxGenerator">     NNBarOscPrimaryVtxGenerator.xml     </config>
-   <config alg="genie::SpectralFunction2p2h">        SpectralFunction2p2h.xml        </config>
-   <config alg="genie::SRCNuclearRecoil">             SRCNuclearRecoil.xml             </config>
-   <config alg="genie::HNL::HNLFluxCreator">             HNLPrimaryVtxGenerator.xml          </config>
-   <config alg="genie::HNL::HNLBRFunctions">             HNLPrimaryVtxGenerator.xml          </config>
-   <config alg="genie::HNLPrimaryVtxGenerator">          HNLPrimaryVtxGenerator.xml          </config>
-   <config alg="genie::HNL::HNLDecayVolume">             HNLPrimaryVtxGenerator.xml          </config>
+   <config alg="genie::SpectralFunction2p2h">            SpectralFunction2p2h.xml            </config>
+   <config alg="genie::SRCNuclearRecoil">                SRCNuclearRecoil.xml                </config>
+   <config alg="genie::HNL::HNLFluxCreator">             BeamHNLGenerator.xml                </config>
+   <config alg="genie::HNL::HNLBRFunctions">             BeamHNLGenerator.xml                </config>
+   <config alg="genie::HNL::HNLDecayer">                 BeamHNLGenerator.xml                </config>
+   <config alg="genie::HNL::HNLDecayVolume">             BeamHNLGenerator.xml                </config>
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
    <config alg="genie::QELInteractionListGenerator">           QELInteractionListGenerator.xml       </config>

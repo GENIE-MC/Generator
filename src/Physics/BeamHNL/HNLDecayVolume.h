@@ -39,7 +39,7 @@
 #include "Framework/Utils/UnitUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 
-#include "Physics/BeamHNL/HNLPrimaryVtxGenerator.h"
+#include "Physics/BeamHNL/HNLDecayer.h"
 
 namespace genie {
 namespace HNL {

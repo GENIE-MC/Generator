@@ -95,7 +95,7 @@
 #include "Physics/BeamHNL/HNLDecayVolume.h"
 #include "Physics/BeamHNL/HNLFluxCreator.h"
 //#include "Physics/BeamHNL/HNLFluxReader.h"
-#include "Physics/BeamHNL/HNLPrimaryVtxGenerator.h"
+#include "Physics/BeamHNL/HNLDecayer.h"
 #include "Physics/BeamHNL/HNLProductionMode.h"
 #include "Physics/BeamHNL/SimpleHNL.h"
 
@@ -725,8 +725,8 @@ int TestDecay(void)
   TFile * fout = TFile::Open( foutName.c_str(), "RECREATE" );
 
   const EventRecordVisitorI * mcgen = HNLGenerator();
-  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNLPrimaryVtxGenerator", "Default");
-  const HNLPrimaryVtxGenerator * hnlgen = dynamic_cast< const HNLPrimaryVtxGenerator * >( algHNLGen );
+  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayer", "Default");
+  const HNLDecayer * hnlgen = dynamic_cast< const HNLDecayer * >( algHNLGen );
 
   SimpleHNL sh = SimpleHNL( "HNLInstance", 0, kPdgHNL, kPdgKP,
 			    gCfgMassHNL, gCfgECoupling, gCfgMCoupling, gCfgTCoupling, false );
@@ -861,7 +861,7 @@ int TestDecay(void)
       // build an event
       EventRecord * event = new EventRecord;
       Interaction * interaction = Interaction::HNL( genie::kPdgHNL, gOptEnergyHNL, validModes[ iMode ] );
-      // set p4 and a dummy vertex so HNLPrimaryVtxGenerator doesn't attempt to regenerate init state
+      // set p4 and a dummy vertex so HNLDecayer doesn't attempt to regenerate init state
       interaction->InitStatePtr()->SetProbeP4( *p4HNL );
       event->SetVertex( *x4HNL );
 
@@ -1507,8 +1507,8 @@ void ReadInConfig(void)
   LOG("gevald_hnl", pFATAL)
     << "Reading in validation configuration. . .";
 
-  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNLPrimaryVtxGenerator", "Default");
-  const HNLPrimaryVtxGenerator * hnlgen = dynamic_cast< const HNLPrimaryVtxGenerator * >( algHNLGen );
+  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayer", "Default");
+  const HNLDecayer * hnlgen = dynamic_cast< const HNLDecayer * >( algHNLGen );
 
   SimpleHNL confsh = hnlgen->GetHNLInstance( "BeamHNL" );
   gCfgMassHNL   = confsh.GetMass();

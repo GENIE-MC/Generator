@@ -25,7 +25,7 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/PrintUtils.h"
 #include "Physics/NuclearState/NuclearUtils.h"
-#include "Physics/BeamHNL/HNLPrimaryVtxGenerator.h"
+#include "Physics/BeamHNL/HNLDecayer.h"
 #include "Physics/BeamHNL/HNLDecayUtils.h"
 #include "Physics/BeamHNL/HNLDecayMode.h"
 
@@ -33,24 +33,24 @@ using namespace genie;
 using namespace genie::HNL;
 
 //____________________________________________________________________________
-HNLPrimaryVtxGenerator::HNLPrimaryVtxGenerator() :
-EventRecordVisitorI("genie::HNLPrimaryVtxGenerator")
+HNLDecayer::HNLDecayer() :
+EventRecordVisitorI("genie::HNL::HNLDecayer")
 {
 
 }
 //____________________________________________________________________________
-HNLPrimaryVtxGenerator::HNLPrimaryVtxGenerator(string config) :
-EventRecordVisitorI("genie::HNLPrimaryVtxGenerator",config)
+HNLDecayer::HNLDecayer(string config) :
+EventRecordVisitorI("genie::HNL::HNLDecayer",config)
 {
 
 }
 //____________________________________________________________________________
-HNLPrimaryVtxGenerator::~HNLPrimaryVtxGenerator()
+HNLDecayer::~HNLDecayer()
 {
 
 }
 //____________________________________________________________________________
-void HNLPrimaryVtxGenerator::ProcessEventRecord(GHepRecord * event) const
+void HNLDecayer::ProcessEventRecord(GHepRecord * event) const
 {
 
   LOG("HNL", pDEBUG)
@@ -72,7 +72,7 @@ void HNLPrimaryVtxGenerator::ProcessEventRecord(GHepRecord * event) const
 
 }
 //____________________________________________________________________________
-void HNLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
+void HNLDecayer::AddInitialState(GHepRecord * event) const
 {
   std::vector< double > * prodVtx = 0;
 
@@ -127,7 +127,7 @@ void HNLPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
     event->AddParticle(hpdg, kIStInitialState, 0,-1,-1,-1, p4, v4);
 }
 //____________________________________________________________________________
-void HNLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
+void HNLDecayer::GenerateDecayProducts(GHepRecord * event) const
 {
   LOG("HNL", pINFO) << "Generating decay...";
   fDecLepPdg = 0; fDecHadPdg = 0;
@@ -334,7 +334,7 @@ void HNLPrimaryVtxGenerator::GenerateDecayProducts(GHepRecord * event) const
   delete v4d;
 }
 //____________________________________________________________________________
-std::vector< double > * HNLPrimaryVtxGenerator::GenerateDecayPosition( GHepRecord * /* event */ ) const
+std::vector< double > * HNLDecayer::GenerateDecayPosition( GHepRecord * /* event */ ) const
 {
   // let's query *where* the HNL decayed from.
   if( std::strcmp( std::getenv( "PRODVTXDIR" ), "NODIR" ) != 0 ){
@@ -364,7 +364,7 @@ std::vector< double > * HNLPrimaryVtxGenerator::GenerateDecayPosition( GHepRecor
   return prodVtx;
 }
 //____________________________________________________________________________
-std::vector< double > * HNLPrimaryVtxGenerator::GenerateMomentum( GHepRecord * event ) const
+std::vector< double > * HNLDecayer::GenerateMomentum( GHepRecord * event ) const
 {
   Interaction * interaction = event->Summary();
   double E = interaction->InitState().ProbeE(kRfLab);
@@ -394,13 +394,13 @@ std::vector< double > * HNLPrimaryVtxGenerator::GenerateMomentum( GHepRecord * e
   return p3HNL;
 }
 //____________________________________________________________________________
-void HNLPrimaryVtxGenerator::UpdateEventRecord(GHepRecord * event) const
+void HNLDecayer::UpdateEventRecord(GHepRecord * event) const
 {
   Interaction * interaction = event->Summary();
 
   interaction->KinePtr()->Sett( 0.0, true );
-  interaction->KinePtr()->SetW( interaction->InitState().Probe()->Mass(), true );
-  TLorentzVector * p4HNL = interaction->InitState().GetProbeP4( genie::kRfLab ); assert( p4HNL );
+  interaction->KinePtr()->SetW( interaction->InitStatePtr()->Probe()->Mass(), true );
+  TLorentzVector * p4HNL = event->Particle(0)->GetP4(); assert( p4HNL );
   // primary lepton is FirstDaughter() of Probe()
   // need Probe() as a GHepParticle(), not a TParticlePDG()!
   // get from event record position 0
@@ -427,10 +427,11 @@ void HNLPrimaryVtxGenerator::UpdateEventRecord(GHepRecord * event) const
   }
     
   // Set probe
-  interaction->InitStatePtr()->SetProbePdg( event->Particle(0)->Pdg() );
+  //interaction->InitStatePtr()->SetProbePdg( event->Particle(0)->Pdg() );
 
-  interaction->InitStatePtr()->SetProbeP4( *(event->Particle(0)->P4()) );
+  //interaction->InitStatePtr()->SetProbeP4( *(event->Particle(0)->P4()) );
   
+  /*
   // Set target: always Particle(1)
   // This is the charged pion in channels that have it, the pi0 in N --> pi0 pi0 v,
   // and the SM neutrino in 3-lepton channels (for N --> v v v it is the one marked "nu_e")
@@ -439,25 +440,26 @@ void HNLPrimaryVtxGenerator::UpdateEventRecord(GHepRecord * event) const
   
   LOG( "HNL", pDEBUG )
     << "Target info: " << Target();
+  */
   
   // clean up
   delete p4HNL;
   if(p4FSL) delete p4FSL;
 }
 //____________________________________________________________________________
-void HNLPrimaryVtxGenerator::Configure(const Registry & config)
+void HNLDecayer::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //___________________________________________________________________________
-void HNLPrimaryVtxGenerator::Configure(string config)
+void HNLDecayer::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //___________________________________________________________________________
-void HNLPrimaryVtxGenerator::LoadConfig(void)
+void HNLDecayer::LoadConfig(void)
 {
   LOG("HNL", pDEBUG)
     << "Loading configuration from file...";
@@ -497,14 +499,14 @@ void HNLPrimaryVtxGenerator::LoadConfig(void)
   fIsConfigLoaded = true;
 }
 //___________________________________________________________________________
-void HNLPrimaryVtxGenerator::SetHNLCouplings( double Ue42, double Um42, double Ut42 ) const
+void HNLDecayer::SetHNLCouplings( double Ue42, double Um42, double Ut42 ) const
 {
   fUe42 = Ue42;
   fUm42 = Um42;
   fUt42 = Ut42;
 }
 //___________________________________________________________________________
-void HNLPrimaryVtxGenerator::SetBeam2User( std::vector< double > translation, std::vector< double > rotation ) const
+void HNLDecayer::SetBeam2User( std::vector< double > translation, std::vector< double > rotation ) const
 {
   fTx = -1.0 * translation.at(0);
   fTy = -1.0 * translation.at(1);
@@ -519,7 +521,7 @@ void HNLPrimaryVtxGenerator::SetBeam2User( std::vector< double > translation, st
     << "\nSet Euler (extrinsic x-z-x) angles to ( " << fR1 << ", " << fR2 << ", " << fR3 << " ) [rad]";  
 }
 //___________________________________________________________________________
-SimpleHNL HNLPrimaryVtxGenerator::GetHNLInstance(string config) const
+SimpleHNL HNLDecayer::GetHNLInstance(string config) const
 {
   SimpleHNL sh = SimpleHNL( "HNLInstance", 0, genie::kPdgHNL, genie::kPdgKP,
 			    fMass, fUe42, fUm42, fUt42, fIsMajorana );
@@ -531,14 +533,14 @@ SimpleHNL HNLPrimaryVtxGenerator::GetHNLInstance(string config) const
   return sh;
 }
 //____________________________________________________________________________
-void HNLPrimaryVtxGenerator::SetProdVtxPosition(const TLorentzVector & v4) const
+void HNLDecayer::SetProdVtxPosition(const TLorentzVector & v4) const
 {
   TLorentzVector * pv4 = new TLorentzVector();
   pv4->SetXYZT( v4.X(), v4.Y(), v4.Z(), v4.T() );
   fProdVtx = pv4;
 }
 //____________________________________________________________________________
-void HNLPrimaryVtxGenerator::ReadCreationInfo( flux::GNuMIFluxPassThroughInfo gnmf ) const
+void HNLDecayer::ReadCreationInfo( flux::GNuMIFluxPassThroughInfo gnmf ) const
 {
   LOG( "HNL", pDEBUG )
     << "Reading creation info...";
@@ -552,7 +554,7 @@ void HNLPrimaryVtxGenerator::ReadCreationInfo( flux::GNuMIFluxPassThroughInfo gn
   fProdLepPdg = gnmf.ppmedium;
 }
 //____________________________________________________________________________
-void HNLPrimaryVtxGenerator::UnpolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, bool failed = false ) const
+void HNLDecayer::UnpolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, bool failed = false ) const
 {
 
   RandomGen * rnd = RandomGen::Instance();
@@ -588,7 +590,7 @@ void HNLPrimaryVtxGenerator::UnpolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeLis
   
 }
 //____________________________________________________________________________
-void HNLPrimaryVtxGenerator::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, TVector3 vPolDir, bool failed = false ) const
+void HNLDecayer::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, TVector3 vPolDir, bool failed = false ) const
 { 
   // calculate polarisation modulus
   PDGLibrary * pdgl = PDGLibrary::Instance();
@@ -681,7 +683,7 @@ void HNLPrimaryVtxGenerator::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList 
 
 }
 //____________________________________________________________________________
-double HNLPrimaryVtxGenerator::CalcPolMag( int parPdg, int lepPdg, double M ) const
+double HNLDecayer::CalcPolMag( int parPdg, int lepPdg, double M ) const
 {
   LOG( "HNL", pDEBUG )
     << "\nCalcPolMag( parPdg = " << parPdg << ", lepPdg = " << lepPdg << ", M = " << M << " )" ;
@@ -706,7 +708,7 @@ double HNLPrimaryVtxGenerator::CalcPolMag( int parPdg, int lepPdg, double M ) co
   return pMag;
 }
 //____________________________________________________________________________
-double HNLPrimaryVtxGenerator::CalcPolMod( double polMag, int lepPdg, int hadPdg, double M ) const
+double HNLDecayer::CalcPolMod( double polMag, int lepPdg, int hadPdg, double M ) const
 {
   LOG( "HNL", pDEBUG )
     << "\nCalcPolMod( polMag = " << polMag << ", lepPdg = " << lepPdg << ", hadPdg = " << hadPdg << ", M = " << M << " )" ;

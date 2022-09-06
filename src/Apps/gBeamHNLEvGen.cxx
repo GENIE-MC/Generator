@@ -110,7 +110,7 @@
 #include "Physics/BeamHNL/HNLDecayVolume.h"
 #include "Physics/BeamHNL/HNLFluxCreator.h"
 //#include "Physics/BeamHNL/HNLFluxReader.h"
-#include "Physics/BeamHNL/HNLPrimaryVtxGenerator.h"
+#include "Physics/BeamHNL/HNLDecayer.h"
 #include "Physics/BeamHNL/SimpleHNL.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -254,11 +254,11 @@ int main(int argc, char ** argv)
   // calls LoadConfig() of each sub-alg
   const EventRecordVisitorI * mcgen = HNLGenerator();
   const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLFluxCreator", "Default");
-  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNLPrimaryVtxGenerator", "Default");
+  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayer", "Default");
   const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayVolume", "Default");
 
   const HNLFluxCreator * fluxCreator = dynamic_cast< const HNLFluxCreator * >( algFluxCreator );
-  const HNLPrimaryVtxGenerator * hnlgen = dynamic_cast< const HNLPrimaryVtxGenerator * >( algHNLGen );
+  const HNLDecayer * hnlgen = dynamic_cast< const HNLDecayer * >( algHNLGen );
   const HNLDecayVolume * dkVol = dynamic_cast< const HNLDecayVolume * >( algDkVol );
   
   //string confString = kDefOptSName + "/" + kDefOptSConfig;

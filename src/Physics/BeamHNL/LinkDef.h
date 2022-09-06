@@ -15,7 +15,7 @@
 #pragma link C++ class genie::HNL::SimpleHNL;
 #pragma link C++ class genie::HNL::HNLBRFunctions;
 #pragma link C++ class genie::HNL::HNLFluxCreator;
-#pragma link C++ class genie::HNLPrimaryVtxGenerator;
+#pragma link C++ class genie::HNL::HNLDecayer;
 #pragma link C++ class genie::HNL::HNLDecayVolume;
 
 #pragma link C++ class genie::DummyHNLInteractionListGenerator;

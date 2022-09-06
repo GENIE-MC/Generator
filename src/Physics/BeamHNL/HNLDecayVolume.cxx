@@ -61,9 +61,9 @@ void HNLDecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
   if( isUsingDk2nu ) assert( didIntersectDet ); // forced to hit detector somewhere!
   else {
 
-    const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNLPrimaryVtxGenerator", "Default");
+    const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayer", "Default");
     
-    const HNLPrimaryVtxGenerator * hnlgen = dynamic_cast< const HNLPrimaryVtxGenerator * >( algHNLGen );
+    const HNLDecayer * hnlgen = dynamic_cast< const HNLDecayer * >( algHNLGen );
     
     std::vector< double > * newProdVtx = new std::vector< double >();
     newProdVtx->emplace_back( startPoint.X() );

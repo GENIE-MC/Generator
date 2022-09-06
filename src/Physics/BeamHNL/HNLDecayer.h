@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::HNLPrimaryVtxGenerator
+\class    genie::HNL::HNLDecayer
 
 \brief    Neutral Heavy Lepton primary vertex generator
 
@@ -36,12 +36,14 @@
 
 namespace genie {
 
-class HNLPrimaryVtxGenerator: public EventRecordVisitorI {
+namespace HNL {
+
+class HNLDecayer: public EventRecordVisitorI {
 
 public:
-  HNLPrimaryVtxGenerator();
-  HNLPrimaryVtxGenerator(string config);
- ~HNLPrimaryVtxGenerator();
+  HNLDecayer();
+  HNLDecayer(string config);
+ ~HNLDecayer();
 
   // implement the EventRecordVisitorI interface
   void ProcessEventRecord (GHepRecord * event) const;
@@ -107,6 +109,8 @@ private:
    // RETHERE remove
    mutable bool                       fGetCMFrameInstead = false;
 };
+
+} // HNL namespace
 
 } // genie namespace
 

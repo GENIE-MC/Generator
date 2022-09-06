@@ -105,7 +105,7 @@
 #include "Physics/BeamHNL/HNLDecayVolume.h"
 #include "Physics/BeamHNL/HNLFluxCreator.h"
 //#include "Physics/BeamHNL/HNLFluxReader.h"
-#include "Physics/BeamHNL/HNLPrimaryVtxGenerator.h"
+#include "Physics/BeamHNL/HNLDecayer.h"
 #include "Physics/BeamHNL/SimpleHNL.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -201,7 +201,7 @@ double NTP_FS1_E = 0., NTP_FS1_PX = 0., NTP_FS1_PY = 0., NTP_FS1_PZ = 0.;
 double NTP_FS2_E = 0., NTP_FS2_PX = 0., NTP_FS2_PY = 0., NTP_FS2_PZ = 0.;
 int NTP_FS0_PDG = 0, NTP_FS1_PDG = 0, NTP_FS2_PDG = 0;
 
-//HNLPrimaryVtxGenerator * hnlgen = 0;
+//HNLDecayer * hnlgen = 0;
 // HNL lifetime in rest frame
 double CoMLifetime = -1.0; // GeV^{-1}
 // an array to keep production vertex
@@ -226,12 +226,12 @@ int main(int argc, char ** argv)
 
   // Get the HNL generator first to load config
   // config loaded upon instantiation of HNLGenerator algorithm 
-  // ==> HNLPrimaryVtxGenerator::LoadConfig()
+  // ==> HNLDecayer::LoadConfig()
   const EventRecordVisitorI * mcgen = HNLGenerator();
-  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNLPrimaryVtxGenerator", "Default");
+  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayer", "Default");
   const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayVolume", "Default");
   
-  const HNLPrimaryVtxGenerator * hnlgen = dynamic_cast< const HNLPrimaryVtxGenerator * >( algHNLGen );
+  const HNLDecayer * hnlgen = dynamic_cast< const HNLDecayer * >( algHNLGen );
   const HNLDecayVolume * dkVol = dynamic_cast< const HNLDecayVolume * >( algDkVol );
 
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
