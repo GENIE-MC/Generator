@@ -62,7 +62,7 @@ public:
       case(kIntDarkMatter) : return "DarkMatter";                break;
       case(kIntNDecay)     : return "NucleonDecay";              break;
       case(kIntNOsc)       : return "NeutronOsc";                break;
-      case(kIntHNL)        : return "HNL";                       break;
+      case(kIntHNL)        : return "HNLDecay";                  break;
       case(kIntDarkNC)     : return "Dark[NC]";                  break;
       default :              return "Unknown";                   break;
     }
