@@ -473,6 +473,15 @@ int main(int argc, char ** argv)
 	 iflux++;
        }
 
+     } else { // monoenergetic HNL. Add it with energy and momentum pointing on z axis
+     
+       assert( gOptEnergyHNL > gOptMassHNL );
+       double HNLP = std::sqrt( gOptEnergyHNL*gOptEnergyHNL - gOptMassHNL*gOptMassHNL );
+       TLorentzVector probeP4( 0.0, 0.0, HNLP, gOptEnergyHNL );
+       TLorentzVector v4( 0.0, 0.0, 0.0, 0.0 );
+       GHepParticle ptHNL( kPdgHNL, kIStInitialState, -1, -1, -1, -1, probeP4, v4 );
+       event->AddParticle( ptHNL );
+
      }
      assert( gOptEnergyHNL > gOptMassHNL );
 
