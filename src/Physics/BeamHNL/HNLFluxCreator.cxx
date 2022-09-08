@@ -1984,10 +1984,10 @@ void HNLFluxCreator::LoadConfig(void)
   this->GetParamVect( "HNL-energy_range", minmaxe );
   fMinE = minmaxe.at(0); fMaxE = minmaxe.at(1);
   
-  this->GetParamVect( "Beam2User_T", fB2UTranslation );
-  this->GetParamVect( "Beam2User_R", fB2URotation );
+  this->GetParamVect( "Near2User_T", fB2UTranslation );
+  this->GetParamVect( "Near2User_R", fDetRotation );
+  this->GetParamVect( "Near2Beam_R", fB2URotation );
   this->GetParamVect( "DetCentre_User", fDetOffset );
-  this->GetParamVect( "Beam2Det_R", fDetRotation );
 
   this->GetParamVect( "ParentPOTScalings", fScales );
   this->GetParam( "IncludePolarisation", doPol );

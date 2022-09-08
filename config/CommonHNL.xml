@@ -23,7 +23,7 @@ April 11th, 2022
     <param type="bool" name="HNL-Majorana"> false </param>
     <param type="int" name="HNL-Type"> 2 </param> <!-- 0 = pure-N, 1 = pure-Nbar, 2 = mix -->
     
-    <param type="bool" name="GetCMFrameInstead"> false </param> <!-- RETHERE REMOVE -->
+    <param type="bool" name="GetCMFrameInstead"> false </param>
   </param_set>
 
   <param_set name="InterestingChannels">
@@ -48,17 +48,16 @@ April 11th, 2022
   </param_set>
 
   <param_set name="CoordinateXForm">
-    <param type="vec-double" name="Beam2User_T" delim=";"> -0.2486 ; -60.350 ; 1022.74 </param> <!-- m -->
-    <param type="vec-double" name="Beam2User_R" delim=";"> 0.0 ; 0.0 ; -0.05830 </param> <!-- rad -->
+    <param type="vec-double" name="Near2Beam_R" delim=";"> 0.0 ; 0.0 ; -0.05830 </param> <!-- rad -->
     <!-- Euler angles, extrinsic x-z-x = 1-2-3, RM * BEAM = USER, RM = Rx(1) * Rz(2) * Rx(3). -->
-    <!-- Describes rotation of beam wrt target hall frame -->
-    <param type="vec-double" name="Beam2Det_R" delim=";"> 0.0 ; 0.0 ; 0.0 </param>
-    <!-- <param type="vec-double" name="Beam2Det_R" delim=";"> -1.570796 ; 0.785398 ; 1.570796 </param> --> <!-- rad -->
+    <!-- Describes rotation of BEAM wrt NEAR frame -->
+    <param type="vec-double" name="Near2User_T" delim=";"> -0.2486 ; -60.350 ; 1022.74 </param> <!-- m -->
+    <!-- USER origin in NEAR coordinates -->
+    <param type="vec-double" name="Near2User_R" delim=";"> 0.0 ; 0.0 ; 0.0 </param>
     <!-- Euler angles, extrinsic x-z-x -->
-    <!-- Describes rotation of detector wrt target hall frame -->
+    <!-- Describes rotation of USER wrt NEAR frame -->
     <param type="vec-double" name="DetCentre_User" delim=";"> 0.0 ; 0.0 ; 6.44 </param> <!-- m -->
-    <!-- <param type="vec-double" name="DetCentre_User" delim=";"> 0.0 ; 0.0 ; 0.0 </param> --> <!-- m -->
-    <!-- Position of detector centre in user frame, in case it is not at user origin -->
+    <!-- Position of detector centre in USER frame, in case it is not at USER origin -->
   </param_set>
 
   <param_set name="ParticleGun">

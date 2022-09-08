@@ -475,9 +475,8 @@ void HNLDecayer::LoadConfig(void)
 
   this->GetParam( "IncludePolarisation", fDoPol );
 
-  this->GetParamVect( "Beam2User_T", fB2UTranslation );
-  // for compat with new config, "Beam2User_T" is now -1 * fB2UTranslation
-  this->GetParamVect( "Beam2User_R", fB2URotation );
+  this->GetParamVect( "Near2User_T", fB2UTranslation );
+  this->GetParamVect( "Near2Beam_R", fB2URotation );
   SetBeam2User( fB2UTranslation, fB2URotation );
 
   fIntChannels = {}; bool itChan = false;

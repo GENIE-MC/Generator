@@ -613,9 +613,9 @@ void HNLDecayVolume::LoadConfig()
   LOG( "HNL", pDEBUG )
     << "Loading geometry parameters from file. . .";
 
-  this->GetParamVect( "Beam2User_T", fB2UTranslation );
-  this->GetParamVect( "Beam2User_R", fB2URotation );
-  this->GetParamVect( "Beam2Det_R", fDetRotation );
+  this->GetParamVect( "Near2User_T", fB2UTranslation );
+  this->GetParamVect( "Near2User_R", fDetRotation );
+  this->GetParamVect( "Near2Beam_R", fB2URotation );
   this->GetParamVect( "DetCentre_User", fDetTranslation );
   fCx = fB2UTranslation.at(0); fCy = fB2UTranslation.at(1); fCz = fB2UTranslation.at(2);
   fUx = fDetTranslation.at(0); fUy = fDetTranslation.at(1); fUz = fDetTranslation.at(2);
