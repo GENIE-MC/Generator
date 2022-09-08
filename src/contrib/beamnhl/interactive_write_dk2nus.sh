@@ -2,11 +2,11 @@
 
 INDIR="./" # Make sure sample_dk2nu.root lives in here.
 
-#OUTDIR="./testContrib/" # Make sure this exists before running.
+OUTDIR="./dk2nuFluxes/" # Make sure this exists before running.
 TAG=""
 
 export INDIR=${INDIR}
-#export OUTDIR=${OUTDIR}
+export OUTDIR=${OUTDIR}
 
 playlist="minervame"
 #"minervamebar"
@@ -21,9 +21,10 @@ echo "GDK2NUFLUXXML=${GDK2NUFLUXXML}"
 XROOTDPREF="root://fndca1.fnal.gov:1095///pnfs/fnal.gov/usr"
 #"root://fndca1.fnal.gov:1094///pnfs/fnal.gov/usr"
 
-LSTR="${XROOTDPREF}/minerva/persistent/DataPreservation/flux/g4numiv6_dk2nu"
+LSTR="${XROOTDPREF}/minerva/persistent/DataPreservation/flux/g4numiv6_dk2nu_${playlist}_${beamconf}"
 
-FNUM="REPLACE_INDEX"
+FNUM="0000"
+#"REPLACE_INDEX"
 #"0001"
 #"0000"
 SUFFIX="0006.root"

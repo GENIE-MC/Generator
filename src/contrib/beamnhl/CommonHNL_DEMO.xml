@@ -12,7 +12,7 @@ This is a demo file meant for first-time use. You can use this by putting it in 
 It models a Dirac HNL of 200 MeV/c^2 mass and couplings |Ue4|^2 = |Um4|^2 = 10^-7, |U_t4|^2 = 0
 Signal channels are the two-body decays pi + mu, pi + e and the three-body invisible decay v + v + v.
 
-For simplicity, the BEAM and USER frames are unrotated with respect to the NEAR frame.
+For simplicity, the detector frame USER is unrotated wrt the NEAR frame, placed 60 m downwards 1 km downstream of the target. The beam is rotated downwards by 0.05830 rad
 
 Author:
 John Plows <komninos-john.plows \at physics.ox.ac.uk>
@@ -34,11 +34,11 @@ April 11th, 2022
 
   <param_set name="InterestingChannels">
     <!-- 2-body decays -->
-    <param type="bool" name="HNL-2B_mu_pi"> false </param>
+    <param type="bool" name="HNL-2B_mu_pi"> true </param>
     <param type="bool" name="HNL-2B_e_pi"> true </param>
     <param type="bool" name="HNL-2B_nu_pi0"> false </param>
     <!-- 3-body decays -->
-    <param type="bool" name="HNL-3B_nu_nu_nu"> false </param>
+    <param type="bool" name="HNL-3B_nu_nu_nu"> true </param>
     <param type="bool" name="HNL-3B_nu_mu_mu"> false </param>
     <param type="bool" name="HNL-3B_nu_e_e"> false </param>
     <param type="bool" name="HNL-3B_nu_mu_e"> false </param>
@@ -73,7 +73,7 @@ April 11th, 2022
 
     <param type="double" name="PG-OriginDX"> 1.0 </param> <!-- user, m, >= 0 -->
     <param type="double" name="PG-OriginDY"> 1.0 </param> <!-- user, m, >= 0 -->
-    <param type="double" name="PG-OriginDZ"> 1.0 </param> <!-- user, m, >= 0 -->
+    <param type="double" name="PG-OriginDZ"> 0.0 </param> <!-- user, m, >= 0 -->
 
     <param type="double" name="PG-cx"> 0.0 </param> <!-- user, GeV/GeV -->
     <param type="double" name="PG-cy"> 0.0 </param> <!-- user, GeV/GeV -->
