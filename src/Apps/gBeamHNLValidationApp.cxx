@@ -728,9 +728,26 @@ int TestDecay(void)
   const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayer", "Default");
   const HNLDecayer * hnlgen = dynamic_cast< const HNLDecayer * >( algHNLGen );
 
+  LOG( "gevald_hnl", pDEBUG ) << "gOptRootGeom = " << gOptRootGeom;
+    
+  if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
+  
+  TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
+  assert( top_volume );
+  TGeoShape * ts  = top_volume->GetShape();
+  TGeoBBox *  box = (TGeoBBox *)ts;
+  
+  LOG( "gevald_hnl", pDEBUG ) << "Imported box.";
+  
+  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayVolume", "Default");
+  
+  const HNLDecayVolume * dkVol = dynamic_cast< const HNLDecayVolume * >( algDkVol );
+  dkVol->ImportBoundingBox( box );
+  
   SimpleHNL sh = SimpleHNL( "HNLInstance", 0, kPdgHNL, kPdgKP,
 			    gCfgMassHNL, gCfgECoupling, gCfgMCoupling, gCfgTCoupling, false );
   std::map< HNLDecayMode_t, double > valMap = sh.GetValidChannels();
+  const double CoMLifetime = sh.GetCoMLifetime();
 
   assert( valMap.size() > 0 ); // must be able to decay to something!
   assert( (*valMap.begin()).first == kHNLDcyNuNuNu );
@@ -850,7 +867,7 @@ int TestDecay(void)
     }
     
     if( ievent == gOptNev ){ std::cerr << " \n"; break; }
-
+    
     ostringstream asts;
     for( Int_t iMode = 0; iMode < valMap.size(); iMode++ ){
       if( ievent == 0 ){
@@ -873,14 +890,12 @@ int TestDecay(void)
       // simulate the decay
       hnlgen->ProcessEventRecord( event );
 
-      const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayVolume", "Default");
-      
-      const HNLDecayVolume * dkVol = dynamic_cast< const HNLDecayVolume * >( algDkVol );
+      dkVol->SetStartingParameters( event, CoMLifetime, false, true, gOptRootGeom.c_str() );
 
-      // now get a weight. It will be P( decay in unit side box ).
+      // now get a weight.
       // = exp( - T_{box} / \tau_{HNL} ) = exp( - L_{box} / ( \beta_{HNL} \gamma_{HNL} c ) * h / \Gamma_{tot} )
       // placing the HNL at a point configured by the user
-      dkVol->MakeSDV();
+      //dkVol->MakeSDV();
       double ox = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-OriginX" );
       double oy = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-OriginY" );
       double oz = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-OriginZ" );
@@ -888,8 +903,10 @@ int TestDecay(void)
       TVector3 startPoint( ox, oy, oz ); TVector3 entryPoint, exitPoint;
       TLorentzVector tmpVtx( ox, oy, oz, 0.0 );
       event->SetVertex( tmpVtx );
+      /*
       std::string dummyGeom = "";
       dkVol->SetStartingParameters( event, 1.0e+20, false, false, dummyGeom );
+      */
 
       dkVol->ProcessEventRecord(event);
 
@@ -924,6 +941,7 @@ int TestDecay(void)
     } // loop over valid decay channels
     
     if( ievent == 0 ) LOG( "gevald_hnl", pDEBUG ) << asts.str();
+    LOG( "gevald_hnl", pDEBUG ) << "Finished event: " << ievent;
 
     ievent++;
   
@@ -1591,7 +1609,7 @@ void PrintSyntax(void)
    << "\n                1: Flux prediction from dk2nu files. Needs -f option"
    << "\n                2: Flux prediction from histograms.  Needs -f option"
    << "\n                3: HNL decay validation. Specify an origin point and 4-momentum"
-   << "\n                   in the \"ParticleGun\" section in config"
+   << "\n                   in the \"ParticleGun\" section in config. Needs -g option."
    << "\n                4: Custom geometry file validation.  Needs -g option"
    << "\n                   Specify origin, momentum, and wiggle room for both of these in the"
    << "\n                   \"ParticleGun\" section in config"
