@@ -138,6 +138,10 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   //double k_2L              = TMath::Sqrt(E_2L*E_2L - ml2);         //magnitude of lepton momentum in lab frame
   double k_2_iso           = TMath::Sqrt(k_2*k_2 - ml2);   //magnitude of lepton momentum in isobaric frame
   double cos_theta         = (2*k_1*k_2 - Q2 - ml2)/2/k_1/k_2_iso;
+  if (cos_theta > 1.)
+    cos_theta = 1.;
+  if (cos_theta < -1.)
+    cos_theta = -1.;
 
   // Eq. 7 of ref. 1
   double A_plus            = TMath::Sqrt( k_1*(k_2 - k_2_iso) );
