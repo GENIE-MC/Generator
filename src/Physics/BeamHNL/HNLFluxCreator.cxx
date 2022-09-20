@@ -266,6 +266,11 @@ flux::GNuMIFluxPassThroughInfo HNLFluxCreator::RetrieveFluxInfo() const
   return fGnmf;
 }
 //----------------------------------------------------------------------------
+flux::GNuMIFluxPassThroughInfo HNLFluxCreator::RetrieveFluxBase() const
+{
+  return fGnmf_base;
+}
+//----------------------------------------------------------------------------
 void HNLFluxCreator::SetUsingRootGeom( bool IsUsingRootGeom ) const
 {
   fIsUsingRootGeom = IsUsingRootGeom;
@@ -298,6 +303,10 @@ flux::GNuMIFluxPassThroughInfo HNLFluxCreator::MakeTupleFluxEntry( int iEntry, s
   
   LOG( "HNL", pDEBUG ) << "Getting entry " << iEntry;
   ctree->GetEntry(iEntry);
+
+  // first, let's get the base info.
+  this->FillBase( iEntry, fGnmf_base );
+  LOG( "HNL", pDEBUG ) << "fGnmf_base.ptype = " << fGnmf_base.ptype;
 
   // explicitly check if there are any allowed decays for this parent
   bool canGoForward = true;
@@ -667,7 +676,7 @@ flux::GNuMIFluxPassThroughInfo HNLFluxCreator::MakeTupleFluxEntry( int iEntry, s
   gnmf.nenergy  = p4HNL.E();                ///< Neutrino energy [GeV] for a random decay
   gnmf.ndxdznea = -9999.9;                  ///< Neutrino direction slope for a decay forced to ND
   gnmf.ndydznea = -9999.9;                  ///< See above
-  gnmf.nenergyn = boost_correction;         ///< Neutrino energy for decay forced to ND // now houses ratio of boost calcs
+  gnmf.nenergyn = boost_correction;         ///< Neutrino energy for decay forced to ND // now houses E(lab) / E(rest)
   gnmf.nwtnear  = accCorr;                  ///< weight for decay forced to ND / now acceptance correction
   gnmf.ndxdzfar = -9999.9;                  ///< Same as ND but FD
   gnmf.ndydzfar = -9999.9;                  ///< See above
@@ -782,6 +791,8 @@ flux::GNuMIFluxPassThroughInfo HNLFluxCreator::MakeTupleFluxEntry( int iEntry, s
 
   LOG( "HNL", pDEBUG )
     << "Finished MakeTupleFluxEntry()";
+
+  return gnmf;
   
 }
 //----------------------------------------------------------------------------
@@ -905,6 +916,146 @@ void HNLFluxCreator::FillNonsense( int iEntry, flux::GNuMIFluxPassThroughInfo * 
   
 }
 //----------------------------------------------------------------------------
+void HNLFluxCreator::FillBase( int iEntry, flux::GNuMIFluxPassThroughInfo &gnmf ) const
+{
+  gnmf.pcodes = 1;                          ///< converted to PDG
+  gnmf.units = 0;                           ///< cm
+  
+  gnmf.fgPdgC = decay_ntype;                ///< PDG code
+
+  gnmf.fgXYWgt = nuray_wgt[0];              ///< x-y weight of 0th component
+
+  TLorentzVector dv4( decay_vx, decay_vy, decay_vz, 0.0 ); // in cm
+  TLorentzVector dp4( nuray_px[0], nuray_py[0], nuray_pz[0], nuray_E[0] ); // GeV?
+  TVector3 dv3 = dv4.Vect(), dp3 = dp4.Vect();
+  TVector3 detOrigin( fCx * units::m / units::cm, fCy * units::m / units::cm, fCz * units::m / units::cm );
+  TVector3 dumor( 0.0, 0.0, 0.0 );
+  dv3.SetXYZ( dv3.X() - detOrigin.X(), dv3.Y() - detOrigin.Y(), dv3.Z() - detOrigin.Z() );
+  dp3 = this->ApplyUserRotation( dp3, dumor, fDetRotation, true );
+  TLorentzVector dv4u( dv3.X(), dv3.Y(), dv3.Z(), 0.0 );
+  TLorentzVector dp4u( dp3.Px(), dp3.Py(), dp3.Pz(), dp4.E() );
+
+  gnmf.fgP4 = dv4;                           ///< generated 4-momentum, NEAR coord
+  gnmf.fgX4 = dp4;                           ///< generated 4-position, NEAR coord
+  gnmf.fgP4User = dv4u;                      ///< generated 4-momentum, USER coord
+  gnmf.fgX4User = dp4u;                      ///< generated 4-position, USER coord
+
+  gnmf.evtno    = iEntry;                   ///< Event number (proton on target) 
+                                                 // RETHERE which is it?
+  gnmf.ndxdz    = nuray_px[0]/nuray_pz[0];  ///< Neutrino direction slope for a random decay
+  gnmf.ndydz    = nuray_py[0]/nuray_pz[0];  ///< See above
+  gnmf.npz      = nuray_pz[0];              ///< Neutrino momentum [GeV] along z direction (beam axis)
+  gnmf.nenergy  = nuray_E[0];               ///< Neutrino energy [GeV] for a random decay
+  gnmf.ndxdznea = nuray_px[1]/nuray_pz[1];  ///< Neutrino direction slope for a decay forced to ND
+  gnmf.ndydznea = nuray_py[1]/nuray_pz[1];  ///< See above
+  gnmf.nenergyn = nuray_E[1];               ///< Neutrino energy for decay forced to ND
+  gnmf.nwtnear  = nuray_wgt[1];             ///< weight for decay forced to ND
+  gnmf.ndxdzfar = nuray_px[2]/nuray_pz[2];  ///< Same as ND but FD
+  gnmf.ndydzfar = nuray_py[2]/nuray_pz[2];  ///< See above
+  gnmf.nenergyf = nuray_E[2];               ///< See above
+  gnmf.nwtfar   = nuray_wgt[2];             ///< See above
+  gnmf.norig    = decay_norig;              ///< Obsolete...
+  
+  gnmf.ndecay = decay_ndecay;               ///< Decay mode that produced neutrino
+  gnmf.ntype  = decay_ntype;                ///< Neutrino "flavour" (i.e. of co-produced lepton)
+
+  gnmf.vx = decay_vx;                       ///< X position of hadron/muon decay
+  gnmf.vy = decay_vy;                       ///< Y position of hadron/muon decay
+  gnmf.vz = decay_vz;                       ///< Z position of hadron/muon decay
+
+  gnmf.pdpx = decay_pdpx;                   ///< Parent X momentum at decay point
+  gnmf.pdpy = decay_pdpy;                   ///< Parent Y momentum at decay point
+  gnmf.pdpz = decay_pdpz;                   ///< Parent Z momentum at decay point
+
+  gnmf.ppdxdz = decay_ppdxdz;               ///< Parent dxdz direction at production
+  gnmf.ppdydz = decay_ppdydz;               ///< Parent dydz direction at production
+  gnmf.pppz = decay_pppz;                   ///< Parent energy at production
+
+  gnmf.ppmedium = decay_ppmedium;           ///< Tracking medium number where parent was produced
+  gnmf.ptype = decay_ptype;                 ///< Parent GEANT code particle ID converted to PDG
+
+  gnmf.ppvx = ppvx;                         ///< Parent production vertex X (cm)
+  gnmf.ppvy = ppvy;                         ///< Parent production vertex Y (cm)
+  gnmf.ppvz = ppvz;                         ///< Parent production vertex Z (cm)
+  
+  gnmf.necm = decay_necm;                   ///< Neutrino energy in COM frame
+  gnmf.nimpwt = decay_nimpwt;               ///< Weight of neutrino parent
+
+  gnmf.xpoint = -9999.9;                    ///< Debugging hook (unused)
+  gnmf.ypoint = -9999.9;                    ///< Debugging hook (unused)
+  gnmf.zpoint = -9999.9;                    ///< Debugging hook (unused)
+
+  gnmf.tvx = tgtexit_tvx;                   ///< X exit point of parent particle at the target
+  gnmf.tvy = tgtexit_tvy;                   ///< Y exit point of parent particle at the target
+  gnmf.tvz = tgtexit_tvz;                   ///< Z exit point of parent particle at the target
+
+  gnmf.tpx = tgtexit_tpx;                   ///< Parent momentum exiting the target (X)
+  gnmf.tpy = tgtexit_tpy;                   ///< Parent momentum exiting the target (Y)
+  gnmf.tpz = tgtexit_tpz;                   ///< Parent momentum exiting the target (Z)
+
+  gnmf.tptype = tgtexit_tptype;             ///< Parent particle ID exiting the target conv to PDG
+  gnmf.tgen = tgtexit_tgen;                 ///< Parent generation in cascade
+
+  // RETHERE -- find grandparent and fill with this...
+  // typically this is got from ancestor tree as:
+  // ancestor[size(ancestor) - 1] ==> neutrino
+  // ancestor[size(ancestor) - 2] ==> parent
+  // ancestor[size(ancestor) - 3] ==> grandparent
+  gnmf.tgptype = -9999;                     ///< Type of particle that created a particle...
+  
+  gnmf.tgppx = -9999.9;                     ///< Momentum of particle that created particle at IP
+  gnmf.tgppy = -9999.9;                     ///< Momentum of particle that created particle at IP
+  gnmf.tgppz = -9999.9;                     ///< Momentum of particle that created particle at IP
+  // ---
+
+  gnmf.tprivx = ancestor_startx[0];         ///< Primary particle interaction vertex
+  gnmf.tprivy = ancestor_starty[0];         ///< Primary particle interaction vertex
+  gnmf.tprivz = ancestor_startz[0];         ///< Primary particle interaction vertex
+
+  gnmf.beamx = beam0x;                      ///< Primary proton origin
+  gnmf.beamy = beam0y;                      ///< Primary proton origin
+  gnmf.beamz = beam0z;                      ///< Primary proton origin
+
+  gnmf.beampx = ancestor_startpx[0];        ///< Primary proton momentum
+  gnmf.beampy = ancestor_startpy[0];        ///< Primary proton momentum
+  gnmf.beampz = ancestor_startpz[0];        ///< Primary proton momentum
+
+#ifndef SKIP_MINERVA_MODS 
+  gnmf.ntrajectory = trArSize;
+  gnmf.overflow = false; // don't limit N ancestors
+
+  for( unsigned int i = 0; i < 10; i++ ){
+    gnmf.pdgcode[i] = ancestor_pdg[i];
+    gnmf.trackId[i] = -9; // not filled
+    gnmf.parentId[i] = -9; // not filled
+    
+    gnmf.startx[i] = ancestor_startx[i];
+    gnmf.starty[i] = ancestor_starty[i];
+    gnmf.startz[i] = ancestor_startz[i];
+    gnmf.startpx[i] = ancestor_startpx[i];
+    gnmf.startpy[i] = ancestor_startpy[i];
+    gnmf.startpz[i] = ancestor_startpz[i];
+    if( i < 9 ){
+      gnmf.stopx[i] = ancestor_startx[i+1];
+      gnmf.stopy[i] = ancestor_starty[i+1];
+      gnmf.stopz[i] = ancestor_startz[i+1];
+    } else {
+      gnmf.stopx[i] = -9999.9;
+      gnmf.stopy[i] = -9999.9;
+      gnmf.stopz[i] = -9999.9;
+    }
+    gnmf.pprodpx[i] = ancestor_pprodpx[i];
+    gnmf.pprodpy[i] = ancestor_pprodpx[i];
+    gnmf.pprodpz[i] = ancestor_pprodpx[i];
+
+    gnmf.proc[i] = ancestor_proc[i];
+    gnmf.ivol[i] = ancestor_ivol[i];
+    gnmf.fvol[i] = -9999; // not filled
+  }
+#endif
+  
+}
+//----------------------------------------------------------------------------
 void HNLFluxCreator::OpenFluxInput( std::string finpath ) const
 {
   //if( std::strcmp( finpath.c_str(), fCurrPath.c_str() ) == 0 ) return;
@@ -966,7 +1117,59 @@ void HNLFluxCreator::InitialiseTree() const
   decay_vx = 0.0; decay_vy = 0.0; decay_vz = 0.0;
   decay_pdpx = 0.0; decay_pdpy = 0.0; decay_pdpz = 0.0;
   decay_nimpwt = 0.0;
+
+  arSize = 0, anArSize = 0, trArSize = 0;
+  djob = -9999;
+  ppvx = -9999.9, ppvy = -9999.9, ppvz = -9999.9;
+  decay_norig = -9999, decay_ndecay = -9999, decay_ntype = -9999;
+  decay_ppdxdz = -9999.9, decay_ppdydz = -9999.9, decay_pppz = -9999.9, decay_ppenergy = -9999.9;
+  decay_ppmedium = -9999;
+  decay_muparpx = -9999.9, decay_muparpy = -9999.9, decay_muparpz = -9999.9, decay_mupare = -9999.9;
   
+  tgtexit_tvx = -9999.9, tgtexit_tvy = -9999.9, tgtexit_tvz = -9999.9;
+  tgtexit_tpx = -9999.9, tgtexit_tpy = -9999.9, tgtexit_tpz = -9999.9;
+  tgtexit_tptype = -9999, tgtexit_tgen = -9999;
+
+  for( int i = 0; i < maxArray; i++ ){
+    nuray_px[i]  = -9999.9;
+    nuray_py[i]  = -9999.9;
+    nuray_pz[i]  = -9999.9;
+    nuray_E[i]   = -9999.9;
+    nuray_wgt[i] = -9999.9;
+
+    ancestor_pdg[i]     = -9999;
+    ancestor_startx[i]  = -9999.9;
+    ancestor_starty[i]  = -9999.9;
+    ancestor_startz[i]  = -9999.9;
+    ancestor_startpx[i] = -9999.9;
+    ancestor_startpy[i] = -9999.9;
+    ancestor_startpz[i] = -9999.9;
+    ancestor_stoppx[i]  = -9999.9;
+    ancestor_stoppy[i]  = -9999.9;
+    ancestor_stoppz[i]  = -9999.9;
+    ancestor_polx[i]    = -9999.9;
+    ancestor_poly[i]    = -9999.9;
+    ancestor_polz[i]    = -9999.9;
+    ancestor_pprodpx[i] = -9999.9;
+    ancestor_pprodpy[i] = -9999.9;
+    ancestor_pprodpz[i] = -9999.9;
+    ancestor_nucleus[i] = -9999;
+    
+    traj_trkx[i]  = -9999.9;
+    traj_trky[i]  = -9999.9;
+    traj_trkz[i]  = -9999.9;
+    traj_trkpx[i] = -9999.9;
+    traj_trkpy[i] = -9999.9;
+    traj_trkpz[i] = -9999.9;
+
+    for( int j = 0; j < maxC; j++ ){
+      ancestor_proc[i*maxC+j] = 0;
+      ancestor_ivol[i*maxC+j] = 0;
+      ancestor_imat[i*maxC+j] = 0;
+    }
+  }
+  
+  // necessary branches
   ctree->SetBranchAddress( "potnum",       &potnum       );
   ctree->SetBranchAddress( "decay_ptype",  &decay_ptype  );
   ctree->SetBranchAddress( "decay_vx",     &decay_vx     );
@@ -977,15 +1180,130 @@ void HNLFluxCreator::InitialiseTree() const
   ctree->SetBranchAddress( "decay_pdpz",   &decay_pdpz   );
   ctree->SetBranchAddress( "decay_necm",   &decay_necm   );
   ctree->SetBranchAddress( "decay_nimpwt", &decay_nimpwt );
+  
+  // extra branches
+  if( ctree->GetBranch( "job" ) ) ctree->SetBranchAddress( "job", &djob );
+  if( ctree->GetBranch( "decay_norig" ) ) ctree->SetBranchAddress( "decay_norig", &decay_norig );
+  if( ctree->GetBranch( "decay_ndecay" ) ) ctree->SetBranchAddress( "decay_ndecay", &decay_ndecay );
+  if( ctree->GetBranch( "decay_ntype" ) ) ctree->SetBranchAddress( "decay_ntype", &decay_ntype );
+  if( ctree->GetBranch( "decay_ppdxdz" ) ) ctree->SetBranchAddress( "decay_ppdxdz", &decay_ppdxdz );
+  if( ctree->GetBranch( "decay_ppdydz" ) ) ctree->SetBranchAddress( "decay_ppdydz", &decay_ppdydz );
+  if( ctree->GetBranch( "decay_pppz" ) ) ctree->SetBranchAddress( "decay_pppz", &decay_pppz );
+  if( ctree->GetBranch( "decay_ppenergy" ) ) ctree->SetBranchAddress( "decay_ppenergy", &decay_ppenergy );
+  if( ctree->GetBranch( "decay_ppmedium" ) ) ctree->SetBranchAddress( "decay_ppmedium", &decay_ppmedium );
+  if( ctree->GetBranch( "decay_ptype" ) ) ctree->SetBranchAddress( "decay_ptype", &decay_ptype );
+  if( ctree->GetBranch( "decay_muparpx" ) ) ctree->SetBranchAddress( "decay_muparpx", &decay_muparpx );
+  if( ctree->GetBranch( "decay_muparpy" ) ) ctree->SetBranchAddress( "decay_muparpy", &decay_muparpy );
+  if( ctree->GetBranch( "decay_muparpz" ) ) ctree->SetBranchAddress( "decay_muparpz", &decay_muparpz );
+  if( ctree->GetBranch( "decay_mupare" ) ) ctree->SetBranchAddress( "decay_mupare", &decay_mupare );
+  
+  if( ctree->GetBranch( "nuray_size" ) ) ctree->SetBranchAddress( "nuray_size", &arSize );
+  if( ctree->GetBranch( "nuray_px" ) ) ctree->SetBranchAddress( "nuray_px", nuray_px );
+  if( ctree->GetBranch( "nuray_py" ) ) ctree->SetBranchAddress( "nuray_py", nuray_py );
+  if( ctree->GetBranch( "nuray_pz" ) ) ctree->SetBranchAddress( "nuray_pz", nuray_pz );
+  if( ctree->GetBranch( "nuray_E" ) ) ctree->SetBranchAddress( "nuray_E", nuray_E );
+  if( ctree->GetBranch( "nuray_wgt" ) ) ctree->SetBranchAddress( "nuray_wgt", nuray_wgt );
+
+  if( ctree->GetBranch( "ancestor_size" ) ) ctree->SetBranchAddress( "ancestor_size", &anArSize );
+  if( ctree->GetBranch( "ancestor_pdg" ) ) ctree->SetBranchAddress( "ancestor_pdg", ancestor_pdg );
+  if( ctree->GetBranch( "ancestor_startx" ) ) ctree->SetBranchAddress( "ancestor_startx", ancestor_startx );
+  if( ctree->GetBranch( "ancestor_starty" ) ) ctree->SetBranchAddress( "ancestor_starty", ancestor_starty );
+  if( ctree->GetBranch( "ancestor_startz" ) ) ctree->SetBranchAddress( "ancestor_startz", ancestor_startz );
+  if( ctree->GetBranch( "ancestor_startpx" ) ) ctree->SetBranchAddress( "ancestor_startpx", ancestor_startpx );
+  if( ctree->GetBranch( "ancestor_startpy" ) ) ctree->SetBranchAddress( "ancestor_startpy", ancestor_starty );
+  if( ctree->GetBranch( "ancestor_startpz" ) ) ctree->SetBranchAddress( "ancestor_startpz", ancestor_startpz );
+  if( ctree->GetBranch( "ancestor_stoppx" ) ) ctree->SetBranchAddress( "ancestor_stoppx", ancestor_stoppx );
+  if( ctree->GetBranch( "ancestor_stoppy" ) ) ctree->SetBranchAddress( "ancestor_stoppy", ancestor_stoppy );
+  if( ctree->GetBranch( "ancestor_stoppz" ) ) ctree->SetBranchAddress( "ancestor_stoppz", ancestor_stoppz );
+  if( ctree->GetBranch( "ancestor_polx" ) ) ctree->SetBranchAddress( "ancestor_polx", ancestor_polx );
+  if( ctree->GetBranch( "ancestor_poly" ) ) ctree->SetBranchAddress( "ancestor_poly", ancestor_poly );
+  if( ctree->GetBranch( "ancestor_polz" ) ) ctree->SetBranchAddress( "ancestor_polz", ancestor_polz );
+  if( ctree->GetBranch( "ancestor_pprodpx" ) ) ctree->SetBranchAddress( "ancestor_pprodpx", ancestor_pprodpx );
+  if( ctree->GetBranch( "ancestor_pprodpy" ) ) ctree->SetBranchAddress( "ancestor_pprodpy", ancestor_pprodpy );
+  if( ctree->GetBranch( "ancestor_pprodpz" ) ) ctree->SetBranchAddress( "ancestor_pprodpz", ancestor_pprodpz );
+  if( ctree->GetBranch( "ancestor_proc" ) ) ctree->SetBranchAddress( "ancestor_proc", ancestor_proc );
+  if( ctree->GetBranch( "ancestor_ivol" ) ) ctree->SetBranchAddress( "ancestor_ivol", ancestor_ivol );
+  if( ctree->GetBranch( "ancestor_imat" ) ) ctree->SetBranchAddress( "ancestor_imat", ancestor_imat );
+
+  if( ctree->GetBranch( "ppvx" ) ) ctree->SetBranchAddress( "ppvx", &ppvx );
+  if( ctree->GetBranch( "ppvy" ) ) ctree->SetBranchAddress( "ppvy", &ppvy );
+  if( ctree->GetBranch( "ppvz" ) ) ctree->SetBranchAddress( "ppvz", &ppvz );
+
+  if( ctree->GetBranch( "tgtexit_tvx" ) ) ctree->SetBranchAddress( "tgtexit_tvx", &tgtexit_tvx );
+  if( ctree->GetBranch( "tgtexit_tvy" ) ) ctree->SetBranchAddress( "tgtexit_tvy", &tgtexit_tvy );
+  if( ctree->GetBranch( "tgtexit_tvz" ) ) ctree->SetBranchAddress( "tgtexit_tvz", &tgtexit_tvz );
+
+  if( ctree->GetBranch( "tgtexit_tpx" ) ) ctree->SetBranchAddress( "tgtexit_tpx", &tgtexit_tpx );
+  if( ctree->GetBranch( "tgtexit_tpy" ) ) ctree->SetBranchAddress( "tgtexit_tpy", &tgtexit_tpy );
+  if( ctree->GetBranch( "tgtexit_tpz" ) ) ctree->SetBranchAddress( "tgtexit_tpz", &tgtexit_tpz );
+
+  if( ctree->GetBranch( "tgtexit_tptype" ) ) ctree->SetBranchAddress( "tgtexit_tptype", &tgtexit_tptype );
+  if( ctree->GetBranch( "tgtexit_tgen" ) ) ctree->SetBranchAddress( "tgtexit_tgen", &tgtexit_tgen );
+
+  if( ctree->GetBranch( "traj_size" ) ) ctree->SetBranchAddress( "traj_size", &trArSize );
+  if( ctree->GetBranch( "traj_trkx" ) ) ctree->SetBranchAddress( "traj_trkx", traj_trkx );
+  if( ctree->GetBranch( "traj_trky" ) ) ctree->SetBranchAddress( "traj_trky", traj_trky );
+  if( ctree->GetBranch( "traj_trkz" ) ) ctree->SetBranchAddress( "traj_trkz", traj_trkz );
+  if( ctree->GetBranch( "traj_trkpx" ) ) ctree->SetBranchAddress( "traj_trkpx", traj_trkpx );
+  if( ctree->GetBranch( "traj_trkpy" ) ) ctree->SetBranchAddress( "traj_trkpy", traj_trkpy );
+  if( ctree->GetBranch( "traj_trkpz" ) ) ctree->SetBranchAddress( "traj_trkpz", traj_trkpz );
+  
 }
 //----------------------------------------------------------------------------
 void HNLFluxCreator::InitialiseMeta() const
 { 
   job = 0;
   pots = 0.0;
+  
+  beam0x = -9999.9;
+  beam0y = -9999.9;
+  beam0z = -9999.9;
+  beamhwidth = -9999.9;
+  beamvwidth = -9999.9;
+  beamdxdz = -9999.9;
+  beamdydz = -9999.9;
+  mArSize = 0;
 
+  for( int i = 0; i < maxC; i++ ){
+    beamsim[i] = 0;
+    physics[i] = 0;
+    physcuts[i] = 0;
+    tgtcfg[i] = 0;
+    horncfg[i] = 0;
+    dkvolcfg[i] = 0;
+  }
+
+  for( int i = 0; i < maxArray; i++ ){
+    location_x[i] = -9999.9;
+    location_y[i] = -9999.9;
+    location_z[i] = -9999.9;
+
+    for( int j = 0; j < maxC; j++ ){ location_name[i*maxC+j] = 0; }
+  }
+
+  // necessary branches
   cmeta->SetBranchAddress( "job",  &job  );
   cmeta->SetBranchAddress( "pots", &pots );
+
+  // extra branches
+  if( cmeta->GetBranch( "beamsim" ) ) cmeta->SetBranchAddress( "beamsim", beamsim );
+  if( cmeta->GetBranch( "physics" ) ) cmeta->SetBranchAddress( "physics", physics );
+  if( cmeta->GetBranch( "physcuts" ) ) cmeta->SetBranchAddress( "physcuts", physcuts );
+  if( cmeta->GetBranch( "tgtcfg" ) ) cmeta->SetBranchAddress( "tgtcfg", tgtcfg );
+  if( cmeta->GetBranch( "horncfg" ) ) cmeta->SetBranchAddress( "horncfg", horncfg );
+  if( cmeta->GetBranch( "dkvolcfg" ) ) cmeta->SetBranchAddress( "dkvolcfg", dkvolcfg );
+  if( cmeta->GetBranch( "beam0x" ) ) cmeta->SetBranchAddress( "beam0x", &beam0x );
+  if( cmeta->GetBranch( "beam0y" ) ) cmeta->SetBranchAddress( "beam0y", &beam0y );
+  if( cmeta->GetBranch( "beam0z" ) ) cmeta->SetBranchAddress( "beam0z", &beam0z );
+  if( cmeta->GetBranch( "beamhwidth" ) ) cmeta->SetBranchAddress( "beamhwidth", &beamhwidth );
+  if( cmeta->GetBranch( "beamvwidth" ) ) cmeta->SetBranchAddress( "beamvwidth", &beamvwidth );
+  if( cmeta->GetBranch( "beamdxdz" ) ) cmeta->SetBranchAddress( "beamdxdz", &beamdxdz );
+  if( cmeta->GetBranch( "beamdydz" ) ) cmeta->SetBranchAddress( "beamdydz", &beamdydz );
+  if( cmeta->GetBranch( "arSize" ) ) cmeta->SetBranchAddress( "arSize", &mArSize );
+  if( cmeta->GetBranch( "location_x" ) ) cmeta->SetBranchAddress( "location_x", location_x );
+  if( cmeta->GetBranch( "location_y" ) ) cmeta->SetBranchAddress( "location_y", location_y );
+  if( cmeta->GetBranch( "location_z" ) ) cmeta->SetBranchAddress( "location_z", location_z );
+  if( cmeta->GetBranch( "location_name" ) ) cmeta->SetBranchAddress( "location_name", location_name );
 }
 //----------------------------------------------------------------------------
 void HNLFluxCreator::ReadBRs() const

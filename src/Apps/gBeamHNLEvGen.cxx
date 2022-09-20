@@ -297,17 +297,23 @@ int main(int argc, char ** argv)
 
   // if using dk2nu, add flux info to the tree!
   // TODO add other formats?
-  flux::GNuMIFluxPassThroughInfo gnmf;
+  flux::GNuMIFluxPassThroughInfo gnmf, gnmfBase;
   if( gOptIsUsingDk2nu ) {
     // fill the flux object with nonsense to start with
     flux::GNuMIFluxPassThroughInfo * ptGnmf = new flux::GNuMIFluxPassThroughInfo();
+    flux::GNuMIFluxPassThroughInfo * ptGnmfBase = new flux::GNuMIFluxPassThroughInfo(); // keeps info from dk2nu "as-is"
     gnmf = *ptGnmf;
-    delete ptGnmf;
-    FillFluxNonsense( gnmf );
+    gnmfBase = *ptGnmfBase;
+    delete ptGnmf; delete ptGnmfBase;
+    FillFluxNonsense( gnmf ); FillFluxNonsense( gnmfBase );
     TBranch * flux = ntpw.EventTree()->Branch( "flux",
 					       "genie::flux::GNuMIFluxPassThroughInfo",
 					       &gnmf, 32000, 1 );
     flux->SetAutoDelete(kFALSE);
+    TBranch * fluxBase = ntpw.EventTree()->Branch( "fluxBase",
+						   "genie::flux::GNuMIFluxPassThroughInfo",
+						   &gnmfBase, 32000, 1 );
+    fluxBase->SetAutoDelete(kFALSE);
   }
 
   LOG("gevgen_hnl", pNOTICE)
@@ -459,12 +465,15 @@ int main(int argc, char ** argv)
 	 fluxCreator->ProcessEventRecord( event );
 	 
 	 flux::GNuMIFluxPassThroughInfo retGnmf = fluxCreator->RetrieveFluxInfo();
+	 flux::GNuMIFluxPassThroughInfo retGnmfBase = fluxCreator->RetrieveFluxBase();
 	 FillFlux( gnmf, retGnmf );
+	 FillFlux( gnmfBase, retGnmfBase );
 
 	 LOG( "gevgen_hnl", pDEBUG )
 	   << "\n****** gnmf.fgXYWgt = " << gnmf.fgXYWgt
 	   << "\n****** gnmf.ptype = " << gnmf.ptype
-	   << "\n****** gnmf.ppmedium  " << gnmf.ppmedium;
+	   << "\n****** gnmf.ppmedium  " << gnmf.ppmedium
+	   << "\n****** gnmfBase.ptype = " << gnmfBase.ptype;
 	 
 	 // check to see if this was nonsense
 	 if( ! event->Particle(0) ){ iflux++; continue; }

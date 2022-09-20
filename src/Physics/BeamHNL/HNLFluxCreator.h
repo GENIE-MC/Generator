@@ -139,6 +139,7 @@ namespace genie{
       // get dk2nu flux info
       flux::GNuMIFluxPassThroughInfo * RetrieveGNuMIFluxPassThroughInfo() const;
       flux::GNuMIFluxPassThroughInfo RetrieveFluxInfo() const;
+      flux::GNuMIFluxPassThroughInfo RetrieveFluxBase() const;
 
       // return information about frames
       std::vector< double > GetB2UTranslation() const { return fB2UTranslation; }
@@ -153,6 +154,7 @@ namespace genie{
       // workhorse methods
       genie::flux::GNuMIFluxPassThroughInfo MakeTupleFluxEntry( int iEntry, std::string finpath ) const;
       void FillNonsense( int iEntry, genie::flux::GNuMIFluxPassThroughInfo * gnmf ) const;
+      void FillBase( int iEntry, genie::flux::GNuMIFluxPassThroughInfo &gnmf ) const;
 
       // init
       void OpenFluxInput( std::string finpath ) const;
@@ -240,6 +242,8 @@ namespace genie{
       mutable int fLepPdg; // pdg code of co-produced lepton
       mutable double parentMass, parentMomentum, parentEnergy; // GeV
 
+      static const int maxArray = 30, maxC = 100;
+
       // tree variables. Add as per necessary.
       mutable double potnum;                             ///< N POT for this SM-v
       mutable int    decay_ptype;                        ///< PDG code of parent
@@ -248,18 +252,48 @@ namespace genie{
       mutable double decay_necm;                         ///< SM v CM energy [GeV]
       mutable double decay_nimpwt;                       ///< Importance weight from beamsim
 
+      mutable int arSize, anArSize, trArSize;
+      mutable int djob;
+      mutable double ppvx, ppvy, ppvz;
+      mutable int decay_norig, decay_ndecay, decay_ntype;
+      mutable double decay_ppdxdz, decay_ppdydz, decay_pppz, decay_ppenergy;
+      mutable int decay_ppmedium;
+      mutable double decay_muparpx, decay_muparpy, decay_muparpz, decay_mupare;
+
+      mutable double nuray_px[maxArray], nuray_py[maxArray], nuray_pz[maxArray], nuray_E[maxArray], nuray_wgt[maxArray];
+      
+      mutable int ancestor_pdg[maxArray];
+      mutable double ancestor_startx[maxArray], ancestor_starty[maxArray], ancestor_startz[maxArray], ancestor_startt[maxArray];
+      mutable double ancestor_startpx[maxArray], ancestor_startpy[maxArray], ancestor_startpz[maxArray];
+      mutable double ancestor_stoppx[maxArray], ancestor_stoppy[maxArray], ancestor_stoppz[maxArray];
+      mutable double ancestor_polx[maxArray], ancestor_poly[maxArray], ancestor_polz[maxArray];
+      mutable double ancestor_pprodpx[maxArray], ancestor_pprodpy[maxArray], ancestor_pprodpz[maxArray];
+      mutable int ancestor_nucleus[maxArray];
+      mutable char ancestor_proc[maxArray*maxC], ancestor_ivol[maxArray*maxC], ancestor_imat[maxArray*maxC];
+
+      mutable double tgtexit_tvx, tgtexit_tvy, tgtexit_tvz;
+      mutable double tgtexit_tpx, tgtexit_tpy, tgtexit_tpz;
+      mutable int tgtexit_tptype, tgtexit_tgen;
+
+      mutable double traj_trkx[maxArray], traj_trky[maxArray], traj_trkz[maxArray];
+      mutable double traj_trkpx[maxArray], traj_trkpy[maxArray], traj_trkpz[maxArray];
+      
       // meta variables. Add as necessary
       mutable int    job;                                ///< beamsim MC job number
       mutable double pots;                               ///< how many pot in this job?
 
-      mutable genie::flux::GNuMIFluxPassThroughInfo fGnmf;
+      mutable int mArSize;
+      mutable char beamsim[maxC], physics[maxC], physcuts[maxC];
+      mutable char tgtcfg[maxC], horncfg[maxC], dkvolcfg[maxC];
+      mutable double beam0x, beam0y, beam0z;
+      mutable double beamhwidth, beamvwidth;
+      mutable double beamdxdz, beamdydz;
+      mutable double location_x[maxArray], location_y[maxArray], location_z[maxArray];
+      mutable char location_name[maxArray*maxC];
 
-      //mutable double EntryPOT; // how many POT simulated since the last HNL parent?
-      //mutable int potnum_prev; // value of potnum for previous entry
-      //mutable int potnum_now; // value of potnum for current entry
-      //mutable int deltaPotnum; // how many POT between 2 POT that made HNL-producing hadrons
-      //mutable double multiplicity; // how many HNL-producing hadrons made by one POT?
-      //mutable int iMultReset; // if reached end of one POT family, reset multiplicity
+      mutable genie::flux::GNuMIFluxPassThroughInfo fGnmf;
+      mutable genie::flux::GNuMIFluxPassThroughInfo fGnmf_base; // to store unchanged input info
+
       mutable double POTScaleWeight;
       mutable std::vector<double> fScales;
 

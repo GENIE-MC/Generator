@@ -2308,6 +2308,22 @@ void ConvertToGRooTracker(void)
   rootracker_tree->Branch( "HNL_coup_m",   &brHNLMCoup,    "HNL_coup_m/D"   );
   rootracker_tree->Branch( "HNL_coup_t",   &brHNLTCoup,    "HNL_coup_t/D"   );
   rootracker_tree->Branch( "HNL_Majorana", &brHNLMajorana, "HNL_Majorana/O" );
+
+  // related to flux
+  int brHNLNdecay, brHNLNtype, brHNLLepPdg;
+  double brHNLNdxdz, brHNLNdydz, brHNLNpz, brHNLNecm, brHNLAccCorr;
+  if(gOptOutFileFormat == kConvFmt_numi_rootracker) {
+    rootracker_tree->Branch( "NumiHNLFluxNdxdz",   &brHNLNdxdz,   "NumiHNLFluxNdxdz/D"   );
+    rootracker_tree->Branch( "NumiHNLFluxNdydz",   &brHNLNdydz,   "NumiHNLFluxNdydz/D"   );
+    rootracker_tree->Branch( "NumiHNLFluxNpz",     &brHNLNpz,     "NumiHNLFluxNpz/D"     );
+    rootracker_tree->Branch( "NumiHNLFluxNdecay",  &brHNLNdecay,  "NumiHNLFluxNdecay/I"  );
+    rootracker_tree->Branch( "NumiHNLFluxNtype",   &brHNLNtype,   "NumiHNLFluxNtype/I"   );
+    rootracker_tree->Branch( "NumiHNLFluxLepPdg",  &brHNLLepPdg,  "NumiHNLFluxLepPdg/I"  );
+    rootracker_tree->Branch( "NumiHNLFluxNecm",    &brHNLNecm,    "NumiHNLFluxNecm/D"    );
+    rootracker_tree->Branch( "NumiHNLFluxAccCorr", &brHNLAccCorr, "NumiHNLFluxAccCorr/D" );
+
+    LOG( "gntpc", pDEBUG ) << "HNLFlux Branch";
+  }
   
 #endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
 
@@ -2351,6 +2367,18 @@ void ConvertToGRooTracker(void)
   if(gOptOutFileFormat == kConvFmt_numi_rootracker) {
      gtree->SetBranchAddress("flux", &gnumi_flux_info);
   }
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+
+  // doing some permutation magic here
+  // gnumi_flux_info ==> the "base flux" for SM neutrino
+  // gnumi_flux_ster ==> the "new flux" for HNL neutrino
+  flux::GNuMIFluxPassThroughInfo * gnumi_flux_base = 0;
+  flux::GNuMIFluxPassThroughInfo * gnumi_flux_ster = 0;
+  if(gOptOutFileFormat == kConvFmt_numi_rootracker) {
+    gtree->SetBranchAddress("fluxBase", &gnumi_flux_base);
+    gtree->SetBranchAddress("flux", &gnumi_flux_ster);
+  }
+#endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
 #else
   LOG("gntpc", pWARN) 
     << "\n Flux drivers are not enabled." 
@@ -2365,6 +2393,16 @@ void ConvertToGRooTracker(void)
     brHNLMCoup    = -9999.9;
     brHNLTCoup    = -9999.9;
     brHNLMajorana =   false;
+
+    brHNLNdecay   = -9999;
+    brHNLNtype    = -9999;
+    brHNLLepPdg   = -9999;
+
+    brHNLNdxdz    = -9999.9;
+    brHNLNdydz    = -9999.9;
+    brHNLNpz      = -9999.9;
+    brHNLNecm     = -9999.9;
+    brHNLAccCorr  = -9999.9;
 
     TBranch * BRHNLMass = 0, * BRHNLECoup = 0, * BRHNLMCoup = 0, * BRHNLTCoup = 0, * BRHNLMaj = 0;
     double locHNLMass, locHNLECoup, locHNLMCoup, locHNLTCoup;
@@ -2645,6 +2683,20 @@ void ConvertToGRooTracker(void)
     //
     if(gOptOutFileFormat == kConvFmt_numi_rootracker) {
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
+
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+
+      if( gnumi_flux_base ) gnumi_flux_info = gnumi_flux_base;
+      
+      // debug
+      if( gnumi_flux_base && gnumi_flux_ster ){
+	LOG( "gntpc", pDEBUG )
+	  << "\n\n\n\n\n HNL: " << *gnumi_flux_ster
+	  << "\n\nBASE: " << *gnumi_flux_base << "\n\n\n\n\n";
+      }
+
+#endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+
      // Copy flux info if this is the numi rootracker variance.
      if(gnumi_flux_info) {
        brNumiFluxRun      = gnumi_flux_info->run;
@@ -2722,6 +2774,21 @@ void ConvertToGRooTracker(void)
     brHNLMCoup = locHNLMCoup;
     brHNLTCoup = locHNLTCoup;
     brHNLMajorana = locHNLMajorana;
+
+    if( gnumi_flux_ster ){
+      brHNLNdecay = gnumi_flux_ster->ndecay;
+      brHNLNtype  = gnumi_flux_ster->ntype;
+      brHNLLepPdg = gnumi_flux_ster->ppmedium;
+      
+      brHNLNdxdz   = gnumi_flux_ster->ndxdz;
+      brHNLNdydz   = gnumi_flux_ster->ndydz;
+      brHNLNpz     = gnumi_flux_ster->npz;
+      brHNLNecm    = gnumi_flux_ster->necm;
+      brHNLAccCorr = gnumi_flux_ster->nwtnear;
+    }
+
+    LOG( "gntpc", pDEBUG ) << "HNLFlux locals set";
+    
 #endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
 
     // fill tree
