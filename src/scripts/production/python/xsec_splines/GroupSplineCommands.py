@@ -61,14 +61,15 @@ e_name_def = { 11 : 'e',
 
 def GroupSplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', arch='SL6.x86_64', production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                          softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'), xml_dir=os.getenv('PWD'), mother_dir='', 
-                         add_list=False, root_output = False, add_nucleons = False ) :
+                         process_name="group_vA",add_list=False, root_output = False, add_nucleons = False ) :
 
     if mother_dir != '' : 
         if os.path.exists(mother_dir) :
             xml_files_motherdir = glob.glob(mother_dir+"/*.xml")
         else :
             print ( mother_dir+"doesn't exist")
-            
+            return  
+
         #Given a mother directory and a daughter directory, the script tryies
         # to copy (ln -s) all the files in the mother dir into the daughter
         # If the file alredy exists, the link is not created.
@@ -80,9 +81,11 @@ def GroupSplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', ar
             
     if os.path.exists(xml_dir) :
         xml_files_dir = glob.glob(xml_dir+"/*.xml")
+        if len(xml_files_dir) ==0 : 
+            return 
     else : 
         print ( xml_dir+"doesn't exist")
-        
+        return 
 
     # Store nu, tgt and process that have a corresponding xml file
     dir_nu_list = []
@@ -191,7 +194,7 @@ def GroupSplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', ar
         genie_setup = softw_dopdir+'/generator/builds/'+arch+'/'+version+'-setup'
 
     # Call Commands
-    shell_file = GridUtils.CreateShellScript ( commands , jobs_topdir, "group", out_files, grid_system, genie_setup, conf_dir, xml_files_dir ) 
+    shell_file = GridUtils.CreateShellScript ( commands , jobs_topdir, process_name, out_files, grid_system, genie_setup, conf_dir, xml_files_dir ) 
 
     ## Add command list to dictionary; Key is 0 => free nucleon spline calculation
     command_dict = {}
