@@ -6,15 +6,6 @@
  file. If a spline is missing it copies the files from a specified directory, otherwise it aborts. 
  The file name will be total_xsec.xml
  The scpript also prodces a root output for the splines
-- dir : Is the directory which contains all the xml files to be converted. Default: $PWD
-- tune : Tune option
-- mother_dir
-- add_list : additional file list to be included when the total_xsec.xml file is created
-- root_output : Create an output file with all the splines
-- nu_list : Default list of neutrino PDG to be used if that cannot be derived from local files. Default 14
-- evet_gen_list : Event generator list used in the root file output
-- add_nucleons : When the ROOT file is created, also splines for proton and neutrons are created
-- save_space : remove intermadiate xml files
 
 Author: 
       Julia Tena Vidal <jtenavidal \st tauex.tau.ac.il>
@@ -61,7 +52,7 @@ e_name_def = { 11 : 'e',
 
 def GroupSplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', arch='SL6.x86_64', production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                          softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'), xml_dir=os.getenv('PWD'), mother_dir='', 
-                         process_name="group_vA",add_list=False, root_output = False, add_nucleons = False ) :
+                         group_vN=False,add_list=False, root_output = False, add_nucleons = False ) :
 
     if mother_dir != '' : 
         if os.path.exists(mother_dir) :
@@ -193,9 +184,20 @@ def GroupSplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', ar
     else : 
         genie_setup = softw_dopdir+'/generator/builds/'+arch+'/'+version+'-setup'
 
+    if groupvN == True : 
+        process_name = "group_vN"
+        job_ID = 1 
+    else : 
+        process_name = "group_vA"
+        job_ID = 3 
+
     # Call Commands
     shell_file = GridUtils.CreateShellScript ( commands , jobs_topdir, process_name, out_files, grid_system, genie_setup, conf_dir, xml_files_dir ) 
 
-    ## Add command list to dictionary; Key is 0 => free nucleon spline calculation
+    if grid_system == 'FNAL' :
+        command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
+
+    ## Add command list to dictionary; 
     command_dict = {}
+    command_dict[job_ID] = command_list ; 
     return command_dict ; 

@@ -116,12 +116,11 @@ def vASplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', arch=
     if not os.path.exists(jobs_dir) : 
         os.mkdir(jobs_dir)
 
-    # grid options 
     command_list = []
-    grid_command_options = ''
-    if grid_system == 'FNAL' :
-        GridUtils.FNALShellCommands(genie_setup)
 
+    if grid_system == 'FNAL' :
+        grid_command_options = GridUtils.FNALShellCommands(genie_setup)
+                    
     # Create neutrino spline commands:
     grid_sub_cmd = []     
     shell_file_list = []

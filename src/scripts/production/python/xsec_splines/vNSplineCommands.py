@@ -122,7 +122,7 @@ def vNSplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', arch=
 
     grid_command_options = ''
     if grid_system == 'FNAL' :
-        GridUtils.FNALShellCommands(genie_setup)
+        grid_command_options = GridUtils.FNALShellCommands(genie_setup)
 
     # Create neutrino spline commands:
     grid_sub_cmd = []     
