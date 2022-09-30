@@ -36,8 +36,8 @@ import GridUtils
 
 # Define Dictionaries
 
-nucleons_EW_proc = [ 'none', 'WeakMEC', 'CCCOHPION', 'NCCOHPION', 'Fast' ]
-nucleons_EM_proc = [ 'none', 'EMMEC', 'EMQE', 'EMRES', 'EMDIS' ]
+nuclei_EW_proc = [ 'none', 'WeakMEC', 'CCCOHPION', 'NCCOHPION', 'Fast' ]
+nuclei_EM_proc = [ 'none', 'EMMEC', 'EMQE', 'EMRES', 'EMDIS' ]
 tgt_pdg = [1000010020, 1000010030, 1000020030, 1000020040, 1000060120, 1000080160, 1000130270, 1000200400, 1000200480, 1000260560, 1000791970, 1000822080, 1000922380 ]
 
 nu_pdg_def = { 've'      :   12,
@@ -98,13 +98,13 @@ def vASplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', arch=
     if ( gen_list != 'all' ) :
         req_gen_list = gen_list.split(',')
         for process in req_gen_list :
-            if process in nucleons_EW_proc :
+            if process in nuclei_EW_proc :
                 req_EW_list.append(process)
-            if process in nucleons_EM_proc : 
+            if process in nuclei_EM_proc : 
                 req_EM_list.append(process)
     else : 
-        req_EW_list = nucleons_EW_proc 
-        req_EM_list = nucleons_EM_proc
+        req_EW_list = nuclei_EW_proc 
+        req_EM_list = nuclei_EM_proc
 
     req_tgt_list = []
     if ( tgt_list != 'all' ) :
@@ -143,7 +143,7 @@ def vASplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', arch=
                 gmkspl_cmd = "gmkspl -p "+str(nu_pdg_def[nu])+ " -t "+ str(target) + " -n "+ str(n_knots) + " -e "+ str(e_max) + " --tune " + tune 
                 gmkspl_cmd += " --input-cross-sections"+ input_xsec+" -o "+ filename_template+".xml --event-generator-list " + event_gen_list +" --no-copy "  
                 
-                shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, grid_system, genie_setup, conf_dir, in_files ) 
+                shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_system, genie_setup, conf_dir, in_files ) 
                 if grid_system == 'FNAL' :
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
@@ -168,7 +168,7 @@ def vASplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', arch=
                 gmkspl_cmd = "gmkspl -p "+str(e_pdg_def[e])+ " -t "+ str(target) + " -n "+ str(n_knots) + " -e "+ str(e_max) + " --tune " + tune 
                 gmkspl_cmd += " --input-cross-sections"+ input_xsec+" -o "+ filename_template+".xml --event-generator-list " + event_gen_list +" --no-copy "  
                 
-                shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, grid_system, genie_setup, conf_dir, in_files ) 
+                shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_system, genie_setup, conf_dir, in_files ) 
                 if grid_system == 'FNAL' :
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 

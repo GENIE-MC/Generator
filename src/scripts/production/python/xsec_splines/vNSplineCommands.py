@@ -74,6 +74,7 @@ def vNSplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', arch=
 
     req_nu_list = []
     req_e_list = []
+    in_files=[]
     if( nu_list != 'all' ) :
         req_particle_list = nu_list.split(',')
         for particle in req_particle_list:
@@ -150,7 +151,7 @@ def vNSplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', arch=
                 gmkspl_cmd = "gmkspl -p "+str(nu_pdg_def[nu])+ " -t "+ str(nucleons_pdg[target]) + " -n "+ str(n_knots) + " -e "+ str(e_max) + " --tune " + tune 
                 gmkspl_cmd += " -o "+ filename_template+".xml --event-generator-list " + event_gen_list   
                 
-                shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, grid_system, genie_setup, conf_dir ) 
+                shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_system, genie_setup, conf_dir, in_files ) 
                 if grid_system == 'FNAL' :
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
@@ -173,7 +174,7 @@ def vNSplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', arch=
                 gmkspl_cmd = "gmkspl -p "+str(e_pdg_def[e])+ " -t "+ str(nucleons_pdg[target]) + " -n "+ str(n_knots) + " -e "+ str(e_max) + " --tune " + tune 
                 gmkspl_cmd += " -o "+ filename_template+".xml --event-generator-list " + event_gen_list   
                 
-                shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, grid_system, genie_setup, conf_dir ) 
+                shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_system, genie_setup, conf_dir, in_files ) 
                 if grid_system == 'FNAL' :
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 

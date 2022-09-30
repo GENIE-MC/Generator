@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 import os 
 
-def CreateShellScript ( command , jobs_dir, file_name, grid_system, genie_setup, conf_dir, in_files ) :
-    shell_file = jobs_dir+"/"+file_name+".sh"
+def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_system, genie_setup, conf_dir, in_files ) :
+    shell_file = jobs_dir+"/"+shell_name+".sh"
     if os.path.exists(shell_file):
         os.remove(shell_file)
 
@@ -18,9 +18,13 @@ def CreateShellScript ( command , jobs_dir, file_name, grid_system, genie_setup,
     script.write("source "+genie_setup+" "+conf_dir+" \n")
     if grid_system == 'FNAL':
         script.write("cd $CONDOR_DIR_INPUT \n")
-    script.write(command+"\n")
+
+    for command in commands : 
+        script.write(command+"\n")
+
     if grid_system == 'FNAL':
-        script.write("ifdh cp -D "+file_name+".xml "+jobs_dir+" \n")
+        for file_name in out_files : 
+            script.write("ifdh cp -D "+file_name+" "+jobs_dir+" \n")
 
     script.close()
     return shell_file 
