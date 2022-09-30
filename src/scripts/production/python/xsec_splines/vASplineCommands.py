@@ -58,10 +58,15 @@ e_name_def = { 11 : 'e',
               -11: 'ebar' }
 
 def vASplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', arch='SL6.x86_64', production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
-                      softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'), gen_list='all', nu_list='all', 
+                      softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'), freenucsplines=os.getenv('PWD'), gen_list='all', nu_list='all', 
                       tgt_list = 'all', e_max=200, n_knots=100, with_priority=False, run_one=False ) :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-xsec_vA'
+    
+    free_nuc_dir = freenucsplines + "/"+ version+'-'+production+'_'+cycle+'-xsec_vN'
+    in_files = []
+    if grid_system == 'FNAL' : 
+        in_files = [free_nuc_dir+"/total_xsec.xml"]
 
     # configure setup 
     if grid_system == 'FNAL' : 
@@ -130,13 +135,15 @@ def vASplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', arch=
                 job_name = nu+'_on_'+str(target)+'_'+process
                 if grid_system == 'FNAL' : 
                     filename_template = job_name
+                    input_xsec = "\$CONDOR_DIR_INPUT/total_xsec.xml"
                 else :
-                    filename_template = jobs_dir + '/' + job_name
+                    output_spline = jobs_dir + '/' + job_name
+                    input_xsec = free_nuc_dir+"/total_xsec.xml"
 
                 gmkspl_cmd = "gmkspl -p "+str(nu_pdg_def[nu])+ " -t "+ str(target) + " -n "+ str(n_knots) + " -e "+ str(e_max) + " --tune " + tune 
-                gmkspl_cmd += " -o "+ filename_template+".xml --event-generator-list " + event_gen_list   
+                gmkspl_cmd += " --input-cross-sections"+ input_xsec+" -o "+ filename_template+".xml --event-generator-list " + event_gen_list +" --no-copy "  
                 
-                shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, grid_system, genie_setup, conf_dir ) 
+                shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, grid_system, genie_setup, conf_dir, in_files ) 
                 if grid_system == 'FNAL' :
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
@@ -153,13 +160,15 @@ def vASplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', arch=
                 job_name = e+'_on_'+str(target)+'_'+process
                 if grid_system == 'FNAL' : 
                     output_spline = job_name
+                    input_xsec = "\$CONDOR_DIR_INPUT/total_xsec.xml"
                 else :
                     output_spline = jobs_dir + '/' + job_name
+                    input_xsec = free_nuc_dir+"/total_xsec.xml"
                 
                 gmkspl_cmd = "gmkspl -p "+str(e_pdg_def[e])+ " -t "+ str(target) + " -n "+ str(n_knots) + " -e "+ str(e_max) + " --tune " + tune 
-                gmkspl_cmd += " -o "+ filename_template+".xml --event-generator-list " + event_gen_list   
+                gmkspl_cmd += " --input-cross-sections"+ input_xsec+" -o "+ filename_template+".xml --event-generator-list " + event_gen_list +" --no-copy "  
                 
-                shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, grid_system, genie_setup, conf_dir ) 
+                shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, grid_system, genie_setup, conf_dir, in_files ) 
                 if grid_system == 'FNAL' :
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
