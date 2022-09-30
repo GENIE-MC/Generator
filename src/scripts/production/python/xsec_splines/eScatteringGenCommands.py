@@ -45,10 +45,10 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
     # Electron list
     req_e_list = e_list.split(',')
     for i in range(len(req_e_list)):
-        if req_e_list[i] not in e_pdg_def and e not in e_name_def : 
+        if req_e_list[i] not in e_pdg_def and int(req_e_list[i]) not in e_name_def : 
             print( "Configured lepton is not an electron:"+req_e_list[i])
             return 
-        else if req_e_list[i] in e_pdg_def:
+        elif req_e_list[i] in e_pdg_def:
             req_e_list[i] = e_pdg_def[req_e_list[i]]
 
     req_tgt_list = tgt_list.split(',')
@@ -56,28 +56,30 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
     req_gen_list = gen_list.split(',')
     
     nsubruns = ntotevents/nmaxrun
-    if not nsubruns.is_integer() :
+    if isinstance(nsubruns, int) :
         nsubruns = 1+int(nsubruns)
 
+    command_list = []
     for e in req_e_list : 
         for tgt in req_tgt_list : 
             for E in req_E_list : 
                 n_event_left = ntotevents; 
                 nsubruns
                 for isubrun in range(nsubruns) :
-                    print "Events remaining ".$n_event_left."\n" ;
-                    $nev = $n_event_left >= $nmax_per_run ? $nmax_per_run : $n_event_left ;
-                    $n_event_left -= $nev ;
+                    if n_event_left >= nmaxrun : 
+                        nev = nmaxrun
+                    else : 
+                        n_event_left
+                    n_event_left -= nev 
                     
-                    # Set naming scheme: RREEEESS (RR: run number, EEEE: electron energy in MeV, SS: subrun id)
-                    curr_subrune = 1E5 * ( ( 10 + int(tgt) * 10 + int(E) ) )+ isubrun; 
+                    # Set naming scheme: E+0+TGT+0+EEEE0SS (RR: run number, EEEE: electron energy in MeV, SS: subrun id)
+                    curr_subrune = "110"+str(tgt)+"0"+str(int(E)*1000)+"0"+str(isubrun); 
                     curr_seed         = mcseed + isubrun + int(tgt)
-                    jobname           = "escattering-"+curr_subrune
-                    filename_template = jobs_dir+"/"+jobname
-                    
-                    evgen_command = "gevgen -p "+e+"-n "+nev+" -e "+E+" -t "+tgt+" -r "+curr_subrune+" --seed "+curr_seed+" --cross-sections "+xspl_file+" --event-generator-list "+gen_list+" --tune "+tune
+                    jobname           = "escattering-"+str(curr_subrune)
 
-                    shell_file = GridUtils.CreateShellScript ( evgen_command , jobs_dir, filename_template, filename_template+".xml", grid_system, genie_setup, conf_dir, xspl_file ) 
+                    evgen_command = "gevgen -p "+e+"-n "+str(nev)+" -e "+E+" -t "+tgt+" -r "+curr_subrune+" --seed "+str(curr_seed)+" --cross-sections "+xspl_file+" --event-generator-list "+gen_list+" --tune "+tune
+
+                    shell_file = GridUtils.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".root"), grid_system, genie_setup, conf_dir, str(xspl_file) ) 
                 
                     if grid_system == 'FNAL' :
                         grid_command_options = GridUtils.FNALShellCommands(genie_setup)
