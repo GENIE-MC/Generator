@@ -27,8 +27,9 @@ mcseed = 210921029
 evg_tgtpdg_hash = ['1000010020', '1000010030', '1000020030', '1000020040', '1000030060', '1000060120', '1000080160', '1000130270', 
                    '1000180400', '1000200400', '1000200480', '1000260560', '1000791970', '1000822080', '1000922380']
 
-def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xspl_file="total_xsec.xml",ntotevents=1000000, tune='G18_02_02_11b',gen_list="EM", nmaxrun=100000,  
-                            version='master', conf_dir='', arch='SL6.x86_64', production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
+def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xspl_file="total_xsec.xml",ntotevents=1000000, 
+                            tune='G18_02_02_11b',gen_list="EM", nmaxrun=100000, version='master', conf_dir='', arch='SL6.x86_64', 
+                            production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                             softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD')) :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-eScattering'
@@ -72,14 +73,17 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
                         n_event_left
                     n_event_left -= nev 
                     
-                    # Set naming scheme: E+0+TGT+0+EEEE0SS (RR: run number, EEEE: electron energy in MeV, SS: subrun id)
+                    # Set naming scheme: EE0TTTTTTTTTT0EEEE0SS (RR: run number, EEEE: electron energy in MeV, SS: subrun id)
+                    # Ex: e-C12 2GeV, subrunX: 1101000060120020000X
                     curr_subrune = "110"+str(tgt)+"0"+str(int(E)*1000)+"0"+str(isubrun); 
                     curr_seed         = mcseed + isubrun + int(tgt)
                     jobname           = "escattering-"+str(curr_subrune)
 
-                    evgen_command = "gevgen -p "+e+"-n "+str(nev)+" -e "+E+" -t "+tgt+" -r "+curr_subrune+" --seed "+str(curr_seed)+" --cross-sections "+xspl_file+" --event-generator-list "+gen_list+" --tune "+tune
+                    evgen_command = "gevgen -p "+e+"-n "+str(nev)+" -e "+E+" -t "+tgt+" -r "+curr_subrune+" --seed "+str(curr_seed)
+                    evgen_command += " --cross-sections "+xspl_file+" --event-generator-list "+gen_list+" --tune "+tune
 
-                    shell_file = GridUtils.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".root"), grid_system, genie_setup, conf_dir, str(xspl_file) ) 
+                    shell_file = GridUtils.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".root"), 
+                                                               grid_system, genie_setup, conf_dir, str(xspl_file) ) 
                 
                     if grid_system == 'FNAL' :
                         grid_command_options = GridUtils.FNALShellCommands(genie_setup)

@@ -10,21 +10,30 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_system,
     script.write("#!/bin/bash \n")
     if grid_system == 'FNAL':
         script.write("cd $CONDOR_DIR_INPUT \n")
-        if len(in_files) : 
+        if isinstance(in_files, list) :
             for i in range(len(in_files)):
                 script.write("ifdh cp -D "+in_files[i]+"  $CONDOR_DIR_INPUT \n")
+        else : 
+            script.write("ifdh cp -D "+in_files+"  $CONDOR_DIR_INPUT \n")
+
     else :
         script.write("cd "+jobs_dir)
     script.write("source "+genie_setup+" "+conf_dir+" \n")
     if grid_system == 'FNAL':
         script.write("cd $CONDOR_DIR_INPUT \n")
 
-    for command in commands : 
-        script.write(command+"\n")
+    if isinstance(commands,list):
+        for command in commands : 
+            script.write(command+"\n")
+    else : 
+        script.write(commands+"\n")
 
     if grid_system == 'FNAL':
-        for file_name in out_files : 
-            script.write("ifdh cp -D "+file_name+" "+jobs_dir+" \n")
+        if isinstance(out_files, list) :
+            for file_name in out_files : 
+                script.write("ifdh cp -D "+file_name+" "+jobs_dir+" \n")
+        else :
+            script.write("ifdh cp -D "+out_files+" "+jobs_dir+" \n")
 
     script.close()
     return shell_file 
