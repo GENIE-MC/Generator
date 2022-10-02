@@ -480,7 +480,7 @@ flux::GNuMIFluxPassThroughInfo HNLFluxCreator::MakeTupleFluxEntry( int iEntry, s
 
   while( dist >= 1.0e-3 && betaLab > 0.0 ){ // 1mm tolerance
     // that didn't work. Knock betaLab down a little bit and try again.
-    betaLab -= 1.0e-3;
+    betaLab -= 1.0e-4;
     timeBit = detO.Mag() / ( betaLab * units::kSpeedOfLight );
     detO_4v.SetXYZT( detO.X(), detO.Y(), detO.Z(), timeBit );
     detO_4v.Boost( -boost_beta );
