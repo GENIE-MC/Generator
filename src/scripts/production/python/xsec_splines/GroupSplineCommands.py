@@ -50,9 +50,14 @@ e_name_def = { 11 : 'e',
               -11: 'ebar' }
 
 
-def GroupSplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', arch='SL6.x86_64', production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
-                         softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'), xml_dir=os.getenv('PWD'), mother_dir='', 
-                         group_vN=False,add_list=False, root_output = False, add_nucleons = False ) :
+def GroupSplineCommands( group_vN=False, mother_dir='', tune='G18_02_02_11b', version='master', conf_dir='', grid_system='FNAL', group='genie', 
+                         arch='SL6.x86_64', production='routine_validation', cycle='01', softw_topdir=os.getenv('GENIE_MASTER_DIR'),
+                         genie_topdir=os.getenv('GENIE'),  genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNALGrid.sh', 
+                         jobs_topdir=os.getenv('PWD'), xml_dir=os.getenv('PWD'), add_list=False, add_nucleons = False ) :
+
+    # Store root output only for vA spilnes:
+    root_output = False 
+    if group_vN == False : root_output = True
 
     if mother_dir != '' : 
         if os.path.exists(mother_dir) :
@@ -68,16 +73,16 @@ def GroupSplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', ar
             # Check if exist in xml_dir 
             xml_file_name = os.path.basename(xml_file)
             if os.path.exists(xml_dir+"/"+xml_file_name) : continue 
-            os.link(xml_file,xml_dir+"/"+xml_file_name)
+            os.link(xml_file,xml_dir+"/"+xml_file_name) # link xml files
+            os.link(xml_file,xml_dir+"/"+xml_file_name[:-4]+".sh") # link sh files
             
-    if os.path.exists(xml_dir) :
-        xml_files_dir = glob.glob(xml_dir+"/*.xml")
-        if len(xml_files_dir) ==0 : 
-            return 
-    else : 
+    if not os.path.exists(xml_dir) :
         print ( xml_dir+"doesn't exist")
         return 
-
+    else : 
+        # Get names of sh files: these determine the name of the future xml files
+        xml_files_dir = glob.glob(xml_dir+"/*.sh")
+    
     # Store nu, tgt and process that have a corresponding xml file
     dir_nu_list = []
     dir_e_list = []
@@ -121,14 +126,12 @@ def GroupSplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', ar
         for nu in dir_nu_list : 
             dict_nu[nu] = []
             for process in dir_EW_process_list : 
-                if os.path.isfile(xml_dir+"/"+nu+"_on_"+target+"_"+process+".xml") :
-                    dict_nu[nu].append(nu+"_on_"+target+"_"+process+".xml")
+                dict_nu[nu].append(nu+"_on_"+target+"_"+process+".xml")
         
         for e in dir_e_list : 
             dict_nu[e] = []
             for process in dir_EM_process_list : 
-                if os.path.isfile(xml_dir+"/"+e+"_on_"+target+"_"+process+".xml") :
-                    dict_nu[e].append(e+"_on_"+target+"_"+process+".xml")
+                dict_nu[e].append(e+"_on_"+target+"_"+process+".xml")
 
         # Add all files to merge here:
         dict_target[target] = dict_nu 
@@ -178,13 +181,7 @@ def GroupSplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', ar
         commands.append( "gspl2root -p "+str_nu_list+" -t "+str_tgt_list+" -f "+path+"total_xsec.xml -o "+path+"total_xsec.root --tune "+tune )
         out_files.append("total_xsec.root")
 
-    # configure setup 
-    if grid_system == 'FNAL' : 
-        genie_setup = genie_topdir+'src/scripts/production/python/setup_FNALGrid.sh' ## put correct path
-    else : 
-        genie_setup = softw_dopdir+'/generator/builds/'+arch+'/'+version+'-setup'
-
-    if groupvN == True : 
+    if group_vN == True : 
         process_name = "group_vN"
         job_ID = 1 
     else : 
@@ -194,7 +191,9 @@ def GroupSplineCommands( version='master', conf_dir='', tune='G18_02_02_11b', ar
     # Call Commands
     shell_file = GridUtils.CreateShellScript ( commands , jobs_topdir, process_name, out_files, grid_system, genie_setup, conf_dir, xml_files_dir ) 
 
+    command_list = []
     if grid_system == 'FNAL' :
+        grid_command_options = GridUtils.FNALShellCommands(genie_setup)
         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
     ## Add command list to dictionary; 

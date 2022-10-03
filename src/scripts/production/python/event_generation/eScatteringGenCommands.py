@@ -30,7 +30,8 @@ evg_tgtpdg_hash = ['1000010020', '1000010030', '1000020030', '1000020040', '1000
 def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xspl_file="total_xsec.xml",ntotevents=1000000, 
                             tune='G18_02_02_11b',gen_list="EM", nmaxrun=100000, version='master', conf_dir='', arch='SL6.x86_64', 
                             production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
-                            softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD')) :
+                            softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
+                            genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNALGrid.sh') :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-eScattering'
     # Make directory
@@ -44,26 +45,34 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
         genie_setup = softw_dopdir+'/generator/builds/'+arch+'/'+version+'-setup'
 
     # Electron list
-    req_e_list = e_list.split(',')
-    for i in range(len(req_e_list)):
-        if req_e_list[i] not in e_pdg_def and int(req_e_list[i]) not in e_name_def : 
-            print( "Configured lepton is not an electron:"+req_e_list[i])
-            return 
-        elif req_e_list[i] in e_pdg_def:
-            req_e_list[i] = e_pdg_def[req_e_list[i]]
+    final_e_list = []
+    if e_list != 'all':
+        req_e_list = e_list.split(',')
+        for i in range(len(req_e_list)):
+            if req_e_list[i] not in e_pdg_def and int(req_e_list[i]) not in e_name_def : 
+                continue  
+            if req_e_list[i] in e_pdg_def:
+                final_e_list.append( e_pdg_def[req_e_list[i]])
+            else :
+                final_e_list.append( req_e_list[i] )
+    else : 
+        final_e_list.append(11) 
 
-    req_tgt_list = tgt_list.split(',')
-    req_E_list = E_list.split(',')
+    if tgt_list != 'all':
+        req_tgt_list = tgt_list.split(',')
+    else : 
+        req_tgt_list = evg_tgtpdg_hash 
+    req_En_list = E_list.split(',')
     req_gen_list = gen_list.split(',')
     
     nsubruns = ntotevents/nmaxrun
-    if isinstance(nsubruns, int) :
+    if not isinstance(nsubruns, int) :
         nsubruns = 1+int(nsubruns)
 
     command_list = []
-    for e in req_e_list : 
+    for e in final_e_list : 
         for tgt in req_tgt_list : 
-            for E in req_E_list : 
+            for E in req_En_list : 
                 n_event_left = ntotevents; 
                 nsubruns
                 for isubrun in range(nsubruns) :
@@ -79,7 +88,7 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
                     curr_seed         = mcseed + isubrun + int(tgt)
                     jobname           = "escattering-"+str(curr_subrune)
 
-                    evgen_command = "gevgen -p "+e+"-n "+str(nev)+" -e "+E+" -t "+tgt+" -r "+curr_subrune+" --seed "+str(curr_seed)
+                    evgen_command = "gevgen -p "+str(e)+" -n "+str(nev)+" -e "+E+" -t "+str(tgt)+" -r "+curr_subrune+" --seed "+str(curr_seed)
                     evgen_command += " --cross-sections "+xspl_file+" --event-generator-list "+gen_list+" --tune "+tune
 
                     shell_file = GridUtils.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".root"), 
