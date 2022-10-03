@@ -108,9 +108,9 @@ if opts.start_ID != 0 :
 if opts.end_ID < loop_end : 
     loop_end= opts.end_ID 
 
-utils.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD)
+grid_name = utils.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD)
 
-main_sub_name = utils.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GRID, opts.GROUP)
+main_sub_name = utils.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GRID, opts.GROUP, opts.GENIE_Setup, grid_name )
 
 if opts.TEST == False: 
     # SUBMIT JOB

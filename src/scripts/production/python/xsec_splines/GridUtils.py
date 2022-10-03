@@ -18,7 +18,7 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_system,
 
     else :
         script.write("cd "+jobs_dir)
-    script.write("source "+genie_setup+" "+conf_dir+" \n")
+    script.write("source "+os.path.basename(genie_setup)+" "+conf_dir+" \n")
     if grid_system == 'FNAL':
         script.write("cd $CONDOR_DIR_INPUT \n")
 
@@ -68,14 +68,10 @@ def WriteXMLFile(commands_dict, start, end, jobs_dir, file_name='grid_submission
     script.close()
     return grid_file
 
-def WriteMainSubmissionFile(jobs_dir, genie_topdir, grid, group, in_file_name='grid_submission.xml', out_file_name='fnal_dag_submit.fnal', memory=1, disk=20, expectedlife=45, jobs=1, role="Analysis"):
+def WriteMainSubmissionFile(jobs_dir, genie_topdir, grid, group, genie_setup='/src/scripts/production/python/setup_FNALGrid.sh', in_file_name='grid_submission.xml', out_file_name='fnal_dag_submit.fnal', memory=1, disk=20, expectedlife=45, jobs=1, role="Analysis"):
     if grid != 'FNAL':
         print( "ONLY FNAL implemented" ) 
         return
-    if grid == 'FNAL' : 
-        genie_setup = genie_topdir+'src/scripts/production/python/setup_FNALGrid.sh' ## put correct path
-    else : 
-        genie_setup = softw_dopdir+'/generator/builds/'+arch+'/'+version+'-setup'
 
     fnal_file = jobs_dir+"/"+out_file_name
     if os.path.exists(fnal_file):
@@ -85,6 +81,6 @@ def WriteMainSubmissionFile(jobs_dir, genie_topdir, grid, group, in_file_name='g
     script.write("#!/bin/bash\n")
     script.write("source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups ;\n")
     script.write("setup fife_utils ;\n")
-    script.write("jobsub_submit_dag -G "+group+" --memory="+str(memory)+"GB --disk="+str(disk)+"GB --expected-lifetime="+str(expectedlife)+"h -N "+str(jobs)+" --role="+role+" -f "+genie_setup+" --resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE  file://"+jobs_dir+"/"+in_file_name+";" )
+    script.write("jobsub_submit_dag -G "+group+" --memory="+str(memory)+"GB --disk="+str(disk)+"GB --expected-lifetime="+str(expectedlife)+"h -N "+str(jobs)+" --role="+role+" -f "+genie_setup+" --resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE  file://"+in_file_name+";" )
     
     return fnal_file
