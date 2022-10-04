@@ -92,9 +92,9 @@ void SKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) con
   int leppdg = interaction->FSPrimLeptonPdg();
   const TLorentzVector pnuc4 = interaction->InitState().Tgt().HitNucP4(); // 4-momentum of struck nucleon in lab frame
   TVector3 beta = pnuc4.BoostVector();
-  TLorentzVector P4_nu = *(interaction->InitStatePtr()->GetProbeP4(kRfHitNucRest)); // struck nucleon rest frame
 
-  double enu = P4_nu.E(); // in nucleon rest frame
+  // Get the probe total energy in the struck nucleon rest frame
+  double enu = interaction->InitState().ProbeE( kRfHitNucRest );
   int kaon_pdgc = interaction->ExclTag().StrangeHadronPdg();
   double mk = PDGLibrary::Instance()->Find(kaon_pdgc)->Mass();
   double ml = PDGLibrary::Instance()->Find(leppdg)->Mass();
@@ -177,12 +177,20 @@ void SKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) con
      TVector3 lepton_3vector = TVector3(0,0,0);
      lepton_3vector.SetMagThetaPhi(pl,TMath::ACos(costhetal),0.0);
      TLorentzVector P4_lep( lepton_3vector, tl+ml );
-     TLorentzVector q = P4_nu - P4_lep;
+
+     // Make a copy of the probe 4-momentum in the initial struck nucleon rest
+     // frame
+     TLorentzVector* P4_nu = interaction->InitState().GetProbeP4(
+       kRfHitNucRest );
+
+     TLorentzVector q = (*P4_nu) - P4_lep;
      double Q2 = -q.Mag2();
      double xbj = Q2/(2*M*q.E());
-     double y = q.E()/P4_nu.E();
+     double y = q.E()/P4_nu->E();
      double W2 = (pnuc4+q).Mag2();
 
+     // Delete the copy now that we're done with it (to avoid a memory leak)
+     delete P4_nu;
 
      // computing cross section for the current kinematics
      xsec = fXSecModel->XSec(interaction, kPSTkTlctl);
