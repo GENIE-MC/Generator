@@ -95,7 +95,7 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
                                                                grid_system, genie_setup, conf_dir, str(xspl_file) ) 
                 
                     if grid_system == 'FNAL' :
-                        grid_command_options = GridUtils.FNALShellCommands(genie_setup)
+                        grid_command_options = GridUtils.FNALShellCommands(genie_setup,group)
                         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
 

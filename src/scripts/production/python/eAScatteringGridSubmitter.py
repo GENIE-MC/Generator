@@ -92,7 +92,7 @@ if opts.GRID == 'FNAL' :
     if os.path.exists(pnfs_setup) : 
         os.remove(pnfs_setup)
     os.symlink( setup_file, pnfs_setup )
-    genie_setup = opts.JOBSTD+"setup_FNALGrid.sh"
+    genie_setup = opts.JOBSTD+"/setup_FNALGrid.sh"
 else : 
     genie_setup = opts.SOFTW+'/generator/builds/'+arch+'/'+version+'-setup'
 

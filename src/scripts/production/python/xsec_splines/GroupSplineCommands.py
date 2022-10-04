@@ -193,7 +193,7 @@ def GroupSplineCommands( group_vN=False, mother_dir='', tune='G18_02_02_11b', ve
 
     command_list = []
     if grid_system == 'FNAL' :
-        grid_command_options = GridUtils.FNALShellCommands(genie_setup)
+        grid_command_options = GridUtils.FNALShellCommands(genie_setup,group)
         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
     ## Add command list to dictionary; 

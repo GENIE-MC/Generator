@@ -3,24 +3,6 @@
 """\
 This script generates the scripts required to run vA splines. In addition it returns
 the commands required to run the scripts in a specific grid. 
-The input variables required by the vNSPlineCommands function are:
-- version : genie version number
-- config_dir : configuration directory
-- tune : GENIE configuration tune
-- arch : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default SL6.x86_64
-- production : Default routine_validation
-- cycle : Default 01
-- grid_system : FNAL, (more to be added in the future). Default FNAL
-- group : group at the grid
-- softw_topdir : top level dir for softw installations. Default pwd($GENIE_BASEDIR)
-- jobs_topdir : top level dir for job files, default: $PWD
-- freenucsplines : Absolute path to free nuclear spline directory
-- gen_list : comma separated list of event generator list, default all. For electron mode, all corresponds to all EM modes.
-- target-list : comma separated list of targets' PDGs, default De,He4,C12,O16,Ar40,Fe56,Pb207.
-                Note that it needs the PDG code, not chemical name.
-- nu_list : comma separated list of neutrino types. Default all neutrinos. It is possible to use electrons instead.
-- e_max : maxmium energy of the splines in GeV. Default 200 GeV.
-- n_knots : number of knots per spline. Default 100.  
 
 Author: 
       Julia Tena Vidal <jtenavidal \st tauex.tau.ac.il>
@@ -62,10 +44,10 @@ def vASplineCommands( nu_list='all', tgt_list = 'all', gen_list='all', e_max=200
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-xsec_vA'
     
-    free_nuc_dir = freenucsplines + "/"+ version+'-'+production+'_'+cycle+'-xsec_vN'
+    free_nuc_dir = jobs_topdir + "/"+ version+'-'+production+'_'+cycle+'-xsec_vN'
     in_files = []
     if grid_system == 'FNAL' : 
-        in_files = [free_nuc_dir+"/total_xsec.xml"]
+        in_files.append(free_nuc_dir+"/total_xsec.xml")
 
     req_nu_list = []
     req_e_list = []
@@ -112,7 +94,7 @@ def vASplineCommands( nu_list='all', tgt_list = 'all', gen_list='all', e_max=200
     command_list = []
 
     if grid_system == 'FNAL' :
-        grid_command_options = GridUtils.FNALShellCommands(genie_setup)
+        grid_command_options = GridUtils.FNALShellCommands(genie_setup,group,8)
                     
     # Create neutrino spline commands:
     grid_sub_cmd = []     
@@ -133,7 +115,7 @@ def vASplineCommands( nu_list='all', tgt_list = 'all', gen_list='all', e_max=200
                     input_xsec = free_nuc_dir+"/total_xsec.xml"
 
                 gmkspl_cmd = "gmkspl -p "+str(nu)+ " -t "+ str(target) + " -n "+ str(n_knots) + " -e "+ str(e_max) + " --tune " + tune 
-                gmkspl_cmd += " --input-cross-sections"+ input_xsec+" -o "+ filename_template+".xml --event-generator-list " + event_gen_list +" --no-copy "  
+                gmkspl_cmd += " --input-cross-sections "+ input_xsec+" -o "+ filename_template+".xml --event-generator-list " + event_gen_list +" --no-copy "  
                 
                 shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_system, genie_setup, conf_dir, in_files ) 
                 if grid_system == 'FNAL' :
@@ -158,7 +140,7 @@ def vASplineCommands( nu_list='all', tgt_list = 'all', gen_list='all', e_max=200
                     input_xsec = free_nuc_dir+"/total_xsec.xml"
                 
                 gmkspl_cmd = "gmkspl -p "+str(e)+ " -t "+ str(target) + " -n "+ str(n_knots) + " -e "+ str(e_max) + " --tune " + tune 
-                gmkspl_cmd += " --input-cross-sections"+ input_xsec+" -o "+ output_spline+".xml --event-generator-list " + event_gen_list +" --no-copy "  
+                gmkspl_cmd += " --input-cross-sections "+ input_xsec+" -o "+ output_spline+".xml --event-generator-list " + event_gen_list +" --no-copy "  
                 
                 shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", grid_system, genie_setup, conf_dir, in_files ) 
                 if grid_system == 'FNAL' :
