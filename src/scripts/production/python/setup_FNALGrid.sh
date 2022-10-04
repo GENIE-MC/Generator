@@ -5,6 +5,7 @@
 source /cvmfs/fermilab.opensciencegrid.org/products/genie/bootstrap_genie_ups.sh 
 #source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups 
 setup ifdhc v2_6_6
+export IFDH_CP_MAXRETRIES=0
 
 setup root v6_12_06a -q e17:debug 
 setup lhapdf v5_9_1k -q e17:debug 
@@ -27,8 +28,6 @@ export GENIE_REWEIGHT=$GENIEBASE/Reweight
 export PATH=$GENIE/bin:$GENIE_REWEIGHT/bin:$PATH 
 export LD_LIBRARY_PATH=$GENIE_LIB:$GENIE_REWEIGHT/lib:$LD_LIBRARY_PATH 
 unset GENIEBASE 
-
-export IFDH_CP_MAXRETRIES=2
 
 cd $GENIE 
 
