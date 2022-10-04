@@ -28,10 +28,15 @@ An example of a Submitter code is `eAScatteringGridSubmitter.py`. This code will
 
 ## Jobs top dir final structure
 The directory generated with the default parameters is going to have the following format:
-fnal_dag_submit.fnal  master-routine_validation_01-eScattering/
-grid_submission.xml   master-routine_validation_01-xsec_vA/
-group_vA.sh           master-routine_validation_01-xsec_vN/
-group_vN.sh           setup_FNALGrid.sh
+
+- fnal_dag_submit.fnal
+- grid_submission.xml  
+- group_vA.sh
+- group_vA.sh
+- master-routine_validation_01-eScattering/
+- master-routine_validation_01-xsec_vA/
+- master-routine_validation_01-xsec_vN/
+- setup_FNALGrid.sh
 
 ## How to run the scripts
 To submit jobs to run electrons on carbon and oxigen simply do:
