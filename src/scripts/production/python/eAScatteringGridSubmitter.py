@@ -36,10 +36,10 @@ op.add_option("--genie-topdir", dest="GENIE", default=os.getenv('GENIE'), help =
 op.add_option("--jobs-topdir", dest="JOBSTD", default=os.getenv('PWD'), help="Top level dir for the job files (default: %default)")
 op.add_option("--source-prod-dir", dest="MotherDir", default='', help="Jobs topdir used as a source for missing xsec splines.")
 op.add_option("--config-dir", dest="CONF", default='', help="Path to GENIE config dir")
-op.add_option("--nu-list", dest="NULIST", default='all', help = "Comma separated list of lepton flavour (neutrino and electrons are handled). Default: %default.") 
+op.add_option("--nu-list", dest="NULIST", default='11', help = "Comma separated list of lepton flavour (neutrino and electrons are handled). Default: %default.") 
 op.add_option("--tgt-list", dest="TGTLIST", default='all', help = "Comma separated list of Targets. Default: %default.") 
 op.add_option("--gen-list", dest="GenList", default='all', help = "Comma separated list of event generator list to be used for splines, default all") 
-op.add_option("--e-max", dest="EMAX", default=200, help="Maximum energy for the splines in GeV. Default: %default ")
+op.add_option("--e-max", dest="EMAX", default=30, help="Maximum energy for the splines in GeV. Default: %default ")
 op.add_option("--n-knots", dest="Knots", default=100, help="Number of knots per spline. Default: %default")
 op.add_option("--event-generator-list", dest="EvGenList", default='all', help="Event generator list to be used for event generation. Default all")
 op.add_option("--ntotevents", dest="NEvents", default=100000, help="Number of total events, default: 100 k")
@@ -60,7 +60,12 @@ print ("Creating job substructure and submission scripts... \n")
 
 # Check jobstopdir exists
 if not os.path.exists(opts.JOBSTD) :
-    print ( "Path "+opts.JOBSTD+" doesn't exist. Abort...\n")
+    print ( "Jobs top dir path "+opts.JOBSTD+" doesn't exist. Abort...\n")
+    exit()
+
+# Check jobstopdir exists
+if not os.path.exists(opts.GENIE) :
+    print ( "GENIE Path "+opts.GENIE+" doesn't exist. Abort...\n")
     exit()
 
 # Check we run from pnfs persistent or scratch for FNAL:
@@ -125,7 +130,7 @@ grid_name = utils.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD)
 
 main_sub_name = utils.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GRID, opts.GROUP, genie_setup, grid_name )
 
-if opts.SUBMIT == False: 
+if opts.SUBMIT == True: 
     # SUBMIT JOB
     print ( "Submitting jobs to grid ... \n")
     os. system("source "+main_sub_name)
