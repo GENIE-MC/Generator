@@ -81,9 +81,9 @@ def vASplineCommands( nu_list='all', tgt_list = 'all', gen_list='all', e_max=200
             if int(particle) in e_name_def : 
                 req_e_list.append(int(particle))
     else : 
-        for key in nu_pdg_def : 
+        for key in nu_name_def : 
             req_nu_list.append(key)
-        for key in e_pdg_def : 
+        for key in e_name_def : 
             req_e_list.append(key)
         
     req_EW_list = []

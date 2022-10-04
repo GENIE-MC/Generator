@@ -33,7 +33,6 @@ op.add_option("--grid-system", dest="GRID", default="FNAL", help="Grid system is
 op.add_option("--grid-group", dest="GROUP", default="genie", help="Grid group to run your jobs. I.E: FNAL groups are genie, dune, etc..")
 op.add_option("--softw-topdir", dest="SOFTW", default=os.getenv('GENIE_MASTER_DIR'), help = "software top dir") 
 op.add_option("--genie-topdir", dest="GENIE", default=os.getenv('GENIE'), help = "GENIE topdir: %default")
-op.add_option("--GENIE-setup", dest="GENIE_Setup", default=os.getenv('GENIE')+"/src/scripts/production/python/setup_FNALGrid.sh", help="GENIE setup file. Default $GENIE/src/scripts/production/python/setup_FNALGrid.sh")
 op.add_option("--jobs-topdir", dest="JOBSTD", default=os.getenv('PWD'), help="Top level dir for the job files (default: %default)")
 op.add_option("--source-prod-dir", dest="MotherDir", default='', help="Jobs topdir used as a source for missing xsec splines.")
 op.add_option("--config-dir", dest="CONF", default='', help="Path to GENIE config dir")
@@ -49,7 +48,7 @@ op.add_option("--energy", dest="Energy", default="2", help="Comma separated list
 op.add_option("--starting-point", dest="start_ID", default=0, help="0 -> Free nucleon splines, 1 -> combine free nucl splines, 2 -> Compound nuclei splines, 3 -> Combine compound nuclei splines, 4 -> Event Production")
 op.add_option("--stopping-point", dest="end_ID", default=9999, help="Numbers as above, Default: 9999") 
 op.add_option("--tune", dest="TUNE", default="G18_02a_02_11b", help="Tune to be compared against data (default: %default)")
-op.add_option("--test", dest="TEST", default=False, action="store_true", help="Generate configuration and don't submit")
+op.add_option("--submit-jobs", dest="SUBMIT", default=False, action="store_true", help="Generate configuration and submit to grid" )
 opts, args = op.parse_args()
 
 op.add_option("--vN-gen-list", dest="vNList", default=opts.GenList, help="Comma separated list of event generator list used for the free nucleon spline generation. Default all or gen-list if defined")
@@ -58,45 +57,54 @@ opts, args = op.parse_args()
 
 # Print information
 print ("Creating job substructure and submission scripts... \n")
+
+# Check we run from pnfs persistent or scratch for FNAL:
+if opts.GRID == 'FNAL':
+    if 'pnfs' not in opts.JOBSTD : 
+        print ("Not runing from pnfs:"+opts.JOBSTD+" . Jobs top dir must be in pnfs for the submission scrpits to work. Abort ...")
+        exit()
+
 # Define directories:
 vNdir = opts.JOBSTD+'/'+opts.VERSION+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vN/'
 vNsplines = vNdir+'total.xsec'
 vAdir = opts.JOBSTD+'/'+opts.VERSION+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vA/'
 vAsplines = vAdir+'total.xsec'
 
-if opts.GENIE_Setup == '':
-    # configure setup 
-    if opts.GRID == 'FNAL' : 
-        genie_setup = opts.GENIE+'/src/scripts/production/python/setup_FNALGrid.sh' ## put correct path
-    else : 
-        genie_setup = opts.SOFTW+'/generator/builds/'+arch+'/'+version+'-setup'
+# configure setup 
+if opts.GRID == 'FNAL' : 
+    setup_file = opts.GENIE+'/src/scripts/production/python/setup_FNALGrid.sh'
+    pnfs_setup = opts.JOBSTD+"/setup_FNALGrid.sh"
+    if os.path.exists(pnfs_setup) : 
+        os.remove(pnfs_setup)
+    os.symlink( setup_file, pnfs_setup )
+    genie_setup = opts.JOBSTD+"setup_FNALGrid.sh"
 else : 
-    genie_setup = opts.GENIE_Setup
+    genie_setup = opts.SOFTW+'/generator/builds/'+arch+'/'+version+'-setup'
 
 # Store commands with ID :
 command_dict = {}
 # ID = 0 # vN splines
-command_dict.update( vN.vNSplineCommands(opts.NULIST,opts.vNList,opts.EMAX,opts.Knots,opts.TUNE,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,opts.GENIE_Setup) )
+command_dict.update( vN.vNSplineCommands(opts.NULIST,opts.vNList,opts.EMAX,opts.Knots,opts.TUNE,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
 
 # ID = 1 # group vN splines
 vNMotherDir = ''
 if opts.MotherDir !='' : 
     vNMotherDir = opts.MotherDir+'/'+opts.VERSION+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vN/'
 
-command_dict.update( group.GroupSplineCommands( True,vNMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.GENIE_Setup,opts.JOBSTD,vNdir,False, False ) )# THE LAST TWO TO BE CONFIGURED
+command_dict.update( group.GroupSplineCommands( True,vNMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,vNdir,False, False ) )# THE LAST TWO TO BE CONFIGURED
 
 # ID = 2 # vA splines
-command_dict.update( vA.vASplineCommands(opts.NULIST,opts.TGTLIST,opts.vAList,opts.EMAX,opts.Knots,opts.TUNE,vNsplines,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,opts.GENIE_Setup) )
+command_dict.update( vA.vASplineCommands(opts.NULIST,opts.TGTLIST,opts.vAList,opts.EMAX,opts.Knots,opts.TUNE,vNsplines,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
 
 # ID = 3 # Group vA splines
 vAMotherDir = ''
 if opts.MotherDir !='' : 
     vAMotherDir = opts.MotherDir+'/'+opts.VERSION+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vA/'
 
-command_dict.update( group.GroupSplineCommands( False,vAMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.GENIE_Setup,opts.JOBSTD,vAdir,False, False ) )# THE LAST TWO TO BE CONFIGURED
+command_dict.update( group.GroupSplineCommands( False,vAMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,vAdir,False, False ) )# THE LAST TWO TO BE CONFIGURED
 
 # ID = 4 # Event generation commands
-command_dict.update( eA.eScatteringGenCommands(opts.NULIST,opts.TGTLIST,opts.Energy,vAsplines,opts.NEvents,opts.TUNE, opts.EvGenList, opts.NMax, opts.VERSION, opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,opts.GENIE_Setup) )
+command_dict.update( eA.eScatteringGenCommands(opts.NULIST,opts.TGTLIST,opts.Energy,vAsplines,opts.NEvents,opts.TUNE, opts.EvGenList, opts.NMax, opts.VERSION, opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
 
 # Get correct ID as requested by user:
 loop_start = 0 
@@ -110,10 +118,11 @@ if opts.end_ID < loop_end :
 
 grid_name = utils.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD)
 
-main_sub_name = utils.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GRID, opts.GROUP, opts.GENIE_Setup, grid_name )
+main_sub_name = utils.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GRID, opts.GROUP, genie_setup, grid_name )
 
-if opts.TEST == False: 
+if opts.SUBMIT == False: 
     # SUBMIT JOB
-    execfile(main_sub_name)
+    print ( "Submitting jobs to grid ... \n")
+    os. system("source "+main_sub_name)
 else : 
-    print ( "In testing mode - jobs won't be submitted" )
+    print ( "In testing mode - jobs won't be submitted\n" )
