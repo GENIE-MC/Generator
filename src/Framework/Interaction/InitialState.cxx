@@ -383,11 +383,57 @@ TLorentzVector * InitialState::GetProbeP4(RefFrame_t ref_frame) const
 //___________________________________________________________________________
 double InitialState::ProbeE(RefFrame_t ref_frame) const
 {
-  TLorentzVector * p4 = this->GetProbeP4(ref_frame);
-  double E = p4->Energy();
+  // Return the total energy of the probe in the specified reference frame. The
+  // calculation here is done while avoiding an actual boost (sometimes
+  // required to calculate the full 4-momentum vector) for speed and
+  // robustness.
+  double E_probe = 0.;
 
-  delete p4;
-  return E;
+  // The 4-momenta are internally stored in the laboratory frame. For now,
+  // assume that the rest frame of the target and the lab frame are the same.
+  if ( ref_frame == kRfLab
+    || ref_frame == kRfTgtRest )
+  {
+    E_probe = fProbeP4->E();
+  }
+  else if ( ref_frame == kRfHitNucRest ) {
+    // Make sure that the initial struck nucleon 4-momentum is set before we
+    // attempt to use it
+    assert( fTgt->HitNucP4Ptr() != 0 );
+
+    // Make a copy of the probe 4-momentum in the lab frame
+    TLorentzVector* p4_probe = init_state.GetProbeP4( kRfLab );
+
+    // Get a const reference to the initial struck nucleon 4-momentum in the
+    // lab frame
+    const TLorentzVector& p4_initial_hit_nuc = init_state.Tgt().HitNucP4();
+
+    // Calculate the invariant masses (squared in the case of the probe to
+    // avoid an unnecessary square root) of the probe and initial struck
+    // nucleon. This way of doing the calculation will be correct even for
+    // particle off the mass shell.
+    double m_probe2 = p4_probe->M2();
+    double m_nucleon = p4_initial_hit_nuc.M();
+
+    // Calculate the total 4-momentum of the probe + struck nucleon system
+    TLorentzVector p4_tot = p4_initial_hit_nuc + ( *p4_probe );
+
+    // Mandelstam s is the square of the total 4-momentum
+    double s = p4_tot.M2();
+
+    // We don't need the copy of the probe 4-momentum anymore, so delete it
+    // now to avoid a memory leak
+    delete p4_probe;
+
+    // Use the results above to calculate the probe energy in the rest frame
+    // of the initial struck nucleon
+    E_probe = ( s - m_probe2 - m_nucleon*m_nucleon ) / ( 2. * m_nucleon );
+  }
+  else {
+    LOG("Interaction", pERROR) << "Unknown reference frame";
+  }
+
+  return E_probe;
 }
 
 //___________________________________________________________________________

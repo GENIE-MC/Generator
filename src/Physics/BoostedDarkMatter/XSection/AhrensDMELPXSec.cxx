@@ -2,13 +2,13 @@
 /*
  Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- 
+
 
  Author: Joshua Berger <jberger \at physics.wisc.edu>
          University of Wisconsin-Madison
 
          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory 
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -62,9 +62,13 @@ double AhrensDMELPXSec::XSec(
   const Target &       target     = init_state.Tgt();
 
   LOG("AhrensDMEL", pDEBUG) << "Using v^" << fVelMode << " dependence";
-  
+
   double E    = init_state.ProbeE(kRfHitNucRest);
-  double ml   = init_state.GetProbeP4(kRfHitNucRest)->M();
+
+  TLorentzVector* temp_probe_p4 = init_state.GetProbeP4( kRfLab );
+  double ml = temp_probe_p4->M();
+  delete temp_probe_p4;
+
   double Q2   = kinematics.Q2();
   double M    = target.HitNucMass();
   double M2   = TMath::Power(M, 2.);
@@ -75,9 +79,9 @@ double AhrensDMELPXSec::XSec(
   double qma2 = TMath::Power(1 + Q2/fMa2, 2);
 
   //-- handle terms changing sign for antineutrinos and isospin rotations
-  int nusign  = 1; 
+  int nusign  = 1;
   int nucsign = 1;
-  int nupdgc  = init_state.ProbePdg(); 
+  int nupdgc  = init_state.ProbePdg();
   int nucpdgc = target.HitNucPdg();
   if( pdg::IsAntiDarkMatter(nupdgc) ) nusign = -1;
   if( pdg::IsNeutron(nucpdgc)       ) nucsign = -1;
@@ -88,7 +92,7 @@ double AhrensDMELPXSec::XSec(
   double Geu = fQuV * (1.5 + nucsign*0.5) / qmv2;
   double Gmu = fQuV * ((1.5 + nucsign*0.5) * fMuP + (1.5 - nucsign*0.5) * fMuN) / qmv2;
   double FAu = fQuA * (nucsign > 0 ? fDelu : fDeld) / qma2;
-		
+
   //-- compute down quark form factor terms
   double Ged = fQdV * (1.5 - nucsign*0.5) / qmv2;
   double Gmd = fQdV * ((1.5 - nucsign*0.5) * fMuP + (1.5 + nucsign*0.5) * fMuN) / qmv2;
@@ -99,7 +103,7 @@ double AhrensDMELPXSec::XSec(
   double pole0 = 4.0*M2 / (Q2 + fMeta2);
   double FPu = 0.5 * (pole3 * (FAu - FAd) + pole0 * (FAu + FAd));
   double FPd = 0.5 * (- pole3 * (FAu - FAd) + pole0 * (FAu + FAd));
-  
+
   //-- compute strange quark form factor terms
   double Ges = 0.0;
   double Gms = 0.0;
@@ -119,7 +123,7 @@ double AhrensDMELPXSec::XSec(
   double FA2 = TMath::Power(FA,2);
 
   //-- compute the free nucleon cross section
-  double xsec = 0.; 
+  double xsec = 0.;
   double del   = ml2 / M2;
   double AT_F1F1 = 0.;
   double AT_F2F2 = 0.;
@@ -129,7 +133,7 @@ double AhrensDMELPXSec::XSec(
   double B = 0.;
   double C = 0.;
   if (fVelMode == 0) {
-    double QchiV2 = TMath::Power(fQchiV,2); 
+    double QchiV2 = TMath::Power(fQchiV,2);
     double QchiA2 = TMath::Power(fQchiA,2);
     C = (QchiA2 + QchiV2) * (F12 + F22 * tau + FA2);
     B = 8. * fQchiA * fQchiV * tau * FA * (F1 + F2);
@@ -137,7 +141,7 @@ double AhrensDMELPXSec::XSec(
     AT_F1F1 = QchiA2*(tau-1.)*(del+tau) + QchiV2*tau*(-del+tau-1);
     AT_F2F2 = -tau*(QchiA2*(tau-1.)*(del+tau) + QchiV2*(del + (tau-1.)*tau));
     AT_FAFA = (1.+tau)*(QchiA2*(del+tau) + QchiV2*(tau-del));
-    AT_F1F2 = 2.*tau*(2.*QchiA2*(del+tau) - QchiV2*(del-2.*tau));    
+    AT_F1F2 = 2.*tau*(2.*QchiA2*(del+tau) - QchiV2*(del-2.*tau));
   }
   else if (fVelMode == 2) {
     double QchiS2 = TMath::Power(fQchiS,2);
@@ -158,7 +162,7 @@ double AhrensDMELPXSec::XSec(
   double prop  = 1. / (Q2 + MZ2);
   double prop2 = TMath::Power(prop,2);
   double xsec0 = gZp4 * M2 * prop2 / (4. * kPi * (E2 - ml2));
-  xsec = xsec0 * (AL * lon + AT_F1F1 * F12 + AT_F2F2 * F22 + AT_FAFA * FA2 + AT_F1F2 * F1 * F2 + nusign * B * smu + C * smu * smu); 
+  xsec = xsec0 * (AL * lon + AT_F1F1 * F12 + AT_F2F2 * F22 + AT_FAFA * FA2 + AT_F1F2 * F1 * F2 + nusign * B * smu + C * smu * smu);
 
   LOG("AhrensDMEL", pDEBUG)
     << "dXSec[vN,El]/dQ2 [FreeN](Ev = "<< E<< ", Q2 = "<< Q2 << ") = "<< xsec;
@@ -184,7 +188,7 @@ double AhrensDMELPXSec::XSec(
        << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
 
   //-- compute nuclear cross section
-  xsec *= (R*NNucl); 
+  xsec *= (R*NNucl);
 
   return xsec;
 }
