@@ -68,6 +68,11 @@ if not os.path.exists(opts.GENIE) :
     print ( "GENIE Path "+opts.GENIE+" doesn't exist. Abort...\n")
     exit()
 
+if opts.GRID != 'FNAL':
+    print ("For now only FNAL option is available. Abort... \n")
+    exit()
+    # In the future we might have other grids
+
 # Check we run from pnfs persistent or scratch for FNAL:
 if opts.GRID == 'FNAL':
     if 'pnfs' not in opts.JOBSTD : 
