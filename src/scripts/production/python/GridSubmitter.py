@@ -58,6 +58,11 @@ opts, args = op.parse_args()
 # Print information
 print ("Creating job substructure and submission scripts... \n")
 
+# Check jobstopdir exists
+if not os.path.exists(opts.JOBSTD) :
+    print ( "Path "+opts.JOBSTD+" doesn't exist. Abort...\n")
+    exit()
+
 # Check we run from pnfs persistent or scratch for FNAL:
 if opts.GRID == 'FNAL':
     if 'pnfs' not in opts.JOBSTD : 
