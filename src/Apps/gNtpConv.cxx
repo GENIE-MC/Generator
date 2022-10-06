@@ -32,6 +32,8 @@
               >>
                * `gst': 
                     The 'definite' GENIE summary tree format (gst).
+		   * `qpix':
+		   * 		 This is for Q-Pix collaboration work at UTA
    	       * `gxml': 
                      GENIE XML event format 
    	       * `ghep_mock_data': 
@@ -181,6 +183,7 @@ using namespace genie;
 using namespace genie::constants;
 
 //func prototypes
+void   ConvertToUTAQPIX          (void);
 void   ConvertToGST              (void);
 void   ConvertToGXML             (void);
 void   ConvertToGHepMock         (void);
@@ -197,6 +200,7 @@ int    HAProbeFSI                (int, int, int, double [], int [], int, int, in
 //format enum
 typedef enum EGNtpcFmt {
   kConvFmt_undef = 0,
+  kConvFmt_qpix,
   kConvFmt_gst,
   kConvFmt_gxml,
   kConvFmt_ghep_mock_data,
@@ -240,6 +244,11 @@ int main(int argc, char ** argv)
   
   // Call the appropriate conversion function
   switch(gOptOutFileFormat) {
+
+   case (kConvFmt_qpix) :
+
+    ConvertToUTAQPIX();
+    break;
 
    case (kConvFmt_gst)  :
 
@@ -288,6 +297,216 @@ int main(int argc, char ** argv)
      exit(3);
   }
   return 0;
+}
+
+
+//____________________________________________________________________________________
+// GENIE GHEP EVENT TREE FORMAT -> ROOT format for QPix Experiments
+//____________________________________________________________________________________
+
+void ConvertToUTAQPIX(void)
+{
+    // Open output file & create output summary tree & create the tree branches
+    //
+    LOG("gntpc", pNOTICE)
+        << "*** Saving summary tree to: " << gOptOutFileName;
+    static const Int_t Size_=51;
+    int  brevent         = 0;      // Event number
+    int  brNParticles  = 0;
+    int  bridx              [Size_];
+    int  brPdg              [Size_];
+    int  brStatus           [Size_];
+    int  brFirstMother      [Size_];
+    int  brLastMother       [Size_];
+    int  brFirstDaughter    [Size_];
+    int  brLastDaughter     [Size_];
+    double brE              [Size_];       // Energy     of k^th final state
+    double brPx             [Size_];       // Px         of k^th final state
+    double brPy             [Size_];       // Py         of k^th final state
+    double brPz             [Size_];       // Pz         of k^th final state
+    
+    TFile fout(gOptOutFileName.c_str(),"recreate");
+    
+    TTree * s_tree = new TTree("anatree","GENIE Summary Event Tree");
+    
+    // Create tree branches
+    //
+    s_tree->Branch("event",               &brevent,             "event/I"                     );
+    s_tree->Branch("NParticles",          &brNParticles,	    "NParticles/I "               );
+    s_tree->Branch("idx",                  bridx,	            "idx[NParticles]/I "          );
+    s_tree->Branch("status",               brStatus,	        "status[NParticles]/I "       );
+    s_tree->Branch("pdg",                  brPdg,	            "pdg[NParticles]/I "          );
+    s_tree->Branch("FirstMother",          brFirstMother,	    "FirstMother[NParticles]/I "  );
+    s_tree->Branch("LastMother",           brLastMother,	    "LastMother[NParticles]/I "   );
+    s_tree->Branch("FirstDaughter",        brFirstDaughter,	    "FirstDaughter[NParticles]/I ");
+    s_tree->Branch("LastDaughter",         brLastDaughter,	    "LastDaughter[NParticles]/I " );
+    s_tree->Branch("E",                    brE,	                "E[NParticles]/D"             );
+    s_tree->Branch("px",	               brPx,	            "Px[NParticles]/D"            );
+    s_tree->Branch("py",	               brPy,	            "Py[NParticles]/D"            );
+    s_tree->Branch("pz",                   brPz,	            "Pz[NParticles]/D"            );
+
+    // Open the ROOT file and get the TTree & its header
+    TFile fin(gOptInpFileName.c_str(),"READ");
+    TTree *           er_tree = 0;
+    NtpMCTreeHeader * thdr    = 0;
+    er_tree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
+    thdr    = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
+    if (!er_tree) {
+        LOG("gntpc", pERROR) << "Null input GHEP event tree";
+        return;
+    }
+    LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
+
+    // Get the mc record
+    NtpMCEventRecord * mcrec = 0;
+    er_tree->SetBranchAddress("gmcrec", &mcrec);
+    if (!mcrec) {
+        LOG("gntpc", pERROR) << "Null MC record";
+        return;
+    }
+
+    // Figure out how many events to analyze
+    Long64_t nmax = (gOptN<0) ?
+                    er_tree->GetEntries() : TMath::Min( er_tree->GetEntries(), gOptN );
+    if (nmax<0) {
+        LOG("gntpc", pERROR) << "Number of events = 0";
+        return;
+    }
+
+    LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
+
+    // Event Loop
+    for(Long64_t iev = 0; iev < nmax; iev++) {
+        er_tree->GetEntry(iev);
+
+        NtpMCRecHeader rec_header = mcrec->hdr;
+        EventRecord &  event      = *(mcrec->event);
+
+
+        LOG("gntpc", pINFO) << rec_header;
+        LOG("gntpc", pINFO) << event;
+
+        // Go further only if the event is physical
+        bool is_unphysical = event.IsUnphysical();
+        if(is_unphysical) {
+            LOG("gntpc", pINFO) << "Skipping unphysical event";
+            mcrec->Clear();
+            continue;
+        }
+
+		// Clean-up arrays
+		//
+		for(int j=0; j<Size_; j++) {
+            bridx               [j] =  0;
+            brStatus            [j] =  0;
+            brPdg               [j] =  0;
+            brE                 [j] =  0;
+            brPx                [j] =  0;
+            brPy                [j] =  0;
+            brPz                [j] =  0;
+            brFirstMother       [j] =  0;
+            brLastMother        [j] =  0;
+            brFirstDaughter     [j] =  0;
+            brLastDaughter      [j] =  0;
+        }
+
+		// Computing event characteristics
+		//
+
+        // input particles
+        // In nucleon decay mode,
+        // - [if the decayed nucleon was a bound one] the 1st entry in the event
+        //   record is a nucleus with status code = kIStInitialState and the
+        //   2nd entry is a nucleon with code = kIStDecayedState
+        // - [if the decayed nucleon was a free one] the first entry in the event
+        //   record is a nucleon with status code = kIStInitialState and it has a
+        //   single daughter which is a nucleon with status code = kIStDecayedState.
+
+        GHepParticle * P0 = event.Particle(0);
+        GHepParticle * P1 = event.Particle(1);
+        assert(P1);
+
+
+        if( (!pdg::IsIon(P0->Pdg())     && P0->Status() != kIStInitialState &&
+            !pdg::IsNucleon(P1->Pdg()) && P1->Status() != kIStDecayedState) ||
+                (!pdg::IsNucleon(P0->Pdg()) && P0->Status() != kIStInitialState  &&
+            !pdg::IsNucleon(P1->Pdg()) && P1->Status() != kIStDecayedState))
+        {
+            LOG("gntpc", pINFO) << "skipping qpix conversion only for nucleon decay!!";
+            std::cout<< "Please to make sure it is a nucleon decay genie file !!";
+            return ;
+        }
+
+
+
+        TObjArrayIter piter(&event);
+        GHepParticle * p = 0;
+
+        //
+        // Extract the Particle Information
+        //
+        //
+
+        LOG("gntpc", pDEBUG) << "Extracting Particles ";
+
+
+        int fidx=0;
+
+        while( (p = (GHepParticle *) piter.Next()))
+        {
+
+            int fpdg            = p->Pdg();
+            int fstatus         = p->Status();
+            int fFirstMother    = p->FirstMother();    ///< first mother idx
+            int fLastMother     = p->LastMother();     ///< last mother idx
+            int fFirstDaughter  = p->FirstDaughter() ; ///< first daughter idx
+            int fLastDaughter   = p->LastDaughter();   ///< last daughter idx
+            double fPx          = p->Px();
+            double fPy          = p->Py();
+            double fPz          = p->Pz();
+            double fE           = p->E() ;
+
+            bridx[fidx]                 = fidx;
+            brPdg[fidx]                 = fpdg;
+            brStatus[fidx]              = fstatus;
+            brFirstMother[fidx]         = fFirstMother;
+            brLastMother[fidx]          = fLastMother;
+            brFirstDaughter[fidx]       = fFirstDaughter;
+            brLastDaughter[fidx]        = fLastDaughter;
+            brPx[fidx]                  = fPx;
+            brPy[fidx]                  = fPy;
+            brPz[fidx]                  = fPz;
+            brE[fidx]                   = fE;
+            fidx++;
+
+        }//particle-loop
+
+
+        brevent        = (int) iev;
+        brNParticles = fidx ;
+
+        s_tree->Fill();
+
+        mcrec->Clear();
+
+    } // event loop
+
+
+    // Copy MC job metadata (gconfig and genv TFolders)
+
+    if(gOptCopyJobMeta) {
+        TFolder * genv    = (TFolder*) fin.Get("genv");
+        TFolder * gconfig = (TFolder*) fin.Get("gconfig");
+        fout.cd();
+        genv    -> Write("genv");
+        gconfig -> Write("gconfig");
+    }
+
+    fin.Close();
+
+    fout.Write();
+    fout.Close();
+
 }
 //____________________________________________________________________________________
 // GENIE GHEP EVENT TREE FORMAT -> GENIE SUMMARY NTUPLE 
