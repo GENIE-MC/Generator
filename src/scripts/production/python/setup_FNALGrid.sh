@@ -1,12 +1,11 @@
 #!/bin/bash 
 
-#cd $CONDOR_DIR_INPUT
-
 source /cvmfs/fermilab.opensciencegrid.org/products/genie/bootstrap_genie_ups.sh 
 #source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups 
 setup ifdhc v2_6_6
 export IFDH_CP_MAXRETRIES=0
 
+source /grid/fermiapp/products/larsoft/setups
 setup root v6_12_06a -q e17:debug 
 setup lhapdf v5_9_1k -q e17:debug 
 setup log4cpp v1_1_3a -q e17:debug 
@@ -55,8 +54,6 @@ if [ ! -z "$2" ] ; then
 else
   unset GALGCONF
 fi
-
-#./configure --enable-gsl --enable-rwght --with-optimiz-level=O2 --with-log4cpp-inc=${LOG4CPP_INC} --with-log4cpp-lib=${LOG4CPP_LIB} --with-libxml2-inc=${LIBXML2_INC} --with-libxml2-lib=${LIBXML2_LIB} --with-lhapdf5-lib=${LHAPDF_LIB} --with-lhapdf5-inc=${LHAPDF_INC} --with-pythia6-lib=${PYTHIA_LIB} 
 
 ./configure \
 --enable-rwght \
