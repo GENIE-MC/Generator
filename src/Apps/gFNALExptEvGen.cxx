@@ -787,12 +787,7 @@ int main(int argc, char ** argv)
   if ( fluxFileConfigI ) {
     TTree* t1 = fluxFileConfigI->GetMetaDataTree();
     if ( t1 ) {
-      size_t nmeta = t1->GetEntries();
-      TTree* t2 = (TTree*)t1->Clone(0);
-      for (size_t i = 0; i < nmeta; ++i) {
-        t1->GetEntry(i);
-        t2->Fill();
-      }
+      TTree* t2 = (TTree*)t1->CloneTree();
       t2->Write();
     }
   }
