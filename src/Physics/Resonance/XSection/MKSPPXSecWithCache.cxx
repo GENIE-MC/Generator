@@ -125,7 +125,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
   
   const KPhaseSpace& kps = in->PhaseSpace();
     
-  double Ethr = kps.Threshold_RSPP();
+  double Ethr = kps.Threshold_MKSPP();
   LOG("MKSPPCache", pNOTICE) << "E threshold = " << Ethr;
 
   // Distribute the knots in the energy range as is being done in the
@@ -156,7 +156,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
     if(Ev>Ethr+kASmallNum) {
       
       LOG("MKSPPCache", pINFO)
-	<< "*** Integrating d^4 XSec/dWdQ^2dCosThetadPhi for Ch: "
+	<< "*** Integrating d^3 XSec/dWdQ^2dCosTheta for Ch: "
 	<< SppChannel::AsString(spp_channel) << " at Ev = " << Ev;
       
       utils::gsl::d3XSecMK_dWQ2CosTheta_E func(fSinglePionProductionXSecModel, & local_interaction, fWcut ) ; 
@@ -165,7 +165,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
       ig.SetFunction(func);
       double kine_min[3] = { 0., 0., 0.};
       double kine_max[3] = { 1., 1., 1.};
-      xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+      xsec = ig.Integral(kine_min, kine_max);
       
     } 
     else 
@@ -229,13 +229,13 @@ genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::d3XSecMK_dWQ2CosTheta_E(
   double Enu = init_state.ProbeE(kRfHitNucRest);
 
 
-  if (Enu < kps->Threshold_RSPP())
+  if (Enu < kps->Threshold_MKSPP())
   {
     isZero = true;
     return;
   }
   
-  Wl  = kps->WLim_RSPP();
+  Wl  = kps->WLim_MKSPP();
   if (fWcut >= Wl.min)
     Wl.max = TMath::Min(fWcut,Wl.max);
   
@@ -253,7 +253,7 @@ double genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::DoEval(const double * xin) co
 {
 
   // outputs:
-  //   differential cross section [10^-38 cm^2/GeV^3] for Resonance single pion production production
+  //   differential cross section [1/GeV^3] for Resonance single pion production production
   //
 
   if (isZero) return 0.;
@@ -261,7 +261,7 @@ double genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::DoEval(const double * xin) co
   double W  = Wl.min + (Wl.max - Wl.min)*xin[0];
   fInteraction->KinePtr()->SetW(W);
    
-  Range1D_t Q2l = kps->Q2Lim_W_RSPP(); 
+  Range1D_t Q2l = kps->Q2Lim_W_MKSPP(); 
    
   double Q2 = Q2l.min + (Q2l.max - Q2l.min)*xin[1];
   fInteraction->KinePtr()->SetQ2(Q2);
@@ -270,7 +270,7 @@ double genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::DoEval(const double * xin) co
   
   
   double xsec = fModel->XSec(fInteraction, kPSWQ2ctpfE)*(Wl.max-Wl.min)*(Q2l.max-Q2l.min)*2;
-  return xsec/(1E-38 * units::cm2);
+  return xsec;
 }
 ROOT::Math::IBaseFunctionMultiDim *
 genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::Clone() const

@@ -591,7 +591,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
      <param type="alg"    name="Module-2">   genie::FermiMover/Default                            </param>
-     <param type="alg"    name="Module-3">   genie::RSPPEventGenerator/Default                    </param>
+     <param type="alg"    name="Module-3">   genie::MKSPPEventGenerator/Default                    </param>
      <param type="alg"    name="Module-4">   genie::PauliBlocker/Default                          </param>
      <param type="alg"    name="Module-5">   genie::UnstableParticleDecayer/BeforeHadronTransport </param>
      <param type="alg"    name="Module-6">   genie::NucDeExcitationSim/Default                    </param>
@@ -607,7 +607,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
      <param type="alg"    name="Module-2">   genie::FermiMover/Default                            </param>
-     <param type="alg"    name="Module-3">   genie::RSPPEventGenerator/Default                    </param>
+     <param type="alg"    name="Module-3">   genie::MKSPPEventGenerator/Default                    </param>
      <param type="alg"    name="Module-4">   genie::PauliBlocker/Default                          </param>
      <param type="alg"    name="Module-5">   genie::UnstableParticleDecayer/BeforeHadronTransport </param>
      <param type="alg"    name="Module-6">   genie::NucDeExcitationSim/Default                    </param>

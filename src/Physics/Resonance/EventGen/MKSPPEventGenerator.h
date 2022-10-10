@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::RSPPEventGenerator
+\class    genie::MKSPPEventGenerator
 
 \brief    Generates resonance single pion production event for the following channels:      
 
@@ -36,25 +36,24 @@ Is a concrete implementation of the EventRecordVisitorI interface.
 */
 //____________________________________________________________________________
 
-#ifndef _RSPP_EVENT_GENERATOR_H_
-#define _RSPP_EVENT_GENERATOR_H_
+#ifndef _MKSPP_EVENT_GENERATOR_H_
+#define _MKSPP_EVENT_GENERATOR_H_
 
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
 
 #include "Framework/Utils/Range1.h"
 #include "Physics/Common/KineGeneratorWithCache.h"
-#include "Framework/ParticleData/BaryonResList.h"
 
 
 namespace genie {
 
-class RSPPEventGenerator : public KineGeneratorWithCache {
+class MKSPPEventGenerator : public KineGeneratorWithCache {
 
 public :
-  RSPPEventGenerator();
-  RSPPEventGenerator(string config);
- ~RSPPEventGenerator();
+  MKSPPEventGenerator();
+  MKSPPEventGenerator(string config);
+ ~MKSPPEventGenerator();
 
   // implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
@@ -110,8 +109,6 @@ private:
 
   int fMaxDepth;  ///< Maximum depth of dividing parent cell
   
-  BaryonResList  fResList;
-
 };
 
 
@@ -132,7 +129,7 @@ namespace gsl   {
 class d4XSecMK_dWQ2CosThetaPhi_E: public ROOT::Math::IBaseFunctionMultiDim
 {
 public:
-  d4XSecMK_dWQ2CosThetaPhi_E(const XSecAlgorithmI * m, const Interaction * i);
+  d4XSecMK_dWQ2CosThetaPhi_E(const XSecAlgorithmI * m, const Interaction * i, double wcut);
  ~d4XSecMK_dWQ2CosThetaPhi_E();
 
   // ROOT::Math::IBaseFunctionMultiDim interface
@@ -144,6 +141,7 @@ private:
   const XSecAlgorithmI * fModel;
   Interaction *    fInteraction;
   Range1D_t Wl;
+  double fWcut;
   bool isZero;
   KPhaseSpace * kps;
 };
@@ -153,4 +151,4 @@ private:
 } // utils namespace
 
 }      // genie namespace
-#endif // _RSPP_EVENT_GENERATOR_H_
+#endif // _MKSPP_EVENT_GENERATOR_H_

@@ -42,8 +42,8 @@
   <priority msgstream="BaseHad">               FATAL </priority>
   <priority msgstream="BertuzzoDNuCOH">        FATAL </priority>
   <priority msgstream="BSKLNBaseRESPXSec2014"> FATAL </priority>
-  <priority msgstream="MKSPPPXSec2014">        FATAL </priority>
-  <priority msgstream="MKSPPXSec2014">         FATAL </priority>
+  <priority msgstream="MKSPPPXSec">            FATAL </priority>
+  <priority msgstream="MKSPPXSec">             FATAL </priority>
   <priority msgstream="MKSPPCache">            FATAL </priority>
   <priority msgstream="BreitWignet">           FATAL </priority>
   <priority msgstream="Bardin">                FATAL </priority>
@@ -173,7 +173,7 @@
   <priority msgstream="QELEvent">              FATAL </priority>
   <priority msgstream="QELHadronicVtx">        FATAL </priority>
   <priority msgstream="QELKinematics">         FATAL </priority>
-  <priority msgstream="RSPPEventGen">          FATAL  </priority>
+  <priority msgstream="MKSPPEventGen">         FATAL  </priority>
   <priority msgstream="RESXSec">               FATAL </priority>
   <priority msgstream="RESPXSec">              FATAL </priority>
   <priority msgstream="ReinSehgalCohPi">       FATAL </priority>

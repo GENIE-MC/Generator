@@ -3,30 +3,38 @@
 
 \class    genie::MKSPPPXSec
 
-\brief    Class calculate differental cross-section d^4(sig)/d(Q2)d(W)d(cost)d(phi),
-          for specific W, Q2, neutrino energy(in lab frame) & pion angles in the Adler frame, where \n
-          Q2          : Sqaured 4-momentum transfer, Q2 = -k*k         \n                        
-          W           : Invariant mass                                 \n                      
-          cost        : Cosine of pion polar angle in Adler frame      \n                      
-          phi         : Pion azimuthal angle in Adler frame            \n
+\brief    
+Class calculate differental cross-sections  
+\f[
+\frac{d^4\sigma}{dQ^2dWd\cos\theta_\pi d\phi_\pi}
+\f]
+or
+\f[
+\frac{d^3\sigma}{dQ^2dWd\cos\theta_\pi}
+\f]
+for specific neutrino energy (in lab frame), where:
 
-for the following channels:      
-
-          1       nu + p -> l      + p + pi+
-          2       nu + n -> l      + p + pi0
-          3       nu + n -> l      + n + pi+
-          4   antinu + n -> l+     + n + pi-
-          5   antinu + p -> l+     + n + pi0
-          6   antinu + p -> l+     + p + pi-
-          7       nu + p -> nu     + p + pi0
-          8       nu + p -> nu     + n + pi+
-          9       nu + n -> nu     + n + pi0
-          10      nu + n -> nu     + p + pi-
-          11  antinu + p -> antinu + p + pi0
-          12  antinu + p -> antinu + n + pi+
-          13  antinu + n -> antinu + n + pi0
-          14  antinu + n -> antinu + p + pi-
-                                                                                           
+Variable             | Description
+---------------------|-----------------------------------------------------
+\f$W\f$              | Invariant mass
+\f$Q^2\f$            | Sqaured 4-momentum transfer
+\f$\cos\theta_\pi\f$ | Cosine of pion polar angle in \f$\pi\f$N rest frame
+\f$\phi_\pi\f$       | Pion azimuthal angle in \f$\pi\f$N rest frame
+for the following channels:
+-#  \f$\nu            + p \to \ell^-          + p + \pi^+\f$
+-#  \f$\nu            + n \to \ell^-          + p + \pi^0\f$
+-#  \f$\nu            + n \to \ell^-          + n + \pi^+\f$
+-#  \f$\overline{\nu} + n \to \ell^+          + n + \pi^-\f$
+-#  \f$\overline{\nu} + p \to \ell^+          + n + \pi^0\f$
+-#  \f$\overline{\nu} + p \to \ell^+          + p + \pi^-\f$
+-#  \f$\nu            + p \to \nu             + p + \pi^0\f$
+-#  \f$\nu            + p \to \nu             + n + \pi^+\f$
+-#  \f$\nu            + n \to \nu             + n + \pi^0\f$
+-#  \f$\nu            + n \to \nu             + p + \pi^-\f$
+-#  \f$\overline{\nu} + p \to \overline{\nu}  + p + \pi^0\f$
+-#  \f$\overline{\nu} + p \to \overline{\nu}  + n + \pi^+\f$
+-#  \f$\overline{\nu} + n \to \overline{\nu}  + n + \pi^0\f$
+-#  \f$\overline{\nu} + n \to \overline{\nu}  + p + \pi^-\f$
                                                           
 \ref      
           1.  Kabirnezhad M., Phys.Rev.D 97 (2018) 013002 (Erratim: arXiv:1711.02403)
@@ -41,7 +49,7 @@ for the following channels:
           9.  Adler S.L., Nussinov S., Paschos E.A., Phys. Rev. D 9 (1974) 2125-2143 [Erratum: ibid D 10 (1974) 1669]
           10. Paschos E.A., Yu J.Y., Sakuda M., Phys. Rev. D 69 (2004) 014013 [arXiv: hep-ph/0308130] 
           11. Yu J.Y., "Neutrino interactions and  nuclear  effects in oscillation experiments and the 
-             nonperturbative dispersive  sector in strong (quasi-)abelian  fields", Ph. D.Thesis, Dortmund U., Dortmund, 2002 (unpublished)
+              nonperturbative dispersive  sector in strong (quasi-)abelian  fields", Ph. D.Thesis, Dortmund U., Dortmund, 2002 (unpublished)
           12. Kakorin I., Kuzmin K., Naumov V. "Report on implementation of the MK-model for resonance single-pion production into GENIE"
                                                (https://genie-docdb.pp.rl.ac.uk/cgi-bin/private/ShowDocument?docid=181, 
                                                 http://theor.jinr.ru/NeutrinoOscillations/Papers/Report_MK_implementation_GENIE.pdf)              
@@ -53,7 +61,7 @@ for the following channels:
           Minoo Kabirnezhad <minoo.kabirnezhad@physics.ox.ac.uk>
           University of Oxford, Department of Physics \n
           based on code of \n
-          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  Nov 12, 2019

@@ -41,7 +41,7 @@ public:
 
   //! Energy threshold
   double Threshold(void) const;
-  double Threshold_RSPP(void) const;   ///< Energy limit for resonance single pion production
+  double Threshold_MKSPP(void) const;   ///< Energy limit for resonance single pion production
 
   //! Checks whether the interaction is above the energy threshold
   bool IsAboveThreshold(void) const;
@@ -55,9 +55,9 @@ public:
   double     Maximum (KineVar_t kvar) const;
 
   Range1D_t  WLim         (void) const;  ///< W  limits
-  Range1D_t  WLim_RSPP    (void) const;  ///< W  limits for resonance single pion production
+  Range1D_t  WLim_MKSPP    (void) const;  ///< W  limits for resonance single pion production
   Range1D_t  Q2Lim_W      (void) const;  ///< Q2 limits @ fixed W
-  Range1D_t  Q2Lim_W_RSPP (void) const;  ///< Q2 limits @ fixed W for resonance single pion production
+  Range1D_t  Q2Lim_W_MKSPP (void) const;  ///< Q2 limits @ fixed W for resonance single pion production
   Range1D_t  q2Lim_W      (void) const;  ///< q2 limits @ fixed W
   Range1D_t  Q2Lim        (void) const;  ///< Q2 limits
   Range1D_t  q2Lim        (void) const;  ///< q2 limits

@@ -80,14 +80,14 @@ double MKSPPXSec::Integrate(
   //-- Get the requested SPP channel
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
 
-  if (Enu < kps.Threshold_RSPP()) return 0.;
+  if (Enu < kps.Threshold_MKSPP()) return 0.;
   
   fSinglePionProductionXSecModel = model;
 
   InteractionType_t it = proc_info.InteractionTypeId();
   int nucleon_pdgc = target.HitNucPdg();
   int nu_pdgc      = init_state.ProbePdg();
-
+  string nc_nuc   = ((pdg::IsNeutrino(nu_pdgc)) ? ";v:" : ";vb:");
   
   // If the input interaction is off a nuclear target, then chek whether
   // the corresponding free nucleon cross section already exists at the
@@ -159,9 +159,10 @@ double MKSPPXSec::Integrate(
     //    cross section spline at the end of its energy range-)
     double rxsec = (Enu<fEMax-1) ? cbranch(Enu) : cbranch(fEMax-1);
 
-    SLOG("MKSPPXSec", pNOTICE)  
-       << "XSec[Channel/" << SppChannel::AsString(spp_channel)<< "/free] (Ev = " 
-               << Enu << " GeV) = " << rxsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
+               
+    SLOG("MKSPPXSec", pNOTICE)
+      << "XSec[Channel: " << SppChannel::AsString(spp_channel) << nc_nuc  << nu_pdgc
+      << "/free]  (E="<< Enu << " GeV) = " << rxsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
 
      if( interaction->TestBit(kIAssumeFreeNucleon) ) return rxsec;
 
@@ -175,7 +176,7 @@ double MKSPPXSec::Integrate(
   else 
   {
     LOG("MKSPPXSec", pINFO)
-          << "*** Integrating d^4 XSec/dWdQ^2dCosThetadPhi for Ch: "
+          << "*** Integrating d^3 XSec/dWdQ^2dCosTheta for Ch: "
           << SppChannel::AsString(spp_channel) << " at Ev = " << Enu;
     
     ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d3XSecMK_dWQ2CosTheta_E(model, interaction, fWcut);
@@ -184,9 +185,13 @@ double MKSPPXSec::Integrate(
     ig.SetFunction(*func);
     double kine_min[3] = { 0., 0., 0.};
     double kine_max[3] = { 1., 1., 1.};
-    double xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+    double xsec = ig.Integral(kine_min, kine_max);
 
     delete func;
+      
+    SLOG("MKSPPXSec", pNOTICE)
+      << "XSec[Channel: " << SppChannel::AsString(spp_channel) << nc_nuc  << nu_pdgc
+      << "]  (E="<< Enu << " GeV) = " << xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
     return xsec;
   }
   return 0;
