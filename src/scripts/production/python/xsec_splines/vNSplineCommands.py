@@ -13,7 +13,7 @@ Copyright:
 
 """
 import os 
-import GridUtils 
+import FNALGridUtils as FNAL
 
 # Define Dictionaries
 nucleons_pdg = {
@@ -32,14 +32,17 @@ nu_pdg_def = { 've'      :   12,
                'vmubar'  :  -14,
                'vtau'    :   16,
                'vtaubar' :  -16 }
+
 nu_name_def = { 12  : 've'     ,
                 -12 : 'vebar'  ,
                  14 : 'vmu'    ,
                 -14 : 'vmubar' ,
                  16 : 'vtau'   ,
                 -16 : 'vtaubar' }
+
 e_pdg_def = { 'e' : 11, 
               'ebar' : -11 }
+
 e_name_def = { 11 : 'e', 
               -11: 'ebar' }
 
@@ -92,7 +95,10 @@ def vNSplineCommands( nu_list='all', gen_list='all', e_max=200, n_knots=100, tun
 
     grid_command_options = ''
     if grid_system == 'FNAL' :
-        grid_command_options = GridUtils.FNALShellCommands(genie_setup,group, 8)
+        grid_command_options = FNAL.FNALShellCommands(genie_setup, 8)
+    else :
+        print( "Only FNAL grid is available" )
+        return 
 
     # Create neutrino spline commands:
     grid_sub_cmd = []     
@@ -122,10 +128,10 @@ def vNSplineCommands( nu_list='all', gen_list='all', e_max=200, n_knots=100, tun
                 gmkspl_cmd = "gmkspl -p "+str(nu)+ " -t "+ str(nucleons_pdg[target]) + " -n "+ str(n_knots) + " -e "+ str(e_max) + " --tune " + tune 
                 gmkspl_cmd += " -o "+ filename_template+".xml --event-generator-list " + event_gen_list   
                 
-                shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_system, genie_setup, conf_dir, in_files ) 
+                shell_file = ''
                 if grid_system == 'FNAL' :
+                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", genie_setup, conf_dir, in_files ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
-
 
     # Create electron spline commands:
     
@@ -145,8 +151,9 @@ def vNSplineCommands( nu_list='all', gen_list='all', e_max=200, n_knots=100, tun
                 gmkspl_cmd = "gmkspl -p "+str(e)+ " -t "+ str(nucleons_pdg[target]) + " -n "+ str(n_knots) + " -e "+ str(e_max) + " --tune " + tune 
                 gmkspl_cmd += " -o "+ output_spline+".xml --event-generator-list " + event_gen_list   
                 
-                shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", grid_system, genie_setup, conf_dir, in_files ) 
+                shell_file = ''
                 if grid_system == 'FNAL' :
+                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", genie_setup, conf_dir, in_files ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
 

@@ -12,7 +12,7 @@ Copyright:
    For the full text of the license visit http://copyright.genie-mc.org
 """
 import os 
-import GridUtils
+import FNALGridUtils as FNAL
 
 # Define Dictionaries
 
@@ -26,18 +26,21 @@ nu_pdg_def = { 've'      :   12,
                'vmubar'  :  -14,
                'vtau'    :   16,
                'vtaubar' :  -16 }
+
 nu_name_def = { 12  : 've'     ,
                 -12 : 'vebar'  ,
                  14 : 'vmu'    ,
                 -14 : 'vmubar' ,
                  16 : 'vtau'   ,
                 -16 : 'vtaubar' }
+
 e_pdg_def = { 'e' : 11, 
               'ebar' : -11 }
+
 e_name_def = { 11 : 'e', 
               -11: 'ebar' }
 
-def vASplineCommands( nu_list='all', tgt_list = 'all', gen_list='all', e_max=200, n_knots=100, tune='G18_02_02_11b', freenucsplines=os.getenv('PWD'),
+def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all', gen_list='all', e_max=200, n_knots=100, tune='G18_02_02_11b', freenucsplines=os.getenv('PWD'),
                       version='master', grid_system='FNAL', group='genie', conf_dir='', arch='SL6.x86_64', production='routine_validation', 
                       cycle='01', softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
                       genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNALGrid.sh') :
@@ -51,8 +54,8 @@ def vASplineCommands( nu_list='all', tgt_list = 'all', gen_list='all', e_max=200
 
     req_nu_list = []
     req_e_list = []
-    if( nu_list != 'all' ) :
-        req_particle_list = nu_list.split(',')
+    if( probe != 'all' ) :
+        req_particle_list = probe.split(',')
         for particle in req_particle_list:
             if particle in nu_pdg_def : 
                 req_nu_list.append(nu_pdg_def[particle])
@@ -81,26 +84,30 @@ def vASplineCommands( nu_list='all', tgt_list = 'all', gen_list='all', e_max=200
         req_EW_list = nuclei_EW_proc 
         req_EM_list = nuclei_EM_proc
 
-    req_tgt_list = []
-    if ( tgt_list != 'all' ) :
-        req_tgt_list = tgt_list.split(',')
+    req_nu_tgt_list = []
+    req_e_tgt_list = []
+    if ( nu_tgt_list != 'all' ) :
+        req_nu_tgt_list = nu_tgt_list.split(',')
     else : 
-        req_tgt_list = tgt_pdg 
+        req_nu_tgt_list = tgt_pdg 
+    if ( e_tgt_list != 'all' ) :
+        req_e_tgt_list = e_tgt_list.split(',')
+    else : 
+        req_e_tgt_list = tgt_pdg 
 
     # Make directory
     if not os.path.exists(jobs_dir) : 
         os.mkdir(jobs_dir)
 
     command_list = []
-
     if grid_system == 'FNAL' :
-        grid_command_options = GridUtils.FNALShellCommands(genie_setup,group,8)
+        grid_command_options = FNAL.FNALShellCommands(genie_setup,8)
                     
     # Create neutrino spline commands:
     grid_sub_cmd = []     
     shell_file_list = []
     for nu in req_nu_list : 
-        for target in req_tgt_list : 
+        for target in req_nu_tgt_list : 
             for process in req_EW_list :
                 if process == 'none' : continue 
                 event_gen_list = process 
@@ -117,15 +124,15 @@ def vASplineCommands( nu_list='all', tgt_list = 'all', gen_list='all', e_max=200
                 gmkspl_cmd = "gmkspl -p "+str(nu)+ " -t "+ str(target) + " -n "+ str(n_knots) + " -e "+ str(e_max) + " --tune " + tune 
                 gmkspl_cmd += " --input-cross-sections "+ input_xsec+" -o "+ filename_template+".xml --event-generator-list " + event_gen_list +" --no-copy "  
                 
-                shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_system, genie_setup, conf_dir, in_files ) 
+                shell_file = ''
                 if grid_system == 'FNAL' :
+                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", genie_setup, conf_dir, in_files ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
 
     # Create electron spline commands:
-    
     for e in req_e_list : 
-        for target in req_tgt_list : 
+        for target in req_e_tgt_list : 
             for process in req_EM_list :
                 if process == 'none' : continue 
                 event_gen_list = process 
@@ -142,8 +149,9 @@ def vASplineCommands( nu_list='all', tgt_list = 'all', gen_list='all', e_max=200
                 gmkspl_cmd = "gmkspl -p "+str(e)+ " -t "+ str(target) + " -n "+ str(n_knots) + " -e "+ str(e_max) + " --tune " + tune 
                 gmkspl_cmd += " --input-cross-sections "+ input_xsec+" -o "+ output_spline+".xml --event-generator-list " + event_gen_list +" --no-copy "  
                 
-                shell_file = GridUtils.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", grid_system, genie_setup, conf_dir, in_files ) 
+                shell_file = ''
                 if grid_system == 'FNAL' :
+                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", genie_setup, conf_dir, in_files ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
 

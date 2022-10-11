@@ -16,7 +16,7 @@ Copyright:
 
 """
 import os, glob, re
-import GridUtils 
+import FNALGridUtils as FNAL
 
 # Define Dictionaries
 nucleons_pdg = {
@@ -127,14 +127,24 @@ def GroupSplineCommands( group_vN=False, mother_dir='', tune='G18_02_02_11b', ve
             dict_nu[nu] = []
             for process in dir_EW_process_list : 
                 dict_nu[nu].append(nu+"_on_"+target+"_"+process+".xml")
-        
-        for e in dir_e_list : 
-            dict_nu[e] = []
-            for process in dir_EM_process_list : 
-                dict_nu[e].append(e+"_on_"+target+"_"+process+".xml")
-
         # Add all files to merge here:
         dict_target[target] = dict_nu 
+    
+    for target in dir_e_tgt_list : 
+        if len(target) == 1 : 
+            if target == 'p' : 
+                target = '1000010010'
+            if target == 'n' :
+                target = '1000000010'
+
+        dict_e=dict_target[target]
+        for e in dir_e_list : 
+            dict_e[e] = []
+            for process in dir_EM_process_list : 
+                dict_e[e].append(e+"_on_"+target+"_"+process+".xml")
+
+        # Add all files to merge here:
+        dict_target[target] = dict_e 
 
     if grid_system == 'FNAL' : 
         path = "$CONDOR_DIR_INPUT/"
@@ -189,11 +199,11 @@ def GroupSplineCommands( group_vN=False, mother_dir='', tune='G18_02_02_11b', ve
         job_ID = 3 
 
     # Call Commands
-    shell_file = GridUtils.CreateShellScript ( commands , jobs_topdir, process_name, out_files, grid_system, genie_setup, conf_dir, xml_files_dir ) 
-
+    shell_file = ''
     command_list = []
     if grid_system == 'FNAL' :
-        grid_command_options = GridUtils.FNALShellCommands(genie_setup,group)
+        shell_fileFNAL.CreateShellScript ( commands , jobs_topdir, process_name, out_files, genie_setup, conf_dir, xml_files_dir ) 
+        grid_command_options = FNAL.FNALShellCommands(genie_setup)
         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
     ## Add command list to dictionary; 
