@@ -11,7 +11,7 @@ Copyright:
    For the full text of the license visit http://copyright.genie-mc.org
 """
 import os 
-import GridUtils
+import FNALGridUtils as FNAL
 
 # Define Dictionaries
 
@@ -82,20 +82,17 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
                         n_event_left
                     n_event_left -= nev 
                     
-                    # Set naming scheme: EE0TTTTTTTTTT0EEEE0SS (RR: run number, EEEE: electron energy in MeV, SS: subrun id)
-                    # Ex: e-C12 2GeV, subrunX: 1101000060120020000X
-                    curr_subrune = "110"+str(tgt)+"0"+str(int(E)*1000)+"0"+str(isubrun); 
+                    curr_subrune = "11"+str(tgt)+str(isubrun); 
                     curr_seed         = mcseed + isubrun + int(tgt)
-                    jobname           = "escattering-"+str(curr_subrune)
+                    jobname           = "e_on_"+str(tgt)+"_"+E+"_"+str(isubrun)
 
                     evgen_command = "gevgen -p "+str(e)+" -n "+str(nev)+" -e "+E+" -t "+str(tgt)+" -r "+curr_subrune+" --seed "+str(curr_seed)
-                    evgen_command += " --cross-sections "+xspl_file+" --event-generator-list "+gen_list+" --tune "+tune
+                    evgen_command += " --cross-sections "+xspl_file+" --event-generator-list "+gen_list+" --tune "+tune + " -o "+jobname
 
-                    shell_file = GridUtils.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".root"), 
-                                                               grid_system, genie_setup, conf_dir, str(xspl_file) ) 
-                
+                    shell_file = ''                
                     if grid_system == 'FNAL' :
-                        grid_command_options = GridUtils.FNALShellCommands(genie_setup,group)
+                        shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".root"), genie_setup, conf_dir, str(xspl_file) ) 
+                        grid_command_options = FNAL.FNALShellCommands(genie_setup)
                         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
 
