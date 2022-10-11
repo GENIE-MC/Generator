@@ -19,7 +19,7 @@ sys.path.insert(1, 'xsec_splines/')
 import vNSplineCommands as vN
 import vASplineCommands as vA
 import GroupSplineCommands as group
-import GridUtils as utils
+import FNALGridUtils as FNAL
 
 sys.path.insert(1, 'event_generation')
 import eScatteringGenCommands as eA
@@ -36,9 +36,11 @@ op.add_option("--genie-topdir", dest="GENIE", default=os.getenv('GENIE'), help =
 op.add_option("--jobs-topdir", dest="JOBSTD", default=os.getenv('PWD'), help="Top level dir for the job files (default: %default)")
 op.add_option("--source-prod-dir", dest="MotherDir", default='', help="Jobs topdir used as a source for missing xsec splines.")
 op.add_option("--config-dir", dest="CONF", default='', help="Path to GENIE config dir")
-op.add_option("--nu-list", dest="NULIST", default='11', help = "Comma separated list of lepton flavour (neutrino and electrons are handled). Default: %default.") 
-op.add_option("--tgt-list", dest="TGTLIST", default='all', help = "Comma separated list of Targets. Default: %default.") 
-op.add_option("--gen-list", dest="GenList", default='all', help = "Comma separated list of event generator list to be used for splines, default all") 
+op.add_option("--probe-list", dest="PROBELIST", default='11', help = "Comma separated list of lepton flavour (neutrino and electrons are handled). Default: %default.") 
+op.add_option("--nu-tgt-list", dest="NUTGTLIST", default='all', help = "Comma separated list of Targets. Default: %default.") 
+op.add_option("--e-tgt-list", dest="ETGTLIST", default='all', help = "Comma separated list of Targets. Default: %default.") 
+op.add_option("--vN-gen-list", dest="vNList", default='all', help="Comma separated list of event generator list used for the free nucleon spline generation. Can be used to specify electron procecess as well")
+op.add_option("--vA-gen-list", dest="vAList", default='all', help="Comma separated list of event generator list used for the nuclei spline generation.  Can be used to specify electron procecess as well")
 op.add_option("--e-max", dest="EMAX", default=30, help="Maximum energy for the splines in GeV. Default: %default ")
 op.add_option("--n-knots", dest="Knots", default=100, help="Number of knots per spline. Default: %default")
 op.add_option("--event-generator-list", dest="EvGenList", default='all', help="Event generator list to be used for event generation. Default all")
@@ -49,10 +51,6 @@ op.add_option("--starting-point", dest="start_ID", default=0, help="0 -> Free nu
 op.add_option("--stopping-point", dest="end_ID", default=9999, help="Numbers as above, Default: 9999") 
 op.add_option("--tune", dest="TUNE", default="G18_02a_02_11b", help="Tune to be compared against data (default: %default)")
 op.add_option("--submit-jobs", dest="SUBMIT", default=False, action="store_true", help="Generate configuration and submit to grid" )
-opts, args = op.parse_args()
-
-op.add_option("--vN-gen-list", dest="vNList", default=opts.GenList, help="Comma separated list of event generator list used for the free nucleon spline generation. Default all or gen-list if defined")
-op.add_option("--vA-gen-list", dest="vAList", default=opts.GenList, help="Comma separated list of event generator list used for the nuclei spline generation. Default all or gen-list if defined")
 opts, args = op.parse_args()
 
 # Print information
@@ -99,7 +97,7 @@ else :
 # Store commands with ID :
 command_dict = {}
 # ID = 0 # vN splines
-command_dict.update( vN.vNSplineCommands(opts.NULIST,opts.vNList,opts.EMAX,opts.Knots,opts.TUNE,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
+command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.EMAX,opts.Knots,opts.TUNE,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
 
 # ID = 1 # group vN splines
 vNMotherDir = ''
@@ -109,7 +107,7 @@ if opts.MotherDir !='' :
 command_dict.update( group.GroupSplineCommands( True,vNMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,vNdir,False, False ) )# THE LAST TWO TO BE CONFIGURED
 
 # ID = 2 # vA splines
-command_dict.update( vA.vASplineCommands(opts.NULIST,opts.TGTLIST,opts.vAList,opts.EMAX,opts.Knots,opts.TUNE,vNsplines,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
+command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NuTGTLIST,opts.ETGTLIST,opts.vAList,opts.EMAX,opts.Knots,opts.TUNE,vNsplines,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
 
 # ID = 3 # Group vA splines
 vAMotherDir = ''
@@ -119,7 +117,7 @@ if opts.MotherDir !='' :
 command_dict.update( group.GroupSplineCommands( False,vAMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,vAdir,False, False ) )# THE LAST TWO TO BE CONFIGURED
 
 # ID = 4 # Event generation commands
-command_dict.update( eA.eScatteringGenCommands(opts.NULIST,opts.TGTLIST,opts.Energy,vAsplines,opts.NEvents,opts.TUNE, opts.EvGenList, opts.NMax, opts.VERSION, opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
+command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.TGTLIST,opts.Energy,vAsplines,opts.NEvents,opts.TUNE, opts.EvGenList, opts.NMax, opts.VERSION, opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
 
 # Get correct ID as requested by user:
 loop_start = 0 
@@ -128,12 +126,12 @@ loop_end = command_dict.keys()[-1]
 if opts.start_ID != 0 :
     loop_start = opts.start_ID
 
-if opts.end_ID < loop_end : 
-    loop_end= opts.end_ID 
+if loop_end > int(opts.end_ID) : 
+    loop_end= int(opts.end_ID)
 
-grid_name = utils.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD)
+grid_name = FNAL.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD)
 
-main_sub_name = utils.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GRID, opts.GROUP, genie_setup, grid_name )
+main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, genie_setup, grid_name )
 
 if opts.SUBMIT == True: 
     # SUBMIT JOB
