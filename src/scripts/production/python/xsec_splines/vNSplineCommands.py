@@ -46,7 +46,7 @@ e_pdg_def = { 'e' : 11,
 e_name_def = { 11 : 'e', 
               -11: 'ebar' }
 
-def vNSplineCommands( nu_list='all', gen_list='all', e_max=200, n_knots=100, tune='G18_02_02_11b', version='master', 
+def vNSplineCommands( probe_list='all', gen_list='all', e_max=200, n_knots=100, tune='G18_02_02_11b', version='master', 
                       grid_system='FNAL', group='genie', conf_dir='', arch='SL6.x86_64', production='routine_validation', cycle='01',  
                       softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'), 
                       genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNALGrid.sh') :
@@ -56,8 +56,8 @@ def vNSplineCommands( nu_list='all', gen_list='all', e_max=200, n_knots=100, tun
     req_nu_list = []
     req_e_list = []
     in_files=[]
-    if( nu_list != 'all' ) :
-        req_particle_list = nu_list.split(',')
+    if( probe_list != 'all' ) :
+        req_particle_list = probe_list.split(',')
         for particle in req_particle_list:
             if particle in nu_pdg_def : 
                 req_nu_list.append(nu_pdg_def[particle])
