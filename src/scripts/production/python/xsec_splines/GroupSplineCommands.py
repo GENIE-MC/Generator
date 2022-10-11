@@ -94,7 +94,7 @@ def GroupSplineCommands( group_vN=False, mother_dir='', tune='G18_02_02_11b', ve
     lepton_list = []
     tgt_list = []
     for xml_file in xml_files_dir : 
-        xml_file = os.path.basename(xml_file)[:-4]
+        xml_file = os.path.basename(xml_file)[:-3]
         xml_content = xml_file.split("_")
         if len(xml_content) < 4 : continue
 
@@ -137,7 +137,9 @@ def GroupSplineCommands( group_vN=False, mother_dir='', tune='G18_02_02_11b', ve
             if target == 'n' :
                 target = '1000000010'
 
-        dict_e=dict_target[target]
+        dict_e={}
+        if target in dict_target : 
+            dict_e = dict_target[target]
         for e in dir_e_list : 
             dict_e[e] = []
             for process in dir_EM_process_list : 
@@ -202,7 +204,7 @@ def GroupSplineCommands( group_vN=False, mother_dir='', tune='G18_02_02_11b', ve
     shell_file = ''
     command_list = []
     if grid_system == 'FNAL' :
-        shell_fileFNAL.CreateShellScript ( commands , jobs_topdir, process_name, out_files, genie_setup, conf_dir, xml_files_dir ) 
+        shell_file=FNAL.CreateShellScript ( commands , jobs_topdir, process_name, out_files, genie_setup, conf_dir, xml_files_dir ) 
         grid_command_options = FNAL.FNALShellCommands(genie_setup)
         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 

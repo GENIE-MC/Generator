@@ -107,7 +107,7 @@ if opts.MotherDir !='' :
 command_dict.update( group.GroupSplineCommands( True,vNMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,vNdir,False, False ) )# THE LAST TWO TO BE CONFIGURED
 
 # ID = 2 # vA splines
-command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NuTGTLIST,opts.ETGTLIST,opts.vAList,opts.EMAX,opts.Knots,opts.TUNE,vNsplines,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
+command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.EMAX,opts.Knots,opts.TUNE,vNsplines,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
 
 # ID = 3 # Group vA splines
 vAMotherDir = ''
@@ -117,7 +117,7 @@ if opts.MotherDir !='' :
 command_dict.update( group.GroupSplineCommands( False,vAMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,vAdir,False, False ) )# THE LAST TWO TO BE CONFIGURED
 
 # ID = 4 # Event generation commands
-command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.TGTLIST,opts.Energy,vAsplines,opts.NEvents,opts.TUNE, opts.EvGenList, opts.NMax, opts.VERSION, opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
+command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.Energy,vAsplines,opts.NEvents,opts.TUNE, opts.EvGenList, opts.NMax, opts.VERSION, opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
 
 # Get correct ID as requested by user:
 loop_start = 0 

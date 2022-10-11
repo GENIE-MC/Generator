@@ -54,8 +54,8 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
 
     req_nu_list = []
     req_e_list = []
-    if( probe != 'all' ) :
-        req_particle_list = probe.split(',')
+    if( probe_list != 'all' ) :
+        req_particle_list = probe_list.split(',')
         for particle in req_particle_list:
             if particle in nu_pdg_def : 
                 req_nu_list.append(nu_pdg_def[particle])
