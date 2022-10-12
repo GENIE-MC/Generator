@@ -355,6 +355,65 @@ bool genie::utils::kinematics::TransformMatched(
 //____________________________________________________________________________
 // Kinematical Limits:
 //____________________________________________________________________________
+Range1D_t  InelWLim    (double sqrt_s, double ml) {
+  Range1D_t W;
+  W.min  = kNeutronMass + kPhotontest;
+  W.max  = sqrt_s - ml;
+  if(W.max<=W.min) {
+    W.min = -1;
+    W.max = -1;
+    return W;
+  }
+  W.min  += controls::kASmallNum;
+  W.max  -= controls::kASmallNum;
+  return W;
+}
+//____________________________________________________________________________
+Range1D_t  NewInelQ2Lim_W (double sqrt_s, double E_probe_star, double ml, double W, double probe_mass, double Q2min_cut) {
+// Computes Q2 limits (>0) @ the input W for inelastic lepton interactions
+
+  Range1D_t Q2;
+  Q2.min = -1;
+  Q2.max = -1;
+
+  double ml2 = TMath::Power(ml, 2.);
+  double m_probe_2 = TMath::Power(probe_mass, 2.);
+  double W2  = TMath::Power(W,  2.);
+  double s   = TMath::Power(sqrt_s, 2.);
+
+  SLOG("KineLimits", pDEBUG) << "s  = " << s;
+  SLOG("KineLimits", pDEBUG) << "Ev = " << Ev;
+
+  E_l_star = 0.5*(s + ml2 - W2)/sqrt_s;
+  // final lepton energy in the COM Ref frame
+  p_l_star = TMath::Sqrt(E_l_star*E_l_star - ml2);
+  
+  
+
+
+
+
+  double auxC = 0.5*(s-M2)/s;
+  double aux1 = s + ml2 - W2;
+  double aux2 = aux1*aux1 - 4*s*ml2;
+
+  (aux2 < 0) ? ( aux2 = 0 ) : ( aux2 = TMath::Sqrt(aux2) );
+
+  Q2.max = -ml2 + auxC * (aux1 + aux2); // => 0
+  Q2.min = -ml2 + auxC * (aux1 - aux2); // => 0
+
+  // guard against overflows
+  Q2.max = TMath::Max(0., Q2.max);
+  Q2.min = TMath::Max(0., Q2.min);
+
+  // limit the minimum Q2
+  if(Q2.min < Q2min_cut) {Q2.min = Q2min_cut;     }
+  if(Q2.max < Q2.min   ) {Q2.min = -1; Q2.max = -1;}
+
+  return Q2;
+
+}
+//____________________________________________________________________________
 Range1D_t genie::utils::kinematics::InelWLim(double Ev, double M, double ml)
 {
 // Computes W limits for inelastic v interactions
