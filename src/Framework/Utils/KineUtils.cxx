@@ -381,26 +381,23 @@ Range1D_t  NewInelQ2Lim_W (double sqrt_s, double E_probe_star, double ml, double
   double W2  = TMath::Power(W,  2.);
   double s   = TMath::Power(sqrt_s, 2.);
 
-  SLOG("KineLimits", pDEBUG) << "s  = " << s;
-  SLOG("KineLimits", pDEBUG) << "Ev = " << Ev;
-
-  E_l_star = 0.5*(s + ml2 - W2)/sqrt_s;
+  double E_l_star = 0.5*(s + ml2 - W2)/sqrt_s;
   // final lepton energy in the COM Ref frame
-  p_l_star = TMath::Sqrt(E_l_star*E_l_star - ml2);
+
+  SLOG("KineLimits", pDEBUG) << "E_l_star  = " << E_l_star;
+
+  if ( E_l_star < ml ) return Q2 ;
+
+  double p_l_star = TMath::Sqrt(E_l_star*E_l_star - ml2);
   
+  double p_probe_star = TMath::Sqrt(E_probe_star*E_probe_star - m_probe_2);
+
+  double aux1 = 2*E_probe_star*E_l_star - ml2 - m_probe_2;
+
+  double aux2 = 2*p_probe_star*p_l_star;
   
-
-
-
-
-  double auxC = 0.5*(s-M2)/s;
-  double aux1 = s + ml2 - W2;
-  double aux2 = aux1*aux1 - 4*s*ml2;
-
-  (aux2 < 0) ? ( aux2 = 0 ) : ( aux2 = TMath::Sqrt(aux2) );
-
-  Q2.max = -ml2 + auxC * (aux1 + aux2); // => 0
-  Q2.min = -ml2 + auxC * (aux1 - aux2); // => 0
+  Q2.max = aux1 + aux2;
+  Q2.min = aux1 - aux2;
 
   // guard against overflows
   Q2.max = TMath::Max(0., Q2.max);

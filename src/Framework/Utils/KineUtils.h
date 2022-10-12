@@ -42,8 +42,8 @@ namespace kinematics
 
   //-- More robust kinematic limits
   Range1D_t  InelWLim    (double sqrt_s, double ml);
-  Range1D_t  NewInelQ2Lim_W (double sqrt_s, double E_probe_star, double ml, double W, , double probe_mass = 0., double Q2min_cut =    controls::kMinQ2Limit);
-  // The enrgy of the probe is in the CM frame of the probe + hit nucleon (that can be off shell)
+  Range1D_t  NewInelQ2Lim_W (double sqrt_s, double E_probe_star, double ml, double W, double probe_mass = 0., double Q2min_cut =    controls::kMinQ2Limit);
+  // The energy of the probe is in the CM frame of the probe + hit nucleon (that can be off shell)
 
   //-- kinematical limits
   Range1D_t  InelWLim    (double Ev, double M, double ml);
