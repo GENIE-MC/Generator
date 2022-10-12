@@ -355,7 +355,7 @@ bool genie::utils::kinematics::TransformMatched(
 //____________________________________________________________________________
 // Kinematical Limits:
 //____________________________________________________________________________
-Range1D_t  InelWLim    (double sqrt_s, double ml) {
+Range1D_t  genie::utils::kinematics::InelWLim    (double sqrt_s, double ml) {
   Range1D_t W;
   W.min  = kNeutronMass + kPhotontest;
   W.max  = sqrt_s - ml;
@@ -369,7 +369,7 @@ Range1D_t  InelWLim    (double sqrt_s, double ml) {
   return W;
 }
 //____________________________________________________________________________
-Range1D_t  NewInelQ2Lim_W (double sqrt_s, double E_probe_star, double ml, double W, double probe_mass, double Q2min_cut) {
+Range1D_t  genie::utils::kinematics::NewInelQ2Lim_W (double sqrt_s, double E_probe_star, double ml, double W, double probe_mass, double Q2min_cut) {
 // Computes Q2 limits (>0) @ the input W for inelastic lepton interactions
 
   Range1D_t Q2;
