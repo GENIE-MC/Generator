@@ -40,7 +40,8 @@ e_pdg_def = { 'e' : 11,
 e_name_def = { 11 : 'e', 
               -11: 'ebar' }
 
-def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all', gen_list='all', e_max=200, n_knots=100, tune='G18_02_02_11b', freenucsplines=os.getenv('PWD'),
+def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all', gen_list='all', 
+                      nu_E_max=200, e_E_max=30, nu_n_knots=100, e_n_knots=100, tune='G18_02_02_11b', freenucsplines=os.getenv('PWD'),
                       version='master', grid_system='FNAL', group='genie', conf_dir='', arch='SL6.x86_64', production='routine_validation', 
                       cycle='01', softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
                       genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNALGrid.sh') :
@@ -121,7 +122,7 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                     output_spline = jobs_dir + '/' + job_name
                     input_xsec = free_nuc_dir+"/total_xsec.xml"
 
-                gmkspl_cmd = "gmkspl -p "+str(nu)+ " -t "+ str(target) + " -n "+ str(n_knots) + " -e "+ str(e_max) + " --tune " + tune 
+                gmkspl_cmd = "gmkspl -p "+str(nu)+ " -t "+ str(target) + " -n "+ str(nu_n_knots) + " -e "+ str(nu_E_max) + " --tune " + tune 
                 gmkspl_cmd += " --input-cross-sections "+ input_xsec+" -o "+ filename_template+".xml --event-generator-list " + event_gen_list +" --no-copy "  
                 
                 shell_file = ''
@@ -146,7 +147,7 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                     output_spline = jobs_dir + '/' + job_name
                     input_xsec = free_nuc_dir+"/total_xsec.xml"
                 
-                gmkspl_cmd = "gmkspl -p "+str(e)+ " -t "+ str(target) + " -n "+ str(n_knots) + " -e "+ str(e_max) + " --tune " + tune 
+                gmkspl_cmd = "gmkspl -p "+str(e)+ " -t "+ str(target) + " -n "+ str(e_n_knots) + " -e "+ str(e_E_max) + " --tune " + tune 
                 gmkspl_cmd += " --input-cross-sections "+ input_xsec+" -o "+ output_spline+".xml --event-generator-list " + event_gen_list +" --no-copy "  
                 
                 shell_file = ''

@@ -97,7 +97,7 @@ else :
 # Store commands with ID :
 command_dict = {}
 # ID = 0 # vN splines
-command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.EMAX,opts.Knots,opts.TUNE,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
+command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.EMAX,opts.EMAX,opts.Knots,opts.Knots,opts.TUNE,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
 
 # ID = 1 # group vN splines
 vNMotherDir = ''
@@ -107,7 +107,7 @@ if opts.MotherDir !='' :
 command_dict.update( group.GroupSplineCommands( True,vNMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,vNdir,False, False ) )# THE LAST TWO TO BE CONFIGURED
 
 # ID = 2 # vA splines
-command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.EMAX,opts.Knots,opts.TUNE,vNsplines,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
+command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.EMAX,opts.EMAX,opts.Knots,opts.Knots,opts.TUNE,vNsplines,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
 
 # ID = 3 # Group vA splines
 vAMotherDir = ''
