@@ -2,8 +2,11 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGCodes.h"
 
-#include "Math/Vector4D.h"
+#include "Framework/Utils/KineUtils.h"
 
+
+#include "Math/Vector4D.h"
+#include "Math/Boost.h" 
 
 void limit_test() {
 
@@ -16,8 +19,34 @@ void limit_test() {
 
   ROOT::Math::PxPyPzMVector nucleon( 0.1, 0.2, 0.1, proton_mass );
   
-  std::cout << probe ;
-  std::cout << nucleon ;
+  std::cout << probe.E() << std::endl ;
+  std::cout << nucleon.E() << std::endl ;
+  
+  auto total = probe + nucleon ;
+  auto sqrt_s = total.M() ;
+
+  std::cout << sqrt_s << std::endl;
+
+  double mu_mass =  PDGLibrary::Instance()->Find(kPdgMuon)->Mass();
+
+  auto new_range = utils::kinematics::InelWLim(sqrt_s, mu_mass);
+
+  std::cout << "New: " << new_range.min << " - " << new_range.max << std::endl;
+
+  // old range
+
+  auto boost = nucleon.BoostToCM();
+  
+  ROOT::Math::Boost t(boost);
+  
+  auto old_probe = t(probe);
+
+  std::cout << old_probe << std::endl;
+
+
+  auto old_range =  utils::kinematics::InelWLim(old_probe.E(), proton_mass, mu_mass);  
+
+  std::cout << "Old: " << old_range.min << " - " << old_range.max << std::endl;
   
 
 }
