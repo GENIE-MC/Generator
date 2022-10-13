@@ -104,7 +104,7 @@ void Wlimit( ) {
 }
 
 
-void Q2limit( ) {
+void Q2_W_limit( ) {
 
   using namespace genie;
 
@@ -120,12 +120,19 @@ void Q2limit( ) {
   
   auto total = probe + nucleon ;
   auto sqrt_s = total.M() ;
+  auto com_boost = total.BoostToCM();
+
+  ROOT::Math::Boost com_t(com_boost);
+
+  auto com_probe = com_t(probe);
 
   std::cout << sqrt_s << std::endl;
 
   double mu_mass =  PDGLibrary::Instance()->Find(kPdgMuon)->Mass();
 
-  auto new_range = utils::kinematics::InelWLim(sqrt_s, mu_mass);
+  double W = 1.3 ;
+
+  auto new_range = utils::kinematics::NewInelQ2Lim_W(sqrt_s, com_probe.E(), mu_mass, W );
 
   std::cout << "New: " << new_range << std::endl;
 
@@ -139,8 +146,7 @@ void Q2limit( ) {
 
   std::cout << old_probe << std::endl;
 
-
-  auto old_range =  utils::kinematics::InelWLim(old_probe.E(), proton_mass, mu_mass);  
+  auto old_range =  utils::kinematics::InelQ2Lim_W(old_probe.E(), proton_mass, mu_mass, W);  
 
   std::cout << "Old: " << old_range << std::endl;
   
@@ -152,9 +158,15 @@ void Q2limit( ) {
 
   total = probe + nucleon ;
   sqrt_s = total.M() ;
+  com_boost = total.BoostToCM();
+
+  com_t.SetComponents(com_boost);
+
+  com_probe = com_t(probe);
+  
 
   std::cout << sqrt_s << std::endl;
-  new_range = utils::kinematics::InelWLim(sqrt_s, mu_mass);
+  new_range = utils::kinematics::NewInelQ2Lim_W(sqrt_s, com_probe.E(), mu_mass, W );
 
   std::cout << "New: " << new_range << std::endl;
 
@@ -162,11 +174,36 @@ void Q2limit( ) {
   t.SetComponents(boost);
   old_probe = t(probe);
 
-  old_range =  utils::kinematics::InelWLim(old_probe.E(), proton_mass, mu_mass);
+  old_range =  utils::kinematics::InelQ2Lim_W(old_probe.E(), proton_mass, mu_mass, W);
 
   std::cout << "Old: " << old_range << std::endl;
 
-  old_range =  utils::kinematics::InelWLim(old_probe.E(), nucleon.M(), mu_mass);
+  old_range =  utils::kinematics::InelQ2Lim_W(old_probe.E(), nucleon.M(), mu_mass, W);
   std::cout << "Old with correction: " << old_range << std::endl;
+
+  // neutrino case very off shell (beta > 1)
+
+  nucleon.SetPxPyPzE( 0.2, 0.8, 0.1, proton_mass - 0.2 );
+  std::cout << "very Off shell target: " << nucleon << std::endl ;
+
+  std::cout << "Beta: " << nucleon.Beta() << std::endl;
+
+  total = probe + nucleon ;
+ 
+  sqrt_s = total.M() ;
+
+  com_boost = total.BoostToCM();
+
+  com_t.SetComponents(com_boost);
+
+  com_probe = com_t(probe);
+  
+
+  std::cout << sqrt_s << std::endl;
+  new_range = utils::kinematics::NewInelQ2Lim_W(sqrt_s, com_probe.E(), mu_mass, W );
+
+
+  std::cout << "New: " << new_range << std::endl;
+
 
 }
