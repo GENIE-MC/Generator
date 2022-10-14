@@ -177,7 +177,7 @@ INCL_INCLUDES  =
 ifeq ($(strip $(GOPT_ENABLE_INCL)),YES)
 
 INCL_INCLUDES  = -I$(GOPT_WITH_INCL_INC) -I$(GOPT_WITH_BOOST_INC)
-INCL_FLAGS     = $(shell $(GOPT_WITH_INCL_LIB)/../bin/inclxx-config --dflags )
+INCL_DFLAGS    = $(shell $(GOPT_WITH_INCL_LIB)/../bin/inclxx-config --dflags )
 INCL_LIBRARIES = -L$(GOPT_WITH_INCL_LIB)  $(shell $(GOPT_WITH_INCL_LIB)/../bin/inclxx-config --libs )
 
 BOOST_LIBRARIES = -L$(GOPT_WITH_BOOST_LIB) -lboost_program_options -lboost_timer -lboost_system -lboost_date_time
@@ -210,7 +210,6 @@ G4_IFLAGS_ONLY = $(filter     -I%,$(GEANT4_CFLAGS))
 
 # this might be -I/path/include/ or -I/path/include/Geant
 # really want the first
-#GEANT4_INCLUDES += -DG4_INC_START $(G4_IFLAGS_ONLY) -DG4_INC_END
 GEANT4_INCLUDES += $(G4_IFLAGS_ONLY)
 
 G4INCBASE = $(strip $(filter -I%include/Geant4,$(G4_IFLAGS_ONLY)))
