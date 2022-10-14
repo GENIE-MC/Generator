@@ -21,10 +21,15 @@
 #define _EVENT_LIBRARY_INTERFACE_H_
 
 #include "Tools/EvtLib/Key.h"
+class IEvtLibRecordList;
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Framework/Interaction/Kinematics.h"
 
 #include "TVector3.h"
+#include "TFile.h"
+
+#include <map>
 
 namespace genie {
 
@@ -56,10 +61,10 @@ public:
 
   void LoadRecords();
   void Cleanup();
-  
-  void FillKinematics( const GHepRecord &, 
-		       Kinematics & kine, 
-		       int primary_lep_id ) const ;
+
+  void FillKinematics( const GHepRecord &,
+                       genie::Kinematics & kine,
+                       int primary_lep_id ) const ;
 
 private:
 
