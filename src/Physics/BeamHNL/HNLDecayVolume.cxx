@@ -530,11 +530,9 @@ bool HNLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   // do one big step first
   // then if not outside yet, step by ever smaller steps until some threshold
   //Double_t sNext = std::max( fLx, std::max( fLy, fLz ) ) / 2.0;
-  Double_t sNext = std::min( std::max( fLx, std::max( fLy, fLz ) ), 100.0 * lunits / units::cm ) / 2.0;
+  Double_t sNext = std::min( std::max( fLx, std::max( fLy, fLz ) ), 10.0 * lunits / units::cm ) / 2.0;
   Double_t sNextROOT = sNext * lunits / units::cm;
   gGeoManager->SetStep( sNextROOT );
-  LOG( "HNL", pINFO )
-    << "fLx, fLy, fLz = " << fLx << ", " << fLy << ", " << fLz << " ==> sNextROOT = " << sNextROOT;
   gGeoManager->Step();
   
   // FindNextBoundaryAndStep() sets step size to distance to next boundary and executes that step
@@ -557,25 +555,19 @@ bool HNLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
     return false;
   }
 
-  // Always step back one step
-  /*
-  const Double_t * ffPoint = gGeoManager->GetCurrentPoint();
-  if( std::abs(ffPoint[0] - fOxROOT) > fLxROOT/2.0 || 
-      std::abs(ffPoint[1] - fOyROOT) > fLyROOT/2.0 || 
-      std::abs(ffPoint[2] - fOzROOT) > fLzROOT/2.0 ){
-    LOG( "HNL", pDEBUG )
-      << "Overstepped bounding box: we're at ( " << ffPoint[0] << ", " << ffPoint[1] << ", " << ffPoint[2] << " ) [cm]";
-    const Double_t * sfDir = gGeoManager->GetCurrentDirection();
-    gGeoManager->SetCurrentDirection( -sfDir[0], -sfDir[1], -sfDir[2] );
-    __attribute__((unused)) TGeoNode * tmpNode = gGeoManager->FindNextBoundaryAndStep();
-    LOG( "HNL", pDEBUG )
-      << "We turned back with new step = " << gGeoManager->GetStep();
-    // and set direction back to normal
-    gGeoManager->SetCurrentDirection( sfDir[0], sfDir[1], sfDir[2] );
+  // guard against small detectors
+  if( ( sfxROOT == 0.0 && sfyROOT == 0.0 && sfzROOT == 0.0 ) ||
+      ( sfxROOT == fExROOT && sfyROOT == fEyROOT && sfzROOT == fEzROOT ) ){
+    // set this to go 5 cm after the start.
+    LOG( "HNL", pWARN )
+      << "This section is smaller than 5 cm. Are you sure you want this decay volume? Proceeding anyway.";
+    gGeoManager->SetCurrentPoint( fExROOT, fEyROOT, fEzROOT );
+    gGeoManager->SetStep( 5.0 ); // ROOT units are cm!
+    gGeoManager->Step();
+    const Double_t * currPoint = gGeoManager->GetCurrentPoint();
+    sfxROOT = currPoint[0]; sfyROOT = currPoint[1]; sfzROOT = currPoint[2];
   }
-  const Double_t * sfPoint = gGeoManager->GetCurrentPoint();
-  sfxROOT = sfPoint[0]; sfyROOT = sfPoint[1]; sfzROOT = sfPoint[2];
-  */
+  
   sfx = sfxROOT * units::cm / lunits; sfy = sfyROOT * units::cm / lunits; sfz = sfzROOT * units::cm / lunits;
 
   // exited the detector, let's save this point
