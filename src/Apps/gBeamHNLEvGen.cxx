@@ -476,7 +476,7 @@ int main(int argc, char ** argv)
 	   << "\n****** gnmfBase.ptype = " << gnmfBase.ptype;
 	 
 	 // check to see if this was nonsense
-	 if( ! event->Particle(0) ){ iflux++; continue; }
+	 if( ! event->Particle(0) ){ iflux++; delete event; continue; }
 
 	 gOptEnergyHNL = event->Particle(0)->GetP4()->E();
 	 iflux++;
