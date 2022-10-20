@@ -263,6 +263,11 @@ genie::utils::gsl::d3XSecSPP_dWQ2CosTheta_E::d3XSecSPP_dWQ2CosTheta_E(
   
   Wl  = kps->WLim_SPP();
   // model restrictions
+  if (Wl.min < 1.08 && Wl.max < 1.08)
+  {
+    isZero = true;
+    return;
+  }
   Wl.min  = TMath::Max (Wl.min,  1.08);
   Wl.max  = TMath::Min (Wl.max,  2.00);
 

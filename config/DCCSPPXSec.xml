@@ -29,7 +29,7 @@ ESplineMax                  double  Yes  This integrator caches some splines on 
     <param type="double" name ="ESplineMax">                   250  </param>     
     <param type="string" name ="gsl-integration-type">     adaptive </param>
     <param type="int"    name ="gsl-max-eval">           1000000000 </param>
-    <param type="double" name ="gsl-relative-tolerance">      1e-9  </param>
+    <param type="double" name ="gsl-relative-tolerance">      1e-4  </param>
   </param_set>
 
   <param_set name="WithPauliBlock"> 
