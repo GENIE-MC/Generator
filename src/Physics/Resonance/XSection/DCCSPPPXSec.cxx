@@ -742,7 +742,7 @@ DCCSPPPXSec::VAmpl DCCSPPPXSec::Amplitudes(double W, double Q2, unsigned int L, 
           double z11 = (*pdt)[tabpos.lo_row_W][2*i+j];
           z = z11;
        }
-       a += j?z*std::complex<double>(0., 1.):z;
+       a += j?z*1i:z;
     }
     vampl[i] = a;
   }
