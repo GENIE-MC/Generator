@@ -216,11 +216,12 @@ void MKSPPXSec::LoadConfig(void)
 
    // Get GSL integration type & relative tolerance
   GetParamDef( "gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
-  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 0.01 ) ;
-  GetParamDef( "gsl-max-eval", fGSLMaxEval, 100000 ) ;
+  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 1e-5 ) ;
+  GetParamDef( "gsl-max-eval", fGSLMaxEval, 1000000000 ) ;
   GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
   GetParamDef("Wcut", fWcut, -1.);
-  // Get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
+  // Get upper Emax limit on cached free nucleon xsec spline, 
+  // after this value it assume that xsec=xsec(Emax)
   GetParamDef( "ESplineMax", fEMax, 500. ) ;
 
   if ( fEMax < 20. ) {

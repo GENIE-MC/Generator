@@ -15,13 +15,12 @@ UsePauliBlockingForRES      bool    No   Use Pauli blocking for resonance model?
 gsl-integration-type        string  Yes  name of GSL numerical integrator                      adaptive
                                          (adaptive, vegas, miser, plain)                   
 gsl-max-eval                int     Yes  GSL number of function calls                          1000000000
-gsl-relative-tolerance      double  Yes  relative tolerance of integration                     1e-9
+gsl-relative-tolerance      double  Yes  relative tolerance of integration                     1e-5
 Wcut                        double  Yes  cut of W, if negative use kinematically allowed Wmax  -1.
-ESplineMax                  double  Yes  This integrator caches some splines on free nulceons  500
-                                         These splines have plateauing so for simplicity we 
+ESplineMax                  double  Yes  This integrator can cache splines for free nulceons;  500
+                                         these splines have plateauing so for simplicity we 
                                          set the maximum to be used here. After that value
-                                         we simply use the xsec(E=Emax). 
-                                         Values in GeV                            
+                                         we simply use the xsec(E=Emax); value are in GeV                            
 -->
 
 
@@ -29,7 +28,7 @@ ESplineMax                  double  Yes  This integrator caches some splines on 
     <param type="double" name ="ESplineMax">                   250  </param>     
     <param type="string" name ="gsl-integration-type">     adaptive </param>
     <param type="int"    name ="gsl-max-eval">           1000000000 </param>
-    <param type="double" name ="gsl-relative-tolerance">      1e-9  </param>
+    <param type="double" name ="gsl-relative-tolerance">      1e-5  </param>
   </param_set>
 
   <param_set name="WithPauliBlock"> 
