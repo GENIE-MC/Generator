@@ -155,8 +155,8 @@ void DCCSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
     if(Ev>Ethr+kASmallNum) {
       
       LOG("DCCSPPCache", pINFO)
-	<< "*** Integrating d^3 XSec/dWdQ^2dCosTheta for Ch: "
-	<< SppChannel::AsString(spp_channel) << " at Ev = " << Ev;
+    << "*** Integrating d^3 XSec/dWdQ^2dCosTheta for Ch: "
+    << SppChannel::AsString(spp_channel) << " at Ev = " << Ev;
       
       utils::gsl::d3XSecSPP_dWQ2CosTheta_E func(fSinglePionProductionXSecModel, & local_interaction, fWcut ) ; 
       ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
@@ -186,7 +186,7 @@ void DCCSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
 }
 //____________________________________________________________________________
 string DCCSPPXSecWithCache::CacheBranchName(
-					   SppChannel_t spp_channel, InteractionType_t it, int nupdgc, int helicity) const
+                                  SppChannel_t spp_channel, InteractionType_t it, int nupdgc, int helicity) const
 {
   // Build a unique name for the cache branch
 
@@ -237,7 +237,7 @@ string DCCSPPXSecWithCache::ProbeAsString (int probe_pdg, int probe_helicity) co
 // GSL wrappers
 //____________________________________________________________________________
 genie::utils::gsl::d3XSecSPP_dWQ2CosTheta_E::d3XSecSPP_dWQ2CosTheta_E(
-								    const XSecAlgorithmI * m, const Interaction * interaction, double  wcut) :
+                                    const XSecAlgorithmI * m, const Interaction * interaction, double  wcut) :
   ROOT::Math::IBaseFunctionMultiDim(),
   fModel(m),
   fWcut(wcut)
