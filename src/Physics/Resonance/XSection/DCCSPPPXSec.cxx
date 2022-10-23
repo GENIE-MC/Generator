@@ -146,7 +146,7 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
   double Gamma             = kAem*qL_gamma*Elf_L/2./kPi2/Q2/Eli_L/(1. - epsilon);
     
   
-  std::complex<double> F1, F2,F3, F4, F7, F8;
+  std::complex<double> F1, F2, F3, F4, F7, F8;
   for (unsigned int L = 0; L<5; L++)
   {
      VAmpl vampl = Amplitudes(W, Q2, L, spp_channel);
