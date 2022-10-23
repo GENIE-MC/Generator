@@ -222,7 +222,7 @@ void MKSPPXSec::LoadConfig(void)
   GetParamDef("Wcut", fWcut, -1.);
   // Get upper Emax limit on cached free nucleon xsec spline, 
   // after this value it assume that xsec=xsec(Emax)
-  GetParamDef( "ESplineMax", fEMax, 500. ) ;
+  GetParamDef( "ESplineMax", fEMax, 1000. ) ;
 
   if ( fEMax < 20. ) {
 
