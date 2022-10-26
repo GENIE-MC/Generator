@@ -24,7 +24,7 @@ nucleons_name = {
     1000010010 : 'p' } 
 
 nucleons_EW_proc = [ 'none', 'CCRES', 'NCRES', 'CCDIS', 'NCDIS', 'CCDFR', 'NCDFR', 'Fast' ]
-nucleons_EM_proc = [ 'none', 'EMRES', 'EMDIS', 'EMQEL' ]
+nucleons_EM_proc = [ 'none', 'EMRES', 'EMDIS', 'EMQE' ]
 
 nu_pdg_def = { 've'      :   12,
                'vebar'   :  -12,
