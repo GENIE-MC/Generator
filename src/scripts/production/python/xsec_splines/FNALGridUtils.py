@@ -35,7 +35,7 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, genie_setup,
 
 def FNALShellCommands(genie_setup, hours = 10, memory=1, disk=20, GraceMemory=4096,GraceLifeTime=6000):
     grid_command_options = "-n --memory="+str(memory)+"GB --disk="+str(disk)+"GB --expected-lifetime="+str(hours)+"h -f "+genie_setup 
-    grid_command_options += " --resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE --lines '+FERMIHTC_AutoRelease=True' "
+    grid_command_options += " --OS=SL7 --resource-provides=usage_model=DEDICATED,OPPORTUNISTIC --lines '+FERMIHTC_AutoRelease=True' "
     grid_command_options += "--lines '+FERMIHTC_GraceMemory="+str(GraceMemory)+"' --lines '+FERMIHTC_GraceLifetime="+str(GraceLifeTime)+"' "
 
     return grid_command_options 
@@ -73,6 +73,6 @@ def WriteMainSubmissionFile(jobs_dir, genie_topdir, group, genie_setup='/src/scr
     script.write("#!/bin/bash\n")
     script.write("source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups ;\n")
     script.write("setup fife_utils ;\n")
-    script.write("jobsub_submit_dag -G "+group+" --memory="+str(memory)+"GB --disk="+str(disk)+"GB --expected-lifetime="+str(expectedlife)+"h -N "+str(jobs)+" --role="+role+" -f "+genie_setup+" --resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE  file://"+in_file_name+";" )
+    script.write("jobsub_submit_dag -g --group "+group+" --OS=SL7 --memory="+str(memory)+"GB --disk="+str(disk)+"GB --expected-lifetime="+str(expectedlife)+"h -N "+str(jobs)+" --role="+role+" -f "+genie_setup+" --resource-provides=usage_model=DEDICATED,OPPORTUNISTIC  file://"+in_file_name+";" )
     
     return fnal_file
