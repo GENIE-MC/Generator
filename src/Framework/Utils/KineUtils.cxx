@@ -411,6 +411,22 @@ Range1D_t  genie::utils::kinematics::NewInelQ2Lim_W (double sqrt_s, double E_pro
 
 }
 //____________________________________________________________________________
+Range1D_t  genie::utils::kinematics::NewInelQ2Lim(double sqrt_s, double E_probe_star, double ml, double probe_mass, double Q2min_cut ) {
+
+  // Computes Q2 (>0) limits irrespective of W for inelastic v interactions                                                                                                                                                                  
+
+  Range1D_t Q2;
+  Q2.min = -1;
+  Q2.max = -1;
+
+  auto W  = utils::kinematics::InelWLim(sqrt_s, ml);
+  if(W.min<0) return Q2;
+
+  Q2 = utils::kinematics::NewInelQ2Lim_W(sqrt_s,E_probe_star,ml,W.min,Q2min_cut);
+  return Q2;
+
+}
+//____________________________________________________________________________                                                                                                                                                               
 Range1D_t genie::utils::kinematics::InelWLim(double Ev, double M, double ml)
 {
 // Computes W limits for inelastic v interactions
