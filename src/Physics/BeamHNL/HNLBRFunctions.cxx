@@ -46,9 +46,6 @@ void HNLBRFunctions::LoadConfig(void)
 {
   if( fIsConfigLoaded ) return;
 
-  LOG("HNL", pDEBUG)
-    << "Loading BR-function parameters from file...";
-
   mPi0 = PDGLibrary::Instance()->Find(genie::kPdgPi0)->Mass();     
   mPi  = PDGLibrary::Instance()->Find(genie::kPdgPiP)->Mass();     
   mMu  = PDGLibrary::Instance()->Find(genie::kPdgMuon)->Mass();    
@@ -109,15 +106,6 @@ void HNLBRFunctions::LoadConfig(void)
     { 0.100570, 0.00000363 }
   };
 
-  LOG( "HNL", pDEBUG )
-    << "Captured the following parameters:"
-    << "\n wAng = " << wAng
-    << "\n Vud = " << Vud
-    << "\n fpi = " << fpi
-    << "\n Ue1,2,3 = " << Ue1 << ", " << Ue2 << ", " << Ue3
-    << "\n Um1,2,3 = " << Um1 << ", " << Um2 << ", " << Um3
-    << "\n Ut1,2,3 = " << Ut1 << ", " << Ut2 << ", " << Ut3;
-
   fIsConfigLoaded = true;
 }
 //----------------------------------------------------------------------------
@@ -141,7 +129,6 @@ double HNLBRFunctions::GetFormfactorF2( double x ) const {
 // interface to scale factors
 double HNLBRFunctions::KScale_Global( HNLProd_t hnldm, const double M ) const {
   if( !utils::hnl::IsProdKinematicallyAllowed( hnldm ) ){
-    LOG( "HNL", pDEBUG ) << "Not allowed. Moving on.";
     return 0.0;
   }
   
@@ -190,8 +177,8 @@ double HNLBRFunctions::KScale_PseudoscalarToPiLepton( const double mP, const dou
   // if we're very lucky, M will coincide with a map point
   while( (*scmit).first <= M && scmit != scaleMap.end() ){ ++scmit; }
   std::map< double, double >::iterator scpit = std::prev( scmit, 1 );
-  LOG( "HNL", pDEBUG )
-    << "Requested map for M = " << M << ": iter at ( " << (*scpit).first << ", " << (*scmit).first << " ]";
+  //LOG( "HNL", pDEBUG )
+  //  << "Requested map for M = " << M << ": iter at ( " << (*scpit).first << ", " << (*scmit).first << " ]";
   assert( scmit != scaleMap.end() );
   // if coincide then return scale there
   if( scaleMap.find( M ) != scaleMap.end() ) return (*scmit).second;
@@ -214,8 +201,8 @@ double HNLBRFunctions::KScale_MuonToNuAndElectron( const double M ) const {
   std::map< double, double >::iterator scmit = scaleMap.begin();
   while( (*scmit).first <= M && scmit != scaleMap.end() ){ ++scmit; }
   std::map< double, double >::iterator scpit = std::prev( scmit, 1 );
-  LOG( "HNL", pDEBUG )
-    << "Requested map for M = " << M << ": iter at ( " << (*scpit).first << ", " << (*scmit).first << " ]";
+  //LOG( "HNL", pDEBUG )
+  //  << "Requested map for M = " << M << ": iter at ( " << (*scpit).first << ", " << (*scmit).first << " ]";
   assert( scmit != scaleMap.end() );
 
   if( scaleMap.find( M ) != scaleMap.end() ) return (*scmit).second;

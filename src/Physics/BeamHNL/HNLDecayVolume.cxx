@@ -40,9 +40,6 @@ void HNLDecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
    *  3) Geom weight: Survival to detector * decay within detector.
    */
 
-  LOG( "HNL", pDEBUG )
-    << "Entering ProcessEventRecord...";
-
   int trajIdx = 0, trajMax = 20;
   double weight = 1.0; // pure geom weight
 
@@ -53,10 +50,6 @@ void HNLDecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
   if( !fGeoManager )
     fGeoManager = TGeoManager::Import(fGeomFile.c_str());
   bool didIntersectDet = this->VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, fGeoManager, fGeoVolume );
-
-  LOG( "HNL", pDEBUG )
-    << "\n startPoint = " << utils::print::Vec3AsString( &startPoint )
-    << "\n momentum = " << utils::print::Vec3AsString( &momentum );
 
   if( isUsingDk2nu ) assert( didIntersectDet ); // forced to hit detector somewhere!
   else {
@@ -72,20 +65,15 @@ void HNLDecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
 
     while( !didIntersectDet && trajIdx < trajMax ){
       // sample prod vtx and momentum... again
-      LOG( "HNL", pDEBUG )
-	<< "Sampling another trajectory (index = " << trajIdx << ")";
       newProdVtx  = hnlgen->GenerateDecayPosition( event_rec );
       
       startPoint.SetXYZ( newProdVtx->at(0), newProdVtx->at(1), newProdVtx->at(2) );
-      LOG( "HNL", pDEBUG )
-	<< "Set start point for this trajectory = ( " << startPoint.X() << ", " << startPoint.Y() << ", " << startPoint.Z() << " ) [cm]";
       
       trajIdx++;
       didIntersectDet = this->VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, fGeoManager, fGeoVolume );
 
       newProdVtx->clear();
     }
-    LOG("HNL", pNOTICE) << "Called HNLDecayVolume::VolumeEntryAndExitPoints " << trajIdx + 1 << " times";
 
   }
   if( trajIdx == trajMax && !didIntersectDet ){ // bail
@@ -96,8 +84,6 @@ void HNLDecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
     return;
   }
 
-  LOG( "HNL", pDEBUG )
-    << "Intersected detector";
   this->EnforceUnits( "mm", "rad", "ns" );
 
   // move fCoMLifetime to ns from GeV^{-1}
@@ -152,7 +138,7 @@ void HNLDecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
 //____________________________________________________________________________
 void HNLDecayVolume::EnforceUnits( std::string length_units, std::string angle_units, std::string time_units ) const{
   
-  LOG( "HNL", pDEBUG )
+  LOG( "HNL", pWARN )
     << "Switching units to " << length_units.c_str() << " , " << angle_units.c_str() << " , " << time_units.c_str();
 
   double old_lunits = lunits;
@@ -205,6 +191,7 @@ double HNLDecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, dou
   double elapsed_time = rest_time * gamma;
   double elapsed_length = elapsed_time * betaMag * kNewSpeedOfLight;
 
+  /*
   LOG( "HNL", pDEBUG )
     << "betaMag, maxLength, CoMLifetime = " << betaMag << ", " << maxLength << ", " << CoMLifetime
     << "\nbetaMag = " << betaMag << " ==> gamma = " << gamma
@@ -215,6 +202,7 @@ double HNLDecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, dou
     << " ==> elapsed_time [" << tunitString.c_str()
     << "] = " << elapsed_time << " ==> elapsed_length [" << lunitString.c_str()
     << "] = " << elapsed_length;
+  */
 
   return elapsed_length;
 }
@@ -233,11 +221,6 @@ TVector3 HNLDecayVolume::GetDecayPoint( double travelLength, TVector3 & entryPoi
   fDxROOT = fDx * lunits / units::cm;
   fDyROOT = fDy * lunits / units::cm;
   fDzROOT = fDz * lunits / units::cm;
-
-  LOG( "HNL", pDEBUG )
-    << "\ndecayPoint = ( " << dx << ", " << dy << ", " << dz << " ) ["
-    << lunitString.c_str() << "]"
-    << "\ndecayPoint(ROOT) = ( " << fDxROOT << ", " << fDyROOT << ", " << fDzROOT << " ) [cm]";
 
   TVector3 decayPoint( dx, dy, dz );
   return decayPoint;
@@ -415,10 +398,6 @@ void HNLDecayVolume::SetStartingParameters( GHepRecord * event_rec, double HNLCo
   TVector3 startTgt = startPoint;
   startPoint = this->ApplyUserRotation( startPoint, detOrigin, fDetRotation, true ); // tgt-hall --> det
   
-  LOG( "HNL", pDEBUG )
-    << "\n\n Unrotated startPoint: " << utils::print::Vec3AsString( &startUnrotated )
-    << "\n Tgt-hall startPoint: " << utils::print::Vec3AsString( &startTgt )
-    << "\n Final startPoint: " << utils::print::Vec3AsString( &startPoint );
   TLorentzVector * p4HNL = event_rec->Particle(0)->GetP4();
   TVector3 momentum( p4HNL->Px(), p4HNL->Py(), p4HNL->Pz() );
 
@@ -455,9 +434,6 @@ bool HNLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
 
   double firstZ = fOz - fLz/2.0 - firstZOffset;
 
-  LOG( "HNL", pDEBUG )
-    << "\nfirstZ = " << firstZ << " [" << lunitString.c_str() << "]";
-
   // now find which point the line would hit this z at
   double dz = firstZ - sz;
   double tz = dz / pz;
@@ -476,12 +452,14 @@ bool HNLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   gGeoManager->SetCurrentPoint( firstXROOT, firstYROOT, firstZROOT );
   gGeoManager->SetCurrentDirection( px, py, pz );
 
+  /*
   LOG( "HNL", pINFO )
     << "\nCurrent point     is: ( " << firstX << ", " << firstY << ", " << firstZ << " ) [" << lunitString.c_str() << "]"
     << "\nFrom start point    : ( " << sx << ", " << sy << ", " << sz << " ) [" << lunitString.c_str() << "]"
     << "\nIn ROOT, current is : ( " << firstXROOT << ", " << firstYROOT << ", " << firstZROOT << " ) [cm]"
     << "\nIn ROOT, start is   : ( " << fSxROOT << ", " << fSxROOT << ", " << fSzROOT << " ) [cm]"
     << "\nCurrent direction is: ( " << px << ", " << py << ", " << pz << " ) [GeV/GeV]";
+  */
 
   assert( gGeoManager->FindNode() == NULL || gGeoManager->FindNode() == gGeoManager->GetTopNode() ); // need to be outside volume!
 
@@ -515,9 +493,11 @@ bool HNLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   fEyROOT = ( gGeoManager->GetCurrentPoint() )[1];
   fEzROOT = ( gGeoManager->GetCurrentPoint() )[2];
 
+  /*
   LOG( "HNL", pDEBUG )
     << "\nEntry point found at ( " << fEx << ", " << fEy << ", " << fEz << " ) [" << lunitString.c_str() << "]"
     << "\nIn ROOT, entry at    ( " << fExROOT << ", " << fEyROOT << ", " << fEzROOT << " ) [cm]"; 
+  */
 
   // now propagate until we exit again
   
@@ -539,10 +519,7 @@ bool HNLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   // so one "step" here is actually one big step + one small step
   while( gGeoManager->FindNextBoundaryAndStep() && bdIdx < bdIdxMax ){
     const Double_t * currPoint = gGeoManager->GetCurrentPoint();
-    if( bdIdx % 100 == 0 ){
-      LOG( "HNL", pDEBUG )
-	<< "Step " << bdIdx << " : ( " << currPoint[0] << ", " << currPoint[1] << ", " << currPoint[2] << " ) [cm]";
-    }
+
     sfxROOT = currPoint[0]; sfyROOT = currPoint[1]; sfzROOT = currPoint[2];
     if( sNextROOT >= 2.0 * lunits / units::cm ) sNextROOT *= 0.5;
     gGeoManager->SetStep( sNextROOT );
@@ -576,10 +553,12 @@ bool HNLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
   fXz = sfz; fXzROOT = sfzROOT;
   exitPoint.SetXYZ( fXx, fXy, fXz );
 
+  /*
   LOG( "HNL", pINFO )
     << "\nExit point found at ( " << fXx << ", " << fXy << ", " << fXz << " ) ["
     << lunitString.c_str() << "]"
     << "\nIn ROOT, exit at    ( " << fXxROOT << ", " << fXyROOT << ", " << fXzROOT << " ) [cm]"; 
+  */
 
   return true;
   
@@ -619,7 +598,6 @@ void HNLDecayVolume::LoadConfig()
 //____________________________________________________________________________
 void HNLDecayVolume::GetInterestingPoints( TVector3 & entryPoint, TVector3 & exitPoint, TVector3 & decayPoint ) const
 {
-  LOG( "HNL", pDEBUG ) << "Getting interesting points...";
   entryPoint.SetXYZ( fEx, fEy, fEz );
   exitPoint.SetXYZ( fXx, fXy, fXz );
   decayPoint.SetXYZ( fDx, fDy, fDz );
@@ -654,10 +632,6 @@ TVector3 HNLDecayVolume::ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::
 {
   double vx = vec.X(), vy = vec.Y(), vz = vec.Z();
   double ox = oriVec.X(), oy = oriVec.Y(), oz = oriVec.Z();
-
-  LOG( "HNL", pDEBUG )
-    << "\t original vec [mm] : " << utils::print::Vec3AsString( &vec )
-    << "\t origin vec [mm] : " << utils::print::Vec3AsString( &oriVec );
   
   vx -= ox; vy -= oy; vz -= oz; // make this rotation about detector origin
 
@@ -682,8 +656,6 @@ TVector3 HNLDecayVolume::ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::
   // back to beam frame
   vx += ox; vy += oy; vz += oz;
   TVector3 nvec( vx, vy, vz );
-  LOG( "HNL", pDEBUG )
-    << "\nVector is now " << utils::print::Vec3AsString( &nvec );
   return nvec;
 }
 //____________________________________________________________________________

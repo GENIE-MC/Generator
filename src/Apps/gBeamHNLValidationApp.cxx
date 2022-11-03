@@ -265,12 +265,6 @@ int main(int argc, char ** argv)
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
   utils::app_init::RandGen(gOptRanSeed);
 
-  LOG( "gevald_hnl", pFATAL )
-    << "\nI am a work in progress. Hello world!"
-    << "\n."
-    << "\n. ."
-    << "\n. . .";
-
   switch( gOptValidationMode ){
     
   case kValFluxFromDk2nu: return TestFluxFromDk2nu(); break;
@@ -636,10 +630,6 @@ int TestFluxFromHists()
       if( event->Particle(0)->Pdg() > 0 && !gCfgIsMajorana ) nPart++;
       else if( event->Particle(0)->Pdg() < 0 && !gCfgIsMajorana ) nAntipart++;
       else{ nPart++; nAntipart++; }
-
-      LOG( "gevald_hnl", pDEBUG )
-	<< "*** Event " << ievent << ":"
-	<< "\n!*!*!* p4HNL = " << utils::print::P4AsString( p4HNL );
       
       double px = p4HNL->Px(), py = p4HNL->Py(), pz = p4HNL->Pz();
       double theta = TMath::ACos( pz / p4HNL->P() );
@@ -667,9 +657,6 @@ int TestFluxFromHists()
 
   hHNLParticleRates.SetBinContent( 1, nPart );
   hHNLParticleRates.SetBinContent( 2, nAntipart );
-
-  LOG( "gevald_hnl", pDEBUG )
-    << "\nnPart, nAntipart = " << nPart << ", " << nAntipart;
 
   fout->cd();
   hHNLPx.Write();
@@ -711,8 +698,6 @@ GFluxI * TH1FluxDriver(void)
   flux->AddEnergySpectrum   (genie::kPdgHNL, spectrum);
 
   GFluxI * flux_driver = dynamic_cast<GFluxI *>(flux);
-  LOG("gevald_hnl", pDEBUG)
-    << "Returning flux driver and exiting method.";
   return flux_driver;
 }
 //............................................................................
@@ -727,8 +712,6 @@ int TestDecay(void)
   const EventRecordVisitorI * mcgen = HNLGenerator();
   const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayer", "Default");
   const HNLDecayer * hnlgen = dynamic_cast< const HNLDecayer * >( algHNLGen );
-
-  LOG( "gevald_hnl", pDEBUG ) << "gOptRootGeom = " << gOptRootGeom;
     
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
   
@@ -1195,7 +1178,6 @@ int TestGeom(void)
     LOG( "gevald_hnl", pDEBUG ) 
       << "\nProbe p4 = " << utils::print::P4AsString( event->Particle(0)->P4() );
     setenv( "PRODVTXDIR", "NODIR", 1 ); // needed to prevent hnlgen from crashing
-    dkVol->SetStartingParameters( event, 1.0e+20, false, true, gOptRootGeom ); LOG( "gevald_hnl", pDEBUG ) << "Line 4";
 
     dkVol->ProcessEventRecord(event);
 
@@ -1433,7 +1415,7 @@ void GetCommandLineArgs(int argc, char ** argv)
       gOptUsingRootGeom = true;
     } else {
       LOG("gevald_hnl", pFATAL)
-	<< "Geometry option is not a ROOT file. This is a work in progress; please use ROOT geom.";
+	<< "Geometry option is not a ROOT file. Please use ROOT geom.";
       PrintSyntax();
       exit(1);
     }

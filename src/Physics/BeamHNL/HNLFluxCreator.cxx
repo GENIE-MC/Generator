@@ -39,8 +39,6 @@ void HNLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
   if( fUsingDk2nu ){
     if( iCurrEntry < fFirstEntry ) iCurrEntry = fFirstEntry;
     
-    LOG( "HNL", pDEBUG ) << "Flux record processing now, current entry = " << iCurrEntry;
-    
     if( iCurrEntry >= fFirstEntry ) {
       
       //flux::GNuMIFluxPassThroughInfo * gnmf = new flux::GNuMIFluxPassThroughInfo();
@@ -73,7 +71,6 @@ void HNLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
 
     }
   } else { // if !fUsingDk2nu
-    LOG( "HNL", pDEBUG ) << "Flux record processing now, using hists";
 
     // construct Particle(0). Don't worry about daughter links at this stage.
 
@@ -87,8 +84,6 @@ void HNLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
 	<< "Unable to get a good HNL energy after " << controls::kRjMaxIterations << "tries. Exiting";
       exit(1);
     }
-
-    LOG( "HNL", pDEBUG ) << "Got energy = " << EHNL << " GeV";
 
     // now decide if this should be particle or antiparticle.
     // if fType == 2 decide this from the integrals of the spectrum
@@ -114,9 +109,6 @@ void HNLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
       }
     } // if( !fIsMajorana )
 
-    LOG( "HNL", pDEBUG )
-      << "Decided type = " << typeMod;
-
     // finally, add angular deviation and add to event record
     // that's a Gaussian with mean fAngDev and sigma = 1 degree
     double theta = rnd->RndGen().Gaus( fAngDev, 1.0 );
@@ -136,7 +128,6 @@ void HNLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
     // update the Interaction object if it already exists
     if( evrec->Summary() ) {
       Interaction * interaction = evrec->Summary();
-      LOG( "gevgen_hnl", pDEBUG ) << *interaction;
       if( interaction->InitStatePtr() ){
 	interaction->InitStatePtr()->SetProbePdg( typeMod * genie::kPdgHNL );
 	interaction->InitStatePtr()->SetProbeP4( P4HNL );
@@ -151,8 +142,6 @@ void HNLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
     evrec->AddParticle( typeMod * genie::kPdgHNL, kIStInitialState, -1, -1, -1, -1, P4HNL, v4 );
 
   }
-  
-  LOG( "HNL", pDEBUG ) << "Finished ProcessEventRecord";
 }
 //----------------------------------------------------------------------------
 void HNLFluxCreator::SetInputPath(std::string finpath) const
@@ -233,13 +222,12 @@ void HNLFluxCreator::BuildInputFlux() const
   }
   
   f.Close();
-  LOG("HNL", pDEBUG) 
+  LOG("HNL", pINFO) 
     << "Written spectrum to ./input-flux.root";
 }
 //----------------------------------------------------------------------------
 int HNLFluxCreator::GetNEntries() const
 {
-  LOG( "HNL", pDEBUG ) << "fNEntries = " << fNEntries;
   if( fNEntries <= 0 ){
     this->OpenFluxInput( fCurrPath );
   }
@@ -301,12 +289,10 @@ flux::GNuMIFluxPassThroughInfo HNLFluxCreator::MakeTupleFluxEntry( int iEntry, s
   TVector3 fCvec = this->ApplyUserRotation( fCvec_beam );
   fLepPdg = 0;
   
-  LOG( "HNL", pDEBUG ) << "Getting entry " << iEntry;
   ctree->GetEntry(iEntry);
 
   // first, let's get the base info.
   this->FillBase( iEntry, fGnmf_base );
-  LOG( "HNL", pDEBUG ) << "fGnmf_base.ptype = " << fGnmf_base.ptype;
 
   // explicitly check if there are any allowed decays for this parent
   bool canGoForward = true;
@@ -330,14 +316,6 @@ flux::GNuMIFluxPassThroughInfo HNLFluxCreator::MakeTupleFluxEntry( int iEntry, s
       utils::hnl::IsProdKinematicallyAllowed( kHNLProdNeuk3Electron ); break;
   }
 
-  LOG( "HNL", pDEBUG )
-    << "\niEntry       = " << iEntry
-    << "\nnimpwt       = " << decay_nimpwt
-    //<< "\npotnum       = " << potnum
-    //<< "\ndeltaPotnum  = " << deltaPotnum
-    << "\ncanGoForward ? " << canGoForward;
-    //<< "\nmultiplicity = " << 1.0 / multiplicity;
-
   if( !canGoForward ){ // return, but update the NPOT it took to make this rejected parent
     this->FillNonsense( iEntry, &gnmf ); return gnmf; 
   }
@@ -356,19 +334,6 @@ flux::GNuMIFluxPassThroughInfo HNLFluxCreator::MakeTupleFluxEntry( int iEntry, s
 		 fCvec.Y() - fDvec.Y(),
 		 fCvec.Z() - fDvec.Z() ); // separation in rotated coords
   TVector3 detO_user( -detO.X(), -detO.Y(), -detO.Z() );
-
-  LOG( "HNL", pDEBUG )
-    << "\n\n\t***** In BEAM coords: *****"
-    << "\nCentre     = " << utils::print::Vec3AsString( &fCvec_beam )
-    << "\nDecay      = " << utils::print::Vec3AsString( &fDvec_beam )
-    << "\nSeparation = " << utils::print::Vec3AsString( &detO_beam )
-    << "\n\t***** In ROTATED coords: *****"
-    << "\nCentre     = " << utils::print::Vec3AsString( &fCvec )
-    << "\nDecay      = " << utils::print::Vec3AsString( &fDvec )
-    << "\nSeparation = " << utils::print::Vec3AsString( &detO )
-    << "\n\t***** In USER coords: *****"
-    << "\nSeparation = " << utils::print::Vec3AsString( &detO_user )
-    << "\n\n";
   
   double acc_saa = this->CalculateDetectorAcceptanceSAA( detO_user );
   
@@ -502,16 +467,6 @@ flux::GNuMIFluxPassThroughInfo HNLFluxCreator::MakeTupleFluxEntry( int iEntry, s
     dist = distNum.Mag(); // m
   }
 
-  LOG( "HNL", pDEBUG )
-    << "\nTimelike bit = " << timeBit
-    << "\ndetO = " << utils::print::Vec3AsString( &detO ) << " [m]"
-    << "\np4HNL_good = " << utils::print::P4AsString( &p4HNL_good ) << " GeV"
-    << "\ndistNum = " << utils::print::Vec3AsString( &distNum ) << " [m GeV]"
-    << "\ndist = " << dist << " [m]"
-    << "\ndetO_rest_unit = " << utils::print::Vec3AsString( &detO_rest_unit )
-    << "\ndetO_unit = " << utils::print::Vec3AsString( &detO_unit )
-    << "\np4HNL_good_unit = " << utils::print::Vec3AsString( &p4HNL_good_unit );
-
   // but we don't care about that. We just want to obtain a proxy for betaHNL in lab frame.
   // Then we can use the dk2nu-style formula modified for betaHNL!
 
@@ -541,17 +496,6 @@ flux::GNuMIFluxPassThroughInfo HNLFluxCreator::MakeTupleFluxEntry( int iEntry, s
       boost_correction = p4HNL_good.E() / p4HNL_rest_good.E();
     }
   }
-
-  LOG( "HNL", pDEBUG )
-    << "\ndetO            = " << utils::print::Vec3AsString( &detO )
-    << "\ndetO_rest_unit  = " << utils::print::Vec3AsString( &detO_rest_unit )
-    << "\np4HNL_rest_good = " << utils::print::P4AsString( &p4HNL_rest_good )
-    << "\np4HNL_good      = " << utils::print::P4AsString( &p4HNL_good )
-    << "\nbetaHNL         = " << betaHNL
-    << "\nboost_corr_two  = " << boost_correction_two
-    << "\nboost_corr_one  = " << boost_correction
-    << "\ncostheta = " << costh_pardet << ", betaMag = " << betaMag
-    << "\nratio           = " << boost_correction_two / boost_correction;
 
   assert( boost_correction > 0.0 && boost_correction_two > 0.0 );
 
@@ -644,12 +588,6 @@ flux::GNuMIFluxPassThroughInfo HNLFluxCreator::MakeTupleFluxEntry( int iEntry, s
   TLorentzVector x4HNL_cm( units::m / units::cm * ( -detO.X() ),
 			   units::m / units::cm * ( -detO.Y() ),
 			   units::m / units::cm * ( -detO.Z() ), delay ); // in cm, ns
-
-  LOG( "HNL", pDEBUG )
-    << "\nnimpwt                 = " << decay_nimpwt
-    << "\nacc_saa                = " << acc_saa
-    << "\nboost_correction       = " << boost_correction
-    << "\naccCorr                = " << accCorr;
 
   // fill all the GNuMIFlux stuff
   // comments as seeon on https://www.hep.utexas.edu/~zarko/wwwgnumi/v19/v19/output_gnumi.html
@@ -788,9 +726,6 @@ flux::GNuMIFluxPassThroughInfo HNLFluxCreator::MakeTupleFluxEntry( int iEntry, s
     gnmf.fvol[i] = -9;
   }
 #endif
-
-  LOG( "HNL", pDEBUG )
-    << "Finished MakeTupleFluxEntry()";
 
   return gnmf;
   
@@ -2040,9 +1975,6 @@ double HNLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
 
   assert( range2 > 0.0 );
 
-  LOG( "HNL", pINFO )
-    << "\n range1 = " << range1 << " / range2 = " << range2;
-
   return range1 / range2;
 
 }
@@ -2091,8 +2023,6 @@ int HNLFluxCreator::SelectMass( const double mN ) const
       massHyp_t thisHyp = massesHyp[i];
       auto pos = massHypMap.find( thisHyp );
       masses[i] = pos->second;
-      LOG("HNL", pINFO) 
-	<< "At position " << i << " the mass hypothesis is " << masses[i];
     }
     
     assert( mN >= 0.0 );
@@ -2104,14 +2034,6 @@ int HNLFluxCreator::SelectMass( const double mN ) const
     // generally decide mass + point by closest endpoint in interval
     const double dLeft  = std::abs( mN - masses[ mp ] );
     const double dRight = masses[ mp + 1 ] - mN;
-    
-    LOG("HNL", pDEBUG) <<
-      "Stats:" <<
-      "\n Input mass: " << mN <<
-      "\n Choice interval: [ " << masses[mp] << ", " << masses[mp+1] << " ] " <<
-      "\n Left and right distance: " << dLeft << ", " << dRight <<
-      "\n Chosen point: " << ( ( dLeft < dRight ) ? mp : mp + 1 ) << " ( " <<
-      ( ( dLeft < dRight ) ? "LEFT )" : "RIGHT )" );
     
     fmN = ( dLeft < dRight ) ? masses[ mp ] : masses[ mp + 1 ];
     mp  = ( dLeft < dRight ) ? mp : mp + 1;
@@ -2189,11 +2111,6 @@ void HNLFluxCreator::MakeBBox() const
   LOG( "HNL", pWARN )
     << "WARNING: This is a dummy (==unit-side) bounding box centred at config-given point";
 
-  LOG( "HNL", pDEBUG )
-    << "\nfCx, fCy, fCz = " << fCx << ", " << fCy << ", " << fCz
-    << "\nfAx1, fAz, fAx2 = " << fAx1 << ", " << fAz << ", " << fAx2;
-
-
   fLx = 1.0; fLy = 1.0; fLz = 1.0;
 }
 //----------------------------------------------------------------------------
@@ -2226,10 +2143,6 @@ TVector3 HNLFluxCreator::ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::
 {
   double vx = vec.X(), vy = vec.Y(), vz = vec.Z();
   double ox = oriVec.X(), oy = oriVec.Y(), oz = oriVec.Z();
-
-  LOG( "HNL", pDEBUG )
-    << "\n original vec : " << utils::print::Vec3AsString( &vec )
-    << "\n origin vec : " << utils::print::Vec3AsString( &oriVec );
   
   vx -= ox; vy -= oy; vz -= oz; // make this rotation about detector origin
 
@@ -2254,7 +2167,6 @@ TVector3 HNLFluxCreator::ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::
   // back to beam frame
   vx += ox; vy += oy; vz += oz;
   TVector3 nvec( vx, vy, vz );
-  LOG( "HNL", pDEBUG ) << "\nFinal vector: " << utils::print::Vec3AsString( &nvec );
   return nvec;
 }
 //____________________________________________________________________________

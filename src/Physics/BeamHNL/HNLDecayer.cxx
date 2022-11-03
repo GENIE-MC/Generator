@@ -53,9 +53,6 @@ HNLDecayer::~HNLDecayer()
 void HNLDecayer::ProcessEventRecord(GHepRecord * event) const
 {
 
-  LOG("HNL", pDEBUG)
-    << "Entering ProcessEventRecord...";
-
   Interaction * interaction = event->Summary();
 
   fCurrInitStatePdg = interaction->InitState().ProbePdg();
@@ -84,8 +81,6 @@ void HNLDecayer::AddInitialState(GHepRecord * event) const
     // p4 was already set using HNLFluxCreator. No action needed.
     // Read event vertex == HNL production vertex. We will find the decay vertex later.
     p4 = *( init_state->GetProbeP4() );
-    LOG( "HNL", pDEBUG ) << "\nHere's the p4 seen at InitialState(): " << utils::print::P4AsString( &p4 )
-			 << "\nand the v4 seen at InitialState(): " << utils::print::X4AsString( event->Vertex() ) << " [cm, ns]";
 
     prodVtx = new std::vector< double >();
     prodVtx->emplace_back( event->Vertex()->X() );
@@ -118,10 +113,6 @@ void HNLDecayer::AddInitialState(GHepRecord * event) const
 
   init_state->SetProbeP4( p4 );
 
-  LOG( "HNL", pDEBUG )
-    << "\nProbe p4 = " << utils::print::P4AsString( &p4 )
-    << "\nProd vtx = " << utils::print::X4AsString( &v4 );
-
   int hpdg = interaction->InitState().ProbePdg();
   if( !event->Particle(0) )
     event->AddParticle(hpdg, kIStInitialState, 0,-1,-1,-1, p4, v4);
@@ -153,21 +144,17 @@ void HNLDecayer::GenerateDecayProducts(GHepRecord * event) const
   for( std::vector<int>::iterator it = pdgv0.begin(); it != pdgv0.end(); ++it ){
     int pdgc = *it; 
     int newpdgc = ( pdgc == genie::kPdgPi0 ) ? pdgc : typeMod * pdgc; // pi-0 is its own antiparticle
-    LOG("HNL", pDEBUG) << "Adding " << pdgc << " --> " << newpdgc;
     pdgv.push_back( newpdgc );
   }
 
-  LOG("HNL", pINFO) << "Decay product IDs: " << pdgv;
   assert ( pdgv.size() > 1);
 
   // if user wants to include polarisation effects, start prep now
   double fPolDirMag = 0.0;
-  LOG( "HNL", pDEBUG ) << "fPolDir.size() = " << fPolDir.size();
   if( fPolDir.size() == 3 ){
     fPolDirMag = std::sqrt( ( fPolDir.at(0) * fPolDir.at(0) ) +
 			    ( fPolDir.at(1) * fPolDir.at(1) ) + 
 			    ( fPolDir.at(2) * fPolDir.at(2) ) );
-    LOG( "HNL", pDEBUG ) << "fPolDir = ( " << fPolDir.at(0) << ", " << fPolDir.at(1) << ", " << fPolDir.at(2) << " )";
   }
   bool doPol = fDoPol;
 
@@ -250,7 +237,7 @@ void HNLDecayer::GenerateDecayProducts(GHepRecord * event) const
     if( doPol && fCurrDecayMode == kHNLDcyNuNuNu ){
       // no charged lepton here... warn the user about it, though
       LOG( "HNL", pWARN )
-	<< "Polarisation for uncharged FS not implemented yet, defaulting to phase-space decay...";
+	<< "Polarisation for invisible FS not implemented yet, defaulting to phase-space decay...";
     }
 
     LOG( "HNL", pDEBUG ) << "Doing a phase-space decay...";
@@ -340,12 +327,11 @@ std::vector< double > * HNLDecayer::GenerateDecayPosition( GHepRecord * /* event
   if( std::strcmp( std::getenv( "PRODVTXDIR" ), "NODIR" ) != 0 ){
     if( ( !fProdVtxHist || fProdVtxHist == 0 ) ){
       std::string pvPath = std::getenv( "PRODVTXDIR" );
-      LOG( "HNL", pDEBUG ) << "pvPath = " << pvPath.c_str();
       std::string pdName = "";
       std::string pvName = "hHNLVtxPos";
       fProdVtxHist = HNLFluxReader::getFluxHist3D( pvPath, pdName, pvName );
     }
-    LOG( "HNL", pDEBUG )
+    LOG( "HNL", pINFO )
       << "Found production vertex histo with " << fProdVtxHist->GetEntries() << " entries. Good!";
   }
   else{
@@ -388,9 +374,6 @@ std::vector< double > * HNLDecayer::GenerateMomentum( GHepRecord * event ) const
   p3HNL->emplace_back(py);
   p3HNL->emplace_back(pz);
 
-  LOG( "HNL", pDEBUG )
-    << "Generated momentum: ( " << px << ", " << py << ", " << pz << " )"; 
-
   return p3HNL;
 }
 //____________________________________________________________________________
@@ -404,12 +387,9 @@ void HNLDecayer::UpdateEventRecord(GHepRecord * event) const
   // primary lepton is FirstDaughter() of Probe()
   // need Probe() as a GHepParticle(), not a TParticlePDG()!
   // get from event record position 0
-  LOG( "HNL", pDEBUG ) << "Particle(0) has PDG code " << event->Particle(0)->Pdg();
   TLorentzVector * p4FSL = 0;
   if( event->FinalStatePrimaryLepton() ){
     int iFSL = event->Particle(0)->FirstDaughter();
-    LOG( "HNL", pDEBUG ) << "First daughter = " << iFSL << " with status " 
-			 << (int) (event->Particle( iFSL ))->Status();
     assert( event->Particle( iFSL ) );
     p4FSL = ( event->Particle( iFSL ) )->GetP4(); 
     assert( p4FSL );
@@ -418,11 +398,6 @@ void HNLDecayer::UpdateEventRecord(GHepRecord * event) const
 			  p4HNL->Pz() - p4FSL->Pz(),
 			  p4HNL->E() - p4FSL->E() );
     interaction->KinePtr()->SetQ2( p4DIF.M2(), true );
-    
-    LOG( "HNL", pDEBUG )
-      << "\nHNL p4 = ( " << p4HNL->E() << ", " << p4HNL->Px() << ", " << p4HNL->Py() << ", " << p4HNL->Pz() << " )"
-      << "\nFSL p4 = ( " << p4FSL->E() << ", " << p4FSL->Px() << ", " << p4FSL->Py() << ", " << p4FSL->Pz() << " )"
-      << "\nDIF p4 = ( " << p4DIF.E() << ", " << p4DIF.Px() << ", " << p4DIF.Py() << ", " << p4DIF.Pz() << " )";
 
   }
     
@@ -514,10 +489,6 @@ void HNLDecayer::SetBeam2User( std::vector< double > translation, std::vector< d
   fR1 = rotation.at(0);
   fR2 = rotation.at(1);
   fR3 = rotation.at(2);
-
-  LOG( "HNL", pDEBUG )
-    << "Set BEAM origin = (0,0,0) to UNROTATED USER coordinates = ( " << fTx << ", " << fTy << ", " << fTz << " ) [m]"
-    << "\nSet Euler (extrinsic x-z-x) angles to ( " << fR1 << ", " << fR2 << ", " << fR3 << " ) [rad]";  
 }
 //___________________________________________________________________________
 SimpleHNL HNLDecayer::GetHNLInstance(string config) const
@@ -541,9 +512,6 @@ void HNLDecayer::SetProdVtxPosition(const TLorentzVector & v4) const
 //____________________________________________________________________________
 void HNLDecayer::ReadCreationInfo( flux::GNuMIFluxPassThroughInfo gnmf ) const
 {
-  LOG( "HNL", pDEBUG )
-    << "Reading creation info...";
-
   if( fPolDir.size() > 0 ) fPolDir.clear();
   fPolDir.emplace_back( gnmf.ppvx );
   fPolDir.emplace_back( gnmf.ppvy );
@@ -626,8 +594,6 @@ void HNLDecayer::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double
 		      ( isPi0Nu && std::abs( pdgc ) == kPdgNuMu ) );
       if( isQLep ){
 	TLorentzVector * p4lep = fPSG.GetDecay(idc);
-	LOG( "HNL", pDEBUG )
-	  << "Found QLep " << pdgc << " at idc = " << idc << " with E = " << p4lep->E();
 	if( p4lep->E() > Elead ){
 	  Elead = p4lep->E();
 	  lepDir = p4lep->Vect();
@@ -635,19 +601,12 @@ void HNLDecayer::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double
 	  if( std::abs(fDecLepPdg) != std::abs(pdgc) || polMod < -1.0 ){
 	    // update polarisation modulus for new leading lepton
 	    polMod = this->CalcPolMod( polMag, fDecLepPdg, fDecHadPdg, MHNL );
-	    LOG( "HNL", pDEBUG ) << "polMod = " << polMod;
 	  } // std::abs(fDecLepPdg) != std::abs(pdgc) || polMod == -999.9
 	} // p4lep->E() > Elead
       } // isQLep
       
       idc++;
     }
-
-    LOG( "HNL", pDEBUG )
-    << "\nfParent, ProdLep, DecLep, DecHad Pdg = " << fParentPdg
-    << ", " << fProdLepPdg << ", " << fDecLepPdg << ", " << fDecHadPdg
-    << "\npolMag, polMod = " << polMag << ", " << polMod
-    << "\nvPolDir = " << utils::print::Vec3AsString( &vPolDir );
 
     // find angle \theta of leading FS QLep with vPolDir
     // assume differential decay rate \propto ( 1 \mp pMod * cos\theta )
@@ -660,13 +619,6 @@ void HNLDecayer::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double
     polWgt = 1 - typeMod * polMod * ctheta;
 
     isAccepted = ( rwgt >= polWgt );
-
-    LOG( "HNL", pDEBUG )
-      << "*** For polarised decay attempt " << iUPD << ":"
-      << "\nLeading lepton has direction " << utils::print::Vec3AsString( &lepDir )
-      << "\npolDir = " << utils::print::Vec3AsString( &vPolDir ) << ", angle = "
-      << theta * TMath::RadToDeg() << " [deg]"
-      << "\nrwgt, polWgt = " << rwgt << ", " << polWgt << ", isAccepted = " << isAccepted;
 
     iUPD++;
   } // while( rwgt >= polWgt && iUPD < controls::kMaxUnweightDecayIterations )
@@ -684,9 +636,6 @@ void HNLDecayer::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double
 //____________________________________________________________________________
 double HNLDecayer::CalcPolMag( int parPdg, int lepPdg, double M ) const
 {
-  LOG( "HNL", pDEBUG )
-    << "\nCalcPolMag( parPdg = " << parPdg << ", lepPdg = " << lepPdg << ", M = " << M << " )" ;
-
   PDGLibrary * pdgl = PDGLibrary::Instance();
   double mPar = pdgl->Find( std::abs( parPdg ) )->Mass();
   double mLep = pdgl->Find( std::abs( lepPdg ) )->Mass();
@@ -698,20 +647,12 @@ double HNLDecayer::CalcPolMag( int parPdg, int lepPdg, double M ) const
   double den2 = mLep*mLep - M*M;
 
   // pMag is a modulus, not a magnitude... not positive semi-definite. See Fig.4 in 1805.06419[hep-ph]
-  double pMag = -1.0 * num1*num2 / ( den1 - den2*den2 );
-
-  LOG( "HNL", pDEBUG )
-    << "\nmPar, mLep, M = " << mPar << ", " << mLep << ", " << M << " GeV"
-    << "\nnum1, num2, den1, den2 = " << num1 << ", " << num2 << ", " << den1 << ", " << den2;
-  
+  double pMag = -1.0 * num1*num2 / ( den1 - den2*den2 ); 
   return pMag;
 }
 //____________________________________________________________________________
 double HNLDecayer::CalcPolMod( double polMag, int lepPdg, int hadPdg, double M ) const
 {
-  LOG( "HNL", pDEBUG )
-    << "\nCalcPolMod( polMag = " << polMag << ", lepPdg = " << lepPdg << ", hadPdg = " << hadPdg << ", M = " << M << " )" ;
-
   PDGLibrary * pdgl = PDGLibrary::Instance();
   double mLep = pdgl->Find( std::abs( lepPdg ) )->Mass();
   double mHad = pdgl->Find( std::abs( hadPdg ) )->Mass();
@@ -724,11 +665,5 @@ double HNLDecayer::CalcPolMod( double polMag, int lepPdg, int hadPdg, double M )
   double den2 = mHad*mHad*( M*M + mLep*mLep );
 
   double pMod = num1*num2*num3 / ( den1*den1 - den2 );
-
-  LOG( "HNL", pDEBUG )
-    << "\nM, mLep, mHad = " << M << ", " << mLep << ", " << mHad << " GeV"
-    << "\nnum1, num2, num3, den1, den2 = " << num1 << ", " << num2 << ", "
-    << num3 << ", " << den1 << ", " << den2;
-  
   return pMod;
 }

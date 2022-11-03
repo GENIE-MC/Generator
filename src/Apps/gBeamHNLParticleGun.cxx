@@ -363,22 +363,16 @@ int main(int argc, char ** argv)
 
      int decay  = (int) gOptDecayMode;
 
-     LOG("gevgen_pghnl", pDEBUG)
-       << " Building SimpleHNL object ";
      SimpleHNL sh( "HNL", ievent, hpdg, genie::kPdgKP, 
 		   gOptMassHNL, gOptECoupling, gOptMCoupling, gOptTCoupling, false );
      
      const std::map< HNLDecayMode_t, double > gammaMap = sh.GetValidChannels();
-     LOG( "gevgen_pghnl", pDEBUG )
-       << "CoMLifetime = " << sh.GetCoMLifetime();
      CoMLifetime = sh.GetCoMLifetime();
      
      if( gOptDecayMode == kHNLDcyNull ){ // select from available modes
        LOG("gevgen_pghnl", pNOTICE)
 	 << "No decay mode specified - sampling from all available modes.";
 
-       LOG("gevgen_pghnl", pDEBUG)
-	 << "Reading interesting channels vector from config";
        std::vector< HNLDecayMode_t > * intChannels = &gOptIntChannels;
        
        decay = SelectDecayMode( intChannels, sh );
@@ -390,20 +384,6 @@ int main(int argc, char ** argv)
      // generate origin position and momentum direction for this HNL
      TLorentzVector * x4orig = GenerateOriginPosition( event );
      TLorentzVector * p4HNL  = GenerateOriginMomentum( event );
-
-     LOG("gevgen_pghnl", pDEBUG)
-       << "Origin information for HNL at event number " << ievent << ":"
-       << "\n Origin x4 = " << utils::print::X4AsString( x4orig )
-       << "\n Momentum  = " << utils::print::P4AsString( p4HNL );
-     
-     if( event->Vertex() ){
-       LOG( "gevgen_pghnl", pDEBUG )
-	 << "\nIS p4  = " << utils::print::P4AsString( interaction->InitStatePtr()->GetProbeP4() )
-	 << "\nIS vtx = " << utils::print::X4AsString( event->Vertex() );
-     } else {
-       LOG( "gevgen_pghnl", pDEBUG )
-	 << "\nIS p4  = " << utils::print::P4AsString( interaction->InitStatePtr()->GetProbeP4() );
-     }
 
      LOG("gevgen_pghnl", pDEBUG)
        << "Note decay mode is " << utils::hnl::AsString(gOptDecayMode);
@@ -447,10 +427,6 @@ int main(int argc, char ** argv)
 
      // why does InitState show the wrong p4 here?
      interaction->InitStatePtr()->SetProbeP4( *(event->Particle(0)->P4()) );
-     LOG( "gevgen_pghnl", pDEBUG ) << 
-       "\n!*!*!*! " << utils::print::P4AsString( event->Particle(0)->P4() );
-     
-     LOG("gevgen_pghnl", pDEBUG) << "Weight = " << evWeight;
 
      LOG("gevgen_pghnl", pINFO)
          << "Generated event: " << *event;
@@ -613,20 +589,10 @@ TLorentzVector * GenerateOriginPosition( GHepRecord * event )
   double dy = rng->RndGen().Uniform( -Dymax, Dymax );
   double dz = rng->RndGen().Uniform( -Dzmax, Dzmax );
 
-  std::ostringstream asts;
-  asts
-    << "Output details for the origin position:"
-    << "\nCentred around user ( " << ox << ", " << oy << ", " << oz << " ) [m]"
-    << "\nApplied deviation: ( " << dx << ", " << dy << ", " << dz << " ) [m]";
-
   // make position
   ox += dx; oy += dy; oz += dz;
   TLorentzVector * x4HNL = new TLorentzVector();
   x4HNL->SetXYZT( ox, oy, oz, 0.0 );
-
-  asts << "\nx4HNL = " << utils::print::X4AsString( x4HNL );
-
-  LOG( "gevgen_pghnl", pDEBUG ) << asts.str();
 
   event->SetVertex( *x4HNL );
   //delete rng;
@@ -696,8 +662,6 @@ const EventRecordVisitorI * HNLGenerator(void)
 //_________________________________________________________________________________________
 int SelectDecayMode( std::vector< HNLDecayMode_t > * intChannels, SimpleHNL sh )
 {
-  LOG("gevgen_pghnl", pDEBUG)
-    << " Getting valid channels ";
   const std::map< HNLDecayMode_t, double > gammaMap = sh.GetValidChannels();
 
   // set CoM lifetime now if unset
@@ -714,28 +678,19 @@ int SelectDecayMode( std::vector< HNLDecayMode_t > * intChannels, SimpleHNL sh )
     LOG("gevgen_pghnl", pDEBUG)
       << "For mode " << utils::hnl::AsString( mode ) << " gamma = " << theGamma;
   }
-
-  LOG("gevgen_pghnl", pDEBUG)
-    << " Setting interesting channels map ";
+  
   std::map< HNLDecayMode_t, double > intMap =
     HNLSelector::SetInterestingChannels( (*intChannels), gammaMap );
      
-  LOG("gevgen_pghnl", pDEBUG)
-    << " Telling SimpleHNL about interesting channels ";
   sh.SetInterestingChannels( intMap );
 
   // get probability that channels in intChannels will be selected
-  LOG("gevgen_pghnl", pDEBUG)
-    << " Building probablilities of interesting channels ";
   std::map< HNLDecayMode_t, double > PMap = 
     HNLSelector::GetProbabilities( intMap );
      
   // now do a random throw
   RandomGen * rnd = RandomGen::Instance();
   double ranThrow = rnd->RndGen().Uniform( 0., 1. ); // HNL's fate is sealed.
-
-  LOG("gevgen_pghnl", pDEBUG)
-    << "Random throw = " << ranThrow;
 
   HNLDecayMode_t selectedDecayChan =
     HNLSelector::SelectChannelInclusive( PMap, ranThrow );
@@ -826,7 +781,7 @@ void GetCommandLineArgs(int argc, char ** argv)
       gOptUsingRootGeom = true;
     } else {
       LOG("gevgen_pghnl", pFATAL)
-	<< "Geometry option is not a ROOT file. This is a work in progress; please use ROOT geom.";
+	<< "Geometry option is not a ROOT file. Please use ROOT geom.";
       PrintSyntax();
       exit(1);
     }

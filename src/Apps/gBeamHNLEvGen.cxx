@@ -402,8 +402,7 @@ int main(int argc, char ** argv)
       if( gOptUsingRootGeom )
 	fluxCreator->SetGeomFile( gOptRootGeom );
       int maxFluxEntries = fluxCreator->GetNEntries();
-      LOG( "gevgen_hnl", pDEBUG )
-	<< "Found " << maxFluxEntries << " flux entries.";
+
       if( gOptNev > maxFluxEntries ){
 	LOG( "gevgen_hnl", pWARN )
 	  << "You have asked for " << gOptNev << " events, but only provided "
@@ -416,8 +415,6 @@ int main(int argc, char ** argv)
   }
 
   if( !gOptIsMonoEnFlux && gOptIsUsingDk2nu ){
-    LOG( "gevgen_hnl", pDEBUG )
-      << "Starting reading from event " << gOptFirstEvent;
     fluxCreator->SetFirstEntry( gOptFirstEvent );
   }
 
@@ -449,8 +446,6 @@ int main(int argc, char ** argv)
 
      if( !gOptIsMonoEnFlux ){
        if( !gOptIsUsingDk2nu ){
-	 LOG( "gevgen_hnl", pDEBUG )
-	   << "Getting energy from flux...";
 	 fluxCreator->ProcessEventRecord( event );
 	 gOptEnergyHNL = event->Particle(0)->P4()->E();
 	 unsigned int ien = 0;
@@ -459,8 +454,6 @@ int main(int argc, char ** argv)
 	   ien++;
 	 }
        } else { // get a full HNL from flux tuples
-	 LOG( "gevgen_hnl", pDEBUG )
-	   << "Making HNL from tuple for event " << (ievent-gOptFirstEvent);
 	 fluxCreator->SetCurrentEntry( iflux );
 	 fluxCreator->ProcessEventRecord( event );
 	 
@@ -468,12 +461,6 @@ int main(int argc, char ** argv)
 	 flux::GNuMIFluxPassThroughInfo retGnmfBase = fluxCreator->RetrieveFluxBase();
 	 FillFlux( gnmf, retGnmf );
 	 FillFlux( gnmfBase, retGnmfBase );
-
-	 LOG( "gevgen_hnl", pDEBUG )
-	   << "\n****** gnmf.fgXYWgt = " << gnmf.fgXYWgt
-	   << "\n****** gnmf.ptype = " << gnmf.ptype
-	   << "\n****** gnmf.ppmedium  " << gnmf.ppmedium
-	   << "\n****** gnmfBase.ptype = " << gnmfBase.ptype;
 	 
 	 // check to see if this was nonsense
 	 if( ! event->Particle(0) ){ iflux++; delete event; continue; }
@@ -503,40 +490,26 @@ int main(int argc, char ** argv)
 
      // int target = SelectInitState();
      int decay  = (int) gOptDecayMode;
-
-     LOG("gevgen_hnl", pDEBUG)
-       << "Couplings are: "
-       << "\n|U_e4|^2 = " << gOptECoupling
-       << "\n|U_m4|^2 = " << gOptMCoupling
-       << "\n|U_t4|^2 = " << gOptTCoupling;
      
      assert( gOptECoupling >= 0.0 && gOptMCoupling >= 0.0 && gOptTCoupling >= 0.0 );
      
      // RETHERE assuming all these HNL have K+- parent. This is wrong 
      // (but not very wrong for interesting masses)
-     LOG("gevgen_hnl", pDEBUG)
-       << " Building SimpleHNL object ";
      SimpleHNL sh( "HNL", ievent, hpdg, genie::kPdgKP, 
 		   gOptMassHNL, gOptECoupling, gOptMCoupling, gOptTCoupling, false );
 
      const std::map< HNLDecayMode_t, double > gammaMap = sh.GetValidChannels();
-     LOG( "gevgen_hnl", pDEBUG )
-       << "CoMLifetime = " << sh.GetCoMLifetime();
      CoMLifetime = sh.GetCoMLifetime();
 
      if( gOptDecayMode == kHNLDcyNull ){ // select from available modes
        LOG("gevgen_hnl", pNOTICE)
 	 << "No decay mode specified - sampling from all available modes.";
 
-       LOG("gevgen_hnl", pDEBUG)
-	 << "Reading interesting channels vector from config";
        std::vector< HNLDecayMode_t > * intChannels = &gOptIntChannels;
 
        decay = SelectDecayMode( intChannels, sh );
      }
 
-     LOG( "gevgen_hnl", pDEBUG )
-       << "typeMod = " << typeMod << ", PDG = " << typeMod * genie::kPdgHNL << ", E = " << gOptEnergyHNL << ", decay = " << utils::hnl::AsString(gOptDecayMode);
      Interaction * interaction = Interaction::HNL(typeMod * genie::kPdgHNL, gOptEnergyHNL, decay);
 
      if( event->Particle(0) ){ // we have an HNL with definite momentum, so let's set it now
@@ -546,21 +519,9 @@ int main(int argc, char ** argv)
 	 << "\nsetting probe p4 = " << utils::print::P4AsString( event->Particle(0)->P4() );
      }
 
-     if( event->Vertex() ){
-       LOG( "gevgen_hnl", pDEBUG )
-	 << "\nIS p4  = " << utils::print::P4AsString( interaction->InitStatePtr()->GetProbeP4() )
-	 << "\nIS vtx = " << utils::print::X4AsString( event->Vertex() );
-     } else {
-       LOG( "gevgen_hnl", pDEBUG )
-	 << "\nIS p4  = " << utils::print::P4AsString( interaction->InitStatePtr()->GetProbeP4() );
-     }
-
      double acceptance = 1.0; // need to weight a spectrum by acceptance and nimpwt as well
 
      event->AttachSummary(interaction);
-
-     LOG("gevgen_hnl", pDEBUG)
-       << "Note decay mode is " << utils::hnl::AsString(gOptDecayMode);
 
      // Simulate decay
      //mcgen->ProcessEventRecord(event);
@@ -595,9 +556,6 @@ int main(int argc, char ** argv)
        NTP_FS2_PZ = 0.0;
      }
 
-     LOG( "gevgen_hnl", pDEBUG )
-       << "Passed decay simulation.";
-
      // Generate (or read) a position for the decay vertex
      // also currently handles the geometrical weight
      TLorentzVector x4mm = GeneratePosition( event );
@@ -605,10 +563,6 @@ int main(int argc, char ** argv)
      // update weight to scale for couplings, inhibited decays
      // acceptance is already handled in HNLFluxCreator
      // geometry handled in HNLDecayVolume
-     LOG( "gevgen_hnl", pDEBUG )
-       << "\nWeight modifications:"
-       << "\nCouplings^(-1) = " << 1.0 / ( gOptECoupling + gOptMCoupling + gOptTCoupling )
-       << "\nDecays^(-1) = " << 1.0 / decayMod;
      evWeight = event->Weight();
      evWeight *= 1.0 / ( gOptECoupling + gOptMCoupling + gOptTCoupling );
      evWeight *= 1.0 / decayMod;
@@ -616,8 +570,6 @@ int main(int argc, char ** argv)
 
      // why does InitState show the wrong p4 here?
      interaction->InitStatePtr()->SetProbeP4( *(event->Particle(0)->P4()) );
-     LOG( "gevgen_hnl", pDEBUG ) << 
-       "\n!*!*!*! " << utils::print::P4AsString( event->Particle(0)->P4() );
      
      LOG("gevgen_hnl", pDEBUG) << "Weight = " << evWeight;
 
@@ -692,8 +644,6 @@ void InitBoundingBox(void)
     
     gOptRootGeoManager = geom;
 
-    LOG("gevgen_hnl", pINFO)
-      << "Initialised unit bounding box successfully.";
     return;
   } 
 
@@ -731,7 +681,7 @@ void InitBoundingBox(void)
   foy = (box->GetOrigin())[1];
   foz = (box->GetOrigin())[2];
 
-  LOG("gevgen_hnl", pINFO)
+  LOG("gevgen_hnl", pDEBUG)
     << "Before conversion the bounding box has:"
     << "\nOrigin = ( " << fox << " , " << foy << " , " << foz << " )"
     << "\nDimensions = " << fdx << " x " << fdy << " x " << fdz
@@ -776,7 +726,7 @@ GFluxI * TH1FluxDriver(void)
 
   LOG("gevgen_hnl", pDEBUG)
     << "Mass inserted: " << gOptMassHNL << " GeV ==> mass point " << closest_masspoint;
-  LOG("gevgen_hnl", pDEBUG)
+  LOG("gevgen_hnl", pINFO)
     << "Using fluxes in base path " << gOptFluxFilePath.c_str();
   
   //string finPath = HNLFluxReader::fPath; // is it good practice to keep this explicit?
@@ -784,7 +734,7 @@ GFluxI * TH1FluxDriver(void)
   string finPath = gOptFluxFilePath; finPath.append("/histFluxes.root");
   string prodVtxPath = gOptFluxFilePath; prodVtxPath.append("/HNL_vertex_positions.root");
   __attribute__((unused)) int iset = setenv( "PRODVTXDIR", prodVtxPath.c_str(), 1 );
-  LOG("gevgen_hnl", pDEBUG)
+  LOG("gevgen_hnl", pINFO)
     << "Looking for fluxes in " << finPath.c_str();
   assert( !gSystem->AccessPathName( finPath.c_str()) );
 
@@ -812,16 +762,6 @@ GFluxI * TH1FluxDriver(void)
     spectrumF->Add( hfluxAllbar, 1.0 );
   }
 
-  LOG( "gevgen_hnl", pDEBUG )
-    << "\n\n !!! ------------------------------------------------"
-    << "\n !!! gOptECoupling, gOptMCoupling, gOptTCoupling = " << gOptECoupling << ", " << gOptMCoupling << ", " << gOptTCoupling
-    << "\n !!! gOptHNLKind = " << gOptHNLKind
-    << "\n !!! gOptIsMajorana = " << gOptIsMajorana
-    << "\n !!! ------------------------------------------------"
-    << "\n !!! Flux spectrum has ** " << spectrumF->GetEntries() << " ** entries"
-    << "\n !!! Flux spectrum has ** " << spectrumF->GetMaximum() << " ** maximum"
-    << "\n !!! ------------------------------------------------ \n";
-
   // copy into TH1D, *do not use the Copy() function!*
   const int nbins = spectrumF->GetNbinsX();
   spectrum = new TH1D( "s", "s", nbins, spectrumF->GetBinLowEdge(1), 
@@ -839,7 +779,7 @@ GFluxI * TH1FluxDriver(void)
     }
   }
   
-  LOG("gevgen_hnl", pINFO) << spectrum->GetEntries() << " entries in spectrum";
+  LOG("gevgen_hnl", pDEBUG) << spectrum->GetEntries() << " entries in spectrum";
 
   // save input flux
 
@@ -854,15 +794,10 @@ GFluxI * TH1FluxDriver(void)
 
     hIntegrals->SetDirectory(0);
     hIntegrals->Write();
-
-    LOG( "gevgen_hnl", pDEBUG )
-      << "\n\nIntegrals asked for and stored. Here are their values by type:"
-      << "\nParticle: " << hfluxAll->Integral()
-      << "\nAntiparticle: " << hfluxAllbar->Integral() << "\n\n";
   }
 
   f.Close();
-  LOG("gevgen_hnl", pDEBUG) 
+  LOG("gevgen_hnl", pNOTICE) 
     << "Written spectrum to ./input-flux.root";
 
   // keep "beam" == SM-neutrino beam direction at z s.t. cos(theta_z) == 1
@@ -879,8 +814,6 @@ GFluxI * TH1FluxDriver(void)
   flux->AddEnergySpectrum   (genie::kPdgHNL, spectrum);
 
   GFluxI * flux_driver = dynamic_cast<GFluxI *>(flux);
-  LOG("gevgen_hnl", pDEBUG)
-    << "Returning flux driver and exiting method.";
   return flux_driver;
 }
 //_________________________________________________________________________________________
@@ -1191,8 +1124,6 @@ const EventRecordVisitorI * HNLGenerator(void)
 //_________________________________________________________________________________________
 int SelectDecayMode( std::vector< HNLDecayMode_t > * intChannels, SimpleHNL sh )
 {
-  LOG("gevgen_hnl", pDEBUG)
-    << " Getting valid channels ";
   const std::map< HNLDecayMode_t, double > gammaMap = sh.GetValidChannels();
 
   // set CoM lifetime now if unset
@@ -1221,14 +1152,10 @@ int SelectDecayMode( std::vector< HNLDecayMode_t > * intChannels, SimpleHNL sh )
       << "None of the channels specified as interesting are kinematically allowed. Please either increase the HNL mass or change interesting channels in config.";
     exit(1);
   }
-
-  LOG("gevgen_hnl", pDEBUG)
-    << " Setting interesting channels map ";
+  
   std::map< HNLDecayMode_t, double > intMap =
     HNLSelector::SetInterestingChannels( intAndValidChannels, gammaMap );
      
-  LOG("gevgen_hnl", pDEBUG)
-    << " Telling SimpleHNL about interesting channels ";
   sh.SetInterestingChannels( intMap );
 
   // update fraction of total decay width that is not in inhibited channels
@@ -1243,22 +1170,14 @@ int SelectDecayMode( std::vector< HNLDecayMode_t > * intChannels, SimpleHNL sh )
   }
   assert( gammaInt > 0.0 && gammaAll >= gammaInt );
   decayMod = gammaInt / gammaAll;
-  
-  LOG( "gevgen_hnl", pDEBUG )
-    << "\ndecayMod = " << decayMod;
 
   // get probability that channels in intAndValidChannels will be selected
-  LOG("gevgen_hnl", pDEBUG)
-    << " Building probablilities of interesting channels ";
   std::map< HNLDecayMode_t, double > PMap = 
     HNLSelector::GetProbabilities( intMap );
      
   // now do a random throw
   RandomGen * rnd = RandomGen::Instance();
   double ranThrow = rnd->RndGen().Uniform( 0., 1. ); // HNL's fate is sealed.
-
-  LOG("gevgen_hnl", pDEBUG)
-    << "Random throw = " << ranThrow;
 
   HNLDecayMode_t selectedDecayChan =
     HNLSelector::SelectChannelInclusive( PMap, ranThrow );
@@ -1438,7 +1357,7 @@ void GetCommandLineArgs(int argc, char ** argv)
       gOptUsingRootGeom = true;
     } else {
       LOG("gevgen_hnl", pFATAL)
-	<< "Geometry option is not a ROOT file. This is a work in progress; please use ROOT geom.";
+	<< "Geometry option is not a ROOT file. Please use ROOT geom.";
       PrintSyntax();
       exit(1);
     }
