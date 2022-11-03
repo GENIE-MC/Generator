@@ -96,7 +96,7 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
 
     grid_command_options = ''
     if grid_system == 'FNAL' :
-        grid_command_options = FNAL.FNALShellCommands(genie_setup, 8)
+        grid_command_options = FNAL.FNALShellCommands(genie_setup, 15)
     else :
         print( "Only FNAL grid is available" )
         return 
@@ -110,11 +110,12 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
                 if process == 'none' : continue 
                 if process == 'CCQE' : 
                     if target == 'n' and nu_pdg_def[nu] < 0 : continue  
-                    if target == 'p' and nu_pdg_def[nu] > 0 : continue 
+                    elif target == 'p' and nu_pdg_def[nu] > 0 : continue 
                 if process == 'CCDFR' or process == 'NCDFR' :
                     if target == 'n' : continue 
-                if process == 'FastOn' : 
-                    event_gen_list = process+target 
+                if process == 'Fast' :
+                    if target == 'n' : event_gen_list = 'FastOnN'
+                    elif target == 'p' : event_gen_list = 'FastOnP'
                 else :
                     event_gen_list = process 
                 
@@ -125,6 +126,10 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
                     filename_template = job_name
                 else :
                     filename_template = jobs_dir + '/' + job_name
+
+                if os.path.exists( jobs_dir + '/' + filename_template+".xml" ) : 
+                    # Need to remove xml files before re-generating them
+                    os.remove( jobs_dir + '/' + filename_template+".xml" )
 
                 gmkspl_cmd = "gmkspl -p "+str(nu)+ " -t "+ str(nucleons_pdg[target]) + " -n "+ str(nu_n_knots) + " -e "+ str(nu_E_max) + " --tune " + tune 
                 gmkspl_cmd += " -o "+ filename_template+".xml --event-generator-list " + event_gen_list   
@@ -149,6 +154,10 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
                 else :
                     output_spline = jobs_dir + '/' + job_name
                 
+                if os.path.exists( jobs_dir + '/' + output_spline+".xml" ) : 
+                    # Need to remove xml files before re-generating them
+                    os.remove( jobs_dir + '/' + output_spline+".xml" )
+
                 gmkspl_cmd = "gmkspl -p "+str(e)+ " -t "+ str(nucleons_pdg[target]) + " -n "+ str(e_n_knots) + " -e "+ str(e_E_max) + " --tune " + tune 
                 gmkspl_cmd += " -o "+ output_spline+".xml --event-generator-list " + event_gen_list   
                 

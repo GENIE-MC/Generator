@@ -122,6 +122,10 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                     output_spline = jobs_dir + '/' + job_name
                     input_xsec = free_nuc_dir+"/total_xsec.xml"
 
+                if os.path.exists( jobs_dir + '/' + filename_template+".xml" ) : 
+                    # Need to remove xml files before re-generating them
+                    os.remove( jobs_dir + '/' + filename_template+".xml" )
+
                 gmkspl_cmd = "gmkspl -p "+str(nu)+ " -t "+ str(target) + " -n "+ str(nu_n_knots) + " -e "+ str(nu_E_max) + " --tune " + tune 
                 gmkspl_cmd += " --input-cross-sections "+ input_xsec+" -o "+ filename_template+".xml --event-generator-list " + event_gen_list +" --no-copy "  
                 
@@ -147,6 +151,10 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                     output_spline = jobs_dir + '/' + job_name
                     input_xsec = free_nuc_dir+"/total_xsec.xml"
                 
+                if os.path.exists( jobs_dir + '/' + output_spline+".xml" ) : 
+                    # Need to remove xml files before re-generating them
+                    os.remove( jobs_dir + '/' + output_spline+".xml" )
+
                 gmkspl_cmd = "gmkspl -p "+str(e)+ " -t "+ str(target) + " -n "+ str(e_n_knots) + " -e "+ str(e_E_max) + " --tune " + tune 
                 gmkspl_cmd += " --input-cross-sections "+ input_xsec+" -o "+ output_spline+".xml --event-generator-list " + event_gen_list +" --no-copy "  
                 
