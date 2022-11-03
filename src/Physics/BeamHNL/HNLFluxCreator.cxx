@@ -1935,7 +1935,7 @@ double HNLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
   if( zp == zm ) return 1.0;
 
   double M = p4HNL.M();
-  if( M == 0.0 ) return 1.0;
+  if( M < 1.0e-3 ) return 1.0;
 
   TF1 * fHNL = ( TF1* ) gROOT->GetListOfFunctions()->FindObject( "fHNL" );
   if( !fHNL ){ fHNL = new TF1( "fHNL", labangle, 0.0, 180.0, 6 ); }
