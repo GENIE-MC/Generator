@@ -246,7 +246,7 @@ public :
   double    GetDecayDist() const; ///< dist (user units) from dk to current pos
   void      MoveToZ0(double z0);  ///< move ray origin to user coord Z0
 
-  void      SetIncludeVtxt(bool it=true); ///< should X4 include CurEntry.vtxt
+  void      SetIncludeVtxt(bool it=true) { fIncludeVtxt=it; }; ///< should X4 include CurEntry.vtxt
   bool      GetIncludeVtxt() { return fIncludeVtxt; }
 
   //
