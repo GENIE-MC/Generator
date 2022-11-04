@@ -490,7 +490,8 @@ flux::GNuMIFluxPassThroughInfo HNLFluxCreator::MakeTupleFluxEntry( int iEntry, s
     if( costh_pardet > 1.0 ) costh_pardet = 1.0;
     // assume boost is on z' direction where z' = parent momentum direction, subbing betaMag ==> betaMag * costh_pardet
     //boost_correction = gamma * ( 1.0 + betaHNL * betaMag * costh_pardet );
-    if( std::abs( costh_pardet ) >= 0.9 && boost_correction * p4HNL_rest.E() > p4HNL_rest.M() ){
+    //if( std::abs( costh_pardet ) >= 0.9 && boost_correction * p4HNL_rest.E() > p4HNL_rest.M() ){
+    if( true && boost_correction * p4HNL_rest.E() > p4HNL_rest.M() ) {
       boost_correction = 1.0 / ( gamma * ( 1.0 - betaMag * betaHNL * costh_pardet ) );
     } else {
       boost_correction = p4HNL_good.E() / p4HNL_rest_good.E();
