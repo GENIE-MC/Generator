@@ -1,17 +1,25 @@
 #!/bin/bash 
 
 source /cvmfs/fermilab.opensciencegrid.org/products/genie/bootstrap_genie_ups.sh 
-#source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups 
+source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups 
 setup ifdhc v2_6_6
 export IFDH_CP_MAXRETRIES=0
 
 source /grid/fermiapp/products/larsoft/setup
-setup root v6_22_08d -q debug:e20:p392
-setup lhapdf v6_3_0 -q debug:e20:p392
-setup log4cpp v1_1_3c -q debug:e20
-setup pdfsets v5_9_1b
-setup gdb v8_1
-setup git v2_15_1
+
+setup root v6_12_06a -q e17:debug 
+setup lhapdf v5_9_1k -q e17:debug 
+setup log4cpp v1_1_3a -q e17:debug 
+setup pdfsets v5_9_1b 
+setup gdb v8_1 
+setup git v2_15_1 
+
+#setup root v6_22_08d -q debug:e20:p392
+#setup lhapdf v6_3_0 -q debug:e20:p392
+#setup log4cpp v1_1_3c -q debug:e20
+#setup pdfsets v5_9_1b
+#setup gdb v8_1
+#setup git v2_15_1
 
 git clone https://github.com/GENIE-MC/Generator.git Generator 
 

@@ -50,14 +50,15 @@ e_name_def = { 11 : 'e',
               -11: 'ebar' }
 
 
-def GroupSplineCommands( group_vN=False, mother_dir='', tune='G18_02_02_11b', version='master', conf_dir='', grid_system='FNAL', group='genie', 
+def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir='', tune='G18_02_02_11b', version='master', conf_dir='', grid_system='FNAL', group='genie', 
                          arch='SL6.x86_64', production='routine_validation', cycle='01', softw_topdir=os.getenv('GENIE_MASTER_DIR'),
                          genie_topdir=os.getenv('GENIE'),  genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNALGrid.sh', 
-                         jobs_topdir=os.getenv('PWD'), xml_dir=os.getenv('PWD'), add_list=False, add_nucleons = False ) :
+                         jobs_topdir=os.getenv('PWD'), add_list=False, add_nucleons = False ) :
 
     # Store root output only for vA spilnes:
     root_output = False 
-    if group_vN == False : root_output = True
+    if group_vN == False: 
+        root_output = True
 
     if mother_dir != '' : 
         if os.path.exists(mother_dir) :
@@ -93,19 +94,27 @@ def GroupSplineCommands( group_vN=False, mother_dir='', tune='G18_02_02_11b', ve
     ## sore for later
     lepton_list = []
     tgt_list = []
+    in_xml_files = []
     for xml_file in xml_files_dir : 
         xml_file = os.path.basename(xml_file)[:-3]
+        in_xml_files.append(xml_dir+xml_file+".xml")
         xml_content = xml_file.split("_")
         if len(xml_content) < 4 : continue
 
         if xml_content[0] in nu_pdg_def : 
-            dir_nu_list.append(xml_content[0])
-            dir_nu_tgt_list.append(xml_content[2])
-            dir_EW_process_list.append(xml_content[3])
+            if xml_content[0] not in dir_nu_list : 
+                dir_nu_list.append(xml_content[0])
+            if xml_content[2] not in dir_nu_tgt_list: 
+                dir_nu_tgt_list.append(xml_content[2])
+            if xml_content[3] not in dir_EW_process_list:
+                dir_EW_process_list.append(xml_content[3])
         elif xml_content[0] in e_pdg_def : 
-            dir_e_list.append(xml_content[0])
-            dir_e_tgt_list.append(xml_content[2])
-            dir_EM_process_list.append(xml_content[3])
+            if xml_content[0] not in dir_e_list : 
+                dir_e_list.append(xml_content[0])
+            if xml_content[2] not in dir_e_tgt_list : 
+                dir_e_tgt_list.append(xml_content[2])
+            if xml_content[3] not in dir_EM_process_list:
+                dir_EM_process_list.append(xml_content[3])
 
         ## For root output 
         if root_output : 
@@ -116,27 +125,17 @@ def GroupSplineCommands( group_vN=False, mother_dir='', tune='G18_02_02_11b', ve
 
     dict_target = {}
     for target in dir_nu_tgt_list : 
-        if len(target) == 1 : 
-            if target == 'p' : 
-                target = '1000010010'
-            if target == 'n' :
-                target = '1000000010'
-
         dict_nu = {}
         for nu in dir_nu_list : 
             dict_nu[nu] = []
             for process in dir_EW_process_list : 
+                if process == 'CCDFR' or process == 'NCDFR' :
+                    if target == 'n' or target == '1000000010': continue
                 dict_nu[nu].append(nu+"_on_"+target+"_"+process+".xml")
         # Add all files to merge here:
         dict_target[target] = dict_nu 
     
     for target in dir_e_tgt_list : 
-        if len(target) == 1 : 
-            if target == 'p' : 
-                target = '1000010010'
-            if target == 'n' :
-                target = '1000000010'
-
         dict_e={}
         if target in dict_target : 
             dict_e = dict_target[target]
@@ -166,7 +165,7 @@ def GroupSplineCommands( group_vN=False, mother_dir='', tune='G18_02_02_11b', ve
             com_nu += path+nu+"_on_"+tgt+".xml,"
         com_nu = com_nu[:-1]
         if len(dict_target[tgt]) == 1 : 
-            commands.append("mv "+path+nu+"_on_"+tgt+".xml "+tgt+".xml")
+            commands.append("ifdh cp "+path+nu+"_on_"+tgt+".xml "+path+tgt+".xml")
         else :
             commands.append(com_nu) 
         com_total += tgt+".xml,"
@@ -174,7 +173,7 @@ def GroupSplineCommands( group_vN=False, mother_dir='', tune='G18_02_02_11b', ve
 
     ## if only one target simply rename
     if len(dict_target) == 1 : 
-        commands.append("mv "+path+tgt+".xml "+path+"total_xsec.xml")
+        commands.append("ifdh cp "+path+tgt+".xml "+path+"total_xsec.xml")
     else :
         commands.append(com_total) 
 
@@ -204,7 +203,7 @@ def GroupSplineCommands( group_vN=False, mother_dir='', tune='G18_02_02_11b', ve
     shell_file = ''
     command_list = []
     if grid_system == 'FNAL' :
-        shell_file=FNAL.CreateShellScript ( commands , jobs_topdir, process_name, out_files, genie_setup, conf_dir, xml_files_dir ) 
+        shell_file=FNAL.CreateShellScript ( commands , xml_dir, process_name, out_files, genie_setup, conf_dir, in_xml_files ) 
         grid_command_options = FNAL.FNALShellCommands(genie_setup)
         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 

@@ -96,39 +96,49 @@ else :
 
 # Store commands with ID :
 command_dict = {}
-# ID = 0 # vN splines
-command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.EMAX,opts.EMAX,opts.Knots,opts.Knots,opts.TUNE,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
-
-# ID = 1 # group vN splines
-vNMotherDir = ''
-if opts.MotherDir !='' : 
-    vNMotherDir = opts.MotherDir+'/'+opts.VERSION+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vN/'
-
-command_dict.update( group.GroupSplineCommands( True,vNMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,vNdir,False, False ) )# THE LAST TWO TO BE CONFIGURED
-
-# ID = 2 # vA splines
-command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.EMAX,opts.EMAX,opts.Knots,opts.Knots,opts.TUNE,vNsplines,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
-
-# ID = 3 # Group vA splines
-vAMotherDir = ''
-if opts.MotherDir !='' : 
-    vAMotherDir = opts.MotherDir+'/'+opts.VERSION+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vA/'
-
-command_dict.update( group.GroupSplineCommands( False,vAMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,vAdir,False, False ) )# THE LAST TWO TO BE CONFIGURED
-
-# ID = 4 # Event generation commands
-command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.Energy,vAsplines,opts.NEvents,opts.TUNE, opts.EvGenList, opts.NMax, opts.VERSION, opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
 
 # Get correct ID as requested by user:
 loop_start = 0 
-loop_end = command_dict.keys()[-1]
-                    
+loop_end = 5
 if opts.start_ID != 0 :
-    loop_start = opts.start_ID
+    loop_start = int(opts.start_ID)
 
 if loop_end > int(opts.end_ID) : 
     loop_end= int(opts.end_ID)
 
+loop_i = loop_start
+while loop_i < loop_end +1 : 
+    # ID = 0 # vN splines
+    if loop_i == 0 :
+        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.EMAX,opts.EMAX,opts.Knots,opts.Knots,opts.TUNE,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
+
+    # ID = 1 # group vN splines
+    if loop_i == 1 :
+        vNMotherDir = ''
+        if opts.MotherDir !='' : 
+            vNMotherDir = opts.MotherDir+'/'+opts.VERSION+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vN/'
+
+        command_dict.update( group.GroupSplineCommands( True,vNdir,vNMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,False, False ) )# THE LAST TWO TO BE CONFIGURED
+
+    if loop_i == 2 : 
+        # ID = 2 # vA splines
+        command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.EMAX,opts.EMAX,opts.Knots,opts.Knots,opts.TUNE,vNsplines,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
+
+    if loop_i == 3 : 
+        # ID = 3 # Group vA splines
+        vAMotherDir = ''
+        if opts.MotherDir !='' : 
+            vAMotherDir = opts.MotherDir+'/'+opts.VERSION+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vA/'
+
+        command_dict.update( group.GroupSplineCommands( False,vAdir,vAMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,False, False ) )# THE LAST TWO TO BE CONFIGURED
+
+    if loop_i == 4 : 
+        # ID = 4 # Event generation commands
+        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.Energy,vAsplines,opts.NEvents,opts.TUNE, opts.EvGenList, opts.NMax, opts.VERSION, opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
+    
+    loop_i += 1 
+
+# Write xml file
 grid_name = FNAL.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD)
 
 main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, genie_setup, grid_name )

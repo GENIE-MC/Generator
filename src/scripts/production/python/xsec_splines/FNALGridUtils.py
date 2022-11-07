@@ -3,6 +3,8 @@ import os
 
 def CreateShellScript ( commands , jobs_dir, shell_name, out_files, genie_setup, conf_dir, in_files ) :
     shell_file = jobs_dir+"/"+shell_name+".sh"
+    print("create file in:", shell_file)
+
     if os.path.exists(shell_file):
         os.remove(shell_file)
 

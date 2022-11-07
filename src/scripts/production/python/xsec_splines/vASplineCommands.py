@@ -111,7 +111,10 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
         for target in req_nu_tgt_list : 
             for process in req_EW_list :
                 if process == 'none' : continue 
-                event_gen_list = process 
+                if process == 'Fast' : 
+                    event_gen_list = 'FastOnNuclei'
+                else : 
+                    event_gen_list = process 
                 
                 # Job definition
                 job_name = nu_name_def[nu]+'_on_'+str(target)+'_'+process
