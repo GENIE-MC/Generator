@@ -287,7 +287,7 @@ double BSKLNBaseRESPXSec2014::XSec(
 #endif
 
   // Calculate RES Correction factor for neutrinos [ F.Ravndal, Nuovo Cim. A 18, 385 (1973) ]
-  double Go = TMath::Power( 1 - 0.25 * q2 / MNuc2, 0.5 - IR ) ; 
+  double Go = TMath::Power( 1 - 0.25 * q2 / Mnuc2, 0.5 - IR ) ; 
 
   // For EM, the correction factor is different [ F. Ravndal, Phys. Rev. D 4, 1466 (1971) ]
   if( is_EM ) Go = TMath::Power( 1 - 0.25 * q2 / W2, 0.5*(1-IR) ) ; 
