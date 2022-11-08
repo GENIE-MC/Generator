@@ -100,8 +100,10 @@ namespace genie {
       bool fKLN;
       bool fBRS;
 
-      bool fGA;
-      bool fGV;
+      // Use tuned axial, vector form factors by MiniBooNE
+      // Tuned to ANL BNL data
+      bool fGAMiniBooNE;
+      bool fGVMiniBooNE;
 
       const XSecIntegratorI * fXSecIntegrator;
   };
