@@ -50,7 +50,7 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
                       tune='G18_02_02_11b', version='master', 
                       grid_system='FNAL', group='genie', conf_dir='', arch='SL6.x86_64', production='routine_validation', cycle='01',  
                       softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'), 
-                      genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNALGrid.sh') :
+                      genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNALGrid.sh', time=15) :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-xsec_vN'
 
@@ -96,7 +96,7 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
 
     grid_command_options = ''
     if grid_system == 'FNAL' :
-        grid_command_options = FNAL.FNALShellCommands(genie_setup, 15)
+        grid_command_options = FNAL.FNALShellCommands(genie_setup, time)
     else :
         print( "Only FNAL grid is available" )
         return 

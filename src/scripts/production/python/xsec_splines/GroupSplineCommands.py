@@ -53,7 +53,7 @@ e_name_def = { 11 : 'e',
 def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir='', tune='G18_02_02_11b', version='master', conf_dir='', grid_system='FNAL', group='genie', 
                          arch='SL6.x86_64', production='routine_validation', cycle='01', softw_topdir=os.getenv('GENIE_MASTER_DIR'),
                          genie_topdir=os.getenv('GENIE'),  genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNALGrid.sh', 
-                         jobs_topdir=os.getenv('PWD'), add_list=False, add_nucleons = False ) :
+                         jobs_topdir=os.getenv('PWD'), add_list=False, add_nucleons = False, time=2 ) :
 
     # Store root output only for vA spilnes:
     root_output = False 
@@ -178,18 +178,30 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
         commands.append(com_total) 
 
     out_files = [ "total_xsec.xml" ] 
+    if os.path.exists( xml_dir + '/total_xsec.xml' ) :
+        # Need to remove xml files before re-generating them                                                                                                                                                     
+        os.remove( xml_dir + '/total_xsec.xml' )
+        
     if root_output :
-        str_nu_list = ''
+        # Check if file exists - and remove
+        if os.path.exists( xml_dir + '/total_xsec.root' ) :
+            # Need to remove xml files before re-generating them                                                                                                                                              
+            os.remove( xml_dir + '/total_xsec.root' )
+
+        str_probe_list = ''
         str_tgt_list = ''
         for tgt in tgt_list:
             str_tgt_list += tgt+","
         for lepton in lepton_list : 
-            str_nu_list += lepton+","
-        str_nu_list = str_nu_list[:-1]
+            if lepton in nu_pdg_def : 
+                str_probe_list += str(nu_pdg_def[lepton])+","
+            elif lepton in e_pdg_def : 
+                str_probe_list += str(e_pdg_def[lepton])+","
+        str_probe_list = str_probe_list[:-1]
         str_tgt_list = str_tgt_list[:-1]
 
         ## Create an output file with all the splines in root format
-        commands.append( "gspl2root -p "+str_nu_list+" -t "+str_tgt_list+" -f "+path+"total_xsec.xml -o "+path+"total_xsec.root --tune "+tune )
+        commands.append( "gspl2root -p "+str_probe_list+" -t "+str_tgt_list+" -f "+path+"total_xsec.xml -o "+path+"total_xsec.root --tune "+tune )
         out_files.append("total_xsec.root")
 
     if group_vN == True : 
@@ -204,7 +216,7 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
     command_list = []
     if grid_system == 'FNAL' :
         shell_file=FNAL.CreateShellScript ( commands , xml_dir, process_name, out_files, genie_setup, conf_dir, in_xml_files ) 
-        grid_command_options = FNAL.FNALShellCommands(genie_setup)
+        grid_command_options = FNAL.FNALShellCommands(genie_setup, time)
         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
     ## Add command list to dictionary; 

@@ -44,7 +44,7 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                       nu_E_max=200, e_E_max=30, nu_n_knots=100, e_n_knots=100, tune='G18_02_02_11b', freenucsplines=os.getenv('PWD'),
                       version='master', grid_system='FNAL', group='genie', conf_dir='', arch='SL6.x86_64', production='routine_validation', 
                       cycle='01', softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
-                      genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNALGrid.sh') :
+                      genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNALGrid.sh', time=8) :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-xsec_vA'
     
@@ -102,7 +102,7 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
 
     command_list = []
     if grid_system == 'FNAL' :
-        grid_command_options = FNAL.FNALShellCommands(genie_setup,8)
+        grid_command_options = FNAL.FNALShellCommands(genie_setup,time)
                     
     # Create neutrino spline commands:
     grid_sub_cmd = []     

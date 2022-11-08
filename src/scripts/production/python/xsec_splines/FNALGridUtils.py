@@ -64,7 +64,7 @@ def WriteXMLFile(commands_dict, start, end, jobs_dir, file_name='grid_submission
     script.close()
     return grid_file
 
-def WriteMainSubmissionFile(jobs_dir, genie_topdir, group, genie_setup='/src/scripts/production/python/setup_FNALGrid.sh', in_file_name='grid_submission.xml', out_file_name='fnal_dag_submit.fnal', memory=1, disk=20, expectedlife=60, jobs=1, role="Analysis"):
+def WriteMainSubmissionFile(jobs_dir, genie_topdir, group, genie_setup='/src/scripts/production/python/setup_FNALGrid.sh', in_file_name='grid_submission.xml', expectedlife=60, out_file_name='fnal_dag_submit.fnal', memory=1, disk=20, jobs=1, role="Analysis"):
 
     fnal_file = jobs_dir+"/"+out_file_name
     if os.path.exists(fnal_file):

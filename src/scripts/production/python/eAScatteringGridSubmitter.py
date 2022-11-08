@@ -51,6 +51,11 @@ op.add_option("--starting-point", dest="start_ID", default=0, help="0 -> Free nu
 op.add_option("--stopping-point", dest="end_ID", default=9999, help="Numbers as above, Default: 9999") 
 op.add_option("--tune", dest="TUNE", default="G18_02a_02_11b", help="Tune to be compared against data (default: %default)")
 op.add_option("--submit-jobs", dest="SUBMIT", default=False, action="store_true", help="Generate configuration and submit to grid" )
+op.add_option("--job-lifetime", dest="JOBLIFE", default=60, help="Expected lifetime on the grid for all the jobs to be finished")
+op.add_option("--job-lifetime-vN", dest="vNJOBLIFE", default=20, help="Expected lifetime on the grid for all the vN spline jobs to be finished")
+op.add_option("--job-lifetime-vA", dest="vAJOBLIFE", default=8, help="Expected lifetime on the grid for all the vA spline jobs to be finished")
+op.add_option("--job-lifetime-generation", dest="GENJOBLIFE", default=10, help="Expected lifetime on the grid for all the event generation jobs to be finished")
+op.add_option("--job-lifetime-group", dest="GROUPJOBLIFE", default=2, help="Expected lifetime on the grid for all the grouping jobs to be finished")
 opts, args = op.parse_args()
 
 # Print information
@@ -106,11 +111,13 @@ if opts.start_ID != 0 :
 if loop_end > int(opts.end_ID) : 
     loop_end= int(opts.end_ID)
 
+total_time = 0 ; 
 loop_i = loop_start
 while loop_i < loop_end +1 : 
     # ID = 0 # vN splines
     if loop_i == 0 :
-        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.EMAX,opts.EMAX,opts.Knots,opts.Knots,opts.TUNE,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
+        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.EMAX,opts.EMAX,opts.Knots,opts.Knots,opts.TUNE,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup,opts.vNJOBLIFE) )
+        total_time += int(opts.vNJOBLIFE) 
 
     # ID = 1 # group vN splines
     if loop_i == 1 :
@@ -118,30 +125,37 @@ while loop_i < loop_end +1 :
         if opts.MotherDir !='' : 
             vNMotherDir = opts.MotherDir+'/'+opts.VERSION+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vN/'
 
-        command_dict.update( group.GroupSplineCommands( True,vNdir,vNMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,False, False ) )# THE LAST TWO TO BE CONFIGURED
-
+        command_dict.update( group.GroupSplineCommands( True,vNdir,vNMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,False, False, opts.GROUPJOBLIFE ) )# THE LAST TWO TO BE CONFIGURED
+        total_time += int(opts.GROUPJOBLIFE)
+ 
     if loop_i == 2 : 
         # ID = 2 # vA splines
-        command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.EMAX,opts.EMAX,opts.Knots,opts.Knots,opts.TUNE,vNsplines,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
-
+        command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.EMAX,opts.EMAX,opts.Knots,opts.Knots,opts.TUNE,vNsplines,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup,opts.vAJOBLIFE) )
+        total_time += int(opts.vAJOBLIFE)
+ 
     if loop_i == 3 : 
         # ID = 3 # Group vA splines
         vAMotherDir = ''
         if opts.MotherDir !='' : 
             vAMotherDir = opts.MotherDir+'/'+opts.VERSION+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vA/'
 
-        command_dict.update( group.GroupSplineCommands( False,vAdir,vAMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,False, False ) )# THE LAST TWO TO BE CONFIGURED
+        command_dict.update( group.GroupSplineCommands( False,vAdir,vAMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,False, False,opts.GROUPJOBLIFE ) )# THE LAST TWO TO BE CONFIGURED
+        total_time += int(opts.GROUPJOBLIFE) 
 
     if loop_i == 4 : 
         # ID = 4 # Event generation commands
-        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.Energy,vAsplines,opts.NEvents,opts.TUNE, opts.EvGenList, opts.NMax, opts.VERSION, opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup) )
-    
+        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.Energy,vAsplines,opts.NEvents,opts.TUNE, opts.EvGenList, opts.NMax, opts.VERSION, opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup,opts.GENJOBLIFE) )
+        total_time += int(opts.GENJOBLIFE)
+ 
     loop_i += 1 
+
+if total_time > int(opts.JOBLIFE) : 
+    print ( "Total time of subjobs requested ("+str(total_time)+") is bigger than the job's expected time ("+opts.JOBLIFE+") ... Abort ..." ) 
 
 # Write xml file
 grid_name = FNAL.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD)
 
-main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, genie_setup, grid_name )
+main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, genie_setup, grid_name, opts.JOBLIFE )
 
 if opts.SUBMIT == True: 
     # SUBMIT JOB
