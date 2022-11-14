@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 GENIE_VERSION=master
 if [ ! -z "$1" ] ; then 
@@ -36,13 +36,6 @@ else
   unset GALGCONF
 fi
 
-git clone https://github.com/GENIE-MC/Generator.git Generator 
-
-cd $GENIE 
-
-git checkout "$GENIE_VERSION" 
-echo "Requested Genie Git Branch $GENIE_VERSION"
-
 source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh && retval="$?"
 source /cvmfs/fermilab.opensciencegrid.org/products/genie/bootstrap_genie_ups.sh 
 source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups 
@@ -57,6 +50,14 @@ setup log4cpp v1_1_3a -q e17:debug
 setup pdfsets v5_9_1b 
 setup gdb v8_1 
 setup git v2_15_1 
+
+git clone https://github.com/GENIE-MC/Generator.git Generator 
+
+cd $GENIE 
+
+git checkout "$GENIE_VERSION" 
+echo "Requested Genie Git Branch $GENIE_VERSION"
+
 
 ./configure \
 --enable-rwght \
