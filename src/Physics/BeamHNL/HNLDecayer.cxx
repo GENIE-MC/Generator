@@ -109,7 +109,6 @@ void HNLDecayer::AddInitialState(GHepRecord * event) const
     }
   }
 
-  // RETHERE don't sample production vtx if user isn't asking for geom! It's pointless.
   TLorentzVector v4( prodVtx->at(0), prodVtx->at(1), prodVtx->at(2), prodVtx->at(3) );
 
   init_state->SetProbeP4( p4 );
@@ -325,22 +324,18 @@ void HNLDecayer::GenerateDecayProducts(GHepRecord * event) const
 std::vector< double > * HNLDecayer::GenerateDecayPosition( GHepRecord * /* event */ ) const
 {
   // let's query *where* the HNL decayed from.
-  if( std::strcmp( std::getenv( "PRODVTXDIR" ), "NODIR" ) != 0 ){
-    if( ( !fProdVtxHist || fProdVtxHist == 0 ) ){
-      std::string pvPath = std::getenv( "PRODVTXDIR" );
-      std::string pdName = "";
-      std::string pvName = "hHNLVtxPos";
-      fProdVtxHist = HNLFluxReader::getFluxHist3D( pvPath, pdName, pvName );
-    }
-    LOG( "HNL", pINFO )
-      << "Found production vertex histo with " << fProdVtxHist->GetEntries() << " entries. Good!";
-  }
-  else{
-    if( !fProdVtxHist ) fProdVtxHist = new TH3D( "dummy", "dummy", 100, 0, 1, 100, 0, 1, 100, 0, 1 );
-  }
+  LOG( "HNL", pWARN )
+    << "\nYou are seeing this message because the input dk2nu files did not give position information (for some reason)..."
+    << "\nDistributing the production vertex at some point in a 1m-side box. This is not good, and results will likely be unphysical.";
+  fProdVtxHist = new TH3D( "dummy", "dummy", 100, -0.5, 0.5, 100, -0.5, 0.5, 100, -0.5, 0.5 );
   assert( fProdVtxHist );
   
-  std::vector< double > * prodVtx = HNLFluxReader::generateVtx3X( fProdVtxHist );
+  RandomGen * rnd = RandomGen::Instance();
+  double pvx = (rnd->RndGen()).Uniform( -0.5, 0.5 );
+  double pvy = (rnd->RndGen()).Uniform( -0.5, 0.5 );
+  double pvz = (rnd->RndGen()).Uniform( -0.5, 0.5 );
+  std::vector< double > * prodVtx = new std::vector< double >();
+  prodVtx->emplace_back( pvx ); prodVtx->emplace_back( pvy ); prodVtx->emplace_back( pvz );
   LOG( "HNL", pDEBUG )
     << "Production vertex at: ( " << prodVtx->at(0) << ", " << prodVtx->at(1) << ", " << prodVtx->at(2) << ") [cm]";
   
@@ -401,22 +396,6 @@ void HNLDecayer::UpdateEventRecord(GHepRecord * event) const
     interaction->KinePtr()->SetQ2( p4DIF.M2(), true );
 
   }
-    
-  // Set probe
-  //interaction->InitStatePtr()->SetProbePdg( event->Particle(0)->Pdg() );
-
-  //interaction->InitStatePtr()->SetProbeP4( *(event->Particle(0)->P4()) );
-  
-  /*
-  // Set target: always Particle(1)
-  // This is the charged pion in channels that have it, the pi0 in N --> pi0 pi0 v,
-  // and the SM neutrino in 3-lepton channels (for N --> v v v it is the one marked "nu_e")
-  interaction->InitStatePtr()->SetTgtPdg( event->Particle(1)->Pdg() );
-  interaction->InitStatePtr()->SetTgtP4( *(event->Particle(1)->P4()) );
-  
-  LOG( "HNL", pDEBUG )
-    << "Target info: " << Target();
-  */
   
   // clean up
   delete p4HNL;

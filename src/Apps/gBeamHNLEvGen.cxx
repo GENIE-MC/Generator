@@ -92,7 +92,6 @@
 #include "Physics/BeamHNL/HNLDecayUtils.h"
 #include "Physics/BeamHNL/HNLDecayVolume.h"
 #include "Physics/BeamHNL/HNLFluxCreator.h"
-//#include "Physics/BeamHNL/HNLFluxReader.h"
 #include "Physics/BeamHNL/HNLDecayer.h"
 #include "Physics/BeamHNL/SimpleHNL.h"
 #include "Framework/Numerical/RandomGen.h"
@@ -116,7 +115,6 @@ using namespace genie::HNL::HNLenums;
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #define __CAN_GENERATE_EVENTS_USING_A_FLUX__
-#include "Tools/Flux/GCylindTH1Flux.h"
 #include "Tools/Flux/GNuMIFlux.h"
 #include <TH1.h>
 #endif // #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
@@ -138,8 +136,6 @@ const EventRecordVisitorI * HNLGenerator(void);
 
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 void     GenerateEventsUsingFlux (void);
-GFluxI * TH1FluxDriver           (void);
-int      DecideType              (TFile * spectrumFile);
 void     FillFluxNonsense        (flux::GNuMIFluxPassThroughInfo &ggn);
 void     FillFlux                (flux::GNuMIFluxPassThroughInfo &ggn, flux::GNuMIFluxPassThroughInfo &tgn);
 #endif // #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
@@ -347,50 +343,26 @@ int main(int argc, char ** argv)
   }
 #endif // #ifdef __CAN_USE_ROOT_GEOM__
 
-  // RETHERE either seek out input flux or loop over some flux tuples
-  // WIP
+  // loop over some flux tuples
   __attribute__((unused)) GFluxI * ff = 0; // only use this if the flux is not monoenergetic!
   TH1D * spectrum = 0;
   TFile * spectrumFile = 0;
 
   if( !gOptIsMonoEnFlux ){
-    if( !gOptIsUsingDk2nu ){ 
-      
+    LOG( "gevgen_hnl", pWARN )
+      << "Using input flux files. These are *flat dk2nu-like ROOT trees, so far...*";
+
+    fluxCreator->SetInputPath( gOptFluxFilePath );
+    fluxCreator->SetUsingRootGeom( gOptUsingRootGeom );
+    if( gOptUsingRootGeom )
+      fluxCreator->SetGeomFile( gOptRootGeom );
+    int maxFluxEntries = fluxCreator->GetNEntries();
+
+    if( gOptNev > maxFluxEntries ){
       LOG( "gevgen_hnl", pWARN )
-	<< "Using input flux histograms. These are frozen, and you should generally not be using these.";
-
-      fluxCreator->SetUsingDk2nu(false);
-      string finH = gOptFluxFilePath; finH.append("/histFluxes.root");
-      string finP = gOptFluxFilePath; finP.append("/HNL_vertex_positions.root");
-      __attribute__((unused)) int iset = setenv( "PRODVTXDIR", finP.c_str(), 1 );
-      fluxCreator->SetFinPaths( finH, finP );
-      fluxCreator->BuildInputFlux(); // this generates the input flux file now
-
-      // read flux from file
-      spectrumFile = TFile::Open("./input-flux.root", "READ");
-      TDirectory * baseDir = spectrumFile->GetDirectory("");
-      std::string fluxName = std::string( "spectrum" );
-      assert( baseDir->GetListOfKeys()->Contains( fluxName.c_str() ) );
-      spectrum = ( TH1D * ) baseDir->Get( fluxName.c_str() );
-      assert( spectrum && spectrum != NULL );
-
-    } else{
-
-      LOG( "gevgen_hnl", pWARN )
-	<< "Using input flux files. These are *flat dk2nu-like ROOT trees, so far...*";
-
-      fluxCreator->SetInputPath( gOptFluxFilePath );
-      fluxCreator->SetUsingRootGeom( gOptUsingRootGeom );
-      if( gOptUsingRootGeom )
-	fluxCreator->SetGeomFile( gOptRootGeom );
-      int maxFluxEntries = fluxCreator->GetNEntries();
-
-      if( gOptNev > maxFluxEntries ){
-	LOG( "gevgen_hnl", pWARN )
-	  << "You have asked for " << gOptNev << " events, but only provided "
-	  << maxFluxEntries << " flux entries. Truncating events to " << maxFluxEntries << ".";
-	gOptNev = maxFluxEntries;
-      }
+	<< "You have asked for " << gOptNev << " events, but only provided "
+	<< maxFluxEntries << " flux entries. Truncating events to " << maxFluxEntries << ".";
+      gOptNev = maxFluxEntries;
     }
   } else { // ok, we have monoenergetic flux. Let's flag this now
     __attribute__((unused)) int iset = setenv( "PRODVTXDIR", "NODIR", 1 );
@@ -427,32 +399,21 @@ int main(int argc, char ** argv)
      evWeight = 1.0;
 
      if( !gOptIsMonoEnFlux ){
-       if( !gOptIsUsingDk2nu ){
-	 fluxCreator->ProcessEventRecord( event );
-	 gOptEnergyHNL = event->Particle(0)->P4()->E();
-	 unsigned int ien = 0;
-	 while( gOptEnergyHNL <= gOptMassHNL && ien < controls::kRjMaxIterations ){
-	   gOptEnergyHNL = spectrum->GetRandom(); // to prevent binning throwing E <= M
-	   ien++;
-	 }
-       } else { // get a full HNL from flux tuples
-	 fluxCreator->SetCurrentEntry( iflux );
-	 fluxCreator->ProcessEventRecord( event );
-	 
-	 flux::GNuMIFluxPassThroughInfo retGnmf = fluxCreator->RetrieveFluxInfo();
-	 flux::GNuMIFluxPassThroughInfo retGnmfBase = fluxCreator->RetrieveFluxBase();
-	 FillFlux( gnmf, retGnmf );
-	 FillFlux( gnmfBase, retGnmfBase );
-	 
-	 // check to see if this was nonsense
-	 if( ! event->Particle(0) ){ iflux++; delete event; continue; }
-
-	 gOptEnergyHNL = event->Particle(0)->GetP4()->E();
-	 iflux++;
-       }
-
+       fluxCreator->SetCurrentEntry( iflux );
+       fluxCreator->ProcessEventRecord( event );
+       
+       flux::GNuMIFluxPassThroughInfo retGnmf = fluxCreator->RetrieveFluxInfo();
+       flux::GNuMIFluxPassThroughInfo retGnmfBase = fluxCreator->RetrieveFluxBase();
+       FillFlux( gnmf, retGnmf );
+       FillFlux( gnmfBase, retGnmfBase );
+       
+       // check to see if this was nonsense
+       if( ! event->Particle(0) ){ iflux++; delete event; continue; }
+       
+       gOptEnergyHNL = event->Particle(0)->GetP4()->E();
+       iflux++;
      } else { // monoenergetic HNL. Add it with energy and momentum pointing on z axis
-     
+       
        assert( gOptEnergyHNL > gOptMassHNL );
        double HNLP = std::sqrt( gOptEnergyHNL*gOptEnergyHNL - gOptMassHNL*gOptMassHNL );
        TLorentzVector probeP4( 0.0, 0.0, HNLP, gOptEnergyHNL );
@@ -462,7 +423,7 @@ int main(int argc, char ** argv)
 
      }
      assert( gOptEnergyHNL > gOptMassHNL );
-
+     
      int hpdg = genie::kPdgHNL;
      int typeMod = 1;
      RandomGen * rnd = RandomGen::Instance();
@@ -685,119 +646,6 @@ void InitBoundingBox(void)
 //_________________________________________________________________________________________
 //............................................................................
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
-GFluxI * TH1FluxDriver(void)
-{
-  //
-  //
-  flux::GCylindTH1Flux * flux = new flux::GCylindTH1Flux;
-  TH1D * spectrum = 0;
-
-  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLFluxCreator", "Default");
-  const HNLFluxCreator * fluxCreator = dynamic_cast< const HNLFluxCreator * >( algFluxCreator );
-
-  double emin = 0.0; 
-  double emax = utils::hnl::GetCfgDouble( "HNL", "InitialState", "HNL-max-energy" ); 
-
-  // read in mass of HNL and decide which fluxes to use
-  
-  assert(gOptMassHNL > 0.0);
-
-  // select mass point
-  int closest_masspoint = fluxCreator->SelectMass( gOptMassHNL );
-
-  LOG("gevgen_hnl", pDEBUG)
-    << "Mass inserted: " << gOptMassHNL << " GeV ==> mass point " << closest_masspoint;
-  LOG("gevgen_hnl", pINFO)
-    << "Using fluxes in base path " << gOptFluxFilePath.c_str();
-  
-  //string finPath = HNLFluxReader::fPath; // is it good practice to keep this explicit?
-  //string finPath = fluxCreator->SelectFile( gOptFluxFilePath, gOptMassHNL );
-  string finPath = gOptFluxFilePath; finPath.append("/histFluxes.root");
-  string prodVtxPath = gOptFluxFilePath; prodVtxPath.append("/HNL_vertex_positions.root");
-  __attribute__((unused)) int iset = setenv( "PRODVTXDIR", prodVtxPath.c_str(), 1 );
-  LOG("gevgen_hnl", pINFO)
-    << "Looking for fluxes in " << finPath.c_str();
-  assert( !gSystem->AccessPathName( finPath.c_str()) );
-
-  // extract specified flux histogram from input root file
-
-  TH1F *hfluxAll    = fluxCreator->GetFluxHist1F( finPath, closest_masspoint, true );
-  TH1F *hfluxAllbar = 0; // RETHERE REMOVE
-  // TH1F *hfluxAllbar = fluxCreator->GetFluxHist1F( finPath, closest_masspoint, false ); // ADD THIS IN THE FILE!
-
-  assert(hfluxAll);
-  //assert(hfluxAllbar); // RETHERE REMOVE
-
-  // let's build the mixed flux.
-  
-  TH1F * spectrumF = (TH1F*) hfluxAll->Clone(0);
-
-  if( gOptIsMajorana || gOptHNLKind == 2 ){
-    spectrumF->Add( hfluxAll, 1.0 );
-    //spectrumF->Add( hfluxAllbar, 1.0 );
-  }
-  else if( gOptHNLKind == 0 ){
-    spectrumF->Add( hfluxAll, 1.0 );
-  }
-  else if( gOptHNLKind == 1 ){
-    spectrumF->Add( hfluxAllbar, 1.0 );
-  }
-
-  // copy into TH1D, *do not use the Copy() function!*
-  const int nbins = spectrumF->GetNbinsX();
-  spectrum = new TH1D( "s", "s", nbins, spectrumF->GetBinLowEdge(1), 
-		       spectrumF->GetBinLowEdge(nbins) + spectrumF->GetBinWidth(nbins) );
-  for( Int_t ib = 0; ib <= nbins; ib++ ){
-    spectrum->SetBinContent( ib, spectrumF->GetBinContent(ib) );
-  }
-  
-  spectrum->SetNameTitle("spectrum","HNL_flux");
-  spectrum->SetDirectory(0);
-  for(int ibin = 1; ibin <= hfluxAll->GetNbinsX(); ibin++) {
-    if(hfluxAll->GetBinLowEdge(ibin) + hfluxAll->GetBinWidth(ibin) > emax ||
-       hfluxAll->GetBinLowEdge(ibin) < emin) {
-      spectrum->SetBinContent(ibin, 0);
-    }
-  }
-  
-  LOG("gevgen_hnl", pDEBUG) << spectrum->GetEntries() << " entries in spectrum";
-
-  // save input flux
-
-  TFile f("./input-flux.root","RECREATE");
-  spectrum->Write();
-
-  // store integrals in histo if not Majorana and mixed flux
-  if( !gOptIsMajorana && gOptHNLKind == 2 ){
-    TH1D * hIntegrals = new TH1D( "hIntegrals", "hIntegrals", 4, 0.0, 1.0 );
-    hIntegrals->SetBinContent( 1, hfluxAll->Integral() );
-    hIntegrals->SetBinContent( 2, hfluxAllbar->Integral() );
-
-    hIntegrals->SetDirectory(0);
-    hIntegrals->Write();
-  }
-
-  f.Close();
-  LOG("gevgen_hnl", pNOTICE) 
-    << "Written spectrum to ./input-flux.root";
-
-  // keep "beam" == SM-neutrino beam direction at z s.t. cos(theta_z) == 1
-  // angular deviation of HNL (which is tiny, if assumption of collimated parents is made) made in main
-  
-  // Don't use GCylindTH1Flux's in-built methods - yet.
-
-  TVector3 bdir (0.0,0.0,1.0);
-  TVector3 bspot(0.0,0.0,1.0);
-
-  flux->SetNuDirection      (bdir);
-  flux->SetBeamSpot         (bspot);
-  flux->SetTransverseRadius (-1);
-  flux->AddEnergySpectrum   (genie::kPdgHNL, spectrum);
-
-  GFluxI * flux_driver = dynamic_cast<GFluxI *>(flux);
-  return flux_driver;
-}
-//_________________________________________________________________________________________
 void FillFluxNonsense( flux::GNuMIFluxPassThroughInfo &ggn )
 {
   ggn.pcodes = 1;                          ///< converted to PDG
@@ -1165,32 +1013,6 @@ int SelectDecayMode( std::vector< HNLDecayMode_t > * intChannels, SimpleHNL sh )
   int decay = ( int ) selectedDecayChan;
   return decay;
 }
-//_________________________________________________________________________________________
-#ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
-/// based on the mixing of nu vs nubar in beam, return 1 (nu) or -1 (nubar)
-int DecideType(TFile * spectrumFile){
-  string intName = "hIntegrals";
-  TDirectory * baseDir = spectrumFile->GetDirectory("");
-  assert( baseDir->GetListOfKeys()->Contains( intName.c_str() ) );
-
-  // 4 integrals, depending on co-produced lepton pdg. Group mu + e and mubar + ebar
-  TH1D * hIntegrals = ( TH1D * ) baseDir->Get( intName.c_str() );
-  double muInt    = hIntegrals->GetBinContent(1);
-  double eInt     = hIntegrals->GetBinContent(3);
-  double mubarInt = hIntegrals->GetBinContent(2);
-  double ebarInt  = hIntegrals->GetBinContent(4);
-
-  double nuInt    = muInt + eInt;
-  double nubarInt = mubarInt + ebarInt;
-  double totInt   = nuInt + nubarInt;
-
-  RandomGen * rnd = RandomGen::Instance();
-  double ranthrow = rnd->RndGen().Uniform(0.0, 1.0);
-
-  int typeMod = ( ranthrow <= nuInt / totInt ) ? 1 : -1;
-  return typeMod;
-}
-#endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 //_________________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {

@@ -10,7 +10,6 @@
 #pragma link C++ namespace genie::HNL;
 #pragma link C++ namespace genie::HNL::HNLenums;
 #pragma link C++ namespace genie::HNL::HNLSelector;
-#pragma link C++ namespace genie::HNL::HNLFluxReader;
 
 #pragma link C++ class genie::HNL::SimpleHNL;
 #pragma link C++ class genie::HNL::HNLBRFunctions;

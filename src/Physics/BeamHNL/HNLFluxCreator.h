@@ -116,24 +116,6 @@ namespace genie{
       void SetGeomFile( string geomfile ) const;
       void ImportBoundingBox( TGeoBBox * box ) const;
 
-      // FluxReader-inherited functions
-      // only if not using dk2nu!
-      void SetUsingDk2nu( const bool usingDk2nu ) const { fUsingDk2nu = usingDk2nu; }
-      
-      int SelectMass( const double mN ) const;
-      void SetFinPaths( const string finH, const string finP ) const 
-      { fFinPath = finH; fProdHist = finP; }
-      std::string SelectFile( std::string fin, const double mN ) const; // find but don't open the file
-
-      /// get the histogram and energy from it
-      TH1F * GetFluxHist1F( std::string fin, int masspoint, bool isParticle ) const;
-      /// sample production vertex from this histogram
-      TH3D * GetFluxHist3D( std::string fin, std::string dirName, std::string hName ) const;
-      std::vector< double > * GenerateVtx3X( TH3D * prodVtxHist ) const;
-
-      // build input flux from hists
-      void BuildInputFlux() const;
-
       // get dk2nu flux info
       flux::GNuMIFluxPassThroughInfo * RetrieveGNuMIFluxPassThroughInfo() const;
       flux::GNuMIFluxPassThroughInfo RetrieveFluxInfo() const;

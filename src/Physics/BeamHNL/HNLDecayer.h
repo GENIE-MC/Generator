@@ -31,7 +31,6 @@
 #include "Tools/Flux/GNuMIFlux.h"
 
 #include "Physics/BeamHNL/HNLDecayMode.h"
-#include "Physics/BeamHNL/HNLFluxReader.h"
 #include "Physics/BeamHNL/SimpleHNL.h"
 
 namespace genie {

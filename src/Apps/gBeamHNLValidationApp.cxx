@@ -94,7 +94,6 @@
 #include "Physics/BeamHNL/HNLDecayUtils.h"
 #include "Physics/BeamHNL/HNLDecayVolume.h"
 #include "Physics/BeamHNL/HNLFluxCreator.h"
-//#include "Physics/BeamHNL/HNLFluxReader.h"
 #include "Physics/BeamHNL/HNLDecayer.h"
 #include "Physics/BeamHNL/HNLProductionMode.h"
 #include "Physics/BeamHNL/SimpleHNL.h"
@@ -119,7 +118,6 @@ using namespace genie::HNL;
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #define __CAN_GENERATE_EVENTS_USING_A_FLUX__
-#include "Tools/Flux/GCylindTH1Flux.h"
 #include "Tools/Flux/GNuMIFlux.h"
 #include <TH1.h>
 #endif // #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
@@ -136,10 +134,9 @@ typedef enum t_HNLValidation {
   
   kValNone            = 0,
   kValFluxFromDk2nu   = 1,
-  kValFluxFromHists   = 2,
-  kValDecay           = 3,
-  kValGeom            = 4,
-  kValFullSim         = 5
+  kValDecay           = 2,
+  kValGeom            = 3,
+  kValFullSim         = 4
   
 } HNLValidation_t;
 
@@ -151,8 +148,6 @@ const EventRecordVisitorI * HNLGenerator(void);
 
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 int      TestFluxFromDk2nu  (void);
-int      TestFluxFromHists  (void);
-GFluxI * TH1FluxDriver      (void);
 #endif
 
 int      TestDecay          (void);
@@ -268,7 +263,6 @@ int main(int argc, char ** argv)
   switch( gOptValidationMode ){
     
   case kValFluxFromDk2nu: return TestFluxFromDk2nu(); break;
-  case kValFluxFromHists: return TestFluxFromHists(); break;
   case kValDecay:         return TestDecay();         break;
   case kValGeom:          return TestGeom();          break;
   default: LOG( "gevald_hnl", pFATAL ) << "I didn't recognise this mode. Goodbye world!"; break;
@@ -539,165 +533,6 @@ int TestFluxFromDk2nu()
   fout->Close();
 
   return 0;
-}
-//_________________________________________________________________________________________
-int TestFluxFromHists()
-{
-  assert( !gOptIsMonoEnFlux && !gOptIsUsingDk2nu );
-
-  string foutName("test_flux_hists.root");
-
-  LOG( "gevald_hnl", pINFO )
-    << "\n\nTesting flux prediction from precomputed flux spectra."
-    << "\nWill produce 1 ROOT file ( " << foutName << ") with:"
-    << "\n--> Energy spectrum for the HNL"
-    << "\n--> Momentum spectra on x, y, z (user)"
-    << "\n--> Angular deviation from parent spectrum"
-    << "\n--> Rates of particle vs antiparticle";
-
-  TFile * fout = TFile::Open( foutName.c_str(), "RECREATE" );
-
-  const EventRecordVisitorI * mcgen = HNLGenerator();
-  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLFluxCreator", "Default");
-  const HNLFluxCreator * fluxCreator = dynamic_cast< const HNLFluxCreator * >( algFluxCreator );
-
-  assert(gCfgMassHNL >= 0.0);
-  
-  string finPath = gOptFluxFilePath; finPath.append("./histFluxes.root");
-  string prodVtxPath = gOptFluxFilePath; prodVtxPath.append("/HNL_vertex_positions.root");
-  __attribute__((unused)) int iset = setenv( "PRODVTXDIR", prodVtxPath.c_str(), 1 );
-  LOG("gevald_hnl", pDEBUG)
-    << "Looking for fluxes in " << finPath.c_str();
-  assert( !gSystem->AccessPathName( finPath.c_str()) );
-  
-  fluxCreator->SetFinPaths( finPath, prodVtxPath );
-  fluxCreator->BuildInputFlux();
-
-  TFile * spectrumFile = TFile::Open("./input-flux.root", "READ");
-  TDirectory * baseDir = spectrumFile->GetDirectory("");
-  std::string fluxName = std::string( "spectrum" );
-  assert( baseDir->GetListOfKeys()->Contains( fluxName.c_str() ) );
-  TH1D * spectrum = ( TH1D * ) baseDir->Get( fluxName.c_str() );
-  assert( spectrum );
-
-  TH1D hHNLPx, hHNLPy, hHNLPz;
-  TH1D hHNLAngDev, hHNLPhi;
-  TH1D hHNLParticleRates; int nPart = 0, nAntipart = 0;
-  TH1D hParamSpace;
-
-  hHNLPx = TH1D( "hHNLPx", "HNL p_x (user coordinates, GeV)", 100, -0.5, 0.5 );
-  hHNLPy = TH1D( "hHNLPy", "HNL p_y (user coordinates, GeV)", 100, -0.5, 0.5 );
-  hHNLPz = TH1D( "hHNLPz", "HNL p_z (user coordinates, GeV)", 1050, -0.5, 100 );
-
-  double angdev = utils::hnl::GetCfgDouble( "HNL", "InitialState", "HNL-angular_deviation" );
-  hHNLAngDev = TH1D( "hHNLAngDev", "HNL angular deviation [deg]", 100, -5.0 * angdev, 5.0 * angdev );
-  hHNLPhi    = TH1D( "hHNLPhi", "HNL #phi [deg]", 100, 0.0, 360.0 );
-
-  hHNLParticleRates = TH1D( "hHNLParticleRates", "N (particles && antiparticles)", 2, 0., 2. );
-  hParamSpace = TH1D( "hParamSpace", "Parameter space", 5, 0., 5. );
-
-  // Event loop
-  int ievent = 0;
-  while(true)
-    {
-      if( gOptNev >= 10000 ){
-	if( ievent % (gOptNev / 1000) == 0 ){
-	  int irat = ievent / (gOptNev / 1000);
-	  std::cerr << Form("%2.2f", 0.1 * irat) << " % ( " << ievent << " / "
-		    << gOptNev << " ) \r" << std::flush;
-	}
-      }
-
-      if( ievent == gOptNev ){ std::cerr << " \n"; break; }
-
-      gOptEnergyHNL = 100.0;
-      
-      int hpdg = genie::kPdgHNL;
-      
-      EventRecord * event = new EventRecord;
-      Interaction * interaction = Interaction::HNL( hpdg, gOptEnergyHNL, kHNLDcyTEST );
-      event->AttachSummary( interaction );
-
-      fluxCreator->SetUsingDk2nu( false );
-      fluxCreator->ProcessEventRecord(event);
-      
-      // now grab momentum from event
-      const TLorentzVector * p4HNL = event->Particle(0)->GetP4();
-      gOptEnergyHNL = p4HNL->E();
-
-      interaction = event->Summary(); // it's been updated now
-      if( event->Particle(0)->Pdg() > 0 && !gCfgIsMajorana ) nPart++;
-      else if( event->Particle(0)->Pdg() < 0 && !gCfgIsMajorana ) nAntipart++;
-      else{ nPart++; nAntipart++; }
-      
-      double px = p4HNL->Px(), py = p4HNL->Py(), pz = p4HNL->Pz();
-      double theta = TMath::ACos( pz / p4HNL->P() );
-      double phi = TMath::ACos( px / ( p4HNL->P() * TMath::Sin( theta ) ) );
-      if( py < 0.0 ) phi = 2.0 * constants::kPi - phi;
-      if( constants::kPi <= phi && phi < 2.0 * constants::kPi ) theta *= -1;
-      
-      // fill histos here
-
-      hHNLPx.Fill( px, 1.0 );
-      hHNLPy.Fill( py, 1.0 );
-      hHNLPz.Fill( pz, 1.0 );
-      hHNLAngDev.Fill( theta * 180.0 / constants::kPi, 1.0 );
-      hHNLPhi.Fill( phi * 180.0 / constants::kPi, 1.0 );
-      
-      delete event;
-      
-      ievent++;
-    } // event loop
-
-  hParamSpace.SetBinContent( 1, 1000.0 * gCfgMassHNL ); // MeV
-  hParamSpace.SetBinContent( 2, gCfgECoupling );
-  hParamSpace.SetBinContent( 3, gCfgMCoupling );
-  hParamSpace.SetBinContent( 4, gCfgTCoupling );
-
-  hHNLParticleRates.SetBinContent( 1, nPart );
-  hHNLParticleRates.SetBinContent( 2, nAntipart );
-
-  fout->cd();
-  hHNLPx.Write();
-  hHNLPy.Write();
-  hHNLPz.Write();
-  hHNLAngDev.Write();
-  hHNLPhi.Write();
-  hHNLParticleRates.Write();
-  hParamSpace.Write();
-  fout->Write();
-  fout->Close();
-  
-  return 0;
-}
-//_________________________________________________________________________________________
-GFluxI * TH1FluxDriver(void)
-{
-  AlgFactory * algf = AlgFactory::Instance();
-
-  const Algorithm * algFluxCreator = algf->GetAlgorithm("genie::EventGenerator", "BeamHNL");
-
-  const HNLFluxCreator * fluxCreator = 
-    dynamic_cast< const HNLFluxCreator * >( algFluxCreator );
-
-  //
-  //
-  flux::GCylindTH1Flux * flux = new flux::GCylindTH1Flux;
-  TH1D * spectrum = 0;
-
-  double emin = 0.0; 
-  double emax = utils::hnl::GetCfgDouble( "HNL", "InitialState", "HNL-max-energy" ); 
-
-  TVector3 bdir (0.0,0.0,1.0);
-  TVector3 bspot(0.0,0.0,1.0);
-
-  flux->SetNuDirection      (bdir);
-  flux->SetBeamSpot         (bspot);
-  flux->SetTransverseRadius (-1);
-  flux->AddEnergySpectrum   (genie::kPdgHNL, spectrum);
-
-  GFluxI * flux_driver = dynamic_cast<GFluxI *>(flux);
-  return flux_driver;
 }
 //............................................................................
 #endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX_

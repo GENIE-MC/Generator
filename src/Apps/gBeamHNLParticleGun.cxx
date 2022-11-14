@@ -85,7 +85,6 @@
 #include "Physics/BeamHNL/HNLDecayUtils.h"
 #include "Physics/BeamHNL/HNLDecayVolume.h"
 #include "Physics/BeamHNL/HNLFluxCreator.h"
-//#include "Physics/BeamHNL/HNLFluxReader.h"
 #include "Physics/BeamHNL/HNLDecayer.h"
 #include "Physics/BeamHNL/SimpleHNL.h"
 #include "Framework/Numerical/RandomGen.h"
