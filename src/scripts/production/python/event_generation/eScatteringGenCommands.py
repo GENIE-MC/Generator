@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 
 """\
 This script generates e-scattering events 
@@ -31,7 +31,7 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
                             tune='G18_02_02_11b',gen_list="EM", nmaxrun=100000, version='master', conf_dir='', arch='SL6.x86_64', 
                             production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                             softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
-                            genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNALGrid.sh') :
+                            genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNALGrid.sh', time='10', git_branch = "master") :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-eScattering'
     # Make directory
@@ -84,14 +84,14 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
                     
                     curr_subrune = "11"+str(tgt)+str(isubrun); 
                     curr_seed         = mcseed + isubrun + int(tgt)
-                    jobname           = "e_on_"+str(tgt)+"_"+E+"_"+str(isubrun)
+                    jobname           = "e_on_"+str(tgt)+"_"+str(int((float(E)*1000)))+"MeV_"+str(isubrun)
 
                     evgen_command = "gevgen -p "+str(e)+" -n "+str(nev)+" -e "+E+" -t "+str(tgt)+" -r "+curr_subrune+" --seed "+str(curr_seed)
                     evgen_command += " --cross-sections "+xspl_file+" --event-generator-list "+gen_list+" --tune "+tune + " -o "+jobname
 
                     shell_file = ''                
                     if grid_system == 'FNAL' :
-                        shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".root"), genie_setup, conf_dir, str(xspl_file) ) 
+                        shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".root"), genie_setup, conf_dir, str(xspl_file), git_branch ) 
                         grid_command_options = FNAL.FNALShellCommands(genie_setup)
                         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 

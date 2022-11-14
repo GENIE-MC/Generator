@@ -3,22 +3,25 @@ In this directory you can find a serie of python scripts that facilitate to subm
 
 ## Possible options
 An example of a Submitter code is `eAScatteringGridSubmitter.py`. This code will launch the splines (for free nucleon and free nuclei) and electron scattering events. The options are: 
-- Version: Genie version number. Default `master`
-- Cycle : defult 01
-- Production: default routine_validation
-- Grid System: for now only FNAL available
-- Grid group: you can specify your grid group here. I.E for FNAL: genie, dune,...
-- Software top dir: base directory for all your GENIE code. 
-- GENIE topdir: path to your GENIE/Generator code
-- Jobs top dir: directory where you want to have your output files and submission commands. For FNAL it must be in pnfs.
-- Source top dir: Jobs topdir used as a source for missing cross section splines. It must have the same directory structure (see below). 
-- Config dir: GENIE configuration directory. Useful when your configuration files are different from the ones in github. 
-- Nu list: list of neutrinos **and electrons** that you want to use. Separate them by a comma. In eA Submitter code it is defaulted to electron.
-- Tgt list: comma separated list of target pdg codes
-- Gen list: Comma separated list of event generator list to be used for all splines
-- vN and vA generator list: same as above but different for vN and vA splines
+
+- version: Genie version number. Default `master`.
+- git-branch: This is the name of the git branch you want to pull from the GENIE Generator repository. Default is master
+- cycle : defult 01
+- production: default routine_validation
+- grid-system: for now only FNAL available
+- grid-group: you can specify your grid group here. I.E for FNAL: genie, dune,...
+- softw-topdir: base directory for all your GENIE code. 
+- genie-topdir: path to your GENIE/Generator code
+- jobs-topdir: directory where you want to have your output files and submission commands. For FNAL it must be in pnfs.
+- source-prod-dir: Jobs topdir used as a source for missing cross section splines. It must have the same directory structure (see below). 
+- config-dir: configuration directory containing alternative xml files to use for model configuration
+- probe-list: list of neutrinos **and electrons** that you want to use. Separate them by a comma. In eA Submitter code it is defaulted to electron.
+- nu-tgt-list: comma separated list of target pdg codes for the generation of neutrino splines and events
+- e-tgt-list: comma separated list of target pdg codes for the generation of electron splines and events
+- vN and vA generator list: Comma separated list of event generator list to be used for all splines for vN and vA splines
 - event-generator-list: to be used for event generation.
-- ntotevents: total number of events to run
+- nu-ntotevents: total number of events to run for neutrinos
+- e-ntotevents: total number of events to run for electrons
 - nmaxevents: maximum number of events to run per job
 - energy : comma separated list of beam energy for electrons. Monoenergetic beam
 - starting-point: 0) Free nucleon splines, 1) combine free nucl splines, 2) Compound nuclei splines, 3) Combine compound nuclei splines, 4) Event Production
@@ -40,10 +43,12 @@ The directory generated with the default parameters is going to have the followi
 
 ## How to run the scripts
 To submit jobs to run electrons on carbon and oxigen simply do:
-`python eAScatteringGridSubmitter.py --nu-list 11 --tgt-list 1000060120,1000080160 --energy 1.6,2.2,3 --submit-jobs` 
+`python eAScatteringGridSubmitter.py --probe-list 11 --tgt-list 1000060120,1000080160 --energy 1.6,2.2,3 --submit-jobs` 
 
 If you only want to generate events (you already have the splines), do:
-`python eAScatteringGridSubmitter.py --nu-list 11 --tgt-list 1000060120,1000080160 --energy 1.6,2.2,3 --submit-jobs --starting-point 4 --source-prod-dir MySplines/` 
+`python eAScatteringGridSubmitter.py --probe-list 11 --tgt-list 1000060120,1000080160 --energy 1.6,2.2,3 --submit-jobs --starting-point 4 --source-prod-dir MySplines/` 
 
 and MySplines put your spline (named total_xsec.xml) in MySplines/master-routine_validation_01-xsec_vA/total_xsec.xml
 
+If you have a specific github version to use, specify the git branch name:
+`python eAScatteringGridSubmitter.py --probe-list 11 --tgt-list 1000060120,1000080160 --energy 1.6,2.2,3 --submit-jobs --starting-point 4 --source-prod-dir MySplines/ --git-branch my_branch_name`

@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import os 
 
-def CreateShellScript ( commands , jobs_dir, shell_name, out_files, genie_setup, conf_dir, in_files ) :
+def CreateShellScript ( commands , jobs_dir, shell_name, out_files, genie_setup, conf_dir, in_files, git_branch ) :
     shell_file = jobs_dir+"/"+shell_name+".sh"
 
     if os.path.exists(shell_file):
@@ -10,7 +10,7 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, genie_setup,
     script = open( shell_file, 'w' ) 
     script.write("#!/bin/bash \n")
     script.write("cd $CONDOR_DIR_INPUT ;\n")
-    script.write("source "+os.path.basename(genie_setup)+" "+conf_dir+" ;\n")
+    script.write("source "+os.path.basename(genie_setup)+" "+git_branch+" "+conf_dir+" ;\n")
     script.write("cd $CONDOR_DIR_INPUT ;\n")
 
     if isinstance(in_files, list) :
@@ -48,9 +48,9 @@ def WriteXMLFile(commands_dict, start, end, jobs_dir, file_name='grid_submission
 
     script = open( grid_file, 'w' ) 
 
-    for id in range(start,end+1) :
+    for id in range(start,end) :
         command_list = commands_dict[id]
-        
+
         if len(command_list) == 1 : # serial
             script.write("<serial>\n")
             script.write(command_list[0]+"\n")

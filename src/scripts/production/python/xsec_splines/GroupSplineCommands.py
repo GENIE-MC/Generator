@@ -53,7 +53,7 @@ e_name_def = { 11 : 'e',
 def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir='', tune='G18_02_02_11b', version='master', conf_dir='', grid_system='FNAL', group='genie', 
                          arch='SL6.x86_64', production='routine_validation', cycle='01', softw_topdir=os.getenv('GENIE_MASTER_DIR'),
                          genie_topdir=os.getenv('GENIE'),  genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNALGrid.sh', 
-                         jobs_topdir=os.getenv('PWD'), add_list=False, add_nucleons = False, time=2 ) :
+                         jobs_topdir=os.getenv('PWD'), add_list=False, add_nucleons = False, time=2, git_branch="master" ) :
 
     # Store root output only for vA spilnes:
     root_output = False 
@@ -215,7 +215,7 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
     shell_file = ''
     command_list = []
     if grid_system == 'FNAL' :
-        shell_file=FNAL.CreateShellScript ( commands , xml_dir, process_name, out_files, genie_setup, conf_dir, in_xml_files ) 
+        shell_file=FNAL.CreateShellScript ( commands , xml_dir, process_name, out_files, genie_setup, conf_dir, in_xml_files, git_branch ) 
         grid_command_options = FNAL.FNALShellCommands(genie_setup, time)
         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 

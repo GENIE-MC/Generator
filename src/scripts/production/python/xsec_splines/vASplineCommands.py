@@ -44,7 +44,7 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                       nu_E_max=200, e_E_max=30, nu_n_knots=100, e_n_knots=100, tune='G18_02_02_11b', freenucsplines=os.getenv('PWD'),
                       version='master', grid_system='FNAL', group='genie', conf_dir='', arch='SL6.x86_64', production='routine_validation', 
                       cycle='01', softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
-                      genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNALGrid.sh', time=8) :
+                      genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNALGrid.sh', time=8, git_branch = "master") :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-xsec_vA'
     
@@ -134,7 +134,7 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                 
                 shell_file = ''
                 if grid_system == 'FNAL' :
-                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", genie_setup, conf_dir, in_files ) 
+                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", genie_setup, conf_dir, in_files, git_branch ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
 
@@ -163,7 +163,7 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                 
                 shell_file = ''
                 if grid_system == 'FNAL' :
-                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", genie_setup, conf_dir, in_files ) 
+                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", genie_setup, conf_dir, in_files, git_branch ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
 

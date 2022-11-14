@@ -25,7 +25,8 @@ sys.path.insert(1, 'event_generation')
 import eScatteringGenCommands as eA
 
 op = optparse.OptionParser(usage=__doc__)
-op.add_option("--version", dest="VERSION", default="master", help="Genie version number (default: %default)")
+op.add_option("--version", dest="VERSION", default="master", help="Genie version. Default: %default")
+op.add_option("--git-branch", dest="BRANCH", default="master", help="Genie version branch name. Default: %default")
 op.add_option("--cycle", dest="CYCLE", default="01", help="Cycle (default: %default)")
 op.add_option("--arch", dest="ARCH", default='SL6.x86_64', help="arch number, default: %default")
 op.add_option("--production", dest="PROD", default="routine_validation", help="Production (default: %default)")
@@ -41,10 +42,13 @@ op.add_option("--nu-tgt-list", dest="NUTGTLIST", default='all', help = "Comma se
 op.add_option("--e-tgt-list", dest="ETGTLIST", default='all', help = "Comma separated list of Targets. Default: %default.") 
 op.add_option("--vN-gen-list", dest="vNList", default='all', help="Comma separated list of event generator list used for the free nucleon spline generation. Can be used to specify electron procecess as well")
 op.add_option("--vA-gen-list", dest="vAList", default='all', help="Comma separated list of event generator list used for the nuclei spline generation.  Can be used to specify electron procecess as well")
-op.add_option("--e-max", dest="EMAX", default=30, help="Maximum energy for the splines in GeV. Default: %default ")
-op.add_option("--n-knots", dest="Knots", default=100, help="Number of knots per spline. Default: %default")
+op.add_option("--e-nu-max", dest="NuEMAX", default=100, help="Maximum energy for the splines in GeV. Default: %default ")
+op.add_option("--e-e-max", dest="EEMAX", default=30, help="Maximum energy for the splines in GeV. Default: %default ")
+op.add_option("--n-nu-knots", dest="NuKnots", default=100, help="Number of knots per neutrino spline. Default: %default")
+op.add_option("--n-e-knots", dest="EKnots", default=100, help="Number of knots per electron spline. Default: %default")
 op.add_option("--event-generator-list", dest="EvGenList", default='all', help="Event generator list to be used for event generation. Default all")
-op.add_option("--ntotevents", dest="NEvents", default=100000, help="Number of total events, default: 100 k")
+op.add_option("--nu-ntotevents", dest="NuEvents", default=10000, help="Number of total events, default: 100 k")
+op.add_option("--e-ntotevents", dest="EEvents", default=100000, help="Number of total events, default: 100 k")
 op.add_option("--nmaxevents",dest="NMax", default=100000,help="Max number of events to run per event generation, default 100k")
 op.add_option("--energy", dest="Energy", default="2", help="Comma separated list of beam energy for electrons. Default %default GeV")
 op.add_option("--starting-point", dest="start_ID", default=0, help="0 -> Free nucleon splines, 1 -> combine free nucl splines, 2 -> Compound nuclei splines, 3 -> Combine compound nuclei splines, 4 -> Event Production")
@@ -82,10 +86,18 @@ if opts.GRID == 'FNAL':
         print ("Not runing from pnfs:"+opts.JOBSTD+" . Jobs top dir must be in pnfs for the submission scrpits to work. Abort ...")
         exit()
 
+# Check version is not a path
+temp_version = opts.VERSION.split('/') 
+version = opts.VERSION
+
+if len(temp_version ) : 
+    version = temp_version[len(temp_version)-1]
+    print ( ' Setting version to '+ version ) 
+
 # Define directories:
-vNdir = opts.JOBSTD+'/'+opts.VERSION+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vN/'
+vNdir = opts.JOBSTD+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vN/'
 vNsplines = vNdir+'total.xsec'
-vAdir = opts.JOBSTD+'/'+opts.VERSION+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vA/'
+vAdir = opts.JOBSTD+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vA/'
 vAsplines = vAdir+'total.xsec'
 
 # configure setup 
@@ -113,44 +125,49 @@ if loop_end > int(opts.end_ID) :
 
 total_time = 0 ; 
 loop_i = loop_start
-while loop_i < loop_end +1 : 
+while loop_i < loop_end + 1: 
     # ID = 0 # vN splines
     if loop_i == 0 :
-        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.EMAX,opts.EMAX,opts.Knots,opts.Knots,opts.TUNE,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup,opts.vNJOBLIFE) )
+        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.NuEMAX,opts.EEMAX,opts.NuKnots,opts.EKnots,opts.TUNE,version,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup,opts.vNJOBLIFE,opts.BRANCH) )
         total_time += int(opts.vNJOBLIFE) 
 
     # ID = 1 # group vN splines
     if loop_i == 1 :
         vNMotherDir = ''
         if opts.MotherDir !='' : 
-            vNMotherDir = opts.MotherDir+'/'+opts.VERSION+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vN/'
+            vNMotherDir = opts.MotherDir+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vN/'
 
-        command_dict.update( group.GroupSplineCommands( True,vNdir,vNMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,False, False, opts.GROUPJOBLIFE ) )# THE LAST TWO TO BE CONFIGURED
+        command_dict.update( group.GroupSplineCommands( True,vNdir,vNMotherDir,opts.TUNE,version,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,False, False, opts.GROUPJOBLIFE,opts.BRANCH ) )
         total_time += int(opts.GROUPJOBLIFE)
  
     if loop_i == 2 : 
         # ID = 2 # vA splines
-        command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.EMAX,opts.EMAX,opts.Knots,opts.Knots,opts.TUNE,vNsplines,opts.VERSION,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup,opts.vAJOBLIFE) )
+        command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.NuEMAX,opts.EEMAX,opts.NuKnots,opts.EKnots,opts.TUNE,vNsplines,version,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup,opts.vAJOBLIFE,opts.BRANCH) )
         total_time += int(opts.vAJOBLIFE)
- 
+
     if loop_i == 3 : 
         # ID = 3 # Group vA splines
         vAMotherDir = ''
         if opts.MotherDir !='' : 
-            vAMotherDir = opts.MotherDir+'/'+opts.VERSION+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vA/'
+            vAMotherDir = opts.MotherDir+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vA/'
 
-        command_dict.update( group.GroupSplineCommands( False,vAdir,vAMotherDir,opts.TUNE,opts.VERSION,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,False, False,opts.GROUPJOBLIFE ) )# THE LAST TWO TO BE CONFIGURED
+        command_dict.update( group.GroupSplineCommands( False,vAdir,vAMotherDir,opts.TUNE,version,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,False, False,opts.GROUPJOBLIFE,opts.BRANCH ) )
         total_time += int(opts.GROUPJOBLIFE) 
 
     if loop_i == 4 : 
         # ID = 4 # Event generation commands
-        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.Energy,vAsplines,opts.NEvents,opts.TUNE, opts.EvGenList, opts.NMax, opts.VERSION, opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup,opts.GENJOBLIFE) )
+        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.Energy,vAsplines,opts.EEvents,opts.TUNE, opts.EvGenList, opts.NMax,version, opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup,opts.GENJOBLIFE,opts.BRANCH) )
         total_time += int(opts.GENJOBLIFE)
  
     loop_i += 1 
 
 if total_time > int(opts.JOBLIFE) : 
-    print ( "Total time of subjobs requested ("+str(total_time)+") is bigger than the job's expected time ("+opts.JOBLIFE+") ... Abort ..." ) 
+    print ( "Total time of subjobs requested ("+str(total_time)+") is bigger than the job's expected time ("+str(opts.JOBLIFE)+") ... Abort ..." ) 
+    exit() 
+
+if total_time > 96 or int(opts.JOBLIFE) > 96 : 
+    print ( "Total time at the grid cannot exceed 96h ")
+    exit() 
 
 # Write xml file
 grid_name = FNAL.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD)
