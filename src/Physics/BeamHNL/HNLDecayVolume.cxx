@@ -42,6 +42,32 @@ void DecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
    *  3) Geom weight: Survival to detector * decay within detector.
    */
 
+  // before anything else: find the geometry!
+  if( std::strcmp( fGeomFile.c_str(), "" ) == 0 ){
+    if( std::getenv( "GEOMGENIEINPUT" ) == NULL ){
+      LOG( "HNL", pWARN )
+	<< "No geometry specified, will make a simple decay volume instead.";
+      this->MakeSDV();
+    } else {
+      LOG( "HNL", pINFO )
+	<< "Getting geometry information from " << std::getenv("GEOMGENIEINPUT");
+	
+      fGeomFile = std::getenv( "GEOMGENIEINPUT" );
+      
+      if( !fGeoManager )
+	fGeoManager = TGeoManager::Import(fGeomFile.c_str());
+      
+      TGeoVolume * top_volume = fGeoManager->GetTopVolume();
+      assert( top_volume );
+      TGeoShape * ts = top_volume->GetShape();
+      TGeoBBox * box = (TGeoBBox *) ts;
+      
+      this->ImportBoundingBox(box);
+    }
+  }
+
+  this->SetStartingParameters( event_rec );
+
   int trajIdx = 0, trajMax = 20;
   double weight = 1.0; // pure geom weight
 
@@ -49,8 +75,6 @@ void DecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
   startPoint.SetXYZ( fSx, fSy, fSz );
   momentum.SetXYZ( fPx, fPy, fPz );
   
-  if( !fGeoManager )
-    fGeoManager = TGeoManager::Import(fGeomFile.c_str());
   bool didIntersectDet = this->VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, fGeoManager, fGeoVolume );
 
   if( isUsingDk2nu ) assert( didIntersectDet ); // forced to hit detector somewhere!
@@ -135,6 +159,10 @@ void DecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
 		     event_rec->Vertex()->T() );
 
   event_rec->SetVertex(x4);
+
+  // also set entry and exit points. Do this in x4 of Particles(1,2)
+  (event_rec->Particle(1))->SetPosition( entryPoint.X(), entryPoint.Y(), entryPoint.Z(), 0.0 );
+  (event_rec->Particle(2))->SetPosition( exitPoint.X(), exitPoint.Y(), exitPoint.Z(), 0.0 );
   
 }
 //____________________________________________________________________________
@@ -378,15 +406,15 @@ void DecayVolume::ImportBoundingBox( TGeoBBox * box ) const
     << "\nIn ROOT units this is origin at ( " << fOxROOT << ", " << fOyROOT << ", " << fOzROOT << " ) and sides " << fLxROOT << " x " << fLyROOT << " x " << fLzROOT << " [cm]";
 }
 //____________________________________________________________________________
-void DecayVolume::SetStartingParameters( GHepRecord * event_rec, double HNLCoMTau, bool usingDk2nu, bool usingRootGeom, string geomfile ) const
+void DecayVolume::SetStartingParameters( GHepRecord * event_rec ) const
 {
-  isUsingDk2nu = usingDk2nu;
+  isUsingDk2nu = true; // always true now
+  isUsingRootGeom = true;
+
   uMult = ( isUsingDk2nu ) ? units::m / units::mm : units::cm / units::mm;
   xMult = ( isUsingDk2nu ) ? units::cm / units::mm : 1.0;
 
-  isUsingRootGeom = usingRootGeom;
-
-  fCoMLifetime = HNLCoMTau;
+  fCoMLifetime = event_rec->Probability();
 
   assert( event_rec->Particle(0) );
 
@@ -408,10 +436,6 @@ void DecayVolume::SetStartingParameters( GHepRecord * event_rec, double HNLCoMTa
   fSyROOT = fSy * units::mm / units::cm;
   fSzROOT = fSz * units::mm / units::cm;
   fPx = momentum.X(); fPy = momentum.Y(); fPz = momentum.Z();
-
-  fGeomFile = geomfile;
-  if( !fGeoManager )
-    fGeoManager = TGeoManager::Import(geomfile.c_str());
 }
 //____________________________________________________________________________
 bool DecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 & momentum,

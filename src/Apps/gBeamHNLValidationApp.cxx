@@ -185,6 +185,8 @@ double           gCfgTCoupling    = -1;                  // |U_t4|^2
 bool             gCfgIsMajorana   = false;
 int              gCfgHNLKind      = 2;
 
+double           CoMLifetime      = -1;                  // lifetime in centre-of-mass frame [GeV^-1]
+
 
 HNLProd_t        gCfgProdMode     = kHNLProdNull;        // HNL production mode
 HNLDecayMode_t   gCfgDecayMode    = kHNLDcyNull;         // HNL decay mode
@@ -546,7 +548,16 @@ int TestDecay(void)
   const EventRecordVisitorI * mcgen = HNLGenerator();
   const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
   const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
-    
+
+  bool geom_is_accessible = ! (gSystem->AccessPathName(gOptRootGeom.c_str()));
+  if (!geom_is_accessible) {
+    LOG("gevald_hnl", pFATAL)
+      << "The specified ROOT geometry doesn't exist! Initialization failed!";
+    exit(1);
+  } else { // we will set the geometry env-variable now so that modules know where to look
+    __attribute__((unused)) int igset = setenv( "GEOMGENIEINPUT", gOptRootGeom.c_str(), 1 );
+  }
+
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
   
   TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
@@ -559,12 +570,11 @@ int TestDecay(void)
   const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
   
   const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
-  dkVol->ImportBoundingBox( box );
   
   SimpleHNL sh = SimpleHNL( "HNLInstance", 0, kPdgHNL, kPdgKP,
 			    gCfgMassHNL, gCfgECoupling, gCfgMCoupling, gCfgTCoupling, false );
   std::map< HNLDecayMode_t, double > valMap = sh.GetValidChannels();
-  const double CoMLifetime = sh.GetCoMLifetime();
+  //const double CoMLifetime = sh.GetCoMLifetime();
 
   assert( valMap.size() > 0 ); // must be able to decay to something!
   assert( (*valMap.begin()).first == kHNLDcyNuNuNu );
@@ -699,6 +709,8 @@ int TestDecay(void)
       interaction->InitStatePtr()->SetProbeP4( *p4HNL );
       event->SetVertex( *x4HNL );
 
+      event->SetProbability( CoMLifetime );
+
       event->AttachSummary( interaction );
       LOG( "gevald_hnl", pDEBUG )
 	<< "Simulating decay with mode " 
@@ -707,12 +719,9 @@ int TestDecay(void)
       // simulate the decay
       hnlgen->ProcessEventRecord( event );
 
-      dkVol->SetStartingParameters( event, CoMLifetime, false, true, gOptRootGeom.c_str() );
-
       // now get a weight.
       // = exp( - T_{box} / \tau_{HNL} ) = exp( - L_{box} / ( \beta_{HNL} \gamma_{HNL} c ) * h / \Gamma_{tot} )
       // placing the HNL at a point configured by the user
-      //dkVol->MakeSDV();
       double ox = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-OriginX" );
       double oy = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-OriginY" );
       double oz = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-OriginZ" );
@@ -720,10 +729,6 @@ int TestDecay(void)
       TVector3 startPoint( ox, oy, oz ); TVector3 entryPoint, exitPoint;
       TLorentzVector tmpVtx( ox, oy, oz, 0.0 );
       event->SetVertex( tmpVtx );
-      /*
-      std::string dummyGeom = "";
-      dkVol->SetStartingParameters( event, 1.0e+20, false, false, dummyGeom );
-      */
 
       dkVol->ProcessEventRecord(event);
 
@@ -879,7 +884,8 @@ int TestGeom(void)
   double betaMag = p4HNL->P() / p4HNL->E();
   double gamma = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
 
-  use_CMlifetime = sh.GetCoMLifetime() / ( units::ns * units::GeV );
+  use_CMlifetime = CoMLifetime / ( units::ns * units::GeV );
+    //sh.GetCoMLifetime() / ( units::ns * units::GeV );
   use_lifetime   = sh.GetLifetime() / ( units::ns * units::GeV ); // ns
 
   const double PGox = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-OriginX" );
@@ -927,14 +933,20 @@ int TestGeom(void)
 
   // so now we have NCARTESIAN ^3 x NSPHERICAL ^2 points to iterate over. That's 10125 events for 5 and 9
 
+  bool geom_is_accessible = ! (gSystem->AccessPathName(gOptRootGeom.c_str()));
+  if (!geom_is_accessible) {
+    LOG("gevald_hnl", pFATAL)
+      << "The specified ROOT geometry doesn't exist! Initialization failed!";
+    exit(1);
+  } else { // we will set the geometry env-variable now so that modules know where to look
+    __attribute__((unused)) int igset = setenv( "GEOMGENIEINPUT", gOptRootGeom.c_str(), 1 );
+  }
+
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
   
   TGeoShape * ts  = top_volume->GetShape();
   
   TGeoBBox *  box = (TGeoBBox *)ts;
-
-  // pass this box to DecayVolume
-  dkVol->ImportBoundingBox( box );
   
   int ievent = 0;
   ostringstream asts;
@@ -947,6 +959,7 @@ int TestGeom(void)
 
     EventRecord * event = new EventRecord;
     Interaction * interaction = Interaction::HNL( genie::kPdgHNL, gOptEnergyHNL, hnl::kHNLDcyTEST );
+    event->SetProbability( CoMLifetime );
     event->AttachSummary( interaction );
 
     /*
@@ -1016,7 +1029,10 @@ int TestGeom(void)
     dkVol->ProcessEventRecord(event);
 
     if( event->Vertex()->T() != -999.9 ){
-      dkVol->GetInterestingPoints( entryPoint, exitPoint, decayPoint );
+      //dkVol->GetInterestingPoints( entryPoint, exitPoint, decayPoint );
+      decayPoint.SetXYZ( event->Vertex()->X(), event->Vertex()->Y(), event->Vertex()->Z() );
+      entryPoint.SetXYZ( event->Particle(1)->Vx(), event->Particle(1)->Vy(), event->Particle(1)->Vz() );
+      exitPoint.SetXYZ( event->Particle(2)->Vx(), event->Particle(2)->Vy(), event->Particle(2)->Vz() );
       use_wgt = event->Weight();
 
       // set the branch entries now
@@ -1089,6 +1105,8 @@ void InitBoundingBox(void)
     LOG("gevald_hnl", pFATAL)
       << "The specified ROOT geometry doesn't exist! Initialization failed!";
     exit(1);
+  } else { // we will set the geometry env-variable now so that modules know where to look
+    __attribute__((unused)) int igset = setenv( "GEOMGENIEINPUT", gOptRootGeom.c_str(), 1 );
   }
 
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
@@ -1098,12 +1116,6 @@ void InitBoundingBox(void)
   TGeoShape * ts  = top_volume->GetShape();
 
   TGeoBBox *  box = (TGeoBBox *)ts;
-  
-  // pass this box to DecayVolume
-  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
-  
-  const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
-  dkVol->ImportBoundingBox( box );
 
   //get box origin and dimensions (in the same units as the geometry)
   fdx = box->GetDX();
@@ -1228,7 +1240,7 @@ void GetCommandLineArgs(int argc, char ** argv)
       LOG("gevald_hnl", pDEBUG)
 	<< "dk2nu flux files detected. Will create flux spectrum dynamically.";
     } else {
-      LOG("gevgen_hnl", pFATAL)
+      LOG("gevald_hnl", pFATAL)
 	<< "Invalid flux file path " << gOptFluxFilePath;
       exit(1);
     }
@@ -1355,6 +1367,8 @@ void ReadInConfig(void)
   gCfgMCoupling = confCoups.at(1);
   gCfgTCoupling = confCoups.at(2);
 
+  CoMLifetime = confsh.GetCoMLifetime();
+
   gOptEnergyHNL = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-Energy" );
 
   gCfgHNLCx     = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-cx" );
@@ -1427,15 +1441,14 @@ void PrintSyntax(void)
    << "\n            [-g geometry_file]"
    << "\n             -M mode:"
    << "\n                1: Flux prediction from dk2nu files. Needs -f option"
-   << "\n                2: Flux prediction from histograms.  Needs -f option"
-   << "\n                3: HNL decay validation. Specify an origin point and 4-momentum"
+   << "\n                2: HNL decay validation. Specify an origin point and 4-momentum"
    << "\n                   in the \"ParticleGun\" section in config. Needs -g option."
-   << "\n                4: Custom geometry file validation.  Needs -g option"
+   << "\n                3: Custom geometry file validation.  Needs -g option"
    << "\n                   Specify origin, momentum, and wiggle room for both of these in the"
    << "\n                   \"ParticleGun\" section in config"
    << "\n                   Regardless of how many events you ask for, this will evaluate 125x81"
    << "\n                   events: 5^3 from wiggling origin and 9^2 from wiggling momentum direction"
-   << "\n               10: Full simulation (like gevgen_hnl but with lots of debug!)"
+   << "\n               4: Full simulation (like gevgen_hnl but with lots of debug!)"
    << "\n"
    << "\n The configuration file lives at $GENIE/config/CommonHNL.xml - see"
    << " <param_set name=\"Validation\">"

@@ -253,6 +253,8 @@ int main(int argc, char ** argv)
   //const std::vector< double > confR = confsh.GetBeam2UserRotation();
   const std::vector< HNLDecayMode_t > confIntChan = confsh.GetInterestingChannelsVec();
 
+  CoMLifetime = confsh.GetCoMLifetime();
+
   LOG( "gevgen_hnl", pDEBUG )
     << "At app stage we see:"
     << "\nMass = " << confMass << " GeV"
@@ -396,6 +398,7 @@ int main(int argc, char ** argv)
 
      EventRecord * event = new EventRecord;
      event->SetWeight(1.0);
+     event->SetProbability( CoMLifetime );
      evWeight = 1.0;
 
      if( !gOptIsMonoEnFlux ){
@@ -595,6 +598,8 @@ void InitBoundingBox(void)
     LOG("gevgen_hnl", pFATAL)
       << "The specified ROOT geometry doesn't exist! Initialization failed!";
     exit(1);
+  } else { // we will set the geometry env-variable now so that modules know where to look
+    __attribute__((unused)) int igset = setenv( "GEOMGENIEINPUT", gOptRootGeom.c_str(), 1 );
   }
 
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
@@ -611,8 +616,7 @@ void InitBoundingBox(void)
   const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
   const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
   
-  // pass this box to DecayVolume and FluxCreator
-  dkVol->ImportBoundingBox( box );
+  // pass this box to FluxCreator
   fluxCreator->ImportBoundingBox( box );
 
   //get box origin and dimensions (in the same units as the geometry)
@@ -896,8 +900,6 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
     
     const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
-    dkVol->SetStartingParameters( event, CoMLifetime, gOptIsUsingDk2nu, gOptUsingRootGeom, gOptRootGeom.c_str() );
-
     dkVol->ProcessEventRecord( event );
 
     TLorentzVector x4 = *(event->Vertex());

@@ -214,6 +214,15 @@ int main(int argc, char ** argv)
   const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
   const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
 
+  bool geom_is_accessible = ! (gSystem->AccessPathName(gOptRootGeom.c_str()));
+  if (!geom_is_accessible) {
+    LOG("gevgen_pghnl", pFATAL)
+      << "The specified ROOT geometry doesn't exist! Initialization failed!";
+    exit(1);
+  } else { // we will set the geometry env-variable now so that modules know where to look
+    __attribute__((unused)) int igset = setenv( "GEOMGENIEINPUT", gOptRootGeom.c_str(), 1 );
+  }
+
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
 
   TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
@@ -221,9 +230,6 @@ int main(int argc, char ** argv)
   TGeoShape * ts  = top_volume->GetShape();
 
   TGeoBBox *  box = (TGeoBBox *)ts;
-
-  // pass this box to DecayVolume
-  dkVol->ImportBoundingBox( box );
 
   string confString = kDefOptSName + kDefOptSConfig;
   //const double confMass = hnlgen->GetHNLMass( confString );
@@ -235,6 +241,8 @@ int main(int argc, char ** argv)
   const bool confIsMajorana = confsh.GetIsMajorana();
   const int confType = confsh.GetType();
   const std::vector< HNLDecayMode_t > confIntChan = confsh.GetInterestingChannelsVec();
+
+  CoMLifetime = confsh.GetCoMLifetime();
 
   LOG( "gevgen_pghnl", pDEBUG )
     << "At app stage we see:"
@@ -340,6 +348,8 @@ int main(int argc, char ** argv)
      int hpdg = genie::kPdgHNL;
      EventRecord * event = new EventRecord;
 
+     event->SetProbability( CoMLifetime );
+
      int decay  = (int) gOptDecayMode;
 
      SimpleHNL sh( "HNL", ievent, hpdg, genie::kPdgKP, 
@@ -369,7 +379,6 @@ int main(int argc, char ** argv)
 
      // Simulate decay
      hnlgen->ProcessEventRecord(event);
-     dkVol->SetStartingParameters( event, CoMLifetime, false, gOptUsingRootGeom, gOptRootGeom.c_str() );
      dkVol->ProcessEventRecord(event);
 
      // add the FS 4-momenta to special branches
@@ -449,6 +458,8 @@ void InitBoundingBox(void)
     LOG("gevgen_pghnl", pFATAL)
       << "The specified ROOT geometry doesn't exist! Initialization failed!";
     exit(1);
+  } else { // we will set the geometry env-variable now so that modules know where to look
+    __attribute__((unused)) int igset = setenv( "GEOMGENIEINPUT", gOptRootGeom.c_str(), 1 );
   }
 
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
@@ -462,9 +473,6 @@ void InitBoundingBox(void)
   const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
 
   const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
-  
-  // pass this box to DecayVolume
-  dkVol->ImportBoundingBox( box );
 
   //get box origin and dimensions (in the same units as the geometry)
   fdx = box->GetDX();
@@ -584,8 +592,6 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
     
     const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
-    dkVol->SetStartingParameters( event, CoMLifetime, true, gOptUsingRootGeom, gOptRootGeom.c_str() );
-    
     dkVol->ProcessEventRecord( event );
     
     TLorentzVector x4 = *(event->Vertex());

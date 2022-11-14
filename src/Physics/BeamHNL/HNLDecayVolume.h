@@ -62,26 +62,26 @@ namespace hnl {
     void Configure(const Registry & config);
     void Configure(string config);
 
+  private:
+
+    void LoadConfig();
+
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
     // use bounding box origin & sides
     void ImportBoundingBox( TGeoBBox * box ) const;
 #endif // #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
 
-    void SetStartingParameters( GHepRecord * event_rec, double HNLCoMTau, bool usingDk2nu, bool usingRootGeom, string geomfile ) const;
-
-    // It's a 1x1x1 m3 box around (0,0,0).
-    void MakeSDV() const;
-
-    // simple getter
-    void GetInterestingPoints( TVector3 & entryPoint, TVector3 & exitPoint, TVector3 & decayPoint ) const;
-
-  private:
-
-    void LoadConfig();
+    void SetStartingParameters( GHepRecord * event_rec ) const;
     
     // --------------------------------------------------
     // Utilities
     // --------------------------------------------------
+
+    // simple getter
+    void GetInterestingPoints( TVector3 & entryPoint, TVector3 & exitPoint, TVector3 & decayPoint ) const;
+
+    // Build a simple 1x1x1 m3 box around (0,0,0).
+    void MakeSDV() const;
 
     // enforce chosen units
     void EnforceUnits( std::string length_units, std::string angle_units, std::string time_units ) const;
