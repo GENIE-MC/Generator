@@ -196,7 +196,12 @@ bool   CheckRootFilename         (string filename);
 int    HAProbeFSI                (int, int, int, double [], int [], int, int, int); //Test code
 #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
 void   DeclareHNLBranches        (TTree * tree, TTree * intree, 
+<<<<<<< HEAD
 				  double * dVars, int * iVars);
+=======
+				  double * dVars, int * iVars,
+				  flux::GNuMIFluxPassThroughInfo * gnumi_flux_HNL );
+>>>>>>> 9afb74e464d073eb6ed5003cfc5ac097cffe009c
 #endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
 //format enum
 typedef enum EGNtpcFmt {
@@ -2219,7 +2224,11 @@ void ConvertToGRooTracker(void)
   // extra branches for HNL declared here
   double dVars[9] = { -9.9, -9.9, -9.9, -9.9, -9.9, -9.9, -9.9, -9.9, -9.9 };
   int    iVars[4] = { -9, -9, -9, -9 };
+<<<<<<< HEAD
   DeclareHNLBranches( rootracker_tree, gtree, dVars, iVars );
+=======
+  DeclareHNLBranches( rootracker_tree, gtree, dVars, iVars, gnumi_flux_ster );
+>>>>>>> 9afb74e464d073eb6ed5003cfc5ac097cffe009c
 #endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
 #else
   LOG("gntpc", pWARN) 
@@ -3307,7 +3316,12 @@ int HAProbeFSI(int probe_fsi, int probe_pdg, int numh, double E_had[], int pdg_h
 //____________________________________________________________________________________
 #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
 void DeclareHNLBranches( TTree * tree, TTree * intree, 
+<<<<<<< HEAD
 			 double * dVars, int * iVars )
+=======
+			 double * dVars, int * iVars,
+			 flux::GNuMIFluxPassThroughInfo * gnumi_flux_HNL )
+>>>>>>> 9afb74e464d073eb6ed5003cfc5ac097cffe009c
 {
   tree->Branch( "HNL_mass",     &dVars[0],    "HNL_mass/D"     );
   tree->Branch( "HNL_coup_e",   &dVars[1],    "HNL_coup_e/D"   );
@@ -3330,5 +3344,10 @@ void DeclareHNLBranches( TTree * tree, TTree * intree,
   intree->SetBranchAddress( "hnl_coup_m", &dVars[2] );
   intree->SetBranchAddress( "hnl_coup_t", &dVars[3] );
   intree->SetBranchAddress( "hnl_ismaj",  &iVars[0] );
+<<<<<<< HEAD
+=======
+  
+  //intree->SetBranchAddress( "flux", &gnumi_flux_HNL );
+>>>>>>> 9afb74e464d073eb6ed5003cfc5ac097cffe009c
 }
 #endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
