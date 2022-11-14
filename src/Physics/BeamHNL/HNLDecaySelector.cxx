@@ -1,10 +1,14 @@
-//----------------------------------------------------------------------------
-// Implementation file for HNLDecaySelector.h
-// Author: John Plows <komninos-john.plows@physics.ox.ac.uk>
-// 09/Dec/2021
-//----------------------------------------------------------------------------
 // TODO: bound checking, consistency with scores (final entry == 1 ?)
 //----------------------------------------------------------------------------
+//____________________________________________________________________________
+/*
+  Copyright (c) 2003-2022, The GENIE Collaboration
+  For the full text of the license visit http://copyright.genie-mc.org
+  
+  Author: John Plows <komninos-john.plows \at physics.ox.ac.uk>
+          University of Oxford
+*/
+//____________________________________________________________________________
 
 #include "Physics/BeamHNL/HNLDecaySelector.h"
 

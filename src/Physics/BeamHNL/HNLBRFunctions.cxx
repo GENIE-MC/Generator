@@ -1,9 +1,11 @@
 
 //----------------------------------------------------------------------------
 /*!
-
-  Implementation of HNLBRFunctions
-
+  Copyright (c) 2003-2022, The GENIE Collaboration
+  For the full text of the license visit http://copyright.genie-mc.org
+  
+  Author: John Plows <komninos-john.plows \at physics.ox.ac.uk>
+          University of Oxford
  */
 //----------------------------------------------------------------------------
 
@@ -75,7 +77,6 @@ void HNLBRFunctions::LoadConfig(void)
   this->GetParam( "PMNS-Ut2", Ut2 );
   this->GetParam( "PMNS-Ut3", Ut3 );
 
-  // RETHERE pass this to config / data?
   kscale_K3e = { 
     { 0.0, 1.0 }, { 0.01, (2.0 + 0.968309)/3.0 },
     { 0.019970, 0.968309 }, { 0.029963, 0.952842 }, { 0.040037, 0.922646 }, { 0.049839, 0.907908 },

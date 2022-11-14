@@ -15,7 +15,8 @@
 
 \created    December 9th, 2021
 
-\cpright    ??? - TBD
+\cpright    Copyright (c) 2003-2022, The GENIE Collaboration
+            For the full text of the license visit http://copyright.genie-mc.org
 
 */
 //----------------------------------------------------------------------------

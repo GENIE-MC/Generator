@@ -11,6 +11,9 @@
            Changes required to implement the GENIE Boosted Dark Matter module
            were installed by Josh Berger (Univ. of Wisconsin)
 
+	   Changes required to implement the GENIE BeamHNL module
+	   were installed by John Plows (Univ. of Oxford)
+
 \created   May 06, 2004
 
 \cpright   Copyright (c) 2003-2022, The GENIE Collaboration

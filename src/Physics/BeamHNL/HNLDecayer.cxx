@@ -1,12 +1,13 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
- For the full text of the license visit http://copyright.genie-mc.org
+  Copyright (c) 2003-2022, The GENIE Collaboration
+  For the full text of the license visit http://copyright.genie-mc.org
+  
+  Author: John Plows <komninos-john.plows \at physics.ox.ac.uk>
+          University of Oxford
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
- John Plows <komninos-john.plows \at physics.ox.ac.uk>
- University of Oxford
+	  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+	  University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 

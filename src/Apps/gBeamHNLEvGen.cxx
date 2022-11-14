@@ -75,7 +75,10 @@
            --seed
               Random number seed.
 
-\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+\author  John Plows <komninos-john.plows \at cern.ch>
+         University of Oxford
+
+         Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created February 11, 2020

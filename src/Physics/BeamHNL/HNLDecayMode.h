@@ -5,7 +5,11 @@
 
 \brief    Enumeration of HNL decay modes.
 
-\author
+\author   John Plows <komninos-john.plows \at physics.ox.ac.uk>
+          University of Oxford
+
+	  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+	  University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  November 10, 2011
 
