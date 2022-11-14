@@ -310,7 +310,6 @@ int TestFluxFromDk2nu()
 
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
 
-  // RETHERE implement top volume option from cmd line
   TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
   assert( top_volume );
   TGeoShape * ts  = top_volume->GetShape();
@@ -1259,7 +1258,6 @@ void InitBoundingBox(void)
 
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
 
-  // RETHERE implement top volume option from cmd line
   TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
   assert( top_volume );
   TGeoShape * ts  = top_volume->GetShape();

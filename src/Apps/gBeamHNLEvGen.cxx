@@ -16,7 +16,6 @@
                    [-m decay_mode]
 		   [-g geometry (ROOT file)]
                    [-L geometry_length_units]
-                   [-t geometry_top_volume_name]
                    [-o output_event_file_prefix]
                    [--seed random_number_seed]
                    [--message-thresholds xml_file]
@@ -48,23 +47,6 @@
            -L
               Input geometry length units, eg 'm', 'cm', 'mm', ...
               [default: 'mm']
-           -t
-              Input 'top volume' for event generation.
-              The option be used to force event generation in given sub-detector.
-              [default: the 'master volume' of the input geometry]
-              You can also use the -t option to switch generation on/off at
-              multiple volumes as, for example, in:
-              `-t +Vol1-Vol2+Vol3-Vol4',
-              `-t "+Vol1 -Vol2 +Vol3 -Vol4"',
-              `-t -Vol2-Vol4+Vol1+Vol3',
-              `-t "-Vol2 -Vol4 +Vol1 +Vol3"'m
-              where:
-              "+Vol1" and "+Vol3" tells GENIE to `switch on'  Vol1 and Vol3, while
-              "-Vol2" and "-Vol4" tells GENIE to `switch off' Vol2 and Vol4.
-              If the very first character is a '+', GENIE will neglect all volumes
-              except the ones explicitly turned on. Vice versa, if the very first
-              character is a `-', GENIE will keep all volumes except the ones
-              explicitly turned off (feature contributed by J.Holeczek).
            -o
               Sets the prefix of the output event file.
               The output filename is built as:
@@ -87,8 +69,6 @@
          For the full text of the license visit http://copyright.genie-mc.org
 
 */
-//_________________________________________________________________________________________
-// TODO: Implement top volume
 //_________________________________________________________________________________________
 
 #include <cassert>
@@ -659,7 +639,6 @@ void InitBoundingBox(void)
 
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
 
-  // RETHERE implement top volume option from cmd line
   TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
   assert( top_volume );
   TGeoShape * ts  = top_volume->GetShape();
@@ -836,7 +815,6 @@ void FillFluxNonsense( flux::GNuMIFluxPassThroughInfo &ggn )
   ggn.fgX4User = dv;                       ///< generated 4-position, user coord
 
   ggn.evtno    = -99;                      ///< Event number (proton on target) 
-                                                 // RETHERE which is it?
   ggn.ndxdz    = -9999.9;                  ///< Neutrino direction slope for a random decay
   ggn.ndydz    = -9999.9;                  ///< See above
   ggn.npz      = -9999.9;                  ///< Neutrino momentum [GeV] along z direction (beam axis)
@@ -1395,15 +1373,6 @@ void GetCommandLineArgs(int argc, char ** argv)
      gOptGeomLUnits = utils::units::UnitFromString(lunits);
      // gOptGeomDUnits = utils::units::UnitFromString(dunits);
 
-     // check whether an event generation volume name has been
-     // specified -- default is the 'top volume'
-     if( parser.OptionExists('t') ) {
-        LOG("gevgen_hnl", pDEBUG) << "Checking for input volume name";
-        gOptRootGeomTopVol = parser.ArgAsString('t');
-     } else {
-        LOG("gevgen_hnl", pDEBUG) << "Using the <master volume>";
-     } // -t
-
   } // using root geom?
 #endif // #ifdef __CAN_USE_ROOT_GEOM__
 
@@ -1464,7 +1433,6 @@ void PrintSyntax(void)
    << "\n            [--firstEvent first_event_for_dk2nu_readin]"  
    << "\n            [-m decay_mode]"
    << "\n            [-g geometry (ROOT file)]"
-   << "\n            [-t top_volume_name_at_geom]"
    << "\n            [-L length_units_at_geom]"
    << "\n            [-o output_event_file_prefix]"
    << "\n            [--seed random_number_seed]"
