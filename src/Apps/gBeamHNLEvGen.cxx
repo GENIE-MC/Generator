@@ -1081,11 +1081,16 @@ void GetCommandLineArgs(int argc, char ** argv)
     isMonoEnergeticFlux = false;
     gOptFluxFilePath = parser.ArgAsString('f');
     
-    // check if this is dk2nu
-    if( gOptFluxFilePath.find( "dk2nu" ) != string::npos ){
+    // check if this is valid path (assume these are dk2nu files)
+    //if( gOptFluxFilePath.find( "dk2nu" ) != string::npos ){
+    if( gSystem->OpenDirectory( gOptFluxFilePath.c_str() ) != NULL ){
       gOptIsUsingDk2nu = true;
       LOG("gevgen_hnl", pDEBUG)
 	<< "dk2nu flux files detected. Will create flux spectrum dynamically.";
+    } else {
+      LOG("gevgen_hnl", pFATAL)
+	<< "Invalid flux file path " << gOptFluxFilePath;
+      exit(1);
     }
   } else {
     // we need the 'E' option! Log it and pass below
