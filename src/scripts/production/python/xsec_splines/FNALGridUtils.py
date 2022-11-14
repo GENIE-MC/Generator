@@ -1,15 +1,22 @@
 #! /usr/bin/env python
-import os 
+import os, glob
 
 def CreateShellScript ( commands , jobs_dir, shell_name, out_files, genie_setup, conf_dir, in_files, git_branch ) :
     shell_file = jobs_dir+"/"+shell_name+".sh"
 
     if os.path.exists(shell_file):
         os.remove(shell_file)
-
+        
     script = open( shell_file, 'w' ) 
     script.write("#!/bin/bash \n")
     script.write("cd $CONDOR_DIR_INPUT ;\n")
+    if conf_dir is not '' : 
+        script.write("ifdh mkdir conf/ ; \n")
+        conf_files = glob.glob(conf_dir+"/*.xml")
+        for conf_i in conf_files : 
+            script.write("ifdh cp -D "+conf_i+"  $CONDOR_DIR_INPUT/conf ;\n")
+        conf_dir = "$CONDOR_DIR_INPUT/conf"
+
     script.write("source "+os.path.basename(genie_setup)+" "+git_branch+" "+conf_dir+" ;\n")
     script.write("cd $CONDOR_DIR_INPUT ;\n")
 

@@ -1,5 +1,10 @@
 # Grid Submitters 
-In this directory you can find a serie of python scripts that facilitate to submit GENIE jobs in Grids (such as the FNAL Grid). The Sumitter scripts are responsible to launch the correct commands to the nodes. In order to do so, it calls a number of functions in the expected order and writes a `fnal_dag_submit.fnal` file, which is sourced automatically by the code in order to submit your jobs to the file. The submitters are also responsible to create the directory substructure where your final files will be. It also creates the scripts that will be launched by `fnal_dag_submit.fnal`. In order to use this script you need to have a 'GENIE' enviromental variable. To run jobs from the FNAL grid, you must run from the pnfs area. If these two conditions are not satisfied the code will exit.
+In this directory you can find a serie of python scripts that facilitate to submit GENIE jobs in Grids (such as the FNAL Grid). The Sumitter scripts are responsible to launch the correct commands to the nodes. In order to do so, it calls a number of functions in the expected order and writes a `fnal_dag_submit.fnal` file. The submitters are also responsible to create the directory substructure where your final files will be. It also creates the scripts that will be launched by `fnal_dag_submit.fnal`. In order to use this script you need to have a 'GENIE' enviromental variable. To run jobs from the FNAL grid, you must run from the pnfs area. If these two conditions are not satisfied the code will exit.
+
+Two submitters are availalbe: 
+- `XMLGridSubmitter.py`: submits the jobs to obtain splines for any lepton
+- `eAScatteringGridSubmitter.py`: submits the jobs to create splines and generate e-A events
+other scripts can be easily added.
 
 ## Possible options
 An example of a Submitter code is `eAScatteringGridSubmitter.py`. This code will launch the splines (for free nucleon and free nuclei) and electron scattering events. The options are: 
@@ -43,12 +48,24 @@ The directory generated with the default parameters is going to have the followi
 
 ## How to run the scripts
 To submit jobs to run electrons on carbon and oxigen simply do:
-`python eAScatteringGridSubmitter.py --probe-list 11 --tgt-list 1000060120,1000080160 --energy 1.6,2.2,3 --submit-jobs` 
+`python eAScatteringGridSubmitter.py --probe-list 11 --tgt-list 1000060120,1000080160 --energy 1.6,2.2,3 --submit-jobs --jobs-topdir <jobs-topdir>`
+The flag --submit-jobs will indicate that we want to submit the jobs directly. It is recommended to not use it and inspect the files carefuly before submission. To submit without this option, simply do 'source <jobs-topdir>/fnal_dag_submit.fnal', where <jobs-topdir> is the specified jobs directory in the /pnfs/ area.  
 
 If you only want to generate events (you already have the splines), do:
-`python eAScatteringGridSubmitter.py --probe-list 11 --tgt-list 1000060120,1000080160 --energy 1.6,2.2,3 --submit-jobs --starting-point 4 --source-prod-dir MySplines/` 
+`python eAScatteringGridSubmitter.py --probe-list 11 --tgt-list 1000060120,1000080160 --energy 1.6,2.2,3 --submit-jobs --starting-point 4 --source-prod-dir MySplines/ --jobs-topdir <jobs-topdir>` 
 
 and MySplines put your spline (named total_xsec.xml) in MySplines/master-routine_validation_01-xsec_vA/total_xsec.xml
 
 If you have a specific github version to use, specify the git branch name:
-`python eAScatteringGridSubmitter.py --probe-list 11 --tgt-list 1000060120,1000080160 --energy 1.6,2.2,3 --submit-jobs --starting-point 4 --source-prod-dir MySplines/ --git-branch my_branch_name`
+`python eAScatteringGridSubmitter.py --probe-list 11 --tgt-list 1000060120,1000080160 --energy 1.6,2.2,3 --submit-jobs --starting-point 4 --source-prod-dir MySplines/ --git-branch my_branch_name --jobs-topdir <jobs-topdir>`
+
+
+In some cases, the user might desire to change the model configuration. For instance, we might want to understand the effect of FSI in the model. One could opt to turn FSI effects off. For the G18_10a_02_11b CMC follow the following steps:
+   - In your jobs-topdir create a conf/ directory
+   - Copy the $GENIE/config/G18_10a/ModelConfiguration.xml in your <jobs-topdir>/conf directory
+   - Turn FSI off by changing the <param type="bool" name="HadronTransp-Enable"> true </param> flag to false. 
+   - Add the option --conf-dir <jobs-topdir>/conf in your main submission script option
+
+For instance: 
+`python eAScatteringGridSubmitter.py --probe-list 11 --tgt-list 1000060120,1000080160 --energy 1.6,2.2,3 --submit-jobs --starting-point 4 --source-prod-dir MySplines/ --git-branch my_branch_name --jobs-topdir <jobs-topdir> --tune G18_10a_02_11b --conf-dir <jobs-topdir>/conf`
+

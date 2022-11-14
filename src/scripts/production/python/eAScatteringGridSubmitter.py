@@ -11,10 +11,11 @@ Copyright:
    Copyright (c) 2003-2022, The GENIE Collaboration
    For the full text of the license visit http://copyright.genie-mc.org
 """
-import os, optparse
+import os, optparse, glob, tarfile
 
 import sys
 sys.path.insert(1, 'xsec_splines/')
+
 
 import vNSplineCommands as vN
 import vASplineCommands as vA
@@ -86,6 +87,13 @@ if opts.GRID == 'FNAL':
         print ("Not runing from pnfs:"+opts.JOBSTD+" . Jobs top dir must be in pnfs for the submission scrpits to work. Abort ...")
         exit()
 
+if opts.CONF : 
+    if not os.path.exists(opts.CONF) : 
+        print ( " GENIE Configuraion dir specified does not exist: " + opts.CONF + " . Abort ..." ) 
+        exit()
+
+    print( 'Using configuration files from ' + opts.CONF + ' ...' )
+
 # Check version is not a path
 temp_version = opts.VERSION.split('/') 
 version = opts.VERSION
@@ -93,6 +101,9 @@ version = opts.VERSION
 if len(temp_version ) : 
     version = temp_version[len(temp_version)-1]
     print ( ' Setting version to '+ version ) 
+
+if opts.BRANCH: 
+    print( ' Cloning GENIE Generator ' + opts.BRANCH ) 
 
 # Define directories:
 vNdir = opts.JOBSTD+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vN/'
@@ -156,7 +167,7 @@ while loop_i < loop_end + 1:
 
     if loop_i == 4 : 
         # ID = 4 # Event generation commands
-        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.Energy,vAsplines,opts.EEvents,opts.TUNE, opts.EvGenList, opts.NMax,version, opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup,opts.GENJOBLIFE,opts.BRANCH) )
+        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.Energy,vAsplines,opts.EEvents,opts.TUNE, opts.EvGenList, opts.NMax,version,opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup,opts.GENJOBLIFE,opts.BRANCH) )
         total_time += int(opts.GENJOBLIFE)
  
     loop_i += 1 
