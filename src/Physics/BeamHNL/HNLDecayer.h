@@ -87,7 +87,7 @@ private:
 
    mutable bool                       fIsConfigLoaded = false;
    
-   mutable double                     fMass; //RETHERE either remove argv --mass or this.
+   mutable double                     fMass; 
    mutable double                     fUe42 = -1.0, fUm42 = -1.0, fUt42 = -1.0;
    mutable bool                       fIsMajorana = false;
    mutable int                        fType = 2;
@@ -106,7 +106,6 @@ private:
    mutable TLorentzVector *           fProdVtx = 0;
    mutable TLorentzVector *           fISMom = 0;
 
-   // RETHERE remove
    mutable bool                       fGetCMFrameInstead = false;
 };
 

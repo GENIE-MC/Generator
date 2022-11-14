@@ -610,7 +610,6 @@ flux::GNuMIFluxPassThroughInfo HNLFluxCreator::MakeTupleFluxEntry( int iEntry, s
   gnmf.fgX4User = x4HNL_cm;                 ///< generated 4-position, user coord [cm]
 
   gnmf.evtno    = iEntry;                   ///< Event number (proton on target) 
-                                                 // RETHERE which is it?
   gnmf.ndxdz    = p4HNL.Px() / p4HNL.Pz();  ///< Neutrino direction slope for a random decay
   gnmf.ndydz    = p4HNL.Py() / p4HNL.Pz();  ///< See above
   gnmf.npz      = p4HNL.Pz();               ///< Neutrino momentum [GeV] along z direction (beam axis)
@@ -750,7 +749,6 @@ void HNLFluxCreator::FillNonsense( int iEntry, flux::GNuMIFluxPassThroughInfo * 
   gnmf->fgX4User = dv;                       ///< generated 4-position, user coord
 
   gnmf->evtno    = iEntry;                   ///< Event number (proton on target) 
-                                                 // RETHERE which is it?
   gnmf->ndxdz    = -9999.9;                  ///< Neutrino direction slope for a random decay
   gnmf->ndydz    = -9999.9;                  ///< See above
   gnmf->npz      = -9999.9;                  ///< Neutrino momentum [GeV] along z direction (beam axis)
@@ -879,7 +877,6 @@ void HNLFluxCreator::FillBase( int iEntry, flux::GNuMIFluxPassThroughInfo &gnmf 
   gnmf.fgX4User = dp4u;                      ///< generated 4-position, USER coord
 
   gnmf.evtno    = iEntry;                   ///< Event number (proton on target) 
-                                                 // RETHERE which is it?
   gnmf.ndxdz    = nuray_px[0]/nuray_pz[0];  ///< Neutrino direction slope for a random decay
   gnmf.ndydz    = nuray_py[0]/nuray_pz[0];  ///< See above
   gnmf.npz      = nuray_pz[0];              ///< Neutrino momentum [GeV] along z direction (beam axis)
@@ -1269,7 +1266,7 @@ void HNLFluxCreator::ReadBRs() const
   BR_pi2e  = pion2elChannel->BranchingRatio();
   
   BR_K2mu  = kaon2muChannel->BranchingRatio();
-  BR_K2e   = 1.6e-5; // RETHERE - add to pdg table? From PDG 2021
+  BR_K2e   = 1.6e-5; // From PDG 2021
   BR_K3mu  = kaon3muChannel->BranchingRatio();
   BR_K3e   = kaon3elChannel->BranchingRatio();
 
@@ -1564,7 +1561,7 @@ double HNLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
   TVector3 ppar = p4par.Vect(); assert( ppar.Mag() > 0.0 );
   TVector3 pparUnit = ppar.Unit();
   // let face be planar and perpendicular to vector Q
-  // RETHERE: assuming Q = ( 0, 0, 1 ) == face perpendicular to z
+  // assuming Q = ( 0, 0, 1 ) == face perpendicular to z
   double Qx = 0.0, Qy = 0.0, Qz = 1.0;
   // plane: Qx . (x-xC) + Qy . (y-yC) + Qz . (z-zC) = 0
   // line: r(t) - r(D) = t * ppar
@@ -1581,10 +1578,10 @@ double HNLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
   TVector3 IPdev( detO.X() - x_incp, detO.Y() - y_incp, detO.Z() - z_incp );
   bool parentHitsCentre = ( IPdev.Mag() < controls::kASmallNum );
 
-  // RETHERE: see assumption about Q
+  // see assumption about Q
   // to fix probably with a rotation of fLx, fLy by Euler angles onto Q-plane?
   // line: r(t) - r(incp) = t * IPdev
-  // RETHERE: assume square face
+  // assume square face
   double ttx = ( IPdev.X() != 0.0 ) ? fLx / std::abs( IPdev.X() ) : 99999.9;
   double tty = ( IPdev.Y() != 0.0 ) ? fLy / std::abs( IPdev.Y() ) : 99999.9;
   double tt = std::max( ttx, tty ); // this defines how much the least sweep goes
@@ -1639,7 +1636,7 @@ double HNLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
     // find direction from IP to det centre.
     TVector3 rVec = IPdev.Unit();
     // two IP with det. Closer(farther) has distance detRadius -(+) d( IP, detO )
-    // actually, RETHERE: if IPdev endpoint lies inside detector have to go other way
+    // actually, if IPdev endpoint lies inside detector have to go other way
     double dh = fLT + dist, dl = fLT - dist;
     // get those vectors and do inner product magic
     TVector3 ph( x_incp + dh * rVec.X(), y_incp + dh * rVec.Y(), z_incp + dh * rVec.Z() );

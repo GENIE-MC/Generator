@@ -468,7 +468,6 @@ void HNLDecayer::LoadConfig(void)
   this->GetParam( "HNL-3B_mu_pi_pi0",  itChan ); if( itChan ) fIntChannels.push_back( kHNLDcyPiPi0Mu );
   this->GetParam( "HNL-3B_nu_pi0_pi0", itChan ); if( itChan ) fIntChannels.push_back( kHNLDcyPi0Pi0Nu );
 
-  // RETHERE remove
   this->GetParam( "GetCMFrameInstead", fGetCMFrameInstead );
 
   fIsConfigLoaded = true;

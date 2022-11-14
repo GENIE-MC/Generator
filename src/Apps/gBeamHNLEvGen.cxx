@@ -278,8 +278,7 @@ int main(int argc, char ** argv)
   ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);
   ntpw.Initialize();
 
-  // if using dk2nu, add flux info to the tree!
-  // TODO add other formats?
+  // if using dk2nu, add flux info to the tree
   flux::GNuMIFluxPassThroughInfo gnmf, gnmfBase;
   if( gOptIsUsingDk2nu ) {
     // fill the flux object with nonsense to start with

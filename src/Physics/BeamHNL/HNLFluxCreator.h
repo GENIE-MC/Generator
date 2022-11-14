@@ -11,9 +11,6 @@
 	     + Calculate kinematics of HNL
 	     + Return HNL as SimpleHNL object.
 
-  From 23/Jul/2022: Merge HNLFluxReader into this class.
-  Reads in flux histograms and returns appropriate stuff.
-
 \class      genie::HNL::HNLFluxCreator
 
 \brief      Calculates HNL production kinematics & vertex.

@@ -2,10 +2,6 @@
 /*!
 
   Handles the inclusive-type transformation selection
-  Assumes pseudounitarity (|U_{e4}|^{2} + |U_{\mu 4}|^{2} = 1) to conserve stats
-  and also to be consistent with the fluxes read in from dk2nu
-  
-  Will have to upscale POT by factor (|U_{e4}|^{2} + |U_{\mu4}^{2}|)^{-2} later!
 
 \namespace  genie::HNL::HNLSelector
 

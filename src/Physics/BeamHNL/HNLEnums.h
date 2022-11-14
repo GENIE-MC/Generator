@@ -16,10 +16,6 @@
 
 */
 //----------------------------------------------------------------------------
-/*
-  TODO: @channels: Check if the Majorana channels need their own processes!
-*/
-//----------------------------------------------------------------------------
 
 #ifndef _HNL_ENUMS_H_
 #define _HNL_ENUMS_H_

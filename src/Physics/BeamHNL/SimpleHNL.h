@@ -18,8 +18,6 @@
 
 */
 //----------------------------------------------------------------------------
-// TODO: Figure out way to sample co-produced lepton direction for HNL polVector
-//----------------------------------------------------------------------------
 
 #ifndef _SIMPLEHNL_H_
 #define _SIMPLEHNL_H_
@@ -73,8 +71,6 @@ namespace genie {
 		      { LOG("HNL", pDEBUG) << "SimpleHNL built"; } /// normal constructor
 
 	    inline ~SimpleHNL( ) { }
-
-	    // TODO: Getters, setters, calculators
 
 	    // Getters
 
@@ -184,7 +180,7 @@ namespace genie {
 
 	    inline void SetIndex( const int idx ) { fIndex = idx; }
 
-	    inline void SetEnergy( const double E ) { // TODO make exception & error code!!
+	    inline void SetEnergy( const double E ) { 
 		// updates beta, gamma, 4P, lifetime. Doesn't change angles.
 		if( E < fMass ) { LOG( "SimpleHNL", pERROR ) << 
 		    "genie::HNL::SimpleHNL:: Set E too low." <<
@@ -200,7 +196,6 @@ namespace genie {
 	    }
 
 	    inline void SetBeta( const double bet ) {
-		// TODO: exception for beta >= 1
 		fBeta = bet;
 		fGamma = CalcGamma( bet );
 		fE = fGamma * fMass;
@@ -235,7 +230,6 @@ namespace genie {
 
 	    inline void SetMomentumDirection( double ux, double uy, double uz ) {
 		/// does not change magnitude
-		// TODO polish the null exception
 		if( ux == 0.0 && uy == 0.0 && uz == 0.0 ){
 		    LOG( "SimpleHNL", pERROR ) << 
 		      "genie::HNL::SimpleHNL::SetMomentumDirection:: " <<
@@ -251,7 +245,6 @@ namespace genie {
 		SetMomentumDirection( fourP.at(1), fourP.at(2), fourP.at(3) ); }
 
 	    inline void SetPolMag( const double pm ){
-		// TODO polish this exception
 		if( pm < -1.0 || pm > 1.0 ){
 		    LOG( "SimpleHNL", pERROR ) << 
 		      "genie::HNL::SimpleHNL::SetPolMag:: " <<

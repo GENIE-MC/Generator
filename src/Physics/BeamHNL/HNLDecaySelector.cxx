@@ -1,5 +1,3 @@
-// TODO: bound checking, consistency with scores (final entry == 1 ?)
-//----------------------------------------------------------------------------
 //____________________________________________________________________________
 /*
   Copyright (c) 2003-2022, The GENIE Collaboration
@@ -250,7 +248,6 @@ HNLDecayMode_t HNLSelector::SelectChannelInclusive( std::map< HNLDecayMode_t, do
 	all_before + modP >= ranThrow ) selectedChannel = (*it).first;
     all_before += modP;
   }
-  // TODO all_before == 1?
 
   return selectedChannel;
 }
