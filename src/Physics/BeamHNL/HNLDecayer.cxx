@@ -156,7 +156,7 @@ void Decayer::GenerateDecayProducts(GHepRecord * event) const
 			    ( fPolDir.at(1) * fPolDir.at(1) ) + 
 			    ( fPolDir.at(2) * fPolDir.at(2) ) );
   }
-  bool doPol = fDoPol;
+  bool doPol = fDoPol && (fPolDir.size() == 3);
 
   std::ostringstream asts;
   if( !doPol ) asts << "Performing a phase space decay...";
