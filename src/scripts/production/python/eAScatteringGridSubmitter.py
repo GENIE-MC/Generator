@@ -176,14 +176,15 @@ if total_time > int(opts.JOBLIFE) :
     print ( "Total time of subjobs requested ("+str(total_time)+") is bigger than the job's expected time ("+str(opts.JOBLIFE)+") ... Abort ..." ) 
     exit() 
 
-if total_time > 96 or int(opts.JOBLIFE) > 96 : 
-    print ( "Total time at the grid cannot exceed 96h ")
-    exit() 
+if opts.GRID is 'FNAL':
+    if total_time > 96 or int(opts.JOBLIFE) > 96 : 
+        print ( "Total time at the grid cannot exceed 96h ")
+        exit() 
 
-# Write xml file
-grid_name = FNAL.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD)
+    # Write xml file
+    grid_name = FNAL.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD)
 
-main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, genie_setup, grid_name, opts.JOBLIFE )
+    main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, genie_setup, grid_name, opts.JOBLIFE )
 
 if opts.SUBMIT == True: 
     # SUBMIT JOB

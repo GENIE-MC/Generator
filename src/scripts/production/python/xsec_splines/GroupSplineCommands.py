@@ -60,6 +60,10 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
     if group_vN == False: 
         root_output = True
 
+    if not os.path.exists(xml_dir) :
+        print ( xml_dir+"doesn't exist")
+        return 
+
     if mother_dir != '' : 
         if os.path.exists(mother_dir) :
             xml_files_motherdir = glob.glob(mother_dir+"/*.xml")
@@ -73,16 +77,13 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
         for xml_file in xml_files_motherdir :          
             # Check if exist in xml_dir 
             xml_file_name = os.path.basename(xml_file)
-            if os.path.exists(xml_dir+"/"+xml_file_name) : continue 
+            if os.path.exists(xml_dir+"/"+xml_file_name[:-4]+".sh") : continue 
+            if xml_file_name[:-4] == 'total_xsec' : continue 
             os.link(xml_file,xml_dir+"/"+xml_file_name) # link xml files
             os.link(xml_file,xml_dir+"/"+xml_file_name[:-4]+".sh") # link sh files
             
-    if not os.path.exists(xml_dir) :
-        print ( xml_dir+"doesn't exist")
-        return 
-    else : 
-        # Get names of sh files: these determine the name of the future xml files
-        xml_files_dir = glob.glob(xml_dir+"/*.sh")
+    # Get names of sh files: these determine the name of the future xml files
+    xml_files_dir = glob.glob(xml_dir+"/*.sh")
     
     # Store nu, tgt and process that have a corresponding xml file
     dir_nu_list = []
