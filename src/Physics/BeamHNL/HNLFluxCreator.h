@@ -53,6 +53,11 @@
 #include "TTree.h"
 #include "TVector3.h"
 
+#include <TGeoVolume.h>
+#include <TGeoManager.h>
+#include <TGeoShape.h>
+#include <TGeoBBox.h>
+
 // -- GENIE includes
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Conventions/Constants.h"
@@ -71,7 +76,6 @@
 #include "Tools/Flux/GNuMIFlux.h"
 
 #include "Physics/BeamHNL/HNLBRFunctions.h"
-#include "Physics/BeamHNL/HNLDecayVolume.h"
 #include "Physics/BeamHNL/HNLDecayUtils.h"
 #include "Physics/BeamHNL/HNLEnums.h"
 #include "Physics/BeamHNL/HNLKinUtils.h"
