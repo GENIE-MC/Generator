@@ -11,28 +11,28 @@
 #include "Physics/BeamHNL/HNLFluxCreator.h"
 
 using namespace genie;
-using namespace genie::HNL;
-using namespace genie::HNL::HNLenums;
+using namespace genie::hnl;
+using namespace genie::hnl::enums;
 
 //----------------------------------------------------------------------------
-HNLFluxCreator::HNLFluxCreator() :
-  EventRecordVisitorI("genie::HNL::HNLFluxCreator")
+FluxCreator::FluxCreator() :
+  EventRecordVisitorI("genie::hnl::FluxCreator")
 {
 
 }
 //----------------------------------------------------------------------------
-HNLFluxCreator::HNLFluxCreator(string config) :
-  EventRecordVisitorI("genie::HNL::HNLFluxCreator", config)
+FluxCreator::FluxCreator(string config) :
+  EventRecordVisitorI("genie::hnl::FluxCreator", config)
 {
 
 }
 //----------------------------------------------------------------------------
-HNLFluxCreator::~HNLFluxCreator()
+FluxCreator::~FluxCreator()
 {
 
 }
 //----------------------------------------------------------------------------
-void HNLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
+void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
 {
   // Adds the inital state HNL at the event record.
   // Also assigns the production vertex to evrec (this will be overwritten by subsequent modules)
@@ -79,14 +79,14 @@ void HNLFluxCreator::ProcessEventRecord(GHepRecord * evrec) const
   }
 }
 //----------------------------------------------------------------------------
-void HNLFluxCreator::SetInputPath(std::string finpath) const
+void FluxCreator::SetInputPath(std::string finpath) const
 {
   LOG( "HNL", pDEBUG ) << "Setting input path to " << finpath;
   LOG( "HNL", pDEBUG ) << "Before setting, fCurrPath = " << fCurrPath;
   fCurrPath = finpath;
 }
 //----------------------------------------------------------------------------
-int HNLFluxCreator::GetNEntries() const
+int FluxCreator::GetNEntries() const
 {
   if( fNEntries <= 0 ){
     this->OpenFluxInput( fCurrPath );
@@ -94,37 +94,37 @@ int HNLFluxCreator::GetNEntries() const
   return fNEntries;
 }
 //----------------------------------------------------------------------------
-void HNLFluxCreator::SetFirstEntry( int iFirst ) const
+void FluxCreator::SetFirstEntry( int iFirst ) const
 {
   fFirstEntry = iFirst;
 }
 //----------------------------------------------------------------------------
-void HNLFluxCreator::SetCurrentEntry( int iCurr ) const
+void FluxCreator::SetCurrentEntry( int iCurr ) const
 {
   iCurrEntry = iCurr;
 }
 //----------------------------------------------------------------------------
-flux::GNuMIFluxPassThroughInfo * HNLFluxCreator::RetrieveGNuMIFluxPassThroughInfo() const
+flux::GNuMIFluxPassThroughInfo * FluxCreator::RetrieveGNuMIFluxPassThroughInfo() const
 {
   return &fGnmf;
 }
 //----------------------------------------------------------------------------
-flux::GNuMIFluxPassThroughInfo HNLFluxCreator::RetrieveFluxInfo() const
+flux::GNuMIFluxPassThroughInfo FluxCreator::RetrieveFluxInfo() const
 {
   return fGnmf;
 }
 //----------------------------------------------------------------------------
-flux::GNuMIFluxPassThroughInfo HNLFluxCreator::RetrieveFluxBase() const
+flux::GNuMIFluxPassThroughInfo FluxCreator::RetrieveFluxBase() const
 {
   return fGnmf_base;
 }
 //----------------------------------------------------------------------------
-void HNLFluxCreator::SetUsingRootGeom( bool IsUsingRootGeom ) const
+void FluxCreator::SetUsingRootGeom( bool IsUsingRootGeom ) const
 {
   fIsUsingRootGeom = IsUsingRootGeom;
 }
 //____________________________________________________________________________
-flux::GNuMIFluxPassThroughInfo HNLFluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath ) const
+flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath ) const
 {
   // This method creates 1 HNL from the flux info and saves the information
   // Essentially, it replaces a SMv with an HNL
@@ -591,7 +591,7 @@ flux::GNuMIFluxPassThroughInfo HNLFluxCreator::MakeTupleFluxEntry( int iEntry, s
   
 }
 //----------------------------------------------------------------------------
-void HNLFluxCreator::FillNonsense( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf ) const
+void FluxCreator::FillNonsense( int iEntry, flux::GNuMIFluxPassThroughInfo * gnmf ) const
 {
   gnmf->pcodes = 1;                          ///< converted to PDG
   gnmf->units = 0;                           ///< cm
@@ -710,7 +710,7 @@ void HNLFluxCreator::FillNonsense( int iEntry, flux::GNuMIFluxPassThroughInfo * 
   
 }
 //----------------------------------------------------------------------------
-void HNLFluxCreator::FillBase( int iEntry, flux::GNuMIFluxPassThroughInfo &gnmf ) const
+void FluxCreator::FillBase( int iEntry, flux::GNuMIFluxPassThroughInfo &gnmf ) const
 {
   gnmf.pcodes = 1;                          ///< converted to PDG
   gnmf.units = 0;                           ///< cm
@@ -849,7 +849,7 @@ void HNLFluxCreator::FillBase( int iEntry, flux::GNuMIFluxPassThroughInfo &gnmf 
   
 }
 //----------------------------------------------------------------------------
-void HNLFluxCreator::OpenFluxInput( std::string finpath ) const
+void FluxCreator::OpenFluxInput( std::string finpath ) const
 {
   //if( std::strcmp( finpath.c_str(), fCurrPath.c_str() ) == 0 ) return;
 
@@ -902,7 +902,7 @@ void HNLFluxCreator::OpenFluxInput( std::string finpath ) const
   delete files;
 }
 //----------------------------------------------------------------------------
-void HNLFluxCreator::InitialiseTree() const
+void FluxCreator::InitialiseTree() const
 {
   LOG("HNL", pDEBUG) << "Tree initialised";
   potnum = 0.0;
@@ -1043,7 +1043,7 @@ void HNLFluxCreator::InitialiseTree() const
   
 }
 //----------------------------------------------------------------------------
-void HNLFluxCreator::InitialiseMeta() const
+void FluxCreator::InitialiseMeta() const
 { 
   job = 0;
   pots = 0.0;
@@ -1099,7 +1099,7 @@ void HNLFluxCreator::InitialiseMeta() const
   if( cmeta->GetBranch( "location_name" ) ) cmeta->SetBranchAddress( "location_name", location_name );
 }
 //----------------------------------------------------------------------------
-void HNLFluxCreator::ReadBRs() const
+void FluxCreator::ReadBRs() const
 {
   TParticlePDG * pionParticle = PDGLibrary::Instance()->Find( kPdgPiP );
   TParticlePDG * kaonParticle = PDGLibrary::Instance()->Find( kPdgKP  );
@@ -1132,7 +1132,7 @@ void HNLFluxCreator::ReadBRs() const
   BR_K03e  = 2.0 * neuk3elChannel->BranchingRatio();
 }
 //----------------------------------------------------------------------------
-std::map< HNLProd_t, double > HNLFluxCreator::GetProductionProbs( int parPDG ) const
+std::map< HNLProd_t, double > FluxCreator::GetProductionProbs( int parPDG ) const
 {
   // check if we've calculated scores before
   switch( std::abs( parPDG ) ){
@@ -1157,9 +1157,9 @@ std::map< HNLProd_t, double > HNLFluxCreator::GetProductionProbs( int parPDG ) c
   // now get parent mass
   //double mP = PDGLibrary::Instance()->Find( std::abs( parPDG ) )->Mass();
 
-  // also, construct an HNLBRFunctions * object to handle the scalings.
-  const Algorithm * algBRFunc = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLBRFunctions", "Default");
-  const HNLBRFunctions * BRFunc = dynamic_cast< const HNLBRFunctions * >( algBRFunc );
+  // also, construct an BRFunctions * object to handle the scalings.
+  const Algorithm * algBRFunc = AlgFactory::Instance()->GetAlgorithm("genie::hnl::BRFunctions", "Default");
+  const BRFunctions * BRFunc = dynamic_cast< const BRFunctions * >( algBRFunc );
   
   // first get pure kinematic part of the BRs
   double KScale[4] = { -1.0, -1.0, -1.0, -1.0 }, mixScale[4] = { -1.0, -1.0, -1.0, -1.0 };
@@ -1263,7 +1263,7 @@ std::map< HNLProd_t, double > HNLFluxCreator::GetProductionProbs( int parPDG ) c
 
 }
 //----------------------------------------------------------------------------
-TLorentzVector HNLFluxCreator::HNLEnergy( HNLProd_t hnldm, TLorentzVector p4par ) const
+TLorentzVector FluxCreator::HNLEnergy( HNLProd_t hnldm, TLorentzVector p4par ) const
 {
   // first boost to parent rest frame
   TLorentzVector p4par_rest = p4par;
@@ -1401,7 +1401,7 @@ TLorentzVector HNLFluxCreator::HNLEnergy( HNLProd_t hnldm, TLorentzVector p4par 
   return p4HNL; // rest frame momentum!
 }
 //----------------------------------------------------------------------------
-TVector3 HNLFluxCreator::PointToRandomPointInBBox( TVector3 detO_beam ) const
+TVector3 FluxCreator::PointToRandomPointInBBox( TVector3 detO_beam ) const
 {
   RandomGen * rnd = RandomGen::Instance();
   double ox = detO_beam.X(), oy = detO_beam.Y(), oz = detO_beam.Z();
@@ -1414,7 +1414,7 @@ TVector3 HNLFluxCreator::PointToRandomPointInBBox( TVector3 detO_beam ) const
   return vec;
 }
 //----------------------------------------------------------------------------
-double HNLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, bool seekingMax ) const
+double FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, bool seekingMax ) const
 {
   TVector3 ppar = p4par.Vect(); assert( ppar.Mag() > 0.0 );
   TVector3 pparUnit = ppar.Unit();
@@ -1512,7 +1512,7 @@ double HNLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, boo
   return 0.0;
 }
 //----------------------------------------------------------------------------
-void HNLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &zm, double &zp ) const
+void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &zm, double &zp ) const
 {
   // implementation of GetAngDeviation that uses ROOT geometry. More robust than analytical geom
   // (fewer assumptions about detector position)
@@ -1712,7 +1712,7 @@ void HNLFluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, doubl
     << "\nmeaning zm = " << zm << ", zp = " << zp << " [deg]";
 }
 //----------------------------------------------------------------------------
-double HNLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLorentzVector p4HNL,
+double FluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLorentzVector p4HNL,
 						      double SMECM, double zm, double zp ) const
 {
   /*
@@ -1837,7 +1837,7 @@ double HNLFluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLor
 
 }
 //----------------------------------------------------------------------------
-double HNLFluxCreator::labangle( double * x, double * par )
+double FluxCreator::labangle( double * x, double * par )
 {
   double xrad = x[0] * TMath::DegToRad();
   double Ehad = par[0], pxhad = par[1], pyhad = par[2], pzhad = par[3];
@@ -1860,7 +1860,7 @@ double HNLFluxCreator::labangle( double * x, double * par )
   return theta;
 }
 //----------------------------------------------------------------------------
-void HNLFluxCreator::MakeBBox() const
+void FluxCreator::MakeBBox() const
 {
   LOG( "HNL", pWARN )
     << "WARNING: This is a dummy (==unit-side) bounding box centred at config-given point";
@@ -1868,7 +1868,7 @@ void HNLFluxCreator::MakeBBox() const
   fLx = 1.0; fLy = 1.0; fLz = 1.0;
 }
 //----------------------------------------------------------------------------
-TVector3 HNLFluxCreator::ApplyUserRotation( TVector3 vec, bool doBackwards ) const
+TVector3 FluxCreator::ApplyUserRotation( TVector3 vec, bool doBackwards ) const
 {
   double vx = vec.X(), vy = vec.Y(), vz = vec.Z();
 
@@ -1893,7 +1893,7 @@ TVector3 HNLFluxCreator::ApplyUserRotation( TVector3 vec, bool doBackwards ) con
   return nvec;
 }
 //----------------------------------------------------------------------------
-TVector3 HNLFluxCreator::ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::vector<double> rotVec, bool doBackwards ) const
+TVector3 FluxCreator::ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::vector<double> rotVec, bool doBackwards ) const
 {
   double vx = vec.X(), vy = vec.Y(), vz = vec.Z();
   double ox = oriVec.X(), oy = oriVec.Y(), oz = oriVec.Z();
@@ -1924,7 +1924,7 @@ TVector3 HNLFluxCreator::ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::
   return nvec;
 }
 //____________________________________________________________________________
-double HNLFluxCreator::CalculateDetectorAcceptanceSAA( TVector3 detO ) const
+double FluxCreator::CalculateDetectorAcceptanceSAA( TVector3 detO ) const
 {
   // sang is solid-angle / 4pi
   double rad = std::sqrt( detO.X() * detO.X() + detO.Y() * detO.Y() + detO.Z() * detO.Z() );
@@ -1932,26 +1932,26 @@ double HNLFluxCreator::CalculateDetectorAcceptanceSAA( TVector3 detO ) const
   return sang;
 }
 //----------------------------------------------------------------------------
-double HNLFluxCreator::CalculateAreaNormalisation()
+double FluxCreator::CalculateAreaNormalisation()
 {
   // for now this is just a square of length kRDET
   // returns 1 / area
   return 1.0 / ( kRDET * kRDET );
 }
 //----------------------------------------------------------------------------
-void HNLFluxCreator::Configure(const Registry & config)
+void FluxCreator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //----------------------------------------------------------------------------
-void HNLFluxCreator::Configure(string config)
+void FluxCreator::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //----------------------------------------------------------------------------
-void HNLFluxCreator::LoadConfig(void)
+void FluxCreator::LoadConfig(void)
 {
   if( fIsConfigLoaded ) return;
 
@@ -2019,12 +2019,12 @@ void HNLFluxCreator::LoadConfig(void)
   fIsConfigLoaded = true;
 }
 //____________________________________________________________________________
-void HNLFluxCreator::SetGeomFile( string geomfile ) const
+void FluxCreator::SetGeomFile( string geomfile ) const
 {
   fGeomFile = geomfile;
 }
 //____________________________________________________________________________
-void HNLFluxCreator::ImportBoundingBox( TGeoBBox * box ) const
+void FluxCreator::ImportBoundingBox( TGeoBBox * box ) const
 {
   fLxR = 2.0 * box->GetDX() * units::cm / units::m;
   fLyR = 2.0 * box->GetDY() * units::cm / units::m;

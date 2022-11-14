@@ -19,7 +19,7 @@
 #include "Physics/BeamHNL/HNLDecayUtils.h"
 
 using namespace genie;
-using namespace genie::HNL;
+using namespace genie::hnl;
 
 //____________________________________________________________________________
 string genie::utils::hnl::ProdAsString(HNLProd_t hnlprod)

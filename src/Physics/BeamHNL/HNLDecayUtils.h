@@ -36,12 +36,12 @@ namespace genie
  {
   namespace hnl 
   {
-      string       ProdAsString            (genie::HNL::HNLProd_t hnlprod);
-      string       AsString                (genie::HNL::HNLDecayMode_t hnldm);
-      bool         IsProdKinematicallyAllowed (genie::HNL::HNLProd_t hnlprod);
-      bool         IsKinematicallyAllowed  (genie::HNL::HNLDecayMode_t hnldm, double Mhnl);
-      PDGCodeList  ProductionProductList   (genie::HNL::HNLProd_t hnldm);
-      PDGCodeList  DecayProductList        (genie::HNL::HNLDecayMode_t hnldm);
+      string       ProdAsString            (genie::hnl::HNLProd_t hnlprod);
+      string       AsString                (genie::hnl::HNLDecayMode_t hnldm);
+      bool         IsProdKinematicallyAllowed (genie::hnl::HNLProd_t hnlprod);
+      bool         IsKinematicallyAllowed  (genie::hnl::HNLDecayMode_t hnldm, double Mhnl);
+      PDGCodeList  ProductionProductList   (genie::hnl::HNLProd_t hnldm);
+      PDGCodeList  DecayProductList        (genie::hnl::HNLDecayMode_t hnldm);
 
       // for obtaining params, etc, directly from config
       int                 GetCfgInt        (string file_id, string set_name, string par_name);

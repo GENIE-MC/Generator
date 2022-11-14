@@ -31,27 +31,27 @@
 #include "Physics/BeamHNL/HNLDecayMode.h"
 
 using namespace genie;
-using namespace genie::HNL;
+using namespace genie::hnl;
 
 //____________________________________________________________________________
-HNLDecayer::HNLDecayer() :
-EventRecordVisitorI("genie::HNL::HNLDecayer")
+Decayer::Decayer() :
+EventRecordVisitorI("genie::hnl::Decayer")
 {
 
 }
 //____________________________________________________________________________
-HNLDecayer::HNLDecayer(string config) :
-EventRecordVisitorI("genie::HNL::HNLDecayer",config)
+Decayer::Decayer(string config) :
+EventRecordVisitorI("genie::hnl::Decayer",config)
 {
 
 }
 //____________________________________________________________________________
-HNLDecayer::~HNLDecayer()
+Decayer::~Decayer()
 {
 
 }
 //____________________________________________________________________________
-void HNLDecayer::ProcessEventRecord(GHepRecord * event) const
+void Decayer::ProcessEventRecord(GHepRecord * event) const
 {
 
   Interaction * interaction = event->Summary();
@@ -70,7 +70,7 @@ void HNLDecayer::ProcessEventRecord(GHepRecord * event) const
 
 }
 //____________________________________________________________________________
-void HNLDecayer::AddInitialState(GHepRecord * event) const
+void Decayer::AddInitialState(GHepRecord * event) const
 {
   std::vector< double > * prodVtx = 0;
 
@@ -118,7 +118,7 @@ void HNLDecayer::AddInitialState(GHepRecord * event) const
     event->AddParticle(hpdg, kIStInitialState, 0,-1,-1,-1, p4, v4);
 }
 //____________________________________________________________________________
-void HNLDecayer::GenerateDecayProducts(GHepRecord * event) const
+void Decayer::GenerateDecayProducts(GHepRecord * event) const
 {
   LOG("HNL", pINFO) << "Generating decay...";
   fDecLepPdg = 0; fDecHadPdg = 0;
@@ -321,7 +321,7 @@ void HNLDecayer::GenerateDecayProducts(GHepRecord * event) const
   delete v4d;
 }
 //____________________________________________________________________________
-std::vector< double > * HNLDecayer::GenerateDecayPosition( GHepRecord * /* event */ ) const
+std::vector< double > * Decayer::GenerateDecayPosition( GHepRecord * /* event */ ) const
 {
   // let's query *where* the HNL decayed from.
   LOG( "HNL", pWARN )
@@ -346,7 +346,7 @@ std::vector< double > * HNLDecayer::GenerateDecayPosition( GHepRecord * /* event
   return prodVtx;
 }
 //____________________________________________________________________________
-std::vector< double > * HNLDecayer::GenerateMomentum( GHepRecord * event ) const
+std::vector< double > * Decayer::GenerateMomentum( GHepRecord * event ) const
 {
   Interaction * interaction = event->Summary();
   double E = interaction->InitState().ProbeE(kRfLab);
@@ -373,7 +373,7 @@ std::vector< double > * HNLDecayer::GenerateMomentum( GHepRecord * event ) const
   return p3HNL;
 }
 //____________________________________________________________________________
-void HNLDecayer::UpdateEventRecord(GHepRecord * event) const
+void Decayer::UpdateEventRecord(GHepRecord * event) const
 {
   Interaction * interaction = event->Summary();
 
@@ -402,19 +402,19 @@ void HNLDecayer::UpdateEventRecord(GHepRecord * event) const
   if(p4FSL) delete p4FSL;
 }
 //____________________________________________________________________________
-void HNLDecayer::Configure(const Registry & config)
+void Decayer::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //___________________________________________________________________________
-void HNLDecayer::Configure(string config)
+void Decayer::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //___________________________________________________________________________
-void HNLDecayer::LoadConfig(void)
+void Decayer::LoadConfig(void)
 {
   LOG("HNL", pDEBUG)
     << "Loading configuration from file...";
@@ -452,14 +452,14 @@ void HNLDecayer::LoadConfig(void)
   fIsConfigLoaded = true;
 }
 //___________________________________________________________________________
-void HNLDecayer::SetHNLCouplings( double Ue42, double Um42, double Ut42 ) const
+void Decayer::SetHNLCouplings( double Ue42, double Um42, double Ut42 ) const
 {
   fUe42 = Ue42;
   fUm42 = Um42;
   fUt42 = Ut42;
 }
 //___________________________________________________________________________
-void HNLDecayer::SetBeam2User( std::vector< double > translation, std::vector< double > rotation ) const
+void Decayer::SetBeam2User( std::vector< double > translation, std::vector< double > rotation ) const
 {
   fTx = -1.0 * translation.at(0);
   fTy = -1.0 * translation.at(1);
@@ -470,7 +470,7 @@ void HNLDecayer::SetBeam2User( std::vector< double > translation, std::vector< d
   fR3 = rotation.at(2);
 }
 //___________________________________________________________________________
-SimpleHNL HNLDecayer::GetHNLInstance(string config) const
+SimpleHNL Decayer::GetHNLInstance(string config) const
 {
   SimpleHNL sh = SimpleHNL( "HNLInstance", 0, genie::kPdgHNL, genie::kPdgKP,
 			    fMass, fUe42, fUm42, fUt42, fIsMajorana );
@@ -482,14 +482,14 @@ SimpleHNL HNLDecayer::GetHNLInstance(string config) const
   return sh;
 }
 //____________________________________________________________________________
-void HNLDecayer::SetProdVtxPosition(const TLorentzVector & v4) const
+void Decayer::SetProdVtxPosition(const TLorentzVector & v4) const
 {
   TLorentzVector * pv4 = new TLorentzVector();
   pv4->SetXYZT( v4.X(), v4.Y(), v4.Z(), v4.T() );
   fProdVtx = pv4;
 }
 //____________________________________________________________________________
-void HNLDecayer::ReadCreationInfo( flux::GNuMIFluxPassThroughInfo gnmf ) const
+void Decayer::ReadCreationInfo( flux::GNuMIFluxPassThroughInfo gnmf ) const
 {
   if( fPolDir.size() > 0 ) fPolDir.clear();
   fPolDir.emplace_back( gnmf.ppvx );
@@ -500,7 +500,7 @@ void HNLDecayer::ReadCreationInfo( flux::GNuMIFluxPassThroughInfo gnmf ) const
   fProdLepPdg = gnmf.ppmedium;
 }
 //____________________________________________________________________________
-void HNLDecayer::UnpolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, bool failed = false ) const
+void Decayer::UnpolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, bool failed = false ) const
 {
 
   RandomGen * rnd = RandomGen::Instance();
@@ -536,7 +536,7 @@ void HNLDecayer::UnpolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, doub
   
 }
 //____________________________________________________________________________
-void HNLDecayer::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, TVector3 vPolDir, bool failed = false ) const
+void Decayer::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, TVector3 vPolDir, bool failed = false ) const
 { 
   // calculate polarisation modulus
   PDGLibrary * pdgl = PDGLibrary::Instance();
@@ -613,7 +613,7 @@ void HNLDecayer::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double
 
 }
 //____________________________________________________________________________
-double HNLDecayer::CalcPolMag( int parPdg, int lepPdg, double M ) const
+double Decayer::CalcPolMag( int parPdg, int lepPdg, double M ) const
 {
   PDGLibrary * pdgl = PDGLibrary::Instance();
   double mPar = pdgl->Find( std::abs( parPdg ) )->Mass();
@@ -630,7 +630,7 @@ double HNLDecayer::CalcPolMag( int parPdg, int lepPdg, double M ) const
   return pMag;
 }
 //____________________________________________________________________________
-double HNLDecayer::CalcPolMod( double polMag, int lepPdg, int hadPdg, double M ) const
+double Decayer::CalcPolMod( double polMag, int lepPdg, int hadPdg, double M ) const
 {
   PDGLibrary * pdgl = PDGLibrary::Instance();
   double mLep = pdgl->Find( std::abs( lepPdg ) )->Mass();

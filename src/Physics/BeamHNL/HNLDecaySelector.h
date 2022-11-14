@@ -3,7 +3,7 @@
 
   Handles the inclusive-type transformation selection
 
-\namespace  genie::HNL::HNLSelector
+\namespace  genie::hnl::selector
 
 \brief      Transformation inclusive-method channel selector
 
@@ -30,32 +30,32 @@
 #include "Physics/BeamHNL/HNLDecayMode.h"
 
 namespace genie {
-namespace HNL {
+namespace hnl {
 
-    namespace HNLSelector {
+    namespace selector {
 
       // only need to calculate decay widths once! Store them in this array
       static __attribute__((unused)) double fDecayGammas[] = {-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0};
       
       // valid channels with widths
-      std::map< genie::HNL::HNLDecayMode_t, double > GetValidChannelWidths( const double M, const double Ue42, const double Umu42, const double Ut42, const bool IsMajorana = false );
+      std::map< genie::hnl::HNLDecayMode_t, double > GetValidChannelWidths( const double M, const double Ue42, const double Umu42, const double Ut42, const bool IsMajorana = false );
       // derived
-      double GetTotalDecayWidth( std::map< genie::HNL::HNLDecayMode_t, double > gammaMap );
+      double GetTotalDecayWidth( std::map< genie::hnl::HNLDecayMode_t, double > gammaMap );
       double CalcCoMLifetime( const double M, const double Ue42, const double Umu42, const double Ut42, const bool IsMajorana = false );
       
       // now choose channels you're interested in seeing
-      std::map< genie::HNL::HNLDecayMode_t, double > SetInterestingChannels( std::vector< genie::HNL::HNLDecayMode_t > intChannels, std::map< genie::HNL::HNLDecayMode_t, double > gammaMap );
+      std::map< genie::hnl::HNLDecayMode_t, double > SetInterestingChannels( std::vector< genie::hnl::HNLDecayMode_t > intChannels, std::map< genie::hnl::HNLDecayMode_t, double > gammaMap );
       
       // transform widths to probabilities (marginalised over all interesting!)
-      std::map< genie::HNL::HNLDecayMode_t, double > GetProbabilities( std::map< genie::HNL::HNLDecayMode_t, double > gammaMap );
+      std::map< genie::hnl::HNLDecayMode_t, double > GetProbabilities( std::map< genie::hnl::HNLDecayMode_t, double > gammaMap );
       
       // make a choice from interesting channels
       // This is the inclusive method - see messages to Xianguo, Dec 9th 2021
-      genie::HNL::HNLDecayMode_t SelectChannelInclusive( std::map< genie::HNL::HNLDecayMode_t, double > Pmap, double ranThrow );
+      genie::hnl::HNLDecayMode_t SelectChannelInclusive( std::map< genie::hnl::HNLDecayMode_t, double > Pmap, double ranThrow );
       
-    } // namespace HNLSelector
+    } // namespace selector
     
-} // namespace HNL
+} // namespace hnl
 } // namespace genie
 
 #endif // #ifndef _HNL_DEDCAYSELECTOR_H_

@@ -12,14 +12,14 @@
 
 #include "Framework/EventGen/EVGThreadException.h"
 
-using namespace genie::HNL;
+using namespace genie::hnl;
 
 // Takes parameter space, outputs all available channels + widths
-std::map< HNLDecayMode_t, double > HNLSelector::GetValidChannelWidths( const double M, const double Ue42, const double Umu42, const double Ut42, const bool IsMajorana ){
+std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double M, const double Ue42, const double Umu42, const double Ut42, const bool IsMajorana ){
 
-  // construct an HNLBRFunctions * object to handle the scalings.
-  const Algorithm * algBRFunc = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLBRFunctions", "Default");
-  const HNLBRFunctions * BRFunc = dynamic_cast< const HNLBRFunctions * >( algBRFunc );
+  // construct an BRFunctions * object to handle the scalings.
+  const Algorithm * algBRFunc = AlgFactory::Instance()->GetAlgorithm("genie::hnl::BRFunctions", "Default");
+  const BRFunctions * BRFunc = dynamic_cast< const BRFunctions * >( algBRFunc );
   
   std::map< HNLDecayMode_t, double > allChannels;
   
@@ -176,7 +176,7 @@ std::map< HNLDecayMode_t, double > HNLSelector::GetValidChannelWidths( const dou
 }
 
 // Calculates the *total* decay width from all the valid channels
-double HNLSelector::GetTotalDecayWidth( std::map< HNLDecayMode_t, double > gammaMap ) {
+double selector::GetTotalDecayWidth( std::map< HNLDecayMode_t, double > gammaMap ) {
     
   double totGamma = 0.0;
 
@@ -191,15 +191,15 @@ double HNLSelector::GetTotalDecayWidth( std::map< HNLDecayMode_t, double > gamma
 }
 
 // Returns lifetime of particle with mass and couplings
-double HNLSelector::CalcCoMLifetime( const double M, const double Ue42, const double Umu42, const double Ut42, const bool IsMajorana ){
+double selector::CalcCoMLifetime( const double M, const double Ue42, const double Umu42, const double Ut42, const bool IsMajorana ){
 
-  std::map< HNLDecayMode_t, double > allChannels = HNLSelector::GetValidChannelWidths( M, Ue42, Umu42, Ut42, IsMajorana );
-  double totGamma = HNLSelector::GetTotalDecayWidth( allChannels );
+  std::map< HNLDecayMode_t, double > allChannels = selector::GetValidChannelWidths( M, Ue42, Umu42, Ut42, IsMajorana );
+  double totGamma = selector::GetTotalDecayWidth( allChannels );
   return 1.0 / totGamma; // GeV^{-1}
 }
 
 // let's pick the interesting channels
-std::map< HNLDecayMode_t, double > HNLSelector::SetInterestingChannels( std::vector< HNLDecayMode_t > intChannels, std::map< HNLDecayMode_t, double > gammaMap ){
+std::map< HNLDecayMode_t, double > selector::SetInterestingChannels( std::vector< HNLDecayMode_t > intChannels, std::map< HNLDecayMode_t, double > gammaMap ){
 
   std::map< HNLDecayMode_t, double > interestingMap;
 
@@ -212,7 +212,7 @@ std::map< HNLDecayMode_t, double > HNLSelector::SetInterestingChannels( std::vec
 } // this is now a reduced map with only the channels we want to decay HNL to
 
 // and transform decay widths to branching ratios (probabilities)
-std::map< HNLDecayMode_t, double > HNLSelector::GetProbabilities( std::map< HNLDecayMode_t, double > gammaMap ){
+std::map< HNLDecayMode_t, double > selector::GetProbabilities( std::map< HNLDecayMode_t, double > gammaMap ){
 
   double totGamma = GetTotalDecayWidth( gammaMap );
   std::map< HNLDecayMode_t, double > Pmap;
@@ -225,7 +225,7 @@ std::map< HNLDecayMode_t, double > HNLSelector::GetProbabilities( std::map< HNLD
 }
 
 // choose a particular channel to decay to
-HNLDecayMode_t HNLSelector::SelectChannelInclusive( std::map< HNLDecayMode_t, double > Pmap, double ranThrow ){
+HNLDecayMode_t selector::SelectChannelInclusive( std::map< HNLDecayMode_t, double > Pmap, double ranThrow ){
 
   // in inclusive method, decay is factorised in three parts:
   // a) Decay vertex placement

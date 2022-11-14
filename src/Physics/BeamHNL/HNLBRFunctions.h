@@ -4,7 +4,7 @@
   Definitions of the auxiliary functions needed
   to calculate the decay widths of HNL to various channels
 
-\class      genie::HNL::HNLBRFunctions
+\class      genie::hnl::BRFunctions
 
 \brief      Decay widths of HNL
 
@@ -46,15 +46,15 @@ namespace genie {
 
   class PDGLibrary;
   
-  namespace HNL {
+  namespace hnl {
 
-    class HNLBRFunctions : public Algorithm {
+    class BRFunctions : public Algorithm {
 
     public:
 
-      HNLBRFunctions();
-      HNLBRFunctions(string config);
-      ~HNLBRFunctions();
+      BRFunctions();
+      BRFunctions(string config);
+      ~BRFunctions();
 
       // overload the Algorithm::Configure() methods to load private data
       // members from configuration options
@@ -65,7 +65,7 @@ namespace genie {
       // total decay widths, parents to HNL
       //============================================
       
-      double KScale_Global( genie::HNL::HNLProd_t hnldm, const double M ) const;
+      double KScale_Global( genie::hnl::HNLProd_t hnldm, const double M ) const;
       
       // P --> N + \ell_{\alpha} 
       double DWidth_PseudoscalarToLepton( const double mP, const double M, const double Ua42, const double ma ) const;
@@ -156,7 +156,7 @@ namespace genie {
     
     }; // class BRFunctions
 
-} // namespace HNL
+} // namespace hnl
 } // namespace genie
 
 #endif // #ifndef _HNL_BRFUNCTIONS_H_

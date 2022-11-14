@@ -12,39 +12,39 @@
 #include "Physics/BeamHNL/HNLBRFunctions.h"
 
 using namespace genie;
-using namespace genie::HNL;
+using namespace genie::hnl;
 
 //----------------------------------------------------------------------------
-HNLBRFunctions::HNLBRFunctions() :
-  Algorithm("genie::HNL::HNLBRFunctions")
+BRFunctions::BRFunctions() :
+  Algorithm("genie::hnl::BRFunctions")
 {
 
 }
 //----------------------------------------------------------------------------
-HNLBRFunctions::HNLBRFunctions(string config) :
-  Algorithm("genie::HNL::HNLBRFunctions", config)
+BRFunctions::BRFunctions(string config) :
+  Algorithm("genie::hnl::BRFunctions", config)
 {
 
 }
 //----------------------------------------------------------------------------
-HNLBRFunctions::~HNLBRFunctions()
+BRFunctions::~BRFunctions()
 {
 
 }
 //----------------------------------------------------------------------------
-void HNLBRFunctions::Configure(const Registry & config)
+void BRFunctions::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //----------------------------------------------------------------------------
-void HNLBRFunctions::Configure(string config)
+void BRFunctions::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //----------------------------------------------------------------------------
-void HNLBRFunctions::LoadConfig(void)
+void BRFunctions::LoadConfig(void)
 {
   if( fIsConfigLoaded ) return;
 
@@ -111,24 +111,24 @@ void HNLBRFunctions::LoadConfig(void)
 }
 //----------------------------------------------------------------------------
 // Get Coloma et al's form factor functions
-double HNLBRFunctions::GetFormfactorF1( double x ) const {
+double BRFunctions::GetFormfactorF1( double x ) const {
   if( x < 0. || x > 0.5 ) { LOG( "HNL", pERROR ) << "BRFunctions::GetFormfactorF1:: Illegal x = " << x; exit( 3 ); }
   if( x == 0.5 ) return 0.;
-  int i = x/HNLSelector::PARTWIDTH;
-  if( x - i*HNLSelector::PARTWIDTH ==0 ) return HNLSelector::FormfactorF1[i];
-  return 1./2. * ( HNLSelector::FormfactorF1[i] + HNLSelector::FormfactorF1[i+1] );
+  int i = x/selector::PARTWIDTH;
+  if( x - i*selector::PARTWIDTH ==0 ) return selector::FormfactorF1[i];
+  return 1./2. * ( selector::FormfactorF1[i] + selector::FormfactorF1[i+1] );
 }
 //----------------------------------------------------------------------------
-double HNLBRFunctions::GetFormfactorF2( double x ) const {
+double BRFunctions::GetFormfactorF2( double x ) const {
   if( x < 0. || x > 0.5 ) { LOG( "HNL", pERROR ) << "BRFunctions::GetFormfactorF2:: Illegal x = " << x; exit( 3 ); }
   if( x == 0.5 ) return 0.;
-  int i = x/HNLSelector::PARTWIDTH;
-  if( x - i*HNLSelector::PARTWIDTH==0 ) return HNLSelector::FormfactorF2[i];
-  return 1./2. * ( HNLSelector::FormfactorF2[i] + HNLSelector::FormfactorF2[i+1] );
+  int i = x/selector::PARTWIDTH;
+  if( x - i*selector::PARTWIDTH==0 ) return selector::FormfactorF2[i];
+  return 1./2. * ( selector::FormfactorF2[i] + selector::FormfactorF2[i+1] );
 }
 //----------------------------------------------------------------------------
 // interface to scale factors
-double HNLBRFunctions::KScale_Global( HNLProd_t hnldm, const double M ) const {
+double BRFunctions::KScale_Global( HNLProd_t hnldm, const double M ) const {
   if( !utils::hnl::IsProdKinematicallyAllowed( hnldm ) ){
     return 0.0;
   }
@@ -152,22 +152,22 @@ double HNLBRFunctions::KScale_Global( HNLProd_t hnldm, const double M ) const {
 }
 //----------------------------------------------------------------------------
 // HNL production widths
-double HNLBRFunctions::KScale_PseudoscalarToLepton( const double mP, const double M, const double ma ) const {
+double BRFunctions::KScale_PseudoscalarToLepton( const double mP, const double M, const double ma ) const {
   double da = std::pow( utils::hnl::MassX( ma, mP ) , 2.0 );
   double di = std::pow( utils::hnl::MassX( M,  mP ) , 2.0 );
-  double num = utils::hnl::rhofunc( da, di );
+  double num = utils::hnl::RhoFunc( da, di );
   double den = da * std::pow( (1.0 - da), 2.0 );
   return num/den;
 }
 //----------------------------------------------------------------------------
-double HNLBRFunctions::DWidth_PseudoscalarToLepton( const double mP, const double M, const double Ua42, const double ma ) const {
+double BRFunctions::DWidth_PseudoscalarToLepton( const double mP, const double M, const double Ua42, const double ma ) const {
   assert( M + ma <= mP );
 
   double KScale = KScale_PseudoscalarToLepton( mP, M, ma );
   return Ua42 * KScale;
 }
 //----------------------------------------------------------------------------
-double HNLBRFunctions::KScale_PseudoscalarToPiLepton( const double mP, const double M, const double ma ) const {
+double BRFunctions::KScale_PseudoscalarToPiLepton( const double mP, const double M, const double ma ) const {
   assert( mP == mK || mP == mK0 ); // RETHERE remove this when/if heavier pseudoscalars are considered
   assert( ma == mE || ma == mMu );
   
@@ -190,14 +190,14 @@ double HNLBRFunctions::KScale_PseudoscalarToPiLepton( const double mP, const dou
   return TMath::Exp( l1 + ( l2 - l1 ) * t );
 }
 //----------------------------------------------------------------------------
-double HNLBRFunctions::DWidth_PseudoscalarToPiLepton( const double mP, const double M, const double Ua42, const double ma ) const {
+double BRFunctions::DWidth_PseudoscalarToPiLepton( const double mP, const double M, const double Ua42, const double ma ) const {
   assert( M + ma + mPi0 <= mP );
 
   double KScale = KScale_PseudoscalarToPiLepton( mP, M, ma );
   return Ua42 * KScale;
 }
 //----------------------------------------------------------------------------
-double HNLBRFunctions::KScale_MuonToNuAndElectron( const double M ) const {
+double BRFunctions::KScale_MuonToNuAndElectron( const double M ) const {
   std::map< double, double > scaleMap = kscale_mu3e;
   std::map< double, double >::iterator scmit = scaleMap.begin();
   while( (*scmit).first <= M && scmit != scaleMap.end() ){ ++scmit; }
@@ -214,7 +214,7 @@ double HNLBRFunctions::KScale_MuonToNuAndElectron( const double M ) const {
   return TMath::Exp( l1 + ( l2 - l1 ) * t );
 }
 //----------------------------------------------------------------------------
-double HNLBRFunctions::DWidth_MuonToNuAndElectron( const double M, const double Ue42, const double Umu42, const double Ut42 ) const {
+double BRFunctions::DWidth_MuonToNuAndElectron( const double M, const double Ue42, const double Umu42, const double Ut42 ) const {
   assert( M + mE <= mMu );
 
   double KScale = KScale_MuonToNuAndElectron( M );
@@ -222,14 +222,14 @@ double HNLBRFunctions::DWidth_MuonToNuAndElectron( const double M, const double 
 }
 //----------------------------------------------------------------------------
 // total decay widths, various channels
-double HNLBRFunctions::DWidth_PiZeroAndNu( const double M, const double Ue42, const double Umu42, const double Ut42 ) const {
+double BRFunctions::DWidth_PiZeroAndNu( const double M, const double Ue42, const double Umu42, const double Ut42 ) const {
   const double x       = genie::utils::hnl::MassX( mPi0, M );
   const double preFac  = GF2 * M*M*M / ( 32. * pi );
   const double kinPart = ( 1. - x*x ) * ( 1. - x*x );
   return preFac * ( Ue42 + Umu42 + Ut42 ) * fpi2 * kinPart;
 }
 //----------------------------------------------------------------------------
-double HNLBRFunctions::DWidth_PiAndLepton( const double M, const double Ua42, const double ma ) const {
+double BRFunctions::DWidth_PiAndLepton( const double M, const double Ua42, const double ma ) const {
   const double xPi     = genie::utils::hnl::MassX( mPi, M );
   const double xLep    = genie::utils::hnl::MassX( ma, M );
   const double preFac  = GF2 * M*M*M / ( 16. * pi );
@@ -238,12 +238,12 @@ double HNLBRFunctions::DWidth_PiAndLepton( const double M, const double Ua42, co
   return preFac * fpi2 * Ua42 * Vud2 * kalPart * othPart;
 }
 //----------------------------------------------------------------------------
-double HNLBRFunctions::DWidth_Invisible( const double M, const double Ue42, const double Umu42, const double Ut42 ) const {
+double BRFunctions::DWidth_Invisible( const double M, const double Ue42, const double Umu42, const double Ut42 ) const {
   const double preFac = GF2 * TMath::Power( M, 5. ) / ( 192. * pi*pi*pi );
   return preFac * ( Ue42 + Umu42 + Ut42 );
 }
 //----------------------------------------------------------------------------
-double HNLBRFunctions::DWidth_SameLepton( const double M, const double Ue42, const double Umu42, const double Ut42, const double mb, bool bIsMu ) const {
+double BRFunctions::DWidth_SameLepton( const double M, const double Ue42, const double Umu42, const double Ut42, const double mb, bool bIsMu ) const {
   const double preFac = GF2 * TMath::Power( M, 5. ) / ( 192. * pi*pi*pi );
   const double x      = genie::utils::hnl::MassX( mb, M );
   const double f1     = GetFormfactorF1( x );
@@ -255,7 +255,7 @@ double HNLBRFunctions::DWidth_SameLepton( const double M, const double Ue42, con
   return preFac * ( C1Part + C2Part + D1Part + D2Part );
 }
 //----------------------------------------------------------------------------
-double HNLBRFunctions::DWidth_DiffLepton( const double M, const double Ua42, const double Ub42, const int IsMajorana ) const {
+double BRFunctions::DWidth_DiffLepton( const double M, const double Ua42, const double Ub42, const int IsMajorana ) const {
   const double preFac = GF2 * TMath::Power( M, 5. ) / ( 192. * pi*pi*pi );
   const double x = genie::utils::hnl::MassX( mMu, M );
   const double kinPol = 1. - 8. * x*x + 8. * TMath::Power( x, 6. ) - TMath::Power( x, 8. );
@@ -266,7 +266,7 @@ double HNLBRFunctions::DWidth_DiffLepton( const double M, const double Ua42, con
 }
 //----------------------------------------------------------------------------
 // note that these BR are very very tiny.
-double HNLBRFunctions::DWidth_PiPi0Ell( const double M, const double ml,
+double BRFunctions::DWidth_PiPi0Ell( const double M, const double ml,
 					      const double Ue42, const double Umu42, const double Ut42,
 					      const bool isElectron) const
 {
@@ -352,7 +352,7 @@ double HNLBRFunctions::DWidth_PiPi0Ell( const double M, const double ml,
 //----------------------------------------------------------------------------
 // *especially* this channel, there's N4 in the propagator so it emits *both* the pi-zeros!!!
 // It is subleading in |U_\ell 4|^2, therefore not important to get this exactly right
-double HNLBRFunctions::DWidth_Pi0Pi0Nu( const double M,
+double BRFunctions::DWidth_Pi0Pi0Nu( const double M,
 					      const double Ue42, const double Umu42, const double Ut42 ) const
 { 
   const double preFac = fpi2 * fpi2 * GF2 * GF2 * std::pow( M, 5.0 ) / ( 64.0 * pi*pi*pi );
@@ -424,7 +424,7 @@ double HNLBRFunctions::DWidth_Pi0Pi0Nu( const double M,
 //----------------------------------------------------------------------------
 // differential decay width for HNL channels!
 
-void HNLBRFunctions::Diff1Width_PiAndLepton_CosTheta( const double M, const double Ua42,
+void BRFunctions::Diff1Width_PiAndLepton_CosTheta( const double M, const double Ua42,
 							    const double ml,
 							    double &thePreFac, 
 							    double &theCnstPart,
@@ -441,7 +441,7 @@ void HNLBRFunctions::Diff1Width_PiAndLepton_CosTheta( const double M, const doub
 }
 //----------------------------------------------------------------------------
 // formula for N --> pi pi0 ell decay rate
-double HNLBRFunctions::PiPi0EllForm( double *x, double *par ){
+double BRFunctions::PiPi0EllForm( double *x, double *par ){
     double MN = par[0];
     double MMu = par[1];
     double MPi = par[2];
@@ -469,7 +469,7 @@ double HNLBRFunctions::PiPi0EllForm( double *x, double *par ){
 }
 //----------------------------------------------------------------------------
 // formula for N --> pi0 pi0 nu decay rate
-double HNLBRFunctions::Pi0Pi0NuForm( double *x, double *par ){
+double BRFunctions::Pi0Pi0NuForm( double *x, double *par ){
     double MN = par[0];
     double MPi0 = par[1];
     

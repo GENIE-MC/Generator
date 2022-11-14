@@ -3,7 +3,7 @@
 
   All enums used in the HNL simulation (should) live here.
 
-\namespace  genie::HNL::HNLenums
+\namespace  genie::hnl::enums
 
 \brief      Typedef enums
 
@@ -29,9 +29,9 @@
 #include "Framework/Conventions/Units.h"
 
 namespace genie {
-namespace HNL {
+namespace hnl {
 
-    namespace HNLenums {
+    namespace enums {
 
 	/// Coupling configuration indices
 	typedef enum t_coupIdx {
@@ -65,9 +65,9 @@ namespace HNL {
 
 	} nutype_t;
 
-    } // namespace HNLenums
+    } // namespace enums
 
-} // namespace HNL
+} // namespace hnl
 } // namespace genie
 
 #endif // #ifndef _HNL_ENUMS_H_

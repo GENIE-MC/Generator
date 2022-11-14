@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class     genie::HNL::HNLDecayVolume
+\class     genie::hnl::DecayVolume
 
-\brief     Utilities for extracting the position of the HNL decay vertex
+\brief     Heavy Neutral Lepton decay vertex generator
            *** given production vertex and momentum ***
 
 \author    John Plows <komninos-john.plows \at physics.ox.ac.uk>
@@ -42,17 +42,17 @@
 #include "Physics/BeamHNL/HNLDecayer.h"
 
 namespace genie {
-namespace HNL {
+namespace hnl {
 
   class SimpleHNL;
 
-  class HNLDecayVolume : public EventRecordVisitorI {
+  class DecayVolume : public EventRecordVisitorI {
 
   public:
 
-    HNLDecayVolume();
-    HNLDecayVolume(string config);
-    ~HNLDecayVolume();
+    DecayVolume();
+    DecayVolume(string config);
+    ~DecayVolume();
 
     //-- implement the EventRecordVisitorI interface
     void ProcessEventRecord(GHepRecord * event_rec) const;
@@ -163,9 +163,9 @@ namespace HNL {
     mutable double fBx1, fBz, fBx2;  // rotation: from target-hall frame to user frame
     mutable std::vector< double > fB2UTranslation, fB2URotation, fDetTranslation, fDetRotation;
 
-  }; // class HNLDecayVolume
+  }; // class DecayVolume
 
-} // namespace HNL
+} // namespace hnl
 } // namespace genie
 
 #endif // #ifndef _HNL_DECAY_VOLUME_H_

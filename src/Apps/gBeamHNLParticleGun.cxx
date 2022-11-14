@@ -25,7 +25,7 @@
            [] Denotes an optional argument
 
            -h
-              Prints out the gevgen_ndcy syntax and exits.
+              Prints out the gevgen_pghnl syntax and exits.
            -r
               Specifies the MC run number [default: 1000].
            -n
@@ -103,8 +103,8 @@ using std::vector;
 using std::ostringstream;
 
 using namespace genie;
-using namespace genie::HNL;
-using namespace genie::HNL::HNLenums;
+using namespace genie::hnl;
+using namespace genie::hnl::enums;
 
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
 #define __CAN_USE_ROOT_GEOM__
@@ -181,7 +181,7 @@ double NTP_FS1_E = 0., NTP_FS1_PX = 0., NTP_FS1_PY = 0., NTP_FS1_PZ = 0.;
 double NTP_FS2_E = 0., NTP_FS2_PX = 0., NTP_FS2_PY = 0., NTP_FS2_PZ = 0.;
 int NTP_FS0_PDG = 0, NTP_FS1_PDG = 0, NTP_FS2_PDG = 0;
 
-//HNLDecayer * hnlgen = 0;
+//Decayer * hnlgen = 0;
 // HNL lifetime in rest frame
 double CoMLifetime = -1.0; // GeV^{-1}
 // an array to keep production vertex
@@ -206,13 +206,13 @@ int main(int argc, char ** argv)
 
   // Get the HNL generator first to load config
   // config loaded upon instantiation of HNLGenerator algorithm 
-  // ==> HNLDecayer::LoadConfig()
+  // ==> Decayer::LoadConfig()
   const EventRecordVisitorI * mcgen = HNLGenerator();
-  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayer", "Default");
-  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayVolume", "Default");
+  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
+  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
   
-  const HNLDecayer * hnlgen = dynamic_cast< const HNLDecayer * >( algHNLGen );
-  const HNLDecayVolume * dkVol = dynamic_cast< const HNLDecayVolume * >( algDkVol );
+  const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
+  const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
 
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
 
@@ -222,7 +222,7 @@ int main(int argc, char ** argv)
 
   TGeoBBox *  box = (TGeoBBox *)ts;
 
-  // pass this box to HNLDecayVolume
+  // pass this box to DecayVolume
   dkVol->ImportBoundingBox( box );
 
   string confString = kDefOptSName + kDefOptSConfig;
@@ -459,11 +459,11 @@ void InitBoundingBox(void)
 
   TGeoBBox *  box = (TGeoBBox *)ts;
   
-  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayVolume", "Default");
+  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
 
-  const HNLDecayVolume * dkVol = dynamic_cast< const HNLDecayVolume * >( algDkVol );
+  const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
   
-  // pass this box to HNLDecayVolume
+  // pass this box to DecayVolume
   dkVol->ImportBoundingBox( box );
 
   //get box origin and dimensions (in the same units as the geometry)
@@ -581,9 +581,9 @@ TLorentzVector GeneratePosition( GHepRecord * event )
 {
   if( gOptUsingRootGeom ){
   
-    const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayVolume", "Default");
+    const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
     
-    const HNLDecayVolume * dkVol = dynamic_cast< const HNLDecayVolume * >( algDkVol );
+    const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
     dkVol->SetStartingParameters( event, CoMLifetime, true, gOptUsingRootGeom, gOptRootGeom.c_str() );
     
     dkVol->ProcessEventRecord( event );
@@ -658,20 +658,20 @@ int SelectDecayMode( std::vector< HNLDecayMode_t > * intChannels, SimpleHNL sh )
   }
   
   std::map< HNLDecayMode_t, double > intMap =
-    HNLSelector::SetInterestingChannels( (*intChannels), gammaMap );
+    selector::SetInterestingChannels( (*intChannels), gammaMap );
      
   sh.SetInterestingChannels( intMap );
 
   // get probability that channels in intChannels will be selected
   std::map< HNLDecayMode_t, double > PMap = 
-    HNLSelector::GetProbabilities( intMap );
+    selector::GetProbabilities( intMap );
      
   // now do a random throw
   RandomGen * rnd = RandomGen::Instance();
   double ranThrow = rnd->RndGen().Uniform( 0., 1. ); // HNL's fate is sealed.
 
   HNLDecayMode_t selectedDecayChan =
-    HNLSelector::SelectChannelInclusive( PMap, ranThrow );
+    selector::SelectChannelInclusive( PMap, ranThrow );
 
   int decay = ( int ) selectedDecayChan;
   return decay;

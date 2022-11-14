@@ -11,9 +11,9 @@
 	     + Calculate kinematics of HNL
 	     + Return HNL as SimpleHNL object.
 
-\class      genie::HNL::HNLFluxCreator
+\class      genie::hnl::FluxCreator
 
-\brief      Calculates HNL production kinematics & vertex.
+\brief      Calculates HNL production kinematics & production vertex.
             Is a concrete implementation of the EventRecordVisitorI interface
 
 \author     John Plows <komninos-john.plows@physics.ox.ac.uk>
@@ -83,17 +83,17 @@ const double kRDET = 1.0; // calculate fluxes per m^2
 
 namespace genie{
 
-  namespace HNL{
+  namespace hnl{
     
     class SimpleHNL;
     
-    class HNLFluxCreator : public EventRecordVisitorI {
+    class FluxCreator : public EventRecordVisitorI {
 
     public:
 
-      HNLFluxCreator();
-      HNLFluxCreator(string config);
-      ~HNLFluxCreator();
+      FluxCreator();
+      FluxCreator(string config);
+      ~FluxCreator();
 
       //-- implement the EventRecordVisitorI interface
       void ProcessEventRecord(GHepRecord * event_rec) const;
@@ -142,12 +142,12 @@ namespace genie{
       void InitialiseMeta() const;
 
       // returns HNL 4-momentum from random decay in same frame as p4par
-      TLorentzVector HNLEnergy( genie::HNL::HNLProd_t hnldm, TLorentzVector p4par ) const;
+      TLorentzVector HNLEnergy( genie::hnl::HNLProd_t hnldm, TLorentzVector p4par ) const;
       // gets random point in BBox and returns separation to it in BEAM FRAME
       TVector3 PointToRandomPointInBBox( TVector3 detO_beam ) const;
 
       void ReadBRs() const;
-      std::map< genie::HNL::HNLProd_t, double > GetProductionProbs( int parPDG ) const;
+      std::map< genie::hnl::HNLProd_t, double > GetProductionProbs( int parPDG ) const;
       
       // Obtain detector dimensions + position
       // RETHERE: BBox isn't good enough! But roll with it for now
@@ -178,11 +178,11 @@ namespace genie{
       mutable int fNEntries = 0;
       
       // maps to keep P( production )
-      mutable std::map< genie::HNL::HNLProd_t, double > dynamicScores; // map in use
-      mutable std::map< genie::HNL::HNLProd_t, double > dynamicScores_pion;
-      mutable std::map< genie::HNL::HNLProd_t, double > dynamicScores_kaon;
-      mutable std::map< genie::HNL::HNLProd_t, double > dynamicScores_muon;
-      mutable std::map< genie::HNL::HNLProd_t, double > dynamicScores_neuk;
+      mutable std::map< genie::hnl::HNLProd_t, double > dynamicScores; // map in use
+      mutable std::map< genie::hnl::HNLProd_t, double > dynamicScores_pion;
+      mutable std::map< genie::hnl::HNLProd_t, double > dynamicScores_kaon;
+      mutable std::map< genie::hnl::HNLProd_t, double > dynamicScores_muon;
+      mutable std::map< genie::hnl::HNLProd_t, double > dynamicScores_neuk;
       
       mutable double BR_pi2mu, BR_pi2e, BR_K2mu, BR_K2e, BR_K3mu, BR_K3e, BR_K03mu, BR_K03e;
 
@@ -283,7 +283,7 @@ namespace genie{
       mutable string fFinPath, fProdHist;
       mutable TH1D * fSpectrum = 0, * fIntegrals = 0;
 
-    }; // class HNLFluxCreator
+    }; // class FluxCreator
       
-  } // namespace HNL
+  } // namespace hnl
 } // namespace genie

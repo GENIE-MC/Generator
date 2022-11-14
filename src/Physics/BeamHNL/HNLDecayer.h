@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::HNL::HNLDecayer
+\class    genie::hnl::Decayer
 
-\brief    Neutral Heavy Lepton primary vertex generator
+\brief    Heavy Neutral Lepton final-state product generator
 
 \author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
           University of Liverpool & STFC Rutherford Appleton Laboratory
@@ -16,8 +16,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _NEUTRAL_HEAVY_LEPTON_PRIMARY_VTX_GENERATOR_H_
-#define _NEUTRAL_HEAVY_LEPTON_PRIMARY_VTX_GENERATOR_H_
+#ifndef _HNL_DECAYER_H_
+#define _HNL_DECAYER_H_
 
 #include <cassert>
 
@@ -35,14 +35,14 @@
 
 namespace genie {
 
-namespace HNL {
+namespace hnl {
 
-class HNLDecayer: public EventRecordVisitorI {
+class Decayer: public EventRecordVisitorI {
 
 public:
-  HNLDecayer();
-  HNLDecayer(string config);
- ~HNLDecayer();
+  Decayer();
+  Decayer(string config);
+ ~Decayer();
 
   // implement the EventRecordVisitorI interface
   void ProcessEventRecord (GHepRecord * event) const;
@@ -56,7 +56,7 @@ public:
   std::vector< double > * GenerateDecayPosition (GHepRecord * event) const;
   std::vector< double > * GenerateMomentum (GHepRecord * event) const;
 
-  genie::HNL::SimpleHNL GetHNLInstance(string config) const;
+  genie::hnl::SimpleHNL GetHNLInstance(string config) const;
 
   // get information about parent and polarisation from HNLFluxCreator
   void ReadCreationInfo( genie::flux::GNuMIFluxPassThroughInfo gnmf ) const;
@@ -79,7 +79,7 @@ private:
    void PolarisedDecay        (TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, TVector3 vPolDir, bool failed)const;
 
    mutable int                        fCurrInitStatePdg;
-   mutable genie::HNL::HNLDecayMode_t fCurrDecayMode;
+   mutable genie::hnl::HNLDecayMode_t fCurrDecayMode;
 
    mutable int                        fParentPdg, fProdLepPdg, fDecLepPdg, fDecHadPdg;
    mutable std::vector<double>        fPolDir;
@@ -93,7 +93,7 @@ private:
 
    mutable bool                       fDoPol = false;
 
-   mutable std::vector< genie::HNL::HNLDecayMode_t > fIntChannels;
+   mutable std::vector< genie::hnl::HNLDecayMode_t > fIntChannels;
 
    mutable double                     fAngularDeviation = -1.0;
    mutable std::vector< double >      fB2UTranslation;
@@ -108,8 +108,8 @@ private:
    mutable bool                       fGetCMFrameInstead = false;
 };
 
-} // HNL namespace
+} // hnl namespace
 
 } // genie namespace
 
-#endif // _NEUTRAL_HEAVY_LEPTON_PRIMARY_VTX_GENERATOR_H_
+#endif // _HNL_DECAYER_H_

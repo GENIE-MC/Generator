@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::HNL::HNLDecayMode
+\class    genie::hnl::HNLDecayMode
 
 \brief    Enumeration of HNL decay modes.
 
@@ -26,7 +26,7 @@
 #endif
 
 namespace genie {
-  namespace HNL {
+  namespace hnl {
 
  typedef enum EHNLDecayMode {
 

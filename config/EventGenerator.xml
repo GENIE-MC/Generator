@@ -822,10 +822,10 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   <param_set name="BeamHNL">
      <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   4                                                    </param>
-     <param type="alg"    name="Module-0">   genie::HNL::HNLBRFunctions/Default                   </param>
-     <param type="alg"    name="Module-1">   genie::HNL::HNLFluxCreator/Default                   </param>
-     <param type="alg"    name="Module-2">   genie::HNL::HNLDecayer/Default                       </param>
-     <param type="alg"    name="Module-3">   genie::HNL::HNLDecayVolume/Default                   </param>
+     <param type="alg"    name="Module-0">   genie::hnl::BRFunctions/Default                      </param>
+     <param type="alg"    name="Module-1">   genie::hnl::FluxCreator/Default                      </param>
+     <param type="alg"    name="Module-2">   genie::hnl::Decayer/Default                          </param>
+     <param type="alg"    name="Module-3">   genie::hnl::DecayVolume/Default                      </param>
      <param type="alg"    name="ILstGen">    genie::DummyHNLInteractionListGenerator/Default      </param>
   </param_set>
 

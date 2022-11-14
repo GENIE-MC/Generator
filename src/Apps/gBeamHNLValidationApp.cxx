@@ -114,7 +114,7 @@ using std::vector;
 using std::ostringstream;
 
 using namespace genie;
-using namespace genie::HNL;
+using namespace genie::hnl;
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #define __CAN_GENERATE_EVENTS_USING_A_FLUX__
@@ -288,9 +288,9 @@ int TestFluxFromDk2nu()
     << "\n--> Spectrum of acceptance correction as function of parent boost factor"
     << "\n--> Boost factor spectrum of parents broken down by type";
   
-  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLFluxCreator", "Default");
+  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::hnl::FluxCreator", "Default");
 
-  const HNLFluxCreator * fluxCreator = dynamic_cast< const HNLFluxCreator * >( algFluxCreator );
+  const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
 
   fluxCreator->SetInputPath( gOptFluxFilePath );
   fluxCreator->SetGeomFile( gOptRootGeom );
@@ -544,8 +544,8 @@ int TestDecay(void)
   TFile * fout = TFile::Open( foutName.c_str(), "RECREATE" );
 
   const EventRecordVisitorI * mcgen = HNLGenerator();
-  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayer", "Default");
-  const HNLDecayer * hnlgen = dynamic_cast< const HNLDecayer * >( algHNLGen );
+  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
+  const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
     
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
   
@@ -556,9 +556,9 @@ int TestDecay(void)
   
   LOG( "gevald_hnl", pDEBUG ) << "Imported box.";
   
-  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayVolume", "Default");
+  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
   
-  const HNLDecayVolume * dkVol = dynamic_cast< const HNLDecayVolume * >( algDkVol );
+  const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
   dkVol->ImportBoundingBox( box );
   
   SimpleHNL sh = SimpleHNL( "HNLInstance", 0, kPdgHNL, kPdgKP,
@@ -695,7 +695,7 @@ int TestDecay(void)
       // build an event
       EventRecord * event = new EventRecord;
       Interaction * interaction = Interaction::HNL( genie::kPdgHNL, gOptEnergyHNL, validModes[ iMode ] );
-      // set p4 and a dummy vertex so HNLDecayer doesn't attempt to regenerate init state
+      // set p4 and a dummy vertex so Decayer doesn't attempt to regenerate init state
       interaction->InitStatePtr()->SetProbeP4( *p4HNL );
       event->SetVertex( *x4HNL );
 
@@ -856,8 +856,8 @@ int TestGeom(void)
   // Read geometry bounding box - for vertex position generation
   InitBoundingBox();
 
-  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayVolume", "Default");
-  const HNLDecayVolume * dkVol = dynamic_cast< const HNLDecayVolume * >( algDkVol );
+  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
+  const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
 
   // get SimpleHNL for lifetime
   SimpleHNL sh = SimpleHNL( "HNLInstance", 0, kPdgHNL, kPdgKP,
@@ -933,7 +933,7 @@ int TestGeom(void)
   
   TGeoBBox *  box = (TGeoBBox *)ts;
 
-  // pass this box to HNLDecayVolume
+  // pass this box to DecayVolume
   dkVol->ImportBoundingBox( box );
   
   int ievent = 0;
@@ -946,7 +946,7 @@ int TestGeom(void)
       << "*** Building event = " << ievent;
 
     EventRecord * event = new EventRecord;
-    Interaction * interaction = Interaction::HNL( genie::kPdgHNL, gOptEnergyHNL, HNL::kHNLDcyTEST );
+    Interaction * interaction = Interaction::HNL( genie::kPdgHNL, gOptEnergyHNL, hnl::kHNLDcyTEST );
     event->AttachSummary( interaction );
 
     /*
@@ -1099,10 +1099,10 @@ void InitBoundingBox(void)
 
   TGeoBBox *  box = (TGeoBBox *)ts;
   
-  // pass this box to HNLDecayVolume
-  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayVolume", "Default");
+  // pass this box to DecayVolume
+  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
   
-  const HNLDecayVolume * dkVol = dynamic_cast< const HNLDecayVolume * >( algDkVol );
+  const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
   dkVol->ImportBoundingBox( box );
 
   //get box origin and dimensions (in the same units as the geometry)
@@ -1345,8 +1345,8 @@ void ReadInConfig(void)
   LOG("gevald_hnl", pFATAL)
     << "Reading in validation configuration. . .";
 
-  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayer", "Default");
-  const HNLDecayer * hnlgen = dynamic_cast< const HNLDecayer * >( algHNLGen );
+  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
+  const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
 
   SimpleHNL confsh = hnlgen->GetHNLInstance( "BeamHNL" );
   gCfgMassHNL   = confsh.GetMass();
@@ -1371,8 +1371,8 @@ void ReadInConfig(void)
   
   gCfgIntChannels = confsh.GetInterestingChannelsVec();
 
-  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLFluxCreator", "Default");
-  const HNLFluxCreator * fluxCreator = dynamic_cast< const HNLFluxCreator * >( algFluxCreator );
+  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::hnl::FluxCreator", "Default");
+  const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
 
   std::vector< double > UserT = fluxCreator->GetB2UTranslation();
   gCfgUserOx    = UserT.at(0);

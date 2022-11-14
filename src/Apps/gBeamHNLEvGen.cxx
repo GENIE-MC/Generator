@@ -27,7 +27,7 @@
            [] Denotes an optional argument
 
            -h
-              Prints out the gevgen_ndcy syntax and exits.
+              Prints out the gevgen_hnl syntax and exits.
            -r
               Specifies the MC run number [default: 1000].
            -n
@@ -110,8 +110,8 @@ using std::vector;
 using std::ostringstream;
 
 using namespace genie;
-using namespace genie::HNL;
-using namespace genie::HNL::HNLenums;
+using namespace genie::hnl;
+using namespace genie::hnl::enums;
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #define __CAN_GENERATE_EVENTS_USING_A_FLUX__
@@ -232,13 +232,13 @@ int main(int argc, char ** argv)
   // config loaded upon instantiation of HNLGenerator algorithm 
   // calls LoadConfig() of each sub-alg
   const EventRecordVisitorI * mcgen = HNLGenerator();
-  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLFluxCreator", "Default");
-  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayer", "Default");
-  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayVolume", "Default");
+  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::hnl::FluxCreator", "Default");
+  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
+  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
 
-  const HNLFluxCreator * fluxCreator = dynamic_cast< const HNLFluxCreator * >( algFluxCreator );
-  const HNLDecayer * hnlgen = dynamic_cast< const HNLDecayer * >( algHNLGen );
-  const HNLDecayVolume * dkVol = dynamic_cast< const HNLDecayVolume * >( algDkVol );
+  const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
+  const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
+  const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
   
   //string confString = kDefOptSName + "/" + kDefOptSConfig;
   string confString = kDefOptSConfig;
@@ -504,8 +504,8 @@ int main(int argc, char ** argv)
      TLorentzVector x4mm = GeneratePosition( event );
 
      // update weight to scale for couplings, inhibited decays
-     // acceptance is already handled in HNLFluxCreator
-     // geometry handled in HNLDecayVolume
+     // acceptance is already handled in FluxCreator
+     // geometry handled in DecayVolume
      evWeight = event->Weight();
      evWeight *= 1.0 / ( gOptECoupling + gOptMCoupling + gOptTCoupling );
      evWeight *= 1.0 / decayMod;
@@ -605,13 +605,13 @@ void InitBoundingBox(void)
 
   TGeoBBox *  box = (TGeoBBox *)ts;
 
-  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayVolume", "Default");
-  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLFluxCreator", "Default");
+  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
+  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::hnl::FluxCreator", "Default");
 
-  const HNLDecayVolume * dkVol = dynamic_cast< const HNLDecayVolume * >( algDkVol );
-  const HNLFluxCreator * fluxCreator = dynamic_cast< const HNLFluxCreator * >( algFluxCreator );
+  const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
+  const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
   
-  // pass this box to HNLDecayVolume and HNLFluxCreator
+  // pass this box to DecayVolume and FluxCreator
   dkVol->ImportBoundingBox( box );
   fluxCreator->ImportBoundingBox( box );
 
@@ -884,7 +884,7 @@ void FillFlux( flux::GNuMIFluxPassThroughInfo &ggn, flux::GNuMIFluxPassThroughIn
 //_________________________________________________________________________________________
 TLorentzVector GeneratePosition( GHepRecord * event )
 {
-  // this should now be an interface to HNLDecayVolume::ProcessEventRecord(event)
+  // this should now be an interface to DecayVolume::ProcessEventRecord(event)
   
   if( gOptUsingRootGeom ){
 
@@ -893,9 +893,9 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     
     NTP_IS_E = p4HNL->E(); NTP_IS_PX = p4HNL->Px(); NTP_IS_PY = p4HNL->Py(); NTP_IS_PZ = p4HNL->Pz();
 
-    const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayVolume", "Default");
+    const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
     
-    const HNLDecayVolume * dkVol = dynamic_cast< const HNLDecayVolume * >( algDkVol );
+    const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
     dkVol->SetStartingParameters( event, CoMLifetime, gOptIsUsingDk2nu, gOptUsingRootGeom, gOptRootGeom.c_str() );
 
     dkVol->ProcessEventRecord( event );
@@ -982,7 +982,7 @@ int SelectDecayMode( std::vector< HNLDecayMode_t > * intChannels, SimpleHNL sh )
   }
   
   std::map< HNLDecayMode_t, double > intMap =
-    HNLSelector::SetInterestingChannels( intAndValidChannels, gammaMap );
+    selector::SetInterestingChannels( intAndValidChannels, gammaMap );
      
   sh.SetInterestingChannels( intMap );
 
@@ -1001,14 +1001,14 @@ int SelectDecayMode( std::vector< HNLDecayMode_t > * intChannels, SimpleHNL sh )
 
   // get probability that channels in intAndValidChannels will be selected
   std::map< HNLDecayMode_t, double > PMap = 
-    HNLSelector::GetProbabilities( intMap );
+    selector::GetProbabilities( intMap );
      
   // now do a random throw
   RandomGen * rnd = RandomGen::Instance();
   double ranThrow = rnd->RndGen().Uniform( 0., 1. ); // HNL's fate is sealed.
 
   HNLDecayMode_t selectedDecayChan =
-    HNLSelector::SelectChannelInclusive( PMap, ranThrow );
+    selector::SelectChannelInclusive( PMap, ranThrow );
 
   int decay = ( int ) selectedDecayChan;
   return decay;

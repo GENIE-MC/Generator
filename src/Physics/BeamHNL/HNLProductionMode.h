@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::HNL::HNLProductionMode
+\class    genie::hnl::HNLProductionMode
 
 \brief    Enumeration of HNL production modes.
 
@@ -22,7 +22,7 @@
 #endif
 
 namespace genie {
-  namespace HNL {
+  namespace hnl {
     
     typedef enum t_HNLProd {
       
@@ -59,7 +59,7 @@ namespace genie {
 
     } HNLGNuMIProd_t;
 
-  } // namespace HNL
+  } // namespace hnl
 } // namespace genie
 
 #endif // #ifndef _HNL_PRODUCTION_MODE_H_

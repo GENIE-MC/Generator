@@ -30,7 +30,7 @@ namespace utils {
     namespace hnl {
 
 	inline double MassX( double m1, double m2 ) {
-	    if( m2 <= 0. || m1 < 0.) { LOG( "SimpleHNL", pERROR ) << "BRFunctions::MassX:: Illegal masses m1 = " << m1 << ", m2 = " << m2; exit( 3 ); }
+	    if( m2 <= 0. || m1 < 0.) { LOG( "HNL", pERROR ) << "Illegal masses m1 = " << m1 << ", m2 = " << m2; exit( 3 ); }
 	    return m1 / m2;
 	}
 	
@@ -38,12 +38,12 @@ namespace utils {
 	    return x*x + y*y + z*z - 2. * ( x*y + y*z + z*x );
 	}
 
-	inline double symmdiff( double x, double y ) {
+	inline double SymmDiff( double x, double y ) {
 	  return x + y - ( x-y ) * ( x-y );
 	}
 
-	inline double rhofunc( double x, double y ) {
-	  return symmdiff( x, y ) * std::sqrt( Kallen( 1, x, y ) );
+	inline double RhoFunc( double x, double y ) {
+	  return SymmDiff( x, y ) * std::sqrt( Kallen( 1, x, y ) );
 	}
 	
     } // namespace hnl

@@ -7,15 +7,15 @@
 #pragma link C++ namespace genie;
 #pragma link C++ namespace genie::utils::hnl;
 
-#pragma link C++ namespace genie::HNL;
-#pragma link C++ namespace genie::HNL::HNLenums;
-#pragma link C++ namespace genie::HNL::HNLSelector;
+#pragma link C++ namespace genie::hnl;
+#pragma link C++ namespace genie::hnl::enums;
+#pragma link C++ namespace genie::hnl::selector;
 
-#pragma link C++ class genie::HNL::SimpleHNL;
-#pragma link C++ class genie::HNL::HNLBRFunctions;
-#pragma link C++ class genie::HNL::HNLFluxCreator;
-#pragma link C++ class genie::HNL::HNLDecayer;
-#pragma link C++ class genie::HNL::HNLDecayVolume;
+#pragma link C++ class genie::hnl::SimpleHNL;
+#pragma link C++ class genie::hnl::BRFunctions;
+#pragma link C++ class genie::hnl::FluxCreator;
+#pragma link C++ class genie::hnl::Decayer;
+#pragma link C++ class genie::hnl::DecayVolume;
 
 #pragma link C++ class genie::DummyHNLInteractionListGenerator;
 #pragma link C++ class genie::DummyHNLPXSec;

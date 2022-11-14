@@ -70,10 +70,10 @@
    <config alg="genie::NNBarOscPrimaryVtxGenerator">     NNBarOscPrimaryVtxGenerator.xml     </config>
    <config alg="genie::SpectralFunction2p2h">            SpectralFunction2p2h.xml            </config>
    <config alg="genie::SRCNuclearRecoil">                SRCNuclearRecoil.xml                </config>
-   <config alg="genie::HNL::HNLFluxCreator">             BeamHNLGenerator.xml                </config>
-   <config alg="genie::HNL::HNLBRFunctions">             BeamHNLGenerator.xml                </config>
-   <config alg="genie::HNL::HNLDecayer">                 BeamHNLGenerator.xml                </config>
-   <config alg="genie::HNL::HNLDecayVolume">             BeamHNLGenerator.xml                </config>
+   <config alg="genie::hnl::BRFunctions">                BeamHNLGenerator.xml                </config>
+   <config alg="genie::hnl::FluxCreator">                BeamHNLGenerator.xml                </config>
+   <config alg="genie::hnl::Decayer">                    BeamHNLGenerator.xml                </config>
+   <config alg="genie::hnl::DecayVolume">                BeamHNLGenerator.xml                </config>
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
    <config alg="genie::QELInteractionListGenerator">           QELInteractionListGenerator.xml       </config>

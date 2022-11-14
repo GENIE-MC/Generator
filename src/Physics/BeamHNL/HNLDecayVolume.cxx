@@ -11,28 +11,28 @@
 #include "Physics/BeamHNL/HNLDecayVolume.h"
 
 using namespace genie;
-using namespace genie::HNL;
+using namespace genie::hnl;
 using namespace genie::units;
 
 //____________________________________________________________________________
-HNLDecayVolume::HNLDecayVolume() :
-  EventRecordVisitorI("genie::HNL::HNLDecayVolume")
+DecayVolume::DecayVolume() :
+  EventRecordVisitorI("genie::hnl::DecayVolume")
 {
 
 }
 //____________________________________________________________________________
-HNLDecayVolume::HNLDecayVolume(string config) :
-  EventRecordVisitorI("genie::HNL::HNLDecayVolume", config)
+DecayVolume::DecayVolume(string config) :
+  EventRecordVisitorI("genie::hnl::DecayVolume", config)
 {
 
 }
 //____________________________________________________________________________
-HNLDecayVolume::~HNLDecayVolume()
+DecayVolume::~DecayVolume()
 {
 
 }
 //____________________________________________________________________________
-void HNLDecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
+void DecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
 {
   /*!
    *  Uses ROOT's TGeoManager to find out where the intersections with the detector volume live
@@ -56,9 +56,9 @@ void HNLDecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
   if( isUsingDk2nu ) assert( didIntersectDet ); // forced to hit detector somewhere!
   else {
 
-    const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::HNL::HNLDecayer", "Default");
+    const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
     
-    const HNLDecayer * hnlgen = dynamic_cast< const HNLDecayer * >( algHNLGen );
+    const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
     
     std::vector< double > * newProdVtx = new std::vector< double >();
     newProdVtx->emplace_back( startPoint.X() );
@@ -138,7 +138,7 @@ void HNLDecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
   
 }
 //____________________________________________________________________________
-void HNLDecayVolume::EnforceUnits( std::string length_units, std::string angle_units, std::string time_units ) const{
+void DecayVolume::EnforceUnits( std::string length_units, std::string angle_units, std::string time_units ) const{
   
   LOG( "HNL", pWARN )
     << "Switching units to " << length_units.c_str() << " , " << angle_units.c_str() << " , " << time_units.c_str();
@@ -168,7 +168,7 @@ void HNLDecayVolume::EnforceUnits( std::string length_units, std::string angle_u
     << tunitString.c_str() << "]";
 }
 //____________________________________________________________________________
-double HNLDecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, double maxLength ) const
+double DecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, double maxLength ) const
 {
   // decay probability P0(t) = 1 - exp( -t/tau ) where:
   // t   = time-of-flight (in rest frame)
@@ -209,7 +209,7 @@ double HNLDecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, dou
   return elapsed_length;
 }
 //____________________________________________________________________________
-TVector3 HNLDecayVolume::GetDecayPoint( double travelLength, TVector3 & entryPoint, TVector3 & momentum ) const
+TVector3 DecayVolume::GetDecayPoint( double travelLength, TVector3 & entryPoint, TVector3 & momentum ) const
 {
   double ex = entryPoint.X(); double ey = entryPoint.Y(); double ez = entryPoint.Z();
   double px = momentum.X(); double py = momentum.Y(); double pz = momentum.Z();
@@ -228,7 +228,7 @@ TVector3 HNLDecayVolume::GetDecayPoint( double travelLength, TVector3 & entryPoi
   return decayPoint;
 }
 //____________________________________________________________________________
-double HNLDecayVolume::GetMaxLength( TVector3 & entryPoint, TVector3 & exitPoint ) const
+double DecayVolume::GetMaxLength( TVector3 & entryPoint, TVector3 & exitPoint ) const
 {
   double ex = entryPoint.X(); double ey = entryPoint.Y(); double ez = entryPoint.Z();
   double xx = exitPoint.X(); double xy = exitPoint.Y(); double xz = exitPoint.Z();
@@ -236,7 +236,7 @@ double HNLDecayVolume::GetMaxLength( TVector3 & entryPoint, TVector3 & exitPoint
   return std::sqrt( (ex-xx)*(ex-xx) + (ey-xy)*(ey-xy) + (ez-xz)*(ez-xz) );
 }
 //____________________________________________________________________________
-void HNLDecayVolume::MakeSDV() const
+void DecayVolume::MakeSDV() const
 {
   fOx = 0.0; fOy = 0.0; fOz = 0.0;
   fLx = 1.0; fLy = 1.0; fLz = 1.0; // m
@@ -257,7 +257,7 @@ void HNLDecayVolume::MakeSDV() const
 }
 //____________________________________________________________________________
 // if entry and exit points, populate TVector3's with their coords. If not, return false
-bool HNLDecayVolume::SDVEntryAndExitPoints( TVector3 & startPoint, TVector3 momentum,
+bool DecayVolume::SDVEntryAndExitPoints( TVector3 & startPoint, TVector3 momentum,
 					    TVector3 & entryPoint, TVector3 & exitPoint ) const
 {
   assert( fOx == 0.0 && fOy == 0.0 && fOz == 0.0 && 
@@ -356,7 +356,7 @@ bool HNLDecayVolume::SDVEntryAndExitPoints( TVector3 & startPoint, TVector3 mome
 }
 //____________________________________________________________________________
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
-void HNLDecayVolume::ImportBoundingBox( TGeoBBox * box ) const
+void DecayVolume::ImportBoundingBox( TGeoBBox * box ) const
 {
   fLx = 2.0 * box->GetDX() * units::cm / lunits;
   fLy = 2.0 * box->GetDY() * units::cm / lunits;
@@ -378,7 +378,7 @@ void HNLDecayVolume::ImportBoundingBox( TGeoBBox * box ) const
     << "\nIn ROOT units this is origin at ( " << fOxROOT << ", " << fOyROOT << ", " << fOzROOT << " ) and sides " << fLxROOT << " x " << fLyROOT << " x " << fLzROOT << " [cm]";
 }
 //____________________________________________________________________________
-void HNLDecayVolume::SetStartingParameters( GHepRecord * event_rec, double HNLCoMTau, bool usingDk2nu, bool usingRootGeom, string geomfile ) const
+void DecayVolume::SetStartingParameters( GHepRecord * event_rec, double HNLCoMTau, bool usingDk2nu, bool usingRootGeom, string geomfile ) const
 {
   isUsingDk2nu = usingDk2nu;
   uMult = ( isUsingDk2nu ) ? units::m / units::mm : units::cm / units::mm;
@@ -414,7 +414,7 @@ void HNLDecayVolume::SetStartingParameters( GHepRecord * event_rec, double HNLCo
     fGeoManager = TGeoManager::Import(geomfile.c_str());
 }
 //____________________________________________________________________________
-bool HNLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 & momentum,
+bool DecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 & momentum,
 					       TVector3 & entryPoint, TVector3 & exitPoint,
 					       TGeoManager * gm, TGeoVolume * /* vol */ ) const
 {
@@ -567,19 +567,19 @@ bool HNLDecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 &
 }
 #endif // #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
 //____________________________________________________________________________
-void HNLDecayVolume::Configure(const Registry & config)
+void DecayVolume::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void HNLDecayVolume::Configure(string config)
+void DecayVolume::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void HNLDecayVolume::LoadConfig()
+void DecayVolume::LoadConfig()
 {
   if( fIsConfigLoaded ) return;
 
@@ -598,14 +598,14 @@ void HNLDecayVolume::LoadConfig()
   fIsConfigLoaded = true;
 }
 //____________________________________________________________________________
-void HNLDecayVolume::GetInterestingPoints( TVector3 & entryPoint, TVector3 & exitPoint, TVector3 & decayPoint ) const
+void DecayVolume::GetInterestingPoints( TVector3 & entryPoint, TVector3 & exitPoint, TVector3 & decayPoint ) const
 {
   entryPoint.SetXYZ( fEx, fEy, fEz );
   exitPoint.SetXYZ( fXx, fXy, fXz );
   decayPoint.SetXYZ( fDx, fDy, fDz );
 }
 //____________________________________________________________________________
-TVector3 HNLDecayVolume::ApplyUserRotation( TVector3 vec, bool doBackwards ) const
+TVector3 DecayVolume::ApplyUserRotation( TVector3 vec, bool doBackwards ) const
 {
   double vx = vec.X(), vy = vec.Y(), vz = vec.Z();
 
@@ -630,7 +630,7 @@ TVector3 HNLDecayVolume::ApplyUserRotation( TVector3 vec, bool doBackwards ) con
   return nvec;
 }
 //____________________________________________________________________________
-TVector3 HNLDecayVolume::ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::vector<double> rotVec, bool doBackwards ) const
+TVector3 DecayVolume::ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::vector<double> rotVec, bool doBackwards ) const
 {
   double vx = vec.X(), vy = vec.Y(), vz = vec.Z();
   double ox = oriVec.X(), oy = oriVec.Y(), oz = oriVec.Z();
