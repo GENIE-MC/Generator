@@ -64,7 +64,6 @@ void Decayer::ProcessEventRecord(GHepRecord * event) const
     << " for an initial state with PDG code " << fCurrInitStatePdg;
 
   this->AddInitialState(event);
-  //this->GenerateDecayPosition(event);
   this->GenerateDecayProducts(event);
   this->UpdateEventRecord(event);
 

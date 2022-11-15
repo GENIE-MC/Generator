@@ -89,6 +89,7 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * event_rec) const
     newProdVtx->emplace_back( startPoint.Y() );
     newProdVtx->emplace_back( startPoint.Z() );
 
+    /*
     while( !didIntersectDet && trajIdx < trajMax ){
       // sample prod vtx and momentum... again
       newProdVtx  = hnlgen->GenerateDecayPosition( event_rec );
@@ -100,11 +101,13 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
       newProdVtx->clear();
     }
+    */
 
   }
-  if( trajIdx == trajMax && !didIntersectDet ){ // bail
+  //if( trajIdx == trajMax && !didIntersectDet ){ // bail
+  if( !didIntersectDet ){ // bail
     LOG( "HNL", pERROR )
-      << "Unable to make a single good trajectory that intersects the detector after " << trajIdx << " tries! Bailing...";
+      << "Bailing...";
     TLorentzVector v4dummy( -999.9, -999.9, -999.9, -999.9 );
     event_rec->SetVertex( v4dummy );
     return;
@@ -160,6 +163,24 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
   event_rec->SetVertex(x4);
 
+  // the validation app doesn't run the Decayer. So we will insert two neutrinos (not a valid
+  // decay mode), to store entry and exit point
+  if( !isUsingDk2nu ){
+    assert( !event_rec->Particle(1) );
+    
+    TLorentzVector tmpp4( 0.0, 0.0, 0.0, 0.5 );
+    TLorentzVector ex4( 0.0, 0.0, 0.0, 0.0 );
+    ex4.SetXYZT( entryPoint.X(), entryPoint.Y(), entryPoint.Z(), 0.0 );
+    TLorentzVector xx4( 0.0, 0.0, 0.0, 0.0 );
+    xx4.SetXYZT( exitPoint.X(), exitPoint.Y(), exitPoint.Z(), 0.0 );
+
+    GHepParticle nu1( genie::kPdgNuMu, kIStStableFinalState, -1, -1, -1, -1, tmpp4, ex4 );
+    GHepParticle nu2( genie::kPdgAntiNuMu, kIStStableFinalState, -1, -1, -1, -1, tmpp4, xx4 );
+
+    event_rec->AddParticle( nu1 ); event_rec->AddParticle( nu2 );
+
+    event_rec->SetWeight(weight);
+  }
   // also set entry and exit points. Do this in x4 of Particles(1,2)
   (event_rec->Particle(1))->SetPosition( entryPoint.X(), entryPoint.Y(), entryPoint.Z(), 0.0 );
   (event_rec->Particle(2))->SetPosition( exitPoint.X(), exitPoint.Y(), exitPoint.Z(), 0.0 );

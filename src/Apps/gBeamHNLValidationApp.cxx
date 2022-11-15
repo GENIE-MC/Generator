@@ -850,9 +850,12 @@ int TestGeom(void)
   outTree->Branch( "lifetime_CM",  &use_CMlifetime,  "lifetime_CM/D"     );
 
   TH1D hWeight( "hWeight", "Log_{10} ( P( decay in detector ) )", 
-		80, -7.0, 1.0  );
+		160, -15.0, 1.0  );
   TH1D hLength( "hLength", "Length travelled in detector / max possible length in detector",
 		100, 0., 1.0 );
+
+  // tell the VertexGenerator it shouldn't be worried if trajectories don't intersect.
+  __attribute__((unused)) int idset = setenv( "NOTUSINGDK2NU", "1", 1 );
 
   gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str());
   TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
@@ -1034,6 +1037,9 @@ int TestGeom(void)
       exitPoint.SetXYZ( event->Particle(2)->Vx(), event->Particle(2)->Vy(), event->Particle(2)->Vz() );
       use_wgt = event->Weight();
 
+      TLorentzVector * nu1p4 = event->Particle(1)->GetX4();
+      TLorentzVector * nu2p4 = event->Particle(2)->GetX4();
+
       // set the branch entries now
       use_entry[0] = entryPoint.X();
       use_entry[1] = entryPoint.Y();
@@ -1046,9 +1052,21 @@ int TestGeom(void)
       use_decay[0] = decayPoint.X();
       use_decay[1] = decayPoint.Y();
       use_decay[2] = decayPoint.Z();
+
+      double devX = decayPoint.X() * units::m / units::mm - entryPoint.X();
+      double devY = decayPoint.Y() * units::m / units::mm - entryPoint.Y();
+      double devZ = decayPoint.Z() * units::m / units::mm - entryPoint.Z();
+
+      double mdeX = exitPoint.X() - entryPoint.X();
+      double mdeY = exitPoint.Y() - entryPoint.Y();
+      double mdeZ = exitPoint.Z() - entryPoint.Z();
+
+      double elapsedLength = std::sqrt( devX * devX + devY * devY + devZ * devZ );
+      double maxLength     = std::sqrt( mdeX * mdeX + mdeY * mdeY + mdeZ * mdeZ );
       
       // also fill the histos
-      hWeight.Fill( std::log10( use_wgt ), 1.0 );
+      hWeight.Fill( -1.0 * std::log10( use_wgt ), 1.0 );
+      hLength.Fill( elapsedLength / maxLength );
       didIntersectDet = true;
 
     } else { // didn't intersect vertex, use nonsense
