@@ -705,7 +705,9 @@ int TestDecay(void)
       // build an event
       EventRecord * event = new EventRecord;
       Interaction * interaction = Interaction::HNL( genie::kPdgHNL, gOptEnergyHNL, validModes[ iMode ] );
-      // set p4 and a dummy vertex so Decayer doesn't attempt to regenerate init state
+      // set Particle(0) and a dummy vertex
+      GHepParticle ptHNL( kPdgHNL, kIStInitialState, -1, -1, -1, -1, *p4HNL, *x4HNL );
+      event->AddParticle( ptHNL );
       interaction->InitStatePtr()->SetProbeP4( *p4HNL );
       event->SetVertex( *x4HNL );
 

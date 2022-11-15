@@ -374,6 +374,10 @@ int main(int argc, char ** argv)
      TLorentzVector * x4orig = GenerateOriginPosition( event );
      TLorentzVector * p4HNL  = GenerateOriginMomentum( event );
 
+     // and add as Particle(0)
+     GHepParticle ptHNL( kPdgHNL, kIStInitialState, -1, -1, -1, -1, *p4HNL, *x4orig );
+     event->AddParticle( ptHNL );
+
      LOG("gevgen_pghnl", pDEBUG)
        << "Note decay mode is " << utils::hnl::AsString(gOptDecayMode);
 
