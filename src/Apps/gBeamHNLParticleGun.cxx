@@ -118,6 +118,8 @@ using namespace genie::hnl::enums;
 void  GetCommandLineArgs (int argc, char ** argv);
 void  PrintSyntax        (void);
 
+double GetValueFromEnv    (char * var);
+
 int   SelectDecayMode    (std::vector<HNLDecayMode_t> *intChannels, SimpleHNL sh);
 const EventRecordVisitorI * HNLGenerator(void);
 
@@ -232,34 +234,28 @@ int main(int argc, char ** argv)
   TGeoBBox *  box = (TGeoBBox *)ts;
 
   string confString = kDefOptSName + kDefOptSConfig;
-  //const double confMass = hnlgen->GetHNLMass( confString );
-  //const std::vector< double > confCoups = hnlgen->GetHNLCouplings( confString );
 
-  SimpleHNL confsh = hnlgen->GetHNLInstance( confString );
-  const double confMass = confsh.GetMass();
-  const std::vector< double > confCoups = confsh.GetCouplings();
-  const bool confIsMajorana = confsh.GetIsMajorana();
-  const int confType = confsh.GetType();
-  const std::vector< HNLDecayMode_t > confIntChan = confsh.GetInterestingChannelsVec();
+  // get the CoMLifetime through an env-variable that's been set at Decayer config
+  CoMLifetime = GetValueFromEnv( "HNL_LIFETIME" );
 
-  CoMLifetime = confsh.GetCoMLifetime();
+  //gOptMassHNL    = GetValueFromEnv( "HNL_MASS"  );
+  gOptECoupling  = GetValueFromEnv( "HNL_ECOUP" );
+  gOptMCoupling  = GetValueFromEnv( "HNL_MCOUP" );
+  gOptTCoupling  = GetValueFromEnv( "HNL_TCOUP" );
+  gOptIsMajorana = GetValueFromEnv( "HNL_ISMAJORANA" );
 
-  LOG( "gevgen_pghnl", pDEBUG )
-    << "At app stage we see:"
-    << "\nMass = " << confMass << " GeV"
-    << "\nECoup = " << confCoups.at(0)
-    << "\nMCoup = " << confCoups.at(1)
-    << "\nTCoup = " << confCoups.at(2)
-    << "\nIsMajorana = " << confIsMajorana
-    << "\nType = " << confType;
+  assert( std::getenv( "HNL_INTCHANNELS" ) != NULL );
+  std::string stIntChannels = std::getenv( "HNL_INTCHANNELS" ); int iChan = -1;
+  if( gOptIntChannels.size() > 0 ) gOptIntChannels.clear();
+  while( stIntChannels.size() > 0 ){ // read channels from right (lowest mass) to left (highest mass)
+    iChan++;
+    HNLDecayMode_t md = static_cast< HNLDecayMode_t >( iChan );
+    std::string tmpSt = stIntChannels.substr( stIntChannels.size()-1, stIntChannels.size() );
+    if( std::strcmp( tmpSt.c_str(), "1" ) == 0 )
+      gOptIntChannels.emplace_back( md );
 
-  gOptECoupling = confCoups.at(0);
-  gOptMCoupling = confCoups.at(1);
-  gOptTCoupling = confCoups.at(2);
-  gOptHNLKind = confType; // for mixing
-  gOptIsMajorana = confIsMajorana;
-
-  gOptIntChannels = confIntChan;
+    stIntChannels.erase( stIntChannels.end()-1, stIntChannels.end() );
+  }
 
   assert( gOptECoupling >= 0.0 && gOptMCoupling >= 0.0 && gOptTCoupling >= 0.0 );
 
@@ -277,7 +273,6 @@ int main(int argc, char ** argv)
   ntpw.EventTree()->Branch("hnl_coup_m", &gOptMCoupling, "gOptMCoupling/D");
   ntpw.EventTree()->Branch("hnl_coup_t", &gOptTCoupling, "gOptTCoupling/D");
   ntpw.EventTree()->Branch("hnl_ismaj", &gOptIsMajorana, "gOptIsMajorana/I");
-  ntpw.EventTree()->Branch("hnl_type", &gOptHNLKind, "gOptHNLKind/I");
 
   // let's make HNL-specific FS branches until we get gntpc sorted out
   ntpw.EventTree()->Branch("hnl_IS_E", &NTP_IS_E, "NTP_IS_E/D");
@@ -685,6 +680,21 @@ int SelectDecayMode( std::vector< HNLDecayMode_t > * intChannels, SimpleHNL sh )
 
   int decay = ( int ) selectedDecayChan;
   return decay;
+}
+//_________________________________________________________________________________________
+double GetValueFromEnv(char * var)
+{
+  assert( std::getenv( var ) != NULL );
+  std::string stVar = std::getenv( var );
+
+  if( std::strcmp( var, "0" ) == 0 ) return 0.0;
+
+  std::string stMant = stVar.substr( 0, stVar.find("e") );
+  std::string stExpo = stVar.substr( stVar.find("e") + 1, stVar.size() );
+  int iMant = std::stoi( stMant ); double mant = iMant;
+  int iExpo = std::stoi( stExpo ); double expo = iExpo;
+  
+  return mant * std::pow( 10.0, expo );
 }
 //_________________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)

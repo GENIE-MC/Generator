@@ -71,7 +71,18 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
 	evrec->AddParticle( ptHNL );
       }
 
-    }
+      if( fGnmf.fgXYWgt >= 0.0 ){
+	// set some event information where subsequent events can see it.
+	// Use the x4 position of the HNL. First, ensure the Vertex() is correctly set.
+	TLorentzVector * vx4 = evrec->Particle(0)->GetX4();
+	evrec->SetVertex( *vx4 );
+	TLorentzVector tmpx4( fLPx, fLPy, fGnmf.ptype, fGnmf.ppmedium );
+	if( fLPz >= 0.0 ) evrec->SetXSec( 1.0 );
+	else evrec->SetXSec( -1.0 );
+	evrec->Particle(0)->SetPosition( tmpx4 );
+	
+      } // if( fGnmf.fgXYWgt >= 0 )
+    } // if( iCurrEntry > fFirstEntry )
   } else {
     LOG( "HNL", pFATAL )
       << "No input dk2nu flux detected. Cannot proceed.";
@@ -398,12 +409,6 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
   
   // calculate acceptance correction
   // first, get minimum and maximum deviation from parent momentum to hit detector in degrees
-
-  /*
-  double zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par, detO, false );
-  double zp = this->GetAngDeviation( p4par, detO, true );
-  */
-
   double zm = 0.0, zp = 0.0;
   if( fIsUsingRootGeom ){
     this->GetAngDeviation( p4par_beam, detO_beam, zm, zp );
@@ -904,7 +909,6 @@ void FluxCreator::OpenFluxInput( std::string finpath ) const
 //----------------------------------------------------------------------------
 void FluxCreator::InitialiseTree() const
 {
-  LOG("HNL", pDEBUG) << "Tree initialised";
   potnum = 0.0;
   decay_ptype = 0;
   decay_vx = 0.0; decay_vy = 0.0; decay_vz = 0.0;
@@ -1516,9 +1520,6 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
 {
   // implementation of GetAngDeviation that uses ROOT geometry. More robust than analytical geom
   // (fewer assumptions about detector position)
-  
-  LOG( "HNL", pDEBUG )
-    << "Entering GetAngDeviation( TLorentzVector, TVector3, ... )";
 
   TVector3 ppar = p4par.Vect(); assert( ppar.Mag() > 0.0 );
   TVector3 pparUnit = ppar.Unit();
@@ -1607,6 +1608,7 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
   // now sweep along sweepVect until we hit either side of the detector. 
   // This will give us two points in space
 
+  /*
   LOG( "HNL", pDEBUG )
     << "\npparUnit = ( " << pparUnit.X() << ", " << pparUnit.Y() << ", " << pparUnit.Z() << " )"
     << "\ndetO = ( " << detO_cm.X() << ", " << detO_cm.Y() << ", " << detO_cm.Z() << " ) [cm]"
@@ -1617,6 +1619,7 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
     << "\nDetector rotation in extrinsic x-z-x = ( " << fBx1 << ", " << fBz << ", " << fBx2 << " ) [rad]"
     << "\nCurrent point (in user coords) = ( " << detStartPoint.X() << ", " << detStartPoint.Y() << ", " << detStartPoint.Z() << " ) [cm]"
     << "\nCurrent direction = ( " << detSweepVect.X() << ", " << detSweepVect.Y() << ", " << detSweepVect.Z() << " )";
+  */
 
   //gm->SetCurrentPoint( detStartPoint.X(), detStartPoint.Y(), detStartPoint.Z() );
   gGeoManager->SetCurrentPoint( detStartPoint.X(), detStartPoint.Y(), detStartPoint.Z() );
@@ -1635,9 +1638,6 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
   // sometimes the TGeoManager likes to hit the BBox and call this an entry point. Step forward again.
   //const double * tmpPoint = gm->GetCurrentPoint();
   const double * tmpPoint = gGeoManager->GetCurrentPoint();
-
-  LOG( "HNL", pDEBUG )
-    << "\ntmpPoint = ( " << tmpPoint[0] << ", " << tmpPoint[1] << ", " << tmpPoint[2] << " ) [ local, cm ]";
 
   /*
   if( std::abs(tmpPoint[0]) == fLxR/2.0 * units::m / units::cm ||
@@ -1703,6 +1703,7 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
     zm = zp;
   }
 
+  /*
   LOG( "HNL", pDEBUG )
     << "\nIn DETECTOR coordinates:"
     << "\nentered at ( " << minusPoint[0] << ", " << minusPoint[1] << ", " << minusPoint[2] << " ) [cm]"
@@ -1710,6 +1711,7 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
     << "\nstarted at ( " << decVec.X() << ", " << decVec.Y() << ", " << decVec.Z() << " ) [cm]"
     << "\nmomentum   ( " << detPpar.X() << ", " << detPpar.Y() << ", " << detPpar.Z() << " )"
     << "\nmeaning zm = " << zm << ", zp = " << zp << " [deg]";
+  */
 }
 //----------------------------------------------------------------------------
 double FluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLorentzVector p4HNL,
@@ -2007,6 +2009,7 @@ void FluxCreator::LoadConfig(void)
 	   utils::hnl::IsProdKinematicallyAllowed( kHNLProdKaon3Electron ) )
     POTScaleWeight = fScales[3]; // only charged kaons contribute
 
+  /*
   LOG( "HNL", pDEBUG )
     << "Read the following parameters :"
     << "\n Mass = " << fMass
@@ -2015,6 +2018,7 @@ void FluxCreator::LoadConfig(void)
     << "\n rotation = " << fB2URotation.at(0) << ", " << fB2URotation.at(1) << ", " << fB2URotation.at(2)
     << "\n isParentOnAxis = " << isParentOnAxis
     << "\n POTScaleWeight = " << POTScaleWeight;
+  */
 
   fIsConfigLoaded = true;
 }

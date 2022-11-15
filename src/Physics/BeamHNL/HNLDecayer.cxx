@@ -63,6 +63,7 @@ void Decayer::ProcessEventRecord(GHepRecord * event) const
     << "Simulating HNL decay " << utils::hnl::AsString(fCurrDecayMode)
     << " for an initial state with PDG code " << fCurrInitStatePdg;
 
+  this->ReadCreationInfo(event);
   this->AddInitialState(event);
   this->GenerateDecayProducts(event);
   this->UpdateEventRecord(event);
@@ -434,19 +435,38 @@ void Decayer::LoadConfig(void)
   SetBeam2User( fB2UTranslation, fB2URotation );
 
   fIntChannels = {}; bool itChan = false;
-  // RETHERE for now I parse the channels manually... need to add automatic recognition?
-  this->GetParam( "HNL-2B_mu_pi",  itChan ); if( itChan ) fIntChannels.push_back( kHNLDcyPiMu );
-  this->GetParam( "HNL-2B_e_pi",   itChan ); if( itChan ) fIntChannels.push_back( kHNLDcyPiE );
-  this->GetParam( "HNL-2B_nu_pi0", itChan ); if( itChan ) fIntChannels.push_back( kHNLDcyPi0Nu );
-  this->GetParam( "HNL-3B_nu_nu_nu",   itChan ); if( itChan ) fIntChannels.push_back( kHNLDcyNuNuNu );
-  this->GetParam( "HNL-3B_nu_mu_mu",   itChan ); if( itChan ) fIntChannels.push_back( kHNLDcyNuMuMu );
-  this->GetParam( "HNL-3B_nu_e_e",     itChan ); if( itChan ) fIntChannels.push_back( kHNLDcyNuEE );
-  this->GetParam( "HNL-3B_nu_mu_e",    itChan ); if( itChan ) fIntChannels.push_back( kHNLDcyNuMuE );
-  this->GetParam( "HNL-3B_e_pi_pi0",   itChan ); if( itChan ) fIntChannels.push_back( kHNLDcyPiPi0E );
-  this->GetParam( "HNL-3B_mu_pi_pi0",  itChan ); if( itChan ) fIntChannels.push_back( kHNLDcyPiPi0Mu );
-  this->GetParam( "HNL-3B_nu_pi0_pi0", itChan ); if( itChan ) fIntChannels.push_back( kHNLDcyPi0Pi0Nu );
+  int chanBits[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+  this->GetParam( "HNL-3B_nu_nu_nu",   itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyNuNuNu ); chanBits[0] = 1; }
+  this->GetParam( "HNL-3B_nu_e_e",     itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyNuEE ); chanBits[1] = 1; }
+  this->GetParam( "HNL-3B_nu_mu_e",    itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyNuMuE ); chanBits[2] = 1; }
+  this->GetParam( "HNL-2B_nu_pi0", itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPi0Nu ); chanBits[3] = 1; }
+  this->GetParam( "HNL-2B_e_pi",   itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPiE ); chanBits[4] = 1; }
+  this->GetParam( "HNL-3B_nu_mu_mu",   itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyNuMuMu ); chanBits[5] = 1; }
+  this->GetParam( "HNL-2B_mu_pi",  itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPiMu ); chanBits[6] = 1; }
+  this->GetParam( "HNL-3B_nu_pi0_pi0", itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPi0Pi0Nu ); chanBits[7] = 1; }
+  this->GetParam( "HNL-3B_e_pi_pi0",   itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPiPi0E ); chanBits[8] = 1; }
+  this->GetParam( "HNL-3B_mu_pi_pi0",  itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPiPi0Mu ); chanBits[9] = 1; }
 
   this->GetParam( "GetCMFrameInstead", fGetCMFrameInstead );
+
+  this->SetEnvVariable( "HNL_MASS", fMass );
+  this->SetEnvVariable( "HNL_ECOUP", U4l2s.at(0) );
+  this->SetEnvVariable( "HNL_MCOUP", U4l2s.at(1) );
+  this->SetEnvVariable( "HNL_TCOUP", U4l2s.at(2) );
+  this->SetEnvVariable( "HNL_ISMAJORANA", fIsMajorana ); // cast is implicit in argument
+  // call GetHNLInstance here, to get lifetime
+  SimpleHNL sh = this->GetHNLInstance( "BeamHNL" );
+  double CoMLifetime = sh.GetCoMLifetime();
+  assert( CoMLifetime > 0.0 );
+  this->SetEnvVariable( "HNL_LIFETIME", CoMLifetime );
+
+  // also set an env-variable with 10 bits of 0 (inhibit) or 1 (interesting) channel
+  std::string chanEnv = "";
+  for( int iCBits = sizeof( chanBits ) / sizeof( chanBits[0] ) - 1; iCBits >= 0 ; iCBits-- ){
+    chanEnv.append( Form("%d", chanBits[iCBits]) );
+  }
+  __attribute__((unused)) int icset = setenv( "HNL_INTCHANNELS", chanEnv.c_str(), 1 );
 
   fIsConfigLoaded = true;
 }
@@ -488,15 +508,36 @@ void Decayer::SetProdVtxPosition(const TLorentzVector & v4) const
   fProdVtx = pv4;
 }
 //____________________________________________________________________________
-void Decayer::ReadCreationInfo( flux::GNuMIFluxPassThroughInfo gnmf ) const
+void Decayer::ReadCreationInfo( GHepRecord * event ) const
 {
   if( fPolDir.size() > 0 ) fPolDir.clear();
+  /*
   fPolDir.emplace_back( gnmf.ppvx );
   fPolDir.emplace_back( gnmf.ppvy );
   fPolDir.emplace_back( gnmf.ppvz );
 
   fParentPdg = gnmf.ptype;
   fProdLepPdg = gnmf.ppmedium;
+  */
+
+  TLorentzVector * vv = event->Vertex();
+  TLorentzVector * tmpx4 = event->Particle(0)->GetX4();
+  // this will only have been modified if we have enough polarisation information to do something.
+  // Otherwise, FluxCreator hasn't been run and we shouldn't do stuff.
+  if( tmpx4->X() != vv->X() || tmpx4->Y() != vv->Y() || tmpx4->Z() != vv->Z() ){
+    fPolDir.emplace_back( tmpx4->X() );
+    fPolDir.emplace_back( tmpx4->Y() );
+    int tmpMod = ( event->XSec() > 0.0 ) ? 1 : -1;
+    fPolDir.emplace_back( tmpMod * std::sqrt( 1.0 - 
+					      ( tmpx4->X() * tmpx4->X() + tmpx4->Y() * tmpx4->Y() ) ) );
+    
+    fParentPdg = tmpx4->Z();
+    fProdLepPdg = tmpx4->T();
+
+    // now reset the x4 of the HNL to whatever the vertex is
+    event->Particle(0)->SetPosition( vv->X(), vv->Y(), vv->Z(), vv->T() );
+    event->SetXSec(0.0);
+  } else { return; }
 }
 //____________________________________________________________________________
 void Decayer::UnpolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, bool failed = false ) const
@@ -644,4 +685,38 @@ double Decayer::CalcPolMod( double polMag, int lepPdg, int hadPdg, double M ) co
 
   double pMod = num1*num2*num3 / ( den1*den1 - den2 );
   return pMod;
+}
+//____________________________________________________________________________
+void Decayer::SetEnvVariable( char * var, double value ) const
+{
+  // breaks value into two integers to get rep value = (i1)e(i2)
+  // then sets an env-variable with name var to that rep
+  // such that it can be read by any part of the module later on and then forgotten by the system
+
+  if( value == 0.0 ){
+    __attribute__((unused)) int iset = setenv( var, "0", 1 ); return;
+  }
+
+  int sgn = (value > 0.0) ? 1 : -1;
+  value = std::abs(value);
+
+  int expo = std::floor( std::log10( value ) );
+  double mant = value / std::pow( 10.0, expo );
+  int iPrec = 0;
+  while( mant - (int) mant > 0.0 and iPrec < 10 ){ // up to 10 digits of precision
+    expo--;
+    mant *= 10.0;
+
+    if( (int) mant < 0.0 ){ // this is a weirdness that happens due to floating-point representation
+      mant /= 10.0;
+      expo++;
+      break;
+    }
+    iPrec++;
+  }
+
+  mant *= sgn;
+  __attribute__((unused)) int iset = setenv( var, Form("%de%d", (int) mant, expo), 1 );
+
+  return;
 }

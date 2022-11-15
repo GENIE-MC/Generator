@@ -142,6 +142,7 @@ typedef enum t_HNLValidation {
 
 // function prototypes
 void  GetCommandLineArgs (int argc, char ** argv);
+double GetValueFromEnv    (char * var);
 void  ReadInConfig       (void);
 void  PrintSyntax        (void);
 const EventRecordVisitorI * HNLGenerator(void);
@@ -1192,7 +1193,21 @@ const EventRecordVisitorI * HNLGenerator(void)
 
   return mcgen;
 }
+//_________________________________________________________________________________________
+double GetValueFromEnv(char * var)
+{
+  assert( std::getenv( var ) != NULL );
+  std::string stVar = std::getenv( var );
 
+  if( std::strcmp( var, "0" ) == 0 ) return 0.0;
+
+  std::string stMant = stVar.substr( 0, stVar.find("e") );
+  std::string stExpo = stVar.substr( stVar.find("e") + 1, stVar.size() );
+  int iMant = std::stoi( stMant ); double mant = iMant;
+  int iExpo = std::stoi( stExpo ); double expo = iExpo;
+  
+  return mant * std::pow( 10.0, expo );
+}
 //_________________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
@@ -1379,14 +1394,14 @@ void ReadInConfig(void)
   const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
   const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
 
-  SimpleHNL confsh = hnlgen->GetHNLInstance( "BeamHNL" );
-  gCfgMassHNL   = confsh.GetMass();
-  const std::vector< double > confCoups = confsh.GetCouplings();
-  gCfgECoupling = confCoups.at(0);
-  gCfgMCoupling = confCoups.at(1);
-  gCfgTCoupling = confCoups.at(2);
+  // get the CoMLifetime through an env-variable that's been set at Decayer config
+  CoMLifetime = GetValueFromEnv( "HNL_LIFETIME" );
 
-  CoMLifetime = confsh.GetCoMLifetime();
+  gCfgMassHNL    = GetValueFromEnv( "HNL_MASS"  );
+  gCfgECoupling  = GetValueFromEnv( "HNL_ECOUP" );
+  gCfgMCoupling  = GetValueFromEnv( "HNL_MCOUP" );
+  gCfgTCoupling  = GetValueFromEnv( "HNL_TCOUP" );
+  gCfgIsMajorana = GetValueFromEnv( "HNL_ISMAJORANA" );
 
   gOptEnergyHNL = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-Energy" );
 
@@ -1402,7 +1417,18 @@ void ReadInConfig(void)
   gCfgHNLCy *= invdircosmag;
   gCfgHNLCz *= invdircosmag;
   
-  gCfgIntChannels = confsh.GetInterestingChannelsVec();
+  assert( std::getenv( "HNL_INTCHANNELS" ) != NULL );
+  std::string stIntChannels = std::getenv( "HNL_INTCHANNELS" ); int iChan = -1;
+  if( gCfgIntChannels.size() > 0 ) gCfgIntChannels.clear();
+  while( stIntChannels.size() > 0 ){ // read channels from right (lowest mass) to left (highest mass)
+    iChan++;
+    HNLDecayMode_t md = static_cast< HNLDecayMode_t >( iChan );
+    std::string tmpSt = stIntChannels.substr( stIntChannels.size()-1, stIntChannels.size() );
+    if( std::strcmp( tmpSt.c_str(), "1" ) == 0 )
+      gCfgIntChannels.emplace_back( md );
+
+    stIntChannels.erase( stIntChannels.end()-1, stIntChannels.end() );
+  }
 
   const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::hnl::FluxCreator", "Default");
   const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );

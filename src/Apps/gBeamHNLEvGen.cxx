@@ -128,11 +128,13 @@ using namespace genie::hnl::enums;
 #endif // #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
 
 // function prototypes
-void  GetCommandLineArgs (int argc, char ** argv);
-void  PrintSyntax        (void);
+void   GetCommandLineArgs (int argc, char ** argv);
+void   PrintSyntax        (void);
 
-int   SelectDecayMode    (std::vector<HNLDecayMode_t> *intChannels, SimpleHNL sh);
-const EventRecordVisitorI * HNLGenerator(void);
+double GetValueFromEnv    (char * var);
+
+int    SelectDecayMode    (std::vector<HNLDecayMode_t> *intChannels, SimpleHNL sh);
+const  EventRecordVisitorI * HNLGenerator(void);
 
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 void     GenerateEventsUsingFlux (void);
@@ -166,7 +168,6 @@ double           gOptMCoupling    = -1;                  // |U_m4|^2
 double           gOptTCoupling    = -1;                  // |U_t4|^2
 
 bool             gOptIsMajorana   = false;               // is this Majorana?
-int              gOptHNLKind      = -1;                  // 0 = nu, 1 = nubar, 2 = mix
 
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 string           gOptFluxFilePath = kDefOptFluxFilePath; // where flux files live
@@ -243,33 +244,29 @@ int main(int argc, char ** argv)
   //string confString = kDefOptSName + "/" + kDefOptSConfig;
   string confString = kDefOptSConfig;
 
-  SimpleHNL confsh = hnlgen->GetHNLInstance( confString );
-  const double confMass = confsh.GetMass();
-  const std::vector< double > confCoups = confsh.GetCouplings();
-  const bool confIsMajorana = confsh.GetIsMajorana();
-  const int confType = confsh.GetType();
-  //const double confAngDev = confsh.GetAngularDeviation();
-  //const std::vector< double > confT = confsh.GetBeam2UserTranslation();
-  //const std::vector< double > confR = confsh.GetBeam2UserRotation();
-  const std::vector< HNLDecayMode_t > confIntChan = confsh.GetInterestingChannelsVec();
+  // get the CoMLifetime through an env-variable that's been set at Decayer config
+  CoMLifetime = GetValueFromEnv( "HNL_LIFETIME" );
 
-  CoMLifetime = confsh.GetCoMLifetime();
+  //gOptMassHNL    = GetValueFromEnv( "HNL_MASS"  );
+  gOptECoupling  = GetValueFromEnv( "HNL_ECOUP" );
+  gOptMCoupling  = GetValueFromEnv( "HNL_MCOUP" );
+  gOptTCoupling  = GetValueFromEnv( "HNL_TCOUP" );
+  gOptIsMajorana = GetValueFromEnv( "HNL_ISMAJORANA" );
 
-  LOG( "gevgen_hnl", pDEBUG )
-    << "At app stage we see:"
-    << "\nMass = " << confMass << " GeV"
-    << "\nECoup = " << confCoups.at(0)
-    << "\nMCoup = " << confCoups.at(1)
-    << "\nTCoup = " << confCoups.at(2)
-    << "\nIsMajorana = " << confIsMajorana;
+  assert( std::getenv( "HNL_INTCHANNELS" ) != NULL );
+  std::string stIntChannels = std::getenv( "HNL_INTCHANNELS" ); int iChan = -1;
+  if( gOptIntChannels.size() > 0 ) gOptIntChannels.clear();
+  while( stIntChannels.size() > 0 ){ // read channels from right (lowest mass) to left (highest mass)
+    iChan++;
+    HNLDecayMode_t md = static_cast< HNLDecayMode_t >( iChan );
+    std::string tmpSt = stIntChannels.substr( stIntChannels.size()-1, stIntChannels.size() );
+    if( std::strcmp( tmpSt.c_str(), "1" ) == 0 )
+      gOptIntChannels.emplace_back( md );
 
-  gOptECoupling = confCoups.at(0);
-  gOptMCoupling = confCoups.at(1);
-  gOptTCoupling = confCoups.at(2);
-  gOptHNLKind = confType; // for mixing
-  gOptIsMajorana = confIsMajorana;
+    stIntChannels.erase( stIntChannels.end()-1, stIntChannels.end() );
+  }
 
-  gOptIntChannels = confIntChan;
+  //gOptIntChannels = confIntChan;
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
@@ -305,7 +302,6 @@ int main(int argc, char ** argv)
   ntpw.EventTree()->Branch("hnl_coup_m", &gOptMCoupling, "gOptMCoupling/D");
   ntpw.EventTree()->Branch("hnl_coup_t", &gOptTCoupling, "gOptTCoupling/D");
   ntpw.EventTree()->Branch("hnl_ismaj", &gOptIsMajorana, "gOptIsMajorana/I");
-  ntpw.EventTree()->Branch("hnl_type", &gOptHNLKind, "gOptHNLKind/I");
 
   // let's make HNL-specific FS branches until we get gntpc sorted out
   ntpw.EventTree()->Branch("hnl_IS_E", &NTP_IS_E, "NTP_IS_E/D");
@@ -470,9 +466,6 @@ int main(int argc, char ** argv)
      event->AttachSummary(interaction);
 
      // Simulate decay
-     //mcgen->ProcessEventRecord(event);
-     if( gOptIsUsingDk2nu )
-       hnlgen->ReadCreationInfo( gnmf );
      hnlgen->ProcessEventRecord(event);
 
      // add the FS 4-momenta to special branches
@@ -959,8 +952,6 @@ int SelectDecayMode( std::vector< HNLDecayMode_t > * intChannels, SimpleHNL sh )
   // set CoM lifetime now if unset
   if( CoMLifetime < 0.0 ){
     CoMLifetime = sh.GetCoMLifetime();
-    LOG( "gevgen_hnl", pDEBUG )
-      << "Rest frame CoMLifetime = " << CoMLifetime << " [GeV^{-1}]";
   }
 
   std::vector< HNLDecayMode_t > intAndValidChannels;
@@ -1016,6 +1007,21 @@ int SelectDecayMode( std::vector< HNLDecayMode_t > * intChannels, SimpleHNL sh )
   return decay;
 }
 //_________________________________________________________________________________________
+double GetValueFromEnv(char * var)
+{
+  assert( std::getenv( var ) != NULL );
+  std::string stVar = std::getenv( var );
+
+  if( std::strcmp( var, "0" ) == 0 ) return 0.0;
+
+  std::string stMant = stVar.substr( 0, stVar.find("e") );
+  std::string stExpo = stVar.substr( stVar.find("e") + 1, stVar.size() );
+  int iMant = std::stoi( stMant ); double mant = iMant;
+  int iExpo = std::stoi( stExpo ); double expo = iExpo;
+  
+  return mant * std::pow( 10.0, expo );
+}
+//_________________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gevgen_hnl", pINFO) << "Parsing command line arguments";
@@ -1055,23 +1061,6 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(0);
   } //-n
 
-  /*
-  // HNL mass
-  gOptMassHNL = -1;
-  if( parser.OptionExists("mass") ) {
-    LOG("gevgen_hnl", pDEBUG)
-        << "Reading HNL mass";
-    gOptMassHNL = parser.ArgAsDouble("mass");
-  } else {
-    LOG("gevgen_hnl", pFATAL)
-        << "You need to specify the HNL mass";
-    PrintSyntax();
-    exit(0);
-  } //--mass
-  PDGLibrary * pdglib = PDGLibrary::Instance();
-  //pdglib->AddHNL(gOptMassHNL);
-  */
-
   // get HNL mass directly from config
   gOptMassHNL = genie::utils::hnl::GetCfgDouble( "HNL", "ParameterSpace", "HNL-Mass" );
 
@@ -1084,7 +1073,6 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptFluxFilePath = parser.ArgAsString('f');
     
     // check if this is valid path (assume these are dk2nu files)
-    //if( gOptFluxFilePath.find( "dk2nu" ) != string::npos ){
     if( gSystem->OpenDirectory( gOptFluxFilePath.c_str() ) != NULL ){
       gOptIsUsingDk2nu = true;
       LOG("gevgen_hnl", pDEBUG)

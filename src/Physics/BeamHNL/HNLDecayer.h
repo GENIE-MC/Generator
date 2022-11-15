@@ -52,24 +52,26 @@ public:
   void Configure(const Registry & config);
   void Configure(string config);
 
-  // required public to reroll vertex positioning in main app 
-  std::vector< double > * GenerateDecayPosition (GHepRecord * event) const;
-  std::vector< double > * GenerateMomentum (GHepRecord * event) const;
-
-  genie::hnl::SimpleHNL GetHNLInstance(string config) const;
-
-  // get information about parent and polarisation from HNLFluxCreator
-  void ReadCreationInfo( genie::flux::GNuMIFluxPassThroughInfo gnmf ) const;
-
 private:
 
    void LoadConfig            (void);
+   void SetEnvVariable        (char * var, double value) const;
    void AddInitialState       (GHepRecord * event) const;
    void GenerateDecayProducts (GHepRecord * event) const;
    void UpdateEventRecord     (GHepRecord * event) const;
    void SetHNLCouplings       (double Ue42, double Um42, double Ut42) const;
    void SetBeam2User          (std::vector<double> translation, std::vector<double> rotation) const; 
    void SetProdVtxPosition    (const TLorentzVector & v4) const; // in detector coordinates
+
+   // get information about parent and polarisation from HNLFluxCreator
+   void ReadCreationInfo( GHepRecord * event ) const;
+   
+   // Construct a SimpleHNL to get information about lifetime, interesting channels
+   genie::hnl::SimpleHNL GetHNLInstance(string config) const;
+
+   // these 2 are legacy methods. Not to be used anymore
+   std::vector< double > * GenerateDecayPosition (GHepRecord * event) const;
+   std::vector< double > * GenerateMomentum (GHepRecord * event) const;
 
    // PolMag is a bit of a misnomer. It is a polarisation modulus, i.e. not positive semidefinite.
    double CalcPolMag          (int parPdg, int lepPdg, double M) const;

@@ -89,20 +89,6 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * event_rec) const
     newProdVtx->emplace_back( startPoint.Y() );
     newProdVtx->emplace_back( startPoint.Z() );
 
-    /*
-    while( !didIntersectDet && trajIdx < trajMax ){
-      // sample prod vtx and momentum... again
-      newProdVtx  = hnlgen->GenerateDecayPosition( event_rec );
-      
-      startPoint.SetXYZ( newProdVtx->at(0), newProdVtx->at(1), newProdVtx->at(2) );
-      
-      trajIdx++;
-      didIntersectDet = this->VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, fGeoManager, fGeoVolume );
-
-      newProdVtx->clear();
-    }
-    */
-
   }
   //if( trajIdx == trajMax && !didIntersectDet ){ // bail
   if( !didIntersectDet ){ // bail
