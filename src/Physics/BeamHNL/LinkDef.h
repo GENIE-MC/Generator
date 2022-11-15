@@ -15,7 +15,7 @@
 #pragma link C++ class genie::hnl::BRFunctions;
 #pragma link C++ class genie::hnl::FluxCreator;
 #pragma link C++ class genie::hnl::Decayer;
-#pragma link C++ class genie::hnl::DecayVolume;
+#pragma link C++ class genie::hnl::VertexGenerator;
 
 #pragma link C++ class genie::DummyHNLInteractionListGenerator;
 #pragma link C++ class genie::DummyHNLPXSec;

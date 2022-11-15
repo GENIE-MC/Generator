@@ -83,7 +83,7 @@
 #include "Framework/Ntuple/NtpWriter.h"
 #include "Physics/BeamHNL/HNLDecayMode.h"
 #include "Physics/BeamHNL/HNLDecayUtils.h"
-#include "Physics/BeamHNL/HNLDecayVolume.h"
+#include "Physics/BeamHNL/HNLVertexGenerator.h"
 #include "Physics/BeamHNL/HNLFluxCreator.h"
 #include "Physics/BeamHNL/HNLDecayer.h"
 #include "Physics/BeamHNL/SimpleHNL.h"
@@ -209,10 +209,10 @@ int main(int argc, char ** argv)
   // ==> Decayer::LoadConfig()
   const EventRecordVisitorI * mcgen = HNLGenerator();
   const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
-  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
+  const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
   
   const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
-  const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
+  const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
 
   bool geom_is_accessible = ! (gSystem->AccessPathName(gOptRootGeom.c_str()));
   if (!geom_is_accessible) {
@@ -379,7 +379,7 @@ int main(int argc, char ** argv)
 
      // Simulate decay
      hnlgen->ProcessEventRecord(event);
-     dkVol->ProcessEventRecord(event);
+     vtxGen->ProcessEventRecord(event);
 
      // add the FS 4-momenta to special branches
      // Quite inelegant. Gets the job done, though
@@ -470,9 +470,9 @@ void InitBoundingBox(void)
 
   TGeoBBox *  box = (TGeoBBox *)ts;
   
-  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
+  const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
 
-  const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
+  const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
 
   //get box origin and dimensions (in the same units as the geometry)
   fdx = box->GetDX();
@@ -589,10 +589,10 @@ TLorentzVector GeneratePosition( GHepRecord * event )
 {
   if( gOptUsingRootGeom ){
   
-    const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
+    const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
     
-    const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
-    dkVol->ProcessEventRecord( event );
+    const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
+    vtxGen->ProcessEventRecord( event );
     
     TLorentzVector x4 = *(event->Vertex());
     return x4;

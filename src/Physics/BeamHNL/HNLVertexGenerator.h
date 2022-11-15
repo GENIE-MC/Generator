@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class     genie::hnl::DecayVolume
+\class     genie::hnl::VertexGenerator
 
 \brief     Heavy Neutral Lepton decay vertex generator
            *** given production vertex and momentum ***
@@ -46,13 +46,13 @@ namespace hnl {
 
   class SimpleHNL;
 
-  class DecayVolume : public EventRecordVisitorI {
+  class VertexGenerator : public EventRecordVisitorI {
 
   public:
 
-    DecayVolume();
-    DecayVolume(string config);
-    ~DecayVolume();
+    VertexGenerator();
+    VertexGenerator(string config);
+    ~VertexGenerator();
 
     //-- implement the EventRecordVisitorI interface
     void ProcessEventRecord(GHepRecord * event_rec) const;
@@ -163,7 +163,7 @@ namespace hnl {
     mutable double fBx1, fBz, fBx2;  // rotation: from target-hall frame to user frame
     mutable std::vector< double > fB2UTranslation, fB2URotation, fDetTranslation, fDetRotation;
 
-  }; // class DecayVolume
+  }; // class VertexGenerator
 
 } // namespace hnl
 } // namespace genie

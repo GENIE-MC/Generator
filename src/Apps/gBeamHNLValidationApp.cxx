@@ -92,7 +92,7 @@
 
 #include "Physics/BeamHNL/HNLDecayMode.h"
 #include "Physics/BeamHNL/HNLDecayUtils.h"
-#include "Physics/BeamHNL/HNLDecayVolume.h"
+#include "Physics/BeamHNL/HNLVertexGenerator.h"
 #include "Physics/BeamHNL/HNLFluxCreator.h"
 #include "Physics/BeamHNL/HNLDecayer.h"
 #include "Physics/BeamHNL/HNLProductionMode.h"
@@ -567,9 +567,9 @@ int TestDecay(void)
   
   LOG( "gevald_hnl", pDEBUG ) << "Imported box.";
   
-  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
+  const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
   
-  const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
+  const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
   
   SimpleHNL sh = SimpleHNL( "HNLInstance", 0, kPdgHNL, kPdgKP,
 			    gCfgMassHNL, gCfgECoupling, gCfgMCoupling, gCfgTCoupling, false );
@@ -730,7 +730,7 @@ int TestDecay(void)
       TLorentzVector tmpVtx( ox, oy, oz, 0.0 );
       event->SetVertex( tmpVtx );
 
-      dkVol->ProcessEventRecord(event);
+      vtxGen->ProcessEventRecord(event);
 
       LOG( "gevald_hnl", pDEBUG ) << *event;
 
@@ -861,8 +861,8 @@ int TestGeom(void)
   // Read geometry bounding box - for vertex position generation
   InitBoundingBox();
 
-  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
-  const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
+  const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
+  const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
 
   // get SimpleHNL for lifetime
   SimpleHNL sh = SimpleHNL( "HNLInstance", 0, kPdgHNL, kPdgKP,
@@ -1026,10 +1026,9 @@ int TestGeom(void)
       << "\nProbe p4 = " << utils::print::P4AsString( event->Particle(0)->P4() );
     setenv( "PRODVTXDIR", "NODIR", 1 ); // needed to prevent hnlgen from crashing
 
-    dkVol->ProcessEventRecord(event);
+    vtxGen->ProcessEventRecord(event);
 
     if( event->Vertex()->T() != -999.9 ){
-      //dkVol->GetInterestingPoints( entryPoint, exitPoint, decayPoint );
       decayPoint.SetXYZ( event->Vertex()->X(), event->Vertex()->Y(), event->Vertex()->Z() );
       entryPoint.SetXYZ( event->Particle(1)->Vx(), event->Particle(1)->Vy(), event->Particle(1)->Vz() );
       exitPoint.SetXYZ( event->Particle(2)->Vx(), event->Particle(2)->Vy(), event->Particle(2)->Vz() );
@@ -1448,7 +1447,7 @@ void PrintSyntax(void)
    << "\n                   \"ParticleGun\" section in config"
    << "\n                   Regardless of how many events you ask for, this will evaluate 125x81"
    << "\n                   events: 5^3 from wiggling origin and 9^2 from wiggling momentum direction"
-   << "\n               4: Full simulation (like gevgen_hnl but with lots of debug!)"
+   << "\n                4: Full simulation (like gevgen_hnl but with lots of debug!)"
    << "\n"
    << "\n The configuration file lives at $GENIE/config/CommonHNL.xml - see"
    << " <param_set name=\"Validation\">"

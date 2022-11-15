@@ -90,7 +90,7 @@
 #include "Framework/Ntuple/NtpWriter.h"
 #include "Physics/BeamHNL/HNLDecayMode.h"
 #include "Physics/BeamHNL/HNLDecayUtils.h"
-#include "Physics/BeamHNL/HNLDecayVolume.h"
+#include "Physics/BeamHNL/HNLVertexGenerator.h"
 #include "Physics/BeamHNL/HNLFluxCreator.h"
 #include "Physics/BeamHNL/HNLDecayer.h"
 #include "Physics/BeamHNL/SimpleHNL.h"
@@ -234,11 +234,11 @@ int main(int argc, char ** argv)
   const EventRecordVisitorI * mcgen = HNLGenerator();
   const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::hnl::FluxCreator", "Default");
   const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
-  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
+  const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
 
   const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
   const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
-  const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
+  const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
   
   //string confString = kDefOptSName + "/" + kDefOptSConfig;
   string confString = kDefOptSConfig;
@@ -508,7 +508,7 @@ int main(int argc, char ** argv)
 
      // update weight to scale for couplings, inhibited decays
      // acceptance is already handled in FluxCreator
-     // geometry handled in DecayVolume
+     // geometry handled in VertexGenerator
      evWeight = event->Weight();
      evWeight *= 1.0 / ( gOptECoupling + gOptMCoupling + gOptTCoupling );
      evWeight *= 1.0 / decayMod;
@@ -610,10 +610,10 @@ void InitBoundingBox(void)
 
   TGeoBBox *  box = (TGeoBBox *)ts;
 
-  const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
+  const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
   const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::hnl::FluxCreator", "Default");
 
-  const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
+  const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
   const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
   
   // pass this box to FluxCreator
@@ -888,7 +888,7 @@ void FillFlux( flux::GNuMIFluxPassThroughInfo &ggn, flux::GNuMIFluxPassThroughIn
 //_________________________________________________________________________________________
 TLorentzVector GeneratePosition( GHepRecord * event )
 {
-  // this should now be an interface to DecayVolume::ProcessEventRecord(event)
+  // this should now be an interface to VertexGenerator::ProcessEventRecord(event)
   
   if( gOptUsingRootGeom ){
 
@@ -897,10 +897,10 @@ TLorentzVector GeneratePosition( GHepRecord * event )
     
     NTP_IS_E = p4HNL->E(); NTP_IS_PX = p4HNL->Px(); NTP_IS_PY = p4HNL->Py(); NTP_IS_PZ = p4HNL->Pz();
 
-    const Algorithm * algDkVol = AlgFactory::Instance()->GetAlgorithm("genie::hnl::DecayVolume", "Default");
+    const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
     
-    const DecayVolume * dkVol = dynamic_cast< const DecayVolume * >( algDkVol );
-    dkVol->ProcessEventRecord( event );
+    const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
+    vtxGen->ProcessEventRecord( event );
 
     TLorentzVector x4 = *(event->Vertex());
     return x4;

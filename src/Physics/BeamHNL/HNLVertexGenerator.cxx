@@ -8,31 +8,31 @@
 */
 //____________________________________________________________________________
 
-#include "Physics/BeamHNL/HNLDecayVolume.h"
+#include "Physics/BeamHNL/HNLVertexGenerator.h"
 
 using namespace genie;
 using namespace genie::hnl;
 using namespace genie::units;
 
 //____________________________________________________________________________
-DecayVolume::DecayVolume() :
-  EventRecordVisitorI("genie::hnl::DecayVolume")
+VertexGenerator::VertexGenerator() :
+  EventRecordVisitorI("genie::hnl::VertexGenerator")
 {
 
 }
 //____________________________________________________________________________
-DecayVolume::DecayVolume(string config) :
-  EventRecordVisitorI("genie::hnl::DecayVolume", config)
+VertexGenerator::VertexGenerator(string config) :
+  EventRecordVisitorI("genie::hnl::VertexGenerator", config)
 {
 
 }
 //____________________________________________________________________________
-DecayVolume::~DecayVolume()
+VertexGenerator::~VertexGenerator()
 {
 
 }
 //____________________________________________________________________________
-void DecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
+void VertexGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 {
   /*!
    *  Uses ROOT's TGeoManager to find out where the intersections with the detector volume live
@@ -166,7 +166,7 @@ void DecayVolume::ProcessEventRecord(GHepRecord * event_rec) const
   
 }
 //____________________________________________________________________________
-void DecayVolume::EnforceUnits( std::string length_units, std::string angle_units, std::string time_units ) const{
+void VertexGenerator::EnforceUnits( std::string length_units, std::string angle_units, std::string time_units ) const{
   
   LOG( "HNL", pWARN )
     << "Switching units to " << length_units.c_str() << " , " << angle_units.c_str() << " , " << time_units.c_str();
@@ -196,7 +196,7 @@ void DecayVolume::EnforceUnits( std::string length_units, std::string angle_unit
     << tunitString.c_str() << "]";
 }
 //____________________________________________________________________________
-double DecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, double maxLength ) const
+double VertexGenerator::CalcTravelLength( double betaMag, double CoMLifetime, double maxLength ) const
 {
   // decay probability P0(t) = 1 - exp( -t/tau ) where:
   // t   = time-of-flight (in rest frame)
@@ -237,7 +237,7 @@ double DecayVolume::CalcTravelLength( double betaMag, double CoMLifetime, double
   return elapsed_length;
 }
 //____________________________________________________________________________
-TVector3 DecayVolume::GetDecayPoint( double travelLength, TVector3 & entryPoint, TVector3 & momentum ) const
+TVector3 VertexGenerator::GetDecayPoint( double travelLength, TVector3 & entryPoint, TVector3 & momentum ) const
 {
   double ex = entryPoint.X(); double ey = entryPoint.Y(); double ez = entryPoint.Z();
   double px = momentum.X(); double py = momentum.Y(); double pz = momentum.Z();
@@ -256,7 +256,7 @@ TVector3 DecayVolume::GetDecayPoint( double travelLength, TVector3 & entryPoint,
   return decayPoint;
 }
 //____________________________________________________________________________
-double DecayVolume::GetMaxLength( TVector3 & entryPoint, TVector3 & exitPoint ) const
+double VertexGenerator::GetMaxLength( TVector3 & entryPoint, TVector3 & exitPoint ) const
 {
   double ex = entryPoint.X(); double ey = entryPoint.Y(); double ez = entryPoint.Z();
   double xx = exitPoint.X(); double xy = exitPoint.Y(); double xz = exitPoint.Z();
@@ -264,7 +264,7 @@ double DecayVolume::GetMaxLength( TVector3 & entryPoint, TVector3 & exitPoint ) 
   return std::sqrt( (ex-xx)*(ex-xx) + (ey-xy)*(ey-xy) + (ez-xz)*(ez-xz) );
 }
 //____________________________________________________________________________
-void DecayVolume::MakeSDV() const
+void VertexGenerator::MakeSDV() const
 {
   fOx = 0.0; fOy = 0.0; fOz = 0.0;
   fLx = 1.0; fLy = 1.0; fLz = 1.0; // m
@@ -285,7 +285,7 @@ void DecayVolume::MakeSDV() const
 }
 //____________________________________________________________________________
 // if entry and exit points, populate TVector3's with their coords. If not, return false
-bool DecayVolume::SDVEntryAndExitPoints( TVector3 & startPoint, TVector3 momentum,
+bool VertexGenerator::SDVEntryAndExitPoints( TVector3 & startPoint, TVector3 momentum,
 					    TVector3 & entryPoint, TVector3 & exitPoint ) const
 {
   assert( fOx == 0.0 && fOy == 0.0 && fOz == 0.0 && 
@@ -384,7 +384,7 @@ bool DecayVolume::SDVEntryAndExitPoints( TVector3 & startPoint, TVector3 momentu
 }
 //____________________________________________________________________________
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
-void DecayVolume::ImportBoundingBox( TGeoBBox * box ) const
+void VertexGenerator::ImportBoundingBox( TGeoBBox * box ) const
 {
   fLx = 2.0 * box->GetDX() * units::cm / lunits;
   fLy = 2.0 * box->GetDY() * units::cm / lunits;
@@ -406,9 +406,9 @@ void DecayVolume::ImportBoundingBox( TGeoBBox * box ) const
     << "\nIn ROOT units this is origin at ( " << fOxROOT << ", " << fOyROOT << ", " << fOzROOT << " ) and sides " << fLxROOT << " x " << fLyROOT << " x " << fLzROOT << " [cm]";
 }
 //____________________________________________________________________________
-void DecayVolume::SetStartingParameters( GHepRecord * event_rec ) const
+void VertexGenerator::SetStartingParameters( GHepRecord * event_rec ) const
 {
-  isUsingDk2nu = true; // always true now
+  isUsingDk2nu = ( std::getenv( "NOTUSINGDK2NU" ) == NULL );
   isUsingRootGeom = true;
 
   uMult = ( isUsingDk2nu ) ? units::m / units::mm : units::cm / units::mm;
@@ -438,7 +438,7 @@ void DecayVolume::SetStartingParameters( GHepRecord * event_rec ) const
   fPx = momentum.X(); fPy = momentum.Y(); fPz = momentum.Z();
 }
 //____________________________________________________________________________
-bool DecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 & momentum,
+bool VertexGenerator::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 & momentum,
 					       TVector3 & entryPoint, TVector3 & exitPoint,
 					       TGeoManager * gm, TGeoVolume * /* vol */ ) const
 {
@@ -591,19 +591,19 @@ bool DecayVolume::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 & mo
 }
 #endif // #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
 //____________________________________________________________________________
-void DecayVolume::Configure(const Registry & config)
+void VertexGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void DecayVolume::Configure(string config)
+void VertexGenerator::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void DecayVolume::LoadConfig()
+void VertexGenerator::LoadConfig()
 {
   if( fIsConfigLoaded ) return;
 
@@ -622,14 +622,14 @@ void DecayVolume::LoadConfig()
   fIsConfigLoaded = true;
 }
 //____________________________________________________________________________
-void DecayVolume::GetInterestingPoints( TVector3 & entryPoint, TVector3 & exitPoint, TVector3 & decayPoint ) const
+void VertexGenerator::GetInterestingPoints( TVector3 & entryPoint, TVector3 & exitPoint, TVector3 & decayPoint ) const
 {
   entryPoint.SetXYZ( fEx, fEy, fEz );
   exitPoint.SetXYZ( fXx, fXy, fXz );
   decayPoint.SetXYZ( fDx, fDy, fDz );
 }
 //____________________________________________________________________________
-TVector3 DecayVolume::ApplyUserRotation( TVector3 vec, bool doBackwards ) const
+TVector3 VertexGenerator::ApplyUserRotation( TVector3 vec, bool doBackwards ) const
 {
   double vx = vec.X(), vy = vec.Y(), vz = vec.Z();
 
@@ -654,7 +654,7 @@ TVector3 DecayVolume::ApplyUserRotation( TVector3 vec, bool doBackwards ) const
   return nvec;
 }
 //____________________________________________________________________________
-TVector3 DecayVolume::ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::vector<double> rotVec, bool doBackwards ) const
+TVector3 VertexGenerator::ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::vector<double> rotVec, bool doBackwards ) const
 {
   double vx = vec.X(), vy = vec.Y(), vz = vec.Z();
   double ox = oriVec.X(), oy = oriVec.Y(), oz = oriVec.Z();

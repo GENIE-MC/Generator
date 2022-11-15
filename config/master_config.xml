@@ -73,7 +73,7 @@
    <config alg="genie::hnl::BRFunctions">                BeamHNLGenerator.xml                </config>
    <config alg="genie::hnl::FluxCreator">                BeamHNLGenerator.xml                </config>
    <config alg="genie::hnl::Decayer">                    BeamHNLGenerator.xml                </config>
-   <config alg="genie::hnl::DecayVolume">                BeamHNLGenerator.xml                </config>
+   <config alg="genie::hnl::VertexGenerator">            BeamHNLGenerator.xml                </config>
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
    <config alg="genie::QELInteractionListGenerator">           QELInteractionListGenerator.xml       </config>
