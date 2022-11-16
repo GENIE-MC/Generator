@@ -450,18 +450,18 @@ void Decayer::LoadConfig(void)
 
   this->GetParam( "GetCMFrameInstead", fGetCMFrameInstead );
 
-  this->SetEnvVariable( "HNL_MASS", fMass );
-  this->SetEnvVariable( "HNL_ECOUP", U4l2s.at(0) );
-  this->SetEnvVariable( "HNL_MCOUP", U4l2s.at(1) );
-  this->SetEnvVariable( "HNL_TCOUP", U4l2s.at(2) );
-  this->SetEnvVariable( "HNL_ISMAJORANA", fIsMajorana ); // cast is implicit in argument
+  std::string stMass( "HNL_MASS" ); this->SetEnvVariable( stMass.c_str(), fMass );
+  std::string stECoup( "HNL_ECOUP" ); this->SetEnvVariable( stECoup.c_str(), U4l2s.at(0) );
+  std::string stMCoup( "HNL_MCOUP" ); this->SetEnvVariable( stMCoup.c_str(), U4l2s.at(1) );
+  std::string stTCoup( "HNL_TCOUP" ); this->SetEnvVariable( stTCoup.c_str(), U4l2s.at(2) );
+  std::string stIsMaj( "HNL_ISMAJORANA" ); this->SetEnvVariable( stIsMaj.c_str(), fIsMajorana ); // cast is implicit in argument
   // call GetHNLInstance here, to get lifetime
   SimpleHNL sh = this->GetHNLInstance( "BeamHNL" );
   double CoMLifetime = sh.GetCoMLifetime();
   assert( CoMLifetime > 0.0 );
-  this->SetEnvVariable( "HNL_LIFETIME", CoMLifetime );
+  std::string stCoM( "HNL_LIFETIME" ); this->SetEnvVariable( stCoM.c_str(), CoMLifetime );
 
-  // also set an env-variable with 10 bits of 0 (inhibit) or 1 (interesting) channel
+  // also set an env-variable with 10 bits of 0 (inhibited) or 1 (interesting) channel
   std::string chanEnv = "";
   for( int iCBits = sizeof( chanBits ) / sizeof( chanBits[0] ) - 1; iCBits >= 0 ; iCBits-- ){
     chanEnv.append( Form("%d", chanBits[iCBits]) );
@@ -687,7 +687,7 @@ double Decayer::CalcPolMod( double polMag, int lepPdg, int hadPdg, double M ) co
   return pMod;
 }
 //____________________________________________________________________________
-void Decayer::SetEnvVariable( char * var, double value ) const
+void Decayer::SetEnvVariable( const char * var, double value ) const
 {
   // breaks value into two integers to get rep value = (i1)e(i2)
   // then sets an env-variable with name var to that rep

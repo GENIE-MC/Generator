@@ -142,7 +142,7 @@ typedef enum t_HNLValidation {
 
 // function prototypes
 void  GetCommandLineArgs (int argc, char ** argv);
-double GetValueFromEnv    (char * var);
+double GetValueFromEnv   (const char * var);
 void  ReadInConfig       (void);
 void  PrintSyntax        (void);
 const EventRecordVisitorI * HNLGenerator(void);
@@ -295,15 +295,10 @@ int TestFluxFromDk2nu()
 
   const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
 
-  fluxCreator->SetInputPath( gOptFluxFilePath );
-  fluxCreator->SetGeomFile( gOptRootGeom );
-  int maxFluxEntries = fluxCreator->GetNEntries();
-  if( gOptNev > maxFluxEntries ){
-    LOG( "gevald_hnl", pWARN )
-      << "You have asked for " << gOptNev << " events, but only provided "
-      << maxFluxEntries << " flux entries. Truncating events to " << maxFluxEntries << ".";
-    gOptNev = maxFluxEntries;
-  }
+  __attribute__((unused)) int ifset = setenv( "DK2NUGENIEINPUT", gOptFluxFilePath.c_str(), 1 );
+  __attribute__((unused)) int igset = setenv( "GEOMGENIEINPUT", gOptRootGeom.c_str(), 1 );
+
+  int maxFluxEntries = -1;
 
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
 
@@ -311,7 +306,6 @@ int TestFluxFromDk2nu()
   assert( top_volume );
   TGeoShape * ts  = top_volume->GetShape();
   TGeoBBox *  box = (TGeoBBox *)ts;
-  fluxCreator->ImportBoundingBox( box );
 
   TFile * fout = TFile::Open( foutName.c_str(), "RECREATE" );
   TH1D hEAll, hEPion, hEKaon, hEMuon, hENeuk;
@@ -374,12 +368,21 @@ int TestFluxFromDk2nu()
       }
       
       if( ievent == gOptNev ) break;
-      
-      fluxCreator->SetCurrentEntry( ievent );
 
       EventRecord * event = new EventRecord;
+      event->SetXSec( ievent ); // will be overridden, use as handy container
 
       fluxCreator->ProcessEventRecord(event);
+      
+      // fluxCreator->ProcessEventRecord now tells us how many entries there are
+       if( maxFluxEntries < 0 ) maxFluxEntries = std::stoi( std::getenv( "HNL_FC_NENTRIES" ) );
+       if( gOptNev > maxFluxEntries ){
+	 LOG( "gevgen_hnl", pWARN )
+	   << "You have asked for " << gOptNev << " events, but only provided "
+	   << maxFluxEntries << " flux entries. Truncating events to " << maxFluxEntries << ".";
+	 gOptNev = maxFluxEntries;
+       }
+
       flux::GNuMIFluxPassThroughInfo * gnmf = fluxCreator->RetrieveGNuMIFluxPassThroughInfo();
       
       // reject nonsense
@@ -1194,7 +1197,7 @@ const EventRecordVisitorI * HNLGenerator(void)
   return mcgen;
 }
 //_________________________________________________________________________________________
-double GetValueFromEnv(char * var)
+double GetValueFromEnv(const char * var)
 {
   assert( std::getenv( var ) != NULL );
   std::string stVar = std::getenv( var );
@@ -1395,13 +1398,20 @@ void ReadInConfig(void)
   const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
 
   // get the CoMLifetime through an env-variable that's been set at Decayer config
-  CoMLifetime = GetValueFromEnv( "HNL_LIFETIME" );
+  std::string sCoMLifetime( "HNL_LIFETIME" );
+  CoMLifetime = GetValueFromEnv( sCoMLifetime.c_str() );
 
-  gCfgMassHNL    = GetValueFromEnv( "HNL_MASS"  );
-  gCfgECoupling  = GetValueFromEnv( "HNL_ECOUP" );
-  gCfgMCoupling  = GetValueFromEnv( "HNL_MCOUP" );
-  gCfgTCoupling  = GetValueFromEnv( "HNL_TCOUP" );
-  gCfgIsMajorana = GetValueFromEnv( "HNL_ISMAJORANA" );
+  std::string sMass( "HNL_MASS" );
+  std::string sECoup( "HNL_ECOUP" );
+  std::string sMCoup( "HNL_MCOUP" );
+  std::string sTCoup( "HNL_TCOUP" );
+  std::string sIsMajorana( "HNL_ISMAJORANA" );
+
+  gCfgMassHNL    = GetValueFromEnv( sMass.c_str()  );
+  gCfgECoupling  = GetValueFromEnv( sECoup.c_str() );
+  gCfgMCoupling  = GetValueFromEnv( sMCoup.c_str() );
+  gCfgTCoupling  = GetValueFromEnv( sTCoup.c_str() );
+  gCfgIsMajorana = GetValueFromEnv( sIsMajorana.c_str() );
 
   gOptEnergyHNL = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-Energy" );
 
@@ -1433,15 +1443,16 @@ void ReadInConfig(void)
   const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::hnl::FluxCreator", "Default");
   const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
 
-  std::vector< double > UserT = fluxCreator->GetB2UTranslation();
-  gCfgUserOx    = UserT.at(0);
-  gCfgUserOy    = UserT.at(1);
-  gCfgUserOz    = UserT.at(2);
+  assert( std::getenv( "HNL_FC_B2UTX" ) != NULL );
+  std::string sTX( "HNL_FC_B2UTX" ); std::string sTY( "HNL_FC_B2UTY" ); std::string sTZ( "HNL_FC_B2UTZ" );
+  gCfgUserOx    = GetValueFromEnv( sTX.c_str() );
+  gCfgUserOy    = GetValueFromEnv( sTY.c_str() );
+  gCfgUserOz    = GetValueFromEnv( sTZ.c_str() );
 
-  std::vector< double > UserR = fluxCreator->GetB2URotation();
-  gCfgUserAx1   = UserR.at(0);
-  gCfgUserAz    = UserR.at(1);
-  gCfgUserAx2   = UserR.at(2);
+  std::string sRX1( "HNL_FC_B2URX1" ); std::string sRZ( "HNL_FC_B2URZ" ); std::string sRX2( "HNL_FC_B2URX2" );
+  gCfgUserAx1   = GetValueFromEnv( sRX1.c_str() );
+  gCfgUserAz    = GetValueFromEnv( sRZ.c_str() );
+  gCfgUserAx2   = GetValueFromEnv( sRX2.c_str() );
 
   // now transform the lengths and angles to the correct units
   gCfgUserOx   *= units::m / gOptGeomLUnits;

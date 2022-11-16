@@ -38,6 +38,33 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
   // Also assigns the production vertex to evrec (this will be overwritten by subsequent modules)
   // Also adds (acceptance*nimpwt)^(-1) component of weight
 
+  if( std::strcmp( fCurrPath.c_str(), "" ) == 0 ){
+    assert( std::getenv( "DK2NUGENIEINPUT" ) != NULL );
+    this->SetInputPath( std::getenv( "DK2NUGENIEINPUT" ) );
+    
+    int maxFluxEntries = this->GetNEntries();
+    __attribute__((unused)) int ieset = setenv( "HNL_FC_NENTRIES", Form("%d", maxFluxEntries ), 1 );
+  }
+  
+  if( std::strcmp( fGeomFile.c_str(), "" ) == 0 ){
+    this->SetUsingRootGeom(true); // must always be true
+    assert( std::getenv( "GEOMGENIEINPUT" ) != NULL );
+    this->SetGeomFile( std::getenv( "GEOMGENIEINPUT" ) );
+    
+    gGeoManager = TGeoManager::Import( fGeomFile.c_str() );
+    
+    TGeoVolume * top_volume = gGeoManager->GetTopVolume();
+    assert( top_volume );
+    TGeoShape * ts = top_volume->GetShape();
+    TGeoBBox * box = (TGeoBBox *) ts;
+    
+    this->ImportBoundingBox( box );  
+  }
+
+  this->SetCurrentEntry( evrec->XSec() );
+  if( std::getenv( "HNL_FC_FIRSTENTRY" ) != NULL )
+    this->SetFirstEntry( std::stoi( std::getenv( "HNL_FC_FIRSTENTRY" ) ) );
+
   if( fUsingDk2nu ){
     if( iCurrEntry < fFirstEntry ) iCurrEntry = fFirstEntry;
     
@@ -1982,13 +2009,13 @@ void FluxCreator::LoadConfig(void)
 
   this->GetParam( "IsParentOnAxis", isParentOnAxis );
 
-  fCx = fB2UTranslation.at(0);
-  fCy = fB2UTranslation.at(1);
-  fCz = fB2UTranslation.at(2);
+  fCx = fB2UTranslation.at(0); std::string stFCx( "HNL_FC_B2UTX" ); this->SetEnvVariable( stFCx.c_str(), fCx );
+  fCy = fB2UTranslation.at(1); std::string stFCy( "HNL_FC_B2UTY" ); this->SetEnvVariable( stFCy.c_str(), fCy );
+  fCz = fB2UTranslation.at(2); std::string stFCz( "HNL_FC_B2UTZ" ); this->SetEnvVariable( stFCz.c_str(), fCz );
   
-  fAx1 = fB2URotation.at(0);
-  fAz  = fB2URotation.at(1);
-  fAx2 = fB2URotation.at(2);
+  fAx1 = fB2URotation.at(0); std::string stFAx1( "HNL_FC_B2URX1" ); this->SetEnvVariable( stFAx1.c_str(), fAx1 );
+  fAz  = fB2URotation.at(1); std::string stFAz( "HNL_FC_B2URZ" ); this->SetEnvVariable( stFAz.c_str(), fAz );
+  fAx2 = fB2URotation.at(2); std::string stFAx2( "HNL_FC_B2URX2" ); this->SetEnvVariable( stFAx2.c_str(), fAx2 );
 
   fBx1 = fDetRotation.at(0);
   fBz  = fDetRotation.at(1);
@@ -2035,3 +2062,37 @@ void FluxCreator::ImportBoundingBox( TGeoBBox * box ) const
   fLzR = 2.0 * box->GetDZ() * units::cm / units::m;
 }
 //____________________________________________________________________________
+void FluxCreator::SetEnvVariable( const char * var, double value ) const
+{
+  // breaks value into two integers to get rep value = (i1)e(i2)
+  // then sets an env-variable with name var to that rep
+  // such that it can be read by any part of the module later on and then forgotten by the system
+
+  if( value == 0.0 ){
+    __attribute__((unused)) int iset = setenv( var, "0", 1 ); return;
+  }
+
+  int sgn = (value > 0.0) ? 1 : -1;
+  value = std::abs(value);
+
+  int expo = std::floor( std::log10( value ) );
+  double mant = value / std::pow( 10.0, expo );
+  int iPrec = 0;
+  while( mant - (int) mant > 0.0 and iPrec < 10 ){ // up to 10 digits of precision
+    expo--;
+    mant *= 10.0;
+
+    if( (int) mant < 0.0 ){ // this is a weirdness that happens due to floating-point representation
+      mant /= 10.0;
+      expo++;
+      break;
+    }
+    iPrec++;
+  }
+
+  mant *= sgn;
+  __attribute__((unused)) int iset = setenv( var, Form("%de%d", (int) mant, expo), 1 );
+
+  return;
+}
+

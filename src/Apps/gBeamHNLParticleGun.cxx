@@ -118,7 +118,7 @@ using namespace genie::hnl::enums;
 void  GetCommandLineArgs (int argc, char ** argv);
 void  PrintSyntax        (void);
 
-double GetValueFromEnv    (char * var);
+double GetValueFromEnv    (const char * var);
 
 int   SelectDecayMode    (std::vector<HNLDecayMode_t> *intChannels, SimpleHNL sh);
 const EventRecordVisitorI * HNLGenerator(void);
@@ -236,13 +236,20 @@ int main(int argc, char ** argv)
   string confString = kDefOptSName + kDefOptSConfig;
 
   // get the CoMLifetime through an env-variable that's been set at Decayer config
-  CoMLifetime = GetValueFromEnv( "HNL_LIFETIME" );
+  std::string sCoMLifetime( "HNL_LIFETIME" );
+  CoMLifetime = GetValueFromEnv( sCoMLifetime.c_str() );
 
-  //gOptMassHNL    = GetValueFromEnv( "HNL_MASS"  );
-  gOptECoupling  = GetValueFromEnv( "HNL_ECOUP" );
-  gOptMCoupling  = GetValueFromEnv( "HNL_MCOUP" );
-  gOptTCoupling  = GetValueFromEnv( "HNL_TCOUP" );
-  gOptIsMajorana = GetValueFromEnv( "HNL_ISMAJORANA" );
+  std::string sMass( "HNL_MASS" );
+  std::string sECoup( "HNL_ECOUP" );
+  std::string sMCoup( "HNL_MCOUP" );
+  std::string sTCoup( "HNL_TCOUP" );
+  std::string sIsMajorana( "HNL_ISMAJORANA" );
+
+  gOptMassHNL    = GetValueFromEnv( sMass.c_str()  );
+  gOptECoupling  = GetValueFromEnv( sECoup.c_str() );
+  gOptMCoupling  = GetValueFromEnv( sMCoup.c_str() );
+  gOptTCoupling  = GetValueFromEnv( sTCoup.c_str() );
+  gOptIsMajorana = GetValueFromEnv( sIsMajorana.c_str() );
 
   assert( std::getenv( "HNL_INTCHANNELS" ) != NULL );
   std::string stIntChannels = std::getenv( "HNL_INTCHANNELS" ); int iChan = -1;
@@ -682,7 +689,7 @@ int SelectDecayMode( std::vector< HNLDecayMode_t > * intChannels, SimpleHNL sh )
   return decay;
 }
 //_________________________________________________________________________________________
-double GetValueFromEnv(char * var)
+double GetValueFromEnv(const char * var)
 {
   assert( std::getenv( var ) != NULL );
   std::string stVar = std::getenv( var );

@@ -11,6 +11,8 @@
 #pragma link C++ namespace genie::hnl::enums;
 #pragma link C++ namespace genie::hnl::selector;
 
+#pragma link C++ class genie::hnl::GNuMIEventRecordVisitorI;
+
 #pragma link C++ class genie::hnl::SimpleHNL;
 #pragma link C++ class genie::hnl::BRFunctions;
 #pragma link C++ class genie::hnl::FluxCreator;

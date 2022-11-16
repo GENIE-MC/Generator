@@ -75,6 +75,8 @@
 
 #include "Tools/Flux/GNuMIFlux.h"
 
+#include "Physics/BeamHNL/GNuMIEventRecordVisitorI.h"
+
 #include "Physics/BeamHNL/HNLBRFunctions.h"
 #include "Physics/BeamHNL/HNLDecayUtils.h"
 #include "Physics/BeamHNL/HNLEnums.h"
@@ -107,33 +109,33 @@ namespace genie{
       void Configure(const Registry & config);
       void Configure(string config);
 
-      // set input path
-      void SetInputPath( std::string finpath ) const;
-      // get N(flux input entries)
-      int GetNEntries() const;
-
-      // if using root geom, let this module know
-      void SetUsingRootGeom( bool IsUsingRootGeom ) const;
-
-      void SetCurrentEntry( int iCurr ) const;
-      void SetFirstEntry( int iFirst ) const;
-      void SetGeomFile( string geomfile ) const;
-      void ImportBoundingBox( TGeoBBox * box ) const;
-
       // get dk2nu flux info
       flux::GNuMIFluxPassThroughInfo * RetrieveGNuMIFluxPassThroughInfo() const;
       flux::GNuMIFluxPassThroughInfo RetrieveFluxInfo() const;
       flux::GNuMIFluxPassThroughInfo RetrieveFluxBase() const;
+
+    private:
+
+      void LoadConfig(void);
+
+      // set input path
+      void SetInputPath( std::string finpath ) const;
+      // if using root geom, let this module know
+      void SetUsingRootGeom( bool IsUsingRootGeom ) const;
+      void SetGeomFile( string geomfile ) const;
+      void ImportBoundingBox( TGeoBBox * box ) const;
+
+      // get N(flux input entries)
+      int GetNEntries() const;
+
+      void SetCurrentEntry( int iCurr ) const;
+      void SetFirstEntry( int iFirst ) const;
 
       // return information about frames
       std::vector< double > GetB2UTranslation() const { return fB2UTranslation; }
       std::vector< double > GetB2URotation() const { return fB2URotation; }
       std::vector< double > GetDetOffset() const { return fDetOffset; }
       std::vector< double > GetDetRotation() const { return fDetRotation; }
-
-    private:
-
-      void LoadConfig(void);
 
       // workhorse methods
       genie::flux::GNuMIFluxPassThroughInfo MakeTupleFluxEntry( int iEntry, std::string finpath ) const;
@@ -172,6 +174,8 @@ namespace genie{
       // returns 1.0 / (area of flux calc)
       double CalculateAreaNormalisation();
 
+      void SetEnvVariable( const char * var, double value ) const;
+
       // current path to keep track of what is loaded
       mutable std::string fCurrPath = "";
       // and which entry we're on
@@ -193,7 +197,7 @@ namespace genie{
       mutable bool isParentOnAxis = true;
       mutable bool fUseBeamMomentum = false; // use this if your detector hall is parallel to tgt hall
       mutable TGeoVolume * fTopVol = 0;
-      mutable string fGeomFile;
+      mutable string fGeomFile = "";
       mutable bool fIsUsingRootGeom = true;
 
       mutable TChain * ctree = 0, * cmeta = 0;

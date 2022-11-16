@@ -131,7 +131,7 @@ using namespace genie::hnl::enums;
 void   GetCommandLineArgs (int argc, char ** argv);
 void   PrintSyntax        (void);
 
-double GetValueFromEnv    (char * var);
+double GetValueFromEnv    (const char * var);
 
 int    SelectDecayMode    (std::vector<HNLDecayMode_t> *intChannels, SimpleHNL sh);
 const  EventRecordVisitorI * HNLGenerator(void);
@@ -245,13 +245,20 @@ int main(int argc, char ** argv)
   string confString = kDefOptSConfig;
 
   // get the CoMLifetime through an env-variable that's been set at Decayer config
-  CoMLifetime = GetValueFromEnv( "HNL_LIFETIME" );
+  std::string sCoMLifetime( "HNL_LIFETIME" );
+  CoMLifetime = GetValueFromEnv( sCoMLifetime.c_str() );
 
-  //gOptMassHNL    = GetValueFromEnv( "HNL_MASS"  );
-  gOptECoupling  = GetValueFromEnv( "HNL_ECOUP" );
-  gOptMCoupling  = GetValueFromEnv( "HNL_MCOUP" );
-  gOptTCoupling  = GetValueFromEnv( "HNL_TCOUP" );
-  gOptIsMajorana = GetValueFromEnv( "HNL_ISMAJORANA" );
+  // std::string sMass( "HNL_MASS" );
+  std::string sECoup( "HNL_ECOUP" );
+  std::string sMCoup( "HNL_MCOUP" );
+  std::string sTCoup( "HNL_TCOUP" );
+  std::string sIsMajorana( "HNL_ISMAJORANA" );
+
+  //gOptMassHNL    = GetValueFromEnv( sMass.c_str()  );
+  gOptECoupling  = GetValueFromEnv( sECoup.c_str() );
+  gOptMCoupling  = GetValueFromEnv( sMCoup.c_str() );
+  gOptTCoupling  = GetValueFromEnv( sTCoup.c_str() );
+  gOptIsMajorana = GetValueFromEnv( sIsMajorana.c_str() );
 
   assert( std::getenv( "HNL_INTCHANNELS" ) != NULL );
   std::string stIntChannels = std::getenv( "HNL_INTCHANNELS" ); int iChan = -1;
@@ -350,28 +357,19 @@ int main(int argc, char ** argv)
     LOG( "gevgen_hnl", pWARN )
       << "Using input flux files. These are *flat dk2nu-like ROOT trees, so far...*";
 
-    fluxCreator->SetInputPath( gOptFluxFilePath );
-    fluxCreator->SetUsingRootGeom( gOptUsingRootGeom );
-    if( gOptUsingRootGeom )
-      fluxCreator->SetGeomFile( gOptRootGeom );
-    int maxFluxEntries = fluxCreator->GetNEntries();
+    __attribute__((unused)) int ifset = setenv( "DK2NUGENIEINPUT", gOptFluxFilePath.c_str(), 1 );
 
-    if( gOptNev > maxFluxEntries ){
-      LOG( "gevgen_hnl", pWARN )
-	<< "You have asked for " << gOptNev << " events, but only provided "
-	<< maxFluxEntries << " flux entries. Truncating events to " << maxFluxEntries << ".";
-      gOptNev = maxFluxEntries;
-    }
   } else { // ok, we have monoenergetic flux. Let's flag this now
     __attribute__((unused)) int iset = setenv( "PRODVTXDIR", "NODIR", 1 );
   }
 
   if( !gOptIsMonoEnFlux && gOptIsUsingDk2nu ){
-    fluxCreator->SetFirstEntry( gOptFirstEvent );
+    setenv( "HNL_FC_FIRSTENTRY", Form( "%d", gOptFirstEvent ), 1 );
   }
 
   // Event loop
   int ievent = gOptFirstEvent, iflux = gOptFirstEvent;
+  int maxFluxEntries = -1;
   
   while (1)
   {
@@ -395,11 +393,20 @@ int main(int argc, char ** argv)
      EventRecord * event = new EventRecord;
      event->SetWeight(1.0);
      event->SetProbability( CoMLifetime );
+     event->SetXSec( iflux ); // will be overridden, use as handy container
      evWeight = 1.0;
 
      if( !gOptIsMonoEnFlux ){
-       fluxCreator->SetCurrentEntry( iflux );
        fluxCreator->ProcessEventRecord( event );
+
+       // fluxCreator->ProcessEventRecord now tells us how many entries there are
+       if( maxFluxEntries < 0 ) maxFluxEntries = std::stoi( std::getenv( "HNL_FC_NENTRIES" ) );
+       if( gOptNev > maxFluxEntries ){
+	 LOG( "gevgen_hnl", pWARN )
+	   << "You have asked for " << gOptNev << " events, but only provided "
+	   << maxFluxEntries << " flux entries. Truncating events to " << maxFluxEntries << ".";
+	 gOptNev = maxFluxEntries;
+       }
        
        flux::GNuMIFluxPassThroughInfo retGnmf = fluxCreator->RetrieveFluxInfo();
        flux::GNuMIFluxPassThroughInfo retGnmfBase = fluxCreator->RetrieveFluxBase();
@@ -608,9 +615,6 @@ void InitBoundingBox(void)
 
   const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
   const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
-  
-  // pass this box to FluxCreator
-  fluxCreator->ImportBoundingBox( box );
 
   //get box origin and dimensions (in the same units as the geometry)
   fdx = box->GetDX();
@@ -1007,7 +1011,7 @@ int SelectDecayMode( std::vector< HNLDecayMode_t > * intChannels, SimpleHNL sh )
   return decay;
 }
 //_________________________________________________________________________________________
-double GetValueFromEnv(char * var)
+double GetValueFromEnv(const char * var)
 {
   assert( std::getenv( var ) != NULL );
   std::string stVar = std::getenv( var );
