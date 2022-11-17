@@ -455,6 +455,10 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
   }
 
   double accCorr = this->CalculateAcceptanceCorrection( p4par, p4HNL_rest, decay_necm, zm, zp );
+  // if accCorr == 0 then we must bail and find the next event. 
+  if( accCorr == 0.0 ){
+    this->FillNonsense( iEntry, &gnmf ); return gnmf;
+  }
   
   // also have to factor in boost correction itself... that's same as energy boost correction squared
   // which means a true acceptance of...
@@ -1398,6 +1402,12 @@ TLorentzVector FluxCreator::HNLEnergy( HNLProd_t hnldm, TLorentzVector p4par ) c
   int idp = 0; TLorentzVector p4HNL, p4HNL_rest;
   // search for the charged lepton in this stack, get the 4-vector in parent rest frame
   TLorentzVector p4Lep, p4Lep_HNLRest;
+
+  // initialise these!
+  p4HNL.SetPxPyPzE( 0.0, 0.0, 0.0, 0.0 );
+  p4HNL_rest.SetPxPyPzE( 0.0, 0.0, 0.0, 0.0 );
+  p4Lep.SetPxPyPzE( 0.0, 0.0, 0.0, 0.0 );
+  p4Lep_HNLRest.SetPxPyPzE( 0.0, 0.0, 0.0, 0.0 );
 
   for(std::vector<int>::const_iterator pdg_iter = decayList.begin(); pdg_iter != decayList.end(); ++pdg_iter) {
      int pdgc = *pdg_iter;
