@@ -102,6 +102,7 @@
 #include "Framework/Utils/UnitUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/Utils/AppInit.h"
+#include "Framework/Utils/TuneId.h"
 #include "Framework/Utils/RunOpt.h"
 #include "Framework/Utils/CmdLnArgParser.h"
 
@@ -156,6 +157,7 @@ string          kDefOptFluxFilePath = "./input-flux.root";
 
 string          kDefOptSName   = "genie::EventGenerator";
 string          kDefOptSConfig = "BeamHNL";
+string          kDefOptSTune   = "GHNL20_00a_00_000";
 
 //
 Long_t           gOptRunNu        = 1000;                // run number
@@ -1030,12 +1032,44 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gevgen_hnl", pINFO) << "Parsing command line arguments";
 
-  // Common run options.
-  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
-
   // Parse run options for this app
 
   CmdLnArgParser parser(argc,argv);
+  
+  // force the app to look at HNL tune by default
+  // if user passes --tune argument, look at the user input tune instead
+  char * expargv[ argc + 2 ];
+  bool didFindUserInputTune = false;
+  std::string stExtraTuneBit = kDefOptSTune;
+  
+  if( parser.OptionExists("tune") ){
+    didFindUserInputTune = true;
+    std::string stExtraTuneBit = parser.ArgAsString("tune");
+    LOG( "gevgen_hnl", pWARN )
+      << "Using input HNL tune " << parser.ArgAsString("tune");
+  } else {
+    LOG( "gevgen_hnl", pWARN )
+      << "Using default HNL tune " << kDefOptSTune;
+  }
+  // append this to argv
+  for( unsigned int iArg = 0; iArg < argc; iArg++ ){
+    expargv[iArg] = argv[iArg];
+  }
+  if( !didFindUserInputTune ){
+    char * chBit = const_cast< char * >( stExtraTuneBit.c_str() ); // ugh. Ugly.
+    expargv[argc] = "--tune";
+    expargv[argc+1] = chBit;
+  }
+
+  // Common run options.
+  int expargc = ( didFindUserInputTune ) ? argc : argc+2;
+  expargv[expargc] = "";
+
+  for( int ii = 0; ii < expargc; ii++ ){
+    LOG( "gevgen_hnl", pDEBUG ) << " ii = " << ii << ", expargv[ii] = \"" << expargv[ii] << "\"";
+  }
+
+  RunOpt::Instance()->ReadFromCommandLine(expargc,expargv);
 
   // help?
   bool help = parser.OptionExists('h');
