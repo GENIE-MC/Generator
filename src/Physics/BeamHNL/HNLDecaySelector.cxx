@@ -18,15 +18,15 @@ using namespace genie::hnl;
 std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double M, const double Ue42, const double Umu42, const double Ut42, const bool IsMajorana ){
 
   // construct an BRCalculator * object to handle the scalings.
-  const Algorithm * algBRFunc = AlgFactory::Instance()->GetAlgorithm("genie::hnl::BRCalculator", "Default");
-  const BRCalculator * BRFunc = dynamic_cast< const BRCalculator * >( algBRFunc );
+  const Algorithm * algBRCalc = AlgFactory::Instance()->GetAlgorithm("genie::hnl::BRCalculator", "Default");
+  const BRCalculator * BRCalc = dynamic_cast< const BRCalculator * >( algBRCalc );
   
   std::map< HNLDecayMode_t, double > allChannels;
   
   // invisible decay is always possible
   double GINV = 0.0;
   if( fDecayGammas[0] < 0.0 ){
-    GINV = BRFunc->DWidth_Invisible( M, Ue42, Umu42, Ut42 );
+    GINV = BRCalc->DecayWidth( kHNLDcyNuNuNu );
     if( IsMajorana ) GINV *= 2.0;
     fDecayGammas[0] = GINV;
     LOG("HNL", pDEBUG)
@@ -41,7 +41,7 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
 
   double GNEE = 0.0;
   if( fDecayGammas[1] < 0.0 ){
-    GNEE = BRFunc->DWidth_SameLepton( M, Ue42, Umu42, Ut42, genie::constants::kElectronMass, false );
+    GNEE = BRCalc->DecayWidth( kHNLDcyNuEE );
     if( IsMajorana ) GNEE *= 2.0;
     fDecayGammas[1] = GNEE;
     LOG("HNL", pDEBUG)
@@ -56,7 +56,7 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
 
   double GNEM = 0.0;
   if( fDecayGammas[2] < 0.0 ){
-    GNEM = BRFunc->DWidth_DiffLepton( M, Ue42, Umu42, IsMajorana ); 
+    GNEM = BRCalc->DecayWidth( kHNLDcyNuMuE );
     if( IsMajorana ) GNEM *= 2.0;
     fDecayGammas[2] = GNEM;
     LOG("HNL", pDEBUG)
@@ -71,7 +71,7 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
 
   double GP0N = 0.0;
   if( fDecayGammas[3] < 0.0 ){
-    GP0N = BRFunc->DWidth_PiZeroAndNu( M, Ue42, Umu42, Ut42 );
+    GP0N = BRCalc->DecayWidth( kHNLDcyPi0Nu );
     if( IsMajorana ) GP0N *= 2.0;
     fDecayGammas[3] = GP0N;
     LOG("HNL", pDEBUG)
@@ -86,7 +86,7 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
 
   double GPIE = 0.0;
   if( fDecayGammas[4] < 0.0 ){
-    GPIE = BRFunc->DWidth_PiAndLepton( M, Ue42, genie::constants::kElectronMass );
+    GPIE = BRCalc->DecayWidth( kHNLDcyPiE );
     if( IsMajorana ) GPIE *= 2.0;
     fDecayGammas[4] = GPIE;
     LOG("HNL", pDEBUG)
@@ -101,7 +101,7 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
 
   double GNMM = 0.0;
   if( fDecayGammas[5] < 0.0 ){
-    GNMM = BRFunc->DWidth_SameLepton( M, Ue42, Umu42, Ut42, genie::constants::kMuonMass, false );
+    GNMM = BRCalc->DecayWidth( kHNLDcyNuMuMu );
     if( IsMajorana ) GNMM *= 2.0;
     fDecayGammas[5] = GNMM;
     LOG("HNL", pDEBUG)
@@ -116,7 +116,7 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
 
   double GPIM = 0.0;
   if( fDecayGammas[6] < 0.0 ){
-    GPIM = BRFunc->DWidth_PiAndLepton( M, Umu42, genie::constants::kMuonMass );
+    GPIM = BRCalc->DecayWidth( kHNLDcyPiMu );
     if( IsMajorana ) GPIM *= 2.0;
     fDecayGammas[6] = GPIM;
     LOG("HNL", pDEBUG)
@@ -131,7 +131,7 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
 
   double GP02 = 0.0;
   if( fDecayGammas[7] < 0.0 ){
-    GP02 = BRFunc->DWidth_Pi0Pi0Nu( M, Ue42, Umu42, Ut42 );
+    GP02 = BRCalc->DecayWidth( kHNLDcyPi0Pi0Nu );
     if( IsMajorana ) GP02 *= 2.0;
     fDecayGammas[7] = GP02;
     LOG("HNL", pDEBUG)
@@ -146,7 +146,7 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
 
   double GP0E = 0.0;
   if( fDecayGammas[8] < 0.0 ){
-    GP0E = BRFunc->DWidth_PiPi0Ell( M, genie::constants::kElectronMass, Ue42, Umu42, Ut42, true );
+    GP0E = BRCalc->DecayWidth( kHNLDcyPiPi0E );
     if( IsMajorana ) GP0E *= 2.0;
     fDecayGammas[8] = GP0E;
     LOG("HNL", pDEBUG)
@@ -161,7 +161,7 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
 
   double GP0M = 0.0;
   if( fDecayGammas[9] < 0.0 ){
-    GP0M = BRFunc->DWidth_PiPi0Ell( M, genie::constants::kMuonMass, Ue42, Umu42, Ut42, false );
+    GP0M = BRCalc->DecayWidth( kHNLDcyPiPi0Mu );
     if( IsMajorana ) GP0M *= 2.0;
     fDecayGammas[9] = GP0M;
     LOG("HNL", pDEBUG)

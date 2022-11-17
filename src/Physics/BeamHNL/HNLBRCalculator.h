@@ -37,6 +37,8 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 
+#include "Physics/BeamHNL/HNLChannelCalculatorI.h"
+
 #include "Physics/BeamHNL/FormFactorTables.h"
 #include "Physics/BeamHNL/HNLDecayUtils.h"
 #include "Physics/BeamHNL/HNLKinUtils.h"
@@ -48,18 +50,31 @@ namespace genie {
   
   namespace hnl {
 
-    class BRCalculator : public Algorithm {
+    class BRCalculator : public ChannelCalculatorI {
 
     public:
 
       BRCalculator();
-      BRCalculator(string config);
+      BRCalculator(string name);
+      BRCalculator(string name, string config);
       ~BRCalculator();
+
+      // -- implement the ChannelCalculatorI interface
 
       // overload the Algorithm::Configure() methods to load private data
       // members from configuration options
       void Configure(const Registry & config);
       void Configure(string config);
+
+      // return the kinematic scaling for a production channel
+      double KinematicScaling( genie::hnl::HNLProd_t hnlprod ) const;
+      
+      // return the integrated decay width for a decay channel
+      double DecayWidth( genie::hnl::HNLDecayMode_t hnldm ) const;
+
+    private:
+
+      void LoadConfig(void);
 
       //============================================
       // total decay widths, parents to HNL
@@ -82,6 +97,8 @@ namespace genie {
       //============================================
       // total decay widths for HNL channels
       //============================================
+
+      double DWidth_Global( genie::hnl::HNLDecayMode_t hnldm, const double M ) const;
 	
       // N --> pi0 + nu_\alpha
       double DWidth_PiZeroAndNu( const double M, const double Ue42, const double Umu42, const double Ut42 ) const;
@@ -108,23 +125,6 @@ namespace genie {
       double DWidth_Pi0Pi0Nu( const double M,
 			      const double Ue42, const double Umu42, const double Ut42 ) const;
 
-      //============================================
-      // differential decay widths for HNL channels
-      // want to *sample* kinematics from them so not double rtype
-      //============================================
-
-      // N --> pi^{\pm} + \ell_{\alpha}
-      // d\Gamma / dcos(\theta), \theta = angle between polVec and pl
-      void Diff1Width_PiAndLepton_CosTheta( const double M, const double Ua42,
-					    const double ml,
-					    double &thePreFac,
-					    double &theCnstPart,
-					    double &thePropPart ) const;
-
-    private:
-
-      void LoadConfig(void);
-
       static double PiPi0EllForm( double *x, double *par );
       static double Pi0Pi0NuForm( double *x, double *par );
 
@@ -143,6 +143,9 @@ namespace genie {
       double BR_C1, BR_C2;
 		
       double mPi0, mPi, mMu, mK, mK0, mE;
+      double fMass;
+      std::vector< double > fCouplings; double fUe42, fUm42, fUt42;
+      bool fMajorana;
 
       double Vud, Vud2;
 

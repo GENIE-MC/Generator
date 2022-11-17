@@ -16,13 +16,19 @@ using namespace genie::hnl;
 
 //----------------------------------------------------------------------------
 BRCalculator::BRCalculator() :
-  Algorithm("genie::hnl::BRCalculator")
+  ChannelCalculatorI("genie::hnl::BRCalculator")
 {
 
 }
 //----------------------------------------------------------------------------
-BRCalculator::BRCalculator(string config) :
-  Algorithm("genie::hnl::BRCalculator", config)
+BRCalculator::BRCalculator(string name) :
+ ChannelCalculatorI(name)
+{
+
+}
+//----------------------------------------------------------------------------
+BRCalculator::BRCalculator(string name, string config) :
+  ChannelCalculatorI(name, config)
 {
 
 }
@@ -47,6 +53,13 @@ void BRCalculator::Configure(string config)
 void BRCalculator::LoadConfig(void)
 {
   if( fIsConfigLoaded ) return;
+
+  this->GetParam( "HNL-Mass", fMass );
+  this->GetParamVect( "HNL-LeptonMixing", fCouplings );
+  fUe42 = fCouplings.at(0);
+  fUm42 = fCouplings.at(1);
+  fUt42 = fCouplings.at(2);
+  this->GetParam( "HNL-Majorana", fMajorana );
 
   mPi0 = PDGLibrary::Instance()->Find(genie::kPdgPi0)->Mass();     
   mPi  = PDGLibrary::Instance()->Find(genie::kPdgPiP)->Mass();     
@@ -110,7 +123,16 @@ void BRCalculator::LoadConfig(void)
   fIsConfigLoaded = true;
 }
 //----------------------------------------------------------------------------
-// Get Coloma et al's form factor functions
+double BRCalculator::KinematicScaling( HNLProd_t hnlprod ) const
+{
+  return this->KScale_Global( hnlprod, fMass );
+}
+//----------------------------------------------------------------------------
+double BRCalculator::DecayWidth( HNLDecayMode_t hnldm ) const
+{
+  return this->DWidth_Global( hnldm, fMass );
+}
+//----------------------------------------------------------------------------
 double BRCalculator::GetFormfactorF1( double x ) const {
   if( x < 0. || x > 0.5 ) { LOG( "HNL", pERROR ) << "BRCalculator::GetFormfactorF1:: Illegal x = " << x; exit( 3 ); }
   if( x == 0.5 ) return 0.;
@@ -146,6 +168,7 @@ double BRCalculator::KScale_Global( HNLProd_t hnldm, const double M ) const {
   case kHNLProdMuon3Nue:
   case kHNLProdMuon3Nutau:
     return KScale_MuonToNuAndElectron( M );
+  default: return 0.0;
   }
 
   return 0.0;
@@ -219,6 +242,29 @@ double BRCalculator::DWidth_MuonToNuAndElectron( const double M, const double Ue
 
   double KScale = KScale_MuonToNuAndElectron( M );
   return ( Ue42 + Umu42 + Ut42 ) * KScale;
+}
+//----------------------------------------------------------------------------
+// interface to decay widths
+double BRCalculator::DWidth_Global( HNLDecayMode_t hnldm, const double M ) const {
+  if( !utils::hnl::IsKinematicallyAllowed( hnldm, M ) ){
+    return 0.0;
+  }
+  
+  switch( hnldm ){
+  case kHNLDcyNuNuNu   : return this->DWidth_Invisible( M, fUe42, fUm42, fUt42 );
+  case kHNLDcyNuEE     : return this->DWidth_SameLepton( M, fUe42, fUm42, fUt42, mE, false );
+  case kHNLDcyNuMuE    : return this->DWidth_DiffLepton( M, fUe42, fUm42, fMajorana );
+  case kHNLDcyPi0Nu    : return this->DWidth_PiZeroAndNu( M, fUe42, fUm42, fUt42 );
+  case kHNLDcyPiE      : return this->DWidth_PiAndLepton( M, fUe42, mE );
+  case kHNLDcyNuMuMu   : return this->DWidth_SameLepton( M, fUe42, fUm42, fUt42, mMu, true );
+  case kHNLDcyPiMu     : return this->DWidth_PiAndLepton( M, fUm42, mMu );
+  case kHNLDcyPi0Pi0Nu : return this->DWidth_Pi0Pi0Nu( M, fUe42, fUm42, fUt42 );
+  case kHNLDcyPiPi0E   : return this->DWidth_PiPi0Ell( M, mE, fUe42, fUm42, fUt42, true );
+  case kHNLDcyPiPi0Mu  : return this->DWidth_PiPi0Ell( M, mMu, fUe42, fUm42, fUt42, false );
+  default: return 0.0;
+  }
+
+  return 0.0;
 }
 //----------------------------------------------------------------------------
 // total decay widths, various channels
@@ -420,24 +466,6 @@ double BRCalculator::DWidth_Pi0Pi0Nu( const double M,
   intNow *= preFac * bigMats * smallMats;
 
   return intNow;
-}
-//----------------------------------------------------------------------------
-// differential decay width for HNL channels!
-
-void BRCalculator::Diff1Width_PiAndLepton_CosTheta( const double M, const double Ua42,
-							    const double ml,
-							    double &thePreFac, 
-							    double &theCnstPart,
-							    double &thePropPart ) const {
-  const double preFac   = 1. / ( 32.0 * pi * M*M*M );
-  const double sqrKal   = std::sqrt( genie::utils::hnl::Kallen( M*M, mPi*mPi, ml*ml ) );
-  const double formPart = fpi2 * Ua42 * Vud2 * GF2;
-  const double parConst = std::pow( ( M*M - ml*ml ), 2.0 ) - mPi*mPi*( M*M + ml*ml );
-  const double parCoeff = -1.0 * ( M*M - ml*ml ) * std::sqrt( genie::utils::hnl::Kallen( M*M, mPi*mPi, ml*ml ) );
-  
-  thePreFac   = preFac * sqrKal * formPart;
-  theCnstPart = parConst;
-  thePropPart = parCoeff; // modulo |P| * cos(theta)
 }
 //----------------------------------------------------------------------------
 // formula for N --> pi pi0 ell decay rate

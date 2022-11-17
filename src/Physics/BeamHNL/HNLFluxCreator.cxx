@@ -1189,17 +1189,17 @@ std::map< HNLProd_t, double > FluxCreator::GetProductionProbs( int parPDG ) cons
   //double mP = PDGLibrary::Instance()->Find( std::abs( parPDG ) )->Mass();
 
   // also, construct an BRCalculator * object to handle the scalings.
-  const Algorithm * algBRFunc = AlgFactory::Instance()->GetAlgorithm("genie::hnl::BRCalculator", "Default");
-  const BRCalculator * BRFunc = dynamic_cast< const BRCalculator * >( algBRFunc );
+  const Algorithm * algBRCalc = AlgFactory::Instance()->GetAlgorithm("genie::hnl::BRCalculator", "Default");
+  const BRCalculator * BRCalc = dynamic_cast< const BRCalculator * >( algBRCalc );
   
   // first get pure kinematic part of the BRs
   double KScale[4] = { -1.0, -1.0, -1.0, -1.0 }, mixScale[4] = { -1.0, -1.0, -1.0, -1.0 };
   double totalMix = 0.0;
   switch( std::abs( parPDG ) ){
   case genie::kPdgMuon:
-    KScale[0] = BRFunc->KScale_Global( kHNLProdMuon3Numu, M );
-    KScale[1] = BRFunc->KScale_Global( kHNLProdMuon3Nue, M ); // same, convenience for later
-    KScale[2] = BRFunc->KScale_Global( kHNLProdMuon3Nutau, M ); // same, convenience for later
+    KScale[0] = BRCalc->KinematicScaling( kHNLProdMuon3Numu );
+    KScale[1] = BRCalc->KinematicScaling( kHNLProdMuon3Nue ); // same, convenience for later
+    KScale[2] = BRCalc->KinematicScaling( kHNLProdMuon3Nutau ); // same, convenience for later
     mixScale[0] = 1.0 * Um42 * KScale[0]; totalMix += mixScale[0];
     mixScale[1] = 1.0 * Ue42 * KScale[1]; totalMix += mixScale[1];
     mixScale[2] = 1.0 * Ut42 * KScale[2]; totalMix += mixScale[2];
@@ -1219,10 +1219,10 @@ std::map< HNLProd_t, double > FluxCreator::GetProductionProbs( int parPDG ) cons
     dynamicScores_muon = dynScores;
     break;
   case genie::kPdgKP:
-    KScale[0] = BRFunc->KScale_Global( kHNLProdKaon2Muon, M );
-    KScale[1] = BRFunc->KScale_Global( kHNLProdKaon2Electron, M );
-    KScale[2] = BRFunc->KScale_Global( kHNLProdKaon3Muon, M );
-    KScale[3] = BRFunc->KScale_Global( kHNLProdKaon3Electron, M );
+    KScale[0] = BRCalc->KinematicScaling( kHNLProdKaon2Muon );
+    KScale[1] = BRCalc->KinematicScaling( kHNLProdKaon2Electron );
+    KScale[2] = BRCalc->KinematicScaling( kHNLProdKaon3Muon );
+    KScale[3] = BRCalc->KinematicScaling( kHNLProdKaon3Electron );
     mixScale[0] = BR_K2mu * Um42 * KScale[0]; totalMix += mixScale[0];
     mixScale[1] = BR_K2e  * Ue42 * KScale[1]; totalMix += mixScale[1];
     mixScale[2] = BR_K3mu * Um42 * KScale[2]; totalMix += mixScale[2];
@@ -1245,8 +1245,8 @@ std::map< HNLProd_t, double > FluxCreator::GetProductionProbs( int parPDG ) cons
     break;
   case genie::kPdgPiP:
 
-    KScale[0] = BRFunc->KScale_Global( kHNLProdPion2Muon, M );
-    KScale[1] = BRFunc->KScale_Global( kHNLProdPion2Electron, M );
+    KScale[0] = BRCalc->KinematicScaling( kHNLProdPion2Muon );
+    KScale[1] = BRCalc->KinematicScaling( kHNLProdPion2Electron );
     mixScale[0] = BR_pi2mu * Um42 * KScale[0]; totalMix += mixScale[0];
     mixScale[1] = BR_pi2e  * Ue42 * KScale[1]; totalMix += mixScale[1];
 
@@ -1265,8 +1265,8 @@ std::map< HNLProd_t, double > FluxCreator::GetProductionProbs( int parPDG ) cons
     break;
   case genie::kPdgK0L:
 
-    KScale[0] = BRFunc->KScale_Global( kHNLProdNeuk3Muon, M );
-    KScale[1] = BRFunc->KScale_Global( kHNLProdNeuk3Electron, M );
+    KScale[0] = BRCalc->KinematicScaling( kHNLProdNeuk3Muon );
+    KScale[1] = BRCalc->KinematicScaling( kHNLProdNeuk3Electron );
     mixScale[0] = BR_K03mu * Um42 * KScale[0]; totalMix += mixScale[0];
     mixScale[1] = BR_K03e  * Ue42 * KScale[1]; totalMix += mixScale[1];
     
