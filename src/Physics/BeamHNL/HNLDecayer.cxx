@@ -635,7 +635,7 @@ void Decayer::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm
 
     rwgt = rnd->RndGen().Uniform(0.0, 2.0);
     int typeMod = ( *(pdgv.begin()) > 0 ) ? 1 : -1;
-    polWgt = 1 - typeMod * polMod * ctheta;
+    polWgt = 1 + typeMod * polMod * ctheta;
 
     isAccepted = ( rwgt >= polWgt );
 
