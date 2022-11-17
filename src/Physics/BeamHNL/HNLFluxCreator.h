@@ -77,7 +77,7 @@
 
 #include "Physics/BeamHNL/GNuMIEventRecordVisitorI.h"
 
-#include "Physics/BeamHNL/HNLBRFunctions.h"
+#include "Physics/BeamHNL/HNLBRCalculator.h"
 #include "Physics/BeamHNL/HNLDecayUtils.h"
 #include "Physics/BeamHNL/HNLEnums.h"
 #include "Physics/BeamHNL/HNLKinUtils.h"

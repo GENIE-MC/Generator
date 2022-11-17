@@ -70,7 +70,7 @@
    <config alg="genie::NNBarOscPrimaryVtxGenerator">     NNBarOscPrimaryVtxGenerator.xml     </config>
    <config alg="genie::SpectralFunction2p2h">            SpectralFunction2p2h.xml            </config>
    <config alg="genie::SRCNuclearRecoil">                SRCNuclearRecoil.xml                </config>
-   <config alg="genie::hnl::BRFunctions">                BeamHNLGenerator.xml                </config>
+   <config alg="genie::hnl::BRCalculator">               BeamHNLGenerator.xml                </config>
    <config alg="genie::hnl::FluxCreator">                BeamHNLGenerator.xml                </config>
    <config alg="genie::hnl::Decayer">                    BeamHNLGenerator.xml                </config>
    <config alg="genie::hnl::VertexGenerator">            BeamHNLGenerator.xml                </config>

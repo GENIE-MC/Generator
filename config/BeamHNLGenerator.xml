@@ -2,7 +2,7 @@
 
 <!--
 Configuration for the BeamHNL simulation
-Shared by HNLBRFunctions, HNLFluxCreator, HNLDecayer, and HNLDecayVolume
+Shared by HNLBRCalculator, HNLFluxCreator, HNLDecayer, and HNLDecayVolume
 
 Algorithm Configurable Parameters:
 ..............................................................................................................................

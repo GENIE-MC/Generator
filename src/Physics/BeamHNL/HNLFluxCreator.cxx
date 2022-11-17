@@ -1188,9 +1188,9 @@ std::map< HNLProd_t, double > FluxCreator::GetProductionProbs( int parPDG ) cons
   // now get parent mass
   //double mP = PDGLibrary::Instance()->Find( std::abs( parPDG ) )->Mass();
 
-  // also, construct an BRFunctions * object to handle the scalings.
-  const Algorithm * algBRFunc = AlgFactory::Instance()->GetAlgorithm("genie::hnl::BRFunctions", "Default");
-  const BRFunctions * BRFunc = dynamic_cast< const BRFunctions * >( algBRFunc );
+  // also, construct an BRCalculator * object to handle the scalings.
+  const Algorithm * algBRFunc = AlgFactory::Instance()->GetAlgorithm("genie::hnl::BRCalculator", "Default");
+  const BRCalculator * BRFunc = dynamic_cast< const BRCalculator * >( algBRFunc );
   
   // first get pure kinematic part of the BRs
   double KScale[4] = { -1.0, -1.0, -1.0, -1.0 }, mixScale[4] = { -1.0, -1.0, -1.0, -1.0 };

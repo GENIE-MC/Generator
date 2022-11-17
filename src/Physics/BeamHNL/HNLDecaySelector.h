@@ -26,7 +26,7 @@
 // -- GENIE includes
 #include "Framework/Conventions/Constants.h"
 
-#include "Physics/BeamHNL/HNLBRFunctions.h"
+#include "Physics/BeamHNL/HNLBRCalculator.h"
 #include "Physics/BeamHNL/HNLDecayMode.h"
 
 namespace genie {

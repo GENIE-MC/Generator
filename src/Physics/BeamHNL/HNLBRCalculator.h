@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------
 /*!
 
-  Definitions of the auxiliary functions needed
-  to calculate the decay widths of HNL to various channels
+  An Algorithm that manages the calculations of production and decay
+  branching ratios for HNL.
 
-\class      genie::hnl::BRFunctions
+\class      genie::hnl::BRCalculator
 
-\brief      Decay widths of HNL
+\brief      Manages HNL BR (prod and decay)
 
 \author     John Plows <komninos-john.plows@physics.ox.ac.uk>
 
@@ -48,13 +48,13 @@ namespace genie {
   
   namespace hnl {
 
-    class BRFunctions : public Algorithm {
+    class BRCalculator : public Algorithm {
 
     public:
 
-      BRFunctions();
-      BRFunctions(string config);
-      ~BRFunctions();
+      BRCalculator();
+      BRCalculator(string config);
+      ~BRCalculator();
 
       // overload the Algorithm::Configure() methods to load private data
       // members from configuration options
@@ -154,7 +154,7 @@ namespace genie {
       // Digitisation done using WebPlotDigitizer (https://apps.automeris.io/wpd ; https://github.com/ankitrohatgi/WebPlotDigitizer)
       std::map< double, double > kscale_K3mu, kscale_K3e, kscale_mu3e;
     
-    }; // class BRFunctions
+    }; // class BRCalculator
 
 } // namespace hnl
 } // namespace genie

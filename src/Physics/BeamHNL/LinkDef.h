@@ -14,7 +14,7 @@
 #pragma link C++ class genie::hnl::GNuMIEventRecordVisitorI;
 
 #pragma link C++ class genie::hnl::SimpleHNL;
-#pragma link C++ class genie::hnl::BRFunctions;
+#pragma link C++ class genie::hnl::BRCalculator;
 #pragma link C++ class genie::hnl::FluxCreator;
 #pragma link C++ class genie::hnl::Decayer;
 #pragma link C++ class genie::hnl::VertexGenerator;
