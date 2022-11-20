@@ -44,7 +44,8 @@ The directory generated with the default parameters is going to have the followi
 - master-routine_validation_01-eScattering/
 - master-routine_validation_01-xsec_vA/
 - master-routine_validation_01-xsec_vN/
-- setup_FNALGrid.sh
+- setup_FNAL.sh
+- setup_GENIE.sh 
 
 ## How to run the scripts
 To submit jobs to run electrons on carbon and oxigen simply do:

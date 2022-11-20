@@ -107,15 +107,21 @@ vAsplines = vAdir+'total.xsec'
 
 # configure setup 
 if opts.GRID == 'FNAL' : 
-    setup_file = opts.GENIE+'/src/scripts/production/python/setup_FNALGrid.sh'
-    pnfs_setup = opts.JOBSTD+"/setup_FNALGrid.sh"
+    setup_file = opts.GENIE+'/src/scripts/production/python/setup_FNAL.sh'
+    GENIE_setup_file = opts.GENIE+'/src/scripts/production/python/setup_GENIE.sh'
+    pnfs_setup = opts.JOBSTD+"/setup_FNAL.sh"
+    GENIE_pnfs_setup = opts.JOBSTD+"/setup_GENIE.sh"
     if os.path.exists(pnfs_setup) : 
         os.remove(pnfs_setup)
+    if os.path.exists(GENIE_pnfs_setup) : 
+        os.remove(GENIE_pnfs_setup)
     os.system('cp '+setup_file+' '+opts.JOBSTD )
-    genie_setup = opts.JOBSTD+"/setup_FNALGrid.sh"
+    os.system('cp '+GENIE_setup_file+' '+opts.JOBSTD )
+    grid_setup = opts.JOBSTD+"/setup_FNAL.sh"
+    genie_setup = opts.JOBSTD+"/setup_GENIE.sh"
 else : 
     genie_setup = opts.SOFTW+'/generator/builds/'+arch+'/'+version+'-setup'
-
+    grid_setup = ""
 # Store commands with ID :
 command_dict = {}
 
@@ -133,7 +139,7 @@ loop_i = loop_start
 while loop_i < loop_end + 1: 
     # ID = 0 # vN splines
     if loop_i == 0 :
-        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.NuEMAX,opts.EEMAX,opts.NuKnots,opts.EKnots,opts.TUNE,version,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup,opts.vNJOBLIFE,opts.BRANCH) )
+        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.NuEMAX,opts.EEMAX,opts.NuKnots,opts.EKnots,opts.TUNE,version,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.vNJOBLIFE,opts.BRANCH) )
         total_time += int(opts.vNJOBLIFE) 
 
     # ID = 1 # group vN splines
@@ -142,12 +148,12 @@ while loop_i < loop_end + 1:
         if opts.MotherDir !='' : 
             vNMotherDir = opts.MotherDir+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vN/'
 
-        command_dict.update( group.GroupSplineCommands( True,vNdir,vNMotherDir,opts.TUNE,version,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,False, False, opts.GROUPJOBLIFE,opts.BRANCH ) )
+        command_dict.update( group.GroupSplineCommands( True,vNdir,vNMotherDir,opts.TUNE,version,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,grid_setup,genie_setup,opts.JOBSTD,False, False, opts.GROUPJOBLIFE,opts.BRANCH ) )
         total_time += int(opts.GROUPJOBLIFE)
  
     if loop_i == 2 : 
         # ID = 2 # vA splines
-        command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.NuEMAX,opts.EEMAX,opts.NuKnots,opts.EKnots,opts.TUNE,vNsplines,version,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,genie_setup,opts.vAJOBLIFE,opts.BRANCH) )
+        command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.NuEMAX,opts.EEMAX,opts.NuKnots,opts.EKnots,opts.TUNE,vNsplines,version,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.vAJOBLIFE,opts.BRANCH) )
         total_time += int(opts.vAJOBLIFE)
 
     if loop_i == 3 : 
@@ -156,7 +162,7 @@ while loop_i < loop_end + 1:
         if opts.MotherDir !='' : 
             vAMotherDir = opts.MotherDir+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vA/'
 
-        command_dict.update( group.GroupSplineCommands( False,vAdir,vAMotherDir,opts.TUNE,version,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,genie_setup,opts.JOBSTD,False, False,opts.GROUPJOBLIFE,opts.BRANCH ) )
+        command_dict.update( group.GroupSplineCommands( False,vAdir,vAMotherDir,opts.TUNE,version,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,grid_setup,genie_setup,opts.JOBSTD,False, False,opts.GROUPJOBLIFE,opts.BRANCH ) )
         total_time += int(opts.GROUPJOBLIFE) 
  
     loop_i += 1 
@@ -173,7 +179,7 @@ if opts.GRID == 'FNAL' :
     # Write xml file
     grid_name = FNAL.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD)
 
-    main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, genie_setup, grid_name, opts.JOBLIFE )
+    main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, grid_setup, genie_setup, grid_name, opts.JOBLIFE )
 
 if opts.SUBMIT == True: 
     # SUBMIT JOB
