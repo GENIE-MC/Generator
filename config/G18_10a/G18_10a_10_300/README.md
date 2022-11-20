@@ -1,10 +1,16 @@
 # Configuring Nuclear Partial tunes on CC0pi data
 GENIE published a number of partial tunes to CC0pi data (https://arxiv.org/abs/2206.11050). Each tune was performed against a different set of data: 
+
       - G10a: MicroBooNE numu CCQELike data
+
       - G11a: MicroBooNE numubar CCQELike data
+
       - G20a: T2K numu CC0p0pi data           
+
       - G30a: MINERvA numu CC0pi data         
+
       - G31a: MINERvA numubar CC0p0pi data    
+
       - G35a: MINERvA numu CCNp0pi data  
 
 ## How to configure the partial tunes 
