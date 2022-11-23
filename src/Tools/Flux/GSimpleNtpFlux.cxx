@@ -738,7 +738,7 @@ void GSimpleNtpFlux::Initialize(void)
   fAllFilesMeta    = true;
   fAlreadyUnwgt    = false;
 
-  fIncludeVtxt     = false;
+  fIncludeVtxt     = true;
 
   this->SetDefaults();
   this->ResetCurrent();

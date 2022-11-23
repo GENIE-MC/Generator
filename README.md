@@ -73,7 +73,7 @@ For more information, visit http://www.genie-mc.org
 - Alon Sportes (*Tel Aviv*)
 - Noah Steinberg (*Fermilab*)
 - Vladyslav Syrotenko (*Tufts*)
-- Júlia Tena Vidal (*Liverpool*)
+- Júlia Tena Vidal (*Tel Aviv*)
 - Jeremy Wolcott (*Tufts*)
 
 ---
