@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*
 \brief    Plot a 2D histogram depicting the angular smearing matrix given by 
-          the chosen NuSmear preset.
+          the chosen NuSmear preset
 \author   Ishaan Vohra <ivohra@exeter.edu / ishaanklv@gmail.com>
           Phillips Exeter Academy
 \created  August 16, 2022
