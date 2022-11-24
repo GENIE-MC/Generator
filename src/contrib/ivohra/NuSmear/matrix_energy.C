@@ -56,7 +56,7 @@ void matrix_energy(string filename = "/hepstore/ivohra/miniboone1.ghep.root")
   TFile infile(filename.c_str());
 
 
-  // Get the tree header & print it
+  // Get the tree header
 
   NtpMCTreeHeader * header =
     dynamic_cast<NtpMCTreeHeader*> (infile.Get("header"));
