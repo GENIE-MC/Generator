@@ -67,6 +67,8 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
     req_gen_list = gen_list.split(',')
     
     nsubruns = ntotevents/nmaxrun
+    if ntotevents < nmaxrun : nsubruns = 1
+
     if not isinstance(nsubruns, int) :
         nsubruns = 1+int(nsubruns)
 
@@ -74,15 +76,13 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
     for e in final_e_list : 
         for tgt in req_tgt_list : 
             for E in req_En_list : 
-                n_event_left = ntotevents; 
-                nsubruns
+                n_event_left = ntotevents
                 for isubrun in range(nsubruns) :
                     if n_event_left >= nmaxrun : 
                         nev = nmaxrun
-                    else : 
-                        n_event_left
+                    else:
+                        nev = n_event_left
                     n_event_left -= nev 
-                    
                     curr_subrune = "11"+str(tgt)+str(isubrun); 
                     curr_seed         = mcseed + isubrun + int(tgt)
                     jobname           = "e_on_"+str(tgt)+"_"+str(int((float(E)*1000)))+"MeV_"+str(isubrun)
@@ -95,7 +95,6 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
                         shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".root"), grid_setup, genie_setup, conf_dir, str(xspl_file), git_branch ) 
                         grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup, time)
                         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
-
 
     ## Add command list to dictionary; Key is 4 => event production
     command_dict = {}
