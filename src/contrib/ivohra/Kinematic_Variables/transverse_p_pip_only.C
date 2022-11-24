@@ -71,7 +71,7 @@ using namespace genie;
 
   //Make histogram
 
-auto myHist = new TH1D("h1","Total Transverse Momentum for Events Producing At Least 1 Final State π+;Momentum;Probability",100,0,1);
+auto myHist = new TH1D("h1","Total Transverse Momentum for Events Producing At Least 1 Final State π+;Momentum (GeV/c);Probability",100,0,1);
 
   // Event loop
 
