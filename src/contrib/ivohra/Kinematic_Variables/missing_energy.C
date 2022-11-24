@@ -3,7 +3,7 @@
 \brief    Assuming all neutral particles are unobserved, plot a 1D histogram 
           depicting the distribution of the total final state missing energy 
           of each event
-\author   Ishaan Vohra <ishaanklv@gmail.com>
+\author   Ishaan Vohra <ivohra@exeter.edu / ishaanklv@gmail.com>
           Phillips Exeter Academy
 \created  August 16, 2022
 */
@@ -40,17 +40,17 @@
 #include "PDGCodes.h"
 #include "TDatabasePDG.h"
 
-void missing_energy()
+using namespace genie;
+
+void missing_energy(string filename = "/hepstore/ivohra/miniboone1.ghep.root")
 {
-	using namespace genie;
 
-	// Open the GHEP/ROOT file
+   // Open the GHEP/ROOT file
 
-  string filename = "/hepstore/ivohra/miniboone1.ghep.root";
   TFile infile(filename.c_str());
 
-    // Get the tree header & print it
 
+    // Get the tree header
 
   NtpMCTreeHeader * header =
     dynamic_cast<NtpMCTreeHeader*> (infile.Get("header"));
