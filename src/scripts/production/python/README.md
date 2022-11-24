@@ -41,15 +41,13 @@ An example of a Submitter code is `eAScatteringGridSubmitter.py`. This code will
 ## Jobs top dir final structure
 The directory generated with the default parameters is going to have the following format:
 
-- fnal_dag_submit.fnal
-- grid_submission.xml  
-- group_vA.sh
-- group_vA.sh
-- master-routine_validation_01-eScattering/
-- master-routine_validation_01-xsec_vA/
-- master-routine_validation_01-xsec_vN/
-- setup_FNAL.sh
-- setup_GENIE.sh 
+- fnal_dag_submit.fnal: it contains the main jobsubmit command responsible to launch all the jobs. You can source it automatically with the `--submit-jobs` option. Otherwise, you can source it manually. 
+- grid_submission.xml : it contains the list of commands to be submitted by the fnal_dag_submit script. It deals with parallel jobs. 
+- master-routine_validation_01-xsec_vN/: this directory contains the scripts to run neutrino(electron)-nucleon splines on parallel. 
+- master-routine_validation_01-xsec_vA/: this directory contains the scripts to run neutrino(electron)-nuclei splines from the neutrino(electron)-nucleon splines.
+- master-routine_validation_01-eScattering/ : this directory contains the scripts to run events with GENIE and it will contain the output files with your events. 
+- setup_FNAL.sh : this setup will be sourced in each node. It sets the requirements needed to run the jobs at the FNAL grid. 
+- setup_GENIE.sh : this setup script deals with the GENIE configuration. It will clone the code from `https://github.com/GENIE-MC/Generator` and build the code in every node. It also deals with the branch version and configuration directory setup, in case you want a different configuration for your tunes. 
 
 ## How to run the scripts
 To submit jobs to run electrons on carbon and oxigen simply do:
