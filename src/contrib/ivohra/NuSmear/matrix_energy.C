@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*
 \brief    Plot a 2D histogram depicting the energy smearing matrix given by 
-          the chosen NuSmear preset.
+          the chosen NuSmear preset
 \author   Ishaan Vohra <ivohra@exeter.edu / ishaanklv@gmail.com>
           Phillips Exeter Academy
 \created  August 16, 2022
@@ -46,20 +46,17 @@
 
 #include "NuSmear.h"
 
-
-void matrix_energy()
-{
-
 using namespace genie;
+
+void matrix_energy(string filename = "/hepstore/ivohra/miniboone1.ghep.root")
+{
 
 // Open the GHEP/ROOT file
 
-  string filename = "/hepstore/ivohra/miniboone1.ghep.root";
   TFile infile(filename.c_str());
 
 
   // Get the tree header & print it
-
 
   NtpMCTreeHeader * header =
     dynamic_cast<NtpMCTreeHeader*> (infile.Get("header"));
