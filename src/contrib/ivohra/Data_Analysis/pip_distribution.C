@@ -58,7 +58,7 @@ void pip_distribution(string filename = "/hepstore/ivohra/miniboone1.ghep.root")
 
   // Make histogram
 
-auto myHist = new TH1D("h1","Distribution of Number of π+ Produced in Each Event",6,-0.5,5.5);
+auto myHist = new TH1D("h1","Distribution of Number of π+ Produced per Event;Count Per Event;Probability",6,-0.5,5.5);
 
   // Event loop
 
