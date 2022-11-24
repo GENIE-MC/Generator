@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*
 \brief    Plot a 1D histogram depicting the distribution of the total final 
-state transverse momentum of each event
+          state transverse momentum of each event
 \author   Ishaan Vohra <ivohra@exeter.edu / ishaanklv@gmail.com>
           Phillips Exeter Academy
 \created  August 16, 2022
@@ -45,19 +45,17 @@ state transverse momentum of each event
 
 #include "TVector3.h"
 
-
-void transverse_p()
-{
-
 using namespace genie;
+
+void transverse_p(string filename = "/hepstore/ivohra/miniboone1.ghep.root")
+{
 
 // Open the GHEP/ROOT file
 
-  string filename = "/hepstore/ivohra/miniboone1.ghep.root";
   TFile infile(filename.c_str());
 
 
-  // Get the tree header & print it
+  // Get the tree header
 
 
   NtpMCTreeHeader * header =
@@ -113,10 +111,9 @@ auto myHist = new TH1D("h1","Total Transverse Momentum;Momentum (GeV/c);Probabil
 
     }
 
- TH1*normh = (TH1D*)(myHist->Clone("normh"));
-   normh->Scale(1./normh->GetEntries());
-
-      normh->SetStats(false);
+TH1*normh = (TH1D*)(myHist->Clone("normh"));
+normh->Scale(1./normh->GetEntries());
+normh->SetStats(false);
 
 TFile *outfile = new TFile("transverse_p.root","RECREATE"); 
 outfile->cd();
