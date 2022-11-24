@@ -67,6 +67,11 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
     if not isinstance(nsubruns, int) :
         nsubruns = 1+int(nsubruns)
 
+    if grid_system == 'FNAL' :
+        input_xsec = "\$CONDOR_DIR_INPUT/total_xsec.xml"
+    else :
+        input_xsec = free_nuc_dir+"/total_xsec.xml"
+
     command_list = []
     for e in final_e_list : 
         for tgt in req_tgt_list : 
@@ -83,7 +88,7 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
                     jobname           = "e_on_"+str(tgt)+"_"+str(int((float(E)*1000)))+"MeV_"+str(isubrun)
 
                     evgen_command = "gevgen -p "+str(e)+" -n "+str(nev)+" -e "+E+" -t "+str(tgt)+" -r "+curr_subrune+" --seed "+str(curr_seed)
-                    evgen_command += " --cross-sections "+xspl_file+" --event-generator-list "+gen_list+" --tune "+tune + " -o "+jobname
+                    evgen_command += " --cross-sections "+input_xsec+" --event-generator-list "+gen_list+" --tune "+tune + " -o "+jobname
 
                     shell_file = ''                
                     if grid_system == 'FNAL' :

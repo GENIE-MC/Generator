@@ -111,9 +111,9 @@ if opts.BRANCH:
 
 # Define directories:
 vNdir = opts.JOBSTD+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vN/'
-vNsplines = vNdir+'total.xsec'
+vNsplines = vNdir+'total_xsec.xml'
 vAdir = opts.JOBSTD+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vA/'
-vAsplines = vAdir+'total.xsec'
+vAsplines = vAdir+'total_xsec.xml'
 
 # configure setup 
 if opts.GRID == 'FNAL' : 
