@@ -46,19 +46,16 @@
 
 #include "NuSmear.h"
 
-
-void matrix_angular()
-{
-
 using namespace genie;
+
+void matrix_angular(string filename = "/hepstore/ivohra/miniboone1.ghep.root")
+{
 
 // Open the GHEP/ROOT file
 
-  string filename = "/hepstore/ivohra/miniboone1.ghep.root";
   TFile infile(filename.c_str());
 
-
-  // Get the tree header & print it
+  // Get the tree header
 
 
   NtpMCTreeHeader * header =
