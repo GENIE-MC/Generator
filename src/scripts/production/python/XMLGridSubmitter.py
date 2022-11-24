@@ -99,6 +99,9 @@ if len(temp_version ) :
 if opts.BRANCH: 
     print( ' Cloning GENIE Generator ' + opts.BRANCH ) 
 
+os.system("source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup" ) 
+os.system("setup fife_utils")
+
 # Define directories:
 vNdir = opts.JOBSTD+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vN/'
 vNsplines = vNdir+'total.xsec'

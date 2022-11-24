@@ -94,6 +94,9 @@ if opts.CONF :
 
     print( 'Using configuration files from ' + opts.CONF + ' ...' )
 
+os.system("source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup" ) 
+os.system("setup fife_utils")
+
 # Check version is not a path
 temp_version = opts.VERSION.split('/') 
 version = opts.VERSION

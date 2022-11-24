@@ -7,10 +7,7 @@ Two submitters are availalbe:
 other scripts can be easily added.
 
 ## Requirements
-- To submit the jobs: 
-`source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup`
-`setup fife_utils`
-- You also need to have the $GENIE enviromental variable to your GENIE-MC/Generator directory. 
+- You must have the $GENIE enviromental variable to your GENIE-MC/Generator directory. This is required only to run the python scripts, no previous compilation of the GENIE-MC/Generator code is required.
 - Your jobs-topdir must be in the pnfs area
 
 ## Possible options
