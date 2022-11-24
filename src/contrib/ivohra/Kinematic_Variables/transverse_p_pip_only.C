@@ -1,8 +1,8 @@
 //____________________________________________________________________________
 /*
 \brief    Plot a 1D histogram depicting the distribution of the total final 
-state transverse momentum of each event, restricted to events with at least 
-1 π+ in the final state
+          state transverse momentum of each event, restricted to events with 
+          at least 1 π+ in the final state
 \author   Ishaan Vohra <ivohra@exeter.edu / ishaanklv@gmail.com>
           Phillips Exeter Academy
 \created  August 16, 2022
@@ -45,19 +45,17 @@ state transverse momentum of each event, restricted to events with at least
 
 #include "TVector3.h"
 
-
-void transverse_p_pip_only()
-{
-
 using namespace genie;
+
+void transverse_p_pip_only(string filename = "/hepstore/ivohra/miniboone1.ghep.root")
+{
 
 // Open the GHEP/ROOT file
 
-  string filename = "/hepstore/ivohra/miniboone1.ghep.root";
   TFile infile(filename.c_str());
 
 
-  // Get the tree header & print it
+  // Get the tree header
 
 
   NtpMCTreeHeader * header =
@@ -127,9 +125,8 @@ auto myHist = new TH1D("h1","Total Transverse Momentum for Events Producing At L
     }
   }
 
- TH1*normh = (TH1D*)(myHist->Clone("normh"));
-   normh->Scale(1./normh->GetEntries());
-
+TH1*normh = (TH1D*)(myHist->Clone("normh"));
+normh->Scale(1./normh->GetEntries());
 normh->SetStats(false);
 
 TFile *outfile = new TFile("transverse_p_pip_only.root","RECREATE"); 
