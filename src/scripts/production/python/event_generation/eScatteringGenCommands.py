@@ -39,11 +39,6 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
     if not os.path.exists(jobs_dir) : 
         os.mkdir(jobs_dir)
 
-    # configure setup 
-    if grid_system == 'FNAL' : 
-        genie_setup = genie_topdir+'src/scripts/production/python/setup_FNAL.sh' ## put correct path
-    else : 
-        genie_setup = softw_dopdir+'/generator/builds/'+arch+'/'+version+'-setup'
 
     # Electron list
     final_e_list = []
