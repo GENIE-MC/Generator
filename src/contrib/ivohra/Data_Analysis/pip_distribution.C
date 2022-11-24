@@ -34,20 +34,17 @@
 
 #include "PDGCodes.h"
 
-
-
-void pip_distribution()
-{
-
 using namespace genie;
+
+void pip_distribution(string filename = "/hepstore/ivohra/miniboone1.ghep.root")
+{
 
 // Open the GHEP ROOT file
 
-  string filename = "/hepstore/ivohra/miniboone1.ghep.root";
   TFile infile(filename.c_str());
 
 
-  // Get the tree header & print it
+  // Get the tree header
 
 
   NtpMCTreeHeader * header =
