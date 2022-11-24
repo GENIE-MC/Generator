@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*
-\name     NuSmear Smearing System
-\brief    Provides generic parameterized smearing presets for energy smearing 
-          and angular smearing with two smearing models - the Default model 
-          and the DUNE CDR model.
+\name     NuSmear smearing system
+\brief    Provides preliminary simulation of energy smearing and angular 
+          smearing for neutrino-nucleon interactions via parameterized
+          model-based presets in the DUNE-CDR and Default models
 \author   Ishaan Vohra <ivohra@exeter.edu / ishaanklv@gmail.com>
           Phillips Exeter Academy
 \created  August 16, 2022
