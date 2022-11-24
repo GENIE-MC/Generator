@@ -22,7 +22,7 @@ cd $GENIE
 GENIE_VERSION=master
 if [ ! -z "$1" ] ; then 
   GENIE_VERSION=$1
-  git checkout -b "origin/$GENIE_VERSION" 
+  git checkout "$GENIE_VERSION" 
 fi
 echo Requested Genie version $GENIE_VERSION
 
