@@ -2,7 +2,7 @@
 /*
 \brief    Plot a 2D histogram depicting the distribution of the scattering 
           type and the interaction type
-\author   Ishaan Vohra <ishaanklv@gmail.com>
+\author   Ishaan Vohra <ivohra@exeter.edu / ishaanklv@gmail.com>
           Phillips Exeter Academy
 \created  August 16, 2022
 */
@@ -33,20 +33,17 @@
 
 #include "PDGCodes.h"
 
-
-
-void scattering_type_interaction_type()
-{
-
 using namespace genie;
+
+void scattering_type_interaction_type(string filename = "/hepstore/ivohra/miniboone1.ghep.root")
+{
 
 // Open the GHEP ROOT file
 
-  string filename = "/hepstore/ivohra/miniboone1.ghep.root";
   TFile infile(filename.c_str());
 
 
-  // Get the tree header & print it
+  // Get the tree header
 
   NtpMCTreeHeader * header =
     dynamic_cast<NtpMCTreeHeader*> (infile.Get("header"));
@@ -96,9 +93,13 @@ myHist->Fill(proc.ScatteringTypeId(), proc.InteractionTypeId());
    mcrec->Clear();
   }
 
-myHist->SetStats(false);
+
+TH2*normh = (TH2D*)(myHist->Clone("normh"));
+normh->Scale(1./normh->GetEntries());
+normh->SetStats(false);
+
 TFile *outfile = new TFile("scattering_type_interaction_type.root","RECREATE"); 
 outfile->cd();
-myHist->Write();   
+normh->Write();   
 outfile->Close();
 }
