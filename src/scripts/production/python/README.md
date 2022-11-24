@@ -6,6 +6,13 @@ Two submitters are availalbe:
 - `eAScatteringGridSubmitter.py`: submits the jobs to create splines and generate e-A events
 other scripts can be easily added.
 
+## Requirements
+- To submit the jobs: 
+`source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup`
+`setup fife_utils`
+- You also need to have the $GENIE enviromental variable to your GENIE-MC/Generator directory. 
+- Your jobs-topdir must be in the pnfs area
+
 ## Possible options
 An example of a Submitter code is `eAScatteringGridSubmitter.py`. This code will launch the splines (for free nucleon and free nuclei) and electron scattering events. The options are: 
 
