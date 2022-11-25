@@ -1,4 +1,4 @@
-B#!/usr/bin/env python
+#!/usr/bin/env python
 
 """\
 This script generates e-scattering events 
@@ -11,7 +11,7 @@ Copyright:
    For the full text of the license visit http://copyright.genie-mc.org
 """
 import os 
-i1;95;0cmport FNALGridUtils as FNAL
+import FNALGridUtils as FNAL
 
 # Define Dictionaries
 
