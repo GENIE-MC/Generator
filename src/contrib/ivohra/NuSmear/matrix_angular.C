@@ -69,7 +69,7 @@ void matrix_angular(string filename = "/hepstore/ivohra/miniboone1.ghep.root")
 
   //Make histogram
 
-auto myHist = new TH2D("h1","Smearing Matrix;True Angle (Deg);Reconstructed Angle (Deg)",100,0,180,100,0,180);
+auto myHist = new TH2D("h1","Angular Smearing Matrix;True Angle (Deg);Reconstructed Angle (Deg)",100,0,180,100,0,180);
 
 
   // Event loop
