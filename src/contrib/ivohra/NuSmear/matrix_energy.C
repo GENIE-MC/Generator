@@ -69,7 +69,7 @@ void matrix_energy(string filename = "/hepstore/ivohra/miniboone1.ghep.root")
 
   //Make histogram
 
-auto myHist = new TH2D("h1","Smearing Matrix;True Energy (GeV);Reconstructed Energy (GeV)",100,0,7,100,0,7);
+auto myHist = new TH2D("h1","Energy Smearing Matrix;True Energy (GeV);Reconstructed Energy (GeV)",100,0,7,100,0,7);
 
 
   // Event loop
