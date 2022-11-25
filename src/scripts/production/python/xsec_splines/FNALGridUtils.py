@@ -53,15 +53,27 @@ def WriteXMLFile(commands_dict, start, end, jobs_dir, file_name='grid_submission
     if os.path.exists(grid_file):
         os.remove(grid_file)
 
-    script = open( grid_file, 'w' ) 
+    script = open( grid_file, 'w' )
+    in_serial = False 
 
     for id in range(start,end) :
         command_list = commands_dict[id]
+        if id < end - 1 : 
+            command_list_next = commands_dict[id+1]
+        else : 
+            command_list_next = command_list 
 
         if len(command_list) == 1 : # serial
-            script.write("<serial>\n")
+            if in_serial == False: 
+                script.write("<serial>\n")
+                in_serial = True
+ 
             script.write(command_list[0]+"\n")
-            script.write("</serial>\n")
+
+            if ( len(command_list_next) != 1 ) or ( id == end - 1 and in_serial == True ) : 
+                script.write("</serial>\n")
+                in_serial = False
+
         else : 
             script.write("<parallel>\n")
             for i in range(len(command_list)) : 

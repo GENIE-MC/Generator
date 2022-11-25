@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+B#!/usr/bin/env python
 
 """\
 This script generates e-scattering events 
@@ -11,7 +11,7 @@ Copyright:
    For the full text of the license visit http://copyright.genie-mc.org
 """
 import os 
-import FNALGridUtils as FNAL
+i1;95;0cmport FNALGridUtils as FNAL
 
 # Define Dictionaries
 
@@ -60,7 +60,7 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
         req_tgt_list = evg_tgtpdg_hash 
     req_En_list = E_list.split(',')
     req_gen_list = gen_list.split(',')
-    
+        
     nsubruns = ntotevents/nmaxrun
     if ntotevents < nmaxrun : nsubruns = 1
 
@@ -88,7 +88,7 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
                     jobname           = "e_on_"+str(tgt)+"_"+str(int((float(E)*1000)))+"MeV_"+str(isubrun)
 
                     evgen_command = "gevgen -p "+str(e)+" -n "+str(nev)+" -e "+E+" -t "+str(tgt)+" -r "+curr_subrune+" --seed "+str(curr_seed)
-                    evgen_command += " --cross-sections "+input_xsec+" --event-generator-list "+gen_list+" --tune "+tune + " -o "+jobname
+                    evgen_command += " --cross-sections "+input_xsec+" --event-generator-list "+gen_list+" --tune "+tune + " -o "+jobname+".ghep.root"
 
                     shell_file = ''                
                     if grid_system == 'FNAL' :

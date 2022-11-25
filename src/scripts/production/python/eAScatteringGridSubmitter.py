@@ -47,7 +47,7 @@ op.add_option("--e-nu-max", dest="NuEMAX", type="int", default=100, help="Maximu
 op.add_option("--e-e-max", dest="EEMAX", type="int", default=30, help="Maximum energy for the splines in GeV. Default: %default ")
 op.add_option("--n-nu-knots", dest="NuKnots", type="int", default=100, help="Number of knots per neutrino spline. Default: %default")
 op.add_option("--n-e-knots", dest="EKnots", type="int", default=100, help="Number of knots per electron spline. Default: %default")
-op.add_option("--event-generator-list", dest="EvGenList", default='all', help="Event generator list to be used for event generation. Default all")
+op.add_option("--event-generator-list", dest="EvGenList", default='EM', help="Event generator list to be used for event generation. Default EM")
 op.add_option("--nu-ntotevents", dest="NuEvents", type="int", default=10000, help="Number of total events, default: 100 k")
 op.add_option("--e-ntotevents", dest="EEvents", type="int", default=100000, help="Number of total events, default: 100 k")
 op.add_option("--nmaxevents",dest="NMax", type="int", default=100000,help="Max number of events to run per event generation, default 100k")
