@@ -316,6 +316,27 @@ TLorentzVector * InitialState::GetTgtP4(RefFrame_t ref_frame) const
              return p4;
              break;
        }
+       //------------------ STRUCK ELECTRON REST FRAME:
+       case (kRfHitElRest) :
+       {
+             // make sure that 'struck electron' properties were set in
+             // the electron target object
+             //std::cout<<"ELE is set: "<<fTgt->HitEleIsSet()<<std::endl;
+             assert(fTgt->HitEleIsSet());
+             TLorentzVector * pele4 = fTgt->HitEleP4Ptr();
+
+             // compute velocity vector (px/E, py/E, pz/E)
+             double bx = pele4->Px() / pele4->Energy();
+             double by = pele4->Py() / pele4->Energy();
+             double bz = pele4->Pz() / pele4->Energy();
+
+             // BOOST
+             TLorentzVector * p4 = new TLorentzVector(*fTgtP4);
+             p4->Boost(-bx,-by,-bz);
+
+             return p4;
+             break;
+       }
        default:
              LOG("Interaction", pERROR) << "Uknown reference frame";
   }
@@ -373,6 +394,35 @@ TLorentzVector * InitialState::GetProbeP4(RefFrame_t ref_frame) const
              return p4;
 
              break;
+       }
+       //----------------- STRUCK ELECTRON REST FRAME
+       case (kRfHitElRest) :
+       {
+        //Ensure target is electron
+        //assert(fTgt->Pdg() == 11);
+        //std::cout<<"ELE is set (GetProbeP4): "<<fTgt->HitEleIsSet()<<std::endl;
+        assert( fTgt->HitEleP4Ptr() != 0 );
+        //std::cout<<"passed assert"<<std::endl;
+        //std::cout<<"Hit electron in kRFHitElRest : "<<std::endl;
+        //std::cout<<*this<<std::endl;
+        //
+        TLorentzVector * pele4 = fTgt->HitEleP4Ptr();
+
+        // compute velocity vector (px/E, py/E, pz/E)
+
+        double bx = pele4->Px() / pele4->Energy();
+        double by = pele4->Py() / pele4->Energy();
+        double bz = pele4->Pz() / pele4->Energy();
+
+        // BOOST
+
+        TLorentzVector * p4 = new TLorentzVector(*fProbeP4);
+
+        p4->Boost(-bx,-by,-bz);
+
+        return p4;
+
+        break;
        }
        default:
 

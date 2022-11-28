@@ -45,6 +45,7 @@ NuEKinematicsGenerator::~NuEKinematicsGenerator()
 //___________________________________________________________________________
 void NuEKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
+  //std::cout <<"KG : "<< *evrec << std::endl;
   if(fGenerateUniformly) {
     LOG("NuEKinematics", pNOTICE)
           << "Generating kinematics uniformly over the allowed phase space";
@@ -210,10 +211,13 @@ double NuEKinematicsGenerator::ComputeMaxXSec(
 double NuEKinematicsGenerator::Energy(const Interaction * interaction) const
 {
 // Override the base class Energy() method to cache the max xsec for the
-// neutrino energy in the LAB rather than in the hit nucleon rest frame.
+// neutrino energy in the electron rest frame.
 
   const InitialState & init_state = interaction->InitState();
-  double E = init_state.ProbeE(kRfLab);
+  //double E = init_state.ProbeE(kRfLab);
+  //std::cout<<"E (lf) : "<<E<<std::endl;
+  double E = init_state.ProbeE(kRfHitElRest); //
+  //std::cout<<"E (rf) : "<<E<<std::endl;
   return E;
 }
 //___________________________________________________________________________

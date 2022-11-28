@@ -80,7 +80,8 @@ fA(0),
 fTgtPDG(0),
 fHitNucPDG(0),
 fHitSeaQrk(false),
-fHitNucP4(0)
+fHitNucP4(0),
+fHitEleP4(0)
 {
 
 }
@@ -105,12 +106,14 @@ void Target::Init(void)
   fHitQrkPDG = 0;
   fHitSeaQrk = false;
   fHitNucP4  = new TLorentzVector(0,0,0,kNucleonMass);
+  fHitEleP4  = new TLorentzVector(0,0,0,kElectronMass);
   fHitNucRad = 0.;
 }
 //___________________________________________________________________________
 void Target::CleanUp(void)
 {
   delete fHitNucP4;
+  delete fHitEleP4;
 }
 //___________________________________________________________________________
 void Target::Copy(const Target & tgt)
@@ -143,6 +146,24 @@ void Target::Copy(const Target & tgt)
      // make sure the hit nucleus constituent object is either
      // a nucleon (p or n) or a di-nucleon cluster (p+p, p+n, n+n)
      this->ForceHitNucValidity();
+  }
+  //std::cout<<"fTgtPDG Target"<<fTgtPDG<<std::endl;
+  //std::cout<<"Tgt fZ fA:"<<tgt.fZ<<"**"<<tgt.fA<<"**"<<tgt.fHitNucPDG<<"**"<<tgt.fHitQrkPDG<<"**"<<tgt.fHitSeaQrk<<std::endl;
+  if (tgt.fHitNucPDG == 0 && tgt.fHitQrkPDG == 0 && tgt.fHitSeaQrk){ //No interaction with nucleus -> interaction with electron
+    const TLorentzVector& p4 = *(tgt.fHitEleP4);
+
+    fHitEleP4->SetX(p4.X());
+    fHitEleP4->SetY(p4.Y());
+    fHitEleP4->SetZ(p4.Z());
+    fHitEleP4->SetT(p4.T());
+
+    // look-up the nucleus in the isotopes chart
+    //this->ForceNucleusValidity();
+
+    //Make sure hit target is electron
+    //this->ForceHitEleValidity();
+
+
   }
 }
 //___________________________________________________________________________
@@ -190,6 +211,12 @@ void Target::SetHitNucP4(const TLorentzVector & p4)
 {
   if(fHitNucP4) delete fHitNucP4;
   fHitNucP4 = new TLorentzVector(p4);
+}
+//___________________________________________________________________________
+void Target::SetHitEleP4(const TLorentzVector & p4)
+{
+  if(fHitEleP4) delete fHitEleP4;
+  fHitEleP4 = new TLorentzVector(p4);
 }
 //___________________________________________________________________________
 void Target::SetHitSeaQrk(bool tf)
@@ -254,6 +281,16 @@ TLorentzVector * Target::HitNucP4Ptr(void) const
   return fHitNucP4;
 }
 //___________________________________________________________________________
+TLorentzVector * Target::HitEleP4Ptr(void) const
+{
+  if(!fHitEleP4) {
+    LOG("Target", pWARN) << "Returning NULL struck electron 4-momentum";
+    return 0;
+  }
+  //std::cout<<"Target::HitEleP4Ptr : "<<fHitEleP4->E()<<std::endl;
+  return fHitEleP4;
+}
+//___________________________________________________________________________
 bool Target::IsFreeNucleon(void) const
 {
   return (fA == 1 && (fZ == 0 || fZ == 1));
@@ -262,6 +299,11 @@ bool Target::IsFreeNucleon(void) const
 bool Target::IsProton(void) const
 {
   return (fA == 1 && fZ == 1);
+}
+//___________________________________________________________________________
+bool Target::IsElectron(void) const
+{
+  return (fA == 0 && fZ == 0); //No nucleons
 }
 //___________________________________________________________________________
 bool Target::IsNeutron(void) const
@@ -285,6 +327,15 @@ bool Target::HitNucIsSet(void) const
   bool ok =
      pdg::IsNucleon(fHitNucPDG)          ||
      pdg::Is2NucleonCluster (fHitNucPDG);
+
+  return ok;
+}
+//___________________________________________________________________________
+bool Target::HitEleIsSet(void) const
+{
+  bool ok = fHitNucPDG == 0 &&
+            fHitQrkPDG == 0 &&
+            fHitSeaQrk == 0; //Hit no quarks
 
   return ok;
 }
@@ -346,6 +397,15 @@ bool Target::IsOddOdd(void) const
   }
   return false;
 }
+//___________________________________________________________________________
+// bool Target::ForceHitEleValidity(void)
+// {
+// // resets the struck electron pdg-code if it is found not to be a valid one
+
+//   bool valid = fHitElePDG == 11;
+
+//   return valid;
+// }
 //___________________________________________________________________________
 bool Target::ForceHitNucValidity(void)
 {
@@ -416,6 +476,10 @@ void Target::Print(ostream & stream) const
            << " (from sea: "
            << utils::print::BoolAsYNString(this->HitSeaQrk())
            << ")";
+  }
+  if( this->HitEleIsSet() ) {
+    TParticlePDG * q = PDGLibrary::Instance()->Find(fHitQrkPDG);
+    stream << " struck electron = ";
   }
 }
 //___________________________________________________________________________

@@ -27,13 +27,17 @@
 
 #ifndef _NU_ELECTRON_PARTIAL_XSEC_H_
 #define _NU_ELECTRON_PARTIAL_XSEC_H_
+//#ifndef _ELECTRON_VELOCITY_H_
+//#define _ELECTRON_VELOCITY_H_
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Physics/NuclearState/ElectronVelocity.h"
 
 namespace genie {
 
 class IntegratorI;
 class XSecIntegratorI;
+//ElectronVelocity;
 
 class NuElectronPXSec : public XSecAlgorithmI {
 
@@ -44,7 +48,7 @@ public:
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
-  double Integral        (const Interaction * i) const;
+  double Integral        (const Interaction * i, const int N) const;
   bool   ValidProcess    (const Interaction * i) const;
   bool   ValidKinematics (const Interaction * i) const;
 
@@ -57,6 +61,7 @@ private:
   void LoadConfig (void);
 
   const XSecIntegratorI * fXSecIntegrator;
+  const ElectronVelocity * fElectronVelocity;
 
   double fSin28w; // sin^2(theta-weinberg)
   double fSin48w;

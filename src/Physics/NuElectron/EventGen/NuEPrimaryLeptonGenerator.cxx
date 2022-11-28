@@ -47,7 +47,18 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 // This method generates the final state primary lepton for NuE events
 
   Interaction * interaction = evrec->Summary();
-  const InitialState & init_state = interaction->InitState();
+  //std::cout<<"PL :"<<std::endl;
+  //std::cout<<*evrec<<std::endl;
+
+  // Boost vector for [LAB] <-> [Electron Rest Frame] transforms
+  TVector3 beta = this->EleRestFrame2Lab(evrec); // Get boost of hit
+  //std::cout<<"Beta : "<<beta.x()<<","<<beta.y()<<","<<beta.z()<<std::endl;
+
+  // Neutrino 4p
+  TLorentzVector * p4v = evrec->Probe()->GetP4(); // v 4p @ LAB
+  p4v->Boost(-1.*beta);                           // v 4p @ Electron rest frame
+
+  //const InitialState & init_state = interaction->InitState();
 
   // Get selected kinematics
   double y = interaction->Kine().y(true);
@@ -58,7 +69,7 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   assert(pdgc!=0);
 
   // Compute the neutrino and muon energy
-  double Ev  = init_state.ProbeE(kRfLab);
+  double Ev  = p4v->E();
   double El  = (1-y)*Ev;
 
   LOG("LeptonicVertex", pINFO)
@@ -117,5 +128,20 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   // Set final state lepton polarization
   this->SetPolarization(evrec);
+}
+//___________________________________________________________________________
+TVector3 NuEPrimaryLeptonGenerator::EleRestFrame2Lab(GHepRecord * evrec) const
+{
+// Velocity for an active Lorentz transform taking the final state primary
+// lepton from the [electron rest frame] --> [LAB]
+
+  Interaction * interaction = evrec->Summary();
+  const InitialState & init_state = interaction->InitState();
+
+  const TLorentzVector & pele4 = init_state.Tgt().HitEleP4(); //[@LAB]
+  //std::cout<<"pele4 : "<<pele4.X()<<","<<pele4.Y()<<","<<pele4.Z()<<","<<pele4.E()<<std::endl;
+  TVector3 beta = pele4.BoostVector();
+
+  return beta;
 }
 //___________________________________________________________________________

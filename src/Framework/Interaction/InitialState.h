@@ -67,6 +67,7 @@ public:
   Target *         TgtPtr     (void) const { return  fTgt; }
   TLorentzVector * GetTgtP4   (RefFrame_t rf = kRfLab) const;
   TLorentzVector * GetProbeP4 (RefFrame_t rf = kRfHitNucRest) const;
+  //TLorentzVector * GetProbeEleP4 (RefFrame_t rf = kRfHitEleRest) const;
   double           ProbeE     (RefFrame_t rf) const;
   double           CMEnergy   () const; ///< centre-of-mass energy (sqrt s)
 

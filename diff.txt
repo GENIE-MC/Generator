@@ -1,0 +1,459 @@
+[1mdiff --git a/config/EventGenerator.xml b/config/EventGenerator.xml[m
+[1mindex 5fe64420a..9786fff8d 100644[m
+[1m--- a/config/EventGenerator.xml[m
+[1m+++ b/config/EventGenerator.xml[m
+[36m@@ -455,12 +455,13 @@[m [mXSecModel                   alg     Yes  Cross section model used at the thread[m
+ [m
+   <param_set name="NUE-EL">[m
+      <param type="string" name="VldContext"> </param>[m
+[31m-     <param type="int"    name="NModules">   5                                          </param>[m
+[32m+[m[32m     <param type="int"    name="NModules">   6                                          </param>[m
+      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default        </param>[m
+      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default             </param>[m
+[31m-     <param type="alg"    name="Module-2">   genie::NuEKinematicsGenerator/Default      </param>[m
+[31m-     <param type="alg"    name="Module-3">   genie::NuEPrimaryLeptonGenerator/Default   </param>[m
+[31m-     <param type="alg"    name="Module-4">   genie::NuETargetRemnantGenerator/Default   </param>[m
+[32m+[m[32m     <param type="alg"    name="Module-2">   genie::ElectronVelocity/Default            </param>[m
+[32m+[m[32m     <param type="alg"    name="Module-3">   genie::NuEKinematicsGenerator/Default      </param>[m
+[32m+[m[32m     <param type="alg"    name="Module-4">   genie::NuEPrimaryLeptonGenerator/Default   </param>[m
+[32m+[m[32m     <param type="alg"    name="Module-5">   genie::NuETargetRemnantGenerator/Default   </param>[m
+      <param type="alg"    name="ILstGen">    genie::NuEInteractionListGenerator/NUE-EL  </param>[m
+   </param_set>[m
+ [m
+[1mdiff --git a/config/master_config.xml b/config/master_config.xml[m
+[1mindex 65775c665..4ef831bee 100644[m
+[1m--- a/config/master_config.xml[m
+[1m+++ b/config/master_config.xml[m
+[36m@@ -5,6 +5,7 @@[m
+    <!-- ****** CONFIGURATION FOR EVENT GENERATION MODULES ****** -->[m
+    <config alg="genie::EventGenerator">                  EventGenerator.xml                  </config>[m
+    <config alg="genie::FermiMover">                      FermiMover.xml                      </config>[m
+[32m+[m[32m   <config alg="genie::ElectronVelocity">                ElectronVelocity.xml                </config>[m
+    <config alg="genie::HadronTransporter">               HadronTransporter.xml               </config>[m
+    <config alg="genie::HAIntranuke">                     HAIntranuke.xml                     </config>[m
+    <config alg="genie::HAIntranuke2018">                 HAIntranuke2018.xml                 </config>[m
+[1mdiff --git a/src/Framework/Interaction/InitialState.cxx b/src/Framework/Interaction/InitialState.cxx[m
+[1mindex d00a29646..269188824 100644[m
+[1m--- a/src/Framework/Interaction/InitialState.cxx[m
+[1m+++ b/src/Framework/Interaction/InitialState.cxx[m
+[36m@@ -316,6 +316,26 @@[m [mTLorentzVector * InitialState::GetTgtP4(RefFrame_t ref_frame) const[m
+              return p4;[m
+              break;[m
+        }[m
+[32m+[m[32m       //------------------ STRUCK ELECTRON REST FRAME:[m
+[32m+[m[32m       case (kRfHitElRest) :[m
+[32m+[m[32m       {[m
+[32m+[m[32m             // make sure that 'struck electron' properties were set in[m
+[32m+[m[32m             // the electron target object[m
+[32m+[m[32m             assert(fTgt->HitEleIsSet());[m
+[32m+[m[32m             TLorentzVector * pele4 = fTgt->HitEleP4Ptr();[m
+[32m+[m
+[32m+[m[32m             // compute velocity vector (px/E, py/E, pz/E)[m
+[32m+[m[32m             double bx = pele4->Px() / pele4->Energy();[m
+[32m+[m[32m             double by = pele4->Py() / pele4->Energy();[m
+[32m+[m[32m             double bz = pele4->Pz() / pele4->Energy();[m
+[32m+[m
+[32m+[m[32m             // BOOST[m
+[32m+[m[32m             TLorentzVector * p4 = new TLorentzVector(*fTgtP4);[m
+[32m+[m[32m             p4->Boost(-bx,-by,-bz);[m
+[32m+[m
+[32m+[m[32m             return p4;[m
+[32m+[m[32m             break;[m
+[32m+[m[32m       }[m
+        default:[m
+              LOG("Interaction", pERROR) << "Uknown reference frame";[m
+   }[m
+[36m@@ -374,6 +394,32 @@[m [mTLorentzVector * InitialState::GetProbeP4(RefFrame_t ref_frame) const[m
+ [m
+              break;[m
+        }[m
+[32m+[m[32m       //----------------- STRUCK ELECTRON REST FRAME[m
+[32m+[m[32m       case (kRfHitElRest) :[m
+[32m+[m[32m       {[m
+[32m+[m[32m        //Ensure target is electron[m
+[32m+[m[32m        //assert(fTgt->Pdg() == 11);[m
+[32m+[m[32m        assert( fTgt->HitEleP4Ptr() != 0 );[m
+[32m+[m
+[32m+[m[32m        //[m
+[32m+[m[32m        TLorentzVector * pele4 = fTgt->HitEleP4Ptr();[m
+[32m+[m
+[32m+[m[32m        // compute velocity vector (px/E, py/E, pz/E)[m
+[32m+[m
+[32m+[m[32m        double bx = pele4->Px() / pele4->Energy();[m
+[32m+[m[32m        double by = pele4->Py() / pele4->Energy();[m
+[32m+[m[32m        double bz = pele4->Pz() / pele4->Energy();[m
+[32m+[m
+[32m+[m[32m        // BOOST[m
+[32m+[m
+[32m+[m[32m        TLorentzVector * p4 = new TLorentzVector(*fProbeP4);[m
+[32m+[m
+[32m+[m[32m        p4->Boost(-bx,-by,-bz);[m
+[32m+[m
+[32m+[m[32m        return p4;[m
+[32m+[m
+[32m+[m[32m        break;[m
+[32m+[m[32m       }[m
+        default:[m
+ [m
+              LOG("Interaction", pERROR) << "Uknown reference frame";[m
+[1mdiff --git a/src/Framework/Interaction/InitialState.h b/src/Framework/Interaction/InitialState.h[m
+[1mindex ea63c3498..e069a2697 100644[m
+[1m--- a/src/Framework/Interaction/InitialState.h[m
+[1m+++ b/src/Framework/Interaction/InitialState.h[m
+[36m@@ -67,6 +67,7 @@[m [mpublic:[m
+   Target *         TgtPtr     (void) const { return  fTgt; }[m
+   TLorentzVector * GetTgtP4   (RefFrame_t rf = kRfLab) const;[m
+   TLorentzVector * GetProbeP4 (RefFrame_t rf = kRfHitNucRest) const;[m
+[32m+[m[32m  //TLorentzVector * GetProbeEleP4 (RefFrame_t rf = kRfHitEleRest) const;[m
+   double           ProbeE     (RefFrame_t rf) const;[m
+   double           CMEnergy   () const; ///< centre-of-mass energy (sqrt s)[m
+ [m
+[1mdiff --git a/src/Framework/Interaction/Target.cxx b/src/Framework/Interaction/Target.cxx[m
+[1mindex 704a40908..d49cc625c 100644[m
+[1m--- a/src/Framework/Interaction/Target.cxx[m
+[1m+++ b/src/Framework/Interaction/Target.cxx[m
+[36m@@ -80,7 +80,8 @@[m [mfA(0),[m
+ fTgtPDG(0),[m
+ fHitNucPDG(0),[m
+ fHitSeaQrk(false),[m
+[31m-fHitNucP4(0)[m
+[32m+[m[32mfHitNucP4(0),[m
+[32m+[m[32mfHitEleP4(0)[m
+ {[m
+ [m
+ }[m
+[36m@@ -105,12 +106,14 @@[m [mvoid Target::Init(void)[m
+   fHitQrkPDG = 0;[m
+   fHitSeaQrk = false;[m
+   fHitNucP4  = new TLorentzVector(0,0,0,kNucleonMass);[m
+[32m+[m[32m  fHitEleP4  = new TLorentzVector(0,0,0,kElectronMass);[m
+   fHitNucRad = 0.;[m
+ }[m
+ //___________________________________________________________________________[m
+ void Target::CleanUp(void)[m
+ {[m
+   delete fHitNucP4;[m
+[32m+[m[32m  delete fHitEleP4;[m
+ }[m
+ //___________________________________________________________________________[m
+ void Target::Copy(const Target & tgt)[m
+[36m@@ -144,6 +147,22 @@[m [mvoid Target::Copy(const Target & tgt)[m
+      // a nucleon (p or n) or a di-nucleon cluster (p+p, p+n, n+n)[m
+      this->ForceHitNucValidity();[m
+   }[m
+[32m+[m[32m  if (fTgtPDG == 11){[m
+[32m+[m[32m    const TLorentzVector& p4 = *(tgt.fHitEleP4);[m
+[32m+[m
+[32m+[m[32m    fHitEleP4->SetX(p4.X());[m
+[32m+[m[32m    fHitEleP4->SetY(p4.Y());[m
+[32m+[m[32m    fHitEleP4->SetZ(p4.Z());[m
+[32m+[m[32m    fHitEleP4->SetT(p4.T());[m
+[32m+[m
+[32m+[m[32m    // look-up the nucleus in the isotopes chart[m
+[32m+[m[32m    //this->ForceNucleusValidity();[m
+[32m+[m
+[32m+[m[32m    //Make sure hit target is electron[m
+[32m+[m[32m    //this->ForceHitEleValidity();[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  }[m
+ }[m
+ //___________________________________________________________________________[m
+ void Target::SetId(int pdgc)[m
+[36m@@ -192,6 +211,12 @@[m [mvoid Target::SetHitNucP4(const TLorentzVector & p4)[m
+   fHitNucP4 = new TLorentzVector(p4);[m
+ }[m
+ //___________________________________________________________________________[m
+[32m+[m[32mvoid Target::SetHitEleP4(const TLorentzVector & p4)[m
+[32m+[m[32m{[m
+[32m+[m[32m  if(fHitEleP4) delete fHitEleP4;[m
+[32m+[m[32m  fHitEleP4 = new TLorentzVector(p4);[m
+[32m+[m[32m}[m
+[32m+[m[32m//___________________________________________________________________________[m
+ void Target::SetHitSeaQrk(bool tf)[m
+ {[m
+   fHitSeaQrk = tf;[m
+[36m@@ -254,6 +279,16 @@[m [mTLorentzVector * Target::HitNucP4Ptr(void) const[m
+   return fHitNucP4;[m
+ }[m
+ //___________________________________________________________________________[m
+[32m+[m[32mTLorentzVector * Target::HitEleP4Ptr(void) const[m
+[32m+[m[32m{[m
+[32m+[m[32m  if(!fHitEleP4) {[m
+[32m+[m[32m    LOG("Target", pWARN) << "Returning NULL struck electron 4-momentum";[m
+[32m+[m[32m    return 0;[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  return fHitEleP4;[m
+[32m+[m[32m}[m
+[32m+[m[32m//___________________________________________________________________________[m
+ bool Target::IsFreeNucleon(void) const[m
+ {[m
+   return (fA == 1 && (fZ == 0 || fZ == 1));[m
+[36m@@ -264,6 +299,11 @@[m [mbool Target::IsProton(void) const[m
+   return (fA == 1 && fZ == 1);[m
+ }[m
+ //___________________________________________________________________________[m
+[32m+[m[32mbool Target::IsElectron(void) const[m
+[32m+[m[32m{[m
+[32m+[m[32m  return (fTgtPDG == 11);[m
+[32m+[m[32m}[m
+[32m+[m[32m//___________________________________________________________________________[m
+ bool Target::IsNeutron(void) const[m
+ {[m
+   return (fA == 1 && fZ == 0);[m
+[36m@@ -289,6 +329,13 @@[m [mbool Target::HitNucIsSet(void) const[m
+   return ok;[m
+ }[m
+ //___________________________________________________________________________[m
+[32m+[m[32mbool Target::HitEleIsSet(void) const[m
+[32m+[m[32m{[m
+[32m+[m[32m  bool ok = fTgtPDG == 11;[m
+[32m+[m
+[32m+[m[32m  return ok;[m
+[32m+[m[32m}[m
+[32m+[m[32m//___________________________________________________________________________[m
+ bool Target::HitQrkIsSet(void) const[m
+ {[m
+   return ([m
+[36m@@ -347,6 +394,15 @@[m [mbool Target::IsOddOdd(void) const[m
+   return false;[m
+ }[m
+ //___________________________________________________________________________[m
+[32m+[m[32m// bool Target::ForceHitEleValidity(void)[m
+[32m+[m[32m// {[m
+[32m+[m[32m// // resets the struck electron pdg-code if it is found not to be a valid one[m
+[32m+[m
+[32m+[m[32m//   bool valid = fHitElePDG == 11;[m
+[32m+[m
+[32m+[m[32m//   return valid;[m
+[32m+[m[32m// }[m
+[32m+[m[32m//___________________________________________________________________________[m
+ bool Target::ForceHitNucValidity(void)[m
+ {[m
+ // resets the struck nucleon pdg-code if it is found not to be a valid one[m
+[1mdiff --git a/src/Framework/Interaction/Target.h b/src/Framework/Interaction/Target.h[m
+[1mindex 3ce0abccd..606897b8b 100644[m
+[1m--- a/src/Framework/Interaction/Target.h[m
+[1m+++ b/src/Framework/Interaction/Target.h[m
+[36m@@ -58,6 +58,7 @@[m [mpublic:[m
+   void SetId                  (int Z, int A);[m
+   void SetHitNucPdg           (int pdgc);[m
+   void SetHitNucP4            (const TLorentzVector & p4);[m
+[32m+[m[32m  void SetHitEleP4            (const TLorentzVector & p4);[m
+   void SetHitNucPosition        (double r);[m
+   void SetHitQrkPdg           (int pdgc);[m
+   void SetHitSeaQrk           (bool tf);[m
+[36m@@ -73,11 +74,13 @@[m [mpublic:[m
+   double Charge         (void) const;[m
+   bool   IsFreeNucleon  (void) const;[m
+   bool   IsProton       (void) const;[m
+[32m+[m[32m  bool   IsElectron     (void) const;[m
+   bool   IsNeutron      (void) const;[m
+   bool   IsNucleus      (void) const;[m
+   bool   IsParticle     (void) const;[m
+   bool   IsValidNucleus (void) const;[m
+   bool   HitNucIsSet    (void) const;[m
+[32m+[m[32m  bool   HitEleIsSet    (void) const;[m
+   bool   HitQrkIsSet    (void) const;[m
+   bool   HitSeaQrk      (void) const;[m
+   bool   IsEvenEven     (void) const;[m
+[36m@@ -90,6 +93,8 @@[m [mpublic:[m
+ [m
+   const TLorentzVector & HitNucP4    (void) const { return *this->HitNucP4Ptr(); }[m
+   TLorentzVector *       HitNucP4Ptr (void) const;[m
+[32m+[m[32m  const TLorentzVector & HitEleP4    (void) const { return *this->HitEleP4Ptr(); }[m
+[32m+[m[32m  TLorentzVector *       HitEleP4Ptr (void) const;[m
+ [m
+   //-- Copy, reset, compare, print itself and build string code[m
+   void   Reset    (void);[m
+[36m@@ -121,6 +126,7 @@[m [mprivate:[m
+   int  fHitQrkPDG;            ///< hit quark PDG code[m
+   bool fHitSeaQrk;            ///< hit quark from sea?[m
+   TLorentzVector * fHitNucP4; ///< hit nucleon 4p[m
+[32m+[m[32m  TLorentzVector * fHitEleP4; ///< hit electron 4p[m
+   double fHitNucRad;          ///< hit nucleon position[m
+ [m
+ ClassDef(Target,2)[m
+[1mdiff --git a/src/Physics/NuElectron/EventGen/NuEKinematicsGenerator.cxx b/src/Physics/NuElectron/EventGen/NuEKinematicsGenerator.cxx[m
+[1mindex af9eb2cf2..be7563afd 100644[m
+[1m--- a/src/Physics/NuElectron/EventGen/NuEKinematicsGenerator.cxx[m
+[1m+++ b/src/Physics/NuElectron/EventGen/NuEKinematicsGenerator.cxx[m
+[36m@@ -210,10 +210,11 @@[m [mdouble NuEKinematicsGenerator::ComputeMaxXSec([m
+ double NuEKinematicsGenerator::Energy(const Interaction * interaction) const[m
+ {[m
+ // Override the base class Energy() method to cache the max xsec for the[m
+[31m-// neutrino energy in the LAB rather than in the hit nucleon rest frame.[m
+[32m+[m[32m// neutrino energy in the electron rest frame.[m
+ [m
+   const InitialState & init_state = interaction->InitState();[m
+[31m-  double E = init_state.ProbeE(kRfLab);[m
+[32m+[m[32m  //double E = init_state.ProbeE(kRfLab);[m
+[32m+[m[32m  double E = init_state.ProbeE(kRfHitElRest); //[m
+   return E;[m
+ }[m
+ //___________________________________________________________________________[m
+[1mdiff --git a/src/Physics/NuElectron/EventGen/NuEPrimaryLeptonGenerator.cxx b/src/Physics/NuElectron/EventGen/NuEPrimaryLeptonGenerator.cxx[m
+[1mindex 741dc127f..8607fe1af 100644[m
+[1m--- a/src/Physics/NuElectron/EventGen/NuEPrimaryLeptonGenerator.cxx[m
+[1m+++ b/src/Physics/NuElectron/EventGen/NuEPrimaryLeptonGenerator.cxx[m
+[36m@@ -47,7 +47,15 @@[m [mvoid NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const[m
+ // This method generates the final state primary lepton for NuE events[m
+ [m
+   Interaction * interaction = evrec->Summary();[m
+[31m-  const InitialState & init_state = interaction->InitState();[m
+[32m+[m
+[32m+[m[32m  // Boost vector for [LAB] <-> [Electron Rest Frame] transforms[m
+[32m+[m[32m  TVector3 beta = this->EleRestFrame2Lab(evrec);[m
+[32m+[m
+[32m+[m[32m  // Neutrino 4p[m
+[32m+[m[32m  TLorentzVector * p4v = evrec->Probe()->GetP4(); // v 4p @ LAB[m
+[32m+[m[32m  p4v->Boost(-1.*beta);                           // v 4p @ Nucleon rest frame[m
+[32m+[m
+[32m+[m[32m  //const InitialState & init_state = interaction->InitState();[m
+ [m
+   // Get selected kinematics[m
+   double y = interaction->Kine().y(true);[m
+[36m@@ -58,7 +66,7 @@[m [mvoid NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const[m
+   assert(pdgc!=0);[m
+ [m
+   // Compute the neutrino and muon energy[m
+[31m-  double Ev  = init_state.ProbeE(kRfLab);[m
+[32m+[m[32m  double Ev  = p4v->E();[m
+   double El  = (1-y)*Ev;[m
+ [m
+   LOG("LeptonicVertex", pINFO)[m
+[36m@@ -119,3 +127,17 @@[m [mvoid NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const[m
+   this->SetPolarization(evrec);[m
+ }[m
+ //___________________________________________________________________________[m
+[32m+[m[32mTVector3 NuEPrimaryLeptonGenerator::EleRestFrame2Lab(GHepRecord * evrec) const[m
+[32m+[m[32m{[m
+[32m+[m[32m// Velocity for an active Lorentz transform taking the final state primary[m
+[32m+[m[32m// lepton from the [electron rest frame] --> [LAB][m
+[32m+[m
+[32m+[m[32m  Interaction * interaction = evrec->Summary();[m
+[32m+[m[32m  const InitialState & init_state = interaction->InitState();[m
+[32m+[m
+[32m+[m[32m  const TLorentzVector & pele4 = init_state.Tgt().HitEleP4(); //[@LAB][m
+[32m+[m[32m  TVector3 beta = pele4.BoostVector();[m
+[32m+[m
+[32m+[m[32m  return beta;[m
+[32m+[m[32m}[m
+[32m+[m[32m//___________________________________________________________________________[m
+[1mdiff --git a/src/Physics/NuElectron/EventGen/NuEPrimaryLeptonGenerator.h b/src/Physics/NuElectron/EventGen/NuEPrimaryLeptonGenerator.h[m
+[1mindex 874b2405f..48e9c5a72 100644[m
+[1m--- a/src/Physics/NuElectron/EventGen/NuEPrimaryLeptonGenerator.h[m
+[1m+++ b/src/Physics/NuElectron/EventGen/NuEPrimaryLeptonGenerator.h[m
+[36m@@ -32,6 +32,8 @@[m [mpublic :[m
+ [m
+   //-- implement the EventRecordVisitorI interface[m
+   void ProcessEventRecord(GHepRecord * event_rec) const;[m
+[32m+[m
+[32m+[m[32m  virtual TVector3 EleRestFrame2Lab (GHepRecord * ev) const;[m
+ };[m
+ [m
+ }      // genie namespace[m
+[1mdiff --git a/src/Physics/NuElectron/XSection/NuElectronPXSec.cxx b/src/Physics/NuElectron/XSection/NuElectronPXSec.cxx[m
+[1mindex 88d65161c..797d4f969 100644[m
+[1m--- a/src/Physics/NuElectron/XSection/NuElectronPXSec.cxx[m
+[1m+++ b/src/Physics/NuElectron/XSection/NuElectronPXSec.cxx[m
+[36m@@ -18,6 +18,7 @@[m
+ #include "Framework/Messenger/Messenger.h"[m
+ #include "Framework/ParticleData/PDGUtils.h"[m
+ #include "Framework/Utils/KineUtils.h"[m
+[32m+[m[32m#include "Physics/NuclearState/ElectronVelocity.h"[m
+ [m
+ using namespace genie;[m
+ using namespace genie::constants;[m
+[36m@@ -52,7 +53,7 @@[m [mdouble NuElectronPXSec::XSec([m
+   const Kinematics &   kinematics = interaction -> Kine();[m
+   const ProcessInfo &  proc_info  = interaction -> ProcInfo();[m
+ [m
+[31m-  double Ev = init_state.ProbeE(kRfLab);[m
+[32m+[m[32m  double Ev = init_state.ProbeE(kRfHitElRest);[m
+   double me = kElectronMass;[m
+   double y  = kinematics.y();[m
+   double A  = kGF2*2*me*Ev/kPi;[m
+[36m@@ -134,8 +135,52 @@[m [mdouble NuElectronPXSec::XSec([m
+ //____________________________________________________________________________[m
+ double NuElectronPXSec::Integral(const Interaction * interaction) const[m
+ {[m
+[31m-  double xsec = fXSecIntegrator->Integrate(this,interaction);[m
+[31m-  return xsec;[m
+[32m+[m[32m  //Get initial state nucleus, necessary for Z[m
+[32m+[m[32m  Interaction in_curr(*interaction);[m
+[32m+[m[32m  // hit target[m
+[32m+[m[32m  Target * tgt = in_curr.InitState().TgtPtr();[m
+[32m+[m[32m  int Z = tgt->Z(); //Get Z value[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  //Generate random velocities inherited from ElectronVelocity.cxx[m
+[32m+[m[32m  const int N = 2000;[m[41m [m
+[32m+[m[32m  // VertexGenerator for generating a position before generating[m
+[32m+[m[32m  // each electron[m
+[32m+[m[32m  //VertexGenerator * vg = new VertexGenerator();[m
+[32m+[m[32m  //vg->Configure("Default");[m
+[32m+[m
+[32m+[m[32m  double xsec_sum = 0;[m
+[32m+[m[32m  for (int iele=0;iele<N;iele++){[m
+[32m+[m[32m    //Does this work for getting the electron position?[m
+[32m+[m[32m    //TVector3 elepos = vg->GenerateVertex(&in_curr,tgt->A());[m
+[32m+[m
+[32m+[m[32m    //Generate electron[m
+[32m+[m[32m    TLorentzVector * p4 = tgt->HitEleP4Ptr(); //Initialize 4 momentum pointer[m
+[32m+[m[32m    TVector3 p3; //Initialize momentum vector[m
+[32m+[m[32m    float velocity = ElectronVelocity().random_bohr_velocity(Z,true); //Get random bohr velocity[m
+[32m+[m[32m    vector<float> v0{velocity/sqrt(3),velocity/sqrt(3),velocity/sqrt(3)}; //Make velocity vector[m
+[32m+[m[32m    float gamma = 1/sqrt(1-velocity*velocity); //Get boost[m
+[32m+[m[32m    vector<float> vf = ElectronVelocity().randomize_velocity(v0); //Randomize direction of velocity[m
+[32m+[m[32m    //Set 3 momentum[m
+[32m+[m[32m    float me = kElectronMass; //GeV[m
+[32m+[m[32m    p3.SetX(me*gamma*vf[0]);[m
+[32m+[m[32m    p3.SetY(me*gamma*vf[1]);[m
+[32m+[m[32m    p3.SetZ(me*gamma*vf[2]);[m
+[32m+[m[32m    //Calculate energy[m
+[32m+[m[32m    double PF2 = p3.Mag2(); //Magnitude of momentum 2[m
+[32m+[m[32m    double EN = sqrt(PF2+me*me);[m
+[32m+[m[32m    //-- update the electron 4p[m
+[32m+[m[32m    p4->SetPx( p3.Px() );[m
+[32m+[m[32m    p4->SetPy( p3.Py() );[m
+[32m+[m[32m    p4->SetPz( p3.Pz() );[m
+[32m+[m[32m    p4->SetE ( EN      );[m
+[32m+[m[32m    //std::cout<<"******"<<p3.Px()<<"*****"<<p3.Py()<<"*****"<<p3.Pz()<<std::endl;[m
+[32m+[m[32m    double xsec = fXSecIntegrator->Integrate(this,&in_curr);[m
+[32m+[m[32m    xsec_sum+=xsec;[m
+[32m+[m[32m  }[m
+[32m+[m[32m  double xsec_avg = xsec_sum/N;[m
+[32m+[m[41m  [m
+[32m+[m[32m  return xsec_avg;[m
+ }[m
+ //____________________________________________________________________________[m
+ bool NuElectronPXSec::ValidProcess(const Interaction * interaction) const[m
+[1mdiff --git a/src/Physics/NuElectron/XSection/NuElectronPXSec.h b/src/Physics/NuElectron/XSection/NuElectronPXSec.h[m
+[1mindex 618d2fbd8..8f0c32b3f 100644[m
+[1m--- a/src/Physics/NuElectron/XSection/NuElectronPXSec.h[m
+[1m+++ b/src/Physics/NuElectron/XSection/NuElectronPXSec.h[m
+[36m@@ -27,8 +27,11 @@[m
+ [m
+ #ifndef _NU_ELECTRON_PARTIAL_XSEC_H_[m
+ #define _NU_ELECTRON_PARTIAL_XSEC_H_[m
+[32m+[m[32m//#ifndef _ELECTRON_VELOCITY_H_[m
+[32m+[m[32m//#define _ELECTRON_VELOCITY_H_[m
+ [m
+ #include "Framework/EventGen/XSecAlgorithmI.h"[m
+[32m+[m[32m//#include "Physics/NuclearState/ElectronVelocity.h"[m
+ [m
+ namespace genie {[m
+ [m
+[1mdiff --git a/src/Physics/NuclearState/LinkDef.h b/src/Physics/NuclearState/LinkDef.h[m
+[1mindex c9207f1ca..c1c1e0151 100644[m
+[1m--- a/src/Physics/NuclearState/LinkDef.h[m
+[1m+++ b/src/Physics/NuclearState/LinkDef.h[m
+[36m@@ -26,4 +26,6 @@[m
+ #pragma link C++ class genie::SecondNucleonEmissionI;[m
+ #pragma link C++ class genie::SpectralFunction2p2h;[m
+ [m
+[32m+[m[32m#pragma link C++ class genie::ElectronVelocity;[m
+[32m+[m
+ #endif[m

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+Configuration for the Bohr Electron Velocity
+
+Configurable Parameters:
+.............................................................................................................
+Name                          Type    Optional   Comment                                           Default
+.............................................................................................................
+
+-->
+
+<alg_conf>
+  <param_set name="Default">
+  </param_set>
+
+</alg_conf>

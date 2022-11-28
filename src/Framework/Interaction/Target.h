@@ -58,6 +58,7 @@ public:
   void SetId                  (int Z, int A);
   void SetHitNucPdg           (int pdgc);
   void SetHitNucP4            (const TLorentzVector & p4);
+  void SetHitEleP4            (const TLorentzVector & p4);
   void SetHitNucPosition        (double r);
   void SetHitQrkPdg           (int pdgc);
   void SetHitSeaQrk           (bool tf);
@@ -73,11 +74,13 @@ public:
   double Charge         (void) const;
   bool   IsFreeNucleon  (void) const;
   bool   IsProton       (void) const;
+  bool   IsElectron     (void) const;
   bool   IsNeutron      (void) const;
   bool   IsNucleus      (void) const;
   bool   IsParticle     (void) const;
   bool   IsValidNucleus (void) const;
   bool   HitNucIsSet    (void) const;
+  bool   HitEleIsSet    (void) const;
   bool   HitQrkIsSet    (void) const;
   bool   HitSeaQrk      (void) const;
   bool   IsEvenEven     (void) const;
@@ -90,6 +93,8 @@ public:
 
   const TLorentzVector & HitNucP4    (void) const { return *this->HitNucP4Ptr(); }
   TLorentzVector *       HitNucP4Ptr (void) const;
+  const TLorentzVector & HitEleP4    (void) const { return *this->HitEleP4Ptr(); }
+  TLorentzVector *       HitEleP4Ptr (void) const;
 
   //-- Copy, reset, compare, print itself and build string code
   void   Reset    (void);
@@ -121,6 +126,7 @@ private:
   int  fHitQrkPDG;            ///< hit quark PDG code
   bool fHitSeaQrk;            ///< hit quark from sea?
   TLorentzVector * fHitNucP4; ///< hit nucleon 4p
+  TLorentzVector * fHitEleP4; ///< hit electron 4p
   double fHitNucRad;          ///< hit nucleon position
 
 ClassDef(Target,2)
