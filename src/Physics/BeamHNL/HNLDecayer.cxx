@@ -150,12 +150,14 @@ void Decayer::GenerateDecayProducts(GHepRecord * event) const
   assert ( pdgv.size() > 1);
 
   // if user wants to include polarisation effects, start prep now
+  /*
   double fPolDirMag = 0.0;
   if( fPolDir.size() == 3 ){
     fPolDirMag = std::sqrt( ( fPolDir.at(0) * fPolDir.at(0) ) +
 			    ( fPolDir.at(1) * fPolDir.at(1) ) + 
 			    ( fPolDir.at(2) * fPolDir.at(2) ) );
   }
+  */
   bool doPol = fDoPol && (fPolDir.size() == 3);
 
   std::ostringstream asts;
@@ -202,7 +204,7 @@ void Decayer::GenerateDecayProducts(GHepRecord * event) const
        << " Decaying system p4 = " << utils::print::P4AsString(p4d);
      // clean-up
      delete [] mass;
-     delete p4d, p4d_rest;
+     delete p4d; delete p4d_rest;
      delete v4d;
      // throw exception
      genie::exceptions::EVGThreadException exception;
@@ -232,7 +234,7 @@ void Decayer::GenerateDecayProducts(GHepRecord * event) const
     // see arXiv:1805.06419[hep-ph]
     TVector3 vecPolDir( fPolDir.at(0), fPolDir.at(1), fPolDir.at(2) );
     LOG( "HNL", pDEBUG ) << "Doing a polarised decay...";
-    this->PolarisedDecay( fPhaseSpaceGenerator, pdgv, wmax, vecPolDir, decayFailed );
+    decayFailed = this->PolarisedDecay( fPhaseSpaceGenerator, pdgv, wmax, vecPolDir );
   } else {
     if( doPol && fCurrDecayMode == kHNLDcyNuNuNu ){
       // no charged lepton here... warn the user about it, though
@@ -241,7 +243,7 @@ void Decayer::GenerateDecayProducts(GHepRecord * event) const
     }
 
     LOG( "HNL", pDEBUG ) << "Doing a phase-space decay...";
-    this->UnpolarisedDecay( fPhaseSpaceGenerator, pdgv, wmax, decayFailed );
+    decayFailed = this->UnpolarisedDecay( fPhaseSpaceGenerator, pdgv, wmax );
   }
   if( decayFailed ){
     // clean up
@@ -354,7 +356,7 @@ std::vector< double > * Decayer::GenerateMomentum( GHepRecord * event ) const
   double p = TMath::Sqrt(E*E-M*M);
 
   // set some initial deviation from beam axis due to collimation effect
-  double thetaDev = fAngularDeviation; // deg
+  double thetaDev = 0.0; //fAngularDeviation; // deg
   thetaDev *= genie::constants::kPi / 180.0; // rad
   RandomGen * Rng = RandomGen::Instance();
   double theta = Rng->RndGen().Gaus(0.0, thetaDev);
@@ -424,9 +426,9 @@ void Decayer::LoadConfig(void)
   this->GetParamVect( "HNL-LeptonMixing", U4l2s );
   SetHNLCouplings( U4l2s.at(0), U4l2s.at(1), U4l2s.at(2) );
   this->GetParam( "HNL-Majorana", fIsMajorana );
-  this->GetParam( "HNL-Type", fType );
+  //this->GetParam( "HNL-Type", fType );
 
-  this->GetParam( "HNL-angular_deviation", fAngularDeviation );
+  //this->GetParam( "HNL-angular_deviation", fAngularDeviation );
 
   this->GetParam( "IncludePolarisation", fDoPol );
 
@@ -456,7 +458,7 @@ void Decayer::LoadConfig(void)
   std::string stTCoup( "HNL_TCOUP" ); this->SetEnvVariable( stTCoup.c_str(), U4l2s.at(2) );
   std::string stIsMaj( "HNL_ISMAJORANA" ); this->SetEnvVariable( stIsMaj.c_str(), fIsMajorana ); // cast is implicit in argument
   // call GetHNLInstance here, to get lifetime
-  SimpleHNL sh = this->GetHNLInstance( "BeamHNL" );
+  SimpleHNL sh = this->GetHNLInstance();
   double CoMLifetime = sh.GetCoMLifetime();
   assert( CoMLifetime > 0.0 );
   std::string stCoM( "HNL_LIFETIME" ); this->SetEnvVariable( stCoM.c_str(), CoMLifetime );
@@ -489,13 +491,13 @@ void Decayer::SetBeam2User( std::vector< double > translation, std::vector< doub
   fR3 = rotation.at(2);
 }
 //___________________________________________________________________________
-SimpleHNL Decayer::GetHNLInstance(string config) const
+SimpleHNL Decayer::GetHNLInstance() const
 {
   SimpleHNL sh = SimpleHNL( "HNLInstance", 0, genie::kPdgHNL, genie::kPdgKP,
 			    fMass, fUe42, fUm42, fUt42, fIsMajorana );
-  sh.SetType( fType );
+  sh.SetType( 0 );
   sh.SetInterestingChannelsVec( fIntChannels );
-  sh.SetAngularDeviation( fAngularDeviation );
+  sh.SetAngularDeviation( 0.0 ); //fAngularDeviation );
   sh.SetBeam2UserTranslation( fTx, fTy, fTz );
   sh.SetBeam2UserRotation( fR1, fR2, fR3 );
   return sh;
@@ -540,13 +542,15 @@ void Decayer::ReadCreationInfo( GHepRecord * event ) const
   } else { return; }
 }
 //____________________________________________________________________________
-void Decayer::UnpolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, bool failed = false ) const
+bool Decayer::UnpolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm ) const
 {
 
   RandomGen * rnd = RandomGen::Instance();
   
   bool accept_decay=false;
   unsigned int itry=0;
+
+  bool failed = false;
   while(!accept_decay) {
     itry++;
     
@@ -556,7 +560,7 @@ void Decayer::UnpolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double 
 	<< "Couldn't generate an unweighted phase space decay after "
 	<< itry << " attempts";
       failed = true;
-      return;
+      return failed;
     }
     double w  = fPSG.Generate();
     if(w > wm) {
@@ -573,10 +577,12 @@ void Decayer::UnpolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double 
     */
     
   } //!accept_decay
+
+  return failed;
   
 }
 //____________________________________________________________________________
-void Decayer::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, TVector3 vPolDir, bool failed = false ) const
+bool Decayer::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, TVector3 vPolDir ) const
 { 
   // calculate polarisation modulus
   PDGLibrary * pdgl = PDGLibrary::Instance();
@@ -591,13 +597,15 @@ void Decayer::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm
   double rwgt = 0.0;
   bool isAccepted = false;
 
+  bool failed = false;
+
   // first, check to see if we have pi0 + v. Then let the neutrino be a QLep.
   bool isPi0Nu = ( pdgv.size() == 3 && 
 		   std::abs( pdgv.at(1) ) == kPdgPi0 &&
 		   std::abs( pdgv.at(2) ) == kPdgNuMu );
   
   while( !isAccepted && iUPD < controls::kMaxUnweightDecayIterations ){
-    this->UnpolarisedDecay( fPSG, pdgv, wm, failed );
+    bool failed = this->UnpolarisedDecay( fPSG, pdgv, wm );
     
     // find charged lepton of FS. If two, take the leading one.
     // For now, this method doesn't handle vvv invisible decay mode.
@@ -628,7 +636,7 @@ void Decayer::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm
     }
 
     // find angle \theta of leading FS QLep with vPolDir
-    // assume differential decay rate \propto ( 1 \mp pMod * cos\theta )
+    // assume differential decay rate \propto ( 1 \pm pMod * cos\theta )
 
     double theta = vPolDir.Angle( lepDir ); // rad
     double ctheta = TMath::Cos( theta );
@@ -648,8 +656,10 @@ void Decayer::PolarisedDecay( TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm
       << "Couldn't generate a polarised decay after "
       << iUPD << " attempts";
     failed = true;
-    return;
+    return failed;
   }
+  
+  return failed;
 
 }
 //____________________________________________________________________________

@@ -15,7 +15,7 @@
 using namespace genie::hnl;
 
 // Takes parameter space, outputs all available channels + widths
-std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double M, const double Ue42, const double Umu42, const double Ut42, const bool IsMajorana ){
+std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double M, const double /* Ue42 */, const double /* Umu42 */, const double /* Ut42 */, const bool IsMajorana ){
 
   // construct an BRCalculator * object to handle the scalings.
   const Algorithm * algBRCalc = AlgFactory::Instance()->GetAlgorithm("genie::hnl::BRCalculator", "Default");

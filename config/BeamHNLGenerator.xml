@@ -14,14 +14,7 @@ set ParameterSpace:                         Choice of parameter space position
 *******************                         **********************************
 HNL-Mass                  double      no
 HNL-LeptonMixing          vec-double  no    Mixing to charged leptons: e-mu-tau
-HNL-Ue42
-HNL-Um42
-HNL-Ut42                  double      no    Same as HNL-LeptonMixing. Needed by flux routines.
 HNL-Majorana              bool        no    Majorana vs Dirac HNL
-HNL-Type                  int         no    [Only relevant for Dirac && hist flux generation]:
-                                            0 ==> pure particle beam
-                                            1 ==> pure antiparticle beam
-                                            2 ==> mix of the two
 
 ************************                    *****************************************
 set InterestingChannels:                    Which decays to un-inhibit
@@ -37,13 +30,6 @@ HNL-3B_nu_e_e             bool        no    N -> nu + e   + e
 HNL-3B_e_pi_pi0           bool        no    N -> e  + pi  + pi0
 HNL-3B_mu_pi_pi0          bool        no    N -> mu + pi  + pi0
 HNL-3B_nu_pi0_pi0         bool        no    N -> nu + pi0 + pi0
-
-**********************                      *******************************
-set InitialState:                           Modify incoming HNL phase-space
-**********************                      *******************************
-HNL-angular_deviation     double      no    [Only relevant for hist flux generation]
-                                            Gaussian spread of HNL 3-momentum off-beam-axis
-HNL-max-energy            double      no    Cutoff energy for flux spectrum
 
 ********************                        ********************************
 set CoordinateXForm:                        Define beam -> local coord xform
@@ -74,9 +60,9 @@ set FluxCalc:                               Specific hooks for HNL flux calculat
 *************                               ***************************************
 ParentPOTScalings         bool        no    Ratio of all POT in flux files / POT making parent
                                             species. 
-IsHNLOnAxis               bool        yes   Incoming HNL placed on SM-nu beam axis            true
+IsHNLOnAxis               bool        yes   Incoming HNL placed on SM-nu beam axis            false
+                                            (perfect focusing)            
                                             For acceptance correction calculation only.
-UseBeamMomentum           bool        yes   Corrects near detectors: z(det) || z(tgt)         true
 IncludePolarisation       bool        yes   Include HNL polarisation effects 
 FixPolarisationDirection  bool        yes   Override event-by-event determination of pol dir
                                             and set direction to follow HNL-PolDir
@@ -94,7 +80,7 @@ Pion-FFactor              double      no    See Coloma et al, EPJ C 81 (2021) 78
   
   <param_set name="Default">
     
-    <param type="string" name="CommonHNL"> ParameterSpace,InterestingChannels,InitialState,CoordinateXForm,FluxCalc,External </param>
+    <param type="string" name="CommonHNL"> ParameterSpace,InterestingChannels,CoordinateXForm,FluxCalc,External </param>
     <param type="string" name="CommonParam"> WeakInt,CKM </param>
 
   </param_set>

@@ -67,7 +67,7 @@ private:
    void ReadCreationInfo( GHepRecord * event ) const;
    
    // Construct a SimpleHNL to get information about lifetime, interesting channels
-   genie::hnl::SimpleHNL GetHNLInstance(string config) const;
+   genie::hnl::SimpleHNL GetHNLInstance() const;
 
    // these 2 are legacy methods. Not to be used anymore
    std::vector< double > * GenerateDecayPosition (GHepRecord * event) const;
@@ -77,8 +77,8 @@ private:
    double CalcPolMag          (int parPdg, int lepPdg, double M) const;
    double CalcPolMod          (double polMag, int lepPdg, int hadPdg, double M) const;
 
-   void UnpolarisedDecay      (TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, bool failed) const;
-   void PolarisedDecay        (TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, TVector3 vPolDir, bool failed)const;
+   bool UnpolarisedDecay      (TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm) const;
+   bool PolarisedDecay        (TGenPhaseSpace & fPSG, PDGCodeList pdgv, double wm, TVector3 vPolDir) const;
 
    mutable int                        fCurrInitStatePdg;
    mutable genie::hnl::HNLDecayMode_t fCurrDecayMode;
@@ -91,13 +91,13 @@ private:
    mutable double                     fMass; 
    mutable double                     fUe42 = -1.0, fUm42 = -1.0, fUt42 = -1.0;
    mutable bool                       fIsMajorana = false;
-   mutable int                        fType = 2;
+   //mutable int                        fType = 2;
 
    mutable bool                       fDoPol = false;
 
    mutable std::vector< genie::hnl::HNLDecayMode_t > fIntChannels;
 
-   mutable double                     fAngularDeviation = -1.0;
+   //mutable double                     fAngularDeviation = -1.0;
    mutable std::vector< double >      fB2UTranslation;
    mutable double                     fTx = -1.0, fTy = -1.0, fTz = -1.0;
    mutable std::vector< double >      fB2URotation;

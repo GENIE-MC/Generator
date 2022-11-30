@@ -234,14 +234,14 @@ int main(int argc, char ** argv)
   // Get the HNL generator first to load config
   // config loaded upon instantiation of HNLGenerator algorithm 
   // calls LoadConfig() of each sub-alg
-  const EventRecordVisitorI * mcgen = HNLGenerator();
+  __attribute__((unused)) const EventRecordVisitorI * mcgen = HNLGenerator();
   const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::hnl::FluxCreator", "Default");
   const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
-  const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
+  //const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
 
   const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
   const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
-  const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
+  //const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
   
   //string confString = kDefOptSName + "/" + kDefOptSConfig;
   string confString = kDefOptSConfig;
@@ -350,11 +350,6 @@ int main(int argc, char ** argv)
   }
 #endif // #ifdef __CAN_USE_ROOT_GEOM__
 
-  // loop over some flux tuples
-  __attribute__((unused)) GFluxI * ff = 0; // only use this if the flux is not monoenergetic!
-  TH1D * spectrum = 0;
-  TFile * spectrumFile = 0;
-
   if( !gOptIsMonoEnFlux ){
     LOG( "gevgen_hnl", pWARN )
       << "Using input flux files. These are *flat dk2nu-like ROOT trees, so far...*";
@@ -434,7 +429,6 @@ int main(int argc, char ** argv)
      
      int hpdg = genie::kPdgHNL;
      int typeMod = 1;
-     RandomGen * rnd = RandomGen::Instance();
      if( gOptIsMajorana ) typeMod = ( rnd->RndGen().Uniform( 0.0, 1.0 ) >= 0.5 ) ? -1 : 1;
      else if( event->Particle(0)->Pdg() > 0 ) typeMod = 1;
      else if( event->Particle(0)->Pdg() < 0 ) typeMod = -1;
@@ -469,8 +463,6 @@ int main(int argc, char ** argv)
        LOG( "gevgen_hnl", pDEBUG )
 	 << "\nsetting probe p4 = " << utils::print::P4AsString( event->Particle(0)->P4() );
      }
-
-     double acceptance = 1.0; // need to weight a spectrum by acceptance and nimpwt as well
 
      event->AttachSummary(interaction);
 
@@ -571,9 +563,9 @@ void InitBoundingBox(void)
     TGeoMedium *Al = new TGeoMedium("Root Material",2, matAl);
 
     //--- make the top container volume
-    const double boxSideX = 2.5, boxSideY = 2.5, boxSideZ = 2.5; // m
-    const double bigBoxSide = 2.0 * std::max( boxSideX, std::max( boxSideY, boxSideZ ) ); // m
-    const double worldLen = 1.01 * bigBoxSide; // m
+    //const double boxSideX = 2.5, boxSideY = 2.5, boxSideZ = 2.5; // m
+    //const double bigBoxSide = 2.0 * std::max( boxSideX, std::max( boxSideY, boxSideZ ) ); // m
+    //const double worldLen = 1.01 * bigBoxSide; // m
 
     TGeoVolume * topvol = geom->MakeBox( "TOP", Vacuum, 101.0, 101.0, 101.0 );
     geom->SetTopVolume( topvol );
@@ -584,7 +576,7 @@ void InitBoundingBox(void)
 
     //--- origin is at centre of the box
     TGeoVolume * box = geom->MakeBox( "BOX", Al, 100.0, 100.0, 100.0 );
-    TGeoTranslation * tr0 = new TGeoTranslation( 0.0, 0.0, 0.0 );
+    //TGeoTranslation * tr0 = new TGeoTranslation( 0.0, 0.0, 0.0 );
     TGeoRotation * rot0 = new TGeoRotation( "rot0", 90.0, 0.0, 90.0, 90.0, 0.0, 0.0 );
 
     //--- add directly to top volume
@@ -612,11 +604,11 @@ void InitBoundingBox(void)
 
   TGeoBBox *  box = (TGeoBBox *)ts;
 
-  const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
-  const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::hnl::FluxCreator", "Default");
+  //const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
+  //const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::hnl::FluxCreator", "Default");
 
-  const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
-  const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
+  //const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
+  //const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
 
   //get box origin and dimensions (in the same units as the geometry)
   fdx = box->GetDX();
@@ -1044,7 +1036,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   
   if( parser.OptionExists("tune") ){
     didFindUserInputTune = true;
-    std::string stExtraTuneBit = parser.ArgAsString("tune");
+    stExtraTuneBit = parser.ArgAsString("tune");
     LOG( "gevgen_hnl", pWARN )
       << "Using input HNL tune " << parser.ArgAsString("tune");
   } else {
@@ -1052,22 +1044,20 @@ void GetCommandLineArgs(int argc, char ** argv)
       << "Using default HNL tune " << kDefOptSTune;
   }
   // append this to argv
-  for( unsigned int iArg = 0; iArg < argc; iArg++ ){
+  for( int iArg = 0; iArg < argc; iArg++ ){
     expargv[iArg] = argv[iArg];
   }
   if( !didFindUserInputTune ){
     char * chBit = const_cast< char * >( stExtraTuneBit.c_str() ); // ugh. Ugly.
-    expargv[argc] = "--tune";
+    std::string stune("--tune"); char * tBit = const_cast< char * >( stune.c_str() );
+    expargv[argc] = tBit;
     expargv[argc+1] = chBit;
   }
 
   // Common run options.
   int expargc = ( didFindUserInputTune ) ? argc : argc+2;
-  expargv[expargc] = "";
-
-  for( int ii = 0; ii < expargc; ii++ ){
-    LOG( "gevgen_hnl", pDEBUG ) << " ii = " << ii << ", expargv[ii] = \"" << expargv[ii] << "\"";
-  }
+  std::string stnull(""); char * nBit = const_cast< char * >( stnull.c_str() );
+  expargv[expargc] = nBit;
 
   RunOpt::Instance()->ReadFromCommandLine(expargc,expargv);
 

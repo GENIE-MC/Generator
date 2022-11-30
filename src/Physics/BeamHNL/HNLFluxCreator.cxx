@@ -305,7 +305,7 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
   // 17-Jun-22: Notice the time component needs to be nonzero to get this to work!
 
   // first guess: betaHNL ~= 1 . Do the Lorentz boosts knocking betaHNL downwards until we hit det centre
-  double betaStar  = p4HNL_rest.P() / p4HNL_rest.E();
+  //double betaStar  = p4HNL_rest.P() / p4HNL_rest.E();
   double betaMag = boost_beta.Mag();
   double gamma   = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
   double betaLab = 1.0; // first guess
@@ -320,7 +320,7 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
 				  p4HNL_rest.E() );
 
   double pLep_rest = std::sqrt( fLPx*fLPx + fLPy*fLPy + fLPz*fLPz );
-  double ELep_rest = fLPE;
+  //double ELep_rest = fLPE;
   TLorentzVector p4Lep_rest_good( -1.0 * pLep_rest * detO_rest_unit.X(),
 				  -1.0 * pLep_rest * detO_rest_unit.Y(),
 				  -1.0 * pLep_rest * detO_rest_unit.Z(),
@@ -1185,7 +1185,7 @@ std::map< HNLProd_t, double > FluxCreator::GetProductionProbs( int parPDG ) cons
   ReadBRs();
   // then get HNL parameter space
   
-  double M    = fMass;
+  //double M    = fMass;
   double Ue42 = fU4l2s.at(0);
   double Um42 = fU4l2s.at(1);
   double Ut42 = fU4l2s.at(2);
@@ -1738,7 +1738,7 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
   if( zm > zp ){
     double tmpzp = zp;
     zp = zm;
-    zm = zp;
+    zm = tmpzp;
   }
 
   /*
@@ -2001,12 +2001,12 @@ void FluxCreator::LoadConfig(void)
   this->GetParam( "HNL-Mass", fMass );
   this->GetParamVect( "HNL-LeptonMixing", fU4l2s );
   this->GetParam( "HNL-Majorana", fIsMajorana );
-  this->GetParam( "HNL-Type", fType );
+  //this->GetParam( "HNL-Type", fType );
 
-  this->GetParam( "HNL-angular_deviation", fAngDev );
-  std::vector< double > minmaxe;
-  this->GetParamVect( "HNL-energy_range", minmaxe );
-  fMinE = minmaxe.at(0); fMaxE = minmaxe.at(1);
+  //this->GetParam( "HNL-angular_deviation", fAngDev );
+  //std::vector< double > minmaxe;
+  //this->GetParamVect( "HNL-energy_range", minmaxe );
+  //fMinE = minmaxe.at(0); fMaxE = minmaxe.at(1);
   
   this->GetParamVect( "Near2User_T", fB2UTranslation );
   this->GetParamVect( "Near2User_R", fDetRotation );

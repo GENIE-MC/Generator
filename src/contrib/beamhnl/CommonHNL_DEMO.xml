@@ -28,7 +28,6 @@ For simplicity, the detector frame USER is unrotated wrt the NEAR frame, placed 
     <param type="double" name="HNL-Mass"> 0.200 </param> <!-- GeV -->
     <param type="vec-double" name="HNL-LeptonMixing" delim=";"> 1.0e-7 ; 1.0e-7 ; 0.0 </param>
     <param type="bool" name="HNL-Majorana"> false </param>
-    <param type="int" name="HNL-Type"> 2 </param> <!-- 0 = pure-N, 1 = pure-Nbar, 2 = mix -->
     
     <param type="bool" name="GetCMFrameInstead"> false </param>
   </param_set>
@@ -46,12 +45,6 @@ For simplicity, the detector frame USER is unrotated wrt the NEAR frame, placed 
     <param type="bool" name="HNL-3B_e_pi_pi0"> false </param>
     <param type="bool" name="HNL-3B_mu_pi_pi0"> false </param>
     <param type="bool" name="HNL-3B_nu_pi0_pi0"> false </param>
-  </param_set>
-
-  <param_set name="InitialState">
-    <param type="double" name="HNL-angular_deviation"> 1.0 </param> <!-- deg -->
-    <param type="vec-double" name="HNL-energy_range" delim=";"> 0.0 ; 20.0 </param> <!-- GeV -->
-    <param type="double" name="HNL-max-energy"> 20.0 </param> <!-- GeV -->
   </param_set>
 
   <param_set name="CoordinateXForm">
@@ -93,15 +86,6 @@ For simplicity, the detector frame USER is unrotated wrt the NEAR frame, placed 
     <param type="bool" name="FixPolarisationDirection"> false </param>
     <param type="vec-double" name="HNL-PolDir" delim=";"> 0.0 ; 0.0 ; 1.0 </param> 
   </param_set>
-
-  <!--
-      <param_set name="Hooks">
-	  <param type="bool" name="UseRhos"> false </param> // for pi0+stuff in FS, use published decay width dominated by rho intermediate state. See the paper by Coloma et al.
-	  <param type="bool" name="CalcKaonFluxOnly"> false </param>
-	  <param type="bool" name="AttemptCharmCalculation"> false </param>
-	  <param type="bool" name="IncludeMultipleHNL"> false </param>
-      </param_set>
-  -->
 
   <param_set name="External">
     <!-- should these be migrated elsewhere? -->

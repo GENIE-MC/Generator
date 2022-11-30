@@ -309,7 +309,7 @@ int TestFluxFromDk2nu()
   TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
   assert( top_volume );
   TGeoShape * ts  = top_volume->GetShape();
-  TGeoBBox *  box = (TGeoBBox *)ts;
+  __attribute__((unused)) TGeoBBox *  box = (TGeoBBox *)ts;
 
   TFile * fout = TFile::Open( foutName.c_str(), "RECREATE" );
   TH1D hEAll, hEPion, hEKaon, hEMuon, hENeuk;
@@ -355,7 +355,7 @@ int TestFluxFromDk2nu()
     nKaon2Electron = 0, nKaon3Muon = 0, nKaon3Electron = 0,
     nNeuk3Muon = 0, nNeuk3Electron = 0, nMuon3Numu = 0,
     nMuon3Nue = 0, nMuon3Nutau = 0;
-  double nPOT;
+  double nPOT = 0;
   double betaMag;
   double accCorr;
   double nimpwt; // hadroproduction importance weight
@@ -399,7 +399,7 @@ int TestFluxFromDk2nu()
 	// now to make stuff from this... i.e. fill histos
 	
 	// first get the channel
-	int iChannel = gnmf->ndecay - 30; int typeMod = 1;
+	int iChannel = gnmf->ndecay - 30; __attribute__((unused)) int typeMod = 1;
 	if( iChannel % 2 == 0 ){ iChannel--; typeMod = -1; }
 	HNLGNuMIProd_t gChannel = ( HNLGNuMIProd_t ) iChannel;
 	HNLProd_t pChannel;
@@ -553,7 +553,7 @@ int TestDecay(void)
 
   TFile * fout = TFile::Open( foutName.c_str(), "RECREATE" );
 
-  const EventRecordVisitorI * mcgen = HNLGenerator();
+  __attribute__((unused)) const EventRecordVisitorI * mcgen = HNLGenerator();
   const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
   const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
 
@@ -571,7 +571,7 @@ int TestDecay(void)
   TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
   assert( top_volume );
   TGeoShape * ts  = top_volume->GetShape();
-  TGeoBBox *  box = (TGeoBBox *)ts;
+  __attribute__((unused)) TGeoBBox *  box = (TGeoBBox *)ts;
   
   LOG( "gevald_hnl", pDEBUG ) << "Imported box.";
   
@@ -615,12 +615,12 @@ int TestDecay(void)
 
   // now build array with indices of valid decay modes for speedy access
   HNLDecayMode_t validModes[10] = { kHNLDcyNull, kHNLDcyNull, kHNLDcyNull, kHNLDcyNull, kHNLDcyNull, kHNLDcyNull, kHNLDcyNull, kHNLDcyNull, kHNLDcyNull, kHNLDcyNull };
-  double validRates[10] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+  //double validRates[10] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
   std::map< HNLDecayMode_t, double >::iterator vmit = valMap.begin(); int modeIdx = 0;
   std::ostringstream msts;
   for( ; vmit != valMap.end(); ++vmit ){
     validModes[ modeIdx ] = (*vmit).first;
-    validRates[ modeIdx ] = (*vmit).second;
+    //validRates[ modeIdx ] = (*vmit).second;
     msts << "\n" << utils::hnl::AsString( (*vmit).first );
     modeIdx++;
   }
@@ -645,7 +645,7 @@ int TestDecay(void)
   std::string part1names[10] = { "v2", "e1", "mu", "v", "e", "mu1", "mu", "pi02", "pi0", "pi0" };
   std::string part2names[10] = { "v3", "e2", "e", "None", "None", "mu2", "None", "v", "e", "mu" };
   std::string partNames[3][10] = { part0names, part1names, part2names };
-  for( Int_t iChan = 0; iChan < valMap.size(); iChan++ ){
+  for( unsigned int iChan = 0; iChan < valMap.size(); iChan++ ){
 
     std::string shortMode = shortModes[iChan];
 
@@ -704,7 +704,7 @@ int TestDecay(void)
     if( ievent == gOptNev ){ std::cerr << " \n"; break; }
     
     ostringstream asts;
-    for( Int_t iMode = 0; iMode < valMap.size(); iMode++ ){
+    for( unsigned int iMode = 0; iMode < valMap.size(); iMode++ ){
       if( ievent == 0 ){
 	asts
 	  << "\nDecay mode " << iMode << " is " << utils::hnl::AsString( validModes[ iMode ] );
@@ -782,7 +782,7 @@ int TestDecay(void)
   fout->cd();
   hParamSpace.Write();
   hRates.Write();
-  for( Int_t i = 0; i < valMap.size(); i++ ){
+  for( unsigned int i = 0; i < valMap.size(); i++ ){
     for( Int_t j = 0; j < 3; j++ ){
       std::string ParticleName = partNames[j][i];
       if( strcmp( ParticleName.c_str(), "None" ) != 0 ){
@@ -895,7 +895,7 @@ int TestGeom(void)
   sh.SetMomentumDirection( gCfgHNLCx, gCfgHNLCy, gCfgHNLCz );
 
   double betaMag = p4HNL->P() / p4HNL->E();
-  double gamma = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
+  __attribute__((unused)) double gamma = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
 
   use_CMlifetime = CoMLifetime / ( units::ns * units::GeV );
     //sh.GetCoMLifetime() / ( units::ns * units::GeV );
@@ -958,8 +958,7 @@ int TestGeom(void)
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
   
   TGeoShape * ts  = top_volume->GetShape();
-  
-  TGeoBBox *  box = (TGeoBBox *)ts;
+  __attribute__((unused)) TGeoBBox *  box = (TGeoBBox *)ts;
   
   int ievent = 0;
   ostringstream asts;
@@ -1046,9 +1045,6 @@ int TestGeom(void)
       entryPoint.SetXYZ( event->Particle(1)->Vx(), event->Particle(1)->Vy(), event->Particle(1)->Vz() );
       exitPoint.SetXYZ( event->Particle(2)->Vx(), event->Particle(2)->Vy(), event->Particle(2)->Vz() );
       use_wgt = event->Weight();
-
-      TLorentzVector * nu1p4 = event->Particle(1)->GetX4();
-      TLorentzVector * nu2p4 = event->Particle(2)->GetX4();
 
       // set the branch entries now
       use_entry[0] = entryPoint.X();
@@ -1141,7 +1137,6 @@ void InitBoundingBox(void)
   TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
   assert( top_volume );
   TGeoShape * ts  = top_volume->GetShape();
-
   TGeoBBox *  box = (TGeoBBox *)ts;
 
   //get box origin and dimensions (in the same units as the geometry)
@@ -1239,7 +1234,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   
   if( parser.OptionExists("tune") ){
     didFindUserInputTune = true;
-    std::string stExtraTuneBit = parser.ArgAsString("tune");
+    stExtraTuneBit = parser.ArgAsString("tune");
     LOG( "gevgen_hnl", pWARN )
       << "Using input HNL tune " << parser.ArgAsString("tune");
   } else {
@@ -1247,17 +1242,21 @@ void GetCommandLineArgs(int argc, char ** argv)
       << "Using default HNL tune " << kDefOptSTune;
   }
   // append this to argv
-  for( unsigned int iArg = 0; iArg < argc; iArg++ ){
+  for( int iArg = 0; iArg < argc; iArg++ ){
     expargv[iArg] = argv[iArg];
   }
   if( !didFindUserInputTune ){
     char * chBit = const_cast< char * >( stExtraTuneBit.c_str() ); // ugh. Ugly.
-    expargv[argc] = "--tune";
+    std::string stune("--tune"); char * tBit = const_cast< char * >( stune.c_str() );
+    expargv[argc] = tBit;
     expargv[argc+1] = chBit;
   }
 
   // Common run options.
   int expargc = ( didFindUserInputTune ) ? argc : argc+2;
+  std::string stnull(""); char * nBit = const_cast< char * >( stnull.c_str() );
+  expargv[expargc] = nBit;
+
   RunOpt::Instance()->ReadFromCommandLine(expargc,expargv);
 
   // run number
@@ -1425,7 +1424,7 @@ void ReadInConfig(void)
     << "Reading in validation configuration. . .";
 
   const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
-  const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
+  __attribute__((unused)) const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
 
   // get the CoMLifetime through an env-variable that's been set at Decayer config
   std::string sCoMLifetime( "HNL_LIFETIME" );
@@ -1471,7 +1470,7 @@ void ReadInConfig(void)
   }
 
   const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::hnl::FluxCreator", "Default");
-  const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
+  __attribute__((unused)) const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
 
   assert( std::getenv( "HNL_FC_B2UTX" ) != NULL );
   std::string sTX( "HNL_FC_B2UTX" ); std::string sTY( "HNL_FC_B2UTY" ); std::string sTZ( "HNL_FC_B2UTZ" );

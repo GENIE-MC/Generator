@@ -205,8 +205,8 @@ namespace genie{
       mutable double fMass; // HNL mass, GeV
       mutable std::vector< double > fU4l2s; // couplings
       mutable bool fIsMajorana;
-      mutable int fType; // for hist fluxes. 0 ==> only particle, 1 ==> only anti, 2 ==> mix of both
-      mutable double fMinE = 0.0, fMaxE = 100.0, fAngDev = 0.0; // for hist fluxes
+      //mutable int fType; // for hist fluxes. 0 ==> only particle, 1 ==> only anti, 2 ==> mix of both
+      //mutable double fMinE = 0.0, fMaxE = 100.0, fAngDev = 0.0; // for hist fluxes
       
       mutable double fLx, fLy, fLz;
       mutable double fLxR, fLyR, fLzR; // BBox side [m]

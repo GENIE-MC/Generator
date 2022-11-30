@@ -210,7 +210,7 @@ int main(int argc, char ** argv)
   // Get the HNL generator first to load config
   // config loaded upon instantiation of HNLGenerator algorithm 
   // ==> Decayer::LoadConfig()
-  const EventRecordVisitorI * mcgen = HNLGenerator();
+  __attribute__((unused)) const EventRecordVisitorI * mcgen = HNLGenerator();
   const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
   const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
   
@@ -230,9 +230,9 @@ int main(int argc, char ** argv)
 
   TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
   assert( top_volume );
-  TGeoShape * ts  = top_volume->GetShape();
+  __attribute__((unused)) TGeoShape * ts  = top_volume->GetShape();
 
-  TGeoBBox *  box = (TGeoBBox *)ts;
+  //TGeoBBox *  box = (TGeoBBox *)ts;
 
   string confString = kDefOptSName + kDefOptSConfig;
 
@@ -477,9 +477,9 @@ void InitBoundingBox(void)
 
   TGeoBBox *  box = (TGeoBBox *)ts;
   
-  const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
+  //const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
 
-  const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
+  //const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
 
   //get box origin and dimensions (in the same units as the geometry)
   fdx = box->GetDX();
@@ -728,7 +728,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   
   if( parser.OptionExists("tune") ){
     didFindUserInputTune = true;
-    std::string stExtraTuneBit = parser.ArgAsString("tune");
+    stExtraTuneBit = parser.ArgAsString("tune");
     LOG( "gevgen_hnl", pWARN )
       << "Using input HNL tune " << parser.ArgAsString("tune");
   } else {
@@ -736,17 +736,21 @@ void GetCommandLineArgs(int argc, char ** argv)
       << "Using default HNL tune " << kDefOptSTune;
   }
   // append this to argv
-  for( unsigned int iArg = 0; iArg < argc; iArg++ ){
+  for( int iArg = 0; iArg < argc; iArg++ ){
     expargv[iArg] = argv[iArg];
   }
   if( !didFindUserInputTune ){
     char * chBit = const_cast< char * >( stExtraTuneBit.c_str() ); // ugh. Ugly.
-    expargv[argc] = "--tune";
+    std::string stune("--tune"); char * tBit = const_cast< char * >( stune.c_str() );
+    expargv[argc] = tBit;
     expargv[argc+1] = chBit;
   }
 
   // Common run options.
   int expargc = ( didFindUserInputTune ) ? argc : argc+2;
+  std::string stnull(""); char * nBit = const_cast< char * >( stnull.c_str() );
+  expargv[expargc] = nBit;
+
   RunOpt::Instance()->ReadFromCommandLine(expargc,expargv);
 
   // run number

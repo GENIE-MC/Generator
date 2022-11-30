@@ -68,7 +68,7 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
   this->SetStartingParameters( event_rec );
 
-  int trajIdx = 0, trajMax = 20;
+  //int trajIdx = 0, trajMax = 20;
   double weight = 1.0; // pure geom weight
 
   TVector3 startPoint, momentum, entryPoint, exitPoint;
@@ -80,9 +80,9 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   if( isUsingDk2nu ) assert( didIntersectDet ); // forced to hit detector somewhere!
   else {
 
-    const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
+    //const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
     
-    const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
+    //const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
     
     std::vector< double > * newProdVtx = new std::vector< double >();
     newProdVtx->emplace_back( startPoint.X() );
@@ -179,7 +179,7 @@ void VertexGenerator::EnforceUnits( std::string length_units, std::string angle_
     << "Switching units to " << length_units.c_str() << " , " << angle_units.c_str() << " , " << time_units.c_str();
 
   double old_lunits = lunits;
-  double old_aunits = aunits;
+  __attribute__((unused)) double old_aunits = aunits;
   double old_tunits = tunits;
 
   lunits = utils::units::UnitFromString( length_units ); lunitString = length_units;
@@ -446,8 +446,8 @@ void VertexGenerator::SetStartingParameters( GHepRecord * event_rec ) const
 }
 //____________________________________________________________________________
 bool VertexGenerator::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 & momentum,
-					       TVector3 & entryPoint, TVector3 & exitPoint,
-					       TGeoManager * gm, TGeoVolume * /* vol */ ) const
+						TVector3 & entryPoint, TVector3 & exitPoint,
+						TGeoManager * /* gm */, TGeoVolume * /* vol */ ) const
 {
   const double mmtolunits = units::mm / lunits;
 
@@ -481,7 +481,7 @@ bool VertexGenerator::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 
   
   //assert( gm );
   if( !gGeoManager )
-    gm = TGeoManager::Import(fGeomFile.c_str());
+    TGeoManager * gm = TGeoManager::Import(fGeomFile.c_str());
   gGeoManager->SetCurrentPoint( firstXROOT, firstYROOT, firstZROOT );
   gGeoManager->SetCurrentDirection( px, py, pz );
 
