@@ -2,6 +2,10 @@
 /*
 \brief    Plots a normalized 1D histogram depicting the distribution of final
           state Pi+ produced in each event.
+          
+          To see the documentation for this example, visit: 
+          https://genie-docdb.pp.rl.ac.uk/cgi-bin/ShowDocument?docid=349
+          
 \author   Ishaan Vohra <ivohra@exeter.edu / ishaanklv@gmail.com>
           Phillips Exeter Academy
 \created  August 16, 2022
