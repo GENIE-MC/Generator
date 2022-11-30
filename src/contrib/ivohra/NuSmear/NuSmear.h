@@ -4,6 +4,10 @@
 \brief    Provides preliminary simulation of energy smearing and angular
           smearing for neutrino-nucleon interactions via parameterized
           model-based presets in the DUNE-CDR and Default models.
+          
+          To see the full NuSmear paper, visit:
+          https://inspirehep.net/literature/2150455
+          
 \author   Ishaan Vohra <ivohra@exeter.edu / ishaanklv@gmail.com>
           Phillips Exeter Academy
 \created  August 16, 2022
