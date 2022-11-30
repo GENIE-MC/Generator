@@ -2,6 +2,13 @@
 /*
 \brief    Plots a 2D histogram depicting the energy smearing matrix given by
           the chosen NuSmear preset.
+          
+          To see the full NuSmear paper, visit:
+          https://inspirehep.net/literature/2150455
+          
+          To see the documentation for this code, visit: 
+          https://genie-docdb.pp.rl.ac.uk/cgi-bin/ShowDocument?docid=349
+          
 \author   Ishaan Vohra <ivohra@exeter.edu / ishaanklv@gmail.com>
           Phillips Exeter Academy
 \created  August 16, 2022
