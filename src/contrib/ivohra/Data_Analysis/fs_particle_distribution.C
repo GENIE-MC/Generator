@@ -2,6 +2,10 @@
 /*
 \brief    Plots a normalized 2D histogram depicting the distribution of the
           number of each type of final state particle produced per event.
+          
+          To see the documentation for this example, visit: 
+          https://genie-docdb.pp.rl.ac.uk/cgi-bin/ShowDocument?docid=349
+          
 \author   Ishaan Vohra <ivohra@exeter.edu / ishaanklv@gmail.com>
           Phillips Exeter Academy
 \created  August 16, 2022
