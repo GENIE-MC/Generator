@@ -378,14 +378,15 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
   // in a dk2nu-like fashion. See bsim::CalcEnuWgt()
   //double betaHNL = p4HNL_rest.P() / p4HNL_rest.E();
   double betaHNL = p4HNL_good.P() / p4HNL_good.E();
-  double boost_correction = 0.0;
   double costh_pardet = 0.0;
+  double boost_correction = 0.0;
   if( parentMomentum > 0.0 ){
     costh_pardet = ( decay_pdpx * detO.X() +
 		     decay_pdpy * detO.Y() +
 		     decay_pdpz * detO.Z() ) / ( parentMomentum * detO.Mag() );
     if( costh_pardet < -1.0 ) costh_pardet = -1.0;
     if( costh_pardet > 1.0 ) costh_pardet = 1.0;
+    boost_correction = 1.0 / ( gamma * ( 1.0 - betaMag * betaHNL * costh_pardet ) );
     // assume boost is on z' direction where z' = parent momentum direction, subbing betaMag ==> betaMag * costh_pardet
     //boost_correction = gamma * ( 1.0 + betaHNL * betaMag * costh_pardet );
     //if( std::abs( costh_pardet ) >= 0.9 && boost_correction * p4HNL_rest.E() > p4HNL_rest.M() ){
