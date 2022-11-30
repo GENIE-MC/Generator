@@ -3,6 +3,10 @@
 \brief    Assuming all neutral particles are unobserved, plots a 1D histogram
           depicting the distribution of the total final state missing energy
           of each event.
+          
+          To see the documentation for this example, visit: 
+          https://genie-docdb.pp.rl.ac.uk/cgi-bin/ShowDocument?docid=349
+          
 \author   Ishaan Vohra <ivohra@exeter.edu / ishaanklv@gmail.com>
           Phillips Exeter Academy
 \created  August 16, 2022
