@@ -14,10 +14,10 @@ GENIE published a number of partial tunes to CC0pi data (https://journals.aps.or
       - G35a: MINERvA numu CCNp0pi data  
 
 ## How to configure the partial tunes 
-The configuration of these tunes is not trivial. This CMC (GPRD_106_112001), offers with a template on how to setup these tunes. The default tune corresponds to the G30a tune, obtained by tuning GENIE against MINERvA numu CC0pi data. In order to enable other partial tunes from the paper, you can simply edit the following files: 
+The configuration of these tunes is not trivial. This CMC (GPRD18_10a) offers with a template on how to setup these tunes. The default tune corresponds to the G30a tune, obtained by tuning GENIE against MINERvA numu CC0pi data. In order to enable other partial tunes from the paper, you can simply edit the following files: 
     - CommonParam.xml
     - MECScaleVsW.xml
     - XSecLinearCombinations.xml
 The parameters for the other partial tunes are commented out in these files. In order to enable them, comment the current parameter associated to the G30a tune and uncomment the desired tune's parameters.
 
-**NOTE**: These tunes are not part of an official GENIE release - the GPRD_106_112001 CMC is a simple placeholder for the tunes and it will be outdated after the next GENIE release. 
+**NOTE**: These tunes are not part of an official GENIE release - the GPRD18_10a CMC is a simple placeholder for the tunes and it will be outdated after the next GENIE release. 
