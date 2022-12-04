@@ -1,17 +1,25 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         University of Liverpool & STFC Rutherford Appleton Lab 
+
+ For the class documentation see the corresponding header file.
+
+ Important revisions after version 2.0.0 :
+ @ Oct 05, 2009 - CA
+   Compute() now returns a `const RSHelicityAmpl &' and avoids creating a new
+   RSHelicityAmpl at each call. 
 */
 //____________________________________________________________________________
 
-#include "Framework/ParticleData/BaryonResUtils.h"
-#include "Framework/Conventions/Constants.h"
-#include "Framework/Messenger/Messenger.h"
-#include "Physics/Resonance/XSection/RSHelicityAmplModelCC.h"
+#include "BaryonResonance/BaryonResUtils.h"
+#include "Conventions/Constants.h"
+#include "ReinSehgal/RSHelicityAmplModelCC.h"
+#include "Messenger/Messenger.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -34,9 +42,9 @@ RSHelicityAmplModelCC::~RSHelicityAmplModelCC()
 
 }
 //____________________________________________________________________________
-const RSHelicityAmpl &
+const RSHelicityAmpl & 
   RSHelicityAmplModelCC::Compute(
-      Resonance_t res, const FKR & fkr) const
+      Resonance_t res, const FKR & fkr, const Interaction * interaction) const
 {
   switch(res) {
 
@@ -56,7 +64,7 @@ const RSHelicityAmpl &
      double d = 2.*kSqrt3;
      double a = kSqrt6 * fkr.Lamda * fkr.S;
      double b = 2 * kSqrt2_3 * (fkr.Lamda * fkr.C - 3.* fkr.B);
-
+     
      fAmpl.fMinus1 =  d * fkr.Tminus + c * fkr.Lamda * fkr.Rminus;
      fAmpl.fPlus1  = -d * fkr.Tplus  - c * fkr.Lamda * fkr.Rplus;
      fAmpl.fMinus3 =  0;
@@ -182,7 +190,7 @@ const RSHelicityAmpl &
      double b       = kSqrt5_3 * (L2 * fkr.C - 5 * fkr.Lamda * fkr.B);
 
      fAmpl.fMinus1 =  -kSqrt27_10 * LTm - kSqrt5_3 * L2Rm;
-     fAmpl.fPlus1  =   kSqrt27_10 * LTp + kSqrt5_3 * L2Rp;
+     fAmpl.fPlus1  =   kSqrt27_10 * LTm + kSqrt5_3 * L2Rp;
      fAmpl.fMinus3 =   k3_Sqrt10 * LTm;
      fAmpl.fPlus3  =  -k3_Sqrt10 * LTp;
      fAmpl.f0Minus =   a-b;
@@ -304,3 +312,5 @@ const RSHelicityAmpl &
   return fAmpl;
 }
 //____________________________________________________________________________
+
+

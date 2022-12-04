@@ -1,39 +1,51 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         University of Liverpool & STFC Rutherford Appleton Lab 
+
+ For the class documentation see the corresponding header file.
+
+ Important revisions after version 2.0.0 :
+ @ Oct 05, 2009 - CA
+   Modified code to handle charged lepton scattering too.
+   Also, the helicity amplitude code now returns a `const RSHelicityAmpl &'.
+ @ July 23, 2010 - CA
+   BaryonResParams, and BreitWignerI, BaryonResDataSetI implementations are
+   now redundant. Get resonance parameters from BaryonResUtils and use the
+   Breit-Weigner functions from utils::bwfunc.
+ @ May 01, 2012 - CA
+   Pick nutau/nutaubar scaling factors from new location.
+
 */
 //____________________________________________________________________________
 
 #include <TMath.h>
 #include <TSystem.h>
 
-#include "Framework/Algorithm/AlgFactory.h"
-#include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/ParticleData/BaryonResUtils.h"
-#include "Framework/Conventions/GBuild.h"
-#include "Framework/Conventions/Constants.h"
-#include "Framework/Conventions/RefFrame.h"
-#include "Framework/Conventions/KineVar.h"
-#include "Framework/Conventions/Units.h"
-#include "Framework/Messenger/Messenger.h"
-#include "Framework/Numerical/Spline.h"
-#include "Framework/ParticleData/PDGCodes.h"
-#include "Framework/ParticleData/PDGUtils.h"
-#include "Framework/Utils/KineUtils.h"
-#include "Framework/Numerical/MathUtils.h"
-#include "Framework/Utils/Range1.h"
-#include "Framework/Utils/BWFunc.h"
-#include "Physics/Resonance/XSection/ReinSehgalRESPXSec.h"
-#include "Physics/Resonance/XSection/RSHelicityAmplModelI.h"
-#include "Physics/Resonance/XSection/RSHelicityAmpl.h"
-#include "Physics/XSectionIntegration/XSecIntegratorI.h"
-#include "Physics/NuclearState/FermiMomentumTablePool.h"
-#include "Physics/NuclearState/FermiMomentumTable.h"
-#include "Physics/NuclearState/NuclearUtils.h"
+#include "Algorithm/AlgFactory.h"
+#include "Algorithm/AlgConfigPool.h"
+#include "Base/XSecIntegratorI.h"
+#include "BaryonResonance/BaryonResUtils.h"
+#include "Conventions/GBuild.h"
+#include "Conventions/Constants.h"
+#include "Conventions/RefFrame.h"
+#include "Conventions/KineVar.h"
+#include "Conventions/Units.h"
+#include "Messenger/Messenger.h"
+#include "Numerical/Spline.h"
+#include "PDG/PDGCodes.h"
+#include "PDG/PDGUtils.h"
+#include "ReinSehgal/ReinSehgalRESPXSec.h"
+#include "ReinSehgal/RSHelicityAmplModelI.h"
+#include "ReinSehgal/RSHelicityAmpl.h"
+#include "Utils/KineUtils.h"
+#include "Utils/MathUtils.h"
+#include "Utils/Range1.h"
+#include "Utils/BWFunc.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -79,7 +91,7 @@ double ReinSehgalRESPXSec::XSec(
     if(W>=fWcut) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("ReinSehgalRes", pDEBUG)
-         << "RES/DIS Join Scheme: XSec[RES, W=" << W
+         << "RES/DIS Join Scheme: XSec[RES, W=" << W 
          << " >= Wcut=" << fWcut << "] = 0";
 #endif
        return 0;
@@ -113,20 +125,18 @@ double ReinSehgalRESPXSec::XSec(
   int    LR  = utils::res::OrbitalAngularMom (resonance);
   double MR  = utils::res::Mass              (resonance);
   double WR  = utils::res::Width             (resonance);
-  double NR  = fNormBW?utils::res::BWNorm    (resonance,fN0ResMaxNWidths,fN2ResMaxNWidths,fGnResMaxNWidths):1;
+  double NR  = utils::res::BWNorm            (resonance);
 
   // Following NeuGEN, avoid problems with underlying unphysical
   // model assumptions by restricting the allowed W phase space
   // around the resonance peak
-  if (fNormBW) {
-	if      (W > MR + fN0ResMaxNWidths * WR && IR==0) return 0.;
-	else if (W > MR + fN2ResMaxNWidths * WR && IR==2) return 0.;
-	else if (W > MR + fGnResMaxNWidths * WR)          return 0.;
-  }
+  if      (W > MR + fN0ResMaxNWidths * WR && IR==0) return 0.;
+  else if (W > MR + fN2ResMaxNWidths * WR && IR==2) return 0.;
+  else if (W > MR + fGnResMaxNWidths * WR)          return 0.;
 
-  // Compute auxiliary & kinematical factors
+  // Compute auxiliary & kinematical factors 
   double E      = init_state.ProbeE(kRfHitNucRest);
-  double Mnuc   = target.HitNucMass();
+  double Mnuc   = target.HitNucMass(); 
   double W2     = TMath::Power(W,    2);
   double Mnuc2  = TMath::Power(Mnuc, 2);
   double k      = 0.5 * (W2 - Mnuc2)/Mnuc;
@@ -142,7 +152,7 @@ double ReinSehgalRESPXSec::XSec(
   double UV     = U*V;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("ReinSehgalRes", pDEBUG)
+  LOG("ReinSehgalRes", pDEBUG) 
      << "Kinematical params V = " << V << ", U = " << U;
 #endif
 
@@ -152,7 +162,7 @@ double ReinSehgalRESPXSec::XSec(
   double GV  = Go * TMath::Power( 1./(1-q2/fMv2), 2);
   double GA  = Go * TMath::Power( 1./(1-q2/fMa2), 2);
 
-  if(is_EM) {
+  if(is_EM) { 
     GA = 0.; // zero the axial term for EM scattering
   }
 
@@ -177,29 +187,29 @@ double ReinSehgalRESPXSec::XSec(
   fFKR.Tminus = - (fFKR.Tv - fFKR.Ta);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("FKR", pDEBUG)
+  LOG("FKR", pDEBUG) 
      << "FKR params for RES = " << resname << " : " << fFKR;
 #endif
 
   // Calculate the Rein-Sehgal Helicity Amplitudes
 
   const RSHelicityAmplModelI * hamplmod = 0;
-  if(is_CC) {
-    hamplmod = fHAmplModelCC;
+  if(is_CC) { 
+    hamplmod = fHAmplModelCC; 
   }
-  else
-  if(is_NC) {
+  else 
+  if(is_NC) { 
     if (is_p) { hamplmod = fHAmplModelNCp;}
     else      { hamplmod = fHAmplModelNCn;}
   }
-  else
-  if(is_EM) {
+  else 
+  if(is_EM) { 
     if (is_p) { hamplmod = fHAmplModelEMp;}
     else      { hamplmod = fHAmplModelEMn;}
   }
   assert(hamplmod);
-
-  const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR);
+  
+  const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR, interaction); 
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("RSHAmpl", pDEBUG)
@@ -207,7 +217,6 @@ double ReinSehgalRESPXSec::XSec(
 #endif
 
   double g2 = kGF2;
-  if(is_CC) g2 = kGF2*fVud2;
   // For EM interaction replace  G_{Fermi} with :
   // a_{em} * pi / ( sqrt(2) * sin^2(theta_weinberg) * Mass_{W}^2 }
   // See C.Quigg, Gauge Theories of the Strong, Weak and E/M Interactions,
@@ -220,7 +229,7 @@ double ReinSehgalRESPXSec::XSec(
   //
   if(is_EM) {
     double q4 = q2*q2;
-    g2 = kAem2 * kPi2 / (2.0 * fSin48w * q4);
+    g2 = kAem2 * kPi2 / (2.0 * fSin48w * q4); 
   }
 
   // Compute the cross section
@@ -242,11 +251,11 @@ double ReinSehgalRESPXSec::XSec(
   double xsec = 0.0;
   if (is_nu || is_lminus) {
      xsec = sig0*(V2*sigR + U2*sigL + 2*UV*sigS);
-  }
-  else
+  } 
+  else 
   if (is_nubar || is_lplus) {
      xsec = sig0*(U2*sigR + V2*sigL + 2*UV*sigS);
-  }
+  } 
   xsec = TMath::Max(0.,xsec);
 
   double mult = 1.0;
@@ -259,19 +268,13 @@ double ReinSehgalRESPXSec::XSec(
   // Breit-Wigner distribution (default: true)
   double bw = 1.0;
   if(fWghtBW) {
-     //different Delta photon decay branch
-     if(is_delta){
-     bw = utils::bwfunc::BreitWignerLGamma(W,LR,MR,WR,NR);
-     }
-     else{
-     bw = utils::bwfunc::BreitWignerL(W,LR,MR,WR,NR);
-     }
-  }
+     bw = utils::bwfunc::BreitWignerL(W,LR,MR,WR,NR); 
+  } 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("ReinSehgalRes", pDEBUG)
+     LOG("ReinSehgalRes", pDEBUG) 
        << "BreitWigner(RES=" << resname << ", W=" << W << ") = " << bw;
 #endif
-  xsec *= bw;
+  xsec *= bw; 
 
   // Apply NeuGEN nutau cross section reduction factors
   double rf = 1.0;
@@ -286,14 +289,8 @@ double ReinSehgalRESPXSec::XSec(
   }
   xsec *= rf;
 
-  // Apply given scaling factor
-  double xsec_scale = 1.;
-  if      (is_CC) { xsec_scale = fXSecScaleCC; }
-  else if (is_NC) { xsec_scale = fXSecScaleNC; }
-  xsec *= xsec_scale;
-
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("ReinSehgalRes", pINFO)
+  LOG("ReinSehgalRes", pINFO) 
     << "\n d2xsec/dQ2dW"  << "[" << interaction->AsString()
           << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << xsec;
 #endif
@@ -308,71 +305,10 @@ double ReinSehgalRESPXSec::XSec(
   // If requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
-
-  int Z = target.Z();
-  int A = target.A();
-  int N = A-Z;
-
   // Take into account the number of scattering centers in the target
-  int NNucl = (is_p) ? Z : N;
+  int NNucl = (is_p) ? target.Z() : target.N();
 
   xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
-
-  if (fUsePauliBlocking && A!=1)
-  {
-     // Calculation of Pauli blocking according references:
-     //
-     //     [1] S.L. Adler,  S. Nussinov,  and  E.A.  Paschos,  "Nuclear
-     //         charge exchange corrections to leptonic pion  production
-     //         in  the (3,3) resonance  region,"  Phys. Rev. D 9 (1974)
-     //         2125-2143 [Erratum Phys. Rev. D 10 (1974) 1669].
-     //     [2] J.Y. Yu, "Neutrino interactions and  nuclear  effects in
-     //         oscillation experiments and the  nonperturbative disper-
-     //         sive  sector in strong (quasi-)abelian  fields,"  Ph. D.
-     //         Thesis, Dortmund U., Dortmund, 2002 (unpublished).
-     //     [3] E.A. Paschos, J.Y. Yu,  and  M. Sakuda,  "Neutrino  pro-
-     //         duction  of  resonances,"  Phys. Rev. D 69 (2004) 014013
-     //         [arXiv: hep-ph/0308130].
-
-     double P_Fermi = 0.0;
-
-     // Maximum value of Fermi momentum of target nucleon (GeV)
-     if (A<6 || !fUseRFGParametrization)
-     {
-         // Look up the Fermi momentum for this target
-         FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
-         const FermiMomentumTable * kft = kftp->GetTable(fKFTable);
-         P_Fermi = kft->FindClosestKF(pdg::IonPdgCode(A, Z), nucpdgc);
-     }
-     else {
-        // Define the Fermi momentum for this target
-        P_Fermi = utils::nuclear::FermiMomentumForIsoscalarNucleonParametrization(target);
-        // Correct the Fermi momentum for the struck nucleon
-        if(is_p) { P_Fermi *= TMath::Power( 2.*Z/A, 1./3); }
-        else     { P_Fermi *= TMath::Power( 2.*N/A, 1./3); }
-     }
-
-     double FactorPauli_RES = 1.0;
-
-     double k0 = 0., q = 0., q0 = 0.;
-
-     if (P_Fermi > 0.)
-     {
-        k0 = (W2-Mnuc2-Q2)/(2*W);
-        k = TMath::Sqrt(k0*k0+Q2);                  // previous value of k is overridden
-        q0 = (W2-Mnuc2+kPionMass2)/(2*W);
-        q = TMath::Sqrt(q0*q0-kPionMass2);
-     }
-
-     if (2*P_Fermi < k-q)
-        FactorPauli_RES = 1.0;
-     if (2*P_Fermi >= k+q)
-        FactorPauli_RES = ((3*k*k+q*q)/(2*P_Fermi)-(5*TMath::Power(k,4)+TMath::Power(q,4)+10*k*k*q*q)/(40*TMath::Power(P_Fermi,3)))/(2*k);
-     if (2*P_Fermi >= k-q && 2*P_Fermi <= k+q)
-        FactorPauli_RES = ((q+k)*(q+k)-4*P_Fermi*P_Fermi/5-TMath::Power(k-q, 3)/(2*P_Fermi)+TMath::Power(k-q, 5)/(40*TMath::Power(P_Fermi, 3)))/(4*q*k);
-
-     xsec *= FactorPauli_RES;
-  }
 
   return xsec;
 }
@@ -400,7 +336,7 @@ bool ReinSehgalRESPXSec::ValidProcess(const Interaction * interaction) const
   if (!is_pn) return false;
 
   int  probe   = init_state.ProbePdg();
-  bool is_weak = proc_info.IsWeak();
+  bool is_weak = proc_info.IsWeak(); 
   bool is_em   = proc_info.IsEM();
   bool nu_weak = (pdg::IsNeutralLepton(probe) && is_weak);
   bool l_em    = (pdg::IsChargedLepton(probe) && is_em  );
@@ -424,31 +360,26 @@ void ReinSehgalRESPXSec::Configure(string config)
 //____________________________________________________________________________
 void ReinSehgalRESPXSec::LoadConfig(void)
 {
-  // Cross section scaling factors
-  this->GetParam( "RES-CC-XSecScale", fXSecScaleCC ) ;
-  this->GetParam( "RES-NC-XSecScale", fXSecScaleNC ) ;
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
 
-  this->GetParam( "RES-Zeta", fZeta ) ;
-  this->GetParam( "RES-Omega", fOmega ) ;
+  // Load all configuration data or set defaults
 
-  double ma, mv ;
-  this->GetParam( "RES-Ma", ma ) ;
-  this->GetParam( "RES-Mv", mv ) ;
+  fZeta  = fConfig->GetDoubleDef( "Zeta",  gc->GetDouble("RS-Zeta")  );
+  fOmega = fConfig->GetDoubleDef( "Omega", gc->GetDouble("RS-Omega") );
+
+  double ma  = fConfig->GetDoubleDef( "Ma", gc->GetDouble("RES-Ma") );
+  double mv  = fConfig->GetDoubleDef( "Mv", gc->GetDouble("RES-Mv") );
+
   fMa2 = TMath::Power(ma,2);
   fMv2 = TMath::Power(mv,2);
 
-  this->GetParamDef( "BreitWignerWeight", fWghtBW, true ) ;
-  this->GetParamDef( "BreitWignerNorm",   fNormBW, true);
+  fWghtBW = fConfig->GetBoolDef("BreitWignerWeight", true);
 
-  double thw ;
-  this->GetParam( "WeinbergAngle", thw ) ;
+  double thw = fConfig->GetDoubleDef(
+         "weinberg-angle", gc->GetDouble("WeinbergAngle"));
+     
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
-  double Vud;
-  this->GetParam("CKM-Vud", Vud );
-  fVud2 = TMath::Power( Vud, 2 );
-  this->GetParam("FermiMomentumTable", fKFTable);
-  this->GetParam("RFG-UseParametrization", fUseRFGParametrization);
-  this->GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
 
   // Load all the sub-algorithms needed
 
@@ -478,10 +409,11 @@ void ReinSehgalRESPXSec::LoadConfig(void)
   assert( fHAmplModelEMn );
 
   // Use algorithm within a DIS/RES join scheme. If yes get Wcut
-  this->GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
+  fUsingDisResJoin = fConfig->GetBoolDef(
+    "UseDRJoinScheme", gc->GetBool("UseDRJoinScheme"));
   fWcut = 999999;
   if(fUsingDisResJoin) {
-    this->GetParam( "Wcut", fWcut ) ;
+    fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
   }
 
   // NeuGEN limits in the allowed resonance phase space:
@@ -489,28 +421,28 @@ void ReinSehgalRESPXSec::LoadConfig(void)
   // It limits the integration area around the peak and avoids the
   // problem with huge xsec increase at low Q2 and high W.
   // In correspondence with Hugh, Rein said that the underlying problem
-  // are unphysical assumptions in the model.
-  this->GetParamDef( "MaxNWidthForN2Res", fN2ResMaxNWidths, 2.0 ) ;
-  this->GetParamDef( "MaxNWidthForN0Res", fN0ResMaxNWidths, 6.0 ) ;
-  this->GetParamDef( "MaxNWidthForGNRes", fGnResMaxNWidths, 4.0 ) ;
+  // are unphysical assumptions in the model. 
+  fN2ResMaxNWidths = fConfig->GetDoubleDef("MaxNWidthForN2Res", 2.0);
+  fN0ResMaxNWidths = fConfig->GetDoubleDef("MaxNWidthForN0Res", 6.0);
+  fGnResMaxNWidths = fConfig->GetDoubleDef("MaxNWidthForGNRes", 4.0);
 
   // NeuGEN reduction factors for nu_tau: a gross estimate of the effect of
   // neglected form factors in the R/S model
-  this->GetParamDef( "UseNuTauScalingFactors", fUsingNuTauScaling, true ) ;
+  fUsingNuTauScaling = fConfig->GetBoolDef("UseNuTauScalingFactors", true);
   if(fUsingNuTauScaling) {
      if(fNuTauRdSpl)    delete fNuTauRdSpl;
      if(fNuTauBarRdSpl) delete fNuTauBarRdSpl;
 
-     assert( std::getenv( "GENIE") );
-     string base = std::getenv( "GENIE") ;
+     assert(gSystem->Getenv("GENIE"));
+     string base = gSystem->Getenv("GENIE");
 
      string filename = base + "/data/evgen/rein_sehgal/res/nutau_xsec_scaling_factors.dat";
-     LOG("ReinSehgalRes", pNOTICE)
+     LOG("ReinSehgalRes", pNOTICE) 
                 << "Loading nu_tau xsec reduction spline from: " << filename;
      fNuTauRdSpl = new Spline(filename);
 
      filename = base + "/data/evgen/rein_sehgal/res/nutaubar_xsec_scaling_factors.dat";
-     LOG("ReinSehgalRes", pNOTICE)
+     LOG("ReinSehgalRes", pNOTICE) 
            << "Loading bar{nu_tau} xsec reduction spline from: " << filename;
      fNuTauBarRdSpl = new Spline(filename);
   }
@@ -521,3 +453,4 @@ void ReinSehgalRESPXSec::LoadConfig(void)
   assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
+

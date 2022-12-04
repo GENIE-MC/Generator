@@ -1,20 +1,29 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         University of Liverpool & STFC Rutherford Appleton Lab
+
+ For the class documentation see the corresponding header file.
+
+ Important revisions after version 2.0.0 :
+ @ Oct 05, 2009 - CA
+   Compute() now returns a `const RSHelicityAmpl &' and avoids creating a new
+   RSHelicityAmpl at each call.                      
+
 */
 //____________________________________________________________________________
 
 #include <TMath.h>
 
-#include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/ParticleData/BaryonResUtils.h"
-#include "Framework/Conventions/Constants.h"
-#include "Framework/Messenger/Messenger.h"
-#include "Physics/Resonance/XSection/RSHelicityAmplModelNCn.h"
+#include "Algorithm/AlgConfigPool.h"
+#include "BaryonResonance/BaryonResUtils.h"
+#include "Conventions/Constants.h"
+#include "ReinSehgal/RSHelicityAmplModelNCn.h"
+#include "Messenger/Messenger.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -37,9 +46,9 @@ RSHelicityAmplModelNCn::~RSHelicityAmplModelNCn()
 
 }
 //____________________________________________________________________________
-const RSHelicityAmpl &
+const RSHelicityAmpl & 
   RSHelicityAmplModelNCn::Compute(
-      Resonance_t res, const FKR & fkr) const
+      Resonance_t res, const FKR & fkr, const Interaction * interaction) const
 {
   double xi = fSin28w;
 
@@ -203,7 +212,7 @@ const RSHelicityAmpl &
      double L2RpxiR = L2 * (fkr.Rplus  + xr);
 
      fAmpl.fMinus1 =  k1_Sqrt6 * L2RmxiR;
-     fAmpl.fPlus1  = -k1_Sqrt6 * L2RpxiR;
+     fAmpl.fPlus1  = -k1_Sqrt6 * L2RmxiR;
      fAmpl.fMinus3 =  k1_Sqrt2 * L2RmxiR;
      fAmpl.fPlus3  = -k1_Sqrt2 * L2RpxiR;
      fAmpl.f0Minus = -kSqrt2_3 * (L2 * fkr.C - 2 * fkr.Lamda * fkr.B);
@@ -364,8 +373,13 @@ void RSHelicityAmplModelNCn::Configure(string config)
 //____________________________________________________________________________
 void RSHelicityAmplModelNCn::LoadConfig(void)
 {
-  double thw ;
-  GetParam( "WeinbergAngle", thw ) ;
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+  double thw = fConfig->GetDoubleDef(
+                        "weinberg-angle", gc->GetDouble("WeinbergAngle"));
+
   fSin28w = TMath::Power( TMath::Sin(thw), 2 );
 }
 //____________________________________________________________________________
+

@@ -1,20 +1,12 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
-
- Steve Dytman
- University of Pittsburgh
-
- Jarek Nowak
- University of Lancaster
-
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
-#include "Physics/Resonance/XSection/BergerSehgalRESPXSec2014.h"
+#include "ReinSehgal/BergerSehgalRESPXSec2014.h"
 
 using namespace genie;
 

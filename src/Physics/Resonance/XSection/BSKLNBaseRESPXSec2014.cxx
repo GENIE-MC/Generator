@@ -1,54 +1,38 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
 
- Steve Dytman
- University of Pittsburgh
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         University of Liverpool & STFC Rutherford Appleton Lab 
 
- Jarek Nowak
- University of Lancaster
-
- Gabe Perdue
- Fermilab
- 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
-
- Afroditi Papadopoulou <apapadop \at mit.edu>
- Massachusetts Institute of Technology
-
- Adi Ashkenazi <adishka \at gmail.com>
- Massachusetts Institute of Technology
 */
 //____________________________________________________________________________
 
 #include <TMath.h>
 #include <TSystem.h>
 
-#include "Framework/Algorithm/AlgFactory.h"
-#include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/ParticleData/BaryonResUtils.h"
-#include "Framework/Conventions/GBuild.h"
-#include "Framework/Conventions/Constants.h"
-#include "Framework/Conventions/RefFrame.h"
-#include "Framework/Conventions/KineVar.h"
-#include "Framework/Conventions/Units.h"
-#include "Framework/Messenger/Messenger.h"
-#include "Framework/Numerical/Spline.h"
-#include "Framework/ParticleData/PDGCodes.h"
-#include "Framework/ParticleData/PDGUtils.h"
-#include "Framework/Utils/KineUtils.h"
-#include "Framework/Numerical/MathUtils.h"
-#include "Framework/Utils/Range1.h"
-#include "Framework/Utils/BWFunc.h"
-#include "Physics/XSectionIntegration/XSecIntegratorI.h"
-#include "Physics/Resonance/XSection/BSKLNBaseRESPXSec2014.h"
-#include "Physics/Resonance/XSection/RSHelicityAmplModelI.h"
-#include "Physics/Resonance/XSection/RSHelicityAmpl.h"
-#include "Physics/NuclearState/FermiMomentumTablePool.h"
-#include "Physics/NuclearState/FermiMomentumTable.h"
-#include "Physics/NuclearState/NuclearUtils.h"
+#include "Algorithm/AlgFactory.h"
+#include "Algorithm/AlgConfigPool.h"
+#include "Base/XSecIntegratorI.h"
+#include "BaryonResonance/BaryonResUtils.h"
+#include "Conventions/GBuild.h"
+#include "Conventions/Constants.h"
+#include "Conventions/RefFrame.h"
+#include "Conventions/KineVar.h"
+#include "Conventions/Units.h"
+#include "Messenger/Messenger.h"
+#include "Numerical/Spline.h"
+#include "PDG/PDGCodes.h"
+#include "PDG/PDGUtils.h"
+#include "ReinSehgal/BSKLNBaseRESPXSec2014.h"
+#include "ReinSehgal/RSHelicityAmplModelI.h"
+#include "ReinSehgal/RSHelicityAmpl.h"
+#include "Utils/KineUtils.h"
+#include "Utils/MathUtils.h"
+#include "Utils/Range1.h"
+#include "Utils/BWFunc.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -57,18 +41,21 @@ using namespace genie::constants;
 BSKLNBaseRESPXSec2014::BSKLNBaseRESPXSec2014(string name) :
 XSecAlgorithmI(name)
 {
-
+  fNuTauRdSpl    = 0;
+  fNuTauBarRdSpl = 0;
 }
 //____________________________________________________________________________
 BSKLNBaseRESPXSec2014::BSKLNBaseRESPXSec2014(string name, string config) :
 XSecAlgorithmI(name, config)
 {
-
+  fNuTauRdSpl    = 0;
+  fNuTauBarRdSpl = 0;
 }
 //____________________________________________________________________________
 BSKLNBaseRESPXSec2014::~BSKLNBaseRESPXSec2014()
 {
-
+  if(fNuTauRdSpl)    delete fNuTauRdSpl;
+  if(fNuTauBarRdSpl) delete fNuTauBarRdSpl;
 }
 //____________________________________________________________________________
 double BSKLNBaseRESPXSec2014::XSec(
@@ -92,7 +79,7 @@ double BSKLNBaseRESPXSec2014::XSec(
     if(W>=fWcut) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("BSKLNBaseRESPXSec2014", pDEBUG)
-        << "RES/DIS Join Scheme: XSec[RES, W=" << W
+        << "RES/DIS Join Scheme: XSec[RES, W=" << W 
         << " >= Wcut=" << fWcut << "] = 0";
 #endif
       return 0;
@@ -130,20 +117,18 @@ double BSKLNBaseRESPXSec2014::XSec(
   int    LR  = utils::res::OrbitalAngularMom (resonance);
   double MR  = utils::res::Mass              (resonance);
   double WR  = utils::res::Width             (resonance);
-   double NR  = fNormBW?utils::res::BWNorm    (resonance,fN0ResMaxNWidths,fN2ResMaxNWidths,fGnResMaxNWidths):1;
+  double NR  = utils::res::BWNorm            (resonance);
 
   // Following NeuGEN, avoid problems with underlying unphysical
   // model assumptions by restricting the allowed W phase space
   // around the resonance peak
- if (fNormBW) {
-        if      (W > MR + fN0ResMaxNWidths * WR && IR==0) return 0.;
-        else if (W > MR + fN2ResMaxNWidths * WR && IR==2) return 0.;
-        else if (W > MR + fGnResMaxNWidths * WR)          return 0.;
-  }
+  if      (W > MR + fN0ResMaxNWidths * WR && IR==0) return 0.;
+  else if (W > MR + fN2ResMaxNWidths * WR && IR==2) return 0.;
+  else if (W > MR + fGnResMaxNWidths * WR)          return 0.;
 
-  // Compute auxiliary & kinematical factors
+  // Compute auxiliary & kinematical factors 
   double E      = init_state.ProbeE(kRfHitNucRest);
-  double Mnuc   = target.HitNucMass();
+  double Mnuc   = target.HitNucMass(); 
   double W2     = TMath::Power(W,    2);
   double Mnuc2  = TMath::Power(Mnuc, 2);
   double k      = 0.5 * (W2 - Mnuc2)/Mnuc;
@@ -176,6 +161,7 @@ double BSKLNBaseRESPXSec2014::XSec(
   double sqrtq2 = TMath::Sqrt(-q2);
   double a = 1. + 0.5*(W2-q2+Mnuc2)/Mnuc/W;
 
+
   double KNL_Alambda_plus  = 0;
   double KNL_Alambda_minus = 0;
   double KNL_j0_plus  = 0;
@@ -197,23 +183,38 @@ double BSKLNBaseRESPXSec2014::XSec(
   double KNL_cR_plus  = 0;
   double KNL_cR_minus = 0;
 
+
   double KNL_cS_plus  = 0;
   double KNL_cS_minus = 0;
 
-  double KNL_vstar_plus  = 0;
+  double KNL_vstar_plus = 0;
   double KNL_vstar_minus = 0;
 
   if(is_CC && (is_KLN || is_BRS)){
 
-    LOG("BSKLNBaseRESPXSec2014",pINFO) "costh1="<<costh;
+    LOG("BSKLNBaseRESPXSec2014",pINFO) "costh1="<<costh;    
     costh = (q2 - ml*ml + 2.*E*Eprime)/2./E/Pl;
     //ml=0;
     LOG("BSKLNBaseRESPXSec2014",pINFO) "q2="<<q2<< "m2="<<ml*ml<<" 2.*E*Eprime="<<2.*E*Eprime<<" nom="<< (q2 - ml*ml + 2.*E*Eprime)<<" den="<<2.*E*Pl;
     LOG("BSKLNBaseRESPXSec2014",pINFO) "costh2="<<costh;
+    Pl = TMath::Sqrt(Eprime*Eprime - ml*ml);
+
+    if(costh <= -1. + 1e-7) {
+      LOG("BSKLNBaseRESPXSec2014", pDEBUG)
+        << "Changing costh = " << costh << " to -1";
+      costh = -1 + 1e-6;
+    }
+    if(costh >= 1. - 1e-7){
+      LOG("BSKLNBaseRESPXSec2014", pDEBUG)
+        << "Changing costh = " << costh << " to 1";
+      costh = 1 - 1e-6;
+    }
+    vstar = (Mnuc*v + q2)/W;//missing W
+    Qstar = TMath::Sqrt(-q2 + vstar*vstar);
 
     KNL_Alambda_plus  = TMath::Sqrt(E*(Eprime - Pl));
     KNL_Alambda_minus = TMath::Sqrt(E*(Eprime + Pl));
-    LOG("BSKLNBaseRESPXSec2014",pINFO)
+    LOG("BSKLNBaseRESPXSec2014",pINFO) 
        << "\n+++++++++++++++++++++++ \n"
        << "E="<<E << " K= "<<KNL_K << "\n"
        << "El="<<Eprime<<" Pl="<<Pl<<" ml="<<ml << "\n"
@@ -256,16 +257,16 @@ double BSKLNBaseRESPXSec2014::XSec(
       KNL_cL_plus  = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  - KNL_jy_plus);
       KNL_cL_minus = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus - KNL_jy_minus);
 
-      KNL_cR_plus  = -TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
-      KNL_cR_minus = -TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
+      KNL_cR_plus  = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
+      KNL_cR_minus = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
 
       KNL_cS_plus   = KNL_K *  TMath::Sqrt(TMath::Abs(KNL_j0_plus *KNL_j0_plus  - KNL_jz_plus *KNL_jz_plus ) );
       KNL_cS_minus  = KNL_K *  TMath::Sqrt(TMath::Abs(KNL_j0_minus*KNL_j0_minus - KNL_jz_minus*KNL_jz_minus) );
     }
 
     if (is_nubar || is_lplus) {
-      KNL_cL_plus  = -1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
-      KNL_cL_minus =  1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
+      KNL_cL_plus  =  1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
+      KNL_cL_minus = -1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
 
       KNL_cR_plus  =  1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus - KNL_jy_minus);
       KNL_cR_minus = -1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  - KNL_jy_plus);
@@ -286,7 +287,7 @@ double BSKLNBaseRESPXSec2014::XSec(
      LOG("BSKLNBaseRESPXSec2014",pINFO) <<"Qstar-="<<KNL_Qstar_minus<<" Qstar+="<<KNL_Qstar_plus;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("BSKLNBaseRESPXSec2014", pDEBUG)
+  LOG("BSKLNBaseRESPXSec2014", pDEBUG) 
     << "Kinematical params V = " << V << ", U = " << U;
 #endif
 
@@ -296,39 +297,52 @@ double BSKLNBaseRESPXSec2014::XSec(
   double GV  = Go * TMath::Power( 1./(1-q2/fMv2), 2);
   double GA  = Go * TMath::Power( 1./(1-q2/fMa2), 2);
 
+
+  //JN New form factors code
+  //  new_GV = false; //JN
+  //  new_GA = true; //JN
+
   if(fGV){
 
-    LOG("BSKLNBaseRESPXSec2014",pDEBUG) <<"Using new GV";
+        LOG("BSKLNBaseRESPXSec2014",pDEBUG) <<"Using new GV";
     double CV0 =  1./(1-q2/fMv2/4.);
     double CV3 =  2.13 * CV0 * TMath::Power( 1-q2/fMv2,-2);
     double CV4 = -1.51 * CV0 * TMath::Power( 1-q2/fMv2,-2);
     double CV5 =  0.48 * CV0 * TMath::Power( 1-q2/fMv2/0.766, -2);
 
-    double GV3 =  0.5 / TMath::Sqrt(3) * ( CV3 * (W + Mnuc)/Mnuc
-                  + CV4 * (W2 + q2 -Mnuc2)/2./Mnuc2
-                  + CV5 * (W2 - q2 -Mnuc2)/2./Mnuc2 );
+
+    double GV3 =   0.5 / TMath::Sqrt(3) * ( CV3 * (W + Mnuc)/Mnuc
+        + CV4 * (W2 + q2 -Mnuc2)/2./Mnuc2 
+        + CV5 * (W2 - q2 -Mnuc2)/2./Mnuc2 );
 
     double GV1 = - 0.5 / TMath::Sqrt(3) * ( CV3 * (Mnuc2 -q2 +Mnuc*W)/W/Mnuc
-                 + CV4 * (W2 +q2 - Mnuc2)/2./Mnuc2
-                 + CV5 * (W2 -q2 - Mnuc2)/2./Mnuc2 );
+        + CV4 * (W2 +q2 - Mnuc2)/2./Mnuc2 
+        + CV5 * (W2 -q2 - Mnuc2)/2./Mnuc2 );
 
     GV = 0.5 * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR)
-         * TMath::Sqrt( 3 * GV3*GV3 + GV1*GV1);
+      * TMath::Sqrt( 3 * GV3*GV3 + GV1*GV1);
+
+
   }
 
   if(fGA){
-    LOG("BSKLNBaseRESPXSec2014",pDEBUG) << "Using new GA";
+
+    LOG("BSKLNBaseRESPXSec2014",pDEBUG) <<"Using new GA";
 
     double CA5_0 = 1.2;
     double CA5 = CA5_0 *  TMath::Power( 1./(1-q2/fMa2), 2);
     //  GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5/fZeta;
     GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5;
 
+    //    LOG("BSKLNBaseRESPXSec2014",pINFO) << 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR)* (1- (W2 +q2 -Mnuc2)/8./Mnuc2);
     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"GA= " <<GA << "  C5A= " <<CA5;
   }
+
   //JN end of new form factors code
 
-  if(is_EM) {
+
+
+  if(is_EM) { 
     GA = 0.; // zero the axial term for EM scattering
   }
 
@@ -422,7 +436,7 @@ double BSKLNBaseRESPXSec2014::XSec(
   }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("FKR", pDEBUG)
+  LOG("FKR", pDEBUG) 
     << "FKR params for RES = " << resname << " : " << fFKR;
 #endif
 
@@ -441,26 +455,7 @@ double BSKLNBaseRESPXSec2014::XSec(
   const RSHelicityAmplModelI * hamplmod_BRS_minus = 0;
   const RSHelicityAmplModelI * hamplmod_BRS_plus = 0;
 
-  // These lines were ~ 100 lines below, which means that, for EM interactions, the coefficients below were still calculated using the weak coupling constant - Afro
   double g2 = kGF2;
-
-  // For EM interaction replace  G_{Fermi} with :
-  // a_{em} * pi / ( sqrt(2) * sin^2(theta_weinberg) * Mass_{W}^2 }
-  // See C.Quigg, Gauge Theories of the Strong, Weak and E/M Interactions,
-  // ISBN 0-8053-6021-2, p.112 (6.3.57)
-  // Also, take int account that the photon propagator is 1/p^2 but the
-  // W propagator is 1/(p^2-Mass_{W}^2), so weight the EM case with
-  // Mass_{W}^4 / q^4
-  // So, overall:
-  // G_{Fermi}^2 --> a_{em}^2 * pi^2 / (2 * sin^4(theta_weinberg) * q^{4})
-  //
-
-  if(is_EM) {
-    double q4 = q2*q2;
-    g2 = kAem2 * kPi2 / (2.0 * fSin48w * q4);
-  }
-
-  if(is_CC) g2 = kGF2*fVud2;
 
   double sig0 = 0.125*(g2/kPi)*(-q2/Q2)*(W/Mnuc);
   double scLR = W/Mnuc;
@@ -474,6 +469,16 @@ double BSKLNBaseRESPXSec2014::XSec(
   double sigRSR =0;
   double sigRSS =0;
 
+  /*
+     hamplmod = fHAmplModelCC;
+     const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR);
+
+     sigRSL = scLR* (hampl.Amp2Plus3 () + hampl.Amp2Plus1 ());
+     sigRSR = scLR* (hampl.Amp2Minus3() + hampl.Amp2Minus1());
+     sigRSS = scS * (hampl.Amp20Plus () + hampl.Amp20Minus());
+
+*/
+  //<<<<<<<<<
   if(is_CC && !(is_KLN || is_BRS) ) {
 
     hamplmod = fHAmplModelCC;
@@ -492,13 +497,13 @@ double BSKLNBaseRESPXSec2014::XSec(
         if(is_CC && is_KLN ){
           fFKR.S = KNL_S_minus;        //2 times fFKR.S?
           fFKR.B = KNL_B_minus;
-          fFKR.C = KNL_C_minus;
+          fFKR.S = KNL_C_minus;
 
           hamplmod_KNL_minus = fHAmplModelCC;
 
           assert(hamplmod_KNL_minus);
 
-          const RSHelicityAmpl & hampl_KNL_minus = hamplmod_KNL_minus->Compute(resonance, fFKR);
+          const RSHelicityAmpl & hampl_KNL_minus = hamplmod_KNL_minus->Compute(resonance, fFKR, interaction);
 
           sigL_minus = (hampl_KNL_minus.Amp2Plus3 () + hampl_KNL_minus.Amp2Plus1 ());
           sigR_minus = (hampl_KNL_minus.Amp2Minus3() + hampl_KNL_minus.Amp2Minus1());
@@ -507,11 +512,11 @@ double BSKLNBaseRESPXSec2014::XSec(
 
           fFKR.S = KNL_S_plus;
           fFKR.B = KNL_B_plus;
-          fFKR.C = KNL_C_plus;
+          fFKR.S = KNL_C_plus;
           hamplmod_KNL_plus = fHAmplModelCC;
           assert(hamplmod_KNL_plus);
 
-          const RSHelicityAmpl & hampl_KNL_plus = hamplmod_KNL_plus->Compute(resonance, fFKR);
+          const RSHelicityAmpl & hampl_KNL_plus = hamplmod_KNL_plus->Compute(resonance, fFKR, interaction);
 
           sigL_plus = (hampl_KNL_plus.Amp2Plus3 () + hampl_KNL_plus.Amp2Plus1 ());
           sigR_plus = (hampl_KNL_plus.Amp2Minus3() + hampl_KNL_plus.Amp2Minus1());
@@ -522,12 +527,12 @@ double BSKLNBaseRESPXSec2014::XSec(
           if(is_CC && is_BRS ){
             fFKR.S = BRS_S_minus;
             fFKR.B = BRS_B_minus;
-            fFKR.C = BRS_C_minus;
+            fFKR.S = BRS_C_minus;
 
             hamplmod_BRS_minus = fHAmplModelCC;
             assert(hamplmod_BRS_minus);
 
-            const RSHelicityAmpl & hampl_BRS_minus = hamplmod_BRS_minus->Compute(resonance, fFKR);
+            const RSHelicityAmpl & hampl_BRS_minus = hamplmod_BRS_minus->Compute(resonance, fFKR, interaction);
 
             sigL_minus = (hampl_BRS_minus.Amp2Plus3 () + hampl_BRS_minus.Amp2Plus1 ());
             sigR_minus = (hampl_BRS_minus.Amp2Minus3() + hampl_BRS_minus.Amp2Minus1());
@@ -535,41 +540,94 @@ double BSKLNBaseRESPXSec2014::XSec(
 
             fFKR.S = BRS_S_plus;
             fFKR.B = BRS_B_plus;
-            fFKR.C = BRS_C_plus;
+            fFKR.S = BRS_C_plus;
             hamplmod_BRS_plus = fHAmplModelCC;
             assert(hamplmod_BRS_plus);
 
-            const RSHelicityAmpl & hampl_BRS_plus = hamplmod_BRS_plus->Compute(resonance, fFKR);
+            const RSHelicityAmpl & hampl_BRS_plus = hamplmod_BRS_plus->Compute(resonance, fFKR, interaction);
 
             sigL_plus = (hampl_BRS_plus.Amp2Plus3 () + hampl_BRS_plus.Amp2Plus1 ());
             sigR_plus = (hampl_BRS_plus.Amp2Minus3() + hampl_BRS_plus.Amp2Minus1());
             sigS_plus = (hampl_BRS_plus.Amp20Plus () + hampl_BRS_plus.Amp20Minus());
           }
-
-  // Compute the cross section
-  if(is_KLN || is_BRS) {
-
-     sigL_minus *= scLR;
-     sigR_minus *= scLR;
-     sigS_minus *= scS;
-     sigL_plus  *= scLR;
-     sigR_plus  *= scLR;
-     sigS_plus  *= scS;
-
-     LOG("BSKLNBaseRESPXSec2014", pINFO)
-         << "sL,R,S minus = " << sigL_minus << "," << sigR_minus << "," << sigS_minus;
-     LOG("BSKLNBaseRESPXSec2014", pINFO)
-         << "sL,R,S plus = " << sigL_plus << "," << sigR_plus << "," << sigS_plus;
-  }
-  else {
+  /*
+     if(is_CC) { 
+     hamplmod = fHAmplModelCC; 
+     }
+     else 
+     if(is_NC) { 
+     if (is_p) { hamplmod = fHAmplModelNCp;}
+     else      { hamplmod = fHAmplModelNCn;}
+     }
+     else 
+     if(is_EM) { 
+     if (is_p) { hamplmod = fHAmplModelEMp;}
+     else      { hamplmod = fHAmplModelEMn;}
+     }
      assert(hamplmod);
 
-     const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR);
+     const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR); 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("RSHAmpl", pDEBUG)
+    << "Helicity Amplitudes for RES = " << resname << " : " << hampl;
+#endif
+     */
 
-     sigL = scLR* (hampl.Amp2Plus3 () + hampl.Amp2Plus1 ());
-     sigR = scLR* (hampl.Amp2Minus3() + hampl.Amp2Minus1());
-     sigS = scS * (hampl.Amp20Plus () + hampl.Amp20Minus());
-  }
+  //JNtest double g2 = kGF2;
+  // For EM interaction replace  G_{Fermi} with :
+  // a_{em} * pi / ( sqrt(2) * sin^2(theta_weinberg) * Mass_{W}^2 }
+  // See C.Quigg, Gauge Theories of the Strong, Weak and E/M Interactions,
+  // ISBN 0-8053-6021-2, p.112 (6.3.57)
+  // Also, take int account that the photon propagator is 1/p^2 but the
+  // W propagator is 1/(p^2-Mass_{W}^2), so weight the EM case with
+  // Mass_{W}^4 / q^4
+  // So, overall:
+  // G_{Fermi}^2 --> a_{em}^2 * pi^2 / (2 * sin^4(theta_weinberg) * q^{4})
+  //
+    if(is_EM) {
+      double q4 = q2*q2;
+      g2 = kAem2 * kPi2 / (2.0 * fSin48w * q4); 
+    }
+
+// Compute the cross section
+
+/*
+   double sig0 = 0.125*(g2/kPi)*(-q2/Q2)*(W/Mnuc);
+   double scLR = W/Mnuc;
+   double scS  = (Mnuc/W)*(-Q2/q2);
+
+   JN test */
+//  double sigL = scLR* (hampl.Amp2Plus3 () + hampl.Amp2Plus1 ());
+//  double sigR = scLR* (hampl.Amp2Minus3() + hampl.Amp2Minus1());
+//  double sigS = scS * (hampl.Amp20Plus () + hampl.Amp20Minus());
+
+/*
+   double sigL =0;
+   double sigR =0;
+   double sigS =0;
+   JN tests  */
+
+if( is_KLN || is_BRS){
+
+  sigL_minus *= scLR;
+  sigR_minus *= scLR;
+  sigS_minus *= scS;
+
+  sigL_plus *= scLR;
+  sigR_plus *= scLR;
+  sigS_plus *= scS;
+  LOG("BSKLNBaseRESPXSec2014",pINFO) <<"sL,R,S minus="<<sigL_minus<<","<<sigR_minus<<","<<sigS_minus;
+  LOG("BSKLNBaseRESPXSec2014",pINFO) <<"sL,R,S plus ="<<sigL_plus <<","<<sigR_plus <<","<<sigS_plus;
+}
+else {
+  assert(hamplmod);
+
+  const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR, interaction);
+
+  sigL = scLR* (hampl.Amp2Plus3 () + hampl.Amp2Plus1 ());
+  sigR = scLR* (hampl.Amp2Minus3() + hampl.Amp2Minus1());
+  sigS = scS * (hampl.Amp20Plus () + hampl.Amp20Minus());
+}
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BSKLNBaseRESPXSec2014", pDEBUG) << "sig_{0} = " << sig0;
@@ -578,139 +636,96 @@ double BSKLNBaseRESPXSec2014::XSec(
   LOG("BSKLNBaseRESPXSec2014", pDEBUG) << "sig_{S} = " << sigS;
 #endif
 
-  double xsec = 0.0;
+double xsec = 0.0;
 
-  if(is_KLN || is_BRS) {
-      xsec =   TMath::Power(KNL_cL_minus,2)*sigL_minus + TMath::Power(KNL_cL_plus,2)*sigL_plus
-             + TMath::Power(KNL_cR_minus,2)*sigR_minus + TMath::Power(KNL_cR_plus,2)*sigR_plus
-             + TMath::Power(KNL_cS_minus,2)*sigS_minus + TMath::Power(KNL_cS_plus,2)*sigS_plus;
-      xsec *=sig0;
+if(is_KLN || is_BRS){
+  xsec =  TMath::Power(KNL_cL_minus,2)*sigL_minus + TMath::Power(KNL_cL_plus,2)*sigL_plus
+    + TMath::Power(KNL_cR_minus,2)*sigR_minus + TMath::Power(KNL_cR_plus,2)*sigR_plus
+    + TMath::Power(KNL_cS_minus,2)*sigS_minus + TMath::Power(KNL_cS_plus,2)*sigS_plus;
+  xsec *=sig0;
 
-      LOG("BSKLNBaseRESPXSec2014",pINFO) << "A-="<<KNL_Alambda_minus<<" A+="<<KNL_Alambda_plus;
-      // protect against sigRSR=sigRSL=sigRSS=0
-      LOG("BSKLNBaseRESPXSec2014",pINFO) <<q2<<"\t"<<xsec<<"\t"<<sig0*(V2*sigR + U2*sigL + 2*UV*sigS)<<"\t"<<xsec/TMath::Max(sig0*(V2*sigRSR + U2*sigRSL + 2*UV*sigRSS),1.0e-100);
-      LOG("BSKLNBaseRESPXSec2014",pINFO) <<"fFKR.B="<<fFKR.B<<" fFKR.C="<<fFKR.C<<" fFKR.S="<<fFKR.S;
-      LOG("BSKLNBaseRESPXSec2014",pINFO) <<"CL-="<<TMath::Power(KNL_cL_minus,2)<<" CL+="<<TMath::Power(KNL_cL_plus,2)<<" U2="<<U2;
-      LOG("BSKLNBaseRESPXSec2014",pINFO) <<"SL-="<<sigL_minus<<" SL+="<<sigL_plus<<" SL="<<sigRSL;
+     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n";
 
-      LOG("BSKLNBaseRESPXSec2014",pINFO) <<"CR-="<<TMath::Power(KNL_cR_minus,2)<<" CR+="<<TMath::Power(KNL_cR_plus,2)<<" V2="<<V2;
-      LOG("BSKLNBaseRESPXSec2014",pINFO) <<"SR-="<<sigR_minus<<" SR+="<<sigR_plus<<" sR="<<sigRSR;
+     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"A-="<<KNL_Alambda_minus<<" A+="<<KNL_Alambda_plus;
+     LOG("BSKLNBaseRESPXSec2014",pINFO) <<q2<<"\t"<<xsec<<"\t"<<sig0*(V2*sigR + U2*sigL + 2*UV*sigS)<<"\t"<<xsec/(sig0*(V2*sigRSR + U2*sigRSL + 2*UV*sigRSS));
+     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"fFKR.B="<<fFKR.B<<" fFKR.C="<<fFKR.C<<" fFKR.S="<<fFKR.S;
+     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"CL-="<<TMath::Power(KNL_cL_minus,2)<<" CL+="<<TMath::Power(KNL_cL_plus,2)<<" U2="<<U2;
+     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"SL-="<<sigL_minus<<" SL+="<<sigL_plus<<" SL="<<sigRSL;
 
-      LOG("BSKLNBaseRESPXSec2014",pINFO) <<"CS-="<<TMath::Power(KNL_cS_minus,2)<<" CS+="<<TMath::Power(KNL_cS_plus,2)<<" UV="<<UV;
-      LOG("BSKLNBaseRESPXSec2014",pINFO) <<"SS-="<<sigL_minus<<" SS+="<<sigS_plus<<" sS="<<sigRSS;
-  }
-  else {
-     if (is_nu || is_lminus) {
-         xsec = sig0*(V2*sigR + U2*sigL + 2*UV*sigS);
-     }
-     else
-     if (is_nubar || is_lplus) {
-         xsec = sig0*(U2*sigR + V2*sigL + 2*UV*sigS);
-     }
-     xsec = TMath::Max(0.,xsec);
-  }
-  double mult = 1.0;
-  if ( is_CC && is_delta ) {
-     if ( (is_nu && is_p) || (is_nubar && is_n) ) mult=3.0;
-  }
-  xsec *= mult;
+     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"CR-="<<TMath::Power(KNL_cR_minus,2)<<" CR+="<<TMath::Power(KNL_cR_plus,2)<<" V2="<<V2;
+     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"SR-="<<sigR_minus<<" SR+="<<sigR_plus<<" sR="<<sigRSR;
 
-  // Check whether the cross section is to be weighted with a Breit-Wigner distribution
-  // (default: true)
-  double bw = 1.0;
-  if ( fWghtBW ) {
-     bw = utils::bwfunc::BreitWignerL(W,LR,MR,WR,NR);
-  }
+     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"CS-="<<TMath::Power(KNL_cS_minus,2)<<" CS+="<<TMath::Power(KNL_cS_plus,2)<<" UV="<<UV;
+     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"SS-="<<sigL_minus<<" SS+="<<sigS_plus<<" sS="<<sigRSS;
+     LOG("BSKLNBaseRESPXSec2014",pINFO) <<">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
+
+}
+else{
+  if (is_nu || is_lminus) {
+    xsec = sig0*(V2*sigR + U2*sigL + 2*UV*sigS);
+  } 
+  else 
+    if (is_nubar || is_lplus) {
+      xsec = sig0*(U2*sigR + V2*sigL + 2*UV*sigS);
+    } 
+  xsec = TMath::Max(0.,xsec);
+}
+double mult = 1.0;
+if(is_CC && is_delta) {
+  if((is_nu && is_p) || (is_nubar && is_n)) mult=3.0;
+}
+xsec *= mult;
+
+// Check whether the cross section is to be weighted with a
+// Breit-Wigner distribution (default: true)
+double bw = 1.0;
+if(fWghtBW) {
+  bw = utils::bwfunc::BreitWignerL(W,LR,MR,WR,NR); 
+} 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("BSKLNBaseRESPXSec2014", pDEBUG)
-      << "BreitWigner(RES=" << resname << ", W=" << W << ") = " << bw;
+LOG("BSKLNBaseRESPXSec2014", pDEBUG) << "BreitWigner(RES=" 
+  << resname << ", W=" << W << ") = " << bw;
 #endif
-  xsec *= bw;
+xsec *= bw; 
+
+// Apply NeuGEN nutau cross section reduction factors
+double rf = 1.0;
+Spline * spl = 0;
+if (is_CC && fUsingNuTauScaling) {
+  if (pdg::IsNuTau(probepdgc)) {
+    spl = fNuTauRdSpl;
+  }
+  else if (pdg::IsAntiNuTau(probepdgc)) {
+    spl = fNuTauBarRdSpl;
+  }
+  if(spl) {
+    if(E <spl->XMax()) rf = spl->Evaluate(E);
+  }
+}
+xsec *= rf;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("BSKLNBaseRESPXSec2014", pINFO)
-      << "\n d2xsec/dQ2dW"  << "[" << interaction->AsString()
-      << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << xsec;
+LOG("BSKLNBaseRESPXSec2014", pINFO) 
+  << "\n d2xsec/dQ2dW"  << "[" << interaction->AsString()
+  << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << xsec;
 #endif
 
-  // The algorithm computes d^2xsec/dWdQ2
-  // Check whether variable tranformation is needed
-  if ( kps != kPSWQ2fE ) {
-     double J = utils::kinematics::Jacobian(interaction,kPSWQ2fE,kps);
-     xsec *= J;
-  }
+// The algorithm computes d^2xsec/dWdQ2
+// Check whether variable tranformation is needed
+if(kps!=kPSWQ2fE) {
+  double J = utils::kinematics::Jacobian(interaction,kPSWQ2fE,kps);
+  xsec *= J;
+}
 
-  // Apply given scaling factor
-  if      (is_CC) { xsec *= fXSecScaleCC; }
-  else if (is_NC) { xsec *= fXSecScaleNC; }
+// If requested return the free nucleon xsec even for input nuclear tgt
+if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
-  // If requested return the free nucleon xsec even for input nuclear tgt
-  if ( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
+// Take into account the number of scattering centers in the target
+int NNucl = (is_p) ? target.Z() : target.N();
 
-  int Z = target.Z();
-  int A = target.A();
-  int N = A-Z;
+xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
 
-  // Take into account the number of scattering centers in the target
-  int NNucl = (is_p) ? Z : N;
-  xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
-
-  if ( fUsePauliBlocking && A!=1 )
-  {
-    // Calculation of Pauli blocking according references:
-    //
-    //     [1] S.L. Adler,  S. Nussinov,  and  E.A.  Paschos,  "Nuclear
-    //         charge exchange corrections to leptonic pion  production
-    //         in  the (3,3) resonance  region,"  Phys. Rev. D 9 (1974)
-    //         2125-2143 [Erratum Phys. Rev. D 10 (1974) 1669].
-    //     [2] J.Y. Yu, "Neutrino interactions and  nuclear  effects in
-    //         oscillation experiments and the  nonperturbative disper-
-    //         sive  sector in strong (quasi-)abelian  fields,"  Ph. D.
-    //         Thesis, Dortmund U., Dortmund, 2002 (unpublished).
-    //     [3] E.A. Paschos, J.Y. Yu,  and  M. Sakuda,  "Neutrino  pro-
-    //         duction  of  resonances,"  Phys. Rev. D 69 (2004) 014013
-    //         [arXiv: hep-ph/0308130].
-
-    double P_Fermi = 0.0;
-
-    // Maximum value of Fermi momentum of target nucleon (GeV)
-    if ( A<6 || ! fUseRFGParametrization )
-    {
-        // look up the Fermi momentum for this target
-        FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
-        const FermiMomentumTable * kft = kftp->GetTable(fKFTable);
-        P_Fermi = kft->FindClosestKF(pdg::IonPdgCode(A, Z), nucpdgc);
-     }
-     else {
-        // define the Fermi momentum for this target
-        P_Fermi = utils::nuclear::FermiMomentumForIsoscalarNucleonParametrization(target);
-        // correct the Fermi momentum for the struck nucleon
-        if(is_p) { P_Fermi *= TMath::Power( 2.*Z/A, 1./3); }
-        else     { P_Fermi *= TMath::Power( 2.*N/A, 1./3); }
-     }
-
-     double FactorPauli_RES = 1.0;
-
-     double k0 = 0., q = 0., q0 = 0.;
-
-     if (P_Fermi > 0.)
-     {
-        k0 = (W2-Mnuc2-Q2)/(2*W);
-        k = TMath::Sqrt(k0*k0+Q2);  // previous value of k is overridden
-        q0 = (W2-Mnuc2+kPionMass2)/(2*W);
-        q = TMath::Sqrt(q0*q0-kPionMass2);
-     }
-
-     if ( 2*P_Fermi < k-q )
-        FactorPauli_RES = 1.0;
-     if ( 2*P_Fermi >= k+q )
-        FactorPauli_RES = ((3*k*k+q*q)/(2*P_Fermi)-(5*TMath::Power(k,4)+TMath::Power(q,4)+10*k*k*q*q)/(40*TMath::Power(P_Fermi,3)))/(2*k);
-     if ( 2*P_Fermi >= k-q && 2*P_Fermi <= k+q )
-        FactorPauli_RES = ((q+k)*(q+k)-4*P_Fermi*P_Fermi/5-TMath::Power(k-q, 3)/(2*P_Fermi)+TMath::Power(k-q, 5)/(40*TMath::Power(P_Fermi, 3)))/(4*q*k);
-
-     xsec *= FactorPauli_RES;
-  }
-  return xsec;
+return xsec;
 }
 //____________________________________________________________________________
 double BSKLNBaseRESPXSec2014::Integral(const Interaction * interaction) const
@@ -736,7 +751,7 @@ bool BSKLNBaseRESPXSec2014::ValidProcess(const Interaction * interaction) const
   if (!is_pn) return false;
 
   int  probe   = init_state.ProbePdg();
-  bool is_weak = proc_info.IsWeak();
+  bool is_weak = proc_info.IsWeak(); 
   bool is_em   = proc_info.IsEM();
   bool nu_weak = (pdg::IsNeutralLepton(probe) && is_weak);
   bool l_em    = (pdg::IsChargedLepton(probe) && is_em  );
@@ -760,34 +775,43 @@ void BSKLNBaseRESPXSec2014::Configure(string config)
 //____________________________________________________________________________
 void BSKLNBaseRESPXSec2014::LoadConfig(void)
 {
-  // Cross section scaling factors
-  this->GetParam( "RES-CC-XSecScale", fXSecScaleCC ) ;
-  this->GetParam( "RES-NC-XSecScale", fXSecScaleNC ) ;
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
 
   // Load all configuration data or set defaults
 
-  this->GetParam( "RES-Zeta"   , fZeta  ) ;
-  this->GetParam( "RES-Omega"  , fOmega ) ;
-  this->GetParam( "minibooneGA", fGA    ) ;
-  this->GetParam( "minibooneGV", fGV    ) ;
+  LOG("RSHAmpl", pWARN)
+    << "get to beg = ";
+  fZeta  = fConfig->GetDoubleDef( "Zeta",  gc->GetDouble("RS-Zeta")  );
+  LOG("RSHAmpl", pWARN)
+    << "load fZeta";
+  fOmega = fConfig->GetDoubleDef( "Omega", gc->GetDouble("RS-Omega") );
+  LOG("RSHAmpl", pWARN)
+    << "load Omega";
 
-  double ma, mv ;
-  this->GetParam( "RES-Ma", ma ) ;
-  this->GetParam( "RES-Mv", mv ) ;
+/*
+need to be set by concrete classes, not config
+  fKLN = fConfig->GetBoolDef("is_KLN", gc->GetBool("is_KLN"));
+  LOG("RSHAmpl", pWARN)
+    << "load is_KLN";
+  fBRS = fConfig->GetBoolDef("is_BRS", gc->GetBool("is_BRS"));
+*/
+
+  fGA  = fConfig->GetBoolDef("minibooneGA", gc->GetBool("minibooneGA"));
+  fGV  = fConfig->GetBoolDef("minibooneGV", gc->GetBool("minibooneGV"));
+
+  double ma  = fConfig->GetDoubleDef( "Ma", gc->GetDouble("RES-Ma") );
+  double mv  = fConfig->GetDoubleDef( "Mv", gc->GetDouble("RES-Mv") );
+
   fMa2 = TMath::Power(ma,2);
   fMv2 = TMath::Power(mv,2);
 
-  this->GetParamDef( "BreitWignerWeight", fWghtBW, true ) ;
-  this->GetParamDef( "BreitWignerNorm",   fNormBW, true);
-  double thw ;
-  this->GetParam( "WeinbergAngle", thw ) ;
+  fWghtBW = fConfig->GetBoolDef("BreitWignerWeight", true);
+
+  double thw = fConfig->GetDoubleDef(
+      "weinberg-angle", gc->GetDouble("WeinbergAngle"));
+
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
-  double Vud;
-  this->GetParam("CKM-Vud", Vud );
-  fVud2 = TMath::Power( Vud, 2 );
-  this->GetParam("FermiMomentumTable", fKFTable);
-  this->GetParam("RFG-UseParametrization", fUseRFGParametrization);
-  this->GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
 
   // Load all the sub-algorithms needed
 
@@ -817,10 +841,11 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   assert( fHAmplModelEMn );
 
   // Use algorithm within a DIS/RES join scheme. If yes get Wcut
-  this->GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
+  fUsingDisResJoin = fConfig->GetBoolDef(
+      "UseDRJoinScheme", gc->GetBool("UseDRJoinScheme"));
   fWcut = 999999;
   if(fUsingDisResJoin) {
-    this->GetParam( "Wcut", fWcut ) ;
+    fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
   }
 
   // NeuGEN limits in the allowed resonance phase space:
@@ -828,12 +853,33 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   // It limits the integration area around the peak and avoids the
   // problem with huge xsec increase at low Q2 and high W.
   // In correspondence with Hugh, Rein said that the underlying problem
-  // are unphysical assumptions in the model.
-  this->GetParamDef( "MaxNWidthForN2Res", fN2ResMaxNWidths, 2.0 ) ;
-  this->GetParamDef( "MaxNWidthForN0Res", fN0ResMaxNWidths, 6.0 ) ;
-  this->GetParamDef( "MaxNWidthForGNRes", fGnResMaxNWidths, 4.0 ) ;
+  // are unphysical assumptions in the model. 
+  fN2ResMaxNWidths = fConfig->GetDoubleDef("MaxNWidthForN2Res", 2.0);
+  fN0ResMaxNWidths = fConfig->GetDoubleDef("MaxNWidthForN0Res", 6.0);
+  fGnResMaxNWidths = fConfig->GetDoubleDef("MaxNWidthForGNRes", 4.0);
 
-  // Load the differential cross section integrator
+  // NeuGEN reduction factors for nu_tau: a gross estimate of the effect of
+  // neglected form factors in the R/S model
+  fUsingNuTauScaling = fConfig->GetBoolDef("UseNuTauScalingFactors", true);
+  if(fUsingNuTauScaling) {
+    if(fNuTauRdSpl)    delete fNuTauRdSpl;
+    if(fNuTauBarRdSpl) delete fNuTauBarRdSpl;
+
+    assert(gSystem->Getenv("GENIE"));
+    string base = gSystem->Getenv("GENIE");
+
+    string filename = base + "/data/evgen/rein_sehgal/res/nutau_xsec_scaling_factors.dat";
+    LOG("BSKLNBaseRESPXSec2014", pINFO) 
+      << "Loading nu_tau xsec reduction spline from: " << filename;
+    fNuTauRdSpl = new Spline(filename);
+
+    filename = base + "/data/evgen/rein_sehgal/res/nutaubar_xsec_scaling_factors.dat";
+    LOG("BSKLNBaseRESPXSec2014", pINFO) 
+      << "Loading bar{nu_tau} xsec reduction spline from: " << filename;
+    fNuTauBarRdSpl = new Spline(filename);
+  }
+
+  // load the differential cross section integrator
   fXSecIntegrator =
     dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);

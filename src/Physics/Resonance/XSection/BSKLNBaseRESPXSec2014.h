@@ -8,7 +8,7 @@
 
 \ref      Berger, Sehgal Phys. Rev. D76, 113004 (2007) \n
           Kuzmin, Lyubushkin, Naumov Mod. Phys. Lett. A19 (2004) 2815 \n
-	        D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
+	  D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
           and Single Pion Production, Ann.Phys.133, 79 (1981) \n
 
           Modifications based on a MiniBooNE tune courtesy of J. Nowak, S.Dytman
@@ -22,22 +22,23 @@
           Gabe Perdue
           Fermilab
 
-          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  Sep 15, 2015
 
-\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+\cpright  Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org
+          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
 #ifndef _BSKLN_BASE_RES_PXSEC_2014_H_
 #define _BSKLN_BASE_RES_PXSEC_2014_H_
 
-#include "Framework/EventGen/XSecAlgorithmI.h"
-#include "Framework/ParticleData/BaryonResonance.h"
-#include "Physics/Resonance/XSection/FKR.h"
+#include "Base/XSecAlgorithmI.h"
+#include "BaryonResonance/BaryonResonance.h"
+#include "ReinSehgal/FKR.h"
 
 namespace genie {
 
@@ -50,7 +51,7 @@ namespace genie {
     public:
       virtual ~BSKLNBaseRESPXSec2014();
 
-      // implement the XSecAlgorithmI interface
+      // implement the XSecAlgorithmI interface 
       double XSec         (const Interaction * i, KinePhaseSpace_t k) const;
       double Integral     (const Interaction * i) const;
       bool   ValidProcess (const Interaction * i) const;
@@ -77,25 +78,19 @@ namespace genie {
 
       // configuration data
       bool     fWghtBW;            ///< weight with resonance breit-wigner?
-      bool     fNormBW;            ///< normalize resonance breit-wigner to 1?
       double   fZeta;              ///< FKR parameter Zeta
       double   fOmega;             ///< FKR parameter Omega
       double   fMa2;               ///< (axial mass)^2
       double   fMv2;               ///< (vector mass)^2
       double   fSin48w;            ///< sin^4(Weingberg angle)
-      double   fVud2;              ///< |Vud|^2(square of magnitude ud-element of CKM-matrix)
       bool     fUsingDisResJoin;   ///< use a DIS/RES joining scheme?
       bool     fUsingNuTauScaling; ///< use NeuGEN nutau xsec reduction factors?
       double   fWcut;              ///< apply DIS/RES joining scheme < Wcut
       double   fN2ResMaxNWidths;   ///< limits allowed phase space for n=2 res
       double   fN0ResMaxNWidths;   ///< limits allowed phase space for n=0 res
       double   fGnResMaxNWidths;   ///< limits allowed phase space for other res
-      string fKFTable;             ///< table of Fermi momentum (kF) constants for various nuclei
-      bool fUseRFGParametrization; ///< use parametrization for fermi momentum insted of table?
-      bool fUsePauliBlocking;      ///< account for Pauli blocking?
-
-      double   fXSecScaleCC;       ///< external CC xsec scaling factor
-      double   fXSecScaleNC;       ///< external NC xsec scaling factor
+      Spline * fNuTauRdSpl;        ///< xsec reduction spline for nu_tau
+      Spline * fNuTauBarRdSpl;     ///< xsec reduction spline for nu_tau_bar
 
       bool fKLN;
       bool fBRS;
