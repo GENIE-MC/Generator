@@ -144,8 +144,8 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
   double EN=0;
   FermiMoverInteractionType_t interaction_type = fNuclModel->GetFermiMoverInteractionType();
 
-  // EffectiveSF treatment
-  if (interaction_type == kFermiMoveEffectiveSF1p1h) {
+  // EffectiveSF treatment or momentum-dependent removal energy
+  if (interaction_type == kFermiMoveEffectiveSF1p1h || fMomDepErmv ) {
     EN = nucleon->Mass() - w - pF2 / (2 * (nucleus->Mass() - nucleon->Mass()));
   } else if (interaction_type == kFermiMoveEffectiveSF2p2h_eject ||
              interaction_type == kFermiMoveEffectiveSF2p2h_noeject) {
@@ -193,10 +193,6 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
   p4->SetPx( p3.Px() );
   p4->SetPy( p3.Py() );
   p4->SetPz( p3.Pz() );
-  //p4->SetE ( EN      );
-  double nucleon_mass = nucleon->Mass();
-  //EN = sqrt(p4->Vect().Mag()*p4->Vect().Mag() + nucleon_mass*nucleon_mass) - w; 
-  EN = nucleon->Mass() - w - pF2 / (2 * (nucleus->Mass() - nucleon->Mass()));
   p4->SetE ( EN      );
 
   nucleon->SetMomentum(*p4); // update GHEP value
@@ -308,6 +304,7 @@ void FermiMover::LoadConfig(void)
   assert(fNuclModel);
 
   this->GetParamDef("KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false);
+  this->GetParam("FermiMover-MomentumDependentErmv", fMomDepErmv);
 
   RgKey nuclearrecoilkey = "SecondNucleonEmitter" ;
   fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *> (this->SubAlg(nuclearrecoilkey));

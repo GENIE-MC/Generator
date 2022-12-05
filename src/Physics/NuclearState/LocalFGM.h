@@ -79,6 +79,7 @@ private:
   // options related to SRC pairs
   double fSRC_Fraction;
   double fPCutOff;
+  bool fMomDepErmv;
 };
 
 }         // genie namespace

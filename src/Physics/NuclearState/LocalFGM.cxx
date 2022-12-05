@@ -88,16 +88,22 @@ bool LocalFGM::GenerateNucleon(const Target & target,
   int Z = target.Z();
   map<int,double>::const_iterator it = fNucRmvE.find(Z);
 
-  double nucl_mass = target.HitNucMass();
-  double KF = LocalFermiMomentum( target, target.HitNucPdg(), hitNucleonRadius) ; 
-  //nucleon kinetic energy
-  double T_F = TMath::Sqrt(TMath::Power(nucl_mass,2)+TMath::Power(KF,2)) - nucl_mass;
-  double localEb = T_F;
-  double T_nucl = TMath::Sqrt(TMath::Power(fCurrMomentum.Mag(),2)+TMath::Power(nucl_mass,2))- nucl_mass;
-  double q_val_offset;
-  if(it != fNucRmvE.end()) q_val_offset = it->second;
-  else q_val_offset = nuclear::BindEnergyPerNucleon(target);
-  fCurrRemovalEnergy = localEb - T_nucl + q_val_offset;
+  if (fMomDepErmv) {
+    double nucl_mass = target.HitNucMass();
+    double KF = LocalFermiMomentum( target, target.HitNucPdg(), hitNucleonRadius) ; 
+    //nucleon kinetic energy
+    double T_F = TMath::Sqrt(TMath::Power(nucl_mass,2)+TMath::Power(KF,2)) - nucl_mass;
+    double localEb = T_F;
+    double T_nucl = TMath::Sqrt(TMath::Power(fCurrMomentum.Mag(),2)+TMath::Power(nucl_mass,2))- nucl_mass;
+    double q_val_offset;
+    if(it != fNucRmvE.end()) q_val_offset = it->second;
+    else q_val_offset = nuclear::BindEnergyPerNucleon(target);
+    fCurrRemovalEnergy = localEb - T_nucl + q_val_offset;
+  }
+  else {
+    if(it != fNucRmvE.end()) fCurrRemovalEnergy = it->second;
+    else fCurrRemovalEnergy = nuclear::BindEnergyPerNucleon(target);
+  }
 
  /* std::cout << "In local FGM : " << std::endl;
 
@@ -240,6 +246,7 @@ void LocalFGM::LoadConfig(void)
 
   this->GetParamDef("SRC-Fraction", fSRC_Fraction, 0.0);
   this->GetParam("LFG-MomentumCutOff", fPCutOff);
+  this->GetParam("LFG-MomentumDependentErmv", fMomDepErmv);
 
   if (fPCutOff > fPMax) {
         LOG("LocalFGM", pFATAL) << "Momentum CutOff greater than Momentum Max";
