@@ -13,6 +13,7 @@ FermiMomentumTable     string   No        Table of Fermi momentum (kF) constants
 LFG-MomentumMax        double   Yes       max p in prob distribution                     1 GeV
 LFG-MomentumCutOff     double   No        momentum cut off value                         
 LFG-MomentumDependentErmv bool  No        whether to calculate removal energy = f(momentum) false
+LFG-ForcePositiveErmv  bool     No        Whether to rethrow events with negative Ermv   false
 SRC-Fraction           double   Yes       Fraction of high energy tail distribution      0. (Local Fermi Gas)     
                                           dominated by Short Range Correlated Pairs
 NucRemovalE@Pdg=?      int      Yes       nuclear removal energy for specfic nuclei      from FermiGas CommonParam
@@ -24,6 +25,7 @@ NucRemovalE@Pdg=?      int      Yes       nuclear removal energy for specfic nuc
      Short range correlations and the isospin dependence of nuclear correlation functions (arXiv:1710.07966)-->
     <param type="double" name = "LFG-MomentumCutOff">    0.7   </param>
     <param type="bool" name = "LFG-MomentumDependentErmv"> false </param>
+    <param type="bool" name = "LFG-ForcePositiveErmv">    false   </param>
   </param_set>
 
   <param_set name="Correlated"> 
