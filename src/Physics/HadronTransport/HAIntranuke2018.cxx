@@ -524,7 +524,7 @@ void HAIntranuke2018::ElasHA(GHepRecord* ev, GHepParticle* p,
 
   // calculate final 4 momentum of probe
   TLorentzVector t4P3L, t4P4L;
-
+  LOG("HAIntranuke2018", pNOTICE) << "Calling TwoBodyKinematics from PiPn Bounce hA elastic";
   if (!utils::intranuke2018::TwoBodyKinematics(Mp,Mt,t4PpL,t4PtL,t4P3L,t4P4L,C3CM,fRemnP4))
     {
       LOG("HAIntranuke2018", pNOTICE) << "ElasHA() failed";
@@ -677,6 +677,7 @@ void HAIntranuke2018::InelasticHA(
       <<  "  KE1L = " << KE1L << "   " << KE1L << "  KE2L = " << KE2L;
   GHepParticle cl1(*p);
   GHepParticle cl2(t);
+  LOG("HAIntranuke2018", pNOTICE) << "Calling TwoBodyCollision from hAinelastic knockout IntBounce";
   bool success = utils::intranuke2018::TwoBodyCollision(ev,pcode,tcode,scode,s2code,C3CM,
                                                &cl1,&cl2,fRemnA,fRemnZ,fRemnP4,kIMdHA);
   if(success)
@@ -945,6 +946,7 @@ void HAIntranuke2018::Inelastic(
           t4P2L=TLorentzVector(TVector3(tP2_1L+tP2_2L),E2L);
           double bindE=0.050; // set to fit McKeown data, updated aug 18
           //double bindE=0.0;
+	  LOG("HAIntranuke2018", pNOTICE) << "Calling TwoBodyKinematics from Pion Absorption";
           if (utils::intranuke2018::TwoBodyKinematics(M3,M4,t4P1L,t4P2L,t4P3L,t4P4L,C3CM,fRemnP4,bindE))
             {
               //construct remnant nucleus and its mass

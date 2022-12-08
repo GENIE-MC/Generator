@@ -768,7 +768,7 @@ bool genie::utils::intranuke2018::TwoBodyCollision(
   double bindE = 0.025; // empirical choice, might need to be improved
   //double bindE = 0.0;
 
-  LOG("TwoBodyCollision",pNOTICE) << "M1 = " << t4P1L.M() << " , M2 = " << t4P2L.M();
+  LOG("TwoBodyCollision",pNOTICE) << "M1 = " << t4P1L.M() << " , M2 = " << t4P2L.M() << " , M3 " << M3 << " , M4 " << M4;
   LOG("TwoBodyCollision",pNOTICE) << "E1 = " << t4P1L.E() << " , E2 = " << t4P2L.E();
 
   if ( (p->Energy()-p->Mass()) < bindE ){bindE = 0.;} // if the probe's energy is less than the binding energy, set the binding energy to 0.
@@ -869,6 +869,514 @@ bool genie::utils::intranuke2018::TwoBodyCollision(
   return true;
 
 }
+//___________________________________________________________________________
+bool genie::utils::intranuke2018::TwoBodyKinematics(
+  double M3, double M4, TLorentzVector t4P1L, TLorentzVector t4P2L,
+  TLorentzVector &t4P3L, TLorentzVector &t4P4L, double C3CM, TLorentzVector &RemnP4, double bindE)
+{
+  // January 2019 Lauren Harewood and Rik Gran, University of Minnesota Duluth
+  // Computes an elastic scatter between two input particles
+  // Originally was needed to fix the FSI diffractive/elastic process that gave unphysical scatters.
+  // See https://arxiv.org/abs/1906.10576 and https://arxiv.org/abs/1910.08658
+  // The original code was able to revive the diffractive/elastic process,
+  // replace the piBounce and pnBounce with improved version, and is documented in the 1906.10576 note
+  // describes what it looked like and whether the extra angle scattering might be observable.
+  // But that diffractive/elastic process is now turned off, it doesn't apply for hadrons born in the nucleus
+  // and the process was not replaced by whatever might be the equivalent for us.
+  // This code is now only used for the pion two-body absorption, but it is used, so the fix is here.
+  // I forget if this code can handle a gamma photon to NN absorption process or not.
+
+  // Boost from lab to CM frame
+  // scatter angle theta given to the function using Rotate()
+  // scatter angle azimuth generated isotropically using Rotate()
+  // check for misbehavior
+  // Boost back to lab frame
+  // Clean up and finish conserving energy
+  
+  double theta, phi;  // theta reextracted from cos(thetaCM).
+  double OpAng, CheckAng;
+  TVector3 tbeta, tbetadir, P1Lab, P2Lab, P3Lab,P4Lab;
+  TVector3 vP3L, P1CM, P3CM, P4CM;  // P2CM
+  TLorentzVector t4P1buf, t4P2buf, t4Ptot, t4P3buf, t4P4buf;
+
+  double missingE = 0.0;
+  double missingpx = 0.0;
+  double missingpy = 0.0;
+  double missingpz = 0.0;
+
+  // Library instance for reference
+  //PDGLibrary * pLib = PDGLibrary::Instance();
+
+  // random number generator
+  RandomGen * rnd = RandomGen::Instance();
+
+  // error checking for unphysical cosine(thetaCM) angles.
+  if (C3CM < -1. || C3CM > 1.) return false;
+
+
+  bool AbsorptionNNSpecial = false;
+  if(t4P2L.M() > 1.876 && t4P2L.M() < 1.999){
+    // The 1.876 will sepecificaly exclude a ground-state deuteron, but include two nucleons.
+    // If a deuteron is passed, it will try to elastic scatter instead.
+    // This routine is NOT passed two on-shell nucleons, the M is slightly higher
+    // this version requires slightly different treatment.
+    LOG("INukeUtils",pNOTICE) << "Found absorption of meson on two nucleons M3 M4 " << M3 << " " << M4 << " from " << t4P1L.M() << " " << t4P2L.M();
+    AbsorptionNNSpecial = true;
+  }
+
+  // if C3CM == 1.0, no scatter occurs, so exit?  but this routine may need to do something.
+  //if(C3CM - 1.0 < 0.000001) return; //??  Hmm.
+
+  LOG("INukeUtils",pNOTICE) << "P1Lin " << t4P1L.P() << " pxyz " << t4P1L.X() << " " << t4P1L.Y() << " " << t4P1L.Z() << " E " << t4P1L.E() << " M " << t4P1L.M();
+  LOG("INukeUtils",pNOTICE) << "P2Lin " << t4P2L.P() << " pxyz " << t4P2L.X() << " " << t4P2L.Y() << " " << t4P2L.Z() << " E " << t4P2L.E() << " M " << t4P2L.M();
+
+  // Rare cases where it tries to scatter off a negative mass nucleus.
+  // Lets choose not to fulfill this request. 
+  if(t4P1L.M() < 0.0 || t4P2L.M() < 0.0 || !TMath::Finite(t4P1L.M()) || !TMath::Finite(t4P2L.M())
+     || !TMath::Finite(t4P1L.E()) || !TMath::Finite(t4P2L.E()) || t4P1L.E() < 0.0 || t4P2L.E() < 0.0)
+    {
+      LOG("INukeUtils",pWARN) <<"TwoBodyKinematics Failed1: cowardly refusing to scatter off badly defined inputs";
+      LOG("INukeUtils",pWARN) <<"E1L, E2L, M3, M4 : "<< t4P1L.E() <<", "<< t4P2L.E() <<", "<< M3 <<", "<< M4;
+      t4P3L.SetPxPyPzE(0,0,0,0);
+      t4P4L.SetPxPyPzE(0,0,0,0);
+      return false;
+    }
+
+  // what if the inputs are so far off shell we can't handle this?
+    
+  // recover the original theta from cosine(theta).
+  theta = TMath::ACos(C3CM);
+
+  // fill internal buffers that will be modified leaving inputs unchanged
+  t4P1buf = t4P1L;
+  t4P2buf = t4P2L;
+
+  double netmassE = (M3 + M4) - (t4P1L.M() + t4P2L.M());
+
+  if((t4P1buf.E() - bindE + t4P2buf.E()) < (M3 + M4))
+    {
+      LOG("INukeUtils",pNOTICE) <<"TwoBodyKinematics Failed2: Forbidden by not enough E to make mass and unbind nucleon";
+      LOG("INukeUtils",pNOTICE) <<"E1L, E2L, M3, M4, bindE : "<< t4P1buf.E() <<", "<< t4P2buf.E() <<", "<< M3 <<", "<< M4 << ", " <<bindE;
+      t4P3L.SetPxPyPzE(0,0,0,0);
+      t4P4L.SetPxPyPzE(0,0,0,0);
+      return false;
+    }
+  
+  //  The routine that calls this will decide if we should do something with removal energy
+  // binding energy
+  if (TMath::Abs(bindE) > 0.00001 || TMath::Abs(netmassE) > 0.00001)
+    {
+
+      // Following the original strategy
+      // bindE is the removal cost to get another nucleon or two out of the nucleus.
+      // this cost, plust its associated momentum, is extracted from the incoming particle,
+      // then it is changed to its new species ME, and the result of SetXYZM is again on shell.
+      // the momentum extracted is given to the target, then SetXYZM with M4 puts that on shell.
+      // There will be no missing momentum, but some missing energy near bindE.
+      // Then the two on-shell particles go through the scattering process.
+      // That missing energy is saved and added to the remnant at the end.
+
+      // this is consistent with the impulse-approximation treatment of this process
+      // sUMone would say careful treatment would put these hadrons in a potential, but then
+      // wave hands and not be specific about how careful that treament isn't.   bOO !
+
+      // this is a fundamentally dirty process, and this approximation lets us proceed
+      // while maintaining energy and momentum conservation in both CM and lab frame.
+
+      // TODO:  (at least) one other process *wants* to call this function.
+      // pion absorption on two nucleons.
+      // It will send in a pion plus a 1.87xx Mass dinucleon AND a scattering angle.
+      // it will return two nucleons.   (I suppose it checks energy conservation first.)
+      // need code to handle this special case.
+
+      //std::cout << "Setting Binding E " << bindE << " for two particles " << M3 << " " << M4 
+      //                << " from " << t4P1L.M() << " " << t4P2L.M() << std::endl;
+      LOG("INukeUtils",pNOTICE) << "Starting with binding E " << bindE << " for new particles " << M3 << " " << M4 
+                              << " from " << t4P1L.M() << " " << t4P2L.M();
+      
+      double oldP = t4P1buf.P();
+      double newE = t4P1buf.E() - bindE - netmassE;
+      double newP = 0.0;
+      double pscale = 0.0;
+
+      if(newE < M3 && !AbsorptionNNSpecial){
+
+        // Is this a pion absorption event? Don't scale momentum.
+        if(t4P2buf.M() > 1.800){
+          LOG("INukeUtils",pNOTICE) <<"TwoBodyKinematics Failed3a: found pion absorption? " << newE << " M3 " << M3;
+          // Not implemented yet.  Need to divide the pion rest mass between the two particles,
+          // add the right amount of back to back momentum to keep them on shell.
+          // then scatter.    This is actually easier done in the CM frame, I think.      
+
+        }       
+
+        LOG("INukeUtils",pNOTICE) <<"TwoBodyKinematics Failed3b: not have enough P1L energy " << newE << " M3 " << M3;
+        t4P3L.SetPxPyPzE(0,0,0,0);
+        t4P4L.SetPxPyPzE(0,0,0,0);
+        return false;
+        
+      } 
+
+      newP = TMath::Sqrt(newE*newE - M3*M3);
+      pscale = newP/oldP;
+
+
+      if(AbsorptionNNSpecial){
+        newE = t4P1buf.E() - bindE;   //netmass will be dealt with in the CM frame.
+        t4P1buf.SetPxPyPzE(t4P1buf.X(), t4P1buf.Y(), t4P1buf.Z(), newE);
+      } else {
+        t4P1buf.SetXYZM(t4P1buf.X()*pscale, t4P1buf.Y()*pscale, t4P1buf.Z()*pscale, M3);
+      }
+      //LOG("INukeUtils",pNOTICE) <<"Shifted P1 " << t4P1buf.
+
+      // give the change of momentum to t4P2buf
+      missingpx = t4P1L.X() - t4P1buf.X();
+      missingpy = t4P1L.Y() - t4P1buf.Y();
+      missingpz = t4P1L.Z() - t4P1buf.Z();
+      if(AbsorptionNNSpecial){
+        // this should be unchanged so do nothing
+        //t4P2buf.SetXYZM(t4P2L.X(), t4P2L.Y(), t4P2L.Z(), M2);
+      } else {
+        t4P2buf.SetXYZM(t4P2L.X()+missingpx, t4P2L.Y()+missingpy, t4P2L.Z()+missingpz, M4);
+      }
+      
+
+      // if this did not work, something will be negative or nan.
+
+      if(!AbsorptionNNSpecial && !(t4P2buf.E() >= M4)){
+        //LOG("INukeUtils",pNOTICE) <<"Shifted P1 will fail " << newE << " M3 " << M3 << " Think this through better";
+        LOG("INukeUtils",pNOTICE) <<"TwoBodyKinematics Failed4: t4P2buf.E() !>= M4 " << t4P2buf.E() << " M4 " << M4;
+        t4P3L.SetPxPyPzE(0,0,0,0);
+        t4P4L.SetPxPyPzE(0,0,0,0);
+        return false;
+      }
+
+      // whatever path we took above, compute the missing energy and momentum
+      // input - shifted is the missing energy.  We will add this to the remnant.
+      missingE = (t4P1L.E() + t4P2L.E()) - (t4P1buf.E() + t4P2buf.E());
+      missingpx = (t4P1L.X() + t4P2L.X()) - (t4P1buf.X() + t4P2buf.X());
+      missingpy = (t4P1L.Y() + t4P2L.Y()) - (t4P1buf.Y() + t4P2buf.Y());
+      missingpz = (t4P1L.Z() + t4P2L.Z()) - (t4P1buf.Z() + t4P2buf.Z());
+
+      LOG("INukeUtils",pNOTICE) << " Missing lab-frame momenta for FSI=2,4 "
+                                << missingpx << " " << missingpy << " " << missingpz << " Ptot "
+                                << TMath::Sqrt(missingpx*missingpx + missingpy*missingpy + missingpz*missingpz)
+                                << " E " << missingE << " bindE " << bindE;
+      if(missingE - bindE > 0.020)LOG("INukeUtils", pWARN) << "Missing lab-frame energy is unusually high " << missingE << " " << bindE;
+
+      
+    }
+
+  //------- Start boost to CM frame
+  
+  t4Ptot = t4P1buf + t4P2buf;
+  
+  // calculate beta and gamma
+  // easiest form to work with for two-body scattering
+  // seriously? "divide by" overload operator not available for Vect() ?
+  tbeta = t4Ptot.Vect() * (1.0 / (t4P1buf.E() + t4P2buf.E()));
+  tbetadir = tbeta.Unit();  // direction only
+
+  LOG("INukeUtils",pNOTICE) << "beta " << tbeta.Mag() << " xyz " << tbeta.X() << " " << tbeta.Y() << " " << tbeta.Z();
+
+  // the incoming particle could be too 
+  if( !(TMath::Finite(tbeta.Mag())))
+    {
+      LOG("INukeUtils",pNOTICE)
+        << "Beta or something worse is not a real number: " << tbeta.Mag() << " exiting";
+
+      t4P3L.SetXYZM(0.0, 0.0, 0.0, M3);
+      t4P4L.SetXYZM(0.0, 0.0, 0.0, M4);
+      return false;
+    }
+  
+  // beta = tbeta.Mag();  // magnitude only not needed
+  // gm = 1.0 / TMath::Sqrt(1.0 - beta*beta);  // not needed
+  
+  // boost to CM frame 
+  
+  LOG("INukeUtils",pNOTICE) << "P1Lab " << t4P1buf.P() << " pxyz " << t4P1buf.X() << " " << t4P1buf.Y() << " " << t4P1buf.Z() << " E " << t4P1buf.E() << " M " << t4P1buf.M();
+  LOG("INukeUtils",pNOTICE) << "P2Lab " << t4P2buf.P() << " pxyz " << t4P2buf.X() << " " << t4P2buf.Y() << " " << t4P2buf.Z() << " E " << t4P2buf.E() << " M " << t4P2buf.M();
+ 
+  t4P1buf.Boost(-tbeta);
+  t4P2buf.Boost(-tbeta);
+
+  LOG("INukeUtils",pNOTICE) << "P1cm " << t4P1buf.P() << " pxyz " << t4P1buf.X() << " " << t4P1buf.Y() << " " << t4P1buf.Z() << " E " << t4P1buf.E() << " M " << t4P1buf.M();
+  LOG("INukeUtils",pNOTICE) << "P2cm " << t4P2buf.P() << " pxyz " << t4P2buf.X() << " " << t4P2buf.Y() << " " << t4P2buf.Z() << " E " << t4P2buf.E() << " M " << t4P2buf.M();
+  LOG("INukeUtils",pNOTICE) << "Above had better be back to back.";
+
+
+  // check to see if decay is viable
+  // If the total energy is negative, if the energy of P1 is less than its new mass, 
+  if(t4P1buf.E()+t4P2buf.E() < 0.0 || (t4P1buf.E() < M3 && !AbsorptionNNSpecial) || t4P1buf.E() < 0.0)
+  {
+    if (t4P1buf.E()+t4P2buf.E() < 0.0) LOG("INukeUtils",pNOTICE) <<"TwoBodyKinematics Failed5a: Total energy is negative";
+    if (t4P1buf.E() < M3) LOG("INukeUtils",pNOTICE) <<"TwoBodyKinematics Failed5b: Scattered Particle 3 CM energy is too small";
+    if (t4P1buf.E() < 0.0) LOG("INukeUtils",pNOTICE) <<"TwoBodyKinematics Failed5c: Scattered Particle 3 CM momentum is nonreal";
+    t4P3L.SetPxPyPzE(0,0,0,0);
+    t4P4L.SetPxPyPzE(0,0,0,0);
+    return false;
+  }
+
+    //------- Special cases
+  if(AbsorptionNNSpecial){
+    // Pion absorption redistribute the energy keeping the momentum vectors the same.
+    //TLorentzVector
+    t4P3buf = t4P1buf;
+    t4P4buf = t4P2buf;
+    
+    t4P3buf.SetXYZM(t4P1buf.X(),t4P1buf.Y(),t4P1buf.Z(),M3);
+    t4P4buf.SetXYZM(t4P2buf.X(),t4P2buf.Y(),t4P2buf.Z(),M4);
+    
+    // By construction, the on-shell energy is different even though momenta are the same
+    double deltaE = t4P3buf.E() + t4P4buf.E() - t4P2buf.E() - t4P1buf.E();
+    double totalE = t4P1buf.E() + t4P2buf.E();
+    // Now I need to distribute the difference in energy such that the momenta are still back to back
+    // If the masses were identical, this would be super easy, just distribute it half and half.
+    double newE = 0.5 * totalE;
+    // hack, if it is a proton and neutron, this gives the first order correction.
+    // don't use this code for wildly different particles.
+    if(M4 != M3)newE += 0.5 * TMath::Abs(M4 - M3);
+    double oldP = t4P1buf.P();
+    double newP = TMath::Sqrt(newE*newE - M3*M3);
+    double Pscale = newP/oldP;
+    t4P3buf.SetXYZM(t4P1buf.X()*Pscale, t4P1buf.Y()*Pscale, t4P1buf.Z()*Pscale, M3);
+    t4P4buf.SetXYZM(t4P2buf.X()*Pscale, t4P2buf.Y()*Pscale, t4P2buf.Z()*Pscale, M4);
+
+    double newdeltaE = t4P3buf.E() + t4P4buf.E() - t4P2buf.E() - t4P1buf.E();
+
+    t4P1buf.SetXYZM(t4P3buf.X(),t4P3buf.Y(),t4P3buf.Z(),M3);
+    t4P2buf.SetXYZM(t4P4buf.X(),t4P4buf.Y(),t4P4buf.Z(),M4);
+
+    // really, there is a canned CERNLIB routine that does this calculation exactly
+    // regardless of how different the masses M3 and M4 are, right ?
+    // it is the same one used in the 2p2h code.
+    // just to move on, I want to hide this, but 
+    LOG("INukeUtils",pNOTICE) << "Just shared a pion mass " << deltaE << " with energy " << newdeltaE << " left over, will let the remnant take care of it " << " pscale " << Pscale << " oldP " << oldP << " newP " << newP << " used pion E " << deltaE ;
+    LOG("INukeUtils",pNOTICE) << "P1cm2 " << t4P1buf.P() << " pxyz " << t4P1buf.X() << " " << t4P1buf.Y() << " " << t4P1buf.Z() << " E " << t4P1buf.E() << " M " << t4P1buf.M();
+    LOG("INukeUtils",pNOTICE) << "P2cm2 " << t4P2buf.P() << " pxyz " << t4P2buf.X() << " " << t4P2buf.Y() << " " << t4P2buf.Z() << " E " << t4P2buf.E() << " M " << t4P2buf.M();
+    LOG("INukeUtils",pNOTICE) << "Above had better be back to back. deltaE " << deltaE << " " << newdeltaE << " " << Pscale << " oldP " << oldP << " newP " << newP << " newE ";
+        
+  }
+
+  //------- START scatter in CM frame
+
+  // Start the scatter of the particle.
+  // This works with three vectors, so make the two we need.
+
+  P1CM.SetXYZ(t4P1buf.X(),t4P1buf.Y(),t4P1buf.Z());
+  //P2CM.SetXYZ(t4P2buf.X(),t4P2buf.Y(),t4P2buf.Z());  // not needed.
+  P3CM=P1CM;
+  
+  // To do the scatter the code will use the Rotate() around an arbitrary axis
+  // For the theta rotation, we want an axis that is already perpendicular to P3
+  TVector3 OrthoVec;
+
+  //check if P1CM is in x-y plane
+  if(TMath::Abs(P1CM.Z()) < 0.00001){
+    if(TMath::Abs(P1CM.Y()) > 0.00001){
+      // if XY plane and not mostly along X,
+      // then pick an othogonal vector in XY plane.
+      // if P1CM is exactly Y axis, this returns X axis.
+      OrthoVec.SetXYZ(1.0, -P1CM.X()/P1CM.Y(), 0.0);
+    } else {
+      // If it was practically exactly X axis
+      // Rotate round Z axis instead.
+      OrthoVec.SetXYZ(-P1CM.Z()/P1CM.X(), 0.0, 1.0);
+    }
+  } else {
+    // This will be the most common case
+    // rotate around an orthogonal vector in YZ plane.
+    OrthoVec.SetXYZ(0.0, 1.0, -(P1CM.Y())/P1CM.Z());
+  }
+        
+  //Print Orthogonal Vector
+  //Angle between P1CM and OrthoVec should be Pi/2
+  CheckAng=P1CM.Angle(OrthoVec);
+  
+  // So now do the rotation around OrthoVec = scattered by theta.
+  P3CM.Rotate(theta, OrthoVec);   
+
+  // get random phi angle, distributed uniformally in 360 deg
+  phi = 2.0 * kPi * rnd->RndFsi().Rndm();
+  // phi = kPi;  // override for testing the calculation
+  //std::cout << "phiCM " << phi << std::endl;
+  
+  //rotate around PHI
+  P3CM.Rotate(phi,P1CM);
+  
+  // Special Case Z axis by-hand calcultion for a sanity check
+  // std::cout << "Z-Axis sanity check -- " << P1CM.Mag()*TMath::Sin(theta)*TMath::Cos(PHI3) << " " 
+  //        << P1CM.Mag()*TMath::Sin(theta)*TMath::Sin(PHI3) << " "
+  //        << P1CM.Mag()*TMath::Cos(theta) << " P3CM " << P3CM.Mag() <<std::endl;
+
+  //Calculate Opening Angle
+  OpAng=P1CM.Angle(P3CM);
+
+  LOG("INukeUtils",pNOTICE) << " OrthogV for theta " << OrthoVec.X() << " " << OrthoVec.Y() << " " << OrthoVec.Z() << " Pi/2 = 1.57? " << CheckAng << " final OpAng " << OpAng/0.0174533 << " is theta? " << theta << " deg " << theta/0.0174533 << " phirad " << phi;
+   
+  double thetacheck= OpAng-theta;
+  if(TMath::Abs(thetacheck) > 0.00001){
+    //std::cout<<"FAIL: center of momentum scatter angle is wrong.  Reconsider Rotations "<<std::endl;
+    LOG("INukeUtils",pWARN) << "FAIL: center of momentum scatter angle is wrong.  Reconsider Rotations ";
+    assert(TMath::Abs(thetacheck) < 0.000001);
+  }
+
+  //set scattered outgoing hadron 4-vector to CM 3-momentum
+  t4P3buf.SetXYZM(P3CM.X(),P3CM.Y(),P3CM.Z(),M3);
+ 
+  // In the CM frame, particle 4 is back to back with particle 3
+    P4CM=-P3CM;
+
+  //set scattered remnant 4-vector to CM 3-momentum
+  t4P4buf.SetXYZM(P4CM.X(),P4CM.Y(),P4CM.Z(),M4);
+  
+  LOG("INukeUtils",pNOTICE) << "P3cm " << t4P3buf.P() << " pxyz " << t4P3buf.X() << " " << t4P3buf.Y() << " " << t4P3buf.Z() << " E " << t4P3buf.E() << " M " << t4P3buf.M();
+  LOG("INukeUtils",pNOTICE) << "P4cm " << t4P4buf.P() << " pxyz " << t4P4buf.X() << " " << t4P4buf.Y() << " " << t4P4buf.Z() << " E " << t4P4buf.E() << " M " << t4P4buf.M();
+  LOG("INukeUtils",pNOTICE) << "Back to back by explicit construction.";
+
+  double eCMcheck  = t4P1buf.E() + t4P2buf.E() - (t4P3buf.E() + t4P4buf.E());
+  double pxCMcheck = t4P1buf.X() + t4P2buf.X() - (t4P3buf.X() + t4P4buf.X());
+  double pyCMcheck = t4P1buf.Y() + t4P2buf.Y() - (t4P3buf.Y() + t4P4buf.Y());
+  double pzCMcheck = t4P1buf.Z() + t4P2buf.Z() - (t4P3buf.Z() + t4P4buf.Z());
+
+  LOG("INukeUtils",pNOTICE) << "Check CM  4-momentum conservation  E  "<< eCMcheck <<" Px "<< pxCMcheck << " Py  " << pyCMcheck << " Pz " << pzCMcheck;
+  
+  if(TMath::Abs(pxCMcheck) > 0.00001){
+    //std::cout << "FAIL: CM x momenta do not balance " << std::endl;
+    LOG("INukeUtils",pWARN) << "FAIL: CM x momenta do not balance ";
+    assert(TMath::Abs(pxCMcheck) <= 0.00001);
+  }
+  
+  if(TMath::Abs(pyCMcheck) > 0.00001){
+    //std::cout<<"FAIL:CM y momenta do not balance "<<std::endl;
+    LOG("INukeUtils",pWARN) << "FAIL: CM y momenta do not balance ";
+    assert(TMath::Abs(pyCMcheck) <= 0.00001);
+  }
+
+  if(TMath::Abs(pzCMcheck) > 0.00001){
+    //std::cout<<"FAIL: CM z momenta do not balance "<<std::endl;
+    LOG("INukeUtils",pWARN) << "FAIL: CM z momenta do not balance ";
+    assert(TMath::Abs(pzCMcheck) <= 0.00001);
+  }
+
+  if(TMath::Abs(eCMcheck) > 0.00001){
+    //std::cout<<"FAIL: CM Energy does not balance "<<std::endl;
+    LOG("INukeUtils",pWARN) << "FAIL: CM energy not balance ";
+    assert(TMath::Abs(eCMcheck) <= 0.00001);
+  }    
+
+
+  //------ Start boost particles from CM back to lab frame
+  
+  t4P3buf.Boost(tbeta);
+  P3Lab.SetXYZ(t4P3buf.X(),t4P3buf.Y(),t4P3buf.Z());
+  // And set the to-be returned 4-vector to this
+  t4P3L = t4P3buf;
+
+  t4P4buf.Boost(tbeta);
+  P4Lab.SetXYZ(t4P4buf.X(),t4P4buf.Y(),t4P4buf.Z());
+  t4P4L=t4P4buf;
+  
+  LOG("INukeUtils",pNOTICE) << "P3lab " << t4P3L.P() << " " << t4P3L.X() << " " << t4P3L.Y() << " " << t4P3L.Z() << " E " << t4P3L.E()  << " M " << t4P3L.M();
+
+  LOG("INukeUtils",pNOTICE) << "P4lab " << t4P4L.P() << " " << t4P4L.X() << " " << t4P4L.Y() << " " << t4P4L.Z() << " E " << t4P4L.E() << " M " << t4P4L.M();
+  
+  // boost unscattered particles back to lab too
+  // was for checking energy and momentum conservation
+  // and to track the removal energy and momentum for inelastics.
+  // but is not needed now.   Checks are made to the actual unmodified inputs.
+  //t4P1buf.Boost(tbeta);
+  //t4P2buf.Boost(tbeta); 
+
+  // As I debug this test, I'm listening to Bob Dylan's song Outlaw Blues
+
+  // check that energy would be conserved in the lab frame,
+  // except for the treatment of bindE and its momentum.
+
+  double echeck  = t4P1L.E() + t4P2L.E() - missingE - (t4P3L.E() + t4P4L.E());
+  double pxcheck = t4P1L.X() + t4P2L.X() - missingpx - (t4P3L.X() + t4P4L.X());
+  double pycheck = t4P1L.Y() + t4P2L.Y() - missingpy - (t4P3L.Y() + t4P4L.Y());
+  double pzcheck = t4P1L.Z() + t4P2L.Z() - missingpz - (t4P3L.Z() + t4P4L.Z());
+
+  LOG("INukeUtils",pNOTICE) << "Check lab 4-momentum conservation  E  " << echeck << " Px " << pxcheck << " Py " << pycheck << " Pz " << pzcheck;
+
+  if(AbsorptionNNSpecial){
+    // because I'm sloppy for pion absorption and not using the CERNLIB routine, hide the slight non-conservation.
+    // add to missingE, but make sure I have the right direction.
+    // missingP should have been zero and missing E should have been -bindE, which should have been paid by the pion.
+    // in the end we are going to ADD this to the remnant, so echeck is initial - final.
+    // if initial is higher than final, there is energy left over, this is a positive number, and adding is right.
+
+    missingE += echeck;
+    missingpx += pxcheck;
+    missingpy += pycheck;
+    missingpz += pzcheck;
+    LOG("INukeUtils",pNOTICE) << "MissingE was " << missingE - echeck << " but is now " << missingE << " this will be added to the remnant ";
+
+    TVector3 tvn1;
+    TVector3 tvn2;
+    tvn1.SetXYZ(t4P3L.X(),t4P3L.Y(),t4P3L.Z());
+    tvn2.SetXYZ(t4P4L.X(),t4P4L.Y(),t4P4L.Z());
+    double nnangle = tvn1.Angle(tvn2);
+    LOG("INukeUtils",pNOTICE) << "Found absorption opening angle was " << nnangle << " rad " << nnangle*57.2957795 << " deg"; 
+    
+  } else {
+  
+    if(TMath::Abs(pxcheck) > 0.00001){
+      //std::cout << "FAIL: Lab x momenta do not balance " << pxcheck << std::endl;
+      LOG("INukeUtils",pWARN) << "FAIL: Lab x momenta do not balance " << pxcheck;
+      assert(TMath::Abs(pxcheck) <= 0.00001);
+    }
+    
+    
+    if(TMath::Abs(pycheck) > 0.00001){
+      //std::cout<<"FAIL: Lab y momenta do not balance "<<std::endl;
+      LOG("INukeUtils",pWARN) << "FAIL: Lab y momenta do not balance " << pycheck;
+      assert(TMath::Abs(pycheck) <= 0.00001);
+    }
+    
+    if(TMath::Abs(pzcheck) > 0.00001){
+      //std::cout<<"FAIL: Lab z momenta do not balance "<<std::endl;
+      LOG("INukeUtils",pWARN) << "FAIL: Lab z momenta do not balance " << pzcheck;
+      assert(TMath::Abs(pzcheck) <= 0.00001);
+    }
+    
+    if(TMath::Abs(echeck) > 0.00001){
+      //std::cout<<"FAIL: Lab Energy does not balance "<<std::endl;
+      LOG("INukeUtils",pWARN) << "FAIL: Lab energy does not balance " << echeck;
+      assert(TMath::Abs(echeck) <= 0.00001);
+    }
+
+  }
+
+
+  // handle very low momentum particles--- handle in cases
+  if( !(TMath::Finite(P3Lab.Mag())) || P3Lab.Mag() < 0.001)
+    {
+      LOG("INukeUtils",pNOTICE)
+        << "Particle 3 momentum small or non-finite: " << P3Lab.Mag()
+        << "\n" << "--> Assigning .001 as new momentum";
+      P3Lab.SetXYZ(0.0, 0.0, 0.001);
+      t4P3L.SetXYZM(0.0, 0.0, 0.001, M3);
+    }
+
+  //What failure mode is this supposed to test?   This should never happen.
+  //check that scattered remnant in lab frame is positive
+  if(t4P4L.Mag2()<0 || t4P4L.E() < 0.00001)
+    {
+      LOG("INukeUtils",pWARN)<<"TwoBodyKinematics Failed6: Target mass or energy is negative";
+      t4P3L.SetPxPyPzE(0.,0.,0.,0.);
+      t4P4L.SetPxPyPzE(0.,0.,0.,0.);
+      return false;
+    }
+  
+  //if (TMath::Abs(bindE) > 0.00001) RemnP4 += TLorentzVector(missingpx,missingpy,missingpz,bindE);
+  if (TMath::Abs(bindE) > 0.00001) RemnP4 += TLorentzVector(missingpx,missingpy,missingpz,missingE);
+  return true;
+
+}
+  /*  This version of TwoBodyKinematics is disabled and may be removed
 //___________________________________________________________________________
 bool genie::utils::intranuke2018::TwoBodyKinematics(
   double M3, double M4, TLorentzVector t4P1L, TLorentzVector t4P2L,
@@ -1051,11 +1559,11 @@ bool genie::utils::intranuke2018::TwoBodyKinematics(
 
   t4P4L = t4P1buf + t4P2buf - t4P3L;
   t4P4L-= TLorentzVector(0,0,0,bindE);
-  /*LOG("INukeUtils",pINFO) <<"GENIE:";
-  LOG("INukeUtils",pINFO) <<"E4L   "<<t4P4L.E();
-  LOG("INukeUtils",pINFO) <<"P4zL  "<<t4P4L.Vect()*tbetadir<<", P4tL "<<-1.*TMath::Sqrt(t4P4L.Vect().Mag2()-TMath::Power(t4P4L.Vect()*tbetadir,2.));
-  LOG("INukeUtils",pINFO) <<"P4L   "<<t4P4L.Vect().Mag();
-  LOG("INukeUtils",pINFO) <<"C4L   "<<t4P4L.Vect()*tbetadir/t4P4L.Vect().Mag();  */
+  //LOG("INukeUtils",pINFO) <<"GENIE:";
+  //LOG("INukeUtils",pINFO) <<"E4L   "<<t4P4L.E();
+  //LOG("INukeUtils",pINFO) <<"P4zL  "<<t4P4L.Vect()*tbetadir<<", P4tL "<<-1.*TMath::Sqrt(t4P4L.Vect().Mag2()-TMath::Power(t4P4L.Vect()*tbetadir,2.));
+  //LOG("INukeUtils",pINFO) <<"P4L   "<<t4P4L.Vect().Mag();
+  //LOG("INukeUtils",pINFO) <<"C4L   "<<t4P4L.Vect()*tbetadir/t4P4L.Vect().Mag(); 
 
   if(t4P4L.Mag2()<0 || t4P4L.E()<0)
   {
@@ -1067,7 +1575,7 @@ bool genie::utils::intranuke2018::TwoBodyKinematics(
 
   if (bindE!=0) RemnP4 += TLorentzVector(0,0,0,bindE);
   return true;
-}
+  } End disabled TwoBodyKinematics code  Note, we did not check the ThreeBodyKinematics code.*/
 //___________________________________________________________________________
 bool genie::utils::intranuke2018::ThreeBodyKinematics(
   GHepRecord* ev, GHepParticle* p, int tcode, GHepParticle* s1, GHepParticle* s2, GHepParticle* s3,
