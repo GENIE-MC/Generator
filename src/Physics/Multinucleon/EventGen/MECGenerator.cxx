@@ -991,33 +991,63 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
         // Now that we've selected kinematics, we also need to choose the
         // isospin of the initial hit nucleon pair
 
+//      My changes (asportes): start
         // Find out if we should use a pn initial state
-        double myrand = rnd->RndKine().Rndm();
+        double myrand_pn = rnd->RndKine().Rndm();
         double pnFraction = dynamic_cast< const SuSAv2MECPXSec* >( fXSecModel )
           ->PairRatio( interaction );
 
         LOG("MEC", pINFO) << "Test for pn: "
           << "; xsec = " << XSec << "; pn_fraction = " << pnFraction
-          << "; random number val = " << myrand;
+          << "; random number val = " << myrand_pn;
 
-        if ( myrand <= pnFraction ) {
+        double myrand_pp = rnd->RndKine().Rndm();
+        double ppFraction = dynamic_cast< const SuSAv2MECPXSec* >( fXSecModel )
+          ->PairRatio( interaction ,"ppFraction");
+
+        LOG("MEC", pINFO) << "Test for pp: "
+          << "; xsec = " << XSec << "; pp_fraction = " << ppFraction
+          << "; random number val = " << myrand_pp;
+//      My changes (asportes): end
+
+        if ( myrand_pn <= pnFraction ) {
           // yes it is, add a PN initial state to event record
           event->AddParticle(kPdgClusterNP, kIStNucleonTarget,
             1, -1, -1, -1, tempp4, v4);
           interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterNP );
         }
         else {
-          // no it is not a PN, add either NN or PP initial state to event record.
-          if ( NuPDG > 0 ) {
-            event->AddParticle(kPdgClusterNN, kIStNucleonTarget,
-              1, -1, -1, -1, tempp4, v4);
-            interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterNN );
+
+//        My changes (asportes): start
+          // no it is not a PN, add either NN or PP initial state to event record (EM case).
+          if ( interaction->ProcInfo().IsEM() ) {
+            if ( myrand_pp <= ppFraction/(1. - pnFraction) ) {
+              // record a 2P pair:
+              event->AddParticle(kPdgClusterPP, kIStNucleonTarget,
+                                 1, -1, -1, -1, tempp4, v4);
+              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterPP );
+            } else {
+              // record a 2N pair:
+              event->AddParticle(kPdgClusterNN, kIStNucleonTarget,
+                                 1, -1, -1, -1, tempp4, v4);
+              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterNN );
+            }
+          } else {
+            // no it is not a PN, add either NN or PP initial state to event record (other cases).
+            if ( NuPDG > 0 ) {
+              event->AddParticle(kPdgClusterNN, kIStNucleonTarget,
+                                 1, -1, -1, -1, tempp4, v4);
+              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterNN );
+            }
+            else {
+              event->AddParticle(kPdgClusterPP, kIStNucleonTarget,
+                                 1, -1, -1, -1, tempp4, v4);
+              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterPP );
+            }
           }
-          else {
-            event->AddParticle(kPdgClusterPP, kIStNucleonTarget,
-              1, -1, -1, -1, tempp4, v4);
-            interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterPP );
-          }
+
+//        My changes (asportes): end
+
         }
       } // end if accept
     } // end if passes q3 test
