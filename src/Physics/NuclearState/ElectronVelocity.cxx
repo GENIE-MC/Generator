@@ -60,6 +60,11 @@ ElectronVelocity::~ElectronVelocity()
 
 }
 //___________________________________________________________________________
+ElectronVelocity::ElectronVelocity()
+{
+
+}
+//___________________________________________________________________________
 void ElectronVelocity::ProcessEventRecord(GHepRecord * evrec) const
 {
   // skip if not a electron target
@@ -67,6 +72,10 @@ void ElectronVelocity::ProcessEventRecord(GHepRecord * evrec) const
 
   // give electron initial momentum
   this->InitializeVelocity(*evrec->Summary());
+
+  //Update event record
+  GHepParticle * electron = evrec->HitElectron();
+  electron->SetMomentum(*evrec->Summary()->InitStatePtr()->TgtPtr()->HitEleP4Ptr());
 
 }
 //___________________________________________________________________________

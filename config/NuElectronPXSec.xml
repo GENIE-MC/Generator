@@ -14,9 +14,10 @@ WeinbergAngle  double   No                                 CommonParam[WeakInt]
 
   <param_set name="Default"> 
     <param type="string"  name="CommonParam"> WeakInt  </param>
-    
+    <param type="int"    name ="N-Integration-Samples" >              2000  </param>
      <param type="alg"  name="XSec-Integrator"> genie::NuElectronXSec/Default  </param>
      <param type="alg"  name="Bohr-Velocity"> genie::BohrElectronVelocity/Default  </param>
+     <param type="alg"  name="Static-Velocity"> genie::StaticElectronVelocity/Default  </param>
   </param_set>
 
 </alg_conf>

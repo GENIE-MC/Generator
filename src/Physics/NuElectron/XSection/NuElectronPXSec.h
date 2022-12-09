@@ -18,6 +18,9 @@
 \author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
           University of Liverpool & STFC Rutherford Appleton Laboratory
 
+          Changes required to implement the Electron Velocity module
+          were installed by Brinden Carlson (Univ. of Florida)
+
 \created  February 10, 2006
 
 \cpright  Copyright (c) 2003-2022, The GENIE Collaboration
@@ -48,7 +51,7 @@ public:
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
-  double Integral        (const Interaction * i, const int N) const;
+  double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
   bool   ValidKinematics (const Interaction * i) const;
 
@@ -65,6 +68,7 @@ private:
 
   double fSin28w; // sin^2(theta-weinberg)
   double fSin48w;
+  int N; //Number of integration samples
 };
 
 }       // genie namespace

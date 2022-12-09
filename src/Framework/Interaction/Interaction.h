@@ -14,6 +14,9 @@
           Changes required to implement the GENIE Boosted Dark Matter module 
           were installed by Josh Berger (Univ. of Wisconsin)
 
+          Changes required to implement the Electron Velocity module
+          were installed by Brinden Carlson (Univ. of Florida)
+
 \created  April 25, 2004
 
 \cpright  Copyright (c) 2003-2022, The GENIE Collaboration

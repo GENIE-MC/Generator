@@ -11,6 +11,9 @@
 \author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
           University of Liverpool & STFC Rutherford Appleton Laboratory
 
+          Changes required to implement the Electron Velocity module
+          were installed by Brinden Carlson (Univ. of Florida)
+
 \created  May 03, 2004
 
 \cpright  Copyright (c) 2003-2022, The GENIE Collaboration

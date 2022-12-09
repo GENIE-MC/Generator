@@ -11,6 +11,9 @@
 
  Changes required to implement the GENIE Dark Neutrino module
  were installed by Iker de Icaza (Univ. of Sussex)
+
+ Changes required to implement the Electron Velocity module
+ were installed by Brinden Carlson (Univ. of Florida)
 */
 //____________________________________________________________________________
 

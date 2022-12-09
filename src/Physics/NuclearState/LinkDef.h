@@ -28,5 +28,6 @@
 
 #pragma link C++ class genie::ElectronVelocity;
 #pragma link C++ class genie::BohrElectronVelocity;
+#pragma link C++ class genie::StaticElectronVelocity;
 
 #endif

@@ -120,8 +120,9 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   TVector3 p3l(pltx,plty,plp);
   p3l.RotateUz(unit_nudir);
 
-  // Lepton 4-momentum in the LAB
+  // Lepton 4-momentum in the Ele rest frame
   TLorentzVector p4l(p3l,El);
+  p4l.Boost(beta); //Boost back to lab
 
   // Create a GHepParticle and add it to the event record
   this->AddToEventRecord(evrec, pdgc, p4l);

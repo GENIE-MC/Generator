@@ -5,6 +5,9 @@
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
  University of Liverpool & STFC Rutherford Appleton Laboratory
+
+ Changes required to implement the Electron Velocity module
+ were installed by Brinden Carlson (Univ. of Florida)
 */
 //____________________________________________________________________________
 

@@ -32,6 +32,7 @@ class ElectronVelocity : public EventRecordVisitorI {
 
 public :
   virtual ~ElectronVelocity();
+  ElectronVelocity();
 
   //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const override;
