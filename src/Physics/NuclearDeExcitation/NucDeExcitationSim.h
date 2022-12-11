@@ -40,6 +40,7 @@ public :
 
 private:
   void           OxygenTargetSim      (GHepRecord * evrec) const;
+  void           CarbonTargetSim      (GHepRecord * evrec) const;
   void           AddPhoton            (GHepRecord * evrec, double E0, double t) const;
   double         PhotonEnergySmearing (double E0, double t) const;
   TLorentzVector Photon4P             (double E) const;
