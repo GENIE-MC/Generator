@@ -127,7 +127,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double q_0               = (W2 - M2 + m_pi2)/Wt2;
   double q_02              = q_0*q_0;
   double k_0               = (W2 - M2 - Q2)/Wt2;
-  double abs_mom_q         = TMath::Sqrt(TMath::Max(0, q_02 - m_pi2));
+  double abs_mom_q         = TMath::Sqrt(TMath::Max(0., q_02 - m_pi2));
   double abs_mom_k         = TMath::Sqrt(k_0*k_0 + Q2);
   //double E_2L              = (M2 - W2 - Q2 + Mt2*E)/Mt2;
   double abs_mom_k_L       = W*abs_mom_k/M;
@@ -139,7 +139,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   //double k_2L              = TMath::Sqrt(E_2L*E_2L - ml2);               //magnitude of lepton momentum in lab frame
   
   // There is no check of positivity under root expression in the original code
-  double k_2_iso           = TMath::Sqrt(TMath::Max(0, k_2*k_2 - ml2));   //magnitude of lepton momentum in isobaric frame
+  double k_2_iso           = TMath::Sqrt(TMath::Max(0., k_2*k_2 - ml2));   //magnitude of lepton momentum in isobaric frame
   double cos_theta         = k_2_iso>0?(2*k_1*k_2 - Q2 - ml2)/2/k_1/k_2_iso:0;
   // There are no checks presented below in the original code
   if (cos_theta > 1)
@@ -310,7 +310,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   
   double O_1_plus          = TMath::Sqrt((W_plus2 + Q2)*( W_plus2 - m_pi2 ))/Wt2;
   // There is no check of positivity under root expression in the original code
-  double O_1_minus         = TMath::Sqrt(TMath::Max(0, (W_minus2 + Q2)*(W_minus2 - m_pi2)))/Wt2;
+  double O_1_minus         = TMath::Sqrt(TMath::Max(0., (W_minus2 + Q2)*(W_minus2 - m_pi2)))/Wt2;
   double O_2_plus          = TMath::Sqrt((W_plus2 + Q2)/(W_plus2 - m_pi2));
   // There is no check of positivity under root expression in the original code
   double O_2_minus         = W_minus2>m_pi2?TMath::Sqrt((W_minus2 + Q2)/(W_minus2 - m_pi2)):0;
@@ -322,7 +322,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double K_4_V = abs_mom_q*abs_mom_q*W_minus*O_2_plus;
   double K_5_V = 1/O_2_plus;
   // the of K_6_V = 1/O_2_minus differ from original code
-  double K_6_V = TMath::Sqrt(TMath::Max(0, (W_minus2 - m_pi2))/(W_minus2 + Q2));
+  double K_6_V = TMath::Sqrt(TMath::Max(0., (W_minus2 - m_pi2))/(W_minus2 + Q2));
 
   double F_1 =   V_1 + qk*(V_3 - V_4)/W_minus + W_minus*V_4;
   double F_2 =  -V_1 + qk*(V_3 - V_4)/W_plus  + W_plus *V_4;
