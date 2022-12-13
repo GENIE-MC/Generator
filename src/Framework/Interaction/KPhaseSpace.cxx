@@ -1003,7 +1003,6 @@ double KPhaseSpace::Threshold_MKSPP(void) const
     double ml = fInteraction->FSPrimLepton()->Mass();
     double E_thr = (TMath::Power(M + ml + mpi, 2) - M*M)/2/M;
     return E_thr;
-
 }
 //____________________________________________________________________________
 Range1D_t KPhaseSpace::WLim_MKSPP(void) const
@@ -1022,13 +1021,21 @@ Range1D_t KPhaseSpace::WLim_MKSPP(void) const
     double ml = fInteraction->FSPrimLepton()->Mass();
 
     double s = M*(M + 2*Enu);
+    Wl.min = M + mpi;
+    Wl.max = TMath::Sqrt(s) - ml;
 
-    Wl.min = (M + mpi)*(1. + std::numeric_limits<double>::epsilon());
-    Wl.max = (TMath::Sqrt(s) - ml)*(1. - std::numeric_limits<double>::epsilon());
-
+    if ( (Wl.max - Wl.min) < (Wl.max + Wl.min)*std::numeric_limits<double>::epsilon() )
+    {
+       Wl.min = 2*Wl.max*Wl.min/(Wl.max + Wl.min);
+       Wl.max = Wl.min;
+    }
+    else
+    {
+       Wl.min *= 1. + std::numeric_limits<double>::epsilon();
+       Wl.max *= 1. - std::numeric_limits<double>::epsilon();
+    }
+    
     return Wl;
-
-
 }
 //____________________________________________________________________________
 Range1D_t KPhaseSpace::Q2Lim_W_MKSPP(void) const
@@ -1053,12 +1060,25 @@ Range1D_t KPhaseSpace::Q2Lim_W_MKSPP(void) const
 
     double Enu_CM = (s - M*M)/2/sqrt_s;
     double El_CM  = (s + ml*ml - W*W)/2/sqrt_s;
-    double Pl_CM  = (El_CM - ml)<0?0:TMath::Sqrt(El_CM*El_CM - ml2);
-    Q2l.min = (2*Enu_CM*(El_CM - Pl_CM) - ml2)*(1. + std::numeric_limits<double>::epsilon());
-    Q2l.max = (2*Enu_CM*(El_CM + Pl_CM) - ml2)*(1. - std::numeric_limits<double>::epsilon());
-
+    if (El_CM < ml)
+    {
+      El_CM = ml;
+    }
+    double Pl_CM  = TMath::Sqrt(El_CM*El_CM - ml2);
+    Q2l.min = 2*Enu_CM*(El_CM - Pl_CM) - ml2;
+    Q2l.max = 2*Enu_CM*(El_CM + Pl_CM) - ml2;
+    
+    if ( (Q2l.max - Q2l.min) < (Q2l.max + Q2l.min)*std::numeric_limits<double>::epsilon() )
+    {
+       Q2l.min = 2*Q2l.max*Q2l.min/(Q2l.max + Q2l.min);
+       Q2l.max = Q2l.min;
+    }
+    else
+    {
+       Q2l.min *= 1. + std::numeric_limits<double>::epsilon();
+       Q2l.max *= 1. - std::numeric_limits<double>::epsilon();
+    }
+    
     return Q2l;
-
-
 }
 //____________________________________________________________________________

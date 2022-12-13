@@ -19,6 +19,7 @@
 #include <TMath.h>
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
+#include <Math/AdaptiveIntegratorMultiDim.h>
 
 #include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/GBuild.h"
@@ -182,16 +183,21 @@ double MKSPPXSec::Integrate(
     ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d3XSecMK_dWQ2CosTheta_E(model, interaction, fWcut);
     ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
     ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
+    if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) 
+    {
+      ROOT::Math::AdaptiveIntegratorMultiDim * cast = dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim*>( ig.GetIntegrator() );
+      assert(cast);
+      cast->SetMinPts(fGSLMinEval);
+    }
     ig.SetFunction(*func);
     double kine_min[3] = { 0., 0., 0.};
     double kine_max[3] = { 1., 1., 1.};
-    double xsec = ig.Integral(kine_min, kine_max);
-
+    double xsec = ig.Integral(kine_min, kine_max)*(1E-38 * units::cm2);
     delete func;
       
     SLOG("MKSPPXSec", pNOTICE)
       << "XSec[Channel: " << SppChannel::AsString(spp_channel) << nc_nuc  << nu_pdgc
-      << "]  (E="<< Enu << " GeV) = " << xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
+      << "]  (E="<< Enu << " GeV) = " << xsec << " x 1E-38 cm^2";
     return xsec;
   }
   return 0;
@@ -217,12 +223,13 @@ void MKSPPXSec::LoadConfig(void)
    // Get GSL integration type & relative tolerance
   GetParamDef( "gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
   GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 1e-5 ) ;
-  GetParamDef( "gsl-max-eval", fGSLMaxEval, 1000000000 ) ;
+  GetParamDef( "gsl-max-eval", fGSLMaxEval, 1000000 );
+  GetParamDef( "gsl-min-eval", fGSLMinEval, 7500 ) ;
   GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
   GetParamDef("Wcut", fWcut, -1.);
   // Get upper Emax limit on cached free nucleon xsec spline, 
   // after this value it assume that xsec=xsec(Emax)
-  GetParamDef( "ESplineMax", fEMax, 1000. ) ;
+  GetParamDef( "ESplineMax", fEMax, 250. ) ;
 
   if ( fEMax < 20. ) {
 
