@@ -11,10 +11,45 @@
 #include "Math/Boost.h" 
 
 
-ostream & operator << ( ostream & out, const genie::Range1D_t r ) {
+ostream & operator << ( ostream & out, const genie::Range1D_t & r ) {
   
   out << '[' << r.min << ", " << r.max << ']' ;
   return out ;
+}
+
+template< class A, class B>
+void print_initial_conditions( A & probe, 
+			       B & target ) {
+
+  cout << "Probe: (" << probe.x() << ", " << probe.y() << ", " << probe.z() << ", " << probe.e() << " )" << endl ;
+  
+  cout << "Target: (" << target.x() << ", " << target.y() << ", " << target.z() << ", " << target.e() << " ) with beta: " << target.Beta() << endl ;
+  
+  auto total = probe + target ;
+  auto sqrt_s = total.M() ;
+
+  cout << "System CoM energy: " << sqrt_s << endl ;
+}
+
+bool compare_ranges( const genie::Range1D_t & old, const genie::Range1D_t & new_r ) {
+
+  cout << "Old: " << old << endl;
+  cout << "New: " << new_r << endl;
+  
+  if ( old.min == new_r.min && old.max == new_r.max ) {
+    cout << "Same range" << endl;
+    return true ;
+  }
+  else {
+    auto min_dev = (new_r.min - old.min)/old.min;
+    auto max_dev = (new_r.max - old.max)/old.max;
+    cout << "Different resutls: " << endl 
+	 << "Min deviation "  << min_dev*100 
+	 << " % , Max deviation " << max_dev*100 << " %" << endl ;
+    
+    return false;
+  }
+
 }
 
 
@@ -22,84 +57,66 @@ ostream & operator << ( ostream & out, const genie::Range1D_t r ) {
 void Wlimit( ) {
 
   using namespace genie;
+  using namespace std;
 
-  // neutrino case on shell
+  cout << "--------- Neutrino on Target on shell ------------" << endl;
+  
   ROOT::Math::PxPyPzEVector probe( 0., 0., 2., 2. );
 
   double proton_mass = PDGLibrary::Instance()->Find(kPdgProton)->Mass();
-
   ROOT::Math::PxPyPzMVector nucleon( 0.1, 0.2, 0.1, proton_mass );
-  
-  std::cout << probe.E() << std::endl ;
-  std::cout << nucleon.E() << std::endl ;
+
+  print_initial_conditions( probe, nucleon );
   
   auto total = probe + nucleon ;
   auto sqrt_s = total.M() ;
 
-  std::cout << sqrt_s << std::endl;
-
   double mu_mass =  PDGLibrary::Instance()->Find(kPdgMuon)->Mass();
-
   auto new_range = utils::kinematics::InelWLim(sqrt_s, mu_mass);
 
-  std::cout << "New: " << new_range << std::endl;
-
   // old range
-
   auto boost = nucleon.BoostToCM();
-  
   ROOT::Math::Boost t(boost);
-  
   auto old_probe = t(probe);
-
-  std::cout << old_probe << std::endl;
-
-
   auto old_range =  utils::kinematics::InelWLim(old_probe.E(), proton_mass, mu_mass);  
 
-  std::cout << "Old: " << old_range << std::endl;
-  
+  compare_ranges( old_range, new_range );
 
-  // neutrino case off shell nucleon
+
+  cout << endl << "--------- Neutrino on Target off shell, small beta --------" << endl;
 
   nucleon.SetPxPyPzE( 0.1, 0.2, 0.1, proton_mass - 0.1 );
-  std::cout << "Off shell target: " << nucleon << std::endl ;
+
+  print_initial_conditions( probe, nucleon);
 
   total = probe + nucleon ;
   sqrt_s = total.M() ;
-
-  std::cout << sqrt_s << std::endl;
   new_range = utils::kinematics::InelWLim(sqrt_s, mu_mass);
-
-  std::cout << "New: " << new_range << std::endl;
 
   boost = nucleon.BoostToCM();
   t.SetComponents(boost);
   old_probe = t(probe);
 
-  old_range =  utils::kinematics::InelWLim(old_probe.E(), proton_mass, mu_mass);
-
-  std::cout << "Old: " << old_range << std::endl;
-
   old_range =  utils::kinematics::InelWLim(old_probe.E(), nucleon.M(), mu_mass);
-  std::cout << "Old with correction: " << old_range << std::endl;
+  compare_ranges( old_range, new_range );
+
+  // this si the old range calculated using the on shell mass, obvioulsy wrong
+  old_range =  utils::kinematics::InelWLim(old_probe.E(), proton_mass, mu_mass);
+  cout << "Range with wrong inputs: " << old_range << " for comparison only" << endl;
 
 
-  // neutrino case very off shell (beta > 1)
+  cout << endl << "--------- Neutrino on Target off shell, beta > 1 --------" << endl;
 
   nucleon.SetPxPyPzE( 0.2, 0.8, 0.1, proton_mass - 0.2 );
-  std::cout << "very Off shell target: " << nucleon << std::endl ;
 
-  std::cout << "Beta: " << nucleon.Beta() << std::endl;
+  print_initial_conditions( probe, nucleon);
 
   total = probe + nucleon ;
- 
   sqrt_s = total.M() ;
 
-  std::cout << sqrt_s << std::endl;
   new_range = utils::kinematics::InelWLim(sqrt_s, mu_mass);
 
-  std::cout << "New: " << new_range << std::endl;
+  std::cout << "Range: " << new_range << std::endl;
 
 }
 
