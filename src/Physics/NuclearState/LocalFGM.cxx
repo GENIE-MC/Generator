@@ -96,8 +96,6 @@ bool LocalFGM::GenerateNucleon(const Target & target,
 
     fCurrMomentum.SetXYZ(px,py,pz);
 
-    std::cout << "fMomDepErmv is " << fMomDepErmv << std::endl;
-
     if (fMomDepErmv) {
       // hit nucleon mass
       double nucl_mass = target.HitNucMass(); 
