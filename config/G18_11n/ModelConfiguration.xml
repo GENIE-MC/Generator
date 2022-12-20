@@ -68,7 +68,7 @@ STFC, Rutherford Appleton Laboratory
 <!-- New Nieves QE model   -->
 
 
-  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::HybridXSecAlgorithm/CRPASuSAv2Hybrid-QEL </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::NievesQELCCPXSec/Dipole         </param>
 
   <!-- <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::LwlynSmithQELCCPXSec/Dipole   </param> -->
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-NC">         genie::AhrensNCELPXSec/Default          </param>

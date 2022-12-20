@@ -185,7 +185,12 @@ EventRecord * PhysInteractionSelector::SelectInteraction
        // from the array of summed xsecs rather than recomputing it)
        double xsec_pedestal = (iint > 0) ? xseclist[iint-1] : 0.;
        double xsec = xseclist[iint] - xsec_pedestal;
-       assert(xsec>0);
+       if (xsec<0){
+        LOG("IntSel", pERROR)
+           << "\n*** WARNING: XSEC EVALUATED TO BE < 0!";
+         xsec=0;
+       }
+       assert(xsec>=0);
 
        LOG("IntSel", pNOTICE)
          << "Selected interaction: " << selected_interaction->AsString();
