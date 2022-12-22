@@ -41,6 +41,9 @@ IntegralNuclearInfluenceCutoffEnergy double   No
      <param type="alg" name = "PauliBlockerAlg"> genie::PauliBlocker/Default </param>
      <param type="bool" name = "DoPauliBlocking"> true </param>
 
+    <param type="int" name="Citation-Count"> 1 </param>
+    <param type="string" name="Citation-0-DOI"> 10.1016/0370-1573(72)90010-5 </param>
+
   </param_set>
 
   <param_set name="Dipole"> 

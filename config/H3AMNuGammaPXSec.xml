@@ -16,6 +16,9 @@ AMNuGamma-Gw   double   Yes       anomaly parameter       GPL value
   <param_set name="Default"> 
      <param type="double" name="AMNuGamma-Gw"> 20.0 </param>
 
+    <param type="int" name="Citation-Count"> 1 </param>
+    <param type="string" name="Citation-0-DOI"> 10.1103/PhysRevLett.99.261601 </param>
+
   </param_set>
 
 </alg_conf>

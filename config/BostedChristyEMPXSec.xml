@@ -54,6 +54,12 @@ XSec-Integrator                             alg          No
 
   <param_set name="Default"> 
      <param type="alg"    name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/NoPauliBlock      </param>
+
+    <param type="int" name="Citation-Count"> 3 </param>
+    <param type="string" name="Citation-0-DOI"> 10.1103/PhysRevC.81.055213 </param>
+    <param type="string" name="Citation-1-DOI"> 10.1103/PhysRevC.77.065206 </param>
+    <param type="string" name="Citation-2-DOI"> 10.1103/PhysRevC.65.025502 </param>
+
   </param_set>
   
   <param_set name="Fit">

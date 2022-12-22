@@ -23,6 +23,10 @@ Wcut                        double  no                                        Co
     <param type="alg" name="DISModel">   genie::QPMDISPXSec/Default      </param>
     <param type="alg" name="Hadronizer"> genie::AGKYLowW2019/Default </param>
     <param type="double" name="NRB-EM-XSecScale"> 1. </param>
+
+    <param type="int" name="Citation-Count"> 1 </param>
+    <param type="string" name="Citation-0-DOI"> 10.1103/PhysRevD.65.033002 </param>
+
   </param_set>
 
 </alg_conf>

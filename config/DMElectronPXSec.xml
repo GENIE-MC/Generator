@@ -12,6 +12,11 @@ WeinbergAngle  double   No                                 CommonParam[WeakInt]
 ....................................................................................
 -->
 
+<param_set name="Default">
+  <param type="int" name="Citation-Count"> 1 </param>
+  <param type="string" name="Citation-0-DOI"> 10.1088/0954-3899/29/11/013 </param>
+</param_set>
+
   <param_set name="Velocity0"> 
     <param type="string"  name="CommonParam"> BoostedDarkMatter  </param>
     
