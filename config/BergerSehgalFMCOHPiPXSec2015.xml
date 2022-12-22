@@ -29,7 +29,10 @@ XSec-Integrator  alg      No
 	  If true, use the Rein-Sehgal "style" pion-nucleon cross section and scale by A for all pion energies. 
       -->
       <param type="bool" name="COH-UseRSPionXSec"> false </param>
- 
+
+      <param type="int" name="Citation-Count"> 1 </param>
+      <param type="string" name="Citation-0-DOI"> 10.1103/PhysRevD.79.053003 </param>
+
   </param_set>
 
 </alg_conf>

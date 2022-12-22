@@ -56,6 +56,10 @@ RmaxMode                             string   Yes        Method to use to comput
       <param type="string" name = "RmaxMode"> Nieves </param>
     -->
 
+    <param type="int" name="Citation-Count"> 2 </param>
+    <param type="string" name="Citation-0-DOI"> 10.1103/PhysRevC.70.055503 </param>
+    <param type="string" name="Citation-1-DOI"> 10.1103/PhysRevC.72.019902 </param>
+
   </param_set>
 
 

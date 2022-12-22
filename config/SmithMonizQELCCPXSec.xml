@@ -23,7 +23,11 @@ QEL-CC-XSecScale   double   yes        XSec Scaling factor              1.
      <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Default       </param>
      <param type="alg"  name="XSec-Integrator"> genie::SmithMonizQELCCXSec/Default  </param>
-    
+
+    <param type="int" name="Citation-Count"> 2 </param>
+    <param type="string" name="Citation-0-DOI"> 10.1016/0550-3213(72)90040-5 </param>
+    <param type="string" name="Citation-1-DOI"> 10.1140/epjc/s10052-008-0582-x </param>
+ 
   </param_set>
 
   <param_set name="Dipole"> 

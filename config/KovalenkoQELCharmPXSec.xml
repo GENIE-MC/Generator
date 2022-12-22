@@ -25,6 +25,11 @@ Mo                 double  Yes                                         sqrt(0.1)
   <param_set name="Default"> 
      <param type="alg"  name="PDF-Set">          genie::GRV98LO/Default               </param>
      <param type="alg"  name="XSec-Integrator">  genie::QELXSec/Default               </param>
+
+    <param type="int" name="Citation-Count"> 1 </param>
+    <param type="string" name="Citation-0-URL"> https://inspirehep.net/literature/299416 </param>
+    <param type="string" name="Citation-0-JournalRef"> Yad. Fiz. 52, 1478 (1990) </param>
+
   </param_set>
 
 </alg_conf>

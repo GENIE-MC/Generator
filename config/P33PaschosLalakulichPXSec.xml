@@ -26,6 +26,9 @@ TurnOnPauliSuppr bool     Yes        Use Pauli suppression factor   false
      <param type="double" name="RES-Ma"> 1.120 </param>
      <param type="double" name="RES-Mv"> 0.840 </param>
 
+     <param type="int" name="Citation-Count"> 1 </param>
+     <param type="string" name="Citation-0-DOI"> 10.1103/PhysRevD.71.074003 </param>
+
   </param_set>
 
 </alg_conf>

@@ -18,6 +18,10 @@ XSec-Integrator    alg     No         xsection integration algorithm
 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFDeltaS/Default </param>
      <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default            </param>
+
+    <param type="int" name="Citation-Count"> 1 </param>
+    <param type="string" name="Citation-0-DOI"> 10.1016/0003-4916(71)90018-2 </param>
+
   </param_set>
 </alg_conf>
 
