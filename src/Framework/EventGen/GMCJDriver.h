@@ -13,7 +13,7 @@
 \created  May 25, 2005
 
 \cpright  Copyright (c) 2003-2023, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org    
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -77,6 +77,12 @@ public :
   long int NFluxNeutrinos (void) const { return (long int) fNFluxNeutrinos; }
   map<int, double> SumFluxIntProbs(void) const { return fSumFluxIntProbs;   }
 
+  double PathLengthWeightedTotalXSec(void) const
+    { return fCurPathLengthWeightedTotalXSec; }
+
+  double PathLengthWeightedTotalXSec( int nu_pdg,
+    const TLorentzVector& nu_mom4, const TLorentzVector& nu_pos4 ) const;
+
   // input flux and geometry drivers
   const GFluxI &        FluxDriver      (void) const { return *fFluxDriver;   }
   const GeomAnalyzerI & GeomAnalyzer    (void) const { return *fGeomAnalyzer; }
@@ -103,7 +109,7 @@ private:
   void          GenerateEventKinematics         (void);
   void          GenerateVertexPosition          (void);
   void          ComputeEventProbability         (void);
-  double        InteractionProbability          (double xsec, double pl, int A);
+  double        InteractionProbability          (double xsec, double pl, int A) const;
   double        PreGenFluxInteractionProbability(void);
 
   // private data members:
@@ -119,7 +125,7 @@ private:
   EventRecord *   fCurEvt;             ///< [current] generated event
   int             fSelTgtPdg;          ///< [current] selected target material PDG code
   map<int,double> fCurCumulProbMap;    ///< [current] cummulative interaction probabilities
-  double          fNFluxNeutrinos;     ///< [current] number of flux nuetrinos fired by the flux driver so far 
+  double          fNFluxNeutrinos;     ///< [current] number of flux nuetrinos fired by the flux driver so far
   int             fXSecSplineNbins;    ///< [config] number of bins in energy used in the xsec splines
   bool            fPmaxLogBinning;     ///< [config] maximum interaction probability is computed in logarithmic energy bins
   int             fPmaxNbins;          ///< [config] number of bins in energy used in the maximum interaction probability
@@ -135,7 +141,7 @@ private:
   bool            fKeepThrowingFluxNu; ///< [config] keep firing flux neutrinos till one of them interacts
   bool            fGenerateUnweighted; ///< [config] force single probability scale?
   bool            fForceInteraction;   ///< [config] force intearction?
-  bool            fPreSelect;          ///< [config] set whether to pre-select events using max interaction paths 
+  bool            fPreSelect;          ///< [config] set whether to pre-select events using max interaction paths
   TFile*          fFluxIntProbFile;    ///< [input] pre-generated flux interaction probability file
   TTree*          fFluxIntTree;        ///< [computed-or-loaded] pre-computed flux interaction probabilities (expected tree name is "gFlxIntProbs")
   double          fBrFluxIntProb;      ///< flux interaction probability (set to branch:"FluxIntProb")
@@ -146,6 +152,7 @@ private:
   string          fFluxIntFileName;    ///< whether to save pre-generated flux tree for use in later jobs
   string          fFluxIntTreeName;    ///< name for tree holding flux probabilities
   map<int, double> fSumFluxIntProbs;   ///< map where the key is flux pdg code and the value is sum of fBrFluxWeight * fBrFluxIntProb for all these flux neutrinos
+  double          fCurPathLengthWeightedTotalXSec; ///< weighted average total interaction cross section for the current flux neutrino, where the weights are (path length * density * weight fraction)
 };
 
 }      // genie namespace
