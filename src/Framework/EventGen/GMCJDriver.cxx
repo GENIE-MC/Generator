@@ -1035,6 +1035,13 @@ EventRecord * GMCJDriver::GenerateEvent1Try(void)
     this->ComputeEventProbability();
   }
 
+  // Before returning the accepted event, tally its contribution to the running
+  // value of the inverse flux-averaged total cross section. Take any weighted
+  // sampling of the incident flux into account along the way.
+  double flux_weight = fFluxDriver->Weight();
+  fInvFluxAvgXSecStats.AddValue( 1. / fCurPathLengthWeightedTotalXSec,
+    flux_weight );
+
   return fCurEvt;
 }
 //___________________________________________________________________________
@@ -1439,4 +1446,22 @@ double GMCJDriver::PathLengthWeightedTotalXSec( int nu_pdg,
   }
 
   return plw_tot_xsec;
+}
+//___________________________________________________________________________
+double GMCJDriver::FluxAvgTotXSec(void) const {
+  double xsec = 0.;
+  if ( fInvFluxAvgXSecStats.SampleSize() > 0 ) {
+    xsec = 1. / fInvFluxAvgXSecStats.Mean();
+  }
+  return xsec;
+}
+//___________________________________________________________________________
+double GMCJDriver::FluxAvgTotXSecError(void) const {
+  double err = DBL_MAX;
+  if ( fInvFluxAvgXSecStats.SampleSize() > 1 ) {
+    double inv_xsec = fInvFluxAvgXSecStats.Mean();
+    double inv_err = fInvFluxAvgXSecStats.StdErrorOnMean();
+    err = inv_err / ( inv_xsec * inv_xsec );
+  }
+  return err;
 }
