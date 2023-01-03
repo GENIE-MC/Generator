@@ -127,6 +127,13 @@ if(@nret>0)
       { print GBLD   "#define __GENIE_GEANT4_INTERFACE_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_GEANT4_INTERFACE_ENABLED__\n"; }
 
+# HepMC3 enabled?
+#
+@nret = `grep 'GOPT_ENABLE_HEPMC3_INTERFACE=YES' $GCONF_FILE`;
+if(@nret>0)
+      { print GBLD   "#define __GENIE_HEPMC3_INTERFACE_ENABLED__\n"; }
+else  { print GBLD "//#define __GENIE_HEPMC3_INTERFACE_ENABLED__\n"; }
+
 # DarkNeutrino enabled?
 #
 @nret = `grep 'GOPT_ENABLE_DARK_NEUTRINO=YES' $GCONF_FILE`;

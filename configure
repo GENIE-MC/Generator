@@ -20,6 +20,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    pythia8              Use the PYTHIA8 MC generator                                default: disabled \n";
   print "    incl                 Interface with INCL++ for nuclear transport                 default: disabled \n";
   print "    geant4               Interface with Geant4 for nuclear transport                 default: disabled \n";  
+  print "    hepmc3               Interface with HepMC3 event format library                  default: disabled \n";
   print "    lhapdf5              Use the LHAPDF5 parton density function library             default: enabled  \n";
   print "    lhapdf6              Use the LHAPDF6 parton density function library             default: disabled \n";
   print "    apfel                Use APFEL to compute NLO structure functions                default: disabled \n";
@@ -59,6 +60,8 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    incl-lib          INCL++ library path          needed if you --enable-incl         (if unset: tries to auto-detect it) \n";
   print "    geant4-inc        Geant4 includes path         needed if you --enable-geant4       (if unset: checks for a \$GEANT4_INC env.var.. then tries to auto-detect it) \n";
   print "    geant4-lib        Geant4 library path          needed if you --enable-geant4       (if unset: checks for a \$GEANT4_LIB env.var.. then tries to auto-detect it) \n";
+  print "    hepmc3-inc        HepMC3 includes path         needed if you --enable-hepmc3       (if unset: checks for a \$HEPMC3_INC env.var.. then tries to auto-detect it) \n";
+  print "    hepmc3-lib        HepMC3 library path          needed if you --enable-hepmc3       (if unset: checks for a \$HEPMC3_LIB env.var.. then tries to auto-detect it) \n";
   print "    lhapdf5-inc       LHAPDF5 includes path        needed if you --enable-lhapdf5      (if unset: checks for a \$LHAPDF5_INC env.var., then tries to auto-detect it) \n";
   print "    lhapdf5-lib       LHAPDF5 libraries path       needed if you --enable-lhapdf5      (if unset: checks for a \$LHAPDF5_LIB env.var.. then tries to auto-detect it) \n";
   print "    lhapdf6-inc       LHAPDF6 includes path        needed if you --enable-lhapdf6      (if unset: checks for a \$LHAPDF6_INC env.var., then tries to auto-detect it) \n";
@@ -167,6 +170,7 @@ my $gopt_enable_dark_neutrino        = "NO";
 my $gopt_enable_evtlib               = "NO";
 my $gopt_enable_incl                 = "NO";
 my $gopt_enable_geant4_interface     = "NO";
+my $gopt_enable_hepmc3_interface     = "NO";
 my $gopt_enable_masterclass          = "NO";
 my $gopt_enable_test                 = "NO";
 my $gopt_enable_debug                = "NO";
@@ -200,6 +204,7 @@ if(($match = grep(/--enable-dark-neutrino/i,        @ARGV)) > 0) { $gopt_enable_
 if(($match = grep(/--enable-event-library/i,        @ARGV)) > 0) { $gopt_enable_evtlib               = "YES"; }
 if(($match = grep(/--enable-incl/i,                 @ARGV)) > 0) { $gopt_enable_incl                 = "YES"; }
 if(($match = grep(/--enable-geant4/i,               @ARGV)) > 0) { $gopt_enable_geant4_interface     = "YES"; }
+if(($match = grep(/--enable-hepmc3/i,               @ARGV)) > 0) { $gopt_enable_hepmc3_interface     = "YES"; }
 if(($match = grep(/--enable-masterclass/i,          @ARGV)) > 0) { $gopt_enable_masterclass          = "YES"; }
 if(($match = grep(/--enable-test/i,                 @ARGV)) > 0) { $gopt_enable_test                 = "YES"; }
 if(($match = grep(/--enable-debug/i,                @ARGV)) > 0) { $gopt_enable_debug                = "YES"; }
@@ -898,6 +903,80 @@ if($gopt_enable_geant4_interface eq "YES") {
 }
 
 # ------------------------------------------------
+# hepmc3 path
+# ------------------------------------------------
+
+# If --enable-hepmc3 was set then the full path to the HepMC3 libraries must be specified
+#
+my $gopt_with_hepmc3_lib = "";
+if($gopt_enable_hepmc3_interface eq "YES") {
+  if(($match = grep(/--with-hepmc3-lib/i, @ARGV)) > 0) {
+    $options=~m/--with-hepmc3-lib=(\S*)/i;
+    $gopt_with_hepmc3_lib = $1;
+  }
+  if(! -d $gopt_with_hepmc3_lib)  {
+    print "\n*** Warning *** HepMC3 has been enabled but you didn't specify the HepMC3 library path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_hepmc3_lib eq "" && defined $ENV{'HEPMC3_LIB'}) {
+     $gopt_with_hepmc3_lib = $ENV{'HEPMC3_LIB'};
+     print "The \$HEPMC3_LIB env var is defined. I will pick that and use --with-hepmc3-lib=$gopt_with_hepmc3_lib\n";
+  }
+  # if it still not set, try autodetecting it
+  if(! -d $gopt_with_hepmc3_lib && $auto_detect)  {
+    print "Auto-detecting HEPMC3 library path...\n";
+    $matched = auto_detect("libHepMC3.so");
+    if( $matched=~m/(\S*)\/libHepMC3.so/i ) {
+       $gopt_with_hepmc3_lib = $1;
+    }
+    print "Setting --with-hepmc3-lib=$gopt_with_hepmc3_lib\n";
+  }
+  # check
+  my $fileso    = "$gopt_with_hepmc3_lib/libHepMC3.so";
+  my $filedylib = "$gopt_with_hepmc3_lib/libHepMC3.dylib";
+  if(! -e $fileso && ! -e $filedylib) {
+     print "*** Error *** You need to specify the path to HepMC3 library using --with-hepmc3-lib=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-hepmc3\n\n";
+     exit 1;
+  }
+}
+
+# If --enable-hepmc3 was set then the full path to the HepMC3 includes must be specified
+#
+my $gopt_with_hepmc3_inc = "";
+if($gopt_enable_hepmc3_interface eq "YES") {
+  if(($match = grep(/--with-hepmc3-inc/i, @ARGV)) > 0) {
+    $options=~m/--with-hepmc3-inc=(\S*)/i;
+    $gopt_with_hepmc3_inc = $1;
+  }
+  if(! -d $gopt_with_hepmc3_inc)  {
+    print "\n*** Warning *** HepMC3 has been enabled but you didn't specify the HepMC3 include path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_hepmc3_inc eq "" && defined $ENV{'HEPMC3_INC'}) {
+     $gopt_with_hepmc3_inc = $ENV{'HEPMC3_INC'};
+     print "The \$HEPMC3_INC env var is defined. I will pick that and use --with-hepmc3-inc=$gopt_with_hepmc3_inc\n";
+  }
+  # if it still not set, try autodetecting it
+  if(! -d $gopt_with_hepmc3_inc && $auto_detect)  {
+    print "Auto-detecting the HepMC3 include path...\n";
+    $matched = auto_detect("HepMC3/GenEvent.h");
+    print "$gopt_with_hepmc3_inc  \n";
+    if( $matched=~m/(\S*)\/HepMC3\/GenEvent.h/i ) {
+       $gopt_with_hepmc3_inc = $1;
+    }
+    print "Setting --with-hepmc3-inc=$gopt_with_hepmc3_inc\n";
+  }
+  # check
+  my $file = "$gopt_with_hepmc3_inc/HepMC3/GenEvent.h";
+  if(! -e $file) {
+     print "*** Error *** You need to specify the HepMC3 includes path using --with-hepmc3-inc=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-hepmc3\n\n";
+     exit 1;
+  }
+}
+
+# ------------------------------------------------
 # libgfortran path
 # ------------------------------------------------
 
@@ -955,6 +1034,7 @@ if($gopt_enable_g2c eq "YES") {
 print MKCONF "GOPT_ENABLE_PYTHIA8=$gopt_enable_pythia8\n";
 print MKCONF "GOPT_ENABLE_INCL=$gopt_enable_incl\n";
 print MKCONF "GOPT_ENABLE_GEANT4_INTERFACE=$gopt_enable_geant4_interface\n";
+print MKCONF "GOPT_ENABLE_HEPMC3_INTERFACE=$gopt_enable_hepmc3_interface\n";
 print MKCONF "GOPT_ENABLE_LHAPDF5=$gopt_enable_lhapdf5\n";
 print MKCONF "GOPT_ENABLE_LHAPDF6=$gopt_enable_lhapdf6\n";
 print MKCONF "GOPT_ENABLE_APFEL=$gopt_enable_apfel\n";
@@ -972,6 +1052,7 @@ print MKCONF "GOPT_ENABLE_DARK_NEUTRINO=$gopt_enable_dark_neutrino\n";
 print MKCONF "GOPT_ENABLE_EVTLIB=$gopt_enable_evtlib\n";
 print MKCONF "GOPT_ENABLE_INCL=$gopt_enable_incl\n";
 print MKCONF "GOPT_ENABLE_GEANT4_INTERFACE=$gopt_enable_geant4_interface\n";
+print MKCONF "GOPT_ENABLE_HEPMC3_INTERFACE=$gopt_enable_hepmc3_interface\n";
 print MKCONF "GOPT_ENABLE_MASTERCLASS=$gopt_enable_masterclass\n";
 print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
 print MKCONF "GOPT_ENABLE_DYLIBVERSION=$gopt_enable_dylibversion\n";
@@ -1004,6 +1085,8 @@ print MKCONF "GOPT_WITH_BOOST_INC=$gopt_with_boost_inc\n";
 print MKCONF "GOPT_WITH_BOOST_LIB=$gopt_with_boost_lib\n";
 print MKCONF "GOPT_WITH_GEANT4_INC=$gopt_with_geant4_inc\n";
 print MKCONF "GOPT_WITH_GEANT4_LIB=$gopt_with_geant4_lib\n";
+print MKCONF "GOPT_WITH_HEPMC3_INC=$gopt_with_hepmc3_inc\n";
+print MKCONF "GOPT_WITH_HEPMC3_LIB=$gopt_with_hepmc3_lib\n";
 print MKCONF "GOPT_WITH_GFORTRAN_LIB=$gopt_with_gfortran_lib\n";
 print MKCONF "GOPT_WITH_G2C_LIB=$gopt_with_g2c_lib\n";
 close(MKCONF);
