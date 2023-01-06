@@ -150,8 +150,6 @@ void Target::Copy(const Target & tgt)
      // a nucleon (p or n) or a di-nucleon cluster (p+p, p+n, n+n)
      this->ForceHitNucValidity();
   }
-  //std::cout<<"fTgtPDG Target"<<fTgtPDG<<std::endl;
-  //std::cout<<"Tgt fZ fA:"<<tgt.fZ<<"**"<<tgt.fA<<"**"<<tgt.fHitNucPDG<<"**"<<tgt.fHitQrkPDG<<"**"<<tgt.fHitSeaQrk<<std::endl;
   if (tgt.fHitNucPDG == 0 && tgt.fHitQrkPDG == 0 && tgt.fHitSeaQrk){ //No interaction with nucleus -> interaction with electron
     const TLorentzVector& p4 = *(tgt.fHitEleP4);
 
@@ -159,14 +157,6 @@ void Target::Copy(const Target & tgt)
     fHitEleP4->SetY(p4.Y());
     fHitEleP4->SetZ(p4.Z());
     fHitEleP4->SetT(p4.T());
-
-    // look-up the nucleus in the isotopes chart
-    //this->ForceNucleusValidity();
-
-    //Make sure hit target is electron
-    //this->ForceHitEleValidity();
-
-
   }
 }
 //___________________________________________________________________________
@@ -290,7 +280,6 @@ TLorentzVector * Target::HitEleP4Ptr(void) const
     LOG("Target", pWARN) << "Returning NULL struck electron 4-momentum";
     return 0;
   }
-  //std::cout<<"Target::HitEleP4Ptr : "<<fHitEleP4->E()<<std::endl;
   return fHitEleP4;
 }
 //___________________________________________________________________________

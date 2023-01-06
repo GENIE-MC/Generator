@@ -5,6 +5,10 @@
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
  University of Liverpool & STFC Rutherford Appleton Laboratory
+
+ Changes required to calculate energy in electron rest frame
+ were installed by Brinden Carlson (Univ. of Florida)
+
 */
 //____________________________________________________________________________
 
@@ -214,10 +218,7 @@ double NuEKinematicsGenerator::Energy(const Interaction * interaction) const
 // neutrino energy in the electron rest frame.
 
   const InitialState & init_state = interaction->InitState();
-  //double E = init_state.ProbeE(kRfLab);
-  //std::cout<<"E (lf) : "<<E<<std::endl;
   double E = init_state.ProbeE(kRfHitElRest); //
-  //std::cout<<"E (rf) : "<<E<<std::endl;
   return E;
 }
 //___________________________________________________________________________

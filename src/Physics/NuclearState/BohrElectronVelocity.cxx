@@ -85,7 +85,6 @@ void BohrElectronVelocity::InitializeVelocity(Interaction & interaction) const{
   Double_t vx = 0;
   Double_t vy = 0;
   Double_t vz = 0;
-  //Double_t vz = bohr_velocity(1,Z);
   gen.Sphere(vx,vy,vz,random_bohr_velocity(Z)); //Randomize direction with sphere - radius = bohr velocity
   TVector3 v3(vx,vy,vz);
   float gamma = 1/sqrt(1-v3.Mag2()); //Get boost

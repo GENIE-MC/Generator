@@ -147,8 +147,6 @@ double NuElectronPXSec::Integral(const Interaction * interaction) const
     xsec_sum+=xsec;
   }
   double xsec_avg = xsec_sum/N;
-  //double xsec = fXSecIntegrator->Integrate(this,interaction);
-  //return xsec;
   return xsec_avg;
 }
 //____________________________________________________________________________

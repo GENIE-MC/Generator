@@ -5,6 +5,9 @@
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
  University of Liverpool & STFC Rutherford Appleton Laboratory
+
+ Changes required to boost from electron rest frame to lab frame
+ were installed by Brinden Carlson (Univ. of Florida)
 */
 //____________________________________________________________________________
 
@@ -140,7 +143,6 @@ TVector3 NuEPrimaryLeptonGenerator::EleRestFrame2Lab(GHepRecord * evrec) const
   const InitialState & init_state = interaction->InitState();
 
   const TLorentzVector & pele4 = init_state.Tgt().HitEleP4(); //[@LAB]
-  //std::cout<<"pele4 : "<<pele4.X()<<","<<pele4.Y()<<","<<pele4.Z()<<","<<pele4.E()<<std::endl;
   TVector3 beta = pele4.BoostVector();
 
   return beta;

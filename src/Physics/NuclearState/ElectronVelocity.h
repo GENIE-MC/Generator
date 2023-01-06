@@ -48,8 +48,6 @@ public :
 private:
   
 protected:
-  //ElectronVelocity();
-  //ElectronVelocity(const string & config);
   ElectronVelocity(const string & name, const string & config);
   virtual void LoadConfig (void){;}
 

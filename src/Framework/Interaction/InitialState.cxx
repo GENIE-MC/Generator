@@ -321,7 +321,6 @@ TLorentzVector * InitialState::GetTgtP4(RefFrame_t ref_frame) const
        {
              // make sure that 'struck electron' properties were set in
              // the electron target object
-             //std::cout<<"ELE is set: "<<fTgt->HitEleIsSet()<<std::endl;
              assert(fTgt->HitEleIsSet());
              TLorentzVector * pele4 = fTgt->HitEleP4Ptr();
 
