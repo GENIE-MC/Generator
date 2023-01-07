@@ -41,6 +41,9 @@ public:
   std::shared_ptr< HepMC3::GenEvent > ConvertToHepMC3(
     const genie::EventRecord& gevrec );
 
+  std::shared_ptr< genie::EventRecord > RetrieveGHEP(
+    const HepMC3::GenEvent& evt );
+
   // For testing purposes
   // TODO: Remove and create an ntuple writer instead
   void WriteEvent( const HepMC3::GenEvent& evt ) const;
@@ -50,10 +53,19 @@ protected:
   int GetHepMC3ParticleStatus( const genie::GHepParticle* gpart,
     const genie::EventRecord& gevrec ) const;
 
+  genie::GHepStatus_t GetGHepParticleStatus( int nuhepmc_status ) const;
+
+  void StoreInteraction( const genie::Interaction& inter,
+    HepMC3::GenEvent& evt );
+
+  void RetrieveInteraction( genie::Interaction& inter,
+    const HepMC3::GenEvent& evt );
+
   void PrepareRunInfo();
 
   std::shared_ptr< HepMC3::GenRunInfo > fRunInfo;
   std::shared_ptr< HepMC3::WriterAscii > fWriter;
+
 };
 
 } // genie namespace
