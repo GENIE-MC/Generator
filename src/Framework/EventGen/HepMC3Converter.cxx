@@ -10,6 +10,10 @@
 */
 //____________________________________________________________________________
 
+// Standard library includes
+#include <algorithm>
+#include <sstream>
+
 // ROOT includes
 #include "TCollection.h"
 
@@ -20,6 +24,7 @@
 #include "Framework/EventGen/HepMC3Converter.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepStatus.h"
+#include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Registry/RegistryItemTypeDef.h"
 #include "Framework/Utils/RunOpt.h"
 
@@ -37,6 +42,7 @@
 
 // Definitions unique to this source file
 namespace {
+  constexpr int DEFAULT_RESCATTER_CODE = -1;
   constexpr int DUMMY_PARTICLE_INDEX = -1;
 
   // Implemented version of the NuHepMC standard
@@ -107,13 +113,13 @@ namespace {
     { genie::EGHepStatus::kIStStableFinalState,
       { 1, "Final state", "Undecayed physical particle" } },
     { genie::EGHepStatus::kIStIntermediateState,
-      { 21, "Intermediate state", "Temporary particle for internal use" } },
+      { 23, "Intermediate state", "Temporary particle for internal use" } },
     { genie::EGHepStatus::kIStDecayedState,
       { 2, "Decayed state", "Decayed physical particle" } },
     { genie::EGHepStatus::kIStCorrelatedNucleon,
       { 22, "Correlated nucleon", "Spectator nucleon in a correlated pair" } },
     { genie::EGHepStatus::kIStNucleonTarget,
-      { 23, "Target nucleon", "Struck nucleon in the initial state" } },
+      { 21, "Target nucleon", "Struck nucleon in the initial state" } },
     { genie::EGHepStatus::kIStDISPreFragmHadronicState,
       { 24, "Prefragmentation", "Temporary prefragmentation hadronic state"
         " for deep inelastic scattering" } },
@@ -131,8 +137,28 @@ namespace {
         " internal use" } },
   };
 
-}
+  // Convert the contents of a TBits object into a string that can be stored in
+  // a HepMC3::StringAttribute
+  std::string tbits_to_string( const TBits& bits ) {
+    std::stringstream temp_ss;
+    temp_ss << bits;
+    return temp_ss.str();
+  }
 
+  // Set the contents of a TBits object from a string. This is used to retrieve
+  // a HepMC3::StringAttribute originally converted from a TBits object via
+  // tbits_to_string()
+  void set_tbits_from_string( const std::string& str, TBits& bits ) {
+    std::stringstream temp_ss( str );
+    size_t num_bits = str.size();
+    bool bit_val;
+    for ( size_t b = 0u; b < num_bits; ++b ) {
+      temp_ss >> bit_val;
+      bits.SetBitNumber( b, bit_val );
+    }
+  }
+
+}
 //____________________________________________________________________________
 genie::HepMC3Converter::HepMC3Converter()
 {
@@ -147,13 +173,71 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
   auto evt = std::make_shared< HepMC3::GenEvent >( HepMC3::Units::GEV,
     HepMC3::Units::CM );
 
+  // Set the overall event 4-position using the GHepRecord vertex
+  const TLorentzVector* g_vtx = gevrec.Vertex();
+  HepMC3::FourVector evt_pos4( g_vtx->X(), g_vtx->Y(), g_vtx->Z(), g_vtx->T() );
+  evt->shift_position_to( evt_pos4 );
+
   // Create the primary vertex
   // E.R.5
-  // TODO: add vertex positions
   auto prim_vtx = std::make_shared< HepMC3::GenVertex >();
   prim_vtx->set_status( 1 );
 
   evt->add_vertex( prim_vtx );
+
+  // Indices for especially important particles in the GENIE event (these are
+  // equal to DUMMY_PARTICLE_INDEX in cases where the relevant particle doesn't
+  // exist)
+  int probe_idx = gevrec.ProbePosition();
+
+  // DUMMY_PARTICLE_INDEX for a free nucleon target
+  int tgt_idx = gevrec.TargetNucleusPosition();
+
+  // DUMMY_PARTICLE_INDEX for COH, nu-e, etc.
+  int hit_nucleon_idx = gevrec.HitNucleonPosition();
+
+  // Set the 4-position of the primary vertex using a reference particle from
+  // the GENIE event. Prefer taking coordinates from the probe, hit nucleon, and
+  // target nucleus (in that order). Complain if none of those are available.
+  genie::GHepParticle* ref_part = nullptr;
+  if ( probe_idx != DUMMY_PARTICLE_INDEX ) {
+    ref_part = gevrec.Probe();
+  }
+  else if ( hit_nucleon_idx != DUMMY_PARTICLE_INDEX ) {
+    ref_part = gevrec.HitNucleon();
+  }
+  else if ( tgt_idx != DUMMY_PARTICLE_INDEX ) {
+    ref_part = gevrec.TargetNucleus();
+  }
+  else {
+    LOG( "HepMC3Converter", pFATAL ) << "Could not set a valid 4-position"
+      << " for the primary vertex!";
+    std::exit( 1 );
+  }
+
+  HepMC3::FourVector prim_vtx_pos4( ref_part->Vx(), ref_part->Vy(),
+    ref_part->Vz(), ref_part->Vt() );
+
+  prim_vtx->set_position( prim_vtx_pos4 );
+
+  // In events with both a complex nuclear target and a defined initial-state
+  // struck nucleon, define a "nuclear vertex" separating the nucleon target
+  // from the spectator remnant nucleus
+  std::shared_ptr< HepMC3::GenVertex > nuclear_vtx;
+  if ( tgt_idx != DUMMY_PARTICLE_INDEX &&
+    hit_nucleon_idx != DUMMY_PARTICLE_INDEX )
+  {
+    nuclear_vtx = std::make_shared< HepMC3::GenVertex >();
+    nuclear_vtx->set_status( 2 );
+    evt->add_vertex( nuclear_vtx );
+
+    // Get the 4-position of the nuclear vertex from the target nucleus
+    // GHepParticle
+    genie::GHepParticle* tgt = gevrec.TargetNucleus();
+    HepMC3::FourVector nuclear_vtx_pos4( tgt->Vx(), tgt->Vy(),
+      tgt->Vz(), tgt->Vt() );
+    nuclear_vtx->set_position( nuclear_vtx_pos4 );
+  }
 
   // Add the particles from the GENIE event
   TIter g_part_iter( &gevrec );
@@ -173,15 +257,30 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
     // Primary particles have no mother
     int first_mommy = g_part->FirstMother();
     if ( first_mommy == DUMMY_PARTICLE_INDEX ) {
-      // Initial-state primary particles go into the primary vertex
+      // Initial-state primary particles go into either the primary vertex
+      // or, in the case of a complex nuclear target with a defined
+      // initial-state struck nucleon, the nuclear vertex
       if ( g_part->Status() == genie::EGHepStatus::kIStInitialState ) {
-        prim_vtx->add_particle_in( part );
+        if ( nuclear_vtx && g_part_idx == tgt_idx ) {
+          nuclear_vtx->add_particle_in( part );
+        }
+        else {
+          prim_vtx->add_particle_in( part );
+        }
       }
-      // In unusual cases where they are not labeled as initial-state,
-      // have them come out of the primary vertex
+      // In unusual cases where the primary particle is not labeled as
+      // initial-state, have it come out of the nuclear vertex (if it
+      // exists) or the primary vertex (if it does not)
+      // NOTE: This takes care of the "binding energy" pseudoparticles
+      // made by GENIE for some interaction modes
+      // TODO: revisit this
       else {
-        // TODO: revisit this
-        prim_vtx->add_particle_out( part );
+        if ( nuclear_vtx ) {
+          nuclear_vtx->add_particle_out( part );
+        }
+        else {
+          prim_vtx->add_particle_out( part );
+        }
       }
     }
     // Other particles come out of a vertex
@@ -191,9 +290,17 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
       auto production_vtx = mother_part->end_vertex();
 
       production_vtx->add_particle_out( part );
-      if ( production_vtx != prim_vtx ) {
-        // TODO: set vertex status based on the current particle status
+
+      // Set the vertex status if it hasn't already been defined
+      // TODO: set vertex status based on the current particle status
+      if ( production_vtx->status() != 0 ) {
         production_vtx->set_status( 3 );
+      }
+
+      // In the case of an initial-state struck nucleon, send it into the
+      // primary vertex
+      if ( g_part_idx == hit_nucleon_idx ) {
+        prim_vtx->add_particle_in( part );
       }
     }
 
@@ -204,8 +311,6 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
       // primary vertex already exists
       && first_mommy != DUMMY_PARTICLE_INDEX )
     {
-      // TODO: add vertex positions
-
       // Handle cases with multiple mothers. If the first daughter of the
       // current GENIE particle has a first mother which appears before the
       // current GENIE particle in the event record, then retrieve the
@@ -219,6 +324,12 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
       }
       else {
         evt->add_vertex( end_vtx );
+
+        // This is a new vertex, so get its 4-position from the first daughter
+        // of the current particle
+        HepMC3::FourVector end_vtx_pos4( fd_part->Vx(), fd_part->Vy(),
+          fd_part->Vz(), fd_part->Vt() );
+        end_vtx->set_position( end_vtx_pos4 );
       }
 
       end_vtx->add_particle_in( part );
@@ -226,11 +337,76 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
 
     // Add the completed HepMC3::GenParticle object to the event
     evt->add_particle( part );
-    // TODO: add particle attributes
+
+    // Set the rescatter code and "is bound" attributes if they differ from
+    // their default values
+    int resc = g_part->RescatterCode();
+    if ( resc != DEFAULT_RESCATTER_CODE ) {
+      part->add_attribute( "GENIE.RescatterCode",
+        std::make_shared< HepMC3::IntAttribute >(resc) );
+    }
+
+    // bool <--> int conversions are implicit
+    bool bound = g_part->IsBound();
+    if ( bound ) {
+      part->add_attribute( "GENIE.IsBound",
+        std::make_shared< HepMC3::IntAttribute >(bound) );
+    }
+
+    // If a polarization is defined for the particle, then set extra attributes
+    // to store it
+    if ( g_part->PolzIsSet() ) {
+      double polz_polar_ang = g_part->PolzPolarAngle();
+      part->add_attribute( "GENIE.PolzPolarAngle",
+        std::make_shared< HepMC3::DoubleAttribute >(polz_polar_ang) );
+
+      double polz_azim_ang = g_part->PolzAzimuthAngle();
+      part->add_attribute( "GENIE.PolzAzimuthAngle",
+        std::make_shared< HepMC3::DoubleAttribute >(polz_azim_ang) );
+    }
+
+    // If a removal energy is defined for the particle, then set an extra
+    // attribute to store it
+    double E_rem = g_part->RemovalEnergy();
+    if ( E_rem != 0. ) {
+      part->add_attribute( "GENIE.RemovalEnergy",
+        std::make_shared< HepMC3::DoubleAttribute >(E_rem) );
+    }
 
     // Move to the next particle in the GENIE event record
     ++g_part_idx;
   }
+
+  // Set the overall event weight
+  double wgt = gevrec.Weight();
+  evt->weights().push_back( wgt );
+
+  // Set string attributes to store the boolean event flags and mask
+  std::string flags = tbits_to_string( *gevrec.EventFlags() );
+  std::string mask = tbits_to_string( *gevrec.EventMask() );
+
+  evt->add_attribute( "GENIE.EventFlags",
+    std::make_shared< HepMC3::StringAttribute >(flags) );
+  evt->add_attribute( "GENIE.EventMask",
+    std::make_shared< HepMC3::StringAttribute >(mask) );
+
+  // Set attributes for other GHepRecord data members
+  double prob = gevrec.Probability();
+  double xsec = gevrec.XSec();
+  double diff_xsec = gevrec.DiffXSec();
+  int phase_space = static_cast< int >( gevrec.DiffXSecVars() );
+
+  evt->add_attribute( "GENIE.Probability",
+    std::make_shared< HepMC3::DoubleAttribute >(prob) );
+  evt->add_attribute( "GENIE.XSec",
+    std::make_shared< HepMC3::DoubleAttribute >(xsec) );
+  evt->add_attribute( "GENIE.DiffXSec",
+    std::make_shared< HepMC3::DoubleAttribute >(diff_xsec) );
+  evt->add_attribute( "GENIE.DiffXSecVars",
+    std::make_shared< HepMC3::IntAttribute >(phase_space) );
+
+  // Store the interaction summary in the HepMC3 event
+  this->StoreInteraction( *gevrec.Summary(), *evt );
 
   // Create a HepMC3::GenRunInfo object if needed, then associate it with the
   // current event
@@ -240,19 +416,39 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
   // Return the completed HepMC3::GenEvent object
   return evt;
 }
-//--------------------------------------------------------------------------
+//____________________________________________________________________________
 int genie::HepMC3Converter::GetHepMC3ParticleStatus(
-  const genie::GHepParticle* /*gpart*/, const genie::EventRecord& /*gevrec*/ ) const
+  const genie::GHepParticle* gpart, const genie::EventRecord& gevrec ) const
 {
-  // TODO: write this
-  return 4;
+  // The initial state status is split by the NuHepMC standard into "beam"
+  // (probe) and "target" particles. Decide which to use here if needed.
+  genie::GHepStatus_t status = gpart->Status();
+  if ( status == genie::EGHepStatus::kIStInitialState ) {
+    genie::GHepParticle* probe = gevrec.Probe();
+    if ( gpart == probe ) return 4; // NuHepMC beam particle
+    else return 11; // NuHepMC target particle
+  }
+
+  // Otherwise, there is a one-to-one mapping of GENIE codes to NuHepMC
+  // codes. Look up the conversion here.
+  auto end = NUHEPMC_PARTICLE_STATUS_MAP.end();
+  auto iter = NUHEPMC_PARTICLE_STATUS_MAP.find( status );
+
+  // If the lookup was unsuccessful, then complain
+  if ( iter == end ) {
+    LOG( "HepMC3Converter", pFATAL ) << "Could not convert GENIE particle"
+      " status code!";
+    std::exit( 1 );
+  }
+
+  return iter->second.code_;
 }
-//--------------------------------------------------------------------------
+//____________________________________________________________________________
 void genie::HepMC3Converter::WriteEvent( const HepMC3::GenEvent& evt ) const
 {
   fWriter->write_event( evt );
 }
-//--------------------------------------------------------------------------
+//____________________________________________________________________________
 void genie::HepMC3Converter::PrepareRunInfo()
 {
   // G.R.1
@@ -420,6 +616,173 @@ void genie::HepMC3Converter::PrepareRunInfo()
   //    "NuHepMC.FluxAveragedTotalCrossSection",
   //    std::make_shared<HepMC3::DoubleAttribute>(1.234E-38 * cm2_to_pb));
 }
-//--------------------------------------------------------------------------
+//____________________________________________________________________________
+std::shared_ptr< genie::EventRecord > genie::HepMC3Converter::RetrieveGHEP(
+  const HepMC3::GenEvent& evt )
+{
+  auto gevrec = std::make_shared< genie::EventRecord >();
 
+  // Retrieve and store the overall event weight
+  double wgt = evt.weight();
+  gevrec->SetWeight( wgt );
+
+  const auto& part_vec = evt.particles();
+  for ( const auto& part : part_vec ) {
+    int pdg = part->pid();
+    genie::GHepStatus_t status = this->GetGHepParticleStatus( part->status() );
+    const HepMC3::FourVector& p4 = part->momentum();
+
+    // The particle 4-position will be retrieved from the production or end
+    // vertex below and stored in this 4-vector
+    HepMC3::FourVector x4;
+
+    int mommy1 = DUMMY_PARTICLE_INDEX;
+    int mommy2 = DUMMY_PARTICLE_INDEX;
+    const auto& prod_vtx = part->production_vertex();
+    if ( prod_vtx && prod_vtx->id() != 0 ) {
+      x4 = prod_vtx->position();
+      const auto& mommy_vec = prod_vtx->particles_in();
+      size_t mommy_count = mommy_vec.size();
+      if ( mommy_count > 0u ) mommy1 = mommy_vec.front()->id() - 1;
+      if ( mommy_count > 1u ) mommy2 = mommy_vec.back()->id() - 1;
+
+      // Nuclear binding energy pseudoparticles are recorded in the GENIE event
+      // record as if they were primary (motherless). Ignore the vertex
+      // relationships in this special case.
+      if ( pdg == genie::kPdgBindino ) {
+        mommy1 = DUMMY_PARTICLE_INDEX;
+        mommy2 = DUMMY_PARTICLE_INDEX;
+      }
+    }
+
+    int dau1 = DUMMY_PARTICLE_INDEX;
+    int dau2 = DUMMY_PARTICLE_INDEX;
+    const auto& end_vtx = part->end_vertex();
+    if ( end_vtx ) {
+      // If we don't have a production vertex, then use the end vertex as a
+      // backup for assigning a 4-position to the current GHepParticle. Also
+      // use the end vertex (which will be the primary vertex) to assign a
+      // position to the initial hit nucleon when scattering on a complex
+      // target.
+      if ( !prod_vtx || prod_vtx->id() == 0 || status == kIStNucleonTarget ) {
+        x4 = end_vtx->position();
+      }
+      const auto& dau_vec = end_vtx->particles_out();
+      size_t dau_count = dau_vec.size();
+      for ( size_t d = 0u; d < dau_count; ++d ) {
+        const auto& daughter = dau_vec.at( d );
+        // Skip "bindinos" since GENIE treats them as motherless
+        if ( daughter->pid() != genie::kPdgBindino ) {
+          if ( dau1 == DUMMY_PARTICLE_INDEX) {
+            dau1 = daughter->id() - 1;
+            dau2 = dau1;
+          }
+          else dau2 = daughter->id() - 1;
+        }
+      }
+    }
+
+    gevrec->AddParticle( pdg, status, mommy1, mommy2, dau1, dau2, p4.px(),
+      p4.py(), p4.pz(), p4.e(), x4.x(), x4.y(), x4.z(), x4.t() );
+
+    // Get a pointer to the newly-created GHepParticle object so that we can
+    // set additional data members using HepMC3 attributes if they are present
+    genie::GHepParticle* g_part = gevrec->Particle( gevrec->GetEntries() - 1 );
+
+    auto resc_ptr = part->attribute< HepMC3::IntAttribute >(
+      "GENIE.RescatterCode" );
+    if ( resc_ptr ) g_part->SetRescatterCode( resc_ptr->value() );
+
+    // bool <--> int conversions are implicit
+    auto bound_ptr = part->attribute< HepMC3::IntAttribute >(
+      "GENIE.IsBound" );
+    if ( bound_ptr ) g_part->SetBound( bound_ptr->value() );
+
+    // TODO: add error handling for when only one of these is set
+    auto polz_pol_ptr = part->attribute< HepMC3::DoubleAttribute >(
+      "GENIE.PolzPolarAngle" );
+    auto polz_azm_ptr = part->attribute< HepMC3::DoubleAttribute >(
+      "GENIE.PolzAzimuthAngle" );
+
+    if ( polz_pol_ptr && polz_azm_ptr ) {
+      g_part->SetPolarization( polz_pol_ptr->value(), polz_azm_ptr->value() );
+    }
+
+    auto E_rem_ptr = part->attribute< HepMC3::DoubleAttribute >(
+      "GENIE.RemovalEnergy" );
+    if ( E_rem_ptr ) g_part->SetRemovalEnergy( E_rem_ptr->value() );
+  }
+
+  // Retrieve event attributes used to store extra data members
+  auto flags_ptr = evt.attribute< HepMC3::StringAttribute >(
+    "GENIE.EventFlags" );
+  if ( flags_ptr ) set_tbits_from_string( flags_ptr->value(),
+    *gevrec->EventFlags() );
+
+  auto mask_ptr = evt.attribute< HepMC3::StringAttribute >(
+    "GENIE.EventMask" );
+  if ( mask_ptr ) set_tbits_from_string( mask_ptr->value(),
+    *gevrec->EventMask() );
+
+  auto prob_ptr = evt.attribute< HepMC3::DoubleAttribute >(
+    "GENIE.Probability" );
+  if ( prob_ptr ) gevrec->SetProbability( prob_ptr->value() );
+
+  auto xsec_ptr = evt.attribute< HepMC3::DoubleAttribute >(
+    "GENIE.XSec" );
+  if ( xsec_ptr ) gevrec->SetXSec( xsec_ptr->value() );
+
+  // TODO: add error handling if only one of these is set
+  auto diff_xsec_ptr = evt.attribute< HepMC3::DoubleAttribute >(
+    "GENIE.DiffXSec" );
+  auto phase_space_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.DiffXSecVars" );
+
+  if ( diff_xsec_ptr && phase_space_ptr ) {
+    auto ps = static_cast< genie::KinePhaseSpace_t >(
+      phase_space_ptr->value() );
+    gevrec->SetDiffXSec( diff_xsec_ptr->value(), ps );
+  }
+
+  //this->RetrieveInteraction( *gevrec->Summary(), evt );
+
+  return gevrec;
+}
+//
+genie::GHepStatus_t genie::HepMC3Converter::GetGHepParticleStatus(
+  int nuhepmc_status ) const
+{
+  // Both the NuHepMC "beam" and "target" particle status codes correspond to
+  // the initial state status used by GENIE
+  if ( nuhepmc_status == 4 || nuhepmc_status == 11 ) {
+    return genie::EGHepStatus::kIStInitialState;
+  }
+
+  // Otherwise, there is a one-to-one mapping of NuHepMC codes to GENIE codes.
+  // Look up the conversion here.
+  auto end = NUHEPMC_PARTICLE_STATUS_MAP.end();
+  auto iter = std::find_if( NUHEPMC_PARTICLE_STATUS_MAP.begin(), end,
+    [nuhepmc_status](const auto& pair)
+    { return pair.second.code_ == nuhepmc_status; }
+  );
+
+  // If the lookup was unsuccessful, then complain
+  if ( iter == end ) {
+    LOG( "HepMC3Converter", pFATAL ) << "Could not convert NuHepMC particle"
+      " status code!";
+    std::exit( 1 );
+  }
+
+  return iter->first;
+}
+//____________________________________________________________________________
+void genie::HepMC3Converter::StoreInteraction( const genie::Interaction& /*inter*/,
+  HepMC3::GenEvent& /*evt*/ )
+{
+}
+//____________________________________________________________________________
+void genie::HepMC3Converter::RetrieveInteraction( genie::Interaction& /*inter*/,
+  const HepMC3::GenEvent& /*evt*/ )
+{
+}
 #endif //__GENIE_HEPMC3_INTERFACE_ENABLED__
