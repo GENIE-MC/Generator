@@ -25,6 +25,7 @@
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Registry/RegistryItemTypeDef.h"
 #include "Framework/Utils/RunOpt.h"
 
@@ -757,6 +758,77 @@ std::shared_ptr< genie::EventRecord > genie::HepMC3Converter::RetrieveGHEP(
 
   genie::Interaction* itr = this->RetrieveInteraction( evt );
   gevrec->AttachSummary( itr );
+
+  // For reactions that do not simultaneously contain a complex target nucleus
+  // and an initial struck nucleon, prune the daughters of the primary particles
+  // to match the GHepRecord conventions
+  genie::GHepParticle* tgt = gevrec->TargetNucleus();
+  genie::GHepParticle* hit_nuc = gevrec->HitNucleon();
+  if ( !tgt || !hit_nuc ) {
+    genie::GHepParticle* probe = gevrec->Probe();
+    genie::GHepParticle* fs_lep = gevrec->FinalStatePrimaryLepton();
+    if ( probe && fs_lep ) {
+      int pr_pos = gevrec->ProbePosition();
+      fs_lep->SetFirstMother( pr_pos );
+      fs_lep->SetLastMother( DUMMY_PARTICLE_INDEX );
+
+      int fsl_pos = gevrec->FinalStatePrimaryLeptonPosition();
+      int pr_dau1 = probe->FirstDaughter();
+      int pr_dau2 = probe->LastDaughter();
+      if ( pr_dau2 != DUMMY_PARTICLE_INDEX ) {
+        for ( int d = pr_dau1; d <= pr_dau2; ++d ) {
+          genie::GHepParticle* dau = gevrec->Particle( d );
+          if ( d == fsl_pos ) continue;
+          dau->SetFirstMother( dau->LastMother() );
+          dau->SetLastMother( DUMMY_PARTICLE_INDEX );
+        }
+      }
+
+      probe->SetFirstDaughter( fsl_pos );
+      probe->SetLastDaughter( fsl_pos );
+
+      genie::GHepParticle* struck = nullptr;
+      genie::GHepParticle* hit_e = gevrec->HitElectron();
+
+      if ( hit_nuc ) struck = hit_nuc;
+      else if ( tgt ) struck = tgt;
+      else if ( hit_e ) struck = hit_e;
+
+      if ( struck ) {
+        int struck_dau1 = struck->FirstDaughter();
+        if ( struck_dau1 == fsl_pos ) {
+          struck->SetFirstDaughter( struck_dau1 + 1 );
+        }
+
+        if ( struck == tgt ) {
+          tgt->SetPosition( TLorentzVector() );
+
+          // For COH
+          int tgt_dau1 = tgt->FirstDaughter();
+          if ( tgt_dau1 != DUMMY_PARTICLE_INDEX ) {
+            genie::GHepParticle* tgt_dau = gevrec->Particle( tgt_dau1 );
+            if ( tgt_dau ) {
+              int tgt_dau_pdg = tgt_dau->Pdg();
+              if ( genie::pdg::IsIon(tgt_dau_pdg) ) {
+                tgt_dau->SetPosition( TLorentzVector() );
+              }
+            }
+          }
+        }
+      }
+    }
+
+  }
+
+  // To match the GHepRecord convention, ignore mothers beyond the first for
+  // strings from Pythia
+  TIter str_iter( gevrec.get() );
+  genie::GHepParticle* sp = nullptr;
+  while ( (sp = dynamic_cast< genie::GHepParticle* >(str_iter.Next())) ) {
+    if ( sp->Pdg() == genie::kPdgString ) {
+      sp->SetLastMother( DUMMY_PARTICLE_INDEX );
+    }
+  }
 
   return gevrec;
 }
