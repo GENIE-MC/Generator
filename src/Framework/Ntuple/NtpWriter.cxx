@@ -125,17 +125,7 @@ void NtpWriter::Initialize()
   environment.TakeSnapshot()->Write();
 }
 //____________________________________________________________________________
-void NtpWriter::CustomizeFilename(string filename)
-{
- fOutFilename = filename;
-}
-//____________________________________________________________________________
-void NtpWriter::CustomizeFilenamePrefix (string prefix)
-{
-  this->SetDefaultFilename(prefix);
-}
-//____________________________________________________________________________
-void NtpWriter::SetDefaultFilename(string filename_prefix)
+void NtpWriter::SetDefaultFilename(const string& filename_prefix)
 {
   ostringstream fnstr;
   fnstr << filename_prefix  << "."
