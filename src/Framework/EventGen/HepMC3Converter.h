@@ -45,8 +45,10 @@ public:
 
 protected:
 
-  int GetHepMC3ParticleStatus( const genie::GHepParticle* gpart,
+  int GetNuHepMCParticleStatus( const genie::GHepParticle* gpart,
     const genie::EventRecord& gevrec ) const;
+
+  int GetNuHepMCProcessID( const genie::Interaction& inter ) const;
 
   genie::GHepStatus_t GetGHepParticleStatus( int nuhepmc_status ) const;
 
@@ -55,7 +57,7 @@ protected:
 
   genie::Interaction* RetrieveInteraction( const HepMC3::GenEvent& evt );
 
-  void PrepareRunInfo();
+  void PrepareRunInfo( const genie::EventRecord* gevrec );
 
   std::shared_ptr< HepMC3::GenRunInfo > fRunInfo;
 

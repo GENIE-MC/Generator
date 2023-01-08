@@ -20,8 +20,12 @@
 // GENIE includes
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/GVersion.h"
+#include "Framework/EventGen/EventGeneratorI.h"
 #include "Framework/EventGen/EventRecord.h"
+#include "Framework/EventGen/GEVGDriver.h"
 #include "Framework/EventGen/HepMC3Converter.h"
+#include "Framework/EventGen/InteractionList.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -42,45 +46,53 @@ namespace {
   constexpr int DEFAULT_DECAY_MODE = -1;
   constexpr int DUMMY_PARTICLE_INDEX = -1;
 
+  // Nominal probe and target nucleus used for definiteness when looking up
+  // citations for xsec models and building a list of process IDs
+  constexpr int CITE_PROBE = genie::kPdgNuMu;
+  const int CITE_TARGET = genie::pdg::IonPdgCode( 12, 6 ); // 12C
+
+  // Placeholder process ID number to use in undefined cases
+  constexpr int NUHEPMC_PROC_UNKNOWN = 0;
+
   // Implemented version of the NuHepMC standard
   // (https://github.com/NuHepMC/Spec)
   constexpr int NUHEPMC_MAJOR_VERSION = 0;
   constexpr int NUHEPMC_MINOR_VERSION = 1;
   constexpr int NUHEPMC_PATCH_VERSION = 0;
 
+  using SType = genie::EScatteringType;
+  using IType = genie::EInteractionType;
+
   // E.C.1
-  // Mapping of GENIE EventGeneratorList names to NuHepMC3 process ID codes.
-  // Note that these are distinct from GENIE's own process labeling scheme.
+  // Mapping of GENIE (ScatteringType_t, InteractionType_t) pairs to NuHepMC
+  // process ID codes. Note that the latter are distinct from GENIE's own
+  // process labeling scheme.
   //
   // NOTE: NuHepMC 0.1.0 does not designate ID conventions for EM processes.
-  // They are assigned negative codes here for the time being.
-  const std::map< std::string, int > NUHEPMC3_PROC_MAP = {
-    { "AM-NUGAMMA", 751 }, // "kScAMNuGamma, kIntWeakNC"
-    { "COH-CC-PION", 100 },
-    { "COH-NC-PION", 150 },
-    { "DFR-CC", 700 },
-    { "DFR-NC", 750 },
-    { "DIS-CC", 600 },
-    { "DIS-CC-CHARM", 601 },
-    { "DIS-CC-SINGLEK", 602 },
-    { "DIS-EM", -600 },
-    { "DIS-NC", 650 },
-    { "IMD", 701 },
-    { "IMD-ANH", 702 },
-    { "MEC-CC", 300 },
-    { "MEC-EM", -300 },
-    { "MEC-NC", 350 },
-    { "NNBarOsc", 900 },
-    { "NUE-EL", 703 },
-    { "NucleonDecay", 901 },
-    { "QEL-CC", 200 },
-    { "QEL-CC-CHARM", 201 },
-    { "QEL-CC-LAMBDA", 202 },
-    { "QEL-EM", -200 },
-    { "QEL-NC", 250 },
-    { "RES-CC", 400 },
-    { "RES-EM", -400 },
-    { "RES-NC", 450 },
+  // For now, they are omitted.
+  const std::map< std::pair<SType,IType>, int > NUHEPMC_PROC_MAP = {
+
+    { { SType::kScUnknown, IType::kIntNull }, NUHEPMC_PROC_UNKNOWN }, // Unknown
+    { { SType::kScAMNuGamma, IType::kIntWeakNC }, 751 }, // AM-NUGAMMA
+    { { SType::kScCoherentProduction, IType::kIntWeakCC }, 100 }, // COH-CC
+    { { SType::kScCoherentProduction, IType::kIntWeakNC }, 150 }, // COH-NC
+    { { SType::kScDiffractive, IType::kIntWeakCC }, 700 }, // DFR-CC
+    { { SType::kScDiffractive, IType::kIntWeakNC }, 750 }, // DFR-NC
+    { { SType::kScDeepInelastic, IType::kIntWeakCC }, 600 }, // DIS-CC
+    { { SType::kScSingleKaon, IType::kIntWeakCC }, 601 }, // DIS-SINGLEK-CC
+    { { SType::kScDeepInelastic, IType::kIntWeakNC }, 650 }, // DIS-NC
+    { { SType::kScInverseMuDecay, IType::kIntWeakCC }, 701 }, // IMD
+    { { SType::kScIMDAnnihilation, IType::kIntWeakCC }, 702 }, // IMD-ANH
+    { { SType::kScMEC, IType::kIntWeakCC }, 300 }, // MEC-CC
+    { { SType::kScMEC, IType::kIntWeakNC }, 350 }, // MEC-NC
+    { { SType::kScNull, IType::kIntNOsc }, 900 }, // NNBarOsc
+    { { SType::kScNuElectronElastic, IType::kIntWeakMix }, 703 }, // NUE-EL
+    { { SType::kScNuElectronElastic, IType::kIntWeakNC }, 703 }, // NUE-EL
+    { { SType::kScNull, IType::kIntNDecay }, 901 }, // NucleonDecay
+    { { SType::kScQuasiElastic, IType::kIntWeakCC }, 200 }, // QEL-CC
+    { { SType::kScQuasiElastic, IType::kIntWeakNC }, 250 }, // QEL-NC
+    { { SType::kScResonant, IType::kIntWeakCC }, 400 }, // RES-CC
+    { { SType::kScResonant, IType::kIntWeakNC }, 450 }, // RES-NC
   };
 
   // P.R.1
@@ -266,7 +278,7 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
     HepMC3::FourVector mom4( g_part->Px(), g_part->Py(), g_part->Pz(),
       g_part->Energy() );
 
-    int hepmc3_status = this->GetHepMC3ParticleStatus( g_part, gevrec );
+    int hepmc3_status = this->GetNuHepMCParticleStatus( g_part, gevrec );
 
     auto part = std::make_shared< HepMC3::GenParticle >( mom4, g_part->Pdg(),
       hepmc3_status );
@@ -427,14 +439,14 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
 
   // Create a HepMC3::GenRunInfo object if needed, then associate it with the
   // current event
-  if ( !fRunInfo ) this->PrepareRunInfo();
+  if ( !fRunInfo ) this->PrepareRunInfo( &gevrec );
   evt->set_run_info( fRunInfo );
 
   // Return the completed HepMC3::GenEvent object
   return evt;
 }
 //____________________________________________________________________________
-int genie::HepMC3Converter::GetHepMC3ParticleStatus(
+int genie::HepMC3Converter::GetNuHepMCParticleStatus(
   const genie::GHepParticle* gpart, const genie::EventRecord& gevrec ) const
 {
   // The initial state status is split by the NuHepMC standard into "beam"
@@ -461,7 +473,7 @@ int genie::HepMC3Converter::GetHepMC3ParticleStatus(
   return iter->second.code_;
 }
 //____________________________________________________________________________
-void genie::HepMC3Converter::PrepareRunInfo()
+void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
 {
   // G.R.1
   fRunInfo = std::make_shared<HepMC3::GenRunInfo>();
@@ -492,74 +504,127 @@ void genie::HepMC3Converter::PrepareRunInfo()
     std::make_shared<HepMC3::StringAttribute>(tune_name) );
 
   // G.R.4
-  std::vector< int > proc_IDs;
+  std::set< int > proc_IDs;
 
-  // Build the list of process IDs from the global list of xsec models
-  genie::AlgConfigPool* acp = genie::AlgConfigPool::Instance();
-  genie::Registry* gpl = acp->GlobalParameterList();
-  const auto& gpl_item_map = gpl->GetItemMap();
-  const std::string prefix( "XSecModel@genie::EventGenerator/" );
-  for ( const auto& pair : gpl_item_map ) {
-    // Skip keys that aren't cross-section model settings
-    const std::string& key = pair.first;
-    if ( key.find(prefix) == std::string::npos ) continue;
+  // Build the list of process IDs from the currently-enabled interactions
+  // using a nominal probe and target nucleus
+  genie::InitialState cite_istate( CITE_TARGET, CITE_PROBE );
 
-    // Get the interaction mode string (the part of the key after the prefix)
-    std::string mode = key;
-    mode.erase( 0, prefix.size() );
+  // If the input event has one, use its initial state instead of the default
+  // above
+  genie::Interaction* input_inter = gevrec ? gevrec->Summary() : nullptr;
+  if ( input_inter ) {
+    cite_istate = input_inter->InitState();
+  }
 
-    // Look up the NuHepMC3 process ID code for the current kind of interaction
-    int id_code = NUHEPMC3_PROC_MAP.at( mode );
+  genie::GEVGDriver cite_driver;
+
+  cite_driver.SetEventGeneratorList( genie::RunOpt::Instance()
+    ->EventGeneratorList() );
+  cite_driver.Configure( cite_istate );
+
+  std::map< int, std::set<std::string> > mode_to_citation_DOIs;
+  const genie::InteractionList& inter_list = *cite_driver.Interactions();
+  for ( const auto inter : inter_list ) {
+
+    const genie::EventGeneratorI* eg = cite_driver.FindGenerator( inter );
+    if ( !eg ) continue;
+
+    const genie::XSecAlgorithmI* xsec_model = eg->CrossSectionAlg();
+    if ( !xsec_model ) continue;
+
+    // Look up the NuHepMC3 process ID code for the current scattering type and
+    // interaction type combination
+    genie::ScatteringType_t s_type = inter->ProcInfo().ScatteringTypeId();
+    genie::InteractionType_t i_type = inter->ProcInfo().InteractionTypeId();
+    int id_code = GetNuHepMCProcessID( *inter );
     std::string id_code_str = std::to_string( id_code );
 
-    // Add it to the vector of active process ID codes
-    proc_IDs.push_back( id_code );
+    // Add it to the set of active process ID codes
+    proc_IDs.insert( id_code );
+
+    // Get a name for this process produced by GENIE
+    std::string proc_name = genie::ScatteringType::AsString( s_type )
+      + "-" + genie::InteractionType::AsString( i_type );
 
     // Save the name of the process as a string attribute
     fRunInfo->add_attribute( "NuHepMC.ProcessInfo[" + id_code_str + "].Name",
-      std::make_shared< HepMC3::StringAttribute >(mode) );
+      std::make_shared< HepMC3::StringAttribute >(proc_name) );
 
-    // Get the registry algorithm ID for the cross-section model used by GENIE
-    RgAlg alg = gpl->GetAlg( key );
-
-    // Look up its XML configuration settings
-    genie::Registry* xsec_config = acp->FindRegistry( alg.name, alg.config );
-
-    // G.C.5
-    // Check the number of citations listed for the given algorithm
-    //int num_citations = xsec_config->GetIntDef( "Citation-Count", 0 );
-
-    // Get the DOI for the first citation for this algorithm, if it exists
-    std::string doi = xsec_config->GetStringDef( "Citation-0-DOI", "" );
-
-    // Try using the default configuration of the algorithm if a DOI wasn't
-    // found and the algorithm has a non-default configuration
-    if ( doi.empty() && alg.config != "Default" ) {
-      genie::Registry* xsec_config_def = acp->FindRegistry( alg.name,
-        "Default" );
-      doi = xsec_config_def->GetStringDef( "Citation-0-DOI", "" );
-    }
-
-    std::string cite;
-    if ( !doi.empty() ) {
-      cite = " -- http://doi.org/" + doi;
-    }
-
-    std::string desc =  alg.name + '/' + alg.config + cite;
+    const genie::AlgId& alg_id = xsec_model->Id();
+    std::string desc = alg_id.Name() + '/' + alg_id.Config();
 
     // Save the description of the process as a string attribute
     fRunInfo->add_attribute( "NuHepMC.ProcessInfo[" + id_code_str
       + "].Description", std::make_shared< HepMC3::StringAttribute >(desc) );
+
+    // G.C.5
+    // Get a reference to the current set of DOIs for models of the given
+    // process. The set will be created if it doesn't already exist.
+    auto& mode_citations = mode_to_citation_DOIs[ id_code ];
+
+    // Check the number of citations listed for the given algorithm
+    const genie::Registry& xsec_config = xsec_model->GetConfig();
+
+    int num_citations = 0;
+    const std::string cite_count_key( "Citation-Count" );
+
+    if ( xsec_config.Exists(cite_count_key) ) {
+      num_citations = xsec_config.GetInt( cite_count_key );
+    }
+
+    for ( int c = 0; c < num_citations; ++c ) {
+      // Get the DOI for the c-th citation for this algorithm, if it exists
+      std::string doi;
+      std::string cite_key = "Citation-" + std::to_string(c) + "-DOI";
+      if ( xsec_config.Exists(cite_key) ) {
+        doi = xsec_config.GetString( cite_key );
+      }
+
+      //// Try using the default configuration of the algorithm if a DOI wasn't
+      //// found and the algorithm has a non-default configuration
+      //if ( doi.empty() && alg.config != "Default" ) {
+      //  genie::Registry* xsec_config_def = acp->FindRegistry( alg.name,
+      //    "Default" );
+      //  doi = xsec_config_def->GetStringDef( "Citation-0-DOI", "" );
+      //}
+
+      if ( !doi.empty() ) {
+        mode_citations.insert( doi );
+      }
+    } // loop over citations
+  } // loop over enabled interactions
+
+  // Save the DOIs for the various interaction processes to the run info
+  for ( const auto& cite_pair : mode_to_citation_DOIs ) {
+    int proc_id_code = cite_pair.first;
+    const std::set< std::string >& doi_set = cite_pair.second;
+
+    std::vector< std::string > doi_vec;
+    for ( const std::string& doi : doi_set ) {
+      doi_vec.push_back( doi );
+    }
+
+    if ( doi_vec.empty() ) continue;
+
+    fRunInfo->add_attribute( "NuHepMC.ProcessInfo["
+      + std::to_string(proc_id_code) + "].DOI",
+      std::make_shared< HepMC3::VectorStringAttribute >(doi_vec) );
   }
 
+  // Save the process ID list to the run info
+  std::vector< int > proc_ID_vec;
+  for ( const int& id : proc_IDs ) proc_ID_vec.push_back( id );
+
   fRunInfo->add_attribute( "NuHepMC.ProcessIDs",
-    std::make_shared< HepMC3::VectorIntAttribute >(proc_IDs) );
+    std::make_shared< HepMC3::VectorIntAttribute >(proc_ID_vec) );
 
   // G.R.5
   std::vector< int > vertex_IDs;
 
   const std::map< int, std::pair<std::string, std::string> > vtx_status_map = {
     { 1, { "Primary", "The primary vertex or hard scatter" } },
+    { 2, { "Nuclear", "Separation of the hit nucleon from the spectator nucleus" } },
     { 3, { "Secondary", "Secondary vertex" } },
   };
 
@@ -579,7 +644,7 @@ void genie::HepMC3Converter::PrepareRunInfo()
     std::make_shared< HepMC3::VectorIntAttribute >(vertex_IDs) );
 
   // G.R.6
-  std::vector< int > particle_statuses = { 4, 11 };
+  std::set< int > particle_statuses = { 4, 11 };
 
   fRunInfo->add_attribute( "NuHepMC.ParticleStatusInfo[4].Name",
     std::make_shared< HepMC3::StringAttribute >("Beam") );
@@ -597,7 +662,7 @@ void genie::HepMC3Converter::PrepareRunInfo()
     const auto& ps = pstatus_pair.second;
     std::string ps_code_str = std::to_string( ps.code_ );
 
-    particle_statuses.push_back( ps.code_ );
+    particle_statuses.insert( ps.code_ );
 
     fRunInfo->add_attribute( "NuHepMC.ParticleStatusInfo[" + ps_code_str
       + "].Name", std::make_shared< HepMC3::StringAttribute >(ps.name_) );
@@ -607,8 +672,13 @@ void genie::HepMC3Converter::PrepareRunInfo()
       std::make_shared< HepMC3::StringAttribute >(ps.desc_) );
   }
 
+  std::vector< int > part_status_vec;
+  for ( const int& ps : particle_statuses ) {
+    part_status_vec.push_back( ps );
+  }
+
   fRunInfo->add_attribute( "NuHepMC.ParticleStatusIDs",
-    std::make_shared< HepMC3::VectorIntAttribute >(particle_statuses) );
+    std::make_shared< HepMC3::VectorIntAttribute >(part_status_vec) );
 
   // G.R.7
   fRunInfo->set_weight_names( { "CV" } );
@@ -863,6 +933,11 @@ genie::GHepStatus_t genie::HepMC3Converter::GetGHepParticleStatus(
 void genie::HepMC3Converter::StoreInteraction( const genie::Interaction& inter,
   HepMC3::GenEvent& evt )
 {
+  // E.R.2
+  int proc_id_code = GetNuHepMCProcessID( inter );
+  evt.add_attribute( "ProcID",
+    std::make_shared< HepMC3::IntAttribute >(proc_id_code) );
+
   const genie::InitialState& istate = inter.InitState();
   const genie::Target& tgt = istate.Tgt();
 
@@ -1226,5 +1301,21 @@ genie::Interaction* genie::HepMC3Converter::RetrieveInteraction(
   xt.SetNRhos( num_rhop, num_rho0, num_rhom );
 
   return inter;
+}
+//____________________________________________________________________________
+int genie::HepMC3Converter::GetNuHepMCProcessID(
+  const genie::Interaction& inter ) const
+{
+  genie::ScatteringType_t s_type = inter.ProcInfo().ScatteringTypeId();
+  genie::InteractionType_t i_type = inter.ProcInfo().InteractionTypeId();
+
+  auto id_iter = NUHEPMC_PROC_MAP.find( { s_type, i_type } );
+  if ( id_iter == NUHEPMC_PROC_MAP.end() ) {
+    LOG( "HepMC3Converter", pWARN ) << "Could not find a NuHepMC process ID"
+      << " code for the GENIE interaction " << inter;
+    return NUHEPMC_PROC_UNKNOWN;
+  }
+  int id_code = id_iter->second;
+  return id_code;
 }
 #endif //__GENIE_HEPMC3_INTERFACE_ENABLED__
