@@ -54,7 +54,7 @@ void HadronicSystemGenerator::AddFinalHadronicSyst(GHepRecord * evrec) const
   TLorentzVector p4 = this->Hadronic4pLAB(evrec);
   LOG("HadronicVtx", pNOTICE) << "\n HadrSyst [LAB]: " << P4AsString(&p4);
 
-  TLorentzVector v4(0,0,0,0);
+  const TLorentzVector& v4 = *evrec->HitNucleon()->X4();
   int mom = evrec->HitNucleonPosition();
 
   evrec->AddParticle(
