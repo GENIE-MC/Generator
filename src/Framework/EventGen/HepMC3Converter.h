@@ -25,7 +25,6 @@
 namespace HepMC3 {
   class GenEvent;
   class GenRunInfo;
-  class WriterAscii;
 }
 
 namespace genie {
@@ -44,10 +43,6 @@ public:
   std::shared_ptr< genie::EventRecord > RetrieveGHEP(
     const HepMC3::GenEvent& evt );
 
-  // For testing purposes
-  // TODO: Remove and create an ntuple writer instead
-  void WriteEvent( const HepMC3::GenEvent& evt ) const;
-
 protected:
 
   int GetHepMC3ParticleStatus( const genie::GHepParticle* gpart,
@@ -63,7 +58,6 @@ protected:
   void PrepareRunInfo();
 
   std::shared_ptr< HepMC3::GenRunInfo > fRunInfo;
-  std::shared_ptr< HepMC3::WriterAscii > fWriter;
 
 };
 
