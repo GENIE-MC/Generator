@@ -136,6 +136,8 @@ namespace {
     { genie::EGHepStatus::kIStNucleonClusterTarget,
       { 28, "Nucleon cluster", "Temporary multi-nucleon system for"
         " internal use" } },
+    { genie::EGHepStatus::kIStFormZone,
+      { 29, "Formation zone", "Hadron before formation zone free step" } },
   };
 
   // Convert the contents of a TBits object into a string that can be stored in
