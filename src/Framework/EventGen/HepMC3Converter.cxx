@@ -43,6 +43,7 @@
 // Definitions unique to this source file
 namespace {
   constexpr int DEFAULT_RESCATTER_CODE = -1;
+  constexpr int DEFAULT_DECAY_MODE = -1;
   constexpr int DUMMY_PARTICLE_INDEX = -1;
 
   // Implemented version of the NuHepMC standard
@@ -156,6 +157,24 @@ namespace {
       temp_ss >> bit_val;
       bits.SetBitNumber( b, bit_val );
     }
+  }
+
+  // Converts a TLorentzVector to a form suitable for storage as a HepMC3
+  // attribute
+  std::shared_ptr< HepMC3::VectorDoubleAttribute > four_vector_to_attribute(
+    const TLorentzVector& vec4 )
+  {
+    std::vector< double > temp_vec = { vec4.X(), vec4.Y(), vec4.Z(), vec4.T() };
+    return std::make_shared< HepMC3::VectorDoubleAttribute >( temp_vec );
+  }
+
+  // Retrieves a TLorentzVector stored in a HepMC3::VectorDoubleAttribute
+  TLorentzVector attribute_to_four_vector(
+    const HepMC3::VectorDoubleAttribute& attr )
+  {
+    const std::vector< double >& vec = attr.value();
+    TLorentzVector result( vec.at(0), vec.at(1), vec.at(2), vec.at(3) );
+    return result;
   }
 
 }
@@ -744,7 +763,8 @@ std::shared_ptr< genie::EventRecord > genie::HepMC3Converter::RetrieveGHEP(
     gevrec->SetDiffXSec( diff_xsec_ptr->value(), ps );
   }
 
-  //this->RetrieveInteraction( *gevrec->Summary(), evt );
+  genie::Interaction* itr = this->RetrieveInteraction( evt );
+  gevrec->AttachSummary( itr );
 
   return gevrec;
 }
@@ -776,13 +796,368 @@ genie::GHepStatus_t genie::HepMC3Converter::GetGHepParticleStatus(
   return iter->first;
 }
 //____________________________________________________________________________
-void genie::HepMC3Converter::StoreInteraction( const genie::Interaction& /*inter*/,
-  HepMC3::GenEvent& /*evt*/ )
+void genie::HepMC3Converter::StoreInteraction( const genie::Interaction& inter,
+  HepMC3::GenEvent& evt )
 {
+  const genie::InitialState& istate = inter.InitState();
+  const genie::Target& tgt = istate.Tgt();
+
+  evt.add_attribute( "GENIE.Interaction.ProbePDG",
+    std::make_shared< HepMC3::IntAttribute >(istate.ProbePdg()) );
+
+  TLorentzVector* temp_probe_p4 = istate.GetProbeP4( genie::kRfLab );
+  evt.add_attribute( "GENIE.Interaction.ProbeP4",
+    four_vector_to_attribute(*temp_probe_p4) );
+  delete temp_probe_p4;
+
+  TLorentzVector* temp_tgt_p4 = istate.GetTgtP4( genie::kRfLab );
+  evt.add_attribute( "GENIE.Interaction.TargetP4",
+    four_vector_to_attribute(*temp_tgt_p4) );
+  delete temp_tgt_p4;
+
+  evt.add_attribute( "GENIE.Interaction.TargetPDG",
+    std::make_shared< HepMC3::IntAttribute >(tgt.Pdg()) );
+  if ( tgt.HitNucIsSet() ) {
+    evt.add_attribute( "GENIE.Interaction.HitNucleonPDG",
+      std::make_shared< HepMC3::IntAttribute >(tgt.HitNucPdg()) );
+    evt.add_attribute( "GENIE.Interaction.HitNucleonP4",
+      four_vector_to_attribute(tgt.HitNucP4()) );
+    evt.add_attribute( "GENIE.Interaction.HitNucleonRadius",
+      std::make_shared< HepMC3::DoubleAttribute >(tgt.HitNucPosition()) );
+  }
+  if ( tgt.HitQrkIsSet() ) {
+    evt.add_attribute( "GENIE.Interaction.HitQuarkPDG",
+      std::make_shared< HepMC3::IntAttribute >(tgt.HitQrkPdg()) );
+    evt.add_attribute( "GENIE.Interaction.HitSeaQuark",
+      std::make_shared< HepMC3::IntAttribute >(tgt.HitSeaQrk()) );
+  }
+
+  const genie::ProcessInfo& proc_info = inter.ProcInfo();
+  int s_type = static_cast< int >( proc_info.ScatteringTypeId() );
+  int i_type = static_cast< int >( proc_info.InteractionTypeId() );
+
+  evt.add_attribute( "GENIE.Interaction.ScatteringType",
+    std::make_shared< HepMC3::IntAttribute >(s_type) );
+  evt.add_attribute( "GENIE.Interaction.InteractionType",
+    std::make_shared< HepMC3::IntAttribute >(i_type) );
+
+  const genie::Kinematics& kine = inter.Kine();
+  evt.add_attribute( "GENIE.Interaction.FSLeptonP4",
+    four_vector_to_attribute(kine.FSLeptonP4()) );
+  evt.add_attribute( "GENIE.Interaction.HadSystP4",
+    four_vector_to_attribute(kine.HadSystP4()) );
+
+  // Convert the map of kinematic variable values into two vectors of the same
+  // size
+  std::vector< int > kvar_labels;
+  std::vector< double > kvar_values;
+  for ( const auto kvar_pair : kine.GetMap() ) {
+    int label = static_cast< int >( kvar_pair.first );
+    kvar_labels.push_back( label );
+    kvar_values.push_back( kvar_pair.second );
+  }
+
+  // Only bother to store the map contents if there is at least one kinematic
+  // variable set
+  if ( !kvar_labels.empty() ) {
+    evt.add_attribute( "GENIE.Interaction.KineVarLabels",
+      std::make_shared< HepMC3::VectorIntAttribute >(kvar_labels) );
+    evt.add_attribute( "GENIE.Interaction.KineVarValues",
+      std::make_shared< HepMC3::VectorDoubleAttribute >(kvar_values) );
+  }
+
+  // Store data members of the exclusive tag if they differ from their default
+  // values
+  const genie::XclsTag& xt = inter.ExclTag();
+  if ( xt.IsStrangeEvent() ) {
+    evt.add_attribute( "GENIE.Interaction.StrangeHadronPDG",
+      std::make_shared< HepMC3::IntAttribute >(xt.StrangeHadronPdg()) );
+  }
+  if ( xt.IsCharmEvent() ) {
+    evt.add_attribute( "GENIE.Interaction.CharmHadronPDG",
+      std::make_shared< HepMC3::IntAttribute >(xt.CharmHadronPdg()) );
+  }
+  if ( xt.IsFinalLeptonEvent() ) {
+    evt.add_attribute( "GENIE.Interaction.FinalLeptonPDG",
+      std::make_shared< HepMC3::IntAttribute >(xt.FinalLeptonPdg()) );
+  }
+  if ( xt.IsFinalQuarkEvent() ) {
+    evt.add_attribute( "GENIE.Interaction.FinalQuarkPDG",
+      std::make_shared< HepMC3::IntAttribute >(xt.FinalQuarkPdg()) );
+  }
+  if ( xt.KnownResonance() ) {
+    int res_id = static_cast< int >( xt.Resonance() );
+    evt.add_attribute( "GENIE.Interaction.Resonance",
+      std::make_shared< HepMC3::IntAttribute >(res_id) );
+  }
+
+  int decay_mode = xt.DecayMode();
+  if ( decay_mode != DEFAULT_DECAY_MODE ) {
+    evt.add_attribute( "GENIE.Interaction.DecayMode",
+      std::make_shared< HepMC3::IntAttribute >(decay_mode) );
+  }
+
+  int num_protons = xt.NProtons();
+  if ( num_protons != 0 ) {
+    evt.add_attribute( "GENIE.Interaction.NProtons",
+      std::make_shared< HepMC3::IntAttribute >(num_protons) );
+  }
+
+  int num_neutrons = xt.NNeutrons();
+  if ( num_neutrons != 0 ) {
+    evt.add_attribute( "GENIE.Interaction.NNeutrons",
+      std::make_shared< HepMC3::IntAttribute >(num_neutrons) );
+  }
+
+  int num_pi0 = xt.NPi0();
+  if ( num_pi0 != 0 ) {
+    evt.add_attribute( "GENIE.Interaction.NPi0",
+      std::make_shared< HepMC3::IntAttribute >(num_pi0) );
+  }
+
+  int num_pips = xt.NPiPlus();
+  if ( num_pips != 0 ) {
+    evt.add_attribute( "GENIE.Interaction.NPiPlus",
+      std::make_shared< HepMC3::IntAttribute >(num_pips) );
+  }
+
+  int num_pims = xt.NPiMinus();
+  if ( num_pims != 0 ) {
+    evt.add_attribute( "GENIE.Interaction.NPiMinus",
+      std::make_shared< HepMC3::IntAttribute >(num_pims) );
+  }
+
+  int num_sgam = xt.NSingleGammas();
+  if ( num_sgam != 0 ) {
+    evt.add_attribute( "GENIE.Interaction.NSingleGammas",
+      std::make_shared< HepMC3::IntAttribute >(num_sgam) );
+  }
+
+  int num_rho0 = xt.NRho0();
+  if ( num_rho0 != 0 ) {
+    evt.add_attribute( "GENIE.Interaction.NRho0",
+      std::make_shared< HepMC3::IntAttribute >(num_rho0) );
+  }
+
+  int num_rhop = xt.NRhoPlus();
+  if ( num_rhop != 0 ) {
+    evt.add_attribute( "GENIE.Interaction.NRhoPlus",
+      std::make_shared< HepMC3::IntAttribute >(num_rhop) );
+  }
+
+  int num_rhom = xt.NRhoMinus();
+  if ( num_rhom != 0 ) {
+    evt.add_attribute( "GENIE.Interaction.NRhoMinus",
+      std::make_shared< HepMC3::IntAttribute >(num_rhom) );
+  }
+
 }
 //____________________________________________________________________________
-void genie::HepMC3Converter::RetrieveInteraction( genie::Interaction& /*inter*/,
-  const HepMC3::GenEvent& /*evt*/ )
+genie::Interaction* genie::HepMC3Converter::RetrieveInteraction(
+  const HepMC3::GenEvent& evt )
 {
+  // Start by loading the initial-state information
+  genie::InitialState istate;
+  genie::Target& tgt = *istate.TgtPtr();
+
+  auto tgt_pdg_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.TargetPDG" );
+  if ( tgt_pdg_ptr ) tgt.SetId( tgt_pdg_ptr->value() );
+
+  auto probe_pdg_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.ProbePDG" );
+  if ( probe_pdg_ptr ) istate.SetProbePdg( probe_pdg_ptr->value() );
+
+  auto probe_p4_ptr = evt.attribute< HepMC3::VectorDoubleAttribute >(
+   "GENIE.Interaction.ProbeP4" );
+  if ( probe_p4_ptr ) {
+    TLorentzVector temp_p4 = attribute_to_four_vector( *probe_p4_ptr );
+    istate.SetProbeP4( temp_p4 );
+  }
+
+  auto tgt_p4_ptr = evt.attribute< HepMC3::VectorDoubleAttribute >(
+    "GENIE.Interaction.TargetP4" );
+  if ( tgt_p4_ptr ) {
+    TLorentzVector temp_p4 = attribute_to_four_vector( *tgt_p4_ptr );
+    istate.SetTgtP4( temp_p4 );
+  }
+
+  auto hit_nuc_pdg_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.HitNucleonPDG" );
+
+  if ( hit_nuc_pdg_ptr ) {
+
+    tgt.SetHitNucPdg( hit_nuc_pdg_ptr->value() );
+
+    auto hit_nuc_p4_ptr = evt.attribute< HepMC3::VectorDoubleAttribute >(
+     "GENIE.Interaction.HitNucleonP4" );
+    if ( hit_nuc_p4_ptr ) {
+      TLorentzVector temp_p4 = attribute_to_four_vector( *hit_nuc_p4_ptr );
+      tgt.SetHitNucP4( temp_p4 );
+    }
+
+    auto hit_nuc_radius_ptr = evt.attribute< HepMC3::DoubleAttribute >(
+      "GENIE.Interaction.HitNucleonRadius" );
+    if ( hit_nuc_radius_ptr ) {
+      tgt.SetHitNucPosition( hit_nuc_radius_ptr->value() );
+    }
+
+  }
+
+  auto hit_q_pdg_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.HitQuarkPDG" );
+  if ( hit_q_pdg_ptr ) {
+    tgt.SetHitQrkPdg( hit_q_pdg_ptr->value() );
+
+    auto sea_q_ptr = evt.attribute< HepMC3::IntAttribute >(
+      "GENIE.Interaction.HitSeaQuark" );
+    if ( sea_q_ptr ) tgt.SetHitSeaQrk( sea_q_ptr->value() );
+  }
+
+  // TODO: add error handling for when only one of these is set
+  auto s_type_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.ScatteringType" );
+  auto i_type_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.InteractionType" );
+
+  genie::ProcessInfo proc_info;
+  if ( s_type_ptr && i_type_ptr ) {
+    auto s_type = static_cast< genie::ScatteringType_t >(
+      s_type_ptr->value() );
+    auto i_type = static_cast< genie::InteractionType_t >(
+      i_type_ptr->value() );
+
+    proc_info.Set( s_type, i_type );
+  }
+
+  auto inter = new genie::Interaction( istate, proc_info );
+
+  genie::Kinematics& kine = *inter->KinePtr();
+
+  auto fsl_p4_ptr = evt.attribute< HepMC3::VectorDoubleAttribute >(
+   "GENIE.Interaction.FSLeptonP4" );
+  if ( fsl_p4_ptr ) {
+    TLorentzVector temp_p4 = attribute_to_four_vector( *fsl_p4_ptr );
+    kine.SetFSLeptonP4( temp_p4 );
+  }
+
+  auto hs_p4_ptr = evt.attribute< HepMC3::VectorDoubleAttribute >(
+   "GENIE.Interaction.HadSystP4" );
+  if ( hs_p4_ptr ) {
+    TLorentzVector temp_p4 = attribute_to_four_vector( *hs_p4_ptr );
+    kine.SetHadSystP4( temp_p4 );
+  }
+
+  // TODO: add error handling for when only one of these is set
+  auto kv_label_ptr = evt.attribute< HepMC3::VectorIntAttribute >(
+    "GENIE.Interaction.KineVarLabels" );
+  auto kv_value_ptr = evt.attribute< HepMC3::VectorDoubleAttribute >(
+    "GENIE.Interaction.KineVarValues" );
+  if ( kv_label_ptr && kv_value_ptr ) {
+    const auto& label_vec = kv_label_ptr->value();
+    const auto& value_vec = kv_value_ptr->value();
+
+    size_t num_KVs = label_vec.size();
+    assert( num_KVs == value_vec.size() );
+    for ( size_t kv = 0u; kv < num_KVs; ++kv ) {
+      auto label = static_cast< genie::KineVar_t >( label_vec.at(kv) );
+      kine.SetKV( label, value_vec.at(kv) );
+    }
+  }
+
+  genie::XclsTag& xt = *inter->ExclTagPtr();
+
+  auto strange_pdg_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.StrangeHadronPDG" );
+  if ( strange_pdg_ptr ) {
+    xt.SetStrange( strange_pdg_ptr->value() );
+  }
+
+  auto charm_pdg_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.CharmHadronPDG" );
+  if ( charm_pdg_ptr ) {
+    xt.SetCharm( charm_pdg_ptr->value() );
+  }
+
+  auto fslep_pdg_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.FinalLeptonPDG" );
+  if ( fslep_pdg_ptr ) {
+    xt.SetFinalLepton( fslep_pdg_ptr->value() );
+  }
+
+  auto fsq_pdg_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.FinalQuarkPDG" );
+  if ( fsq_pdg_ptr ) {
+    xt.SetFinalQuark( fsq_pdg_ptr->value() );
+  }
+
+  auto res_id_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.Resonance" );
+  if ( res_id_ptr ) {
+    auto res_id = static_cast< genie::Resonance_t >( res_id_ptr->value() );
+    xt.SetResonance( res_id );
+  }
+
+  auto dm_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.DecayMode" );
+  if ( dm_ptr ) {
+    xt.SetDecayMode( dm_ptr->value() );
+  }
+
+  auto num_p_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.NProtons" );
+  if ( num_p_ptr ) {
+    xt.SetNProtons( num_p_ptr->value() );
+  }
+
+  auto num_n_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.NNeutrons" );
+  if ( num_n_ptr ) {
+    xt.SetNNeutrons( num_n_ptr->value() );
+  }
+
+  int num_pi0 = 0;
+  int num_pip = 0;
+  int num_pim = 0;
+
+  auto num_pi0_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.NPi0" );
+  if ( num_pi0_ptr ) num_pi0 = num_pi0_ptr->value();
+
+  auto num_pim_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.NPiMinus" );
+  if ( num_pim_ptr ) num_pim = num_pim_ptr->value();
+
+  auto num_pip_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.NPiPlus" );
+  if ( num_pip_ptr ) num_pip = num_pip_ptr->value();
+
+  xt.SetNPions( num_pip, num_pi0, num_pim );
+
+  auto num_sgam_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.NSingleGammas" );
+  if ( num_sgam_ptr ) {
+    xt.SetNSingleGammas( num_sgam_ptr->value() );
+  }
+
+  int num_rho0 = 0;
+  int num_rhop = 0;
+  int num_rhom = 0;
+
+  auto num_rho0_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.NRho0" );
+  if ( num_rho0_ptr ) num_rho0 = num_rho0_ptr->value();
+
+  auto num_rhop_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.NRhoPlus" );
+  if ( num_rhop_ptr ) num_rhop = num_rhop_ptr->value();
+
+  auto num_rhom_ptr = evt.attribute< HepMC3::IntAttribute >(
+    "GENIE.Interaction.NRhoMinus" );
+  if ( num_rhom_ptr ) num_rhom = num_rhom_ptr->value();
+
+  xt.SetNRhos( num_rhop, num_rho0, num_rhom );
+
+  return inter;
 }
 #endif //__GENIE_HEPMC3_INTERFACE_ENABLED__
