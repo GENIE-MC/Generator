@@ -26,7 +26,7 @@ Syntax:
               -t target_pdg
              [-f flux_description]
              [-F flux_options]
-             [-o outfile_name]
+             [-o outfile_spec]
              [-w]
              [--force-flux-ray-interaction]
              [--seed random_number_seed]
@@ -86,7 +86,22 @@ Syntax:
               Specifies direction,size,start point of histogram flux
               dircosx,dircosy,dircosz,Radius,spotx,spoty,spotz
            -o
-              Specifies the name of the output file events will be saved in.
+              Specifies the name and format of one or more output files that
+              the events will be saved in. Valid forms include
+              -- A single file name (will produce a GHEP-format ROOT file)
+                 e.g., ` -o my_ghep_events.root'
+              -- A single file name together with a format specifier separated
+                 by a comma
+                 e.g., ` -o my_hepmc_events.txt,hepmc`
+              -- Multiple file names, each with an explicit format specifier
+                 e.g., ` -o my_ghep_events.root,ghep,my_hepmc_events.txt,hepmc'
+
+              The allowed output formats are
+              -- ghep  = a ROOT file containing "traditional" GHEP events
+              -- hepmc = an ASCII text file containing HepMC3-format events
+                         (allowed only if GENIE was built against the HepMC3
+                         libraries via ./configure --enable-hepmc3)
+
            -w
               Forces generation of weighted events.
               This option is relevant only if a neutrino flux is specified.
@@ -146,10 +161,11 @@ Syntax:
 
 #include <cstdlib>
 #include <cassert>
+#include <map>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <map>
 
 #if defined(HAVE_FENV_H) && defined(HAVE_FEENABLEEXCEPT)
 #include <fenv.h> // for `feenableexcept`
@@ -196,6 +212,11 @@ Syntax:
 #endif
 #endif
 
+#ifdef __GENIE_HEPMC3_INTERFACE_ENABLED__
+#include "Framework/EventGen/HepMC3Converter.h"
+#include "Framework/Ntuple/HepMC3NtpWriter.h"
+#endif
+
 using std::string;
 using std::vector;
 using std::map;
@@ -207,6 +228,9 @@ using namespace genie::controls;
 void GetCommandLineArgs (int argc, char ** argv);
 void Initialize         (void);
 void PrintSyntax        (void);
+
+std::vector< std::shared_ptr<NtpWriterI> >
+  PrepareNtpWriters( const std::vector< std::string >& out_file_spec );
 
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX_OR_TGTMIX__
 void            GenerateEventsUsingFluxOrTgtMix();
@@ -238,8 +262,8 @@ bool            gOptForceInt;     //
 bool            gOptUsingFluxOrTgtMix = false;
 long int        gOptRanSeed;      // random number seed
 string          gOptInpXSecFile;  // cross-section splines
-string          gOptOutFileName;  // Optional outfile name
-string          gOptStatFileName; // Status file name, set if gOptOutFileName was set.
+vector<string>  gOptOutFileSpec;  // Optional outfile specification
+string          gOptStatFileName; // Status file name, set if gOptOutFileSpec was set.
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -306,15 +330,8 @@ void GenerateEventsAtFixedInitState(void)
   evg_driver.SetUnphysEventMask(*RunOpt::Instance()->UnphysEventMask());
   evg_driver.Configure(init_state);
 
-  // Initialize an Ntuple Writer
-  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
-
-  // If an output file name has been specified... use it
-  if (!gOptOutFileName.empty()){
-    ntpw.CustomizeFilename(gOptOutFileName);
-  }
-  ntpw.Initialize();
-
+  // Initialize the ntuple writer(s)
+  auto ntp_writers = PrepareNtpWriters( gOptOutFileSpec );
 
   // Create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
@@ -349,14 +366,14 @@ void GenerateEventsAtFixedInitState(void)
         << "Generated Event GHEP Record: " << *event;
 
      // add event at the output ntuple, refresh the mc job monitor & clean up
-     ntpw.AddEventRecord(ievent, event);
+     for ( auto& writer : ntp_writers ) writer->AddEventRecord(ievent, event);
      mcjmonitor.Update(ievent,event);
      ievent++;
      delete event;
   }
 
   // Save the generated MC events
-  ntpw.Save();
+  for ( auto& writer : ntp_writers ) writer->Save();
 }
 //____________________________________________________________________________
 
@@ -383,13 +400,7 @@ void GenerateEventsUsingFluxOrTgtMix(void)
 
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
-  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
-
-  // If an output file name has been specified... use it
-  if (!gOptOutFileName.empty()){
-    ntpw.CustomizeFilename(gOptOutFileName);
-  }
-  ntpw.Initialize();
+  auto ntp_writers = PrepareNtpWriters( gOptOutFileSpec );
 
   // Create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
@@ -413,14 +424,15 @@ void GenerateEventsUsingFluxOrTgtMix(void)
      LOG("gevgen", pNOTICE) << "Generated Event GHEP Record: " << *event;
 
      // add event at the output ntuple, refresh the mc job monitor & clean-up
-     ntpw.AddEventRecord(ievent, event);
+     for ( auto& writer : ntp_writers ) writer->AddEventRecord(ievent, event);
      mcjmonitor.Update(ievent,event);
      ievent++;
+
      delete event;
   }
 
   // Save the generated MC events
-  ntpw.Save();
+  for ( auto& writer : ntp_writers ) writer->Save();
 
   delete flux_driver;
   delete geom_driver;
@@ -681,14 +693,32 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // Output file name
   if( parser.OptionExists('o') ) {
-    LOG("gevgen", pINFO) << "Reading output file name";
-    gOptOutFileName = parser.ArgAsString('o');
+    LOG("gevgen", pINFO) << "Reading output file specification";
+    gOptOutFileSpec = parser.ArgAsStringTokens('o', ",");
 
-    gOptStatFileName = gOptOutFileName;
+    size_t ofs_size = gOptOutFileSpec.size();
+    if ( ofs_size == 0u ) {
+      LOG( "gevgen", pWARN ) << "Missing file name when parsing '-o' option";
+      gAbortingInErr = true;
+      exit(1);
+    }
+    // We should have an even number of elements (so that each file name has a
+    // format specifier) in cases where the output file specification is not
+    // just a single file name
+    else if ( ofs_size > 1u && ofs_size % 2 == 1 ) {
+      LOG( "gevgen", pWARN ) << "Missing file format when parsing '-o' option";
+      gAbortingInErr = true;
+      exit(1);
+    }
+
+    // Build the status file name for monitoring using the first event output
+    // file name
+    const std::string& first_out_file = gOptOutFileSpec.front();
+    gOptStatFileName = first_out_file;
     // strip the output file format and replace with .status
-    if (gOptOutFileName.find_last_of(".") != string::npos)
+    if (first_out_file.find_last_of(".") != string::npos)
       gOptStatFileName =
-        gOptStatFileName.substr(0, gOptOutFileName.find_last_of("."));
+        gOptStatFileName.substr(0, first_out_file.find_last_of("."));
     gOptStatFileName .append(".status");
   }
 
@@ -882,7 +912,7 @@ void PrintSyntax(void)
     << "\n               -p neutrino_pdg"
     << "\n               -t target_pdg "
     << "\n              [-f flux_description]"
-    << "\n              [-o outfile_name]"
+    << "\n              [-o outfile_spec]"
     << "\n              [-w]"
     << "\n              [--force-flux-ray-interaction]"
     << "\n              [--seed random_number_seed]"
@@ -890,5 +920,59 @@ void PrintSyntax(void)
     << RunOpt::RunOptSyntaxString(true)
     << "\n";
 
+}
+//____________________________________________________________________________
+std::vector< std::shared_ptr<NtpWriterI> > PrepareNtpWriters(
+  const std::vector< std::string >& out_file_spec )
+{
+  std::vector< std::shared_ptr<NtpWriterI> > writer_vec;
+
+  // If we weren't given an output file name, or if we were passed just a
+  // single file name, default to producing GHEP-format events
+  if ( out_file_spec.size() <= 1u ) {
+    auto ntpw = std::make_shared< NtpWriter >( kDefOptNtpFormat, gOptRunNu,
+      gOptRanSeed );
+
+    if ( !out_file_spec.empty() ) {
+      ntpw->CustomizeFilename( out_file_spec.front() );
+    }
+
+    ntpw->Initialize();
+    writer_vec.push_back( ntpw );
+    return writer_vec;
+  }
+
+  // Handle the general case
+  for ( size_t s = 0u; s < out_file_spec.size(); ++s ) {
+    std::string file_name = out_file_spec.at( s );
+    ++s;
+    std::string format_spec = out_file_spec.at( s );
+    if ( format_spec == "ghep" ) {
+      writer_vec.push_back( std::make_shared< NtpWriter >(
+        kDefOptNtpFormat, gOptRunNu, gOptRanSeed ) );
+    }
+    else if ( format_spec == "hepmc" ) {
+#ifdef __GENIE_HEPMC3_INTERFACE_ENABLED__
+      writer_vec.push_back( std::make_shared< HepMC3NtpWriter >() );
+#else
+      LOG( "gevgen", pWARN ) << "GENIE must be built against the HepMC3"
+        << " libraries in order to use the 'hepmc' format";
+      gAbortingInErr = true;
+      exit(1);
+#endif
+    }
+    else {
+      LOG( "gevgen", pWARN ) << "Invalid file format '" << format_spec
+        << "' when parsing '-o' option";
+      gAbortingInErr = true;
+      exit(1);
+    }
+
+    auto cur_writer = writer_vec.back();
+    cur_writer->CustomizeFilename( file_name );
+    cur_writer->Initialize();
+  }
+
+  return writer_vec;
 }
 //____________________________________________________________________________
