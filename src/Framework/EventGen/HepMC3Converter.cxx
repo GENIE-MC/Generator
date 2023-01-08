@@ -58,6 +58,11 @@ namespace {
   // Placeholder process ID number to use in undefined cases
   constexpr int NUHEPMC_PROC_UNKNOWN = 0;
 
+  // Vertex status codes for NuHepMC
+  constexpr int NUHEPMC_PRIMARY_VERTEX = 1;
+  constexpr int NUHEPMC_NUCLEAR_VERTEX = 2;
+  constexpr int NUHEPMC_SECONDARY_VERTEX = 3;
+
   // Implemented version of the NuHepMC standard
   // (https://github.com/NuHepMC/Spec)
   constexpr int NUHEPMC_MAJOR_VERSION = 0;
@@ -230,7 +235,7 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
   // Create the primary vertex
   // E.R.5
   auto prim_vtx = std::make_shared< HepMC3::GenVertex >();
-  prim_vtx->set_status( 1 );
+  prim_vtx->set_status( NUHEPMC_PRIMARY_VERTEX );
 
   evt->add_vertex( prim_vtx );
 
@@ -277,7 +282,7 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
     hit_nucleon_idx != DUMMY_PARTICLE_INDEX )
   {
     nuclear_vtx = std::make_shared< HepMC3::GenVertex >();
-    nuclear_vtx->set_status( 2 );
+    nuclear_vtx->set_status( NUHEPMC_NUCLEAR_VERTEX );
     evt->add_vertex( nuclear_vtx );
 
     // Get the 4-position of the nuclear vertex from the target nucleus
@@ -340,12 +345,6 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
 
       production_vtx->add_particle_out( part );
 
-      // Set the vertex status if it hasn't already been defined
-      // TODO: set vertex status based on the current particle status
-      if ( production_vtx->status() != 0 ) {
-        production_vtx->set_status( 3 );
-      }
-
       // In the case of an initial-state struck nucleon, send it into the
       // primary vertex
       if ( g_part_idx == hit_nucleon_idx ) {
@@ -372,6 +371,7 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
         end_vtx = evt->particles().at( fd_fm )->end_vertex();
       }
       else {
+        end_vtx->set_status( NUHEPMC_SECONDARY_VERTEX );
         evt->add_vertex( end_vtx );
 
         // This is a new vertex, so get its 4-position from the first daughter
@@ -667,9 +667,11 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
   std::vector< int > vertex_IDs;
 
   const std::map< int, std::pair<std::string, std::string> > vtx_status_map = {
-    { 1, { "Primary", "The primary vertex or hard scatter" } },
-    { 2, { "Nuclear", "Separation of the hit nucleon from the spectator nucleus" } },
-    { 3, { "Secondary", "Secondary vertex" } },
+    { NUHEPMC_PRIMARY_VERTEX,
+      { "Primary", "The primary vertex or hard scatter" } },
+    { NUHEPMC_NUCLEAR_VERTEX,
+      { "Nuclear", "Separate the hit nucleon from the spectator nucleus" } },
+    { NUHEPMC_SECONDARY_VERTEX, { "Secondary", "Secondary vertex" } },
   };
 
   for ( const auto& vtx_pair : vtx_status_map ) {
