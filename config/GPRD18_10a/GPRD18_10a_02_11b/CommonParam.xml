@@ -30,6 +30,8 @@ University of Liverpool
     <!-- <param type="double" name="RES-CC-XSecScale"> 0.85 </param> --> 
     <!--G11a Tune from https://arxiv.org/pdf/2206.11050.pdf-->
     <!-- <param type="double" name="RES-CC-XSecScale"> 0.86 </param> --> 
+    <param type="double" name="RES-Ma">  1.088962  </param>
+    <param type="double" name="DIS-XSecScale"> 1.062213 </param>
   </param_set>
 
 
@@ -87,7 +89,7 @@ University of Liverpool
 
     -->
     <param type="bool"   name="UseDRJoinScheme"> true </param>
-    <param type="double" name="Wcut">            1.7  </param>
+    <param type="double" name="Wcut">            1.81  </param>
 
     <!--
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
