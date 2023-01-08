@@ -34,4 +34,8 @@
 #pragma link C++ class genie::XSecAlgorithmI;
 #pragma link C++ class genie::HybridXSecAlgorithm;
 
+#ifdef __GENIE_HEPMC3_INTERFACE_ENABLED__
+#pragma link C++ class genie::HepMC3Converter;
+#endif
+
 #endif
