@@ -34,11 +34,6 @@
 #include "HepMC3/GenRunInfo.h"
 #include "HepMC3/GenVertex.h"
 #include "HepMC3/GenParticle.h"
-#include "HepMC3/WriterAscii.h"
-
-// GHepParticles return units of GeV/c for p.  the V_i are all in fermis
-// and are relative to the center of the struck nucleus.
-// add the vertex X/Y/Z to the V_i for status codes 0 and 1
 
 // Definitions unique to this source file
 namespace {
@@ -183,7 +178,7 @@ namespace {
 //____________________________________________________________________________
 genie::HepMC3Converter::HepMC3Converter()
 {
-  fWriter = std::make_shared< HepMC3::WriterAscii >( "example.hepmc3" );
+
 }
 //____________________________________________________________________________
 std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
@@ -463,11 +458,6 @@ int genie::HepMC3Converter::GetHepMC3ParticleStatus(
   }
 
   return iter->second.code_;
-}
-//____________________________________________________________________________
-void genie::HepMC3Converter::WriteEvent( const HepMC3::GenEvent& evt ) const
-{
-  fWriter->write_event( evt );
 }
 //____________________________________________________________________________
 void genie::HepMC3Converter::PrepareRunInfo()
@@ -959,16 +949,19 @@ genie::Interaction* genie::HepMC3Converter::RetrieveInteraction(
   const HepMC3::GenEvent& evt )
 {
   // Start by loading the initial-state information
-  genie::InitialState istate;
-  genie::Target& tgt = *istate.TgtPtr();
+  int probe_pdg = 0;
+  int tgt_pdg = 0;
 
   auto tgt_pdg_ptr = evt.attribute< HepMC3::IntAttribute >(
     "GENIE.Interaction.TargetPDG" );
-  if ( tgt_pdg_ptr ) tgt.SetId( tgt_pdg_ptr->value() );
+  if ( tgt_pdg_ptr ) tgt_pdg = tgt_pdg_ptr->value();
 
   auto probe_pdg_ptr = evt.attribute< HepMC3::IntAttribute >(
     "GENIE.Interaction.ProbePDG" );
-  if ( probe_pdg_ptr ) istate.SetProbePdg( probe_pdg_ptr->value() );
+  if ( probe_pdg_ptr ) probe_pdg = probe_pdg_ptr->value();
+
+  genie::InitialState istate( tgt_pdg, probe_pdg );
+  genie::Target& tgt = *istate.TgtPtr();
 
   auto probe_p4_ptr = evt.attribute< HepMC3::VectorDoubleAttribute >(
    "GENIE.Interaction.ProbeP4" );
