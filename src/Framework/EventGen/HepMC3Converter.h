@@ -58,8 +58,7 @@ protected:
   void StoreInteraction( const genie::Interaction& inter,
     HepMC3::GenEvent& evt );
 
-  void RetrieveInteraction( genie::Interaction& inter,
-    const HepMC3::GenEvent& evt );
+  genie::Interaction* RetrieveInteraction( const HepMC3::GenEvent& evt );
 
   void PrepareRunInfo();
 
