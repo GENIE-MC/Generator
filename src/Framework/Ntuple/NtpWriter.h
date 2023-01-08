@@ -21,6 +21,7 @@
 
 #include <string>
 
+#include "Framework/Ntuple/NtpWriterI.h"
 #include "Framework/Ntuple/NtpMCFormat.h"
 
 class TFile;
@@ -36,32 +37,29 @@ class EventRecord;
 class NtpMCEventRecord;
 class NtpMCTreeHeader;
 
-class NtpWriter {
+class NtpWriter : public NtpWriterI {
 
 public :
   NtpWriter(NtpMCFormat_t fmt = kNFGHEP, Long_t runnu = 0, Long_t runseed = -1);
- ~NtpWriter();
+  virtual ~NtpWriter();
 
   ///< initialize the ntuple writer
-  void Initialize (void);
+  virtual void Initialize (void) override;
 
   ///< add event
-  void AddEventRecord (int ievent, const EventRecord * ev_rec);
+  virtual void AddEventRecord (int ievent, const EventRecord * ev_rec) override;
 
   ///< save the event tree
-  void Save (void);
+  virtual void Save (void) override;
 
-  ///< get the even tree
+  ///< get the event tree
   TTree *  EventTree (void) { return fOutTree; }
-
-  ///< use before Initialize() only if you wish to override the default
-  ///< filename, or the default filename prefix
-  void CustomizeFilename       (string filename);
-  void CustomizeFilenamePrefix (string prefix);
 
 private:
 
-  void SetDefaultFilename    (string filename_prefix="gntp");
+  virtual void SetDefaultFilename(
+    const std::string& filename_prefix = "gntp") override;
+
   void OpenFile              (string filename);
   void CreateTree            (void);
   void CreateTreeHeader      (void);
@@ -71,7 +69,6 @@ private:
   NtpMCFormat_t      fNtpFormat;          ///< enumeration of event formats
   Long_t             fRunNu;              ///< run nu
   Long_t             fRunSeed;            ///< run seed
-  string             fOutFilename;        ///< output filename
   TFile *            fOutFile;            ///< output file
   TTree *            fOutTree;            ///< output tree
   TBranch *          fEventBranch;        ///< the generated event branch
