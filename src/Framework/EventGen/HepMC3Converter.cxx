@@ -46,6 +46,10 @@ namespace {
   constexpr int DEFAULT_DECAY_MODE = -1;
   constexpr int DUMMY_PARTICLE_INDEX = -1;
 
+  // Unit conversions
+  constexpr double M_TO_CM = 1e2;
+  constexpr double FM_TO_CM = 1e-13;
+
   // Nominal probe and target nucleus used for definiteness when looking up
   // citations for xsec models and building a list of process IDs
   constexpr int CITE_PROBE = genie::kPdgNuMu;
@@ -172,18 +176,29 @@ namespace {
   // Converts a TLorentzVector to a form suitable for storage as a HepMC3
   // attribute
   std::shared_ptr< HepMC3::VectorDoubleAttribute > four_vector_to_attribute(
-    const TLorentzVector& vec4 )
+    const TLorentzVector& vec4, bool convert_units = false )
   {
-    std::vector< double > temp_vec = { vec4.X(), vec4.Y(), vec4.Z(), vec4.T() };
+    // If needed, convert from GENIE's native position units (fm) to the ones
+    // we've chosen to use in HepMC (cm)
+    double conv_factor = convert_units ? FM_TO_CM : 1.;
+
+    std::vector< double > temp_vec = { vec4.X() * conv_factor,
+      vec4.Y() * conv_factor, vec4.Z() * conv_factor, vec4.T() };
+
     return std::make_shared< HepMC3::VectorDoubleAttribute >( temp_vec );
   }
 
   // Retrieves a TLorentzVector stored in a HepMC3::VectorDoubleAttribute
   TLorentzVector attribute_to_four_vector(
-    const HepMC3::VectorDoubleAttribute& attr )
+    const HepMC3::VectorDoubleAttribute& attr, bool convert_units = false )
   {
+    // If needed, convert from the position units we've chosen to use in HepMC
+    // (cm) to GENIE's native position units (fm)
+    double conv_factor = convert_units ? FM_TO_CM : 1.;
+
     const std::vector< double >& vec = attr.value();
-    TLorentzVector result( vec.at(0), vec.at(1), vec.at(2), vec.at(3) );
+    TLorentzVector result( vec.at(0) / conv_factor, vec.at(1) / conv_factor,
+      vec.at(2) / conv_factor, vec.at(3) );
     return result;
   }
 
@@ -202,10 +217,15 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
   auto evt = std::make_shared< HepMC3::GenEvent >( HepMC3::Units::GEV,
     HepMC3::Units::CM );
 
-  // Set the overall event 4-position using the GHepRecord vertex
+  // E.R.4 and E.C.6
+  // Set the overall event 4-position in the lab frame using the GHepRecord
+  // vertex
   const TLorentzVector* g_vtx = gevrec.Vertex();
-  HepMC3::FourVector evt_pos4( g_vtx->X(), g_vtx->Y(), g_vtx->Z(), g_vtx->T() );
-  evt->shift_position_to( evt_pos4 );
+
+  // Convert from GENIE's position units (m) to cm
+  TLorentzVector vtx4( g_vtx->X() * M_TO_CM, g_vtx->Y() * M_TO_CM,
+    g_vtx->Z() * M_TO_CM, g_vtx->T() );
+  evt->add_attribute( "LabPos", four_vector_to_attribute(vtx4, false) );
 
   // Create the primary vertex
   // E.R.5
@@ -244,8 +264,8 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
     std::exit( 1 );
   }
 
-  HepMC3::FourVector prim_vtx_pos4( ref_part->Vx(), ref_part->Vy(),
-    ref_part->Vz(), ref_part->Vt() );
+  HepMC3::FourVector prim_vtx_pos4( ref_part->Vx() * FM_TO_CM,
+    ref_part->Vy() * FM_TO_CM, ref_part->Vz() * FM_TO_CM, ref_part->Vt() );
 
   prim_vtx->set_position( prim_vtx_pos4 );
 
@@ -263,8 +283,8 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
     // Get the 4-position of the nuclear vertex from the target nucleus
     // GHepParticle
     genie::GHepParticle* tgt = gevrec.TargetNucleus();
-    HepMC3::FourVector nuclear_vtx_pos4( tgt->Vx(), tgt->Vy(),
-      tgt->Vz(), tgt->Vt() );
+    HepMC3::FourVector nuclear_vtx_pos4( tgt->Vx() * FM_TO_CM,
+      tgt->Vy() * FM_TO_CM, tgt->Vz() * FM_TO_CM, tgt->Vt() );
     nuclear_vtx->set_position( nuclear_vtx_pos4 );
   }
 
@@ -356,8 +376,8 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
 
         // This is a new vertex, so get its 4-position from the first daughter
         // of the current particle
-        HepMC3::FourVector end_vtx_pos4( fd_part->Vx(), fd_part->Vy(),
-          fd_part->Vz(), fd_part->Vt() );
+        HepMC3::FourVector end_vtx_pos4( fd_part->Vx() * FM_TO_CM,
+          fd_part->Vy() * FM_TO_CM, fd_part->Vz() * FM_TO_CM, fd_part->Vt() );
         end_vtx->set_position( end_vtx_pos4 );
       }
 
@@ -709,18 +729,18 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
 
   // G.C.1
   fRunInfo->add_attribute( "NuHepMC.Conventions",
-      std::make_shared<HepMC3::VectorStringAttribute>(
-          std::vector<std::string>{"G.C.1", "G.C.2", "G.C.4", "G.C.5", "E.C.1",
-                                   "E.C.2", "E.C.3", "E.C.5", "E.C.6"}));
+    std::make_shared< HepMC3::VectorStringAttribute >(
+    std::vector< std::string >({ "G.C.1", "G.C.5", "E.C.1", "E.C.6" }) )
+  );
 
   //// G.C.2
   //fRunInfo->add_attribute("NuHepMC.Exposure.NEvents",
-  //                        std::make_shared<HepMC3::IntAttribute>(3));
+  // std::make_shared<HepMC3::IntAttribute>(3));
 
   //// G.C.4
   //fRunInfo->add_attribute(
-  //    "NuHepMC.FluxAveragedTotalCrossSection",
-  //    std::make_shared<HepMC3::DoubleAttribute>(1.234E-38 * cm2_to_pb));
+  // "NuHepMC.FluxAveragedTotalCrossSection",
+  //  std::make_shared<HepMC3::DoubleAttribute>(1.234E-38 * cm2_to_pb));
 }
 //____________________________________________________________________________
 std::shared_ptr< genie::EventRecord > genie::HepMC3Converter::RetrieveGHEP(
@@ -789,7 +809,8 @@ std::shared_ptr< genie::EventRecord > genie::HepMC3Converter::RetrieveGHEP(
     }
 
     gevrec->AddParticle( pdg, status, mommy1, mommy2, dau1, dau2, p4.px(),
-      p4.py(), p4.pz(), p4.e(), x4.x(), x4.y(), x4.z(), x4.t() );
+      p4.py(), p4.pz(), p4.e(), x4.x() / FM_TO_CM, x4.y() / FM_TO_CM,
+      x4.z() / FM_TO_CM, x4.t() );
 
     // Get a pointer to the newly-created GHepParticle object so that we can
     // set additional data members using HepMC3 attributes if they are present
@@ -970,12 +991,12 @@ void genie::HepMC3Converter::StoreInteraction( const genie::Interaction& inter,
 
   TLorentzVector* temp_probe_p4 = istate.GetProbeP4( genie::kRfLab );
   evt.add_attribute( "GENIE.Interaction.ProbeP4",
-    four_vector_to_attribute(*temp_probe_p4) );
+    four_vector_to_attribute(*temp_probe_p4, false) );
   delete temp_probe_p4;
 
   TLorentzVector* temp_tgt_p4 = istate.GetTgtP4( genie::kRfLab );
   evt.add_attribute( "GENIE.Interaction.TargetP4",
-    four_vector_to_attribute(*temp_tgt_p4) );
+    four_vector_to_attribute(*temp_tgt_p4, false) );
   delete temp_tgt_p4;
 
   evt.add_attribute( "GENIE.Interaction.TargetPDG",
@@ -984,7 +1005,7 @@ void genie::HepMC3Converter::StoreInteraction( const genie::Interaction& inter,
     evt.add_attribute( "GENIE.Interaction.HitNucleonPDG",
       std::make_shared< HepMC3::IntAttribute >(tgt.HitNucPdg()) );
     evt.add_attribute( "GENIE.Interaction.HitNucleonP4",
-      four_vector_to_attribute(tgt.HitNucP4()) );
+      four_vector_to_attribute(tgt.HitNucP4(), false) );
     evt.add_attribute( "GENIE.Interaction.HitNucleonRadius",
       std::make_shared< HepMC3::DoubleAttribute >(tgt.HitNucPosition()) );
   }
@@ -1006,9 +1027,9 @@ void genie::HepMC3Converter::StoreInteraction( const genie::Interaction& inter,
 
   const genie::Kinematics& kine = inter.Kine();
   evt.add_attribute( "GENIE.Interaction.FSLeptonP4",
-    four_vector_to_attribute(kine.FSLeptonP4()) );
+    four_vector_to_attribute(kine.FSLeptonP4(), false) );
   evt.add_attribute( "GENIE.Interaction.HadSystP4",
-    four_vector_to_attribute(kine.HadSystP4()) );
+    four_vector_to_attribute(kine.HadSystP4(), false) );
 
   // Convert the map of kinematic variable values into two vectors of the same
   // size
@@ -1137,14 +1158,14 @@ genie::Interaction* genie::HepMC3Converter::RetrieveInteraction(
   auto probe_p4_ptr = evt.attribute< HepMC3::VectorDoubleAttribute >(
    "GENIE.Interaction.ProbeP4" );
   if ( probe_p4_ptr ) {
-    TLorentzVector temp_p4 = attribute_to_four_vector( *probe_p4_ptr );
+    TLorentzVector temp_p4 = attribute_to_four_vector( *probe_p4_ptr, false );
     istate.SetProbeP4( temp_p4 );
   }
 
   auto tgt_p4_ptr = evt.attribute< HepMC3::VectorDoubleAttribute >(
     "GENIE.Interaction.TargetP4" );
   if ( tgt_p4_ptr ) {
-    TLorentzVector temp_p4 = attribute_to_four_vector( *tgt_p4_ptr );
+    TLorentzVector temp_p4 = attribute_to_four_vector( *tgt_p4_ptr, false );
     istate.SetTgtP4( temp_p4 );
   }
 
@@ -1158,7 +1179,7 @@ genie::Interaction* genie::HepMC3Converter::RetrieveInteraction(
     auto hit_nuc_p4_ptr = evt.attribute< HepMC3::VectorDoubleAttribute >(
      "GENIE.Interaction.HitNucleonP4" );
     if ( hit_nuc_p4_ptr ) {
-      TLorentzVector temp_p4 = attribute_to_four_vector( *hit_nuc_p4_ptr );
+      TLorentzVector temp_p4 = attribute_to_four_vector( *hit_nuc_p4_ptr, false );
       tgt.SetHitNucP4( temp_p4 );
     }
 
@@ -1203,14 +1224,14 @@ genie::Interaction* genie::HepMC3Converter::RetrieveInteraction(
   auto fsl_p4_ptr = evt.attribute< HepMC3::VectorDoubleAttribute >(
    "GENIE.Interaction.FSLeptonP4" );
   if ( fsl_p4_ptr ) {
-    TLorentzVector temp_p4 = attribute_to_four_vector( *fsl_p4_ptr );
+    TLorentzVector temp_p4 = attribute_to_four_vector( *fsl_p4_ptr, false );
     kine.SetFSLeptonP4( temp_p4 );
   }
 
   auto hs_p4_ptr = evt.attribute< HepMC3::VectorDoubleAttribute >(
    "GENIE.Interaction.HadSystP4" );
   if ( hs_p4_ptr ) {
-    TLorentzVector temp_p4 = attribute_to_four_vector( *hs_p4_ptr );
+    TLorentzVector temp_p4 = attribute_to_four_vector( *hs_p4_ptr, false );
     kine.SetHadSystP4( temp_p4 );
   }
 
