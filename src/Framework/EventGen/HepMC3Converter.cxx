@@ -524,6 +524,7 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
   cite_driver.Configure( cite_istate );
 
   std::map< int, std::set<std::string> > mode_to_citation_DOIs;
+  std::map< int, std::set<std::string> > mode_to_xsec_models;
   const genie::InteractionList& inter_list = *cite_driver.Interactions();
   for ( const auto inter : inter_list ) {
 
@@ -552,11 +553,12 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
       std::make_shared< HepMC3::StringAttribute >(proc_name) );
 
     const genie::AlgId& alg_id = xsec_model->Id();
-    std::string desc = alg_id.Name() + '/' + alg_id.Config();
+    std::string model_name = alg_id.Name() + '/' + alg_id.Config();
 
-    // Save the description of the process as a string attribute
-    fRunInfo->add_attribute( "NuHepMC.ProcessInfo[" + id_code_str
-      + "].Description", std::make_shared< HepMC3::StringAttribute >(desc) );
+    // Store the description of the model for this process
+    if ( !model_name.empty() ) {
+      mode_to_xsec_models[ id_code ].insert( model_name );
+    }
 
     // G.C.5
     // Get a reference to the current set of DOIs for models of the given
@@ -595,21 +597,43 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
     } // loop over citations
   } // loop over enabled interactions
 
-  // Save the DOIs for the various interaction processes to the run info
+  // Save the xsec model names and DOIs for the various interaction processes
+  // to the run info
   for ( const auto& cite_pair : mode_to_citation_DOIs ) {
     int proc_id_code = cite_pair.first;
     const std::set< std::string >& doi_set = cite_pair.second;
 
     std::vector< std::string > doi_vec;
+    std::vector< std::string > model_vec;
     for ( const std::string& doi : doi_set ) {
       doi_vec.push_back( doi );
     }
+    for ( const std::string& desc : mode_to_xsec_models[ proc_id_code ] ) {
+      model_vec.push_back( desc );
+    }
 
-    if ( doi_vec.empty() ) continue;
+    if ( !doi_vec.empty() ) {
+      fRunInfo->add_attribute( "NuHepMC.ProcessInfo["
+        + std::to_string(proc_id_code) + "].DOI",
+        std::make_shared< HepMC3::VectorStringAttribute >(doi_vec) );
+    }
+
+    if ( !model_vec.empty() ) {
+      fRunInfo->add_attribute( "NuHepMC.ProcessInfo["
+        + std::to_string(proc_id_code) + "].XSecModels",
+        std::make_shared< HepMC3::VectorStringAttribute >(model_vec) );
+    }
+
+    std::string desc;
+    for ( size_t m = 0u; m < model_vec.size(); ++m ) {
+      const std::string& model = model_vec.at( m );
+      if ( m != 0u ) desc += ' ';
+      desc += model;
+    }
 
     fRunInfo->add_attribute( "NuHepMC.ProcessInfo["
-      + std::to_string(proc_id_code) + "].DOI",
-      std::make_shared< HepMC3::VectorStringAttribute >(doi_vec) );
+      + std::to_string(proc_id_code) + "].Description",
+      std::make_shared< HepMC3::StringAttribute >(desc) );
   }
 
   // Save the process ID list to the run info
