@@ -33,3 +33,8 @@ void NtpWriterI::CustomizeFilenamePrefix(const std::string& prefix)
   this->SetDefaultFilename(prefix);
 }
 //____________________________________________________________________________
+void NtpWriterI::AttachGMCJDriver( const genie::GMCJDriver* /*mc_driver*/ )
+{
+  // By default, this is a no-op unless a derived class overrides it
+}
+//____________________________________________________________________________

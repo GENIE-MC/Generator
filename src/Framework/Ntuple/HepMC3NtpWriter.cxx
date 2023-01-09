@@ -58,4 +58,11 @@ void genie::HepMC3NtpWriter::AddEventRecord( int ievent,
   evt->set_event_number( ievent );
   fWriter->write_event( *evt );
 }
+//____________________________________________________________________________
+void genie::HepMC3NtpWriter::AttachGMCJDriver(
+  const genie::GMCJDriver* mc_driver )
+{
+  if ( !fConverter ) this->Initialize();
+  fConverter->AttachGMCJDriver( mc_driver );
+}
 #endif //__GENIE_HEPMC3_INTERFACE_ENABLED__

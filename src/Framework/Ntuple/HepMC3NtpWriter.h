@@ -53,6 +53,8 @@ public:
   ///< save the event tree
   virtual void Save() override;
 
+  virtual void AttachGMCJDriver( const GMCJDriver* mc_driver ) override;
+
 protected:
 
   virtual void SetDefaultFilename(
@@ -60,7 +62,6 @@ protected:
 
   std::shared_ptr< genie::HepMC3Converter > fConverter;
   std::shared_ptr< HepMC3::WriterAscii > fWriter;
-
 };
 
 } // genie namespace

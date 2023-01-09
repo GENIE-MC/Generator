@@ -230,7 +230,8 @@ void Initialize         (void);
 void PrintSyntax        (void);
 
 std::vector< std::shared_ptr<NtpWriterI> >
-  PrepareNtpWriters( const std::vector< std::string >& out_file_spec );
+  PrepareNtpWriters( const std::vector< std::string >& out_file_spec,
+  GMCJDriver* mc_driver = nullptr );
 
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX_OR_TGTMIX__
 void            GenerateEventsUsingFluxOrTgtMix();
@@ -400,7 +401,7 @@ void GenerateEventsUsingFluxOrTgtMix(void)
 
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
-  auto ntp_writers = PrepareNtpWriters( gOptOutFileSpec );
+  auto ntp_writers = PrepareNtpWriters( gOptOutFileSpec, mcj_driver );
 
   // Create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
@@ -923,7 +924,7 @@ void PrintSyntax(void)
 }
 //____________________________________________________________________________
 std::vector< std::shared_ptr<NtpWriterI> > PrepareNtpWriters(
-  const std::vector< std::string >& out_file_spec )
+  const std::vector< std::string >& out_file_spec, GMCJDriver* mc_driver )
 {
   std::vector< std::shared_ptr<NtpWriterI> > writer_vec;
 
@@ -938,6 +939,7 @@ std::vector< std::shared_ptr<NtpWriterI> > PrepareNtpWriters(
     }
 
     ntpw->Initialize();
+    if ( mc_driver ) ntpw->AttachGMCJDriver( mc_driver );
     writer_vec.push_back( ntpw );
     return writer_vec;
   }
@@ -971,6 +973,7 @@ std::vector< std::shared_ptr<NtpWriterI> > PrepareNtpWriters(
     auto cur_writer = writer_vec.back();
     cur_writer->CustomizeFilename( file_name );
     cur_writer->Initialize();
+    if ( mc_driver ) cur_writer->AttachGMCJDriver( mc_driver );
   }
 
   return writer_vec;

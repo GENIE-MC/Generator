@@ -27,6 +27,7 @@
 namespace genie {
 
 class EventRecord;
+class GMCJDriver;
 
 /// Defines an interface for GENIE ntuple writers
 class NtpWriterI {
@@ -48,6 +49,10 @@ public:
   ///< filename, or the default filename prefix
   virtual void CustomizeFilename       (const std::string& filename);
   virtual void CustomizeFilenamePrefix (const std::string& prefix);
+
+  ///< For derived classes that support it, store a pointer to a GMCJDriver
+  /// to use for accessing information about the running job
+  virtual void AttachGMCJDriver( const GMCJDriver* mc_driver );
 
 protected:
 
