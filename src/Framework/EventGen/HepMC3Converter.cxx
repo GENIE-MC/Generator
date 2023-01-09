@@ -20,9 +20,11 @@
 // GENIE includes
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/GVersion.h"
+#include "Framework/Conventions/Units.h"
 #include "Framework/EventGen/EventGeneratorI.h"
 #include "Framework/EventGen/EventRecord.h"
 #include "Framework/EventGen/GEVGDriver.h"
+#include "Framework/EventGen/GMCJDriver.h"
 #include "Framework/EventGen/HepMC3Converter.h"
 #include "Framework/EventGen/InteractionList.h"
 #include "Framework/EventGen/XSecAlgorithmI.h"
@@ -35,6 +37,7 @@
 
 // HepMC3 includes
 #include "HepMC3/Attribute.h"
+#include "HepMC3/GenCrossSection.h"
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/GenRunInfo.h"
 #include "HepMC3/GenVertex.h"
@@ -62,6 +65,10 @@ namespace {
   constexpr int NUHEPMC_PRIMARY_VERTEX = 1;
   constexpr int NUHEPMC_NUCLEAR_VERTEX = 2;
   constexpr int NUHEPMC_SECONDARY_VERTEX = 3;
+
+  // Default set of implemented NuHepMC conventions
+  const std::set< std::string > NUHEPMC_CONVENTIONS(
+    { "G.C.1", "G.C.5", "E.C.1", "E.C.6" } );
 
   // Implemented version of the NuHepMC standard
   // (https://github.com/NuHepMC/Spec)
@@ -462,6 +469,8 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
   if ( !fRunInfo ) this->PrepareRunInfo( &gevrec );
   evt->set_run_info( fRunInfo );
 
+  if ( fMCDriver ) this->PrepareMCDriverEventInfo( *evt );
+
   // Return the completed HepMC3::GenEvent object
   return evt;
 }
@@ -729,11 +738,21 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
   // G.R.7
   fRunInfo->set_weight_names( { "CV" } );
 
+
+  std::set< std::string > conventions = NUHEPMC_CONVENTIONS;
+  if ( fMCDriver ) {
+    conventions.insert( "E.C.4" );
+    conventions.insert( "E.C.5" );
+  }
+
   // G.C.1
+  std::vector< std::string > convention_vec;
+  for ( const std::string& con : conventions ) {
+    convention_vec.push_back( con );
+  }
+
   fRunInfo->add_attribute( "NuHepMC.Conventions",
-    std::make_shared< HepMC3::VectorStringAttribute >(
-    std::vector< std::string >({ "G.C.1", "G.C.5", "E.C.1", "E.C.6" }) )
-  );
+    std::make_shared< HepMC3::VectorStringAttribute >( convention_vec ) );
 
   //// G.C.2
   //fRunInfo->add_attribute("NuHepMC.Exposure.NEvents",
@@ -1364,5 +1383,25 @@ int genie::HepMC3Converter::GetNuHepMCProcessID(
   }
   int id_code = id_iter->second;
   return id_code;
+}
+//____________________________________________________________________________
+void genie::HepMC3Converter::AttachGMCJDriver(
+  const genie::GMCJDriver* mc_driver )
+{
+  fMCDriver = mc_driver;
+}
+//____________________________________________________________________________
+void genie::HepMC3Converter::PrepareMCDriverEventInfo( HepMC3::GenEvent& evt )
+{
+  // Double check that the MC driver object is still attached
+  if ( !fMCDriver ) return;
+
+  // E.C.4 & E.C.5
+  double xsec = fMCDriver->FluxAvgTotXSec() / genie::units::picobarn;
+  double xsec_err = fMCDriver->FluxAvgTotXSecError() / genie::units::picobarn;
+
+  auto gen_xsec = std::make_shared< HepMC3::GenCrossSection >();
+  gen_xsec->set_cross_section( xsec, xsec_err );
+  evt.set_cross_section( gen_xsec );
 }
 #endif //__GENIE_HEPMC3_INTERFACE_ENABLED__
