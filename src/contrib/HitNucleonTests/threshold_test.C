@@ -1,8 +1,10 @@
 #include <iostream>
 #include <memory>
+#include <cmath>
 
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 
 #include "Framework/Interaction/Interaction.h"
 
@@ -42,15 +44,63 @@ double find_threshold( const Interaction & i, double prec = 0.00001, double max 
 
 double new_threshold( const Interaction & i ) {
 
-  double m_l = 
+  int finalNucPDG = i.InitState().Tgt().HitNucPdg();
+  if ( i.ProcInfo().IsWeakCC() ) finalNucPDG = pdg::SwitchProtonNeutron( finalNucPDG );
+
+  double m_l = i.FSPrimLepton()->Mass();
   double m_p = i.InitState().Probe()->Mass();
   double E_T = i.InitState().Tgt().HitNucP4().E();
-  double p_T = i.InitState().Tgt().HitNucP4().p();
-  double W = 
+  double p_T = i.InitState().Tgt().HitNucP4().P();
+  double W = PDGLibrary::Instance()->Find( finalNucPDG )->Mass();
   
+  double alpha = m_l*m_l + W*W + 2*W*m_l - m_p*m_p - E_T*E_T + p_T*p_T ;
 
-  double alpha = 
+  double p_T_p = i.InitState().Tgt().HitNucP4().Pz();
 
+  if ( E_T > abs(p_T_p) ) {
+    auto a2 = alpha*alpha;
+    auto Et2 = E_T*E_T;
+    auto ptp2 = p_T_p*p_T_p;
+    auto mp2 = m_p*m_p;
+
+    auto delta = a2*Et2 - 4*(Et2-ptp2)*(ptp2*mp2+a2/4);
+
+    if( delta < 0. ) return m_p ;
+
+    auto threshold = alpha*E_T;
+    auto sqrt_delta = sqrt( delta );
+
+    if ( p_T_p >= 0. ) {
+      threshold += sqrt_delta;
+    }
+    else {
+      threshold -= sqrt_delta;
+    }
+    threshold /= 2*(Et2 - ptp2);
+    
+    return threshold;
+
+  }
+  else {
+
+    if ( p_T_p < 0 ) {
+      if ( alpha < 2*m_p*E_T ) return m_p ;
+      else {
+	auto a2 = alpha*alpha;
+	auto Et2 = E_T*E_T;
+	auto ptp2 = p_T_p*p_T_p;
+	auto mp2 = m_p*m_p;
+
+	auto delta = a2*Et2 - 4*(Et2-ptp2)*(ptp2*mp2+a2/4);
+	auto threshold = 0.5*(alpha*E_T + sqrt( delta ))/(Et2 - ptp2);
+	return threshold ;
+      }
+    }
+    else { 
+      return m_p;
+    }
+  }
+  
 }
 
 
@@ -83,6 +133,8 @@ void threshold_test() {
   auto lab_th = find_threshold(*i_p);
 
   cout << lab_th << endl ;
-  
+
+  auto new_th = new_threshold(*i_p);
+  cout << new_th << endl ;
 
 }
