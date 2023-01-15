@@ -223,4 +223,22 @@ Finally, if you used any of the new model configurations and tunes provided in t
 }
 </pre>
 
+<pre>
+@article{GENIE:2022qrc,
+    author = "Tena-Vidal, Julia and others",
+    collaboration = "GENIE",
+    title = "{Neutrino-nucleus CC0$\pi$ cross-section tuning in GENIE v3}",
+    eprint = "2206.11050",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ph",
+    reportNumber = "FERMILAB-PUB-22-296-ND-QIS-SCD",
+    doi = "10.1103/PhysRevD.106.112001",
+    journal = "Phys. Rev. D",
+    volume = "106",
+    number = "11",
+    pages = "112001",
+    year = "2022"
+}
+</pre>
+
 Please notice that the GENIE authors endorse the **MCNET guidelines for fair academic use** which can be found in http://www.montecarlonet.org/GUIDELINES. We invite users to consider which GENIE components are important for a particular analysis and cite them, in addition to the main references. A list of such references in maintained in the official GENIE web page.
