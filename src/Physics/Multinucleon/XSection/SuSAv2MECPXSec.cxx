@@ -65,6 +65,7 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
     // If the probe is not a neutrino, assume that it's an electron
     // For the moment all electron interactions are pp final state
     tensor_type = kHT_MEC_EM;
+    //pn_tensor_type = kHT_MEC_EM;
   }
 
   // Currently we only have the relative pair contributions for C12.
@@ -178,7 +179,6 @@ double SuSAv2MECPXSec::PairRatio(const Interaction* interaction, std::string fin
 
   HadronTensorType_t tensor_type = kHT_Undefined;
   HadronTensorType_t pn_tensor_type = kHT_Undefined;
-
   HadronTensorType_t pp_tensor_type = kHT_Undefined;
 
   if ( pdg::IsNeutrino(probe_pdg) || pdg::IsAntiNeutrino(probe_pdg) ) {
@@ -189,10 +189,8 @@ double SuSAv2MECPXSec::PairRatio(const Interaction* interaction, std::string fin
     // If the probe is not a neutrino, assume that it's an electron
     // For the moment all electron interactions are pp final state
     tensor_type = kHT_MEC_EM;
-
     pn_tensor_type = kHT_MEC_EM_pn;
     pp_tensor_type = kHT_MEC_EM_pp;
-
   }
 
   // The SuSAv2-MEC hadron tensors are defined using the same conventions
