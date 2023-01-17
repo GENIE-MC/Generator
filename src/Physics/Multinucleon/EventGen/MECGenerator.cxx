@@ -1015,7 +1015,6 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
           interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterNP );
         }
         else {
-
           // no it is not a PN, add either NN or PP initial state to event record (EM case).
           if ( interaction->ProcInfo().IsEM() ) {
             if ( myrand_pp <= ppFraction/(1. - pnFraction) ) {
