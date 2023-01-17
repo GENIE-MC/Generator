@@ -11,6 +11,9 @@
 
  CMEnergy() method added by Andy Furmanski (Univ. of Manchester)
  and Joe Johnston (Univ of Pittsburgh)
+
+ Modified GetProbeP4 and GetTargetP4 to boost to electron rest frame
+ Brinden Carlson (University of Florida)
 */
 //____________________________________________________________________________
 
@@ -398,13 +401,7 @@ TLorentzVector * InitialState::GetProbeP4(RefFrame_t ref_frame) const
        case (kRfHitElRest) :
        {
         //Ensure target is electron
-        //assert(fTgt->Pdg() == 11);
-        //std::cout<<"ELE is set (GetProbeP4): "<<fTgt->HitEleIsSet()<<std::endl;
         assert( fTgt->HitEleP4Ptr() != 0 );
-        //std::cout<<"passed assert"<<std::endl;
-        //std::cout<<"Hit electron in kRFHitElRest : "<<std::endl;
-        //std::cout<<*this<<std::endl;
-        //
         TLorentzVector * pele4 = fTgt->HitEleP4Ptr();
 
         // compute velocity vector (px/E, py/E, pz/E)
