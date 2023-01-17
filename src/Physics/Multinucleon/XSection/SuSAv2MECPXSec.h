@@ -55,9 +55,7 @@ public:
   void Configure (const Registry & config);
   void Configure (string config);
 
-//  My changes (asportes): start
   double PairRatio(const Interaction* i, std::string final_state_ratio = "pnFraction") const;
-//  My changes (asportes): end
 
 private:
 
