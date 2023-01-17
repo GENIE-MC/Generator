@@ -65,12 +65,6 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
     // If the probe is not a neutrino, assume that it's an electron
     // For the moment all electron interactions are pp final state
     tensor_type = kHT_MEC_EM;
-
-//  My changes (asportes): start
-//    pn_tensor_type = kHT_MEC_EM; // Original line
-//    pn_tensor_type = kHT_MEC_EM_pn; // Mine (uncomment to apply change)
-//  My changes (asportes): end
-
   }
 
   // Currently we only have the relative pair contributions for C12.
@@ -173,11 +167,8 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   return xsec;
 }
 //_________________________________________________________________________
-//  My changes (asportes): start
-// PairRatio has been modified to calculate ppFraction if required
 double SuSAv2MECPXSec::PairRatio(const Interaction* interaction, std::string final_state_ratio) const
 {
-//  My changes (asportes): end
 
   // Currently we only have the relative pair contributions for C12.
   // We hope to add mode later, but for the moment assume the relative
@@ -185,14 +176,10 @@ double SuSAv2MECPXSec::PairRatio(const Interaction* interaction, std::string fin
 
   int probe_pdg = interaction->InitState().ProbePdg();
 
-//  My changes (asportes): start
-// Original code (total & pn tensors):
   HadronTensorType_t tensor_type = kHT_Undefined;
   HadronTensorType_t pn_tensor_type = kHT_Undefined;
 
-// My addition (pp tensor):
   HadronTensorType_t pp_tensor_type = kHT_Undefined;
-//  My changes (asportes): end
 
   if ( pdg::IsNeutrino(probe_pdg) || pdg::IsAntiNeutrino(probe_pdg) ) {
     tensor_type = kHT_MEC_FullAll;
@@ -203,11 +190,8 @@ double SuSAv2MECPXSec::PairRatio(const Interaction* interaction, std::string fin
     // For the moment all electron interactions are pp final state
     tensor_type = kHT_MEC_EM;
 
-//  My changes (asportes): start
-//    pn_tensor_type = kHT_MEC_EM; // Original line
     pn_tensor_type = kHT_MEC_EM_pn;
     pp_tensor_type = kHT_MEC_EM_pp;
-//  My changes (asportes): end
 
   }
 
@@ -218,18 +202,13 @@ double SuSAv2MECPXSec::PairRatio(const Interaction* interaction, std::string fin
     = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
     tensor_type) );
 
-// My changes (asportes): start
-  // Original code (pn tensor):
   const LabFrameHadronTensorI* tensor_pn
     = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
     pn_tensor_type) );
 
-  // My addition (pp tensor):
   const LabFrameHadronTensorI* tensor_pp
     = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
     pp_tensor_type) );
-// My changes (asportes): end
-
 
   /// \todo add the different pair configurations for e-scattering
 
@@ -265,11 +244,9 @@ double SuSAv2MECPXSec::PairRatio(const Interaction* interaction, std::string fin
   // However, additional corrections may be necessary:
   double Delta_Q_value = Qvalue( * interaction ) ;
 
-// My changes (asportes): start
   // Compute the cross section using the hadron tensor
   double xsec_all = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value);
 
-//  My addition:
   double ratio;
 
   if (final_state_ratio == "pnFraction") { // pnFraction will be calculated by default
@@ -293,7 +270,6 @@ double SuSAv2MECPXSec::PairRatio(const Interaction* interaction, std::string fin
     ratio = pp_ratio;
 
   }
-//  My changes (asportes): end
 
   return ratio;
 }
