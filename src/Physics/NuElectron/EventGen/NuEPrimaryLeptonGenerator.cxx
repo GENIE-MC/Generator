@@ -50,18 +50,13 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 // This method generates the final state primary lepton for NuE events
 
   Interaction * interaction = evrec->Summary();
-  //std::cout<<"PL :"<<std::endl;
-  //std::cout<<*evrec<<std::endl;
 
   // Boost vector for [LAB] <-> [Electron Rest Frame] transforms
   TVector3 beta = this->EleRestFrame2Lab(evrec); // Get boost of hit
-  //std::cout<<"Beta : "<<beta.x()<<","<<beta.y()<<","<<beta.z()<<std::endl;
 
   // Neutrino 4p
   TLorentzVector * p4v = evrec->Probe()->GetP4(); // v 4p @ LAB
   p4v->Boost(-1.*beta);                           // v 4p @ Electron rest frame
-
-  //const InitialState & init_state = interaction->InitState();
 
   // Get selected kinematics
   double y = interaction->Kine().y(true);

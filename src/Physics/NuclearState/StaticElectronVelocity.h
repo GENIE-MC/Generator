@@ -4,8 +4,7 @@
 \class    genie::StaticElectronVelocity
 
 \brief    It visits the event record & initializes a static velocity for
-          initial state electrons bound in coloumb potential.
-          Is a concrete implementation of the EventRecordVisitorI interface.
+          initial state electron.
 
 \author   Brinden Carlson <bcarlson1 \at ufl.edu>
           University of Florida & Fermilab

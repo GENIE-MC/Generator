@@ -49,7 +49,6 @@ NuEKinematicsGenerator::~NuEKinematicsGenerator()
 //___________________________________________________________________________
 void NuEKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-  //std::cout <<"KG : "<< *evrec << std::endl;
   if(fGenerateUniformly) {
     LOG("NuEKinematics", pNOTICE)
           << "Generating kinematics uniformly over the allowed phase space";

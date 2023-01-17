@@ -3,14 +3,14 @@
 
 \class    genie::ElectronVelocity
 
-\brief    It visits the event record & computes a Fermi motion momentum for
-          initial state nucleons bound in nuclei.
-          Is a concrete implementation of the EventRecordVisitorI interface.
+\brief  It visits the event record & samples a velocity for
+          initial state electrons from a velocity distribution.
+        Is a concrete implementation of the EventRecordVisitorI interface.
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
-
-\created  October 08, 2004
+ \author   Brinden Carlson <bcarlson1 \at ufl.edu>
+          University of Florida & Fermilab
+  
+  \created December 5, 2022
 
 \cpright  Copyright (c) 2003-2022, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
