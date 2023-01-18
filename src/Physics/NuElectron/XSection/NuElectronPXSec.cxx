@@ -140,13 +140,13 @@ double NuElectronPXSec::XSec(
 double NuElectronPXSec::Integral(const Interaction * interaction) const
 {
   double xsec_sum = 0;
-  for (int iele=0;iele<N;iele++){
+  for (int iele=0;iele<fNIntegration;iele++){
     Interaction in_curr(*interaction); //Copy interaction object
     fElectronVelocity->InitializeVelocity(in_curr); //Modify interaction to give electron random velocity from selected distribution
     double xsec = fXSecIntegrator->Integrate(this,&in_curr);
     xsec_sum+=xsec;
   }
-  double xsec_avg = xsec_sum/N;
+  double xsec_avg = xsec_sum/fNIntegration;
   return xsec_avg;
 }
 //____________________________________________________________________________
@@ -179,7 +179,7 @@ void NuElectronPXSec::LoadConfig(void)
   // weinberg angle
   double thw ;
   GetParam( "WeinbergAngle", thw ) ;
-  GetParam( "N-Integration-Samples", N ) ;
+  GetParam( "N-Integration-Samples", fNIntegration ) ;
   fSin28w = TMath::Power(TMath::Sin(thw), 2);
   fSin48w = TMath::Power(TMath::Sin(thw), 4);
 
@@ -187,7 +187,7 @@ void NuElectronPXSec::LoadConfig(void)
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   fElectronVelocity =
-      dynamic_cast<const ElectronVelocity *> (this->SubAlg("Static-Velocity"));
+      dynamic_cast<const ElectronVelocity *> (this->SubAlg("Electron-Velocity"));
   assert(fXSecIntegrator);
 }
 //____________________________________________________________________________

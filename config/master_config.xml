@@ -5,8 +5,8 @@
    <!-- ****** CONFIGURATION FOR EVENT GENERATION MODULES ****** -->
    <config alg="genie::EventGenerator">                  EventGenerator.xml                  </config>
    <config alg="genie::FermiMover">                      FermiMover.xml                      </config>
-   <config alg="genie::ElectronVelocity">                ElectronVelocity.xml                </config>
    <config alg="genie::BohrElectronVelocity">            BohrElectronVelocity.xml            </config>
+   <config alg="genie::StaticElectronVelocity">          StaticElectronVelocity.xml          </config>
    <config alg="genie::HadronTransporter">               HadronTransporter.xml               </config>
    <config alg="genie::HAIntranuke">                     HAIntranuke.xml                     </config>
    <config alg="genie::HAIntranuke2018">                 HAIntranuke2018.xml                 </config>

@@ -17,9 +17,6 @@
 */
 //____________________________________________________________________________
 
-// #ifndef _Static_ELECTRON_VELOCITY_H_
-// #define _Static_ELECTRON_VELOCITY_H_
-
 #include "Physics/NuclearState/ElectronVelocity.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/Interaction/Target.h"
@@ -29,10 +26,7 @@ namespace genie {
 
 class StaticElectronVelocity : public ElectronVelocity {
 public:
-  virtual void InitializeVelocity(Interaction & interaction) const final;
-
-  //void Configure(const Registry & config);
-  //void Configure(string config);
+  void InitializeVelocity(Interaction & interaction) const final;
 
   StaticElectronVelocity();
   StaticElectronVelocity(const string & config);

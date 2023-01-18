@@ -30,8 +30,6 @@
 
 #ifndef _NU_ELECTRON_PARTIAL_XSEC_H_
 #define _NU_ELECTRON_PARTIAL_XSEC_H_
-//#ifndef _ELECTRON_VELOCITY_H_
-//#define _ELECTRON_VELOCITY_H_
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/NuclearState/ElectronVelocity.h"
@@ -40,7 +38,6 @@ namespace genie {
 
 class IntegratorI;
 class XSecIntegratorI;
-//ElectronVelocity;
 
 class NuElectronPXSec : public XSecAlgorithmI {
 
@@ -68,7 +65,7 @@ private:
 
   double fSin28w; // sin^2(theta-weinberg)
   double fSin48w;
-  int N; //Number of integration samples
+  int fNIntegration; //Number of integration samples
 };
 
 }       // genie namespace

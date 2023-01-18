@@ -53,13 +53,8 @@
 
 using namespace genie;
 using namespace genie::constants;
-//using namespace std;
 
 //___________________________________________________________________________
-// BohrElectronVelocity::BohrElectronVelocity()
-// {
-//
-// }
 BohrElectronVelocity::~BohrElectronVelocity()
 {
 
@@ -69,7 +64,7 @@ ElectronVelocity::ElectronVelocity("genie::BohrElectronVelocity", config)
 {
 
 }
-BohrElectronVelocity::BohrElectronVelocity()
+BohrElectronVelocity::BohrElectronVelocity() : ElectronVelocity::ElectronVelocity()
 {
 
 }
@@ -83,51 +78,37 @@ void BohrElectronVelocity::InitializeVelocity(Interaction & interaction) const{
   RandomGen * rnd = RandomGen::Instance();
   TRandom3 gen = rnd->RndGen();
 
-  int Z = tgt->Z(); //Get Z value
-  TLorentzVector * p4 = tgt->HitEleP4Ptr(); //Initialize 4 momentum pointer
-  Double_t vx = 0;
-  Double_t vy = 0;
-  Double_t vz = 0;
-  gen.Sphere(vx,vy,vz,random_bohr_velocity(Z)); //Randomize direction with sphere - radius = bohr velocity
-  TVector3 v3(vx,vy,vz);
-  float gamma = 1/sqrt(1-v3.Mag2()); //Get boost
+  unsigned int fZ = tgt->Z(); //Get Z value
+  TVector3 v3;
+  gen.Sphere(v3[0],v3[1],v3[2],random_bohr_velocity(fZ)); //Randomize direction with sphere - radius = bohr velocity
+  double gamma = 1/sqrt(1-v3.Mag2()); //Get boost
   //Set 3 momentum
-  TVector3 p3;
-  p3.SetX(kElectronMass*gamma*v3.X());
-  p3.SetY(kElectronMass*gamma*v3.Y());
-  p3.SetZ(kElectronMass*gamma*v3.Z());
-  //Calculate energy
-  double PF2 = p3.Mag2(); //Magnitude of momentum 2
-  double EN = sqrt(PF2+kElectronMass2);
+  auto p3 = kElectronMass*gamma*v3;
   //-- update the electron 4p
-  p4->SetPx( p3.Px() );
-  p4->SetPy( p3.Py() );
-  p4->SetPz( p3.Pz() );
-  p4->SetE ( EN      );
-  //std::cout<<"******"<<p3.Px()<<"******"<<p3.Py()<<"******"<<p3.Pz()<<"******"<<EN<<std::endl;
-  //std::cout<<*init_state<<std::endl;
+  TLorentzVector * p4 = tgt->HitEleP4Ptr(); //Initialize 4 momentum pointer
+  p4->SetVectM( p3, kElectronMass2);
 }
 //___________________________________________________________________________
 
 //____________________________________________________________________________
 
-int BohrElectronVelocity::random_n(int Z) const{
-  int fMaxElectrons = 118; //Max total electrons
+unsigned BohrElectronVelocity::random_n(unsigned int fZ) const{
+  static int fMaxElectrons = 118; //Max total electrons
   std::array<int, 6> fnprobs {2,10,28,60,110,118}; //Cumulative Probability dist.
-  assert(Z<=fMaxElectrons); //Atomic number can't be greater than max electrons
+  //assert(fZ<=fMaxElectrons); //Atomic number can't be greater than max electrons
 
   //Get random electron orbital from atomic number Z
   RandomGen * rnd = RandomGen::Instance(); //Load seed 
 
   for (unsigned int i = 0; i<fnprobs.size(); i++){
-    if (Z < fnprobs[i]){
-      fnprobs[i] = Z; //Set orbital value to Z
+    if (fZ < fnprobs[i]){
+      fnprobs[i] = fZ; //Set orbital value to Z
     }
   }
 
-  double x = Z * rnd->RndDec().Rndm();
-  int n = 0;
-  int sel_n = 0;
+  double x = fZ * rnd->RndDec().Rndm();
+  unsigned int n = 0;
+  unsigned int sel_n = 0;
   do {
     sel_n = n;
   } while (x > fnprobs[n++]);
@@ -135,15 +116,15 @@ int BohrElectronVelocity::random_n(int Z) const{
   return sel_n+1; //Plus 1 to get to n
 }
 
-float BohrElectronVelocity::bohr_velocity(int n, int Z) const
+double BohrElectronVelocity::bohr_velocity(unsigned int fn, unsigned int fZ) const
 {
-  return Z*kAem/n;
+  return fZ*kAem/fn;
 }
 
-float BohrElectronVelocity::random_bohr_velocity(int Z) const{
+double BohrElectronVelocity::random_bohr_velocity(unsigned int fZ) const{
   //Get random bohr velocity from n distribution
-  int n = random_n(Z);
-  return bohr_velocity(n,Z);
+  unsigned int fn = random_n(fZ);
+  return bohr_velocity(fn,fZ);
 }
 
 

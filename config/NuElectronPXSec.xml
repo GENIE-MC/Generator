@@ -7,8 +7,11 @@ Configuration for the NuElectronPXSec xsec algorithm.
 
 Configurable Parameters:
 ....................................................................................
-Name           Type     Optional   Comment                 Default
-WeinbergAngle  double   No                                 CommonParam[WeakInt]
+Name                    Type     Optional   Comment                  Default
+N-Integration-Samples   int      No                                  2000
+WeinbergAngle           double   No                                  CommonParam[WeakInt]
+XSec-Integrator         alg      No                                  genie::NuElectronXSec/Default
+Electron-Velocity       alg      Yes    Integrate over vel dist.     genie::ElectronVelocity/Default
 ....................................................................................
 -->
 
@@ -16,8 +19,7 @@ WeinbergAngle  double   No                                 CommonParam[WeakInt]
     <param type="string"  name="CommonParam"> WeakInt  </param>
     <param type="int"    name ="N-Integration-Samples" >              2000  </param>
      <param type="alg"  name="XSec-Integrator"> genie::NuElectronXSec/Default  </param>
-     <param type="alg"  name="Bohr-Velocity"> genie::BohrElectronVelocity/Default  </param>
-     <param type="alg"  name="Static-Velocity"> genie::StaticElectronVelocity/Default  </param>
+     <param type="alg"  name="Electron-Velocity"> genie::ElectronVelocity/Default  </param>
   </param_set>
 
 </alg_conf>

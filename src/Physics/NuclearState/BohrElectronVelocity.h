@@ -5,7 +5,7 @@
 
 \brief    It visits the event record & computes a Bohr Velocity for
           initial state electrons bound in coloumb potential.
-          Is a concrete implementation of the EventRecordVisitorI interface.
+          Is a concrete implementation of the ElectronVelocity interface.
 
 \author   Brinden Carlson <bcarlson1 \at ufl.edu>
           University of Florida & Fermilab
@@ -36,8 +36,8 @@ public:
   ~BohrElectronVelocity();
 
 private:
-  float bohr_velocity(int n, int Z) const; //Bohr velocity
-  int random_n(int Z) const; //Return random energy level from n_dist
-  float random_bohr_velocity(int Z) const; //Generate random n, then calculate velocity from there
+  double bohr_velocity(unsigned int fn, unsigned int fZ) const; //Bohr velocity
+  unsigned int random_n(unsigned int fZ) const; //Return random energy level from n_dist
+  double random_bohr_velocity(unsigned int fZ) const; //Generate random n, then calculate velocity from there
 };
 }

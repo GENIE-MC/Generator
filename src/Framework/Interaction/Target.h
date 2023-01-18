@@ -132,7 +132,7 @@ private:
   TLorentzVector * fHitEleP4; ///< hit electron 4p
   double fHitNucRad;          ///< hit nucleon position
 
-ClassDef(Target,2)
+ClassDef(Target,2) //Advance the index?
 };
 
 }      // genie namespace

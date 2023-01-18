@@ -3,8 +3,10 @@
 
 \class    genie::ElectronVelocity
 
-\brief  It visits the event record & samples a velocity for
-          initial state electrons from a velocity distribution.
+\brief  Interface used to visit the event record & samples a velocity for
+        initial state electrons from a velocity distribution.
+        Modifies interaction object to modify electron velocity and used to 
+        integrate over velocity distribution when calculating the cross section
         Is a concrete implementation of the EventRecordVisitorI interface.
 
  \author   Brinden Carlson <bcarlson1 \at ufl.edu>

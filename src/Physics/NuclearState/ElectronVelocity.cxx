@@ -91,12 +91,7 @@ void ElectronVelocity::Configure(const Registry & config)
 //____________________________________________________________________________
 void ElectronVelocity::Configure(string config)
 {
-  std::cout<<config<<std::endl;
   Algorithm::Configure(config);
   this->LoadConfig();
 }
-// void ElectronVelocity::LoadConfig(void)
-// {
-
-// }
 

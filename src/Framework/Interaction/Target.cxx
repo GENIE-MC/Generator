@@ -150,13 +150,9 @@ void Target::Copy(const Target & tgt)
      // a nucleon (p or n) or a di-nucleon cluster (p+p, p+n, n+n)
      this->ForceHitNucValidity();
   }
-  if (tgt.fHitNucPDG == 0 && tgt.fHitQrkPDG == 0 && tgt.fHitSeaQrk){ //No interaction with nucleus -> interaction with electron
+  if (tgt.fHitNucPDG == 0 && tgt.fHitQrkPDG == 0 && tgt.fHitSeaQrk == 0){ //No interaction with nucleus -> interaction with electron
     const TLorentzVector& p4 = *(tgt.fHitEleP4);
-
-    fHitEleP4->SetX(p4.X());
-    fHitEleP4->SetY(p4.Y());
-    fHitEleP4->SetZ(p4.Z());
-    fHitEleP4->SetT(p4.T());
+    *fHitEleP4 = *tgt.fHitEleP4 ;
   }
 }
 //___________________________________________________________________________
@@ -389,15 +385,6 @@ bool Target::IsOddOdd(void) const
   }
   return false;
 }
-//___________________________________________________________________________
-// bool Target::ForceHitEleValidity(void)
-// {
-// // resets the struck electron pdg-code if it is found not to be a valid one
-
-//   bool valid = fHitElePDG == 11;
-
-//   return valid;
-// }
 //___________________________________________________________________________
 bool Target::ForceHitNucValidity(void)
 {

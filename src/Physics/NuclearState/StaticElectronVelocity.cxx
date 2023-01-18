@@ -56,10 +56,6 @@ using namespace genie::constants;
 //using namespace std;
 
 //___________________________________________________________________________
-// StaticElectronVelocity::StaticElectronVelocity()
-// {
-//
-// }
 StaticElectronVelocity::~StaticElectronVelocity()
 {
 
@@ -69,7 +65,7 @@ ElectronVelocity::ElectronVelocity("genie::StaticElectronVelocity", config)
 {
 
 }
-StaticElectronVelocity::StaticElectronVelocity()
+StaticElectronVelocity::StaticElectronVelocity() : ElectronVelocity::ElectronVelocity()
 {
 
 }
@@ -79,17 +75,10 @@ void StaticElectronVelocity::InitializeVelocity(Interaction & interaction) const
   InitialState * init_state  = interaction.InitStatePtr();
   Target *       tgt         = init_state  -> TgtPtr();
 
-  //Get random generator from genie
-  RandomGen * rnd = RandomGen::Instance();
-  TRandom3 gen = rnd->RndGen();
-
-  int Z = tgt->Z(); //Get Z value
   TLorentzVector * p4 = tgt->HitEleP4Ptr(); //Initialize 4 momentum pointer
   //These should be initialized like this by just in case
-  p4->SetPx(0);
-  p4->SetPy(0);
-  p4->SetPz(0);
-  p4->SetE ( kElectronMass);
+  TVector3 p3;
+  p4->SetVectM(p3, kElectronMass2);
 }
 //___________________________________________________________________________
 
