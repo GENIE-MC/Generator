@@ -371,9 +371,15 @@ int main(int argc, char ** argv)
   while (1)
   {
     if( gOptNev >= 10000 ){
-      if( (ievent-gOptFirstEvent) % (gOptNev / 1000 ) == 0 ){
+      if( (ievent-gOptFirstEvent) % (gOptNev / 1000) == 0 ){
 	int irat = (ievent-gOptFirstEvent) / ( gOptNev / 1000 );
 	std::cerr << 0.1 * irat << " % " << " ( " << (ievent-gOptFirstEvent)
+		  << " / " << gOptNev << " ) \r" << std::flush;
+      }
+    } else if( gOptNev >= 100 ) {
+      if( (ievent-gOptFirstEvent) % (gOptNev / 10) == 0 ){
+	int irat = (ievent-gOptFirstEvent) / ( gOptNev / 10 );
+	std::cerr << 10.0 * irat << " % " << " ( " << (ievent-gOptFirstEvent)
 		  << " / " << gOptNev << " ) \r" << std::flush;
       }
     }
@@ -398,11 +404,16 @@ int main(int argc, char ** argv)
 
        // fluxCreator->ProcessEventRecord now tells us how many entries there are
        if( maxFluxEntries < 0 ) maxFluxEntries = std::stoi( std::getenv( "HNL_FC_NENTRIES" ) );
-       if( gOptNev > maxFluxEntries ){
+       if( gOptNev > maxFluxEntries - gOptFirstEvent ){
 	 LOG( "gevgen_hnl", pWARN )
 	   << "You have asked for " << gOptNev << " events, but only provided "
-	   << maxFluxEntries << " flux entries. Truncating events to " << maxFluxEntries << ".";
-	 gOptNev = maxFluxEntries;
+	   << maxFluxEntries - gOptFirstEvent << " flux entries. Truncating events to " << maxFluxEntries - gOptFirstEvent << ".";
+	 gOptNev = maxFluxEntries - gOptFirstEvent;
+       }
+       if( iflux >= maxFluxEntries - 1 ){
+	 LOG( "gevgen_hnl", pWARN )
+	   << "Reached end of flux input (iflux = " << iflux << "), about to stop.";
+	 break;
        }
        
        flux::GNuMIFluxPassThroughInfo retGnmf = fluxCreator->RetrieveFluxInfo();
