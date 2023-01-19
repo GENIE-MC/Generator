@@ -456,8 +456,70 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
   }
 
   double accCorr = this->CalculateAcceptanceCorrection( p4par, p4HNL_rest, decay_necm, zm, zp );
-  // if accCorr == 0 then we must bail and find the next event. 
-  if( accCorr == 0.0 ){
+  // WRONG! THIS IS NOT THE CASE!
+  // if accCorr == 0 then we must ~bail and find the next event.~ 
+  //                 We must reroll the point a bunch of times. Then we can skip.
+  //                 Ideally we'd be able to tell how much detector lives within the reachable region [zm, zp]
+  int iAccFail = 0; const int iAccFailBail = 10;
+  while( iAccFail < iAccFailBail && accCorr == 0.0 ){
+    LOG( "HNL", pNOTICE )
+      << "Point with separation " << utils::print::Vec3AsString( &fRVec_beam ) << " is unreachable "
+      << "by HNL from parent with momentum " << utils::print::P4AsString( &p4par ) << " !"
+      << "\nRerolling point. This is the " << iAccFail << "th try out of " << iAccFailBail;
+
+    // find random point in BBox and force momentum to point to that point
+    // first, separation in beam frame
+    fRVec_beam = this->PointToRandomPointInBBox( detO_beam );
+    // rotate it and get unit
+    fRVec_unit = (this->ApplyUserRotation( fRVec_beam )).Unit();
+    // force HNL to point along this direction
+    p4HNL.SetPxPyPzE( p4HNL_rand.P() * fRVec_unit.X(),
+		      p4HNL_rand.P() * fRVec_unit.Y(),
+		      p4HNL_rand.P() * fRVec_unit.Z(),
+		      p4HNL_rand.E() );
+    
+    pHNL_beam = this->ApplyUserRotation( p4HNL.Vect(), true );
+    p4HNL_beam.SetPxPyPzE( pHNL_beam.X(), pHNL_beam.Y(), pHNL_beam.Z(), p4HNL.E() );
+    
+    LOG( "HNL", pDEBUG )
+      << "\nRandom:  " << utils::print::P4AsString( &p4HNL_rand )
+      << "\nPointed: " << utils::print::P4AsString( &p4HNL )
+      << "\nRest:    " << utils::print::P4AsString( &p4HNL_rest );
+    
+    // update polarisation
+    p4Lep_good = p4Lep_rest_good; // in parent rest frame
+    p4Lep_good.Boost( boost_beta ); // in lab frame
+    boost_beta_HNL = p4HNL_beam.BoostVector();
+    p4Lep_good.Boost( -boost_beta_HNL ); // in HNL rest frame
+    
+    fLPx = ( fixPol ) ? fFixedPolarisation.at(0) : p4Lep_good.Px() / p4Lep_good.P();
+    fLPy = ( fixPol ) ? fFixedPolarisation.at(1) : p4Lep_good.Py() / p4Lep_good.P();
+    fLPz = ( fixPol ) ? fFixedPolarisation.at(2) : p4Lep_good.Pz() / p4Lep_good.P();
+    
+    // calculate acceptance correction
+    // first, get minimum and maximum deviation from parent momentum to hit detector in degrees
+    zm = 0.0; zp = 0.0;
+    if( fIsUsingRootGeom ){
+      this->GetAngDeviation( p4par_beam, detO_beam, zm, zp );
+    } else { // !fIsUsingRootGeom
+      zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par_beam, detO_beam, false );
+      zp = this->GetAngDeviation( p4par_beam, detO_beam, true );
+    }
+    
+    if( zm == -999.9 && zp == 999.9 ){
+      this->FillNonsense( iEntry, &gnmf ); return gnmf;
+    }
+    
+    if( isParentOnAxis ){ 
+      double tzm = zm, tzp = zp;
+      zm = 0.0;
+      zp = (tzp - tzm)/2.0; // 1/2 * angular opening
+    }
+    
+    accCorr = this->CalculateAcceptanceCorrection( p4par, p4HNL_rest, decay_necm, zm, zp );
+    iAccFail++;
+  }
+  if( accCorr == 0.0 ){ // NOW we can give up and return.
     this->FillNonsense( iEntry, &gnmf ); return gnmf;
   }
   
