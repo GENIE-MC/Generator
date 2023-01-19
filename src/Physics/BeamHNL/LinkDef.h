@@ -12,7 +12,7 @@
 #pragma link C++ namespace genie::hnl::selector;
 
 #pragma link C++ class genie::hnl::ChannelCalculatorI;
-#pragma link C++ class genie::hnl::GNuMIEventRecordVisitorI;
+#pragma link C++ class genie::hnl::HNLEventRecordVisitorI;
 
 #pragma link C++ class genie::hnl::SimpleHNL;
 #pragma link C++ class genie::hnl::BRCalculator;
