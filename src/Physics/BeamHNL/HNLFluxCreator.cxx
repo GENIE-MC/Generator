@@ -1516,6 +1516,37 @@ TVector3 FluxCreator::PointToRandomPointInBBox( TVector3 detO_beam ) const
   double rx = (rnd->RndGen()).Uniform( ox - fLx/2.0, ox + fLx/2.0 ), 
          ry = (rnd->RndGen()).Uniform( oy - fLy/2.0, oy + fLy/2.0 ),
          rz = (rnd->RndGen()).Uniform( oz - fLz/2.0, oz + fLz/2.0 );
+
+  // user-coordinates of this point. [m]
+  double ux = ox - rx, uy = oy - ry, uz = oz - rz;
+  // apply offset
+  ux -= fDetOffset.at(0); uy -= fDetOffset.at(1); uz -= fDetOffset.at(2);
+  // rotate to user system
+  TVector3 checkPoint( ux, uy, uz ); TVector3 originPoint( -fCx, -fCy, -fCz ); // both in m
+  checkPoint = this->ApplyUserRotation( checkPoint, originPoint, fDetRotation, false ); // tgt-hall --> det
+  ux = checkPoint.X(); uy = checkPoint.Y(); uz = checkPoint.Z();
+  // make [m] --> [cm]
+  ux *= units::m / units::cm; uy *= units::m / units::cm ; uz *= units::m / units::cm;
+  // check if the point is inside the geometry, otherwise do it again
+  gGeoManager->CheckPoint( ux, uy, uz ); // updates node path
+  //gGeoManager->SetCurrentPoint( ux, uy, uz );
+  //TGeoNode * node = gGeoManager->GetCurrentNode();
+  std::string pathString(gGeoManager->GetPath()); int iNode = 1; // 1 past beginning
+  while( pathString.find( "/", iNode ) == string::npos ){
+    rx = (rnd->RndGen()).Uniform( ox - fLx/2.0, ox + fLx/2.0 ); ux = (ox - rx);
+    ry = (rnd->RndGen()).Uniform( oy - fLy/2.0, oy + fLy/2.0 ); uy = (oy - ry);
+    rz = (rnd->RndGen()).Uniform( oz - fLz/2.0, oz + fLz/2.0 ); uz = (oz - rz);
+    checkPoint.SetXYZ( ux, uy, uz );
+    checkPoint = this->ApplyUserRotation( checkPoint, originPoint, fDetRotation, false ); // tgt-hall --> det
+    ux = checkPoint.X() * units::m / units::cm; 
+    uy = checkPoint.Y() * units::m / units::cm;
+    uz = checkPoint.Z() * units::m / units::cm;
+    gGeoManager->CheckPoint( ux, uy, uz );
+    //gGeoManager->SetCurrentPoint( ux, uy, uz );
+    //node = gGeoManager->GetCurrentNode();
+    pathString = std::string(gGeoManager->GetPath()); iNode = 1;
+  }
+
   TVector3 vec( rx, ry, rz );
   LOG( "HNL", pDEBUG )
     << "Pointing to this point in BBox (beam coords): " << utils::print::Vec3AsString( &vec );
@@ -1971,7 +2002,7 @@ void FluxCreator::MakeBBox() const
   LOG( "HNL", pWARN )
     << "WARNING: This is a dummy (==unit-side) bounding box centred at config-given point";
 
-  fLx = 1.0; fLy = 1.0; fLz = 1.0;
+  fLx = 1.0; fLy = 1.0; fLz = 1.0; // m
 }
 //----------------------------------------------------------------------------
 TVector3 FluxCreator::ApplyUserRotation( TVector3 vec, bool doBackwards ) const
