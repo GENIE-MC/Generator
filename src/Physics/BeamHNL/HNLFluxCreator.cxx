@@ -2168,6 +2168,8 @@ void FluxCreator::ImportBoundingBox( TGeoBBox * box ) const
   fLxR = 2.0 * box->GetDX() * units::cm / units::m;
   fLyR = 2.0 * box->GetDY() * units::cm / units::m;
   fLzR = 2.0 * box->GetDZ() * units::cm / units::m;
+
+  fLx = fLxR; fLy = fLyR; fLz = fLzR;
 }
 //____________________________________________________________________________
 void FluxCreator::SetEnvVariable( const char * var, double value ) const
