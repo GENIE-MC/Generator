@@ -508,6 +508,9 @@ int main(int argc, char ** argv)
      evWeight *= 1.0 / decayMod;
      event->SetWeight( evWeight / 1.0e+20 ); // in units of 1e+20 POT
 
+     // store the decayMod in the second daughter's polarisation
+     event->Particle(2)->SetPolarization( 1.0, decayMod );
+
      // why does InitState show the wrong p4 here?
      interaction->InitStatePtr()->SetProbeP4( *(event->Particle(0)->P4()) );
      

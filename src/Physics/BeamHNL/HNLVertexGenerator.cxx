@@ -136,6 +136,11 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   double decayProb = 1.0 - std::exp( - timeInsideDet / fCoMLifetime );
   weight *= 1.0 / decayProb;
 
+  // save the survival and decay probabilities
+  // event_rec->Particle(1)->SetPolarization( survProb, decayProb );
+  event_rec->Particle(1)->SetPosition( 0.0, 0.0, 0.0, survProb );
+  event_rec->Particle(2)->SetPosition( 0.0, 0.0, 0.0, decayProb );
+
   // update the weight
   event_rec->SetWeight( event_rec->Weight() * weight );
 
@@ -168,8 +173,8 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * event_rec) const
     event_rec->SetWeight(weight);
   }
   // also set entry and exit points. Do this in x4 of Particles(1,2)
-  (event_rec->Particle(1))->SetPosition( entryPoint.X(), entryPoint.Y(), entryPoint.Z(), 0.0 );
-  (event_rec->Particle(2))->SetPosition( exitPoint.X(), exitPoint.Y(), exitPoint.Z(), 0.0 );
+  (event_rec->Particle(1))->SetPosition( entryPoint.X(), entryPoint.Y(), entryPoint.Z(), event_rec->Particle(1)->Vt() );
+  (event_rec->Particle(2))->SetPosition( exitPoint.X(), exitPoint.Y(), exitPoint.Z(), event_rec->Particle(2)->Vt() );
   
 }
 //____________________________________________________________________________
