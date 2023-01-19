@@ -433,7 +433,7 @@ void VertexGenerator::SetStartingParameters( GHepRecord * event_rec ) const
   TVector3 startUnrotated = startPoint;
   startPoint = this->ApplyUserRotation( startPoint, beamOrigin, fB2URotation, true ); // beam --> tgt-hall
   TVector3 startTgt = startPoint;
-  startPoint = this->ApplyUserRotation( startPoint, detOrigin, fDetRotation, true ); // tgt-hall --> det
+  startPoint = this->ApplyUserRotation( startPoint, detOrigin, fDetRotation, false ); // tgt-hall --> det
   
   TLorentzVector * p4HNL = event_rec->Particle(0)->GetP4();
   TVector3 momentum( p4HNL->Px(), p4HNL->Py(), p4HNL->Pz() );
