@@ -177,7 +177,7 @@ namespace genie{
       void SetEnvVariable( const char * var, double value ) const;
 
       // current path to keep track of what is loaded
-      mutable std::string fCurrPath = "";
+      mutable std::string fCurrPath = ""; mutable bool fPathLoaded = false;
       // and which entry we're on
       mutable int iCurrEntry = 0;
       // which one was first?

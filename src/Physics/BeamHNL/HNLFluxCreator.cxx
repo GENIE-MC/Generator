@@ -965,6 +965,8 @@ void FluxCreator::OpenFluxInput( std::string finpath ) const
     cmeta = new TChain( "dkMeta" ); // "dkRootMeta"
   }
 
+  if( fPathLoaded ) return;
+
   TSystemDirectory dir( finpath.c_str(), finpath.c_str() );
   TList * files = dir.GetListOfFiles(); int nFiles = 0;
   assert( files );
@@ -974,7 +976,7 @@ void FluxCreator::OpenFluxInput( std::string finpath ) const
   TString fname;
   TIter next(files);
   
-  while( (file=( TSystemFile * ) next()) ){
+  while( (file=( TSystemFile * ) next()) && !fPathLoaded ){
     fname = file->GetName();
     if( !file->IsDirectory() ){
       TString fullpath = TString( finpath.c_str() ) + fname;
@@ -996,6 +998,8 @@ void FluxCreator::OpenFluxInput( std::string finpath ) const
   LOG( "HNL", pDEBUG )
     << "\nThere were " << nEntriesInMeta << " entries in meta with " << nEntries << " total nus"
     << "\n got from " << nFiles << " files";
+
+  fPathLoaded = true;
 
   delete file;
   delete files;
