@@ -11,31 +11,31 @@
 */
 //____________________________________________________________________________
 
-#include "Physics/BeamHNL/GNuMIEventRecordVisitorI.h"
+#include "Physics/BeamHNL/HNLEventRecordVisitorI.h"
 
 using namespace genie;
 using namespace genie::hnl;
 
 //____________________________________________________________________________
-GNuMIEventRecordVisitorI::GNuMIEventRecordVisitorI() :
+HNLEventRecordVisitorI::HNLEventRecordVisitorI() :
   EventRecordVisitorI()
 {
 
 }
 //____________________________________________________________________________
-GNuMIEventRecordVisitorI::GNuMIEventRecordVisitorI(string name) :
+HNLEventRecordVisitorI::HNLEventRecordVisitorI(string name) :
   EventRecordVisitorI(name)
 {
 
 }
 //____________________________________________________________________________
-GNuMIEventRecordVisitorI::GNuMIEventRecordVisitorI(string name, string config) :
+HNLEventRecordVisitorI::HNLEventRecordVisitorI(string name, string config) :
   EventRecordVisitorI(name, config)
 {
 
 }
 //____________________________________________________________________________
-GNuMIEventRecordVisitorI::~GNuMIEventRecordVisitorI()
+HNLEventRecordVisitorI::~HNLEventRecordVisitorI()
 {
 
 }

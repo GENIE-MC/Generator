@@ -75,7 +75,7 @@
 
 #include "Tools/Flux/GNuMIFlux.h"
 
-#include "Physics/BeamHNL/GNuMIEventRecordVisitorI.h"
+#include "Physics/BeamHNL/HNLEventRecordVisitorI.h"
 
 #include "Physics/BeamHNL/HNLBRCalculator.h"
 #include "Physics/BeamHNL/HNLDecayUtils.h"

@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\class   genie::hnl::GNuMIEventRecordVisitorI
+\class   genie::hnl::HNLEventRecordVisitorI
 
-\brief   Expands the EventRecordVisitorI interface to include public interface
-         for flux::GNuMIFluxPassThroughInfo objects.
+\brief   Expands the EventRecordVisitorI interface to include public interfaces
+         for the HNL modules.
 	 Concrete implementations of this interface use the 'Visitor' Design
          Pattern to perform an operation on an EventRecord.
 
@@ -36,13 +36,13 @@ namespace genie {
 
   namespace hnl {
 
-    class GNuMIEventRecordVisitorI: public EventRecordVisitorI {
+    class HNLEventRecordVisitorI: public EventRecordVisitorI {
 
     public:
 
-      virtual ~GNuMIEventRecordVisitorI();
+      virtual ~HNLEventRecordVisitorI();
 
-      //-- define the GNuMIEventRecordVisitorI interface
+      //-- define the HNLEventRecordVisitorI interface
 
       virtual void ProcessEventRecord(GHepRecord * event_rec) const = 0;
 
@@ -52,9 +52,9 @@ namespace genie {
 
     protected:
 
-      GNuMIEventRecordVisitorI();
-      GNuMIEventRecordVisitorI(string name);
-      GNuMIEventRecordVisitorI(string name, string config);
+      HNLEventRecordVisitorI();
+      HNLEventRecordVisitorI(string name);
+      HNLEventRecordVisitorI(string name, string config);
 
     };
 
