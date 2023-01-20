@@ -299,8 +299,14 @@ int TestFluxFromDk2nu()
 
   const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
 
-  __attribute__((unused)) int ifset = setenv( "DK2NUGENIEINPUT", gOptFluxFilePath.c_str(), 1 );
-  __attribute__((unused)) int igset = setenv( "GEOMGENIEINPUT", gOptRootGeom.c_str(), 1 );
+  fluxCreator->SetInputFluxPath( gOptFluxFilePath );
+  bool geom_is_accessible = ! (gSystem->AccessPathName(gOptRootGeom.c_str()));
+  if (!geom_is_accessible) {
+    LOG("gevald_hnl", pFATAL)
+      << "The specified ROOT geometry doesn't exist! Initialization failed!";
+    exit(1);
+  }
+  fluxCreator->SetGeomFile( gOptRootGeom );
 
   int maxFluxEntries = -1;
 
@@ -369,6 +375,12 @@ int TestFluxFromDk2nu()
 	  std::cerr << Form("%2.2f", 0.1 * irat) << " % ( " << ievent << " / "
 		    << gOptNev << " ) \r" << std::flush;
 	}
+      } else if( gOptNev >= 100 ) {
+	if( ievent % (gOptNev / 10) == 0 ){
+	  int irat = ievent / ( gOptNev / 10 );
+	  std::cerr << 10.0 * irat << " % " << " ( " << ievent
+		    << " / " << gOptNev << " ) \r" << std::flush;
+	}
       }
       
       if( ievent == gOptNev ) break;
@@ -379,14 +391,14 @@ int TestFluxFromDk2nu()
       fluxCreator->ProcessEventRecord(event);
       
       // fluxCreator->ProcessEventRecord now tells us how many entries there are
-       if( maxFluxEntries < 0 ) maxFluxEntries = std::stoi( std::getenv( "HNL_FC_NENTRIES" ) );
-       if( gOptNev > maxFluxEntries ){
-	 LOG( "gevgen_hnl", pWARN )
-	   << "You have asked for " << gOptNev << " events, but only provided "
-	   << maxFluxEntries << " flux entries. Truncating events to " << maxFluxEntries << ".";
-	 gOptNev = maxFluxEntries;
-       }
-
+      maxFluxEntries = fluxCreator->GetNFluxEntries();
+      if( gOptNev > maxFluxEntries ){
+	LOG( "gevgen_hnl", pWARN )
+	  << "You have asked for " << gOptNev << " events, but only provided "
+	  << maxFluxEntries << " flux entries. Truncating events to " << maxFluxEntries << ".";
+	gOptNev = maxFluxEntries;
+      }
+      
       flux::GNuMIFluxPassThroughInfo * gnmf = fluxCreator->RetrieveGNuMIFluxPassThroughInfo();
       
       // reject nonsense
@@ -562,8 +574,6 @@ int TestDecay(void)
     LOG("gevald_hnl", pFATAL)
       << "The specified ROOT geometry doesn't exist! Initialization failed!";
     exit(1);
-  } else { // we will set the geometry env-variable now so that modules know where to look
-    __attribute__((unused)) int igset = setenv( "GEOMGENIEINPUT", gOptRootGeom.c_str(), 1 );
   }
 
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
@@ -578,6 +588,7 @@ int TestDecay(void)
   const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
   
   const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
+  vtxGen->SetGeomFile( gOptRootGeom );
   
   SimpleHNL sh = SimpleHNL( "HNLInstance", 0, kPdgHNL, kPdgKP,
 			    gCfgMassHNL, gCfgECoupling, gCfgMCoupling, gCfgTCoupling, false );
@@ -698,6 +709,12 @@ int TestDecay(void)
 	int irat = ievent / (gOptNev / 1000);
 	std::cerr << Form("%2.2f", 0.1 * irat) << " % ( " << ievent << " / "
 		  << gOptNev << " ) \r" << std::flush;
+      }
+    } else if( gOptNev >= 100 ) {
+      if( ievent % (gOptNev / 10) == 0 ){
+	int irat = ievent / ( gOptNev / 10 );
+	std::cerr << 10.0 * irat << " % " << " ( " << ievent
+		  << " / " << gOptNev << " ) \r" << std::flush;
       }
     }
     
@@ -867,6 +884,13 @@ int TestGeom(void)
   // tell the VertexGenerator it shouldn't be worried if trajectories don't intersect.
   __attribute__((unused)) int idset = setenv( "NOTUSINGDK2NU", "1", 1 );
 
+  bool geom_is_accessible = ! (gSystem->AccessPathName(gOptRootGeom.c_str()));
+  if (!geom_is_accessible) {
+    LOG("gevald_hnl", pFATAL)
+      << "The specified ROOT geometry doesn't exist! Initialization failed!";
+    exit(1);
+  }
+  
   gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str());
   TGeoVolume * top_volume = gOptRootGeoManager->GetTopVolume();
   assert( top_volume );
@@ -876,6 +900,7 @@ int TestGeom(void)
 
   const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
   const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
+  vtxGen->SetGeomFile( gOptRootGeom );
 
   // get SimpleHNL for lifetime
   SimpleHNL sh = SimpleHNL( "HNLInstance", 0, kPdgHNL, kPdgKP,
@@ -945,15 +970,6 @@ int TestGeom(void)
   double arr_phi[ NSPHERICAL ] = { PGphi - PGdphi, PGphi - 3.0/4.0 * PGdphi, PGphi - 1.0/2.0 * PGdphi, PGphi - 1.0/4.0 * PGdphi, PGphi, PGphi + 1.0/4.0 * PGdphi, PGphi + 1.0/2.0 * PGdphi, PGphi + 3.0/4.0 * PGdphi, PGphi + PGdphi };
 
   // so now we have NCARTESIAN ^3 x NSPHERICAL ^2 points to iterate over. That's 10125 events for 5 and 9
-
-  bool geom_is_accessible = ! (gSystem->AccessPathName(gOptRootGeom.c_str()));
-  if (!geom_is_accessible) {
-    LOG("gevald_hnl", pFATAL)
-      << "The specified ROOT geometry doesn't exist! Initialization failed!";
-    exit(1);
-  } else { // we will set the geometry env-variable now so that modules know where to look
-    __attribute__((unused)) int igset = setenv( "GEOMGENIEINPUT", gOptRootGeom.c_str(), 1 );
-  }
 
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
   
@@ -1128,8 +1144,6 @@ void InitBoundingBox(void)
     LOG("gevald_hnl", pFATAL)
       << "The specified ROOT geometry doesn't exist! Initialization failed!";
     exit(1);
-  } else { // we will set the geometry env-variable now so that modules know where to look
-    __attribute__((unused)) int igset = setenv( "GEOMGENIEINPUT", gOptRootGeom.c_str(), 1 );
   }
 
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
@@ -1472,16 +1486,10 @@ void ReadInConfig(void)
   const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::hnl::FluxCreator", "Default");
   __attribute__((unused)) const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
 
-  assert( std::getenv( "HNL_FC_B2UTX" ) != NULL );
-  std::string sTX( "HNL_FC_B2UTX" ); std::string sTY( "HNL_FC_B2UTY" ); std::string sTZ( "HNL_FC_B2UTZ" );
-  gCfgUserOx    = GetValueFromEnv( sTX.c_str() );
-  gCfgUserOy    = GetValueFromEnv( sTY.c_str() );
-  gCfgUserOz    = GetValueFromEnv( sTZ.c_str() );
-
-  std::string sRX1( "HNL_FC_B2URX1" ); std::string sRZ( "HNL_FC_B2URZ" ); std::string sRX2( "HNL_FC_B2URX2" );
-  gCfgUserAx1   = GetValueFromEnv( sRX1.c_str() );
-  gCfgUserAz    = GetValueFromEnv( sRZ.c_str() );
-  gCfgUserAx2   = GetValueFromEnv( sRX2.c_str() );
+  std::vector< double > b2uTranslation = fluxCreator->GetB2UTranslation();
+  gCfgUserOx = b2uTranslation.at(0); gCfgUserOy = b2uTranslation.at(1); gCfgUserOz = b2uTranslation.at(2);
+  std::vector< double > b2uRotation = fluxCreator->GetB2URotation();
+  gCfgUserAx1 = b2uRotation.at(0); gCfgUserAz = b2uRotation.at(1); gCfgUserAx2 = b2uRotation.at(2);
 
   // now transform the lengths and angles to the correct units
   gCfgUserOx   *= units::m / gOptGeomLUnits;

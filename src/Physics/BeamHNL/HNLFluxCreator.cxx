@@ -16,13 +16,13 @@ using namespace genie::hnl::enums;
 
 //----------------------------------------------------------------------------
 FluxCreator::FluxCreator() :
-  EventRecordVisitorI("genie::hnl::FluxCreator")
+  HNLEventRecordVisitorI("genie::hnl::FluxCreator")
 {
 
 }
 //----------------------------------------------------------------------------
 FluxCreator::FluxCreator(string config) :
-  EventRecordVisitorI("genie::hnl::FluxCreator", config)
+  HNLEventRecordVisitorI("genie::hnl::FluxCreator", config)
 {
 
 }
@@ -37,19 +37,10 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
   // Adds the inital state HNL at the event record.
   // Also assigns the production vertex to evrec (this will be overwritten by subsequent modules)
   // Also adds (acceptance*nimpwt)^(-1) component of weight
-
-  if( std::strcmp( fCurrPath.c_str(), "" ) == 0 ){
-    assert( std::getenv( "DK2NUGENIEINPUT" ) != NULL );
-    this->SetInputPath( std::getenv( "DK2NUGENIEINPUT" ) );
-    
-    int maxFluxEntries = this->GetNEntries();
-    __attribute__((unused)) int ieset = setenv( "HNL_FC_NENTRIES", Form("%d", maxFluxEntries ), 1 );
-  }
   
-  if( std::strcmp( fGeomFile.c_str(), "" ) == 0 ){
+  //if( std::strcmp( fGeomFile.c_str(), "" ) == 0 ){
+  if( iCurrEntry <= fFirstEntry ){
     this->SetUsingRootGeom(true); // must always be true
-    assert( std::getenv( "GEOMGENIEINPUT" ) != NULL );
-    this->SetGeomFile( std::getenv( "GEOMGENIEINPUT" ) );
     
     gGeoManager = TGeoManager::Import( fGeomFile.c_str() );
     
@@ -78,6 +69,7 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
       }
       
       fGnmf = this->MakeTupleFluxEntry( iCurrEntry, fCurrPath );
+      LOG( "HNL", pDEBUG ) << "Tuple flux entry got.";
       
       if( std::abs(fGnmf.fgPdgC) == genie::kPdgHNL ){ // only add particle if parent is valid
 	
@@ -96,6 +88,8 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
 	probeP4.SetPxPyPzE( probeP3.X(), probeP3.Y(), probeP3.Z(), probeP4.E() );
 	GHepParticle ptHNL( fGnmf.fgPdgC, kIStInitialState, -1, -1, -1, -1, probeP4, fGnmf.fgX4User );
 	evrec->AddParticle( ptHNL );
+
+	LOG( "HNL", pDEBUG ) << "Added particle with PDG code " << fGnmf.fgPdgC;
       }
 
       if( fGnmf.fgXYWgt >= 0.0 ){
@@ -107,6 +101,8 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
 	if( fLPz >= 0.0 ) evrec->SetXSec( 1.0 );
 	else evrec->SetXSec( -1.0 );
 	evrec->Particle(0)->SetPosition( tmpx4 );
+
+	LOG( "HNL", pDEBUG ) << "Finished working with particle at iCurrEntry = " << iCurrEntry << ", weight = " << fGnmf.fgXYWgt << ", and fFirstEntry = " << fFirstEntry;
 	
       } // if( fGnmf.fgXYWgt >= 0 )
     } // if( iCurrEntry > fFirstEntry )
@@ -117,14 +113,14 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
   }
 }
 //----------------------------------------------------------------------------
-void FluxCreator::SetInputPath(std::string finpath) const
+void FluxCreator::SetInputFluxPath(std::string finpath) const
 {
   LOG( "HNL", pDEBUG ) << "Setting input path to " << finpath;
   LOG( "HNL", pDEBUG ) << "Before setting, fCurrPath = " << fCurrPath;
   fCurrPath = finpath;
 }
 //----------------------------------------------------------------------------
-int FluxCreator::GetNEntries() const
+int FluxCreator::GetNFluxEntries() const
 {
   if( fNEntries <= 0 ){
     this->OpenFluxInput( fCurrPath );
@@ -548,6 +544,8 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
   TLorentzVector x4HNL_cm( units::m / units::cm * ( -detO.X() ),
 			   units::m / units::cm * ( -detO.Y() ),
 			   units::m / units::cm * ( -detO.Z() ), delay ); // in cm, ns
+
+  LOG( "HNL", pDEBUG ) << "Filling gnmf...";
 
   // fill all the GNuMIFlux stuff
   // comments as seeon on https://www.hep.utexas.edu/~zarko/wwwgnumi/v19/v19/output_gnumi.html
@@ -1879,7 +1877,7 @@ double FluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLorent
   double ymax = fHNL->GetMaximum(), xmax = fHNL->GetMaximumX();
   double range1 = 0.0;
 
-  if( fHNL->GetMinimum() == fHNL->GetMaximum() ) return 1.0; // bail on constant function
+  if( fHNL->GetMinimum() >= fHNL->GetMaximum() ) return 1.0; // bail on constant function
 
   if( zm < fHNL->GetMinimum() ){ // really good collimation, ignore checks on zm
     double z0 = fHNL->GetMinimum();
@@ -2117,13 +2115,13 @@ void FluxCreator::LoadConfig(void)
 
   this->GetParam( "IsParentOnAxis", isParentOnAxis );
 
-  fCx = fB2UTranslation.at(0); std::string stFCx( "HNL_FC_B2UTX" ); this->SetEnvVariable( stFCx.c_str(), fCx );
-  fCy = fB2UTranslation.at(1); std::string stFCy( "HNL_FC_B2UTY" ); this->SetEnvVariable( stFCy.c_str(), fCy );
-  fCz = fB2UTranslation.at(2); std::string stFCz( "HNL_FC_B2UTZ" ); this->SetEnvVariable( stFCz.c_str(), fCz );
+  fCx = fB2UTranslation.at(0);
+  fCy = fB2UTranslation.at(1);
+  fCz = fB2UTranslation.at(2);
   
-  fAx1 = fB2URotation.at(0); std::string stFAx1( "HNL_FC_B2URX1" ); this->SetEnvVariable( stFAx1.c_str(), fAx1 );
-  fAz  = fB2URotation.at(1); std::string stFAz( "HNL_FC_B2URZ" ); this->SetEnvVariable( stFAz.c_str(), fAz );
-  fAx2 = fB2URotation.at(2); std::string stFAx2( "HNL_FC_B2URX2" ); this->SetEnvVariable( stFAx2.c_str(), fAx2 );
+  fAx1 = fB2URotation.at(0);
+  fAz  = fB2URotation.at(1);
+  fAx2 = fB2URotation.at(2);
 
   fBx1 = fDetRotation.at(0);
   fBz  = fDetRotation.at(1);

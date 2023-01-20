@@ -50,6 +50,15 @@ namespace genie {
       virtual flux::GNuMIFluxPassThroughInfo RetrieveFluxInfo() const = 0;
       virtual flux::GNuMIFluxPassThroughInfo RetrieveFluxBase() const = 0;
 
+      virtual std::vector< double > GetB2UTranslation() const = 0;
+      virtual std::vector< double > GetB2URotation() const = 0;
+      virtual std::vector< double > GetDetOffset() const = 0;
+      virtual std::vector< double > GetDetRotation() const = 0;
+      
+      virtual void SetInputFluxPath( std::string finpath ) const = 0;
+      virtual int GetNFluxEntries() const = 0;
+      virtual void SetGeomFile( std::string geomfile ) const = 0;
+
     protected:
 
       HNLEventRecordVisitorI();

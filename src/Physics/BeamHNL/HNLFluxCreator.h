@@ -14,7 +14,7 @@
 \class      genie::hnl::FluxCreator
 
 \brief      Calculates HNL production kinematics & production vertex.
-            Is a concrete implementation of the EventRecordVisitorI interface
+            Is a concrete implementation of the HNLEventRecordVisitorI interface
 
 \author     John Plows <komninos-john.plows@physics.ox.ac.uk>
 
@@ -93,7 +93,7 @@ namespace genie{
     
     class SimpleHNL;
     
-    class FluxCreator : public EventRecordVisitorI {
+    class FluxCreator : public HNLEventRecordVisitorI {
 
     public:
 
@@ -108,34 +108,35 @@ namespace genie{
       // members from configuration options
       void Configure(const Registry & config);
       void Configure(string config);
+      
+      // set the input path for a flux
+      void SetInputFluxPath( std::string finpath ) const;
+      // get N(flux input entries)
+      int GetNFluxEntries() const;
+      // set path to geometry file
+      void SetGeomFile( string geomfile ) const;
 
       // get dk2nu flux info
       flux::GNuMIFluxPassThroughInfo * RetrieveGNuMIFluxPassThroughInfo() const;
       flux::GNuMIFluxPassThroughInfo RetrieveFluxInfo() const;
       flux::GNuMIFluxPassThroughInfo RetrieveFluxBase() const;
 
-    private:
-
-      void LoadConfig(void);
-
-      // set input path
-      void SetInputPath( std::string finpath ) const;
-      // if using root geom, let this module know
-      void SetUsingRootGeom( bool IsUsingRootGeom ) const;
-      void SetGeomFile( string geomfile ) const;
-      void ImportBoundingBox( TGeoBBox * box ) const;
-
-      // get N(flux input entries)
-      int GetNEntries() const;
-
-      void SetCurrentEntry( int iCurr ) const;
-      void SetFirstEntry( int iFirst ) const;
-
       // return information about frames
       std::vector< double > GetB2UTranslation() const { return fB2UTranslation; }
       std::vector< double > GetB2URotation() const { return fB2URotation; }
       std::vector< double > GetDetOffset() const { return fDetOffset; }
       std::vector< double > GetDetRotation() const { return fDetRotation; }
+
+    private:
+
+      void LoadConfig(void);
+
+      // if using root geom, let this module know
+      void SetUsingRootGeom( bool IsUsingRootGeom ) const;
+      void ImportBoundingBox( TGeoBBox * box ) const;
+
+      void SetCurrentEntry( int iCurr ) const;
+      void SetFirstEntry( int iFirst ) const;
 
       // workhorse methods
       genie::flux::GNuMIFluxPassThroughInfo MakeTupleFluxEntry( int iEntry, std::string finpath ) const;

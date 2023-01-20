@@ -43,27 +43,19 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * event_rec) const
    */
 
   // before anything else: find the geometry!
-  if( std::strcmp( fGeomFile.c_str(), "" ) == 0 ){
-    if( std::getenv( "GEOMGENIEINPUT" ) == NULL ){
-      LOG( "HNL", pWARN )
-	<< "No geometry specified, will make a simple decay volume instead.";
-      this->MakeSDV();
-    } else {
-      LOG( "HNL", pINFO )
-	<< "Getting geometry information from " << std::getenv("GEOMGENIEINPUT");
-	
-      fGeomFile = std::getenv( "GEOMGENIEINPUT" );
-      
-      if( !fGeoManager )
-	fGeoManager = TGeoManager::Import(fGeomFile.c_str());
-      
-      TGeoVolume * top_volume = fGeoManager->GetTopVolume();
-      assert( top_volume );
-      TGeoShape * ts = top_volume->GetShape();
-      TGeoBBox * box = (TGeoBBox *) ts;
-      
-      this->ImportBoundingBox(box);
-    }
+  //if( std::strcmp( fGeomFile.c_str(), "" ) == 0 ){
+  if( !fGeoManager ){
+    LOG( "HNL", pINFO )
+      << "Getting geometry information from " << fGeomFile;
+
+    fGeoManager = TGeoManager::Import(fGeomFile.c_str());
+    
+    TGeoVolume * top_volume = fGeoManager->GetTopVolume();
+    assert( top_volume );
+    TGeoShape * ts = top_volume->GetShape();
+    TGeoBBox * box = (TGeoBBox *) ts;
+    
+    this->ImportBoundingBox(box);
   }
 
   this->SetStartingParameters( event_rec );
@@ -137,9 +129,10 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   weight *= 1.0 / decayProb;
 
   // save the survival and decay probabilities
-  // event_rec->Particle(1)->SetPolarization( survProb, decayProb );
-  event_rec->Particle(1)->SetPosition( 0.0, 0.0, 0.0, survProb );
-  event_rec->Particle(2)->SetPosition( 0.0, 0.0, 0.0, decayProb );
+  if( event_rec->Particle(1) && event_rec->Particle(2) ){
+    event_rec->Particle(1)->SetPosition( 0.0, 0.0, 0.0, survProb );
+    event_rec->Particle(2)->SetPosition( 0.0, 0.0, 0.0, decayProb );
+  }
 
   // update the weight
   event_rec->SetWeight( event_rec->Weight() * weight );
@@ -170,11 +163,18 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
     event_rec->AddParticle( nu1 ); event_rec->AddParticle( nu2 );
 
+    // save the survival and decay probabilities
+    // event_rec->Particle(1)->SetPolarization( survProb, decayProb );
+    event_rec->Particle(1)->SetPosition( 0.0, 0.0, 0.0, survProb );
+    event_rec->Particle(2)->SetPosition( 0.0, 0.0, 0.0, decayProb );
     event_rec->SetWeight(weight);
   }
+
   // also set entry and exit points. Do this in x4 of Particles(1,2)
-  (event_rec->Particle(1))->SetPosition( entryPoint.X(), entryPoint.Y(), entryPoint.Z(), event_rec->Particle(1)->Vt() );
-  (event_rec->Particle(2))->SetPosition( exitPoint.X(), exitPoint.Y(), exitPoint.Z(), event_rec->Particle(2)->Vt() );
+  if( event_rec->Particle(1) && event_rec->Particle(2) ){
+    (event_rec->Particle(1))->SetPosition( entryPoint.X(), entryPoint.Y(), entryPoint.Z(), event_rec->Particle(1)->Vt() );
+    (event_rec->Particle(2))->SetPosition( exitPoint.X(), exitPoint.Y(), exitPoint.Z(), event_rec->Particle(2)->Vt() );
+  }
   
 }
 //____________________________________________________________________________
@@ -495,7 +495,7 @@ bool VertexGenerator::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 
     << "\nCurrent point     is: ( " << firstX << ", " << firstY << ", " << firstZ << " ) [" << lunitString.c_str() << "]"
     << "\nFrom start point    : ( " << sx << ", " << sy << ", " << sz << " ) [" << lunitString.c_str() << "]"
     << "\nIn ROOT, current is : ( " << firstXROOT << ", " << firstYROOT << ", " << firstZROOT << " ) [cm]"
-    << "\nIn ROOT, start is   : ( " << fSxROOT << ", " << fSxROOT << ", " << fSzROOT << " ) [cm]"
+    << "\nIn ROOT, start is   : ( " << fSxROOT << ", " << fSyROOT << ", " << fSzROOT << " ) [cm]"
     << "\nCurrent direction is: ( " << px << ", " << py << ", " << pz << " ) [GeV/GeV]";
   */
 
@@ -516,10 +516,10 @@ bool VertexGenerator::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 
   const double * tmpPoint = gGeoManager->GetCurrentPoint();
   if( std::abs(tmpPoint[0]) == fLx/2.0 * lunits / units::cm ||
       std::abs(tmpPoint[1]) == fLy/2.0 * lunits / units::cm ||
-      std::abs(tmpPoint[2]) == fLz/2.0 * lunits / units::cm )
+      std::abs(tmpPoint[2]) == fLz/2.0 * lunits / units::cm ) 
     nextNode = gGeoManager->FindNextBoundaryAndStep();
 
-  if( nextNode == NULL ) return false;
+  if( nextNode == NULL ) return false; 
 
   // entered the detector, let's save this point
   fEx = ( gGeoManager->GetCurrentPoint() )[0] * genie::units::cm / lunits;
@@ -695,5 +695,10 @@ TVector3 VertexGenerator::ApplyUserRotation( TVector3 vec, TVector3 oriVec, std:
   vx += ox; vy += oy; vz += oz;
   TVector3 nvec( vx, vy, vz );
   return nvec;
+}
+//____________________________________________________________________________
+void VertexGenerator::SetGeomFile( string geomfile ) const
+{
+  fGeomFile = geomfile;
 }
 //____________________________________________________________________________

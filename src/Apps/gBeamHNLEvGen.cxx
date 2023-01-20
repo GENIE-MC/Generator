@@ -237,11 +237,11 @@ int main(int argc, char ** argv)
   __attribute__((unused)) const EventRecordVisitorI * mcgen = HNLGenerator();
   const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::hnl::FluxCreator", "Default");
   const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
-  //const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
+  const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
 
   const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
   const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
-  //const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
+  const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
   
   //string confString = kDefOptSName + "/" + kDefOptSConfig;
   string confString = kDefOptSConfig;
@@ -354,7 +354,7 @@ int main(int argc, char ** argv)
     LOG( "gevgen_hnl", pWARN )
       << "Using input flux files. These are *flat dk2nu-like ROOT trees, so far...*";
 
-    __attribute__((unused)) int ifset = setenv( "DK2NUGENIEINPUT", gOptFluxFilePath.c_str(), 1 );
+    //__attribute__((unused)) int ifset = setenv( "DK2NUGENIEINPUT", gOptFluxFilePath.c_str(), 1 );
 
   } else { // ok, we have monoenergetic flux. Let's flag this now
     __attribute__((unused)) int iset = setenv( "PRODVTXDIR", "NODIR", 1 );
@@ -367,6 +367,9 @@ int main(int argc, char ** argv)
   // Event loop
   int ievent = gOptFirstEvent, iflux = gOptFirstEvent;
   int maxFluxEntries = -1;
+  fluxCreator->SetInputFluxPath( gOptFluxFilePath );
+  fluxCreator->SetGeomFile( gOptRootGeom );
+  vtxGen->SetGeomFile( gOptRootGeom );
   
   while (1)
   {
@@ -403,7 +406,7 @@ int main(int argc, char ** argv)
        fluxCreator->ProcessEventRecord( event );
 
        // fluxCreator->ProcessEventRecord now tells us how many entries there are
-       if( maxFluxEntries < 0 ) maxFluxEntries = std::stoi( std::getenv( "HNL_FC_NENTRIES" ) );
+       maxFluxEntries = fluxCreator->GetNFluxEntries();
        if( gOptNev > maxFluxEntries - gOptFirstEvent ){
 	 LOG( "gevgen_hnl", pWARN )
 	   << "You have asked for " << gOptNev << " events, but only provided "
@@ -509,7 +512,15 @@ int main(int argc, char ** argv)
 
      // Generate (or read) a position for the decay vertex
      // also currently handles the geometrical weight
-     TLorentzVector x4mm = GeneratePosition( event );
+     TLorentzVector x4mm;
+     if( gOptUsingRootGeom ){
+       TLorentzVector * p4HNL = event->Particle(0)->GetP4();
+       NTP_IS_E = p4HNL->E(); NTP_IS_PX = p4HNL->Px(); NTP_IS_PY = p4HNL->Py(); NTP_IS_PZ = p4HNL->Pz();
+       vtxGen->ProcessEventRecord( event );
+       x4mm = *(event->Vertex());
+     } else {
+       x4mm = GeneratePosition( event );
+     }
 
      // update weight to scale for couplings, inhibited decays
      // acceptance is already handled in FluxCreator
@@ -606,8 +617,6 @@ void InitBoundingBox(void)
     LOG("gevgen_hnl", pFATAL)
       << "The specified ROOT geometry doesn't exist! Initialization failed!";
     exit(1);
-  } else { // we will set the geometry env-variable now so that modules know where to look
-    __attribute__((unused)) int igset = setenv( "GEOMGENIEINPUT", gOptRootGeom.c_str(), 1 );
   }
 
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
@@ -617,12 +626,6 @@ void InitBoundingBox(void)
   TGeoShape * ts  = top_volume->GetShape();
 
   TGeoBBox *  box = (TGeoBBox *)ts;
-
-  //const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
-  //const Algorithm * algFluxCreator = AlgFactory::Instance()->GetAlgorithm("genie::hnl::FluxCreator", "Default");
-
-  //const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
-  //const FluxCreator * fluxCreator = dynamic_cast< const FluxCreator * >( algFluxCreator );
 
   //get box origin and dimensions (in the same units as the geometry)
   fdx = box->GetDX();
@@ -892,42 +895,21 @@ void FillFlux( flux::GNuMIFluxPassThroughInfo &ggn, flux::GNuMIFluxPassThroughIn
 #endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 //_________________________________________________________________________________________
 TLorentzVector GeneratePosition( GHepRecord * event )
-{
-  // this should now be an interface to VertexGenerator::ProcessEventRecord(event)
+{ 
+  __attribute__((unused)) RandomGen * rnd = RandomGen::Instance();
+  TRandom3 & rnd_geo = rnd->RndGeom();
   
-  if( gOptUsingRootGeom ){
-
-    // get momentum of this channel
-    const TLorentzVector * p4HNL = event->Probe()->GetP4();
-    
-    NTP_IS_E = p4HNL->E(); NTP_IS_PX = p4HNL->Px(); NTP_IS_PY = p4HNL->Py(); NTP_IS_PZ = p4HNL->Pz();
-
-    const Algorithm * algVtxGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::VertexGenerator", "Default");
-    
-    const VertexGenerator * vtxGen = dynamic_cast< const VertexGenerator * >( algVtxGen );
-    vtxGen->ProcessEventRecord( event );
-
-    TLorentzVector x4 = *(event->Vertex());
-    return x4;
-  }
-  else{
-    __attribute__((unused)) RandomGen * rnd = RandomGen::Instance();
-    TRandom3 & rnd_geo = rnd->RndGeom();
-    
-    double rndx = 2 * (rnd_geo.Rndm() - 0.5); // [-1,1]
-    double rndy = 2 * (rnd_geo.Rndm() - 0.5); // [-1,1]
-    double rndz = 2 * (rnd_geo.Rndm() - 0.5); // [-1,1]
-    
-    double t_gen = 0;
-    double x_gen = fox + rndx * fdx;
-    double y_gen = foy + rndy * fdy;
-    double z_gen = foz + rndz * fdz;
-    
-    TLorentzVector pos(x_gen, y_gen, z_gen, t_gen);
-    return pos;
-  }
+  double rndx = 2 * (rnd_geo.Rndm() - 0.5); // [-1,1]
+  double rndy = 2 * (rnd_geo.Rndm() - 0.5); // [-1,1]
+  double rndz = 2 * (rnd_geo.Rndm() - 0.5); // [-1,1]
   
-  return TLorentzVector( 0, 0, 0, 0);
+  double t_gen = 0;
+  double x_gen = fox + rndx * fdx;
+  double y_gen = foy + rndy * fdy;
+  double z_gen = foz + rndz * fdz;
+  
+  TLorentzVector pos(x_gen, y_gen, z_gen, t_gen);
+  return pos;
 }
 //_________________________________________________________________________________________
 const EventRecordVisitorI * HNLGenerator(void)

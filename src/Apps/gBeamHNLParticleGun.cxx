@@ -222,9 +222,8 @@ int main(int argc, char ** argv)
     LOG("gevgen_pghnl", pFATAL)
       << "The specified ROOT geometry doesn't exist! Initialization failed!";
     exit(1);
-  } else { // we will set the geometry env-variable now so that modules know where to look
-    __attribute__((unused)) int igset = setenv( "GEOMGENIEINPUT", gOptRootGeom.c_str(), 1 );
   }
+  vtxGen->SetGeomFile( gOptRootGeom );
 
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 
 
@@ -339,6 +338,12 @@ int main(int argc, char ** argv)
       if( ievent % (gOptNev / 1000 ) == 0 ){
 	int irat = ievent / ( gOptNev / 1000 );
 	std::cerr << 0.1 * irat << " % " << " ( " << ievent
+		  << " / " << gOptNev << " ) \r" << std::flush;
+      }
+    } else if( gOptNev >= 100 ){
+      if( ievent % (gOptNev / 10 ) == 0 ){
+	int irat = ievent / ( gOptNev / 10 );
+	std::cerr << 10.0 * irat << " % " << " ( " << ievent
 		  << " / " << gOptNev << " ) \r" << std::flush;
       }
     }
@@ -465,8 +470,6 @@ void InitBoundingBox(void)
     LOG("gevgen_pghnl", pFATAL)
       << "The specified ROOT geometry doesn't exist! Initialization failed!";
     exit(1);
-  } else { // we will set the geometry env-variable now so that modules know where to look
-    __attribute__((unused)) int igset = setenv( "GEOMGENIEINPUT", gOptRootGeom.c_str(), 1 );
   }
 
   if( !gOptRootGeoManager ) gOptRootGeoManager = TGeoManager::Import(gOptRootGeom.c_str()); 

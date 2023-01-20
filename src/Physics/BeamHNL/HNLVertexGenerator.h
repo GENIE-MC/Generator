@@ -62,6 +62,8 @@ namespace hnl {
     void Configure(const Registry & config);
     void Configure(string config);
 
+    void SetGeomFile( std::string geomfile ) const;
+
   private:
 
     void LoadConfig();
