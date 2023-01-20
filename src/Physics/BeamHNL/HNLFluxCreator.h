@@ -199,7 +199,7 @@ namespace genie{
       mutable bool fUseBeamMomentum = false; // use this if your detector hall is parallel to tgt hall
       mutable TGeoVolume * fTopVol = 0;
       mutable string fGeomFile = "";
-      mutable bool fIsUsingRootGeom = true;
+      mutable bool fIsUsingRootGeom = false;
 
       mutable TChain * ctree = 0, * cmeta = 0;
 

@@ -365,7 +365,7 @@ int main(int argc, char ** argv)
   }
 
   // Event loop
-  int ievent = gOptFirstEvent, iflux = gOptFirstEvent;
+  int iflux = (gOptFirstEvent < 0) ? 0 : gOptFirstEvent; int ievent = iflux;
   int maxFluxEntries = -1;
   fluxCreator->SetInputFluxPath( gOptFluxFilePath );
   fluxCreator->SetGeomFile( gOptRootGeom );
@@ -388,21 +388,21 @@ int main(int argc, char ** argv)
     }
 
     if( (ievent-gOptFirstEvent) == gOptNev ) break;
-
+    
     if( ievent < gOptFirstEvent ){ ievent++; continue; }
-
+    
     assert( ievent >= gOptFirstEvent && gOptFirstEvent >= 0 );
-      
-     LOG("gevgen_hnl", pNOTICE)
-       << " *** Generating event............ " << (ievent-gOptFirstEvent);
-
-     EventRecord * event = new EventRecord;
-     event->SetWeight(1.0);
-     event->SetProbability( CoMLifetime );
-     event->SetXSec( iflux ); // will be overridden, use as handy container
-     evWeight = 1.0;
-
-     if( !gOptIsMonoEnFlux ){
+    
+    LOG("gevgen_hnl", pNOTICE)
+      << " *** Generating event............ " << (ievent-gOptFirstEvent);
+    
+    EventRecord * event = new EventRecord;
+    event->SetWeight(1.0);
+    event->SetProbability( CoMLifetime );
+    event->SetXSec( iflux ); // will be overridden, use as handy container
+    evWeight = 1.0;
+    
+    if( !gOptIsMonoEnFlux ){
        fluxCreator->ProcessEventRecord( event );
 
        // fluxCreator->ProcessEventRecord now tells us how many entries there are

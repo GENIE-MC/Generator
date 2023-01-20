@@ -39,7 +39,9 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
   // Also adds (acceptance*nimpwt)^(-1) component of weight
   
   //if( std::strcmp( fGeomFile.c_str(), "" ) == 0 ){
-  if( iCurrEntry <= fFirstEntry ){
+  this->SetCurrentEntry( evrec->XSec() );
+  
+  if( !fIsUsingRootGeom ){
     this->SetUsingRootGeom(true); // must always be true
     
     gGeoManager = TGeoManager::Import( fGeomFile.c_str() );
@@ -52,11 +54,11 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
     this->ImportBoundingBox( box );  
   }
 
-  this->SetCurrentEntry( evrec->XSec() );
   if( std::getenv( "HNL_FC_FIRSTENTRY" ) != NULL )
     this->SetFirstEntry( std::stoi( std::getenv( "HNL_FC_FIRSTENTRY" ) ) );
 
   if( fUsingDk2nu ){
+
     if( iCurrEntry < fFirstEntry ) iCurrEntry = fFirstEntry;
     
     if( iCurrEntry >= fFirstEntry ) {
@@ -69,7 +71,6 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
       }
       
       fGnmf = this->MakeTupleFluxEntry( iCurrEntry, fCurrPath );
-      LOG( "HNL", pDEBUG ) << "Tuple flux entry got.";
       
       if( std::abs(fGnmf.fgPdgC) == genie::kPdgHNL ){ // only add particle if parent is valid
 	
@@ -88,8 +89,6 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
 	probeP4.SetPxPyPzE( probeP3.X(), probeP3.Y(), probeP3.Z(), probeP4.E() );
 	GHepParticle ptHNL( fGnmf.fgPdgC, kIStInitialState, -1, -1, -1, -1, probeP4, fGnmf.fgX4User );
 	evrec->AddParticle( ptHNL );
-
-	LOG( "HNL", pDEBUG ) << "Added particle with PDG code " << fGnmf.fgPdgC;
       }
 
       if( fGnmf.fgXYWgt >= 0.0 ){
@@ -101,8 +100,6 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
 	if( fLPz >= 0.0 ) evrec->SetXSec( 1.0 );
 	else evrec->SetXSec( -1.0 );
 	evrec->Particle(0)->SetPosition( tmpx4 );
-
-	LOG( "HNL", pDEBUG ) << "Finished working with particle at iCurrEntry = " << iCurrEntry << ", weight = " << fGnmf.fgXYWgt << ", and fFirstEntry = " << fFirstEntry;
 	
       } // if( fGnmf.fgXYWgt >= 0 )
     } // if( iCurrEntry > fFirstEntry )
@@ -116,7 +113,6 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
 void FluxCreator::SetInputFluxPath(std::string finpath) const
 {
   LOG( "HNL", pDEBUG ) << "Setting input path to " << finpath;
-  LOG( "HNL", pDEBUG ) << "Before setting, fCurrPath = " << fCurrPath;
   fCurrPath = finpath;
 }
 //----------------------------------------------------------------------------
@@ -162,7 +158,6 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
 {
   // This method creates 1 HNL from the flux info and saves the information
   // Essentially, it replaces a SMv with an HNL
-
   flux::GNuMIFluxPassThroughInfo * tmpGnmf = new flux::GNuMIFluxPassThroughInfo();
   flux::GNuMIFluxPassThroughInfo gnmf = *tmpGnmf;
   delete tmpGnmf;
@@ -2158,11 +2153,13 @@ void FluxCreator::LoadConfig(void)
 //____________________________________________________________________________
 void FluxCreator::SetGeomFile( string geomfile ) const
 {
+  LOG( "HNL", pDEBUG ) << "Setting geometry file to " << geomfile;
   fGeomFile = geomfile;
 }
 //____________________________________________________________________________
 void FluxCreator::ImportBoundingBox( TGeoBBox * box ) const
 {
+  LOG( "HNL", pDEBUG ) << "Importing bounding box...";
   fLxR = 2.0 * box->GetDX() * units::cm / units::m;
   fLyR = 2.0 * box->GetDY() * units::cm / units::m;
   fLzR = 2.0 * box->GetDZ() * units::cm / units::m;
