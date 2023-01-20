@@ -177,6 +177,9 @@ namespace genie{
 
       void SetEnvVariable( const char * var, double value ) const;
 
+      // utility function -- is a copy of TGeoChecker::CheckPoint() but doesn't output to cout
+      std::string CheckGeomPoint( Double_t x, Double_t y, Double_t z ) const;
+
       // current path to keep track of what is loaded
       mutable std::string fCurrPath = ""; mutable bool fPathLoaded = false;
       // and which entry we're on

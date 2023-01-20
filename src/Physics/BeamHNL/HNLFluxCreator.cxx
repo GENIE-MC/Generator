@@ -1521,11 +1521,11 @@ TVector3 FluxCreator::PointToRandomPointInBBox( TVector3 detO_beam ) const
   // make [m] --> [cm]
   ux *= units::m / units::cm; uy *= units::m / units::cm ; uz *= units::m / units::cm;
   // check if the point is inside the geometry, otherwise do it again
-  gGeoManager->CheckPoint( ux, uy, uz ); // updates node path
-  //gGeoManager->SetCurrentPoint( ux, uy, uz );
-  //TGeoNode * node = gGeoManager->GetCurrentNode();
-  std::string pathString(gGeoManager->GetPath()); int iNode = 1; // 1 past beginning
+  //gGeoManager->CheckPoint( ux, uy, uz ); // updates node path
+  std::string pathString = this->CheckGeomPoint( ux, uy, uz ); int iNode = 1; // 1 past beginning
+  //std::string pathString(gGeoManager->GetPath()); int iNode = 1; // 1 past beginning
   while( pathString.find( "/", iNode ) == string::npos ){
+    //while( !node || !(node->GetMotherVolume()) || (node->GetMotherVolume()->IsTopVolume()) ){
     rx = (rnd->RndGen()).Uniform( ox - fLx/2.0, ox + fLx/2.0 ); ux = (ox - rx);
     ry = (rnd->RndGen()).Uniform( oy - fLy/2.0, oy + fLy/2.0 ); uy = (oy - ry);
     rz = (rnd->RndGen()).Uniform( oz - fLz/2.0, oz + fLz/2.0 ); uz = (oz - rz);
@@ -1534,10 +1534,9 @@ TVector3 FluxCreator::PointToRandomPointInBBox( TVector3 detO_beam ) const
     ux = checkPoint.X() * units::m / units::cm; 
     uy = checkPoint.Y() * units::m / units::cm;
     uz = checkPoint.Z() * units::m / units::cm;
-    gGeoManager->CheckPoint( ux, uy, uz );
-    //gGeoManager->SetCurrentPoint( ux, uy, uz );
-    //node = gGeoManager->GetCurrentNode();
-    pathString = std::string(gGeoManager->GetPath()); iNode = 1;
+    //gGeoManager->CheckPoint( ux, uy, uz );
+    //pathString = std::string(gGeoManager->GetPath()); iNode = 1;
+    pathString = this->CheckGeomPoint( ux, uy, uz ); iNode = 1;
   }
 
   TVector3 vec( rx, ry, rz );
@@ -2200,4 +2199,16 @@ void FluxCreator::SetEnvVariable( const char * var, double value ) const
 
   return;
 }
-
+//____________________________________________________________________________
+std::string FluxCreator::CheckGeomPoint( Double_t x, Double_t y, Double_t z ) const
+{
+  Double_t point[3];
+  Double_t local[3];
+  point[0] = x;
+  point[1] = y;
+  point[2] = z;
+  TGeoVolume *vol = gGeoManager->GetTopVolume();
+  TGeoNode *node = gGeoManager->FindNode(point[0], point[1], point[2]);
+  gGeoManager->MasterToLocal(point, local);
+  return gGeoManager->GetPath();
+}
