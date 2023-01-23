@@ -83,7 +83,7 @@ double new_threshold( const Interaction & i ) {
     } else { 
       cout << "Simple case, forward target" << endl;
       if ( delta >= 0. ) {
-                auto threshold = alpha*E_T;
+        auto threshold = alpha*E_T;
         auto sqrt_delta = sqrt( delta );
         threshold += sqrt_delta;
         threshold /= 2*(Et2 - ptp2);
