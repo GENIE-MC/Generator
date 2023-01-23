@@ -19,9 +19,7 @@ using namespace genie;
 using namespace std;
 
 
-double find_threshold( const Interaction & i, double prec = 0.000001, double max = 10. ) {
-
-  double min = 0. ;
+double find_threshold( const Interaction & i, double prec = 0.00001, double max = 10., double min = 1E-5 ) {
 
   Interaction in(i);
 
@@ -69,48 +67,43 @@ double new_threshold( const Interaction & i ) {
 
   auto delta = a2*Et2 - 4*(Et2-ptp2)*(ptp2*mp2+a2/4);
 
+  double threshold = -1. ;
+
   if ( E_T > abs(p_T_p) ) {
 
     if ( p_T_p <= 0. ) {
-      cout << "Simple case, backward target" << endl;
+      //cout << "Simple case, backward target" << endl;
       if ( chi <= 0. ) { 
         auto threshold = alpha*E_T;
         auto sqrt_delta = sqrt( delta );
         threshold -= sqrt_delta;
         threshold /= 2*(Et2 - ptp2);
-        return threshold;
-      } else {
-        return m_p;
       }
-    } else { 
-      cout << "Simple case, forward target" << endl;
+ 
+    } else { // p_t_p > 0  
+      //cout << "Simple case, forward target" << endl;
       if ( delta >= 0. ) {
-        auto threshold = alpha*E_T;
-        auto sqrt_delta = sqrt( delta );
-        threshold += sqrt_delta;
-        threshold /= 2*(Et2 - ptp2);
-        return threshold;
-      } else {
-        return m_p;
+	auto threshold = alpha*E_T;
+	auto sqrt_delta = sqrt( delta );
+	threshold += sqrt_delta;
+	threshold /= 2*(Et2 - ptp2);
       }
     }
-  } else {
-
-    if ( p_T_p < 0. ) {
-
-      if ( chi > 0. ) {
-        return m_p;
-      } else {
+  } else { // E_T <= abs(p_T_p)
+    
+    if ( p_T_p >= 0. ) {
+      threshold = numeric_limits<double>::infinity();
+    } else { 
+      if ( chi <= 0. ) {
         auto threshold = alpha*E_T;
         auto sqrt_delta = sqrt( delta );
         threshold -= sqrt_delta;
         threshold /= 2*(Et2 - ptp2);
-        return threshold;
       }
-    } else {
-      return numeric_limits<double>::infinity();
     }
   }
+  return max( m_p, threshold );
+  
 }
 
 
@@ -237,16 +230,20 @@ void threshold_exploration( int nucleon_pdg = kPdgNeutron,
                             int target_pdg = 1000180400 ) {
 
   string file_name = PDGLibrary::Instance()->Find(probe_pdg)->GetName();
-  file_name += " on " ;
+  file_name += "_on_" ;
   file_name +=  PDGLibrary::Instance()->Find(nucleon_pdg)->GetName() ;
+  file_name += ".root" ;
 
   TFile out_file(file_name.c_str(), "RECREATE");
 
   constexpr double max_p = 0.9;
   double target_mass =PDGLibrary::Instance()->Find(nucleon_pdg)->Mass() ;
   double max_Et = sqrt( max_p*max_p + target_mass*target_mass );  
-  TH2D new_th_hist( "new_threshold", "New threshold;E_{T} (GeV), p_{T #parallel} (GeV/c)", 100, .4, max_Et, 100, -max_p, max_p );
-  TH2D old_th_hist( "old_threshold", "old threshold;E_{T} (GeV), p_{T #parallel} (GeV/c)", 100, .4, max_Et, 100, -max_p, max_p );
+  string title = PDGLibrary::Instance()->Find(probe_pdg)->GetTitle();
+  title += " on " ;
+  title += PDGLibrary::Instance()->Find(nucleon_pdg)->GetTitle() ;
+  TH2D new_th_hist( "new_threshold", (title + ";E_{T} (GeV);p_{T #parallel} (GeV/c)").c_str(), 500, .4, max_Et, 100, -max_p, max_p );
+  TH2D old_th_hist( "old_threshold", (title + ";E_{T} (GeV);p_{T #parallel} (GeV/c)").c_str(), 500, .4, max_Et, 100, -max_p, max_p );
 
   unique_ptr<Interaction> i_p {Interaction::QELCC( target_pdg, nucleon_pdg, probe_pdg, 2. )} ;
 
@@ -259,19 +256,23 @@ void threshold_exploration( int nucleon_pdg = kPdgNeutron,
       p_T.SetXYZT( 0.1, -0.2, p_t_p, E_T );
       i_p -> InitStatePtr() -> TgtPtr() -> SetHitNucP4( p_T ) ;
 
-      auto new_th = new_threshold(*i_p);
-      auto old_th = find_threshold(*i_p);
-
       auto bin = new_th_hist.GetBin(i,j);
 
-      new_th_hist.SetBinContent(bin, new_th);
+      auto new_th = new_threshold(*i_p);
+      if ( new_th < 0. ) {
+	cout << "(" << E_T << ", " << p_t_p << ") has negative threshold: " << new_th << endl;
+      }
+      if ( new_th < numeric_limits<double>::infinity() ) 
+	new_th_hist.SetBinContent(bin, new_th);
+      
+      auto old_th = find_threshold(*i_p);
       old_th_hist.SetBinContent(bin, old_th);
 
     }
 
   }
 
-new_th_hist.Write();
-old_th_hist.Write();
+  new_th_hist.Write();
+  old_th_hist.Write();
 
 }
