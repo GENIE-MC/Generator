@@ -344,7 +344,7 @@ namespace genie {
 	  mutable bool             fIsMajorana;
 	  mutable int              fType;
 	  mutable std::map< genie::hnl::HNLDecayMode_t, double > fValidChannels;
-	  mutable double           fCoMLifetime;
+	  mutable double           fCoMLifetime; // in GeV^{-1}
 	    
 	  mutable double           fDecayThrow;  // determines where decay happens
 	  mutable double           fSelectThrow; // determines what channel to decay to

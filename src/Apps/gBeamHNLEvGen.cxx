@@ -246,24 +246,16 @@ int main(int argc, char ** argv)
   //string confString = kDefOptSName + "/" + kDefOptSConfig;
   string confString = kDefOptSConfig;
 
-  // get the CoMLifetime through an env-variable that's been set at Decayer config
-  std::string sCoMLifetime( "HNL_LIFETIME" );
-  CoMLifetime = GetValueFromEnv( sCoMLifetime.c_str() );
-
-  // std::string sMass( "HNL_MASS" );
-  std::string sECoup( "HNL_ECOUP" );
-  std::string sMCoup( "HNL_MCOUP" );
-  std::string sTCoup( "HNL_TCOUP" );
-  std::string sIsMajorana( "HNL_ISMAJORANA" );
+  CoMLifetime = hnlgen->GetHNLLifetime(); // GeV^{-1}
 
   //gOptMassHNL    = GetValueFromEnv( sMass.c_str()  );
-  gOptECoupling  = GetValueFromEnv( sECoup.c_str() );
-  gOptMCoupling  = GetValueFromEnv( sMCoup.c_str() );
-  gOptTCoupling  = GetValueFromEnv( sTCoup.c_str() );
-  gOptIsMajorana = GetValueFromEnv( sIsMajorana.c_str() );
+  std::vector< double > U4l2s = hnlgen->GetHNLCouplings();
+  gOptECoupling  = U4l2s.at(0);
+  gOptMCoupling  = U4l2s.at(1);
+  gOptTCoupling  = U4l2s.at(2);
+  gOptIsMajorana = hnlgen->IsHNLMajorana();
 
-  assert( std::getenv( "HNL_INTCHANNELS" ) != NULL );
-  std::string stIntChannels = std::getenv( "HNL_INTCHANNELS" ); int iChan = -1;
+  std::string stIntChannels = hnlgen->GetHNLInterestingChannels(); int iChan = -1;
   if( gOptIntChannels.size() > 0 ) gOptIntChannels.clear();
   while( stIntChannels.size() > 0 ){ // read channels from right (lowest mass) to left (highest mass)
     iChan++;
@@ -354,14 +346,8 @@ int main(int argc, char ** argv)
     LOG( "gevgen_hnl", pWARN )
       << "Using input flux files. These are *flat dk2nu-like ROOT trees, so far...*";
 
-    //__attribute__((unused)) int ifset = setenv( "DK2NUGENIEINPUT", gOptFluxFilePath.c_str(), 1 );
-
   } else { // ok, we have monoenergetic flux. Let's flag this now
     __attribute__((unused)) int iset = setenv( "PRODVTXDIR", "NODIR", 1 );
-  }
-
-  if( !gOptIsMonoEnFlux && gOptIsUsingDk2nu ){
-    setenv( "HNL_FC_FIRSTENTRY", Form( "%d", gOptFirstEvent ), 1 );
   }
 
   // Event loop
@@ -369,6 +355,7 @@ int main(int argc, char ** argv)
   int maxFluxEntries = -1;
   fluxCreator->SetInputFluxPath( gOptFluxFilePath );
   fluxCreator->SetGeomFile( gOptRootGeom );
+  fluxCreator->SetFirstFluxEntry( iflux );
   vtxGen->SetGeomFile( gOptRootGeom );
   
   while (1)
@@ -1085,8 +1072,10 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(0);
   } //-n
 
-  // get HNL mass directly from config
-  gOptMassHNL = genie::utils::hnl::GetCfgDouble( "HNL", "ParameterSpace", "HNL-Mass" );
+  // get HNL mass 
+  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
+  const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
+  gOptMassHNL = hnlgen->GetHNLMass();
 
   bool isMonoEnergeticFlux = true;
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__

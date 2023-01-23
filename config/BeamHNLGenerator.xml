@@ -80,7 +80,7 @@ Pion-FFactor              double      no    See Coloma et al, EPJ C 81 (2021) 78
   
   <param_set name="Default">
     
-    <param type="string" name="CommonHNL"> ParameterSpace,InterestingChannels,CoordinateXForm,FluxCalc,External </param>
+    <param type="string" name="CommonHNL"> ParameterSpace,InterestingChannels,CoordinateXForm,FluxCalc,External,ParticleGun </param>
     <param type="string" name="CommonParam"> WeakInt,CKM </param>
 
   </param_set>

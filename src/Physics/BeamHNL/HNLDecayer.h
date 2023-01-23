@@ -24,11 +24,12 @@
 #include <TGenPhaseSpace.h>
 #include <TH3.h>
 
-#include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
 
 #include "Tools/Flux/GNuMIFlux.h"
+
+#include "Physics/BeamHNL/HNLDecayRecordVisitorI.h"
 
 #include "Physics/BeamHNL/HNLDecayMode.h"
 #include "Physics/BeamHNL/SimpleHNL.h"
@@ -37,20 +38,36 @@ namespace genie {
 
 namespace hnl {
 
-class Decayer: public EventRecordVisitorI {
+class Decayer: public DecayRecordVisitorI {
 
 public:
   Decayer();
   Decayer(string config);
  ~Decayer();
 
-  // implement the EventRecordVisitorI interface
+  // implement the DecayRecordVisitorI interface
   void ProcessEventRecord (GHepRecord * event) const;
 
   // overload the Algorithm::Configure() methods to load private data
   // members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
+
+  double GetHNLLifetime() const;
+  double GetHNLMass() const;
+  std::vector< double > GetHNLCouplings() const;
+  bool IsHNLMajorana() const;
+
+  // string consists of 10 bits, mass increasing from least significant to most significant bit
+  // 0 if uninteresting, 1 if interesting
+  std::string GetHNLInterestingChannels() const;
+
+  // additional particle-gun config
+  std::vector< double > GetPGunOrigin() const;
+  std::vector< double > GetPGunDOrigin() const;
+  double GetPGunEnergy() const;
+  std::vector< double > GetPGunDirection() const; // returns 3 directional cosines -- Cartesian coords
+  std::vector< double > GetPGunDeviation() const; // returns (dtheta, dphi) -- spherical coords
 
 private:
 
@@ -96,6 +113,7 @@ private:
    mutable bool                       fDoPol = false;
 
    mutable std::vector< genie::hnl::HNLDecayMode_t > fIntChannels;
+   mutable int fChanBits[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
    //mutable double                     fAngularDeviation = -1.0;
    mutable std::vector< double >      fB2UTranslation;
@@ -106,6 +124,12 @@ private:
    mutable TH3D *                     fProdVtxHist = 0;
    mutable TLorentzVector *           fProdVtx = 0;
    mutable TLorentzVector *           fISMom = 0;
+
+   mutable double                     fPGOx = 0.0, fPGOy = 0.0, fPGOz = 0.0;
+   mutable double                     fPGDx = 0.0, fPGDy = 0.0, fPGDz = 0.0;
+   mutable double                     fPGE = 0.0;
+   mutable double                     fPGCx = 0.0, fPGCy = 0.0, fPGCz = 0.0;
+   mutable double                     fPGDTheta = 0.0, fPGDPhi = 0.0;
 
    mutable bool                       fGetCMFrameInstead = false;
 };

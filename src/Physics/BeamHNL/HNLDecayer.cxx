@@ -35,13 +35,13 @@ using namespace genie::hnl;
 
 //____________________________________________________________________________
 Decayer::Decayer() :
-EventRecordVisitorI("genie::hnl::Decayer")
+DecayRecordVisitorI("genie::hnl::Decayer")
 {
 
 }
 //____________________________________________________________________________
 Decayer::Decayer(string config) :
-EventRecordVisitorI("genie::hnl::Decayer",config)
+DecayRecordVisitorI("genie::hnl::Decayer",config)
 {
 
 }
@@ -437,38 +437,43 @@ void Decayer::LoadConfig(void)
   SetBeam2User( fB2UTranslation, fB2URotation );
 
   fIntChannels = {}; bool itChan = false;
-  int chanBits[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  //int chanBits[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-  this->GetParam( "HNL-3B_nu_nu_nu",   itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyNuNuNu ); chanBits[0] = 1; }
-  this->GetParam( "HNL-3B_nu_e_e",     itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyNuEE ); chanBits[1] = 1; }
-  this->GetParam( "HNL-3B_nu_mu_e",    itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyNuMuE ); chanBits[2] = 1; }
-  this->GetParam( "HNL-2B_nu_pi0", itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPi0Nu ); chanBits[3] = 1; }
-  this->GetParam( "HNL-2B_e_pi",   itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPiE ); chanBits[4] = 1; }
-  this->GetParam( "HNL-3B_nu_mu_mu",   itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyNuMuMu ); chanBits[5] = 1; }
-  this->GetParam( "HNL-2B_mu_pi",  itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPiMu ); chanBits[6] = 1; }
-  this->GetParam( "HNL-3B_nu_pi0_pi0", itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPi0Pi0Nu ); chanBits[7] = 1; }
-  this->GetParam( "HNL-3B_e_pi_pi0",   itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPiPi0E ); chanBits[8] = 1; }
-  this->GetParam( "HNL-3B_mu_pi_pi0",  itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPiPi0Mu ); chanBits[9] = 1; }
+  this->GetParam( "HNL-3B_nu_nu_nu",   itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyNuNuNu ); fChanBits[0] = 1; }
+  this->GetParam( "HNL-3B_nu_e_e",     itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyNuEE ); fChanBits[1] = 1; }
+  this->GetParam( "HNL-3B_nu_mu_e",    itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyNuMuE ); fChanBits[2] = 1; }
+  this->GetParam( "HNL-2B_nu_pi0", itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPi0Nu ); fChanBits[3] = 1; }
+  this->GetParam( "HNL-2B_e_pi",   itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPiE ); fChanBits[4] = 1; }
+  this->GetParam( "HNL-3B_nu_mu_mu",   itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyNuMuMu ); fChanBits[5] = 1; }
+  this->GetParam( "HNL-2B_mu_pi",  itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPiMu ); fChanBits[6] = 1; }
+  this->GetParam( "HNL-3B_nu_pi0_pi0", itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPi0Pi0Nu ); fChanBits[7] = 1; }
+  this->GetParam( "HNL-3B_e_pi_pi0",   itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPiPi0E ); fChanBits[8] = 1; }
+  this->GetParam( "HNL-3B_mu_pi_pi0",  itChan ); if( itChan ){ fIntChannels.push_back( kHNLDcyPiPi0Mu ); fChanBits[9] = 1; }
 
   this->GetParam( "GetCMFrameInstead", fGetCMFrameInstead );
 
-  std::string stMass( "HNL_MASS" ); this->SetEnvVariable( stMass.c_str(), fMass );
-  std::string stECoup( "HNL_ECOUP" ); this->SetEnvVariable( stECoup.c_str(), U4l2s.at(0) );
-  std::string stMCoup( "HNL_MCOUP" ); this->SetEnvVariable( stMCoup.c_str(), U4l2s.at(1) );
-  std::string stTCoup( "HNL_TCOUP" ); this->SetEnvVariable( stTCoup.c_str(), U4l2s.at(2) );
-  std::string stIsMaj( "HNL_ISMAJORANA" ); this->SetEnvVariable( stIsMaj.c_str(), fIsMajorana ); // cast is implicit in argument
   // call GetHNLInstance here, to get lifetime
   SimpleHNL sh = this->GetHNLInstance();
   double CoMLifetime = sh.GetCoMLifetime();
   assert( CoMLifetime > 0.0 );
-  std::string stCoM( "HNL_LIFETIME" ); this->SetEnvVariable( stCoM.c_str(), CoMLifetime );
 
-  // also set an env-variable with 10 bits of 0 (inhibited) or 1 (interesting) channel
-  std::string chanEnv = "";
-  for( int iCBits = sizeof( chanBits ) / sizeof( chanBits[0] ) - 1; iCBits >= 0 ; iCBits-- ){
-    chanEnv.append( Form("%d", chanBits[iCBits]) );
-  }
-  __attribute__((unused)) int icset = setenv( "HNL_INTCHANNELS", chanEnv.c_str(), 1 );
+  // also read in particle gun parameters
+  this->GetParam( "PG-OriginX", fPGOx );
+  this->GetParam( "PG-OriginY", fPGOy );
+  this->GetParam( "PG-OriginZ", fPGOz );
+
+  this->GetParam( "PG-OriginDX", fPGDx );
+  this->GetParam( "PG-OriginDY", fPGDy );
+  this->GetParam( "PG-OriginDZ", fPGDz );
+
+  this->GetParam( "PG-Energy", fPGE );
+  
+  this->GetParam( "PG-cx", fPGCx );
+  this->GetParam( "PG-cy", fPGCy );
+  this->GetParam( "PG-cz", fPGCz );
+
+  this->GetParam( "PG-DTheta", fPGDTheta );
+  this->GetParam( "PG-DPhi", fPGDPhi );
 
   fIsConfigLoaded = true;
 }
@@ -729,4 +734,68 @@ void Decayer::SetEnvVariable( const char * var, double value ) const
   __attribute__((unused)) int iset = setenv( var, Form("%de%d", (int) mant, expo), 1 );
 
   return;
+}
+//____________________________________________________________________________
+double Decayer::GetHNLLifetime() const
+{
+  return (this->GetHNLInstance()).GetCoMLifetime();
+}
+//____________________________________________________________________________
+double Decayer::GetHNLMass() const
+{
+  return fMass;
+}
+//____________________________________________________________________________
+std::vector<double> Decayer::GetHNLCouplings() const
+{
+  std::vector<double> allCoups;
+  allCoups.emplace_back(fUe42); allCoups.emplace_back(fUm42); allCoups.emplace_back(fUt42);
+  return allCoups;
+}
+//____________________________________________________________________________
+bool Decayer::IsHNLMajorana() const
+{
+  return fIsMajorana;
+}
+//____________________________________________________________________________
+std::string Decayer::GetHNLInterestingChannels() const
+{
+  std::string chanInt = "";
+  for( int iCBits = sizeof( fChanBits ) / sizeof( fChanBits[0] ) - 1; iCBits >= 0 ; iCBits-- ){
+    chanInt.append( Form("%d", fChanBits[iCBits]) );
+  }
+  return chanInt;
+}
+//____________________________________________________________________________
+std::vector< double > Decayer::GetPGunOrigin() const
+{
+  std::vector< double > PGOrigin;
+  PGOrigin.emplace_back( fPGOx ); PGOrigin.emplace_back( fPGOy ); PGOrigin.emplace_back( fPGOz );
+  return PGOrigin;
+}
+//____________________________________________________________________________
+std::vector< double > Decayer::GetPGunDOrigin() const
+{
+  std::vector< double > PGDOrigin;
+  PGDOrigin.emplace_back( fPGDx ); PGDOrigin.emplace_back( fPGDy ); PGDOrigin.emplace_back( fPGDz );
+  return PGDOrigin;
+}
+//____________________________________________________________________________
+double Decayer::GetPGunEnergy() const
+{
+  return fPGE;
+}
+//____________________________________________________________________________
+std::vector< double > Decayer::GetPGunDirection() const
+{
+  std::vector< double > PGDirection;
+  PGDirection.emplace_back( fPGCx ); PGDirection.emplace_back( fPGCy ); PGDirection.emplace_back( fPGCz );
+  return PGDirection;
+}
+//____________________________________________________________________________
+std::vector< double > Decayer::GetPGunDeviation() const
+{
+  std::vector< double > PGDeviation;
+  PGDeviation.emplace_back( fPGDTheta ); PGDeviation.emplace_back( fPGDPhi );
+  return PGDeviation;
 }

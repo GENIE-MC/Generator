@@ -54,9 +54,6 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
     this->ImportBoundingBox( box );  
   }
 
-  if( std::getenv( "HNL_FC_FIRSTENTRY" ) != NULL )
-    this->SetFirstEntry( std::stoi( std::getenv( "HNL_FC_FIRSTENTRY" ) ) );
-
   if( fUsingDk2nu ){
 
     if( iCurrEntry < fFirstEntry ) iCurrEntry = fFirstEntry;
@@ -122,11 +119,6 @@ int FluxCreator::GetNFluxEntries() const
     this->OpenFluxInput( fCurrPath );
   }
   return fNEntries;
-}
-//----------------------------------------------------------------------------
-void FluxCreator::SetFirstEntry( int iFirst ) const
-{
-  fFirstEntry = iFirst;
 }
 //----------------------------------------------------------------------------
 void FluxCreator::SetCurrentEntry( int iCurr ) const
@@ -2154,6 +2146,11 @@ void FluxCreator::SetGeomFile( string geomfile ) const
 {
   LOG( "HNL", pDEBUG ) << "Setting geometry file to " << geomfile;
   fGeomFile = geomfile;
+}
+//____________________________________________________________________________
+void FluxCreator::SetFirstFluxEntry( int iFirst ) const
+{
+  fFirstEntry = iFirst;
 }
 //____________________________________________________________________________
 void FluxCreator::ImportBoundingBox( TGeoBBox * box ) const

@@ -56,8 +56,9 @@ namespace genie {
       virtual std::vector< double > GetDetRotation() const = 0;
       
       virtual void SetInputFluxPath( std::string finpath ) const = 0;
-      virtual int GetNFluxEntries() const = 0;
       virtual void SetGeomFile( std::string geomfile ) const = 0;
+      virtual int GetNFluxEntries() const = 0;
+      virtual void SetFirstFluxEntry( int iFirst ) const = 0;
 
     protected:
 

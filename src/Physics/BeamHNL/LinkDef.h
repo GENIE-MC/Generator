@@ -13,6 +13,7 @@
 
 #pragma link C++ class genie::hnl::ChannelCalculatorI;
 #pragma link C++ class genie::hnl::FluxRecordVisitorI;
+#pragma link C++ class genie::hnl::DecayRecordVisitorI;
 
 #pragma link C++ class genie::hnl::SimpleHNL;
 #pragma link C++ class genie::hnl::BRCalculator;

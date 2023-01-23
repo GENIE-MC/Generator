@@ -235,24 +235,16 @@ int main(int argc, char ** argv)
 
   string confString = kDefOptSName + kDefOptSConfig;
 
-  // get the CoMLifetime through an env-variable that's been set at Decayer config
-  std::string sCoMLifetime( "HNL_LIFETIME" );
-  CoMLifetime = GetValueFromEnv( sCoMLifetime.c_str() );
+  CoMLifetime = hnlgen->GetHNLLifetime();
 
-  std::string sMass( "HNL_MASS" );
-  std::string sECoup( "HNL_ECOUP" );
-  std::string sMCoup( "HNL_MCOUP" );
-  std::string sTCoup( "HNL_TCOUP" );
-  std::string sIsMajorana( "HNL_ISMAJORANA" );
+  gOptMassHNL    = hnlgen->GetHNLMass();
+  std::vector< double > U4l2s = hnlgen->GetHNLCouplings();
+  gOptECoupling  = U4l2s.at(0);
+  gOptMCoupling  = U4l2s.at(1);
+  gOptTCoupling  = U4l2s.at(2);
+  gOptIsMajorana = hnlgen->IsHNLMajorana();
 
-  gOptMassHNL    = GetValueFromEnv( sMass.c_str()  );
-  gOptECoupling  = GetValueFromEnv( sECoup.c_str() );
-  gOptMCoupling  = GetValueFromEnv( sMCoup.c_str() );
-  gOptTCoupling  = GetValueFromEnv( sTCoup.c_str() );
-  gOptIsMajorana = GetValueFromEnv( sIsMajorana.c_str() );
-
-  assert( std::getenv( "HNL_INTCHANNELS" ) != NULL );
-  std::string stIntChannels = std::getenv( "HNL_INTCHANNELS" ); int iChan = -1;
+  std::string stIntChannels = hnlgen->GetHNLInterestingChannels(); int iChan = -1;
   if( gOptIntChannels.size() > 0 ) gOptIntChannels.clear();
   while( stIntChannels.size() > 0 ){ // read channels from right (lowest mass) to left (highest mass)
     iChan++;
@@ -320,7 +312,8 @@ int main(int argc, char ** argv)
 #endif // #ifdef __CAN_USE_ROOT_GEOM__
 
   // read in energy. This is always constant
-  gOptEnergyHNL = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-Energy" );
+  //gOptEnergyHNL = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-Energy" );
+  gOptEnergyHNL = hnlgen->GetPGunEnergy();
   if( gOptEnergyHNL <= gOptMassHNL ){
     LOG( "gevgen_pghnl", pFATAL )
       << "\nInsufficient energy " << gOptEnergyHNL << " GeV for HNL of mass " << gOptMassHNL << " GeV. Exiting."
@@ -519,10 +512,17 @@ TLorentzVector * GenerateOriginMomentum( GHepRecord * event )
   double M = gOptMassHNL;
   double pMag = std::sqrt( E*E - M*M );
 
+  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
+  const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
+
   // first map directional cosines to unit sphere
+  /*
   double cx = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-cx" );
   double cy = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-cy" );
   double cz = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-cz" );
+  */
+  std::vector< double > PGDirection = hnlgen->GetPGunDirection();
+  double cx = PGDirection.at(0), cy = PGDirection.at(1), cz = PGDirection.at(2);
   double c2 = std::sqrt( cx*cx + cy*cy + cz*cz );
   assert( c2 > 0.0 );
 
@@ -532,8 +532,12 @@ TLorentzVector * GenerateOriginMomentum( GHepRecord * event )
   double phi   = ( TMath::Sin( theta ) != 0.0 ) ? TMath::ACos( cx / ( c2 * TMath::Sin( theta ) ) ) : 0.0;
 
   // apply uniform random deviation
+  std::vector< double > PGunDeviation = hnlgen->GetPGunDeviation();
+  /*
   double dthetaDeg = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-DTheta" );
   double dphiDeg   = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-DPhi" );
+  */
+  double dthetaDeg = PGunDeviation.at(0), dphiDeg = PGunDeviation.at(1);
   double dThetaMax = dthetaDeg * constants::kPi / 180.0;
   double dPhiMax   = dphiDeg * constants::kPi / 180.0;
 
@@ -570,15 +574,26 @@ TLorentzVector * GenerateOriginMomentum( GHepRecord * event )
 //_________________________________________________________________________________________
 TLorentzVector * GenerateOriginPosition( GHepRecord * event )
 {
+  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
+  const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
+
   // get centre of box from config
+  std::vector< double > PGOrigin = hnlgen->GetPGunOrigin();
+  /*
   double ox = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-OriginX" );
   double oy = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-OriginY" );
   double oz = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-OriginZ" );
+  */
+  double ox = PGOrigin.at(0), oy = PGOrigin.at(1), oz = PGOrigin.at(2);
 
   // allow uniform deviation
+  std::vector< double > PGDOrigin = hnlgen->GetPGunDOrigin();
+  /*
   double Dxmax = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-OriginDX" );
   double Dymax = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-OriginDY" );
   double Dzmax = utils::hnl::GetCfgDouble( "HNL", "ParticleGun", "PG-OriginDZ" );
+  */
+  double Dxmax = PGDOrigin.at(0), Dymax = PGDOrigin.at(1), Dzmax = PGDOrigin.at(2);
 
   RandomGen * rng = RandomGen::Instance();
   double dx = rng->RndGen().Uniform( -Dxmax, Dxmax );
@@ -777,8 +792,10 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(0);
   } //-n
 
-  // get HNL mass directly from config
-  gOptMassHNL = genie::utils::hnl::GetCfgDouble( "HNL", "ParameterSpace", "HNL-Mass" );
+  // get HNL mass
+  const Algorithm * algHNLGen = AlgFactory::Instance()->GetAlgorithm("genie::hnl::Decayer", "Default");
+  const Decayer * hnlgen = dynamic_cast< const Decayer * >( algHNLGen );
+  gOptMassHNL = hnlgen->GetHNLMass();
 
   // HNL decay mode
   int mode = -1;

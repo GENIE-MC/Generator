@@ -111,10 +111,12 @@ namespace genie{
       
       // set the input path for a flux
       void SetInputFluxPath( std::string finpath ) const;
-      // get N(flux input entries)
-      int GetNFluxEntries() const;
       // set path to geometry file
       void SetGeomFile( string geomfile ) const;
+      // get N(flux input entries)
+      int GetNFluxEntries() const;
+      // set first entry for read-in from chain
+      void SetFirstFluxEntry( int iFirst ) const;
 
       // get dk2nu flux info
       flux::GNuMIFluxPassThroughInfo * RetrieveGNuMIFluxPassThroughInfo() const;
@@ -136,7 +138,6 @@ namespace genie{
       void ImportBoundingBox( TGeoBBox * box ) const;
 
       void SetCurrentEntry( int iCurr ) const;
-      void SetFirstEntry( int iFirst ) const;
 
       // workhorse methods
       genie::flux::GNuMIFluxPassThroughInfo MakeTupleFluxEntry( int iEntry, std::string finpath ) const;
