@@ -228,3 +228,22 @@ void threshold_test() {
 
 
 }
+
+
+void threshold_exploration( int nucleon_pdg = kPdgNeutron, 
+                            int probe_pdg = kPdgNuMu, 
+                            int target_pdg = 1000180400 ) {
+
+  string file_name = PDGLibrary::Instance()->Find(probe_pdg)->Name() + " on " 
+    +  PDGLibrary::Instance()->Find(nucleon_pdg)->Name() ;
+
+  constexpr max_p = 0.8;
+  double target_mass =PDGLibrary::Instance()->Find(nucleon_pdg)->Mass() ;
+  double max_Et = sqrt( max_p*max_p + target+_mass*target_mass );  
+  TH2D new_th_hist( "new_threshold", "New threshold;E_{T} (GeV), p_{T #parallel} (GeV/c)", 100, .4, max_Et, 100, -max_p, max_p );
+  TH2D new_th_hist( "old_threshold", "old threshold;E_{T} (GeV), p_{T #parallel} (GeV/c)", 100, .4, max_Et, 100, -max_p, max_p );
+
+  
+
+
+}
