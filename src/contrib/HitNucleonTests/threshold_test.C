@@ -237,13 +237,38 @@ void threshold_exploration( int nucleon_pdg = kPdgNeutron,
   string file_name = PDGLibrary::Instance()->Find(probe_pdg)->Name() + " on " 
     +  PDGLibrary::Instance()->Find(nucleon_pdg)->Name() ;
 
-  constexpr max_p = 0.8;
+  TFile out_file(file_name.c_str(), "RECREATE");
+
+  constexpr max_p = 0.9;
   double target_mass =PDGLibrary::Instance()->Find(nucleon_pdg)->Mass() ;
   double max_Et = sqrt( max_p*max_p + target+_mass*target_mass );  
   TH2D new_th_hist( "new_threshold", "New threshold;E_{T} (GeV), p_{T #parallel} (GeV/c)", 100, .4, max_Et, 100, -max_p, max_p );
-  TH2D new_th_hist( "old_threshold", "old threshold;E_{T} (GeV), p_{T #parallel} (GeV/c)", 100, .4, max_Et, 100, -max_p, max_p );
+  TH2D old_th_hist( "old_threshold", "old threshold;E_{T} (GeV), p_{T #parallel} (GeV/c)", 100, .4, max_Et, 100, -max_p, max_p );
 
-  
+  unique_ptr<Interaction> i_p {Interaction::QELCC( target_pdg, nucleon_pdg, probe_pdg, 2. )} ;
 
+  for ( int i = 1; i <= new_th_hist.GetNbinsX() ; ++i ) {
+    double E_T = new_th_hist.GetXaxis()->GetBinCenter(i);
+    for ( int j = 1; j <=  new_th_hist.GetNbinsY() ; ++j ) {
+      double p_t_p = new_th_hist.GetYaxis()->GetBinCenter(j);
+
+      TLorentzVector p_T;
+      p_T.SetXYZT( 0.1, -0.2, p_t_p, E_T );
+      i_p -> InitStatePtr() -> TgtPtr() -> SetHitNucP4( p_TT ) ;
+
+      auto new_th = new_threshold(*i_p);
+      auto old_th = find_threshold(*i_p);
+
+      auto bin = new_th_hist.GetBin(i,j);
+
+      new_th_hist.SetBinContent(bin, new_th);
+      old_th_hist.SetBinContent(bin, old_th);
+
+    }
+
+  }
+
+new_th_hist.Write();
+old_th_hist.Write();
 
 }
