@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <cmath>
+#include <limits>
 
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -57,58 +58,57 @@ double new_threshold( const Interaction & i ) {
 
   double p_T_p = i.InitState().Tgt().HitNucP4().Pz();
 
+  double chi = 2*m_p*E_T - alpha;
+
+  auto a2 = alpha*alpha;
+  auto Et2 = E_T*E_T;
+  auto ptp2 = p_T_p*p_T_p;
+  auto mp2 = m_p*m_p;
+
+  auto delta = a2*Et2 - 4*(Et2-ptp2)*(ptp2*mp2+a2/4);
+
   if ( E_T > abs(p_T_p) ) {
 
-    cout << "Simple case" << endl;
-    
-    auto a2 = alpha*alpha;
-    auto Et2 = E_T*E_T;
-    auto ptp2 = p_T_p*p_T_p;
-    auto mp2 = m_p*m_p;
-
-    auto delta = a2*Et2 - 4*(Et2-ptp2)*(ptp2*mp2+a2/4);
-
-    if( delta < 0. ) return m_p ;
-
-    auto threshold = alpha*E_T;
-    auto sqrt_delta = sqrt( delta );
-
-    if ( p_T_p >= 0. ) {
-      threshold += sqrt_delta;
-    }
-    else {
-      threshold -= sqrt_delta;
-    }
-    threshold /= 2*(Et2 - ptp2);
-    
-    return threshold;
-
-  }
-  else {
-
-    cout << "Weird case, alpha = " << alpha << endl;
-
-    if ( p_T_p < 0 ) {
-      if ( alpha < 2*m_p*E_T ) {
-	cout << "No intersection" << endl;
-	return m_p ;
+    if ( p_T_p <= 0. ) {
+      cout << "Simple case, backward target" << endl;
+      if ( chi <= 0. ) { 
+        auto threshold = alpha*E_T;
+        auto sqrt_delta = sqrt( delta );
+        threshold -= sqrt_delta;
+        threshold /= 2*(Et2 - ptp2);
+        return threshold;
+      } else {
+        return m_p;
       }
-      else {
-	auto a2 = alpha*alpha;
-	auto Et2 = E_T*E_T;
-	auto ptp2 = p_T_p*p_T_p;
-	auto mp2 = m_p*m_p;
-
-	auto delta = a2*Et2 - 4*(Et2-ptp2)*(ptp2*mp2+a2/4);
-	auto threshold = 0.5*(alpha*E_T - sqrt( delta ))/(Et2 - ptp2);
-	return threshold ;
+    } else { 
+      cout << "Simple case, forward target" << endl;
+      if ( delta >= 0. ) {
+                auto threshold = alpha*E_T;
+        auto sqrt_delta = sqrt( delta );
+        threshold += sqrt_delta;
+        threshold /= 2*(Et2 - ptp2);
+        return threshold;
+      } else {
+        return m_p;
       }
     }
-    else { 
-      return m_p;
+  } else {
+
+    if ( p_T_p < 0. ) {
+
+      if ( chi > 0. ) {
+        return m_p;
+      } else {
+        auto threshold = alpha*E_T;
+        auto sqrt_delta = sqrt( delta );
+        threshold -= sqrt_delta;
+        threshold /= 2*(Et2 - ptp2);
+        return threshold;
+      }
+    } else {
+      return numeric_limits<double>::infinity();
     }
   }
-  
 }
 
 
