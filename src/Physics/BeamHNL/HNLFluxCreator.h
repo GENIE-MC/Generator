@@ -14,7 +14,7 @@
 \class      genie::hnl::FluxCreator
 
 \brief      Calculates HNL production kinematics & production vertex.
-            Is a concrete implementation of the HNLEventRecordVisitorI interface
+            Is a concrete implementation of the FluxRecordVisitorI interface
 
 \author     John Plows <komninos-john.plows@physics.ox.ac.uk>
 
@@ -75,7 +75,7 @@
 
 #include "Tools/Flux/GNuMIFlux.h"
 
-#include "Physics/BeamHNL/HNLEventRecordVisitorI.h"
+#include "Physics/BeamHNL/HNLFluxRecordVisitorI.h"
 
 #include "Physics/BeamHNL/HNLBRCalculator.h"
 #include "Physics/BeamHNL/HNLDecayUtils.h"
@@ -93,7 +93,7 @@ namespace genie{
     
     class SimpleHNL;
     
-    class FluxCreator : public HNLEventRecordVisitorI {
+    class FluxCreator : public FluxRecordVisitorI {
 
     public:
 

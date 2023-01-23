@@ -11,31 +11,31 @@
 */
 //____________________________________________________________________________
 
-#include "Physics/BeamHNL/HNLEventRecordVisitorI.h"
+#include "Physics/BeamHNL/HNLFluxRecordVisitorI.h"
 
 using namespace genie;
 using namespace genie::hnl;
 
 //____________________________________________________________________________
-HNLEventRecordVisitorI::HNLEventRecordVisitorI() :
+FluxRecordVisitorI::FluxRecordVisitorI() :
   EventRecordVisitorI()
 {
 
 }
 //____________________________________________________________________________
-HNLEventRecordVisitorI::HNLEventRecordVisitorI(string name) :
+FluxRecordVisitorI::FluxRecordVisitorI(string name) :
   EventRecordVisitorI(name)
 {
 
 }
 //____________________________________________________________________________
-HNLEventRecordVisitorI::HNLEventRecordVisitorI(string name, string config) :
+FluxRecordVisitorI::FluxRecordVisitorI(string name, string config) :
   EventRecordVisitorI(name, config)
 {
 
 }
 //____________________________________________________________________________
-HNLEventRecordVisitorI::~HNLEventRecordVisitorI()
+FluxRecordVisitorI::~FluxRecordVisitorI()
 {
 
 }

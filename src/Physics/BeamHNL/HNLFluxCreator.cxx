@@ -16,13 +16,13 @@ using namespace genie::hnl::enums;
 
 //----------------------------------------------------------------------------
 FluxCreator::FluxCreator() :
-  HNLEventRecordVisitorI("genie::hnl::FluxCreator")
+  FluxRecordVisitorI("genie::hnl::FluxCreator")
 {
 
 }
 //----------------------------------------------------------------------------
 FluxCreator::FluxCreator(string config) :
-  HNLEventRecordVisitorI("genie::hnl::FluxCreator", config)
+  FluxRecordVisitorI("genie::hnl::FluxCreator", config)
 {
 
 }
