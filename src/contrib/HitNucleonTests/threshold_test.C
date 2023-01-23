@@ -11,6 +11,8 @@
 
 #include "Math/Vector4D.h"
 #include "Math/Boost.h" 
+#include "TFile.h" 
+#include "TH2.h"
 
 
 using namespace genie;
@@ -234,14 +236,15 @@ void threshold_exploration( int nucleon_pdg = kPdgNeutron,
                             int probe_pdg = kPdgNuMu, 
                             int target_pdg = 1000180400 ) {
 
-  string file_name = PDGLibrary::Instance()->Find(probe_pdg)->Name() + " on " 
-    +  PDGLibrary::Instance()->Find(nucleon_pdg)->Name() ;
+  string file_name = PDGLibrary::Instance()->Find(probe_pdg)->GetName();
+  file_name += " on " ;
+  file_name +=  PDGLibrary::Instance()->Find(nucleon_pdg)->GetName() ;
 
   TFile out_file(file_name.c_str(), "RECREATE");
 
-  constexpr max_p = 0.9;
+  constexpr double max_p = 0.9;
   double target_mass =PDGLibrary::Instance()->Find(nucleon_pdg)->Mass() ;
-  double max_Et = sqrt( max_p*max_p + target+_mass*target_mass );  
+  double max_Et = sqrt( max_p*max_p + target_mass*target_mass );  
   TH2D new_th_hist( "new_threshold", "New threshold;E_{T} (GeV), p_{T #parallel} (GeV/c)", 100, .4, max_Et, 100, -max_p, max_p );
   TH2D old_th_hist( "old_threshold", "old threshold;E_{T} (GeV), p_{T #parallel} (GeV/c)", 100, .4, max_Et, 100, -max_p, max_p );
 
@@ -254,7 +257,7 @@ void threshold_exploration( int nucleon_pdg = kPdgNeutron,
 
       TLorentzVector p_T;
       p_T.SetXYZT( 0.1, -0.2, p_t_p, E_T );
-      i_p -> InitStatePtr() -> TgtPtr() -> SetHitNucP4( p_TT ) ;
+      i_p -> InitStatePtr() -> TgtPtr() -> SetHitNucP4( p_T ) ;
 
       auto new_th = new_threshold(*i_p);
       auto old_th = find_threshold(*i_p);
