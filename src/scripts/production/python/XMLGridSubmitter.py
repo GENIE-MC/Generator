@@ -55,7 +55,27 @@ op.add_option("--job-lifetime", dest="JOBLIFE", default=30, help="Expected lifet
 op.add_option("--job-lifetime-vN", dest="vNJOBLIFE", default=20, help="Expected lifetime on the grid for all the vN spline jobs to be finished")
 op.add_option("--job-lifetime-vA", dest="vAJOBLIFE", default=8, help="Expected lifetime on the grid for all the vA spline jobs to be finished")
 op.add_option("--job-lifetime-group", dest="GROUPJOBLIFE", default=1, help="Expected lifetime on the grid for all the grouping jobs to be finished")
+op.add_option("--store-comitinfo", dest="STORECOMMIT", default=False, action="store_true", help="Store command line in jobstopdir directory")
 opts, args = op.parse_args()
+
+if( opts.STORECOMMIT ) :
+    output_file = opts.JOBSTD+"/input_options.txt"
+    #    option_namelist = op.option_list
+    input_names = []
+    input_variables = []
+    for opt, value in opts.__dict__.items():
+        input_variables.append( value )
+        input_names.append(opt)
+
+    if os.path.exists(output_file) :
+        os.remove(output_file)
+
+    with open(output_file,'w') as f:  
+        f.write( "##################################################################################################")
+        f.write( "# This document contains the input variables used to run the GENIE jobs stored in this directory #")
+        f.write( "##################################################################################################")
+        for i in range(len(input_names)) :
+            f.write( str(input_names[i]) + " " + str(input_variables[i]) + "\n" )
 
 # Print information
 print ("Creating job substructure and submission scripts... \n")
