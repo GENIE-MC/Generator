@@ -74,7 +74,7 @@ double new_threshold( const Interaction & i ) {
     if ( p_T_p <= 0. ) {
       //cout << "Simple case, backward target" << endl;
       if ( chi <= 0. ) { 
-        auto threshold = alpha*E_T;
+        threshold = alpha*E_T;
         auto sqrt_delta = sqrt( delta );
         threshold -= sqrt_delta;
         threshold /= 2*(Et2 - ptp2);
@@ -83,7 +83,7 @@ double new_threshold( const Interaction & i ) {
     } else { // p_t_p > 0  
       //cout << "Simple case, forward target" << endl;
       if ( delta >= 0. ) {
-	auto threshold = alpha*E_T;
+	threshold = alpha*E_T;
 	auto sqrt_delta = sqrt( delta );
 	threshold += sqrt_delta;
 	threshold /= 2*(Et2 - ptp2);
@@ -95,13 +95,14 @@ double new_threshold( const Interaction & i ) {
       threshold = numeric_limits<double>::infinity();
     } else { 
       if ( chi <= 0. ) {
-        auto threshold = alpha*E_T;
+	threshold = alpha*E_T;
         auto sqrt_delta = sqrt( delta );
         threshold -= sqrt_delta;
         threshold /= 2*(Et2 - ptp2);
       }
     }
   }
+  
   return max( m_p, threshold );
   
 }
@@ -227,6 +228,7 @@ void threshold_test() {
 
 void threshold_exploration( int nucleon_pdg = kPdgNeutron, 
                             int probe_pdg = kPdgNuMu, 
+			    double p_T_L = 0.2,
                             int target_pdg = 1000180400 ) {
 
   string file_name = PDGLibrary::Instance()->Find(probe_pdg)->GetName();
@@ -253,16 +255,13 @@ void threshold_exploration( int nucleon_pdg = kPdgNeutron,
       double p_t_p = new_th_hist.GetYaxis()->GetBinCenter(j);
 
       TLorentzVector p_T;
-      p_T.SetXYZT( 0.1, -0.2, p_t_p, E_T );
+      p_T.SetXYZT( 0., p_T_L, p_t_p, E_T );
       i_p -> InitStatePtr() -> TgtPtr() -> SetHitNucP4( p_T ) ;
 
       auto bin = new_th_hist.GetBin(i,j);
 
       auto new_th = new_threshold(*i_p);
-      if ( new_th < 0. ) {
-	cout << "(" << E_T << ", " << p_t_p << ") has negative threshold: " << new_th << endl;
-      }
-      if ( new_th < numeric_limits<double>::infinity() ) 
+      if ( new_th < numeric_limits<double>::infinity() )
 	new_th_hist.SetBinContent(bin, new_th);
       
       auto old_th = find_threshold(*i_p);
