@@ -60,7 +60,6 @@ opts, args = op.parse_args()
 
 if( opts.STORECOMMIT ) :
     output_file = opts.JOBSTD+"/input_options.txt"
-    #    option_namelist = op.option_list
     input_names = []
     input_variables = []
     for opt, value in opts.__dict__.items():
