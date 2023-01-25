@@ -58,7 +58,7 @@ op.add_option("--nu-maxenergy-range", dest="MaxEnergy", default="100", help="Max
 op.add_option("--e-beamenergy-list", dest="BEnergy", default="2", help="Electron beam energy" )
 op.add_option("--flux", dest="FLUX", default="\'1/x\'", help="Neutrino flux. Default 1/x. To use an input root file, specify the location of the file and the TH1D name as follows: file.root,th1d_name")
 op.add_option("--exp-name", dest="EXPNAME", default="general", help="Neutrino experiment name, i.e. DUNE, MINERvA, T2K, etc. It is only used to tag the output files. Default: %default")
-op.add_option("--target-mix", dest="TGTMIX", default="1000010010", help="Specify target mix. Default 1000010010.")
+op.add_option("--exp-target", dest="TGTMIX", default="1000010010", help="Specify target mix of the experiment. This is the target used for event generation. Default 1000010010.")
 op.add_option("--starting-point", dest="start_ID", type="int", default=0, help="0 -> Free nucleon splines, 1 -> combine free nucl splines, 2 -> Compound nuclei splines, 3 -> Combine compound nuclei splines, 4 -> Event Production")
 op.add_option("--stopping-point", dest="end_ID", type="int", default=9999, help="Numbers as above, Default: 9999") 
 op.add_option("--tune", dest="TUNE", default="G18_02a_02_11b", help="Tune to be compared against data (default: %default)")
