@@ -41,7 +41,8 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="1000060120", E_min=0, E_max
                             production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                             softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
                             grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh', 
-                            genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', time='10', git_branch = "master") :
+                            genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', 
+                            time='10', git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator") :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-nuScattering'
     # Make directory
@@ -108,7 +109,7 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="1000060120", E_min=0, E_max
                     evgen_command += " --event-generator-list "+gen_list+" "
                     shell_file = ''                
                 if grid_system == 'FNAL' :
-                    shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".ghep.root"), grid_setup, genie_setup, conf_dir, in_file_list, git_branch ) 
+                    shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".ghep.root"), grid_setup, genie_setup, conf_dir, in_file_list, git_branch, git_loc ) 
                     grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup, time)
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
