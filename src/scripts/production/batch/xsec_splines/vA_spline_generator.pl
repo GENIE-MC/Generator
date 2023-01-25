@@ -233,54 +233,50 @@ foreach $nu ( @nu_list ) {
 
       # PBS case
       if($batch_system eq 'PBS' || $batch_system eq 'HTCondor_PBS') {
-   	    $batch_script = "$filename_template.pbs";
-  	    open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
-	      print PBS "#!/bin/bash \n";
+        $batch_script = "$filename_template.pbs";
+        open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
+        print PBS "#!/bin/bash \n";
         print PBS "#PBS -N $jobname \n";
         print PBS "#PBS -o $filename_template.pbsout.log \n";
         print PBS "#PBS -e $filename_template.pbserr.log \n";
-	      print PBS "source $shell_script \n";
+        print PBS "source $shell_script \n";
         close(PBS);
         $job_submission_command = "qsub";
         if($batch_system eq 'HTCondor_PBS') {
            $job_submission_command = "condor_qsub";
-        }
-
-	      push( @batch_commands, "$job_submission_command -q $queue $batch_script" ) ;
-
+        
+        push( @batch_commands, "$job_submission_command -q $queue $batch_script"         
       } #PBS
 
       # LyonPBS case
       if($batch_system eq 'LyonPBS' ) {
-         $batch_script = "$filename_template.pbs";
-         open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
-         print PBS "#!/bin/bash \n";
-         print PBS "#\$ -P $queue \n";
-         print PBS "#\$ -N $jobname \n";
-         print PBS "#\$ -o $filename_template.pbsout.log \n";
-         print PBS "#\$ -e $filename_template.pbserr.log \n";
-         print PBS "#\$ -l ct=30:00:00,sps=1,s_rss=4G \n";
-         print PBS "#\$ -p -1 \n" if ( $priority ) ;
-	       print PBS "source $shell_script \n";
-	       close(PBS);
-         $job_submission_command = "qsub";
+        $batch_script = "$filename_template.pbs";
+        open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
+        print PBS "#!/bin/bash \n";
+        print PBS "#\$ -P $queue \n";
+        print PBS "#\$ -N $jobname \n";
+        print PBS "#\$ -o $filename_template.pbsout.log \n";
+        print PBS "#\$ -e $filename_template.pbserr.log \n";
+        print PBS "#\$ -l ct=30:00:00,sps=1,s_rss=4G \n";
+        print PBS "#\$ -p -1 \n" if ( $priority ) ;
+        print PBS "source $shell_script \n";
+        close(PBS);
+        $job_submission_command = "qs        
+        push( @batch_commands, "$job_submission_command  $batch_script " ) ;
 
-	       push( @batch_commands, "$job_submission_command  $batch_script " ) ;
-
-       } #LyonPBS
+      } #LyonPBS
 
       # LSF case
       if($batch_system eq 'LSF') {
-	       $batch_script = "$filename_template.sh";
-	       open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
-	       print LSF "#!/bin/bash \n";
-         print LSF "#BSUB-j $jobname \n";
-         print LSF "#BSUB-o $filename_template.lsfout.log \n";
-         print LSF "#BSUB-e $filename_template.lsferr.log \n";
-         print LSF "source $shell_script \n";
-         close(LSF);
-
-	      push( @batch_commands, "bsub < $batch_script" ) ;
+        $batch_script = "$filename_template.sh";
+        open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
+        print LSF "#!/bin/bash \n";
+        print LSF "#BSUB-j $jobname \n";
+        print LSF "#BSUB-o $filename_template.lsfout.log \n";
+        print LSF "#BSUB-e $filename_template.lsferr.log \n";
+        print LSF "source $shell_script \n";
+        close(LSF);
+        push( @batch_commands, "bsub < $batch_script" ) ;
       } #LSF
 
       # HTCondor
@@ -292,34 +288,32 @@ foreach $nu ( @nu_list ) {
         print HTC "Log                    = $filename_template.log \n";
         print HTC "Output                 = $filename_template.out \n";
         print HTC "Error                  = $filename_template.err \n";
-	      print HTC "priority               = -1 \n" if ( $priority ) ;
+        print HTC "priority               = -1 \n" if ( $priority ) ;
         print HTC "Request_memory         = 4 GB \n";
         print HTC "requirements           = (Opsys =?= \"LINUX\") && (AccessToData =?= True) && (OpSysAndVer =?= \"CentOS7\")  \n";
         print HTC "Queue \n";
         close(HTC);
-
-	      push( @batch_commands, "condor_submit $batch_script" ) ;
+        push( @batch_commands, "condor_submit $batch_script" ) ;
 
       } #HTCondor
 
       # slurm case
       if($batch_system eq 'slurm' || $batch_system eq 'LyonSlurm') {
-	       $batch_script = "$filename_template.slr";
-	       open(SLURM, ">$batch_script") or die("Can not create the SLURM batch script");
-	       print SLURM "#!/bin/bash \n";
-	       print SLURM "#SBATCH -J $jobname \n";
+         $batch_script = "$filename_template.slr";
+         open(SLURM, ">$batch_script") or die("Can not create the SLURM batch script");
+         print SLURM "#!/bin/bash \n";
+         print SLURM "#SBATCH -J $jobname \n";
          print SLURM "#SBATCH -p $queue \n";
          print SLURM "#SBATCH -o $filename_template.slurmout.log \n";
          print SLURM "#SBATCH -e $filename_template.slurmerr.log \n";
-	       print SLURM "#SBATCH -t 15:0 \n";
+         print SLURM "#SBATCH -t 15:0 \n";
          print SLURM "#SBATCH -n 1 \n";
          print SLURM "#SBATCH --mem=4000 \n";
-	       print SLURM "#SBATCH -L sps \n" if ($batch_system eq 'LyonSlurm');
-	       print SLURM "#SBATCH --priority -1 \n" if ( $priority ) ;
-	       print SLURM "source $shell_script \n";
+         print SLURM "#SBATCH -L sps \n" if ($batch_system eq 'LyonSlurm');
+         print SLURM "#SBATCH --priority -1 \n" if ( $priority ) ;
+         print SLURM "source $shell_script \n";
          close(SLURM);
-
-	       push( @batch_commands, "sbatch $batch_script" );
+         push( @batch_commands, "sbatch $batch_script" );
       } #slurm
 
       # run interactively
