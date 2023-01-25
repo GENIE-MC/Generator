@@ -4,7 +4,10 @@ In this directory you can find a serie of python scripts that facilitate to subm
 Two submitters are availalbe: 
 - `XMLGridSubmitter.py`: submits the jobs to obtain splines for any lepton
 - `eAScatteringGridSubmitter.py`: submits the jobs to create splines and generate e-A events
-other scripts can be easily added.
+other scripts can be easily added. Does not support neutrino scattering event generation
+- `vAScatteringGridSubmitter.py`: submits the jobs to create splines and generate nu-A events
+other scripts can be easily added. Does not support electron scattering event generation
+
 
 ## Requirements
 - You must have the $GENIE enviromental variable to your GENIE-MC/Generator directory. This is required only to run the python scripts, no previous compilation of the GENIE-MC/Generator code is required.
@@ -14,6 +17,7 @@ other scripts can be easily added.
 An example of a Submitter code is `eAScatteringGridSubmitter.py`. This code will launch the splines (for free nucleon and free nuclei) and electron scattering events. The options are: 
 
 - version: Genie version number. Default `master`.
+- git-location: link to the github repository from which to clone GENIE-Generator. By default https://github.com/GENIE-MC/Generator is used. 
 - git-branch: This is the name of the git branch you want to pull from the GENIE Generator repository. Default is master
 - cycle : defult 01
 - production: default routine_validation
