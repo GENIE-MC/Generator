@@ -32,7 +32,7 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
                             production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                             softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
                             grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh', 
-                            genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', time='10', git_branch = "master") :
+                            genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', time='10', git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator") :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-eScattering'
     # Make directory
@@ -92,7 +92,7 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", E_list="2", xsp
 
                     shell_file = ''                
                     if grid_system == 'FNAL' :
-                        shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".ghep.root"), grid_setup, genie_setup, conf_dir, str(xspl_file), git_branch ) 
+                        shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".ghep.root"), grid_setup, genie_setup, conf_dir, str(xspl_file), git_branch, git_loc ) 
                         grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup, time)
                         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 

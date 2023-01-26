@@ -23,6 +23,7 @@ import GroupSplineCommands as group
 import FNALGridUtils as FNAL
 
 sys.path.insert(1, 'event_generation')
+import nuScatteringGenCommands as nuA
 import eScatteringGenCommands as eA
 
 op = optparse.OptionParser(usage=__doc__)
@@ -39,7 +40,7 @@ op.add_option("--genie-topdir", dest="GENIE", default=os.getenv('GENIE'), help =
 op.add_option("--jobs-topdir", dest="JOBSTD", default=os.getenv('PWD'), help="Top level dir for the job files (default: %default)")
 op.add_option("--source-prod-dir", dest="MotherDir", default='', help="Jobs topdir used as a source for missing xsec splines.")
 op.add_option("--config-dir", dest="CONF", default='', help="Path to GENIE config dir")
-op.add_option("--probe-list", dest="PROBELIST", default='11', help = "Comma separated list of lepton flavour (neutrino and electrons are handled). Default: %default.") 
+op.add_option("--probe-list", dest="PROBELIST", default='14', help = "Comma separated list of lepton flavour (neutrino and electrons are handled). Default: %default.") 
 op.add_option("--nu-tgt-list", dest="NUTGTLIST", default='all', help = "Comma separated list of Targets. Default: %default.") 
 op.add_option("--e-tgt-list", dest="ETGTLIST", default='all', help = "Comma separated list of Targets. Default: %default.") 
 op.add_option("--vN-gen-list", dest="vNList", default='all', help="Comma separated list of event generator list used for the free nucleon spline generation. Can be used to specify electron procecess as well")
@@ -48,11 +49,16 @@ op.add_option("--E-nu-max", dest="NuEMAX", type="int", default=100, help="Maximu
 op.add_option("--E-e-max", dest="EEMAX", type="int", default=30, help="Maximum energy for the splines in GeV. Default: %default ")
 op.add_option("--N-nu-knots", dest="NuKnots", type="int", default=100, help="Number of knots per neutrino spline. Default: %default")
 op.add_option("--N-e-knots", dest="EKnots", type="int", default=100, help="Number of knots per electron spline. Default: %default")
-op.add_option("--event-generator-list", dest="EvGenList", default='EM', help="Event generator list to be used for event generation. Default EM")
+op.add_option("--event-generator-list", dest="EvGenList", default='all', help="Event generator list to be used for event generation. Default all")
 op.add_option("--nu-ntotevents", dest="NuEvents", type="int", default=10000, help="Number of total events, default: 100 k")
 op.add_option("--e-ntotevents", dest="EEvents", type="int", default=100000, help="Number of total events, default: 100 k")
 op.add_option("--nmaxevents",dest="NMax", type="int", default=100000,help="Max number of events to run per event generation, default 100k")
-op.add_option("--e-energy", dest="Energy", default="2", help="Comma separated list of beam energy for electrons. Default %default GeV")
+op.add_option("--nu-minenergy-range", dest="MinEnergy", default="0", help="Minimum neutrino energy. Default 0.")
+op.add_option("--nu-maxenergy-range", dest="MaxEnergy", default="100", help="Maximum neutrino energy. Default 100.")
+op.add_option("--e-beamenergy-list", dest="BEnergy", default="2", help="Electron beam energy" )
+op.add_option("--flux", dest="FLUX", default="\'1/x\'", help="Neutrino flux. Default 1/x. To use an input root file, specify the location of the file and the TH1D name as follows: file.root,th1d_name")
+op.add_option("--exp-name", dest="EXPNAME", default="general", help="Neutrino experiment name, i.e. DUNE, MINERvA, T2K, etc. It is only used to tag the output files. Default: %default")
+op.add_option("--exp-target", dest="TGTMIX", default="1000010010", help="Specify target mix of the experiment. This is the target used for event generation. Default 1000010010.")
 op.add_option("--starting-point", dest="start_ID", type="int", default=0, help="0 -> Free nucleon splines, 1 -> combine free nucl splines, 2 -> Compound nuclei splines, 3 -> Combine compound nuclei splines, 4 -> Event Production")
 op.add_option("--stopping-point", dest="end_ID", type="int", default=9999, help="Numbers as above, Default: 9999") 
 op.add_option("--tune", dest="TUNE", default="G18_02a_02_11b", help="Tune to be compared against data (default: %default)")
@@ -198,7 +204,10 @@ while loop_i < loop_end + 1:
 
     if loop_i == 4 : 
         # ID = 4 # Event generation commands
-        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.Energy,vAsplines,opts.EEvents,opts.TUNE, opts.EvGenList, opts.NMax,version,opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
+        # Submit neutrino jobs
+        command_dict.update( nuA.nuScatteringGenCommands(opts.PROBELIST,opts.TGTMIX,opts.MinEnergy,opts.MaxEnergy,opts.FLUX,vAsplines,opts.NuEvents,opts.TUNE, opts.EvGenList, opts.EXPNAME, opts.NMax,version,opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
+        # Submit electron jobs
+        #        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.BEnergy,vAsplines,opts.EEvents,opts.TUNE, opts.EvGenList, opts.NMax,version,opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
         total_time += int(opts.GENJOBLIFE)
     
     loop_i += 1 
@@ -215,7 +224,7 @@ if opts.GRID is 'FNAL':
     # Write xml file
     grid_name = FNAL.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD)
 
-    main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, grid_setup, genie_setup, grid_name, opts.JOBLIFE)
+    main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, grid_setup, genie_setup, grid_name, opts.JOBLIFE )
 
 if opts.SUBMIT == True: 
     # SUBMIT JOB

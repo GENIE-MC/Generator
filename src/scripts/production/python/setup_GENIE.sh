@@ -2,7 +2,8 @@
 
 setup git v2_15_1 
 
-git clone https://github.com/GENIE-MC/Generator.git Generator 
+GITHUB_LOCATION=$1
+git clone $GITHUB_LOCATION Generator 
 
 export GENIEBASE=$(pwd)
 export GENIE=$GENIEBASE/Generator 
@@ -20,13 +21,13 @@ unset GENIEBASE
 cd $GENIE 
 
 GENIE_VERSION=master
-if [ ! -z "$1" ] ; then 
+if [ ! -z "$2" ] ; then 
   GENIE_VERSION=$1
   git checkout "$GENIE_VERSION" 
 fi
 echo Requested Genie version $GENIE_VERSION
 
-if [ ! -z "$2" ] ; then
+if [ ! -z "$3" ] ; then
   GENIE_CONFIG_DIR=$2
   echo Requested Genie config $GENIE_CONFIG_DIR 
   if [ -d "$GENIE/$GENIE_CONFIG_DIR" ]; then
