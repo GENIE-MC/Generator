@@ -19,7 +19,7 @@ SecondNucleonEmitter          alg     No         SubAlg to add a second nucleon
   <param_set name="Default">
      <param type="bool"   name="KeepHitNuclOnMassShell"> false                     </param>
      <param type="alg" name="SecondNucleonEmitter"> genie::SpectralFunction2p2h/Default </param>
-     <param type="bool"   name="FermiMover-MomentumDependentErmv"> false                     </param>
+     <param type="bool"   name="FermiMover-MomentumDependentErmv"> true                     </param>
   </param_set>
 
   <param_set name="NucOnShell">

@@ -75,10 +75,13 @@ private:
   map<int, double> fNucRmvE;
 
   double fPMax;
+  bool fMomDepErmv;
+  bool fForcePositiveErmv;
 
   // options related to SRC pairs
   double fSRC_Fraction;
   double fPCutOff;
+
 };
 
 }         // genie namespace
