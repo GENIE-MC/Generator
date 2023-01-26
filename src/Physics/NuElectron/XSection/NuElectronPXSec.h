@@ -66,6 +66,7 @@ private:
   double fSin28w; // sin^2(theta-weinberg)
   double fSin48w;
   int fNIntegration; //Number of integration samples
+  double fErrTolerance; //Error tolerance acceptable before returning cross section average
 };
 
 }       // genie namespace

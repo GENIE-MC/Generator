@@ -93,9 +93,9 @@ void BohrElectronVelocity::InitializeVelocity(Interaction & interaction) const{
 //____________________________________________________________________________
 
 unsigned BohrElectronVelocity::random_n(unsigned int fZ) const{
+  //Isotope minimum z is 118 in accordance with maximum possible in GENIE
   static int fMaxElectrons = 118; //Max total electrons
   std::array<int, 6> fnprobs {2,10,28,60,110,118}; //Cumulative Probability dist.
-  //assert(fZ<=fMaxElectrons); //Atomic number can't be greater than max electrons
 
   //Get random electron orbital from atomic number Z
   RandomGen * rnd = RandomGen::Instance(); //Load seed 

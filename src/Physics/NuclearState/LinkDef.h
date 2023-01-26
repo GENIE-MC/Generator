@@ -26,7 +26,7 @@
 #pragma link C++ class genie::SecondNucleonEmissionI;
 #pragma link C++ class genie::SpectralFunction2p2h;
 
-#pragma link C++ class genie::ElectronVelocity;
+//#pragma link C++ class genie::ElectronVelocity;
 #pragma link C++ class genie::BohrElectronVelocity;
 #pragma link C++ class genie::StaticElectronVelocity;
 

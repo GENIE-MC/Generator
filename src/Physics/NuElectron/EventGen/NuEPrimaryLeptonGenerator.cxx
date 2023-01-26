@@ -52,11 +52,12 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   Interaction * interaction = evrec->Summary();
 
   // Boost vector for [LAB] <-> [Electron Rest Frame] transforms
-  TVector3 beta = this->EleRestFrame2Lab(evrec); // Get boost of hit
+  TVector3 beta = this->EleRestFrame2Lab(*evrec); // Get boost of hit
 
   // Neutrino 4p
-  TLorentzVector * p4v = evrec->Probe()->GetP4(); // v 4p @ LAB
-  p4v->Boost(-1.*beta);                           // v 4p @ Electron rest frame
+  TLorentzVector p4v(*evrec->Probe()->GetP4()); // v 4p @ LAB
+  p4v.Boost(-1.*beta);
+
 
   // Get selected kinematics
   double y = interaction->Kine().y(true);
@@ -67,7 +68,7 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   assert(pdgc!=0);
 
   // Compute the neutrino and muon energy
-  double Ev  = p4v->E();
+  double Ev  = p4v.E();
   double El  = (1-y)*Ev;
 
   LOG("LeptonicVertex", pINFO)
@@ -129,12 +130,12 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   this->SetPolarization(evrec);
 }
 //___________________________________________________________________________
-TVector3 NuEPrimaryLeptonGenerator::EleRestFrame2Lab(GHepRecord * evrec) const
+TVector3 NuEPrimaryLeptonGenerator::EleRestFrame2Lab(GHepRecord & evrec) const
 {
 // Velocity for an active Lorentz transform taking the final state primary
 // lepton from the [electron rest frame] --> [LAB]
 
-  Interaction * interaction = evrec->Summary();
+  Interaction * interaction = evrec.Summary();
   const InitialState & init_state = interaction->InitState();
 
   const TLorentzVector & pele4 = init_state.Tgt().HitEleP4(); //[@LAB]

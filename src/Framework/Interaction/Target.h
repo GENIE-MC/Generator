@@ -129,10 +129,10 @@ private:
   int  fHitQrkPDG;            ///< hit quark PDG code
   bool fHitSeaQrk;            ///< hit quark from sea?
   TLorentzVector * fHitNucP4; ///< hit nucleon 4p
-  TLorentzVector * fHitEleP4; ///< hit electron 4p
+  TLorentzVector * fHitEleP4; ///< hit electron 4p - changes index
   double fHitNucRad;          ///< hit nucleon position
 
-ClassDef(Target,2) //Advance the index?
+ClassDef(Target,3) //Advance the index?
 };
 
 }      // genie namespace

@@ -139,12 +139,25 @@ double NuElectronPXSec::XSec(
 //____________________________________________________________________________
 double NuElectronPXSec::Integral(const Interaction * interaction) const
 {
-  double xsec_sum = 0;
-  for (int iele=0;iele<fNIntegration;iele++){
+  double xsec_sum = 0; 
+  double xsec_sum2 = 0; 
+  double xsec_err = 9999.;
+  int NInt = 0; //Count number of integrations
+  while ( NInt > fNIntegration){
+    NInt++;
     Interaction in_curr(*interaction); //Copy interaction object
     fElectronVelocity->InitializeVelocity(in_curr); //Modify interaction to give electron random velocity from selected distribution
     double xsec = fXSecIntegrator->Integrate(this,&in_curr);
     xsec_sum+=xsec;
+    xsec_sum2+=TMath::Power(xsec,2);
+    double xsec_mean = xsec_sum/NInt;
+    //var*N = sum(xi^2)-2 u sum(xi) + N u^2
+    //rel_err = sigma/mean
+    xsec_err = sqrt((xsec_sum2-2*xsec_mean*xsec_sum+NInt*TMath::Power(xsec_mean,2))/NInt)/xsec_mean;
+    if (NInt == 1){
+      xsec_err = 9999.;
+    }
+    std::cout<<"Nint : "<<NInt<<" Rel err : "<<xsec_err<<" xsec_mean : "<<xsec_mean<<" xsec : "<<xsec<<std::endl;
   }
   double xsec_avg = xsec_sum/fNIntegration;
   return xsec_avg;
@@ -180,6 +193,7 @@ void NuElectronPXSec::LoadConfig(void)
   double thw ;
   GetParam( "WeinbergAngle", thw ) ;
   GetParam( "N-Integration-Samples", fNIntegration ) ;
+  GetParam( "NuE-Integration-Error-Tolerance" , fErrTolerance ) ;
   fSin28w = TMath::Power(TMath::Sin(thw), 2);
   fSin48w = TMath::Power(TMath::Sin(thw), 4);
 
