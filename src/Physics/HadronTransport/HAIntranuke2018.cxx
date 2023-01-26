@@ -863,7 +863,7 @@ void HAIntranuke2018::Inelastic(
                                t1code=kPdgNeutron; t2code=kPdgNeutron;
                                scode=kPdgProton;   s2code=kPdgNeutron;}
           }
-          else if (pdgc==kPdgPiM) {
+          if (pdgc==kPdgPiM) {
             double Prob_pimd_nn=2.*ppcnt*(1.-ppcnt);
             double Prob_pimpp_pn=.083*ppcnt*ppcnt;
             if (rnd->RndFsi().Rndm()*(Prob_pimd_nn+Prob_pimpp_pn)<Prob_pimd_nn){
@@ -877,11 +877,10 @@ void HAIntranuke2018::Inelastic(
             double Prob_pi0d_pn=0.88*ppcnt*(1.-ppcnt); // 2 * .44
             double Prob_pi0pp_pp=.14*ppcnt*ppcnt;
             double Prob_pi0nn_nn=.14*(1.-ppcnt)*(1.-ppcnt);
-	    double oneRandomNumber = rnd->RndFsi().Rndm();
-            if (oneRandomNumber*(Prob_pi0d_pn+Prob_pi0pp_pp+Prob_pi0nn_nn)<Prob_pi0d_pn){
+            if (rnd->RndFsi().Rndm()*(Prob_pi0d_pn+Prob_pi0pp_pp+Prob_pi0nn_nn)<Prob_pi0d_pn){
                                t1code=kPdgNeutron;  t2code=kPdgProton;
                                 scode=kPdgNeutron;  s2code=kPdgProton;  }
-            else if (oneRandomNumber*(Prob_pi0d_pn+Prob_pi0pp_pp+Prob_pi0nn_nn)<(Prob_pi0d_pn+Prob_pi0pp_pp)){
+            else if (rnd->RndFsi().Rndm()*(Prob_pi0d_pn+Prob_pi0pp_pp+Prob_pi0nn_nn)<(Prob_pi0d_pn+Prob_pi0pp_pp)){
                                t1code=kPdgProton;   t2code=kPdgProton;
                                scode=kPdgProton;    s2code=kPdgProton;  }
             else {
