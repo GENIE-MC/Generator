@@ -15,7 +15,7 @@
 \created  March 05, 2008
 
 \cpright  Copyright (c) 2003-2022, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -41,6 +41,7 @@ public :
 private:
   void           OxygenTargetSim      (GHepRecord * evrec) const;
   void           CarbonTargetSim      (GHepRecord * evrec) const;
+  void           ArgonTargetSim       (GHepRecord * evrec) const;
   void           AddPhoton            (GHepRecord * evrec, double E0, double t) const;
   double         PhotonEnergySmearing (double E0, double t) const;
   TLorentzVector Photon4P             (double E) const;
