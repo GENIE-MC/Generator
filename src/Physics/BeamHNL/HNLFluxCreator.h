@@ -289,7 +289,8 @@ namespace genie{
 
       mutable double POTScaleWeight;
       mutable std::vector<double> fScales;
-
+      
+      mutable bool fDoingOldFluxCalc = false;
       mutable bool fIsConfigLoaded = false;
 
       mutable bool fUsingDk2nu = true;

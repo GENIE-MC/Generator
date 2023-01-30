@@ -81,6 +81,7 @@ April 11th, 2022
 
   <param_set name="FluxCalc">
     <param type="vec-double" name="ParentPOTScalings" delim=";"> 1.0 ; 1.005 ; 9.353 ; 10.458 </param> <!-- All parents -> no muons -> no pions -> no K0L -->
+    <param type="bool" name="DoOldFluxCalculation"> false </param>
     <param type="bool" name="IsParentOnAxis"> false </param>
     <param type="bool" name="IncludePolarisation"> true </param>
     <param type="bool" name="FixPolarisationDirection"> false </param>

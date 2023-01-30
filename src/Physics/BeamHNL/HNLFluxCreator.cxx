@@ -439,68 +439,69 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
   }
 
   double accCorr = this->CalculateAcceptanceCorrection( p4par, p4HNL_rest, decay_necm, zm, zp );
-  // WRONG! THIS IS NOT THE CASE!
-  // if accCorr == 0 then we must ~bail and find the next event.~ 
-  //                 We must reroll the point a bunch of times. Then we can skip.
-  //                 Ideally we'd be able to tell how much detector lives within the reachable region [zm, zp]
-  int iAccFail = 0; const int iAccFailBail = 10;
-  while( iAccFail < iAccFailBail && accCorr == 0.0 ){
-    LOG( "HNL", pNOTICE )
-      << "Point with separation " << utils::print::Vec3AsString( &fRVec_beam ) << " is unreachable "
-      << "by HNL from parent with momentum " << utils::print::P4AsString( &p4par ) << " !"
-      << "\nRerolling point. This is the " << iAccFail << "th try out of " << iAccFailBail;
-
-    // find random point in BBox and force momentum to point to that point
-    // first, separation in beam frame
-    fRVec_beam = this->PointToRandomPointInBBox( detO_beam );
-    // rotate it and get unit
-    fRVec_unit = (this->ApplyUserRotation( fRVec_beam )).Unit();
-    // force HNL to point along this direction
-    p4HNL.SetPxPyPzE( p4HNL_rand.P() * fRVec_unit.X(),
-		      p4HNL_rand.P() * fRVec_unit.Y(),
-		      p4HNL_rand.P() * fRVec_unit.Z(),
-		      p4HNL_rand.E() );
-    
-    pHNL_beam = this->ApplyUserRotation( p4HNL.Vect(), true );
-    p4HNL_beam.SetPxPyPzE( pHNL_beam.X(), pHNL_beam.Y(), pHNL_beam.Z(), p4HNL.E() );
-    
-    LOG( "HNL", pDEBUG )
-      << "\nRandom:  " << utils::print::P4AsString( &p4HNL_rand )
-      << "\nPointed: " << utils::print::P4AsString( &p4HNL )
-      << "\nRest:    " << utils::print::P4AsString( &p4HNL_rest );
-    
-    // update polarisation
-    p4Lep_good = p4Lep_rest_good; // in parent rest frame
-    p4Lep_good.Boost( boost_beta ); // in lab frame
-    boost_beta_HNL = p4HNL_beam.BoostVector();
-    p4Lep_good.Boost( -boost_beta_HNL ); // in HNL rest frame
-    
-    fLPx = ( fixPol ) ? fFixedPolarisation.at(0) : p4Lep_good.Px() / p4Lep_good.P();
-    fLPy = ( fixPol ) ? fFixedPolarisation.at(1) : p4Lep_good.Py() / p4Lep_good.P();
-    fLPz = ( fixPol ) ? fFixedPolarisation.at(2) : p4Lep_good.Pz() / p4Lep_good.P();
-    
-    // calculate acceptance correction
-    // first, get minimum and maximum deviation from parent momentum to hit detector in degrees
-    zm = 0.0; zp = 0.0;
-    if( fIsUsingRootGeom ){
-      this->GetAngDeviation( p4par_beam, detO_beam, zm, zp );
-    } else { // !fIsUsingRootGeom
-      zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par_beam, detO_beam, false );
-      zp = this->GetAngDeviation( p4par_beam, detO_beam, true );
+  if( !fDoingOldFluxCalc ){
+    // if accCorr == 0 then we must ~bail and find the next event.~ 
+    //                 We must reroll the point a bunch of times. Then we can skip.
+    //                 Ideally we'd be able to tell how much detector lives within the reachable region [zm, zp]
+    int iAccFail = 0; const int iAccFailBail = 10;
+    while( iAccFail < iAccFailBail && accCorr == 0.0 ){
+      LOG( "HNL", pNOTICE )
+	<< "Point with separation " << utils::print::Vec3AsString( &fRVec_beam ) << " is unreachable "
+	<< "by HNL from parent with momentum " << utils::print::P4AsString( &p4par ) << " !"
+	<< "\nRerolling point. This is the " << iAccFail << "th try out of " << iAccFailBail;
+      
+      // find random point in BBox and force momentum to point to that point
+      // first, separation in beam frame
+      fRVec_beam = this->PointToRandomPointInBBox( detO_beam );
+      // rotate it and get unit
+      fRVec_unit = (this->ApplyUserRotation( fRVec_beam )).Unit();
+      // force HNL to point along this direction
+      p4HNL.SetPxPyPzE( p4HNL_rand.P() * fRVec_unit.X(),
+			p4HNL_rand.P() * fRVec_unit.Y(),
+			p4HNL_rand.P() * fRVec_unit.Z(),
+			p4HNL_rand.E() );
+      
+      pHNL_beam = this->ApplyUserRotation( p4HNL.Vect(), true );
+      p4HNL_beam.SetPxPyPzE( pHNL_beam.X(), pHNL_beam.Y(), pHNL_beam.Z(), p4HNL.E() );
+      
+      LOG( "HNL", pDEBUG )
+	<< "\nRandom:  " << utils::print::P4AsString( &p4HNL_rand )
+	<< "\nPointed: " << utils::print::P4AsString( &p4HNL )
+	<< "\nRest:    " << utils::print::P4AsString( &p4HNL_rest );
+      
+      // update polarisation
+      p4Lep_good = p4Lep_rest_good; // in parent rest frame
+      p4Lep_good.Boost( boost_beta ); // in lab frame
+      boost_beta_HNL = p4HNL_beam.BoostVector();
+      p4Lep_good.Boost( -boost_beta_HNL ); // in HNL rest frame
+      
+      fLPx = ( fixPol ) ? fFixedPolarisation.at(0) : p4Lep_good.Px() / p4Lep_good.P();
+      fLPy = ( fixPol ) ? fFixedPolarisation.at(1) : p4Lep_good.Py() / p4Lep_good.P();
+      fLPz = ( fixPol ) ? fFixedPolarisation.at(2) : p4Lep_good.Pz() / p4Lep_good.P();
+      
+      // calculate acceptance correction
+      // first, get minimum and maximum deviation from parent momentum to hit detector in degrees
+      zm = 0.0; zp = 0.0;
+      if( fIsUsingRootGeom ){
+	this->GetAngDeviation( p4par_beam, detO_beam, zm, zp );
+      } else { // !fIsUsingRootGeom
+	zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par_beam, detO_beam, false );
+	zp = this->GetAngDeviation( p4par_beam, detO_beam, true );
+      }
+      
+      if( zm == -999.9 && zp == 999.9 ){
+	this->FillNonsense( iEntry, &gnmf ); return gnmf;
+      }
+      
+      if( isParentOnAxis ){ 
+	double tzm = zm, tzp = zp;
+	zm = 0.0;
+	zp = (tzp - tzm)/2.0; // 1/2 * angular opening
+      }
+      
+      accCorr = this->CalculateAcceptanceCorrection( p4par, p4HNL_rest, decay_necm, zm, zp );
+      iAccFail++;
     }
-    
-    if( zm == -999.9 && zp == 999.9 ){
-      this->FillNonsense( iEntry, &gnmf ); return gnmf;
-    }
-    
-    if( isParentOnAxis ){ 
-      double tzm = zm, tzp = zp;
-      zm = 0.0;
-      zp = (tzp - tzm)/2.0; // 1/2 * angular opening
-    }
-    
-    accCorr = this->CalculateAcceptanceCorrection( p4par, p4HNL_rest, decay_necm, zm, zp );
-    iAccFail++;
   }
   if( accCorr == 0.0 ){ // NOW we can give up and return.
     this->FillNonsense( iEntry, &gnmf ); return gnmf;
@@ -1502,33 +1503,35 @@ TVector3 FluxCreator::PointToRandomPointInBBox( TVector3 detO_beam ) const
          ry = (rnd->RndGen()).Uniform( oy - fLy/2.0, oy + fLy/2.0 ),
          rz = (rnd->RndGen()).Uniform( oz - fLz/2.0, oz + fLz/2.0 );
 
-  // user-coordinates of this point. [m]
-  double ux = ox - rx, uy = oy - ry, uz = oz - rz;
-  // apply offset
-  ux -= fDetOffset.at(0); uy -= fDetOffset.at(1); uz -= fDetOffset.at(2);
-  // rotate to user system
-  TVector3 checkPoint( ux, uy, uz ); TVector3 originPoint( -fCx, -fCy, -fCz ); // both in m
-  checkPoint = this->ApplyUserRotation( checkPoint, originPoint, fDetRotation, false ); // tgt-hall --> det
-  ux = checkPoint.X(); uy = checkPoint.Y(); uz = checkPoint.Z();
-  // make [m] --> [cm]
-  ux *= units::m / units::cm; uy *= units::m / units::cm ; uz *= units::m / units::cm;
-  // check if the point is inside the geometry, otherwise do it again
-  //gGeoManager->CheckPoint( ux, uy, uz ); // updates node path
-  std::string pathString = this->CheckGeomPoint( ux, uy, uz ); int iNode = 1; // 1 past beginning
-  //std::string pathString(gGeoManager->GetPath()); int iNode = 1; // 1 past beginning
-  while( pathString.find( "/", iNode ) == string::npos ){
-    //while( !node || !(node->GetMotherVolume()) || (node->GetMotherVolume()->IsTopVolume()) ){
-    rx = (rnd->RndGen()).Uniform( ox - fLx/2.0, ox + fLx/2.0 ); ux = (ox - rx);
-    ry = (rnd->RndGen()).Uniform( oy - fLy/2.0, oy + fLy/2.0 ); uy = (oy - ry);
-    rz = (rnd->RndGen()).Uniform( oz - fLz/2.0, oz + fLz/2.0 ); uz = (oz - rz);
-    checkPoint.SetXYZ( ux, uy, uz );
+  if( !fDoingOldFluxCalc ){
+    // user-coordinates of this point. [m]
+    double ux = ox - rx, uy = oy - ry, uz = oz - rz;
+    // apply offset
+    ux -= fDetOffset.at(0); uy -= fDetOffset.at(1); uz -= fDetOffset.at(2);
+    // rotate to user system
+    TVector3 checkPoint( ux, uy, uz ); TVector3 originPoint( -fCx, -fCy, -fCz ); // both in m
     checkPoint = this->ApplyUserRotation( checkPoint, originPoint, fDetRotation, false ); // tgt-hall --> det
-    ux = checkPoint.X() * units::m / units::cm; 
-    uy = checkPoint.Y() * units::m / units::cm;
-    uz = checkPoint.Z() * units::m / units::cm;
-    //gGeoManager->CheckPoint( ux, uy, uz );
-    //pathString = std::string(gGeoManager->GetPath()); iNode = 1;
-    pathString = this->CheckGeomPoint( ux, uy, uz ); iNode = 1;
+    ux = checkPoint.X(); uy = checkPoint.Y(); uz = checkPoint.Z();
+    // make [m] --> [cm]
+    ux *= units::m / units::cm; uy *= units::m / units::cm ; uz *= units::m / units::cm;
+    // check if the point is inside the geometry, otherwise do it again
+    //gGeoManager->CheckPoint( ux, uy, uz ); // updates node path
+    std::string pathString = this->CheckGeomPoint( ux, uy, uz ); int iNode = 1; // 1 past beginning
+    //std::string pathString(gGeoManager->GetPath()); int iNode = 1; // 1 past beginning
+    while( pathString.find( "/", iNode ) == string::npos ){
+      //while( !node || !(node->GetMotherVolume()) || (node->GetMotherVolume()->IsTopVolume()) ){
+      rx = (rnd->RndGen()).Uniform( ox - fLx/2.0, ox + fLx/2.0 ); ux = (ox - rx);
+      ry = (rnd->RndGen()).Uniform( oy - fLy/2.0, oy + fLy/2.0 ); uy = (oy - ry);
+      rz = (rnd->RndGen()).Uniform( oz - fLz/2.0, oz + fLz/2.0 ); uz = (oz - rz);
+      checkPoint.SetXYZ( ux, uy, uz );
+      checkPoint = this->ApplyUserRotation( checkPoint, originPoint, fDetRotation, false ); // tgt-hall --> det
+      ux = checkPoint.X() * units::m / units::cm; 
+      uy = checkPoint.Y() * units::m / units::cm;
+      uz = checkPoint.Z() * units::m / units::cm;
+      //gGeoManager->CheckPoint( ux, uy, uz );
+      //pathString = std::string(gGeoManager->GetPath()); iNode = 1;
+      pathString = this->CheckGeomPoint( ux, uy, uz ); iNode = 1;
+    }
   }
 
   TVector3 vec( rx, ry, rz );
@@ -2095,6 +2098,7 @@ void FluxCreator::LoadConfig(void)
   this->GetParamVect( "DetCentre_User", fDetOffset );
 
   this->GetParamVect( "ParentPOTScalings", fScales );
+  this->GetParam( "DoOldFluxCalculation", fDoingOldFluxCalc );
   this->GetParam( "IncludePolarisation", doPol );
   this->GetParam( "FixPolarisationDirection", fixPol );
   this->GetParamVect( "HNL-PolDir", fFixedPolarisation );
@@ -2160,7 +2164,9 @@ void FluxCreator::ImportBoundingBox( TGeoBBox * box ) const
   fLyR = 2.0 * box->GetDY() * units::cm / units::m;
   fLzR = 2.0 * box->GetDZ() * units::cm / units::m;
 
-  fLx = fLxR; fLy = fLyR; fLz = fLzR;
+  if( !fDoingOldFluxCalc ){
+    fLx = fLxR; fLy = fLyR; fLz = fLzR;
+  }
 }
 //____________________________________________________________________________
 void FluxCreator::SetEnvVariable( const char * var, double value ) const

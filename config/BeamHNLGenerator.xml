@@ -60,6 +60,8 @@ set FluxCalc:                               Specific hooks for HNL flux calculat
 *************                               ***************************************
 ParentPOTScalings         bool        no    Ratio of all POT in flux files / POT making parent
                                             species. 
+DoOldFluxCalculation      bool        yes   Switches off rerolls of points for flux calculation.
+                                            Enforces calculation of flux within 1m cube from det centre
 IsHNLOnAxis               bool        yes   Incoming HNL placed on SM-nu beam axis            false
                                             (perfect focusing)            
                                             For acceptance correction calculation only.
