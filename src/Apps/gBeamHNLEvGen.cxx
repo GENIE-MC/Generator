@@ -358,23 +358,41 @@ int main(int argc, char ** argv)
   fluxCreator->SetFirstFluxEntry( iflux );
   vtxGen->SetGeomFile( gOptRootGeom );
   
+  bool tooManyEntries = false;
   while (1)
   {
-    if( gOptNev >= 10000 ){
-      if( (ievent-gOptFirstEvent) % (gOptNev / 1000) == 0 ){
-	int irat = (ievent-gOptFirstEvent) / ( gOptNev / 1000 );
-	std::cerr << 0.1 * irat << " % " << " ( " << (ievent-gOptFirstEvent)
-		  << " / " << gOptNev << " ) \r" << std::flush;
+    if( tooManyEntries ){
+      if( gOptNev >= 10000 ){
+	if( (ievent-gOptFirstEvent) % (gOptNev / 1000) == 0 ){
+	  int irat = (iflux-gOptFirstEvent) / ( gOptNev / 1000 );
+	  std::cerr << 0.1 * irat << " % " << " ( " << (iflux-gOptFirstEvent)
+		    << " seen ), ( " << (ievent-gOptFirstEvent) << " / " << gOptNev  << " processed ) \r" << std::flush;
+	}
+      } else if( gOptNev >= 100 ) {
+	if( (ievent-gOptFirstEvent) % (gOptNev / 10) == 0 ){
+	  int irat = (iflux-gOptFirstEvent) / ( gOptNev / 10 );
+	  std::cerr << 10.0 * irat << " % " << " ( " << (iflux-gOptFirstEvent)
+		    << " seen ), ( " << (ievent-gOptFirstEvent) << " / " << gOptNev  << " processed ) \r" << std::flush;
+	}
       }
-    } else if( gOptNev >= 100 ) {
-      if( (ievent-gOptFirstEvent) % (gOptNev / 10) == 0 ){
-	int irat = (ievent-gOptFirstEvent) / ( gOptNev / 10 );
-	std::cerr << 10.0 * irat << " % " << " ( " << (ievent-gOptFirstEvent)
-		  << " / " << gOptNev << " ) \r" << std::flush;
+    } else {
+      if( gOptNev >= 10000 ){
+	if( (ievent-gOptFirstEvent) % (gOptNev / 1000) == 0 ){
+	  int irat = (ievent-gOptFirstEvent) / ( gOptNev / 1000 );
+	  std::cerr << 0.1 * irat << " % " << " ( " << (iflux-gOptFirstEvent)
+		    << " seen ), ( " << (ievent-gOptFirstEvent) << " / " << gOptNev <<  " processed ) \r" << std::flush;
+	}
+      } else if( gOptNev >= 100 ) {
+	if( (ievent-gOptFirstEvent) % (gOptNev / 10) == 0 ){
+	  int irat = (ievent-gOptFirstEvent) / ( gOptNev / 10 );
+	  std::cerr << 10.0 * irat << " % " << " ( " << (iflux-gOptFirstEvent)
+		    << " seen ), ( " << (ievent-gOptFirstEvent) << " / " << gOptNev  << " processed ) \r" << std::flush;
+	}
       }
     }
 
-    if( (ievent-gOptFirstEvent) == gOptNev ) break;
+    if( tooManyEntries && ((iflux-gOptFirstEvent) == gOptNev) ) break;
+    else if( (ievent-gOptFirstEvent) == gOptNev ) break;
     
     if( ievent < gOptFirstEvent ){ ievent++; continue; }
     
@@ -399,6 +417,7 @@ int main(int argc, char ** argv)
 	   << "You have asked for " << gOptNev << " events, but only provided "
 	   << maxFluxEntries - gOptFirstEvent << " flux entries. Truncating events to " << maxFluxEntries - gOptFirstEvent << ".";
 	 gOptNev = maxFluxEntries - gOptFirstEvent;
+	 tooManyEntries = true;
        }
        if( iflux >= maxFluxEntries - 1 ){
 	 LOG( "gevgen_hnl", pWARN )
