@@ -887,7 +887,7 @@ int TestGeom(void)
 		100, 0., 1.0 );
 
   // tell the VertexGenerator it shouldn't be worried if trajectories don't intersect.
-  __attribute__((unused)) int idset = setenv( "NOTUSINGDK2NU", "1", 1 );
+  //__attribute__((unused)) int idset = setenv( "NOTUSINGDK2NU", "1", 1 );
 
   bool geom_is_accessible = ! (gSystem->AccessPathName(gOptRootGeom.c_str()));
   if (!geom_is_accessible) {
@@ -1074,7 +1074,6 @@ int TestGeom(void)
     event->AddParticle( ptHNL );
     LOG( "gevald_hnl", pDEBUG ) 
       << "\nProbe p4 = " << utils::print::P4AsString( event->Particle(0)->P4() );
-    //setenv( "PRODVTXDIR", "NODIR", 1 ); // needed to prevent hnlgen from crashing
 
     vtxGen->ProcessEventRecord(event);
 
