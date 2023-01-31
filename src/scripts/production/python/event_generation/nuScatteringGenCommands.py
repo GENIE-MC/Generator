@@ -98,20 +98,20 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="1000060120", E_min=0, E_max
                 nev = nmaxrun
             else:
                 nev = n_event_left
-                n_event_left -= nev 
-                curr_subrune = "14"+str(isubrun); 
-                curr_seed         = mcseed + isubrun 
-                jobname           = "nu_"+expname+"_"+str(isubrun)
-                
-                evgen_command = "gevgen -p "+str(nu)+" -n "+str(nev)+" -e "+E_min+","+E_max+" -f " +flux+" -t "+str(tgt_mix)+" -r "+curr_subrune+" --seed "+str(curr_seed)
-                evgen_command += " --cross-sections "+input_xsec+" --tune "+tune + " -o "+jobname+".ghep.root"
-                if gen_list is not "all" : 
-                    evgen_command += " --event-generator-list "+gen_list+" "
-                    shell_file = ''                
-                if grid_system == 'FNAL' :
-                    shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".ghep.root"), grid_setup, genie_setup, conf_dir, in_file_list, git_branch, git_loc ) 
-                    grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup, time)
-                    command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
+            n_event_left -= nev 
+            curr_subrune = "14"+str(isubrun); 
+            curr_seed         = mcseed + isubrun 
+            jobname           = "nu_"+expname+"_"+str(isubrun)
+            
+            evgen_command = "gevgen -p "+str(nu)+" -n "+str(nev)+" -e "+E_min+","+E_max+" -f " +flux+" -t "+str(tgt_mix)+" -r "+curr_subrune+" --seed "+str(curr_seed)
+            evgen_command += " --cross-sections "+input_xsec+" --tune "+tune + " -o "+jobname+".ghep.root"
+            if gen_list is not "all" : 
+                evgen_command += " --event-generator-list "+gen_list+" "
+                shell_file = ''                
+            if grid_system == 'FNAL' :
+                shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".ghep.root"), grid_setup, genie_setup, conf_dir, in_file_list, git_branch, git_loc ) 
+                grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup, time)
+                command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
     ## Add command list to dictionary; Key is 4 => event production
     command_dict = {}
