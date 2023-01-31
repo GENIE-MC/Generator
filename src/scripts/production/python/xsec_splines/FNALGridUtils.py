@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import os, glob
 
-def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, genie_setup, conf_dir, in_files, git_branch ) :
+def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc ) :
     shell_file = jobs_dir+"/"+shell_name+".sh"
 
     if os.path.exists(shell_file):
@@ -17,7 +17,7 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, 
             script.write("mkdir $CONDOR_DIR_INPUT/conf ;\n")
             script.write("ifdh cp -D "+conf_i+"  $CONDOR_DIR_INPUT/conf ;\n")
         conf_dir = "$CONDOR_DIR_INPUT/conf"
-    script.write("source "+os.path.basename(genie_setup)+" "+git_branch+" "+conf_dir+" ;\n")
+    script.write("source "+os.path.basename(genie_setup)+" "+git_loc+" "+git_branch+" "+conf_dir+" ;\n")
     script.write("cd $CONDOR_DIR_INPUT ;\n")
 
     if isinstance(in_files, list) :

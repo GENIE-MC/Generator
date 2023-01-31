@@ -45,7 +45,7 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                       version='master', grid_system='FNAL', group='genie', conf_dir='', arch='SL6.x86_64', production='routine_validation', 
                       cycle='01', softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
                       grid_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh',
-                      genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', time=8, git_branch = "master") :
+                      genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', time=8, git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator") :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-xsec_vA'
     
@@ -135,7 +135,7 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                 
                 shell_file = ''
                 if grid_system == 'FNAL' :
-                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_setup, genie_setup, conf_dir, in_files, git_branch ) 
+                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
 
@@ -164,7 +164,7 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                 
                 shell_file = ''
                 if grid_system == 'FNAL' :
-                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", grid_setup, genie_setup, conf_dir, in_files, git_branch ) 
+                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
 
