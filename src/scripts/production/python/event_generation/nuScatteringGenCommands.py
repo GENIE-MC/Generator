@@ -101,8 +101,7 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="1000060120", E_min=0, E_max
             n_event_left -= nev 
             curr_subrune = "14"+str(isubrun); 
             curr_seed         = mcseed + isubrun 
-            jobname           = "nu_"+expname+"_"+str(isubrun)
-            
+            jobname           = "nu_"+expname+"_"+str(isubrun)            
             evgen_command = "gevgen -p "+str(nu)+" -n "+str(nev)+" -e "+E_min+","+E_max+" -f " +flux+" -t "+str(tgt_mix)+" -r "+curr_subrune+" --seed "+str(curr_seed)
             evgen_command += " --cross-sections "+input_xsec+" --tune "+tune + " -o "+jobname+".ghep.root"
             if gen_list is not "all" : 
