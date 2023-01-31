@@ -142,7 +142,6 @@ typedef enum t_HNLValidation {
 
 // function prototypes
 void  GetCommandLineArgs (int argc, char ** argv);
-double GetValueFromEnv   (const char * var);
 void  ReadInConfig       (void);
 void  PrintSyntax        (void);
 const EventRecordVisitorI * HNLGenerator(void);
@@ -886,9 +885,6 @@ int TestGeom(void)
   TH1D hLength( "hLength", "Length travelled in detector / max possible length in detector",
 		100, 0., 1.0 );
 
-  // tell the VertexGenerator it shouldn't be worried if trajectories don't intersect.
-  //__attribute__((unused)) int idset = setenv( "NOTUSINGDK2NU", "1", 1 );
-
   bool geom_is_accessible = ! (gSystem->AccessPathName(gOptRootGeom.c_str()));
   if (!geom_is_accessible) {
     LOG("gevald_hnl", pFATAL)
@@ -1229,21 +1225,6 @@ const EventRecordVisitorI * HNLGenerator(void)
     << "HNL generator instantiated successfully.";
 
   return mcgen;
-}
-//_________________________________________________________________________________________
-double GetValueFromEnv(const char * var)
-{
-  assert( std::getenv( var ) != NULL );
-  std::string stVar = std::getenv( var );
-
-  if( std::strcmp( var, "0" ) == 0 ) return 0.0;
-
-  std::string stMant = stVar.substr( 0, stVar.find("e") );
-  std::string stExpo = stVar.substr( stVar.find("e") + 1, stVar.size() );
-  int iMant = std::stoi( stMant ); double mant = iMant;
-  int iExpo = std::stoi( stExpo ); double expo = iExpo;
-  
-  return mant * std::pow( 10.0, expo );
 }
 //_________________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)

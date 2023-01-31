@@ -72,7 +72,6 @@ public:
 private:
 
    void LoadConfig            (void);
-   void SetEnvVariable        (const char * var, double value) const;
    void AddInitialState       (GHepRecord * event) const;
    void GenerateDecayProducts (GHepRecord * event) const;
    void UpdateEventRecord     (GHepRecord * event) const;

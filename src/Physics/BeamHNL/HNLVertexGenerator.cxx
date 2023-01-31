@@ -421,7 +421,6 @@ void VertexGenerator::ImportBoundingBox( TGeoBBox * box ) const
 void VertexGenerator::SetStartingParameters( GHepRecord * event_rec ) const
 {
   isUsingDk2nu = (event_rec->Particle(1) != NULL); // validation App doesn't run Decayer
-    //( std::getenv( "NOTUSINGDK2NU" ) == NULL );
   isUsingRootGeom = true;
 
   uMult = ( isUsingDk2nu ) ? units::m / units::mm : units::cm / units::mm;

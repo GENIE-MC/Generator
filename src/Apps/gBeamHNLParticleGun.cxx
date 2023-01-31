@@ -118,8 +118,6 @@ using namespace genie::hnl::enums;
 void  GetCommandLineArgs (int argc, char ** argv);
 void  PrintSyntax        (void);
 
-double GetValueFromEnv    (const char * var);
-
 int   SelectDecayMode    (std::vector<HNLDecayMode_t> *intChannels, SimpleHNL sh);
 const EventRecordVisitorI * HNLGenerator(void);
 
@@ -706,21 +704,6 @@ int SelectDecayMode( std::vector< HNLDecayMode_t > * intChannels, SimpleHNL sh )
 
   int decay = ( int ) selectedDecayChan;
   return decay;
-}
-//_________________________________________________________________________________________
-double GetValueFromEnv(const char * var)
-{
-  assert( std::getenv( var ) != NULL );
-  std::string stVar = std::getenv( var );
-
-  if( std::strcmp( var, "0" ) == 0 ) return 0.0;
-
-  std::string stMant = stVar.substr( 0, stVar.find("e") );
-  std::string stExpo = stVar.substr( stVar.find("e") + 1, stVar.size() );
-  int iMant = std::stoi( stMant ); double mant = iMant;
-  int iExpo = std::stoi( stExpo ); double expo = iExpo;
-  
-  return mant * std::pow( 10.0, expo );
 }
 //_________________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)

@@ -176,8 +176,6 @@ namespace genie{
       // returns 1.0 / (area of flux calc)
       double CalculateAreaNormalisation();
 
-      void SetEnvVariable( const char * var, double value ) const;
-
       // utility function -- is a copy of TGeoChecker::CheckPoint() but doesn't output to cout
       std::string CheckGeomPoint( Double_t x, Double_t y, Double_t z ) const;
 

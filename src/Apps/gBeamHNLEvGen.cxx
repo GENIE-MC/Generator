@@ -132,8 +132,6 @@ using namespace genie::hnl::enums;
 void   GetCommandLineArgs (int argc, char ** argv);
 void   PrintSyntax        (void);
 
-double GetValueFromEnv    (const char * var);
-
 int    SelectDecayMode    (std::vector<HNLDecayMode_t> *intChannels, SimpleHNL sh);
 const  EventRecordVisitorI * HNLGenerator(void);
 
@@ -248,7 +246,6 @@ int main(int argc, char ** argv)
 
   CoMLifetime = hnlgen->GetHNLLifetime(); // GeV^{-1}
 
-  //gOptMassHNL    = GetValueFromEnv( sMass.c_str()  );
   std::vector< double > U4l2s = hnlgen->GetHNLCouplings();
   gOptECoupling  = U4l2s.at(0);
   gOptMCoupling  = U4l2s.at(1);
@@ -346,10 +343,7 @@ int main(int argc, char ** argv)
     LOG( "gevgen_hnl", pWARN )
       << "Using input flux files. These are *flat dk2nu-like ROOT trees, so far...*";
 
-  } else { // ok, we have monoenergetic flux. Let's flag this now
-    __attribute__((unused)) int iset = setenv( "PRODVTXDIR", "NODIR", 1 );
   }
-
   // Event loop
   int iflux = (gOptFirstEvent < 0) ? 0 : gOptFirstEvent; int ievent = iflux;
   int maxFluxEntries = -1;
@@ -1005,21 +999,6 @@ int SelectDecayMode( std::vector< HNLDecayMode_t > * intChannels, SimpleHNL sh )
 
   int decay = ( int ) selectedDecayChan;
   return decay;
-}
-//_________________________________________________________________________________________
-double GetValueFromEnv(const char * var)
-{
-  assert( std::getenv( var ) != NULL );
-  std::string stVar = std::getenv( var );
-
-  if( std::strcmp( var, "0" ) == 0 ) return 0.0;
-
-  std::string stMant = stVar.substr( 0, stVar.find("e") );
-  std::string stExpo = stVar.substr( stVar.find("e") + 1, stVar.size() );
-  int iMant = std::stoi( stMant ); double mant = iMant;
-  int iExpo = std::stoi( stExpo ); double expo = iExpo;
-  
-  return mant * std::pow( 10.0, expo );
 }
 //_________________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)

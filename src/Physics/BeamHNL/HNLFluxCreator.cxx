@@ -2215,40 +2215,6 @@ void FluxCreator::ImportBoundingBox( TGeoBBox * box ) const
   }
 }
 //____________________________________________________________________________
-void FluxCreator::SetEnvVariable( const char * var, double value ) const
-{
-  // breaks value into two integers to get rep value = (i1)e(i2)
-  // then sets an env-variable with name var to that rep
-  // such that it can be read by any part of the module later on and then forgotten by the system
-
-  if( value == 0.0 ){
-    __attribute__((unused)) int iset = setenv( var, "0", 1 ); return;
-  }
-
-  int sgn = (value > 0.0) ? 1 : -1;
-  value = std::abs(value);
-
-  int expo = std::floor( std::log10( value ) );
-  double mant = value / std::pow( 10.0, expo );
-  int iPrec = 0;
-  while( mant - (int) mant > 0.0 and iPrec < 10 ){ // up to 10 digits of precision
-    expo--;
-    mant *= 10.0;
-
-    if( (int) mant < 0.0 ){ // this is a weirdness that happens due to floating-point representation
-      mant /= 10.0;
-      expo++;
-      break;
-    }
-    iPrec++;
-  }
-
-  mant *= sgn;
-  __attribute__((unused)) int iset = setenv( var, Form("%de%d", (int) mant, expo), 1 );
-
-  return;
-}
-//____________________________________________________________________________
 std::string FluxCreator::CheckGeomPoint( Double_t x, Double_t y, Double_t z ) const
 {
   Double_t point[3];
