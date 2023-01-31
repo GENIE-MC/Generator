@@ -159,7 +159,7 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
     this->OpenFluxInput( finpath );
     this->InitialiseTree();
     this->InitialiseMeta();
-    this->MakeBBox();
+    if(fDoingOldFluxCalc) this->MakeBBox();
   } else if( iEntry < fFirstEntry ){
     this->FillNonsense( iEntry, &gnmf );
     return gnmf;
@@ -439,7 +439,8 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
   }
 
   double accCorr = this->CalculateAcceptanceCorrection( p4par, p4HNL_rest, decay_necm, zm, zp );
-  if( !fDoingOldFluxCalc ){
+  //if( !fDoingOldFluxCalc ){
+  if( fRerollPoints ){
     // if accCorr == 0 then we must ~bail and find the next event.~ 
     //                 We must reroll the point a bunch of times. Then we can skip.
     //                 Ideally we'd be able to tell how much detector lives within the reachable region [zm, zp]
@@ -521,10 +522,12 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
   double delay = detDist / kSpeedOfLightNs * ( 1.0 / betaHNL - 1.0 );
   delay *= units::ns / units::s;
 
+  /*
   LOG( "HNL", pDEBUG )
     << "\ndetDist = " << detDist << " [m]"
     << "\nbetaHNL = " << betaHNL
     << "\ndelay = " << delay << " [ns]";
+  */
   
   // write 4-position all this happens at
   TLorentzVector x4HNL_beam( decay_vx, decay_vy, decay_vz, delay ); // in cm, ns
@@ -1498,14 +1501,29 @@ TLorentzVector FluxCreator::HNLEnergy( HNLProd_t hnldm, TLorentzVector p4par ) c
 TVector3 FluxCreator::PointToRandomPointInBBox( TVector3 detO_beam ) const
 {
   RandomGen * rnd = RandomGen::Instance();
-  double ox = detO_beam.X(), oy = detO_beam.Y(), oz = detO_beam.Z();
+  double ox = detO_beam.X(), oy = detO_beam.Y(), oz = detO_beam.Z(); // in m
+  
   double rx = (rnd->RndGen()).Uniform( ox - fLx/2.0, ox + fLx/2.0 ), 
-         ry = (rnd->RndGen()).Uniform( oy - fLy/2.0, oy + fLy/2.0 ),
-         rz = (rnd->RndGen()).Uniform( oz - fLz/2.0, oz + fLz/2.0 );
+    ry = (rnd->RndGen()).Uniform( oy - fLy/2.0, oy + fLy/2.0 ),
+    rz = (rnd->RndGen()).Uniform( oz - fLz/2.0, oz + fLz/2.0 ); // in m
+  
+  TVector3 fDvec( fDx, fDy, fDz );
+  TVector3 fDvec_beam = this->ApplyUserRotation( fDvec, true );
+
+  double FDx = fDvec_beam.X();
+  double FDy = fDvec_beam.Y();
+  double FDz = fDvec_beam.Z();
+
+  /*
+  LOG( "HNL", pDEBUG )
+    << "\nAt random point I see fLx,y,z = " << fLx << ", " << fLy << ", " << fLz << " [m]"
+    << "\ncentred around ox,y,z = " << ox << ", " << oy << ", " << oz << " [m]"
+    << "\nwhich means " << ox+FDx << ", " << oy+FDy << ", " << oz+FDz << " [m] actual";
+  */
 
   if( !fDoingOldFluxCalc ){
     // user-coordinates of this point. [m]
-    double ux = ox - rx, uy = oy - ry, uz = oz - rz;
+    double ux = rx - ox, uy = ry - oy, uz = rz - oz;
     // apply offset
     ux -= fDetOffset.at(0); uy -= fDetOffset.at(1); uz -= fDetOffset.at(2);
     // rotate to user system
@@ -1514,6 +1532,10 @@ TVector3 FluxCreator::PointToRandomPointInBBox( TVector3 detO_beam ) const
     ux = checkPoint.X(); uy = checkPoint.Y(); uz = checkPoint.Z();
     // make [m] --> [cm]
     ux *= units::m / units::cm; uy *= units::m / units::cm ; uz *= units::m / units::cm;
+
+    LOG( "HNL", pDEBUG )
+      << "\nChecking point " << utils::print::Vec3AsString(&checkPoint) << " [m, user]";
+
     // check if the point is inside the geometry, otherwise do it again
     //gGeoManager->CheckPoint( ux, uy, uz ); // updates node path
     std::string pathString = this->CheckGeomPoint( ux, uy, uz ); int iNode = 1; // 1 past beginning
@@ -1532,11 +1554,20 @@ TVector3 FluxCreator::PointToRandomPointInBBox( TVector3 detO_beam ) const
       //pathString = std::string(gGeoManager->GetPath()); iNode = 1;
       pathString = this->CheckGeomPoint( ux, uy, uz ); iNode = 1;
     }
+    // turn u back into [m] from [cm]
+    ux *= units::cm / units::m; uy *= units::cm / units::m; uz *= units::cm / units::m;
+    // rotate these back to the beam coord frame
+    checkPoint.SetXYZ( ux, uy, uz );
+    checkPoint = this->ApplyUserRotation( checkPoint, originPoint, fDetRotation, true ); // det --> tgt-hall
+    ux = checkPoint.X(); uy = checkPoint.Y(); uz = checkPoint.Z();
+    rx = ux + ox; ry = uy + oy; rz = uz + oz;
   }
 
   TVector3 vec( rx, ry, rz );
+  TVector3 absVec( rx + FDx, ry + FDy, rz + FDz );
   LOG( "HNL", pDEBUG )
-    << "Pointing to this point in BBox (beam coords): " << utils::print::Vec3AsString( &vec );
+    << "\nPointing to this point in BBox (beam coords): " << utils::print::Vec3AsString( &vec ) << "[m]"
+    << "\nIn absolute beam coords this is " << utils::print::Vec3AsString( &absVec ) << "[m]";
   return vec;
 }
 //----------------------------------------------------------------------------
@@ -1750,6 +1781,13 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
 
   //TGeoNode * nextNode = gm->FindNextBoundaryAndStep( );
   TGeoNode * nextNode = gGeoManager->FindNextBoundaryAndStep( );
+
+  // Fix a ROOT bug that causes TGeoManager to forget where it's supposed to be if it's already been invoked
+  if( !fDoingOldFluxCalc ){
+    gGeoManager->SetCurrentPoint( detStartPoint.X(), detStartPoint.Y(), detStartPoint.Z() );
+    gGeoManager->SetCurrentDirection( detSweepVect.X(), detSweepVect.Y(), detSweepVect.Z() );
+    nextNode = gGeoManager->FindNextBoundaryAndStep();
+  }
   
   if( nextNode == NULL ){
     LOG( "HNL", pWARN )
@@ -1986,10 +2024,12 @@ double FluxCreator::labangle( double * x, double * par )
 //----------------------------------------------------------------------------
 void FluxCreator::MakeBBox() const
 {
-  LOG( "HNL", pWARN )
-    << "WARNING: This is a dummy (==unit-side) bounding box centred at config-given point";
+  if( fRadius < 0.0 ) fRadius = 1.0;
+  LOG( "HNL", pFATAL )
+    << "WARNING: This is a bounding box centred at config-given point and radius " << fRadius << " m";
 
-  fLx = 1.0; fLy = 1.0; fLz = 1.0; // m
+  //fLx = 1.0; fLy = 1.0; fLz = 1.0; // m
+  fLx = fRadius; fLy = fRadius; fLz = fRadius;
 }
 //----------------------------------------------------------------------------
 TVector3 FluxCreator::ApplyUserRotation( TVector3 vec, bool doBackwards ) const
@@ -2099,6 +2139,8 @@ void FluxCreator::LoadConfig(void)
 
   this->GetParamVect( "ParentPOTScalings", fScales );
   this->GetParam( "DoOldFluxCalculation", fDoingOldFluxCalc );
+  this->GetParam( "RerollPoints", fRerollPoints );
+  this->GetParam( "CollectionRadius", fRadius );
   this->GetParam( "IncludePolarisation", doPol );
   this->GetParam( "FixPolarisationDirection", fixPol );
   this->GetParamVect( "HNL-PolDir", fFixedPolarisation );
@@ -2164,8 +2206,12 @@ void FluxCreator::ImportBoundingBox( TGeoBBox * box ) const
   fLyR = 2.0 * box->GetDY() * units::cm / units::m;
   fLzR = 2.0 * box->GetDZ() * units::cm / units::m;
 
+  double testRadius = fRadius; // m
   if( !fDoingOldFluxCalc ){
-    fLx = fLxR; fLy = fLyR; fLz = fLzR;
+    //fLx = fLxR; fLy = fLyR; fLz = fLzR;
+    fLx = std::min( testRadius, fLxR );
+    fLy = std::min( testRadius, fLyR );
+    fLz = std::min( testRadius, fLzR );
   }
 }
 //____________________________________________________________________________

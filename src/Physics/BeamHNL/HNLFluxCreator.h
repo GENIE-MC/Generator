@@ -291,6 +291,8 @@ namespace genie{
       mutable std::vector<double> fScales;
       
       mutable bool fDoingOldFluxCalc = false;
+      mutable bool fRerollPoints = false;
+      mutable double fRadius; // m
       mutable bool fIsConfigLoaded = false;
 
       mutable bool fUsingDk2nu = true;
