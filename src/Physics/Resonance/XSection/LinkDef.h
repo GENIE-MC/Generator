@@ -28,6 +28,11 @@
 #pragma link C++ class genie::RSHelicityAmplModelEMp;
 #pragma link C++ class genie::RSHelicityAmplModelEMn;
 
+#pragma link C++ class genie::RESVectFFAmplitude;
+#pragma link C++ class genie::RESVectFormFactorsI;
+#pragma link C++ class genie::MAIDRESVectFormFactorsEMn;
+#pragma link C++ class genie::MAIDRESVectFormFactorsEMp;
+
 #pragma link C++ class genie::RESXSec;
 
 #pragma link C++ class genie::P33PaschosLalakulichPXSec;
