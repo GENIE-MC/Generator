@@ -311,7 +311,7 @@ foreach $nu ( @nu_list ) {
 		print SLURM "#SBATCH -p $queue \n";
 		print SLURM "#SBATCH -o $filename_template.slurmout.log \n";
 		print SLURM "#SBATCH -e $filename_template.slurmerr.log \n";
-		print SLURM "#SBATCH -t 15:0 \n";
+		print SLURM "#SBATCH -t 15:0:0 \n";
 		print SLURM "#SBATCH -n 1 \n";
 		print SLURM "#SBATCH --mem=4000 \n";
 		print SLURM "#SBATCH -L sps \n" if ($batch_system eq 'LyonSlurm');
