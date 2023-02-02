@@ -30,7 +30,7 @@ SecondNucleonEmitter          alg     No         SubAlg to add a second nucleon
   </param_set>
 
   <param_set name="SpectralFunctionLike">
-    <param type="bool"   name="MomentumDependentErmv"> false       </param>
+    <param type="bool"   name="MomentumDependentErmv"> true       </param>
   </param_set>
 
 <!--
