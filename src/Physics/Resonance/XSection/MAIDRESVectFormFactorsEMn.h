@@ -31,8 +31,23 @@ namespace genie {
     MAIDRESVectFormFactorsEMn(string config);
     virtual ~MAIDRESVectFormFactorsEMn();
 
+    void Configure(const Registry & config);
+    void Configure( string param_set ) ; 
+
     RESVectFFAmplitude Compute( const Interaction interaction ) const;
 
+  private:
+    void LoadConfig(void) ; 
+
+    // Defining constants from fit 
+    std::map<Resonance_t,double> fA120N ;
+    std::map<Resonance_t,double> fS120N ;
+    std::map<Resonance_t,double> fA12AlphaN ;
+    std::map<Resonance_t,double> fA12BetaN ;
+    std::map<Resonance_t,double> fA32AlphaN ;
+    std::map<Resonance_t,double> fA32BetaN ;
+    std::map<Resonance_t,double> fS12AlphaN ;
+    std::map<Resonance_t,double> fS12BetaN ;
   };
 
 }        // genie namespace

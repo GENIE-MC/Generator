@@ -186,3 +186,19 @@ RESVectFFAmplitude MAIDRESVectFormFactorsEMn::Compute( const Interaction interac
   return ampl;
 }
 //____________________________________________________________________________
+void MAIDRESVectFormFactorsEMn::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void MAIDRESVectFormFactorsEMn::Configure(string param_set)
+{
+  Algorithm::Configure(param_set);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void MAIDRESVectFormFactorsEMn::LoadConfig(void)
+{
+  // LOAD PARAMETERS HERE 
+}
