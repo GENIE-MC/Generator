@@ -11,14 +11,14 @@ Name            Type    Optional
 ................................
 A120N@RESID     double  no          
 A12AlphaN@RESID double  no          
-A12BetaNN@RESID double  no          
+A12BetaN@RESID double  no          
 
 A32AlphaN@RESID double  no          
-A32BetaNN@RESID double  no          
+A32BetaN@RESID double  no          
 
 S120N@RESID     double  no          
 S12AlphaN@RESID double  no          
-S12BetaNN@RESID double  no          
+S12BetaN@RESID double  no          
 -->
 
   <param_set name="Default">   
