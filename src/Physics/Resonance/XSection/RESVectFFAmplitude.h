@@ -58,6 +58,16 @@ private:
   double fA12 ; 
   double fA32 ; 
   double fS12 ; 
+
+  // Defining constants from fit 
+  std::map<Resonance_t,double> fA120 ;
+  std::map<Resonance_t,double> fS120 ;
+  std::map<Resonance_t,double> fA12Alpha ;
+  std::map<Resonance_t,double> fA12Beta ;
+  std::map<Resonance_t,double> fA32Alpha ;
+  std::map<Resonance_t,double> fA32Beta ;
+  std::map<Resonance_t,double> fS12Alpha ;
+  std::map<Resonance_t,double> fS12Beta ;
 };
 
 ostream & operator<< (ostream & stream, const RESVectFFAmplitude & hamp);
