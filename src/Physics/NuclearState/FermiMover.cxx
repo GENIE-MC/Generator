@@ -305,36 +305,12 @@ void FermiMover::LoadConfig(void)
 
   this->GetParamDef("KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false);
 
-  // The next code block sets fMomDepErmv But it does so trying to deduce it 
-  // from the nuclear model configuration.
-  // The code assumes that if that entry is specified
-  // in a nuclear model, the entry name will contain the string "MomentumDependentErmv"
-  // At the time of writing this is only the case for the Local Fermi Gas, its string
-  // being "LFG-MomentumDependentErmv".
-  // If such a string is found, the code configures using that entry. 
-  // At the time being, this option is not compatible with the nuclear model map:
-  // If it is enabled for one nulceus, it is enabled for all nuclei
-  // This limitation is interinsic to the current NuclearModelI and FermiMover logic,
-  // , so despite not being optimal, it's consistent.
-  auto configuration = GetConfig();
-  auto config_map = configuration.GetItemMap();
+  this->GetParam("LFG-MomentumDependentErmv", fMomDepErmv);
 
-  bool momentum_dependence = false;
-  for ( const auto & [key, entry] : config_map ) {
-    if ( key.find("MomentumDependentErmv") != std::string::npos ) {
-      momentum_dependence = true;
-      auto key_name = key.substr( key.find_last_of('/') + 1 );
-      if ( ! key_name .empty() ) {
-        LOG("FermiMover", pINFO) << "Using " << key << " to decide the binding energy policy";
-        this->GetParam(key_name, fMomDepErmv);
-        break;
-      }
-    }
-  }
-  //
-  if ( ! momentum_dependence ) {
-    this->GetParamDef("MomentumDependentErmv", fMomDepErmv, false);
-  }
+  
+//  if ( ! momentum_dependence ) {
+//    this->GetParamDef("MomentumDependentErmv", fMomDepErmv, false);
+//  }
 
   RgKey nuclearrecoilkey = "SecondNucleonEmitter" ;
   fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *> (this->SubAlg(nuclearrecoilkey));
