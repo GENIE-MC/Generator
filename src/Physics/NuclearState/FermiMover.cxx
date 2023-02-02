@@ -324,7 +324,7 @@ void FermiMover::LoadConfig(void)
     if ( key.find("MomentumDependentErmv") != std::string::npos ) {
       momentum_dependence = true;
       auto key_name = key.substr( key.find_last_of('/') + 1 );
-      if ( key_name ) {
+      if ( ! key_name.empty() ) {
         LOG("FermiMover", pINFO) << "Using " << key << " to decide the binding energy policy";
         this->GetParam(key_name, fMomDepErmv);
         break;
