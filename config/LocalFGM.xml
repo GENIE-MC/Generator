@@ -6,17 +6,17 @@
 Configuration for the local Fermi gas model
 
 Configurable Parameters:
-.............................................................................................................
-Name                   Type    Optional   Comment                                        Default
-.............................................................................................................
-FermiMomentumTable     string   No        Table of Fermi momentum (kF) constants         CommonParam[FermiGas]                                                                                     
-LFG-MomentumMax        double   Yes       max p in prob distribution                     1 GeV
-LFG-MomentumCutOff     double   No        momentum cut off value                         
-LFG-MomentumDependentErmv bool  No        whether to calculate removal energy = f(momentum) false
-LFG-ForcePositiveErmv  bool     No        Whether to rethrow events with negative Ermv   false
-SRC-Fraction           double   Yes       Fraction of high energy tail distribution      0. (Local Fermi Gas)     
-                                          dominated by Short Range Correlated Pairs
-NucRemovalE@Pdg=?      int      Yes       nuclear removal energy for specfic nuclei      from FermiGas CommonParam
+...................................................................................................................
+Name                      Type    Optional   Comment                                           Default
+...................................................................................................................
+FermiMomentumTable        string   No        Table of Fermi momentum (kF) constants            CommonParam[FermiGas]                                                                                     
+LFG-MomentumMax           double   Yes       max p in prob distribution                        1 GeV
+LFG-MomentumCutOff        double   No        momentum cut off value                            
+LFG-MomentumDependentErmv bool     No        whether to calculate removal energy = f(momentum) false
+LFG-ForcePositiveErmv     bool     No        Whether to rethrow events with negative Ermv      false
+SRC-Fraction              double   Yes       Fraction of high energy tail distribution         0. (Local Fermi Gas)     
+                                             dominated by Short Range Correlated Pairs   
+NucRemovalE@Pdg=?         int      Yes       nuclear removal energy for specfic nuclei         from FermiGas CommonParam
 -->
 
   <param_set name="Default"> 
