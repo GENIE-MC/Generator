@@ -305,12 +305,12 @@ void FermiMover::LoadConfig(void)
 
   this->GetParamDef("KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false);
 
-  this->GetParam("LFG-MomentumDependentErmv", fMomDepErmv);
+  bool mom_dep_energy_removal_def = false;
+  this->GetParamDef("LFG-MomentumDependentErmv", mom_dep_energy_removal_def, false ) ;
+  // it defaults to whatever the nuclear model sets. Since only the LFG has this option
+  // this simple search is enough.
 
-  
-//  if ( ! momentum_dependence ) {
-//    this->GetParamDef("MomentumDependentErmv", fMomDepErmv, false);
-//  }
+  this->GetParamDef("MomentumDependentErmv", fMomDepErmv, mom_dep_energy_removal_def);
 
   RgKey nuclearrecoilkey = "SecondNucleonEmitter" ;
   fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *> (this->SubAlg(nuclearrecoilkey));
