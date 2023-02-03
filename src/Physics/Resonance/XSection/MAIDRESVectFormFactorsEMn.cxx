@@ -13,6 +13,7 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Resonance/XSection/MAIDRESVectFormFactorsEMn.h"
+#include "Framework/Utils/StringUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -200,5 +201,14 @@ void MAIDRESVectFormFactorsEMn::Configure(string param_set)
 //____________________________________________________________________________
 void MAIDRESVectFormFactorsEMn::LoadConfig(void)
 {
-  // LOAD PARAMETERS HERE 
+  bool good_config = true ; 
+  auto kres_list_A12_0_n = GetConfig().FindKeys("A120N@") ;
+
+  for( auto kiter = kres_list_A12_0_n.begin(); kiter != kres_list_A12_0_n.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fA120N[res_id] ) ; 
+  }
 }
