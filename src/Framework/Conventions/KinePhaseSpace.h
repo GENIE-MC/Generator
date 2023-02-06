@@ -10,7 +10,7 @@
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -71,9 +71,11 @@ typedef enum EKinePhaseSpace {
   kPSDMELEvGen, // Equivalent to kPSQELEvGen for Dark Matter scattering  
   kPSlog10xlog10Q2fE,
   kPSEDNufE, // Used for Dark Neutrinos, two body final state
+  kPSn1n2fE,
+  kPSn1n2n3fE,
   kPSEgTlTgPgfE,
   kPSEgOlOgfE,
-  kPSEgtTgPgfE,
+  kPSEgtTgPgfE
 } KinePhaseSpace_t;
 
 class KinePhaseSpace
@@ -130,6 +132,8 @@ public:
       case(kPSDMELEvGen)  : return "<DMELEvGen>"; break;
       case(kPSlog10xlog10Q2fE) : return "<{log10x,log10Q2}|E>"; break;
       case(kPSEDNufE)     : return "<{EDNu}|E>"; break;
+      case(kPSn1n2fE)     : return "<{n1,n2}|E>"; break;
+      case(kPSn1n2n3fE)   : return "<{n1,n2,n3}|E>"; break;
       case(kPSEgTlTgPgfE) : return "<{Egamma,Theta_l,Theta_gamma,Phi_gamma}|E>"; break;
       case(kPSEgOlOgfE)   : return "<{Egamma,Omega_l,Omega_gamma}|E>"; break;
       case(kPSEgtTgPgfE)  : return "<{Egamma,t,Theta_gamma,Phi_gamma}|E>"; break;

@@ -177,7 +177,7 @@ INCL_INCLUDES  =
 ifeq ($(strip $(GOPT_ENABLE_INCL)),YES)
 
 INCL_INCLUDES  = -I$(GOPT_WITH_INCL_INC) -I$(GOPT_WITH_BOOST_INC)
-INCL_FLAGS     = $(shell $(GOPT_WITH_INCL_LIB)/../bin/inclxx-config --dflags )
+INCL_DFLAGS    = $(shell $(GOPT_WITH_INCL_LIB)/../bin/inclxx-config --dflags )
 INCL_LIBRARIES = -L$(GOPT_WITH_INCL_LIB)  $(shell $(GOPT_WITH_INCL_LIB)/../bin/inclxx-config --libs )
 
 BOOST_LIBRARIES = -L$(GOPT_WITH_BOOST_LIB) -lboost_program_options -lboost_timer -lboost_system -lboost_date_time
@@ -210,7 +210,6 @@ G4_IFLAGS_ONLY = $(filter     -I%,$(GEANT4_CFLAGS))
 
 # this might be -I/path/include/ or -I/path/include/Geant
 # really want the first
-#GEANT4_INCLUDES += -DG4_INC_START $(G4_IFLAGS_ONLY) -DG4_INC_END
 GEANT4_INCLUDES += $(G4_IFLAGS_ONLY)
 
 G4INCBASE = $(strip $(filter -I%include/Geant4,$(G4_IFLAGS_ONLY)))
@@ -515,6 +514,39 @@ SOMINF        =
 EXTRALIBS     = -lnsl
 endif
 
+# LINUX / 64-bit arm / linuxarm64
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ifeq ($(strip $(ARCH)),linuxarm64) 
+ARCH_OK       = YES
+CXXFLAGS      = -W -Wall -fPIC -Wshadow \
+    $(ROOT_FLAGS) \
+    $(GOPT_WITH_CXX_DEBUG_FLAG) \
+    $(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
+    $(GOPT_WITH_CXX_USERDEF_FLAGS)
+ifeq ($(strip $(GCC_GE_8_0_0)), YES)
+  # -ffriend-injection is deprecated, soon to go away
+  CXXFLAGS += -Wno-strict-aliasing
+else
+  ifeq ($(strip $(GCC_GE_4_1_0)), YES)
+    CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
+  endif
+endif
+LDFLAGS       = -g -Wl,--no-as-needed -Wl,--no-undefined
+SOFLAGS       = -shared
+DllSuf       := so
+DllLinkSuf   :=
+StaticLibSuf := a
+ObjSuf       := o
+SrcSuf       := cxx
+FORT         := g77
+FORTOPTS     := $(FFLAGS) -g -c -O -DLINUX $(F77INCS) -fno-second-underscore
+RANLIB       := ranlib
+SOCMD         = $(LD)
+OutPutOpt     = -o
+SOMINF        =
+EXTRALIBS     = -lnsl
+endif
+
 #-------------------------------------------------------------------
 # SUMMING-UP
 #-------------------------------------------------------------------
@@ -527,6 +559,7 @@ CPP_INCLUDES := \
     $(LOG_INCLUDES) \
     $(ROOT_INCLUDES) \
     $(LHAPDF_INCLUDES) \
+    $(APFEL_INCLUDES) \
     $(GSL_INCLUDES) \
     $(GENIE_INCLUDES)
 
@@ -542,6 +575,7 @@ LIBRARIES := $(SYSLIBS) \
              $(ROOT_LIBRARIES) \
              $(PYTHIA6_LIBRARIES) \
              $(LHAPDF_LIBRARIES) \
+             $(APFEL_LIBRARIES) \
              $(XML_LIBRARIES) \
              $(LOG_LIBRARIES) \
              $(GSL_LIBRARIES) \

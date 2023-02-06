@@ -20,7 +20,7 @@
 
 \created  April 3, 2021
 
-\cpright  Copyright (c) 2003-2021, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -33,6 +33,8 @@
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
+
+class XSecIntegratorI;
 
 namespace genie {
 

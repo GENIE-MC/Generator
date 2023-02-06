@@ -10,19 +10,22 @@
          command line or extracted from the input ROOT/GEANT geometry.
 
          Syntax :
-           gmkspl -p nupdg
-                 <-t target_pdg_codes,
-                  -f geometry_file>
-                  <-o | --output-cross-sections> output_xml_xsec_file
+
+           gmkspl  -p nupdg
+                  <-t tgtpdg, -f geomfile>
+                  <-o | --output-cross-sections> xsec_xml_file_name
                   [-n nknots]
                   [-e max_energy]
                   [--no-copy]
-                  [--seed random_number_seed]
+                  [--seed seed_number]
                   [--input-cross-sections xml_file]
-                  [--event-generator-list list_name]
-                  [--tune genie_tune]
+
+                  // command line args handled by RunOpt:
+                  [--event-generator-list list_name] // default "Default"
+                  [--tune tune_name]  // default "G18_02a_00_000"
+                  [--xml-path path]
                   [--message-thresholds xml_file]
-                  [--xml-path config_xml_dir]
+
 
          Note :
            [] marks optional arguments.
@@ -56,30 +59,30 @@
               Name (incl. full path) of an XML file with pre-computed
               free-nucleon cross-section values. If loaded, it can speed-up
               cross-section calculation for nuclear targets.
-          --event-generator-list
+
+           --event-generator-list
               List of event generators to load in event generation drivers.
               [default: "Default"].
-          --tune
+           --tune
               Specifies a GENIE comprehensive neutrino interaction model tune.
               [default: "Default"].
+           --xml-path
+              A directory to load XML files from - overrides $GXMLPATH, and $GENIE/config
            --message-thresholds
               Allows users to customize the message stream thresholds.
               The thresholds are specified using an XML file.
               See $GENIE/config/Messenger.xml for the XML schema.
-           --xml-path
-              A directory to load XML files from - overrides $GXMLPATH, and $GENIE/config
 
         ***  See the User Manual for more details and examples. ***
-
 
 \author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
  University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created September 27, 2005
 
-\cpright Copyright (c) 2003-2020, The GENIE Collaboration
+\cpright Copyright (c) 2003-2022, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         
+
 */
 //____________________________________________________________________________
 
@@ -347,14 +350,17 @@ void PrintSyntax(void)
 {
   LOG("gmkspl", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gmkspl -p nupdg <-t tgtpdg, -f geomfile> "
-    << " <-o | --output-cross-section> xsec_xml_file_name"
-    << " [-n nknots] [-e max_energy] "
-    << " [--seed seed_number]"
-    << " [--input-cross-section xml_file]"
-    << " [--event-generator-list list_name]"
-    << " [--xml-path config_xml_dir]"
-    << " [--message-thresholds xml_file]\n\n";
+    << "   gmkspl -p nupdg"
+    << "\n    <-t tgtpdg, -f geomfile> "
+    << "\n    <-o | --output-cross-sections> xsec_xml_file_name"
+    << "\n    [-n nknots]"
+    << "\n    [-e max_energy]"
+    << "\n    [--no-copy]"
+    << "\n    [--seed seed_number]"
+    << "\n    [--input-cross-sections xml_file]"
+    << RunOpt::RunOptSyntaxString(false)
+    << "\n";
+
 }
 //____________________________________________________________________________
 PDGCodeList * GetNeutrinoCodes(void)

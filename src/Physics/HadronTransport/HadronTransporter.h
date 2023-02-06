@@ -12,7 +12,7 @@
 
 \created  September 14, 2006
 
-\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           
 */
@@ -46,6 +46,7 @@ private:
 
   bool  fEnabled;                              ///< hadron transport enabled?
   const EventRecordVisitorI * fHadTranspModel; ///< hadron transport MC to use
+  const EventRecordVisitorI * fCascadeReweight; ///< Cascade reweight member
 
 };
 

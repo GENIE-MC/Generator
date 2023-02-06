@@ -19,7 +19,7 @@
 
 \created  November 2, 2018
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -63,6 +63,9 @@ private:
 
   /// Load algorithm configuration
   void LoadConfig (void);
+
+  // Calculate Qvalue Shift for susa:
+  double Qvalue(const Interaction & interaction ) const ;
 
   /// External scaling factor for this cross section
   double fXSecScale;

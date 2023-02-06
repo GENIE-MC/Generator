@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -106,6 +106,29 @@ const NaturalIsotopeElementData *
   return vec[ielement];
 }
 //____________________________________________________________________________
+const NaturalIsotopeElementData *
+         NaturalIsotopes::ElementDataPdg(int Z, int pdgcode) const
+{
+  map<int, vector<NaturalIsotopeElementData*> >::const_iterator miter;
+
+  if( (miter=fNaturalIsotopesTable.find(Z)) == fNaturalIsotopesTable.end()) {
+    LOG("NatIsotop", pWARN)  
+       << "Table has no elements for natural isotope  Z = " << Z;
+    return 0;
+  }
+  
+  vector<NaturalIsotopeElementData*> vec = miter->second;
+  for (int i; i<vec.size(); i++) {
+    if (vec[i]->PdgCode()==pdgcode) return vec[i];
+  }
+
+  LOG("NatIsotop", pWARN) 
+    << "Natural isotope Z = " << Z << " has " << vec.size() << " elements"
+    << " (pdgcode = " << pdgcode << " was requested)";
+  return 0;
+
+}
+//____________________________________________________________________________
 bool NaturalIsotopes::LoadTable(void)
 {
   // get the natural isotopes table filename
@@ -157,7 +180,7 @@ bool NaturalIsotopes::LoadTable(void)
   	  LOG("NatIsotop", pDEBUG)
             << " - Element: " << n << ", pdg = " << pdgcode
             << ", A = " << atomicmass << ", abundance = " << abundance;
-          data = new NaturalIsotopeElementData(pdgcode, abundance);
+          data = new NaturalIsotopeElementData(pdgcode, abundance,atomicmass);
   	  vec.push_back(data);
 	}
 	fNaturalIsotopesTable.insert(

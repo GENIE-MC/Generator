@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -641,7 +641,7 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
   }
 
   // Compute the maximum xsec value:
-  Range1D_t Tl_range ( TMin, TMax ) ; 
+  Range1D_t Tl_range ( TMin, TMax ) ;
   Range1D_t ctl_range ( CosthMin, CosthMax ) ;
   double XSecMax = GetXSecMaxTlctl( *interaction, Tl_range, ctl_range ) ;
 
@@ -674,23 +674,23 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
       genie::utils::mec::Getq0q3FromTlCostl(T, Costh, Enu, LepMass, Q0, Q3);
 
       // Don't bother doing hard work if the selected Q3 is greater than Q3Max
-      if (Q3 > fQ3Max) continue ; 
-	
-      Plep = TMath::Sqrt( T * (T + (2.0 * LepMass)));  // ok is sqrt(E2 - m2)	
+      if (Q3 > fQ3Max) continue ;
+
+      Plep = TMath::Sqrt( T * (T + (2.0 * LepMass)));  // ok is sqrt(E2 - m2)
       kinematics->SetKV(kKVTl, T);
       kinematics->SetKV(kKVctl, Costh);
-      kinematics->SetKV( kKVQ0, Q0 ) ; 
-      kinematics->SetKV( kKVQ3, Q3 ) ; 
-      
+      kinematics->SetKV( kKVQ0, Q0 ) ;
+      kinematics->SetKV( kKVQ3, Q3 ) ;
+
       // decide whether to accept or reject these kinematics
       // AND set the chosen two-nucleon system
-      
+
       if (FullDeltaNodelta == 1){
 	// this block for the user who wants all CC QE-like 2p2h events
 	// We need four different cross sections. Right now, pursue the
 	// inelegant method of calling XSec four times - there is
 	// definitely some runtime inefficiency here, but it is not awful
-	
+
 	// first, get delta-less all
 	if (NuPDG > 0) {
 	  interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNN);
@@ -708,7 +708,7 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 	// now get delta-less PN
 	interaction->ExclTagPtr()->SetResonance(genie::kNoResonance);
 	double XSecPN = fXSecModel->XSec(interaction, kPSTlctl);
-	
+
 	if (XSec > XSecMax) {
 	  LOG("MEC", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG << " "
 			     << XSec << " > " << XSecMax
@@ -718,17 +718,17 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 	accept = XSec > XSecMax*rnd->RndKine().Rndm();
 	LOG("MEC", pINFO) << "Xsec, Max, Accept: " << XSec << ", "
 			  << XSecMax << ", " << accept;
-	
+
 	if(accept){
 	  // If it passes the All cross section we still need to do two things:
 	  // * Was the initial state pn or not?
 	  // * Do we assign the reaction to have had a Delta on the inside?
-	    
+
 	  // PDD means from the part of the XSec with an internal Delta line
 	  // that (at the diagram level) did not produce a pion in the final state.
-	  
+
 	  bool isPDD = false;
-	  
+
 	  // Find out if we should use a pn initial state
 	  double myrand = rnd->RndKine().Rndm();
 	  double pnFraction = XSecPN / XSec;
@@ -736,13 +736,13 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 			     << "; xsec = " << XSec
 			     << "; pn_fraction = " << pnFraction
 			     << "; random number val = " << myrand;
-	  
+
 	  if (myrand <= pnFraction) {
 	    // yes it is, add a PN initial state to event record
 	    event->AddParticle(kPdgClusterNP, kIStNucleonTarget,
 			       1, -1, -1, -1, tempp4, v4);
 	    interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNP);
-	      
+
 	    // Its a pn, so test for Delta by comparing DeltaPN/PN
 	    if (rnd->RndKine().Rndm() <= XSecDeltaPN / XSecPN) {
 	      isPDD = true;
@@ -767,27 +767,27 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 	      isPDD = true;
 	    }
 	  }
-	  
+
 	  // now test whether we tagged this as a pion event
 	  // and assign that fact to the Exclusive State tag
 	  // later, we can query const XclsTag & xcls = interaction->ExclTag()
 	  if (isPDD){
 	    interaction->ExclTagPtr()->SetResonance(genie::kP33_1232);
 	  }
-	  
-	  
+
+
 	  } // end if accept
       } // end if delta == 1
-      
+
 	/* One can make simpler versions of the above for the
 	   FullDeltaNodelta == 2 (only delta)
 	   or
 	   FullDeltaNodelta == 3 (set Delta FF = 1, lose interference effect).
 	   but I (Rik) don't see what the use-case is for these, genratorly speaking.
 	*/
-	
+
   } // end while
-  
+
   // -- finish lepton kinematics
   // If the code got here, then we accepted some kinematics
   // and we can proceed to generate the final state.
@@ -1303,27 +1303,27 @@ void MECGenerator::LoadConfig(void)
     GetParamDef( "SuSA-MaxXSec-DiffTolerance", fSuSAMaxXSecDiffTolerance, 999999. );
 }
 //___________________________________________________________________________
-double MECGenerator::GetXSecMaxTlctl( const Interaction & in, 
-				      const Range1D_t & Tl_range, 
+double MECGenerator::GetXSecMaxTlctl( const Interaction & in,
+				      const Range1D_t & Tl_range,
 				      const Range1D_t & ctl_range ) const {
-  
+
   ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit2");
 
   double Enu = in.InitState().ProbeE(kRfHitNucRest);
   double LepMass = in.FSPrimLepton()->Mass();
 
-  genie::utils::mec::gsl::d2Xsec_dTCosth f(fXSecModel,in, Enu, LepMass, -1.) ; 
-  
+  genie::utils::mec::gsl::d2Xsec_dTCosth f(fXSecModel,in, Enu, LepMass, -1.) ;
+
   std::array<string,2> names = { "Tl", "CosThetal" } ;
-  std::array<Range1D_t,2> ranges = { Tl_range, ctl_range } ; 
+  std::array<Range1D_t,2> ranges = { Tl_range, ctl_range } ;
 
   std::array<double,2> start, steps, temp_point ;
   steps[0] = ( ranges[0].max - ranges[0].min ) / ( fMinScanPointsTmu + 1 ) ;
   steps[1] = ( ranges[1].max - ranges[1].min ) / ( fMinScanPointsCosth + 1 ) ;
 
   double xsec = 0 ;
-  
-  // preliimnary scan 
+
+  // preliimnary scan
   for ( unsigned int i = 1 ; i <= (unsigned int) fMinScanPointsTmu ; ++i ) {
     temp_point[0] = ranges[0].min + steps[0]*i ;
 
@@ -1346,16 +1346,16 @@ double MECGenerator::GetXSecMaxTlctl( const Interaction & in,
   for ( unsigned int i = 0 ; i < ranges.size() ; ++i ) {
     min -> SetLimitedVariable( i, names[i], start[i], steps[i], ranges[i].min, ranges[i].max ) ;
   }
-  
+
   min->Minimize();
-  
+
   double max_xsec = -min->MinValue(); //back to positive xsec
 
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy.
   max_xsec *= fSafetyFactor;
 
-  return max_xsec ;   
+  return max_xsec ;
 }
 
 //___________________________________________________________________________

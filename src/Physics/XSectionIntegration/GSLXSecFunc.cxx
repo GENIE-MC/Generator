@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -1415,4 +1415,100 @@ ROOT::Math::IBaseFunctionMultiDim * genie::utils::gsl::dXSec_Log_Wrapper::Clone 
   return new dXSec_Log_Wrapper(fFn,fIfLog,fMins,fMaxes);
 }
 
+//_____________________________________________________________________________
+genie::utils::gsl::d2Xsec_dn1dn2_E::d2Xsec_dn1dn2_E(
+     const XSecAlgorithmI * m, const Interaction * i, double scale) :
+ROOT::Math::IBaseFunctionMultiDim(),
+fModel(m),
+fInteraction(i),
+fScale(scale)
+{
+  
+}
 //____________________________________________________________________________
+genie::utils::gsl::d2Xsec_dn1dn2_E::~d2Xsec_dn1dn2_E()
+{
+  
+}   
+//____________________________________________________________________________
+unsigned int genie::utils::gsl::d2Xsec_dn1dn2_E::NDim(void) const
+{
+  return 2;
+}
+//____________________________________________________________________________
+double genie::utils::gsl::d2Xsec_dn1dn2_E::DoEval(const double * xin) const
+{
+// inputs:
+//    n1
+//    n2
+// outputs:
+//   differential cross section (hbar=c=1 units)
+//
+ 
+  double n1 = xin[0];
+  double n2 = xin[1];
+
+  Kinematics * kinematics = fInteraction->KinePtr();
+  kinematics->SetKV(kKVn1, n1);
+  kinematics->SetKV(kKVn2, n2);
+  
+  double xsec = fModel->XSec(fInteraction, kPSn1n2fE); 
+  return fScale*xsec/(1E-38 * units::cm2);
+}
+//____________________________________________________________________________
+ROOT::Math::IBaseFunctionMultiDim *
+   genie::utils::gsl::d2Xsec_dn1dn2_E::Clone() const
+{
+  return
+    new genie::utils::gsl::d2Xsec_dn1dn2_E(fModel,fInteraction);
+}
+//_____________________________________________________________________________
+genie::utils::gsl::d2Xsec_dn1dn2dn3_E::d2Xsec_dn1dn2dn3_E(
+     const XSecAlgorithmI * m, const Interaction * i, double scale) :
+ROOT::Math::IBaseFunctionMultiDim(),
+fModel(m),
+fInteraction(i),
+fScale(scale)
+{
+  
+}
+//____________________________________________________________________________
+genie::utils::gsl::d2Xsec_dn1dn2dn3_E::~d2Xsec_dn1dn2dn3_E()
+{
+  
+}   
+//____________________________________________________________________________
+unsigned int genie::utils::gsl::d2Xsec_dn1dn2dn3_E::NDim(void) const
+{
+  return 3;
+}
+//____________________________________________________________________________
+double genie::utils::gsl::d2Xsec_dn1dn2dn3_E::DoEval(const double * xin) const
+{
+// inputs:
+//    n1
+//    n2
+//    n3
+// outputs:
+//   differential cross section (hbar=c=1 units)
+//
+ 
+  double n1 = xin[0];
+  double n2 = xin[1];
+  double n3 = xin[2];
+
+  Kinematics * kinematics = fInteraction->KinePtr();
+  kinematics->SetKV(kKVn1, n1);
+  kinematics->SetKV(kKVn2, n2);
+  kinematics->SetKV(kKVn3, n3);
+
+  double xsec = fModel->XSec(fInteraction, kPSn1n2n3fE); 
+  return fScale*xsec/(1E-38 * units::cm2);
+}
+//____________________________________________________________________________
+ROOT::Math::IBaseFunctionMultiDim *
+   genie::utils::gsl::d2Xsec_dn1dn2dn3_E::Clone() const
+{
+  return
+    new genie::utils::gsl::d2Xsec_dn1dn2dn3_E(fModel,fInteraction);
+}

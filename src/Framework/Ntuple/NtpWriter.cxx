@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -32,9 +32,10 @@ using std::ostringstream;
 using namespace genie;
 
 //____________________________________________________________________________
-NtpWriter::NtpWriter(NtpMCFormat_t fmt, Long_t runnu) :
+NtpWriter::NtpWriter(NtpMCFormat_t fmt, Long_t runnu, Long_t seed) :
 fNtpFormat(fmt),
 fRunNu(runnu),
+fRunSeed(seed),
 fOutFile(0),
 fOutTree(0),
 fEventBranch(0),
@@ -214,8 +215,9 @@ void NtpWriter::CreateTreeHeader(void)
 
   fNtpMCTreeHeader = new NtpMCTreeHeader;
 
-  fNtpMCTreeHeader->format = fNtpFormat;
-  fNtpMCTreeHeader->runnu  = fRunNu;
+  fNtpMCTreeHeader->format  = fNtpFormat;
+  fNtpMCTreeHeader->runnu   = fRunNu;
+  fNtpMCTreeHeader->runseed = fRunSeed;
 
   LOG("Ntp", pINFO) << *fNtpMCTreeHeader;
 }

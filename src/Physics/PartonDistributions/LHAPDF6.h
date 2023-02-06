@@ -11,7 +11,7 @@
 
 \created  March 20, 2018
 
-\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
@@ -21,6 +21,8 @@
 
 #include "Framework/Conventions/GBuild.h"
 #include "Physics/PartonDistributions/PDFModelI.h"
+#include <string>
+using std::string;
 
 namespace LHAPDF
 {

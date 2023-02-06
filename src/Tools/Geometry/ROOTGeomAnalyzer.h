@@ -16,7 +16,7 @@
 
 \created  May 24, 2005
 
-\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 
 */
@@ -66,8 +66,15 @@ public :
 
   virtual const  PathLengthList & ComputePathLengths(const TLorentzVector & x,
                                                      const TLorentzVector & p);
+
+  virtual std::vector< std::pair<double, const TGeoMaterial*> > ComputeMatLengths(const TLorentzVector & x, 
+                                                     const TLorentzVector & p);
+
   virtual const  TVector3 &       GenerateVertex(const TLorentzVector & x,
                                                  const TLorentzVector & p, int tgtpdg);
+
+  virtual int    GetTargetPdgCode        (const TGeoMaterial * const m) const;
+  virtual int    GetTargetPdgCode        (const TGeoMixture * const m, int ielement) const;
 
   /// set geometry driver's configuration options
 
@@ -123,8 +130,6 @@ protected:
   virtual void   Load                    (TGeoManager * gm);
   virtual void   BuildListOfTargetNuclei (void);
 
-  virtual int    GetTargetPdgCode        (const TGeoMaterial * const m) const;
-  virtual int    GetTargetPdgCode        (const TGeoMixture * const m, int ielement) const;
   virtual double GetWeight               (const TGeoMaterial * mat, int pdgc);
   virtual double GetWeight               (const TGeoMixture * mixt, int pdgc);
   virtual double GetWeight               (const TGeoMixture * mixt, int ielement, int pdgc);

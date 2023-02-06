@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
@@ -260,7 +260,8 @@ INukeFateHA_t HAIntranuke2018::HadronFateHA(const GHepParticle * p) const
      // apply external tweaks to fractions
      frac_cex    *= fPionFracCExScale;
      frac_inel   *= fPionFracInelScale;
-     frac_abs    *= fPionFracAbsScale;
+     if (pdgc==kPdgPiP || pdgc==kPdgPiM) frac_abs *= fChPionFracAbsScale;
+     if (pdgc==kPdgPi0) frac_abs *= fNeutralPionFracAbsScale;
      frac_piprod *= fPionFracPiProdScale;
 
      double frac_rescale = 1./(frac_cex + frac_inel + frac_abs + frac_piprod);
@@ -861,7 +862,7 @@ void HAIntranuke2018::Inelastic(
                                t1code=kPdgNeutron; t2code=kPdgNeutron;
                                scode=kPdgProton;   s2code=kPdgNeutron;}
           }
-          if (pdgc==kPdgPiM) {
+          else if (pdgc==kPdgPiM) {
             double Prob_pimd_nn=2.*ppcnt*(1.-ppcnt);
             double Prob_pimpp_pn=.083*ppcnt*ppcnt;
             if (rnd->RndFsi().Rndm()*(Prob_pimd_nn+Prob_pimpp_pn)<Prob_pimd_nn){
@@ -875,10 +876,11 @@ void HAIntranuke2018::Inelastic(
             double Prob_pi0d_pn=0.88*ppcnt*(1.-ppcnt); // 2 * .44
             double Prob_pi0pp_pp=.14*ppcnt*ppcnt;
             double Prob_pi0nn_nn=.14*(1.-ppcnt)*(1.-ppcnt);
-            if (rnd->RndFsi().Rndm()*(Prob_pi0d_pn+Prob_pi0pp_pp+Prob_pi0nn_nn)<Prob_pi0d_pn){
+            double random_number = rnd->RndFsi().Rndm();
+            if (random_number*(Prob_pi0d_pn+Prob_pi0pp_pp+Prob_pi0nn_nn)<Prob_pi0d_pn){
                                t1code=kPdgNeutron;  t2code=kPdgProton;
                                 scode=kPdgNeutron;  s2code=kPdgProton;  }
-            else if (rnd->RndFsi().Rndm()*(Prob_pi0d_pn+Prob_pi0pp_pp+Prob_pi0nn_nn)<(Prob_pi0d_pn+Prob_pi0pp_pp)){
+            else if (random_number*(Prob_pi0d_pn+Prob_pi0pp_pp+Prob_pi0nn_nn)<(Prob_pi0d_pn+Prob_pi0pp_pp)){
                                t1code=kPdgProton;   t2code=kPdgProton;
                                scode=kPdgProton;    s2code=kPdgProton;  }
             else {
@@ -1547,9 +1549,11 @@ void HAIntranuke2018::LoadConfig(void)
   GetParam( "HAINUKE-DelRPion",    fDelRPion ) ;
   GetParam( "HAINUKE-DelRNucleon", fDelRNucleon ) ;
 
-  GetParamDef( "FSI-Pion-MFPScale",              fPionMFPScale,           1.0 ) ;
+  GetParamDef( "FSI-ChargedPion-MFPScale",       fChPionMFPScale,         1.0 ) ;
+  GetParamDef( "FSI-NeutralPion-MFPScale",       fNeutralPionMFPScale,    1.0 ) ;
   GetParamDef( "FSI-Pion-FracCExScale",          fPionFracCExScale,       1.0 ) ;
-  GetParamDef( "FSI-Pion-FracAbsScale",          fPionFracAbsScale,       1.0 ) ;
+  GetParamDef( "FSI-ChargedPion-FracAbsScale",   fChPionFracAbsScale,     1.0 ) ;
+  GetParamDef( "FSI-NeutralPion-FracAbsScale",   fNeutralPionFracAbsScale,1.0 ) ;
   GetParamDef( "FSI-Pion-FracInelScale",         fPionFracInelScale,      1.0 ) ;
   GetParamDef( "FSI-Pion-FracPiProdScale",       fPionFracPiProdScale,    1.0 ) ;
   GetParamDef( "FSI-Nucleon-MFPScale",           fNucleonMFPScale,        1.0 ) ;
@@ -1558,7 +1562,7 @@ void HAIntranuke2018::LoadConfig(void)
   GetParamDef( "FSI-Nucleon-FracAbsScale",       fNucleonFracAbsScale,    1.0 ) ;
   GetParamDef( "FSI-Nucleon-FracPiProdScale",    fNucleonFracPiProdScale, 1.0 ) ;
 
-    // report
+  // report
   LOG("HAIntranuke2018", pINFO) << "Settings for INTRANUKE mode: " << INukeMode::AsString(kIMdHA);
   LOG("HAIntranuke2018", pINFO) << "R0          = " << fR0 << " fermi";
   LOG("HAIntranuke2018", pINFO) << "NR          = " << fNR;

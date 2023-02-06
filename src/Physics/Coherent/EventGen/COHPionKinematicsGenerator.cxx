@@ -1,29 +1,12 @@
 //____________________________________________________________________________
 /*
-  Copyright (c) 2003-2020, The GENIE Collaboration
-  For the full text of the license visit http://copyright.genie-mc.org
-
+  Copyright (c) 2003-2022, The GENIE Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+ 
   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
   University of Liverpool & STFC Rutherford Appleton Laboratory
 
-  For the class documentation see the corresponding header file.
-
-  Important revisions after version 2.0.0 :
-  @ Feb 09, 2009 - CA
-  Moved into the new Coherent package from its previous location  (EVGModules
-  package)
-  @ Mar 03, 2009 - CA
-  Renamed COHPiKinematicsGenerator -> COHKinematicsGenerator in
-  anticipation of reusing the code for simulating coherent production of
-  vector mesons.
-  @ May 06, 2009 - CA
-  Fix a problem with the search for the max cross section over the allowed
-  phase space which prevented kinematics to be generated for events near the
-  energy threshold.
-  @ Feb 06, 2013 - CA
-  When the value of the differential cross-section for the selected kinematics
-  is set to the event, set the corresponding KinePhaseSpace_t value too.
-
+  
 */
 //____________________________________________________________________________
 

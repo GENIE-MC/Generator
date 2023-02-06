@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2022, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -191,16 +191,16 @@ double KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(
     } // cache data
 
     // get the reduction factor from the cache branch
-    if(Wo > Wmin && Wo < fWcut-1E-2) {
+    if(Wo > Wmin && Wo < fWcut) {
        const CacheBranchFx & cache_branch = (*cbr);
        R = cache_branch(Wo);
     }
   }
 
   // Now return the suppression factor
-  if      (Wo > Wmin && Wo < fWcut-1E-2) Ro = R;
-  else if (Wo <= Wmin)                   Ro = 0.0;
-  else                                   Ro = 1.0;
+  if      (Wo > Wmin && Wo < fWcut) Ro = R;
+  else if (Wo <= Wmin)            Ro = 0.0;
+  else                            Ro = 1.0;
 
   LOG("DISXSec", pDEBUG)
       << "DIS/RES Join: DIS xsec suppr. (W=" << Wo << ") = " << Ro;

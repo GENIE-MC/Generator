@@ -13,7 +13,7 @@
 
 \created  May 30, 2008
 
-\cpright   Copyright (c) 2003-2020, The GENIE Collaboration
+\cpright   Copyright (c) 2003-2022, The GENIE Collaboration
            For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -37,6 +37,7 @@ public:
 
   int NElements(int Z) const;
   const NaturalIsotopeElementData * ElementData (int Z, int ielement) const;
+  const NaturalIsotopeElementData * ElementDataPdg (int Z, int pdgcode) const;
 
 private:
   NaturalIsotopes();
@@ -63,16 +64,18 @@ private:
 
 class NaturalIsotopeElementData {
 public:
-  NaturalIsotopeElementData()                           : fPdgCode(0),    fAbundance(0)         { }
-  NaturalIsotopeElementData(int code, double abundance) : fPdgCode(code), fAbundance(abundance) { }
+  NaturalIsotopeElementData()                                              : fPdgCode(0),    fAbundance(0),         fAtomicMass(0)          { }
+  NaturalIsotopeElementData(int code, double abundance, double atomicmass) : fPdgCode(code), fAbundance(abundance), fAtomicMass(atomicmass) { }
  ~NaturalIsotopeElementData() { }
 
-  int    PdgCode   (void) const { return fPdgCode;   }
-  double Abundance (void) const { return fAbundance; }
+  int    PdgCode   (void) const  { return fPdgCode;    }
+  double Abundance (void) const  { return fAbundance;  }
+  double AtomicMass (void) const { return fAtomicMass; }
 
 private:
   int    fPdgCode;
   double fAbundance;
+  double fAtomicMass;
 };
 
 }      // genie namespace

@@ -27,5 +27,7 @@
 #pragma link C++ class genie::utils::gsl::d3Xsec_dOmegaldThetapi;
 #pragma link C++ class genie::utils::gsl::dXSec_dElep_AR_pion;
 #pragma link C++ class genie::utils::gsl::dXSec_Log_Wrapper;
+#pragma link C++ class genie::utils::gsl::d2Xsec_dn1dn2_E;
+#pragma link C++ class genie::utils::gsl::d2Xsec_dn1dn2dn3_E;
 
 #endif

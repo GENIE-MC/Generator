@@ -698,7 +698,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="int"    name="NModules">   5                                                    </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
-     <param type="alg"    name="Module-2">   genie::HEDISKinematicsGenerator/Default           </param>
+     <param type="alg"    name="Module-2">   genie::HEDISKinematicsGenerator/Default              </param>
      <param type="alg"    name="Module-3">   genie::HEDISGenerator/Default                        </param>
      <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport </param>
      <param type="alg"    name="ILstGen">    genie::HEDISInteractionListGenerator/CC-Default      </param>
@@ -709,7 +709,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="int"    name="NModules">   5                                                    </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
-     <param type="alg"    name="Module-2">   genie::HEDISKinematicsGenerator/Default           </param>
+     <param type="alg"    name="Module-2">   genie::HEDISKinematicsGenerator/Default              </param>
      <param type="alg"    name="Module-3">   genie::HEDISGenerator/Default                        </param>
      <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport </param>
      <param type="alg"    name="ILstGen">    genie::HEDISInteractionListGenerator/NC-Default      </param>
@@ -717,47 +717,125 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
 
   <param_set name="GLRES-Mu">
      <param type="string" name="VldContext"> </param>
-     <param type="int"    name="NModules">   5                                                   </param>
-     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                 </param>
-     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                      </param>
-     <param type="alg"    name="Module-2">   genie::GLRESKinematicsGenerator/Default             </param>
-     <param type="alg"    name="Module-3">   genie::GLRESGenerator/Default                       </param>
-     <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport </param>
-     <param type="alg"    name="ILstGen">    genie::GLRESInteractionListGenerator/Mu-Default     </param>
+     <param type="int"    name="NModules">   5                                                         </param>
+     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                       </param>
+     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                            </param>
+     <param type="alg"    name="Module-2">   genie::HELeptonKinematicsGenerator/Default                </param>
+     <param type="alg"    name="Module-3">   genie::GLRESGenerator/Default                             </param>
+     <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport      </param>
+     <param type="alg"    name="ILstGen">    genie::HELeptonInteractionListGenerator/GLRES-Mu-Default  </param>
   </param_set>
 
   <param_set name="GLRES-Tau">
      <param type="string" name="VldContext"> </param>
-     <param type="int"    name="NModules">   5                                                   </param>
-     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                 </param>
-     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                      </param>
-     <param type="alg"    name="Module-2">   genie::GLRESKinematicsGenerator/Default             </param>
-     <param type="alg"    name="Module-3">   genie::GLRESGenerator/Default                       </param>
-     <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport </param>
-     <param type="alg"    name="ILstGen">    genie::GLRESInteractionListGenerator/Tau-Default    </param>
+     <param type="int"    name="NModules">   5                                                         </param>
+     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                       </param>
+     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                            </param>
+     <param type="alg"    name="Module-2">   genie::HELeptonKinematicsGenerator/Default                </param>
+     <param type="alg"    name="Module-3">   genie::GLRESGenerator/Default                             </param>
+     <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport      </param>
+     <param type="alg"    name="ILstGen">    genie::HELeptonInteractionListGenerator/GLRES-Tau-Default </param>
   </param_set>
 
   <param_set name="GLRES-Ele">
      <param type="string" name="VldContext"> </param>
-     <param type="int"    name="NModules">   5                                                   </param>
-     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                 </param>
-     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                      </param>
-     <param type="alg"    name="Module-2">   genie::GLRESKinematicsGenerator/Default             </param>
-     <param type="alg"    name="Module-3">   genie::GLRESGenerator/Default                       </param>
-     <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport </param>
-     <param type="alg"    name="ILstGen">    genie::GLRESInteractionListGenerator/Ele-Default    </param>
+     <param type="int"    name="NModules">   5                                                         </param>
+     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                       </param>
+     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                            </param>
+     <param type="alg"    name="Module-2">   genie::HELeptonKinematicsGenerator/Default                </param>
+     <param type="alg"    name="Module-3">   genie::GLRESGenerator/Default                             </param>
+     <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport      </param>
+     <param type="alg"    name="ILstGen">    genie::HELeptonInteractionListGenerator/GLRES-Ele-Default </param>
   </param_set>
 
   <param_set name="GLRES-Had">
      <param type="string" name="VldContext"> </param>
-     <param type="int"    name="NModules">   5                                                   </param>
-     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                 </param>
-     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                      </param>
-     <param type="alg"    name="Module-2">   genie::GLRESKinematicsGenerator/Default             </param>
-     <param type="alg"    name="Module-3">   genie::GLRESGenerator/Default                       </param>
-     <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport </param>
-     <param type="alg"    name="ILstGen">    genie::GLRESInteractionListGenerator/Had-Default    </param>
+     <param type="int"    name="NModules">   5                                                         </param>
+     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                       </param>
+     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                            </param>
+     <param type="alg"    name="Module-2">   genie::HELeptonKinematicsGenerator/Default                </param>
+     <param type="alg"    name="Module-3">   genie::GLRESGenerator/Default                             </param>
+     <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport      </param>
+     <param type="alg"    name="ILstGen">    genie::HELeptonInteractionListGenerator/GLRES-Had-Default </param>
   </param_set>
+
+  <param_set name="HENuEl-CC">
+     <param type="string" name="VldContext"> </param>
+     <param type="int"    name="NModules">   5                                                         </param>
+     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                       </param>
+     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                            </param>
+     <param type="alg"    name="Module-2">   genie::HELeptonKinematicsGenerator/Default                </param>
+     <param type="alg"    name="Module-3">   genie::HENuElGenerator/Default                            </param>
+     <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport      </param>
+     <param type="alg"    name="ILstGen">    genie::HELeptonInteractionListGenerator/HENuEl-CC-Default </param>
+  </param_set>
+
+  <param_set name="HENuEl-NC">
+     <param type="string" name="VldContext"> </param>
+     <param type="int"    name="NModules">   5                                                         </param>
+     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                       </param>
+     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                            </param>
+     <param type="alg"    name="Module-2">   genie::HELeptonKinematicsGenerator/Default                </param>
+     <param type="alg"    name="Module-3">   genie::HENuElGenerator/Default                            </param>
+     <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport      </param>
+     <param type="alg"    name="ILstGen">    genie::HELeptonInteractionListGenerator/HENuEl-NC-Default </param>
+  </param_set>
+
+  <param_set name="PhotonRES-Mu">
+     <param type="string" name="VldContext"> </param>
+     <param type="int"    name="NModules">   5                                                             </param>
+     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                           </param>
+     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                                </param>
+     <param type="alg"    name="Module-2">   genie::HELeptonKinematicsGenerator/Default                    </param>
+     <param type="alg"    name="Module-3">   genie::PhotonRESGenerator/Default                             </param>
+     <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport          </param>
+     <param type="alg"    name="ILstGen">    genie::HELeptonInteractionListGenerator/PhotonRES-Mu-Default  </param>
+  </param_set>
+
+  <param_set name="PhotonRES-Ele">
+     <param type="string" name="VldContext"> </param>
+     <param type="int"    name="NModules">   5                                                             </param>
+     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                           </param>
+     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                                </param>
+     <param type="alg"    name="Module-2">   genie::HELeptonKinematicsGenerator/Default                    </param>
+     <param type="alg"    name="Module-3">   genie::PhotonRESGenerator/Default                             </param>
+     <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport          </param>
+     <param type="alg"    name="ILstGen">    genie::HELeptonInteractionListGenerator/PhotonRES-Ele-Default </param>
+  </param_set>
+
+  <param_set name="PhotonRES-Tau">
+     <param type="string" name="VldContext"> </param>
+     <param type="int"    name="NModules">   5                                                             </param>
+     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                           </param>
+     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                                </param>
+     <param type="alg"    name="Module-2">   genie::HELeptonKinematicsGenerator/Default                    </param>
+     <param type="alg"    name="Module-3">   genie::PhotonRESGenerator/Default                             </param>
+     <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport          </param>
+     <param type="alg"    name="ILstGen">    genie::HELeptonInteractionListGenerator/PhotonRES-Tau-Default </param>
+  </param_set>
+
+  <param_set name="PhotonRES-Had">
+     <param type="string" name="VldContext"> </param>
+     <param type="int"    name="NModules">   5                                                             </param>
+     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                           </param>
+     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                                </param>
+     <param type="alg"    name="Module-2">   genie::HELeptonKinematicsGenerator/Default                    </param>
+     <param type="alg"    name="Module-3">   genie::PhotonRESGenerator/Default                             </param>
+     <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport          </param>
+     <param type="alg"    name="ILstGen">    genie::HELeptonInteractionListGenerator/PhotonRES-Had-Default </param>
+  </param_set>
+
+  <param_set name="PhotonCOH">
+     <param type="string" name="VldContext"> </param>
+     <param type="int"    name="NModules">   5                                                         </param>
+     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                       </param>
+     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                            </param>
+     <param type="alg"    name="Module-2">   genie::HELeptonKinematicsGenerator/Default                </param>
+     <param type="alg"    name="Module-3">   genie::PhotonCOHGenerator/Default                         </param>
+     <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport      </param>
+     <param type="alg"    name="ILstGen">    genie::HELeptonInteractionListGenerator/PhotonCOH-Default </param>
+  </param_set>
+
   
 </alg_conf>
 
