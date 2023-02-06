@@ -65,7 +65,7 @@ void spectral_function_spectra( TString in_file_name  = "gntp.0.ghep.root" ,
 
     const auto * hit_nucleon = event.HitNucleon();
     
-    h_Eb_vs_p->Fill( hit_nucleon->P4()->P(), hit_nucleon->RemovalEnergy();
+    h_Eb_vs_p->Fill( hit_nucleon->P4()->P(), hit_nucleon->RemovalEnergy() );
 
     mcrec->Clear() ;
   } // event loop
