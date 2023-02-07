@@ -198,7 +198,6 @@ namespace genie{
       mutable double BR_pi2mu, BR_pi2e, BR_K2mu, BR_K2e, BR_K3mu, BR_K3e, BR_K03mu, BR_K03e;
 
       mutable bool isParentOnAxis = true;
-      mutable bool fUseBeamMomentum = false; // use this if your detector hall is parallel to tgt hall
       mutable TGeoVolume * fTopVol = 0;
       mutable string fGeomFile = "";
       mutable bool fIsUsingRootGeom = false;

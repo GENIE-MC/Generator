@@ -167,7 +167,7 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
 
   // All these in m
   TVector3 fCvec_beam( fCx, fCy, fCz );
-  TVector3 fCvec = this->ApplyUserRotation( fCvec_beam );
+  TVector3 fCvec = this->ApplyUserRotation( fCvec_beam ); // in NEAR coords
   fLepPdg = 0;
   
   ctree->GetEntry(iEntry);
@@ -205,16 +205,23 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
   fDx = decay_vx * units::cm / units::m;
   fDy = decay_vy * units::cm / units::m;
   fDz = decay_vz * units::cm / units::m;
-  TVector3 fDvec( fDx, fDy, fDz );
-  TVector3 fDvec_beam = this->ApplyUserRotation( fDvec, true );
+  TVector3 fDvec( fDx, fDy, fDz ); // in BEAM coords
+  TVector3 fDvec_beam = this->ApplyUserRotation( fDvec, true ); // in NEAR coords
+
+  LOG( "HNL", pDEBUG )
+    << "\nIn BEAM coords, fDvec = " << utils::print::Vec3AsString( &fDvec )
+    << "\nIn NEAR coords, fDvec = " << utils::print::Vec3AsString( &fDvec_beam );
 
   TVector3 detO_beam( fCvec_beam.X() - fDvec_beam.X(),
 		      fCvec_beam.Y() - fDvec_beam.Y(),
-		      fCvec_beam.Z() - fDvec_beam.Z() ); // separation in beam coords
+		      fCvec_beam.Z() - fDvec_beam.Z() ); // separation in NEAR coords
   TVector3 detO( fCvec.X() - fDvec.X(),
 		 fCvec.Y() - fDvec.Y(),
-		 fCvec.Z() - fDvec.Z() ); // separation in rotated coords
+		 fCvec.Z() - fDvec.Z() ); // separation in BEAM coords
   TVector3 detO_user( -detO.X(), -detO.Y(), -detO.Z() );
+
+  TVector3 dumori( 0.0, 0.0, 0.0 );
+  detO_user = this->ApplyUserRotation( detO_user, dumori, fDetRotation, false ); // tgt-hall --> det
   
   double acc_saa = this->CalculateDetectorAcceptanceSAA( detO_user );
   
@@ -236,16 +243,22 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
 		    parentMomentum * (detO.Unit()).Y(),
 		    parentMomentum * (detO.Unit()).Z(),
 		    parentEnergy ) :
-    TLorentzVector( decay_pdpx, decay_pdpy, decay_pdpz, parentEnergy );
+    TLorentzVector( decay_pdpx, decay_pdpy, decay_pdpz, parentEnergy ); // in BEAM coords
 
-  TLorentzVector p4par_beam( decay_pdpx, decay_pdpy, decay_pdpz, parentEnergy );
+  TLorentzVector p4par_beam( decay_pdpx, decay_pdpy, decay_pdpz, parentEnergy ); // in BEAM coords
+  TVector3 p3par_beam = p4par_beam.Vect();
+  TVector3 p3par_near = this->ApplyUserRotation( p3par_beam, true );
+  TLorentzVector p4par_near( p3par_near.X(), p3par_near.Y(), p3par_near.Z(), parentEnergy ); // in NEAR coords
+  LOG( "HNL", pDEBUG )
+    << "\nIn BEAM coords: p3par_beam = " << utils::print::Vec3AsString( &p3par_beam )
+    << "\nIn NEAR coords: p3par_near = " << utils::print::Vec3AsString( &p3par_near );
   if( !isParentOnAxis ){
     // rotate p4par to user coordinates
     TVector3 tmpv3 = ApplyUserRotation( p4par.Vect() );
     p4par.SetPxPyPzE( tmpv3.Px(), tmpv3.Py(), tmpv3.Pz(), p4par.E() );
   }
 
-  TVector3 boost_beta = p4par.BoostVector();
+  TVector3 boost_beta = p4par.BoostVector(); // in BEAM coords
 
   // now calculate which decay channel produces the HNL.
   dynamicScores = this->GetProductionProbs( decay_ptype );
@@ -295,7 +308,7 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
 
   // now make a TLorentzVector in lab frame to boost back to rest. 
   double timeBit = detO.Mag() / units::kSpeedOfLight ; // s
-  TLorentzVector detO_4v( detO.X(), detO.Y(), detO.Z(), timeBit ); detO_4v.Boost( -boost_beta );
+  TLorentzVector detO_4v( detO.X(), detO.Y(), detO.Z(), timeBit ); detO_4v.Boost( -boost_beta ); // BEAM with BEAM
   TVector3 detO_rest_unit = (detO_4v.Vect()).Unit();
   TLorentzVector p4HNL_rest_good( p4HNL_rest.P() * detO_rest_unit.X(),
 				  p4HNL_rest.P() * detO_rest_unit.Y(),
@@ -314,7 +327,7 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
   p4HNL_good.Boost( boost_beta );
   boost_correction_two = p4HNL_good.E() / p4HNL_rest.E();
 
-  TVector3 detO_unit = detO.Unit();
+  TVector3 detO_unit = detO.Unit(); // BEAM
 
   TVector3 p4HNL_good_vect = p4HNL_good.Vect();
   TVector3 p4HNL_good_unit = p4HNL_good_vect.Unit();
@@ -391,7 +404,7 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
 
   // find random point in BBox and force momentum to point to that point
   // first, separation in beam frame
-  TVector3 fRVec_beam = this->PointToRandomPointInBBox( detO_beam );
+  TVector3 fRVec_beam = this->PointToRandomPointInBBox( detO_beam ); // in NEAR coords
   // rotate it and get unit
   TVector3 fRVec_unit = (this->ApplyUserRotation( fRVec_beam )).Unit();
   // force HNL to point along this direction
@@ -400,7 +413,7 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
 			p4HNL_rand.P() * fRVec_unit.Z(),
 			p4HNL_rand.E() );
 
-  TVector3 pHNL_beam = this->ApplyUserRotation( p4HNL.Vect(), true );
+  TVector3 pHNL_beam = this->ApplyUserRotation( p4HNL.Vect(), true ); // in NEAR coords
   TLorentzVector p4HNL_beam( pHNL_beam.X(), pHNL_beam.Y(), pHNL_beam.Z(), p4HNL.E() );
 
   LOG( "HNL", pDEBUG )
@@ -422,10 +435,10 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
   // first, get minimum and maximum deviation from parent momentum to hit detector in degrees
   double zm = 0.0, zp = 0.0;
   if( fIsUsingRootGeom ){
-    this->GetAngDeviation( p4par_beam, detO_beam, zm, zp );
+    this->GetAngDeviation( p4par_near, detO_beam, zm, zp ); // using NEAR and NEAR
   } else { // !fIsUsingRootGeom
-    zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par_beam, detO_beam, false );
-    zp = this->GetAngDeviation( p4par_beam, detO_beam, true );
+    zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par_near, detO_beam, false );
+    zp = this->GetAngDeviation( p4par_near, detO_beam, true );
   }
 
   if( zm == -999.9 && zp == 999.9 ){
@@ -453,7 +466,7 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
       
       // find random point in BBox and force momentum to point to that point
       // first, separation in beam frame
-      fRVec_beam = this->PointToRandomPointInBBox( detO_beam );
+      fRVec_beam = this->PointToRandomPointInBBox( detO_beam ); // always NEAR
       // rotate it and get unit
       fRVec_unit = (this->ApplyUserRotation( fRVec_beam )).Unit();
       // force HNL to point along this direction
@@ -462,7 +475,7 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
 			p4HNL_rand.P() * fRVec_unit.Z(),
 			p4HNL_rand.E() );
       
-      pHNL_beam = this->ApplyUserRotation( p4HNL.Vect(), true );
+      pHNL_beam = this->ApplyUserRotation( p4HNL.Vect(), true ); // NEAR
       p4HNL_beam.SetPxPyPzE( pHNL_beam.X(), pHNL_beam.Y(), pHNL_beam.Z(), p4HNL.E() );
       
       LOG( "HNL", pDEBUG )
@@ -473,7 +486,7 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
       // update polarisation
       p4Lep_good = p4Lep_rest_good; // in parent rest frame
       p4Lep_good.Boost( boost_beta ); // in lab frame
-      boost_beta_HNL = p4HNL_beam.BoostVector();
+      boost_beta_HNL = p4HNL_beam.BoostVector(); // NEAR coords
       p4Lep_good.Boost( -boost_beta_HNL ); // in HNL rest frame
       
       fLPx = ( fixPol ) ? fFixedPolarisation.at(0) : p4Lep_good.Px() / p4Lep_good.P();
@@ -484,10 +497,10 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
       // first, get minimum and maximum deviation from parent momentum to hit detector in degrees
       zm = 0.0; zp = 0.0;
       if( fIsUsingRootGeom ){
-	this->GetAngDeviation( p4par_beam, detO_beam, zm, zp );
+	this->GetAngDeviation( p4par_near, detO_beam, zm, zp ); // NEAR and NEAR
       } else { // !fIsUsingRootGeom
-	zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par_beam, detO_beam, false );
-	zp = this->GetAngDeviation( p4par_beam, detO_beam, true );
+	zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par_near, detO_beam, false );
+	zp = this->GetAngDeviation( p4par_near, detO_beam, true );
       }
       
       if( zm == -999.9 && zp == 999.9 ){
@@ -530,11 +543,15 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
   */
   
   // write 4-position all this happens at
-  TLorentzVector x4HNL_beam( decay_vx, decay_vy, decay_vz, delay ); // in cm, ns
-  TLorentzVector x4HNL( -detO.X(), -detO.Y(), -detO.Z(), delay ); // in m, ns
+  TLorentzVector x4HNL_beam( decay_vx, decay_vy, decay_vz, delay ); // in cm, ns, BEAM coords
+  TVector3 x3HNL_beam = x4HNL_beam.Vect();
+  TVector3 x3HNL_near = this->ApplyUserRotation( x3HNL_beam, true );
+  TLorentzVector x4HNL_near( x3HNL_near.X(), x3HNL_near.Y(), x3HNL_near.Z(), delay );
+
+  TLorentzVector x4HNL( -detO.X(), -detO.Y(), -detO.Z(), delay ); // in m, ns, BEAM coords
   TLorentzVector x4HNL_cm( units::m / units::cm * ( -detO.X() ),
 			   units::m / units::cm * ( -detO.Y() ),
-			   units::m / units::cm * ( -detO.Z() ), delay ); // in cm, ns
+			   units::m / units::cm * ( -detO.Z() ), delay ); // in cm, ns, BEAM
 
   LOG( "HNL", pDEBUG ) << "Filling gnmf...";
 
@@ -550,10 +567,10 @@ flux::GNuMIFluxPassThroughInfo FluxCreator::MakeTupleFluxEntry( int iEntry, std:
 
   gnmf.fgXYWgt = acceptance;                ///< geometrical * collimation correction
 
-  gnmf.fgP4 = p4HNL_beam;                   ///< generated 4-momentum, beam coord [GeV]
-  gnmf.fgX4 = x4HNL_beam;                   ///< generated 4-position, beam coord [cm]
-  gnmf.fgP4User = p4HNL;                    ///< generated 4-momentum, user coord [GeV]
-  gnmf.fgX4User = x4HNL_cm;                 ///< generated 4-position, user coord [cm]
+  gnmf.fgP4 = p4HNL_beam;                   ///< generated 4-momentum, NEAR coord [GeV]
+  gnmf.fgX4 = x4HNL_near;                   ///< generated 4-position, NEAR coord [cm]
+  gnmf.fgP4User = p4HNL;                    ///< generated 4-momentum, BEAM coord [GeV]
+  gnmf.fgX4User = x4HNL_cm;                 ///< generated 4-position, BEAM coord [cm]
 
   gnmf.evtno    = iEntry;                   ///< Event number (proton on target) 
   gnmf.ndxdz    = p4HNL.Px() / p4HNL.Pz();  ///< Neutrino direction slope for a random decay
