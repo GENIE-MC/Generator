@@ -65,7 +65,8 @@ ElectronVelocity::ElectronVelocity("genie::StaticElectronVelocity", config)
 {
 
 }
-StaticElectronVelocity::StaticElectronVelocity() : ElectronVelocity::ElectronVelocity()
+StaticElectronVelocity::StaticElectronVelocity() : 
+ElectronVelocity::ElectronVelocity("genie::StaticElectronVelocity","Default")
 {
 
 }
@@ -77,7 +78,7 @@ void StaticElectronVelocity::InitializeVelocity(Interaction & interaction) const
 
   TLorentzVector * p4 = tgt->HitEleP4Ptr(); //Initialize 4 momentum pointer
   //These should be initialized like this by just in case
-  p4->SetVectM(TVector3(), kElectronMass2);
+  p4->SetVectM(TVector3(), kElectronMass);
 }
 //___________________________________________________________________________
 

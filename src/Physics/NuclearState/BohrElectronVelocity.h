@@ -30,7 +30,7 @@ namespace genie {
 
 class BohrElectronVelocity : public ElectronVelocity {
 public:
-  virtual void InitializeVelocity(Interaction & interaction) const final;
+  void InitializeVelocity(Interaction & interaction) const final;
   BohrElectronVelocity();
   BohrElectronVelocity(const string & config);
   ~BohrElectronVelocity();
@@ -39,5 +39,6 @@ private:
   double bohr_velocity(unsigned int fn, unsigned int fZ) const; //Bohr velocity
   unsigned int random_n(unsigned int fZ) const; //Return random energy level from n_dist
   double random_bohr_velocity(unsigned int fZ) const; //Generate random n, then calculate velocity from there
+  TVector3 randomize_direction_sphere(double v) const;
 };
 }

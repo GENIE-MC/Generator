@@ -64,7 +64,8 @@ ElectronVelocity::ElectronVelocity("genie::BohrElectronVelocity", config)
 {
 
 }
-BohrElectronVelocity::BohrElectronVelocity() : ElectronVelocity::ElectronVelocity()
+BohrElectronVelocity::BohrElectronVelocity() : 
+ElectronVelocity::ElectronVelocity("genie::BohrElectronVelocity","Default")
 {
 
 }
@@ -74,19 +75,15 @@ void BohrElectronVelocity::InitializeVelocity(Interaction & interaction) const{
   InitialState * init_state  = interaction.InitStatePtr();
   Target *       tgt         = init_state  -> TgtPtr();
 
-  //Get random generator from genie
-  RandomGen * rnd = RandomGen::Instance();
-  TRandom3 gen = rnd->RndGen();
-
   unsigned int fZ = tgt->Z(); //Get Z value
-  TVector3 v3;
-  gen.Sphere(v3[0],v3[1],v3[2],random_bohr_velocity(fZ)); //Randomize direction with sphere - radius = bohr velocity
+  double v = random_bohr_velocity(fZ);
+  TVector3 v3 = randomize_direction_sphere(v); //Get spherically uniform random direciton
   double gamma = 1/sqrt(1-v3.Mag2()); //Get boost
   //Set 3 momentum
   auto p3 = kElectronMass*gamma*v3;
   //-- update the electron 4p
   TLorentzVector * p4 = tgt->HitEleP4Ptr(); //Initialize 4 momentum pointer
-  p4->SetVectM( p3, kElectronMass2);
+  p4->SetVectM( p3, kElectronMass);
 }
 //___________________________________________________________________________
 
@@ -94,7 +91,6 @@ void BohrElectronVelocity::InitializeVelocity(Interaction & interaction) const{
 
 unsigned BohrElectronVelocity::random_n(unsigned int fZ) const{
   //Isotope minimum z is 118 in accordance with maximum possible in GENIE
-  static int fMaxElectrons = 118; //Max total electrons
   std::array<int, 6> fnprobs {2,10,28,60,110,118}; //Cumulative Probability dist.
 
   //Get random electron orbital from atomic number Z
@@ -125,6 +121,19 @@ double BohrElectronVelocity::random_bohr_velocity(unsigned int fZ) const{
   //Get random bohr velocity from n distribution
   unsigned int fn = random_n(fZ);
   return bohr_velocity(fn,fZ);
+}
+
+TVector3 BohrElectronVelocity::randomize_direction_sphere(double v) const{
+  RandomGen * rnd = RandomGen::Instance(); //Load seed
+  TRandom3 gen = rnd->RndGen(); //Get generator
+  double costheta = gen.Uniform(-1,1); //Polar
+  double phi = gen.Uniform(0,2*kPi); //Azimuthal
+  double random_sign = gen.Rndm(); //Gen number between 0,1
+  int sign = (random_sign < 0.5) ? -1 : 1; //Get -1 or 1 from this number
+  double sintheta = sign*TMath::Sin(TMath::ACos(costheta)); //Sin theta
+  return TVector3(v*sintheta*TMath::Cos(phi),
+                  v*sintheta*TMath::Sin(phi),
+                  v*costheta); //Return vector with magnitude v and random direction
 }
 
 
