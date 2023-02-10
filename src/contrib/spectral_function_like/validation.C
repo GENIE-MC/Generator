@@ -61,12 +61,19 @@ void spectral_function_spectra( TString in_file_name  = "gntp.0.ghep.root" ,
 
     const auto & target = inter.InitState().Tgt() ;
 
-    if ( ! target.HitNucIsSet() ) continue;
+    if ( target.HitNucIsSet() ) {
 
-    const auto * hit_nucleon = event.HitNucleon();
+      if ( ! proc_info.IsMEC() ) {
+	   
+	const auto * hit_nucleon = event.HitNucleon();
+	
+	h_Eb_vs_p->Fill( hit_nucleon->P4()->P(), hit_nucleon->RemovalEnergy() );
+	
+	if ( hit_nucleon->RemovalEnergy() < 0.005 ) 
+	  cout << event << endl;
+      }
+    }
     
-    h_Eb_vs_p->Fill( hit_nucleon->P4()->P(), hit_nucleon->RemovalEnergy() );
-
     mcrec->Clear() ;
   } // event loop
 
