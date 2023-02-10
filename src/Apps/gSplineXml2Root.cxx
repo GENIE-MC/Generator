@@ -631,12 +631,7 @@ void SaveGraphsToRootFile(void) {
       title << "ve";
     } else if (proc.IsGlashowResonance()) {
       title << "glres";
-    } else {
-      LOG("gspl2root", pWARN)
-          << "Process " << proc
-          << " scattering type not recognised: spline not added";
-      continue;
-    }
+    } 
     else if (proc.IsCoherentElastic()  ) { title << "cevns"; }
     else if (proc.IsInverseMuDecay()   ) { title << "imd";   }
     else if (proc.IsIMDAnnihilation()  ) { title << "imdanh";}
@@ -1284,16 +1279,14 @@ void SaveGraphsToRootFile(void) {
 
   }// neutrinos
 
-  } // neutrinos
-
   //
   // totals for charged lepton scattering
   //
 
   bool is_charged_lepton = pdg::IsChargedLepton(gOptProbePdgCode);
-
+  
   if (is_charged_lepton) {
-
+    
     //
     // add-up all res channels
     //
