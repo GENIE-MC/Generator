@@ -22,13 +22,13 @@ cd $GENIE
 
 GENIE_VERSION=master
 if [ ! -z "$2" ] ; then 
-  GENIE_VERSION=$1
+  GENIE_VERSION=$2
   git checkout "$GENIE_VERSION" 
 fi
 echo Requested Genie version $GENIE_VERSION
 
 if [ ! -z "$3" ] ; then
-  GENIE_CONFIG_DIR=$2
+  GENIE_CONFIG_DIR=$3
   echo Requested Genie config $GENIE_CONFIG_DIR 
   if [ -d "$GENIE/$GENIE_CONFIG_DIR" ]; then
     GALGCONF=$GENIE/$GENIE_CONFIG_DIR
