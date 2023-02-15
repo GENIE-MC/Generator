@@ -324,7 +324,6 @@ TLorentzVector * InitialState::GetTgtP4(RefFrame_t ref_frame) const
        {
              // make sure that 'struck electron' properties were set in
              // the electron target object
-             //assert(fTgt->HitEleIsSet());
              if (!fTgt->HitEleIsSet()){
               return nullptr;
              }
@@ -332,7 +331,7 @@ TLorentzVector * InitialState::GetTgtP4(RefFrame_t ref_frame) const
              TLorentzVector * p4;
              p4->SetVectM(TVector3(),inv_mass);
              return p4;
-             break; //Do we also need this break?
+             break;
        }
        default:
              LOG("Interaction", pERROR) << "Uknown reference frame";

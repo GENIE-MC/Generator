@@ -23,6 +23,11 @@
 #include "Framework/Utils/KineUtils.h"
 #include "Physics/NuclearState/ElectronVelocity.h"
 
+#include "TFile.h"
+#include "TGraph.h"
+#include <fstream>
+#include <iterator>
+
 using namespace genie;
 using namespace genie::constants;
 using namespace genie::controls;
@@ -42,6 +47,20 @@ XSecAlgorithmI("genie::NuElectronPXSec", config)
 //____________________________________________________________________________
 NuElectronPXSec::~NuElectronPXSec()
 {
+  std::ofstream output_file("./sigmas_errors.txt");
+  output_file <<"x\tsigma\terr\tavg\n";
+  vector<double> x;
+  for (unsigned int i = 1; i<=fSigmas.size();i++){
+    x.push_back(i);
+    output_file <<i<<"\t"<<fSigmas[i]<<"\t"<<
+    fErrors[i]<<"\t"<<fAvg[i]<<"\n"; //Put beam eng in here
+  }
+  //TGraph sigma(fSigmas.size(),x.data(),fSigmas.data());
+  //TGraph errors(fErrors.size(),x.data(),fErrors.data());
+
+  //sigma.Write("sigma");
+  //errors.Write("errors");
+  //f.Close();
 
 }
 //____________________________________________________________________________
@@ -56,7 +75,7 @@ double NuElectronPXSec::XSec(
   const Kinematics &   kinematics = interaction -> Kine();
   const ProcessInfo &  proc_info  = interaction -> ProcInfo();
 
-  double Ev = init_state.ProbeE(kRfLab);
+  double Ev = init_state.ProbeE(kRfHitElRest); //Electron rest frame
 
   double me = kElectronMass;
   double y  = kinematics.y();
@@ -141,9 +160,8 @@ double NuElectronPXSec::Integral(const Interaction * interaction) const
 {
   double xsec_sum = 0; 
   double xsec_sum2 = 0; 
-  double xsec_err = fErrTolerance*2.; //Set larger than tolerance at first
   int NInt = 0; //Count number of integrations
-  while ( NInt < fNIntegration){
+  do{
     NInt++;
     Interaction in_curr(*interaction); //Copy interaction object
     fElectronVelocity->InitializeVelocity(in_curr); //Modify interaction to give electron random velocity from selected distribution
@@ -151,13 +169,17 @@ double NuElectronPXSec::Integral(const Interaction * interaction) const
     xsec_sum+=xsec;
     xsec_sum2+=TMath::Power(xsec,2);
     double xsec_mean = xsec_sum/NInt;
-    //var = (sum(xi^2)-sum(xi)^2)/N
+    //var = (sum(xi^2)/N-xsec_mean^2)
     //rel_err = sigma/sqrt(n)*mean
-    xsec_err = sqrt(xsec_sum2-TMath::Power(xsec_sum,2))/(NInt*xsec_mean);
-    if (NInt == 1){xsec_err = fErrTolerance*2.;} //Dumby value for first iteration since var=0 by definition
-    if (xsec_err < fErrTolerance){break;} //Break condition for dipping below set tolerance
+    double xsec_sigma = sqrt(xsec_sum2/NInt-TMath::Power(xsec_mean,2));
+    double xsec_err = sqrt((xsec_sum2/NInt-TMath::Power(xsec_mean,2))/NInt)/xsec_mean;
+    fSigmas.push_back(xsec_sigma);
+    fErrors.push_back(xsec_err);
+    fAvg.push_back(xsec_mean);
+    if (NInt > 1 && xsec_err < fErrTolerance){break;} //Break condition for dipping below set tolerance
   }
-  double xsec_avg = xsec_sum/fNIntegration;
+  while ( NInt < fNIntegration); 
+  double xsec_avg = xsec_sum/NInt;
   return xsec_avg;
 }
 //____________________________________________________________________________

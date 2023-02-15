@@ -65,8 +65,10 @@ private:
 
   double fSin28w; // sin^2(theta-weinberg)
   double fSin48w;
-  int fNIntegration; //Number of integration samples
+  int fNIntegration; //Max number of integration samples
   double fErrTolerance; //Error tolerance acceptable before returning cross section average
+
+  mutable std::vector<double> fSigmas,fErrors,fAvg; //Store sigmas and errors
 };
 
 }       // genie namespace
