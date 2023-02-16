@@ -26,7 +26,17 @@ S12DeltaP@P11(1440) double no
 
   <param_set name="Default">   
     <!-- Delta resonance parameters -->
-    <param type="double" name="A320P@P33(1232)"> -265.0 </param> 
+    <param type="double" name="AM0@P33(1232)"> 300 </param> 
+    <param type="double" name="AE0@P33(1232)"> -6.37 </param> 
+    <param type="double" name="AS0@P33(1232)"> -12.40 </param> 
+    <param type="double" name="BetaM0@P33(1232)"> 0.01 </param> 
+    <param type="double" name="BetaE0@P33(1232)"> -0.021 </param> 
+    <param type="double" name="BetaS0@P33(1232)"> 0.12 </param> 
+    <param type="double" name="GammaM0@P33(1232)"> 0.23 </param> 
+    <param type="double" name="GammaE0@P33(1232)"> 0.16 </param> 
+    <param type="double" name="GammaS0@P33(1232)"> 0.23 </param> 
+    <param type="double" name="NM0@P33(1232)"> 1 </param> 
+    <param type="double" name="NE0@P33(1232)"> 1 </param> 
 
     <!-- P11(1440) parameters -->
     <param type="double" name="A120P@P11(1440)"> -61.0 </param> 
