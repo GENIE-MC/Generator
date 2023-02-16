@@ -40,10 +40,11 @@ S12DeltaP@P11(1440) double no
 
     <!-- P11(1440) parameters -->
     <param type="double" name="A120P@P11(1440)"> -61.0 </param> 
-    <param type="double" name="A12AlphaP@P11(1440)"> -1.22 </param> 
-    <param type="double" name="A12BetaP@P11(1440)"> 1.51 </param> 
     <param type="double" name="S120P@P11(1440)"> 4.2 </param> 
-    <param type="double" name="S12AlphaP@P11(1440)"> 40.0 </param> 
+    <param type="double" name="A12AlphaP@P11(1440)"> -1.22 </param> 
+    <param type="double" name="S12AlphaP@P11(1440)"> 40 </param> 
+    <param type="double" name="A12BetaP@P11(1440)"> 1.51 </param> 
+    <param type="double" name="S12BetaP@P11(1440)"> 1.75 </param> 
     <param type="double" name="A12DeltaP@P11(1440)"> -0.55 </param> 
     <param type="double" name="S12DeltaP@P11(1440)"> 1.5 </param> 
 
