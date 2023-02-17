@@ -34,6 +34,7 @@
 #include <functional>   
 #include <numeric>      // std::accumulate
 #include <memory>
+#include <cmath>
 
 #include <TROOT.h>
 #include <TMath.h>
@@ -89,9 +90,9 @@ void COHGammaKinematicsGenerator::ProcessEventRecord(GHepRecord *evrec) const {
   if (!fXSecModel->ValidProcess(in)) {
     std::stringstream message;
     message << "Cannot calculate kinematics for " << fXSecModel->Id().Name();
-
+    
     LOG("COHGammaKinematicsGenerator", pFATAL) << message.str();
-
+    
     exceptions::EVGThreadException ex;
     ex.SetReason(message.str());
     ex.SwitchOnFastForward();
@@ -99,10 +100,9 @@ void COHGammaKinematicsGenerator::ProcessEventRecord(GHepRecord *evrec) const {
   }
 
   in->SetBit(kISkipProcessChk);
-  // in -> SetBit(kISkipKinematicChk);
-
-  double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
-
+  
+  double xsec_max = (fGenerateUniformly) ? -1 : this->ComputeMaxXSec(in);
+  
   // Initialise a random number generator
   RandomGen *rnd = RandomGen::Instance();
 
@@ -162,7 +162,15 @@ void COHGammaKinematicsGenerator::ProcessEventRecord(GHepRecord *evrec) const {
       LOG("COHKinematics", pINFO) << "Got: xsec = " << xsec << ", t = " << t
                                   << " (max_xsec = " << xsec_max << ")";
 
-      this->AssertXSecLimits(in, xsec, xsec_max);
+      double f = 200*(xsec-xsec_max)/(xsec_max+xsec);
+      if ( f>fMaxXSecDiffTolerance ) {
+	xsec_max = xsec * fSafetyFactor;
+	LOG("COHKinematics", pWARN) << "Cross section maximum has been overridden to " << xsec_max ;
+	continue;
+      }
+      
+      
+      //      this->AssertXSecLimits(in, xsec, xsec_max);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("COHKinematics", pDEBUG) << "xsec= " << xsec << ", J= 1, Rnd= " << t;
@@ -242,6 +250,8 @@ COHGammaKinematicsGenerator::ComputeMaxXSec(const Interaction *in) const {
   SLOG("COHKinematics", pDEBUG)
       << "Scanning the allowed phase space {K} for the max(dxsec/d{K})";
 #endif
+
+  std::cout << "Looking for the minimum \n" ;
  
   std::unique_ptr<ROOT::Math::Minimizer> min( ROOT::Math::Factory::CreateMinimizer("Minuit2" ) );
 
@@ -273,20 +283,29 @@ COHGammaKinematicsGenerator::ComputeMaxXSec(const Interaction *in) const {
 
   double max_xsec = -1. ;
 
+  double e_nu = in->InitState().ProbeE( kRfLab ) ; 
+
   auto scan_points = fMinimScanPoints ;
+  for ( int i = 0; i < scan_points.size() ; ++i ) {
+    scan_points[i] += ceil( e_nu * fScaleScanPoints[i] );
+  }
 
   unsigned int max_xsec_iteractions = 0 ;
 
   while ( max_xsec <= 0. ) {
 
     for( auto & p : scan_points ) {
-      p += max_xsec_iteractions ;
+      p *= (max_xsec_iteractions+1) ;
+      std::cout << p << std::endl ;
     }
     
     for (unsigned int i = 0; i < ranges.size(); ++i) {
       double width = ranges[i].max - ranges[i].min;
       steps[i] = width / (scan_points[i] + 1);
     }
+
+
+    
     
     double xsec = 0;
 
@@ -304,6 +323,7 @@ COHGammaKinematicsGenerator::ComputeMaxXSec(const Interaction *in) const {
 	    temp_point[3] = ranges[3].min + steps[3] * l;
 	    
 	    double temp_xsec = -f(temp_point.data());
+	    //std::cout << temp_xsec << std::endl;
 	    if (temp_xsec > xsec) {
 	      start = temp_point;
 	      xsec = temp_xsec;
@@ -313,14 +333,20 @@ COHGammaKinematicsGenerator::ComputeMaxXSec(const Interaction *in) const {
       }
     }
     
+    std::cout << "Minimising using minuit \n";
+    std::cout << xsec << std::endl;
+    
     for (unsigned int i = 0; i < ranges.size(); ++i) {
-      min->SetLimitedVariable(i, names[i], start[i], steps[i], ranges[i].min,
-			      ranges[i].max);
+      min->SetLimitedVariable(i, names[i], 
+			      start[i], 
+			      1E-6*steps[i], 
+			      ranges[i].min, ranges[i].max);
     }
     
     min->Minimize();
     
-    double max_xsec = -min->MinValue(); // back to positive xsec
+    max_xsec = -min->MinValue(); // back to positive xsec
+    std::cout << max_xsec << std::endl;
     
     ++ max_xsec_iteractions ;
   }  // while max_xsec <= 0. 
@@ -416,6 +442,20 @@ void COHGammaKinematicsGenerator::LoadConfig(void) {
   for (unsigned int i = 0; i < fMinimScanPoints.size(); ++i) {
     fMinimScanPoints[i] = std::max(1, scan_points[i]);
   }
+
+  std::vector<double> scale_scan_points;
+  GetParamVect("ScaleScanPoint", scale_scan_points);
+  if (scale_scan_points.size() < fScaleScanPoints.size()) {
+    LOG("COHGammaKinematicsGenerator", pERROR)
+        << "Not enough information for phase space scan";
+    error = true;
+  }
+
+  for (unsigned int i = 0; i < fScaleScanPoints.size(); ++i) {
+    fScaleScanPoints[i] = std::max(0., scale_scan_points[i]);
+  }
+
+
 
   if (error) {
     LOG("COHGammaKinematicsGenerator", pFATAL)

@@ -5,37 +5,46 @@ Configuration for the COHKinematicsGenerator EventRecordVisitorI
 
 Algorithm Configurable Parameters:
 .......................................................................................................................
-Name                     Type    Opt     Comment                                        Default
+Name                     Type       Opt     Comment                                        Default
 .......................................................................................................................
-UniformOverPhaseSpace    bool    Yes     kinematics uniformly over allowd phase space   false
-                                         wgt = (phase_space_volume)*(diff_xsec)/(xsec)
-MaxXSec-SafetyFactor     double  Yes     multiplies max xsec in rejection method        1.6
-MaxXSec-DiffTolerance    double  Yes     max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)  999999.00 (disable)
-                                         if xsec>xsecmax
-Cache-MinEnergy          double  Yes     minimum energy for which max xsec is cached    0.00
-MinimScanPoint           vec-int    yes  number of points in each phase space           all 1
-                                         coordinate to be used for a scan 
-                                         for Maximum XSec
-					 
-IntegrationLimits        algo    No     Specificies integration limit algorithm                                  
-                                          It is required for COH gamma configurations 
-tPhaseSpace              bool    yes     Generate the events in the t phase space       false 
-                                         instead of theta_l 
+UniformOverPhaseSpace    bool       Yes     kinematics uniformly over allowd phase space   false
+                                            wgt = (phase_space_volume)*(diff_xsec)/(xsec)
+MaxXSec-SafetyFactor     double     Yes     multiplies max xsec in rejection method        1.6
+MaxXSec-DiffTolerance    double     Yes     max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)  999999.00 (disable)
+                                            if xsec>xsecmax
+Cache-MinEnergy          double     Yes     minimum energy for which max xsec is cached    0.00
+MinimScanPoint           vec-int    yes     number of points in each phase space           all 1
+                                            coordinate to be used for a scan 
+                                            for Maximum XSec
+ScaleScanPoint           vec-double No      The number of points used for the Maximum 
+                                            Xsec scan increases with energy. 
+                                            These are the linear coefficients of the
+                                            scaling  
 
-MaxIterations            int     yes     Maximum number of iterations to try            controls::kRjMaxIterations
-                                         acceptance / rejection method
+					 
+IntegrationLimits        algo       No      Specificies integration limit algorithm                                  
+                                            It is required for COH gamma configurations 
+tPhaseSpace              bool       yes     Generate the events in the t phase space       false 
+                                            instead of theta_l 
+
+MaxIterations            int        yes     Maximum number of iterations to try            controls::kRjMaxIterations
+                                            acceptance / rejection method
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
 
-    <param type="double" name="MaxXSec-SafetyFactor"> 1.05 </param>
+    <param type="double" name="MaxXSec-SafetyFactor"> 1.5 </param>
+
+    <param type="double" name="MaxXSec-DiffTolerance"> 1. </param>
 
     <param type="int" name="MaxIterations"> 100000 </param>
     
-    <param type="vec-int" name="MinimScanPoint" delim=";" > 10 ; 200 ; 10 ; 1 </param> 
+    <param type="vec-int" name="MinimScanPoint" delim=";" > 11 ; 175 ; 11 ; 3 </param> 
 
+    <param type="vec-double" name="ScaleScanPoint" delim=";" > 0.4 ; 0.8 ; 0.4 ; 0.01 </param>
+ 
     <param type="alg" name ="IntegrationLimits"  > genie::COHGammaIntegrationLimits/Default </param>
     
     </param_set>

@@ -61,6 +61,7 @@ namespace genie {
 
     const COHGammaIntegrationLimits * fGammaLimits ; 
     std::array<unsigned int, 4> fMinimScanPoints ;
+    std::array<double, 4> fScaleScanPoints ;
     bool ftPhaseSpace ;
 
     unsigned int fMaxIterations ; 
