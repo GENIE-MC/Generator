@@ -16,13 +16,19 @@ using namespace genie::units;
 
 //____________________________________________________________________________
 VertexGenerator::VertexGenerator() :
-  EventRecordVisitorI("genie::hnl::VertexGenerator")
+  GeomRecordVisitorI("genie::hnl::VertexGenerator")
 {
 
 }
 //____________________________________________________________________________
-VertexGenerator::VertexGenerator(string config) :
-  EventRecordVisitorI("genie::hnl::VertexGenerator", config)
+VertexGenerator::VertexGenerator(string name) :
+  GeomRecordVisitorI(name)
+{
+
+}
+//____________________________________________________________________________
+VertexGenerator::VertexGenerator(string name, string config) :
+  GeomRecordVisitorI(name, config)
 {
 
 }

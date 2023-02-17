@@ -36,22 +36,24 @@
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
+#include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Utils/UnitUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 
-#include "Physics/BeamHNL/HNLDecayer.h"
+#include "Physics/BeamHNL/HNLGeomRecordVisitorI.h"
 
 namespace genie {
 namespace hnl {
 
   class SimpleHNL;
 
-  class VertexGenerator : public EventRecordVisitorI {
+  class VertexGenerator : public GeomRecordVisitorI {
 
   public:
 
     VertexGenerator();
-    VertexGenerator(string config);
+    VertexGenerator(string name);
+    VertexGenerator(string name, string config);
     ~VertexGenerator();
 
     //-- implement the EventRecordVisitorI interface

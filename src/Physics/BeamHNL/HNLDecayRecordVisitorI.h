@@ -21,8 +21,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _GNUMI_DECAY_RECORD_VISITOR_I_H_
-#define _GNUMI_DECAY_RECORD_VISITOR_I_H_
+#ifndef _HNL_DECAY_RECORD_VISITOR_I_H_
+#define _HNL_DECAY_RECORD_VISITOR_I_H_
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
 
@@ -70,4 +70,4 @@ namespace genie {
 
 } // namespace genie
 
-#endif // #ifndef _GNUMI_DECAY_RECORD_VISITOR_I_H_
+#endif // #ifndef _HNL_DECAY_RECORD_VISITOR_I_H_

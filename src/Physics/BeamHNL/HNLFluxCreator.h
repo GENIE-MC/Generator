@@ -1,10 +1,10 @@
 //----------------------------------------------------------------------------
 /*!
 
-  This is a module for GENIE to read in (gnumi) flux ntuples and construct HNL fluxes
+  This is a module for GENIE to read in hadron flux ntuples and construct HNL fluxes
   on the fly. 
   
-  Core loop: + Open dk2nu entry
+  Core loop: + Open flux entry
              + Get ancestry information
 	     + Assume decay to HNL (discard SM nu info, is unneeded)
 	     + Calculate HNL production mode based on parameter space read from config
@@ -83,8 +83,6 @@
 #include "Physics/BeamHNL/HNLKinUtils.h"
 #include "Physics/BeamHNL/SimpleHNL.h"
 
-#endif // #ifndef _HNL_FLUXCREATOR_H_
-
 const double kRDET = 1.0; // calculate fluxes per m^2
 
 namespace genie{
@@ -98,10 +96,11 @@ namespace genie{
     public:
 
       FluxCreator();
-      FluxCreator(string config);
+      FluxCreator(string name);
+      FluxCreator(string name, string config);
       ~FluxCreator();
 
-      //-- implement the EventRecordVisitorI interface
+      //-- implement the FluxRecordVisitorI interface
       void ProcessEventRecord(GHepRecord * event_rec) const;
 
       // overload the Algorithm::Configure() methods to load private data
@@ -300,3 +299,5 @@ namespace genie{
       
   } // namespace hnl
 } // namespace genie
+
+#endif // #ifndef _HNL_FLUXCREATOR_H_

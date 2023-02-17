@@ -11,31 +11,31 @@
 */
 //____________________________________________________________________________
 
-#include "Physics/BeamHNL/HNLFluxRecordVisitorI.h"
+#include "Physics/BeamHNL/HNLGeomRecordVisitorI.h"
 
 using namespace genie;
 using namespace genie::hnl;
 
 //____________________________________________________________________________
-FluxRecordVisitorI::FluxRecordVisitorI() :
-  GeomRecordVisitorI()
+GeomRecordVisitorI::GeomRecordVisitorI() :
+  EventRecordVisitorI()
 {
 
 }
 //____________________________________________________________________________
-FluxRecordVisitorI::FluxRecordVisitorI(string name) :
-  GeomRecordVisitorI(name)
+GeomRecordVisitorI::GeomRecordVisitorI(string name) :
+  EventRecordVisitorI(name)
 {
 
 }
 //____________________________________________________________________________
-FluxRecordVisitorI::FluxRecordVisitorI(string name, string config) :
-  GeomRecordVisitorI(name, config)
+GeomRecordVisitorI::GeomRecordVisitorI(string name, string config) :
+  EventRecordVisitorI(name, config)
 {
 
 }
 //____________________________________________________________________________
-FluxRecordVisitorI::~FluxRecordVisitorI()
+GeomRecordVisitorI::~GeomRecordVisitorI()
 {
 
 }

@@ -12,6 +12,7 @@
 #pragma link C++ namespace genie::hnl::selector;
 
 #pragma link C++ class genie::hnl::ChannelCalculatorI;
+#pragma link C++ class genie::hnl::GeomRecordVisitorI;
 #pragma link C++ class genie::hnl::FluxRecordVisitorI;
 #pragma link C++ class genie::hnl::DecayRecordVisitorI;
 

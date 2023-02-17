@@ -21,8 +21,14 @@ FluxCreator::FluxCreator() :
 
 }
 //----------------------------------------------------------------------------
-FluxCreator::FluxCreator(string config) :
-  FluxRecordVisitorI("genie::hnl::FluxCreator", config)
+FluxCreator::FluxCreator(string name) :
+  FluxRecordVisitorI(name)
+{
+
+}
+//----------------------------------------------------------------------------
+FluxCreator::FluxCreator(string name, string config) :
+  FluxRecordVisitorI(name, config)
 {
 
 }

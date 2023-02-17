@@ -21,10 +21,11 @@
 */
 //____________________________________________________________________________
 
-#ifndef _GNUMI_FLUX_RECORD_VISITOR_I_H_
-#define _GNUMI_FLUX_RECORD_VISITOR_I_H_
+#ifndef _HNL_FLUX_RECORD_VISITOR_I_H_
+#define _HNL_FLUX_RECORD_VISITOR_I_H_
 
-#include "Framework/EventGen/EventRecordVisitorI.h"
+//#include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Physics/BeamHNL/HNLGeomRecordVisitorI.h"
 
 namespace genie {
 
@@ -36,7 +37,7 @@ namespace genie {
 
   namespace hnl {
 
-    class FluxRecordVisitorI: public EventRecordVisitorI {
+    class FluxRecordVisitorI: public GeomRecordVisitorI {
 
     public:
 
@@ -72,4 +73,4 @@ namespace genie {
 
 } // namespace genie
 
-#endif // #ifndef _GNUMI_FLUX_RECORD_VISITOR_I_H_
+#endif // #ifndef _HNL_FLUX_RECORD_VISITOR_I_H_
