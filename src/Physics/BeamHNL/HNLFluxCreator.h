@@ -73,13 +73,12 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/PrintUtils.h"
 
-#include "Tools/Flux/GNuMIFlux.h"
-
 #include "Physics/BeamHNL/HNLFluxRecordVisitorI.h"
 
 #include "Physics/BeamHNL/HNLBRCalculator.h"
 #include "Physics/BeamHNL/HNLDecayUtils.h"
 #include "Physics/BeamHNL/HNLEnums.h"
+#include "Physics/BeamHNL/HNLFluxContainer.h"
 #include "Physics/BeamHNL/HNLKinUtils.h"
 #include "Physics/BeamHNL/SimpleHNL.h"
 
@@ -90,6 +89,7 @@ namespace genie{
   namespace hnl{
     
     class SimpleHNL;
+    class FluxContainer;
     
     class FluxCreator : public FluxRecordVisitorI {
 
@@ -117,10 +117,8 @@ namespace genie{
       // set first entry for read-in from chain
       void SetFirstFluxEntry( int iFirst ) const;
 
-      // get dk2nu flux info
-      flux::GNuMIFluxPassThroughInfo * RetrieveGNuMIFluxPassThroughInfo() const;
-      flux::GNuMIFluxPassThroughInfo RetrieveFluxInfo() const;
-      flux::GNuMIFluxPassThroughInfo RetrieveFluxBase() const;
+      // get flux info
+      FluxContainer RetrieveFluxInfo() const;
 
       // return information about frames
       std::vector< double > GetB2UTranslation() const { return fB2UTranslation; }
@@ -139,9 +137,8 @@ namespace genie{
       void SetCurrentEntry( int iCurr ) const;
 
       // workhorse methods
-      genie::flux::GNuMIFluxPassThroughInfo MakeTupleFluxEntry( int iEntry, std::string finpath ) const;
-      void FillNonsense( int iEntry, genie::flux::GNuMIFluxPassThroughInfo * gnmf ) const;
-      void FillBase( int iEntry, genie::flux::GNuMIFluxPassThroughInfo &gnmf ) const;
+      FluxContainer MakeTupleFluxEntry( int iEntry, std::string finpath ) const;
+      void FillNonsense( int iEntry, genie::hnl::FluxContainer & gnmf ) const;
 
       // init
       void OpenFluxInput( std::string finpath ) const;
@@ -229,7 +226,14 @@ namespace genie{
       mutable std::vector< double > fFixedPolarisation;
 
       mutable int fLepPdg; // pdg code of co-produced lepton
+      mutable int fNuPdg; // pdg code of SM neutrino from same decay type
       mutable double parentMass, parentMomentum, parentEnergy; // GeV
+      mutable double fECM, fSMECM; // GeV
+      mutable double fZm, fZp; // deg
+
+      mutable int fProdChan, fNuProdChan;
+
+      mutable TVector3 fTargetPoint, fTargetPointUser;
 
       static const int maxArray = 30, maxC = 100;
 
@@ -280,8 +284,7 @@ namespace genie{
       mutable double location_x[maxArray], location_y[maxArray], location_z[maxArray];
       mutable char location_name[maxArray*maxC];
 
-      mutable genie::flux::GNuMIFluxPassThroughInfo fGnmf;
-      mutable genie::flux::GNuMIFluxPassThroughInfo fGnmf_base; // to store unchanged input info
+      mutable genie::hnl::FluxContainer fGnmf;
 
       mutable double POTScaleWeight;
       mutable std::vector<double> fScales;

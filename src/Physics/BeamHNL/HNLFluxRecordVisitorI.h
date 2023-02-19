@@ -26,16 +26,15 @@
 
 //#include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Physics/BeamHNL/HNLGeomRecordVisitorI.h"
+#include "Physics/BeamHNL/HNLFluxContainer.h"
 
 namespace genie {
 
   class GHepRecord;
 
-  namespace flux {
-    class GNuMIFluxPassThroughInfo;
-  }
-
   namespace hnl {
+
+    class FluxContainer;
 
     class FluxRecordVisitorI: public GeomRecordVisitorI {
 
@@ -47,9 +46,7 @@ namespace genie {
 
       virtual void ProcessEventRecord(GHepRecord * event_rec) const = 0;
 
-      virtual flux::GNuMIFluxPassThroughInfo * RetrieveGNuMIFluxPassThroughInfo() const = 0;
-      virtual flux::GNuMIFluxPassThroughInfo RetrieveFluxInfo() const = 0;
-      virtual flux::GNuMIFluxPassThroughInfo RetrieveFluxBase() const = 0;
+      virtual FluxContainer RetrieveFluxInfo() const = 0;
 
       virtual std::vector< double > GetB2UTranslation() const = 0;
       virtual std::vector< double > GetB2URotation() const = 0;

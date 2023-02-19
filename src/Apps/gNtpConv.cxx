@@ -164,6 +164,10 @@
 #include "Tools/Flux/GNuMIFlux.h"
 #endif
 
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+#include "Physics/BeamHNL/HNLFluxContainer.h"
+#endif
+
 //define __GHAD_NTP__
 
 using std::string;
@@ -1834,6 +1838,7 @@ void ConvertToGRooTracker(void)
   int         brEvtNum;                   // Event num.
   double      brEvtXSec;                  // Cross section for selected event (1E-38 cm2)
   double      brEvtDXSec;                 // Cross section for selected event kinematics (1E-38 cm2 /{K^n})
+  UInt_t      brEvtKPS;                   // Kinematic phase space variables as in KinePhaseSpace_t
   double      brEvtWght;                  // Weight for that event
   double      brEvtProb;                  // Probability for that event (given cross section, path lengths, etc)
   double      brEvtVtx[4];                // Event vertex position in detector coord syst (SI)
@@ -1943,8 +1948,6 @@ void ConvertToGRooTracker(void)
                                           // - 12  mu- -> numu nuebar e-
                                           // - 13  pi+ -> numu mu+
                                           // - 14  pi- -> numubar mu-
-                                          // Decay modes > 30 are HNL
-                                          // See BeamHNL/HNLFluxCreator.cxx
   int        brNumiFluxNtype;             // Neutrino flavor
   double     brNumiFluxVx;                // Position of hadron/muon decay, X coordinate
   double     brNumiFluxVy;                // Position of hadron/muon decay, Y coordinate
@@ -2017,6 +2020,7 @@ void ConvertToGRooTracker(void)
     rootracker_tree->Branch("EvtNum",          &brEvtNum,          "EvtNum/I");             
     rootracker_tree->Branch("EvtXSec",         &brEvtXSec,         "EvtXSec/D");            
     rootracker_tree->Branch("EvtDXSec",        &brEvtDXSec,        "EvtDXSec/D");           
+    rootracker_tree->Branch("EvtKPS",          &brEvtKPS,          "EvtKPS/i");
     rootracker_tree->Branch("EvtWght",         &brEvtWght,         "EvtWght/D");            
     rootracker_tree->Branch("EvtProb",         &brEvtProb,         "EvtProb/D");            
     rootracker_tree->Branch("EvtVtx",           brEvtVtx,          "EvtVtx[4]/D");             
@@ -2206,14 +2210,9 @@ void ConvertToGRooTracker(void)
      gtree->SetBranchAddress("flux", &gnumi_flux_info);
   }
 #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
-
-  // doing some permutation magic here
-  // gnumi_flux_info ==> the "base flux" for SM neutrino
   // gnumi_flux_ster ==> the "new flux" for HNL neutrino
-  flux::GNuMIFluxPassThroughInfo * gnumi_flux_base = 0;
-  flux::GNuMIFluxPassThroughInfo * gnumi_flux_ster = 0;
+  hnl::FluxContainer * gnumi_flux_ster = 0;
   if(gOptOutFileFormat == kConvFmt_numi_rootracker) {
-    gtree->SetBranchAddress("fluxBase", &gnumi_flux_base);
     gtree->SetBranchAddress("flux", &gnumi_flux_ster);
   }
   // extra branches for HNL declared here
@@ -2269,6 +2268,7 @@ void ConvertToGRooTracker(void)
     brEvtNum    = 0;    
     brEvtXSec   = 0;
     brEvtDXSec  = 0;
+    brEvtKPS    = 0;
     brEvtWght   = 0;
     brEvtProb   = 0;
     for(int k=0; k<4; k++) { 
@@ -2353,6 +2353,10 @@ void ConvertToGRooTracker(void)
     brEvtNum    = (int) iev;    
     brEvtXSec   = (1E+38/units::cm2) * event.XSec();    
     brEvtDXSec  = (1E+38/units::cm2) * event.DiffXSec();    
+    brEvtKPS    = event.DiffXSecVars();
+    LOG( "gntpc", pDEBUG )
+      << "brEvtKPS = " << brEvtKPS
+      << ", event.DiffXSecVars() = " << event.DiffXSecVars();
     brEvtWght   = event.Weight();    
     brEvtProb   = event.Probability();    
     brEvtVtx[0] = event.Vertex()->X();    
@@ -2496,10 +2500,6 @@ void ConvertToGRooTracker(void)
     if(gOptOutFileFormat == kConvFmt_numi_rootracker) {
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 
-#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
-      if( gnumi_flux_base ) gnumi_flux_info = gnumi_flux_base;
-#endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
-
      // Copy flux info if this is the numi rootracker variance.
      if(gnumi_flux_info) {
        brNumiFluxRun      = gnumi_flux_info->run;
@@ -2573,15 +2573,15 @@ void ConvertToGRooTracker(void)
     //
 #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
     if( gnumi_flux_ster ){
-      iVars[1] = gnumi_flux_ster->ndecay;
-      iVars[2] = gnumi_flux_ster->ntype;
-      iVars[3] = gnumi_flux_ster->ppmedium;
+      iVars[1] = gnumi_flux_ster->prodChan;
+      iVars[2] = gnumi_flux_ster->nuPdg;
+      iVars[3] = gnumi_flux_ster->lepPdg;
       
-      dVars[4] = gnumi_flux_ster->ndxdz;
-      dVars[5] = gnumi_flux_ster->ndydz;
-      dVars[6] = gnumi_flux_ster->npz;
-      dVars[7] = gnumi_flux_ster->necm;
-      dVars[8] = gnumi_flux_ster->nwtnear;
+      dVars[4] = gnumi_flux_ster->p4User.Px() / gnumi_flux_ster->p4User.Pz();
+      dVars[5] = gnumi_flux_ster->p4User.Py() / gnumi_flux_ster->p4User.Pz();
+      dVars[6] = gnumi_flux_ster->p4User.Pz();
+      dVars[7] = gnumi_flux_ster->nuEcm;
+      dVars[8] = gnumi_flux_ster->accCorr;
     }
 #endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
 

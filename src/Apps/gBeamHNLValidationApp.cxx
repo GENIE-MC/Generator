@@ -94,6 +94,7 @@
 #include "Physics/BeamHNL/HNLDecayUtils.h"
 #include "Physics/BeamHNL/HNLVertexGenerator.h"
 #include "Physics/BeamHNL/HNLFluxCreator.h"
+#include "Physics/BeamHNL/HNLFluxContainer.h"
 #include "Physics/BeamHNL/HNLDecayer.h"
 #include "Physics/BeamHNL/HNLProductionMode.h"
 #include "Physics/BeamHNL/SimpleHNL.h"
@@ -118,7 +119,7 @@ using namespace genie::hnl;
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #define __CAN_GENERATE_EVENTS_USING_A_FLUX__
-#include "Tools/Flux/GNuMIFlux.h"
+//#include "Tools/Flux/GNuMIFlux.h"
 #include <TH1.h>
 #endif // #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 
@@ -398,10 +399,11 @@ int TestFluxFromDk2nu()
 	gOptNev = maxFluxEntries;
       }
       
-      flux::GNuMIFluxPassThroughInfo * gnmf = fluxCreator->RetrieveGNuMIFluxPassThroughInfo();
+      FluxContainer vgnmf = fluxCreator->RetrieveFluxInfo();
+      FluxContainer * gnmf = &vgnmf;
       
       // reject nonsense
-      if( gnmf->necm < 0 ){
+      if( gnmf->Ecm < 0 ){
 	
 	LOG( "gevald_hnl", pDEBUG )
 	  << "Skipping nonsense for event " << ievent << " (was this parent too light?)";
@@ -410,60 +412,42 @@ int TestFluxFromDk2nu()
 	// now to make stuff from this... i.e. fill histos
 	
 	// first get the channel
-	int iChannel = gnmf->ndecay - 30; __attribute__((unused)) int typeMod = 1;
-	if( iChannel % 2 == 0 ){ iChannel--; typeMod = -1; }
-	HNLGNuMIProd_t gChannel = ( HNLGNuMIProd_t ) iChannel;
-	HNLProd_t pChannel;
+	int iChannel = gnmf->prodChan;
+	HNLProd_t pChannel = static_cast<HNLProd_t>(iChannel);
+	int typeMod = (gnmf->pdg > 0) ? 1 : -1;
 
-	switch( gChannel ){
-	case kHNLGProdNeuk3Electron:
-	  parPDG = kPdgK0L; nNeuk3Electron++; pChannel = kHNLProdNeuk3Electron; break;
-	case kHNLGProdNeuk3Muon:
-	  parPDG = kPdgK0L; nNeuk3Muon++; pChannel = kHNLProdNeuk3Muon; break;
-	case kHNLGProdKaon2Electron:
-	  parPDG = kPdgKP; nKaon2Electron++; pChannel = kHNLProdKaon2Electron; break;
-	case kHNLGProdKaon2Muon:
-	  parPDG = kPdgKP; nKaon2Muon++; pChannel = kHNLProdKaon2Muon; break;
-	case kHNLGProdKaon3Electron:
-	  parPDG = kPdgKP; nKaon3Electron++; pChannel = kHNLProdKaon3Electron; break;
-	case kHNLGProdKaon3Muon:
-	  parPDG = kPdgKP; nKaon3Muon++; pChannel = kHNLProdKaon3Muon; break;
-	case kHNLGProdMuon3Nue:
-	  parPDG = kPdgMuon; nMuon3Nue++; pChannel = kHNLProdMuon3Nue; break;
-	case kHNLGProdMuon3Numu:
-	  parPDG = kPdgMuon; nMuon3Numu++; pChannel = kHNLProdMuon3Numu; break;
-	case kHNLGProdMuon3Nutau:
-	  parPDG = kPdgMuon; nMuon3Nutau++; pChannel = kHNLProdMuon3Nutau; break;
-	case kHNLGProdPion2Electron:
-	  parPDG = kPdgPiP; nPion2Electron++; pChannel = kHNLProdPion2Electron; break;
-	case kHNLGProdPion2Muon:
-	  parPDG = kPdgPiP; nPion2Muon++; pChannel = kHNLProdPion2Muon; break;
-	default:
-	  LOG( "gevald_hnl", pERROR )
-	    << "Unknown decay mode " << iChannel << " at entry " << gnmf->evtno;
-	  parPDG = 0; break;
-	}
-	
-	if( parPDG == 0 ){ ievent++; continue; }
+	parPDG = gnmf->parPdg;
+
+	if( parPDG == 0 || parPDG == -9999 ){ ievent++; continue; }
 	
 	double MPar = PDGLibrary::Instance()->Find( parPDG )->Mass();
+	/*
 	TVector3 p3par( gnmf->xpoint, gnmf->ypoint, gnmf->zpoint );
 	double EPar = std::sqrt( p3par.Mag2() + MPar*MPar );
-	TLorentzVector p4par( p3par.Px(), p3par.Py(), p3par.Pz(), EPar );
+	*/
+	//TLorentzVector p4par( p3par.Px(), p3par.Py(), p3par.Pz(), EPar );
+	TLorentzVector p4par = gnmf->parp4; // NEAR, GeV
+	double EPar = p4par.E();
 	
 	TVector3 boost_beta = p4par.BoostVector();
 	betaMag = boost_beta.Mag();
 	
-	p4HNL = gnmf->fgP4User;
-	x4HNL = gnmf->fgX4User; // in cm
+	p4HNL = gnmf->p4; // NEAR coords, GeV
+	TVector3 dkVtx = gnmf->startPoint; // NEAR coords, m
+	double delay = gnmf->delay; // ns
+	
+	x4HNL.SetXYZT( dkVtx.X() * units::m / units::cm,
+		       dkVtx.Y() * units::m / units::cm,
+		       dkVtx.Z() * units::m / units::cm,
+		       delay );
 
-	double acceptance = gnmf->fgXYWgt; // full acceptance
-	double bCorr = gnmf->nenergyn; // boost correction
-	accCorr    = gnmf->nwtnear;   // just the acceptance correction
+	double acceptance = gnmf->acceptance; // full acceptance
+	double bCorr = gnmf->boostCorr; // boost correction
+	accCorr    = gnmf->accCorr;   // just the acceptance correction
 	nimpwt = gnmf->nimpwt;
 
 	double gam = std::sqrt( 1.0 / ( 1.0 - betaMag * betaMag ) );
-	double gamStar = gnmf->necm / gCfgMassHNL;
+	double gamStar = gnmf->Ecm / gCfgMassHNL;
 	double betaStar = std::sqrt( 1.0 - 1.0 / ( gamStar * gamStar ) );
 	double bigBeta = betaMag * gam / betaStar;
 
@@ -479,7 +463,7 @@ int TestFluxFromDk2nu()
 	double fullTerm = (1.0 - 1.0 / gam) * Oz / ( betaMag * gam ) - timelikeBit;
 	if( std::abs( fullTerm ) > 100.0 ) fullTerm *= 100.0 / std::abs( fullTerm );
 	
-	nPOT = gnmf->norig;
+	nPOT = 1.0; // = gnmf->norig;
 	
 	// fill the histos!
 	hEAll.Fill( p4HNL.E(), acceptance * nimpwt );

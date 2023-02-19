@@ -41,24 +41,6 @@ namespace genie {
       
     } HNLProd_t;
 
-    // nomenclature to use in GNuMIFluxPassThroughInfo
-    typedef enum t_HNLGNuMIProd {
-      
-      kHNLGProdNull          = -2,
-      kHNLGProdNeuk3Electron =  1,
-      kHNLGProdNeuk3Muon     =  3,
-      kHNLGProdKaon2Electron =  5,
-      kHNLGProdKaon2Muon     =  7,
-      kHNLGProdKaon3Electron =  9,
-      kHNLGProdKaon3Muon     = 11,
-      kHNLGProdMuon3Nue      = 13,
-      kHNLGProdMuon3Numu     = 15,
-      kHNLGProdMuon3Nutau    = 17,
-      kHNLGProdPion2Electron = 19,
-      kHNLGProdPion2Muon     = 21
-
-    } HNLGNuMIProd_t;
-
   } // namespace hnl
 } // namespace genie
 

@@ -91,6 +91,7 @@
 #include "Physics/BeamHNL/HNLDecayMode.h"
 #include "Physics/BeamHNL/HNLDecayUtils.h"
 #include "Physics/BeamHNL/HNLVertexGenerator.h"
+#include "Physics/BeamHNL/HNLFluxContainer.h"
 #include "Physics/BeamHNL/HNLFluxCreator.h"
 #include "Physics/BeamHNL/HNLDecayer.h"
 #include "Physics/BeamHNL/SimpleHNL.h"
@@ -116,7 +117,7 @@ using namespace genie::hnl::enums;
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #define __CAN_GENERATE_EVENTS_USING_A_FLUX__
-#include "Tools/Flux/GNuMIFlux.h"
+//#include "Tools/Flux/GNuMIFlux.h"
 #include <TH1.h>
 #endif // #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 
@@ -137,8 +138,8 @@ const  EventRecordVisitorI * HNLGenerator(void);
 
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 void     GenerateEventsUsingFlux (void);
-void     FillFluxNonsense        (flux::GNuMIFluxPassThroughInfo &ggn);
-void     FillFlux                (flux::GNuMIFluxPassThroughInfo &ggn, flux::GNuMIFluxPassThroughInfo &tgn);
+void     FillFluxNonsense        (FluxContainer &ggn);
+void     FillFlux                (FluxContainer &ggn, FluxContainer &tgn);
 #endif // #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 
 TLorentzVector GeneratePosition( GHepRecord * event );
@@ -271,24 +272,18 @@ int main(int argc, char ** argv)
   ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);
   ntpw.Initialize();
 
-  // if using dk2nu, add flux info to the tree
-  flux::GNuMIFluxPassThroughInfo gnmf, gnmfBase;
+  // add flux info to the tree
+  FluxContainer gnmf;
   if( gOptIsUsingDk2nu ) {
     // fill the flux object with nonsense to start with
-    flux::GNuMIFluxPassThroughInfo * ptGnmf = new flux::GNuMIFluxPassThroughInfo();
-    flux::GNuMIFluxPassThroughInfo * ptGnmfBase = new flux::GNuMIFluxPassThroughInfo(); // keeps info from dk2nu "as-is"
+    FluxContainer * ptGnmf = new FluxContainer();
     gnmf = *ptGnmf;
-    gnmfBase = *ptGnmfBase;
-    delete ptGnmf; delete ptGnmfBase;
-    FillFluxNonsense( gnmf ); FillFluxNonsense( gnmfBase );
+    delete ptGnmf;
+    FillFluxNonsense( gnmf );
     TBranch * flux = ntpw.EventTree()->Branch( "flux",
-					       "genie::flux::GNuMIFluxPassThroughInfo",
+					       "genie::hnl::FluxContainer",
 					       &gnmf, 32000, 1 );
     flux->SetAutoDelete(kFALSE);
-    TBranch * fluxBase = ntpw.EventTree()->Branch( "fluxBase",
-						   "genie::flux::GNuMIFluxPassThroughInfo",
-						   &gnmfBase, 32000, 1 );
-    fluxBase->SetAutoDelete(kFALSE);
   }
 
   LOG("gevgen_hnl", pNOTICE)
@@ -300,27 +295,6 @@ int main(int argc, char ** argv)
   ntpw.EventTree()->Branch("hnl_coup_m", &gOptMCoupling, "gOptMCoupling/D");
   ntpw.EventTree()->Branch("hnl_coup_t", &gOptTCoupling, "gOptTCoupling/D");
   ntpw.EventTree()->Branch("hnl_ismaj", &gOptIsMajorana, "gOptIsMajorana/I");
-
-  // let's make HNL-specific FS branches until we get gntpc sorted out
-  ntpw.EventTree()->Branch("hnl_IS_E", &NTP_IS_E, "NTP_IS_E/D");
-  ntpw.EventTree()->Branch("hnl_IS_PX", &NTP_IS_PX, "NTP_IS_PX/D");
-  ntpw.EventTree()->Branch("hnl_IS_PY", &NTP_IS_PY, "NTP_IS_PY/D");
-  ntpw.EventTree()->Branch("hnl_IS_PZ", &NTP_IS_PZ, "NTP_IS_PZ/D");
-  ntpw.EventTree()->Branch("hnl_FS0_PDG", &NTP_FS0_PDG, "NTP_FS0_PDG/I");
-  ntpw.EventTree()->Branch("hnl_FS0_E", &NTP_FS0_E, "NTP_FS0_E/D");
-  ntpw.EventTree()->Branch("hnl_FS0_PX", &NTP_FS0_PX, "NTP_FS0_PX/D");
-  ntpw.EventTree()->Branch("hnl_FS0_PY", &NTP_FS0_PY, "NTP_FS0_PY/D");
-  ntpw.EventTree()->Branch("hnl_FS0_PZ", &NTP_FS0_PZ, "NTP_FS0_PZ/D");
-  ntpw.EventTree()->Branch("hnl_FS1_PDG", &NTP_FS1_PDG, "NTP_FS1_PDG/I");
-  ntpw.EventTree()->Branch("hnl_FS1_E", &NTP_FS1_E, "NTP_FS1_E/D");
-  ntpw.EventTree()->Branch("hnl_FS1_PX", &NTP_FS1_PX, "NTP_FS1_PX/D");
-  ntpw.EventTree()->Branch("hnl_FS1_PY", &NTP_FS1_PY, "NTP_FS1_PY/D");
-  ntpw.EventTree()->Branch("hnl_FS1_PZ", &NTP_FS1_PZ, "NTP_FS1_PZ/D");
-  ntpw.EventTree()->Branch("hnl_FS2_PDG", &NTP_FS2_PDG, "NTP_FS2_PDG/I");
-  ntpw.EventTree()->Branch("hnl_FS2_E", &NTP_FS2_E, "NTP_FS2_E/D");
-  ntpw.EventTree()->Branch("hnl_FS2_PX", &NTP_FS2_PX, "NTP_FS2_PX/D");
-  ntpw.EventTree()->Branch("hnl_FS2_PY", &NTP_FS2_PY, "NTP_FS2_PY/D");
-  ntpw.EventTree()->Branch("hnl_FS2_PZ", &NTP_FS2_PZ, "NTP_FS2_PZ/D");
 
   // Create a MC job monitor for a periodically updated status file
   GMCJMonitor mcjmonitor(gOptRunNu);
@@ -419,10 +393,8 @@ int main(int argc, char ** argv)
 	 break;
        }
        
-       flux::GNuMIFluxPassThroughInfo retGnmf = fluxCreator->RetrieveFluxInfo();
-       flux::GNuMIFluxPassThroughInfo retGnmfBase = fluxCreator->RetrieveFluxBase();
+       FluxContainer retGnmf = fluxCreator->RetrieveFluxInfo();
        FillFlux( gnmf, retGnmf );
-       FillFlux( gnmfBase, retGnmfBase );
        
        // check to see if this was nonsense
        if( ! event->Particle(0) ){ iflux++; delete event; continue; }
@@ -658,238 +630,80 @@ void InitBoundingBox(void)
 //_________________________________________________________________________________________
 //............................................................................
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
-void FillFluxNonsense( flux::GNuMIFluxPassThroughInfo &ggn )
+void FillFluxNonsense( FluxContainer &ggn )
 {
-  ggn.pcodes = 1;                          ///< converted to PDG
-  ggn.units = 0;                           ///< cm
-  
-  ggn.fgPdgC = -9999;                      ///< PDG code
+  ggn.evtno = -9999;
 
-  ggn.fgXYWgt = -9999.9;                   ///< geometrical * collimation correction
+  ggn.pdg = -9999;
+  ggn.parPdg = -9999;
+  ggn.lepPdg = -9999;
+  ggn.nuPdg = -9999;
 
-  TLorentzVector dv( -9999.9, -9999.9, -9999.9, -9999.9 );
-  ggn.fgP4 = dv;                           ///< generated 4-momentum, beam coord
-  ggn.fgX4 = dv;                           ///< generated 4-position, beam coord
-  ggn.fgP4User = dv;                       ///< generated 4-momentum, user coord
-  ggn.fgX4User = dv;                       ///< generated 4-position, user coord
+  ggn.prodChan = -9999;
+  ggn.nuProdChan = -9999;
 
-  ggn.evtno    = -99;                      ///< Event number (proton on target) 
-  ggn.ndxdz    = -9999.9;                  ///< Neutrino direction slope for a random decay
-  ggn.ndydz    = -9999.9;                  ///< See above
-  ggn.npz      = -9999.9;                  ///< Neutrino momentum [GeV] along z direction (beam axis)
-  ggn.nenergy  = -9999.9;                  ///< Neutrino energy [GeV] for a random decay
-  ggn.ndxdznea = -9999.9;                  ///< Neutrino direction slope for a decay forced to ND
-  ggn.ndydznea = -9999.9;                  ///< See above
-  ggn.nenergyn = -9999.9;                  ///< Neutrino energy for decay forced to ND
-  ggn.nwtnear  = -9999.9;                  ///< weight for decay forced to ND
-  ggn.ndxdzfar = -9999.9;                  ///< Same as ND but FD
-  ggn.ndydzfar = -9999.9;                  ///< See above
-  ggn.nenergyf = -9999.9;                  ///< See above
-  ggn.nwtfar   = -9999.9;                  ///< See above
-  ggn.norig    = -9999;                    ///< Obsolete...
-  
-  ggn.ndecay = -9999;                      ///< Decay mode that produced neutrino
-  ggn.ntype  = -9999;                      ///< Neutrino "flavour" (i.e. of co-produced lepton)
+  ggn.startPoint.SetXYZ(-9999.9, -9999.9, -9999.9);
+  ggn.targetPoint.SetXYZ(-9999.9, -9999.9, -9999.9);
+  ggn.startPointUser.SetXYZ(-9999.9, -9999.9, -9999.9);
+  ggn.targetPointUser.SetXYZ(-9999.9, -9999.9, -9999.9);
+  ggn.delay = -9999.9;
 
-  ggn.vx = -9999.9;                        ///< X position of hadron/muon decay
-  ggn.vy = -9999.9;                        ///< Y position of hadron/muon decay
-  ggn.vz = -9999.9;                        ///< Z position of hadron/muon decay
+  ggn.polz.SetXYZ(-9999.9, -9999.9, -9999.9);
 
-  ggn.pdpx = -9999.9;                     ///< Parent X momentum at decay point
-  ggn.pdpy = -9999.9;                     ///< Parent Y momentum at decay point
-  ggn.pdpz = -9999.9;                     ///< Parent Z momentum at decay point
+  ggn.p4.SetPxPyPzE(-9999.9, -9999.9, -9999.9, -9999.9);
+  ggn.parp4.SetPxPyPzE(-9999.9, -9999.9, -9999.9, -9999.9);
+  ggn.p4User.SetPxPyPzE(-9999.9, -9999.9, -9999.9, -9999.9);
+  ggn.parp4User.SetPxPyPzE(-9999.9, -9999.9, -9999.9, -9999.9);
 
-  ggn.ppdxdz = -9999.9;                    ///< Parent dxdz direction at production
-  ggn.ppdydz = -9999.9;                    ///< Parent dydz direction at production
-  ggn.pppz = -9999.9;                      ///< Parent energy at production
+  ggn.Ecm = -9999.9;
+  ggn.nuEcm = -9999.9;
+  ggn.XYWgt = -9999.9;
+  ggn.boostCorr = -9999.9;
+  ggn.accCorr = -9999.9;
+  ggn.zetaMinus = -9999.9;
+  ggn.zetaPlus = -9999.9;
+  ggn.acceptance = -9999.9;
 
-  ggn.ppmedium = -9999;                    ///< Tracking medium number where parent was produced
-  ggn.ptype = -9999;                       ///< Parent GEANT code particle ID converted to PDG
+  ggn.nimpwt = -9999.9;
 
-  ggn.ppvx = -9999.9;                      ///< Parent production vertex X (cm)
-  ggn.ppvy = -9999.9;                      ///< Parent production vertex Y (cm)
-  ggn.ppvz = -9999.9;                      ///< Parent production vertex Z (cm)
-  
-  ggn.necm = -9999.9;                      ///< Neutrino energy in COM frame
-  ggn.nimpwt = -9999.9;                    ///< Weight of neutrino parent
-
-  ggn.xpoint = -9999.9;                    ///< Debugging hook (unused)
-  ggn.ypoint = -9999.9;                    ///< Debugging hook (unused)
-  ggn.zpoint = -9999.9;                    ///< Debugging hook (unused)
-
-  ggn.tvx = -9999.9;                       ///< X exit point of parent particle at the target
-  ggn.tvy = -9999.9;                       ///< Y exit point of parent particle at the target
-  ggn.tvz = -9999.9;                       ///< Z exit point of parent particle at the target
-
-  ggn.tpx = -9999.9;                       ///< Parent momentum exiting the target (X)
-  ggn.tpy = -9999.9;                       ///< Parent momentum exiting the target (Y)
-  ggn.tpz = -9999.9;                       ///< Parent momentum exiting the target (Z)
-
-  ggn.tptype = -9999;                      ///< Parent particle ID exiting the target conv to PDG
-  ggn.tgen = -9999;                        ///< Parent generation in cascade
-
-  ggn.tgptype = -9999;                     ///< Type of particle that created a particle...
-  
-  ggn.tgppx = -9999.9;                     ///< Momentum of particle that created particle at IP
-  ggn.tgppy = -9999.9;                     ///< Momentum of particle that created particle at IP
-  ggn.tgppz = -9999.9;                     ///< Momentum of particle that created particle at IP
-
-  ggn.tprivx = -9999.9;                    ///< Primary particle interaction vertex
-  ggn.tprivy = -9999.9;                    ///< Primary particle interaction vertex
-  ggn.tprivz = -9999.9;                    ///< Primary particle interaction vertex
-
-  ggn.beamx = -9999.9;                     ///< Primary proton origin
-  ggn.beamy = -9999.9;                     ///< Primary proton origin
-  ggn.beamz = -9999.9;                     ///< Primary proton origin
-
-  ggn.beampx = -9999.9;                    ///< Primary proton momentum
-  ggn.beampy = -9999.9;                    ///< Primary proton momentum
-  ggn.beampz = -9999.9;                    ///< Primary proton momentum
-
-#ifndef SKIP_MINERVA_MODS
-  ggn.ntrajectory = -9;
-  ggn.overflow = false;
-
-  for( unsigned int i = 0; i < 10; i++ ){
-    ggn.pdgcode[i] = -9;
-    ggn.trackId[i] = -9;
-    ggn.parentId[i] = -9;
-    
-    ggn.startx[i] = -9999.9;
-    ggn.starty[i] = -9999.9;
-    ggn.startz[i] = -9999.9;
-    ggn.startpx[i] = -9999.9;
-    ggn.startpy[i] = -9999.9;
-    ggn.startpz[i] = -9999.9;
-    ggn.stopx[i] = -9999.9;
-    ggn.stopy[i] = -9999.9;
-    ggn.stopz[i] = -9999.9;
-    ggn.pprodpx[i] = -9999.9;
-    ggn.pprodpy[i] = -9999.9;
-    ggn.pprodpz[i] = -9999.9;
-
-    ggn.proc[i] = -9;
-    ggn.ivol[i] = -9;
-    ggn.fvol[i] = -9;
-  }
-#endif // #ifndef SKIP_MINERVA_MODS
+  return;
 }
 //_________________________________________________________________________________________
-void FillFlux( flux::GNuMIFluxPassThroughInfo &ggn, flux::GNuMIFluxPassThroughInfo &tgn )
+void FillFlux( FluxContainer &ggn, FluxContainer &tgn )
 {
-  ggn.pcodes = tgn.pcodes;
-  ggn.units = tgn.units;
-  
-  ggn.fgPdgC = tgn.fgPdgC;
+  ggn.evtno = tgn.evtno;
 
-  ggn.fgXYWgt = tgn.fgXYWgt;
+  ggn.pdg = tgn.pdg;
+  ggn.parPdg = tgn.parPdg;
+  ggn.lepPdg = tgn.lepPdg;
+  ggn.nuPdg = tgn.nuPdg;
 
-  ggn.fgP4 = tgn.fgP4;
-  ggn.fgX4 = tgn.fgX4;
-  ggn.fgP4User = tgn.fgP4User;
-  ggn.fgX4User = tgn.fgX4User;
+  ggn.prodChan = tgn.prodChan;
+  ggn.nuProdChan = tgn.nuProdChan;
 
-  ggn.evtno    = tgn.evtno;
+  ggn.startPoint = tgn.startPoint;
+  ggn.targetPoint = tgn.targetPoint;
+  ggn.startPointUser = tgn.startPointUser;
+  ggn.targetPointUser = tgn.targetPointUser;
+  ggn.delay = tgn.delay;
 
-  ggn.ndxdz    = tgn.ndxdz;
-  ggn.ndydz    = tgn.ndydz;
-  ggn.npz      = tgn.npz;
-  ggn.nenergy  = tgn.nenergy;
-  ggn.ndxdznea = tgn.ndxdznea;
-  ggn.ndydznea = tgn.ndydznea;
-  ggn.nenergyn = tgn.nenergyn;
-  ggn.nwtnear  = tgn.nwtnear;
-  ggn.ndxdzfar = tgn.ndxdzfar;
-  ggn.ndydzfar = tgn.ndydzfar;
-  ggn.nenergyf = tgn.nenergyf;
-  ggn.nwtfar   = tgn.nwtfar;
-  ggn.norig    = tgn.norig;
-  
-  ggn.ndecay = tgn.ndecay;
-  ggn.ntype  = tgn.ntype;
+  ggn.polz = tgn.polz;
 
-  ggn.vx = tgn.vx;
-  ggn.vy = tgn.vy;
-  ggn.vz = tgn.vz;
+  ggn.p4 = tgn.p4;
+  ggn.parp4 = tgn.parp4;
+  ggn.p4User = tgn.p4User;
+  ggn.parp4User = tgn.parp4User;
 
-  ggn.pdpx = tgn.pdpx;
-  ggn.pdpy = tgn.pdpy;
-  ggn.pdpz = tgn.pdpz;
+  ggn.Ecm = tgn.Ecm;
+  ggn.nuEcm = tgn.nuEcm;
+  ggn.XYWgt = tgn.XYWgt;
+  ggn.boostCorr = tgn.boostCorr;
+  ggn.accCorr = tgn.accCorr;
+  ggn.zetaMinus = tgn.zetaMinus;
+  ggn.zetaPlus = tgn.zetaPlus;
+  ggn.acceptance = tgn.acceptance;
 
-  ggn.ppdxdz = tgn.ppdxdz;
-  ggn.ppdydz = tgn.ppdydz;
-  ggn.pppz = tgn.pppz;
-
-  ggn.ppmedium = tgn.ppmedium;
-  ggn.ptype = tgn.ptype;
-
-  ggn.ppvx = tgn.ppvx;
-  ggn.ppvy = tgn.ppvy;
-  ggn.ppvz = tgn.ppvz;
-  
-  ggn.necm = tgn.necm;
   ggn.nimpwt = tgn.nimpwt;
-
-  ggn.xpoint = tgn.xpoint;
-  ggn.ypoint = tgn.ypoint;
-  ggn.zpoint = tgn.zpoint;
-
-  ggn.tvx = tgn.tvx;
-  ggn.tvy = tgn.tvy;
-  ggn.tvz = tgn.tvz;
-
-  ggn.tpx = tgn.tpx;
-  ggn.tpy = tgn.tpy;
-  ggn.tpz = tgn.tpz;
-
-  ggn.tptype = tgn.tptype;
-  ggn.tgen = tgn.tgen;
-
-  ggn.tgptype = tgn.tgptype;
-  
-  ggn.tgppx = tgn.tgppx;
-  ggn.tgppy = tgn.tgppy;
-  ggn.tgppz = tgn.tgppz;
-
-  ggn.tprivx = tgn.tprivx;
-  ggn.tprivy = tgn.tprivy;
-  ggn.tprivz = tgn.tprivz;
-
-  ggn.beamx = tgn.beamx;
-  ggn.beamy = tgn.beamy;
-  ggn.beamz = tgn.beamz;
-
-  ggn.beampx = tgn.beampx;
-  ggn.beampy = tgn.beampy;
-  ggn.beampz = tgn.beampz;
-
-#ifndef SKIP_MINERVA_MODS
-  ggn.ntrajectory = tgn.ntrajectory;
-  ggn.overflow = tgn.overflow;
-
-  for( unsigned int i = 0; i < 10; i++ ){
-    ggn.pdgcode[i] = tgn.pdgcode[i];
-    ggn.trackId[i] = tgn.trackId[i];
-    ggn.parentId[i] = tgn.parentId[i];
-    
-    ggn.startx[i] = tgn.startx[i];
-    ggn.starty[i] = tgn.starty[i];
-    ggn.startz[i] = tgn.startz[i];
-    ggn.startpx[i] = tgn.startpx[i];
-    ggn.startpy[i] = tgn.startpy[i];
-    ggn.startpz[i] = tgn.startpz[i];
-    ggn.stopx[i] = tgn.stopx[i];
-    ggn.stopy[i] = tgn.stopy[i];
-    ggn.stopz[i] = tgn.stopz[i];
-    ggn.pprodpx[i] = tgn.pprodpx[i];
-    ggn.pprodpy[i] = tgn.pprodpy[i];
-    ggn.pprodpz[i] = tgn.pprodpz[i];
-
-    ggn.proc[i] = tgn.proc[i];
-    ggn.ivol[i] = tgn.ivol[i];
-    ggn.fvol[i] = tgn.fvol[i];
-  }
-#endif // #ifndef SKIP_MINERVA_MODS
 }
 //............................................................................
 #endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__

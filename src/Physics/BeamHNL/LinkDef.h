@@ -18,6 +18,7 @@
 
 #pragma link C++ class genie::hnl::SimpleHNL;
 #pragma link C++ class genie::hnl::BRCalculator;
+#pragma link C++ class genie::hnl::FluxContainer;
 #pragma link C++ class genie::hnl::FluxCreator;
 #pragma link C++ class genie::hnl::Decayer;
 #pragma link C++ class genie::hnl::VertexGenerator;

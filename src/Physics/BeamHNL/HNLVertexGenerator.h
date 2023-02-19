@@ -124,6 +124,8 @@ namespace hnl {
     TVector3 ApplyUserRotation( TVector3 vec, bool doBackwards ) const;
     TVector3 ApplyUserRotation( TVector3 vec, TVector3 oriVec, std::vector<double> rotVec, bool doBackwards ) const;
 
+    std::string CheckGeomPoint( Double_t x, Double_t y, Double_t z ) const;
+
     // --------------------------------------------------
 
     mutable bool fIsConfigLoaded = false;
