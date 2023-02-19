@@ -109,7 +109,7 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="1000060120", EFlux_min=0, E
                 shell_file = ''                
             if grid_system == 'FNAL' :
                 shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".ghep.root"), grid_setup, genie_setup, conf_dir, in_file_list, git_branch, git_loc ) 
-                grid_command_options = FNAL.FNALShellCommands(time)
+                grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time)
                 command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
     ## Add command list to dictionary; Key is 4 => event production

@@ -45,7 +45,7 @@ op.add_option("--e-tgt-list", dest="ETGTLIST", default='all', help = "Comma sepa
 op.add_option("--vN-gen-list", dest="vNList", default='all', help="Comma separated list of event generator list used for the free nucleon spline generation. Can be used to specify electron procecess as well")
 op.add_option("--vA-gen-list", dest="vAList", default='all', help="Comma separated list of event generator list used for the nuclei spline generation.  Can be used to specify electron procecess as well")
 op.add_option("--e-nu-max", dest="NuEMAX", type="int", default=100, help="Maximum energy for the splines in GeV. Default: %default ")
-op.add_option("--e-e-max", dest="EEMAX", type="int", default=30, help="Maximum energy for the splines in GeV. Default: %default ")
+op.add_option("--e-espline-max", dest="EEMAX", type="int", default=30, help="Maximum energy for the splines in GeV. Default: %default ")
 op.add_option("--n-nu-knots", dest="NuKnots", type="int", default=100, help="Number of knots per neutrino spline. Default: %default")
 op.add_option("--n-e-knots", dest="EKnots", type="int", default=100, help="Number of knots per electron spline. Default: %default")
 op.add_option("--starting-point", dest="start_ID", type="int", default=0, help="0 -> Free nucleon splines, 1 -> combine free nucl splines, 2 -> Compound nuclei splines, 3 -> Combine compound nuclei splines ")
