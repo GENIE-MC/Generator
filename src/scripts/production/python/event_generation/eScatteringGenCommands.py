@@ -93,7 +93,7 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2",
                     shell_file = ''                
                     if grid_system == 'FNAL' :
                         shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".ghep.root"), grid_setup, genie_setup, conf_dir, str(xspl_file), git_branch, git_loc ) 
-                        grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup, time)
+                        grid_command_options = FNAL.FNALShellCommands(time)
                         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
     ## Add command list to dictionary; Key is 4 => event production

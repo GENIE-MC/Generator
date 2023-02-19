@@ -103,7 +103,7 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
 
     command_list = []
     if grid_system == 'FNAL' :
-        grid_command_options = FNAL.FNALShellCommands(grid_setup,genie_setup,time)
+        grid_command_options = FNAL.FNALShellCommands(time)
                     
     # Create neutrino spline commands:
     grid_sub_cmd = []     
