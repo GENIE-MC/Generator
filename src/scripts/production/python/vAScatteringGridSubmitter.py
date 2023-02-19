@@ -52,7 +52,7 @@ op.add_option("--N-e-knots", dest="EKnots", type="int", default=100, help="Numbe
 op.add_option("--event-generator-list", dest="EvGenList", default='all', help="Event generator list to be used for event generation. Default all")
 op.add_option("--nu-ntotevents", dest="NuEvents", type="int", default=10000, help="Number of total events, default: 100 k")
 op.add_option("--e-ntotevents", dest="EEvents", type="int", default=100000, help="Number of total events, default: 100 k")
-op.add_option("--nmaxevents",dest="NMax", type="int", default=100000,help="Max number of events to run per event generation, default 100k")
+op.add_option("--nmaxevents",dest="NMax", type="int", default=100000,help="Max number of events to run per event generation, default 400k")
 op.add_option("--nu-minenergy-fluxrange", dest="MinEnergyFlux", default="0", help="Minimum neutrino energy. Default 0.")
 op.add_option("--nu-maxenergy-fluxrange", dest="MaxEnergyFlux", default="100", help="Maximum neutrino energy. Default 100.")
 op.add_option("--e-beamenergy-list", dest="BEnergy", default="2", help="Electron beam energy" )
