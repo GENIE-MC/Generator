@@ -13,7 +13,7 @@ Name                      Type        Opt   Comment                             
 set ParameterSpace:                         Choice of parameter space position
 *******************                         **********************************
 HNL-Mass                  double      no
-HNL-LeptonMixing          vec-double  no    Mixing to charged leptons: e-mu-tau
+HNL-LeptonMixing          vec-double  no    Mixing to charged leptons: |Ue4|^2, |U_m4|^2, |U_t4|^2
 HNL-Majorana              bool        no    Majorana vs Dirac HNL
 
 ************************                    *****************************************
