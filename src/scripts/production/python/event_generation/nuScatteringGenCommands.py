@@ -36,7 +36,7 @@ mcseed = 210921029
 evg_tgtpdg_hash = ['1000010020', '1000010030', '1000020030', '1000020040', '1000030060', '1000060120', '1000080160', '1000130270', 
                    '1000180400', '1000200400', '1000200480', '1000260560', '1000791970', '1000822080', '1000922380']
 
-def nuScatteringGenCommands( nu_list = "14",tgt_mix="1000060120", E_min=0, E_max=100, flux="\'1/x\'", xspl_file="total_xsec.xml",ntotevents=1000000, 
+def nuScatteringGenCommands( nu_list = "14",tgt_mix="1000060120", EFlux_min=0, EFlux_max=100, flux="\'1/x\'", xspl_file="total_xsec.xml",ntotevents=1000000, 
                             tune='G18_02_02_11b',gen_list="all", expname="general",nmaxrun=100000, version='master', conf_dir='', arch='SL6.x86_64', 
                             production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                             softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
@@ -102,7 +102,7 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="1000060120", E_min=0, E_max
             curr_subrune = "14"+str(isubrun); 
             curr_seed         = mcseed + isubrun 
             jobname           = "nu_"+expname+"_"+str(isubrun)            
-            evgen_command = "gevgen -p "+str(nu)+" -n "+str(nev)+" -e "+E_min+","+E_max+" -f " +flux+" -t "+str(tgt_mix)+" -r "+curr_subrune+" --seed "+str(curr_seed)
+            evgen_command = "gevgen -p "+str(nu)+" -n "+str(nev)+" -e "+EFlux_min+","+EFlux_max+" -f " +flux+" -t "+str(tgt_mix)+" -r "+curr_subrune+" --seed "+str(curr_seed)
             evgen_command += " --cross-sections "+input_xsec+" --tune "+tune + " -o "+jobname+".ghep.root"
             if gen_list is not "all" : 
                 evgen_command += " --event-generator-list "+gen_list+" "
