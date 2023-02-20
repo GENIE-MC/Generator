@@ -81,6 +81,14 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
 	evrec->SetWeight( evrec->Weight() / invAccWeight );
 	
 	// scale by how many POT it takes to make the appropriate parent
+	/*
+	 * To incorporate populations of parents, we take the cumulative multiplicity
+	 * i.e. HNL light enough to be made by every parent get scaled by 
+	 * n1 = \sigma(p + target) / \sigma(p + target ; parent-producing)
+	 * For HNL that are heavier than a muon, we don't take muons into account. So
+	 * we up the scaling to incorporate their dropping out as
+	 * n2 = \sigma(p + target) / \sigma(p + target ; parent-producing ; no muon) - etc.
+	 */
 	evrec->SetWeight( evrec->Weight() * POTScaleWeight );
 	
 	// set prod-vertex in cm, ns, NEAR coords
