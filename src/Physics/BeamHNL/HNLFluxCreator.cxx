@@ -14,8 +14,6 @@ using namespace genie;
 using namespace genie::hnl;
 using namespace genie::hnl::enums;
 
-std::ostringstream asts;
-
 //----------------------------------------------------------------------------
 FluxCreator::FluxCreator() :
   FluxRecordVisitorI("genie::hnl::FluxCreator")
@@ -74,10 +72,10 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
       }
       
       fGnmf = this->MakeTupleFluxEntry( iCurrEntry, fCurrPath );
-
-      LOG( "HNL", pDEBUG ) << fGnmf;
       
       if( std::abs(fGnmf.pdg) == genie::kPdgHNL ){ // only add particle if parent is valid
+
+	LOG( "HNL", pDEBUG ) << fGnmf;
 	
 	double invAccWeight = fGnmf.nimpwt * fGnmf.acceptance;
 	evrec->SetWeight( evrec->Weight() / invAccWeight );
@@ -204,11 +202,6 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
   if( !canGoForward ){
     this->FillNonsense( iEntry, gnmf ); return gnmf; 
   }
-
-  asts << "\n\n~*~*~*~*~ VALIDATION FOR GEOMETRY. OH WOW. ~*~*~*~*~"
-       << "\nDETECTOR CENTRE:"
-       << "\nNEAR COORDS, [m]: " << utils::print::Vec3AsString(&fCvec_beam)
-       << "\nBEAM COORDS, [m]: " << utils::print::Vec3AsString(&fCvec);
     
   // turn cm to m and make origin wrt detector 
   fDx = decay_vx * units::cm / units::m;
@@ -219,11 +212,6 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
 
   TVector3 fDvec_user( fDvec_beam.X() - fCx, fDvec_beam.Y() - fCy, fDvec_beam.Z() - fCz ); // in USER coords
   fDvec_user = this->ApplyUserRotation( fDvec_user, originPoint, fDetRotation, false );
-
-  asts << "\n\nDECAY POINT:"
-       << "\nNEAR COORDS, [m]: " << utils::print::Vec3AsString( &fDvec_beam )
-       << "\nBEAM COORDS, [m]: " << utils::print::Vec3AsString( &fDvec ) 
-       << "\nUSER COORDS, [m]: " << utils::print::Vec3AsString( &fDvec_user );
 
   LOG( "HNL", pDEBUG )
     << "\nIn BEAM coords, fDvec = " << utils::print::Vec3AsString( &fDvec )
@@ -238,11 +226,6 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
   TVector3 detO_user( detO_beam.X(), detO_beam.Y(), detO_beam.Z() );
 
   detO_user = this->ApplyUserRotation( detO_user, dumori, fDetRotation, false ); // tgt-hall --> det
-
-  asts << "\n\nSEPARATION:"
-       << "\nNEAR COORDS, [m]: " << utils::print::Vec3AsString( &detO_beam )
-       << "\nBEAM COORDS, [m]: " << utils::print::Vec3AsString( &detO )
-       << "\nUSER COORDS, [m]: " << utils::print::Vec3AsString( &detO_user );
   
   double acc_saa = this->CalculateDetectorAcceptanceSAA( detO_user );
   
@@ -283,11 +266,6 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
   TVector3 ppar_user = p4par_user.Vect();
   ppar_user = this->ApplyUserRotation( ppar_user, dumori, fDetRotation, false ); // tgt-hall --> det
   p4par_user.SetPxPyPzE( ppar_user.Px(), ppar_user.Py(), ppar_user.Pz(), p4par_user.E() );
-
-  asts << "\n\nPARENT MOMENTA:"
-       << "\nNEAR COORDS, GeV: " << utils::print::P4AsString(&p4par_near)
-       << "\nBEAM COORDS, GeV: " << utils::print::P4AsString(&p4par_beam)
-       << "\nUSER COORDS, GeV: " << utils::print::P4AsString(&p4par_user);
 
   TVector3 boost_beta = p4par_beam.BoostVector(); // in BEAM coords
 
@@ -344,9 +322,6 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
   TLorentzVector p4HNL_rest = HNLEnergy( prodChan, p4par ); 
   // this is a random direction rest-frame HNL. 
   fECM = p4HNL_rest.E();
-
-  asts << "\n\nREST FRAME FOUR-VECTOR:"
-       << "\np4HNL_rest = " << utils::print::P4AsString(&p4HNL_rest);
 
   // we will now boost detO into rest frame, force rest to point to the new direction, boost the result, and compare the boost corrections
   double boost_correction_two = 0.0;
@@ -418,8 +393,6 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
     dist = distNum.Mag(); // m
   }
 
-  asts << "\n\nBETA-LAB:\nbetaLab = " << betaLab;
-
   // but we don't care about that. We just want to obtain a proxy for betaHNL in lab frame.
   // Then we can use the dk2nu-style formula modified for betaHNL!
 
@@ -466,8 +439,6 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
   double FDz = fDvec_beam.Z();
 
   TVector3 absolutePoint = this->PointToRandomPointInBBox( ); // in NEAR coords, m
-  asts << "\n\nABSOLUTE POINT: " 
-       << "\nPointing to [NEAR, m]: " << utils::print::Vec3AsString(&absolutePoint);
   TVector3 fRVec_beam( absolutePoint.X() - FDx, absolutePoint.Y() - FDy, absolutePoint.Z() - FDz ); // NEAR, m
   // rotate it and get unit
   TVector3 fRVec_unit = (this->ApplyUserRotation( fRVec_beam )).Unit(); // BEAM, m/m
@@ -478,14 +449,14 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
   TVector3 rRVec_near( fRVec_beam.X() + FDx, fRVec_beam.Y() + FDy, fRVec_beam.Z() + FDz );
   TVector3 rRVec_beam = this->ApplyUserRotation( rRVec_near );
   TVector3 rRVec_user = this->ApplyUserRotation( rRVec_near, dumori, fDetRotation, false );
+  /*
   rRVec_user.SetXYZ( rRVec_user.X() + (fCx + fDetOffset.at(0)),
 		     rRVec_user.Y() + (fCy + fDetOffset.at(1)),
 		     rRVec_user.Z() + (fCz + fDetOffset.at(2)) );
-
-  asts << "\n\nRANDOM POINT CALCULATIONS:"
-       << "\nNEAR COORDS, m: " << utils::print::Vec3AsString(&fRVec_beam)
-       << "\nBEAM COORDS, m: " << utils::print::Vec3AsString(&fRVec_actualBeam)
-       << "\nUSER COORDS, m: " << utils::print::Vec3AsString(&fRVec_user);
+  */
+  rRVec_user.SetXYZ( rRVec_user.X() + (fCx),
+		     rRVec_user.Y() + (fCy),
+		     rRVec_user.Z() + (fCz) );
 
   // force HNL to point along this direction
   TLorentzVector p4HNL( p4HNL_rand.P() * fRVec_unit.X(),
@@ -549,9 +520,14 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
       // find random point in BBox and force momentum to point to that point
       // first, separation in beam frame
       absolutePoint = this->PointToRandomPointInBBox( ); // always NEAR, m
+      /*
       fRVec_beam.SetXYZ( absolutePoint.X() - (fCx + fDetOffset.at(0)),
 			 absolutePoint.Y() - (fCy + fDetOffset.at(1)),
 			 absolutePoint.Z() - (fCz + fDetOffset.at(2)) );
+      */
+      fRVec_beam.SetXYZ( absolutePoint.X() - (fCx),
+			 absolutePoint.Y() - (fCy),
+			 absolutePoint.Z() - (fCz) );
       // rotate it and get unit
       fRVec_unit = (this->ApplyUserRotation( fRVec_beam )).Unit(); // BEAM
       // force HNL to point along this direction
@@ -638,11 +614,6 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
 			   units::m / units::cm * x4HNL.Y(),
 			   units::m / units::cm * x4HNL.Z(), delay ); // in cm, ns, USER
 
-  asts << "\n\nFINAL CHECKS:"
-       << "\nx4HNL_near [NEAR, cm ns]: " << utils::print::X4AsString( &x4HNL_near )
-       << "\nx4HNL_beam [BEAM, cm ns]: " << utils::print::X4AsString( &x4HNL_beam )
-       << "\nx4HNL_cm   [USER, cm ns]: " << utils::print::X4AsString( &x4HNL_cm );
-
   LOG( "HNL", pDEBUG ) << "Filling gnmf...";
 
   // fill all the flux stuff now!
@@ -677,11 +648,6 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
   pHNL_user = this->ApplyUserRotation( pHNL_user, dumori, fDetRotation, false ); // tgt-hall --> det
   p4HNL_user.SetPxPyPzE( pHNL_user.Px(), pHNL_user.Py(), pHNL_user.Pz(), p4HNL_user.E() );
 
-  asts << "\n\nHNL MOMENTA:"
-       << "\nNEAR COORDS, GeV: " << utils::print::P4AsString( &p4HNL_near ) 
-       << "\nBEAM COORDS, GeV: " << utils::print::P4AsString( &p4HNL )
-       << "\nUSER COORDS, GeV: " << utils::print::P4AsString( &p4HNL_user );
-
   gnmf.p4 = p4HNL_near;
   gnmf.parp4 = p4par_near;
   gnmf.p4User = p4HNL_user;
@@ -697,8 +663,6 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
   gnmf.zetaPlus = fZp;
   gnmf.acceptance = acceptance;
   gnmf.nimpwt = decay_nimpwt;
-
-  LOG( "HNL", pDEBUG ) << asts.str();
   
   return gnmf;
   
@@ -1294,13 +1258,18 @@ TLorentzVector FluxCreator::HNLEnergy( HNLProd_t hnldm, TLorentzVector p4par ) c
 TVector3 FluxCreator::PointToRandomPointInBBox( ) const
 {
   RandomGen * rnd = RandomGen::Instance();
+  /*
   double ox = fCx + fDetOffset.at(0), oy = fCy + fDetOffset.at(1), oz = fCz + fDetOffset.at(2); // NEAR, m
+  */
+  double ox = fCx, oy = fCy, oz = fCz; // NEAR, m
   
   double rx = (rnd->RndGen()).Uniform( -fLx/2.0, fLx/2.0 ), 
     ry = (rnd->RndGen()).Uniform( -fLy/2.0, fLy/2.0 ),
     rz = (rnd->RndGen()).Uniform( -fLz/2.0, fLz/2.0 ); // USER, m
 
-  double ux = rx * units::m / units::cm, uy = ry * units::m / units::cm, uz = rz * units::m / units::cm;
+  double ux = (rx + fDetOffset.at(0)) * units::m / units::cm;
+  double uy = (ry + fDetOffset.at(1)) * units::m / units::cm;
+  double uz = (rz + fDetOffset.at(2)) * units::m / units::cm;
   TVector3 checkPoint( ux, uy, uz ); // USER, cm
   
   TVector3 originPoint( -ox, -oy, -oz );
@@ -1309,28 +1278,19 @@ TVector3 FluxCreator::PointToRandomPointInBBox( ) const
     // user-coordinates of this point. [cm]
     //double ux = rx - ox, uy = ry - oy, uz = rz - oz;
 
-    asts << "\n\nCHECK-POINT: "
-	 << "\norigin [NEAR, m]: ( x = " << ox << ", y = " << oy << ", z = " << oz << " )"
-	 << "\nrndm [USER, m]: ( x = " << rx << ", y = " << ry << ", z = " << rz << " )";
-
     LOG( "HNL", pDEBUG )
       << "\nChecking point " << utils::print::Vec3AsString(&checkPoint) << " [m, user]";
-    asts << "\ncheck [USER, cm]: " << utils::print::Vec3AsString(&checkPoint);
 
     // check if the point is inside the geometry, otherwise do it again
     std::string pathString = this->CheckGeomPoint( ux, uy, uz ); int iNode = 1; // 1 past beginning
     int iBad = 0;
     while( pathString.find( "/", iNode ) == string::npos && iBad < 10 ){
-      rx = (rnd->RndGen()).Uniform( -fLx/2.0, fLx/2.0 ); ux = rx * units::cm / units::m;
-      ry = (rnd->RndGen()).Uniform( -fLy/2.0, fLy/2.0 ); uy = ry * units::cm / units::m;
-      rz = (rnd->RndGen()).Uniform( -fLz/2.0, fLz/2.0 ); uz = rz * units::cm / units::m;
+      rx = (rnd->RndGen()).Uniform( -fLx/2.0, fLx/2.0 ); ux = (rx + fDetOffset.at(0)) * units::m / units::cm;
+      ry = (rnd->RndGen()).Uniform( -fLy/2.0, fLy/2.0 ); uy = (ry + fDetOffset.at(1)) * units::m / units::cm;
+      rz = (rnd->RndGen()).Uniform( -fLz/2.0, fLz/2.0 ); uz = (rz + fDetOffset.at(2)) * units::m / units::cm;
       checkPoint.SetXYZ( ux, uy, uz );
       pathString = this->CheckGeomPoint( ux, uy, uz ); iNode = 1;
       iBad++;
-    }
-    if( pathString.find( "/", iNode ) == string::npos ){
-      asts << "EMERGENCY STOP. WE WILL CRASH.";
-      LOG( "HNL", pDEBUG ) << asts.str();
     }
     assert( pathString.find( "/", iNode ) != string::npos );
   }
@@ -1346,8 +1306,6 @@ TVector3 FluxCreator::PointToRandomPointInBBox( ) const
   LOG( "HNL", pDEBUG )
     << "\nPointing to this point in BBox (USER coords): " << utils::print::Vec3AsString( &vec ) << "[m]"
     << "\nIn NEAR coords this is " << utils::print::Vec3AsString( &checkPoint ) << "[m]";
-  asts << "\nFinal random point [USER, m]: " << utils::print::Vec3AsString( &vec )
-       << "\nFinal random point [NEAR, m]: " << utils::print::Vec3AsString( &checkPoint );
 
   // update bookkeeping
   fTargetPoint = checkPoint;
@@ -1458,8 +1416,6 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
   TVector3 ppar = p4par.Vect(); assert( ppar.Mag() > 0.0 );
   TVector3 pparUnit = ppar.Unit();
 
-  asts << "\n\nANGULAR DEVIATION:";
-
   const double sx1 = TMath::Sin(fBx1), cx1 = TMath::Cos(fBx1);
   const double sz = TMath::Sin(fBz), cz = TMath::Cos(fBz);
   const double sx2 = TMath::Sin(fBx2), cx2 = TMath::Cos(fBx2);
@@ -1473,9 +1429,14 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
     << "\nyun = ( " << yun[0] << ", " << yun[1] << ", " << yun[2] << " )"
     << "\nzun = ( " << zun[0] << ", " << zun[1] << ", " << zun[2] << " )";
 
+  /*
   TVector3 detO_cm( (detO.X() + fDetOffset.at(0)) * units::m / units::cm, 
 		    (detO.Y() + fDetOffset.at(1)) * units::m / units::cm,
 		    (detO.Z() + fDetOffset.at(2)) * units::m / units::cm );
+  */
+  TVector3 detO_cm( (detO.X()) * units::m / units::cm, 
+		    (detO.Y()) * units::m / units::cm,
+		    (detO.Z()) * units::m / units::cm );
   double inProd = zun[0] * detO_cm.X() + zun[1] * detO_cm.Y() + zun[2] * detO_cm.Z(); // cm
   assert( pparUnit.X() * zun[0] + pparUnit.Y() * zun[1] + pparUnit.Z() * zun[2] != 0.0 );
   inProd /= ( pparUnit.X() * zun[0] + pparUnit.Y() * zun[1] + pparUnit.Z() * zun[2] );
@@ -1500,7 +1461,10 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
 
   const double aConst[3] = { fDvec_beam.X(), fDvec_beam.Y(), fDvec_beam.Z() };
   const double aConstUser[3] = { -detO_user.X(), -detO_user.Y(), -detO_user.Z() };
+  /*
   const double dConst[3] = { fCx + fDetOffset.at(0), fCy + fDetOffset.at(1), fCz + fDetOffset.at(2) };
+  */
+  const double dConst[3] = { fCx, fCy, fCz };
   const double nConst[3] = { pparUnit.X(), pparUnit.Y(), pparUnit.Z() };
 
   // formula for POCA is \vec{a} + \vec{n} * ( (\vec{d} - \vec{a}) \cdot \vec{n} )
@@ -1514,17 +1478,13 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
   const double POCA_m[3] = { aConst[0] + nMult * nConst[0],
 			     aConst[1] + nMult * nConst[1],
 			     aConst[2] + nMult * nConst[2] }; // NEAR
+  /*
   const double zConstMult = ((fCz + fDetOffset.at(2)) - aConst[2]) / (POCA_m[2] - aConst[2]);
+  */
+  const double zConstMult = ((fCz) - aConst[2]) / (POCA_m[2] - aConst[2]);
   const double startPoint_m[3] = { aConst[0] + nMult * zConstMult * nConst[0],
 				   aConst[1] + nMult * zConstMult * nConst[1],
 				   aConst[2] + nMult * zConstMult * nConst[2] }; // NEAR
-
-  asts << "\n\naConst [USER, m] = ( x = " << aConstUser[0] << ", y = " << aConstUser[1] << ", z = " << aConstUser[2] << " )" 
-       << "\naConst [NEAR, m] = ( x = " << aConst[0] << ", y = " << aConst[1] << ", z = " << aConst[2] << " )"
-       << "\ndConst [NEAR, m] = ( x = " << dConst[0] << ", y = " << dConst[1] << ", z = " << dConst[2] << " )"
-       << "\nnConst [NEAR, m] = ( x = " << nConst[0] << ", y = " << nConst[1] << ", z = " << nConst[2] << " )"
-       << "\nnMult = " << nMult
-       << "\nPOCA = ( x = " << startPoint_m[0] << ", y = " << startPoint_m[1] << ", z = " << startPoint_m[2] << " )"; 
 
   LOG( "HNL", pDEBUG )
     << "\ndetO_cm = " << utils::print::Vec3AsString( &detO_cm )
@@ -1534,19 +1494,25 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
 				 startPoint_m[1] * units::m / units::cm,
 				 startPoint_m[2] * units::m / units::cm }; // NEAR, cm
 
+  /*
   const double sweepVect[3] = { (fCx + fDetOffset.at(0)) * units::m / units::cm - startPoint[0],
 				(fCy + fDetOffset.at(1)) * units::m / units::cm - startPoint[1],
 				(fCz + fDetOffset.at(2)) * units::m / units::cm - startPoint[2] }; // NEAR, cm
+  */
+  const double sweepVect[3] = { (fCx) * units::m / units::cm - startPoint[0],
+				(fCy) * units::m / units::cm - startPoint[1],
+				(fCz) * units::m / units::cm - startPoint[2] }; // NEAR, cm
   const double swvMag = std::sqrt( sweepVect[0]*sweepVect[0] + sweepVect[1]*sweepVect[1] + sweepVect[2]*sweepVect[2] ); assert( swvMag > 0.0 );
 
-  asts << "\nStartPoint [NEAR, m]: " << "( x = " << startPoint[0] * units::cm / units::m
-       << ", y = " << startPoint[1] * units::cm / units::m
-       << ", z = " << startPoint[2] * units::cm / units::m << " )";
-
   // Note the geometry manager works in the *detector frame*. Transform to that.
+  /*
   TVector3 detStartPoint( startPoint[0] - (fCx + fDetOffset.at(0)) * units::m / units::cm,
 			  startPoint[1] - (fCy + fDetOffset.at(1)) * units::m / units::cm,
 			  startPoint[2] - (fCz + fDetOffset.at(2)) * units::m / units::cm );
+  */
+  TVector3 detStartPoint( startPoint[0] - (fCx) * units::m / units::cm,
+			  startPoint[1] - (fCy) * units::m / units::cm,
+			  startPoint[2] - (fCz) * units::m / units::cm );
   TVector3 detSweepVect( sweepVect[0], sweepVect[1], sweepVect[2] );
 
   TVector3 detPpar = ppar;
@@ -1565,17 +1531,6 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
   bool startsInsideDet = ( detPathString.find("/", iDNode) != string::npos );
 
   TLorentzVector detPpar_4v( detPpar.X(), detPpar.Y(), detPpar.Z(), p4par.E() );
-
-  asts << "\nStartPoint [USER, m]: " << "( x = " << detStartPoint.X() * units::cm / units::m
-       << ", y = " << detStartPoint.Y() * units::cm / units::m
-       << ", z = " << detStartPoint.Z() * units::cm / units::m << " )"
-       << "\nSweepVect [NEAR, m/m]: " << "( x = " << sweepVect[0]
-       << ", y = " << sweepVect[1] << ", z = " << sweepVect[2] << " )"
-       << "\nSweepVect [USER, m/m]: " << "( x = " << detSweepVect.X()
-       << ", y = " << detSweepVect.Y() << ", z = " << detSweepVect.Z() << " )"
-       << "\np4par [NEAR, GeV]: " << utils::print::P4AsString(&p4par)
-       << "\np4par [USER, GeV]: " << utils::print::P4AsString(&detPpar_4v);
-  if( startsInsideDet ) asts << "\nNOTE: start point INSIDE DETECTOR!!";
   
   // now sweep along sweepVect until we hit either side of the detector. 
   // This will give us two points in space
@@ -1590,42 +1545,119 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
   gGeoManager->SetCurrentPoint( detStartPoint.X(), detStartPoint.Y(), detStartPoint.Z() );
   gGeoManager->SetCurrentDirection( detSweepVect.X() / swvMag, detSweepVect.Y() / swvMag, detSweepVect.Z() / swvMag );
   const double sStepSize = 0.05 * std::min( std::min( fLx, fLy ), fLz );
-  
-  asts << "\n\nCurrent point [USER, cm]: ( x = " << (gGeoManager->GetCurrentPoint())[0]
-       << ", y = " << (gGeoManager->GetCurrentPoint())[1] << ", z = "
-       << (gGeoManager->GetCurrentPoint())[2] << " )"
-       << "\nNode : " << detPathString;
 
   // start stepping. Let's do this manually cause FindNextBoundaryAndStep() can be finicky.
   // if start inside detector, then only find exit point, otherwise find entry point.
   if( startsInsideDet ){ // only find exit
+    
+    // to avoid large time inefficiencies just go to the edge of the box and step back by 10% of the size
+    // this is *roughly correct* if not hugely correct
+
+    double currx = (gGeoManager->GetCurrentPoint())[0];
+    double curry = (gGeoManager->GetCurrentPoint())[1];
+    double currz = (gGeoManager->GetCurrentPoint())[2];
+    double currDist = std::sqrt( currx*currx + curry*curry + currz*currz ); // cm
+
+    double curdx = (gGeoManager->GetCurrentDirection())[0];
+    double curdy = (gGeoManager->GetCurrentDirection())[1];
+    double curdz = (gGeoManager->GetCurrentDirection())[2];
+
+    double stepMod = 0.99;
+    double boxSize = std::sqrt( fLxR*fLxR + fLyR*fLyR + fLzR*fLzR )/2.0; // m
+    double halfBoxSize = boxSize/2.0;
+    double desiredDist = stepMod * halfBoxSize * units::m / units::cm; // cm
+
+    // now we're at distance d on the one side of our detector centre
+    // we want to get to distance D on the other side of our detector centre
+    // meaning we should step by d + D
+    double largeStep = currDist + desiredDist;
+
+    gGeoManager->SetCurrentPoint( currx + largeStep * curdx,
+				  curry + largeStep * curdy,
+				  currz + largeStep * curdz );
+
+    /* // this is the very correct, very slow way of doing it
     while( detPathString.find("/", iDNode) != string::npos ){
       gGeoManager->SetCurrentPoint( (gGeoManager->GetCurrentPoint())[0] + (gGeoManager->GetCurrentDirection())[0] * sStepSize,
 				    (gGeoManager->GetCurrentPoint())[1] + (gGeoManager->GetCurrentDirection())[1] * sStepSize,
 				    (gGeoManager->GetCurrentPoint())[2] + (gGeoManager->GetCurrentDirection())[2] * sStepSize );
       detPathString = this->CheckGeomPoint( (gGeoManager->GetCurrentPoint())[0], (gGeoManager->GetCurrentPoint())[1], (gGeoManager->GetCurrentPoint())[2] );
     }
+    */
+
     plusPoint[0] = (gGeoManager->GetCurrentPoint())[0];
     plusPoint[1] = (gGeoManager->GetCurrentPoint())[1];
     plusPoint[2] = (gGeoManager->GetCurrentPoint())[2];
   } else { // find entry and exit
     // first, entry
+
+    // to avoid large time inefficiencies just go to the edge of the box and step back by 10% of the size
+    // this is *roughly correct* if not hugely correct
+
+    // find that point that lies on the line along direction from current point that is 90% of box size from box centre
+    double currx = (gGeoManager->GetCurrentPoint())[0];
+    double curry = (gGeoManager->GetCurrentPoint())[1];
+    double currz = (gGeoManager->GetCurrentPoint())[2];
+    double currDist = std::sqrt( currx*currx + curry*curry + currz*currz );
+
+    double stepMod = 0.99;
+    double boxSize = std::sqrt( fLxR*fLxR + fLyR*fLyR + fLzR*fLzR )/2.0; // m
+    double halfBoxSize = boxSize / 2.0;
+    double desiredDist = stepMod * halfBoxSize * units::m / units::cm;
+
+    // we're at some distance D and want to get to distance d, which means we step forward by
+    // R = D-d = D(1-d/D)
+    double largeStep = currDist - desiredDist;
+
+    double curdx = (gGeoManager->GetCurrentDirection())[0];
+    double curdy = (gGeoManager->GetCurrentDirection())[1];
+    double curdz = (gGeoManager->GetCurrentDirection())[2];
+
+    gGeoManager->SetCurrentPoint( currx + largeStep * curdx,
+				  curry + largeStep * curdy,
+				  currz + largeStep * curdz );
+
+    /* // slow but correct
     while( detPathString.find("/", iDNode) == string::npos ){
       gGeoManager->SetCurrentPoint( (gGeoManager->GetCurrentPoint())[0] + (gGeoManager->GetCurrentDirection())[0] * sStepSize,
 				    (gGeoManager->GetCurrentPoint())[1] + (gGeoManager->GetCurrentDirection())[1] * sStepSize,
 				    (gGeoManager->GetCurrentPoint())[2] + (gGeoManager->GetCurrentDirection())[2] * sStepSize );
       detPathString = this->CheckGeomPoint( (gGeoManager->GetCurrentPoint())[0], (gGeoManager->GetCurrentPoint())[1], (gGeoManager->GetCurrentPoint())[2] );
     }
+    */
+
     minusPoint[0] = (gGeoManager->GetCurrentPoint())[0];
     minusPoint[1] = (gGeoManager->GetCurrentPoint())[1];
     minusPoint[2] = (gGeoManager->GetCurrentPoint())[2];
+
     // then, exit
+
+    // quick and dirty way: reflect about the origin
+
+    currx = (gGeoManager->GetCurrentPoint())[0];
+    curry = (gGeoManager->GetCurrentPoint())[1];
+    currz = (gGeoManager->GetCurrentPoint())[2];
+    /*
+    double cdx = fDetOffset.at(0) * units::m / units::cm - currx; // cm
+    double cdy = fDetOffset.at(1) * units::m / units::cm - curry; // cm
+    double cdz = fDetOffset.at(2) * units::m / units::cm - currz; // cm
+
+    gGeoManager->SetCurrentPoint( fDetOffset.at(0) * units::m / units::cm + cdx,
+				  fDetOffset.at(1) * units::m / units::cm + cdy,
+				  fDetOffset.at(2) * units::m / units::cm + cdz );
+    */
+
+    gGeoManager->SetCurrentPoint( -currx, -curry, -currz );
+
+    /* // slow but correct
     while( detPathString.find("/", iDNode) != string::npos ){
       gGeoManager->SetCurrentPoint( (gGeoManager->GetCurrentPoint())[0] + (gGeoManager->GetCurrentDirection())[0] * sStepSize,
 				    (gGeoManager->GetCurrentPoint())[1] + (gGeoManager->GetCurrentDirection())[1] * sStepSize,
 				    (gGeoManager->GetCurrentPoint())[2] + (gGeoManager->GetCurrentDirection())[2] * sStepSize );
       detPathString = this->CheckGeomPoint( (gGeoManager->GetCurrentPoint())[0], (gGeoManager->GetCurrentPoint())[1], (gGeoManager->GetCurrentPoint())[2] );
     }
+    */
+
     plusPoint[0] = (gGeoManager->GetCurrentPoint())[0];
     plusPoint[1] = (gGeoManager->GetCurrentPoint())[1];
     plusPoint[2] = (gGeoManager->GetCurrentPoint())[2];
@@ -1660,18 +1692,23 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
 
   // rotate to NEAR frame
   TVector3 vMNear = this->ApplyUserRotation( vMUser, originPoint, fDetRotation, true ); // det --> tgt-hall
+  /*
   vMNear.SetXYZ( vMNear.X() + (fCx + fDetOffset.at(0)), 
 		 vMNear.Y() + (fCy + fDetOffset.at(1)),
 		 vMNear.Z() + (fCz + fDetOffset.at(2)) );
+  */
+  vMNear.SetXYZ( vMNear.X() + (fCx),
+		 vMNear.Y() + (fCy),
+		 vMNear.Z() + (fCz) );
   TVector3 vPNear = this->ApplyUserRotation( vPUser, originPoint, fDetRotation, true ); // det --> tgt-hall
+  /*
   vPNear.SetXYZ( vPNear.X() + (fCx + fDetOffset.at(0)), 
 		 vPNear.Y() + (fCy + fDetOffset.at(1)),
 		 vPNear.Z() + (fCz + fDetOffset.at(2)) );
-
-  asts << "\nEntryPoint [NEAR, m]: " << utils::print::Vec3AsString( &vMNear )
-       << "\nEntryPoint [USER, m]: " << utils::print::Vec3AsString( &vMUser )
-       << "\nExitPoint [NEAR, m]: " << utils::print::Vec3AsString( &vPNear )
-       << "\nExitPoint [USER, m]: " << utils::print::Vec3AsString( &vPUser );
+  */
+  vPNear.SetXYZ( vPNear.X() + (fCx), 
+		 vPNear.Y() + (fCy),
+		 vPNear.Z() + (fCz) );
 
   // with 3 points and 1 vector we calculate the angles.
   // Points: D(decay), E(entry), X(exit) [all in local, cm]. Vector: detPpar [local, GeV/GeV]
@@ -1687,9 +1724,14 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
 			    aConstUser[1] * units::m / units::cm,
 			    aConstUser[2] * units::m / units::cm );
   TVector3 decayPoint_near = this->ApplyUserRotation( decayPoint_user, detori, fDetRotation, false ); // NEAR, cm
+  /*
   decayPoint_near.SetXYZ( decayPoint_near.X() + (fCx + fDetOffset.at(0)) * units::m / units::cm,
 			  decayPoint_near.Y() + (fCy + fDetOffset.at(1)) * units::m / units::cm,
 			  decayPoint_near.Z() + (fCz + fDetOffset.at(2)) * units::m / units::cm );
+  */
+  decayPoint_near.SetXYZ( decayPoint_near.X() + (fCx) * units::m / units::cm,
+			  decayPoint_near.Y() + (fCy) * units::m / units::cm,
+			  decayPoint_near.Z() + (fCz) * units::m / units::cm );
 
   TVector3 minusVec( minusPoint[0] - decayPoint_user.X(), minusPoint[1] - decayPoint_user.Y(), minusPoint[2] - decayPoint_user[2] ); // USER, cm
   TVector3 plusVec( plusPoint[0] - decayPoint_user.X(), plusPoint[1] - decayPoint_user.Y(), plusPoint[2] - decayPoint_user[2] ); // USER, cm
@@ -1709,38 +1751,11 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
 
   zp = TMath::ACos( plusNum / plusDen ) * TMath::RadToDeg();
 
-  asts << "\ndecayPoint [NEAR, m] = ( x = " << decayPoint_near.X() * units::cm / units::m << " , y = "
-       << decayPoint_near.Y() * units::cm / units::m << ", z = " 
-       << decayPoint_near.Z() * units::cm / units::m << " )"
-       << "\ndecayPoint [USER, m] = ( x = " << decayPoint_user.X() * units::cm / units::m << ", y = "
-       << decayPoint_user.Y() * units::cm / units::m << " , z = " 
-       << decayPoint_user.Z() * units::cm / units::m << " )"
-       << "\nminusVec [NEAR, m] = ( x = " << minusVec_near.X() * units::cm / units::m << " , y = "
-       << minusVec_near.Y() * units::cm / units::m << ", z = " 
-       << minusVec_near.Z() * units::cm / units::m << " )"
-       << "\nminusVec [USER, m] = ( x = " << minusVec.X() * units::cm / units::m << ", y = "
-       << minusVec.Y() * units::cm / units::m << " , z = " 
-       << minusVec.Z() * units::cm / units::m << " )"
-       << "\nplusVec [NEAR, m] = ( x = " << plusVec_near.X() * units::cm / units::m << " , y = "
-       << plusVec_near.Y() * units::cm / units::m << ", z = " 
-       << plusVec_near.Z() * units::cm / units::m << " )"
-       << "\nplusVec [USER, m] = ( x = " << plusVec.X() * units::cm / units::m << ", y = "
-       << plusVec.Y() * units::cm / units::m << " , z = " 
-       << plusVec.Z() * units::cm / units::m << " )"
-       << "\nstartVec [NEAR, m] = ( x = " << startVec_near.X() * units::cm / units::m << " , y = "
-       << startVec_near.Y() * units::cm / units::m << ", z = " 
-       << startVec_near.Z() * units::cm / units::m << " )"
-       << "\nstartVec [USER, m] = ( x = " << startVec.X() * units::cm / units::m << ", y = "
-       << startVec.Y() * units::cm / units::m << " , z = " 
-       << startVec.Z() * units::cm / units::m << " )";
-
   if( zm > zp ){
     double tmpzp = zp;
     zp = zm;
     zm = tmpzp;
   }
-
-  asts << "\nzm = " << zm << ", zp = " << zp;
 
   /*
   LOG( "HNL", pDEBUG )
@@ -1765,10 +1780,6 @@ double FluxCreator::CalculateAcceptanceCorrection( TLorentzVector p4par, TLorent
    * and return the ratio over the relevant measure for a SM neutrino
    */
 
-  asts << "\n\nACCEPTANCE CORRECTION:"
-       << "\np4par [NEAR, GeV]: " << utils::print::P4AsString(&p4par)
-       << "\np4HNL [REST, GeV]: " << utils::print::P4AsString(&p4HNL);
-  
   assert( zm >= 0.0 && zp >= zm );
   if( zp == zm ) return 1.0;
 

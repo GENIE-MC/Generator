@@ -14,8 +14,6 @@ using namespace genie;
 using namespace genie::hnl;
 using namespace genie::units;
 
-std::ostringstream bsts;
-
 //____________________________________________________________________________
 VertexGenerator::VertexGenerator() :
   GeomRecordVisitorI("genie::hnl::VertexGenerator")
@@ -42,8 +40,6 @@ VertexGenerator::~VertexGenerator()
 //____________________________________________________________________________
 void VertexGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 {
-  bsts << "\n\n~*~*~*~*~ MOAR VALIDATION FOR GEOMETRY. OH WOWOWOW. ~*~*~*~*~";
-
   /*!
    *  Uses ROOT's TGeoManager to find out where the intersections with the detector volume live
    *  Label them as entry and exit point. Then use them to determine:
@@ -74,10 +70,6 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   TVector3 startPoint, momentum, entryPoint, exitPoint;
   startPoint.SetXYZ( fSx, fSy, fSz );
   momentum.SetXYZ( fPx, fPy, fPz );
-
-  bsts << "\n\nSTARTING PARAMETERS GOING INTO GEOM ROUTINE:"
-       << "\nstartPoint [USER, mm]: " << utils::print::Vec3AsString( &startPoint )
-       << "\nmomentum [USER, GeV]: " << utils::print::Vec3AsString( &momentum );
   
   bool didIntersectDet = this->VolumeEntryAndExitPoints( startPoint, momentum, entryPoint, exitPoint, fGeoManager, fGeoVolume );
 
@@ -144,10 +136,6 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   event_rec->SetWeight( event_rec->Weight() * weight );
 
   TVector3 decayPoint = this->GetDecayPoint( elapsed_length, entryPoint, momentum ); // USER, mm
-  // hotfix: add the offset explicitly here
-  decayPoint.SetXYZ( decayPoint.X() + fDetTranslation.at(0) * units::m / units::mm,
-		     decayPoint.Y() + fDetTranslation.at(1) * units::m / units::mm,
-		     decayPoint.Z() + fDetTranslation.at(2) * units::m / units::mm );
 
   // write out vtx in [m, ns]
   TLorentzVector x4( decayPoint.X() * units::mm / units::m,
@@ -422,16 +410,6 @@ void VertexGenerator::ImportBoundingBox( TGeoBBox * box ) const
   fOxROOT = (box->GetOrigin())[0];
   fOyROOT = (box->GetOrigin())[1];
   fOzROOT = (box->GetOrigin())[2];
-
-  bsts << "\n\nIMPORTING BOUNDING BOX:"
-       << "\nBox dimensions [mm]: ( fLx = " << fLx << ", fLy = " << fLy << ", fLz = " << fLz << " )"
-       << "\nBox dimensions [cm]: ( fLxROOT = " << fLxROOT << ", fLyROOT = " << fLyROOT << ", fLzROOT = " << fLzROOT << " )"
-       << "\nBox origin [mm]: ( fOx = " << fOx << ", fOy = " << fOy << ", fOz = " << fOz << " )"
-       << "\nBox origin [cm]: ( fOxROOT = " << fOxROOT << ", fOyROOT = " << fOyROOT << ", fOzROOT = " << fOzROOT << " )";
-
-  LOG( "HNL", pDEBUG )
-    << "\nImported bounding box with origin at ( " << fOx << ", " << fOy << ", " << fOz << " ) and sides " << fLx << " x " << fLy << " x " << fLz << " [units: " << lunitString.c_str() << "]"
-    << "\nIn ROOT units this is origin at ( " << fOxROOT << ", " << fOyROOT << ", " << fOzROOT << " ) and sides " << fLxROOT << " x " << fLyROOT << " x " << fLzROOT << " [cm]";
 }
 //____________________________________________________________________________
 void VertexGenerator::SetStartingParameters( GHepRecord * event_rec ) const
@@ -460,18 +438,12 @@ void VertexGenerator::SetStartingParameters( GHepRecord * event_rec ) const
 		       xHNL_user.Z() - (fCz + fDetTranslation.at(2)) * units::m / units::cm,
 		       x4HNL->T() ); // USER, cm ns
 
-  bsts << "\n\nSTART POINT:"
-       << "\nx4HNL [NEAR, cm ns]: " << utils::print::X4AsString( x4HNL )
-       << "\nx4HNL [USER, cm ns]: " << utils::print::X4AsString( x4HNL_user );
-
   TVector3 startPoint( xMult * x4HNL_user->X(), xMult * x4HNL_user->Y(), xMult * x4HNL_user->Z() ); // USER mm
   double mtomm = units::m / units::mm;
   
   TLorentzVector * p4HNL = event_rec->Particle(0)->GetP4();
   TVector3 momentum( p4HNL->Px(), p4HNL->Py(), p4HNL->Pz() );
 
-  bsts << "\nstartPoint [USER, mm]: " << utils::print::Vec3AsString( &startPoint )
-       << "\nHNL momentum [USER, GeV]: " << utils::print::P4AsString( p4HNL );
 
   fSx = startPoint.X(); fSy = startPoint.Y(); fSz = startPoint.Z();
   fSxROOT = fSx * units::mm / units::cm;
@@ -496,19 +468,11 @@ bool VertexGenerator::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 
   fSxROOT = fSx * lunits / units::cm; fSyROOT = fSy * lunits / units::cm; fSzROOT = fSz * lunits / units::cm;
   fPx = px; fPy = py; fPz = pz;
 
-  bsts << "\n\nVOLUME ENTRY-EXIT ROUTINE:"
-       << "\nmmtolunits = " << mmtolunits
-       << "\nstartPoint [USER, mm]: ( x = " << fSx << ", y = " << fSy << ", z = " << fSz << " )" 
-       << "\nstartPoint [USER, cm]: ( x = " << fSxROOT << ", y = " << fSyROOT << ", z = " << fSzROOT << " )"
-       << "\nmomentum unit [USER, GeV/GeV]: ( x = " << px << ", y = " << py << ", z = " << pz << " )";
-
   // put first point slightly inside the bounding box
   double firstZOffset = -0.1; // cm
   firstZOffset *= units::cm / lunits;
 
   double firstZ = fOz - (fLz/2.0 - firstZOffset);
-
-  bsts << "\nStarting at point with z = " << firstZ << " [USER, mm]";
 
   // now find which point the line would hit this z at
   double dz = firstZ - sz;
@@ -527,9 +491,6 @@ bool VertexGenerator::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 
   gGeoManager->SetCurrentPoint( firstXROOT, firstYROOT, firstZROOT );
   gGeoManager->SetCurrentDirection( px, py, pz );
 
-  bsts << "\nThis point is [USER, mm]: ( x = " << firstX << ", y = " << firstY << ", z = " << firstZ << " )"
-       << "\nThis point is [USER, cm]: ( x = " << firstXROOT << ", y = " << firstYROOT << ", z = " << firstZROOT << " )";
-
   /*
   LOG( "HNL", pINFO )
     << "\nCurrent point     is: ( " << firstX << ", " << firstY << ", " << firstZ << " ) [" << lunitString.c_str() << "]"
@@ -540,10 +501,6 @@ bool VertexGenerator::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 
   */
 
   std::string pathString = this->CheckGeomPoint( firstXROOT, firstYROOT, firstZROOT );
-
-  bsts << "\n\nNODE STUFF:"
-       << "\nChecking current point at ( x = " << firstXROOT << ", y = " << firstYROOT << ", z = " << firstZROOT << " )"
-       << "\npathString is " << pathString;
 
   assert( pathString.find("/", 1) == string::npos ); // need to be in TOP volume but outside any other volume so we can enter this.
 
@@ -564,10 +521,6 @@ bool VertexGenerator::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 
   pathString = this->CheckGeomPoint( (gGeoManager->GetCurrentPoint())[0], 
 				     (gGeoManager->GetCurrentPoint())[1], 
 				     (gGeoManager->GetCurrentPoint())[2] );
-  bsts << "\nAdvanced to point [USER, cm]: ( x = " << (gGeoManager->GetCurrentPoint())[0] 
-       << ", y = " << (gGeoManager->GetCurrentPoint())[1]
-       << ", z = " << (gGeoManager->GetCurrentPoint())[2] << " )"
-       << "\nIts path node was " << pathString;
 
   if( nextNode == NULL )
     return false; 
@@ -591,9 +544,6 @@ bool VertexGenerator::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 
   entryPoint_near.SetXYZ( entryPoint_near.X() + (fCx + fDetTranslation.at(0)),
 			  entryPoint_near.Y() + (fCy + fDetTranslation.at(1)),
 			  entryPoint_near.Z() + (fCz + fDetTranslation.at(2)) );
-
-  bsts << "\nEntryPoint [USER, m]: " << utils::print::Vec3AsString( &entryPoint_user )
-       << "\nEntryPoint [NEAR, m]: " << utils::print::Vec3AsString( &entryPoint_near );
 
   /*
   LOG( "HNL", pDEBUG )
@@ -661,11 +611,6 @@ bool VertexGenerator::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 
   exitPoint_near.SetXYZ( exitPoint_near.X() + (fCx + fDetTranslation.at(0)),
 			 exitPoint_near.Y() + (fCy + fDetTranslation.at(1)),
 			 exitPoint_near.Z() + (fCz + fDetTranslation.at(2)) );
-
-  bsts << "\nExitPoint [USER, m]: " << utils::print::Vec3AsString( &exitPoint_user )
-       << "\nExitPoint [NEAR, m]: " << utils::print::Vec3AsString( &exitPoint_near );
-
-  LOG( "HNL", pDEBUG ) << bsts.str();
 
   /*
   LOG( "HNL", pINFO )
