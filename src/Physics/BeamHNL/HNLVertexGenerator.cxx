@@ -143,7 +143,11 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   // update the weight
   event_rec->SetWeight( event_rec->Weight() * weight );
 
-  TVector3 decayPoint = this->GetDecayPoint( elapsed_length, entryPoint, momentum );
+  TVector3 decayPoint = this->GetDecayPoint( elapsed_length, entryPoint, momentum ); // USER, mm
+  // hotfix: add the offset explicitly here
+  decayPoint.SetXYZ( decayPoint.X() + fDetTranslation.at(0) * units::m / units::mm,
+		     decayPoint.Y() + fDetTranslation.at(1) * units::m / units::mm,
+		     decayPoint.Z() + fDetTranslation.at(2) * units::m / units::mm );
 
   // write out vtx in [m, ns]
   TLorentzVector x4( decayPoint.X() * units::mm / units::m,

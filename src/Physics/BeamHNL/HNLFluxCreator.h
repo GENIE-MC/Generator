@@ -148,7 +148,7 @@ namespace genie{
       // returns HNL 4-momentum from random decay in same frame as p4par
       TLorentzVector HNLEnergy( genie::hnl::HNLProd_t hnldm, TLorentzVector p4par ) const;
       // gets random point in BBox and returns separation to it in BEAM FRAME
-      TVector3 PointToRandomPointInBBox( TVector3 detO_beam ) const;
+      TVector3 PointToRandomPointInBBox( ) const;
 
       void ReadBRs() const;
       std::map< genie::hnl::HNLProd_t, double > GetProductionProbs( int parPDG ) const;
