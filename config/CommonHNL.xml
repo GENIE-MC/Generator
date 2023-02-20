@@ -85,6 +85,7 @@ April 11th, 2022
     <param type="bool" name="RerollPoints"> true </param>
     <param type="double" name="CollectionRadius"> 1.0 </param> <!-- this would be fLx,y,z in MakeBBox() -->
     <param type="bool" name="IsParentOnAxis"> false </param>
+    <param type="bool" name="InputFluxesInBEAM"> true </param>
     <param type="bool" name="IncludePolarisation"> true </param>
     <param type="bool" name="FixPolarisationDirection"> false </param>
     <param type="vec-double" name="HNL-PolDir" delim=";"> 0.0 ; 0.0 ; 1.0 </param> 

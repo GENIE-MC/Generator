@@ -204,9 +204,16 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
   }
     
   // turn cm to m and make origin wrt detector 
-  fDx = decay_vx * units::cm / units::m;
+  fDx = decay_vx * units::cm / units::m; // BEAM, m
   fDy = decay_vy * units::cm / units::m;
   fDz = decay_vz * units::cm / units::m;
+
+  if( !fSupplyingBEAM ){
+    TVector3 tmpVec( fDx, fDy, fDz ); // NEAR
+    tmpVec = this->ApplyUserRotation( tmpVec, false ); // BEAM
+    fDx = tmpVec.X(); fDy = tmpVec.Y(); fDz = tmpVec.Z();
+  }
+
   TVector3 fDvec( fDx, fDy, fDz ); // in BEAM coords
   TVector3 fDvec_beam = this->ApplyUserRotation( fDvec, true ); // in NEAR coords
 
@@ -230,6 +237,14 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
   double acc_saa = this->CalculateDetectorAcceptanceSAA( detO_user );
   
   // set parent mass
+
+  double dpdpx = decay_pdpx, dpdpy = decay_pdpy, dpdpz = decay_pdpz; // BEAM GeV
+  if( !fSupplyingBEAM ){
+    TVector3 tmpVec( dpdpx, dpdpy, dpdpz ); // NEAR
+    tmpVec = this->ApplyUserRotation( tmpVec, false ); // BEAM
+    dpdpx = tmpVec.X(); dpdpy = tmpVec.Y(); dpdpz = tmpVec.Z();
+  }
+
   switch( std::abs( decay_ptype ) ){
   case kPdgPiP: case kPdgKP: case kPdgMuon: case kPdgK0L:
     parentMass = PDGLibrary::Instance()->Find(decay_ptype)->Mass(); break;
@@ -238,7 +253,7 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
 			 << "\n\tProceeding, but results are possibly unphysical.";
     parentMass = PDGLibrary::Instance()->Find(decay_ptype)->Mass(); break;
   }
-  parentMomentum = std::sqrt( decay_pdpx*decay_pdpx + decay_pdpy*decay_pdpy + decay_pdpz*decay_pdpz );
+  parentMomentum = std::sqrt( dpdpx*dpdpx + dpdpy*dpdpy + dpdpz*dpdpz );
   parentEnergy = std::sqrt( parentMass*parentMass + parentMomentum*parentMomentum );
 
   TLorentzVector p4par = ( isParentOnAxis ) ? 
@@ -246,9 +261,9 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
 		    parentMomentum * (detO.Unit()).Y(),
 		    parentMomentum * (detO.Unit()).Z(),
 		    parentEnergy ) :
-    TLorentzVector( decay_pdpx, decay_pdpy, decay_pdpz, parentEnergy ); // in BEAM coords
+    TLorentzVector( dpdpx, dpdpy, dpdpz, parentEnergy ); // in BEAM coords
 
-  TLorentzVector p4par_beam( decay_pdpx, decay_pdpy, decay_pdpz, parentEnergy ); // in BEAM coords
+  TLorentzVector p4par_beam( dpdpx, dpdpy, dpdpz, parentEnergy ); // in BEAM coords
   TVector3 p3par_beam = p4par_beam.Vect();
   TVector3 p3par_near = this->ApplyUserRotation( p3par_beam, true );
   TLorentzVector p4par_near( p3par_near.X(), p3par_near.Y(), p3par_near.Z(), parentEnergy ); // in NEAR coords
@@ -604,7 +619,16 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
   */
   
   // write 4-position all this happens at
-  TLorentzVector x4HNL_beam( decay_vx, decay_vy, decay_vz, delay ); // in cm, ns, BEAM coords
+
+  double dxvx = decay_vx, dxvy = decay_vy, dxvz = decay_vz;
+
+  if( !fSupplyingBEAM ){
+    TVector3 tmpVec( dxvx, dxvy, dxvz ); // NEAR
+    tmpVec = this->ApplyUserRotation( tmpVec, false ); // BEAM
+    dxvx = tmpVec.X(); dxvy = tmpVec.Y(); dxvz = tmpVec.Z();
+  }
+
+  TLorentzVector x4HNL_beam( dxvx, dxvy, dxvz, delay ); // in cm, ns, BEAM coords
   TVector3 x3HNL_beam = x4HNL_beam.Vect();
   TVector3 x3HNL_near = this->ApplyUserRotation( x3HNL_beam, true );
   TLorentzVector x4HNL_near( x3HNL_near.X(), x3HNL_near.Y(), x3HNL_near.Z(), delay );
@@ -636,7 +660,7 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
 
   gnmf.startPoint.SetXYZ( fDvec_beam.X(), fDvec_beam.Y(), fDvec_beam.Z() ); // NEAR m
   gnmf.targetPoint.SetXYZ( fTargetPoint.X(), fTargetPoint.Y(), fTargetPoint.Z() ); // NEAR m
-  gnmf.startPointUser.SetXYZ( fDx - fCx, fDy - fCy, fDz - fCz ); // USER m
+  gnmf.startPointUser.SetXYZ( fDvec_user.X() - fCx, fDvec_user.Y() - fCy, fDvec_user.Z() - fCz ); // USER m
   gnmf.targetPointUser.SetXYZ( fTargetPoint.X() - fCx, fTargetPoint.Y() - fCy, fTargetPoint.Z() - fCz ); // USER m
   gnmf.delay = delay; // ns
 
@@ -2027,6 +2051,7 @@ void FluxCreator::LoadConfig(void)
   this->GetParam( "DoOldFluxCalculation", fDoingOldFluxCalc );
   this->GetParam( "RerollPoints", fRerollPoints );
   this->GetParam( "CollectionRadius", fRadius );
+  this->GetParam( "InputFluxesInBEAM", fSupplyingBEAM );
   this->GetParam( "IncludePolarisation", doPol );
   this->GetParam( "FixPolarisationDirection", fixPol );
   this->GetParamVect( "HNL-PolDir", fFixedPolarisation );
