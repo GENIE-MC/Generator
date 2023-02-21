@@ -41,7 +41,7 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, 
     script.close()
     return shell_file 
 
-def FNALShellCommands(grid_setup, genie_setup, hours = 10, memory=1, disk=20, GraceMemory=4096,GraceLifeTime=6000):
+def FNALShellCommands(grid_setup, genie_setup, hours = 10, memory=1, disk=1, GraceMemory=4096, GraceLifeTime=6000):
     grid_command_options = " -n --memory="+str(memory)+"GB --disk="+str(disk)+"GB --expected-lifetime="+str(hours)+"h " 
     grid_command_options += " --OS=SL7 --lines '+FERMIHTC_AutoRelease=True' -f "+grid_setup+" -f "+genie_setup 
     grid_command_options += " --lines '+FERMIHTC_GraceMemory="+str(GraceMemory)+"' --lines '+FERMIHTC_GraceLifetime="+str(GraceLifeTime)+"' "
