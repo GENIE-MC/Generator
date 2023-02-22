@@ -83,12 +83,12 @@ public:
   bool   IsEvenEven     (void) const;
   bool   IsEvenOdd      (void) const;
   bool   IsOddOdd       (void) const;
-  int    HitNucPdg      (void) const;
+  int    HitPartPdg     (void) const;
   int    HitQrkPdg      (void) const;
   double HitPartMass    (void) const;
   double HitPartPosition(void) const { return fHitPartRad; }
 
-  const TLorentzVector & HitPartP4    (void) const { return *this->HitNucP4Ptr(); }
+  const TLorentzVector & HitPartP4    (void) const { return *this->HitPartP4Ptr(); }
   TLorentzVector *       HitPartP4Ptr (void) const;
 
   //-- Copy, reset, compare, print itself and build string code
@@ -120,7 +120,7 @@ private:
   int  fHitPartPDG;           ///< hit particle PDG code
   int  fHitQrkPDG;            ///< hit quark PDG code
   bool fHitSeaQrk;            ///< hit quark from sea?
-  TLorentzVector * fHitPartP4;///< hit particle 4p
+  TLorentzVector *fHitPartP4; ///< hit particle 4p
   double fHitPartRad;         ///< hit particle position
 
 ClassDef(Target,3)
