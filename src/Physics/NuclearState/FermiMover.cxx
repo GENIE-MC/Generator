@@ -106,7 +106,7 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
   // do nothing for non-nuclear targets
   if(!tgt->IsNucleus()) return;
 
-  TLorentzVector * p4 = tgt->HitNucP4Ptr();
+  TLorentzVector * p4 = tgt->HitPartP4Ptr();
 
   // do nothing if the struct nucleon 4-momentum was set (eg as part of the
   // initial state selection)

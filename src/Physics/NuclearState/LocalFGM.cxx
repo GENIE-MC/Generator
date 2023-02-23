@@ -50,9 +50,9 @@ LocalFGM::~LocalFGM()
 }
 //____________________________________________________________________________
 bool LocalFGM::GenerateNucleon(const Target & target,
-				      double hitNucleonRadius) const
+			       double hitNucleonRadius) const
 {
-  assert(target.HitNucIsSet());
+  assert(target.HitPartIsSet());
 
   fCurrRemovalEnergy = 0;
   fCurrMomentum.SetXYZ(0,0,0);
@@ -117,10 +117,10 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
   LOG("LocalFGM", pNOTICE)
              << ", P(max) = " << fPMax;
 
-  assert(target.HitNucIsSet());
+  assert(target.HitPartIsSet());
 
   //-- get information for the nuclear target
-  int nucleon_pdgc = target.HitNucPdg();
+  int nucleon_pdgc = target.HitPartPdg();
   assert(pdg::IsProton(nucleon_pdgc) || pdg::IsNeutron(nucleon_pdgc));
 
   // bool is_p = pdg::IsProton(nucleon_pdgc);
