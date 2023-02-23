@@ -428,7 +428,7 @@ double genie::utils::gsl::d2XSec_dWdQ2_E::DoEval(const double * xin) const
      fInteraction->ProcInfo().IsDarkMatterDeepInelastic()) {
     double x=0,y=0;
     double E = fInteraction->InitState().ProbeE(kRfHitNucRest);
-    double M = fInteraction->InitState().Tgt().HitNucP4Ptr()->M();
+    double M = fInteraction->InitState().Tgt().HitPartP4Ptr()->M();
 
     kinematics::WQ2toXY(E,M,W,Q2,x,y);
     fInteraction->KinePtr()->Setx(x);
