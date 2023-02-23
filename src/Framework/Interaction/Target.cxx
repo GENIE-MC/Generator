@@ -58,7 +58,7 @@ TObject()
   this->SetId(ZZ,AA);
 }
 //___________________________________________________________________________
-Target::Target(int ZZ, int AA, int hit_particle_pdgc) :
+Target::Target(int ZZ, int AA, int hit_part_pdgc) :
 TObject()
 {
   this->Init();
@@ -130,10 +130,10 @@ void Target::Copy(const Target & tgt)
      const TLorentzVector& p4 = *(tgt.fHitPartP4);
      //  *fHitNucP4 = p4; // nope
      //// this works for valgrind
-     fHitNucP4->SetX(p4.X());
-     fHitNucP4->SetY(p4.Y());
-     fHitNucP4->SetZ(p4.Z());
-     fHitNucP4->SetT(p4.T());
+     fHitPartP4->SetX(p4.X());
+     fHitPartP4->SetY(p4.Y());
+     fHitPartP4->SetZ(p4.Z());
+     fHitPartP4->SetT(p4.T());
 
      fHitPartRad = tgt.fHitPartRad;
 
@@ -177,7 +177,7 @@ void Target::SetHitPartPdg(int pdgc)
   // at-rest + on-mass-shell
   if(is_valid) {
     double M = PDGLibrary::Instance()->Find(pdgc)->Mass();
-    fHitNucP4->SetPxPyPzE(0,0,0,M);
+    fHitPartP4->SetPxPyPzE(0,0,0,M);
   }
 }
 //___________________________________________________________________________
@@ -424,7 +424,7 @@ void Target::Print(ostream & stream) const
 bool Target::Compare(const Target & target) const
 {
   int  tgt_pdg         = target.Pdg();
-  int  struck_part_pdg = target.HitNucPdg();
+  int  struck_part_pdg = target.HitPartPdg();
   int  struck_qrk_pdg  = target.HitQrkPdg();
   bool struck_sea_qrk  = target.HitSeaQrk();
 

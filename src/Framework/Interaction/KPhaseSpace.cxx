@@ -90,7 +90,7 @@ double KPhaseSpace::Threshold(void) const
   
   if (pi.IsSingleKaon()) {
     int kaon_pdgc = xcls.StrangeHadronPdg();
-    double Mi   = tgt.HitNucP4Ptr()->M(); // initial nucleon mass
+    double Mi   = tgt.HitPartP4Ptr()->M(); // initial nucleon mass
     // Final nucleon can be different for K0 interaction
     double Mf = (xcls.NProtons()==1) ? kProtonMass : kNeutronMass;
     double mk   = PDGLibrary::Instance()->Find(kaon_pdgc)->Mass();
@@ -132,12 +132,12 @@ double KPhaseSpace::Threshold(void) const
      pi.IsDarkMatterDeepInelastic() ||
      pi.IsDiffractive())
   {
-    assert(tgt.HitNucIsSet());
-    double Mn   = tgt.HitNucP4Ptr()->M();
+    assert(tgt.HitPartIsSet());
+    double Mn   = tgt.HitPartP4Ptr()->M();
     double Mn2  = TMath::Power(Mn,2);
     double Wmin = kNucleonMass + kPionMass;
     if ( pi.IsQuasiElastic() || pi.IsDarkMatterElastic() || pi.IsInverseBetaDecay() ) {
-      int finalNucPDG = tgt.HitNucPdg();
+      int finalNucPDG = tgt.HitPartPdg();
       if ( pi.IsWeakCC() ) finalNucPDG = pdg::SwitchProtonNeutron( finalNucPDG );
       Wmin = PDGLibrary::Instance()->Find( finalNucPDG )->Mass();
     }
@@ -185,8 +185,8 @@ double KPhaseSpace::Threshold(void) const
     return 0;
   }
   if (pi.IsMEC()) {
-    if (tgt.HitNucIsSet()) {
-        double Mn   = tgt.HitNucP4Ptr()->M();
+    if (tgt.HitPartIsSet()) {
+        double Mn   = tgt.HitPartP4Ptr()->M();
         double Mn2  = TMath::Power(Mn,2);
         double Wmin = fInteraction->RecoilNucleon()->Mass(); // mass of the recoil nucleon cluster
         double smin = TMath::Power(Wmin+ml,2.);
@@ -203,7 +203,7 @@ double KPhaseSpace::Threshold(void) const
     return TMath::Max(0.,Ethr);
   }
   if(pi.IsPhotonResonance()) {
-    double Mn = tgt.HitNucP4Ptr()->M();
+    double Mn = tgt.HitPartP4Ptr()->M();
     double Ethr = 0.5 * (ml*ml-TMath::Power(Mn,2))/Mn;
     return TMath::Max(0.,Ethr);
   }
@@ -443,7 +443,7 @@ Range1D_t KPhaseSpace::WLim(void) const
   if(is_inel) {
     const InitialState & init_state = fInteraction->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
-    double M  = init_state.Tgt().HitNucP4Ptr()->M(); //can be off m/shell
+    double M  = init_state.Tgt().HitPartP4Ptr()->M(); //can be off m/shell
     double ml = fInteraction->FSPrimLepton()->Mass();
 
     Wl = is_em ? kinematics::electromagnetic::InelWLim(Ev,ml,M) : kinematics::InelWLim(Ev,M,ml);
@@ -466,7 +466,7 @@ Range1D_t KPhaseSpace::WLim(void) const
   if(is_dmdis) {
     const InitialState & init_state = fInteraction->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
-    double M  = init_state.Tgt().HitNucP4Ptr()->M(); //can be off m/shell
+    double M  = init_state.Tgt().HitPartP4Ptr()->M(); //can be off m/shell
     double ml = fInteraction->FSPrimLepton()->Mass();
     Wl = kinematics::DarkWLim(Ev,M,ml);
     if(fInteraction->ExclTag().IsCharmEvent()) {
@@ -518,7 +518,7 @@ Range1D_t KPhaseSpace::Q2Lim_W(void) const
 
   const InitialState & init_state = fInteraction->InitState();
   double Ev  = init_state.ProbeE(kRfHitNucRest);
-  double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
+  double M   = init_state.Tgt().HitPartP4Ptr()->M(); // can be off m/shell
   double ml  = fInteraction->FSPrimLepton()->Mass();
 
   double W = 0;
@@ -571,7 +571,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
 
   const InitialState & init_state = fInteraction->InitState();
   double Ev  = init_state.ProbeE(kRfHitNucRest);
-  double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
+  double M   = init_state.Tgt().HitPartP4Ptr()->M(); // can be off m/shell
   double ml  = fInteraction->FSPrimLepton()->Mass();
 
   if(is_cevns) {
@@ -683,7 +683,7 @@ Range1D_t KPhaseSpace::XLim(void) const
   if(is_inel) {
     const InitialState & init_state  = fInteraction->InitState();
     double Ev  = init_state.ProbeE(kRfHitNucRest);
-    double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
+    double M   = init_state.Tgt().HitPartP4Ptr()->M(); // can be off m/shell
     double ml  = fInteraction->FSPrimLepton()->Mass();
     xl = is_em ? kinematics::electromagnetic::InelXLim(Ev,ml,M) : kinematics::InelXLim(Ev,M,ml);
     return xl;
@@ -693,7 +693,7 @@ Range1D_t KPhaseSpace::XLim(void) const
   if(is_dmdis) {
     const InitialState & init_state  = fInteraction->InitState();
     double Ev  = init_state.ProbeE(kRfHitNucRest);
-    double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
+    double M   = init_state.Tgt().HitPartP4Ptr()->M(); // can be off m/shell
     double ml  = fInteraction->FSPrimLepton()->Mass();
     xl = kinematics::DarkXLim(Ev,M,ml);
     return xl;
@@ -735,7 +735,7 @@ Range1D_t KPhaseSpace::YLim(void) const
   if(is_inel) {
     const InitialState & init_state = fInteraction->InitState();
     double Ev  = init_state.ProbeE(kRfHitNucRest);
-    double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
+    double M   = init_state.Tgt().HitPartP4Ptr()->M(); // can be off m/shell
     double ml  = fInteraction->FSPrimLepton()->Mass();
     yl = is_em ? kinematics::electromagnetic::InelYLim(Ev,ml,M) : kinematics::InelYLim(Ev,M,ml);
     return yl;
@@ -745,7 +745,7 @@ Range1D_t KPhaseSpace::YLim(void) const
   if(is_dmdis) {
     const InitialState & init_state = fInteraction->InitState();
     double Ev  = init_state.ProbeE(kRfHitNucRest);
-    double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
+    double M   = init_state.Tgt().HitPartP4Ptr()->M(); // can be off m/shell
     double ml  = fInteraction->FSPrimLepton()->Mass();
     yl = kinematics::DarkYLim(Ev,M,ml);
     return yl;
@@ -807,7 +807,7 @@ Range1D_t KPhaseSpace::YLim_X(void) const
   if(is_inel) {
     const InitialState & init_state = fInteraction->InitState();
     double Ev  = init_state.ProbeE(kRfHitNucRest);
-    double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
+    double M   = init_state.Tgt().HitPartP4Ptr()->M(); // can be off m/shell
     double ml  = fInteraction->FSPrimLepton()->Mass();
     double x   = fInteraction->Kine().x();
     yl = is_em ? kinematics::electromagnetic::InelYLim_X(Ev,ml,M,x) : kinematics::InelYLim_X(Ev,M,ml,x);
@@ -818,7 +818,7 @@ Range1D_t KPhaseSpace::YLim_X(void) const
   if(is_dmdis) {
     const InitialState & init_state = fInteraction->InitState();
     double Ev  = init_state.ProbeE(kRfHitNucRest);
-    double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
+    double M   = init_state.Tgt().HitPartP4Ptr()->M(); // can be off m/shell
     double ml  = fInteraction->FSPrimLepton()->Mass();
     double x   = fInteraction->Kine().x();
     yl = kinematics::DarkYLim_X(Ev,M,ml,x);
@@ -938,7 +938,7 @@ Range1D_t KPhaseSpace::TLim(void) const
     double mpi = pionIsCharged ? kPionMass : kPi0Mass;
     double mpi2 = mpi*mpi;
 
-    double M = init_state.Tgt().HitNucMass();
+    double M = init_state.Tgt().HitPartMass();
     double M2 = M*M;
     double nuSqPlusQ2 = nu*nu + Q2;
     double nuOverM = nu / M;
