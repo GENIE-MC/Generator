@@ -135,7 +135,7 @@ TVector3 OutgoingDarkGenerator::NucRestFrame2Lab(GHepRecord * evrec) const
   Interaction * interaction = evrec->Summary();
   const InitialState & init_state = interaction->InitState();
 
-  const TLorentzVector & pnuc4 = init_state.Tgt().HitNucP4(); //[@LAB]
+  const TLorentzVector & pnuc4 = init_state.Tgt().HitPartP4(); //[@LAB]
   TVector3 beta = pnuc4.BoostVector();
 
   return beta;
