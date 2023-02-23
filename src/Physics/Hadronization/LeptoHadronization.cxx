@@ -143,11 +143,11 @@ bool LeptoHadronization::Hadronize(GHepRecord *
 
   assert(target.HitQrkIsSet()); 
 
-  bool isp        = pdg::IsProton(target.HitNucPdg());
+  bool isp        = pdg::IsProton(target.HitPartPdg());
   int  hit_quark  = target.HitQrkPdg();
   int  frag_quark = xclstag.FinalQuarkPdg();
 
-  LOG("LeptoHad", pDEBUG) << "Hit nucleon pdgc = " << target.HitNucPdg() << ", W = " << W;
+  LOG("LeptoHad", pDEBUG) << "Hit nucleon pdgc = " << target.HitPartPdg() << ", W = " << W;
   LOG("LeptoHad", pDEBUG) << "Selected hit quark pdgc = " << hit_quark << " // Fragmentation quark = " << frag_quark;
 
   RandomGen * rnd = RandomGen::Instance();

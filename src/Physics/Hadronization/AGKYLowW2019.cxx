@@ -389,7 +389,7 @@ TH1D * AGKYLowW2019::MultiplicityProb(
 
   const InitialState & init_state = interaction->InitState();
   int nu_pdg  = init_state.ProbePdg();
-  int nuc_pdg = init_state.Tgt().HitNucPdg();
+  int nuc_pdg = init_state.Tgt().HitPartPdg();
 
   // Compute the average charged hadron multiplicity as: <n> = a + b*ln(W^2)
   // Calculate avergage hadron multiplicity (= 1.5 x charged hadron mult.)
@@ -713,7 +713,7 @@ int AGKYLowW2019::HadronShowerCharge(const Interaction* interaction) const
   // get the initial state, ask for the hit-nucleon and get
   // its charge ( = initial state charge for vN interactions)
   const InitialState & init_state = interaction->InitState();
-  int hit_nucleon = init_state.Tgt().HitNucPdg();
+  int hit_nucleon = init_state.Tgt().HitPartPdg();
 
   assert( pdg::IsProton(hit_nucleon) || pdg::IsNeutron(hit_nucleon) );
 
@@ -1573,7 +1573,7 @@ void AGKYLowW2019::ApplyRijk( const Interaction * interaction,
 
   const InitialState & init_state = interaction->InitState();
   int probe_pdg = init_state.ProbePdg();
-  int nuc_pdg   = init_state.Tgt().HitNucPdg();
+  int nuc_pdg   = init_state.Tgt().HitPartPdg();
 
   const ProcessInfo & proc_info = interaction->ProcInfo();
   bool is_CC = proc_info.IsWeakCC();
