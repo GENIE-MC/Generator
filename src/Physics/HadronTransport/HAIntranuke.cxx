@@ -633,7 +633,7 @@ void HAIntranuke::InelasticHA(
   // handle fermi momentum
   if(fDoFermi)
     {
-      target.SetHitNucPdg(tcode);
+      target.SetHitPartPdg(tcode);
       fNuclmodel->GenerateNucleon(target);
       TVector3 tP3 = fFermiFac * fNuclmodel->Momentum3();
       double tE = TMath::Sqrt(tP3.Mag2()+ tM*tM);
@@ -867,12 +867,12 @@ void HAIntranuke::Inelastic(
 	  Target target(ev->TargetNucleus()->Pdg());
 	  if(fDoFermi)
 	    {
-	      target.SetHitNucPdg(t1code);
+	      target.SetHitPartPdg(t1code);
 	      fNuclmodel->GenerateNucleon(target);
 	      tP2_1L=fFermiFac * fNuclmodel->Momentum3();
 	      E2_1L = TMath::Sqrt(tP2_1L.Mag2() + M2_1*M2_1);
  
-	      target.SetHitNucPdg(t2code);
+	      target.SetHitPartPdg(t2code);
 	      fNuclmodel->GenerateNucleon(target);
 	      tP2_2L=fFermiFac * fNuclmodel->Momentum3();
 	      E2_2L = TMath::Sqrt(tP2_2L.Mag2() + M2_2*M2_2);

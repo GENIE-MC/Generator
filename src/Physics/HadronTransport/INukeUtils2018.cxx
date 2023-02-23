@@ -1115,7 +1115,7 @@ bool genie::utils::intranuke2018::ThreeBodyKinematics(
   // handle fermi momentum
   if(DoFermi)
     {
-      target.SetHitNucPdg(tcode);
+      target.SetHitPartPdg(tcode);
       Nuclmodel->GenerateNucleon(target);
       tP2L = FermiFac * Nuclmodel->Momentum3();
       P2L = tP2L.Mag();
