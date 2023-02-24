@@ -68,9 +68,12 @@
    <config alg="genie::QELEventGeneratorSuSA">           QELEventGeneratorSuSA.xml           </config>
    <config alg="genie::NucleonDecayPrimaryVtxGenerator"> NucleonDecayPrimaryVtxGenerator.xml </config>
    <config alg="genie::NNBarOscPrimaryVtxGenerator">     NNBarOscPrimaryVtxGenerator.xml     </config>
-   <config alg="genie::SpectralFunction2p2h">        SpectralFunction2p2h.xml        </config>
-   <config alg="genie::SRCNuclearRecoil">             SRCNuclearRecoil.xml             </config>
-   <config alg="genie::NHLPrimaryVtxGenerator">          NHLPrimaryVtxGenerator.xml          </config>
+   <config alg="genie::SpectralFunction2p2h">            SpectralFunction2p2h.xml            </config>
+   <config alg="genie::SRCNuclearRecoil">                SRCNuclearRecoil.xml                </config>
+   <config alg="genie::hnl::BRCalculator">               BeamHNLGenerator.xml                </config>
+   <config alg="genie::hnl::FluxCreator">                BeamHNLGenerator.xml                </config>
+   <config alg="genie::hnl::Decayer">                    BeamHNLGenerator.xml                </config>
+   <config alg="genie::hnl::VertexGenerator">            BeamHNLGenerator.xml                </config>
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
    <config alg="genie::QELInteractionListGenerator">           QELInteractionListGenerator.xml       </config>
@@ -93,6 +96,7 @@
    <config alg="genie::HEDISInteractionListGenerator">         HEDISInteractionListGenerator.xml     </config>
    <config alg="genie::DummyInteractionListGenerator">         Default.xml                           </config>
    <config alg="genie::NNBarOscDummyInteractionListGenerator"> Default.xml                           </config>
+   <config alg="genie::DummyHNLInteractionListGenerator">      Default.xml                           </config>
    <config alg="genie::InteractionListAssembler">              InteractionListAssembler.xml          </config>
    <config alg="genie::EventGeneratorListAssembler">           EventGeneratorListAssembler.xml       </config>
 
@@ -214,6 +218,7 @@
    <config alg="genie::RosenbluthPXSec">                    RosenbluthPXSec.xml                    </config>
    <config alg="genie::DummyPXSec">                         Default.xml                            </config>
    <config alg="genie::NNBarOscDummyPXSec">                 Default.xml                            </config>
+   <config alg="genie::DummyHNLPXSec">                      Default.xml                            </config>
    <config alg="genie::ReinSehgalRESXSecFast">              ReinSehgalRESXSecFast.xml              </config>
    <config alg="genie::BertuzzoDNuCOHPXSec">                BertuzzoDNuCOHPXSec.xml                </config>
    <config alg="genie::HybridXSecAlgorithm">                HybridXSecAlgorithm.xml                </config>

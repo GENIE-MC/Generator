@@ -29,7 +29,7 @@ typedef enum EGEvGenMode {
   kGMdDarkMatterNucleus, // dark matter + nucleon/nucleus scattering
   kGMdNucleonDecay,      // nucleon decay
   kGMdNeutronOsc,        // neutron-antineutron oscillation
-  kGMdNeutralHeavyLepton // neutral heavy lepton
+  kGMdHNLDecay           // heavy neutral lepton decay
 
 } GEvGenMode_t;
 
