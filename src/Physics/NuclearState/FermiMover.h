@@ -56,6 +56,7 @@ private:
   void LoadConfig (void);
 
   bool  fKeepNuclOnMassShell;          ///< keep hit bound nucleon on the mass shell?
+  bool  fMomDepErmv;                   ///< use momentum dependent calculation of Ermv
   const NuclearModelI *  fNuclModel;   ///< nuclear model
 
   const SecondNucleonEmissionI *  fSecondEmitter ; 
