@@ -36,7 +36,7 @@ MAIDRESVectFormFactorsEMn::~MAIDRESVectFormFactorsEMn()
 
 }
 //____________________________________________________________________________
-RESVectFFAmplitude MAIDRESVectFormFactorsEMn::Compute( const Interaction interaction ) const {
+RESVectFFAmplitude MAIDRESVectFormFactorsEMn::Compute( const Interaction interaction ) {
   RESVectFFAmplitude ampl ; 
 
   const InitialState & init_state = interaction.InitState();
@@ -63,126 +63,33 @@ RESVectFFAmplitude MAIDRESVectFormFactorsEMn::Compute( const Interaction interac
 
   double tau = -q2/(4.*Mnuc2);  
 
-  switch(res) {
+  if( res == kP33_1232 ) { 
+    double Fq = 1./TMath::Power(1-q2/0.71,2)*qcm/kgcm0;
+    double AM = fAM0_P33_1232 * (1. - fBetaM_P33_1232 * q2) * TMath::Exp( fGammaM_P33_1232 * q2 ) * Fq;
+    double AE = fAE0_P33_1232 * (1. - fBetaE_P33_1232 * q2) * TMath::Exp( fGammaE_P33_1232 * q2 ) * Fq;
+    double AS = fAS0_P33_1232 * (1. - fBetaS_P33_1232 * q2) / (1. + 4.9*tau)*qcm/kR*TMath::Exp( fGammaS_P33_1232 * q2 ) * Fq; // ??
+    ampl.SetAmplA12( (3.*AE+AM)/2./1000. );
+    ampl.SetAmplA32( TMath::Sqrt(3.)/2.*(AE-AM)/1000. );
+    ampl.SetAmplS12( TMath::Sqrt(2.)*AS/1000. );
+  } else if ( res == kP11_1440) {
+    ampl.SetAmplA12( fA120N[res] * ( 1 - fA12AlphaN[res] * q2 ) * TMath::Exp( fA12BetaN[res] * q2 ) / 1000. );
+    ampl.SetAmplS12( fS120N[res] * ( 1 - fS12AlphaN[res] * q2 ) * TMath::Exp( fS12BetaN[res] * q2 ) / 1000. );
+    ampl.SetAmplA32( 0. ) ;
+  } else { 
+    double A120 = fA120N[res] ;
+    double A12Alpha = fA12AlphaN[res] ;
+    double A12Beta = fA12BetaN[res] ;
+    double A320 = fA320N[res] ;
+    double A32Alpha = fA32AlphaN[res] ;
+    double A32Beta = fA32BetaN[res] ;
+    double S120 = fS120N[res] ;
+    double S12Alpha = fS12AlphaN[res] ;
+    double S12Beta = fS12BetaN[res] ;
 
-  case (kP33_1232) :
-    {
-      double Fq = 1./TMath::Power(1-q2/0.71,2)*qcm/kgcm0;
-      double AM = 300.*(1. - 0.01*q2)*TMath::Exp(0.23*q2)*Fq;
-      double AE = -6.37 * (1. + 0.021*q2)*TMath::Exp(0.16*q2)*Fq;
-      double AS = -12.40 * (1. - 0.12*q2) / (1. + 4.9*tau)*qcm/kR*TMath::Exp(0.23*q2)*Fq;
-      ampl.SetAmplA12( (3.*AE+AM)/2./1000. );
-      ampl.SetAmplA32( TMath::Sqrt(3.)/2.*(AE-AM)/1000. );
-      ampl.SetAmplS12( TMath::Sqrt(2.)*AS/1000. );
-      break;
-    }
-  case (kS11_1535) :
-    {
-      ampl.SetAmplA12( -51.*(1.-4.75*q2)*exp(1.69*q2)/1000. );
-      ampl.SetAmplS12( 28.5*(1.-0.36*q2)*exp(1.55*q2)/1000. );
-      break;
-    }
-  case (kD13_1520) :
-    {
-      ampl.SetAmplA12( -77.*(1.+0.53*q2)*exp(1.55*q2)/1000. );
-      ampl.SetAmplA32( -154.*(1.-0.58*q2)*exp(1.75*q2)/1000. );
-      ampl.SetAmplS12( 13.6*(1.-15.7*q2)*exp(1.57*q2)/1000. );
-      break;
-    }
-  case (kS11_1650) :
-    {
-      ampl.SetAmplA12( 9.*(1.-0.13*q2)*exp(1.55*q2)/1000. );
-      ampl.SetAmplS12( 10.1*(1.+0.50*q2)*exp(1.55*q2)/1000. );
-      break;
-    }
-  case (kD15_1675) :
-    {
-      ampl.SetAmplA12( -62.*(1.-0.01*q2)*exp(+2.00*q2)/1000. );
-      ampl.SetAmplA32( -84.*(1.-0.01*q2)*exp(+2.00*q2)/1000. );
-      ampl.SetAmplS12( 0. );
-      break;
-    }
-  case (kS31_1620) :
-    {
-      ampl.SetAmplA12( 66.*(1.-1.86*q2)*exp(+2.5*q2)/1000. );
-      ampl.SetAmplS12( 16.2*(1.-2.83*q2)*exp(+2.0*q2)/1000. );
-      break;
-    }
-  case (kD33_1700) :
-    {
-      ampl.SetAmplA12( 226.*(1.-1.91*q2)*exp(+1.77*q2)/1000. );
-      ampl.SetAmplA32( 210.*(1.-1.97*q2)*exp(+2.2*q2)/1000. );
-      ampl.SetAmplS12( 0. );
-      break;
-    }
-  case (kP11_1440) :
-    {
-      ampl.SetAmplA12( 54.1*(1.-0.95*q2)*exp(+1.77*q2)/1000. );
-      ampl.SetAmplS12( -41.5*(1.-2.98*q2)*exp(+1.55*q2)/1000. );
-      ampl.SetAmplA32( 0. ) ;// ??
-      break;
-    }
-  case (kP13_1720) :
-    {
-      ampl.SetAmplA12( -3*(1.-12.7*q2)*exp(+1.55*q2)/1000. );
-      ampl.SetAmplA32( -31*(1.-4.99*q2)*exp(+1.55*q2)/1000. );
-      ampl.SetAmplS12( 0. );
-      break;
-    }
-  case (kF15_1680) :
-    {
-      ampl.SetAmplA12( 28*(1.-0.*q2)*exp(+1.2*q2)/1000. );
-      ampl.SetAmplA32( -38*(1.-4.09*q2)*exp(+1.75*q2)/1000. );
-      ampl.SetAmplS12( 0. );
-      break;
-    }
-  case (kD13_1700) :
-    {
-      // Not implemented
-      break;
-    }
-  case (kP33_1600) :
-    {
-      // Not implemented 
-      break;
-    }
-  case (kP31_1910) :
-    {
-      // Not implemented
-      break;
-    }
-  case (kP33_1920) :
-    {
-      // Not implemented
-      break;
-    }
-  case (kF35_1905) :
-    {
-      // Not implemented
-      break;
-    }
-  case (kF37_1950) :
-    {
-      // Not implemented
-      break;
-    }
-  case (kP11_1710) :
-    {
-      // Not implemented
-      break;
-    }
-  case (kF17_1970) :
-    {
-      // Not implemented
-      break;
-    }
-  default:
-    {
-      LOG("MAIDRESVectFormFactorsEMn", pWARN) << "*** UNRECOGNIZED RESONANCE!";
-      break;
-    }
-
-  }//switch
+    ampl.SetAmplA12( A120 * ( 1 - A12Alpha * q2 ) * TMath::Exp( A12Beta * q2 ) / 1000. ) ; 
+    ampl.SetAmplA32( A320 * ( 1 - A32Alpha * q2 ) * TMath::Exp( A32Beta * q2 ) / 1000. ) ; 
+    ampl.SetAmplS12( S120 * ( 1 - S12Alpha * q2 ) * TMath::Exp( S12Beta * q2 ) / 1000. ) ; 
+  }
 
   return ampl;
 }
@@ -202,8 +109,25 @@ void MAIDRESVectFormFactorsEMn::Configure(string param_set)
 void MAIDRESVectFormFactorsEMn::LoadConfig(void)
 {
   bool good_config = true ; 
-  auto kres_list_A12_0_n = GetConfig().FindKeys("A120N@") ;
 
+  GetParam( "AM0@P33(1232)", fAM0_P33_1232 ) ; 
+  GetParam( "AE0@P33(1232)", fAE0_P33_1232 ) ;
+  GetParam( "AS0@P33(1232)", fAS0_P33_1232 ) ; 
+  
+  GetParam( "BetaM@P33(1232)", fBetaM_P33_1232 ) ;
+  GetParam( "BetaE@P33(1232)", fBetaE_P33_1232 ) ;
+  GetParam( "BetaS@P33(1232)", fBetaS_P33_1232 ) ;
+
+  GetParam( "GammaM@P33(1232)", fGammaM_P33_1232 ) ;
+  GetParam( "GammaE@P33(1232)", fGammaE_P33_1232 ) ;
+  GetParam( "GammaS@P33(1232)", fGammaS_P33_1232 ) ;
+
+  //  GetParam( "NM@P33(1232)", fNM_P33_1232 ) ;
+  //GetParam( "NE@P33(1232)", fNE_P33_1232 ) ;
+
+
+  auto kres_list_A12_0_n = GetConfig().FindKeys("A120N@") ;
+  if( kres_list_A12_0_n.size() == 0 ) good_config = false ; 
   for( auto kiter = kres_list_A12_0_n.begin(); kiter != kres_list_A12_0_n.end(); ++kiter ) {
     const RgKey & key = *kiter ;
     vector<string> kv = genie::utils::str::Split(key,"@");
@@ -211,4 +135,92 @@ void MAIDRESVectFormFactorsEMn::LoadConfig(void)
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
     GetParam( key, fA120N[res_id] ) ; 
   }
+
+  auto kres_list_A12_alpha_n = GetConfig().FindKeys("A12AlphaN@") ;
+  if( kres_list_A12_alpha_n.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_A12_alpha_n.begin(); kiter != kres_list_A12_alpha_n.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fA12AlphaN[res_id] ) ; 
+  }
+
+  auto kres_list_A12_beta_n = GetConfig().FindKeys("A12BetaN@") ;
+  if( kres_list_A12_beta_n.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_A12_beta_n.begin(); kiter != kres_list_A12_beta_n.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fA12BetaN[res_id] ) ; 
+  }
+
+
+  auto kres_list_A32_0_n = GetConfig().FindKeys("A320N@") ;
+  if( kres_list_A32_0_n.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_A32_0_n.begin(); kiter != kres_list_A32_0_n.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fA320N[res_id] ) ; 
+  }
+
+  auto kres_list_A32_alpha_n = GetConfig().FindKeys("A32AlphaN@") ;
+  if( kres_list_A32_alpha_n.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_A32_alpha_n.begin(); kiter != kres_list_A32_alpha_n.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fA32AlphaN[res_id] ) ; 
+  }
+
+  auto kres_list_A32_beta_n = GetConfig().FindKeys("A32BetaN@") ;
+  if( kres_list_A32_beta_n.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_A32_beta_n.begin(); kiter != kres_list_A32_beta_n.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fA32BetaN[res_id] ) ; 
+  }
+
+
+  auto kres_list_S12_0_n = GetConfig().FindKeys("S120N@") ;
+  if( kres_list_S12_0_n.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_S12_0_n.begin(); kiter != kres_list_S12_0_n.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fS120N[res_id] ) ; 
+  }
+
+  auto kres_list_S12_alpha_n = GetConfig().FindKeys("S12AlphaN@") ;
+  if( kres_list_S12_alpha_n.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_S12_alpha_n.begin(); kiter != kres_list_S12_alpha_n.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fS12AlphaN[res_id] ) ; 
+  }
+
+  auto kres_list_S12_beta_n = GetConfig().FindKeys("S12BetaN@") ;
+  if( kres_list_S12_beta_n.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_S12_beta_n.begin(); kiter != kres_list_S12_beta_n.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fS12BetaN[res_id] ) ; 
+  }
+
+  if( ! good_config ) { 
+    LOG("MAIDRESVectFormFactorsEMn", pERROR ) << " Configuration failed.";
+    exit(78) ;
+  }
+
 }

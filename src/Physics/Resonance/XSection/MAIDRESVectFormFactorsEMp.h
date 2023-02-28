@@ -34,19 +34,36 @@ namespace genie {
     void Configure(const Registry & config);
     void Configure( string param_set ) ; 
   
-    RESVectFFAmplitude Compute( const Interaction interaction ) const;
+    RESVectFFAmplitude Compute( const Interaction interaction ) ;
 
   private:
     void LoadConfig(void) ; 
-    // Defining constants from fit 
+
+    double fAM0_P33_1232 ; 
+    double fAE0_P33_1232 ; 
+    double fAS0_P33_1232 ; 
+    double fBetaM_P33_1232 ; 
+    double fBetaE_P33_1232 ; 
+    double fBetaS_P33_1232 ; 
+    double fGammaM_P33_1232 ; 
+    double fGammaE_P33_1232 ; 
+    double fGammaS_P33_1232 ; 
+    //    double fNM0_P33_1232 ; 
+    // double fNE0_P33_1232 ; ??
+
     std::map<Resonance_t,double> fA120P ;
-    std::map<Resonance_t,double> fS120P ;
     std::map<Resonance_t,double> fA12AlphaP ;
     std::map<Resonance_t,double> fA12BetaP ;
-    std::map<Resonance_t,double> fA32AlphaP ;
-    std::map<Resonance_t,double> fA32BetaP ;
+    double fA12DeltaP ; 
+
+    std::map<Resonance_t,double> fS120P ;
     std::map<Resonance_t,double> fS12AlphaP ;
     std::map<Resonance_t,double> fS12BetaP ;
+    double fS12DeltaP ;
+ 
+    std::map<Resonance_t,double> fA320P ;
+    std::map<Resonance_t,double> fA32AlphaP ;
+    std::map<Resonance_t,double> fA32BetaP ;
   };
 
 }        // genie namespace
