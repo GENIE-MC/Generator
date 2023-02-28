@@ -42,6 +42,7 @@ op.add_option("--source-prod-dir", dest="MotherDir", default='', help="Jobs topd
 op.add_option("--config-dir", dest="CONF", default='', help="Path to GENIE config dir")
 op.add_option("--probe-list", dest="PROBELIST", default='14', help = "Comma separated list of lepton flavour (neutrino and electrons are handled). Default: %default.") 
 op.add_option("--nu-tgt-list", dest="NUTGTLIST", default='all', help = "Comma separated list of Targets. Default: %default.") 
+op.add_option("--exp-target", dest="TGTMIX", default='', help="Specify target mix of the experiment. This is the target used for event generation. Default --nu-tgt-list.")
 op.add_option("--e-tgt-list", dest="ETGTLIST", default='all', help = "Comma separated list of Targets. Default: %default.") 
 op.add_option("--vN-gen-list", dest="vNList", default='all', help="Comma separated list of event generator list used for the free nucleon spline generation. Can be used to specify electron procecess as well")
 op.add_option("--vA-gen-list", dest="vAList", default='all', help="Comma separated list of event generator list used for the nuclei spline generation.  Can be used to specify electron procecess as well")
@@ -58,7 +59,6 @@ op.add_option("--nu-maxenergy-fluxrange", dest="MaxEnergyFlux", default="100", h
 op.add_option("--e-beamenergy-list", dest="BEnergy", default="2", help="Electron beam energy" )
 op.add_option("--flux", dest="FLUX", default="\'1/x\'", help="Neutrino flux. Default 1/x. To use an input root file, specify the location of the file and the TH1D name as follows: file.root,th1d_name")
 op.add_option("--exp-name", dest="EXPNAME", default="general", help="Neutrino experiment name, i.e. DUNE, MINERvA, T2K, etc. It is only used to tag the output files. Default: %default")
-op.add_option("--exp-target", dest="TGTMIX", default="1000010010", help="Specify target mix of the experiment. This is the target used for event generation. Default 1000010010.")
 op.add_option("--starting-point", dest="start_ID", type="int", default=0, help="0 -> Free nucleon splines, 1 -> combine free nucl splines, 2 -> Compound nuclei splines, 3 -> Combine compound nuclei splines, 4 -> Event Production")
 op.add_option("--stopping-point", dest="end_ID", type="int", default=9999, help="Numbers as above, Default: 9999") 
 op.add_option("--tune", dest="TUNE", default="G18_02a_02_11b", help="Tune to be compared against data (default: %default)")
@@ -120,6 +120,8 @@ if opts.CONF :
 
     print( 'Using configuration files from ' + opts.CONF + ' ...' )
 
+if opts.TGTMIX == '' : 
+    opts.TGTMIX = opts.NUTGTLIST 
 
 #JobSub is made available through the UPS package jobsub_client
 os.system("source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup" ) 

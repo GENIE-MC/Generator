@@ -29,6 +29,8 @@ nu_name_def = { 12  : 've'     ,
                  16 : 'vtau'   ,
                 -16 : 'vtaubar' }
 
+tgt_pdg = [1000010020, 1000010030, 1000020030, 1000020040, 1000060120, 1000080160, 1000130270, 1000200400, 1000200480, 1000260560, 1000791970, 1000822080, 1000922380 ]
+
 #Other required information
 mcseed = 210921029 
 
@@ -36,7 +38,7 @@ mcseed = 210921029
 evg_tgtpdg_hash = ['1000010020', '1000010030', '1000020030', '1000020040', '1000030060', '1000060120', '1000080160', '1000130270', 
                    '1000180400', '1000200400', '1000200480', '1000260560', '1000791970', '1000822080', '1000922380']
 
-def nuScatteringGenCommands( nu_list = "14",tgt_mix="1000060120", EFlux_min=0, EFlux_max=100, flux="\'1/x\'", xspl_file="total_xsec.xml",ntotevents=1000000, 
+def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=100, flux="\'1/x\'", xspl_file="total_xsec.xml",ntotevents=1000000, 
                             tune='G18_02_02_11b',gen_list="all", expname="general",nmaxrun=100000, version='master', conf_dir='', arch='SL6.x86_64', 
                             production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                             softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
@@ -48,6 +50,9 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="1000060120", EFlux_min=0, E
     # Make directory
     if not os.path.exists(jobs_dir) : 
         os.mkdir(jobs_dir)
+
+    if tgt_mix == 'all':
+        tgt_mix = '1000060120'
 
     # Electron list
     final_nu_list = []
