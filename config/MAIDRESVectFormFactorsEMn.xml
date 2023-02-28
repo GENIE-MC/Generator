@@ -5,20 +5,35 @@
 <!--
 Configuration sets for the MAID vector form factor parameterization
 
+MAID2007 parameterization: https://arxiv.org/pdf/0710.0306.pdf
+
 Algorithm Configurable Parameters:
-................................
-Name            Type    Optional    
-................................
-A120N@RESID     double  no          
-A12AlphaN@RESID double  no          
-A12BetaN@RESID double  no          
+..................................
+Name             Type    Optional    
+..................................
+AM0@P33(1232)     double  no
+AE0@P33(1232)     double  no
+AS0@P33(1232)     double  no
+BetaE0@P33(1232)  double  no
+BetaE0@P33(1232)  double  no
+BetaS0@P33(1232)  double  no
+GammaM0@P33(1232) double  no
+GammaE0@P33(1232) double  no
+GammaS0@P33(1232) double  no
+NM0@P33(1232)     double  no
+NE0@P33(1232)     double  no 
 
-A32AlphaN@RESID double  no          
-A32BetaN@RESID double  no          
+A120N@RESID      double  no          
+A12AlphaN@RESID  double  no          
+A12BetaN@RESID   double  no          
 
-S120N@RESID     double  no          
-S12AlphaN@RESID double  no          
-S12BetaN@RESID double  no          
+A120N@RESID      double  no 
+A32AlphaN@RESID  double  no          
+A32BetaN@RESID   double  no          
+
+S120N@RESID      double  no          
+S12AlphaN@RESID  double  no          
+S12BetaN@RESID   double  no          
 -->
 
   <param_set name="Default">   
