@@ -97,7 +97,7 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
 
     grid_command_options = ''
     if grid_system == 'FNAL' :
-        grid_command_options = FNAL.FNALShellCommands(grid_setup,genie_setup, time)
+        grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time)
     else :
         print( "Only FNAL grid is available" )
         return 
