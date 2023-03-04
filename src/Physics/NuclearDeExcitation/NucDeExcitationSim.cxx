@@ -355,7 +355,7 @@ void NucDeExcitationSim::OxygenTargetSim(GHepRecord * evrec) const
 }
 
 //___________________________________________________________________________
-//  Carbon (and Argon)
+//  Carbon
 //
 //  As of October 2022, we are not prepared to turn on new GENIE functionality
 //  that includes full simulation of remnant nucleus deexcitation
@@ -375,17 +375,13 @@ void NucDeExcitationSim::OxygenTargetSim(GHepRecord * evrec) const
 //  They also present a discussion of two-neutron hole spectra
 //      which preferentially lead to nucleon ejection and less often a photon
 //
-//  As of this moment in DUNE, we propose to use this calculation for both
-//      proton hole and neutron hole and carbon and argon
-//
 void NucDeExcitationSim::CarbonTargetSim(GHepRecord * evrec) const
 {
+  // If we've disabled carbon de-excitations, then this function is a no-op
+  if ( !fDoCarbon ) return;
+
   LOG("NucDeEx", pNOTICE)
-     << "Simulating nuclear de-excitation gamma rays for Carbon and maybe Argon targets";
-
-  //std::cout << "Rik Simulating nuclear de-excitation gamma rays for Carbon target" << std::endl;
-
-  //LOG("NucDeEx", pNOTICE) << *evrec;
+     << "Simulating nuclear de-excitation gamma rays for Carbon target";
 
   GHepParticle * hitnuc = evrec->HitNucleon();
   if(!hitnuc) return;
@@ -558,6 +554,9 @@ TLorentzVector NucDeExcitationSim::Photon4P(double E) const
 // calculation. Only the leading de-excitation photon is generated for now.
 void NucDeExcitationSim::ArgonTargetSim( GHepRecord* evrec ) const
 {
+  // If we've disabled argon de-excitations, then this function is a no-op
+  if ( !fDoArgon ) return;
+
   LOG( "NucDeEx", pNOTICE ) << "Simulating nuclear de-excitation gamma-rays"
     " for an argon target";
 
@@ -624,4 +623,25 @@ void NucDeExcitationSim::ArgonTargetSim( GHepRecord* evrec ) const
   this->AddPhoton( evrec, E_gamma, -1. );
 
   LOG( "NucDeEx", pNOTICE ) << "Added gamma with energy " << E_gamma << " GeV";
+}
+//_________________________________________________________________________
+void NucDeExcitationSim::Configure( const Registry& config )
+{
+  Algorithm::Configure( config );
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void NucDeExcitationSim::Configure( std::string config )
+{
+  Algorithm::Configure( config );
+  this->LoadConfig();
+}
+//_________________________________________________________________________
+void NucDeExcitationSim::LoadConfig()
+{
+  // Boolean flag that enables/disables de-excitation handling for carbon
+  GetParamDef( "DoCarbon", fDoCarbon, false );
+
+  // Boolean flag that enables/disables de-excitation handling for argon
+  GetParamDef( "DoArgon", fDoArgon, false );
 }

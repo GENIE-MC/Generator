@@ -35,8 +35,11 @@ public :
   NucDeExcitationSim(string config);
  ~NucDeExcitationSim();
 
+  void Configure( const Registry& config ) override;
+  void Configure( std::string config ) override;
+
   //-- implement the EventRecordVisitorI interface
-  void ProcessEventRecord (GHepRecord * evrec) const;
+  void ProcessEventRecord (GHepRecord * evrec) const override;
 
 private:
   void           OxygenTargetSim      (GHepRecord * evrec) const;
@@ -45,6 +48,12 @@ private:
   void           AddPhoton            (GHepRecord * evrec, double E0, double t) const;
   double         PhotonEnergySmearing (double E0, double t) const;
   TLorentzVector Photon4P             (double E) const;
+
+  void           LoadConfig();
+
+  // Configuration flags that enable/disable de-excitations for specific nuclei
+  bool fDoCarbon = false;
+  bool fDoArgon = false;
 };
 
 }      // genie namespace
