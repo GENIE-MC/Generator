@@ -79,8 +79,6 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
     = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(tensor_pdg,
     tensor_type) );
 
-  /// \todo add the different pair configurations for e-scattering
-
   // If retrieving the tensor failed, complain and return zero
   if ( !tensor ) {
     LOG("SuSAv2MEC", pWARN) << "Failed to load a hadronic tensor for the"
@@ -168,7 +166,8 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   return xsec;
 }
 //_________________________________________________________________________
-double SuSAv2MECPXSec::PairRatio(const Interaction* interaction, std::string final_state_ratio) const
+double SuSAv2MECPXSec::PairRatio(const Interaction* interaction,
+  const std::string& final_state_ratio) const
 {
 
   // Currently we only have the relative pair contributions for C12.
@@ -207,8 +206,6 @@ double SuSAv2MECPXSec::PairRatio(const Interaction* interaction, std::string fin
   const LabFrameHadronTensorI* tensor_pp
     = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
     pp_tensor_type) );
-
-  /// \todo add the different pair configurations for e-scattering
 
   // If retrieving the tensor failed, complain and return zero
   if ( !tensor ) {
