@@ -1001,8 +1001,8 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
           << "; random number val = " << myrand_pn;
 
         double myrand_pp = rnd->RndKine().Rndm();
-        double ppFraction = 0 ; 
-	
+        double ppFraction = 0 ;
+
 	if ( interaction->ProcInfo().IsEM() ) {
       // calculate ppFraction in the EM case
 	  ppFraction = dynamic_cast< const SuSAv2MECPXSec* >( fXSecModel )

@@ -221,14 +221,14 @@ double SuSAv2MECPXSec::PairRatio(const Interaction* interaction, std::string fin
     LOG("SuSAv2MEC", pWARN) << "Failed to load pn hadronic tensor for the"
       " nuclide " << kPdgTgtC12;
     return 0.;
-  } 
+  }
 
   if ( !tensor_pp && interaction->ProcInfo().IsEM() ) {
     LOG("SuSAv2MEC", pWARN) << "Failed to load pp hadronic tensor for the"
       " nuclide " << kPdgTgtC12;
     return 0.;
   }
-    
+
   // Check that the input kinematical point is within the range
   // in which hadron tensors are known (for chosen target)
   double Ev    = interaction->InitState().ProbeE(kRfLab);
