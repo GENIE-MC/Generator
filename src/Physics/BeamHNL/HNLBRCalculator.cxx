@@ -307,7 +307,7 @@ double BRCalculator::DWidth_DiffLepton( const double M, const double Ua42, const
   const double kinPol = 1. - 8. * x*x + 8. * TMath::Power( x, 6. ) - TMath::Power( x, 8. );
   const double kinLn  = -12. * TMath::Power( x, 4. ) * TMath::Log( x*x );
   const double kinPart = kinPol + kinLn;
-  const double coupPart = IsMajorana ? Ua42 : Ua42 + Ub42; // 2nd diagram in Majorana case!
+  const double coupPart = (!IsMajorana) ? Ua42 : Ua42 + Ub42; // 2nd diagram in Majorana case!
   return preFac * kinPart * coupPart;
 }
 //----------------------------------------------------------------------------
