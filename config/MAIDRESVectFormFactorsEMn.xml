@@ -5,7 +5,7 @@
 <!--
 Configuration sets for the MAID vector form factor parameterization
 
-MAID2007 parameterization: https://arxiv.org/pdf/0710.0306.pdf
+MAID2011 parameterization: https://inspirehep.net/literature/930241
 
 Algorithm Configurable Parameters:
 ..................................
@@ -51,13 +51,13 @@ S12BetaN@RESID   double  no
     <param type="double" name="NE0@P33(1232)"> 1 </param> 
 
     <!-- Configure A_{1/2}^{0} -->
-    <param type="double" name="A120N@P11(1440)"> 54.0 </param> 
-    <param type="double" name="A120N@S11(1535)"> -51.0 </param> 
-    <param type="double" name="A120N@D13(1520)"> -77.0 </param> 
-    <param type="double" name="A120N@S11(1650)"> 9.0 </param> 
-    <param type="double" name="A120N@D15(1675)"> -62.0 </param> 
-    <param type="double" name="A120N@P13(1720)"> -3.0 </param> 
-    <param type="double" name="A120N@F15(1680)"> 28.0 </param> 
+    <param type="double" name="A120N@P11(1440)"> 54.1 </param> 
+    <param type="double" name="A120N@S11(1535)"> -50.7 </param> 
+    <param type="double" name="A120N@D13(1520)"> -76.5 </param> 
+    <param type="double" name="A120N@S11(1650)"> 9.3 </param> 
+    <param type="double" name="A120N@D15(1675)"> -61.7 </param> 
+    <param type="double" name="A120N@P13(1720)"> -2.9 </param> 
+    <param type="double" name="A120N@F15(1680)"> 27.9 </param> 
 
     <!-- Configure A_{1/2}^{alpha} -->
     <param type="double" name="A12AlphaN@P11(1440)"> 0.95  </param> 
@@ -75,39 +75,40 @@ S12BetaN@RESID   double  no
     <param type="double" name="A12BetaN@D15(1675)"> 2.00 </param> 
     <param type="double" name="A12BetaN@P13(1720)"> 1.55 </param> 
     <param type="double" name="A12BetaN@F15(1680)"> 1.20 </param> 
+    <param type="double" name="A12BetaN@P13(1720)"> 1.55 </param> 
 
     <!-- Configure A_{3/2}^{0} -->
     <param type="double" name="A320N@D13(1520)"> -154.0 </param> 
-    <param type="double" name="A320N@D15(1675)"> -84.0 </param> 
+    <param type="double" name="A320N@D15(1675)"> -83.7 </param> 
     <param type="double" name="A320N@P13(1720)"> -31.0 </param> 
-    <param type="double" name="A320N@F15(1680)"> -38.0 </param> 
+    <param type="double" name="A320N@F15(1680)"> -38.4 </param> 
 
     <!-- Configure A_{3/2}^{alpha} -->
     <param type="double" name="A32AlphaN@D13(1520)"> 0.58 </param> 
-    <param type="double" name="A32AlphaN@D15(1675)"> 0.01 </param> 
-    <param type="double" name="A32AlphaN@P13(1720)"> 4.99 </param> 
-    <param type="double" name="A32AlphaN@F15(1680)"> 1.75 </param> 
+    <param type="double" name="A32AlphaN@D15(1675)"> 0. </param> 
+    <param type="double" name="A32AlphaN@P13(1720)"> 5.00 </param> 
+    <param type="double" name="A32AlphaN@F15(1680)"> 4.09 </param> 
 
     <!-- Configure A_{3/2}^{beta} -->
+    <param type="double" name="A32BetaN@D13(1520)"> 1.55 </param> 
     <param type="double" name="A32BetaN@D15(1675)"> 2.00 </param> 
     <param type="double" name="A32BetaN@P13(1720)"> 1.55 </param> 
-    <param type="double" name="A32BetaN@F15(1680)"> 4.09 </param> 
-    <param type="double" name="A32BetaN@D13(1520)"> 1.75 </param> 
+    <param type="double" name="A32BetaN@F15(1680)"> 1.75 </param> 
 
     <!-- Configure S_{1/2}^{0} -->
     <param type="double" name="S120N@P11(1440)"> -41.5 </param> 
-    <param type="double" name="S120N@S11(1535)"> 28.6 </param> 
+    <param type="double" name="S120N@S11(1535)"> 28.5 </param> 
     <param type="double" name="S120N@D13(1520)"> 13.6 </param> 
-    <param type="double" name="S120N@S11(1650)"> 10.1 </param> 
+    <param type="double" name="S120N@S11(1650)"> 10.0 </param> 
     <param type="double" name="S120N@D15(1675)"> 0. </param> 
     <param type="double" name="S120N@P13(1720)"> 0. </param> 
-    <param type="double" name="S120N@F15(1680)"> 0 </param> 
+    <param type="double" name="S120N@F15(1680)"> 0. </param> 
 
     <!-- Configure S_{1/2}^{alpha} -->
     <param type="double" name="S12AlphaN@P11(1440)"> 2.98 </param> 
     <param type="double" name="S12AlphaN@S11(1535)"> 0.36 </param> 
     <param type="double" name="S12AlphaN@D13(1520)"> 15.7 </param> 
-    <param type="double" name="S12AlphaN@S11(1650)"> -0.5 </param> 
+    <param type="double" name="S12AlphaN@S11(1650)"> -0.50 </param> 
     <param type="double" name="S12AlphaN@D15(1675)"> 0.00 </param> 
     <param type="double" name="S12AlphaN@P13(1720)"> 0.00 </param> 
     <param type="double" name="S12AlphaN@F15(1680)"> 0.00 </param> 
