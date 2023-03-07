@@ -47,6 +47,9 @@ RESVectFFAmplitude MAIDRESVectFormFactorsEMp::Compute( const Interaction interac
   //Get kinematical parameters
   const Kinematics & kinematics = interaction.Kine();
   double q2 = kinematics.q2();
+  double q4 = TMath::Power( q2, 2 ) ; 
+  double q6 = TMath::Power( q2, 3 ) ; 
+  double q8 = TMath::Power( q2, 4 ) ; 
 
   if( res == kP33_1232 ) { 
     //Compute auxiliary & kinematical factors
@@ -66,24 +69,29 @@ RESVectFFAmplitude MAIDRESVectFormFactorsEMp::Compute( const Interaction interac
     ampl.SetAmplA12( (3.*AE+AM)/2./1000. );
     ampl.SetAmplA32( TMath::Sqrt(3.)/2.*(AE-AM)/1000. );
     ampl.SetAmplS12( TMath::Sqrt(2.)*AS/1000. );
-  } else if ( res == kP11_1440) {
-    ampl.SetAmplA12( fA120P[res] * ( 1 + fA12AlphaP[res] * q2 + fA12DeltaP * pow( q2, 4 ) ) * TMath::Exp( fA12BetaP[res] * q2 ) / 1000. );
-    ampl.SetAmplS12( fS120P[res] * ( 1 + fS12AlphaP[res] * q2 + fS12DeltaP * pow( q2, 4 ) ) * TMath::Exp( fS12BetaP[res] * q2 ) / 1000. );
-    ampl.SetAmplA32( 0. ) ;
   } else { 
     double A120 = fA120P[res] ;
-    double A12Alpha = fA12AlphaP[res] ;
+    double A12Alpha1 = fA12Alpha1P[res] ;
+    double A12Alpha2 = fA12Alpha2P[res] ;
+    double A12Alpha3 = fA12Alpha3P[res] ;
+    double A12Alpha4 = fA12Alpha4P[res] ;
     double A12Beta = fA12BetaP[res] ;
     double A320 = fA320P[res] ;
-    double A32Alpha = fA32AlphaP[res] ;
+    double A32Alpha1 = fA32Alpha1P[res] ;
+    double A32Alpha2 = fA32Alpha2P[res] ;
+    double A32Alpha3 = fA32Alpha3P[res] ;
+    double A32Alpha4 = fA32Alpha4P[res] ;
     double A32Beta = fA32BetaP[res] ;
     double S120 = fS120P[res] ;
-    double S12Alpha = fS12AlphaP[res] ;
+    double S12Alpha1 = fS12Alpha1P[res] ;
+    double S12Alpha2 = fS12Alpha2P[res] ;
+    double S12Alpha3 = fS12Alpha3P[res] ;
+    double S12Alpha4 = fS12Alpha4P[res] ;
     double S12Beta = fS12BetaP[res] ;
 
-    ampl.SetAmplA12( A120 * ( 1 - A12Alpha * q2 ) * TMath::Exp( A12Beta * q2 ) / 1000. ) ; 
-    ampl.SetAmplA32( A320 * ( 1 - A32Alpha * q2 ) * TMath::Exp( A32Beta * q2 ) / 1000. ) ; 
-    ampl.SetAmplS12( S120 * ( 1 - S12Alpha * q2 ) * TMath::Exp( S12Beta * q2 ) / 1000. ) ; 
+    ampl.SetAmplA12( A120 * ( 1 - A12Alpha1 * q2 + A12Alpha2 * q4 - A12Alpha3 * q6 + A12Alpha4 * q8 ) * TMath::Exp( A12Beta * q2 ) / 1000. ) ; 
+    ampl.SetAmplA32( A320 * ( 1 - A32Alpha1 * q2 + A32Alpha2 * q4 - A32Alpha3 * q6 + A32Alpha4 * q8 ) * TMath::Exp( A32Beta * q2 ) / 1000. ) ; 
+    ampl.SetAmplS12( S120 * ( 1 - S12Alpha1 * q2 + S12Alpha2 * q4 - S12Alpha3 * q6 + S12Alpha4 * q8 ) * TMath::Exp( S12Beta * q2 ) / 1000. ) ; 
   }
 
   return ampl;
@@ -120,9 +128,6 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
   //  GetParam( "NM@P33(1232)", fNM_P33_1232 ) ;
   //GetParam( "NE@P33(1232)", fNE_P33_1232 ) ;
 
-  GetParam( "A12DeltaP@P11(1440)", fA12DeltaP ) ; 
-  GetParam( "S12DeltaP@P11(1440)", fS12DeltaP ) ; 
-
   auto kres_list_A12_0_p = GetConfig().FindKeys("A120P@") ;
   if( kres_list_A12_0_p.size() == 0 ) good_config = false ; 
   for( auto kiter = kres_list_A12_0_p.begin(); kiter != kres_list_A12_0_p.end(); ++kiter ) {
@@ -133,14 +138,44 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     GetParam( key, fA120P[res_id] ) ; 
   }
 
-  auto kres_list_A12_alpha_p = GetConfig().FindKeys("A12AlphaP@") ;
-  if( kres_list_A12_alpha_p.size() == 0 ) good_config = false ; 
-  for( auto kiter = kres_list_A12_alpha_p.begin(); kiter != kres_list_A12_alpha_p.end(); ++kiter ) {
+  auto kres_list_A12_alpha1_p = GetConfig().FindKeys("A12Alpha1P@") ;
+  if( kres_list_A12_alpha1_p.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_A12_alpha1_p.begin(); kiter != kres_list_A12_alpha1_p.end(); ++kiter ) {
     const RgKey & key = *kiter ;
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fA12AlphaP[res_id] ) ; 
+    GetParam( key, fA12Alpha1P[res_id] ) ; 
+  }
+
+  auto kres_list_A12_alpha2_p = GetConfig().FindKeys("A12Alpha2P@") ;
+  if( kres_list_A12_alpha2_p.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_A12_alpha2_p.begin(); kiter != kres_list_A12_alpha2_p.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fA12Alpha2P[res_id] ) ; 
+  }
+
+  auto kres_list_A12_alpha3_p = GetConfig().FindKeys("A12Alpha3P@") ;
+  if( kres_list_A12_alpha3_p.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_A12_alpha3_p.begin(); kiter != kres_list_A12_alpha3_p.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fA12Alpha3P[res_id] ) ; 
+  }
+
+  auto kres_list_A12_alpha4_p = GetConfig().FindKeys("A12Alpha4P@") ;
+  if( kres_list_A12_alpha4_p.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_A12_alpha4_p.begin(); kiter != kres_list_A12_alpha4_p.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fA12Alpha4P[res_id] ) ; 
   }
 
   auto kres_list_A12_beta_p = GetConfig().FindKeys("A12BetaP@") ;
@@ -153,7 +188,6 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     GetParam( key, fA12BetaP[res_id] ) ; 
   }
 
-
   auto kres_list_A32_0_p = GetConfig().FindKeys("A320P@") ;
   if( kres_list_A32_0_p.size() == 0 ) good_config = false ; 
   for( auto kiter = kres_list_A32_0_p.begin(); kiter != kres_list_A32_0_p.end(); ++kiter ) {
@@ -164,14 +198,44 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     GetParam( key, fA320P[res_id] ) ; 
   }
 
-  auto kres_list_A32_alpha_p = GetConfig().FindKeys("A32AlphaP@") ;
-  if( kres_list_A32_alpha_p.size() == 0 ) good_config = false ; 
-  for( auto kiter = kres_list_A32_alpha_p.begin(); kiter != kres_list_A32_alpha_p.end(); ++kiter ) {
+  auto kres_list_A32_alpha1_p = GetConfig().FindKeys("A32Alpha1P@") ;
+  if( kres_list_A32_alpha1_p.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_A32_alpha1_p.begin(); kiter != kres_list_A32_alpha1_p.end(); ++kiter ) {
     const RgKey & key = *kiter ;
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fA32AlphaP[res_id] ) ; 
+    GetParam( key, fA32Alpha1P[res_id] ) ; 
+  }
+
+  auto kres_list_A32_alpha2_p = GetConfig().FindKeys("A32Alpha2P@") ;
+  if( kres_list_A32_alpha2_p.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_A32_alpha2_p.begin(); kiter != kres_list_A32_alpha2_p.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fA32Alpha2P[res_id] ) ; 
+  }
+
+  auto kres_list_A32_alpha3_p = GetConfig().FindKeys("A32Alpha3P@") ;
+  if( kres_list_A32_alpha3_p.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_A32_alpha3_p.begin(); kiter != kres_list_A32_alpha3_p.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fA32Alpha3P[res_id] ) ; 
+  }
+
+  auto kres_list_A32_alpha4_p = GetConfig().FindKeys("A32Alpha4P@") ;
+  if( kres_list_A32_alpha4_p.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_A32_alpha4_p.begin(); kiter != kres_list_A32_alpha4_p.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fA32Alpha4P[res_id] ) ; 
   }
 
   auto kres_list_A32_beta_p = GetConfig().FindKeys("A32BetaP@") ;
@@ -195,14 +259,44 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     GetParam( key, fS120P[res_id] ) ; 
   }
 
-  auto kres_list_S12_alpha_p = GetConfig().FindKeys("S12AlphaP@") ;
-  if( kres_list_S12_alpha_p.size() == 0 ) good_config = false ; 
-  for( auto kiter = kres_list_S12_alpha_p.begin(); kiter != kres_list_S12_alpha_p.end(); ++kiter ) {
+  auto kres_list_S12_alpha1_p = GetConfig().FindKeys("S12Alpha1P@") ;
+  if( kres_list_S12_alpha1_p.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_S12_alpha1_p.begin(); kiter != kres_list_S12_alpha1_p.end(); ++kiter ) {
     const RgKey & key = *kiter ;
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fS12AlphaP[res_id] ) ; 
+    GetParam( key, fS12Alpha1P[res_id] ) ; 
+  }
+
+  auto kres_list_S12_alpha2_p = GetConfig().FindKeys("S12Alpha2P@") ;
+  if( kres_list_S12_alpha2_p.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_S12_alpha2_p.begin(); kiter != kres_list_S12_alpha2_p.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fS12Alpha2P[res_id] ) ; 
+  }
+
+  auto kres_list_S12_alpha3_p = GetConfig().FindKeys("S12Alpha3P@") ;
+  if( kres_list_S12_alpha3_p.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_S12_alpha3_p.begin(); kiter != kres_list_S12_alpha3_p.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fS12Alpha3P[res_id] ) ; 
+  }
+
+  auto kres_list_S12_alpha4_p = GetConfig().FindKeys("S12Alpha4P@") ;
+  if( kres_list_S12_alpha4_p.size() == 0 ) good_config = false ; 
+  for( auto kiter = kres_list_S12_alpha4_p.begin(); kiter != kres_list_S12_alpha4_p.end(); ++kiter ) {
+    const RgKey & key = *kiter ;
+    vector<string> kv = genie::utils::str::Split(key,"@");
+    assert(kv.size()==2);
+    Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
+    GetParam( key, fS12Alpha4P[res_id] ) ; 
   }
 
   auto kres_list_S12_beta_p = GetConfig().FindKeys("S12BetaP@") ;

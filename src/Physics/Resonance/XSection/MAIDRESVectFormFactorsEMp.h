@@ -52,17 +52,24 @@ namespace genie {
     // double fNE0_P33_1232 ; ??
 
     std::map<Resonance_t,double> fA120P ;
-    std::map<Resonance_t,double> fA12AlphaP ;
+    std::map<Resonance_t,double> fA12Alpha1P ;
+    std::map<Resonance_t,double> fA12Alpha2P ;
+    std::map<Resonance_t,double> fA12Alpha3P ;
+    std::map<Resonance_t,double> fA12Alpha4P ;
     std::map<Resonance_t,double> fA12BetaP ;
-    double fA12DeltaP ; 
 
     std::map<Resonance_t,double> fS120P ;
-    std::map<Resonance_t,double> fS12AlphaP ;
+    std::map<Resonance_t,double> fS12Alpha1P ;
+    std::map<Resonance_t,double> fS12Alpha2P ;
+    std::map<Resonance_t,double> fS12Alpha3P ;
+    std::map<Resonance_t,double> fS12Alpha4P ;
     std::map<Resonance_t,double> fS12BetaP ;
-    double fS12DeltaP ;
  
     std::map<Resonance_t,double> fA320P ;
-    std::map<Resonance_t,double> fA32AlphaP ;
+    std::map<Resonance_t,double> fA32Alpha1P ;
+    std::map<Resonance_t,double> fA32Alpha2P ;
+    std::map<Resonance_t,double> fA32Alpha3P ;
+    std::map<Resonance_t,double> fA32Alpha4P ;
     std::map<Resonance_t,double> fA32BetaP ;
   };
 
