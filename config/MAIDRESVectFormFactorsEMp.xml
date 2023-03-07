@@ -6,6 +6,7 @@
 Configuration sets for the MAID vector form factor parameterization
 
 MAID2007 parameterization: https://arxiv.org/pdf/0710.0306.pdf
+MAID2011 parameterization : https://inspirehep.net/literature/930241
 
 Algorithm Configurable Parameters:
 ...................................
@@ -24,20 +25,27 @@ GammaS0@P33(1232) double  no
 NM0@P33(1232)     double  no
 NE0@P33(1232)     double  no 
 
-A120P@RESID       double  no          
-A12AlphaP@RESID   double  no          
-A12BetaP@RESID    double  no          
+A120P@RESID       double  yes          
+A12Alpha1P@RESID  double  yes          
+A12Alpha2P@RESID  double  yes          
+A12Alpha3P@RESID  double  yes          
+A12Alpha4P@RESID  double  yes          
+A12BetaP@RESID    double  yes          
 
-A320@RESID        double  no
-A32AlphaP@RESID   double  no          
-A32BetaP@RESID    double  no          
+A320@RESID        double  yes
+A32Alpha1P@RESID  double  yes          
+A32Alpha2P@RESID  double  yes          
+A32Alpha3P@RESID  double  yes          
+A32Alpha4P@RESID  double  yes          
+A32BetaP@RESID    double  yes          
 
-S120P@RESID       double  no          
-S12AlphaP@RESID   double  no          
-S12BetaP@RESID    double  no          
+S120P@RESID       double  yes          
+S12Alpha1P@RESID  double  yes          
+S12Alpha2P@RESID  double  yes          
+S12Alpha3P@RESID  double  yes          
+S12Alpha4P@RESID  double  yes          
+S12BetaP@RESID    double  yes          
 
-A12DeltaP@P11(1440) double no 
-S12DeltaP@P11(1440) double no 
 -->
 
   <param_set name="Default">   
@@ -55,101 +63,122 @@ S12DeltaP@P11(1440) double no
     <param type="double" name="NE@P33(1232)"> 1 </param> 
 
     <!-- P11(1440) parameters -->
-    <param type="double" name="A120P@P11(1440)"> -61.0 </param> 
-    <param type="double" name="S120P@P11(1440)"> 4.2 </param> 
-    <param type="double" name="A12AlphaP@P11(1440)"> -1.22 </param> 
-    <param type="double" name="S12AlphaP@P11(1440)"> 40 </param> 
-    <param type="double" name="A12BetaP@P11(1440)"> 1.51 </param> 
+    <param type="double" name="A120P@P11(1440)"> -61.4 </param> 
+    <param type="double" name="A12Alpha1P@P11(1440)"> 0.871 </param> 
+    <param type="double" name="A12Alpha2P@P11(1440)"> -3.561 </param> 
+    <param type="double" name="A12Alpha4P@P11(1440)"> -0.158 </param> 
+    <param type="double" name="A12BetaP@P11(1440)"> 1.36 </param>
+
+    <param type="double" name="S120P@P11(1440)"> 4.2 </param>  
+    <param type="double" name="S12Alpha1P@P11(1440)"> 40 </param> 
+    <param type="double" name="S12Alpha2P@P11(1440)"> 0 </param> 
+    <param type="double" name="S12Alpha4P@P11(1440)"> 1.5 </param> 
     <param type="double" name="S12BetaP@P11(1440)"> 1.75 </param> 
-    <param type="double" name="A12DeltaP@P11(1440)"> -0.55 </param> 
-    <param type="double" name="S12DeltaP@P11(1440)"> 1.5 </param> 
 
     <!-- Higher resonances -->
-    <!-- Configure A_{1/2}^{0} -->
-    <param type="double" name="A120P@S11(1535)"> 66.0 </param> 
-    <param type="double" name="A120P@D13(1520)"> -27.0 </param> 
-    <param type="double" name="A120P@S11(1650)"> 33.0 </param> 
-    <param type="double" name="A120P@S31(1620)"> 66.0 </param> 
-    <param type="double" name="A120P@D15(1675)"> 15.0 </param> 
-    <param type="double" name="A120P@P13(1720)"> 73.0 </param> 
-    <param type="double" name="A120P@F15(1680)"> -25.0 </param> 
-    <param type="double" name="A120P@D33(1700)"> 226.0 </param> 
-    <param type="double" name="A120P@F35(1905)"> 18.0 </param> 
-    <param type="double" name="A120P@F37(1950)"> -94.0 </param> 
-
-    <!-- Configure A_{1/2}^{alpha} -->
-    <param type="double" name="A12AlphaP@S11(1535)"> 1.61 </param> 
-    <param type="double" name="A12AlphaP@D13(1520)"> 7.77 </param> 
-    <param type="double" name="A12AlphaP@S31(1620)"> 1.86 </param> 
-    <param type="double" name="A12AlphaP@S11(1650)"> 1.45 </param> 
-    <param type="double" name="A12AlphaP@D15(1675)"> 0.10 </param> 
-    <param type="double" name="A12AlphaP@P13(1720)"> 1.89 </param> 
-    <param type="double" name="A12AlphaP@F15(1680)"> 3.98 </param> 
-    <param type="double" name="A12AlphaP@D33(1700)"> 1.91 </param> 
-
-    <!-- Configure A_{1/2}^{beta} -->
-    <param type="double" name="A12BetaP@S11(1535)"> 0.70 </param> 
-    <param type="double" name="A12BetaP@D13(1520)"> 1.09 </param> 
-    <param type="double" name="A12BetaP@S31(1620)"> 2.50 </param> 
-    <param type="double" name="A12BetaP@S11(1650)"> 0.62 </param> 
-    <param type="double" name="A12BetaP@D15(1675)"> 2.00 </param> 
-    <param type="double" name="A12BetaP@P13(1720)"> 1.55 </param> 
-    <param type="double" name="A12BetaP@F15(1680)"> 1.20 </param> 
-    <param type="double" name="A12BetaP@D33(1700)"> 1.77 </param> 
-
-    <!-- Configure A_{3/2}^{0} -->
-    <param type="double" name="A320P@D13(1520)"> 161.0 </param> 
-    <param type="double" name="A320P@D15(1675)"> 22.0 </param> 
-    <param type="double" name="A320P@P13(1720)"> -11.0 </param> 
-    <param type="double" name="A320P@F15(1680)"> 134.0 </param> 
-    <param type="double" name="A320P@D33(1700)"> 210.0 </param> 
-    <param type="double" name="A320P@F35(1905)"> -28.0 </param> 
-    <param type="double" name="A320P@F37(1950)"> -121.0 </param> 
-
-    <!-- Configure A_{3/2}^{alpha} -->
-    <param type="double" name="A32AlphaP@D13(1520)"> 0.69 </param> 
-    <param type="double" name="A32AlphaP@D15(1675)"> 0.10 </param> 
-    <param type="double" name="A32AlphaP@P13(1720)"> 16.0 </param> 
-    <param type="double" name="A32AlphaP@F15(1680)"> 1.00 </param> 
-    <param type="double" name="A32AlphaP@D33(1700)"> 1.97 </param> 
-
-    <!-- Configure A_{3/2}^{beta} -->
-    <param type="double" name="A32BetaP@D13(1520)"> 2.10 </param> 
-    <param type="double" name="A32BetaP@D15(1675)"> 2.00 </param> 
-    <param type="double" name="A32BetaP@P13(1720)"> 1.55 </param> 
-    <param type="double" name="A32BetaP@F15(1680)"> 2.22 </param> 
-    <param type="double" name="A32BetaP@D33(1700)"> 2.20 </param> 
-
-    <!-- Configure S_{1/2}^{0} -->
-    <param type="double" name="S120P@S11(1535)"> 28.5 </param> 
-    <param type="double" name="S120P@D13(1520)"> 13.6 </param> 
-    <param type="double" name="S120P@S31(1620)"> 16.2 </param> 
-    <param type="double" name="S120P@S11(1650)"> 10.1 </param> 
-    <param type="double" name="S120P@D15(1675)"> 0.0 </param> 
-    <param type="double" name="S120P@P13(1720)"> 0.0 </param> 
-    <param type="double" name="S120P@D33(1700)"> 0.0 </param> 
-    <param type="double" name="S120P@F15(1680)"> 0.0 </param> 
-
-    <!-- Configure S_{1/2}^{alpha} -->
-    <param type="double" name="S12AlphaP@S11(1535)"> 23.9 </param> 
-    <param type="double" name="S12AlphaP@D13(1520)"> 4.19 </param> 
-    <param type="double" name="S12AlphaP@S31(1620)"> 2.83 </param> 
-    <param type="double" name="S12AlphaP@S11(1650)"> 2.88 </param> 
-    <param type="double" name="S12AlphaP@D15(1675)"> 0.00 </param> 
-    <param type="double" name="S12AlphaP@D33(1700)"> 0.00 </param> 
-    <param type="double" name="S12AlphaP@P13(1720)"> 2.56 </param> 
-    <param type="double" name="S12AlphaP@F15(1680)"> 3.14 </param> 
-
-    <!-- Configure S_{1/2}^{beta} -->
-    <param type="double" name="S12BetaP@P11(1440)"> 1.51 </param> 
-    <param type="double" name="S12BetaP@S11(1535)"> 0.81 </param> 
+    <param type="double" name="A120P@D13(1520)"> -27.4 </param> 
+    <param type="double" name="A12Alpha1P@D13(1520)"> 8.580 </param> 
+    <param type="double" name="A12Alpha2P@D13(1520)"> -0.252 </param> 
+    <param type="double" name="A12Alpha4P@D13(1520)"> 0.357 </param> 
+    <param type="double" name="A12BetaP@D13(1520)"> 1.20 </param> 
+    <param type="double" name="A320P@D13(1520)"> 160.6 </param> 
+    <param type="double" name="A32Alpha1P@D13(1520)"> -0.820 </param> 
+    <param type="double" name="A32Alpha2P@D13(1520)"> 0.541 </param> 
+    <param type="double" name="A32Alpha4P@D13(1520)"> -0.061 </param> 
+    <param type="double" name="A32BetaP@D13(1520)"> 1.06 </param> 
+    <param type="double" name="S120P@D13(1520)"> -63.5 </param> 
+    <param type="double" name="S12Alpha1P@D13(1520)"> 4.19 </param> 
+    <param type="double" name="S12Alpha2P@D13(1520)"> 0 </param> 
+    <param type="double" name="S12Alpha4P@D13(1520)"> 0 </param> 
     <param type="double" name="S12BetaP@D13(1520)"> 3.40 </param> 
-    <param type="double" name="S12BetaP@S31(1620)"> 2.00 </param> 
-    <param type="double" name="S12BetaP@S11(1650)"> 0.76 </param> 
-    <param type="double" name="S12BetaP@D15(1675)"> 0.00 </param> 
+
+    <param type="double" name="A120P@D15(1675)"> 15.3 </param> 
+    <param type="double" name="A12Alpha1P@D15(1675)"> 0.10 </param> 
+    <param type="double" name="A12Alpha2P@D15(1675)"> 0 </param> 
+    <param type="double" name="A12Alpha4P@D15(1675)"> 0 </param> 
+    <param type="double" name="A12BetaP@D15(1675)"> 2.00 </param> 
+    <param type="double" name="A320P@D15(1675)"> 21.6 </param> 
+    <param type="double" name="A32Alpha1P@D15(1675)"> 1.91 </param> 
+    <param type="double" name="A32Alpha2P@D15(1675)"> 0.18 </param> 
+    <param type="double" name="A32Alpha4P@D15(1675)"> 0 </param> 
+    <param type="double" name="A32BetaP@D15(1675)"> 0.69 </param> 
+    <param type="double" name="S120P@D15(1675)"> 1.1 </param> 
+    <param type="double" name="S12Alpha1P@D15(1675)"> 0 </param> 
+    <param type="double" name="S12Alpha2P@D15(1675)"> 0 </param> 
+    <param type="double" name="S12Alpha4P@D15(1675)"> 0 </param> 
+    <param type="double" name="S12BetaP@D15(1675)"> 2.00 </param> 
+
+    <param type="double" name="A120P@F15(1680)"> -25.1 </param> 
+    <param type="double" name="A12Alpha1P@F15(1680)"> 3.780 </param> 
+    <param type="double" name="A12Alpha2P@F15(1680)"> -0.292 </param> 
+    <param type="double" name="A12Alpha4P@F15(1680)"> 0.080 </param> 
+    <param type="double" name="A12BetaP@F15(1680)"> 1.25 </param> 
+    <param type="double" name="A320P@F15(1680)"> 134.3 </param> 
+    <param type="double" name="A32Alpha1P@F15(1680)"> 1.016 </param> 
+    <param type="double" name="A32Alpha2P@F15(1680)"> 0.222 </param> 
+    <param type="double" name="A32Alpha4P@F15(1680)"> 0.237 </param> 
+    <param type="double" name="A32BetaP@F15(1680)"> 2.41 </param> 
+    <param type="double" name="S120P@F15(1680)"> -44.0 </param> 
+    <param type="double" name="S12Alpha1P@F15(1680)"> 3.783 </param> 
+    <param type="double" name="S12Alpha2P@F15(1680)"> 0 </param> 
+    <param type="double" name="S12Alpha4P@F15(1680)"> 0 </param> 
+    <param type="double" name="S12BetaP@F15(1680)"> 1.85 </param> 
+
+    <param type="double" name="A120P@D33(1700)"> 226.0 </param> 
+    <param type="double" name="A12Alpha1P@D33(1700)"> 1.91 </param> 
+    <param type="double" name="A12Alpha2P@D33(1700)">0 </param> 
+    <param type="double" name="A12Alpha4P@D33(1700)"> 0 </param> 
+    <param type="double" name="A12BetaP@D33(1700)"> 1.77 </param> 
+    <param type="double" name="A320P@D33(1700)"> 210.0 </param> 
+    <param type="double" name="A32Alpha1P@D33(1700)"> 0.88 </param> 
+    <param type="double" name="A32Alpha2P@D33(1700)"> 1.71 </param> 
+    <param type="double" name="A32Alpha4P@D33(1700)"> 0 </param> 
+    <param type="double" name="A32BetaP@D33(1700)"> 2.02 </param> 
+    <param type="double" name="S120P@D33(1700)"> 2.1 </param> 
+    <param type="double" name="S12Alpha1P@D33(1700)"> 0 </param> 
+    <param type="double" name="S12Alpha2P@D33(1700)"> 0 </param> 
+    <param type="double" name="S12Alpha4P@D33(1700)"> 0 </param> 
+    <param type="double" name="S12BetaP@D33(1700)"> 2.00 </param> 
+
+    <param type="double" name="A120P@P13(1720)"> 73.0 </param> 
+    <param type="double" name="A12Alpha1P@P13(1720)"> 1.89 </param> 
+    <param type="double" name="A12Alpha2P@P13(1720)"> 0 </param> 
+    <param type="double" name="A12Alpha4P@P13(1720)"> 0 </param> 
+    <param type="double" name="A12BetaP@P13(1720)"> 1.55 </param> 
+    <param type="double" name="A320P@P13(1720)"> -11.5 </param> 
+    <param type="double" name="A32Alpha1P@P13(1720)"> 10.83 </param> 
+    <param type="double" name="A32Alpha2P@P13(1720)"> -0.66 </param> 
+    <param type="double" name="A32Alpha4P@P13(1720)"> 0 </param> 
+    <param type="double" name="A32BetaP@P13(1720)"> 0.43 </param> 
+    <param type="double" name="S120P@P13(1720)"> -53/0 </param> 
+    <param type="double" name="S12Alpha1P@P13(1720)"> 2.46 </param> 
+    <param type="double" name="S12Alpha2P@P13(1720)"> 0 </param> 
+    <param type="double" name="S12Alpha4P@P13(1720)"> 0 </param> 
     <param type="double" name="S12BetaP@P13(1720)"> 1.55 </param> 
-    <param type="double" name="S12BetaP@D33(1700)"> 0.00 </param> 
-    <param type="double" name="S12BetaP@F15(1680)"> 1.68 </param> 
+
+    <param type="double" name="A120P@S11(1535)"> 66.0 </param> 
+    <param type="double" name="A12Alpha1P@S11(1535)"> 1.61 </param> 
+    <param type="double" name="A12BetaP@S11(1535)"> 1.61 </param> 
+    <param type="double" name="S120P@S11(1535)"> 28.5 </param> 
+    <param type="double" name="S12Alpha1P@S11(1535)"> 23.9 </param> 
+    <param type="double" name="S12BetaP@S11(1535)"> 0.81 </param> 
+
+    <param type="double" name="A120P@S11(1650)"> 33.0 </param> 
+    <param type="double" name="A12Alpha1P@S11(1650)"> 1.45 </param> 
+    <param type="double" name="A12BetaP@S11(1650)"> 0.62 </param> 
+    <param type="double" name="S120P@S11(1650)"> 10.1 </param> 
+    <param type="double" name="S12Alpha1P@S11(1650)"> 2.88 </param> 
+    <param type="double" name="S12BetaP@S11(1650)"> 0.76 </param> 
+
+    <param type="double" name="A120P@S31(1620)"> 66.0 </param> 
+    <param type="double" name="A12Alpha1P@S31(1620)"> 1.86 </param> 
+    <param type="double" name="A12BetaP@S31(1620)"> 2.50 </param> 
+    <param type="double" name="S120P@S31(1620)"> 16.2 </param> 
+    <param type="double" name="S12Alpha1P@S31(1620)"> 2.83 </param> 
+    <param type="double" name="S12BetaP@S31(1620)"> 2.00 </param> 
+    
+    <param type="double" name="A120P@F37(1950)"> -94.0 </param> 
+    <param type="double" name="A320P@F37(1950)"> -121.0 </param> 
 
   </param_set>
  
