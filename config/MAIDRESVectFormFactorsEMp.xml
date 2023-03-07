@@ -156,30 +156,46 @@ S12BetaP@RESID    double  yes
     <param type="double" name="S12Alpha4P@P13(1720)"> 0 </param> 
     <param type="double" name="S12BetaP@P13(1720)"> 1.55 </param> 
 
-    <param type="double" name="A120P@S11(1535)"> 66.0 </param> 
-    <param type="double" name="A12Alpha1P@S11(1535)"> 1.61 </param> 
-    <param type="double" name="A12BetaP@S11(1535)"> 1.61 </param> 
-    <param type="double" name="S120P@S11(1535)"> 28.5 </param> 
+    <param type="double" name="A120P@S11(1535)"> 66.4 </param> 
+    <param type="double" name="A12Alpha1P@S11(1535)"> 1.608 </param> 
+    <param type="double" name="A12BetaP@S11(1535)"> 0.7 </param> 
+    <param type="double" name="S120P@S11(1535)"> -2.0 </param> 
     <param type="double" name="S12Alpha1P@S11(1535)"> 23.9 </param> 
     <param type="double" name="S12BetaP@S11(1535)"> 0.81 </param> 
 
-    <param type="double" name="A120P@S11(1650)"> 33.0 </param> 
+    <param type="double" name="A120P@S11(1650)"> 33.3 </param> 
     <param type="double" name="A12Alpha1P@S11(1650)"> 1.45 </param> 
     <param type="double" name="A12BetaP@S11(1650)"> 0.62 </param> 
-    <param type="double" name="S120P@S11(1650)"> 10.1 </param> 
+    <param type="double" name="S120P@S11(1650)"> -3.5 </param> 
     <param type="double" name="S12Alpha1P@S11(1650)"> 2.88 </param> 
     <param type="double" name="S12BetaP@S11(1650)"> 0.76 </param> 
 
-    <param type="double" name="A120P@S31(1620)"> 66.0 </param> 
+    <param type="double" name="A120P@S31(1620)"> 65.6 </param> 
     <param type="double" name="A12Alpha1P@S31(1620)"> 1.86 </param> 
     <param type="double" name="A12BetaP@S31(1620)"> 2.50 </param> 
     <param type="double" name="S120P@S31(1620)"> 16.2 </param> 
     <param type="double" name="S12Alpha1P@S31(1620)"> 2.83 </param> 
     <param type="double" name="S12BetaP@S31(1620)"> 2.00 </param> 
-    
-    <param type="double" name="A120P@F37(1950)"> -94.0 </param> 
-    <param type="double" name="A320P@F37(1950)"> -121.0 </param> 
 
+    <!-- 
+	 For the resonances below: there's nothing known about these states in electroproduction. 
+	 They introduce their reported photon couplings (MAID 2007), multiplied for a gausian 
+	 with beta = 2
+    --> 
+    <param type="double" name="A120P@F37(1950)"> -94.0 </param> 
+    <param type="double" name="A12BetaP@F37(1950)"> 2.0 </param> 
+    <param type="double" name="A320P@F37(1950)"> -121.0 </param> 
+    <param type="double" name="A32BetaP@F37(1950)"> 2.0 </param> 
+
+    <param type="double" name="A120P@F35(1950)"> 18.0 </param> 
+    <param type="double" name="A12BetaP@F35(1950)"> 2.0 </param> 
+    <param type="double" name="A320P@F35(1950)"> -28.0 </param> 
+    <param type="double" name="A32BetaP@F35(1950)"> 2.0 </param> 
+
+    <param type="double" name="A120P@P31(1910)"> 73.0 </param> 
+    <param type="double" name="A12BetaP@P31(1910)"> 2.0 </param> 
+    <param type="double" name="A320P@P31(1910)"> -11.0 </param> 
+    <param type="double" name="A32BetaP@P31(1910)"> 2.0 </param> 
   </param_set>
  
 </alg_conf>
