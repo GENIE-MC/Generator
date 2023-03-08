@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::MAIDRESVectorXSecModel
+\class    genie::MAIDRESVectorXSec
 
 \brief    Computes the double differential cross section for resonance
           electro- or neutrino-production according to the Rein-Sehgal model
@@ -37,12 +37,12 @@
 
 namespace genie {
 
-class MAIDRESVectorXSecModel : public XSecAlgorithmI {
+class MAIDRESVectorXSec : public XSecAlgorithmI {
 
 public:
-  MAIDRESVectorXSecModel();
-  MAIDRESVectorXSecModel(string config);
-  virtual ~MAIDRESVectorXSecModel();
+  MAIDRESVectorXSec();
+  MAIDRESVectorXSec(string config);
+  virtual ~MAIDRESVectorXSec();
 
   // implement the XSecAlgorithmI interface
   double XSec         (const Interaction * i, KinePhaseSpace_t k) const;
@@ -58,8 +58,8 @@ private:
 
   void LoadConfig (void);
 
-  const RESVectFormFactorsI * fVFFModelEMp ;
-  const RESVectFormFactorsI * fVFFModelEMn ;
+  const RESVectFormFactorsI * fVFFEMp ;
+  const RESVectFormFactorsI * fVFFEMn ;
 
   bool     fUsingDisResJoin;   ///< use a DIS/RES joining scheme?
   double   fWcut;              ///< apply DIS/RES joining scheme < Wcut

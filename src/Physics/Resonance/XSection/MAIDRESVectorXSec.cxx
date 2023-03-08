@@ -27,7 +27,7 @@
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/Range1.h"
 #include "Framework/Utils/BWFunc.h"
-#include "Physics/Resonance/XSection/MAIDRESVectorXSecModel.h"
+#include "Physics/Resonance/XSection/MAIDRESVectorXSec.h"
 #include "Physics/Resonance/XSection/RSHelicityAmplModelI.h"
 #include "Physics/Resonance/XSection/RSHelicityAmpl.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
@@ -39,23 +39,23 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-MAIDRESVectorXSecModel::MAIDRESVectorXSecModel() :
-XSecAlgorithmI("genie::MAIDRESVectorXSecModel")
+MAIDRESVectorXSec::MAIDRESVectorXSec() :
+XSecAlgorithmI("genie::MAIDRESVectorXSec")
 {
 
 }
 //____________________________________________________________________________
-MAIDRESVectorXSecModel::MAIDRESVectorXSecModel(string config) :
-XSecAlgorithmI("genie::MAIDRESVectorXSecModel", config)
+MAIDRESVectorXSec::MAIDRESVectorXSec(string config) :
+XSecAlgorithmI("genie::MAIDRESVectorXSec", config)
 {
 
 }
 //____________________________________________________________________________
-MAIDRESVectorXSecModel::~MAIDRESVectorXSecModel()
+MAIDRESVectorXSec::~MAIDRESVectorXSec()
 {
 }
 //____________________________________________________________________________
-double MAIDRESVectorXSecModel::XSec( const Interaction * interaction, KinePhaseSpace_t kps) const
+double MAIDRESVectorXSec::XSec( const Interaction * interaction, KinePhaseSpace_t kps) const
 {
 
   if(! this -> ValidProcess    (interaction) ) return 0.;
@@ -94,8 +94,8 @@ double MAIDRESVectorXSecModel::XSec( const Interaction * interaction, KinePhaseS
 
   const RESVectFormFactorsI * vffmodel = 0;
   if(is_EM) {
-    if (is_p) { vffmodel = fVFFModelEMp;}
-    else      { vffmodel = fVFFModelEMn;}
+    if (is_p) { vffmodel = fVFFEMp;}
+    else      { vffmodel = fVFFEMn;}
   }
   if( ! vffmodel ) return 0 ; 
 
@@ -142,7 +142,7 @@ double MAIDRESVectorXSecModel::XSec( const Interaction * interaction, KinePhaseS
   if( kps!=kPSQ2fE ) { 
     double J = utils::kinematics::Jacobian(interaction,kPSQ2fE,kps);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED_
-    LOG("MAIDRESVectorXSecModel", pDEBUG) << " Jacobian transformation to: " 
+    LOG("MAIDRESVectorXSec", pDEBUG) << " Jacobian transformation to: " 
 					  << KinePhaseSpace::AsString(kps) << ", J = " << J ; 
 #endif 
     xsec *= J ; 
@@ -220,13 +220,13 @@ double MAIDRESVectorXSecModel::XSec( const Interaction * interaction, KinePhaseS
 
 }
 //____________________________________________________________________________
-double MAIDRESVectorXSecModel::Integral(const Interaction * interaction) const
+double MAIDRESVectorXSec::Integral(const Interaction * interaction) const
 {
   double xsec = fXSecIntegrator->Integrate(this,interaction);
   return xsec;
 }
 //____________________________________________________________________________
-bool MAIDRESVectorXSecModel::ValidProcess(const Interaction * interaction) const
+bool MAIDRESVectorXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
@@ -251,31 +251,31 @@ bool MAIDRESVectorXSecModel::ValidProcess(const Interaction * interaction) const
   return true ; 
 }
 //____________________________________________________________________________
-void MAIDRESVectorXSecModel::Configure(const Registry & config)
+void MAIDRESVectorXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void MAIDRESVectorXSecModel::Configure(string config)
+void MAIDRESVectorXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void MAIDRESVectorXSecModel::LoadConfig(void)
+void MAIDRESVectorXSec::LoadConfig(void)
 {
   bool good_config = true ; 
-  fVFFModelEMp = 0 ; 
-  fVFFModelEMn = 0 ; 
+  fVFFEMp = 0 ; 
+  fVFFEMn = 0 ; 
 
   AlgFactory * algf = AlgFactory::Instance();
-  fVFFModelEMp  = dynamic_cast<const RESVectFormFactorsI*> ( algf->GetAlgorithm("genie::MAIDRESVectFormFactorsEMp","Default") );
-  fVFFModelEMn  = dynamic_cast<const RESVectFormFactorsI*> ( algf->GetAlgorithm("genie::MAIDRESVectFormFactorsEMn","Default") );
+  fVFFEMp  = dynamic_cast<const RESVectFormFactorsI*> ( algf->GetAlgorithm("genie::MAIDRESVectFormFactorsEMp","Default") );
+  fVFFEMn  = dynamic_cast<const RESVectFormFactorsI*> ( algf->GetAlgorithm("genie::MAIDRESVectFormFactorsEMn","Default") );
   
-  if( !fVFFModelEMp || fVFFModelEMn ) { 
+  if( !fVFFEMp || fVFFEMn ) { 
     good_config = false ; 
-    LOG("MAIDRESVectorXSecModel", pERROR) << "Failed to configure Vector Form Factor" ;
+    LOG("MAIDRESVectorXSec", pERROR) << "Failed to configure Vector Form Factor" ;
   }
 
   // Use algorithm within a DIS/RES join scheme. If yes get Wcut
@@ -303,11 +303,11 @@ void MAIDRESVectorXSecModel::LoadConfig(void)
   fXSecIntegrator = dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   if( !fXSecIntegrator ) {
     good_config = false ;
-    LOG("MAIDRESVectorXSecModel", pERROR) << "XSec Integrator is not initialized" ;
+    LOG("MAIDRESVectorXSec", pERROR) << "XSec Integrator is not initialized" ;
   }
 
   if( ! good_config ) {
-    LOG("MAIDRESVectorXSecModel", pERROR) << "Configuration has failed.";
+    LOG("MAIDRESVectorXSec", pERROR) << "Configuration has failed.";
     exit(78) ;
   }
 }
