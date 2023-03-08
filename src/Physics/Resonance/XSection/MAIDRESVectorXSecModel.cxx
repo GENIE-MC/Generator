@@ -61,12 +61,11 @@ double MAIDRESVectorXSecModel::XSec( const Interaction * interaction, KinePhaseS
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
+  const Kinematics & kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
   const ProcessInfo &  proc_info  = interaction -> ProcInfo();
   const Target & target = init_state.Tgt();
 
-  // Get kinematical parameters
-  const Kinematics & kinematics = interaction -> Kine();
   double W  = kinematics.W();
   double q2 = kinematics.q2();
 
@@ -107,6 +106,11 @@ double MAIDRESVectorXSecModel::XSec( const Interaction * interaction, KinePhaseS
      << "Helicity Amplitudes for RES = " << resname << " : " << vffampl;
 #endif
   
+  TLorentzVector * tempElectron = init_state.GetProbeP4(kRfLab) ; 
+  TLorentzVector ElectronMom = * tempElectron ; 
+  delete tempElectron ; 
+  TLorentzVector OutElectronMom = kinematics.FSLeptonP4() ; 
+
   double Mnuc = target.HitNucMass() ;
   double Mnuc2 = TMath::Power(Mnuc,2) ; 
   double W2 = TMath::Power(W,2) ;
@@ -119,9 +123,9 @@ double MAIDRESVectorXSecModel::XSec( const Interaction * interaction, KinePhaseS
   double Q2 = v2 - q2 ; 
   double E = init_state.ProbeE(kRfHitNucRest) ;
   double Eprime = E - v ; 
-  double theta = kinematics.FSLeptonP4().Theta();
-  double momq2 = pow( ( *init_state.GetProbeP4(kRfLab) - kinematics.FSLeptonP4() ).P(),2) ; 
-  double epsilon = 1 / ( 1 + 2 * ( momq2 / Q2 ) * TMath::Power( tan( theta ) * 0.5, 2 ) ) ;     
+  double theta = OutElectronMom.Theta();
+  double q3Vect2 = pow( ( ElectronMom - OutElectronMom ).P(),2) ; 
+  double epsilon = 1 / ( 1 + 2 * ( q3Vect2 / Q2 ) * TMath::Power( tan( theta ) * 0.5, 2 ) ) ;     
  
   double Gamma = ( kAem * 0.5 / pow(kPi,2) ) * ( Eprime / E ) * ( k / Q2 ) / ( 1 - epsilon ) ; 
   double delta = MR * Gamma / ( ( pow( W2 - MR2, 2) + MR*pow(Gamma,2) ) * kPi ) ;  
@@ -130,7 +134,7 @@ double MAIDRESVectorXSecModel::XSec( const Interaction * interaction, KinePhaseS
   double Ampl2S12 = vffampl.Ampl2S12() ; 
 
   double xsecT = 2 * Mnuc * kPi * ( kres / k ) * ( Ampl2A12 + Ampl2A32 ) * delta ; 
-  double xsecL = 4 * kPi * Mnuc * kres * Q2 * MR2 * Ampl2S12 * delta / ( Mnuc2 * k * momq2 ) ; 
+  double xsecL = 4 * kPi * Mnuc * kres * Q2 * MR2 * Ampl2S12 * delta / ( Mnuc2 * k * q3Vect2 ) ; 
   
   double xsec = Gamma * ( xsecT + epsilon * xsecL ) ; 
   xsec = TMath::Max(0.,xsec) ; 
