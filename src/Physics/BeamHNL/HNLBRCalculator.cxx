@@ -253,7 +253,7 @@ double BRCalculator::DWidth_Global( HNLDecayMode_t hnldm, const double M ) const
   switch( hnldm ){
   case kHNLDcyNuNuNu   : return this->DWidth_Invisible( M, fUe42, fUm42, fUt42 );
   case kHNLDcyNuEE     : return this->DWidth_SameLepton( M, fUe42, fUm42, fUt42, mE, false );
-  case kHNLDcyNuMuE    : return this->DWidth_DiffLepton( M, fUe42, fUm42, fMajorana );
+  case kHNLDcyNuMuE    : return (this->DWidth_DiffLepton( M, fUe42, fUm42, fMajorana ) + this->DWidth_DiffLepton( M, fUm42, fUe42, fMajorana ));
   case kHNLDcyPi0Nu    : return this->DWidth_PiZeroAndNu( M, fUe42, fUm42, fUt42 );
   case kHNLDcyPiE      : return this->DWidth_PiAndLepton( M, fUe42, mE );
   case kHNLDcyNuMuMu   : return this->DWidth_SameLepton( M, fUe42, fUm42, fUt42, mMu, true );
