@@ -106,9 +106,7 @@ double MAIDRESVectorXSecModel::XSec( const Interaction * interaction, KinePhaseS
      << "Helicity Amplitudes for RES = " << resname << " : " << vffampl;
 #endif
   
-  TLorentzVector * tempElectron = init_state.GetProbeP4(kRfLab) ; 
-  TLorentzVector ElectronMom = * tempElectron ; 
-  delete tempElectron ; 
+  TLorentzVector ElectronMom = *init_state.GetProbeP4(kRfLab) ;  
   TLorentzVector OutElectronMom = kinematics.FSLeptonP4() ; 
 
   double Mnuc = target.HitNucMass() ;

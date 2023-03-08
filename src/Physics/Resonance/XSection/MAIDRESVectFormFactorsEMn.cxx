@@ -40,7 +40,6 @@ RESVectFFAmplitude MAIDRESVectFormFactorsEMn::Compute( const Interaction interac
   RESVectFFAmplitude ampl ; 
 
   const InitialState & init_state = interaction.InitState();
-  const ProcessInfo &  proc_info  = interaction.ProcInfo();
   const Target & target = init_state.Tgt();
   const Resonance_t res = interaction.ExclTag().Resonance();
   
@@ -64,13 +63,13 @@ RESVectFFAmplitude MAIDRESVectFormFactorsEMn::Compute( const Interaction interac
   double tau = -q2/(4.*Mnuc2);  
 
   if( res == kP33_1232 ) { 
-    double Fq = 1./TMath::Power(1-q2/0.71,2)*qcm/kgcm0;
+    double Fq = 1./TMath::Power(1-q2/fDipoleMass,2)*qcm/kgcm0;
     double AM = fAM0_P33_1232 * (1. - fBetaM_P33_1232 * q2) * TMath::Exp( fGammaM_P33_1232 * q2 ) * Fq;
     double AE = fAE0_P33_1232 * (1. - fBetaE_P33_1232 * q2) * TMath::Exp( fGammaE_P33_1232 * q2 ) * Fq;
-    double AS = fAS0_P33_1232 * (1. - fBetaS_P33_1232 * q2) / (1. + 4.9*tau)*qcm/kR*TMath::Exp( fGammaS_P33_1232 * q2 ) * Fq; // ??
+    double AC = fAC0_P33_1232 * (1. - fBetaC_P33_1232 * q2) / (1. + fDC_P33_1232 * tau)*2*MR/kR*TMath::Exp( fGammaC_P33_1232 * q2 ) * Fq; 
     ampl.SetAmplA12( (3.*AE+AM)/2./1000. );
     ampl.SetAmplA32( TMath::Sqrt(3.)/2.*(AE-AM)/1000. );
-    ampl.SetAmplS12( TMath::Sqrt(2.)*AS/1000. );
+    ampl.SetAmplS12( TMath::Sqrt(2.)*AC/1000. );
   } else if ( res == kP11_1440) {
     ampl.SetAmplA12( fA120N[res] * ( 1 - fA12AlphaN[res] * q2 ) * TMath::Exp( fA12BetaN[res] * q2 ) / 1000. );
     ampl.SetAmplS12( fS120N[res] * ( 1 - fS12AlphaN[res] * q2 ) * TMath::Exp( fS12BetaN[res] * q2 ) / 1000. );
@@ -112,19 +111,18 @@ void MAIDRESVectFormFactorsEMn::LoadConfig(void)
 
   GetParam( "AM0@P33(1232)", fAM0_P33_1232 ) ; 
   GetParam( "AE0@P33(1232)", fAE0_P33_1232 ) ;
-  GetParam( "AS0@P33(1232)", fAS0_P33_1232 ) ; 
+  GetParam( "AC0@P33(1232)", fAC0_P33_1232 ) ; 
   
   GetParam( "BetaM@P33(1232)", fBetaM_P33_1232 ) ;
   GetParam( "BetaE@P33(1232)", fBetaE_P33_1232 ) ;
-  GetParam( "BetaS@P33(1232)", fBetaS_P33_1232 ) ;
+  GetParam( "BetaC@P33(1232)", fBetaC_P33_1232 ) ;
 
   GetParam( "GammaM@P33(1232)", fGammaM_P33_1232 ) ;
   GetParam( "GammaE@P33(1232)", fGammaE_P33_1232 ) ;
-  GetParam( "GammaS@P33(1232)", fGammaS_P33_1232 ) ;
+  GetParam( "GammaC@P33(1232)", fGammaC_P33_1232 ) ;
 
-  //  GetParam( "NM@P33(1232)", fNM_P33_1232 ) ;
-  //GetParam( "NE@P33(1232)", fNE_P33_1232 ) ;
-
+  GetParam( "GammaS@P33(1232)", fDC_P33_1232 ) ;
+  GetParam( "GammaC@P33(1232)", fDipoleMass ) ;
 
   auto kres_list_A12_0_n = GetConfig().FindKeys("A120N@") ;
   if( kres_list_A12_0_n.size() == 0 ) good_config = false ; 

@@ -42,16 +42,15 @@ namespace genie {
     // Defining constants from fit 
     double fAM0_P33_1232 ; 
     double fAE0_P33_1232 ; 
-    double fAS0_P33_1232 ; 
+    double fAC0_P33_1232 ; 
     double fBetaM_P33_1232 ; 
     double fBetaE_P33_1232 ; 
-    double fBetaS_P33_1232 ; 
+    double fBetaC_P33_1232 ; 
     double fGammaM_P33_1232 ; 
     double fGammaE_P33_1232 ; 
-    double fGammaS_P33_1232 ; 
-    //    double fNM0_P33_1232 ; 
-    // double fNE0_P33_1232 ; ??
-
+    double fGammaC_P33_1232 ; 
+    double fDC_P33_1232 ; 
+    double fDipoleMass ; 
 
     std::map<Resonance_t,double> fA120N ;
     std::map<Resonance_t,double> fA12AlphaN ;
