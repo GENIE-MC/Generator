@@ -214,7 +214,7 @@ double MAIDRESVectorXSec::XSec( const Interaction * interaction, KinePhaseSpace_
       xsec *= FactorPauli_RES;
     }
 
-  // Include scaing
+  xsec *= fRESScaling ; 
 
   return xsec ; 
 
@@ -280,6 +280,8 @@ void MAIDRESVectorXSec::LoadConfig(void)
 
   // Use algorithm within a DIS/RES join scheme. If yes get Wcut
   this->GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
+  this->GetParam( "RES-EM-XSecScale", fRESScaling ) ; 
+
   fWcut = 999999;
   if(fUsingDisResJoin) {
     this->GetParam( "Wcut", fWcut ) ;

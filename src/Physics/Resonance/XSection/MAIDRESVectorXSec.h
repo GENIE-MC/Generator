@@ -69,6 +69,7 @@ private:
   string   fKFTable;             ///< table of Fermi momentum (kF) constants for various nuclei
   bool     fUseRFGParametrization; ///< use parametrization for fermi momentum insted of table?
   bool     fUsePauliBlocking;      ///< account for Pauli blocking?
+  double   fRESScaling ; //< Overall scaling 
 
   const XSecIntegratorI * fXSecIntegrator;
 
