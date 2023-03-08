@@ -42,6 +42,8 @@ typedef enum HadronTensorType {
   kHT_MEC_DeltaAll,
   kHT_MEC_Deltapn,
   kHT_MEC_EM,
+  kHT_MEC_EM_pn,
+  kHT_MEC_EM_pp,
   kHT_QE_EM,
   kHT_MEC_FullAll_Param,
   kHT_MEC_FullAll_wImag,
