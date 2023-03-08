@@ -33,7 +33,7 @@
 *                    mhso+/:------------------:/+oyhyo/----------:/+syhm                                        *
 *                           NmddhyyyssssyyyhdmmNNNmhhhyyyyhhddmN                                                *
 *                                                                                                               *
-*                                                             Copyright (c) 2003-2022, The GENIE Collaboration  *
+*                                                             Copyright (c) 2003-2023, The GENIE Collaboration  *
 *                                                                                                               *
 *                                                                                                               *
 *  Luis Alvarez-Ruso [4], Costas Andreopoulos [7,10], Adi Ashkenazi [8], Steve Dytman [9], Hugh Gallagher [11], *
