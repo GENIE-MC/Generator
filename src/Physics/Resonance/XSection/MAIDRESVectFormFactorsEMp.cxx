@@ -40,7 +40,6 @@ RESVectFFAmplitude MAIDRESVectFormFactorsEMp::Compute( const Interaction interac
   RESVectFFAmplitude ampl ; 
 
   const InitialState & init_state = interaction.InitState();
-  const ProcessInfo &  proc_info  = interaction.ProcInfo();
   const Target & target = init_state.Tgt();
   const Resonance_t res = interaction.ExclTag().Resonance();
   
@@ -51,26 +50,22 @@ RESVectFFAmplitude MAIDRESVectFormFactorsEMp::Compute( const Interaction interac
   double q6 = TMath::Power( q2, 3 ) ; 
   double q8 = TMath::Power( q2, 4 ) ; 
 
+  double W2     = TMath::Power( kinematics.W(), 2);
+  double Mnuc2  = TMath::Power(target.HitNucMass(), 2);
+  double MR  = utils::res::Mass(res);
+  double kR = (MR*MR - Mnuc2)/(2.*MR); 
+  double kgcm0 = (W2 - Mnuc2)/(2.*MR); 
+
   if( res == kP33_1232 ) { 
-    //Compute auxiliary & kinematical factors
-    double W2     = TMath::Power( kinematics.W(), 2);
-    double Mnuc2  = TMath::Power(target.HitNucMass(), 2);
-    double tau = -q2/(4.*Mnuc2);  
-    double MR  = utils::res::Mass(res);
-    double kR = (MR*MR - Mnuc2)/(2.*MR);  //LAR choice, k(W=MR,Q2=0) Q2=0 real photon
-    double kgcm0 = (W2 - Mnuc2)/(2.*MR); // kW at equation 5
-    double egcm = (W2+q2-Mnuc2)/(2.*MR); //photon energy at the W center of mass frame
-    double qcm = TMath::Sqrt(pow(egcm,2)-q2); //photon momentum k in Equation 3
-    
     // Dipole form facor
-    double GD = 1./TMath::Power(1-q2/fDipoleMass,2)*qcm/kgcm0;
+    double GD = 1./TMath::Power(1-q2/fDipoleMass,2) ;
     // Transition form factors
     double GM = fAM0_P33_1232 * (1. - fBetaM_P33_1232 * q2) * TMath::Exp( fGammaM_P33_1232 * q2 ) * GD;
     double GE = fAE0_P33_1232 * (1. - fBetaE_P33_1232 * q2) * TMath::Exp( fGammaE_P33_1232 * q2 ) * GD;
-    double GC = fAC0_P33_1232 * (1. - fBetaC_P33_1232 * q2) / (1. + fDC_P33_1232 * tau)*2*MR/kR*TMath::Exp( fGammaC_P33_1232 * q2 ) * GD; 
-    ampl.SetAmplA12( (3.*GE+GM)/2./1000. );
-    ampl.SetAmplA32( TMath::Sqrt(3.)/2.*(GE-GM)/1000. );
-    ampl.SetAmplS12( TMath::Sqrt(2.)*GC/1000. );
+    double GC = fAC0_P33_1232 * (1. - fBetaC_P33_1232 * q2) / (1. - fDC_P33_1232 * q2/(4.*Mnuc2))*2*MR/kR*TMath::Exp( fGammaC_P33_1232 * q2 ) * GD; 
+    ampl.SetAmplA12( (3.*GE+GM)/2. );
+    ampl.SetAmplA32( TMath::Sqrt(3.)/2.*(GE-GM) );
+    ampl.SetAmplS12( TMath::Sqrt(2.)*GC );
   } else { 
     double A120 = fA120P[res] ;
     double A12Alpha1 = fA12Alpha1P[res] ;
@@ -91,9 +86,9 @@ RESVectFFAmplitude MAIDRESVectFormFactorsEMp::Compute( const Interaction interac
     double S12Alpha4 = fS12Alpha4P[res] ;
     double S12Beta = fS12BetaP[res] ;
 
-    ampl.SetAmplA12( A120 * ( 1 - A12Alpha1 * q2 + A12Alpha2 * q4 - A12Alpha3 * q6 + A12Alpha4 * q8 ) * TMath::Exp( A12Beta * q2 ) / 1000. ) ; 
-    ampl.SetAmplA32( A320 * ( 1 - A32Alpha1 * q2 + A32Alpha2 * q4 - A32Alpha3 * q6 + A32Alpha4 * q8 ) * TMath::Exp( A32Beta * q2 ) / 1000. ) ; 
-    ampl.SetAmplS12( S120 * ( 1 - S12Alpha1 * q2 + S12Alpha2 * q4 - S12Alpha3 * q6 + S12Alpha4 * q8 ) * TMath::Exp( S12Beta * q2 ) / 1000. ) ; 
+    ampl.SetAmplA12( A120 * ( 1 - A12Alpha1 * q2 + A12Alpha2 * q4 - A12Alpha3 * q6 + A12Alpha4 * q8 ) * TMath::Exp( A12Beta * q2 ) ) ; 
+    ampl.SetAmplA32( A320 * ( 1 - A32Alpha1 * q2 + A32Alpha2 * q4 - A32Alpha3 * q6 + A32Alpha4 * q8 ) * TMath::Exp( A32Beta * q2 ) ) ; 
+    ampl.SetAmplS12( S120 * ( 1 - S12Alpha1 * q2 + S12Alpha2 * q4 - S12Alpha3 * q6 + S12Alpha4 * q8 ) * TMath::Exp( S12Beta * q2 ) ) ; 
   }
 
   return ampl;

@@ -63,18 +63,14 @@ RESVectFFAmplitude MAIDRESVectFormFactorsEMn::Compute( const Interaction interac
   double tau = -q2/(4.*Mnuc2);  
 
   if( res == kP33_1232 ) { 
-    double Fq = 1./TMath::Power(1-q2/fDipoleMass,2)*qcm/kgcm0;
-    double AM = fAM0_P33_1232 * (1. - fBetaM_P33_1232 * q2) * TMath::Exp( fGammaM_P33_1232 * q2 ) * Fq;
-    double AE = fAE0_P33_1232 * (1. - fBetaE_P33_1232 * q2) * TMath::Exp( fGammaE_P33_1232 * q2 ) * Fq;
-    double AC = fAC0_P33_1232 * (1. - fBetaC_P33_1232 * q2) / (1. + fDC_P33_1232 * tau)*2*MR/kR*TMath::Exp( fGammaC_P33_1232 * q2 ) * Fq; 
-    ampl.SetAmplA12( (3.*AE+AM)/2./1000. );
-    ampl.SetAmplA32( TMath::Sqrt(3.)/2.*(AE-AM)/1000. );
-    ampl.SetAmplS12( TMath::Sqrt(2.)*AC/1000. );
-  } else if ( res == kP11_1440) {
-    ampl.SetAmplA12( fA120N[res] * ( 1 - fA12AlphaN[res] * q2 ) * TMath::Exp( fA12BetaN[res] * q2 ) / 1000. );
-    ampl.SetAmplS12( fS120N[res] * ( 1 - fS12AlphaN[res] * q2 ) * TMath::Exp( fS12BetaN[res] * q2 ) / 1000. );
-    ampl.SetAmplA32( 0. ) ;
-  } else { 
+    double GD = 1./TMath::Power(1-q2/fDipoleMass,2); 
+    double AM = fAM0_P33_1232 * (1. - fBetaM_P33_1232 * q2) * TMath::Exp( fGammaM_P33_1232 * q2 ) * GD;
+    double AE = fAE0_P33_1232 * (1. - fBetaE_P33_1232 * q2) * TMath::Exp( fGammaE_P33_1232 * q2 ) * GD;
+    double AC = fAC0_P33_1232 * (1. - fBetaC_P33_1232 * q2) / (1. - fDC_P33_1232 * q2/(4.*Mnuc2) ) * (2*MR)/kR * TMath::Exp( fGammaC_P33_1232 * q2 ) * GD; 
+    ampl.SetAmplA12( (3.*AE+AM)/2. );
+    ampl.SetAmplA32( TMath::Sqrt(3.)/2.*(AE-AM) );
+    ampl.SetAmplS12( TMath::Sqrt(2.)*AC );
+  } else {
     double A120 = fA120N[res] ;
     double A12Alpha = fA12AlphaN[res] ;
     double A12Beta = fA12BetaN[res] ;
@@ -85,9 +81,9 @@ RESVectFFAmplitude MAIDRESVectFormFactorsEMn::Compute( const Interaction interac
     double S12Alpha = fS12AlphaN[res] ;
     double S12Beta = fS12BetaN[res] ;
 
-    ampl.SetAmplA12( A120 * ( 1 - A12Alpha * q2 ) * TMath::Exp( A12Beta * q2 ) / 1000. ) ; 
-    ampl.SetAmplA32( A320 * ( 1 - A32Alpha * q2 ) * TMath::Exp( A32Beta * q2 ) / 1000. ) ; 
-    ampl.SetAmplS12( S120 * ( 1 - S12Alpha * q2 ) * TMath::Exp( S12Beta * q2 ) / 1000. ) ; 
+    ampl.SetAmplA12( A120 * ( 1 - A12Alpha * q2 ) * TMath::Exp( A12Beta * q2 ) ) ; 
+    ampl.SetAmplA32( A320 * ( 1 - A32Alpha * q2 ) * TMath::Exp( A32Beta * q2 ) ) ; 
+    ampl.SetAmplS12( S120 * ( 1 - S12Alpha * q2 ) * TMath::Exp( S12Beta * q2 ) ) ; 
   }
 
   return ampl;
