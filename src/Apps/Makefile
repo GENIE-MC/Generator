@@ -35,7 +35,8 @@ TGT_BASE =  gevgen             \
             gmkhedissf         \
             gcalchedisdiffxsec \
             gmkphotonsf        \
-            gconfigdump
+            gconfigdump        \
+	    gmaidvalidation
 
 ifeq ($(strip $(GOPT_ENABLE_FNAL)),YES)
 TGT_BASE += gevgen_fnal
@@ -269,6 +270,12 @@ $(GENIE_BIN_PATH)/gmkhedissf: gMakeHEDISStrucFunc.o $(call find_libs,gmkhedissf)
 $(GENIE_BIN_PATH)/gconfigdump: gConfigDump.o $(call find_libs,gconfigdump)
 	@echo "** Building gconfigdump"
 	$(LD) $(LDFLAGS) gConfigDump.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gconfigdump
+
+# App to plot MAID form factors
+#
+$(GENIE_BIN_PATH)/gmaidvalidation: gMAIDValidation.o $(call find_libs,gmaidvalidation)
+	@echo "** Building gmaidvalidation"
+	$(LD) $(LDFLAGS) gMAIDValidation.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmaidvalidation
 
 
 # CLEANING-UP
