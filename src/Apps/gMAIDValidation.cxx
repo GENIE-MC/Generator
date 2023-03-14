@@ -116,7 +116,7 @@ void MakePlots (void)
 
   // Proton case : 
   Interaction * inter_p = Interaction::RESEM(1000010010, kPdgProton, lepton_pdg);   
-  Interaction * inter_n = Interaction::RESEM(1000010010, kPdgNeutron, lepton_pdg);   
+  Interaction * inter_n = Interaction::RESEM(1000000010, kPdgNeutron, lepton_pdg);   
   double W = 0 ; 
   double Q2 = min_Q2 ; 
 
