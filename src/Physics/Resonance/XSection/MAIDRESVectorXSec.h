@@ -58,8 +58,8 @@ private:
 
   void LoadConfig (void);
 
-  const RESVectFormFactorsI * fVFFEMp ;
-  const RESVectFormFactorsI * fVFFEMn ;
+  RESVectFormFactorsI * fVFFEMp ;
+  RESVectFormFactorsI * fVFFEMn ;
 
   bool     fUsingDisResJoin;   ///< use a DIS/RES joining scheme?
   double   fWcut;              ///< apply DIS/RES joining scheme < Wcut

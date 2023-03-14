@@ -54,7 +54,6 @@ RESVectFFAmplitude MAIDRESVectFormFactorsEMp::Compute( const Interaction interac
   double Mnuc2  = TMath::Power(target.HitNucMass(), 2);
   double MR  = utils::res::Mass(res);
   double kR = (MR*MR - Mnuc2)/(2.*MR); 
-  double kgcm0 = (W2 - Mnuc2)/(2.*MR); 
 
   if( res == kP33_1232 ) { 
     // Dipole form facor
@@ -110,20 +109,20 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
 {
   bool good_config = true ; 
 
-  GetParam( "AM0@P33(1232)", fAM0_P33_1232 ) ; 
-  GetParam( "AE0@P33(1232)", fAE0_P33_1232 ) ;
-  GetParam( "AC0@P33(1232)", fAC0_P33_1232 ) ; 
+  this->GetParam( "AM0@P33(1232)", fAM0_P33_1232 ) ; 
+  this->GetParam( "AE0@P33(1232)", fAE0_P33_1232 ) ;
+  this->GetParam( "AC0@P33(1232)", fAC0_P33_1232 ) ; 
   
-  GetParam( "BetaM@P33(1232)", fBetaM_P33_1232 ) ;
-  GetParam( "BetaE@P33(1232)", fBetaE_P33_1232 ) ;
-  GetParam( "BetaC@P33(1232)", fBetaC_P33_1232 ) ;
+  this->GetParam( "BetaM@P33(1232)", fBetaM_P33_1232 ) ;
+  this->GetParam( "BetaE@P33(1232)", fBetaE_P33_1232 ) ;
+  this->GetParam( "BetaC@P33(1232)", fBetaC_P33_1232 ) ;
 
-  GetParam( "GammaM@P33(1232)", fGammaM_P33_1232 ) ;
-  GetParam( "GammaE@P33(1232)", fGammaE_P33_1232 ) ;
-  GetParam( "GammaC@P33(1232)", fGammaC_P33_1232 ) ;
+  this->GetParam( "GammaM@P33(1232)", fGammaM_P33_1232 ) ;
+  this->GetParam( "GammaE@P33(1232)", fGammaE_P33_1232 ) ;
+  this->GetParam( "GammaC@P33(1232)", fGammaC_P33_1232 ) ;
 
-  GetParam( "DeltaC@P33(1232)", fDC_P33_1232 ) ;
-  GetParam( "DipoleMass", fDipoleMass ) ;
+  this->GetParam( "DeltaC@P33(1232)", fDC_P33_1232 ) ;
+  this->GetParam( "DipoleMass", fDipoleMass ) ;
  
   auto kres_list_A12_0_p = GetConfig().FindKeys("A120P@") ;
   if( kres_list_A12_0_p.size() == 0 ) good_config = false ; 
@@ -132,7 +131,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fA120P[res_id] ) ; 
+    this->GetParam( key, fA120P[res_id] ) ; 
   }
 
   auto kres_list_A12_alpha1_p = GetConfig().FindKeys("A12Alpha1P@") ;
@@ -142,7 +141,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fA12Alpha1P[res_id] ) ; 
+    this->GetParam( key, fA12Alpha1P[res_id] ) ; 
   }
 
   auto kres_list_A12_alpha2_p = GetConfig().FindKeys("A12Alpha2P@") ;
@@ -152,7 +151,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fA12Alpha2P[res_id] ) ; 
+    this->GetParam( key, fA12Alpha2P[res_id] ) ; 
   }
 
   auto kres_list_A12_alpha3_p = GetConfig().FindKeys("A12Alpha3P@") ;
@@ -162,7 +161,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fA12Alpha3P[res_id] ) ; 
+    this->GetParam( key, fA12Alpha3P[res_id] ) ; 
   }
 
   auto kres_list_A12_alpha4_p = GetConfig().FindKeys("A12Alpha4P@") ;
@@ -172,7 +171,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fA12Alpha4P[res_id] ) ; 
+    this->GetParam( key, fA12Alpha4P[res_id] ) ; 
   }
 
   auto kres_list_A12_beta_p = GetConfig().FindKeys("A12BetaP@") ;
@@ -182,7 +181,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fA12BetaP[res_id] ) ; 
+    this->GetParam( key, fA12BetaP[res_id] ) ; 
   }
 
   auto kres_list_A32_0_p = GetConfig().FindKeys("A320P@") ;
@@ -192,7 +191,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fA320P[res_id] ) ; 
+    this->GetParam( key, fA320P[res_id] ) ; 
   }
 
   auto kres_list_A32_alpha1_p = GetConfig().FindKeys("A32Alpha1P@") ;
@@ -202,7 +201,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fA32Alpha1P[res_id] ) ; 
+    this->GetParam( key, fA32Alpha1P[res_id] ) ; 
   }
 
   auto kres_list_A32_alpha2_p = GetConfig().FindKeys("A32Alpha2P@") ;
@@ -212,7 +211,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fA32Alpha2P[res_id] ) ; 
+    this->GetParam( key, fA32Alpha2P[res_id] ) ; 
   }
 
   auto kres_list_A32_alpha3_p = GetConfig().FindKeys("A32Alpha3P@") ;
@@ -222,7 +221,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fA32Alpha3P[res_id] ) ; 
+    this->GetParam( key, fA32Alpha3P[res_id] ) ; 
   }
 
   auto kres_list_A32_alpha4_p = GetConfig().FindKeys("A32Alpha4P@") ;
@@ -232,7 +231,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fA32Alpha4P[res_id] ) ; 
+    this->GetParam( key, fA32Alpha4P[res_id] ) ; 
   }
 
   auto kres_list_A32_beta_p = GetConfig().FindKeys("A32BetaP@") ;
@@ -242,7 +241,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fA32BetaP[res_id] ) ; 
+    this->GetParam( key, fA32BetaP[res_id] ) ; 
   }
 
 
@@ -253,7 +252,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fS120P[res_id] ) ; 
+    this->GetParam( key, fS120P[res_id] ) ; 
   }
 
   auto kres_list_S12_alpha1_p = GetConfig().FindKeys("S12Alpha1P@") ;
@@ -263,7 +262,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fS12Alpha1P[res_id] ) ; 
+    this->GetParam( key, fS12Alpha1P[res_id] ) ; 
   }
 
   auto kres_list_S12_alpha2_p = GetConfig().FindKeys("S12Alpha2P@") ;
@@ -273,7 +272,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fS12Alpha2P[res_id] ) ; 
+    this->GetParam( key, fS12Alpha2P[res_id] ) ; 
   }
 
   auto kres_list_S12_alpha3_p = GetConfig().FindKeys("S12Alpha3P@") ;
@@ -283,7 +282,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fS12Alpha3P[res_id] ) ; 
+    this->GetParam( key, fS12Alpha3P[res_id] ) ; 
   }
 
   auto kres_list_S12_alpha4_p = GetConfig().FindKeys("S12Alpha4P@") ;
@@ -293,7 +292,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fS12Alpha4P[res_id] ) ; 
+    this->GetParam( key, fS12Alpha4P[res_id] ) ; 
   }
 
   auto kres_list_S12_beta_p = GetConfig().FindKeys("S12BetaP@") ;
@@ -303,7 +302,7 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
     vector<string> kv = genie::utils::str::Split(key,"@");
     assert(kv.size()==2);
     Resonance_t res_id = utils::res::FromString( (kv[1]).c_str() );
-    GetParam( key, fS12BetaP[res_id] ) ; 
+    this->GetParam( key, fS12BetaP[res_id] ) ; 
   }
 
   if( ! good_config ) { 

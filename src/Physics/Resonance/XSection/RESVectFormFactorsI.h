@@ -29,7 +29,7 @@ public:
   virtual ~RESVectFormFactorsI();
 
   // define the RESVectFormFactorsI interface
-  virtual RESVectFFAmplitude Compute( const Interaction interaction ) const = 0;
+  virtual RESVectFFAmplitude Compute( const Interaction interaction ) = 0;
 
 protected:
   RESVectFormFactorsI();

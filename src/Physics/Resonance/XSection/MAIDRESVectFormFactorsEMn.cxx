@@ -54,11 +54,7 @@ RESVectFFAmplitude MAIDRESVectFormFactorsEMn::Compute( const Interaction interac
   double Mnuc2  = TMath::Power(Mnuc, 2);
 
   double MR  = utils::res::Mass(res);
-  double kR = (MR*MR - Mnuc2)/(2.*MR);  //LAR choice
-                                        //k(W=MR,Q2=0) Q2=0 real photon
-  double kgcm0 = (W2 - Mnuc2)/(2.*MR); // kW at equation 5
-  double egcm = (W2+q2-Mnuc2)/(2.*MR); //photon energy at the W center of mass frame
-  double qcm = TMath::Sqrt(egcm*egcm-q2); //photon momentum k in Equation 3
+  double kR = (MR*MR - Mnuc2)/(2.*MR);
 
   double tau = -q2/(4.*Mnuc2);  
 

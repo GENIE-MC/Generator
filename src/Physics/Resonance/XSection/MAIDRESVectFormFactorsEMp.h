@@ -31,7 +31,7 @@ namespace genie {
     MAIDRESVectFormFactorsEMp(string config);
     virtual ~MAIDRESVectFormFactorsEMp();
 
-    void Configure(const Registry & config);
+    void Configure( const Registry & config );
     void Configure( string param_set ) ; 
   
     RESVectFFAmplitude Compute( const Interaction interaction ) ;

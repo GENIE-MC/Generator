@@ -92,7 +92,7 @@ double MAIDRESVectorXSec::XSec( const Interaction * interaction, KinePhaseSpace_
 
   if( !is_EM ) return 0 ;
 
-  const RESVectFormFactorsI * vffmodel = 0;
+  RESVectFormFactorsI * vffmodel = 0;
   if(is_EM) {
     if (is_p) { vffmodel = fVFFEMp;}
     else      { vffmodel = fVFFEMn;}
@@ -270,8 +270,8 @@ void MAIDRESVectorXSec::LoadConfig(void)
   fVFFEMn = 0 ; 
 
   AlgFactory * algf = AlgFactory::Instance();
-  fVFFEMp  = dynamic_cast<const RESVectFormFactorsI*> ( algf->GetAlgorithm("genie::MAIDRESVectFormFactorsEMp","Default") );
-  fVFFEMn  = dynamic_cast<const RESVectFormFactorsI*> ( algf->GetAlgorithm("genie::MAIDRESVectFormFactorsEMn","Default") );
+  fVFFEMp  = dynamic_cast<RESVectFormFactorsI*> ( algf->AdoptAlgorithm("genie::MAIDRESVectFormFactorsEMp","Default") );
+  fVFFEMn  = dynamic_cast<RESVectFormFactorsI*> ( algf->AdoptAlgorithm("genie::MAIDRESVectFormFactorsEMn","Default") );
   
   if( !fVFFEMp || fVFFEMn ) { 
     good_config = false ; 
