@@ -62,7 +62,12 @@ using namespace genie;
 using namespace genie::utils;
 
 // globals
-string  gOptOutFile = "maid_validation.root"; // -o argument
+string gOptOutFile = "maid_validation.root"; // -o argument
+double gQ2XSec = 1 ; // Q2 value used for cross-section calculation
+double gW_min_XSec = 1.100 ;
+double gW_max_XSec = 1.800 ;
+double gW_bin_width = 50 ; 
+
 TFile * goutput_file ; 
 
 map<Resonance_t,TGraph*> gA12_p ;
@@ -89,7 +94,7 @@ Resonance_t kResId[kNRes] = {
 
 // function prototypes
 void GetCommandLineArgs (int argc, char ** argv);
-void InitializeMembers(void) ; 
+bool InitializeMembers(void) ; 
 void MakePlots     (void);
 
 //___________________________________________________________________
@@ -98,7 +103,7 @@ int main(int argc, char ** argv)
   utils::style::SetDefaultStyle();
 
   GetCommandLineArgs (argc,argv);   // Get command line arguments
-  InitializeMembers() ; 
+  if( ! InitializeMembers() ) return 0 ; 
   MakePlots();   // Produce all output plots and fill output n-tuple
 
   return 0;
@@ -167,15 +172,17 @@ void MakePlots (void)
     
   }
 
-
 }
 //_________________________________________________________________________________
-void InitializeMembers(void) {
+bool InitializeMembers(void) {
 
   AlgFactory * algf = AlgFactory::Instance();
 
   vffmodel_p = dynamic_cast<RESVectFormFactorsI*> ( algf->AdoptAlgorithm("genie::MAIDRESVectFormFactorsEMp","Default") );
   vffmodel_n = dynamic_cast<RESVectFormFactorsI*> ( algf->AdoptAlgorithm("genie::MAIDRESVectFormFactorsEMn","Default") );
+
+  if( ! vffmodel_p ) return false ; 
+  if( ! vffmodel_n ) return false ; 
 
   goutput_file = TFile::Open(gOptOutFile.c_str(), "RECREATE") ; 
 
@@ -190,6 +197,26 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   if(parser.OptionExists('o')){
     gOptOutFile = parser.Arg('o');
+  }
+
+  if(parser.OptionExists("Q2XSec")) {
+    string Q2 = parser.Arg("Q2XSec");
+    gQ2XSec = atof(Q2.c_str());
+  }
+
+  if(parser.OptionExists("W-min-XSec")) {
+    string Wmin = parser.Arg("W-min_XSec");
+    gW_min_XSec = atof(Wmin.c_str());
+  }
+
+  if(parser.OptionExists("W-max-XSec")) {
+    string Wmax = parser.Arg("W-max_XSec");
+    gW_max_XSec = atof(Wmax.c_str());
+  }
+
+  if(parser.OptionExists("W-binning-XSec")) {
+    string BinW = parser.Arg("W-binning_XSec");
+    gW_bin_width = atof(BinW.c_str());
   }
 
 }
