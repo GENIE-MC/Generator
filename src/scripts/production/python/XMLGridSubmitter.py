@@ -8,7 +8,7 @@ Author:
       Julia Tena Vidal <jtenavidal \st tauex.tau.ac.il>
       Tel Aviv University
 Copyright:
-   Copyright (c) 2003-2022, The GENIE Collaboration
+   Copyright (c) 2003-2023, The GENIE Collaboration
    For the full text of the license visit http://copyright.genie-mc.org
 """
 import os, optparse, glob, tarfile
@@ -45,16 +45,16 @@ op.add_option("--e-tgt-list", dest="ETGTLIST", default='all', help = "Comma sepa
 op.add_option("--vN-gen-list", dest="vNList", default='all', help="Comma separated list of event generator list used for the free nucleon spline generation. Can be used to specify electron procecess as well")
 op.add_option("--vA-gen-list", dest="vAList", default='all', help="Comma separated list of event generator list used for the nuclei spline generation.  Can be used to specify electron procecess as well")
 op.add_option("--e-nu-max", dest="NuEMAX", type="int", default=100, help="Maximum energy for the splines in GeV. Default: %default ")
-op.add_option("--e-e-max", dest="EEMAX", type="int", default=30, help="Maximum energy for the splines in GeV. Default: %default ")
+op.add_option("--e-espline-max", dest="EEMAX", type="int", default=30, help="Maximum energy for the splines in GeV. Default: %default ")
 op.add_option("--n-nu-knots", dest="NuKnots", type="int", default=100, help="Number of knots per neutrino spline. Default: %default")
 op.add_option("--n-e-knots", dest="EKnots", type="int", default=100, help="Number of knots per electron spline. Default: %default")
 op.add_option("--starting-point", dest="start_ID", type="int", default=0, help="0 -> Free nucleon splines, 1 -> combine free nucl splines, 2 -> Compound nuclei splines, 3 -> Combine compound nuclei splines ")
 op.add_option("--stopping-point", dest="end_ID", type="int", default=9999, help="Numbers as above, Default: 9999") 
 op.add_option("--tune", dest="TUNE", default="G18_02a_02_11b", help="Tune to be compared against data (default: %default)")
 op.add_option("--submit-jobs", dest="SUBMIT", default=False, action="store_true", help="Generate configuration and submit to grid" )
-op.add_option("--job-lifetime", dest="JOBLIFE", default=30, help="Expected lifetime on the grid for all the jobs to be finished")
-op.add_option("--job-lifetime-vN", dest="vNJOBLIFE", default=20, help="Expected lifetime on the grid for all the vN spline jobs to be finished")
-op.add_option("--job-lifetime-vA", dest="vAJOBLIFE", default=8, help="Expected lifetime on the grid for all the vA spline jobs to be finished")
+op.add_option("--job-lifetime", dest="JOBLIFE", default=21, help="Expected lifetime on the grid for all the jobs to be finished")
+op.add_option("--job-lifetime-vN", dest="vNJOBLIFE", default=15, help="Expected lifetime on the grid for all the vN spline jobs to be finished")
+op.add_option("--job-lifetime-vA", dest="vAJOBLIFE", default=3, help="Expected lifetime on the grid for all the vA spline jobs to be finished")
 op.add_option("--job-lifetime-group", dest="GROUPJOBLIFE", default=1, help="Expected lifetime on the grid for all the grouping jobs to be finished")
 op.add_option("--store-comitinfo", dest="STORECOMMIT", default=False, action="store_true", help="Store command line in jobstopdir directory")
 opts, args = op.parse_args()

@@ -8,7 +8,7 @@ Author:
       Julia Tena Vidal <jtenavidal \st tauex.tau.ac.il>
       Tel Aviv University
 Copyright:
-   Copyright (c) 2003-2022, The GENIE Collaboration
+   Copyright (c) 2003-2023, The GENIE Collaboration
    For the full text of the license visit http://copyright.genie-mc.org
 """
 import os, optparse, glob, tarfile
@@ -44,23 +44,23 @@ op.add_option("--nu-tgt-list", dest="NUTGTLIST", default='all', help = "Comma se
 op.add_option("--e-tgt-list", dest="ETGTLIST", default='all', help = "Comma separated list of Targets. Default: %default.") 
 op.add_option("--vN-gen-list", dest="vNList", default='all', help="Comma separated list of event generator list used for the free nucleon spline generation. Can be used to specify electron procecess as well")
 op.add_option("--vA-gen-list", dest="vAList", default='all', help="Comma separated list of event generator list used for the nuclei spline generation.  Can be used to specify electron procecess as well")
-op.add_option("--E-nu-max", dest="NuEMAX", type="int", default=100, help="Maximum energy for the splines in GeV. Default: %default ")
-op.add_option("--E-e-max", dest="EEMAX", type="int", default=30, help="Maximum energy for the splines in GeV. Default: %default ")
+op.add_option("--E-nu-maxsplines", dest="NuEMAXSPLINE", type="int", default=100, help="Maximum energy for the splines in GeV. Default: %default ")
+op.add_option("--E-e-maxsplines", dest="EEMAXSPLINE", type="int", default=30, help="Maximum energy for the splines in GeV. Default: %default ")
 op.add_option("--N-nu-knots", dest="NuKnots", type="int", default=100, help="Number of knots per neutrino spline. Default: %default")
-op.add_option("--N-e-knots", dest="EKnots", type="int", default=100, help="Number of knots per electron spline. Default: %default")
+op.add_option("--N-e-knots", dest="EKnots", type="int", default=30, help="Number of knots per electron spline. Default: %default")
 op.add_option("--event-generator-list", dest="EvGenList", default='EM', help="Event generator list to be used for event generation. Default EM")
 op.add_option("--nu-ntotevents", dest="NuEvents", type="int", default=10000, help="Number of total events, default: 100 k")
 op.add_option("--e-ntotevents", dest="EEvents", type="int", default=100000, help="Number of total events, default: 100 k")
-op.add_option("--nmaxevents",dest="NMax", type="int", default=100000,help="Max number of events to run per event generation, default 100k")
-op.add_option("--e-energy", dest="Energy", default="2", help="Comma separated list of beam energy for electrons. Default %default GeV")
+op.add_option("--nmaxevents",dest="NMax", type="int", default=100000,help="Max number of events to run per event generation, default 400k")
+op.add_option("--ebeam-energy", dest="EnergyBeam", default="2", help="Comma separated list of beam energy for electrons. Default %default GeV")
 op.add_option("--starting-point", dest="start_ID", type="int", default=0, help="0 -> Free nucleon splines, 1 -> combine free nucl splines, 2 -> Compound nuclei splines, 3 -> Combine compound nuclei splines, 4 -> Event Production")
 op.add_option("--stopping-point", dest="end_ID", type="int", default=9999, help="Numbers as above, Default: 9999") 
 op.add_option("--tune", dest="TUNE", default="G18_02a_02_11b", help="Tune to be compared against data (default: %default)")
 op.add_option("--submit-jobs", dest="SUBMIT", default=False, action="store_true", help="Generate configuration and submit to grid" )
-op.add_option("--job-lifetime", dest="JOBLIFE", default=30, help="Expected lifetime on the grid for all the jobs to be finished, default 30h")
-op.add_option("--job-lifetime-vN", dest="vNJOBLIFE", default=10, help="Expected lifetime on the grid for all the vN spline jobs to be finished, default 10h")
-op.add_option("--job-lifetime-vA", dest="vAJOBLIFE", default=6, help="Expected lifetime on the grid for all the vA spline jobs to be finished, default 6h")
-op.add_option("--job-lifetime-generation", dest="GENJOBLIFE", default=10, help="Expected lifetime on the grid for all the event generation jobs to be finished, default 10h")
+op.add_option("--job-lifetime", dest="JOBLIFE", default=25, help="Expected lifetime on the grid for all the jobs to be finished, default %default h")
+op.add_option("--job-lifetime-vN", dest="vNJOBLIFE", default=15, help="Expected lifetime on the grid for all the vN spline jobs to be finished, default %default h")
+op.add_option("--job-lifetime-vA", dest="vAJOBLIFE", default=3, help="Expected lifetime on the grid for all the vA spline jobs to be finished, default %default h")
+op.add_option("--job-lifetime-generation", dest="GENJOBLIFE", default=4, help="Expected lifetime on the grid for all the event generation jobs to be finished, default %default h")
 op.add_option("--job-lifetime-group", dest="GROUPJOBLIFE", default=1, help="Expected lifetime on the grid for all the grouping jobs to be finished, default 1h")
 op.add_option("--store-comitinfo", dest="STORECOMMIT", default=False, action="store_true", help="Store command line in jobstopdir directory")
 opts, args = op.parse_args()
@@ -170,7 +170,7 @@ loop_i = loop_start
 while loop_i < loop_end + 1: 
     # ID = 0 # vN splines
     if loop_i == 0 :
-        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.NuEMAX,opts.EEMAX,opts.NuKnots,opts.EKnots,opts.TUNE,version,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.vNJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
+        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.NuEMAXSPLINE,opts.EEMAXSPLINE,opts.NuKnots,opts.EKnots,opts.TUNE,version,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.vNJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
         total_time += int(opts.vNJOBLIFE) 
 
     # ID = 1 # group vN splines
@@ -184,7 +184,7 @@ while loop_i < loop_end + 1:
  
     if loop_i == 2 : 
         # ID = 2 # vA splines
-        command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.NuEMAX,opts.EEMAX,opts.NuKnots,opts.EKnots,opts.TUNE,vNsplines,version,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.vAJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
+        command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.NuEMAXSPLINE,opts.EEMAXSPLINE,opts.NuKnots,opts.EKnots,opts.TUNE,vNsplines,version,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.vAJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
         total_time += int(opts.vAJOBLIFE)
 
     if loop_i == 3 : 
@@ -198,7 +198,7 @@ while loop_i < loop_end + 1:
 
     if loop_i == 4 : 
         # ID = 4 # Event generation commands
-        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.Energy,vAsplines,opts.EEvents,opts.TUNE, opts.EvGenList, opts.NMax,version,opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
+        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.EnergyBeam,vAsplines,opts.EEvents,opts.TUNE, opts.EvGenList, opts.NMax,version,opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
         total_time += int(opts.GENJOBLIFE)
     
     loop_i += 1 
