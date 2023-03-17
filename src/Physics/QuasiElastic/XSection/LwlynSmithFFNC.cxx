@@ -83,7 +83,7 @@ double LwlynSmithFFNC::Fp(const Interaction * interaction) const
 
   //-- get struck nucleon mass & pion pass
   const InitialState & init_state = interaction->InitState();
-  double MN   = init_state.Tgt().HitNucMass();
+  double MN   = init_state.Tgt().HitPartMass();
   double MN2  = TMath::Power(MN,        2);
   double Mpi2 = TMath::Power(kPionMass, 2);
 
