@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+\cpright Copyright (c) 2003-2023, The GENIE Collaboration
+         For the full text of the license visit http://copyright.genie-mc.org
+ -->
+
+<!-- Configurations for GNuMI flux
+     Each is grouped into a <param_set> that are parsed and applied to
+     GNuMIFlux.  Elements should appear in the following order:
+
+     <verbose> : how noisy to be while parsing <param_set>
+     <units>   : sets user coordinate units (e.g. "cm", "meter", etc)
+                 set this first and only once
+     <beamdir> : defines the relative orientation of the beam in user coord
+                 three types are currently supported:
+           "series"    : a sequence of rotations around one axis at a time
+                         each <rotation> needs value and attributes:
+                             axis ('x','y','z') units ('deg' 'rad')
+           "thetaphi3" : 3 pairs of (theta,phi) ala GEANT3
+                         needs 6 values and attribute: units
+           "newxyz"    : 3 direction vectors, ala Geant4
+                         needs 9 values (will normalize each vector)
+     <beampos> :  define the beam origin in the user coordinate system
+                  3 values define the point
+                  if 6 values treat as ( user xyz ) = ( beam xyz )
+                  but must have set <beamdir> first
+     <window> :   define the flux window via three <point> elements
+                  each <point> is a user coord (x,y,z)
+     <enumax>:    set limits on the maximum enu energy:  lowlimit, fudgefactor
+                  set limits on wgt: fudgefactor, # points to use
+                  final reported energy is max(lowlimit,fudgefactor*enumxscan)
+                  where is 'enumxscan' is the highest energy seen when
+                  scanning for x-y weights.
+     <reuse>:     set # of times an entry is sequentially reused
+     <upstreamz>: user coord z to push neutrino orgin to
+                  if abs(z) > 1e30 then leave on the flux window
+
+     The units, beamdir, beampos elements define the user coordinate system
+        user_dir =  rot * beam_dir
+        user_pos = (rot * beam_pos ) + user_pos_beamorigin
+     If more than one <beamdir> or <beampos> is specified the last
+     one of each is used.  Results of rotations from <beamdir> elements
+     are not cummulative.
+
+     Parsing of element contents w/ multiple values is liberal about
+     spacing, line breaks, grouping and separating characters.
+
+  -->
+
+<gnumi_config>
+
+<!--
+    ****************************************************************
+    **   Dummy setup for flattening dk2nu trees into ROOT trees   **
+    ****************************************************************
+-->
+
+  <param_set name="Flattening_Dummy">
+    <!-- verbosity of XML parsing -->
+    <verbose> 0 </verbose>
+
+    <!-- setting user units should be first -->
+    <units> m </units>
+
+    <!-- beamdir must come before beam zero position -->
+    <!-- rotation matrix created by sequence of rotations -->
+    <beamdir type="series">
+      <rotation axis="x" units="rad"> 0.0 </rotation>
+    </beamdir>
+    
+    <!-- rotation matrix set by 3 pairs of (theta, phi) for each axis, ala G3 -->
+    <beamdir type="thetaphi3" units="deg">
+      ( 90, 0 ) ( 90, 90 ) ( 0, 0 )
+    </beamdir>
+
+    <!-- rotation matrix set by 3 direction vectors, ala G4 -->
+    <beamdir type="newxyz">
+      [ 1 0 0 ]
+      [ 0 1 0 ]
+      [ 0 0 1 ]
+    </beamdir>
+
+    <!-- position of beam origin in user coords -->
+    <beampos> 0.0, 0.0, 0.0 </beampos>
+
+    <!-- position in ( user coords ) = ( beam coords ) -->
+    <!-- XML config must have already set the rotation matrix -->
+    <beampos> ( 0.0, 0.0, 0.0 ) = ( 0.0, 0.0, 0.0 ) </beampos>
+
+    <!-- define flux window in detector coords -->
+    <!-- need 3 positions to define a rectoid -->
+    <!-- first point is the base, 2nd & 3rd should be orthogonal points
+         (ie 2nd 3rd point should not be kitty-corner from 1st) -->
+    <window>
+      <point coord="det"> 0.0, 0.0, 0.0 </point>
+      <point coord="det"> 1.0, 0.0, 0.0 </point>
+      <point coord="det"> 0.0, 1.0, 0.0 </point>
+    </window>
+
+    <enumax> 120. 1.05 1.05 2500000 </enumax>
+
+    <!-- allow entry to be reused 10 times before moving on -->
+    <reuse> 10 </reuse>
+
+    <!-- force ray origin from flux window to user coord z = -1.0 -->
+    <upstreamz> -1.0 </upstreamz>
+
+  </param_set>
+
+</gnumi_config>
+
+

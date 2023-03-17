@@ -8,7 +8,7 @@ Author:
       Julia Tena Vidal <jtenavidal \st tauex.tau.ac.il>
       Tel Aviv University
 Copyright:
-   Copyright (c) 2003-2022, The GENIE Collaboration
+   Copyright (c) 2003-2023, The GENIE Collaboration
    For the full text of the license visit http://copyright.genie-mc.org
 
 """
@@ -97,7 +97,7 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
 
     grid_command_options = ''
     if grid_system == 'FNAL' :
-        grid_command_options = FNAL.FNALShellCommands(grid_setup,genie_setup, time)
+        grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time)
     else :
         print( "Only FNAL grid is available" )
         return 

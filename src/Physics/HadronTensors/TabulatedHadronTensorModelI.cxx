@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -42,6 +42,10 @@ namespace {
       return genie::kHT_MEC_Deltapn;
     else if (str == "MEC_EM")
       return genie::kHT_MEC_EM;
+    else if (str == "MEC_EM_pn")
+        return genie::kHT_MEC_EM_pn;
+    else if (str == "MEC_EM_pp")
+        return genie::kHT_MEC_EM_pp;
     else if (str == "MEC_EM_wImag")
       return genie::kHT_MEC_EM_wImag;
     else if (str == "QE_EM")
@@ -66,6 +70,8 @@ namespace {
     else if ( htt == genie::kHT_MEC_DeltaAll ) return "MEC_DeltaAll";
     else if ( htt == genie::kHT_MEC_Deltapn ) return "MEC_Deltapn";
     else if ( htt == genie::kHT_MEC_EM ) return "MEC_EM";
+    else if ( htt == genie::kHT_MEC_EM_pn ) return "MEC_EM_pn";
+    else if ( htt == genie::kHT_MEC_EM_pp ) return "MEC_EM_pp";
     else if ( htt == genie::kHT_MEC_EM_wImag ) return "MEC_EM_wImag";
     else if ( htt == genie::kHT_QE_EM ) return "QE_EM";
     else if ( htt == genie::kHT_MEC_FullAll_Param ) return "MEC_FullAll_Param";

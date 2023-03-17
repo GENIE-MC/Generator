@@ -14,9 +14,12 @@
           Changes required to implement the GENIE Dark Neutrino module
           were installed by Iker de Icaza (Univ. of Sussex)
 
+	  Changes required to implement the GENIE BeamHNL module
+	  were installed by John Plows (Univ. of Oxford)
+
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -43,8 +46,6 @@ public:
   // Ideally, this code should be in the Dark Matter app, not here.
   // But presently there is no way to edit the PDGLibrary after it has been created.
   void AddDarkMatter  (double mass, double med_ratio);
-  // Similarly for the NHL app
-  void AddNHL  (double mass);
 
 private:
 
@@ -54,6 +55,7 @@ private:
 
   bool LoadDBase(void);
   bool AddDarkSector ();
+  bool AddHNL  (void);
 
   static PDGLibrary * fInstance;
   TDatabasePDG      * fDatabasePDG;

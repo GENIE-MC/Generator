@@ -36,7 +36,7 @@ An example of a Submitter code is `eAScatteringGridSubmitter.py`. This code will
 - nu-ntotevents: total number of events to run for neutrinos
 - e-ntotevents: total number of events to run for electrons
 - nmaxevents: maximum number of events to run per job
-- energy : comma separated list of beam energy for electrons. Monoenergetic beam
+- ebeam-energy : comma separated list of beam energy for electrons. Monoenergetic beam
 - starting-point: 0) Free nucleon splines, 1) combine free nucl splines, 2) Compound nuclei splines, 3) Combine compound nuclei splines, 4) Event Production
 - stopping point: Same as above
 - tune: tune to be used for spline and event generation
