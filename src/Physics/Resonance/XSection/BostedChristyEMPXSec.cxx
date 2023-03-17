@@ -625,7 +625,7 @@ bool BostedChristyEMPXSec::ValidProcess(const Interaction * interaction) const
   if(!proc_info.IsResonant() ) return false;
  
 
-  int  hitnuc = init_state.Tgt().HitNucPdg();
+  int  hitnuc = init_state.Tgt().HitPartPdg();
   bool is_pn = (pdg::IsProton(hitnuc) || pdg::IsNeutron(hitnuc));
 
   if (!is_pn) return false;
