@@ -50,8 +50,8 @@ KovalenkoQELCharmPXSec::~KovalenkoQELCharmPXSec()
 
 }
 //____________________________________________________________________________
-double KovalenkoQELCharmPXSec::XSec(
-                  const Interaction * interaction, KinePhaseSpace_t kps) const
+double KovalenkoQELCharmPXSec::XSec( const Interaction * interaction, 
+				     KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
@@ -73,7 +73,7 @@ double KovalenkoQELCharmPXSec::XSec(
   //resonance mass & nucleon mass
   double MR    = this->MRes  (interaction);
   double MR2   = TMath::Power(MR,2);
-  double Mnuc  = target.HitNucMass();
+  double Mnuc  = target.HitPartMass();
   double Mnuc2 = TMath::Power(Mnuc,2);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -110,7 +110,7 @@ double KovalenkoQELCharmPXSec::XSec(
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
   //----- Nuclear cross section (simple scaling here)
-  int nuc   = target.HitNucPdg();
+  int nuc   = target.HitPartPdg();
   int NNucl = (pdg::IsProton(nuc)) ? target.Z() : target.N();
   xsec *= NNucl;
 
@@ -129,8 +129,8 @@ double KovalenkoQELCharmPXSec::ZR(const Interaction * interaction) const
   const InitialState & init_state = interaction->InitState();
 
   int pdgc = xcls.CharmHadronPdg();
-  bool isP = pdg::IsProton ( init_state.Tgt().HitNucPdg() );
-  bool isN = pdg::IsNeutron( init_state.Tgt().HitNucPdg() );
+  bool isP = pdg::IsProton ( init_state.Tgt().HitPartPdg() );
+  bool isN = pdg::IsNeutron( init_state.Tgt().HitPartPdg() );
 
   if      ( pdgc == kPdgLambdaPc && isN ) return fScLambdaP;
   else if ( pdgc == kPdgSigmaPc  && isN ) return fScSigmaP;
@@ -150,7 +150,7 @@ double KovalenkoQELCharmPXSec::DR(const Interaction * interaction) const
   const Kinematics & kinematics = interaction->Kine();
 
   double Q2     = kinematics.Q2();
-  double Mnuc   = init_state.Tgt().HitNucMass();
+  double Mnuc   = init_state.Tgt().HitPartMass();
   double Mnuc2  = TMath::Power(Mnuc,2);
   double MR     = this->MRes(interaction);
   double DeltaR = this->ResDM(interaction);
@@ -167,7 +167,7 @@ double KovalenkoQELCharmPXSec::DR(const Interaction * interaction) const
   LOG("QELCharmXSec", pDEBUG)
     << "Integration limits = [" << xi_bar_plus << ", " << xi_bar_minus << "]";
 
-  int pdgc = init_state.Tgt().HitNucPdg();
+  int pdgc = init_state.Tgt().HitPartPdg();
 
   ROOT::Math::IBaseFunctionOneDim * integrand = new
           utils::gsl::wrap::KovQELCharmIntegrand(&pdfs,Q2,pdgc);
@@ -251,8 +251,8 @@ bool KovalenkoQELCharmPXSec::ValidProcess(
   if(!proc_info.IsQuasiElastic()) return false;
   if(!proc_info.IsWeak())         return false;
 
-  bool isP = pdg::IsProton ( init_state.Tgt().HitNucPdg() );
-  bool isN = pdg::IsNeutron( init_state.Tgt().HitNucPdg() );
+  bool isP = pdg::IsProton ( init_state.Tgt().HitPartPdg() );
+  bool isN = pdg::IsNeutron( init_state.Tgt().HitPartPdg() );
 
   int pdgc = xcls.CharmHadronPdg();
 
@@ -275,7 +275,7 @@ bool KovalenkoQELCharmPXSec::ValidKinematics(
   //resonance, final state primary lepton & nucleon mass
   double MR    = this -> MRes  (interaction);
   double ml    = interaction->FSPrimLepton()->Mass();
-  double Mnuc  = init_state.Tgt().HitNucP4Ptr()->M();
+  double Mnuc  = init_state.Tgt().HitPartP4Ptr()->M();
   double Mnuc2 = TMath::Power(Mnuc,2);
 
   //resonance threshold
