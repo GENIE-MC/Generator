@@ -98,9 +98,9 @@ bool LocalFGM::GenerateNucleon(const Target & target,
 
     if (fMomDepErmv) {
       // hit nucleon mass
-      double nucl_mass = target.HitNucMass(); 
+      double nucl_mass = target.HitPartMass(); 
       // get the local Fermi momentum
-      double KF = LocalFermiMomentum( target, target.HitNucPdg(), hitNucleonRadius); 
+      double KF = LocalFermiMomentum( target, target.HitPartPdg(), hitNucleonRadius); 
       
       //initial nucleon kinetic energy at the Fermi surface
       double T_F = TMath::Sqrt(TMath::Power(nucl_mass,2)+TMath::Power(KF,2)) - nucl_mass;
