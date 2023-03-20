@@ -50,26 +50,38 @@ e_name_def = { 11 : 'e',
               -11: 'ebar' }
 
 
-def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir='', tune='G18_02_02_11b', version='master', conf_dir='', grid_system='FNAL', group='genie', 
+def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir='', tune='G18_02_02_11b', gen_list='all',version='master', conf_dir='', grid_system='FNAL', group='genie', 
                          arch='SL6.x86_64', production='routine_validation', cycle='01', softw_topdir=os.getenv('GENIE_MASTER_DIR'),
                          genie_topdir=os.getenv('GENIE'), grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh',
                          genie_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', 
                          jobs_topdir=os.getenv('PWD'), add_list=False, add_nucleons = False, time=2, git_branch="master", git_loc="https://github.com/GENIE-MC/Generator" ) :
-
+    
     # Store root output only for vA spilnes:
     root_output = False 
     if group_vN == False: 
         root_output = True
 
     if not os.path.exists(xml_dir) :
-        print ( xml_dir+"doesn't exist")
+        print ( xml_dir+" doesn't exist")
         return 
+
+    store_total_xsec = False
+    if gen_list == 'none' :
+        store_total_xsec = True 
+
+
+    if group_vN == True : 
+        process_name = "group_vN"
+        job_ID = 1 
+    else : 
+        process_name = "group_vA"
+        job_ID = 3 
 
     if mother_dir != '' : 
         if os.path.exists(mother_dir) :
             xml_files_motherdir = glob.glob(mother_dir+"/*.xml")
         else :
-            print ( mother_dir+"doesn't exist")
+            print ( mother_dir+" doesn't exist")
             return  
 
         #Given a mother directory and a daughter directory, the script tryies
@@ -79,10 +91,18 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
             # Check if exist in xml_dir 
             xml_file_name = os.path.basename(xml_file)
             if os.path.exists(xml_dir+"/"+xml_file_name[:-4]+".sh") : continue 
-            if xml_file_name[:-4] == 'total_xsec' : continue 
-            os.link(xml_file,xml_dir+"/"+xml_file_name) # link xml files
-            os.link(xml_file,xml_dir+"/"+xml_file_name[:-4]+".sh") # link sh files
             
+            if xml_file_name[:-4] == 'total_xsec' : 
+                if store_total_xsec == True : 
+                    os.link(xml_file,xml_dir+"/"+xml_file_name) # link xml files
+                    continue 
+            os.link(xml_file,xml_dir+"/"+xml_file_name) # link xml files
+            os.link(xml_file[:-4]+".sh",xml_dir+"/"+xml_file_name[:-4]+".sh") # link sh files
+        if store_total_xsec == True : 
+            temp_command_dict = {}
+            temp_command_dict[job_ID] = []
+            return temp_command_dict 
+
     # Get names of sh files: these determine the name of the future xml files
     xml_files_dir = glob.glob(xml_dir+"/*.sh")
     
@@ -181,8 +201,9 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
 
     out_files = [ "total_xsec.xml" ] 
     if os.path.exists( xml_dir + '/total_xsec.xml' ) :
-        # Need to remove xml files before re-generating them                                                                                                                                                     
-        os.remove( xml_dir + '/total_xsec.xml' )
+        if store_total_xsec == False :
+            # Need to remove xml files before re-generating them                                                                                                                                                     
+            os.remove( xml_dir + '/total_xsec.xml' )
         
     if root_output :
         # Check if file exists - and remove
@@ -206,13 +227,6 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
         commands.append( "gspl2root -p "+str_probe_list+" -t "+str_tgt_list+" -f "+path+"total_xsec.xml -o "+path+"total_xsec.root --tune "+tune )
         out_files.append("total_xsec.root")
 
-    if group_vN == True : 
-        process_name = "group_vN"
-        job_ID = 1 
-    else : 
-        process_name = "group_vA"
-        job_ID = 3 
-
     # Call Commands
     shell_file = ''
     command_list = []
@@ -223,5 +237,5 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
 
     ## Add command list to dictionary; 
     command_dict = {}
-    command_dict[job_ID] = command_list ; 
-    return command_dict ; 
+    command_dict[job_ID] = command_list 
+    return command_dict 

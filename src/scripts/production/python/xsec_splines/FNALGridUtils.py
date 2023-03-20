@@ -63,6 +63,8 @@ def WriteXMLFile(commands_dict, start, end, jobs_dir, file_name='grid_submission
         else : 
             command_list_next = command_list 
 
+        if len(command_list) == 0 : 
+            continue
         if len(command_list) == 1 : # serial
             if in_serial == False: 
                 script.write("<serial>\n")
