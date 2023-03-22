@@ -218,8 +218,6 @@ void NuElectronPXSec::LoadConfig(void)
   fSin28w = TMath::Power(TMath::Sin(thw), 2);
   fSin48w = TMath::Power(TMath::Sin(thw), 4);
 
-  //XSecOnElectron::LoadConfig(); //Gets fNInt, fErr, fXSec, fEle - only keep fSin in lower level modules
-
   // load XSec Integrator
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator")); //
