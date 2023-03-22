@@ -53,6 +53,7 @@ op.add_option("--nu-ntotevents", dest="NuEvents", type="int", default=10000, hel
 op.add_option("--e-ntotevents", dest="EEvents", type="int", default=100000, help="Number of total events, default: 100 k")
 op.add_option("--nmaxevents",dest="NMax", type="int", default=400000,help="Max number of events to run per event generation, default %default")
 op.add_option("--ebeam-energy", dest="EnergyBeam", default="2", help="Comma separated list of beam energy for electrons. Default %default GeV")
+op.add_option("--gst-output", dest="GSTOutput", default=False, action="store_true",help="Store gst root file.")
 op.add_option("--starting-point", dest="start_ID", type="int", default=0, help="0 -> Free nucleon splines, 1 -> combine free nucl splines, 2 -> Compound nuclei splines, 3 -> Combine compound nuclei splines, 4 -> Event Production")
 op.add_option("--stopping-point", dest="end_ID", type="int", default=9999, help="Numbers as above, Default: 9999") 
 op.add_option("--tune", dest="TUNE", default="G18_02a_02_11b", help="Tune to be compared against data (default: %default)")
@@ -199,7 +200,7 @@ while loop_i < loop_end + 1:
 
     if loop_i == 4 : 
         # ID = 4 # Event generation commands
-        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.EnergyBeam,vAsplines,opts.EEvents,opts.TUNE, opts.EvGenList, opts.NMax,version,opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.GENJOBMEM,opts.GENJOBDISK,opts.BRANCH,opts.GIT_LOCATION) )
+        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.EnergyBeam,vAsplines,opts.EEvents,opts.TUNE, opts.EvGenList, opts.NMax, opts.GSTOutput, version,opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.GENJOBMEM,opts.GENJOBDISK,opts.BRANCH,opts.GIT_LOCATION) )
         total_time += int(opts.GENJOBLIFE)
     
     loop_i += 1 
