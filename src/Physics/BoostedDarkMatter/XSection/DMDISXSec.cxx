@@ -71,7 +71,7 @@ double DMDISXSec::Integrate(
   const InitialState & init_state = in->InitState();
   double Ed = init_state.ProbeE(kRfHitNucRest);
 
-  int nucpdgc = init_state.Tgt().HitNucPdg();
+  int nucpdgc = init_state.Tgt().HitPartPdg();
   int NNucl   = (pdg::IsProton(nucpdgc)) ? 
                    init_state.Tgt().Z() : init_state.Tgt().N();
   
@@ -230,7 +230,7 @@ void DMDISXSec::CacheFreeNucleonXSec(
 
   // Tweak interaction to be on a free nucleon target
   Target * target = interaction->InitStatePtr()->TgtPtr();
-  int nucpdgc = target->HitNucPdg();
+  int nucpdgc = target->HitPartPdg();
   if(pdg::IsProton(nucpdgc)) { target->SetId(kPdgTgtFreeP); }
   else                       { target->SetId(kPdgTgtFreeN); }
 
