@@ -176,11 +176,7 @@ double NuElectronPXSec::Integral(const Interaction * interaction) const
     double xsec_mean = xsec_sum/NInt;
     //var = (sum(xi^2)/N-xsec_mean^2)
     //rel_err = sigma/sqrt(n)*mean
-    //double xsec_sigma = sqrt(xsec_sum2/NInt-TMath::Power(xsec_mean,2));
     double xsec_err = sqrt((xsec_sum2/NInt-TMath::Power(xsec_mean,2))/NInt)/xsec_mean;
-    // fSigmas.push_back(xsec_sigma);
-    // fErrors.push_back(xsec_err);
-    // fAvg.push_back(xsec_mean);
     if (NInt > 1 && xsec_err < fErrTolerance){break;} //Break condition for dipping below set tolerance
   }
   while ( NInt < fNIntegration); 

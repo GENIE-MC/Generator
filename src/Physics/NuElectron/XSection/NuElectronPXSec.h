@@ -67,8 +67,6 @@ private:
   double fSin48w;
   int fNIntegration; //Max number of integration samples
   double fErrTolerance; //Error tolerance acceptable before returning cross section average
-
-  //mutable std::vector<double> fSigmas,fErrors,fAvg; //Store sigmas and errors
 };
 
 }       // genie namespace
