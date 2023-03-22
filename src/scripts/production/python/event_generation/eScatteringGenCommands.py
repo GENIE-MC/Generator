@@ -88,11 +88,11 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2",
                     jobname           = "e_on_"+str(tgt)+"_"+str(int((float(E)*1000)))+"MeV_"+str(isubrun)
 
                     evgen_command = "gevgen -p "+str(e)+" -n "+str(nev)+" -e "+E+" -t "+str(tgt)+" -r "+curr_subrune+" --seed "+str(curr_seed)
-                    evgen_command += " --cross-sections "+input_xsec+" --event-generator-list "+gen_list+" --tune "+tune + " -o "+jobname+".ghep.root ;"
+                    evgen_command += " --cross-sections "+input_xsec+" --event-generator-list "+gen_list+" --tune "+tune + " -o "+jobname+".ghep.root "
                     
                     out_files = [str(jobname+".ghep.root")]
                     if gst_output : 
-                        evgen_command += "gntpc -i "+jobname+".ghep.root -o "+jobname+".gst.root -f gst ; "
+                        evgen_command += " ; gntpc -i "+jobname+".ghep.root -o "+jobname+".gst.root -f gst "
                         out_files.append(str(jobname+".gst.root"))
 
                     shell_file = ''                

@@ -116,7 +116,7 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=1
 
                 out_files = [str(jobname+".ghep.root")]
                 if gst_output : 
-                    evgen_command += "gntpc -i "+jobname+".ghep.root -o "+jobname+".gst.root -f gst ; "
+                    evgen_command += " ; gntpc -i "+jobname+".ghep.root -o "+jobname+".gst.root -f gst "
                     out_files.append(str(jobname+".gst.root"))
 
             if grid_system == 'FNAL' :
