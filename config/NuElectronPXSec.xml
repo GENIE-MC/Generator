@@ -19,7 +19,7 @@ Electron-Velocity       alg      Yes    Integrate over vel dist.            geni
   <param_set name="Default"> 
     <param type="string"  name="CommonParam"> WeakInt  </param>
     <param type="int"    name ="N-Integration-Samples" >              10000  </param>
-    <param type="double"    name ="NuE-XSecRelError" >     0.001  </param>
+    <param type="double"    name ="NuE-XSecRelError" >     0.0001  </param>
     <param type="alg"  name="XSec-Integrator"> genie::NuElectronXSec/Default  </param>
     <param type="alg"  name="Electron-Velocity"> genie::BohrElectronVelocity/Default  </param>
   </param_set>

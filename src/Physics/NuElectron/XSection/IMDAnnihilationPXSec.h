@@ -38,20 +38,23 @@ public:
   virtual ~IMDAnnihilationPXSec();
 
   //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
-  double Integral        (const Interaction * i) const;
-  bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const; //no include
+  double Integral        (const Interaction * i) const;  //copy from nu electron
+  bool   ValidProcess    (const Interaction * i) const; //not include
+  bool   ValidKinematics (const Interaction * i) const; //not include
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
-  void Configure(const Registry & config);
-  void Configure(string config);
+  void Configure(const Registry & config); //copy from nu electron
+  void Configure(string config); //copy from nu electron
 
 private:
-  void LoadConfig (void);
+  void LoadConfig (void); //protected virtual
+  // int fNIntegration; //private
+  // double fErrTolerance; //private
 
-  const XSecIntegratorI * fXSecIntegrator;
+  const XSecIntegratorI * fXSecIntegrator; // private
+  // const ElectronVelocity * fElectronVelocity; //private
 
 };
 

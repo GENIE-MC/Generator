@@ -47,14 +47,14 @@ XSecAlgorithmI("genie::NuElectronPXSec", config)
 //____________________________________________________________________________
 NuElectronPXSec::~NuElectronPXSec()
 {
-  std::ofstream output_file("./sigmas_errors.txt");
-  output_file <<"x\tsigma\terr\tavg\n";
-  vector<double> x;
-  for (unsigned int i = 1; i<=fSigmas.size();i++){
-    x.push_back(i);
-    output_file <<i<<"\t"<<fSigmas[i]<<"\t"<<
-    fErrors[i]<<"\t"<<fAvg[i]<<"\n"; //Put beam eng in here
-  }
+  // std::ofstream output_file("./sigmas_errors.txt");
+  // output_file <<"x\tsigma\terr\tavg\n";
+  // vector<double> x;
+  // for (unsigned int i = 1; i<=fSigmas.size();i++){
+  //   x.push_back(i);
+  //   output_file <<i<<"\t"<<fSigmas[i]<<"\t"<<
+  //   fErrors[i]<<"\t"<<fAvg[i]<<"\n"; //Put beam eng in here
+  // }
   //TGraph sigma(fSigmas.size(),x.data(),fSigmas.data());
   //TGraph errors(fErrors.size(),x.data(),fErrors.data());
 
@@ -165,17 +165,22 @@ double NuElectronPXSec::Integral(const Interaction * interaction) const
     NInt++;
     Interaction in_curr(*interaction); //Copy interaction object
     fElectronVelocity->InitializeVelocity(in_curr); //Modify interaction to give electron random velocity from selected distribution
-    double xsec = fXSecIntegrator->Integrate(this,&in_curr);
+    double xsec = fXSecIntegrator->Integrate(this,&in_curr); // In ele at rest
+    //get beta - comps orthogonal to beam x,y
+    //scale = sqrt(1-b_t^2)
+    TVector3 beta = in_curr.InitState().Tgt().HitEleP4().BoostVector(); // beta
+    double beta_tangent = sqrt(TMath::Power(beta[0],2)+TMath::Power(beta[1],2)); //Component tangential to beam
+    xsec *= sqrt(1-TMath::Power(beta_tangent,2)); //Correct for lorentz factor
     xsec_sum+=xsec;
     xsec_sum2+=TMath::Power(xsec,2);
     double xsec_mean = xsec_sum/NInt;
     //var = (sum(xi^2)/N-xsec_mean^2)
     //rel_err = sigma/sqrt(n)*mean
-    double xsec_sigma = sqrt(xsec_sum2/NInt-TMath::Power(xsec_mean,2));
+    //double xsec_sigma = sqrt(xsec_sum2/NInt-TMath::Power(xsec_mean,2));
     double xsec_err = sqrt((xsec_sum2/NInt-TMath::Power(xsec_mean,2))/NInt)/xsec_mean;
-    fSigmas.push_back(xsec_sigma);
-    fErrors.push_back(xsec_err);
-    fAvg.push_back(xsec_mean);
+    // fSigmas.push_back(xsec_sigma);
+    // fErrors.push_back(xsec_err);
+    // fAvg.push_back(xsec_mean);
     if (NInt > 1 && xsec_err < fErrTolerance){break;} //Break condition for dipping below set tolerance
   }
   while ( NInt < fNIntegration); 
@@ -212,16 +217,18 @@ void NuElectronPXSec::LoadConfig(void)
   // weinberg angle
   double thw ;
   GetParam( "WeinbergAngle", thw ) ;
-  GetParam( "N-Integration-Samples", fNIntegration ) ;
-  GetParam( "NuE-XSecRelError" , fErrTolerance ) ;
+  GetParam( "N-Integration-Samples", fNIntegration ) ; //
+  GetParam( "NuE-XSecRelError" , fErrTolerance ) ; //
   fSin28w = TMath::Power(TMath::Sin(thw), 2);
   fSin48w = TMath::Power(TMath::Sin(thw), 4);
 
+  //XSecOnElectron::LoadConfig(); //Gets fNInt, fErr, fXSec, fEle - only keep fSin in lower level modules
+
   // load XSec Integrator
   fXSecIntegrator =
-      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator")); //
   fElectronVelocity =
-      dynamic_cast<const ElectronVelocity *> (this->SubAlg("Electron-Velocity"));
+      dynamic_cast<const ElectronVelocity *> (this->SubAlg("Electron-Velocity")); //
   assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
