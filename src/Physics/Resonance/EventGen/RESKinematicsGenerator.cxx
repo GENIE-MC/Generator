@@ -92,7 +92,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   const InitialState & init_state = interaction -> InitState();
   double E = init_state.ProbeE(kRfHitNucRest);
-  //  double M = init_state.Tgt().HitNucP4().M();
+  //  double M = init_state.Tgt().HitPartP4().M();
   //  double ml  = interaction->FSPrimLepton()->Mass();
 
   //-- For the subsequent kinematic selection with the rejection method:
@@ -236,7 +236,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // note: hit nucleon can be off the mass-shell
         double gx=-1, gy=-1;
         double M = init_state.Tgt().HitPartP4().M();
-        //double M = init_state.Tgt().HitNucMass();
+        //double M = init_state.Tgt().HitPartMass();
         kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy);
 
         // set the cross section for the selected kinematics

@@ -129,7 +129,7 @@ int main(int argc, char ** argv)
       first = !first;
 
       NucleonDecayMode_t ndm =  (NucleonDecayMode_t)event.Summary()->ExclTagPtr()->DecayMode();
-      int npdg =  event.Summary()->InitStatePtr()->TgtPtr()->HitNucPdg();
+      int npdg =  event.Summary()->InitStatePtr()->TgtPtr()->HitPartPdg();
       string decayNameString = genie::utils::nucleon_decay::AsString(ndm,npdg);
       decayName.SetTitle(decayNameString.c_str());
       string targetNameString = event.Summary()->InitStatePtr()->TgtPtr()->AsString(); 

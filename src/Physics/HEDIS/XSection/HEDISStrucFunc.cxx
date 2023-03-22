@@ -507,7 +507,7 @@ void HEDISStrucFunc::CreateNucSF( const Interaction * in, string sfFile )
   // variables used to tag the SF for particular channel
   bool iscc = in->ProcInfo().IsWeakCC();
   bool isnu = pdg::IsNeutrino(in->InitState().ProbePdg());
-  bool ispr = pdg::IsProton(in->InitState().Tgt().HitNucPdg());
+  bool ispr = pdg::IsProton(in->InitState().Tgt().HitPartPdg());
 
   // Define the channel that is used in APFEL
   if ( isnu ) APFEL::SetProjectileDIS("neutrino");

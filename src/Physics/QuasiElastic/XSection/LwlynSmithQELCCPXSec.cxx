@@ -199,7 +199,7 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction*  interactio
   // and off-shell energies of the hit nucleon has been subtracted from the
   // energy transfer q0.
 
-  // HitNucMass() looks up the PDGLibrary (on-shell) value for the initial
+  // HitPartMass() looks up the PDGLibrary (on-shell) value for the initial
   // struck nucleon
   double mNi = init_state.Tgt().HitPartMass();
 

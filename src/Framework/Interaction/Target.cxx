@@ -126,9 +126,9 @@ void Target::Copy(const Target & tgt)
      fHitSeaQrk  = tgt.fHitSeaQrk; // struck quark is from sea?
 
      //// valgrind warns about this ... try something else
-     // (*fHitNucP4) = (*tgt.fHitNucP4);
+     // (*fHitPartP4) = (*tgt.fHitPartP4);
      const TLorentzVector& p4 = *(tgt.fHitPartP4);
-     //  *fHitNucP4 = p4; // nope
+     //  *fHitPartP4 = p4; // nope
      //// this works for valgrind
      fHitPartP4->SetX(p4.X());
      fHitPartP4->SetY(p4.Y());
@@ -155,7 +155,7 @@ void Target::SetId(int pdgc)
   }
 
   this->ForceNucleusValidity(); // search at the isotopes chart
-  //this->AutoSetHitNuc();      // struck nuc := tgt for free nucleon tgt
+  //this->AutoSetHitPart();      // struck nuc := tgt for free nucleon tgt
 }
 //___________________________________________________________________________
 void Target::SetId(int ZZ, int AA)
@@ -165,7 +165,7 @@ void Target::SetId(int ZZ, int AA)
   fA = AA;
 
   this->ForceNucleusValidity(); // search at the isotopes chart
-  //this->AutoSetHitNuc();      // struck nuc := tgt for free nucleon tgt
+  //this->AutoSetHitPart();      // struck nuc := tgt for free nucleon tgt
 }
 //___________________________________________________________________________
 void Target::SetHitPartPdg(int pdgc)

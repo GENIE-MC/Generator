@@ -1299,7 +1299,7 @@ void HAIntranuke2018::Inelastic(
                   vector<int>::const_iterator pdg_iter;
                   for(pdg_iter=++(listar[i]->begin());pdg_iter!=listar[i]->end();++pdg_iter)
                     {
-                      target.SetHitNucPdg(*pdg_iter);
+                      target.SetHitPartPdg(*pdg_iter);
                       fNuclmodel->GenerateNucleon(target);
                       mBuf = pLib->Find(*pdg_iter)->Mass();
                       mSum += mBuf;
@@ -1432,7 +1432,7 @@ void HAIntranuke2018::Inelastic(
               vector<int>::const_iterator pdg_iter;
               for(pdg_iter=++(list.begin());pdg_iter!=list.end();++pdg_iter)
                 {
-                  target.SetHitNucPdg(*pdg_iter);
+                  target.SetHitPartPdg(*pdg_iter);
                   fNuclmodel->GenerateNucleon(target);
                   mBuf = pLib->Find(*pdg_iter)->Mass();
                   mSum += mBuf;

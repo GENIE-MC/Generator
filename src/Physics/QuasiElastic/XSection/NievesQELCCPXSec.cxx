@@ -92,7 +92,7 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   const InitialState & init_state = interaction -> InitState();
   const Target & target = init_state.Tgt();
 
-  // HitNucMass() looks up the PDGLibrary (on-shell) value for the initial
+  // HitPartMass() looks up the PDGLibrary (on-shell) value for the initial
   // struck nucleon
   double mNi = target.HitPartMass();
 
