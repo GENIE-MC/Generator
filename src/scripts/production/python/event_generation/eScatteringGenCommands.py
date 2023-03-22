@@ -39,7 +39,6 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2",
     if not os.path.exists(jobs_dir) : 
         os.mkdir(jobs_dir)
 
-
     # Electron list
     final_e_list = []
     if e_list != 'all':
@@ -67,10 +66,12 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2",
     if not isinstance(nsubruns, int) :
         nsubruns = 1+int(nsubruns)
 
+    xsec_filename = os.path.basename(xspl_file)
+
     if grid_system == 'FNAL' :
-        input_xsec = "\$CONDOR_DIR_INPUT/total_xsec.xml"
+        input_xsec = "\$CONDOR_DIR_INPUT/"+xsec_filename
     else :
-        input_xsec = free_nuc_dir+"/total_xsec.xml"
+        input_xsec = free_nuc_dir+xsec_filename
 
     command_list = []
     for e in final_e_list : 

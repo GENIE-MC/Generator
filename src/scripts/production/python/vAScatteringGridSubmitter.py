@@ -39,6 +39,7 @@ op.add_option("--softw-topdir", dest="SOFTW", default=os.getenv('GENIE_MASTER_DI
 op.add_option("--genie-topdir", dest="GENIE", default=os.getenv('GENIE'), help = "GENIE topdir: %default")
 op.add_option("--jobs-topdir", dest="JOBSTD", default=os.getenv('PWD'), help="Top level dir for the job files (default: %default)")
 op.add_option("--source-prod-dir", dest="MotherDir", default='', help="Jobs topdir used as a source for missing xsec splines.")
+op.add_option("--total-xsec", dest="XSEC", default='', help="Total cross section file to use for event production")
 op.add_option("--config-dir", dest="CONF", default='', help="Path to GENIE config dir")
 op.add_option("--probe-list", dest="PROBELIST", default='14', help = "Comma separated list of lepton flavour (neutrino and electrons are handled). Default: %default.") 
 op.add_option("--nu-tgt-list", dest="NUTGTLIST", default='all', help = "Comma separated list of Targets. Default: %default.") 
@@ -143,6 +144,12 @@ vNdir = opts.JOBSTD+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vN/'
 vNsplines = vNdir+'total_xsec.xml'
 vAdir = opts.JOBSTD+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vA/'
 vAsplines = vAdir+'total_xsec.xml'
+
+if opts.XSEC : 
+    if os.path.isfile(opts.XSEC) == False :
+        print(" Input XSec file doesn't exist ")
+        exit() 
+    vAsplines = opts.XSEC 
 
 # configure setup 
 if opts.GRID == 'FNAL' : 
