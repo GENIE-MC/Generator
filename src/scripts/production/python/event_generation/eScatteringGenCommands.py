@@ -28,7 +28,7 @@ evg_tgtpdg_hash = ['1000010020', '1000010030', '1000020030', '1000020040', '1000
                    '1000180400', '1000200400', '1000200480', '1000260560', '1000791970', '1000822080', '1000922380']
 
 def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2", xspl_file="total_xsec.xml",ntotevents=1000000, 
-                            tune='G18_02_02_11b',gen_list="EM", nmaxrun=100000, gst_output=False, version='master', conf_dir='', arch='SL6.x86_64', 
+                            tune='G18_02_02_11b',gen_list="EM", nmaxrun=100000, gst_output=False, no_ghep=False,version='master', conf_dir='', arch='SL6.x86_64', 
                             production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                             softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
                             grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh', 
@@ -95,6 +95,8 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2",
                     if gst_output : 
                         evgen_command += " ; gntpc -i "+jobname+".ghep.root -o "+jobname+".gst.root -f gst "
                         out_files.append(str(jobname+".gst.root"))
+                        if no_ghep :
+                            out_files = [str(jobname+".gst.root")]
 
                     shell_file = ''                
                     if grid_system == 'FNAL' :
