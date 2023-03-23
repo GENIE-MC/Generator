@@ -10,7 +10,7 @@ Algorithm Configurable Parameters:
 Name                     Type    Optional   Comment                               Default
 .........................................................................................
 N-Delta-Ma               double  No         Nucleon to Delta Ma in GeV^2
-N-Delta-f_Pi             double  No         Pion decay constant [GeV]
+N-Delta-f_Pi             double  yes        Pion decay constant [GeV]             CommonParam[Resonances]
                                             in the sqrt(2) convention so that f_pi ~ 93 MeV
 WeinbergAngle            double  yes        Weimberg angle                        CommonParam[WeakInt]
 NCG-Param03              double  No         GeV^{-1/2}          
@@ -22,13 +22,9 @@ NCG-Param071             double  No         GeV^2
 
   <param_set name="Default">   
 
-    <param type="string" name="CommonParam"> WeakInt </param>
+    <param type="string" name="CommonParam"> WeakInt,Resonances </param>
 
     <param type="double" name="N-Delta-Ma">    0.93   </param>  <!-- reference-->
-    <param type="double" name="N-Delta-f_Pi">  0.0924 </param>  
-    <!-- B.~Golli et al. ``$N-\Delta$ axial transition form-factors,
-	 '' Bled Workshops Phys. \textbf{3} (2002) no.3, 47-58
-	 [arXiv:hep-ph/0211293 [hep-ph]]. -->
     <param type="double" name="NCG-Param03">   0.3  </param> <!-- reference-->
     <param type="double" name="NCG-Param001">  0.01 </param> <!-- reference-->
     <param type="double" name="NCG-Param023">  0.23 </param> <!-- reference-->

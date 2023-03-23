@@ -288,6 +288,8 @@ Or changing the name of this parameter set
       P31(1910),P33(1920),F35(1905),F37(1950),P11(1710)
     </param>
 
+    <param type="double" name="N-Delta-f_Pi">  0.0924 </param>
+
   </param_set>
 
   <param_set name="Lepton">
