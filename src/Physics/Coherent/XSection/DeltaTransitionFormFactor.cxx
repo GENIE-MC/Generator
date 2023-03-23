@@ -111,7 +111,7 @@ void DeltaTransitionFormFactor::LoadConfig(void)
   constants::kNucleonMass ;
   constants::kPionMass ;
 
-  double E_N = 0.5*(delta_width*delta_width + constants::kNucleonMass2 - constants::kPionMass2)/delta_mass;
+  double E_N = 0.5*(delta_mass*delta_mass + constants::kNucleonMass2 - constants::kPionMass2)/delta_mass;
   double p2_N = E_N*E_N - constants::kNucleonMass2 ;
   double p3_N = pow( p2_N, 3./2.);
 
