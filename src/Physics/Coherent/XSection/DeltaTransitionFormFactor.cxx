@@ -100,7 +100,22 @@ void DeltaTransitionFormFactor::LoadConfig(void)
   GetParam( "N-Delta-Ma", n_Delta_Ma ) ;
   fN_Delta_Ma2 = pow( n_Delta_Ma, 2 ) ;
 
-  GetParam( "N-Delta-CA5_0", fN_Delta_CA5_0 ) ;
+  double f_pi;
+  GetParam( "N-Delta-f_Pi", f_pi ) ;
+
+  // Using the Goldberger-Treiman relation we will use the pion 
+  // decay constant to derive CA5(0)
+  double delta_mass  = utils::res::Mass(kP33_1232);
+  double delta_width = utils::res::Width(kP33_1232);
+
+  constants::kNucleonMass ;
+  constants::kPionMass ;
+
+  double E_N = 0.5*(delta_width*delta_width + constants::kNucleonMass2 - constants::kPionMass2)/delta_mass;
+  double p2_N = E_N*E_N - constants::kNucleonMass2 ;
+  double p3_N = pow( p2_N, 3./2.);
+
+  fN_Delta_CA5_0 = 2 * f_pi * sqrt(constants::kPi*2*delta_mass*delta_width/((E_N+constants::kNucleonMass)*p3_N) );
 
   double mN2 = pow( constants::kProtonMass, 2 ) ; 
 
