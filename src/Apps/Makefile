@@ -19,20 +19,23 @@ GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES  := $(LIBRARIES) $(GENIE_LIBS)
 #LIBRARIES  := $(LIBRARIES) $(CERN_LIBRARIES) $(GENIE_LIBS)
 
-TGT_BASE =  gevgen          \
-            gevgen_hadron   \
-            gevdump         \
-            gevpick         \
-            gevscan         \
-            gevcomp         \
-            gxscomp         \
-            gmkspl          \
-            gspladd         \
-            gspl2root       \
-            gntpc           \
-            gpdfcomp        \
-            gsfcomp         \
-            gmkhedissf
+TGT_BASE =  gevgen             \
+            gevgen_hadron      \
+            gevdump            \
+            gevpick            \
+            gevscan            \
+            gevcomp            \
+            gxscomp            \
+            gmkspl             \
+            gspladd            \
+            gspl2root          \
+            gntpc              \
+            gpdfcomp           \
+            gsfcomp            \
+            gmkhedissf         \
+            gcalchedisdiffxsec \
+            gmkphotonsf        \
+            gconfigdump
 
 ifeq ($(strip $(GOPT_ENABLE_FNAL)),YES)
 TGT_BASE += gevgen_fnal
@@ -44,8 +47,12 @@ ifeq ($(strip $(GOPT_ENABLE_ATMO)),YES)
 TGT_BASE += gevgen_atmo
 TGT_BASE += gevgen_upmu
 endif
-ifeq ($(strip $(GOPT_ENABLE_NEUTRAL_HEAVY_LEPTON)),YES)
-TGT_BASE += gevgen_nhl
+ifeq ($(strip $(GOPT_ENABLE_HEAVY_NEUTRAL_LEPTON)),YES)
+TGT_BASE += gevgen_hnl
+TGT_BASE += gevgen_pghnl
+endif
+ifeq ($(strip $(GOPT_ENABLE_HNL_VALIDATION)), YES)
+TGT_BASE += gevald_hnl
 endif
 ifeq ($(strip $(GOPT_ENABLE_NUCLEON_DECAY)),YES)
 TGT_BASE += gevgen_ndcy
@@ -129,11 +136,23 @@ $(GENIE_BIN_PATH)/gevgen_hadron: gEvGenHadronNucleus.o $(call find_libs,gevgen_h
 	@echo "** Building gevgen_hadron"
 	$(LD) $(LDFLAGS) gEvGenHadronNucleus.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_hadron
 
-# neutral heavy lepton event generation app
+# heavy neutral lepton event generation app
 #
-$(GENIE_BIN_PATH)/gevgen_nhl: gNeutralHeavyLeptonEvGen.o $(call find_libs,gevgen_nhl)
-	@echo "** Building gevgen_nhl"
-	$(LD) $(LDFLAGS) gNeutralHeavyLeptonEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_nhl
+$(GENIE_BIN_PATH)/gevgen_hnl: gBeamHNLEvGen.o $(call find_libs,gevgen_hnl)
+	@echo "** Building gevgen_hnl"
+	$(LD) $(LDFLAGS) gBeamHNLEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_hnl
+
+# particle gun with HNL
+#
+$(GENIE_BIN_PATH)/gevgen_pghnl: gBeamHNLParticleGun.o $(call find_libs,gevgen_pghnl)
+	@echo "** Building gevgen_pghnl"
+	$(LD) $(LDFLAGS) gBeamHNLParticleGun.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_pghnl
+
+# validation for HNL ev gen
+#
+$(GENIE_BIN_PATH)/gevald_hnl: gBeamHNLValidationApp.o $(call find_libs,gevald_hnl)
+	@echo "** Building gevald_hnl"
+	$(LD) $(LDFLAGS) gBeamHNLValidationApp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevald_hnl
 
 # nucleon decay event generation app
 #
@@ -243,11 +262,30 @@ $(GENIE_BIN_PATH)/gsfcomp: gSFComp.o $(call find_libs,gsfcomp)
 	@echo "** Building gsfcomp"
 	$(LD) $(LDFLAGS) gSFComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gsfcomp
 
+# App to calculate differential cross sections from HEDIS
+#
+$(GENIE_BIN_PATH)/gcalchedisdiffxsec: gCalcHEDISDiffXsec.o $(call find_libs,gcalchedisdiffxsec)
+	@echo "** Building gcalchedisdiffxsec"
+	$(LD) $(LDFLAGS) gCalcHEDISDiffXsec.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gcalchedisdiffxsec
+
+# App to create structure functions suitable for HELepton
+#
+$(GENIE_BIN_PATH)/gmkphotonsf: gMakePhotonStrucFunc.o $(call find_libs,gmkphotonsf)
+	@echo "** Building gmkphotonsf"
+	$(LD) $(LDFLAGS) gMakePhotonStrucFunc.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmkphotonsf
+
 # App to create structure functions suitable for HEDIS
 #
 $(GENIE_BIN_PATH)/gmkhedissf: gMakeHEDISStrucFunc.o $(call find_libs,gmkhedissf)
 	@echo "** Building gmkhedissf"
 	$(LD) $(LDFLAGS) gMakeHEDISStrucFunc.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmkhedissf
+
+# App to dump the full configuration
+#
+$(GENIE_BIN_PATH)/gconfigdump: gConfigDump.o $(call find_libs,gconfigdump)
+	@echo "** Building gconfigdump"
+	$(LD) $(LDFLAGS) gConfigDump.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gconfigdump
+
 
 # CLEANING-UP
 

@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -144,6 +144,9 @@ int Interaction::FSPrimLeptonPdg(void) const
   if (proc_info.IsNuElectronElastic())
     return kPdgElectron;
 
+  if (proc_info.IsGlashowResonance() || proc_info.IsPhotonResonance())
+    return xclstag.FinalLeptonPdg();
+
   // vN (Weak-NC) or eN (EM)
   if (proc_info.IsWeakNC() || proc_info.IsEM() || proc_info.IsWeakMix() || proc_info.IsDarkMatter()) return pdgc;  // EDIT: DM does not change in FS
 
@@ -152,12 +155,6 @@ int Interaction::FSPrimLeptonPdg(void) const
     int clpdgc;
     if (proc_info.IsIMDAnnihilation())
       clpdgc = kPdgMuon;
-    else if (proc_info.IsGlashowResonance()) {
-      if      ( pdg::IsMuon(xclstag.FinalLeptonPdg())     ) clpdgc = kPdgMuon;
-      else if ( pdg::IsTau(xclstag.FinalLeptonPdg())      ) clpdgc = kPdgTau;
-      else if ( pdg::IsElectron(xclstag.FinalLeptonPdg()) ) clpdgc = kPdgElectron;
-      else if ( pdg::IsPion(xclstag.FinalLeptonPdg())     ) clpdgc = kPdgPiP;
-    }
     else
       clpdgc = pdg::Neutrino2ChargedLepton(pdgc);
     return clpdgc;
@@ -996,18 +993,6 @@ Interaction * Interaction::NOsc(int tgt, int annihilation_mode)
   return interaction;
 }
 //___________________________________________________________________________
-Interaction * Interaction::NHL(double E, int decayed_mode)
-{
-  Interaction * interaction =
-    Interaction::Create(0, 0, kScNull, kIntNHL);
-  interaction->ExclTagPtr()->SetDecayMode(decayed_mode);
-
-  InitialState * init_state = interaction->InitStatePtr();
-  init_state->SetProbeE(E);
-
-  return interaction;
-}
-//___________________________________________________________________________
 Interaction * Interaction::ASK(int tgt, int probe, double E)
 {
   Interaction * interaction =
@@ -1104,6 +1089,18 @@ Interaction * Interaction::DMDI(
   Target * tgt = interaction->InitStatePtr()->TgtPtr();
   tgt -> SetHitQrkPdg (hitqrk);
   tgt -> SetHitSeaQrk (fromsea);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::HNL(int probe, double E, int decayed_mode)
+{
+  Interaction * interaction =
+    Interaction::Create(0, probe, kScNull, kIntHNL);
+  interaction->ExclTagPtr()->SetDecayMode(decayed_mode);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
 
   return interaction;
 }

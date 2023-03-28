@@ -1,6 +1,6 @@
 //_________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Original code contributed by J.Tena and M.Roda
@@ -54,7 +54,7 @@ double MECScaleVsW::GetScaling( const double Q0, const double Q3 ) const
   // Do not scale if W<0. This can happen while we try to get the correct kinematics.
   // If the kinematics is not correct, W can be negative, and we scale with a nan.
   // To avoid this we do this check.
-  if ( W < 0 ) return fDefaultWeight ; 
+  if ( W < 0 ) return 1. ; 
   W = sqrt( W ) ; 
 
   // Calculate scaling:
@@ -84,8 +84,8 @@ MECScaleVsW::weight_type_map MECScaleVsW::GetMapWithLimits( const double Q0, con
 
   // Insert phase space limits:
   MECScaleVsW::weight_type_map w_map = fWeightsMap ; 
-  w_map.insert( weight_type_pair( W_max, fDefaultWeight ) ) ;
-  w_map.insert( weight_type_pair( W_min, fDefaultWeight ) ) ;
+  w_map.insert( weight_type_pair( W_max, fUpperLimitWeight ) ) ;
+  w_map.insert( weight_type_pair( W_min, fLowLimitWeight ) ) ;
 
   return w_map ; 
 } 
@@ -109,8 +109,8 @@ void MECScaleVsW::LoadConfig(void)
   if( GetConfig().Exists("MECScaleVsW-Default-Weight") ) {
     GetParam( "MECScaleVsW-Default-Weight", fDefaultWeight ) ;
   } else {
-    good_config = false ; 
-    LOG("MECScaleVsW", pERROR) << "Default weight is not specified " ;
+      good_config = false ; 
+      LOG("MECScaleVsW", pERROR) << "Default weight is not specified." ;
   }
 
   std::vector<double> Weights, WValues ;
@@ -146,6 +146,9 @@ void MECScaleVsW::LoadConfig(void)
     LOG("MECScaleVsW", pERROR) << "Lower limit for Q0 size: " << limit_Q0.size() ;
     LOG("MECScaleVsW", pERROR) << "Lower limit for Q3 size: " << limit_Q3.size() ;
   }
+
+  GetParamDef("MECScleVsW-LowerLimit-Weight", fLowLimitWeight, fDefaultWeight ) ; 
+  GetParamDef("MECScleVsW-UpperLimit-Weight", fUpperLimitWeight, fDefaultWeight ) ; 
 
   if( ! good_config ) {
     LOG("MECScaleVsW", pERROR) << "Configuration has failed.";

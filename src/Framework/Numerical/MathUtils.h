@@ -10,7 +10,7 @@
 
 \created    May 06, 2004
 
-\cpright    Copyright (c) 2003-2020, The GENIE Collaboration
+\cpright    Copyright (c) 2003-2023, The GENIE Collaboration
             For the full text of the license visit http://copyright.genie-mc.org            
 */
 //____________________________________________________________________________
@@ -80,16 +80,24 @@ namespace math
         }
       }    
 
-      void Boost    (long double bz) {
-        long double b2 = bz*bz;
-        long double gamma = 1.0 / sqrtl(1.0 - b2);
-        long double bp = bz*fPz;
-        long double gamma2 = b2 > 0 ? (gamma - 1.0)/b2 : 0.0;
-        fPz = fPz + gamma2*bp*bz + gamma*bz*fE;
-        fE  = gamma*(fE + bp);    
-      }    
+    void BoostZ    (long double bz) {
+      long double b2 = bz*bz;
+      long double gamma = 1.0 / sqrtl(1.0 - b2);
+      long double bp = bz*fPz;
+      long double gamma2 = b2 > 0 ? (gamma - 1.0)/b2 : 0.0;
+      fPz = fPz + gamma2*bp*bz + gamma*bz*fE;
+      fE  = gamma*(fE + bp);    
+    }    
 
-
+    void BoostY    (long double by) {
+      long double b2 = by*by;
+      long double gamma = 1.0 / sqrtl(1.0 - b2);
+      long double bp = by*fPy;
+      long double gamma2 = b2 > 0 ? (gamma - 1.0)/b2 : 0.0;
+      fPy = fPy + gamma2*bp*by + gamma*by*fE;
+      fE  = gamma*(fE + bp);    
+    }
+    
     private :
 
       long double fPx;

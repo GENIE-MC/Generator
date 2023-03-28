@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the HELepton xsec algorithm.
+
+Configurable Parameters:
+....................................................................................
+Name           Type     Optional   Comment                 Default
+....................................................................................
+-->
+
+  <param_set name="Default"> 
+    <param type="string" name ="gsl-integration-type">       vegas  </param>
+    <param type="int"    name ="gsl-max-eval" >             500000  </param>
+  </param_set>
+
+</alg_conf>
+

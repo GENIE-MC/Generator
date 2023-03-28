@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -127,8 +127,9 @@ double HEDISXSec::Integrate(
   // If a GSL option has been chosen, then the total xsec is recomptued
   ROOT::Math::IBaseFunctionMultiDim * func = new utils::gsl::d2XSec_dlog10xdlog10Q2_E(model, interaction);
   ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-  double abstol = 1; //We mostly care about relative tolerance.
-  ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
+  double abstol = 0; //In vegas we care about number of interactions
+  double reltol = 0; //In vegas we care about number of interactions
+  ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, reltol, fGSLMaxEval);
   double kine_min[2] = { TMath::Log10(xl.min), TMath::Log10(Q2l.min) };
   double kine_max[2] = {TMath::Log10(xl.max), TMath::Log10(Q2l.max) };
   xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
@@ -158,14 +159,11 @@ void HEDISXSec::LoadConfig(void)
 {
 
   // Get GSL integration type & relative tolerance
-  GetParamDef( "gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
-  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 1E-2 ) ;
+  GetParamDef( "gsl-integration-type", fGSLIntgType, string("vegas") ) ;
 
-  int max_eval, min_eval ;
+  int max_eval ;
   GetParamDef( "gsl-max-eval", max_eval, 500000 ) ;
-  GetParamDef( "gsl-min-eval", min_eval, 10000 ) ;
   fGSLMaxEval  = (unsigned int) max_eval ;
-  fGSLMinEval  = (unsigned int) min_eval ;
 
   // Limits from the SF tables that are useful to reduce computation 
   // time of the total cross section

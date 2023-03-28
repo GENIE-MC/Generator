@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+***************************************************************************************************
+This file defines parameters sets for parameters which are common between algorithms and therefore
+has to be the same for those parameters to be meaningful.
+This is file is read from the AlgConfigPool and the parameters set are expected to be used by the
+algorithms to configure these common parameters.
+
+Author:
+Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+STFC, Rutherford Appleton Laboratory
+
+and
+Marco Roda <marco.roda \at liverpool.ac.uk>
+University of Liverpool
+***************************************************************************************************
+-->
+
+
+
+<common_Param_list>
+
+
+  <param_set name="Tunable">
+    <!-- Reserved register for tuning -->
+
+    <param type="double" name="RES-Ma">  1.088962  </param>
+    <param type="double" name="DIS-XSecScale"> 1.062213 </param>
+    <param type="double" name="RES-CC-XSecScale"> 0.838730 </param>
+ 
+  </param_set>
+
+
+  <param_set name="WeakInt">
+    <param type="double" name="WeinbergAngle"> 0.501716712132 </param> <!-- 0.501568 -->
+
+  </param_set>
+
+  <param_set name="StrongInt">
+    <param type="double" name="SU3-D"> 0.804 </param>
+    <param type="double" name="SU3-F"> 0.463 </param>
+
+  </param_set>
+
+
+  <param_set name="CKM">
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 CKM quark mixing parameters
+	 Chinese Physics C Vol.40, No. 10 (2016) 100001
+	 Review of Particle Physics
+    -->
+    <param type="double" name="CKM-Vud">  0.97417  </param>
+    <param type="double" name="CKM-Vus">  0.2248   </param>
+    <param type="double" name="CKM-Vcd">  0.220    </param>  <!-- 0.2239 -->
+    <param type="double" name="CKM-Vcs">  0.995    </param>
+
+    <param type="double" name="CabibboAngle">  0.227780466682 </param> <!-- 0.226893 -->
+
+  </param_set>
+
+  <param_set name="NUCL">
+
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 NUCL-Ro (in fm) is a scale parameter driving the effective nuclear sizes (Ro in R=Ro*A^1/3)
+    -->
+    <param type="double" name="NUCL-R0"> 1.4 </param>
+    <param type="double" name="NUCL-NR"> 3.0 </param>
+
+  </param_set>
+
+  <param_set name="Masses">
+    <param type="double" name="Charm-Mass"> 1.430  </param> <!-- GeV -->
+  </param_set>
+
+
+  <param_set name="NonResBackground">
+    <!--
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	RES/DIS joining scheme
+	At this point there is a single scheme, the one originally developed in neugen3.
+	For W >  Wcut : RES -> 0,   +  DIS                -> full
+	For W <= Wcut : RES -> full + `DIS' (non-RES bkg) -> modified by DIS-HMultWgt-* params
+	-
+	- ...
+
+    -->
+    <param type="bool"   name="UseDRJoinScheme"> true      </param>
+    <param type="double" name="Wcut">            1.809000  </param>
+
+    <!--
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	NEUGEN parameters applied to DIS hadronic multiplicity distributions
+	to avoid 2-ble counting with RES
+    -->
+
+    <param type="double" name="DIS-HMultWgt-vp-CC-m2">  0.008 </param>
+    <param type="double" name="DIS-HMultWgt-vp-CC-m3">  0.943153 </param>
+    <param type="double" name="DIS-HMultWgt-vp-NC-m2">  0.100  </param>
+    <param type="double" name="DIS-HMultWgt-vp-NC-m3">  1.000  </param>
+    <param type="double" name="DIS-HMultWgt-vn-CC-m2">  0.030802 </param>
+    <param type="double" name="DIS-HMultWgt-vn-CC-m3">  2.338338 </param>
+    <param type="double" name="DIS-HMultWgt-vn-NC-m2">  0.300  </param>
+    <param type="double" name="DIS-HMultWgt-vn-NC-m3">  1.000  </param>
+    <param type="double" name="DIS-HMultWgt-vbp-CC-m2"> 0.030802 </param>
+    <param type="double" name="DIS-HMultWgt-vbp-CC-m3"> 2.338338 </param>
+    <param type="double" name="DIS-HMultWgt-vbp-NC-m2"> 0.300  </param>
+    <param type="double" name="DIS-HMultWgt-vbp-NC-m3"> 1.000  </param>
+    <param type="double" name="DIS-HMultWgt-vbn-CC-m2"> 0.008 </param>
+    <param type="double" name="DIS-HMultWgt-vbn-CC-m3"> 0.943153 </param>
+    <param type="double" name="DIS-HMultWgt-vbn-NC-m2"> 0.100  </param>
+    <param type="double" name="DIS-HMultWgt-vbn-NC-m3"> 1.000  </param>
+
+  </param_set>
+
+
+  <param_set name="FermiGas">
+    <!--
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Parameters related with GENIE's Fermi Gas (RFG) model implementation
+	- RFG-Momentum-CutOff is a momentum cut-off for the NN correlation tail
+	- RFG-NucRemovalE@Pdg=10LZZZAAAI is the removal energy for the nucleus with the specified pdg
+	code. If none is used then the average binding energy will be computed from Wapstra's semi-
+	empirical formula.
+	Currently, if you explicitly specify a binding energy for a nucleus then the same value will
+	be used for all isotopes.
+    -->
+    <param type="double" name="RFG-MomentumCutOff">              0.0001 </param> <!-- No BR tail    -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000020040">  0.0150 </param> <!-- He4    -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000030060">  0.0150 </param> <!-- Li6    -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000060120">  0.0200 </param> <!-- C12    -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000080160">  0.0160 </param> <!-- O16    -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000120240">  0.0250 </param> <!-- Mg24   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000180400">  0.0280 </param> <!-- Ar40   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000200400">  0.0280 </param> <!-- Ca40   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000260560">  0.0230 </param> <!-- Fe56   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000280580">  0.0300 </param> <!-- Ni58   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000501190">  0.0280 </param> <!-- Sn119  -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000791970">  0.0310 </param> <!-- Au197  -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000822080">  0.0310 </param> <!-- Pb208  -->
+    <param type="bool"   name="RFG-UseParametrization">          false  </param>
+
+    <!--
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Table of Fermi momentum (kF) constants for various nuclei
+	The tables can be found in $GENIE/config/FermiMomentumTables.xml
+    -->
+    <param type="string" name="FermiMomentumTable"> SuSA </param>
+
+  </param_set>
+
+
+  <!--
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      INTRANUKE-specific parameters:
+      - Mode options are: hA, hN
+      - NucRemovalE is the binding E to subtract from cascade nucleons (in GeV)
+      - typical values for pion, nucleon DelR are 0.5, 0.7 (hA) and 0.2, 0.2 (hN)
+
+Probably these should all be moved in the local configurations
+  -->
+
+  <param_set name="INUKE">
+    <param type="double" name="INUKE-NucRemovalE">       0.00  </param>
+    <param type="double" name="INUKE-HadStep">           0.05  </param>
+    <param type="double" name="INUKE-NucAbsFac">         1.0   </param>
+    <param type="double" name="INUKE-NucQEFac">          1.0   </param>
+    <param type="double" name="INUKE-NucCEXFac">         1.0   </param>
+    <param type="double" name="INUKE-Energy_Pre_Eq">     0.041 </param>
+    <param type="double" name="INUKE-FermiFac">          1.0   </param>
+    <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
+    <param type="bool"   name="INUKE-DoFermi">           true  </param>
+    <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
+    <param type="bool"   name="INUKE-XsecNNCorr">        true  </param>
+  </param_set>
+
+  <param_set name="HAINUKE">
+    <param type="double" name="HAINUKE-DelRPion">        0.5   </param>
+    <param type="double" name="HAINUKE-DelRNucleon">     0.7   </param>
+  </param_set>
+
+  <param_set name="HNINUKE">
+    <param type="double" name="HNINUKE-DelRPion">        0.0   </param>
+    <param type="double" name="HNINUKE-DelRNucleon">     0.0   </param>
+    <param type="bool"   name="HNINUKE-UseOset">         true  </param>
+  </param_set>
+
+  <param_set name="Coherent">
+
+    <param type="double" name="COH-Ro"> 1.000 </param>
+
+    <!--
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Minimum and maximum considered Q^2 for Berger-Sehgal coherent reactions when estimating
+	the max cross section.
+	Units in GeV^2.
+    -->
+    <param type="double" name="COH-Q2-min"> 0.000 </param>
+    <param type="double" name="COH-Q2-max"> 1.000 </param>
+
+    <!--
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Maximum considered t for Berger-Sehgal coherent reactions when estimating the
+	max cross section.
+	Units in GeV^2.
+    -->
+    <param type="double" name="COH-t-max"> 0.250 </param>
+
+  </param_set>
+
+
+  <param_set name="Diffractive">
+
+    <!--
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Slope parameter beta for diffractive scattering (GeV^-2) (b ~ 0.333 * nucleon_size^2)
+    -->
+    <param type="double" name="DFR-Beta"> 7.0 </param>
+
+    <!--
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Maximum considered t for diffractive scattering reactions when estimating the max cross section.
+	Units in GeV^2.
+
+This value is read in KpHase space!!! It's mental, but we have to be careful before removing this
+Or changing the name of this parameter set
+    -->
+    <param type="double" name="DFR-t-max"> 0.35 </param>
+
+  </param_set>
+
+  <param_set name="QuasiElastic">
+    <!--
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Value of axial form factor at Q2=0
+    -->
+    <param type="double" name="QEL-FA0"> -1.2670 </param>
+
+    <!--
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Axial and vector masses for quasi-elastic scattering
+    -->
+    <param type="double" name="QEL-Ma"> 0.994989 </param>
+    <param type="double" name="QEL-Mv"> 0.840 </param>
+
+  </param_set>
+
+  <param_set name="MagnMoments">
+    <!--
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Proton and neutron anomalous magnetic moments
+    -->
+    <param type="double" name="AnomMagnMoment-P">   2.7930     </param> <!-- 2.7928473 -->
+    <param type="double" name="AnomMagnMoment-N">  -1.913042   </param>
+
+  </param_set>
+
+  <param_set name="MultiNucleons">
+    <!--  Q3 max for 2p2h model    -->
+    <param type="double" name="NSV-Q3Max"> 2.0 </param>
+  </param_set>
+
+  <param_set name="ElasticFF">
+    <!--
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Elastic form factors used for QEL CC cross section calculation.
+	Options are:
+	- genie::DipoleELFormFactorsModel
+	- genie::BBA03ELFormFactorsModel, H.Budd, NuINT-02 proceedings
+	- genie::BBA05ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and J.Arrington, hep-ex/0602017
+	- genie::BBA07ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and S.Avvakumov, Euro.Phys.J.C53 (2008);[arXiv:0708.1946 [hep-ex]]
+    -->
+    <param type="alg" name="ElasticFormFactorsModel"> genie::BBA07ELFormFactorsModel/Default </param>
+
+    <!-- Option for turning on Transverse Enhancement by Elastic Form Factor adjustment.
+	 See http://arxiv.org/abs/1405.0583 and http://arxiv.org/abs/1106.0340
+    -->
+    <param type="bool" name="UseElFFTransverseEnhancement">  false                              </param>
+    <param type="alg" name="TransverseEnhancement"> genie::TransverseEnhancementFFModel/Default </param>
+
+  </param_set>
+
+  <param_set name="Resonances">
+    <!--
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Default list of baryon resonances included in cross section models and generation threads
+    -->
+    <param type="string" name="ResonanceNameList">
+      P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),
+      S31(1620),D33(1700),P11(1440),P33(1600),P13(1720),F15(1680),
+      P31(1910),P33(1920),F35(1905),F37(1950),P11(1710)
+    </param>
+
+  </param_set>
+
+  <param_set name="Lepton">
+    <param type="bool" name="ApplyCoulombCorrection"> false </param>
+
+  </param_set>
+
+
+  <param_set name="BoostedDarkMatter">
+    <!--
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        Set the coupling of dark matter to nucleons
+    -->
+    <param type="double" name="ZpCoupling"> 0.1 </param>
+    <param type="double" name="DarkLeftCharge"> 1.0 </param>
+    <param type="double" name="DarkRightCharge"> 1.0 </param>
+    <param type="double" name="DarkScalarCharge"> 1.0 </param>
+    <param type="double" name="UpLeftCharge"> 1.0 </param>
+    <param type="double" name="UpRightCharge"> 1.0 </param>
+    <param type="double" name="DownLeftCharge"> 1.0 </param>
+    <param type="double" name="DownRightCharge"> 1.0 </param>
+    <param type="double" name="StrangeLeftCharge"> 1.0 </param>
+    <param type="double" name="StrangeRightCharge"> 1.0 </param>
+    <param type="double" name="CharmLeftCharge"> 1.0 </param>
+    <param type="double" name="CharmRightCharge"> 1.0 </param>
+    <param type="double" name="ElectronLeftCharge"> 1.0 </param>
+    <param type="double" name="ElectronRightCharge"> 1.0 </param>
+    <param type="double" name="DMEL-Mp"> 1.441 </param>
+    <param type="double" name="DMEL-Mpi"> 0.1349766 </param>
+    <param type="double" name="DMEL-Meta"> 0.547862 </param>
+    <param type="double" name="AxialVectorSpin-u"> 0.827 </param>
+    <param type="double" name="AxialVectorSpin-d"> -0.38 </param>
+    <param type="double" name="AxialVectorSpin-s"> -0.0427 </param>
+  </param_set>
+
+
+  <param_set name="KNO2Pythia">
+    <!--
+
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Invariant mass window for the transition from KNO model to PYTHIA
+    -->
+
+    <param type="double" name="KNO2PYTHIA-Wmin">  2.30 </param>
+    <param type="double" name="KNO2PYTHIA-Wmax">  3.00 </param>
+  </param_set>
+
+  <param_set name="PDG">
+    <!-- when using the PDG table provideed by genie,
+         that are contained in $GENIE/data/evgen/catalogues/pdg
+         this string specifies the file to be used.
+         Please be aware that changing the PDG table might invalidated the selected tune -->
+    <param type="string" name="PDG-TableName"> genie_pdg_table.txt </param>
+  </param_set>
+
+
+
+  <param_set name="Validation">
+    <!--
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	GENIE validity range
+    -->
+    <param type="double" name="GVLD-Emin">    0.010  </param>
+    <param type="double" name="GVLD-Emax"> 1000.000  </param>
+
+  </param_set>
+
+
+
+</common_Param_list>

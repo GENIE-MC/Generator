@@ -24,5 +24,13 @@ gsl-rule                     int      Yes        GSL Gauss-Kronrod integration r
     <param type="int"    name = "gsl-rule">                             3  </param>
   </param_set>
 
+  <!-- Dummy configuration used by "QE shape" reweighting. For QELXSec, the
+       averaging over the nucleon momenta and removal energies is handled by
+       the cross section models themselves, so we don't need to make any
+       changes to the default setup. See also the configuration XML for
+       NewQELXSec. -->
+  <param_set name="ReweightShape">
+  </param_set>
+
 </alg_conf>
 

@@ -32,6 +32,8 @@ DataPathType       string   Yes        Whether the specified path is    relative
     <param type="string" name="MEC_FullAll_Param@Pdg=1000060120"> SuSAv2_1000060120_MEC_FullAll_Param.dat </param>
     <param type="string" name="MEC_FullAll_wImag@Pdg=1000060120"> SuSAv2_1000060120_MEC_FullAll_wImag.dat </param>
     <param type="string" name="MEC_EM@Pdg=1000060120"> SuSAv2_1000060120_MEC_EM.dat </param>
+    <param type="string" name="MEC_EM_pn@Pdg=1000060120"> SuSAv2_1000060120_MEC_EM_pn.dat </param>
+    <param type="string" name="MEC_EM_pp@Pdg=1000060120"> SuSAv2_1000060120_MEC_EM_pp.dat </param>
     <param type="string" name="MEC_EM_wImag@Pdg=1000060120"> SuSAv2_1000060120_MEC_EM_wImag.dat </param>
 
     <!-- 16O -->

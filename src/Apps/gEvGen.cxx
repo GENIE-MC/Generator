@@ -16,26 +16,31 @@
          simulations and realistic detector geometry descriptions.
 
          Syntax :
-           gevgen [-h]
-                  [-r run#]
-                   -n nev
-                   -e energy (or energy range)
-                   -p neutrino_pdg
-                   -t target_pdg
-                  [-f flux_description]
-                  [-o outfile_name]
-                  [-w]
-                  [--seed random_number_seed]
-                  [--cross-sections xml_file]
-                  [--event-generator-list list_name]
-                  [--tune genie_tune]
-                  [--message-thresholds xml_file]
-                  [--unphysical-event-mask mask]
-                  [--event-record-print-level level]
-                  [--mc-job-status-refresh-rate  rate]
-                  [--cache-file root_file]
-                  [--xml-path config_xml_dir]
-                  [--tune G18_02a_00_000] (or your preferred tune identifier)
+Syntax:
+
+      gevgen [-h]
+             [-r run#]
+              -n nev
+              -e energy (or energy range)
+              -p neutrino_pdg
+              -t target_pdg
+             [-f flux_description]
+             [-o outfile_name]
+             [-w]
+             [--seed random_number_seed]
+             [--cross-sections xml_file]
+
+             // command line args handled by RunOpt:
+             [--event-generator-list list_name] // default "Default"
+             [--tune tune_name]  // default "G18_02a_00_000"
+             [--xml-path path]
+             [--message-thresholds xml_file]
+             [--event-record-print-level level]
+             [--mc-job-status-refresh-rate rate]
+             [--cache-file root_file]
+             [--enable-bare-xsec-pre-calc]
+             [--disable-bare-xsec-pre-calc]
+             [--unphysical-event-mask mask]
 
          Options :
            [] Denotes an optional argument.
@@ -68,7 +73,10 @@
                  The vector file should contain 2 columns corresponding to
                  energy,flux (see $GENIE/data/flux/ for few examples).
               -- A 1-D ROOT histogram (TH1D):
-                 The general syntax is `-f /full/path/file.root,object_name'
+                 The general syntax is `-f /full/path/file.root,object_name<,[NO]WIDTH>'
+                 by default variable bin histograms are multiplied by bin width
+                 if ,NOWIDTH then they are not
+                 if ,WIDTH then they are alway multiplied by bin width
            -o
               Specifies the name of the output file events will be saved in.
            -w
@@ -84,20 +92,19 @@
            --cross-sections
               Name (incl. full path) of an XML file with pre-computed
               cross-section values used for constructing splines.
+
            --event-generator-list
               List of event generators to load in event generation drivers.
               [default: "Default"].
            --tune
               Specifies a GENIE comprehensive neutrino interaction model tune.
               [default: "Default"].
+           --xml-path
+              A directory to load XML files from - overrides $GXMLPATH, and $GENIE/config
            --message-thresholds
               Allows users to customize the message stream thresholds.
               The thresholds are specified using an XML file.
               See $GENIE/config/Messenger.xml for the XML schema.
-           --unphysical-event-mask
-              Allows users to specify a 16-bit mask to allow certain types of
-              unphysical events to be written in the output file.
-              [default: all unphysical events are rejected]
            --event-record-print-level
               Allows users to set the level of information shown when the event
               record is printed in the screen. See GHepRecord::Print().
@@ -106,8 +113,10 @@
            --cache-file
               Allows users to specify a cache file so that the cache can be
               re-used in subsequent MC jobs.
-           --xml-path
-              A directory to load XML files from - overrides $GXMLPATH, and $GENIE/config
+           --unphysical-event-mask
+              Allows users to specify a 16-bit mask to allow certain types of
+              unphysical events to be written in the output file.
+              [default: all unphysical events are rejected]
 
         ***  See the User Manual for more details and examples. ***
 
@@ -116,7 +125,7 @@
 
 \created October 05, 2004
 
-\cpright Copyright (c) 2003-2020, The GENIE Collaboration
+\cpright Copyright (c) 2003-2023, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
 
 */
@@ -281,7 +290,7 @@ void GenerateEventsAtFixedInitState(void)
   evg_driver.Configure(init_state);
 
   // Initialize an Ntuple Writer
-  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
+  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
 
   // If an output file name has been specified... use it
   if (!gOptOutFileName.empty()){
@@ -354,7 +363,7 @@ void GenerateEventsUsingFluxOrTgtMix(void)
         mcj_driver->ForceSingleProbScale();
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
-  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
+  NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
 
   // If an output file name has been specified... use it
   if (!gOptOutFileName.empty()){
@@ -487,7 +496,7 @@ GFluxI * TH1FluxDriver(void)
     // ** extract specified flux histogram from the input root file
     //
     vector<string> fv = utils::str::Split(gOptFlux,",");
-    assert(fv.size()==2);
+    assert(fv.size()==2 || fv.size()==3);
     assert( !gSystem->AccessPathName(fv[0].c_str()) );
 
     LOG("gevgen", pNOTICE) << "Getting input flux from root file: " << fv[0];
@@ -501,6 +510,8 @@ GFluxI * TH1FluxDriver(void)
       std::exit(1);
     }
     assert(hst);
+    std::string extra = (fv.size()==3) ? fv[2] : "";
+    std::transform(extra.begin(),extra.end(),extra.begin(),::toupper);
 
     LOG("gevgen", pNOTICE) << hst->GetEntries();
 
@@ -512,6 +523,28 @@ GFluxI * TH1FluxDriver(void)
       if(hst->GetBinLowEdge(ibin) + hst->GetBinWidth(ibin) > emax ||
          hst->GetBinLowEdge(ibin) < emin) {
         spectrum->SetBinContent(ibin, 0);
+      }
+    }
+    bool force_binwidth = false;
+#if ROOT_VERSION_CODE <= ROOT_VERSION(9,99,99)
+    // GetRandom() sampling on variable bin width histograms does not
+    // correctly account for bin widths for all versions of ROOT prior
+    // to (currently forever).  At some point this might change and
+    // the necessity of this code snippet will go away
+    TAxis* xaxis = spectrum->GetXaxis();
+    if (xaxis->IsVariableBinSize()) force_binwidth = true;
+#endif
+    if ( extra == "WIDTH"   ) force_binwidth = true;
+    if ( extra == "NOWIDTH" ) force_binwidth = false;
+    if ( force_binwidth ) {
+      LOG("gevgen", pNOTICE)
+        << "multiplying by bin width for histogram " << fv[1]
+        << " as " << spectrum->GetName()
+        << " from " << fv[0];
+      for(int ibin = 1; ibin <= spectrum->GetNbinsX(); ++ibin) {
+        double data = spectrum->GetBinContent(ibin);
+        double width = spectrum->GetBinWidth(ibin);
+        spectrum->SetBinContent(ibin,data*width);
       }
     }
 
@@ -789,14 +822,8 @@ void PrintSyntax(void)
     << "\n              [-w]"
     << "\n              [--seed random_number_seed]"
     << "\n              [--cross-sections xml_file]"
-    << "\n              [--event-generator-list list_name]"
-    << "\n              [--message-thresholds xml_file]"
-    << "\n              [--unphysical-event-mask mask]"
-    << "\n              [--event-record-print-level level]"
-    << "\n              [--mc-job-status-refresh-rate  rate]"
-    << "\n              [--cache-file root_file]"
-    << "\n              [--xml-path config_xml_dir]"
-    << "\n              [--tune G18_02a_00_000] (or your preferred tune identifier)"
+    << RunOpt::RunOptSyntaxString(true)
     << "\n";
+
 }
 //____________________________________________________________________________

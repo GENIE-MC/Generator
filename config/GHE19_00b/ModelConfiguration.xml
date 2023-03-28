@@ -26,6 +26,13 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/GLRES-Tau">      genie::GLRESPXSec/Default            </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/GLRES-Ele">      genie::GLRESPXSec/Default            </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/GLRES-Had">      genie::GLRESPXSec/Default            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/HENuEl-CC">      genie::HENuElPXSec/Default           </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/HENuEl-NC">      genie::HENuElPXSec/Default           </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/PhotonRES-Mu">   genie::PhotonRESPXSec/Default        </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/PhotonRES-Tau">  genie::PhotonRESPXSec/Default        </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/PhotonRES-Ele">  genie::PhotonRESPXSec/Default        </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/PhotonRES-Had">  genie::PhotonRESPXSec/Default        </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/PhotonCOH">      genie::PhotonCOHPXSec/Default        </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/HEDIS-CC">       genie::HEDISPXSec/Default            </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/HEDIS-NC">       genie::HEDISPXSec/Default            </param>
 
