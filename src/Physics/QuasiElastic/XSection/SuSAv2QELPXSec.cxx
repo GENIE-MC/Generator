@@ -309,11 +309,11 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
     // The Q_value was already taken into account in the hadron tensor. Here we recalculate it
     // to get the right absolute shift. 
     double tensor_Q_value_susa = genie::utils::mec::Qvalue(tensor_pdg_susa,probe_pdg);
-    double total_Q_value_susa = tensor_Q_value_susa + Delta_Q_value ; 
+    double total_Q_value_susa = tensor_Q_value_susa + Delta_Q_value_susa ; 
     double Q_value_shift_susa = total_Q_value_susa * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
 
     double tensor_Q_value_crpa = genie::utils::mec::Qvalue(tensor_pdg_crpa,probe_pdg);
-    double total_Q_value_crpa = tensor_Q_value_crpa + Delta_Q_value ; 
+    double total_Q_value_crpa = tensor_Q_value_crpa + Delta_Q_value_crpa ; 
     double Q_value_shift_crpa = total_Q_value_crpa * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
 
     Delta_Q_value_susa += Q_value_shift_susa;
