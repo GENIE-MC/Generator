@@ -24,4 +24,5 @@
 #pragma link C++ class genie::XSecLinearCombinations;
 #pragma link C++ class genie::QvalueShifter;
 
+#pragma link C++ class genie::ElectronVelocityMap;
 #endif
