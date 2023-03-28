@@ -17,13 +17,16 @@
 
 #include "Physics/Common/ElectronVelocityMap.h"
 
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/ParticleData/PDGUtils.h"
+
 using namespace genie;
 
 ElectronVelocityMap::ElectronVelocityMap() :
-  ElectronVelocity("genie::ElcetronVelocityMap") { ; }
+  ElectronVelocity("genie::ElcetronVelocityMap", "Default") { ; }
 //___________________________________________________________________________
 ElectronVelocityMap::ElectronVelocityMap(string config) :
-ElectronVelocityMap("genie::ElectronVelocityMap", config) { ; }
+ElectronVelocity("genie::ElectronVelocityMap", config) { ; }
 //___________________________________________________________________________
 void ElectronVelocityMap::Configure(string config)
 {
@@ -81,20 +84,20 @@ void ElectronVelocityMap::LoadConfig() {
         dynamic_cast<const ElectronVelocity *> (
           this -> SubAlg(key) ) ;
       assert(model);
-      fSpecificModels.insert(map<int,const NuclearModelI*>::value_type(Z,model));
+      fSpecificModels.insert(map<int,const ElectronVelocity*>::value_type(Z,model));
     }
   }
 }
 //___________________________________________________________________________
 void ElectronVelocityMap::InitializeVelocity(Interaction & interaction) const {
 
-  const auto & model = SelectModel(interaction.Tgt());
+  const auto & model = SelectModel(interaction.InitState().Tgt());
 
   model.InitializeVelocity(interaction);
 
 }
 //___________________________________________________________________________
-void ElectronVelocityMap::SelectModel(const Target & t) const {
+const ElectronVelocity & ElectronVelocityMap::SelectModel(const Target & t) const {
   auto it = fSpecificModels.find(t.Z());
 
   if ( it != fSpecificModels.end()) return *(it->second) ;
