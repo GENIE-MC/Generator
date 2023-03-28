@@ -57,40 +57,8 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   double Q0    = 0.;
   double Q3    = 0.;
 
-<<<<<<< Updated upstream
-  // SD: The Q-Value essentially corrects q0 to account for nuclear
-  // binding energy in the Valencia model but this effect is already
-  // in Guille's tensors so I'll set it to 0.
-  // However, if I want to scale I need to account for the altered
-  // binding energy. To first order I can use the Delta_Q_value for this
-  double Delta_Q_value = Eb_tgt-Eb_ten;
-
-  // Apply Qvalue relative shift if needed:
-  if( fQvalueShifter ) {
-    // We have the option to add an additional shift on top of the binding energy correction
-    // The QvalueShifter, is a relative shift to the Q_value. 
-    // The Q_value was already taken into account in the hadron tensor. Here we recalculate it
-    // to get the right absolute shift. 
-    double tensor_Q_value = genie::utils::mec::Qvalue(tensor_pdg,probe_pdg);
-    double total_Q_value = tensor_Q_value + Delta_Q_value ; 
-    double Q_value_shift = total_Q_value * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ; 
-    Delta_Q_value += Q_value_shift ;
-  }
-
   genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
 
-  double Q0min = tensor->q0Min();
-  double Q0max = tensor->q0Max();
-  double Q3min = tensor->qMagMin();
-  double Q3max = tensor->qMagMax();
-  if (Q0-Delta_Q_value < Q0min || Q0-Delta_Q_value > Q0max || Q3 < Q3min || Q3 > Q3max) {
-    return 0.0;
-  }
-
-=======
-  genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
-
->>>>>>> Stashed changes
   // *** Enforce the global Q^2 cut (important for EM scattering) ***
   // Choose the appropriate minimum Q^2 value based on the interaction
   // mode (this is important for EM interactions since the differential
@@ -104,11 +72,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   double Q2 = Q3*Q3 - Q0*Q0;
   if ( Q2 < Q2min ) return 0.;
 
-<<<<<<< Updated upstream
-  // Compute the cross section using the hadron tensor
-  double xsec = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value);
-  LOG("SuSAv2QE", pDEBUG) << "XSec in cm2 / neutron is  " << xsec/(units::cm2);
-=======
+
   // ******************************
   // Now choose which tesor to use
   // ******************************
@@ -501,7 +465,6 @@ double SuSAv2QELPXSec::XSecScaling(double xsec, const Interaction* interaction, 
   // The xsecs need to be given per active nucleon, but the calculations above are per atom. 
   // We also need to A-scale anyhow if the target nucleus is not exactly the one we have the tensor for.
   // We adjust for this bellow.
->>>>>>> Stashed changes
 
   const ProcessInfo& proc_info = interaction->ProcInfo();
 
