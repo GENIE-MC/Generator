@@ -199,6 +199,22 @@
   <priority msgstream="XSecBase">                      WARN   </priority>
   <priority msgstream="XSecAlgMap">                    WARN   </priority>
   <priority msgstream="XSecSplLst">                    WARN   </priority>
+  <priority msgstream="HELeptonXSec">                  WARN   </priority>
+  <priority msgstream="HELeptonKinematics">            WARN   </priority>
+  <priority msgstream="GLRESPXSec">                    WARN   </priority>
+  <priority msgstream="GLRESGenerator">                WARN   </priority>
+  <priority msgstream="HENuElPXSec">                   WARN   </priority>
+  <priority msgstream="HENuElGenerator">               WARN   </priority>
+  <priority msgstream="PhotonRESPXSec">                WARN   </priority>
+  <priority msgstream="PhotonRESGenerator">            WARN   </priority>
+  <priority msgstream="PhotonCOHPXSec">                WARN   </priority>
+  <priority msgstream="PhotonCOHGenerator">            WARN   </priority>
+  <priority msgstream="HEDISXSec">                     WARN   </priority>
+  <priority msgstream="HEDISPXSec">                    WARN   </priority>
+  <priority msgstream="HEDISGenerator">                WARN   </priority>
+  <priority msgstream="HEDISKinematics">               WARN   </priority>
+  <priority msgstream="HEDISStrucFunc">                WARN   </priority>
+  <priority msgstream="LeptoHad">                      WARN   </priority>
 
   <priority msgstream="gevgen">                        WARN   </priority>
   <priority msgstream="gevgen_dm">                     WARN   </priority>
@@ -213,5 +229,8 @@
   <priority msgstream="gntpc">                         WARN   </priority>
   <priority msgstream="gmkspl">                        WARN   </priority>
   <priority msgstream="gmkspl_dm">                     WARN   </priority>
+  <priority msgstream="gcalchedisdiffxsec">            WARN   </priority>
+  <priority msgstream="gmkhedissf">                    WARN   </priority>
+  <priority msgstream="gmkphotonsf">                   WARN   </priority>
 
 </messenger_config>

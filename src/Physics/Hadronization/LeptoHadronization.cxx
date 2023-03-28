@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Alfonso Garcia <alfonsog \at nikhef.nl>
@@ -86,7 +86,7 @@ void LeptoHadronization::ProcessEventRecord(GHepRecord *
 #ifdef __GENIE_PYTHIA6_ENABLED__
 
   if(!this->Hadronize(event)) {
-    LOG("PythiaHad", pWARN) << "Hadronization failed!";
+    LOG("LeptoHad", pWARN) << "Hadronization failed!";
     event->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
     genie::exceptions::EVGThreadException exception;
     exception.SetReason("Could not simulate the hadronic system");
@@ -434,7 +434,7 @@ bool LeptoHadronization::Hadronize(GHepRecord *
     }                                  
 
     LongLorentzVector p4long( p->GetPx(), p->GetPy(), p->GetPz(), p->GetEnergy()  );
-    p4long.Boost(beta);
+    p4long.BoostZ(beta);
     p4long.Rotate(p4Hadlong);
 
     // Translate from long double to double
@@ -502,6 +502,7 @@ void LeptoHadronization::LoadConfig(void)
   // It is, with quark masses added, used to define the minimum allowable energy of a colour-singlet parton system.
   GetParam( "Energy-Singlet", fMinESinglet ) ; 
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
   // PYTHIA parameters only valid for HEDIS
   GetParam( "Xsec-Wmin", fWmin ) ;
   fPythia->SetPARP(2,  fWmin); //(D = 10. GeV) lowest c.m. energy for the event as a whole that the program will accept to simulate. (bellow 2GeV pythia crashes)
@@ -510,10 +511,13 @@ void LeptoHadronization::LoadConfig(void)
   int errors;         GetParam( "Errors",        errors ) ;
   int qrk_mass;       GetParam( "QuarkMass",     qrk_mass ) ;
 
-#ifdef __GENIE_PYTHIA6_ENABLED__
   fPythia->SetMSTU(26, warnings);     // (Default=10) maximum number of warnings that are printed
   fPythia->SetMSTU(22, errors);       // (Default=10) maximum number of errors that are printed
   fPythia->SetMSTJ(93, qrk_mass);     // light (d, u, s, c, b) quark masses are taken from PARF(101) - PARF(105) rather than PMAS(1,1) - PMAS(5,1). Diquark masses are given as sum of quark masses, without spin splitting term.
+
+  fPythia->SetPMAS(24,1,kMw);  //mass of the W boson (pythia=80.450 // genie=80.385)
+  fPythia->SetPMAS(24,2,0.);   //set to 0 the width of the W boson to avoid problems with energy conservation
+  fPythia->SetPMAS(6,2,0.);    //set to 0 the width of the top to avoid problems with energy conservation
 #endif
 
 }

@@ -10,7 +10,7 @@
 
 \created  August 28, 2019
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -218,7 +218,7 @@ namespace genie {
 
       // ................................................................
 
-      static HEDISStrucFunc * Instance(string basedir, SF_info sfinfo);
+      static HEDISStrucFunc * Instance(SF_info sfinfo);
 
       // method to return values of the SF for a particular channel in x and Q2
       SF_xQ2 EvalQrkSFLO  ( const Interaction * in, double x, double Q2 );
@@ -228,7 +228,7 @@ namespace genie {
     private:
 
       // Ctors & dtor
-      HEDISStrucFunc(string basedir, SF_info sfinfo);
+      HEDISStrucFunc(SF_info sfinfo);
       HEDISStrucFunc(const HEDISStrucFunc &);
      ~HEDISStrucFunc();
 

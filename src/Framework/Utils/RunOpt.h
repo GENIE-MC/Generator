@@ -10,7 +10,7 @@
 
 \created  January 29, 2013
 
-\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
@@ -39,6 +39,8 @@ public:
 
   // Read options from the command line. Call from all GENIE command-line apps.
   void ReadFromCommandLine(int argc, char ** argv);
+  // Centralized printout of what ReadFromCommandLine() will look for
+  static std::string RunOptSyntaxString(bool include_generator_specific);
 
   // Get options set.
   TuneId * Tune                 (void) const { return fTune;                   }

@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -148,6 +148,16 @@ bool ProcessInfo::IsGlashowResonance(void) const
   return (fScatteringType == kScGlashowResonance);
 }
 //____________________________________________________________________________
+bool ProcessInfo::IsPhotonCoherent(void) const
+{
+  return (fScatteringType == kScPhotonCoherent);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsPhotonResonance(void) const
+{
+  return (fScatteringType == kScPhotonResonance);
+}
+//____________________________________________________________________________
 bool ProcessInfo::IsAMNuGamma(void) const
 {
   return (fScatteringType == kScAMNuGamma);
@@ -198,6 +208,11 @@ bool ProcessInfo::IsDarkMatter(void) const
 bool ProcessInfo::IsWeakMix(void) const
 {
   return (fInteractionType == kIntWeakMix);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsHNLDecay(void) const
+{
+  return (fInteractionType == kIntHNL);
 }
 //____________________________________________________________________________
 InteractionType_t ProcessInfo::InteractionTypeId(void) const

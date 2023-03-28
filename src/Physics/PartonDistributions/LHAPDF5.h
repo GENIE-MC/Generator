@@ -11,7 +11,7 @@
 
 \created  June 06, 2004
 
-\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
@@ -20,6 +20,8 @@
 #define _LHAPDF5_H_
 
 #include "Physics/PartonDistributions/PDFModelI.h"
+#include <string>
+using std::string;
 
 namespace genie {
 

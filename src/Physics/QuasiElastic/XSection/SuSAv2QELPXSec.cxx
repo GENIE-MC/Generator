@@ -1,6 +1,6 @@
 //_________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -298,27 +298,37 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   // in the SuSAv2 and CRPA/HF tensors so I'll set it to 0.
   // However, if I want to scale I need to account for the altered
   // binding energy. To first order I can use the Q_value for this
-  double Q_value_susa = Eb_tgt-Eb_ten_susa;
-  double Q_value_crpa = Eb_tgt-Eb_ten_crpa;
-  double Q_value_blen = Eb_tgt-Eb_ten_crpa;
+  double Delta_Q_value_susa = Eb_tgt-Eb_ten_susa;
+  double Delta_Q_value_crpa = Eb_tgt-Eb_ten_crpa;
+  double Delta_Q_value_blen = Eb_tgt-Eb_ten_crpa;
 
   // Apply Qvalue relative shift if needed:
-  if( fQvalueShifter ){
-    Q_value_susa += Q_value_susa * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
-    Q_value_crpa += Q_value_crpa * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
-    Q_value_blen += Q_value_blen * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
+  if( fQvalueShifter ) {
+    // We have the option to add an additional shift on top of the binding energy correction
+    // The QvalueShifter, is a relative shift to the Q_value. 
+    // The Q_value was already taken into account in the hadron tensor. Here we recalculate it
+    // to get the right absolute shift. 
+    double tensor_Q_value_susa = genie::utils::mec::Qvalue(tensor_pdg_susa,probe_pdg);
+    double total_Q_value_susa = tensor_Q_value_susa + Delta_Q_value_susa ; 
+    double Q_value_shift_susa = total_Q_value_susa * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
+
+    double tensor_Q_value_crpa = genie::utils::mec::Qvalue(tensor_pdg_crpa,probe_pdg);
+    double total_Q_value_crpa = tensor_Q_value_crpa + Delta_Q_value_crpa ; 
+    double Q_value_shift_crpa = total_Q_value_crpa * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
+
+    Delta_Q_value_susa += Q_value_shift_susa;
+    Delta_Q_value_crpa += Q_value_shift_crpa;
+    Delta_Q_value_blen += Q_value_shift_crpa;
   }
 
   // Set the xsec to zero for interactions with q0,q3 outside the requested range
-
-  // THIS IS A BUG: SHOULD NOT APPLY SUSA QVAL TO HYBRID CASES!
 
   if( modelConfig == kMd_SuSAv2){
     double Q0min = tensor_susa->q0Min();
     double Q0max = tensor_susa->q0Max();
     double Q3min = tensor_susa->qMagMin();
     double Q3max = tensor_susa->qMagMax();
-    if (Q0-Q_value_susa < Q0min || Q0-Q_value_susa > Q0max || Q3 < Q3min || Q3 > Q3max) {
+    if (Q0-Delta_Q_value_susa < Q0min || Q0-Delta_Q_value_susa > Q0max || Q3 < Q3min || Q3 > Q3max) {
       return 0.0;
     }
   }
@@ -329,7 +339,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
     double Q0max = tensor_crpa->q0Max();
     double Q3min = tensor_crpa->qMagMin();
     double Q3max = tensor_crpa->qMagMax();
-    if (Q0-Q_value_crpa < Q0min || Q0-Q_value_crpa > Q0max || Q3 < Q3min || Q3 > Q3max) {
+    if (Q0-Delta_Q_value_crpa < Q0min || Q0-Delta_Q_value_crpa > Q0max || Q3 < Q3min || Q3 > Q3max) {
       return 0.0;
     } 
   }
@@ -339,7 +349,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
     double Q0max = tensor_blen->q0Max();
     double Q3min = tensor_blen->qMagMin();
     double Q3max = tensor_blen->qMagMax();
-    if (Q0-Q_value_blen < Q0min || Q0-Q_value_blen > Q0max || Q3 < Q3min || Q3 > Q3max) {
+    if (Q0-Delta_Q_value_blen < Q0min || Q0-Delta_Q_value_blen > Q0max || Q3 < Q3min || Q3 > Q3max) {
       return 0.0;
     } 
   }
@@ -349,7 +359,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
     double Q0max = tensor_blen->q0Max();
     double Q3min = tensor_crpa->qMagMin();
     double Q3max = tensor_blen->qMagMax();
-    if (Q0-Q_value_crpa < Q0min || Q0-Q_value_blen > Q0max || Q3 < Q3min || Q3 > Q3max) {
+    if (Q0-Delta_Q_value_crpa < Q0min || Q0-Delta_Q_value_blen > Q0max || Q3 < Q3min || Q3 > Q3max) {
       return 0.0;
     } 
   }
@@ -364,7 +374,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 
   if( modelConfig == kMd_SuSAv2 ){
     // Compute the cross section using the hadron tensor
-    xsec_susa = tensor_susa->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value_susa);
+    xsec_susa = tensor_susa->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value_susa);
     LOG("SuSAv2QE", pDEBUG) << "SuSAv2 XSec in cm2 / neutron is  " << xsec_susa/(units::cm2);
     xsec_susa = XSecScaling(xsec_susa, interaction, target_pdg, tensor_pdg_susa, need_to_scale_susa);
   }
@@ -374,7 +384,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
       modelConfig == kMd_CRPAPWSuSAv2Hybrid || modelConfig == kMd_HFPWSuSAv2Hybrid ||
       modelConfig == kMd_SuSAv2Blend){
     // Compute the cross section using the hadron tensor
-    xsec_blen = tensor_blen->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value_blen);
+    xsec_blen = tensor_blen->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value_blen);
     LOG("SuSAv2QE", pDEBUG) << "SuSAv2 (blending) XSec in cm2 / atom is  " << xsec_blen/(units::cm2);
     // The blended SuSAv2 calculation already gives the xsec per atom
     // For the A-scaling below to make sense we need to transform them to per active nucleon
@@ -390,7 +400,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 
   if( modelConfig != kMd_SuSAv2 && modelConfig != kMd_SuSAv2Blend){
     // Compute the cross section using the hadron tensor
-    xsec_crpa = tensor_crpa->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value_crpa);
+    xsec_crpa = tensor_crpa->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value_crpa);
     LOG("SuSAv2QE", pDEBUG) << "CRPA or HF XSec in cm2 / atom is  " << xsec_crpa/(units::cm2);
     // The CRPA calculation already gives the xsec per atom
     // For the A-scaling below to make sense we need to transform them to per active nucleon

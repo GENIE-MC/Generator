@@ -21,7 +21,7 @@
 
 \created  September 20, 2005
 
-\cpright  Copyright (c) 2003-2020, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           
 */
@@ -114,7 +114,8 @@ protected:
   bool         fDoMassDiff;   ///< whether or not to do mass diff. mode
   bool         fDoCompoundNucleus; ///< whether or not to do compound nucleus considerations
 
-  double       fPionMFPScale;       ///< tweaking factors for tuning
+  double       fChPionMFPScale;       ///< tweaking factors for tuning
+  double       fNeutralPionMFPScale;
   double       fPionFracCExScale;
   double       fPionFracElasScale;
   double       fPionFracInelScale;
