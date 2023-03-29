@@ -23,7 +23,7 @@
 using namespace genie;
 
 ElectronVelocityMap::ElectronVelocityMap() :
-  ElectronVelocity("genie::ElcetronVelocityMap", "Default") { ; }
+  ElectronVelocity("genie::ElectronVelocityMap", "Default") { ; }
 //___________________________________________________________________________
 ElectronVelocityMap::ElectronVelocityMap(string config) :
 ElectronVelocity("genie::ElectronVelocityMap", config) { ; }
