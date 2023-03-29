@@ -46,7 +46,8 @@ void ElectronVelocityMap::Configure(string config)
 
   }
 
-  this->LoadConfig();
+  ElectronVelocity::Configure(r) ;
+
 }
 //___________________________________________________________________________
 void ElectronVelocityMap::LoadConfig() {
