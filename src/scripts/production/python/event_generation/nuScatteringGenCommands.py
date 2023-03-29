@@ -39,7 +39,7 @@ evg_tgtpdg_hash = ['1000010020', '1000010030', '1000020030', '1000020040', '1000
                    '1000180400', '1000200400', '1000200480', '1000260560', '1000791970', '1000822080', '1000922380']
 
 def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=100, flux="\'1/x\'", xspl_file="total_xsec.xml",ntotevents=1000000, 
-                            tune='G18_02_02_11b',gen_list="all", expname="general",nmaxrun=100000, version='master', conf_dir='', arch='SL6.x86_64', 
+                            tune='G18_02_02_11b',gen_list="all", expname="general",nmaxrun=100000, gst_output=False, no_ghep=False,version='master', conf_dir='', arch='SL6.x86_64', 
                             production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                             softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
                             grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh', 
@@ -109,11 +109,19 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=1
             jobname           = "nu_"+expname+"_"+str(isubrun)            
             evgen_command = "gevgen -p "+str(nu)+" -n "+str(nev)+" -e "+EFlux_min+","+EFlux_max+" -f " +flux+" -t "+str(tgt_mix)+" -r "+curr_subrune+" --seed "+str(curr_seed)
             evgen_command += " --cross-sections "+input_xsec+" --tune "+tune + " -o "+jobname+".ghep.root"
+
             if gen_list is not "all" : 
                 evgen_command += " --event-generator-list "+gen_list+" "
                 shell_file = ''                
+
+                out_files = [str(jobname+".ghep.root")]
+                if gst_output : 
+                    evgen_command += " ; gntpc -i "+jobname+".ghep.root -o "+jobname+".gst.root -f gst "
+                    out_files.append(str(jobname+".gst.root"))
+                    if no_ghep :
+                        out_files = [str(jobname+".gst.root")]
             if grid_system == 'FNAL' :
-                shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".ghep.root"), grid_setup, genie_setup, conf_dir, in_file_list, git_branch, git_loc ) 
+                shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, in_file_list, git_branch, git_loc ) 
                 grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time)
                 command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
