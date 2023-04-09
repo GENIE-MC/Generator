@@ -101,10 +101,11 @@ double KPhaseSpace::Threshold(void) const
     double mpi = 0;
     if (pion_pdgc)
       mpi  = PDGLibrary::Instance()->Find(pion_pdgc)->Mass();
+    double mprobe  = PDGLibrary::Instance()->Find( init_state.ProbePdg() )->Mass();
     double Mi   = tgt.HitNucP4Ptr()->M(); // initial nucleon mass
     double Mf = (xcls.NProtons()==1) ? kProtonMass : kNeutronMass;
     double mtot = Mf + ml + mpi; // total mass of FS particles
-    double Ethresh = (mtot*mtot - Mi*Mi)/2/Mi;
+    double Ethresh = (mtot*mtot - Mi*Mi - mprobe*mprobe)/2/Mi;
     return Ethresh;
   }
   
@@ -998,21 +999,15 @@ Range1D_t KPhaseSpace::WLim_SPP(void) const
 {
   Range1D_t Wl;
   const InitialState & init_state = fInteraction->InitState();
-  double Enu = init_state.ProbeE(kRfHitNucRest);
   SppChannel_t spp_channel  = SppChannel::FromInteraction(fInteraction);
-  PDGLibrary * pdglib = PDGLibrary::Instance();
-  double Mi   = pdglib->Find(SppChannel::InitStateNucleon(spp_channel))->Mass();
-  double Mf   = pdglib->Find(SppChannel::FinStateNucleon(spp_channel))->Mass();
-  double mpi  = pdglib->Find(SppChannel::FinStatePion(spp_channel))->Mass();
+  PDGLibrary *  pdglib = PDGLibrary::Instance();
+  double Mf   = pdglib->Find( SppChannel::FinStateNucleon(spp_channel) )->Mass();
+  double mpi  = pdglib->Find( SppChannel::FinStatePion(spp_channel) )->Mass();
   double ml   = fInteraction->FSPrimLepton()->Mass();
-  
-  double s = Mi*(Mi + 2*Enu);
-  double ECM = TMath::Sqrt(s);
- 
+  double ECM  = init_state.CMEnergy();
   // kinematic W-limits
-  Wl.min = Mf + mpi;
-  Wl.max  = ECM - ml;
-  
+  Wl.min = Mf  + mpi;
+  Wl.max = ECM - ml;
   return Wl;
   
 }
@@ -1021,25 +1016,25 @@ Range1D_t KPhaseSpace::Q2Lim_W_SPP (void) const
 {
   Range1D_t Q2l;
   const InitialState & init_state = fInteraction->InitState();
-  double Enu = init_state.ProbeE(kRfHitNucRest);
   SppChannel_t spp_channel  = SppChannel::FromInteraction(fInteraction);
   PDGLibrary * pdglib = PDGLibrary::Instance();
-  double Mi   = pdglib->Find(SppChannel::InitStateNucleon(spp_channel))->Mass();
-  double Mf   = pdglib->Find(SppChannel::FinStateNucleon(spp_channel))->Mass();
-  double mpi  = pdglib->Find(SppChannel::FinStatePion(spp_channel))->Mass();
-  double ml   = fInteraction->FSPrimLepton()->Mass();
-  double ml2  = ml*ml;
+  double Mi   = pdglib->Find( SppChannel::InitStateNucleon(spp_channel) )->Mass();
+  double mli  = pdglib->Find( init_state.ProbePdg() )->Mass();
+  double mlf   = fInteraction->FSPrimLepton()->Mass();
+  double mli2  = mli*mli;
+  double mlf2  = mlf*mlf;
   double W    = kinematics::W(fInteraction);
   
-  double s = Mi*(Mi + 2*Enu);
-  double ECM = TMath::Sqrt(s);
+  double ECM = init_state.CMEnergy();
+  double s = ECM*ECM;
   
   // kinematic Q2-limits
-  double Enu_CM = (s - Mi*Mi)/2./ECM;
-  double El_CM  = (s + ml2 - W*W)/2./ECM;
-  double Pl_CM  = (El_CM - ml)<0?0:TMath::Sqrt(El_CM*El_CM - ml2);
-  Q2l.min = (2*Enu_CM*(El_CM - Pl_CM) - ml2)*(1. + std::numeric_limits<double>::epsilon());
-  Q2l.max = (2*Enu_CM*(El_CM + Pl_CM) - ml2)*(1. - std::numeric_limits<double>::epsilon());
+  double Eli_CM  = (s + mli2 - Mi*Mi)/2./ECM;
+  double Elf_CM  = (s + mlf2 - W*W)/2./ECM;
+  double Pli_CM  = (Eli_CM - mli)<0?0:TMath::Sqrt(Eli_CM*Eli_CM - mli2);
+  double Plf_CM  = (Elf_CM - mlf)<0?0:TMath::Sqrt(Elf_CM*Elf_CM - mlf2);
+  Q2l.min = (2*(Eli_CM*Elf_CM - Pli_CM*Plf_CM) - mli2 - mlf2)*(1. + std::numeric_limits<double>::epsilon());
+  Q2l.max = (2*(Eli_CM*Elf_CM + Pli_CM*Plf_CM) - mli2 - mlf2)*(1. - std::numeric_limits<double>::epsilon());
   
   return Q2l;
 }

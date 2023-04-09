@@ -27,7 +27,7 @@ for the following channels:
 -#  \f$\ell + n \to \ell + n + \pi^0\f$
 -#  \f$\ell + n \to \ell + p + \pi^-\f$
                                                                                       
-\ref      
+\ref
           1. T. Sato , T.-S. H. Lee, Phys. Rev. C 54, 2660(1996)
           2. A. Matsuyama , T.-S. H. Lee, T. Sato, Phys. Rept. 439, 193(2007)
           3. https://www.phy.anl.gov/theory/research/anl-osaka-pwa/ (and other references in it)
@@ -38,7 +38,7 @@ for the following channels:
 
 \created  Sep 06, 2022
 
-\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
+\copyright Copyright (c) 2003-2022, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */

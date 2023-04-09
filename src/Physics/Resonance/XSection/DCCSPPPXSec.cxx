@@ -135,11 +135,18 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
   double pli_L             = TMath::Sqrt(Eli_L*Eli_L - ml2);
   double plf_L             = TMath::Sqrt(Elf_L*Elf_L - ml2);
   double cos_theta_l       = (Eli_L*Elf_L - Q2/2. - ml2)/pli_L/plf_L;
+  double B                 = Mi*(2*Eli_L + Mi) - W2;
+  double C                 = pli_L*TMath::Sqrt(B*B - 4*ml2*Mi2);
+  double eps               = 2*Mi2*Q2*(C + Eli_L*B - 2*ml2*Mi)/(W2 - Mi2)/(C - Eli_L*B + 2*ml2*Mi);
+//  double one_minus_cos_theta_l = (pli_L*plf_L - Eli_L*Elf_L)/pli_L/plf_L + (Q2/2. + ml2)/pli_L/plf_L;
+  //double cos_theta_l       = 1. - one_minus_cos_theta_l;
   // Eq. 4 of ref. 4
   double epsilon = 0.;
   if (cos_theta_l > -1.)
+//  if (one_minus_cos_theta_l < 2.)
   {
     double tan_half_theta_l2  = (1. - cos_theta_l)/(1. + cos_theta_l);
+    //double tan_half_theta_l2  = one_minus_cos_theta_l/(2. - one_minus_cos_theta_l);
     epsilon                   = 1./(1. + 2.*qL2*tan_half_theta_l2/Q2);
   }
   // Eq. 2 of ref. 4
@@ -360,6 +367,7 @@ bool DCCSPPPXSec::ValidKinematics(const Interaction * interaction) const
       
   // model restrictions
   Wl.min  = TMath::Max (Wl.min,  1.08);
+  Wl.max  = TMath::Max (Wl.max,  1.08);
   Wl.max  = TMath::Min (Wl.max,  2.00);
   Q2l.min = TMath::Max (Q2l.min, 0.00);
   Q2l.max = TMath::Min (Q2l.max, 3.00);

@@ -253,7 +253,7 @@ genie::utils::gsl::d3XSecSPP_dWQ2CosTheta_E::d3XSecSPP_dWQ2CosTheta_E(
   // Get kinematical parameters
   const InitialState & init_state = interaction -> InitState();
   double Enu = init_state.ProbeE(kRfHitNucRest);
-
+  std::cout << std::setw(40) << std::scientific/*std::fixed*/ << std::setprecision(40) << "Enu = " << Enu << std::endl;
 
   if (Enu < kps->Threshold())
   {
@@ -262,19 +262,24 @@ genie::utils::gsl::d3XSecSPP_dWQ2CosTheta_E::d3XSecSPP_dWQ2CosTheta_E(
   }
   
   Wl  = kps->WLim_SPP();
+  if (Wl.max < 1.08)
+  {
+    isZero = true;
+    return;
+  }
   // model restrictions
   Wl.min  = TMath::Max (Wl.min,  1.08);
-  Wl.max  = TMath::Max (Wl.max,  1.08);
   Wl.max  = TMath::Min (Wl.max,  2.00);
 
   if (fWcut >= Wl.min)
     Wl.max = TMath::Min(fWcut,Wl.max);
+    
+  std::cout << std::setw(40) << std::scientific/*std::fixed*/ << std::setprecision(40) << "Wl = (" << Wl.min << ", " << Wl.max << ")" << std::endl;
   
   
 }
 genie::utils::gsl::d3XSecSPP_dWQ2CosTheta_E::~d3XSecSPP_dWQ2CosTheta_E()
 {
-
 }
 unsigned int genie::utils::gsl::d3XSecSPP_dWQ2CosTheta_E::NDim(void) const
 {
@@ -303,8 +308,8 @@ double genie::utils::gsl::d3XSecSPP_dWQ2CosTheta_E::DoEval(const double * xin) c
   
   fInteraction->KinePtr()->SetKV(kKVctp, -1. + 2.*xin[2]); //CosTheta
   
-  
   double xsec = fModel->XSec(fInteraction, kPSWQ2ctpfE)*(Wl.max-Wl.min)*(Q2l.max-Q2l.min)*2;
+  std::cout << std::setw(40) << std::scientific/*std::fixed*/ << std::setprecision(40) << "xsec = " << xsec << "; x = (" << xin[0] << ", " << xin[1] << ", " << xin[2] << "); W = " << W << "; Q2 = " << Q2 << "; cos_t = " << -1. + 2.*xin[2] << "; Q2l = (" << Q2l.min << ", " << Q2l.max << ")" << std::endl;
   return xsec;
 }
 ROOT::Math::IBaseFunctionMultiDim *
