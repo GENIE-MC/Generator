@@ -181,10 +181,10 @@ void MKSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
    }
 
   // W,Q2,cos(theta) and phi from reduced variables
-  Range1D_t Wl  = kps.WLim_MKSPP();
+  Range1D_t Wl  = kps.WLim_SPP_iso();
   if (fWcut >= Wl.min)
     Wl.max = TMath::Min(fWcut,Wl.max);
-  Range1D_t Q2l = kps.Q2Lim_W_MKSPP();
+  Range1D_t Q2l = kps.Q2Lim_W_SPP_iso();
   double W  = Wl.min + (Wl.max - Wl.min)*xin[0];
   interaction->KinePtr()->SetW(W);
   double Q2 = Q2l.min + (Q2l.max - Q2l.min)*xin[1];
@@ -343,7 +343,7 @@ void MKSPPEventGenerator::LoadConfig(void)
 double MKSPPEventGenerator::ComputeMaxXSec(const Interaction * interaction) const
 {
    KPhaseSpace * kps = interaction->PhaseSpacePtr();
-   Range1D_t Wl = kps->WLim_MKSPP();
+   Range1D_t Wl = kps->WLim_SPP_iso();
    ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit", "Minimize");
    ROOT::Math::IBaseFunctionMultiDim * f = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction, fWcut);
    min->SetFunction( *f );
@@ -485,13 +485,13 @@ ROOT::Math::IBaseFunctionMultiDim(), fModel(m), fWcut(wcut)
   double Enu = init_state.ProbeE(kRfHitNucRest);
 
 
-  if (Enu < kps->Threshold_MKSPP())
+  if (Enu < kps->Threshold_SPP_iso())
   {
     isZero = true;
     return;
   }
   
-  Wl  = kps->WLim_MKSPP();
+  Wl  = kps->WLim_SPP_iso();
   if (fWcut >= Wl.min)
     Wl.max = TMath::Min(fWcut,Wl.max);
   
@@ -515,7 +515,7 @@ double genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::DoEval(const double * xin)
   double W  = Wl.min + (Wl.max - Wl.min)*xin[0];
   fInteraction->KinePtr()->SetW(W);
    
-  Range1D_t Q2l = kps->Q2Lim_W_MKSPP(); 
+  Range1D_t Q2l = kps->Q2Lim_W_SPP_iso(); 
   double Q2 = Q2l.min + (Q2l.max - Q2l.min)*xin[1];
   fInteraction->KinePtr()->SetQ2(Q2);
   

@@ -103,7 +103,6 @@ double KPhaseSpace::Threshold(void) const
   
   if (pi.IsSinglePion()) {
     double Mi   = tgt.HitNucP4Ptr()->M(); // initial nucleon mass
-    // Final nucleon can be different for K0 interaction
     double Mf = (xcls.NProtons()==1) ? kProtonMass : kNeutronMass;
     int pion_pdgc = kPdgPi0;
     if ( xcls.NPiPlus() == 1 )
@@ -113,8 +112,9 @@ double KPhaseSpace::Threshold(void) const
     else if ( xcls.NPi0() != 1 )
        throw genie::exceptions::InteractionException("Can't compute threshold");
     double mpi   = PDGLibrary::Instance()->Find(pion_pdgc)->Mass();
-    double mtot = ml + mpi + Mf; // total mass of FS particles
-    double Ethresh = (mtot*mtot - Mi*Mi)/(2. * Mf);
+    double mprobe  = PDGLibrary::Instance()->Find( init_state.ProbePdg() )->Mass();
+    double mtot = Mf + ml + mpi; // total mass of FS particles
+    double Ethresh = (mtot*mtot - Mi*Mi - mprobe*mprobe)/2/Mi;
     return Ethresh;
   }
 
@@ -993,7 +993,7 @@ Range1D_t KPhaseSpace::TLim(void) const
   return tl;
 }
 //____________________________________________________________________________
-double KPhaseSpace::Threshold_MKSPP(void) const
+double KPhaseSpace::Threshold_SPP_iso(void) const
 {
     PDGLibrary * pdglib = PDGLibrary::Instance();
 
@@ -1005,7 +1005,7 @@ double KPhaseSpace::Threshold_MKSPP(void) const
     return E_thr;
 }
 //____________________________________________________________________________
-Range1D_t KPhaseSpace::WLim_MKSPP(void) const
+Range1D_t KPhaseSpace::WLim_SPP_iso(void) const
 {
 
     Range1D_t Wl;
@@ -1038,7 +1038,7 @@ Range1D_t KPhaseSpace::WLim_MKSPP(void) const
     return Wl;
 }
 //____________________________________________________________________________
-Range1D_t KPhaseSpace::Q2Lim_W_MKSPP(void) const
+Range1D_t KPhaseSpace::Q2Lim_W_SPP_iso(void) const
 {
 
     Range1D_t Q2l;

@@ -81,7 +81,7 @@ double MKSPPXSec::Integrate(
   //-- Get the requested SPP channel
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
 
-  if (Enu < kps.Threshold_MKSPP()) return 0.;
+  if (Enu < kps.Threshold_SPP_iso()) return 0.;
   
   fSinglePionProductionXSecModel = model;
 

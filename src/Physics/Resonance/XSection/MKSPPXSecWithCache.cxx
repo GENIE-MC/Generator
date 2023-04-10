@@ -126,7 +126,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
   
   const KPhaseSpace& kps = in->PhaseSpace();
     
-  double Ethr = kps.Threshold_MKSPP();
+  double Ethr = kps.Threshold_SPP_iso();
   LOG("MKSPPCache", pNOTICE) << "E threshold = " << Ethr;
 
   // Distribute the knots in the energy range as is being done in the
@@ -235,13 +235,13 @@ genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::d3XSecMK_dWQ2CosTheta_E(
   double Enu = init_state.ProbeE(kRfHitNucRest);
 
 
-  if (Enu < kps->Threshold_MKSPP())
+  if (Enu < kps->Threshold_SPP_iso())
   {
     isZero = true;
     return;
   }
   
-  Wl  = kps->WLim_MKSPP();
+  Wl  = kps->WLim_SPP_iso();
   if (fWcut >= Wl.min)
     Wl.max = TMath::Min(fWcut,Wl.max);
   
@@ -266,7 +266,7 @@ double genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::DoEval(const double * xin) co
   double W2  = Wl.min*Wl.min + (Wl.max*Wl.max - Wl.min*Wl.min)*xin[0];
   fInteraction->KinePtr()->SetW(TMath::Sqrt(W2));
    
-  Range1D_t Q2l = kps->Q2Lim_W_MKSPP(); 
+  Range1D_t Q2l = kps->Q2Lim_W_SPP_iso(); 
    
   double sqrt_Q2 = TMath::Sqrt(Q2l.min) + ( TMath::Sqrt(Q2l.max) - TMath::Sqrt(Q2l.min) )*xin[1];
   fInteraction->KinePtr()->SetQ2(sqrt_Q2*sqrt_Q2);

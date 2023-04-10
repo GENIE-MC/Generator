@@ -1420,11 +1420,11 @@ bool MKSPPPXSec::ValidKinematics(const Interaction * interaction) const
   double W    = kinematics.W();
   double Q2   = kinematics.Q2();
 
-  if (Enu < kps.Threshold_MKSPP())
+  if (Enu < kps.Threshold_SPP_iso())
     return false;
 
-  Range1D_t Wl  = kps.WLim_MKSPP();
-  Range1D_t Q2l = kps.Q2Lim_W_MKSPP();
+  Range1D_t Wl  = kps.WLim_SPP_iso();
+  Range1D_t Q2l = kps.Q2Lim_W_SPP_iso();
 
   if (W < Wl.min || W > Wl.max)
     return false;
