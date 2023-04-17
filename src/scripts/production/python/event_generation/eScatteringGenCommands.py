@@ -20,15 +20,12 @@ e_pdg_def = { 'e' : 11,
 e_name_def = { 11 : 'e', 
               -11: 'ebar' }
 
-#Other required information
-mcseed = 210921029 
-
 # inputs for event generation jobs
 evg_tgtpdg_hash = ['1000010020', '1000010030', '1000020030', '1000020040', '1000030060', '1000060120', '1000080160', '1000130270', 
                    '1000180400', '1000200400', '1000200480', '1000260560', '1000791970', '1000822080', '1000922380']
 
 def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2", xspl_file="total_xsec.xml",ntotevents=1000000, 
-                            tune='G18_02_02_11b',gen_list="EM", nmaxrun=100000, gst_output=False, no_ghep=False,version='master', conf_dir='', arch='SL6.x86_64', 
+                            tune='G18_02_02_11b',gen_list="EM", nmaxrun=100000, mcseed=210921029, gst_output=False, no_ghep=False,version='master', conf_dir='', arch='SL6.x86_64', 
                             production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                             softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
                             grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh', 

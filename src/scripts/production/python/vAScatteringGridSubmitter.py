@@ -59,6 +59,7 @@ op.add_option("--nu-minenergy-fluxrange", dest="MinEnergyFlux", default="0.1", h
 op.add_option("--nu-maxenergy-fluxrange", dest="MaxEnergyFlux", default="100", help="Maximum neutrino energy. Default %default.")
 op.add_option("--e-beamenergy-list", dest="BEnergy", default="2", help="Electron beam energy" )
 op.add_option("--flux", dest="FLUX", default="\'1/x\'", help="Neutrino flux. Default 1/x. To use an input root file, specify the location of the file and the TH1D name as follows: file.root,th1d_name")
+op.add_option("--seed", dest="Seed", default=210921029, help="Set stargint point seed. Default %default")
 op.add_option("--exp-name", dest="EXPNAME", default="general", help="Neutrino experiment name, i.e. DUNE, MINERvA, T2K, etc. It is only used to tag the output files. Default: %default")
 op.add_option("--gst-output", dest="GSTOutput", default=False, action="store_true",help="Store gst root file.")
 op.add_option("--no-ghep-output", dest="NoGHEPOutput", default=False, action="store_true",help="GHEP GENIE files is removed to reduce memory.")
@@ -216,7 +217,7 @@ while loop_i < loop_end + 1:
     if loop_i == 4 : 
         # ID = 4 # Event generation commands
         # Submit neutrino jobs
-        command_dict.update( nuA.nuScatteringGenCommands(opts.PROBELIST,opts.TGTMIX,opts.MinEnergyFlux,opts.MaxEnergyFlux,opts.FLUX,vAsplines,opts.NuEvents,opts.TUNE,opts.EvGenList,opts.EXPNAME,opts.NMax,opts.GSTOutput,opts.NoGHEPOutput,version,opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
+        command_dict.update( nuA.nuScatteringGenCommands(opts.PROBELIST,opts.TGTMIX,opts.MinEnergyFlux,opts.MaxEnergyFlux,opts.FLUX,vAsplines,opts.NuEvents,opts.TUNE,opts.EvGenList,opts.EXPNAME,opts.NMax,opts.Seed,opts.GSTOutput,opts.NoGHEPOutput,version,opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
         # Submit electron jobs
         #        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.BEnergy,vAsplines,opts.EEvents,opts.TUNE, opts.EvGenList, opts.NMax,version,opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
         total_time += int(opts.GENJOBLIFE)
