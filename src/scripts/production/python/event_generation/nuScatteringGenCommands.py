@@ -95,12 +95,13 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=1
     command_list = []
     for nu in final_nu_list : 
         n_event_left = ntotevents
-        for isubrun in range(starting_run,nsubruns) :
+        for isubrun in range(nsubruns) :
             if n_event_left >= nmaxrun : 
                 nev = nmaxrun
             else:
                 nev = n_event_left
-            n_event_left -= nev 
+            n_event_left -= nev
+            isubrun += starting_run 
             curr_subrune = "14"+str(isubrun); 
             curr_seed         = mcseed + isubrun 
             jobname           = "nu_"+expname+"_"+str(isubrun)            

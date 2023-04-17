@@ -75,12 +75,13 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2",
         for tgt in req_tgt_list : 
             for E in req_En_list : 
                 n_event_left = ntotevents
-                for isubrun in range(starting_run,nsubruns) :
+                for isubrun in range(nsubruns) :
                     if n_event_left >= nmaxrun : 
                         nev = nmaxrun
                     else:
                         nev = n_event_left
-                    n_event_left -= nev 
+                    n_event_left -= nev
+                    isubrun+=starting_run
                     curr_subrune = "11"+str(tgt)+str(isubrun); 
                     curr_seed         = mcseed + isubrun + int(tgt)
                     jobname           = "e_on_"+str(tgt)+"_"+str(int((float(E)*1000)))+"MeV_"+str(isubrun)
