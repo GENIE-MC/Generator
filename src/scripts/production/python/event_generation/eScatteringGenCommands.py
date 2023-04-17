@@ -56,8 +56,10 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2",
         req_tgt_list = evg_tgtpdg_hash 
     req_En_list = EBeam_list.split(',')
     req_gen_list = gen_list.split(',')
-        
+    
+    true_nsubruns = ntotevents*1.0/nmaxrun
     nsubruns = int(round(ntotevents*1.0/nmaxrun))
+    if( nsubruns < true_nsubruns ) : nsubruns += 1 
     if ntotevents <= nmaxrun : nsubruns = 1
     
     xsec_filename = os.path.basename(xspl_file)

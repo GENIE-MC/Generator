@@ -67,7 +67,9 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=1
 
     req_gen_list = gen_list.split(',')
         
+    true_nsubruns = ntotevents*1.0/nmaxrun
     nsubruns = int(round(ntotevents*1.0/nmaxrun))
+    if( nsubruns < true_nsubruns ) : nsubruns += 1 
     if ntotevents <= nmaxrun : nsubruns = 1
 
     if grid_system == 'FNAL' :
