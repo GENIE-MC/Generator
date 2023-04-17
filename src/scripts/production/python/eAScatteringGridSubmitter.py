@@ -55,6 +55,7 @@ op.add_option("--e-ntotevents", dest="EEvents", type="int", default=100000, help
 op.add_option("--nmaxevents",dest="NMax", type="int", default=400000,help="Max number of events to run per event generation, default %default")
 op.add_option("--ebeam-energy", dest="EnergyBeam", default="2", help="Comma separated list of beam energy for electrons. Default %default GeV")
 op.add_option("--seed", dest="Seed", default=210921029, help="Set stargint point seed. Default %default")
+op.add_option("--gen-runid", dest="RunID", default=0, help="Set Starting run id. Default %default")
 op.add_option("--gst-output", dest="GSTOutput", default=False, action="store_true",help="Store gst root file.")
 op.add_option("--no-ghep-output", dest="NoGHEPOutput", default=False, action="store_true",help="GHEP GENIE files is removed to reduce memory.")
 op.add_option("--starting-point", dest="start_ID", type="int", default=0, help="0 -> Free nucleon splines, 1 -> combine free nucl splines, 2 -> Compound nuclei splines, 3 -> Combine compound nuclei splines, 4 -> Event Production")
