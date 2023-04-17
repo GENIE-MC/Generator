@@ -25,8 +25,8 @@ evg_tgtpdg_hash = ['1000010020', '1000010030', '1000020030', '1000020040', '1000
                    '1000180400', '1000200400', '1000200480', '1000260560', '1000791970', '1000822080', '1000922380']
 
 def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2", xspl_file="total_xsec.xml",ntotevents=1000000, 
-                            tune='G18_02_02_11b',gen_list="EM", nmaxrun=100000, mcseed=210921029, starting_run=0,gst_output=False, no_ghep=False,version='master', conf_dir='', arch='SL6.x86_64', 
-                            production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
+                            tune='G18_02_02_11b',gen_list="EM", nmaxrun=100000, mcseed=210921029, starting_run=0,gst_output=False, no_ghep=False,version='master', 
+                            conf_dir='', arch='SL6.x86_64', production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                             softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
                             grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh', 
                             genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', time='10', memory='1', disk='2000',git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator") :
@@ -57,12 +57,9 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2",
     req_En_list = EBeam_list.split(',')
     req_gen_list = gen_list.split(',')
         
-    nsubruns = ntotevents/nmaxrun
-    if ntotevents < nmaxrun : nsubruns = 1
-
-    if not isinstance(nsubruns, int) :
-        nsubruns = 1+int(nsubruns)
-
+    nsubruns = int(round(ntotevents*1.0/nmaxrun))
+    if ntotevents <= nmaxrun : nsubruns = 1
+    
     xsec_filename = os.path.basename(xspl_file)
 
     if grid_system == 'FNAL' :
@@ -75,15 +72,16 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2",
         for tgt in req_tgt_list : 
             for E in req_En_list : 
                 n_event_left = ntotevents
+                
                 for isubrun in range(nsubruns) :
                     if n_event_left >= nmaxrun : 
                         nev = nmaxrun
                     else:
                         nev = n_event_left
                     n_event_left -= nev
-                    isubrun+=starting_run
+                    isubrun+=int(starting_run)
                     curr_subrune = "11"+str(tgt)+str(isubrun); 
-                    curr_seed         = mcseed + isubrun + int(tgt)
+                    curr_seed         = int(mcseed) + isubrun + int(tgt)
                     jobname           = "e_on_"+str(tgt)+"_"+str(int((float(E)*1000)))+"MeV_"+str(isubrun)
 
                     evgen_command = "gevgen -p "+str(e)+" -n "+str(nev)+" -e "+E+" -t "+str(tgt)+" -r "+curr_subrune+" --seed "+str(curr_seed)

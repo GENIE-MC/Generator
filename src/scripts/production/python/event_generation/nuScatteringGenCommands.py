@@ -67,11 +67,8 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=1
 
     req_gen_list = gen_list.split(',')
         
-    nsubruns = ntotevents/nmaxrun
-    if ntotevents < nmaxrun : nsubruns = 1
-
-    if not isinstance(nsubruns, int) :
-        nsubruns = 1+int(nsubruns)
+    nsubruns = int(round(ntotevents*1.0/nmaxrun))
+    if ntotevents <= nmaxrun : nsubruns = 1
 
     if grid_system == 'FNAL' :
         input_xsec = "\$CONDOR_DIR_INPUT/total_xsec.xml"
@@ -101,9 +98,9 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=1
             else:
                 nev = n_event_left
             n_event_left -= nev
-            isubrun += starting_run 
+            isubrun += int(starting_run) 
             curr_subrune = "14"+str(isubrun); 
-            curr_seed         = mcseed + isubrun 
+            curr_seed         = int(mcseed) + isubrun 
             jobname           = "nu_"+expname+"_"+str(isubrun)            
             evgen_command = "gevgen -p "+str(nu)+" -n "+str(nev)+" -e "+EFlux_min+","+EFlux_max+" -f " +flux+" -t "+str(tgt_mix)+" -r "+curr_subrune+" --seed "+str(curr_seed)
             evgen_command += " --cross-sections "+input_xsec+" --tune "+tune + " -o "+jobname+".ghep.root"
