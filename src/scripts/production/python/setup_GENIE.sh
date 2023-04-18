@@ -79,4 +79,4 @@ fi
 #--with-boost-inc=${BOOST_FQ_DIR}/include \
 #--with-boost-lib=${BOOST_FQ_DIR}/lib
 
-make
+make -j4

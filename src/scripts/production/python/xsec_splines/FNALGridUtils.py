@@ -41,7 +41,7 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, 
     script.close()
     return shell_file 
 
-def FNALShellCommands(grid_setup, genie_setup, hours = 10, memory=1, disk=1, GraceMemory=4096, GraceLifeTime=6000):
+def FNALShellCommands(grid_setup, genie_setup, hours = 10, memory=1, disk=500, GraceMemory=4096, GraceLifeTime=6000):
     grid_command_options = " -n --memory="+str(memory)+"GB --disk="+str(disk)+"MB --expected-lifetime="+str(hours)+"h " 
     grid_command_options += " --OS=SL7 --lines '+FERMIHTC_AutoRelease=True' -f "+grid_setup+" -f "+genie_setup 
     grid_command_options += " --lines '+FERMIHTC_GraceMemory="+str(GraceMemory)+"' --lines '+FERMIHTC_GraceLifetime="+str(GraceLifeTime)+"' --mail_on_error "
@@ -63,6 +63,8 @@ def WriteXMLFile(commands_dict, start, end, jobs_dir, file_name='grid_submission
         else : 
             command_list_next = command_list 
 
+        if len(command_list) == 0 : 
+            continue
         if len(command_list) == 1 : # serial
             if in_serial == False: 
                 script.write("<serial>\n")
@@ -86,7 +88,6 @@ def WriteXMLFile(commands_dict, start, end, jobs_dir, file_name='grid_submission
 def WriteMainSubmissionFile(jobs_dir, genie_topdir, group, grid_setup='/src/scripts/production/python/setup_FNAL.sh', genie_setup='/src/scripts/production/python/setup_GENIE.sh', in_file_name='grid_submission.xml', expectedlife=60,  memory=1, disk=500, out_file_name='fnal_dag_submit.fnal', jobs=1, role="Analysis"):
 
     fnal_file = jobs_dir+"/"+out_file_name
-    tar_file = jobs_dir+"/FNALTarFile.fnal.gov.tgz"
     if os.path.exists(fnal_file):
         os.remove(fnal_file)
 
@@ -94,6 +95,6 @@ def WriteMainSubmissionFile(jobs_dir, genie_topdir, group, grid_setup='/src/scri
     script.write("#!/bin/bash\n")
     script.write("source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups ;\n")
     script.write("setup fife_utils ;\n")
-    script.write("jobsub_submit -G "+group+" --OS=SL7 --memory="+str(memory)+"GB --disk="+str(disk)+"GB --expected-lifetime="+str(expectedlife)+"h -N "+str(jobs)+" --role="+role+" --tar_file_name "+tar_file+" --dag file://"+in_file_name+";" )
+    script.write("jobsub_submit -G "+group+" --OS=SL7 --memory="+str(memory)+"GB --disk="+str(disk)+"MB --expected-lifetime="+str(expectedlife)+"h -N "+str(jobs)+" --role="+role+" --dag file://"+in_file_name+";" )
 
     return fnal_file

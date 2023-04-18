@@ -28,17 +28,16 @@ evg_tgtpdg_hash = ['1000010020', '1000010030', '1000020030', '1000020040', '1000
                    '1000180400', '1000200400', '1000200480', '1000260560', '1000791970', '1000822080', '1000922380']
 
 def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2", xspl_file="total_xsec.xml",ntotevents=1000000, 
-                            tune='G18_02_02_11b',gen_list="EM", nmaxrun=100000, version='master', conf_dir='', arch='SL6.x86_64', 
+                            tune='G18_02_02_11b',gen_list="EM", nmaxrun=100000, gst_output=False, no_ghep=False,version='master', conf_dir='', arch='SL6.x86_64', 
                             production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                             softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
                             grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh', 
-                            genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', time='10', git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator") :
+                            genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', time='10', memory='1', disk='2000',git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator") :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-eScattering'
     # Make directory
     if not os.path.exists(jobs_dir) : 
         os.mkdir(jobs_dir)
-
 
     # Electron list
     final_e_list = []
@@ -67,10 +66,12 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2",
     if not isinstance(nsubruns, int) :
         nsubruns = 1+int(nsubruns)
 
+    xsec_filename = os.path.basename(xspl_file)
+
     if grid_system == 'FNAL' :
-        input_xsec = "\$CONDOR_DIR_INPUT/total_xsec.xml"
+        input_xsec = "\$CONDOR_DIR_INPUT/"+xsec_filename
     else :
-        input_xsec = free_nuc_dir+"/total_xsec.xml"
+        input_xsec = free_nuc_dir+xsec_filename
 
     command_list = []
     for e in final_e_list : 
@@ -88,12 +89,19 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2",
                     jobname           = "e_on_"+str(tgt)+"_"+str(int((float(E)*1000)))+"MeV_"+str(isubrun)
 
                     evgen_command = "gevgen -p "+str(e)+" -n "+str(nev)+" -e "+E+" -t "+str(tgt)+" -r "+curr_subrune+" --seed "+str(curr_seed)
-                    evgen_command += " --cross-sections "+input_xsec+" --event-generator-list "+gen_list+" --tune "+tune + " -o "+jobname+".ghep.root"
+                    evgen_command += " --cross-sections "+input_xsec+" --event-generator-list "+gen_list+" --tune "+tune + " -o "+jobname+".ghep.root "
+                    
+                    out_files = [str(jobname+".ghep.root")]
+                    if gst_output : 
+                        evgen_command += " ; gntpc -i "+jobname+".ghep.root -o "+jobname+".gst.root -f gst "
+                        out_files.append(str(jobname+".gst.root"))
+                        if no_ghep :
+                            out_files = [str(jobname+".gst.root")]
 
                     shell_file = ''                
                     if grid_system == 'FNAL' :
-                        shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".ghep.root"), grid_setup, genie_setup, conf_dir, str(xspl_file), git_branch, git_loc ) 
-                        grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time)
+                        shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, str(xspl_file), git_branch, git_loc ) 
+                        grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time,memory,disk)
                         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
     ## Add command list to dictionary; Key is 4 => event production
