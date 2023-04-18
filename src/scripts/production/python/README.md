@@ -8,6 +8,7 @@ other scripts can be easily added. Does not support neutrino scattering event ge
 - `vAScatteringGridSubmitter.py`: submits the jobs to create splines and generate nu-A events
 other scripts can be easily added. Does not support electron scattering event generation
 
+NOTE: avoid using the scripts as a black box. Job lifetime and memory should be optimized for each job. Runing with the default might bring your jobs to hold. 
 
 ## Requirements
 - You must have the $GENIE enviromental variable to your GENIE-MC/Generator directory. This is required only to run the python scripts, no previous compilation of the GENIE-MC/Generator code is required.
