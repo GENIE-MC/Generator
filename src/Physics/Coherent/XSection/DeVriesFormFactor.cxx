@@ -60,7 +60,7 @@ void DeVriesFormFactor::Configure(string config)
 void DeVriesFormFactor::LoadConfig(void)
 {
 
-  // load coeffictients
+  // load coefficients
   vector<double> cs;
   this -> GetParamVect( "DV-Coefficient", cs ) ;
 
@@ -81,7 +81,7 @@ void DeVriesFormFactor::LoadConfig(void)
 
   GetParam( "DV-Nucleus", fPDG ) ;
 
-  LOG("DeVriesFormFactor", pINFO) << "Loaded " << cs.size() << " coeffictients for nucleus " << fPDG ;
+  LOG("DeVriesFormFactor", pINFO) << "Loaded " << cs.size() << " coefficients for nucleus " << fPDG ;
 
 }
 //____________________________________________________________________________
