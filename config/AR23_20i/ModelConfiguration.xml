@@ -120,6 +120,9 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-PION">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
   -->
 
+ <!-- Alvarez-Ruso et al COH gamma -->
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-GAMMA">   genie::AlvarezRusoSalaCOHGammaPXSec/Default   </param>
+
   <param type="alg" name="XSecModel@genie::EventGenerator/IMD">            genie::BardinIMDRadCorPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/IMD-ANH">        genie::IMDAnnihilationPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/NUE-EL">         genie::NuElectronPXSec/Default        </param>
