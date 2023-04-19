@@ -82,8 +82,8 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
 
   int  nucpdgc   = target.HitNucPdg();
   int  probepdgc = init_state.ProbePdg();
-  bool is_nu     = pdg::IsNeutrino     (probepdgc);
-  bool is_nubar  = !is_nu;
+  bool is_nu     = pdg::IsNeutrino      (probepdgc);
+  bool is_nubar  = pdg::IsAntiNeutrino  (probepdgc);
   bool is_CC     = proc_info.IsWeakCC();
   bool is_NC     = proc_info.IsWeakNC();
   bool is_p      = pdg::IsProton  (nucpdgc);
