@@ -404,7 +404,7 @@ namespace genie {
       mutable QELFormFactors  fEMFormFactors;    ///<  Electromagnetic form facors for background contribution
       double  f_pi;                              ///<  Constant for pion-nucleon interaction
       double  FA0;                               ///<  Axial coupling (value of axial form factor at Q2=0)
-      double  Frho0;                             ///<  Value of form fator F_rho at t=0 
+      double  Frho0;                             ///<  Value of form factor F_rho at t=0 
       /// Parameters for vector virtual form factor
       /// for background contribution, which equal to:  
       /// 1,                                              W<VWmin   
