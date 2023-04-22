@@ -6,7 +6,7 @@
 
  Authors: Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
 
-  For the class documentation see the corresponding header file.
+ For the class documentation see the corresponding header file.
 */
 //____________________________________________________________________________
 
@@ -63,215 +63,416 @@ DCCSPPPXSec::~DCCSPPPXSec()
 //____________________________________________________________________________
 double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) const
 {
-  if(! this -> ValidProcess    (interaction) ) return 0.;
-  if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  const InitialState & init_state = interaction -> InitState();
-  const ProcessInfo &  proc_info  = interaction -> ProcInfo();
-  const Target & target = init_state.Tgt();
+    // dimension of kine phase space
+    std::string s = KinePhaseSpace::AsString(kps);
+    int kpsdim = s!="<|E>"?1 + std::count(s.begin(), s.begin()+s.find('}'), ','):0;
+    if (kpsdim < 2 || kpsdim > 4) return 0.;
+    // TODO: check 3d-case by integration 4d-case
 
-  double xsec = 0;
-  //-- Get 1pi exclusive channel
-  SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
+    if(! this -> ValidProcess    (interaction) ) return 0.;
+    if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  int  nucpdgc   = target.HitNucPdg();
-//  int  probepdgc = init_state.ProbePdg();
-  int  helicity  = init_state.ProbeHelicity();
-//  bool is_nubar  = pdg::IsAntiNeutrino     (probepdgc);
+    double xsec = 0;
+
+    const InitialState & init_state = interaction -> InitState();
+    const ProcessInfo &  proc_info  = interaction -> ProcInfo();
+    const Target & target = init_state.Tgt();
+
+    // Get kinematical parameters
+    const Kinematics & kinematics = interaction -> Kine();
+    double Q2    = kinematics.Q2();
+    double W     = kinematics.W();
+    double Wsq   = W*W;
+
+    //-- Get 1pi exclusive channel
+    SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
+
+    int  probepdgc = init_state.ProbePdg();
+    int  nucpdgc   = target.HitNucPdg();
+    int  helicity  = init_state.ProbeHelicity();
+    bool is_nubar  = pdg::IsAntiNeutrino(probepdgc);
     bool is_EM     = proc_info.IsEM();
-//  bool is_CC     = proc_info.IsWeakCC();
-//  bool is_NC     = proc_info.IsWeakNC();
-  bool is_p      = pdg::IsProton  (nucpdgc);
+    bool is_CC     = proc_info.IsWeakCC();
+    bool is_NC     = proc_info.IsWeakNC();
+    int  inubnu    = is_nubar?-1:1;
+    bool is_p      = pdg::IsProton  (nucpdgc);
 
 
-  // Get kinematical parameters
-  const Kinematics & kinematics = interaction -> Kine();
-  double Eli_L = init_state.ProbeE(kRfHitNucRest);
-  double ml    = interaction->FSPrimLepton()->Mass();
-  double ml2   = ml*ml;
-  double Q2    = kinematics.Q2();
-  double W     = kinematics.W();
-  double W2    = W*W;
-  
-  // dimension of kine phase space
-  std::string s = KinePhaseSpace::AsString(kps);
-  int kpsdim = s!="<|E>"?1 + std::count(s.begin(), s.begin()+s.find('}'), ','):0;
-  if (kpsdim < 3 || kpsdim > 4) return 0.;
-  // Pion angles should be given in pi-N rest frame
-  double cos_theta_pi = kinematics.GetKV(kKVctp);
-  double phi_pi = 0.;
-  if (kpsdim == 4)
-    phi_pi = kinematics.GetKV(kKVphip);
+    PDGLibrary * pdglib = PDGLibrary::Instance();
+    // mass of initial lepton
+    double flepi    = pdglib->Find(probepdgc)->Mass();
+    double flepi2   = flepi*flepi;
+    // mass of final lepton
+    double flepf    = interaction->FSPrimLepton()->Mass();
+    double flepf2   = flepf*flepf;
+    // mass of isoscalar pion
+    double fpio     = (pdglib->Find(kPdgPiP)->Mass() + pdglib->Find(kPdgPi0)->Mass() + pdglib->Find(kPdgPiM)->Mass())/3;
+    // mass of isoscalar nucleon
+    double fnuc     = (pdglib->Find(kPdgProton)->Mass() + pdglib->Find(kPdgNeutron)->Mass())/2;
+    double fnuc2    = fnuc*fnuc;
 
-  double sin_theta_pi   = TMath::Sqrt(1. - cos_theta_pi*cos_theta_pi);
-//  double SinHalfTheta  = TMath::Sqrt((1 - CosTheta_pi)/2);
-//  double CosHalfTheta  = TMath::Sqrt((1 + CosTheta_pi)/2);
+    // energy transfer in the frame of center of mass \piN
+    double omegc    = (Wsq - fnuc2 - Q2)/2/W;
+    // vec{qc} - momentum transfer in the frame of center of mass \piN
+    // vec{qc}^2 - square of momentum transfer in the frame of center of mass \piN
+    double qc2sp    = Q2 + omegc*omegc;
+    // |vec{qc}|
+    double qgamc    = TMath::Sqrt(qc2sp);
+    // vec{q} - momentum transfer in the LAB-frame
+    // |vec{q}|
+    double qgam     = qgamc*W/fnuc;
+    // vec{q}^2 - square of momentum transfer in the LAB-frame
+    double q2sp     = qgam*qgam;
+    // energy transfer in the LAB-frame
+    double omeg     = TMath::Sqrt(q2sp - Q2);
 
-  PDGLibrary * pdglib = PDGLibrary::Instance();
-  double Mi    = pdglib->Find(SppChannel::InitStateNucleon(spp_channel))->Mass();
-  double Mi2   = Mi*Mi;
-  double Mf    = pdglib->Find(SppChannel::FinStateNucleon(spp_channel))->Mass();
-  double Mf2   = Mf*Mf;
-  double m_pi  = pdglib->Find(SppChannel::FinStatePion(spp_channel))->Mass();
-  double m_pi2 = m_pi*m_pi;
+    // energy of pion in the frame of center of mass \piN
+    double epioc    = (Wsq - fnuc2 + fpio*fpio)/2/W;
+    //  vec{k} - momentum of pion in the frame of center of mass \piN
+    // |vec{k}|
+    double qpioc    = TMath::Sqrt(epioc*epioc - fpio*fpio);
 
 
-  // Eqs. 14, 15 of ref. 4
-  double nu                = (W2 - Mi2 - Q2)/2./W;
-  double q                 = TMath::Sqrt(Q2 + nu*nu);
-  double qL                = q*W/Mi;
-  double qL2               = qL*qL;
-  double nu_L              = TMath::Sqrt(qL2 - Q2);
- 
-  double k0                = (W2 - Mf2 + m_pi2)/2./W;
-  // Eq. 16 of ref. 4
-  double k                 = TMath::Sqrt(k0*k0 - m_pi2);
-  // Eq. 17 of ref. 4
-  double q_gamma           = (W2 - Mi2)/2./W;
-  // Eq. 3 of ref. 4
-  double qL_gamma          = (W2 - Mi2)/2./Mi;
-  
-  double Elf_L             = Eli_L - nu_L;
-  double pli_L             = TMath::Sqrt(Eli_L*Eli_L - ml2);
-  double plf_L             = TMath::Sqrt(Elf_L*Elf_L - ml2);
-  double cos_theta_l       = (Eli_L*Elf_L - Q2/2. - ml2)/pli_L/plf_L;
-  double B                 = Mi*(2*Eli_L + Mi) - W2;
-  double C                 = pli_L*TMath::Sqrt(B*B - 4*ml2*Mi2);
-  double eps               = 2*Mi2*Q2*(C + Eli_L*B - 2*ml2*Mi)/(W2 - Mi2)/(C - Eli_L*B + 2*ml2*Mi);
-//  double one_minus_cos_theta_l = (pli_L*plf_L - Eli_L*Elf_L)/pli_L/plf_L + (Q2/2. + ml2)/pli_L/plf_L;
-  //double cos_theta_l       = 1. - one_minus_cos_theta_l;
-  // Eq. 4 of ref. 4
-  double epsilon = 0.;
-  if (cos_theta_l > -1.)
-//  if (one_minus_cos_theta_l < 2.)
-  {
-    double tan_half_theta_l2  = (1. - cos_theta_l)/(1. + cos_theta_l);
-    //double tan_half_theta_l2  = one_minus_cos_theta_l/(2. - one_minus_cos_theta_l);
-    epsilon                   = 1./(1. + 2.*qL2*tan_half_theta_l2/Q2);
-  }
-  // Eq. 2 of ref. 4
-  double Gamma             = kAem*qL_gamma*Elf_L/2./kPi2/Q2/Eli_L/(1. - epsilon);
-    
-  
-  std::complex<double> F1, F2, F3, F4, F7, F8;
-  for (unsigned int L = 0; L<5; L++)
-  {
-     VAmpl vampl = Amplitudes(W, Q2, L, spp_channel);
-     // Multipole amplitudes, in units (Fermi/1000)
-     std::complex<double> & ELp =  vampl[0];
-     std::complex<double> & ELm =  vampl[1];
-     std::complex<double> & MLp =  vampl[2];
-     std::complex<double> & MLm =  vampl[3];
-     std::complex<double> & SLp =  vampl[4];
-     std::complex<double> & SLm =  vampl[5];
-     double & x = cos_theta_pi;
+    // energy of initial lepton
+    double elepi    = init_state.ProbeE(kRfHitNucRest);
+    // magnitude of momentum of initial lepton
+    double plepi    = TMath::Sqrt(elepi*elepi - flepi2);
+    // energy of final lepton
+    double elepf    = elepi - omeg;
+    // magnitude of momentum of final lepton
+    double plepf    = TMath::Sqrt(elepf*elepf - flepf2);
+    // theta - scattering angle of final lepton
+    // cos(theta)
+    double costhl   = (2*elepi*elepf - Q2 - flepi2 - flepf2)/2/plepi/plepf;
+    //  cosine of polar angle of pion in the frame of center of mass \piN
+    double costhpi = kinematics.GetKV(kKVctp);
+    // azimuthal angle of pion in the frame of center of mass \piN
+    double phipi = 0;
+    if (kpsdim == 4)
+        phipi = kinematics.GetKV(kKVphip);
 
-     // Eq. 26 of ref. 4
-     F1 += dPdx(L+1, x)*(ELp + 1.*L*MLp) + dPdx(L-1, x)*(ELm + 1.*(L+1)*MLm);
-     // Eq. 27 of ref. 4
-     F2 += dPdx(L, x)*(1.*(L+1)*MLp + 1.*L*MLm);
-     // Eq. 28 of ref. 4
-     F3 += d2Pdx2(L+1, x)*(ELp - MLp) + d2Pdx2(L-1, x)*(ELm + MLm);
-     // Eq. 29 of ref. 4
-     F4 += d2Pdx2(L, x)*(MLp - MLm - ELp - ELm);
-     // Eq. 32 of ref. 4
-     F7 += dPdx(L, x)*(1.*L*SLm - 1.*(L+1)*SLp) ;
-     // Eq. 33 of ref. 4
-     F8 += (L+1)*dPdx(L+1, x)*SLp - L*dPdx(L-1, x)*SLm;      
-  }
-  
-  // The Pauli matrices times by imaginary unit between the final and initial nucleon spins along z-axis 
-  std::vector<std::vector<std::complex<double> > > ISx = { {0., 1i}, {1i, 0.} };
-  std::vector<std::vector<std::complex<double> > > ISy = { {0., 1.}, {-1., 0.} };
-  std::vector<std::vector<std::complex<double> > > ISz = { {1i, 0.}, {0., -1i} };
-  
-  std::vector<std::vector<std::complex<double> > > Fx(2, std::vector<std::complex<double> >(2));
-  std::vector<std::vector<std::complex<double> > > Fy(2, std::vector<std::complex<double> >(2));
-  std::vector<std::vector<std::complex<double> > > F0(2, std::vector<std::complex<double> >(2));
-  
-  for (int sf = 0; sf<2; sf++)
-  {
-    for (int si = 0; si<2; si++)
+    double fcrsc = 0;
+    if (is_EM)
+        // a factor for EM scattering
+        fcrsc = 16*kPi2*kAem2/Q2/Q2/2;
+    else if (is_CC)
+        // a factor for CC scattering
+        fcrsc = kGF2*fVud*fVud*kMw2*kMw2/(kMw2 + Q2)/(kMw2 + Q2);
+    else if (is_NC)
+        // a factor for NC scattering
+        fcrsc = kGF2*kMz2*kMz2/(kMz2 + Q2)/(kMz2 + Q2);
+
+    double fcrsa = plepf/plepi/4/kPi2*fcrsc;
+
+
+    if (kpsdim == 2)
     {
-      // Eq. 23 of ref. 4
-      Fx[sf][si] = ISx[sf][si]*(F1 + F2*cos_theta_pi + F4*sin_theta_pi*sin_theta_pi) + 
-                   ISz[sf][si]*sin_theta_pi*(F2 + F3 + F4*cos_theta_pi);
-      // Eq. 24 of ref. 4
-      Fy[sf][si] = ISy[sf][si]*(F1 - F2*cos_theta_pi) - F2*sin_theta_pi;
-      // Eq. 25 of ref. 4
-      F0[sf][si] = ISz[sf][si]*(F7*cos_theta_pi + F8) + ISx[sf][si]*F7*sin_theta_pi;
-    }
 
-  }
-  
-  // Eq. 21 of ref. 4
-  double ReFxx, ReFyy, ReF00, ReFx0, ImFx0;
-  std::complex<double> Fxx, Fyy, F00, Fx0;
-  for (int sf = 0; sf<2; sf++)
-  {
-    for (int si = 0; si<2; si++)
+        double ss2, cc2;
+        // speed of initial lepton
+        double betai = plepi/elepi;
+        // speed of final lepton
+        double betaf = plepf/elepf;
+        // Further cos(chi) = pf*cos(theta)/Ef,
+        // cos(chi)->cos(theta), when mf_0->0
+        // ss2=sin^2(chi/2)-mi*mf/Ei/Ef
+        // cc2=cos^2(chi/2)+mi*mf/Ei/Ef
+
+        // for EM scattering
+        if(is_EM)
+        {
+            ss2 = (1 - betai*betaf*costhl)/2 - flepf2/elepi/elepf;
+            cc2 = (1 + betai*betaf*costhl)/2 + flepf2/elepi/elepf/2;
+        }
+
+        // for CC scattering
+        if(is_CC)
+        {
+            ss2 = (1 - betaf*costhl)/2;
+            cc2 = (1 + betaf*costhl)/2;
+        }
+
+        // for NC scattering
+        if(is_NC)
+        {
+            ss2 = (1 - costhl)/2;
+            cc2 = (1 + costhl)/2;
+        }
+        std::complex<double> zvep, zvem, zvmp, zvmm, zvsp, zvsm, zaep, zaem, zamp, zamm, zalp, zalm, zasp, zasm, zrhp, zrhm, zaxp, zaxm;
+        double fact   = 4*W*qpioc/fnuc;
+        double facl   = Q2/qgamc/qgamc;
+        double rt = 0, rl = 0, rtp = 0, rrh = 0, rrh0 = 0, rrh0i = 0;
+        for (int il = 0; il < maxl; il++)
+        {
+            double l = static_cast<double>(il);
+            // vector current
+            zvep  = MultipoleV(interaction, 0, l-1);  // E^+_{l-1}
+            zvem  = MultipoleV(interaction, 1, l+1);  // E^-_{l+1}
+            zvmp  = MultipoleV(interaction, 2, l  );  // M^+_{l}
+            zvmm  = MultipoleV(interaction, 3, l  );  // M^-_{l}
+            zvsp  = MultipoleV(interaction, 6, l-1);  // S^+_{l-1}
+            zvsm  = MultipoleV(interaction, 7, l+1);  // S^-_{l+1}
+
+            // axial vector current
+            zaep  = MultipoleA(interaction, 0, l  );  // E^+_{l}
+            zaem  = MultipoleA(interaction, 1, l  );  // E^-_{l}
+            zamp  = MultipoleA(interaction, 2, l-1);  // M^+_{l-1}
+            zamm  = MultipoleA(interaction, 3, l+1);  // M^-_{l+1}
+            zalp  = MultipoleA(interaction, 4, l  );  // L^+_{l}
+            zalm  = MultipoleA(interaction, 5, l  );  // L^-_{l}
+            zasp  = MultipoleA(interaction, 6, l  );  // S^+_{l}
+            zasm  = MultipoleA(interaction, 7, l  );  // S^-_{l}
+
+            zrhp  = omegc*zasp - qgamc*zalp;
+            zrhm  = omegc*zasm - qgamc*zalm;
+            zaxp  = zasp + zrhp*omegc/Q2;
+            zaxm  = zasm + zrhm*omegc/Q2;
+
+            rt    += std::real((l+1)*(l+1)*l*(zvmp*std::conj(zvmp) + zvem*std::conj(zvem) + zamm*std::conj(zamm) + zaep*std::conj(zaep)) +
+                            (l+1)*l*l*    (zvmm*std::conj(zvmm) + zvep*std::conj(zvep) + zamp*std::conj(zamp) + zaem*std::conj(zaem)));
+            rl    += std::real((l+1)*(l+1)*(l+1)*(zvsm*std::conj(zvsm) + zaxp*std::conj(zaxp)) + l*l*l*(zvsp*std::conj(zvsp) + zaxm*std::conj(zaxm)));
+            rtp   -= (l+1)*(l+1)*l*std::real(zvmp*std::conj(zaep) + zvem*std::conj(zamm) - l*l*(l+1)*zvmm*std::conj(zaem) + zvep*std::conj(zamp));
+            rrh   += (l+1)*(l+1)*(l+1)*std::real(zrhp*std::conj(zrhp) + l*l*l*zrhm*std::conj(zrhm));
+            rrh0  += (l+1)*(l+1)*(l+1)*std::real(zaxp*std::conj(zrhp) + l*l*l*zaxm*std::conj(zrhm));
+            rrh0i += (l+1)*(l+1)*(l+1)*std::imag(zaxp*std::conj(zrhp) + l*l*l*zaxm*std::conj(zrhm));
+        }
+
+        double W1  =  rt*fact/2;
+        double W2  =  Q2/q2sp*(rt/2 + rl*facl)*fact;
+        double W3  = -2*fnuc/qgam*rtp*fact;
+        double W4  =  fnuc2/Q2*Q2*rrh*fact;
+        double W5  = -W/q2sp*rrh0*fact;
+
+        xsec = 2*ss2*W1 + cc2*W2;
+
+        if(is_CC || is_NC)
+        {
+            double pq  = -fnuc*omeg/Q2;
+            double W4x = W4 - fnuc2/Q2*W1 + pq*pq*W2 - 2*pq*W5;
+            double W5x = W5 - pq*W2;
+            xsec += inubnu*W3*((elepi+elepf)*ss2 - flepf2/2/elepf)/fnuc + flepf2/fnuc2*ss2*W4x - flepf2/fnuc/elepf*W5x;
+        }
+
+        // a factor for d\sigma3/dE_f dO_f
+        double factor = fcrsa*elepi*elepf*2;
+        xsec *= factor;
+
+    }
+    else
     {
-      Fxx += Fx[sf][si]*std::conj(Fx[sf][si]);
-      Fyy += Fy[sf][si]*std::conj(Fy[sf][si]);
-      F00 += F0[sf][si]*std::conj(F0[sf][si]);
-      Fx0 += Fx[sf][si]*std::conj(F0[sf][si]);
-    }
-  }
-  ReFxx = 0.5*Fxx.real();
-  ReFyy = 0.5*Fyy.real();
-  ReF00 = 0.5*F00.real();
-  ReFx0 = 0.5*Fx0.real();
-  ImFx0 = 0.5*Fx0.imag();
-  
-  // Eq. 9 of ref. 4
-  double dsigmaTdOmega_pi    = k*(ReFxx + ReFyy)/q_gamma/2.;
-  // Eq. 10 of ref. 4
-  double dsigmaLdOmega_pi    = k*Q2*ReF00/q_gamma/q/q;
-  // Eq. 11 of ref. 4
-  double dsigmaTTdOmega_pi   = k*(ReFxx - ReFyy)/q_gamma/2.;
-  // Eq. 12 of ref. 4
-  double dsigmaLTdOmega_pi   = -k*TMath::Sqrt(Q2)*ReFx0/q_gamma/q;
-  // Eq. 13 of ref. 4
-  double dsigmaLTpdOmega_pi  = k*TMath::Sqrt(Q2)*ImFx0/q_gamma/q;
+        double conv    = omegc/qgamc;
+        std::complex<double> zv1 = 0, zv2 = 0, zv3 = 0, zv4 = 0;
+        std::complex<double> zv5 = 0, zv6 = 0, zv7 = 0, zv8 = 0;
+        std::complex<double> za1 = 0, za2 = 0, za3 = 0, za4 = 0;
+        std::complex<double> za5 = 0, za6 = 0, za7 = 0, za8 = 0;
+        std::complex<double> zelp, zelm, zmlp, zmlm, zllp, zllm, zslp, zslm;
 
-  double dsigmavdOmega_pi;
-  if (kpsdim == 4)
-  {
-    // Eq. 8 of ref. 4
-    dsigmavdOmega_pi = 
-       dsigmaTdOmega_pi + epsilon*dsigmaLdOmega_pi +
-       epsilon*dsigmaTTdOmega_pi*TMath::Cos(2.*phi_pi) +
-       TMath::Sqrt(2*epsilon*(1. + epsilon))*dsigmaLTdOmega_pi*TMath::Cos(phi_pi) + 
-       TMath::Sqrt(2*epsilon*(1. - epsilon))*dsigmaLTpdOmega_pi*TMath::Sin(phi_pi)*helicity;
-  }
-  else if (kpsdim == 3)
-  {
-    // Eq. 18 of ref. 4
-    dsigmavdOmega_pi = dsigmaTdOmega_pi + epsilon*dsigmaLdOmega_pi;
-    dsigmavdOmega_pi*= 2*kPi;
-  }
-  //return dsigmavdOmega_pi/200./kPi;
-  // convert to hbarc=1 units
-  dsigmavdOmega_pi*=fermi2*1e-6;
-  // Eq. 1 of ref. 4
-  xsec = Gamma*dsigmavdOmega_pi;
-  // convert to d^4sig/dQ2dWdcos_theta_pidphi_pi
-  xsec*=kPi*W/Mi/pli_L/plf_L;
- 
-  // The algorithm computes d^4xsec/dWdQ2dCostThetadPhi or d^3xsec/dWdQ2dCostTheta
+        double leg[3][maxl+1];
+        CalculateLegendre(costhpi, leg);
+        double * dleg  = &leg[1][1];
+        double * ddleg = &leg[2][1];
+
+
+        for (int il = 0; il < maxl; il++)
+        {
+            double l = static_cast<double>(il);
+            double faz11 = -(l+1)*dleg[il];
+            double faz12 =  l*dleg[il];
+            double faz21 =  (l+1)*dleg[il+1];
+            double faz22 = -l*dleg[il-1];
+            zelp     = MultipoleV(interaction, 0, il);
+            zelm     = MultipoleV(interaction, 1, il);
+            zmlp     = MultipoleV(interaction, 2, il);
+            zmlm     = MultipoleV(interaction, 3, il);
+            zllp     = MultipoleV(interaction, 6, il)*conv;   // cvc
+            zllm     = MultipoleV(interaction, 7, il)*conv;   // cvc
+            zslp     = MultipoleV(interaction, 6, il);
+            zslm     = MultipoleV(interaction, 7, il);
+            zv1     += dleg[il+1] *(zelp + l*zmlp) + dleg[il-1]*(zelm + (l+1)*zmlm);
+            zv2     += dleg[il]   *((l+1)*zmlp+ l*zmlm);
+            zv3     += ddleg[il+1]*(zelp - zmlp) + ddleg[il-1]*(zelm + zmlm);
+            zv4     += ddleg[il]  *(zmlp - zelp - zelm - zmlm);
+            zv5     += faz21*zllp + faz22*zllm;
+            zv6     += faz11*zllp + faz12*zllm;
+            zv7     += faz11*zslp + faz12*zslm;
+            zv8     += faz21*zslp + faz22*zslm;
+        }
+
+        if(is_CC)
+        {
+            for (int il = 0; il < maxl; il++)
+            {
+                double l = static_cast<double>(il);
+                double faz11 = -(l+1)*dleg[il];
+                double faz12 =  l*dleg[il];
+                double faz21 =  (l+1)*dleg[il+1];
+                double faz22 = -l*dleg[il-1];
+                zelp     = MultipoleA(interaction, 0, il);
+                zelm     = MultipoleA(interaction, 1, il);
+                zmlp     = MultipoleA(interaction, 2, il);
+                zmlm     = MultipoleA(interaction, 3, il);
+                zllp     = MultipoleA(interaction, 4, il);
+                zllm     = MultipoleA(interaction, 5, il);
+                zslp     = MultipoleA(interaction, 6, il);
+                zslm     = MultipoleV(interaction, 7, il);
+                za1     += dleg[il]    *(zelp + zelm + (l+2)*zmlp + (l-1)*zmlm);
+                za2     += dleg[il+1]  *(l+1)*zmlp + dleg[il-1]*l*zmlm;
+                za3     += ddleg[il]   *(zelp + zelm + zmlp - zmlm);
+                za4     += ddleg[il-1] *(zmlm - zelm) - ddleg[il+1]*(zelp + zmlp);
+                za5     += faz11*zllp + faz12*zllm;
+                za6     += faz21*zllp + faz22*zllm;
+                za7     += faz21*zslp + faz22*zslm;
+                za8     += faz11*zslp + faz12*zslm;
+            }
+        }
+
+        double sinthpi   = TMath::Sqrt(1 - costhpi*costhpi);
+        std::complex<double> zff[4][4];
+        zff[0][1] = -sinthpi*za8;
+        zff[0][3] = -1i*(costhpi*za8 + za7);
+        zff[3][1] = -sinthpi*za5;
+        zff[3][3] = -1i*(costhpi*za5 + za6);
+        zff[1][1] = costhpi*za1 - za2 - sinthpi*sinthpi*za3;
+        zff[1][3] = -1i*sinthpi*(za1 + za4 + costhpi*za3);
+        zff[2][0] = za2 - costhpi*za1;
+        zff[2][2] = sinthpi*za1;
+        zff[0][0] = 1i*sinthpi*zv7;
+        zff[0][2] = 1i*(costhpi*zv7 + zv8);
+        zff[3][0] = 1i*sinthpi*zv6;
+        zff[3][2] = 1i*(costhpi*zv6 + zv5);
+        zff[1][0] = 1i*(zv1 - costhpi*zv2 + sinthpi*sinthpi*zv4);
+        zff[1][2] = 1i*sinthpi*(zv2 + zv3 + costhpi*zv4);
+        zff[2][1] = 1i*(zv1 - costhpi*zv2);
+        zff[2][3] = -sinthpi*zv2;
+
+        std::complex<double> zsum;
+        std::complex<double> ztr[4][4];
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+            {
+                zsum = 0;
+                for (int k = 0; k < 4; k++)
+                    zsum += zff[i][k]*std::conj(zff[j][k]);
+                ztr[i][j] = zsum;
+            }
+
+        double sinthl   = TMath::Sqrt(1 - costhl*costhl);
+        double ch      = (fnuc + omeg)/W;
+        double sh      = qgam/W;
+        double q       = TMath::Sqrt(plepi*plepi + plepf*plepf - 2*plepf*plepi*costhl);
+        double plkv0   = (elepi + elepf)/2;
+        double plkv3   = (plepi*plepi - plepf*plepf)/2/q;
+
+        double plkcv0  = ch*plkv0 - sh*plkv3;
+        double plkcv1  = plepi*plepf/q*sinthl;  // plkcv1 = plkv1
+        double plkcv3  = ch*plkv3 - sh*plkv0;
+        double xkbq    = plkcv0*qgamc - plkcv3*omegc;
+        double xkzc    = plkcv3;
+        double xk0c    = plkcv0;
+        double xkxc    = plkcv1;
+
+        double del     = 0;
+        if (is_CC)
+            del        = flepf*flepf;
+
+        double xqjqj = 0, xkjkj = 0;
+        std::complex<double> zqj, zbqj, zkj;
+        std::complex<double> zkjjx = 0;
+        std::complex<double> zkjjy  = 0, zbqjjx = 0, zbqjjy = 0;
+        for (int i = 0; i < 4; i++)
+        {
+            zqj      = omegc*zff[0][i] - qgamc*zff[3][i];
+            zbqj     = qgamc*zff[0][i] - omegc*zff[3][i];
+            zkj      = xk0c* zff[0][i] - xkzc *zff[3][i];
+            xqjqj   += std::real(zqj*std::conj(zqj));
+            xkjkj   += std::real(zkj*std::conj(zkj));
+            if (kpsdim == 4)
+            {
+                zbqjjx  += zbqj*std::conj(zff[1][i]);
+                zbqjjy  += zbqj*std::conj(zff[2][i]);
+                zkjjx   += zkj *std::conj(zff[1][i]);
+                zkjjy   += zkj *std::conj(zff[2][i]);
+            }
+
+        }
+
+        double vt1    =  2*xkxc*xkxc + Q2 + del;
+        double vt2    = -2*xkbq;
+        double rr1    = std::real(ztr[1][1] + ztr[2][2])/2;
+        double rr2    = std::imag(ztr[1][2]);
+        double rr11   = xkjkj;
+        double rr12   = xqjqj;
+        double rr13   = std::real(ztr[0][0] - ztr[3][3]);
+        double rta    = vt1*rr1;
+        double rtb    = vt2*rr2;
+        double rl     = 2*rr11 - (rr12 + (Q2 + del)*rr13)/2;
+        double r0     = rta + rl + inubnu*rtb;
+        double rc1    = 0;
+        double rs1    = 0;
+        double rc2    = 0;
+        double rs2    = 0;
+
+        // a factor for d\sigma5/dE_f dO_f dcos_theta_pi
+        double factor = 2*fcrsa*W*qpioc/fnuc;
+
+        if (kpsdim == 4)
+        {
+            double vrc1a  = -4*xkxc;
+            double vrc1b  =  2*xkxc;
+            double vrs1a  = -vrc1a;
+            double vrs1b  =  vrc1b;
+            double vrc2   =  2*xkxc*xkxc;
+            double vrs2   =  vrc2;
+            double rr8    = std::real(ztr[1][1] - ztr[2][2])/2;
+            double rr9    =-std::real(ztr[1][2]);
+            double rr14   = std::real(zkjjx);
+            double rr15   = std::real(zkjjy);
+            double rr16   = std::imag(zbqjjx);
+            double rr17   = std::imag(zbqjjy);
+            double rc1a   = vrc1a*rr14;
+            double rc1b   = vrc1b*rr17;
+            double rs1a   = vrs1a*rr15;
+            double rs1b   = vrs1b*rr16;
+                   rc2    = vrc2*rr8;
+                   rs2    = vrs2*rr9;
+                   rc1    = rc1a + inubnu*rc1b;
+                   rs1    = rs1a + inubnu*rs1b;
+
+            // a factor for d\sigma5/dE_f dO_f dO_pi
+            factor = fcrsa*W*qpioc/kPi/fnuc;
+        }
+
+
+        xsec = r0 + rc1*TMath::Cos(phipi) + rs1*TMath::Sin(phipi) + rc2*TMath::Cos(2*phipi) + rs2*TMath::Sin(2*phipi);
+        xsec *= factor;
+    }
+    // // a factor to convert d/dE_fdO_f -> d/dWdQ2
+    double factor = kPi*W/fnuc/plepf/plepi;
+    xsec *= factor;
+
+
+  // The algorithm computes d^4xsec/dWdQ2dCosTheta_pidPhi_pi or d^3xsec/dWdQ2dCosTheta_pi or d^2xsec/dWdQ2
   // Check whether variable tranformation is needed
-  if ( kps != kPSWQ2ctpphipfE && kps != kPSWQ2ctpfE )
+  if ( kps != kPSWQ2ctpphipfE && kps != kPSWQ2ctpfE && kps != kPSWQ2fE)
   {
      double J = 1.;
-     if (kpsdim == 3)
+     if (kpsdim == 2)
+       J = utils::kinematics::Jacobian(interaction, kPSWQ2fE, kps);
+     else if (kpsdim == 3)
        J = utils::kinematics::Jacobian(interaction, kPSWQ2ctpfE, kps);
-     else if (kpsdim == 4)
+     else
        J = utils::kinematics::Jacobian(interaction, kPSWQ2ctpphipfE, kps);
      xsec *= J;
   }
 
   // Apply given scaling factor
-  if      (is_EM) { xsec *= fXSecScaleEM; }
+  if (is_EM)
+    xsec *= fXSecScaleEM;
+  if (is_CC)
+    xsec *= fXSecScaleCC;
+  if (is_NC)
+    xsec *= fXSecScaleNC;
 
   // If requested return the free nucleon xsec even for input nuclear tgt
   if ( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
@@ -309,12 +510,12 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
 
      if (P_Fermi > 0.)
      {
-        if ( 2*P_Fermi < q-k )
+        if (2*P_Fermi < qgamc - qpioc)
            FactorPauli_RES = 1.0;
-        if ( 2*P_Fermi >= q+k )
-           FactorPauli_RES = ((3*q*q + k*k)/(2*P_Fermi) - (5*TMath::Power(q,4) + TMath::Power(k,4) + 10*q*q*k*k)/(40*TMath::Power(P_Fermi,3)))/(2*q);
-        if ( 2*P_Fermi >= q-k && 2*P_Fermi <= q+k )
-           FactorPauli_RES = ((k + q)*(k + q) - 4*P_Fermi*P_Fermi/5 - TMath::Power(q - k, 3)/(2*P_Fermi)+TMath::Power(q - k, 5)/(40*TMath::Power(P_Fermi, 3)))/(4*k*q);
+        if (2*P_Fermi >= qgamc + qpioc)
+           FactorPauli_RES = ((3*qgamc*qgamc + qpioc*qpioc)/2/P_Fermi - (5*TMath::Power(qgamc,4) + TMath::Power(qpioc,4) + 10*qgamc*qgamc*qpioc*qpioc)/(40*TMath::Power(P_Fermi,3)))/2/qgamc;
+        if (2*P_Fermi >= qgamc - qpioc && 2*P_Fermi <= qgamc + qpioc)
+           FactorPauli_RES = ((qpioc + qgamc)*(qpioc + qgamc) - 4*P_Fermi*P_Fermi/5 - TMath::Power(qgamc - qpioc, 3)/(2*P_Fermi) + TMath::Power(qgamc - qpioc, 5)/(40*TMath::Power(P_Fermi, 3)))/4/qpioc/qgamc;
      }
 
      xsec *= FactorPauli_RES;
@@ -322,7 +523,450 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
   return xsec;
 
 }
+//____________________________________________________________________________
+void DCCSPPPXSec::CalculateLegendre(double x, double la[3][maxl+1]) const
+{
+    double * leg   = &la[0][1];
+    double * dleg  = &la[1][1];
+    double * ddleg = &la[2][1];
 
+    leg[0]   = 1;
+    leg[1]   = x;
+    dleg[-1] = 0;
+    dleg[0]  = 0;
+    dleg[1]  = 1;
+    ddleg[-1]= 0;
+    ddleg[0] = 0;
+    ddleg[1] = 0;
+
+    for (int l = 2; l < maxl; l++)
+    {
+        leg[l]  = (x*(2*l-1)*leg[l-1] - (l-1)*leg[l-2])/l;
+        dleg[l] = l*leg[l-1] + x*dleg[l-1];
+        ddleg[l]= (l+1)*dleg[l-1]+ x*ddleg[l-1];
+    }
+
+}
+//____________________________________________________________________________
+std::string DCCSPPPXSec::FindDataTableFile(const std::string &basename, bool &ok) const
+{
+
+  for (size_t p = 0; p < fDataPaths.size(); ++p)
+  {
+    const std::string& path = fDataPaths.at( p );
+    std::string full_name = path + '/' + basename;
+    // is file exist?
+    if ( std::ifstream(full_name.c_str()).good() )
+      return full_name;
+  }
+
+  // A matching file could not be found
+  ok = false;
+  return std::string();
+
+}
+//____________________________________________________________________________
+void DCCSPPPXSec::ReadMultipoleTable(void)
+{
+
+    bool table_ok;
+    std::string full_file_name = FindDataTableFile("amp-202303.dat", table_ok);
+
+    if ( table_ok )
+    {
+        LOG("DCCSPPPXSec", pINFO) <<
+            "Loading the table with ANL-Osaka multipole amplitudes from file " << full_file_name;
+
+        std::ifstream file(full_file_name);
+        char cdum[20];
+        int mxw, mxq, mxl;
+        file >> mxw >> mxq >> mxl >> cdum;
+        for (int iW = 0; iW < maxW; iW++)
+            for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
+            {
+                file >> Wnodes[iW] >> Q2nodes[iQ2] >> cdum >> cdum;
+                for (int imu = 0; imu < maxmu; imu++)
+                    for (int iso = 0; iso < maxiso; iso++)
+                    {
+                        file.ignore(11);
+                        for (int il = 0; il < maxl; il++)
+                            file >> MultipoleTbl[MultipoleTblIndx(imu, il, iso, 0, iQ2, 0, iW)] >> MultipoleTbl[MultipoleTblIndx(imu, il, iso, 1, iQ2, 0, iW)];
+                    }
+            }
+        file.close();
+    }
+    else
+    {
+        LOG("DCCSPPPXSec", pERROR) <<
+            "Couldn't load the table with ANL-Osaka multipole amplitudes from file " << full_file_name;
+        std::exit(EXIT_FAILURE);
+    }
+
+}
+void DCCSPPPXSec::Spline (const int n, const double * x, const double * y, double * b, double * c, double * d) const
+// Calculate spline coefficients bi, ci, di for cubic spline Si(x) = yi + bi(x - xi) + ci(x-xi)^2 + di(x - xi)^3 for a function given in points xi, yi
+/*!
+    @param[in]  n    - number of points
+    @param[in]  x    - pointer to array with \f$x_i\f$
+    @param[in]  y    - pointer to array with \f$y_i\f$
+    @param[out] b    - pointer to array with \f$b_i\f$
+    @param[out] c    - pointer to array with \f$c_i\f$
+    @param[out] d    - pointer to array with \f$d_i\f$
+*/
+{
+    int nm1 = n-1;
+    //  set up tridiagonal system
+    //  b = diagonal, d = offdiagonal, c = right hand side.
+    d[0] = x[1] - x[0];
+    c[1] = (y[1] - y[0])/d[0];
+    for (int i = 1; i < nm1; i++)
+    {
+        d[i]   = x[i+1] - x[i];
+        b[i]   = 2*(d[i-1] + d[i]);
+        c[i+1] = (y[i+1] - y[i])/d[i];
+        c[i]   = c[i+1] - c[i];
+    }
+
+    // end conditions, third derivatives at x[0] and x[n]
+    // obtained from divided differences
+      b[0]   = -d[0];
+      b[n-1] = -d[n-2];
+      c[0]   = c[2]/(x[3]-x[1]) - c[1]/(x[2]-x[0]);
+      c[n-1] = c[n-2]/(x[n-1]-x[n-3]) - c[n-3]/(x[n-2]-x[n-4]);
+      c[0]   = c[0]*d[0]*d[0]/(x[3]-x[0]);
+      c[n-1] = -c[n-1]*d[n-2]*d[n-2]/(x[n-1]-x[n-4]);
+
+    // forward elimination
+    for (int i = 1; i < n; i++)
+    {
+        double t = d[i-1]/b[i-1];
+        b[i] -= t*d[i-1];
+        c[i] -= t*c[i-1];
+    }
+
+    // back substitution
+    c[n-1] = c[n-1]/b[n-1];
+    for (int i = nm1-1; i >= 0; i--)
+        c[i] = (c[i] - d[i]*c[i+1])/b[i];
+
+    // compute polynomial coefficients
+    b[n] = (y[n] - y[nm1])/d[nm1] + d[nm1]*(c[nm1] + 2*c[n]);
+    for (int i = 0; i < nm1; i++)
+    {
+        b[i] = (y[i+1] - y[i])/d[i] - d[i]*(c[i+1] + 2*c[i]);
+        d[i] = (c[i+1] - c[i])/d[i];
+        c[i] *= 3;
+    }
+    c[n-1] *= 3;
+    d[n-1] = d[n-2];
+}
+
+void DCCSPPPXSec::InitializeSplineCoefficients()
+{
+    for (int imu = 0; imu < maxmu; imu++)
+        for (int il = 0; il < maxl; il++)
+            for (int iso = 0; iso < maxiso; iso++)
+                for (int izp = 0; izp < maxzp; izp++)
+                    for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
+                        Spline (maxW, &Wnodes[0],
+                                        &MultipoleTbl[MultipoleTblIndx(imu, il, iso, izp, iQ2, 0, 0)],
+                                        &MultipoleTbl[MultipoleTblIndx(imu, il, iso, izp, iQ2, 1, 0)],
+                                        &MultipoleTbl[MultipoleTblIndx(imu, il, iso, izp, iQ2, 2, 0)],
+                                        &MultipoleTbl[MultipoleTblIndx(imu, il, iso, izp, iQ2, 3, 0)]);
+}
+
+int DCCSPPPXSec::MultipoleTblIndx (int imu, int il, int iso, int izpart, int iQ2, int icf, int iW) const
+// Calculate position in table with ANL-Osaka multipole amplitudes
+/*!
+    @param[in] imu    - multipole index: 0 -\f$E_{l+}\f$, 1 -\f$E_{l-}\f$, 2 -\f$M_{l+}\f$, 3 -\f$M_{l-}\f$, 4 -\f$S_{l+}\f$, 5 -\f$S_{l-}\f$, 6 -\f$L_{l+}\f$, 7 -\f$L_{l-}\f$
+    @param[in] il     - \f$l\f$ (orbital momentum from 0 to DCCSPPPXSec::maxl - 1)
+    @param[in] iso    - isospin index: 0 -\f$a^V_{\frac{3}{2}}\f$, 1 -\f$a^V_{\frac{1}{2}}\f$, 2 -\f$a^V_{0}\f$, 3 -\f$a^A_{\frac{3}{2}}\f$, 4 -\f$a^A_{\frac{1}{2}}\f$
+    @param[in] izpart - 0 - Re, 1 - Im
+    @param[in] iQ2    - index of \f$Q^2\f$-node
+    @param[in] icf    - cubic spline (\f$S_\textrm{iW}(W) = y_\textrm{iW}+b_\textrm{iW}(W-W_\textrm{iW})+{c_\textrm{iW}}(W-W_\textrm{iW})^2+d_\textrm{iW}(W-W_\textrm{iW})^3\f$) coefficient for <b>iW</b>-node: 0 -\f$y_\textrm{iW}\f$, 1 -\f$b_\textrm{iW}\f$, 2 -\f$c_\textrm{iW}\f$, 3 -\f$d_\textrm{iW}\f$
+    @param[in] iW     - index of \f$W\f$-node
+*/
+{
+    return (((((imu*maxl + il)*maxiso + iso)*maxzp + izpart)*maxQ2 + iQ2)*maxcf + icf)*maxW + iW;
+}
+//____________________________________________________________________________
+int DCCSPPPXSec::Wnode (double W) const
+{
+    const int N = 11;
+    double pos[N][2] = { {1.07701, 0}, {1.08, 1}, {1.16, 9}, {1.21, 19}, {1.22, 23}, {1.225, 24},
+                         {1.2255, 25}, {1.23, 26}, {1.24, 28}, {2.0, 104}, {2.1, 109} };
+    int low = 0;
+    int up = N;
+    while (up-low > 1)
+    {
+        int inx = (low + up)/2;
+        if (W<=pos[inx][0])
+            up = inx;
+        else
+            low =inx;
+    }
+    return pos[low][1] + TMath::FloorNint((W-pos[low][0])*(pos[up][1]-pos[low][1])/(pos[up][0]-pos[low][0])+1E-5);
+}
+//____________________________________________________________________________
+int DCCSPPPXSec::Q2node (double Q2) const
+{
+    const int N = 6;
+    double pos[N][2] = { {1E-7, 0}, {0.02, 1}, {0.2, 10}, {1.0, 18}, {2.0, 23}, {3.0, 27}};
+    int low = 0;
+    int up = N;
+    while (up-low > 1)
+    {
+        int inx = (low + up)/2;
+        if (Q2<=pos[inx][0])
+            up = inx;
+        else
+            low =inx;
+    }
+    return pos[low][1] + TMath::FloorNint((Q2-pos[low][0])*(pos[up][1]-pos[low][1])/(pos[up][0]-pos[low][0])+1E-5);
+}
+//____________________________________________________________________________
+double DCCSPPPXSec::IsospinAmplitude(const Interaction * interaction, int iso) const
+/*!
+    @param[in] iso - isospin index: 0 -\f$a^V_{\frac{3}{2}}\f$, 1 -\f$a^V_{\frac{1}{2}}\f$, 2 -\f$a^V_{0}\f$, 3 -\f$a^A_{\frac{3}{2}}\f$, 4 -\f$a^A_{\frac{1}{2}}\f$
+*/
+{
+
+     //-- Get 1pi exclusive channel
+    SppChannel_t spp_chn = SppChannel::FromInteraction(interaction);
+
+    double val = 0;
+
+    if (iso == 0 || iso == 3)
+        switch (spp_chn)
+        {
+            // EM, NC
+            case kSpp_lp_em_10010:  // ich = 1
+            case kSpp_vp_nc_10010:  // ich = 1
+            case kSpp_vbp_nc_10010: // ich = 1
+            case kSpp_ln_em_01010:  // ich = 3
+            case kSpp_vn_nc_01010:  // ich = 3
+            case kSpp_vbn_nc_01010: // ich = 3
+                val = 2./3;
+                break;
+            case kSpp_lp_em_01100:  // ich = 2
+            case kSpp_vp_nc_01100:  // ich = 2
+            case kSpp_vbp_nc_01100: // ich = 2
+            case kSpp_ln_em_10001:  // ich = 4
+            case kSpp_vn_nc_10001:  // ich = 4
+            case kSpp_vbn_nc_10001: // ich = 4
+                val = TMath::Sqrt(2)/3;
+                break;
+            // CC
+            case kSpp_vp_cc_10100:   // ich = 1
+            case kSpp_vbn_cc_01001:  // ich = 1
+                val = TMath::Sqrt(2);
+                break;
+            case kSpp_vn_cc_01100:   // ich = 2
+            case kSpp_vbp_cc_10001:  // ich = 2
+                val = TMath::Sqrt(2)/3;
+                break;
+            case kSpp_vn_cc_10010:   // ich = 3
+            case kSpp_vbp_cc_01010:  // ich = 3
+                val = 2./3;
+                break;
+            default:
+                val = 0;
+        }
+    else if (iso == 1 || iso == 4)
+        switch (spp_chn)
+        {
+            // EM, NC
+            case kSpp_lp_em_10010:  // ich = 1
+            case kSpp_vp_nc_10010:  // ich = 1
+            case kSpp_vbp_nc_10010: // ich = 1
+            case kSpp_ln_em_01010:  // ich = 3
+            case kSpp_vn_nc_01010:  // ich = 3
+            case kSpp_vbn_nc_01010: // ich = 3
+                val = 1./3;
+                break;
+            case kSpp_lp_em_01100:  // ich = 2
+            case kSpp_vp_nc_01100:  // ich = 2
+            case kSpp_vbp_nc_01100: // ich = 2
+            case kSpp_ln_em_10001:  // ich = 4
+            case kSpp_vn_nc_10001:  // ich = 4
+            case kSpp_vbn_nc_10001: // ich = 4
+                val = -TMath::Sqrt(2)/3;
+                break;
+            // CC
+            case kSpp_vn_cc_01100:   // ich = 2
+            case kSpp_vbp_cc_10001:  // ich = 2
+                val = 2*TMath::Sqrt(2)/3;
+                break;
+            case kSpp_vn_cc_10010:   // ich = 3
+            case kSpp_vbp_cc_01010:  // ich = 3
+                val = -2./3;
+                break;
+            default:
+                val = 0;
+        }
+    else if (iso == 2)
+        switch (spp_chn)
+        {
+            // EM, NC
+            case kSpp_lp_em_10010:  // ich = 1
+            case kSpp_vp_nc_10010:  // ich = 1
+            case kSpp_vbp_nc_10010: // ich = 1
+                val = 1;
+                break;
+            case kSpp_lp_em_01100:  // ich = 2
+            case kSpp_vp_nc_01100:  // ich = 2
+            case kSpp_vbp_nc_01100: // ich = 2
+                val = -TMath::Sqrt(2);
+                break;
+            case kSpp_ln_em_01010:  // ich = 3
+            case kSpp_vn_nc_01010:  // ich = 3
+            case kSpp_vbn_nc_01010: // ich = 3
+                val = -1;
+                break;
+            case kSpp_ln_em_10001:  // ich = 4
+            case kSpp_vn_nc_10001:  // ich = 4
+            case kSpp_vbn_nc_10001: // ich = 4
+                val = TMath::Sqrt(2);
+                break;
+            default:
+                val = 0;
+        }
+
+    double sgn = -1;
+    const InitialState & init_state = interaction -> InitState();
+    if (pdg::IsAntiNeutrino (init_state.ProbePdg()))
+        sgn = 1;
+
+    const ProcessInfo &  proc_info  = interaction -> ProcInfo();
+    bool is_EM     = proc_info.IsEM();
+    bool is_CC     = proc_info.IsWeakCC();
+    bool is_NC     = proc_info.IsWeakNC();
+
+    if (is_CC)
+        val *= sgn; //account for neutrino/antineutrino case
+
+    if (is_EM && iso > 2)
+        val = 0;   // no axial-vector part for EM-processes
+
+    if (is_NC)
+    {
+        double fx = 1;
+        if (iso < 2)
+            fx = (1 - 2*fSin2Wein);
+        else if (iso == 2)
+            fx =  -2*fSin2Wein;
+        val *= fx;
+    }
+
+    return val;
+
+}
+//____________________________________________________________________________
+std::complex<double> DCCSPPPXSec::MultipoleV(const Interaction * interaction, int mult, int l) const
+/*!
+    @param[in] mult  - multipole index: 0 -\f$E_{l+}\f$, 1 -\f$E_{l-}\f$, 2 -\f$M_{l+}\f$, 3 -\f$M_{l-}\f$, 4 -\f$S_{l+}\f$, 5 -\f$S_{l-}\f$, 6 -\f$L_{l+}\f$, 7 -\f$L_{l-}\f$
+    @param[in] l     - \f$l\f$ (orbital momentum from 0 to DCCSPPPXSec::maxl)
+*/
+{
+    if (l < 0 || l >= maxl)
+        return std::complex<double>(0, 0);
+
+    // Get kinematical parameters
+    const Kinematics & kinematics = interaction -> Kine();
+    double Q2    = kinematics.Q2();
+    double W     = kinematics.W();
+
+    int iW = Wnode(W);
+
+    double re = 0, im = 0;
+    for (int iso = 0; iso < 3;iso++)
+    {
+        double arQ2[4][maxQ2];
+        for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
+        {
+            double a = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 0, iQ2, 0, iW)];
+            double b = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 0, iQ2, 1, iW)];
+            double c = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 0, iQ2, 2, iW)];
+            double d = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 0, iQ2, 3, iW)];
+            arQ2[0][iQ2] = a + ( b + ( c + d*(W - Wnodes[iW]) )*(W - Wnodes[iW]) )*(W - Wnodes[iW]);
+        }
+        Spline (maxQ2, &Q2nodes[0], &arQ2[0][0], &arQ2[1][0], &arQ2[2][0], &arQ2[3][0]);
+        int iQ2 = Q2node(Q2);
+        double val = arQ2[0][iQ2] + ( arQ2[1][iQ2] + ( arQ2[2][iQ2] + arQ2[3][iQ2]*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]);
+        re += val*IsospinAmplitude(interaction, iso);
+    }
+    for (int iso = 0; iso < 3;iso++)
+    {
+        double arQ2[4][maxQ2];
+        for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
+        {
+            double a = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 1, iQ2, 0, iW)];
+            double b = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 1, iQ2, 1, iW)];
+            double c = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 1, iQ2, 2, iW)];
+            double d = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 1, iQ2, 3, iW)];
+            arQ2[0][iQ2] = a + ( b + ( c + d*(W - Wnodes[iW]) )*(W - Wnodes[iW]) )*(W - Wnodes[iW]);
+        }
+        Spline (maxQ2, &Q2nodes[0], &arQ2[0][0], &arQ2[1][0], &arQ2[2][0], &arQ2[3][0]);
+        int iQ2 = Q2node(Q2);
+        double val = arQ2[0][iQ2] + ( arQ2[1][iQ2] + ( arQ2[2][iQ2] + arQ2[3][iQ2]*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]);
+        im += val*IsospinAmplitude(interaction, iso);
+    }
+
+    return std::complex<double>(re, im);
+}
+//____________________________________________________________________________
+std::complex<double> DCCSPPPXSec::MultipoleA(const Interaction * interaction, int mult, int l) const
+/*!
+    @param[in] mult  - multipole index: 0 -\f$E_{l+}\f$, 1 -\f$E_{l-}\f$, 2 -\f$M_{l+}\f$, 3 -\f$M_{l-}\f$, 4 -\f$S_{l+}\f$, 5 -\f$S_{l-}\f$, 6 -\f$L_{l+}\f$, 7 -\f$L_{l-}\f$
+    @param[in] l     - \f$l\f$ (orbital momentum from 0 to DCCSPPPXSec::maxl)
+*/
+{
+    if (l < 0 || l >= maxl)
+        return std::complex<double>(0, 0);
+
+    // Get kinematical parameters
+    const Kinematics & kinematics = interaction -> Kine();
+    double Q2    = kinematics.Q2();
+    double W     = kinematics.W();
+
+    int iW = Wnode(W);
+
+    double re = 0, im = 0;
+    for (int iso = 3; iso < 5;iso++)
+    {
+        double arQ2[4][maxQ2];
+        for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
+        {
+            double a = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 0, iQ2, 0, iW)];
+            double b = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 0, iQ2, 1, iW)];
+            double c = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 0, iQ2, 2, iW)];
+            double d = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 0, iQ2, 3, iW)];
+            arQ2[0][iQ2] = a + ( b + ( c + d*(W - Wnodes[iW]) )*(W - Wnodes[iW]) )*(W - Wnodes[iW]);
+        }
+        Spline (maxQ2, &Q2nodes[0], &arQ2[0][0], &arQ2[1][0], &arQ2[2][0], &arQ2[3][0]);
+        int iQ2 = Q2node(Q2);
+        double val = arQ2[0][iQ2] + ( arQ2[1][iQ2] + ( arQ2[2][iQ2] + arQ2[3][iQ2]*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]);
+        re += val*IsospinAmplitude(interaction, iso);
+    }
+    for (int iso = 3; iso < 5;iso++)
+    {
+        double arQ2[4][maxQ2];
+        for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
+        {
+            double a = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 1, iQ2, 0, iW)];
+            double b = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 1, iQ2, 1, iW)];
+            double c = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 1, iQ2, 2, iW)];
+            double d = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 1, iQ2, 3, iW)];
+            arQ2[0][iQ2] = a + ( b + ( c + d*(W - Wnodes[iW]) )*(W - Wnodes[iW]) )*(W - Wnodes[iW]);
+        }
+        Spline (maxQ2, &Q2nodes[0], &arQ2[0][0], &arQ2[1][0], &arQ2[2][0], &arQ2[3][0]);
+        int iQ2 = Q2node(Q2);
+        double val = arQ2[0][iQ2] + ( arQ2[1][iQ2] + ( arQ2[2][iQ2] + arQ2[3][iQ2]*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]);
+        im += val*IsospinAmplitude(interaction, iso);
+    }
+
+    return std::complex<double>(re, im);
+}
 //____________________________________________________________________________
 double DCCSPPPXSec::Integral(const Interaction * interaction) const
 {
@@ -347,440 +991,91 @@ bool DCCSPPPXSec::ValidProcess(const Interaction * interaction) const
 //____________________________________________________________________________
 bool DCCSPPPXSec::ValidKinematics(const Interaction * interaction) const
 {
-  // call only after ValidProcess
-  if ( interaction->TestBit(kISkipKinematicChk) ) return true;
+    // call only after ValidProcess
+    if ( interaction->TestBit(kISkipKinematicChk) ) return true;
 
-  const KPhaseSpace  & kps        = interaction->PhaseSpace();
-  
-  // Get kinematical parameters
-  const InitialState & init_state = interaction -> InitState();
-  const Kinematics & kinematics = interaction -> Kine();
-  double Enu = init_state.ProbeE(kRfHitNucRest);
-  double W    = kinematics.W();
-  double Q2   = kinematics.Q2();
+    const KPhaseSpace& kps = interaction->PhaseSpace();
 
-  if (Enu < kps.Threshold())
-    return false;
-  
-  Range1D_t Wl  = kps.WLim_SPP();
-  Range1D_t Q2l = kps.Q2Lim_W_SPP();
-      
-  // model restrictions
-  Wl.min  = TMath::Max (Wl.min,  1.08);
-  Wl.max  = TMath::Max (Wl.max,  1.08);
-  Wl.max  = TMath::Min (Wl.max,  2.00);
-  Q2l.min = TMath::Max (Q2l.min, 0.00);
-  Q2l.max = TMath::Min (Q2l.max, 3.00);
-  
-  if (W < Wl.min || W > Wl.max)
-    return false;
+    // Get kinematical parameters
+    const InitialState & init_state = interaction -> InitState();
+    const Kinematics & kinematics = interaction -> Kine();
+    double Enu = init_state.ProbeE(kRfHitNucRest);
+    double W    = kinematics.W();
+    double Q2   = kinematics.Q2();
 
-  if (Q2 < Q2l.min || Q2 > Q2l.max)
-    return false;
+    if (Enu < kps.Threshold_SPP_iso())
+        return false;
 
-  return true;
+    Range1D_t Wl  = kps.WLim_SPP_iso();
+    Range1D_t Q2l = kps.Q2Lim_W_SPP_iso();
 
+    // model restrictions
+    Wl.min  = TMath::Max (Wl.min,  1.077);
+    Wl.max  = TMath::Max (Wl.max,  1.077);
+    Wl.max  = TMath::Min (Wl.max,  2.1);
+    Q2l.min = TMath::Max (Q2l.min, 0.0);
+    Q2l.max = TMath::Min (Q2l.max, 3.0);
+
+    if (W < Wl.min || W > Wl.max)
+        return false;
+
+    if (Q2 < Q2l.min || Q2 > Q2l.max)
+        return false;
+
+    return true;
 }
 //____________________________________________________________________________
 void DCCSPPPXSec::Configure(const Registry & config)
 {
-  Algorithm::Configure(config);
-  this->LoadConfig();
+    Algorithm::Configure(config);
+    this->LoadConfig();
 }
 //____________________________________________________________________________
 void DCCSPPPXSec::Configure(std::string config)
 {
-  Algorithm::Configure(config);
-  this->LoadConfig();
+    Algorithm::Configure(config);
+    this->LoadConfig();
 }
 //____________________________________________________________________________
 void DCCSPPPXSec::LoadConfig(void)
 {
+    // Cross section scaling symmetry_factors
+    this->GetParam( "DCC-EM-XSecScale", fXSecScaleEM );
+    this->GetParam( "DCC-CC-XSecScale", fXSecScaleCC );
+    this->GetParam( "DCC-NC-XSecScale", fXSecScaleNC );
 
-  // Cross section scaling symmetry_factors
-  this->GetParam( "DCC-EM-XSecScale", fXSecScaleEM );
-  
-  GetParamDef( "WarnIfMissing", fWarnIfMissing, true );
- 
-  // Either a data path relative to the root GENIE folder
-  // or an absolute path can be used. Find out which
-  // option was chosen.
-  std::string path_type;
-  GetParamDef( "DataPathType", path_type, std::string("relative") );
- 
-  // Right now, there can only be a single data path
-  // specified. We use a vector of paths to allow for
-  // easy expansion later.
-  std::string data_path;
-  GetParam( "DataPath", data_path );
- 
-  // Convert the relative path to an absolute one if needed
-  if ( path_type == "relative" ) {
+    double thw;
+    this->GetParam( "WeinbergAngle", thw );
+    fSin2Wein = TMath::Power( TMath::Sin(thw), 2 );
+
+    this->GetParam("CKM-Vud", fVud );
+
+
+    // Either a data path relative to the root GENIE folder
+    // or an absolute path can be used. Find out which
+    // option was chosen.
+    std::string path_type;
+    GetParamDef( "DataPathType", path_type, std::string("relative") );
+
+    // Right now, there can only be a single data path
+    // specified. We use a vector of paths to allow for
+    // easy expansion later.
+    std::string data_path;
+    GetParam( "DataPath", data_path );
+
+    // Convert the relative path to an absolute one if needed
+    if ( path_type == "relative" ) {
     data_path = std::string( gSystem->Getenv("GENIE") ) + '/' + data_path;
-  }
- 
-  fDataPaths.push_back( data_path );
+    }
 
-  GetParam("FermiMomentumTable", fKFTable);
-  GetParam("RFG-UseParametrization", fUseRFGParametrization);
-  GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
+    fDataPaths.push_back( data_path );
 
-  // Load the differential cross section integrator
-  fXSecIntegrator = dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
-  assert(fXSecIntegrator);
+    GetParam("FermiMomentumTable", fKFTable);
+    GetParam("RFG-UseParametrization", fUseRFGParametrization);
+    GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
+
+    // Load the differential cross section integrator
+    fXSecIntegrator = dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+    assert(fXSecIntegrator);
 
 }
-//____________________________________________________________________________
-DCCSPPPXSec::CPtrDT DCCSPPPXSec::GetDataTable(SppChannel_t spp_chn) const
-{
-
-  // First check to see if the data table object already exists in memory.
-  // If it does, return the existing object.
-  if ( fTables.count(spp_chn) ) return fTables.find(spp_chn)->second.get();
-
-  // If not, try to create it
-  CPtrDT dt = BuildDataTable(spp_chn);
-
-  if ( !dt && fWarnIfMissing ) 
-  {
-    LOG("DCCSPPPXSec", pWARN) << "Unable to create a data table"
-      << " for channel " << SppChannel::AsString(spp_chn);
-  }
-
-  return dt;
-}
-//____________________________________________________________________________
-DCCSPPPXSec::CPtrDT DCCSPPPXSec::BuildDataTable(SppChannel_t spp_chn) const
-{
-  bool table_ok = true;
-
-  std::string table_file_basename = GetDataTableFileBasename( spp_chn );
-
-  // Tables values are represented using a 2D grid that is stored in a data
-  // file. Get the full path to the file, or an empty string if it could not
-  // be found. Also set the table_ok flag to false if the file could not be
-  // found.
-  std::string full_file_name = FindDataTableFile(table_file_basename, table_ok);
-
-  if ( table_ok ) 
-  {
-
-    // Create the new table object
-    LOG("DCCSPPPXSec", pINFO) << "Loading the data table file" << full_file_name;
-
-    fTables[spp_chn] = ParseDataTableFile( full_file_name );
-
-    // Return a pointer to the newly-created table object
-    return fTables[spp_chn].get();
-  }
-  else 
-  {
-    // If we couldn't make the table, store a nullptr to avoid
-    // unsuccessful repeat attempts. These can otherwise slow things down
-    // for no good reason.
-    fTables[spp_chn] = NULL;
-
-    if ( fWarnIfMissing ) 
-    {
-      LOG("DCCSPPPXSec", pERROR) << "The table data file \""
-        << full_file_name << "\" requested for channel "
-        << SppChannel::AsString(spp_chn)  << " could not be found";
-    }
- 
-  }
-
-  // If there was a problem, return a null pointer
-  return NULL;
-}
-//____________________________________________________________________________
-DCCSPPPXSec::UPtrDT DCCSPPPXSec::ParseDataTableFile( std::string full_file_name ) const
-{
-  UPtrDT dt = std::make_unique< std::vector<std::vector<double> > >();
-  std::ifstream infile( full_file_name.c_str() );
-  if (infile) 
-  {
-    std::string line;
-    unsigned int line_number = 0;
-    while (std::getline(infile, line))
-    {
-      line_number++;
-      unsigned int NQ2 = (line_number - 8)/306;
-      unsigned int NL = (line_number - 306*NQ2 - 8)/61;
-      unsigned int NW = (line_number - 306*NQ2 - 61*NL - 8);
-      if (NQ2<=25 && NL<=4 && NW<=58)
-      {
-        std::vector<double> row(12);
-        for (int i=0; i<12; i++)
-        {
-           row[i] = std::stod(line.substr(14+12*i, 11)); 
-        }
-        dt->push_back(row);
-      } 
-    }
-  }
-  
-  return dt;
-}
-//____________________________________________________________________________
-void DCCSPPPXSec::GetTablePos(double W, double Q2, unsigned int L, TablePos & tabpos) const
-{
-  unsigned int NW;
-  if (1.08 <= W && W <= 1.16)
-  {
-    NW = int(floor(50*W)) - 54;
-    if (NW == 50*W - 54)
-    {
-      tabpos.hi_W = tabpos.lo_W = 1.08 + 0.02*NW;
-    } 
-    else
-    {
-      tabpos.lo_W = 1.08 + 0.02*NW;
-      tabpos.hi_W = 1.10 + 0.02*NW;
-    }
-  }
-  else if (1.16 < W && W <= 1.24)
-  {
-    NW = int(floor(200*W)) - 228;
-    if (NW == 200*W - 228)
-    {
-      tabpos.hi_W = tabpos.lo_W = 1.14 + 0.005*NW;
-    } 
-    else
-    {
-      tabpos.lo_W = 1.14  + 0.005*NW;
-      tabpos.hi_W = 1.145 + 0.005*NW;
-    }
-  }
-  else if (1.24 < W && W <= 2.0)
-  {
-    NW = int(floor(50*W)) - 42;
-    if (NW == 50*W - 42)
-    {
-      tabpos.hi_W = tabpos.lo_W = 0.84 + 0.02*NW;
-    } 
-    else
-    {
-      tabpos.lo_W = 0.84 + 0.02*NW;
-      tabpos.hi_W = 0.86 + 0.02*NW;
-    }
-  }
-  else
-  {
-     LOG("DCCSPPPXSec", pERROR) 
-               << "Can't find row in table for given W";
-     exit (1);
-  }
-  
-  unsigned int NQ2;  
-  if (0.0 <= Q2 && Q2 <= 0.2)
-  {
-    NQ2 = int(floor(50*Q2));
-    if (NQ2 == 50*Q2)
-    {
-      tabpos.hi_Q2 = tabpos.lo_Q2 = 0.02*NQ2;
-    } 
-    else
-    {
-      tabpos.lo_Q2 = 0.02*NQ2;
-      tabpos.hi_Q2 = 0.02 + 0.02*NQ2;
-    }
-  }
-  else if (0.2 < Q2 && Q2 <= 1.0)
-  {
-    NQ2 = int(floor(10*Q2)) + 8;
-    if (NQ2 == 10*Q2 + 8)
-    {
-      tabpos.hi_Q2 = tabpos.lo_Q2 = -0.8 + 0.1*NQ2;
-    } 
-    else
-    {
-      tabpos.lo_Q2 = -0.8 + 0.1*NQ2;
-      tabpos.hi_Q2 = -0.7 + 0.1*NQ2;
-    }
-  }
-  else if (1.0 < Q2 && Q2 <= 1.6)
-  {
-    NQ2 = int(floor(5*Q2)) + 13;
-    if (NQ2 == 5*Q2 + 13)
-    {
-      tabpos.hi_Q2 = tabpos.lo_Q2 = -2.6 + 0.2*NQ2;
-    } 
-    else
-    {
-      tabpos.lo_Q2 = -2.6 + 0.2*NQ2;
-      tabpos.hi_Q2 = -2.4 + 0.2*NQ2;
-    }
-  }
-  else if (1.6 < Q2 && Q2 <= 2.4)
-  {
-    NQ2 = int(floor(2.5*Q2)) + 17;
-    if (NQ2 == 2.5*Q2 + 17)
-    {
-      tabpos.hi_Q2 = tabpos.lo_Q2 = -6.8 + 0.4*NQ2;
-    } 
-    else
-    {
-      tabpos.lo_Q2 = -6.8 + 0.4*NQ2;
-      tabpos.hi_Q2 = -6.4 + 0.4*NQ2;
-    }
-  }
-  else if (2.4 < Q2 && Q2 <= 3.0)
-  {
-    NQ2 = int(floor(Q2/0.3)) + 15;
-    if (NQ2 == Q2/0.3 + 15)
-    {
-      tabpos.hi_Q2 = tabpos.lo_Q2 = -4.5 + 0.3*NQ2;
-    } 
-    else
-    {
-      tabpos.lo_Q2 = -4.5 + 0.3*NQ2;
-      tabpos.hi_Q2 = -4.2 + 0.3*NQ2;
-    }
-  }
-  else
-  {
-     LOG("DCCSPPPXSec", pERROR) 
-               << "Can't find row in table for given Q2";
-     exit (1);
-  }
-  tabpos.lo_row_W  = 295*NQ2 + 59*L + NW;
-  if (tabpos.hi_W!=tabpos.lo_W && tabpos.hi_Q2!=tabpos.lo_Q2)
-  {
-     tabpos.hi_row_W  = tabpos.lo_row_W + 1;
-     tabpos.lo_row_Q2 = tabpos.lo_row_W + 295;
-     tabpos.hi_row_Q2 = tabpos.lo_row_Q2 + 1;
-  }
-  else if (tabpos.hi_W==tabpos.lo_W && tabpos.hi_Q2!=tabpos.lo_Q2)
-  {
-     tabpos.hi_row_W  = tabpos.lo_row_W;
-     tabpos.hi_row_Q2 = tabpos.lo_row_Q2 = tabpos.lo_row_W + 295;
-  }
-  else if (tabpos.hi_W!=tabpos.lo_W && tabpos.hi_Q2==tabpos.lo_Q2)
-  {
-     tabpos.hi_row_W  = tabpos.lo_row_W + 1;
-     tabpos.lo_row_Q2 = tabpos.lo_row_W;
-     tabpos.hi_row_Q2 = tabpos.hi_row_W;
-  }
-  else
-    tabpos.hi_row_W  = tabpos.lo_row_Q2 = tabpos.hi_row_Q2 = tabpos.lo_row_W;
-  
-}
-//____________________________________________________________________________
-std::string DCCSPPPXSec::FindDataTableFile(const std::string &basename, bool &ok) const
-{
-
-  for (size_t p = 0; p < fDataPaths.size(); ++p) 
-  {
-    const std::string& path = fDataPaths.at( p );
-    std::string full_name = path + '/' + basename;
-    // is file exist?
-    if ( std::ifstream(full_name.c_str()).good() ) 
-      return full_name;
-  }
-
-  // A matching file could not be found
-  ok = false;
-  return std::string();
- 
-}
-//____________________________________________________________________________
-std::string DCCSPPPXSec::GetDataTableFileBasename(SppChannel_t spp_chn) const
-{
-  switch (spp_chn)
-  {
-    case kSpp_lp_em_10010:
-        return "q2-mul-gp-pi0p.dat";
-    case kSpp_lp_em_01100:
-        return "q2-mul-gp-pipn.dat";
-    case kSpp_ln_em_01010:
-        return "q2-mul-gn-pi0n.dat";
-    case kSpp_ln_em_10001:
-        return "q2-mul-gn-pimp.dat";
-    default:
-        return std::string();
-  }
-}
-//____________________________________________________________________________
-DCCSPPPXSec::VAmpl DCCSPPPXSec::Amplitudes(double W, double Q2, unsigned int L, SppChannel_t spp_chn) const
-{
-  CPtrDT pdt = GetDataTable(spp_chn);
-  VAmpl vampl(6);
-  TablePos tabpos;
-  GetTablePos(W, Q2, L, tabpos);
-  
-  // bilinear interpolation
-  double x1  = tabpos.lo_W;
-  double x2  = tabpos.hi_W;
-  double y1  = tabpos.lo_Q2;
-  double y2  = tabpos.hi_Q2;
-  for (int i = 0; i < 6; i++)
-  {
-    std::complex<double> a = 0.;
-    for (int j = 0; j < 2; j++)
-    {
-       double z;
-       if (x1!=x2 && y1!=y2)
-       {
-         double z11 = (*pdt)[tabpos.lo_row_W][2*i+j];
-         double z21 = (*pdt)[tabpos.hi_row_W][2*i+j];
-         double z12 = (*pdt)[tabpos.lo_row_Q2][2*i+j];
-         double z22 = (*pdt)[tabpos.hi_row_Q2][2*i+j];
-         double z1  = z11*(x2 - W)/(x2 - x1) + z21*(W - x1)/(x2 - x1);
-         double z2  = z12*(x2 - W)/(x2 - x1) + z22*(W - x1)/(x2 - x1);
-         z   = z1*(y2 - Q2)/(y2 - y1) + z2*(Q2 - y1)/(y2 - y1);
-       }
-       else if (x1==x2 && y1!=y2)
-       {
-          double z11 = (*pdt)[tabpos.lo_row_W][2*i+j];
-          double z12 = (*pdt)[tabpos.lo_row_Q2][2*i+j];
-          double z1 = z11;
-          double z2 = z12;
-          z   = z1*(y2 - Q2)/(y2 - y1) + z2*(Q2 - y1)/(y2 - y1);
-       }
-       else if (x1!=x2 && y1==y2)
-       {
-          double z11 = (*pdt)[tabpos.lo_row_W][2*i+j];
-          double z21 = (*pdt)[tabpos.hi_row_W][2*i+j];
-          double z1 = z11;
-          double z2 = z21;
-          z   = z1*(x2 - W)/(x2 - x1) + z2*(W - x1)/(x2 - x1);
-       }
-       else
-       {
-          double z11 = (*pdt)[tabpos.lo_row_W][2*i+j];
-          z = z11;
-       }
-       a += j?z*1i:z;
-    }
-    vampl[i] = a;
-  }
-  return vampl;
-}
-//____________________________________________________________________________
-double DCCSPPPXSec::dPdx (int L, double x) const
-{
-     if (L<=0)
-       return 0.;
-       
-     if (x == 1.0)
-       x -= std::numeric_limits<double>::epsilon();
-     if (x == -1.0)
-       x += std::numeric_limits<double>::epsilon();
-
-     return L*(ROOT::Math::legendre(L-1, x) - x*ROOT::Math::legendre(L, x))/(1. - x*x);
-     // return ROOT::Math::assoc_legendre(L, 1, x)*pow(1 - x*x, -0.5);
-}
-//____________________________________________________________________________
-double DCCSPPPXSec::d2Pdx2 (int L, double x) const
-{
-     if (L<=1)
-       return 0.;
-       
-     if (x == 1.0)
-       x -= std::numeric_limits<double>::epsilon();
-     if (x == -1.0)
-       x += std::numeric_limits<double>::epsilon();
-
-     return ROOT::Math::assoc_legendre(L, 2, x)*TMath::Power(1 - x*x, -1.0);
-}
-//____________________________________________________________________________
