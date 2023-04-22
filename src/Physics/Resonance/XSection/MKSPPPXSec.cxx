@@ -1302,7 +1302,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   xsec*=xsec0;
 
 
-  // The algorithm computes d^4xsec/dWdQ2dCostThetadPhi or d^3xsec/dWdQ2dCostTheta
+  // The algorithm computes d^4xsec/dWdQ2dCosTheta_pidPhi_pi or d^3xsec/dWdQ2dCosTheta_pi
   // Check whether variable tranformation is needed
   if ( kps != kPSWQ2ctpphipfE && kps != kPSWQ2ctpfE )
   {
