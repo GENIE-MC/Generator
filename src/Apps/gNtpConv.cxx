@@ -111,7 +111,7 @@
 
 \created September 23, 2005
 
-\cpright Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright Copyright (c) 2003-2023, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          
 */
@@ -164,6 +164,10 @@
 #include "Tools/Flux/GNuMIFlux.h"
 #endif
 
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+#include "Physics/BeamHNL/HNLFluxContainer.h"
+#endif
+
 //define __GHAD_NTP__
 
 using std::string;
@@ -194,6 +198,10 @@ string DefaultOutputFile         (void);
 int    LatestFormatVersionNumber (void);
 bool   CheckRootFilename         (string filename);
 int    HAProbeFSI                (int, int, int, double [], int [], int, int, int); //Test code
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+void   DeclareHNLBranches        (TTree * tree, TTree * intree, 
+				  double * dVars, int * iVars);
+#endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
 //format enum
 typedef enum EGNtpcFmt {
   kConvFmt_undef = 0,
@@ -324,6 +332,7 @@ void ConvertToGST(void)
   bool   brIsNC        = false;  // Is Weak NC process?
   bool   brIsCharmPro  = false;  // Produces charm?
   bool   brIsAMNuGamma = false;  // is anomaly mediated nu gamma
+  bool   brIsHNL       = false;  // is HNL decay?
   int    brCodeNeut    = 0;      // The equivalent NEUT reaction code (if any)
   int    brCodeNuance  = 0;      // The equivalent NUANCE reaction code (if any)
   double brWeight      = 0;      // Event weight
@@ -414,7 +423,7 @@ void ConvertToGST(void)
   //
   s_tree->Branch("iev",           &brIev,           "iev/I"         );
   s_tree->Branch("neu",	          &brNeutrino,      "neu/I"	    );
-  s_tree->Branch("fspl",	      &brFSPrimLept,    "fspl/I"	    );
+  s_tree->Branch("fspl",	  &brFSPrimLept,    "fspl/I"	    );
   s_tree->Branch("tgt",           &brTarget,        "tgt/I"	    );
   s_tree->Branch("Z",             &brTargetZ,       "Z/I"	    );
   s_tree->Branch("A",             &brTargetA,       "A/I"	    );
@@ -436,7 +445,8 @@ void ConvertToGST(void)
   s_tree->Branch("cc",	          &brIsCC,	    "cc/O"	    );
   s_tree->Branch("nc",	          &brIsNC,	    "nc/O"	    );
   s_tree->Branch("charm",         &brIsCharmPro,    "charm/O"	    );
-  s_tree->Branch("amnugamma",     &brIsAMNuGamma,    "amnugamma/O"	    );
+  s_tree->Branch("amnugamma",     &brIsAMNuGamma,   "amnugamma/O"   );
+  s_tree->Branch("hnl",           &brIsHNL,         "hnl/O"         );
   s_tree->Branch("neut_code",     &brCodeNeut,      "neut_code/I"   );
   s_tree->Branch("nuance_code",   &brCodeNuance,    "nuance_code/I" );
   s_tree->Branch("wght",          &brWeight,        "wght/D"	    );
@@ -541,7 +551,7 @@ void ConvertToGST(void)
   LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
 
   TLorentzVector pdummy(0,0,0,0);
-
+    
   // Event loop
   for(Long64_t iev = 0; iev < nmax; iev++) {
     er_tree->GetEntry(iev);
@@ -588,6 +598,28 @@ void ConvertToGST(void)
     GHepParticle * fsl = event.FinalStatePrimaryLepton();
     GHepParticle * hitnucl = event.HitNucleon();
 
+    if( neutrino ) { LOG("gntpc", pDEBUG) << "neutrino p4 = ( " 
+					  << neutrino->GetP4()->E() << ", "
+					  << neutrino->GetP4()->Px() << ", "
+					  << neutrino->GetP4()->Py() << ", "
+					  << neutrino->GetP4()->Pz() << " )"; }
+    if( target ) { LOG("gntpc", pDEBUG) << "target p4 = ( " 
+					  << target->GetP4()->E() << ", "
+					  << target->GetP4()->Px() << ", "
+					  << target->GetP4()->Py() << ", "
+					  << target->GetP4()->Pz() << " )"; }
+    if( fsl ) { LOG("gntpc", pDEBUG) << "fsl p4 = ( " 
+					  << fsl->GetP4()->E() << ", "
+					  << fsl->GetP4()->Px() << ", "
+					  << fsl->GetP4()->Py() << ", "
+					  << fsl->GetP4()->Pz() << " )"; }
+
+    if( hitnucl ) { LOG("gntpc", pDEBUG) << "hitnucl p4 = ( " 
+					  << hitnucl->GetP4()->E() << ", "
+					  << hitnucl->GetP4()->Px() << ", "
+					  << hitnucl->GetP4()->Py() << ", "
+					  << hitnucl->GetP4()->Pz() << " )"; }
+
     int tgtZ = 0;
     int tgtA = 0;
     if(pdg::IsIon(target->Pdg())) {
@@ -624,9 +656,10 @@ void ConvertToGST(void)
     bool is_weaknc    = proc_info.IsWeakNC();
     bool is_mec       = proc_info.IsMEC();
     bool is_amnugamma = proc_info.IsAMNuGamma();
+    bool is_hnl       = proc_info.IsHNLDecay();
 
     if (!hitnucl && neutrino) {
-        assert(is_coh || is_imd || is_imdanh || is_nuel | is_amnugamma || is_coh_el);
+        assert(is_coh || is_imd || is_imdanh || is_nuel | is_amnugamma || is_coh_el || is_hnl);
     }
   
     // Hit quark - set only for DIS events
@@ -654,7 +687,7 @@ void ConvertToGST(void)
     bool get_selected = true;
     double xs  = kine.x (get_selected);
     double ys  = kine.y (get_selected);
-    double ts  = (is_coh || is_dfr) ? kine.t (get_selected) : -1;
+    double ts  = (is_coh || is_dfr || is_hnl) ? kine.t (get_selected) : -1;
     double Q2s = kine.Q2(get_selected);
     double Ws  = kine.W (get_selected);
 
@@ -672,7 +705,7 @@ void ConvertToGST(void)
 
     double M  = kNucleonMass; 
     TLorentzVector q  = k1-k2;                     // q=k1-k2, 4-p transfer
-    double Q2 = -1 * q.M2();                       // momemtum transfer
+    double Q2 = -1 * q.M2();                       // momentum transfer
     
     double v  = (hitnucl) ? q.Energy()       : -1; // v (E transfer to the nucleus)
     double x, y, W2, W;
@@ -683,6 +716,16 @@ void ConvertToGST(void)
 
        W2 = (hitnucl) ? M*M + 2*M*v - Q2 : -1; // Hadronic Invariant mass ^ 2
        W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
+    } else if( is_hnl ) {
+      
+       x = -1;
+       y = -1;
+
+       LOG("gntpc", pDEBUG)
+	 << "Here is k1 = ( " << k1.E() << ", " << k1.Px() << ", " << k1.Py() << ", " << k1.Pz() << " )";
+
+       W2 = k1.M2(); // Invariant mass ^ 2 of HNL
+       W = TMath::Sqrt(W2);
     } else{
 
        v = q.Energy();
@@ -694,7 +737,7 @@ void ConvertToGST(void)
 
     }
   
-    double t  = (is_coh || is_dfr) ? kine.t (get_selected) : -1;
+    double t  = (is_coh || is_dfr || is_hnl) ? kine.t (get_selected) : -1;
 
     // Get v 4-p at hit nucleon rest-frame
     TLorentzVector k1_rf = k1;         
@@ -716,8 +759,9 @@ void ConvertToGST(void)
 
     // Extract more info on the hadronic system
     // Only for QEL/RES/DIS/COH/MEC events
+    // Edit: Add in HNL events
     //
-    bool study_hadsyst = (is_qel || is_res || is_dis || is_coh || is_dfr || is_mec || is_singlek);
+    bool study_hadsyst = (is_qel || is_res || is_dis || is_coh || is_dfr || is_mec || is_singlek || is_hnl);
     
     //
     TObjArrayIter piter(&event);
@@ -737,11 +781,12 @@ void ConvertToGST(void)
       ip++;
       // don't count final state lepton as part hadronic system 
       //if(!is_coh && event.Particle(ip)->FirstMother()==0) continue;
-      if(event.Particle(ip)->FirstMother()==0) continue;
+      if(!is_hnl && event.Particle(ip)->FirstMother()==0) continue;
+      if(is_hnl && event.Particle(0)->FirstDaughter()==ip) continue;
       if(pdg::IsPseudoParticle(p->Pdg())) continue;
       int pdgc = p->Pdg();
       int ist  = p->Status();
-      if(ist==kIStStableFinalState) {
+      if(ist==kIStStableFinalState && !is_hnl) {
          if (pdgc == kPdgGamma || pdgc == kPdgElectron || pdgc == kPdgPositron)  {
             int igmom = p->FirstMother();
             if(igmom!=-1) {
@@ -749,9 +794,21 @@ void ConvertToGST(void)
 	      if(event.Particle(igmom)->Pdg() != kPdgPi0) { final_had_syst.push_back(ip); }
             }
          } else {
-            final_had_syst.push_back(ip);
+	   final_had_syst.push_back(ip);
          }
       }
+      else if(ist==kIStStableFinalState && is_hnl) {
+	// HNL have decays with multiple leptons, such as v + mu + mu
+	// only one of these will be primary, so don't add this to hadronic system
+	if( std::abs(pdgc) == kPdgElectron || 
+	    std::abs(pdgc) == kPdgNuE ||
+	    std::abs(pdgc) == kPdgMuon || 
+	    std::abs(pdgc) == kPdgNuMu ||
+	    std::abs(pdgc) == kPdgTau || 
+	    std::abs(pdgc) == kPdgNuTau ) continue;
+	LOG( "gntpc", pDEBUG ) << "Adding pdg code " << ip << " to FS hadronic system";
+	final_had_syst.push_back(ip);
+      } 
       // now add pi0's that were decayed as short lived particles
       else if(pdgc == kPdgPi0){
 	int ifd = p->FirstDaughter();
@@ -786,8 +843,9 @@ void ConvertToGST(void)
     vector<int> prim_had_syst;
     if(study_hadsyst) {
       // if coherent or free nucleon target set primary states equal to final states
+      // Edit: same for HNL
       
-      if(!pdg::IsIon(target->Pdg()) || (is_coh)) {
+      if(!pdg::IsIon(target->Pdg()) || (is_coh) || (is_hnl)) {
 
 	for( vector<int>::const_iterator hiter = final_had_syst.begin();
 	     hiter != final_had_syst.end(); ++hiter) {
@@ -916,6 +974,7 @@ void ConvertToGST(void)
     brIsNC       = is_weaknc;  
     brIsCharmPro = charm;
     brIsAMNuGamma= is_amnugamma;
+    brIsHNL      = is_hnl;
     brWeight     = weight;      
     brKineXs     = xs;      
     brKineYs     = ys;      
@@ -1779,6 +1838,7 @@ void ConvertToGRooTracker(void)
   int         brEvtNum;                   // Event num.
   double      brEvtXSec;                  // Cross section for selected event (1E-38 cm2)
   double      brEvtDXSec;                 // Cross section for selected event kinematics (1E-38 cm2 /{K^n})
+  UInt_t      brEvtKPS;                   // Kinematic phase space variables as in KinePhaseSpace_t
   double      brEvtWght;                  // Weight for that event
   double      brEvtProb;                  // Probability for that event (given cross section, path lengths, etc)
   double      brEvtVtx[4];                // Event vertex position in detector coord syst (SI)
@@ -1960,6 +2020,7 @@ void ConvertToGRooTracker(void)
     rootracker_tree->Branch("EvtNum",          &brEvtNum,          "EvtNum/I");             
     rootracker_tree->Branch("EvtXSec",         &brEvtXSec,         "EvtXSec/D");            
     rootracker_tree->Branch("EvtDXSec",        &brEvtDXSec,        "EvtDXSec/D");           
+    rootracker_tree->Branch("EvtKPS",          &brEvtKPS,          "EvtKPS/i");
     rootracker_tree->Branch("EvtWght",         &brEvtWght,         "EvtWght/D");            
     rootracker_tree->Branch("EvtProb",         &brEvtProb,         "EvtProb/D");            
     rootracker_tree->Branch("EvtVtx",           brEvtVtx,          "EvtVtx[4]/D");             
@@ -2148,6 +2209,17 @@ void ConvertToGRooTracker(void)
   if(gOptOutFileFormat == kConvFmt_numi_rootracker) {
      gtree->SetBranchAddress("flux", &gnumi_flux_info);
   }
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+  // gnumi_flux_ster ==> the "new flux" for HNL neutrino
+  hnl::FluxContainer * gnumi_flux_ster = 0;
+  if(gOptOutFileFormat == kConvFmt_numi_rootracker) {
+    gtree->SetBranchAddress("flux", &gnumi_flux_ster);
+  }
+  // extra branches for HNL declared here
+  double dVars[9] = { -9.9, -9.9, -9.9, -9.9, -9.9, -9.9, -9.9, -9.9, -9.9 };
+  int    iVars[4] = { -9, -9, -9, -9 };
+  DeclareHNLBranches( rootracker_tree, gtree, dVars, iVars );
+#endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
 #else
   LOG("gntpc", pWARN) 
     << "\n Flux drivers are not enabled." 
@@ -2196,6 +2268,7 @@ void ConvertToGRooTracker(void)
     brEvtNum    = 0;    
     brEvtXSec   = 0;
     brEvtDXSec  = 0;
+    brEvtKPS    = 0;
     brEvtWght   = 0;
     brEvtProb   = 0;
     for(int k=0; k<4; k++) { 
@@ -2280,6 +2353,10 @@ void ConvertToGRooTracker(void)
     brEvtNum    = (int) iev;    
     brEvtXSec   = (1E+38/units::cm2) * event.XSec();    
     brEvtDXSec  = (1E+38/units::cm2) * event.DiffXSec();    
+    brEvtKPS    = event.DiffXSecVars();
+    LOG( "gntpc", pDEBUG )
+      << "brEvtKPS = " << brEvtKPS
+      << ", event.DiffXSecVars() = " << event.DiffXSecVars();
     brEvtWght   = event.Weight();    
     brEvtProb   = event.Probability();    
     brEvtVtx[0] = event.Vertex()->X();    
@@ -2422,6 +2499,7 @@ void ConvertToGRooTracker(void)
     //
     if(gOptOutFileFormat == kConvFmt_numi_rootracker) {
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
+
      // Copy flux info if this is the numi rootracker variance.
      if(gnumi_flux_info) {
        brNumiFluxRun      = gnumi_flux_info->run;
@@ -2489,6 +2567,23 @@ void ConvertToGRooTracker(void)
      } // gnumi_flux_info
 #endif
     } // kConvFmt_numi_rootracker
+
+    //
+    // if HNL, fill in additional branch info
+    //
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+    if( gnumi_flux_ster ){
+      iVars[1] = gnumi_flux_ster->prodChan;
+      iVars[2] = gnumi_flux_ster->nuPdg;
+      iVars[3] = gnumi_flux_ster->lepPdg;
+      
+      dVars[4] = gnumi_flux_ster->p4User.Px() / gnumi_flux_ster->p4User.Pz();
+      dVars[5] = gnumi_flux_ster->p4User.Py() / gnumi_flux_ster->p4User.Pz();
+      dVars[6] = gnumi_flux_ster->p4User.Pz();
+      dVars[7] = gnumi_flux_ster->nuEcm;
+      dVars[8] = gnumi_flux_ster->accCorr;
+    }
+#endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
 
     // fill tree
     rootracker_tree->Fill();
@@ -3207,3 +3302,33 @@ int HAProbeFSI(int probe_fsi, int probe_pdg, int numh, double E_had[], int pdg_h
 
   return index;
 }
+
+// Functions to add in branches from BeamHNL module
+//____________________________________________________________________________________
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+void DeclareHNLBranches( TTree * tree, TTree * intree, 
+			 double * dVars, int * iVars )
+{
+  tree->Branch( "HNL_mass",     &dVars[0],    "HNL_mass/D"     );
+  tree->Branch( "HNL_coup_e",   &dVars[1],    "HNL_coup_e/D"   );
+  tree->Branch( "HNL_coup_m",   &dVars[2],    "HNL_coup_m/D"   );
+  tree->Branch( "HNL_coup_t",   &dVars[3],    "HNL_coup_t/D"   );
+  tree->Branch( "HNL_Majorana", &iVars[0],    "HNL_Majorana/O" );
+
+  tree->Branch( "NumiHNLFluxNdxdz",   &dVars[4],   "NumiHNLFluxNdxdz/D"   );
+  tree->Branch( "NumiHNLFluxNdydz",   &dVars[5],   "NumiHNLFluxNdydz/D"   );
+  tree->Branch( "NumiHNLFluxNpz",     &dVars[6],   "NumiHNLFluxNpz/D"     );
+  tree->Branch( "NumiHNLFluxNdecay",  &iVars[1],   "NumiHNLFluxNdecay/I"  );
+  tree->Branch( "NumiHNLFluxNtype",   &iVars[2],   "NumiHNLFluxNtype/I"   );
+  tree->Branch( "NumiHNLFluxLepPdg",  &iVars[3],   "NumiHNLFluxLepPdg/I"  );
+  tree->Branch( "NumiHNLFluxNecm",    &dVars[7],   "NumiHNLFluxNecm/D"    );
+  tree->Branch( "NumiHNLFluxAccCorr", &dVars[8],   "NumiHNLFluxAccCorr/D" );
+
+  // set up the branch addresses now.
+  intree->SetBranchAddress( "hnl_mass",   &dVars[0] );
+  intree->SetBranchAddress( "hnl_coup_e", &dVars[1] );
+  intree->SetBranchAddress( "hnl_coup_m", &dVars[2] );
+  intree->SetBranchAddress( "hnl_coup_t", &dVars[3] );
+  intree->SetBranchAddress( "hnl_ismaj",  &iVars[0] );
+}
+#endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
