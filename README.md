@@ -73,7 +73,7 @@ For more information, visit http://www.genie-mc.org
 - Alon Sportes (*Tel Aviv*)
 - Noah Steinberg (*Fermilab*)
 - Vladyslav Syrotenko (*Tufts*)
-- Júlia Tena Vidal (*Liverpool*)
+- Júlia Tena Vidal (*Tel Aviv*)
 - Jeremy Wolcott (*Tufts*)
 
 ---
@@ -105,7 +105,7 @@ Past authors:
 
 ## Copyright
 
-Copyright (c) 2003-2022, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
+Copyright (c) 2003-2023, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org
 
 
 ## Physics & User manual
@@ -219,6 +219,24 @@ Finally, if you used any of the new model configurations and tunes provided in t
     volume = "105",
     number = "1",
     pages = "012009",
+    year = "2022"
+}
+</pre>
+
+<pre>
+@article{GENIE:2022qrc,
+    author = "Tena-Vidal, Julia and others",
+    collaboration = "GENIE",
+    title = "{Neutrino-nucleus CC0$\pi$ cross-section tuning in GENIE v3}",
+    eprint = "2206.11050",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ph",
+    reportNumber = "FERMILAB-PUB-22-296-ND-QIS-SCD",
+    doi = "10.1103/PhysRevD.106.112001",
+    journal = "Phys. Rev. D",
+    volume = "106",
+    number = "11",
+    pages = "112001",
     year = "2022"
 }
 </pre>

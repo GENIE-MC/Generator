@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Steve Dytman
@@ -116,10 +116,6 @@ double BSKLNBaseRESPXSec2014::XSec(
   bool is_CC     = proc_info.IsWeakCC();
   bool is_NC     = proc_info.IsWeakNC();
   bool is_EM     = proc_info.IsEM();
-
-  //  bool new_GV = fGA; //JN
-  //  bool new_GA = fGV; //JN
-
 
   if(is_CC && !is_delta) {
     if((is_nu && is_p) || (is_nubar && is_n)) return 0;
@@ -290,15 +286,18 @@ double BSKLNBaseRESPXSec2014::XSec(
     << "Kinematical params V = " << V << ", U = " << U;
 #endif
 
-  // Calculate the Feynman-Kislinger-Ravndall parameters
+  // Calculate RES Correction factor for neutrinos [ F.Ravndal, Nuovo Cim. A 18, 385 (1973) ]
+  double Go = TMath::Power( 1 - 0.25 * q2 / Mnuc2, 0.5 - IR ) ; 
 
-  double Go  = TMath::Power(1 - 0.25 * q2/Mnuc2, 0.5-IR);
+  // For EM, the correction factor is different [ F. Ravndal, Phys. Rev. D 4, 1466 (1971) ]
+  if( is_EM ) Go = TMath::Power( 1 - 0.25 * q2 / W2, 0.5*(1-IR) ) ; 
+
   double GV  = Go * TMath::Power( 1./(1-q2/fMv2), 2);
   double GA  = Go * TMath::Power( 1./(1-q2/fMa2), 2);
 
-  if(fGV){
+  if(fGVMiniBooNE){
 
-    LOG("BSKLNBaseRESPXSec2014",pDEBUG) <<"Using new GV";
+    LOG("BSKLNBaseRESPXSec2014",pDEBUG) <<"Using new GV tuned to ANL and BNL data";
     double CV0 =  1./(1-q2/fMv2/4.);
     double CV3 =  2.13 * CV0 * TMath::Power( 1-q2/fMv2,-2);
     double CV4 = -1.51 * CV0 * TMath::Power( 1-q2/fMv2,-2);
@@ -314,10 +313,12 @@ double BSKLNBaseRESPXSec2014::XSec(
 
     GV = 0.5 * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR)
          * TMath::Sqrt( 3 * GV3*GV3 + GV1*GV1);
+  } else { 
+    LOG("BSKLNBaseRESPXSec2014",pDEBUG << "Using dipole parametrization for GV") ; 
   }
 
-  if(fGA){
-    LOG("BSKLNBaseRESPXSec2014",pDEBUG) << "Using new GA";
+  if(fGAMiniBooNE){
+    LOG("BSKLNBaseRESPXSec2014",pDEBUG) << "Using new GA tuned to ANL and BNL data";
 
     double CA5_0 = 1.2;
     double CA5 = CA5_0 *  TMath::Power( 1./(1-q2/fMa2), 2);
@@ -325,8 +326,9 @@ double BSKLNBaseRESPXSec2014::XSec(
     GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5;
 
     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"GA= " <<GA << "  C5A= " <<CA5;
+  } else { 
+    LOG("BSKLNBaseRESPXSec2014",pDEBUG << "Using dipole parametrization for GV") ;
   }
-  //JN end of new form factors code
 
   if(is_EM) {
     GA = 0.; // zero the axial term for EM scattering
@@ -768,8 +770,8 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
 
   this->GetParam( "RES-Zeta"   , fZeta  ) ;
   this->GetParam( "RES-Omega"  , fOmega ) ;
-  this->GetParam( "minibooneGA", fGA    ) ;
-  this->GetParam( "minibooneGV", fGV    ) ;
+  this->GetParam( "minibooneGA", fGAMiniBooNE ) ;
+  this->GetParam( "minibooneGV", fGVMiniBooNE ) ;
 
   double ma, mv ;
   this->GetParam( "RES-Ma", ma ) ;
