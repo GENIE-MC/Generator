@@ -533,25 +533,16 @@ double BostedChristyEMPXSec::XSec(
   
   double emcfac = FitEMC(x, A);
 
-//  double F1 = MN*W1*emcfac;
-
   W1 *= emcfac;
     
   double nu2 = nu*nu;
-//  double K = (Wsq - MN2)/2./MN;
   double Eprime = E - nu;
   double sin2theta_2 = Q2/4/E/Eprime;
   double cos2theta_2 = 1 - sin2theta_2;
-//  double tan2theta_2 = sin2theta_2/cos2theta_2;
-//  double eps = 1./(1. + 2*(1+nu2/Q2)*tan2theta_2);              // Ref.1, Eq. (4)
-//  double Gamma = kAem*Eprime*K/Q2/E/(1-eps)/2/kPi2;             // Ref.1, Eq. (5)
-//  sigmaT = 4*kPi2*kAem*F1/K/MN;
-//  sigmaL = R*sigmaT;
-//  double xsec = Gamma*(sigmaT+eps*sigmaL);                      // Ref.1, Eq. (3) d2xsec/dOmegadEprime
   double W2 = W1*(1 + R)/ (1+nu2/Q2);
   double xsec = 4*Eprime*Eprime*kAem2/Q2/Q2*(2*W1*sin2theta_2 + W2*cos2theta_2);   // d2xsec/dOmegadEprime
   double jacobian = W*kPi/E/Eprime/MN;  
-  xsec*= jacobian;                                              // d2xsec/dOmegadEprime-> d2xsec/dWdQ2
+  xsec*= jacobian;                                                                 // d2xsec/dOmegadEprime-> d2xsec/dWdQ2
   
   // The algorithm computes d^2xsec/dWdQ2
   // Check whether variable tranformation is needed
