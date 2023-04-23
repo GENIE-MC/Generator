@@ -285,10 +285,10 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
             zelm     = MultipoleV(interaction, 1, il);
             zmlp     = MultipoleV(interaction, 2, il);
             zmlm     = MultipoleV(interaction, 3, il);
-            zllp     = MultipoleV(interaction, 6, il)*conv;   // cvc
-            zllm     = MultipoleV(interaction, 7, il)*conv;   // cvc
             zslp     = MultipoleV(interaction, 6, il);
             zslm     = MultipoleV(interaction, 7, il);
+            zllp     = zslp*conv;                       // cvc
+            zllm     = zslm*conv;                       // cvc
             zv1     += dleg[il+1] *(zelp + l*zmlp) + dleg[il-1]*(zelm + (l+1)*zmlm);
             zv2     += dleg[il]   *((l+1)*zmlp+ l*zmlm);
             zv3     += ddleg[il+1]*(zelp - zmlp) + ddleg[il-1]*(zelm + zmlm);
@@ -299,8 +299,10 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
             zv8     += faz21*zslp + faz22*zslm;
         }
 
+        double del   = 0;
         if(is_CC)
         {
+            del         = flepf*flepf;
             for (int il = 0; il < maxl; il++)
             {
                 double l = static_cast<double>(il);
@@ -372,10 +374,6 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
         double xk0c    = plkcv0;
         double xkxc    = plkcv1;
 
-        double del     = 0;
-        if (is_CC)
-            del        = flepf*flepf;
-
         double xqjqj = 0, xkjkj = 0;
         std::complex<double> zqj, zbqj, zkj;
         std::complex<double> zkjjx = 0;
@@ -440,7 +438,7 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
                    rs1    = rs1a + inubnu*rs1b;
 
             // a factor for d\sigma5/dE_f dO_f dO_pi
-            factor = fcrsa*W*qpioc/kPi/fnuc;
+            factor /= 2*kPi;
         }
 
 
