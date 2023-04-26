@@ -14,7 +14,7 @@
 
 \created  August 23, 2018
 
-\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -42,6 +42,8 @@ typedef enum HadronTensorType {
   kHT_MEC_DeltaAll,
   kHT_MEC_Deltapn,
   kHT_MEC_EM,
+  kHT_MEC_EM_pn,
+  kHT_MEC_EM_pp,
   kHT_QE_EM,
   kHT_MEC_FullAll_Param,
   kHT_MEC_FullAll_wImag,

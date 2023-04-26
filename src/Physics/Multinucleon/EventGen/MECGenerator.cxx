@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -992,31 +992,59 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
         // isospin of the initial hit nucleon pair
 
         // Find out if we should use a pn initial state
-        double myrand = rnd->RndKine().Rndm();
+        double myrand_pn = rnd->RndKine().Rndm();
         double pnFraction = dynamic_cast< const SuSAv2MECPXSec* >( fXSecModel )
           ->PairRatio( interaction );
 
         LOG("MEC", pINFO) << "Test for pn: "
           << "; xsec = " << XSec << "; pn_fraction = " << pnFraction
-          << "; random number val = " << myrand;
+          << "; random number val = " << myrand_pn;
 
-        if ( myrand <= pnFraction ) {
+        double myrand_pp = rnd->RndKine().Rndm();
+        double ppFraction = 0 ;
+
+	if ( interaction->ProcInfo().IsEM() ) {
+      // calculate ppFraction in the EM case
+	  ppFraction = dynamic_cast< const SuSAv2MECPXSec* >( fXSecModel )
+          ->PairRatio( interaction ,"ppFraction");
+
+      LOG("MEC", pINFO) << "Test for pp: "
+                        << "; xsec = " << XSec << "; pp_fraction = " << ppFraction
+                        << "; random number val = " << myrand_pp;
+	}
+
+        if ( myrand_pn <= pnFraction ) {
           // yes it is, add a PN initial state to event record
           event->AddParticle(kPdgClusterNP, kIStNucleonTarget,
             1, -1, -1, -1, tempp4, v4);
           interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterNP );
         }
         else {
-          // no it is not a PN, add either NN or PP initial state to event record.
-          if ( NuPDG > 0 ) {
-            event->AddParticle(kPdgClusterNN, kIStNucleonTarget,
-              1, -1, -1, -1, tempp4, v4);
-            interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterNN );
-          }
-          else {
-            event->AddParticle(kPdgClusterPP, kIStNucleonTarget,
-              1, -1, -1, -1, tempp4, v4);
-            interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterPP );
+          // no it is not a PN, add either NN or PP initial state to event record (EM case).
+          if ( interaction->ProcInfo().IsEM() ) {
+            if ( myrand_pp <= ppFraction/(1. - pnFraction) ) {
+              // record a PP pair:
+              event->AddParticle(kPdgClusterPP, kIStNucleonTarget,
+                                 1, -1, -1, -1, tempp4, v4);
+              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterPP );
+            } else {
+              // record a NN pair:
+              event->AddParticle(kPdgClusterNN, kIStNucleonTarget,
+                                 1, -1, -1, -1, tempp4, v4);
+              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterNN );
+            }
+          } else {
+            // no it is not a PN, add either NN or PP initial state to event record (CC cases).
+            if ( NuPDG > 0 ) {
+              event->AddParticle(kPdgClusterNN, kIStNucleonTarget,
+                                 1, -1, -1, -1, tempp4, v4);
+              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterNN );
+            }
+            else {
+              event->AddParticle(kPdgClusterPP, kIStNucleonTarget,
+                                 1, -1, -1, -1, tempp4, v4);
+              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterPP );
+            }
           }
         }
       } // end if accept

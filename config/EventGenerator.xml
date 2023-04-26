@@ -23,14 +23,6 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
 
-  <param_set name="NeutralHeavyLepton">
-     <param type="string" name="VldContext"> </param>
-     <param type="int"    name="NModules">   2                                                    </param>
-     <param type="alg"    name="Module-0">   genie::NHLPrimaryVtxGenerator/Default                </param>
-     <param type="alg"    name="Module-1">   genie::UnstableParticleDecayer/AfterHadronTransport  </param>
-     <param type="alg"    name="ILstGen">    genie::DummyInteractionListGenerator/Default         </param>
-  </param_set>
-
   <param_set name="NucleonDecay">
      <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   4                                                    </param>
@@ -823,6 +815,18 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="Module-3">   genie::PhotonCOHGenerator/Default                         </param>
      <param type="alg"    name="Module-4">   genie::UnstableParticleDecayer/BeforeHadronTransport      </param>
      <param type="alg"    name="ILstGen">    genie::HELeptonInteractionListGenerator/PhotonCOH-Default </param>
+  </param_set>
+
+  <!-- Beam-produced Heavy Neutral Lepton simulation -->
+  
+  <param_set name="BeamHNL">
+     <param type="string" name="VldContext"> </param>
+     <param type="int"    name="NModules">   4                                                    </param>
+     <param type="alg"    name="Module-0">   genie::hnl::BRCalculator/Default                     </param>
+     <param type="alg"    name="Module-1">   genie::hnl::FluxCreator/Default                      </param>
+     <param type="alg"    name="Module-2">   genie::hnl::Decayer/Default                          </param>
+     <param type="alg"    name="Module-3">   genie::hnl::VertexGenerator/Default                  </param>
+     <param type="alg"    name="ILstGen">    genie::DummyHNLInteractionListGenerator/Default      </param>
   </param_set>
 
   

@@ -281,7 +281,7 @@
 
 \created August 20, 2008
 
-\cpright Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright Copyright (c) 2003-2023, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          
 */
@@ -787,12 +787,7 @@ int main(int argc, char ** argv)
   if ( fluxFileConfigI ) {
     TTree* t1 = fluxFileConfigI->GetMetaDataTree();
     if ( t1 ) {
-      size_t nmeta = t1->GetEntries();
-      TTree* t2 = (TTree*)t1->Clone(0);
-      for (size_t i = 0; i < nmeta; ++i) {
-        t1->GetEntry(i);
-        t2->Fill();
-      }
+      TTree* t2 = (TTree*)t1->CloneTree();
       t2->Write();
     }
   }

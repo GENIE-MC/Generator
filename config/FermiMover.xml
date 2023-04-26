@@ -9,6 +9,8 @@ Name                          Type    Optional   Comment                        
 .............................................................................................................
 KeepHitNuclOnMassShell        bool    Yes        Switch to control Onshellness of hit nucleon      false
 NuclearModel                  alg     Yes        Nuclear Model                                     Whatever is contained in the SecondEmitter
+MomentumDependentErmv         bool    yes        Whether to calculate momentum dependent Ermv      false or from LFG-MomentumDependentErmv in
+                                                                                                   sub algos, if present
 SecondNucleonEmitter          alg     No         SubAlg to add a second nucleon
                                                  Needed for proper config of nuclear model
 -->
@@ -28,7 +30,7 @@ SecondNucleonEmitter          alg     No         SubAlg to add a second nucleon
      <param type="alg" name="SecondNucleonEmitter"> genie::SRCNuclearRecoil/Default </param>
   </param_set>
 
-<!--
+  <!--
   <param_set name="GaussianRecoil">
      <param type="bool" name="SimRecoilNucleon"> true </param>
   </param_set>

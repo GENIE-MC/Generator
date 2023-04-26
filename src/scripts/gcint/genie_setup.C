@@ -32,6 +32,7 @@ void genie_setup()
 
     change_prompt();
     
+    gROOT->ProcessLine("#include \"Framework/Utils/RunOpt.h\"" ) ;
     gROOT->ProcessLine("genie::RunOpt::Instance()->ReadFromCommandLine( 0, 0 );" ) ;
     gROOT->ProcessLine("genie::RunOpt::Instance()->BuildTune();");
 
