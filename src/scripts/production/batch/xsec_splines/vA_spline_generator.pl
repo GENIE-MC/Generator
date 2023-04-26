@@ -315,7 +315,6 @@ foreach $nu ( @nu_list ) {
 		print SLURM "#SBATCH -n 1 \n";
 		print SLURM "#SBATCH --mem=4000 \n";
 		print SLURM "#SBATCH -L sps \n" if ($batch_system eq 'LyonSlurm');
-		print SLURM "#SBATCH --priority -1 \n" if ( $priority ) ;
 		print SLURM "source $shell_script \n";
 		close(SLURM);
 
