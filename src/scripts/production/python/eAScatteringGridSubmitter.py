@@ -67,8 +67,8 @@ op.add_option("--job-lifetime-vN", dest="vNJOBLIFE", default=15, help="Expected 
 op.add_option("--job-lifetime-vA", dest="vAJOBLIFE", default=3, help="Expected lifetime on the grid for all the vA spline jobs to be finished, default %default h")
 op.add_option("--job-lifetime-generation", dest="GENJOBLIFE", default=4, help="Expected lifetime on the grid for all the event generation jobs to be finished, default %default h")
 op.add_option("--job-lifetime-group", dest="GROUPJOBLIFE", default=1, help="Expected lifetime on the grid for all the grouping jobs to be finished, default 1h")
-op.add_option("--job-memory-generation", dest="GENJOBMEM", default=2, help="Expected memory usage for each event generation job, default %default GB")
-op.add_option("--job-disk-generation", dest="GENJOBDISK", default=2000, help="Expected disk space for each event generation job, default %default MB")
+op.add_option("--job-memory-generation", dest="GENJOBMEM", default="2GB", help="Expected memory usage for each event generation job, default %default. Notice you must specify the units. ")
+op.add_option("--job-disk-generation", dest="GENJOBDISK", default="2GB", help="Expected disk space for each event generation job, default %default. Notice you must specify the units. ")
 op.add_option("--store-comitinfo", dest="STORECOMMIT", default=False, action="store_true", help="Store command line in jobstopdir directory")
 opts, args = op.parse_args()
 
@@ -241,7 +241,14 @@ if opts.GRID is 'FNAL':
     # Write xml file
     grid_name = FNAL.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD)
 
-    main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, grid_setup, genie_setup, grid_name, opts.JOBLIFE)
+    memory = opts.GENJOBMEM
+    disk = opts.GENJOBDISK
+
+    if opts.end_ID < 4 : 
+        memory = "1GB"
+        disk = "500MB"
+
+    main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, grid_setup, genie_setup, grid_name, opts.JOBLIFE, memory, disk)
 
 if opts.SUBMIT == True: 
     # SUBMIT JOB
