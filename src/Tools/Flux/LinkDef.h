@@ -17,7 +17,7 @@
 #pragma link C++ class genie::flux::GJPARCNuFluxPassThroughInfo;
 
 #pragma link C++ class genie::flux::GNuMIFlux;
-#pragma link C++ class genie::flux::GNuMIFluxPassThroughInfo+;
+#pragma link C++ class genie::flux::GNuMIFluxPassThroughInfo;
 #pragma link C++ enum          genie::flux::GNuMIFlux::EStdFluxWindow;
 #pragma link C++ nestedtypedef genie::flux::GNuMIFlux::StdFluxWindow_t;
 
