@@ -92,7 +92,7 @@ Syntax:
               still be in effect if enabled..
               ** Only use that option if you understand what it means **
            --force
-              Forces the interaction of all injected events.
+              Forces the interaction of all flux rays.
               This option is relevant only if a neutrino flux is specified.
               Note that events will be weighted according to their
               interaction probability

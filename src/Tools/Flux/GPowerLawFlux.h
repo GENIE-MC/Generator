@@ -78,7 +78,7 @@ private:
   int              fgPdgC;         ///< running generated nu pdg-code
   TLorentzVector   fgP4;           ///< running generated nu 4-momentum
   TLorentzVector   fgX4;           ///< running generated nu 4-position
-  map<int, double> fProb;
+  map<int, double> fProb;          ///< cumulative probability of neutrino types
   double           fProbMax;
 };
 
