@@ -27,7 +27,7 @@ Syntax:
              [-f flux_description]
              [-o outfile_name]
              [-w]
-             [--force]
+             [--force-flux-ray-interaction]
              [--seed random_number_seed]
              [--cross-sections xml_file]
 
@@ -91,7 +91,7 @@ Syntax:
               scheme for the generated kinematics of individual processes can
               still be in effect if enabled..
               ** Only use that option if you understand what it means **
-           --force
+           --force-flux-ray-interaction
               Forces the interaction of all flux rays.
               This option is relevant only if a neutrino flux is specified.
               Note that events will be weighted according to their
@@ -688,7 +688,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   gOptWeighted = parser.OptionExists('w');
 
   // force interaction of all injected events (only relevant if using a flux)
-  gOptForceInt = parser.OptionExists("force");
+  gOptForceInt = parser.OptionExists("force-flux-ray-interaction");
 
   // neutrino energy
   if( parser.OptionExists('e') ) {
@@ -856,7 +856,7 @@ void PrintSyntax(void)
     << "\n              [-f flux_description]"
     << "\n              [-o outfile_name]"
     << "\n              [-w]"
-    << "\n              [--force]"
+    << "\n              [--force-flux-ray-interaction]"
     << "\n              [--seed random_number_seed]"
     << "\n              [--cross-sections xml_file]"
     << RunOpt::RunOptSyntaxString(true)
