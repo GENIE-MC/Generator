@@ -80,7 +80,7 @@ Syntax:
                  if ,WIDTH then they are alway multiplied by bin width
               -- A power law:
                  The general syntax is `-f POWERLAW:alpha'
-                 and the scpectrum will follow a E^{-alpha} distribution
+                 and the spectrum will follow a E^{-alpha} distribution
            -o
               Specifies the name of the output file events will be saved in.
            -w
@@ -817,7 +817,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   LOG("gevgen", pNOTICE)
        << "Generate weighted events? " << gOptWeighted;
   LOG("gevgen", pNOTICE)
-       << "Force interaction of all injected events? " << gOptForceInt;
+       << "Force interaction of all flux rays? " << gOptForceInt;
   if(gOptNuEnergyRange>0) {
      LOG("gevgen", pNOTICE)
         << "Neutrino energy: ["
