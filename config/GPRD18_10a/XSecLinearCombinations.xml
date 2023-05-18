@@ -26,8 +26,8 @@ Normalise              bool       No         Sum of coefficients = 1            
     <!-- Tune specific parameters --> 
 
     <!-- Tuned to: 
-      - G10a: MicroBooNE numu CCQELike data 
-      - G11a: MicroBooNE numubar CCQELike data 
+      - G10a: MiniBooNE numu CCQELike data 
+      - G11a: MiniBooNE numubar CCQELike data 
       - G20a: T2K numu CC0p0pi data 
       - G30a: MINERvA numu CC0pi data
       - G31a: MINERvA numubar CC0p0pi data
