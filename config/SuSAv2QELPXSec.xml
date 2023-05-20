@@ -42,7 +42,11 @@ Name                                 Type     Optional   Comment
 
   </param_set>
 
-
+     <!-- The model configurations below are used within Physics/QuasiElastic/XSection/SuSAv2QELPXSec. Once
+          we're using a hadron tensor QEL model, these select which model(s) we want to use. For some 
+          "hybrid" configurations we have two models that we smoothly blend. In these cases, we also specify 
+          some parameters to control this. -->
+  
   <param_set name="SuSAv2">
   	<param type="int" name="Model-Config"> 1 </param>
   </param_set>
