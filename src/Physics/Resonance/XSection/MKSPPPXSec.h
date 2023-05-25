@@ -407,7 +407,7 @@ namespace genie {
       double fBkgV1;   
       double fBkgV0;   
       double fRho770Mass;                        ///< Mass of rho(770) meson
-      double fWmax;                              ///< The value above which the partial cross section is set to zero
+      double fWmax;                              ///< The value above which the partial cross section is set to zero (if negative then not appliciable)
       
       bool fUseAuthorCode;                       ///< Use author code?
       
