@@ -162,6 +162,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double eps_z_R           =   2*A_plus *(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1 - cos_theta);
   
   if (is_nubar)
+  {
      if (fUseAuthorCode)
      {
          //This ``recipe'' of transition from neutrino to antineutrino case is promoted by Minoo Kabirnezhad.
@@ -188,6 +189,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
          eps_z_L           =   2*A_plus*(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1 - cos_theta);
          eps_z_R           =   2*A_minus *(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1 + cos_theta);
      }
+  }
   //Eq. 10 of ref. 1
   double C_L_plus          =  k1_Sqrt2*(eps_1_plus  - eps_2_plus);
   double C_L_minus         =  k1_Sqrt2*(eps_1_minus - eps_2_minus);
@@ -1356,6 +1358,8 @@ bool MKSPPPXSec::ValidKinematics(const Interaction * interaction) const
     return false;
 
   Range1D_t Wl  = kps.WLim_SPP_iso();
+  if (fWmax >= Wl.min)
+    Wl.max = TMath::Min(fWmax, Wl.max);
   Range1D_t Q2l = kps.Q2Lim_W_SPP_iso();
 
   if (W < Wl.min || W > Wl.max)
@@ -1437,9 +1441,9 @@ void MKSPPPXSec::LoadConfig(void)
   this->GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
 
 
-  this->GetParamDef("MK-fPi",       f_pi,           0.093 );
-  this->GetParamDef("QEL-FA0",      FA0,            -1.26 );
-  this->GetParamDef("MK-Frho0",     Frho0,            1.0 );
+  this->GetParamDef("MK-fPi",             f_pi,           0.093 );
+  this->GetParamDef("QEL-FA0",            FA0,            -1.26 );
+  this->GetParamDef("MK-Frho0",           Frho0,            1.0 );
 
   this->GetParamDef("MK-NonResBkg-VWmin", fBkgVWmin,       1.30 );
   this->GetParamDef("MK-NonResBkg-VWmax", fBkgVWmax,       1.60 );
@@ -1447,7 +1451,8 @@ void MKSPPPXSec::LoadConfig(void)
   this->GetParamDef("MK-NonResBkg-V2",    fBkgV2,      -41.6767 );
   this->GetParamDef("MK-NonResBkg-V1",    fBkgV1,       66.3419 );
   this->GetParamDef("MK-NonResBkg-V0",    fBkgV0,      -32.5733 );
-  this->GetParamDef("Mass-rho770 ", fRho770Mass,   0.7758 );
+  this->GetParamDef("Mass-rho770",        fRho770Mass,   0.7758 );
+  this->GetParamDef("MK-WMax",            fWmax,           -1.0 );
   
   this->GetParamDef("UseAuthorCode", fUseAuthorCode, false );
 
