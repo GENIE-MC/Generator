@@ -162,30 +162,32 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   double eps_z_R           =   2*A_plus *(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1 - cos_theta);
   
   if (is_nubar)
-  // This ``recipe'' of transition from neutrino to antineutrino case is promoted by Minoo Kabirnezhad.
-  // However, it is not correct in our opinion. All details can be found in Ref. [12], see
-  // section "Problem with transition from neutrino to antineutrino case".
-  //{
-     //Phi = -Phi;
-     //eps_1_plus        =  -2*A_minus *(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1 - cos_theta);
-     //eps_1_minus       =  -2*A_plus*(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1 + cos_theta);
-     //eps_2_plus        =  -2*A_minus *TMath::Sqrt(1 - cos_theta);
-     //eps_2_minus       =   2*A_plus*TMath::Sqrt(1 + cos_theta);
-     //eps_zero_L        =   2*A_plus*TMath::Sqrt(1 - cos_theta);       // L->lambda = -1
-     //eps_zero_R        =   2*A_minus *TMath::Sqrt(1 + cos_theta);       // R->lambda = +1
-     //eps_z_L           =   2*A_plus*(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1 - cos_theta);
-     //eps_z_R           =   2*A_minus *(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1 + cos_theta);
-  //}
-  {
-     eps_1_plus        =   2*A_minus *(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1 - cos_theta);
-     eps_1_minus       =   2*A_plus*(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1 + cos_theta);
-     eps_2_plus        =   2*A_minus *TMath::Sqrt(1 - cos_theta);
-     eps_2_minus       =  -2*A_plus*TMath::Sqrt(1 + cos_theta);
-     eps_zero_L        =   2*A_plus*TMath::Sqrt(1 - cos_theta);       // L->lambda = -1
-     eps_zero_R        =   2*A_minus *TMath::Sqrt(1 + cos_theta);     // R->lambda = +1
-     eps_z_L           =   2*A_plus*(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1 - cos_theta);
-     eps_z_R           =   2*A_minus *(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1 + cos_theta);
-  }
+     if (fUseAuthorCode)
+     {
+         //This ``recipe'' of transition from neutrino to antineutrino case is promoted by Minoo Kabirnezhad.
+         //However, it is not correct in our opinion. All details can be found in Ref. [12], see
+         //section "Problem with transition from neutrino to antineutrino case".
+         Phi = -Phi;
+         eps_1_plus        =  -2*A_minus *(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1 - cos_theta);
+         eps_1_minus       =  -2*A_plus*(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1 + cos_theta);
+         eps_2_plus        =  -2*A_minus *TMath::Sqrt(1 - cos_theta);
+         eps_2_minus       =   2*A_plus*TMath::Sqrt(1 + cos_theta);
+         eps_zero_L        =   2*A_plus*TMath::Sqrt(1 - cos_theta);       // L->lambda = -1
+         eps_zero_R        =   2*A_minus *TMath::Sqrt(1 + cos_theta);       // R->lambda = +1
+         eps_z_L           =   2*A_plus*(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1 - cos_theta);
+         eps_z_R           =   2*A_minus *(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1 + cos_theta);
+     }
+     else
+     {
+         eps_1_plus        =   2*A_minus *(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1 - cos_theta);
+         eps_1_minus       =   2*A_plus*(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1 + cos_theta);
+         eps_2_plus        =   2*A_minus *TMath::Sqrt(1 - cos_theta);
+         eps_2_minus       =  -2*A_plus*TMath::Sqrt(1 + cos_theta);
+         eps_zero_L        =   2*A_plus*TMath::Sqrt(1 - cos_theta);       // L->lambda = -1
+         eps_zero_R        =   2*A_minus *TMath::Sqrt(1 + cos_theta);     // R->lambda = +1
+         eps_z_L           =   2*A_plus*(k_1 + k_2_iso)/abs_mom_k*TMath::Sqrt(1 - cos_theta);
+         eps_z_R           =   2*A_minus *(k_1 - k_2_iso)/abs_mom_k*TMath::Sqrt(1 + cos_theta);
+     }
   //Eq. 10 of ref. 1
   double C_L_plus          =  k1_Sqrt2*(eps_1_plus  - eps_2_plus);
   double C_L_minus         =  k1_Sqrt2*(eps_1_minus - eps_2_minus);
@@ -582,15 +584,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
   //Axial helicity amp for bkg
   //Axial cut is same as FV_cut in the latest version
   double FA_cut = FV_cut;
-/*
-  //virtual form symmetry_factor to kill the bkg smothly
-  if (W < fBkgAWmin)
-    FA_cut = 1;
-  else if (W >= fBkgAWmin && W < fBkgAWmax)
-    FA_cut = fBkgA0 + W*(fBkgA1 + W*(fBkgA2 + W*fBkgA3)) ;
-  else
-    FA_cut = 0;
-*/
+  
   // FF_A here is equal to -g_A*FF_A of original code
   double FF_A    = fFormFactors.FA();
   double F_rho   = Frho0/(1 - (t_minus_mpi2 + m_pi2 )/fRho770Mass/fRho770Mass);
@@ -830,13 +824,6 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
     int    JR         = (utils::res::AngularMom       (res) + 1)/2;
     double MR         = utils::res::Mass              (res);
     double WR         = utils::res::Width             (res);
-/*
-    // Not used in the latest version
-    double qV         = utils::res::VectorPhase       (res);
-    double qA         = utils::res::AxialPhase        (res);
-    double CV40       = utils::res::CV40              (res);
-    double CA50       = utils::res::CA50              (res);
-*/
     double Cjsgn_plus = utils::res::Cjsgn_plus        (res);
     double Dsgn       = utils::res::Dsgn              (res);
     double BR         = SppChannel::BranchingRatio    (res);
@@ -845,11 +832,6 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
     double d = W_plus2 + Q2;
     double sq2omg = TMath::Sqrt(2/fOmega);
     double nomg = NR*fOmega;
-
-/*
-    // Not used in the latest version
-    double CV4 = -1.51*CV40/(1 + Q2/fMv2/4)/(1 + Q2/fMv2)/(1 + Q2/fMv2);
-*/
 
     //Graczyk and Sobczyk vector form-factors
     double CV_factor = 1/(1 + Q2/fMv2/4);
@@ -869,20 +851,11 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
     // Eq. 37 of ref. 6, which is implied to use for neutrino-production
     // double GV  =  0.5*TMath::Sqrt(1 + Q2/W_plus2)/TMath::Power(1 + Q2/4/M2, NR)*TMath::Sqrt(3*GV3*GV3 + GV1*GV1);
 
-/*
-    // Not used in the latest version
-    // formula for G_V^{RS} after eq. 28 in ref. 6 with additional factor (1+ Q2/4/M2)^(-0.5*NR)
-    double GV  =  -k1_Sqrt3/4*W_plus2/M2*TMath::Power(1 + Q2/W_plus2, 1.5)*CV4*TMath::Power(1+ Q2/4/M2, -0.5*NR);
-*/
 
     //Graczyk and Sobczyk axial form-symmetry_factor
     // Eq. 52 of ref. 6
     double CA5 = fCA50/(1 + Q2/fMa2)/(1 + Q2/fMa2);
-/*
-    // Not used in the latest version
-    // Eq. 50 of ref. 6
-    GA = 0.5*kSqrt3*TMath::Sqrt(1 + Q2/W_plus2)*((W2 -Q2 -M2)/Wt2/W_minus + W*Q2/4/M2/W_minus)*CA5;
-*/
+
     // The form is the same like in Eq. 54 of ref. 6, but differ from it by index, which in ref. 6 is equal to NR.
     double GA = 0.5*kSqrt3*TMath::Sqrt(1 + Q2/W_plus2)*(1 - (W2 - Q2 -M2)/8/M2)*CA5/TMath::Power(1+ Q2/4/M2, 0.5*NR);
 
@@ -890,25 +863,12 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
     double abs_mom_qMR      = TMath::Sqrt( qMR_0*qMR_0 - m_pi2);
     double Gamma            = WR*TMath::Power((abs_mom_q/abs_mom_qMR), 2*LR + 1);
 
-/*
-    // Not used in the latest version
-    //phases between resonances and nonresonant helicity amplitudes
-    std::complex<double> exp_phase_V = std::complex<double>(TMath::Cos(qV), TMath::Sin(qV));
-    std::complex<double> exp_phase_A = std::complex<double>(TMath::Cos(qA), TMath::Sin(qA));
-*/
-
     // denominator of Breit-Wigner function
     std::complex<double> denom(W - MR, Gamma/2);
-    //Breit-Wigner amplitude multiplied by kappa*sqrt(BR) to avoid singularity at abs_mom_q=0, where BR = chi_E (see eq. 25 and 27 of ref. 1)
-   //    double kappa            = kPi*W*TMath::Sqrt(2/JR/abs_mom_q)/M;
-   //    f_BW = TMath::Sqrt(BR*Gamma/2/kPi)/denom;
+    // Breit-Wigner amplitude multiplied by kappa*sqrt(BR) to avoid singularity at abs_mom_q=0, where BR = chi_E (see eq. 25 and 27 of ref. 1)
+    //   double kappa            = kPi*W*TMath::Sqrt(2/JR/abs_mom_q)/M;
+    //   f_BW                    = TMath::Sqrt(BR*Gamma/2/kPi)/denom;
     kappa_f_BW = W*TMath::Sqrt(kPi*BR*WR/JR/abs_mom_qMR)*TMath::Power((abs_mom_q/abs_mom_qMR), LR)/denom/M;
-
-/*
-    // Not used in the latest version
-    //Breit-Wigner amplitude for axial part multiplied by sqrt(BR),  where BR = chi_E (see eq. 25 and 27 of ref. 1)
-    f_BW_A = TMath::Sqrt(BR*Gamma/2/kPi)/denom;
-*/
 
     fFKR.Lamda  = sq2omg*abs_mom_k;
     fFKR.Tv     = GV/3/W/sq2omg;
@@ -944,10 +904,6 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
     double S_minus = Q/C_S_minus*(eps_z_L*k_0 - eps_zero_L*abs_mom_k)*(1 + Q2/M2 - 3*W/M)*GV/abs_mom_k_L2/6;
     double k_sqrtQ2 = abs_mom_k/Q;
 
-/*
-    // Not used in the latest version
-    const MKHelicityAmplModelI * hamplmod = 0;
-*/
     const RSHelicityAmplModelI * hamplmod = 0;
 
     if (is_CC)
@@ -960,10 +916,6 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
         hamplmod = fHAmplModelNCn;
     }
 
-/*
-    // Not used in the latest version
-    const MKHelicityAmpl & hampl = hamplmod->Compute(res, fFKR);
-*/
     fFKR.S = S_minus;
     fFKR.B = B_minus;
     fFKR.C = C_minus;
@@ -1187,24 +1139,6 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
     }
   }
 
-  // swap CL+/-, CR+/- and CS+/- for antineutrino case
-  // This ``recipe'' of transition from neutrino to antineutrino case is promoted by Minoo Kabirnezhad.
-  // However, it is not correct in our opinion. All details can be found in Ref. [12], see
-  // section "Problem with transition from neutrino to antineutrino case".
-  // Minoo changed transition rules in the last version of code
-  // These ones are not valid
-  //double temp;
-  //if (is_nubar)
-  //{
-    //temp     = C_L_plus;
-    //C_L_plus = C_R_plus;
-    //C_R_plus = temp;
-
-    //temp     = C_L_minus;
-    //C_L_minus = C_R_minus;
-    //C_R_minus = temp;
-  //}
-
   // Isospin Clebsch–Gordan coefficients to sum amplitudes for I=1/2 and I=3/2, see eq.25 and Table 2 of ref. 1
   double C1         = SppChannel::Isospin1Coefficients(spp_channel);
   double C3         = SppChannel::Isospin3Coefficients(spp_channel);
@@ -1402,8 +1336,6 @@ inline int MKSPPPXSec::Lambda (BosonPolarization l) const
 inline int MKSPPPXSec::PhaseFactor(BosonPolarization lk, NucleonPolarization l1, NucleonPolarization l2) const
 {
   return lk*(lk*(4*lk - 21) + 29)/6 - l1 - l2;
-  // uncorrect phase factor
-  //return (1 - lk)*(lk*(4*lk - 17) + 12)/6 - l1 - l2;
 }
 //____________________________________________________________________________
 bool MKSPPPXSec::ValidKinematics(const Interaction * interaction) const
@@ -1515,16 +1447,9 @@ void MKSPPPXSec::LoadConfig(void)
   this->GetParamDef("MK-NonResBkg-V2",    fBkgV2,      -41.6767 );
   this->GetParamDef("MK-NonResBkg-V1",    fBkgV1,       66.3419 );
   this->GetParamDef("MK-NonResBkg-V0",    fBkgV0,      -32.5733 );
-/*
-  // Not used in the latest version
-  this->GetParamDef("MK-NonResBkg-AWmin", fBkgAWmin,       1.28 );
-  this->GetParamDef("MK-NonResBkg-AWmax", fBkgAWmax,       1.50 );
-  this->GetParamDef("MK-NonResBkg-A3",    fBkgA3,       45.7846 );
-  this->GetParamDef("MK-NonResBkg-A2",    fBkgA2,      -185.994 );
-  this->GetParamDef("MK-NonResBkg-A1",    fBkgA1,       246.608 );
-  this->GetParamDef("MK-NonResBkg-A0",    fBkgA0,      -105.945 );
-*/
   this->GetParamDef("Mass-rho770 ", fRho770Mass,   0.7758 );
+  
+  this->GetParamDef("UseAuthorCode", fUseAuthorCode, false );
 
   // Load the differential cross section integrator
   fXSecIntegrator = dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
