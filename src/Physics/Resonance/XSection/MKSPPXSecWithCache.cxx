@@ -22,6 +22,7 @@
 #include <TMath.h>
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
+#include <Math/AdaptiveIntegratorMultiDim.h>
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Framework/ParticleData/BaryonResUtils.h"
@@ -125,7 +126,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
   
   const KPhaseSpace& kps = in->PhaseSpace();
     
-  double Ethr = kps.Threshold_MKSPP();
+  double Ethr = kps.Threshold_SPP_iso();
   LOG("MKSPPCache", pNOTICE) << "E threshold = " << Ethr;
 
   // Distribute the knots in the energy range as is being done in the
@@ -156,17 +157,22 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
     if(Ev>Ethr+kASmallNum) {
       
       LOG("MKSPPCache", pINFO)
-	<< "*** Integrating d^3 XSec/dWdQ^2dCosTheta for Ch: "
-	<< SppChannel::AsString(spp_channel) << " at Ev = " << Ev;
+      << "*** Integrating d^3 XSec/dWdQ^2dCosTheta for Ch: "
+      << SppChannel::AsString(spp_channel) << " at Ev = " << Ev;
       
       utils::gsl::d3XSecMK_dWQ2CosTheta_E func(fSinglePionProductionXSecModel, & local_interaction, fWcut ) ; 
       ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
       ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
+      if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) 
+      {
+        ROOT::Math::AdaptiveIntegratorMultiDim * cast = dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim*>( ig.GetIntegrator() );
+        assert(cast);
+        cast->SetMinPts(fGSLMinEval);
+      }
       ig.SetFunction(func);
       double kine_min[3] = { 0., 0., 0.};
       double kine_max[3] = { 1., 1., 1.};
-      xsec = ig.Integral(kine_min, kine_max);
-      
+      xsec = ig.Integral(kine_min, kine_max)*(1E-38 * units::cm2);;
     } 
     else 
       LOG("MKSPPCache", pINFO) << "** Below threshold E = " << Ev << " <= " << Ethr;
@@ -179,7 +185,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
     
     SLOG("MKSPPCache", pNOTICE)
       << "ResSPP XSec (Ch:" << SppChannel::AsString(spp_channel) << nc_nuc  << nu_code
-      << ", E="<< Ev << ") = "<< xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
+      << ", E="<< Ev << ") = "<< xsec << " x 1E-38 cm^2";
   }//spline knots
   
   // Build the spline
@@ -188,7 +194,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
 }
 //____________________________________________________________________________
 string MKSPPXSecWithCache::CacheBranchName(
-					   SppChannel_t spp_channel, InteractionType_t it, int nupdgc) const
+                    SppChannel_t spp_channel, InteractionType_t it, int nupdgc) const
 {
   // Build a unique name for the cache branch
 
@@ -211,7 +217,7 @@ string MKSPPXSecWithCache::CacheBranchName(
 // GSL wrappers
 //____________________________________________________________________________
 genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::d3XSecMK_dWQ2CosTheta_E(
-								    const XSecAlgorithmI * m, const Interaction * interaction, double  wcut) :
+                                const XSecAlgorithmI * m, const Interaction * interaction, double  wcut) :
   ROOT::Math::IBaseFunctionMultiDim(),
   fModel(m),
   fWcut(wcut)
@@ -229,13 +235,13 @@ genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::d3XSecMK_dWQ2CosTheta_E(
   double Enu = init_state.ProbeE(kRfHitNucRest);
 
 
-  if (Enu < kps->Threshold_MKSPP())
+  if (Enu < kps->Threshold_SPP_iso())
   {
     isZero = true;
     return;
   }
   
-  Wl  = kps->WLim_MKSPP();
+  Wl  = kps->WLim_SPP_iso();
   if (fWcut >= Wl.min)
     Wl.max = TMath::Min(fWcut,Wl.max);
   
@@ -251,26 +257,24 @@ unsigned int genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::NDim(void) const
 }
 double genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::DoEval(const double * xin) const
 {
-
   // outputs:
   //   differential cross section [1/GeV^3] for Resonance single pion production production
   //
 
   if (isZero) return 0.;
   
-  double W  = Wl.min + (Wl.max - Wl.min)*xin[0];
-  fInteraction->KinePtr()->SetW(W);
+  double W2  = Wl.min*Wl.min + (Wl.max*Wl.max - Wl.min*Wl.min)*xin[0];
+  fInteraction->KinePtr()->SetW(TMath::Sqrt(W2));
    
-  Range1D_t Q2l = kps->Q2Lim_W_MKSPP(); 
+  Range1D_t Q2l = kps->Q2Lim_W_SPP_iso(); 
    
-  double Q2 = Q2l.min + (Q2l.max - Q2l.min)*xin[1];
-  fInteraction->KinePtr()->SetQ2(Q2);
+  double sqrt_Q2 = TMath::Sqrt(Q2l.min) + ( TMath::Sqrt(Q2l.max) - TMath::Sqrt(Q2l.min) )*xin[1];
+  fInteraction->KinePtr()->SetQ2(sqrt_Q2*sqrt_Q2);
   
   fInteraction->KinePtr()->SetKV(kKVctp, -1. + 2.*xin[2]); //CosTheta
   
-  
-  double xsec = fModel->XSec(fInteraction, kPSWQ2ctpfE)*(Wl.max-Wl.min)*(Q2l.max-Q2l.min)*2;
-  return xsec;
+  double xsec = fModel->XSec(fInteraction, kPSWQ2ctpfE)*sqrt_Q2*(Wl.max*Wl.max - Wl.min*Wl.min)*(TMath::Sqrt(Q2l.max) - TMath::Sqrt(Q2l.min))*2/TMath::Sqrt(W2);
+  return xsec/(1E-38 * units::cm2);
 }
 ROOT::Math::IBaseFunctionMultiDim *
 genie::utils::gsl::d3XSecMK_dWQ2CosTheta_E::Clone() const

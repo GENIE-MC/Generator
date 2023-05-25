@@ -41,7 +41,7 @@ public:
 
   //! Energy threshold
   double Threshold(void) const;
-  double Threshold_MKSPP(void) const;   ///< Energy limit for resonance single pion production
+  double Threshold_SPP_iso(void) const;   ///< Energy limit for resonance single pion production on isoscalar nucleon
 
   //! Checks whether the interaction is above the energy threshold
   bool IsAboveThreshold(void) const;
@@ -54,19 +54,21 @@ public:
   double     Minimum (KineVar_t kvar) const;
   double     Maximum (KineVar_t kvar) const;
 
-  Range1D_t  WLim         (void) const;  ///< W  limits
-  Range1D_t  WLim_MKSPP    (void) const;  ///< W  limits for resonance single pion production
-  Range1D_t  Q2Lim_W      (void) const;  ///< Q2 limits @ fixed W
-  Range1D_t  Q2Lim_W_MKSPP (void) const;  ///< Q2 limits @ fixed W for resonance single pion production
-  Range1D_t  q2Lim_W      (void) const;  ///< q2 limits @ fixed W
-  Range1D_t  Q2Lim        (void) const;  ///< Q2 limits
-  Range1D_t  q2Lim        (void) const;  ///< q2 limits
-  Range1D_t  XLim         (void) const;  ///< x  limits
-  Range1D_t  YLim         (void) const;  ///< y  limits
-  Range1D_t  YLim_X       (void) const;  ///< y  limits @ fixed x
-  Range1D_t  YLim         (double xsi) const;  ///< y  limits (COH)
-  Range1D_t  YLim_X       (double xsi) const;  ///< y  limits @ fixed x (COH)
-  Range1D_t  TLim         (void) const;  ///< t  limits
+  Range1D_t  WLim    (void) const;  ///< W  limits
+  Range1D_t  Q2Lim_W (void) const;  ///< Q2 limits @ fixed W
+  Range1D_t  q2Lim_W (void) const;  ///< q2 limits @ fixed W
+  Range1D_t  Q2Lim   (void) const;  ///< Q2 limits
+  Range1D_t  q2Lim   (void) const;  ///< q2 limits
+  Range1D_t  XLim    (void) const;  ///< x  limits
+  Range1D_t  YLim    (void) const;  ///< y  limits
+  Range1D_t  YLim_X  (void) const;  ///< y  limits @ fixed x
+  Range1D_t  YLim    (double xsi) const;  ///< y  limits (COH)
+  Range1D_t  YLim_X  (double xsi) const;  ///< y  limits @ fixed x (COH)
+  Range1D_t  TLim    (void) const;  ///< t  limits
+  Range1D_t  WLim_SPP(void) const;          ///< W  limits for single pion production models
+  Range1D_t  WLim_SPP_iso (void) const;     ///< W  limits for resonance single pion production on isoscalar nucleon
+  Range1D_t  Q2Lim_W_SPP  (void) const;     ///< Q2 limits @ fixed W for single pion production models
+  Range1D_t  Q2Lim_W_SPP_iso (void) const;  ///< Q2 limits @ fixed W for resonance single pion production on isoscalar nucleon
 
   static double GetTMaxDFR();
 

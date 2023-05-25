@@ -366,16 +366,6 @@ namespace genie {
       int PhaseFactor(BosonPolarization lk, NucleonPolarization l1, NucleonPolarization l2) const;
       
       void LoadConfig (void);
-      
-/*
-      // Not used n the latest version 
-      mutable FKR_MK fFKR;
-      
-      const MKHelicityAmplModelI * fHAmplModelCC;
-      const MKHelicityAmplModelI * fHAmplModelNCp;
-      const MKHelicityAmplModelI * fHAmplModelNCn;
-*/      
-      
       mutable FKR fFKR;
       const RSHelicityAmplModelI * fHAmplModelCC;
       const RSHelicityAmplModelI * fHAmplModelNCp;
@@ -390,21 +380,21 @@ namespace genie {
       double   fMv2;               ///< (vector mass)^2
       double   fSin2Wein;          ///< sin^2(Weingberg angle)
       double   fVud;               ///< |Vud| (magnitude ud-element of CKM-matrix)
-      double   fXSecScaleCC;       ///< external CC xsec scaling factor
-      double   fXSecScaleNC;       ///< external NC xsec scaling factor
+      double   fXSecScaleCC;       ///< External CC xsec scaling factor
+      double   fXSecScaleNC;       ///< External NC xsec scaling factor
       const ELFormFactorsModelI  * fElFFModel;          ///< Elastic form facors model for background contribution
       const QELFormFactorsModelI * fFormFactorsModel;   ///< Quasielastic form facors model for background contribution
       const QELFormFactorsModelI * fEMFormFactorsModel; ///< Electromagnetic form factors model for background contribution
       
-      string fKFTable;             ///< table of Fermi momentum (kF) constants for various nuclei
-      bool fUseRFGParametrization; ///< use parametrization for fermi momentum insted of table?
-      bool fUsePauliBlocking;      ///< account for Pauli blocking?
+      string fKFTable;             ///< Table of Fermi momentum (kF) constants for various nuclei
+      bool fUseRFGParametrization; ///< Use parametrization for fermi momentum insted of table?
+      bool fUsePauliBlocking;      ///< Account for Pauli blocking?
 
       mutable QELFormFactors  fFormFactors;      ///<  Quasielastic form facors for background contribution
       mutable QELFormFactors  fEMFormFactors;    ///<  Electromagnetic form facors for background contribution
       double  f_pi;                              ///<  Constant for pion-nucleon interaction
       double  FA0;                               ///<  Axial coupling (value of axial form factor at Q2=0)
-      double  Frho0;                             ///<  Value of form fator F_rho at t=0 
+      double  Frho0;                             ///<  Value of form factor F_rho at t=0 
       /// Parameters for vector virtual form factor
       /// for background contribution, which equal to:  
       /// 1,                                              W<VWmin   
@@ -416,21 +406,10 @@ namespace genie {
       double fBkgV2;   
       double fBkgV1;   
       double fBkgV0;   
-      /*
-      // Not used n the latest version 
-      /// Parameters for axial-vector virtual form factor
-      /// for background contribution, which equal to:  
-      /// 1,                                              W<VWmin   
-      /// A3*W^3+A2*W^2+A1*W+A0                     VWmin<W<VWmax
-      /// 0                                               W>VWmax
-      double fBkgAWmin;
-      double fBkgAWmax; 
-      double fBkgA3;  
-      double fBkgA2;  
-      double fBkgA1;  
-      double fBkgA0; 
-      */
-      double fRho770Mass;                        ///< Mass of rho(770) meson 
+      double fRho770Mass;                        ///< Mass of rho(770) meson
+      double fWmax;                              ///< The value above which the partial cross section is set to zero (if negative then not appliciable)
+      
+      bool fUseAuthorCode;                       ///< Use author code?
       
       const XSecIntegratorI * fXSecIntegrator;
       

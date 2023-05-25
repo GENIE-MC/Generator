@@ -164,7 +164,8 @@ double BostedChristyEMPXSec::sigmaNR(int sf, double Q2, double W, bool isDeuteri
   
   double Wdif = W - (Mp + Mpi);
   
-  double m0 = 4.2802; // GeV
+
+  double m0  = sf==0?0.125:4.2802;
   double Q20 = sf==0?0.05:0.125; 
   double xpr = 1./(1.+(W2-(Mp+Mpi)*(Mp+Mpi))/(Q2+Q20));      // Ref.1, Eq.(22)
   

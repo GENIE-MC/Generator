@@ -31,9 +31,11 @@ MK-NonResBkg-V3             double  Yes   1,                                    
 MK-NonResBkg-V2             double  Yes   V3*W^3+V2*W^2+V1*W+V0                     VWmin<W<VWmax         -41.6767
 MK-NonResBkg-V1             double  Yes   0                                               W>VWmax         66.3419
 MK-NonResBkg-V0             double  Yes                                                                   32.5733
+MK-WMax                     double  Yes   The value above which the pxsec is zero(negative not applic.)   -1.
 Mass-rho770                 double  Yes   Mass of rho-meson(770)                                          0.7758
+UseAuthorCode               bool    Yes   Use autor version of code ?                                     No
 ResonanceNameList           string  No    List of resonances to be taken into account                     CommonParam[Resonances]
-RFG-UseParametrization      bool    No    use parametrization for Fermi momentum and binging energy       CommonParam[FermiGas]
+RFG-UseParametrization      bool    No    Use parametrization for Fermi momentum and binging energy       CommonParam[FermiGas]
 FermiMomentumTable          string  No    Table of Fermi momentum (kF) constants for various nuclei       CommonParam[FermiGas]
 XSec-Integrator             alg     No
 -->
