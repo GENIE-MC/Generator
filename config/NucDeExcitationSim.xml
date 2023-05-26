@@ -13,7 +13,8 @@ Name                    Type     Optional   Comment                     Default
 -->
 
   <param_set name="Default"> 
+    <param type="bool" name="DoCarbon"> false </param>
+    <param type="bool" name="DoArgon">  false </param>
   </param_set>
 
 </alg_conf>
-
