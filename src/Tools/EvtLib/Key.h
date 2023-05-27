@@ -3,6 +3,8 @@
 
 #include <ostream>
 
+#include <tuple> // for std::make_tuple()
+
 namespace genie{
 namespace evtlib{
 
