@@ -55,7 +55,6 @@ for the following channels:
                                                 http://theor.jinr.ru/NeutrinoOscillations/Papers/Report_MK_implementation_GENIE.pdf)              
 
 \authors  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
-          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>,  Joint Institute for Nuclear Research \n
           Vadim Naumov <vnaumov@theor.jinr.ru>,  Joint Institute for Nuclear Research \n
           adapted from code provided by \n
           Minoo Kabirnezhad <minoo.kabirnezhad@physics.ox.ac.uk>

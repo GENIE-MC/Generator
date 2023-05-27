@@ -25,7 +25,6 @@ for the following channels:
 Is a concrete implementation of the EventRecordVisitorI interface.
 
 \authors  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
-          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>,  Joint Institute for Nuclear Research \n
           Vadim Naumov <vnaumov@theor.jinr.ru>,  Joint Institute for Nuclear Research \n
 
 \created  May 9, 2020
