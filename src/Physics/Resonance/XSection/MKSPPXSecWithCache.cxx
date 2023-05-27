@@ -5,7 +5,6 @@
   or see $GENIE/LICENSE
 
   Authors: Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
-  Konstantin Kuzmin <kkuzmin@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
   Vadim Naumov <vnaumov@theor.jinr.ru >,  Joint Institute for Nuclear Research \n
   based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
   University of Liverpool & STFC Rutherford Appleton Lab
