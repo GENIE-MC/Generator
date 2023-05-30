@@ -128,9 +128,7 @@ TVector3 BohrElectronVelocity::randomize_direction_sphere(double v) const{
   TRandom3 gen = rnd->RndGen(); //Get generator
   double costheta = gen.Uniform(-1,1); //Polar
   double phi = gen.Uniform(0,2*kPi); //Azimuthal
-  double random_sign = gen.Rndm(); //Gen number between 0,1
-  int sign = (random_sign < 0.5) ? -1 : 1; //Get -1 or 1 from this number
-  double sintheta = sign*TMath::Sin(TMath::ACos(costheta)); //Sin theta
+  double sintheta = sqrt( 1 - costheta*costheta); // which is always positive because the angle is in the 0 -> pi range! it cannot be negative
   return TVector3(v*sintheta*TMath::Cos(phi),
                   v*sintheta*TMath::Sin(phi),
                   v*costheta); //Return vector with magnitude v and random direction
