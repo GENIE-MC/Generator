@@ -24,6 +24,7 @@ import FNALGridUtils as FNAL
 
 sys.path.insert(1, 'event_generation')
 import eScatteringGenCommands as eA
+import eFluxScatteringGenCommands as eAFlux
 
 op = optparse.OptionParser(usage=__doc__)
 op.add_option("--version", dest="VERSION", default="master", help="Genie version. Default: %default")
@@ -230,7 +231,7 @@ while loop_i < loop_end + 1:
                                                            opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
                                                            opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.GENJOBMEM,opts.GENJOBDISK,opts.BRANCH,opts.GIT_LOCATION) )
         else : 
-            command_dict.update( eA.eFluxScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.FLUX,opts.MinEnergyFlux,opts.MaxEnergyFlux,vAsplines,opts.EEvents,
+            command_dict.update( eAFlux.eFluxScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.FLUX,opts.MinEnergyFlux,opts.MaxEnergyFlux,vAsplines,opts.EEvents,
                                                            opts.TUNE, opts.EvGenList, opts.NMax, opts.Seed, opts.RunID, opts.GSTOutput, opts.NoGHEPOutput,version,
                                                            opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
                                                            opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.GENJOBMEM,opts.GENJOBDISK,opts.BRANCH,opts.GIT_LOCATION) )

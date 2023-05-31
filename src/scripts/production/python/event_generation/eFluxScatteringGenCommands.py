@@ -55,7 +55,6 @@ def eFluxScatteringGenCommands( e_list = "11",tgt_list="1000060120", Flux="\'1/x
         req_tgt_list = tgt_list.split(',')
     else : 
         req_tgt_list = evg_tgtpdg_hash 
-    req_En_list = EBeam_list.split(',')
     req_gen_list = gen_list.split(',')
     
     true_nsubruns = ntotevents*1.0/nmaxrun
@@ -64,6 +63,7 @@ def eFluxScatteringGenCommands( e_list = "11",tgt_list="1000060120", Flux="\'1/x
     if ntotevents <= nmaxrun : nsubruns = 1
     
     xsec_filename = os.path.basename(xspl_file)
+    in_file_list = [str(xspl_file)]
 
     if grid_system == 'FNAL' :
         input_xsec = "\$CONDOR_DIR_INPUT/"+xsec_filename
@@ -71,7 +71,7 @@ def eFluxScatteringGenCommands( e_list = "11",tgt_list="1000060120", Flux="\'1/x
         input_xsec = free_nuc_dir+xsec_filename
 
     flux_path = ''
-    if "root" in flux:
+    if "root" in Flux:
         flux_members = Flux.split(",") # separate flux file location and histogram name
         if len(flux_members) is not 2 : 
             print( "Provide flux file path and histogram name" )
@@ -86,35 +86,34 @@ def eFluxScatteringGenCommands( e_list = "11",tgt_list="1000060120", Flux="\'1/x
     command_list = []
     for e in final_e_list : 
         for tgt in req_tgt_list : 
-            for E in req_En_list : 
-                n_event_left = ntotevents
+            n_event_left = ntotevents
                 
-                for isubrun in range(nsubruns) :
-                    if n_event_left >= nmaxrun : 
-                        nev = nmaxrun
-                    else:
-                        nev = n_event_left
-                    n_event_left -= nev
-                    isubrun+=int(starting_run)
-                    curr_subrune = "11"+str(tgt)+str(isubrun); 
-                    curr_seed         = int(mcseed) + isubrun + int(tgt)
-                    jobname           = "e_on_"+str(tgt)+"_"+str(int((float(E)*1000)))+"MeV_"+str(isubrun)
+            for isubrun in range(nsubruns) :
+                if n_event_left >= nmaxrun : 
+                    nev = nmaxrun
+                else:
+                    nev = n_event_left
+                n_event_left -= nev
+                isubrun+=int(starting_run)
+                curr_subrune = "11"+str(tgt)+str(isubrun); 
+                curr_seed         = int(mcseed) + isubrun + int(tgt)
+                jobname           = "e_on_"+str(tgt)+"_"+str(isubrun)
+                
+                evgen_command = "gevgen -p "+str(e)+" -n "+str(nev)+" -e "+EMin+","+EMax+" -f " +Flux+" -t "+str(tgt)+" -r "+curr_subrune+" --seed "+str(curr_seed)
+                evgen_command += " --cross-sections "+input_xsec+" --event-generator-list "+gen_list+" --tune "+tune + " -o "+jobname+".ghep.root"
+                
+                out_files = [str(jobname+".ghep.root")]
+                if gst_output : 
+                    evgen_command += " ; gntpc -i "+jobname+".ghep.root -o "+jobname+".gst.root -f gst "
+                    out_files.append(str(jobname+".gst.root"))
+                    if no_ghep :
+                        out_files = [str(jobname+".gst.root")]
 
-                    evgen_command = "gevgen -p "+str(e)+" -n "+str(nev)+" -e "+EMin+","+EMax+" -f " +Flux+" -t "+str(tgt)+" -r "+curr_subrune+" --seed "+str(curr_seed)
-                    evgen_command += " --cross-sections "+input_xsec+" --event-generator-list "+gen_list+" --tune "+tune + " -o "+jobname+".ghep.root"
-                    
-                    out_files = [str(jobname+".ghep.root")]
-                    if gst_output : 
-                        evgen_command += " ; gntpc -i "+jobname+".ghep.root -o "+jobname+".gst.root -f gst "
-                        out_files.append(str(jobname+".gst.root"))
-                        if no_ghep :
-                            out_files = [str(jobname+".gst.root")]
-
-                    shell_file = ''                
-                    if grid_system == 'FNAL' :
-                        shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, str(xspl_file), git_branch, git_loc ) 
-                        grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time,memory,disk)
-                        command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
+                shell_file = ''                
+                if grid_system == 'FNAL' :
+                    shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, in_file_list, git_branch, git_loc )  
+                    grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time,memory,disk)
+                    command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
     ## Add command list to dictionary; Key is 4 => event production
     command_dict = {}
