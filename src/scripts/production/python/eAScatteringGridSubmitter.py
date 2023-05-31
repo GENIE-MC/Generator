@@ -54,6 +54,9 @@ op.add_option("--nu-ntotevents", dest="NuEvents", type="int", default=10000, hel
 op.add_option("--e-ntotevents", dest="EEvents", type="int", default=100000, help="Number of total events, default: 100 k")
 op.add_option("--nmaxevents",dest="NMax", type="int", default=400000,help="Max number of events to run per event generation, default %default")
 op.add_option("--ebeam-energy", dest="EnergyBeam", default="2", help="Comma separated list of beam energy for electrons. Default %default GeV")
+op.add_option("--flux", dest="FLUX", default="none", help="Default none. To use an input root file, specify the location of the file and the TH1D name as follows: file.root,th1d_name")
+op.add_option("--e-minenergy-fluxrange", dest="MinEnergyFlux", default="0.1", help="Minimum electron energy. Default %default")
+op.add_option("--e-maxenergy-fluxrange", dest="MaxEnergyFlux", default="100", help="Maximum electron energy. Default %default.")
 op.add_option("--seed", dest="Seed", default=210921029, help="Set stargint point seed. Default %default")
 op.add_option("--gen-runid", dest="RunID", default=0, help="Set Starting run id. Default %default")
 op.add_option("--gst-output", dest="GSTOutput", default=False, action="store_true",help="Store gst root file.")
@@ -221,10 +224,16 @@ while loop_i < loop_end + 1:
 
     if loop_i == 4 : 
         # ID = 4 # Event generation commands
-        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.EnergyBeam,vAsplines,opts.EEvents,
-                                                       opts.TUNE, opts.EvGenList, opts.NMax, opts.Seed, opts.RunID, opts.GSTOutput, opts.NoGHEPOutput,version,
-                                                       opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
-                                                       opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.GENJOBMEM,opts.GENJOBDISK,opts.BRANCH,opts.GIT_LOCATION) )
+        if opts.FLUX is "none" : 
+            command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.EnergyBeam,vAsplines,opts.EEvents,
+                                                           opts.TUNE, opts.EvGenList, opts.NMax, opts.Seed, opts.RunID, opts.GSTOutput, opts.NoGHEPOutput,version,
+                                                           opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
+                                                           opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.GENJOBMEM,opts.GENJOBDISK,opts.BRANCH,opts.GIT_LOCATION) )
+        else : 
+            command_dict.update( eA.eFluxScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.FLUX,opts.MinEnergyFlux,opts.MaxEnergyFlux,vAsplines,opts.EEvents,
+                                                           opts.TUNE, opts.EvGenList, opts.NMax, opts.Seed, opts.RunID, opts.GSTOutput, opts.NoGHEPOutput,version,
+                                                           opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
+                                                           opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.GENJOBMEM,opts.GENJOBDISK,opts.BRANCH,opts.GIT_LOCATION) )
         total_time += int(opts.GENJOBLIFE)
     
     loop_i += 1 
