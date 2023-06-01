@@ -16,7 +16,7 @@
 
 \created  April 25, 2004
 
-\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -156,7 +156,6 @@ public:
   static Interaction * GLR       (int tgt, const TLorentzVector & p4probe);
   static Interaction * NDecay    (int tgt, int decay_mode=-1, int decayed_nucleon = 0);
   static Interaction * NOsc      (int tgt, int annihilation_mode=-1);
-  static Interaction * NHL       (double E=0, int decayed_mode=-1);
   static Interaction * ASK       (int tgt, int probe, double E=0);
   static Interaction * ASK       (int tgt, int probe, const TLorentzVector & p4probe);
   static Interaction * DME       (int tgt, int nuc, int probe, double E=0);
@@ -165,6 +164,7 @@ public:
   static Interaction * DMDI      (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
   static Interaction * DMDI      (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * DMDI      (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
+  static Interaction * HNL       (int probe, double E=0, int decayed_mode=-1);
 
 private:
 

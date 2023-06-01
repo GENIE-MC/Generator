@@ -74,12 +74,18 @@ XSec-Integrator             alg     No
    
   </param_set> 
 
- <param_set name="EM-WithPauliBlock"> 
+  <param_set name="EM-WithPauliBlock"> 
      <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/WithPauliBlock    </param>
+     <!-- Use dipole form factors for electrons Ref.[F.Ravndal, Phys.Rev. D 4, 1466 (1971)] --> 
+     <param type="bool" name="minibooneGA">  false </param>
+     <param type="bool" name="minibooneGV">  false </param>
   </param_set>
 
   <param_set name="EM-NoPauliBlock">
      <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/NoPauliBlock    </param>
+     <!-- Use dipole form factors for electrons Ref.[F.Ravndal, Phys.Rev. D 4, 1466 (1971)] --> 
+     <param type="bool" name="minibooneGA">  false </param>
+     <param type="bool" name="minibooneGV">  false </param>
   </param_set>
 
 </alg_conf>  

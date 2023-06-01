@@ -11,9 +11,12 @@
            Changes required to implement the GENIE Boosted Dark Matter module
            were installed by Josh Berger (Univ. of Wisconsin)
 
+	   Changes required to implement the GENIE BeamHNL module
+	   were installed by John Plows (Univ. of Oxford)
+
 \created   May 06, 2004
 
-\cpright   Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright   Copyright (c) 2003-2023, The GENIE Collaboration
            For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -87,6 +90,7 @@ namespace pdg
   bool Is2NucleonCluster  (int pdgc);
 
   bool IsDarkSectorParticle   (int pdgc);
+  bool IsHNL              (int pdgc);
 
   int  SwitchProtonNeutron    (int pdgc);
   int  ModifyNucleonCluster   (int pdgc, int dQ);

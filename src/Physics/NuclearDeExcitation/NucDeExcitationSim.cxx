@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -11,7 +11,11 @@
 #include <cstdlib>
 #include <sstream>
 
+#include <TFile.h>
+#include <TH1D.h>
 #include <TMath.h>
+#include <TParameter.h>
+#include <TSystem.h>
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/GBuild.h"
@@ -70,6 +74,50 @@ void NucDeExcitationSim::ProcessEventRecord(GHepRecord * evrec) const
   }
 
   if(nucltgt->Z()==8) this->OxygenTargetSim(evrec);
+
+  // if oxygen, keep the existing genie behavior
+
+  // if not oxygen, only simulate these for QE events
+  // double nucleon knockout produces fewer photons.
+  // too much energy and it all leaves as nucleon ejection.
+  // either set them to zero, or set them to 1/10 probability.
+  // proc_info.IsQuasiElastic();
+  // RIK TODO  still need to test that this works.
+  // Then move the photon spectrom to p-hole too
+  // Then activate for Argon.
+  // Then make plots of the spectra.
+  // do not do this for coherent ?  MEC, RES, DIS only ?
+  // ask if the exotic processes are used and should get it.
+
+  RandomGen * rnd = RandomGen::Instance();
+
+  if(evrec->Summary()->ProcInfo().IsQuasiElastic()){ // || rand < 0.1}
+    //suppress_probability_factor = 1.0;
+    if(nucltgt->Z()==6) this->CarbonTargetSim(evrec);
+    // simulate argon with a dedicated calculation
+    if(nucltgt->Z()==18) this->ArgonTargetSim(evrec);
+  } else if(evrec->Summary()->ProcInfo().IsResonant() ||
+	    evrec->Summary()->ProcInfo().IsMEC() ||
+	    evrec->Summary()->ProcInfo().IsDeepInelastic()){
+
+    double suppress_probability_factor = 0.20;
+    // deexcitation is less likely after multiple nucleon knockout
+    // because there is too much energy.
+    // the decay will happen via nucleon or alpha ejection
+    // and the KE will be carried away in that fashion, not gamma.
+    if(rnd->RndDec().Rndm() < suppress_probability_factor){
+      if(nucltgt->Z()==6) this->CarbonTargetSim(evrec);
+      // simulate argon with the same probabilities.
+      // Argoneut using FLUKA says
+      if(nucltgt->Z()==18) this->ArgonTargetSim(evrec);
+    } else {
+      //std::cout << "Rik made none nonQE " << std::endl;
+    }
+
+  }
+
+
+	   // else if rand < 0.1
 
   LOG("NucDeEx", pINFO)
      << "Done with this event";
@@ -305,6 +353,135 @@ void NucDeExcitationSim::OxygenTargetSim(GHepRecord * evrec) const
     }
   } //n-hole
 }
+
+//___________________________________________________________________________
+//  Carbon
+//
+//  As of October 2022, we are not prepared to turn on new GENIE functionality
+//  that includes full simulation of remnant nucleus deexcitation
+//  such as INCL++ or Marley (or FLUKA).
+//
+//  Based on some MINERvA effort at Duluth, undergrad Brandon Reed and Rik Gran
+//  We have coded in the neutron hole decay spectrum predicted by
+//  Kamyshkov and Kolbe @article{Kamyshkov:2002wp, arXiv:nucl-th/0206030
+//  doi = "10.1103/PhysRevD.67.076007",
+//
+//  This paper proposes a decay spectrum using a similar concept to the one
+//  for neutron-hole and proton-hole used for oxygen that is coded above.
+//  They do not present a proton hole calculation.
+//  The P3/2 neutron-hole decay leads only to a 2 MeV photon.
+//  The S1/2 neutron-hole decay leads to a wide range of outcomes
+//      of which this code only gives the photon spectrum, not ejected nucleons.
+//  They also present a discussion of two-neutron hole spectra
+//      which preferentially lead to nucleon ejection and less often a photon
+//
+void NucDeExcitationSim::CarbonTargetSim(GHepRecord * evrec) const
+{
+  // If we've disabled carbon de-excitations, then this function is a no-op
+  if ( !fDoCarbon ) return;
+
+  LOG("NucDeEx", pNOTICE)
+     << "Simulating nuclear de-excitation gamma rays for Carbon target";
+
+  GHepParticle * hitnuc = evrec->HitNucleon();
+  if(!hitnuc) return;
+
+  //  bool p_hole = (hitnuc->Pdg() == kPdgProton);
+
+
+
+  double dt   = -1;
+
+  RandomGen * rnd = RandomGen::Instance();
+
+
+    //
+    // * Define all the data required for simulating deexcitations of n-hole states
+    //
+
+    //std::cout << "Rik simulating n-hole in carbon " << std::endl;
+
+    // > probabilities for creating a n-hole in the P1/2, P3/2, S1/2 shells
+    // Kamyshkov gives it a different way than the oxygen folks did.
+    // A probability for the Pstates combined, and branching fractions for S1/2
+    double Pp12 = 0.0; //  0.75/6.0; // 0.25;  // P1/2  Rik says set to zero.
+    double Pp32 = 4.0/6.0; // 0.44;  // P3/2
+    double Ps12 = 2.00/6.0;  //0.09;  // S1/2
+    //>
+    double p32Elv = 0.0020;
+    //>
+    int ns12 = 8;
+    double s12Elv[ns12] = {0.0005, 0.0007, 0.0017, 0.0021, 0.0033, 0.0035, 0.0047, 0.0063};
+    //double s12Plv[ns12] = {0.21, 0.295, 0.14, 0.26, 0.14, 0.2, 0.03, 0.03};
+    // the above multiply by 0.2
+    double s12Plv[ns12] = {0.042, 0.059, 0.028, 0.052, 0.028, 0.04, 0.006, 0.006};
+    // the above multiply by 0.2 and by 2/6.
+    //double s12Plv[ns12] = {0.0140, 0.01967, 0.0933, 0.01733, 0.00933, 0.0133, 0.0020, 0.0020};
+
+
+    //double s12Elv = 0.00703;
+    //double s12Plv = 0.222;
+
+    // Select one of the P1/2, P3/2 or S1/2
+    double rshell = rnd->RndDec().Rndm();
+    //
+    // >> P1/2 shell
+    //
+    if(rshell < Pp12) {
+      // Rik says this probability is already set to zero for Kamyshkov
+        LOG("NucDeEx", pNOTICE)
+          << "Hit nucleon left a P1/2 shell n-hole. Remnant is at g.s.";
+        return;
+    }
+    //
+    // >> P3/2 shell
+    //
+    else
+    if(rshell < Pp12 + Pp32) {
+        LOG("NucDeEx", pNOTICE)
+            << "Hit nucleon left a P3/2 shell n-hole";
+
+	double myrand  = rnd->RndDec().Rndm();
+	if(myrand < 0.2){
+	  this->AddPhoton(evrec, p32Elv, dt);
+	  //std::cout << "Rik made p32Elv " << p32Elv << std::endl;
+	} else {
+	  //std::cout << "Rik made none p32" << std::endl;
+	}
+    }
+    //
+    // >> S1/2 shell
+    //
+    else
+    if(rshell < Pp12 + Pp32 + Ps12) {
+       LOG("NucDeEx", pNOTICE)
+            << "Hit nucleon left an S1/2 shell p-hole";
+        // Select one of the excited states caused by a S1/2 shell hole
+        double rdecmode  = rnd->RndDec().Rndm();
+        double prob_sum  = 0.;
+        int    sel_state = -1;
+        for(int istate=0; istate<ns12; istate++) {
+            prob_sum += s12Plv[istate];
+            if(rdecmode < prob_sum) {
+              sel_state = istate;
+              break;
+            }
+        }
+        LOG("NucDeEx", pNOTICE)
+            << "Selected S1/2 excited state = " << sel_state;
+	if(sel_state >= 0){
+	  this->AddPhoton(evrec, s12Elv[sel_state], dt);
+	  //std::cout << "Rik made s12Elv " << s12Elv[sel_state] << std::endl;
+	} else {
+	  //std::cout << "Rik made none s12" << std::endl;
+	}
+    }
+    else {
+      //std::cout << "Rik made none at all" << std::endl;
+    }
+
+
+}
 //___________________________________________________________________________
 void NucDeExcitationSim::AddPhoton(
                          GHepRecord * evrec, double E0, double dt) const
@@ -373,3 +550,98 @@ TLorentzVector NucDeExcitationSim::Photon4P(double E) const
   return p4;
 }
 //___________________________________________________________________________
+// Added on 27 January 2023 by S. Gardiner based on a preliminary MARLEY
+// calculation. Only the leading de-excitation photon is generated for now.
+void NucDeExcitationSim::ArgonTargetSim( GHepRecord* evrec ) const
+{
+  // If we've disabled argon de-excitations, then this function is a no-op
+  if ( !fDoArgon ) return;
+
+  LOG( "NucDeEx", pNOTICE ) << "Simulating nuclear de-excitation gamma-rays"
+    " for an argon target";
+
+  // Load the leading gamma-ray spectra and emission probabilities from prior
+  // simulation results
+  static bool loaded_hists = false;
+  static TH1D* hist_n = nullptr;
+  static TH1D* hist_p = nullptr;
+  static double prob_gamma_n = 0.;
+  static double prob_gamma_p = 0.;
+
+  if ( !loaded_hists ) {
+    std::string data_file_name = std::string( gSystem->Getenv("GENIE") )
+      + "/data/evgen/nucl/marley_argon_sf_lead_gamma_hists.root";
+
+    TFile data_file( data_file_name.c_str(), "read" );
+
+    TParameter< double >* prob_n = nullptr;
+    TParameter< double >* prob_p = nullptr;
+
+    data_file.GetObject( "hist_n", hist_n );
+    data_file.GetObject( "hist_p", hist_p );
+
+    hist_n->SetDirectory( nullptr );
+    hist_p->SetDirectory( nullptr );
+
+    data_file.GetObject( "prob_gamma_n", prob_n );
+    data_file.GetObject( "prob_gamma_p", prob_p );
+
+    assert( hist_n && hist_p && prob_n && prob_p );
+
+    prob_gamma_n = prob_n->GetVal();
+    prob_gamma_p = prob_p->GetVal();
+
+    loaded_hists = true;
+  }
+
+  GHepParticle* hitnuc = evrec->HitNucleon();
+  if ( !hitnuc ) return;
+
+  // Choose the appropriate gamma-ray distribution based on the struck nucleon
+  int hit_nuc_pdg = hitnuc->Pdg();
+  if ( !genie::pdg::IsNucleon(hit_nuc_pdg) ) return;
+
+  TH1D* lead_gamma_hist = hist_n;
+  double gamma_prob = prob_gamma_n;
+  if ( hit_nuc_pdg == kPdgProton ) {
+    lead_gamma_hist = hist_p;
+    gamma_prob = prob_gamma_p;
+  }
+
+  // Throw a random number to see if this de-excitation event contains at least
+  // one gamma-ray. If it doesn't, just return without doing anything.
+  RandomGen* rnd = RandomGen::Instance();
+  double r_gamma = rnd->RndDec().Rndm();
+  if ( r_gamma > gamma_prob ) {
+    LOG( "NucDeEx", pNOTICE ) << "No gamma-ray emitted";
+    return;
+  }
+  // If it does, then sample the leading gamma from the pre-saved distribution
+  // and add it to the event. Note that the MARLEY histogram is in MeV, so we
+  // also convert to GeV here for consistency with GENIE conventions.
+  double E_gamma = lead_gamma_hist->GetRandom() / 1e3;
+  this->AddPhoton( evrec, E_gamma, -1. );
+
+  LOG( "NucDeEx", pNOTICE ) << "Added gamma with energy " << E_gamma << " GeV";
+}
+//_________________________________________________________________________
+void NucDeExcitationSim::Configure( const Registry& config )
+{
+  Algorithm::Configure( config );
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void NucDeExcitationSim::Configure( std::string config )
+{
+  Algorithm::Configure( config );
+  this->LoadConfig();
+}
+//_________________________________________________________________________
+void NucDeExcitationSim::LoadConfig()
+{
+  // Boolean flag that enables/disables de-excitation handling for carbon
+  GetParamDef( "DoCarbon", fDoCarbon, false );
+
+  // Boolean flag that enables/disables de-excitation handling for argon
+  GetParamDef( "DoArgon", fDoArgon, false );
+}
