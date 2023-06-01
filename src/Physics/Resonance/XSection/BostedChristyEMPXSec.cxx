@@ -1,6 +1,6 @@
 //_________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -164,8 +164,9 @@ double BostedChristyEMPXSec::sigmaNR(int sf, double Q2, double W, bool isDeuteri
   
   double Wdif = W - (Mp + Mpi);
   
-  double m0 = 4.2802; // GeV
-  double Q20 = sf==0?0.05:0.125; 
+  double m0 = (sf==0) ? 0.125 : 4.2802;                      //Ref.1, Eqs.(22, 24)
+  
+  double Q20 = (sf==0) ? 0.05 : 0.125;                       //Ref.1, Eqs.(22, 24)
   double xpr = 1./(1.+(W2-(Mp+Mpi)*(Mp+Mpi))/(Q2+Q20));      // Ref.1, Eq.(22)
   
   double xsec = 0.0;
@@ -236,11 +237,14 @@ void BostedChristyEMPXSec::FermiSmearingA(double Q2, double W, double pF, double
   double dW2dpF = 2.*qv;
   double dW2dEs = 2.*(nu + MN); 
   // switched to using 99 bins!
-
-  for (int i=0; i<100; i++)
+  F1p = 0;
+  F1d = 0;
+  sigmaT = 0;
+  sigmaL = 0;
+  for (int i=0; i<99; i++)
   {
-    double fyuse = fyp[i+1]/100.;
-    double W2p = W2 + xxp[i+1]*pF*dW2dpF - Es*dW2dEs;
+    double fyuse = fyp[i]/100.;
+    double W2p = W2 + xxp[i]*pF*dW2dpF - Es*dW2dEs;
     if(W2p>1.159)
     {
        //proton 
@@ -446,7 +450,7 @@ double BostedChristyEMPXSec::XSec(
   double E  = init_state.ProbeE(kRfHitNucRest);
   double W  = kinematics.W();
   double Q2 = kinematics.Q2();
-  double W2 = W*W;
+  double Wsq = W*W;
   // Cross section for proton or neutron
   
   double Mp = fMP;
@@ -454,24 +458,24 @@ double BostedChristyEMPXSec::XSec(
   double MN = fPM;
   double MN2 = MN*MN;
   
-  double nu = (W2 - MN2 + Q2)/2./MN;
+  double nu = (Wsq - MN2 + Q2)/2./MN;
   double x  = Q2/2./MN/nu;
 
   double sigmaT, sigmaL, F1p, R, W1;
   // Cross section for proton or neutron
-  if (A<2 && W2>1.155)
+  if (A<2 && Wsq>1.155)
   {
-     double xb = Q2/(W2+Q2-Mp2);
+     double xb = Q2/(Wsq+Q2-Mp2);
      sigmaT = sigmaR(0, Q2, W) + sigmaNR(0, Q2, W);
      sigmaL = sigmaR(1, Q2, W) + sigmaNR(1, Q2, W); 
-     F1p = sigmaT*(W2-Mp2)/8./kPi2/kAem;
+     F1p = sigmaT*(Wsq-Mp2)/8./kPi2/kAem;
      R = sigmaL/sigmaT;
      // If neutron, subtract proton from deuteron. Factor of two to
      // convert from per nucleon to per deuteron
      if(Z==0)
      {
           sigmaT = sigmaR(0, Q2, W, true) + sigmaNR(0, Q2, W, true);
-          double F1d =  sigmaT*(W2-Mp2)/8./kPi2/kAem;
+          double F1d =  sigmaT*(Wsq-Mp2)/8./kPi2/kAem;
           F1p = 2.*F1d - F1p;
      }
      W1 = F1p/MN;
@@ -510,6 +514,7 @@ double BostedChristyEMPXSec::XSec(
     pF = 0.5*kF;
     double F1d;
     FermiSmearingA(Q2, W, pF, Es, F1p, F1d, sigmaT, sigmaL);
+    R = 0.;
     if(sigmaT>0.) 
       R = sigmaL/sigmaT;
     W1 = (2.*Z*F1d + (A - 2.*Z)*(2.*F1d - F1p))/MN; 
@@ -517,32 +522,27 @@ double BostedChristyEMPXSec::XSec(
     W1 *= (fAfitcoef[0] + x*(fAfitcoef[1] + x*(fAfitcoef[2] + x*(fAfitcoef[3] + x*(fAfitcoef[4] + x*fAfitcoef[5])))));
 
     if(W>0.) 
-      W1 *= TMath::Power(fAfitcoef[6] + (fAfitcoef[7]*W + fAfitcoef[8]*W2)/(fAfitcoef[9] + fAfitcoef[10]*Q2),2);
+      W1 *= TMath::Power(fAfitcoef[6] + (fAfitcoef[7]*W + fAfitcoef[8]*Wsq)/(fAfitcoef[9] + fAfitcoef[10]*Q2),2);
       
     double F1M = MEC2009(A, Q2, W);
 
     W1 += F1M;
-    if(W2>0.) 
+    if(Wsq>0.) 
       R *= (fAfitcoef[11] + fAfitcoef[12]*A);
   }
   
   double emcfac = FitEMC(x, A);
 
-  double F1 = MN*W1*emcfac;  
+  W1 *= emcfac;
     
   double nu2 = nu*nu;
-  double K = (W2 - MN2)/2./MN;
   double Eprime = E - nu;
   double sin2theta_2 = Q2/4/E/Eprime;
   double cos2theta_2 = 1 - sin2theta_2;
-  double tan2theta_2 = sin2theta_2/cos2theta_2;
-  double eps = 1./(1. + 2*(1+nu2/Q2)*tan2theta_2);              // Ref.1, Eq. (4)
-  double Gamma = kAem*Eprime*K/Q2/E/(1-eps)/2/kPi2;             // Ref.1, Eq. (5)
-  sigmaT = 4*kPi2*kAem*F1/K/MN;
-  sigmaL = R*sigmaT;
-  double xsec = Gamma*(sigmaT+eps*sigmaL);                      // Ref.1, Eq. (3) d2xsec/dOmegadEprime
+  double W2 = W1*(1 + R)/ (1+nu2/Q2);
+  double xsec = 4*Eprime*Eprime*kAem2/Q2/Q2*(2*W1*sin2theta_2 + W2*cos2theta_2);   // d2xsec/dOmegadEprime
   double jacobian = W*kPi/E/Eprime/MN;  
-  xsec*= jacobian;                                              // d2xsec/dOmegadEprime-> d2xsec/dWdQ2
+  xsec*= jacobian;                                                                 // d2xsec/dOmegadEprime-> d2xsec/dWdQ2
   
   // The algorithm computes d^2xsec/dWdQ2
   // Check whether variable tranformation is needed

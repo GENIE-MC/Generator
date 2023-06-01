@@ -29,22 +29,22 @@ include $(GENIE)/src/make/Make.std-package-targets
 
 ifeq ($(strip $(GOPT_ENABLE_INCL)),YES)
   # extra flags, include paths, and libraries to link to
-  CXXFLAGS               += $(INCL_FLAGS)
+  CXXFLAGS               += $(INCL_DFLAGS)
   CPP_INCLUDES           += $(INCL_INCLUDES)
-  ROOT_DICT_GEN_INCLUDES += $(INCL_INCLUDES) ${INCL_FLAGS}
+  ROOT_DICT_GEN_INCLUDES += $(INCL_INCLUDES) $(INCL_DFLAGS)
   EXTRA_EXT_LIBS         += $(INCL_LIBRARIES)
 else
-  $(info $(PACKAGE) not build against INCL++)
+  $(info $(PACKAGE) not built against INCL++)
 endif
 
 ifeq ($(strip $(GOPT_ENABLE_GEANT4_INTERFACE)),YES)
   # extra flags, include paths, and libraries to link to
   CXXFLAGS               += $(GEANT4_FLAGS)
   CPP_INCLUDES           += $(GEANT4_INCLUDES)
-  ROOT_DICT_GEN_INCLUDES += $(GEANT4_INCLUDES) ${GEANT4_FLAGS}
+  ROOT_DICT_GEN_INCLUDES += $(GEANT4_INCLUDES)
   EXTRA_EXT_LIBS         += $(GEANT4_LIBRARIES)
 else
-  $(info $(PACKAGE) not build against Geant4)
+  $(info $(PACKAGE) not built against Geant4)
 endif
 
 FORCE:

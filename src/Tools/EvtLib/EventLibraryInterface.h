@@ -12,7 +12,7 @@
 
 \created  February 28, 2020
 
-\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org        
 */
 //____________________________________________________________________________
@@ -21,10 +21,15 @@
 #define _EVENT_LIBRARY_INTERFACE_H_
 
 #include "Tools/EvtLib/Key.h"
+class IEvtLibRecordList;
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Framework/Interaction/Kinematics.h"
 
 #include "TVector3.h"
+#include "TFile.h"
+
+#include <map>
 
 namespace genie {
 
@@ -56,10 +61,10 @@ public:
 
   void LoadRecords();
   void Cleanup();
-  
-  void FillKinematics( const GHepRecord &, 
-		       Kinematics & kine, 
-		       int primary_lep_id ) const ;
+
+  void FillKinematics( const GHepRecord &,
+                       genie::Kinematics & kine,
+                       int primary_lep_id ) const ;
 
 private:
 
