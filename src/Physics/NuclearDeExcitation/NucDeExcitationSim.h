@@ -14,8 +14,8 @@
 
 \created  March 05, 2008
 
-\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -35,14 +35,25 @@ public :
   NucDeExcitationSim(string config);
  ~NucDeExcitationSim();
 
+  void Configure( const Registry& config ) override;
+  void Configure( std::string config ) override;
+
   //-- implement the EventRecordVisitorI interface
-  void ProcessEventRecord (GHepRecord * evrec) const;
+  void ProcessEventRecord (GHepRecord * evrec) const override;
 
 private:
   void           OxygenTargetSim      (GHepRecord * evrec) const;
+  void           CarbonTargetSim      (GHepRecord * evrec) const;
+  void           ArgonTargetSim       (GHepRecord * evrec) const;
   void           AddPhoton            (GHepRecord * evrec, double E0, double t) const;
   double         PhotonEnergySmearing (double E0, double t) const;
   TLorentzVector Photon4P             (double E) const;
+
+  void           LoadConfig();
+
+  // Configuration flags that enable/disable de-excitations for specific nuclei
+  bool fDoCarbon = false;
+  bool fDoArgon = false;
 };
 
 }      // genie namespace

@@ -14,7 +14,7 @@
 
 \created  August 23, 2018
 
-\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -42,11 +42,48 @@ typedef enum HadronTensorType {
   kHT_MEC_DeltaAll,
   kHT_MEC_Deltapn,
   kHT_MEC_EM,
+  kHT_MEC_EM_pn,
+  kHT_MEC_EM_pp,
   kHT_QE_EM,
   kHT_MEC_FullAll_Param,
   kHT_MEC_FullAll_wImag,
   kHT_QE_Full,
-  kHT_MEC_EM_wImag
+  kHT_MEC_EM_wImag,
+
+  kHT_QE_CRPA_Low,
+  kHT_QE_CRPA_Medium,
+  kHT_QE_CRPA_High,
+
+  kHT_QE_CRPA_anu_Low,
+  kHT_QE_CRPA_anu_Medium,
+  kHT_QE_CRPA_anu_High,
+
+  kHT_QE_HF_Low,
+  kHT_QE_HF_Medium,
+  kHT_QE_HF_High,
+
+  kHT_QE_HF_anu_Low,
+  kHT_QE_HF_anu_Medium,
+  kHT_QE_HF_anu_High,
+
+  kHT_QE_CRPAPW_Low,
+  kHT_QE_CRPAPW_Medium,
+  kHT_QE_CRPAPW_High,
+
+  kHT_QE_CRPAPW_anu_Low,
+  kHT_QE_CRPAPW_anu_Medium,
+  kHT_QE_CRPAPW_anu_High,
+
+  kHT_QE_HFPW_Low,
+  kHT_QE_HFPW_Medium,
+  kHT_QE_HFPW_High,
+
+  kHT_QE_HFPW_anu_Low,
+  kHT_QE_HFPW_anu_Medium,
+  kHT_QE_HFPW_anu_High,
+
+  kHT_QE_SuSABlend,
+  kHT_QE_SuSABlend_anu
 }
 HadronTensorType_t;
 

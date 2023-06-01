@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -11,6 +11,9 @@
 
          Changes required to implement the GENIE Dark Neutrino module
          were installed by Iker de Icaza (Univ. of Sussex)
+	 
+	 Changes required to implement the GENIE BeamHNL module
+	 were installed by John Plows (Univ. of Oxford)
 */
 //____________________________________________________________________________
 
@@ -45,6 +48,14 @@ PDGLibrary::PDGLibrary()
     exit(78);
   }
 #endif // __GENIE_DARK_NEUTRINO_ENABLED__
+
+#ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
+  LOG("PDG", pINFO) << "Loading Heavy Neutral Lepton data";
+  if( ! AddHNL() ){
+    LOG("PDG", pFATAL) << "Could not load Heavy Neutral Lepton data";
+    exit(78);
+  }
+#endif // #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
   
   fInstance =  0;
 }
@@ -162,18 +173,21 @@ void PDGLibrary::AddDarkMatter(double mass, double med_ratio)
   }
 }
 //____________________________________________________________________________
-void PDGLibrary::AddNHL(double mass)
+bool PDGLibrary::AddHNL()
 {
-// Add NHL to PDG database
-
-  TParticlePDG * nhl = fDatabasePDG->GetParticle(kPdgNHL);
-  if (!nhl) {
+  // Add HNL to PDG database
+  const Registry * reg = AlgConfigPool::Instance()->CommonList("HNL", "ParameterSpace");
+  if (!reg) {
+    LOG("PDG", pERROR) << "Cannot find HNL ParameterSpace param_set";
+    return false;
+  }
+  TParticlePDG * hnl = fDatabasePDG->GetParticle(kPdgHNL);
+  if (!hnl) {
     // Name Title Mass Stable Width Charge Class PDG
-    fDatabasePDG->AddParticle("NHL","NHL",mass,true,0.,0,"NHL",kPdgNHL);
+    fDatabasePDG->AddParticle("HNL","HNL",reg->GetDouble("HNL-Mass"),true,0.,0,"HNL",kPdgHNL);
+    fDatabasePDG->AddParticle("HNLBar","HNLBar",reg->GetDouble("HNL-Mass"),true,0.,0,"HNL",-1*kPdgHNL);
   }
-  else {
-    assert(nhl->Mass() == mass);
-  }
+  return true;
 }
 //____________________________________________________________________________
 bool PDGLibrary::AddDarkSector()

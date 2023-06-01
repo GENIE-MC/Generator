@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+<!--
+Configuration for the XSec LinearCombination
+S
+Validation plots can be seen in GENIE docdb 252
+
+Configurable Parameters:
+......................................................................................................................
+Name                   Type     Optional   Comment                                       Default
+......................................................................................................................
+CrossSection           vec-alg    No         List of xsec algorithms
+LinearCoefficients     vec-double No         Linear coefficient values
+Normalise              bool       No         Sum of coefficients = 1                     false
+-->
+
+  <param_set name="Default">
+    <param type="bool"  name="Normalise"> false </param>
+  </param_set>
+
+  <param_set name="NievesQELCCPXSecNoRPA">
+    <param type="vec-alg"  name="CrossSection" delim=";"> genie::NievesQELCCPXSec/Dipole ; genie::NievesQELCCPXSec/DipoleNoRPA </param>
+
+
+    <!-- Tune specific parameters --> 
+
+    <!-- Tuned to: 
+      - G10a: MiniBooNE numu CCQELike data 
+      - G11a: MiniBooNE numubar CCQELike data 
+      - G20a: T2K numu CC0p0pi data 
+      - G30a: MINERvA numu CC0pi data
+      - G31a: MINERvA numubar CC0p0pi data
+      - G35a: MINERvA numu CCNp0pi data
+    -->
+
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 0.9 ; 0.2 </param>
+    
+    <!-- uncomment to allow other tunes -->
+    <!--G10a Tune from https://arxiv.org/pdf/2206.11050.pdf -->
+    <!--
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1.2 ; 0.05 </param>
+    --> 
+    <!--G11a Tune from https://arxiv.org/pdf/2206.11050.pdf -->
+    <!--
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1.14 ; 0.09 </param>
+    --> 
+    <!--G20a Tune from https://arxiv.org/pdf/2206.11050.pdf -->
+    <!--
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1.2 ; -0.1 </param>
+    --> 
+    <!--G31a Tune from https://arxiv.org/pdf/2206.11050.pdf -->
+    <!--
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 1.3 ; 0.2 </param>
+    --> 
+    <!--G10a Tune from https://arxiv.org/pdf/2206.11050.pdf -->
+    <!--
+    <param type="vec-double"  name="LinearCoefficients" delim=";"> 0.75 ; 0.09 </param>
+    --> 
+  </param_set>
+
+</alg_conf>
