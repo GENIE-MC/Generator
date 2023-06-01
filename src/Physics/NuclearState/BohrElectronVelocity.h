@@ -36,9 +36,10 @@ public:
   ~BohrElectronVelocity();
 
 private:
-  double bohr_velocity(unsigned int fn, unsigned int fZ) const; //Bohr velocity
+  double reduced_mass(double nucleus_mass) const; //Reduced mass calculation
+  double bohr_velocity(unsigned int fn, unsigned int fZ, double mu) const; //Bohr velocity
   unsigned int random_n(unsigned int fZ) const; //Return random energy level from n_dist
-  double random_bohr_velocity(unsigned int fZ) const; //Generate random n, then calculate velocity from there
+  double random_bohr_velocity(unsigned int fZ, double mu) const; //Generate random n, then calculate velocity from there
   TVector3 randomize_direction_sphere(double v) const;
 };
 }

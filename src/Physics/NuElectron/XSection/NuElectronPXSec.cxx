@@ -47,20 +47,6 @@ XSecAlgorithmI("genie::NuElectronPXSec", config)
 //____________________________________________________________________________
 NuElectronPXSec::~NuElectronPXSec()
 {
-  // std::ofstream output_file("./sigmas_errors.txt");
-  // output_file <<"x\tsigma\terr\tavg\n";
-  // vector<double> x;
-  // for (unsigned int i = 1; i<=fSigmas.size();i++){
-  //   x.push_back(i);
-  //   output_file <<i<<"\t"<<fSigmas[i]<<"\t"<<
-  //   fErrors[i]<<"\t"<<fAvg[i]<<"\n"; //Put beam eng in here
-  // }
-  //TGraph sigma(fSigmas.size(),x.data(),fSigmas.data());
-  //TGraph errors(fErrors.size(),x.data(),fErrors.data());
-
-  //sigma.Write("sigma");
-  //errors.Write("errors");
-  //f.Close();
 
 }
 //____________________________________________________________________________

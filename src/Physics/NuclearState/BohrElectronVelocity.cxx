@@ -76,7 +76,9 @@ void BohrElectronVelocity::InitializeVelocity(Interaction & interaction) const{
   Target *       tgt         = init_state  -> TgtPtr();
 
   unsigned int fZ = tgt->Z(); //Get Z value
-  double v = random_bohr_velocity(fZ);
+  double nucleus_mass = tgt->Mass(); 
+  double mu = reduced_mass(nucleus_mass); //Reduced mass
+  double v = random_bohr_velocity(fZ,mu); //bohr velocity
   TVector3 v3 = randomize_direction_sphere(v); //Get spherically uniform random direciton
   double gamma = 1/sqrt(1-v3.Mag2()); //Get boost
   //Set 3 momentum
@@ -88,6 +90,10 @@ void BohrElectronVelocity::InitializeVelocity(Interaction & interaction) const{
 //___________________________________________________________________________
 
 //____________________________________________________________________________
+double BohrElectronVelocity::reduced_mass(double nucleus_mass) const{
+  //Return reduced mass of electron
+  return kElectronMass*nucleus_mass/(kElectronMass+nucleus_mass);
+}
 
 unsigned BohrElectronVelocity::random_n(unsigned int fZ) const{
   //Isotope minimum z is 118 in accordance with maximum possible in GENIE
@@ -112,15 +118,15 @@ unsigned BohrElectronVelocity::random_n(unsigned int fZ) const{
   return sel_n+1; //Plus 1 to get to n
 }
 
-double BohrElectronVelocity::bohr_velocity(unsigned int fn, unsigned int fZ) const
+double BohrElectronVelocity::bohr_velocity(unsigned int fn, unsigned int fZ, double mu) const
 {
-  return fZ*kAem/fn;
+  return fZ*kAem/fn * kElectronMass/mu;
 }
 
-double BohrElectronVelocity::random_bohr_velocity(unsigned int fZ) const{
+double BohrElectronVelocity::random_bohr_velocity(unsigned int fZ, double mu) const{
   //Get random bohr velocity from n distribution
   unsigned int fn = random_n(fZ);
-  return bohr_velocity(fn,fZ);
+  return bohr_velocity(fn,fZ,mu);
 }
 
 TVector3 BohrElectronVelocity::randomize_direction_sphere(double v) const{
