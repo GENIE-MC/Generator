@@ -76,7 +76,7 @@ double LwlynSmithQELCCPXSec::XSec(
   double E  = init_state.ProbeE(kRfHitNucRest);
   double E2 = TMath::Power(E,2);
   double ml = interaction->FSPrimLepton()->Mass();
-  double M  = target.HitNucMass();
+  double M  = target.HitPartMass();
   double q2 = kinematics.q2();
 
   // One of the xsec terms changes sign for antineutrinos
@@ -148,7 +148,7 @@ double LwlynSmithQELCCPXSec::XSec(
   double R = nuclear::NuclQELXSecSuppression("Default", 0.5, interaction);
 
   //----- number of scattering centers in the target
-  int nucpdgc = target.HitNucPdg();
+  int nucpdgc = target.HitPartPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -178,7 +178,7 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction*  interactio
   if ( fDoPauliBlocking && tgt.IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) ) {
     int final_nucleon_pdg = interaction->RecoilNucleonPdg();
     double kF = fPauliBlocker->GetFermiMomentum(tgt, final_nucleon_pdg,
-      tgt.HitNucPosition());
+      tgt.HitPartPosition());
     double pNf = outNucleonMom.P();
     if ( pNf < kF ) return 0.;
   }
@@ -189,7 +189,7 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction*  interactio
   TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
   TLorentzVector neutrinoMom = *tempNeutrino;
   delete tempNeutrino;
-  TLorentzVector * inNucleonMom = init_state.TgtPtr()->HitNucP4Ptr();
+  TLorentzVector * inNucleonMom = init_state.TgtPtr()->HitPartP4Ptr();
 
   // *** CALCULATION OF "q" and "qTilde" ***
   // According to the de Forest prescription for handling the off-shell
@@ -199,9 +199,9 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction*  interactio
   // and off-shell energies of the hit nucleon has been subtracted from the
   // energy transfer q0.
 
-  // HitNucMass() looks up the PDGLibrary (on-shell) value for the initial
+  // HitPartMass() looks up the PDGLibrary (on-shell) value for the initial
   // struck nucleon
-  double mNi = init_state.Tgt().HitNucMass();
+  double mNi = init_state.Tgt().HitPartMass();
 
   // Hadronic matrix element for CC neutrino interactions should really use
   // the "nucleon mass," i.e., the mean of the proton and neutrino masses.
@@ -280,7 +280,7 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction*  interactio
 
   // Number of scattering centers in the target
   const Target & target = init_state.Tgt();
-  int nucpdgc = target.HitNucPdg();
+  int nucpdgc = target.HitPartPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -323,7 +323,7 @@ double LwlynSmithQELCCPXSec::Integral(const Interaction * in) const
     Target * tgt = in_curr.InitState().TgtPtr();
 
     // get nuclear masses (init & final state nucleus)
-    int nucleon_pdgc = tgt->HitNucPdg();
+    int nucleon_pdgc = tgt->HitPartPdg();
     bool is_p = pdg::IsProton(nucleon_pdgc);
     int Zi = tgt->Z();
     int Ai = tgt->A();
@@ -353,13 +353,13 @@ double LwlynSmithQELCCPXSec::Integral(const Interaction * in) const
     for(int inuc=0;inuc<nnuc;inuc++){
       // Generate a position in the nucleus
       TVector3 nucpos = vg->GenerateVertex(&in_curr,tgt->A());
-      tgt->SetHitNucPosition(nucpos.Mag());
+      tgt->SetHitPartPosition(nucpos.Mag());
 
       // Generate a nucleon
       fNuclModel->GenerateNucleon(*tgt, nucpos.Mag());
       TVector3 p3N = fNuclModel->Momentum3();
       double   EN  = Mi - TMath::Sqrt(p3N.Mag2() + Mf*Mf);
-      TLorentzVector* p4N = tgt->HitNucP4Ptr();
+      TLorentzVector* p4N = tgt->HitPartP4Ptr();
       p4N->SetPx (p3N.Px());
       p4N->SetPy (p3N.Py());
       p4N->SetPz (p3N.Pz());
@@ -385,7 +385,7 @@ bool LwlynSmithQELCCPXSec::ValidProcess(const Interaction * interaction) const
 
   if(!proc_info.IsQuasiElastic()) return false;
 
-  int  nuc = init_state.Tgt().HitNucPdg();
+  int  nuc = init_state.Tgt().HitPartPdg();
   int  nu  = init_state.ProbePdg();
 
   bool isP   = pdg::IsProton(nuc);

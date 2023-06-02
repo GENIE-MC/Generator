@@ -92,9 +92,9 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   const InitialState & init_state = interaction -> InitState();
   const Target & target = init_state.Tgt();
 
-  // HitNucMass() looks up the PDGLibrary (on-shell) value for the initial
+  // HitPartMass() looks up the PDGLibrary (on-shell) value for the initial
   // struck nucleon
-  double mNi = target.HitNucMass();
+  double mNi = target.HitPartMass();
 
   // Hadronic matrix element for CC neutrino interactions should really use
   // the "nucleon mass," i.e., the mean of the proton and neutrino masses.
@@ -106,15 +106,15 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   // to be on-shell (this will be needed later for the tensor contraction,
   // in which the nucleon is treated in this way)
   double inNucleonOnShellEnergy = std::sqrt( std::pow(mNi, 2)
-    + std::pow(target.HitNucP4().P(), 2) );
+    + std::pow(target.HitPartP4().P(), 2) );
 
   // The Nieves CCQE model follows the de Forest prescription: free nucleon
   // (i.e., on-shell) form factors and spinors are used, but an effective
   // value of the 4-momentum transfer "qTilde" is used when computing the
   // contraction of the hadronic tensor. See comments in the
   // FullDifferentialXSec() method of LwlynSmithQELCCPXSec for more details.
-  TLorentzVector inNucleonMomOnShell( target.HitNucP4().Vect(),
-    inNucleonOnShellEnergy );
+  TLorentzVector inNucleonMomOnShell( target.HitPartP4().Vect(),
+				      inNucleonOnShellEnergy );
 
   // Get the four kinematic vectors and caluclate GFactor
   // Create copies of all kinematics, so they can be rotated
@@ -127,7 +127,7 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   TLorentzVector* tempNeutrino = init_state.GetProbeP4(kRfLab);
   TLorentzVector neutrinoMom = *tempNeutrino;
   delete tempNeutrino;
-  TLorentzVector inNucleonMom = target.HitNucP4();
+  TLorentzVector inNucleonMom = target.HitPartP4();
   TLorentzVector leptonMom = kinematics.FSLeptonP4();
   TLorentzVector outNucleonMom = kinematics.HadSystP4();
 
@@ -135,7 +135,7 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   if ( fDoPauliBlocking && target.IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) ) {
     int final_nucleon_pdg = interaction->RecoilNucleonPdg();
     double kF = fPauliBlocker->GetFermiMomentum(target, final_nucleon_pdg,
-      target.HitNucPosition());
+      target.HitPartPosition());
     double pNf = outNucleonMom.P();
     if ( pNf < kF ) return 0.;
   }
@@ -154,7 +154,7 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   double plLocal = leptonMom.P();
 
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
-  double r = target.HitNucPosition();
+  double r = target.HitPartPosition();
 
   if ( fCoulomb ) {
     // Coulomb potential
@@ -331,7 +331,7 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   }
 
   // Number of scattering centers in the target
-  int nucpdgc = target.HitNucPdg();
+  int nucpdgc = target.HitPartPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
 
   xsec *= NNucl; // nuclear xsec
@@ -365,7 +365,7 @@ bool NievesQELCCPXSec::ValidProcess(const Interaction * interaction) const
 
   if(!proc_info.IsQuasiElastic()) return false;
 
-  int  nuc = init_state.Tgt().HitNucPdg();
+  int  nuc = init_state.Tgt().HitPartPdg();
   int  nu  = init_state.ProbePdg();
 
   bool isP   = pdg::IsProton(nuc);
@@ -920,13 +920,13 @@ const TLorentzVector inNucleonMomOnShell, const TLorentzVector leptonMom,
 const TLorentzVector qTildeP4, double M, bool is_neutrino,
 const Target& target, bool assumeFreeNucleon) const
 {
-  double r = target.HitNucPosition();
+  double r = target.HitPartPosition();
   bool tgtIsNucleus = target.IsNucleus();
   int tgt_pdgc = target.Pdg();
   int A = target.A();
   int Z = target.Z();
   int N = target.N();
-  bool hitNucIsProton = pdg::IsProton( target.HitNucPdg() );
+  bool hitNucIsProton = pdg::IsProton( target.HitPartPdg() );
 
   const double k[4] = {neutrinoMom.E(),neutrinoMom.Px(),neutrinoMom.Py(),neutrinoMom.Pz()};
   const double kPrime[4] = {leptonMom.E(),leptonMom.Px(),
@@ -1259,7 +1259,7 @@ void NievesQELCCPXSec::CompareNievesTensors(const Interaction* in)
   const Target & target = init_state.Tgt();
 
   // Parameters required for LmunuAnumu
-  double M  = target.HitNucMass();
+  double M  = target.HitPartMass();
   double ml = interaction->FSPrimLepton()->Mass();
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
 

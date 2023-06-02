@@ -61,7 +61,7 @@ void spectral_function_spectra( TString in_file_name  = "gntp.0.ghep.root" ,
 
     const auto & target = inter.InitState().Tgt() ;
 
-    if ( target.HitNucIsSet() ) {
+    if ( target.HitPartIsSet() ) {
 
       if ( ! proc_info.IsMEC() ) {
 	   

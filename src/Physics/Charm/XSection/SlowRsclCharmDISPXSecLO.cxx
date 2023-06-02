@@ -62,7 +62,7 @@ double SlowRsclCharmDISPXSecLO::XSec(
   const InitialState & init_state = interaction->InitState();
   const Target &       target     = init_state.Tgt();
 
-  double Mnuc = target.HitNucMass();
+  double Mnuc = target.HitPartMass();
   double E    = init_state.ProbeE(kRfHitNucRest);
   double x    = kinematics.x();
   double y    = kinematics.y();
@@ -70,7 +70,7 @@ double SlowRsclCharmDISPXSecLO::XSec(
 
   //----- get target information (hit nucleon and quark)
   int  nu    = init_state.ProbePdg();
-  int  nuc   = target.HitNucPdg();
+  int  nuc   = target.HitPartPdg();
   bool isP   = pdg::IsProton (nuc);
   bool isN   = pdg::IsNeutron(nuc);
   bool qset  = target.HitQrkIsSet();
@@ -173,7 +173,7 @@ bool SlowRsclCharmDISPXSecLO::ValidProcess(
   if(!is_inclusive_charm) return false;
 
   int  nu  = init_state.ProbePdg();
-  int  nuc = init_state.Tgt().HitNucPdg();
+  int  nuc = init_state.Tgt().HitPartPdg();
 
   if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
   if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;

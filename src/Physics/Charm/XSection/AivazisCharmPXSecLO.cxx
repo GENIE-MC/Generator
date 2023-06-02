@@ -64,7 +64,7 @@ double AivazisCharmPXSecLO::XSec(
 
   //----- get target information (hit nucleon and quark)
   int  nu    = init_state.ProbePdg();
-  int  nuc   = target.HitNucPdg();
+  int  nuc   = target.HitPartPdg();
   bool isP   = pdg::IsProton (nuc);
   bool isN   = pdg::IsNeutron(nuc);
   bool qset  = target.HitQrkIsSet();
@@ -82,7 +82,7 @@ double AivazisCharmPXSecLO::XSec(
   double x           = kinematics.x();
   double y           = kinematics.y();
   double x2          = TMath::Power(x,    2);
-  double Mnuc        = target.HitNucMass();
+  double Mnuc        = target.HitPartMass();
   double Mnuc2       = TMath::Power(Mnuc, 2);
   double Q2          = 2*Mnuc*E*x*y;
   double inverse_eta = 0.5/x + TMath::Sqrt( 0.25/x2 + Mnuc2/Q2 );
@@ -180,7 +180,7 @@ bool AivazisCharmPXSecLO::ValidProcess(const Interaction * interaction) const
   if(!is_inclusive_charm) return false;
 
   int  nu  = init_state.ProbePdg();
-  int  nuc = init_state.Tgt().HitNucPdg();
+  int  nuc = init_state.Tgt().HitPartPdg();
 
   if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
   if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;

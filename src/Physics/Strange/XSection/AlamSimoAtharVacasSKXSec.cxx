@@ -74,7 +74,7 @@ double AlamSimoAtharVacasSKXSec::Integrate(
   // cross section spline list.
   // Cross section for PP scales with number of protons, NP and NN scale
   // with number of neutrons
-  int nucpdgc = init_state.Tgt().HitNucPdg();
+  int nucpdgc = init_state.Tgt().HitPartPdg();
   int NNucl   = (pdg::IsProton(nucpdgc)) ?
                    init_state.Tgt().Z() : init_state.Tgt().N();
   double Ev = init_state.ProbeE(kRfHitNucRest);

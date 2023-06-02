@@ -78,7 +78,7 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
 
       Interaction * interaction = new Interaction(init_state, proc_info);
       Target * target = interaction->InitStatePtr()->TgtPtr();
-      target->SetHitNucPdg(struck_nucleon);
+      target->SetHitPartPdg(struck_nucleon);
 
       if(fIsCharm) {
          XclsTag exclusive_tag;

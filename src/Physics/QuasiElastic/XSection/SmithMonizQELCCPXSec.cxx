@@ -131,7 +131,7 @@ bool SmithMonizQELCCPXSec::ValidProcess(const Interaction * interaction) const
 
   if(!proc_info.IsQuasiElastic()) return false;
 
-  int  nuc = init_state.Tgt().HitNucPdg();
+  int  nuc = init_state.Tgt().HitPartPdg();
   int  nu  = init_state.ProbePdg();
 
   bool isP   = pdg::IsProton(nuc);
@@ -255,8 +255,8 @@ double SmithMonizQELCCPXSec::d2sQES_dQ2dv_SM(const Interaction * interaction) co
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
   fn_NT = (is_neutrino) ? +1 : -1;
 
-  int nucl_pdg_ini = target.HitNucPdg();
-  double m_ini  = target.HitNucMass();
+  int nucl_pdg_ini = target.HitPartPdg();
+  double m_ini  = target.HitPartMass();
   fmm_ini = TMath::Power(m_ini,    2);
   int nucl_pdg_fin = genie::pdg::SwitchProtonNeutron(nucl_pdg_ini);
   TParticlePDG * nucl_fin = pdglib->Find( nucl_pdg_fin );
@@ -365,7 +365,7 @@ double SmithMonizQELCCPXSec::d2sQES_dQ2dv_SM(const Interaction * interaction) co
 
   double xsec = 0.5*Sum*(rkF.max-rkF.min);
 
-  int nucpdgc = target.HitNucPdg();
+  int nucpdgc = target.HitPartPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
 
   xsec *= NNucl; // nuclear xsec
@@ -387,7 +387,7 @@ double SmithMonizQELCCPXSec::dsQES_dQ2_SM(const Interaction * interaction) const
   double E  = init_state.ProbeE(kRfHitNucRest);
   double E2 = TMath::Power(E,2);
   double ml = interaction->FSPrimLepton()->Mass();
-  double M  = target.HitNucMass();
+  double M  = target.HitPartMass();
   double q2 = kinematics.q2();
 
   // One of the xsec terms changes sign for antineutrinos
@@ -436,7 +436,7 @@ double SmithMonizQELCCPXSec::dsQES_dQ2_SM(const Interaction * interaction) const
     xsec *= fQES_Pauli;
   }
 
-  int nucpdgc = target.HitNucPdg();
+  int nucpdgc = target.HitPartPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
 
   xsec *= NNucl; // nuclear xsec

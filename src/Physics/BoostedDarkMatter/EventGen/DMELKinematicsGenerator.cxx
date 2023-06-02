@@ -77,7 +77,7 @@ void DMELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   // store the struck nucleon position for use by the xsec method
   double hitNucPos = evrec->HitNucleon()->X4()->Vect().Mag();
-  interaction->InitStatePtr()->TgtPtr()->SetHitNucPosition(hitNucPos);
+  interaction->InitStatePtr()->TgtPtr()->SetHitPartPosition(hitNucPos);
 
   //-- Note: The kinematic generator would be using the free nucleon cross
   //   section (even for nuclear targets) so as not to double-count nuclear
@@ -185,7 +185,7 @@ void DMELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // struck nucleon mass (can be off the mass shell)
         const InitialState & init_state = interaction->InitState();
         double E  = init_state.ProbeE(kRfHitNucRest);
-        double M = init_state.Tgt().HitNucP4().M();
+        double M = init_state.Tgt().HitPartP4().M();
 
         LOG("DMELKinematics", pNOTICE) << "E = " << E << ", M = "<< M;
 
@@ -255,7 +255,7 @@ void DMELKinematicsGenerator::SpectralFuncExperimentalCode(
 
   // store the struck nucleon position for use by the xsec method
   double hitNucPos = evrec->HitNucleon()->X4()->Vect().Mag();
-  interaction->InitStatePtr()->TgtPtr()->SetHitNucPosition(hitNucPos);
+  interaction->InitStatePtr()->TgtPtr()->SetHitPartPosition(hitNucPos);
 
   //-- Note: The kinematic generator would be using the free nucleon cross
   //   section (even for nuclear targets) so as not to double-count nuclear
@@ -267,14 +267,14 @@ void DMELKinematicsGenerator::SpectralFuncExperimentalCode(
   interaction->SetBit(kIAssumeFreeNucleon);
 
   //-- Assume scattering off a nucleon on the mass shell (PWIA prescription)
-  double Mn  = interaction->InitState().Tgt().HitNucMass(); // PDG mass, take it to be on-shell
-  double pxn = interaction->InitState().Tgt().HitNucP4().Px();
-  double pyn = interaction->InitState().Tgt().HitNucP4().Py();
-  double pzn = interaction->InitState().Tgt().HitNucP4().Pz();
-  double En  = interaction->InitState().Tgt().HitNucP4().Energy();
+  double Mn  = interaction->InitState().Tgt().HitPartMass(); // PDG mass, take it to be on-shell
+  double pxn = interaction->InitState().Tgt().HitPartP4().Px();
+  double pyn = interaction->InitState().Tgt().HitPartP4().Py();
+  double pzn = interaction->InitState().Tgt().HitPartP4().Pz();
+  double En  = interaction->InitState().Tgt().HitPartP4().Energy();
   double En0 = TMath::Sqrt(pxn*pxn + pyn*pyn + pzn*pzn + Mn*Mn);
   double Eb  = En0 - En;
-  interaction->InitStatePtr()->TgtPtr()->HitNucP4Ptr()->SetE(En0);
+  interaction->InitStatePtr()->TgtPtr()->HitPartP4Ptr()->SetE(En0);
   double ml  = interaction->FSPrimLepton()->Mass();
   
   //-- Get the limits for the generated Q2

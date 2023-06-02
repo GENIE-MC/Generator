@@ -200,7 +200,7 @@ int HadronicSystemGenerator::HadronShowerCharge(GHepRecord * evrec) const
   Interaction * interaction = evrec->Summary();
   const InitialState & init_state = interaction->InitState();
 
-  int hit_nucleon = init_state.Tgt().HitNucPdg();
+  int hit_nucleon = init_state.Tgt().HitPartPdg();
 
   assert( pdg::IsProton(hit_nucleon) || pdg::IsNeutron(hit_nucleon) );
 

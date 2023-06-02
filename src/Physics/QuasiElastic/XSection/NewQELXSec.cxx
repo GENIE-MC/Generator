@@ -120,7 +120,7 @@ double NewQELXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in)
 
   double probeE = interaction->InitState().ProbeE( kRfLab );
   if ( !tgt->IsNucleus() || probeE > E_lab_cutoff ) {
-    tgt->SetHitNucPosition(0.);
+    tgt->SetHitPartPosition(0.);
 
     if ( tgt->IsNucleus() ) nucl_model->GenerateNucleon(*tgt, 0.);
     else {
@@ -147,7 +147,7 @@ double NewQELXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in)
     // hurt to do this for other models)
     TVector3 vertex_pos = vtx_gen->GenerateVertex( interaction, tgt->A() );
     double radius = vertex_pos.Mag();
-    tgt->SetHitNucPosition( radius );
+    tgt->SetHitPartPosition( radius );
 
     // Sample a new nucleon 3-momentum and removal energy (this will be applied
     // to the nucleon via a call to genie::utils::ComputeFullQELPXSec(), so

@@ -630,8 +630,8 @@ void SaveGraphsToRootFile(void)
                               << " interaction type has not recongnised: spline not added " ;
       continue;            }
 
-    if(tgt.HitNucIsSet()) {
-      int hitnuc = tgt.HitNucPdg();
+    if(tgt.HitPartIsSet() && tgt.HitPartPdg() != kPdgElectron) {
+      int hitnuc = tgt.HitPartPdg();
       if      ( pdg::IsProton (hitnuc) ) { title << "_p"; }
       else if ( pdg::IsNeutron(hitnuc) ) { title << "_n"; }
       else if ( pdg::Is2NucleonCluster(hitnuc) )
@@ -752,22 +752,22 @@ void SaveGraphsToRootFile(void)
 
        const Spline * spl = evg_driver.XSecSpline(interaction);
 
-       if (proc.IsResonant() && proc.IsWeakCC() && pdg::IsProton(tgt.HitNucPdg())) {
+       if (proc.IsResonant() && proc.IsWeakCC() && pdg::IsProton(tgt.HitPartPdg())) {
          for(int i=0; i<kNSplineP; i++) {
              xsresccp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
          }
        }
-       if (proc.IsResonant() && proc.IsWeakCC() && pdg::IsNeutron(tgt.HitNucPdg())) {
+       if (proc.IsResonant() && proc.IsWeakCC() && pdg::IsNeutron(tgt.HitPartPdg())) {
          for(int i=0; i<kNSplineP; i++) {
              xsresccn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
          }
        }
-       if (proc.IsResonant() && proc.IsWeakNC() && pdg::IsProton(tgt.HitNucPdg())) {
+       if (proc.IsResonant() && proc.IsWeakNC() && pdg::IsProton(tgt.HitPartPdg())) {
          for(int i=0; i<kNSplineP; i++) {
              xsresncp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
          }
        }
-       if (proc.IsResonant() && proc.IsWeakNC() && pdg::IsNeutron(tgt.HitNucPdg())) {
+       if (proc.IsResonant() && proc.IsWeakNC() && pdg::IsNeutron(tgt.HitPartPdg())) {
          for(int i=0; i<kNSplineP; i++) {
              xsresncn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
          }
@@ -820,25 +820,25 @@ void SaveGraphsToRootFile(void)
 
        if(xcls.IsCharmEvent()) continue;
 
-       if (proc.IsDeepInelastic() && proc.IsWeakCC() && pdg::IsProton(tgt.HitNucPdg())) {
+       if (proc.IsDeepInelastic() && proc.IsWeakCC() && pdg::IsProton(tgt.HitPartPdg())) {
          for(int i=0; i<kNSplineP; i++) {
              xsdiscc[i]  += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
              xsdisccp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
          }
        }
-       if (proc.IsDeepInelastic() && proc.IsWeakCC() && pdg::IsNeutron(tgt.HitNucPdg())) {
+       if (proc.IsDeepInelastic() && proc.IsWeakCC() && pdg::IsNeutron(tgt.HitPartPdg())) {
          for(int i=0; i<kNSplineP; i++) {
              xsdiscc[i]  += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
              xsdisccn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
          }
        }
-       if (proc.IsDeepInelastic() && proc.IsWeakNC() && pdg::IsProton(tgt.HitNucPdg())) {
+       if (proc.IsDeepInelastic() && proc.IsWeakNC() && pdg::IsProton(tgt.HitPartPdg())) {
          for(int i=0; i<kNSplineP; i++) {
              xsdisnc[i]  += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
              xsdisncp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
          }
        }
-       if (proc.IsDeepInelastic() && proc.IsWeakNC() && pdg::IsNeutron(tgt.HitNucPdg())) {
+       if (proc.IsDeepInelastic() && proc.IsWeakNC() && pdg::IsNeutron(tgt.HitPartPdg())) {
          for(int i=0; i<kNSplineP; i++) {
              xsdisnc[i]  += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
              xsdisncn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
@@ -893,25 +893,25 @@ void SaveGraphsToRootFile(void)
 
        if(!xcls.IsCharmEvent()) continue;
 
-       if (proc.IsDeepInelastic() && proc.IsWeakCC() && pdg::IsProton(tgt.HitNucPdg())) {
+       if (proc.IsDeepInelastic() && proc.IsWeakCC() && pdg::IsProton(tgt.HitPartPdg())) {
          for(int i=0; i<kNSplineP; i++) {
              xsdiscc[i]  += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
              xsdisccp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
          }
        }
-       if (proc.IsDeepInelastic() && proc.IsWeakCC() && pdg::IsNeutron(tgt.HitNucPdg())) {
+       if (proc.IsDeepInelastic() && proc.IsWeakCC() && pdg::IsNeutron(tgt.HitPartPdg())) {
          for(int i=0; i<kNSplineP; i++) {
              xsdiscc[i]  += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
              xsdisccn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
          }
        }
-       if (proc.IsDeepInelastic() && proc.IsWeakNC() && pdg::IsProton(tgt.HitNucPdg())) {
+       if (proc.IsDeepInelastic() && proc.IsWeakNC() && pdg::IsProton(tgt.HitPartPdg())) {
          for(int i=0; i<kNSplineP; i++) {
              xsdisnc[i]  += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
              xsdisncp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
          }
        }
-       if (proc.IsDeepInelastic() && proc.IsWeakNC() && pdg::IsNeutron(tgt.HitNucPdg())) {
+       if (proc.IsDeepInelastic() && proc.IsWeakNC() && pdg::IsNeutron(tgt.HitPartPdg())) {
          for(int i=0; i<kNSplineP; i++) {
              xsdisnc[i]  += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
              xsdisncn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
@@ -1110,8 +1110,8 @@ void SaveGraphsToRootFile(void)
 
       bool iscc = proc.IsWeakCC();
       bool isnc = proc.IsWeakNC();
-      bool offp = pdg::IsProton (tgt.HitNucPdg());
-      bool offn = pdg::IsNeutron(tgt.HitNucPdg());
+      bool offp = pdg::IsProton (tgt.HitPartPdg());
+      bool offn = pdg::IsNeutron(tgt.HitPartPdg());
 
       if (iscc && offp) {
         for(int i=0; i<kNSplineP; i++) {
@@ -1226,12 +1226,12 @@ void SaveGraphsToRootFile(void)
 
        const Spline * spl = evg_driver.XSecSpline(interaction);
 
-       if (proc.IsResonant() && proc.IsEM() && pdg::IsProton(tgt.HitNucPdg())) {
+       if (proc.IsResonant() && proc.IsEM() && pdg::IsProton(tgt.HitPartPdg())) {
          for(int i=0; i<kNSplineP; i++) {
              xsresemp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
          }
        }
-       if (proc.IsResonant() && proc.IsEM() && pdg::IsNeutron(tgt.HitNucPdg())) {
+       if (proc.IsResonant() && proc.IsEM() && pdg::IsNeutron(tgt.HitPartPdg())) {
          for(int i=0; i<kNSplineP; i++) {
              xsresemn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
          }
@@ -1268,12 +1268,12 @@ void SaveGraphsToRootFile(void)
 
        if(xcls.IsCharmEvent()) continue;
 
-       if (proc.IsDeepInelastic() && proc.IsEM() && pdg::IsProton(tgt.HitNucPdg())) {
+       if (proc.IsDeepInelastic() && proc.IsEM() && pdg::IsProton(tgt.HitPartPdg())) {
          for(int i=0; i<kNSplineP; i++) {
              xsdisemp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
          }
        }
-       if (proc.IsDeepInelastic() && proc.IsEM() && pdg::IsNeutron(tgt.HitNucPdg())) {
+       if (proc.IsDeepInelastic() && proc.IsEM() && pdg::IsNeutron(tgt.HitPartPdg())) {
          for(int i=0; i<kNSplineP; i++) {
              xsdisemn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
          }
@@ -1307,12 +1307,12 @@ void SaveGraphsToRootFile(void)
 
       if(!xcls.IsCharmEvent()) continue;
 
-      if (proc.IsDeepInelastic() && proc.IsEM() && pdg::IsProton(tgt.HitNucPdg())) {
+      if (proc.IsDeepInelastic() && proc.IsEM() && pdg::IsProton(tgt.HitPartPdg())) {
         for(int i=0; i<kNSplineP; i++) {
             xsdisemp[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
         }
       }
-      if (proc.IsDeepInelastic() && proc.IsEM() && pdg::IsNeutron(tgt.HitNucPdg())) {
+      if (proc.IsDeepInelastic() && proc.IsEM() && pdg::IsNeutron(tgt.HitPartPdg())) {
         for(int i=0; i<kNSplineP; i++) {
             xsdisemn[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2));
         }
@@ -1347,8 +1347,8 @@ void SaveGraphsToRootFile(void)
       const Spline * spl = evg_driver.XSecSpline(interaction);
 
       bool isem = proc.IsEM();
-      bool offp = pdg::IsProton (tgt.HitNucPdg());
-      bool offn = pdg::IsNeutron(tgt.HitNucPdg());
+      bool offp = pdg::IsProton (tgt.HitPartPdg());
+      bool offn = pdg::IsNeutron(tgt.HitPartPdg());
 
       if (isem && offp) {
         for(int i=0; i<kNSplineP; i++) {

@@ -134,7 +134,7 @@ bool HENuElPXSec::ValidProcess(const Interaction* interaction) const
   if(pdg::IsAntiNuMu(init_state.ProbePdg()) && proc_info.IsWeakCC()) return false;
   if(pdg::IsAntiNuTau(init_state.ProbePdg()) && proc_info.IsWeakCC()) return false;
 
-  if(init_state.Tgt().HitNucIsSet()) return false;
+  if(init_state.Tgt().HitPartIsSet()) return false;
  
   return true;
 }

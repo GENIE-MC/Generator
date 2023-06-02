@@ -97,12 +97,12 @@ void ReinSehgalRESXSecWithCacheFast::CacheResExcitationXSec(
   TLorentzVector p4(0,0,0,0);
 
   int nu_code  = in->InitState().ProbePdg();
-  int nuc_code = in->InitState().Tgt().HitNucPdg();
+  int nuc_code = in->InitState().Tgt().HitPartPdg();
   int tgt_code = (nuc_code==kPdgProton) ? kPdgTgtFreeP : kPdgTgtFreeN;
 
   Interaction * interaction = new Interaction(*in);
   interaction->InitStatePtr()->SetPdgs(tgt_code, nu_code);
-  interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(nuc_code);
+  interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg(nuc_code);
 
   InteractionType_t wkcur = interaction->ProcInfo().InteractionTypeId();
   unsigned int nres = fResList.NResonances();

@@ -181,10 +181,10 @@ void MECGenerator::GenerateFermiMomentum(GHepRecord * event) const
   Target tgt(target_nucleus->Pdg());
   PDGCodeList pdgv = this->NucleonClusterConstituents(nucleon_cluster->Pdg());
   assert(pdgv.size()==2);
-  tgt.SetHitNucPdg(pdgv[0]);
+  tgt.SetHitPartPdg(pdgv[0]);
   fNuclModel->GenerateNucleon(tgt);
   TVector3 p3a = fNuclModel->Momentum3();
-  tgt.SetHitNucPdg(pdgv[1]);
+  tgt.SetHitPartPdg(pdgv[1]);
   fNuclModel->GenerateNucleon(tgt);
   TVector3 p3b = fNuclModel->Momentum3();
 
@@ -225,7 +225,7 @@ void MECGenerator::GenerateFermiMomentum(GHepRecord * event) const
 
   // set the nucleon cluster 4-momentum at the interaction summary
 
-  event->Summary()->InitStatePtr()->TgtPtr()->SetHitNucP4(p4nclust);
+  event->Summary()->InitStatePtr()->TgtPtr()->SetHitPartP4(p4nclust);
 }
 //___________________________________________________________________________
 void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
@@ -305,7 +305,7 @@ void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
         double gx = 0;
         double gy = 0;
  	//  More accurate calculation of the mass of the cluster than 2*Mnucl
- 	int nucleon_cluster_pdg = interaction->InitState().Tgt().HitNucPdg();
+ 	int nucleon_cluster_pdg = interaction->InitState().Tgt().HitPartPdg();
  	double M2n = PDGLibrary::Instance()->Find(nucleon_cluster_pdg)->Mass();
         //bool is_em = interaction->ProcInfo().IsEM();
         kinematics::WQ2toXY(Ev,M2n,gW,gQ2,gx,gy);
@@ -332,7 +332,7 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * event) const
 
   // The boost back to the lab frame was missing, that is included now with the introduction of the beta factor
   const InitialState & init_state = interaction->InitState();
-  const TLorentzVector & pnuc4 = init_state.Tgt().HitNucP4(); //[@LAB]
+  const TLorentzVector & pnuc4 = init_state.Tgt().HitPartP4(); //[@LAB]
   TVector3 beta = pnuc4.BoostVector();
 
   // Boosting the incoming neutrino to the NN-cluster rest frame
@@ -703,17 +703,17 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 
 	// first, get delta-less all
 	if (NuPDG > 0) {
-	  interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNN);
+	  interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg(kPdgClusterNN);
 	}
 	else {
-	  interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterPP);
+	  interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg(kPdgClusterPP);
 	}
 	double XSec = fXSecModel->XSec(interaction, kPSTlctl);
 	// now get all with delta
 	interaction->ExclTagPtr()->SetResonance(genie::kP33_1232);
 	double XSecDelta = fXSecModel->XSec(interaction, kPSTlctl);
 	// get PN with delta
-	interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNP);
+	interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg(kPdgClusterNP);
 	double XSecDeltaPN = fXSecModel->XSec(interaction, kPSTlctl);
 	// now get delta-less PN
 	interaction->ExclTagPtr()->SetResonance(genie::kNoResonance);
@@ -751,7 +751,7 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 	    // yes it is, add a PN initial state to event record
 	    event->AddParticle(kPdgClusterNP, kIStNucleonTarget,
 			       1, -1, -1, -1, tempp4, v4);
-	    interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNP);
+	    interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg(kPdgClusterNP);
 
 	    // Its a pn, so test for Delta by comparing DeltaPN/PN
 	    if (rnd->RndKine().Rndm() <= XSecDeltaPN / XSecPN) {
@@ -763,12 +763,12 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 	    if (NuPDG > 0) {
 	      event->AddParticle(kPdgClusterNN, kIStNucleonTarget,
 				 1, -1, -1, -1, tempp4, v4);
-	      interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNN);
+	      interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg(kPdgClusterNN);
 	    }
 	    else {
 	      event->AddParticle(kPdgClusterPP, kIStNucleonTarget,
 				 1, -1, -1, -1, tempp4, v4);
-	      interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterPP);
+	      interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg(kPdgClusterPP);
 	      }
 	    // its not pn, so test for Delta (XSecDelta-XSecDeltaPN)/(XSec-XSecPN)
 	    // right, both numerator and denominator are total not pn.
@@ -1037,7 +1037,7 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
           // yes it is, add a PN initial state to event record
           event->AddParticle(kPdgClusterNP, kIStNucleonTarget,
             1, -1, -1, -1, tempp4, v4);
-          interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterNP );
+          interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg( kPdgClusterNP );
         }
         else {
           // no it is not a PN, add either NN or PP initial state to event record (EM case).
@@ -1046,24 +1046,24 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
               // record a PP pair:
               event->AddParticle(kPdgClusterPP, kIStNucleonTarget,
                                  1, -1, -1, -1, tempp4, v4);
-              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterPP );
+              interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg( kPdgClusterPP );
             } else {
               // record a NN pair:
               event->AddParticle(kPdgClusterNN, kIStNucleonTarget,
                                  1, -1, -1, -1, tempp4, v4);
-              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterNN );
+              interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg( kPdgClusterNN );
             }
           } else {
             // no it is not a PN, add either NN or PP initial state to event record (CC cases).
             if ( NuPDG > 0 ) {
               event->AddParticle(kPdgClusterNN, kIStNucleonTarget,
                                  1, -1, -1, -1, tempp4, v4);
-              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterNN );
+              interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg( kPdgClusterNN );
             }
             else {
               event->AddParticle(kPdgClusterPP, kIStNucleonTarget,
                                  1, -1, -1, -1, tempp4, v4);
-              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg( kPdgClusterPP );
+              interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg( kPdgClusterPP );
             }
           }
         }
@@ -1235,11 +1235,11 @@ void MECGenerator::GenerateNSVInitialHadrons(GHepRecord * event) const
         // Nieves et al. would use a local Fermi gas here, not this, but ok.
         // so momentum from global Fermi gas, local Fermi gas, or spectral function
         // and removal energy ~0.025 GeV, correlated with density, or from SF distribution
-        tgt.SetHitNucPdg(pdgv[0]);
+        tgt.SetHitPartPdg(pdgv[0]);
         fNuclModel->GenerateNucleon(tgt);
         p31i = fNuclModel->Momentum3();
         removalenergy1 = fNuclModel->RemovalEnergy();
-        tgt.SetHitNucPdg(pdgv[1]);
+        tgt.SetHitPartPdg(pdgv[1]);
         fNuclModel->GenerateNucleon(tgt);
         p32i = fNuclModel->Momentum3();
         removalenergy2 = fNuclModel->RemovalEnergy();

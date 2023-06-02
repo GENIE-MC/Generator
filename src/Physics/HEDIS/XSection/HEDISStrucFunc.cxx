@@ -361,11 +361,11 @@ void HEDISStrucFunc::CreateQrkSF( const Interaction * in, string sfFile )
   // variables used to tag the SF for particular channel
   bool iscc        = in->ProcInfo().IsWeakCC();
   bool isnu        = pdg::IsNeutrino(in->InitState().ProbePdg());
-  bool ispr        = pdg::IsProton(in->InitState().Tgt().HitNucPdg());
+  bool ispr        = pdg::IsProton(in->InitState().Tgt().HitPartPdg());
   bool sea_iq      = in->InitState().Tgt().HitSeaQrk();
   int pdg_iq       = in->InitState().Tgt().HitQrkPdg();
   int pdg_fq       = in->ExclTag().FinalQuarkPdg();
-  double mass_nucl = in->InitState().Tgt().HitNucMass();
+  double mass_nucl = in->InitState().Tgt().HitPartMass();
 
   // up and down quark swicth depending on proton or neutron interaction  
   int qrkd = 0;
@@ -507,7 +507,7 @@ void HEDISStrucFunc::CreateNucSF( const Interaction * in, string sfFile )
   // variables used to tag the SF for particular channel
   bool iscc = in->ProcInfo().IsWeakCC();
   bool isnu = pdg::IsNeutrino(in->InitState().ProbePdg());
-  bool ispr = pdg::IsProton(in->InitState().Tgt().HitNucPdg());
+  bool ispr = pdg::IsProton(in->InitState().Tgt().HitPartPdg());
 
   // Define the channel that is used in APFEL
   if ( isnu ) APFEL::SetProjectileDIS("neutrino");
@@ -574,7 +574,7 @@ string HEDISStrucFunc::QrkSFName( const Interaction * in)
 {
   string sin = pdg::IsNeutrino(in->InitState().ProbePdg()) ? "nu_" : "nubar_";
   sin += in->ProcInfo().IsWeakCC() ? "cc_" : "nc_";
-  sin += pdg::IsProton(in->InitState().Tgt().HitNucPdg()) ? "p_" : "n_";
+  sin += pdg::IsProton(in->InitState().Tgt().HitPartPdg()) ? "p_" : "n_";
   sin += "iq"+to_string(in->InitState().Tgt().HitQrkPdg());
   sin += in->InitState().Tgt().HitSeaQrk() ? "sea_" : "val_";
   sin += "fq"+to_string(in->ExclTag().FinalQuarkPdg());
@@ -585,7 +585,7 @@ string HEDISStrucFunc::NucSFName( const Interaction * in)
 {
   string sin = pdg::IsNeutrino(in->InitState().ProbePdg()) ? "nu_" : "nubar_";
   sin += in->ProcInfo().IsWeakCC() ? "cc_" : "nc_";
-  sin += pdg::IsProton(in->InitState().Tgt().HitNucPdg()) ? "p" : "n";
+  sin += pdg::IsProton(in->InitState().Tgt().HitPartPdg()) ? "p" : "n";
   return sin;
 }
 //____________________________________________________________________________
@@ -593,7 +593,7 @@ int HEDISStrucFunc::QrkSFCode( const Interaction * in)
 {
   int code = 10000000*pdg::IsNeutrino(in->InitState().ProbePdg());
   code    += 1000000*in->ProcInfo().IsWeakCC();
-  code    += 100000*pdg::IsProton(in->InitState().Tgt().HitNucPdg());
+  code    += 100000*pdg::IsProton(in->InitState().Tgt().HitPartPdg());
   code    += 10000*in->InitState().Tgt().HitSeaQrk();
   code    += 100*(6+in->InitState().Tgt().HitQrkPdg());
   code    += 1*(6+in->ExclTag().FinalQuarkPdg());
@@ -604,7 +604,7 @@ int HEDISStrucFunc::NucSFCode( const Interaction * in)
 {
   int code = 100*pdg::IsNeutrino(in->InitState().ProbePdg());
   code    += 10*in->ProcInfo().IsWeakCC();
-  code    += 1*pdg::IsProton(in->InitState().Tgt().HitNucPdg());
+  code    += 1*pdg::IsProton(in->InitState().Tgt().HitPartPdg());
   return code;
 }
 //____________________________________________________________________________
