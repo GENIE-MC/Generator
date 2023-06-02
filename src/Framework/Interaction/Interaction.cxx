@@ -183,7 +183,7 @@ int Interaction::RecoilNucleonPdg(void) const
   const Target & target = fInitialState->Tgt();
 
   int recoil_nuc = 0;
-  int struck_nuc = target.HitPartPdg();
+  int struck_nuc = target.HitNucPdg();
 
   if (fProcInfo->IsQuasiElastic() || fProcInfo->IsInverseBetaDecay() || fProcInfo->IsDarkMatterElastic()) {
     bool struck_is_nuc = pdg::IsNucleon(struck_nuc);
@@ -266,8 +266,8 @@ string Interaction::AsString(void) const
   }
   interaction << "tgt:" << tgt.Pdg() << ";";
 
-  if(tgt.HitPartIsSet()) {
-    interaction << "Part:" << tgt.HitPartPdg() << ";";
+  if(tgt.HitNucIsSet()) {
+    interaction << "N:" << tgt.HitNucPdg() << ";";
   }
   if(tgt.HitQrkIsSet()) {
     interaction << "q:" << tgt.HitQrkPdg()
@@ -329,7 +329,7 @@ Interaction * Interaction::DISCC(int target, int hitnuc, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -369,7 +369,7 @@ Interaction * Interaction::DISCC(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -394,7 +394,7 @@ Interaction * Interaction::DISNC(int target, int hitnuc, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -434,7 +434,7 @@ Interaction * Interaction::DISNC(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -459,7 +459,7 @@ Interaction * Interaction::DISEM(int target, int hitnuc, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -484,7 +484,7 @@ Interaction * Interaction::DISEM(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -509,7 +509,7 @@ Interaction * Interaction::QELCC(int target, int hitnuc, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -522,7 +522,7 @@ Interaction * Interaction::QELCC(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -534,7 +534,7 @@ Interaction * Interaction::QELNC(int target, int hitnuc, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -547,7 +547,7 @@ Interaction * Interaction::QELNC(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -559,7 +559,7 @@ Interaction * Interaction::QELEM(int target, int hitnuc, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -572,7 +572,7 @@ Interaction * Interaction::QELEM(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -584,7 +584,7 @@ Interaction * Interaction::IBD(int target, int hitnuc, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -597,7 +597,7 @@ Interaction * Interaction::IBD(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -609,7 +609,7 @@ Interaction * Interaction::RESCC(int target, int hitnuc, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -622,7 +622,7 @@ Interaction * Interaction::RESCC(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -634,7 +634,7 @@ Interaction * Interaction::RESNC(int target, int hitnuc, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -647,7 +647,7 @@ Interaction * Interaction::RESNC(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -659,7 +659,7 @@ Interaction * Interaction::RESEM(int target, int hitnuc, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -672,7 +672,7 @@ Interaction * Interaction::RESEM(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -684,7 +684,7 @@ Interaction * Interaction::DFRCC(int tgt,int hitnuc, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -697,7 +697,7 @@ Interaction * Interaction::DFRCC(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -820,7 +820,7 @@ Interaction * Interaction::AMNuGamma(int tgt, int nuc, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(nuc);
+  init_state->TgtPtr()->SetHitNucPdg(nuc);
 
   return interaction;
 }
@@ -833,7 +833,7 @@ Interaction * Interaction::AMNuGamma(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(nuc);
+  init_state->TgtPtr()->SetHitNucPdg(nuc);
 
   return interaction;
 }
@@ -845,7 +845,7 @@ Interaction * Interaction::MECCC(int tgt, int ncluster, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(ncluster);
+  init_state->TgtPtr()->SetHitNucPdg(ncluster);
 
   return interaction;
 }
@@ -858,7 +858,7 @@ Interaction * Interaction::MECCC(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(ncluster);
+  init_state->TgtPtr()->SetHitNucPdg(ncluster);
 
   return interaction;
 }
@@ -894,7 +894,7 @@ Interaction * Interaction::MECNC(int tgt, int ncluster, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(ncluster);
+  init_state->TgtPtr()->SetHitNucPdg(ncluster);
 
   return interaction;
 }
@@ -907,7 +907,7 @@ Interaction * Interaction::MECNC(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(ncluster);
+  init_state->TgtPtr()->SetHitNucPdg(ncluster);
 
   return interaction;
 }
@@ -931,7 +931,7 @@ Interaction * Interaction::MECEM(int tgt, int ncluster, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(ncluster);
+  init_state->TgtPtr()->SetHitNucPdg(ncluster);
 
   return interaction;
 }
@@ -944,7 +944,7 @@ Interaction * Interaction::MECEM(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(ncluster);
+  init_state->TgtPtr()->SetHitNucPdg(ncluster);
 
   return interaction;
 }
@@ -956,7 +956,7 @@ Interaction * Interaction::GLR(int tgt, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(0);
+  init_state->TgtPtr()->SetHitNucPdg(0);
 
   return interaction;
 }
@@ -968,7 +968,7 @@ Interaction * Interaction::GLR(int tgt, const TLorentzVector & p4probe)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(0);
+  init_state->TgtPtr()->SetHitNucPdg(0);
 
   return interaction;
 }
@@ -980,7 +980,7 @@ Interaction * Interaction::NDecay(int tgt, int decay_mode, int decayed_nucleon)
   interaction->ExclTagPtr()->SetDecayMode(decay_mode);
 
   InitialState * init_state = interaction->InitStatePtr();
-  init_state->TgtPtr()->SetHitPartPdg(decayed_nucleon);
+  init_state->TgtPtr()->SetHitNucPdg(decayed_nucleon);
 
   return interaction;
 }
@@ -1024,7 +1024,7 @@ Interaction * Interaction::DME(int target, int hitnuc, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -1038,7 +1038,7 @@ Interaction * Interaction::DME(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -1050,7 +1050,7 @@ Interaction * Interaction::DMDI(int target, int hitnuc, int probe, double E)
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }
@@ -1075,7 +1075,7 @@ Interaction * Interaction::DMDI(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
-  init_state->TgtPtr()->SetHitPartPdg(hitnuc);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }

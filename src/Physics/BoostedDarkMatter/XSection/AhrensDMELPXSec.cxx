@@ -66,7 +66,7 @@ double AhrensDMELPXSec::XSec(
   double E    = init_state.ProbeE(kRfHitNucRest);
   double ml   = init_state.GetProbeP4(kRfHitNucRest)->M();
   double Q2   = kinematics.Q2();
-  double M    = target.HitPartMass();
+  double M    = target.HitNucMass();
   double M2   = TMath::Power(M, 2.);
   double E2   = TMath::Power(E, 2.);
   double ml2  = TMath::Power(ml,2.);
@@ -78,7 +78,7 @@ double AhrensDMELPXSec::XSec(
   int nusign  = 1; 
   int nucsign = 1;
   int nupdgc  = init_state.ProbePdg(); 
-  int nucpdgc = target.HitPartPdg();
+  int nucpdgc = target.HitNucPdg();
   if( pdg::IsAntiDarkMatter(nupdgc) ) nusign = -1;
   if( pdg::IsNeutron(nucpdgc)       ) nucsign = -1;
 

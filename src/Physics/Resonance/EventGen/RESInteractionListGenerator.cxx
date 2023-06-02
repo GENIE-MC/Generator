@@ -116,7 +116,7 @@ InteractionList * RESInteractionListGenerator::CreateInteractionList(
 
        // add the struck nucleon
        Target * target = interaction->InitStatePtr()->TgtPtr();
-       target->SetHitPartPdg(hit_nucleon[i]);
+       target->SetHitNucPdg(hit_nucleon[i]);
 
        // add the baryon resonance in the exclusive tag
        XclsTag * xcls = interaction->ExclTagPtr();

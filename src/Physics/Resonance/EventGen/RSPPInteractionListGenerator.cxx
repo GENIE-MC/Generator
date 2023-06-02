@@ -114,7 +114,7 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
 
           Target * target = interaction->InitStatePtr()->TgtPtr();
 
-          target->SetHitPartPdg(struck_nucleon);
+          target->SetHitNucPdg(struck_nucleon);
           this->AddFinalStateInfo(interaction, nucc_channels[i]);
 
           intlist->push_back(interaction);
@@ -135,7 +135,7 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
 
           Target * target = interaction->InitStatePtr()->TgtPtr();
 
-          target->SetHitPartPdg(struck_nucleon);
+          target->SetHitNucPdg(struck_nucleon);
           this->AddFinalStateInfo(interaction, nunc_channels[i]);
 
           intlist->push_back(interaction);

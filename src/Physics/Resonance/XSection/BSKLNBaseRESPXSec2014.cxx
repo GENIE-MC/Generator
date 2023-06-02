@@ -105,7 +105,7 @@ double BSKLNBaseRESPXSec2014::XSec(
   bool        is_delta  = utils::res::IsDelta (resonance);
 
   // Get the neutrino, hit nucleon & weak current
-  int  nucpdgc   = target.HitPartPdg();
+  int  nucpdgc   = target.HitNucPdg();
   int  probepdgc = init_state.ProbePdg();
   bool is_nu     = pdg::IsNeutrino         (probepdgc);
   bool is_nubar  = pdg::IsAntiNeutrino     (probepdgc);
@@ -139,7 +139,7 @@ double BSKLNBaseRESPXSec2014::XSec(
 
   // Compute auxiliary & kinematical factors
   double E      = init_state.ProbeE(kRfHitNucRest);
-  double Mnuc   = target.HitPartMass();
+  double Mnuc   = target.HitNucMass();
   double W2     = TMath::Power(W,    2);
   double Mnuc2  = TMath::Power(Mnuc, 2);
   double k      = 0.5 * (W2 - Mnuc2)/Mnuc;
@@ -732,7 +732,7 @@ bool BSKLNBaseRESPXSec2014::ValidProcess(const Interaction * interaction) const
   if(!proc_info.IsResonant()) return false;
   if(!xcls.KnownResonance())  return false;
 
-  int  hitnuc = init_state.Tgt().HitPartPdg();
+  int  hitnuc = init_state.Tgt().HitNucPdg();
   bool is_pn = (pdg::IsProton(hitnuc) || pdg::IsNeutron(hitnuc));
 
   if (!is_pn) return false;

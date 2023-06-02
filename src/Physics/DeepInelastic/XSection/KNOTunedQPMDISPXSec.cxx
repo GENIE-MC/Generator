@@ -109,7 +109,7 @@ double KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(
   const ProcessInfo &  pi  = in->ProcInfo();
 
   double E    = ist.ProbeE(kRfHitNucRest);
-  double Mnuc = ist.Tgt().HitPartMass();
+  double Mnuc = ist.Tgt().HitNucMass();
   double x    = in->Kine().x();
   double y    = in->Kine().y();
   double Wo   = utils::kinematics::XYtoW(E,Mnuc,x,y);
@@ -138,7 +138,7 @@ double KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(
 
     ostringstream ikey;
     ikey << "nu-pdgc:" << ist.ProbePdg()
-         << ";hit-nuc-pdg:"<< ist.Tgt().HitPartPdg() << "/"
+         << ";hit-nuc-pdg:"<< ist.Tgt().HitNucPdg() << "/"
          << pi.InteractionTypeAsString();
 
     string key = cache->CacheBranchKey(algkey, ikey.str());

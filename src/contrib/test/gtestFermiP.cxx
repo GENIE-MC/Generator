@@ -66,7 +66,7 @@ int main(int /*argc*/, char ** /*argv*/)
 
   //-- Loop over targets/models & generate 'target nucleons'
   for(unsigned int it = 0; it < kNTargets; it++) {
-     nucltgt[it]->SetHitPartPdg(kPdgProton);
+     nucltgt[it]->SetHitNucPdg(kPdgProton);
      const Target & target = *nucltgt[it];
      LOG("test", pNOTICE)  << "** Using target : " << target;;
      for(unsigned int im = 0; im < kNModels; im++) {

@@ -62,7 +62,7 @@ double P33PaschosLalakulichPXSec::XSec(
   double E2   = TMath::Power(E,2);
   double Q2   = kinematics.Q2();
   double W    = kinematics.W();
-  double MN   = target.HitPartMass();
+  double MN   = target.HitNucMass();
   double MN2  = TMath::Power(MN,2);
   double Mmu2 = kMuonMass2;
   double Mpi2 = kPionMass2;
@@ -250,7 +250,7 @@ double P33PaschosLalakulichPXSec::XSec(
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
   //-- number of scattering centers in the target
-  bool isp = pdg::IsProton(target.HitPartPdg());
+  bool isp = pdg::IsProton(target.HitNucPdg());
   int NNucl = (isp) ? target.Z() : target.N();
 
   xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)

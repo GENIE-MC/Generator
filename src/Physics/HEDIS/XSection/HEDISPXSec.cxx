@@ -69,7 +69,7 @@ double HEDISPXSec::XSec(
   double Q2    = kinematics.Q2();
   double x     = kinematics.x();
   double E     = init_state.ProbeE(kRfLab);
-  double Mnuc  = init_state.Tgt().HitPartMass();
+  double Mnuc  = init_state.Tgt().HitNucMass();
   double Mlep2 = TMath::Power(interaction->FSPrimLepton()->Mass(),2);
 
   // Get F1,F2,F3 for particular quark channel and compute differential xsec
@@ -107,7 +107,7 @@ double HEDISPXSec::XSec(
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
   // Compute nuclear cross section (simple scaling here, corrections must have been included in the structure functions)
-  int NNucl = (pdg::IsProton(init_state.Tgt().HitPartPdg())) ? init_state.Tgt().Z() : init_state.Tgt().N(); 
+  int NNucl = (pdg::IsProton(init_state.Tgt().HitNucPdg())) ? init_state.Tgt().Z() : init_state.Tgt().N(); 
   xsec *= NNucl; 
 
   return xsec;
@@ -167,9 +167,9 @@ bool HEDISPXSec::ValidProcess(const Interaction * interaction) const
   int probe_pdg = init_state.ProbePdg();
   if(!pdg::IsLepton(probe_pdg)) return false;
 
-  if(! init_state.Tgt().HitPartIsSet()) return false;
+  if(! init_state.Tgt().HitNucIsSet()) return false;
 
-  int hitnuc_pdg = init_state.Tgt().HitPartPdg();
+  int hitnuc_pdg = init_state.Tgt().HitNucPdg();
   if(!pdg::IsNeutronOrProton(hitnuc_pdg)) return false;
 
   return true;

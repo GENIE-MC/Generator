@@ -83,7 +83,7 @@ void testXsec(const Char_t* outfn="VLExsecNT.root") {
    genie::Interaction * interaction = 
       new genie::Interaction(init_state, proc_info);
    Target * target  = interaction->InitStatePtr()->TgtPtr();
-   target->SetHitPartPdg(kPdgProton);
+   target->SetHitNucPdg(kPdgProton);
    Int_t i=0;
    for (i = 0; i < nknots; i++) {
       TLorentzVector p4(0,0,E[i]*1e-3,E[i]*1e-3);
@@ -98,7 +98,7 @@ void testXsec(const Char_t* outfn="VLExsecNT.root") {
    genie::Interaction * interaction_n = 
       new genie::Interaction(init_state_n, proc_info_n);
    Target * target_n  = interaction_n->InitStatePtr()->TgtPtr();
-   target_n->SetHitPartPdg(kPdgNeutron);
+   target_n->SetHitNucPdg(kPdgNeutron);
    for (i = 0; i < nknots; i++) {
       TLorentzVector n4(0,0,E[i]*1e-3,E[i]*1e-3);
       interaction_n->InitStatePtr()->SetProbeP4(n4);

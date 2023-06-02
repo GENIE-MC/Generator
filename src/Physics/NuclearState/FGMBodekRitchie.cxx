@@ -67,7 +67,7 @@ FGMBodekRitchie::~FGMBodekRitchie()
 //____________________________________________________________________________
 bool FGMBodekRitchie::GenerateNucleon(const Target & target) const
 {
-  assert(target.HitPartIsSet());
+  assert(target.HitNucIsSet());
 
   fCurrRemovalEnergy = 0;
   fCurrMomentum.SetXYZ(0,0,0);
@@ -139,7 +139,7 @@ TH1D * FGMBodekRitchie::ProbDistro(const Target & target) const
 
   //-- get information for the nuclear target
   //int target_pdgc  = pdg::IonPdgCode(target.A(), target.Z());
-  int nucleon_pdgc = target.HitPartPdg();
+  int nucleon_pdgc = target.HitNucPdg();
   assert( pdg::IsProton(nucleon_pdgc) || pdg::IsNeutron(nucleon_pdgc) );
 
   double KF = FermiMomentum( target, nucleon_pdgc ) ;
@@ -206,7 +206,7 @@ double FGMBodekRitchie::FermiMomentum( const Target & t, int nucleon_pdg ) const
     double kF = nuclear::FermiMomentumForIsoscalarNucleonParametrization(t);
 
     //-- correct the Fermi momentum for the struck nucleon
-    assert(t.HitPartIsSet());
+    assert(t.HitNucIsSet());
 
     double A = (double) t.A() ;
     if( pdg::IsProton(nucleon_pdg) ) {

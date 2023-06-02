@@ -66,7 +66,7 @@ EffectiveSF::~EffectiveSF()
 //____________________________________________________________________________
 bool EffectiveSF::GenerateNucleon(const Target & target) const
 {
-  assert(target.HitPartIsSet());
+  assert(target.HitNucIsSet());
   fCurrRemovalEnergy = 0;
   fCurrMomentum.SetXYZ(0,0,0);
 
@@ -154,7 +154,7 @@ TH1D * EffectiveSF::ProbDistro(const Target & target) const
                << "P(cut-off) = " << fPCutOff << ", P(max) = " << fPMax;
 
   //-- get information for the nuclear target
-  int nucleon_pdgc = target.HitPartPdg();
+  int nucleon_pdgc = target.HitNucPdg();
   assert( pdg::IsProton(nucleon_pdgc) || pdg::IsNeutron(nucleon_pdgc) );
   return this->MakeEffectiveSF(target);
 

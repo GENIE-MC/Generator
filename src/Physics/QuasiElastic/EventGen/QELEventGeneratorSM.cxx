@@ -105,7 +105,7 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
   GHepParticle * nucleon = evrec->HitNucleon();
   // Store position of nucleon
   double hitNucPos = nucleon->X4()->Vect().Mag();
-  tgt->SetHitPartPosition( hitNucPos );
+  tgt->SetHitNucPosition( hitNucPos );
 
   // Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
@@ -265,7 +265,7 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
   outNucleonMom.Rotate(psi, unit_nudir);
 
   // set 4-momentum of struck nucleon
-  TLorentzVector * p4 = tgt->HitPartP4Ptr();
+  TLorentzVector * p4 = tgt->HitNucP4Ptr();
   p4->SetPx( inNucleonMom.Px() );
   p4->SetPy( inNucleonMom.Py() );
   p4->SetPz( inNucleonMom.Pz() );
@@ -275,7 +275,7 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
   assert(rpdgc);
   double gW = PDGLibrary::Instance()->Find(rpdgc)->Mass();
   LOG("QELEvent", pNOTICE) << "Selected: W = "<< gW;
-  double M = init_state.Tgt().HitPartP4().M();
+  double M = init_state.Tgt().HitNucP4().M();
   double E  = init_state.ProbeE(kRfHitNucRest);
 
   // (W,Q2) -> (x,y)

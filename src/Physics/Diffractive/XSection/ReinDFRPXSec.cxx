@@ -61,7 +61,7 @@ double ReinDFRPXSec::XSec(
   double x       = kinematics.x();                            // bjorken x
   double y       = kinematics.y();                            // inelasticity y
   double t       = kinematics.t();                            // (magnitude of) square of four-momentum xferred to proton
-  double M       = target.HitPartMass();                       //
+  double M       = target.HitNucMass();                       //
   double Q2      = 2.*x*y*M*E;                                // momentum transfer Q2>0
   double Gf      = kGF2 * M/(16*kPi3);                        // GF/pi/etc factor
   double fp      = 0.93 * kPionMass;                          // pion decay constant (cc)
@@ -111,7 +111,7 @@ double ReinDFRPXSec::XSec(
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
   //----- number of scattering centers in the target
-  int nucpdgc = target.HitPartPdg();
+  int nucpdgc = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
   xsec *= NNucl;
 

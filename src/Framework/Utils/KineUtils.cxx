@@ -86,7 +86,7 @@ double genie::utils::kinematics::PhaseSpaceVolume(
 
     const InitialState & init_state = in->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
-    double M  = init_state.Tgt().HitPartP4Ptr()->M();
+    double M  = init_state.Tgt().HitNucP4Ptr()->M();
 
     const int    kNx = 100;
     const int    kNy = 100;
@@ -217,7 +217,7 @@ double genie::utils::kinematics::Jacobian(
   {
     const InitialState & init_state = i->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
-    double M  = init_state.Tgt().HitPartP4Ptr()->M();
+    double M  = init_state.Tgt().HitNucP4Ptr()->M();
     double x  = kine.x();
     J = 2*x*Ev*M;
   }
@@ -230,7 +230,7 @@ double genie::utils::kinematics::Jacobian(
   {
     const InitialState & init_state = i->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
-    double M  = init_state.Tgt().HitPartP4Ptr()->M();
+    double M  = init_state.Tgt().HitNucP4Ptr()->M();
     double y  = kine.y();
     J = 2*y*Ev*M;
   }
@@ -260,7 +260,7 @@ double genie::utils::kinematics::Jacobian(
   {
     const InitialState & init_state = i->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
-    double M  = init_state.Tgt().HitPartP4Ptr()->M();
+    double M  = init_state.Tgt().HitNucP4Ptr()->M();
     double y  = kine.y();
     J = TMath::Power(2*M*Ev,2) * y;
   }
@@ -273,7 +273,7 @@ double genie::utils::kinematics::Jacobian(
   {
     const InitialState & init_state = i->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
-    double M  = init_state.Tgt().HitPartP4Ptr()->M();
+    double M  = init_state.Tgt().HitNucP4Ptr()->M();
     double y  = kine.y();
     double W  = kine.W();
     J = 2*TMath::Power(M*Ev,2) * y/W;
@@ -306,7 +306,7 @@ double genie::utils::kinematics::Jacobian(
     double pv = std::sqrt( std::max(0., Ev*Ev - mv*mv) );
 
     // Invariant mass of the initial hit nucleon
-    const TLorentzVector& hit_nuc_P4 = init_state.Tgt().HitPartP4();
+    const TLorentzVector& hit_nuc_P4 = init_state.Tgt().HitNucP4();
     double M = hit_nuc_P4.M();
 
     // Outgoing lepton mass
@@ -1087,7 +1087,7 @@ double genie::utils::kinematics::Q2(const Interaction * const interaction)
   }
   if (kinematics.KVSet(kKVy)) {
     const InitialState & init_state = interaction->InitState();
-    double Mn = init_state.Tgt().HitPartP4Ptr()->M(); // can be off m/shell
+    double Mn = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
     double x  = kinematics.x();
     double y  = kinematics.y();
     double Ev = init_state.ProbeE(kRfHitNucRest);
@@ -1117,7 +1117,7 @@ double genie::utils::kinematics::W(const Interaction * const interaction)
   if(kinematics.KVSet(kKVx) && kinematics.KVSet(kKVy)) {
     const InitialState & init_state = interaction->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
-    double M  = init_state.Tgt().HitPartP4Ptr()->M();
+    double M  = init_state.Tgt().HitNucP4Ptr()->M();
     double M2 = M*M;
     double x  = kinematics.x();
     double y  = kinematics.y();
@@ -1294,7 +1294,7 @@ void genie::utils::kinematics::UpdateWQ2FromXY(const Interaction * in)
   if(kine->KVSet(kKVx) && kine->KVSet(kKVy)) {
     const InitialState & init_state = in->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
-    double M  = init_state.Tgt().HitPartP4Ptr()->M(); // can be off mass shell
+    double M  = init_state.Tgt().HitNucP4Ptr()->M(); // can be off mass shell
     double x  = kine->x();
     double y  = kine->y();
 
@@ -1312,7 +1312,7 @@ void genie::utils::kinematics::UpdateXYFromWQ2(const Interaction * in)
   if(kine->KVSet(kKVW) && kine->KVSet(kKVQ2)) {
     const InitialState & init_state = in->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
-    double M  = init_state.Tgt().HitPartP4Ptr()->M(); // can be off mass shell
+    double M  = init_state.Tgt().HitNucP4Ptr()->M(); // can be off mass shell
     double W  = kine->W();
     double Q2 = kine->Q2();
 
@@ -1330,7 +1330,7 @@ void genie::utils::kinematics::UpdateWYFromXQ2(const Interaction * in)
   if(kine->KVSet(kKVx) && kine->KVSet(kKVQ2)) {
     const InitialState & init_state = in->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
-    double M  = init_state.Tgt().HitPartP4Ptr()->M(); // can be off mass shell
+    double M  = init_state.Tgt().HitNucP4Ptr()->M(); // can be off mass shell
     double x  = kine->x();
     double Q2 = kine->Q2();
 
@@ -1357,7 +1357,7 @@ void genie::utils::kinematics::UpdateXFromQ2Y(const Interaction * in)
       Ev = init_state.ProbeE(kRfLab);
     }
     else {
-      M = in->InitState().Tgt().HitPartP4Ptr()->M(); //can be off m/shell
+      M = in->InitState().Tgt().HitNucP4Ptr()->M(); //can be off m/shell
       Ev = init_state.ProbeE(kRfHitNucRest);
     }
 

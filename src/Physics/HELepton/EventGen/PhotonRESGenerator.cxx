@@ -82,7 +82,7 @@ void PhotonRESGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   int probepdg = init_state.ProbePdg();
 
-  long double Mtarget = init_state.Tgt().HitPartMass();
+  long double Mtarget = init_state.Tgt().HitNucMass();
   long double mlout = interaction->FSPrimLepton()->Mass(); //mass of charged lepton
   
   long double Enuin = init_state.ProbeE(kRfLab); 

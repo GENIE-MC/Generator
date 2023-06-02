@@ -55,7 +55,7 @@ void NucleonDecayPrimaryVtxGenerator::ProcessEventRecord(
   Interaction * interaction = event->Summary();
   fCurrInitStatePdg = interaction->InitState().Tgt().Pdg();
   fCurrDecayMode = (NucleonDecayMode_t) interaction->ExclTag().DecayMode();
-  fCurrDecayedNucleon = interaction->InitState().Tgt().HitPartPdg();
+  fCurrDecayedNucleon = interaction->InitState().Tgt().HitNucPdg();
 
   LOG("NucleonDecay", pNOTICE)
     << "Simulating decay " << utils::nucleon_decay::AsString(fCurrDecayMode, fCurrDecayedNucleon)
@@ -240,7 +240,7 @@ void NucleonDecayPrimaryVtxGenerator::GenerateFermiMomentum(
 
   // generate a Fermi momentum & removal energy
   Target tgt(initial_nucleus->Pdg());
-  tgt.SetHitPartPdg(decayed_nucleon->Pdg());
+  tgt.SetHitNucPdg(decayed_nucleon->Pdg());
   fNuclModel->GenerateNucleon(tgt);
   TVector3 p3 = fNuclModel->Momentum3();
   double w    = fNuclModel->RemovalEnergy();

@@ -55,11 +55,11 @@ double PhotonRESPXSec::XSec(
 
   int probepdg = init_state.ProbePdg();
   int loutpdg  = xclstag.FinalLeptonPdg();
-  int tgtpdg   = init_state.Tgt().HitPartPdg();
+  int tgtpdg   = init_state.Tgt().HitNucPdg();
 
   double mlout = interaction->FSPrimLepton()->Mass(); //mass of charged lepton
 
-  double Mnuc = init_state.Tgt().HitPartMass();
+  double Mnuc = init_state.Tgt().HitNucMass();
 
   double Enuin = init_state.ProbeE(kRfLab);
   double s = born->GetS(Mnuc,Enuin);
@@ -124,9 +124,9 @@ bool PhotonRESPXSec::ValidProcess(const Interaction* interaction) const
   const InitialState & init_state = interaction -> InitState();
   if(!pdg::IsLepton(init_state.ProbePdg())) return false;
 
-  if(! init_state.Tgt().HitPartIsSet()) return false;
+  if(! init_state.Tgt().HitNucIsSet()) return false;
 
-  int hitnuc_pdg = init_state.Tgt().HitPartPdg();
+  int hitnuc_pdg = init_state.Tgt().HitNucPdg();
   if(!pdg::IsNeutronOrProton(hitnuc_pdg)) return false;
   
   return true;

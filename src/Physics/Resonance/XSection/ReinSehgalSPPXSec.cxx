@@ -67,7 +67,7 @@ double ReinSehgalSPPXSec::Integrate(
   const Target &       target     = init_state.Tgt();
 
   InteractionType_t it = proc_info.InteractionTypeId();
-  int nucleon_pdgc = target.HitPartPdg();
+  int nucleon_pdgc = target.HitNucPdg();
   int nu_pdgc      = init_state.ProbePdg();
 
   // Get neutrino energy in the struck nucleon rest frame

@@ -89,11 +89,11 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListCC(
   }
 
   if (isnu && hasN) {
-     target->SetHitPartPdg(kPdgNeutron);
+     target->SetHitNucPdg(kPdgNeutron);
      intlist->push_back(interaction);
 
   } else if (isnubar && hasP) {
-     target->SetHitPartPdg(kPdgProton);
+     target->SetHitNucPdg(kPdgProton);
      intlist->push_back(interaction);
 
   } else {
@@ -143,7 +143,7 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListNC(
        delete interaction;
        continue;
      }
-     target->SetHitPartPdg(nuclpdg[i]);
+     target->SetHitNucPdg(nuclpdg[i]);
      intlist->push_back(interaction);
   }
 
@@ -235,7 +235,7 @@ InteractionList *
        delete interaction;
        continue;
      }
-     target->SetHitPartPdg(nuclpdg[i]);
+     target->SetHitNucPdg(nuclpdg[i]);
      xcls->SetCharm(charmpdg[i]);
 
      intlist->push_back(interaction);
@@ -285,7 +285,7 @@ InteractionList *
        delete interaction;
        continue;
      }
-     target->SetHitPartPdg(nuclpdg[i]);
+     target->SetHitNucPdg(nuclpdg[i]);
      xcls->SetStrange(strangepdg[i]);
 
      intlist->push_back(interaction);

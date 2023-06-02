@@ -162,7 +162,7 @@ double genie::utils::nuclear::NuclQELXSecSuppression(
   //
 
   int target_pdgc         = target.Pdg();
-  int struck_nucleon_pdgc = target.HitPartPdg();
+  int struck_nucleon_pdgc = target.HitNucPdg();
   int final_nucleon_pdgc  = struck_nucleon_pdgc;
 
   if(proc_info.IsWeakCC()) {
@@ -186,7 +186,7 @@ double genie::utils::nuclear::NuclQELXSecSuppression(
   if(lfg){
     double hbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
     Target* tgt = interaction->InitStatePtr()->TgtPtr();
-    double radius = tgt->HitPartPosition();
+    double radius = tgt->HitNucPosition();
 
     int A = tgt->A();
     // kFi
@@ -210,7 +210,7 @@ double genie::utils::nuclear::NuclQELXSecSuppression(
           kft->FindClosestKF(target_pdgc, final_nucleon_pdgc );
   }
   
-  double Mn = target.HitPartP4Ptr()->M(); // can be off m/shell
+  double Mn = target.HitNucP4Ptr()->M(); // can be off m/shell
 
   const Kinematics & kine = interaction->Kine();
   double q2 = kine.q2();

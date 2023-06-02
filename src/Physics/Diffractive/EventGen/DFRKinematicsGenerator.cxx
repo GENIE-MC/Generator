@@ -75,7 +75,7 @@ void DFRKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Get neutrino energy and hit 'nucleon mass'
   const InitialState & init_state = interaction->InitState();
   double Ev  = init_state.ProbeE(kRfHitNucRest);
-  double M   = init_state.Tgt().HitPartP4().M(); // can be off m-shell
+  double M   = init_state.Tgt().HitNucP4().M(); // can be off m-shell
 
   //-- Get the physical W range
   const KPhaseSpace & kps = interaction->PhaseSpace();

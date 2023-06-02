@@ -69,7 +69,7 @@ double EmpiricalMECPXSec2015::XSec(
     double pv = std::sqrt( std::max(0., Ev*Ev - mv*mv) );
 
     // Invariant mass of the initial hit nucleon
-    const TLorentzVector& hit_nuc_P4 = init_state.Tgt().HitPartP4();
+    const TLorentzVector& hit_nuc_P4 = init_state.Tgt().HitNucP4();
     double M = hit_nuc_P4.M();
 
     // Outgoing lepton mass
@@ -112,7 +112,7 @@ double EmpiricalMECPXSec2015::XSec(
   // Do a check whether W,Q2 is allowed. Return 0 otherwise.
   //
   double Ev = interaction->InitState().ProbeE(kRfHitNucRest);  // kRfLab
-  int nucleon_cluster_pdg = interaction->InitState().Tgt().HitPartPdg();
+  int nucleon_cluster_pdg = interaction->InitState().Tgt().HitNucPdg();
   double M2n = PDGLibrary::Instance()->Find(nucleon_cluster_pdg)-> Mass(); // nucleon cluster mass
   double M2n2 = M2n*M2n;
   double ml  = interaction->FSPrimLepton()->Mass();
@@ -225,7 +225,7 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
   int    nupdg  = interaction->InitState().ProbePdg();
   int    tgtpdg = interaction->InitState().Tgt().Pdg();
   double E      = interaction->InitState().ProbeE(kRfLab);
-  int nucleon_cluster_pdg = interaction->InitState().Tgt().HitPartPdg();
+  int nucleon_cluster_pdg = interaction->InitState().Tgt().HitNucPdg();
   double Z=interaction->InitState().Tgt().Z();
   double A=interaction->InitState().Tgt().A();
   double N=A-Z;

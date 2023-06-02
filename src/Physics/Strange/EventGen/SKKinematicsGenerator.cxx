@@ -90,7 +90,7 @@ void SKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) con
 
   // Determine lepton and kaon masses
   int leppdg = interaction->FSPrimLeptonPdg();
-  const TLorentzVector pnuc4 = interaction->InitState().Tgt().HitPartP4(); // 4-momentum of struck nucleon in lab frame
+  const TLorentzVector pnuc4 = interaction->InitState().Tgt().HitNucP4(); // 4-momentum of struck nucleon in lab frame
   TVector3 beta = pnuc4.BoostVector();
   TLorentzVector P4_nu = *(interaction->InitStatePtr()->GetProbeP4(kRfHitNucRest)); // struck nucleon rest frame
 

@@ -69,7 +69,7 @@ double PaisQELLambdaPXSec::XSec(
 
 
   //resonance mass & nucleon mass
-  double Mnuc  = target.HitPartMass();
+  double Mnuc  = target.HitNucMass();
   double Mnuc2 = TMath::Power(Mnuc,2);
 
   //----- Calculate the differential cross section dxsec/dQ^2
@@ -126,7 +126,7 @@ double PaisQELLambdaPXSec::XSec(
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
   //----- Nuclear cross section (simple scaling here)
-  int nuc   = target.HitPartPdg();
+  int nuc   = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nuc)) ? target.Z() : target.N();
   xsec *= NNucl;
 
@@ -169,8 +169,8 @@ bool PaisQELLambdaPXSec::ValidProcess(
   if(!proc_info.IsQuasiElastic()) return false;
   if(!proc_info.IsWeak())         return false;
 
-  bool isP = pdg::IsProton ( init_state.Tgt().HitPartPdg() );
-  bool isN = pdg::IsNeutron( init_state.Tgt().HitPartPdg() );
+  bool isP = pdg::IsProton ( init_state.Tgt().HitNucPdg() );
+  bool isN = pdg::IsNeutron( init_state.Tgt().HitNucPdg() );
 
   int pdgc = xcls.StrangeHadronPdg();
 
@@ -194,7 +194,7 @@ bool PaisQELLambdaPXSec::ValidKinematics(
   //resonance, final state primary lepton & nucleon mass
   double MR    = this -> MHyperon  (interaction);
   double ml    = interaction->FSPrimLepton()->Mass();
-  double Mnuc  = init_state.Tgt().HitPartP4Ptr()->M();
+  double Mnuc  = init_state.Tgt().HitNucP4Ptr()->M();
   double Mnuc2 = TMath::Power(Mnuc,2);
 
   //resonance threshold

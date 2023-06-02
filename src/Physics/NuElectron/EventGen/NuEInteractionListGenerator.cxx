@@ -61,7 +61,7 @@ InteractionList * NuEInteractionListGenerator::IMDInteractionList(
 
   // clone init state and de-activate the struck nucleon info
   InitialState init(init_state);
-  init_state.TgtPtr()->SetHitPartPdg(0);
+  init_state.TgtPtr()->SetHitNucPdg(0);
 
   ProcessInfo   proc_info(kScInverseMuDecay, kIntWeakCC);
   Interaction * interaction = new Interaction(init, proc_info);
@@ -87,7 +87,7 @@ InteractionList * NuEInteractionListGenerator::IMDAnnihilationInteractionList(
 
   // clone init state and de-activate the struck nucleon info
   InitialState init(init_state);
-  init_state.TgtPtr()->SetHitPartPdg(0);
+  init_state.TgtPtr()->SetHitNucPdg(0);
 
   ProcessInfo   proc_info(kScIMDAnnihilation, kIntWeakCC);
   Interaction * interaction = new Interaction(init, proc_info);
@@ -115,7 +115,7 @@ InteractionList * NuEInteractionListGenerator::NuEELInteractionList(
 
   // clone init state and de-activate the struck nucleon info
   InitialState init(init_state);
-  init_state.TgtPtr()->SetHitPartPdg(0);
+  init_state.TgtPtr()->SetHitNucPdg(0);
 
   // NC
   if(nupdg == kPdgNuMu  || nupdg == kPdgAntiNuMu ||

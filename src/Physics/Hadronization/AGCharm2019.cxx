@@ -197,7 +197,7 @@ TClonesArray * AGCharm2019::Hadronize(
   LOG("CharmHad", pNOTICE) << "Ehad (LAB) = " << Eh << ", W = " << W;
 
   int  nu_pdg  = init_state.ProbePdg();
-  int  nuc_pdg = target.HitPartPdg();
+  int  nuc_pdg = target.HitNucPdg();
 //int  qpdg    = target.HitQrkPdg();
 //bool sea     = target.HitSeaQrk();
   bool isp     = pdg::IsProton (nuc_pdg);
