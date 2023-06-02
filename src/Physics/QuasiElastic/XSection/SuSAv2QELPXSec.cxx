@@ -496,7 +496,7 @@ double SuSAv2QELPXSec::XSecScaling(double xsec, const Interaction* interaction, 
     // behavior for all targets by scaling by Z/2 or N/2 as appropriate.
     // Do the same for NC. TODO: double-check that this is the right
     // thing to do when we SuSAv2 NC hadronic tensors are added to GENIE.
-    int hit_nuc_pdg = tgt.HitPartPdg();
+    int hit_nuc_pdg = tgt.HitNucPdg();
     if ( pdg::IsProton(hit_nuc_pdg) ) xsec *= tgt.Z() / 2.;
     else if ( pdg::IsNeutron(hit_nuc_pdg) ) xsec *= tgt.N() / 2.;
     // We should never get here if ValidProcess() is working correctly
@@ -552,7 +552,7 @@ bool SuSAv2QELPXSec::ValidProcess(const Interaction* interaction) const
   // not free nucleons.
   if ( !init_state.Tgt().IsNucleus() ) return false;
 
-  int  nuc = init_state.Tgt().HitPartPdg();
+  int  nuc = init_state.Tgt().HitNucPdg();
   int  nu  = init_state.ProbePdg();
 
   bool isP   = pdg::IsProton(nuc);

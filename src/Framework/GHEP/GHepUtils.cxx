@@ -57,8 +57,8 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
   bool is_imd   = proc.IsInverseMuDecay();
   bool is_ask   = proc.IsSingleKaon();
   bool is_diff  = proc.IsDiffractive();
-  bool is_p     = pdg::IsProton(tgt.HitPartPdg());
-  bool is_n     = pdg::IsNeutron(tgt.HitPartPdg()); 
+  bool is_p     = tgt.HitNucIsSet() ? tgt.HitNucPdg()==kPdgProton  : false;
+  bool is_n     = tgt.HitNucIsSet() ? tgt.HitNucPdg()==kPdgNeutron : false;
   bool is_nu    = pdg::IsNeutrino    (init.ProbePdg());
   bool is_nubar = pdg::IsAntiNeutrino(init.ProbePdg());
   bool W_gt_2   = kine.KVSet(kKVW) ?  (kine.W() > 2.0) : false;

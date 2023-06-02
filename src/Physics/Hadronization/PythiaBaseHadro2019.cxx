@@ -109,7 +109,7 @@ void PythiaBaseHadro2019::MakeQuarkDiquarkAssignments(
   double W = kinematics.W();
 
   int  probe       = init_state.ProbePdg();
-  int  hit_nucleon = target.HitPartPdg();
+  int  hit_nucleon = target.HitNucPdg();
   int  hit_quark   = target.HitQrkPdg();
   bool from_sea    = target.HitSeaQrk();
 
@@ -300,7 +300,7 @@ bool PythiaBaseHadro2019::AssertValidity(const Interaction * interaction) const 
   }
 
   int  probe       = init_state.ProbePdg();
-  int  hit_nucleon = target.HitPartPdg();
+  int  hit_nucleon = target.HitNucPdg();
   int  hit_quark   = target.HitQrkPdg();
   //bool from_sea    = target.HitSeaQrk();
 

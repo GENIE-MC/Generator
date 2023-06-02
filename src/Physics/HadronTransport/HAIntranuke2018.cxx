@@ -644,7 +644,7 @@ void HAIntranuke2018::InelasticHA(
   // handle fermi momentum
   if(fDoFermi)
     {
-      target.SetHitPartPdg(tcode);
+      target.SetHitNucPdg(tcode);
       fNuclmodel->GenerateNucleon(target);
       TVector3 tP3 = fFermiFac * fNuclmodel->Momentum3();
       double tE = TMath::Sqrt(tP3.Mag2()+ tM*tM);
@@ -903,13 +903,13 @@ void HAIntranuke2018::Inelastic(
           Target target(ev->TargetNucleus()->Pdg());
           if(fDoFermi)
             {
-              target.SetHitPartPdg(t1code);
+              target.SetHitNucPdg(t1code);
               fNuclmodel->GenerateNucleon(target);
               //LOG("HAIntranuke2018", pNOTICE) << "Nuclmodel= " << fNuclmodel->ModelType(target) ;
               tP2_1L=fFermiFac * fNuclmodel->Momentum3();
               E2_1L = TMath::Sqrt(tP2_1L.Mag2() + M2_1*M2_1);
 
-              target.SetHitPartPdg(t2code);
+              target.SetHitNucPdg(t2code);
               fNuclmodel->GenerateNucleon(target);
               tP2_2L=fFermiFac * fNuclmodel->Momentum3();
               E2_2L = TMath::Sqrt(tP2_2L.Mag2() + M2_2*M2_2);
@@ -1299,7 +1299,7 @@ void HAIntranuke2018::Inelastic(
                   vector<int>::const_iterator pdg_iter;
                   for(pdg_iter=++(listar[i]->begin());pdg_iter!=listar[i]->end();++pdg_iter)
                     {
-                      target.SetHitPartPdg(*pdg_iter);
+                      target.SetHitNucPdg(*pdg_iter);
                       fNuclmodel->GenerateNucleon(target);
                       mBuf = pLib->Find(*pdg_iter)->Mass();
                       mSum += mBuf;
@@ -1432,7 +1432,7 @@ void HAIntranuke2018::Inelastic(
               vector<int>::const_iterator pdg_iter;
               for(pdg_iter=++(list.begin());pdg_iter!=list.end();++pdg_iter)
                 {
-                  target.SetHitPartPdg(*pdg_iter);
+                  target.SetHitNucPdg(*pdg_iter);
                   fNuclmodel->GenerateNucleon(target);
                   mBuf = pLib->Find(*pdg_iter)->Mass();
                   mSum += mBuf;

@@ -128,7 +128,7 @@ void InitialStateAppender::AddStruckParticle(GHepRecord * evrec) const
     return;
   }
 
-  int pdgc = init_state.Tgt().HitPartPdg();
+  int pdgc = init_state.Tgt().HitNucPdg();
 
   if(pdgc != 0) {
 
@@ -138,7 +138,7 @@ void InitialStateAppender::AddStruckParticle(GHepRecord * evrec) const
     int          imom1 = (is_nucleus) ? 1 : -1;
     int          imom2 = -1;
 
-    const TLorentzVector p4(init_state.Tgt().HitPartP4());
+    const TLorentzVector p4(init_state.Tgt().HitNucP4());
     const TLorentzVector v4(0.,0.,0.,0.);
 
     LOG("ISApp", pINFO)<< "Adding struck nucleon [pdgc = " << pdgc << "]";

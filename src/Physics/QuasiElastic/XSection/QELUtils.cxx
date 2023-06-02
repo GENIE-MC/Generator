@@ -35,7 +35,7 @@ namespace {
   TVector3 COMframe2Lab(const genie::InitialState& initialState)
   {
     TLorentzVector* k4 = initialState.GetProbeP4( genie::kRfLab );
-    TLorentzVector* p4 = initialState.TgtPtr()->HitPartP4Ptr();
+    TLorentzVector* p4 = initialState.TgtPtr()->HitNucP4Ptr();
     TLorentzVector totMom = *k4 + *p4;
 
     TVector3 beta = totMom.BoostVector();
@@ -58,7 +58,7 @@ double genie::utils::EnergyDeltaFunctionSolutionQEL(
   // vice-versa
   TLorentzVector* probe = inter.InitStatePtr()->GetProbeP4( kRfLab );
   const TLorentzVector& hit_nucleon = inter.InitStatePtr()->TgtPtr()
-    ->HitPartP4();
+    ->HitNucP4();
   TLorentzVector total_p4 = (*probe) + hit_nucleon;
   TVector3 beta_COM_to_lab = total_p4.BoostVector();
   TVector3 beta_lab_to_COM = -beta_COM_to_lab;
@@ -244,10 +244,10 @@ double genie::utils::CosTheta0Max(const genie::Interaction& interaction) {
 
   // Possibly off-shell initial struck nucleon total energy
   // (BindHitNucleon() should have been called previously if needed)
-  const TLorentzVector& p4Ni = interaction.InitState().Tgt().HitPartP4();
+  const TLorentzVector& p4Ni = interaction.InitState().Tgt().HitNucP4();
   double ENi = p4Ni.E();
   // On-shell mass of initial struck nucleon
-  double mNi = interaction.InitState().Tgt().HitPartMass();
+  double mNi = interaction.InitState().Tgt().HitNucMass();
   // On-shell initial struck nucleon energy
   double ENi_on_shell = std::sqrt( mNi*mNi + p4Ni.Vect().Mag2() );
   // Energy needed to put initial nucleon on the mass shell
@@ -263,14 +263,14 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
   genie::QELEvGen_BindingMode_t hitNucleonBindingMode)
 {
   genie::Target* tgt = interaction.InitState().TgtPtr();
-  TLorentzVector* p4Ni = tgt->HitPartP4Ptr();
+  TLorentzVector* p4Ni = tgt->HitNucP4Ptr();
 
   // Initial nucleon 3-momentum (lab frame)
   TVector3 p3Ni = nucl_model.Momentum3();
 
   // Look up the (on-shell) mass of the initial nucleon
   TDatabasePDG* tb = TDatabasePDG::Instance();
-  double mNi = tb->GetParticle( tgt->HitPartPdg() )->Mass();
+  double mNi = tb->GetParticle( tgt->HitNucPdg() )->Mass();
 
   // Set the (possibly off-shell) initial nucleon energy based on
   // the selected binding energy mode. Always put the initial nucleon
@@ -308,7 +308,7 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
       // Determine the mass and proton numbers for the remnant nucleus
       int Af = tgt->A() - 1;
       int Zf = tgt->Z();
-      if ( genie::pdg::IsProton( tgt->HitPartPdg()) ) --Zf;
+      if ( genie::pdg::IsProton( tgt->HitNucPdg()) ) --Zf;
       Mf = genie::PDGLibrary::Instance()->Find( genie::pdg::IonPdgCode(Af, Zf) )->Mass();
 
       // Deduce the binding energy from the final nucleus mass
@@ -359,7 +359,7 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
 
         // Get the Fermi energies for the initial and final nucleons. Include
         // the radial dependence if using the LFG.
-        double hit_nucleon_radius = tgt->HitPartPosition();
+        double hit_nucleon_radius = tgt->HitNucPosition();
 
         // Average of the proton and neutron masses. It may actually be better
         // to use the exact on-shell masses here. However, the original paper
@@ -369,7 +369,7 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
         const double mN = genie::constants::kNucleonMass;
 
         double kF_Ni = nucl_model.LocalFermiMomentum( *tgt,
-          tgt->HitPartPdg(), hit_nucleon_radius );
+          tgt->HitNucPdg(), hit_nucleon_radius );
         double EFermi_Ni = std::sqrt( std::max(0., mN*mN + kF_Ni*kF_Ni) );
 
         double kF_Nf = nucl_model.LocalFermiMomentum( *tgt,
@@ -404,7 +404,7 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
       Eb = Mf - Mi + mNi;
 
       LOG( "QELEvent", pDEBUG ) << "Qvalue = " << Qvalue
-        << ", Q_LFG = " << Q_LFG << " at radius = " << tgt->HitPartPosition();
+        << ", Q_LFG = " << Q_LFG << " at radius = " << tgt->HitNucPosition();
     }
 
     // The (lab-frame) off-shell initial nucleon energy is the difference

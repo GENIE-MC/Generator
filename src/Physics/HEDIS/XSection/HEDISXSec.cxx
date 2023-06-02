@@ -74,7 +74,7 @@ double HEDISXSec::Integrate(
   XSecSplineList * xsl = XSecSplineList::Instance();
   if(init_state.Tgt().IsNucleus() && !xsl->IsEmpty() ) {
 
-    int nucpdgc = init_state.Tgt().HitPartPdg();
+    int nucpdgc = init_state.Tgt().HitNucPdg();
     int NNucl   = (pdg::IsProton(nucpdgc)) ? init_state.Tgt().Z() : init_state.Tgt().N();
 
     Interaction * interaction = new Interaction(*in);

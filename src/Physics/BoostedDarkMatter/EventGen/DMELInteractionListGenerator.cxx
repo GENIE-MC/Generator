@@ -91,7 +91,7 @@ InteractionList * DMELInteractionListGenerator::CreateInteractionListDM(
        delete interaction;
        continue;
      }
-     target->SetHitPartPdg(nuclpdg[i]);
+     target->SetHitNucPdg(nuclpdg[i]);
      intlist->push_back(interaction);
   }
 

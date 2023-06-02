@@ -139,7 +139,7 @@ double BBA05ELFormFactorsModel::tau(const Interaction * interaction) const
   const Target &     target = interaction->InitState().Tgt();
 
   double q2 = kine.q2(); // momentum transfer, <0
-  double M2 = TMath::Power(target.HitPartMass(),2); // Mnucl^2
+  double M2 = TMath::Power(target.HitNucMass(),2); // Mnucl^2
 
   double t = -q2/(4*M2);
   return t;

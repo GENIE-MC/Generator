@@ -210,7 +210,7 @@ int main(int argc, char ** argv)
         ProcessInfo  proc (kScDeepInelastic, it);
         Interaction  intr (init, proc);
 
-        intr.InitStatePtr()->TgtPtr()->SetHitPartPdg(NucCode[inuc]);
+        intr.InitStatePtr()->TgtPtr()->SetHitNucPdg(NucCode[inuc]);
 
         // hit quark loop (if requested)
         int nqrk=1;

@@ -145,7 +145,7 @@ void QPMDMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   const InitialState & init_state = interaction->InitState();
   const Target & tgt = init_state.Tgt();
 
-  int  nuc_pdgc    = tgt.HitPartPdg();
+  int  nuc_pdgc    = tgt.HitNucPdg();
   int  probe_pdgc  = init_state.ProbePdg();
   bool is_p        = pdg::IsProton       ( nuc_pdgc    );
   bool is_n        = pdg::IsNeutron      ( nuc_pdgc    );
@@ -328,7 +328,7 @@ double QPMDMDISStrucFuncBase::Q2(const Interaction * interaction) const
   // if Q2 was not set, then compute it from x,y,Ev,Mnucleon
   if (kinematics.KVSet(kKVy)) {
     const InitialState & init_state = interaction->InitState();
-    double Mn = init_state.Tgt().HitPartP4Ptr()->M(); // could be off-shell
+    double Mn = init_state.Tgt().HitNucP4Ptr()->M(); // could be off-shell
     //double x     = this->ScalingVar(interaction);       // could be redefined
     double x     = kinematics.x();
     double y     = kinematics.y();
@@ -421,7 +421,7 @@ void QPMDMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
 
   // Get the hit nucleon mass (could be off-shell)
   const Target & tgt = interaction->InitState().Tgt();
-  double M = tgt.HitPartP4().M(); 
+  double M = tgt.HitNucP4().M(); 
 
   // Get the Q2 for which PDFs will be evaluated
   double Q2pdf = TMath::Max(Q2val, fQ2min);
@@ -526,7 +526,7 @@ void QPMDMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
   // The above are the proton parton density function. Get the PDFs for the 
   // hit nucleon (p or n) by swapping u<->d if necessary
 
-  int nuc_pdgc = tgt.HitPartPdg();
+  int nuc_pdgc = tgt.HitNucPdg();
   bool isP = pdg::IsProton  (nuc_pdgc);
   bool isN = pdg::IsNeutron (nuc_pdgc);
   assert(isP  || isN);

@@ -128,12 +128,12 @@ void SmithMonizUtils::SetInteraction(const Interaction * interaction)
 
   E_nu = interaction->InitState().ProbeE(kRfLab);         //  Neutrino energy (GeV)
 
-  assert(target.HitPartIsSet());
+  assert(target.HitNucIsSet());
   // get lepton&nuclear masses (init & final state nucleus)
   m_lep = interaction->FSPrimLepton()->Mass();          //  Mass of final charged lepton (GeV)
   mm_lep     = TMath::Power(m_lep,    2);
-  int nucl_pdg_ini = target.HitPartPdg();
-  m_ini  = target.HitPartMass();
+  int nucl_pdg_ini = target.HitNucPdg();
+  m_ini  = target.HitNucMass();
   mm_ini = TMath::Power(m_ini,    2);
   int nucl_pdg_fin = genie::pdg::SwitchProtonNeutron(nucl_pdg_ini);
   TParticlePDG * nucl_fin = pdglib->Find( nucl_pdg_fin );

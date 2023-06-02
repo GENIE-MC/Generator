@@ -104,7 +104,7 @@ InteractionList * SKInteractionListGenerator::CreateInteractionList(
       delete interaction;
       continue;
     }
-    target->SetHitPartPdg(inuclpdg[i]);
+    target->SetHitNucPdg(inuclpdg[i]);
     xcls->SetStrange(kaonpdg[i]);
     if( fnuclpdg[i] == kPdgProton ) xcls->SetNProtons(1);
     else                            xcls->SetNNeutrons(1);

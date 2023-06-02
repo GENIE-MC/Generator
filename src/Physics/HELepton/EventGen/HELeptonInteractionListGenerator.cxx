@@ -49,7 +49,7 @@ InteractionList *
 
   if(probepdg == kPdgAntiNuE) {
     InitialState init(init_state);
-    init_state.TgtPtr()->SetHitPartPdg(0);  
+    init_state.TgtPtr()->SetHitNucPdg(0);  
     Interaction * interaction = new Interaction(init_state, proc_info);
     XclsTag exclusive_tag;
     if      (fIsGLRESMu)  exclusive_tag.SetFinalLepton(kPdgMuon);
@@ -77,7 +77,7 @@ InteractionList *
   if (fIsHENuElCC) {
     ProcessInfo proc_info(kScGlashowResonance, kIntWeakCC);
     InitialState init(init_state);
-    init_state.TgtPtr()->SetHitPartPdg(0);  
+    init_state.TgtPtr()->SetHitNucPdg(0);  
     Interaction * interaction = new Interaction(init_state, proc_info);
     XclsTag exclusive_tag; //charged lepton
     if      ( pdg::IsNuMu(probepdg)      ) exclusive_tag.SetFinalLepton(kPdgMuon);
@@ -90,7 +90,7 @@ InteractionList *
   else if (fIsHENuElNC) {
     ProcessInfo proc_info(kScGlashowResonance, kIntWeakNC);
     InitialState init(init_state);
-    init_state.TgtPtr()->SetHitPartPdg(0);  
+    init_state.TgtPtr()->SetHitNucPdg(0);  
     Interaction * interaction = new Interaction(init_state, proc_info);
     XclsTag exclusive_tag; //charged lepton
     if      ( pdg::IsNuMu(probepdg)      ) exclusive_tag.SetFinalLepton(kPdgElectron);
@@ -125,7 +125,7 @@ InteractionList *
     if( (struck_nucleon == kPdgProton  && hasP) || (struck_nucleon == kPdgNeutron && hasN) ) {
       Interaction * interaction = new Interaction(init_state, proc_info);
       Target * target = interaction->InitStatePtr()->TgtPtr();
-      target->SetHitPartPdg(struck_nucleon);
+      target->SetHitNucPdg(struck_nucleon);
       XclsTag exclusive_tag;
       if      (fIsPhotonRESMu)  exclusive_tag.SetFinalLepton( (probepdg>0) ? kPdgAntiMuon : kPdgMuon     );
       else if (fIsPhotonRESTau) exclusive_tag.SetFinalLepton( (probepdg>0) ? kPdgAntiTau  : kPdgTau      );

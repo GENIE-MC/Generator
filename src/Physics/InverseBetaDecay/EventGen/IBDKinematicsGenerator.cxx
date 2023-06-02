@@ -163,7 +163,7 @@ void IBDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // struck nucleon mass (can be off the mass shell)
         const InitialState & init_state = interaction->InitState();
         const double E = init_state.ProbeE(kRfHitNucRest);
-        const double M = init_state.Tgt().HitPartP4().M();
+        const double M = init_state.Tgt().HitNucP4().M();
 
         LOG("IBD", pNOTICE) << "E = " << E << ", M = "<< M;
 

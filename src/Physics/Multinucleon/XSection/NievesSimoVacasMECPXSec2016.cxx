@@ -64,7 +64,7 @@ double NievesSimoVacasMECPXSec2016::XSec(
     double pv = std::sqrt( std::max(0., Ev*Ev - mv*mv) );
 
     // Invariant mass of the initial hit nucleon
-    const TLorentzVector& hit_nuc_P4 = init_state.Tgt().HitPartP4();
+    const TLorentzVector& hit_nuc_P4 = init_state.Tgt().HitNucP4();
     double M = hit_nuc_P4.M();
 
     // Get the outgoing lepton kinetic energy
@@ -211,7 +211,7 @@ double NievesSimoVacasMECPXSec2016::XSec(
   // Delta decay). If a {p,n} hit dinucleon was set we will calculate the
   // cross-section for that component only (either full or PDD cross-section)
   bool delta = interaction->ExclTag().KnownResonance();
-  bool pn    = (interaction->InitState().Tgt().HitPartPdg() == kPdgClusterNP);
+  bool pn    = (interaction->InitState().Tgt().HitNucPdg() == kPdgClusterNP);
 
   double xsec_all = 0.;
   double xsec_pn  = 0.;

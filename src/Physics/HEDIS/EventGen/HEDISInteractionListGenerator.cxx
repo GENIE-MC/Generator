@@ -98,7 +98,7 @@ InteractionList * HEDISInteractionListGenerator::CreateHEDISlist(
       
         ProcessInfo proc(kScDeepInelastic,*inttype);
         Interaction * interaction = new Interaction(*init, proc);
-        interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg(*inucl);
+        interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(*inucl);
         multimap<int,bool> hq = this->GetHitQuarks(interaction);
         multimap<int,bool>::const_iterator hqi = hq.begin();
         for( ; hqi != hq.end(); ++hqi) {

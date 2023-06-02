@@ -78,7 +78,7 @@ double QPMDMDISPXSec::XSec(
   
   double E     = init_state.ProbeE(kRfHitNucRest);
   double ml    = interaction->FSPrimLepton()->Mass();
-  double Mnuc  = init_state.Tgt().HitPartMass();
+  double Mnuc  = init_state.Tgt().HitNucMass();
   double x     = kinematics.x();
   double y     = kinematics.y();
 
@@ -202,7 +202,7 @@ double QPMDMDISPXSec::XSec(
   // Compute nuclear cross section (simple scaling here, corrections must
   // have been included in the structure functions)
   const Target & target = init_state.Tgt();
-  int nucpdgc = target.HitPartPdg();
+  int nucpdgc = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
   xsec *= NNucl; 
 
@@ -238,9 +238,9 @@ bool QPMDMDISPXSec::ValidProcess(const Interaction * interaction) const
   int probe_pdg = init_state.ProbePdg();
   if(!pdg::IsDarkMatter(probe_pdg) && !pdg::IsAntiDarkMatter(probe_pdg)) return false;
 
-  if(! init_state.Tgt().HitPartIsSet()) return false;
+  if(! init_state.Tgt().HitNucIsSet()) return false;
 
-  int hitnuc_pdg = init_state.Tgt().HitPartPdg();
+  int hitnuc_pdg = init_state.Tgt().HitNucPdg();
   if(!pdg::IsNeutronOrProton(hitnuc_pdg)) return false;
 
   return true;

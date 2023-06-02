@@ -50,8 +50,8 @@ int main(int /*argc*/, char ** /*argv*/)
 
   TLorentzVector pnucl(0,0,0,kNucleonMass);
 
-  interaction.InitStatePtr()->TgtPtr()->SetHitPartPdgSetHitPartP4(pnucl);
-  interaction.InitStatePtr()->TgtPtr()->SetHitPartPdg(kPdgProton);
+  interaction.InitStatePtr()->TgtPtr()->SetHitNucP4(pnucl);
+  interaction.InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgProton);
   interaction.InitStatePtr()->TgtPtr()->SetHitQrkPdg(kPdgUQuark);
 
   //-- get a 'read-only' InitialState and print it (check that struck nucleon
@@ -73,7 +73,7 @@ int main(int /*argc*/, char ** /*argv*/)
   //-- instead of using the long syntax above, get a writable Target object first
 
   Target * wtgt = interaction.InitStatePtr()->TgtPtr();
-  wtgt->SetHitPartPdg(kPdgProton);
+  wtgt->SetHitNucPdg(kPdgProton);
 
   LOG("test", pINFO) << "Printing target after changing struck nucl";
   LOG("test", pINFO) << "\n" << *wtgt;

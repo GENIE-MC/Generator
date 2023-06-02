@@ -64,7 +64,7 @@ double BBA03ELFormFactorsModel::Gen(const Interaction * interaction) const
 
   const Target & tgt = interaction->InitState().Tgt();
 
-  double M   = tgt.HitPartMass();            // Mnucl
+  double M   = tgt.HitNucMass();             // Mnucl
   double M2  = TMath::Power(M,2);            // Mnucl^2
   double t   = -q2/(4*M2);                   // q2<0
   double a   = fGenA;                        // Krutov et al. parameter a

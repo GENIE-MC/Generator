@@ -89,7 +89,7 @@ void SKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepReco
   TLorentzVector p4fsl = p4fsl_lab;
 
   // Transform the neutrino and final-state lepton to the struck nucleon rest frame
-  const TLorentzVector pnuc4 = interaction->InitState().Tgt().HitPartP4(); // 4-momentum of struck nucleon in lab frame
+  const TLorentzVector pnuc4 = interaction->InitState().Tgt().HitNucP4(); // 4-momentum of struck nucleon in lab frame
   TVector3 beta = pnuc4.BoostVector();
   p4nu.Boost(-1.*beta);
   p4fsl.Boost(-1.*beta);

@@ -283,7 +283,7 @@ public:
     if( xcls_tag.NNucleons() != 1 ) return kSppNull;
 
     // get struck nucleon
-    int hit_nucl_pdgc = init_state.Tgt().HitPartPdg();
+    int hit_nucl_pdgc = init_state.Tgt().HitNucPdg();
     if( ! pdg::IsNeutronOrProton(hit_nucl_pdgc) ) return kSppNull;
     bool hit_p = pdg::IsProton(hit_nucl_pdgc);
     bool hit_n = !hit_p;
