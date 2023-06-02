@@ -14,14 +14,14 @@
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Controls.h"
-#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/RefFrame.h"
 #include "Physics/NuElectron/XSection/NuElectronPXSec.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
-#include "Physics/NuclearState/ElectronVelocity.h"
+#include "Physics/NuElectron/XSection/PXSecOnElectron.h"
+
 
 #include "TFile.h"
 #include "TGraph.h"
@@ -34,13 +34,13 @@ using namespace genie::controls;
 
 //____________________________________________________________________________
 NuElectronPXSec::NuElectronPXSec() :
-XSecAlgorithmI("genie::NuElectronPXSec")
+PXSecOnElectron::PXSecOnElectron("genie::NuElectronPXSec","Default")
 {
 
 }
 //____________________________________________________________________________
 NuElectronPXSec::NuElectronPXSec(string config) :
-XSecAlgorithmI("genie::NuElectronPXSec", config)
+PXSecOnElectron::PXSecOnElectron("genie::NuElectronPXSec", config)
 {
 
 }
@@ -142,55 +142,15 @@ double NuElectronPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
-double NuElectronPXSec::Integral(const Interaction * interaction) const
-{
-  double xsec_sum = 0; 
-  double xsec_sum2 = 0; 
-  int NInt = 0; //Count number of integrations
-  do{
-    NInt++;
-    Interaction in_curr(*interaction); //Copy interaction object
-    fElectronVelocity->InitializeVelocity(in_curr); //Modify interaction to give electron random velocity from selected distribution
-    double xsec = fXSecIntegrator->Integrate(this,&in_curr); // In ele at rest
-    //get beta - comps orthogonal to beam x,y
-    //scale = sqrt(1-b_t^2)
-    TVector3 beta = in_curr.InitState().Tgt().HitEleP4().BoostVector(); // beta
-    double beta_tangent = sqrt(TMath::Power(beta[0],2)+TMath::Power(beta[1],2)); //Component tangential to beam
-    xsec *= sqrt(1-TMath::Power(beta_tangent,2)); //Correct for lorentz factor
-    xsec_sum+=xsec;
-    xsec_sum2+=TMath::Power(xsec,2);
-    double xsec_mean = xsec_sum/NInt;
-    //var = (sum(xi^2)/N-xsec_mean^2)
-    //rel_err = sigma/sqrt(n)*mean
-    double xsec_err = sqrt((xsec_sum2/NInt-TMath::Power(xsec_mean,2))/NInt)/xsec_mean;
-    if (NInt > 1 && xsec_err < fErrTolerance){break;} //Break condition for dipping below set tolerance
-  }
-  while ( NInt < fNIntegration); 
-  double xsec_avg = xsec_sum/NInt;
-  return xsec_avg;
-}
-//____________________________________________________________________________
-bool NuElectronPXSec::ValidProcess(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipProcessChk)) return true;
-  return true;
-}
-//____________________________________________________________________________
-bool NuElectronPXSec::ValidKinematics(const Interaction* interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-  return true;
-}
-//____________________________________________________________________________
 void NuElectronPXSec::Configure(const Registry & config)
 {
-  Algorithm::Configure(config);
+  PXSecOnElectron::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
 void NuElectronPXSec::Configure(string config)
 {
-  Algorithm::Configure(config);
+  PXSecOnElectron::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
@@ -199,16 +159,14 @@ void NuElectronPXSec::LoadConfig(void)
   // weinberg angle
   double thw ;
   GetParam( "WeinbergAngle", thw ) ;
-  GetParam( "N-Integration-Samples", fNIntegration ) ; //
-  GetParam( "NuE-XSecRelError" , fErrTolerance ) ; //
   fSin28w = TMath::Power(TMath::Sin(thw), 2);
   fSin48w = TMath::Power(TMath::Sin(thw), 4);
+  if (!fElectronVelocity) {
+    std::cerr << "Error: fElectronVelocity is not initialized correctly." << std::endl;
+  }
 
-  // load XSec Integrator
-  fXSecIntegrator =
-      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator")); //
-  fElectronVelocity =
-      dynamic_cast<const ElectronVelocity *> (this->SubAlg("Electron-Velocity")); //
-  assert(fXSecIntegrator);
+  // fElectronVelocity =
+  //     dynamic_cast<const ElectronVelocity *> (this->SubAlg("Electron-Velocity")); //
+  // assert(fXSecIntegrator);
 }
 //____________________________________________________________________________

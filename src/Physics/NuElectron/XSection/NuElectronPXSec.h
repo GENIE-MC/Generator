@@ -31,15 +31,11 @@
 #ifndef _NU_ELECTRON_PARTIAL_XSEC_H_
 #define _NU_ELECTRON_PARTIAL_XSEC_H_
 
-#include "Framework/EventGen/XSecAlgorithmI.h"
-#include "Physics/NuclearState/ElectronVelocity.h"
+#include "Physics/NuElectron/XSection/PXSecOnElectron.h"
 
 namespace genie {
 
-class IntegratorI;
-class XSecIntegratorI;
-
-class NuElectronPXSec : public XSecAlgorithmI {
+class NuElectronPXSec : public PXSecOnElectron {
 
 public:
   NuElectronPXSec();
@@ -48,9 +44,6 @@ public:
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
-  double Integral        (const Interaction * i) const;
-  bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
@@ -60,13 +53,10 @@ public:
 private:
   void LoadConfig (void);
 
-  const XSecIntegratorI * fXSecIntegrator;
-  const ElectronVelocity * fElectronVelocity;
+  //const ElectronVelocity * fElectronVelocity;
 
   double fSin28w; // sin^2(theta-weinberg)
   double fSin48w;
-  int fNIntegration; //Max number of integration samples
-  double fErrTolerance; //Error tolerance acceptable before returning cross section average
 };
 
 }       // genie namespace

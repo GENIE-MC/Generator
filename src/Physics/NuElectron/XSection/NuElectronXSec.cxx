@@ -71,6 +71,7 @@ double NuElectronXSec::Integrate(
 
   delete interaction;
   delete func;
+  
   return xsec;
 }
 //____________________________________________________________________________
