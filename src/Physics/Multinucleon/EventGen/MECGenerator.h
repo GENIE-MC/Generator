@@ -78,7 +78,7 @@ private:
   int fMinScanPointsCosth ; 
   
   double fQ3Max;
-
+  double fQ2EMMin ; 
   // Tolerate this maximum percent deviation above the calculated maximum cross
   // section when sampling lepton kinematics for the SuSAv2-MEC model.
   double fSuSAMaxXSecDiffTolerance;

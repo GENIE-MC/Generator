@@ -111,6 +111,9 @@ private:
   double fEbAu;
   double fEbPb;
 
+  // Q2 Min for EM interactions
+  double fQ2EMMin ; 
+
   /// GSL numerical integrator
   const XSecIntegratorI*  fXSecIntegrator;
 

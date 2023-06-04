@@ -59,19 +59,17 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 
   genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
 
+  // Neglect shift due to binding energy. The cut is on the actual
+  // value of Q^2, not the effective one to use in the tensor contraction.
+  double Q2 = Q3*Q3 - Q0*Q0;
+
   // *** Enforce the global Q^2 cut (important for EM scattering) ***
   // Choose the appropriate minimum Q^2 value based on the interaction
   // mode (this is important for EM interactions since the differential
   // cross section blows up as Q^2 --> 0)
-  double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
-  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
-    ::electromagnetic::kMinQ2Limit; // EM limit
-
-  // Neglect shift due to binding energy. The cut is on the actual
-  // value of Q^2, not the effective one to use in the tensor contraction.
-  double Q2 = Q3*Q3 - Q0*Q0;
+  double Q2min = genie::utils::kinematics::kMinQ2Limit; // CC/NC limit
+  if( interaction->ProcInfo().IsEM() ) Q2min = fQ2EMMin ;
   if ( Q2 < Q2min ) return 0.;
-
 
   // ******************************
   // Now choose which tesor to use
@@ -624,6 +622,11 @@ void SuSAv2QELPXSec::LoadConfig(void)
   this->GetParam( "RFG-NucRemovalE@Pdg=1000501190", fEbSn );
   this->GetParam( "RFG-NucRemovalE@Pdg=1000791970", fEbAu );
   this->GetParam( "RFG-NucRemovalE@Pdg=1000822080", fEbPb );
+
+  // Set Min Q2 for EM
+  if( GetConfig().Exists("EMQ2Min") ) { 
+    this->GetParam( "EMQ2Min", fQ2EMMin ) ;
+  } else fQ2EMMin = genie::utils::kinematics::electromagnetic::kMinQ2Limit; // EM limit 
 
   // Read optional QvalueShifter:
   fQvalueShifter = nullptr;                                                                                        

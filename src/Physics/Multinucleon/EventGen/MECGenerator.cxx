@@ -241,10 +241,12 @@ void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
   Interaction * interaction = event->Summary();
   double Ev = interaction->InitState().ProbeE(kRfHitNucRest);
 
-  // **** NOTE / TODO:
-  // **** Hardcode bogus limits for the time-being
-  // **** Should be able to get limits via Interaction::KPhaseSpace
-  double Q2min =  0.01;
+  // *** Enforce the global Q^2 cut (important for EM scattering) ***
+  // Choose the appropriate minimum Q^2 value based on the interaction
+  // mode (this is important for EM interactions since the differential
+  // cross section blows up as Q^2 --> 0)
+  double Q2min = genie::utils::kinematics::kMinQ2Limit; // CC/NC limit
+  if( interaction->ProcInfo().IsEM() ) Q2min = fQ2EMMin ;
   double Q2max =  8.00;
   double Wmin  =  1.88;
   double Wmax  =  3.00;
@@ -858,12 +860,12 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
   Interaction* interaction = event->Summary();
   Kinematics* kinematics = interaction->KinePtr();
 
+  // *** Enforce the global Q^2 cut (important for EM scattering) ***
   // Choose the appropriate minimum Q^2 value based on the interaction
   // mode (this is important for EM interactions since the differential
   // cross section blows up as Q^2 --> 0)
-  double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
-  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
-    ::electromagnetic::kMinQ2Limit; // EM limit
+  double Q2min = genie::utils::kinematics::kMinQ2Limit; // CC/NC limit
+  if( interaction->ProcInfo().IsEM() ) Q2min = fQ2EMMin ;
 
   LOG("MEC", pDEBUG) << "Q2min = " << Q2min;
 
@@ -1344,6 +1346,12 @@ void MECGenerator::LoadConfig(void)
     GetParam( "MaxXSec-MinScanPointsCosth", fMinScanPointsCosth ) ;
 
     GetParam( "NSV-Q3Max", fQ3Max ) ;
+
+
+    // Set Min Q2 for EM
+    if( GetConfig().Exists("EMQ2Min") ) { 
+      this->GetParam( "EMQ2Min", fQ2EMMin ) ;
+    } else fQ2EMMin = genie::utils::kinematics::electromagnetic::kMinQ2Limit; // EM limit 
 
     // Maximum allowed percentage deviation from the maximum cross section used
     // in the accept/reject loop for selecting lepton kinematics for SuSAv2.

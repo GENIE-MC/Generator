@@ -61,6 +61,8 @@ private:
   double fFracNCQE;   ///< empirical model param: MEC cross section is taken to be this fraction of NCQE cross section
   double fFracEMQE;   ///< empirical model param: MEC cross section is taken to be this fraction of Rosenbluth xs
 
+  double fQ2EMMin ; // Min Q2 limit for EM 
+
   const XSecAlgorithmI * fXSecAlgCCQE; ///< cross section algorithm for CCQE
   const XSecAlgorithmI * fXSecAlgNCQE; ///< cross section algorithm for NCQE
   const XSecAlgorithmI * fXSecAlgEMQE; ///< cross section algorithm for EMQE

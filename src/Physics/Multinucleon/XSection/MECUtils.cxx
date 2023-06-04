@@ -14,7 +14,6 @@
 
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
-#include "Framework/Utils/KineUtils.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Physics/HadronTensors/HadronTensorModelI.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
@@ -332,19 +331,12 @@ double genie::utils::mec::OldTensorContraction(
 }
 //___________________________________________________________________________
 double genie::utils::mec::GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
-  const Interaction& inter, const double tolerance, const double safety_factor,
-  const int max_n_layers )
+					   const Interaction& inter, const double tolerance, const double safety_factor,
+					   const int max_n_layers, const double MinQ2Limit )
 {
   // Clone the input interaction so that we can modify the Tl and ctl values
   // without messing anything up
   Interaction* interaction = new Interaction( inter );
-
-  // Choose the appropriate minimum Q^2 value based on the interaction
-  // mode (this is important for EM interactions since the differential
-  // cross section blows up as Q^2 --> 0)
-  double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
-  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
-    ::electromagnetic::kMinQ2Limit; // EM limit
 
   const double Enu = interaction->InitState().ProbeE( kRfLab );
   const double ProbeMass = interaction->InitState().Probe()->Mass();
@@ -363,7 +355,7 @@ double genie::utils::mec::GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
   const double TMax = std::max( 0., Enu - LepMass );
   double CurTMin = std::max( 0., TMax - Q0Max );
   double CurTMax = TMax;
-  double CurQ2Min = Q2min;
+  double CurQ2Min = MinQ2Limit;
   // Overshoots the true maximum Q^2, but not so severely that it's expected to
   // be a problem.
   double CurQ2Max = QMagMax * QMagMax;
@@ -448,7 +440,7 @@ double genie::utils::mec::GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
     // to the cut for the next scan. The old assignment (which mostly worked
     // but had problems for a coarse Q2_increment value) is commented out below.
     // - S. Gardiner, 1 July 2020
-    CurQ2Min = Q2min; // std::max( Q2min, Q2_at_xsec_max - Q2_increment );
+    CurQ2Min = MinQ2Limit; // std::max( MinQ2Limit, Q2_at_xsec_max - Q2_increment );
     CurQ2Max = Q2_at_xsec_max + Q2_increment;
 
     // If the xsec has stabilized within the requested tolerance, then

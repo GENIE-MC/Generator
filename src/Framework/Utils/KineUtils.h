@@ -41,11 +41,12 @@ namespace kinematics
                                     KinePhaseSpace_t a, KinePhaseSpace_t b, bool & fwd);
 
   //-- kinematical limits
+  static const double kMinQ2Limit     = 1E-4;  // GeV^2
   Range1D_t  InelWLim    (double Ev, double M, double ml);
-  Range1D_t  InelQ2Lim_W (double Ev, double M, double ml, double W, double Q2min_cut =    controls::kMinQ2Limit);
-  Range1D_t  Inelq2Lim_W (double Ev, double M, double ml, double W, double q2min_cut = -1*controls::kMinQ2Limit);
-  Range1D_t  InelQ2Lim   (double Ev, double M, double ml, double Q2min_cut =    controls::kMinQ2Limit);
-  Range1D_t  Inelq2Lim   (double Ev, double M, double ml, double q2min_cut = -1*controls::kMinQ2Limit);
+  Range1D_t  InelQ2Lim_W (double Ev, double M, double ml, double W, double Q2min_cut =    kMinQ2Limit);
+  Range1D_t  Inelq2Lim_W (double Ev, double M, double ml, double W, double q2min_cut = -1*kMinQ2Limit);
+  Range1D_t  InelQ2Lim   (double Ev, double M, double ml, double Q2min_cut =    kMinQ2Limit);
+  Range1D_t  Inelq2Lim   (double Ev, double M, double ml, double q2min_cut = -1*kMinQ2Limit);
   Range1D_t  InelXLim    (double Ev, double M, double ml);
   Range1D_t  InelYLim    (double Ev, double M, double ml);
   Range1D_t  InelYLim_X  (double Ev, double M, double ml, double x);
@@ -58,10 +59,10 @@ namespace kinematics
   Range1D_t  Cohq2Lim    (double Mn, double m_produced, double mlep, double Ev);
   Range1D_t  CEvNSQ2Lim  (double Ev);
   Range1D_t  DarkWLim    (double Ev, double M, double ml);
-  Range1D_t  DarkQ2Lim_W (double Ev, double M, double ml, double W, double Q2min_cut =    controls::kMinQ2Limit);
-  Range1D_t  Darkq2Lim_W (double Ev, double M, double ml, double W, double q2min_cut = -1*controls::kMinQ2Limit);
-  Range1D_t  DarkQ2Lim   (double Ev, double M, double ml, double Q2min_cut =    controls::kMinQ2Limit);
-  Range1D_t  Darkq2Lim   (double Ev, double M, double ml, double q2min_cut = -1*controls::kMinQ2Limit);
+  Range1D_t  DarkQ2Lim_W (double Ev, double M, double ml, double W, double Q2min_cut =    kMinQ2Limit);
+  Range1D_t  Darkq2Lim_W (double Ev, double M, double ml, double W, double q2min_cut = -1*kMinQ2Limit);
+  Range1D_t  DarkQ2Lim   (double Ev, double M, double ml, double Q2min_cut =    kMinQ2Limit);
+  Range1D_t  Darkq2Lim   (double Ev, double M, double ml, double q2min_cut = -1*kMinQ2Limit);
   Range1D_t  DarkXLim    (double Ev, double M, double ml);
   Range1D_t  DarkYLim    (double Ev, double M, double ml);
   Range1D_t  DarkYLim_X  (double Ev, double M, double ml, double x);
@@ -99,19 +100,19 @@ namespace kinematics
   double RESImportanceSamplingEnvelope(double * x, double * par);
   double DISImportanceSamplingEnvelope(double * x, double * par);
   double COHImportanceSamplingEnvelope(double * x, double * par);
-
+  
   namespace electromagnetic
   {
+   static const double kMinQ2Limit   = 0.02;  // GeV^2 // Q2 threshold relevant for em scattering events
    Range1D_t  InelWLim    (double El, double ml, double M);
-   Range1D_t  InelQ2Lim_W (double El, double ml, double M, double W);
-   Range1D_t  Inelq2Lim_W (double El, double ml, double M, double W);
-   Range1D_t  InelQ2Lim   (double El, double ml, double M);
-   Range1D_t  Inelq2Lim   (double El, double ml, double M);
+   Range1D_t  InelQ2Lim_W (double El, double ml, double M, double W, double Q2min_cut = kMinQ2Limit );
+   Range1D_t  Inelq2Lim_W (double El, double ml, double M, double W, double q2min_cut = -1 * kMinQ2Limit );
+   Range1D_t  InelQ2Lim   (double El, double ml, double M, double Q2min_cut = kMinQ2Limit );
+   Range1D_t  Inelq2Lim   (double El, double ml, double M, double q2min_cut = -1 * kMinQ2Limit );
    Range1D_t  InelXLim    (double El, double ml, double M);
    Range1D_t  InelYLim    (double El, double ml, double M);
    Range1D_t  InelYLim_X  (double El, double ml, double M, double x);
 
-   static const double kMinQ2Limit   = 0.02;  // GeV^2 // Q2 threshold relevant for em scattering events
   }
 
 } // kinematics namespace

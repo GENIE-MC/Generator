@@ -125,7 +125,9 @@ double EmpiricalMECPXSec2015::XSec(
       return xsec;
     }
   //use proper Q2 limit from Controls.h
-  Range1D_t Q2lim = isem ? genie::utils::kinematics::electromagnetic::InelQ2Lim_W(Ev, ml, M2n, W) : genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, ml, W, kMinQ2Limit);
+  double Q2min = genie::utils::kinematics::kMinQ2Limit; // CC/NC limit
+  if( interaction->ProcInfo().IsEM() ) Q2min = fQ2EMMin ;
+  Range1D_t Q2lim = isem ? genie::utils::kinematics::electromagnetic::InelQ2Lim_W(Ev, ml, M2n, W, Q2min ) : genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, ml, W, Q2min );
 
   //LOG("MEC", pINFO) << "Q2lim= " << Q2lim.min << "  " <<Q2lim.max ;
   if(Q2 < Q2lim.min || Q2 > Q2lim.max)
@@ -392,6 +394,11 @@ void EmpiricalMECPXSec2015::LoadConfig(void)
   GetParam( "EmpiricalMEC-FracCCQE", fFracCCQE ) ;
   GetParam( "EmpiricalMEC-FracNCQE", fFracNCQE ) ;
   GetParam( "EmpiricalMEC-FracEMQE", fFracEMQE ) ;
+
+  // Set Min Q2 for EM
+  if( GetConfig().Exists("EMQ2Min") ) { 
+    this->GetParam( "EMQ2Min", fQ2EMMin ) ;
+  } else fQ2EMMin = genie::utils::kinematics::electromagnetic::kMinQ2Limit; // EM limit 
 
   string key_head = "XSecModel-" ;
 

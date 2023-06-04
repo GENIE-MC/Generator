@@ -89,6 +89,9 @@ private:
   double fEbAu;
   double fEbPb;
 
+  // Minimum Q2 cut. Configurable parameter for EM only 
+  double fQ2EMMin ; 
+
   /// GSL numerical integrator
   const XSecIntegratorI*  fXSecIntegrator;
 

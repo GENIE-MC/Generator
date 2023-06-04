@@ -111,17 +111,16 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
     return 0.0;
   }
 
+  // Neglect shift due to binding energy. The cut is on the actual
+  // value of Q^2, not the effective one to use in the tensor contraction.
+  double Q2 = Q3*Q3 - Q0*Q0;
+
   // *** Enforce the global Q^2 cut (important for EM scattering) ***
   // Choose the appropriate minimum Q^2 value based on the interaction
   // mode (this is important for EM interactions since the differential
   // cross section blows up as Q^2 --> 0)
-  double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
-  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
-    ::electromagnetic::kMinQ2Limit; // EM limit
-
-  // Neglect shift due to binding energy. The cut is on the actual
-  // value of Q^2, not the effective one to use in the tensor contraction.
-  double Q2 = Q3*Q3 - Q0*Q0;
+  double Q2min = genie::utils::kinematics::kMinQ2Limit; // CC/NC limit
+  if( interaction->ProcInfo().IsEM() ) Q2min = fQ2EMMin ;
   if ( Q2 < Q2min ) return 0.;
 
   // By default, we will compute the full cross-section. If a {p,n} hit
@@ -450,6 +449,11 @@ void SuSAv2MECPXSec::LoadConfig(void)
       LOG("Susav2MECPXSec", pERROR) << "The required MECScaleAlg cannot be casted. AlgID is : " << SubAlg("MECScaleAlg")->Id() ;
     }
   }
+
+  // Set Min Q2 for EM
+  if( GetConfig().Exists("EMQ2Min") ) { 
+    this->GetParam( "EMQ2Min", fQ2EMMin ) ;
+  } else fQ2EMMin = genie::utils::kinematics::electromagnetic::kMinQ2Limit; // EM limit 
 
   // Read optional QvalueShifter:
   fQvalueShifter = nullptr;

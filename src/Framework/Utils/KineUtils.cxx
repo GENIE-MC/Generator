@@ -566,8 +566,7 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelWLim(double El, double 
   return W;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim_W(
-     double El, double ml, double M, double W)
+Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim_W(double El, double ml, double M, double W, double Q2min_cut)
 {
 // Computes Q2 limits (>0) @ the input W for inelastic em interactions
 
@@ -598,26 +597,24 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim_W(
   Q2.min = TMath::Max(0., Q2.min);
 
   // limit the minimum Q2
-  if(Q2.min < utils::kinematics::electromagnetic::kMinQ2Limit) {Q2.min = utils::kinematics::electromagnetic::kMinQ2Limit; } // use the relevant threshold for em scattering
-  if(Q2.max < Q2.min   ) {Q2.min = -1; Q2.max = -1;}
+  if(Q2.min < Q2min_cut ) {Q2.min = Q2min_cut; } // use the relevant threshold for em scattering
+  if(Q2.max < Q2.min    ) {Q2.min = -1; Q2.max = -1;}
 
   return Q2;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::electromagnetic::Inelq2Lim_W(
-    double El, double ml, double M, double W)
+Range1D_t genie::utils::kinematics::electromagnetic::Inelq2Lim_W(double El, double ml, double M, double W, double q2min_cut)
 {
 // Computes q2 (<0) limits @ the input W for inelastic em interactions
 
-  Range1D_t Q2 = utils::kinematics::electromagnetic::InelQ2Lim_W(El,ml,M,W);
+  Range1D_t Q2 = utils::kinematics::electromagnetic::InelQ2Lim_W(El,ml,M,W, -1*q2min_cut);
   Range1D_t q2;
   q2.min = - Q2.max;
   q2.max = - Q2.min;
   return q2;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim(
-    double El, double ml, double M)
+Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim(double El, double ml, double M, double Q2min_cut)
 {
 // Computes Q2 (>0) limits irrespective of W for inelastic em interactions
 
@@ -628,16 +625,15 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim(
   Range1D_t W  = utils::kinematics::electromagnetic::InelWLim(El,ml,M);
   if(W.min<0) return Q2;
 
-  Q2 = utils::kinematics::electromagnetic::InelQ2Lim_W(El,ml,M,W.min);
+  Q2 = utils::kinematics::electromagnetic::InelQ2Lim_W(El,ml,M,W.min,Q2min_cut);
   return Q2;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::electromagnetic::Inelq2Lim(
-     double El, double ml, double M)
+Range1D_t genie::utils::kinematics::electromagnetic::Inelq2Lim(double El, double ml, double M, double q2min_cut)
 {
 // Computes Q2 (>0) limits irrespective of W for inelastic em interactions
 
-  Range1D_t Q2 = utils::kinematics::electromagnetic::InelQ2Lim(El,ml,M);
+  Range1D_t Q2 = utils::kinematics::electromagnetic::InelQ2Lim(El,ml,M,-1*q2min_cut);
   Range1D_t q2;
   q2.min = - Q2.max;
   q2.max = - Q2.min;

@@ -63,6 +63,9 @@ private:
   // Carbon removal energy - used for scaling
   double fEbC;
 
+  // Q2 Minimum limit for EM generations
+  double fQ2EMMin ;
+
   /// Delegate event generation for free nucleon targets (which are
   /// not handled by the SuSAv2 calculation) to a different event
   /// generator

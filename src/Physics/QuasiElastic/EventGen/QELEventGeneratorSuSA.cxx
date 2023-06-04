@@ -95,12 +95,13 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
   Interaction * interaction = event->Summary();
   Kinematics * kinematics = interaction->KinePtr();
 
+
+  // *** Enforce the global Q^2 cut (important for EM scattering) ***
   // Choose the appropriate minimum Q^2 value based on the interaction
   // mode (this is important for EM interactions since the differential
   // cross section blows up as Q^2 --> 0)
-  double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
-  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
-    ::electromagnetic::kMinQ2Limit; // EM limit
+  double Q2min = genie::utils::kinematics::kMinQ2Limit; // CC/NC limit
+  if( interaction->ProcInfo().IsEM() ) Q2min = fQ2EMMin ;
 
   // The SuSA 1p1h model kinematics works in a system where
   // the whole nuclear target system has no momentum.
@@ -619,6 +620,11 @@ void QELEventGeneratorSuSA::LoadConfig(void)
 
     //-- Carbon Eb - needed for scaling
     this->GetParam( "RFG-NucRemovalE@Pdg=1000060120", fEbC);
+
+    // Set Min Q2 for EM
+    if( GetConfig().Exists("EMQ2Min") ) { 
+      this->GetParam( "EMQ2Min", fQ2EMMin ) ;
+    } else fQ2EMMin = genie::utils::kinematics::electromagnetic::kMinQ2Limit; // EM limit 
 
     //-- Safety factor for the maximum differential cross section
     GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor , 5.00 ) ;

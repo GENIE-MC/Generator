@@ -21,6 +21,7 @@
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
 #include "Framework/Numerical/MathUtils.h"
+#include "Framework/Utils/KineUtils.h"
 
 namespace genie {
 
@@ -70,8 +71,9 @@ namespace mec   {
   // This function is used by MECGenerator::SelectSuSALeptonKinematics() during
   // rejection sampling. -- S. Gardiner, 16 March 2020
   double GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
-    const Interaction& inter, const double tolerance = 0.01,
-    const double safety_factor = 1.2, const int max_n_layers = 100 );
+			  const Interaction& inter, const double tolerance = 0.01,
+			  const double safety_factor = 1.2, const int max_n_layers = 100, 
+			  const double MinQ2Limit = genie::utils::kinematics::kMinQ2Limit );
 
   // Hard-coded bounds for the scan over phase space in GetMaxXSecTlctl.
   // These are based on the upper limits in the current set of SuSAv2 hadron
