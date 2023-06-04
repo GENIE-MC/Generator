@@ -137,7 +137,8 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
                 
                 shell_file = ''
                 if grid_system == 'FNAL' :
-                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc ) 
+                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_setup, genie_setup, 
+                                                          conf_dir, in_files, git_branch, git_loc ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
     # Create electron spline commands:

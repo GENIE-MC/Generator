@@ -80,7 +80,7 @@ def eFluxScatteringGenCommands( e_list = "11",tgt_list="1000060120", Flux="\'1/x
         flux_path = flux_members[0] # file location 
         flux_histname = flux_members[1]
         flux_filename = os.path.basename( flux_members[0] )
-        Flux = "\$CONDOR_DIR_INPUT/"+flux_filename+","+flux_histname
+        Flux = flux_filename+","+flux_histname
         in_file_list.append(flux_path)
 
     command_list = []
