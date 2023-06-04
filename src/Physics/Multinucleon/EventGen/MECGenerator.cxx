@@ -937,7 +937,7 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
 
   // Scan the accessible phase space to find the maximum differential cross
   // section to throw against
-  double XSecMax = utils::mec::GetMaxXSecTlctl( *fXSecModel, *interaction );
+  double XSecMax = utils::mec::GetMaxXSecTlctl( *fXSecModel, *interaction, Q2min );
 
   // loop over different (randomly) selected T and Costh
   while ( !accept ) {
