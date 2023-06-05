@@ -27,19 +27,20 @@ if [ ! -z "$2" ] ; then
 fi
 echo Requested Genie version $GENIE_VERSION
 
+echo $3
 if [ ! -z "$3" ] ; then
   GENIE_CONFIG_DIR=$3
   echo Requested Genie config $GENIE_CONFIG_DIR 
-  if [ -d "$GENIE/$GENIE_CONFIG_DIR" ]; then
-    GALGCONF=$GENIE/$GENIE_CONFIG_DIR
-    export GALGCONF
-    echo Genie config directory $GALGCONF
-  else 
-    if [ -d "$GENIE_CONFIG_DIR" ]; then 
+  if [ -d "$GENIE_CONFIG_DIR" ]; then 
       GALGCONF=$GENIE_CONFIG_DIR
       export GALGCONF
       echo Genie config directory $GALGCONF
-    fi
+  else
+      if [ -d "$GENIE/$GENIE_CONFIG_DIR" ]; then
+	  GALGCONF=$GENIE/$GENIE_CONFIG_DIR
+	  export GALGCONF
+	  echo Genie config directory $GALGCONF
+      fi
   fi
 else
   unset GALGCONF
