@@ -790,8 +790,7 @@ void ConvertToGST(void)
          if (pdgc == kPdgGamma || pdgc == kPdgElectron || pdgc == kPdgPositron)  {
             int igmom = p->FirstMother();
             if(igmom!=-1) {
-	      // only count e+'s e-'s or gammas not from decay of pi0
-	      if(event.Particle(igmom)->Pdg() != kPdgPi0) { final_had_syst.push_back(ip); }
+	      final_had_syst.push_back(ip);
             }
          } else {
 	   final_had_syst.push_back(ip);
@@ -809,17 +808,6 @@ void ConvertToGST(void)
 	LOG( "gntpc", pDEBUG ) << "Adding pdg code " << ip << " to FS hadronic system";
 	final_had_syst.push_back(ip);
       } 
-      // now add pi0's that were decayed as short lived particles
-      else if(pdgc == kPdgPi0){
-	int ifd = p->FirstDaughter();
-        if ( ifd != -1 ) {
-          int fd_pdgc = event.Particle(ifd)->Pdg();
-          // just require that first daughter is one of gamma, e+ or e-  
-          if(fd_pdgc == kPdgGamma || fd_pdgc == kPdgElectron || fd_pdgc == kPdgPositron){
-            final_had_syst.push_back(ip);
-          }
-        }
-      }
     }//particle-loop
 
     if( count(final_had_syst.begin(), final_had_syst.end(), -1) > 0) {
