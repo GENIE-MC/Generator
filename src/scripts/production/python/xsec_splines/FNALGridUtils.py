@@ -95,6 +95,6 @@ def WriteMainSubmissionFile(jobs_dir, genie_topdir, group, grid_setup='/src/scri
     script.write("#!/bin/bash\n")
     script.write("source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups ;\n")
     script.write("setup fife_utils ;\n")
-    script.write("jobsub_submit -G "+group+" --OS=SL7 --memory=20GB --disk=20GB --expected-lifetime="+str(expectedlife)+"h -N "+str(jobs)+" --role="+role+" --dag file://"+in_file_name+";" )
+    script.write("jobsub_submit -G "+group+" --OS=SL7 --memory="+memory+" --disk="+disk+" --expected-lifetime="+str(expectedlife)+"h -N "+str(jobs)+" --role="+role+" --dag file://"+in_file_name+";" )
 
     return fnal_file

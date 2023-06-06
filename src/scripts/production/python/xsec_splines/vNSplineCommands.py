@@ -48,10 +48,11 @@ e_name_def = { 11 : 'e',
 
 def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30, nu_n_knots=100, e_n_knots=100, 
                       tune='G18_02_02_11b', version='master', 
-                      grid_system='FNAL', group='genie', conf_dir='', arch='SL6.x86_64', production='routine_validation', cycle='01',  
+                      grid_system='FNAL', group='genie',conf_dir='', arch='SL6.x86_64', production='routine_validation', cycle='01',  
                       softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'), 
                       grid_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh',
-                      genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', time=15, git_branch = 'master', git_loc="https://github.com/GENIE-MC/Generator") :
+                      genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', time=15, 
+                      memory="1GB", disk="500MB", git_branch = 'master', git_loc="https://github.com/GENIE-MC/Generator") :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-xsec_vN'
 
@@ -97,7 +98,7 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
 
     grid_command_options = ''
     if grid_system == 'FNAL' :
-        grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time)
+        grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time,memory,disk)
     else :
         print( "Only FNAL grid is available" )
         return 
