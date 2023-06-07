@@ -291,7 +291,7 @@ foreach $nu ( @nu_list ) {
 		print SLURM "#SBATCH -t 4:0:0 \n";
 		print SLURM "#SBATCH -n 1 \n";
 		print SLURM "#SBATCH --mem=2500 \n";
-		print SLURM "#SBATCH --priority -1 \n" if ( $priority ) ; 
+		print SLURM "#SBATCH --priority 1 \n" if ( $priority ) ; 
 		print SLURM "source $shell_script \n";
 		close(SLURM);
 		
