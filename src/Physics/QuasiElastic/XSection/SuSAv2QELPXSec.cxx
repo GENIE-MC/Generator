@@ -162,7 +162,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   else {
     // If the probe is not a neutrino, assume that it's an electron
     // Currently only avaialble for SuSA. CRPA coming soon(ish)!
-    tensor_pdg_susa = kHT_QE_EM;
+    tensor_type_susa = kHT_QE_EM;
   }
 
   double Eb_tgt=0;
