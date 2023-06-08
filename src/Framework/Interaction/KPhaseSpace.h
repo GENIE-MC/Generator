@@ -41,7 +41,9 @@ public:
 
   //! Energy threshold
   double Threshold(void) const;
-  double Threshold_SPP_iso(void) const;   ///< Energy limit for resonance single pion production on isoscalar nucleon
+  
+  double Threshold_SPP(bool isMassless = false) const;       ///< Energy limit for resonance single pion production
+  double Threshold_SPP_iso(bool isMassless = false) const;   ///< Energy limit for resonance single pion production on isoscalar nucleon
 
   //! Checks whether the interaction is above the energy threshold
   bool IsAboveThreshold(void) const;
@@ -65,10 +67,10 @@ public:
   Range1D_t  YLim    (double xsi) const;  ///< y  limits (COH)
   Range1D_t  YLim_X  (double xsi) const;  ///< y  limits @ fixed x (COH)
   Range1D_t  TLim    (void) const;  ///< t  limits
-  Range1D_t  WLim_SPP(void) const;          ///< W  limits for single pion production models
-  Range1D_t  WLim_SPP_iso (void) const;     ///< W  limits for resonance single pion production on isoscalar nucleon
-  Range1D_t  Q2Lim_W_SPP  (void) const;     ///< Q2 limits @ fixed W for single pion production models
-  Range1D_t  Q2Lim_W_SPP_iso (void) const;  ///< Q2 limits @ fixed W for resonance single pion production on isoscalar nucleon
+  Range1D_t  WLim_SPP(bool isMassless = false) const;          ///< W  limits for single pion production models
+  Range1D_t  WLim_SPP_iso (bool isMassless = false) const;     ///< W  limits for resonance single pion production on isoscalar nucleon
+  Range1D_t  Q2Lim_W_SPP  (bool isMassless = false) const;     ///< Q2 limits @ fixed W for single pion production models
+  Range1D_t  Q2Lim_W_SPP_iso (bool isMassless = false) const;  ///< Q2 limits @ fixed W for resonance single pion production on isoscalar nucleon
 
   static double GetTMaxDFR();
 

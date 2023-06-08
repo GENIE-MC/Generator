@@ -151,12 +151,16 @@ namespace genie {
         std::vector<double> Q2nodes = std::vector<double>(maxQ2);
         /// Paths to check when searching for file with ANL-Osaka multipole amplitudes
         std::vector<std::string> fDataPaths;
+        /// Name of file with ANL-Osaka multipole amplitudes
+        std::string fDataFileName;
         /// Table of Fermi momentum (kF) constants for various nuclei
         std::string fKFTable;
         /// Use parametrization for Fermi momentum instead of table?
         bool fUseRFGParametrization;
         /// Account for Pauli blocking?
         bool fUsePauliBlocking;
+        /// Is electron massless?
+        bool fMasslessElectron;
         /// External EM cross section scaling factor
         double fXSecScaleEM;
         /// External CC cross section scaling factor

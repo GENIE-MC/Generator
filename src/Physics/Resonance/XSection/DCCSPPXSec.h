@@ -19,7 +19,7 @@
           based on code of Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
-\created  Septemper 06, 2022
+\created  Apr 12, 2023
 
 \cpright  Copyright (c) 2003-2022, GENIE Neutrino MC Generator Collaboration   
           For the full text of the license visit http://copyright.genie-mc.org                         
@@ -52,7 +52,9 @@ public:
 private:
   void LoadConfig(void);
   
-  bool fUsePauliBlocking;      ///< account for Pauli blocking?
+  bool fUsePauliBlocking;      ///< Account for Pauli blocking?
+  bool fMasslessElectron;      ///< Is electron massless?
+
 };
 
 }       // genie namespace

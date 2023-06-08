@@ -17,7 +17,7 @@ Computes the cross section for an neutrino resonance SPP reaction
           based on code of Costas Andreopoulos <costas.andreopoulos@stfc.ac.ukk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
-\created  Septemper 06, 2022
+\created  Apr 12, 2023
 
 \cpright  Copyright (c) 2003-2022, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -72,14 +72,14 @@ namespace gsl   {
 
 //.....................................................................................
 //
-// genie::utils::gsl::d3XSecDCC_dWQ2CosTheta_E
-// A 3-D cross section function: d3xsec/dWdQ2dCosTheta = f(W, Q2, CosTheta)|(fixed E)
+// genie::utils::gsl::d2XSecDCC_dWQ2_E
+// A 2-D cross section function: d2xsec/dWdQ2 = f(W, Q2)|(fixed E)
 //
-class d3XSecSPP_dWQ2CosTheta_E: public ROOT::Math::IBaseFunctionMultiDim
+class d2XSecSPP_dWQ2_E: public ROOT::Math::IBaseFunctionMultiDim
 {
 public:
-  d3XSecSPP_dWQ2CosTheta_E(const XSecAlgorithmI * m, const Interaction * i, double wcut);
- ~d3XSecSPP_dWQ2CosTheta_E();
+  d2XSecSPP_dWQ2_E(const XSecAlgorithmI * m, const Interaction * i, double wcut);
+ ~d2XSecSPP_dWQ2_E();
 
   // ROOT::Math::IBaseFunctionMultiDim interface
   unsigned int                        NDim   (void)               const;

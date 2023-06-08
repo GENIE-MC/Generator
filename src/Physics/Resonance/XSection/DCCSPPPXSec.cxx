@@ -95,17 +95,23 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
     bool is_EM     = proc_info.IsEM();
     bool is_CC     = proc_info.IsWeakCC();
     bool is_NC     = proc_info.IsWeakNC();
+    bool is_EM0    = is_EM && fMasslessElectron;
     int  inubnu    = is_nubar?-1:1;
     bool is_p      = pdg::IsProton  (nucpdgc);
 
 
     PDGLibrary * pdglib = PDGLibrary::Instance();
-    // mass of initial lepton
-    double flepi    = pdglib->Find(probepdgc)->Mass();
+    double flepi = 0, flepf = 0;
+    if ( !is_EM0 )
+    {
+       // mass of initial lepton
+       flepi    = pdglib->Find(probepdgc)->Mass();
+       // mass of final lepton
+       flepf    = interaction->FSPrimLepton()->Mass();
+    }
     double flepi2   = flepi*flepi;
-    // mass of final lepton
-    double flepf    = interaction->FSPrimLepton()->Mass();
     double flepf2   = flepf*flepf;
+    
     // mass of isoscalar pion
     double fpio     = (pdglib->Find(kPdgPiP)->Mass() + pdglib->Find(kPdgPi0)->Mass() + pdglib->Find(kPdgPiM)->Mass())/3;
     // mass of isoscalar nucleon
@@ -131,7 +137,7 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
     double epioc    = (Wsq - fnuc2 + fpio*fpio)/2/W;
     //  vec{k} - momentum of pion in the frame of center of mass \piN
     // |vec{k}|
-    double qpioc    = TMath::Sqrt(epioc*epioc - fpio*fpio);
+    double qpioc    = TMath::Sqrt(TMath::Max(epioc*epioc - fpio*fpio, 0.));
 
 
     // energy of initial lepton
@@ -145,8 +151,12 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
     // theta - scattering angle of final lepton
     // cos(theta)
     double costhl   = (2*elepi*elepf - Q2 - flepi2 - flepf2)/2/plepi/plepf;
+    costhl = costhl >  1?1:costhl;
+    costhl = costhl < -1?-1:costhl;
     //  cosine of polar angle of pion in the frame of center of mass \piN
-    double costhpi = kinematics.GetKV(kKVctp);
+    double costhpi = 0;
+    if (kpsdim > 2)
+        costhpi = kinematics.GetKV(kKVctp);
     // azimuthal angle of pion in the frame of center of mass \piN
     double phipi = 0;
     if (kpsdim == 4)
@@ -232,16 +242,16 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
             rt    += std::real((l+1)*(l+1)*l*(zvmp*std::conj(zvmp) + zvem*std::conj(zvem) + zamm*std::conj(zamm) + zaep*std::conj(zaep)) +
                             (l+1)*l*l*    (zvmm*std::conj(zvmm) + zvep*std::conj(zvep) + zamp*std::conj(zamp) + zaem*std::conj(zaem)));
             rl    += std::real((l+1)*(l+1)*(l+1)*(zvsm*std::conj(zvsm) + zaxp*std::conj(zaxp)) + l*l*l*(zvsp*std::conj(zvsp) + zaxm*std::conj(zaxm)));
-            rtp   -= (l+1)*(l+1)*l*std::real(zvmp*std::conj(zaep) + zvem*std::conj(zamm) - l*l*(l+1)*zvmm*std::conj(zaem) + zvep*std::conj(zamp));
-            rrh   += (l+1)*(l+1)*(l+1)*std::real(zrhp*std::conj(zrhp) + l*l*l*zrhm*std::conj(zrhm));
-            rrh0  += (l+1)*(l+1)*(l+1)*std::real(zaxp*std::conj(zrhp) + l*l*l*zaxm*std::conj(zrhm));
-            rrh0i += (l+1)*(l+1)*(l+1)*std::imag(zaxp*std::conj(zrhp) + l*l*l*zaxm*std::conj(zrhm));
+            rtp   -= std::real((l+1)*(l+1)*l*(zvmp*std::conj(zaep) + zvem*std::conj(zamm)) - l*l*(l+1)*(zvmm*std::conj(zaem) + zvep*std::conj(zamp)));
+            rrh   += std::real((l+1)*(l+1)*(l+1)*zrhp*std::conj(zrhp) + l*l*l*zrhm*std::conj(zrhm));
+            rrh0  += std::real((l+1)*(l+1)*(l+1)*zaxp*std::conj(zrhp) + l*l*l*zaxm*std::conj(zrhm));
+            rrh0i += std::imag((l+1)*(l+1)*(l+1)*zaxp*std::conj(zrhp) + l*l*l*zaxm*std::conj(zrhm));
         }
 
         double W1  =  rt*fact/2;
         double W2  =  Q2/q2sp*(rt/2 + rl*facl)*fact;
         double W3  = -2*fnuc/qgam*rtp*fact;
-        double W4  =  fnuc2/Q2*Q2*rrh*fact;
+        double W4  =  fnuc2/Q2/Q2*rrh*fact;
         double W5  = -W/q2sp*rrh0*fact;
 
         xsec = 2*ss2*W1 + cc2*W2;
@@ -300,7 +310,7 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
         }
 
         double del   = 0;
-        if(is_CC)
+        if(is_CC || is_NC)
         {
             del         = flepf*flepf;
             for (int il = 0; il < maxl; il++)
@@ -317,7 +327,7 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
                 zllp     = MultipoleA(interaction, 4, il);
                 zllm     = MultipoleA(interaction, 5, il);
                 zslp     = MultipoleA(interaction, 6, il);
-                zslm     = MultipoleV(interaction, 7, il);
+                zslm     = MultipoleA(interaction, 7, il);
                 za1     += dleg[il]    *(zelp + zelm + (l+2)*zmlp + (l-1)*zmlm);
                 za2     += dleg[il+1]  *(l+1)*zmlp + dleg[il-1]*l*zmlm;
                 za3     += ddleg[il]   *(zelp + zelm + zmlp - zmlm);
@@ -359,93 +369,135 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
                 ztr[i][j] = zsum;
             }
 
-        double sinthl   = TMath::Sqrt(1 - costhl*costhl);
+        double sinthl  = TMath::Sqrt(1 - costhl*costhl);
         double ch      = (fnuc + omeg)/W;
         double sh      = qgam/W;
         double q       = TMath::Sqrt(plepi*plepi + plepf*plepf - 2*plepf*plepi*costhl);
         double plkv0   = (elepi + elepf)/2;
         double plkv3   = (plepi*plepi - plepf*plepf)/2/q;
-
+        
         double plkcv0  = ch*plkv0 - sh*plkv3;
         double plkcv1  = plepi*plepf/q*sinthl;  // plkcv1 = plkv1
+        // plkcv2 = plkv2 = 0;
         double plkcv3  = ch*plkv3 - sh*plkv0;
         double xkbq    = plkcv0*qgamc - plkcv3*omegc;
         double xkzc    = plkcv3;
         double xk0c    = plkcv0;
         double xkxc    = plkcv1;
-
-        double xqjqj = 0, xkjkj = 0;
-        std::complex<double> zqj, zbqj, zkj;
-        std::complex<double> zkjjx = 0;
-        std::complex<double> zkjjy  = 0, zbqjjx = 0, zbqjjy = 0;
+        
+        double xbj0j0 = 0, xqjqj = 0, xkjkj = 0;
+        std::complex<double> zqj, zbqj, zbj0, zkj;
+        std::complex<double> zkjjx = 0, zkjjy  = 0, zbqjjx = 0, zbj0jx = 0, zbqjjy = 0;
         for (int i = 0; i < 4; i++)
         {
             zqj      = omegc*zff[0][i] - qgamc*zff[3][i];
             zbqj     = qgamc*zff[0][i] - omegc*zff[3][i];
             zkj      = xk0c* zff[0][i] - xkzc *zff[3][i];
+            zbj0     = zff[0][i] + omegc*zqj/Q2; 
+            
+            xbj0j0  += std::real(zbj0*std::conj(zbj0));
             xqjqj   += std::real(zqj*std::conj(zqj));
             xkjkj   += std::real(zkj*std::conj(zkj));
             if (kpsdim == 4)
             {
                 zbqjjx  += zbqj*std::conj(zff[1][i]);
                 zbqjjy  += zbqj*std::conj(zff[2][i]);
+                zbj0jx  += zbj0*std::conj(zff[1][i]);
                 zkjjx   += zkj *std::conj(zff[1][i]);
                 zkjjy   += zkj *std::conj(zff[2][i]);
             }
 
         }
 
-        double vt1    =  2*xkxc*xkxc + Q2 + del;
-        double vt2    = -2*xkbq;
+        double r0     = 0;                                   // RT + RL
+        double rc1    = 0;                                   // RLT
+        double rs1    = 0;                                   // RLT'
+        double rc2    = 0;                                   // RTT
+        double rs2    = 0;                                   // RTT'
+        
+        double eps    = 0;
+        if (costhl > -1)
+        {
+            double tanthl2  = (1 - costhl)/(1 + costhl);
+                       eps  = 1/(1 + 2*qgam*qgam*tanthl2/Q2);
+        }
+        
         double rr1    = std::real(ztr[1][1] + ztr[2][2])/2;
-        double rr2    = std::imag(ztr[1][2]);
-        double rr11   = xkjkj;
-        double rr12   = xqjqj;
-        double rr13   = std::real(ztr[0][0] - ztr[3][3]);
-        double rta    = vt1*rr1;
-        double rtb    = vt2*rr2;
-        double rl     = 2*rr11 - (rr12 + (Q2 + del)*rr13)/2;
-        double r0     = rta + rl + inubnu*rtb;
-        double rc1    = 0;
-        double rs1    = 0;
-        double rc2    = 0;
-        double rs2    = 0;
+        if (is_EM0)
+        {
+            double rr3    =  Q2/qgamc/qgamc*xbj0j0;
+                   r0     =  rr1 + eps*rr3; 
+        }
+        else
+        {
+            double vt1     =  2*xkxc*xkxc + Q2 + del;
+            double vt2     = -2*xkbq;
+            double rr2     = std::imag(ztr[1][2]);
+            double rr11    = xkjkj;
+            double rr12    = xqjqj;
+            double rr13    = std::real(ztr[0][0] - ztr[3][3]);
+            double rta     = vt1*rr1;
+            double rtb     = vt2*rr2;
+            double rl      = 2*rr11 - (rr12 + (Q2 + del)*rr13)/2;
+                   r0      = rta + rl + inubnu*rtb;
+        }
 
         // a factor for d\sigma5/dE_f dO_f dcos_theta_pi
-        double factor = 2*fcrsa*W*qpioc/fnuc;
+        double factor;
+        if (is_EM0)
+        {
+            double qgamL  = (Wsq - fnuc2)/2/fnuc;
+            double Gamma  = kAem*qgamL*elepf/2/kPi2/Q2/elepi/(1 - eps);
+            factor = Gamma*qpioc*W/fnuc/qgamL;
+        }
+        else
+        {
+            factor = 2*fcrsa*W*qpioc/fnuc;
+        }
+        
 
         if (kpsdim == 4)
         {
-            double vrc1a  = -4*xkxc;
-            double vrc1b  =  2*xkxc;
-            double vrs1a  = -vrc1a;
-            double vrs1b  =  vrc1b;
-            double vrc2   =  2*xkxc*xkxc;
-            double vrs2   =  vrc2;
             double rr8    = std::real(ztr[1][1] - ztr[2][2])/2;
-            double rr9    =-std::real(ztr[1][2]);
-            double rr14   = std::real(zkjjx);
-            double rr15   = std::real(zkjjy);
-            double rr16   = std::imag(zbqjjx);
-            double rr17   = std::imag(zbqjjy);
-            double rc1a   = vrc1a*rr14;
-            double rc1b   = vrc1b*rr17;
-            double rs1a   = vrs1a*rr15;
-            double rs1b   = vrs1b*rr16;
-                   rc2    = vrc2*rr8;
-                   rs2    = vrs2*rr9;
-                   rc1    = rc1a + inubnu*rc1b;
-                   rs1    = rs1a + inubnu*rs1b;
-
+            if (is_EM0)
+            {
+                double facl = TMath::Sqrt(Q2)/qgamc;
+                double rr4  = facl*std::real(zbj0jx);
+                double rr7  = facl*std::imag(zbj0jx);
+                       rc1  = -TMath::Sqrt(2*eps*(1 + eps))*rr4;
+                       rc2  =  eps*rr8;
+                       rs1  = -helicity*TMath::Sqrt(2*eps*(1 - eps))*rr7;
+            }
+            else
+            {
+                double vrc1a  = -4*xkxc;
+                double vrc1b  =  2*xkxc;
+                double vrs1a  = -vrc1a;
+                double vrs1b  =  vrc1b;
+                double vrc2   =  2*xkxc*xkxc;
+                double vrs2   =  vrc2;
+                double rr9    =-std::real(ztr[1][2]);
+                double rr14   = std::real(zkjjx);
+                double rr15   = std::real(zkjjy);
+                double rr16   = std::imag(zbqjjx);
+                double rr17   = std::imag(zbqjjy);
+                double rc1a   = vrc1a*rr14;
+                double rc1b   = vrc1b*rr17;
+                double rs1a   = vrs1a*rr15;
+                double rs1b   = vrs1b*rr16;
+                       rc2    = vrc2*rr8;
+                       rs2    = vrs2*rr9;
+                       rc1    = rc1a + inubnu*rc1b;
+                       rs1    = rs1a + inubnu*rs1b;
+            }
             // a factor for d\sigma5/dE_f dO_f dO_pi
             factor /= 2*kPi;
         }
-
-
+        
         xsec = r0 + rc1*TMath::Cos(phipi) + rs1*TMath::Sin(phipi) + rc2*TMath::Cos(2*phipi) + rs2*TMath::Sin(2*phipi);
         xsec *= factor;
     }
-    // // a factor to convert d/dE_fdO_f -> d/dWdQ2
+    // a factor to convert d/dE_fdO_f -> d/dWdQ2
     double factor = kPi*W/fnuc/plepf/plepi;
     xsec *= factor;
 
@@ -549,6 +601,7 @@ void DCCSPPPXSec::CalculateLegendre(double x, double la[3][maxl+1]) const
 std::string DCCSPPPXSec::FindDataTableFile(const std::string &basename, bool &ok) const
 {
 
+  ok = true;
   for (size_t p = 0; p < fDataPaths.size(); ++p)
   {
     const std::string& path = fDataPaths.at( p );
@@ -568,7 +621,7 @@ void DCCSPPPXSec::ReadMultipoleTable(void)
 {
 
     bool table_ok;
-    std::string full_file_name = FindDataTableFile("amp-202303.dat", table_ok);
+    std::string full_file_name = FindDataTableFile(fDataFileName, table_ok);
 
     if ( table_ok )
     {
@@ -584,7 +637,14 @@ void DCCSPPPXSec::ReadMultipoleTable(void)
             {
                 file >> Wnodes[iW] >> Q2nodes[iQ2] >> cdum >> cdum;
                 for (int imu = 0; imu < maxmu; imu++)
-                    for (int iso = 0; iso < maxiso; iso++)
+                    for (int iso = 0; iso < 3; iso++)
+                    {
+                        file.ignore(11);
+                        for (int il = 0; il < maxl; il++)
+                            file >> MultipoleTbl[MultipoleTblIndx(imu, il, iso, 0, iQ2, 0, iW)] >> MultipoleTbl[MultipoleTblIndx(imu, il, iso, 1, iQ2, 0, iW)];
+                    }
+                for (int imu = 0; imu < maxmu; imu++)
+                    for (int iso = 3; iso < maxiso; iso++)
                     {
                         file.ignore(11);
                         for (int il = 0; il < maxl; il++)
@@ -601,6 +661,7 @@ void DCCSPPPXSec::ReadMultipoleTable(void)
     }
 
 }
+//____________________________________________________________________________
 void DCCSPPPXSec::Spline (const int n, const double * x, const double * y, double * b, double * c, double * d) const
 // Calculate spline coefficients bi, ci, di for cubic spline Si(x) = yi + bi(x - xi) + ci(x-xi)^2 + di(x - xi)^3 for a function given in points xi, yi
 /*!
@@ -648,7 +709,7 @@ void DCCSPPPXSec::Spline (const int n, const double * x, const double * y, doubl
         c[i] = (c[i] - d[i]*c[i+1])/b[i];
 
     // compute polynomial coefficients
-    b[n] = (y[n] - y[nm1])/d[nm1] + d[nm1]*(c[nm1] + 2*c[n]);
+    b[n-1] = (y[n-1] - y[nm1-1])/d[nm1-1] + d[nm1-1]*(c[nm1-1] + 2*c[n-1]);
     for (int i = 0; i < nm1; i++)
     {
         b[i] = (y[i+1] - y[i])/d[i] - d[i]*(c[i+1] + 2*c[i]);
@@ -658,7 +719,7 @@ void DCCSPPPXSec::Spline (const int n, const double * x, const double * y, doubl
     c[n-1] *= 3;
     d[n-1] = d[n-2];
 }
-
+//____________________________________________________________________________
 void DCCSPPPXSec::InitializeSplineCoefficients()
 {
     for (int imu = 0; imu < maxmu; imu++)
@@ -672,7 +733,7 @@ void DCCSPPPXSec::InitializeSplineCoefficients()
                                         &MultipoleTbl[MultipoleTblIndx(imu, il, iso, izp, iQ2, 2, 0)],
                                         &MultipoleTbl[MultipoleTblIndx(imu, il, iso, izp, iQ2, 3, 0)]);
 }
-
+//____________________________________________________________________________
 int DCCSPPPXSec::MultipoleTblIndx (int imu, int il, int iso, int izpart, int iQ2, int icf, int iW) const
 // Calculate position in table with ANL-Osaka multipole amplitudes
 /*!
@@ -703,7 +764,7 @@ int DCCSPPPXSec::Wnode (double W) const
         else
             low =inx;
     }
-    return pos[low][1] + TMath::FloorNint((W-pos[low][0])*(pos[up][1]-pos[low][1])/(pos[up][0]-pos[low][0])+1E-5);
+    return TMath::FloorNint(pos[low][1] + (W-pos[low][0])*(pos[up][1]-pos[low][1])/(pos[up][0]-pos[low][0]));
 }
 //____________________________________________________________________________
 int DCCSPPPXSec::Q2node (double Q2) const
@@ -720,7 +781,7 @@ int DCCSPPPXSec::Q2node (double Q2) const
         else
             low =inx;
     }
-    return pos[low][1] + TMath::FloorNint((Q2-pos[low][0])*(pos[up][1]-pos[low][1])/(pos[up][0]-pos[low][0])+1E-5);
+    return TMath::FloorNint(pos[low][1] + (Q2-pos[low][0])*(pos[up][1]-pos[low][1])/(pos[up][0]-pos[low][0]));
 }
 //____________________________________________________________________________
 double DCCSPPPXSec::IsospinAmplitude(const Interaction * interaction, int iso) const
@@ -930,7 +991,7 @@ std::complex<double> DCCSPPPXSec::MultipoleA(const Interaction * interaction, in
     int iW = Wnode(W);
 
     double re = 0, im = 0;
-    for (int iso = 3; iso < 5;iso++)
+    for (int iso = 3; iso < maxiso;iso++)
     {
         double arQ2[4][maxQ2];
         for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
@@ -946,7 +1007,7 @@ std::complex<double> DCCSPPPXSec::MultipoleA(const Interaction * interaction, in
         double val = arQ2[0][iQ2] + ( arQ2[1][iQ2] + ( arQ2[2][iQ2] + arQ2[3][iQ2]*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]);
         re += val*IsospinAmplitude(interaction, iso);
     }
-    for (int iso = 3; iso < 5;iso++)
+    for (int iso = 3; iso < maxiso;iso++)
     {
         double arQ2[4][maxQ2];
         for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
@@ -996,16 +1057,17 @@ bool DCCSPPPXSec::ValidKinematics(const Interaction * interaction) const
 
     // Get kinematical parameters
     const InitialState & init_state = interaction -> InitState();
-    const Kinematics & kinematics = interaction -> Kine();
-    double Enu = init_state.ProbeE(kRfHitNucRest);
+    const Kinematics & kinematics   = interaction -> Kine();
+    
+    double Enu  = init_state.ProbeE(kRfHitNucRest);
     double W    = kinematics.W();
     double Q2   = kinematics.Q2();
 
-    if (Enu < kps.Threshold_SPP_iso())
+    if (Enu < kps.Threshold_SPP_iso(fMasslessElectron))
         return false;
 
-    Range1D_t Wl  = kps.WLim_SPP_iso();
-    Range1D_t Q2l = kps.Q2Lim_W_SPP_iso();
+    Range1D_t Wl  = kps.WLim_SPP_iso(fMasslessElectron);
+    Range1D_t Q2l = kps.Q2Lim_W_SPP_iso(fMasslessElectron);
 
     // model restrictions
     Wl.min  = TMath::Max (Wl.min,  1.077);
@@ -1042,6 +1104,8 @@ void DCCSPPPXSec::LoadConfig(void)
     this->GetParam( "DCC-CC-XSecScale", fXSecScaleCC );
     this->GetParam( "DCC-NC-XSecScale", fXSecScaleNC );
 
+    this->GetParamDef ( "IsMasslessElectron", fMasslessElectron, false);
+
     double thw;
     this->GetParam( "WeinbergAngle", thw );
     fSin2Wein = TMath::Power( TMath::Sin(thw), 2 );
@@ -1068,6 +1132,8 @@ void DCCSPPPXSec::LoadConfig(void)
 
     fDataPaths.push_back( data_path );
 
+    GetParam( "DataFileName", fDataFileName );
+
     GetParam("FermiMomentumTable", fKFTable);
     GetParam("RFG-UseParametrization", fUseRFGParametrization);
     GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
@@ -1075,5 +1141,9 @@ void DCCSPPPXSec::LoadConfig(void)
     // Load the differential cross section integrator
     fXSecIntegrator = dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
     assert(fXSecIntegrator);
+    
+    // Read table with amplitudes and initialize spline coefficients
+    ReadMultipoleTable();
+    InitializeSplineCoefficients();
 
 }

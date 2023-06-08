@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
-  Copyright (c) 2003-2022, GENIE Neutrino MC Generator Collaboration
+  Copyright (c) 2003-2023, GENIE Neutrino MC Generator Collaboration
   For the full text of the license visit http://copyright.genie-mc.org
   or see $GENIE/LICENSE
 
@@ -20,6 +20,7 @@
 #include <TMath.h>
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
+#include <Math/AdaptiveIntegratorMultiDim.h>
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Framework/ParticleData/BaryonResUtils.h"
@@ -124,7 +125,7 @@ void DCCSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
   
   const KPhaseSpace& kps = in->PhaseSpace();
     
-  double Ethr = kps.Threshold();
+  double Ethr = kps.Threshold_SPP_iso();
   LOG("DCCSPPCache", pNOTICE) << "E threshold = " << Ethr;
 
   // Distribute the knots in the energy range as is being done in the
@@ -155,16 +156,24 @@ void DCCSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
     if(Ev>Ethr+kASmallNum) {
       
       LOG("DCCSPPCache", pINFO)
-    << "*** Integrating d^3 XSec/dWdQ^2dCosTheta for Ch: "
+    << "*** Integrating d^2 XSec/dWdQ^2 for Ch: "
     << SppChannel::AsString(spp_channel) << " at Ev = " << Ev;
       
-      utils::gsl::d3XSecSPP_dWQ2CosTheta_E func(fSinglePionProductionXSecModel, & local_interaction, fWcut ) ; 
-      ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-      ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
-      ig.SetFunction(func);
-      double kine_min[3] = { 0., 0., 0.};
-      double kine_max[3] = { 1., 1., 1.};
-      xsec = ig.Integral(kine_min, kine_max);
+
+       ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d2XSecSPP_dWQ2_E(fSinglePionProductionXSecModel, & local_interaction, fWcut);
+       ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
+       ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
+       if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) 
+       {
+          ROOT::Math::AdaptiveIntegratorMultiDim * cast = dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim*>( ig.GetIntegrator() );
+          assert(cast);
+          cast->SetMinPts(fGSLMinEval);
+       }
+       ig.SetFunction(*func);
+       double kine_min[2] = { 0., 0.};
+       double kine_max[2] = { 1., 1.};
+       double xsec = ig.Integral(kine_min, kine_max);
+       delete func;
       
     } 
     else 
@@ -236,7 +245,7 @@ string DCCSPPXSecWithCache::ProbeAsString (int probe_pdg, int probe_helicity) co
 //____________________________________________________________________________
 // GSL wrappers
 //____________________________________________________________________________
-genie::utils::gsl::d3XSecSPP_dWQ2CosTheta_E::d3XSecSPP_dWQ2CosTheta_E(
+genie::utils::gsl::d2XSecSPP_dWQ2_E::d2XSecSPP_dWQ2_E(
                                     const XSecAlgorithmI * m, const Interaction * interaction, double  wcut) :
   ROOT::Math::IBaseFunctionMultiDim(),
   fModel(m),
@@ -255,13 +264,13 @@ genie::utils::gsl::d3XSecSPP_dWQ2CosTheta_E::d3XSecSPP_dWQ2CosTheta_E(
   double Enu = init_state.ProbeE(kRfHitNucRest);
   std::cout << std::setw(40) << std::scientific/*std::fixed*/ << std::setprecision(40) << "Enu = " << Enu << std::endl;
 
-  if (Enu < kps->Threshold())
+  if (Enu < kps->Threshold_SPP_iso());
   {
     isZero = true;
     return;
   }
   
-  Wl  = kps->WLim_SPP();
+  Wl  = kps->WLim_SPP_iso();
   if (Wl.max < 1.08)
   {
     isZero = true;
@@ -274,47 +283,42 @@ genie::utils::gsl::d3XSecSPP_dWQ2CosTheta_E::d3XSecSPP_dWQ2CosTheta_E(
   if (fWcut >= Wl.min)
     Wl.max = TMath::Min(fWcut,Wl.max);
     
-  std::cout << std::setw(40) << std::scientific/*std::fixed*/ << std::setprecision(40) << "Wl = (" << Wl.min << ", " << Wl.max << ")" << std::endl;
-  
   
 }
-genie::utils::gsl::d3XSecSPP_dWQ2CosTheta_E::~d3XSecSPP_dWQ2CosTheta_E()
+genie::utils::gsl::d2XSecSPP_dWQ2_E::~d2XSecSPP_dWQ2_E()
 {
 }
-unsigned int genie::utils::gsl::d3XSecSPP_dWQ2CosTheta_E::NDim(void) const
+unsigned int genie::utils::gsl::d2XSecSPP_dWQ2_E::NDim(void) const
 {
-  return 3;
+  return 2;
 }
-double genie::utils::gsl::d3XSecSPP_dWQ2CosTheta_E::DoEval(const double * xin) const
+double genie::utils::gsl::d2XSecSPP_dWQ2_E::DoEval(const double * xin) const
 {
 
   // outputs:
-  //   differential cross section [1/GeV^3] for Resonance single pion production production
+  //   differential cross section [1/GeV^2] for Resonance single pion production production
   //
 
   if (isZero) return 0.;
   
-  double W  = Wl.min + (Wl.max - Wl.min)*xin[0];
-  fInteraction->KinePtr()->SetW(W);
+  double W2  = Wl.min*Wl.min + (Wl.max*Wl.max - Wl.min*Wl.min)*xin[0];
+  fInteraction->KinePtr()->SetW(TMath::Sqrt(W2));
    
-  Range1D_t Q2l = kps->Q2Lim_W_SPP();
+  Range1D_t Q2l = kps->Q2Lim_W_SPP_iso();
   // model restrictions
   Q2l.min = TMath::Max (Q2l.min, 0.00);
   Q2l.max = TMath::Min (Q2l.max, 3.00);
+   
+  double sqrt_Q2 = TMath::Sqrt(Q2l.min) + ( TMath::Sqrt(Q2l.max) - TMath::Sqrt(Q2l.min) )*xin[1];
+  fInteraction->KinePtr()->SetQ2(sqrt_Q2*sqrt_Q2);
   
+  double xsec = fModel->XSec(fInteraction, kPSWQ2fE)*sqrt_Q2*(Wl.max*Wl.max - Wl.min*Wl.min)*(TMath::Sqrt(Q2l.max) - TMath::Sqrt(Q2l.min))/TMath::Sqrt(W2);
   
-  double Q2 = Q2l.min + (Q2l.max - Q2l.min)*xin[1];
-  fInteraction->KinePtr()->SetQ2(Q2);
-  
-  fInteraction->KinePtr()->SetKV(kKVctp, -1. + 2.*xin[2]); //CosTheta
-  
-  double xsec = fModel->XSec(fInteraction, kPSWQ2ctpfE)*(Wl.max-Wl.min)*(Q2l.max-Q2l.min)*2;
-  std::cout << std::setw(40) << std::scientific/*std::fixed*/ << std::setprecision(40) << "xsec = " << xsec << "; x = (" << xin[0] << ", " << xin[1] << ", " << xin[2] << "); W = " << W << "; Q2 = " << Q2 << "; cos_t = " << -1. + 2.*xin[2] << "; Q2l = (" << Q2l.min << ", " << Q2l.max << ")" << std::endl;
   return xsec;
 }
 ROOT::Math::IBaseFunctionMultiDim *
-genie::utils::gsl::d3XSecSPP_dWQ2CosTheta_E::Clone() const
+genie::utils::gsl::d2XSecSPP_dWQ2_E::Clone() const
 {
   return
-    new genie::utils::gsl::d3XSecSPP_dWQ2CosTheta_E(fModel,fInteraction,fWcut);
+    new genie::utils::gsl::d2XSecSPP_dWQ2_E(fModel,fInteraction,fWcut);
 }

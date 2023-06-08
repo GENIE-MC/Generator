@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2023, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -19,6 +19,7 @@
 #include <TMath.h>
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
+#include <Math/AdaptiveIntegratorMultiDim.h>
 
 #include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/GBuild.h"
@@ -80,7 +81,7 @@ double DCCSPPXSec::Integrate(
   //-- Get the requested SPP channel
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
 
-  if (Enu < kps.Threshold()) return 0.;
+  if (Enu < kps.Threshold_SPP_iso()) return 0.;
   
   fSinglePionProductionXSecModel = model;
 
@@ -88,7 +89,22 @@ double DCCSPPXSec::Integrate(
   int nucleon_pdgc        = target.HitNucPdg();
   int probe_pdgc          = init_state.ProbePdg();
   int probe_helicity      = init_state.ProbeHelicity();
-  std::string nc_nuc   = this->ProbeAsString(probe_pdgc, probe_helicity);
+  
+  if (probe_helicity != 0 && !fMasslessElectron)
+  {
+      LOG("DCCSPPXSec", pFATAL)
+      << "Cross section for charged lepton with definite helicity is requested, which is valid only for massless lepton." <<
+      "It contradicts the setting IsMasslessElectron = false in configuration file DCCSPPPXSec.xml";
+      exit(-1);
+  }
+  
+  if (probe_helicity == 0 && fMasslessElectron)
+  {
+      LOG("DCCSPPXSec", pWARN)
+      << "Cross section for massless charged lepton is requested, but its helicity is zero. The output is average of xsec(helicity=+1)+xsec(helicity=-1)!";
+  }
+  
+  std::string nc_nuc      = this->ProbeAsString(probe_pdgc, probe_helicity);
   
   // If the input interaction is off a nuclear target, then chek whether
   // the corresponding free nucleon cross section already exists at the
@@ -181,15 +197,21 @@ double DCCSPPXSec::Integrate(
   else 
   {
     LOG("DCCSPPXSec", pINFO)
-          << "*** Integrating d^3 XSec/dWdQ^2dCosTheta for Ch: "
+          << "*** Integrating d^2 XSec/dWdQ^2 for Ch: "
           << SppChannel::AsString(spp_channel) << " at Ev = " << Enu;
     
-    ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d3XSecSPP_dWQ2CosTheta_E(model, interaction, fWcut);
+    ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d2XSecSPP_dWQ2_E(model, interaction, fWcut);
     ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
     ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
+    if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) 
+    {
+      ROOT::Math::AdaptiveIntegratorMultiDim * cast = dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim*>( ig.GetIntegrator() );
+      assert(cast);
+      cast->SetMinPts(fGSLMinEval);
+    }
     ig.SetFunction(*func);
-    double kine_min[3] = { 0., 0., 0.};
-    double kine_max[3] = { 1., 1., 1.};
+    double kine_min[2] = { 0., 0.};
+    double kine_max[2] = { 1., 1.};
     double xsec = ig.Integral(kine_min, kine_max);
     delete func;
       
@@ -220,13 +242,15 @@ void DCCSPPXSec::LoadConfig(void)
   bool good_conf = true ;
 
    // Get GSL integration type & relative tolerance
-  GetParamDef( "gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
-  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 0.01 ) ;
-  GetParamDef( "gsl-max-eval", fGSLMaxEval, 100000 ) ;
-  GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
-  GetParamDef("Wcut", fWcut, -1.);
+  GetParamDef ( "gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
+  GetParamDef ( "gsl-relative-tolerance", fGSLRelTol, 1e-5 ) ;
+  GetParamDef ( "gsl-max-eval", fGSLMaxEval, 100000 ) ;
+  GetParamDef ( "IsMasslessElectron", fMasslessElectron, false);
+  GetParam    ( "UsePauliBlockingForRES", fUsePauliBlocking);
+  GetParamDef ( "gsl-min-eval", fGSLMinEval, 7500 ) ;
+  GetParamDef ( "Wcut", fWcut, -1.);
   // Get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
-  GetParamDef( "ESplineMax", fEMax, 500. ) ;
+  GetParamDef( "ESplineMax", fEMax, 250. ) ;
 
   if ( fEMax < 20. ) {
 
