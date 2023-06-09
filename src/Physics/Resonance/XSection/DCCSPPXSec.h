@@ -52,8 +52,7 @@ public:
 private:
   void LoadConfig(void);
   
-  bool fUsePauliBlocking;      ///< Account for Pauli blocking?
-  bool fMasslessElectron;      ///< Is electron massless?
+  bool   fUsePauliBlocking;         ///<  Account for Pauli blocking?
 
 };
 

@@ -11,6 +11,8 @@ Algorithm Configurable Parameters:
 ...........................................................................................................
 Name                        Type    Opt  Comment                                               Default
 ...........................................................................................................
+MinQ2ForMasslessLepton      double  Yes  Minimal boundary of integration by Q2 for massless   1E-9 
+                                         lepton in EM processes
 UsePauliBlockingForRES      bool    No   Use Pauli blocking for resonance model?               
 gsl-integration-type        string  Yes  name of GSL numerical integrator                      adaptive
                                          (adaptive, vegas, miser, plain)                   
@@ -25,7 +27,7 @@ ESplineMax                  double  Yes  This integrator can cache splines for f
 -->
 
 
-  <param_set name="Default">     
+  <param_set name="Default"> 
   </param_set>
 
   <param_set name="WithPauliBlock"> 
@@ -34,7 +36,7 @@ ESplineMax                  double  Yes  This integrator can cache splines for f
    Account for Pauli blocking?
    If this option is true, when caching for free nucleons is disabled.
   -->   
-    <param type="bool"   name="UsePauliBlockingForRES">  true  </param>
+    <param type="bool"     name="UsePauliBlockingForRES">  true </param>
   
   </param_set>
   
@@ -44,7 +46,8 @@ ESplineMax                  double  Yes  This integrator can cache splines for f
    Account for Pauli blocking?
    If this option is true, when caching for free nucleons is disabled.
   -->  
-    <param type="bool"   name="UsePauliBlockingForRES">  false  </param>
+    <param type="bool"    name="UsePauliBlockingForRES">  false </param>
+    
   
   </param_set>
 

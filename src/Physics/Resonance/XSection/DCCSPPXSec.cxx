@@ -80,29 +80,18 @@ double DCCSPPXSec::Integrate(
   
   //-- Get the requested SPP channel
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
-
-  if (Enu < kps.Threshold_SPP_iso()) return 0.;
   
   fSinglePionProductionXSecModel = model;
-
+  
   InteractionType_t it    = proc_info.InteractionTypeId();
   int nucleon_pdgc        = target.HitNucPdg();
   int probe_pdgc          = init_state.ProbePdg();
   int probe_helicity      = init_state.ProbeHelicity();
   
-  if (probe_helicity != 0 && !fMasslessElectron)
-  {
-      LOG("DCCSPPXSec", pFATAL)
-      << "Cross section for charged lepton with definite helicity is requested, which is valid only for massless lepton." <<
-      "It contradicts the setting IsMasslessElectron = false in configuration file DCCSPPPXSec.xml";
-      exit(-1);
-  }
+  bool is_EM     = proc_info.IsEM();
+  bool is_EM0    = is_EM && (probe_helicity != 0);
   
-  if (probe_helicity == 0 && fMasslessElectron)
-  {
-      LOG("DCCSPPXSec", pWARN)
-      << "Cross section for massless charged lepton is requested, but its helicity is zero. The output is average of xsec(helicity=+1)+xsec(helicity=-1)!";
-  }
+  if (Enu < kps.Threshold_SPP_iso(is_EM0)) return 0.;
   
   std::string nc_nuc      = this->ProbeAsString(probe_pdgc, probe_helicity);
   
@@ -155,9 +144,9 @@ double DCCSPPXSec::Integrate(
          dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
      if(!cache_branch) {
         char c_hel = 0;
-        if (probe_helicity == -1)
+        if (probe_helicity == -1 && pdg::IsChargedLepton(init_state.ProbePdg()))
           c_hel = 'L';
-        else if (probe_helicity == 1)
+        else if (probe_helicity == 1 && pdg::IsChargedLepton(init_state.ProbePdg()))
           c_hel = 'R';
         LOG("DCCSPPXSec", pWARN)  
            << "No cached ResSPP data for input probe with pdg = "
@@ -200,7 +189,7 @@ double DCCSPPXSec::Integrate(
           << "*** Integrating d^2 XSec/dWdQ^2 for Ch: "
           << SppChannel::AsString(spp_channel) << " at Ev = " << Enu;
     
-    ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d2XSecSPP_dWQ2_E(model, interaction, fWcut);
+    ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d2XSecSPP_dWQ2_E(model, interaction, fWcut, is_EM0, fQ2minForMasslessLepton);
     ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
     ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
     if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) 
@@ -212,12 +201,12 @@ double DCCSPPXSec::Integrate(
     ig.SetFunction(*func);
     double kine_min[2] = { 0., 0.};
     double kine_max[2] = { 1., 1.};
-    double xsec = ig.Integral(kine_min, kine_max);
+    double xsec = ig.Integral(kine_min, kine_max)*(1E-38 *genie::units::cm2);
     delete func;
       
     SLOG("DCCSPPXSec", pNOTICE)
       << "XSec[Channel: " << SppChannel::AsString(spp_channel) << nc_nuc
-      << "]  (E="<< Enu << " GeV) = " << xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
+      << "]  (E="<< Enu << " GeV) = " << xsec << " x 1E-38 cm^2";
     
     return xsec;
   }
@@ -245,7 +234,9 @@ void DCCSPPXSec::LoadConfig(void)
   GetParamDef ( "gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
   GetParamDef ( "gsl-relative-tolerance", fGSLRelTol, 1e-5 ) ;
   GetParamDef ( "gsl-max-eval", fGSLMaxEval, 100000 ) ;
-  GetParamDef ( "IsMasslessElectron", fMasslessElectron, false);
+  GetParamDef ( "MinQ2ForMasslessLepton", fQ2minForMasslessLepton, 1E-9);
+  if (fQ2minForMasslessLepton <= 0 || fQ2minForMasslessLepton >= 3.0) 
+     fQ2minForMasslessLepton = 1E-9;
   GetParam    ( "UsePauliBlockingForRES", fUsePauliBlocking);
   GetParamDef ( "gsl-min-eval", fGSLMinEval, 7500 ) ;
   GetParamDef ( "Wcut", fWcut, -1.);

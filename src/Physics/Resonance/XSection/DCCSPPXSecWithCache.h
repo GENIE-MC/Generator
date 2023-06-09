@@ -57,6 +57,7 @@ protected:
   bool   fUsingDisResJoin;
   double fWcut;
   double fEMax;
+  double fQ2minForMasslessLepton;   ///<  Minimal boundary of integration by Q2 for massless lepton in EM processes
 
   mutable const XSecAlgorithmI * fSinglePionProductionXSecModel;
 };
@@ -78,7 +79,7 @@ namespace gsl   {
 class d2XSecSPP_dWQ2_E: public ROOT::Math::IBaseFunctionMultiDim
 {
 public:
-  d2XSecSPP_dWQ2_E(const XSecAlgorithmI * m, const Interaction * i, double wcut);
+  d2XSecSPP_dWQ2_E(const XSecAlgorithmI * m, const Interaction * i, double wcut, bool massless, double Q2min);
  ~d2XSecSPP_dWQ2_E();
 
   // ROOT::Math::IBaseFunctionMultiDim interface
@@ -93,6 +94,8 @@ private:
   bool isZero;
   KPhaseSpace * kps;
   double fWcut;
+  bool   fMasslessLepton;           ///< Is charged lepton massless in EM process?
+  double fQ2minForMasslessLepton;   ///<  Minimal boundary of integration by Q2 for massless lepton in EM processes
 };
 
 } // gsl   namespace

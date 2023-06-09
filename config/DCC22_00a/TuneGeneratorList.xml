@@ -47,8 +47,10 @@ Generator-%d                alg     No
 -->
 
   <param_set name="Default"> 
-     <param type="int" name="NGenerators">   1                                    </param>
+     <param type="int" name="NGenerators">   3                                    </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/DCCSPP-EM      </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/DCCSPP-CC      </param>
+     <param type="alg" name="Generator-2">   genie::EventGenerator/DCCSPP-NC      </param>
   </param_set>
 
 </tune_generator_list>

@@ -95,7 +95,7 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
     bool is_EM     = proc_info.IsEM();
     bool is_CC     = proc_info.IsWeakCC();
     bool is_NC     = proc_info.IsWeakNC();
-    bool is_EM0    = is_EM && fMasslessElectron;
+    bool is_EM0    = is_EM && (helicity != 0);
     int  inubnu    = is_nubar?-1:1;
     bool is_p      = pdg::IsProton  (nucpdgc);
 
@@ -754,6 +754,8 @@ int DCCSPPPXSec::Wnode (double W) const
     const int N = 11;
     double pos[N][2] = { {1.07701, 0}, {1.08, 1}, {1.16, 9}, {1.21, 19}, {1.22, 23}, {1.225, 24},
                          {1.2255, 25}, {1.23, 26}, {1.24, 28}, {2.0, 104}, {2.1, 109} };
+    if (W < pos[0][0])   return pos[0][1];
+    if (W > pos[N-1][0]) return pos[N-1][1];
     int low = 0;
     int up = N;
     while (up-low > 1)
@@ -771,6 +773,8 @@ int DCCSPPPXSec::Q2node (double Q2) const
 {
     const int N = 6;
     double pos[N][2] = { {1E-7, 0}, {0.02, 1}, {0.2, 10}, {1.0, 18}, {2.0, 23}, {3.0, 27}};
+    if (Q2 < pos[0][0])   return pos[0][1];
+    if (Q2 > pos[N-1][0]) return pos[N-1][1];
     int low = 0;
     int up = N;
     while (up-low > 1)
@@ -1058,16 +1062,21 @@ bool DCCSPPPXSec::ValidKinematics(const Interaction * interaction) const
     // Get kinematical parameters
     const InitialState & init_state = interaction -> InitState();
     const Kinematics & kinematics   = interaction -> Kine();
+    const ProcessInfo &  proc_info  = interaction -> ProcInfo();
+    
+    bool is_EM     = proc_info.IsEM();
+    int  helicity  = init_state.ProbeHelicity();
+    bool is_EM0    = is_EM && (helicity != 0);
     
     double Enu  = init_state.ProbeE(kRfHitNucRest);
     double W    = kinematics.W();
     double Q2   = kinematics.Q2();
 
-    if (Enu < kps.Threshold_SPP_iso(fMasslessElectron))
+    if (Enu < kps.Threshold_SPP_iso(is_EM0))
         return false;
 
-    Range1D_t Wl  = kps.WLim_SPP_iso(fMasslessElectron);
-    Range1D_t Q2l = kps.Q2Lim_W_SPP_iso(fMasslessElectron);
+    Range1D_t Wl  = kps.WLim_SPP_iso(is_EM0);
+    Range1D_t Q2l = kps.Q2Lim_W_SPP_iso(is_EM0);
 
     // model restrictions
     Wl.min  = TMath::Max (Wl.min,  1.077);
@@ -1103,8 +1112,6 @@ void DCCSPPPXSec::LoadConfig(void)
     this->GetParam( "DCC-EM-XSecScale", fXSecScaleEM );
     this->GetParam( "DCC-CC-XSecScale", fXSecScaleCC );
     this->GetParam( "DCC-NC-XSecScale", fXSecScaleNC );
-
-    this->GetParamDef ( "IsMasslessElectron", fMasslessElectron, false);
 
     double thw;
     this->GetParam( "WeinbergAngle", thw );

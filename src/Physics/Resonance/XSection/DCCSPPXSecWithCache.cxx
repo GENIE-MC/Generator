@@ -78,7 +78,8 @@ DCCSPPXSecWithCache::~DCCSPPXSecWithCache()
 void DCCSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
 {
   // Cache resonance neutrino production data from free nucleons
-
+  const ProcessInfo &  proc_info  = in->ProcInfo();
+  bool is_EM     = proc_info.IsEM();
   Cache * cache = Cache::Instance();
 
   assert(fSinglePionProductionXSecModel);
@@ -101,9 +102,12 @@ void DCCSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
   int nuc_code        = in->InitState().Tgt().HitNucPdg();
   int tgt_code        = (nuc_code==kPdgProton) ? kPdgTgtFreeP : kPdgTgtFreeN;
   int probe_helicity  = in->InitState().ProbeHelicity();
+  
+  bool is_EM0    = is_EM && (probe_helicity != 0);
 
   Interaction local_interaction(*in);
   local_interaction.InitStatePtr()->SetPdgs(tgt_code, nu_code);
+  local_interaction.InitStatePtr()->SetProbeHelicity (probe_helicity);
   local_interaction.InitStatePtr()->TgtPtr()->SetHitNucPdg(nuc_code);
 
   InteractionType_t wkcur = local_interaction.ProcInfo().InteractionTypeId();
@@ -125,7 +129,7 @@ void DCCSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
   
   const KPhaseSpace& kps = in->PhaseSpace();
     
-  double Ethr = kps.Threshold_SPP_iso();
+  double Ethr = kps.Threshold_SPP_iso(is_EM0);
   LOG("DCCSPPCache", pNOTICE) << "E threshold = " << Ethr;
 
   // Distribute the knots in the energy range as is being done in the
@@ -160,7 +164,8 @@ void DCCSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
     << SppChannel::AsString(spp_channel) << " at Ev = " << Ev;
       
 
-       ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d2XSecSPP_dWQ2_E(fSinglePionProductionXSecModel, & local_interaction, fWcut);
+       ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d2XSecSPP_dWQ2_E(fSinglePionProductionXSecModel, 
+       & local_interaction, fWcut, is_EM0, fQ2minForMasslessLepton);
        ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
        ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
        if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) 
@@ -172,7 +177,7 @@ void DCCSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
        ig.SetFunction(*func);
        double kine_min[2] = { 0., 0.};
        double kine_max[2] = { 1., 1.};
-       double xsec = ig.Integral(kine_min, kine_max);
+       xsec = ig.Integral(kine_min, kine_max)*(1E-38 * genie::units::cm2);
        delete func;
       
     } 
@@ -186,7 +191,7 @@ void DCCSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
     
     SLOG("DCCSPPCache", pNOTICE)
       << "ResSPP XSec (Ch:" << SppChannel::AsString(spp_channel) << nc_nuc
-      << ", E="<< Ev << ") = "<< xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
+      << ", E="<< Ev << ") = "<< xsec << " x 1E-38 cm^2";
   }//spline knots
   
   // Build the spline
@@ -246,10 +251,12 @@ string DCCSPPXSecWithCache::ProbeAsString (int probe_pdg, int probe_helicity) co
 // GSL wrappers
 //____________________________________________________________________________
 genie::utils::gsl::d2XSecSPP_dWQ2_E::d2XSecSPP_dWQ2_E(
-                                    const XSecAlgorithmI * m, const Interaction * interaction, double  wcut) :
+                                    const XSecAlgorithmI * m, const Interaction * interaction, double  wcut, bool massless, double Q2min) :
   ROOT::Math::IBaseFunctionMultiDim(),
   fModel(m),
-  fWcut(wcut)
+  fWcut(wcut),
+  fMasslessLepton(massless),
+  fQ2minForMasslessLepton(Q2min)
 {
 
   isZero = false;
@@ -262,22 +269,21 @@ genie::utils::gsl::d2XSecSPP_dWQ2_E::d2XSecSPP_dWQ2_E(
   // Get kinematical parameters
   const InitialState & init_state = interaction -> InitState();
   double Enu = init_state.ProbeE(kRfHitNucRest);
-  std::cout << std::setw(40) << std::scientific/*std::fixed*/ << std::setprecision(40) << "Enu = " << Enu << std::endl;
 
-  if (Enu < kps->Threshold_SPP_iso());
+  if (Enu < kps->Threshold_SPP_iso(fMasslessLepton))
   {
     isZero = true;
     return;
   }
   
-  Wl  = kps->WLim_SPP_iso();
-  if (Wl.max < 1.08)
+  Wl  = kps->WLim_SPP_iso(fMasslessLepton);
+  if (Wl.max < 1.077)
   {
     isZero = true;
     return;
   }
   // model restrictions
-  Wl.min  = TMath::Max (Wl.min,  1.08);
+  Wl.min  = TMath::Max (Wl.min,  1.077);
   Wl.max  = TMath::Min (Wl.max,  2.00);
 
   if (fWcut >= Wl.min)
@@ -304,21 +310,27 @@ double genie::utils::gsl::d2XSecSPP_dWQ2_E::DoEval(const double * xin) const
   double W2  = Wl.min*Wl.min + (Wl.max*Wl.max - Wl.min*Wl.min)*xin[0];
   fInteraction->KinePtr()->SetW(TMath::Sqrt(W2));
    
-  Range1D_t Q2l = kps->Q2Lim_W_SPP_iso();
+  Range1D_t Q2l = kps->Q2Lim_W_SPP_iso(fMasslessLepton);
+  
   // model restrictions
-  Q2l.min = TMath::Max (Q2l.min, 0.00);
-  Q2l.max = TMath::Min (Q2l.max, 3.00);
+  if (fMasslessLepton)
+    Q2l.min = fQ2minForMasslessLepton;
+    
+  Q2l.max = TMath::Min (Q2l.max, 3.0);
+  
+  if (Q2l.min >= Q2l.max) 
+    return 0.;
    
   double sqrt_Q2 = TMath::Sqrt(Q2l.min) + ( TMath::Sqrt(Q2l.max) - TMath::Sqrt(Q2l.min) )*xin[1];
   fInteraction->KinePtr()->SetQ2(sqrt_Q2*sqrt_Q2);
   
   double xsec = fModel->XSec(fInteraction, kPSWQ2fE)*sqrt_Q2*(Wl.max*Wl.max - Wl.min*Wl.min)*(TMath::Sqrt(Q2l.max) - TMath::Sqrt(Q2l.min))/TMath::Sqrt(W2);
   
-  return xsec;
+  return xsec/(1E-38 * units::cm2);
 }
 ROOT::Math::IBaseFunctionMultiDim *
 genie::utils::gsl::d2XSecSPP_dWQ2_E::Clone() const
 {
   return
-    new genie::utils::gsl::d2XSecSPP_dWQ2_E(fModel,fInteraction,fWcut);
+    new genie::utils::gsl::d2XSecSPP_dWQ2_E(fModel, fInteraction, fWcut, fMasslessLepton, fQ2minForMasslessLepton);
 }

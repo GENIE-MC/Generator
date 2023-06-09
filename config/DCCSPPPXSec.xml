@@ -8,8 +8,7 @@ Configuration for the DCC single pion production algorithm
 Configurable Parameters:
 ......................................................................................................................................
 Name                        Type Optional Comment                                                         Default
-......................................................................................................................................
-IsMasslessElectron          bool    Yes   Consider electron as massless?                                  No
+......................................................................................................................................                                
 DCC-EM-XSecScale            double  No    XSec rescaling factor for EM-processes
 DCC-CC-XSecScale            double  No    XSec rescaling factor for CC-processes
 DCC-NC-XSecScale            double  No    XSec rescaling factor for NC-processes
@@ -31,8 +30,6 @@ DataFileName                string  No    Name of file with amplitudes
     <param type="double" name="DCC-NC-XSecScale"> 1.000 </param>
     <param type="string" name="DataPath"> data/evgen/dcc </param>
     <param type="string" name="DataFileName"> MultipoleAmplitudes.dat </param>
-    
-    <param type="bool" name="IsMasslessElectron"> true </param>
   </param_set>
 
   <param_set name="WithPauliBlock">

@@ -159,9 +159,7 @@ namespace genie {
         bool fUseRFGParametrization;
         /// Account for Pauli blocking?
         bool fUsePauliBlocking;
-        /// Is electron massless?
-        bool fMasslessElectron;
-        /// External EM cross section scaling factor
+        /// Is charged lepton massless in EM process?
         double fXSecScaleEM;
         /// External CC cross section scaling factor
         double fXSecScaleCC;
