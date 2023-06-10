@@ -5,6 +5,7 @@
  or see $GENIE/LICENSE
 
  Authors: Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
+          adapted from fortran code provided by Toru Sato <tsato@rcnp.osaka-u.ac.jp>
 
  For the class documentation see the corresponding header file.
 */
