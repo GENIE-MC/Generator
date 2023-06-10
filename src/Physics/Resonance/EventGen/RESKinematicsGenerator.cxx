@@ -124,7 +124,6 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
      double gW   = 0; // current hadronic invariant mass
      double gQ2  = 0; // current momentum transfer
-     double gQD2 = 0; // tranformed Q2 to take out dipole form
 
      if(fGenerateUniformly) {
        //-- Generate a W uniformly in the kinematically allowed range.
@@ -158,14 +157,9 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
             else { Q2min  = 0 + kASmallNum; }
             double Q2max  = Q2.max - kASmallNum;
 
-	    // In unweighted mode - use transform that takes out the dipole form
-            double QD2min = utils::kinematics::Q2toQD2(Q2max);
-            double QD2max = utils::kinematics::Q2toQD2(Q2min);
-
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
             LOG("RESKinematics", pDEBUG)
-                <<  "Q^2: [" << Q2min  << ", " << Q2max  << "] => "
-                << "QD^2: [" << QD2min << ", " << QD2max << "]";
+                <<  "Q^2: [" << Q2min  << ", " << Q2max  << "]";
 #endif
             double mR, gR;
             if(!interaction->ExclTag().KnownResonance()) {
@@ -181,7 +175,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
                <<  "(m,g) = (" << mR << ", " << gR
                << "), max(xsec,W) = (" << xsec_max << ", " << W.max << ")";
 #endif
-            fEnvelope->SetRange(QD2min,W.min,QD2max,W.max); // range
+            fEnvelope->SetRange(Q2min,W.min,Q2max,W.max);   // range
             fEnvelope->SetParameter(0,  mR);                // resonance mass
             fEnvelope->SetParameter(1,  gR);                // resonance width
             fEnvelope->SetParameter(2,  xsec_max);          // max differential xsec
@@ -189,10 +183,8 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          }// first pass
 
          // Generate W,QD2 using the 2-D envelope as PDF
-         fEnvelope->GetRandom2(gQD2,gW);
+         fEnvelope->GetRandom2(gQ2,gW);
 
-         // QD2 -> Q2
-         gQ2 = utils::kinematics::QD2toQ2(gQD2);
      } // uniformly over phase space?
 
      LOG("RESKinematics", pINFO) << "Trying: W = " << gW << ", Q2 = " << gQ2;
@@ -208,9 +200,8 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      if(!fGenerateUniformly) {
 
           // unified neutrino / electron scattering
-          double max = fEnvelope->Eval(gQD2, gW);
+          double max = fEnvelope->Eval(gQ2, gW);
           double t   = max * rnd->RndKine().Rndm();
-          double J   = kinematics::Jacobian(interaction,kPSWQ2fE,kPSWQD2fE);
 
           this->AssertXSecLimits(interaction, xsec, max);
 
@@ -218,7 +209,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
           LOG("RESKinematics", pDEBUG)
                      << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
 #endif
-          accept = (t < J*xsec);
+          accept = (t < xsec);
         } // charged lepton or neutrino scattering?
      else {
         accept = (xsec>0);
