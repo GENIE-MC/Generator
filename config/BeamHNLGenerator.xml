@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+Configuration for the BeamHNL simulation
+Shared by HNLBRCalculator, HNLFluxCreator, HNLDecayer, and HNLDecayVolume
+
+Algorithm Configurable Parameters:
+..............................................................................................................................
+Name                      Type        Opt   Comment                                           Default
+..............................................................................................................................
+
+*******************                         **********************************
+set ParameterSpace:                         Choice of parameter space position
+*******************                         **********************************
+HNL-Mass                  double      no
+HNL-LeptonMixing          vec-double  no    Mixing to charged leptons: |Ue4|^2, |U_m4|^2, |U_t4|^2
+HNL-Majorana              bool        no    Majorana vs Dirac HNL
+
+GetCMFrameInstead         bool        no    Switch to get all FS particles from an HNL decaying at rest
+                                            at the assigned vertex. Most users will set this to false.
+
+************************                    *****************************************
+set InterestingChannels:                    Which decays to un-inhibit
+                                            Each decay set to true is added to vector
+************************                    *****************************************
+HNL-2B_mu_pi              bool        no    N -> mu + pi
+HNL-2B_e_pi               bool        no    N -> e  + pi
+HNL-2B_nu_pi0             bool        no    N -> nu + pi0
+HNL-3B_nu_nu_nu           bool        no    N -> nu + nu  + nu
+HNL-3B_nu_mu_mu           bool        no    N -> nu + mu  + mu
+HNL-3B_nu_mu_e            bool        no    N -> nu + mu  + e
+HNL-3B_nu_e_e             bool        no    N -> nu + e   + e
+HNL-3B_e_pi_pi0           bool        no    N -> e  + pi  + pi0
+HNL-3B_mu_pi_pi0          bool        no    N -> mu + pi  + pi0
+HNL-3B_nu_pi0_pi0         bool        no    N -> nu + pi0 + pi0
+
+********************                        ********************************
+set CoordinateXForm:                        Define beam -> local coord xform
+********************                        ********************************
+These vectors describe the following transformations between the 3 salient frames NEAR, BEAM, and USER.
+Translations are in [m]. Rotations are in [rad] and follow the extrinsic "X-Z-X" convention.
+For more details, see $GENIE/src/contrib/beamhnl/CommonHNL_DEMO.xml or Appendix A3, arXiv: 2211.20210
+
+Near2Beam_R               vec-double  no    Rotation of beam axis (BEAM frame) wrt global (NEAR) frame
+
+Near2User_T               vec-double  no    Translation from NEAR to USER origin
+DetCentre_User            vec-double  no    If input ROOT geom has detector centre != file origin, 
+                                            set detector centre in file coordinate system here
+Near2User_R               vec-double  no    Rotation from NEAR to USER
+
+****************                            ******************************************
+set ParticleGun:                            Define HNL trajectory for Particle Gun app
+****************                            ******************************************
+PG-OriginX
+PG-OriginY
+PG-OriginZ                double      no    Origin of the HNL trajectory in user coordinates [m]
+
+PG-OriginDX
+PG-OriginDY
+PG-OriginDZ               double      no    If > 0, specifies box in which HNL trajectory origin is 
+                                            distributed uniformly. [m]
+
+PG-cx
+PG-cy
+PG-cz                     double      no    Directional cosines of the HNL momentum in user coordinates
+
+PG-DTheta
+PG-DPhi                   double      no    If > 0, specifies angular region such that HNL momentum is
+                                            uniformly sampled in the range 
+                                            (\theta, \phi) \in 
+                                            [\theta_{0} - d\theta, \theta_{0} + d\theta] x
+                                            [\phi_{0} - d\phi, \phi_{0} + d\phi]
+                                            where (\theta_{0}, \phi_{0}) are spherical rep of PG-c{x,y,z}
+
+PG-Energy                 double      no    Energy of HNL at particle gun
+
+*************                               ***************************************
+set FluxCalc:                               Specific hooks for HNL flux calculation
+*************                               ***************************************
+
+A scalar multiplier to account for the cross-section of parent production. 
+There are 4 kinds of parents implemented (mu, pi, K, K0L) in order of mass, so heavier HNL will be
+accessible to fewer parents. Each parent is an entry in the flux files, 
+so the multiplier works as follows:
+1st entry == \sigma(p + target) / \sigma(p + target ; produces any of {mu-+, pi+-, K0L, K+-})
+2nd entry == \sigma(p + target) / \sigma(p + target ; produces any of {pi+-, K0L, K+-})
+3rd entry == \sigma(p + target) / \sigma(p + target ; produces any of {K0L, K+-})
+4th entry == \sigma(p + target) / \sigma(p + target ; produces any of {K+-})
+
+ParentPOTScalings         vec-double  no    
+
+                          
+
+DoOldFluxCalculation      bool        no    Switch that controls importing bounding box for acceptance
+                                            calculations. If false (recommended), simulate flux over
+                                            entire detector volume. If true, simulate flux over box with
+                                            tunable size == CollectionRadius
+CollectionRadius          double      no    Size of box for DoOldFluxCalculation == true
+RerollPoints              bool        no    Switch that controls what to do if acceptance correction = 0.
+                                            If true (recommended), will attempt to redo calculation up to
+                                            small number of times with different point sampled in
+                                            detector.
+
+IsParentOnAxis            bool        no    Incoming HNL placed on SM-nu beam axis           
+                                            (perfect focusing)            
+                                            For acceptance correction calculation only.
+
+InputFluxesInBEAM         bool        no    If true, assume flux files describe parent decay vertex
+                                            and momenta in BEAM frame. If false, assume NEAR frame.
+
+IncludePolarisation       bool        no    Include HNL polarisation effects 
+FixPolarisationDirection  bool        no    Override event-by-event determination of pol dir
+                                            and set direction to follow HNL-PolDir
+HNL-PolDir                vec-double  no    Set HNL beam polarisation direction              
+                                            (HNL rest frame!)
+
+*************                               ***************************************
+set External:                               Physics data needed for BR calculations
+*************                               ***************************************
+PMNS-U\alphaj             double      no    PMNS matrix elements
+Pion-FFactor              double      no    See Coloma et al, EPJ C 81 (2021) 78
+-->
+
+<alg_conf>
+  
+  <param_set name="Default">
+    
+    <param type="string" name="CommonHNL"> ParameterSpace,InterestingChannels,CoordinateXForm,FluxCalc,External,ParticleGun </param>
+    <param type="string" name="CommonParam"> WeakInt,CKM </param>
+
+  </param_set>
+
+</alg_conf>

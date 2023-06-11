@@ -19,7 +19,7 @@
 
 \created  May 04, 2004
 
-\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -86,6 +86,7 @@ public:
   bool IsWeakMix                 (void) const;
   bool IsDarkMatter              (void) const;
   bool IsDarkNeutralCurrent      (void) const;
+  bool IsHNLDecay                (void) const;
   bool IsKnown                   (void) const;
 
   // Get scattering and interaction type enumerations

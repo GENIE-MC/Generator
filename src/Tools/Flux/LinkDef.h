@@ -17,12 +17,13 @@
 #pragma link C++ class genie::flux::GJPARCNuFluxPassThroughInfo;
 
 #pragma link C++ class genie::flux::GNuMIFlux;
-#pragma link C++ class genie::flux::GNuMIFluxPassThroughInfo;
+#pragma link C++ class genie::flux::GNuMIFluxPassThroughInfo+;
 #pragma link C++ enum          genie::flux::GNuMIFlux::EStdFluxWindow;
 #pragma link C++ nestedtypedef genie::flux::GNuMIFlux::StdFluxWindow_t;
 
 #pragma link C++ class genie::flux::GCylindTH1Flux;
 #pragma link C++ class genie::flux::GMonoEnergeticFlux;
+#pragma link C++ class genie::flux::GPowerLawFlux;
 
 #pragma link C++ class genie::flux::GAtmoFlux;
 #pragma link C++ class genie::flux::GFLUKAAtmoFlux;

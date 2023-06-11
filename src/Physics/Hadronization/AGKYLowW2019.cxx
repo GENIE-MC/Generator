@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos  <constantinos.andreopoulos \at cern.ch>
@@ -121,7 +121,8 @@ void AGKYLowW2019::ProcessEventRecord(GHepRecord * event) const {
   // retrieve the hadronic blob lorentz boost
   // Because Hadronize() returned particles not in the LAB reference frame
   const TLorentzVector * had_syst = event -> Particle(mom) -> P4() ;
-  TVector3 boost = had_syst -> BoostVector() ;
+  TVector3 beta = TVector3(0,0,had_syst->P()/had_syst->E());
+  TVector3 unitvq = had_syst->Vect().Unit();
 
   GHepParticle * neutrino  = event->Probe();
   const TLorentzVector & vtx = *(neutrino->X4());
@@ -133,8 +134,8 @@ void AGKYLowW2019::ProcessEventRecord(GHepRecord * event) const {
     int pdgc = particle -> Pdg() ;
 
     //  bring the particle in the LAB reference frame
-    particle -> P4() -> Boost( boost ) ;
-
+    particle -> P4() -> Boost (beta);
+    particle -> P4() -> RotateUz(unitvq);
     // set the proper status according to a number of things:
     // interaction on a nucleaus or nucleon, particle type
     GHepStatus_t ist = ( particle -> Status() ==1 ) ? istfin : kIStDISPreFragmHadronicState;

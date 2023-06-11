@@ -19,7 +19,7 @@
 
 \created  November 2, 2018
 
-\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -55,9 +55,9 @@ public:
   void Configure (const Registry & config);
   void Configure (string config);
 
-  // Method specifically for evaluating nn/np pair probabilities
-  double PairRatio(const Interaction* i) const;
-
+  // Method specifically for evaluating np/pp pair probabilities
+  double PairRatio(const Interaction* i,
+    const std::string& final_state_ratio = "pnFraction") const;
 
 private:
 
