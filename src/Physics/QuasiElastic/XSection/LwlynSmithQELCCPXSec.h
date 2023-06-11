@@ -61,7 +61,9 @@ private:
   const XSecIntegratorI *      fXSecIntegrator;   ///<
   double                       fCos8c2;           ///< cos^2(cabibbo angle)
 
-  double                       fXSecScale;        ///< external xsec scaling factor
+  double                       fXSecCCScale;        ///< external xsec scaling factor for CC 
+  double                       fXSecNCScale;        ///< external xsec scaling factor for NC
+  double                       fXSecEMScale;        ///< external xsec scaling factor for EM
 
   // Variables for integrating
   const NuclearModelI *        fNuclModel;
