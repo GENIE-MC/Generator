@@ -241,7 +241,7 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
             zaxm  = zasm + zrhm*omegc/Q2;
 
             rt    += std::real((l+1)*(l+1)*l*(zvmp*std::conj(zvmp) + zvem*std::conj(zvem) + zamm*std::conj(zamm) + zaep*std::conj(zaep)) +
-                            (l+1)*l*l*    (zvmm*std::conj(zvmm) + zvep*std::conj(zvep) + zamp*std::conj(zamp) + zaem*std::conj(zaem)));
+                               (l+1)*l*l*    (zvmm*std::conj(zvmm) + zvep*std::conj(zvep) + zamp*std::conj(zamp) + zaem*std::conj(zaem)));
             rl    += std::real((l+1)*(l+1)*(l+1)*(zvsm*std::conj(zvsm) + zaxp*std::conj(zaxp)) + l*l*l*(zvsp*std::conj(zvsp) + zaxm*std::conj(zaxm)));
             rtp   -= std::real((l+1)*(l+1)*l*(zvmp*std::conj(zaep) + zvem*std::conj(zamm)) - l*l*(l+1)*(zvmm*std::conj(zaem) + zvep*std::conj(zamp)));
             rrh   += std::real((l+1)*(l+1)*(l+1)*zrhp*std::conj(zrhp) + l*l*l*zrhm*std::conj(zrhm));
@@ -447,9 +447,12 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
         double factor;
         if (is_EM0)
         {
-            double qgamL  = (Wsq - fnuc2)/2/fnuc;
-            double Gamma  = kAem*qgamL*elepf/2/kPi2/Q2/elepi/(1 - eps);
-            factor = Gamma*qpioc*W/fnuc/qgamL;
+            // qgammaL  = (Wsq - fnuc2)/2/fnuc
+            // qgammaC  = (Wsq - fnuc2)/2/W
+            // Gamma    = kAem*qgamL*elepf/2/kPi2/Q2/elepi/(1 - eps)
+            // factor   = Gamma*2*pi*4*pi*alpha*qpioc/qgammaC
+            factor = 4*kAem2*elepf*W*qpioc/Q2/elepi/fnuc/(1 - eps);
+            
         }
         else
         {
