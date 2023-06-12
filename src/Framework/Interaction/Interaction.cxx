@@ -255,9 +255,9 @@ string Interaction::AsString(void) const
   ostringstream interaction;
   
   char c_hel = 0;
-  if (fInitialState->ProbePdg() == -1)
+  if (fInitialState->ProbeHelicity() == -1)
     c_hel = 'L';
-  else if (fInitialState->ProbePdg() == 1)
+  else if (fInitialState->ProbeHelicity() == 1)
     c_hel = 'R';
 
   // If the probe has non-zero mass, then it is DM
