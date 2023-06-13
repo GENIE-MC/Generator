@@ -161,12 +161,10 @@ void NuElectronPXSec::LoadConfig(void)
   GetParam( "WeinbergAngle", thw ) ;
   fSin28w = TMath::Power(TMath::Sin(thw), 2);
   fSin48w = TMath::Power(TMath::Sin(thw), 4);
+  
   if (!fElectronVelocity) {
-    std::cerr << "Error: fElectronVelocity is not initialized correctly." << std::endl;
+    LOG("NuElectronPXSec", pDEBUG)
+    << "fElectronVelocity is not initialized correctly.";
   }
-
-  // fElectronVelocity =
-  //     dynamic_cast<const ElectronVelocity *> (this->SubAlg("Electron-Velocity")); //
-  // assert(fXSecIntegrator);
 }
 //____________________________________________________________________________

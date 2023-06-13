@@ -55,8 +55,9 @@ public:
 
 private:
 
-  void LoadConfig (void);
+  
 protected:
+  void LoadConfig (void);
 
   const XSecIntegratorI * fXSecIntegrator;
   const ElectronVelocity * fElectronVelocity;

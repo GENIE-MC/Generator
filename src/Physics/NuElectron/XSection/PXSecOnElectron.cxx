@@ -110,9 +110,9 @@ void PXSecOnElectron::LoadConfig(void)
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator")); //
   fElectronVelocity =
       dynamic_cast<const ElectronVelocity *> (this->SubAlg("Electron-Velocity")); //
-  assert(fXSecIntegrator);
   if (!fElectronVelocity) {
-    std::cerr << "Error: fElectronVelocity is not initialized correctly." << std::endl;
+    LOG("PXSecOnElectron", pDEBUG)
+    << "fElectronVelocity is not initialized correctly.";
   }
 }
 //____________________________________________________________________________
