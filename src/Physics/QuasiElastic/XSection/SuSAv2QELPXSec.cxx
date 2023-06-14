@@ -452,9 +452,9 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   
   // Apply given overall scaling factor
   double xsec_scale = 1 ;
-  if( proc_info.IsWeakCC() ) xsec_scale = fXSecCCScale;
-  else if( proc_info.IsWeakNC() ) xsec_scale = fXSecNCScale;
-  else if( proc_info.IsEM() ) xsec_scale = fXSecEMScale;
+  if( interaction->ProcInfo().IsWeakCC() ) xsec_scale = fXSecCCScale;
+  else if( interaction->ProcInfo().IsWeakNC() ) xsec_scale = fXSecNCScale;
+  else if( interaction->ProcInfo().IsEM() ) xsec_scale = fXSecEMScale;
 
   xsec *= xsec_scale ;
 
