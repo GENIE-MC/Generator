@@ -27,7 +27,7 @@
 
 \created  Sep 15, 2015
 
-\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
@@ -96,12 +96,15 @@ namespace genie {
 
       double   fXSecScaleCC;       ///< external CC xsec scaling factor
       double   fXSecScaleNC;       ///< external NC xsec scaling factor
+      double   fXSecScaleEM;       ///< external EM xsec scaling factor
 
       bool fKLN;
       bool fBRS;
 
-      bool fGA;
-      bool fGV;
+      // Use tuned axial, vector form factors by MiniBooNE
+      // Tuned to ANL BNL data
+      bool fGAMiniBooNE;
+      bool fGVMiniBooNE;
 
       const XSecIntegratorI * fXSecIntegrator;
   };

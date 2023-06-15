@@ -27,7 +27,7 @@ University of Liverpool
  <param_set name="Tunable">
    <!-- Reserved register for tuning -->
 
-   <!-- <param type="double" name="DIS-XSecScale">    1.032 </param> -->
+   <!-- <param type="double" name="DIS-EM-XSecScale">    1.032 </param> -->
    <!-- <param type="double" name="MEC-CC-XSecScale"> 1.000 </param> -->
 
 
@@ -99,18 +99,26 @@ University of Liverpool
   <param type="double" name="DIS-HMultWgt-vp-CC-m3">  1.000  </param>
   <param type="double" name="DIS-HMultWgt-vp-NC-m2">  0.100  </param>
   <param type="double" name="DIS-HMultWgt-vp-NC-m3">  1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vp-EM-m2">  0.100  </param>
+  <param type="double" name="DIS-HMultWgt-vp-EM-m3">  1.000  </param>
   <param type="double" name="DIS-HMultWgt-vn-CC-m2">  0.300  </param>
   <param type="double" name="DIS-HMultWgt-vn-CC-m3">  1.000  </param>
   <param type="double" name="DIS-HMultWgt-vn-NC-m2">  0.300  </param>
   <param type="double" name="DIS-HMultWgt-vn-NC-m3">  1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vn-EM-m2">  0.300  </param>
+  <param type="double" name="DIS-HMultWgt-vn-EM-m3">  1.000  </param>
   <param type="double" name="DIS-HMultWgt-vbp-CC-m2"> 0.300  </param>
   <param type="double" name="DIS-HMultWgt-vbp-CC-m3"> 1.000  </param>
   <param type="double" name="DIS-HMultWgt-vbp-NC-m2"> 0.300  </param>
   <param type="double" name="DIS-HMultWgt-vbp-NC-m3"> 1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vbp-EM-m2"> 0.300  </param>
+  <param type="double" name="DIS-HMultWgt-vbp-EM-m3"> 1.000  </param>
   <param type="double" name="DIS-HMultWgt-vbn-CC-m2"> 0.100  </param>
   <param type="double" name="DIS-HMultWgt-vbn-CC-m3"> 1.000  </param>
   <param type="double" name="DIS-HMultWgt-vbn-NC-m2"> 0.100  </param>
   <param type="double" name="DIS-HMultWgt-vbn-NC-m3"> 1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vbn-EM-m2"> 0.100  </param>
+  <param type="double" name="DIS-HMultWgt-vbn-EM-m3"> 1.000  </param>
 
  </param_set>
 

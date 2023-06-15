@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -118,7 +118,12 @@ double LwlynSmithQELCCPXSec::XSec(
   double xsec = Gfactor * (A + sign*B*s_u/M2 + C*s_u*s_u/M4);
 
   // Apply given scaling factor
-  xsec *= fXSecScale;
+  double xsec_scale = 1 ;
+  const ProcessInfo& proc_info = interaction->ProcInfo();
+  
+  if( proc_info.IsWeakCC() ) xsec_scale = fXSecCCScale;
+  else if( proc_info.IsWeakNC() ) xsec_scale = fXSecNCScale;
+  xsec *= xsec_scale ;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("LwlynSmith", pDEBUG)
@@ -275,8 +280,14 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction*  interactio
   // delta function
   xsec *= genie::utils::EnergyDeltaFunctionSolutionQEL( *interaction );
 
+  const ProcessInfo& proc_info = interaction->ProcInfo();
+
   // Apply given scaling factor
-  xsec *= fXSecScale;
+  double xsec_scale = 1 ;
+  if( proc_info.IsWeakCC() ) xsec_scale = fXSecCCScale;
+  else if( proc_info.IsWeakNC() ) xsec_scale = fXSecNCScale;
+
+  xsec *= xsec_scale ;
 
   // Number of scattering centers in the target
   const Target & target = init_state.Tgt();
@@ -414,7 +425,8 @@ void LwlynSmithQELCCPXSec::Configure(string config)
 void LwlynSmithQELCCPXSec::LoadConfig(void)
 {
   // Cross section scaling factor
-  GetParamDef( "QEL-CC-XSecScale", fXSecScale, 1. ) ;
+  GetParam( "QEL-CC-XSecScale", fXSecCCScale ) ;
+  GetParam( "QEL-NC-XSecScale", fXSecNCScale ) ;
 
   double thc ;
   GetParam( "CabibboAngle", thc ) ;

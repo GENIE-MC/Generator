@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
@@ -54,7 +54,7 @@ bool LocalFGM::GenerateNucleon(const Target & target,
 {
   assert(target.HitNucIsSet());
 
-  fCurrRemovalEnergy = 0;
+  fCurrRemovalEnergy = -99999.0;
   fCurrMomentum.SetXYZ(0,0,0);
 
   //-- set fermi momentum vector
@@ -65,9 +65,6 @@ bool LocalFGM::GenerateNucleon(const Target & target,
               << "Null nucleon momentum probability distribution";
     exit(1);
   }
-  double p = prob->GetRandom();
-  delete prob;
-  LOG("LocalFGM", pINFO) << "|p,nucleon| = " << p;
 
   RandomGen * rnd = RandomGen::Instance();
 
@@ -77,18 +74,72 @@ bool LocalFGM::GenerateNucleon(const Target & target,
   double cosfi    = TMath::Cos(fi);
   double sinfi    = TMath::Sin(fi);
 
-  double px = p*sintheta*cosfi;
-  double py = p*sintheta*sinfi;
-  double pz = p*costheta;
+  double px;
+  double py;
+  double pz;
 
-  fCurrMomentum.SetXYZ(px,py,pz);
-
-  //-- set removal energy
-  //
   int Z = target.Z();
   map<int,double>::const_iterator it = fNucRmvE.find(Z);
-  if(it != fNucRmvE.end()) fCurrRemovalEnergy = it->second;
-  else fCurrRemovalEnergy = nuclear::BindEnergyPerNucleon(target);
+
+  double p;
+
+  bool doThrow = 1;
+
+  while(doThrow){
+    p = prob->GetRandom();
+    
+    LOG("LocalFGM", pINFO) << "|p,nucleon| = " << p;
+
+    px = p*sintheta*cosfi;
+    py = p*sintheta*sinfi;
+    pz = p*costheta;
+
+    fCurrMomentum.SetXYZ(px,py,pz);
+
+    if (fMomDepErmv) {
+      // hit nucleon mass
+      double nucl_mass = target.HitNucMass(); 
+      // get the local Fermi momentum
+      double KF = LocalFermiMomentum( target, target.HitNucPdg(), hitNucleonRadius); 
+      
+      //initial nucleon kinetic energy at the Fermi surface
+      double T_F = TMath::Sqrt(TMath::Power(nucl_mass,2)+TMath::Power(KF,2)) - nucl_mass;
+      
+      //the minimum removal energy to keep nucleons bound is equal to 
+      //the nucleon kinetic energy at the Fermi surface 
+      double localEb = T_F;
+
+      //initial state nucleon kinetic energy (already present and contributing to its escape from the nucleus)
+      double T_nucl = TMath::Sqrt(TMath::Power(fCurrMomentum.Mag(),2)+TMath::Power(nucl_mass,2))- nucl_mass;
+
+      //set the Qvalue (separation energy) to the RFG removal energy in the CommonParams file
+      double q_val_offset;
+      if(it != fNucRmvE.end()) q_val_offset = it->second;
+      else q_val_offset = nuclear::BindEnergyPerNucleon(target);
+      
+      //set the removal energy to be the sum of the removal energy at the Fermi surface 
+      //and the Q value offset, minus the nucleon kinetic energy
+      fCurrRemovalEnergy = localEb + q_val_offset - T_nucl;
+
+      
+    }
+    else {
+      //else, use already existing treatment, i.e. set removal energy to RFG value from table or use 
+      //Wapstra's semi-empirical formula
+      if(it != fNucRmvE.end()) fCurrRemovalEnergy = it->second;
+      else fCurrRemovalEnergy = nuclear::BindEnergyPerNucleon(target);
+    }
+    
+    //decide whether to rethrow event if removal energy is negative
+
+    if (fForcePositiveErmv){
+      if(fCurrRemovalEnergy<0) doThrow=true;
+      else doThrow = false;
+    }
+    else doThrow=false;
+  }
+
+  delete prob;
 
   return true;
 }
@@ -219,6 +270,8 @@ void LocalFGM::LoadConfig(void)
 
   this->GetParamDef("SRC-Fraction", fSRC_Fraction, 0.0);
   this->GetParam("LFG-MomentumCutOff", fPCutOff);
+  this->GetParam("LFG-MomentumDependentErmv", fMomDepErmv);
+  this->GetParam("LFG-ForcePositiveErmv", fForcePositiveErmv);
 
   if (fPCutOff > fPMax) {
         LOG("LocalFGM", pFATAL) << "Momentum CutOff greater than Momentum Max";
