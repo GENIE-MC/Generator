@@ -319,12 +319,6 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   bool is_em = interaction->ProcInfo().IsEM();
   double Q2Thres = is_em ? utils::kinematics::electromagnetic::kMinQ2Limit : controls::kMinQ2Limit;
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("RESKinematics", pDEBUG) << "Scanning phase space for E= " << E;
-#endif
-  //bool scan1d = (E>1.0);
-  bool scan1d = false;
-
   double md;
   if(!interaction->ExclTag().KnownResonance()) md=1.23;
   else {
@@ -332,99 +326,43 @@ double RESKinematicsGenerator::ComputeMaxXSec(
      md=res::Mass(res);
   }
 
-  if(scan1d) {
-    // ** 1-D Scan
-    //
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-    LOG("RESKinematics", pDEBUG)
-              << "Will search for max{xsec} along W(=MRes) = " << md;
-#endif
-    // Set W around the value where d^2xsec/dWdQ^2 peaks
-    interaction->KinePtr()->SetW(md);
-
-    const KPhaseSpace & kps = interaction->PhaseSpace();
-    Range1D_t rQ2 = kps.Q2Lim_W();
-    if( rQ2.max < Q2Thres || rQ2.min <=0 ) return 0.;
-
-    int    NQ2      = 25;
-    int    NQ2b     = 5;
-    double logQ2min = TMath::Log(rQ2.min+kASmallNum);
-    double logQ2max = TMath::Log(rQ2.max-kASmallNum);
-    double dlogQ2 = (logQ2max - logQ2min) /(NQ2-1);
-
-    double xseclast   = -1;
-    bool   increasing = true;
-
-    for(int iq2=0; iq2<NQ2; iq2++) {
-      double Q2 = TMath::Exp(logQ2min + iq2 * dlogQ2);
-      interaction->KinePtr()->SetQ2(Q2);
-      double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-      LOG("RESKinematics", pDEBUG)
-                << "xsec(W= " << md << ", Q2= " << Q2 << ") = " << xsec;
-#endif
-      max_xsec = TMath::Max(xsec, max_xsec);
-      increasing = xsec-xseclast>=0;
-      xseclast=xsec;
-
-      // once the cross section stops increasing, I reduce the step size and
-      // step backwards a little bit to handle cases that the max cross section
-      // is grossly underestimated (very peaky distribution & large step)
-      if(!increasing) {
-        dlogQ2/=NQ2b;
-        for(int iq2b=0; iq2b<NQ2b; iq2b++) {
-	  Q2 = TMath::Exp(TMath::Log(Q2) - dlogQ2);
-          if(Q2 < rQ2.min) continue;
-          interaction->KinePtr()->SetQ2(Q2);
-          xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-          LOG("RESKinematics", pDEBUG)
-                 << "xsec(W= " << md << ", Q2= " << Q2 << ") = " << xsec;
-#endif
-          max_xsec = TMath::Max(xsec, max_xsec);
-        }
-        break;
-      }
-    } // Q2
-
-  } else {
-
-    // ** 2-D Scan
-    //
-    const KPhaseSpace & kps = interaction->PhaseSpace();
-    Range1D_t rW = kps.WLim();
-
-    int    NW   = 20;
-    double Wmin = rW.min + kASmallNum;
-    double Wmax = rW.max - kASmallNum;
-
-    Wmax = TMath::Min(Wmax,fWcut);
-
-    Wmin = TMath::Max(Wmin, md-.3);
-    Wmax = TMath::Min(Wmax, md+.3);
-
-    if(Wmax-Wmin<0.05) { NW=1; Wmin=Wmax; }
-
-    double dW = (NW>1) ? (Wmax-Wmin)/(NW-1) : 0.;
-
-    for(int iw=0; iw<NW; iw++) {
+  // ** 2-D Scan
+  const KPhaseSpace & kps = interaction->PhaseSpace();
+  Range1D_t rW = kps.WLim();
+  
+  int    NW   = 20;
+  double Wmin = rW.min + kASmallNum;
+  double Wmax = rW.max - kASmallNum;
+  
+  Wmax = TMath::Min(Wmax,fWcut);
+  
+  Wmin = TMath::Max(Wmin, md-.3);
+  Wmax = TMath::Min(Wmax, md+.3);
+  
+  if(Wmax-Wmin<0.05) { NW=1; Wmin=Wmax; }
+  
+  double dW = (NW>1) ? (Wmax-Wmin)/(NW-1) : 0.;
+  
+  for(int iw=0; iw<NW; iw++) 
+  {
       double W = Wmin + iw*dW;
       interaction->KinePtr()->SetW(W);
-
+  
       int NQ2  = 25;
       int NQ2b =  4;
-
+  
       Range1D_t rQ2 = kps.Q2Lim_W();
       if( rQ2.max < Q2Thres || rQ2.min <=0 ) continue;
       if( rQ2.max-rQ2.min<0.02 ) {NQ2=5; NQ2b=3;}
-
+  
       double logQ2min   = TMath::Log(rQ2.min+kASmallNum);
       double logQ2max   = TMath::Log(rQ2.max-kASmallNum);
       double dlogQ2     = (logQ2max - logQ2min) /(NQ2-1);
       double xseclast   = -1;
       bool   increasing = true;
-
-      for(int iq2=0; iq2<NQ2; iq2++) {
+  
+      for(int iq2=0; iq2<NQ2; iq2++) 
+      {
         double Q2 = TMath::Exp(logQ2min + iq2 * dlogQ2);
         interaction->KinePtr()->SetQ2(Q2);
         double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
@@ -433,37 +371,32 @@ double RESKinematicsGenerator::ComputeMaxXSec(
         max_xsec = TMath::Max(xsec, max_xsec);
         increasing = xsec-xseclast>=0;
         xseclast=xsec;
-
+        
         // once the cross section stops increasing, I reduce the step size and
         // step backwards a little bit to handle cases that the max cross section
         // is grossly underestimated (very peaky distribution & large step)
-        if(!increasing) {
-         dlogQ2/=NQ2b;
-         for(int iq2b=0; iq2b<NQ2b; iq2b++) {
-	   Q2 = TMath::Exp(TMath::Log(Q2) - dlogQ2);
-           if(Q2 < rQ2.min) continue;
-           interaction->KinePtr()->SetQ2(Q2);
-           xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
-           LOG("RESKinematics", pDEBUG)
-                 << "xsec(W= " << W << ", Q2= " << Q2 << ") = " << xsec;
-           max_xsec = TMath::Max(xsec, max_xsec);
-         }
-         break;
-	}
+        if(!increasing) 
+        {
+            dlogQ2/=NQ2b;
+            for(int iq2b=0; iq2b<NQ2b; iq2b++) 
+            {
+              Q2 = TMath::Exp(TMath::Log(Q2) - dlogQ2);
+              if(Q2 < rQ2.min) continue;
+              interaction->KinePtr()->SetQ2(Q2);
+              xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
+              LOG("RESKinematics", pDEBUG)
+                      << "xsec(W= " << W << ", Q2= " << Q2 << ") = " << xsec;
+              max_xsec = TMath::Max(xsec, max_xsec);
+            }
+            break;
+        }
       } // Q2
-    }//W
-  }//2d scan
+  }//W
 
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy
   // Apply larger safety factor for smaller energies.
   max_xsec *= ( (E<md) ? 2. : fSafetyFactor);
-
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("RESKinematics", pDEBUG) << interaction->AsString();
-  LOG("RESKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
-  LOG("RESKinematics", pDEBUG) << "Computed using " << fXSecModel->Id();
-#endif
 
   return max_xsec;
 }
