@@ -334,7 +334,8 @@ double RESKinematicsGenerator::ComputeMaxXSec(
      Resonance_t res = interaction->ExclTag().Resonance();
      md=res::Mass(res);
   }
-    
+
+  // ** 2-D Scan
   const KPhaseSpace & kps = interaction->PhaseSpace();
   Range1D_t rW = kps.WLim();
   
@@ -371,36 +372,36 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   
       for(int iq2=0; iq2<NQ2; iq2++) 
       {
-         double Q2 = TMath::Exp(logQ2min + iq2 * dlogQ2);
-         interaction->KinePtr()->SetQ2(Q2);
-         double xsec = fXSecModel->XSec(interaction, kPSWQD2fE);
-         LOG("RESKinematics", pDEBUG)
-                 << "xsec(W= " << W << ", Q2= " << Q2 << ") = " << xsec;
-         max_xsec = TMath::Max(xsec, max_xsec);
-         increasing = xsec-xseclast>=0;
-         xseclast=xsec;
-         
-         // once the cross section stops increasing, I reduce the step size and
-         // step backwards a little bit to handle cases that the max cross section
-         // is grossly underestimated (very peaky distribution & large step)
-         if(!increasing) 
-         {
-             dlogQ2/=NQ2b;
-             for(int iq2b=0; iq2b<NQ2b; iq2b++) 
-             {
-                Q2 = TMath::Exp(TMath::Log(Q2) - dlogQ2);
-                if(Q2 < rQ2.min) continue;
-                interaction->KinePtr()->SetQ2(Q2);
-                xsec = fXSecModel->XSec(interaction, kPSWQD2fE);
-                LOG("RESKinematics", pDEBUG)
-                     << "xsec(W= " << W << ", Q2= " << Q2 << ") = " << xsec;
-                max_xsec = TMath::Max(xsec, max_xsec);
-             }
-             break;
-         }
+        double Q2 = TMath::Exp(logQ2min + iq2 * dlogQ2);
+        interaction->KinePtr()->SetQ2(Q2);
+        double xsec = fXSecModel->XSec(interaction, kPSWQD2fE);
+        LOG("RESKinematics", pDEBUG)
+                << "xsec(W= " << W << ", Q2= " << Q2 << ") = " << xsec;
+        max_xsec = TMath::Max(xsec, max_xsec);
+        increasing = xsec-xseclast>=0;
+        xseclast=xsec;
+        
+        // once the cross section stops increasing, I reduce the step size and
+        // step backwards a little bit to handle cases that the max cross section
+        // is grossly underestimated (very peaky distribution & large step)
+        if(!increasing) 
+        {
+            dlogQ2/=NQ2b;
+            for(int iq2b=0; iq2b<NQ2b; iq2b++) 
+            {
+              Q2 = TMath::Exp(TMath::Log(Q2) - dlogQ2);
+              if(Q2 < rQ2.min) continue;
+              interaction->KinePtr()->SetQ2(Q2);
+              xsec = fXSecModel->XSec(interaction, kPSWQD2fE);
+              LOG("RESKinematics", pDEBUG)
+                      << "xsec(W= " << W << ", Q2= " << Q2 << ") = " << xsec;
+              max_xsec = TMath::Max(xsec, max_xsec);
+            }
+            break;
+        }
       } // Q2
   }//W
-  
+
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy
   // Apply larger safety factor for smaller energies.
