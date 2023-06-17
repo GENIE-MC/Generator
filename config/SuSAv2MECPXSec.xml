@@ -20,7 +20,9 @@ QvalueShifterAlg      algo     yes        Qvalue shifter algo                   
       <!-- <param type="string" name="CommonParam"> CKM </param> No longer needed -->
       <param type="alg"  name="NumericalIntegrationAlg"> genie::MECXSec/Default </param>
       <param type="alg" name="HadronTensorAlg"> genie::SuSAv2MECHadronTensorModel/Default </param>
-      <param type="double" name="MEC-XSecScale"> 1.000 </param>
+      <param type="double" name="MEC-CC-XSecScale"> 1.000 </param>
+      <param type="double" name="MEC-NC-XSecScale"> 1.000 </param>
+      <param type="double" name="MEC-EM-XSecScale"> 1.000 </param>
       <param type="string" name="CommonParam"> FermiGas  </param> <!-- For Kf lookups -->
   </param_set>
 

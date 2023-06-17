@@ -290,6 +290,7 @@ double ReinSehgalRESPXSec::XSec(
   double xsec_scale = 1.;
   if      (is_CC) { xsec_scale = fXSecScaleCC; }
   else if (is_NC) { xsec_scale = fXSecScaleNC; }
+  else if (is_EM) { xsec_scale = fXSecScaleEM; }
   xsec *= xsec_scale;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -427,6 +428,7 @@ void ReinSehgalRESPXSec::LoadConfig(void)
   // Cross section scaling factors
   this->GetParam( "RES-CC-XSecScale", fXSecScaleCC ) ;
   this->GetParam( "RES-NC-XSecScale", fXSecScaleNC ) ;
+  this->GetParam( "RES-EM-XSecScale", fXSecScaleEM ) ;
 
   this->GetParam( "RES-Zeta", fZeta ) ;
   this->GetParam( "RES-Omega", fOmega ) ;

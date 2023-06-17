@@ -27,7 +27,9 @@ WeinbergAngle               double  No                                          
      <param type="alg" name="XSec-Integrator"> genie::DMDISXSec/Default          </param>
      <param type="alg" name="Hadronizer">      genie::AGKYLowW2019/Default </param>
      <param type="int" name="velocity-mode">   0                               </param>
-     <param type="double" name="DIS-XSecScale">    1.032 </param>
+     <param type="double" name="DIS-CC-XSecScale">    1.032 </param>
+     <param type="double" name="DIS-NC-XSecScale">    1.032 </param>
+     <param type="double" name="DIS-EM-XSecScale">    1.032 </param>
   </param_set>
   <param_set name="Velocity2"> 
     <param type="string" name="CommonParam"> NonResBackground,WeakInt,BoostedDarkMatter  </param>
@@ -36,7 +38,9 @@ WeinbergAngle               double  No                                          
      <param type="alg" name="XSec-Integrator"> genie::DMDISXSec/Default          </param>
      <param type="alg" name="Hadronizer">      genie::AGKYLowW2019/Default </param>
      <param type="int" name="velocity-mode">   2                               </param>
-     <param type="double" name="DIS-XSecScale">    1.032 </param>
+     <param type="double" name="DIS-CC-XSecScale">    1.032 </param>
+     <param type="double" name="DIS-NC-XSecScale">    1.032 </param>
+     <param type="double" name="DIS-EM-XSecScale">    1.032 </param>
   </param_set>
 
 </alg_conf>

@@ -628,6 +628,16 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
   // This way if someone reuses this code, they are not tripped up by it.
   TMax = Enu - LepMass;
 
+  // Warn if fQ3Max value is suspect 
+  // (i.e. above the Valencia model's rage of validity)
+  // This is just to warn users who have swapped out a MEC model
+  // without remembering to change fQ3Max.
+  if(fQ3Max>1.21){
+    LOG("MEC", pWARN)
+        << "fQ3 max is larger than expected for Valencia MEC: "
+        << fQ3Max << ". Are you sure this is correct?";
+  }
+
   // Set Tmin for throwing rndm in the accept/reject loop
   // the hadron tensors we expect will be limited in q3
   // therefore also the outgoing lepton KE can't be too low or costheta too backward
@@ -887,6 +897,16 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
   // We can accidentally set it too high, because the xsec will return zero.
   // This way if someone reuses this code, they are not tripped up by it.
   TMax = Enu - LepMass;
+
+  // Warn if fQ3Max value is suspect 
+  // (i.e. below the SuSA model's rage of validity)
+  // This is just to warn users who have swapped out a MEC model
+  // without remembering to change fQ3Max.
+  if(fQ3Max<1.99){
+    LOG("MEC", pWARN)
+        << "fQ3 max is smaller than expected for SuSAv2 MEC: "
+        << fQ3Max << ". Are you sure this is correct?";
+  }
 
   // TODO: double-check the limits below
 

@@ -24,7 +24,7 @@ DataPathType       string   Yes        Whether the specified path is    relative
     <!-- Paths can be absolute or relative to the $GENIE folder -->
     <!-- <param type="string" name="DataPathType"> relative </param> -->
 
-    <param type="string" name="DataPath"> data/evgen/hadron_tensors/susav2 </param>
+    <param type="string" name="DataPath"> data/evgen/hadron_tensors/crpa_susav2 </param>
 
     <!-- 12C -->
     <param type="string" name="MEC_FullAll@Pdg=1000060120"> SuSAv2_1000060120_MEC_FullAll.dat </param>

@@ -23,6 +23,7 @@
 
 #pragma link C++ class genie::flux::GCylindTH1Flux;
 #pragma link C++ class genie::flux::GMonoEnergeticFlux;
+#pragma link C++ class genie::flux::GPowerLawFlux;
 
 #pragma link C++ class genie::flux::GAtmoFlux;
 #pragma link C++ class genie::flux::GFLUKAAtmoFlux;

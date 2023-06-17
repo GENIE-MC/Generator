@@ -45,7 +45,9 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                       version='master', grid_system='FNAL', group='genie', conf_dir='', arch='SL6.x86_64', production='routine_validation', 
                       cycle='01', softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
                       grid_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh',
-                      genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', time=8, git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator") :
+                      genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', 
+                      time=8, memory="2GB", disk="2GB", 
+                      git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator") :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-xsec_vA'
     
@@ -103,7 +105,7 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
 
     command_list = []
     if grid_system == 'FNAL' :
-        grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time)
+        grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time,memory,disk)
                     
     # Create neutrino spline commands:
     grid_sub_cmd = []     

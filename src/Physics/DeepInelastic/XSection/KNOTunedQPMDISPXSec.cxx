@@ -107,7 +107,8 @@ double KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(
 
   const InitialState & ist = in->InitState();
   const ProcessInfo &  pi  = in->ProcInfo();
-
+  const bool is_EM = pi.IsEM();
+  
   double E    = ist.ProbeE(kRfHitNucRest);
   double Mnuc = ist.Tgt().HitNucMass();
   double x    = in->Kine().x();
@@ -198,9 +199,12 @@ double KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(
   }
 
   // Now return the suppression factor
-  if      (Wo > Wmin && Wo < fWcut) Ro = R;
-  else if (Wo <= Wmin)            Ro = 0.0;
-  else                            Ro = 1.0;
+  if      (Wo > Wmin && Wo < fWcut) {
+    Ro = R;
+    if ( is_EM ) Ro *= fNRBEMScale ; // Additional scaling
+  }
+  else if (Wo <= Wmin)              Ro = 0.0;
+  else                              Ro = 1.0;
 
   LOG("DISXSec", pDEBUG)
       << "DIS/RES Join: DIS xsec suppr. (W=" << Wo << ") = " << Ro;
@@ -231,6 +235,7 @@ void KNOTunedQPMDISPXSec::LoadConfig(void)
   assert(fHadronizationModel);
 
   GetParam( "Wcut", fWcut ) ;
+  GetParam( "NRB-EM-XSecScale", fNRBEMScale );
 
   if ( fWcut <= 0. ) {
 
