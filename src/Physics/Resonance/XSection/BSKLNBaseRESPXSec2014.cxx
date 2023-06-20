@@ -645,6 +645,7 @@ double BSKLNBaseRESPXSec2014::XSec(
   // Apply given scaling factor
   if      (is_CC) { xsec *= fXSecScaleCC; }
   else if (is_NC) { xsec *= fXSecScaleNC; }
+  else if (is_EM) { xsec *= fXSecScaleEM; }
 
   // If requested return the free nucleon xsec even for input nuclear tgt
   if ( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
