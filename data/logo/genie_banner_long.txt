@@ -36,43 +36,44 @@
 *                                                             Copyright (c) 2003-2023, The GENIE Collaboration  *
 *                                                                                                               *
 *                                                                                                               *
-*  Luis Alvarez-Ruso [4], Costas Andreopoulos [7,10], Adi Ashkenazi [8], Steve Dytman [9], Hugh Gallagher [11], *
-*   Alfonso Andres Garcia Soto [3,4], Steven Gardiner [2], Robert Hatcher [2], Or Hen [8], Timothy Hobbs [2],   *
-* Igor Kakorin [6], Konstantin Kuzmin [5,6], Anselmo Meregaglia [1], Vadim Naumov [6], Afroditi Papadopoulou [8]* 
-*    Gabriel Perdue [2], Marco Roda [7], Noah Steinberg [2], Vladyslav Syrotenko [11], Júlia Tena Vidal [7],    *
-*                                      Jeremy Wolcott [11], and Natalie Wright [8]                              *
+*  Luis Alvarez-Ruso [5], Costas Andreopoulos [8], Adi Ashkenazi [11], Joshua Barrow (9,11), Steve Dytman [10], * 
+*       Hugh Gallagher [12], Alfonso Andres Garcia Soto [4,5], Steven Gardiner [3], Matan Goldenberg [11],      * 
+*       Robert Hatcher [3], Or Hen [9], Igor Kakorin [7], Konstantin Kuzmin [6,7], Anselmo Meregaglia [2],      * 
+*       Vadim Naumov [7], Afroditi Papadopoulou [1], Gabriel Perdue [3], Marco Roda [8], Alon Sportes [11],     *
+*          Noah Steinberg [3], Vladyslav Syrotenko [12], Júlia Tena Vidal [11], and Jeremy Wolcott [12]         *
 *                                                                                                               *
 *                                             (The GENIE Collaboration)                                         *
 *                                                                                                               *
-*                                  [1] CENBG, Université de Bordeaux, CNRS/IN2P3                                *
+*                                      [1] Argonne National Laboratory (ANL)                                    *
+*                                               Lemont, IL, 60439, USA                                          *
+*                                  [2] CENBG, Université de Bordeaux, CNRS/IN2P3                                *
 *                                               33175 Gradignan, France                                         *
-*                                    [2] Fermi National Accelerator Laboratory                                  *
+*                                  [3] Fermi National Accelerator Laboratory (FNAL)                             *
 *                                             Batavia, Illinois 60510, USA                                      *
-*                                    [3] Harvard University, Dept. of Physics                                   * 
+*                                    [4] Harvard University, Dept. of Physics                                   * 
 *                                               Cambridge, MA 02138, USA                                        *
-*                                    [4] Instituto de Física Corpuscular (IFIC)                                 *
+*                                    [5] Instituto de Física Corpuscular (IFIC)                                 *
 *                                          46980, Paterna, Valéncia, Spain                                      *
-*      [5] Alikhanov Institute for Theoretical and Experimental Physics (ITEP) of NRC "Kurchatov Institute"     *
+*      [6] Alikhanov Institute for Theoretical and Experimental Physics (ITEP) of NRC "Kurchatov Institute"     *
 *                                              Moscow, 117218, Russia                                           *
-*                                 [6] Joint Institute for Nuclear Research (JINR)                               *
+*                                 [7] Joint Institute for Nuclear Research (JINR)                               *
 *                                        Dubna, Moscow region, 141980, Russia                                   *
-*                                  [7] University of Liverpool, Dept. of Physics                                *
+*                                  [8] University of Liverpool, Dept. of Physics                                *
 *                                               Liverpool L69 7ZE, UK                                           *
-*                        [8] Massachusetts Institute of Technology (MIT), Dept. of Physics                      *
+*                        [9] Massachusetts Institute of Technology (MIT), Dept. of Physics                      *
 *                                              Cambridge, MA 02139, USA                                         *
-*                          [9] University of Pittsburgh, Dept. of Physics and Astronomy                         *
+*                         [10] University of Pittsburgh, Dept. of Physics and Astronomy                         *
 *                                              Pittsburgh PA 15260, USA                                         *
-*                        [10] STFC Rutherford Appleton Laboratory, Particle Physics Dept.                       *
-*                                              Oxfordshire OX11 0QX, UK                                         *
-*                             [11] Tufts University, Dept. of Physics and Astronomy                             *
+*                            [11] Tel Aviv University, School of Physics and Astronomy                          *
+*                                              Tel Aviv 6997801, Israel                                         *
+*                             [12] Tufts University, Dept. of Physics and Astronomy                             *
 *                                                Medford MA 02155, USA                                          *
 *                                                                                                               *
 *  Corresponding Author:                                                                                        *
-*  Prof. Costas Andreopoulos  <constantinos.andreopoulos \at cern.ch>                                           *
-*                                                                                                               *
-*  University of Liverpool  |  STFC Rutherford Appleton Laboratory                                              *
-*  Physics Department       |  Particle Physics Department                                                      *
-*  Oliver Lodge Lab 316     |  Harwell Oxford Campus, R1 2.89                                                   *
-*  Liverpool L69 7ZE, UK    |  Oxfordshire OX11 0QX, UK                                                         *
-*  +44-(0)1517-943201 (tel) |  +44-(0)1235-445091 (tel)                                                         *
+*  -                                                                                                            *
+*  Professor Costas Andreopoulos                                                                                *
+*  University of Liverpool, Department of Physics                                                               *
+*  Oliver Lodge Lab 316, Liverpool L69 7ZE, UK                                                                  *
+*  E-Mail: c.andreopoulos \at cern.ch                                                                           *
+*  Tel: +44-(0)1517-943201                                                                                      *
 *****************************************************************************************************************
