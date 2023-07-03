@@ -313,7 +313,6 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
 
   if( proc_info.IsWeakCC() ) xsec_scale = fXSecCCScale;
   else if( proc_info.IsWeakNC() ) xsec_scale = fXSecNCScale;
-  else if( proc_info.IsEM() ) xsec_scale = fXSecEMScale;
 
   xsec *= xsec_scale ;
 
@@ -408,7 +407,6 @@ void NievesQELCCPXSec::LoadConfig(void)
   // Cross section scaling factor
   GetParam( "QEL-CC-XSecScale", fXSecCCScale ) ;
   GetParam( "QEL-NC-XSecScale", fXSecNCScale ) ;
-  GetParam( "QEL-EM-XSecScale", fXSecEMScale ) ;
 
   // hbarc for unit conversion, GeV*fm
   fhbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
