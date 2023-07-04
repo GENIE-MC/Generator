@@ -12,13 +12,27 @@
 #pragma link C++ class genie::alvarezruso::ARSampledNucleus;
 #pragma link C++ class genie::AlvarezRusoCOHPiPXSec;
 
+#pragma link C++ class genie::AlvarezRusoSalaCOHGammaPXSec ;
+
 #pragma link C++ class genie::BergerSehgalCOHPiPXSec2015;
 #pragma link C++ class genie::BergerSehgalFMCOHPiPXSec2015;
 
 #pragma link C++ class genie::ReinSehgalCOHPiPXSec;
 
+#pragma link C++ class genie::COHElasticPXSec;
+
+#pragma link C++ class genie::DeVriesFormFactor;
+#pragma link C++ class genie::DeVriesFormFactorMap;
+#pragma link C++ class genie::COHProtonFormFactorInterpolation;
+
+#pragma link C++ class genie::COHDeltaCurrent;
+#pragma link C++ class genie::DeltaInMediumCorrections;
+#pragma link C++ class genie::DeltaTransitionFormFactor;
+
 #pragma link C++ class genie::COHXSec;
 #pragma link C++ class genie::COHXSecAR;
+#pragma link C++ class genie::COHGammaIntegrationLimits;
+
 
 #pragma link C++ class genie::PattonCEvNSPXSec;
 #pragma link C++ class genie::CEvNSXSec;

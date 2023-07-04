@@ -1,0 +1,980 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+
+<!--
+
+Configuration sets for the DeVriesFormFactor
+
+All the data are coming from this DeVries' paper
+Atom.Data Nucl.Data Tabl. 36 (1987) 495-536
+DOI: 10.1016/0092-640X(87)90013-1
+
+There shall be a parameter set for each nucleus.
+
+Configurable Parameters:
+.....................................................................................................................
+Name               Type        Optional   Comment                                                          Default
+.....................................................................................................................
+DV-Nucleus         int         No         PDG of the nucleus for which the FormFacotor is evaluated
+
+DV-Radius          double      No         Radius of the nucleus as
+
+DV-Coefficient     vec-double  No         values for the Fourier-Bessel coefficients of the form factor.
+
+DV-QMin            double      yes        Minimum Q value for the validity of the form factor (fm^-1)      0.
+DV-QMax            double      No         Maximum Q value for the validity of the form factor (fm^-1)
+-->
+
+
+
+<alg_conf>
+
+  <param_set name="3H">
+    <param type="int" name="DV-Nucleus"> 1000010030  </param>
+
+    <param type="double" name="DV-Radius"> 3.5  </param>
+     <param type="double" name="DV-QMax"> 2.83  </param>
+
+    <param type="vec-double" name="DV-Coefficient" delim=";">  
+      0.25182e-1 ; 0.34215e-1 ; 0.15257e-1 
+    </param>
+  </param_set>
+
+
+  <param_set name="3He">
+    <param type="int" name="DV-Nucleus"> 1000020030  </param>
+
+    <param type="double" name="DV-Radius"> 5.0  </param>
+
+    <!--  <param type="double" name="DV-QMin"> 0.18  </param>-->
+     <param type="double" name="DV-QMax"> 10.10  </param>
+
+
+    <param type="vec-double" name="DV-Coefficient" delim=";">  
+      0.20020e-1 ; 0.41934e-1 ; 0.36254e-1 ; 0.17941e-1 ; 0.46608e-2 ;
+      0.46834e-2 ; 0.52042e-2 ; 0.38280e-2 ; 0.25661e-2 ; 0.14182e-2 ;
+      0.61390e-3 ; 0.22929e-3 
+    </param>
+  </param_set>
+  
+
+  <param_set name="12C">
+    <param type="int" name="DV-Nucleus"> 1000060120  </param>
+    
+    <param type="double" name="DV-Radius"> 8.0  </param>
+    <param type="double" name="DV-QMax"> 2.75  </param>
+
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.15737e-1 ;  0.38897e-1 ;  0.37085e-1 ;  0.14795e-1 ; -0.44831e-2 ;
+      -0.10057e-1 ; -0.68696e-2 ; -0.28813e-2 ; -0.77229e-3 ;  0.66908e-4 ;
+       0.10636e-3 ; -0.36864e-4 ; -0.50135e-5 ;  0.94550e-5 ; -0.47687e-5 
+    </param>
+  </param_set>
+
+  <param_set name="15N">
+    <param type="int" name="DV-Nucleus"> 1000070150  </param>
+    
+    <param type="double" name="DV-Radius"> 7.0  </param>
+    <!--  <param type="double" name="DV-QMin"> 0.22  </param>-->
+     <param type="double" name="DV-QMax"> 3.17  </param>
+
+   
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+      0.25491e-1 ;  0.50618e-1 ;  0.29822e-1 ; -0.55196e-2 ; -0.15913e-1 ;
+     -0.76184e-2 ; -0.23992e-2 ; -0.47940e-3 
+    </param>
+  </param_set>
+
+  <param_set name="16O">
+    <param type="int" name="DV-Nucleus"> 1000080160  </param>
+    
+    <param type="double" name="DV-Radius"> 8.0  </param>
+    <param type="double" name="DV-QMax"> 2.77  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.20238e-1 ;  0.44793e-1 ; 0.33533e-1 ;  0.35030e-2 ; -0.12293e-1 ;
+      -0.10329e-1 ;  0.34036e-2 ; 0.41627e-3 ; -0.94435e-3 ;  0.25771e-3 ;
+       0.23759e-3 ; -0.10603e-3 ; 0.41480e-4
+    </param>
+  </param_set>
+
+  <param_set name="27Al">
+    <param type="int" name="DV-Nucleus"> 1000130270  </param>
+    
+    <param type="double" name="DV-Radius"> 7.0  </param>
+    <param type="double" name="DV-QMax"> 2.70  </param>
+
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.43418e-1 ; 0.60298e-1 ; 0.28950e-2 ; -0.23522e-1 ; -0.79791e-2 ;
+       0.23010e-2 ; 0.10794e-2 ; 0.12574e-3 ; -0.13021e-3 ;  0.56563e-4 ;
+      -0.18011e-4 ; 0.42869e-5
+    </param>
+  </param_set>
+
+  <param_set name="28Si">
+    <param type="int" name="DV-Nucleus"> 1000140280  </param>
+    
+    <param type="double" name="DV-Radius"> 8.0  </param>
+    <param type="double" name="DV-QMax"> 2.64  </param>
+
+    <param type="vec-double" name="DV-Coefficient" delim=";">
+       0.33495e-1 ;  0.59533e-1 ; 0.20979e-1 ; -0.16900e-1 ; -0.14998e-1 ;
+       4.93248e-3 ;  0.33266e-2 ; 0.59244e-3 ;  4.40013e-3 ;  0.12242e-3 ;
+      -0.12994e-4 ; -0.92784e-5 ; 0.72595e-5 ; -0.42096e-5 
+    </param>
+  </param_set>
+
+  <param_set name="29Si">
+    <param type="int" name="DV-Nucleus"> 1000140290  </param>
+    
+    <param type="double" name="DV-Radius"> 8.0  </param>
+    <param type="double" name="DV-QMax"> 2.64  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.33521e-1 ; 0.59679e-1 ;  0.20593e-1 ; -0.18646e-1 ; -0.16550e-1 ;
+      -0.11922e-2 ; 0.28025e-2 ; -0.67353e-4 ; -0.34619e-3 ;  0.17611e-3 ;
+      -0.57173e-5 ; 0.12371e-4
+    </param>
+  </param_set>
+
+  <param_set name="30Si">
+    <param type="int" name="DV-Nucleus"> 1000140300  </param>
+    
+    <param type="double" name="DV-Radius"> 8.5  </param>
+    <param type="double" name="DV-QMax"> 2.64  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.28397e-1 ;  0.54163e-1 ; 0.25167e-1 ; -0.12858e-1 ; -0.17592e-1 ;
+      -0.46722e-2 ;  0.24804e-2 ; 0.14760e-2 ; -0.30168e-3 ;  0.48346e-4 ;
+       0.0        ; -0.51570e-5 ; 0.30261e-5
+    </param>
+  </param_set>
+
+  <param_set name="31P">
+    <param type="int" name="DV-Nucleus"> 1000150310  </param>
+    
+    <param type="double" name="DV-Radius"> 8.0  </param>
+    <param type="double" name="DV-QMax"> 2.64  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.35305e-1 ; 0.59642e-1 ;  0.17274e-1 ; -0.19303e-1 ; 0.13545e-1 ;
+        0.63209e-3 ; 0.35462e-2 ;  0.83653e-3 ; -0.47904e-3 ; 0.19099e-3 ;
+       -0.69611e-4 ; 0.23196e-4 ; -0.77780e-5
+    </param>
+  </param_set>
+
+  <param_set name="32S">
+    <param type="int" name="DV-Nucleus"> 1000160320  </param>
+    
+    <param type="double" name="DV-Radius"> 8.0  </param>
+    <param type="double" name="DV-QMax"> 2.56  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.37251e-1 ; 0.60248e-1 ;  0.14748e-1 ; -0.18352e-1 ; -0.10347e-1 ;
+        0.30461e-2 ; 0.35277e-2 ; -0.39834e-4 ; -0.97177e-4 ;  0.92279e-4 ;
+       -0.51931e-4 ; 0.22958e-4 ; -0.86609e-5 ;  0.28879e-5 ; -0.86632e-6
+    </param>
+  </param_set>
+
+  <param_set name="34S">
+    <param type="int" name="DV-Nucleus"> 1000160340  </param>
+    
+    <param type="double" name="DV-Radius"> 8.0  </param>
+    <param type="double" name="DV-QMax"> 2.56  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.37036e-1 ; 0.58506e-1 ;  0.12082e-1 ; -0.19022e-1 ;  0.83421e-2 ;
+        0.45434e-2 ; 0.28346e-2 ; -0.52304e-3 ;  0.27754e-4 ;  0.59403e-4 ;
+       -0.42794e-4 ; 0.20407e-4 ; -0.79934e-5 ;  0.27354e-5 ; -0.83914e-6 
+    </param>
+  </param_set>
+
+  <param_set name="36S">
+    <param type="int" name="DV-Nucleus"> 1000160360  </param>
+    
+    <param type="double" name="DV-Radius"> 8.0  </param>
+    <param type="double" name="DV-QMax"> 2.56  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.37032e-1 ; 0.57939e-1 ;  0.10049e-1 ; -0.19852e-1 ; -0.67176e-2 ;
+        0.61882e-2 ; 0.37795e-2 ; -0.55272e-3 ; -0.12904e-3 ;  0.15845e-3 ;
+       -0.84063e-4 ; 0.34010e-4 ; -0.11663e-4 ;  0.35204e-5 ; -0.95135e-6 
+    </param>
+  </param_set>
+
+  <param_set name="40Ar">
+    <param type="int" name="DV-Nucleus"> 1000180400  </param>
+
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 1.81  </param>
+
+    <param type="vec-double" name="DV-Coefficient" delim=";">  
+       0.30451e-1 ; 0.55337e-1 ;  0.20203e-1 ; -0.16765e-1 ; -0.13578e-1 ;
+      -0.43204e-4 ; 0.91988e-3 ; -0.41205e-3 ;  0.11971e-3 ; -0.19801e-4 ;
+      -0.43204e-5 ; 0.61205e-5 ; -0.37803e-5 ;  0.18001e-5 ; -0.77407e-6 
+    </param>
+  </param_set>
+
+  <param_set name="40Ca">
+    <param type="int" name="DV-Nucleus"> 1000200400  </param>
+    
+    <param type="double" name="DV-Radius"> 8.0  </param>
+    <param type="double" name="DV-QMax"> 3.55  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.44846e-1 ;  0.61326e-1 ; -0.16818e-2 ; -0.26217e-1 ; 0.29725e-2 ;
+       0.85534e-2 ;  0.35322e-2 ; -0.48258e-3 ; -0.39346e-3 ; 0.20338e-3 ;
+       0.25461e-4 ; -0.17794e-4 ;  0.67394e-5 ; -0.21033e-5
+    </param>
+  </param_set>
+
+  <param_set name="48Ca">
+    <param type="int" name="DV-Nucleus"> 1000200480  </param>
+    
+    <param type="double" name="DV-Radius"> 8.0  </param>
+    <param type="double" name="DV-QMax"> 3.55  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.44782e-1 ; 0.59523e-1 ; -0.74148e-2 ; -0.29466e-1 ; -0.28350e-3 ;
+        0.10829e-1 ; 0.30465e-2 ; -0.10237e-2 ; -0.17830e-3 ;  0.55391e-4 ;
+       -0.22644e-4 ; 0.82671e-5 ; -0.27343e-5 ;  0.82461e-6 ; -0.22780e-6
+    </param>
+  </param_set>
+
+  <param_set name="48Ti">
+    <param type="int" name="DV-Nucleus"> 1000220480  </param>
+    
+    <param type="double" name="DV-Radius"> 10.0  </param>
+    <param type="double" name="DV-QMax"> 2.20  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.27850e-1 ;  0.55432e-1 ; 0.26369e-1 ; -0.17091e-1 ; -0.21798e-1 ;
+       -0.24889e-2 ;  0.76631e-2 ; 0.34554e-2 ; -0.67471e-3 ;  0.10764e-3 ;
+       -0.16564e-5 ; -0.55566e-5
+    </param>
+  </param_set>
+
+  <param_set name="50Ti">
+    <param type="int" name="DV-Nucleus"> 1000220500  </param>
+    
+    <param type="double" name="DV-Radius"> 9.5  </param>
+    <param type="double" name="DV-QMax"> 2.20  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.31818e-1 ; 0.58556e-1 ; 0.19637e-1 ; -0.24309e-1 ; -0.18748e-1 ;
+        0.33741e-2 ; 0.89961e-2 ; 0.37954e-2 ;  0.41238e-3 ;  0.12540e-3
+    </param>
+  </param_set>
+
+  <param_set name="50Cr">
+    <param type="int" name="DV-Nucleus"> 1000240500  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.59  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.39174e-1 ; 0.61822e-1 ;  0.68550e-2 ; -0.30170e-1 ; -0.98745e-2 ;
+        0.87944e-2 ; 0.68502e-2 ; -0.93609e-3 ; -0.24962e-2 ; -0.15361e-2 ;
+       -0.73687e-3
+    </param>
+  </param_set>
+
+  <param_set name="52Cr">
+    <param type="int" name="DV-Nucleus"> 1000240520  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.59  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.39287e-1 ; 0.62477e-1 ;  0.62482e-2 ; -0.32885e-1 ; -0.10648e-1 ;
+        0.10520e-1 ; 0.85478e-2 ; -0.24003e-3 ; -0.20499e-2 ; -0.12001e-2 ; 
+       -0.56649e-3
+    </param>
+  </param_set>
+
+  <param_set name="54Cr">                                        
+    <param type="int" name="DV-Nucleus"> 1000240540  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.59  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.39002e-1 ; 0.60305e-1 ;  0.45845e-2 ; -0.30723e-1 ; -0.91355e-2 ; 
+        0.93251e-2 ; 0.60583e-2 ; -0.15602e-2 ; -0.76809e-3 ;  0.76809e-3 ;
+       -0.34804e-3
+    </param>
+  </param_set>
+
+  <param_set name="54Fe">
+    <param type="int" name="DV-Nucleus"> 1000260540  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.22  </param>
+
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.42339e-1 ;  0.64428e-1 ;  0.15840e-2 ; -0.35171e-1 ; -0.10116e-1 ; 
+        0.12069e-1 ;  0.62230e-2 ; -0.12045e-2 ;  0.13561e-3 ;  0.10428e-4 ;
+       -0.16980e-4 ;  0.91817e-5 ;  0.39988e-5 ;  0.15731e-5 ; -0.57862e-6 ;
+        0.20186e-6 ; -0.67892e-7
+    </param>
+  </param_set>
+
+  <param_set name="56Fe">
+    <param type="int" name="DV-Nucleus"> 1000260560  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.22  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.42018e-1 ;  0.62337e-1 ;  0.23995e-3 ; -0.32776e-1 ; -0.79941e-2 ;
+        0.10844e-1 ;  0.49123e-2 ; -0.22144e-2 ; -0.18146e-3 ;  0.37261e-3 ;
+       -0.23296e-3 ;  0.11494e-3 ; -0.50596e-4 ;  0.20652e-4 ; -0.79428e-5 ;
+        0.28986e-5 ; -0.10075e-5
+    </param>
+  </param_set>
+
+  <param_set name="58Fe">
+    <param type="int" name="DV-Nucleus"> 1000260580  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.22  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.41791e-1 ;  0.60524e-1 ; -0.14978e-2 ; -0.31183e-1 ; -0.58013e-2 ;
+       0.10611e-1 ;  0.41629e-2 ; -0.29045e-5 ;  0.54106e-3 ;  0.38689e-3 ;
+       0.20514e-3 ; -0.95237e-4 ;  0.40707e-4 ; -0.16346e-1 ;  0.62233e-5 ;
+       0.22568e-5 ;  0.78077e-6
+    </param>
+  </param_set>
+
+  <param_set name="59Co">
+    <param type="int" name="DV-Nucleus"> 1000270590  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.22  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.43133e-1 ; 0.61249e-1 ; -0.32523e-2 ; -0.32681e-1 ; -0.49583e-2 ;
+        0.11494e-1 ; 0.55428e-2 ;  0.31398e-3 ;  0.70578e-4 ;  0.53725e-5 ; 
+       -0.74650e-6 ; 0.19793e-5 ; -0.28059e-5 ;  0.27183e-5 ; -0.19454e-5 ;
+        0.10963e-5 ; 0.51114e-6
+    </param>
+  </param_set>
+
+  <param_set name="58Ni">
+    <param type="int" name="DV-Nucleus"> 1000280580  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.22  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.45030e-1 ;  0.65044e-1 ; -0.32843e-2 ; -0.36241e-1 ; -0.67442e-2 ;
+        0.13146e-1 ;  0.50903e-2 ; -0.20787e-2 ;  0.12901e-3 ;  0.14828e-3 ;
+       -0.11530e-3 ;  0.60881e-4 ; -0.27676e-4 ;  0.11506e-4 ;  0.44764e-5 ;
+        0.16468e-5 ; -0.57496e-6
+    </param>
+  </param_set>
+
+  <param_set name="60Ni">
+    <param type="int" name="DV-Nucleus"> 1000280600  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.22  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.44855e-1 ;  0.63476e-1 ; -0.51001e-2 ; -0.34496e-1 ; -0.43132e-2 ; 
+        0.12767e-1 ;  0.49935e-2 ; -0.92940e-3 ;  0.28281e-3 ; -0.76557e-4 ;
+        0.18677e-4 ;  0.36855e-5 ; -0.32276e-6 ;  0.19843e-6 ;  0.16275e-6 ;
+       -0.82891e-7 ; -0.34896e-7
+    </param>
+  </param_set>
+
+  <param_set name="62Ni">                                        
+    <param type="int" name="DV-Nucleus"> 1000280620  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.22  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.44581e-1 ; 0.61478e-1 ; -0.69425e-2 ; -0.33126e-1 ; -0.24964e-2 ;
+        0.12674e-1 ; 0.37148e-2 ; -0.20881e-2 ;  0.30193e-3 ;  0.57573e-4 ;
+       -0.77965e-4 ; 0.46906e-4 ; -0.22724e-4 ;  0.98243e-5 ; -0.39250e-5 ;
+        0.14732e-5 ; 0.52344e-6
+    </param>
+  </param_set>
+
+  <param_set name="64Ni">
+    <param type="int" name="DV-Nucleus"> 1000280640  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.22  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.44429e-1 ;  0.60116e-1 ; -0.92003e-2 ; -0.33452e-1 ; -0.52856e-3 ; 
+        0.13156e-1 ;  0.35152e-2 ; -0.21671e-2 ;  0.46497e-4 ;  0.25366e-3 ;
+       -0.18438e-2 ;  0.96874e-4 ; -0.44224e-4 ;  0.18493e-4 ; -0.72361e-5 ;
+        0.26740e-5 ; -0.93929e-6
+    </param>
+  </param_set>
+
+  <param_set name="63Cu">
+    <param type="int" name="DV-Nucleus"> 1000290630  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.22  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.45598e-1 ;  0.60706e-1 ; -0.78616e-2 ; -0.31638e-1 ; -0.14447e-2 ;
+        0.10953e-1 ;  0.42578e-2 ; -0.24224e-3 ; -0.30067e-3 ;  0.23903e-3 ;
+       -0.12910e-3 ;  0.60195e-4 ; -0.25755e-4 ;  0.10332e-4 ; -0.39330e-5 ;
+        0.14254e-5 ; -0.49221e-6
+    </param>
+  </param_set>
+
+  <param_set name="65Cu">
+    <param type="int" name="DV-Nucleus"> 1000290650  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.22  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.45444e-1 ;  0.59544e-1 ; -0.94968e-2 ; -0.31561e-1 ;  0.22898e-3 ;
+        0.11189e-1 ;  0.37360e-2 ; -0.64873e-3 ; -0.51133e-3 ;  0.43765e-3 ;
+       -0.24276e-3 ;  0.11507e-3 ; -0.49761e-4 ;  0.20140e-4 ; -0.76945e-5 ;
+        0.28055e-5 ; -0.97411e-6
+    </param>
+  </param_set>
+
+  <param_set name="64Zn">
+    <param type="int" name="DV-Nucleus"> 1000300640  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.22  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.47038e-1 ;  0.61536e-1 ; -0.90045e-2 ; -0.30669e-1 ; -0.78705e-3 ;
+        0.10034e-1 ;  0.14053e-2 ; -0.20640e-2 ;  0.35105e-3 ;  0.27303e-4 ; 
+       -0.63811e-4 ;  0.40893e-4 ; -0.20311e-4 ;  0.88986e-5 ; -0.35849e-5 ;
+        0.13522e-5 ; -0.38635e-6      
+    </param>
+  </param_set>
+
+  <param_set name="66Zn">
+    <param type="int" name="DV-Nucleus"> 1000300660  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.22  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+         0.46991e-1 ;  0.60995e-1 ; -0.96693e-2 ; -0.30457e-1 ; -0.53435e-3 ;
+         0.97083e-2 ;  0.14091e-2 ; -0.70813e-3 ;  0.20809e-3 ; -0.48275e-4 ;
+         0.72680e-5 ;  0.91369e-6 ; -0.14874e-5 ;  0.88831e-6 ; -0.41689e-6 ;
+         0.17283e-6 ; -0.65968e-7
+    </param>
+  </param_set>
+
+  <param_set name="68Zn">
+    <param type="int" name="DV-Nucleus"> 1000300680  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.22  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.46654e-1 ;  0.58827e-1 ; -0.12283e-1 ; -0.29865e-1 ;  0.25669e-2 ;
+        0.10235e-1 ;  0.31861e-2 ; -0.17351e-3 ; -0.42979e-3 ;  0.33700e-3 ;
+       -0.18435e-3 ;  0.87043e-4 ; -0.37612e-4 ;  0.15220e-4 ; -0.58282e-5 ;
+        0.21230e-5 ; -0.73709e-6
+    </param>
+  </param_set>
+
+  <param_set name="70Zn">
+    <param type="int" name="DV-Nucleus"> 1000300700  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.22  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.46362e-1 ;  0.57130e-1 ; -0.13877e-1 ; -0.30030e-1 ;  0.35341e-2 ;
+        0.10113e-1 ;  0.41029e-2 ;  0.76469e-3 ; -0.10138e-2 ;  0.60837e-3 ;
+       -0.29929e-3 ;  0.13329e-3 ; -0.55502e-4 ;  0.21893e-4 ; -0.82286e-5 ;
+        0.29559e-5 ; -0.10148e-5
+    </param>
+  </param_set>
+
+  <param_set name="70Ge">
+    <param type="int" name="DV-Nucleus"> 1000320700  </param>
+    
+    <param type="double" name="DV-Radius"> 10.0  </param>
+    <param type="double" name="DV-QMax"> 2.90  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.38182e-1 ; 0.60306e-1 ;  0.64346e-2 ; -0.29427e-1 ; -0.95888e-2 ;
+        0.87849e-2 ; 0.49187e-2 ; -0.15189e-2 ; -0.17385e-2 ; -0.16794e-3 ;
+       -0.11746e-3 ; 0.65768e-4 ; -0.30691e-4 ;  0.13051e-5 ; -0.52251e-5
+    </param>
+  </param_set>
+
+  <param_set name="72Ge">
+    <param type="int" name="DV-Nucleus"> 1000320720  </param>
+    
+    <param type="double" name="DV-Radius"> 10.0  </param>
+    <param type="double" name="DV-QMax"> 2.90  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.38083e-1 ;  0.59342e-1 ;  0.47718e-2 ; -0.29953e-1 ; -0.88476e-2 ;
+        0.96205e-2 ;  0.47901e-2 ; -0.16869e-2 ; -0.15406e-2 ; -0.97230e-4 ;
+       -0.47640e-4 ; -0.15669e-5 ;  0.67076e-5 ; -0.44500e-5 ;  0.22158e-5
+    </param>
+  </param_set>
+
+  <param_set name="74Ge">
+    <param type="int" name="DV-Nucleus"> 1000320740  </param>
+    
+    <param type="double" name="DV-Radius"> 10.0  </param>
+    <param type="double" name="DV-QMax"> 2.90  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.37989e-1 ;  0.58298e-1 ;  0.27406e-2 ; -0.30666e-1 ; -0.81505e-2 ;
+       0.10231e-1 ;  0.49382e-2 ; -0.16270e-2 ; -0.13937e-2 ;  0.15476e-3 ;
+       0.14396e-3 ; -0.73075e-4 ;  0.31998e-4 ; -0.12822e-4 ;  0.48406e-5
+    </param>
+  </param_set>
+
+  <param_set name="76Ge">
+    <param type="int" name="DV-Nucleus"> 1000320760  </param>
+    
+    <param type="double" name="DV-Radius"> 10.0  </param>
+    <param type="double" name="DV-QMax"> 2.90  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.37951e-1 ;  0.57876e-1 ;  0.15303e-2 ; -0.31822e-1 ; -0.76875e-2 ;
+       0.11237e-1 ;  0.50780e-2 ; -0.17293e-2 ; -0.15523e-2 ;  0.72439e-4 ;
+       0.16560e-3 ; -0.86631e-4 ;  0.39159e-4 ; -0.16259e-4 ;  0.63681e-5
+    </param>
+  </param_set>
+
+  <param_set name="88Sr">
+    <param type="int" name="DV-Nucleus"> 1000380880  </param>
+    
+    <param type="double" name="DV-Radius"> 9.0  </param>
+    <param type="double" name="DV-QMax"> 2.50  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.56435e-1 ;  0.55072e-1 ; -0.33363e-1 ; -0.26061e-1 ;  0.15749e-1 ;
+        0.75233e-2 ; -0.55044e-2 ; -0.23643e-2 ;  0.39362e-3 ; -0.22733e-3 ;
+        0.12519e-3 ; -0.61176e-4 ;  0.27243e-4 ; -0.11285e-4 ;  0.43997e-5 ;
+       -0.16248e-5 ;  0.57053e-6
+    </param>
+  </param_set>
+
+  <param_set name="90Zr">
+    <param type="int" name="DV-Nucleus"> 1000400900  </param>
+    
+    <param type="double" name="DV-Radius"> 10.0  </param>
+    <param type="double" name="DV-QMax"> 2.50  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.46188e-1 ;  0.61795e-1 ; -0.12315e-1 ; -0.36915e-1 ; 0.25175e-2 ;
+        0.15234e-1 ; -0.55146e-3 ; -0.60631e-2 ; -0.12198e-2 ; 0.36200e-3 ;
+       -0.16466e-3 ;  0.53305e-4 ; -0.50873e-5 ; -0.85658e-5 ; 0.86095e-5
+    </param>
+  </param_set>
+
+  <param_set name="92Zr">
+    <param type="int" name="DV-Nucleus"> 1000400920  </param>
+    
+    <param type="double" name="DV-Radius"> 10.0  </param>
+    <param type="double" name="DV-QMax"> 2.50  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.45939e-1 ;  0.60104e-1 ; -0.13341e-1 ; -0.35106e-1 ; 0.31760e-2 ;
+        0.13753e-1 ; -0.82682e-3 ; -0.53001e-2 ; -0.97579e-3 ; 0.26489e-3 ;
+       -0.15873e-3 ;  0.69301e-4 ; -0.22278e-4 ;  0.39533e-5 ; 0.10609e-5 
+    </param>
+  </param_set>
+
+  <param_set name="94Zr">
+    <param type="int" name="DV-Nucleus"> 1000400940  </param>
+    
+    <param type="double" name="DV-Radius"> 10.0  </param>
+    <param type="double" name="DV-QMax"> 2.50  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.45798e-1 ;  0.59245e-1 ; -0.13389e-1 ; -0.33252e-1 ;  0.39888e-2 ;
+        0.12750e-1 ; -0.15793e-2 ; -0.56692e-2 ; -0.15698e-2 ;  0.54394e-4 ;
+       -0.24032e-4 ;  0.38401e-4 ; -0.31690e-4 ;  0.18481e-4 ; -0.85367e-5
+    </param>
+  </param_set>
+
+  <param_set name="92Mo">
+    <param type="int" name="DV-Nucleus"> 1000420920  </param>
+    
+    <param type="double" name="DV-Radius"> 12.0  </param>
+    <param type="double" name="DV-QMax"> 1.96  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.30782e-1 ;  0.59896e-1 ;  0.22016e-1 ; -0.28945e-1 ; -0.26707e-1 ;
+        0.40426e-2 ;  0.14429e-1 ;  0.31696e-2 ; -0.63061e-2 ; -0.45119e-2 ; 
+        0.46236e-3 ;  0.94909e-3 ; -0.38930e-3 ; -0.14808e-3 ;  0.19622e-3 ;
+       -0.40197e-4 ; -0.71949e-4
+    </param>
+  </param_set>
+ 
+  <param_set name="94Mo">
+    <param type="int" name="DV-Nucleus"> 1000420940  </param>
+    
+    <param type="double" name="DV-Radius"> 12.0  </param>
+    <param type="double" name="DV-QMax"> 1.96  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.30661e-1 ;  0.58828e-1 ;  0.20396e-1 ; -0.28830e-1 ; -0.25077e-1 ;
+        0.44768e-2 ;  0.13127e-1 ;  0.19548e-2 ; -0.61403e-2 ; -0.35825e-2 ;
+        0.73790e-3 ;  0.61882e-3 ; -0.40556e-3 ; -0.55748e-5 ; -0.12453e-3 ;
+       -0.57812e-4 ; -0.21657e-4
+    </param>
+  </param_set>
+
+  <param_set name="96Mo">
+    <param type="int" name="DV-Nucleus"> 1000420960  </param>
+    
+    <param type="double" name="DV-Radius"> 12.0  </param>
+    <param type="double" name="DV-QMax"> 1.96  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.30564e-1 ; 0.58013e-1 ;  0.19255e-1 ; -0.28372e-1 ; -0.23304e-1 ;
+        0.49894e-2 ; 0.12126e-1 ;  0.10496e-2 ; -0.62592e-2 ; -0.32814e-2 ;
+        0.89668e-3 ; 0.50636e-3 ; -0.43412e-3 ;  0.71531e-4 ;  0.76745e-4 ;
+       -0.54316e-4 ; 0.23386e-6
+    </param>
+  </param_set>
+
+  <param_set name="98Mo">
+    <param type="int" name="DV-Nucleus"> 1000420980  </param>
+    
+    <param type="double" name="DV-Radius"> 12.0  </param>
+    <param type="double" name="DV-QMax"> 1.96  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.30483e-1 ; 0.57207e-1 ;  0.17888e-1 ; -0.28388e-1 ; -0.21778e-1 ;
+        0.56780e-2 ; 0.11236e-1 ;  0.82176e-3 ; -0.50390e-2 ; -0.23877e-2 ;
+        0.71492e-3 ; 0.29839e-3 ; -0.31408e-3 ;  0.80177e-3 ;  0.43682e-4 ;
+       -0.51394e-4 ; 0.22293e-4
+    </param>
+  </param_set>
+
+  <param_set name="100Mo">
+    <param type="int" name="DV-Nucleus"> 1000421000  </param>
+    
+    <param type="double" name="DV-Radius"> 12.0  </param>
+    <param type="double" name="DV-QMax"> 1.96  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.30353e-1 ; 0.56087e-1 ;  0.16057e-1 ; -0.28767e-1 ; -0.20683e-1 ;
+        0.62429e-2 ; 0.11058e-1 ;  0.11502e-2 ; -0.39395e-2 ; -0.14978e-2 ;
+        0.76350e-3 ; 0.10554e-3 ; -0.25658e-3 ;  0.10964e-3 ;  0.10015e-4 ;
+       -0.40341e-4 ; 0.25744e-4
+    </param>
+  </param_set>
+
+  <param_set name="104Pd">
+    <param type="int" name="DV-Nucleus"> 1000461040  </param>
+    
+    <param type="double" name="DV-Radius"> 11.0  </param>
+    <param type="double" name="DV-QMax"> 2.38  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.41210e-1 ; 0.62846e-1 ; -0.21202e-2 ; -0.38359e-1 ; -0.44693e-2 ;
+       0.16656e-1 ; 0.36873e-2 ; -0.57534e-2 ; -0.32499e-2 ;  0.69844e-3 ;
+       0.16304e-2 ; 0.59882e-3
+    </param>
+  </param_set>
+
+  <param_set name="106Pd">
+    <param type="int" name="DV-Nucleus"> 1000461060  </param>
+    
+    <param type="double" name="DV-Radius"> 11.0  </param>
+    <param type="double" name="DV-QMax"> 2.38  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.41056e-1 ; 0.61757e-1 ; -0.29891e-2 ; -0.37356e-1 ; -0.35348e-2 ;
+       0.16085e-1 ; 0.28502e-2 ; -0.55764e-2 ; -0.15433e-2 ;  0.22281e-2 ;
+       0.13160e-2 ; 0.16508e-4
+    </param>
+  </param_set>
+
+  <param_set name="108Pd">
+    <param type="int" name="DV-Nucleus"> 1000461080  </param>
+    
+    <param type="double" name="DV-Radius"> 11.0  </param>
+    <param type="double" name="DV-QMax"> 2.38  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.40754e-1 ;  0.59460e-1 ; -0.54077e-2 ; -0.36305e-1 ; -0.21987e-2 ;
+       0.15418e-1 ;  0.25927e-2 ; -0.52781e-2 ; -0.19757e-2 ;  0.10339e-2 ;
+       0.22891e-3 ; -0.33464e-3
+    </param>
+  </param_set>
+
+  <param_set name="110Pd">
+    <param type="int" name="DV-Nucleus"> 1000461100  </param>
+    
+    <param type="double" name="DV-Radius"> 11.0  </param>
+    <param type="double" name="DV-QMax"> 2.40  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.40668e-1 ;  0.58793e-1 ; -0.61375e-2 ; -0.35983e-1 ; -0.17447e-2 ;
+       0.14998e-1 ;  0.19994e-2 ; -0.53170e-2 ; -0.14289e-2 ;  0.16033e-2 ;
+       0.31574e-3 ; -0.42195e-3
+    </param>
+  </param_set>
+
+  <param_set name="144Sm">
+    <param type="int" name="DV-Nucleus"> 1000621440  </param>
+    
+    <param type="double" name="DV-Radius"> 9.25  </param>
+    <param type="double" name="DV-QMax"> 2.50  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.74734e-1 ;  0.26145e-1 ; -0.63832e-1 ; 0.10432e-1 ;  0.19183e-1 ;
+       -0.12572e-1 ; -0.39707e-2 ; -0.18703e-2 ; 0.12602e-2 ; -0.11902e-2 ;
+       -0.15703e-2
+    </param>
+  </param_set>
+
+  <param_set name="148Sm">
+    <param type="int" name="DV-Nucleus"> 1000621480  </param>
+    
+    <param type="double" name="DV-Radius"> 9.25  </param>
+    <param type="double" name="DV-QMax"> 2.50  </param>
+
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.73859e-1 ;  0.24023e-1 ; -0.59437e-1 ; 0.10761e-1 ;  0.17022e-1 ;
+       -0.11401e-1 ; -0.18102e-2 ;  0.93011e-3 ; 0.98012e-3 ; -0.12601e-2 ;
+       -0.17402e-2
+    </param>
+  </param_set>
+
+  <param_set name="150Sm">
+    <param type="int" name="DV-Nucleus"> 1000621500  </param>
+    
+    <param type="double" name="DV-Radius"> 9.25  </param>
+    <param type="double" name="DV-QMax"> 2.50  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.73338e-1 ;  0.24626e-1 ; -0.52773e-1 ; 0.10582e-1 ;  0.15353e-1 ;
+       -0.95624e-2 ; -0.18804e-2 ; -0.79019e-3 ; 0.10102e-2 ; -0.26606e-2 ;
+       -0.18304e-2
+    </param>
+  </param_set>
+
+  <param_set name="152Sm">
+    <param type="int" name="DV-Nucleus"> 1000621520  </param>
+    
+    <param type="double" name="DV-Radius"> 9.25  </param>
+    <param type="double" name="DV-QMax"> 2.50  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.72646e-1 ; 0.21824e-1 ; -0.54112e-1 ;  0.98321e-2 ;  0.16213e-1 ;
+       -0.65614e-2 ; 0.53611e-2 ; -0.14103e-2 ; -0.99022e-3 ; -0.23005e-2
+    </param>
+  </param_set>
+
+  <param_set name="154Sm">
+    <param type="int" name="DV-Nucleus"> 1000621540  </param>
+    
+    <param type="double" name="DV-Radius"> 10.5  </param>
+    <param type="double" name="DV-QMax"> 2.18  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.55859e-1 ;  0.44002e-1 ; -0.40342e-1 ; -0.17989e-1 ; 0.19817e-1 ;
+       0.51643e-2 ; -0.60212e-2 ; -0.23127e-2 ;  0.47024e-3
+
+    </param>
+  </param_set>
+
+  <param_set name="154Gd">
+    <param type="int" name="DV-Nucleus"> 1000641540  </param>
+    
+    <param type="double" name="DV-Radius"> 10.0  </param>
+    <param type="double" name="DV-QMax"> 2.17  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.63832e-1 ;  0.36983e-1 ; -0.48193e-1 ; -0.51046e-2 ; 0.19805e-1 ;
+       -0.82574e-3 ; -0.46942e-2
+    </param>
+  </param_set>
+
+  <param_set name="158Gd">
+    <param type="int" name="DV-Nucleus"> 1000641580  </param>
+    
+    <param type="double" name="DV-Radius"> 10.5  </param>
+    <param type="double" name="DV-QMax"> 2.17  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.57217e-1 ;  0.43061e-1 ; -0.41996e-1 ; -0.17203e-1 ; 0.19933e-1 ;
+       0.51060e-2 ; -0.73665e-2 ; -0.20926e-2 ;  0.21883e-2
+    </param>
+  </param_set>
+
+  <param_set name="166Er">
+    <param type="int" name="DV-Nucleus"> 1000681660  </param>
+    
+    <param type="double" name="DV-Radius"> 11.0  </param>
+    <param type="double" name="DV-QMax"> 2.28  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.54426e-1 ;  0.47165e-1 ; -0.38654e-1 ; -0.19672e-1 ;  0.22092e-1 ;
+       0.78708e-2 ; -0.53005e-2 ;  0.50005e-3 ;  0.52005e-3 ; -0.35003e-3 ;
+       0.12001e-3
+    </param>
+  </param_set>
+
+  <param_set name="174Yb">
+    <param type="int" name="DV-Nucleus"> 1000701740  </param>
+    
+    <param type="double" name="DV-Radius"> 11.0  </param>
+    <param type="double" name="DV-QMax"> 2.33  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.54440e-1 ;  0.40034e-1 ; -0.45606e-1 ; -0.20932e-1 ; 0.20455e-1 ;
+       0.27061e-2 ; -0.60489e-2 ; -0.15918e-3 ;  0.11938e-2
+    </param>
+  </param_set>
+
+  <param_set name="175Lu">
+    <param type="int" name="DV-Nucleus"> 1000711750  </param>
+    
+    <param type="double" name="DV-Radius"> 11.0  </param>
+    <param type="double" name="DV-QMax"> 2.33  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+       0.55609e-1 ;  0.42243e-1 ; -0.45028e-1 ; -0.19491e-1 ; 0.22514e-1 ;
+       0.38982e-2 ; -0.72395e-2 ;  0.31822e-3 ; -0.23866e-3
+    </param>
+  </param_set>
+
+  <param_set name="192Os">
+    <param type="int" name="DV-Nucleus"> 1000761920  </param>
+    
+    <param type="double" name="DV-Radius"> 11.0  </param>
+    <param type="double" name="DV-QMax"> 2.90  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.59041e-1 ;  0.41498e-1 ; -0.49900e-1 ; -0.10183e-1 ; 0.29067e-1 ;
+       -0.57382e-2 ; -0.92348e-2 ;  0.36170e-2 ;  0.28736e-2 ; 0.24194e-3 ;
+       -0.16766e-2 ;  0.73610e-3
+    </param>
+  </param_set>
+
+  <param_set name="196Pt">
+    <param type="int" name="DV-Nucleus"> 1000781960  </param>
+    
+    <param type="double" name="DV-Radius"> 12.0  </param>
+    <param type="double" name="DV-QMax"> 2.28  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.50218e-1 ;  0.53722e-1 ; -0.35015e-1 ; -0.34588e-1 ; 0.23564e-1 ;
+        0.14340e-1 ; -0.13270e-1 ; -0.51212e-2 ;  0.56088e-2 ; 0.14890e-2 ;
+       -0.10928e-2 ;  0.55662e-3 ; -0.50557e-4 ; -0.19708e-3 ; 0.24016e-3
+    </param>
+  </param_set>
+
+  <param_set name="203Tl">
+    <param type="int" name="DV-Nucleus"> 1000812030  </param>
+    
+    <param type="double" name="DV-Radius"> 12.0  </param>
+    <param type="double" name="DV-QMax"> 2.24  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.51568e-1 ;  0.51562e-1 ; -0.39299e-1 ; -0.30826e-1 ;  0.27491e-1 ;
+        0.10795e-1 ; -0.15922e-1 ; -0.25527e-2 ;  0.58548e-2 ;  0.19324e-3 ;                 
+       -0.17925e-3 ;  0.14307e-3 ; -0.91669e-4 ;  0.53497e-4 ; -0.29492e-4 ;
+        0.15625e-4 ; -0.80141e-5
+    </param>
+  </param_set>
+
+  <param_set name="205Tl">
+    <param type="int" name="DV-Nucleus"> 1000812050  </param>
+    
+    <param type="double" name="DV-Radius"> 12.0  </param>
+    <param type="double" name="DV-QMax"> 2.24  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.51518e-1 ;  0.51165e-1 ; -0.39559e-1 ; -0.30118e-1 ;  0.27600e-1 ;
+        0.10412e-1 ; -0.15725e-1 ; -0.26546e-2 ;  0.70184e-2 ;  0.82116e-3 ;
+       -0.51805e-3 ;  0.32560e-3 ; -0.18670e-3 ;  0.10202e-3 ; -0.53857e-4 ;
+        0.27672e-4 ; -0.13873e-4
+    </param>
+  </param_set>
+
+  <param_set name="204Pb">
+    <param type="int" name="DV-Nucleus"> 1000822040  </param>
+    
+    <param type="double" name="DV-Radius"> 12.0  </param>
+    <param type="double" name="DV-QMax"> 2.24  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.52102e-1 ;  0.51786e-1 ; -0.39188e-1 ; -0.29242e-1 ;  0.28992e-1 ;
+        0.11040e-1 ; -0.14591e-1 ; -0.94917e-3 ;  0.71349e-2 ;  0.24780e-3 ;
+       -0.61656e-3 ;  0.42335e-3 ; -0.25250e-3 ;  0.14106e-3 ; -0.75446e-4 ;
+        0.39143e-4 ; -0.19760e-4
+    </param>
+  </param_set>
+
+  <param_set name="206Pb">
+    <param type="int" name="DV-Nucleus"> 1000822060  </param>
+    
+    <param type="double" name="DV-Radius"> 12.0  </param>
+    <param type="double" name="DV-QMax"> 2.24  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.52019e-1 ;  0.51190e-1 ; -0.39459e-1 ; -0.28405e-1 ;  0.28862e-1 ;
+        0.10685e-1 ; -0.14550e-1 ; -0.13519e-2 ;  0.77624e-2 ; -0.41882e-4 ;
+       -0.97010e-3 ;  0.69611e-3 ; -0.42410e-3 ;  0.23857e-3 ; -0.12828e-3 ;
+        0.66663e-4 ; -0.33718e-4
+    </param>
+  </param_set>
+
+  <param_set name="207Pb">
+    <param type="int" name="DV-Nucleus"> 1000822070  </param>
+    
+    <param type="double" name="DV-Radius"> 12.0  </param>
+    <param type="double" name="DV-QMax"> 2.24  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.51981e-1 ;  0.51059e-1 ; -0.39447e-1 ; -0.28428e-1 ;  0.28988e-1 ;
+        0.10329e-1 ; -0.14029e-1 ; -0.46728e-3 ;  0.67984e-2 ;  0.56905e-3 ;
+       -0.50430e-3 ;  0.32796e-3 ; -0.19157e-3 ;  0.10565e-3 ; -0.56200e-4 ;
+        0.29020e-4 ; -0.14621e-4
+    </param>
+  </param_set>
+
+  <param_set name="208Pb">
+    <param type="int" name="DV-Nucleus"> 1000822080  </param>
+    
+    <param type="double" name="DV-Radius"> 11.0  </param>
+    <param type="double" name="DV-QMax"> 2.24  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.62732e-1 ;  0.38542e-1 ; -0.55105e-1 ; -0.26990e-2 ;  0.31016e-1 ;
+       -0.99486e-2 ; -0.93012e-2 ;  0.76653e-2 ;  0.20885e-2 ; -0.17840e-2 ;
+        0.74876e-4 ;  0.32278e-3 ; -0.11353e-3
+    </param>
+  </param_set>
+
+  <param_set name="209Bi">
+    <param type="int" name="DV-Nucleus"> 1000832090  </param>
+    
+    <param type="double" name="DV-Radius"> 12.0  </param>
+    <param type="double" name="DV-QMax"> 2.24  </param>
+    
+    <param type="vec-double" name="DV-Coefficient" delim=";"> 
+        0.52448e-1 ;  0.50400e-1 ; -0.41014e-1 ; -0.27927e-2 ;  0.29587e-1 ;
+        0.98017e-2 ; -0.14930e-1 ; -0.31967e-3 ;  0.77252e-2 ;  0.57533e-3 ;
+       -0.82529e-3 ;  0.25728e-3 ; -0.11043e-3 ;  0.51930e-4 ; -0.24767e-4 ;
+        0.11863e-4 ; -0.56554e-5
+    </param>
+  </param_set>
+
+</alg_conf>

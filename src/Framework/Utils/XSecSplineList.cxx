@@ -11,6 +11,8 @@
 #include <fenv.h>  //provides: int feenableexcept(int excepts);
 #include <cmath>   //provides: std::isnan()
 
+#include <chrono>
+
 #include <fstream>
 #include <cstdlib>
 
@@ -35,6 +37,8 @@ using std::ofstream;
 using std::endl;
 
 namespace genie {
+
+  using namespace std::chrono ;
 
 //____________________________________________________________________________
 ostream & operator << (ostream & stream, const XSecSplineList & list)
@@ -239,10 +243,18 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
       p4.SetPz(pz);
     }
     interaction->InitStatePtr()->SetProbeP4(p4);
+
+    steady_clock::time_point start = steady_clock::now();
+
     xsec[i] = alg->Integral(interaction);
+
+    steady_clock::time_point end = steady_clock::now();
+
+    duration<double> time_span = duration_cast<duration<double>>(end - start);
+
     SLOG("XSecSplLst", pNOTICE)
                        << "xsec(E = " << E[i] << ") =  "
-                       << (1E+38/units::cm2)*xsec[i] << " x 1E-38 cm^2";
+                       << (1E+38/units::cm2)*xsec[i] << " x 1E-38 cm^2, evaluated in " << time_span.count() << " s";
     if ( std::isnan(xsec[i]) ) {
       // this sometimes happens near threshold, warn and move on
       SLOG("XSecSplLst", pWARN)

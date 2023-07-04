@@ -132,6 +132,7 @@ print "\n Neutrino List: @nu_list \n";
 @nuclei_proc = ( 'none',
                  'WeakMEC',
                  'CCCOHPION',    'NCCOHPION',
+		 'COHGAMMA',
                  'Fast',
                  'FastWithMEC'  ## this is supposed to be better with G16_01 comprehensive models
     );

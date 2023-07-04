@@ -338,8 +338,6 @@ private:
   const Interaction * fInteraction;
   bool flip;
 };
-
-
 //.....................................................................................
 //
 // genie::utils::gsl::d5Xsec_dEldOmegaldOmegapi
@@ -388,6 +386,83 @@ private:
 };
 ///.....................................................................................
 ///
+/// genie::utils::gsl::d4Xsec_dEgdThetaldThetagdPhig
+/// A 4-D cross section function (fixed E_nu)
+/// RODA - for the AlvarezRuso-SaulSala cross-section
+///
+ class d4Xsec_dEgdThetaldThetagdPhig : public ROOT::Math::IBaseFunctionMultiDim
+ {
+ public:
+   d4Xsec_dEgdThetaldThetagdPhig(const XSecAlgorithmI * m, const Interaction * i);
+   ~d4Xsec_dEgdThetaldThetagdPhig();
+
+   // ROOT::Math::IBaseFunctionMultiDim interface
+   unsigned int                        NDim   (void)               const;
+   double                              DoEval (const double * xin) const;
+   ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
+  
+   double                              GetFactor()                 const;
+   void                                SetFactor(double factor);
+
+ private:
+   const XSecAlgorithmI * fModel;
+   const Interaction *    fInteraction;
+   double fFactor;
+ };
+///.....................................................................................
+///
+/// genie::utils::gsl::d4Xsec_dEgdtdThetagdPhig
+/// A 4-D cross section function (fixed E_nu)
+/// RODA - for the AlvarezRuso-SaulSala cross-section
+///
+ class d4Xsec_dEgdtdThetagdPhig : public ROOT::Math::IBaseFunctionMultiDim
+ {
+ public:
+   d4Xsec_dEgdtdThetagdPhig(const XSecAlgorithmI * m, const Interaction * i);
+   ~d4Xsec_dEgdtdThetagdPhig();
+
+   // ROOT::Math::IBaseFunctionMultiDim interface
+   unsigned int                        NDim   (void)               const;
+   double                              DoEval (const double * xin) const;
+   ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
+  
+   double                              GetFactor()                 const;
+   void                                SetFactor(double factor);
+
+ private:
+   const XSecAlgorithmI * fModel;
+   const Interaction *    fInteraction;
+   double fFactor;
+ };
+///.....................................................................................
+///
+/// genie::utils::gsl::d5Xsec_dEgdOmegaldOmegag
+/// A 5-D cross section function (fixed E_nu)
+/// RODA - for the AlvarezRuso-SaulSala cross-section
+/// Note that the cross section is invariant under phi_l
+/// So there is not going to be a 5th dimension
+///
+ class d5Xsec_dEgdOmegaldOmegag : public ROOT::Math::IBaseFunctionMultiDim
+ {
+ public:
+   d5Xsec_dEgdOmegaldOmegag(const XSecAlgorithmI * m, const Interaction * i);
+   ~d5Xsec_dEgdOmegaldOmegag();
+
+   // ROOT::Math::IBaseFunctionMultiDim interface
+   unsigned int                        NDim   (void)               const;
+   double                              DoEval (const double * xin) const;
+   ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
+  
+   double                              GetFactor()                 const;
+   void                                SetFactor(double factor);
+
+ private:
+   const XSecAlgorithmI * fModel;
+   const Interaction *    fInteraction;
+   double fFactor;
+ };
+///.....................................................................................
+///
 /// genie::utils::gsl::d3Xsec_dOmegaldThetapi
 /// A 3-D cross section function (fixed E_nu)
 /// Steve Dennis - for the Alvarez-Russo cross-section
@@ -406,7 +481,7 @@ public:
   // Specific to this class
   void SetE_lep (double E_lepton) const;
   // Yes, it's a const setter
-  // Needed because DoEval must be const, but dXSec_dElep_AR::DoEval() must call this
+  // Needed because DoEval must be const, but dXSec_dElep_AR_pion::DoEval() must call this
 
 private:
   const XSecAlgorithmI * fModel;
@@ -415,21 +490,21 @@ private:
 };
 ///.....................................................................................
 ///
-/// genie::utils::gsl::dXSec_dElep_AR
+/// genie::utils::gsl::dXSec_dElep_AR_pion
 /// A 1-D cross section function: dxsec/dElep
-/// Used for Alvarez-Ruso coherent.
+/// Used for Alvarez-Ruso coherent pion.
 ///
-class dXSec_dElep_AR: public ROOT::Math::IBaseFunctionOneDim
+class dXSec_dElep_AR_pion: public ROOT::Math::IBaseFunctionOneDim
 {
 public:
-  dXSec_dElep_AR(const XSecAlgorithmI * m, const Interaction * i,
+  dXSec_dElep_AR_pion(const XSecAlgorithmI * m, const Interaction * i,
                  string gsl_nd_integrator_type, double gsl_relative_tolerance,
                  unsigned int max_n_calls);
-  dXSec_dElep_AR() {};
- ~dXSec_dElep_AR();
+  dXSec_dElep_AR_pion() {};
+ ~dXSec_dElep_AR_pion();
 
   // ROOT::Math::IBaseFunctionOneDim interface
-  dXSec_dElep_AR *                  Clone  (void)             const;
+  dXSec_dElep_AR_pion *                  Clone  (void)             const;
   double                            DoEval (double xin) const;
 
 private:

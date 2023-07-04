@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+
+Configuration sets for the DeVriesFormFactorMap
+
+Configurable Parameters:
+..........................................................................................................
+Name                          Type     Optional   Comment
+..........................................................................................................
+COH-DV-FormFactor             vec-alg  No         Vector of DeVries sub algo and nuclei specification
+-->
+
+
+
+<alg_conf>
+
+  <param_set name="Default">
+    <param type="vec-alg" name="COH-DV-FormFactor" delim=";">
+      genie::DeVriesFormFactor/12C   ;
+      genie::DeVriesFormFactor/15N   ;
+      genie::DeVriesFormFactor/16O   ;
+      genie::DeVriesFormFactor/27Al  ;
+      genie::DeVriesFormFactor/28Si  ;
+      genie::DeVriesFormFactor/29Si  ;
+      genie::DeVriesFormFactor/30Si  ;
+      genie::DeVriesFormFactor/31P   ;
+      genie::DeVriesFormFactor/32S   ;
+      genie::DeVriesFormFactor/34S   ;
+      genie::DeVriesFormFactor/36S   ;
+      genie::DeVriesFormFactor/40Ar  ;
+      genie::DeVriesFormFactor/40Ca  ;
+      genie::DeVriesFormFactor/48Ca  ;
+      genie::DeVriesFormFactor/48Ti  ;
+      genie::DeVriesFormFactor/50Ti  ;
+      genie::DeVriesFormFactor/50Cr  ;
+      genie::DeVriesFormFactor/52Cr  ;
+      genie::DeVriesFormFactor/54Cr  ;
+      genie::DeVriesFormFactor/54Fe  ;
+      genie::DeVriesFormFactor/56Fe  ;
+      genie::DeVriesFormFactor/58Fe  ;
+      genie::DeVriesFormFactor/59Co  ;
+      genie::DeVriesFormFactor/58Ni  ;
+      genie::DeVriesFormFactor/60Ni  ;
+      genie::DeVriesFormFactor/62Ni  ;
+      genie::DeVriesFormFactor/64Ni  ;
+      genie::DeVriesFormFactor/63Cu  ;
+      genie::DeVriesFormFactor/65Cu  ;
+      genie::DeVriesFormFactor/64Zn  ;
+      genie::DeVriesFormFactor/66Zn  ;
+      genie::DeVriesFormFactor/68Zn  ;
+      genie::DeVriesFormFactor/70Zn  ;
+      genie::DeVriesFormFactor/70Ge  ;
+      genie::DeVriesFormFactor/72Ge  ;
+      genie::DeVriesFormFactor/74Ge  ;
+      genie::DeVriesFormFactor/76Ge  ;
+      genie::DeVriesFormFactor/88Sr  ;
+      genie::DeVriesFormFactor/90Zr  ;
+      genie::DeVriesFormFactor/92Zr  ;
+      genie::DeVriesFormFactor/94Zr  ;
+      genie::DeVriesFormFactor/92Mo  ;
+      genie::DeVriesFormFactor/94Mo  ;
+      genie::DeVriesFormFactor/96Mo  ;
+      genie::DeVriesFormFactor/98Mo  ;
+      genie::DeVriesFormFactor/100Mo ;
+      genie::DeVriesFormFactor/104Pd ;
+      genie::DeVriesFormFactor/106Pd ;
+      genie::DeVriesFormFactor/108Pd ;
+      genie::DeVriesFormFactor/110Pd ;
+      genie::DeVriesFormFactor/144Sm ;
+      genie::DeVriesFormFactor/148Sm ;
+      genie::DeVriesFormFactor/150Sm ;
+      genie::DeVriesFormFactor/152Sm ;
+      genie::DeVriesFormFactor/154Sm ;
+      genie::DeVriesFormFactor/154Gd ;
+      genie::DeVriesFormFactor/158Gd ;
+      genie::DeVriesFormFactor/166Er ;
+      genie::DeVriesFormFactor/174Yb ;
+      genie::DeVriesFormFactor/175Lu ;
+      genie::DeVriesFormFactor/192Os ;
+      genie::DeVriesFormFactor/196Pt ;
+      genie::DeVriesFormFactor/203Tl ;
+      genie::DeVriesFormFactor/205Tl ;
+      genie::DeVriesFormFactor/204Pb ;
+      genie::DeVriesFormFactor/206Pb ;
+      genie::DeVriesFormFactor/207Pb ;
+      genie::DeVriesFormFactor/208Pb ;
+      genie::DeVriesFormFactor/209Bi
+        </param>
+  </param_set>
+
+
+</alg_conf>

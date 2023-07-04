@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+
+Configuration sets for the AlvarezRusoSalaCOHGammaPXSec
+
+Configurable Parameters:
+.........................................................................................................................
+Name                          Type     Optional   Comment                                        Default
+.........................................................................................................................
+COH-HadronicCurrents          vec-alg  No         Vector of hadronic current sub algos                         -
+XSec-Integrator               alg      No         Cross section integrator sub algo                            - 
+COH-FormFactor                alg      yes        DeVries form facor sub algo                    The one of the integrator              
+AsymptoticMaxGammaEnergy      double   No         Configuration parameter for maximum W for      taken from subalgo
+                                                  the cross section. 
+-->
+
+
+
+
+<alg_conf>
+
+  <param_set name="Default">
+
+    <param type="vec-alg" name="COH-HadronicCurrents" delim=";">
+      genie::COHDeltaCurrent/Default
+    </param>
+    
+    <param type="alg"  name="XSec-Integrator"> genie::COHXSecAR/Gamma </param>
+
+  </param_set>
+
+  <param_set name="Consistent">
+
+    <param type="vec-alg" name="COH-HadronicCurrents" delim=";">
+      genie::COHDeltaCurrent/FermiMomentumTable
+    </param>
+    
+  </param_set>
+
+
+
+</alg_conf>

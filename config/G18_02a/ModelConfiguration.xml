@@ -111,13 +111,13 @@ STFC, Rutherford Appleton Laboratory
   <!-- Berger-Sehgal "as in the paper"  -->
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC-PION">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-PION">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
+  
 
-
-  <!-- Alvarez-Ruso et al COH pion
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC-PION">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-PION">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
-  -->
-
+  <!-- Alvarez-Ruso et al COH pion 
+       <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC-PION">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
+       <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-PION">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
+  --> 
+  
   <param type="alg" name="XSecModel@genie::EventGenerator/IMD">            genie::BardinIMDRadCorPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/IMD-ANH">        genie::IMDAnnihilationPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/NUE-EL">         genie::NuElectronPXSec/Default        </param>

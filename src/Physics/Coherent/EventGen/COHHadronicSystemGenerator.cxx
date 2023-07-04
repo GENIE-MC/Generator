@@ -51,24 +51,35 @@ COHHadronicSystemGenerator::~COHHadronicSystemGenerator()
 //___________________________________________________________________________
 void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-  // Access cross section algorithm for running thread
-  RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
-  const EventGeneratorI * evg = rtinfo->RunningThread();
-  const XSecAlgorithmI *fXSecModel = evg->CrossSectionAlg();
-  if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
-    CalculateHadronicSystem_ReinSehgal(evrec);
-  } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015")) {
-    CalculateHadronicSystem_BergerSehgal(evrec);
-  } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015")) {
-    CalculateHadronicSystem_BergerSehgalFM(evrec);
-  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
+
+  const Interaction * interaction = evrec -> Summary() ;
+  const XclsTag & xcls = interaction -> ExclTag() ;
+
+  if ( xcls.NPions() ==1 ) {
+
+    // Access cross section algorithm for running thread
+    RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+    const EventGeneratorI * evg = rtinfo->RunningThread();
+    const XSecAlgorithmI *fXSecModel = evg->CrossSectionAlg();
+    if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
+      CalculateHadronicSystem_ReinSehgal(evrec);
+    } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015")) {
+      CalculateHadronicSystem_BergerSehgal(evrec);
+    } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015")) {
+      CalculateHadronicSystem_BergerSehgalFM(evrec);
+    } else if (fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec") {
+      CalculateHadronicSystem_AlvarezRuso(evrec);
+    }
+    else {
+      LOG("COHHadronicSystemGenerator",pFATAL) <<
+	"ProcessEventRecord >> Cannot calculate hadronic system for " <<
+	fXSecModel->Id().Name();
+    }
+  }
+  else if ( xcls.NSingleGammas() == 1 ) {
     CalculateHadronicSystem_AlvarezRuso(evrec);
   }
-  else {
-    LOG("COHHadronicSystemGenerator",pFATAL) <<
-      "ProcessEventRecord >> Cannot calculate hadronic system for " <<
-      fXSecModel->Id().Name();
-  }
+  
 }
 //___________________________________________________________________________
 int COHHadronicSystemGenerator::getPionPDGCodeFromXclTag(const XclsTag& xcls_tag) const
@@ -321,51 +332,63 @@ void COHHadronicSystemGenerator::CalculateHadronicSystem_ReinSehgal(GHepRecord *
 //___________________________________________________________________________
 void COHHadronicSystemGenerator::CalculateHadronicSystem_AlvarezRuso(GHepRecord * evrec) const
 {
-  Interaction * interaction = evrec->Summary();
+  const Interaction * interaction = evrec->Summary();
   const Kinematics &   kinematics = interaction -> Kine();
-  GHepParticle * nu  = evrec->Probe();
-  GHepParticle * Ni  = evrec->TargetNucleus();
-  GHepParticle * fsl = evrec->FinalStatePrimaryLepton();
+  const GHepParticle * nu  = evrec->Probe();
+  const GHepParticle * Ni  = evrec->TargetNucleus();
+  const GHepParticle * fsl = evrec->FinalStatePrimaryLepton();
 
-  // Pion
-  const TLorentzVector ppi  = kinematics.HadSystP4();
-  const TVector3 ppi3 = ppi.Vect();
-  const double Epi = ppi.E();
-  int pion_pdgc=0;
-  if ( interaction->ProcInfo().IsWeakCC() ) {
-    if( nu->Pdg() > 0 ){ // neutrino
-      pion_pdgc = kPdgPiP;
+  const XclsTag & xcls = interaction->ExclTag();
+  
+  int other_pdgc = 0 ; 
+
+  // Produced Particle  
+  if ( xcls.NPions() > 0 ) {
+    if ( interaction->ProcInfo().IsWeakCC() ) {
+      if( nu->Pdg() > 0 ){ // neutrino
+	other_pdgc = kPdgPiP;
+      }
+      else{ // anti-neutrino
+	other_pdgc = kPdgPiM;
+      }
     }
-    else{ // anti-neutrino
-      pion_pdgc = kPdgPiM;
+    else if ( interaction->ProcInfo().IsWeakNC() ) {
+      other_pdgc = kPdgPi0;
+    }
+    else{
+      LOG("COHHadronicSystemGeneratorAR", pFATAL)
+	<< "Could not determine pion involved in interaction";
+      exit(1);
     }
   }
-  else if ( interaction->ProcInfo().IsWeakNC() ) {
-    pion_pdgc = kPdgPi0;
-  }
-  else{
-    LOG("COHHadronicSystemGeneratorAR", pFATAL)
-      << "Could not determine pion involved in interaction";
-    exit(1);
+  else if ( xcls.NSingleGammas() > 0 ) {
+    other_pdgc = kPdgGamma ;
   }
 
-  //
-  // Nucleus
-  int nucl_pdgc = Ni->Pdg(); // pdg of final nucleus same as the initial nucleus
-  double pxNf = nu->Px() + Ni->Px() - fsl->Px() - ppi3.Px();
-  double pyNf = nu->Py() + Ni->Py() - fsl->Py() - ppi3.Py();
-  double pzNf = nu->Pz() + Ni->Pz() - fsl->Pz() - ppi3.Pz();
-  double ENf  = nu->E()  + Ni->E()  - fsl->E()  - Epi;
-  //
-  // Both
+  // determin the momemntum of the other
+  // including rotations due to incoming particle
+  const TLorentzVector * nu_p4 = evrec->Probe() -> P4() ;
+  TVector3 nu_dir = nu_p4 -> Vect().Unit() ; 
+  
+  TVector3 other_p3 = kinematics.HadSystP4().Vect();
+  other_p3.RotateUz( nu_dir ) ;
+  TLorentzVector other_p4( other_p3, kinematics.HadSystP4().E() ) ;
+
+  // Both produced particle and recoil nucleus need to know where they are produced
+  // and their mother 
   const TLorentzVector & vtx   = *(nu->X4());
   int mom = evrec->TargetNucleusPosition();
-
-  //
+  
+  evrec->AddParticle( other_pdgc,kIStStableFinalState, 
+		      mom,-1,-1,-1,
+		      other_p4, vtx ) ; 
+  
+  // evaluate Recoil mmomentum
+  TLorentzVector nucl_p4 = *(nu->P4()) + *(Ni->P4()) - *(fsl->P4()) - other_p4 ;
+  
   // Fill the records
-  evrec->AddParticle(nucl_pdgc,kIStStableFinalState, mom,-1,-1,-1,
-                     pxNf, pyNf, pzNf, ENf, 0, 0, 0, 0);
+  evrec->AddParticle( Ni->Pdg(),kIStStableFinalState, 
+		      mom,-1,-1,-1,
+		      nucl_p4, vtx ) ;
 
-  evrec->AddParticle(pion_pdgc,kIStStableFinalState, mom,-1,-1,-1,
-                     ppi3.Px(), ppi3.Py(),ppi3.Pz(),Epi, vtx.X(), vtx.Y(), vtx.Z(), vtx.T());
 }

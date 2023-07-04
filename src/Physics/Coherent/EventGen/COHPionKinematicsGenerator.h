@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::COHKinematicsGenerator
+\class    genie::COHPionKinematicsGenerator
 
 \brief    Generates values for the kinematic variables describing coherent
           neutrino-nucleus pion production events.
@@ -17,22 +17,23 @@
 */
 //____________________________________________________________________________
 
-#ifndef _COH_KINEMATICS_GENERATOR_H_
-#define _COH_KINEMATICS_GENERATOR_H_
+#ifndef _COH_PION_KINEMATICS_GENERATOR_H_
+#define _COH_PION_KINEMATICS_GENERATOR_H_
 
 #include "Physics/Common/KineGeneratorWithCache.h"
 #include "Framework/Utils/Range1.h"
+
 
 class TF2;
 
 namespace genie {
 
-  class COHKinematicsGenerator : public KineGeneratorWithCache {
+  class COHPionKinematicsGenerator : public KineGeneratorWithCache {
 
   public :
-    COHKinematicsGenerator();
-    COHKinematicsGenerator(string config);
-    ~COHKinematicsGenerator();
+    COHPionKinematicsGenerator();
+    COHPionKinematicsGenerator(string config);
+    ~COHPionKinematicsGenerator();
 
     // implement the EventRecordVisitorI interface
     void ProcessEventRecord(GHepRecord * event_rec) const;
@@ -78,7 +79,9 @@ namespace genie {
     double fQ2Min;  ///< lower bound of integration for Q^2 in Berger-Sehgal Model
     double fQ2Max;  ///< upper bound of integration for Q^2 in Berger-Sehgal Model
     double fTMax;   ///< upper bound for t = (q - p_pi)^2
+
+
   };
 
 }      // genie namespace
-#endif // _COH_KINEMATICS_GENERATOR_H_
+#endif // _COH_PION_KINEMATICS_GENERATOR_H_

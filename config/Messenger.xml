@@ -59,7 +59,7 @@
   <priority msgstream="COHDNu">                NOTICE </priority>
   <priority msgstream="COHDNuXSec">            NOTICE </priority>
   <priority msgstream="COHXSec">               NOTICE </priority>
-  <priority msgstream="COHXSecAR">             NOTICE </priority>
+  <priority msgstream="COHXSecAR">             INFO   </priority>
   <priority msgstream="CLAP">                  NOTICE </priority>
   <priority msgstream="COHHadronicVtx">        WARN   </priority>
   <priority msgstream="COHKinematics">         WARN   </priority>
@@ -204,7 +204,7 @@
   <priority msgstream="VldTestInputs">         WARN   </priority>
   <priority msgstream="XSecBase">              NOTICE </priority>
   <priority msgstream="XSecAlgMap">            NOTICE </priority>
-  <priority msgstream="XSecSplLst">            WARN </priority>
+  <priority msgstream="XSecSplLst">            NOTICE </priority>
   <priority msgstream="ZExpAxialFormFactorModel"> NOTICE </priority>
   <priority msgstream="HELeptonXSec">          WARN    </priority>
   <priority msgstream="HELeptonKinematics">    WARN    </priority>
