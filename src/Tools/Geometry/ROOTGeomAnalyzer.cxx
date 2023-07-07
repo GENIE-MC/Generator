@@ -217,7 +217,7 @@ std::vector< std::pair<double, const TGeoMaterial*> > ROOTGeomAnalyzer::ComputeM
   TVector3 udir = p.Vect().Unit(); // unit vector along direction
   TVector3 pos = x.Vect();         // initial position
   this->SI2Local(pos);             // SI -> curr geom units
-  
+
   if (!fMasterToTopIsIdentity) {
     this->Master2Top(pos);         // transform position (master -> top)
     this->Master2TopDir(udir);     // transform direction (master -> top)
@@ -978,9 +978,21 @@ double ROOTGeomAnalyzer::GetWeight(const TGeoMixture * mixt, int pdgc)
      LOG("GROOTGeom", pERROR)
         << "Material pdgc = " << pdgc << " appears " << nm
         << " times (>1) in mixture = " << mixt->GetName();
-     LOG("GROOTGeom", pFATAL)
-        << "Your geometry must be incorrect - Aborting";
-     exit(1);
+
+     // As of ROOT v6.25.02, isomers with the same (A,Z) are not automatically
+     // combined. Thus, having two instances of the same nuclear PDG code in a
+     // mixture is no longer an error condition. The code above correctly sums
+     // over contributions from matching isomers (which GENIE will not care
+     // about). We still print the warning so that the user can double-check
+     // the material definition, but the fatal error is now removed.
+     // See https://github.com/root-project/root/pull/8556 for details.
+     // A new production campaign for SBND has been modestly delayed due to
+     // encountering this fatal error after updating ROOT.
+     // -- S. Gardiner, 19 June 2023
+     //
+     //LOG("GROOTGeom", pFATAL)
+     //   << "Your geometry must be incorrect - Aborting";
+     //exit(1);
   }
 
   // if we are not weighting with the density then the weight=1 if the pdg

@@ -24,7 +24,7 @@
 using std::string;
 
 namespace genie {
-
+// Note: please attach new phase space enum element to the end of the list .
 typedef enum EKinePhaseSpace {
   kPSNull = 0,
   kPSfE,
@@ -72,7 +72,8 @@ typedef enum EKinePhaseSpace {
   kPSlog10xlog10Q2fE,
   kPSEDNufE, // Used for Dark Neutrinos, two body final state
   kPSn1n2fE,
-  kPSn1n2n3fE
+  kPSn1n2n3fE,
+  kPSQ2vpfE
 } KinePhaseSpace_t;
 
 class KinePhaseSpace
@@ -124,6 +125,7 @@ public:
       case(kPSElOlTpifE)  : return "<{El,Omega_l,Theta_pi}|E>"; break;
       case(kPSTkTlctl)    : return "<{Tk,Tl,cos(theta_l)}|E>";  break;
       case(kPSQ2vfE)      : return "<{Q2,v}|E>"; break;
+      case(kPSQ2vpfE)     : return "<{Q2,v,p}|E>"; break;
       // TODO: update this string when the appropriate kinematic variables are known
       case(kPSQELEvGen)   : return "<QELEvGen>"; break;
       case(kPSDMELEvGen)  : return "<DMELEvGen>"; break;

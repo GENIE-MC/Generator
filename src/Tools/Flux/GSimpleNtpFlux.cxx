@@ -354,7 +354,7 @@ void GSimpleNtpFlux::CalcEffPOTsPerNu()
 
   if (!fNuFluxTree) return;  // not yet fully configured
 
-  fEffPOTsPerNu = ( (double)fFilePOTs / (double)fNEntries );
+  fEffPOTsPerNu = ( (double)fFilePOTs / (double)fNEntries ) / fMaxWeight ;
 }
 
 //___________________________________________________________________________

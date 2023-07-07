@@ -317,7 +317,9 @@ double NievesSimoVacasMECPXSec2016::XSec(
   double xsec = (pn) ? xsec_pn : xsec_all;
 
   // Apply given scaling factor
-  xsec *= fXSecScale;
+  const ProcessInfo& proc_info = interaction->ProcInfo();
+  if( proc_info.IsWeakCC() ) xsec *= fXSecCCScale;
+  else if( proc_info.IsWeakNC() ) xsec *= fXSecNCScale;
 
   if( fMECScaleAlg ) xsec *= fMECScaleAlg->GetScaling( * interaction ) ;
 
@@ -372,7 +374,8 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
   bool good_config = true;
 
   // Cross section scaling factor
-  GetParam( "MEC-CC-XSecScale", fXSecScale ) ;
+  GetParam( "MEC-CC-XSecScale", fXSecCCScale ) ;
+  GetParam( "MEC-NC-XSecScale", fXSecNCScale ) ;
 
   fHadronTensorModel = dynamic_cast<const HadronTensorModelI *> ( this->SubAlg("HadronTensorAlg") );
   if( !fHadronTensorModel ) {
