@@ -36,38 +36,30 @@
 *                                                             Copyright (c) 2003-2023, The GENIE Collaboration  *
 *                                                                                                               *
 *                                                                                                               *
-*  Luis Alvarez-Ruso [5], Costas Andreopoulos [8], Adi Ashkenazi [11], Joshua Barrow (9,11), Steve Dytman [10], * 
-*       Hugh Gallagher [12], Alfonso Andres Garcia Soto [4,5], Steven Gardiner [3], Matan Goldenberg [11],      * 
-*       Robert Hatcher [3], Or Hen [9], Igor Kakorin [7], Konstantin Kuzmin [6,7], Anselmo Meregaglia [2],      * 
-*       Vadim Naumov [7], Afroditi Papadopoulou [1], Gabriel Perdue [3], Marco Roda [8], Alon Sportes [11],     *
-*          Noah Steinberg [3], Vladyslav Syrotenko [12], Júlia Tena Vidal [11], and Jeremy Wolcott [12]         *
+* Luis Alvarez-Ruso [6], Costas Andreopoulos [9], Adi Ashkenazi [13], Joshua Barrow (10,13), Steve Dytman [12], * 
+*      Hugh Gallagher [14], Alfonso Andres Garcia Soto [5,6], Steven Gardiner [4], Matan Goldenberg [13],       * 
+*  Robert Hatcher [4], Or Hen [10], Igor Kakorin [8], Konstantin Kuzmin [7,8], Weijun Li [11], Xianguo Lu [15], *
+*          Anselmo Meregaglia [2], Vadim Naumov [8], Afroditi Papadopoulou [1], Gabriel Perdue [3],             *
+*   Komninos-John Plows [11], Marco Roda [9], Alon Sportes [13], Noah Steinberg [4], Vladyslav Syrotenko [14],  *
+*                         Júlia Tena Vidal [13], Jeremy Wolcott [14], and Qiyu Yan [3,15]                       *
 *                                                                                                               *
-*                                             (The GENIE Collaboration)                                         *
+*                                            (The GENIE Collaboration)                                          *
 *                                                                                                               *
 *                                      [1] Argonne National Laboratory (ANL)                                    *
-*                                               Lemont, IL, 60439, USA                                          *
-*                                  [2] CENBG, Université de Bordeaux, CNRS/IN2P3                                *
-*                                               33175 Gradignan, France                                         *
-*                                  [3] Fermi National Accelerator Laboratory (FNAL)                             *
-*                                             Batavia, Illinois 60510, USA                                      *
-*                                    [4] Harvard University, Dept. of Physics                                   * 
-*                                               Cambridge, MA 02138, USA                                        *
-*                                    [5] Instituto de Física Corpuscular (IFIC)                                 *
-*                                          46980, Paterna, Valéncia, Spain                                      *
-*      [6] Alikhanov Institute for Theoretical and Experimental Physics (ITEP) of NRC "Kurchatov Institute"     *
-*                                              Moscow, 117218, Russia                                           *
-*                                 [7] Joint Institute for Nuclear Research (JINR)                               *
-*                                        Dubna, Moscow region, 141980, Russia                                   *
-*                                  [8] University of Liverpool, Dept. of Physics                                *
-*                                               Liverpool L69 7ZE, UK                                           *
-*                        [9] Massachusetts Institute of Technology (MIT), Dept. of Physics                      *
-*                                              Cambridge, MA 02139, USA                                         *
-*                         [10] University of Pittsburgh, Dept. of Physics and Astronomy                         *
-*                                              Pittsburgh PA 15260, USA                                         *
-*                            [11] Tel Aviv University, School of Physics and Astronomy                          *
-*                                              Tel Aviv 6997801, Israel                                         *
-*                             [12] Tufts University, Dept. of Physics and Astronomy                             *
-*                                                Medford MA 02155, USA                                          *
+*                                 [2] CENBG, Université de Bordeaux, CNRS/IN2P3                                 *
+*                             [3] University of the Chinese Academy of Sciences (UCAS)                          *
+*                                 [4] Fermi National Accelerator Laboratory (FNAL)                              *
+*                                      [5] Harvard University, Dept. of Physics                                 *   
+*                                     [6] Instituto de Física Corpuscular (IFIC)                                *
+*      [7] Alikhanov Institute for Theoretical and Experimental Physics (ITEP) of NRC "Kurchatov Institute"     *
+*                                  [8] Joint Institute for Nuclear Research (JINR)                              *
+*                                   [9] University of Liverpool, Dept. of Physics                               *
+*                         [10] Massachusetts Institute of Technology (MIT), Dept. of Physics                    *
+*                                    [11] University of Oxford, Dept. of Physics                                *
+*                            [12] University of Pittsburgh, Dept. of Physics and Astronomy                      *
+*                              [13] Tel Aviv University, School of Physics and Astronomy                        *
+*                                [14] Tufts University, Dept. of Physics and Astronomy                          *
+*                                     [15] Warwick University, Dept. of Physics                                 *
 *                                                                                                               *
 *  Corresponding Author:                                                                                        *
 *  -                                                                                                            *
