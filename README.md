@@ -63,10 +63,13 @@ For more information, visit http://www.genie-mc.org
 - Or Hen (*MIT*)
 - Igor Kakorin (*JINR*)
 - Konstantin Kuzmin (*ITEP and JINR*)
+- Weijun Li (*Oxford*)
+- Xianguo Lu (*Warwick*)
 - Anselmo Meregaglia (*Bordeaux, CNRS/IN2P3*)
 - Vadim Naumov (*JINR*)
 - Afroditi Papadopoulou (*Argonne*)
 - Gabriel Perdue (*Fermilab*)
+- Komninos-John Plows (*Oxford*)
 - Marco Roda (*Liverpool*)
 - Beth Slater (*Liverpool*)
 - Alon Sportes (*Tel Aviv*)
@@ -74,6 +77,7 @@ For more information, visit http://www.genie-mc.org
 - Vladyslav Syrotenko (*Tufts*)
 - Júlia Tena Vidal (*Tel Aviv*)
 - Jeremy Wolcott (*Tufts*)
+- Qiyu Yan (*UCAS and Warwick*)
 
 ---
 (+) Corresponding Author:
