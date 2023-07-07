@@ -4,28 +4,28 @@
 Configuration for the QELEventGeneratorSM EventRecordVisitorI
 
 Configurable Parameters:
-.............................................................................................................
-Name                      Type    Optional   Comment                                                    Default
-.............................................................................................................
-MaxXSec-SafetyFactor      double   Yes       Safety factor for the maximum                              1.2
-                                             differential cross section
-MaxDiffv-SafetyFactor     double   Yes       Safety factor for the maximum                              1.2
-                                             vmax(Q2)-vmin(Q2)
-MaxXSec-DiffTolerance     double   Yes       Max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)              999999.0
-                                             if xsec>xsecmax
-UniformOverPhaseSpace     bool     Yes       Kinematics uniformly over allowed phase space              false
-                                             wgt = (phase_space_volume)*(diff_xsec)/(xsec)
-IsNucleonInNucleus        bool     Yes       Generate struck nucleon in nucleus                         true
-Threshold-Q2              double   Yes       Q2-threshold for seeking the second maximum                2.00
-Cache-MinEnergy           double   Yes       min E for which maxxsec is cached -                        1.00
-                                             forcing explicit calc
+................................................................................................................................
+Name                     Type        Optional   Comment                                                                  Default
+................................................................................................................................
+MaxXSec-SafetyFactor     double      Yes        Safety factor: ComputeMaxXSec -> ComputeMaxXSec * MaxXSec-SafetyFactor   1.0
+Safety-Factors           vec-double  Yes        Safety factors: MaxXSec[nkey] -> MaxXSec[nkey] * Safety-Factors[nkey]    all 1.0
+Interpolator-Types       vec-string  Yes        Type of interpolator for each key in a branch                            all ""
+MaxXSec-DiffTolerance    double      Yes        Max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)                            999999.0
+                                                if xsec>xsecmax                                                          
+UniformOverPhaseSpace    bool        Yes        Kinematics uniformly over allowed phase space                            false
+                                                wgt = (phase_space_volume)*(diff_xsec)/(xsec)                            
+IsNucleonInNucleus       bool        Yes        Generate struck nucleon in nucleus                                       true
+Threshold-Q2             double      Yes        Q2-threshold for seeking the second maximum                              2.00
+Cache-MinEnergy          double      Yes        min E for which maxxsec is cached -                                      1.00
+                                                forcing explicit calc
 -->
 
 
 <alg_conf>
 
   <param_set name="Default"> 
-
+    <param type="vec-double" name="Safety-Factors"        delim=";">  1.06; 1.06; 1.06  </param>
+    <param type="vec-string" name="Interpolator-Types"    delim=";">  AKIMA; AKIMA; LINEAR  </param>
   </param_set>
   
 
