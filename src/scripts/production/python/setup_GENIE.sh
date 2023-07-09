@@ -13,9 +13,10 @@ CONFIGURE_INCL=$3
 CONFIGURE_G4=$4
 GENIE_CONFIG_DIR=$5
 
-#git clone $GITHUB_LOCATION Generator 
+git clone $GITHUB_LOCATION Generator 
 
 if [ "$CONFIGURE_G4" = "true" ] ; then
+    source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
     setup geant4 v4_10_3_p03e -q debug:e17
 fi
 
@@ -85,4 +86,4 @@ else
 	--with-pythia6-lib=${PYTHIA_LIB}
 fi
 
-#make -j4
+make -j4
