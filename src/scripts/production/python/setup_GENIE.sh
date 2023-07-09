@@ -12,6 +12,7 @@ echo Requested Genie version $GENIE_VERSION
 CONFIGURE_INCL=$3
 CONFIGURE_G4=$4
 GENIE_CONFIG_DIR=$5
+RUN_LOCALLY=$6
 
 git clone $GITHUB_LOCATION Generator 
 
@@ -29,7 +30,13 @@ if [ "$CONFIGURE_INCL" = "true" ] ; then
     export INCL_FQ_DIR=${INCL_DIR}/${INCL_PLATFORM}
 
     mkdir ${INCL_TOP}; mkdir -p ${INCL_DIR} ; mkdir ${INCL_DIR}/source/ ;
-    cp /genie/app/rhatcher/genie_inclxx/${INCL_VERSION}.tar.gz ${INCL_DIR}/source ## THIS WONT WORK
+    # Copy incl tar accordingly. When running interactively, it is stored in $CONDOR_DIR_INPUT 
+    if [ "$RUN_LOCALLY" = "true" ] ; then
+	cp /genie/app/rhatcher/genie_inclxx/${INCL_VERSION}.tar.gz ${INCL_DIR}/source 
+    elif
+	cp $CONDOR_DIR_INPUT/${INCL_VERSION}.tar.gz ${INCL_DIR}/source 
+    fi
+
     cd ${INCL_DIR}; cd source; tar xvzf ${INCL_VERSION}.tar.gz
     #CVMFS permissions
     find . -type f -exec chmod +r {} \;
@@ -119,4 +126,4 @@ else
 	--with-pythia6-lib=${PYTHIA_LIB}
 fi
 
-#make -j4
+make -j4
