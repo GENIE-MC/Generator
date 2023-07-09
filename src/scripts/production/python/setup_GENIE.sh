@@ -33,7 +33,7 @@ if [ "$CONFIGURE_INCL" = "true" ] ; then
     # Copy incl tar accordingly. When running interactively, it is stored in $CONDOR_DIR_INPUT 
     if [ "$RUN_LOCALLY" = "true" ] ; then
 	cp /genie/app/rhatcher/genie_inclxx/${INCL_VERSION}.tar.gz ${INCL_DIR}/source 
-    elif
+    else
 	cp $CONDOR_DIR_INPUT/${INCL_VERSION}.tar.gz ${INCL_DIR}/source 
     fi
 
