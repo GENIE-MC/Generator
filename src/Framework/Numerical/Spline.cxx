@@ -776,7 +776,7 @@ void Spline::SetType(string type)
   
   if ( fInterpolatorType ==  "TSPLINE3" || fInterpolatorType ==  "" ) 
   {
-    fInterpolatorType == "TSpline3";
+    fInterpolatorType = "TSpline3";
     return;
   }
   else if ( fInterpolatorType == "TSPLINE5" )
