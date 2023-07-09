@@ -21,7 +21,7 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, 
     G4="false"
     if( configure_INCL ) : 
         INCL = "true"
-        script.write("ifdh cp -D /genie/app/rhatcher/genie_inclxx/inclxx-v5.2.9.5-6aca7e6.tar.gz $CONDOR_DIR_INPUT ;\n")
+        script.write("ifdh cp -D /pnfs/genie/persistent/users/jtenavid/genie_inclxx/inclxx-v5.2.9.5-6aca7e6.tar.gz $CONDOR_DIR_INPUT ;\n")
     if( configure_G4 ) :
         G4 = "true"
     script.write("source "+os.path.basename(genie_setup)+" "+git_loc+" "+git_branch+" "+INCL+" "+G4+" "+conf_dir+" ;\n")
