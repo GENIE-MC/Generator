@@ -134,6 +134,7 @@
    <config alg="genie::BBA07ELFormFactorsModel">                 BBA07ELFormFactorsModel.xml                 </config>
    <config alg="genie::DipoleAxialFormFactorModel">              DipoleAxialFormFactorModel.xml              </config>
    <config alg="genie::ZExpAxialFormFactorModel">                ZExpAxialFormFactorModel.xml                </config>
+   <config alg="genie::ZExpELFormFactorModel">                      ZExpELFormFactorModel.xml                </config>
    <config alg="genie::KuzminNaumov2016AxialFormFactorModel">    KuzminNaumov2016AxialFormFactorModel.xml    </config>
    <config alg="genie::LwlynSmithFFCC">                          LwlynSmithFFCC.xml                          </config>
    <config alg="genie::LwlynSmithFFDeltaS">                      LwlynSmithFFDeltaS.xml                      </config>
