@@ -865,4 +865,14 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   </param_set>
 
   
+  <param_set name="NORM">
+     <param type="string" name="VldContext"> </param>
+     <param type="int"    name="NModules">   3                                                   </param>
+     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                 </param>
+     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                      </param>
+     <param type="alg"    name="Module-2">   genie::NormGenerator/Default                        </param>
+     <param type="alg"    name="ILstGen">    genie::NormInteractionListGenerator/Default         </param>
+     <param type="alg"    name="XSecModel@genie::EventGenerator/NORM">  genie::NormXSec/Default  </param>
+  </param_set>
+  
 </alg_conf>

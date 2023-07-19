@@ -21,6 +21,7 @@ QvalueShifterAlg      algo     yes        Possible Qshift algo             none
       <param type="alg" name="HadronTensorAlg"> genie::NievesMECHadronTensorModel/Default </param>
 
       <param type="double" name="MEC-CC-XSecScale"> 1.000 </param>
+      <param type="double" name="MEC-NC-XSecScale"> 1.000 </param>
 
   </param_set>
 

@@ -562,5 +562,16 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-0">  genie::EventGenerator/PhotonCOH     </param>
   </param_set>
 
+  <param_set name="NORM"> 
+     <param type="int" name="NGenerators">    1                               </param>
+  <param type="alg" name="Generator-0">    genie::EventGenerator/NORM         </param>
+  </param_set>
+  
+  <param_set name="CCQE+NORM"> 
+     <param type="int" name="NGenerators">   2                                     </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC          </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/NORM            </param>
+  </param_set>
+
 </alg_conf>
 

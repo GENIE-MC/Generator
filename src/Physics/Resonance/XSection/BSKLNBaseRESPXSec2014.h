@@ -103,6 +103,7 @@ namespace genie {
 
       double   fXSecScaleCC;       ///< external CC xsec scaling factor
       double   fXSecScaleNC;       ///< external NC xsec scaling factor
+      double   fXSecScaleEM;       ///< external EM xsec scaling factor
 
       bool fKLN;
       bool fBRS;

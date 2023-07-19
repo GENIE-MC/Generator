@@ -23,5 +23,9 @@
 #pragma link C++ class genie::XSecScaleMap;
 #pragma link C++ class genie::XSecLinearCombinations;
 #pragma link C++ class genie::QvalueShifter;
+#pragma link C++ class genie::NormXSec;
+#pragma link C++ class genie::NormGenerator;
+#pragma link C++ class genie::NormInteractionListGenerator;
+
 
 #endif
