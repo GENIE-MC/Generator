@@ -19,8 +19,7 @@
 #ifndef _GLASHOW_RESONANCE_GENERATOR_H_
 #define _GLASHOW_RESONANCE_GENERATOR_H_
 
-#define __GENIE_PYTHIA6_ENABLED__
-
+#include "Framework/Conventions/GBuild.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Physics/HELepton/XSection/Born.h"
 
