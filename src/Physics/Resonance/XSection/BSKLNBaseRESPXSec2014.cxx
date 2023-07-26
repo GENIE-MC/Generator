@@ -327,7 +327,7 @@ double BSKLNBaseRESPXSec2014::XSec(
 
     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"GA= " <<GA << "  C5A= " <<CA5;
   } else { 
-    LOG("BSKLNBaseRESPXSec2014",pDEBUG << "Using dipole parametrization for GV") ;
+    LOG("BSKLNBaseRESPXSec2014",pDEBUG << "Using dipole parametrization for GA") ;
   }
 
   if(is_EM) {
