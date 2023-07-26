@@ -17,37 +17,17 @@ fi
 echo Requested Genie version $GENIE_VERSION
 
 if [ "$CONFIGURE_INCL" = "true" ] ; then
-    setup gcc v7_3_0
-    setup cmake v3_13_1
-    setup boost v1_66_0a -q e17:prof
-
-    export BASE=$(pwd)
-    export INCL_TOP=${BASE}/inclxx
-    export INCL_PLATFORM=Linux64bit+2.6-2.12
-    export INCL_VERSION=inclxx-v5.2.9.5-6aca7e6
-    export INCL_DIR=${INCL_TOP}/${INCL_VERSION}
-    export INCL_SRC_DIR=${INCL_DIR}/source/${INCL_VERSION}  # needed to find de-excitation data files
-    export INCL_FQ_DIR=${INCL_DIR}/${INCL_PLATFORM}
-
-    mkdir ${INCL_TOP}; mkdir -p ${INCL_DIR} ; mkdir ${INCL_DIR}/source/ ;
-    # Copy incl tar accordingly. When running interactively, it is stored in $CONDOR_DIR_INPUT 
-    if [ "$RUN_LOCALLY" = "true" ] ; then
-	cp /genie/app/rhatcher/genie_inclxx/${INCL_VERSION}.tar.gz ${INCL_DIR}/source 
-    else
-	cp $CONDOR_DIR_INPUT/${INCL_VERSION}.tar.gz ${INCL_DIR}/source 
-    fi
-
-    cd ${INCL_DIR}; cd source; tar xvzf ${INCL_VERSION}.tar.gz
-    #CVMFS permissions
-    find . -type f -exec chmod +r {} \;
-    find . -type d -exec chmod +rx {} \;
-    cd ${INCL_DIR} ; mkdir build-temp-${INCL_PLATFORM}; cd build-temp-${INCL_PLATFORM}
-    cmake -DUSE_FPIC=ON -DCMAKE_INSTALL_PREFIX:PATH=${INCL_DIR}/${INCL_PLATFORM} ${INCL_SRC_DIR}
-    make -j4; make install
-    cd ${BASE}
+    source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
+    setup inclxx  v5_2_9_5b -q e20:prof
+    setup lhapdf  v6_5_3    -q e20:prof:p3913
+    setup log4cpp v1_1_3d   -q e20:prof
 elif [ "$CONFIGURE_G4" = "true" ] ; then
     source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
-    setup geant4 v4_10_3_p03e -q debug:e17
+    #setup geant4 v4_10_3_p03e -q debug:e17
+    setup geant4  v4_10_6_p01f -q e20:prof
+    setup root    v6_26_06b    -q e20:prof:p3913
+    setup lhapdf  v6_5_3       -q e20:prof:p3913
+    setup log4cpp v1_1_3d      -q e20:prof
 fi
 
 export GENIEBASE=$(pwd)
@@ -95,10 +75,12 @@ if [ "$CONFIGURE_INCL" = "true" ] ; then
 	--with-lhapdf5-inc=${LHAPDF_INC} \
 	--with-pythia6-lib=${PYTHIA_LIB} \
 	--enable-incl \
-	--with-incl-inc=${INCL_FQ_DIR}/include/inclxx \
-	--with-incl-lib=${INCL_FQ_DIR}/lib  \
+	--with-incl-inc=${INCLXX_FQ_DIR}/include/inclxx \
+	--with-incl-lib=${INCLXX_FQ_DIR}/lib  \
 	--with-boost-inc=${BOOST_FQ_DIR}/include \
-	--with-boost-lib=${BOOST_FQ_DIR}/lib
+	--with-boost-lib=${BOOST_FQ_DIR}/lib \
+        --enable-lhapdf6 \
+        --disable-lhapdf5
 elif [ "$CONFIGURE_G4" = "true" ] ; then
     echo Configuring G4...
     ./configure \
@@ -111,7 +93,9 @@ elif [ "$CONFIGURE_G4" = "true" ] ; then
 	--with-lhapdf5-lib=${LHAPDF_LIB} \
 	--with-lhapdf5-inc=${LHAPDF_INC} \
 	--with-pythia6-lib=${PYTHIA_LIB} \
-	--enable-geant4
+	--enable-geant4 \
+        --enable-lhapdf6 \
+        --disable-lhapdf5
 else 
     ./configure \
 	--enable-gsl \
