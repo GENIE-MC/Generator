@@ -36,13 +36,14 @@ evg_tgtpdg_hash = ['1000010020', '1000010030', '1000020030', '1000020040', '1000
                    '1000180400', '1000200400', '1000200480', '1000260560', '1000791970', '1000822080', '1000922380']
 
 def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=100, flux="\'1/x\'", xspl_file="total_xsec.xml",ntotevents=1000000, 
-                            tune='G18_02_02_11b',gen_list="all", expname="general",nmaxrun=100000, mcseed = 210921029, starting_run=0, 
+                             tune='G18_02_02_11b',gen_list="all", expname="general",nmaxrun=100000, mcseed = 210921029, starting_run=0, 
                              gst_output=False, no_ghep=False,version='master', conf_dir='', 
-                            arch='SL6.x86_64', production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
-                            softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
-                            grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh', 
-                            genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', 
-                            time='10', git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator") :
+                             arch='SL6.x86_64', production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
+                             softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
+                             grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh', 
+                             genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', 
+                             time='10', git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator",
+                             configure_INCL=False, configure_G4=False) :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-nuScattering'
     # Make directory
@@ -119,7 +120,8 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=1
                     if no_ghep :
                         out_files = [str(jobname+".gst.root")]
             if grid_system == 'FNAL' :
-                shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, in_file_list, git_branch, git_loc ) 
+                shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, in_file_list, git_branch, 
+                                                     git_loc, configure_INCL, configure_G4 ) 
                 grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time)
                 command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
