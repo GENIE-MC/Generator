@@ -14,7 +14,7 @@ PTFunction                    string     No    Function in form of a string for 
                                                P_t distribution of the Charmed hadron
                                                The variable as to be x
 
-CharmFrac-E                   vec-double No    values of the energy points for 
+CharmFrac-E                   vec-double No    values of the energy points for
                                                ChramFraction splines
 CharmFrac-D0                  vec-double No    fractions for D0 meson
                                                the number of elements must be the same as in
@@ -30,7 +30,7 @@ CharmFrac-Ds                  vec-double No    fractions for D_s meson
 <alg_conf>
 
   <param_set name="Default">
-    
+
      <param type="alg"      name="FragmentationFunc">  genie::PetersonFragm/Default </param>
      <param type="bool"     name="HadronizeRemnants">  true                         </param>
 
