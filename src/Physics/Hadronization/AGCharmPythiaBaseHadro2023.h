@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::AGCharm2019
+\class    genie::AGCharmPythiaBaseHadro2023
 
 \brief    Andreopoulos - Gallagher (AG) GENIE Charm Hadronization model.
 
@@ -22,7 +22,7 @@
 \created  August 17, 2004
 
 \cpright  Copyright (c) 2003-2024, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -31,10 +31,10 @@
 
 #include <TGenPhaseSpace.h>
 
+#include "Framework/Conventions/GBuild.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/Interaction/Interaction.h"
 
-class TPythia6;
 class TF1;
 
 namespace genie {
@@ -42,15 +42,25 @@ namespace genie {
 class Spline;
 class FragmentationFunctionI;
 
-class AGCharm2019 : public EventRecordVisitorI {
+class AGCharmPythiaBaseHadro2023 : public EventRecordVisitorI {
 
 public:
-  AGCharm2019();
-  AGCharm2019(string config);
-  virtual ~AGCharm2019();
 
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;
+
+protected:
+
+  AGCharmPythiaBaseHadro2023();
+  AGCharmPythiaBaseHadro2023(string config);
+  AGCharmPythiaBaseHadro2023(string name, string config);
+  virtual ~AGCharmPythiaBaseHadro2023();
+
+protected:
+  void           LoadConfig          (void);
+  void           Initialize          (void)                                    const ;
+
+  virtual TClonesArray* HadronizeRemnant(int qrkSyst1, int qrkSyst2, double WR) const = 0;
 
   // Overload the Algorithm::Configure() methods to load private data
   // members from configuration options
@@ -58,11 +68,8 @@ public:
   void Configure(const Registry & config);
   void Configure(string config);
 
-
 private:
 
-  void           LoadConfig          (void);
-  void           Initialize          (void)                                    const ;
   TClonesArray * Hadronize           (const Interaction* )                     const ;
   int            GenerateCharmHadron (int nupdg, double EvLab)                 const ;
 
@@ -83,7 +90,6 @@ private:
   Spline *                       fDsFracSpl;   ///< nu charm fraction vs Ev: Ds+
   double                         fD0BarFrac;   ///< nubar \bar{D0} charm fraction
   double                         fDmFrac;      ///< nubar D- charm fraction
-  mutable TPythia6 *             fPythia;      ///< remnant (non-charm) hadronizer
 };
 
 }         // genie namespace
