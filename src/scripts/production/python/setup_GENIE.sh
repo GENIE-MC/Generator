@@ -4,17 +4,17 @@ setup git v2_15_1
 
 GITHUB_LOCATION=$1
 GENIE_VERSION=master
-if [ ! -z "$2" ] ; then 
-  GENIE_VERSION=$2
-  git checkout "$GENIE_VERSION" 
-fi
-echo Requested Genie version $GENIE_VERSION
 CONFIGURE_INCL=$3
 CONFIGURE_G4=$4
 GENIE_CONFIG_DIR=$5
 RUN_LOCALLY=$6
 
 git clone $GITHUB_LOCATION Generator 
+if [ ! -z "$2" ] ; then 
+  GENIE_VERSION=$2
+  git checkout "$GENIE_VERSION" 
+fi
+echo Requested Genie version $GENIE_VERSION
 
 if [ "$CONFIGURE_INCL" = "true" ] ; then
     setup gcc v7_3_0
