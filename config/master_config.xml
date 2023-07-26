@@ -113,7 +113,7 @@
    <config alg="genie::AGKY2019">                AGKY2019.xml                </config>
    <config alg="genie::Pythia6Hadro2019">        Pythia6Hadro2019.xml        </config>
    <config alg="genie::Pythia8Hadro2019">        Pythia8Hadro2019.xml        </config>
-   <config alg="genie::AGCharm2019">             AGCharm2019.xml             </config>
+   <config alg="genie::AGCharm2023">             AGCharm2023.xml             </config>
    <config alg="genie::LeptoHadronization">      LeptoHadronization.xml      </config>
 
    <!-- ****** CONFIGURATION FOR PARTON DENSITY FUNCTION ALGORITHMS ****** -->
