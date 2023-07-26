@@ -15,7 +15,7 @@
 \created  September 22, 2004
 
 \cpright  Copyright (c) 2003-2023, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
