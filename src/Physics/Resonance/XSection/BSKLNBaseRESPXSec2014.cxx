@@ -327,7 +327,7 @@ double BSKLNBaseRESPXSec2014::XSec(
 
     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"GA= " <<GA << "  C5A= " <<CA5;
   } else { 
-    LOG("BSKLNBaseRESPXSec2014",pDEBUG << "Using dipole parametrization for GV") ;
+    LOG("BSKLNBaseRESPXSec2014",pDEBUG << "Using dipole parametrization for GA") ;
   }
 
   if(is_EM) {
@@ -766,6 +766,7 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   // Cross section scaling factors
   this->GetParam( "RES-CC-XSecScale", fXSecScaleCC ) ;
   this->GetParam( "RES-NC-XSecScale", fXSecScaleNC ) ;
+  this->GetParam( "RES-EM-XSecScale", fXSecScaleEM ) ;
 
   // Load all configuration data or set defaults
 
