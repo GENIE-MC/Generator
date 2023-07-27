@@ -130,7 +130,7 @@ bool Pythia6Hadro2019::Hadronize(GHepRecord *
   GHepParticle * neutrino  = event->Probe();
   const TLorentzVector & vtx = *(neutrino->X4());
 
-  // Loop over PYTHIA8 event particles and copy relevant entries
+  // Loop over PYTHIA6 event particles and copy relevant entries
   unsigned int i = 0;
   TMCParticle * p = 0;
   TIter particle_iter(pythia_particles);
