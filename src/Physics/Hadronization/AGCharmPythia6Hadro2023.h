@@ -31,6 +31,7 @@
 
 #include "Physics/Hadronization/AGCharmPythiaBaseHadro2023.h"
 
+#include "Framework/Conventions/GBuild.h"
 #ifdef __GENIE_PYTHIA6_ENABLED__
 class TPythia6;
 #endif
