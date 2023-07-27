@@ -12,13 +12,13 @@
 
 #include <TSystem.h>
 
-#ifdef __GENIE_PYTHIA6_ENABLED__
-#include <TPythia6.h>
-#endif
-
 #include "Framework/Conventions/Controls.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
+
+#ifdef __GENIE_PYTHIA6_ENABLED__
+#include <TPythia6.h>
+#endif
 
 using namespace genie::controls;
 
