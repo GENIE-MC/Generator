@@ -12,9 +12,6 @@
 //____________________________________________________________________________
 
 #include <RVersion.h>
-#ifdef __GENIE_PYTHIA6_ENABLED__
-  #include <TPythia6.h>
-#endif
 #include <TVector3.h>
 #include <TF1.h>
 #include <TROOT.h>
@@ -45,6 +42,10 @@
 #include "Framework/Utils/PrintUtils.h"
 #include "Physics/Hadronization/AGCharmPythia6Hadro2023.h"
 #include "Physics/Hadronization/FragmentationFunctionI.h"
+
+#ifdef __GENIE_PYTHIA6_ENABLED__
+  #include <TPythia6.h>
+#endif
 
 using namespace genie;
 using namespace genie::constants;
