@@ -183,14 +183,17 @@ my $gopt_enable_professor2           = "NO";
 
 # Check configure's command line arguments for non-default values
 #
+if(($match = grep(/--enable-pythia6/i,              @ARGV)) > 0) { $gopt_enable_pythia6              = "YES";  }
 if(($match = grep(/--disable-pythia6/i,             @ARGV)) > 0) { $gopt_enable_pythia6              = "NO";  }
 if(($match = grep(/--enable-pythia8/i,              @ARGV)) > 0) { $gopt_enable_pythia8              = "YES"; }
+if(($match = grep(/--disable-pythia8/i,             @ARGV)) > 0) { $gopt_enable_pythia8              = "NO"; }
 if(($match = grep(/--enable-lhapdf5/i,              @ARGV)) > 0) { $gopt_enable_lhapdf5              = "YES"; }
 if(($match = grep(/--disable-lhapdf5/i,             @ARGV)) > 0) { $gopt_enable_lhapdf5              = "NO";  }
 if(($match = grep(/--enable-lhapdf6/i,              @ARGV)) > 0) { $gopt_enable_lhapdf6              = "YES"; }
 if(($match = grep(/--disable-lhapdf6/i,             @ARGV)) > 0) { $gopt_enable_lhapdf6              = "NO";  }
 if(($match = grep(/--enable-apfel/i,                @ARGV)) > 0) { $gopt_enable_apfel                = "YES"; }
 if(($match = grep(/--disable-apfel/i,               @ARGV)) > 0) { $gopt_enable_apfel                = "NO";  }
+
 if(($match = grep(/--disable-flux-drivers/i,        @ARGV)) > 0) { $gopt_enable_flux_drivers         = "NO";  }
 if(($match = grep(/--disable-geom-drivers/i,        @ARGV)) > 0) { $gopt_enable_geom_drivers         = "NO";  }
 if(($match = grep(/--enable-t2k/i,                  @ARGV)) > 0) { $gopt_enable_t2k                  = "YES"; }
@@ -970,6 +973,7 @@ if ($gopt_enable_professor2 eq "YES") {
 
 # Save config options
 #
+print MKCONF "GOPT_ENABLE_PYTHIA6=$gopt_enable_pythia6\n";
 print MKCONF "GOPT_ENABLE_PYTHIA8=$gopt_enable_pythia8\n";
 print MKCONF "GOPT_ENABLE_INCL=$gopt_enable_incl\n";
 print MKCONF "GOPT_ENABLE_GEANT4_INTERFACE=$gopt_enable_geant4_interface\n";
