@@ -443,15 +443,15 @@ double BSKLNBaseRESPXSec2014::XSec(
   const RSHelicityAmplModelI * hamplmod_BRS_minus = 0;
   const RSHelicityAmplModelI * hamplmod_BRS_plus = 0;
 
-  double g2;
+  double g2 = kGF2;  // NC
+  
+  if(is_CC) g2 *= fVud2;
 
   if(is_EM) 
   {
     double q4 = q2*q2;
     g2 = 8*kAem2*kPi2/q4;
   }
-
-  if(is_CC) g2 = kGF2*fVud2;
 
   double sig0 = 0.125*(g2/kPi)*(-q2/Q2)*(W/Mnuc);
   double scLR = W/Mnuc;
@@ -772,9 +772,6 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
 
   this->GetParamDef( "BreitWignerWeight", fWghtBW, true ) ;
   this->GetParamDef( "BreitWignerNorm",   fNormBW, true);
-  //double thw ;
-  //this->GetParam( "WeinbergAngle", thw ) ;
-  //fSin48w = TMath::Power( TMath::Sin(thw), 4 );
   double Vud;
   this->GetParam("CKM-Vud", Vud );
   fVud2 = TMath::Power( Vud, 2 );
