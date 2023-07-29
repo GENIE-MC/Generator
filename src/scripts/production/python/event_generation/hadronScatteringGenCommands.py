@@ -15,9 +15,9 @@ import FNALGridUtils as FNAL
 
 # Define Dictionaries
 
-hadron_pdg_def = { 'pip' : 212, 'pim' : -212, 'p' : 2212, 'n' : 2112 }
+hadron_pdg_def = { 'pip' : 211, 'pim' : -211, 'p' : 2212, 'n' : 2112 }
 
-hadron_name_def = { 212: 'pip', -212: 'pim', 2212: 'p', 2112 : 'n' }
+hadron_name_def = { 211: 'pip', -211: 'pim', 2212: 'p', 2112 : 'n' }
 
 # inputs for event generation jobs
 evg_tgtpdg_hash = ['1000010020', '1000010030', '1000020030', '1000020040', '1000030060', '1000060120', '1000080160', '1000130270', 
@@ -59,9 +59,9 @@ def hadronScatteringGenCommands( hadron_list = "212",tgt_list="1000060120", KEBe
     
     model = "hA"
     if configure_hA : 
-        model = "hA2019"
+        model = "hA2018"
     elif configure_hN :
-        model = "hN2019"
+        model = "hN2018"
     elif configure_INCL :
         model = "HINCL"
     elif configure_G4 : 
