@@ -34,7 +34,7 @@ op.add_option("--softw-topdir", dest="SOFTW", default=os.getenv('GENIE_MASTER_DI
 op.add_option("--genie-topdir", dest="GENIE", default=os.getenv('GENIE'), help = "GENIE topdir: %default")
 op.add_option("--jobs-topdir", dest="JOBSTD", default=os.getenv('PWD'), help="Top level dir for the job files (default: %default)")
 op.add_option("--config-dir", dest="CONF", default='', help="Path to GENIE config dir")
-op.add_option("--hadron-list", dest="PROBELIST", default='212', help = "Comma separated list of hadrons. Default: %default.") 
+op.add_option("--hadron-list", dest="PROBELIST", default='211', help = "Comma separated list of hadrons. Default: %default.") 
 op.add_option("--tgt-list", dest="TGTLIST", default='all', help = "Comma separated list of Targets. Default: %default.") 
 op.add_option("--ntotevents", dest="Events", type="int", default=100000, help="Number of total events, default: 100 k")
 op.add_option("--nmaxevents",dest="NMax", type="int", default=400000,help="Max number of events to run per event generation, default %default")
@@ -101,12 +101,16 @@ if opts.GRID == 'FNAL':
         print ("Not runing from pnfs:"+opts.JOBSTD+" . Jobs top dir must be in pnfs for the submission scrpits to work. Abort ...")
         exit()
 
+message_thresholds = "$GALGCONF/Messenger.xml"
 if opts.CONF : 
     if not os.path.exists(opts.CONF) : 
         print ( " GENIE Configuraion dir specified does not exist: " + opts.CONF + " . Abort ..." ) 
         exit()
 
     print( 'Using configuration files from ' + opts.CONF + ' ...' )
+    # Check if we have a message thresholds file 
+    if os.path.exists(opts.CONF+"/Messenger.xml"):
+        message_thresholds = "$CONDOR_DIR_INPUT/conf/Messenger.xml"
 
 
 #JobSub is made available through the UPS package jobsub_client
@@ -164,7 +168,7 @@ command_dict = {}
 command_dict.update( hadronA.hadronScatteringGenCommands(opts.PROBELIST,opts.TGTLIST,opts.HadronKE,opts.Events,opts.HadronKEMin,opts.HadronKEMax,
                                                          opts.FLUX,opts.TUNE,opts.NMax,opts.Seed, opts.GINUKEOutput, opts.NoGHEPOutput,version,
                                                          opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
-                                                         opts.JOBSTD,grid_setup,genie_setup,opts.JOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION,
+                                                         opts.JOBSTD,grid_setup,genie_setup,message_thresholds,opts.JOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION,
                                                          configure_hA, configure_hN, configure_INCL, configure_G4) )
 
 if opts.GRID is 'FNAL':

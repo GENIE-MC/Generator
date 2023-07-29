@@ -28,7 +28,9 @@ def hadronScatteringGenCommands( hadron_list = "212",tgt_list="1000060120", KEBe
                                  conf_dir='', arch='SL6.x86_64', production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                                  softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
                                  grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh', 
-                                 genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', time='10', memory='1GB', disk='2GB',
+                                 genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh',
+                                 message_thresholds= os.getenv('GENIE')+'config/Messenger.xml',
+                                 time='10', memory='1GB', disk='2GB',
                                  git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator", 
                                  configure_hA= True, configure_hN = False, configure_INCL=False, configure_G4=False ) :
 
@@ -96,10 +98,11 @@ def hadronScatteringGenCommands( hadron_list = "212",tgt_list="1000060120", KEBe
                     else :
                         evgen_command += " -k "+KEBeamMin+","+KEBeamMax+" -f "+Flux
                     evgen_command += " -m "+model + " -o "+jobname
-                    
+                    evgen_command += " --message-thresholds "+message_thresholds 
+
                     out_files = [str(jobname+"*.ghep.root")]
                     if ginuke_output : 
-                        evgen_command += " ; gntpc -i "+jobname+"*.ghep.root -o "+jobname+".ginuke.root -f ginuke "
+                        evgen_command += " ; gntpc -i "+jobname+"*.ghep.root -o "+jobname+".ginuke.root -f ginuke --message-thresholds "+message_thresholds
                         out_files.append(str(jobname+".ginuke.root"))
                         if no_ghep :
                             out_files = [str(jobname+".ginuke.root")]
