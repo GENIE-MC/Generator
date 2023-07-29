@@ -95,11 +95,11 @@ def hadronScatteringGenCommands( hadron_list = "212",tgt_list="1000060120", KEBe
                         evgen_command += " -k "+KEBeamMin+","+KEBeamMax
                     else :
                         evgen_command += " -k "+KEBeamMin+","+KEBeamMax+" -f "+Flux
-                    evgen_command += " -m "+model + " -o "+jobname+".ghep.root "
+                    evgen_command += " -m "+model + " -o "+jobname
                     
-                    out_files = [str(jobname+".ghep.root")]
+                    out_files = [str(jobname+"*.ghep.root")]
                     if gst_output : 
-                        evgen_command += " ; gntpc -i "+jobname+".ghep.root -o "+jobname+".gst.root -f gst "
+                        evgen_command += " ; gntpc -i "+jobname+"*.ghep.root -o "+jobname+".gst.root -f gst "
                         out_files.append(str(jobname+".gst.root"))
                         if no_ghep :
                             out_files = [str(jobname+".gst.root")]
