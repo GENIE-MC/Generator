@@ -382,6 +382,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
   GHepParticle* p = 0;
   const G4ParticleDefinition* incidentDef = 0;
   GHepParticle* incidentBaryon = 0;
+  int bulet_pos;
   TObjArrayIter piter(evrec);
   TObjArrayIter pitter(evrec);
   int icurr =-1;
@@ -434,7 +435,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
           sp->Pdg() == kPdgSigmaM ) {
       */
       if ( IsBaryon(sp) ) {
-        incidentBaryon = sp;
+        incidentBaryon = new GHepParticle(*sp);
         incidentDef = PDGtoG4Particle(sp->Pdg() );
         has_incidentBaryon=true;
       } else {
@@ -466,6 +467,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
 
     //rwh-noused//int Ainit = remNucl->A();
     //std::cout << " Ainit = " << Ainit << std::endl;
+    delete incidentBaryon;
 
     G4Fancy3DNucleus* g4Nucleus = new G4Fancy3DNucleus();
 
@@ -495,14 +497,17 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
               p->Pdg() == kPdgSigmaM ) {
           */
           if ( IsBaryon(p) ) {
+            bulet_pos = icccur;
             incidentDef = PDGtoG4Particle(p->Pdg() );
             has_incidentparticle=true;
           }
         }
       }
     }
-    GHepParticle * pinN = evrec->Particle(pos_in_evrec);
+    
     if ( ! has_incidentparticle) {
+      bulet_pos = pos_in_evrec;
+      GHepParticle * pinN = evrec->Particle(pos_in_evrec);
       incidentDef=PDGtoG4Particle(pinN->Pdg()); // if no baryon among the secondaries
     }
     pIncident.SetPxPyPzE(PxI,PyI,PzI,EEI);
@@ -558,7 +563,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
       G4LorentzVector hadP = outgoingHadrons[l].getMomentum();
       TLorentzVector tempP(hadP.px(), hadP.py(), hadP.pz(), hadP.e() );
 
-      GHepParticle new_particle(npdg, kIStStableFinalState, -1, -1,-1,-1,tempP, remX);
+      GHepParticle new_particle(npdg, kIStStableFinalState, bulet_pos, -1,-1,-1,tempP, remX);
       evrec->AddParticle(new_particle);
     }
 
@@ -586,7 +591,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
           nucP = outgoingFragments[k].getMomentum();  // need to boost by fRemnP4
           TLorentzVector tempP(nucP.px(), nucP.py(), nucP.pz(), nucP.e() );
 
-          GHepParticle nuclear_Fragment(npdg, kIStStableFinalState, rem_nucl, 0,-1,-1,tempP, remX);
+          GHepParticle nuclear_Fragment(npdg, kIStFinalStateNuclearRemnant, rem_nucl, 0,-1,-1,tempP, remX);
           evrec->AddParticle(nuclear_Fragment);
         }
       }
