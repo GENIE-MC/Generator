@@ -31,7 +31,8 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, 
         for i in range(len(in_files)):
             script.write("ifdh cp -D "+in_files[i]+"  $CONDOR_DIR_INPUT ;\n")
     else : 
-        script.write("ifdh cp -D "+in_files+"  $CONDOR_DIR_INPUT ;\n")
+        if len(in_files) != 0 :
+            script.write("ifdh cp -D "+in_files+"  $CONDOR_DIR_INPUT ;\n")
 
     if isinstance(commands,list):
         for command in commands : 
