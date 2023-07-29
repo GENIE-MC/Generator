@@ -46,7 +46,7 @@ op.add_option("--minenergy-fluxrange", dest="MinEnergyFlux", default="0.1", help
 op.add_option("--maxenergy-fluxrange", dest="MaxEnergyFlux", default="100", help="Maximum electron energy. Default %default.")
 op.add_option("--seed", dest="Seed", default=210921029, help="Set stargint point seed. Default %default")
 op.add_option("--gen-runid", dest="RunID", default=0, help="Set Starting run id. Default %default")
-op.add_option("--gst-output", dest="GSTOutput", default=False, action="store_true",help="Store gst root file.")
+op.add_option("--ginuke-output", dest="GINUKEOutput", default=False, action="store_true",help="Store ginuke root file.")
 op.add_option("--no-ghep-output", dest="NoGHEPOutput", default=False, action="store_true",help="GHEP GENIE files is removed to reduce memory.")
 op.add_option("--tune", dest="TUNE", default="G18_02a_02_11b", help="Tune to be compared against data (default: %default)")
 op.add_option("--submit-jobs", dest="SUBMIT", default=False, action="store_true", help="Generate configuration and submit to grid" )
@@ -162,7 +162,7 @@ elif "d" in opts.TUNE:
 command_dict = {}
 
 command_dict.update( hadronA.hadronScatteringGenCommands(opts.PROBELIST,opts.TGTLIST,opts.HadronKE,opts.Events,opts.HadronKEMin,opts.HadronKEMax,
-                                                         opts.FLUX,opts.TUNE,opts.NMax,opts.Seed, opts.GSTOutput, opts.NoGHEPOutput,version,
+                                                         opts.FLUX,opts.TUNE,opts.NMax,opts.Seed, opts.GINUKEOutput, opts.NoGHEPOutput,version,
                                                          opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
                                                          opts.JOBSTD,grid_setup,genie_setup,opts.JOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION,
                                                          configure_hA, configure_hN, configure_INCL, configure_G4) )

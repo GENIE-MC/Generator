@@ -24,7 +24,7 @@ evg_tgtpdg_hash = ['1000010020', '1000010030', '1000020030', '1000020040', '1000
                    '1000180400', '1000200400', '1000200480', '1000260560', '1000791970', '1000822080', '1000922380']
 
 def hadronScatteringGenCommands( hadron_list = "212",tgt_list="1000060120", KEBeam_list="2", ntotevents=1000000, KEBeamMin="2", KEBeamMax="3", Flux="none",
-                                 tune='G18_02a_02_11b',nmaxrun=100000, mcseed=210921029, gst_output=False, no_ghep=False,version='master', 
+                                 tune='G18_02a_02_11b',nmaxrun=100000, mcseed=210921029, ginuke_output=False, no_ghep=False,version='master', 
                                  conf_dir='', arch='SL6.x86_64', production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                                  softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
                                  grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh', 
@@ -98,11 +98,11 @@ def hadronScatteringGenCommands( hadron_list = "212",tgt_list="1000060120", KEBe
                     evgen_command += " -m "+model + " -o "+jobname
                     
                     out_files = [str(jobname+"*.ghep.root")]
-                    if gst_output : 
-                        evgen_command += " ; gntpc -i "+jobname+"*.ghep.root -o "+jobname+".gst.root -f gst "
-                        out_files.append(str(jobname+".gst.root"))
+                    if ginuke_output : 
+                        evgen_command += " ; gntpc -i "+jobname+"*.ghep.root -o "+jobname+".ginuke.root -f ginuke "
+                        out_files.append(str(jobname+".ginuke.root"))
                         if no_ghep :
-                            out_files = [str(jobname+".gst.root")]
+                            out_files = [str(jobname+".ginuke.root")]
 
                     shell_file = ''                
                     if grid_system == 'FNAL' :
