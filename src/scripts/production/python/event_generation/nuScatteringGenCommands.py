@@ -41,7 +41,8 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=1
                              arch='SL6.x86_64', production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                              softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
                              grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh', 
-                             genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', 
+                             genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh',
+                             message_thresholds= os.getenv('GENIE')+'config/Messenger.xml', 
                              time='10', git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator",
                              configure_INCL=False, configure_G4=False) :
 
@@ -108,17 +109,18 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=1
             jobname           = "nu_"+expname+"_"+str(isubrun)            
             evgen_command = "gevgen -p "+str(nu)+" -n "+str(nev)+" -e "+EFlux_min+","+EFlux_max+" -f " +flux+" -t "+str(tgt_mix)+" -r "+curr_subrune+" --seed "+str(curr_seed)
             evgen_command += " --cross-sections "+input_xsec+" --tune "+tune + " -o "+jobname+".ghep.root"
+            evgen_command += " --message-thresholds "+message_thresholds 
 
             if gen_list is not "all" : 
                 evgen_command += " --event-generator-list "+gen_list+" "
                 shell_file = ''                
 
-                out_files = [str(jobname+".ghep.root")]
-                if gst_output : 
-                    evgen_command += " ; gntpc -i "+jobname+".ghep.root -o "+jobname+".gst.root -f gst "
-                    out_files.append(str(jobname+".gst.root"))
-                    if no_ghep :
-                        out_files = [str(jobname+".gst.root")]
+            out_files = [str(jobname+".ghep.root")]
+            if gst_output : 
+                evgen_command += " ; gntpc -i "+jobname+".ghep.root -o "+jobname+".gst.root -f gst --message-thresholds "+message_thresholds
+                out_files.append(str(jobname+".gst.root"))
+                if no_ghep :
+                    out_files = [str(jobname+".gst.root")]
             if grid_system == 'FNAL' :
                 shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, in_file_list, git_branch, 
                                                      git_loc, configure_INCL, configure_G4 ) 
