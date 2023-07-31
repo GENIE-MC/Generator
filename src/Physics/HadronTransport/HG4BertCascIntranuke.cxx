@@ -51,6 +51,9 @@
 #include "Geant4/G4InuclElementaryParticle.hh"
 #include "Geant4/G4InuclNuclei.hh"
 #include "Geant4/G4KineticTrackVector.hh"
+#include "Geant4/G4Diproton.hh"
+#include "Geant4/G4Dineutron.hh"
+#include "Geant4/G4UnboundPN.hh"
 
 
 using std::ostringstream;
@@ -368,7 +371,6 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
   // In frozen nucleus approximation it is the remnant nucleus corrected for
   // final state lepton charge
 
-  //rwh-unused//GHepParticle* probe = evrec->Probe();                   // incoming neutrino
   GHepParticle* tgtNucl = evrec->TargetNucleus();
   GHepParticle* remNucl = evrec->RemnantNucleus();
   GHepParticle* outLept = evrec->FinalStatePrimaryLepton();  // outgoing lepton
@@ -376,19 +378,12 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
 
   int inucl = evrec->RemnantNucleusPosition();
 
-  //  double sepEnergy = tgtNucl->Mass() - remNucl->Mass() - struckNucleon->Mass();
-  //  std::cout << " sepEnergy = " << sepEnergy << std::endl;
-
   GHepParticle* p = 0;
   const G4ParticleDefinition* incidentDef = 0;
-  GHepParticle* incidentBaryon = 0;
-  int bulet_pos;
   TObjArrayIter piter(evrec);
   TObjArrayIter pitter(evrec);
-  int icurr =-1;
-  bool has_incidentBaryon(false), has_secondaries(false);
-  //rwh-unused// bool transparents(false),
-  bool has_remnant(false), has_incidentparticle(false);
+  int icurr =-1, firstmom = -1, lastmom = -1;
+  bool has_secondaries(false), has_remnant(false), has_incidentparticle(false);
 
   fRemnA=remNucl->A();
   fRemnZ=remNucl->Z();
@@ -409,66 +404,16 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
       continue;
     }
 
-    while ( this-> IsInNucleus(sp) ) {
-      // advance the hadron by a step
-      utils::intranuke2018::StepParticle(sp, fHadStep);
-      double d = this->GenerateStep(evrec,sp);
-      has_interacted = (d<fHadStep);
-      if ( has_interacted ) {
-        has_secondaries=true;
-        break;
-      }
-    } //stepping
-    if ( ! has_interacted ) {
-      sp->SetStatus(kIStStableFinalState);
-      evrec->AddParticle(*sp);
-      evrec->Particle(sp->FirstMother())->SetRescatterCode(1);
-      //rwh-unused//transparents=true;
-    }
-    if ( ! has_incidentBaryon && sp->Status() == kIStHadronInTheNucleus ) {
-      /*
-      if (sp->Pdg() == kPdgProton ||
-          sp->Pdg() == kPdgNeutron||
-          sp->Pdg() == kPdgLambda ||
-          sp->Pdg() == kPdgSigmaP ||
-          sp->Pdg() == kPdgSigma0 ||
-          sp->Pdg() == kPdgSigmaM ) {
-      */
-      if ( IsBaryon(sp) ) {
-        incidentBaryon = new GHepParticle(*sp);
-        incidentDef = PDGtoG4Particle(sp->Pdg() );
-        has_incidentBaryon=true;
-      } else {
-        if (sp->Pdg() == kPdgProton ||
-            sp->Pdg() == kPdgNeutron||
-            sp->Pdg() == kPdgLambda ||
-            sp->Pdg() == kPdgSigmaP ||
-            sp->Pdg() == kPdgSigma0 ||
-            sp->Pdg() == kPdgSigmaM ) {
-          LOG("G4BertCascInterface::TransportHadrons", pWARN)
-            << "IsBaryon failed to tag " << *sp;
-        }
-      }
-    }
+    if( this-> IsInNucleus(sp) ) 
+    {
+        if (firstmom == -1) firstmom = icurr;
+        if (lastmom < icurr) lastmom = icurr; 
+    } 
     delete sp;
   }
-
+  
+  has_secondaries=true;
   if ( has_secondaries ) {
-    if ( ! incidentBaryon ) LOG("G4BertCascInterface::TransportHadrons", pINFO)
-                              << "Unrecognized baryon in nucleus";
-
-    int Zinit = remNucl->Z() - outLept->Charge()/3;
-    if (incidentBaryon) {
-      Zinit += (struckNucleon->Charge() - incidentBaryon->Charge() )/3;
-    }
-
-    //std::cout << " Zinit = " << Zinit <<" remNucl->Z()= "
-    //          <<remNucl->Z()<< std::endl;
-
-    //rwh-noused//int Ainit = remNucl->A();
-    //std::cout << " Ainit = " << Ainit << std::endl;
-    delete incidentBaryon;
-
     G4Fancy3DNucleus* g4Nucleus = new G4Fancy3DNucleus();
 
     TLorentzVector pIncident;
@@ -476,42 +421,25 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
     g4Nucleus->Init(remNucl->A(),remNucl->Z());
     double EE = struckNucleon->E() - tgtNucl->Mass() + g4Nucleus->GetMass()*units::MeV;
     TLorentzVector struckMomentum(struckNucleon->Px(), struckNucleon->Py(), struckNucleon->Pz(), EE);
-    Double_t PxI(0),PyI(0),PzI(0),EEI(0);
-    int icccur=-1;
-    int pos_in_evrec(0);
+    double PxI(0),PyI(0),PzI(0),EEI(0);
     while( (p = (GHepParticle*) pitter.Next()) ) {
-      icccur++;
       if (p->Status() == kIStHadronInTheNucleus && this->CanRescatter(p) && p->RescatterCode()!=1) {
         PxI+=p->P4()->Px();
         PyI+=p->P4()->Py();
         PzI+=p->P4()->Pz();
         EEI+=p->P4()->E();
-        if ( pos_in_evrec==0 ) pos_in_evrec = icccur;
-        if ( ! has_incidentparticle ) { // take the baryon as incident particle
-          /*
-          if (p->Pdg() == kPdgProton ||
-              p->Pdg() == kPdgNeutron ||
-              p->Pdg() == kPdgLambda ||
-              p->Pdg() == kPdgSigmaP ||
-              p->Pdg() == kPdgSigma0  ||
-              p->Pdg() == kPdgSigmaM ) {
-          */
-          if ( IsBaryon(p) ) {
-            bulet_pos = icccur;
-            incidentDef = PDGtoG4Particle(p->Pdg() );
-            has_incidentparticle=true;
-          }
-        }
       }
     }
-    
-    if ( ! has_incidentparticle) {
-      bulet_pos = pos_in_evrec;
-      GHepParticle * pinN = evrec->Particle(pos_in_evrec);
-      incidentDef=PDGtoG4Particle(pinN->Pdg()); // if no baryon among the secondaries
-    }
+    if (struckNucleon->Pdg() == kPdgClusterNN)
+        incidentDef = G4Dineutron::Definition();
+    else if (struckNucleon->Pdg() == kPdgClusterPP)
+        incidentDef = G4Diproton::Definition();
+    else if (struckNucleon->Pdg() == kPdgClusterNP)
+        incidentDef = G4UnboundPN::Definition();
+    else
+        incidentDef = PDGtoG4Particle(struckNucleon->Pdg() );
+        
     pIncident.SetPxPyPzE(PxI,PyI,PzI,EEI);
-
 
     G4ThreeVector incidentDir(pIncident.Vect().Unit().Px(),
                               pIncident.Vect().Unit().Py(),
@@ -559,11 +487,10 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
     const std::vector<G4InuclElementaryParticle>& outgoingHadrons = cascadeOutput.getOutgoingParticles();
     for (int l = 0; l < Nhad; l++) {
       npdg = outgoingHadrons[l].getDefinition()->GetPDGEncoding();
-
       G4LorentzVector hadP = outgoingHadrons[l].getMomentum();
       TLorentzVector tempP(hadP.px(), hadP.py(), hadP.pz(), hadP.e() );
 
-      GHepParticle new_particle(npdg, kIStStableFinalState, bulet_pos, -1,-1,-1,tempP, remX);
+      GHepParticle new_particle(npdg, kIStStableFinalState, firstmom, lastmom,-1,-1,tempP, remX);
       evrec->AddParticle(new_particle);
     }
 
