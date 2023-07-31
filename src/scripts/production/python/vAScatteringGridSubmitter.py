@@ -73,8 +73,8 @@ op.add_option("--job-lifetime-vA", dest="vAJOBLIFE", default=4, help="Expected l
 op.add_option("--job-lifetime-generation", dest="GENJOBLIFE", default=5, help="Expected lifetime on the grid for all the event generation jobs to be finished, default %default h")
 op.add_option("--job-lifetime-group", dest="GROUPJOBLIFE", default=1, help="Expected lifetime on the grid for all the grouping jobs to be finished, default %default h")
 op.add_option("--mainjob-lifetime", dest="MAINJOBLIFE", default=14, help="Expected lifetime on the grid for all the jobs to be finished, default %default h")
-op.add_option("--mainjob-memory", dest="MAINMEM", default=20, help="Main job memory usage, default %default")
-op.add_option("--mainjob-disk", dest="MAINDISK", default=20, help="Main job disk usate, default %default")
+op.add_option("--mainjob-memory", dest="MAINMEM", default="20GB", help="Main job memory usage, default %default")
+op.add_option("--mainjob-disk", dest="MAINDISK", default="20GB", help="Main job disk usate, default %default")
 op.add_option("--subjob-memory", dest="JOBMEM", default="2GB", help="Expected memory usage for each event generation job, default %default. Notice you must specify the units. ")
 op.add_option("--subjob-disk", dest="JOBDISK", default="2GB", help="Expected disk space for each event generation job, default %default. Notice you must specify the units. ")
 op.add_option("--store-comitinfo", dest="STORECOMMIT", default=False, action="store_true", help="Store command line in jobstopdir directory")
@@ -122,12 +122,16 @@ if opts.GRID == 'FNAL':
         print ("Not runing from pnfs:"+opts.JOBSTD+" . Jobs top dir must be in pnfs for the submission scrpits to work. Abort ...")
         exit()
 
+message_thresholds = "$GALGCONF/Messenger.xml"
 if opts.CONF : 
     if not os.path.exists(opts.CONF) : 
         print ( " GENIE Configuraion dir specified does not exist: " + opts.CONF + " . Abort ..." ) 
         exit()
 
     print( 'Using configuration files from ' + opts.CONF + ' ...' )
+    # Check if we have a message thresholds file 
+    if os.path.exists(opts.CONF+"/Messenger.xml"):
+        message_thresholds = "$CONDOR_DIR_INPUT/conf/Messenger.xml"
 
 if opts.TGTMIX == '' : 
     opts.TGTMIX = opts.NUTGTLIST 
@@ -201,7 +205,7 @@ loop_i = loop_start
 while loop_i < loop_end + 1: 
     # ID = 0 # vN splines
     if loop_i == 0 :
-        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.NuEMAXSPLINE,opts.EEMAXSPLINE,
+        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.NuEMAXSPLINES,opts.EEMAXSPLINES,
                                                  opts.NuKnots,opts.EKnots,opts.TUNE,version,opts.GRID,opts.GROUP,
                                                  opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,
                                                  opts.JOBSTD,grid_setup,genie_setup,opts.vNJOBLIFE,opts.JOBMEM,opts.JOBDISK,
@@ -248,7 +252,8 @@ while loop_i < loop_end + 1:
         command_dict.update( nuA.nuScatteringGenCommands(opts.PROBELIST,opts.TGTMIX,opts.MinEnergyFlux,opts.MaxEnergyFlux,opts.FLUX,vAsplines,
                                                          opts.NuEvents,opts.TUNE,opts.EvGenList,opts.EXPNAME,opts.NMax,opts.Seed,opts.RunID,
                                                          opts.GSTOutput,opts.NoGHEPOutput,version,opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,
-                                                         opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,
+                                                         opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
+                                                         opts.JOBSTD,grid_setup,genie_setup,message_thresholds,opts.GENJOBLIFE,
                                                          opts.BRANCH,opts.GIT_LOCATION,configure_INCL,configure_G4) )
         # Submit electron jobs
         #        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.BEnergy,vAsplines,opts.EEvents,opts.TUNE, opts.EvGenList, opts.NMax,version,opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
