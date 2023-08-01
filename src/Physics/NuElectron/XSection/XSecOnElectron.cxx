@@ -16,7 +16,7 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Conventions/RefFrame.h"
-#include "Physics/NuElectron/XSection/NuElectronXSec.h"
+#include "Physics/NuElectron/XSection/XSecOnElectron.h"
 #include "Physics/XSectionIntegration/GSLXSecFunc.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/GSLUtils.h"
@@ -25,24 +25,24 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-NuElectronXSec::NuElectronXSec() :
-XSecIntegratorI("genie::NuElectronXSec")
+XSecOnElectron::XSecOnElectron() :
+XSecIntegratorI("genie::XSecOnElectron")
 {
 
 }
 //____________________________________________________________________________
-NuElectronXSec::NuElectronXSec(string config) :
-XSecIntegratorI("genie::NuElectronXSec", config)
+XSecOnElectron::XSecOnElectron(string config) :
+XSecIntegratorI("genie::XSecOnElectron", config)
 {
 
 }
 //____________________________________________________________________________
-NuElectronXSec::~NuElectronXSec()
+XSecOnElectron::~XSecOnElectron()
 {
 
 }
 //____________________________________________________________________________
-double NuElectronXSec::Integrate(
+double XSecOnElectron::Integrate(
                  const XSecAlgorithmI * model, const Interaction * in) const
 {
   if(! model->ValidProcess(in) ) return 0.;
@@ -75,19 +75,19 @@ double NuElectronXSec::Integrate(
   return xsec;
 }
 //____________________________________________________________________________
-void NuElectronXSec::Configure(const Registry & config)
+void XSecOnElectron::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void NuElectronXSec::Configure(string config)
+void XSecOnElectron::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void NuElectronXSec::LoadConfig(void)
+void XSecOnElectron::LoadConfig(void)
 {
   // Get GSL integration type & relative tolerance
 	GetParamDef( "gsl-integration-type", fGSLIntgType, string( "adaptive" ) ) ;

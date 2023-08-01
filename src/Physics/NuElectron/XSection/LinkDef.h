@@ -12,6 +12,6 @@
 #pragma link C++ class genie::BardinIMDRadCorPXSec;
 #pragma link C++ class genie::NuElectronPXSec;
 
-#pragma link C++ class genie::NuElectronXSec;
+#pragma link C++ class genie::XSecOnElectron;
 
 #endif
