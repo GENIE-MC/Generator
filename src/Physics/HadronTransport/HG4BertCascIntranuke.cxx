@@ -476,7 +476,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
     g4Nucleus->Init(remNucl->A(),remNucl->Z());
     double EE = struckNucleon->E() - tgtNucl->Mass() + g4Nucleus->GetMass()*units::MeV;
     TLorentzVector struckMomentum(struckNucleon->Px(), struckNucleon->Py(), struckNucleon->Pz(), EE);
-    Double_t PxI(0),PyI(0),PzI(0),EEI(0);
+    Double_t PxI(0),PyI(0),PzI(0),EEI(0), Q(0);
     int icccur=-1;
     int pos_in_evrec(0);
     while( (p = (GHepParticle*) pitter.Next()) ) {
@@ -486,6 +486,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
         PyI+=p->P4()->Py();
         PzI+=p->P4()->Pz();
         EEI+=p->P4()->E();
+        Q+=p->Charge()/3;
         if ( pos_in_evrec==0 ) pos_in_evrec = icccur;
         if ( ! has_incidentparticle ) { // take the baryon as incident particle
           /*
@@ -504,7 +505,6 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
         }
       }
     }
-    
     if ( ! has_incidentparticle) {
       bulet_pos = pos_in_evrec;
       GHepParticle * pinN = evrec->Particle(pos_in_evrec);
@@ -522,6 +522,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
     // Create pseudo-particle to supply Bertini collider with bullet
 
     G4DynamicParticle dp(incidentDef, incidentDir, incidentKE/units::MeV, dynamicMass/units::MeV);
+    dp.SetCharge(Q);
 
     G4InuclElementaryParticle* incident = new G4InuclElementaryParticle(dp,G4InuclParticle::bullet);
 
