@@ -75,7 +75,7 @@ def eFluxScatteringGenCommands( e_list = "11",tgt_list="1000060120", Flux="\'1/x
     flux_path = ''
     if "root" in Flux:
         flux_members = Flux.split(",") # separate flux file location and histogram name
-        if len(flux_members) is not 2 : 
+        if len(flux_members) != 2 : 
             print( "Provide flux file path and histogram name" )
             exit()
 

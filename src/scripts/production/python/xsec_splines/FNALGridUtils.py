@@ -11,7 +11,7 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, 
     script.write("#!/bin/bash \n")
     script.write("cd $CONDOR_DIR_INPUT ;\n")
     script.write("source "+os.path.basename(grid_setup)+" ; \n")
-    if conf_dir is not '' : 
+    if conf_dir != '' : 
         conf_files = glob.glob(conf_dir+"/*.xml")
         script.write("mkdir $CONDOR_DIR_INPUT/conf ;\n")
         for conf_i in conf_files : 

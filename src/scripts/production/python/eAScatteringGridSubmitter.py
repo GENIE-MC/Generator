@@ -240,7 +240,7 @@ while loop_i < loop_end + 1:
 
     if loop_i == 4 : 
         # ID = 4 # Event generation commands
-        if opts.FLUX is "none" : 
+        if opts.FLUX == "none" : 
             command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.EnergyBeam,vAsplines,opts.EEvents,
                                                            opts.TUNE, opts.EvGenList, opts.NMax, opts.Seed, opts.RunID, opts.GSTOutput, opts.NoGHEPOutput,version,
                                                            opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
@@ -260,7 +260,7 @@ if total_time > int(opts.MAINLIFE) :
     print ( "Total time of subjobs requested ("+str(total_time)+") is bigger than the job's expected time ("+str(opts.MAINLIFE)+") ... Abort ..." ) 
     exit() 
 
-if opts.GRID is 'FNAL':
+if opts.GRID == 'FNAL':
     if total_time > 96 or int(opts.MAINLIFE) > 96 : 
         print ( "Total time at the grid cannot exceed 96h ")
         exit() 
