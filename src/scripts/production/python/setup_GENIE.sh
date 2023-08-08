@@ -11,8 +11,10 @@ RUN_LOCALLY=$6
 
 git clone $GITHUB_LOCATION Generator 
 if [ ! -z "$2" ] ; then 
+  cd Generator
   GENIE_VERSION=$2
   git checkout "$GENIE_VERSION" 
+  cd ..
 fi
 echo Requested Genie version $GENIE_VERSION
 
