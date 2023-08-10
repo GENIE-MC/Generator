@@ -186,11 +186,11 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
             commands.append(com_proc) 
             com_nu += path+nu+"_on_"+tgt+".xml,"
         com_nu = com_nu[:-1]
-        if len(dict_target[tgt]) == 1 : 
-            commands.append("ifdh cp "+path+nu+"_on_"+tgt+".xml "+path+tgt+".xml")
-        else :
-            commands.append(com_nu) 
-        com_total += tgt+".xml,"
+        #if len(dict_target[tgt]) == 1 : 
+        #    commands.append("ifdh cp "+path+nu+"_on_"+tgt+".xml "+path+tgt+".xml")
+        #else :
+        #    commands.append(com_nu) 
+        com_total += nu+"_on_"+tgt+".xml,"
     com_total = com_total[:-1]
 
     ## if only one target simply rename
