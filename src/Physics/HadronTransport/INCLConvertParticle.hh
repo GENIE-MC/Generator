@@ -72,8 +72,16 @@ namespace G4INCL {
                           (result.pz[nP])*(result.pz[nP])   );
     } else {
       pdg_codeP = INCLtopdgcode(result.A[nP],result.Z[nP]);
-      double Mass_prodPar = PDGLibrary::Instance()->Find(pdg_codeP)->Mass();
-      E_pnP = EKinP + Mass_prodPar*1000;
+      TParticlePDG * pdgRemn=PDGLibrary::Instance()->Find(pdg_codeP); 
+      if(!pdgRemn)
+      {
+        LOG("HINCLCascadeIntranuke", pINFO)
+        << "NO Particle with pdg = " << pdg_codeP << " in PDGLibrary!";
+        pdg_codeP=kPdgHadronicBlob;
+        ist=kIStFinalStateNuclearRemnant;
+      }
+    
+      E_pnP = EKinP + m_pnP;
     }
     TLorentzVector p4tgtf(p3M,E_pnP/1000);
     return new GHepParticle(pdg_codeP,ist,mom1,mom2,-1,-1,p4tgtf,x4null);

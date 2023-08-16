@@ -428,7 +428,7 @@ int HINCLCascadeIntranuke::doCascade(GHepRecord * evrec) const {
 
   if ( result.transparent ) {
     evrec->AddParticle(pdg_codeProbe, ist1, 0,-1,-1,-1, p4h,x4null);
-    evrec->AddParticle(pdg_codeTarget,kIStFinalStateNuclearRemnant,1,-1,-1,-1,p4tgt,x4null);
+    evrec->AddParticle(pdg_codeTarget,kIStStableFinalState,1,-1,-1,-1,p4tgt,x4null);
     INCL_DEBUG("Transparent event" << std::endl);
   } else {
     INCL_DEBUG("Number of produced particles: " << result.nParticles << "\n");
@@ -438,10 +438,32 @@ int HINCLCascadeIntranuke::doCascade(GHepRecord * evrec) const {
     int mom = 1;
     for (int nP = 0; nP < result.nParticles; nP++){
       if ( nP == result.nParticles-1 ) {
+        int pdgRem=INCLtopdgcode(result.A[nP],result.Z[nP]);
+      TParticlePDG * pdgRemn=PDGLibrary::Instance()->Find(pdgRem); 
+      if(!pdgRemn)
+      {
+        LOG("HINCLCascadeIntranuke", pINFO)
+        << "NO Particle with pdg = " << pdgRem << " in PDGLibrary!";
+              // Add the particle with status id=15 and change it to HadroBlob
+            TVector3 p3M(result.px[nP]/1000,result.py[nP]/1000,result.pz[nP]/1000);
+
+            double MassRem=0.5*((result.px[nP])*(result.px[nP]) +
+                         (result.py[nP])*(result.py[nP]) +
+                         (result.pz[nP])*(result.pz[nP]) -
+                         result.EKin[nP]*result.EKin[nP]) / (result.EKin[nP]);
+            float ERem=result.EKin[nP]+MassRem;
+            TLorentzVector p4tgtf(p3M,ERem/1000);
+        GHepParticle p_outR(kPdgHadronicBlob, kIStFinalStateNuclearRemnant,
+          0,1,-1,-1, p4tgtf, x4null);;
+        evrec->AddParticle(p_outR);   
+      }
+      else
+      {
         GHepParticle *p_outR =
-          INCLtoGenieParticle(result,nP,kIStFinalStateNuclearRemnant,mom,-1);
+        INCLtoGenieParticle(result,nP,kIStStableFinalState,mom,-1);
         evrec->AddParticle(*p_outR);
         delete p_outR;
+      }
       } else {
         GHepParticle *p_outR =
           INCLtoGenieParticle(result,nP,kIStStableFinalState,0,-1);
@@ -642,6 +664,7 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
           theZ_Remn-= (fRemnZ + pdgcpiontoZ(pinthenucleus->Pdg())- ListeOfINCLresult.at(it).ZRem[0]);
           Zl+=pdgcpiontoZ(pinthenucleus->Pdg());
           Aft+=pdgcpiontoA(pinthenucleus->Pdg());
+      
           pinthenucleus->SetFirstMother(Pos);
           pinthenucleus->SetStatus(kIStStableFinalState);
           evrec->AddParticle(*pinthenucleus);
@@ -714,6 +737,7 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
         theZ_Remn-= (fRemnZ + pdgcpiontoZ(pinthenucleus->Pdg())- ListeOfINCLresult.at(it).ZRem[0]);
         Zl+=pdgcpiontoZ(pinthenucleus->Pdg());
         Aft+=pdgcpiontoA(pinthenucleus->Pdg());
+   
         pinthenucleus->SetFirstMother(Pos);
         pinthenucleus->SetStatus(kIStStableFinalState);
         evrec->AddParticle(*pinthenucleus);
@@ -771,8 +795,17 @@ void HINCLCascadeIntranuke::TransportHadrons(GHepRecord * evrec) const {
   }
 
   if ( ListeOfINCLresult.size() == 0 && !has_remnant) {
-    GHepParticle remnant(pdg_codeTargetRemn, kIStFinalStateNuclearRemnant, inucl,-1,-1,-1, fRemnP4, x4null);
+     TParticlePDG * pdgRemn=PDGLibrary::Instance()->Find(pdg_codeTargetRemn); 
+     if(!pdgRemn)
+      {
+        LOG("HINCLCascadeIntranuke", pINFO)
+        << "NO Particle with pdg = " << pdg_codeTargetRemn << " in PDGLibrary!";
+        GHepParticle remnant(kPdgHadronicBlob, kIStFinalStateNuclearRemnant, inucl,-1,-1,-1, fRemnP4, x4null);
     evrec->AddParticle(remnant);
+  }else{
+    GHepParticle remnant(pdg_codeTargetRemn, kIStStableFinalState, inucl,-1,-1,-1, fRemnP4, x4null);
+    evrec->AddParticle(remnant);
+  }
   }
   evrec->Particle(inucl)->SetStatus(kIStIntermediateState);
 }
