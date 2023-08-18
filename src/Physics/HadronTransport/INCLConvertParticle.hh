@@ -1,41 +1,23 @@
+#include "Framework/Conventions/GBuild.h"
+#ifdef __GENIE_INCL_ENABLED__
+
 #ifndef INCLConvertParticle_hh
 #define INCLConvertParticle_hh 1
 
-#include <list>
-#include <sstream>
-
-#include "G4INCLCascade.hh"
-#include "G4INCLVersion.hh"
-#include "G4INCLConfig.hh"
+// INCL++
+#include "G4INCLParticleSpecies.hh" // includes G4INCLParticleType
+#include "G4INCLParticleTable.hh"
 
 // GENIE
-#include "INCLConfigParser.h"
-
-#include "G4INCLConfigEnums.hh"
-
-#include "Framework/Conventions/Constants.h"
-#include "Framework/Conventions/Controls.h"
-#include "Framework/GHEP/GHepStatus.h"
-#include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
-#include "Framework/ParticleData/PDGLibrary.h"
-#include "Framework/ParticleData/PDGCodes.h"
-#include "Framework/ParticleData/PDGCodeList.h"
 #include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 
-#include <TFile.h>
-#include <TLorentzVector.h>
-#include <TTree.h>
-
-#include "G4INCLAbla07Interface.hh"
 using namespace genie;
 
 namespace G4INCL {
 
-  G4INCL::INCL *theINCLModel;
-  G4INCL::IDeExcitation *theDeExcitation ;
-
-  // rwh ?? check this
   int INCLpartycleSpecietoPDGCODE(G4INCL::ParticleSpecies theSpecies) {
     if (theSpecies.theType != Composite) {
       if      (ParticleTable::getName(theSpecies.theType) == "pi0") return  111;
@@ -58,7 +40,7 @@ namespace G4INCL {
     }
   }
 
-  G4INCL::ParticleType toINCLparticletype(int pdgc){
+  G4INCL::ParticleType toINCLparticletype(int pdgc) {
 
     if      (pdgc ==       2212) return G4INCL::Proton;
     else if (pdgc ==       2112) return G4INCL::Neutron;
@@ -70,6 +52,7 @@ namespace G4INCL {
     else if (pdgc == 1000020030) return G4INCL::Composite;
     else if (pdgc == 1000020040) return G4INCL::Composite;
     else                         return G4INCL::UnknownParticle;
+
   }
 
   GHepParticle *INCLtoGenieParticle(G4INCL::EventInfo result,
@@ -82,19 +65,30 @@ namespace G4INCL {
                          (result.py[nP])*(result.py[nP]) +
                          (result.pz[nP])*(result.pz[nP]) -
                          EKinP*EKinP) / (EKinP);
-    if (m_pnP < 10 && result.A[nP] == 0 && result.Z[nP] == 0) {
+    if (m_pnP < 10 && result.A[nP] == 0 && result.Z[nP] == 0) { // photon
       pdg_codeP = 22;
       E_pnP = TMath::Sqrt((result.px[nP])*(result.px[nP]) +
                           (result.py[nP])*(result.py[nP]) +
                           (result.pz[nP])*(result.pz[nP])   );
     } else {
       pdg_codeP = INCLtopdgcode(result.A[nP],result.Z[nP]);
-      double Mass_prodPar = PDGLibrary::Instance()->Find(pdg_codeP)->Mass();
-      E_pnP = EKinP + Mass_prodPar*1000;
+      TParticlePDG * pdgRemn=PDGLibrary::Instance()->Find(pdg_codeP,false); 
+      if(!pdgRemn)
+      {
+        LOG("HINCLCascadeIntranuke", pINFO)
+        << "NO Particle with pdg = " << pdg_codeP << " in PDGLibrary!";
+        pdg_codeP=kPdgHadronicBlob;
+        ist=kIStFinalStateNuclearRemnant;
+      }
+    
+      E_pnP = EKinP + m_pnP;
     }
     TLorentzVector p4tgtf(p3M,E_pnP/1000);
     return new GHepParticle(pdg_codeP,ist,mom1,mom2,-1,-1,p4tgtf,x4null);
   }
 
 }
+
 #endif
+
+#endif // __GENIE_INCL_ENABLED__
