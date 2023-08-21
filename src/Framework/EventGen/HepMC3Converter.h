@@ -20,6 +20,7 @@
 #define _HEPMC3_CONVERTER_H_
 
 #include "Framework/Conventions/GBuild.h"
+#include "Framework/GHEP/GHepStatus.h"
 #ifdef __GENIE_HEPMC3_INTERFACE_ENABLED__
 // Forward-declare needed HepMC3 classes here
 namespace HepMC3 {
@@ -30,6 +31,7 @@ namespace HepMC3 {
 namespace genie {
 
 class EventRecord;
+class GHepParticle;
 class GMCJDriver;
 
 class HepMC3Converter {
