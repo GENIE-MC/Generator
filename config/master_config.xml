@@ -147,7 +147,8 @@
    <config alg="genie::RSHelicityAmplModelEMp">                  RSHelicityAmplModelEMp.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMn">                  RSHelicityAmplModelEMn.xml                  </config>
    <config alg="genie::EngelFormFactor">                         EngelFormFactor.xml                         </config>
-
+   <config alg="genie::MAIDRESVectFormFactorsEMp">               MAIDRESVectFormFactorsEMp.xml               </config>
+   <config alg="genie::MAIDRESVectFormFactorsEMn">               MAIDRESVectFormFactorsEMn.xml               </config>
 
    <!--  ****** CONFIGURATION GENERIC CROSS SECTION INTEGRATORS ****** -->
    <config alg="genie::QELXSec">                     QELXSec.xml                     </config>
