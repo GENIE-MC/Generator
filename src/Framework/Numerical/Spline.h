@@ -7,14 +7,24 @@
 
           Uses ROOT's TSpline3 for the actual interpolation and can retrieve
           function (x,y(x)) pairs from an XML file, a flat ascii file, a
-          TNtuple, a TTree or an SQL database.
+          TNtuple, a TTree or an SQL database.\n
+          
+          Update May 15, 2022 IK: 
+          Adding as extra interpolators TSpline5 and 
+          ROOT::Math::GSLInterpolator (LINEAR, POLYNOMIAL, CSPLINE, CSPLINE_PERIODIC,
+          AKIMA, AKIMA_PERIODIC)
+          
+          
+\ref      [1] GENIE docdb 297
 
 \author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Laboratory \n
+          Igor Kakorin <kakorin@jinr.ru>
+          Joint Institute for Nuclear Research
 
 \created  May 04, 2004
 
-\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
@@ -22,12 +32,14 @@
 #ifndef _SPLINE_H_
 #define _SPLINE_H_
 
+#include <vector>
 #include <string>
 #include <fstream>
 #include <ostream>
 
 #include <TObject.h>
 #include <TSpline.h>
+#include <Math/Interpolator.h>
 
 class TNtupleD;
 class TTree;
@@ -106,6 +118,8 @@ public:
   void Add      (double a);
   void Multiply (double a);
   void Divide   (double a);
+  void SetType  (string type);
+  string GetType  (void) { return fInterpolatorType; }
 
   // Print knots
   void Print(ostream & stream) const;
@@ -128,8 +142,11 @@ private:
   double     fYMax;
   TSpline3 * fInterpolator;
   bool       fYCanBeNegative;
+  TSpline5 * fInterpolator5;
+  ROOT::Math::Interpolator * fGSLInterpolator;
+  string     fInterpolatorType;
 
-ClassDef(Spline,1)
+ClassDef(Spline,2)
 };
 
 }

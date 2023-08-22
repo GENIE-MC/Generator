@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -171,7 +171,9 @@ double QPMDISPXSec::XSec(
   xsec *= NNucl;
 
   // Apply scaling / if required to reach well known asymmptotic value
-  xsec *= fScale;
+  if( proc_info.IsWeakCC() )  xsec *= fCCScale;
+  else if( proc_info.IsWeakNC() )  xsec *= fEMScale;
+  else if( proc_info.IsEM() )  xsec *= fEMScale;
 
   // Subtract the inclusive charm production cross section
   interaction->ExclTagPtr()->SetCharm();
@@ -243,7 +245,9 @@ void QPMDISPXSec::LoadConfig(void)
   fDISSF.SetModel(fDISSFModel); // <-- attach algorithm
 
   // Cross section scaling factor
-  GetParam( "DIS-XSecScale", fScale ) ;
+  GetParam( "DIS-CC-XSecScale", fCCScale ) ;
+  GetParam( "DIS-NC-XSecScale", fNCScale ) ;
+  GetParam( "DIS-EM-XSecScale", fEMScale ) ;
 
   // sin^4(theta_weinberg)
   double thw  ;

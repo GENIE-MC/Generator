@@ -19,9 +19,6 @@
           Joint Institute for Nuclear Research,
           Institute for Theoretical and Experimental Physics \n
 
-          Vladimir Lyubushkin, \n
-          Joint Institute for Nuclear Research \n
-
           Vadim Naumov <vnaumov@theor.jinr.ru>, \n
           Joint Institute for Nuclear Research  \n
 
@@ -31,13 +28,15 @@
 
 \created  May 05, 2017
 
-\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
 #ifndef _QEL_EVENT_GENERATORSM_H_
 #define _QEL_EVENT_GENERATORSM_H_
+
+#include <Math/IntegratorMultiDim.h>
 
 #include "Physics/Common/KineGeneratorWithCache.h"
 #include "Framework/Conventions/Controls.h"
@@ -66,19 +65,10 @@ private:
 
   void   LoadConfig     (void);
   double ComputeMaxXSec(const Interaction * in) const;
+  double ComputeMaxXSec (const Interaction * in, const int nkey) const;
   void AddTargetNucleusRemnant (GHepRecord * evrec) const; ///< add a recoiled nucleus remnant
 
-  double ComputeMaxXSec2 (const Interaction * in) const;
-  double MaxXSec2        (GHepRecord * evrec) const;
-  double FindMaxXSec2    (const Interaction * in) const;
-  void   CacheMaxXSec2   (const Interaction * in, double xsec) const;
-  CacheBranchFx * AccessCacheBranch2 (const Interaction * in) const;
-
-  double ComputeMaxDiffv (const Interaction * in) const;
-  double MaxDiffv        (GHepRecord * evrec) const;
-  double FindMaxDiffv    (const Interaction * in) const;
-  void   CacheMaxDiffv   (const Interaction * in, double xsec) const;
-  CacheBranchFx * AccessCacheBranchDiffv (const Interaction * in) const;
+  
 
   mutable KinePhaseSpace_t fkps;
 
@@ -86,10 +76,76 @@ private:
   bool fGenerateNucleonInNucleus;           ///< generate struck nucleon in nucleus
   double fQ2Min;                            ///< Q2-threshold for seeking the second maximum
 
-  double fSafetyFacor_nu;
-
 
 }; // class definition
+
+class XSecAlgorithmI;
+class Interaction;
+
+namespace utils {
+namespace gsl   {
+//.....................................................................................
+//
+// genie::utils::gsl::d3XSecSM_dQ2dvdkF_E
+// A 3-D cross section function: d3XSecSM_dQ2dvdkF_E = f(Q2, v, kF=fixed)|(fixed E)
+//
+class d3XSecSM_dQ2dvdkF_E: public ROOT::Math::IBaseFunctionMultiDim
+{
+public:
+  d3XSecSM_dQ2dvdkF_E(const XSecAlgorithmI *, const Interaction *, double pF);
+ ~d3XSecSM_dQ2dvdkF_E();
+
+  // ROOT::Math::IBaseFunctionMultiDim interface
+  unsigned int                        NDim   (void)               const;
+  double                              DoEval (const double *)     const;
+  ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
+
+private:
+  const XSecAlgorithmI * fModel;
+  const Interaction    * fInteraction;
+  const double fpF;
+};
+//
+// genie::utils::gsl::d1XSecSM_dQ2_E
+// A 1-D cross section function: d1XSecSM_dQ2_E = f(Q2)|(fixed E)
+//
+class d1XSecSM_dQ2_E: public ROOT::Math::IBaseFunctionMultiDim
+{
+public:
+  d1XSecSM_dQ2_E(const XSecAlgorithmI *, const Interaction *);
+ ~d1XSecSM_dQ2_E();
+
+  // ROOT::Math::IBaseFunctionMultiDim interface
+  unsigned int                        NDim   (void)               const;
+  double                              DoEval (const double *)     const;
+  ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
+
+private:
+  const XSecAlgorithmI * fModel;
+  const Interaction    * fInteraction;
+};
+//
+// genie::utils::gsl::dv_dQ2_E=f(Q2)|(fixed E)
+// A 1-D dependence of allowable \nu-range from Q2
+//
+class dv_dQ2_E: public ROOT::Math::IBaseFunctionMultiDim
+{
+public:
+  dv_dQ2_E(const Interaction *);
+ ~dv_dQ2_E();
+
+  // ROOT::Math::IBaseFunctionMultiDim interface
+  unsigned int                        NDim   (void)               const;
+  double                              DoEval (const double *)     const;
+  ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
+
+private:
+  const Interaction    * fInteraction;
+  mutable SmithMonizUtils * sm_utils;
+};
+} // gsl   namespace
+} // utils namespace
+
 
 } // genie namespace
 

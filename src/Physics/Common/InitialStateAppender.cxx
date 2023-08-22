@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -86,7 +86,7 @@ void InitialStateAppender::AddNucleus(GHepRecord * evrec) const
   const InitialState & init_state = interaction->InitState();
   const ProcessInfo & proc_info   = interaction->ProcInfo();
 
-  bool is_nucleus = init_state.Tgt().IsNucleus();
+  bool is_nucleus = init_state.Tgt().IsNucleus() || proc_info.IsNorm();
   if(!is_nucleus && !proc_info.IsGlashowResonance() && !proc_info.IsPhotonCoherent()) {
     LOG("ISApp", pINFO)
          << "Not an interaction with a nuclear target - no nucleus to add";

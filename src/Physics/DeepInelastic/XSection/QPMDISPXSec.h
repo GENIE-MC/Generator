@@ -13,7 +13,7 @@
 
 \created  May 05, 2004
 
-\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
@@ -58,7 +58,9 @@ private:
 
   const XSecAlgorithmI * fCharmProdModel;
 
-  double fScale;            ///< cross section scaling factor
+  double fCCScale;            ///< cross section scaling factor
+  double fNCScale;            ///< cross section scaling factor
+  double fEMScale;            ///< cross section scaling factor
   double fSin48w;           ///< sin^4(Weingberg angle)
 };
 

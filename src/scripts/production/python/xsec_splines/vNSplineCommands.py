@@ -8,7 +8,7 @@ Author:
       Julia Tena Vidal <jtenavidal \st tauex.tau.ac.il>
       Tel Aviv University
 Copyright:
-   Copyright (c) 2003-2022, The GENIE Collaboration
+   Copyright (c) 2003-2023, The GENIE Collaboration
    For the full text of the license visit http://copyright.genie-mc.org
 
 """
@@ -48,10 +48,12 @@ e_name_def = { 11 : 'e',
 
 def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30, nu_n_knots=100, e_n_knots=100, 
                       tune='G18_02_02_11b', version='master', 
-                      grid_system='FNAL', group='genie', conf_dir='', arch='SL6.x86_64', production='routine_validation', cycle='01',  
+                      grid_system='FNAL', group='genie',conf_dir='', arch='SL6.x86_64', production='routine_validation', cycle='01',  
                       softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'), 
                       grid_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh',
-                      genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', time=15, git_branch = 'master', git_loc="https://github.com/GENIE-MC/Generator") :
+                      genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', time=15, 
+                      memory="1GB", disk="500MB", git_branch = 'master', git_loc="https://github.com/GENIE-MC/Generator",
+                      configure_INCL=False,configure_G4=False) :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-xsec_vN'
 
@@ -97,7 +99,7 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
 
     grid_command_options = ''
     if grid_system == 'FNAL' :
-        grid_command_options = FNAL.FNALShellCommands(grid_setup,genie_setup, time)
+        grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time,memory,disk)
     else :
         print( "Only FNAL grid is available" )
         return 
@@ -137,7 +139,8 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
                 
                 shell_file = ''
                 if grid_system == 'FNAL' :
-                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc ) 
+                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_setup, genie_setup, 
+                                                          conf_dir, in_files, git_branch, git_loc, configure_INCL, configure_G4 ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
     # Create electron spline commands:
@@ -164,7 +167,8 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
                 
                 shell_file = ''
                 if grid_system == 'FNAL' :
-                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc ) 
+                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", grid_setup, genie_setup, conf_dir, 
+                                                          in_files, git_branch, git_loc, configure_INCL, configure_G4 ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
 

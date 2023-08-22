@@ -25,8 +25,10 @@ Syntax:
               -p neutrino_pdg
               -t target_pdg
              [-f flux_description]
+             [-F flux_options]
              [-o outfile_name]
              [-w]
+             [--force-flux-ray-interaction]
              [--seed random_number_seed]
              [--cross-sections xml_file]
 
@@ -77,6 +79,12 @@ Syntax:
                  by default variable bin histograms are multiplied by bin width
                  if ,NOWIDTH then they are not
                  if ,WIDTH then they are alway multiplied by bin width
+              -- A power law:
+                 The general syntax is `-f POWERLAW:alpha'
+                 and the spectrum will follow a E^{-alpha} distribution
+           -F
+              Specifies direction,size,start point of histogram flux
+              dircosx,dircosy,dircosz,Radius,spotx,spoty,spotz
            -o
               Specifies the name of the output file events will be saved in.
            -w
@@ -87,6 +95,11 @@ Syntax:
               scheme for the generated kinematics of individual processes can
               still be in effect if enabled..
               ** Only use that option if you understand what it means **
+           --force-flux-ray-interaction
+              Forces the interaction of all flux rays.
+              This option is relevant only if a neutrino flux is specified.
+              Note that events will be weighted according to their
+              interaction probability
            --seed
               Random number seed.
            --cross-sections
@@ -125,7 +138,7 @@ Syntax:
 
 \created October 05, 2004
 
-\cpright Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright Copyright (c) 2003-2023, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
 
 */
@@ -178,6 +191,7 @@ Syntax:
 #define __CAN_GENERATE_EVENTS_USING_A_FLUX_OR_TGTMIX__
 #include "Tools/Flux/GCylindTH1Flux.h"
 #include "Tools/Flux/GMonoEnergeticFlux.h"
+#include "Tools/Flux/GPowerLawFlux.h"
 #include "Tools/Geometry/PointGeomAnalyzer.h"
 #endif
 #endif
@@ -199,6 +213,7 @@ void            GenerateEventsUsingFluxOrTgtMix();
 GeomAnalyzerI * GeomDriver              (void);
 GFluxI *        FluxDriver              (void);
 GFluxI *        MonoEnergeticFluxDriver (void);
+GFluxI *        PowerLawFluxDriver      (void);
 GFluxI *        TH1FluxDriver           (void);
 #endif
 
@@ -217,7 +232,9 @@ int             gOptNuPdgCode;    // neutrino PDG code
 map<int,double> gOptTgtMix;       // target mix (each with its relative weight)
 Long_t          gOptRunNu;        // run number
 string          gOptFlux;         //
+string          gOptFluxFactors;  //
 bool            gOptWeighted;     //
+bool            gOptForceInt;     //
 bool            gOptUsingFluxOrTgtMix = false;
 long int        gOptRanSeed;      // random number seed
 string          gOptInpXSecFile;  // cross-section splines
@@ -357,10 +374,13 @@ void GenerateEventsUsingFluxOrTgtMix(void)
   mcj_driver->SetUnphysEventMask(*RunOpt::Instance()->UnphysEventMask());
   mcj_driver->UseFluxDriver(flux_driver);
   mcj_driver->UseGeomAnalyzer(geom_driver);
+  if(gOptForceInt)
+        mcj_driver->ForceInteraction();
   mcj_driver->Configure();
   mcj_driver->UseSplines();
   if(!gOptWeighted)
         mcj_driver->ForceSingleProbScale();
+
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
@@ -422,6 +442,7 @@ GFluxI * FluxDriver(void)
   GFluxI * flux_driver = 0;
 
   if(gOptNuEnergyRange<0) flux_driver = MonoEnergeticFluxDriver();
+  else if(gOptFlux.find("POWERLAW") != string::npos) flux_driver = PowerLawFluxDriver();
   else flux_driver = TH1FluxDriver();
 
   return flux_driver;
@@ -433,6 +454,21 @@ GFluxI * MonoEnergeticFluxDriver(void)
 //
   flux::GMonoEnergeticFlux * flux =
               new flux::GMonoEnergeticFlux(gOptNuEnergy, gOptNuPdgCode);
+  GFluxI * flux_driver = dynamic_cast<GFluxI *>(flux);
+  return flux_driver;
+}
+//____________________________________________________________________________
+GFluxI * PowerLawFluxDriver(void)
+{
+//
+//
+  vector<string> fv = utils::str::Split(gOptFlux,":");
+  assert(fv.size()==2);
+
+  double spectralindex = atof(fv[1].c_str());
+
+  flux::GPowerLawFlux * flux =
+              new flux::GPowerLawFlux(spectralindex, gOptNuEnergy, gOptNuEnergy+gOptNuEnergyRange, gOptNuPdgCode);
   GFluxI * flux_driver = dynamic_cast<GFluxI *>(flux);
   return flux_driver;
 }
@@ -572,11 +608,30 @@ GFluxI * TH1FluxDriver(void)
   f.Close();
 
   TVector3 bdir (0,0,1);
+  double   radius = -1;
   TVector3 bspot(0,0,0);
 
+  // parse flux factors for direction, radius, spot
+  if ( gOptFluxFactors != "" ) {
+    vector<string> fv = utils::str::Split(gOptFluxFactors,",");
+    if ( fv.size() >= 3 ) {
+      bdir.SetX(atoi(fv[0].c_str()));
+      bdir.SetY(atoi(fv[1].c_str()));
+      bdir.SetZ(atoi(fv[2].c_str()));
+      if ( fv.size() >= 4 ) {
+        radius = atoi(fv[3].c_str());
+        if ( fv.size() >= 7 ) {
+          bspot.SetX(atoi(fv[4].c_str()));
+          bspot.SetY(atoi(fv[5].c_str()));
+          bspot.SetZ(atoi(fv[6].c_str()));
+        }
+      }
+    }
+  }
+
   flux->SetNuDirection      (bdir);
+  flux->SetTransverseRadius (radius);
   flux->SetBeamSpot         (bspot);
-  flux->SetTransverseRadius (-1);
   flux->AddEnergySpectrum   (gOptNuPdgCode, spectrum);
 
   GFluxI * flux_driver = dynamic_cast<GFluxI *>(flux);
@@ -644,6 +699,10 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptFlux = parser.ArgAsString('f');
     using_flux = true;
   }
+  if (parser.OptionExists('F') ) {
+    LOG("gevgen", pINFO) << "Reading flux factors";
+    gOptFluxFactors = parser.ArgAsString('F');
+  }
 
   if(parser.OptionExists('s')) {
     LOG("gevgen", pWARN)
@@ -655,6 +714,9 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // generate weighted events option (only relevant if using a flux)
   gOptWeighted = parser.OptionExists('w');
+
+  // force interaction of all injected events (only relevant if using a flux)
+  gOptForceInt = parser.OptionExists("force-flux-ray-interaction");
 
   // neutrino energy
   if( parser.OptionExists('e') ) {
@@ -779,9 +841,11 @@ void GetCommandLineArgs(int argc, char ** argv)
        << "No input cross-section spline file";
   }
   LOG("gevgen", pNOTICE)
-       << "Flux: " << gOptFlux;
+       << "Flux: " << gOptFlux << " factors " << gOptFluxFactors;
   LOG("gevgen", pNOTICE)
        << "Generate weighted events? " << gOptWeighted;
+  LOG("gevgen", pNOTICE)
+       << "Force interaction of all flux rays? " << gOptForceInt;
   if(gOptNuEnergyRange>0) {
      LOG("gevgen", pNOTICE)
         << "Neutrino energy: ["
@@ -820,6 +884,7 @@ void PrintSyntax(void)
     << "\n              [-f flux_description]"
     << "\n              [-o outfile_name]"
     << "\n              [-w]"
+    << "\n              [--force-flux-ray-interaction]"
     << "\n              [--seed random_number_seed]"
     << "\n              [--cross-sections xml_file]"
     << RunOpt::RunOptSyntaxString(true)

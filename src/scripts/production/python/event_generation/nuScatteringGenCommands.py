@@ -7,7 +7,7 @@ Author:
       Julia Tena Vidal <jtenavidal \st tauex.tau.ac.il>
       Tel Aviv University
 Copyright:
-   Copyright (c) 2003-2022, The GENIE Collaboration
+   Copyright (c) 2003-2023, The GENIE Collaboration
    For the full text of the license visit http://copyright.genie-mc.org
 """
 import os 
@@ -29,25 +29,30 @@ nu_name_def = { 12  : 've'     ,
                  16 : 'vtau'   ,
                 -16 : 'vtaubar' }
 
-#Other required information
-mcseed = 210921029 
+tgt_pdg = [1000010020, 1000010030, 1000020030, 1000020040, 1000060120, 1000080160, 1000130270, 1000200400, 1000200480, 1000260560, 1000791970, 1000822080, 1000922380 ]
 
 # inputs for event generation jobs
 evg_tgtpdg_hash = ['1000010020', '1000010030', '1000020030', '1000020040', '1000030060', '1000060120', '1000080160', '1000130270', 
                    '1000180400', '1000200400', '1000200480', '1000260560', '1000791970', '1000822080', '1000922380']
 
-def nuScatteringGenCommands( nu_list = "14",tgt_mix="1000060120", E_min=0, E_max=100, flux="\'1/x\'", xspl_file="total_xsec.xml",ntotevents=1000000, 
-                            tune='G18_02_02_11b',gen_list="all", expname="general",nmaxrun=100000, version='master', conf_dir='', arch='SL6.x86_64', 
-                            production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
-                            softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
-                            grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh', 
-                            genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', 
-                            time='10', git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator") :
+def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=100, flux="\'1/x\'", xspl_file="total_xsec.xml",ntotevents=1000000, 
+                             tune='G18_02_02_11b',gen_list="all", expname="general",nmaxrun=100000, mcseed = 210921029, starting_run=0, 
+                             gst_output=False, no_ghep=False,version='master', conf_dir='', 
+                             arch='SL6.x86_64', production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
+                             softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
+                             grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh', 
+                             genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh',
+                             message_thresholds= os.getenv('GENIE')+'config/Messenger.xml', 
+                             time='10', git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator",
+                             configure_INCL=False, configure_G4=False) :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-nuScattering'
     # Make directory
     if not os.path.exists(jobs_dir) : 
         os.mkdir(jobs_dir)
+
+    if tgt_mix == 'all':
+        tgt_mix = '1000060120'
 
     # Electron list
     final_nu_list = []
@@ -65,11 +70,10 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="1000060120", E_min=0, E_max
 
     req_gen_list = gen_list.split(',')
         
-    nsubruns = ntotevents/nmaxrun
-    if ntotevents < nmaxrun : nsubruns = 1
-
-    if not isinstance(nsubruns, int) :
-        nsubruns = 1+int(nsubruns)
+    true_nsubruns = ntotevents*1.0/nmaxrun
+    nsubruns = int(round(ntotevents*1.0/nmaxrun))
+    if( nsubruns < true_nsubruns ) : nsubruns += 1 
+    if ntotevents <= nmaxrun : nsubruns = 1
 
     if grid_system == 'FNAL' :
         input_xsec = "\$CONDOR_DIR_INPUT/total_xsec.xml"
@@ -98,18 +102,29 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="1000060120", E_min=0, E_max
                 nev = nmaxrun
             else:
                 nev = n_event_left
-            n_event_left -= nev 
+            n_event_left -= nev
+            isubrun += int(starting_run) 
             curr_subrune = "14"+str(isubrun); 
-            curr_seed         = mcseed + isubrun 
+            curr_seed         = int(mcseed) + isubrun 
             jobname           = "nu_"+expname+"_"+str(isubrun)            
-            evgen_command = "gevgen -p "+str(nu)+" -n "+str(nev)+" -e "+E_min+","+E_max+" -f " +flux+" -t "+str(tgt_mix)+" -r "+curr_subrune+" --seed "+str(curr_seed)
+            evgen_command = "gevgen -p "+str(nu)+" -n "+str(nev)+" -e "+EFlux_min+","+EFlux_max+" -f " +flux+" -t "+str(tgt_mix)+" -r "+curr_subrune+" --seed "+str(curr_seed)
             evgen_command += " --cross-sections "+input_xsec+" --tune "+tune + " -o "+jobname+".ghep.root"
+            evgen_command += " --message-thresholds "+message_thresholds 
+
             if gen_list is not "all" : 
                 evgen_command += " --event-generator-list "+gen_list+" "
                 shell_file = ''                
+
+            out_files = [str(jobname+".ghep.root")]
+            if gst_output : 
+                evgen_command += " ; gntpc -i "+jobname+".ghep.root -o "+jobname+".gst.root -f gst --message-thresholds "+message_thresholds
+                out_files.append(str(jobname+".gst.root"))
+                if no_ghep :
+                    out_files = [str(jobname+".gst.root")]
             if grid_system == 'FNAL' :
-                shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, str(jobname+".ghep.root"), grid_setup, genie_setup, conf_dir, in_file_list, git_branch, git_loc ) 
-                grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup, time)
+                shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, in_file_list, git_branch, 
+                                                     git_loc, configure_INCL, configure_G4 ) 
+                grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time)
                 command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
     ## Add command list to dictionary; Key is 4 => event production

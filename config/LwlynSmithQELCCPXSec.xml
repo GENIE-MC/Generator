@@ -12,7 +12,8 @@ Name               Type     Optional   Comment                          Default
 FormFactorsAlg     alg      No         QEL form factors algorithm
 XSec-Integrator    alg      No
 CabibboAngle       double   No         Cabibbo angle                    CommonParam[CKM]
-QEL-CC-XSecScale   double   yes        XSec Scaling factor              1. 
+QEL-CC-XSecScale   double   yes        XSec Scaling factor for CC       1. 
+QEL-NC-XSecScale   double   yes        XSec Scaling factor for NC       1. 
 
 .....................................................................................................
 Parameters needed when Integrating with this model to generate splines:
@@ -29,6 +30,7 @@ IntegralNuclearInfluenceCutoffEnergy double   No
      <param type="string" name="CommonParam"> CKM </param>
 
      <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
+     <param type="double" name="QEL-NC-XSecScale"> 1.000 </param>
 
      <param type="alg"  name="XSec-Integrator"> genie::NewQELXSec/Default </param>
     

@@ -22,7 +22,7 @@
 
 \created  May 05, 2004
 
-\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
@@ -91,6 +91,7 @@ private:
   Spline * fNuTauBarRdSpl;     ///< xsec reduction spline for nu_tau_bar
   double   fXSecScaleCC;       ///< external CC xsec scaling factor
   double   fXSecScaleNC;       ///< external NC xsec scaling factor
+  double   fXSecScaleEM;       ///< external EM xsec scaling factor
 
   const XSecIntegratorI * fXSecIntegrator;
 };

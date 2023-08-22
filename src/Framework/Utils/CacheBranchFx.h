@@ -7,10 +7,22 @@
 
 \author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
           University of Liverpool & STFC Rutherford Appleton Laboratory
+          
+          Update May 15, 2022 IK: 
+          Now type of spline can be:  TSpline3, TSpline5 and 
+          ROOT::Math::GSLInterpolator (LINEAR, POLYNOMIAL, CSPLINE, CSPLINE_PERIODIC,
+          AKIMA, AKIMA_PERIODIC)
+          
+\ref      [1] GENIE docdb 297
+
+\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+          University of Liverpool & STFC Rutherford Appleton Laboratory \n
+          Igor Kakorin <kakorin@jinr.ru>
+          Joint Institute for Nuclear Research
 
 \created  November 26, 2004
 
-\cpright  Copyright (c) 2003-2022, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
@@ -46,7 +58,7 @@ public:
   const map<double,double> & Map (void) const { return fFx;     }
   Spline *                   Spl (void) const { return fSpline; }
 
-  void CreateSpline(void);
+  void CreateSpline(string type = "TSpline3");
   void AddValues(double x, double y);
 
   void Reset (void);

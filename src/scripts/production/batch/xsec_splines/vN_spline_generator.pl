@@ -37,7 +37,7 @@
 #   University of Liverpool & STFC Rutherford Appleton Laboratory
 #
 # Copyright:
-#   Copyright (c) 2003-2022, The GENIE Collaboration
+#   Copyright (c) 2003-2023, The GENIE Collaboration
 #   For the full text of the license visit http://copyright.genie-mc.org
 #-------------------------------------------------------------------------------------------------------------
 
@@ -291,7 +291,6 @@ foreach $nu ( @nu_list ) {
 		print SLURM "#SBATCH -t 4:0:0 \n";
 		print SLURM "#SBATCH -n 1 \n";
 		print SLURM "#SBATCH --mem=2500 \n";
-		print SLURM "#SBATCH -L sps \n" if ($batch_system eq 'LyonSlurm');
 		print SLURM "#SBATCH --priority -1 \n" if ( $priority ) ; 
 		print SLURM "source $shell_script \n";
 		close(SLURM);

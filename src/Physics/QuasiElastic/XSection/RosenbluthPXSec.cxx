@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -57,6 +57,7 @@ double RosenbluthPXSec::XSec(
   const InitialState & init_state = interaction -> InitState();
   const Kinematics &   kinematics = interaction -> Kine();
   const Target &       target     = init_state.Tgt();
+  const ProcessInfo & proc_info = interaction->ProcInfo();
 
   int nucpdgc = target.HitNucPdg();
   double E  = init_state.ProbeE(kRfHitNucRest);
@@ -127,6 +128,9 @@ double RosenbluthPXSec::XSec(
   double R = nuclear::NuclQELXSecSuppression("Default", 0.5, interaction);
   xsec *= R;
 
+  // Apply given overall scaling factor
+  xsec *= fXSecEMScale ; 
+
   return xsec;
 }
 //____________________________________________________________________________
@@ -173,6 +177,9 @@ void RosenbluthPXSec::Configure(string config)
 void RosenbluthPXSec::LoadConfig(void)
 {
   fElFFModel = 0;
+
+  // Cross section scaling factor
+  GetParam( "QEL-EM-XSecScale", fXSecEMScale ) ;
 
   // load elastic form factors model
   fElFFModel = dynamic_cast<const ELFormFactorsModelI *> ( this -> SubAlg("ElasticFormFactorsModel" ) ) ;

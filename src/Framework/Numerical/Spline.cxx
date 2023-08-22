@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -132,7 +132,7 @@ Spline::Spline(const Spline & spline) :
   TObject(), fInterpolator(0)
 {
   LOG("Spline", pDEBUG) << "Spline copy constructor";
-
+  this->InitSpline();
   this->LoadFromTSpline3( *spline.GetAsTSpline(), spline.NKnots() );
 }
 //___________________________________________________________________________
@@ -141,13 +141,15 @@ Spline::Spline(const TSpline3 & spline, int nknots) :
 {
   LOG("Spline", pDEBUG)
                     << "Constructing spline from the input TSpline3 object";
-
+  this->InitSpline();
   this->LoadFromTSpline3( spline, nknots );
 }
 //___________________________________________________________________________
 Spline::~Spline()
 {
   if(fInterpolator) delete fInterpolator;
+  if(fInterpolator5) delete fInterpolator5;
+  if(fGSLInterpolator) delete fGSLInterpolator;
 }
 //___________________________________________________________________________
 bool Spline::LoadFromXmlFile(string filename, string xtag, string ytag)
@@ -374,7 +376,12 @@ double Spline::Evaluate(double x) const
     if(!is0p && !is0n) {
       // both knots (on the left and right are non-zero) - just interpolate
       LOG("Spline", pDEBUG) << "Point is between non-zero knots";
-      y = fInterpolator->Eval(x);
+      if (fInterpolatorType == "TSpline3")
+        y = fInterpolator->Eval(x);
+      else if (fInterpolatorType == "TSpline5")
+        y = fInterpolator5->Eval(x);
+      else
+        y = fGSLInterpolator->Eval(x);
     } else {
       // at least one of the neighboring knots has y=0
       if(is0p && is0n) {
@@ -721,8 +728,11 @@ void Spline::InitSpline(void)
   fXMin = 0.0;
   fXMax = 0.0;
   fYMax = 0.0;
-
+  
   fInterpolator = 0;
+  fInterpolator5 = 0;
+  fGSLInterpolator = 0;
+  fInterpolatorType = "TSpline3";
 
   fYCanBeNegative = false;
 
@@ -732,6 +742,8 @@ void Spline::InitSpline(void)
 void Spline::ResetSpline(void)
 {
   if(fInterpolator) delete fInterpolator;
+  if(fInterpolator5) delete fInterpolator5;
+  if(fGSLInterpolator) delete fGSLInterpolator;
   this->InitSpline();
 }
 //___________________________________________________________________________
@@ -750,7 +762,76 @@ void Spline::BuildSpline(int nentries, double x[], double y[])
   if(fInterpolator) delete fInterpolator;
 
   fInterpolator = new TSpline3("spl3", x, y, nentries, "0");
-
+    
   LOG("Spline", pDEBUG) << "...done building spline";
+}
+//___________________________________________________________________________
+void Spline::SetType(string type)
+{
+  if(!fInterpolator) return;
+  
+  fInterpolatorType = genie::utils::str::ToUpper(type);
+  
+  ROOT::Math::Interpolation::Type gsltype;
+  
+  if ( fInterpolatorType ==  "TSPLINE3" || fInterpolatorType ==  "" ) 
+  {
+    fInterpolatorType = "TSpline3";
+    return;
+  }
+  else if ( fInterpolatorType == "TSPLINE5" )
+  {
+    fInterpolatorType = "TSpline5";
+    if(fInterpolator5) delete fInterpolator5;
+    double x[fNKnots], y[fNKnots];
+    for (int i=0; i<fNKnots; i++)
+    {
+       fInterpolator->GetKnot(i, x[i], y[i]);
+    }
+    fInterpolator5 = new TSpline5("spl5", x, y, fNKnots, "0");
+    return;
+  }
+  else if ( fInterpolatorType ==  "LINEAR" )
+  {
+    gsltype = ROOT::Math::Interpolation::kLINEAR;
+  }
+  else if ( fInterpolatorType == "POLYNOMIAL" )
+  {
+    gsltype = ROOT::Math::Interpolation::kPOLYNOMIAL;
+  }
+  else if ( fInterpolatorType == "CSPLINE" )
+  {
+    gsltype = ROOT::Math::Interpolation::kCSPLINE;
+  }
+  else if ( fInterpolatorType == "CSPLINE_PERIODIC" )
+  {
+    gsltype = ROOT::Math::Interpolation::kCSPLINE_PERIODIC;
+  }
+  else if ( fInterpolatorType == "AKIMA" )
+  {
+    gsltype = ROOT::Math::Interpolation::kAKIMA;
+  }
+  else if ( fInterpolatorType == "AKIMA_PERIODIC" )
+  {
+    gsltype = ROOT::Math::Interpolation::kAKIMA_PERIODIC;
+  }
+  else
+  {
+    fInterpolatorType = "TSpline3";
+    LOG("Spline", pWARN)
+       << "Unknown interpolator type. Setting it to default [TSpline3].";
+    return;
+  }
+  
+  if(fGSLInterpolator) delete fGSLInterpolator;
+  vector<double> x(fNKnots);
+  vector<double> y(fNKnots);
+  for (int i=0; i<fNKnots; i++)
+  {
+     fInterpolator->GetKnot(i, x[i], y[i]);
+  }
+  fGSLInterpolator = new ROOT::Math::Interpolator(x, y, gsltype);
+
+   
 }
 //___________________________________________________________________________

@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Joe Johnston, University of Pittsburgh
@@ -308,7 +308,13 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   xsec *= genie::utils::EnergyDeltaFunctionSolutionQEL( *interaction );
 
   // Apply given scaling factor
-  xsec *= fXSecScale;
+  double xsec_scale = 1 ;
+  const ProcessInfo& proc_info = interaction->ProcInfo();
+
+  if( proc_info.IsWeakCC() ) xsec_scale = fXSecCCScale;
+  else if( proc_info.IsWeakNC() ) xsec_scale = fXSecNCScale;
+
+  xsec *= xsec_scale ;
 
   LOG("Nieves",pDEBUG) << "TESTING: RPA=" << fRPA
                        << ", Coulomb=" << fCoulomb
@@ -399,7 +405,8 @@ void NievesQELCCPXSec::LoadConfig(void)
   fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
 
   // Cross section scaling factor
-  GetParam( "QEL-CC-XSecScale", fXSecScale ) ;
+  GetParam( "QEL-CC-XSecScale", fXSecCCScale ) ;
+  GetParam( "QEL-NC-XSecScale", fXSecNCScale ) ;
 
   // hbarc for unit conversion, GeV*fm
   fhbarc = kLightSpeed*kPlankConstant/genie::units::fermi;

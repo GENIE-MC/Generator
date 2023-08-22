@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -87,6 +87,8 @@ double KPhaseSpace::Threshold(void) const
   double ml = fInteraction->FSPrimLepton()->Mass();
 
   if( ! pi.IsKnown() ) return 0;
+  
+  if (pi.IsNorm() ) return 0;
   
   if (pi.IsSingleKaon()) {
     int kaon_pdgc = xcls.StrangeHadronPdg();

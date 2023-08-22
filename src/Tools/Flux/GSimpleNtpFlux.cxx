@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Robert Hatcher <rhatcher@fnal.gov>
@@ -354,7 +354,7 @@ void GSimpleNtpFlux::CalcEffPOTsPerNu()
 
   if (!fNuFluxTree) return;  // not yet fully configured
 
-  fEffPOTsPerNu = ( (double)fFilePOTs / (double)fNEntries );
+  fEffPOTsPerNu = ( (double)fFilePOTs / (double)fNEntries ) / fMaxWeight ;
 }
 
 //___________________________________________________________________________

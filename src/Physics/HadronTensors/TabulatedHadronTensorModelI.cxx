@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -42,6 +42,10 @@ namespace {
       return genie::kHT_MEC_Deltapn;
     else if (str == "MEC_EM")
       return genie::kHT_MEC_EM;
+    else if (str == "MEC_EM_pn")
+        return genie::kHT_MEC_EM_pn;
+    else if (str == "MEC_EM_pp")
+        return genie::kHT_MEC_EM_pp;
     else if (str == "MEC_EM_wImag")
       return genie::kHT_MEC_EM_wImag;
     else if (str == "QE_EM")
@@ -52,6 +56,69 @@ namespace {
       return genie::kHT_MEC_FullAll_wImag;
     else if (str == "QE_Full")
       return genie::kHT_QE_Full;
+
+    else if (str == "QE_CRPA_Low")
+      return genie::kHT_QE_CRPA_Low;
+    else if (str == "QE_CRPA_Medium")
+      return genie::kHT_QE_CRPA_Medium;
+    else if (str == "QE_CRPA_High")
+      return genie::kHT_QE_CRPA_High;
+
+    else if (str == "QE_CRPA_anu_Low")
+      return genie::kHT_QE_CRPA_anu_Low;
+    else if (str == "QE_CRPA_anu_Medium")
+      return genie::kHT_QE_CRPA_anu_Medium;
+    else if (str == "QE_CRPA_anu_High")
+      return genie::kHT_QE_CRPA_anu_High;
+
+    else if (str == "QE_HF_Low")
+      return genie::kHT_QE_HF_Low;
+    else if (str == "QE_HF_Medium")
+      return genie::kHT_QE_HF_Medium;
+    else if (str == "QE_HF_High")
+      return genie::kHT_QE_HF_High;
+
+    else if (str == "QE_HF_anu_Low")
+      return genie::kHT_QE_HF_anu_Low;
+    else if (str == "QE_HF_anu_Medium")
+      return genie::kHT_QE_HF_anu_Medium;
+    else if (str == "QE_HF_anu_High")
+      return genie::kHT_QE_HF_anu_High;
+
+
+    else if (str == "QE_CRPAPW_Low")
+      return genie::kHT_QE_CRPAPW_Low;
+    else if (str == "QE_CRPAPW_Medium")
+      return genie::kHT_QE_CRPAPW_Medium;
+    else if (str == "QE_CRPAPW_High")
+      return genie::kHT_QE_CRPAPW_High;
+
+    else if (str == "QE_CRPAPW_anu_Low")
+      return genie::kHT_QE_CRPAPW_anu_Low;
+    else if (str == "QE_CRPAPW_anu_Medium")
+      return genie::kHT_QE_CRPAPW_anu_Medium;
+    else if (str == "QE_CRPAPW_anu_High")
+      return genie::kHT_QE_CRPAPW_anu_High;
+
+    else if (str == "QE_HFPW_Low")
+      return genie::kHT_QE_HFPW_Low;
+    else if (str == "QE_HFPW_Medium")
+      return genie::kHT_QE_HFPW_Medium;
+    else if (str == "QE_HFPW_High")
+      return genie::kHT_QE_HFPW_High;
+
+    else if (str == "QE_HFPW_anu_Low")
+      return genie::kHT_QE_HFPW_anu_Low;
+    else if (str == "QE_HFPW_anu_Medium")
+      return genie::kHT_QE_HFPW_anu_Medium;
+    else if (str == "QE_HFPW_anu_High")
+      return genie::kHT_QE_HFPW_anu_High;
+
+    else if (str == "QE_SuSABlend")
+      return genie::kHT_QE_SuSABlend;
+    else if (str == "QE_SuSABlend_anu")
+      return genie::kHT_QE_SuSABlend_anu;
+
     else {
       ok = false;
       return genie::kHT_Undefined;
@@ -66,11 +133,49 @@ namespace {
     else if ( htt == genie::kHT_MEC_DeltaAll ) return "MEC_DeltaAll";
     else if ( htt == genie::kHT_MEC_Deltapn ) return "MEC_Deltapn";
     else if ( htt == genie::kHT_MEC_EM ) return "MEC_EM";
+    else if ( htt == genie::kHT_MEC_EM_pn ) return "MEC_EM_pn";
+    else if ( htt == genie::kHT_MEC_EM_pp ) return "MEC_EM_pp";
     else if ( htt == genie::kHT_MEC_EM_wImag ) return "MEC_EM_wImag";
     else if ( htt == genie::kHT_QE_EM ) return "QE_EM";
     else if ( htt == genie::kHT_MEC_FullAll_Param ) return "MEC_FullAll_Param";
     else if ( htt == genie::kHT_MEC_FullAll_wImag ) return "MEC_FullAll_wImag";
     else if ( htt == genie::kHT_QE_Full ) return "QE_Full";
+
+    else if ( htt == genie::kHT_QE_CRPA_Low ) return "QE_CRPA_Low";
+    else if ( htt == genie::kHT_QE_CRPA_Medium ) return "QE_CRPA_Medium";
+    else if ( htt == genie::kHT_QE_CRPA_High ) return "QE_CRPA_High";  
+
+    else if ( htt == genie::kHT_QE_CRPA_anu_Low ) return "QE_CRPA_anu_Low";
+    else if ( htt == genie::kHT_QE_CRPA_anu_Medium ) return "QE_CRPA_anu_Medium";
+    else if ( htt == genie::kHT_QE_CRPA_anu_High ) return "QE_CRPA_anu_High";  
+
+    else if ( htt == genie::kHT_QE_HF_Low ) return "QE_HF_Low";
+    else if ( htt == genie::kHT_QE_HF_Medium ) return "QE_HF_Medium";
+    else if ( htt == genie::kHT_QE_HF_High ) return "QE_HF_High";  
+
+    else if ( htt == genie::kHT_QE_HF_anu_Low ) return "QE_HF_anu_Low";
+    else if ( htt == genie::kHT_QE_HF_anu_Medium ) return "QE_HF_anu_Medium";
+    else if ( htt == genie::kHT_QE_HF_anu_High ) return "QE_HF_anu_High"; 
+
+    else if ( htt == genie::kHT_QE_CRPAPW_Low ) return "QE_CRPAPW_Low";
+    else if ( htt == genie::kHT_QE_CRPAPW_Medium ) return "QE_CRPAPW_Medium";
+    else if ( htt == genie::kHT_QE_CRPAPW_High ) return "QE_CRPAPW_High";  
+
+    else if ( htt == genie::kHT_QE_CRPAPW_anu_Low ) return "QE_CRPAPW_anu_Low";
+    else if ( htt == genie::kHT_QE_CRPAPW_anu_Medium ) return "QE_CRPAPW_anu_Medium";
+    else if ( htt == genie::kHT_QE_CRPAPW_anu_High ) return "QE_CRPAPW_anu_High";  
+
+    else if ( htt == genie::kHT_QE_HFPW_Low ) return "QE_HFPW_Low";
+    else if ( htt == genie::kHT_QE_HFPW_Medium ) return "QE_HFPW_Medium";
+    else if ( htt == genie::kHT_QE_HFPW_High ) return "QE_HFPW_High";  
+
+    else if ( htt == genie::kHT_QE_HFPW_anu_Low ) return "QE_HFPW_anu_Low";
+    else if ( htt == genie::kHT_QE_HFPW_anu_Medium ) return "QE_HFPW_anu_Medium";
+    else if ( htt == genie::kHT_QE_HFPW_anu_High ) return "QE_HFPW_anu_High"; 
+
+    else if ( htt == genie::kHT_QE_SuSABlend ) return "QE_SuSABlend";
+    else if ( htt == genie::kHT_QE_SuSABlend_anu ) return "QE_SuSABlend_anu"; 
+     
     else return "Undefined";
   }
 

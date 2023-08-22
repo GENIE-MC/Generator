@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos  <constantinos.andreopoulos \at cern.ch>
@@ -121,7 +121,8 @@ void AGKYLowW2019::ProcessEventRecord(GHepRecord * event) const {
   // retrieve the hadronic blob lorentz boost
   // Because Hadronize() returned particles not in the LAB reference frame
   const TLorentzVector * had_syst = event -> Particle(mom) -> P4() ;
-  TVector3 boost = had_syst -> BoostVector() ;
+  TVector3 beta = TVector3(0,0,had_syst->P()/had_syst->E());
+  TVector3 unitvq = had_syst->Vect().Unit();
 
   GHepParticle * neutrino  = event->Probe();
   const TLorentzVector & vtx = *(neutrino->X4());
@@ -133,8 +134,8 @@ void AGKYLowW2019::ProcessEventRecord(GHepRecord * event) const {
     int pdgc = particle -> Pdg() ;
 
     //  bring the particle in the LAB reference frame
-    particle -> P4() -> Boost( boost ) ;
-
+    particle -> P4() -> Boost (beta);
+    particle -> P4() -> RotateUz(unitvq);
     // set the proper status according to a number of things:
     // interaction on a nucleaus or nucleon, particle type
     GHepStatus_t ist = ( particle -> Status() ==1 ) ? istfin : kIStDISPreFragmHadronicState;
@@ -621,6 +622,16 @@ void AGKYLowW2019::LoadConfig(void)
   this->GetParam( "DIS-HMultWgt-vbn-CC-m3", fRvbnCCm3 ) ;
   this->GetParam( "DIS-HMultWgt-vbn-NC-m2", fRvbnNCm2 ) ;
   this->GetParam( "DIS-HMultWgt-vbn-NC-m3", fRvbnNCm3 ) ;
+  //Electron
+  this->GetParam( "DIS-HMultWgt-vp-EM-m2",  fRvpEMm2  ) ;
+  this->GetParam( "DIS-HMultWgt-vp-EM-m3",  fRvpEMm3  ) ;
+  this->GetParam( "DIS-HMultWgt-vn-EM-m2",  fRvnEMm2  ) ;
+  this->GetParam( "DIS-HMultWgt-vn-EM-m3",  fRvnEMm3  ) ;
+  //Positron
+  this->GetParam( "DIS-HMultWgt-vbp-EM-m2", fRvbpEMm2 ) ;
+  this->GetParam( "DIS-HMultWgt-vbp-EM-m3", fRvbpEMm3 ) ;
+  this->GetParam( "DIS-HMultWgt-vbn-EM-m2", fRvbnEMm2 ) ;
+  this->GetParam( "DIS-HMultWgt-vbn-EM-m3", fRvbnEMm3 ) ;
 
 
 }
@@ -1625,20 +1636,20 @@ void AGKYLowW2019::ApplyRijk( const Interaction * interaction,
     bool is_p     = pdg::IsProton           (nuc_pdg);
     bool is_n     = pdg::IsNeutron          (nuc_pdg);
     if(is_l && is_p)  {
-      R2 = fRvpNCm2;
-      R3 = fRvpNCm3;
+      R2 = fRvpEMm2;
+      R3 = fRvpEMm3;
     } else
       if(is_l && is_n) {
-	R2 = fRvnNCm2;
-	R3 = fRvnNCm3;
+	R2 = fRvnEMm2;
+	R3 = fRvnEMm3;
       } else
 	if(is_lbar && is_p)  {
-	  R2 = fRvbpNCm2;
-	  R3 = fRvbpNCm3;
+	  R2 = fRvbpEMm2;
+	  R3 = fRvbpEMm3;
 	} else
 	  if(is_lbar && is_n) {
-	    R2 = fRvbnNCm2;
-	    R3 = fRvbnNCm3;
+	    R2 = fRvbnEMm2;
+	    R3 = fRvbnEMm3;
 	  } else {
 	    LOG("Hadronization", pERROR)
 	      << "Invalid initial state: " << init_state;

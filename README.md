@@ -51,7 +51,7 @@ For more information, visit http://www.genie-mc.org
 ## Current authors:
 
 - Luis Alvarez-Ruso (*IFIC*)
-- Costas Andreopoulos (+) (*Liverpool and STFC/RAL*)
+- Costas Andreopoulos (+) (*Liverpool*)
 - Adi Ashkenazi (*Tel Aviv*)
 - Joshua Barrow (*Tel Aviv; MIT*)
 - Steve Dytman (*Pittsburgh*)
@@ -61,13 +61,15 @@ For more information, visit http://www.genie-mc.org
 - Matan Goldenberg (*Tel Aviv*)
 - Robert Hatcher (*Fermilab*)
 - Or Hen (*MIT*)
-- Timothy Hobbs (*Fermilab*)
 - Igor Kakorin (*JINR*)
 - Konstantin Kuzmin (*ITEP and JINR*)
+- Weijun Li (*Oxford*)
+- Xianguo Lu (*Warwick*)
 - Anselmo Meregaglia (*Bordeaux, CNRS/IN2P3*)
 - Vadim Naumov (*JINR*)
-- Afroditi Papadopoulou (*MIT*)
+- Afroditi Papadopoulou (*Argonne*)
 - Gabriel Perdue (*Fermilab*)
+- Komninos-John Plows (*Oxford*)
 - Marco Roda (*Liverpool*)
 - Beth Slater (*Liverpool*)
 - Alon Sportes (*Tel Aviv*)
@@ -75,21 +77,15 @@ For more information, visit http://www.genie-mc.org
 - Vladyslav Syrotenko (*Tufts*)
 - Júlia Tena Vidal (*Tel Aviv*)
 - Jeremy Wolcott (*Tufts*)
+- Qiyu Yan (*UCAS and Warwick*)
 
 ---
 (+) Corresponding Author:
 
-**Prof. Costas Andreopoulos < constantinos.andreopoulos \at cern.ch >**
-<pre>    
- University of Liverpool          |  U.K. Research & Innovation (UKRI)
- Faculty of Science & Engineering |  Science & Technology Facilities Council (STFC)
- School of Physical Sciences      |  Rutherford Appleton Laboratory 
- Department of Physics            |  Particle Physics Department
- Oliver Lodge Lab 316             |  Harwell Oxford Campus, R1 2.89
- Liverpool L69 7ZE, UK            |  Oxfordshire OX11 0QX, UK          
- tel: +44-(0)1517-943201          |  tel: +44-(0)1235-445091 
+**Prof. Costas Andreopoulos < c.andreopoulos \at cern.ch >**
 
-</pre>
+University of Liverpool, Department of Physics, Oliver Lodge Lab 316,  Liverpool L69 7ZE, UK  
+
  
 ## Past authors and other key contributors
 
@@ -97,6 +93,7 @@ Past authors:
 - Christopher Barry (*Liverpool*)
 - Steve Dennis (*Liverpool*)
 - Walter Giele (*Fermilab*)
+- Timothy Hobbs (*Fermilab*)
 - Libo Jiang (*Pittsburgh*)
 - Rhiannon Jones (*Liverpool*)
 - Donna Naples (*Pittsburgh*)
@@ -105,7 +102,7 @@ Past authors:
 
 ## Copyright
 
-Copyright (c) 2003-2022, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
+Copyright (c) 2003-2023, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org
 
 
 ## Physics & User manual
