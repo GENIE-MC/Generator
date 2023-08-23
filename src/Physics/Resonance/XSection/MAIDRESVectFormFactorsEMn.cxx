@@ -101,20 +101,20 @@ void MAIDRESVectFormFactorsEMn::LoadConfig(void)
 {
   bool good_config = true ; 
 
-  GetParam( "AM0@P33(1232)", fAM0_P33_1232 ) ; 
-  GetParam( "AE0@P33(1232)", fAE0_P33_1232 ) ;
-  GetParam( "AC0@P33(1232)", fAC0_P33_1232 ) ; 
+  GetParam( "AM@P33(1232)", fAM0_P33_1232 ) ; 
+  GetParam( "AE@P33(1232)", fAE0_P33_1232 ) ;
+  GetParam( "AC@P33(1232)", fAC0_P33_1232 ) ; 
   
   GetParam( "BetaM@P33(1232)", fBetaM_P33_1232 ) ;
   GetParam( "BetaE@P33(1232)", fBetaE_P33_1232 ) ;
   GetParam( "BetaC@P33(1232)", fBetaC_P33_1232 ) ;
 
-  GetParam( "GammaM@P33(1232)", fGammaM_P33_1232 ) ;
-  GetParam( "GammaE@P33(1232)", fGammaE_P33_1232 ) ;
-  GetParam( "GammaC@P33(1232)", fGammaC_P33_1232 ) ;
+  GetParam( "GammaM0@P33(1232)", fGammaM_P33_1232 ) ;
+  GetParam( "GammaE0@P33(1232)", fGammaE_P33_1232 ) ;
+  GetParam( "GammaC0@P33(1232)", fGammaC_P33_1232 ) ;
 
-  GetParam( "GammaS@P33(1232)", fDC_P33_1232 ) ;
-  GetParam( "GammaC@P33(1232)", fDipoleMass ) ;
+  GetParam( "DeltaC@P33(1232)", fDC_P33_1232 ) ;
+  GetParam( "DipoleMass@P33(1232)", fDipoleMass ) ;
 
   auto kres_list_A12_0_n = GetConfig().FindKeys("A120N@") ;
   if( kres_list_A12_0_n.size() == 0 ) good_config = false ; 

@@ -106,9 +106,9 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
 {
   bool good_config = true ; 
 
-  this->GetParam( "AM0@P33(1232)", fAM0_P33_1232 ) ; 
-  this->GetParam( "AE0@P33(1232)", fAE0_P33_1232 ) ;
-  this->GetParam( "AC0@P33(1232)", fAC0_P33_1232 ) ; 
+  this->GetParam( "AM@P33(1232)", fAM0_P33_1232 ) ; 
+  this->GetParam( "AE@P33(1232)", fAE0_P33_1232 ) ;
+  this->GetParam( "AC@P33(1232)", fAC0_P33_1232 ) ; 
   
   this->GetParam( "BetaM@P33(1232)", fBetaM_P33_1232 ) ;
   this->GetParam( "BetaE@P33(1232)", fBetaE_P33_1232 ) ;
