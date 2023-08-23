@@ -50,12 +50,12 @@ S12BetaP@RESID    double  yes
 
   <param_set name="Default">   
     <!-- Delta resonance parameters -->
-    <param type="double" name="AM0@P33(1232)"> 3.0 </param> 
-    <param type="double" name="AE0@P33(1232)"> 0.0637 </param> 
-    <param type="double" name="AC0@P33(1232)"> 0.1240 </param> 
-    <param type="double" name="BetaM0@P33(1232)"> 0.0095 </param> 
-    <param type="double" name="BetaE0@P33(1232)"> -0.0206 </param> 
-    <param type="double" name="BetaC0@P33(1232)"> 0.120 </param> 
+    <param type="double" name="AM@P33(1232)"> 3.0 </param> 
+    <param type="double" name="AE@P33(1232)"> 0.0637 </param> 
+    <param type="double" name="AC@P33(1232)"> 0.1240 </param> 
+    <param type="double" name="BetaM@P33(1232)"> 0.0095 </param> 
+    <param type="double" name="BetaE@P33(1232)"> -0.0206 </param> 
+    <param type="double" name="BetaC@P33(1232)"> 0.120 </param> 
     <param type="double" name="GammaM0@P33(1232)"> 0.23 </param> 
     <param type="double" name="GammaE0@P33(1232)"> 0.16 </param> 
     <param type="double" name="GammaC0@P33(1232)"> 0.23 </param> 
