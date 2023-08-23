@@ -15,7 +15,7 @@
 
 \author  Julia Tena Vidal <jtenavidal \at tauex.tau.ac.il>
 Tel Aviv University
-1;95;0c
+
 \created 13 Mar 2023
 
 \cpright Copyright (c) 2023-2033, The GENIE Collaboration
@@ -111,9 +111,9 @@ int main(int argc, char ** argv)
 //_________________________________________________________________________________
 void MakePlots (void)
 {
-  unsigned int n_bins = 100 ; 
-  unsigned int max_Q2 = 4 ; 
-  unsigned int min_Q2 = 0 ;
+  double n_bins = 100 ; 
+  double max_Q2 = 4 ; 
+  double min_Q2 = 0 ;
   double Q2_width = ( max_Q2 - min_Q2 ) / n_bins ; 
   vector<double> Q2_binning ; 
   vector<double> A12_p , A12_n, A32_p, A32_n, S12_p, S12_n ; 
@@ -134,11 +134,15 @@ void MakePlots (void)
       Q2 = min_Q2 + i * Q2_width ; 
       inter_p->KinePtr()->SetQ2(Q2) ;
       inter_n->KinePtr()->SetQ2(Q2) ;
+      std::cout << " min Q2 = " << min_Q2 << " Q2_width=" << Q2_width << " i " << i << std::endl;
+
       RESVectFFAmplitude vffampl_p = vffmodel_p->Compute(*inter_p);
       A12_p.push_back( vffampl_p.AmplA12() ) ;
       A32_p.push_back( vffampl_p.AmplA32() ) ;
       S12_p.push_back( vffampl_p.AmplS12() ) ;
-      std::cout << " RES ID " << ResID << " A12_p = " << vffampl_p.AmplA12() << std::endl;
+
+      std::cout << " Q2 = " << Q2 << " vffampl_p.AmplA12() " << vffampl_p.AmplA12() << std::endl;
+
       RESVectFFAmplitude vffampl_n = vffmodel_n->Compute(*inter_n);
       A12_n.push_back( vffampl_n.AmplA12() ) ;
       A32_n.push_back( vffampl_n.AmplA32() ) ;
