@@ -114,7 +114,7 @@ void MAIDRESVectFormFactorsEMn::LoadConfig(void)
   GetParam( "GammaC0@P33(1232)", fGammaC_P33_1232 ) ;
 
   GetParam( "DeltaC@P33(1232)", fDC_P33_1232 ) ;
-  GetParam( "DipoleMass@P33(1232)", fDipoleMass ) ;
+  GetParam( "DipoleMass", fDipoleMass ) ;
 
   auto kres_list_A12_0_n = GetConfig().FindKeys("A120N@") ;
   if( kres_list_A12_0_n.size() == 0 ) good_config = false ; 

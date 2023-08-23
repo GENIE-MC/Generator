@@ -114,9 +114,9 @@ void MAIDRESVectFormFactorsEMp::LoadConfig(void)
   this->GetParam( "BetaE@P33(1232)", fBetaE_P33_1232 ) ;
   this->GetParam( "BetaC@P33(1232)", fBetaC_P33_1232 ) ;
 
-  this->GetParam( "GammaM@P33(1232)", fGammaM_P33_1232 ) ;
-  this->GetParam( "GammaE@P33(1232)", fGammaE_P33_1232 ) ;
-  this->GetParam( "GammaC@P33(1232)", fGammaC_P33_1232 ) ;
+  this->GetParam( "GammaM0@P33(1232)", fGammaM_P33_1232 ) ;
+  this->GetParam( "GammaE0@P33(1232)", fGammaE_P33_1232 ) ;
+  this->GetParam( "GammaC0@P33(1232)", fGammaC_P33_1232 ) ;
 
   this->GetParam( "DeltaC@P33(1232)", fDC_P33_1232 ) ;
   this->GetParam( "DipoleMass", fDipoleMass ) ;
