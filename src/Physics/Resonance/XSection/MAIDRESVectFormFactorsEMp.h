@@ -54,21 +54,18 @@ namespace genie {
     std::map<Resonance_t,double> fA120P ;
     std::map<Resonance_t,double> fA12Alpha1P ;
     std::map<Resonance_t,double> fA12Alpha2P ;
-    std::map<Resonance_t,double> fA12Alpha3P ;
     std::map<Resonance_t,double> fA12Alpha4P ;
     std::map<Resonance_t,double> fA12BetaP ;
 
     std::map<Resonance_t,double> fS120P ;
     std::map<Resonance_t,double> fS12Alpha1P ;
     std::map<Resonance_t,double> fS12Alpha2P ;
-    std::map<Resonance_t,double> fS12Alpha3P ;
     std::map<Resonance_t,double> fS12Alpha4P ;
     std::map<Resonance_t,double> fS12BetaP ;
  
     std::map<Resonance_t,double> fA320P ;
     std::map<Resonance_t,double> fA32Alpha1P ;
     std::map<Resonance_t,double> fA32Alpha2P ;
-    std::map<Resonance_t,double> fA32Alpha3P ;
     std::map<Resonance_t,double> fA32Alpha4P ;
     std::map<Resonance_t,double> fA32BetaP ;
   };
