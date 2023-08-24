@@ -129,19 +129,25 @@ void MakePlots (void)
     Resonance_t ResID = kResId[ires] ; 
     inter_p->ExclTagPtr()->SetResonance(ResID) ; 
     inter_n->ExclTagPtr()->SetResonance(ResID) ; 
-    
+    A12_p.clear();
+    A32_p.clear();
+    S12_p.clear();
+    A12_n.clear();
+    A32_n.clear();
+    S12_n.clear();
+    Q2_binning.clear();
+
     for( unsigned int i = 0 ; i < n_bins + 1 ; ++i ) { 
       Q2 = min_Q2 + i * Q2_width ; 
       inter_p->KinePtr()->SetQ2(Q2) ;
       inter_n->KinePtr()->SetQ2(Q2) ;
-      std::cout << " min Q2 = " << min_Q2 << " Q2_width=" << Q2_width << " i " << i << std::endl;
+      inter_p->KinePtr()->SetW(W) ;
+      inter_n->KinePtr()->SetW(W) ;
 
       RESVectFFAmplitude vffampl_p = vffmodel_p->Compute(*inter_p);
       A12_p.push_back( vffampl_p.AmplA12() ) ;
       A32_p.push_back( vffampl_p.AmplA32() ) ;
       S12_p.push_back( vffampl_p.AmplS12() ) ;
-
-      std::cout << " Q2 = " << Q2 << " vffampl_p.AmplA12() " << vffampl_p.AmplA12() << std::endl;
 
       RESVectFFAmplitude vffampl_n = vffmodel_n->Compute(*inter_n);
       A12_n.push_back( vffampl_n.AmplA12() ) ;
@@ -149,6 +155,7 @@ void MakePlots (void)
       S12_n.push_back( vffampl_n.AmplS12() ) ;
       Q2_binning.push_back( Q2 ) ; 
     }
+
     // Create TGraph 
     gA12_p[ResID] = new TGraph( Q2_binning.size(), &Q2_binning[0], &A12_p[0] ) ;
     gA32_p[ResID] = new TGraph( Q2_binning.size(), &Q2_binning[0], &A32_p[0] ) ;
@@ -157,14 +164,23 @@ void MakePlots (void)
     gA12_n[ResID] = new TGraph( Q2_binning.size(), &Q2_binning[0], &A12_n[0] ) ;
     gA32_n[ResID] = new TGraph( Q2_binning.size(), &Q2_binning[0], &A32_n[0] ) ;
     gS12_n[ResID] = new TGraph( Q2_binning.size(), &Q2_binning[0], &S12_n[0] ) ;
+    
+    string res_name = utils::res::AsString(ResID) ;
+    gA12_p[ResID]->SetTitle("; Q^{2}[GeV^{2}]; A_{1/2}^{p} #left[10^{-3} GeV^{-2}#right]");
+    gA32_p[ResID]->SetTitle("; Q^{2}[GeV^{2}]; A_{3/2}^{p} #left[10^{-3} GeV^{-2}#right]");
+    gS12_p[ResID]->SetTitle("; Q^{2}[GeV^{2}]; S_{1/2}^{p} #left[10^{-3} GeV^{-2}#right]");
+    
+    gA12_n[ResID]->SetTitle("; Q^{2}[GeV^{2}]; A_{1/2}^{n} #left[10^{-3} GeV^{-2}#right]");
+    gA32_n[ResID]->SetTitle("; Q^{2}[GeV^{2}]; A_{3/2}^{n} #left[10^{-3} GeV^{-2}#right]");
+    gS12_n[ResID]->SetTitle("; Q^{2}[GeV^{2}]; S_{1/2}^{n} #left[10^{-3} GeV^{-2}#right]");
 
-    gA12_p[ResID]->Write() ; 
-    gA32_p[ResID]->Write() ; 
-    gS12_p[ResID]->Write() ; 
+    gA12_p[ResID]->Write(("A12_p_"+res_name).c_str()) ; 
+    gA32_p[ResID]->Write(("A32_p_"+res_name).c_str()) ; 
+    gS12_p[ResID]->Write(("S12_p_"+res_name).c_str()) ; 
 
-    gA12_n[ResID]->Write() ; 
-    gA32_n[ResID]->Write() ; 
-    gS12_n[ResID]->Write() ; 
+    gA12_n[ResID]->Write(("A12_n_"+res_name).c_str()) ; 
+    gA32_n[ResID]->Write(("A32_n_"+res_name).c_str()) ; 
+    gS12_n[ResID]->Write(("S12_n_"+res_name).c_str()) ; 
     
     // Clean vectors
     A12_p.clear() ; 
@@ -175,7 +191,7 @@ void MakePlots (void)
     S12_n.clear() ; 
     
   }
-
+  return ; 
 }
 //_________________________________________________________________________________
 bool InitializeMembers(void) {
@@ -189,7 +205,7 @@ bool InitializeMembers(void) {
   if( ! vffmodel_n ) return false ; 
 
   goutput_file = TFile::Open(gOptOutFile.c_str(), "RECREATE") ; 
-
+  return true ; 
 }
 //_________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
@@ -222,7 +238,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     string BinW = parser.Arg("W-binning_XSec");
     gW_bin_width = atof(BinW.c_str());
   }
-
+  return ; 
 }
 //_________________________________________________________________________________
 
