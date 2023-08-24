@@ -180,10 +180,23 @@ int HG4BertCascIntranuke::G4BertCascade(GHepRecord * evrec) const{
       G4LorentzVector nucP = outgoingFragments[rem_index].getMomentum();
       TLorentzVector remP(nucP.px(), nucP.py(), nucP.pz(), nucP.e() );
       npdg = outgoingFragments[rem_index].getDefinition()->GetPDGEncoding();
-      GHepParticle largest_Fragment(npdg, kIStFinalStateNuclearRemnant,
-                                    1,0,-1,-1, remP, remX);
-      evrec->AddParticle(largest_Fragment);
+//Checks if the remnant is present i PDGLibrary
+ TParticlePDG * pdgRemn=PDGLibrary::Instance()->Find(npdg,false);
 
+      if(!pdgRemn)
+      {
+        LOG("HG4BertCascIntranuke", pINFO)
+        << "NO Particle with pdg = " << npdg << " in PDGLibrary!";
+              // Add the particle with status id=15 and change it to HadroBlob
+        GHepParticle largest_Fragment(kPdgHadronicBlob, kIStFinalStateNuclearRemnant,
+          1,0,-1,-1, remP, remX);
+        evrec->AddParticle(largest_Fragment);        
+      }
+      else
+      {
+        GHepParticle largest_Fragment(npdg, kIStStableFinalState,1,-1,-1,-1, remP, remX);
+        evrec->AddParticle(largest_Fragment);
+      }
       // If any nuclear fragments left, add them to the event
       for (G4int k = 0; k < Nfrag; k++) {
         if (k != rem_index) {
@@ -204,7 +217,7 @@ int HG4BertCascIntranuke::G4BertCascade(GHepRecord * evrec) const{
     TLorentzVector p4tgt (0.,0.,0.,tgtNucl->Mass());
     evrec->AddParticle(probe->Pdg(), kIStStableFinalState,
                        0,-1,-1,-1, p4h,x4null);
-    evrec->AddParticle(tgtNucl->Pdg(),kIStFinalStateNuclearRemnant,
+    evrec->AddParticle(tgtNucl->Pdg(),kIStStableFinalState,
                        1,-1,-1,-1,p4tgt,x4null);
   }
   delete sp;
@@ -525,6 +538,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
     G4KineticTrackVector* g4secondaries = ConvertGenieSecondariesToG4(evrec);
 
     int Nsec = g4secondaries->size();
+
     // Set up output and start the cascade
     G4CollisionOutput cascadeOutput;
     G4InuclCollider bertCollider;
@@ -542,6 +556,16 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
     TLorentzVector remX(tgtNucl->Vx(), tgtNucl->Vy(), tgtNucl->Vz(), tgtNucl->Vt() );
 
     int rem_nucl = evrec->RemnantNucleusPosition();  // position in array
+
+        int mother1(0),mother2(0);
+    if(Nsec>1){
+      mother1=pos_in_evrec;
+      mother2=pos_in_evrec+1;
+    }
+    else if(Nsec==1){
+      mother1=pos_in_evrec;
+      mother2=rem_nucl;
+    }
     int Nfrag = cascadeOutput.numberOfOutgoingNuclei();
     const std::vector<G4InuclNuclei>& outgoingFragments = cascadeOutput.getOutgoingNuclei();
     int npdg = 0;
@@ -558,7 +582,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
       G4LorentzVector hadP = outgoingHadrons[l].getMomentum();
       TLorentzVector tempP(hadP.px(), hadP.py(), hadP.pz(), hadP.e() );
 
-      GHepParticle new_particle(npdg, kIStStableFinalState, -1, -1,-1,-1,tempP, remX);
+      GHepParticle new_particle(npdg, kIStStableFinalState, mother1,mother2,-1,-1,tempP, remX);
       evrec->AddParticle(new_particle);
     }
 
@@ -586,7 +610,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
           nucP = outgoingFragments[k].getMomentum();  // need to boost by fRemnP4
           TLorentzVector tempP(nucP.px(), nucP.py(), nucP.pz(), nucP.e() );
 
-          GHepParticle nuclear_Fragment(npdg, kIStStableFinalState, rem_nucl, 0,-1,-1,tempP, remX);
+          GHepParticle nuclear_Fragment(npdg, kIStStableFinalState, mother1,mother2,-1,-1,tempP, remX);
           evrec->AddParticle(nuclear_Fragment);
         }
       }
@@ -597,8 +621,22 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
       remP.SetPy(remP.Py()+remNucl->P4()->Py());
       remP.SetPz(remP.Pz()+remNucl->P4()->Pz());
 
-      GHepParticle largest_Fragment(npdg, kIStFinalStateNuclearRemnant,rem_nucl,-1,-1,-1, remP, remX);
-      evrec->AddParticle(largest_Fragment);
+//Checks if the remnant is present i PDGLibrary
+ TParticlePDG * pdgRemn=PDGLibrary::Instance()->Find(npdg,false);
+      if(!pdgRemn)
+      {
+        LOG("HG4BertCascIntranuke", pINFO)
+        << "NO Particle with pdg = " << npdg << " in PDGLibrary!";
+              // Add the particle with status id=15 and change it to HadroBlob
+        GHepParticle largest_Fragment(kPdgHadronicBlob, kIStFinalStateNuclearRemnant,
+          rem_nucl,0,-1,-1, remP, remX);
+        evrec->AddParticle(largest_Fragment);        
+      }
+      else
+      {
+        GHepParticle largest_Fragment(npdg, kIStStableFinalState,rem_nucl,0,-1,-1, remP, remX);
+        evrec->AddParticle(largest_Fragment);
+      }
     } // Nfrag > 0
     has_remnant=true;
   }
@@ -606,7 +644,7 @@ void HG4BertCascIntranuke::TransportHadrons(GHepRecord * evrec) const
   if(!has_remnant){
     GHepParticle * sp = new GHepParticle(*evrec->Particle(inucl));
     sp->SetFirstMother(inucl);
-    sp->SetStatus(kIStFinalStateNuclearRemnant);
+    sp->SetStatus(kIStStableFinalState);
     evrec->AddParticle(*sp);
     delete sp;
   }
