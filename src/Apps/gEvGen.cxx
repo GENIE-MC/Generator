@@ -151,6 +151,10 @@ Syntax:
 #include <vector>
 #include <map>
 
+#include <boost/program_options.hpp>
+#include <boost/algorithm/string.hpp>
+namespace po = boost::program_options;
+
 #if defined(HAVE_FENV_H) && defined(HAVE_FEENABLEEXCEPT)
 #include <fenv.h> // for `feenableexcept`
 #endif
@@ -184,7 +188,6 @@ Syntax:
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/Utils/SystemUtils.h"
-#include "Framework/Utils/CmdLnArgParser.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
@@ -649,84 +652,55 @@ void GetCommandLineArgs(int argc, char ** argv)
   RunOpt::Instance()->EnableBareXSecPreCalc(true);
   RunOpt::Instance()->ReadFromCommandLine(argc,argv);
 
-  // Parse run options for this app
+  // temporarys
+  std::string nue;
+  std::string tgt;
 
-  CmdLnArgParser parser(argc,argv);
+  po::options_description desc("gEvGen");
+  desc.add_options()
+            ("help,h", "print help message")
+            ("events,n", po::value<int>(&gOptNevents)->default_value(kDefOptNevents), "Number of events to be generated")
+            ("run,r", po::value<Long_t>(&gOptRunNu)->default_value(kDefOptRunNu), "MC run number")
+            ("energy,e", po::value<std::string>(&nue), "Energy (range) to be used for the generation")
+            ("neutrino_pdg,p", po::value<int>(&gOptNuPdgCode), "PDG of the initial neutrino")
+            ("target,t", po::value<std::string>(&tgt), "Scattering target")
+            ("flux,f", po::value<std::string>(&gOptFlux)->default_value(""), "Flux description")
+            ("flux_factors,F", po::value<std::string>(&gOptFluxFactors)->default_value(""), "Flux factors")
+            ("outfile,o", po::value<std::string>(&gOptOutFileName)->default_value("output.root"), "Output file")
+            ("weighted,w", po::bool_switch(&gOptWeighted), "Generate weighted")
+            ("force-flux-ray-interaction", po::bool_switch(&gOptForceInt)->default_value(false), "")
+            ("seed,s", po::value<long int>(&gOptRanSeed)->default_value(-1), "Rnd seed")
+            ("cross-sections,x", po::value<std::string>(&gOptInpXSecFile)->default_value(""), "Cross section (xml) input file")
+        ;
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
 
-  // help?
-  bool help = parser.OptionExists('h');
-  if(help) {
-      PrintSyntax();
-      exit(0);
-  }
 
-  // number of events
-  if( parser.OptionExists('n') ) {
-    LOG("gevgen", pINFO) << "Reading number of events to generate";
-    gOptNevents = parser.ArgAsInt('n');
-  } else {
-    LOG("gevgen", pINFO)
-       << "Unspecified number of events to generate - Using default";
-    gOptNevents = kDefOptNevents;
-  }
-
-  // run number
-  if( parser.OptionExists('r') ) {
-    LOG("gevgen", pINFO) << "Reading MC run number";
-    gOptRunNu = parser.ArgAsLong('r');
-  } else {
-    LOG("gevgen", pINFO) << "Unspecified run number - Using default";
-    gOptRunNu = kDefOptRunNu;
+  if (vm.count("help")) {
+    LOG("gevgen", pNOTICE) << desc << "\n";
+    exit(-1);
   }
 
   // Output file name
-  if( parser.OptionExists('o') ) {
-    LOG("gevgen", pINFO) << "Reading output file name";
-    gOptOutFileName = parser.ArgAsString('o');
-
-    gOptStatFileName = gOptOutFileName;
-    // strip the output file format and replace with .status
-    if (gOptOutFileName.find_last_of(".") != string::npos)
-      gOptStatFileName =
-        gOptStatFileName.substr(0, gOptOutFileName.find_last_of("."));
-    gOptStatFileName .append(".status");
+  gOptStatFileName = gOptOutFileName;
+  // strip the output file format and replace with .status
+  if (gOptOutFileName.find_last_of(".") != string::npos) {
+    gOptStatFileName = gOptOutFileName.substr(0, gOptOutFileName.find_last_of("."));
+    gOptStatFileName.append(".status");
   }
 
   // flux functional form
-  bool using_flux = false;
-  if( parser.OptionExists('f') ) {
-    LOG("gevgen", pINFO) << "Reading flux function";
-    gOptFlux = parser.ArgAsString('f');
-    using_flux = true;
-  }
-  if (parser.OptionExists('F') ) {
-    LOG("gevgen", pINFO) << "Reading flux factors";
-    gOptFluxFactors = parser.ArgAsString('F');
-  }
-
-  if(parser.OptionExists('s')) {
-    LOG("gevgen", pWARN)
-      << "-s option no longer available. Please read the revised code documentation";
-    gAbortingInErr = true;
-    exit(1);
-  }
-
-
-  // generate weighted events option (only relevant if using a flux)
-  gOptWeighted = parser.OptionExists('w');
-
-  // force interaction of all injected events (only relevant if using a flux)
-  gOptForceInt = parser.OptionExists("force-flux-ray-interaction");
+  bool using_flux = vm.count("flux") > 0;
 
   // neutrino energy
-  if( parser.OptionExists('e') ) {
+  if( vm.count("energy") ) {
     LOG("gevgen", pINFO) << "Reading neutrino energy";
-    string nue = parser.ArgAsString('e');
-
     // is it just a value or a range (comma separated set of values)
     if(nue.find(",") != string::npos) {
        // split the comma separated list
-       vector<string> nurange = utils::str::Split(nue, ",");
+       vector<string> nurange;
+       boost::split(nurange, nue, boost::is_any_of(","));
        assert(nurange.size() == 2);
        double emin = atof(nurange[0].c_str());
        double emax = atof(nurange[1].c_str());
@@ -750,23 +724,13 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(1);
   }
 
-  // neutrino PDG code
-  if( parser.OptionExists('p') ) {
-    LOG("gevgen", pINFO) << "Reading neutrino PDG code";
-    gOptNuPdgCode = parser.ArgAsInt('p');
-  } else {
-    LOG("gevgen", pFATAL) << "Unspecified neutrino PDG code - Exiting";
-    PrintSyntax();
-    exit(1);
-  }
-
   // target mix (their PDG codes with their corresponding weights)
   bool using_tgtmix = false;
-  if( parser.OptionExists('t') ) {
+  if( vm.count("target") ) {
     LOG("gevgen", pINFO) << "Reading target mix";
-    string stgtmix = parser.ArgAsString('t');
     gOptTgtMix.clear();
-    vector<string> tgtmix = utils::str::Split(stgtmix,",");
+    vector<string> tgtmix;
+    boost::split(tgtmix, tgt, boost::is_any_of(","));
     if(tgtmix.size()==1) {
          int    pdg = atoi(tgtmix[0].c_str());
          double wgt = 1.0;
@@ -789,32 +753,9 @@ void GetCommandLineArgs(int argc, char ** argv)
          gOptTgtMix.insert(map<int, double>::value_type(pdg, wgt));
       }//tgtmix_iter
     }//>1
-
-  } else {
-    LOG("gevgen", pFATAL) << "Unspecified target PDG code - Exiting";
-    PrintSyntax();
-    exit(1);
   }
 
   gOptUsingFluxOrTgtMix = using_flux || using_tgtmix;
-
-  // random number seed
-  if( parser.OptionExists("seed") ) {
-    LOG("gevgen", pINFO) << "Reading random number seed";
-    gOptRanSeed = parser.ArgAsLong("seed");
-  } else {
-    LOG("gevgen", pINFO) << "Unspecified random number seed - Using default";
-    gOptRanSeed = -1;
-  }
-
-  // input cross-section file
-  if( parser.OptionExists("cross-sections") ) {
-    LOG("gevgen", pINFO) << "Reading cross-section file";
-    gOptInpXSecFile = parser.ArgAsString("cross-sections");
-  } else {
-    LOG("gevgen", pINFO) << "Unspecified cross-section file";
-    gOptInpXSecFile = "";
-  }
 
   //
   // print-out the command line options

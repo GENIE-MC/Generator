@@ -24,6 +24,12 @@ ARCH      = $(shell root-config --arch)
 ARCH_OK   =
 IS_MACOSX =
 
+
+#-------------------------------------------------------------------
+# BOOST
+#-------------------------------------------------------------------
+BOOST_LIBRARIES = -lboost_program_options
+
 #-------------------------------------------------------------------
 # GENIE
 #-------------------------------------------------------------------
@@ -580,7 +586,8 @@ LIBRARIES := $(SYSLIBS) \
              $(LOG_LIBRARIES) \
              $(GSL_LIBRARIES) \
              $(GPROF_LIBRARIES) \
-             $(EXTRALIBS)
+             $(EXTRALIBS) \
+             $(BOOST_LIBRARIES)
 
 # Default compiler and preprocessor flags
 
