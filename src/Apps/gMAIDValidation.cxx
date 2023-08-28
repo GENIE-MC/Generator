@@ -13,6 +13,13 @@
           Specifies a name to be used in the output files.
           Default: maid_validation.root
 
+        --W-min-XSec: minimum W value for cross section calculation
+	--W-max-XSec: maximum W value for cross section calculation
+	--W-binning-XSec: binning on W
+        --Q2-min-XSec: maximum Q2 value for cross section calculation
+        --Q2-max-XSec: minimum Q2 value for cross section calculation
+	--Q2-binning-XSec: binning on Q2
+
 \author  Julia Tena Vidal <jtenavidal \at tauex.tau.ac.il>
 Tel Aviv University
 
@@ -63,7 +70,9 @@ using namespace genie::utils;
 
 // globals
 string gOptOutFile = "maid_validation.root"; // -o argument
-double gQ2XSec = 1 ; // Q2 value used for cross-section calculation
+double gQ2_min_XSec = 0 ;
+double gQ2_max_XSec = 4 ;
+double gQ2_binning_XSec = 100 ;
 double gW_min_XSec = 1.100 ;
 double gW_max_XSec = 1.800 ;
 double gW_bin_width = 50 ; 
@@ -111,10 +120,7 @@ int main(int argc, char ** argv)
 //_________________________________________________________________________________
 void MakePlots (void)
 {
-  double n_bins = 100 ; 
-  double max_Q2 = 4 ; 
-  double min_Q2 = 0 ;
-  double Q2_width = ( max_Q2 - min_Q2 ) / n_bins ; 
+  double Q2_width = ( gQ2_max_XSec - gQ2_min_XSec ) / gQ2_binning_XSec ; 
   vector<double> Q2_binning ; 
   vector<double> A12_p , A12_n, A32_p, A32_n, S12_p, S12_n ; 
   int lepton_pdg = kPdgElectron ; 
@@ -123,7 +129,7 @@ void MakePlots (void)
   Interaction * inter_p = Interaction::RESEM(1000010010, kPdgProton, lepton_pdg);   
   Interaction * inter_n = Interaction::RESEM(1000000010, kPdgNeutron, lepton_pdg);   
   double W = 0 ; 
-  double Q2 = min_Q2 ; 
+  double Q2 = 0;
 
   for ( int ires = 0 ; ires < kNRes ; ++ires ) { 
     Resonance_t ResID = kResId[ires] ; 
@@ -137,8 +143,8 @@ void MakePlots (void)
     S12_n.clear();
     Q2_binning.clear();
 
-    for( unsigned int i = 0 ; i < n_bins + 1 ; ++i ) { 
-      Q2 = min_Q2 + i * Q2_width ; 
+    for( unsigned int i = 0 ; i < gQ2_binning_XSec + 1 ; ++i ) { 
+      Q2 = gQ2_min_XSec + i * Q2_width ; 
       inter_p->KinePtr()->SetQ2(Q2) ;
       inter_n->KinePtr()->SetQ2(Q2) ;
       inter_p->KinePtr()->SetW(W) ;
@@ -166,13 +172,25 @@ void MakePlots (void)
     gS12_n[ResID] = new TGraph( Q2_binning.size(), &Q2_binning[0], &S12_n[0] ) ;
     
     string res_name = utils::res::AsString(ResID) ;
-    gA12_p[ResID]->SetTitle("; Q^{2}[GeV^{2}]; A_{1/2}^{p} #left[10^{-3} GeV^{-2}#right]");
-    gA32_p[ResID]->SetTitle("; Q^{2}[GeV^{2}]; A_{3/2}^{p} #left[10^{-3} GeV^{-2}#right]");
-    gS12_p[ResID]->SetTitle("; Q^{2}[GeV^{2}]; S_{1/2}^{p} #left[10^{-3} GeV^{-2}#right]");
+    gA12_p[ResID]->SetTitle((res_name).c_str());
+    gA12_p[ResID]->GetXaxis()->SetTitle("Q^{2}[GeV^{2}]");
+    gA12_p[ResID]->GetYaxis()->SetTitle("A_{1/2}^{p} #left[10^{-3} GeV^{-2}#right]");
+    gA32_p[ResID]->SetTitle((res_name).c_str());
+    gA32_p[ResID]->GetXaxis()->SetTitle("Q^{2}[GeV^{2}]");
+    gA32_p[ResID]->GetYaxis()->SetTitle("A_{3/2}^{p} #left[10^{-3} GeV^{-2}#right]");
+    gS12_p[ResID]->SetTitle((res_name).c_str());
+    gS12_p[ResID]->GetXaxis()->SetTitle("Q^{2}[GeV^{2}]");
+    gS12_p[ResID]->GetYaxis()->SetTitle("S_{1/2}^{p} #left[10^{-3} GeV^{-2}#right]");
     
-    gA12_n[ResID]->SetTitle("; Q^{2}[GeV^{2}]; A_{1/2}^{n} #left[10^{-3} GeV^{-2}#right]");
-    gA32_n[ResID]->SetTitle("; Q^{2}[GeV^{2}]; A_{3/2}^{n} #left[10^{-3} GeV^{-2}#right]");
-    gS12_n[ResID]->SetTitle("; Q^{2}[GeV^{2}]; S_{1/2}^{n} #left[10^{-3} GeV^{-2}#right]");
+    gA12_n[ResID]->SetTitle((res_name).c_str());
+    gA12_n[ResID]->GetXaxis()->SetTitle("Q^{2}[GeV^{2}]");
+    gA12_n[ResID]->GetYaxis()->SetTitle("A_{1/2}^{n} #left[10^{-3} GeV^{-2}#right]");
+    gA32_n[ResID]->SetTitle((res_name).c_str());
+    gA32_n[ResID]->GetXaxis()->SetTitle("Q^{2}[GeV^{2}]");
+    gA32_n[ResID]->GetYaxis()->SetTitle("A_{3/2}^{n} #left[10^{-3} GeV^{-2}#right]");
+    gS12_n[ResID]->SetTitle((res_name).c_str());
+    gS12_n[ResID]->GetXaxis()->SetTitle("Q^{2}[GeV^{2}]");
+    gS12_n[ResID]->GetYaxis()->SetTitle("S_{1/2}^{n} #left[10^{-3} GeV^{-2}#right]");
 
     gA12_p[ResID]->Write(("A12_p_"+res_name).c_str()) ; 
     gA32_p[ResID]->Write(("A32_p_"+res_name).c_str()) ; 
@@ -191,6 +209,9 @@ void MakePlots (void)
     S12_n.clear() ; 
     
   }
+  
+  goutput_file->Close();
+
   return ; 
 }
 //_________________________________________________________________________________
@@ -219,14 +240,24 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptOutFile = parser.Arg('o');
   }
 
-  if(parser.OptionExists("Q2XSec")) {
-    string Q2 = parser.Arg("Q2XSec");
-    gQ2XSec = atof(Q2.c_str());
-  }
-
   if(parser.OptionExists("W-min-XSec")) {
     string Wmin = parser.Arg("W-min_XSec");
     gW_min_XSec = atof(Wmin.c_str());
+  }
+
+  if(parser.OptionExists("Q2-min-XSec")) {
+    string Q2min = parser.Arg("Q2-min_XSec");
+    gQ2_min_XSec = atof(Q2min.c_str());
+  }
+
+  if(parser.OptionExists("Q2-max-XSec")) {
+    string Q2max = parser.Arg("Q2-max_XSec");
+    gQ2_max_XSec = atof(Q2max.c_str());
+  }
+
+  if(parser.OptionExists("Q2-binning-XSec")) {
+    string Q2binning = parser.Arg("Q2-binning_XSec");
+    gQ2_binning_XSec = atof(Q2binning.c_str());
   }
 
   if(parser.OptionExists("W-max-XSec")) {
