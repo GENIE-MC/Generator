@@ -10,15 +10,7 @@ Configurable Parameters:
 Name                        Type Optional Comment                                                        Default
 ......................................................................................................................................
 RES-EM-XSecScale            double  No    XSec rescaling factor                                           
-UseDRJoinScheme             bool    No    Use DIS/RES joining scheme?                                     CommonParam[NonResBackground]
-Wcut                        double  No    Param used in DIS/RES joining                                   CommonParam[NonResBackground]
-MaxNWidthForN2Res           double  Yes   x in limiting allowed W phase space for n=2 res according to    2.0
-                                          W < min{ Wmin(physical), MassRes + x * WidthRes }
-MaxNWidthForN0Res           double  Yes   As above for n=0 resonances                                     6.0
-MaxNWidthForGNres           double  Yes   As above for the remaining resonances                           4.0
-RFG-UseParametrization      bool    No    use parametrization for Fermi momentum and binging energy       CommonParam[FermiGas]
-                                            
-FermiMomentumTable          string  No    Table of Fermi momentum (kF) constants for various nuclei       CommonParam[FermiGas]
+
 XSec-Integrator             alg     No                    
 -->
 

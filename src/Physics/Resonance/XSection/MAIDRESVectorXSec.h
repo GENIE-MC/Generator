@@ -54,13 +54,9 @@ public:
   void Configure(const Registry & config);
   void Configure(string config);
 
-  double XSecT (const Interaction * i) const;
-  double XSecL (const Interaction * i) const;
 private:
 
   void LoadConfig (void);
-
-  double GetXSecFactors (const Interaction * i) const;
 
   RESVectFormFactorsI * fVFFEMp ;
   RESVectFormFactorsI * fVFFEMn ;

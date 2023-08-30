@@ -32,6 +32,7 @@
 #pragma link C++ class genie::RESVectFormFactorsI;
 #pragma link C++ class genie::MAIDRESVectFormFactorsEMn;
 #pragma link C++ class genie::MAIDRESVectFormFactorsEMp;
+#pragma link C++ class genie::MAIDRESVectorXSec;
 
 #pragma link C++ class genie::RESXSec;
 
