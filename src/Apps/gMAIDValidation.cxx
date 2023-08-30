@@ -70,6 +70,7 @@ Tel Aviv University
 using namespace std;
 using namespace genie;
 using namespace genie::utils;
+using namespace genie::constants;
 
 // globals
 string gOptOutFile = "maid_validation.root"; // -o argument
@@ -147,33 +148,10 @@ void MakePlots (void)
   Interaction * inter_n = Interaction::RESEM(1000000010, kPdgNeutron, lepton_pdg, gEBeam);   
   
   double W = 0, Q2 = 0 ; 
-  //  const InitialState & init_state = interaction -> InitState();
   const Target & target = (inter_p->InitState()).Tgt();
   double Mnuc = target.HitNucMass() ;
   double Mnuc2 = TMath::Power(Mnuc,2) ; 
-  /*
-  double W2 = TMath::Power(W,2) ;
-  double k = 0.5 * ( W2 - Mnuc2) / Mnuc ;
 
-  Resonance_t resonance = inter_p->ExclTag().Resonance();
-  double MR = utils::res::Mass(resonance) ;
-  double MR2 = TMath::Power(MR,2);
-  double kres = 0.5 * ( W2 - MR2 ) / MR ; 
-  double q2 = (inter_p -> Kine()).q2();  
-  double v = k - 0.5 * q2/Mnuc ;
-  double v2 = TMath::Power( v, 2 ) ;
-  double Eprime = gEBeam - v ; 
-  //TLorentzVector ElectronMom = *init_state.GetProbeP4(kRfLab) ;
-  //TLorentzVector OutElectronMom = kinematics.FSLeptonP4() ; 
-  double theta = gthetap;
-  double q3Vect2 = pow( ( ElectronMom - OutElectronMom ).P(),2) ; 
-  double epsilon = 1 / ( 1 + 2 * ( q3Vect2 / Q2 ) * TMath::Power( tan( theta ) * 0.5, 2 ) ) ;     
- 
-  double Gamma = ( kAem * 0.5 / pow(kPi,2) ) * ( Eprime / E ) * ( k / Q2 ) / ( 1 - epsilon ) ; 
-  double delta = MR * Gamma / ( ( pow( W2 - MR2, 2) + MR*pow(Gamma,2) ) * kPi ) ;  
-
-  double factor = 2 * kPi * Mnuc * ( kres / k ) * delta ; 
-  */
   for ( int ires = 0 ; ires < kNRes ; ++ires ) { 
     Resonance_t ResID = kResId[ires] ; 
     inter_p->ExclTagPtr()->SetResonance(ResID) ; 
@@ -183,8 +161,35 @@ void MakePlots (void)
       Q2 = gQ2_min_XSec + i * Q2_width ; 
       inter_p->KinePtr()->SetQ2(Q2) ;
       inter_n->KinePtr()->SetQ2(Q2) ;
+
+      // Calculate W given thetap
+      double Ep = Q2/(2*gEBeam*(1-TMath::Cos(gthetap)));
+      double W2 = Mnuc2 + 2*Mnuc *(gEBeam-Q2/(2*gEBeam*(1-TMath::Cos(gthetap))))-Q2 ; 
+      W=sqrt(W);
       inter_p->KinePtr()->SetW(W) ;
       inter_n->KinePtr()->SetW(W) ;
+
+      // Calculation of Cross-section parameters
+      const InitialState & init_state = inter_p -> InitState();
+      double k = 0.5 * ( W2 - Mnuc2 ) / Mnuc ;      
+      Resonance_t resonance = inter_p->ExclTag().Resonance();
+      double MR = utils::res::Mass(resonance) ;
+      double MR2 = TMath::Power(MR,2);
+      double kres = 0.5 * ( W2 - MR2 ) / MR ; 
+      double q2 = (inter_p -> Kine()).q2();  
+      double v = k - 0.5 * q2/Mnuc ;
+      double v2 = TMath::Power( v, 2 ) ;
+      double Eprime = gEBeam - v ; 
+      TLorentzVector ElectronMom = *init_state.GetProbeP4(kRfLab) ;
+      TLorentzVector OutElectronMom = (inter_p -> Kine()).FSLeptonP4() ; 
+      double theta = gthetap;
+      double q3Vect2 = pow( ( ElectronMom - OutElectronMom ).P(),2) ; 
+      double epsilon = 1 / ( 1 + 2 * ( q3Vect2 / Q2 ) * TMath::Power( tan( theta ) * 0.5, 2 ) ) ;     
+      
+      double Gamma = ( kAem * 0.5 / pow(kPi,2) ) * ( Eprime / gEBeam ) * ( k / Q2 ) / ( 1 - epsilon ) ; 
+      double delta = MR * Gamma / ( ( pow( W2 - MR2, 2) + MR*pow(Gamma,2) ) * kPi ) ;  
+      
+      double factor = 2 * kPi * Mnuc * ( kres / k ) * delta ; 
 
       RESVectFFAmplitude vffampl_p = vffmodel_p->Compute(*inter_p);
       A12_p.push_back( vffampl_p.AmplA12() ) ;
@@ -197,8 +202,8 @@ void MakePlots (void)
       S12_n.push_back( vffampl_n.AmplS12() ) ;
       Q2_binning.push_back( Q2 ) ; 
       
-      // Cross-section calculation
-      double factor = 1; 
+      std::cout << " factor " << factor << " ElectronMom " << ElectronMom.P() << " OutElectronMom " << OutElectronMom.P()<<std::endl;
+      factor = 1; 
       XSec_p_T_Q2.push_back( factor * ( pow(A12_p[i],2)+pow(A32_p[i],2) ));
       XSec_p_L_Q2.push_back( factor * ( pow(S12_p[i],2) ));
 
