@@ -673,12 +673,16 @@ void GetCommandLineArgs(int argc, char ** argv)
             ("cross-sections,x", po::value<std::string>(&gOptInpXSecFile)->default_value(""), "Cross section (xml) input file")
         ;
   po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::store(po::command_line_parser(argc, argv).options(desc).allow_unregistered().run(), vm);
 
   if (vm.count("help")) {
-    LOG("gevgen", pNOTICE) << desc << "\n";
+    LOG("gevgen", pNOTICE) << desc << "\n" << RunOpt::Instance()->HelpString() << "\n";
     exit(-1);
   }
+
+  // // Common run options. Set defaults and read.
+  RunOpt::Instance()->EnableBareXSecPreCalc(true);
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
 
   po::notify(vm);
 

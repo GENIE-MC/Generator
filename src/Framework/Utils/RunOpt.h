@@ -22,10 +22,12 @@
 #include <string>
 
 #include "Framework/Utils/TuneId.h"
+#include <boost/program_options.hpp>
 
 class TBits;
 
 using std::ostream;
+namespace po = boost::program_options;
 
 namespace genie {
 
@@ -60,6 +62,7 @@ public:
   void BuildTune(); ///< build tune and inform XSecSplineList
   void SetEventGeneratorList(string evgenlist) { fEventGeneratorList = evgenlist; }
   void EnableBareXSecPreCalc(bool flag)        { fEnableBareXSecPreCalc = flag; }
+  string HelpString();
 
   // Print
   void   Print (ostream & stream) const;
@@ -69,6 +72,7 @@ private:
 
   void Init (void);
 
+  std::shared_ptr<boost::program_options::options_description> desc;
   // options
   TuneId * fTune;                    ///< GENIE comprehensive neutrino interaction model tune.
   string fEventGeneratorList;        ///< Name of event generator list to be loaded by the event generation drivers.

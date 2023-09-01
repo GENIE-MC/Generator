@@ -76,6 +76,30 @@ void RunOpt::Init(void)
   fEventRecordPrintLevel  = 3;
   fEventGeneratorList     = "Default";
   fXMLPath = "";
+
+  desc = std::shared_ptr<boost::program_options::options_description>(new boost::program_options::options_description("RunOpt"));
+
+
+  desc->add_options()
+    ("enable-bare-xsec-pre-calc", po::bool_switch(&fEnableBareXSecPreCalc)->default_value(false), "")
+    ("disable-bare-xsec-pre-calc", po::bool_switch()->default_value(false), "")
+    ("cache-file", po::value<std::string>(&fCacheFile)->default_value(""), "")
+    ("message-thresholds", po::value<std::string>(&fMesgThresholds)->default_value(""), "")
+    ("event-record-print-level", po::value<int>(&fEventRecordPrintLevel)->default_value(0), "")
+    ("mc-job-status-refresh=rate", po::value<int>(&fMCJobStatusRefreshRate)->default_value(1), "")
+    ("event-generator-list", po::value<std::string>()->default_value(""), "")
+    ("xml-path", po::value<std::string>(&fXMLPath)->default_value(""), "");
+    ("tune", po::value<std::string>()->default_value("Default"), "");
+}
+//____________________________________________________________________________
+std::string RunOpt::HelpString() {
+  std::stringstream ss;
+  // create some dummy args
+  char* argv[] = {"RunOpt",  NULL};
+  po::variables_map vm;
+  po::store(po::parse_command_line(1, argv, (*desc) ), vm);
+  ss << (*desc);
+  return ss.str();
 }
 //____________________________________________________________________________
 void RunOpt::SetTuneName(string tuneName)
@@ -99,50 +123,34 @@ void RunOpt::BuildTune()
 void RunOpt::ReadFromCommandLine(int argc, char ** argv)
 {
   LOG("RunOpt",pDEBUG) << "Reading "<<argc-1<<" command line arguments.";
-  CmdLnArgParser parser(argc,argv);
 
-  if( parser.OptionExists("enable-bare-xsec-pre-calc") ) {
-    fEnableBareXSecPreCalc = true;
-  } else
-  if( parser.OptionExists("disable-bare-xsec-pre-calc") ) {
+  po::variables_map vm;
+  po::store(po::command_line_parser(argc, argv).options(*desc).allow_unregistered().run(), vm);
+  po::notify(vm);
+
+  fMCJobStatusRefreshRate = TMath::Max(1, fMCJobStatusRefreshRate);
+  if (vm.count("enable-bare-xsec-pre-calc") &&
+      !vm["enable-bare-xsec-pre-calc"].defaulted() &&
+      vm.count("disable-bare-xsec-pre-calc") &&
+      !vm["disable-bare-xsec-pre-calc"].defaulted()) {
+    // LOG("RunOpt", pERROR) << "Inconsistent use of bare-xsec-pre-calc!\n";
+    exit(-1);
+  }
+  else if (vm.count("disable-bare-xsec-pre-calc") &&
+      vm["disable-bare-xsec-pre-calc"].as<bool>())
     fEnableBareXSecPreCalc = false;
+
+  if( vm.count("event-generator-list") ) {
+    SetEventGeneratorList(vm["event-generator-list"].as<std::string>());
   }
 
-  if( parser.OptionExists("cache-file") ) {
-    fCacheFile = parser.ArgAsString("cache-file");
+  if( vm.count("tune") ) {
+    SetTuneName( vm["tune"].as<std::string>() ) ;
   }
 
-  if( parser.OptionExists("message-thresholds") ) {
-    fMesgThresholds = parser.ArgAsString("message-thresholds");
-  }
-
-  if( parser.OptionExists("event-record-print-level") ) {
-    fEventRecordPrintLevel = parser.ArgAsInt("event-record-print-level");
-  }
-
-  if( parser.OptionExists("mc-job-status-refresh-rate") ) {
-    fMCJobStatusRefreshRate = TMath::Max(
-        1, parser.ArgAsInt("mc-job-status-refresh-rate"));
-  }
-
-  if( parser.OptionExists("event-generator-list") ) {
-    SetEventGeneratorList(parser.ArgAsString("event-generator-list"));
-  }
-
-  if (parser.OptionExists("xml-path")) {
-    fXMLPath = parser.ArgAsString("xml-path");
-  }
-
-  if( parser.OptionExists("tune") ) {
-    SetTuneName( parser.ArgAsString("tune") ) ;
-  }
-  else {
-    SetTuneName( "Default" );
-  }// else ( parser.OptionExists("tune") )
-
-  if( parser.OptionExists("unphysical-event-mask") ) {
+  if( vm.count("unphysical-event-mask") ) {
     const char * bitfield =
-       parser.ArgAsString("unphysical-event-mask").c_str();
+       vm["unphysical-event-mask"].as<std::string>().c_str();
     unsigned int n = GHepFlags::NFlags();
     unsigned int i = 0;
     while (i < n) {
