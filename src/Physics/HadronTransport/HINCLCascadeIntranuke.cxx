@@ -533,7 +533,13 @@ if ( ! nucl ) {
 }
 fRemnA = nucl->A();
 fRemnZ = nucl->Z();
-int A_f(0), Z_f(0), Aft(0), A_i(target->A()),Z_i(target->Z());
+GHepParticle * Incident_particle = evrec->Particle(0);
+
+int A_f(0), Z_f(0), Aft(0), A_i(target->A()),Z_i(0), Charge_probe(Incident_particle->Charge());
+if(Charge_probe==0) Z_i=target->Z();
+else if(Charge_probe<0) Z_i=target->Z()-1;
+else if(Charge_probe>0)Z_i=target->Z()+1;
+
 
 LOG("HINCLCascadeIntranuke", pNOTICE)
 << "Nucleus (A,Z) = (" << fRemnA << ", " << fRemnZ << ")";
@@ -566,8 +572,8 @@ std::vector<int> Postion_evrec;
   mother1(0),mother2(0), theA_Remn(0), theZ_Remn(0);
 
   if ( fsl->Charge() == 0. ) Zl =  0;
-  if ( fsl->Charge()  < 0. ) Zl = -1;
-  if ( fsl->Charge()  > 0. ) Zl =  1;
+  else if ( fsl->Charge()  < 0. ) Zl = -1;
+  else if ( fsl->Charge()  > 0. ) Zl =  1;
   bool has_remnant = false;
   while ( (p = (GHepParticle *) piter.Next() ) ) {
 
