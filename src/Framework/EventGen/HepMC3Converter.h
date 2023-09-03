@@ -64,7 +64,8 @@ protected:
 
   void PrepareRunInfo( const genie::EventRecord* gevrec );
 
-  void PrepareMCDriverEventInfo( HepMC3::GenEvent& evt );
+  void PrepareMCDriverEventInfo( HepMC3::GenEvent& evt,
+    const genie::EventRecord& gevrec );
 
   std::shared_ptr< HepMC3::GenRunInfo > fRunInfo;
 
