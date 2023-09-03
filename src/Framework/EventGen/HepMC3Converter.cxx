@@ -24,12 +24,14 @@
 #include "Framework/EventGen/EventGeneratorI.h"
 #include "Framework/EventGen/EventRecord.h"
 #include "Framework/EventGen/GEVGDriver.h"
+#include "Framework/EventGen/GEVGPool.h"
 #include "Framework/EventGen/GMCJDriver.h"
 #include "Framework/EventGen/HepMC3Converter.h"
 #include "Framework/EventGen/InteractionList.h"
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepStatus.h"
+#include "Framework/Numerical/Spline.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Registry/RegistryItemTypeDef.h"
@@ -469,7 +471,7 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
   if ( !fRunInfo ) this->PrepareRunInfo( &gevrec );
   evt->set_run_info( fRunInfo );
 
-  if ( fMCDriver ) this->PrepareMCDriverEventInfo( *evt );
+  if ( fMCDriver ) this->PrepareMCDriverEventInfo( *evt, gevrec );
 
   // Return the completed HepMC3::GenEvent object
   return evt;
@@ -741,6 +743,7 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
 
   std::set< std::string > conventions = NUHEPMC_CONVENTIONS;
   if ( fMCDriver ) {
+    conventions.insert( "E.C.2" );
     conventions.insert( "E.C.4" );
     conventions.insert( "E.C.5" );
   }
@@ -1391,10 +1394,27 @@ void genie::HepMC3Converter::AttachGMCJDriver(
   fMCDriver = mc_driver;
 }
 //____________________________________________________________________________
-void genie::HepMC3Converter::PrepareMCDriverEventInfo( HepMC3::GenEvent& evt )
+void genie::HepMC3Converter::PrepareMCDriverEventInfo( HepMC3::GenEvent& evt,
+  const genie::EventRecord& gevrec )
 {
   // Double check that the MC driver object is still attached
   if ( !fMCDriver ) return;
+
+  // E.C.2
+  const genie::InitialState& init_state = gevrec.Summary()->InitState();
+  genie::GEVGDriver* evg_driver = fMCDriver
+    ->EvGenPool().FindDriver( init_state );
+  // These if statements protect against null-pointer-induced segfaults
+  if ( evg_driver ) {
+    const genie::Spline* tot_xsec_spl = evg_driver->XSecSumSpline();
+    if ( tot_xsec_spl ) {
+      double Ev = init_state.ProbeE( genie::kRfLab );
+      double totXS = tot_xsec_spl->Evaluate( Ev ) / genie::units::picobarn;
+
+      evt.add_attribute( "TotXS",
+        std::make_shared< HepMC3::DoubleAttribute >(totXS) );
+    }
+  }
 
   // E.C.4 & E.C.5
   double xsec = fMCDriver->FluxAvgTotXSec() / genie::units::picobarn;

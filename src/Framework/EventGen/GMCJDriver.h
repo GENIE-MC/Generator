@@ -102,6 +102,9 @@ public :
   GFluxI *              FluxDriverPtr   (void) const { return  fFluxDriver;   }
   GeomAnalyzerI *       GeomAnalyzerPtr (void) const { return  fGeomAnalyzer; }
 
+  // access the event generator pool
+  const GEVGPool& EvGenPool() const { return *fGPool; }
+
 private:
 
   // private methods:
