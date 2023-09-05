@@ -63,14 +63,15 @@ namespace {
   // Placeholder process ID number to use in undefined cases
   constexpr int NUHEPMC_PROC_UNKNOWN = 0;
 
+  // V.R.1
   // Vertex status codes for NuHepMC
   constexpr int NUHEPMC_PRIMARY_VERTEX = 1;
-  constexpr int NUHEPMC_NUCLEAR_VERTEX = 2;
-  constexpr int NUHEPMC_SECONDARY_VERTEX = 3;
+  constexpr int NUHEPMC_NUCLEAR_VERTEX = 11;
+  constexpr int NUHEPMC_SECONDARY_VERTEX = 12;
 
   // Default set of implemented NuHepMC conventions
   const std::set< std::string > NUHEPMC_CONVENTIONS(
-    { "G.C.1", "G.C.4", "G.C.6", "E.C.1", "E.C.6" } );
+    { "G.C.1", "G.C.4", "G.C.6", "G.S.2", "E.C.1", "E.C.5", "P.C.1" } );
 
   // Implemented version of the NuHepMC standard
   // (https://github.com/NuHepMC/Spec)
@@ -145,8 +146,11 @@ namespace {
       { 2, "Decayed state", "Decayed physical particle" } },
     { genie::EGHepStatus::kIStCorrelatedNucleon,
       { 22, "Correlated nucleon", "Spectator nucleon in a correlated pair" } },
+
+    // P.C.1
     { genie::EGHepStatus::kIStNucleonTarget,
       { 21, "Target nucleon", "Struck nucleon in the initial state" } },
+
     { genie::EGHepStatus::kIStDISPreFragmHadronicState,
       { 24, "Prefragmentation", "Temporary prefragmentation hadronic state"
         " for deep inelastic scattering" } },
@@ -288,7 +292,7 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
   auto evt = std::make_shared< HepMC3::GenEvent >( HepMC3::Units::GEV,
     HepMC3::Units::CM );
 
-  // E.R.4 and E.C.6
+  // E.R.4 and E.C.5
   // Set the overall event 4-position in the lab frame using the GHepRecord
   // vertex
   const TLorentzVector* g_vtx = gevrec.Vertex();
@@ -836,7 +840,6 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
   if ( fMCDriver ) {
     conventions.insert( "E.C.2" );
     conventions.insert( "E.C.4" );
-    conventions.insert( "E.C.5" );
   }
 
   std::vector< std::string > convention_vec;
@@ -857,7 +860,7 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
   //fRunInfo->add_attribute("NuHepMC.Exposure.NEvents",
   // std::make_shared<HepMC3::IntAttribute>(3));
 
-  //// G.C.4
+  //// G.C.5
   //fRunInfo->add_attribute(
   // "NuHepMC.FluxAveragedTotalCrossSection",
   //  std::make_shared<HepMC3::DoubleAttribute>(1.234E-38 * cm2_to_pb));
@@ -1512,7 +1515,7 @@ void genie::HepMC3Converter::PrepareMCDriverEventInfo( HepMC3::GenEvent& evt,
     }
   }
 
-  // E.C.4 & E.C.5
+  // E.C.4
   double xsec = fMCDriver->FluxAvgTotXSec() / genie::units::picobarn;
   double xsec_err = fMCDriver->FluxAvgTotXSecError() / genie::units::picobarn;
 
