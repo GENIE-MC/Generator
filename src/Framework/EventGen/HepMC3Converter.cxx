@@ -70,7 +70,7 @@ namespace {
 
   // Default set of implemented NuHepMC conventions
   const std::set< std::string > NUHEPMC_CONVENTIONS(
-    { "G.C.1", "G.C.5", "E.C.1", "E.C.6" } );
+    { "G.C.1", "G.C.4", "G.C.6", "E.C.1", "E.C.6" } );
 
   // Implemented version of the NuHepMC standard
   // (https://github.com/NuHepMC/Spec)
@@ -847,6 +847,12 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
 
   fRunInfo->add_attribute( "NuHepMC.Conventions",
     std::make_shared< HepMC3::VectorStringAttribute >( convention_vec ) );
+
+  // G.C.4
+  fRunInfo->add_attribute( "NuHepMC.Units.CrossSection.Unit",
+    std::make_shared< HepMC3::StringAttribute >( "pb" ) );
+  fRunInfo->add_attribute( "NuHepMC.Units.CrossSection.TargetScale",
+    std::make_shared< HepMC3::StringAttribute >( "PerTargetAtom" ) );
 
   //// G.C.2
   //fRunInfo->add_attribute("NuHepMC.Exposure.NEvents",
