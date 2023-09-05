@@ -75,7 +75,7 @@ namespace {
   // Implemented version of the NuHepMC standard
   // (https://github.com/NuHepMC/Spec)
   constexpr int NUHEPMC_MAJOR_VERSION = 0;
-  constexpr int NUHEPMC_MINOR_VERSION = 1;
+  constexpr int NUHEPMC_MINOR_VERSION = 9;
   constexpr int NUHEPMC_PATCH_VERSION = 0;
 
   using SType = genie::EScatteringType;
@@ -86,8 +86,8 @@ namespace {
   // process ID codes. Note that the latter are distinct from GENIE's own
   // process labeling scheme.
   //
-  // NOTE: NuHepMC 0.1.0 does not designate ID conventions for EM processes.
-  // For now, they are omitted.
+  // NOTE: NuHepMC 0.9.0 includes a convention that EM processes should have
+  // negative process IDs. For now, they are omitted from the map.
   const std::map< std::pair<SType,IType>, int > NUHEPMC_PROC_MAP = {
 
     { { SType::kScUnknown, IType::kIntNull }, NUHEPMC_PROC_UNKNOWN }, // Unknown
@@ -215,6 +215,64 @@ namespace {
       vec.at(2) / conv_factor, vec.at(3) );
     return result;
   }
+
+  // G.R.8
+  // Mapping of non-standard PDG codes used by GENIE to particle names.
+  // Descriptions are also included although this isn't currently required by
+  // NuHepMC.
+  // TODO: The current map is copied by hand from
+  // src/Framework/ParticleData/PDGCodes.h. Consider a different strategy for
+  // syncing the two lists automatically.
+  const std::map< int, std::pair<std::string,
+    std::string> > NUHEPMC_EXTRA_PDG_MAP =
+  {
+     { genie::kPdgHadronicSyst,
+       { "HadronicSystem", "DIS hadronic system before hadronization" } },
+     { genie::kPdgHadronicBlob,
+       { "HadronicBlob", "Unmodeled portion of the hadronic system" } },
+     { genie::kPdgBindino,
+       { "Bindino", "Pseudo-particle representing binding energy"
+         " subtracted from final-state nucleons" } },
+     { genie::kPdgCoulobtron,
+       { "Coulobtron", "Pseudo-particle representing Coulomb energy"
+         " subtracted from final-state leptons" } },
+     { genie::kPdgClusterNN,
+       { "NNCluster", "A two-neutron cluster within a nucleus" } },
+     { genie::kPdgClusterNP,
+       { "NPCluster", "A neutron + proton cluster within a nucleus" } },
+     { genie::kPdgClusterPP,
+       { "PPCluster", "A two-proton cluster within a nucleus" } },
+     { genie::kPdgCompNuclCluster,
+       { "CompNuclCluster", "An undecayed cluster of nucleons" } },
+     { genie::kPdgDarkMatter,
+       { "DM", "A dark matter particle used in"
+         " GENIE's boosted dark matter mode" } },
+     { genie::kPdgAntiDarkMatter,
+       { "anti-DM", "A dark matter antiparticle used in"
+         " GENIE's boosted dark matter mode" } },
+     { genie::kPdgMediator,
+       { "DM-Mediator", "Mediator particle used in GENIE's"
+         " Boosted Dark Matter mode" } },
+     { genie::kPdgDarkNeutrino,
+       { "Dark-nu", "Dark matter particle used in GENIE's"
+         " Dark Neutrino mode" } },
+     { genie::kPdgAntiDarkNeutrino,
+       { "Dark-anti-nu", "Dark matter antiparticle used in GENIE's"
+         " Dark Neutrino mode" } },
+     { genie::kPdgDNuMediator,
+       { "Dark-Mediator", "Mediator particle used in GENIE's"
+         " Dark Neutrino mode" } },
+     { genie::kPdgHNL,
+       { "HNL", "Heavy neutral lepton" } },
+     { genie::kPdgAntiHNL,
+       { "anti-HNL", "Heavy neutral antilepton" } },
+     { genie::kPdgCluster,
+       { "PCluster", "PYTHIA cluster pseudo-particle" } },
+     { genie::kPdgString,
+       { "PString", "PYTHIA string pseudo-particle" } },
+     { genie::kPdgIndep,
+       { "PIndep", "PYTHIA independent fragmentation pseudo-particle" } },
+  };
 
 }
 //____________________________________________________________________________
@@ -591,7 +649,7 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
       mode_to_xsec_models[ id_code ].insert( model_name );
     }
 
-    // G.C.5
+    // G.C.6
     // Get a reference to the current set of DOIs for models of the given
     // process. The set will be created if it doesn't already exist.
     auto& mode_citations = mode_to_citation_DOIs[ id_code ];
@@ -644,7 +702,7 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
     }
 
     if ( !doi_vec.empty() ) {
-      fRunInfo->add_attribute( "NuHepMC.ProcessInfo["
+      fRunInfo->add_attribute( "NuHepMC.Citations.Process["
         + std::to_string(proc_id_code) + "].DOI",
         std::make_shared< HepMC3::VectorStringAttribute >(doi_vec) );
     }
@@ -673,6 +731,16 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
 
   fRunInfo->add_attribute( "NuHepMC.ProcessIDs",
     std::make_shared< HepMC3::VectorIntAttribute >(proc_ID_vec) );
+
+  // G.C.6: also add overall GENIE citations to the run metadata
+  std::vector< std::string > NUHEPMC_GENIE_DOIs = {
+    "10.1016/j.nima.2009.12.009", // GENIE NIM A paper
+    "10.1140/epjs/s11734-021-00295-7", // GENIE v3 "highlights" paper
+  };
+
+  fRunInfo->add_attribute( "NuHepMC.Citations.Generator.DOI",
+    std::make_shared< HepMC3::VectorStringAttribute >( NUHEPMC_GENIE_DOIs )
+  );
 
   // G.R.5
   std::vector< int > vertex_IDs;
@@ -740,7 +808,31 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
   // G.R.7
   fRunInfo->set_weight_names( { "CV" } );
 
+  // G.R.8
+  std::vector< int > pdg_codes_vec;
 
+  for ( const auto& pdg_pair : NUHEPMC_EXTRA_PDG_MAP ) {
+    int pdg_code = pdg_pair.first;
+    std::string pdg_str = std::to_string( pdg_code );
+
+    const std::string& name = pdg_pair.second.first;
+    const std::string& desc = pdg_pair.second.second;
+
+    pdg_codes_vec.push_back( pdg_code );
+
+    fRunInfo->add_attribute( "NuHepMC.AdditionalParticleNumber[" + pdg_str
+      + "].Name", std::make_shared< HepMC3::StringAttribute >(name) );
+
+    // Note that these descriptions are not yet required by NuHepMC G.R.8
+    fRunInfo->add_attribute( "NuHepMC.AdditionalParticleNumber[" + pdg_str
+      + "].Description",
+      std::make_shared< HepMC3::StringAttribute >(desc) );
+  }
+
+  fRunInfo->add_attribute( "NuHepMC.AdditionalParticleNumbers",
+    std::make_shared< HepMC3::VectorIntAttribute >(pdg_codes_vec) );
+
+  // G.C.1
   std::set< std::string > conventions = NUHEPMC_CONVENTIONS;
   if ( fMCDriver ) {
     conventions.insert( "E.C.2" );
@@ -748,7 +840,6 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
     conventions.insert( "E.C.5" );
   }
 
-  // G.C.1
   std::vector< std::string > convention_vec;
   for ( const std::string& con : conventions ) {
     convention_vec.push_back( con );
