@@ -216,10 +216,9 @@ namespace {
     return result;
   }
 
-  // G.R.8
-  // Mapping of non-standard PDG codes used by GENIE to particle names.
-  // Descriptions are also included although this isn't currently required by
-  // NuHepMC.
+  // G.R.8 and G.S.2
+  // Mapping of non-standard PDG codes used by GENIE to particle names and
+  // descriptions
   // TODO: The current map is copied by hand from
   // src/Framework/ParticleData/PDGCodes.h. Consider a different strategy for
   // syncing the two lists automatically.
@@ -823,7 +822,7 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
     fRunInfo->add_attribute( "NuHepMC.AdditionalParticleNumber[" + pdg_str
       + "].Name", std::make_shared< HepMC3::StringAttribute >(name) );
 
-    // Note that these descriptions are not yet required by NuHepMC G.R.8
+    // G.S.2
     fRunInfo->add_attribute( "NuHepMC.AdditionalParticleNumber[" + pdg_str
       + "].Description",
       std::make_shared< HepMC3::StringAttribute >(desc) );
