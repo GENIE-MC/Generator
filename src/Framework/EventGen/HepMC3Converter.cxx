@@ -66,6 +66,7 @@ namespace {
   // V.R.1
   // Vertex status codes for NuHepMC
   constexpr int NUHEPMC_PRIMARY_VERTEX = 1;
+  // V.C.1
   constexpr int NUHEPMC_NUCLEAR_VERTEX = 11;
   constexpr int NUHEPMC_SECONDARY_VERTEX = 12;
 
