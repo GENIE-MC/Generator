@@ -11,7 +11,7 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, 
     script.write("#!/bin/bash \n")
     script.write("cd $CONDOR_DIR_INPUT ;\n")
     script.write("source "+os.path.basename(grid_setup)+" ; \n")
-    if conf_dir is not '' : 
+    if conf_dir != '' : 
         conf_files = glob.glob(conf_dir+"/*.xml")
         script.write("mkdir $CONDOR_DIR_INPUT/conf ;\n")
         for conf_i in conf_files : 
@@ -21,7 +21,7 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, 
     G4="false"
     if( configure_INCL ) : 
         INCL = "true"
-        script.write("ifdh cp -D /pnfs/genie/persistent/users/jtenavid/genie_inclxx/inclxx-v5.2.9.5-6aca7e6.tar.gz $CONDOR_DIR_INPUT ;\n")
+        
     if( configure_G4 ) :
         G4 = "true"
     script.write("source "+os.path.basename(genie_setup)+" "+git_loc+" "+git_branch+" "+INCL+" "+G4+" "+conf_dir+" ;\n")
@@ -31,7 +31,8 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, 
         for i in range(len(in_files)):
             script.write("ifdh cp -D "+in_files[i]+"  $CONDOR_DIR_INPUT ;\n")
     else : 
-        script.write("ifdh cp -D "+in_files+"  $CONDOR_DIR_INPUT ;\n")
+        if len(in_files) != 0 :
+            script.write("ifdh cp -D "+in_files+"  $CONDOR_DIR_INPUT ;\n")
 
     if isinstance(commands,list):
         for command in commands : 
