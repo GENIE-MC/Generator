@@ -16,12 +16,6 @@
 #include <TF1.h>
 #include <TROOT.h>
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
-
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
@@ -44,6 +38,12 @@
 #include "Physics/Hadronization/FragmentationFunctionI.h"
 
 #ifdef __GENIE_PYTHIA6_ENABLED__
+  #if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
+    #include <TMCParticle.h>
+  #else
+    #include <TMCParticle6.h>
+  #endif
+
   #include <TPythia6.h>
 #endif
 
@@ -92,9 +92,12 @@ void AGCharmPythia6Hadro2023::Initialize(void) const
 }
 //____________________________________________________________________________
 
-TClonesArray* AGCharmPythia6Hadro2023::HadronizeRemnant(int qrkSyst1, int qrkSyst2, double WR) const
+bool AGCharmPythia6Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
+                                                double WR, TLorentzVector p4R,
+                       unsigned int& rpos, TClonesArray * particle_list) const
 {
 #ifdef __GENIE_PYTHIA6_ENABLED__
+
   //
   // Run PYTHIA for the hadronization of remnant system
   //
@@ -114,13 +117,59 @@ TClonesArray* AGCharmPythia6Hadro2023::HadronizeRemnant(int qrkSyst1, int qrkSys
   TClonesArray * pythia_remnants = 0;
   fPythia->GetPrimaries();
   pythia_remnants = dynamic_cast<TClonesArray *>(fPythia->ImportParticles("All"));
-  return pythia_remnants;
+
+  int np = pythia_remnants->GetEntries();
+  assert(np>0);
+
+  // PYTHIA performs the hadronization at the *remnant hadrons* centre of mass
+  // frame  (not the hadronic centre of mass frame).
+  // Boost all hadronic blob fragments to the HCM', fix their mother/daughter
+  // assignments and add them to the fragmentation record.
+
+  TVector3 rmnbeta = +1 * p4R.BoostVector(); // boost velocity
+
+  TMCParticle * pythia_remn  = 0; // remnant
+  GHepParticle * bremn = 0; // boosted remnant
+  TIter remn_iter(pythia_remnants);
+  while( (pythia_remn = (TMCParticle *) remn_iter.Next()) ) {
+
+    // insert and get a pointer to inserted object for mods
+    bremn = new ((*particle_list)[rpos++]) GHepParticle ( pythia_remn->GetKF(),                // pdg
+                                                          GHepStatus_t(pythia_remn->GetKS()),  // status
+                                                          pythia_remn->GetParent(),            // first parent
+                                                          -1,                                  // second parent
+                                                          pythia_remn->GetFirstChild(),        // first daughter
+                                                          pythia_remn->GetLastChild(),         // second daughter
+                                                          pythia_remn -> GetPx(),              // px
+                                                          pythia_remn -> GetPy(),              // py
+                                                          pythia_remn -> GetPz(),              // pz
+                                                          pythia_remn -> GetEnergy(),          // e
+                                                          pythia_remn->GetVx(),                // x
+                                                          pythia_remn->GetVy(),                // y
+                                                          pythia_remn->GetVz(),                // z
+                                                          pythia_remn->GetTime()               // t
+                                                          );
+
+    // boost
+    bremn -> P4() -> Boost( rmnbeta ) ;
+
+    // handle insertion of charmed hadron
+    int jp  = bremn->FirstMother();
+    int ifc = bremn->FirstDaughter();
+    int ilc = bremn->LastDaughter();
+
+    bremn -> SetFirstMother( (jp  == 0 ?  1 : jp +1) );
+    bremn -> SetFirstDaughter ( (ifc == 0 ? -1 : ifc+1) );
+    bremn -> SetLastDaughter  ( (ilc == 0 ? -1 : ilc+1) );
+  }
+  return true;
 #else
   LOG("AGCharmPythia6Hadro2023", pFATAL)
     << "calling GENIE/PYTHIA6 charm hadronization without enabling PYTHIA6"
     << " qrkSyst " << qrkSyst1 << "," << qrkSyst2 << " WR " << WR;
   gAbortingInErr = true;
   std::exit(1);
+  return false;
 #endif
 
 

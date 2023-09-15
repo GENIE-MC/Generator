@@ -60,7 +60,9 @@ protected:
   void           LoadConfig          (void);
   void           Initialize          (void)                                    const ;
 
-  virtual TClonesArray* HadronizeRemnant(int qrkSyst1, int qrkSyst2, double WR) const = 0;
+  virtual bool HadronizeRemnant(int qrkSyst1, int qrkSyst2, double WR, TLorentzVector p4R,
+                                unsigned int& rpos, TClonesArray * particle_list)      const = 0;
+  // needs to append to TClonesArray of GHepParticle starting at rpos
 
   // Overload the Algorithm::Configure() methods to load private data
   // members from configuration options
@@ -71,6 +73,8 @@ protected:
 private:
 
   TClonesArray * Hadronize           (const Interaction* )                     const ;
+  // returns TClonesArray of GHepParticle
+
   int            GenerateCharmHadron (int nupdg, double EvLab)                 const ;
 
   double         Weight              (void)                                    const ;
