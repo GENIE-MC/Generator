@@ -50,8 +50,10 @@ public:
 
 
 private:
-  void           Initialize       (void)                                  const;
-  TClonesArray*  HadronizeRemnant (int qrkSyst1, int qrkSyst2, double WR) const;
+  void           Initialize      (void)                                  const;
+  bool           HadronizeRemnant(int qrkSyst1, int qrkSyst2, double WR, TLorentzVector p4R,
+                                  unsigned int& rpos, TClonesArray * particle_list) const;
+
 
 #ifdef __GENIE_PYTHIA6_ENABLED__
   mutable TPythia6 *             fPythia;      ///< remnant (non-charm) hadronizer

@@ -16,12 +16,6 @@
 #include <TF1.h>
 #include <TROOT.h>
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
-
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
@@ -95,7 +89,9 @@ void AGCharmPythia8Hadro2023::Initialize(void) const
 }
 //____________________________________________________________________________
 
-TClonesArray* AGCharmPythia8Hadro2023::HadronizeRemnant(int qrkSyst1, int qrkSyst2, double WR) const
+bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
+                                                double WR, TLorentzVector p4R,
+                       unsigned int& rpos, TClonesArray * particle_list) const
 {
 #ifdef __GENIE_PYTHIA8_ENABLED__
   /*

@@ -17,12 +17,6 @@
 #include <TF1.h>
 #include <TROOT.h>
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
-
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
@@ -455,7 +449,7 @@ TClonesArray * AGCharmPythiaBaseHadro2023::Hadronize(
   new ((*particle_list)[1]) GHepParticle (kPdgHadronicBlob,kIStNucleonTarget,
           -1,-1,2,3, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(), 0,0,0,0);
 
-  unsigned int rpos =2; // offset in event record
+  unsigned int rpos = 2; // offset in event record
 
   bool use_pythia = (WR>1.5);
 
@@ -571,57 +565,13 @@ TClonesArray * AGCharmPythiaBaseHadro2023::Hadronize(
          return 0;
      }
 
-     TClonesArray * pythia_remnants = this->HadronizeRemnant(qrkSyst1,qrkSyst2,WR);
+     bool remnent_hadronized = this->HadronizeRemnant(qrkSyst1,qrkSyst2,WR,p4R,rpos,particle_list);
 
-     if(!pythia_remnants) {
+     if(!remnent_hadronized) {
          LOG("CharmHad", pWARN) << "Couldn't hadronize (non-charm) remnants!";
          return 0;
       }
 
-     int np = pythia_remnants->GetEntries();
-     assert(np>0);
-
-      // PYTHIA performs the hadronization at the *remnant hadrons* centre of mass
-      // frame  (not the hadronic centre of mass frame).
-      // Boost all hadronic blob fragments to the HCM', fix their mother/daughter
-      // assignments and add them to the fragmentation record.
-
-      TVector3 rmnbeta = +1 * p4R.BoostVector(); // boost velocity
-
-      TMCParticle * pythia_remn  = 0; // remnant
-      GHepParticle * bremn = 0; // boosted remnant
-      TIter remn_iter(pythia_remnants);
-      while( (pythia_remn = (TMCParticle *) remn_iter.Next()) ) {
-
-         // insert and get a pointer to inserted object for mods
-        bremn = new ((*particle_list)[rpos++]) GHepParticle ( pythia_remn->GetKF(),                // pdg
-                                                              GHepStatus_t(pythia_remn->GetKS()),  // status
-                                                              pythia_remn->GetParent(),            // first parent
-                                                              -1,                                  // second parent
-                                                              pythia_remn->GetFirstChild(),        // first daughter
-                                                              pythia_remn->GetLastChild(),         // second daughter
-                                                              pythia_remn -> GetPx(),              // px
-                                                              pythia_remn -> GetPy(),              // py
-                                                              pythia_remn -> GetPz(),              // pz
-                                                              pythia_remn -> GetEnergy(),          // e
-                                                              pythia_remn->GetVx(),                // x
-                                                              pythia_remn->GetVy(),                // y
-                                                              pythia_remn->GetVz(),                // z
-                                                              pythia_remn->GetTime()               // t
-                                                              );
-
-        // boost
-        bremn -> P4() -> Boost( rmnbeta ) ;
-
-         // handle insertion of charmed hadron
-         int jp  = bremn->FirstMother();
-         int ifc = bremn->FirstDaughter();
-         int ilc = bremn->LastDaughter();
-
-         bremn -> SetFirstMother( (jp  == 0 ?  1 : jp +1) );
-         bremn -> SetFirstDaughter ( (ifc == 0 ? -1 : ifc+1) );
-         bremn -> SetLastDaughter  ( (ilc == 0 ? -1 : ilc+1) );
-      }
   } // use_pythia
 
   // ....................................................................
