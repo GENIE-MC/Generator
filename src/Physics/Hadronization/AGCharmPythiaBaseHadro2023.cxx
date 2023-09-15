@@ -565,9 +565,9 @@ TClonesArray * AGCharmPythiaBaseHadro2023::Hadronize(
          return 0;
      }
 
-     bool remnent_hadronized = this->HadronizeRemnant(qrkSyst1,qrkSyst2,WR,p4R,rpos,particle_list);
+     bool remnant_hadronized = this->HadronizeRemnant(qrkSyst1,qrkSyst2,WR,p4R,rpos,particle_list);
 
-     if(!remnent_hadronized) {
+     if(!remnant_hadronized) {
          LOG("CharmHad", pWARN) << "Couldn't hadronize (non-charm) remnants!";
          return 0;
       }
