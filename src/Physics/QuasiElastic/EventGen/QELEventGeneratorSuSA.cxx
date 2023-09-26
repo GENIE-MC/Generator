@@ -433,7 +433,7 @@ void QELEventGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
         // this sets the pdg of each nucleon and its momentum from user chosen nuclear model
 
         double hitNucPos = initial_nucleon->X4()->Vect().Mag();
-        tgt.SetHitNucPdg(initial_nucleon_pdg);
+        tgt.SetHitPartPdg(initial_nucleon_pdg);
         fNuclModel->GenerateNucleon(tgt,hitNucPos);
         p3i = fNuclModel->Momentum3();
 

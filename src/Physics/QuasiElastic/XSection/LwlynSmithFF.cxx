@@ -173,7 +173,7 @@ double LwlynSmithFF::Fp(const Interaction * interaction) const
 
   // get struck nucleon mass & set pion mass
   const InitialState & init_state = interaction->InitState();
-  double MN   = init_state.Tgt().HitNucMass();
+  double MN   = init_state.Tgt().HitPartMass();
   double MN2  = TMath::Power(MN, 2);
   double Mpi  = kPionMass;
   double Mpi2 = TMath::Power(Mpi, 2);
@@ -249,7 +249,7 @@ double LwlynSmithFF::tau(const Interaction * interaction) const
   const Kinematics &   kinematics = interaction->Kine();
   const InitialState & init_state = interaction->InitState();
   double q2     = kinematics.q2();
-  double Mnucl  = init_state.Tgt().HitNucMass();
+  double Mnucl  = init_state.Tgt().HitPartMass();
   double Mnucl2 = TMath::Power(Mnucl, 2);
 
   //-- calculate q^2 / (4*Mnuc^2)
