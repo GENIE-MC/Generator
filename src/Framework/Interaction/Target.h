@@ -11,9 +11,6 @@
 \author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
           University of Liverpool & STFC Rutherford Appleton Laboratory
 
-          Changes required to implement the Electron Velocity module
-          were installed by Brinden Carlson (Univ. of Florida)
-
 \created  May 03, 2004
 
 \cpright  Copyright (c) 2003-2023, The GENIE Collaboration
@@ -50,22 +47,21 @@ public:
   Target();
   Target(int pdgc);
   Target(int Z, int A);
-  Target(int Z, int A, int hit_nucleon_pdgc);
+  Target(int Z, int A, int hit_particle_pdgc);
   Target(const Target & tgt);
   Target(TRootIOCtor*);
  ~Target();
 
   //-- Set target properties
 
-  void SetId                  (int pdgc);
-  void SetId                  (int Z, int A);
-  void SetHitNucPdg           (int pdgc);
-  void SetHitNucP4            (const TLorentzVector & p4);
-  void SetHitEleP4            (const TLorentzVector & p4);
-  void SetHitNucPosition        (double r);
-  void SetHitQrkPdg           (int pdgc);
-  void SetHitSeaQrk           (bool tf);
-  void ForceHitNucOnMassShell (void);
+  void SetId                   (int pdgc);
+  void SetId                   (int Z, int A);
+  void SetHitPartPdg           (int pdgc);
+  void SetHitPartP4            (const TLorentzVector & p4);
+  void SetHitPartPosition      (double r);
+  void SetHitQrkPdg            (int pdgc);
+  void SetHitSeaQrk            (bool tf);
+  void ForceHitPartOnMassShell (void);
 
   //-- Query target information
 
@@ -77,27 +73,23 @@ public:
   double Charge         (void) const;
   bool   IsFreeNucleon  (void) const;
   bool   IsProton       (void) const;
-  bool   IsElectron     (void) const;
   bool   IsNeutron      (void) const;
   bool   IsNucleus      (void) const;
   bool   IsParticle     (void) const;
   bool   IsValidNucleus (void) const;
-  bool   HitNucIsSet    (void) const;
-  bool   HitEleIsSet    (void) const;
+  bool   HitPartIsSet   (void) const;
   bool   HitQrkIsSet    (void) const;
   bool   HitSeaQrk      (void) const;
   bool   IsEvenEven     (void) const;
   bool   IsEvenOdd      (void) const;
   bool   IsOddOdd       (void) const;
-  int    HitNucPdg      (void) const;
+  int    HitPartPdg     (void) const;
   int    HitQrkPdg      (void) const;
-  double HitNucMass     (void) const;
-  double HitNucPosition (void) const { return fHitNucRad; }
+  double HitPartMass    (void) const;
+  double HitPartPosition(void) const { return fHitPartRad; }
 
-  const TLorentzVector & HitNucP4    (void) const { return *this->HitNucP4Ptr(); }
-  TLorentzVector *       HitNucP4Ptr (void) const;
-  const TLorentzVector & HitEleP4    (void) const { return *this->HitEleP4Ptr(); }
-  TLorentzVector *       HitEleP4Ptr (void) const;
+  const TLorentzVector & HitPartP4    (void) const { return *this->HitPartP4Ptr(); }
+  TLorentzVector *       HitPartP4Ptr (void) const;
 
   //-- Copy, reset, compare, print itself and build string code
   void   Reset    (void);
@@ -117,20 +109,19 @@ private:
   void CleanUp (void);
 
   //-- Methods assuring nucleus & hit nucleon validity
-  void ForceNucleusValidity (void);
-  bool ForceHitNucValidity  (void);
-  void AutoSetHitNuc        (void);
+  void ForceNucleusValidity  (void);
+  bool ForceHitPartValidity  (void);
+  void AutoSetHitPart        (void);
 
   //-- Private data members
   int  fZ;                    ///< nuclear target Z
   int  fA;                    ///< nuclear target A
   int  fTgtPDG;               ///< nuclear target PDG code
-  int  fHitNucPDG;            ///< hit nucleon PDG code
+  int  fHitPartPDG;           ///< hit particle PDG code
   int  fHitQrkPDG;            ///< hit quark PDG code
   bool fHitSeaQrk;            ///< hit quark from sea?
-  TLorentzVector * fHitNucP4; ///< hit nucleon 4p
-  TLorentzVector * fHitEleP4; ///< hit electron 4p - changes index
-  double fHitNucRad;          ///< hit nucleon position
+  TLorentzVector *fHitPartP4; ///< hit particle 4p
+  double fHitPartRad;         ///< hit particle position
 
 ClassDef(Target,3)
 };
