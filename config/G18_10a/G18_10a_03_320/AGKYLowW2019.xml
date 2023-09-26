@@ -15,30 +15,50 @@ KNO-Beta-vp                       double  No    b for vp                        
 KNO-Beta-vn                       double  No    b for vn                                      KNO-Alpha-vn
 KNO-Beta-vbp                      double  No    b for vbp                                     KNO-Alpha-vbp
 KNO-Beta-vbn                      double  No    b for vbn                                     KNO-Alpha-vbn
+KNO-EM-Alpha-vp                   double  No    a for vp in <mult> = a + blnW^2               KNO-EM-Alpha-vp
+KNO-EM-Alpha-vn                   double  Yes   a for vn                                      KNO-EM-Alpha-vn
+KNO-EM-Alpha-vbp                  double  No    a for vbp                                     KNO-EM-Alpha-vbp
+KNO-EM-Alpha-vbn                  double  No    a for vbn                                     KNO-EM-Alpha-vbn
+KNO-EM-Beta-vp                    double  No    b for vp                                      KNO-EM-Alpha-vp
+KNO-EM-Beta-vn                    double  No    b for vn                                      KNO-EM-Alpha-vn
+KNO-EM-Beta-vbp                   double  No    b for vbp                                     KNO-EM-Alpha-vbp
+KNO-EM-Beta-vbn                   double  No    b for vbn                                     KNO-EM-Alpha-vbn
 KNO-Alpha-Hyperon                 double  No    a in Pstrange = a+blnW^2                      KNO-Alpha-Hyperon
 KNO-Beta-Hyperon                  double  No    b in Pstrange = a+blnW^2                      KNO-Beta-Hyperon
 KNO-LevyC-vp                      double  No    Levy function param c for vp                  KNO-LevyC-vp
 KNO-LevyC-vn                      double  No    Levy function param c for vn                  KNO-LevyC-vn
 KNO-LevyC-vbp                     double  No    Levy function param c for vbp                 KNO-LevyC-vbp
 KNO-LevyC-vbn                     double  No    Levy function param c for vbn                 KNO-LevyC-vbn
+KNO-EM-LevyC-vp                   double  No    Levy function param c for vp                  KNO-EM-LevyC-vp
+KNO-EM-LevyC-vn                   double  No    Levy function param c for vn                  KNO-EM-LevyC-vn
+KNO-EM-LevyC-vbp                  double  No    Levy function param c for vbp                 KNO-EM-LevyC-vbp
+KNO-EM-LevyC-vbn                  double  No    Levy function param c for vbn                 KNO-EM-LevyC-vbn
 ForceNeugenMultLimit          bool    Yes   force neugen upper multiplicity limit (10)    false
 Wcut                          double  No    W cut in DIS/RES join scheme                      CommonParam[NonResBackground]
 DIS-HMultWgt-vp-CC-m2             double  No    scaling factor, vp  CC, multiplicity=2 CommonParam[NonResBackground]
 DIS-HMultWgt-vp-CC-m3             double  No    scaling factor, vp  CC, multiplicity=3 CommonParam[NonResBackground]
 DIS-HMultWgt-vp-NC-m2             double  No    scaling factor, vp  NC, multiplicity=2 CommonParam[NonResBackground]
 DIS-HMultWgt-vp-NC-m3             double  No    scaling factor, vp  NC, multiplicity=3 CommonParam[NonResBackground]
+DIS-HMultWgt-vp-EM-m2             double  No    scaling factor, vp  EM, multiplicity=2 CommonParam[NonResBackground]
+DIS-HMultWgt-vp-EM-m3             double  No    scaling factor, vp  EM, multiplicity=3 CommonParam[NonResBackground]
 DIS-HMultWgt-vn-CC-m2             double  No    scaling factor, vn  CC, multiplicity=2 CommonParam[NonResBackground]
 DIS-HMultWgt-vn-CC-m3             double  No    scaling factor, vn  CC, multiplicity=3 CommonParam[NonResBackground]
 DIS-HMultWgt-vn-NC-m2             double  No    scaling factor, vn  NC, multiplicity=2 CommonParam[NonResBackground]
 DIS-HMultWgt-vn-NC-m3             double  No    scaling factor, vn  NC, multiplicity=3 CommonParam[NonResBackground]
+DIS-HMultWgt-vn-EM-m2             double  No    scaling factor, vn  EM, multiplicity=2 CommonParam[NonResBackground]
+DIS-HMultWgt-vn-EM-m3             double  No    scaling factor, vn  EM, multiplicity=3 CommonParam[NonResBackground]
 DIS-HMultWgt-vbp-CC-m2            double  No    scaling factor, vbp CC, multiplicity=2 CommonParam[NonResBackground]
 DIS-HMultWgt-vbp-CC-m3            double  No    scaling factor, vbp CC, multiplicity=3 CommonParam[NonResBackground]
 DIS-HMultWgt-vbp-NC-m2            double  No    scaling factor, vbp NC, multiplicity=2 CommonParam[NonResBackground]
 DIS-HMultWgt-vbp-NC-m3            double  No    scaling factor, vbp NC, multiplicity=3 CommonParam[NonResBackground]
+DIS-HMultWgt-vbp-EM-m2            double  No    scaling factor, vbp EM, multiplicity=2 CommonParam[NonResBackground]
+DIS-HMultWgt-vbp-EM-m3            double  No    scaling factor, vbp EM, multiplicity=3 CommonParam[NonResBackground]
 DIS-HMultWgt-vbn-CC-m2            double  No    scaling factor, vbn CC, multiplicity=2 CommonParam[NonResBackground]
 DIS-HMultWgt-vbn-CC-m3            double  No    scaling factor, vbn CC, multiplicity=3 CommonParam[NonResBackground]
 DIS-HMultWgt-vbn-NC-m2            double  No    scaling factor, vbn NC, multiplicity=2 CommonParam[NonResBackground]
 DIS-HMultWgt-vbn-NC-m3            double  No    scaling factor, vbn NC, multiplicity=3 CommonParam[NonResBackground]
+DIS-HMultWgt-vbn-EM-m2            double  No    scaling factor, vbn EM, multiplicity=2 CommonParam[NonResBackground]
+DIS-HMultWgt-vbn-EM-m3            double  No    scaling factor, vbn EM, multiplicity=3 CommonParam[NonResBackground]
 KNO-ProbPi0Pi0                    double  No    probability for pi0 pair                      KNO-ProbPi0Pi0
 KNO-ProbPiplusPiminus             double  No    probability for pi+pi- pair                   KNO-ProbPiplusPiminus
 KNO-ProbKplusKminus               double  No    probability for K+K- pair                     KNO-ProbKplusKminus
@@ -76,6 +96,14 @@ KNO-PhaseSpDec-ReweightParm       double  Yes   parameter controlling the reweig
     <param type="double" name="KNO-Beta-vbp">  0.3  </param> 
     <param type="double" name="KNO-Beta-vbn">  0.9 </param> 
     
+    <param type="double" name="KNO-EM-Alpha-vp">  0.40 </param> 
+    <param type="double" name="KNO-EM-Alpha-vn"> -0.20 </param> 
+    <param type="double" name="KNO-EM-Alpha-vbp"> 0.02 </param> 
+    <param type="double" name="KNO-EM-Alpha-vbn"> 0.80 </param> 
+    <param type="double" name="KNO-EM-Beta-vp">   1.42 </param> 
+    <param type="double" name="KNO-EM-Beta-vn">   1.42 </param> 
+    <param type="double" name="KNO-EM-Beta-vbp">  1.28 </param> 
+    <param type="double" name="KNO-EM-Beta-vbn">  0.95 </param> 
     <!-- 
 	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 Parameters controlling the probability of producing a strange baryon via associated production.
@@ -98,6 +126,11 @@ KNO-PhaseSpDec-ReweightParm       double  Yes   parameter controlling the reweig
     <param type="double" name="KNO-LevyC-vn">  5.22 </param> 
     <param type="double" name="KNO-LevyC-vbp"> 5.22 </param> 
     <param type="double" name="KNO-LevyC-vbn"> 7.93 </param> 
+
+    <param type="double" name="KNO-EM-LevyC-vp">  7.93 </param> 
+    <param type="double" name="KNO-EM-LevyC-vn">  5.22 </param> 
+    <param type="double" name="KNO-EM-LevyC-vbp"> 5.22 </param> 
+    <param type="double" name="KNO-EM-LevyC-vbn"> 7.93 </param> 
     
     <!-- 
 	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

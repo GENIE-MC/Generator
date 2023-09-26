@@ -36,7 +36,7 @@ University of Liverpool
  <param_set name="Tunable">
    <!-- Reserved register for tuning -->
    <param type="double" name="RES-Ma">   0.989013 </param>
-   <param type="double" name="DIS-XSecScale"> 1.058279 </param>
+   <param type="double" name="DIS-CC-XSecScale"> 1.058279 </param>
    <param type="double" name="RES-CC-XSecScale"> 0.870225 </param>
  </param_set>
 
@@ -106,18 +106,26 @@ University of Liverpool
   <param type="double" name="DIS-HMultWgt-vp-CC-m3">  0.622996 </param>
   <param type="double" name="DIS-HMultWgt-vp-NC-m2">  0.100  </param>
   <param type="double" name="DIS-HMultWgt-vp-NC-m3">  1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vp-EM-m2">  0.100  </param>
+  <param type="double" name="DIS-HMultWgt-vp-EM-m3">  1.000  </param>
   <param type="double" name="DIS-HMultWgt-vn-CC-m2">  0.158376  </param>
   <param type="double" name="DIS-HMultWgt-vn-CC-m3">  1.335991  </param>
   <param type="double" name="DIS-HMultWgt-vn-NC-m2">  0.300  </param>
   <param type="double" name="DIS-HMultWgt-vn-NC-m3">  1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vn-EM-m2">  0.300  </param>
+  <param type="double" name="DIS-HMultWgt-vn-EM-m3">  1.000  </param>
   <param type="double" name="DIS-HMultWgt-vbp-CC-m2"> 0.158376  </param>
   <param type="double" name="DIS-HMultWgt-vbp-CC-m3"> 1.335991  </param>
   <param type="double" name="DIS-HMultWgt-vbp-NC-m2"> 0.300  </param>
   <param type="double" name="DIS-HMultWgt-vbp-NC-m3"> 1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vbp-EM-m2"> 0.300  </param>
+  <param type="double" name="DIS-HMultWgt-vbp-EM-m3"> 1.000  </param>
   <param type="double" name="DIS-HMultWgt-vbn-CC-m2"> 0.151143 </param>
   <param type="double" name="DIS-HMultWgt-vbn-CC-m3"> 0.622996 </param>
   <param type="double" name="DIS-HMultWgt-vbn-NC-m2"> 0.100  </param>
   <param type="double" name="DIS-HMultWgt-vbn-NC-m3"> 1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vbn-EM-m2"> 0.100  </param>
+  <param type="double" name="DIS-HMultWgt-vbn-EM-m3"> 1.000  </param>
 
  </param_set>
 
@@ -155,41 +163,6 @@ University of Liverpool
 
  </param_set>
 
-
- <!--
-      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      INTRANUKE-specific parameters:
-      - Mode options are: hA, hN
-      - NucRemovalE is the binding E to subtract from cascade nucleons (in GeV)
-      - typical values for pion, nucleon DelR are 0.5, 0.7 (hA) and 0.2, 0.2 (hN)
-
-      Probably these should all be moved in the local configurations
- -->
-
- <param_set name="INUKE">
-   <param type="double" name="INUKE-NucRemovalE">       0.00  </param>
-   <param type="double" name="INUKE-HadStep">           0.05  </param>
-   <param type="double" name="INUKE-NucAbsFac">         1.0   </param>
-   <param type="double" name="INUKE-NucQEFac">          1.0   </param>
-   <param type="double" name="INUKE-NucCEXFac">         1.0   </param>
-   <param type="double" name="INUKE-Energy_Pre_Eq">     0.041 </param>
-   <param type="double" name="INUKE-FermiFac">          1.0   </param>
-   <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
-   <param type="bool"   name="INUKE-DoFermi">           true  </param>
-   <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
-   <param type="bool"   name="INUKE-XsecNNCorr">        true  </param>
- </param_set>
-
- <param_set name="HAINUKE">
-   <param type="double" name="HAINUKE-DelRPion">        0.5   </param>
-   <param type="double" name="HAINUKE-DelRNucleon">     0.7   </param>
- </param_set>
-
- <param_set name="HNINUKE">
-   <param type="double" name="HNINUKE-DelRPion">        0.0   </param>
-   <param type="double" name="HNINUKE-DelRNucleon">     0.0   </param>
-   <param type="bool"   name="HNINUKE-UseOset">         true  </param>
- </param_set>
 
  <param_set name="Coherent">
 

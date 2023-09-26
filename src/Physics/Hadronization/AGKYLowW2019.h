@@ -147,18 +147,26 @@ private:
   double   fRvpCCm3;   ///< Rijk: vp,  CC, multiplicity = 3
   double   fRvpNCm2;   ///< Rijk: vp,  NC, multiplicity = 2
   double   fRvpNCm3;   ///< Rijk: vp,  NC, multiplicity = 3
+  double   fRvpEMm2;   ///< Rijk: vp,  EM, multiplicity = 2
+  double   fRvpEMm3;   ///< Rijk: vp,  EM, multiplicity = 3
   double   fRvnCCm2;   ///< Rijk: vn,  CC, multiplicity = 2
   double   fRvnCCm3;   ///< Rijk: vn,  CC, multiplicity = 3
   double   fRvnNCm2;   ///< Rijk: vn,  NC, multiplicity = 2
   double   fRvnNCm3;   ///< Rijk: vn,  NC, multiplicity = 3
+  double   fRvnEMm2;   ///< Rijk: vn,  EM, multiplicity = 2
+  double   fRvnEMm3;   ///< Rijk: vn,  EM, multiplicity = 3
   double   fRvbpCCm2;  ///< Rijk: vbp, CC, multiplicity = 2
   double   fRvbpCCm3;  ///< Rijk: vbp, CC, multiplicity = 3
   double   fRvbpNCm2;  ///< Rijk: vbp, NC, multiplicity = 2
   double   fRvbpNCm3;  ///< Rijk: vbp, NC, multiplicity = 3
+  double   fRvbpEMm2;  ///< Rijk: vbp, EM, multiplicity = 2
+  double   fRvbpEMm3;  ///< Rijk: vbp, EM, multiplicity = 3
   double   fRvbnCCm2;  ///< Rijk: vbn, CC, multiplicity = 2
   double   fRvbnCCm3;  ///< Rijk: vbn, CC, multiplicity = 3
   double   fRvbnNCm2;  ///< Rijk: vbn, NC, multiplicity = 2
   double   fRvbnNCm3;  ///< Rijk: vbn, NC, multiplicity = 3
+  double   fRvbnEMm2;  ///< Rijk: vbn, EM, multiplicity = 2
+  double   fRvbnEMm3;  ///< Rijk: vbn, EM, multiplicity = 3
 
 };
 

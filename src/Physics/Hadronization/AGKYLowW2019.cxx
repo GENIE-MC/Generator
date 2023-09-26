@@ -622,6 +622,16 @@ void AGKYLowW2019::LoadConfig(void)
   this->GetParam( "DIS-HMultWgt-vbn-CC-m3", fRvbnCCm3 ) ;
   this->GetParam( "DIS-HMultWgt-vbn-NC-m2", fRvbnNCm2 ) ;
   this->GetParam( "DIS-HMultWgt-vbn-NC-m3", fRvbnNCm3 ) ;
+  //Electron
+  this->GetParam( "DIS-HMultWgt-vp-EM-m2",  fRvpEMm2  ) ;
+  this->GetParam( "DIS-HMultWgt-vp-EM-m3",  fRvpEMm3  ) ;
+  this->GetParam( "DIS-HMultWgt-vn-EM-m2",  fRvnEMm2  ) ;
+  this->GetParam( "DIS-HMultWgt-vn-EM-m3",  fRvnEMm3  ) ;
+  //Positron
+  this->GetParam( "DIS-HMultWgt-vbp-EM-m2", fRvbpEMm2 ) ;
+  this->GetParam( "DIS-HMultWgt-vbp-EM-m3", fRvbpEMm3 ) ;
+  this->GetParam( "DIS-HMultWgt-vbn-EM-m2", fRvbnEMm2 ) ;
+  this->GetParam( "DIS-HMultWgt-vbn-EM-m3", fRvbnEMm3 ) ;
 
 
 }
@@ -1626,20 +1636,20 @@ void AGKYLowW2019::ApplyRijk( const Interaction * interaction,
     bool is_p     = pdg::IsProton           (nuc_pdg);
     bool is_n     = pdg::IsNeutron          (nuc_pdg);
     if(is_l && is_p)  {
-      R2 = fRvpNCm2;
-      R3 = fRvpNCm3;
+      R2 = fRvpEMm2;
+      R3 = fRvpEMm3;
     } else
       if(is_l && is_n) {
-	R2 = fRvnNCm2;
-	R3 = fRvnNCm3;
+	R2 = fRvnEMm2;
+	R3 = fRvnEMm3;
       } else
 	if(is_lbar && is_p)  {
-	  R2 = fRvbpNCm2;
-	  R3 = fRvbpNCm3;
+	  R2 = fRvbpEMm2;
+	  R3 = fRvbpEMm3;
 	} else
 	  if(is_lbar && is_n) {
-	    R2 = fRvbnNCm2;
-	    R3 = fRvbnNCm3;
+	    R2 = fRvbnEMm2;
+	    R3 = fRvbnEMm3;
 	  } else {
 	    LOG("Hadronization", pERROR)
 	      << "Invalid initial state: " << init_state;
