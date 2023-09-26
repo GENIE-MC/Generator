@@ -71,6 +71,7 @@ public:
   bool IsNuElectronElastic       (void) const;
   bool IsInverseMuDecay          (void) const;
   bool IsIMDAnnihilation         (void) const;
+  bool IsNorm                    (void) const;
   bool IsDarkMatterElectronElastic (void) const;
   bool IsInverseBetaDecay        (void) const;
   bool IsGlashowResonance        (void) const;

@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import os, glob
 
-def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc ) :
+def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc, configure_INCL, configure_G4 ) :
     shell_file = jobs_dir+"/"+shell_name+".sh"
 
     if os.path.exists(shell_file):
@@ -11,20 +11,28 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, 
     script.write("#!/bin/bash \n")
     script.write("cd $CONDOR_DIR_INPUT ;\n")
     script.write("source "+os.path.basename(grid_setup)+" ; \n")
-    if conf_dir is not '' : 
+    if conf_dir != '' : 
         conf_files = glob.glob(conf_dir+"/*.xml")
+        script.write("mkdir $CONDOR_DIR_INPUT/conf ;\n")
         for conf_i in conf_files : 
-            script.write("mkdir $CONDOR_DIR_INPUT/conf ;\n")
             script.write("ifdh cp -D "+conf_i+"  $CONDOR_DIR_INPUT/conf ;\n")
         conf_dir = "$CONDOR_DIR_INPUT/conf"
-    script.write("source "+os.path.basename(genie_setup)+" "+git_loc+" "+git_branch+" "+conf_dir+" ;\n")
+    INCL="false"
+    G4="false"
+    if( configure_INCL ) : 
+        INCL = "true"
+        
+    if( configure_G4 ) :
+        G4 = "true"
+    script.write("source "+os.path.basename(genie_setup)+" "+git_loc+" "+git_branch+" "+INCL+" "+G4+" "+conf_dir+" ;\n")
     script.write("cd $CONDOR_DIR_INPUT ;\n")
 
     if isinstance(in_files, list) :
         for i in range(len(in_files)):
             script.write("ifdh cp -D "+in_files[i]+"  $CONDOR_DIR_INPUT ;\n")
     else : 
-        script.write("ifdh cp -D "+in_files+"  $CONDOR_DIR_INPUT ;\n")
+        if len(in_files) != 0 :
+            script.write("ifdh cp -D "+in_files+"  $CONDOR_DIR_INPUT ;\n")
 
     if isinstance(commands,list):
         for command in commands : 
@@ -41,8 +49,8 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, 
     script.close()
     return shell_file 
 
-def FNALShellCommands(grid_setup, genie_setup, hours = 10, memory=1, disk=1, GraceMemory=4096, GraceLifeTime=6000):
-    grid_command_options = " -n --memory="+str(memory)+"GB --disk="+str(disk)+"MB --expected-lifetime="+str(hours)+"h " 
+def FNALShellCommands(grid_setup, genie_setup, hours = 10, memory="1GB", disk="500MB", GraceMemory=4096, GraceLifeTime=6000):
+    grid_command_options = " -n --memory="+memory+" --disk="+disk+" --expected-lifetime="+str(hours)+"h " 
     grid_command_options += " --OS=SL7 --lines '+FERMIHTC_AutoRelease=True' -f "+grid_setup+" -f "+genie_setup 
     grid_command_options += " --lines '+FERMIHTC_GraceMemory="+str(GraceMemory)+"' --lines '+FERMIHTC_GraceLifetime="+str(GraceLifeTime)+"' --mail_on_error "
 
@@ -63,6 +71,8 @@ def WriteXMLFile(commands_dict, start, end, jobs_dir, file_name='grid_submission
         else : 
             command_list_next = command_list 
 
+        if len(command_list) == 0 : 
+            continue
         if len(command_list) == 1 : # serial
             if in_serial == False: 
                 script.write("<serial>\n")
@@ -83,10 +93,9 @@ def WriteXMLFile(commands_dict, start, end, jobs_dir, file_name='grid_submission
     script.close()
     return grid_file
 
-def WriteMainSubmissionFile(jobs_dir, genie_topdir, group, grid_setup='/src/scripts/production/python/setup_FNAL.sh', genie_setup='/src/scripts/production/python/setup_GENIE.sh', in_file_name='grid_submission.xml', expectedlife=60,  memory=1, disk=500, out_file_name='fnal_dag_submit.fnal', jobs=1, role="Analysis"):
+def WriteMainSubmissionFile(jobs_dir, genie_topdir, group, grid_setup='/src/scripts/production/python/setup_FNAL.sh', genie_setup='/src/scripts/production/python/setup_GENIE.sh', in_file_name='grid_submission.xml', expectedlife=60,  memory="1GB", disk="500MB", out_file_name='fnal_dag_submit.fnal', jobs=1, role="Analysis"):
 
     fnal_file = jobs_dir+"/"+out_file_name
-    tar_file = jobs_dir+"/FNALTarFile.fnal.gov.tgz"
     if os.path.exists(fnal_file):
         os.remove(fnal_file)
 
@@ -94,6 +103,6 @@ def WriteMainSubmissionFile(jobs_dir, genie_topdir, group, grid_setup='/src/scri
     script.write("#!/bin/bash\n")
     script.write("source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups ;\n")
     script.write("setup fife_utils ;\n")
-    script.write("jobsub_submit -G "+group+" --OS=SL7 --memory="+str(memory)+"GB --disk="+str(disk)+"GB --expected-lifetime="+str(expectedlife)+"h -N "+str(jobs)+" --role="+role+" --tar_file_name "+tar_file+" --dag file://"+in_file_name+";" )
+    script.write("jobsub_submit -G "+group+" --OS=SL7 --memory="+memory+" --disk="+disk+" --expected-lifetime="+str(expectedlife)+"h -N "+str(jobs)+" --role="+role+" --dag file://"+in_file_name+";" )
 
     return fnal_file

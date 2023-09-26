@@ -1373,7 +1373,7 @@ double genie::utils::kinematics::RESImportanceSamplingEnvelope(
                                                      double * x, double * par)
 {
   //-- inputs
-  double QD2   = x[0];   // QD2 (Q2 transformed to take out the dipole form)
+  double Q2    = x[0];   // Q2
   double W     = x[1];   // invariant mass
 
   //-- parameters
@@ -1424,8 +1424,8 @@ double genie::utils::kinematics::RESImportanceSamplingEnvelope(
      }
   }
 
-  if(QD2<0.5) {
-    func *= (1 - (0.5-QD2));
+  if(Q2>controls::kMQD2) {
+    func *= (0.5 + 1./(1 + Q2/controls::kMQD2));
   }
 
   return func;

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!-- Configuration for the SuSAv2QELHadronTensorModel algorithm.
+
+Configurable Parameters:
+.....................................................................................................
+Name               Type     Optional   Comment                          Default
+.....................................................................................................
+DataPath           string   No         Folder in which to look for the
+                                       hadron tensor table files
+
+DataPathType       string   Yes        Whether the specified path is    relative
+                                       absolute or relative to the
+                                       root GENIE folder
+-->
+
+  <param_set name="Default">
+
+    <param type="bool" name="WarnIfMissing"> true </param>
+
+    <param type="string" name="DataPath"> data/evgen/hadron_tensors/crpa </param>
+    <param type="string" name="DataPathType"> relative </param>
+    <!-- Paths can be absolute or relative to the $GENIE folder -->
+    <!-- <param type="string" name="DataPathType"> relative </param> -->
+
+    <param type="string" name="QE_CRPA_Low@Pdg=1000060120"> CRPA_1000060120_QE_Low.dat </param>
+    <param type="string" name="QE_CRPA_Medium@Pdg=1000060120"> CRPA_1000060120_QE_Medium.dat </param>
+    <param type="string" name="QE_CRPA_High@Pdg=1000060120"> CRPA_1000060120_QE_High.dat </param>
+
+    <param type="string" name="QE_CRPA_Low@Pdg=1000080160"> CRPA_1000080160_QE_Low.dat </param>
+    <param type="string" name="QE_CRPA_Medium@Pdg=1000080160"> CRPA_1000080160_QE_Medium.dat </param>
+    <param type="string" name="QE_CRPA_High@Pdg=1000080160"> CRPA_1000080160_QE_High.dat </param>
+
+    <param type="string" name="QE_CRPA_Low@Pdg=1000180400"> CRPA_1000180400_QE_Low.dat </param>
+    <param type="string" name="QE_CRPA_Medium@Pdg=1000180400"> CRPA_1000180400_QE_Medium.dat </param>
+    <param type="string" name="QE_CRPA_High@Pdg=1000180400"> CRPA_1000180400_QE_High.dat </param>
+
+
+    <param type="string" name="QE_CRPA_anu_Low@Pdg=1000060120"> CRPA_1000060120_anu_QE_Low.dat </param>
+    <param type="string" name="QE_CRPA_anu_Medium@Pdg=1000060120"> CRPA_1000060120_anu_QE_Medium.dat </param>
+    <param type="string" name="QE_CRPA_anu_High@Pdg=1000060120"> CRPA_1000060120_anu_QE_High.dat </param>
+
+    <param type="string" name="QE_CRPA_anu_Low@Pdg=1000080160"> CRPA_1000080160_anu_QE_Low.dat </param>
+    <param type="string" name="QE_CRPA_anu_Medium@Pdg=1000080160"> CRPA_1000080160_anu_QE_Medium.dat </param>
+    <param type="string" name="QE_CRPA_anu_High@Pdg=1000080160"> CRPA_1000080160_anu_QE_High.dat </param>
+
+    <param type="string" name="QE_CRPA_anu_Low@Pdg=1000180400"> CRPA_1000180400_anu_QE_Low.dat </param>
+    <param type="string" name="QE_CRPA_anu_Medium@Pdg=1000180400"> CRPA_1000180400_anu_QE_Medium.dat </param>
+    <param type="string" name="QE_CRPA_anu_High@Pdg=1000180400"> CRPA_1000180400_anu_QE_High.dat </param>
+
+
+
+
+    <param type="string" name="QE_HF_Low@Pdg=1000060120"> HF_1000060120_QE_Low.dat </param>
+    <param type="string" name="QE_HF_Medium@Pdg=1000060120"> HF_1000060120_QE_Medium.dat </param>
+    <param type="string" name="QE_HF_High@Pdg=1000060120"> HF_1000060120_QE_High.dat </param>
+
+    <param type="string" name="QE_HF_Low@Pdg=1000080160"> HF_1000080160_QE_Low.dat </param>
+    <param type="string" name="QE_HF_Medium@Pdg=1000080160"> HF_1000080160_QE_Medium.dat </param>
+    <param type="string" name="QE_HF_High@Pdg=1000080160"> HF_1000080160_QE_High.dat </param>
+
+    <param type="string" name="QE_HF_Low@Pdg=1000180400"> HF_1000180400_QE_Low.dat </param>
+    <param type="string" name="QE_HF_Medium@Pdg=1000180400"> HF_1000180400_QE_Medium.dat </param>
+    <param type="string" name="QE_HF_High@Pdg=1000180400"> HF_1000180400_QE_High.dat </param>
+
+
+    <param type="string" name="QE_HF_anu_Low@Pdg=1000060120"> HF_1000060120_anu_QE_Low.dat </param>
+    <param type="string" name="QE_HF_anu_Medium@Pdg=1000060120"> HF_1000060120_anu_QE_Medium.dat </param>
+    <param type="string" name="QE_HF_anu_High@Pdg=1000060120"> HF_1000060120_anu_QE_High.dat </param>
+
+    <param type="string" name="QE_HF_anu_Low@Pdg=1000080160"> HF_1000080160_anu_QE_Low.dat </param>
+    <param type="string" name="QE_HF_anu_Medium@Pdg=1000080160"> HF_1000080160_anu_QE_Medium.dat </param>
+    <param type="string" name="QE_HF_anu_High@Pdg=1000080160"> HF_1000080160_anu_QE_High.dat </param>
+
+    <param type="string" name="QE_HF_anu_Low@Pdg=1000180400"> HF_1000180400_anu_QE_Low.dat </param>
+    <param type="string" name="QE_HF_anu_Medium@Pdg=1000180400"> HF_1000180400_anu_QE_Medium.dat </param>
+    <param type="string" name="QE_HF_anu_High@Pdg=1000180400"> HF_1000180400_anu_QE_High.dat </param>
+
+
+
+
+  </param_set>
+
+</alg_conf>

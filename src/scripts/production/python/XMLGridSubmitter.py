@@ -52,10 +52,14 @@ op.add_option("--starting-point", dest="start_ID", type="int", default=0, help="
 op.add_option("--stopping-point", dest="end_ID", type="int", default=9999, help="Numbers as above, Default: 9999") 
 op.add_option("--tune", dest="TUNE", default="G18_02a_02_11b", help="Tune to be compared against data (default: %default)")
 op.add_option("--submit-jobs", dest="SUBMIT", default=False, action="store_true", help="Generate configuration and submit to grid" )
-op.add_option("--job-lifetime", dest="JOBLIFE", default=21, help="Expected lifetime on the grid for all the jobs to be finished")
 op.add_option("--job-lifetime-vN", dest="vNJOBLIFE", default=15, help="Expected lifetime on the grid for all the vN spline jobs to be finished")
 op.add_option("--job-lifetime-vA", dest="vAJOBLIFE", default=3, help="Expected lifetime on the grid for all the vA spline jobs to be finished")
 op.add_option("--job-lifetime-group", dest="GROUPJOBLIFE", default=1, help="Expected lifetime on the grid for all the grouping jobs to be finished")
+op.add_option("--main-lifetime", dest="MAINJOBLIFE", default=21, help="Expected lifetime on the grid for all the jobs to be finished")
+op.add_option("--mainjob-memory", dest="MAINMEM", default=20, help="Main job memory usage, default %default")
+op.add_option("--mainjob-disk", dest="MAINDISK", default=20, help="Main job disk usate, default %default")
+op.add_option("--subjob-memory", dest="JOBMEM", default="2GB", help="Expected memory usage for each event generation job, default %default. Notice you must specify the units. ")
+op.add_option("--subjob-disk", dest="JOBDISK", default="2GB", help="Expected disk space for each event generation job, default %default. Notice you must specify the units. ")
 op.add_option("--store-comitinfo", dest="STORECOMMIT", default=False, action="store_true", help="Store command line in jobstopdir directory")
 opts, args = op.parse_args()
 
@@ -161,7 +165,11 @@ loop_i = loop_start
 while loop_i < loop_end + 1: 
     # ID = 0 # vN splines
     if loop_i == 0 :
-        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.NuEMAX,opts.EEMAX,opts.NuKnots,opts.EKnots,opts.TUNE,version,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.vNJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
+        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.NuEMAXSPLINE,opts.EEMAXSPLINE,
+                                                 opts.NuKnots,opts.EKnots,opts.TUNE,version,opts.GRID,opts.GROUP,
+                                                 opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,
+                                                 opts.JOBSTD,grid_setup,genie_setup,opts.vNJOBLIFE,opts.JOBMEM,opts.JOBDISK,
+                                                 opts.BRANCH,opts.GIT_LOCATION) )
         total_time += int(opts.vNJOBLIFE) 
 
     # ID = 1 # group vN splines
@@ -170,12 +178,19 @@ while loop_i < loop_end + 1:
         if opts.MotherDir !='' : 
             vNMotherDir = opts.MotherDir+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vN/'
 
-        command_dict.update( group.GroupSplineCommands( True,vNdir,vNMotherDir,opts.TUNE,version,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,grid_setup,genie_setup,opts.JOBSTD,False, False, opts.GROUPJOBLIFE,opts.BRANCH,opts.GIT_LOCATION ) )
+        command_dict.update( group.GroupSplineCommands( True,vNdir,vNMotherDir,opts.TUNE,opts.vNList,version,opts.CONF,
+                                                        opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,
+                                                        opts.GENIE,grid_setup,genie_setup,opts.JOBSTD,False, False, 
+                                                        opts.GROUPJOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION ) )
         total_time += int(opts.GROUPJOBLIFE)
  
     if loop_i == 2 : 
         # ID = 2 # vA splines
-        command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.NuEMAX,opts.EEMAX,opts.NuKnots,opts.EKnots,opts.TUNE,vNsplines,version,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.vAJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
+        command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.NuEMAX,
+                                                 opts.EEMAX,opts.NuKnots,opts.EKnots,opts.TUNE,vNsplines,version,opts.GRID,
+                                                 opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,
+                                                 opts.JOBSTD,grid_setup,genie_setup,opts.vAJOBLIFE,opts.JOBMEM,opts.JOBDISK,
+                                                 opts.BRANCH,opts.GIT_LOCATION) )
         total_time += int(opts.vAJOBLIFE)
 
     if loop_i == 3 : 
@@ -184,24 +199,27 @@ while loop_i < loop_end + 1:
         if opts.MotherDir !='' : 
             vAMotherDir = opts.MotherDir+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vA/'
 
-        command_dict.update( group.GroupSplineCommands( False,vAdir,vAMotherDir,opts.TUNE,version,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,grid_setup,genie_setup,opts.JOBSTD,False, False,opts.GROUPJOBLIFE,opts.BRANCH,opts.GIT_LOCATION ) )
+        command_dict.update( group.GroupSplineCommands( False,vAdir,vAMotherDir,opts.TUNE,opts.vAList,version,opts.CONF,opts.GRID,
+                                                        opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,grid_setup,
+                                                        genie_setup,opts.JOBSTD,False, False,opts.GROUPJOBLIFE,opts.JOBMEM,opts.JOBDISK,
+                                                        opts.BRANCH,opts.GIT_LOCATION ) )
         total_time += int(opts.GROUPJOBLIFE) 
  
     loop_i += 1 
 
-if total_time > int(opts.JOBLIFE) : 
-    print ( "Total time of subjobs requested ("+str(total_time)+") is bigger than the job's expected time ("+str(opts.JOBLIFE)+") ... Abort ..." ) 
+if total_time > int(opts.MAINJOBLIFE) : 
+    print ( "Total time of subjobs requested ("+str(total_time)+") is bigger than the job's expected time ("+str(opts.MAINJOBLIFE)+") ... Abort ..." ) 
     exit() 
 
 if opts.GRID == 'FNAL' : 
-    if total_time > 96 or int(opts.JOBLIFE) > 96 : 
+    if total_time > 96 or int(opts.MAINJOBLIFE) > 96 : 
         print ( "Total time at the grid cannot exceed 96h ")
         exit() 
 
     # Write xml file
     grid_name = FNAL.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD )
 
-    main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, grid_setup, genie_setup, grid_name, opts.JOBLIFE )
+    main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, grid_setup, genie_setup, grid_name, opts.MAINJOBLIFE, opts.MAINMEM, opts.MAINDISK )
 
 if opts.SUBMIT == True: 
     # SUBMIT JOB

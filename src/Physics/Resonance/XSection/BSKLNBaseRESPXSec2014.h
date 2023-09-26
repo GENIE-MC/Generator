@@ -82,7 +82,6 @@ namespace genie {
       double   fOmega;             ///< FKR parameter Omega
       double   fMa2;               ///< (axial mass)^2
       double   fMv2;               ///< (vector mass)^2
-      double   fSin48w;            ///< sin^4(Weingberg angle)
       double   fVud2;              ///< |Vud|^2(square of magnitude ud-element of CKM-matrix)
       bool     fUsingDisResJoin;   ///< use a DIS/RES joining scheme?
       bool     fUsingNuTauScaling; ///< use NeuGEN nutau xsec reduction factors?
@@ -96,6 +95,7 @@ namespace genie {
 
       double   fXSecScaleCC;       ///< external CC xsec scaling factor
       double   fXSecScaleNC;       ///< external NC xsec scaling factor
+      double   fXSecScaleEM;       ///< external EM xsec scaling factor
 
       bool fKLN;
       bool fBRS;
