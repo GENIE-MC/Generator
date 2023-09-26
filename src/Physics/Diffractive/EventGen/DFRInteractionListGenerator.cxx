@@ -117,7 +117,7 @@ InteractionList * DFRInteractionListGenerator::CreateInteractionList(
     else if (nuc == kPdgNeutron)
       interaction->ExclTagPtr()->SetNNeutrons(1);
 
-    interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(nuc);
+    interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg(nuc);
     intlist->push_back(interaction);
   }
 

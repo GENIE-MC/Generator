@@ -138,7 +138,7 @@ TVector3 NuEPrimaryLeptonGenerator::EleRestFrame2Lab(GHepRecord & evrec) const
   Interaction * interaction = evrec.Summary();
   const InitialState & init_state = interaction->InitState();
 
-  const TLorentzVector & pele4 = init_state.Tgt().HitEleP4(); //[@LAB]
+  const TLorentzVector & pele4 = init_state.Tgt().HitPartP4(); //[@LAB]
   TVector3 beta = pele4.BoostVector();
 
   return beta;

@@ -96,7 +96,7 @@ void DFRHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   const Target & target = init_state.Tgt();
 
   double E    = init_state.ProbeE(kRfHitNucRest);  // neutrino energy
-  double M    = target.HitNucMass();
+  double M    = target.HitPartMass();
   double mpi  = PDGLibrary::Instance()->Find(pion_pdgc)->Mass();
   double mpi2 = TMath::Power(mpi,2);
   double xo   = interaction->Kine().x(true);

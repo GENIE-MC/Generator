@@ -274,7 +274,7 @@ bool BergerSehgalFMCOHPiPXSec2015::ValidProcess(const Interaction * interaction)
 
     if (!proc_info.IsCoherentProduction())  return false;
     if (!proc_info.IsWeak())      return false;
-    if (target.HitNucIsSet())     return false;
+    if (target.HitPartIsSet())     return false;
     if (!(target.A()>1))          return false;
     if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
 

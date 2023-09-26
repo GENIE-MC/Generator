@@ -542,7 +542,7 @@ void genie::utils::intranuke2018::PreEquilibrium(
       vector<int>::const_iterator pdg_iter;
       for(pdg_iter=++(list.begin());pdg_iter!=list.end();++pdg_iter)
         {
-          target.SetHitNucPdg(*pdg_iter);
+          target.SetHitPartPdg(*pdg_iter);
           Nuclmodel->GenerateNucleon(target);
           mBuf = pLib->Find(*pdg_iter)->Mass();
           mSum += mBuf;
@@ -699,7 +699,7 @@ void genie::utils::intranuke2018::Equilibrium(
       vector<int>::const_iterator pdg_iter;
       for(pdg_iter=++(list.begin());pdg_iter!=list.end();++pdg_iter)
         {
-          target.SetHitNucPdg(*pdg_iter);
+          target.SetHitPartPdg(*pdg_iter);
           Nuclmodel->GenerateNucleon(target);
           mBuf = pLib->Find(*pdg_iter)->Mass();
           mSum += mBuf;
@@ -1115,7 +1115,7 @@ bool genie::utils::intranuke2018::ThreeBodyKinematics(
   // handle fermi momentum
   if(DoFermi)
     {
-      target.SetHitNucPdg(tcode);
+      target.SetHitPartPdg(tcode);
       Nuclmodel->GenerateNucleon(target);
       tP2L = FermiFac * Nuclmodel->Momentum3();
       P2L = tP2L.Mag();
