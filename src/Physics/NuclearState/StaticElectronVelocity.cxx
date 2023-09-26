@@ -76,7 +76,7 @@ void StaticElectronVelocity::InitializeVelocity(Interaction & interaction) const
   InitialState * init_state  = interaction.InitStatePtr();
   Target *       tgt         = init_state  -> TgtPtr();
 
-  TLorentzVector * p4 = tgt->HitEleP4Ptr(); //Initialize 4 momentum pointer
+  TLorentzVector * p4 = tgt->HitPartP4Ptr(); //Initialize 4 momentum pointer
   //These should be initialized like this by just in case
   p4->SetVectM(TVector3(), kElectronMass);
 }

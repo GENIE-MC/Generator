@@ -50,9 +50,9 @@ LocalFGM::~LocalFGM()
 }
 //____________________________________________________________________________
 bool LocalFGM::GenerateNucleon(const Target & target,
-				      double hitNucleonRadius) const
+			       double hitNucleonRadius) const
 {
-  assert(target.HitNucIsSet());
+  assert(target.HitPartIsSet());
 
   fCurrRemovalEnergy = -99999.0;
   fCurrMomentum.SetXYZ(0,0,0);
@@ -98,9 +98,9 @@ bool LocalFGM::GenerateNucleon(const Target & target,
 
     if (fMomDepErmv) {
       // hit nucleon mass
-      double nucl_mass = target.HitNucMass(); 
+      double nucl_mass = target.HitPartMass(); 
       // get the local Fermi momentum
-      double KF = LocalFermiMomentum( target, target.HitNucPdg(), hitNucleonRadius); 
+      double KF = LocalFermiMomentum( target, target.HitPartPdg(), hitNucleonRadius); 
       
       //initial nucleon kinetic energy at the Fermi surface
       double T_F = TMath::Sqrt(TMath::Power(nucl_mass,2)+TMath::Power(KF,2)) - nucl_mass;
@@ -168,10 +168,10 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
   LOG("LocalFGM", pNOTICE)
              << ", P(max) = " << fPMax;
 
-  assert(target.HitNucIsSet());
+  assert(target.HitPartIsSet());
 
   //-- get information for the nuclear target
-  int nucleon_pdgc = target.HitNucPdg();
+  int nucleon_pdgc = target.HitPartPdg();
   assert(pdg::IsProton(nucleon_pdgc) || pdg::IsNeutron(nucleon_pdgc));
 
   // bool is_p = pdg::IsProton(nucleon_pdgc);

@@ -84,7 +84,7 @@ void BohrElectronVelocity::InitializeVelocity(Interaction & interaction) const{
   //Set 3 momentum
   auto p3 = kElectronMass*gamma*v3;
   //-- update the electron 4p
-  TLorentzVector * p4 = tgt->HitEleP4Ptr(); //Initialize 4 momentum pointer
+  TLorentzVector * p4 = tgt->HitPartP4Ptr(); //Initialize 4 momentum pointer
   p4->SetVectM( p3, kElectronMass);
 }
 //___________________________________________________________________________

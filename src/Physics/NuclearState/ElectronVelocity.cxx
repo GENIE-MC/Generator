@@ -79,7 +79,7 @@ void ElectronVelocity::ProcessEventRecord(GHepRecord * evrec) const
 
   //Update event record
   GHepParticle * electron = evrec->HitElectron();
-  electron->SetMomentum(*evrec->Summary()->InitStatePtr()->TgtPtr()->HitEleP4Ptr());
+  electron->SetMomentum(*evrec->Summary()->InitStatePtr()->TgtPtr()->HitPartP4Ptr());
 
 }
 //___________________________________________________________________________
