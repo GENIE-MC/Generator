@@ -210,14 +210,14 @@ double SmithMonizQELCCPXSec::d3sQES_dQ2dvdkF_SM(const Interaction * interaction)
   double v       = kinematics.GetKV(kKVv);
   double kF      = kinematics.GetKV(kKVPn);
   double kkF     = kF*kF;
-  int nucl_pdg_ini = target.HitNucPdg();
+  int nucl_pdg_ini = target.HitPartPdg();
   int nucl_pdg_fin = genie::pdg::SwitchProtonNeutron(nucl_pdg_ini);
   
   PDGLibrary * pdglib = PDGLibrary::Instance();
   TParticlePDG * nucl_fin = pdglib->Find( nucl_pdg_fin );
 
   double E_BIN   = sm_utils->GetBindingEnergy();
-  double m_ini   = target.HitNucMass();
+  double m_ini   = target.HitPartMass();
   double mm_ini  = m_ini*m_ini;
   double m_fin   = nucl_fin -> Mass();                         //  Mass of final hadron or hadron system (GeV)
   double mm_fin  = m_fin*m_fin;
