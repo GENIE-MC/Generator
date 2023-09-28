@@ -87,32 +87,8 @@ double IMDAnnihilationPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
-bool IMDAnnihilationPXSec::ValidProcess(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipProcessChk)) return true;
-  return true;
-}
-//____________________________________________________________________________
-bool IMDAnnihilationPXSec::ValidKinematics(const Interaction* interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-  return true;
-}
-//____________________________________________________________________________
-void IMDAnnihilationPXSec::Configure(const Registry & config)
-{
-  PXSecOnElectron::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void IMDAnnihilationPXSec::Configure(string config)
-{
-  PXSecOnElectron::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
 void IMDAnnihilationPXSec::LoadConfig(void)
 {
-
+  PXSecOnElectron::LoadConfig();
 }
 //____________________________________________________________________________

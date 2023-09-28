@@ -9,11 +9,6 @@
 
           Is a concrete implementation of the XSecAlgorithmI interface. \n
 
-\ref      W.J.Marciano and Z.Parsa, Neutrino-electron scattering theory,
-          J.Phys.G: Nucl.Part.Phys. 29 (2003) 2629-2645
-\ref      Oleksandr Tomalak and Richard J. Hill, Theory of elastic neutrino-electron scattering,
-          Phys. Rev. D 101, 033006 – Published 21 February 2020
-
 \author   Brinden Carlson bcarlson1@ufl.edu
           University of Florida
 
@@ -43,21 +38,21 @@ public:
   virtual ~PXSecOnElectron();
 
   //-- XSecAlgorithmI interface implementation
-  virtual double XSec            (const Interaction * i, KinePhaseSpace_t k) const = 0;
-  double Integral        (const Interaction * i) const;
-  bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
+  virtual double XSec    (const Interaction * i, KinePhaseSpace_t k) const override = 0;
+  double Integral        (const Interaction * i) const final;
+  bool   ValidProcess    (const Interaction * i) const override;
+  bool   ValidKinematics (const Interaction * i) const override;
 
   //-- overload the Algorithm::Configure() methods to load private data
   //   members from configuration options
-  void Configure(const Registry & config);
-  void Configure(string config);
+  void Configure(const Registry & config) final;
+  void Configure(string config) final;
 
 private:
 
   
 protected:
-  void LoadConfig (void);
+  virtual void LoadConfig (void);
 
   const XSecIntegratorI * fXSecIntegrator;
   const ElectronVelocity * fElectronVelocity;

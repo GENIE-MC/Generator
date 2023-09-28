@@ -40,17 +40,11 @@ public:
   virtual ~IMDAnnihilationPXSec();
 
   //-- PXSecOnElectron interface implementation
-  double XSec            (const Interaction * i, KinePhaseSpace_t k) const; 
-  bool   ValidProcess    (const Interaction * i) const; 
-  bool   ValidKinematics (const Interaction * i) const; 
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const override; 
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
-  void Configure(const Registry & config); 
-  void Configure(string config); 
-
-private:
+protected:
   void LoadConfig (void);
+private:
 
 };
 

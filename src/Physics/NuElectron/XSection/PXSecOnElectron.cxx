@@ -19,6 +19,7 @@
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Physics/NuclearState/ElectronVelocity.h"
+#include "Framework/Numerical/MathUtils.h"
 
 #include "TFile.h"
 #include "TGraph.h"
@@ -59,9 +60,16 @@ double PXSecOnElectron::Integral(const Interaction * interaction) const
     double xsec = fXSecIntegrator->Integrate(this,&in_curr); // In ele at rest
     //get beta - comps orthogonal to beam x,y
     //scale = sqrt(1-b_t^2)
-    TVector3 beta = in_curr.InitState().Tgt().HitPartP4().BoostVector(); // beta
-    double beta_tangent = sqrt(TMath::Power(beta[0],2)+TMath::Power(beta[1],2)); //Component tangential to beam
-    xsec *= sqrt(1-TMath::Power(beta_tangent,2)); //Correct for lorentz factor
+    //TVector3 beta = in_curr.InitState().Tgt().HitPartP4().BoostVector(); // beta
+    //double beta_tangent = sqrt(TMath::Power(beta[0],2)+TMath::Power(beta[1],2)); //Component tangential to beam
+    
+    auto probe_direction = in_curr.InitState().GetProbeP4(kRfHitElRest)->Vect().Unit();
+    auto electron_mom = in_curr.InitState().Tgt().HitPartP4();
+    auto transverse_mom = utils::math::GetOrthogonal(electron_mom, probe_direction);
+    auto beta_transverse = transverse_mom.BoostVector().Mag();
+    //double beta_transverse = beta_transverse.Mag();
+
+    xsec *= sqrt(1-TMath::Power(beta_transverse,2)); //Correct for lorentz factor
     xsec_sum+=xsec;
     xsec_sum2+=TMath::Power(xsec,2);
     double xsec_mean = xsec_sum/NInt;
@@ -77,6 +85,7 @@ double PXSecOnElectron::Integral(const Interaction * interaction) const
 //____________________________________________________________________________
 bool PXSecOnElectron::ValidProcess(const Interaction * interaction) const
 {
+  //if(pdg::IsElectron(interaction->InitState().ProbePdg())) return true;
   if(interaction->TestBit(kISkipProcessChk)) return true;
   return true;
 }
@@ -113,6 +122,7 @@ void PXSecOnElectron::LoadConfig(void)
   if (!fElectronVelocity) {
     LOG("PXSecOnElectron", pDEBUG)
     << "fElectronVelocity is not initialized correctly.";
+    exit(78);
   }
 }
 //____________________________________________________________________________

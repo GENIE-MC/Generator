@@ -374,6 +374,23 @@ TLorentzVector * InitialState::GetProbeP4(RefFrame_t ref_frame) const
 
              break;
        }
+       //----------------- STRUCK ELECTRON REST FRAME
+       case (kRfHitElRest) :
+       {
+        //Ensure target is electron
+        // if (!pdg::IsElectron(fTgt->HitPartPdg())){
+        //   return nullptr;
+        // }
+        TLorentzVector * pele4 = fTgt->HitPartP4Ptr();
+
+        // compute velocity vector
+
+        auto boost = pele4->BoostVector();
+        TLorentzVector * p4 = new TLorentzVector(*fProbeP4);
+        p4->Boost(-boost);
+        return p4;
+        break;
+       }
        default:
 
              LOG("Interaction", pERROR) << "Uknown reference frame";

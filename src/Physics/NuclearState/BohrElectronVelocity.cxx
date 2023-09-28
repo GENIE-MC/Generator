@@ -80,12 +80,9 @@ void BohrElectronVelocity::InitializeVelocity(Interaction & interaction) const{
   double mu = reduced_mass(nucleus_mass); //Reduced mass
   double v = random_bohr_velocity(fZ,mu); //bohr velocity
   TVector3 v3 = randomize_direction_sphere(v); //Get spherically uniform random direciton
-  double gamma = 1/sqrt(1-v3.Mag2()); //Get boost
-  //Set 3 momentum
-  auto p3 = kElectronMass*gamma*v3;
   //-- update the electron 4p
-  TLorentzVector * p4 = tgt->HitPartP4Ptr(); //Initialize 4 momentum pointer
-  p4->SetVectM( p3, kElectronMass);
+  auto p4 = tgt->HitPartP4Ptr(); //Initialize 4 momentum pointer
+  p4-> Boost(v3); //Boost to new frame
 }
 //___________________________________________________________________________
 

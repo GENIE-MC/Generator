@@ -142,29 +142,13 @@ double NuElectronPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
-void NuElectronPXSec::Configure(const Registry & config)
-{
-  PXSecOnElectron::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void NuElectronPXSec::Configure(string config)
-{
-  PXSecOnElectron::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
 void NuElectronPXSec::LoadConfig(void)
 {
+  PXSecOnElectron::LoadConfig();
   // weinberg angle
   double thw ;
   GetParam( "WeinbergAngle", thw ) ;
   fSin28w = TMath::Power(TMath::Sin(thw), 2);
   fSin48w = TMath::Power(TMath::Sin(thw), 4);
-  
-  if (!fElectronVelocity) {
-    LOG("NuElectronPXSec", pDEBUG)
-    << "fElectronVelocity is not initialized correctly.";
-  }
 }
 //____________________________________________________________________________

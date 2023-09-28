@@ -15,6 +15,8 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Numerical/MathUtils.h"
+#include "TLorentzVector.h"
+#include "TVector3.h"
 
 //____________________________________________________________________________
 TMatrixD genie::utils::math::CholeskyDecomposition(const TMatrixD& cov_matrix)
@@ -284,3 +286,20 @@ double genie::utils::math::NonNegative(float x)
   return TMath::Max( (float)0., x);
 }
 //____________________________________________________________________________
+TLorentzVector genie::utils::math::GetOrthogonal(const TLorentzVector lv, const TVector3 unitVec) {
+    // Returns TLorentz vector that is orthogonal to a given unit vector in 3d
+    auto lv3d = lv.Vect();
+    auto par_mom_module = lv3d.Dot(unitVec);
+    TVector3 par_mom(0., 0., par_mom_module);
+    par_mom.RotateUz(unitVec);
+    auto orthogonal_mom_3d = lv3d - par_mom;
+    return TLorentzVector(orthogonal_mom_3d, lv.E());
+}
+//____________________________________________________________________________
+TLorentzVector genie::utils::math::GetParallel(const TLorentzVector lv, const TVector3 unitVec) {
+    // Returns TLorentz vector that is parallel to a given unit vector in 3d
+    auto lv3d = lv.Vect();
+    auto par_mom_module = lv3d.Dot(unitVec);
+    TVector3 par_mom = par_mom_module * unitVec;
+    return TLorentzVector(par_mom, lv.E());
+}

@@ -44,17 +44,12 @@ public:
   virtual ~BardinIMDRadCorPXSec();
 
   // PXSecOnElectron interface implementation
-  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const override;
 
-  // Override the Algorithm::Configure methods to load configuration
-  // data to private data members
-  void Configure (const Registry & config);
-  void Configure (string param_set);
-
-private:
-
+protected:
   // Load configuration when Algorithm::Configure() is called
-  void LoadConfig(void);
+  void LoadConfig(void) override;
+private:
 
   // Private functions
   // (symbols follow the notation in Bardin-Dokuchaeva paper)

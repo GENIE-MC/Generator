@@ -13,16 +13,16 @@
   Name                    Type     Optional   Comment                         Default
   XSec-Integrator         alg      No                                         genie::XSecOnElectron/Default 
   Electron-Velocity       alg      No                                         genie::ElectronVelocityMap/Default
-  N-Integration-Samples   int      No                                         genie::PXSecOnElectron/Default
-  NuE-XSecRelError        double   No                                         genie::PXSecOnElectron/Default
+  N-Integration-Samples   alg      No         Reference PXSec (int)           genie::PXSecOnElectron/Default
+  NuE-XSecRelError        alg      No         Reference PXSec (double)        genie::PXSecOnElectron/Default
   ....................................................................................
   -->
 
   <param_set name="Default"> 
-     <param type="alg" name="XSec-Integrator"> genie::XSecOnElectron/Default </param>
-      <param type="alg"  name="Electron-Velocity"> genie::ElectronVelocityMap/Default  </param>
-    <param type="int"    name ="N-Integration-Samples" > genie::PXSecOnElectron/Default  </param>
-    <param type="double"    name ="NuE-XSecRelError" > genie::PXSecOnElectron/Default  </param>
+    <param type="alg"     name="XSec-Integrator"> genie::XSecOnElectron/Default </param>
+    <param type="alg"     name="Electron-Velocity"> genie::ElectronVelocityMap/Default  </param>
+    <param type="alg"     name ="N-Integration-Samples" > genie::PXSecOnElectron/Default  </param>
+    <param type="alg"     name ="NuE-XSecRelError" > genie::PXSecOnElectron/Default  </param>
   </param_set>
 
 </alg_conf>

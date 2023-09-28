@@ -14,3 +14,5 @@ src/Framework/Conventions/GVersion.h
 *.rootmap
 *_ROOT_DICT_*
 *.swp
+src/contrib/electron_motion/Plots
+*.diff

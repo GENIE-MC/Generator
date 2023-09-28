@@ -52,7 +52,7 @@ public:
   void Configure(string config);
 
 private:
-  void LoadConfig (void);
+  void LoadConfig (void) override;
 };
 
 }       // genie namespace

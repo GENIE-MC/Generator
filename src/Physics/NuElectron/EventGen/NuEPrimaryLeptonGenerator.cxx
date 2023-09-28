@@ -130,7 +130,7 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   this->SetPolarization(evrec);
 }
 //___________________________________________________________________________
-TVector3 NuEPrimaryLeptonGenerator::EleRestFrame2Lab(GHepRecord & evrec) const
+TVector3 NuEPrimaryLeptonGenerator::EleRestFrame2Lab(const GHepRecord & evrec) const
 {
 // Velocity for an active Lorentz transform taking the final state primary
 // lepton from the [electron rest frame] --> [LAB]

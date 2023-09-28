@@ -239,20 +239,9 @@ double BardinIMDRadCorPXSec::C(int i, int k, double r) const
   } else return 0.;
 }
 //____________________________________________________________________________
-void BardinIMDRadCorPXSec::Configure(const Registry & config)
-{
-  PXSecOnElectron::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void BardinIMDRadCorPXSec::Configure(string param_set)
-{
-  PXSecOnElectron::Configure(param_set);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
 void BardinIMDRadCorPXSec::LoadConfig(void)
 {
+  PXSecOnElectron::LoadConfig();
   ////fIntegrator =
 ////      dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
 /////  assert(fIntegrator);

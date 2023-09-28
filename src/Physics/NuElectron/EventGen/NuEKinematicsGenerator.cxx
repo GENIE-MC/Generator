@@ -62,6 +62,17 @@ void NuEKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   const EventGeneratorI * evg = rtinfo->RunningThread();
   fXSecModel = evg->CrossSectionAlg();
 
+  //Check if kinematics is still valid
+  //CM energy may have dropped below threshold due to initial state electron velocity
+  if(!fXSecModel->ValidKinematics(evrec->Summary())) {
+     LOG("NuEKinematics", pWARN)
+          << "The current kinematics configuration is unphysical";
+     genie::exceptions::EVGThreadException exception;
+     exception.SetReason("Event below threshold");
+     exception.SwitchOnStepBack();
+     throw exception;
+  }
+
   //-- For the subsequent kinematic selection with the rejection method:
   //   Calculate the max differential cross section or retrieve it from the
   //   cache. Throw an exception and quit the evg thread if a non-positive
@@ -217,7 +228,7 @@ double NuEKinematicsGenerator::Energy(const Interaction * interaction) const
 // neutrino energy in the electron rest frame.
 
   const InitialState & init_state = interaction->InitState();
-  double E = init_state.ProbeE(kRfHitElRest); //
+  double E = init_state.ProbeE(kRfHitElRest);
   return E;
 }
 //___________________________________________________________________________

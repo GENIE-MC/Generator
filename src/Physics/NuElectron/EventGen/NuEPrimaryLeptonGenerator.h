@@ -33,7 +33,7 @@ public :
   //-- implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
-  TVector3 EleRestFrame2Lab (GHepRecord & ev) const;
+  TVector3 EleRestFrame2Lab (const GHepRecord & evrec) const;
 };
 
 }      // genie namespace

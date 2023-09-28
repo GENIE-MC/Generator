@@ -42,18 +42,12 @@ public:
   NuElectronPXSec(string config);
   virtual ~NuElectronPXSec();
 
-  //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  //-- PXSecOnElectron interface implementation
+  double XSec (const Interaction * i, KinePhaseSpace_t k) const override;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
-  void Configure(const Registry & config);
-  void Configure(string config);
-
+protected:
+  void LoadConfig (void) override;
 private:
-  void LoadConfig (void);
-
-  //const ElectronVelocity * fElectronVelocity;
 
   double fSin28w; // sin^2(theta-weinberg)
   double fSin48w;
