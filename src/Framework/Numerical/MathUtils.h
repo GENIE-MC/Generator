@@ -129,8 +129,8 @@ namespace math
   double NonNegative    (double x);
   double NonNegative    (float  x);
 
-  TLorentzVector GetParallel(const TLorentzVector lv, const TVector3 unitVec);
-  TLorentzVector GetOrthogonal(const TLorentzVector lv, const TVector3 unitVec);
+  TLorentzVector GetParallel(const TLorentzVector &lv, const TVector3 &unitVec);
+  TLorentzVector GetOrthogonal(const TLorentzVector &lv, const TVector3 &unitVec);
 
 } // math  namespace
 } // utils namespace

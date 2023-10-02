@@ -50,7 +50,7 @@ double IMDAnnihilationPXSec::XSec(
   const InitialState & init_state = interaction -> InitState();
   const Kinematics &   kinematics = interaction -> Kine();
 
-  double Ev = init_state.ProbeE(kRfLab);
+  double Ev = init_state.ProbeE(kRfHitElRest);
   double twoMeEv = 2*kElectronMass*Ev;
   double ymax = 1 - kMuonMass2/(twoMeEv + kElectronMass2);
   double y  = kinematics.y();

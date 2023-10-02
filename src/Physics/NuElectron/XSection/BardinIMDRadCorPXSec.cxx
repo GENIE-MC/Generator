@@ -49,7 +49,7 @@ double BardinIMDRadCorPXSec::XSec(
 
   const InitialState & init_state = interaction -> InitState();
 
-  double E    = init_state.ProbeE(kRfLab);
+  double E    = init_state.ProbeE(kRfHitElRest);
   double sig0 = kGF2 * kElectronMass * E / kPi;
   double re   = 0.5 * kElectronMass / E;
   double r    = (kMuonMass2 / kElectronMass2) * re;
