@@ -36,7 +36,7 @@ namespace {
   TVector3 COMframe2Lab(const genie::InitialState& initialState)
   {
     TLorentzVector* k4 = initialState.GetProbeP4( genie::kRfLab );
-    TLorentzVector* p4 = initialState.TgtPtr()->HitNucP4Ptr();
+    TLorentzVector* p4 = initialState.TgtPtr()->HitPartP4Ptr();
     TLorentzVector totMom = *k4 + *p4;
 
     TVector3 beta = totMom.BoostVector();
@@ -59,7 +59,7 @@ double genie::utils::EnergyDeltaFunctionSolutionDMEL(
   // vice-versa
   TLorentzVector* probe = inter.InitStatePtr()->GetProbeP4( kRfLab );
   const TLorentzVector& hit_nucleon = inter.InitStatePtr()->TgtPtr()
-    ->HitNucP4();
+    ->HitPartP4();
   TLorentzVector total_p4 = (*probe) + hit_nucleon;
   TVector3 beta_COM_to_lab = total_p4.BoostVector();
   TVector3 beta_lab_to_COM = -beta_COM_to_lab;
@@ -242,10 +242,10 @@ double genie::utils::CosTheta0Max(const genie::Interaction& interaction) {
 
   // Possibly off-shell initial struck nucleon total energy
   // (BindHitNucleon() should have been called previously if needed)
-  const TLorentzVector& p4Ni = interaction.InitState().Tgt().HitNucP4();
+  const TLorentzVector& p4Ni = interaction.InitState().Tgt().HitPartP4();
   double ENi = p4Ni.E();
   // On-shell mass of initial struck nucleon
-  double mNi = interaction.InitState().Tgt().HitNucMass();
+  double mNi = interaction.InitState().Tgt().HitPartMass();
   // On-shell initial struck nucleon energy
   double ENi_on_shell = std::sqrt( mNi*mNi + p4Ni.Vect().Mag2() );
   // Energy needed to put initial nucleon on the mass shell
@@ -261,14 +261,14 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
   genie::DMELEvGen_BindingMode_t hitNucleonBindingMode)
 {
   genie::Target* tgt = interaction.InitState().TgtPtr();
-  TLorentzVector* p4Ni = tgt->HitNucP4Ptr();
+  TLorentzVector* p4Ni = tgt->HitPartP4Ptr();
 
   // Initial nucleon 3-momentum (lab frame)
   TVector3 p3Ni = nucl_model.Momentum3();
 
   // Look up the (on-shell) mass of the initial nucleon
   TDatabasePDG* tb = TDatabasePDG::Instance();
-  double mNi = tb->GetParticle( tgt->HitNucPdg() )->Mass();
+  double mNi = tb->GetParticle( tgt->HitPartPdg() )->Mass();
 
   // Set the (possibly off-shell) initial nucleon energy based on
   // the selected binding energy mode. Always put the initial nucleon
@@ -306,7 +306,7 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
       // Determine the mass and proton numbers for the remnant nucleus
       int Af = tgt->A() - 1;
       int Zf = tgt->Z();
-      if ( genie::pdg::IsProton( tgt->HitNucPdg()) ) --Zf;
+      if ( genie::pdg::IsProton( tgt->HitPartPdg()) ) --Zf;
       Mf = genie::PDGLibrary::Instance()->Find( genie::pdg::IonPdgCode(Af, Zf) )->Mass();
 
       // Deduce the binding energy from the final nucleus mass
