@@ -11,7 +11,6 @@
 #include <TMath.h>
 #include <Math/Integrator.h>
 
-#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/RefFrame.h"
@@ -19,19 +18,20 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Numerical/GSLUtils.h"
+#include "Physics/NuElectron/XSection/PXSecOnElectron.h"
 
 using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
 BardinIMDRadCorPXSec::BardinIMDRadCorPXSec() :
-XSecAlgorithmI("genie::BardinIMDRadCorPXSec")
+PXSecOnElectron::PXSecOnElectron("genie::BardinIMDRadCorPXSec","Default")
 {
 
 }
 //____________________________________________________________________________
 BardinIMDRadCorPXSec::BardinIMDRadCorPXSec(string config) :
-XSecAlgorithmI("genie::BardinIMDRadCorPXSec", config)
+PXSecOnElectron::PXSecOnElectron("genie::BardinIMDRadCorPXSec", config)
 {
 
 }
@@ -49,7 +49,7 @@ double BardinIMDRadCorPXSec::XSec(
 
   const InitialState & init_state = interaction -> InitState();
 
-  double E    = init_state.ProbeE(kRfLab);
+  double E    = init_state.ProbeE(kRfHitElRest);
   double sig0 = kGF2 * kElectronMass * E / kPi;
   double re   = 0.5 * kElectronMass / E;
   double r    = (kMuonMass2 / kElectronMass2) * re;
@@ -94,18 +94,6 @@ double BardinIMDRadCorPXSec::XSec(
   xsec *= Ne;
 
   return xsec;
-}
-//____________________________________________________________________________
-double BardinIMDRadCorPXSec::Integral(const Interaction * interaction) const
-{
-  double xsec = fXSecIntegrator->Integrate(this,interaction);
-  return xsec;
-}
-//____________________________________________________________________________
-bool BardinIMDRadCorPXSec::ValidProcess(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipProcessChk)) return true;
-  return true;
 }
 //____________________________________________________________________________
 double BardinIMDRadCorPXSec::Fa(double re, double r, double y) const
@@ -251,27 +239,12 @@ double BardinIMDRadCorPXSec::C(int i, int k, double r) const
   } else return 0.;
 }
 //____________________________________________________________________________
-void BardinIMDRadCorPXSec::Configure(const Registry & config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void BardinIMDRadCorPXSec::Configure(string param_set)
-{
-  Algorithm::Configure(param_set);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
 void BardinIMDRadCorPXSec::LoadConfig(void)
 {
+  PXSecOnElectron::LoadConfig();
   ////fIntegrator =
 ////      dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
 /////  assert(fIntegrator);
-
-  fXSecIntegrator =
-      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
-  assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
 // Auxiliary scalar function for internal integration

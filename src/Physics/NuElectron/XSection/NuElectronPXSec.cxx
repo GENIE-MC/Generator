@@ -5,19 +5,28 @@
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
  University of Liverpool & STFC Rutherford Appleton Laboratory
+
+ Changes required to implement the Electron Velocity module
+ were installed by Brinden Carlson (Univ. of Florida)
 */
 //____________________________________________________________________________
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Controls.h"
-#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/RefFrame.h"
 #include "Physics/NuElectron/XSection/NuElectronPXSec.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
+#include "Physics/NuElectron/XSection/PXSecOnElectron.h"
+
+
+#include "TFile.h"
+#include "TGraph.h"
+#include <fstream>
+#include <iterator>
 
 using namespace genie;
 using namespace genie::constants;
@@ -25,13 +34,13 @@ using namespace genie::controls;
 
 //____________________________________________________________________________
 NuElectronPXSec::NuElectronPXSec() :
-XSecAlgorithmI("genie::NuElectronPXSec")
+PXSecOnElectron::PXSecOnElectron("genie::NuElectronPXSec","Default")
 {
 
 }
 //____________________________________________________________________________
 NuElectronPXSec::NuElectronPXSec(string config) :
-XSecAlgorithmI("genie::NuElectronPXSec", config)
+PXSecOnElectron::PXSecOnElectron("genie::NuElectronPXSec", config)
 {
 
 }
@@ -52,7 +61,8 @@ double NuElectronPXSec::XSec(
   const Kinematics &   kinematics = interaction -> Kine();
   const ProcessInfo &  proc_info  = interaction -> ProcInfo();
 
-  double Ev = init_state.ProbeE(kRfLab);
+  double Ev = init_state.ProbeE(kRfHitElRest); //Electron rest frame
+
   double me = kElectronMass;
   double y  = kinematics.y();
   double A  = kGF2*2*me*Ev/kPi;
@@ -132,47 +142,13 @@ double NuElectronPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
-double NuElectronPXSec::Integral(const Interaction * interaction) const
-{
-  double xsec = fXSecIntegrator->Integrate(this,interaction);
-  return xsec;
-}
-//____________________________________________________________________________
-bool NuElectronPXSec::ValidProcess(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipProcessChk)) return true;
-  return true;
-}
-//____________________________________________________________________________
-bool NuElectronPXSec::ValidKinematics(const Interaction* interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-  return true;
-}
-//____________________________________________________________________________
-void NuElectronPXSec::Configure(const Registry & config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void NuElectronPXSec::Configure(string config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
 void NuElectronPXSec::LoadConfig(void)
 {
+  PXSecOnElectron::LoadConfig();
   // weinberg angle
   double thw ;
   GetParam( "WeinbergAngle", thw ) ;
   fSin28w = TMath::Power(TMath::Sin(thw), 2);
   fSin48w = TMath::Power(TMath::Sin(thw), 4);
-
-  // load XSec Integrator
-  fXSecIntegrator =
-      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
-  assert(fXSecIntegrator);
 }
 //____________________________________________________________________________

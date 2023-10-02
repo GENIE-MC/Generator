@@ -43,8 +43,19 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="NuclearModel@Pdg=1000260560">   genie::SpectralFunc1d/Default  </param>
 -->
  
+<!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Electron velocity model selection
+  Options:
+   - genie::StaticElectronVelocity/Default
+   - genie::BohrElectronVelocity/Default
+   
+  The 'ElectronVelocity' option defines the default basic model which should work for _any_ atom. 
+  Specification for particular  atoms are possible, by specifying the 'ElectronVelocity@Pdg=10LZZZAAAI' option. 
+-->
+  <param type="alg"  name="ElectronVelocity">             genie::StaticElectronVelocity/Default </param>
 
- <!-- 
+
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Intranuclear rescattering 
   Use the HadronTransportEnable option to toggle intranuclear rescattering on/off. 

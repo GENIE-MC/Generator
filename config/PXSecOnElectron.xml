@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the PXSecOnElectron xsec algorithm.
+
+Configurable Parameters:
+....................................................................................
+Name                    Type     Optional   Comment                         Default
+N-Integration-Samples   int      No         Maximum integration iterations  10000
+NuE-XSecRelError        double   No                                         0.001
+Electron-Velocity       alg      No         Integrate over vel dist.   
+XSec-Integrator         alg      No         Integrate over xsec dist.     
+....................................................................................
+-->
+
+  <param_set name="Default"> 
+    
+    <param type="int"    name ="N-Integration-Samples" >              10000  </param>
+    <param type="double" name ="NuE-XSecRelError" >     0.0001  </param>
+    <param type="alg"  name="Electron-Velocity"> genie::ElectronVelocityMap/Default  </param>
+    <param type="alg"  name="XSec-Integrator"> genie::NuElectronXSec/Default  </param>
+   
+  </param_set>
+
+</alg_conf>
+

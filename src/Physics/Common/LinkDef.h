@@ -28,4 +28,5 @@
 #pragma link C++ class genie::NormInteractionListGenerator;
 
 
+#pragma link C++ class genie::ElectronVelocityMap;
 #endif

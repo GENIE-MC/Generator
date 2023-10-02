@@ -218,7 +218,7 @@ void NNBarOscPrimaryVtxGenerator::GenerateFermiMomentum(
   Target tgt(initial_nucleus->Pdg());
 
   // start with oscillating neutron
-  tgt.SetHitNucPdg(kPdgNeutron);
+  tgt.SetHitPartPdg(kPdgNeutron);
   // generate nuclear model & fermi momentum
   fNuclModel->GenerateNucleon(tgt);
   TVector3 p3 = fNuclModel->Momentum3();
@@ -237,7 +237,7 @@ void NNBarOscPrimaryVtxGenerator::GenerateFermiMomentum(
      << "|p| = " << p3.Mag();
 
   // then rinse repeat for the annihilation nucleon
-  tgt.SetHitNucPdg(annihilation_nucleon->Pdg());
+  tgt.SetHitPartPdg(annihilation_nucleon->Pdg());
   // use nuclear model to generate fermi momentum
   fNuclModel->GenerateNucleon(tgt);
   p3 = fNuclModel->Momentum3();
@@ -303,7 +303,7 @@ void NNBarOscPrimaryVtxGenerator::GenerateDecayProducts(
   assert(annihilation_nucleon);
 
   Target tgt(initial_nucleus->Pdg());
-  tgt.SetHitNucPdg(kPdgNeutron);
+  tgt.SetHitPartPdg(kPdgNeutron);
 
   // get their momentum 4-vectors and boost into rest frame
   TLorentzVector * p4_1 = oscillating_neutron->GetP4();

@@ -59,10 +59,10 @@ double RosenbluthPXSec::XSec(
   const Target &       target     = init_state.Tgt();
   const ProcessInfo & proc_info = interaction->ProcInfo();
 
-  int nucpdgc = target.HitNucPdg();
+  int nucpdgc = target.HitPartPdg();
   double E  = init_state.ProbeE(kRfHitNucRest);
   double Q2 = kinematics.Q2();
-  double M  = target.HitNucMass();
+  double M  = target.HitPartMass();
 
   double E2 = E*E;
   double E3 = E*E2;
@@ -151,7 +151,7 @@ bool RosenbluthPXSec::ValidProcess(const Interaction * interaction) const
 
   const InitialState & init_state = interaction->InitState();
 
-  int  hitnuc = init_state.Tgt().HitNucPdg();
+  int  hitnuc = init_state.Tgt().HitPartPdg();
   bool is_pn = (pdg::IsProton(hitnuc) || pdg::IsNeutron(hitnuc));
   if (!is_pn) return false;
 

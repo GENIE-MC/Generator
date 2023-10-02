@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::NuElectronXSec
+\class    genie::XSecOnElectron
 
 \brief    nu/nubar + e- scattering cross section. Integrates the loaded
           differential cross section model. An analytical cross section
@@ -19,6 +19,9 @@
 \author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
           University of Liverpool & STFC Rutherford Appleton Laboratory
 
+          B. Carlson change name to reflect that cross section applies
+          to all nu+e interactions
+
 \created  February 10, 2006
 
 \cpright  Copyright (c) 2003-2023, The GENIE Collaboration
@@ -33,12 +36,12 @@
 
 namespace genie {
 
-class NuElectronXSec : public XSecIntegratorI {
+class XSecOnElectron : public XSecIntegratorI {
 
 public:
-  NuElectronXSec();
-  NuElectronXSec(string config);
-  virtual ~NuElectronXSec();
+  XSecOnElectron();
+  XSecOnElectron(string config);
+  virtual ~XSecOnElectron();
 
   //! XSecIntegratorI interface implementation
   double Integrate(const XSecAlgorithmI * model, const Interaction * i) const;

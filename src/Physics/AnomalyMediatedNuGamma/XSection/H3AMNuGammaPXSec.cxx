@@ -76,7 +76,7 @@ double H3AMNuGammaPXSec::Integral(const Interaction * interaction) const
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
   // Scale for the number of scattering centers at the target
-  int nucpdgc = target.HitNucPdg();
+  int nucpdgc = target.HitPartPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
   xsec*=NNucl;
 

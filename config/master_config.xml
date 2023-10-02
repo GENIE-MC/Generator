@@ -5,6 +5,9 @@
    <!-- ****** CONFIGURATION FOR EVENT GENERATION MODULES ****** -->
    <config alg="genie::EventGenerator">                  EventGenerator.xml                  </config>
    <config alg="genie::FermiMover">                      FermiMover.xml                      </config>
+   <config alg="genie::ElectronVelocityMap">             Default.xml                         </config>
+   <config alg="genie::BohrElectronVelocity">            BohrElectronVelocity.xml            </config>
+   <config alg="genie::StaticElectronVelocity">          Default.xml                         </config>
    <config alg="genie::HadronTransporter">               HadronTransporter.xml               </config>
    <config alg="genie::HAIntranuke">                     HAIntranuke.xml                     </config>
    <config alg="genie::HAIntranuke2018">                 HAIntranuke2018.xml                 </config>
@@ -160,7 +163,6 @@
    <config alg="genie::CEvNSXSec">                   CEvNSXSec.xml                   </config>
    <config alg="genie::DFRXSec">                     DFRXSec.xml                     </config>
    <config alg="genie::AlamSimoAtharVacasSKXSec">    AlamSimoAtharVacasSKXSec.xml    </config>
-   <config alg="genie::IMDXSec">                     IMDXSec.xml                     </config>
    <config alg="genie::RESXSec">                     RESXSec.xml                     </config>
    <config alg="genie::MECXSec">                     MECXSec.xml                     </config>
    <config alg="genie::NuElectronXSec">              NuElectronXSec.xml              </config>
@@ -198,6 +200,7 @@
    <config alg="genie::KLVOxygenIBDPXSec">                  KLVOxygenIBDPXSec.xml                  </config>
    <config alg="genie::PattonCEvNSPXSec">                   PattonCEvNSPXSec.xml                   </config>
    <config alg="genie::NuElectronPXSec">                    NuElectronPXSec.xml                    </config>
+   <config alg="genie::PXSecOnElectron">                    PXSecOnElectron.xml                    </config>
    <config alg="genie::DMElectronPXSec">                    DMElectronPXSec.xml                    </config>
    <config alg="genie::GLRESPXSec">                         GLRESPXSec.xml                         </config>
    <config alg="genie::HENuElPXSec">                        HENuElPXSec.xml                        </config>

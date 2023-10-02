@@ -109,7 +109,6 @@
   <priority msgstream="HadronicVtx">           WARN   </priority>
   <priority msgstream="HybridHad">             WARN   </priority>
   <priority msgstream="IBD">                   NOTICE </priority>
-  <priority msgstream="IMDXSec">               NOTICE </priority>
   <priority msgstream="IMDAnnihilation">       WARN   </priority>
   <priority msgstream="IntSel">                WARN </priority>
   <priority msgstream="IntLst">                NOTICE </priority>

@@ -101,7 +101,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
     // cross section (important when using the local Fermi gas model)
     Target* tgt = interaction->InitState().TgtPtr();
     double hitNucPos = nucleon->X4()->Vect().Mag();
-    tgt->SetHitNucPosition( hitNucPos );
+    tgt->SetHitPartPosition( hitNucPos );
 
     //-- For the subsequent kinematic selection with the rejection method:
     //   Calculate the max differential cross section or retrieve it from the
@@ -216,7 +216,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
             // struck nucleon mass (can be off the mass shell)
             const InitialState & init_state = interaction->InitState();
             double E  = init_state.ProbeE(kRfHitNucRest);
-            double M = init_state.Tgt().HitNucP4().M();
+            double M = init_state.Tgt().HitPartP4().M();
             LOG("QELKinematics", pNOTICE) << "E = " << E << ", M = "<< M;
 
             // The hadronic inv. mass is equal to the recoil nucleon on-shell mass.
@@ -268,7 +268,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
               -1, -1, -1, interaction->KinePtr()->HadSystP4(), x4l);
 
             // Store struck nucleon momentum and binding energy
-            TLorentzVector p4ptr = interaction->InitStatePtr()->TgtPtr()->HitNucP4();
+            TLorentzVector p4ptr = interaction->InitStatePtr()->TgtPtr()->HitPartP4();
             LOG("QELEvent",pNOTICE) << "pn: " << p4ptr.X() << ", "
               << p4ptr.Y() << ", " << p4ptr.Z() << ", " << p4ptr.E();
             nucleon->SetMomentum(p4ptr);
@@ -448,7 +448,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
       // TODO: document this, won't work for spectral functions
       double dummy_w = -1.;
       double prob = fNuclModel->Prob(pNi_next, dummy_w, tgt,
-        tgt.HitNucPosition());
+        tgt.HitPartPosition());
 
       double costh0_max = genie::utils::CosTheta0Max( *interaction );
 

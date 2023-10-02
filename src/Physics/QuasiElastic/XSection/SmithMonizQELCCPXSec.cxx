@@ -137,7 +137,7 @@ bool SmithMonizQELCCPXSec::ValidProcess(const Interaction * interaction) const
 
   if(!proc_info.IsQuasiElastic()) return false;
 
-  int  nuc = init_state.Tgt().HitNucPdg();
+  int  nuc = init_state.Tgt().HitPartPdg();
   int  nu  = init_state.ProbePdg();
 
   bool isP   = pdg::IsProton(nuc);
@@ -210,14 +210,14 @@ double SmithMonizQELCCPXSec::d3sQES_dQ2dvdkF_SM(const Interaction * interaction)
   double v       = kinematics.GetKV(kKVv);
   double kF      = kinematics.GetKV(kKVPn);
   double kkF     = kF*kF;
-  int nucl_pdg_ini = target.HitNucPdg();
+  int nucl_pdg_ini = target.HitPartPdg();
   int nucl_pdg_fin = genie::pdg::SwitchProtonNeutron(nucl_pdg_ini);
   
   PDGLibrary * pdglib = PDGLibrary::Instance();
   TParticlePDG * nucl_fin = pdglib->Find( nucl_pdg_fin );
 
   double E_BIN   = sm_utils->GetBindingEnergy();
-  double m_ini   = target.HitNucMass();
+  double m_ini   = target.HitPartMass();
   double mm_ini  = m_ini*m_ini;
   double m_fin   = nucl_fin -> Mass();                         //  Mass of final hadron or hadron system (GeV)
   double mm_fin  = m_fin*m_fin;
@@ -392,7 +392,7 @@ double SmithMonizQELCCPXSec::d2sQES_dQ2dv_SM(const Interaction * interaction) co
 
   double xsec = 0.5*Sum*(rkF.max-rkF.min);
 
-  int nucpdgc = target.HitNucPdg();
+  int nucpdgc = target.HitPartPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
 
   xsec *= NNucl; // nuclear xsec
@@ -414,7 +414,7 @@ double SmithMonizQELCCPXSec::dsQES_dQ2_SM(const Interaction * interaction) const
   double E  = init_state.ProbeE(kRfHitNucRest);
   double E2 = TMath::Power(E,2);
   double ml = interaction->FSPrimLepton()->Mass();
-  double M  = target.HitNucMass();
+  double M  = target.HitPartMass();
   double q2 = kinematics.q2();
 
   // One of the xsec terms changes sign for antineutrinos
@@ -464,7 +464,7 @@ double SmithMonizQELCCPXSec::dsQES_dQ2_SM(const Interaction * interaction) const
     xsec *= fQES_Pauli;
   }
 
-  int nucpdgc = target.HitNucPdg();
+  int nucpdgc = target.HitPartPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
 
   xsec *= NNucl; // nuclear xsec

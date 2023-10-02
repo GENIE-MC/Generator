@@ -85,7 +85,7 @@ double HELeptonXSec::Integrate(
       target->SetId(kPdgTgtFreeP);
     }
     else if ( proc_info.IsPhotonResonance() ) {
-      int nucpdgc = init_state.Tgt().HitNucPdg();
+      int nucpdgc = init_state.Tgt().HitPartPdg();
       if (pdg::IsProton(nucpdgc)) {
         NNucl = init_state.Tgt().Z();
         target->SetId(kPdgTgtFreeP);

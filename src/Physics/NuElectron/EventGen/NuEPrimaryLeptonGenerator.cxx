@@ -5,6 +5,9 @@
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
  University of Liverpool & STFC Rutherford Appleton Laboratory
+
+ Changes required to boost from electron rest frame to lab frame
+ were installed by Brinden Carlson (Univ. of Florida)
 */
 //____________________________________________________________________________
 
@@ -47,7 +50,14 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 // This method generates the final state primary lepton for NuE events
 
   Interaction * interaction = evrec->Summary();
-  const InitialState & init_state = interaction->InitState();
+
+  // Boost vector for [LAB] <-> [Electron Rest Frame] transforms
+  TVector3 beta = this->EleRestFrame2Lab(*evrec); // Get boost of hit
+
+  // Neutrino 4p
+  TLorentzVector p4v(*evrec->Probe()->GetP4()); // v 4p @ LAB
+  p4v.Boost(-1.*beta);
+
 
   // Get selected kinematics
   double y = interaction->Kine().y(true);
@@ -58,7 +68,7 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   assert(pdgc!=0);
 
   // Compute the neutrino and muon energy
-  double Ev  = init_state.ProbeE(kRfLab);
+  double Ev  = p4v.E();
   double El  = (1-y)*Ev;
 
   LOG("LeptonicVertex", pINFO)
@@ -109,13 +119,28 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   TVector3 p3l(pltx,plty,plp);
   p3l.RotateUz(unit_nudir);
 
-  // Lepton 4-momentum in the LAB
+  // Lepton 4-momentum in the Ele rest frame
   TLorentzVector p4l(p3l,El);
+  p4l.Boost(beta); //Boost back to lab
 
   // Create a GHepParticle and add it to the event record
   this->AddToEventRecord(evrec, pdgc, p4l);
 
   // Set final state lepton polarization
   this->SetPolarization(evrec);
+}
+//___________________________________________________________________________
+TVector3 NuEPrimaryLeptonGenerator::EleRestFrame2Lab(const GHepRecord & evrec) const
+{
+// Velocity for an active Lorentz transform taking the final state primary
+// lepton from the [electron rest frame] --> [LAB]
+
+  Interaction * interaction = evrec.Summary();
+  const InitialState & init_state = interaction->InitState();
+
+  const TLorentzVector & pele4 = init_state.Tgt().HitPartP4(); //[@LAB]
+  TVector3 beta = pele4.BoostVector();
+
+  return beta;
 }
 //___________________________________________________________________________

@@ -22,6 +22,7 @@
 #include <TMatrixD.h>
 #include <TVectorD.h>
 #include <TLorentzVector.h>
+#include <TVector3.h>
 #include "Framework/Utils/Range1.h"
 #include "cmath"
 
@@ -127,6 +128,9 @@ namespace math
 
   double NonNegative    (double x);
   double NonNegative    (float  x);
+
+  TLorentzVector GetParallel(const TLorentzVector &lv, const TVector3 &unitVec);
+  TLorentzVector GetOrthogonal(const TLorentzVector &lv, const TVector3 &unitVec);
 
 } // math  namespace
 } // utils namespace

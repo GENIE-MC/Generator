@@ -199,7 +199,7 @@ void InitialState::SetTgtP4(const TLorentzVector & P4)
 bool InitialState::IsNuP(void) const
 {
   int  prob = fProbePdg;
-  int  nucl = fTgt->HitNucPdg();
+  int  nucl = fTgt->HitPartPdg();
   bool isvp = pdg::IsNeutrino(prob) && pdg::IsProton(nucl);
 
   return isvp;
@@ -208,7 +208,7 @@ bool InitialState::IsNuP(void) const
 bool InitialState::IsNuN(void) const
 {
   int  prob = fProbePdg;
-  int  nucl = fTgt->HitNucPdg();
+  int  nucl = fTgt->HitPartPdg();
   bool isvn = pdg::IsNeutrino(prob) && pdg::IsNeutron(nucl);
 
   return isvn;
@@ -217,7 +217,7 @@ bool InitialState::IsNuN(void) const
 bool InitialState::IsNuBarP(void) const
 {
   int  prob  = fProbePdg;
-  int  nucl  = fTgt->HitNucPdg();
+  int  nucl  = fTgt->HitPartPdg();
   bool isvbp = pdg::IsAntiNeutrino(prob) && pdg::IsProton(nucl);
 
   return isvbp;
@@ -226,7 +226,7 @@ bool InitialState::IsNuBarP(void) const
 bool InitialState::IsNuBarN(void) const
 {
   int  prob  = fProbePdg;
-  int  nucl  = fTgt->HitNucPdg();
+  int  nucl  = fTgt->HitPartPdg();
   bool isvbn = pdg::IsAntiNeutrino(prob) && pdg::IsNeutron(nucl);
 
   return isvbn;
@@ -236,7 +236,7 @@ bool InitialState::IsDMP(void) const
 {
 // Check if DM - proton interaction
   int  prob = fProbePdg;
-  int  nucl = fTgt->HitNucPdg();
+  int  nucl = fTgt->HitPartPdg();
   bool isdp = pdg::IsDarkMatter(prob) && pdg::IsProton(nucl);
 
   return isdp;
@@ -246,7 +246,7 @@ bool InitialState::IsDMN(void) const
 {
 // Check if DM - neutron interaction
   int  prob = fProbePdg;
-  int  nucl = fTgt->HitNucPdg();
+  int  nucl = fTgt->HitPartPdg();
   bool isdn = pdg::IsDarkMatter(prob) && pdg::IsNeutron(nucl);
 
   return isdn;
@@ -256,7 +256,7 @@ bool InitialState::IsDMBP(void) const
 {
 // Check if DM - proton interaction
   int  prob = fProbePdg;
-  int  nucl = fTgt->HitNucPdg();
+  int  nucl = fTgt->HitPartPdg();
   bool isdp = pdg::IsAntiDarkMatter(prob) && pdg::IsProton(nucl);
 
   return isdp;
@@ -266,7 +266,7 @@ bool InitialState::IsDMBN(void) const
 {
 // Check if DM - neutron interaction
   int  prob = fProbePdg;
-  int  nucl = fTgt->HitNucPdg();
+  int  nucl = fTgt->HitPartPdg();
   bool isdn = pdg::IsAntiDarkMatter(prob) && pdg::IsNeutron(nucl);
 
   return isdn;
@@ -294,8 +294,8 @@ TLorentzVector * InitialState::GetTgtP4(RefFrame_t ref_frame) const
        {
              // make sure that 'struck nucleon' properties were set in
              // the nuclear target object
-             assert(fTgt->HitNucIsSet());
-             TLorentzVector * pnuc4 = fTgt->HitNucP4Ptr();
+	     assert(pdg::IsNucleon(fTgt->HitPartPdg()));
+             TLorentzVector * pnuc4 = fTgt->HitPartP4Ptr();
 
              // compute velocity vector (px/E, py/E, pz/E)
              double bx = pnuc4->Px() / pnuc4->Energy();
@@ -346,9 +346,9 @@ TLorentzVector * InitialState::GetProbeP4(RefFrame_t ref_frame) const
              // make sure that 'struck nucleon' properties were set in
              // the nuclear target object
 
-             assert( fTgt->HitNucP4Ptr() != 0 );
+	     assert( pdg::IsNucleon(fTgt->HitPartPdg()) );
 
-             TLorentzVector * pnuc4 = fTgt->HitNucP4Ptr();
+             TLorentzVector * pnuc4 = fTgt->HitPartP4Ptr();
 
              // compute velocity vector (px/E, py/E, pz/E)
 
@@ -374,6 +374,23 @@ TLorentzVector * InitialState::GetProbeP4(RefFrame_t ref_frame) const
 
              break;
        }
+       //----------------- STRUCK ELECTRON REST FRAME
+       case (kRfHitElRest) :
+       {
+        //Ensure target is electron
+        // if (!pdg::IsElectron(fTgt->HitPartPdg())){
+        //   return nullptr;
+        // }
+        TLorentzVector * pele4 = fTgt->HitPartP4Ptr();
+
+        // compute velocity vector
+
+        auto boost = pele4->BoostVector();
+        TLorentzVector * p4 = new TLorentzVector(*fProbeP4);
+        p4->Boost(-boost);
+        return p4;
+        break;
+       }
        default:
 
              LOG("Interaction", pERROR) << "Uknown reference frame";
@@ -394,7 +411,7 @@ double InitialState::ProbeE(RefFrame_t ref_frame) const
 double InitialState::CMEnergy() const
 {
   TLorentzVector * k4 = this->GetProbeP4(kRfLab);
-  TLorentzVector * p4 = fTgt->HitNucP4Ptr();
+  TLorentzVector * p4 = fTgt->HitPartP4Ptr();
 
   *k4 += *p4; // now k4 represents centre-of-mass 4-momentum
   double s = k4->Dot(*k4); // dot-product with itself
@@ -443,8 +460,8 @@ void InitialState::Print(ostream & stream) const
   }
   stream << endl;
 
-  stream << " |--> hit nucleon  : ";
-  int nuc_pdgc = fTgt->HitNucPdg();
+  stream << " |--> hit particle : ";
+  int nuc_pdgc = fTgt->HitPartPdg();
 
   if ( pdg::IsNeutronOrProton(nuc_pdgc) ) {
     TParticlePDG * p = PDGLibrary::Instance()->Find(nuc_pdgc);
@@ -481,11 +498,11 @@ void InitialState::Print(ostream & stream) const
          << ")"
          << endl;
 
-  if ( pdg::IsNeutronOrProton(nuc_pdgc) ) {
+  if ( pdg::IsParticle(nuc_pdgc) ) {
 
-    TLorentzVector * nuc_p4 = fTgt->HitNucP4Ptr();
+    TLorentzVector * nuc_p4 = fTgt->HitPartP4Ptr(); 
 
-    stream << " |--> nucleon 4P   : "
+    stream << " |--> hit particle : "
            << "(E = "   << setw(12) << setprecision(6) << nuc_p4->E()
            << ", Px = " << setw(12) << setprecision(6) << nuc_p4->Px()
            << ", Py = " << setw(12) << setprecision(6) << nuc_p4->Py()

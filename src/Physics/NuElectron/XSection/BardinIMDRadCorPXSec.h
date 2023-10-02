@@ -19,6 +19,8 @@
 \author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
           University of Liverpool & STFC Rutherford Appleton Laboratory
 
+          B. Carlson modified to interface PXSecOnElectron
+
 \created  February 14, 2005
 
 \cpright  Copyright (c) 2003-2023, The GENIE Collaboration
@@ -30,33 +32,24 @@
 #define _BARDIN_IMD_RADIATIVE_CORRECTIONS_PARTIAL_XSEC_H_
 
 #include <Math/IFunction.h>
-#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Physics/NuElectron/XSection/PXSecOnElectron.h"
 
 namespace genie {
 
-class XSecIntegratorI;
-
-class BardinIMDRadCorPXSec : public XSecAlgorithmI {
+class BardinIMDRadCorPXSec : public PXSecOnElectron {
 
 public:
   BardinIMDRadCorPXSec();
   BardinIMDRadCorPXSec(string config);
   virtual ~BardinIMDRadCorPXSec();
 
-  // XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
-  double Integral        (const Interaction * i) const;
-  bool   ValidProcess    (const Interaction * i) const;
+  // PXSecOnElectron interface implementation
+  double XSec            (const Interaction * i, KinePhaseSpace_t k) const override;
 
-  // Override the Algorithm::Configure methods to load configuration
-  // data to private data members
-  void Configure (const Registry & config);
-  void Configure (string param_set);
-
-private:
-
+protected:
   // Load configuration when Algorithm::Configure() is called
-  void LoadConfig(void);
+  void LoadConfig(void) override;
+private:
 
   // Private functions
   // (symbols follow the notation in Bardin-Dokuchaeva paper)
@@ -67,7 +60,6 @@ private:
 
   // Private data members
 //  const IntegratorI *      fIntegrator;     ///< num integrator for BardinIMDRadCorIntegrand
-  const XSecIntegratorI *  fXSecIntegrator; ///< differential x-sec integrator
 };
 
 } // genie namespace

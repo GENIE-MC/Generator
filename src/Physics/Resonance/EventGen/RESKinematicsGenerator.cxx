@@ -192,7 +192,8 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // compute x,y for selected W,Q2
         // note: hit nucleon can be off the mass-shell
         double gx=-1, gy=-1;
-        double M = init_state.Tgt().HitNucP4().M();
+        double M = init_state.Tgt().HitPartP4().M();
+        //double M = init_state.Tgt().HitPartMass();
         kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy);
 
         // set the cross section for the selected kinematics

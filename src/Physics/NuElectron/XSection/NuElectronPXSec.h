@@ -18,6 +18,9 @@
 \author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
           University of Liverpool & STFC Rutherford Appleton Laboratory
 
+          Changes required to implement the Electron Velocity module
+          were installed by Brinden Carlson (Univ. of Florida)
+
 \created  February 10, 2006
 
 \cpright  Copyright (c) 2003-2023, The GENIE Collaboration
@@ -28,35 +31,23 @@
 #ifndef _NU_ELECTRON_PARTIAL_XSEC_H_
 #define _NU_ELECTRON_PARTIAL_XSEC_H_
 
-#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Physics/NuElectron/XSection/PXSecOnElectron.h"
 
 namespace genie {
 
-class IntegratorI;
-class XSecIntegratorI;
-
-class NuElectronPXSec : public XSecAlgorithmI {
+class NuElectronPXSec : public PXSecOnElectron {
 
 public:
   NuElectronPXSec();
   NuElectronPXSec(string config);
   virtual ~NuElectronPXSec();
 
-  //-- XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
-  double Integral        (const Interaction * i) const;
-  bool   ValidProcess    (const Interaction * i) const;
-  bool   ValidKinematics (const Interaction * i) const;
+  //-- PXSecOnElectron interface implementation
+  double XSec (const Interaction * i, KinePhaseSpace_t k) const override;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
-  void Configure(const Registry & config);
-  void Configure(string config);
-
+protected:
+  void LoadConfig (void) override;
 private:
-  void LoadConfig (void);
-
-  const XSecIntegratorI * fXSecIntegrator;
 
   double fSin28w; // sin^2(theta-weinberg)
   double fSin48w;

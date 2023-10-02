@@ -71,9 +71,8 @@ double DMDISXSec::Integrate(
   const InitialState & init_state = in->InitState();
   double Ed = init_state.ProbeE(kRfHitNucRest);
 
-  int nucpdgc = init_state.Tgt().HitNucPdg();
-  int NNucl   = (pdg::IsProton(nucpdgc)) ? 
-                   init_state.Tgt().Z() : init_state.Tgt().N();
+  int nucpdgc = init_state.Tgt().HitPartPdg();
+  int NNucl   = (pdg::IsProton(nucpdgc)) ? init_state.Tgt().Z() : init_state.Tgt().N();
   
   // If the input interaction is off a nuclear target, then chek whether 
   // the corresponding free nucleon cross section already exists at the 
@@ -230,7 +229,7 @@ void DMDISXSec::CacheFreeNucleonXSec(
 
   // Tweak interaction to be on a free nucleon target
   Target * target = interaction->InitStatePtr()->TgtPtr();
-  int nucpdgc = target->HitNucPdg();
+  int nucpdgc = target->HitPartPdg();
   if(pdg::IsProton(nucpdgc)) { target->SetId(kPdgTgtFreeP); }
   else                       { target->SetId(kPdgTgtFreeN); }
 

@@ -104,7 +104,6 @@
   <priority msgstream="HadronicVtx">           FATAL </priority>
   <priority msgstream="HybridHad">             FATAL </priority>
   <priority msgstream="IBD">                   FATAL </priority>
-  <priority msgstream="IMDXSec">               FATAL </priority>
   <priority msgstream="IMDAnnihilation">       FATAL </priority>
   <priority msgstream="IntSel">                FATAL </priority>
   <priority msgstream="IntLst">                FATAL </priority>

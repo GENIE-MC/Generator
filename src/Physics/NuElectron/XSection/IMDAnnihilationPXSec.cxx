@@ -10,13 +10,13 @@
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Controls.h"
-#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/RefFrame.h"
 #include "Physics/NuElectron/XSection/IMDAnnihilationPXSec.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
+#include "Physics/NuElectron/XSection/PXSecOnElectron.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -24,13 +24,13 @@ using namespace genie::controls;
 
 //____________________________________________________________________________
 IMDAnnihilationPXSec::IMDAnnihilationPXSec() :
-XSecAlgorithmI("genie::IMDAnnihilationPXSec")
+PXSecOnElectron::PXSecOnElectron("genie::IMDAnnihilationPXSec","Default")
 {
 
 }
 //____________________________________________________________________________
 IMDAnnihilationPXSec::IMDAnnihilationPXSec(string config) :
-XSecAlgorithmI("genie::IMDAnnihilationPXSec", config)
+PXSecOnElectron::PXSecOnElectron("genie::IMDAnnihilationPXSec", config)
 {
 
 }
@@ -50,7 +50,7 @@ double IMDAnnihilationPXSec::XSec(
   const InitialState & init_state = interaction -> InitState();
   const Kinematics &   kinematics = interaction -> Kine();
 
-  double Ev = init_state.ProbeE(kRfLab);
+  double Ev = init_state.ProbeE(kRfHitElRest);
   double twoMeEv = 2*kElectronMass*Ev;
   double ymax = 1 - kMuonMass2/(twoMeEv + kElectronMass2);
   double y  = kinematics.y();
@@ -87,41 +87,8 @@ double IMDAnnihilationPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
-double IMDAnnihilationPXSec::Integral(const Interaction * interaction) const
-{
-  double xsec = fXSecIntegrator->Integrate(this,interaction);
-  return xsec;
-}
-//____________________________________________________________________________
-bool IMDAnnihilationPXSec::ValidProcess(const Interaction * interaction) const
-{
-  if(interaction->TestBit(kISkipProcessChk)) return true;
-  return true;
-}
-//____________________________________________________________________________
-bool IMDAnnihilationPXSec::ValidKinematics(const Interaction* interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-  return true;
-}
-//____________________________________________________________________________
-void IMDAnnihilationPXSec::Configure(const Registry & config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void IMDAnnihilationPXSec::Configure(string config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
 void IMDAnnihilationPXSec::LoadConfig(void)
 {
-  // load XSec Integrator
-  fXSecIntegrator =
-      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
-  assert(fXSecIntegrator);
+  PXSecOnElectron::LoadConfig();
 }
 //____________________________________________________________________________
