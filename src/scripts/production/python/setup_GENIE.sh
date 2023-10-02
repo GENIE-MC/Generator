@@ -25,11 +25,19 @@ if [ "$CONFIGURE_INCL" = "true" ] ; then
     setup log4cpp v1_1_3d   -q e20:prof
 elif [ "$CONFIGURE_G4" = "true" ] ; then
     source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
-    #setup geant4 v4_10_3_p03e -q debug:e17
-    setup geant4  v4_10_6_p01f -q e20:prof
-    setup root    v6_26_06b    -q e20:prof:p3913
-    setup lhapdf  v6_5_3       -q e20:prof:p3913
-    setup log4cpp v1_1_3d      -q e20:prof
+    setup root v6_12_06a -q e17:debug                                               
+    setup lhapdf v5_9_1k -q e17:debug                                               
+    setup log4cpp v1_1_3a -q e17:debug                                              
+    setup pdfsets v5_9_1b                                                           
+    setup gdb v8_1                                                                  
+    setup git v2_15_1                                                                       
+    setup cmake v3_14_3
+    setup geant4 v4_10_3_p03e -q debug:e17
+else
+    setup root v6_12_06a -q e17:debug 
+    setup lhapdf v5_9_1k -q e17:debug 
+    setup log4cpp v1_1_3a -q e17:debug 
+
 fi
 
 export GENIEBASE=$(pwd)
@@ -95,9 +103,7 @@ elif [ "$CONFIGURE_G4" = "true" ] ; then
 	--with-lhapdf5-lib=${LHAPDF_LIB} \
 	--with-lhapdf5-inc=${LHAPDF_INC} \
 	--with-pythia6-lib=${PYTHIA_LIB} \
-	--enable-geant4 \
-        --enable-lhapdf6 \
-        --disable-lhapdf5
+	--enable-geant4
 else 
     ./configure \
 	--enable-gsl \
