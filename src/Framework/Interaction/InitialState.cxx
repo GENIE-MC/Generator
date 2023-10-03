@@ -378,9 +378,9 @@ TLorentzVector * InitialState::GetProbeP4(RefFrame_t ref_frame) const
        case (kRfHitElRest) :
        {
         //Ensure target is electron
-        // if (!pdg::IsElectron(fTgt->HitPartPdg())){
-        //   return nullptr;
-        // }
+        if (!pdg::IsElectron(fTgt->HitPartPdg())){
+          return nullptr;
+        }
         TLorentzVector * pele4 = fTgt->HitPartP4Ptr();
 
         // compute velocity vector

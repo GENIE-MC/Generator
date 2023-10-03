@@ -65,6 +65,7 @@ InteractionList * NuEInteractionListGenerator::IMDInteractionList(
 
   ProcessInfo   proc_info(kScInverseMuDecay, kIntWeakCC);
   Interaction * interaction = new Interaction(init, proc_info);
+  interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg(kPdgElectron);
 
   intlist->push_back(interaction);
 
@@ -91,6 +92,7 @@ InteractionList * NuEInteractionListGenerator::IMDAnnihilationInteractionList(
 
   ProcessInfo   proc_info(kScIMDAnnihilation, kIntWeakCC);
   Interaction * interaction = new Interaction(init, proc_info);
+  interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg(kPdgElectron);
 
   intlist->push_back(interaction);
 
@@ -115,13 +117,13 @@ InteractionList * NuEInteractionListGenerator::NuEELInteractionList(
 
   // clone init state and de-activate the struck nucleon info
   InitialState init(init_state);
-  init_state.TgtPtr()->SetHitPartPdg(kPdgElectron);
 
   // NC
   if(nupdg == kPdgNuMu  || nupdg == kPdgAntiNuMu ||
      nupdg == kPdgNuTau || nupdg == kPdgAntiNuTau) {
      ProcessInfo   proc_info(kScNuElectronElastic,  kIntWeakNC);
      Interaction * interaction = new Interaction(init, proc_info);
+     interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg(kPdgElectron);
      intlist->push_back(interaction);
   }
 
@@ -129,6 +131,7 @@ InteractionList * NuEInteractionListGenerator::NuEELInteractionList(
   if(nupdg == kPdgNuE  || nupdg == kPdgAntiNuE) {
      ProcessInfo   proc_info(kScNuElectronElastic,  kIntWeakMix);
      Interaction * interaction = new Interaction(init, proc_info);
+     interaction->InitStatePtr()->TgtPtr()->SetHitPartPdg(kPdgElectron);
      intlist->push_back(interaction);
   }
 

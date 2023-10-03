@@ -165,7 +165,6 @@
    <config alg="genie::AlamSimoAtharVacasSKXSec">    AlamSimoAtharVacasSKXSec.xml    </config>
    <config alg="genie::RESXSec">                     RESXSec.xml                     </config>
    <config alg="genie::MECXSec">                     MECXSec.xml                     </config>
-   <config alg="genie::NuElectronXSec">              NuElectronXSec.xml              </config>
    <config alg="genie::DMElectronXSec">              DMElectronXSec.xml              </config>
    <config alg="genie::DMELXSec">                    DMELXSec.xml                    </config>
    <config alg="genie::DMDISXSec">                   DMDISXSec.xml                   </config>
