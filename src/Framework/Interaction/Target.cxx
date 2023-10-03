@@ -116,12 +116,12 @@ void Target::CleanUp(void)
 void Target::Copy(const Target & tgt)
 {
   fTgtPDG = tgt.fTgtPDG;
+  fHitPartPDG = tgt.fHitPartPDG; // struck nucleon PDG
 
   if( pdg::IsIon(fTgtPDG) ) {
 
      fZ          = tgt.fZ; // copy A,Z
      fA          = tgt.fA;
-     fHitPartPDG = tgt.fHitPartPDG; // struck nucleon PDG
      fHitQrkPDG  = tgt.fHitQrkPDG; // struck quark PDG
      fHitSeaQrk  = tgt.fHitSeaQrk; // struck quark is from sea?
 
