@@ -34,8 +34,8 @@ STFC, Rutherford Appleton Laboratory
 
   <!--  <param type="alg"  name="NuclearModel">                 genie::EffectiveSF/Default </param> -->
   <!-- <param type="alg"  name="NuclearModel">                 genie::FGMBodekRitchie/Default </param> -->
-  <param type="alg"  name="NuclearModel">                 genie::LocalFGM/Default </param>
-<!--  <param type="alg"  name="NuclearModel">                 genie::LocalFGM/Correlated </param>-->
+  <!-- <param type="alg"  name="NuclearModel">                 genie::LocalFGM/Default </param> -->
+ <param type="alg"  name="NuclearModel">                 genie::LocalFGM/Correlated </param>
 
 
 <!--
