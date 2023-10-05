@@ -29,8 +29,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _NU_ELECTRON_XSEC_H_
-#define _NU_ELECTRON_XSEC_H_
+#ifndef _X_Sec_On_Electron_H_
+#define _X_Sec_On_Electron_H_
 
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
@@ -56,4 +56,4 @@ private:
 };
 
 }       // genie namespace
-#endif  // _NU_ELECTRON_XSEC_H_
+#endif  // _X_Sec_On_Electron_H_

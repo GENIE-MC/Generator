@@ -10,11 +10,11 @@
 
   Configurable Parameters:
   ....................................................................................
-  Name                    Type     Optional   Comment                         Default
-  XSec-Integrator         alg      No                                         genie::XSecOnElectron/Default 
-  Electron-Velocity       alg      No                                         genie::ElectronVelocityMap/Default
-  N-Integration-Samples   int      No                                         10000
-  NuE-XSecRelError        double   No                                         0.0001
+  Name                    Type     Optional   Comment                                       Default
+  XSec-Integrator         alg      No                                                       genie::XSecOnElectron/Default 
+  Electron-Velocity       alg      No                                                       genie::ElectronVelocityMap/Default
+  N-Integration-Samples   int      No         max iteration in case error doesn't converge  10000
+  NuE-XSecRelError        double   No         error to accept xsec in integrator            0.001
   ....................................................................................
   -->
 

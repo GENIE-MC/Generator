@@ -7,12 +7,12 @@ Configuration for the NuElectronPXSec xsec algorithm.
 
 Configurable Parameters:
 ....................................................................................
-Name                    Type     Optional   Comment                         Default
-WeinbergAngle           double   No                                         CommonParam[WeakInt] 
-XSec-Integrator         alg      No                                         genie::XSecOnElectron/Default 
-Electron-Velocity       alg      No                                         genie::ElectronVelocityMap/Default
-N-Integration-Samples   int      No                                         genie::PXSecOnElectron/Default
-NuE-XSecRelError        double   No                                         genie::PXSecOnElectron/Default
+Name                    Type     Optional   Comment                                       Default
+WeinbergAngle           double   No                                                       CommonParam[WeakInt] 
+XSec-Integrator         alg      No                                                       genie::XSecOnElectron/Default 
+Electron-Velocity       alg      No                                                       genie::ElectronVelocityMap/Default
+N-Integration-Samples   int      No         max iteration in case error doesn't converge  10000
+NuE-XSecRelError        double   No         error to accept xsec in integrator            0.001
 ....................................................................................
 -->
 
@@ -20,8 +20,8 @@ NuE-XSecRelError        double   No                                         geni
     <param type="string"  name="CommonParam"> WeakInt  </param>
     <param type="alg"  name="XSec-Integrator"> genie::XSecOnElectron/Default  </param>
     <param type="alg"  name="Electron-Velocity"> genie::ElectronVelocityMap/Default  </param>
-    <param type="int"    name ="N-Integration-Samples" > genie::PXSecOnElectron/Default  </param>
-    <param type="double"    name ="NuE-XSecRelError" > genie::PXSecOnElectron/Default  </param>
+    <param type="int"    name ="N-Integration-Samples" > 10000  </param>
+    <param type="double"    name ="NuE-XSecRelError" > 0.001  </param>
   </param_set>
 
 </alg_conf>

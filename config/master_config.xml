@@ -199,7 +199,6 @@
    <config alg="genie::KLVOxygenIBDPXSec">                  KLVOxygenIBDPXSec.xml                  </config>
    <config alg="genie::PattonCEvNSPXSec">                   PattonCEvNSPXSec.xml                   </config>
    <config alg="genie::NuElectronPXSec">                    NuElectronPXSec.xml                    </config>
-   <config alg="genie::PXSecOnElectron">                    PXSecOnElectron.xml                    </config>
    <config alg="genie::DMElectronPXSec">                    DMElectronPXSec.xml                    </config>
    <config alg="genie::GLRESPXSec">                         GLRESPXSec.xml                         </config>
    <config alg="genie::HENuElPXSec">                        HENuElPXSec.xml                        </config>

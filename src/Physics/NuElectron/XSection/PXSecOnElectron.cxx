@@ -82,9 +82,10 @@ double PXSecOnElectron::Integral(const Interaction * interaction) const
 //____________________________________________________________________________
 bool PXSecOnElectron::ValidProcess(const Interaction * interaction) const
 {
-  //if(pdg::IsElectron(interaction->InitState().ProbePdg())) return true;
-  if(interaction->TestBit(kISkipProcessChk)) return true;
-  return true;
+  bool is_valid = true;
+  if(!pdg::IsElectron(interaction->InitState().TgtPtr()->HitPartPdg())) is_valid = false;
+  if(!interaction->TestBit(kISkipProcessChk)) is_valid = false;
+  return is_valid;
 }
 //____________________________________________________________________________
 bool PXSecOnElectron::ValidKinematics(const Interaction* interaction) const
