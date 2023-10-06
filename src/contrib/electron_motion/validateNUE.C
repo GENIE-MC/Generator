@@ -32,11 +32,17 @@ void make_dists(TString filename = "gntp.0.ghep.root", TString dir="",bool print
   std::string title_car = "Velocity Distributions";
   const char *char_title_car = title_car.c_str();
 
+  std::string title_mom = "Momentum Distributions";
+  const char *char_title_mom = title_mom.c_str();
+
   std::string title_ang = "Angular Distributions";
   const char *char_title_ang = title_ang.c_str();
 
   std::string title_y = "y Distribution";
   const char *char_title_y = title_y.c_str();
+
+  std::string title_xsec = "xsec";
+  const char *char_title_xsec = title_xsec.c_str();
 
 
   //SEt histograms
@@ -44,11 +50,24 @@ void make_dists(TString filename = "gntp.0.ghep.root", TString dir="",bool print
   TH1F *vy_dist = new TH1F("vy",char_title_car,20,-0.15,0.15);
   TH1F *vz_dist = new TH1F("vz",char_title_car,20,-0.15,0.15);
 
+  TH1F *px_dist = new TH1F("px",char_title_mom,20,-1e-4,1e-4);
+  TH1F *py_dist = new TH1F("py",char_title_mom,20,-1e-4,1e-4);
+  TH1F *pz_dist = new TH1F("pz",char_title_mom,20,-1e-4,1e-4);
+
   //2D histogram with cos theta and phi of velocities
   TH2F *ang_dist = new TH2F("ang",char_title_ang,20,-1,1,20,-3.1415,3.1415);
 
   //y distribution
   TH1F *y_dist = new TH1F("y",char_title_y,20,0,1);
+
+  //xsec distribution
+  TH1F *xsec_dist = new TH1F("xsec",char_title_xsec,20,1e-13,1e-16);
+
+  //Scatter plot of E_l theta_e^2 vs theta_l
+  std::vector<double> E_l; //final lepton energy
+  std::vector<double> Etheta2_l; //final lepton etheta^2
+  std::vector<double> theta_l; //final lepton angle
+
 
   NtpMCEventRecord * mcrec = 0;
   tree->SetBranchAddress( "gmcrec", &mcrec);
@@ -65,21 +84,41 @@ void make_dists(TString filename = "gntp.0.ghep.root", TString dir="",bool print
 
     if (proc_info.IsElectronScattering()){
       GHepParticle * electron = event.HitElectron(); //Find initial electron
+      GHepParticle * fs_lepton = event.FinalStatePrimaryLepton(); //Find final state lepton
+      GHepParticle * init_neutrino = event.Probe(); //Find initial neutrino
+
       const TLorentzVector & pe = *( electron -> P4() ) ; //Get its 4 momentum
+      const TLorentzVector & ple = *( fs_lepton -> P4() ) ; //Get final state lepton 4 momentum
+      
       //Get velocity from four momentum
-      //double vx = calc_velocity(pe.Px(),electron->Mass());
       double vx = pe.Px()/electron->Energy();
       double vy = pe.Py()/electron->Energy();
       double vz = pe.Pz()/electron->Energy();
+
+      double fs_vx = ple.Px()/fs_lepton->Energy();
+      double fs_vy = ple.Py()/fs_lepton->Energy();
+      double fs_vz = ple.Pz()/fs_lepton->Energy();
 
       //Get angles
       double costheta = vz/(sqrt(pow(vx,2)+pow(vy,2)+pow(vz,2)));
       double phi = vy/abs(vy)*acos(vx/(sqrt(pow(vx,2)+pow(vy,2))));
 
+      double fs_costheta = fs_vz/(sqrt(pow(fs_vx,2)+pow(fs_vy,2)+pow(fs_vz,2)));
+
+      //Fill vectors
+      E_l.push_back(ple.E());
+      theta_l.push_back(acos(fs_costheta));
+      Etheta2_l.push_back(pow(acos(fs_costheta),2)*ple.E());
+
       //Fill histograms
-      vx_dist->Fill(pe.Px());
-      vy_dist->Fill(pe.Py());
-      vz_dist->Fill(pe.Pz());
+      vx_dist->Fill(vx);
+      vy_dist->Fill(vy);
+      vz_dist->Fill(vz);
+
+      //Fill momentum distributions
+      px_dist->Fill(pe.Px());
+      py_dist->Fill(pe.Py());
+      pz_dist->Fill(pe.Pz());
 
       //Fill 2d histogram with angles
       ang_dist->Fill(costheta,phi);
@@ -87,13 +126,22 @@ void make_dists(TString filename = "gntp.0.ghep.root", TString dir="",bool print
       //Fill y distribution
       y_dist->Fill(inter.Kine().y(true));
 
+      //Fill xsec distribution
+      xsec_dist->Fill(event.XSec()/init_neutrino->Energy()); //normalize to neutrino energy
+
       //Print out values
       if (print_summary){
+        std::cout<<"Event "<<i<<std::endl;
         std::cout<<"Mass = "<<electron->Mass()<<std::endl;
         std::cout<<"px = "<<pe.Px()<< " py = "<<pe.Py()<<" pz = "<<pe.Pz()<<std::endl;
         std::cout<<"vx = "<<vx<< " vy = "<<vy<<" vz = "<<vz<<std::endl;
         std::cout<<"costheta = "<<costheta<<" phi = "<<phi<<std::endl;
         std::cout<<"y = "<<inter.Kine().y(true)<<std::endl;
+        std::cout<<"E_l = "<<ple.E()<<std::endl;
+        std::cout<<"theta_l = "<<acos(fs_costheta)<<std::endl;
+        std::cout<<"xsec = "<<event.XSec()<<std::endl;
+        std::cout<<"E_nu = "<<init_neutrino->Energy()<<std::endl;
+        std::cout<<"---------------------------------"<<std::endl;
       }
       
 
@@ -141,7 +189,6 @@ void make_dists(TString filename = "gntp.0.ghep.root", TString dir="",bool print
   ang_dist->Draw("COLZ");
   ang_dist->GetXaxis()->SetTitle("cos#theta");
   ang_dist->GetYaxis()->SetTitle("#phi");
-  ang_dist->SetStats(kFALSE);
   ang_dist->Write();
 
   if (print_to_pdf){
@@ -153,7 +200,6 @@ void make_dists(TString filename = "gntp.0.ghep.root", TString dir="",bool print
   TCanvas canvas3("canvas3");
   y_dist->Draw("HIST");
   y_dist->GetXaxis()->SetTitle("y");
-  y_dist->SetStats(kFALSE);
   y_dist->Write();
 
   if (print_to_pdf){
@@ -161,12 +207,89 @@ void make_dists(TString filename = "gntp.0.ghep.root", TString dir="",bool print
     const char *fo3 = file_out3.c_str();
     canvas3.Print(fo3);
   }
+
+  //Scatter plot of E_l theta_e^2 vs theta_l
+  TCanvas canvas4("canvas4");
+  TGraph *graph = new TGraph(theta_l.size(),&theta_l[0],&Etheta2_l[0]);
+  graph->SetTitle("Etheta2");
+  graph->SetMarkerStyle(20);
+  graph->SetMarkerSize(0.5);
+  graph->SetLineWidth(0);
+  graph->Draw("AP");
+  graph->GetXaxis()->SetTitle("#theta_{l}");
+  graph->GetYaxis()->SetTitle("E_{l}#theta_{l}^{2}");
+  graph->Write();
+
+  if (print_to_pdf){
+    std::string file_out4 = "Plots/etheta.pdf";
+    const char *fo4 = file_out4.c_str();
+    canvas4.Print(fo4);
+  }
+  //Scatter plot of E_l vs theta_l
+  TCanvas canvas6("canvas6");
+  TGraph *g2 = new TGraph(theta_l.size(),&theta_l[0],&E_l[0]);
+  g2->SetTitle("El");
+  g2->SetMarkerStyle(20);
+  g2->SetMarkerSize(0.5);
+  g2->SetLineWidth(0);
+  g2->Draw("AP");
+  g2->GetXaxis()->SetTitle("#theta_{l}");
+  g2->GetYaxis()->SetTitle("E_{l}");
+  g2->Write();
+
+  if (print_to_pdf){
+    std::string file_out6 = "Plots/etheta.pdf";
+    const char *fo6 = file_out6.c_str();
+    canvas4.Print(fo6);
+  }
+
+  //Momentum distribution
+  TCanvas canvas5("canvas5");
+  px_dist->Draw("HIST");
+  px_dist->SetLineColor(kBlack);
+  //px_dist->SetLineWidth
+  px_dist->SetFillColorAlpha(kBlue,0.35);
+  px_dist->GetXaxis()->SetTitle("p [c]");
+  px_dist->SetStats(kFALSE);
+  px_dist->Write();
+
+  py_dist->Draw("SAME");
+  py_dist->SetLineColor(kBlack);
+  py_dist->SetFillColorAlpha(kRed,0.35);
+  py_dist->GetXaxis()->SetTitle("p [c]");
+  py_dist->Write();
+
+  pz_dist->Draw("SAME");
+  pz_dist->SetLineColor(kBlack);
+  pz_dist->SetFillColorAlpha(kGreen,0.35);
+  py_dist->GetXaxis()->SetTitle("p [c]");
+  pz_dist->Write();
+
+  if (print_to_pdf){
+    auto legend = new TLegend(0.1,0.7,0.3,0.9);
+    //legend->SetHeader("The Legend Title","C"); // option "C" allows to center the header
+    legend->AddEntry(px_dist,"px");
+    legend->AddEntry(py_dist,"py");
+    legend->AddEntry(pz_dist,"pz");
+    legend->Draw();
+
+    std::string file_out5 = "Plots/pdist.pdf";
+    const char *fo5 = file_out5.c_str();
+
+    canvas5.Print(fo5);
+  }
+
+  TCanvas canvas7("canvas7");
+  xsec_dist->Draw("HIST");
+  xsec_dist->GetXaxis()->SetTitle("xsec/E_{#nu}");
+  xsec_dist->Write();
   
   file1->Close();
 }
 
-void validateNUE(TString filename = "gntp.0.ghep.root",TString dir=""){
+void validateNUE(TString filename = "gntp.0.ghep.root",TString dir="",bool print_to_pdf=false,
+  bool print_summary=false){
   //Make all distributions
   gSystem->Exec("mkdir -p Plots");
-  make_dists(filename,dir);
+  make_dists(filename,dir,print_to_pdf,print_summary);
 }
