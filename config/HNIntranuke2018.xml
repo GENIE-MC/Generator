@@ -38,6 +38,9 @@ XsecNNCorr          bool    Yes   nuclear medium correction for NN cross section
 	 were tuned using genie::FGMBodekRitchie/Default.
 	 If a systematic validation is desired we recommend to switch this to 
 	  <param type="alg"    name="NuclearModel"> genie::FGMBodekRitchie/Default </param>
+
+   NucRemovalE is the binding E to subtract from cascade nucleons (in GeV)
+
     -->
 
     <param type="bool" name="HNINUKE-UseOset"> true  </param>

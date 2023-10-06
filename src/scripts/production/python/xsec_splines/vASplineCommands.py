@@ -47,7 +47,7 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                       grid_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh',
                       genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', 
                       time=8, memory="2GB", disk="2GB", 
-                      git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator") :
+                      git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator", configure_INCL=False, configure_G4=False) :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-xsec_vA'
     
@@ -137,7 +137,8 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                 
                 shell_file = ''
                 if grid_system == 'FNAL' :
-                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc ) 
+                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_setup, genie_setup, conf_dir, in_files, 
+                                                          git_branch, git_loc, configure_INCL,configure_G4 ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
 
@@ -166,7 +167,8 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                 
                 shell_file = ''
                 if grid_system == 'FNAL' :
-                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc ) 
+                    shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", grid_setup, genie_setup, conf_dir, in_files, git_branch, 
+                                                          git_loc, configure_INCL, configure_G4 ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 
 

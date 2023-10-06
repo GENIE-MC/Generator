@@ -53,9 +53,8 @@ e_name_def = { 11 : 'e',
 def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir='', tune='G18_02_02_11b', gen_list='all',version='master', conf_dir='', grid_system='FNAL', group='genie', 
                          arch='SL6.x86_64', production='routine_validation', cycle='01', softw_topdir=os.getenv('GENIE_MASTER_DIR'),
                          genie_topdir=os.getenv('GENIE'), grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh',
-                         genie_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', 
-                         jobs_topdir=os.getenv('PWD'), add_list=False, add_nucleons = False, 
-                         time=2, memory="2GB",disk="2GB", git_branch="master", git_loc="https://github.com/GENIE-MC/Generator" ) :
+                         genie_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', jobs_topdir=os.getenv('PWD'), add_list=False, add_nucleons = False, 
+                         time=2, memory="2GB",disk="2GB", git_branch="master", git_loc="https://github.com/GENIE-MC/Generator", configure_INCL=False, configure_G4=False ) :
     
     # Store root output only for vA spilnes:
     root_output = False 
@@ -187,11 +186,11 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
             commands.append(com_proc) 
             com_nu += path+nu+"_on_"+tgt+".xml,"
         com_nu = com_nu[:-1]
-        if len(dict_target[tgt]) == 1 : 
-            commands.append("ifdh cp "+path+nu+"_on_"+tgt+".xml "+path+tgt+".xml")
-        else :
-            commands.append(com_nu) 
-        com_total += tgt+".xml,"
+        #if len(dict_target[tgt]) == 1 : 
+        #    commands.append("ifdh cp "+path+nu+"_on_"+tgt+".xml "+path+tgt+".xml")
+        #else :
+        #    commands.append(com_nu) 
+        com_total += nu+"_on_"+tgt+".xml,"
     com_total = com_total[:-1]
 
     ## if only one target simply rename
@@ -232,7 +231,7 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
     shell_file = ''
     command_list = []
     if grid_system == 'FNAL' :
-        shell_file=FNAL.CreateShellScript ( commands , xml_dir, process_name, out_files, grid_setup, genie_setup, conf_dir, in_xml_files, git_branch, git_loc ) 
+        shell_file=FNAL.CreateShellScript ( commands , xml_dir, process_name, out_files, grid_setup, genie_setup, conf_dir, in_xml_files, git_branch, git_loc, configure_INCL,configure_G4 ) 
         grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup, time, memory, disk )
         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 

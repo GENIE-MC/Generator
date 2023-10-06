@@ -329,7 +329,7 @@ double BSKLNBaseRESPXSec2014::XSec(
 
     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"GA= " <<GA << "  C5A= " <<CA5;
   } else { 
-    LOG("BSKLNBaseRESPXSec2014",pDEBUG << "Using dipole parametrization for GV") ;
+    LOG("BSKLNBaseRESPXSec2014",pDEBUG << "Using dipole parametrization for GA") ;
   }
 
   if(is_EM) {
@@ -445,26 +445,15 @@ double BSKLNBaseRESPXSec2014::XSec(
   const RSHelicityAmplModelI * hamplmod_BRS_minus = 0;
   const RSHelicityAmplModelI * hamplmod_BRS_plus = 0;
 
-  // These lines were ~ 100 lines below, which means that, for EM interactions, the coefficients below were still calculated using the weak coupling constant - Afro
-  double g2 = fFermiConstant2;
 
-  // For EM interaction replace  G_{Fermi} with :
-  // a_{em} * pi / ( sqrt(2) * sin^2(theta_weinberg) * Mass_{W}^2 }
-  // See C.Quigg, Gauge Theories of the Strong, Weak and E/M Interactions,
-  // ISBN 0-8053-6021-2, p.112 (6.3.57)
-  // Also, take int account that the photon propagator is 1/p^2 but the
-  // W propagator is 1/(p^2-Mass_{W}^2), so weight the EM case with
-  // Mass_{W}^4 / q^4
-  // So, overall:
-  // G_{Fermi}^2 --> a_{em}^2 * pi^2 / (2 * sin^4(theta_weinberg) * q^{4})
-  //
+  double g2 = kGF2;  // NC
+  if(is_CC) g2 *= fVud2;
 
-  if(is_EM) {
+  if(is_EM) 
+  {
     double q4 = q2*q2;
-    g2 = fFineStructure2 * kPi2 / (2.0 * fSin48w * q4);
+    g2 = 8*kAem2*kPi2/q4;
   }
-
-  if(is_CC) g2 = fFermiConstant2*fVud2;
 
   double sig0 = 0.125*(g2/kPi)*(-q2/Q2)*(W/Mnuc);
   double scLR = W/Mnuc;
@@ -768,6 +757,7 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   // Cross section scaling factors
   this->GetParam( "RES-CC-XSecScale", fXSecScaleCC ) ;
   this->GetParam( "RES-NC-XSecScale", fXSecScaleNC ) ;
+  this->GetParam( "RES-EM-XSecScale", fXSecScaleEM ) ;
 
   // Load all configuration data or set defaults
 
@@ -792,9 +782,6 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
 
   this->GetParamDef( "BreitWignerWeight", fWghtBW, true ) ;
   this->GetParamDef( "BreitWignerNorm",   fNormBW, true);
-  double thw ;
-  this->GetParam( "WeinbergAngle", thw ) ;
-  fSin48w = TMath::Power( TMath::Sin(thw), 4 );
   double Vud;
   this->GetParam("CKM-Vud", Vud );
   fVud2 = TMath::Power( Vud, 2 );
