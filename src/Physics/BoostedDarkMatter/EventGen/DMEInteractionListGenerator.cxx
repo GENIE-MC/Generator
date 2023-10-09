@@ -65,7 +65,7 @@ InteractionList * DMEInteractionListGenerator::DMEELInteractionList(
 
   // clone init state and de-activate the struck nucleon info
   InitialState init(init_state);
-  init_state.TgtPtr()->SetHitNucPdg(0);
+  init_state.TgtPtr()->SetHitPartPdg(0);
 
   if(nupdg == kPdgDarkMatter  || nupdg == kPdgAntiDarkMatter) {
      ProcessInfo   proc_info(kScDarkMatterElectron,  kIntDarkMatter);

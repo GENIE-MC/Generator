@@ -129,7 +129,7 @@ bool GLRESPXSec::ValidProcess(const Interaction* interaction) const
   const InitialState & init_state = interaction -> InitState();
   if(!pdg::IsAntiNuE(init_state.ProbePdg())) return false;
 
-  if(init_state.Tgt().HitNucIsSet()) return false;
+  if(init_state.Tgt().HitPartIsSet()) return false;
  
   return true;
 }

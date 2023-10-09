@@ -128,7 +128,7 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   // dinucleon was set we will calculate the cross-section for that
   // component only
 
-  bool pn = (interaction->InitState().Tgt().HitNucPdg() == kPdgClusterNP);
+  bool pn = (interaction->InitState().Tgt().HitPartPdg() == kPdgClusterNP);
 
   // Compute the cross section using the hadron tensor
   double xsec = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value);
