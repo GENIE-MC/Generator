@@ -72,7 +72,8 @@ namespace {
 
   // Default set of implemented NuHepMC conventions
   const std::set< std::string > NUHEPMC_CONVENTIONS(
-    { "G.C.1", "G.C.4", "G.C.6", "G.S.2", "E.C.1", "E.C.5", "P.C.1" } );
+    { "G.C.1", "G.C.4", "G.C.6", "G.S.2", "E.C.1", "E.C.2", "E.C.4", "E.C.5",
+      "P.C.1" } );
 
   // Implemented version of the NuHepMC standard
   // (https://github.com/NuHepMC/Spec)
@@ -533,7 +534,18 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
   if ( !fRunInfo ) this->PrepareRunInfo( &gevrec );
   evt->set_run_info( fRunInfo );
 
-  if ( fMCDriver ) this->PrepareMCDriverEventInfo( *evt, gevrec );
+  // E.C.2
+  double totXS = gevrec.TotInclXSec() / genie::units::picobarn;
+  evt->add_attribute( "TotXS",
+    std::make_shared< HepMC3::DoubleAttribute >(totXS) );
+
+  // E.C.4
+  double flux_avg_xsec = gevrec.FluxAvgXSec() / genie::units::picobarn;
+  double flux_avg_xsec_err = gevrec.FluxAvgXSecErr() / genie::units::picobarn;
+
+  auto gen_xsec = std::make_shared< HepMC3::GenCrossSection >();
+  gen_xsec->set_cross_section( flux_avg_xsec, flux_avg_xsec_err );
+  evt->set_cross_section( gen_xsec );
 
   // Return the completed HepMC3::GenEvent object
   return evt;
@@ -838,10 +850,6 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
 
   // G.C.1
   std::set< std::string > conventions = NUHEPMC_CONVENTIONS;
-  if ( fMCDriver ) {
-    conventions.insert( "E.C.2" );
-    conventions.insert( "E.C.4" );
-  }
 
   std::vector< std::string > convention_vec;
   for ( const std::string& con : conventions ) {
@@ -1486,42 +1494,5 @@ int genie::HepMC3Converter::GetNuHepMCProcessID(
   }
   int id_code = id_iter->second;
   return id_code;
-}
-//____________________________________________________________________________
-void genie::HepMC3Converter::AttachGMCJDriver(
-  const genie::GMCJDriver* mc_driver )
-{
-  fMCDriver = mc_driver;
-}
-//____________________________________________________________________________
-void genie::HepMC3Converter::PrepareMCDriverEventInfo( HepMC3::GenEvent& evt,
-  const genie::EventRecord& gevrec )
-{
-  // Double check that the MC driver object is still attached
-  if ( !fMCDriver ) return;
-
-  // E.C.2
-  const genie::InitialState& init_state = gevrec.Summary()->InitState();
-  genie::GEVGDriver* evg_driver = fMCDriver
-    ->EvGenPool().FindDriver( init_state );
-  // These if statements protect against null-pointer-induced segfaults
-  if ( evg_driver ) {
-    const genie::Spline* tot_xsec_spl = evg_driver->XSecSumSpline();
-    if ( tot_xsec_spl ) {
-      double Ev = init_state.ProbeE( genie::kRfLab );
-      double totXS = tot_xsec_spl->Evaluate( Ev ) / genie::units::picobarn;
-
-      evt.add_attribute( "TotXS",
-        std::make_shared< HepMC3::DoubleAttribute >(totXS) );
-    }
-  }
-
-  // E.C.4
-  double xsec = fMCDriver->FluxAvgTotXSec() / genie::units::picobarn;
-  double xsec_err = fMCDriver->FluxAvgTotXSecError() / genie::units::picobarn;
-
-  auto gen_xsec = std::make_shared< HepMC3::GenCrossSection >();
-  gen_xsec->set_cross_section( xsec, xsec_err );
-  evt.set_cross_section( gen_xsec );
 }
 #endif //__GENIE_HEPMC3_INTERFACE_ENABLED__

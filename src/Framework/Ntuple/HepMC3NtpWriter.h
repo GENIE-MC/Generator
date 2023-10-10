@@ -53,8 +53,6 @@ public:
   ///< save the event tree
   virtual void Save() override;
 
-  virtual void AttachGMCJDriver( const GMCJDriver* mc_driver ) override;
-
 protected:
 
   virtual void SetDefaultFilename(
