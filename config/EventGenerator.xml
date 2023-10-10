@@ -571,13 +571,13 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
 
   <!-- MK single pion production model -->
 
-  <param_set name="MKSPP-CC">
+  <param_set name="SPP-CC">
      <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   10                                                   </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
      <param type="alg"    name="Module-2">   genie::FermiMover/Default                            </param>
-     <param type="alg"    name="Module-3">   genie::MKSPPEventGenerator/Default                    </param>
+     <param type="alg"    name="Module-3">   genie::SPPEventGenerator/Default                    </param>
      <param type="alg"    name="Module-4">   genie::PauliBlocker/Default                          </param>
      <param type="alg"    name="Module-5">   genie::UnstableParticleDecayer/BeforeHadronTransport </param>
      <param type="alg"    name="Module-6">   genie::NucDeExcitationSim/Default                    </param>
@@ -587,13 +587,13 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="ILstGen">    genie::RSPPInteractionListGenerator/CC-Default       </param>
   </param_set>
 
-  <param_set name="MKSPP-NC">
+  <param_set name="SPP-NC">
      <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   10                                                   </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
      <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
      <param type="alg"    name="Module-2">   genie::FermiMover/Default                            </param>
-     <param type="alg"    name="Module-3">   genie::MKSPPEventGenerator/Default                    </param>
+     <param type="alg"    name="Module-3">   genie::SPPEventGenerator/Default                    </param>
      <param type="alg"    name="Module-4">   genie::PauliBlocker/Default                          </param>
      <param type="alg"    name="Module-5">   genie::UnstableParticleDecayer/BeforeHadronTransport </param>
      <param type="alg"    name="Module-6">   genie::NucDeExcitationSim/Default                    </param>

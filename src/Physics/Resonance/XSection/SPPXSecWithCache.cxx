@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
-  Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+  Copyright (c) 2003-2023, GENIE Neutrino MC Generator Collaboration
   For the full text of the license visit http://copyright.genie-mc.org
   or see $GENIE/LICENSE
 
@@ -37,7 +37,7 @@
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGLibrary.h"
-#include "Physics/Resonance/XSection/MKSPPXSecWithCache.h"
+#include "Physics/Resonance/XSection/SPPXSecWithCache.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/Cache.h"
@@ -53,30 +53,30 @@ using namespace genie::controls;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-MKSPPXSecWithCache::MKSPPXSecWithCache() :
+SPPXSecWithCache::SPPXSecWithCache() :
   XSecIntegratorI()
 {
 
 }
 //____________________________________________________________________________
-MKSPPXSecWithCache::MKSPPXSecWithCache(string nm) :
+SPPXSecWithCache::SPPXSecWithCache(string nm) :
   XSecIntegratorI(nm)
 {
 
 }
 //____________________________________________________________________________
-MKSPPXSecWithCache::MKSPPXSecWithCache(string nm,string conf):
+SPPXSecWithCache::SPPXSecWithCache(string nm,string conf):
   XSecIntegratorI(nm,conf)
 {
 
 }
 //____________________________________________________________________________
-MKSPPXSecWithCache::~MKSPPXSecWithCache()
+SPPXSecWithCache::~SPPXSecWithCache()
 {
 
 }
 //____________________________________________________________________________
-void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
+void SPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
 {
   // Cache resonance neutrino production data from free nucleons
 
@@ -117,7 +117,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
   assert(!cache_branch);
   
   // Create the new cache branch
-  LOG("MKSPPCache", pNOTICE)
+  LOG("SPPCache", pNOTICE)
     << "\n ** Creating cache branch - key = " << key;
   cache_branch = new CacheBranchFx("ResSPP XSec");
   cache->AddCacheBranch(key, cache_branch);
@@ -126,7 +126,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
   const KPhaseSpace& kps = in->PhaseSpace();
     
   double Ethr = kps.Threshold_SPP_iso();
-  LOG("MKSPPCache", pNOTICE) << "E threshold = " << Ethr;
+  LOG("SPPCache", pNOTICE) << "E threshold = " << Ethr;
 
   // Distribute the knots in the energy range as is being done in the
   // XSecSplineList so that the energy threshold is treated correctly
@@ -155,7 +155,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
     
     if(Ev>Ethr+kASmallNum) {
       
-      LOG("MKSPPCache", pINFO)
+      LOG("SPPCache", pINFO)
       << "*** Integrating d^3 XSec/dWdQ^2dCosTheta for Ch: "
       << SppChannel::AsString(spp_channel) << " at Ev = " << Ev;
       
@@ -174,7 +174,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
       xsec = ig.Integral(kine_min, kine_max)*(1E-38 * units::cm2);;
     } 
     else 
-      LOG("MKSPPCache", pINFO) << "** Below threshold E = " << Ev << " <= " << Ethr;
+      LOG("SPPCache", pINFO) << "** Below threshold E = " << Ev << " <= " << Ethr;
     
     cache_branch->AddValues(Ev,xsec);
     
@@ -182,8 +182,8 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
     string nc_nuc   = ((pdg::IsNeutrino(nu_code)) ? ";v:" : ";vb:");
     
     
-    SLOG("MKSPPCache", pNOTICE)
-      << "ResSPP XSec (Ch:" << SppChannel::AsString(spp_channel) << nc_nuc  << nu_code
+    SLOG("SPPCache", pNOTICE)
+      << "SPP XSec (Ch:" << SppChannel::AsString(spp_channel) << nc_nuc  << nu_code
       << ", E="<< Ev << ") = "<< xsec << " x 1E-38 cm^2";
   }//spline knots
   
@@ -192,7 +192,7 @@ void MKSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
     
 }
 //____________________________________________________________________________
-string MKSPPXSecWithCache::CacheBranchName(
+string SPPXSecWithCache::CacheBranchName(
                     SppChannel_t spp_channel, InteractionType_t it, int nupdgc) const
 {
   // Build a unique name for the cache branch

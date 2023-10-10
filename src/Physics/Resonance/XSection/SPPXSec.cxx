@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2023, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -31,7 +31,7 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGCodes.h"
-#include "Physics/Resonance/XSection/MKSPPXSec.h"
+#include "Physics/Resonance/XSection/SPPXSec.h"
 #include "Framework/Utils/RunOpt.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
@@ -46,24 +46,24 @@ using namespace genie::constants;
 using namespace genie::units;
 
 //____________________________________________________________________________
-MKSPPXSec::MKSPPXSec() :
-MKSPPXSecWithCache("genie::MKSPPXSec")
+SPPXSec::SPPXSec() :
+SPPXSecWithCache("genie::SPPXSec")
 {
 
 }
 //____________________________________________________________________________
-MKSPPXSec::MKSPPXSec(string config) :
-MKSPPXSecWithCache("genie::MKSPPXSec", config)
+SPPXSec::SPPXSec(string config) :
+SPPXSecWithCache("genie::SPPXSec", config)
 {
 
 }
 //____________________________________________________________________________
-MKSPPXSec::~MKSPPXSec()
+SPPXSec::~SPPXSec()
 {
 
 }
 //____________________________________________________________________________
-double MKSPPXSec::Integrate(
+double SPPXSec::Integrate(
           const XSecAlgorithmI * model, const Interaction * interaction) const
 {
   if(!model->ValidProcess(interaction) ) return 0.;
@@ -107,7 +107,7 @@ double MKSPPXSec::Integrate(
     {
       const Spline * spl = xsl->GetSpline(model, in);
       double xsec = spl->Evaluate(Enu);
-      SLOG("MKSPPXSec", pNOTICE)  
+      SLOG("SPPXSec", pNOTICE)  
          << "XSec[Channel/" << SppChannel::AsString(spp_channel) << "/free] (Ev = " 
                << Enu << " GeV) = " << xsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
       if(! interaction->TestBit(kIAssumeFreeNucleon) ) 
@@ -132,21 +132,21 @@ double MKSPPXSec::Integrate(
   {
      Cache * cache = Cache::Instance();
      string key = this->CacheBranchName(spp_channel, it, nu_pdgc);
-     LOG("MKSPPXSec", pINFO) 
+     LOG("SPPXSec", pINFO) 
          << "Finding cache branch with key: " << key;
      CacheBranchFx * cache_branch =
          dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
      if(!cache_branch) {
-        LOG("MKSPPXSec", pWARN)  
+        LOG("SPPXSec", pWARN)  
            << "No cached ResSPP v-production data for input neutrino"
            << " (pdgc: " << nu_pdgc << ")";
-        LOG("MKSPPXSec", pWARN)  
+        LOG("SPPXSec", pWARN)  
            << "Wait while computing/caching ResSPP production xsec first...";
 
         this->CacheResExcitationXSec(interaction); 
 
-        LOG("MKSPPXSec", pINFO) << "Done caching resonance xsec data";
-        LOG("MKSPPXSec", pINFO) 
+        LOG("SPPXSec", pINFO) << "Done caching resonance xsec data";
+        LOG("SPPXSec", pINFO) 
                << "Finding newly created cache branch with key: " << key;
         cache_branch =
               dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
@@ -160,7 +160,7 @@ double MKSPPXSec::Integrate(
     double rxsec = (Enu<fEMax-1) ? cbranch(Enu) : cbranch(fEMax-1);
 
                
-    SLOG("MKSPPXSec", pNOTICE)
+    SLOG("SPPXSec", pNOTICE)
       << "XSec[Channel: " << SppChannel::AsString(spp_channel) << nc_nuc  << nu_pdgc
       << "/free]  (E="<< Enu << " GeV) = " << rxsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
 
@@ -175,7 +175,7 @@ double MKSPPXSec::Integrate(
   // specified interaction.  
   else 
   {
-    LOG("MKSPPXSec", pINFO)
+    LOG("SPPXSec", pINFO)
           << "*** Integrating d^3 XSec/dWdQ^2dCosTheta for Ch: "
           << SppChannel::AsString(spp_channel) << " at Ev = " << Enu;
     
@@ -194,7 +194,7 @@ double MKSPPXSec::Integrate(
     double xsec = ig.Integral(kine_min, kine_max)*(1E-38 * units::cm2);
     delete func;
       
-    SLOG("MKSPPXSec", pNOTICE)
+    SLOG("SPPXSec", pNOTICE)
       << "XSec[Channel: " << SppChannel::AsString(spp_channel) << nc_nuc  << nu_pdgc
       << "]  (E="<< Enu << " GeV) = " << xsec << " x 1E-38 cm^2";
     return xsec;
@@ -202,19 +202,19 @@ double MKSPPXSec::Integrate(
   return 0;
 }
 //____________________________________________________________________________
-void MKSPPXSec::Configure(const Registry & config)
+void SPPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void MKSPPXSec::Configure(string config)
+void SPPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void MKSPPXSec::LoadConfig(void)
+void SPPXSec::LoadConfig(void)
 {
   
   bool good_conf = true ;
@@ -232,12 +232,12 @@ void MKSPPXSec::LoadConfig(void)
 
   if ( fEMax < 20. ) {
 
-    LOG("MKSPPXSec", pERROR) << "E max is required to be at least 20 GeV, you set " << fEMax << " GeV" ;
+    LOG("SPPXSec", pERROR) << "E max is required to be at least 20 GeV, you set " << fEMax << " GeV" ;
     good_conf = false ;
   }
 
   if ( ! good_conf ) {
-    LOG("MKSPPXSec", pFATAL)
+    LOG("SPPXSec", pFATAL)
       << "Invalid configuration: Exiting" ;
     
     // From the FreeBSD Library Functions Manual

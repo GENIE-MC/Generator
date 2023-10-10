@@ -60,12 +60,12 @@ XSec-Integrator             alg     No
 
 
   <param_set name="WithPauliBlock">
-     <param type="alg"  name="XSec-Integrator">  genie::MKSPPXSec/WithPauliBlock                    </param>
+     <param type="alg"  name="XSec-Integrator">  genie::SPPXSec/WithPauliBlock                    </param>
   </param_set>
 
 
   <param_set name="NoPauliBlock">
-     <param type="alg"  name="XSec-Integrator">  genie::MKSPPXSec/NoPauliBlock                      </param>
+     <param type="alg"  name="XSec-Integrator">  genie::SPPXSec/NoPauliBlock                      </param>
   </param_set>
 
 

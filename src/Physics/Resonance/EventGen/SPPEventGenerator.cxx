@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2020, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -36,7 +36,7 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Conventions/Constants.h"
-#include "Physics/Resonance/EventGen/MKSPPEventGenerator.h"
+#include "Physics/Resonance/EventGen/SPPEventGenerator.h"
 
 using namespace genie;
 using namespace genie::controls;
@@ -44,31 +44,31 @@ using namespace genie::utils;
 using namespace genie::constants;
 
 //___________________________________________________________________________
-MKSPPEventGenerator::MKSPPEventGenerator() :
-KineGeneratorWithCache("genie::MKSPPEventGenerator")
+SPPEventGenerator::SPPEventGenerator() :
+KineGeneratorWithCache("genie::SPPEventGenerator")
 {
 
 }
 //___________________________________________________________________________
-MKSPPEventGenerator::MKSPPEventGenerator(string config) :
-KineGeneratorWithCache("genie::MKSPPEventGenerator", config)
+SPPEventGenerator::SPPEventGenerator(string config) :
+KineGeneratorWithCache("genie::SPPEventGenerator", config)
 {
   
 }
 //___________________________________________________________________________
-MKSPPEventGenerator::~MKSPPEventGenerator()
+SPPEventGenerator::~SPPEventGenerator()
 {
   
 }
 //___________________________________________________________________________
-void MKSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
+void SPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
     
   
-  LOG("MKSPPEventGen", pINFO) << "Generating resonance single pion production event kinematics...";
+  LOG("SPPEventGen", pINFO) << "Generating resonance single pion production event kinematics...";
 
   if(fGenerateUniformly) {
-    LOG("MKSPPEventGen", pNOTICE)
+    LOG("SPPEventGen", pNOTICE)
           << "Generating kinematics uniformly over the allowed phase space";
   }
   
@@ -137,7 +137,7 @@ void MKSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   {
      iter++;
      if(iter > 100*kRjMaxIterations) {
-         LOG("MKSPPEventGen", pWARN)
+         LOG("SPPEventGen", pWARN)
               << "*** Could not select a valid kinematics variable after "
                                                     << iter << " iterations";
          evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
@@ -280,7 +280,7 @@ void MKSPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
 }
 //___________________________________________________________________________
-int MKSPPEventGenerator::GetRecoilNucleonPdgCode(Interaction * interaction) const
+int SPPEventGenerator::GetRecoilNucleonPdgCode(Interaction * interaction) const
 {
    const XclsTag & xcls = interaction->ExclTag();
    if (xcls.NProtons() == 1)
@@ -290,7 +290,7 @@ int MKSPPEventGenerator::GetRecoilNucleonPdgCode(Interaction * interaction) cons
 
 }
 //___________________________________________________________________________
-int MKSPPEventGenerator::GetFinalPionPdgCode(Interaction * interaction) const
+int SPPEventGenerator::GetFinalPionPdgCode(Interaction * interaction) const
 {
    const XclsTag & xcls = interaction->ExclTag();
    if (xcls.NPiPlus() == 1)
@@ -301,19 +301,19 @@ int MKSPPEventGenerator::GetFinalPionPdgCode(Interaction * interaction) const
 
 }
 //___________________________________________________________________________
-void MKSPPEventGenerator::Configure(const Registry & config)
+void SPPEventGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void MKSPPEventGenerator::Configure(string config)
+void SPPEventGenerator::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void MKSPPEventGenerator::LoadConfig(void)
+void SPPEventGenerator::LoadConfig(void)
 {
   
     // Safety factor for the maximum differential cross section
@@ -339,7 +339,7 @@ void MKSPPEventGenerator::LoadConfig(void)
 
 }
 //____________________________________________________________________________
-double MKSPPEventGenerator::ComputeMaxXSec(const Interaction * interaction) const
+double SPPEventGenerator::ComputeMaxXSec(const Interaction * interaction) const
 {
    KPhaseSpace * kps = interaction->PhaseSpacePtr();
    Range1D_t Wl = kps->WLim_SPP_iso();

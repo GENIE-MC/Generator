@@ -70,7 +70,7 @@
    <config alg="genie::NNBarOscPrimaryVtxGenerator">     NNBarOscPrimaryVtxGenerator.xml     </config>
    <config alg="genie::SpectralFunction2p2h">            SpectralFunction2p2h.xml            </config>
    <config alg="genie::SRCNuclearRecoil">                SRCNuclearRecoil.xml                </config>
-   <config alg="genie::MKSPPEventGenerator">             MKSPPEventGenerator.xml             </config>
+   <config alg="genie::SPPEventGenerator">             SPPEventGenerator.xml             </config>
    <config alg="genie::hnl::BRCalculator">               BeamHNLGenerator.xml                </config>
    <config alg="genie::hnl::FluxCreator">                BeamHNLGenerator.xml                </config>
    <config alg="genie::hnl::Decayer">                    BeamHNLGenerator.xml                </config>
@@ -216,8 +216,8 @@
    <config alg="genie::ReinSehgalSPPPXSec">                 ReinSehgalSPPPXSec.xml                 </config>
    <config alg="genie::ReinSehgalRESXSec">                  ReinSehgalRESXSec.xml                  </config>
    <config alg="genie::ReinSehgalSPPXSec">                  ReinSehgalSPPXSec.xml                  </config>
-   <config alg="genie::MKSPPPXSec">                         MKSPPPXSec.xml                         </config>
-   <config alg="genie::MKSPPXSec">                          MKSPPXSec.xml                          </config>
+   <config alg="genie::MKSPPPXSec2020">                     MKSPPPXSec2020.xml                     </config>
+   <config alg="genie::SPPXSec">                          SPPXSec.xml                          </config>
    <config alg="genie::H3AMNuGammaPXSec">                   H3AMNuGammaPXSec.xml                   </config>
    <config alg="genie::EmpiricalMECPXSec2015">              EmpiricalMECPXSec2015.xml              </config>
    <config alg="genie::NievesSimoVacasMECPXSec2016">        NievesSimoVacasMECPXSec2016.xml        </config>

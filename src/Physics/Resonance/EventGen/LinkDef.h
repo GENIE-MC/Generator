@@ -11,7 +11,7 @@
 #pragma link C++ class genie::RESInteractionListGenerator;
 
 #pragma link C++ class genie::RSPPHadronicSystemGenerator;
-#pragma link C++ class genie::MKSPPEventGenerator;
+#pragma link C++ class genie::SPPEventGenerator;
 #pragma link C++ class genie::RESHadronicSystemGenerator;
 #pragma link C++ class genie::RSPPResonanceSelector;
 #pragma link C++ class genie::RSPPInteractionListGenerator;

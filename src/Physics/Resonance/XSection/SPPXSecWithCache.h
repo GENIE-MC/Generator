@@ -1,16 +1,15 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::MKSPPXSecWithCache
+\class    genie::SPPXSecWithCache
 
 \brief    Class that caches neutrino resonance SPP cross sections on free 
-          nucleons according to the MK model. This significantly speeds 
+          nucleons. This significantly speeds 
           the cross section calculation for multiple nuclear targets (eg at the
           spline construction phase, but only for case without Pauli-blocking). 
           This class integrates cross sections faster,
            
-Computes the cross section for an neutrino resonance SPP reaction
-         according to the MK model.
+Computes the cross section for an neutrino resonance SPP reaction.
 
 
 \authors  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
@@ -20,14 +19,14 @@ Computes the cross section for an neutrino resonance SPP reaction
 
 \created  November 12, 2019
 
-\cpright  Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2023, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
-#ifndef _MK_SPP_XSEC_WITH_CACHE_H_
-#define _MK_SPP_XSEC_WITH_CACHE_H_
+#ifndef _SPP_XSEC_WITH_CACHE_H_
+#define _SPP_XSEC_WITH_CACHE_H_
 
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
@@ -41,13 +40,13 @@ Computes the cross section for an neutrino resonance SPP reaction
 
 namespace genie {
 
-class MKSPPXSecWithCache : public XSecIntegratorI {
+class SPPXSecWithCache : public XSecIntegratorI {
 
 protected:
-  MKSPPXSecWithCache();
-  MKSPPXSecWithCache(string name);
-  MKSPPXSecWithCache(string name, string config);
-  virtual ~MKSPPXSecWithCache();
+  SPPXSecWithCache();
+  SPPXSecWithCache(string name);
+  SPPXSecWithCache(string name, string config);
+  virtual ~SPPXSecWithCache();
 
   // Don't implement the XSecIntegratorI interface - leave it for the concrete
   // subclasses. Just define utility methods and data
@@ -100,7 +99,7 @@ private:
 } // utils namespace
 } // genie namespace
 
-#endif  // _MK_SPP_XSEC_WITH_H_
+#endif  // _SPP_XSEC_WITH_H_
 
 
 

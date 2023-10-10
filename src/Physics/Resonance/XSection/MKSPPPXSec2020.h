@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::MKSPPPXSec
+\class    genie::MKSPPPXSec2020
 
 \brief    
 Class calculate differental cross-sections  
@@ -65,14 +65,14 @@ for the following channels:
 
 \created  Nov 12, 2019
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
-#ifndef _MK_SPP_PXSEC_H_
-#define _MK_SPP_PXSEC_H_
+#ifndef _MK_SPP_PXSEC2020_H_
+#define _MK_SPP_PXSEC2020_H_
 
 #include <vector>
 #include <complex>
@@ -96,13 +96,13 @@ namespace genie {
   
   class XSecIntegratorI;
 
-  class MKSPPPXSec: public XSecAlgorithmI {
+  class MKSPPPXSec2020: public XSecAlgorithmI {
 
     
     public:
-      MKSPPPXSec();
-      MKSPPPXSec(string config);
-      virtual ~MKSPPPXSec();
+      MKSPPPXSec2020();
+      MKSPPPXSec2020(string config);
+      virtual ~MKSPPPXSec2020();
 
       // implement the XSecAlgorithmI interface 
       double XSec         (const Interaction * i, KinePhaseSpace_t k) const;
@@ -287,7 +287,7 @@ namespace genie {
             {
               // meaningless to return anything
               gAbortingInErr = true;
-              LOG("MKSPPPXSec", pFATAL) << "Unknown resonance " << res;
+              LOG("MKSPPPXSec2020", pFATAL) << "Unknown resonance " << res;
               exit(1);
             }
             int indx = 2*(2*(4*res+lambda_k)+lambda_2)+lambda_1;
@@ -419,4 +419,4 @@ namespace genie {
   
 }       // genie namespace
 
-#endif  // _MK_SPP_PXSEC_H_
+#endif  // _MK_SPP_PXSEC2020_H_

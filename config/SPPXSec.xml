@@ -3,7 +3,7 @@
 <alg_conf>
 
 <!--
-Configuration for the MK SPP xsec algorithm.
+Configuration for the SPP xsec algorithm.
 This algorithm offers precomputes and caches free nucleon neutrino resonance SPP  cross sections. 
 
 
@@ -31,7 +31,7 @@ ESplineMax                  double  Yes  This integrator can cache splines for f
   <param_set name="WithPauliBlock"> 
   <!--   
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   Account for Pauli blocking in MK model?
+   Account for Pauli blocking in the model?
    If this option is true, when caching for free nucleons is disabled.
   -->   
     <param type="bool"   name="UsePauliBlockingForRES">  true  </param>
@@ -41,7 +41,7 @@ ESplineMax                  double  Yes  This integrator can cache splines for f
   <param_set name="NoPauliBlock"> 
    <!--   
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   Account for Pauli blocking in MK model?
+   Account for Pauli blocking in the model?
    If this option is true, when caching for free nucleons is disabled.
   -->  
     <param type="bool"   name="UsePauliBlockingForRES">  false  </param>

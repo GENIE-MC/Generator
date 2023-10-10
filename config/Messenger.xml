@@ -48,9 +48,9 @@
   <priority msgstream="BaseHad">               NOTICE </priority>
   <priority msgstream="BertuzzoDNuCOH">        NOTICE </priority>
   <priority msgstream="BSKLNBaseRESPXSec2014"> NOTICE </priority>
-  <priority msgstream="MKSPPPXSec">            NOTICE </priority>
-  <priority msgstream="MKSPPXSec">             NOTICE </priority>
-  <priority msgstream="MKSPPCache">            NOTICE </priority>
+  <priority msgstream="MKSPPPXSec2020">        NOTICE </priority>
+  <priority msgstream="SPPXSec">               NOTICE </priority>
+  <priority msgstream="SPPCache">              NOTICE </priority>
   <priority msgstream="BreitWignet">           INFO   </priority>
   <priority msgstream="Bardin">                INFO   </priority>
   <priority msgstream="BodekYang">             INFO   </priority>
@@ -193,7 +193,7 @@
   <priority msgstream="ReinSehgalResCF">       NOTICE </priority>
   <priority msgstream="ReinSehgalSpp">         NOTICE </priority>
   <priority msgstream="RSHAmpl">               WARN   </priority>
-  <priority msgstream="MKSPPEventGen">         NOTICE </priority>
+  <priority msgstream="SPPEventGen">          NOTICE </priority>
   <priority msgstream="Registry">              WARN   </priority>
   <priority msgstream="ReW">                   NOTICE </priority>
   <priority msgstream="RESHadronicVtx">        WARN   </priority>

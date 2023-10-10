@@ -1,10 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::MKSPPXSec
+\class    genie::SPPXSec
 
-\brief    Computes the cross section for an neutrino resonance SPP
-          reaction according to the MK model.
+\brief    Computes the cross section for an neutrino resonance SPP reaction.
 
           Before computing any SPP cross section this algorithm 
           computes and caches splines for neutrino resonance SPP  cross 
@@ -22,25 +21,25 @@
 
 \created  November 12, 2019
 
-\cpright  Copyright (c) 2003-2019, GENIE Neutrino MC Generator Collaboration   
+\cpright  Copyright (c) 2003-2023, GENIE Neutrino MC Generator Collaboration   
           For the full text of the license visit http://copyright.genie-mc.org                         
           or see $GENIE/LICENSE 
 */
 //____________________________________________________________________________
 
-#ifndef _MK_SPP_XSEC_H_
-#define _MK_SPP_XSEC_H_
+#ifndef _SPP_XSEC_H_
+#define _SPP_XSEC_H_
 
-#include "Physics/Resonance/XSection/MKSPPXSecWithCache.h"
+#include "Physics/Resonance/XSection/SPPXSecWithCache.h"
 
 namespace genie {
 
-class MKSPPXSec : public MKSPPXSecWithCache {
+class SPPXSec : public SPPXSecWithCache {
 
 public:
-  MKSPPXSec();
-  MKSPPXSec(string param_set);
-  virtual ~MKSPPXSec();
+  SPPXSec();
+  SPPXSec(string param_set);
+  virtual ~SPPXSec();
 
   // XSecIntegratorI interface implementation
   double Integrate(const XSecAlgorithmI * model, const Interaction * i) const;
@@ -57,5 +56,5 @@ private:
 };
 
 }       // genie namespace
-#endif  // _MK_SPP_XSEC_H_
+#endif  // _SPP_XSEC_H_
 
