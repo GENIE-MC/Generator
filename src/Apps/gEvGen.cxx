@@ -939,7 +939,6 @@ std::vector< std::shared_ptr<NtpWriterI> > PrepareNtpWriters(
     }
 
     ntpw->Initialize();
-    if ( mc_driver ) ntpw->AttachGMCJDriver( mc_driver );
     writer_vec.push_back( ntpw );
     return writer_vec;
   }
@@ -973,7 +972,6 @@ std::vector< std::shared_ptr<NtpWriterI> > PrepareNtpWriters(
     auto cur_writer = writer_vec.back();
     cur_writer->CustomizeFilename( file_name );
     cur_writer->Initialize();
-    if ( mc_driver ) cur_writer->AttachGMCJDriver( mc_driver );
   }
 
   return writer_vec;

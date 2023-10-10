@@ -32,7 +32,6 @@ namespace genie {
 
 class EventRecord;
 class GHepParticle;
-class GMCJDriver;
 
 class HepMC3Converter {
 
@@ -45,8 +44,6 @@ public:
 
   std::shared_ptr< genie::EventRecord > RetrieveGHEP(
     const HepMC3::GenEvent& evt );
-
-  void AttachGMCJDriver( const genie::GMCJDriver* mc_driver );
 
 protected:
 
@@ -64,12 +61,7 @@ protected:
 
   void PrepareRunInfo( const genie::EventRecord* gevrec );
 
-  void PrepareMCDriverEventInfo( HepMC3::GenEvent& evt,
-    const genie::EventRecord& gevrec );
-
   std::shared_ptr< HepMC3::GenRunInfo > fRunInfo;
-
-  const genie::GMCJDriver* fMCDriver = nullptr;
 
 };
 
