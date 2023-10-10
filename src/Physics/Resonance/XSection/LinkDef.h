@@ -10,9 +10,9 @@
 #pragma link C++ class genie::BSKLNBaseRESPXSec2014;
 #pragma link C++ class genie::BergerSehgalRESPXSec2014;
 #pragma link C++ class genie::KuzminLyubushkinNaumovRESPXSec2014;
-#pragma link C++ class genie::MKSPPPXSec;
-#pragma link C++ class genie::MKSPPXSec;
-#pragma link C++ class genie::MKSPPXSecWithCache;
+#pragma link C++ class genie::MKSPPPXSec2020;
+#pragma link C++ class genie::SPPXSec;
+#pragma link C++ class genie::SPPXSecWithCache;
 //#pragma link C++ class genie::ReinDFRPXSec;
 #pragma link C++ class genie::ReinSehgalRESPXSec;
 #pragma link C++ class genie::ReinSehgalRESXSec;

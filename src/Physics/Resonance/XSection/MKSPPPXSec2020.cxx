@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2019, The GENIE Collaboration
+ Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -37,7 +37,7 @@
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/Range1.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
-#include "Physics/Resonance/XSection/MKSPPPXSec.h"
+#include "Physics/Resonance/XSection/MKSPPPXSec2020.h"
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Physics/NuclearState/NuclearUtils.h"
@@ -49,24 +49,24 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-MKSPPPXSec::MKSPPPXSec() :
-XSecAlgorithmI("genie::MKSPPPXSec")
+MKSPPPXSec2020::MKSPPPXSec2020() :
+XSecAlgorithmI("genie::MKSPPPXSec2020")
 {
 
 }
 //____________________________________________________________________________
-MKSPPPXSec::MKSPPPXSec(string config) :
-XSecAlgorithmI("genie::MKSPPPXSec", config)
+MKSPPPXSec2020::MKSPPPXSec2020(string config) :
+XSecAlgorithmI("genie::MKSPPPXSec2020", config)
 {
 
 }
 //____________________________________________________________________________
-MKSPPPXSec::~MKSPPPXSec()
+MKSPPPXSec2020::~MKSPPPXSec2020()
 {
 
 }
 //____________________________________________________________________________
-double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) const
+double MKSPPPXSec2020::XSec(const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0;
   if(! this -> ValidKinematics (interaction) ) return 0;
@@ -303,7 +303,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
     default:
                  // should not be here - meaningless to return anything
                  gAbortingInErr = true;
-                 LOG("MKSPPPXSec", pFATAL) << "Unknown resonance production channel: " << spp_channel;
+                 LOG("MKSPPPXSec2020", pFATAL) << "Unknown resonance production channel: " << spp_channel;
                  exit(1);
 
 
@@ -469,7 +469,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
        default:
              // should not be here - meaningless to return anything
              gAbortingInErr = true;
-             LOG("MKSPPPXSec", pFATAL) << "CC channel in NC mode " << spp_channel;
+             LOG("MKSPPPXSec2020", pFATAL) << "CC channel in NC mode " << spp_channel;
              exit(1);
     }
     double Vem_25 = (W_plus*W_minus)*Vem_2 + Vem_5;
@@ -651,7 +651,7 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
     default:
         // should not be here - meaningless to return anything
         gAbortingInErr = true;
-        LOG("MKSPPPXSec", pFATAL) << "Unknown resonance production channel: " << spp_channel;
+        LOG("MKSPPPXSec2020", pFATAL) << "Unknown resonance production channel: " << spp_channel;
         exit(1);
   }
 
@@ -1303,13 +1303,13 @@ double MKSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) c
 }
 
 //____________________________________________________________________________
-double MKSPPPXSec::Integral(const Interaction * interaction) const
+double MKSPPPXSec2020::Integral(const Interaction * interaction) const
 {
   double xsec = fXSecIntegrator->Integrate(this,interaction);
   return xsec;
 }
 //____________________________________________________________________________
-bool MKSPPPXSec::ValidProcess(const Interaction * interaction) const
+bool MKSPPPXSec2020::ValidProcess(const Interaction * interaction) const
 {
 
   if(interaction->TestBit(kISkipProcessChk)) return true;
@@ -1324,22 +1324,22 @@ bool MKSPPPXSec::ValidProcess(const Interaction * interaction) const
 
 }
 //____________________________________________________________________________
-inline int MKSPPPXSec::Lambda (NucleonPolarization l) const
+inline int MKSPPPXSec2020::Lambda (NucleonPolarization l) const
 {
   return 2*l - 1;
 }
 //____________________________________________________________________________
-inline int MKSPPPXSec::Lambda (BosonPolarization l) const
+inline int MKSPPPXSec2020::Lambda (BosonPolarization l) const
 {
   return (l*(l*(4*l-21)+29)-6)/3;
 }
 //____________________________________________________________________________
-inline int MKSPPPXSec::PhaseFactor(BosonPolarization lk, NucleonPolarization l1, NucleonPolarization l2) const
+inline int MKSPPPXSec2020::PhaseFactor(BosonPolarization lk, NucleonPolarization l1, NucleonPolarization l2) const
 {
   return lk*(lk*(4*lk - 21) + 29)/6 - l1 - l2;
 }
 //____________________________________________________________________________
-bool MKSPPPXSec::ValidKinematics(const Interaction * interaction) const
+bool MKSPPPXSec2020::ValidKinematics(const Interaction * interaction) const
 {
   // call only after ValidProcess
   if ( interaction->TestBit(kISkipKinematicChk) ) return true;
@@ -1371,19 +1371,19 @@ bool MKSPPPXSec::ValidKinematics(const Interaction * interaction) const
 
 }
 //____________________________________________________________________________
-void MKSPPPXSec::Configure(const Registry & config)
+void MKSPPPXSec2020::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void MKSPPPXSec::Configure(string config)
+void MKSPPPXSec2020::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void MKSPPPXSec::LoadConfig(void)
+void MKSPPPXSec2020::LoadConfig(void)
 {
 
   fResList.Clear();

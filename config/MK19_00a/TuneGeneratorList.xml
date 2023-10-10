@@ -48,8 +48,8 @@ Generator-%d                alg     No
 
   <param_set name="Default"> 
      <param type="int" name="NGenerators">   2                                    </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/MKSPP-CC          </param>
-     <param type="alg" name="Generator-1">   genie::EventGenerator/MKSPP-NC          </param>  
+     <param type="alg" name="Generator-0">   genie::EventGenerator/SPP-CC          </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/SPP-NC          </param>  
   </param_set>
 
 </tune_generator_list>
