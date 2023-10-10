@@ -107,7 +107,9 @@ double KPhaseSpace::Threshold(void) const
     double Ethresh = (mtot*mtot - Mi*Mi - mi*mi)/2/Mi;
     return Ethresh;
   }
-
+  
+  if (pi.IsNorm() ) return 0;
+ 
   if (pi.IsSingleKaon()) {
     int kaon_pdgc = xcls.StrangeHadronPdg();
     double Mi   = tgt.HitNucP4Ptr()->M(); // initial nucleon mass

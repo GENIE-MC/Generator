@@ -25,6 +25,7 @@ Syntax:
               -p neutrino_pdg
               -t target_pdg
              [-f flux_description]
+             [-F flux_options]
              [-o outfile_name]
              [-w]
              [--force-flux-ray-interaction]
@@ -81,6 +82,9 @@ Syntax:
               -- A power law:
                  The general syntax is `-f POWERLAW:alpha'
                  and the spectrum will follow a E^{-alpha} distribution
+           -F
+              Specifies direction,size,start point of histogram flux
+              dircosx,dircosy,dircosz,Radius,spotx,spoty,spotz
            -o
               Specifies the name of the output file events will be saved in.
            -w
@@ -228,6 +232,7 @@ int             gOptNuPdgCode;    // neutrino PDG code
 map<int,double> gOptTgtMix;       // target mix (each with its relative weight)
 Long_t          gOptRunNu;        // run number
 string          gOptFlux;         //
+string          gOptFluxFactors;  //
 bool            gOptWeighted;     //
 bool            gOptForceInt;     //
 bool            gOptUsingFluxOrTgtMix = false;
@@ -603,11 +608,30 @@ GFluxI * TH1FluxDriver(void)
   f.Close();
 
   TVector3 bdir (0,0,1);
+  double   radius = -1;
   TVector3 bspot(0,0,0);
 
+  // parse flux factors for direction, radius, spot
+  if ( gOptFluxFactors != "" ) {
+    vector<string> fv = utils::str::Split(gOptFluxFactors,",");
+    if ( fv.size() >= 3 ) {
+      bdir.SetX(atoi(fv[0].c_str()));
+      bdir.SetY(atoi(fv[1].c_str()));
+      bdir.SetZ(atoi(fv[2].c_str()));
+      if ( fv.size() >= 4 ) {
+        radius = atoi(fv[3].c_str());
+        if ( fv.size() >= 7 ) {
+          bspot.SetX(atoi(fv[4].c_str()));
+          bspot.SetY(atoi(fv[5].c_str()));
+          bspot.SetZ(atoi(fv[6].c_str()));
+        }
+      }
+    }
+  }
+
   flux->SetNuDirection      (bdir);
+  flux->SetTransverseRadius (radius);
   flux->SetBeamSpot         (bspot);
-  flux->SetTransverseRadius (-1);
   flux->AddEnergySpectrum   (gOptNuPdgCode, spectrum);
 
   GFluxI * flux_driver = dynamic_cast<GFluxI *>(flux);
@@ -674,6 +698,10 @@ void GetCommandLineArgs(int argc, char ** argv)
     LOG("gevgen", pINFO) << "Reading flux function";
     gOptFlux = parser.ArgAsString('f');
     using_flux = true;
+  }
+  if (parser.OptionExists('F') ) {
+    LOG("gevgen", pINFO) << "Reading flux factors";
+    gOptFluxFactors = parser.ArgAsString('F');
   }
 
   if(parser.OptionExists('s')) {
@@ -813,7 +841,7 @@ void GetCommandLineArgs(int argc, char ** argv)
        << "No input cross-section spline file";
   }
   LOG("gevgen", pNOTICE)
-       << "Flux: " << gOptFlux;
+       << "Flux: " << gOptFlux << " factors " << gOptFluxFactors;
   LOG("gevgen", pNOTICE)
        << "Generate weighted events? " << gOptWeighted;
   LOG("gevgen", pNOTICE)

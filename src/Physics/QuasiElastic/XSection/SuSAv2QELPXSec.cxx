@@ -162,7 +162,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   else {
     // If the probe is not a neutrino, assume that it's an electron
     // Currently only avaialble for SuSA. CRPA coming soon(ish)!
-    tensor_pdg_susa = kHT_QE_EM;
+    tensor_type_susa = kHT_QE_EM;
   }
 
   double Eb_tgt=0;
@@ -449,9 +449,14 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
       LOG("SuSAv2QE", pDEBUG) << "xsec is  " << xsec;
     }
   }
-
+  
   // Apply given overall scaling factor
-  xsec *= fXSecScale;
+  double xsec_scale = 1 ;
+  if( interaction->ProcInfo().IsWeakCC() ) xsec_scale = fXSecCCScale;
+  else if( interaction->ProcInfo().IsWeakNC() ) xsec_scale = fXSecNCScale;
+  else if( interaction->ProcInfo().IsEM() ) xsec_scale = fXSecEMScale;
+
+  xsec *= xsec_scale ;
 
   if ( kps != kPSTlctl ) {
     LOG("SuSAv2QE", pWARN)
@@ -585,7 +590,9 @@ void SuSAv2QELPXSec::LoadConfig(void)
   bool good_config = true ;
 
   // Cross section scaling factor
-  GetParam( "QEL-CC-XSecScale", fXSecScale ) ;
+  GetParam( "QEL-CC-XSecScale", fXSecCCScale ) ;
+  GetParam( "QEL-NC-XSecScale", fXSecNCScale ) ;
+  GetParam( "QEL-EM-XSecScale", fXSecEMScale ) ;
 
   // Cross section model choice
   int modelChoice;

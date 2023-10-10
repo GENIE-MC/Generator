@@ -14,7 +14,8 @@ XSec-Integrator    alg      No
 CabibboAngle       double   No         Cabibbo angle                    CommonParam[CKM]
 RPA                bool     Yes        Turn RPA effects on or off       true
 Coulomb            bool     Yes        Turn coulomb effects on or off   true
-QEL-CC-XSecScale   double   Yes        Scaling factor                   GPL value
+QEL-CC-XSecScale   double   Yes        Scaling factor for CC            GPL value
+QEL-NC-XSecScale   double   Yes        Scaling factor for NC            GPL value
 
 .....................................................................................................
 Parameters needed when Integrating with this model to generate splines:
@@ -34,6 +35,7 @@ RmaxMode                             string   Yes        Method to use to comput
     <param type="string"  name="CommonParam"> CKM,FermiGas,NUCL </param>
 
     <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
+    <param type="double" name="QEL-NC-XSecScale"> 1.000 </param>
 
     <param type="alg"  name="XSec-Integrator"> genie::NewQELXSec/Default </param>
     <param type="alg"  name="IntegralNuclearModel"> genie::NuclearModelMap/Default </param>
