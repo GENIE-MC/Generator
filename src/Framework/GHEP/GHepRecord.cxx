@@ -78,7 +78,10 @@ fEventMask(0),
 fWeight(0.),
 fProb(0.),
 fXSec(0.),
-fDiffXSec(0.)
+fDiffXSec(0.),
+fTotInclXSec(0.),
+fFluxAvgXSec(0.),
+fFluxAvgXSecErr(0.)
 {
 
 }
@@ -272,7 +275,7 @@ GEvGenMode_t GHepRecord::EventGenerationMode(void) const
   }
 
   // In HNL decay mode, the first entry is a HNL.
-  
+
   if( pdg::IsHNL(p0pdg) && p0st == kIStInitialState )
   {
      return kGMdHNLDecay;
@@ -845,6 +848,9 @@ void GHepRecord::InitRecord(void)
   fXSec         = 0.;
   fDiffXSec     = 0.;
   fDiffXSecPhSp = kPSNull;
+  fTotInclXSec = 0.;
+  fFluxAvgXSec = 0.;
+  fFluxAvgXSecErr = 0.;
   fVtx          = new TLorentzVector(0,0,0,0);
 
   fEventFlags  = new TBits(GHepFlags::NFlags());
@@ -933,6 +939,9 @@ void GHepRecord::Copy(const GHepRecord & record)
   fXSec         = record.fXSec;
   fDiffXSec     = record.fDiffXSec;
   fDiffXSecPhSp = record.fDiffXSecPhSp;
+  fTotInclXSec  = record.fTotInclXSec;
+  fFluxAvgXSec  = record.fFluxAvgXSec;
+  fFluxAvgXSecErr = record.fFluxAvgXSecErr;
 }
 //___________________________________________________________________________
 void GHepRecord::SetUnphysEventMask(const TBits & mask)
@@ -1192,11 +1201,23 @@ void GHepRecord::Print(ostream & stream) const
       default :
         stream << " dsig(Ev;{K_s})/dK   =   " << setfill(' ') << setw(13) << fDiffXSec/units::cm2 << " cm^2/{K}   |";
     }
+
     stream << " Weight = "
            << setfill(' ') << setw(16)
            << std::fixed << setprecision(5)
            << fWeight
            << " |";
+
+    stream << "\n| ";
+    stream << std::scientific << setprecision(5);
+
+    stream << "sig_incl(Ev) = "
+           << setfill(' ') << setw(12) << fTotInclXSec/units::cm2
+           << " cm^2  |";
+
+    stream << "               <sig> =   " << setfill(' ') << setw(13)
+      << fFluxAvgXSec/units::cm2 << " ± "
+      << fFluxAvgXSecErr/units::cm2 << " cm^2                     |";
 
     stream << "\n|";
     stream << setfill('-') << setw(115) << "|";

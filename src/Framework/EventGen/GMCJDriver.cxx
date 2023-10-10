@@ -1042,6 +1042,26 @@ EventRecord * GMCJDriver::GenerateEvent1Try(void)
   fInvFluxAvgXSecStats.AddValue( 1. / fCurPathLengthWeightedTotalXSec,
     flux_weight );
 
+  // Store the running estimate of the flux-averaged total cross section and
+  // its MC statistical uncertainty in the accepted event
+  fCurEvt->SetFluxAvgXSec( this->FluxAvgTotXSec() );
+  fCurEvt->SetFluxAvgXSecErr( this->FluxAvgTotXSecError() );
+
+  // Also store the total inclusive cross section (for the selected probe +
+  // target summed over all available channels) in the event
+  const genie::InitialState& init_state = fCurEvt->Summary()->InitState();
+  genie::GEVGDriver* evg_driver = fGPool->FindDriver( init_state );
+  // These if statements protect against null-pointer-induced segfaults
+  if ( evg_driver ) {
+    const genie::Spline* tot_xsec_spl = evg_driver->XSecSumSpline();
+    if ( tot_xsec_spl ) {
+      double Ev = init_state.ProbeE( genie::kRfLab );
+      double tot_incl_xsec = tot_xsec_spl->Evaluate( Ev );
+
+      fCurEvt->SetTotInclXSec( tot_incl_xsec );
+    }
+  }
+
   return fCurEvt;
 }
 //___________________________________________________________________________
