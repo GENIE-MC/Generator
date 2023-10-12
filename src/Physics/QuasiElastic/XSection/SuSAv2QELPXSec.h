@@ -66,7 +66,9 @@ private:
 
 
   /// External scaling factor for this cross section
-  double fXSecScale;
+  double fXSecCCScale;
+  double fXSecNCScale;
+  double fXSecEMScale;
 
   /// Blending start/end q0 value for the combined models
   int blendMode;

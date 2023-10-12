@@ -11,6 +11,7 @@ Name                        Type Optional Comment                               
 ......................................................................................................................................
 RES-CC-XSecScale            double  No    XSec rescaling factor                                           
 RES-NC-XSecScale            double  No    Xsec rescaling factor                                           
+RES-EM-XSecScale            double  No    Xsec rescaling factor                                           
 RES-Zeta                    double  No    FKR's Z parameter                                               
 RES-Omega                   double  No    FKR's Omega parameter
 minibooneGA                 bool    No    tuning to axial form factors by MiniBoone (J. Nowak)            
@@ -45,8 +46,15 @@ XSec-Integrator             alg     No
      <param type="bool" name="minibooneGA">  true </param>
      <param type="bool" name="minibooneGV">  true </param>
 
+
+     <param type="double" name="GVCAL-Cv3">        2.13  </param>
+     <param type="double" name="GVCAL-Cv4">        1.51  </param>
+     <param type="double" name="GVCAL-Cv51">       0.48  </param>
+     <param type="double" name="GVCAL-Cv52">       0.766 </param>
+
      <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
      <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
+     <param type="double" name="RES-EM-XSecScale"> 1.000 </param>
 
      <param type="double" name="RES-Omega"> 1.05  </param>
      <param type="double" name="RES-Zeta">  0.76338 </param>

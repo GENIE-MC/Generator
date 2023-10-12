@@ -24,6 +24,7 @@ import FNALGridUtils as FNAL
 
 sys.path.insert(1, 'event_generation')
 import eScatteringGenCommands as eA
+import eFluxScatteringGenCommands as eAFlux
 
 op = optparse.OptionParser(usage=__doc__)
 op.add_option("--version", dest="VERSION", default="master", help="Genie version. Default: %default")
@@ -54,19 +55,26 @@ op.add_option("--nu-ntotevents", dest="NuEvents", type="int", default=10000, hel
 op.add_option("--e-ntotevents", dest="EEvents", type="int", default=100000, help="Number of total events, default: 100 k")
 op.add_option("--nmaxevents",dest="NMax", type="int", default=400000,help="Max number of events to run per event generation, default %default")
 op.add_option("--ebeam-energy", dest="EnergyBeam", default="2", help="Comma separated list of beam energy for electrons. Default %default GeV")
+op.add_option("--flux", dest="FLUX", default="none", help="Default none. To use an input root file, specify the location of the file and the TH1D name as follows: file.root,th1d_name")
+op.add_option("--e-minenergy-fluxrange", dest="MinEnergyFlux", default="0.1", help="Minimum electron energy. Default %default")
+op.add_option("--e-maxenergy-fluxrange", dest="MaxEnergyFlux", default="100", help="Maximum electron energy. Default %default.")
+op.add_option("--seed", dest="Seed", default=210921029, help="Set stargint point seed. Default %default")
+op.add_option("--gen-runid", dest="RunID", default=0, help="Set Starting run id. Default %default")
 op.add_option("--gst-output", dest="GSTOutput", default=False, action="store_true",help="Store gst root file.")
 op.add_option("--no-ghep-output", dest="NoGHEPOutput", default=False, action="store_true",help="GHEP GENIE files is removed to reduce memory.")
 op.add_option("--starting-point", dest="start_ID", type="int", default=0, help="0 -> Free nucleon splines, 1 -> combine free nucl splines, 2 -> Compound nuclei splines, 3 -> Combine compound nuclei splines, 4 -> Event Production")
 op.add_option("--stopping-point", dest="end_ID", type="int", default=9999, help="Numbers as above, Default: 9999") 
 op.add_option("--tune", dest="TUNE", default="G18_02a_02_11b", help="Tune to be compared against data (default: %default)")
 op.add_option("--submit-jobs", dest="SUBMIT", default=False, action="store_true", help="Generate configuration and submit to grid" )
-op.add_option("--job-lifetime", dest="JOBLIFE", default=25, help="Expected lifetime on the grid for all the jobs to be finished, default %default h")
 op.add_option("--job-lifetime-vN", dest="vNJOBLIFE", default=15, help="Expected lifetime on the grid for all the vN spline jobs to be finished, default %default h")
 op.add_option("--job-lifetime-vA", dest="vAJOBLIFE", default=3, help="Expected lifetime on the grid for all the vA spline jobs to be finished, default %default h")
-op.add_option("--job-lifetime-generation", dest="GENJOBLIFE", default=4, help="Expected lifetime on the grid for all the event generation jobs to be finished, default %default h")
+op.add_option("--job-lifetime-generation", dest="JOBLIFE", default=4, help="Expected lifetime on the grid for all the event generation jobs to be finished, default %default h")
 op.add_option("--job-lifetime-group", dest="GROUPJOBLIFE", default=1, help="Expected lifetime on the grid for all the grouping jobs to be finished, default 1h")
-op.add_option("--job-memory-generation", dest="GENJOBMEM", default=2, help="Expected memory usage for each event generation job, default %default GB")
-op.add_option("--job-disk-generation", dest="GENJOBDISK", default=2000, help="Expected disk space for each event generation job, default %default MB")
+op.add_option("--subjob-memory", dest="JOBMEM", default="2GB", help="Expected memory usage for each event generation job, default %default. Notice you must specify the units. ")
+op.add_option("--subjob-disk", dest="JOBDISK", default="2GB", help="Expected disk space for each event generation job, default %default. Notice you must specify the units. ")
+op.add_option("--mainjob-lifetime", dest="MAINLIFE", default=25, help="Expected lifetime on the grid for all the jobs to be finished, default %default h")
+op.add_option("--mainjob-memory", dest="MAINMEM", default="20GB", help="Main job memory usage, default %default")
+op.add_option("--mainjob-disk", dest="MAINDISK", default="20GB", help="Main job disk usate, default %default")
 op.add_option("--store-comitinfo", dest="STORECOMMIT", default=False, action="store_true", help="Store command line in jobstopdir directory")
 opts, args = op.parse_args()
 
@@ -112,14 +120,17 @@ if opts.GRID == 'FNAL':
         print ("Not runing from pnfs:"+opts.JOBSTD+" . Jobs top dir must be in pnfs for the submission scrpits to work. Abort ...")
         exit()
 
+message_thresholds = "$GALGCONF/Messenger.xml"
 if opts.CONF : 
     if not os.path.exists(opts.CONF) : 
         print ( " GENIE Configuraion dir specified does not exist: " + opts.CONF + " . Abort ..." ) 
         exit()
 
     print( 'Using configuration files from ' + opts.CONF + ' ...' )
-
-
+    # Check if we have a message thresholds file 
+    if os.path.exists(opts.CONF+"/Messenger.xml"):
+        message_thresholds = "$CONDOR_DIR_INPUT/conf/Messenger.xml"
+        
 #JobSub is made available through the UPS package jobsub_client
 os.system("source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup" ) 
 
@@ -164,6 +175,14 @@ else :
     genie_setup = opts.SOFTW+'/generator/builds/'+arch+'/'+version+'-setup'
     grid_setup = ""
 
+# Check whether INCL/G4 have to be configured:
+configure_INCL = False
+configure_G4 = False 
+if "c" in opts.TUNE:
+    configure_INCL = True
+elif "d" in opts.TUNE:
+    configure_G4 = True 
+
 # Store commands with ID :
 command_dict = {}
 
@@ -181,7 +200,11 @@ loop_i = loop_start
 while loop_i < loop_end + 1: 
     # ID = 0 # vN splines
     if loop_i == 0 :
-        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.NuEMAXSPLINE,opts.EEMAXSPLINE,opts.NuKnots,opts.EKnots,opts.TUNE,version,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.vNJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
+        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.NuEMAXSPLINE,opts.EEMAXSPLINE,
+                                                 opts.NuKnots,opts.EKnots,opts.TUNE,version,opts.GRID,opts.GROUP,
+                                                 opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,
+                                                 opts.JOBSTD,grid_setup,genie_setup,opts.vNJOBLIFE,opts.JOBMEM,opts.JOBDISK,
+                                                 opts.BRANCH,opts.GIT_LOCATION,configure_INCL,configure_G4) )
         total_time += int(opts.vNJOBLIFE) 
 
     # ID = 1 # group vN splines
@@ -190,12 +213,18 @@ while loop_i < loop_end + 1:
         if opts.MotherDir !='' : 
             vNMotherDir = opts.MotherDir+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vN/'
         
-        command_dict.update( group.GroupSplineCommands( True,vNdir,vNMotherDir,opts.TUNE,opts.vNList,version,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,grid_setup,genie_setup,opts.JOBSTD,False, False, opts.GROUPJOBLIFE,opts.BRANCH,opts.GIT_LOCATION ) )
+        command_dict.update( group.GroupSplineCommands( True,vNdir,vNMotherDir,opts.TUNE,opts.vNList,
+                                                        version,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,
+                                                        opts.CYCLE,opts.SOFTW,opts.GENIE,grid_setup,genie_setup,opts.JOBSTD,False, False, 
+                                                        opts.GROUPJOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION,configure_INCL,configure_G4 ) )
         total_time += int(opts.GROUPJOBLIFE)
  
     if loop_i == 2 : 
         # ID = 2 # vA splines
-        command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.NuEMAXSPLINE,opts.EEMAXSPLINE,opts.NuKnots,opts.EKnots,opts.TUNE,vNsplines,version,opts.GRID,opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.vAJOBLIFE,opts.BRANCH,opts.GIT_LOCATION) )
+        command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.NuEMAXSPLINE,
+                                                 opts.EEMAXSPLINE,opts.NuKnots,opts.EKnots,opts.TUNE,vNsplines,version,opts.GRID,
+                                                 opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,
+                                                 grid_setup,genie_setup,opts.vAJOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION,configure_INCL,configure_G4) )
         total_time += int(opts.vAJOBLIFE)
 
     if loop_i == 3 : 
@@ -203,29 +232,43 @@ while loop_i < loop_end + 1:
         vAMotherDir = ''
         if opts.MotherDir !='' : 
             vAMotherDir = opts.MotherDir+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vA/'
-        command_dict.update( group.GroupSplineCommands( False,vAdir,vAMotherDir,opts.TUNE,opts.vAList,version,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,grid_setup,genie_setup,opts.JOBSTD,False, False,opts.GROUPJOBLIFE,opts.BRANCH,opts.GIT_LOCATION ) )
+        command_dict.update( group.GroupSplineCommands( False,vAdir,vAMotherDir,opts.TUNE,opts.vAList,version,opts.CONF,
+                                                        opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,
+                                                        grid_setup,genie_setup,opts.JOBSTD,False, False,opts.GROUPJOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,
+                                                        opts.GIT_LOCATION,configure_INCL,configure_G4 ) )
         total_time += int(opts.GROUPJOBLIFE) 
 
     if loop_i == 4 : 
         # ID = 4 # Event generation commands
-        command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.EnergyBeam,vAsplines,opts.EEvents,opts.TUNE, opts.EvGenList, opts.NMax, opts.GSTOutput, opts.NoGHEPOutput,version,opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,opts.JOBSTD,grid_setup,genie_setup,opts.GENJOBLIFE,opts.GENJOBMEM,opts.GENJOBDISK,opts.BRANCH,opts.GIT_LOCATION) )
-        total_time += int(opts.GENJOBLIFE)
+        if opts.FLUX == "none" : 
+            command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.EnergyBeam,vAsplines,opts.EEvents,
+                                                           opts.TUNE, opts.EvGenList, opts.NMax, opts.Seed, opts.RunID, opts.GSTOutput, opts.NoGHEPOutput,version,
+                                                           opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
+                                                           opts.JOBSTD,grid_setup,genie_setup,message_thresholds,opts.JOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION,
+                                                           configure_INCL,configure_G4) )
+        else : 
+            command_dict.update( eAFlux.eFluxScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.FLUX,opts.MinEnergyFlux,opts.MaxEnergyFlux,vAsplines,opts.EEvents,
+                                                                   opts.TUNE, opts.EvGenList, opts.NMax, opts.Seed, opts.RunID, opts.GSTOutput, opts.NoGHEPOutput,version,
+                                                                   opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
+                                                                   opts.JOBSTD,grid_setup,genie_setup,message_thresholds,opts.JOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION,
+                                                                   configure_INCL,configure_G4) )
+        total_time += int(opts.JOBLIFE)
     
     loop_i += 1 
 
-if total_time > int(opts.JOBLIFE) : 
-    print ( "Total time of subjobs requested ("+str(total_time)+") is bigger than the job's expected time ("+str(opts.JOBLIFE)+") ... Abort ..." ) 
+if total_time > int(opts.MAINLIFE) : 
+    print ( "Total time of subjobs requested ("+str(total_time)+") is bigger than the job's expected time ("+str(opts.MAINLIFE)+") ... Abort ..." ) 
     exit() 
 
-if opts.GRID is 'FNAL':
-    if total_time > 96 or int(opts.JOBLIFE) > 96 : 
+if opts.GRID == 'FNAL':
+    if total_time > 96 or int(opts.MAINLIFE) > 96 : 
         print ( "Total time at the grid cannot exceed 96h ")
         exit() 
 
     # Write xml file
     grid_name = FNAL.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD)
 
-    main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, grid_setup, genie_setup, grid_name, opts.JOBLIFE)
+    main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, grid_setup, genie_setup, grid_name, opts.MAINLIFE, opts.MAINMEM, opts.MAINDISK )
 
 if opts.SUBMIT == True: 
     # SUBMIT JOB

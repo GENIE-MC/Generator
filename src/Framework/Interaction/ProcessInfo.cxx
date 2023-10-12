@@ -128,6 +128,11 @@ bool ProcessInfo::IsIMDAnnihilation(void) const
   return (fScatteringType == kScIMDAnnihilation);
 }
 //____________________________________________________________________________
+bool ProcessInfo::IsNorm(void) const
+{
+  return (fScatteringType == kScNorm);
+}
+//____________________________________________________________________________
 bool ProcessInfo::IsDarkMatterElectronElastic(void) const
 {
   return (fScatteringType == kScDarkMatterElectron);

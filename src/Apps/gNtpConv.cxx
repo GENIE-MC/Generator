@@ -324,6 +324,7 @@ void ConvertToGST(void)
   bool   brIsMec       = false;  // Is MEC?
   bool   brIsDfr       = false;  // Is Diffractive?
   bool   brIsImd       = false;  // Is IMD?
+  bool   brIsNrm       = false;  // Is Norm?
   bool   brIsSingleK   = false;  // Is single kaon?  
   bool   brIsImdAnh    = false;  // Is IMD annihilation?
   bool   brIsNuEL      = false;  // Is ve elastic?
@@ -438,6 +439,7 @@ void ConvertToGST(void)
   s_tree->Branch("coh",           &brIsCoh,         "coh/O"	    );
   s_tree->Branch("dfr",           &brIsDfr,         "dfr/O"	    );
   s_tree->Branch("imd",	          &brIsImd,	    "imd/O"	    );
+  s_tree->Branch("norm",          &brIsNrm,         "norm/O"	    );
   s_tree->Branch("imdanh",        &brIsImdAnh,	    "imdanh/O"	    );
   s_tree->Branch("singlek",       &brIsSingleK,     "singlek/O"     );  
   s_tree->Branch("nuel",          &brIsNuEL,        "nuel/O"	    );
@@ -657,9 +659,10 @@ void ConvertToGST(void)
     bool is_mec       = proc_info.IsMEC();
     bool is_amnugamma = proc_info.IsAMNuGamma();
     bool is_hnl       = proc_info.IsHNLDecay();
-
+    bool is_norm      = proc_info.IsNorm();
+    
     if (!hitnucl && neutrino) {
-        assert(is_coh || is_imd || is_imdanh || is_nuel | is_amnugamma || is_coh_el || is_hnl);
+        assert(is_coh || is_imd || is_imdanh || is_nuel | is_amnugamma || is_coh_el || is_hnl || is_norm);
     }
   
     // Hit quark - set only for DIS events
@@ -790,8 +793,7 @@ void ConvertToGST(void)
          if (pdgc == kPdgGamma || pdgc == kPdgElectron || pdgc == kPdgPositron)  {
             int igmom = p->FirstMother();
             if(igmom!=-1) {
-	      // only count e+'s e-'s or gammas not from decay of pi0
-	      if(event.Particle(igmom)->Pdg() != kPdgPi0) { final_had_syst.push_back(ip); }
+	      final_had_syst.push_back(ip);
             }
          } else {
 	   final_had_syst.push_back(ip);
@@ -809,17 +811,6 @@ void ConvertToGST(void)
 	LOG( "gntpc", pDEBUG ) << "Adding pdg code " << ip << " to FS hadronic system";
 	final_had_syst.push_back(ip);
       } 
-      // now add pi0's that were decayed as short lived particles
-      else if(pdgc == kPdgPi0){
-	int ifd = p->FirstDaughter();
-        if ( ifd != -1 ) {
-          int fd_pdgc = event.Particle(ifd)->Pdg();
-          // just require that first daughter is one of gamma, e+ or e-  
-          if(fd_pdgc == kPdgGamma || fd_pdgc == kPdgElectron || fd_pdgc == kPdgPositron){
-            final_had_syst.push_back(ip);
-          }
-        }
-      }
     }//particle-loop
 
     if( count(final_had_syst.begin(), final_had_syst.end(), -1) > 0) {
@@ -966,6 +957,7 @@ void ConvertToGST(void)
     brIsCoh      = is_coh;  
     brIsDfr      = is_dfr;  
     brIsImd      = is_imd;
+    brIsNrm      = is_norm;
     brIsSingleK  = is_singlek;    
     brIsNuEL     = is_nuel;  
     brIsEM       = is_em;  
