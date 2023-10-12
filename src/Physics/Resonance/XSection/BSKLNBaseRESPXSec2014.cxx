@@ -299,9 +299,9 @@ double BSKLNBaseRESPXSec2014::XSec(
 
     LOG("BSKLNBaseRESPXSec2014",pDEBUG) <<"Using new GV tuned to ANL and BNL data";
     double CV0 =  1./(1-q2/fMv2/4.);
-    double CV3 =  2.13 * CV0 * TMath::Power( 1-q2/fMv2,-2);
-    double CV4 = -1.51 * CV0 * TMath::Power( 1-q2/fMv2,-2);
-    double CV5 =  0.48 * CV0 * TMath::Power( 1-q2/fMv2/0.766, -2);
+    double CV3 =  fCv3 * CV0 * TMath::Power( 1-q2/fMv2,-2);
+    double CV4 =  -1. * fCv4 * CV0 * TMath::Power( 1-q2/fMv2,-2);
+    double CV5 =  fCv51* CV0 * TMath::Power( 1-q2/fMv2/fCv52, -2);
 
     double GV3 =  0.5 / TMath::Sqrt(3) * ( CV3 * (W + Mnuc)/Mnuc
                   + CV4 * (W2 + q2 -Mnuc2)/2./Mnuc2
@@ -763,6 +763,11 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   this->GetParam( "RES-Omega"  , fOmega ) ;
   this->GetParam( "minibooneGA", fGAMiniBooNE ) ;
   this->GetParam( "minibooneGV", fGVMiniBooNE ) ;
+
+  this->GetParam( "GVCAL-Cv3"  , fCv3)  ;
+  this->GetParam( "GVCAL-Cv4"  , fCv4)  ;
+  this->GetParam( "GVCAL-Cv51" , fCv51) ;
+  this->GetParam( "GVCAL-Cv52" , fCv52) ;
 
   double ma, mv ;
   this->GetParam( "RES-Ma", ma ) ;

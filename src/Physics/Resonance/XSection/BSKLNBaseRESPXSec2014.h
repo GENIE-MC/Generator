@@ -105,6 +105,12 @@ namespace genie {
       bool fGAMiniBooNE;
       bool fGVMiniBooNE;
 
+      // GV calculation coeff
+      double fCv3;
+      double fCv4;
+      double fCv51;
+      double fCv52;
+
       const XSecIntegratorI * fXSecIntegrator;
   };
 
