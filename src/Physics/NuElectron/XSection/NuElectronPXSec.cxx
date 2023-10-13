@@ -142,6 +142,13 @@ double NuElectronPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
+bool NuElectronPXSec::ValidKinematics(const Interaction* interaction) const
+{
+  //Works for NuEElastic, IMD needs its own check
+  if(interaction->TestBit(kISkipKinematicChk)) return true;
+  return true;
+}
+//____________________________________________________________________________
 void NuElectronPXSec::LoadConfig(void)
 {
   PXSecOnElectron::LoadConfig();

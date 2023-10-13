@@ -45,6 +45,9 @@ public:
   //-- PXSecOnElectron interface implementation
   double XSec (const Interaction * i, KinePhaseSpace_t k) const override;
 
+  //Override since NuEElastic is always valid kinematics
+  bool ValidKinematics(const Interaction* interaction) const override;
+
 protected:
   void LoadConfig (void) override;
 private:

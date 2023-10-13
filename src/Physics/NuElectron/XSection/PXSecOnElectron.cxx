@@ -90,8 +90,9 @@ bool PXSecOnElectron::ValidProcess(const Interaction * interaction) const
 //____________________________________________________________________________
 bool PXSecOnElectron::ValidKinematics(const Interaction* interaction) const
 {
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-  return true;
+  //Works for IMD
+  const auto & kps = interaction->PhaseSpace();
+  return kps.IsAboveThreshold();
 }
 //____________________________________________________________________________
 void PXSecOnElectron::Configure(const Registry & config)

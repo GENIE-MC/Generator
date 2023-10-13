@@ -272,9 +272,7 @@ bool KPhaseSpace::IsAboveThreshold(void) const
 
   if (pi.IsCoherentElastic()    ||
       pi.IsCoherentProduction() ||
-      pi.IsInverseMuDecay()     ||
-      pi.IsIMDAnnihilation()    ||
-      pi.IsNuElectronElastic()  ||
+      pi.IsNuElectronElastic()  || //Leave here since there are no thresholds
       pi.IsDarkMatterElectronElastic() ||
       pi.IsMEC()                ||
       pi.IsPhotonCoherent()          || 
@@ -295,6 +293,12 @@ bool KPhaseSpace::IsAboveThreshold(void) const
      pi.IsAMNuGamma())
   {
       E = init_state.ProbeE(kRfHitNucRest);
+  }
+
+  if(pi.IsInverseMuDecay()     ||
+     pi.IsIMDAnnihilation())
+  {
+      E = init_state.ProbeE(kRfHitElRest);
   }
 
   LOG("KPhaseSpace", pDEBUG) << "E = " << E << ", Ethr = " << Ethr;

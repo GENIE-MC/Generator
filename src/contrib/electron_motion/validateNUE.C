@@ -221,7 +221,7 @@ void make_dists(TString filename = "gntp.0.ghep.root", TString dir="",bool print
   graph->Write();
 
   if (print_to_pdf){
-    std::string file_out4 = "Plots/etheta.pdf";
+    std::string file_out4 = "Plots/etheta2.pdf";
     const char *fo4 = file_out4.c_str();
     canvas4.Print(fo4);
   }
@@ -283,6 +283,11 @@ void make_dists(TString filename = "gntp.0.ghep.root", TString dir="",bool print
   xsec_dist->Draw("HIST");
   xsec_dist->GetXaxis()->SetTitle("xsec/E_{#nu}");
   xsec_dist->Write();
+  if (print_to_pdf){
+    std::string file_out7 = "Plots/xsec.pdf";
+    const char *fo7 = file_out7.c_str();
+    canvas7.Print(fo7);
+  }
   
   file1->Close();
 }
