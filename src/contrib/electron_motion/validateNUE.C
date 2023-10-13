@@ -240,7 +240,7 @@ void make_dists(TString filename = "gntp.0.ghep.root", TString dir="",bool print
   if (print_to_pdf){
     std::string file_out6 = "Plots/etheta.pdf";
     const char *fo6 = file_out6.c_str();
-    canvas4.Print(fo6);
+    canvas6.Print(fo6);
   }
 
   //Momentum distribution
