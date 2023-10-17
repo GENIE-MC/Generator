@@ -419,7 +419,9 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
 
       // In the case of an initial-state struck nucleon, send it into the
       // primary vertex
-      if ( g_part_idx == hit_nucleon_idx ) {
+      if ( g_part_idx == hit_nucleon_idx
+        && hit_nucleon_idx != DUMMY_PARTICLE_INDEX )
+      {
         prim_vtx->add_particle_in( part );
       }
     }
@@ -429,7 +431,11 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
     if ( first_daughter != DUMMY_PARTICLE_INDEX
       // Don't create a new end vertex for the primary particles since the
       // primary vertex already exists
-      && first_mommy != DUMMY_PARTICLE_INDEX )
+      && first_mommy != DUMMY_PARTICLE_INDEX
+      // Don't create a new end vertex for the hit nucleon since we've
+      // already ended it on the primary vertex above
+      && (g_part_idx != hit_nucleon_idx
+        || hit_nucleon_idx == DUMMY_PARTICLE_INDEX) )
     {
       // Handle cases with multiple mothers. If the first daughter of the
       // current GENIE particle has a first mother which appears before the
