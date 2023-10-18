@@ -1,0 +1,6 @@
+# This file is generated automatically. DO NOT EDIT!
+
+onebody_currents_sf.f90o : 
+
+onebody_hadron_tensor_sf.f90o :  \
+	onebody_currents_sf.f90o

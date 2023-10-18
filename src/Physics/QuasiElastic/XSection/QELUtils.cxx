@@ -93,8 +93,7 @@ double genie::utils::EnergyDeltaFunctionSolutionQEL(
 double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
   const genie::NuclearModelI* nucl_model, const genie::XSecAlgorithmI* xsec_model,
   double cos_theta_0, double phi_0, double& Eb,
-  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM,
-  bool bind_nucleon)
+  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double fMinAngleEM, bool bind_nucleon)
 {
   // If requested, set the initial hit nucleon 4-momentum to be off-shell
   // according to the binding mode specified in the function call
@@ -102,6 +101,12 @@ double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
     genie::utils::BindHitNucleon(*interaction, *nucl_model, Eb,
       hitNucleonBindingMode);
   }
+
+  // A very high-momentum bound nucleon (which is far off the mass shell)
+  // can have a momentum greater than its total energy. This leads to numerical
+  // issues (NaNs) since the invariant mass of the nucleon becomes imaginary.
+  // In such cases, just return zero to avoid trouble.
+  if ( interaction->InitState().Tgt().HitNucP4().M() <= 0. ) return 0.;
 
   // Mass of the outgoing lepton
   double lepMass = interaction->FSPrimLepton()->Mass();
@@ -166,24 +171,21 @@ double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
   lepton.Boost(beta);
   outNucleon.Boost(beta);
 
-  // Check if event is at a low angle - if so return 0 and stop wasting time
-  if (180 * lepton.Theta() / genie::constants::kPi < min_angle_EM && interaction->ProcInfo().IsEM()) {
-    return 0;
-  }
+  //LOG("QELEvent", pWARN) << "Outgoing nucleon momentum: Px = " << outNucleon.X() << ", Py = " << outNucleon.Y() << ", Pz = " << outNucleon.Z();
 
   TLorentzVector * nuP4 = interaction->InitState().GetProbeP4( genie::kRfLab );
   TLorentzVector qP4 = *nuP4 - lepton;
   delete nuP4;
   double Q2 = -1 * qP4.Mag2();
 
-  interaction->KinePtr()->SetFSLeptonP4( lepton );
-  interaction->KinePtr()->SetHadSystP4( outNucleon );
-  interaction->KinePtr()->SetQ2( Q2 );
-
   // Check the Q2 range. If we're outside of it, don't bother
   // with the rest of the calculation.
   Range1D_t Q2lim = interaction->PhaseSpace().Q2Lim();
   if (Q2 < Q2lim.min || Q2 > Q2lim.max) return 0.;
+
+  interaction->KinePtr()->SetFSLeptonP4( lepton );
+  interaction->KinePtr()->SetHadSystP4( outNucleon );
+  interaction->KinePtr()->SetQ2( Q2 );
 
   // Compute the QE cross section for the current kinematics
   double xsec = xsec_model->XSec(interaction, genie::kPSQELEvGen);
@@ -204,9 +206,6 @@ genie::QELEvGen_BindingMode_t genie::utils::StringToQELBindingMode(
   }
   else if ( binding_mode == "OnShell" ) {
     return kOnShell;
-  }
-  else if ( binding_mode == "ValenciaStyleQValue" ) {
-    return kValenciaStyleQValue;
   }
   else {
     LOG("QELEvent", pFATAL) << "Unrecognized setting \"" << binding_mode
@@ -293,12 +292,21 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
     // model, then it implies a certain value for the final
     // nucleus mass
     if ( hitNucleonBindingMode == genie::kUseNuclearModel ) {
-      Eb = nucl_model.RemovalEnergy();
-      // This equation is the definition that we assume
-      // here for the "removal energy" (Eb) returned by the
-      // nuclear model. It matches GENIE's convention for
-      // the Bodek/Ritchie Fermi gas model.
-      Mf = Mi + Eb - mNi;
+      if ( nucl_model.ModelType(*tgt) != kNucmSpectralFunc ) {
+        Eb = nucl_model.RemovalEnergy();
+        // For all nuclear models except SpectralFunc, this equation is the
+        // definition that we assume for the "removal energy" (Eb). It matches
+        // GENIE's convention for the Bodek/Ritchie Fermi gas model.
+        Mf = Mi + Eb - mNi;
+      }
+      else {
+        // The SpectralFunc nuclear model returns a removal energy
+        // which includes the kinetic energy of the final-state nucleus.
+        // We account for this difference here.
+        double E = nucl_model.RemovalEnergy();
+        Mf = std::sqrt( std::max(0., std::pow(Mi + E - mNi, 2) - p3Ni.Mag2()) );
+        Eb = Mf + mNi - Mi;
+      }
     }
     // We can also assume that the final nucleus is in its
     // ground state. In this case, we can just look up its
@@ -313,98 +321,6 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
 
       // Deduce the binding energy from the final nucleus mass
       Eb = Mf - Mi + mNi;
-    }
-    // A third option is to assign the binding energy and final nuclear
-    // mass in a way that is equivalent to the original Valencia model
-    // treatment
-    else if ( hitNucleonBindingMode == genie::kValenciaStyleQValue ) {
-      // Compute the Q-value needed for the ground-state-to-ground-state
-      // transition without nucleon removal (see Sec. III B of
-      // https://arxiv.org/abs/nucl-th/0408005). Note that this will be
-      // zero for NC and EM scattering since the proton and nucleon numbers
-      // are unchanged. Also get Q_LFG, the difference in Fermi energies
-      // between the final and initial struck nucleon species. This will
-      // likewise be zero for NC and EM interactions.
-      const genie::ProcessInfo& info = interaction.ProcInfo();
-      double Qvalue = 0.;
-      double Q_LFG = 0.;
-      if ( info.IsWeakCC() ) {
-        // Without nucleon removal, the final nucleon number remains the same
-        int Af = tgt->A();
-        // For CC interactions, the proton number will change by one. Choose
-        // the right change by checking whether we're working with a neutrino
-        // or an antineutrino.
-        int Zf = tgt->Z();
-        int probe_pdg = interaction.InitState().ProbePdg();
-        if ( genie::pdg::IsAntiNeutrino(probe_pdg) ) {
-          --Zf;
-        }
-        else if ( genie::pdg::IsNeutrino(probe_pdg) ) {
-          ++Zf;
-        }
-        else {
-          LOG( "QELEvent", pFATAL ) << "Unhandled probe PDG code " << probe_pdg
-            << " encountered for a CC interaction in"
-            << " genie::utils::BindHitNucleon()";
-          gAbortingInErr = true;
-          std::exit( 1 );
-        }
-
-        // We have what we need to get the Q-value. Get the final nuclear
-        // mass (without nucleon removal)
-        double mf_keep_nucleon = genie::PDGLibrary::Instance()
-          ->Find( genie::pdg::IonPdgCode(Af, Zf) )->Mass();
-
-        Qvalue = mf_keep_nucleon - Mi;
-
-        // Get the Fermi energies for the initial and final nucleons. Include
-        // the radial dependence if using the LFG.
-        double hit_nucleon_radius = tgt->HitNucPosition();
-
-        // Average of the proton and neutron masses. It may actually be better
-        // to use the exact on-shell masses here. However, the original paper
-        // uses the same value for protons and neutrons when computing the
-        // difference in Fermi energies. For consistency with the Valencia
-        // model publication, I'll do the same.
-        const double mN = genie::constants::kNucleonMass;
-
-        double kF_Ni = nucl_model.LocalFermiMomentum( *tgt,
-          tgt->HitNucPdg(), hit_nucleon_radius );
-        double EFermi_Ni = std::sqrt( std::max(0., mN*mN + kF_Ni*kF_Ni) );
-
-        double kF_Nf = nucl_model.LocalFermiMomentum( *tgt,
-          interaction.RecoilNucleonPdg(), hit_nucleon_radius );
-        // (On-shell) final nucleon mass
-        //double mNf = interaction.RecoilNucleon()->Mass();
-        double EFermi_Nf = std::sqrt( std::max(0., mN*mN + kF_Nf*kF_Nf) );
-
-        // The difference in Fermi energies is Q_LFG
-        Q_LFG = EFermi_Nf - EFermi_Ni;
-      }
-      // Fail here for interactions that aren't one of EM/NC/CC. This is
-      // intended to help avoid silently doing the wrong thing in the future.
-      else if ( !info.IsEM() && !info.IsWeakNC() ) {
-        LOG( "QELEvent", pFATAL ) << "Unhandled process type \"" << info
-          << "\" encountered in genie::utils::BindHitNucleon()";
-        gAbortingInErr = true;
-        std::exit( 1 );
-      }
-
-      // On-shell total energy of the initial struck nucleon
-      double ENi_OnShell = std::sqrt( std::max(0., mNi*mNi + p3Ni.Mag2()) );
-
-      // Total energy of the remnant nucleus (with the hit nucleon removed)
-      double Ef = Mi - ENi_OnShell + Qvalue - Q_LFG;
-
-      // Mass and kinetic energy of the remnant nucleus (with the hit nucleon
-      // removed)
-      Mf = std::sqrt( std::max(0., Ef*Ef - p3Ni.Mag2()) );
-
-      // Deduce the binding energy from the final nucleus mass
-      Eb = Mf - Mi + mNi;
-
-      LOG( "QELEvent", pDEBUG ) << "Qvalue = " << Qvalue
-        << ", Q_LFG = " << Q_LFG << " at radius = " << tgt->HitNucPosition();
     }
 
     // The (lab-frame) off-shell initial nucleon energy is the difference
@@ -425,12 +341,188 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
     if ( tgt->IsNucleus() ) interaction.SetBit( kIAssumeFreeNucleon );
   }
 
-  LOG( "QELEvent", pDEBUG ) << "Eb = " << Eb << ", pNi = " << p3Ni.Mag()
-    << ", ENi = " << ENi;
-
   // Update the initial nucleon lab-frame 4-momentum in the interaction with
   // its current components
   p4Ni->SetVect( p3Ni );
   p4Ni->SetE( ENi );
 
 }
+
+// Assumes that the probe 4-momentum and struck nucleon PDG code are already
+// set in the input interaction.
+// TODO: adjust to avoid assuming that the probe is traveling along the +z
+// direction
+double genie::utils::ComputeTestQELPXSec(genie::Interaction* interaction,
+  const genie::XSecAlgorithmI* xsec_model, double omega, double ctl,
+  double phiLep, double phiNi, double pNi, double Eremove, KinePhaseSpace_t kps)
+{
+  // Get the probe 4-momentum
+  TLorentzVector* tempProbeP4 = interaction->InitState().GetProbeP4(
+    genie::kRfLab );
+  TLorentzVector nuP4 = *tempProbeP4;
+  delete tempProbeP4;
+
+  // Prepare the outgoing lepton 4-momentum
+  double ml = interaction->FSPrimLepton()->Mass();
+
+  double Ev = nuP4.E();
+  double El = Ev - omega;
+  double pl = std::sqrt( std::max(0., El*El - ml*ml) );
+  if ( El < ml ) return 0.;
+
+  double stl = std::sqrt( std::max(0., 1. - ctl*ctl) );
+  TLorentzVector lP4( std::cos(phiLep)*stl*pl,
+    std::sin(phiLep)*stl*pl, ctl*pl, El );
+
+  // Get the 4-momentum transfer
+  TLorentzVector qP4 = nuP4 - lP4;
+
+  // 3-momentum transfer
+  double qMag = qP4.Vect().Mag();
+  // Get the cosine between the initial nucleon 3-momentum and the 3-momentum
+  // transfer
+
+  // On-shell mass of initial struck nucleon
+  double mNi = interaction->InitState().Tgt().HitNucMass();
+  // Off-shell total energy of initial struck nucleon
+  //double ENi = mNi - Eremove;
+  double ENi = std::sqrt(pNi*pNi + mNi*mNi);
+  // Look up the (on-shell) mass of the final nucleon
+  double mNf = interaction->RecoilNucleon()->Mass();
+
+  //Get omega_tilde
+  double wt = omega - ENi - std::abs(Eremove) + mNi;
+  if (wt < 0) return 0.;
+  //std::cout << "wt from QEL: " << wt << std::endl;
+  //Get angle between initial and final nucleon momenta
+  double costheta_p = (pow(wt + ENi,2) - pNi*pNi - qMag*qMag - mNf*mNf)/(2.*pNi*qMag);
+  if (std::abs(costheta_p) > 1.0) return 0.;
+
+  // Final nucleon 3-momentum
+  double pNf = std::sqrt(pNi*pNi + qMag*qMag + 2.*qMag*pNi*costheta_p);
+  // Final nucleon total energy
+  double ENf = std::sqrt(pNf*pNf + mNf*mNf);
+
+ // std::cout << "ENf = " << ENf << "pNf = " << pNf << std::endl;
+  double pCos = ( pNf*pNf - pNi*pNi - qMag*qMag ) / ( 2.*pNi*qMag );
+  if ( std::abs(pCos) > 1. ) return 0.;
+
+  double pSin = std::sqrt( std::max(0., 1. - pCos*pCos) );
+
+  // Set up the initial struck nucleon 3-momentum in a frame where the
+  // 3-momentum transfer points along +z
+  TVector3 p3Ni( std::cos(phiNi)*pSin*pNi, std::sin(phiNi)*pSin*pNi,
+    pCos*pNi );
+
+  // Build the initial struck nucleon 4-momentum
+  TLorentzVector p4Ni( p3Ni, ENi );
+
+  // Use it and the 4-momentum transfer to get the final nucleon 4-momentum
+  TVector3 p3Nf( std::cos(phiNi)*pSin*pNi, std::sin(phiNi)*pSin*pNi,
+    pCos*pNi + qMag );
+  TLorentzVector p4Nf(p3Nf, ENf);
+
+  // Set the needed 4-momenta in the input interaction
+  interaction->InitState().TgtPtr()->SetHitNucP4( p4Ni );
+  interaction->KinePtr()->SetFSLeptonP4( lP4 );
+  interaction->KinePtr()->SetHadSystP4( p4Nf );
+
+  // A very high-momentum bound nucleon (which is far off the mass shell)
+  // can have a momentum greater than its total energy. This leads to numerical
+  // issues (NaNs) since the invariant mass of the nucleon becomes imaginary.
+  // In such cases, just return zero to avoid trouble.
+  if ( interaction->InitState().Tgt().HitNucP4().M() <= 0. ) return 0.;
+
+  // Mandelstam s for the probe/hit nucleon system
+  double s = std::pow( interaction->InitState().CMEnergy(), 2 );
+
+  // Return a differential cross section of zero if we're below threshold
+  if ( std::sqrt(s) < ml + mNf ) return 0.;
+
+  // Check that Q^2 is within the allowed range
+  double Q2 = -1 * qP4.Mag2();
+
+  //std::cout << "here1? " << std::endl;
+  // Check the Q2 range. If we're outside of it, don't bother
+  // with the rest of the calculation.
+  Range1D_t Q2lim = interaction->PhaseSpace().Q2Lim();
+  if ( Q2 < Q2lim.min || Q2 > Q2lim.max ) return 0.;
+  //std::cout << "here2? " << std::endl;
+
+  // Set Q^2 in the input interaction
+  interaction->KinePtr()->SetQ2( Q2 );
+
+  // Compute the QE cross section for the current kinematics
+  double xsec = xsec_model->XSec(interaction, kps);
+  //std::cout << "KPS = " << kps << std::endl;
+  if (kps == genie::kPSQELEvGen) {
+	//std::cout << "Using kPSQELEvGen" << std::endl;
+ 	 // Adjust some factors for the testing phase space (which differs from
+  	// kPSQELEvGen)
+  	double delta_sol = EnergyDeltaFunctionSolutionQEL( *interaction );
+
+  	double factor = lP4.E() * lP4.P() * p4Nf.E() * p4Ni.P()
+    	/ ( qMag * delta_sol );
+
+  	xsec *= factor;
+  }
+
+  return xsec;
+}
+
+// Function takes ingoing and outgoing lepton and
+// std::vector<> of other 4 momenta
+// and rotates the system so that \vec{q} is along \hat{z}
+void genie::utils::Rotate_qvec_alongZ(TLorentzVector &probe_leptonP4,
+TLorentzVector &out_leptonP4, std::vector<TLorentzVector> &otherP4)
+{
+
+  TVector3 probeLMom3 = probe_leptonP4.Vect();
+  TVector3 outLMom3 = out_leptonP4.Vect();
+
+  std::vector<TVector3> otherMom3;
+
+  for (auto vect4: otherP4 ) {
+	TVector3 vectorPart(vect4.X(), vect4.Y(), vect4.Z());
+	otherMom3.push_back(vectorPart);
+  }
+
+  TVector3 q3Vec = probeLMom3 - outLMom3;
+  TVector3 zvec(0.0, 0.0, 1.0);
+  TVector3 rot = ( q3Vec.Cross(zvec) ).Unit(); // Vector to rotate about
+  // Angle between the z direction and q
+  double angle = zvec.Angle( q3Vec );
+
+  // Handle the edge case where q3Vec is along -z, so the
+  // cross product above vanishes
+  if ( q3Vec.Perp() == 0. && q3Vec.Z() < 0. ) {
+    rot = TVector3(0., 1., 0.);
+    angle = genie::constants::kPi;
+  }
+
+  // Rotate if the rotation vector is not 0
+  if ( rot.Mag() >= genie::controls::kASmallNum ) {
+
+    probeLMom3.Rotate(angle,rot);
+    probe_leptonP4.SetVect(probeLMom3);
+
+    outLMom3.Rotate(angle,rot);
+    out_leptonP4.SetVect(outLMom3);
+
+    for(int i = 0; i < otherP4.size(); i++) {
+    	otherMom3[i].Rotate(angle,rot);
+        otherP4[i].SetVect(otherMom3[i]);
+    }
+
+  }
+
+}
+
+
+
+
+
+
+
+
+

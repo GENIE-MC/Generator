@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- 
+  In the Default set we have the kf values copied from NeuGEN.
+-->
+
+<fermi_momentum_const>
+
+  <kf_table name="Default">
+     <!-- H2    --> <kf nucleus_pdgc="1000010020"> <p> 0.055 </p> <n> 0.055 </n> </kf> <!-- From Eric Christy -->
+     <!-- He4   --> <kf nucleus_pdgc="1000020040"> <p> 0.115 </p> <n> 0.115 </n> </kf> <!-- Added -->
+     <!-- Li6   --> <kf nucleus_pdgc="1000030060"> <p> 0.169 </p> <n> 0.169 </n> </kf> 
+     <!-- C12   --> <kf nucleus_pdgc="1000060120"> <p> 0.221 </p> <n> 0.221 </n> </kf>
+     <!-- O16   --> <kf nucleus_pdgc="1000080160"> <p> 0.225 </p> <n> 0.225 </n> </kf> 
+     <!-- Mg24  --> <kf nucleus_pdgc="1000120240"> <p> 0.235 </p> <n> 0.235 </n> </kf> 
+     <!-- Si28  --> <kf nucleus_pdgc="1000140280"> <p> 0.239 </p> <n> 0.239 </n> </kf> 
+     <!-- Ar40  --> <kf nucleus_pdgc="1000180400"> <p> 0.242 </p> <n> 0.259 </n> </kf> 
+     <!-- Ca40  --> <kf nucleus_pdgc="1000200400"> <p> 0.251 </p> <n> 0.251 </n> </kf> 
+     <!-- Fe56  --> <kf nucleus_pdgc="1000260560"> <p> 0.251 </p> <n> 0.263 </n> </kf> 
+     <!-- Ni58  --> <kf nucleus_pdgc="1000280580"> <p> 0.257 </p> <n> 0.263 </n> </kf> 
+     <!-- Sn120 --> <kf nucleus_pdgc="1000501200"> <p> 0.245 </p> <n> 0.274 </n> </kf> 
+     <!-- Ta181 --> <kf nucleus_pdgc="1000731810"> <p> 0.247 </p> <n> 0.281 </n> </kf>
+     <!-- Pb208 --> <kf nucleus_pdgc="1000822080"> <p> 0.245 </p> <n> 0.283 </n> </kf> 
+  </kf_table>
+
+</fermi_momentum_const>
+

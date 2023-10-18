@@ -14,6 +14,7 @@
 #pragma link C++ class genie::BBA07ELFormFactorsModel;
 #pragma link C++ class genie::GalsterELFormFactorsModel;
 #pragma link C++ class genie::DipoleELFormFactorsModel;
+#pragma link C++ class genie::KellyELFormFactorsModel;
 #pragma link C++ class genie::TransverseEnhancementFFModel;
 
 #pragma link C++ class genie::AhrensNCELPXSec;
@@ -22,6 +23,7 @@
 #pragma link C++ class genie::LwlynSmithQELCCPXSec;
 #pragma link C++ class genie::LwlynSmithFFCC;
 #pragma link C++ class genie::LwlynSmithFFNC;
+#pragma link C++ class genie::LwlynSmithFFEM;
 #pragma link C++ class genie::LwlynSmithFF;
 #pragma link C++ class genie::MKFFEM;
 #pragma link C++ class genie::MKFFCC;
@@ -45,6 +47,9 @@
 #pragma link C++ class genie::QELXSec;
 #pragma link C++ class genie::NewQELXSec;
 
+#pragma link C++ class genie::Rank2LorentzTensorI;
+#pragma link C++ class genie::LeptonTensor;
+#pragma link C++ class genie::ManualResponseTensor;
 
 // Wrappers for GSL/MathMore lib
 #pragma link C++ class genie::utils::gsl::d2Xsec_dQ2dv;
