@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<tune_generator_list>
+
+<!--
+Configurable Parameters:
+..........................................................................................................................
+Name                        Type    Opt  Comment                                               Default
+..........................................................................................................................
+NGenerators                 int     No
+Generator-%d                alg     No
+-->
+
+  <param_set name="Default"> 
+     <param type="int" name="NGenerators">   3                              </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC   </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/QEL-NC   </param>
+     <param type="alg" name="Generator-2">   genie::EventGenerator/QEL-EM   </param>
+     <!--
+       <param type="alg" name="Generator-3">  genie::EventGenerator/MEC-CC  </param>
+       <param type="alg" name="Generator-4">  genie::EventGenerator/MEC-NC  </param>
+       <param type="alg" name="Generator-5">  genie::EventGenerator/MEC-EM  </param>
+     -->
+  </param_set>
+
+</tune_generator_list>
+

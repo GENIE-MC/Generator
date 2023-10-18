@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the CBF spectral function QEL differential xsec algorithm.
+
+Configurable Parameters:
+.....................................................................................................
+Name               Type     Optional   Comment                          Default
+.....................................................................................................
+CCFormFactorsAlg   alg      No         QEL-CC form factors algorithm
+NCFormFactorsAlg   alg      No         QEL-NC form factors algorithm
+EMFormFactorsAlg   alg      No         QEL-EM form factors algorithm
+XSec-Integrator    alg      No
+CabibboAngle       double   No         Cabibbo angle                    CommonParam[CKM]
+PauliBlockerAlg    alg      No         PauliBlocking algorithm
+FortranTensorModel string   No         Specifies which fortran model to use
+DoRotate_qAlong_z  bool     Yes        Rotates system so q is along z
+QEL-CC-XSecScale   double   Yes        Scaling factor                   GPL value
+
+
+.....................................................................................................
+Parameters needed when Integrating with this model to generate splines:
+...........................................................................................................................
+Name                                 Type     Optional   Comment                                              Default
+...........................................................................................................................
+IntegralNuclearModel                 alg      No
+IntegralNucleonBindingMode           alg      No
+-->
+
+  <param_set name="Default">
+
+    <param type="string"  name="CommonParam"> CKM </param>
+
+    <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
+    <param type="double" name="IntegralNuclearInfluenceCutoffEnergy"> 100.0 </param>
+
+    <param type="alg"  name="XSec-Integrator"> genie::NewQELXSec/Default </param>
+    <param type="alg"  name="IntegralNuclearModel"> genie::SpectralFunc/Default </param>
+    <param type="string" name="IntegralNucleonBindingMode"> UseNuclearModel </param>
+
+    <param type="string" name="FortranTensorModel"> compute_hadron_tensor_SF </param> 
+
+    <param type="alg"  name="PauliBlockerAlg"> genie::PauliBlocker/Default </param>
+    <param type="bool" name="DoPauliBlocking"> true </param>
+
+    <param type="bool" name="DoRotate_qAlong_z"> true </param>
+
+    <param type="alg"  name="NCFormFactorsAlg"> genie::LwlynSmithFFNC/Default </param>
+    <param type="alg"  name="EMFormFactorsAlg"> genie::LwlynSmithFFEM/Default </param>
+
+  </param_set>
+
+  <param_set name="Dipole">
+     <param type="alg"  name="CCFormFactorsAlg"> genie::LwlynSmithFFCC/Dipole </param>
+  </param_set>
+
+
+  <param_set name="ZExp">
+     <param type="alg"  name="CCFormFactorsAlg"> genie::LwlynSmithFFCC/ZExp </param>
+  </param_set>
+
+</alg_conf>
