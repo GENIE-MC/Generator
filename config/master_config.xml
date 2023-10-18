@@ -132,6 +132,7 @@
 
    <!--  ****** CONFIGURATION FORM FACTOR and STRUCTURE FUNCTION ALGORITHMS ****** -->
    <config alg="genie::DipoleELFormFactorsModel">                DipoleELFormFactorsModel.xml                </config>
+   <config alg="genie::KellyELFormFactorsModel">                 KellyELFormFactorsModel.xml                 </config>
    <config alg="genie::BBA03ELFormFactorsModel">                 BBA03ELFormFactorsModel.xml                 </config>
    <config alg="genie::BBA05ELFormFactorsModel">                 BBA05ELFormFactorsModel.xml                 </config>
    <config alg="genie::BBA07ELFormFactorsModel">                 BBA07ELFormFactorsModel.xml                 </config>
@@ -144,6 +145,7 @@
    <config alg="genie::MKFFEM">                                  MKFFEM.xml                                  </config>
    <config alg="genie::MKFFCC">                                  MKFFCC.xml                                  </config>
    <config alg="genie::LwlynSmithFFDeltaS">                      LwlynSmithFFDeltaS.xml                      </config>
+   <config alg="genie::LwlynSmithFFEM">                          LwlynSmithFFEM.xml                          </config>
    <config alg="genie::TransverseEnhancementFFModel">            TransverseEnhancementFFModel.xml            </config>
    <config alg="genie::LwlynSmithFFNC">                          LwlynSmithFFNC.xml                          </config>
    <config alg="genie::GalsterELFormFactorsModel">               GalsterELFormFactorsModel.xml               </config>
@@ -190,6 +192,7 @@
    <config alg="genie::NievesQELCCPXSec">                   NievesQELCCPXSec.xml                   </config>
    <config alg="genie::SuSAv2QELPXSec">                     SuSAv2QELPXSec.xml                     </config>
    <config alg="genie::SmithMonizQELCCPXSec">               SmithMonizQELCCPXSec.xml               </config>
+   <config alg="genie::UnifiedQELPXSec">                    UnifiedQELPXSec.xml                    </config>
    <config alg="genie::QPMDMDISPXSec">                      QPMDMDISPXSec.xml                      </config>
    <config alg="genie::QPMDISPXSec">                        QPMDISPXSec.xml                        </config>
    <config alg="genie::KNOTunedQPMDISPXSec">                KNOTunedQPMDISPXSec.xml                </config>

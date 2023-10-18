@@ -196,10 +196,7 @@ void NewQELXSec::LoadConfig(void)
 
   GetParamDef( "NumNucleonThrows", fNumNucleonThrows, 5000 );
 
-  // TODO: This is a parameter that may also be specified in the XML
-  // configuration for QELEventGenerator. Avoid duplication here to ensure
-  // consistency.
-  GetParamDef( "SF-MinAngleEMscattering", fMinAngleEM, 0. ) ;
+  GetParamDef( "SF_MinAngleEM", fMinAngleEM, 0.);
 
   // If true, then the integration of the total cross section will include an
   // MC integration over the initial state nuclear model

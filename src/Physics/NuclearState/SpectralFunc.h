@@ -9,11 +9,14 @@
 \author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
           University of Liverpool
 
+          Steven Gardiner <gardiner \at fnal.gov>
+          Fermi National Accelerator Laboratory
+
 \created  May 07, 2004
 
 \cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          
+
 
 */
 //____________________________________________________________________________
@@ -21,10 +24,13 @@
 #ifndef _SPECTRAL_FUNCTION_H_
 #define _SPECTRAL_FUNCTION_H_
 
+#include <map>
+
 #include "Physics/NuclearState/NuclearModelI.h"
 
-class TNtupleD;
 class TGraph2D;
+class TH2D;
+class TNtupleD;
 
 namespace genie {
 
@@ -41,7 +47,7 @@ public:
   //-- implement the NuclearModelI interface
   bool           GenerateNucleon (const Target & t) const;
   double         Prob            (double p, double w, const Target & t) const;
-  NuclearModel_t ModelType       (const Target &) const 
+  NuclearModel_t ModelType       (const Target &) const
   {
     return kNucmSpectralFunc;
   }
@@ -51,16 +57,30 @@ public:
   void Configure (const Registry & config);
   void Configure (string config);
 
+  TH2D* SelectSpectralFunction (const Target& target) const;
+
  protected:
   void       LoadConfig             (void);
+  TGraph2D*  Convert2Graph          (TNtupleD& data) const;
+  TH2D* LoadSFDataFile( const std::string& full_file_name, int targetN) const;
 
-private:
-  
-  TGraph2D * Convert2Graph          (TNtupleD & data) const;
-  TGraph2D * SelectSpectralFunction (const Target & target) const; 
+  /// The path to the folder containing the spectral function data files
+  std::string fDataPath;
+  std::string fDataPathProton;
+  std::string fDataPathNeutron;
 
-  TGraph2D * fSfFe56;   ///< Benhar's Fe56 SF
-  TGraph2D * fSfC12;    ///< Benhar's C12 SF
+  /// Map storing cached spectral functions. Keys are pair
+  /// <isospin 1/-1,nuclear PDG codes>,
+  /// values are 2D histograms representing the probability distribution
+  mutable std::map<std::pair<int,int>, TH2D*> fSpectralFunctionMap;
+
+  /// The number of nucleon momentum bins to use when making spectral function
+  /// histograms
+  int fNumXBins;
+
+  /// The number of removal energy bins to use when making spectral function
+  /// histograms
+  int fNumYBins;
 };
 
 }      // genie namespace

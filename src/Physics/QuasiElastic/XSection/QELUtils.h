@@ -38,15 +38,8 @@ namespace genie {
     // ground state
     kUseGroundStateRemnant,
 
-    // Leave the struck nucleon on shell, effectively ignoring its binding
-    // energy
-    kOnShell,
-
-    // Use a prescription equivalent to that of the Valencia model (see
-    // Eq. (43) in https://arxiv.org/abs/nucl-th/0408005). In this case,
-    // the effective energy transfer implies an off-shell hit nucleon
-    // total energy in the initial state.
-    kValenciaStyleQValue,
+    // Leave the struck nucleon on shell, effectively ignoring its binding energy
+    kOnShell
   } QELEvGen_BindingMode_t;
 
   namespace utils {
@@ -58,13 +51,19 @@ namespace genie {
     double ComputeFullQELPXSec(Interaction* interaction,
       const NuclearModelI* nucl_model, const XSecAlgorithmI* xsec_model,
       double cos_theta_0, double phi_0, double& Eb,
-      QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM = 0.,
-      bool bind_nucleon = true);
+      QELEvGen_BindingMode_t hitNucleonBindingMode, double fMinAngleEM,bool bind_nucleon = true);
 
     double CosTheta0Max(const genie::Interaction& interaction);
 
     void BindHitNucleon(Interaction& interaction, const NuclearModelI& nucl_model,
       double& Eb, QELEvGen_BindingMode_t hitNucleonBindingMode);
+
+    double ComputeTestQELPXSec(Interaction* interaction,
+      const XSecAlgorithmI* xsec_model, double omega, double ctl,
+      double phiLep, double phiNi, double pNi, double Eremove, KinePhaseSpace_t kps = genie::kPSQELEvGen);
+
+    void Rotate_qvec_alongZ(TLorentzVector &probe_leptonP4,
+      TLorentzVector &out_leptonP4, std::vector<TLorentzVector> &otherP4);
   }
 }
 
