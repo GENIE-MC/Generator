@@ -23,6 +23,7 @@ AverageOverNucleons          bool     Yes        whether to do an MC integration
     <param type="int" name = "gsl-max-eval"> 100000 </param>
     <param type="alg" name = "VertexGenAlg"> genie::VertexGenerator/Default </param>
     <param type="int" name = "NumNucleonThrows"> 500 </param>
+    <param type="double" name = "SF_MinAngleEM"> 0 </param>
   </param_set>
 
 

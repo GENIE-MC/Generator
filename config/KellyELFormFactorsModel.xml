@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the Kelly elastic form factors model
+
+Form factors based on J.J. Kelly, Phys.Rev.C 70 (2004) 068202
+
+Configurable Parameters:
+.........................................................................................
+Name        Type    Optional   Comment                      Default
+.........................................................................................
+-->
+
+  <param_set name="Default"> 
+    
+    <param type="string" name="CommonParam">  MagnMoments,QuasiElastic  </param>
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Kelly elastic form factor parameters
+    -->
+    <param type="double" name="Kelly-Gep-a0">     1.      </param>
+    <param type="double" name="Kelly-Gep-a1">    -0.24    </param>  
+    <param type="double" name="Kelly-Gep-a2">     0.0     </param>
+    <param type="double" name="Kelly-Gep-b1">    10.98    </param>  
+    <param type="double" name="Kelly-Gep-b2">    12.82    </param>  
+    <param type="double" name="Kelly-Gep-b3">    21.97    </param>
+    <param type="double" name="Kelly-Gep-b4">     0.0     </param>  
+    <param type="double" name="Kelly-Gmp-a0">     1.      </param> 
+    <param type="double" name="Kelly-Gmp-a1">     0.12    </param>  <!--  -->
+    <param type="double" name="Kelly-Gmp-a2">     0.0     </param>  <!--  -->
+    <param type="double" name="Kelly-Gmp-b1">    10.97    </param>  <!--  -->
+    <param type="double" name="Kelly-Gmp-b2">    18.86    </param>  <!--  -->
+    <param type="double" name="Kelly-Gmp-b3">     6.55    </param>  <!--  -->
+    <param type="double" name="Kelly-Gmp-b4">     0.0     </param>  <!--  -->
+    <param type="double" name="Kelly-Gen-a0">     0.0     </param>
+    <param type="double" name="Kelly-Gen-a1">     1.7     </param>
+    <param type="double" name="Kelly-Gen-a2">     0.0     </param>
+    <param type="double" name="Kelly-Gen-b1">     3.3     </param>  <!--  -->
+    <param type="double" name="Kelly-Gen-b2">     0.0     </param>  <!--  -->
+    <param type="double" name="Kelly-Gen-b3">     0.0     </param>  <!--  -->
+    <param type="double" name="Kelly-Gen-b4">     0.0     </param>  <!--  -->
+    <param type="double" name="Kelly-Gmn-a0">     1.      </param>
+    <param type="double" name="Kelly-Gmn-a1">     2.33    </param>  <!--  -->
+    <param type="double" name="Kelly-Gmn-a2">     0.0     </param>  <!--  -->
+    <param type="double" name="Kelly-Gmn-b1">    14.72    </param>  <!--  -->
+    <param type="double" name="Kelly-Gmn-b2">    24.20    </param>  <!--  -->
+    <param type="double" name="Kelly-Gmn-b3">    84.1     </param>  <!--  -->
+    <param type="double" name="Kelly-Gmn-b4">     0.0     </param>  <!--  -->
+    
+  </param_set>
+
+</alg_conf>
+

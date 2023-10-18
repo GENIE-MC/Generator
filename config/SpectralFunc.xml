@@ -3,7 +3,7 @@
 <alg_conf>
 
 <!--
-Configuration for the SpectralFunc NuclerModelI implementation
+Configuration for the SpectralFunc NuclearModelI implementation
 
 Configurable Parameters:
 ....................................................................................................................................
@@ -14,8 +14,24 @@ FermiMomentumTable      string   No         Table of Fermi momentum (kF) constan
 -->
 
   <param_set name="Default"> 
-        <param type="string" name="CommonParam"> FermiGas </param>
+
+    <param type="string" name="CommonParam"> FermiGas </param>
+
+    <!-- The data file path may be specified relative to the GENIE root folder or
+       as an absolute path -->
+    <param type="string" name="DataPathType"> relative </param>
+    <param type="string" name="DataPath"> data/evgen/nucl/spectral_functions </param>
+
+    <!-- <param type="string" name="SpectFuncTable@Pdg=1000060120"> benhar-sf-12c.data </param> -->
+    <param type="string" name="SpectFuncTable@Pdg=1000060120_2212"> pke12_tot.data </param>
+    <param type="string" name="SpectFuncTable@Pdg=1000060120_2112"> pke12_tot.data </param>
+    <param type="string" name="SpectFuncTable@Pdg=1000080160_2212"> pke16_tot.data </param>
+    <param type="string" name="SpectFuncTable@Pdg=1000080160_2112"> pke16_tot.data </param>
+    <param type="string" name="SpectFuncTable@Pdg=1000260560_2212"> benhar-sf-56fe.data </param>
+    <param type="string" name="SpectFuncTable@Pdg=1000260560_2112"> benhar-sf-56fe.data </param>
+    <param type="string" name="SpectFuncTable@Pdg=1000180400_2212"> pke40p_tot.data </param>
+    <param type="string" name="SpectFuncTable@Pdg=1000180400_2112"> pke40n_tot.data </param>
+
   </param_set>
 
 </alg_conf>
-
