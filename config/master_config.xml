@@ -141,6 +141,7 @@
    <config alg="genie::LwlynSmithFFNC">                          LwlynSmithFFNC.xml                          </config>
    <config alg="genie::QPMDISStrucFunc">                         QPMDISStrucFunc.xml                         </config>
    <config alg="genie::BYStrucFunc">                             BYStrucFunc.xml                             </config>
+   <config alg="genie::BYStrucFunc2021">                         BYStrucFunc2021.xml                         </config>
    <config alg="genie::RSHelicityAmplModelCC">                   RSHelicityAmplModelCC.xml                   </config>
    <config alg="genie::RSHelicityAmplModelNCp">                  RSHelicityAmplModelNCp.xml                  </config>
    <config alg="genie::RSHelicityAmplModelNCn">                  RSHelicityAmplModelNCn.xml                  </config>
