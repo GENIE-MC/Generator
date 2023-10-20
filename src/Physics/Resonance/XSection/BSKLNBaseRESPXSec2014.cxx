@@ -126,7 +126,7 @@ double BSKLNBaseRESPXSec2014::XSec(
   int    LR  = utils::res::OrbitalAngularMom (resonance);
   double MR  = utils::res::Mass              (resonance);
   double WR  = utils::res::Width             (resonance);
-   double NR  = fNormBW?utils::res::BWNorm    (resonance,fN0ResMaxNWidths,fN2ResMaxNWidths,fGnResMaxNWidths):1;
+  double NR  = fNormBW?utils::res::BWNorm    (resonance,fN0ResMaxNWidths,fN2ResMaxNWidths,fGnResMaxNWidths):1;
 
   // Following NeuGEN, avoid problems with underlying unphysical
   // model assumptions by restricting the allowed W phase space
@@ -313,6 +313,27 @@ double BSKLNBaseRESPXSec2014::XSec(
 
     GV = 0.5 * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR)
          * TMath::Sqrt( 3 * GV3*GV3 + GV1*GV1);
+  } else if(fSaritaSchwinger){
+    // PhysRevD.77.053001
+    LOG("BSKLNBaseRESPXSec2014",pDEBUG) <<"Using Sarita-Schwinger model";
+    double CV0 =  1./(1-q2/fMv2/4.);
+    double CV3 =  2.13 * CV0 * TMath::Power( 1-q2/fMv2,-2);
+    double CV4 = -1.51 * CV0 * TMath::Power( 1-q2/fMv2,-2);
+    double CV5 =  0.48 * CV0 * TMath::Power( 1-q2/fMv2/0.766, -2);
+
+    double GV3 =  0.5 / TMath::Sqrt(3) * ( CV3 * (W + Mnuc)/Mnuc
+                  + CV4 * (W2 + q2 -Mnuc2)/2./Mnuc2
+                  + CV5 * (W2 - q2 -Mnuc2)/2./Mnuc2 );
+
+    double GV1 = - 0.5 / TMath::Sqrt(3) * ( CV3 * (Mnuc2 -q2 +Mnuc*W)/W/Mnuc
+                 + CV4 * (W2 +q2 - Mnuc2)/2./Mnuc2
+                 + CV5 * (W2 -q2 - Mnuc2)/2./Mnuc2 );
+
+    GV = 0.5 * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + Mnuc), -IR);
+         
+    if( is_EM ) GV = 0.5 * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), -0.5*IR);
+    GV *= TMath::Sqrt( 3 * GV3*GV3 + GV1*GV1);
+
   } else { 
     LOG("BSKLNBaseRESPXSec2014",pDEBUG << "Using dipole parametrization for GV") ; 
   }
@@ -326,6 +347,15 @@ double BSKLNBaseRESPXSec2014::XSec(
     GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5;
 
     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"GA= " <<GA << "  C5A= " <<CA5;
+  } else if(fSaritaSchwinger){
+    LOG("BSKLNBaseRESPXSec2014",pDEBUG) << "Using Rarita-Schwinger model";
+
+    double CA5_0 = fCA50 ;
+    double CA5 = CA5_0 *  TMath::Power( 1./(1-q2/fMa2), 2) * fcII * ( 1./(1-q2/fMb2) );
+    GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), -IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5;
+
+    LOG("BSKLNBaseRESPXSec2014",pINFO) <<"GA= " <<GA << "  C5A= " <<CA5;
+
   } else { 
     LOG("BSKLNBaseRESPXSec2014",pDEBUG << "Using dipole parametrization for GA") ;
   }
@@ -763,6 +793,7 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   this->GetParam( "RES-Omega"  , fOmega ) ;
   this->GetParam( "minibooneGA", fGAMiniBooNE ) ;
   this->GetParam( "minibooneGV", fGVMiniBooNE ) ;
+  this->GetParam( "SaritaSchwinger", fSaritaSchwinger ) ;
 
   double ma, mv ;
   this->GetParam( "RES-Ma", ma ) ;
@@ -770,6 +801,18 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   fMa2 = TMath::Power(ma,2);
   fMv2 = TMath::Power(mv,2);
 
+  // Additional parameters used for the Sarita-Schwinger parameterization of GV and GA
+  // PhysRevD.77.053001
+  double mb;
+  this->GetParamDef( "CV30", fCV30, 2.13 ) ;
+  this->GetParamDef( "CV40", fCV40, -1.51 ) ;
+  this->GetParamDef( "CV50", fCV50, 0.48 ) ;
+  this->GetParamDef( "b5"  , fb5, 0.766 ) ;
+  this->GetParamDef( "CA50", fCA50, 1.2 ) ;
+  this->GetParamDef( "cII", fcII, 0. ) ;
+  this->GetParamDef( "RES-Mb", mb, 1. ) ;
+  fMb2 = TMath::Power(mb,2);
+  
   this->GetParamDef( "BreitWignerWeight", fWghtBW, true ) ;
   this->GetParamDef( "BreitWignerNorm",   fNormBW, true);
   double Vud;

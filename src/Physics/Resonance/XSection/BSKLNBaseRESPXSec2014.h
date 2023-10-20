@@ -93,6 +93,16 @@ namespace genie {
       bool fUseRFGParametrization; ///< use parametrization for fermi momentum insted of table?
       bool fUsePauliBlocking;      ///< account for Pauli blocking?
 
+      // Sarita-Schwinger prenscription parameters from PhysRevD.77.053001
+      bool fSaritaSchwinger ; 
+      double fCV30 ;
+      double fCV40 ; 
+      double fCV50 ;
+      double fb5 ; 
+      double fCA50 ;
+      double fcII ; 
+      double fMb2 ; 
+
       double   fXSecScaleCC;       ///< external CC xsec scaling factor
       double   fXSecScaleNC;       ///< external NC xsec scaling factor
       double   fXSecScaleEM;       ///< external EM xsec scaling factor
