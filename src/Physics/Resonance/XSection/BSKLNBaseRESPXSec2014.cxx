@@ -313,9 +313,9 @@ double BSKLNBaseRESPXSec2014::XSec(
 
     GV = 0.5 * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR)
          * TMath::Sqrt( 3 * GV3*GV3 + GV1*GV1);
-  } else if(fSaritaSchwinger){
+  } else if(fGVSaritaSchwinger){
     // PhysRevD.77.053001
-    LOG("BSKLNBaseRESPXSec2014",pDEBUG) <<"Using Sarita-Schwinger model";
+    LOG("BSKLNBaseRESPXSec2014",pDEBUG) <<"Using GV Sarita-Schwinger model";
     double CV0 =  1./(1-q2/fMv2/4.);
     double CV3 =  2.13 * CV0 * TMath::Power( 1-q2/fMv2,-2);
     double CV4 = -1.51 * CV0 * TMath::Power( 1-q2/fMv2,-2);
@@ -347,8 +347,8 @@ double BSKLNBaseRESPXSec2014::XSec(
     GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5;
 
     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"GA= " <<GA << "  C5A= " <<CA5;
-  } else if(fSaritaSchwinger){
-    LOG("BSKLNBaseRESPXSec2014",pDEBUG) << "Using Rarita-Schwinger model";
+  } else if(fGASaritaSchwinger){
+    LOG("BSKLNBaseRESPXSec2014",pDEBUG) << "Using GA Rarita-Schwinger model";
 
     double CA5_0 = fCA50 ;
     double CA5 = CA5_0 *  TMath::Power( 1./(1-q2/fMa2), 2) * fcII * ( 1./(1-q2/fMb2) );
@@ -793,7 +793,8 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   this->GetParam( "RES-Omega"  , fOmega ) ;
   this->GetParam( "minibooneGA", fGAMiniBooNE ) ;
   this->GetParam( "minibooneGV", fGVMiniBooNE ) ;
-  this->GetParam( "SaritaSchwinger", fSaritaSchwinger ) ;
+  this->GetParam( "GASaritaSchwinger", fGASaritaSchwinger ) ;
+  this->GetParam( "GVSaritaSchwinger", fGVSaritaSchwinger ) ;
 
   double ma, mv ;
   this->GetParam( "RES-Ma", ma ) ;

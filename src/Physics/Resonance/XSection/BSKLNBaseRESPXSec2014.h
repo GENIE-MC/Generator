@@ -94,7 +94,8 @@ namespace genie {
       bool fUsePauliBlocking;      ///< account for Pauli blocking?
 
       // Sarita-Schwinger prenscription parameters from PhysRevD.77.053001
-      bool fSaritaSchwinger ; 
+      bool   fGASaritaSchwinger ; 
+      bool   fGVSaritaSchwinger ; 
       double fCV30 ;
       double fCV40 ; 
       double fCV50 ;
