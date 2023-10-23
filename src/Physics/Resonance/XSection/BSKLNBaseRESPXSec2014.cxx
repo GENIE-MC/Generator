@@ -352,7 +352,7 @@ double BSKLNBaseRESPXSec2014::XSec(
 
     double CA5_0 = fCA50 ;
     double CA5 = CA5_0 *  TMath::Power( 1./(1-q2/fMa2), 2) * fcII * ( 1./(1-q2/fMb2) );
-    GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), -IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5;
+    GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5) * TMath::Power( 1 - q2/(2*Mnuc)/(2*Mnuc), -IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5;
 
     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"GA= " <<GA << "  C5A= " <<CA5;
 
