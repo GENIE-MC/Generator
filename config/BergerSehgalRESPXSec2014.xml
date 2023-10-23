@@ -33,7 +33,8 @@ RFG-UseParametrization      bool    No    use parametrization for Fermi momentum
 FermiMomentumTable          string  No    Table of Fermi momentum (kF) constants for various nuclei       CommonParam[FermiGas]
 XSec-Integrator             alg     No                    
 
-Sarita-Schwinger            bool    No    tuning vector and axial form factors using Sarita-Schwinger model from PhysRevD.77.053001
+GASarita-Schwinger          bool    No    tuning axial form factors using Sarita-Schwinger model from PhysRevD.77.053001
+GVSarita-Schwinger          bool    No    tuning vector form factors using Sarita-Schwinger model from PhysRevD.77.053001
 CV30                        double  Yes   Parameter for the vector ff calculation with the Sarita-Schwinger model
 CV40                        double  Yes   Parameter for the vector ff calculation with the Sarita-Schwinger model
 CV50                        double  Yes   Parameter for the vector ff calculation with the Sarita-Schwinger model
@@ -55,7 +56,8 @@ RES-Mb                      double  Yes   Mb parameter used for the GA calculati
      -->
      <param type="bool" name="minibooneGA">  true </param>
      <param type="bool" name="minibooneGV">  true </param>
-     <param type="bool" name="SaritaSchwinger">  false </param>
+     <param type="bool" name="GASaritaSchwinger">  false </param>
+     <param type="bool" name="GVSaritaSchwinger">  false </param>
 
      <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
      <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
@@ -104,7 +106,8 @@ RES-Mb                      double  Yes   Mb parameter used for the GA calculati
   <param_set name="SaritaSchwinger-TypeI-WithPauliblock"> 
      <param type="bool" name="minibooneGA">  false </param>
      <param type="bool" name="minibooneGV">  false </param>
-     <param type="bool" name="SaritaSchwinger">  true </param>
+     <param type="bool" name="GASaritaSchwinger">  true </param>
+     <param type="bool" name="GVSaritaSchwinger">  true </param>
 
      <param type="double" name="RES-Ma"> 1.120 </param>
      <param type="double" name="RES-Mv"> 0.840 </param>
@@ -115,7 +118,8 @@ RES-Mb                      double  Yes   Mb parameter used for the GA calculati
   <param_set name="SaritaSchwinger-TypeI-NoPauliblock"> 
      <param type="bool" name="minibooneGA">  false </param>
      <param type="bool" name="minibooneGV">  false </param>
-     <param type="bool" name="SaritaSchwinger">  true </param>
+     <param type="bool" name="GASaritaSchwinger">  true </param>
+     <param type="bool" name="GVSaritaSchwinger">  true </param>
 
      <param type="double" name="RES-Ma"> 1.120 </param>
      <param type="double" name="RES-Mv"> 0.840 </param>
@@ -126,7 +130,8 @@ RES-Mb                      double  Yes   Mb parameter used for the GA calculati
   <param_set name="SaritaSchwinger-TypeII-WithPauliblock"> 
      <param type="bool" name="minibooneGA">  false </param>
      <param type="bool" name="minibooneGV">  false </param>
-     <param type="bool" name="SaritaSchwinger">  true </param>
+     <param type="bool" name="GASaritaSchwinger">  true </param>
+     <param type="bool" name="GVSaritaSchwinger">  true </param>
 
      <!-- Change in parameters involved in GA -->
      <param type="double" name="RES-Ma"> 3.116 </param>
@@ -140,7 +145,8 @@ RES-Mb                      double  Yes   Mb parameter used for the GA calculati
   <param_set name="SaritaSchwinger-TypeII-NoPauliblock"> 
      <param type="bool" name="minibooneGA">  false </param>
      <param type="bool" name="minibooneGV">  false </param>
-     <param type="bool" name="SaritaSchwinger">  true </param>
+     <param type="bool" name="GASaritaSchwinger">  true </param>
+     <param type="bool" name="GVSaritaSchwinger">  true </param>
 
      <!-- Change in parameters involved in GA -->
      <param type="double" name="RES-Ma"> 3.116 </param>
