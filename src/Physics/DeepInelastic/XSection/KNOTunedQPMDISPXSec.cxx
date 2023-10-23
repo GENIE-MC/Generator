@@ -104,7 +104,7 @@ double KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(
   double R=0, Ro=0;
 
   double Wmin = kNeutronMass + kPionMass + 1E-3;
-  if( Wmin > fWcutmin ) Wmin = fWcutmin ; 
+  if( Wmin < fWcutmin ) Wmin = fWcutmin ; 
 
   const InitialState & ist = in->InitState();
   const ProcessInfo &  pi  = in->ProcInfo();
@@ -236,7 +236,7 @@ void KNOTunedQPMDISPXSec::LoadConfig(void)
   assert(fHadronizationModel);
 
   GetParam( "Wcut", fWcut ) ;
-  GetParamDefault( "Wcutmin", fWcutmin, 0. ) ;
+  GetParam( "Wcutmin", fWcutmin ) ;
   GetParam( "NRB-EM-XSecScale", fNRBEMScale );
 
   if ( fWcut <= 0. ) {
