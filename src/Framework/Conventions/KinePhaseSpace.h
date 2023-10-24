@@ -135,7 +135,6 @@ public:
       case(kPSEDNufE)     : return "<{EDNu}|E>"; break;
       case(kPSn1n2fE)     : return "<{n1,n2}|E>"; break;
       case(kPSn1n2n3fE)   : return "<{n1,n2,n3}|E>"; break;
-      case(kPSxQ2fE)      : return "<{x,Q2}|E>";      break;
       case(kPSWQ2ctpphipfE): return "<{W, Q2, cost(theta_pion), phi_pion}|E>"; break;
       case(kPSWQ2ctpfE)    : return "<{W, Q2, cost(theta_pion)}|E>"; break;
     }
