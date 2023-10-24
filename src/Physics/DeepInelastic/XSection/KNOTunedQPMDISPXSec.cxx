@@ -104,7 +104,7 @@ double KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(
   double R=0, Ro=0;
 
   double Wmin = kNeutronMass + kPionMass + 1E-3;
-  if( Wmin < fWcutmin ) Wmin = fWcutmin ; 
+  if( Wmin < fWcutMinSIS ) Wmin = fWcutMinSIS ; 
 
   const InitialState & ist = in->InitState();
   const ProcessInfo &  pi  = in->ProcInfo();
@@ -160,7 +160,7 @@ double KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(
 
       const int kN   = 300;
       double WminSpl = Wmin;
-      double WmaxSpl = fWcut + 0.1; // well into the area where scaling factor = 1
+      double WmaxSpl = fWcutMaxSIS + 0.1; // well into the area where scaling factor = 1
       double dW      = (WmaxSpl-WminSpl)/(kN-1);
 
       for(int i=0; i<kN; i++) {
@@ -193,14 +193,14 @@ double KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(
     } // cache data
 
     // get the reduction factor from the cache branch
-    if(Wo > Wmin && Wo < fWcut) {
+    if(Wo > Wmin && Wo < fWcutMaxSIS ) {
        const CacheBranchFx & cache_branch = (*cbr);
        R = cache_branch(Wo);
     }
   }
 
   // Now return the suppression factor
-  if      (Wo > Wmin && Wo < fWcut) {
+  if      (Wo > Wmin && Wo < fWcutMaxSIS) {
     Ro = R;
     if ( is_EM ) Ro *= fNRBEMScale ; // Additional scaling
   }
@@ -235,14 +235,14 @@ void KNOTunedQPMDISPXSec::LoadConfig(void)
     dynamic_cast<const AGKYLowW2019 *> (this->SubAlg("Hadronizer"));
   assert(fHadronizationModel);
 
-  GetParam( "Wcut", fWcut ) ;
-  GetParam( "Wcutmin", fWcutmin ) ;
+  GetParam( "WcutMaxSIS", fWcutMaxSIS ) ;
+  GetParam( "WcutMinSIS", fWcutMinSIS ) ;
   GetParam( "NRB-EM-XSecScale", fNRBEMScale );
 
-  if ( fWcut <= 0. ) {
+  if ( fWcutMaxSIS <= 0. ) {
 
 	LOG("KNOTunedQPMDISPXSec", pFATAL)
-        << "Input configuration value for Wcut is not physical: Exiting" ;
+        << "Input configuration value for WcutMaxSIS is not physical: Exiting" ;
 
       // From the FreeBSD Library Functions Manual
       //

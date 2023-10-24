@@ -409,16 +409,16 @@ void PythiaBaseHadro2019::LoadConfig(void)
   fReqDecayFlag_Dp        = true;  // decay Delta+
   fReqDecayFlag_Dpp       = true;  // decay Delta++
 
-  // Load Wcut determining the phase space area where the multiplicity prob.
+  // Load WcutMaxSIS determining the phase space area where the multiplicity prob.
   // scaling factors would be applied -if requested-
-  double Wcut, Wmin ;
-  this->GetParam( "Wcut",            Wcut );
+  double WcutMaxSIS, Wmin ;
+  this->GetParam( "WcutMaxSIS", WcutMaxSIS );
   this->GetParam( "KNO2PYTHIA-Wmin", Wmin );
 
-  if ( Wcut > Wmin ) {
+  if ( WcutMaxSIS > Wmin ) {
     LOG("PythiaHad", pERROR)
        << "Wcut value too high and in conflict with the KNO2PYTHIA-Wmin!"
-       << "\n  Wcut = " << Wcut
+       << "\n  WcutMaxSIS = " << WcutMaxSIS
        << "\n  KNO2PYTHIA-Wmin = " << Wmin;
   }
 }

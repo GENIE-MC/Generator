@@ -465,12 +465,12 @@ TH1D * AGKYLowW2019::MultiplicityProb(
   // Apply the NeuGEN probability scaling factors -if requested-
   if(apply_neugen_Rijk) {
     SLOG("KNOHad", pINFO) << "Applying NeuGEN scaling factors";
-     // Only do so for W<Wcut
-     if(W<fWcut) {
+     // Only do so for W<WcutMaxSIS
+     if(W<fWcutMaxSIS) {
        this->ApplyRijk(interaction, renormalize, mult_prob);
      } else {
         SLOG("KNOHad", pDEBUG)
-              << "W = " << W << " < Wcut = " << fWcut
+              << "W = " << W << " < WcutMaxSIS = " << fWcutMaxSIS
                                 << " - Will not apply scaling factors";
      }//<wcut?
   }//apply?
@@ -599,9 +599,9 @@ void AGKYLowW2019::LoadConfig(void)
   fGenerateWeighted = false ;
   //this->GetParam("GenerateWeighted", fGenerateWeighted, false);{
 
-  // Load Wcut determining the phase space area where the multiplicity prob.
+  // Load WcutMaxSIS determining the phase space area where the multiplicity prob.
   // scaling factors would be applied -if requested-
-  this->GetParam( "Wcut", fWcut ) ;
+  this->GetParam( "WcutMaxSIS", fWcutMaxSIS ) ;
 
   // Load NEUGEN multiplicity probability scaling parameters Rijk
   // neutrinos

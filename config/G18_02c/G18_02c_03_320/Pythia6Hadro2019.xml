@@ -31,7 +31,7 @@ PYTHIA-Lundb                    double  No    PYTHIA's PARJ(42): Lund b paramete
 
 PYTHIA-LundaDiq                 double  No    PYTHIA's PARJ(45): Lund a di quark parameter             //
 
-Wcut                            double  No    W cut in DIS/RES join scheme                             CommonParam[NonResBackground]
+WcutMaxSIS                      double  No    W cut in DIS/RES join scheme                             CommonParam[NonResBackground]
 DIS-HMultWgt-vp-CC-m2           double  No    scaling factor, vp  CC, multiplicity=2                   CommonParam[NonResBackground]
 DIS-HMultWgt-vp-CC-m3           double  No    scaling factor, vp  CC, multiplicity=3                   CommonParam[NonResBackground]
 DIS-HMultWgt-vp-NC-m2           double  No    scaling factor, vp  NC, multiplicity=2                   CommonParam[NonResBackground]

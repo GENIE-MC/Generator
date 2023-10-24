@@ -67,7 +67,7 @@ private:
   double ComputeMaxXSec  (const Interaction * interaction) const;
   int GetRecoilNucleonPdgCode(Interaction * interaction) const;
   int GetFinalPionPdgCode(Interaction * interaction) const;
-  double fWcut;
+  double fWcutMaxSIS;
   struct Vertex
   {
     Vertex () : Vertex (0., 0., 0., 0.)
@@ -140,7 +140,7 @@ private:
   const XSecAlgorithmI * fModel;
   Interaction *    fInteraction;
   Range1D_t Wl;
-  double fWcut;
+  double fWcutMaxSIS;
   bool isZero;
   KPhaseSpace * kps;
 };

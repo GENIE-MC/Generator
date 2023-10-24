@@ -13,7 +13,7 @@ Hadronizer                  alg     Dep   Hadronization model used for computing
                                           factors. Set if use-dis-res-joining-scheme=true
 DIS-XSecScale               double  No    XSec scaling factor                                 
 UseDRJoinScheme             bool    No    Use DIS/RES joining scheme?                         CommonParam[NonResBackground]
-Wcut                        double  Yes   Param used in DIS/RES joining                       CommonParam[NonResBackground]
+WcutMaxSIS                  double  Yes   Param used in DIS/RES joining                       CommonParam[NonResBackground]
 UseCache                    bool    Yes   Cache suppression factors?                          true
 WeinbergAngle               double  No                                                        CommonParam[WeakInt]
 -->

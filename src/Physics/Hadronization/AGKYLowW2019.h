@@ -107,7 +107,7 @@ private:
 
   // Configuration parameters
   // Note: additional configuration parameters common to all hadronizers
-  // (Wcut,Rijk,...) are declared one layer down in the inheritance tree
+  // (WcutMaxSIS,Rijk,...) are declared one layer down in the inheritance tree
 
   bool     fForceNeuGenLimit;    ///< force upper hadronic multiplicity to NeuGEN limit
 //bool     fUseLegacyKNOSpline;  ///< use legacy spline instead of Levy
@@ -142,7 +142,7 @@ private:
   TF1 *    fBaryonPT2pdf;        ///< baryon pT^2 PDF
 
   // nuegen parameters
-  double   fWcut;      ///< Rijk applied for W<Wcut (see DIS/RES join scheme)
+  double   fWcutMaxSIS;      ///< Rijk applied for W<WcutMaxSIS (see DIS/RES join scheme)
   double   fRvpCCm2;   ///< Rijk: vp,  CC, multiplicity = 2
   double   fRvpCCm3;   ///< Rijk: vp,  CC, multiplicity = 3
   double   fRvpNCm2;   ///< Rijk: vp,  NC, multiplicity = 2

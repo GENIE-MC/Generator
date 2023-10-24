@@ -92,7 +92,7 @@ namespace genie {
       double   fMv2;               ///< (vector mass)^2
       double   fVud2;              ///< |Vud|^2(square of magnitude ud-element of CKM-matrix)
       bool     fUsingDisResJoin;   ///< use a DIS/RES joining scheme?
-      double   fWcut;              ///< apply DIS/RES joining scheme < Wcut
+      double   fWcutMaxSIS;        ///< apply DIS/RES joining scheme < WcutMaxSIS
       double   fN2ResMaxNWidths;   ///< limits allowed phase space for n=2 res
       double   fN0ResMaxNWidths;   ///< limits allowed phase space for n=0 res
       double   fGnResMaxNWidths;   ///< limits allowed phase space for other res

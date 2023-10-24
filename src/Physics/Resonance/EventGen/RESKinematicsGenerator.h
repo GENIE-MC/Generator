@@ -46,7 +46,7 @@ private:
   double ComputeMaxXSec  (const Interaction * interaction) const;
 
   mutable TF2 * fEnvelope; ///< 2-D envelope used for importance sampling
-  double fWcut;            ///< Wcut parameter in DIS/RES join scheme
+  double fWcutMaxSIS;      ///< WcutMaxSIS parameter in DIS/RES join scheme
 };
 
 }      // genie namespace

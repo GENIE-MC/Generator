@@ -236,13 +236,13 @@ fInteraction(i)
         fWmax = Wl.max;
         Registry fConfig = (const_cast<XSecAlgorithmI *>(fModel))->GetConfig();
         bool fUsingDisResJoin = fConfig.GetBool("UseDRJoinScheme");
-        double fWcut = 999999;
+        double fWcutMaxSIS = 999999;
         if(fUsingDisResJoin)
         {
-                fWcut = fConfig.GetDouble("Wcut");
+                fWcutMaxSIS = fConfig.GetDouble("WcutMaxSIS");
         }
-        fWmax=TMath::Min(fWcut, fWmax);
-        if (fWcut<fWmin)
+        fWmaxMaxSIS=TMath::Min(fWcutMaxSIS, fWmax);
+        if (fWcutMaxSIS<fWmin)
                 isfWcutLessfWmin=true;
         else
                 isfWcutLessfWmin=false;
@@ -257,13 +257,13 @@ fInteraction(i)
                 double MR  = utils::res::Mass              (resonance);
                 double WR  = utils::res::Width             (resonance);
                 if (IR==0)
-                        fWcut = MR + fN0ResMaxNWidths * WR;
+                        fWcutMaxSIS = MR + fN0ResMaxNWidths * WR;
                 else if (IR==2)
-                        fWcut = MR + fN2ResMaxNWidths * WR;
+                        fWcutMaxSIS = MR + fN2ResMaxNWidths * WR;
                 else
-                        fWcut = MR + fGNResMaxNWidths * WR;
-                fWmax=TMath::Min(fWcut, fWmax);
-                if (fWcut<fWmin)
+                        fWcutMaxSIS = MR + fGNResMaxNWidths * WR;
+                fWmax=TMath::Min(fWcutMaxSIS, fWmax);
+                if (fWcutMaxSIS<fWmin)
                         isfWcutLessfWmin=true;
         }
 

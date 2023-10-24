@@ -55,8 +55,8 @@ private:
   const XSecIntegratorI *     fXSecIntegrator;     ///< diff. xsec integrator
 
   bool   fUseCache;         ///< cache reduction factors used in joining scheme
-  double fWcut;             ///< apply DIS/RES joining scheme < Wcut
-  double fWcutmin;          ///< Limit to the Non-Resonant background coverage. Below < Wcutmin, only RES is considered
+  double fWcutMaxSIS;       ///< apply DIS/RES joining scheme < Wcut
+  double fWcutMinSIS;       ///< Limit to the Non-Resonant background coverage. Below < WcutMinSIS, only RES is considered
   double fNRBEMScale;       ///< apply NRB EM Scale factor
 };
 

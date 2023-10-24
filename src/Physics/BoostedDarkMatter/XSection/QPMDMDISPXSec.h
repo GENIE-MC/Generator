@@ -66,7 +66,7 @@ private:
 
   bool   fUsingDisResJoin;  ///< use a DMDIS/RES joining scheme?
   bool   fUseCache;         ///< cache reduction factors used in joining scheme
-  double fWcut;             ///< apply DMDIS/RES joining scheme < Wcut
+  double fWcutMaxSIS;       ///< apply DMDIS/RES joining scheme < WcutMaxSIS
   double fCCScale;          ///< cross section scaling factor for CC processes
   double fNCScale;          ///< cross section scaling factor for NC processes
   double fEMScale;          ///< cross section scaling factor for EM processes

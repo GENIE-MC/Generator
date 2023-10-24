@@ -54,7 +54,7 @@ protected:
   string CacheBranchName(Resonance_t r, InteractionType_t it, int nu, int nuc) const;
 
   bool   fUsingDisResJoin;
-  double fWcut;
+  double fWcutMaxSIS;
   double fEMax;
 
   mutable const XSecAlgorithmI * fSingleResXSecModel;

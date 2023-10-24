@@ -11,8 +11,9 @@ Hadronizer                  alg     no    It must be AGKYLowW2019
 DISModel                    alg     no    It must be QPMDISPXSec    
 
 UseCache                    bool    Yes   Cache suppression factors?          true
-Wcut                        double  no                                        CommonParam[NonResBackground]
-Wcutmin                     double  Yes                                       0
+WcutMaxSIS                  double  no                                        CommonParam[NonResBackground]
+WcutMinSIS                  double  Yes                                       0
+SmoothWTransiton            bool    Yes                                       false 
 -->
 
 <alg_conf>
@@ -24,7 +25,9 @@ Wcutmin                     double  Yes                                       0
     <param type="alg" name="DISModel">   genie::QPMDISPXSec/Default  </param>
     <param type="alg" name="Hadronizer"> genie::AGKYLowW2019/Default </param>
     <param type="double" name="NRB-EM-XSecScale"> 1. </param>
-    <param type="double" name="Wcutmin"> 0. </param>
+    <param type="double" name="WcutMinSIS"> 0. </param>
+    <param type="bool" name="SmoothWTransiton"> true </param>
+
   </param_set>
 
 </alg_conf>

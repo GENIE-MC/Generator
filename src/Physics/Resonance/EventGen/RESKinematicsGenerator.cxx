@@ -245,8 +245,8 @@ void RESKinematicsGenerator::LoadConfig(void)
   // calculation for lower eneries
   this->GetParamDef("Cache-MinEnergy", fEMin, 0.5);
 
-  // Load Wcut used in DIS/RES join scheme
-  this->GetParam("Wcut", fWcut);
+  // Load WcutMaxSIS used in DIS/RES join scheme
+  this->GetParam("WcutMaxSIS", fWcutMaxSIS);
 
   // Maximum allowed fractional cross section deviation from maxim cross
   // section used in rejection method
@@ -299,7 +299,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   double Wmin = rW.min + kASmallNum;
   double Wmax = rW.max - kASmallNum;
   
-  Wmax = TMath::Min(Wmax,fWcut);
+  Wmax = TMath::Min(Wmax,fWcutMaxSIS);
   
   Wmin = TMath::Max(Wmin, md-.3);
   Wmax = TMath::Min(Wmax, md+.3);

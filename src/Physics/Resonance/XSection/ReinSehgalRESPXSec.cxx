@@ -74,13 +74,13 @@ double ReinSehgalRESPXSec::XSec(
   double W  = kinematics.W();
   double q2 = kinematics.q2();
 
-  // Under the DIS/RES joining scheme, xsec(RES)=0 for W>=Wcut
+  // Under the DIS/RES joining scheme, xsec(RES)=0 for W>=WcutMaxSIS
   if(fUsingDisResJoin) {
-    if(W>=fWcut) {
+    if(W>=fWcutMaxSIS) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("ReinSehgalRes", pDEBUG)
          << "RES/DIS Join Scheme: XSec[RES, W=" << W
-         << " >= Wcut=" << fWcut << "] = 0";
+         << " >= WcutMaxSIS=" << fWcutMaxSIS << "] = 0";
 #endif
        return 0;
     }
@@ -479,11 +479,11 @@ void ReinSehgalRESPXSec::LoadConfig(void)
   assert( fHAmplModelEMp );
   assert( fHAmplModelEMn );
 
-  // Use algorithm within a DIS/RES join scheme. If yes get Wcut
+  // Use algorithm within a DIS/RES join scheme. If yes get WcutMaxSIS
   this->GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
-  fWcut = 999999;
+  fWcutMaxSIS = 999999;
   if(fUsingDisResJoin) {
-    this->GetParam( "Wcut", fWcut ) ;
+    this->GetParam( "WcutMaxSIS", fWcutMaxSIS ) ;
   }
 
   // NeuGEN limits in the allowed resonance phase space:

@@ -179,7 +179,7 @@ double SPPXSec::Integrate(
           << "*** Integrating d^3 XSec/dWdQ^2dCosTheta for Ch: "
           << SppChannel::AsString(spp_channel) << " at Ev = " << Enu;
     
-    ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d3XSecMK_dWQ2CosTheta_E(model, interaction, fWcut);
+    ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d3XSecMK_dWQ2CosTheta_E(model, interaction, fWcutMaxSIS);
     ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
     ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
     if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) 
@@ -225,7 +225,7 @@ void SPPXSec::LoadConfig(void)
   GetParamDef( "gsl-max-eval", fGSLMaxEval, 1000000 );
   GetParamDef( "gsl-min-eval", fGSLMinEval, 7500 ) ;
   GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
-  GetParamDef("Wcut", fWcut, -1.);
+  GetParamDef("WcutMaxSIS", fWcutMaxSIS, -1.);
   // Get upper Emax limit on cached free nucleon xsec spline, 
   // after this value it assume that xsec=xsec(Emax)
   GetParamDef( "ESplineMax", fEMax, 250. ) ;

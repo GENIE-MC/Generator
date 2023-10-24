@@ -115,7 +115,7 @@ void SPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   fXSecModel = evg->CrossSectionAlg();
   
   // function gives differential cross section and depends on reduced variables W,Q2,cos(theta) and phi -> 1
-  genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E * f   = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction, fWcut);
+  genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E * f   = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction, fWcutMaxSIS);
   
   //-- Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
@@ -181,8 +181,8 @@ void SPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   // W,Q2,cos(theta) and phi from reduced variables
   Range1D_t Wl  = kps.WLim_SPP_iso();
-  if (fWcut >= Wl.min)
-    Wl.max = TMath::Min(fWcut,Wl.max);
+  if (fWcutMaxSIS >= Wl.min)
+    Wl.max = TMath::Min(fWcutMaxSIS,Wl.max);
   Range1D_t Q2l = kps.Q2Lim_W_SPP_iso();
   double W  = Wl.min + (Wl.max - Wl.min)*xin[0];
   interaction->KinePtr()->SetW(W);
@@ -334,7 +334,7 @@ void SPPEventGenerator::LoadConfig(void)
   // an event weight?
   this->GetParamDef("UniformOverPhaseSpace", fGenerateUniformly, false);
   
-  this->GetParamDef("Wcut", fWcut, -1.);
+  this->GetParamDef("WcutMaxSIS", fWcutMaxSIS, -1.);
   
 
 }
@@ -344,7 +344,7 @@ double SPPEventGenerator::ComputeMaxXSec(const Interaction * interaction) const
    KPhaseSpace * kps = interaction->PhaseSpacePtr();
    Range1D_t Wl = kps->WLim_SPP_iso();
    ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit", "Minimize");
-   ROOT::Math::IBaseFunctionMultiDim * f = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction, fWcut);
+   ROOT::Math::IBaseFunctionMultiDim * f = new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fXSecModel, interaction, fWcutMaxSIS);
    min->SetFunction( *f );
    min->SetMaxFunctionCalls(10000);  // for Minuit/Minuit2
    min->SetMaxIterations(10000);     // for GSL
@@ -468,7 +468,7 @@ double SPPEventGenerator::ComputeMaxXSec(const Interaction * interaction) const
 //____________________________________________________________________________
 genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::d4XSecMK_dWQ2CosThetaPhi_E(
      const XSecAlgorithmI * m, const Interaction * interaction, double wcut) :
-ROOT::Math::IBaseFunctionMultiDim(), fModel(m), fWcut(wcut)
+ROOT::Math::IBaseFunctionMultiDim(), fModel(m), fWcutMaxSIS(wcut)
 {
 
   isZero = false;
@@ -491,8 +491,8 @@ ROOT::Math::IBaseFunctionMultiDim(), fModel(m), fWcut(wcut)
   }
   
   Wl  = kps->WLim_SPP_iso();
-  if (fWcut >= Wl.min)
-    Wl.max = TMath::Min(fWcut,Wl.max);
+  if (fWcutMaxSIS >= Wl.min)
+    Wl.max = TMath::Min(fWcutMaxSIS,Wl.max);
   
 }
 genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::~d4XSecMK_dWQ2CosThetaPhi_E()
@@ -530,5 +530,5 @@ ROOT::Math::IBaseFunctionMultiDim *
    genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::Clone() const
 {
   return
-    new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fModel,fInteraction, fWcut);
+    new genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E(fModel,fInteraction, fWcutMaxSIS);
 }

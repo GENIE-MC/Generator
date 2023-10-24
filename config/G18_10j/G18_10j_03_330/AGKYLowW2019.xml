@@ -34,7 +34,7 @@ KNO-EM-LevyC-vn                   double  No    Levy function param c for vn    
 KNO-EM-LevyC-vbp                  double  No    Levy function param c for vbp                 KNO-EM-LevyC-vbp
 KNO-EM-LevyC-vbn                  double  No    Levy function param c for vbn                 KNO-EM-LevyC-vbn
 ForceNeugenMultLimit          bool    Yes   force neugen upper multiplicity limit (10)    false
-Wcut                          double  No    W cut in DIS/RES join scheme                      CommonParam[NonResBackground]
+WcutMaxSIS                     double  No    W cut in DIS/RES join scheme                      CommonParam[NonResBackground]
 DIS-HMultWgt-vp-CC-m2             double  No    scaling factor, vp  CC, multiplicity=2 CommonParam[NonResBackground]
 DIS-HMultWgt-vp-CC-m3             double  No    scaling factor, vp  CC, multiplicity=3 CommonParam[NonResBackground]
 DIS-HMultWgt-vp-NC-m2             double  No    scaling factor, vp  NC, multiplicity=2 CommonParam[NonResBackground]

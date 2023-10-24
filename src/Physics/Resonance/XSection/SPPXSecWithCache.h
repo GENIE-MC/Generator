@@ -54,7 +54,7 @@ protected:
   string CacheBranchName(SppChannel_t spp_channel, InteractionType_t it, int nu) const;
 
   bool   fUsingDisResJoin;
-  double fWcut;
+  double fWcutMaxSIS;
   double fEMax;
 
   mutable const XSecAlgorithmI * fSinglePionProductionXSecModel;
@@ -92,7 +92,7 @@ private:
   Range1D_t Wl;
   bool isZero;
   KPhaseSpace * kps;
-  double fWcut;
+  double fWcutMaxSIS;
 };
 
 } // gsl   namespace
