@@ -202,6 +202,12 @@ double KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(
   // Now return the suppression factor
   if      (Wo > Wmin && Wo < fWcutMaxSIS) {
     Ro = R;
+
+    if( fSmoothWTransiton ) { 
+      double weight = ( Wo - Wmin ) * 1. / ( fWcutMaxSIS - Wmin ) ; 
+      Ro = ( Wo - Wmin )* ( 1 - R ) * weight / ( fWcutMaxSIS - Wmin ) ;
+    }
+
     if ( is_EM ) Ro *= fNRBEMScale ; // Additional scaling
   }
   else if (Wo <= Wmin)              Ro = 0.0;
@@ -236,9 +242,10 @@ void KNOTunedQPMDISPXSec::LoadConfig(void)
   assert(fHadronizationModel);
 
   GetParam( "WcutMaxSIS", fWcutMaxSIS ) ;
-  GetParam( "WcutMinSIS", fWcutMinSIS ) ;
+  GetParamDef( "WcutMinSIS", fWcutMinSIS, 0. ) ;
+  GetParamDef( "SmoothWTransiton", fSmoothWTransiton, false ) ;
   GetParam( "NRB-EM-XSecScale", fNRBEMScale );
-
+  
   if ( fWcutMaxSIS <= 0. ) {
 
 	LOG("KNOTunedQPMDISPXSec", pFATAL)

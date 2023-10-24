@@ -57,6 +57,7 @@ private:
   bool   fUseCache;         ///< cache reduction factors used in joining scheme
   double fWcutMaxSIS;       ///< apply DIS/RES joining scheme < Wcut
   double fWcutMinSIS;       ///< Limit to the Non-Resonant background coverage. Below < WcutMinSIS, only RES is considered
+  bool fSmoothWTransiton;   // Use smooth transition to avoid discontinuities in W
   double fNRBEMScale;       ///< apply NRB EM Scale factor
 };
 
