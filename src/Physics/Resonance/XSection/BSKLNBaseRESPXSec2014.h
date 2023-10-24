@@ -101,7 +101,7 @@ namespace genie {
       double fCV50 ;
       double fb5 ; 
       double fCA50 ;
-      bool   fcII ; 
+      double fcII ; 
       double fMb2 ; 
 
       double   fXSecScaleCC;       ///< external CC xsec scaling factor
