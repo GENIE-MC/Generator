@@ -810,7 +810,7 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   this->GetParamDef( "CV50", fCV50, 0.48 ) ;
   this->GetParamDef( "b5"  , fb5, 0.766 ) ;
   this->GetParamDef( "CA50", fCA50, 1.2 ) ;
-  this->GetParamDef( "cII", fcII, false ) ;
+  this->GetParamDef( "cII", fcII, 0. ) ;
   this->GetParamDef( "RES-Mb", mb, 1. ) ;
   fMb2 = TMath::Power(mb,2);
   
