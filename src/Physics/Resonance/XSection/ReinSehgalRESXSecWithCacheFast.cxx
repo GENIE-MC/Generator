@@ -241,7 +241,7 @@ fInteraction(i)
         {
                 fWcutMaxSIS = fConfig.GetDouble("WcutMaxSIS");
         }
-        fWmaxMaxSIS=TMath::Min(fWcutMaxSIS, fWmax);
+        fWcutMaxSIS=TMath::Min(fWcutMaxSIS, fWmax);
         if (fWcutMaxSIS<fWmin)
                 isfWcutLessfWmin=true;
         else
