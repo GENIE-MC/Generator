@@ -21,8 +21,6 @@ CKM-Vud                     double  No    Magnitude of ud-element of CKM-matrix 
 BreitWeignerWeight          bool    Yes   Weight xsec with breit-wigner?                                  true
 BreitWignerNorm             bool    Yes   Normalize breit-wigner?                                         true
 UseNuTauScalingFactors      bool    Yes   Load/Use NEUGEN reduction factor splines for nutaus             true
-UseDRJoinScheme             bool    No    Use DIS/RES joining scheme?                                     CommonParam[NonResBackground]
-Wcut                        double  No    Param used in DIS/RES joining                                   CommonParam[NonResBackground]
 MaxNWidthForN2Res           double  Yes   x in limiting allowed W phase space for n=2 res according to    2.0
                                           W < min{ Wmin(physical), MassRes + x * WidthRes }
 MaxNWidthForN0Res           double  Yes   As above for n=0 resonances                                     6.0
@@ -35,7 +33,7 @@ XSec-Integrator             alg     No
 
   <param_set name="Default"> 
     
-    <param type="string" name="CommonParam"> WeakInt,NonResBackground,CKM,FermiGas </param>
+    <param type="string" name="CommonParam"> WeakInt,CKM,FermiGas </param>
     
     <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
     <param type="double" name="RES-NC-XSecScale"> 1.000 </param>

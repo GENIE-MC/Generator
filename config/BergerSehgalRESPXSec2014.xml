@@ -22,8 +22,6 @@ WeinbergAngle               double  No    Weinberg Angle                        
 CKM-Vud                     double  No    Magnitude of ud-element of CKM-matrix                           CommonParam[CKM]
 BreitWeignerWeight          bool    Yes   Weight xsec with breit-wigner?                                  true
 BreitWignerNorm             bool    Yes   Normalize breit-wigner?                                         true
-UseDRJoinScheme             bool    No    Use DIS/RES joining scheme?                                     CommonParam[NonResBackground]
-Wcut                        double  No    Param used in DIS/RES joining                                   CommonParam[NonResBackground]
 MaxNWidthForN2Res           double  Yes   x in limiting allowed W phase space for n=2 res according to    2.0
                                           W < min{ Wmin(physical), MassRes + x * WidthRes }
 MaxNWidthForN0Res           double  Yes   As above for n=0 resonances                                     6.0
@@ -36,7 +34,7 @@ XSec-Integrator             alg     No
 
   <param_set name="Default"> 
      
-    <param type="string"  name="CommonParam"> WeakInt,NonResBackground,CKM,FermiGas </param>
+    <param type="string"  name="CommonParam"> WeakInt,CKM,FermiGas </param>
 
     
      <!--
