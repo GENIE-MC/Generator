@@ -24,11 +24,11 @@ ESplineMax                  double  Yes  Emax in RES splines, xsec(E>Emax)=xsec(
   In this configuration set we include all the resonances defined in GlobalParameterList
 -->
   <param_set name="Default"> 
-    <param type="string" name ="CommonParam">           Resonances  </param>
-    <param type="string" name ="gsl-integration-type">       vegas  </param>
-    <param type="int"    name ="gsl-max-eval" >             500000  </param>
-    <param type="double" name ="gsl-relative-tolerance">    0.0001  </param>
-    <param type="double" name ="ESplineMax">                   100  </param>
+    <param type="string" name ="CommonParam"> Resonances,NonResBackground  </param>
+    <param type="string" name ="gsl-integration-type">              vegas  </param>
+    <param type="int"    name ="gsl-max-eval" >                    500000  </param>
+    <param type="double" name ="gsl-relative-tolerance">           0.0001  </param>
+    <param type="double" name ="ESplineMax">                          100  </param>
     
   </param_set>
   
