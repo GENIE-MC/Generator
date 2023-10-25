@@ -29,7 +29,11 @@ ESplineMax                  double  Yes  Emax in RES splines, xsec(E>Emax)=xsec(
     <param type="int"    name ="gsl-max-eval" >                    500000  </param>
     <param type="double" name ="gsl-relative-tolerance">           0.0001  </param>
     <param type="double" name ="ESplineMax">                          100  </param>
-    
+    <param type="bool"   name ="BreitWignerWeight">                   true </param>
+    <param type="bool"   name ="BreitWignerNorm">                     true </param>
+    <param type="double" name ="MaxNWidthForN2Res">                   2.0  </param>
+    <param type="double" name ="MaxNWidthForN0Res">                   6.0  </param>
+    <param type="double" name ="MaxNWidthForGNRes">                   4.0  </param>
   </param_set>
   
   <param_set name="WithPauliBlock"> 
