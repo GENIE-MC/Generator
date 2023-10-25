@@ -40,9 +40,6 @@ public:
 
 private:
   void LoadConfig (void);
-
-  bool fUsingDisResJoin;
-  double fWcut;
 };
 
 }       // genie namespace

@@ -71,10 +71,8 @@ double RESXSec::Integrate(
 
   ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
 
-  double Wmax = Wl.max ; 
-  if ( fWcut < Wmax ) Wmax = fWcut;
   double kine_min[2] = { Wl.min, Q2l.min };
-  double kine_max[2] = { Wmax, Q2l.max };
+  double kine_max[2] = { Wl.max, Q2l.max };
   double xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
 
   LOG("RESXSec", pERROR)  << "Integrator opt / Integrator = " <<  ig.Options().Integrator();
@@ -107,12 +105,6 @@ void RESXSec::Configure(string config)
 //____________________________________________________________________________
 void RESXSec::LoadConfig(void)
 {
-  // Use algorithm within a DIS/RES join scheme. If yes get Wcut
-  this->GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
-  fWcut = 999999;
-  if(fUsingDisResJoin) {
-    this->GetParam( "Wcut", fWcut ) ;
-  }
 
   // Get GSL integration type & relative tolerance
   GetParamDef( "gsl-integration-type", fGSLIntgType, string("adaptive") ) ;

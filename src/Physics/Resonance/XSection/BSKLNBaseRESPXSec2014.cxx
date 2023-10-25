@@ -838,5 +838,6 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
 
   this->GetParam( "BreitWignerWeight", fWghtBW ) ;
   this->GetParam( "BreitWignerNorm",   fNormBW );
+  this->AdoptSubstructure();
 }
 //____________________________________________________________________________
