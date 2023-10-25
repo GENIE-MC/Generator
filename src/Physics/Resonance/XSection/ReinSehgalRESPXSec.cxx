@@ -439,9 +439,6 @@ void ReinSehgalRESPXSec::LoadConfig(void)
   fMa2 = TMath::Power(ma,2);
   fMv2 = TMath::Power(mv,2);
 
-  this->GetParamDef( "BreitWignerWeight", fWghtBW, true ) ;
-  this->GetParamDef( "BreitWignerNorm",   fNormBW, true);
-
   double thw ;
   this->GetParam( "WeinbergAngle", thw ) ;
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
@@ -479,23 +476,6 @@ void ReinSehgalRESPXSec::LoadConfig(void)
   assert( fHAmplModelEMp );
   assert( fHAmplModelEMn );
 
-  // Use algorithm within a DIS/RES join scheme. If yes get Wcut
-  this->GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
-  fWcut = 999999;
-  if(fUsingDisResJoin) {
-    this->GetParam( "Wcut", fWcut ) ;
-  }
-
-  // NeuGEN limits in the allowed resonance phase space:
-  // W < min{ Wmin(physical), (res mass) + x * (res width) }
-  // It limits the integration area around the peak and avoids the
-  // problem with huge xsec increase at low Q2 and high W.
-  // In correspondence with Hugh, Rein said that the underlying problem
-  // are unphysical assumptions in the model.
-  this->GetParamDef( "MaxNWidthForN2Res", fN2ResMaxNWidths, 2.0 ) ;
-  this->GetParamDef( "MaxNWidthForN0Res", fN0ResMaxNWidths, 6.0 ) ;
-  this->GetParamDef( "MaxNWidthForGNRes", fGnResMaxNWidths, 4.0 ) ;
-
   // NeuGEN reduction factors for nu_tau: a gross estimate of the effect of
   // neglected form factors in the R/S model
   this->GetParamDef( "UseNuTauScalingFactors", fUsingNuTauScaling, true ) ;
@@ -521,5 +501,27 @@ void ReinSehgalRESPXSec::LoadConfig(void)
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
+
+  // Use algorithm within a DIS/RES join scheme. If yes get Wcut
+  this->GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
+  fWcut = 999999;
+  if(fUsingDisResJoin) {
+    this->GetParam( "Wcut", fWcut ) ;
+  }
+
+  // NeuGEN limits in the allowed resonance phase space:
+  // W < min{ Wmin(physical), (res mass) + x * (res width) }
+  // It limits the integration area around the peak and avoids the
+  // problem with huge xsec increase at low Q2 and high W.
+  // In correspondence with Hugh, Rein said that the underlying problem
+  // are unphysical assumptions in the model.
+  this->GetParam( "MaxNWidthForN2Res", fN2ResMaxNWidths ) ;
+  this->GetParam( "MaxNWidthForN0Res", fN0ResMaxNWidths ) ;
+  this->GetParam( "MaxNWidthForGNRes", fGnResMaxNWidths ) ;
+
+  this->GetParam( "BreitWignerWeight", fWghtBW ) ;
+  this->GetParam( "BreitWignerNorm",   fNormBW );
+
+
 }
 //____________________________________________________________________________
