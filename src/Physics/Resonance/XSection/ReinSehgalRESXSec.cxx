@@ -11,7 +11,7 @@
 #include <TMath.h>
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
-
+#include <chrono>
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/GBuild.h"
@@ -35,7 +35,7 @@
 using namespace genie;
 using namespace genie::constants;
 //using namespace genie::units;
-
+using namespace std::chrono;
 //____________________________________________________________________________
 ReinSehgalRESXSec::ReinSehgalRESXSec() :
 ReinSehgalRESXSecWithCache("genie::ReinSehgalRESXSec")
@@ -181,24 +181,20 @@ double ReinSehgalRESXSec::Integrate(
     ig.SetFunction(*func);
     double kine_min[2] = { rW.min, rQ2.min };
     double kine_max[2] = { rW.max, rQ2.max };
-    double xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
 
+    steady_clock::time_point start = steady_clock::now();
+    double xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+    steady_clock::time_point end = steady_clock::now();
+
+    duration<double> time_span = duration_cast<duration<double>>(end-start);
+    
+    SLOG("ReinSehgalRESXSec", pNOTICE)
+      << "RES XSec (R:" << utils::res::AsString(res)
+      << ", E="<< Ev << ") = "<< xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2, evaluated in " << time_span.count() << " s " ;
     delete func;
     return xsec;
   }
   return 0;
-}
-//____________________________________________________________________________
-void ReinSehgalRESXSec::Configure(const Registry & config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void ReinSehgalRESXSec::Configure(string config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
 }
 //____________________________________________________________________________
 void ReinSehgalRESXSec::LoadConfig(void)
@@ -208,15 +204,5 @@ void ReinSehgalRESXSec::LoadConfig(void)
   GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 0.01 ) ;
   GetParamDef( "gsl-max-eval", fGSLMaxEval, 100000 ) ;
   GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
-  // Get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
-  GetParamDef( "ESplineMax", fEMax, 100. ) ;
-  fEMax = TMath::Max(fEMax, 20.); // don't accept user Emax if less than 20 GeV
-
-  // Create the baryon resonance list specified in the config.
-  fResList.Clear();
-  string resonances ;
-  GetParam( "ResonanceNameList", resonances ) ;
-  fResList.DecodeFromNameList(resonances);
-
 }
 //____________________________________________________________________________

@@ -1,15 +1,15 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
- For the full text of the license visit http://copyright.genie-mc.org
+  Copyright (c) 2003-2023, The GENIE Collaboration
+  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory 
+  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+  University of Liverpool & STFC Rutherford Appleton Laboratory 
 */
 //____________________________________________________________________________
 
 #include <sstream>
-
+#include <chrono>
 #include <TMath.h>
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
@@ -37,22 +37,23 @@ using namespace genie;
 using namespace genie::controls;
 using namespace genie::constants;
 //using namespace genie::units;
+using namespace std::chrono;
 
 //____________________________________________________________________________
 ReinSehgalRESXSecWithCache::ReinSehgalRESXSecWithCache() :
-XSecIntegratorI()
+  XSecIntegratorI()
 {
 
 }
 //____________________________________________________________________________
 ReinSehgalRESXSecWithCache::ReinSehgalRESXSecWithCache(string nm) :
-XSecIntegratorI(nm)
+  XSecIntegratorI(nm)
 {
 
 }
 //____________________________________________________________________________
 ReinSehgalRESXSecWithCache::ReinSehgalRESXSecWithCache(string nm,string conf):
-XSecIntegratorI(nm,conf)
+  XSecIntegratorI(nm,conf)
 {
 
 }
@@ -63,14 +64,14 @@ ReinSehgalRESXSecWithCache::~ReinSehgalRESXSecWithCache()
 }
 //____________________________________________________________________________
 void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
-                                                 const Interaction * in) const
+							const Interaction * in) const
 {
-// Cache resonance neutrino production data from free nucleons
+  // Cache resonance neutrino production data from free nucleons
 
   Cache * cache = Cache::Instance();
 
   assert(fSingleResXSecModel);
-//  assert(fIntegrator);
+  //  assert(fIntegrator);
 
   // Compute the number of spline knots - use at least 10 knots per decade
   // && at least 40 knots in the full energy range
@@ -93,96 +94,102 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
   unsigned int nres = fResList.NResonances();
   for(unsigned int ires = 0; ires < nres; ires++) {
 
-         // Get next resonance from the resonance list
-         Resonance_t res = fResList.ResonanceId(ires);
+    // Get next resonance from the resonance list
+    Resonance_t res = fResList.ResonanceId(ires);
 
-         interaction->ExclTagPtr()->SetResonance(res);
+    interaction->ExclTagPtr()->SetResonance(res);
 
-         // Get a unique cache branch name
-         string key = this->CacheBranchName(res, wkcur, nu_code, nuc_code);
+    // Get a unique cache branch name
+    string key = this->CacheBranchName(res, wkcur, nu_code, nuc_code);
 
-         // Make sure the cache branch does not already exists
-         CacheBranchFx * cache_branch =
-             dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
-         assert(!cache_branch);
+    // Make sure the cache branch does not already exists
+    CacheBranchFx * cache_branch =
+      dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
+    assert(!cache_branch);
 
-         // Create the new cache branch
-         LOG("ReinSehgalResC", pNOTICE)
-                        << "\n ** Creating cache branch - key = " << key;
-         cache_branch = new CacheBranchFx("RES Excitation XSec");
-         cache->AddCacheBranch(key, cache_branch);
-         assert(cache_branch);
+    // Create the new cache branch
+    LOG("ReinSehgalResC", pNOTICE)
+      << "\n ** Creating cache branch - key = " << key;
+    cache_branch = new CacheBranchFx("RES Excitation XSec");
+    cache->AddCacheBranch(key, cache_branch);
+    assert(cache_branch);
 
-         const KPhaseSpace & kps = interaction->PhaseSpace();
-         double Ethr = kps.Threshold();
-         LOG("ReinSehgalResC", pNOTICE) << "E threshold = " << Ethr;
+    const KPhaseSpace & kps = interaction->PhaseSpace();
+    double Ethr = kps.Threshold();
+    LOG("ReinSehgalResC", pNOTICE) << "E threshold = " << Ethr;
 
-         // Distribute the knots in the energy range as is being done in the
-         // XSecSplineList so that the energy threshold is treated correctly
-         // in the spline - see comments there in.
-         int nkb = (Ethr>Emin) ? 5 : 0; // number of knots <  threshold
-         int nka = nknots-nkb;          // number of knots >= threshold
-         // knots < energy threshold
-         double dEb =  (Ethr>Emin) ? (Ethr - Emin) / nkb : 0;
-         for(int i=0; i<nkb; i++) {
-            E[i] = Emin + i*dEb;
-         }
-         // knots >= energy threshold
-         double E0  = TMath::Max(Ethr,Emin);
-         double dEa = (TMath::Log10(fEMax) - TMath::Log10(E0)) /(nka-1);
-         for(int i=0; i<nka; i++) {
-            E[i+nkb] = TMath::Power(10., TMath::Log10(E0) + i * dEa);
-         }
+    // Distribute the knots in the energy range as is being done in the
+    // XSecSplineList so that the energy threshold is treated correctly
+    // in the spline - see comments there in.
+    int nkb = (Ethr>Emin) ? 5 : 0; // number of knots <  threshold
+    int nka = nknots-nkb;          // number of knots >= threshold
+    // knots < energy threshold
+    double dEb =  (Ethr>Emin) ? (Ethr - Emin) / nkb : 0;
+    for(int i=0; i<nkb; i++) {
+      E[i] = Emin + i*dEb;
+    }
+    // knots >= energy threshold
+    double E0  = TMath::Max(Ethr,Emin);
+    double dEa = (TMath::Log10(fEMax) - TMath::Log10(E0)) /(nka-1);
+    for(int i=0; i<nka; i++) {
+      E[i+nkb] = TMath::Power(10., TMath::Log10(E0) + i * dEa);
+    }
 
-         // Compute cross sections at the given set of energies
-         for(int ie=0; ie<nknots; ie++) {
-             double xsec = 0.;
-             double Ev   = E[ie];
-             p4.SetPxPyPzE(0,0,Ev,Ev);
-             interaction->InitStatePtr()->SetProbeP4(p4);
+    // Compute cross sections at the given set of energies
+    for(int ie=0; ie<nknots; ie++) {
+      double xsec = 0.;
+      double Ev   = E[ie];
+      p4.SetPxPyPzE(0,0,Ev,Ev);
+      interaction->InitStatePtr()->SetProbeP4(p4);
+      steady_clock::time_point start = steady_clock::now();
+      if(Ev>Ethr+kASmallNum) {
+	// Get W integration range and the wider possible Q2 range
+	// (for all W)
+	Range1D_t rW  = kps.Limits(kKVW);
+	Range1D_t rQ2 = kps.Limits(kKVQ2);
 
-             if(Ev>Ethr+kASmallNum) {
-               // Get W integration range and the wider possible Q2 range
-               // (for all W)
-               Range1D_t rW  = kps.Limits(kKVW);
-               Range1D_t rQ2 = kps.Limits(kKVQ2);
+	LOG("ReinSehgalResC", pINFO)
+	  << "*** Integrating d^2 XSec/dWdQ^2 for R: "
+	  << utils::res::AsString(res) << " at Ev = " << Ev;
+	LOG("ReinSehgalResC", pINFO)
+	  << "{W}   = " << rW.min  << ", " << rW.max;
+	LOG("ReinSehgalResC", pINFO)
+	  << "{Q^2} = " << rQ2.min << ", " << rQ2.max;
 
-               LOG("ReinSehgalResC", pINFO)
-	         << "*** Integrating d^2 XSec/dWdQ^2 for R: "
-     	                 << utils::res::AsString(res) << " at Ev = " << Ev;
-               LOG("ReinSehgalResC", pINFO)
-                                << "{W}   = " << rW.min  << ", " << rW.max;
-      	       LOG("ReinSehgalResC", pINFO)
-                               << "{Q^2} = " << rQ2.min << ", " << rQ2.max;
+	if(rW.max<rW.min || rQ2.max<rQ2.min || rW.min<0 || rQ2.min<0) {
+	  LOG("ReinSehgalResC", pINFO)
+	    << "** Not allowed kinematically, xsec=0";
+	} else {
 
-               if(rW.max<rW.min || rQ2.max<rQ2.min || rW.min<0 || rQ2.min<0) {
-     	          LOG("ReinSehgalResC", pINFO)
-                              << "** Not allowed kinematically, xsec=0";
-               } else {
+	  ROOT::Math::IBaseFunctionMultiDim * func =
+	    new utils::gsl::d2XSec_dWdQ2_E(fSingleResXSecModel, interaction);
+	  ROOT::Math::IntegrationMultiDim::Type ig_type =
+	    utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
+	  ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
+	  ig.SetFunction(*func);
+	  double kine_min[2] = { rW.min, rQ2.min };
+	  double kine_max[2] = { rW.max, rQ2.max };
 
-                  ROOT::Math::IBaseFunctionMultiDim * func =
-                      new utils::gsl::d2XSec_dWdQ2_E(fSingleResXSecModel, interaction);
-                  ROOT::Math::IntegrationMultiDim::Type ig_type =
-                      utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-                  ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
-                  ig.SetFunction(*func);
-                  double kine_min[2] = { rW.min, rQ2.min };
-                  double kine_max[2] = { rW.max, rQ2.max };
-                  xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
-                  delete func;
-               }
-             } else {
-                 LOG("ReinSehgalResC", pINFO)
- 		       << "** Below threshold E = " << Ev << " <= " << Ethr;
-             }
-             cache_branch->AddValues(Ev,xsec);
-             SLOG("ReinSehgalResC", pNOTICE)
-               << "RES XSec (R:" << utils::res::AsString(res)
-    	       << ", E="<< Ev << ") = "<< xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
-         }//spline knots
+	  std::cout << " Wmax = " << rW.max << " Wcut " << fWcut <<std::endl;
+	  xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+	  delete func;
+	}
+      } else {
+	LOG("ReinSehgalResC", pINFO)
+	  << "** Below threshold E = " << Ev << " <= " << Ethr;
+      }
 
-         // Build the spline
-         cache_branch->CreateSpline();
+      steady_clock::time_point end = steady_clock::now();
+      duration<double> time_span = duration_cast<duration<double>>(end-start);
+		  
+      cache_branch->AddValues(Ev,xsec);
+      SLOG("ReinSehgalResC", pNOTICE)
+	<< "RES XSec (R:" << utils::res::AsString(res)
+	<< ", E="<< Ev << ") = "<< xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2, evaluated in "<<time_span.count()<<" s";
+    }//spline knots
+
+    // Build the spline
+    cache_branch->CreateSpline();
   }//ires
 
   delete [] E;
@@ -190,9 +197,9 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
 }
 //____________________________________________________________________________
 string ReinSehgalRESXSecWithCache::CacheBranchName(
-     Resonance_t res, InteractionType_t it, int nupdgc, int nucleonpdgc) const
+						   Resonance_t res, InteractionType_t it, int nupdgc, int nucleonpdgc) const
 {
-// Build a unique name for the cache branch
+  // Build a unique name for the cache branch
 
   Cache * cache = Cache::Instance();
   string res_name = utils::res::AsString(res);
@@ -201,12 +208,39 @@ string ReinSehgalRESXSecWithCache::CacheBranchName(
 
   ostringstream intk;
   intk << "ResExcitationXSec/R:" << res_name << ";nu:"  << nupdgc
-           << ";int:" << it_name << nc_nuc;
+       << ";int:" << it_name << nc_nuc;
 
   string algkey = fSingleResXSecModel->Id().Key();
   string ikey   = intk.str();
   string key    = cache->CacheBranchKey(algkey, ikey);
 
   return key;
+}
+//____________________________________________________________________________
+void ReinSehgalRESXSecWithCache::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void ReinSehgalRESXSecWithCache::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void ReinSehgalRESXSecWithCache::LoadConfig(void)
+{
+  // Get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
+  GetParamDef( "ESplineMax", fEMax, 100. ) ;
+  fEMax = TMath::Max(fEMax, 20.); // don't accept user Emax if less than 20 GeV
+
+  // Create the baryon resonance list specified in the config.
+  fResList.Clear();
+  string resonances ;
+  GetParam( "ResonanceNameList", resonances ) ;
+  fResList.DecodeFromNameList(resonances);
+
+  GetParam( "Wcut", fWcut ) ;
 }
 //____________________________________________________________________________

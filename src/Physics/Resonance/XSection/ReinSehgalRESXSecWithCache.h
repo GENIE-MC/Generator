@@ -33,11 +33,19 @@ namespace genie {
 
 class ReinSehgalRESXSecWithCache : public XSecIntegratorI {
 
+ public:
+  // Overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
+  void Configure(const Registry & config);// final ;
+  void Configure(string config);// final ;
+
 protected:
   ReinSehgalRESXSecWithCache();
   ReinSehgalRESXSecWithCache(string name);
   ReinSehgalRESXSecWithCache(string name, string config);
   virtual ~ReinSehgalRESXSecWithCache();
+
+  void LoadConfig(void);
 
   // Don't implement the XSecIntegratorI interface - leave it for the concrete
   // subclasses. Just define utility methods and data
