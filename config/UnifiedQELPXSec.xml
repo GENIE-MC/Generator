@@ -40,12 +40,12 @@ IntegralNucleonBindingMode           alg      No
     <param type="alg"  name="IntegralNuclearModel"> genie::SpectralFunc/Default </param>
     <param type="string" name="IntegralNucleonBindingMode"> UseNuclearModel </param>
 
-    <param type="string" name="FortranTensorModel"> compute_hadron_tensor_SF </param> 
+    <param type="string" name="FortranTensorModel"> Noemi fortran </param> 
 
     <param type="alg"  name="PauliBlockerAlg"> genie::PauliBlocker/Default </param>
     <param type="bool" name="DoPauliBlocking"> true </param>
 
-    <param type="bool" name="DoRotate_qAlong_z"> true </param>
+    <param type="bool" name="DoRotate_qAlong_z"> false </param>
 
     <param type="alg"  name="NCFormFactorsAlg"> genie::LwlynSmithFFNC/Default </param>
     <param type="alg"  name="EMFormFactorsAlg"> genie::LwlynSmithFFEM/Default </param>

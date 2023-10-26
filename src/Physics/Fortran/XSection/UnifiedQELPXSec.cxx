@@ -20,7 +20,6 @@
 #include "Math/Integrator.h"
 
 #include "UnifiedQELPXSec.h"
-#include "fortran_functions.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactorsModelI.h"
@@ -86,12 +85,10 @@ double UnifiedQELPXSec::XSec(const Interaction* interaction,
 
   TLorentzVector lepP4 = kinematics.FSLeptonP4();
   double E_lep = lepP4.E();
-  double P_lep = lepP4.P();
 
   TLorentzVector p4Nf = kinematics.HadSystP4();
   double E_Nf = p4Nf.E();
   
- 
   // Include phase space factors in cross section
   double xsec = fXSecScale / (E_lep * E_probe * E_NiOnShell * E_Nf) / 32. / kPi / kPi;
 
@@ -143,9 +140,8 @@ double UnifiedQELPXSec::XSec(const Interaction* interaction,
     coupling_factor = kGF2 * fCos8c2;
     fFormFactors.SetModel( fCCFormFactorsModel );
   }
-
   else if ( proc_info.IsWeakNC() ) {
-    coupling_factor = kGF2 * P_lep;
+    coupling_factor = kGF2;
     fFormFactors.SetModel( fNCFormFactorsModel );
   }
   else if ( proc_info.IsEM() ) {
@@ -171,11 +167,6 @@ double UnifiedQELPXSec::XSec(const Interaction* interaction,
   // Evaluate the form factors
   fFormFactors.Calculate( interaction );
 
-  double f1v = fFormFactors.F1V();
-  double f2v = fFormFactors.xiF2V();
-  double ffa = fFormFactors.FA();
-  double ffp = fFormFactors.Fp();
-
   // Now that we've calculated them, store the true Q2 value
   interaction->KinePtr()->SetQ2( Q2 );
 
@@ -184,33 +175,22 @@ double UnifiedQELPXSec::XSec(const Interaction* interaction,
   InteractionType_t type = interaction->ProcInfo().InteractionTypeId();
   LeptonTensor L_munu( probeP4, lepP4, init_state.ProbePdg(), type, true);
 
-  // Set up the 4x4 hadronic response tensor
-  std::complex<double> HadronTensor[4][4]; 
-
   // For CC use mean of proton/neutron mass
   // works for NC and EM as well 
   double xmn = ( mNi + interaction->RecoilNucleon()->Mass() ) / 2.;
 
-  // Get energy and momentum transfer values
-  double w = qP4.E();
-  double wt = qTildeP4.E(); 
-  double pNi_x, pNi_y, pNi_z, q_x, q_y, q_z;
-  
-  pNi_x = p4NiOnShell.X();
-  pNi_y = p4NiOnShell.Y();
-  pNi_z = p4NiOnShell.Z();
-  q_x = qP4.X();
-  q_y = qP4.Y();
-  q_z = qP4.Z();
+  // Make a generic Rank2LorentzTensor 
+  // object for the hadronic tensor
+  std::shared_ptr<Rank2LorentzTensorI> ATilde_munu;
 
-  // Compute hadron tensor 
-  Get_hadrontensor_from_fortran(fFortranTensorModel, xmn, w, wt, pNi_x, pNi_y, pNi_z, q_x, q_y, q_z, f1v, f2v, ffa, ffp, HadronTensor);
-  
-  // Convert to a GENIE Rank2LorentzTensor object
-  ManualResponseTensor ATilde_munu(HadronTensor);
+  // If we want to use fortran then
+  // use the fortran interface
+  if(fFortranTensorModel.find("fortran") != std::string::npos) {
+    ATilde_munu = std::make_shared<HadronTensorFortInterface>(qP4.E(), xmn, p4Ni, p4Nf, fFormFactors, fFortranTensorModel);
+  }
       
   // Contract hadron and lepton tensors
-  std::complex<double> contraction = L_munu * ATilde_munu;
+  std::complex<double> contraction = L_munu * (*ATilde_munu);
 
   if ( std::abs(contraction.imag()) > kASmallNum ) {
     LOG("UnifiedQELPXSec", pWARN) << "Tensor contraction has nonvanishing imaginary part!";
@@ -308,10 +288,11 @@ void UnifiedQELPXSec::LoadConfig(void)
     this->SubAlg("EMFormFactorsAlg") );
   assert( fEMFormFactorsModel );
 
-  GetParamDef("FortranTensorModel", fFortranTensorModel, std::string("compute_hadron_tensor_SF"));  
-
   // Attach CC model for now. This will be updated later.
   fFormFactors.SetModel( fCCFormFactorsModel );
+
+  // Pick a hadron tensor model
+  GetParamDef("FortranTensorModel", fFortranTensorModel, std::string("Noemi Fortran"));
 
   // load xsec integrator
   fXSecIntegrator = dynamic_cast<const XSecIntegratorI*>(

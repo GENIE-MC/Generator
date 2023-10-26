@@ -6,6 +6,8 @@
 
 #pragma link C++ namespace genie;
 
+#pragma link C++ class genie::HadronTensorInterfaceI;
+#pragma link C++ class genie::HadronTensorFortInterface;
 #pragma link C++ class genie::UnifiedQELPXSec;
 
 #endif
