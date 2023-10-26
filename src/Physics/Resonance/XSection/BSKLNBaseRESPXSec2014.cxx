@@ -20,6 +20,9 @@
 
  Adi Ashkenazi <adishka \at gmail.com>
  Massachusetts Institute of Technology
+ 
+ Igor Kakorin <kakorin@jinr.ru>
+ Joint Institute for Nuclear Research 
 */
 //____________________________________________________________________________
 
@@ -35,7 +38,6 @@
 #include "Framework/Conventions/KineVar.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/Numerical/Spline.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
@@ -252,16 +254,16 @@ double BSKLNBaseRESPXSec2014::XSec(
       KNL_cL_plus  = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  - KNL_jy_plus);
       KNL_cL_minus = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus - KNL_jy_minus);
 
-      KNL_cR_plus  = -TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
-      KNL_cR_minus = -TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
+      KNL_cR_plus  = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
+      KNL_cR_minus = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
 
       KNL_cS_plus   = KNL_K *  TMath::Sqrt(TMath::Abs(KNL_j0_plus *KNL_j0_plus  - KNL_jz_plus *KNL_jz_plus ) );
       KNL_cS_minus  = KNL_K *  TMath::Sqrt(TMath::Abs(KNL_j0_minus*KNL_j0_minus - KNL_jz_minus*KNL_jz_minus) );
     }
 
     if (is_nubar || is_lplus) {
-      KNL_cL_plus  = -1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
-      KNL_cL_minus =  1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
+      KNL_cL_plus  =  1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
+      KNL_cL_minus = -1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
 
       KNL_cR_plus  =  1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus - KNL_jy_minus);
       KNL_cR_minus = -1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  - KNL_jy_plus);
@@ -473,8 +475,8 @@ double BSKLNBaseRESPXSec2014::XSec(
   const RSHelicityAmplModelI * hamplmod_BRS_minus = 0;
   const RSHelicityAmplModelI * hamplmod_BRS_plus = 0;
 
+
   double g2 = kGF2;  // NC
-  
   if(is_CC) g2 *= fVud2;
 
   if(is_EM) 
@@ -721,14 +723,14 @@ double BSKLNBaseRESPXSec2014::XSec(
         k = TMath::Sqrt(k0*k0+Q2);  // previous value of k is overridden
         q0 = (W2-Mnuc2+kPionMass2)/(2*W);
         q = TMath::Sqrt(q0*q0-kPionMass2);
-     }
 
-     if ( 2*P_Fermi < k-q )
-        FactorPauli_RES = 1.0;
-     if ( 2*P_Fermi >= k+q )
-        FactorPauli_RES = ((3*k*k+q*q)/(2*P_Fermi)-(5*TMath::Power(k,4)+TMath::Power(q,4)+10*k*k*q*q)/(40*TMath::Power(P_Fermi,3)))/(2*k);
-     if ( 2*P_Fermi >= k-q && 2*P_Fermi <= k+q )
-        FactorPauli_RES = ((q+k)*(q+k)-4*P_Fermi*P_Fermi/5-TMath::Power(k-q, 3)/(2*P_Fermi)+TMath::Power(k-q, 5)/(40*TMath::Power(P_Fermi, 3)))/(4*q*k);
+        if ( 2*P_Fermi < k-q )
+           FactorPauli_RES = 1.0;
+        if ( 2*P_Fermi >= k+q )
+           FactorPauli_RES = ((3*k*k+q*q)/(2*P_Fermi)-(5*TMath::Power(k,4)+TMath::Power(q,4)+10*k*k*q*q)/(40*TMath::Power(P_Fermi,3)))/(2*k);
+        if ( 2*P_Fermi >= k-q && 2*P_Fermi <= k+q )
+           FactorPauli_RES = ((q+k)*(q+k)-4*P_Fermi*P_Fermi/5-TMath::Power(k-q, 3)/(2*P_Fermi)+TMath::Power(k-q, 5)/(40*TMath::Power(P_Fermi, 3)))/(4*q*k);
+     }
 
      xsec *= FactorPauli_RES;
   }
@@ -795,6 +797,14 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   this->GetParam( "minibooneGV", fGVMiniBooNE ) ;
   this->GetParam( "GASaritaSchwinger", fGASaritaSchwinger ) ;
   this->GetParam( "GVSaritaSchwinger", fGVSaritaSchwinger ) ;
+
+  double fermi_constant ; 
+  this->GetParam( "FermiConstant", fermi_constant ) ;
+  fFermiConstant2 = fermi_constant * fermi_constant ;
+
+  double alpha ;
+  this->GetParam( "FineStructureConstant", alpha ) ;
+  fFineStructure2 = alpha * alpha ;
 
   double ma, mv ;
   this->GetParam( "RES-Ma", ma ) ;

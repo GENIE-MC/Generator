@@ -76,6 +76,11 @@ bool ProcessInfo::IsDarkMatterElastic(void) const
   return (fScatteringType == kScDarkMatterElastic);
 }
 //____________________________________________________________________________
+bool ProcessInfo::IsSinglePion(void) const
+{
+  return (fScatteringType == kScSinglePion);
+}
+//____________________________________________________________________________
 bool ProcessInfo::IsSingleKaon(void) const
 {
   return (fScatteringType == kScSingleKaon);
