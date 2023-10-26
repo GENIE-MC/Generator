@@ -32,7 +32,9 @@
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Physics/NuclearState/PauliBlocker.h"
-#include "Physics/QuasiElastic/XSection/ManualResponseTensor.h"
+#include "Physics/QuasiElastic/XSection/Rank2LorentzTensorI.h"
+#include "Physics/Fortran/XSection/HadronTensorFortInterface.h"
+#include "Physics/Fortran/XSection/HadronTensorInterfaceI.h"
 #include "TVector3.h"
 namespace genie {
 
