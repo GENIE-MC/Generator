@@ -112,7 +112,7 @@ RES-Mb                      double  Yes   Mb parameter used for the GA calculati
      <param type="double" name="RES-Ma"> 1.120 </param>
      <param type="double" name="RES-Mv"> 0.840 </param>
 
-     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/WithPauliBlock    </param>
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/EM-WithPauliBlock    </param>
  </param_set>
 
   <param_set name="SaritaSchwinger-TypeI-NoPauliblock"> 
@@ -124,7 +124,7 @@ RES-Mb                      double  Yes   Mb parameter used for the GA calculati
      <param type="double" name="RES-Ma"> 1.120 </param>
      <param type="double" name="RES-Mv"> 0.840 </param>
 
-     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/NoPauliBlock    </param>
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/EM-NoPauliBlock    </param>
  </param_set>
 
   <param_set name="SaritaSchwinger-TypeII-WithPauliblock"> 
@@ -139,7 +139,7 @@ RES-Mb                      double  Yes   Mb parameter used for the GA calculati
      <param type="double" name="CA50"> 0.88 </param>
      <param type="double" name="cII"> 1 </param>
 
-     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/WithPauliBlock    </param>
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/EM-WithPauliBlock    </param>
  </param_set>
 
   <param_set name="SaritaSchwinger-TypeII-NoPauliblock"> 
@@ -154,7 +154,7 @@ RES-Mb                      double  Yes   Mb parameter used for the GA calculati
      <param type="double" name="CA50"> 0.88 </param>
      <param type="double" name="cII"> 1 </param>
 
-     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/NoPauliBlock    </param>
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/EM-NoPauliBlock    </param>
  </param_set>
 
 </alg_conf>  
