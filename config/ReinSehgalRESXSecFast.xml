@@ -59,6 +59,8 @@ ESplineMax                  double  Yes  Emax in RES splines, xsec(E>Emax)=xsec(
   -->   
     <param type="bool"   name="UsePauliBlockingForRES">  true  </param>
     <param type="int"    name ="gsl-max-eval">        10000000 </param>
+    <param type="bool"   name="UsePauliBlockingForRES">  true  </param>
+
   </param_set>
   
   <param_set name="EM-NoPauliBlock"> 
@@ -69,6 +71,8 @@ ESplineMax                  double  Yes  Emax in RES splines, xsec(E>Emax)=xsec(
   -->  
     <param type="bool"   name="UsePauliBlockingForRES">  false  </param>
     <param type="int"    name ="gsl-max-eval">         10000000 </param>
+    <param type="bool"   name="UsePauliBlockingForRES">  false  </param>
+
   </param_set>
 
 </alg_conf>
