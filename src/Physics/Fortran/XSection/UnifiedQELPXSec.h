@@ -75,7 +75,7 @@ private:
   double fXSecScale; ///< external xsec scaling factor
   bool fDoPauliBlocking;
   bool fDoqAlongZ;
-  std::string fFortranTensorModel;
+  std::string fTensorModel;
 };
 
 } // genie namespace
