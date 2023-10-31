@@ -184,9 +184,9 @@ double UnifiedQELPXSec::XSec(const Interaction* interaction,
   std::shared_ptr<Rank2LorentzTensorI> ATilde_munu;
 
   // If we want to use fortran then
-  // use the fortran interface
-  if(fFortranTensorModel.find("fortran") != std::string::npos) {
-    ATilde_munu = std::make_shared<HadronTensorFortInterface>(qP4.E(), xmn, p4Ni, p4Nf, fFormFactors, fFortranTensorModel);
+  // call the fortran interface
+  if(fTensorModel.find("fortran") != std::string::npos) {
+    ATilde_munu = std::make_shared<HadronTensorFortInterface>(qP4.E(), xmn, p4Ni, p4Nf, fFormFactors, fTensorModel);
   }
       
   // Contract hadron and lepton tensors
@@ -292,7 +292,7 @@ void UnifiedQELPXSec::LoadConfig(void)
   fFormFactors.SetModel( fCCFormFactorsModel );
 
   // Pick a hadron tensor model
-  GetParamDef("FortranTensorModel", fFortranTensorModel, std::string("Noemi Fortran"));
+  GetParamDef("TensorModel", fTensorModel, std::string("Noemi Fortran"));
 
   // load xsec integrator
   fXSecIntegrator = dynamic_cast<const XSecIntegratorI*>(
