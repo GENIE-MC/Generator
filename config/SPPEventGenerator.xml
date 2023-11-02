@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the SPPEventGenerator EventRecordVisitorI
+
+Algorithm Configurable Parameters:
+.......................................................................................................................
+Name                     Type    Opt   Comment                                                                Default
+.......................................................................................................................
+UniformOverPhaseSpace    bool    Yes   kinematics uniformly over allowd phase space                            false
+                                       wgt = (phase_space_volume)*(diff_xsec)/(xsec)
+MaxXSec-SafetyFactor     double  Yes   multiplies max xsec in rejection method                                  1.25
+MaxXSec-DiffTolerance    double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)                          999999 
+                                       (disable) if xsec>xsecmax
+Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cached                               0.5
+
+Maximum-Depth            int     Yes   maximum depth of dividing parent cell                                       3
+ResonanceNameList        string  No    List of resonances to be taken into account                CommonParam[Resonances]
+                                       for low-energy maximum search algorithm                   
+Wcut                     double  Yes   cut of W, if negative use kinematically allowed Wmax                       -1.
+-->
+
+  <param_set name="Default">
+    <param type="string" name="CommonParam"> Resonances </param>
+  </param_set>
+
+
+
+</alg_conf>
+
