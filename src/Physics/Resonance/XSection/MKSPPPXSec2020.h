@@ -377,6 +377,10 @@ namespace genie {
       double   fOmega;             ///< FKR parameter Omega
       double   fMa2;               ///< (axial mass)^2
       double   fMv2;               ///< (vector mass)^2
+      double fCv3;                 ///< GV calculation coeffs
+      double fCv4;
+      double fCv51;
+      double fCv52;
       double   fSin2Wein;          ///< sin^2(Weingberg angle)
       double   fVud;               ///< |Vud| (magnitude ud-element of CKM-matrix)
       double   fXSecScaleCC;       ///< External CC xsec scaling factor

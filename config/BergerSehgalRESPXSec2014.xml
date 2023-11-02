@@ -21,8 +21,8 @@ RES-Ma                      double  No    RES axial mass
 RES-Mv                      double  No    RES vector mass                                                
 GVCAL-Cv3                   double  No    RES coefficient in RES CV3 calculation 
 GVCAL-Cv4                   double  No    RES coefficient in RES CV4 calculation 
-GVCAL-Cv50                  double  No    RES first coefficient in RES CV5 calculation 
-GVCAL-Cv51                  double  No    RES second coefficient in RES CV5 calculation 
+GVCAL-Cv51                  double  No    RES first coefficient in RES CV5 calculation 
+GVCAL-Cv52                  double  No    RES second coefficient in RES CV5 calculation 
 WeinbergAngle               double  No    Weinberg Angle                                                  CommonParam[WeakInt]
 CKM-Vud                     double  No    Magnitude of ud-element of CKM-matrix                           CommonParam[CKM]
 BreitWeignerWeight          bool    Yes   Weight xsec with breit-wigner?                                  true
