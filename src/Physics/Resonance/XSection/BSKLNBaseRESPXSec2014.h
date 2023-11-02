@@ -11,6 +11,9 @@
 	        D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
           and Single Pion Production, Ann.Phys.133, 79 (1981) \n
 
+          
+          K. M. Graczyk* and J. T. Sobczyk,PHYSICAL REVIEW D 77, 053001 (2008) for vector and axial current calculation \n
+
           Modifications based on a MiniBooNE tune courtesy of J. Nowak, S.Dytman
 
 \author   Steve Dytman
@@ -80,6 +83,7 @@ namespace genie {
       bool     fNormBW;            ///< normalize resonance breit-wigner to 1?
       double   fZeta;              ///< FKR parameter Zeta
       double   fOmega;             ///< FKR parameter Omega
+      double   fCa50;              ///< CA5_0
       double   fMa2;               ///< (axial mass)^2
       double   fMv2;               ///< (vector mass)^2
       double   fVud2;              ///< |Vud|^2(square of magnitude ud-element of CKM-matrix)

@@ -16,8 +16,13 @@ RES-Zeta                    double  No    FKR's Z parameter
 RES-Omega                   double  No    FKR's Omega parameter
 minibooneGA                 bool    No    tuning to axial form factors by MiniBoone (J. Nowak)            
 minibooneGV                 bool    No    tuning to vector form factors by MiniBoone (J. Nowak)                                                     
+RES-CA50                    double  No    RES CA5(0) for axial current calculation
 RES-Ma                      double  No    RES axial mass                                                 
 RES-Mv                      double  No    RES vector mass                                                
+GVCAL-Cv3                   double  No    RES coefficient in RES CV3 calculation 
+GVCAL-Cv4                   double  No    RES coefficient in RES CV4 calculation 
+GVCAL-Cv50                  double  No    RES first coefficient in RES CV5 calculation 
+GVCAL-Cv51                  double  No    RES second coefficient in RES CV5 calculation 
 WeinbergAngle               double  No    Weinberg Angle                                                  CommonParam[WeakInt]
 CKM-Vud                     double  No    Magnitude of ud-element of CKM-matrix                           CommonParam[CKM]
 BreitWeignerWeight          bool    Yes   Weight xsec with breit-wigner?                                  true
@@ -63,6 +68,7 @@ XSec-Integrator             alg     No
 	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	  Axial and vector masses for resonance production  
      -->
+     <param type="double" name="RES-CA50"> 1.2 </param>
      <param type="double" name="RES-Ma"> 1.120 </param>
      <param type="double" name="RES-Mv"> 0.840 </param>
 

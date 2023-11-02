@@ -323,12 +323,11 @@ double BSKLNBaseRESPXSec2014::XSec(
   if(fGAMiniBooNE){
     LOG("BSKLNBaseRESPXSec2014",pDEBUG) << "Using new GA tuned to ANL and BNL data";
 
-    double CA5_0 = 1.2;
-    double CA5 = CA5_0 *  TMath::Power( 1./(1-q2/fMa2), 2);
+    double CA5 = fCa50 * TMath::Power( 1./(1-q2/fMa2), 2);
     //  GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5/fZeta;
     GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5;
 
-    LOG("BSKLNBaseRESPXSec2014",pINFO) <<"GA= " <<GA << "  C5A= " <<CA5;
+    LOG("BSKLNBaseRESPXSec2014",pINFO) <<"GA= " <<GA << "  CA50= " <<fCa50 << "  C5A= " <<CA5;
   } else { 
     LOG("BSKLNBaseRESPXSec2014",pDEBUG << "Using dipole parametrization for GA") ;
   }
@@ -773,8 +772,9 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   this->GetParam( "GVCAL-Cv52" , fCv52) ;
 
   double ma, mv ;
-  this->GetParam( "RES-Ma", ma ) ;
-  this->GetParam( "RES-Mv", mv ) ;
+  this->GetParam( "RES-Ma",   ma )   ;
+  this->GetParam( "RES-Mv",   mv )   ;
+  this->GetParam( "RES-CA50", fCa50 ) ;
   fMa2 = TMath::Power(ma,2);
   fMv2 = TMath::Power(mv,2);
 
