@@ -390,7 +390,8 @@ void Intranuke2018::TransportHadrons(GHepRecord * evrec) const
   }
 }
 //___________________________________________________________________________
-double Intranuke2018::GenerateStep(GHepRecord*  /*evrec*/, GHepParticle* p) const //Added ev to get tgt argument//
+// double Intranuke2018::GenerateStep(GHepRecord*  /*evrec*/, GHepParticle* p) const //Added ev to get tgt argument//
+double Intranuke2018::GenerateStep(GHepRecord*  evrec, GHepParticle* p) const //Added ev to get tgt argument//
 {
 // Generate a step (in fermis) for particle p in the input event.
 // Computes the mean free path L and generate an 'interaction' distance d
@@ -398,15 +399,87 @@ double Intranuke2018::GenerateStep(GHepRecord*  /*evrec*/, GHepParticle* p) cons
 
   int pdgc = p->Pdg();
 
+  double ke   = p->KinE() / units::MeV;
+
+  GHepParticle * nuclearTarget = evrec -> TargetNucleus();
+  int nuclA = nuclearTarget -> A();
+
+  LOG("Intranuke2018", pDEBUG) << "pdgc= " << pdgc << " KE= " << ke << " on A= " << nuclA;
+
   double scale = 1.;
-  if (pdgc==kPdgPiP || pdgc==kPdgPiM) {
+  if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
     scale = fChPionMFPScale;
+    double frac_cex      = fHadroData2018->FracADep(pdgc, kIHAFtCEx,     ke, nuclA);
+    double frac_inel     = fHadroData2018->FracADep(pdgc, kIHAFtInelas,  ke, nuclA);
+    double frac_abs      = fHadroData2018->FracADep(pdgc, kIHAFtAbs,     ke, nuclA);
+    double frac_piprod   = fHadroData2018->FracADep(pdgc, kIHAFtPiProd,  ke, nuclA);
+      LOG("Intranuke2018", pDEBUG)
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
+       //          << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << frac_abs
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtPiProd)  << "} = " << frac_piprod;
+     // apply external tweaks to fractions
+     frac_cex    *= fPionFracCExScale;
+     frac_inel   *= fPionFracInelScale;
+     if (pdgc==kPdgPiP || pdgc==kPdgPiM) frac_abs *= fChPionFracAbsScale;
+     if (pdgc==kPdgPi0) frac_abs *= fNeutralPionFracAbsScale;
+     frac_piprod *= fPionFracPiProdScale;
+       double tf = frac_cex      +
+                   frac_inel     +
+                   frac_abs      +
+                   frac_piprod;
+
+      scale = 1. / tf ;
+
+         LOG("Intranuke2018", pDEBUG)
+          << "\n after tweaking frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
+       //          << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << frac_abs
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtPiProd)  << "} = " << frac_piprod <<
+          "\n tf is " << tf ;
   }
-  if (pdgc==kPdgPi0) {
-    scale = fNeutralPionMFPScale;
-  }
+  // if (pdgc==kPdgPi0) {
+  //   scale = fNeutralPionMFPScale;
+  // }
   else if (pdgc==kPdgProton || pdgc==kPdgNeutron) {
-    scale = fNucleonMFPScale;
+
+     double frac_cex      = fHadroData2018->FracAIndep(pdgc, kIHAFtCEx,    ke);
+      //double frac_elas     = fHadroData2018->FracAIndep(pdgc, kIHAFtElas,   ke);
+      double frac_inel     = fHadroData2018->FracAIndep(pdgc, kIHAFtInelas, ke);
+      double frac_abs      = fHadroData2018->FracAIndep(pdgc, kIHAFtAbs,    ke);
+      double frac_pipro    = fHadroData2018->FracAIndep(pdgc, kIHAFtPiProd, ke);
+      double frac_cmp      = fHadroData2018->FracAIndep(pdgc, kIHAFtCmp   , ke);
+
+      LOG("Intranuke2018", pINFO)
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
+        // << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << frac_abs
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtPiProd)  << "} = " << frac_pipro
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtCmp)     << "} = " << frac_cmp; //suarez edit, cmp
+
+      // apply external tweaks to fractions
+      frac_cex    *= fNucleonFracCExScale;
+      frac_inel   *= fNucleonFracInelScale;
+      frac_abs    *= fNucleonFracAbsScale;
+      frac_pipro  *= fNucleonFracPiProdScale;
+       double tf = frac_cex      +
+                   frac_inel     +
+                   frac_abs      +
+                   frac_pipro;
+
+      scale = 1. / tf ;
+
+         LOG("Intranuke2018", pDEBUG)
+          << "\n after tweaking frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
+       //          << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << frac_abs
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtPiProd)  << "} = " << frac_pipro <<
+          "\n tf is " << tf ;
+    // scale = fNucleonMFPScale;
   }
 
   RandomGen * rnd = RandomGen::Instance();
