@@ -53,11 +53,15 @@ double PXSecOnElectron::Integral(const Interaction * interaction) const
   double xsec_sum = 0; 
   double xsec_sum2 = 0; 
   int NInt = 0; //Count number of integrations
+  bool has_zero = false; //XSec values equal to zero
   do{
     NInt++;
     Interaction in_curr(*interaction); //Copy interaction object
     fElectronVelocity->InitializeVelocity(in_curr); //Modify interaction to give electron random velocity from selected distribution
     double xsec = fXSecIntegrator->Integrate(this,&in_curr); // In ele at rest
+    if (xsec == 0.){
+      has_zero = true;
+    }
     
     //get gamma - comps orthogonal to beam x,y
     //scale = sqrt(1-b_t^2)
@@ -72,8 +76,14 @@ double PXSecOnElectron::Integral(const Interaction * interaction) const
     double xsec_mean = xsec_sum/NInt;
     //var = (sum(xi^2)/N-xsec_mean^2)
     //rel_err = sigma/sqrt(n)*mean
-    double xsec_err = sqrt((xsec_sum2/NInt-TMath::Power(xsec_mean,2))/NInt)/xsec_mean;
-    if (NInt > 1 && xsec_err < fErrTolerance){break;} //Break condition for dipping below set tolerance
+    double xsec_err = 0;
+    if (xsec_mean > 0){
+      xsec_err = sqrt((xsec_sum2/NInt-TMath::Power(xsec_mean,2))/NInt)/xsec_mean;
+    }
+    if (has_zero){
+      if (NInt > 10 && xsec_err < fErrTolerance){break;} //Check for xsec values equal to 0
+    }
+    else if (NInt > 1 && xsec_err < fErrTolerance){break;} //Break condition for dipping below set tolerance
   }
   while ( NInt < fNIntegration); 
   double xsec_avg = xsec_sum/NInt;
@@ -82,9 +92,9 @@ double PXSecOnElectron::Integral(const Interaction * interaction) const
 //____________________________________________________________________________
 bool PXSecOnElectron::ValidProcess(const Interaction * interaction) const
 {
+  if(interaction->TestBit(kISkipProcessChk)) return true;
   bool is_valid = true;
   if(!pdg::IsElectron(interaction->InitState().TgtPtr()->HitPartPdg())) is_valid = false;
-  if(!interaction->TestBit(kISkipProcessChk)) is_valid = false;
   return is_valid;
 }
 //____________________________________________________________________________
@@ -92,7 +102,8 @@ bool PXSecOnElectron::ValidKinematics(const Interaction* interaction) const
 {
   //Works for IMD
   const auto & kps = interaction->PhaseSpace();
-  return kps.IsAboveThreshold();
+  auto result = kps.IsAboveThreshold();
+  return result;
 }
 //____________________________________________________________________________
 void PXSecOnElectron::Configure(const Registry & config)
