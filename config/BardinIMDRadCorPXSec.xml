@@ -21,7 +21,7 @@
   <param_set name="Default"> 
     <param type="alg"        name="XSec-Integrator"> genie::XSecOnElectron/Default </param>
     <param type="alg"        name="Electron-Velocity"> genie::ElectronVelocityMap/Default  </param>
-    <param type="int"        name ="N-Integration-Samples" > 1  </param>
+    <param type="int"        name ="N-Integration-Samples" > 10000  </param>
     <param type="double"     name ="NuE-XSecRelError" > 0.0001  </param>
   </param_set>
 
