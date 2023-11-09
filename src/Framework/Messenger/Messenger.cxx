@@ -9,6 +9,7 @@
 //____________________________________________________________________________
 
 #include <iostream>
+#include <mutex>
 #include <vector>
 #include <iomanip>
 
@@ -34,48 +35,36 @@ using namespace genie;
 bool genie::gAbortingInErr = false;
 
 //____________________________________________________________________________
-Messenger * Messenger::fInstance = 0;
-//____________________________________________________________________________
-Messenger::Messenger()
-{
-  fInstance =  0;
+Messenger::Messenger() {
+  utils::print::PrintBanner();
+  log4cpp::Appender *appender;
+  appender = new log4cpp::OstreamAppender("default", &cout);
+  const char *layoutenv = gSystem->Getenv("GMSGLAYOUT");
+  std::string layoutstr = (layoutenv) ? string(layoutenv) : "BASIC";
+  if (layoutstr == "SIMPLE")
+    appender->setLayout(new log4cpp::SimpleLayout());
+  else
+    appender->setLayout(new log4cpp::BasicLayout());
+
+  log4cpp::Category &MSG = log4cpp::Category::getRoot();
+
+  MSG.setAdditivity(false);
+  MSG.addAppender(appender);
 }
 //____________________________________________________________________________
 Messenger::~Messenger()
 {
-  fInstance = 0;
 }
 //____________________________________________________________________________
-Messenger * Messenger::Instance()
-{
-  if(fInstance == 0) {
-
-    // the first thing that get's printed in a GENIE session is the banner
-    utils::print::PrintBanner();
-
-    static Messenger::Cleaner cleaner;
-    cleaner.DummyMethodAndSilentCompiler();
-
-    fInstance = new Messenger;
-
-    log4cpp::Appender * appender;
-    appender = new log4cpp::OstreamAppender("default", &cout);
-    const char* layoutenv = gSystem->Getenv("GMSGLAYOUT");
-    std::string layoutstr = (layoutenv) ? string(layoutenv) : "BASIC";
-    if ( layoutstr == "SIMPLE" )
-      appender->setLayout(new log4cpp::SimpleLayout());
-    else
-      appender->setLayout(new log4cpp::BasicLayout());
-
-
-    log4cpp::Category & MSG = log4cpp::Category::getRoot();
-
-    MSG.setAdditivity(false);
-    MSG.addAppender(appender);
-
-    fInstance->Configure(); // set user-defined priority levels
+Messenger *Messenger::Instance() {
+  static Messenger instance;
+  static std::once_flag do_configure;
+  bool configure_allowed{false};
+  std::call_once(do_configure, [&]() { configure_allowed = true; });
+  if (configure_allowed) {
+    instance.Configure();
   }
-  return fInstance;
+  return &instance;
 }
 //____________________________________________________________________________
 log4cpp::Category & Messenger::operator () (const char * stream)

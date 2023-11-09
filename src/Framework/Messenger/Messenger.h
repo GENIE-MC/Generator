@@ -21,6 +21,7 @@
 #include <iostream>
 #include <cstring>
 #include <string>
+#include <mutex>
 #include <map>
 
 // ROOT5 has difficulty with parsing log4cpp headers
@@ -267,25 +268,13 @@ public:
 
 private:
   Messenger();
-  Messenger(const Messenger & config_pool);
+  Messenger(const Messenger &) = delete;
+  Messenger(Messenger&&) = delete;
   virtual ~Messenger();
-
-  static Messenger * fInstance;
 
   void Configure(void);
 
   log4cpp::Priority::Value PriorityFromString(string priority);
-
-  struct Cleaner {
-      void DummyMethodAndSilentCompiler() { }
-      ~Cleaner() {
-         if (Messenger::fInstance !=0) {
-            delete Messenger::fInstance;
-            Messenger::fInstance = 0;
-         }
-      }
-  };
-  friend struct Cleaner;
 };
 
 }      // genie namespace
