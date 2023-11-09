@@ -408,7 +408,7 @@ double Intranuke2018::GenerateStep(GHepRecord*  evrec, GHepParticle* p) const //
 
   double scale = 1.;
   if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
-    scale = fChPionMFPScale;
+    // scale = fChPionMFPScale;
     double frac_cex      = fHadroData2018->FracADep(pdgc, kIHAFtCEx,     ke, nuclA);
     double frac_inel     = fHadroData2018->FracADep(pdgc, kIHAFtInelas,  ke, nuclA);
     double frac_abs      = fHadroData2018->FracADep(pdgc, kIHAFtAbs,     ke, nuclA);
