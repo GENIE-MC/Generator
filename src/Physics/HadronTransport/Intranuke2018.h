@@ -140,6 +140,7 @@ protected:
   bool         fAltOset;      ///< NuWro's table-based implementation (not recommended)
   bool         fXsecNNCorr;   ///< use nuclear medium correction for NN cross section
 
+  bool         fDirectTweakSwitch;     ///< turn on to tweak FSI fates without rescaling
   double       fChPionMFPScale;       ///< tweaking factors for tuning
   double       fNeutralPionMFPScale;
   double       fPionFracCExScale;

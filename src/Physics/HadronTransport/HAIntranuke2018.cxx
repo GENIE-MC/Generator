@@ -1549,6 +1549,7 @@ void HAIntranuke2018::LoadConfig(void)
   GetParam( "HAINUKE-DelRPion",    fDelRPion ) ;
   GetParam( "HAINUKE-DelRNucleon", fDelRNucleon ) ;
 
+  GetParamDef( "HAINUKE-DirectTweakSwitch",      fDirectTweakSwitch,      false ) ;
   GetParamDef( "FSI-ChargedPion-MFPScale",       fChPionMFPScale,         1.0 ) ;
   GetParamDef( "FSI-NeutralPion-MFPScale",       fNeutralPionMFPScale,    1.0 ) ;
   GetParamDef( "FSI-Pion-FracCExScale",          fPionFracCExScale,       1.0 ) ;

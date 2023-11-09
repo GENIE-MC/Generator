@@ -22,6 +22,8 @@ DelRPion            double  Yes   mult. factor for pi de-Broglie wavelength dete
                                   how muct to increase the nuclear radius
 DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength determining  GPL INUKE-DelRNucleon
                                   how muct to increase the nuclear radius
+
+DirectTweakSwitch   bool    Yes   default:false; turn on to tweak FSI fates without rescaling
 -->
 
   <param_set name="Default">
@@ -56,6 +58,7 @@ DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength
 
     <param type="double" name="HAINUKE-DelRPion">        0.0   </param>
     <param type="double" name="HAINUKE-DelRNucleon">     0.0   </param>
+    <param type="bool"   name="HAINUKE-DirectTweakSwitch">false</param>
 
     <!-- Knobs for tuning -->
     <!-- Note that now all these parameters are not mandatory and their default is 1
