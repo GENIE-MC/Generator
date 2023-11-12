@@ -837,11 +837,11 @@ double MKSPPPXSec2020::XSec(const Interaction * interaction, KinePhaseSpace_t kp
     //Graczyk and Sobczyk vector form-factors
     double CV_factor = 1/(1 + Q2/fMv2/4);
     // Eq. 29 of ref. 6
-    double CV3 =  2.13*CV_factor/(1 + Q2/fMv2)/(1 + Q2/fMv2);
+    double CV3 =  fCv3*CV_factor/(1 + Q2/fMv2)/(1 + Q2/fMv2);
     // Eq. 30 of ref. 6
-    double CV4 = -1.51/2.13*CV3;
+    double CV4 = -1. * fCv4 / fCv3 * CV3;
     // Eq. 31 of ref. 6
-    double CV5 =  0.48*CV_factor/(1 + Q2/fMv2/0.766)/(1 + Q2/fMv2/0.766);
+    double CV5 =  fCv51*CV_factor/(1 + Q2/fMv2/fCv52)/(1 + Q2/fMv2/fCv52);
 
     // Eq. 38 of ref. 6
     double GV3 =  0.5*k1_Sqrt3*(CV4*(W2 - M2 - Q2)/2/M2 + CV5*(W2 - M2 + Q2)/2/M2 + CV3*W_plus/M);
@@ -1404,6 +1404,11 @@ void MKSPPPXSec2020::LoadConfig(void)
   fMa2 = ma*ma;
   fMv2 = mv*mv;
   this->GetParam( "RES-CA50" , fCA50) ;
+
+  this->GetParam( "GVCAL-Cv3"  , fCv3)  ;
+  this->GetParam( "GVCAL-Cv4"  , fCv4)  ;
+  this->GetParam( "GVCAL-Cv51" , fCv51) ;
+  this->GetParam( "GVCAL-Cv52" , fCv52) ;
 
   this->GetParam( "FermiConstant", fFermiConstant );
   

@@ -300,10 +300,11 @@ double BSKLNBaseRESPXSec2014::XSec(
   if(fGVMiniBooNE){
 
     LOG("BSKLNBaseRESPXSec2014",pDEBUG) <<"Using new GV tuned to ANL and BNL data";
+    LOG("BSKLNBaseRESPXSec2014",pINFO) <<"fCv3= " << fCv3 << ", fCv4= " << fCv4  << ", fCv51= " <<fCv51 << ", fCv52= " << fCv52;
     double CV0 =  1./(1-q2/fMv2/4.);
-    double CV3 =  2.13 * CV0 * TMath::Power( 1-q2/fMv2,-2);
-    double CV4 = -1.51 * CV0 * TMath::Power( 1-q2/fMv2,-2);
-    double CV5 =  0.48 * CV0 * TMath::Power( 1-q2/fMv2/0.766, -2);
+    double CV3 =  fCv3 * CV0 * TMath::Power( 1-q2/fMv2,-2);
+    double CV4 =  -1. * fCv4 * CV0 * TMath::Power( 1-q2/fMv2,-2);
+    double CV5 =  fCv51* CV0 * TMath::Power( 1-q2/fMv2/fCv52, -2);
 
     double GV3 =  0.5 / TMath::Sqrt(3) * ( CV3 * (W + Mnuc)/Mnuc
                   + CV4 * (W2 + q2 -Mnuc2)/2./Mnuc2
@@ -315,6 +316,8 @@ double BSKLNBaseRESPXSec2014::XSec(
 
     GV = 0.5 * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR)
          * TMath::Sqrt( 3 * GV3*GV3 + GV1*GV1);
+
+    LOG("BSKLNBaseRESPXSec2014",pINFO) <<"GV= " <<GV << "  CV3= " <<CV3 << " CV4= " << CV4 << " CV5= " << CV5 << " GV3= " << GV3 << " GV1= " <<GV1;
   } else { 
     LOG("BSKLNBaseRESPXSec2014",pDEBUG << "Using dipole parametrization for GV") ; 
   }
@@ -322,12 +325,11 @@ double BSKLNBaseRESPXSec2014::XSec(
   if(fGAMiniBooNE){
     LOG("BSKLNBaseRESPXSec2014",pDEBUG) << "Using new GA tuned to ANL and BNL data";
 
-    double CA5_0 = 1.2;
-    double CA5 = CA5_0 *  TMath::Power( 1./(1-q2/fMa2), 2);
+    double CA5 = fCa50 * TMath::Power( 1./(1-q2/fMa2), 2);
     //  GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5/fZeta;
     GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5;
 
-    LOG("BSKLNBaseRESPXSec2014",pINFO) <<"GA= " <<GA << "  C5A= " <<CA5;
+    LOG("BSKLNBaseRESPXSec2014",pINFO) <<"GA= " <<GA << "  CA50= " <<fCa50 << "  C5A= " <<CA5;
   } else { 
     LOG("BSKLNBaseRESPXSec2014",pDEBUG << "Using dipole parametrization for GA") ;
   }
@@ -766,6 +768,10 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   this->GetParam( "minibooneGA", fGAMiniBooNE ) ;
   this->GetParam( "minibooneGV", fGVMiniBooNE ) ;
 
+  this->GetParam( "GVCAL-Cv3"  , fCv3)  ;
+  this->GetParam( "GVCAL-Cv4"  , fCv4)  ;
+  this->GetParam( "GVCAL-Cv51" , fCv51) ;
+  this->GetParam( "GVCAL-Cv52" , fCv52) ;
   double fermi_constant ; 
   this->GetParam( "FermiConstant", fermi_constant ) ;
   fFermiConstant2 = fermi_constant * fermi_constant ;
@@ -775,8 +781,9 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   fFineStructure2 = alpha * alpha ;
 
   double ma, mv ;
-  this->GetParam( "RES-Ma", ma ) ;
-  this->GetParam( "RES-Mv", mv ) ;
+  this->GetParam( "RES-Ma",   ma )   ;
+  this->GetParam( "RES-Mv",   mv )   ;
+  this->GetParam( "RES-CA50", fCa50 ) ;
   fMa2 = TMath::Power(ma,2);
   fMv2 = TMath::Power(mv,2);
 
