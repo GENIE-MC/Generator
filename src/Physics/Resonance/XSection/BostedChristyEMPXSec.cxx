@@ -167,6 +167,7 @@ double BostedChristyEMPXSec::sigmaNR(int sf, double Q2, double W, bool isDeuteri
   double m0 = (sf==0) ? 0.125 : 4.2802;                      //Ref.1, Eqs.(22, 24)
   
   double Q20 = (sf==0) ? 0.05 : 0.125;                       //Ref.1, Eqs.(22, 24)
+  
   double xpr = 1./(1.+(W2-(Mp+Mpi)*(Mp+Mpi))/(Q2+Q20));      // Ref.1, Eq.(22)
   
   double xsec = 0.0;

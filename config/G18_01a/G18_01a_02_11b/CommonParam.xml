@@ -283,7 +283,6 @@ Or changing the name of this parameter set
 
   </param_set>
 
-
   <param_set name="PDG">
     <!-- when using the PDG table provideed by genie,
          that are contained in $GENIE/data/evgen/catalogues/pdg
