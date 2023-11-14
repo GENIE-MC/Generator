@@ -820,7 +820,6 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   this->GetParam( "GVCAL-Cv4"  , fCv4)  ;
   this->GetParam( "GVCAL-Cv51" , fCv51) ;
   this->GetParam( "GVCAL-Cv52" , fCv52) ;
-  this->GetParamDef( "GVb5"  , fb5 ) ;
   this->GetParam( "RES-CA50", fCa50 ) ;
   this->GetParamDef( "GAcII", fcII, 0. ) ;
   this->GetParamDef( "RES-Mb", mb, 1. ) ;
