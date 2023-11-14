@@ -122,6 +122,12 @@ namespace genie {
       double fCv51;
       double fCv52;
 
+      // Sarita-Schwinger prenscription parameters from PhysRevD.77.053001
+      bool   fGASaritaSchwinger ; 
+      bool   fGVSaritaSchwinger ; 
+      double fcII ; 
+      double fMb2 ; 
+
       const XSecIntegratorI * fXSecIntegrator;
   };
 
