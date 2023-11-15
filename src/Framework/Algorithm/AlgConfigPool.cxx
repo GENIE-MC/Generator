@@ -8,6 +8,7 @@
 */
 //____________________________________________________________________________
 
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -99,14 +100,23 @@ bool AlgConfigPool::LoadAlgConfig(void)
         << "AlgConfigPool late initialization: Loading all XML config. files";
 
   //-- read the global parameter lists
-  if(!this->LoadGlobalParamLists()) return false;
+  if(!this->LoadGlobalParamLists()) 
+  {
+    SLOG("AlgConfigPool", pERROR)
+      << "Global parameter lists not available "
+      "This can be normal if you are running "
+      "Comparisons/Reweight in some cases";
+  }
 
   //-- read the MASTER_CONFIG XML file
-  if(!this->LoadMasterConfig()) return false;
+  if(!this->LoadMasterConfigs()) 
+  {
+    SLOG("AlgConfigPool", pERROR)
+      << "Master config file not available";
+  }
 
   //-- read Tune Generator List for the tune, if available
   if( ! LoadTuneGeneratorList() ) {
-
     SLOG( "AlgConfigPool", pWARN ) << "Tune generator List not available" ;
   }
 
@@ -135,13 +145,14 @@ bool AlgConfigPool::LoadAlgConfig(void)
   return true;
 };
 //____________________________________________________________________________
-bool AlgConfigPool::LoadMasterConfig(void)
+bool AlgConfigPool::LoadMasterConfig(std::string configname)
 {
 // Loads the master config XML file: the file that specifies which XML config
 // file to load for each algorithm
 
   //-- get the master config XML file using GXMLPATH + default locations
-  fMasterConfig = utils::xml::GetXMLFilePath("master_config.xml");
+  // fMasterConfig = utils::xml::GetXMLFilePath("master_config.xml");
+  fMasterConfig = utils::xml::GetXMLFilePath(configname);
 
   bool is_accessible = ! (gSystem->AccessPathName( fMasterConfig.c_str() ));
   if (!is_accessible) {
@@ -192,6 +203,14 @@ bool AlgConfigPool::LoadMasterConfig(void)
   xmlFreeNode(xml_ac);
   xmlFreeDoc(xml_doc);
   return true;
+}
+
+bool AlgConfigPool::LoadMasterConfigs(void) {
+  auto main = LoadMasterConfig("master_config.xml");
+  auto rew_main{false};
+  if (std::getenv("GENIE_REWEIGHT"))
+    rew_main = LoadMasterConfig("reweight_master_config.xml");
+  return main || rew_main;
 }
 //____________________________________________________________________________
 bool AlgConfigPool::LoadGlobalParamLists(void)
