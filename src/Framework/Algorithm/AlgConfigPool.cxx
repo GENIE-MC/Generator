@@ -207,10 +207,11 @@ bool AlgConfigPool::LoadMasterConfig(std::string configname)
 
 bool AlgConfigPool::LoadMasterConfigs(void) {
   auto main = LoadMasterConfig("master_config.xml");
-  auto rew_main{false};
-  if (std::getenv("GENIE_REWEIGHT"))
-    rew_main = LoadMasterConfig("reweight_master_config.xml");
-  return main || rew_main;
+  if (std::getenv("GENIE_REWEIGHT")) {
+    auto rew_main = LoadMasterConfig("reweight_master_config.xml");
+    return main && rew_main;
+  } else
+    return main;
 }
 //____________________________________________________________________________
 bool AlgConfigPool::LoadGlobalParamLists(void)
