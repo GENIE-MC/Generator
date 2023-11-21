@@ -264,12 +264,12 @@ INukeFateHA_t HAIntranuke2018::HadronFateHA(const GHepParticle * p) const
      if (pdgc==kPdgPi0) frac_abs *= fNeutralPionFracAbsScale;
      frac_piprod *= fPionFracPiProdScale;
 
-    //  double frac_rescale = 1./(frac_cex + frac_inel + frac_abs + frac_piprod);
+     double frac_rescale = 1./(frac_cex + frac_inel + frac_abs + frac_piprod);
 
-    //  frac_cex    *= frac_rescale;
-    //  frac_inel   *= frac_rescale;
-    //  frac_abs    *= frac_rescale;
-    //  frac_piprod *= frac_rescale;
+     frac_cex    *= frac_rescale;
+     frac_inel   *= frac_rescale;
+     frac_abs    *= frac_rescale;
+     frac_piprod *= frac_rescale;
 
 
        // compute total fraction (can be <1 if fates have been switched off)
@@ -318,12 +318,12 @@ INukeFateHA_t HAIntranuke2018::HadronFateHA(const GHepParticle * p) const
       frac_abs    *= fNucleonFracAbsScale;
       frac_pipro  *= fNucleonFracPiProdScale;
 
-      // double frac_rescale = 1./(frac_cex + frac_inel + frac_abs + frac_pipro);
+      double frac_rescale = 1./(frac_cex + frac_inel + frac_abs + frac_pipro);
 
-      // frac_cex    *= frac_rescale;
-      // frac_inel   *= frac_rescale;
-      // frac_abs    *= frac_rescale;
-      // frac_pipro  *= frac_rescale;
+      frac_cex    *= frac_rescale;
+      frac_inel   *= frac_rescale;
+      frac_abs    *= frac_rescale;
+      frac_pipro  *= frac_rescale;
 
        // compute total fraction (can be <1 if fates have been switched off)
        double tf = frac_cex      +
