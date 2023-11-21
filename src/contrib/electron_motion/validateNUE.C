@@ -68,6 +68,15 @@ void make_dists(TString filename = "gntp.0.ghep.root", TString dir="",bool print
   std::vector<double> Etheta2_l; //final lepton etheta^2
   std::vector<double> theta_l; //final lepton angle
 
+  //Scatter plot of E_l theta_e^2 vs theta_l for final state lepton in electron rest frame
+  std::vector<double> E_l_erf; //final lepton energy in electron rest frame
+  std::vector<double> Etheta2_l_erf; //final lepton etheta^2 in electron rest frame
+  std::vector<double> theta_l_erf; //final lepton angle in electron rest frame
+
+  //Differences between distributions in electron rest frame and lab frame
+  std::vector<double> E_l_diff; //final lepton energy
+  std::vector<double> Etheta2_l_diff; //final lepton etheta^2
+  std::vector<double> theta_l_diff; //final lepton angle
 
   NtpMCEventRecord * mcrec = 0;
   tree->SetBranchAddress( "gmcrec", &mcrec);
@@ -129,6 +138,30 @@ void make_dists(TString filename = "gntp.0.ghep.root", TString dir="",bool print
       //Fill xsec distribution
       xsec_dist->Fill(event.XSec()/init_neutrino->Energy()); //normalize to neutrino energy
 
+      //Boost final state lepton to initial electron rest frame
+      TLorentzVector ple_boosted = ple;
+      ple_boosted.Boost(-pe.BoostVector());
+
+      //Extract values for final state lepton in electron rest frame
+      double E_l_erf_val = ple_boosted.E();
+      double fs_costheta_erf_val = ple_boosted.Pz()/ple_boosted.P();
+      double Etheta2_l_erf_val = pow(acos(fs_costheta_erf_val),2)*ple_boosted.E();
+
+      //Fill vectors
+      E_l_erf.push_back(E_l_erf_val);
+      theta_l_erf.push_back(acos(fs_costheta_erf_val));
+      Etheta2_l_erf.push_back(Etheta2_l_erf_val);
+
+      //Extract values for final state lepton in electron rest frame and compare to lab frame
+      double E_l_diff_val = E_l_erf_val - ple.E();
+      double fs_costheta_diff_val = fs_costheta_erf_val - fs_costheta;
+      double Etheta2_l_diff_val = Etheta2_l_erf_val - Etheta2_l[i];
+
+      //Fill vectors
+      E_l_diff.push_back(E_l_diff_val);
+      theta_l_diff.push_back(fs_costheta_diff_val);
+      Etheta2_l_diff.push_back(Etheta2_l_diff_val);
+
       //Print out values
       if (print_summary){
         std::cout<<"Event "<<i<<std::endl;
@@ -141,6 +174,10 @@ void make_dists(TString filename = "gntp.0.ghep.root", TString dir="",bool print
         std::cout<<"theta_l = "<<acos(fs_costheta)<<std::endl;
         std::cout<<"xsec = "<<event.XSec()<<std::endl;
         std::cout<<"E_nu = "<<init_neutrino->Energy()<<std::endl;
+        std::cout<<"E_l_erf = "<<E_l_erf_val<<std::endl;
+        std::cout<<"theta_l_erf = "<<acos(fs_costheta_erf_val)<<std::endl;
+        std::cout<<"E_l_diff = "<<E_l_diff_val<<std::endl;
+        std::cout<<"theta_l_diff = "<<fs_costheta_diff_val<<std::endl;
         std::cout<<"---------------------------------"<<std::endl;
       }
       
@@ -200,6 +237,9 @@ void make_dists(TString filename = "gntp.0.ghep.root", TString dir="",bool print
   TCanvas canvas3("canvas3");
   y_dist->Draw("HIST");
   y_dist->GetXaxis()->SetTitle("y");
+  // Set y limit to be from 0 to 600
+  y_dist->SetMinimum(0);
+  y_dist->SetMaximum(600);
   y_dist->Write();
 
   if (print_to_pdf){
@@ -287,6 +327,74 @@ void make_dists(TString filename = "gntp.0.ghep.root", TString dir="",bool print
     std::string file_out7 = "Plots/xsec.pdf";
     const char *fo7 = file_out7.c_str();
     canvas7.Print(fo7);
+  }
+
+  //Scatter plot of E_l vs theta_l for final state lepton in electron rest frame
+  TCanvas canvas8("canvas8");
+  TGraph *g3 = new TGraph(theta_l_erf.size(),&theta_l_erf[0],&E_l_erf[0]);
+  g3->SetTitle("El (electron rest frame)");
+  g3->SetMarkerStyle(20);
+  g3->SetMarkerSize(0.5);
+  g3->SetLineWidth(0);
+  g3->Draw("AP");
+  g3->GetXaxis()->SetTitle("#theta_{l}");
+  g3->GetYaxis()->SetTitle("E_{l}");
+  g3->Write();
+
+  if (print_to_pdf){
+    std::string file_out8 = "Plots/etheta_erf.pdf";
+    const char *fo8 = file_out8.c_str();
+    canvas8.Print(fo8);
+  }
+
+  //Scatter plot of E_l theta_l^2 vs theta_l for final state lepton in electron rest frame
+  TCanvas canvas9("canvas9");
+  TGraph *g4 = new TGraph(theta_l_erf.size(),&theta_l_erf[0],&Etheta2_l_erf[0]);
+  g4->SetTitle("Etheta2 (electron rest frame)");
+  g4->SetMarkerStyle(20);
+  g4->SetMarkerSize(0.5);
+  g4->SetLineWidth(0);
+  g4->Draw("AP");
+  g4->GetXaxis()->SetTitle("#theta_{l}");
+  g4->GetYaxis()->SetTitle("E_{l}#theta_{l}^{2}");
+  g4->Write();
+  if (print_to_pdf){
+    std::string file_out9 = "Plots/etheta2_erf.pdf";
+    const char *fo9 = file_out9.c_str();
+    canvas9.Print(fo9);
+  }
+
+  //Differences between distributions in electron rest frame and lab frame
+  TCanvas canvas10("canvas10");
+  TGraph *g5 = new TGraph(theta_l_diff.size(),&theta_l_diff[0],&E_l_diff[0]);
+  g5->SetTitle("El (electron rest frame - lab frame)");
+  g5->SetMarkerStyle(20);
+  g5->SetMarkerSize(0.5);
+  g5->SetLineWidth(0);
+  g5->Draw("AP");
+  g5->GetXaxis()->SetTitle("#theta_{l}");
+  g5->GetYaxis()->SetTitle("E_{l}");
+  g5->Write();
+  if (print_to_pdf){
+    std::string file_out10 = "Plots/etheta_diff.pdf";
+    const char *fo10 = file_out10.c_str();
+    canvas10.Print(fo10);
+  }
+
+  TCanvas canvas11("canvas11");
+  TGraph *g6 = new TGraph(theta_l_diff.size(),&theta_l_diff[0],&Etheta2_l_diff[0]);
+  g6->SetTitle("Etheta2 (electron rest frame - lab frame)");
+  g6->SetMarkerStyle(20);
+  g6->SetMarkerSize(0.5);
+  g6->SetLineWidth(0);
+  g6->Draw("AP");
+  g6->GetXaxis()->SetTitle("#theta_{l}");
+  g6->GetYaxis()->SetTitle("E_{l}#theta_{l}^{2}");
+  g6->Write();
+  if (print_to_pdf){
+    std::string file_out11 = "Plots/etheta2_diff.pdf";
+    const char *fo11 = file_out11.c_str();
+    canvas11.Print(fo11);
   }
   
   file1->Close();
