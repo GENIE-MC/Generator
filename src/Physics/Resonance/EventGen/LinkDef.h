@@ -17,6 +17,6 @@
 #pragma link C++ class genie::RSPPInteractionListGenerator;
 
 // Wrappers for GSL/MathMore lib
-#pragma link C++ class genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E::d4XSecMK_dWQ2CosThetaPhi_E;
+#pragma link C++ class genie::utils::gsl::d4XSecMK_dWQ2CosThetaPhi_E;
 
 #endif
