@@ -17,6 +17,10 @@ RES-Omega                   double  Yes   FKR's Omega parameter                 
 RES-Ma                      double  No    RES axial mass
 RES-Mv                      double  No    RES vector mass
 RES-CA50                    double  No    RES CA5(Q2=0)
+GVCAL-Cv3                   double  No    RES coefficient in RES CV3 calculation 
+GVCAL-Cv4                   double  No    RES coefficient in RES CV4 calculation 
+GVCAL-Cv51                  double  No    RES first coefficient in RES CV5 calculation 
+GVCAL-Cv52                  double  No    RES second coefficient in RES CV5 calculation 
 EMFormFactorsAlg            alg     No    Elastic form factors used for background contribution
 CCFormFactorsAlg            alg     No    Form factors for background contribution
 HelictyAmplCCAlg            alg     No    Helicty amplitude model for CC
@@ -42,6 +46,12 @@ XSec-Integrator             alg     No
 
   <param_set name="Default">
     <param type="string" name="CommonParam"> Resonances,WeakInt,CKM,FermiGas </param>
+
+     <param type="double" name="GVCAL-Cv3">        2.13  </param>
+     <param type="double" name="GVCAL-Cv4">        1.51  </param>
+     <param type="double" name="GVCAL-Cv51">       0.48  </param>
+     <param type="double" name="GVCAL-Cv52">       0.766 </param>
+
     <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
     <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
 
