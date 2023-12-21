@@ -250,7 +250,7 @@ while loop_i < loop_end + 1:
             command_dict.update( eAFlux.eFluxScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.FLUX,opts.MinEnergyFlux,opts.MaxEnergyFlux,vAsplines,opts.EEvents,
                                                                    opts.TUNE, opts.EvGenList, opts.NMax, opts.Seed, opts.RunID, opts.GSTOutput, opts.NoGHEPOutput,version,
                                                                    opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
-                                                                   opts.JOBSTD,grid_setup,message_thresholds,genie_setup,opts.JOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION,
+                                                                   opts.JOBSTD,grid_setup,genie_setup,message_thresholds,opts.JOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION,
                                                                    configure_INCL,configure_G4) )
         total_time += int(opts.JOBLIFE)
     

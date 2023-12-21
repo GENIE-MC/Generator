@@ -59,10 +59,12 @@ private:
 
   const XSecIntegratorI *   fXSecIntegrator;
 
-  bool   fTurnOnPauliCorrection;
+  double fFermiConstant2 ;
   double fMa;
   double fMv;
   double fCos28c;
+  
+  bool   fTurnOnPauliCorrection;
 };
 
 }       // genie namespace

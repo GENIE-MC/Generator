@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the MK single pion production algorithm
+
+Configurable Parameters:
+......................................................................................................................................
+Name                        Type Optional Comment                                                        Default
+......................................................................................................................................
+RES-CC-XSecScale            double  No    XSec rescaling factor
+RES-NC-XSecScale            double  No    Xsec rescaling factor
+WeinbergAngle               double  No    Weinberg Angle                                                  CommonParam[WeakInt]
+CKM-Vud                     double  No    Magnitude of ud-element of CKM-matrix                           CommonParam[CKM]
+RES-Omega                   double  Yes   FKR's Omega parameter                                           1.05
+RES-Ma                      double  No    RES axial mass
+RES-Mv                      double  No    RES vector mass
+RES-CA50                    double  No    RES CA5(Q2=0)
+GVCAL-Cv3                   double  No    RES coefficient in RES CV3 calculation 
+GVCAL-Cv4                   double  No    RES coefficient in RES CV4 calculation 
+GVCAL-Cv51                  double  No    RES first coefficient in RES CV5 calculation 
+GVCAL-Cv52                  double  No    RES second coefficient in RES CV5 calculation 
+EMFormFactorsAlg            alg     No    Elastic form factors used for background contribution
+CCFormFactorsAlg            alg     No    Form factors for background contribution
+HelictyAmplCCAlg            alg     No    Helicty amplitude model for CC
+HelictyAmplNCpAlg           alg     No    Helicty amplitude model for NCp
+HelictyAmplNCnAlg           alg     No    Helicty amplitude model for NCn
+MK-fPi                      double  Yes   Constant for pion-nucleon interaction                           0.093
+QEL-FA0                     double  Yes   Axial coupling (value of axial form factor at Q2=0)             -1.26
+MK-Frho0                    double  Yes   Value of form fator F_rho at t=0                                1.0
+MK-NonResBkg-VWmin          double  Yes   Parameters for vector virtual form factor                       1.30
+MK-NonResBkg-VWmax          double  Yes   for nonresbackground contribution, which equal to:              1.60
+MK-NonResBkg-V3             double  Yes   1,                                              W<VWmin         8.08497
+MK-NonResBkg-V2             double  Yes   V3*W^3+V2*W^2+V1*W+V0                     VWmin<W<VWmax         -41.6767
+MK-NonResBkg-V1             double  Yes   0                                               W>VWmax         66.3419
+MK-NonResBkg-V0             double  Yes                                                                   32.5733
+MK-WMax                     double  Yes   The value above which the pxsec is zero(negative not applic.)   -1.
+Mass-rho770                 double  Yes   Mass of rho-meson(770)                                          0.7758
+UseAuthorCode               bool    Yes   Use autor version of code ?                                     No
+ResonanceNameList           string  No    List of resonances to be taken into account                     CommonParam[Resonances]
+RFG-UseParametrization      bool    No    Use parametrization for Fermi momentum and binging energy       CommonParam[FermiGas]
+FermiMomentumTable          string  No    Table of Fermi momentum (kF) constants for various nuclei       CommonParam[FermiGas]
+XSec-Integrator             alg     No
+-->
+
+  <param_set name="Default">
+    <param type="string" name="CommonParam"> Resonances,WeakInt,CKM,FermiGas </param>
+
+     <param type="double" name="GVCAL-Cv3">        2.13  </param>
+     <param type="double" name="GVCAL-Cv4">        1.51  </param>
+     <param type="double" name="GVCAL-Cv51">       0.48  </param>
+     <param type="double" name="GVCAL-Cv52">       0.766 </param>
+
+    <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
+    <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
+
+    <param type="double" name="RES-Ma">   0.871039 </param>
+    <param type="double" name="RES-Mv">   0.840    </param>
+    <param type="double" name="RES-CA50"> 0.882856 </param>
+<!-- Parameters for background contribution   -->
+    <param type="alg"    name="CCFormFactorsAlg">         genie::MKFFCC/Default                     </param>
+    <param type="alg"    name="EMFormFactorsAlg">         genie::MKFFEM/Default                     </param>
+
+<!-- Helicity amplitudes models -->
+    <param type="alg"    name="HelictyAmplCCAlg">    genie::RSHelicityAmplModelCC/Default           </param>
+    <param type="alg"    name="HelictyAmplNCpAlg">   genie::RSHelicityAmplModelNCp/Default          </param>
+    <param type="alg"    name="HelictyAmplNCnAlg">   genie::RSHelicityAmplModelNCn/Default          </param>
+  </param_set>
+
+
+  <param_set name="WithPauliBlock">
+     <param type="alg"  name="XSec-Integrator">  genie::SPPXSec/WithPauliBlock                    </param>
+  </param_set>
+
+
+  <param_set name="NoPauliBlock">
+     <param type="alg"  name="XSec-Integrator">  genie::SPPXSec/NoPauliBlock                      </param>
+  </param_set>
+
+
+
+</alg_conf>

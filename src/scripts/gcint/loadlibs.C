@@ -104,14 +104,18 @@ int loadlibs()
   gSystem->Load("libEGPythia6");
   gSystem->Load("libGeom");
   gSystem->Load("libTree");
-
+  gSystem->Load("libMathMore");
+  gSystem->Load("libMinuit");
+  gSystem->Load("libGenVector");
+  
   // libxml2 and log4cpp libs
   gSystem->Load("libxml2");
   gSystem->Load("liblog4cpp");
-
+  
   // GSL
   gSystem->Load("libgslcblas");
   gSystem->Load("libgsl");
+  gSystem->Load("libm");
   //~ load_libs_from_command("gsl-config --libs"); // not guaranteed to be in the right order
 
   //

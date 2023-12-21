@@ -34,6 +34,8 @@ University of Liverpool
 
   <param_set name="WeakInt">
     <param type="double" name="WeinbergAngle"> 0.501716712132 </param> <!-- 0.501568 -->
+    <param type="double" name="FermiConstant"> 1.16639E-5 </param> <!-- GeV^-2 --> <!-- historical GENIE value -->
+    <param type="double" name="FineStructureConstant"> 7.2973525332858855E-3 </param> <!-- historical GENIE value -->
 
   </param_set>
 
@@ -322,7 +324,6 @@ Or changing the name of this parameter set
          Please be aware that changing the PDG table might invalidated the selected tune -->
     <param type="string" name="PDG-TableName"> genie_pdg_table.txt </param>
   </param_set>
-
 
   <param_set name="Validation">
     <!--
