@@ -147,7 +147,7 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
   // id, status, int col, int acol, px,py,pz,E,m,scale=0,pol=9
   fPythia->event.append(qrkSyst1,23,101,  0,0.,0.,pz1cm,e1,m1);
   fPythia->event.append(qrkSyst2,23,  0,101,0.,0.,pz2cm,e2,m2);
-  fPythia->event.list();
+  //fPythia->event.list();
 
   // Generating next pythia8 event
   fPythia->next();
