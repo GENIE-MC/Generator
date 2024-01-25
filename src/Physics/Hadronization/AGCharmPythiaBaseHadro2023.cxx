@@ -12,7 +12,7 @@
 //____________________________________________________________________________
 
 #include <RVersion.h>
-#include <TPythia6.h>
+
 #include <TVector3.h>
 #include <TF1.h>
 #include <TROOT.h>
