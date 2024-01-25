@@ -16,6 +16,7 @@
 #include <TDecayChannel.h>
 #include <RVersion.h>
 
+#include "Framework/Conventions/GBuild.h"
 #ifdef __GENIE_PYTHIA6_ENABLED__
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
 #include <TMCParticle.h>

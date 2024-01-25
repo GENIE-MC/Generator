@@ -20,6 +20,7 @@
 #ifndef _PYTHIA6_DECAYER_I_H_
 #define _PYTHIA6_DECAYER_I_H_
 
+#include "Framework/Conventions/GBuild.h"
 #ifdef __GENIE_PYTHIA6_ENABLED__
 #include <TPythia6.h>
 #endif
