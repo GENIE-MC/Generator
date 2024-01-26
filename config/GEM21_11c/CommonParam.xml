@@ -91,8 +91,8 @@ University of Liverpool
    -->
    <param type="bool"   name="UseDRJoinScheme"> true </param>
    <param type="double" name="Wcut">            1.7  </param>
-
- <!--
+	 
+<!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   NEUGEN parameters applied to DIS hadronic multiplicity distributions
   to avoid 2-ble counting with RES
@@ -121,6 +121,7 @@ University of Liverpool
   <param type="double" name="DIS-HMultWgt-vbn-NC-m3"> 1.000  </param>
   <param type="double" name="DIS-HMultWgt-vbn-EM-m2"> 0.100  </param>
   <param type="double" name="DIS-HMultWgt-vbn-EM-m3"> 1.000  </param>
+
  </param_set>
 
 
