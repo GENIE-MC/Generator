@@ -87,8 +87,10 @@ string genie::utils::xml::GetXMLPathList( bool add_tune )   {
   }  // requested tune and there is a tune
 
   pathlist += GetXMLDefaultPath() ;  // standard path in case no env
+  auto GENIE_REWEIGHT = std::getenv("GENIE_REWEIGHT");
+  if (GENIE_REWEIGHT)
+    pathlist += ":" + (std::string(GENIE_REWEIGHT) + "/config");
   pathlist += ":$GENIE/src/Tools/Flux/GNuMINtuple";  // special case
-
   return pathlist;
 }
 

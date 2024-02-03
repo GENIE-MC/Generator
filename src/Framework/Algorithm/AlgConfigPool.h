@@ -66,7 +66,8 @@ private:
   string BuildConfigKey      (string alg_name, string param_set) const;
   string BuildConfigKey      (const Algorithm * algorithm) const;
   bool   LoadAlgConfig       (void);
-  bool   LoadMasterConfig    (void);
+  bool   LoadMasterConfig    (std::string configname);
+  bool   LoadMasterConfigs   (void);
   bool   LoadGlobalParamLists(void);
   bool   LoadCommonLists( const string & file_id );
   bool   LoadTuneGeneratorList(void);
