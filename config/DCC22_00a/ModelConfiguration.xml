@@ -78,7 +78,7 @@ STFC, Rutherford Appleton Laboratory
   
   <param type="alg" name="XSecModel@genie::EventGenerator/DCCSPP-CC">       genie::DCCSPPPXSec/NoPauliBlock               </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DCCSPP-NC">       genie::DCCSPPPXSec/NoPauliBlock               </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/DCCSPP-EM">       genie::DCCSPPPXSec/NoPauliBlock            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DCCSPP-EM">       genie::DCCSPPPXSec/NoPauliBlock               </param>
 
   <!-- New Kuzmin-Lyubushkin-Naumov resonance model w/MiniBooNE tune... -->
   <!--

@@ -275,33 +275,6 @@ public:
     return 0;
   }
   //__________________________________________________________________________
-  static int FinStateIsospin(SppChannel_t channel)
-  {
-    switch (channel) {
-
-      case (kSpp_vp_cc_10100) : return  3;   break;
-      case (kSpp_vn_cc_10010) : return  1;   break;
-      case (kSpp_vn_cc_01100) : return  1;   break;
-
-      case (kSpp_vp_nc_10010) : return  1;   break;
-      case (kSpp_vp_nc_01100) : return  1;   break;
-      case (kSpp_vn_nc_01010) : return  1;   break;
-      case (kSpp_vn_nc_10001) : return  1;   break;
-
-      case (kSpp_vbn_cc_01001): return  3;   break;
-      case (kSpp_vbp_cc_01010): return  1;   break;
-      case (kSpp_vbp_cc_10001): return  1;   break;
-
-      case (kSpp_vbp_nc_10010): return  1;   break;
-      case (kSpp_vbp_nc_01100): return  1;   break;
-      case (kSpp_vbn_nc_01010): return  1;   break;
-      case (kSpp_vbn_nc_10001): return  1;   break;
-
-      default : return 0;  break;
-    }
-    return 0;
-  }
-  //__________________________________________________________________________
   static double IsospinWeight(SppChannel_t channel, Resonance_t res)
   {
     // return the square of isospin Glebsch Gordon coefficient for the input resonance
