@@ -69,7 +69,6 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
     if gen_list == 'none' :
         store_total_xsec = True 
 
-
     if group_vN == True : 
         process_name = "group_vN"
         job_ID = 1 
@@ -224,8 +223,8 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
         str_tgt_list = str_tgt_list[:-1]
 
         ## Create an output file with all the splines in root format
-        commands.append( "gspl2root -p "+str_probe_list+" -t "+str_tgt_list+" -f "+path+"total_xsec.xml -o "+path+"total_xsec.root --tune "+tune )
-        out_files.append("total_xsec.root")
+        ## commands.append( "gspl2root -p "+str_probe_list+" -t "+str_tgt_list+" -f "+path+"total_xsec.xml -o "+path+"total_xsec.root --tune "+tune +" --event-generation-list ")
+        ## out_files.append("total_xsec.root")
 
     # Call Commands
     shell_file = ''
