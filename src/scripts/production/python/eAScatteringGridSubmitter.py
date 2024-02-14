@@ -120,14 +120,17 @@ if opts.GRID == 'FNAL':
         print ("Not runing from pnfs:"+opts.JOBSTD+" . Jobs top dir must be in pnfs for the submission scrpits to work. Abort ...")
         exit()
 
+message_thresholds = "$GALGCONF/Messenger.xml"
 if opts.CONF : 
     if not os.path.exists(opts.CONF) : 
         print ( " GENIE Configuraion dir specified does not exist: " + opts.CONF + " . Abort ..." ) 
         exit()
 
     print( 'Using configuration files from ' + opts.CONF + ' ...' )
-
-
+    # Check if we have a message thresholds file 
+    if os.path.exists(opts.CONF+"/Messenger.xml"):
+        message_thresholds = "$CONDOR_DIR_INPUT/conf/Messenger.xml"
+        
 #JobSub is made available through the UPS package jobsub_client
 os.system("source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup" ) 
 
@@ -172,6 +175,14 @@ else :
     genie_setup = opts.SOFTW+'/generator/builds/'+arch+'/'+version+'-setup'
     grid_setup = ""
 
+# Check whether INCL/G4 have to be configured:
+configure_INCL = False
+configure_G4 = False 
+if "c" in opts.TUNE:
+    configure_INCL = True
+elif "d" in opts.TUNE:
+    configure_G4 = True 
+
 # Store commands with ID :
 command_dict = {}
 
@@ -193,7 +204,7 @@ while loop_i < loop_end + 1:
                                                  opts.NuKnots,opts.EKnots,opts.TUNE,version,opts.GRID,opts.GROUP,
                                                  opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,
                                                  opts.JOBSTD,grid_setup,genie_setup,opts.vNJOBLIFE,opts.JOBMEM,opts.JOBDISK,
-                                                 opts.BRANCH,opts.GIT_LOCATION) )
+                                                 opts.BRANCH,opts.GIT_LOCATION,configure_INCL,configure_G4) )
         total_time += int(opts.vNJOBLIFE) 
 
     # ID = 1 # group vN splines
@@ -205,7 +216,7 @@ while loop_i < loop_end + 1:
         command_dict.update( group.GroupSplineCommands( True,vNdir,vNMotherDir,opts.TUNE,opts.vNList,
                                                         version,opts.CONF,opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,
                                                         opts.CYCLE,opts.SOFTW,opts.GENIE,grid_setup,genie_setup,opts.JOBSTD,False, False, 
-                                                        opts.GROUPJOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION ) )
+                                                        opts.GROUPJOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION,configure_INCL,configure_G4 ) )
         total_time += int(opts.GROUPJOBLIFE)
  
     if loop_i == 2 : 
@@ -213,7 +224,7 @@ while loop_i < loop_end + 1:
         command_dict.update( vA.vASplineCommands(opts.PROBELIST,opts.NUTGTLIST,opts.ETGTLIST,opts.vAList,opts.NuEMAXSPLINE,
                                                  opts.EEMAXSPLINE,opts.NuKnots,opts.EKnots,opts.TUNE,vNsplines,version,opts.GRID,
                                                  opts.GROUP,opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,opts.JOBSTD,
-                                                 grid_setup,genie_setup,opts.vAJOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION) )
+                                                 grid_setup,genie_setup,opts.vAJOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION,configure_INCL,configure_G4) )
         total_time += int(opts.vAJOBLIFE)
 
     if loop_i == 3 : 
@@ -223,21 +234,24 @@ while loop_i < loop_end + 1:
             vAMotherDir = opts.MotherDir+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vA/'
         command_dict.update( group.GroupSplineCommands( False,vAdir,vAMotherDir,opts.TUNE,opts.vAList,version,opts.CONF,
                                                         opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,
-                                                        grid_setup,genie_setup,opts.JOBSTD,False, False,opts.GROUPJOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION ) )
+                                                        grid_setup,genie_setup,opts.JOBSTD,False, False,opts.GROUPJOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,
+                                                        opts.GIT_LOCATION,configure_INCL,configure_G4 ) )
         total_time += int(opts.GROUPJOBLIFE) 
 
     if loop_i == 4 : 
         # ID = 4 # Event generation commands
-        if opts.FLUX is "none" : 
+        if opts.FLUX == "none" : 
             command_dict.update( eA.eScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.EnergyBeam,vAsplines,opts.EEvents,
                                                            opts.TUNE, opts.EvGenList, opts.NMax, opts.Seed, opts.RunID, opts.GSTOutput, opts.NoGHEPOutput,version,
                                                            opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
-                                                           opts.JOBSTD,grid_setup,genie_setup,opts.JOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION) )
+                                                           opts.JOBSTD,grid_setup,genie_setup,message_thresholds,opts.JOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION,
+                                                           configure_INCL,configure_G4) )
         else : 
             command_dict.update( eAFlux.eFluxScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.FLUX,opts.MinEnergyFlux,opts.MaxEnergyFlux,vAsplines,opts.EEvents,
-                                                           opts.TUNE, opts.EvGenList, opts.NMax, opts.Seed, opts.RunID, opts.GSTOutput, opts.NoGHEPOutput,version,
-                                                           opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
-                                                           opts.JOBSTD,grid_setup,genie_setup,opts.JOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION) )
+                                                                   opts.TUNE, opts.EvGenList, opts.NMax, opts.Seed, opts.RunID, opts.GSTOutput, opts.NoGHEPOutput,version,
+                                                                   opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
+                                                                   opts.JOBSTD,grid_setup,genie_setup,message_thresholds,opts.JOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION,
+                                                                   configure_INCL,configure_G4) )
         total_time += int(opts.JOBLIFE)
     
     loop_i += 1 
@@ -246,7 +260,7 @@ if total_time > int(opts.MAINLIFE) :
     print ( "Total time of subjobs requested ("+str(total_time)+") is bigger than the job's expected time ("+str(opts.MAINLIFE)+") ... Abort ..." ) 
     exit() 
 
-if opts.GRID is 'FNAL':
+if opts.GRID == 'FNAL':
     if total_time > 96 or int(opts.MAINLIFE) > 96 : 
         print ( "Total time at the grid cannot exceed 96h ")
         exit() 

@@ -67,7 +67,9 @@ private:
   bool   fUsingDisResJoin;  ///< use a DMDIS/RES joining scheme?
   bool   fUseCache;         ///< cache reduction factors used in joining scheme
   double fWcut;             ///< apply DMDIS/RES joining scheme < Wcut
-  double fScale;            ///< cross section scaling factor
+  double fCCScale;          ///< cross section scaling factor for CC processes
+  double fNCScale;          ///< cross section scaling factor for NC processes
+  double fEMScale;          ///< cross section scaling factor for EM processes
   double fSin48w;           ///< sin^4(Weingberg angle)
   int    fVelMode;          ///< velcoity dependence for xsec
   double fMedMass;          ///< Mediator mass

@@ -182,16 +182,16 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
 
   LOG("LocalFGM",pNOTICE) << "KF = " << KF;
 
-  double a  = 2.0;
-  double C  = 4. * kPi * TMath::Power(KF,3) / 3.;
+  //double a  = 2.0;
+  //double C  = 4. * kPi * TMath::Power(KF,3) / 3.;
 
   // Do not include nucleon correlation tail
   //double R  = 1. / (1.- KF/4.);
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("LocalFGM", pDEBUG) << "a  = " << a;
-  LOG("LocalFGM", pDEBUG) << "C  = " << C;
+//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  //LOG("LocalFGM", pDEBUG) << "a  = " << a;
+  //LOG("LocalFGM", pDEBUG) << "C  = " << C;
   //LOG("LocalFGM", pDEBUG) << "R  = " << R;
-#endif
+//#endif
 
   //-- create the probability distribution
 
@@ -226,8 +226,10 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
      prob->Fill(p, dP_dp);
   }
 
+  double normfactor = prob->Integral("width");
+  
   //-- normalize the probability distribution
-  prob->Scale( 1.0 / prob->Integral("width") );
+  if (normfactor > 0) prob->Scale(1/normfactor);
 
   return prob;
 }

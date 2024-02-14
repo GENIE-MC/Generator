@@ -89,6 +89,7 @@ double KPhaseSpace::Threshold(void) const
   double ml = fInteraction->FSPrimLepton()->Mass();
 
   if( ! pi.IsKnown() ) return 0;
+
   if (pi.IsSinglePion()) {
       return this->Threshold_SPP();
   }
@@ -1074,6 +1075,7 @@ Range1D_t KPhaseSpace::WLim_SPP_iso(bool isMassless) const
       mf = fInteraction->FSPrimLepton()->Mass();
   }
   
+
   double Ei   = init_state.ProbeE(kRfHitNucRest);
   double ECM  = TMath::Sqrt(M*(M + 2*Ei) + mi*mi);
   // kinematic W-limits
@@ -1160,6 +1162,7 @@ Range1D_t KPhaseSpace::Q2Lim_W_SPP_iso(bool isMassless) const
   
   double Ei  = init_state.ProbeE(kRfHitNucRest);
   double s   = M*(M + 2*Ei) + mi2;
+
   double ECM = TMath::Sqrt(s);
   
   double Ei_CM  = (s + mi2 - M*M)/2/ECM;

@@ -256,6 +256,13 @@ PYTHIA8_LIBRARIES += -L$(GOPT_WITH_PYTHIA8_LIB) -lpythia8
 endif
 
 #-------------------------------------------------------------------
+# Professor2
+#-------------------------------------------------------------------
+
+PROFESSOR2_INCLUDES = -I$(GENIE)/src/ExternalLibs/professor/include
+PROFESSOR2_LIBRARIES = -L$(GENIE)/src/ExternalLibs/professor/lib -lProfessor2
+
+#-------------------------------------------------------------------
 # ROOT
 #-------------------------------------------------------------------
 # ROOT headers and libraries
@@ -561,7 +568,8 @@ CPP_INCLUDES := \
     $(LHAPDF_INCLUDES) \
     $(APFEL_INCLUDES) \
     $(GSL_INCLUDES) \
-    $(GENIE_INCLUDES)
+    $(GENIE_INCLUDES) \
+    $(PROFESSOR2_INCLUDES)
 
 ROOT_DICT_GEN_INCLUDES := \
     $(LINUX_SYS_INCLUDES) \

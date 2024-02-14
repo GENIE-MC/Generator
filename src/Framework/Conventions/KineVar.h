@@ -53,7 +53,6 @@ typedef enum EKineVar {
   kKVv,
   kKVphip,
   kKVctp,
-  kKVSelPn,
   kKVSelv,
   kKVQ0,
   kKVQ3,
@@ -104,15 +103,14 @@ public:
       case(kKVv)       : return " *Running* Energy transfer";            break;
       case(kKVphip)    : return " *Running* SPP final pion phi";          break;
       case(kKVctp)     : return " *Running* SPP cosine final pion theta"; break;
-      case(kKVSelPn)   : return "*Selected* Hit nucleon momentum";       break;
       case(kKVSelv)    : return "*Selected* Energy transfer";            break;
       case(kKVQ0)      : return " *Running* Energy transfer (Q0)" ;      break;
       case(kKVQ3)      : return " *Running* three momentum transfer" ;   break;
       case(kKVSelQ0)   : return "*Selected* energy transfer (Q0) " ;     break;
       case(kKVSelQ3)   : return "*Selected* three momentum transfer" ;   break;
-      case(kKVn1)     : return " *Running* Normalized variable n1"  ;   break;
-      case(kKVn2)     : return " *Running* Normalized variable n2"  ;   break;
-      case(kKVn3)     : return " *Running* Normalized variable n3"  ;   break;
+      case(kKVn1)      : return " *Running* Normalized variable n1"  ;   break;
+      case(kKVn2)      : return " *Running* Normalized variable n2"  ;   break;
+      case(kKVn3)      : return " *Running* Normalized variable n3"  ;   break;
       case(kKVSelphip) : return "*Selected* SPP final pion phi";          break;
       case(kKVSelctp)  : return "*Selected* SPP cosine final pion theta"; break;
       default          : return "** Unknown kinematic variable **";      break;

@@ -41,9 +41,10 @@ public:
 
   //! Energy threshold
   double Threshold(void) const;
-  
+
   double Threshold_SPP(bool isMassless = false) const;       ///< Energy limit for resonance single pion production
   double Threshold_SPP_iso(bool isMassless = false) const;   ///< Energy limit for resonance single pion production on isoscalar nucleon
+
 
   //! Checks whether the interaction is above the energy threshold
   bool IsAboveThreshold(void) const;

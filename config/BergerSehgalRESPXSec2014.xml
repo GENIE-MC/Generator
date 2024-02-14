@@ -16,8 +16,13 @@ RES-Zeta                    double  No    FKR's Z parameter
 RES-Omega                   double  No    FKR's Omega parameter
 minibooneGA                 bool    No    tuning to axial form factors by MiniBoone (J. Nowak)            
 minibooneGV                 bool    No    tuning to vector form factors by MiniBoone (J. Nowak)                                                     
+RES-CA50                    double  No    RES CA5(0) for axial current calculation
 RES-Ma                      double  No    RES axial mass                                                 
 RES-Mv                      double  No    RES vector mass                                                
+GVCAL-Cv3                   double  No    RES coefficient in RES CV3 calculation 
+GVCAL-Cv4                   double  No    RES coefficient in RES CV4 calculation 
+GVCAL-Cv51                  double  No    RES first coefficient in RES CV5 calculation 
+GVCAL-Cv52                  double  No    RES second coefficient in RES CV5 calculation 
 WeinbergAngle               double  No    Weinberg Angle                                                  CommonParam[WeakInt]
 CKM-Vud                     double  No    Magnitude of ud-element of CKM-matrix                           CommonParam[CKM]
 BreitWeignerWeight          bool    Yes   Weight xsec with breit-wigner?                                  true
@@ -32,6 +37,12 @@ RFG-UseParametrization      bool    No    use parametrization for Fermi momentum
                                             
 FermiMomentumTable          string  No    Table of Fermi momentum (kF) constants for various nuclei       CommonParam[FermiGas]
 XSec-Integrator             alg     No                    
+
+GASarita-Schwinger          bool    No    tuning axial form factors using Sarita-Schwinger model from PhysRevD.77.053001
+GVSarita-Schwinger          bool    No    tuning vector form factors using Sarita-Schwinger model from PhysRevD.77.053001
+GAcII                       double  Yes   Parameter for the axial ff calculation with the Sarita-Schwinger model
+RES-Mb                      double  Yes   Mb parameter used for the GA calculation with the Sarita-Schwinger model
+
 -->
 
   <param_set name="Default"> 
@@ -45,6 +56,13 @@ XSec-Integrator             alg     No
      -->
      <param type="bool" name="minibooneGA">  true </param>
      <param type="bool" name="minibooneGV">  true </param>
+     <param type="bool" name="GASaritaSchwinger">  false </param>
+     <param type="bool" name="GVSaritaSchwinger">  false </param>
+
+     <param type="double" name="GVCAL-Cv3">        2.13  </param>
+     <param type="double" name="GVCAL-Cv4">        1.51  </param>
+     <param type="double" name="GVCAL-Cv51">       0.48  </param>
+     <param type="double" name="GVCAL-Cv52">       0.766 </param>
 
      <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
      <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
@@ -57,6 +75,7 @@ XSec-Integrator             alg     No
 	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	  Axial and vector masses for resonance production  
      -->
+     <param type="double" name="RES-CA50"> 1.2 </param>
      <param type="double" name="RES-Ma"> 1.120 </param>
      <param type="double" name="RES-Mv"> 0.840 </param>
 
@@ -77,17 +96,125 @@ XSec-Integrator             alg     No
   </param_set> 
 
   <param_set name="EM-WithPauliBlock"> 
-     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/WithPauliBlock    </param>
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/EM-WithPauliBlock    </param>
      <!-- Use dipole form factors for electrons Ref.[F.Ravndal, Phys.Rev. D 4, 1466 (1971)] --> 
      <param type="bool" name="minibooneGA">  false </param>
      <param type="bool" name="minibooneGV">  false </param>
   </param_set>
 
   <param_set name="EM-NoPauliBlock">
-     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/NoPauliBlock    </param>
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/EM-NoPauliBlock    </param>
      <!-- Use dipole form factors for electrons Ref.[F.Ravndal, Phys.Rev. D 4, 1466 (1971)] --> 
      <param type="bool" name="minibooneGA">  false </param>
      <param type="bool" name="minibooneGV">  false </param>
   </param_set>
+
+  <param_set name="SaritaSchwinger-TypeI-WithPauliBlock"> 
+     <param type="bool" name="minibooneGA">  false </param>
+     <param type="bool" name="minibooneGV">  false </param>
+     <param type="bool" name="GASaritaSchwinger">  true </param>
+     <param type="bool" name="GVSaritaSchwinger">  true </param>
+
+     <param type="double" name="RES-Ma"> 0.735 </param>
+     <param type="double" name="RES-Mv"> 0.840 </param>
+
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/WithPauliBlock    </param>
+  </param_set>
+	
+  <param_set name="SaritaSchwinger-TypeI-EM-WithPauliBlock"> 
+     <param type="bool" name="minibooneGA">  false </param>
+     <param type="bool" name="minibooneGV">  false </param>
+     <param type="bool" name="GASaritaSchwinger">  true </param>
+     <param type="bool" name="GVSaritaSchwinger">  true </param>
+
+     <param type="double" name="RES-Ma"> 0.735 </param>
+     <param type="double" name="RES-Mv"> 0.840 </param>
+
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/EM-WithPauliBlock    </param>
+  </param_set>	
+
+  <param_set name="SaritaSchwinger-TypeI-NoPauliBlock"> 
+     <param type="bool" name="minibooneGA">  false </param>
+     <param type="bool" name="minibooneGV">  false </param>
+     <param type="bool" name="GASaritaSchwinger">  true </param>
+     <param type="bool" name="GVSaritaSchwinger">  true </param>
+
+     <param type="double" name="RES-Ma"> 0.735 </param>
+     <param type="double" name="RES-Mv"> 0.840 </param>
+
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/NoPauliBlock    </param>
+  </param_set>
+
+  <param_set name="SaritaSchwinger-TypeI-EM-NoPauliBlock"> 
+     <param type="bool" name="minibooneGA">  false </param>
+     <param type="bool" name="minibooneGV">  false </param>
+     <param type="bool" name="GASaritaSchwinger">  true </param>
+     <param type="bool" name="GVSaritaSchwinger">  true </param>
+
+     <param type="double" name="RES-Ma"> 0.735 </param>
+     <param type="double" name="RES-Mv"> 0.840 </param>
+
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/EM-NoPauliBlock    </param>
+  </param_set>
+	
+  <param_set name="SaritaSchwinger-TypeII-WithPauliBlock"> 
+     <param type="bool" name="minibooneGA">  false </param>
+     <param type="bool" name="minibooneGV">  false </param>
+     <param type="bool" name="GASaritaSchwinger">  true </param>
+     <param type="bool" name="GVSaritaSchwinger">  true </param>
+
+     <!-- Change in parameters involved in GA -->
+     <param type="double" name="RES-Ma"> 3.116 </param>
+     <param type="double" name="RES-Mb"> 0.591 </param>
+     <param type="double" name="CA50"> 0.88 </param>
+     <param type="double" name="cII"> 1 </param>
+
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/WithPauliBlock    </param>
+ </param_set>
+
+  <param_set name="SaritaSchwinger-TypeII-NoPauliBlock"> 
+     <param type="bool" name="minibooneGA">  false </param>
+     <param type="bool" name="minibooneGV">  false </param>
+     <param type="bool" name="GASaritaSchwinger">  true </param>
+     <param type="bool" name="GVSaritaSchwinger">  true </param>
+
+     <!-- Change in parameters involved in GA -->
+     <param type="double" name="RES-Ma"> 3.116 </param>
+     <param type="double" name="RES-Mb"> 0.591 </param>
+     <param type="double" name="CA50"> 0.88 </param>
+     <param type="double" name="GAcII"> 1 </param>
+
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/NoPauliBlock    </param>
+ </param_set>
+
+  <param_set name="SaritaSchwinger-TypeII-EM-WithPauliBlock"> 
+     <param type="bool" name="minibooneGA">  false </param>
+     <param type="bool" name="minibooneGV">  false </param>
+     <param type="bool" name="GASaritaSchwinger">  true </param>
+     <param type="bool" name="GVSaritaSchwinger">  true </param>
+
+     <!-- Change in parameters involved in GA -->
+     <param type="double" name="RES-Ma"> 3.116 </param>
+     <param type="double" name="RES-Mb"> 0.591 </param>
+     <param type="double" name="CA50"> 0.88 </param>
+     <param type="double" name="cII"> 1 </param>
+
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/EMWithPauliBlock    </param>
+ </param_set>
+
+  <param_set name="SaritaSchwinger-TypeII-EM-NoPauliBlock"> 
+     <param type="bool" name="minibooneGA">  false </param>
+     <param type="bool" name="minibooneGV">  false </param>
+     <param type="bool" name="GASaritaSchwinger">  true </param>
+     <param type="bool" name="GVSaritaSchwinger">  true </param>
+
+     <!-- Change in parameters involved in GA -->
+     <param type="double" name="RES-Ma"> 3.116 </param>
+     <param type="double" name="RES-Mb"> 0.591 </param>
+     <param type="double" name="CA50"> 0.88 </param>
+     <param type="double" name="GAcII"> 1 </param>
+
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/EM-NoPauliBlock    </param>
+ </param_set>
 
 </alg_conf>  

@@ -14,8 +14,10 @@
 \update   November 12, 2019
           Added extra functions for MK model. \n
           Branching ratios are looked in particle database now.
+
           June 28, 2022
           Added extra channels for DCC model \n
+
 
 \cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
@@ -273,6 +275,33 @@ public:
     return 0;
   }
   //__________________________________________________________________________
+  static int FinStateIsospin(SppChannel_t channel)
+  {
+    switch (channel) {
+
+      case (kSpp_vp_cc_10100) : return  3;   break;
+      case (kSpp_vn_cc_10010) : return  1;   break;
+      case (kSpp_vn_cc_01100) : return  1;   break;
+
+      case (kSpp_vp_nc_10010) : return  1;   break;
+      case (kSpp_vp_nc_01100) : return  1;   break;
+      case (kSpp_vn_nc_01010) : return  1;   break;
+      case (kSpp_vn_nc_10001) : return  1;   break;
+
+      case (kSpp_vbn_cc_01001): return  3;   break;
+      case (kSpp_vbp_cc_01010): return  1;   break;
+      case (kSpp_vbp_cc_10001): return  1;   break;
+
+      case (kSpp_vbp_nc_10010): return  1;   break;
+      case (kSpp_vbp_nc_01100): return  1;   break;
+      case (kSpp_vbn_nc_01010): return  1;   break;
+      case (kSpp_vbn_nc_10001): return  1;   break;
+
+      default : return 0;  break;
+    }
+    return 0;
+  }
+  //__________________________________________________________________________
   static double IsospinWeight(SppChannel_t channel, Resonance_t res)
   {
     // return the square of isospin Glebsch Gordon coefficient for the input resonance
@@ -352,13 +381,13 @@ public:
       case (kSpp_vbp_nc_01100): return -k1_Sqrt3;
       case (kSpp_vbn_nc_01010): return  kSqrt2_3;
       case (kSpp_vbn_nc_10001): return  k1_Sqrt3;
-      
-      
+     
       //--- charged lepton EM
       case (kSpp_lp_em_10010):  return  kSqrt2_3;
       case (kSpp_lp_em_01100):  return -k1_Sqrt3;
       case (kSpp_ln_em_01010):  return  kSqrt2_3;
       case (kSpp_ln_em_10001):  return  k1_Sqrt3;
+
 
       default : return 0;
     }
@@ -396,13 +425,14 @@ public:
       case (kSpp_vbp_nc_01100): return -kSqrt2_3;
       case (kSpp_vbn_nc_01010): return  k1_Sqrt3;
       case (kSpp_vbn_nc_10001): return -kSqrt2_3;
-      
+
       
       //--- charged lepton EM
       case (kSpp_lp_em_10010):  return -k1_Sqrt3;
       case (kSpp_lp_em_01100):  return -kSqrt2_3;
       case (kSpp_ln_em_01010):  return  k1_Sqrt3;
       case (kSpp_ln_em_10001):  return -kSqrt2_3;
+
 
       default : return 0;
     }
@@ -461,8 +491,9 @@ public:
   {
     const InitialState & init_state = interaction->InitState();
     const ProcessInfo &  proc_info  = interaction->ProcInfo();
+    if ( !proc_info.IsSinglePion() ) return kSppNull;
+    
     const XclsTag &      xcls_tag   = interaction->ExclTag();
-
     if( xcls_tag.NPions()    != 1 ) return kSppNull;
     if( xcls_tag.NNucleons() != 1 ) return kSppNull;
 

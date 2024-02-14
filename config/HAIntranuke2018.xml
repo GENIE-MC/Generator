@@ -34,7 +34,9 @@ DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength
 	 were tuned using genie::FGMBodekRitchie/Default.
 	 If a systematic validation is desired we recommend to switch this to
 	  <param type="alg"    name="NuclearModel"> genie::FGMBodekRitchie/Default </param>
-    -->
+
+   NucRemovalE is the binding E to subtract from cascade nucleons (in GeV)
+  -->
 
     <param type="double" name="INUKE-NucRemovalE">       0.00  </param>
     <param type="double" name="INUKE-HadStep">           0.05  </param>
@@ -49,6 +51,8 @@ DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength
     <param type="bool"   name="INUKE-DoFermi">           true  </param>
     <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
     <param type="bool"   name="INUKE-XsecNNCorr">        true  </param>
+
+ 
 
     <param type="double" name="HAINUKE-DelRPion">        0.0   </param>
     <param type="double" name="HAINUKE-DelRNucleon">     0.0   </param>
