@@ -14,6 +14,13 @@
 \cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
+
+
+ Modified by Liang Liu <liangliu \at fnal.gov>
+ 	 Fermi National Accelerator Laboratory
+ 
+ test new SuSAv2 quasielastic model which deal with proton and neutron separately
+
 */
 //____________________________________________________________________________
 

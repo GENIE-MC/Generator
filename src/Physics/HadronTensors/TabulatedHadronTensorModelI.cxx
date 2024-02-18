@@ -9,6 +9,12 @@
 
  For the class documentation see the corresponding header file.
 
+
+ Modified by Liang Liu <liangliu \at fnal.gov>
+ 	 Fermi National Accelerator Laboratory
+ 
+ test new SuSAv2 quasielastic model which deal with proton and neutron separately
+
 */
 //____________________________________________________________________________
 
@@ -50,6 +56,10 @@ namespace {
       return genie::kHT_MEC_EM_wImag;
     else if (str == "QE_EM")
       return genie::kHT_QE_EM;
+    else if (str == "QE_EM_proton")  // add proton
+      return genie::kHT_QE_EM_proton;
+    else if (str == "QE_EM_neutron")  // add neutron
+      return genie::kHT_QE_EM_neutron;
     else if (str == "MEC_FullAll_Param")
       return genie::kHT_MEC_FullAll_Param;
     else if (str == "MEC_FullAll_wImag")
@@ -137,6 +147,8 @@ namespace {
     else if ( htt == genie::kHT_MEC_EM_pp ) return "MEC_EM_pp";
     else if ( htt == genie::kHT_MEC_EM_wImag ) return "MEC_EM_wImag";
     else if ( htt == genie::kHT_QE_EM ) return "QE_EM";
+    else if ( htt == genie::kHT_QE_EM_proton ) return "QE_EM_proton";   //  add by Liang Liu, test the SuSAv2 quasielastic model which deal with proton and neutron separately
+    else if ( htt == genie::kHT_QE_EM_neutron ) return "QE_EM_neutron";  //  add by Liang Liu, test the SuSAv2 quasielastic model which deal with proton and neutron separately
     else if ( htt == genie::kHT_MEC_FullAll_Param ) return "MEC_FullAll_Param";
     else if ( htt == genie::kHT_MEC_FullAll_wImag ) return "MEC_FullAll_wImag";
     else if ( htt == genie::kHT_QE_Full ) return "QE_Full";
