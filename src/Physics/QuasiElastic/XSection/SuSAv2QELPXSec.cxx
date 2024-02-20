@@ -84,6 +84,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 	// electron scattering
 	int target_pdg = interaction->InitState().Tgt().Pdg();
 	int probe_pdg = interaction->InitState().ProbePdg();
+	// get the Hit nuecleon pdg code
 	int hit_nuc_pdg = interaction->InitState().Tgt().HitNucPdg();  // add hit nucleon pdg id (Liang Liu)
 
 	int tensor_pdg_susa = target_pdg;
@@ -98,8 +99,6 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 	// targets available and currently only SuSA does EM
 
 	HadronTensorType_t tensor_type_susa = kHT_Undefined;
-	HadronTensorType_t tensor_type_susa_proton = kHT_Undefined;
-	HadronTensorType_t tensor_type_susa_neutron = kHT_Undefined;
 	HadronTensorType_t tensor_type_crpa = kHT_Undefined;
 	HadronTensorType_t tensor_type_blen = kHT_Undefined;
 
@@ -168,9 +167,15 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 	else {
 		// If the probe is not a neutrino, assume that it's an electron
 		// Currently only avaialble for SuSA. CRPA coming soon(ish)!
-		tensor_type_susa = kHT_QE_EM;
-		if(pdg::IsProton(hit_nuc_pdg))  tensor_type_susa_proton = kHT_QE_EM_proton;
-		else if(pdg::IsNeutron(hit_nuc_pdg))  tensor_type_susa_neutron = kHT_QE_EM_neutron;
+		if(pdg::IsProton(hit_nuc_pdg)){  
+			tensor_type_susa = kHT_QE_EM_proton;
+		}
+		else if(pdg::IsNeutron(hit_nuc_pdg)){  
+			tensor_type_susa = kHT_QE_EM_neutron;
+		}
+		else{
+			tensor_type_susa = kHT_QE_EM;  	// default
+		}
 
 	}
 
@@ -257,45 +262,17 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 	// Finally we can now get the tensors we need
 
 	const LabFrameHadronTensorI* tensor_susa;
-	const LabFrameHadronTensorI* tensor_susa_proton;
-	const LabFrameHadronTensorI* tensor_susa_neutron;
 	const LabFrameHadronTensorI* tensor_crpa;
 	const LabFrameHadronTensorI* tensor_blen;
 
 	if( modelConfig == kMd_SuSAv2 ){
-		if(pdg::IsProton(hit_nuc_pdg)){
-			tensor_susa_proton = dynamic_cast<const LabFrameHadronTensorI*>
-				( fHadronTensorModel->GetTensor (tensor_pdg_susa, tensor_type_susa_proton) );
+		tensor_susa = dynamic_cast<const LabFrameHadronTensorI*>
+			( fHadronTensorModel->GetTensor (tensor_pdg_susa, tensor_type_susa) );
 
-			if ( !tensor_susa_proton ) {
-				LOG("SuSAv2QE", pWARN) << "Failed to load a SuSAv2 hadronic tensor for the"
-					" nuclide " << tensor_pdg_susa;
-				return 0.;
-			}
-
-		}
-		else if(pdg::IsNeutron(hit_nuc_pdg)){
-
-			tensor_susa_neutron = dynamic_cast<const LabFrameHadronTensorI*>
-				( fHadronTensorModel->GetTensor (tensor_pdg_susa, tensor_type_susa_neutron) );
-
-			if ( !tensor_susa_neutron ) {
-				LOG("SuSAv2QE", pWARN) << "Failed to load a SuSAv2 hadronic tensor for the"
-					" nuclide " << tensor_pdg_susa;
-				return 0.;
-			}
-		}
-		else{
-			tensor_susa = dynamic_cast<const LabFrameHadronTensorI*>
-				( fHadronTensorModel->GetTensor (tensor_pdg_susa, tensor_type_susa) );
-
-			if ( !tensor_susa ) {
-				LOG("SuSAv2QE", pWARN) << "Failed to load a SuSAv2 hadronic tensor for the"
-					" nuclide " << tensor_pdg_susa;
-				return 0.;
-			}
-
-
+		if ( !tensor_susa ) {
+			LOG("SuSAv2QE", pWARN) << "Failed to load a SuSAv2 hadronic tensor for the"
+				" nuclide " << tensor_pdg_susa;
+			return 0.;
 		}
 	}
 
@@ -361,32 +338,12 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 	// Set the xsec to zero for interactions with q0,q3 outside the requested range
 
 	if( modelConfig == kMd_SuSAv2){
-		if(pdg::IsProton(hit_nuc_pdg)){
-			double Q0min = tensor_susa_proton->q0Min();
-			double Q0max = tensor_susa_proton->q0Max();
-			double Q3min = tensor_susa_proton->qMagMin();
-			double Q3max = tensor_susa_proton->qMagMax();
-			if (Q0-Delta_Q_value_susa < Q0min || Q0-Delta_Q_value_susa > Q0max || Q3 < Q3min || Q3 > Q3max) {
-				return 0.0;
-			}
-		}
-		else if(pdg::IsNeutron(hit_nuc_pdg)){
-			double Q0min = tensor_susa_neutron->q0Min();
-			double Q0max = tensor_susa_neutron->q0Max();
-			double Q3min = tensor_susa_neutron->qMagMin();
-			double Q3max = tensor_susa_neutron->qMagMax();
-			if (Q0-Delta_Q_value_susa < Q0min || Q0-Delta_Q_value_susa > Q0max || Q3 < Q3min || Q3 > Q3max) {
-				return 0.0;
-			}
-		}
-		else{
-			double Q0min = tensor_susa->q0Min();
-			double Q0max = tensor_susa->q0Max();
-			double Q3min = tensor_susa->qMagMin();
-			double Q3max = tensor_susa->qMagMax();
-			if (Q0-Delta_Q_value_susa < Q0min || Q0-Delta_Q_value_susa > Q0max || Q3 < Q3min || Q3 > Q3max) {
-				return 0.0;
-			}
+		double Q0min = tensor_susa->q0Min();
+		double Q0max = tensor_susa->q0Max();
+		double Q3min = tensor_susa->qMagMin();
+		double Q3max = tensor_susa->qMagMax();
+		if (Q0-Delta_Q_value_susa < Q0min || Q0-Delta_Q_value_susa > Q0max || Q3 < Q3min || Q3 > Q3max) {
+			return 0.0;
 		}
 	}
 
@@ -431,21 +388,9 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 
 	if( modelConfig == kMd_SuSAv2 ){
 		// Compute the cross section using the hadron tensor
-		if(pdg::IsProton(hit_nuc_pdg)){
-			xsec_susa = tensor_susa_proton->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value_susa);
-			LOG("SuSAv2QE", pDEBUG) << "SuSAv2 XSec in cm2 / neutron is  " << xsec_susa/(units::cm2);
-			xsec_susa = XSecScaling(xsec_susa, interaction, target_pdg, tensor_pdg_susa, need_to_scale_susa);
-		}
-		else if(pdg::IsNeutron(hit_nuc_pdg)){
-			xsec_susa = tensor_susa_neutron->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value_susa);
-			LOG("SuSAv2QE", pDEBUG) << "SuSAv2 XSec in cm2 / neutron is  " << xsec_susa/(units::cm2);
-			xsec_susa = XSecScaling(xsec_susa, interaction, target_pdg, tensor_pdg_susa, need_to_scale_susa);
-		}
-		else {
-			xsec_susa = tensor_susa->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value_susa);
-			LOG("SuSAv2QE", pDEBUG) << "SuSAv2 XSec in cm2 / neutron is  " << xsec_susa/(units::cm2);
-			xsec_susa = XSecScaling(xsec_susa, interaction, target_pdg, tensor_pdg_susa, need_to_scale_susa);
-		}
+		xsec_susa = tensor_susa->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value_susa);
+		LOG("SuSAv2QE", pDEBUG) << "SuSAv2 XSec in cm2 / neutron is  " << xsec_susa/(units::cm2);
+		xsec_susa = XSecScaling(xsec_susa, interaction, target_pdg, tensor_pdg_susa, need_to_scale_susa);
 	}
 
 
