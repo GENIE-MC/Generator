@@ -17,13 +17,6 @@
 \cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
-
-
- Modified by Liang Liu <liangliu \at fnal.gov>
- 	 Fermi National Accelerator Laboratory
- 
- test new SuSAv2 quasielastic model which deal with proton and neutron separately
-
 */
 //____________________________________________________________________________
 
@@ -51,9 +44,8 @@ typedef enum HadronTensorType {
   kHT_MEC_EM,
   kHT_MEC_EM_pn,
   kHT_MEC_EM_pp,
-  kHT_QE_EM,
-  kHT_QE_EM_proton,  // add proton enum type
-  kHT_QE_EM_neutron, // add neutron enum type
+  kHT_QE_EM_proton,
+  kHT_QE_EM_neutron,
   kHT_MEC_FullAll_Param,
   kHT_MEC_FullAll_wImag,
   kHT_QE_Full,

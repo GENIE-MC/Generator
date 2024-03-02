@@ -29,8 +29,6 @@ DataPathType       string   Yes        Whether the specified path is    relative
     <param type="string" name="QE_EM@Pdg=1000010010"> SuSAv2_1000010010_QE_EM.dat </param>
 
     <param type="string" name="QE_Full@Pdg=1000060120"> SuSAv2_1000060120_QE_Full.dat </param>
-    <param type="string" name="QE_EM@Pdg=1000060120"> SuSAv2_1000060120_QE_EM.dat </param>
-    <!-- add neutron and proton W matrix (Liang Liu) -->
     <param type="string" name="QE_EM_proton@Pdg=1000060120"> SuSAv2_1000060120_QE_EM_proton.dat </param>   
     <param type="string" name="QE_EM_neutron@Pdg=1000060120"> SuSAv2_1000060120_QE_EM_neutron.dat </param>
 
