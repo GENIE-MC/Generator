@@ -16,7 +16,7 @@ PACKAGE           = Framework/Numerical
 PACKAGE_ABBREV    = FwNum
 DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)
 LIBNAME           = libG$(PACKAGE_ABBREV)
-EXTRA_EXT_LIBS    =
+EXTRA_EXT_LIBS    = $(XML_LIBRARIES) $(ROOT_LIBRARIES) -L$(GENIE_LIB_PATH) -lGFwMsg
 
 all     : rootcint lib lib-link
 install : install-inc install-lib
