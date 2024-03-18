@@ -16,7 +16,7 @@ PACKAGE           = Physics/InverseBetaDecay/XSection
 PACKAGE_ABBREV    = PhIBDXS
 DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)
 LIBNAME           = libG$(PACKAGE_ABBREV)
-EXTRA_EXT_LIBS    =
+EXTRA_EXT_LIBS    = $(XML_LIBRARIES) -L$(GENIE_LIB_PATH) -lGPhXSIg -lGFwEG -lGFwGHEP
 
 all     : rootcint lib lib-link
 install : install-inc install-lib
