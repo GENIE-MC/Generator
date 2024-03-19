@@ -9,6 +9,10 @@ Configuration for the GLRES xsec algorithm
   <param_set name="Default"> 
      <param type="string" name="CommonParam">                 HEDIS-PYTHIA </param>
      <param type="alg" name="XSec-Integrator"> genie::HELeptonXSec/Default </param>
+
+    <param type="int" name="Citation-Count"> 1 </param>
+    <param type="string" name="Citation-0-DOI"> 10.1103/PhysRevD.100.091301 </param>
+
   </param_set>
 
 </alg_conf>

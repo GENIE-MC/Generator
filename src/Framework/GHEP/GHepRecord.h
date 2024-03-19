@@ -11,7 +11,7 @@
 \created  October 1, 2004
 
 \cpright  Copyright (c) 2003-2023, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org        
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -125,6 +125,9 @@ public :
   virtual double Probability    (void) const  { return fProb;     }
   virtual double XSec           (void) const  { return fXSec;     }
   virtual double DiffXSec       (void) const  { return fDiffXSec; }
+  virtual double TotInclXSec    (void) const  { return fTotInclXSec; }
+  virtual double FluxAvgXSec    (void) const  { return fFluxAvgXSec; }
+  virtual double FluxAvgXSecErr (void) const  { return fFluxAvgXSecErr; }
   virtual KinePhaseSpace_t DiffXSecVars  (void) const  { return fDiffXSecPhSp; }
 
   virtual void   SetWeight      (double wght) { fWeight   = (wght>0) ? wght : 0.; }
@@ -134,6 +137,9 @@ public :
   { fDiffXSecPhSp = ps;
     fDiffXSec = (xsec>0) ? xsec : 0.;
   }
+  virtual void   SetTotInclXSec (double xsec) { fTotInclXSec = (xsec>0) ? xsec : 0.; }
+  virtual void   SetFluxAvgXSec (double xsec) { fFluxAvgXSec = (xsec>0) ? xsec : 0.; }
+  virtual void   SetFluxAvgXSecErr (double err) { fFluxAvgXSecErr = (err>0) ? err : 0.; }
 
   // Set/get event vertex in detector coordinate system
 
@@ -181,6 +187,16 @@ protected:
   double           fDiffXSec;       ///< differential cross section for selected event kinematics
   KinePhaseSpace_t fDiffXSecPhSp;   ///< specifies which differential cross-section (dsig/dQ2, dsig/dQ2dW, dsig/dxdy,...)
 
+  /// Total inclusive cross section for probe + target
+  double fTotInclXSec;
+
+  /// Running estimate of the flux-averaged total cross section
+  double fFluxAvgXSec;
+
+  /// Monte Carlo statistical error on the running estimate of the
+  /// flux-averaged total cross section
+  double fFluxAvgXSecErr;
+
   // Utility methods
   void InitRecord  (void);
   void CleanRecord (void);
@@ -197,7 +213,7 @@ protected:
 
 private:
 
-ClassDef(GHepRecord, 2)
+ClassDef(GHepRecord, 3)
 
 };
 

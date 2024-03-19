@@ -231,6 +231,51 @@ GEANT4_LIBRARIES := $(shell $(GOPT_WITH_GEANT4_LIB)/../bin/geant4-config --libs-
 endif
 
 #-------------------------------------------------------------------
+#                             hepmc3
+#-------------------------------------------------------------------
+
+HEPMC3_FLAGS     =
+HEPMC3_INCLUDES  =
+HEPMC3_LIBRARIES =
+
+ifeq ($(strip $(GOPT_ENABLE_HEPMC3_INTERFACE)),YES)
+
+# -cflags is a mixture of compiler flags and includes
+HEPMC3_CFLAGS = $(shell $(GOPT_WITH_HEPMC3_LIB)/../bin/HepMC3-config --cflags )
+
+HEPMC3_FLAGS   = $(filter-out -I%,$(HEPMC3_CFLAGS))
+HEPMC3_IFLAGS_ONLY = $(filter     -I%,$(HEPMC3_CFLAGS))
+
+#$(info --------- HEPMC3 flags and include path handling ---------)
+#$(info )
+#$(info HEPMC3_FLAGS=$(HEPMC3_FLAGS))
+#$(info )
+#$(info HEPMC3_IFLAGS_ONLY=$(HEPMC3_IFLAGS_ONLY))
+#$(info )
+
+# this might be -I/path/include/ or -I/path/include/HepMC3
+# really want the first
+HEPMC3_INCLUDES += $(HEPMC3_IFLAGS_ONLY)
+
+HEPMC3INCBASE = $(strip $(filter -I%include/HepMC3,$(HEPMC3_IFLAGS_ONLY)))
+#$(info HEPMC3INCBASE="$(HEPMC3INCBASE)")
+#$(info )
+ifneq ($(HEPMC3INCBASE),"")
+  #$(info HEPMC3INCBASE was non-blank)
+  # strip out specification of HepMC3
+  ALTHEPMC3INC := $(subst include/Geant4,include,$(HEPMC3INCBASE))
+  #$(info ALTHEPMC3INC=$(ALTHEPMC3INC))
+  #$(info )
+  #HEPMC3_INCLUDES +=  -DHEPMC3_INC_ALT_START $(ALTHEPMC3INC) -DHEPMC3_INC_ALT_END
+  HEPMC3_INCLUDES += $(ALTHEPMC3INC)
+  #$(info HEPMC3_INCLUDES=$(HEPMC3_INCLUDES))
+  #$(info )
+ endif
+
+HEPMC3_LIBRARIES := $(shell $(GOPT_WITH_HEPMC3_LIB)/../bin/HepMC3-config --libs)
+endif
+
+#-------------------------------------------------------------------
 # PYTHIA6
 #-------------------------------------------------------------------
 

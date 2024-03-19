@@ -4,7 +4,7 @@
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory 
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 */
 //____________________________________________________________________________
 
@@ -110,6 +110,8 @@ void InitialStateAppender::AddStruckParticle(GHepRecord * evrec) const
   const InitialState & init_state = interaction->InitState();
   const ProcessInfo & proc_info   = interaction->ProcInfo();
 
+  bool is_nucleus = init_state.Tgt().IsNucleus();
+
   // EDIT: Add the dark matter scattering off electron here
   bool hit_e = proc_info.IsInverseMuDecay()    ||
                proc_info.IsIMDAnnihilation()   ||
@@ -124,15 +126,15 @@ void InitialStateAppender::AddStruckParticle(GHepRecord * evrec) const
     const TLorentzVector v4(0.,0.,0.,0.);
 
     LOG("ISApp", pINFO) << "Adding struck electron";
-    evrec->AddParticle(pdgc, kIStInitialState, 1, -1, -1, -1, p4, v4);
+
+    int imom1 = (is_nucleus) ? 1 : -1;
+    evrec->AddParticle(pdgc, kIStInitialState, imom1, -1, -1, -1, p4, v4);
     return;
   }
 
   int pdgc = init_state.Tgt().HitNucPdg();
 
   if(pdgc != 0) {
-
-    bool is_nucleus = init_state.Tgt().IsNucleus();
 
     GHepStatus_t ist   = (is_nucleus) ? kIStNucleonTarget : kIStInitialState;
     int          imom1 = (is_nucleus) ? 1 : -1;

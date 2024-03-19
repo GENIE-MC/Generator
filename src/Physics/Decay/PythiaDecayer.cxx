@@ -152,11 +152,11 @@ bool PythiaDecayer::Decay(int decay_particle_id, GHepRecord * event) const
 
   // the values of space coordinates from pythia are in mm.
   // our conventions want it in fm
-  constexpr double space_scale = units::mm / units::fm ; 
+  constexpr double space_scale = units::mm / units::fm ;
 
   //  the values of time coordinate from pythia is in mm/c.
-  // our conventions want it in ys 
-  constexpr double time_scale = 1e21 * units::m / units::s ; 
+  // our conventions want it in ys
+  constexpr double time_scale = 1e21 * units::m / units::s ;
 
   TMCParticle * p = 0;
   TIter particle_iter(impl);
@@ -196,10 +196,17 @@ bool PythiaDecayer::Decay(int decay_particle_id, GHepRecord * event) const
     TLorentzVector daughter_p4(
        mcp.Px(),mcp.Py(),mcp.Pz(),mcp.Energy());
 
+    TLorentzVector daughter_x4(
+      mcp.X4()->X() + decay_particle->X4()->X(),
+      mcp.X4()->Y() + decay_particle->X4()->Y(),
+      mcp.X4()->Z() + decay_particle->X4()->Z(),
+      mcp.X4()->T() + decay_particle->X4()->T()
+    );
+
     event->AddParticle(
        daughter_pdg_code, daughter_status_code,
        decay_particle_id,-1,-1,-1,
-       daughter_p4, * mcp.X4() );
+       daughter_p4, daughter_x4 );
   }
 
   // Update the event weight for each weighted particle decay

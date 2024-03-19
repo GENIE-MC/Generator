@@ -11,7 +11,7 @@
 \created  May 08, 2004
 
 \cpright  Copyright (c) 2003-2023, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -61,7 +61,7 @@ public:
   double Log10y  (bool selected=false) const;
   double Log10Q2 (bool selected=false) const;
   double Log10W  (bool selected=false) const;
-  
+
   const TLorentzVector & FSLeptonP4(void) const { return *fP4Fsl;     }
   const TLorentzVector & HadSystP4 (void) const { return *fP4HadSyst; }
 
@@ -80,6 +80,8 @@ public:
   bool   KVSet(KineVar_t kv) const;
   double GetKV(KineVar_t kv) const;
   void   SetKV(KineVar_t kv, double value);
+
+  const map<KineVar_t, double>& GetMap(void) const;
 
   void ClearRunningValues    (void);
   void UseSelectedKinematics (void);

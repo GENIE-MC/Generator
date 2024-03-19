@@ -394,3 +394,7 @@ Kinematics & Kinematics::operator = (const Kinematics & kinematics)
   return (*this);
 }
 //___________________________________________________________________________
+const map<KineVar_t, double>& Kinematics::GetMap(void) const {
+  return fKV;
+}
+//____________________________________________________________________________

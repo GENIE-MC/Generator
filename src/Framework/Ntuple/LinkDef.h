@@ -13,6 +13,11 @@
 #pragma link C++ class genie::NtpMCRecHeader;
 #pragma link C++ class genie::NtpMCRecordI;
 #pragma link C++ class genie::NtpMCEventRecord;
+#pragma link C++ class genie::NtpWriterI;
 #pragma link C++ class genie::NtpWriter;
+
+#ifdef __GENIE_HEPMC3_INTERFACE_ENABLED__
+#pragma link C++ class genie::HepMC3NtpWriter;
+#endif
 
 #endif
