@@ -10,6 +10,7 @@
           (e.g., neutrinos, electrons)
 
 \author   Steven Gardiner <gardiner \at fnal.gov>
+          Liang Liu <liangliu \at fnal.gov>
           Fermi National Accelerator Laboratory
 
 \created  August 23, 2018
@@ -17,6 +18,7 @@
 \cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
+
 */
 //____________________________________________________________________________
 
@@ -83,7 +85,10 @@ typedef enum HadronTensorType {
   kHT_QE_HFPW_anu_High,
 
   kHT_QE_SuSABlend,
-  kHT_QE_SuSABlend_anu
+  kHT_QE_SuSABlend_anu,
+
+  kHT_QE_EM_proton,
+  kHT_QE_EM_neutron
 }
 HadronTensorType_t;
 
