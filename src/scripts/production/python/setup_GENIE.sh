@@ -35,17 +35,15 @@ elif [ "$CONFIGURE_G4" = "true" ] ; then
     setup cmake v3_14_3
     setup geant4 v4_10_3_p03e -q debug:e17
 else
-    setup root v6_12_06a -q e17:debug 
-    setup lhapdf v5_9_1k -q e17:debug 
-    setup log4cpp v1_1_3a -q e17:debug 
+    setup root v6_22_08d -q debug:e20:p392
+    setup lhapdf v6_3_0 -q e20:p392:prof
+    setup log4cpp v1_1_3c -q e20:prof
 
+    if [ ! -z "$6" ] ; then
+	echo Requested HepMC3 library 
+	setup hepmc3 v3_2_3 -f Linux64bit+3.10-2.17 -q debug:e20:p392
+    fi 
 fi
-
-if [ ! -z "$6" ] ; then
-    echo Requested HepMC3 library 
-    setup hepmc3 v3_2_7 -f Linux64bit+3.10-2.17 -q debug:e26:p3915
-fi 
-
 export GENIEBASE=$(pwd)
 export GENIE=$GENIEBASE/Generator 
 export GENIE_BIN=$GENIE/bin
