@@ -166,15 +166,15 @@ if opts.GRID == 'FNAL' :
     GENIE_pnfs_setup = opts.JOBSTD+"/setup_GENIE.sh"
     if os.path.exists(pnfs_setup) : 
         os.remove(pnfs_setup)
-        if os.path.exists(GENIE_pnfs_setup) : 
-            os.remove(GENIE_pnfs_setup)
-            os.system('cp '+setup_file+' '+opts.JOBSTD )
-            os.system('cp '+GENIE_setup_file+' '+opts.JOBSTD )
-            grid_setup = opts.JOBSTD+"/setup_FNAL.sh"
-            genie_setup = opts.JOBSTD+"/setup_GENIE.sh"
-        else : 
-            genie_setup = opts.SOFTW+'/generator/builds/'+arch+'/'+version+'-setup'
-            grid_setup = ""
+    if os.path.exists(GENIE_pnfs_setup) : 
+        os.remove(GENIE_pnfs_setup)
+    os.system('cp '+setup_file+' '+opts.JOBSTD )
+    os.system('cp '+GENIE_setup_file+' '+opts.JOBSTD )
+    grid_setup = opts.JOBSTD+"/setup_FNAL.sh"
+    genie_setup = opts.JOBSTD+"/setup_GENIE.sh"
+else : 
+    genie_setup = opts.SOFTW+'/generator/builds/'+arch+'/'+version+'-setup'
+    grid_setup = ""
 
 # Check whether INCL/G4 have to be configured:
 configure_INCL = False
@@ -233,11 +233,11 @@ while loop_i < loop_end + 1:
         vAMotherDir = ''
         if opts.MotherDir !='' : 
             vAMotherDir = opts.MotherDir+'/'+version+'-'+opts.PROD+'_'+opts.CYCLE+'-xsec_vA/'
-            command_dict.update( group.GroupSplineCommands( False,vAdir,vAMotherDir,opts.TUNE,opts.vAList,version,opts.CONF,
-                                                            opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,
-                                                            grid_setup,genie_setup,opts.JOBSTD,False, False,opts.GROUPJOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,
-                                                            opts.GIT_LOCATION,configure_INCL,configure_G4 ) )
-            total_time += int(opts.GROUPJOBLIFE) 
+        command_dict.update( group.GroupSplineCommands( False,vAdir,vAMotherDir,opts.TUNE,opts.vAList,version,opts.CONF,
+                                                        opts.GRID,opts.GROUP,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,
+                                                        grid_setup,genie_setup,opts.JOBSTD,False, False,opts.GROUPJOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,
+                                                        opts.GIT_LOCATION,configure_INCL,configure_G4 ) )
+        total_time += int(opts.GROUPJOBLIFE) 
 
     if loop_i == 4 : 
         # ID = 4 # Event generation commands
@@ -253,7 +253,7 @@ while loop_i < loop_end + 1:
                                                                    opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
                                                                    opts.JOBSTD,grid_setup,genie_setup,message_thresholds,opts.JOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION,
                                                                    configure_INCL,configure_G4,opts.GHEPMC3Output) )
-            total_time += int(opts.JOBLIFE)
+        total_time += int(opts.JOBLIFE)
             
     loop_i += 1 
 
