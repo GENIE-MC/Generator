@@ -117,10 +117,11 @@ elif [ ! -z "$6" ] ; then
 	--with-log4cpp-lib=${LOG4CPP_LIB} \
 	--with-libxml2-inc=${LIBXML2_INC} \
 	--with-libxml2-lib=${LIBXML2_LIB} \
-	--with-lhapdf5-lib=${LHAPDF_LIB} \
-	--with-lhapdf5-inc=${LHAPDF_INC} \
+	--with-lhapdf6-lib=${LHAPDF_LIB} \
+	--with-lhapdf6-inc=${LHAPDF_INC} \
 	--with-pythia6-lib=${PYTHIA_LIB} \
-	--enable-hepmc3
+	--enable-hepmc3 \
+	--disable-lhapdf5
 else 
     ./configure \
 	--enable-gsl \
@@ -130,9 +131,10 @@ else
 	--with-log4cpp-lib=${LOG4CPP_LIB} \
 	--with-libxml2-inc=${LIBXML2_INC} \
 	--with-libxml2-lib=${LIBXML2_LIB} \
-	--with-lhapdf5-lib=${LHAPDF_LIB} \
-	--with-lhapdf5-inc=${LHAPDF_INC} \
-	--with-pythia6-lib=${PYTHIA_LIB}    
+	--with-lhapdf6-lib=${LHAPDF_LIB} \
+	--with-lhapdf6-inc=${LHAPDF_INC} \
+	--with-pythia6-lib=${PYTHIA_LIB} \
+	--disable-lhapdf5
 fi
 
 make -j4
