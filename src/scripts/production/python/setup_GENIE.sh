@@ -7,7 +7,8 @@ GENIE_VERSION=master
 CONFIGURE_INCL=$3
 CONFIGURE_G4=$4
 GENIE_CONFIG_DIR=$5
-RUN_LOCALLY=$6
+CONFIGURE_HEPMC3=$6
+RUN_LOCALLY=$7
 
 git clone $GITHUB_LOCATION Generator 
 if [ ! -z "$2" ] ; then 
@@ -39,6 +40,11 @@ else
     setup log4cpp v1_1_3a -q e17:debug 
 
 fi
+
+if [ ! -z "$6" ] ; then
+    echo Requested HepMC3 library 
+    setup hepmc3 v3_2_7 -f Linux64bit+3.10-2.17 -q debug:e26:p3915
+fi 
 
 export GENIEBASE=$(pwd)
 export GENIE=$GENIEBASE/Generator 
@@ -104,6 +110,19 @@ elif [ "$CONFIGURE_G4" = "true" ] ; then
 	--with-lhapdf5-inc=${LHAPDF_INC} \
 	--with-pythia6-lib=${PYTHIA_LIB} \
 	--enable-geant4
+elif [ ! -z "$6" ] ; then
+    ./configure \
+	--enable-gsl \
+	--enable-rwght \
+	--with-optimiz-level=O2 \
+	--with-log4cpp-inc=${LOG4CPP_INC} \
+	--with-log4cpp-lib=${LOG4CPP_LIB} \
+	--with-libxml2-inc=${LIBXML2_INC} \
+	--with-libxml2-lib=${LIBXML2_LIB} \
+	--with-lhapdf5-lib=${LHAPDF_LIB} \
+	--with-lhapdf5-inc=${LHAPDF_INC} \
+	--with-pythia6-lib=${PYTHIA_LIB} \
+	--enable-hepmc3
 else 
     ./configure \
 	--enable-gsl \
@@ -115,7 +134,7 @@ else
 	--with-libxml2-lib=${LIBXML2_LIB} \
 	--with-lhapdf5-lib=${LHAPDF_LIB} \
 	--with-lhapdf5-inc=${LHAPDF_INC} \
-	--with-pythia6-lib=${PYTHIA_LIB}
+	--with-pythia6-lib=${PYTHIA_LIB}    
 fi
 
 make -j4
