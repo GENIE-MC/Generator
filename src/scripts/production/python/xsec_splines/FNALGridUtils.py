@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import os, glob
 
-def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc, configure_INCL, configure_G4 ) :
+def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc, configure_INCL, configure_G4, GHEPMC3Output=False ) :
     shell_file = jobs_dir+"/"+shell_name+".sh"
 
     if os.path.exists(shell_file):
@@ -24,7 +24,7 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, 
         
     if( configure_G4 ) :
         G4 = "true"
-    script.write("source "+os.path.basename(genie_setup)+" "+git_loc+" "+git_branch+" "+INCL+" "+G4+" "+conf_dir+" ;\n")
+    script.write("source "+os.path.basename(genie_setup)+" "+git_loc+" "+git_branch+" "+INCL+" "+G4+" "+conf_dir+" "+GHEPMC3Output+" ;\n")
     script.write("cd $CONDOR_DIR_INPUT ;\n")
 
     if isinstance(in_files, list) :
