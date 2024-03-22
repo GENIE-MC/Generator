@@ -107,8 +107,11 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=1
             curr_subrune = "14"+str(isubrun); 
             curr_seed         = int(mcseed) + isubrun 
             jobname           = "nu_"+expname+"_"+str(isubrun)            
+            final_name = jobname+".ghep.root"
+            if GHEPMC3Output : 
+                final_name +=",ghep,"+jobname+".hepmc3,hepmc3"
             evgen_command = "gevgen -p "+str(nu)+" -n "+str(nev)+" -e "+EFlux_min+","+EFlux_max+" -f " +flux+" -t "+str(tgt_mix)+" -r "+curr_subrune+" --seed "+str(curr_seed)
-            evgen_command += " --cross-sections "+input_xsec+" --tune "+tune + " -o "+jobname+".ghep.root"
+            evgen_command += " --cross-sections "+input_xsec+" --tune "+tune + " -o "+final_name
             evgen_command += " --message-thresholds "+message_thresholds 
 
             if gen_list is not "all" : 
