@@ -19,12 +19,14 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, 
         conf_dir = "$CONDOR_DIR_INPUT/conf"
     INCL="false"
     G4="false"
+    hepMC="false"
     if( configure_INCL ) : 
         INCL = "true"
-        
     if( configure_G4 ) :
         G4 = "true"
-    script.write("source "+os.path.basename(genie_setup)+" "+git_loc+" "+git_branch+" "+INCL+" "+G4+" "+conf_dir+" "+GHEPMC3Output+" ;\n")
+    if( GHEPMC3Output ) : 
+        hepMC = "true"
+    script.write("source "+os.path.basename(genie_setup)+" "+git_loc+" "+git_branch+" "+INCL+" "+G4+" "+conf_dir+" "+hepMC+" ;\n")
     script.write("cd $CONDOR_DIR_INPUT ;\n")
 
     if isinstance(in_files, list) :

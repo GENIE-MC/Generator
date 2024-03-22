@@ -155,7 +155,7 @@ if opts.XSEC :
     if os.path.isfile(opts.XSEC) == False :
         print(" Input XSec file doesn't exist ")
         exit() 
-        vAsplines = opts.XSEC 
+    vAsplines = opts.XSEC 
 
 # configure setup 
 grid_setup=""
@@ -246,13 +246,13 @@ while loop_i < loop_end + 1:
                                                            opts.TUNE, opts.EvGenList, opts.NMax, opts.Seed, opts.RunID, opts.GSTOutput, opts.NoGHEPOutput,version,
                                                            opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
                                                            opts.JOBSTD,grid_setup,genie_setup,message_thresholds,opts.JOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION,
-                                                           configure_INCL,configure_G4,GHEPMC3Output) )
+                                                           configure_INCL,configure_G4,opts.GHEPMC3Output) )
         else : 
             command_dict.update( eAFlux.eFluxScatteringGenCommands(opts.PROBELIST,opts.ETGTLIST,opts.FLUX,opts.MinEnergyFlux,opts.MaxEnergyFlux,vAsplines,opts.EEvents,
                                                                    opts.TUNE, opts.EvGenList, opts.NMax, opts.Seed, opts.RunID, opts.GSTOutput, opts.NoGHEPOutput,version,
                                                                    opts.CONF, opts.ARCH, opts.PROD, opts.CYCLE,opts.GRID, opts.GROUP,opts.SOFTW,opts.GENIE,
                                                                    opts.JOBSTD,grid_setup,genie_setup,message_thresholds,opts.JOBLIFE,opts.JOBMEM,opts.JOBDISK,opts.BRANCH,opts.GIT_LOCATION,
-                                                                   configure_INCL,configure_G4,GHEPMC3Output) )
+                                                                   configure_INCL,configure_G4,opts.GHEPMC3Output) )
             total_time += int(opts.JOBLIFE)
             
     loop_i += 1 
