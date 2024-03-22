@@ -100,9 +100,12 @@ def eFluxScatteringGenCommands( e_list = "11",tgt_list="1000060120", Flux="\'1/x
                 curr_subrune = "11"+str(tgt)+str(isubrun); 
                 curr_seed         = int(mcseed) + isubrun + int(tgt)
                 jobname           = "e_on_"+str(tgt)+"_"+str(isubrun)
+                final_name = jobname+".ghep.root"
+                if GHEPMC3Output:
+                    final_name +=",ghep,"+jobname+".hepmc3,hepmc3"
                 
                 evgen_command = "gevgen -p "+str(e)+" -n "+str(nev)+" -e "+EMin+","+EMax+" -f " +Flux+" -t "+str(tgt)+" -r "+curr_subrune+" --seed "+str(curr_seed)
-                evgen_command += " --cross-sections "+input_xsec+" --event-generator-list "+gen_list+" --tune "+tune + " -o "+jobname+".ghep.root"
+                evgen_command += " --cross-sections "+input_xsec+" --event-generator-list "+gen_list+" --tune "+tune + " -o "+final_name
                 evgen_command += " --message-thresholds "+message_thresholds 
 
                 out_files = [str(jobname+".ghep.root")]

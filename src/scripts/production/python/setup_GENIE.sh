@@ -36,7 +36,7 @@ elif [ "$CONFIGURE_G4" = "true" ] ; then
     setup geant4 v4_10_3_p03e -q debug:e17
 else
     setup root v6_22_08d -q debug:e20:p392
-    setup lhapdf v6_3_0 -q e20:p392:prof
+    setup lhapdf v6_5_3 -q e20:prof:p3913
     setup log4cpp v1_1_3c -q e20:prof
 
     if [ ! -z "$6" ] ; then
@@ -121,7 +121,8 @@ elif [ ! -z "$6" ] ; then
 	--with-lhapdf6-inc=${LHAPDF_INC} \
 	--with-pythia6-lib=${PYTHIA_LIB} \
 	--enable-hepmc3 \
-	--disable-lhapdf5
+	--disable-lhapdf5 \
+	--enable-lhapdf6
 else 
     ./configure \
 	--enable-gsl \
@@ -134,7 +135,8 @@ else
 	--with-lhapdf6-lib=${LHAPDF_LIB} \
 	--with-lhapdf6-inc=${LHAPDF_INC} \
 	--with-pythia6-lib=${PYTHIA_LIB} \
-	--disable-lhapdf5
+	--disable-lhapdf5 \
+	--enable-lhapdf6
 fi
 
 make -j4
