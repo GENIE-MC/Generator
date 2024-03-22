@@ -114,7 +114,8 @@ def eFluxScatteringGenCommands( e_list = "11",tgt_list="1000060120", Flux="\'1/x
                     out_files.append(str(jobname+".gst.root"))
                     if no_ghep :
                         out_files = [str(jobname+".gst.root")]
-
+                if GHEPMC3Output : 
+                    out_files.append(str(jobname+".hepmc3"))
                 shell_file = ''                
                 if grid_system == 'FNAL' :
                     shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, in_file_list, git_branch, git_loc, configure_INCL, configure_G4, GHEPMC3Output )  
