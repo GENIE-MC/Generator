@@ -73,20 +73,20 @@ else
   unset GALGCONF
 fi
 
-conf_string = "--enable-gsl --enable-rwght --with-optimiz-level=O2 "
-conf_string += "--with-log4cpp-inc=${LOG4CPP_INC} --with-log4cpp-lib=${LOG4CPP_LIB} --with-libxml2-inc=${LIBXML2_INC} --with-libxml2-lib=${LIBXML2_LIB} "
-conf_string += "--with-lhapdf6-lib=${LHAPDF_LIB}  --with-lhapdf6-inc=${LHAPDF_INC} --with-pythia6-lib=${PYTHIA_LIB} --disable-lhapdf5  --enable-lhapdf6"
+conf_string="--enable-gsl --enable-rwght --with-optimiz-level=O2 "
+conf_string+="${conf_string} --with-log4cpp-inc=${LOG4CPP_INC} --with-log4cpp-lib=${LOG4CPP_LIB} --with-libxml2-inc=${LIBXML2_INC} --with-libxml2-lib=${LIBXML2_LIB} "
+conf_string+="${conf_string} --with-lhapdf6-lib=${LHAPDF_LIB}  --with-lhapdf6-inc=${LHAPDF_INC} --with-pythia6-lib=${PYTHIA_LIB} --disable-lhapdf5  --enable-lhapdf6"
 
-if [! -z "$6"] ; then 
-    conf_string += " --enable-hepmc3 "
+if [ ! -z "$6" ] ; then
+    conf_string+="${conf_string} --enable-hepmc3 "
 fi 
 
 if [ "$CONFIGURE_G4" = "true" ] ; then
-    conf_string += " --enable-geant4 "
+    conf_string+="${conf_string} --enable-geant4 "
 elif [ "$CONFIGURE_INCL" = "true" ] ; then 
-    conf_string += " --enable-incl --with-incl-inc=${INCLXX_FQ_DIR}/include/inclxx --with-incl-lib=${INCLXX_FQ_DIR}/lib --with-boost-inc=${BOOST_FQ_DIR}/include --with-boost-lib=${BOOST_FQ_DIR}/lib "
+    conf_string+="${conf_string} --enable-incl --with-incl-inc=${INCLXX_FQ_DIR}/include/inclxx --with-incl-lib=${INCLXX_FQ_DIR}/lib --with-boost-inc=${BOOST_FQ_DIR}/include --with-boost-lib=${BOOST_FQ_DIR}/lib "
 fi
 
-./configure conf_string 
+./configure $conf_string 
 
 make -j4
