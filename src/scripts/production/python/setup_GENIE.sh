@@ -89,4 +89,4 @@ fi
 
 ./configure conf_string 
 
-#make -j4
+make -j4
