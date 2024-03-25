@@ -102,7 +102,7 @@ def eFluxScatteringGenCommands( e_list = "11",tgt_list="1000060120", Flux="\'1/x
                 jobname           = "e_on_"+str(tgt)+"_"+str(isubrun)
                 final_name = jobname+".ghep.root"
                 if GHEPMC3Output:
-                    final_name +=",ghep,"+jobname+".hepmc3,hepmc3"
+                    final_name +=",ghep,"+jobname+".hepmc3,hepmc"
                 
                 evgen_command = "gevgen -p "+str(e)+" -n "+str(nev)+" -e "+EMin+","+EMax+" -f " +Flux+" -t "+str(tgt)+" -r "+curr_subrune+" --seed "+str(curr_seed)
                 evgen_command += " --cross-sections "+input_xsec+" --event-generator-list "+gen_list+" --tune "+tune + " -o "+final_name
@@ -115,7 +115,7 @@ def eFluxScatteringGenCommands( e_list = "11",tgt_list="1000060120", Flux="\'1/x
                     if no_ghep :
                         out_files = [str(jobname+".gst.root")]
                 if GHEPMC3Output : 
-                    out_files.append(str(jobname+".hepmc3"))
+                    out_files.append(str(jobname+".hepmc"))
                 shell_file = ''                
                 if grid_system == 'FNAL' :
                     shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, in_file_list, git_branch, git_loc, configure_INCL, configure_G4, GHEPMC3Output )  
