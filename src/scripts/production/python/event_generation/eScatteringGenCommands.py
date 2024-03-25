@@ -103,7 +103,7 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2",
                         if no_ghep :
                             out_files = [str(jobname+".gst.root")]
                     if GHEPMC3Output : 
-                        out_files.append(str(jobname+".hepmc"))
+                        out_files.append(str(jobname+".hepmc3"))
                     shell_file = ''                
                     if grid_system == 'FNAL' :
                         shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, str(xspl_file), 

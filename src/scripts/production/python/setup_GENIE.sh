@@ -22,28 +22,25 @@ echo Requested Genie version $GENIE_VERSION
 if [ "$CONFIGURE_INCL" = "true" ] ; then
     source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
     setup inclxx  v5_2_9_5b -q e20:prof
-    setup lhapdf  v6_5_3    -q e20:prof:p3913
-    setup log4cpp v1_1_3d   -q e20:prof
 elif [ "$CONFIGURE_G4" = "true" ] ; then
     source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
-    setup root v6_12_06a -q e17:debug                                               
-    setup lhapdf v5_9_1k -q e17:debug                                               
-    setup log4cpp v1_1_3a -q e17:debug                                              
     setup pdfsets v5_9_1b                                                           
     setup gdb v8_1                                                                  
     setup git v2_15_1                                                                       
     setup cmake v3_14_3
     setup geant4 v4_10_3_p03e -q debug:e17
-else
+else 
     setup root v6_22_08d -q debug:e20:p392
-    setup lhapdf v6_5_3 -q e20:prof:p3913
-    setup log4cpp v1_1_3c -q e20:prof
+fi 
 
-    if [ ! -z "$6" ] ; then
-	echo Requested HepMC3 library 
-	setup hepmc3 v3_2_3 -f Linux64bit+3.10-2.17 -q debug:e20:p392
-    fi 
-fi
+setup lhapdf v6_5_3 -q e20:prof:p3913
+setup log4cpp v1_1_3c -q e20:prof
+
+if [ ! -z "$6" ] ; then
+    echo Requested HepMC3 library 
+    setup hepmc3 v3_2_3 -f Linux64bit+3.10-2.17 -q debug:e20:p392
+fi 
+
 export GENIEBASE=$(pwd)
 export GENIE=$GENIEBASE/Generator 
 export GENIE_BIN=$GENIE/bin
@@ -76,67 +73,20 @@ else
   unset GALGCONF
 fi
 
-if [ "$CONFIGURE_INCL" = "true" ] ; then
-    echo Configuring INCL... 
-    ./configure \
-	--enable-gsl \
-	--with-optimiz-level=O2 \
-	--with-log4cpp-inc=${LOG4CPP_INC} \
-	--with-log4cpp-lib=${LOG4CPP_LIB} \
-	--with-libxml2-inc=${LIBXML2_INC} \
-	--with-libxml2-lib=${LIBXML2_LIB} \
-	--with-lhapdf5-lib=${LHAPDF_LIB} \
-	--with-lhapdf5-inc=${LHAPDF_INC} \
-	--with-pythia6-lib=${PYTHIA_LIB} \
-	--enable-incl \
-	--with-incl-inc=${INCLXX_FQ_DIR}/include/inclxx \
-	--with-incl-lib=${INCLXX_FQ_DIR}/lib  \
-	--with-boost-inc=${BOOST_FQ_DIR}/include \
-	--with-boost-lib=${BOOST_FQ_DIR}/lib \
-        --enable-lhapdf6 \
-        --disable-lhapdf5
-elif [ "$CONFIGURE_G4" = "true" ] ; then
-    echo Configuring G4...
-    ./configure \
-	--enable-gsl \
-	--with-optimiz-level=O2 \
-	--with-log4cpp-inc=${LOG4CPP_INC} \
-	--with-log4cpp-lib=${LOG4CPP_LIB} \
-	--with-libxml2-inc=${LIBXML2_INC} \
-	--with-libxml2-lib=${LIBXML2_LIB} \
-	--with-lhapdf5-lib=${LHAPDF_LIB} \
-	--with-lhapdf5-inc=${LHAPDF_INC} \
-	--with-pythia6-lib=${PYTHIA_LIB} \
-	--enable-geant4
-elif [ ! -z "$6" ] ; then
-    ./configure \
-	--enable-gsl \
-	--enable-rwght \
-	--with-optimiz-level=O2 \
-	--with-log4cpp-inc=${LOG4CPP_INC} \
-	--with-log4cpp-lib=${LOG4CPP_LIB} \
-	--with-libxml2-inc=${LIBXML2_INC} \
-	--with-libxml2-lib=${LIBXML2_LIB} \
-	--with-lhapdf6-lib=${LHAPDF_LIB} \
-	--with-lhapdf6-inc=${LHAPDF_INC} \
-	--with-pythia6-lib=${PYTHIA_LIB} \
-	--enable-hepmc3 \
-	--disable-lhapdf5 \
-	--enable-lhapdf6
-else 
-    ./configure \
-	--enable-gsl \
-	--enable-rwght \
-	--with-optimiz-level=O2 \
-	--with-log4cpp-inc=${LOG4CPP_INC} \
-	--with-log4cpp-lib=${LOG4CPP_LIB} \
-	--with-libxml2-inc=${LIBXML2_INC} \
-	--with-libxml2-lib=${LIBXML2_LIB} \
-	--with-lhapdf6-lib=${LHAPDF_LIB} \
-	--with-lhapdf6-inc=${LHAPDF_INC} \
-	--with-pythia6-lib=${PYTHIA_LIB} \
-	--disable-lhapdf5 \
-	--enable-lhapdf6
+conf_string = "--enable-gsl --enable-rwght --with-optimiz-level=O2 "
+conf_string += "--with-log4cpp-inc=${LOG4CPP_INC} --with-log4cpp-lib=${LOG4CPP_LIB} --with-libxml2-inc=${LIBXML2_INC} --with-libxml2-lib=${LIBXML2_LIB} "
+conf_string += "--with-lhapdf6-lib=${LHAPDF_LIB}  --with-lhapdf6-inc=${LHAPDF_INC} --with-pythia6-lib=${PYTHIA_LIB} --disable-lhapdf5  --enable-lhapdf6"
+
+if [! -z "$6"] ; then 
+    conf_string += " --enable-hepmc3 "
+fi 
+
+if [ "$CONFIGURE_G4" = "true" ] ; then
+    conf_string += " --enable-geant4 "
+elif [ "$CONFIGURE_INCL" = "true" ] ; then 
+    conf_string += " --enable-incl --with-incl-inc=${INCLXX_FQ_DIR}/include/inclxx --with-incl-lib=${INCLXX_FQ_DIR}/lib --with-boost-inc=${BOOST_FQ_DIR}/include --with-boost-lib=${BOOST_FQ_DIR}/lib "
 fi
 
-make -j4
+./configure conf_string 
+
+#make -j4
