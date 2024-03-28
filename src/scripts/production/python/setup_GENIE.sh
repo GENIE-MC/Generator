@@ -36,7 +36,7 @@ fi
 setup lhapdf v6_5_3 -q e20:prof:p3913
 setup log4cpp v1_1_3c -q e20:prof
 
-if [ ! -z "$6" ] ; then
+if [ "$6" == "true" ] ; then
     echo Requested HepMC3 library 
     setup hepmc3 v3_2_3 -f Linux64bit+3.10-2.17 -q debug:e20:p392
 fi 
@@ -77,7 +77,7 @@ conf_string="--enable-gsl --enable-rwght --with-optimiz-level=O2 "
 conf_string+="${conf_string} --with-log4cpp-inc=${LOG4CPP_INC} --with-log4cpp-lib=${LOG4CPP_LIB} --with-libxml2-inc=${LIBXML2_INC} --with-libxml2-lib=${LIBXML2_LIB} "
 conf_string+="${conf_string} --with-lhapdf6-lib=${LHAPDF_LIB}  --with-lhapdf6-inc=${LHAPDF_INC} --with-pythia6-lib=${PYTHIA_LIB} --disable-lhapdf5  --enable-lhapdf6"
 
-if [ ! -z "$6" ] ; then
+if [ "$6" == "true" ] ; then
     conf_string+="${conf_string} --enable-hepmc3 "
 fi 
 
