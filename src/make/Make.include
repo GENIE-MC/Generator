@@ -234,6 +234,11 @@ endif
 # PYTHIA6
 #-------------------------------------------------------------------
 
+PYTHIA6_LIBRARIES =
+PY6ROOT_LIBRARY   =
+
+ifeq ($(strip $(GOPT_ENABLE_PYTHIA6)),YES)
+
 PYTHIA6_DIR = $(GOPT_WITH_PYTHIA6_LIB)
 PYTHIA6_O   = $(wildcard $(PYTHIA6_DIR)/pythia*.o) # match all vrs
 
@@ -241,6 +246,11 @@ PYTHIA6_LIBRARIES = -L$(PYTHIA6_DIR) -lPythia6 $(PYTHIA6_O)
 
 ifeq ($(strip $(ARCH)),macosx)
 PYTHIA6_LIBRARIES  = -L$(PYTHIA6_DIR) -lPythia6
+endif
+
+PY6ROOT_LIBRARY = -lEGPythia6
+else
+  $(info GOPT_ENABLE_PYTHIA6 is NO)
 endif
 
 #-------------------------------------------------------------------
@@ -269,7 +279,7 @@ PROFESSOR2_LIBRARIES = -L$(GENIE)/src/ExternalLibs/professor/lib -lProfessor2
 ROOT_FLAGS     = $(shell root-config --cflags)
 ROOT_INCLUDES  = -I$(shell root-config --incdir)
 ROOT_LIBRARIES = $(shell root-config --glibs) \
-                        -lMinuit -lGeom -lEG -lEGPythia6 -lGenVector -lMathMore
+                        -lMinuit -lGeom -lEG $(PY6ROOT_LIBRARY) -lGenVector -lMathMore
 ROOT_VERSION = $(shell root-config --version )
 ROOT_MAJOR   = $(shell root-config --version | cut -d. -f1 )
 
