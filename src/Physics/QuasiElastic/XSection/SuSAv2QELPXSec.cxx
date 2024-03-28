@@ -82,6 +82,8 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   // electron scattering
   int target_pdg = interaction->InitState().Tgt().Pdg();
   int probe_pdg = interaction->InitState().ProbePdg();
+  // get the Hit nuecleon pdg code
+  int hit_nuc_pdg = interaction->InitState().Tgt().HitNucPdg();
   int tensor_pdg_susa = target_pdg;
   int tensor_pdg_crpa = target_pdg;
   int A_request = pdg::IonPdgCodeToA(target_pdg);
@@ -162,7 +164,9 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   else {
     // If the probe is not a neutrino, assume that it's an electron
     // Currently only avaialble for SuSA. CRPA coming soon(ish)!
-    tensor_type_susa = kHT_QE_EM;
+    // Using different hadron tensors for ep and en scattering
+    if(pdg::IsProton(hit_nuc_pdg))  tensor_type_susa = kHT_QE_EM_proton;
+    else  tensor_type_susa = kHT_QE_EM_neutron;
   }
 
   double Eb_tgt=0;
