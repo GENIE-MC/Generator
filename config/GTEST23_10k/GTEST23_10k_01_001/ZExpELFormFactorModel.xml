@@ -36,22 +36,22 @@ QEL-Q4limit bool    Yes        1/Q^4 limit conditions     GPL value: QEL-Q4limit
 
     <param type="double" name="QEL-T0">     -0.21   </param>
     <param type="double" name="QEL-Tcut">    0.0779198 </param> <!-- 4*m_pi^2 -->
-    <param type="double" name="QEL-Z_AP1"> -1.48596      </param>
-    <param type="double" name="QEL-Z_AP2"> -0.0961045    </param>
-    <param type="double" name="QEL-Z_AP3"> 1.82337       </param>
-    <param type="double" name="QEL-Z_AP4"> 1.28705       </param>
-    <param type="double" name="QEL-Z_BP1"> -4.0879       </param>
-    <param type="double" name="QEL-Z_BP2"> 0.175516      </param>
-    <param type="double" name="QEL-Z_BP3"> 4.86186       </param>
-    <param type="double" name="QEL-Z_BP4"> -0.982798     </param>
-    <param type="double" name="QEL-Z_AN1"> 0.0842527     </param>
-    <param type="double" name="QEL-Z_AN2"> -0.278572     </param>
-    <param type="double" name="QEL-Z_AN3"> -0.153916     </param>
-    <param type="double" name="QEL-Z_AN4"> 0.354         </param>
-    <param type="double" name="QEL-Z_BN1"> 2.70678       </param>
-    <param type="double" name="QEL-Z_BN2"> -0.424305     </param>
-    <param type="double" name="QEL-Z_BN3"> -2.66245      </param>
-    <param type="double" name="QEL-Z_BN4"> 0.0675831     </param>
+    <param type="double" name="QEL-Z_AP1"> -1.46659      </param>
+    <param type="double" name="QEL-Z_AP2"> 0.00825168    </param>
+    <param type="double" name="QEL-Z_AP3"> 2.11753       </param>
+    <param type="double" name="QEL-Z_AP4"> 2.10155       </param>
+    <param type="double" name="QEL-Z_BP1"> -4.02801      </param>
+    <param type="double" name="QEL-Z_BP2"> 0.511652      </param>
+    <param type="double" name="QEL-Z_BP3"> 6.05067       </param>
+    <param type="double" name="QEL-Z_BP4"> 1.14001       </param>
+    <param type="double" name="QEL-Z_AN1"> 0.119892      </param>
+    <param type="double" name="QEL-Z_AN2"> -0.151766     </param>
+    <param type="double" name="QEL-Z_AN3"> 0.487046      </param>
+    <param type="double" name="QEL-Z_AN4"> 1.47122       </param>
+    <param type="double" name="QEL-Z_BN1"> 2.85621       </param>
+    <param type="double" name="QEL-Z_BN2"> 0.231936      </param>
+    <param type="double" name="QEL-Z_BN3"> -1.15203      </param>
+    <param type="double" name="QEL-Z_BN4"> 5.67068       </param>
     <!-- more factors can be added, if necessary according to Kmax -->
 
   </param_set>
