@@ -49,6 +49,9 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   // electron scattering
   int target_pdg = interaction->InitState().Tgt().Pdg();
   int probe_pdg = interaction->InitState().ProbePdg();
+  // get the hit nucleon pdg code
+  int hit_nuc_pdg = interaction->InitState().Tgt().HitNucPdg();
+
   int tensor_pdg = target_pdg;
   int A_request = pdg::IonPdgCodeToA(target_pdg);
   bool need_to_scale = false;
@@ -59,7 +62,15 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   }
   else {
     // If the probe is not a neutrino, assume that it's an electron
-    tensor_type = kHT_QE_EM;
+    if ( pdg::IsProton(hit_nuc_pdg) ) {
+      tensor_type = kHT_QE_EM_proton;
+    }
+    else if ( pdg::IsNeutron(hit_nuc_pdg) ) {
+      tensor_type = kHT_QE_EM_neutron;
+    }
+    else {
+      tensor_type = kHT_QE_EM;  // default
+    }
   }
 
   double Eb_tgt=0;
@@ -138,12 +149,12 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   // Apply Qvalue relative shift if needed:
   if( fQvalueShifter ) {
     // We have the option to add an additional shift on top of the binding energy correction
-    // The QvalueShifter, is a relative shift to the Q_value. 
+    // The QvalueShifter, is a relative shift to the Q_value.
     // The Q_value was already taken into account in the hadron tensor. Here we recalculate it
-    // to get the right absolute shift. 
+    // to get the right absolute shift.
     double tensor_Q_value = genie::utils::mec::Qvalue(tensor_pdg,probe_pdg);
-    double total_Q_value = tensor_Q_value + Delta_Q_value ; 
-    double Q_value_shift = total_Q_value * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ; 
+    double total_Q_value = tensor_Q_value + Delta_Q_value ;
+    double Q_value_shift = total_Q_value * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
     Delta_Q_value += Q_value_shift ;
   }
 
@@ -323,24 +334,24 @@ void SuSAv2QELPXSec::LoadConfig(void)
   this->GetParam( "RFG-NucRemovalE@Pdg=1000822080", fEbPb );
 
   // Read optional QvalueShifter:
-  // Read optional QvalueShifter:                                                                                   
-  fQvalueShifter = nullptr;                                                                                        
-  if( GetConfig().Exists("QvalueShifterAlg") ) {            
-    
-    fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );      
+  // Read optional QvalueShifter:
+  fQvalueShifter = nullptr;
+  if( GetConfig().Exists("QvalueShifterAlg") ) {
 
-    if( !fQvalueShifter ) {                                                      
+    fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
 
-      good_config = false ;                                                    
-                                  
-      LOG("SuSAv2QE", pERROR) << "The required QvalueShifterAlg is not valid. AlgID is : " 
-			      << SubAlg("QvalueShifterAlg")->Id() ;    
-    }                                                                                                               
-  }  // if there is a requested QvalueShifteralgo                                                                                                                
+    if( !fQvalueShifter ) {
+
+      good_config = false ;
+
+      LOG("SuSAv2QE", pERROR) << "The required QvalueShifterAlg is not valid. AlgID is : "
+			      << SubAlg("QvalueShifterAlg")->Id() ;
+    }
+  }  // if there is a requested QvalueShifteralgo
   if( ! good_config ) {
     LOG("SuSAv2QE", pERROR) << "Configuration has failed.";
     exit(78) ;
   }
- 
+
 
 }
