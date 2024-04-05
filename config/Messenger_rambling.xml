@@ -37,14 +37,9 @@
   <priority msgstream="SKHadron">              DEBUG  </priority>
   <priority msgstream="BardinIMD">             NOTICE </priority>
   <priority msgstream="BaryonResList">         WARN   </priority>
-  <priority msgstream="BaryonResUtils">        WARN   </priority>
-  <priority msgstream="SppChannel">            WARN   </priority>
   <priority msgstream="BaseHad">               NOTICE </priority>
   <priority msgstream="BertuzzoDNuCOH">        INFO </priority>
   <priority msgstream="BSKLNBaseRESPXSec2014"> INFO   </priority>
-  <priority msgstream="MKSPPPXSec2020">        INFO   </priority>
-  <priority msgstream="SPPXSec">               INFO   </priority>
-  <priority msgstream="SPPCache">              INFO   </priority>
   <priority msgstream="BreitWignet">           INFO   </priority>
   <priority msgstream="Bardin">                INFO   </priority>
   <priority msgstream="BodekYang">             INFO   </priority>
@@ -174,7 +169,6 @@
   <priority msgstream="QELEvent">              INFO   </priority>
   <priority msgstream="QELHadronicVtx">        INFO   </priority>
   <priority msgstream="QELKinematics">         INFO   </priority>
-  <priority msgstream="SPPEventGen">           INFO   </priority>
   <priority msgstream="RESXSec">               INFO   </priority>
   <priority msgstream="RESPXSec">              WARN   </priority>
   <priority msgstream="ReinSehgalCohPi">       WARN   </priority>
@@ -182,8 +176,6 @@
   <priority msgstream="ReinSehgalRes">         WARN   </priority>
   <priority msgstream="ReinSehgalResT">        NOTICE </priority>
   <priority msgstream="ReinSehgalResC">        NOTICE </priority>
-  <priority msgstream="ReinSehgalResTF">       NOTICE </priority>
-  <priority msgstream="ReinSehgalResCF">       NOTICE </priority>
   <priority msgstream="ReinSehgalSpp">         NOTICE </priority>
   <priority msgstream="RSHAmpl">               WARN   </priority>
   <priority msgstream="Registry">              WARN   </priority>

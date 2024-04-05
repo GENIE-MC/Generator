@@ -43,14 +43,9 @@
   <priority msgstream="SKHadron">              DEBUG  </priority>
   <priority msgstream="BardinIMD">             NOTICE </priority>
   <priority msgstream="BaryonResList">         WARN   </priority>
-  <priority msgstream="BaryonResUtils">        WARN   </priority>
-  <priority msgstream="SppChannel">            WARN   </priority>
   <priority msgstream="BaseHad">               NOTICE </priority>
   <priority msgstream="BertuzzoDNuCOH">        NOTICE </priority>
   <priority msgstream="BSKLNBaseRESPXSec2014"> NOTICE </priority>
-  <priority msgstream="MKSPPPXSec2020">        NOTICE </priority>
-  <priority msgstream="SPPXSec">               NOTICE </priority>
-  <priority msgstream="SPPCache">              NOTICE </priority>
   <priority msgstream="BreitWignet">           INFO   </priority>
   <priority msgstream="Bardin">                INFO   </priority>
   <priority msgstream="BodekYang">             INFO   </priority>
@@ -189,11 +184,8 @@
   <priority msgstream="ReinSehgalRes">         WARN   </priority>
   <priority msgstream="ReinSehgalResT">        NOTICE </priority>
   <priority msgstream="ReinSehgalResC">        NOTICE </priority>
-  <priority msgstream="ReinSehgalResTF">       NOTICE </priority>
-  <priority msgstream="ReinSehgalResCF">       NOTICE </priority>
   <priority msgstream="ReinSehgalSpp">         NOTICE </priority>
   <priority msgstream="RSHAmpl">               WARN   </priority>
-  <priority msgstream="SPPEventGen">          NOTICE </priority>
   <priority msgstream="Registry">              WARN   </priority>
   <priority msgstream="ReW">                   NOTICE </priority>
   <priority msgstream="RESHadronicVtx">        WARN   </priority>
@@ -212,7 +204,7 @@
   <priority msgstream="VldTestInputs">         WARN   </priority>
   <priority msgstream="XSecBase">              NOTICE </priority>
   <priority msgstream="XSecAlgMap">            NOTICE </priority>
-  <priority msgstream="XSecSplLst">            NOTICE </priority>
+  <priority msgstream="XSecSplLst">            WARN </priority>
   <priority msgstream="ZExpAxialFormFactorModel"> NOTICE </priority>
   <priority msgstream="HELeptonXSec">          WARN    </priority>
   <priority msgstream="HELeptonKinematics">    WARN    </priority>
@@ -232,7 +224,7 @@
   <priority msgstream="LeptoHad">              ERROR   </priority>
   <priority msgstream="HNL">                   FATAL </priority> 
 
-  <priority msgstream="gevgen">              NOTICE </priority>
+  <priority msgstream="gevgen">              WARN </priority>
   <priority msgstream="gevgen_dm">           NOTICE </priority>
   <priority msgstream="gevgen_ndcy">         NOTICE </priority>
   <priority msgstream="gevgen_atmo">         NOTICE </priority>
