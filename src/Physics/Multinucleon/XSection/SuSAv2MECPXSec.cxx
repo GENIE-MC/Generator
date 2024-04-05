@@ -150,11 +150,7 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   }
 
   // Apply given overall scaling factor
-
-  const ProcessInfo& proc_info = interaction->ProcInfo();
-  if( proc_info.IsWeakCC() ) xsec *= fXSecCCScale;
-  else if( proc_info.IsWeakNC() ) xsec *= fXSecNCScale;
-  else if( proc_info.IsEM() ) xsec *= fXSecEMScale;
+  xsec *= fXSecScale;
 
   // Scale given a scaling algorithm:
   if( fMECScaleAlg ) xsec *= fMECScaleAlg->GetScaling( * interaction ) ;
@@ -414,9 +410,7 @@ void SuSAv2MECPXSec::LoadConfig(void)
 {
   bool good_config = true ;
   // Cross section scaling factor
-  GetParamDef("MEC-CC-XSecScale", fXSecCCScale, 1.) ;
-  GetParamDef("MEC-NC-XSecScale", fXSecNCScale, 1.) ;
-  GetParamDef("MEC-EM-XSecScale", fXSecEMScale, 1.) ;
+  GetParamDef("MEC-XSecScale", fXSecScale, 1.) ;
 
   fHadronTensorModel = dynamic_cast<const HadronTensorModelI*> ( this->SubAlg("HadronTensorAlg") );
   if( !fHadronTensorModel ) {

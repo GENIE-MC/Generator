@@ -109,7 +109,7 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
        if( (struck_nucleon == kPdgProton  && hasP) ||
            (struck_nucleon == kPdgNeutron && hasN) ) {
 
-          ProcessInfo proc_info(kScSinglePion, kIntWeakCC);
+          ProcessInfo proc_info(kScResonant, kIntWeakCC);
           Interaction * interaction = new Interaction(init_state, proc_info);
 
           Target * target = interaction->InitStatePtr()->TgtPtr();
@@ -130,7 +130,7 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
        if( (struck_nucleon == kPdgProton  && hasP) ||
            (struck_nucleon == kPdgNeutron && hasN) ) {
 
-          ProcessInfo proc_info(kScSinglePion, kIntWeakNC);
+          ProcessInfo proc_info(kScResonant, kIntWeakNC);
           Interaction * interaction = new Interaction(init_state, proc_info);
 
           Target * target = interaction->InitStatePtr()->TgtPtr();

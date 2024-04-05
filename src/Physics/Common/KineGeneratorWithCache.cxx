@@ -31,20 +31,20 @@ using std::map;
 using namespace genie;
 
 //___________________________________________________________________________
-KineGeneratorWithCache::KineGeneratorWithCache() : 
-EventRecordVisitorI(), fSafetyFactor(1.), fNumOfSafetyFactors(-1), fNumOfInterpolatorTypes(-1)
+KineGeneratorWithCache::KineGeneratorWithCache() :
+EventRecordVisitorI()
 {
 
 }
 //___________________________________________________________________________
-KineGeneratorWithCache::KineGeneratorWithCache(string name) : 
-EventRecordVisitorI(name), fSafetyFactor(1.), fNumOfSafetyFactors(-1), fNumOfInterpolatorTypes(-1)
+KineGeneratorWithCache::KineGeneratorWithCache(string name) :
+EventRecordVisitorI(name)
 {
 
 }
 //___________________________________________________________________________
-KineGeneratorWithCache::KineGeneratorWithCache(string name, string config) : 
-EventRecordVisitorI(name, config), fSafetyFactor(1.), fNumOfSafetyFactors(-1), fNumOfInterpolatorTypes(-1)
+KineGeneratorWithCache::KineGeneratorWithCache(string name, string config) :
+EventRecordVisitorI(name, config)
 {
 
 }
@@ -54,38 +54,30 @@ KineGeneratorWithCache::~KineGeneratorWithCache()
 
 }
 //___________________________________________________________________________
-double KineGeneratorWithCache::MaxXSec(GHepRecord * event_rec, const int nkey) const
+double KineGeneratorWithCache::MaxXSec(GHepRecord * event_rec) const
 {
   LOG("Kinematics", pINFO)
-                << "Getting max. for the rejection method";
+                << "Getting max. differential xsec for the rejection method";
 
   double xsec_max = -1;
   Interaction * interaction = event_rec->Summary();
 
   LOG("Kinematics", pINFO)
-                  << "Attempting to find a cached max value";
-  xsec_max = this->FindMaxXSec(interaction, nkey);
-  if(xsec_max>0) return nkey<=fNumOfSafetyFactors-1?vSafetyFactors[nkey]*xsec_max:xsec_max;
+                  << "Attempting to find a cached max{dxsec/dK} value";
+  xsec_max = this->FindMaxXSec(interaction);
+  if(xsec_max>0) return xsec_max;
 
   LOG("Kinematics", pINFO)
-                  << "Attempting to compute the max value";
-  if (nkey == 0)
-  {
-    xsec_max = this->ComputeMaxXSec(interaction);
-  }
-  else
-  {
-    xsec_max = this->ComputeMaxXSec(interaction, nkey);
-  }
-  
+                  << "Attempting to compute the max{dxsec/dK} value";
+  xsec_max = this->ComputeMaxXSec(interaction);
   if(xsec_max>0) {
-     LOG("Kinematics", pINFO) << "max = " << xsec_max;
-     this->CacheMaxXSec(interaction, xsec_max, nkey);
-     return nkey<=fNumOfSafetyFactors-1?vSafetyFactors[nkey]*xsec_max:xsec_max;
+     LOG("Kinematics", pINFO) << "max{dxsec/dK} = " << xsec_max;
+     this->CacheMaxXSec(interaction, xsec_max);
+     return xsec_max;
   }
 
   LOG("Kinematics", pNOTICE)
-            << "Can not generate event kinematics max_xsec<=0)";
+            << "Can not generate event kinematics {K} (max_xsec({K};E)<=0)";
   // xsec for selected kinematics = 0
   event_rec->SetDiffXSec(0,kPSNull);
   // switch on error flag
@@ -95,7 +87,7 @@ double KineGeneratorWithCache::MaxXSec(GHepRecord * event_rec, const int nkey) c
   interaction->ResetBit(kISkipKinematicChk);
   // throw exception
   genie::exceptions::EVGThreadException exception;
-  exception.SetReason("kinematics generation: max_xsec<=0");
+  exception.SetReason("kinematics generation: max_xsec({K};E)<=0");
   exception.SwitchOnFastForward();
   throw exception;
 
@@ -103,7 +95,7 @@ double KineGeneratorWithCache::MaxXSec(GHepRecord * event_rec, const int nkey) c
 }
 //___________________________________________________________________________
 double KineGeneratorWithCache::FindMaxXSec(
-                                       const Interaction * interaction, const int nkey) const
+                                       const Interaction * interaction) const
 {
 // Find a cached max xsec for the specified xsec algorithm & interaction and
 // close to the specified energy
@@ -119,7 +111,7 @@ double KineGeneratorWithCache::FindMaxXSec(
   }
 
   // access the the cache branch
-  CacheBranchFx * cb = this->AccessCacheBranch(interaction, nkey);
+  CacheBranchFx * cb = this->AccessCacheBranch(interaction);
 
   // if there are enough points stored in the cache buffer to build a
   // spline, then intepolate
@@ -127,7 +119,7 @@ double KineGeneratorWithCache::FindMaxXSec(
      if( E >= cb->Spl()->XMin() && E <= cb->Spl()->XMax()) {
        double spl_max_xsec = cb->Spl()->Evaluate(E);
        LOG("Kinematics", pINFO)
-          << "\nInterpolated: max (E=" << E << ") = " << spl_max_xsec;
+          << "\nInterpolated: max xsec (E=" << E << ") = " << spl_max_xsec;
        return spl_max_xsec;
      }
      LOG("Kinematics", pINFO)
@@ -188,24 +180,22 @@ double KineGeneratorWithCache::FindMaxXSec(
 }
 //___________________________________________________________________________
 void KineGeneratorWithCache::CacheMaxXSec(
-                     const Interaction * interaction, double max_xsec, const int nkey) const
+                     const Interaction * interaction, double max_xsec) const
 {
   LOG("Kinematics", pINFO)
-                       << "Adding the computed max value to cache";
-  CacheBranchFx * cb = this->AccessCacheBranch(interaction, nkey);
+                       << "Adding the computed max{dxsec/dK} value to cache";
+  CacheBranchFx * cb = this->AccessCacheBranch(interaction);
 
   double E = this->Energy(interaction);
-  if (E<fEMin) return;
   if(max_xsec>0) cb->AddValues(E,max_xsec);
 
   if(! cb->Spl() ) {
-    if( cb->Map().size() > 40 ) 
-      cb->CreateSpline(nkey<=fNumOfInterpolatorTypes-1?vInterpolatorTypes[nkey]:"");
+    if( cb->Map().size() > 40 ) cb->CreateSpline();
   }
 
   if( cb->Spl() ) {
      if( E < cb->Spl()->XMin() || E > cb->Spl()->XMax() ) {
-        cb->CreateSpline(nkey<=fNumOfInterpolatorTypes-1?vInterpolatorTypes[nkey]:"");
+        cb->CreateSpline();
      }
   }
 }
@@ -222,26 +212,26 @@ double KineGeneratorWithCache::Energy(const Interaction * interaction) const
 }
 //___________________________________________________________________________
 CacheBranchFx * KineGeneratorWithCache::AccessCacheBranch(
-                                      const Interaction * interaction, const int nkey) const
+                                      const Interaction * interaction) const
 {
 // Returns the cache branch for this algorithm and this interaction. If no
 // branch is found then one is created.
 
   Cache * cache = Cache::Instance();
 
-  // build the cache branch key as: namespace::algorithm/config/interaction/nkey
+  // build the cache branch key as: namespace::algorithm/config/interaction
   string algkey = this->Id().Key();
   string intkey = interaction->AsString();
-  string key    = cache->CacheBranchKey(algkey, intkey, std::to_string(nkey));
+  string key    = cache->CacheBranchKey(algkey, intkey);
 
   CacheBranchFx * cache_branch =
               dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
   if(!cache_branch) {
     //-- create the cache branch at the first pass
-    LOG("Kinematics", pINFO) << "No cache branch found";
+    LOG("Kinematics", pINFO) << "No Max d^nXSec/d{K}^n cache branch found";
     LOG("Kinematics", pINFO) << "Creating cache branch - key = " << key;
 
-    cache_branch = new CacheBranchFx("Max over phase space");
+    cache_branch = new CacheBranchFx("max[d^nXSec/d^n{K}] over phase space");
     cache->AddCacheBranch(key, cache_branch);
   }
   assert(cache_branch);
@@ -277,18 +267,6 @@ void KineGeneratorWithCache::AssertXSecLimits(
   if(xsec<0) {
     LOG("Kinematics", pERROR)
      << "Negative cross section for current kinematics!! \n" << *interaction;
-  }
-}
-//___________________________________________________________________________
-double KineGeneratorWithCache::ComputeMaxXSec (const Interaction * in, const int nkey) const
-{
-  if (nkey == 0)
-  {
-     return this->ComputeMaxXSec(in);
-  }
-  else
-  {
-    return -1;
   }
 }
 //___________________________________________________________________________

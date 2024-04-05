@@ -79,6 +79,33 @@ private:
   const QELFormFactorsModelI * fFormFactorsModel;
   const XSecIntegratorI *      fXSecIntegrator;
   double                       fVud2;             ///< |Vud|^2(square of magnitude ud-element of CKM-matrix)
+  mutable int                          fn_NT;
+  mutable double                       fQ2;
+  mutable double                       fv;
+  mutable double                       fE_nu;
+  mutable double                       fE_lep;
+  mutable double                       fmm_ini;
+  mutable double                       fmm_fin;
+  mutable double                       fm_tar;
+  mutable double                       fmm_tar;
+  mutable double                       fk1;
+  mutable double                       fk2;
+  mutable double                       fk7;
+  mutable double                       fqv;
+  mutable double                       fqqv;
+  mutable double                       fcosT_k;
+  mutable double                       fF_V;
+  mutable double                       fF_M;
+  mutable double                       fF_A;
+  mutable double                       fF_P;
+  mutable double                       fFF_V;
+  mutable double                       fFF_M;
+  mutable double                       fFF_A;
+  mutable double                       fW_1;
+  mutable double                       fW_2;
+  mutable double                       fW_3;
+  mutable double                       fW_4;
+  mutable double                       fW_5;
 
 
 };

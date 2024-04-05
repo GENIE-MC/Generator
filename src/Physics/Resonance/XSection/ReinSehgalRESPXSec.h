@@ -91,7 +91,6 @@ private:
   Spline * fNuTauBarRdSpl;     ///< xsec reduction spline for nu_tau_bar
   double   fXSecScaleCC;       ///< external CC xsec scaling factor
   double   fXSecScaleNC;       ///< external NC xsec scaling factor
-  double   fXSecScaleEM;       ///< external EM xsec scaling factor
 
   const XSecIntegratorI * fXSecIntegrator;
 };

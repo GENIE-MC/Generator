@@ -14,6 +14,9 @@
           Konstantin Kuzmin <kkuzmin@theor.jinr.ru>
           Joint Institute for Nuclear Research \n
 
+          Vladimir Lyubushkin
+          Joint Institute for Nuclear Research \n
+
           Vadim Naumov <vnaumov@theor.jinr.ru>
           Joint Institute for Nuclear Research  \n
 

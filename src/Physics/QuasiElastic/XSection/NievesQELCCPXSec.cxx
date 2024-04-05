@@ -308,13 +308,7 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   xsec *= genie::utils::EnergyDeltaFunctionSolutionQEL( *interaction );
 
   // Apply given scaling factor
-  double xsec_scale = 1 ;
-  const ProcessInfo& proc_info = interaction->ProcInfo();
-
-  if( proc_info.IsWeakCC() ) xsec_scale = fXSecCCScale;
-  else if( proc_info.IsWeakNC() ) xsec_scale = fXSecNCScale;
-
-  xsec *= xsec_scale ;
+  xsec *= fXSecScale;
 
   LOG("Nieves",pDEBUG) << "TESTING: RPA=" << fRPA
                        << ", Coulomb=" << fCoulomb
@@ -405,8 +399,7 @@ void NievesQELCCPXSec::LoadConfig(void)
   fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
 
   // Cross section scaling factor
-  GetParam( "QEL-CC-XSecScale", fXSecCCScale ) ;
-  GetParam( "QEL-NC-XSecScale", fXSecNCScale ) ;
+  GetParam( "QEL-CC-XSecScale", fXSecScale ) ;
 
   // hbarc for unit conversion, GeV*fm
   fhbarc = kLightSpeed*kPlankConstant/genie::units::fermi;

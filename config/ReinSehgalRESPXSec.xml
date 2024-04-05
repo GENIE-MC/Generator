@@ -11,7 +11,6 @@ Name                        Type Optional Comment                               
 ......................................................................................................................................
 RES-CC-XSecScale            double  No    XSec rescaling factor                                           
 RES-NC-XSecScale            double  No    Xsec rescaling factor                                           
-RES-EM-XSecScale            double  No    Xsec rescaling factor                                           
 RES-Zeta                    double  No    FKR's Z parameter                                               
 RES-Omega                   double  No    FKR's Omega parameter                                          
 RES-Ma                      double  No    RES axial mass                                                 
@@ -39,7 +38,6 @@ XSec-Integrator             alg     No
     
     <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
     <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
-    <param type="double" name="RES-EM-XSecScale"> 1.000 </param>
 
     <!-- 
 	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,14 +72,14 @@ XSec-Integrator             alg     No
 
   <param_set name="EM-WithPauliBlock">
 
-    <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/EM-WithPauliBlock    </param>
+    <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/WithPauliBlock    </param>
 
   </param_set>
 
 
   <param_set name="EM-NoPauliBlock">
 
-    <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/EM-NoPauliBlock      </param>
+    <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/NoPauliBlock      </param>
 
   </param_set>
 

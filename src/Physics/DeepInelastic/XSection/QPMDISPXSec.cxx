@@ -171,9 +171,7 @@ double QPMDISPXSec::XSec(
   xsec *= NNucl;
 
   // Apply scaling / if required to reach well known asymmptotic value
-  if( proc_info.IsWeakCC() )  xsec *= fCCScale;
-  else if( proc_info.IsWeakNC() )  xsec *= fEMScale;
-  else if( proc_info.IsEM() )  xsec *= fEMScale;
+  xsec *= fScale;
 
   // Subtract the inclusive charm production cross section
   interaction->ExclTagPtr()->SetCharm();
@@ -245,9 +243,7 @@ void QPMDISPXSec::LoadConfig(void)
   fDISSF.SetModel(fDISSFModel); // <-- attach algorithm
 
   // Cross section scaling factor
-  GetParam( "DIS-CC-XSecScale", fCCScale ) ;
-  GetParam( "DIS-NC-XSecScale", fNCScale ) ;
-  GetParam( "DIS-EM-XSecScale", fEMScale ) ;
+  GetParam( "DIS-XSecScale", fScale ) ;
 
   // sin^4(theta_weinberg)
   double thw  ;

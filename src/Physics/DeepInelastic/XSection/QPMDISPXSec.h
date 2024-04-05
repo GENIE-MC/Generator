@@ -58,9 +58,7 @@ private:
 
   const XSecAlgorithmI * fCharmProdModel;
 
-  double fCCScale;            ///< cross section scaling factor
-  double fNCScale;            ///< cross section scaling factor
-  double fEMScale;            ///< cross section scaling factor
+  double fScale;            ///< cross section scaling factor
   double fSin48w;           ///< sin^4(Weingberg angle)
 };
 
