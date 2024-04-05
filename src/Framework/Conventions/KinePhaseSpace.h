@@ -24,7 +24,7 @@
 using std::string;
 
 namespace genie {
-// Note: please attach new phase space enum element to the end of the list .
+
 typedef enum EKinePhaseSpace {
   kPSNull = 0,
   kPSfE,
@@ -38,6 +38,7 @@ typedef enum EKinePhaseSpace {
   kPSlogyfEx,
   kPSxyfE,
   kPSlogxlogyfE,
+  kPSxQ2fE,
   kPSQ2fE,
   kPSQD2fE,
   kPSlogQ2fE,
@@ -68,14 +69,10 @@ typedef enum EKinePhaseSpace {
   kPSTAfE,
   kPSEgTlOgfE,
   kPSDMELEvGen, // Equivalent to kPSQELEvGen for Dark Matter scattering  
-  kPSxQ2fE,
   kPSlog10xlog10Q2fE,
   kPSEDNufE, // Used for Dark Neutrinos, two body final state
   kPSn1n2fE,
-  kPSn1n2n3fE,
-  kPSWQ2ctpphipfE,
-  kPSWQ2ctpfE,
-  kPSQ2vpfE
+  kPSn1n2n3fE
 } KinePhaseSpace_t;
 
 class KinePhaseSpace
@@ -88,6 +85,7 @@ public:
 
       case(kPSNull) :
         return "** Undefined kinematic phase space **"; break;
+
       case(kPSfE)         : return "<|E>";            break;
       case(kPSxfE)        : return "<{x}|E>";         break;
       case(kPSlogxfE)     : return "<{logx}|E>";      break;
@@ -126,7 +124,6 @@ public:
       case(kPSElOlTpifE)  : return "<{El,Omega_l,Theta_pi}|E>"; break;
       case(kPSTkTlctl)    : return "<{Tk,Tl,cos(theta_l)}|E>";  break;
       case(kPSQ2vfE)      : return "<{Q2,v}|E>"; break;
-      case(kPSQ2vpfE)     : return "<{Q2,v,p}|E>"; break;
       // TODO: update this string when the appropriate kinematic variables are known
       case(kPSQELEvGen)   : return "<QELEvGen>"; break;
       case(kPSDMELEvGen)  : return "<DMELEvGen>"; break;
@@ -135,8 +132,6 @@ public:
       case(kPSEDNufE)     : return "<{EDNu}|E>"; break;
       case(kPSn1n2fE)     : return "<{n1,n2}|E>"; break;
       case(kPSn1n2n3fE)   : return "<{n1,n2,n3}|E>"; break;
-      case(kPSWQ2ctpphipfE): return "<{W, Q2, cost(theta_pion), phi_pion}|E>"; break;
-      case(kPSWQ2ctpfE)    : return "<{W, Q2, cost(theta_pion)}|E>"; break;
     }
     return "** Undefined kinematic phase space **";
   }

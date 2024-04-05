@@ -76,11 +76,6 @@ bool ProcessInfo::IsDarkMatterElastic(void) const
   return (fScatteringType == kScDarkMatterElastic);
 }
 //____________________________________________________________________________
-bool ProcessInfo::IsSinglePion(void) const
-{
-  return (fScatteringType == kScSinglePion);
-}
-//____________________________________________________________________________
 bool ProcessInfo::IsSingleKaon(void) const
 {
   return (fScatteringType == kScSingleKaon);
@@ -131,11 +126,6 @@ bool ProcessInfo::IsInverseMuDecay(void) const
 bool ProcessInfo::IsIMDAnnihilation(void) const
 {
   return (fScatteringType == kScIMDAnnihilation);
-}
-//____________________________________________________________________________
-bool ProcessInfo::IsNorm(void) const
-{
-  return (fScatteringType == kScNorm);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsDarkMatterElectronElastic(void) const

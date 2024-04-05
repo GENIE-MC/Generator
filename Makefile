@@ -39,16 +39,14 @@ INITIAL_BUILD_TARGETS = print-make-info \
 		   tools-flux-drivers \
 		   tools-geometry-drivers \
 		   tools-evtlib \
-		   tools-masterclass \
-			 lib-professor2-build
+		   tools-masterclass
 FINAL_BUILD_TARGETS = doxygen-doc \
 		   apps \
 		   install-scripts
 INSTALL_TARGETS =  print-makeinstall-info \
 		   check-previous-installation \
 		   make-install-dirs \
-		   copy-install-files \
-			 lib-professor2-install
+		   copy-install-files
 
 # define targets
 
@@ -238,30 +236,6 @@ ifeq ($(strip $(GOPT_ENABLE_GEOM_DRIVERS)),YES)
 else
 	@echo " "
 	@echo "** Building geometry-drivers was not enabled. Skipping..."
-endif
-
-lib-professor2-build: FORCE
-ifeq ($(strip $(GOPT_WITH_PROFESSOR2)),YES)
-	@echo " "
-	@echo "** Building Professor2..."
-	cd ${GENIE}/src/ExternalLibs/professor && \
-	$(MAKE) lib/libProfessor2.so && \
-	ln -sf ${GENIE}/src/ExternalLibs/professor/lib/libProfessor2.so ${GENIE}/lib/libProfessor2.so && \
-	cd ${GENIE}
-else
-	@echo " "
-	@echo "** Building Professor2 was not enabled. Skipping..."
-endif
-
-lib-professor2-install: FORCE
-ifeq ($(strip $(GOPT_WITH_PROFESSOR2)),YES)
-	@echo " "
-	@echo "** Building Professor2..."
-	cp ${GENIE}/src/ExternalLibs/professor/lib/libProfessor2.so ${GENIE_LIB_INSTALLATION_PATH}
-	cp -r ${GENIE}/src/ExternalLibs/professor/include/Professor ${GENIE_INC_INSTALLATION_PATH}
-else
-	@echo " "
-	@echo "** Building Professor2 was not enabled. Skipping..."
 endif
 
 tools-evtlib: FORCE

@@ -65,7 +65,7 @@ void CacheBranchFx::AddValues(double x, double y)
   fFx.insert(map<double,double>::value_type(x,y));
 }
 //____________________________________________________________________________
-void CacheBranchFx::CreateSpline(string type)
+void CacheBranchFx::CreateSpline(void)
 {
   int n = fFx.size();
   double * x = new double[n];
@@ -81,7 +81,6 @@ void CacheBranchFx::CreateSpline(string type)
 
   if(fSpline) delete fSpline;
   fSpline = new Spline(n,x,y);
-  fSpline->SetType(type);
 
   delete [] x;
   delete [] y;

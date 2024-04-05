@@ -610,27 +610,23 @@ void GEVGDriver::CreateSplines(int nknots, double emax, bool useLogE)
 
      // get the energy range of the spline from the EventGenerator
      // validity context
-     double Emin = evgen->ValidityContext().Emin() ;
-     xsl -> SetMinE( Emin ) ;
-
-     double valid_Emax = evgen->ValidityContext().Emax();
+     double Emin = TMath::Max(0.001,evgen->ValidityContext().Emin());
+     double Emax = evgen->ValidityContext().Emax();
 
      // if the user set a maximum energy, create the spline up to this
      // energy - otherwise use the upper limit of the validity range of
      // the current generator
      if ( emax > 0 ) {
-       if ( emax > valid_Emax ) {
+       if ( emax > Emax ) {
          LOG("GEVGDriver", pWARN)
-           << "Refusing to exceed validity range: Emax = " << valid_Emax;
+           << "Refusing to exceed validity range: Emax = " << Emax;
        }
-       emax = TMath::Min(emax,valid_Emax); // don't exceed validity range
+       emax = TMath::Min(emax,Emax); // don't exceed validity range
      } else {
-       emax = valid_Emax;
+       emax = Emax;
      }
 
      assert( emax > Emin );
-
-     xsl -> SetMaxE( emax ) ;
 
      // number of knots: use specified number. If not set, use 15 knots
      // per decade. Don't use less than 30 knots.
@@ -638,8 +634,6 @@ void GEVGDriver::CreateSplines(int nknots, double emax, bool useLogE)
        nknots = (int) (15 * TMath::Log10(emax-Emin));
      }
      nknots = TMath::Max(nknots,30);
-
-     xsl -> SetNKnots( nknots ) ;
 
      // loop over all interactions that can be generated and ask the
      // appropriate cross section algorithm to compute its cross section
@@ -657,7 +651,7 @@ void GEVGDriver::CreateSplines(int nknots, double emax, bool useLogE)
              SLOG("GEVGDriver", pDEBUG)
                << "The spline wasn't loaded at initialization. "
                << "I can build it now but it might take a while...";
-             xsl->CreateSpline(alg, interaction) ;
+             xsl->CreateSpline(alg, interaction, nknots, Emin, emax);
          } else {
              SLOG("GEVGDriver", pDEBUG) << "Spline was found";
          }

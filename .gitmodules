@@ -1,3 +1,0 @@
-[submodule "src/ExternalLibs/professor"]
-	path = src/ExternalLibs/professor
-	url = https://gitlab.com/hepcedar/professor.git
