@@ -242,7 +242,7 @@
    <config alg="genie::mueloss::BezrukovBugaevModel">     BezrukovBugaevModel.xml    </config>
    <config alg="genie::mueloss::KokoulinPetrukhinModel">  KokoulinPetrukhinModel.xml </config>
    <config alg="genie::mueloss::PetrukhinShestakovModel"> PetrukhinShestakovModel.xml</config>
-
+   
    <!-- ****** CONFIGURATION FOR MODELS IN VLE PACKAGE ****** -->
    <config alg="genie::IBDHadronicSystemGenerator">     IBDHadronicSystemGenerator.xml   </config>
    <config alg="genie::IBDKinematicsGenerator">         IBDKinematicsGenerator.xml       </config>

@@ -60,39 +60,8 @@ private:
   /// Load algorithm configuration
   void LoadConfig (void);
 
-  // Apply scaling of the first kind to the xsec
-  // (A-scaling with tuning based on Fermi momentum)
-  double XSecScaling(double xsec, const Interaction* i, int target_pdg, int tensor_pdg, bool need_to_scale) const;
-
-
   /// External scaling factor for this cross section
-  double fXSecCCScale;
-  double fXSecNCScale;
-  double fXSecEMScale;
-
-  /// Blending start/end q0 value for the combined models
-  int blendMode;
-  double q0BlendStart;
-  double q0BlendEnd;
-  double qBlendDel;
-  double qBlendRef;
-
-  // Which model to run
-  enum modelType {
-    kMd_Undefined = 0,
-    kMd_SuSAv2 = 1,
-    kMd_CRPA = 2,
-    kMd_HF = 3,
-    kMd_CRPASuSAv2Hybrid = 4,
-    kMd_HFSuSAv2Hybrid = 5,
-    kMd_CRPAPW = 6,
-    kMd_HFPW = 7,
-    kMd_CRPAPWSuSAv2Hybrid = 8,
-    kMd_HFPWSuSAv2Hybrid = 9,
-    kMd_SuSAv2Blend = 10
-  };
-
-  modelType modelConfig;
+  double fXSecScale;
 
   const HadronTensorModelI* fHadronTensorModel;
 
