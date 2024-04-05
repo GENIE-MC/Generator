@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import os, glob
 
-def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc, configure_INCL, configure_G4 ) :
+def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc, configure_INCL, configure_G4, GHEPMC3Output=False ) :
     shell_file = jobs_dir+"/"+shell_name+".sh"
 
     if os.path.exists(shell_file):
@@ -19,12 +19,14 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, 
         conf_dir = "$CONDOR_DIR_INPUT/conf"
     INCL="false"
     G4="false"
+    hepMC="false"
     if( configure_INCL ) : 
         INCL = "true"
-        
     if( configure_G4 ) :
         G4 = "true"
-    script.write("source "+os.path.basename(genie_setup)+" "+git_loc+" "+git_branch+" "+INCL+" "+G4+" "+conf_dir+" ;\n")
+    if( GHEPMC3Output ) : 
+        hepMC = "true"
+    script.write("source "+os.path.basename(genie_setup)+" "+git_loc+" "+git_branch+" "+INCL+" "+G4+" "+conf_dir+" "+hepMC+" ;\n")
     script.write("cd $CONDOR_DIR_INPUT ;\n")
 
     if isinstance(in_files, list) :
@@ -52,7 +54,7 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, 
 def FNALShellCommands(grid_setup, genie_setup, hours = 10, memory="1GB", disk="500MB", GraceMemory=4096, GraceLifeTime=6000):
     grid_command_options = " -n --memory="+memory+" --disk="+disk+" --expected-lifetime="+str(hours)+"h " 
     grid_command_options += " --OS=SL7 --lines '+FERMIHTC_AutoRelease=True' -f "+grid_setup+" -f "+genie_setup 
-    grid_command_options += " --lines '+FERMIHTC_GraceMemory="+str(GraceMemory)+"' --lines '+FERMIHTC_GraceLifetime="+str(GraceLifeTime)+"' --mail_on_error "
+    grid_command_options += " --lines '+FERMIHTC_GraceMemory="+str(GraceMemory)+"' --lines '+FERMIHTC_GraceLifetime="+str(GraceLifeTime)+"' --mail_on_error --singularity-image /cvmfs/singularity.opensciencegrid.org/fermilab/fnal-wn-sl7:latest "
 
     return grid_command_options 
 
@@ -103,6 +105,6 @@ def WriteMainSubmissionFile(jobs_dir, genie_topdir, group, grid_setup='/src/scri
     script.write("#!/bin/bash\n")
     script.write("source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups ;\n")
     script.write("setup fife_utils ;\n")
-    script.write("jobsub_submit -G "+group+" --OS=SL7 --memory="+memory+" --disk="+disk+" --expected-lifetime="+str(expectedlife)+"h -N "+str(jobs)+" --role="+role+" --dag file://"+in_file_name+";" )
+    script.write("jobsub_submit -G "+group+" --OS=SL7 --memory="+memory+" --disk="+disk+" --expected-lifetime="+str(expectedlife)+"h -N "+str(jobs)+" --role="+role+" --singularity-image /cvmfs/singularity.opensciencegrid.org/fermilab/fnal-wn-sl7:latest --dag file://"+in_file_name+";" )
 
     return fnal_file
