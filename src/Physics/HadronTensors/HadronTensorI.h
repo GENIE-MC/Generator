@@ -44,8 +44,7 @@ typedef enum HadronTensorType {
   kHT_MEC_EM,
   kHT_MEC_EM_pn,
   kHT_MEC_EM_pp,
-  kHT_QE_EM_proton,
-  kHT_QE_EM_neutron,
+  kHT_QE_EM,    // This will never be used. SuSAv2 QE EM model will be implemeted for proton and neutron seperately. 
   kHT_MEC_FullAll_Param,
   kHT_MEC_FullAll_wImag,
   kHT_QE_Full,
@@ -84,7 +83,10 @@ typedef enum HadronTensorType {
   kHT_QE_HFPW_anu_High,
 
   kHT_QE_SuSABlend,
-  kHT_QE_SuSABlend_anu
+  kHT_QE_SuSABlend_anu,
+
+  kHT_QE_EM_proton,
+  kHT_QE_EM_neutron
 }
 HadronTensorType_t;
 
