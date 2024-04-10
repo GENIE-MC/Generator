@@ -374,7 +374,43 @@ double genie::TabulatedLabFrameHadronTensor::dSigma_dT_dCosTheta_rosenbluth(
   double Tl      = interaction->Kine().GetKV(kKVTl);
   double cos_l   = interaction->Kine().GetKV(kKVctl);
   double ml      = interaction->FSPrimLepton()->Mass();
+   
+  /*
+  double xsec_1 = dSigma_dT_dCosTheta_rosenbluth(14, 0.5, m_probe, 329.3416/1000., 0.7391376742, ml, 0);
+  std::cout << "Enu is 0.5 and Tl is 329.3416 cos = 0.7391376742 and xsec is " << xsec_1 << std::endl;
+  std::cout << "\n\n";
 
+  double xsec_2 = dSigma_dT_dCosTheta_rosenbluth(14, 0.75, m_probe, 579.3416/1000., 0.8908522430, ml, 0);
+  std::cout << "Enu is 0.75 and Tl is 579.3416 cos = 0.8908522430 and xsec is " << xsec_2 << std::endl;
+  std::cout << "\n\n";
+
+ 
+  double xsec_3 = dSigma_dT_dCosTheta_rosenbluth(14, 0.75, m_probe, 569.3416/1000., 0.9967514965, ml, 0);
+  std::cout << "Enu is 0.75 and Tl is 569.3416 cos =  0.9967514965 and xsec is " << xsec_3 << std::endl;
+  std::cout << "\n\n";
+    
+  
+  double xsec_4 = dSigma_dT_dCosTheta_rosenbluth(14, 0.75, m_probe, 579.3416/1000., 0.8908522430, ml, 0);
+  std::cout << "Enu is 0.75 and Tl is 579.3416 cos = 0.8908522430 and xsec is " << xsec_4 << std::endl;
+  std::cout << "\n\n";
+
+  
+  double xsec_5 = dSigma_dT_dCosTheta_rosenbluth(14, 0.5, m_probe, 319.3416/1000., 0.9942029922, ml, 0);
+  std::cout << "Enu is 0.5 and Tl is 319.3416 cos = 0.9942029922 and xsec is " << xsec_5 << std::endl;
+  std::cout << "\n\n";
+
+
+  double xsec_6 = dSigma_dT_dCosTheta_rosenbluth(14, 0.5, m_probe, 319.3416/1000., -0.4612839247, ml, 0);
+  std::cout << "Enu is 0.5 and Tl is 319.3416 cos =  -0.4612839247 and xsec is " << xsec_6 << std::endl;
+  std::cout << "\n\n";
+
+  double xsec_7 = dSigma_dT_dCosTheta_rosenbluth(14, 0.75, m_probe, 569.3416/1000., 0.3976018054, ml, 0);
+  std::cout << "Enu is 0.75 and Tl is 569.3416 cos = 0.3976018054 and xsec is " << xsec_7 << std::endl;
+  std::cout << "\n\n";
+      
+  return 0;
+  */
+  
   return dSigma_dT_dCosTheta_rosenbluth(probe_pdg, E_probe, m_probe, Tl, cos_l, ml,
     Q_value);
 }
@@ -494,6 +530,15 @@ double genie::TabulatedLabFrameHadronTensor::dSigma_dT_dCosTheta_rosenbluth(int 
     // k_final/El
     xsec= sig0*(VCC*RCC+2.*VCL*RCL+VLL*RLL+VT*RT+2.*VTP*RTP);
 
+    //std::cout << "xsec = " << xsec << std::endl;  
+    /*
+    std::cout << "All the info from the calc:" << std::endl;  
+    std::cout << "W00 is " << entry.W00 << " RCC = " << RCC << std::endl;
+    std::cout << "Wzz is " << entry.Wzz  << " RCL = " << RCL << std::endl;
+    std::cout << "W0z is " << entry.ReW0z  << " RLL = " << RLL << std::endl;
+    std::cout << "Wxx is " << entry.Wxx << " RT = " << RT << std::endl;
+    std::cout << "Wxy is " << entry.ImWxy  << " RTP = " << RTP << std::endl;
+    */
 
     // This should never happen using the full SuSAv2-MEC hadron tensors
     // but can trigger when using the tensors from the parameterisation

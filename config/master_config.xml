@@ -227,6 +227,7 @@
    <config alg="genie::EmpiricalMECPXSec2015">              EmpiricalMECPXSec2015.xml              </config>
    <config alg="genie::NievesSimoVacasMECPXSec2016">        NievesSimoVacasMECPXSec2016.xml        </config>
    <config alg="genie::SuSAv2MECPXSec">                     SuSAv2MECPXSec.xml                     </config>
+   <config alg="genie::MartiniEricsonChanfrayMarteauMECPXSec2024"> MartiniEricsonChanfrayMarteauMECPXSec2024.xml </config>
    <config alg="genie::RosenbluthPXSec">                    RosenbluthPXSec.xml                    </config>
    <config alg="genie::DummyPXSec">                         Default.xml                            </config>
    <config alg="genie::NNBarOscDummyPXSec">                 Default.xml                            </config>
@@ -268,6 +269,7 @@
    <config alg="genie::NievesMECHadronTensorModel">     NievesMECHadronTensorModel.xml   </config>
    <config alg="genie::SuSAv2QELHadronTensorModel">     SuSAv2QELHadronTensorModel.xml   </config>
    <config alg="genie::SuSAv2MECHadronTensorModel">     SuSAv2MECHadronTensorModel.xml   </config>
+   <config alg="genie::MartiniMECHadronTensorModel">    MartiniMECHadronTensorModel.xml  </config>
 
  <!-- ****** EvtLib / EventLibraryInterface ****** -->
    <config alg="genie::evtlib::EventLibraryInterface">          EventLibraryInterface.xml          </config>

@@ -7,6 +7,7 @@
 #pragma link C++ namespace genie;
 #pragma link C++ namespace genie::utils::mec;
 
+#pragma link C++ class genie::MartiniEricsonChanfrayMarteauMECPXSec2024;
 #pragma link C++ class genie::NievesSimoVacasMECPXSec2016;
 #pragma link C++ class genie::SuSAv2MECPXSec;
 #pragma link C++ class genie::EmpiricalMECPXSec2015;

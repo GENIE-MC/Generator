@@ -13,6 +13,7 @@
 #pragma link C++ class genie::HadronTensorModelI;
 #pragma link C++ class genie::TabulatedHadronTensorModelI;
 #pragma link C++ class genie::NievesMECHadronTensorModel;
+#pragma link C++ class genie::MartiniMECHadronTensorModel;
 #pragma link C++ class genie::SuSAv2QELHadronTensorModel;
 #pragma link C++ class genie::SuSAv2MECHadronTensorModel;
 
