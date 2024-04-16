@@ -4,6 +4,11 @@
 #include "TH1.h"
 #include "TH2.h"
 
+#include "TCanvas.h"
+#include "TLegend.h"
+#include "TGraph.h"
+#include "TSystem.h"
+
 #include "Framework/Ntuple/NtpMCTreeHeader.h" 
 #include "Framework/Ntuple/NtpMCEventRecord.h" 
 #include "Framework/EventGen/EventRecord.h" 
@@ -235,11 +240,9 @@ void make_dists(TString filename = "gntp.0.ghep.root", TString dir="",bool print
   }
 
   TCanvas canvas3("canvas3");
-  y_dist->Draw("HIST");
+  y_dist->Draw();
   y_dist->GetXaxis()->SetTitle("y");
   // Set y limit to be from 0 to 600
-  y_dist->SetMinimum(0);
-  y_dist->SetMaximum(600);
   y_dist->Write();
 
   if (print_to_pdf){
