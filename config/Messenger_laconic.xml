@@ -138,6 +138,7 @@
   <priority msgstream="KNOHad">                        WARN   </priority>
   <priority msgstream="KineLimits">                    WARN   </priority>
   <priority msgstream="Kinematics">                    WARN   </priority>
+  <priority msgstream="MArunAxialFormFactorModel"> WARN </priority>
   <priority msgstream="LeptonicVertex">                WARN   </priority>
   <priority msgstream="LocalFGM">                      WARN   </priority>
   <priority msgstream="LwlynSmith">                    WARN   </priority>

@@ -143,7 +143,7 @@
   <priority msgstream="KNOHad">                WARN   </priority>
   <priority msgstream="KineLimits">            INFO   </priority>
   <priority msgstream="Kinematics">            NOTICE </priority>
-  <priority msgstream="KuzminNaumov2016MA">    NOTICE </priority>
+  <priority msgstream="MArunAxialFormFactorModel"> NOTICE </priority>
   <priority msgstream="KPhaseSpace">           NOTICE </priority>
   <priority msgstream="LeptonicVertex">        WARN   </priority>
   <priority msgstream="LocalFGM">              WARN   </priority>
