@@ -5,6 +5,9 @@
 
  Jeremy Hewes, Georgia Karagiorgi
  University of Manchester
+
+ Linyan Wan
+ Fermilab
 */
 //____________________________________________________________________________
 
@@ -219,8 +222,12 @@ void NNBarOscPrimaryVtxGenerator::GenerateFermiMomentum(
 
   // start with oscillating neutron
   tgt.SetHitNucPdg(kPdgNeutron);
+  //Changes Made Here  
+  double annihilationPos = oscillating_neutron->X4()->Vect().Mag();
+  tgt.SetHitNucPosition( annihilationPos );
+
   // generate nuclear model & fermi momentum
-  fNuclModel->GenerateNucleon(tgt);
+  fNuclModel->GenerateNucleon(tgt,annihilationPos);
   TVector3 p3 = fNuclModel->Momentum3();
   double w = fNuclModel->RemovalEnergy();
 
@@ -239,7 +246,7 @@ void NNBarOscPrimaryVtxGenerator::GenerateFermiMomentum(
   // then rinse repeat for the annihilation nucleon
   tgt.SetHitNucPdg(annihilation_nucleon->Pdg());
   // use nuclear model to generate fermi momentum
-  fNuclModel->GenerateNucleon(tgt);
+  fNuclModel->GenerateNucleon(tgt,annihilationPos);
   p3 = fNuclModel->Momentum3();
   w = fNuclModel->RemovalEnergy();
   // use mass & momentum to figure out energy
@@ -347,16 +354,25 @@ void NNBarOscPrimaryVtxGenerator::GenerateDecayProducts(
     double proton_frac  = ((double)n_protons) / ((double) n_nucleons);
     double neutron_frac = 1 - proton_frac;
 
-    // set branching ratios, taken from bubble chamber data
-    const int n_modes = 16;
-    double br [n_modes] = { 0.010, 0.080, 0.100, 0.220,
-                            0.360, 0.160, 0.070, 0.020,
-                            0.015, 0.065, 0.110, 0.280,
-                            0.070, 0.240, 0.100, 0.100 };
+    // set branching ratios, taken from SK2021
+	 const int np_modes=12, nn_modes=32;
+    const int n_modes = np_modes + nn_modes;
+    double br [n_modes] = { 0.001, 0.007, 0.148, 0.014,
+                            0.020, 0.170, 0.108, 0.301,
+									 0.055, 0.032, 0.020, 0.124,//pnbar
+                            0.001, 0.007, 0.003, 0.010,
+                            0.001, 0.003, 0.016, 0.131,
+									 0.112, 0.033, 0.014, 0.060,
+									 0.136, 0.157, 0.006, 0.022,
+									 0.020, 0.018, 0.037, 0.035,
+									 0.024, 0.027, 0.071, 0.016,
+									 0.017, 0.001, 0.002, 0.001,
+									 0.003, 0.003, 0.010, 0.003
+	 };
 
     for (int i = 0; i < n_modes; i++) {
       // for first 7 branching ratios, multiply by relative proton density
-      if (i < 7)
+      if (i < np_modes)
         br[i] *= proton_frac;
       // for next 9, multiply by relative neutron density
       else
