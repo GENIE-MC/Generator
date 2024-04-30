@@ -155,14 +155,12 @@ template<class T>
 template<class T>
   int genie::Algorithm::GetParamMat( const std::string & comm_name, TMatrixT<T> & mat,
                                          bool is_top_call ) const {
-    
 
-    mat.Clear() ; 
+    mat.Clear() ;
 
     int n_row = 0, n_col = 0;
-    std::string row_name = Algorithm::BuildParamMatRowSizeKey( comm_name ) ; 
-    std::string col_name = Algorithm::BuildParamMatColSizeKey( comm_name ) ; 
-    		
+    std::string row_name = Algorithm::BuildParamMatRowSizeKey( comm_name ) ;
+    std::string col_name = Algorithm::BuildParamMatColSizeKey( comm_name ) ;
     bool found = GetParam( row_name, n_row, is_top_call ) && GetParam( col_name, n_col, is_top_call ) ;
     if ( ! found ) return 0  ;
 
@@ -170,11 +168,11 @@ template<class T>
 
     for ( int i = 0; i < n_row; ++i ) {
       for ( int j = 0; j < n_col; ++j ) {
-  	RgKey temp_key = Algorithm::BuildParamMatKey( comm_name, i,  j ) ; 
-  	found = GetParam( temp_key, mat[i][j], is_top_call ) ; 
+  	RgKey temp_key = Algorithm::BuildParamMatKey( comm_name, i,  j ) ;
+  	found = GetParam( temp_key, mat[i][j], is_top_call ) ;
       }
     }
 
-    return n_row*n_col;    		            
+    return n_row*n_col;
 }
 
