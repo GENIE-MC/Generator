@@ -37,9 +37,14 @@
   <priority msgstream="SKHadron">              FATAL </priority>
   <priority msgstream="BardinIMD">             FATAL </priority>
   <priority msgstream="BaryonResList">         FATAL </priority>
+  <priority msgstream="BaryonResUtils">        FATAL </priority>
+  <priority msgstream="SppChannel">            FATAL </priority>
   <priority msgstream="BaseHad">               FATAL </priority>
   <priority msgstream="BertuzzoDNuCOH">        FATAL </priority>
   <priority msgstream="BSKLNBaseRESPXSec2014"> FATAL </priority>
+  <priority msgstream="MKSPPPXSec2020">        FATAL </priority>
+  <priority msgstream="SPPXSec">               FATAL </priority>
+  <priority msgstream="SPPCache">              FATAL </priority>
   <priority msgstream="BreitWignet">           FATAL </priority>
   <priority msgstream="Bardin">                FATAL </priority>
   <priority msgstream="BodekYang">             FATAL </priority>
@@ -132,6 +137,7 @@
   <priority msgstream="KNOHad">                FATAL </priority>
   <priority msgstream="KineLimits">            FATAL </priority>
   <priority msgstream="Kinematics">            FATAL </priority>
+  <priority msgstream="MArunAxialFormFactorModel"> FATAL </priority>
   <priority msgstream="LeptonicVertex">        FATAL </priority>
   <priority msgstream="LwlynSmith">            FATAL </priority>
   <priority msgstream="LocalFGM">              FATAL </priority>
@@ -168,6 +174,7 @@
   <priority msgstream="QELEvent">              FATAL </priority>
   <priority msgstream="QELHadronicVtx">        FATAL </priority>
   <priority msgstream="QELKinematics">         FATAL </priority>
+  <priority msgstream="SPPEventGen">           FATAL  </priority>
   <priority msgstream="RESXSec">               FATAL </priority>
   <priority msgstream="RESPXSec">              FATAL </priority>
   <priority msgstream="ReinSehgalCohPi">       FATAL </priority>
@@ -175,6 +182,8 @@
   <priority msgstream="ReinSehgalRes">         FATAL </priority>
   <priority msgstream="ReinSehgalResT">        FATAL </priority>
   <priority msgstream="ReinSehgalResC">        FATAL </priority>
+  <priority msgstream="ReinSehgalResTF">       FATAL </priority>
+  <priority msgstream="ReinSehgalResCF">       FATAL </priority>
   <priority msgstream="ReinSehgalSpp">         FATAL </priority>
   <priority msgstream="RSHAmpl">               FATAL </priority>
   <priority msgstream="Registry">              FATAL </priority>

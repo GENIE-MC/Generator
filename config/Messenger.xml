@@ -43,9 +43,14 @@
   <priority msgstream="SKHadron">              DEBUG  </priority>
   <priority msgstream="BardinIMD">             NOTICE </priority>
   <priority msgstream="BaryonResList">         WARN   </priority>
+  <priority msgstream="BaryonResUtils">        WARN   </priority>
+  <priority msgstream="SppChannel">            WARN   </priority>
   <priority msgstream="BaseHad">               NOTICE </priority>
   <priority msgstream="BertuzzoDNuCOH">        NOTICE </priority>
   <priority msgstream="BSKLNBaseRESPXSec2014"> NOTICE </priority>
+  <priority msgstream="MKSPPPXSec2020">        NOTICE </priority>
+  <priority msgstream="SPPXSec">               NOTICE </priority>
+  <priority msgstream="SPPCache">              NOTICE </priority>
   <priority msgstream="BreitWignet">           INFO   </priority>
   <priority msgstream="Bardin">                INFO   </priority>
   <priority msgstream="BodekYang">             INFO   </priority>
@@ -138,7 +143,7 @@
   <priority msgstream="KNOHad">                WARN   </priority>
   <priority msgstream="KineLimits">            INFO   </priority>
   <priority msgstream="Kinematics">            NOTICE </priority>
-  <priority msgstream="KuzminNaumov2016MA">    NOTICE </priority>
+  <priority msgstream="MArunAxialFormFactorModel"> NOTICE </priority>
   <priority msgstream="KPhaseSpace">           NOTICE </priority>
   <priority msgstream="LeptonicVertex">        WARN   </priority>
   <priority msgstream="LocalFGM">              WARN   </priority>
@@ -184,8 +189,11 @@
   <priority msgstream="ReinSehgalRes">         WARN   </priority>
   <priority msgstream="ReinSehgalResT">        NOTICE </priority>
   <priority msgstream="ReinSehgalResC">        NOTICE </priority>
+  <priority msgstream="ReinSehgalResTF">       NOTICE </priority>
+  <priority msgstream="ReinSehgalResCF">       NOTICE </priority>
   <priority msgstream="ReinSehgalSpp">         NOTICE </priority>
   <priority msgstream="RSHAmpl">               WARN   </priority>
+  <priority msgstream="SPPEventGen">          NOTICE </priority>
   <priority msgstream="Registry">              WARN   </priority>
   <priority msgstream="ReW">                   NOTICE </priority>
   <priority msgstream="RESHadronicVtx">        WARN   </priority>

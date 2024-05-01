@@ -720,7 +720,7 @@ void HNIntranuke2018::ElasHN(
   t->SetPdgCode(tcode);
   double Mt = t->Mass();
   //t->SetMomentum(TLorentzVector(0,0,0,Mt));
-
+  t->SetRemovalEnergy(0);
   // handle fermi momentum 
   if(fDoFermi)
     {
@@ -773,6 +773,9 @@ void HNIntranuke2018::InelasticHN(GHepRecord* ev, GHepParticle* p) const
   GHepParticle s1(*p);  
   GHepParticle s2(*p);
   GHepParticle s3(*p);
+  s2.SetRemovalEnergy(0);
+  s3.SetRemovalEnergy(0);
+  
   
   
   if (utils::intranuke2018::PionProduction(ev,p,&s1,&s2,&s3,fRemnA,fRemnZ,fRemnP4,fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel))

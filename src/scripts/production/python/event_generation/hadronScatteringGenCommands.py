@@ -32,7 +32,7 @@ def hadronScatteringGenCommands( hadron_list = "212",tgt_list="1000060120", KEBe
                                  message_thresholds= os.getenv('GENIE')+'config/Messenger.xml',
                                  time='10', memory='1GB', disk='2GB',
                                  git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator", 
-                                 configure_hA= True, configure_hN = False, configure_INCL=False, configure_G4=False ) :
+                                 configure_hA= True, configure_hN = False, configure_INCL=False, configure_G4=False, GHEPMC3Output=False ) :
 
     jobs_dir = jobs_topdir+'/'+version+'-'+production+'_'+cycle+'-hadronScattering'
     # Make directory
@@ -110,7 +110,7 @@ def hadronScatteringGenCommands( hadron_list = "212",tgt_list="1000060120", KEBe
                     shell_file = ''                
                     if grid_system == 'FNAL' :
                         shell_file= FNAL.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, "", 
-                                                             git_branch, git_loc, configure_INCL, configure_G4 ) 
+                                                             git_branch, git_loc, configure_INCL, configure_G4, GHEPMC3Output ) 
                         grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time,memory,disk)
                         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
 

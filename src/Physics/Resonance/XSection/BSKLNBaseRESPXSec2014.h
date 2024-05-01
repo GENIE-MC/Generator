@@ -8,8 +8,13 @@
 
 \ref      Berger, Sehgal Phys. Rev. D76, 113004 (2007) \n
           Kuzmin, Lyubushkin, Naumov Mod. Phys. Lett. A19 (2004) 2815 \n
-	        D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
+
+          D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
+
           and Single Pion Production, Ann.Phys.133, 79 (1981) \n
+
+          
+          K. M. Graczyk* and J. T. Sobczyk,PHYSICAL REVIEW D 77, 053001 (2008) for vector and axial current calculation \n
 
           Modifications based on a MiniBooNE tune courtesy of J. Nowak, S.Dytman
 
@@ -21,6 +26,10 @@
 
           Gabe Perdue
           Fermilab
+          
+          Igor Kakorin <kakorin@inr.ru>
+          Joint Institute for Nuclear Research 
+          
 
           Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
           University of Liverpool & STFC Rutherford Appleton Laboratory
@@ -42,7 +51,6 @@
 namespace genie {
 
   class RSHelicityAmplModelI;
-  class Spline;
   class XSecIntegratorI;
 
   class BSKLNBaseRESPXSec2014: public XSecAlgorithmI {
@@ -75,16 +83,19 @@ namespace genie {
       const RSHelicityAmplModelI * fHAmplModelEMp;
       const RSHelicityAmplModelI * fHAmplModelEMn;
 
+      double fFermiConstant2 ;
+      double fFineStructure2 ;
+
       // configuration data
       bool     fWghtBW;            ///< weight with resonance breit-wigner?
       bool     fNormBW;            ///< normalize resonance breit-wigner to 1?
       double   fZeta;              ///< FKR parameter Zeta
       double   fOmega;             ///< FKR parameter Omega
+      double   fCa50;              ///< CA5_0
       double   fMa2;               ///< (axial mass)^2
       double   fMv2;               ///< (vector mass)^2
       double   fVud2;              ///< |Vud|^2(square of magnitude ud-element of CKM-matrix)
       bool     fUsingDisResJoin;   ///< use a DIS/RES joining scheme?
-      bool     fUsingNuTauScaling; ///< use NeuGEN nutau xsec reduction factors?
       double   fWcut;              ///< apply DIS/RES joining scheme < Wcut
       double   fN2ResMaxNWidths;   ///< limits allowed phase space for n=2 res
       double   fN0ResMaxNWidths;   ///< limits allowed phase space for n=0 res
@@ -104,6 +115,18 @@ namespace genie {
       // Tuned to ANL BNL data
       bool fGAMiniBooNE;
       bool fGVMiniBooNE;
+
+      // GV calculation coeff
+      double fCv3;
+      double fCv4;
+      double fCv51;
+      double fCv52;
+
+      // Sarita-Schwinger prenscription parameters from PhysRevD.77.053001
+      bool   fGASaritaSchwinger ; 
+      bool   fGVSaritaSchwinger ; 
+      double fcII ; 
+      double fMb2 ; 
 
       const XSecIntegratorI * fXSecIntegrator;
   };

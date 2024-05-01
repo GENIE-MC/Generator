@@ -49,7 +49,7 @@ s/include \"LlewellynSmith\/DipoleAxialFormFactorModel.h\"/include \"Physics\/Qu
 s/include \"ElFF\/DipoleELFormFactorsModel.h\"/include \"Physics\/QuasiElastic\/XSection\/DipoleELFormFactorsModel.h\"/ 
 s/include \"ElFF\/ELFormFactors.h\"/include \"Physics\/QuasiElastic\/XSection\/ELFormFactors.h\"/ 
 s/include \"ElFF\/ELFormFactorsModelI.h\"/include \"Physics\/QuasiElastic\/XSection\/ELFormFactorsModelI.h\"/ 
-s/include \"LlewellynSmith\/KuzminNaumov2016AxialFormFactorModel.h\"/include \"Physics\/QuasiElastic\/XSection\/KuzminNaumov2016AxialFormFactorModel.h\"/ 
+s/include \"LlewellynSmith\/MArunAxialFormFactorModel.h\"/include \"Physics\/QuasiElastic\/XSection\/MArunAxialFormFactorModel.h\"/ 
 s/include \"ElFF\/LinkDef.h\"/include \"Physics\/QuasiElastic\/XSection\/LinkDef.h\"/ 
 s/include \"LlewellynSmith\/LwlynSmithFF.h\"/include \"Physics\/QuasiElastic\/XSection\/LwlynSmithFF.h\"/ 
 s/include \"LlewellynSmith\/LwlynSmithFFCC.h\"/include \"Physics\/QuasiElastic\/XSection\/LwlynSmithFFCC.h\"/ 

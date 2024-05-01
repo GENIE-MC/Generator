@@ -46,6 +46,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    doxygen-doc          Generate doxygen documentation at build time                default: disabled \n";
   print "    gfortran             Link against external libraries built with gfortran         default: disabled \n";
   print "    g2c                  Link against external libraries built with g77              default: disabled \n";
+  print "    professor2           Build bundled professor2 libraries                          default: disabled \n";
   print "\n options for 3rd party software, prefix with --with- (eg --with-lhapdf5-lib=/some/path/)\n\n";
   print "    compiler          Compiler to use (any of clang,gcc)                          default: gcc \n";
   print "    optimiz-level     Compiler optimization        any of O,O2,O3,OO,Os / default: O2 \n";
@@ -104,9 +105,9 @@ unless defined $ROOTSYS;
 # (GENIE uses GSL via ROOT's MathMore library.)
 #
 {
-  $mathmore_lib = "$ROOTSYS/lib/libMathMore.so";
-  if( ! -f $mathmore_lib ) {
-     die ("*** Error *** ROOT needs to be built with GSL/MathMore enabled.");
+  chomp($has_mathmore = `root-config --has-mathmore`);
+  if ( $has_mathmore ne 'yes' ) {
+    die ("*** Error *** ROOT needs to be built with GSL/MathMore enabled.");
   }
 }
 
@@ -176,6 +177,7 @@ my $gopt_enable_profiler             = "NO";
 my $gopt_enable_doxygen_doc          = "NO";
 my $gopt_enable_gfortran             = "NO";
 my $gopt_enable_g2c                  = "NO";
+my $gopt_enable_professor2           = "NO";
 
 # Check configure's command line arguments for non-default values
 #
@@ -209,6 +211,7 @@ if(($match = grep(/--enable-profiler/i,             @ARGV)) > 0) { $gopt_enable_
 if(($match = grep(/--enable-doxygen-doc/i,          @ARGV)) > 0) { $gopt_enable_doxygen_doc          = "YES"; }
 if(($match = grep(/--enable-gfortran/i,             @ARGV)) > 0) { $gopt_enable_gfortran             = "YES"; }
 if(($match = grep(/--enable-g2c/i,                  @ARGV)) > 0) { $gopt_enable_g2c                  = "YES"; }
+if(($match = grep(/--enable-professor2/i,           @ARGV)) > 0) { $gopt_enable_professor2           = "YES"; }
 
 # LHAPDF6 and LHAPDF5 are mutually exlusive
 if ($gopt_enable_lhapdf6 eq "YES" && $gopt_enable_lhapdf5 eq "YES") {
@@ -949,6 +952,15 @@ if($gopt_enable_g2c eq "YES") {
   }
 }
 
+# ------------------------------------------------
+# Professor2 submode checkout
+# ------------------------------------------------
+if ($gopt_enable_professor2 eq "YES") {
+  #run git submodule update src/ExternalLibs/professor
+  print "Checking out Professor2 submodule...\n";
+  system("git submodule update --init src/ExternalLibs/professor");
+  print "Done.\n"; 
+}
 
 # Save config options
 #
@@ -1006,6 +1018,7 @@ print MKCONF "GOPT_WITH_GEANT4_INC=$gopt_with_geant4_inc\n";
 print MKCONF "GOPT_WITH_GEANT4_LIB=$gopt_with_geant4_lib\n";
 print MKCONF "GOPT_WITH_GFORTRAN_LIB=$gopt_with_gfortran_lib\n";
 print MKCONF "GOPT_WITH_G2C_LIB=$gopt_with_g2c_lib\n";
+print MKCONF "GOPT_WITH_PROFESSOR2=$gopt_enable_professor2\n";
 close(MKCONF);
 
 print "\nYour input configuration options were: @ARGV";
