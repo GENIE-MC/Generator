@@ -3,10 +3,10 @@
  Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Hugh Gallagher <hugh.gallagher \at tufts.edu>
+ Hugh Gallagher <hugh.gallagher@tufts.edu>
 
  From code provided by:
- Igor Kakorin <idkakorin \at gmail.com>
+ Igor Kakorin <idkakorin@gmail.com>
  Joint Institute for Nuclear Research, Dubna
 */
 //____________________________________________________________________________
@@ -14,35 +14,35 @@
 #include <TMath.h>
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Physics/QuasiElastic/XSection/KuzminNaumov2016AxialFormFactorModel.h"
+#include "Physics/QuasiElastic/XSection/MArunAxialFormFactorModel.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 
 //____________________________________________________________________________
-KuzminNaumov2016AxialFormFactorModel::KuzminNaumov2016AxialFormFactorModel() :
-AxialFormFactorModelI("genie::KuzminNaumov2016AxialFormFactorModel")
+MArunAxialFormFactorModel::MArunAxialFormFactorModel() :
+AxialFormFactorModelI("genie::MArunAxialFormFactorModel")
 {
 
 }
 //____________________________________________________________________________
-KuzminNaumov2016AxialFormFactorModel::KuzminNaumov2016AxialFormFactorModel(string config) :
-AxialFormFactorModelI("genie::KuzminNaumov2016AxialFormFactorModel", config)
+MArunAxialFormFactorModel::MArunAxialFormFactorModel(string config) :
+AxialFormFactorModelI("genie::MArunAxialFormFactorModel", config)
 {
 
 }
 //____________________________________________________________________________
-KuzminNaumov2016AxialFormFactorModel::~KuzminNaumov2016AxialFormFactorModel()
+MArunAxialFormFactorModel::~MArunAxialFormFactorModel()
 {
 
 }
 //____________________________________________________________________________
-double KuzminNaumov2016AxialFormFactorModel::FA(const Interaction * interaction) const
+double MArunAxialFormFactorModel::FA(const Interaction * interaction) const
 {
   const InitialState & init_state = interaction->InitState();
   const Target & target = init_state.Tgt();
-// get scattering parameters
+  // get scattering parameters
   const Kinematics & kine = interaction->Kine();
   double q2 = kine.q2();
 
@@ -56,23 +56,23 @@ double KuzminNaumov2016AxialFormFactorModel::FA(const Interaction * interaction)
   dn = TMath::Power(1.-q2/fMa2, 2);
   double fa = fFA0/dn;
 
-  LOG("KuzminNaumov2016MA", pDEBUG) << "FA(q^2 = " << q2 << ") = " << fa;
+  LOG("MArunAxialFormFactorModel", pDEBUG) << "FA(q^2 = " << q2 << ") = " << fa;
   return fa;
 }
 //____________________________________________________________________________
-void KuzminNaumov2016AxialFormFactorModel::Configure(const Registry & config)
+void MArunAxialFormFactorModel::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void KuzminNaumov2016AxialFormFactorModel::Configure(string param_set)
+void MArunAxialFormFactorModel::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void KuzminNaumov2016AxialFormFactorModel::LoadConfig(void)
+void MArunAxialFormFactorModel::LoadConfig(void)
 {
   // axial mass
 	GetParam( "QEL-Ma", fMa ) ;

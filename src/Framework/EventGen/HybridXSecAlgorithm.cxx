@@ -80,7 +80,17 @@ double HybridXSecAlgorithm::XSec(const Interaction* interaction,
   const XSecAlgorithmI* alg_to_use = this->ChooseXSecAlg( *interaction );
 
   if ( !alg_to_use ) return 0.;
-  else return alg_to_use->XSec( interaction, kps );
+  // Ad hoc solution of problem with inappropriate kinematic phase space
+  // reported by Julia so she can continue working.
+  // (The reason of problem: it is intended for LlewelynSmith, 
+  // BUT also used by Rosenbluth)
+  // A more thoughtful solutions could be
+  // 1. Specify in the configuration file the phase space appropriate 
+  // for each algorithm
+  // 2. Implement in RosenbluthPXSec the analog of method 
+  // LwlynSmithQELCCPXSec::FullDifferentialXSec - Igor Kakorin
+  if (alg_to_use == fDefaultXSecAlg) return alg_to_use->XSec( interaction, kps );
+  return alg_to_use->XSec( interaction, kPSQ2fE );
 }
 //_________________________________________________________________________
 double HybridXSecAlgorithm::Integral(const Interaction* interaction) const

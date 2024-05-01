@@ -1,11 +1,11 @@
 //_________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
- For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
+   Copyright (c) 2003-2023, The GENIE Collaboration
+   For the full text of the license visit http://copyright.genie-mc.org
+   or see $GENIE/LICENSE
 
- For the class documentation see the corresponding header file.
-*/
+   For the class documentation see the corresponding header file.
+   */
 //_________________________________________________________________________
 
 #include "Framework/Algorithm/AlgConfigPool.h"
@@ -35,7 +35,7 @@ SuSAv2QELPXSec::SuSAv2QELPXSec() : XSecAlgorithmI("genie::SuSAv2QELPXSec")
 }
 //_________________________________________________________________________
 SuSAv2QELPXSec::SuSAv2QELPXSec(string config)
-  : XSecAlgorithmI("genie::SuSAv2QELPXSec", config)
+	: XSecAlgorithmI("genie::SuSAv2QELPXSec", config)
 {
 }
 //_________________________________________________________________________
@@ -44,7 +44,7 @@ SuSAv2QELPXSec::~SuSAv2QELPXSec()
 }
 //_________________________________________________________________________
 double SuSAv2QELPXSec::XSec(const Interaction* interaction,
-  KinePhaseSpace_t kps) const
+		KinePhaseSpace_t kps) const
 {
   if ( !this->ValidProcess(interaction) ) return 0.;
 
@@ -476,183 +476,183 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 //_________________________________________________________________________
 double SuSAv2QELPXSec::XSecScaling(double xsec, const Interaction* interaction, int target_pdg, int tensor_pdg, bool need_to_scale) const
 {
-  // The xsecs need to be given per active nucleon, but the calculations above are per atom. 
-  // We also need to A-scale anyhow if the target nucleus is not exactly the one we have the tensor for.
-  // We adjust for this bellow.
+	// The xsecs need to be given per active nucleon, but the calculations above are per atom.
+	// We also need to A-scale anyhow if the target nucleus is not exactly the one we have the tensor for.
+	// We adjust for this bellow.
 
-  const ProcessInfo& proc_info = interaction->ProcInfo();
+	const ProcessInfo& proc_info = interaction->ProcInfo();
 
-  // Neutron, proton, and mass numbers of the target
-  const Target& tgt = interaction->InitState().Tgt();
+	// Neutron, proton, and mass numbers of the target
+	const Target& tgt = interaction->InitState().Tgt();
 
-  int probe_pdg = interaction->InitState().ProbePdg();
+	int probe_pdg = interaction->InitState().ProbePdg();
 
-  if ( proc_info.IsWeakCC() ) {
-    if ( pdg::IsNeutrino(probe_pdg) ) xsec *= tgt.N();
-    else if ( pdg::IsAntiNeutrino(probe_pdg) ) xsec *= tgt.Z();
-    else {
-      // We should never get here if ValidProcess() is working correctly
-      LOG("SuSAv2QE", pERROR) << "Unrecognized probe " << probe_pdg
-        << " encountered for a WeakCC process";
-      xsec = 0.;
-    }
-  }
-  else if ( proc_info.IsEM() || proc_info.IsWeakNC() ) {
-    // For EM processes, scale by the number of nucleons of the same type
-    // as the struck one. This ensures the correct ratio of initial-state
-    // p vs. n when making splines. The nuclear cross section is obtained
-    // by scaling by A/2 for an isoscalar target, so we can get the right
-    // behavior for all targets by scaling by Z/2 or N/2 as appropriate.
-    // Do the same for NC. TODO: double-check that this is the right
-    // thing to do when we SuSAv2 NC hadronic tensors are added to GENIE.
-    int hit_nuc_pdg = tgt.HitNucPdg();
-    if ( pdg::IsProton(hit_nuc_pdg) ) xsec *= tgt.Z() / 2.;
-    else if ( pdg::IsNeutron(hit_nuc_pdg) ) xsec *= tgt.N() / 2.;
-    // We should never get here if ValidProcess() is working correctly
-    else return 0.;
-  }
-  else {
-    // We should never get here if ValidProcess() is working correctly
-    LOG("SuSAv2QE", pERROR) << "Unrecognized process " << proc_info.AsString()
-      << " encountered in SuSAv2QELPXSec::XSec()";
-    xsec = 0.;
-  }
+	if ( proc_info.IsWeakCC() ) {
+		if ( pdg::IsNeutrino(probe_pdg) ) xsec *= tgt.N();
+		else if ( pdg::IsAntiNeutrino(probe_pdg) ) xsec *= tgt.Z();
+		else {
+			// We should never get here if ValidProcess() is working correctly
+			LOG("SuSAv2QE", pERROR) << "Unrecognized probe " << probe_pdg
+				<< " encountered for a WeakCC process";
+			xsec = 0.;
+		}
+	}
+	else if ( proc_info.IsEM() || proc_info.IsWeakNC() ) {
+		// For EM processes, scale by the number of nucleons of the same type
+		// as the struck one. This ensures the correct ratio of initial-state
+		// p vs. n when making splines. The nuclear cross section is obtained
+		// by scaling by A/2 for an isoscalar target, so we can get the right
+		// behavior for all targets by scaling by Z/2 or N/2 as appropriate.
+		// Do the same for NC. TODO: double-check that this is the right
+		// thing to do when we SuSAv2 NC hadronic tensors are added to GENIE.
+		int hit_nuc_pdg = tgt.HitNucPdg();
+		if ( pdg::IsProton(hit_nuc_pdg) ) xsec *= tgt.Z() / 2.;
+		else if ( pdg::IsNeutron(hit_nuc_pdg) ) xsec *= tgt.N() / 2.;
+		// We should never get here if ValidProcess() is working correctly
+		else return 0.;
+	}
+	else {
+		// We should never get here if ValidProcess() is working correctly
+		LOG("SuSAv2QE", pERROR) << "Unrecognized process " << proc_info.AsString()
+			<< " encountered in SuSAv2QELPXSec::XSec()";
+		xsec = 0.;
+	}
 
-  LOG("SuSAv2QE", pDEBUG) << "XSec in cm2 / atom is  " << xsec / units::cm2;
+	LOG("SuSAv2QE", pDEBUG) << "XSec in cm2 / atom is  " << xsec / units::cm2;
 
-  // This scaling should be okay-ish for the total xsec, but it misses
-  // the energy shift. To get this we should really just build releveant
-  // hadron tensors but there may be some ways to approximate it.
-  // For more details see Guille's thesis: https://idus.us.es/xmlui/handle/11441/74826
+	// This scaling should be okay-ish for the total xsec, but it misses
+	// the energy shift. To get this we should really just build releveant
+	// hadron tensors but there may be some ways to approximate it.
+	// For more details see Guille's thesis: https://idus.us.es/xmlui/handle/11441/74826
 
-  // We already did some of this when we apply the Q-value shift. We can do a little
-  // better by tuning the A-scaling as below, following the SuperScaling ansatz
-  if ( need_to_scale ) {
-    FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
-    const FermiMomentumTable * kft = kftp->GetTable(fKFTable);
-    double KF_tgt = kft->FindClosestKF(target_pdg, kPdgProton);
-    double KF_ten = kft->FindClosestKF(tensor_pdg, kPdgProton);
-    LOG("SuSAv2QE", pDEBUG) << "KF_tgt = " << KF_tgt;
-    LOG("SuSAv2QE", pDEBUG) << "KF_ten = " << KF_ten;
-    double scaleFact = (KF_ten/KF_tgt); // A-scaling already applied in section above
-    xsec *= scaleFact;
-  }
+	// We already did some of this when we apply the Q-value shift. We can do a little
+	// better by tuning the A-scaling as below, following the SuperScaling ansatz
+	if ( need_to_scale ) {
+		FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+		const FermiMomentumTable * kft = kftp->GetTable(fKFTable);
+		double KF_tgt = kft->FindClosestKF(target_pdg, kPdgProton);
+		double KF_ten = kft->FindClosestKF(tensor_pdg, kPdgProton);
+		LOG("SuSAv2QE", pDEBUG) << "KF_tgt = " << KF_tgt;
+		LOG("SuSAv2QE", pDEBUG) << "KF_ten = " << KF_ten;
+		double scaleFact = (KF_ten/KF_tgt); // A-scaling already applied in section above
+		xsec *= scaleFact;
+	}
 
-  return xsec;
+	return xsec;
 }
 
 //_________________________________________________________________________
 double SuSAv2QELPXSec::Integral(const Interaction* interaction) const
 {
-  double xsec = fXSecIntegrator->Integrate(this, interaction);
-  return xsec;
+	double xsec = fXSecIntegrator->Integrate(this, interaction);
+	return xsec;
 }
 //_________________________________________________________________________
 bool SuSAv2QELPXSec::ValidProcess(const Interaction* interaction) const
 {
-  if ( interaction->TestBit(kISkipProcessChk) ) return true;
+	if ( interaction->TestBit(kISkipProcessChk) ) return true;
 
-  const InitialState & init_state = interaction->InitState();
-  const ProcessInfo &  proc_info  = interaction->ProcInfo();
+	const InitialState & init_state = interaction->InitState();
+	const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
-  if ( !proc_info.IsQuasiElastic() ) return false;
+	if ( !proc_info.IsQuasiElastic() ) return false;
 
-  // The calculation is only appropriate for complex nuclear targets,
-  // not free nucleons.
-  if ( !init_state.Tgt().IsNucleus() ) return false;
+	// The calculation is only appropriate for complex nuclear targets,
+	// not free nucleons.
+	if ( !init_state.Tgt().IsNucleus() ) return false;
 
-  int  nuc = init_state.Tgt().HitNucPdg();
-  int  nu  = init_state.ProbePdg();
+	int  nuc = init_state.Tgt().HitNucPdg();
+	int  nu  = init_state.ProbePdg();
 
-  bool isP   = pdg::IsProton(nuc);
-  bool isN   = pdg::IsNeutron(nuc);
-  bool isnu  = pdg::IsNeutrino(nu);
-  bool isnub = pdg::IsAntiNeutrino(nu);
-  bool is_chgl = pdg::IsChargedLepton(nu);
+	bool isP   = pdg::IsProton(nuc);
+	bool isN   = pdg::IsNeutron(nuc);
+	bool isnu  = pdg::IsNeutrino(nu);
+	bool isnub = pdg::IsAntiNeutrino(nu);
+	bool is_chgl = pdg::IsChargedLepton(nu);
 
-  bool prcok = ( proc_info.IsWeakCC() && ((isP && isnub) || (isN && isnu)) )
-    || ( proc_info.IsEM() && is_chgl && (isP || isN) );
-  if ( !prcok ) return false;
+	bool prcok = ( proc_info.IsWeakCC() && ((isP && isnub) || (isN && isnu)) )
+		|| ( proc_info.IsEM() && is_chgl && (isP || isN) );
+	if ( !prcok ) return false;
 
-  return true;
+	return true;
 }
 //_________________________________________________________________________
 void SuSAv2QELPXSec::Configure(const Registry& config)
 {
-  Algorithm::Configure(config);
-  this->LoadConfig();
+	Algorithm::Configure(config);
+	this->LoadConfig();
 }
 //____________________________________________________________________________
 void SuSAv2QELPXSec::Configure(std::string config)
 {
-  Algorithm::Configure(config);
-  this->LoadConfig();
+	Algorithm::Configure(config);
+	this->LoadConfig();
 }
 //_________________________________________________________________________
 void SuSAv2QELPXSec::LoadConfig(void)
 {
-  bool good_config = true ;
+	bool good_config = true ;
 
-  // Cross section scaling factor
-  GetParam( "QEL-CC-XSecScale", fXSecCCScale ) ;
-  GetParam( "QEL-NC-XSecScale", fXSecNCScale ) ;
-  GetParam( "QEL-EM-XSecScale", fXSecEMScale ) ;
+	// Cross section scaling factor
+	GetParam( "QEL-CC-XSecScale", fXSecCCScale ) ;
+	GetParam( "QEL-NC-XSecScale", fXSecNCScale ) ;
+	GetParam( "QEL-EM-XSecScale", fXSecEMScale ) ;
 
-  // Cross section model choice
-  int modelChoice;
-  GetParam( "Model-Config", modelChoice ) ;
-  modelConfig = (modelType)modelChoice;
+	// Cross section model choice
+	int modelChoice;
+	GetParam( "Model-Config", modelChoice ) ;
+	modelConfig = (modelType)modelChoice;
 
-  // Blending parameters
-  GetParam( "Blend-Mode", blendMode ) ; // 1 = linear, 2 = exp
-  GetParam( "q0-Blend-Start", q0BlendStart ) ; // Used for linear
-  GetParam( "q0-Blend-End", q0BlendEnd ) ; // Used for linear
-  GetParam( "q-Blend-del", qBlendDel ) ; // Used for exp
-  GetParam( "q-Blend-ref", qBlendRef ) ; // Used for exp
+	// Blending parameters
+	GetParam( "Blend-Mode", blendMode ) ; // 1 = linear, 2 = exp
+	GetParam( "q0-Blend-Start", q0BlendStart ) ; // Used for linear
+	GetParam( "q0-Blend-End", q0BlendEnd ) ; // Used for linear
+	GetParam( "q-Blend-del", qBlendDel ) ; // Used for exp
+	GetParam( "q-Blend-ref", qBlendRef ) ; // Used for exp
 
-  fHadronTensorModel = dynamic_cast< const SuSAv2QELHadronTensorModel* >(
-    this->SubAlg("HadronTensorAlg") );
-  assert( fHadronTensorModel );
+	fHadronTensorModel = dynamic_cast< const SuSAv2QELHadronTensorModel* >(
+			this->SubAlg("HadronTensorAlg") );
+	assert( fHadronTensorModel );
 
-  // Load XSec Integrator
-  fXSecIntegrator = dynamic_cast<const XSecIntegratorI *>(
-    this->SubAlg("XSec-Integrator") );
-  assert( fXSecIntegrator );
+	// Load XSec Integrator
+	fXSecIntegrator = dynamic_cast<const XSecIntegratorI *>(
+			this->SubAlg("XSec-Integrator") );
+	assert( fXSecIntegrator );
 
-  // Fermi momentum tables for scaling
-  this->GetParam( "FermiMomentumTable", fKFTable);
+	// Fermi momentum tables for scaling
+	this->GetParam( "FermiMomentumTable", fKFTable);
 
-  // Binding energy lookups for scaling
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000020040", fEbHe );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000030060", fEbLi );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000060120", fEbC  );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000080160", fEbO  );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000120240", fEbMg );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000180400", fEbAr );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000200400", fEbCa );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000260560", fEbFe );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000280580", fEbNi );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000501190", fEbSn );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000791970", fEbAu );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000822080", fEbPb );
+	// Binding energy lookups for scaling
+	this->GetParam( "RFG-NucRemovalE@Pdg=1000020040", fEbHe );
+	this->GetParam( "RFG-NucRemovalE@Pdg=1000030060", fEbLi );
+	this->GetParam( "RFG-NucRemovalE@Pdg=1000060120", fEbC  );
+	this->GetParam( "RFG-NucRemovalE@Pdg=1000080160", fEbO  );
+	this->GetParam( "RFG-NucRemovalE@Pdg=1000120240", fEbMg );
+	this->GetParam( "RFG-NucRemovalE@Pdg=1000180400", fEbAr );
+	this->GetParam( "RFG-NucRemovalE@Pdg=1000200400", fEbCa );
+	this->GetParam( "RFG-NucRemovalE@Pdg=1000260560", fEbFe );
+	this->GetParam( "RFG-NucRemovalE@Pdg=1000280580", fEbNi );
+	this->GetParam( "RFG-NucRemovalE@Pdg=1000501190", fEbSn );
+	this->GetParam( "RFG-NucRemovalE@Pdg=1000791970", fEbAu );
+	this->GetParam( "RFG-NucRemovalE@Pdg=1000822080", fEbPb );
 
-  // Read optional QvalueShifter:
-  fQvalueShifter = nullptr;                                                                                        
-  if( GetConfig().Exists("QvalueShifterAlg") ) {            
-    
-    fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );      
+	// Read optional QvalueShifter:
+	fQvalueShifter = nullptr;
+	if( GetConfig().Exists("QvalueShifterAlg") ) {
 
-    if( !fQvalueShifter ) {                                                      
+		fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
 
-      good_config = false ;                                                    
-                                  
-      LOG("SuSAv2QE", pERROR) << "The required QvalueShifterAlg is not valid. AlgID is : " 
-			      << SubAlg("QvalueShifterAlg")->Id() ;    
-    }                                                                                                               
-  }  // if there is a requested QvalueShifteralgo                                                                                                                
-  if( ! good_config ) {
-    LOG("SuSAv2QE", pERROR) << "Configuration has failed.";
-    exit(78) ;
-  }
+		if( !fQvalueShifter ) {
+
+			good_config = false ;
+
+			LOG("SuSAv2QE", pERROR) << "The required QvalueShifterAlg is not valid. AlgID is : "
+				<< SubAlg("QvalueShifterAlg")->Id() ;
+		}
+	}  // if there is a requested QvalueShifteralgo
+	if( ! good_config ) {
+		LOG("SuSAv2QE", pERROR) << "Configuration has failed.";
+		exit(78) ;
+	}
 
 }
