@@ -371,10 +371,10 @@ bool AlgConfigPool::LoadRegistries(
                 if(!importfile.compare("false")){
                   string rowdelim = utils::str::TrimSpaces( utils::xml::GetAttribute(xml_param, "rowdelim"));
                   string coldelim = utils::str::TrimSpaces( utils::xml::GetAttribute(xml_param, "coldelim"));
-                  this -> AddParameterMatrix(config, param_type, param_name, param_value, importfile, rowdelim, coldelim);
+                  this -> AddParameterMatrix(config, param_type, param_name, param_value, rowdelim, coldelim);
                 }
                 else if(!importfile.compare("true")){
-                  this -> AddParameterMatrix(config, param_type, param_name, param_value, importfile);
+                  this -> AddParameterMatrix(config, param_type, param_name, param_value );
                 }
             }
 	    else this->AddConfigParameter( config,
@@ -438,104 +438,113 @@ int  AlgConfigPool::AddParameterVector  (Registry * r, string pt, string pn, str
 }
 
 //____________________________________________________________________________
-int  AlgConfigPool::AddParameterMatrix  (Registry * r, string pt, string pn, string pv, const string & importfile,
+int  AlgConfigPool::AddParameterMatrix  (Registry * r, string pt, string pn, string pv,
 					 const string & rowdelim, const string & coldelim ) {
 
-  // Adds a configuration parameter vector
+  // Adds a configuration parameter matrix
   // It is simply add a number of entries in the Registy
   // The name scheme starts from the name and it goes like
-  // 'N'+pn+'s' that will be an integer with the number of entries.
-  // Each entry will be named pn+"-i" where i is replaced by the number
+  // 'Nrow'+pn+'s' for the size of rows and 
+  // 'Ncol'+pn+'s' for the size of columns
+  // that will be an integer with the number of entries.
+  // Each entry will be named pn+"-i"+"-j" where i and j are 
+  // index of row and column and replaced by the number
 
-  if(!importfile.compare("false")){
-    if(!rowdelim.compare(coldelim) || rowdelim.empty() || coldelim.empty()) {
-      LOG("AlgConfigPool", pFATAL) << "row and column have wrong delims: " << rowdelim << "  " << coldelim ;
-      exit(1);
-    }
-    SLOG("AlgConfigPool", pDEBUG)
-      << "Adding Parameter Matrix [" << pt << "]: Key = "
-      << pn << " -> Value = " << pv;
-
-    vector<string> mat_row = utils::str::Split( pv, rowdelim ) ;
-
-    string r_name = Algorithm::BuildParamMatRowSizeKey( pn ) ;
-
-
-    unsigned int n_row = 0, n_col = 0;
-    std::stringstream r_value ;
-    r_value << mat_row.size() ;
-    n_row = mat_row.size() ;
-
-    this->AddConfigParameter(r, "int", r_name, r_value.str() );
-
-    for ( unsigned int i = 0 ; i < mat_row.size() ; ++i ) {
-      vector<string> bits = utils::str::Split( mat_row[i], coldelim ) ;
-      if(i == 0){
-        string c_name = Algorithm::BuildParamMatColSizeKey( pn ) ;
-        std::stringstream c_value ;
-        c_value << bits.size();
-        n_col = bits.size();
-        this->AddConfigParameter(r, "int", c_name, c_value.str() );
-      }
-      else{
-        if(n_col != bits.size()){
-          LOG("AlgConfigPool", pFATAL) << "wrong size of matrix in row: " << i;
-          exit(1);
-        }
-      }
-
-      for ( unsigned int j = 0 ; j < bits.size() ; ++j ) {
-
-        std::string name = Algorithm::BuildParamMatKey( pn, i, j ) ;
-
-        this -> AddConfigParameter( r, pt, name, utils::str::TrimSpaces( bits[j] ) );
-
-      }
-    }
-    return n_row * n_col;
-  }
-  else if(!importfile.compare("true")){
-    std::ifstream file(pv);
-    if (!file.is_open()) {
-      throw std::runtime_error("Could not open file");
-    }
-    std::string line;
-    int n_row = 0, n_col = 0;
-    int i_row = 0;
-    while (getline(file, line)) {
-      std::istringstream iss(line);
-      double value;
-      int i_col = 0;
-      while (iss >> value) {
-        std::string name = Algorithm::BuildParamMatKey( pn, i_row, i_col ) ;
-        this -> AddConfigParameter( r, pt, name, utils::str::TrimSpaces( std::to_string(value) ) );
-        i_col++;
-      }
-      if(i_row == 0)
-        n_col = i_col;
-      else{
-        if(n_col != i_col){
-           LOG("AlgConfigPool", pFATAL) << "wrong size of matrix in row: " << i_row;
-           exit(1);
-        }
-      }
-      i_row++;
-    }
-    n_row = i_row;
-    std::stringstream r_value ;
-    r_value << n_row ;
-    string r_name = Algorithm::BuildParamMatRowSizeKey( pn ) ;
-    this->AddConfigParameter(r, "int", r_name, r_value.str() );
-    std::stringstream c_value ;
-    c_value << n_col ;
-    string c_name = Algorithm::BuildParamMatColSizeKey( pn ) ;
-    this->AddConfigParameter(r, "int", c_name, c_value.str() );
-    return n_row*n_col;
-  }
-  else{
-    LOG("AlgConfigPool", pFATAL) << "wrong input of matrix! ";
+  if(!rowdelim.compare(coldelim) || rowdelim.empty() || coldelim.empty()) {
+    LOG("AlgConfigPool", pFATAL) << "row and column have wrong delims: " << rowdelim << "  " << coldelim ;
     exit(1);
   }
+  SLOG("AlgConfigPool", pDEBUG)
+    << "Adding Parameter Matrix [" << pt << "]: Key = "
+    << pn << " -> Value = " << pv;
+
+  vector<string> mat_row = utils::str::Split( pv, rowdelim ) ;
+
+  string r_name = Algorithm::BuildParamMatRowSizeKey( pn ) ;
+
+
+  unsigned int n_row = 0, n_col = 0;
+  std::stringstream r_value ;
+  r_value << mat_row.size() ;
+  n_row = mat_row.size() ;
+
+  this->AddConfigParameter(r, "int", r_name, r_value.str() );
+
+  for ( unsigned int i = 0 ; i < mat_row.size() ; ++i ) {
+    vector<string> bits = utils::str::Split( mat_row[i], coldelim ) ;
+    if(i == 0){
+      string c_name = Algorithm::BuildParamMatColSizeKey( pn ) ;
+      std::stringstream c_value ;
+      c_value << bits.size();
+      n_col = bits.size();
+      this->AddConfigParameter(r, "int", c_name, c_value.str() );
+    }
+    else{
+      if(n_col != bits.size()){
+        LOG("AlgConfigPool", pFATAL) << "wrong size of matrix in row: " << i;
+        exit(1);
+      }
+    }
+
+    for ( unsigned int j = 0 ; j < bits.size() ; ++j ) {
+
+      std::string name = Algorithm::BuildParamMatKey( pn, i, j ) ;
+
+      this -> AddConfigParameter( r, pt, name, utils::str::TrimSpaces( bits[j] ) );
+
+    }
+  }
+  return n_row * n_col;
+
+}
+//____________________________________________________________________________
+int  AlgConfigPool::AddParameterMatrix  (Registry * r, string pt, string pn, string pv ) {
+
+  // Adds a configuration parameter matrix
+  // It is simply add a number of entries in the Registy
+  // The name scheme starts from the name and it goes like
+  // 'Nrow'+pn+'s' for the size of rows and 
+  // 'Ncol'+pn+'s' for the size of columns
+  // that will be an integer with the number of entries.
+  // Each entry will be named pn+"-i"+"-j" where i and j are 
+  // index of row and column and replaced by the number
+
+  std::ifstream file(pv);
+  if (!file.is_open()) {
+    throw std::runtime_error("Could not open file");
+  }
+  std::string line;
+  int n_row = 0, n_col = 0;
+  int i_row = 0;
+  while (getline(file, line)) {
+    std::istringstream iss(line);
+    double value;
+    int i_col = 0;
+    while (iss >> value) {
+      std::string name = Algorithm::BuildParamMatKey( pn, i_row, i_col ) ;
+      this -> AddConfigParameter( r, pt, name, utils::str::TrimSpaces( std::to_string(value) ) );
+      i_col++;
+    }
+    if(i_row == 0)
+      n_col = i_col;
+    else{
+      if(n_col != i_col){
+         LOG("AlgConfigPool", pFATAL) << "wrong size of matrix in row: " << i_row;
+         exit(1);
+      }
+    }
+    i_row++;
+  }
+  n_row = i_row;
+  std::stringstream r_value ;
+  r_value << n_row ;
+  string r_name = Algorithm::BuildParamMatRowSizeKey( pn ) ;
+  this->AddConfigParameter(r, "int", r_name, r_value.str() );
+  std::stringstream c_value ;
+  c_value << n_col ;
+  string c_name = Algorithm::BuildParamMatColSizeKey( pn ) ;
+  this->AddConfigParameter(r, "int", c_name, c_value.str() );
+  return n_row*n_col;
 }
 
 
