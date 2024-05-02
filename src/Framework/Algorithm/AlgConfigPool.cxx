@@ -511,12 +511,11 @@ int  AlgConfigPool::AddParameterMatrix  (Registry * r, string pt, string pn, str
 
   char * GENIE_PATH = std::getenv("GENIE");
   string filepath = std::string(GENIE_PATH) + "/" + pv;
-  std::cout << filepath << std::endl;
-
   std::ifstream file(filepath);
   if (!file.is_open()) {
     throw std::runtime_error("Could not open file");
   }
+
   std::string line;
   int n_row = 0, n_col = 0;
   int i_row = 0;
