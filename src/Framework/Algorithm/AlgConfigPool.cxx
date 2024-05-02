@@ -509,7 +509,11 @@ int  AlgConfigPool::AddParameterMatrix  (Registry * r, string pt, string pn, str
   // Each entry will be named pn+"-i"+"-j" where i and j are 
   // index of row and column and replaced by the number
 
-  std::ifstream file(pv);
+  char * GENIE_PATH = std::getenv("GENIE");
+  string filepath = std::string(GENIE_PATH) + "/" + pv;
+  std::cout << filepath << std::endl;
+
+  std::ifstream file(filepath);
   if (!file.is_open()) {
     throw std::runtime_error("Could not open file");
   }
@@ -517,6 +521,11 @@ int  AlgConfigPool::AddParameterMatrix  (Registry * r, string pt, string pn, str
   int n_row = 0, n_col = 0;
   int i_row = 0;
   while (getline(file, line)) {
+    size_t start = line.find_first_not_of(" \t");
+    std::string trimmedLine = (start == std::string::npos) ? "" : line.substr(start);
+    if(trimmedLine.empty()) continue;
+    if(!trimmedLine.empty() && trimmedLine[0] == '%') continue;
+
     std::istringstream iss(line);
     double value;
     int i_col = 0;
