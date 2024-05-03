@@ -198,6 +198,9 @@ protected:
   template<class T>
     int GetParamMat( const std::string & comm_name, TMatrixT<T> & mat,
 		      bool is_top_call = true ) const ;
+  template<class T>
+    int GetParamMatSym( const std::string & comm_name, TMatrixTSym<T> & mat,
+		      bool is_top_call = true ) const ;
 
   int GetParamMatKeys( const std::string & comm_name, std::vector<RgKey> & k,
 			bool is_top_call = true ) const ;
