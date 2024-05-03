@@ -53,7 +53,7 @@ For more information, visit http://www.genie-mc.org
 - Luis Alvarez-Ruso (*IFIC*)
 - Costas Andreopoulos (+) (*Liverpool*)
 - Adi Ashkenazi (*Tel Aviv*)
-- Joshua Barrow (*Tel Aviv; MIT*)
+- Joshua Barrow (*University of Minnesota*)
 - Steve Dytman (*Pittsburgh*)
 - Hugh Gallagher (*Tufts*)
 - Alfonso Andres Garcia Soto (*Harvard and IFIC*)
