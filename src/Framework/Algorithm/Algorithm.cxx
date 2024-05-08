@@ -522,6 +522,33 @@ string  Algorithm::BuildParamVectSizeKey( const std::string & comm_name ) {
   return 'N' + comm_name + 's' ;
 
 }
+//____________________________________________________________________________
+
+string  Algorithm::BuildParamMatKey( const std::string & comm_name, unsigned int i, unsigned int j ) {
+
+  std::stringstream name;
+  name << comm_name << '-' << i << "-" << j ;
+  return name.str() ;
+
+}
+
+//____________________________________________________________________________
+
+string  Algorithm::BuildParamMatRowSizeKey( const std::string & comm_name ) {
+
+  return "Nrow" + comm_name + 's' ;
+
+}
+
+//____________________________________________________________________________
+
+string  Algorithm::BuildParamMatColSizeKey( const std::string & comm_name ) {
+
+  return "Ncol" + comm_name + 's' ;
+
+}
+
+
 
 //____________________________________________________________________________
 
@@ -552,6 +579,40 @@ int  Algorithm::GetParamVectKeys( const std::string & comm_name, std::vector<RgK
 
   return k.size() ;
 }
+
+//____________________________________________________________________________
+
+int  Algorithm::GetParamMatKeys( const std::string & comm_name, std::vector<RgKey> & k,
+				  bool is_top_call ) const {
+
+  k.clear() ;
+
+  int n_row = 0, n_col = 0 ;
+  std::string row_name = Algorithm::BuildParamMatRowSizeKey( comm_name ) ;
+  std::string col_name = Algorithm::BuildParamMatColSizeKey( comm_name ) ;
+
+  bool found = GetParam( row_name, n_row, is_top_call ) && GetParam( col_name, n_col, is_top_call ) ;
+
+  if ( ! found ) {
+    return 0 ;
+  }
+
+  for ( int i = 0; i < n_row; ++i ) {
+    for ( int j = 0; j < n_col; ++j ) {
+
+      RgKey temp_key = Algorithm::BuildParamMatKey( comm_name, i, j ) ;
+
+      // potentially, if it is a top call,
+      // we might want to check if the key actually exist in the global Registry
+      // Not a priority irght now
+
+      k.push_back( temp_key ) ;
+    }
+  }
+
+  return k.size() ;
+}
+
 
 
 //____________________________________________________________________________
