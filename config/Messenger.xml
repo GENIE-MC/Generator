@@ -214,6 +214,7 @@
   <priority msgstream="XSecAlgMap">            NOTICE </priority>
   <priority msgstream="XSecSplLst">            NOTICE </priority>
   <priority msgstream="ZExpAxialFormFactorModel"> NOTICE </priority>
+  <priority msgstream="ZExpELFormFactorModel"> WARN </priority>
   <priority msgstream="HELeptonXSec">          WARN    </priority>
   <priority msgstream="HELeptonKinematics">    WARN    </priority>
   <priority msgstream="GLRESPXSec">            WARN    </priority>
