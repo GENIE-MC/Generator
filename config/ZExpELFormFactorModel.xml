@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration sets for the z-expansion axial form factor model.
+
+Algorithm Configurable Parameters:
+.........................................................................................
+Name        Type    Optional   Comment                    Default
+.........................................................................................
+QEL-T0      double  Yes        z convergence parameter    GPL value: QEL-T0
+QEL-Z_A1    double  Yes        z expansion coefficient    GPL value: QEL-Z_A1
+QEL-Z_A2    double  Yes        z expansion coefficient    GPL value: QEL-Z_A2
+QEL-Z_A3    double  Yes        z expansion coefficient    GPL value: QEL-Z_A3
+QEL-Z_A4    double  Yes        z expansion coefficient    GPL value: QEL-Z_A4
+QEL-Z_A5    double  Yes        z expansion coefficient    GPL value: QEL-Z_A5
+QEL-Z_A6    double  Yes        z expansion coefficient    GPL value: QEL-Z_A6
+QEL-Z_A7    double  Yes        z expansion coefficient    GPL value: QEL-Z_A7
+QEL-Z_A8    double  Yes        z expansion coefficient    GPL value: QEL-Z_A8
+QEL-Z_A9    double  Yes        z expansion coefficient    GPL value: QEL-Z_A9
+QEL-Z_A10   double  Yes        z expansion coefficient    GPL value: QEL-Z_A10
+QEL-Kmax    int     Yes        max summation index        GPL value: QEL-Kmax
+QEL-Tcut    double  Yes        ??                         GPL value
+
+QEL-Q4limit bool    Yes        1/Q^4 limit conditions     GPL value: QEL-Q4limit
+
+-->
+
+  <param_set name="Default">
+
+    <param type="string"   name="CommonParam"> QuasiElastic  </param>
+
+    <param type="bool"   name="QEL-Q4limit"> true   </param>
+    <param type="int"    name="QEL-Kmax">    4      </param>
+
+    <param type="double" name="QEL-T0">     -0.21   </param>
+    <param type="double" name="QEL-Tcut">    0.0779198 </param> <!-- 4*m_pi^2 -->
+
+    <param type="vec-double" name="QEL-Z_AP" delim=";"> -1.485958065859; -0.096104515639; 1.823367310007; 1.287051328146      </param>
+    <param type="vec-double" name="QEL-Z_BP" delim=";"> -4.087902402976; 0.175515803136; 4.861856163076; -0.982798179847       </param>
+    <param type="vec-double" name="QEL-Z_AN" delim=";"> 0.084252682465; -0.278572218873; -0.153916309312; 0.353999966588     </param>
+    <param type="vec-double" name="QEL-Z_BN" delim=";"> 2.706784556423; -0.424305225602; -2.662453066640; 0.067583076040       </param>
+    <!-- more factors can be added, if necessary according to Kmax -->
+
+  </param_set>
+</alg_conf>
+
