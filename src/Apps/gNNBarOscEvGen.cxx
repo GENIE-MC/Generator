@@ -1,18 +1,9 @@
-//________________________________________________________________________________________
-/*!
-
-\program gevgen_nosc
-
-\brief   A GENIE-based n-nbar oscillation event generation application.
-
-         *** Synopsis :
-
-         gevgen_nosc [-h] 
-                     [-r run#] 
+//________________________________________________________________________________________ /*! \program gevgen_nosc \brief   A GENIE-based n-nbar oscillation event generation application. *** Synopsis : gevgen_nosc [-h]
+                     [-r run#]
                       -n n_of_events
                      [-m decay_mode]
 	              -g geometry
-                     [-L geometry_length_units] 
+                     [-L geometry_length_units]
                      [-D geometry_density_units]
                      [-t geometry_top_volume_name]
                      [-o output_event_file_prefix]
@@ -25,17 +16,17 @@
 
            [] Denotes an optional argument
 
-           -h 
+           -h
               Prints out the gevgen_nosc syntax and exits.
-           -r 
+           -r
               Specifies the MC run number [default: 1000].
-           -n  
+           -n
               Specifies how many events to generate.
-           -m 
+           -m
               Nucleon decay mode ID:
              ---------------------------------------------------------
-              ID |   Decay Mode                     
-                 |                                  
+              ID |   Decay Mode
+                 |
              ---------------------------------------------------------
                0 |    Random decay mode
                1 |    p + nbar --> \pi^{+} + \pi^{0}
@@ -56,31 +47,31 @@
               16 |    n + nbar --> 2\pi^{+} + 2\pi^{-} + 2\pi^{0}
              ---------------------------------------------------------
 
-           -g 
+           -g
               Input 'geometry'.
               This option can be used to specify any of:
               1 > A ROOT file containing a ROOT/GEANT geometry description
-                  [Examples] 
-                  - To use the master volume from the ROOT geometry stored 
+                  [Examples]
+                  - To use the master volume from the ROOT geometry stored
                     in the laguna-lbno.root file, type:
                     '-g /some/path/laguna-lbno.root'
               2 > A mix of target materials, each with its corresponding weight,
                   typed as a comma-separated list of nuclear PDG codes (in the
                   std PDG2006 convention: 10LZZZAAAI) with the weight fractions
                   in brackets, eg code1[fraction1],code2[fraction2],...
-                  If that option is used (no detailed input geometry description) 
+                  If that option is used (no detailed input geometry description)
                   then the interaction vertices are distributed in the detector
                   by the detector MC.
-                  [Examples] 
+                  [Examples]
                   - To use a target mix of 88.9% O16 and 11.1% Hydrogen type:
                     '-g 1000080160[0.889],1000010010[0.111]'
-           -L 
+           -L
               Input geometry length units, eg 'm', 'cm', 'mm', ...
               [default: 'mm']
-           -D 
-              Input geometry density units, eg 'g_cm3', 'clhep_def_density_unit',... 
+           -D
+              Input geometry density units, eg 'g_cm3', 'clhep_def_density_unit',...
               [default: 'g_cm3']
-           -t 
+           -t
               Input 'top volume' for event generation.
               The option be used to force event generation in given sub-detector.
               [default: the 'master volume' of the input geometry]
@@ -97,11 +88,11 @@
               except the ones explicitly turned on. Vice versa, if the very first
               character is a `-', GENIE will keep all volumes except the ones
               explicitly turned off (feature contributed by J.Holeczek).
-           -o 
-              Sets the prefix of the output event file. 
-              The output filename is built as: 
+           -o
+              Sets the prefix of the output event file.
+              The output filename is built as:
               [prefix].[run_number].[event_tree_format].[file_format]
-              The default output filename is: 
+              The default output filename is:
               gntp.[run_number].ghep.root
               This cmd line arguments lets you override 'gntp'
            --seed
@@ -109,28 +100,28 @@
 
 \author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
  University of Liverpool & STFC Rutherford Appleton Laboratory
-              
+
 \created November 03, 2011
 
 \author  Linyan Wan
  Fermilab
 
 \created April 18, 2024
-             
+
 \cpright Copyright (c) 2003-2023, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
-         
+
 
 */
 //_________________________________________________________________________________________
 
 #include <cassert>
 #include <cstdlib>
-#include <string> 
+#include <string>
 #include <vector>
 #include <sstream>
 
-#include <TSystem.h> 
+#include <TSystem.h>
 
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/EventGen/EventRecord.h"
@@ -140,6 +131,7 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Ntuple/NtpWriter.h"
 #include "Physics/NNBarOscillation/NNBarOscMode.h"
+#include "Physics/NNBarOscillation/NNBarOscPrimaryVtxGenerator.h"
 #include "Physics/NNBarOscillation/NNBarOscUtils.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -161,14 +153,14 @@ using namespace genie;
 // function prototypes
 void  GetCommandLineArgs (int argc, char ** argv);
 void  PrintSyntax        (void);
-int   SelectAnnihilationMode (int pdg_code);
+int   SelectAnnihilationMode (int pdg_code, const EventRecordVisitorI* mcgen);
 int   SelectInitState    (void);
 const EventRecordVisitorI * NeutronOscGenerator(void);
 
 //
 string          kDefOptGeomLUnits   = "mm";    // default geometry length units
 string          kDefOptGeomDUnits   = "g_cm3"; // default geometry density units
-NtpMCFormat_t   kDefOptNtpFormat    = kNFGHEP; // default event tree format   
+NtpMCFormat_t   kDefOptNtpFormat    = kNFGHEP; // default event tree format
 string          kDefOptEvFilePrefix = "gntp";
 
 //
@@ -179,9 +171,9 @@ string             gOptEvFilePrefix = kDefOptEvFilePrefix; // event file prefix
 bool               gOptUsingRootGeom = false;              // using root geom or target mix?
 map<int,double>    gOptTgtMix;                             // target mix  (tgt pdg -> wght frac) / if not using detailed root geom
 string             gOptRootGeom;                           // input ROOT file with realistic detector geometry
-string             gOptRootGeomTopVol = "";                // input geometry top event generation volume 
-double             gOptGeomLUnits = 0;                     // input geometry length units 
-double             gOptGeomDUnits = 0;                     // input geometry density units 
+string             gOptRootGeomTopVol = "";                // input geometry top event generation volume
+double             gOptGeomLUnits = 0;                     // input geometry length units
+double             gOptGeomDUnits = 0;                     // input geometry density units
 long int           gOptRanSeed = -1;                       // random number seed
 
 //_________________________________________________________________________________________
@@ -220,11 +212,11 @@ int main(int argc, char ** argv)
 
      EventRecord * event = new EventRecord;
      int target = SelectInitState();
-     int decay = SelectAnnihilationMode(target);
+     int decay = SelectAnnihilationMode(target, mcgen);
      Interaction * interaction = Interaction::NOsc(target,decay);
      event->AttachSummary(interaction);
 
-     // Simulate decay     
+     // Simulate decay
      mcgen->ProcessEventRecord(event);
 
      LOG("gevgen_nnbar_osc", pINFO)
@@ -246,7 +238,7 @@ int main(int argc, char ** argv)
   return 0;
 }
 //_________________________________________________________________________________________
-int SelectAnnihilationMode(int pdg_code)
+int SelectAnnihilationMode(int pdg_code, const EventRecordVisitorI* mcgen)
 {
   // if the mode is set to 'random' (the default), pick one at random!
   if (gOptDecayMode == kNORandom) {
@@ -269,20 +261,12 @@ int SelectAnnihilationMode(int pdg_code)
     double neutron_frac = 1 - proton_frac;
 
     // set branching ratios, taken from SK2021
-	 const int np_modes=12, nn_modes=32;
+    const auto* osc_gen = dynamic_cast<
+      const NNBarOscPrimaryVtxGenerator* >( mcgen );
+    const int np_modes = osc_gen->GetNPModes();
+    const int nn_modes = osc_gen->GetNNModes();
     const int n_modes = np_modes + nn_modes;
-	 double br [n_modes] = { 0.001, 0.007, 0.148, 0.014,
-	    							 0.020, 0.170, 0.108, 0.301,
-	    							 0.055, 0.032, 0.020, 0.124,//pnbar
-	    							 0.001, 0.007, 0.003, 0.010,
-	    							 0.001, 0.003, 0.016, 0.131,
-	    							 0.112, 0.033, 0.014, 0.060,
-	    							 0.136, 0.157, 0.006, 0.022,
-	    							 0.020, 0.018, 0.037, 0.035,
-	    							 0.024, 0.027, 0.071, 0.016,
-	    							 0.017, 0.001, 0.002, 0.001,
-	    							 0.003, 0.003, 0.010, 0.003
-	 };
+    auto br = osc_gen->GetBRs();
 
     for (int i = 0; i < n_modes; i++) {
       if (i < np_modes)
@@ -354,7 +338,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gevgen_nnbar_osc", pINFO) << "Parsing command line arguments";
 
-  // Common run options. 
+  // Common run options.
   RunOpt::Instance()->ReadFromCommandLine(argc,argv);
 
   // Parse run options for this app
@@ -380,11 +364,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // number of events
   if( parser.OptionExists('n') ) {
-    LOG("gevgen_nnbar_osc", pDEBUG) 
+    LOG("gevgen_nnbar_osc", pDEBUG)
         << "Reading number of events to generate";
     gOptNev = parser.ArgAsInt('n');
   } else {
-    LOG("gevgen_nnbar_osc", pFATAL) 
+    LOG("gevgen_nnbar_osc", pFATAL)
         << "You need to specify the number of events";
     PrintSyntax();
     exit(0);
@@ -393,14 +377,14 @@ void GetCommandLineArgs(int argc, char ** argv)
   // decay mode
   int mode = 0;
   if( parser.OptionExists('m') ) {
-    LOG("gevgen_nnbar_osc", pDEBUG) 
+    LOG("gevgen_nnbar_osc", pDEBUG)
         << "Reading annihilation mode";
     mode = parser.ArgAsInt('m');
   }
   gOptDecayMode = (NNBarOscMode_t) mode;
   bool valid_mode = utils::nnbar_osc::IsValidMode(gOptDecayMode);
   if(!valid_mode) {
-    LOG("gevgen_nnbar_osc", pFATAL) 
+    LOG("gevgen_nnbar_osc", pFATAL)
         << "You need to specify a valid annihilation mode";
     PrintSyntax();
     exit(0);
@@ -417,14 +401,14 @@ void GetCommandLineArgs(int argc, char ** argv)
     geom = parser.ArgAsString('g');
 
     // is it a ROOT file that contains a ROOT geometry?
-    bool accessible_geom_file = 
+    bool accessible_geom_file =
             ! (gSystem->AccessPathName(geom.c_str()));
     if (accessible_geom_file) {
       gOptRootGeom      = geom;
       gOptUsingRootGeom = true;
-    }                 
+    }
   } else {
-      LOG("gevgen_nnbar_osc", pFATAL) 
+      LOG("gevgen_nnbar_osc", pFATAL)
         << "No geometry option specified - Exiting";
       PrintSyntax();
       exit(1);
@@ -435,7 +419,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 
      // legth units:
      if( parser.OptionExists('L') ) {
-        LOG("gevgen_nnbar_osc", pDEBUG) 
+        LOG("gevgen_nnbar_osc", pDEBUG)
            << "Checking for input geometry length units";
         lunits = parser.ArgAsString('L');
      } else {
@@ -444,24 +428,24 @@ void GetCommandLineArgs(int argc, char ** argv)
      } // -L
      // density units:
      if( parser.OptionExists('D') ) {
-        LOG("gevgen_nnbar_osc", pDEBUG) 
+        LOG("gevgen_nnbar_osc", pDEBUG)
            << "Checking for input geometry density units";
         dunits = parser.ArgAsString('D');
      } else {
         LOG("gevgen_nnbar_osc", pDEBUG) << "Using default geometry density units";
         dunits = kDefOptGeomDUnits;
-     } // -D 
+     } // -D
      gOptGeomLUnits = utils::units::UnitFromString(lunits);
      gOptGeomDUnits = utils::units::UnitFromString(dunits);
 
-     // check whether an event generation volume name has been 
+     // check whether an event generation volume name has been
      // specified -- default is the 'top volume'
      if( parser.OptionExists('t') ) {
         LOG("gevgen_nnbar_osc", pDEBUG) << "Checking for input volume name";
         gOptRootGeomTopVol = parser.ArgAsString('t');
      } else {
         LOG("gevgen_nnbar_osc", pDEBUG) << "Using the <master volume>";
-     } // -t 
+     } // -t
 
   } // using root geom?
 
@@ -476,18 +460,18 @@ void GetCommandLineArgs(int argc, char ** argv)
     if(tgtmix.size()==1) {
          int    pdg = atoi(tgtmix[0].c_str());
          double wgt = 1.0;
-         gOptTgtMix.insert(map<int, double>::value_type(pdg, wgt));    
+         gOptTgtMix.insert(map<int, double>::value_type(pdg, wgt));
     } else {
       vector<string>::const_iterator tgtmix_iter = tgtmix.begin();
       for( ; tgtmix_iter != tgtmix.end(); ++tgtmix_iter) {
          string tgt_with_wgt = *tgtmix_iter;
          string::size_type open_bracket  = tgt_with_wgt.find("[");
          string::size_type close_bracket = tgt_with_wgt.find("]");
-         if (open_bracket ==string::npos || 
-             close_bracket==string::npos) 
+         if (open_bracket ==string::npos ||
+             close_bracket==string::npos)
          {
-             LOG("gevgen_nnbar_osc", pFATAL) 
-                << "You made an error in specifying the target mix"; 
+             LOG("gevgen_nnbar_osc", pFATAL)
+                << "You made an error in specifying the target mix";
              PrintSyntax();
              exit(1);
          }
@@ -497,7 +481,7 @@ void GetCommandLineArgs(int argc, char ** argv)
          string::size_type jend = close_bracket;
          int    pdg = atoi(tgt_with_wgt.substr(ibeg,iend-ibeg).c_str());
          double wgt = atof(tgt_with_wgt.substr(jbeg,jend-jbeg).c_str());
-         LOG("gevgen_nnbar_osc", pDEBUG) 
+         LOG("gevgen_nnbar_osc", pDEBUG)
             << "Adding to target mix: pdg = " << pdg << ", wgt = " << wgt;
          gOptTgtMix.insert(map<int, double>::value_type(pdg, wgt));
 
@@ -556,7 +540,7 @@ void GetCommandLineArgs(int argc, char ** argv)
      << "\n\n"
      << utils::print::PrintFramedMesg("gevgen_nosc job configuration");
 
-  LOG("gevgen_nnbar_osc", pNOTICE) 
+  LOG("gevgen_nnbar_osc", pNOTICE)
      << "\n @@ Run number: " << gOptRunNu
      << "\n @@ Random number seed: " << gOptRanSeed
      << "\n @@ Decay channel $ " << utils::nnbar_osc::AsString(gOptDecayMode)
@@ -567,7 +551,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // Temporary warnings...
   //
   if(gOptUsingRootGeom) {
-     LOG("gevgen_nnbar_osc", pWARN) 
+     LOG("gevgen_nnbar_osc", pWARN)
         << "\n ** ROOT geometries not supported yet in neutron oscillation mode"
         << "\n ** (they will be in the very near future)"
         << "\n ** Please specify a `target mix' instead.";
@@ -578,7 +562,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 //_________________________________________________________________________________________
 void PrintSyntax(void)
 {
-  LOG("gevgen_nnbar_osc", pFATAL) 
+  LOG("gevgen_nnbar_osc", pFATAL)
    << "\n **Syntax**"
    << "\n gevgen_nnbarosc [-h] "
    << "\n             [-r run#]"
