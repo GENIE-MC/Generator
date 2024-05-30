@@ -42,4 +42,12 @@
 
 #pragma link C++ class genie::BostedChristyEMPXSec;
 
+#pragma link C++ class genie::DCCSPPPXSec;
+#pragma link C++ class genie::DCCSPPXSec;
+#pragma link C++ class genie::DCCSPPXSecWithCache;
+
+// Wrappers for GSL/MathMore lib
+#pragma link C++ class genie::utils::gsl::d2XSecSPP_dWQ2_E;
+
+
 #endif

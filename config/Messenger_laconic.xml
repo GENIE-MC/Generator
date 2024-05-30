@@ -180,6 +180,9 @@
   <priority msgstream="SPPEventGen">                   WARN </priority>
   <priority msgstream="RESXSec">                       WARN   </priority>
   <priority msgstream="RESPXSec">                      WARN   </priority>
+  <priority msgstream="DCCSPPPXSec">                   WARN   </priority>
+  <priority msgstream="DCCSPPXSec">                    WARN   </priority>
+  <priority msgstream="DCCSPPCache">                   WARN   </priority>
   <priority msgstream="ReinSehgalCohPi">               WARN   </priority>
   <priority msgstream="ReinSehgalRes">                 WARN   </priority>
   <priority msgstream="ReinSehgalResT">                WARN   </priority>

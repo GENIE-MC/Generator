@@ -15,6 +15,10 @@
           Added extra functions for MK model. \n
           Branching ratios are looked in particle database now.
 
+          June 28, 2022
+          Added extra channels for DCC model \n
+
+
 \cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
@@ -63,7 +67,13 @@ typedef enum ESppChannel {
   kSpp_vbp_nc_10010,  /* anti-neutrino NC */
   kSpp_vbp_nc_01100,
   kSpp_vbn_nc_01010,
-  kSpp_vbn_nc_10001
+  kSpp_vbn_nc_10001,
+  
+  kSpp_lp_em_10010,  /* charged lepton  EM */
+  kSpp_lp_em_01100,
+  kSpp_ln_em_01010,
+  kSpp_ln_em_10001
+
 
 } SppChannel_t;
 
@@ -94,6 +104,11 @@ public:
       case (kSpp_vbp_nc_01100): return "vb p -> vb n pi+";  break;
       case (kSpp_vbn_nc_01010): return "vb n -> vb n pi0";  break;
       case (kSpp_vbn_nc_10001): return "vb n -> vb p pi-";  break;
+      
+      case (kSpp_lp_em_10010): return "l p -> l p pi0";     break;
+      case (kSpp_lp_em_01100): return "l p -> l n pi+";     break;
+      case (kSpp_ln_em_01010): return "l n -> l n pi0";     break;
+      case (kSpp_ln_em_10001): return "l n -> l p pi-";     break;
 
       default : return "Unknown";  break;
     }
@@ -121,6 +136,11 @@ public:
       case (kSpp_vbp_nc_01100): return kPdgProton;   break;
       case (kSpp_vbn_nc_01010): return kPdgNeutron;  break;
       case (kSpp_vbn_nc_10001): return kPdgNeutron;  break;
+      
+      case (kSpp_lp_em_10010): return kPdgProton;   break;
+      case (kSpp_lp_em_01100): return kPdgProton;   break;
+      case (kSpp_ln_em_01010): return kPdgNeutron;  break;
+      case (kSpp_ln_em_10001): return kPdgNeutron;  break;
 
       default : return 0;  break;
     }
@@ -148,6 +168,11 @@ public:
       case (kSpp_vbp_nc_01100): return kPdgNeutron;  break;
       case (kSpp_vbn_nc_01010): return kPdgNeutron;  break;
       case (kSpp_vbn_nc_10001): return kPdgProton;   break;
+      
+      case (kSpp_lp_em_10010): return kPdgProton;   break;
+      case (kSpp_lp_em_01100): return kPdgNeutron;   break;
+      case (kSpp_ln_em_01010): return kPdgNeutron;  break;
+      case (kSpp_ln_em_10001): return kPdgProton;  break;
 
       default : return 0;  break;
     }
@@ -175,6 +200,11 @@ public:
       case (kSpp_vbp_nc_01100): return kPdgPiP;  break;
       case (kSpp_vbn_nc_01010): return kPdgPi0;  break;
       case (kSpp_vbn_nc_10001): return kPdgPiM;  break;
+      
+      case (kSpp_lp_em_10010): return kPdgPi0;   break;
+      case (kSpp_lp_em_01100): return kPdgPiP;   break;
+      case (kSpp_ln_em_01010): return kPdgPi0;   break;
+      case (kSpp_ln_em_10001): return kPdgPiM;   break;
 
       default : return 0;  break;
     }
@@ -202,6 +232,11 @@ public:
       case (kSpp_vbp_nc_01100): return  1;   break;
       case (kSpp_vbn_nc_01010): return  0;   break;
       case (kSpp_vbn_nc_10001): return  0;   break;
+      
+      case (kSpp_lp_em_10010): return 1;     break;
+      case (kSpp_lp_em_01100): return 1;     break;
+      case (kSpp_ln_em_01010): return 0;     break;
+      case (kSpp_ln_em_10001): return 0;     break;
 
       default : return 0;  break;
     }
@@ -229,6 +264,11 @@ public:
       case (kSpp_vbp_nc_01100): return  1;   break;
       case (kSpp_vbn_nc_01010): return  1;   break;
       case (kSpp_vbn_nc_10001): return  1;   break;
+      
+      case (kSpp_lp_em_10010):  return  1;   break;
+      case (kSpp_lp_em_01100):  return  1;   break;
+      case (kSpp_ln_em_01010):  return  1;   break;
+      case (kSpp_ln_em_10001):  return  1;   break;
 
       default : return 0;  break;
     }
@@ -270,6 +310,12 @@ public:
       case (kSpp_vbp_nc_01100): return (is_delta) ? (iw_1_3) : (iw_2_3); break;
       case (kSpp_vbn_nc_01010): return (is_delta) ? (iw_2_3) : (iw_1_3); break;
       case (kSpp_vbn_nc_10001): return (is_delta) ? (iw_1_3) : (iw_2_3); break;
+      
+      //--- charged lepton EM
+      case (kSpp_lp_em_10010):  return (is_delta) ? (iw_2_3) : (iw_1_3); break;
+      case (kSpp_lp_em_01100):  return (is_delta) ? (iw_1_3) : (iw_2_3); break;
+      case (kSpp_ln_em_01010):  return (is_delta) ? (iw_2_3) : (iw_1_3); break;
+      case (kSpp_ln_em_10001):  return (is_delta) ? (iw_1_3) : (iw_2_3); break;
 
       default : return 0;  break;
     }
@@ -308,6 +354,13 @@ public:
       case (kSpp_vbp_nc_01100): return -k1_Sqrt3;
       case (kSpp_vbn_nc_01010): return  kSqrt2_3;
       case (kSpp_vbn_nc_10001): return  k1_Sqrt3;
+     
+      //--- charged lepton EM
+      case (kSpp_lp_em_10010):  return  kSqrt2_3;
+      case (kSpp_lp_em_01100):  return -k1_Sqrt3;
+      case (kSpp_ln_em_01010):  return  kSqrt2_3;
+      case (kSpp_ln_em_10001):  return  k1_Sqrt3;
+
 
       default : return 0;
     }
@@ -345,6 +398,14 @@ public:
       case (kSpp_vbp_nc_01100): return -kSqrt2_3;
       case (kSpp_vbn_nc_01010): return  k1_Sqrt3;
       case (kSpp_vbn_nc_10001): return -kSqrt2_3;
+
+      
+      //--- charged lepton EM
+      case (kSpp_lp_em_10010):  return -k1_Sqrt3;
+      case (kSpp_lp_em_01100):  return -kSqrt2_3;
+      case (kSpp_ln_em_01010):  return  k1_Sqrt3;
+      case (kSpp_ln_em_10001):  return -kSqrt2_3;
+
 
       default : return 0;
     }
@@ -442,7 +503,6 @@ public:
        } else return kSppNull;
 
     } else if( pdg::IsAntiNeutrino(probe) ) {
-
        if ( proc_info.IsWeakCC() ) {
           if      (hit_n && fs_n && fs_pi_minus) return kSpp_vbn_cc_01001;
           else if (hit_p && fs_n && fs_pi_0    ) return kSpp_vbp_cc_01010;
@@ -455,7 +515,15 @@ public:
           else if (hit_n && fs_p && fs_pi_minus) return kSpp_vbn_nc_10001;
           else                                   return kSppNull;
        } else return kSppNull;
-    }
+    } else if( pdg::IsChargedLepton(probe) ) {
+       if ( proc_info.IsEM() ) {
+         if      (hit_p && fs_p && fs_pi_0    ) return kSpp_lp_em_10010;
+         else if (hit_p && fs_n && fs_pi_plus ) return kSpp_lp_em_01100;
+         else if (hit_n && fs_n && fs_pi_0    ) return kSpp_ln_em_01010;
+         else if (hit_n && fs_p && fs_pi_minus) return kSpp_ln_em_10001;
+         else                                   return kSppNull;
+       }  else return kSppNull;
+    } 
 
     return kSppNull;
   }

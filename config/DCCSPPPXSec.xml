@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the DCC single pion production algorithm
+
+Configurable Parameters:
+......................................................................................................................................
+Name                        Type Optional Comment                                                         Default
+......................................................................................................................................                                
+DCC-EM-XSecScale            double  No    XSec rescaling factor for EM-processes
+DCC-CC-XSecScale            double  No    XSec rescaling factor for CC-processes
+DCC-NC-XSecScale            double  No    XSec rescaling factor for NC-processes
+WeinbergAngle               double  No    Weinberg Angle                                                  CommonParam[WeakInt]
+CKM-Vud                     double  No    Magnitude of ud-element of CKM-matrix                           CommonParam[CKM]
+RFG-UseParametrization      bool    No    use parametrization for Fermi momentum and binging energy       CommonParam[FermiGas]
+FermiMomentumTable          string  No    Table of Fermi momentum (kF) constants for various nuclei       CommonParam[FermiGas]
+XSec-Integrator             alg     No
+DataPath                    string  No    Folder in which to look for the table files with amplitudes
+DataPathType                string  Yes   Whether the specified path is relative absolute or relative     relative
+                                          to the root GENIE folder
+DataFileName                string  No    Name of file with amplitudes
+-->
+
+  <param_set name="Default">
+    <param type="string" name="CommonParam"> WeakInt,CKM,FermiGas </param>
+    <param type="double" name="DCC-EM-XSecScale"> 1.000 </param>
+    <param type="double" name="DCC-CC-XSecScale"> 1.000 </param>
+    <param type="double" name="DCC-NC-XSecScale"> 1.000 </param>
+    <param type="string" name="DataPath"> data/evgen/dcc </param>
+    <param type="string" name="DataFileName"> MultipoleAmplitudes.dat </param>
+  </param_set>
+
+  <param_set name="WithPauliBlock">
+     <param type="alg"  name="XSec-Integrator">  genie::DCCSPPXSec/WithPauliBlock                    </param>
+  </param_set>
+
+
+  <param_set name="NoPauliBlock">
+     <param type="alg"  name="XSec-Integrator">  genie::DCCSPPXSec/NoPauliBlock                      </param>
+  </param_set>
+
+
+
+</alg_conf>
+
+

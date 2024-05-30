@@ -90,6 +90,10 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <regex>
+#include <iterator>
+#include <sstream>
+#include <iomanip>
 
 #if defined(HAVE_FENV_H) && defined(HAVE_FEENABLEEXCEPT)
 #include <fenv.h> // for `feenableexcept`
@@ -103,6 +107,7 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/RunOpt.h"
 #include "Framework/Utils/AppInit.h"
 #include "Framework/Utils/StringUtils.h"
@@ -127,7 +132,7 @@ using namespace genie::geometry;
 // Prototypes:
 void          GetCommandLineArgs (int argc, char ** argv);
 void          PrintSyntax        (void);
-PDGCodeList * GetNeutrinoCodes   (void);
+PDGCodeList * GetNeutrinoCodes   (vector<int> & probe_helicities);
 PDGCodeList * GetTargetCodes     (void);
 
 // User-specified options:
@@ -165,7 +170,8 @@ int main(int argc, char ** argv)
 
   // Get list of neutrinos and nuclear targets
 
-  PDGCodeList * neutrinos = GetNeutrinoCodes();
+  std::vector<int> probe_helicities;
+  PDGCodeList * neutrinos = GetNeutrinoCodes(probe_helicities);
   PDGCodeList * targets   = GetTargetCodes();
 
   if(!neutrinos || neutrinos->size() == 0 ) {
@@ -178,8 +184,35 @@ int main(int argc, char ** argv)
      PrintSyntax();
      exit(3);
   }
+  
+  std::ostringstream stream;
+  stream << "\n[-]" << std::endl;
+  PDGLibrary * pdglib = PDGLibrary::Instance();
+  PDGCodeList::const_iterator iter;
+  size_t nc = neutrinos->size();
+  for(iter = neutrinos->cbegin(); iter != neutrinos->cend(); ++iter) {
+    int pdg_code = *iter;
+    TParticlePDG * p = pdglib->Find(pdg_code);
+    if(!p) {
+      stream << " |---o ** ERR: no particle with PDG code: " << pdg_code;
+    } else {
+      string name = p->GetName();
+      stream << " |---o "
+             << std::setfill(' ') << std::setw(15) << name;
+      if ( pdg::IsChargedLepton(pdg_code) )
+      {
+         if (probe_helicities[std::distance(neutrinos->cbegin(), iter)] == -1 )
+           stream << "L";
+         else if (probe_helicities[std::distance(neutrinos->cbegin(), iter)] == 1 )
+           stream << "R";
+      }
+           stream  << " (PDG code = " << pdg_code << ")";
+    }
+    if( (--nc) > 0) stream << std::endl;
+  }
 
-  LOG("gmkspl", pINFO) << "Neutrinos: " << *neutrinos;
+  //LOG("gmkspl", pINFO) << "Probes: " << *neutrinos;
+  LOG("gmkspl", pINFO) << "Probes: " << stream.str();
   LOG("gmkspl", pINFO) << "Targets: "   << *targets;
 
   // Loop over all possible input init states and ask the GEVGDriver
@@ -188,11 +221,12 @@ int main(int argc, char ** argv)
 
   PDGCodeList::const_iterator nuiter;
   PDGCodeList::const_iterator tgtiter;
-  for(nuiter = neutrinos->begin(); nuiter != neutrinos->end(); ++nuiter) {
-    for(tgtiter = targets->begin(); tgtiter != targets->end(); ++tgtiter) {
+  for(nuiter = neutrinos->cbegin(); nuiter != neutrinos->cend(); ++nuiter) {
+    for(tgtiter = targets->cbegin(); tgtiter != targets->cend(); ++tgtiter) {
       int nupdgc  = *nuiter;
       int tgtpdgc = *tgtiter;
       InitialState init_state(tgtpdgc, nupdgc);
+      init_state.SetProbeHelicity(probe_helicities[std::distance(neutrinos->cbegin(), nuiter)]);
       GEVGDriver driver;
       driver.SetEventGeneratorList(RunOpt::Instance()->EventGeneratorList());
       driver.Configure(init_state);
@@ -363,16 +397,49 @@ void PrintSyntax(void)
 
 }
 //____________________________________________________________________________
-PDGCodeList * GetNeutrinoCodes(void)
+PDGCodeList * GetNeutrinoCodes(vector<int> & probe_helicities)
 {
   // split the comma separated list
   vector<string> nuvec = utils::str::Split(gOptNuPdgCodeList,  ",");
 
   // fill in the PDG code list
-  PDGCodeList * list = new PDGCodeList;
+  PDGCodeList * list = new PDGCodeList(true);
   vector<string>::const_iterator iter;
+  std::regex helicity_regex("[LR]");
+  std::smatch helicity_match;
+  int pdg_probe;
   for(iter = nuvec.begin(); iter != nuvec.end(); ++iter) {
-    list->push_back( atoi(iter->c_str()) );
+    int helicity = 0;
+    if(std::regex_search(*iter, helicity_match, helicity_regex)) {
+         pdg_probe = atoi( helicity_match.prefix().str().c_str() );
+         std::string s_helicity = helicity_match[0].str();
+         if ( pdg::IsChargedLepton(pdg_probe) )
+         {
+           if (s_helicity == "L")
+             helicity = -1;
+           else if (s_helicity == "R")
+             helicity = 1;
+         }
+    }
+    else
+      pdg_probe = atoi(iter->c_str());
+    
+    bool isInsert = true;
+    PDGCodeList::const_iterator pdg_iter;
+    for(pdg_iter = list->cbegin(); pdg_iter != list->cend(); ++pdg_iter) {
+      int pdg_code = *pdg_iter;
+      if (pdg_code == pdg_probe && probe_helicities[std::distance(list->cbegin(), pdg_iter)] == helicity)
+      {
+         isInsert = false;
+         break;
+      }
+    }
+    if (isInsert)
+    {
+        list->push_back( pdg_probe );
+        probe_helicities.push_back( helicity );
+    }
+    
   }
   return list;
 }
