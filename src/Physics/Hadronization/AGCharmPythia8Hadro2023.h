@@ -32,7 +32,7 @@
 #include "Physics/Hadronization/AGCharmPythiaBaseHadro2023.h"
 
 #ifdef __GENIE_PYTHIA8_ENABLED__
-#include "Pythia8/Pythia.h"
+#include "Framework/Utils/Pythia8Singleton.h"
 #endif
 
 namespace genie {
@@ -53,10 +53,6 @@ private:
   bool           HadronizeRemnant(int qrkSyst1, int qrkSyst2, double WR, TLorentzVector p4R,
                                   unsigned int& rpos, TClonesArray * particle_list) const;
 
-
-#ifdef __GENIE_PYTHIA8_ENABLED__
-  mutable Pythia8::Pythia *             fPythia;      ///< remnant (non-charm) hadronizer
-#endif
 };
 
 }         // genie namespace
