@@ -57,7 +57,7 @@ AGCharmPythiaBaseHadro2023("genie::AGCharmPythia8Hadro2023", config)
 AGCharmPythia8Hadro2023::~AGCharmPythia8Hadro2023()
 {
 #ifdef __GENIE_PYTHIA8_ENABLED__
-  delete fPythia;
+
 #endif
 }
 //____________________________________________________________________________
@@ -65,19 +65,19 @@ void AGCharmPythia8Hadro2023::Initialize(void) const
 {
   AGCharmPythiaBaseHadro2023::Initialize();
 #ifdef __GENIE_PYTHIA8_ENABLED__
-  fPythia = new Pythia8::Pythia();
+  Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
 
-  fPythia->readString("ProcessLevel:all = off");
-  fPythia->readString("Print:quiet = on");
+  gPythia->readString("ProcessLevel:all = off");
+  gPythia->readString("Print:quiet = on");
 
   // sync GENIE and PYTHIA8 seeds
   RandomGen * rnd = RandomGen::Instance();
   long int seed = rnd->GetSeed();
-  fPythia->readString("Random:setSeed = on");
-  fPythia->settings.mode("Random:seed", seed);
+  gPythia->readString("Random:setSeed = on");
+  gPythia->settings.mode("Random:seed", seed);
   LOG("AGCharmPythia8Hadro2023", pINFO)
-    << "PYTHIA8 seed = " << fPythia->settings.mode("Random:seed");
-  fPythia->init();
+    << "PYTHIA8 seed = " << gPythia->settings.mode("Random:seed");
+  gPythia->init();
 
 #else
   LOG("AGCharmPythia8Hadro2023", pFATAL)
@@ -94,38 +94,40 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
                        unsigned int& rpos, TClonesArray * particle_list) const
 {
 #ifdef __GENIE_PYTHIA8_ENABLED__
+  Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
+
   /*
   //
   // Run PYTHIA6 for the hadronization of remnant system
   //
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),              1,0); // don't decay pi0
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaM),  1,1); // decay Delta+
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_Delta0),  1,1); // decay Delta++
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaP),  1,1); // decay Delta++
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaPP), 1,1); // decay Delta++
-  //   fPythia->SetMDCY(fPythia->Pycomp(kPdgDeltaP),  1,1); // decay Delta+
-  //   fPythia->SetMDCY(fPythia->Pycomp(kPdgDeltaPP), 1,1); // decay Delta++
+  gPythia->SetMDCY(gPythia->Pycomp(kPdgPi0),              1,0); // don't decay pi0
+  gPythia->SetMDCY(gPythia->Pycomp(kPdgP33m1232_DeltaM),  1,1); // decay Delta+
+  gPythia->SetMDCY(gPythia->Pycomp(kPdgP33m1232_Delta0),  1,1); // decay Delta++
+  gPythia->SetMDCY(gPythia->Pycomp(kPdgP33m1232_DeltaP),  1,1); // decay Delta++
+  gPythia->SetMDCY(gPythia->Pycomp(kPdgP33m1232_DeltaPP), 1,1); // decay Delta++
+  //   gPythia->SetMDCY(gPythia->Pycomp(kPdgDeltaP),  1,1); // decay Delta+
+  //   gPythia->SetMDCY(gPythia->Pycomp(kPdgDeltaPP), 1,1); // decay Delta++
   int ip = 0;
   py2ent_(&ip, &qrkSyst1, &qrkSyst2, &WR); // hadronize
 
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),1,1); // restore
+  gPythia->SetMDCY(gPythia->Pycomp(kPdgPi0),1,1); // restore
 
   //-- Get PYTHIA's LUJETS event record
   TClonesArray * pythia_remnants = 0;
-  fPythia->GetPrimaries();
-  pythia_remnants = dynamic_cast<TClonesArray *>(fPythia->ImportParticles("All"));
+  gPythia->GetPrimaries();
+  pythia_remnants = dynamic_cast<TClonesArray *>(gPythia->ImportParticles("All"));
   return pythia_remnants;
   */
-  fPythia->particleData.mayDecay(kPdgPi0,false); // don't decay pi0
-  fPythia->particleData.mayDecay(kPdgP33m1232_DeltaM,true); // decay Delta+
-  fPythia->particleData.mayDecay(kPdgP33m1232_Delta0,true); // decay Delta++
-  fPythia->particleData.mayDecay(kPdgP33m1232_DeltaP,true); // decay Delta++
-  fPythia->particleData.mayDecay(kPdgP33m1232_DeltaPP,true); // decay Delta++
+  gPythia->particleData.mayDecay(kPdgPi0,false); // don't decay pi0
+  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaM,true); // decay Delta+
+  gPythia->particleData.mayDecay(kPdgP33m1232_Delta0,true); // decay Delta++
+  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaP,true); // decay Delta++
+  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaPP,true); // decay Delta++
 
-  fPythia->event.reset();
+  gPythia->event.reset();
 
-  double m1 = fPythia->particleData.m0(qrkSyst1);
-  double m2 = fPythia->particleData.m0(qrkSyst2);
+  double m1 = gPythia->particleData.m0(qrkSyst1);
+  double m2 = gPythia->particleData.m0(qrkSyst2);
 
   LOG("AGCharmPythia8Hadro2023", pINFO) // debug
     << " qrkSyst1 " << qrkSyst1 << " m1 " << m1
@@ -145,18 +147,18 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
 
   // status codes and anti/collor tags must complement each other
   // id, status, int col, int acol, px,py,pz,E,m,scale=0,pol=9
-  fPythia->event.append(qrkSyst1,23,101,  0,0.,0.,pz1cm,e1,m1);
-  fPythia->event.append(qrkSyst2,23,  0,101,0.,0.,pz2cm,e2,m2);
-  //fPythia->event.list();
+  gPythia->event.append(qrkSyst1,23,101,  0,0.,0.,pz1cm,e1,m1);
+  gPythia->event.append(qrkSyst2,23,  0,101,0.,0.,pz2cm,e2,m2);
+  //gPythia->event.list();
 
   // Generating next pythia8 event
-  fPythia->next();
+  gPythia->next();
 
-  //fPythia->event.list();
-  //fPythia->stat();
+  //gPythia->event.list();
+  //gPythia->stat();
 
   // get the LUJETss record
-  Pythia8::Event &fEvent = fPythia->event;
+  Pythia8::Event &fEvent = gPythia->event;
   int np = fEvent.size();
   assert(np>0);
 
@@ -252,7 +254,7 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
     } // if (copy)
   } // loop over particles in pythia event record
 
-  fPythia->particleData.mayDecay(kPdgPi0,true); // restore
+  gPythia->particleData.mayDecay(kPdgPi0,true); // restore
 
   return true;
 
