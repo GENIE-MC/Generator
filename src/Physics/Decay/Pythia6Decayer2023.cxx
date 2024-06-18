@@ -15,10 +15,14 @@
 #include <TLorentzVector.h>
 #include <TDecayChannel.h>
 #include <RVersion.h>
+
+#include "Framework/Conventions/GBuild.h"
+#ifdef __GENIE_PYTHIA6_ENABLED__
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
 #include <TMCParticle.h>
 #else
 #include <TMCParticle6.h>
+#endif
 #endif
 
 #include "Framework/Conventions/Units.h"
@@ -32,34 +36,37 @@
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "Physics/Decay/PythiaDecayer.h"
+#include "Physics/Decay/Pythia6Decayer2023.h"
 
 using std::vector;
 
 using namespace genie;
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
 // actual PYTHIA calls:
 extern "C" void py1ent_(int *,  int *, double *, double *, double *);
 extern "C" void pydecy_(int *);
+#endif
+
 //____________________________________________________________________________
-PythiaDecayer::PythiaDecayer() :
-Decayer("genie::PythiaDecayer")
+Pythia6Decayer2023::Pythia6Decayer2023() :
+Decayer("genie::Pythia6Decayer2023")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-PythiaDecayer::PythiaDecayer(string config) :
-Decayer("genie::PythiaDecayer", config)
+Pythia6Decayer2023::Pythia6Decayer2023(string config) :
+Decayer("genie::Pythia6Decayer2023", config)
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-PythiaDecayer::~PythiaDecayer()
+Pythia6Decayer2023::~Pythia6Decayer2023()
 {
 
 }
 //____________________________________________________________________________
-void PythiaDecayer::ProcessEventRecord(GHepRecord * event) const
+void Pythia6Decayer2023::ProcessEventRecord(GHepRecord * event) const
 {
   LOG("ResonanceDecay", pINFO)
     << "Running PYTHIA6 particle decayer "
@@ -92,10 +99,11 @@ void PythiaDecayer::ProcessEventRecord(GHepRecord * event) const
      << "Done finding & decaying unstable particles";
 }
 //____________________________________________________________________________
-bool PythiaDecayer::Decay(int decay_particle_id, GHepRecord * event) const
+bool Pythia6Decayer2023::Decay(int decay_particle_id, GHepRecord * event) const
 {
   fWeight = 1.; // reset previous decay weight
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
   // Get particle to be decayed
   GHepParticle * decay_particle = event->Particle(decay_particle_id);
   if(!decay_particle) return 0;
@@ -152,11 +160,11 @@ bool PythiaDecayer::Decay(int decay_particle_id, GHepRecord * event) const
 
   // the values of space coordinates from pythia are in mm.
   // our conventions want it in fm
-  constexpr double space_scale = units::mm / units::fm ; 
+  constexpr double space_scale = units::mm / units::fm ;
 
   //  the values of time coordinate from pythia is in mm/c.
-  // our conventions want it in ys 
-  constexpr double time_scale = 1e21 * units::m / units::s ; 
+  // our conventions want it in ys
+  constexpr double time_scale = 1e21 * units::m / units::s ;
 
   TMCParticle * p = 0;
   TIter particle_iter(impl);
@@ -210,18 +218,33 @@ bool PythiaDecayer::Decay(int decay_particle_id, GHepRecord * event) const
   decay_particle->SetStatus(kIStDecayedState);
 
   return true;
+#else
+  LOG("Pythia6Decay", pFATAL)
+    << "calling GENIE/PYTHIA6 decay without enabling PYTHIA6";
+  gAbortingInErr = true;
+  std::exit(1);
+
+return false;
+#endif
 }
 //____________________________________________________________________________
-void PythiaDecayer::Initialize(void) const
+void Pythia6Decayer2023::Initialize(void) const
 {
+#ifdef __GENIE_PYTHIA6_ENABLED__
   fPythia = TPythia6::Instance();
   fWeight = 1.;
 
   // sync GENIE/PYTHIA6 seeds
   RandomGen::Instance();
+#else
+  LOG("Pythia6Decay", pFATAL)
+    << "calling GENIE/PYTHIA6 decay without enabling PYTHIA6";
+  gAbortingInErr = true;
+  std::exit(1);
+#endif
 }
 //____________________________________________________________________________
-bool PythiaDecayer::IsHandled(int pdg_code) const
+bool Pythia6Decayer2023::IsHandled(int pdg_code) const
 {
 // does not handle requests to decay baryon resonances
 
@@ -234,10 +257,11 @@ bool PythiaDecayer::IsHandled(int pdg_code) const
   return is_handled;
 }
 //____________________________________________________________________________
-void PythiaDecayer::InhibitDecay(int pdg_code, TDecayChannel * dc) const
+void Pythia6Decayer2023::InhibitDecay(int pdg_code, TDecayChannel * dc) const
 {
   if(! this->IsHandled(pdg_code)) return;
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
   int kc = fPythia->Pycomp(pdg_code);
 
   if(!dc) {
@@ -255,12 +279,20 @@ void PythiaDecayer::InhibitDecay(int pdg_code, TDecayChannel * dc) const
   if(ichannel != -1) {
     fPythia->SetMDME(ichannel,1,0); // switch-off
   }
+#else
+  LOG("Pythia6Decay", pFATAL)
+    << "calling GENIE/PYTHIA6 decay without enabling PYTHIA6";
+  gAbortingInErr = true;
+  std::exit(1);
+#endif
+
 }
 //____________________________________________________________________________
-void PythiaDecayer::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
+void Pythia6Decayer2023::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
 {
   if(! this->IsHandled(pdg_code)) return;
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
   int kc = fPythia->Pycomp(pdg_code);
 
   if(!dc) {
@@ -287,14 +319,21 @@ void PythiaDecayer::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
   if(ichannel != -1) {
     fPythia->SetMDME(ichannel,1,1); // switch-on
   }
+#else
+  LOG("Pythia6Decay", pFATAL)
+    << "calling GENIE/PYTHIA6 decay without enabling PYTHIA6";
+  gAbortingInErr = true;
+  std::exit(1);
+#endif
 }
 //____________________________________________________________________________
-double PythiaDecayer::SumOfBranchingRatios(int kc) const
+double Pythia6Decayer2023::SumOfBranchingRatios(int kc) const
 {
 // Sum of branching ratios for enabled channels
 //
   double sumbr=0.;
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
   int first_channel = fPythia->GetMDCY(kc,2);
   int last_channel  = fPythia->GetMDCY(kc,2) + fPythia->GetMDCY(kc,3) - 1;
 
@@ -314,14 +353,21 @@ double PythiaDecayer::SumOfBranchingRatios(int kc) const
 
   if(!has_inhibited_channels) return 1.;
   LOG("Pythia6Decay", pINFO) << "Sum{BR} = " << sumbr;
+#else
+  LOG("Pythia6Decay", pFATAL)
+    << "calling GENIE/PYTHIA6 decay without enabling PYTHIA6";
+  gAbortingInErr = true;
+  std::exit(1);
+#endif
 
   return sumbr;
 }
 //____________________________________________________________________________
-int PythiaDecayer::FindPythiaDecayChannel(int kc, TDecayChannel* dc) const
+int Pythia6Decayer2023::FindPythiaDecayChannel(int kc, TDecayChannel* dc) const
 {
   if(!dc) return -1;
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
   int first_channel = fPythia->GetMDCY(kc,2);
   int last_channel  = fPythia->GetMDCY(kc,2) + fPythia->GetMDCY(kc,3) - 1;
 
@@ -348,15 +394,23 @@ int PythiaDecayer::FindPythiaDecayChannel(int kc, TDecayChannel* dc) const
   LOG("Pythia6Decay", pWARN)
      << " ** No PYTHIA6 decay channel match found for "
      << "TDecayChannel id = " << dc->Number();
+#else
+  LOG("Pythia6Decay", pFATAL)
+    << "calling GENIE/PYTHIA6 decay without enabling PYTHIA6";
+  gAbortingInErr = true;
+  std::exit(1);
+#endif
+
 
   return -1;
 }
 //____________________________________________________________________________
-bool PythiaDecayer::MatchDecayChannels(int ichannel, TDecayChannel* dc) const
+bool Pythia6Decayer2023::MatchDecayChannels(int ichannel, TDecayChannel* dc) const
 {
   // num. of daughters in the input TDecayChannel & the input PYTHIA ichannel
   int nd = dc->NDaughters();
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
   int py_nd = 0;
   for (int i = 1; i <= 5; i++) {
      if(fPythia->GetKFDP(ichannel,i) != 0) py_nd++;
@@ -394,6 +448,13 @@ bool PythiaDecayer::MatchDecayChannels(int ichannel, TDecayChannel* dc) const
   for(int i = 0; i < nd; i++) {
     if(dc_daughter[i] != py_daughter[i]) return false;
   }
+#else
+  LOG("Pythia6Decay", pFATAL)
+    << "calling GENIE/PYTHIA6 decay without enabling PYTHIA6";
+  gAbortingInErr = true;
+  std::exit(1);
+#endif
+
   return true;
 }
 //____________________________________________________________________________

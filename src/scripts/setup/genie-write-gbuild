@@ -40,7 +40,9 @@ print GBLD "*/\n\n";
 
 # pythia6 enabled?
 #
-if( $root_conf_status=~m/enable-pythia6/i )
+##if( $root_conf_status=~m/enable-pythia6/i )
+@nret = `grep 'GOPT_ENABLE_PYTHIA6=YES' $GCONF_FILE`;
+if(@nret>0)
       { print GBLD   "#define __GENIE_PYTHIA6_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_PYTHIA6_ENABLED__\n"; }
 

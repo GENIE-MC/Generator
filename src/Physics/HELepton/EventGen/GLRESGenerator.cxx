@@ -291,6 +291,11 @@ void GLRESGenerator::LoadConfig(void)
   fPythia->SetPMAS(24,1,kMw);  //mass of the W boson (pythia=80.450 // genie=80.385)
   fPythia->SetPMAS(24,2,0.);   //set to 0 the width of the W boson to avoid problems with energy conservation
   fPythia->SetPMAS(6,2,0.);    //set to 0 the width of the top to avoid problems with energy conservation
+#else
+  LOG("GLRESGenerator", pFATAL)
+    << "Calling GENIE/PYTHIA6 without enabling PYTHIA6";
+  gAbortingInErr = true;
+  std::exit(1);
 #endif // __GENIE_PYTHIA6_ENABLED__
 
 }

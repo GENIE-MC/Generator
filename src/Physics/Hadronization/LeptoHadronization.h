@@ -19,8 +19,7 @@
 #ifndef _LEPTO_HADRONIZATION_H_
 #define _LEPTO_HADRONIZATION_H_
 
-#define __GENIE_PYTHIA6_ENABLED__
-
+#include "Framework/Conventions/GBuild.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Numerical/MathUtils.h"
