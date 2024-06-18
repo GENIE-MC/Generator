@@ -90,6 +90,9 @@ bool Pythia8Decayer2023::Decay(int decay_particle_id, GHepRecord * event) const
 
 #ifdef __GENIE_PYTHIA8_ENABLED__
 
+  // Get the one-and-only instance of Pythia8 that GENIE will use
+  Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
+
   // Get particle to be decayed
   GHepParticle * decay_particle = event->Particle(decay_particle_id);
   if(!decay_particle) return 0;
@@ -108,18 +111,18 @@ bool Pythia8Decayer2023::Decay(int decay_particle_id, GHepRecord * event) const
   TVector3 polz;
   decay_particle->GetPolarization(polz);
 
-  fPythia->event.reset();
+  gPythia->event.reset();
 
   // check if pdgid is consistent with Pythia8 particle table
   //
-  if ( !fPythia->particleData.findParticle(decay_particle_pdg_code) ) {
+  if ( !gPythia->particleData.findParticle(decay_particle_pdg_code) ) {
     LOG("Pythia8Decay", pWARN)
       << " can NOT find pdgid = " << decay_particle_pdg_code
       << " in Pythia8::ParticleData";
       return false;
     }
 
-  if ( !fPythia->particleData.canDecay(decay_particle_pdg_code) ) {
+  if ( !gPythia->particleData.canDecay(decay_particle_pdg_code) ) {
     LOG("Pythia8Decay", pWARN)
       << " Particle of pdgid = " << decay_particle_pdg_code
       << " can NOT be decayed by Pythia8";
@@ -128,7 +131,7 @@ bool Pythia8Decayer2023::Decay(int decay_particle_id, GHepRecord * event) const
 
   // NOTE: Energy should be in GeV
 
-  fPythia->event.append( decay_particle_pdg_code, 1, 0, 0,
+  gPythia->event.append( decay_particle_pdg_code, 1, 0, 0,
                          decay_particle_p4.Px(),
                          decay_particle_p4.Py(),
                          decay_particle_p4.Pz(),
@@ -142,18 +145,18 @@ bool Pythia8Decayer2023::Decay(int decay_particle_id, GHepRecord * event) const
   //       similar to LHA SPINUP; see Particle Decays, Hadron and Tau Decays in docs at
   //       https://pythia.org/manuals/pythia8305/Welcome.html
   //       so it's not able to handle anything like 0.99, thus we're rounding off
-  //  fPythia->event.back().pol( round( std::cos( track.GetPolarization().angle( track.GetMomentumDirection() ) ) ) );
+  //  gPythia->event.back().pol( round( std::cos( track.GetPolarization().angle( track.GetMomentumDirection() ) ) ) );
   double a = decay_particle_p4.Vect().Angle(polz);
-  fPythia->event.back().pol( round( std::cos(a) ) );
+  gPythia->event.back().pol( round( std::cos(a) ) );
 
-  int npart_before_decay = fPythia->event.size();
+  int npart_before_decay = gPythia->event.size();
 
-  fPythia->next();
+  gPythia->next();
 
-  //fPythia->event.list();
-  //fPythia->stat();
+  //gPythia->event.list();
+  //gPythia->stat();
 
-  int npart_after_decay = fPythia->event.size();
+  int npart_after_decay = gPythia->event.size();
 
   LOG("Pythia8Decay", pINFO) << "before " << npart_before_decay << " after " << npart_after_decay;
 
@@ -178,9 +181,9 @@ bool Pythia8Decayer2023::Decay(int decay_particle_id, GHepRecord * event) const
       //       positive status code between 91 and 99
       //       (in case such information could be of interest in the future)
       //
-      if ( fPythia->event[ip].status() < 0 ) continue;
+      if ( gPythia->event[ip].status() < 0 ) continue;
 
-      Pythia8::Event &fEvent = fPythia->event;
+      Pythia8::Event &fEvent = gPythia->event;
 
       int daughter_pdg_code   = fEvent[ip].id();
 
@@ -244,29 +247,29 @@ bool Pythia8Decayer2023::Decay(int decay_particle_id, GHepRecord * event) const
 void Pythia8Decayer2023::Initialize(void) const
 {
 #ifdef __GENIE_PYTHIA8_ENABLED__
-  fPythia = new Pythia8::Pythia();
   fWeight = 1.;
 
-  fPythia->readString("ProcessLevel:all = off");
-  fPythia->readString("ProcessLevel:resonanceDecays=on");
+  Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
+  gPythia->readString("ProcessLevel:all = off");
+  gPythia->readString("ProcessLevel:resonanceDecays=on");
 
-  fPythia->readString("Print:quiet = on");
+  gPythia->readString("Print:quiet = on");
 
   // sync GENIE and PYTHIA8 seeds
   RandomGen * rnd = RandomGen::Instance();
   long int seed = rnd->GetSeed();
-  fPythia->readString("Random::setSeed = on");
-  fPythia->settings.mode("Random:seed",seed);
+  gPythia->readString("Random::setSeed = on");
+  gPythia->settings.mode("Random:seed",seed);
   LOG("Pythia8Decay", pINFO)
-    << "PYTHIA8 seed = " << fPythia->settings.mode("Random:seed");
+    << "PYTHIA8 seed = " << gPythia->settings.mode("Random:seed");
 
-  fPythia->init();
+  gPythia->init();
 
   // shut off decays of pi0's as we want Geant4 to handle them
   // if other immediate decay products should be handled by Geant4,
   // their respective decay modes should be shut off as well
   //
-  fPythia->readString("111:onMode = off");
+  gPythia->readString("111:onMode = off");
 
 #else
   LOG("Pythia8Decay", pFATAL)
@@ -295,7 +298,8 @@ void Pythia8Decayer2023::InhibitDecay(int pdg_code, TDecayChannel * dc) const
 
 #ifdef __GENIE_PYTHIA8_ENABLED__
 
-  bool known = fPythia->particleData.isParticle(pdg_code);
+  Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
+  bool known = gPythia->particleData.isParticle(pdg_code);
   if ( ! known ) {
     LOG("Pythia8Decay", pERROR)
       << "Can not switch off decays of " << pdg_code
@@ -303,7 +307,7 @@ void Pythia8Decayer2023::InhibitDecay(int pdg_code, TDecayChannel * dc) const
     return;
   }
 
-  auto pdentry = fPythia->particleData.particleDataEntryPtr(pdg_code);
+  auto pdentry = gPythia->particleData.particleDataEntryPtr(pdg_code);
 
   int ifirst_chan = 0;
   int ilast_chan  = pdentry->sizeChannels() - 1;
@@ -323,7 +327,7 @@ void Pythia8Decayer2023::InhibitDecay(int pdg_code, TDecayChannel * dc) const
 
   //std::cout << "Before inhibiting channels " << ifirst_chan << "," << ilast_chan
   //          << " of " << pdg_code << std::endl;
-  //fPythia->particleData.list(pdg_code);
+  //gPythia->particleData.list(pdg_code);
 
   for (int ichan=ifirst_chan; ichan<=ilast_chan; ++ichan) {
     int onMode = pdentry->channel(ichan).onMode();
@@ -348,7 +352,7 @@ void Pythia8Decayer2023::InhibitDecay(int pdg_code, TDecayChannel * dc) const
 
   //std::cout << "After inhibiting channels " << ifirst_chan << "," << ilast_chan
   //          << " of " << pdg_code << std::endl;
-  //fPythia->particleData.list(pdg_code);
+  //gPythia->particleData.list(pdg_code);
 
 #else
   LOG("Pythia8Decay", pFATAL)
@@ -365,7 +369,8 @@ void Pythia8Decayer2023::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
 
 #ifdef __GENIE_PYTHIA8_ENABLED__
 
-  bool known = fPythia->particleData.isParticle(pdg_code);
+  Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
+  bool known = gPythia->particleData.isParticle(pdg_code);
   if ( ! known ) {
     LOG("Pythia8Decay", pERROR)
       << "Can not switch on decays of " << pdg_code
@@ -373,7 +378,7 @@ void Pythia8Decayer2023::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
     return;
   }
 
-  auto pdentry = fPythia->particleData.particleDataEntryPtr(pdg_code);
+  auto pdentry = gPythia->particleData.particleDataEntryPtr(pdg_code);
 
   int ifirst_chan = 0;
   int ilast_chan  = pdentry->sizeChannels() - 1;
@@ -393,7 +398,7 @@ void Pythia8Decayer2023::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
 
   //std::cout << "Before uninhibiting channels " << ifirst_chan << "," << ilast_chan
   //          << " of " << pdg_code << std::endl;
-  //fPythia->particleData.list(pdg_code);
+  //gPythia->particleData.list(pdg_code);
 
   for (int ichan=ifirst_chan; ichan<=ilast_chan; ++ichan) {
     int onMode = pdentry->channel(ichan).onMode();
@@ -418,7 +423,7 @@ void Pythia8Decayer2023::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
 
   //std::cout << "After uninhibiting channels " << ifirst_chan << "," << ilast_chan
   //          << " of " << pdg_code << std::endl;
-  //fPythia->particleData.list(pdg_code);
+  //gPythia->particleData.list(pdg_code);
 
 #else
   LOG("Pythia8Decay", pFATAL)

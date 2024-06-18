@@ -7,12 +7,12 @@
           The Pythia8Decayer2023 is a concrete implementation of the Decayer
           interface.
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Robert Hatcher <rhatcher \at fnal.gov>
+          Fermilab
 
-\created  June 20, 2004
+\created  December 21, 2023
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2024, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -21,7 +21,7 @@
 #define _PYTHIA8DECAYER2023_H_
 
 #ifdef __GENIE_PYTHIA8_ENABLED__
-#include "Pythia8/Pythia.h"
+#include "Framework/Utils/Pythia8Singleton.h"
 #endif
 
 #include "Physics/Decay/Decayer.h"
@@ -50,9 +50,6 @@ private:
   int    FindPythiaDecayChannel (int kc, TDecayChannel * ch)     const;
   bool   MatchDecayChannels     (int ic, TDecayChannel * ch)     const;
 
-#ifdef __GENIE_PYTHIA8_ENABLED__
-  mutable Pythia8::Pythia * fPythia;  ///< PYTHIA8 instance
-#endif
   mutable double     fWeight;
 };
 
