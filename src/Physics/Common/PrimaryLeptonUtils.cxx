@@ -15,6 +15,9 @@
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/EventGen/EventGeneratorI.h"
+#include "Framework/EventGen/RunningThreadInfo.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 
 using namespace genie;
 using namespace genie::utils;
@@ -26,11 +29,6 @@ void genie::utils::SetPrimaryLeptonPolarization( GHepRecord * ev )
 // accessible for generators that use a more unified approach (e.g.,
 // QELEventGenerator and MECGenerator). -- S. Gardiner
 
-// Set the final state lepton polarization. A mass-less lepton would be fully
-// polarized. This would be exact for neutrinos and a very good approximation
-// for electrons for the energies this generator is going to be used. This is
-// not the case for muons and, mainly, for taus. I need to refine this later.
-// How? See Kuzmin, Lyubushkin and Naumov, hep-ph/0312107
 
   // get the final state primary lepton
   GHepParticle * fsl = ev->FinalStatePrimaryLepton();
@@ -39,15 +37,39 @@ void genie::utils::SetPrimaryLeptonPolarization( GHepRecord * ev )
       << "Final state lepton not set yet! \n" << *ev;
     return;
   }
-
+  //-- Get the interaction
+  Interaction * interaction = ev->Summary();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
+  // Polarization of final charged lepton according to Kuzmin, Lyubushkin and Naumov, hep-ph/0312107
+  if ( proc_info.IsWeakCC() )
+  {
+     //-- Access cross section algorithm for running thread
+     RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+     const EventGeneratorI * evg = rtinfo->RunningThread();
+     const XSecAlgorithmI * xsec_alg = evg->CrossSectionAlg();
+     interaction->SetBit(kISkipProcessChk);
+     Kinematics * kine = interaction->KinePtr();
+     kine->UseSelectedKinematics();
+     if ( proc_info.IsQuasiElastic() )
+     {
+        std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+        double xsec = xsec_alg->XSec(interaction, kPSyfEx);
+        std::cout << "xsec = " << xsec << "\n";
+        xsec = xsec_alg->XSec(interaction, kPSQELEvGen);
+        std::cout << "xsec = " << xsec << "\n";
+        std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+     }
+     return;
+  }
+  
   // Get (px,py,pz) @ LAB
   TVector3 plab( fsl->Px(), fsl->Py(), fsl->Pz() );
 
   // In the limit m/E->0: leptons are left-handed and their anti-particles
   // are right-handed
   int pdgc = fsl->Pdg();
-  if ( pdg::IsNeutrino(pdgc) || pdg::IsElectron(pdgc) ||
-    pdg::IsMuon(pdgc) || pdg::IsTau(pdgc) )
+  if ( pdg::IsNeutrino(pdgc) || pdg::IsElectron(pdgc) || 
+       pdg::IsMuon(pdgc)     || pdg::IsTau(pdgc) )
   {
     plab *= -1; // left-handed
   }
@@ -62,4 +84,9 @@ void genie::utils::SetPrimaryLeptonPolarization( GHepRecord * ev )
       << "Polarization (rad): Polar = "  << fsl->PolzPolarAngle()
       << ", Azimuthal = " << fsl->PolzAzimuthAngle();
   }
+  
+  // reset trust bits
+  interaction->ResetBit(kISkipProcessChk);
+  interaction->ResetBit(kISkipKinematicChk);
+  
 }
