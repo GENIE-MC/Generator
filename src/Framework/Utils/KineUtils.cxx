@@ -322,7 +322,7 @@ double genie::utils::kinematics::Jacobian(
     J = W / ( 2. * pv * pl * M );
   }
   
-  else if ( TransformMatched(fromps,tops, kPSyfEx, kPSQELEvGen, forward) )
+  else if ( TransformMatched(fromps,tops, kPSyphi0fEx, kPSQELEvGen, forward) )
   {
       //TLorentzVector neutrino(*i->InitStatePtr()->GetProbeP4(kRfLab));
       //TLorentzVector nucleon(*i->InitStatePtr()->GetTgtP4(kRfLab));
@@ -419,6 +419,7 @@ double genie::utils::kinematics::Jacobian(
       else
          J = 1/TMath::Sin(theta_star);
       
+      // It is not entirely correct to divide by 2 pi, but solely to simplify the code it is better to do it here (Igor Kakorin)
       J = TMath::Abs(J*dydQ2*(dQ2dtheta*dphi0dphi - dQ2dphi*dphi0dtheta)/2/genie::constants::kPi);
          
     
@@ -438,7 +439,7 @@ double genie::utils::kinematics::Jacobian(
        delete ki4;
   }
   
-  else if ( TransformMatched(fromps,tops, kPSyfEx, kPSWQ2fE, forward) )
+  else if ( TransformMatched(fromps,tops, kPSyphi0fEx, kPSQ2fE, forward) )
   {
       double Q2 = i->Kine().GetKV( kKVQ2 );
       // mass of initial nucleon
@@ -452,7 +453,7 @@ double genie::utils::kinematics::Jacobian(
       J = dydQ2;
   }
   
-  else if ( TransformMatched(fromps,tops, kPSyfEx, kPSQ2vfE, forward) )
+  else if ( TransformMatched(fromps,tops, kPSyphi0fEx, kPSQ2vfE, forward) )
   {
       TLorentzVector* ki4 = i->InitStatePtr()->GetProbeP4(genie::kRfLab);
       TLorentzVector* pi4 = i->InitStatePtr()->TgtPtr()->HitNucP4Ptr();
@@ -482,10 +483,10 @@ double genie::utils::kinematics::Jacobian(
       }
       
       double kf4_mag    = kf4.Vect().Mag();
-      double theta_star = kf4.Theta();
-      double phi_star   = kf4.Phi();
+      double theta0 = kf4.Theta();
+      double phi0   = kf4.Phi();
       
-      TLorentzVector kf4_dphi( -kf4_mag*TMath::Sin(phi_star)*TMath::Sin(theta_star), kf4_mag*TMath::Cos(phi_star)*TMath::Sin(theta_star), 0, 0);
+      TLorentzVector kf4_dphi( -kf4_mag*TMath::Sin(phi0)*TMath::Sin(theta0), kf4_mag*TMath::Cos(phi0)*TMath::Sin(theta0), 0, 0);
       // to LAB frame
       if ( rot.Mag() > 0 ) 
       {
@@ -502,6 +503,7 @@ double genie::utils::kinematics::Jacobian(
       // Mandelstam s for the probe/hit nucleon system
       double s = TMath::Sq( i->InitState().CMEnergy() );
       double dydQ2 = (s - Mi*Mi)/TMath::Sq(s - Mf*Mf - Q2);
+      // It is not entirely correct to divide by 2 pi, but solely to simplify the code it is better to do it here (Igor Kakorin)
       J = TMath::Abs(dydQ2/kf4_dphi.Energy()/2/genie::constants::kPi);
       
       delete ki4;

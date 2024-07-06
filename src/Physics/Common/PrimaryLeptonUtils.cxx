@@ -53,10 +53,10 @@ void genie::utils::SetPrimaryLeptonPolarization( GHepRecord * ev )
      if ( proc_info.IsQuasiElastic() )
      {
         std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-        double xsec = xsec_alg->XSec(interaction, kPSyfEx);
-        std::cout << "xsec = " << xsec << "\n";
-        xsec = xsec_alg->XSec(interaction, kPSQELEvGen);
-        std::cout << "xsec = " << xsec << "\n";
+        double xsec = xsec_alg->XSec(interaction, kPSyphi0fEx);
+        std::cout << "!!!xsec = " << xsec << "\n";
+        //xsec = xsec_alg->XSec(interaction, kPSQELEvGen);
+        //std::cout << "xsec = " << xsec << "\n";
         std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
      }
      return;

@@ -286,6 +286,8 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
   kinematics::WQ2toXY(E,M,W,Q2,x,y);
 
   // lock selected kinematics & clear running values
+  interaction->KinePtr()->SetFSLeptonP4(outLeptonMom);
+  interaction->KinePtr()->SetHadSystP4(outNucleonMom);
   interaction->KinePtr()->SetQ2(Q2, true);
   interaction->KinePtr()->SetW (W,  true);
   interaction->KinePtr()->Setx (x,  true);

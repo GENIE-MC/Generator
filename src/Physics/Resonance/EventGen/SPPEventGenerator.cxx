@@ -209,14 +209,6 @@ void SPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   // set the cross section for the selected kinematics
   evrec->SetDiffXSec(xsec,kPSWQ2ctpphipfE);
 
-  // lock selected kinematics & clear running values
-  interaction->KinePtr()->SetQ2(Q2, true);
-  interaction->KinePtr()->SetW (W,  true);
-  interaction->KinePtr()->Setx (x,  true);
-  interaction->KinePtr()->Sety (y,  true);
-  interaction->KinePtr()->ClearRunningValues();
-  
-  
   double W2 = W*W;
   // Kinematical values of all participating particles in the isobaric frame
   double Enu_isb = (Ev*M - (ml2 + Q2)/2)/W;
@@ -262,6 +254,15 @@ void SPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   
   
   tgt->SetHitNucP4(p1_copy);
+  
+  // lock selected kinematics & clear running values
+  interaction->KinePtr()->SetFSLeptonP4(k2_isb);
+  interaction->KinePtr()->SetHadSystP4(p2_isb);
+  interaction->KinePtr()->SetQ2(Q2, true);
+  interaction->KinePtr()->SetW (W,  true);
+  interaction->KinePtr()->Setx (x,  true);
+  interaction->KinePtr()->Sety (y,  true);
+  interaction->KinePtr()->ClearRunningValues();
 
   TLorentzVector x4l(*(evrec->Probe())->X4());
   // add final lepton
