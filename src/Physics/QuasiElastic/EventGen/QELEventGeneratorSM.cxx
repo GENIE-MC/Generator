@@ -263,6 +263,9 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
   outNucleonMom.Rotate(theta-theta_k, yvec);
   outNucleonMom.Rotate(phi, zvec);
 
+  // One can also rotate the neutrino by an angle psi in Z frame.
+  // The angles of incoing particles will be same,
+  // The angles of outgoing particles will be fi_p - psi
   outLeptonMom.Rotate(psi, unit_nudir);
   inNucleonMom.Rotate(psi, unit_nudir);
   outNucleonMom.Rotate(psi, unit_nudir);

@@ -324,19 +324,13 @@ double genie::utils::kinematics::Jacobian(
   
   else if ( TransformMatched(fromps,tops, kPSyphi0fEx, kPSQELEvGen, forward) )
   {
-      //TLorentzVector neutrino(*i->InitStatePtr()->GetProbeP4(kRfLab));
-      //TLorentzVector nucleon(*i->InitStatePtr()->GetTgtP4(kRfLab));
       TLorentzVector* ki4 = i->InitStatePtr()->GetProbeP4(genie::kRfLab);
       TLorentzVector* pi4 = i->InitStatePtr()->TgtPtr()->HitNucP4Ptr();
-      //std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-      //std::cout << std::setprecision(18) << "Ek = " << ki4->Energy() << ", kx = " << ki4->Px() << ", ky = " << ki4->Py() << ", kz = " << ki4->Pz() << "\n";
-      //std::cout << std::setprecision(18) << "Ep = " << pi4->Energy() << ", px = " << pi4->Px() << ", py = " << pi4->Py() << ", pz = " << pi4->Pz() << "\n";
       TLorentzVector totMom = *ki4 + *pi4;
       TVector3 beta = totMom.BoostVector();
       TLorentzVector kf4(i->KinePtr()->FSLeptonP4());
       kf4.Boost(-beta);
       
-      //TVector3 lepton3Mom = lepton.Vect();
       TVector3 zvec(0., 0., 1.);
       TVector3 rot = ( zvec.Cross(beta) ).Unit();
       double angle = beta.Angle( zvec );
@@ -356,8 +350,6 @@ double genie::utils::kinematics::Jacobian(
       double kf4_mag    = kf4.Vect().Mag();
       double theta_star = kf4.Theta();
       double phi_star   = kf4.Phi();
-      
-      //std::cout << std::setprecision(18) << "El = " << kf4.Energy() << ", kf4_mag = " << kf4_mag << "\n";
       
       TLorentzVector kf4_dtheta(kf4_mag*TMath::Cos(phi_star)*TMath::Cos(theta_star), kf4_mag*TMath::Sin(phi_star)*TMath::Cos(theta_star), -kf4_mag*TMath::Sin(theta_star), 0);
       TLorentzVector kf4_dphi( -kf4_mag*TMath::Sin(phi_star)*TMath::Sin(theta_star), kf4_mag*TMath::Cos(phi_star)*TMath::Sin(theta_star), 0, 0);
@@ -421,22 +413,8 @@ double genie::utils::kinematics::Jacobian(
       
       // It is not entirely correct to divide by 2 pi, but solely to simplify the code it is better to do it here (Igor Kakorin)
       J = TMath::Abs(J*dydQ2*(dQ2dtheta*dphi0dphi - dQ2dphi*dphi0dtheta)/2/genie::constants::kPi);
-         
-    
-      
-     
-      //std::cout << std::setprecision(18) << "Q^2 = " << Q2 << "\n";
-      //std::cout << std::setprecision(18) << "Ek' = " << kf4.Energy() << ", k'x = " << kf4.Px() << ", k'y = " << kf4.Py() << ", k'z = " << kf4.Pz() << ", phi0 = " << kf4.Phi() << "\n";
-      //std::cout << std::setprecision(18) << "Computed values: theta = " << theta_star << ", phi = " << phi_star << "\n";
-      //std::cout << std::setprecision(18) << "Computed values: dQ2dcostheta = " << -dQ2dtheta/TMath::Sin(theta_star) << ", dQ2dphi = " << dQ2dphi << "\n";
-      //std::cout << std::setprecision(18) << "Computed values: dphi0dtheta = " << dphi0dtheta << ", dphi0dphi = " << dphi0dphi << "\n"; 
-      //std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
-      
-       //std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-       //std::cout << "Selected values: theta = " << TMath::ACos(costheta) << ", phi = " << phi << "\n";
-       //std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
-       
-       delete ki4;
+                
+      delete ki4;
   }
   
   else if ( TransformMatched(fromps,tops, kPSyphi0fEx, kPSQ2fE, forward) )
@@ -453,58 +431,31 @@ double genie::utils::kinematics::Jacobian(
       J = dydQ2;
   }
   
-  else if ( TransformMatched(fromps,tops, kPSyphi0fEx, kPSQ2vfE, forward) )
+  else if ( TransformMatched(fromps,tops, kPSxyfE, kPSTlctl, forward) )
   {
-      TLorentzVector* ki4 = i->InitStatePtr()->GetProbeP4(genie::kRfLab);
+      TLorentzVector* ki4 = i->InitStatePtr()->GetProbeP4();
       TLorentzVector* pi4 = i->InitStatePtr()->TgtPtr()->HitNucP4Ptr();
       TLorentzVector kf4(i->KinePtr()->FSLeptonP4());
-      
-      // to hit nucleon rest frame
-      TVector3 beta = pi4->BoostVector();
-                                                                         pi4->Boost(-beta);
-      ki4->Boost(-beta);
-      kf4.Boost(-beta);
-      
-      TVector3 ki3 = ki4->Vect();
-      TVector3 zvec(0., 0., 1.);
-      TVector3 rot = ( ki3.Cross(zvec) ).Unit();
-      double angle = zvec.Angle( ki3 );
-      // Handle the edge case where beta is along z, so the
-      // cross product above vanishes
-      if ( ki3.Perp() == 0. && ki3.Z() < 0. ) 
-      {
-         rot = TVector3(0., 1., 0.);
-         angle = genie::constants::kPi;
-      }
-      if ( rot.Mag() > 0 ) 
-      {
-                                                                        ki4->Rotate(angle, rot);
-         kf4.Rotate(angle, rot);
-      }
-      
-      double kf4_mag    = kf4.Vect().Mag();
-      double theta0 = kf4.Theta();
-      double phi0   = kf4.Phi();
-      
-      TLorentzVector kf4_dphi( -kf4_mag*TMath::Sin(phi0)*TMath::Sin(theta0), kf4_mag*TMath::Cos(phi0)*TMath::Sin(theta0), 0, 0);
-      // to LAB frame
-      if ( rot.Mag() > 0 ) 
-      {
-          kf4_dphi.Rotate(angle, -rot);
-      }
-      
-      kf4_dphi.Boost(beta);
-      double Q2 = i->Kine().GetKV( kKVQ2 );
       // mass of initial nucleon
       double Mi = i->InitStatePtr()->TgtPtr()->HitNucMass();
-      // Look up the (on-shell) mass of the final nucleon
-      TDatabasePDG *tb = TDatabasePDG::Instance();
-      double Mf = tb->GetParticle( i->RecoilNucleonPdg() )->Mass();
-      // Mandelstam s for the probe/hit nucleon system
-      double s = TMath::Sq( i->InitState().CMEnergy() );
-      double dydQ2 = (s - Mi*Mi)/TMath::Sq(s - Mf*Mf - Q2);
-      // It is not entirely correct to divide by 2 pi, but solely to simplify the code it is better to do it here (Igor Kakorin)
-      J = TMath::Abs(dydQ2/kf4_dphi.Energy()/2/genie::constants::kPi);
+      
+      TVector3 beta = pi4->BoostVector();
+      kf4.Boost(-beta);
+      double nu = ki4->Energy() - kf4.Energy();
+      double Pf = kf4.Vect().Mag();
+      J = TMath::Abs(Pf/Mi/nu);
+      
+      delete ki4;
+  }
+  
+  else if ( TransformMatched(fromps,tops, kPSQ2vfE, kPSxyfE, forward) )
+  {
+      TLorentzVector* ki4 = i->InitStatePtr()->GetProbeP4(genie::kRfLab);
+      TLorentzVector kf4(i->KinePtr()->FSLeptonP4());
+      double Ev     = ki4->Energy();
+      double l      = kf4.Vect().Mag();
+      J = Jacobian(i, kPSTlctl, kPSxyfE);
+      J = TMath::Abs(J*2*Ev*l);
       
       delete ki4;
   }
@@ -515,7 +466,7 @@ double genie::utils::kinematics::Jacobian(
        << KinePhaseSpace::AsString(fromps) << " --> "
        << KinePhaseSpace::AsString(tops);
       SLOG("KineLimits", pNOTICE) << msg.str() 
-                        << ". Set Jacbian equalto zero!";
+                        << ". Set Jacbian equal to zero!";
      //SLOG("KineLimits", pFATAL) << "*** " << msg.str();
      //throw genie::exceptions::InteractionException(msg.str());
      //exit(1);

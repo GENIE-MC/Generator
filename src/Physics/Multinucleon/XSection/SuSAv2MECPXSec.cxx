@@ -160,11 +160,9 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   if( fMECScaleAlg ) xsec *= fMECScaleAlg->GetScaling( * interaction ) ;
 
   if ( kps != kPSTlctl ) {
-    LOG("SuSAv2MEC", pWARN)
-      << "Doesn't support transformation from "
-      << KinePhaseSpace::AsString(kPSTlctl) << " to "
-      << KinePhaseSpace::AsString(kps);
-    xsec = 0.;
+      // Compute the appropriate Jacobian for transformation to the requested phase space
+      double J = utils::kinematics::Jacobian(interaction, kPSTlctl, kps);
+      xsec *= J;
   }
 
   return xsec;

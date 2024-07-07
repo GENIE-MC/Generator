@@ -47,18 +47,31 @@ void genie::utils::SetPrimaryLeptonPolarization( GHepRecord * ev )
      RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
      const EventGeneratorI * evg = rtinfo->RunningThread();
      const XSecAlgorithmI * xsec_alg = evg->CrossSectionAlg();
+     const AlgId & xsec_alg_id = xsec_alg->Id();
+     std::string xsec_alg_name = xsec_alg_id.Name();
+     std::string xsec_alg_config = xsec_alg_id.Config();
+     std::string xsec_alg_key = xsec_alg_id.Key();
      interaction->SetBit(kISkipProcessChk);
      Kinematics * kine = interaction->KinePtr();
      kine->UseSelectedKinematics();
+     std::cout << "\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+     std::cout << "Name: " << xsec_alg_name << ", Config: " << xsec_alg_config << ", Key: " << xsec_alg_key << "\n";
+     double xsec;
      if ( proc_info.IsQuasiElastic() )
      {
-        std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-        double xsec = xsec_alg->XSec(interaction, kPSyphi0fEx);
-        std::cout << "!!!xsec = " << xsec << "\n";
-        //xsec = xsec_alg->XSec(interaction, kPSQELEvGen);
-        //std::cout << "xsec = " << xsec << "\n";
-        std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+        if (xsec_alg_name != "genie::SmithMonizQELCCPXSec" && xsec_alg_name != "genie::SuSAv2QELPXSec" && xsec_alg_key != "genie::HybridXSecAlgorithm/SuSAv2-QEL")
+        {
+            xsec = xsec_alg->XSec(interaction, kPSyphi0fEx);
+        }
      }
+     xsec = xsec_alg->XSec(interaction, kPSxyfE);
+     //if ( proc_info.IsMEC() )
+     //{
+         //if (xsec_alg_name == "genie::NievesSimoVacasMECPXSec2016" || xsec_alg_name == "genie::SuSAv2MECPXSec" || xsec_alg_name == "genie::EmpiricalMECPXSec2015")
+         
+     //}
+     std::cout << "xsec = " << std::scientific << xsec << "\n";
+     std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
      return;
   }
   

@@ -323,16 +323,10 @@ double NievesSimoVacasMECPXSec2016::XSec(
 
   if( fMECScaleAlg ) xsec *= fMECScaleAlg->GetScaling( * interaction ) ;
 
-  if ( kps != kPSTlctl && kps != kPSWQ2fE ) {
-      LOG("NievesSimoVacasMEC", pWARN)
-          << "Doesn't support transformation from "
-          << KinePhaseSpace::AsString(kPSTlctl) << " to "
-          << KinePhaseSpace::AsString(kps);
-      xsec = 0;
-  }
-  else if ( kps == kPSWQ2fE && xsec != 0. ) {
-    double J = utils::kinematics::Jacobian( interaction, kPSTlctl, kps );
-    xsec *= J;
+  if ( kps != kPSTlctl ) {
+      // Compute the appropriate Jacobian for transformation to the requested phase space
+      double J = utils::kinematics::Jacobian(interaction, kPSTlctl, kps);
+      xsec *= J;
   }
 
   return xsec;
