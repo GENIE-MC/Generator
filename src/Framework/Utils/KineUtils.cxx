@@ -437,13 +437,13 @@ double genie::utils::kinematics::Jacobian(
       TLorentzVector* pi4 = i->InitStatePtr()->TgtPtr()->HitNucP4Ptr();
       TLorentzVector kf4(i->KinePtr()->FSLeptonP4());
       // mass of initial nucleon
-      double Mi = i->InitStatePtr()->TgtPtr()->HitNucMass();
+      double M = i->InitStatePtr()->TgtPtr()->HitNucMass();
       
       TVector3 beta = pi4->BoostVector();
       kf4.Boost(-beta);
       double nu = ki4->Energy() - kf4.Energy();
       double Pf = kf4.Vect().Mag();
-      J = TMath::Abs(Pf/Mi/nu);
+      J = TMath::Abs(Pf/M/nu);
       
       delete ki4;
   }
@@ -458,6 +458,18 @@ double genie::utils::kinematics::Jacobian(
       J = TMath::Abs(J*2*Ev*l);
       
       delete ki4;
+  }
+  
+  else if ( TransformMatched(fromps,tops, kPSxyfE, kPSWQ2fE, forward) )
+  {
+      const InitialState & init_state = i->InitState();
+      double Ev = init_state.ProbeE(kRfHitNucRest);
+      double M  = init_state.Tgt().HitNucMass();
+      double M2 = M*M;
+      double W  = kine.W();
+      double W2 = W*W;
+      double Q2 = kine.Q2();
+      J = TMath::Abs( W/(Ev*M*(W2 + Q2 - M2)) );
   }
 
   else {
