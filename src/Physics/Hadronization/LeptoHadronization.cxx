@@ -18,7 +18,7 @@
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
-#include "Framework/GHEP/GHepFlags.h" 
+#include "Framework/GHEP/GHepFlags.h"
 #include "Framework/EventGen/EVGThreadException.h"
 #include "Physics/Hadronization/LeptoHadronization.h"
 #include "Framework/Messenger/Messenger.h"
@@ -38,6 +38,7 @@
 using namespace genie;
 using namespace genie::constants;
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
 // the actual PYTHIA call
 extern "C" {
   double pyangl_( double *,  double * );
@@ -46,7 +47,8 @@ extern "C" {
   void   pyrobo_( int *,  int *, double *, double *, double *, double *, double * );
   void   pydecy_( int * );
   void   py2ent_( int *,  int *, int *, double * );
-} 
+}
+#endif
 
 //____________________________________________________________________________
 LeptoHadronization::LeptoHadronization() :
@@ -76,7 +78,7 @@ void LeptoHadronization::Initialize(void) const
 #endif
 }
 //____________________________________________________________________________
-void LeptoHadronization::ProcessEventRecord(GHepRecord * 
+void LeptoHadronization::ProcessEventRecord(GHepRecord *
   #ifdef __GENIE_PYTHIA6_ENABLED__
     event // avoid unused variable warning if PYTHIA6 is not enabled
   #endif
@@ -127,7 +129,7 @@ bool LeptoHadronization::Hadronize(GHepRecord *
   const TLorentzVector & vtx = *( event->Probe()->X4());
   TLorentzVector p4Had( (double)p4Hadlong.Px(), (double)p4Hadlong.Py(), (double)p4Hadlong.Pz(), (double)p4Hadlong.E() );
   event->AddParticle(kPdgHadronicSyst, kIStDISPreFragmHadronicState, event->HitNucleonPosition(),-1,-1,-1, p4Had, vtx);
-  
+
   const Interaction * interaction = event->Summary();
   interaction->KinePtr()->SetHadSystP4(p4Had);
   interaction->KinePtr()->SetW(p4Hadlong.M());
@@ -141,7 +143,7 @@ bool LeptoHadronization::Hadronize(GHepRecord *
   const XclsTag &      xclstag    = interaction->ExclTag();
   const Target &       target     = interaction->InitState().Tgt();
 
-  assert(target.HitQrkIsSet()); 
+  assert(target.HitQrkIsSet());
 
   bool isp        = pdg::IsProton(target.HitNucPdg());
   int  hit_quark  = target.HitQrkPdg();
@@ -238,7 +240,7 @@ bool LeptoHadronization::Hadronize(GHepRecord *
     }
 
     //PDG of the two hadronic particles for the final state
-    int hadron = 0;      
+    int hadron = 0;
     int rema   = 0;
 
     int ntwoq = isp ? 2 : 1; //proton two ups & neutron one up
@@ -285,14 +287,14 @@ bool LeptoHadronization::Hadronize(GHepRecord *
       // Split energy-momentum of remnant using PYTHIA function
       // z=E-pz fraction for rema forming jet-system with frag_q
       // 1-z=E-pz fraction for hadron
-      pyzdis_(&kfl1,&kfl3,&pr,&z);  
+      pyzdis_(&kfl1,&kfl3,&pr,&z);
 
       // Energy of trasnfered to the hadron
       double tm_hadron = pr / z / W;
       double E_hadron   = 0.5 * ( z*W + tm_hadron );  //E_hadron - pz = zW
       double E_pz       = W - tm_hadron;
       double WT         = (1-z) * W * E_pz - pT2;
-      
+
       // Check if energy in jet system is enough for fragmentation.
       if ( WT > TMath::Power(m_frag+m_rema+fMinESinglet,2) ) {
 
@@ -322,7 +324,7 @@ bool LeptoHadronization::Hadronize(GHepRecord *
         double the  = 0.; double ph   = 0.;
         double dbex = 0.; double dbey = 0.; double dbez = (E_pz-(1-z)*W)/(E_pz+(1-z)*W);
         pyrobo_( &imin , &imax, &the, &ph, &dbex, &dbey , &dbez );
-      
+
         double pz_hadron  = -0.5 * ( z*W - tm_hadron );
         double theta_hadron = pyangl_(&pz_hadron,&pT);
         fPythia->SetMSTU( 10, 1 ); //keep the mass value stored in P(I,5), whatever it is.
@@ -332,7 +334,7 @@ bool LeptoHadronization::Hadronize(GHepRecord *
 
         // Target remnants required to go backwards in hadronic cms
         if ( fPythia->GetP(fPythia->GetN()-1,3)<0 && fPythia->GetP(fPythia->GetN(),3)<0 ) break; //quit the while from line 368
-        
+
         LOG("LeptoHad", pINFO) << "Not backward hadron or rema";
         LOG("LeptoHad", pINFO) << "hadron     = " << hadron     << " -> Pz = " << fPythia->GetP(fPythia->GetN(),3) ;
         LOG("LeptoHad", pINFO) << "rema = " << rema << " -> Pz = " << fPythia->GetP(fPythia->GetN()-1,3) ;
@@ -373,7 +375,7 @@ bool LeptoHadronization::Hadronize(GHepRecord *
   fPythia->SetPMAS(24,1,pmas1_W);
   fPythia->SetPMAS(24,2,pmas2_W);
   fPythia->SetPMAS(6,2,pmas2_t);
-  
+
   // Use for debugging purposes
   //fPythia->Pylist(3);
 
@@ -406,17 +408,17 @@ bool LeptoHadronization::Hadronize(GHepRecord *
 
     int pdgc = p->GetKF();
     int ks   = p->GetKS();
-    
-    // Final state particles can not be quarks or diquarks but colorless 
+
+    // Final state particles can not be quarks or diquarks but colorless
     if(ks == 1) {
       if( pdg::IsQuark(pdgc) || pdg::IsDiQuark(pdgc) ) {
         LOG("LeptoHad", pERROR) << "Hadronization failed! Bare quark/di-quarks appear in final state!";
-        return false;            
-      }  
+        return false;
+      }
     }
 
     // When top quark is produced, it is immidiately decay before hadronization. Then the decayed
-    // products are hadronized with the hadron remnants. Therefore, we remove the top quark from 
+    // products are hadronized with the hadron remnants. Therefore, we remove the top quark from
     // the list of particles so that the mother/daugher assigments is at the same level for decayed
     // products and hadron remnants.
     if ( pdg::IsTQuark( TMath::Abs(pdgc) ) ) { isTop=true; continue; }
@@ -431,7 +433,7 @@ bool LeptoHadronization::Hadronize(GHepRecord *
       p->SetParent(p->GetParent() - 1);
       p->SetFirstChild (p->GetFirstChild() - 1);
       p->SetLastChild  (p->GetLastChild()  - 1);
-    }                                  
+    }
 
     LongLorentzVector p4long( p->GetPx(), p->GetPy(), p->GetPz(), p->GetEnergy()  );
     p4long.BoostZ(beta);
@@ -446,7 +448,7 @@ bool LeptoHadronization::Hadronize(GHepRecord *
     if ( (ks==1 || ks==4) && p4.E() < massPDG ) {
       LOG("LeptoHad", pINFO) << "Putting at rest one stable particle generated by PYTHIA because E < m";
       LOG("LeptoHad", pINFO) << "PDG = " << pdgc << " // State = " << ks;
-      LOG("LeptoHad", pINFO) << "E = " << p4.E() << " // |p| = " << p4.P(); 
+      LOG("LeptoHad", pINFO) << "E = " << p4.E() << " // |p| = " << p4.P();
       LOG("LeptoHad", pINFO) << "p = [ " << p4.Px() << " , "  << p4.Py() << " , "  << p4.Pz() << " ]";
       LOG("LeptoHad", pINFO) << "m    = " << p4.M() << " // mpdg = " << massPDG;
       p4.SetXYZT(0,0,0,massPDG);
@@ -500,7 +502,7 @@ void LeptoHadronization::LoadConfig(void)
   GetParam("Remnant-pT",    fRemnantPT ) ;
 
   // It is, with quark masses added, used to define the minimum allowable energy of a colour-singlet parton system.
-  GetParam( "Energy-Singlet", fMinESinglet ) ; 
+  GetParam( "Energy-Singlet", fMinESinglet ) ;
 
 #ifdef __GENIE_PYTHIA6_ENABLED__
   // PYTHIA parameters only valid for HEDIS
