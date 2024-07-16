@@ -21,6 +21,7 @@
 #include <TSystem.h>
 #include <TStopwatch.h>
 
+#include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Conventions/GBuild.h"
 
@@ -332,19 +333,29 @@ void GSimpleNtpFlux::MoveToZ0(double z0usr)
     return;
   }
 
-  double scale = (z0usr - fX4.Z()) / pzusr;
-  //LOG("Flux",pDEBUG)
+  // Find the 3-position shift needed to move to the requested z coordinate
+  double dz = z0usr - fX4.Z();
+  double scale = dz / pzusr;
+
+  // LOG("Flux",pDEBUG)
   //  << "MoveToZ0: before x4=(" << fX4.X() << "," << fX4.Y() << "," << fX4.Z()
-  //  << ") z0=" << z0usr << " pzusr=" << pzusr
-  //  << " p4=(" << fP4.Px() << "," << fP4.Py() << "," << fP4.Pz() << ")";
-  fX4 += (scale*fP4);
-  //LOG("Flux",pDEBUG)
-  //  << "MoveToZ0: after (" << fX4.X() << "," << fX4.Y() << "," << fX4.Z()
-  //  << ")";
+  //  << "," << fX4.T() << ") z0=" << z0usr << " pzusr=" << pzusr
+  //  << " p4=(" << fP4.Px() << "," << fP4.Py() << "," << fP4.Pz() << "," << fP4.E() << ")";
 
-  // this scaling works for distances, but not the time component
-  fX4.SetT(0);
+  TVector3 dx3( scale*fP4.Vect() );
 
+  // Find the corresponding time shift
+  double v = fP4.Beta() * constants::kLightSpeed
+    / ( units::meter / units::second );
+  double dt = fP4.P() * dz / ( pzusr * v );
+
+  // Apply these shifts to update the neutrino 4-position
+  TLorentzVector dx4( dx3, dt );
+  fX4 += dx4;
+
+  // LOG("Flux",pDEBUG)
+  //  << "MoveToZ0: after x4=(" << fX4.X() << "," << fX4.Y() << "," << fX4.Z()
+  //  << "," << fX4.T() << ")"
 }
 
 //___________________________________________________________________________

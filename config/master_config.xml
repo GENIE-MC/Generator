@@ -137,7 +137,7 @@
    <config alg="genie::GalsterELFormFactorsModel">               GalsterELFormFactorsModel.xml               </config>
    <config alg="genie::DipoleAxialFormFactorModel">              DipoleAxialFormFactorModel.xml              </config>
    <config alg="genie::ZExpAxialFormFactorModel">                ZExpAxialFormFactorModel.xml                </config>
-   <config alg="genie::KuzminNaumov2016AxialFormFactorModel">    KuzminNaumov2016AxialFormFactorModel.xml    </config>
+   <config alg="genie::MArunAxialFormFactorModel">               MArunAxialFormFactorModel.xml               </config>
    <config alg="genie::LwlynSmithFFCC">                          LwlynSmithFFCC.xml                          </config>
    <config alg="genie::MKFFEM">                                  MKFFEM.xml                                  </config>
    <config alg="genie::MKFFCC">                                  MKFFCC.xml                                  </config>

@@ -5,6 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Steven Gardiner <gardiner \at fnal.gov>
+         Liang Liu <liangliu \at fnal.gov>
          Fermi National Accelerator Laboratory
 
  For the class documentation see the corresponding header file.
@@ -50,6 +51,10 @@ namespace {
       return genie::kHT_MEC_EM_wImag;
     else if (str == "QE_EM")
       return genie::kHT_QE_EM;
+    else if (str == "QE_EM_proton")
+      return genie::kHT_QE_EM_proton;
+    else if (str == "QE_EM_neutron")
+      return genie::kHT_QE_EM_neutron;
     else if (str == "MEC_FullAll_Param")
       return genie::kHT_MEC_FullAll_Param;
     else if (str == "MEC_FullAll_wImag")
@@ -137,45 +142,47 @@ namespace {
     else if ( htt == genie::kHT_MEC_EM_pp ) return "MEC_EM_pp";
     else if ( htt == genie::kHT_MEC_EM_wImag ) return "MEC_EM_wImag";
     else if ( htt == genie::kHT_QE_EM ) return "QE_EM";
+    else if ( htt == genie::kHT_QE_EM_proton ) return "QE_EM_proton";
+    else if ( htt == genie::kHT_QE_EM_neutron ) return "QE_EM_neutron";
     else if ( htt == genie::kHT_MEC_FullAll_Param ) return "MEC_FullAll_Param";
     else if ( htt == genie::kHT_MEC_FullAll_wImag ) return "MEC_FullAll_wImag";
     else if ( htt == genie::kHT_QE_Full ) return "QE_Full";
 
     else if ( htt == genie::kHT_QE_CRPA_Low ) return "QE_CRPA_Low";
     else if ( htt == genie::kHT_QE_CRPA_Medium ) return "QE_CRPA_Medium";
-    else if ( htt == genie::kHT_QE_CRPA_High ) return "QE_CRPA_High";  
+    else if ( htt == genie::kHT_QE_CRPA_High ) return "QE_CRPA_High";
 
     else if ( htt == genie::kHT_QE_CRPA_anu_Low ) return "QE_CRPA_anu_Low";
     else if ( htt == genie::kHT_QE_CRPA_anu_Medium ) return "QE_CRPA_anu_Medium";
-    else if ( htt == genie::kHT_QE_CRPA_anu_High ) return "QE_CRPA_anu_High";  
+    else if ( htt == genie::kHT_QE_CRPA_anu_High ) return "QE_CRPA_anu_High";
 
     else if ( htt == genie::kHT_QE_HF_Low ) return "QE_HF_Low";
     else if ( htt == genie::kHT_QE_HF_Medium ) return "QE_HF_Medium";
-    else if ( htt == genie::kHT_QE_HF_High ) return "QE_HF_High";  
+    else if ( htt == genie::kHT_QE_HF_High ) return "QE_HF_High";
 
     else if ( htt == genie::kHT_QE_HF_anu_Low ) return "QE_HF_anu_Low";
     else if ( htt == genie::kHT_QE_HF_anu_Medium ) return "QE_HF_anu_Medium";
-    else if ( htt == genie::kHT_QE_HF_anu_High ) return "QE_HF_anu_High"; 
+    else if ( htt == genie::kHT_QE_HF_anu_High ) return "QE_HF_anu_High";
 
     else if ( htt == genie::kHT_QE_CRPAPW_Low ) return "QE_CRPAPW_Low";
     else if ( htt == genie::kHT_QE_CRPAPW_Medium ) return "QE_CRPAPW_Medium";
-    else if ( htt == genie::kHT_QE_CRPAPW_High ) return "QE_CRPAPW_High";  
+    else if ( htt == genie::kHT_QE_CRPAPW_High ) return "QE_CRPAPW_High";
 
     else if ( htt == genie::kHT_QE_CRPAPW_anu_Low ) return "QE_CRPAPW_anu_Low";
     else if ( htt == genie::kHT_QE_CRPAPW_anu_Medium ) return "QE_CRPAPW_anu_Medium";
-    else if ( htt == genie::kHT_QE_CRPAPW_anu_High ) return "QE_CRPAPW_anu_High";  
+    else if ( htt == genie::kHT_QE_CRPAPW_anu_High ) return "QE_CRPAPW_anu_High";
 
     else if ( htt == genie::kHT_QE_HFPW_Low ) return "QE_HFPW_Low";
     else if ( htt == genie::kHT_QE_HFPW_Medium ) return "QE_HFPW_Medium";
-    else if ( htt == genie::kHT_QE_HFPW_High ) return "QE_HFPW_High";  
+    else if ( htt == genie::kHT_QE_HFPW_High ) return "QE_HFPW_High";
 
     else if ( htt == genie::kHT_QE_HFPW_anu_Low ) return "QE_HFPW_anu_Low";
     else if ( htt == genie::kHT_QE_HFPW_anu_Medium ) return "QE_HFPW_anu_Medium";
-    else if ( htt == genie::kHT_QE_HFPW_anu_High ) return "QE_HFPW_anu_High"; 
+    else if ( htt == genie::kHT_QE_HFPW_anu_High ) return "QE_HFPW_anu_High";
 
     else if ( htt == genie::kHT_QE_SuSABlend ) return "QE_SuSABlend";
-    else if ( htt == genie::kHT_QE_SuSABlend_anu ) return "QE_SuSABlend_anu"; 
-     
+    else if ( htt == genie::kHT_QE_SuSABlend_anu ) return "QE_SuSABlend_anu";
+
     else return "Undefined";
   }
 

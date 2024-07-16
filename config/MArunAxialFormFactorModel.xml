@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration sets for the Kuzmin-Naumov running axial form factors model.
+
+Algorithm Configurable Parameters:
+.........................................................................................
+Name        Type    Optional   Comment                    Default
+.........................................................................................
+QEL-Ma      double  No         Axial Mass                 CommonParam[QuasiElastic]
+QEL-FA0     double  No         FA(q2 = 0)                 CommonParam[QuasiElastic]
+QEL-E0      double  No         E0                         
+-->
+
+  <param_set name="Default"> 
+    
+    <param type="string" name="CommonParam"> QuasiElastic </param>
+
+    <param type="double" name="QEL-E0"> 0.334 </param>
+
+  </param_set>
+
+</alg_conf>
+

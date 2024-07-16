@@ -69,7 +69,6 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
     if gen_list == 'none' :
         store_total_xsec = True 
 
-
     if group_vN == True : 
         process_name = "group_vN"
         job_ID = 1 
@@ -146,6 +145,7 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
                 tgt_list.append(xml_content[2]) 
 
     dict_target = {}
+
     for target in dir_nu_tgt_list : 
         dict_nu = {}
         for nu in dir_nu_list : 
@@ -178,8 +178,13 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
     com_total = "gspladd -o "+path+"total_xsec.xml -f "        
     for tgt in dict_target : 
         com_nu = "gspladd -o "+path+tgt+".xml -f "
+        
         for nu in dict_target[tgt]:
-            com_proc = "gspladd -o "+path+nu+"_on_"+tgt+".xml -f "
+            com_proc = "gspladd -o "+path+nu+"_on_"+tgt+".xml "
+            if nu == "e" : 
+                com_proc += " --event-generator-list EM "
+            com_proc += " -f "
+            
             for file_proc in dict_target[tgt][nu] : 
                 com_proc += path+file_proc + ","
             com_proc = com_proc[:-1]
@@ -194,8 +199,11 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
     com_total = com_total[:-1]
 
     ## if only one target simply rename
-    if len(dict_target) == 1 : 
-        commands.append("ifdh cp "+path+tgt+".xml "+path+"total_xsec.xml")
+    if len(dict_target) == 1 :
+        for tgt in dict_target :
+            if len(dict_target[tgt]) == 1 :
+                for nu in dict_target[tgt]:
+                    commands.append("ifdh cp "+path+nu+"_on_"+tgt+".xml "+path+"total_xsec.xml")
     else :
         commands.append(com_total) 
 
@@ -224,8 +232,8 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
         str_tgt_list = str_tgt_list[:-1]
 
         ## Create an output file with all the splines in root format
-        commands.append( "gspl2root -p "+str_probe_list+" -t "+str_tgt_list+" -f "+path+"total_xsec.xml -o "+path+"total_xsec.root --tune "+tune )
-        out_files.append("total_xsec.root")
+        ## commands.append( "gspl2root -p "+str_probe_list+" -t "+str_tgt_list+" -f "+path+"total_xsec.xml -o "+path+"total_xsec.root --tune "+tune +" --event-generation-list ")
+        ## out_files.append("total_xsec.root")
 
     # Call Commands
     shell_file = ''

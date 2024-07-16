@@ -137,6 +137,7 @@
   <priority msgstream="KNOHad">                FATAL </priority>
   <priority msgstream="KineLimits">            FATAL </priority>
   <priority msgstream="Kinematics">            FATAL </priority>
+  <priority msgstream="MArunAxialFormFactorModel"> FATAL </priority>
   <priority msgstream="LeptonicVertex">        FATAL </priority>
   <priority msgstream="LwlynSmith">            FATAL </priority>
   <priority msgstream="LocalFGM">              FATAL </priority>
