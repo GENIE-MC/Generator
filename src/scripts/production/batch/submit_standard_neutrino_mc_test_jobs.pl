@@ -60,7 +60,7 @@
 #
 # Tested at the RAL/PPD Tier2 PBS batch farm.
 #
-# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+# Costas Andreopoulos <c.andreopoulos \at cern.ch>
 # STFC, Rutherford Appleton Lab
 #---------------------------------------------------------------------------------------------------------------------
 #
