@@ -24,6 +24,7 @@
 
 using namespace genie;
 
+
 //_________________________________________________________________________
 MartiniEricsonChanfrayMarteauMECPXSec2024::MartiniEricsonChanfrayMarteauMECPXSec2024() : XSecAlgorithmI("genie::MartiniEricsonChanfrayMarteauMECPXSec2024")
 {
@@ -67,10 +68,72 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::XSec(const Interaction* intera
     tensor_type = kHT_MEC_EM;
     //pn_tensor_type = kHT_MEC_EM;
   }
-
+  /*lavi: comes from SuSAv2 but has to be modified as Nieves
   // Currently we only have the relative pair contributions for C12.
   int tensor_pdg = kPdgTgtC12;
   if(tensor_pdg != target_pdg) need_to_scale = true;
+  */
+
+  /// lavi: modifica tensor_type invece che MEC_FullAll riga 81
+
+  int tensor_pdg = target_pdg;
+  if ( ! fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_FullAll) )
+  {
+
+    if ( A_request == 4 && Z_request == 2 ) {
+      tensor_pdg = kPdgTgtC12;
+      // This is for helium 4, but use carbon tensor
+      // the use of nuclear density parameterization is suspicious
+      // but some users (MINERvA) need something not nothing.
+      // The pn will be exactly 1/3, but pp and nn will be ~1/4
+      // Because the combinatorics are different.
+      // Could do lithium beryllium boron which you don't need
+    }
+    else if (A_request < 9) {
+      // refuse to do D, T, He3, Li, and some Be, B
+      // actually it would work technically, maybe except D, T
+      MAXLOG("MartiniEricsonChanfrayMarteauMEC", pWARN, 10)
+          << "Asked to scale to deuterium through boron "
+          << target_pdg << " nope, lets not do that.";
+      return 0;
+    }
+    else if (A_request >= 9 && A_request < 15) {
+      tensor_pdg = kPdgTgtC12;
+      //}
+      // could explicitly put in nitrogen for air
+      //else if ( A_request >= 14 && A < 15) { // AND CHANGE <=14 to <14.
+      //  tensor_pdg = kPdgTgtN14;
+    }
+    else if (A_request >= 15 && A_request < 22) {
+      tensor_pdg = kPdgTgtO16;
+    }
+    else if (A_request >= 22 && A_request < 33) {
+      // of special interest, this gets Al27 and Si28
+      tensor_pdg = 1000140280;
+    }
+    else if (A_request >= 33 && A_request < 50) {
+      // of special interest, this gets Ar40 and Ti48
+      tensor_pdg = kPdgTgtCa40;
+    }
+    else if (A_request >= 50 && A_request < 90) {
+      // pseudoFe56, also covers many other ferrometals and Ge
+      tensor_pdg = 1000280560;
+    }
+    else if (A_request >= 90 && A_request < 160) {
+      // use Ba112 = PseudoCd.  Row5 of Periodic table useless. Ag, Xe?
+      tensor_pdg = 1000561120;
+    }
+    else if (A_request >= 160) {
+      // use Rf208 = pseudoPb
+      tensor_pdg = 1001042080;
+    }
+    else {
+      MAXLOG("MartiniEricsonChanfrayMarteauMEC", pWARN, 10)
+          << "Asked to scale to a nucleus "
+          << target_pdg << " which we don't know yet.";
+      return 0;
+    }
+  }
 
   // The MartiniEricsonChanfrayMarteau-MEC hadron tensors are defined using the same conventions
   // as the Valencia MEC model, so we can use the same sort of tensor
