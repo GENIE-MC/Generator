@@ -12,7 +12,6 @@ Copyright:
    For the full text of the license visit http://copyright.genie-mc.org
 """
 import os, optparse, glob, tarfile
-
 import sys
 sys.path.insert(1, 'xsec_splines/')
 
