@@ -68,7 +68,7 @@ NucRemovalE@Pdg=?         int      Yes       nuclear removal energy for specfic 
     <param type="double" name = "SRC-Fraction">    0.12   </param>
 
     <param type="bool" name = "LFG-MomentumDependentErmv"> true   </param>
-    <param type="bool" name = "LFG-ForcePositiveErmv">     true   </param>
+    <param type="bool" name = "LFG-ForcePositiveErmv">     false   </param>
     <!-- When using a momentum dependent removal energy, the meaning of the removal energy changes. 
       Specifically, that becomes a Q2 shift which is "tuned" so that the lowest removal energy of the spectrum correspnds 
       to the binding energy of the p-shell of the nucleus. 
