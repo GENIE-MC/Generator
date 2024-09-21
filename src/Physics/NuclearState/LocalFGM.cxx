@@ -123,20 +123,50 @@ bool LocalFGM::GenerateNucleon(const Target & target,
 
       
     }
-    else {
-      //else, use already existing treatment, i.e. set removal energy to RFG value from table or use 
-      //Wapstra's semi-empirical formula
-      if(it != fNucRmvE.end()) fCurrRemovalEnergy = it->second;
+    else
+    {
+      //else, use already existing treatment, i.e. set removal energy to RFG value from table or use
+      //Wapstra's semi-empirical formula.
+      if(!fMomDepErmv && it != fNucRmvE.end()) fCurrRemovalEnergy = it->second;
       else fCurrRemovalEnergy = nuclear::BindEnergyPerNucleon(target);
     }
-    
-    //decide whether to rethrow event if removal energy is negative
 
-    if (fForcePositiveErmv){
-      if(fCurrRemovalEnergy<0) doThrow=true;
-      else doThrow = false;
+    // we keep the event unless otherwise specified
+    doThrow = false;
+
+    if (fCurrRemovalEnergy < 0)
+    {
+      if (fForcePositiveErmv)
+      {
+        LOG("LocalFGM", pINFO)
+            << "  ^-- sampled nucleon resulte in negative LFG removal energy and was rejected.  Resampling...";
+        doThrow = true;
+      }
+      else
+      {
+        // ideally we'd use a proper separation energy for this.
+        // but the nucleon momenta sampled from the probability distribution
+        // that result in negative LFG removal energies are "SRC pair" momenta anyways,
+        // and we don't really know what their separation energies look like.
+        // so we use the binding energy per nucleon as a reasonable (?) guess.
+        fCurrRemovalEnergy = nuclear::BindEnergyPerNucleon(target);
+
+        LOG("LocalFGM", pINFO) << "  ^-- note: sampled nucleon resulted in negative LFG removal energy, "
+                               << "so its removal energy was corrected to the mean binding energy per nucleon "
+                               << "for Z=" << target.Z() << ", A=" << target.A() << ": " << fCurrRemovalEnergy;
+      }
     }
-    else doThrow=false;
+  } // while (doThrow)
+
+  static bool doneSave = false;
+  if (!doneSave)
+  {
+    TFile outf(Form("/tmp/local-FGM-probs-%d-%.2f.root", target.A(), p), "recreate");
+    outf.cd();
+    prob->Write();
+    outf.Close();
+
+    doneSave = true;
   }
 
   delete prob;
