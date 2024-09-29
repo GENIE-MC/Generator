@@ -781,7 +781,7 @@ void GMCJDriver::ComputeProbScales(void)
     fPmax.insert(map<int,TH1D*>::value_type(neutrino_pdgc,pmax_hst));
   } // nu
 
-  delete ebins;
+  delete[] ebins;
 
   // Compute global probability scale
   // Sum Probabilities {
