@@ -12,6 +12,7 @@
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <memory>
 #include "Math/Minimizer.h"
 #include "Math/Factory.h"
 
@@ -1355,7 +1356,8 @@ double MECGenerator::GetXSecMaxTlctl( const Interaction & in,
 				      const Range1D_t & Tl_range,
 				      const Range1D_t & ctl_range ) const {
 
-  ROOT::Math::Minimizer * min = ROOT::Math::Factory::CreateMinimizer("Minuit2");
+  auto min = std::unique_ptr<ROOT::Math::Minimizer>{
+      ROOT::Math::Factory::CreateMinimizer("Minuit2")};
 
   double Enu = in.InitState().ProbeE(kRfHitNucRest);
   double LepMass = in.FSPrimLepton()->Mass();
