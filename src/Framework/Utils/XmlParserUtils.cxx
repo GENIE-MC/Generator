@@ -120,7 +120,9 @@ string genie::utils::xml::GetXMLFilePath(string basename)  {
   size_t np = paths.size();
   for ( size_t i=0; i< np; ++i ) {
     const char* tmppath = paths[i].c_str();
-    std::string onepath = gSystem->ExpandPathName(tmppath);
+    auto expanded_path = gSystem->ExpandPathName(tmppath);
+    std::string onepath (expanded_path);
+    delete[] expanded_path;
     onepath += "/";
     onepath += basename;
     bool noAccess = gSystem->AccessPathName(onepath.c_str());
