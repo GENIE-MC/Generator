@@ -106,8 +106,6 @@ bool Pythia6Hadro2019::Hadronize(GHepRecord *
 
   int np = pythia_particles->GetEntries();
   assert(np>0);
-  TClonesArray * particle_list = new TClonesArray("genie::GHepParticle", np);
-  particle_list->SetOwner(true);
 
   // Hadronic 4vec
   TLorentzVector p4Had = kinematics.HadSystP4();
