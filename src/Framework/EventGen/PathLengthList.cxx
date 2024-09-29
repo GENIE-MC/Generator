@@ -238,7 +238,7 @@ XmlParserStatus_t PathLengthList::LoadFromXml(string filename)
        string spdgc = utils::str::TrimSpaces(
                          utils::xml::GetAttribute(xmlCur, "pdgc"));
 
-       string spl = utils::xml::TrimSpaces(
+       string spl = utils::xml::TrimSpacesClean(
                            xmlNodeListGetString(xml_doc, xmlPlVal, 1));
 
        LOG("PathL", pDEBUG) << "pdgc = " << spdgc << " --> pl = " << spl;

@@ -21,6 +21,7 @@
 
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Utils/RunOpt.h"
+#include "libxml/xmlmemory.h"
 
 
 using std::ostringstream;
@@ -38,6 +39,13 @@ string genie::utils::xml::TrimSpaces(xmlChar * xmls) {
 
   string str = string( (const char *) xmls );
   return utils::str::TrimSpaces(str);
+}
+
+string genie::utils::xml::TrimSpacesClean(xmlChar *xmls) {
+  // Does the same work as TrimSpaces, and cleans up the xmlChar memory
+  string str = TrimSpaces(xmls);
+  xmlFree(xmls);
+  return str;
 }
 
 //_________________________________________________________________________
@@ -166,7 +174,7 @@ bool genie::utils::xml::GetBool(xmlDocPtr xml_doc, string node_path)
   if(node==NULL) {
     return false;
   }
-  string content = genie::utils::xml::TrimSpaces(
+  string content = genie::utils::xml::TrimSpacesClean(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
 
   if(content == "true" ||
@@ -199,7 +207,7 @@ int genie::utils::xml::GetInt(xmlDocPtr xml_doc, string node_path)
   if(node==NULL) {
     return -999999;
   }
-  string content = genie::utils::xml::TrimSpaces(
+  string content = genie::utils::xml::TrimSpacesClean(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
   int value = atoi(content.c_str());
   return value;
@@ -214,7 +222,7 @@ vector<int> genie::utils::xml::GetIntArray(xmlDocPtr xml_doc, string node_path)
     return array;
   }
 
-  string content = genie::utils::xml::TrimSpaces(
+  string content = genie::utils::xml::TrimSpacesClean(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
 
   vector<string> str_tokens = genie::utils::str::Split(content, ",");
@@ -233,7 +241,7 @@ double genie::utils::xml::GetDouble(xmlDocPtr xml_doc, string node_path)
   if(node==NULL) {
     return -999999;
   }
-  string content = genie::utils::xml::TrimSpaces(
+  string content = genie::utils::xml::TrimSpacesClean(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
   double value = atof(content.c_str());
   return value;
@@ -249,7 +257,7 @@ vector<double>
     return array;
   }
 
-  string content = genie::utils::xml::TrimSpaces(
+  string content = genie::utils::xml::TrimSpacesClean(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
 
   vector<string> str_tokens = genie::utils::str::Split(content, ",");
@@ -268,7 +276,7 @@ string genie::utils::xml::GetString(xmlDocPtr xml_doc, string node_path)
   if(node==NULL) {
     return "";
   }
-  string content = genie::utils::xml::TrimSpaces(
+  string content = genie::utils::xml::TrimSpacesClean(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
   return content;
 }
