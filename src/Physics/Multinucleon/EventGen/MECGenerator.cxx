@@ -338,7 +338,8 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * event) const
 
   // Boosting the incoming neutrino to the NN-cluster rest frame
   // Neutrino 4p
-  TLorentzVector * p4v = event->Probe()->GetP4(); // v 4p @ LAB
+  // TLorentzVector * p4v = event->Probe()->GetP4(); // v 4p @ LAB
+  auto p4v = std::unique_ptr<TLorentzVector>(event->Probe()->GetP4());
   p4v->Boost(-1.*beta);                           // v 4p @ NN-cluster rest frame
 
   // Look-up selected kinematics
