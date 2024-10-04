@@ -213,7 +213,7 @@ bool Spline::LoadFromXmlFile(string filename, string xtag, string ytag)
            bool is_ytag = ! xmlStrcmp(tag,(const xmlChar *) ytag.c_str());
            if (is_xtag || is_ytag) {
               xmlNodePtr xmlValTagChild = xmlKnotChild->xmlChildrenNode;
-              string val = utils::xml::TrimSpaces(
+              string val = utils::xml::TrimSpacesClean(
                          xmlNodeListGetString(xml_doc, xmlValTagChild, 1));
 
               if (is_xtag) vx[iknot] = atof(val.c_str());

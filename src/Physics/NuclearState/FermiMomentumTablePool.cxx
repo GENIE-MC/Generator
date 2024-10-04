@@ -176,7 +176,7 @@ XmlParserStatus_t FermiMomentumTablePool::ParseXMLTables(string filename)
              bool isp = !xmlStrcmp(xml_cur->name, ptag);
              bool isn = !xmlStrcmp(xml_cur->name, ntag);
              if(isn || isp) {
-               string skf = utils::xml::TrimSpaces(
+               string skf = utils::xml::TrimSpacesClean(
                   xmlNodeListGetString(xml_doc, xml_cur->xmlChildrenNode, 1));
                kf = atof(skf.c_str());
              }

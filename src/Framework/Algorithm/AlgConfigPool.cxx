@@ -193,7 +193,7 @@ bool AlgConfigPool::LoadMasterConfig(std::string configname)
 
        string alg_name  = utils::str::TrimSpaces(
                      utils::xml::GetAttribute(xml_ac, "alg"));
-       string config_file = utils::xml::TrimSpaces(
+       string config_file = utils::xml::TrimSpacesClean(
                 xmlNodeListGetString(xml_doc, xml_ac->xmlChildrenNode, 1));
 
        pair<string, string> alg_conf(alg_name, config_file);
@@ -351,7 +351,7 @@ bool AlgConfigPool::LoadRegistries(
                    utils::str::TrimSpaces(
                        utils::xml::GetAttribute(xml_param, "name"));
             string param_value =
-                    utils::xml::TrimSpaces(
+                    utils::xml::TrimSpacesClean(
                                xmlNodeListGetString(
                                  xml_doc, xml_param->xmlChildrenNode, 1));
 

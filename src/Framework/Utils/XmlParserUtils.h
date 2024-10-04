@@ -52,6 +52,7 @@ namespace xml   {
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 
   string TrimSpaces(xmlChar * xmls) ;
+  string TrimSpacesClean(xmlChar * xmls) ;
   // trim the leading/trailing spaces from an parsed xml string like in:
   //
   // "      I am a string with lots of spaces      " ---->

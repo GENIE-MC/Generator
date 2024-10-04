@@ -45,7 +45,7 @@ XSecAlgorithmI("genie::EmpiricalMECPXSec2015", config)
 //____________________________________________________________________________
 EmpiricalMECPXSec2015::~EmpiricalMECPXSec2015()
 {
-
+  delete fXSecIntegrator;
 }
 //____________________________________________________________________________
 double EmpiricalMECPXSec2015::XSec(

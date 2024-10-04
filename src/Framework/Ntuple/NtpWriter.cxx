@@ -51,7 +51,7 @@ fNtpMCTreeHeader(0)
 //____________________________________________________________________________
 NtpWriter::~NtpWriter()
 {
-
+  delete fNtpMCTreeHeader;
 }
 //____________________________________________________________________________
 void NtpWriter::AddEventRecord(int ievent, const EventRecord * ev_rec)

@@ -2576,7 +2576,7 @@ void GNuMIFluxXMLHelper::ParseParamSet(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
       utils::xml::TrimSpaces(const_cast<xmlChar*>(xml_child->name));
     if ( pname == "text" || pname == "comment" ) continue;
     string pval  =
-      utils::xml::TrimSpaces(
+      utils::xml::TrimSpacesClean(
               xmlNodeListGetString(xml_doc, xml_child->xmlChildrenNode, 1));
 
     if ( fVerbose > 1 )
@@ -2656,7 +2656,7 @@ void GNuMIFluxXMLHelper::ParseBeamDir(xmlDocPtr& xml_doc, xmlNodePtr& xml_beamdi
       utils::xml::GetAttribute(xml_beamdir,"type"));
 
   string pval  =
-    utils::xml::TrimSpaces(
+    utils::xml::TrimSpacesClean(
       xmlNodeListGetString(xml_doc, xml_beamdir->xmlChildrenNode, 1));
 
   if        ( dirtype == "series" ) {
@@ -2788,7 +2788,7 @@ void GNuMIFluxXMLHelper::ParseRotSeries(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset
     if ( name == "text" || name == "comment" ) continue;
 
     if ( name == "rotation" ) {
-      string val = utils::xml::TrimSpaces(
+      string val = utils::xml::TrimSpacesClean(
           xmlNodeListGetString(xml_doc, xml_child->xmlChildrenNode, 1));
       string axis =
         utils::str::TrimSpaces(utils::xml::GetAttribute(xml_child,"axis"));
@@ -2836,7 +2836,7 @@ void GNuMIFluxXMLHelper::ParseWindowSeries(xmlDocPtr& xml_doc, xmlNodePtr& xml_p
 
     if ( name == "point" ) {
       string val  =
-        utils::xml::TrimSpaces(
+        utils::xml::TrimSpacesClean(
           xmlNodeListGetString(xml_doc, xml_child->xmlChildrenNode, 1));
       string coord =
         utils::str::TrimSpaces(utils::xml::GetAttribute(xml_child,"coord"));
