@@ -220,7 +220,7 @@ double ReinSehgalRESPXSec::XSec(
   //
   if(is_EM) {
     double q4 = q2*q2;
-    g2 = kAem2 * kPi2 / (2.0 * fSin48w * q4);
+    g2 = 8*kAem2*kPi2/q4;
   }
 
   // Compute the cross section
