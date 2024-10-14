@@ -67,7 +67,7 @@ namespace {
   // Vertex status codes for NuHepMC
   constexpr int NUHEPMC_PRIMARY_VERTEX = 1;
   // V.C.1
-  constexpr int NUHEPMC_NUCLEAR_VERTEX = 11;
+  constexpr int NUHEPMC_NUCLEAR_VERTEX = 20;
   constexpr int NUHEPMC_SECONDARY_VERTEX = 12;
 
   // Default set of implemented NuHepMC conventions
@@ -566,7 +566,7 @@ int genie::HepMC3Converter::GetNuHepMCParticleStatus(
   if ( status == genie::EGHepStatus::kIStInitialState ) {
     genie::GHepParticle* probe = gevrec.Probe();
     if ( gpart == probe ) return 4; // NuHepMC beam particle
-    else return 11; // NuHepMC target particle
+    else return 20; // NuHepMC target particle
   }
 
   // Otherwise, there is a one-to-one mapping of GENIE codes to NuHepMC
@@ -791,7 +791,7 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
     std::make_shared< HepMC3::VectorIntAttribute >(vertex_IDs) );
 
   // G.R.6
-  std::set< int > particle_statuses = { 4, 11 };
+  std::set< int > particle_statuses = { 4, 20 };
 
   fRunInfo->add_attribute( "NuHepMC.ParticleStatusInfo[4].Name",
     std::make_shared< HepMC3::StringAttribute >("Beam") );
@@ -799,10 +799,10 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
   fRunInfo->add_attribute( "NuHepMC.ParticleStatusInfo[4].Description",
     std::make_shared< HepMC3::StringAttribute >("Incoming beam particle") );
 
-  fRunInfo->add_attribute( "NuHepMC.ParticleStatusInfo[11].Name",
+  fRunInfo->add_attribute( "NuHepMC.ParticleStatusInfo[20].Name",
     std::make_shared< HepMC3::StringAttribute >("Target") );
 
-  fRunInfo->add_attribute( "NuHepMC.ParticleStatusInfo[11].Description",
+  fRunInfo->add_attribute( "NuHepMC.ParticleStatusInfo[20].Description",
     std::make_shared< HepMC3::StringAttribute >("Target particle") );
 
   for ( const auto& pstatus_pair : NUHEPMC_PARTICLE_STATUS_MAP ) {
@@ -1091,7 +1091,7 @@ genie::GHepStatus_t genie::HepMC3Converter::GetGHepParticleStatus(
 {
   // Both the NuHepMC "beam" and "target" particle status codes correspond to
   // the initial state status used by GENIE
-  if ( nuhepmc_status == 4 || nuhepmc_status == 11 ) {
+  if ( nuhepmc_status == 4 || nuhepmc_status == 20 ) {
     return genie::EGHepStatus::kIStInitialState;
   }
 
