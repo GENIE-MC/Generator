@@ -12,7 +12,7 @@
 #pragma link C++ class genie::NtpMCJobConfig;
 #pragma link C++ class genie::NtpMCRecHeader;
 #pragma link C++ class genie::NtpMCRecordI;
-#pragma link C++ class genie::NtpMCEventRecord;
+#pragma link C++ class genie::NtpMCEventRecord-;
 #pragma link C++ class genie::NtpWriter;
 
 #endif

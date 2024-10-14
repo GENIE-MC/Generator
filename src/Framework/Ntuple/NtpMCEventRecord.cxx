@@ -10,6 +10,7 @@
 
 #include "Framework/EventGen/EventRecord.h"
 #include "Framework/Messenger/Messenger.h"
+#include "TBuffer.h"
 #include "Framework/Ntuple/NtpMCEventRecord.h"
 
 using std::endl;
@@ -75,3 +76,29 @@ void NtpMCEventRecord::Clear(Option_t * /*opt*/)
   this->hdr.ievent = 0;
 }
 //____________________________________________________________________________
+
+// Extracted from the code ROOT generated
+// added check-and-delete before streaming to
+// avoid memory leak
+void NtpMCEventRecord::Streamer(TBuffer &R__b) {
+  // Stream an object of class genie::NtpMCEventRecord.
+
+  UInt_t R__s, R__c;
+  if (R__b.IsReading()) {
+    Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+    if (R__v) {
+    }
+    genie::NtpMCRecordI::Streamer(R__b);
+    if (event) {
+      delete event;
+      event = nullptr;
+    }
+    R__b >> event;
+    R__b.CheckByteCount(R__s, R__c, ::genie::NtpMCEventRecord::IsA());
+  } else {
+    R__c = R__b.WriteVersion(::genie::NtpMCEventRecord::IsA(), kTRUE);
+    genie::NtpMCRecordI::Streamer(R__b);
+    R__b << event;
+    R__b.SetByteCount(R__c, kTRUE);
+  }
+}
