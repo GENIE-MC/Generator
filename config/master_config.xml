@@ -114,7 +114,7 @@
    <config alg="genie::AGKY2019">                AGKY2019.xml                </config>
    <config alg="genie::Pythia6Hadro2019">        Pythia6Hadro2019.xml        </config>
    <config alg="genie::Pythia8Hadro2019">        Pythia8Hadro2019.xml        </config>
-   <config alg="genie::AGCharm2019">             AGCharm2019.xml             </config>
+   <config alg="genie::AGCharmPythiaBaseHadro2023"> AGCharm2023.xml             </config>
    <config alg="genie::LeptoHadronization">      LeptoHadronization.xml      </config>
 
    <!-- ****** CONFIGURATION FOR PARTON DENSITY FUNCTION ALGORITHMS ****** -->
@@ -124,7 +124,8 @@
    <config alg="genie::BYPDF">                       BYPDF.xml                       </config>
 
    <!-- ****** CONFIGURATION FOR PARTICLE DECAY ALGORITHMS****** -->
-   <config alg="genie::PythiaDecayer">               PythiaDecayer.xml               </config>
+   <config alg="genie::Pythia6Decayer2023">          PythiaDecayer.xml               </config>
+   <config alg="genie::Pythia8Decayer2023">          PythiaDecayer.xml               </config>
    <config alg="genie::BaryonResonanceDecayer">      BaryonResonanceDecayer.xml      </config>
    <config alg="genie::DarkSectorDecayer">           DarkSectorDecayer.xml           </config>
 

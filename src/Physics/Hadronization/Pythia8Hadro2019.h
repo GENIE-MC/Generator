@@ -27,7 +27,7 @@
 #include "Physics/Hadronization/PythiaBaseHadro2019.h"
 
 #ifdef __GENIE_PYTHIA8_ENABLED__
-#include "Pythia8/Pythia.h"
+#include "Framework/Utils/Pythia8Singleton.h"
 #endif
 
 namespace genie {
@@ -59,10 +59,6 @@ private:
 
   void LoadConfig (void);
   void Initialize (void);
-
-#ifdef __GENIE_PYTHIA8_ENABLED__
-  mutable Pythia8::Pythia * fPythia; ///< PYTHIA8 instance
-#endif
 
 };
 

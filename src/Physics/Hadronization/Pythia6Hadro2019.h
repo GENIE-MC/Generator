@@ -12,14 +12,12 @@
 \created  August 17, 2004
 
 \cpright  Copyright (c) 2003-2024, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
 #ifndef _PYTHIA6_HADRONIZATION_H_
 #define _PYTHIA6_HADRONIZATION_H_
-
-#define __GENIE_PYTHIA6_ENABLED__
 
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Interaction/Interaction.h"
