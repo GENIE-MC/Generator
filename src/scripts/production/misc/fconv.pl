@@ -28,7 +28,7 @@
 #     % perl fconv.pl --rmin 100 --rmax 1010 --prefix gntp. --suffix .ghep.root \
 #                     --dirname /opt/ghepfiles/ --convcmd 'gntpc -f gst -n 10000 -i '
 #
-# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+# Costas Andreopoulos <c.andreopoulos \at cern.ch>
 # STFC, Rutherford Appleton Lab
 #-------------------------------------------------------------------------------------------
 

@@ -4,8 +4,8 @@
 #
 # For help, type ./configure --help
 #
-# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-# University of Liverpool & STFC Rutherford Appleton Laboratory
+# Costas Andreopoulos <c.andreopoulos \at cern.ch>
+# University of Liverpool
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # print out info & exit if any of the command-line arguments was --help

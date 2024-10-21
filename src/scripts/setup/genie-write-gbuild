@@ -2,7 +2,7 @@
 #
 # Creates the $GENIE/src/Conventions/GBuild.h header file
 #
-# C.Andreopoulos <constantinos.andreopoulos \at cern.ch>, Rutherford Lab.
+# C.Andreopoulos <c.andreopoulos \at cern.ch>, Rutherford Lab.
 #
 
 $GENIE = $ENV{'GENIE'};

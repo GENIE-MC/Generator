@@ -6,15 +6,15 @@
 \brief    Provides access to the PYTHIA hadronization models. \n
           Is a concrete implementation of the EventRecordVisitorI interface.
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
           Shivesh Mandalia <s.p.mandalia@qmul.ac.uk>
           Queen Mary University of London
 
 \created  October 17, 2019
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2024, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________

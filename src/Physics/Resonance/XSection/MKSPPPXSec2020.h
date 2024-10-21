@@ -60,12 +60,12 @@ for the following channels:
           Minoo Kabirnezhad <minoo.kabirnezhad@physics.ox.ac.uk>
           University of Oxford, Department of Physics \n
           based on code of \n
-          Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+          Costas Andreopoulos <c.andreopoulos@cern.ch>
+          University of Liverpool
 
 \created  Nov 12, 2019
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2024, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */

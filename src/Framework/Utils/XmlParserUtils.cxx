@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2024, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 */
 //____________________________________________________________________________
 
@@ -21,6 +21,7 @@
 
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Utils/RunOpt.h"
+#include "libxml/xmlmemory.h"
 
 
 using std::ostringstream;
@@ -38,6 +39,13 @@ string genie::utils::xml::TrimSpaces(xmlChar * xmls) {
 
   string str = string( (const char *) xmls );
   return utils::str::TrimSpaces(str);
+}
+
+string genie::utils::xml::TrimSpacesClean(xmlChar *xmls) {
+  // Does the same work as TrimSpaces, and cleans up the xmlChar memory
+  string str = TrimSpaces(xmls);
+  xmlFree(xmls);
+  return str;
 }
 
 //_________________________________________________________________________
@@ -112,7 +120,9 @@ string genie::utils::xml::GetXMLFilePath(string basename)  {
   size_t np = paths.size();
   for ( size_t i=0; i< np; ++i ) {
     const char* tmppath = paths[i].c_str();
-    std::string onepath = gSystem->ExpandPathName(tmppath);
+    auto expanded_path = gSystem->ExpandPathName(tmppath);
+    std::string onepath (expanded_path);
+    delete[] expanded_path;
     onepath += "/";
     onepath += basename;
     bool noAccess = gSystem->AccessPathName(onepath.c_str());
@@ -166,7 +176,7 @@ bool genie::utils::xml::GetBool(xmlDocPtr xml_doc, string node_path)
   if(node==NULL) {
     return false;
   }
-  string content = genie::utils::xml::TrimSpaces(
+  string content = genie::utils::xml::TrimSpacesClean(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
 
   if(content == "true" ||
@@ -199,7 +209,7 @@ int genie::utils::xml::GetInt(xmlDocPtr xml_doc, string node_path)
   if(node==NULL) {
     return -999999;
   }
-  string content = genie::utils::xml::TrimSpaces(
+  string content = genie::utils::xml::TrimSpacesClean(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
   int value = atoi(content.c_str());
   return value;
@@ -214,7 +224,7 @@ vector<int> genie::utils::xml::GetIntArray(xmlDocPtr xml_doc, string node_path)
     return array;
   }
 
-  string content = genie::utils::xml::TrimSpaces(
+  string content = genie::utils::xml::TrimSpacesClean(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
 
   vector<string> str_tokens = genie::utils::str::Split(content, ",");
@@ -233,7 +243,7 @@ double genie::utils::xml::GetDouble(xmlDocPtr xml_doc, string node_path)
   if(node==NULL) {
     return -999999;
   }
-  string content = genie::utils::xml::TrimSpaces(
+  string content = genie::utils::xml::TrimSpacesClean(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
   double value = atof(content.c_str());
   return value;
@@ -249,7 +259,7 @@ vector<double>
     return array;
   }
 
-  string content = genie::utils::xml::TrimSpaces(
+  string content = genie::utils::xml::TrimSpacesClean(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
 
   vector<string> str_tokens = genie::utils::str::Split(content, ",");
@@ -268,7 +278,7 @@ string genie::utils::xml::GetString(xmlDocPtr xml_doc, string node_path)
   if(node==NULL) {
     return "";
   }
-  string content = genie::utils::xml::TrimSpaces(
+  string content = genie::utils::xml::TrimSpacesClean(
       xmlNodeListGetString(xml_doc, node->xmlChildrenNode, 1) );
   return content;
 }
