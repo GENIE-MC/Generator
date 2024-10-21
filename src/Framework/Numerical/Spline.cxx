@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2024, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 */
 //____________________________________________________________________________
 
@@ -213,7 +213,7 @@ bool Spline::LoadFromXmlFile(string filename, string xtag, string ytag)
            bool is_ytag = ! xmlStrcmp(tag,(const xmlChar *) ytag.c_str());
            if (is_xtag || is_ytag) {
               xmlNodePtr xmlValTagChild = xmlKnotChild->xmlChildrenNode;
-              string val = utils::xml::TrimSpaces(
+              string val = utils::xml::TrimSpacesClean(
                          xmlNodeListGetString(xml_doc, xmlValTagChild, 1));
 
               if (is_xtag) vx[iknot] = atof(val.c_str());

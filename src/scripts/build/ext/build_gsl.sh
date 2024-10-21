@@ -5,7 +5,7 @@
 #
 # Usage:  ./build_gsl.sh [version] [--refetch]
 #
-# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+# Costas Andreopoulos <c.andreopoulos \at cern.ch>
 #
 
 version=1.8

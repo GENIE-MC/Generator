@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2024, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 */
 //____________________________________________________________________________
 
@@ -193,7 +193,7 @@ bool AlgConfigPool::LoadMasterConfig(std::string configname)
 
        string alg_name  = utils::str::TrimSpaces(
                      utils::xml::GetAttribute(xml_ac, "alg"));
-       string config_file = utils::xml::TrimSpaces(
+       string config_file = utils::xml::TrimSpacesClean(
                 xmlNodeListGetString(xml_doc, xml_ac->xmlChildrenNode, 1));
 
        pair<string, string> alg_conf(alg_name, config_file);
@@ -351,7 +351,7 @@ bool AlgConfigPool::LoadRegistries(
                    utils::str::TrimSpaces(
                        utils::xml::GetAttribute(xml_param, "name"));
             string param_value =
-                    utils::xml::TrimSpaces(
+                    utils::xml::TrimSpacesClean(
                                xmlNodeListGetString(
                                  xml_doc, xml_param->xmlChildrenNode, 1));
 

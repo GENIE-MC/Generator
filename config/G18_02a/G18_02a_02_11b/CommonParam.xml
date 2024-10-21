@@ -8,8 +8,8 @@ This is file is read from the AlgConfigPool and the parameters set are expected 
 algorithms to configure these common parameters.
 
 Author:
-Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-STFC, Rutherford Appleton Laboratory
+Costas Andreopoulos <c.andreopoulos \at cern.ch>
+University of Liverpool
 
 and
 Marco Roda <marco.roda \at liverpool.ac.uk>

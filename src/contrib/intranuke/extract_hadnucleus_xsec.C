@@ -43,7 +43,7 @@
  *
  * ....................................................................................
  *
- * C.Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ * C.Andreopoulos <c.andreopoulos \at cern.ch>
  *
  */
 

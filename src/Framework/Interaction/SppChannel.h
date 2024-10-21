@@ -5,8 +5,8 @@
 
 \brief    Enumeration of single pion production channels
 
-\authors   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-           University of Liverpool & STFC Rutherford Appleton Lab \n
+\authors   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+           University of Liverpool \n
            Igor Kakorin <kakorin@jinr.ru> Joint Institute for Nuclear Research \n
 
 \created  December 16, 2004
@@ -15,7 +15,7 @@
           Added extra functions for MK model. \n
           Branching ratios are looked in particle database now.
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2024, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
