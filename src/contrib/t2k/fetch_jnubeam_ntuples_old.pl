@@ -29,7 +29,7 @@
 #          --prefix nu.nd280. --suffix .hbk --rmin 20 --rmax 80
 #          --target /some/local/datadir/
 #
-# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+# Costas Andreopoulos <c.andreopoulos \at cern.ch>
 # STFC, Rutherford Appleton Lab
 #----------------------------------------------------------------------------------
 #

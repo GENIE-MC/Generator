@@ -6,8 +6,8 @@
 // root[0] .L print_decay_channels.C
 // root[1] print_decay_channels(15)
 //
-// Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-// University of Liverpool & STFC Rutherford Appleton Laboratory
+// Costas Andreopoulos <c.andreopoulos \at cern.ch>
+// University of Liverpool
 //
 #include <iostream>
 #include <sstream>

@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2024, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 */
 //____________________________________________________________________________
 
@@ -208,19 +208,9 @@ double ReinSehgalRESPXSec::XSec(
 
   double g2 = kGF2;
   if(is_CC) g2 = kGF2*fVud2;
-  // For EM interaction replace  G_{Fermi} with :
-  // a_{em} * pi / ( sqrt(2) * sin^2(theta_weinberg) * Mass_{W}^2 }
-  // See C.Quigg, Gauge Theories of the Strong, Weak and E/M Interactions,
-  // ISBN 0-8053-6021-2, p.112 (6.3.57)
-  // Also, take int account that the photon propagator is 1/p^2 but the
-  // W propagator is 1/(p^2-Mass_{W}^2), so weight the EM case with
-  // Mass_{W}^4 / q^4
-  // So, overall:
-  // G_{Fermi}^2 --> a_{em}^2 * pi^2 / (2 * sin^4(theta_weinberg) * q^{4})
-  //
   if(is_EM) {
     double q4 = q2*q2;
-    g2 = kAem2 * kPi2 / (2.0 * fSin48w * q4);
+    g2 = 8*kAem2*kPi2/q4;
   }
 
   // Compute the cross section

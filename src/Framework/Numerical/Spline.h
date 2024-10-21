@@ -17,14 +17,14 @@
           
 \ref      [1] GENIE docdb 297
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory \n
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool \n
           Igor Kakorin <kakorin@jinr.ru>
           Joint Institute for Nuclear Research
 
 \created  May 04, 2004
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2024, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________

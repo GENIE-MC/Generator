@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2024, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 */
 //____________________________________________________________________________
 
@@ -781,7 +781,7 @@ void GMCJDriver::ComputeProbScales(void)
     fPmax.insert(map<int,TH1D*>::value_type(neutrino_pdgc,pmax_hst));
   } // nu
 
-  delete ebins;
+  delete[] ebins;
 
   // Compute global probability scale
   // Sum Probabilities {
