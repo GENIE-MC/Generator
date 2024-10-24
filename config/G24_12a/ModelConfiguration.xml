@@ -64,9 +64,9 @@ STFC, Rutherford Appleton Laboratory
   The parameter name is build as: "XSecModel@[name of thread]"
   -->
 
-  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::HybridXSecAlgorithm/SuSAv2-QEL </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-NC">         genie::AhrensNCELPXSec/Default        </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-EM">         genie::HybridXSecAlgorithm/SuSAv2-QEL </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::HybridXSecAlgorithm/Martini-QEL </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-NC">         genie::AhrensNCELPXSec/Default         </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-EM">         genie::HybridXSecAlgorithm/Martini-QEL </param>
 
   <!-- New Berger-Sehgal resonance model w/MiniBooNE tune... -->
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-CC">         genie::BergerSehgalRESPXSec2014/NoPauliBlock </param>

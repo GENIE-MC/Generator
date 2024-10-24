@@ -409,8 +409,7 @@ double genie::TabulatedLabFrameHadronTensor::dSigma_dT_dCosTheta_rosenbluth(
   std::cout << "\n\n";
       
   return 0;
-  */
-  
+*/  
   return dSigma_dT_dCosTheta_rosenbluth(probe_pdg, E_probe, m_probe, Tl, cos_l, ml,
     Q_value);
 }
