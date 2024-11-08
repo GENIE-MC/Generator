@@ -19,8 +19,6 @@
 #ifndef _PYTHIA6_HADRONIZATION_H_
 #define _PYTHIA6_HADRONIZATION_H_
 
-#define __GENIE_PYTHIA6_ENABLED__
-
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Physics/Hadronization/PythiaBaseHadro2019.h"

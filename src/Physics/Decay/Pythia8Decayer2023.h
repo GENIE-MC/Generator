@@ -1,38 +1,40 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::PythiaDecayer
+\class    genie::Pythia8Decayer2023
 
 \brief    Interface to PYTHIA particle decayer. \n
-          The PythiaDecayer is a concrete implementation of the Decayer
+          The Pythia8Decayer2023 is a concrete implementation of the Decayer
           interface.
 
-\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
-          University of Liverpool
+\author   Robert Hatcher <rhatcher \at fnal.gov>
+          Fermilab
 
-\created  June 20, 2004
+\created  December 21, 2023
 
 \cpright  Copyright (c) 2003-2024, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
-#ifndef _PYTHIA6_DECAYER_I_H_
-#define _PYTHIA6_DECAYER_I_H_
+#ifndef _PYTHIA8DECAYER2023_H_
+#define _PYTHIA8DECAYER2023_H_
 
-#include <TPythia6.h>
+#ifdef __GENIE_PYTHIA8_ENABLED__
+#include "Framework/Utils/Pythia8Singleton.h"
+#endif
 
 #include "Physics/Decay/Decayer.h"
 
 namespace genie {
 
 class GHepParticle;
-class PythiaDecayer: protected Decayer {
+class Pythia8Decayer2023: protected Decayer {
 
 public:
-  PythiaDecayer();
-  PythiaDecayer(string config);
-  virtual ~PythiaDecayer();
+  Pythia8Decayer2023();
+  Pythia8Decayer2023(string config);
+  virtual ~Pythia8Decayer2023();
 
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;
@@ -48,9 +50,8 @@ private:
   int    FindPythiaDecayChannel (int kc, TDecayChannel * ch)     const;
   bool   MatchDecayChannels     (int ic, TDecayChannel * ch)     const;
 
-  mutable TPythia6 * fPythia;  ///< PYTHIA6 wrapper class
   mutable double     fWeight;
 };
 
 }         // genie namespace
-#endif    // _PYTHIA6_DECAYER_H_
+#endif    // _PYTHIA8DECAYER2023_H_

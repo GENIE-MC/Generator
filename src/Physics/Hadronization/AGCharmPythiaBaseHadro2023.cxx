@@ -12,16 +12,10 @@
 //____________________________________________________________________________
 
 #include <RVersion.h>
-#include <TPythia6.h>
+
 #include <TVector3.h>
 #include <TF1.h>
 #include <TROOT.h>
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
@@ -41,30 +35,34 @@
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Utils/PrintUtils.h"
-#include "Physics/Hadronization/AGCharm2019.h"
+#include "Physics/Hadronization/AGCharmPythiaBaseHadro2023.h"
 #include "Physics/Hadronization/FragmentationFunctionI.h"
 
 using namespace genie;
 using namespace genie::constants;
 using namespace genie::controls;
 
-extern "C" void py1ent_(int *,  int *, double *, double *, double *);
-extern "C" void py2ent_(int *,  int *, int *, double *);
 
 //____________________________________________________________________________
-AGCharm2019::AGCharm2019() :
-EventRecordVisitorI("genie::AGCharm2019")
+AGCharmPythiaBaseHadro2023::AGCharmPythiaBaseHadro2023() :
+EventRecordVisitorI("genie::AGCharmPythiaBaseHadro2023")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-AGCharm2019::AGCharm2019(string config) :
-EventRecordVisitorI("genie::AGCharm2019", config)
+AGCharmPythiaBaseHadro2023::AGCharmPythiaBaseHadro2023(string config) :
+EventRecordVisitorI("genie::AGCharmPythiaBaseHadro2023", config)
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-AGCharm2019::~AGCharm2019()
+AGCharmPythiaBaseHadro2023::AGCharmPythiaBaseHadro2023(string name, string config) :
+EventRecordVisitorI(name, config)
+{
+  this->Initialize();
+}
+//____________________________________________________________________________
+AGCharmPythiaBaseHadro2023::~AGCharmPythiaBaseHadro2023()
 {
   delete fCharmPT2pdf;
   fCharmPT2pdf = 0;
@@ -79,19 +77,19 @@ AGCharm2019::~AGCharm2019()
   fDsFracSpl = 0;
 }
 //____________________________________________________________________________
-void AGCharm2019::Initialize(void) const
+void AGCharmPythiaBaseHadro2023::Initialize(void) const
 {
-  fPythia = TPythia6::Instance();
+
 }
 //____________________________________________________________________________
-void AGCharm2019::ProcessEventRecord(GHepRecord * event) const
+void AGCharmPythiaBaseHadro2023::ProcessEventRecord(GHepRecord * event) const
 {
   Interaction * interaction = event->Summary();
   TClonesArray * particle_list = this->Hadronize(interaction);
 
   if(! particle_list ) {
-    LOG("AGCharm2019", pWARN) << "Got an empty particle list. Hadronizer failed!";
-    LOG("AGCharm2019", pWARN) << "Quitting the current event generation thread";
+    LOG("AGCharm2023", pWARN) << "Got an empty particle list. Hadronizer failed!";
+    LOG("AGCharm2023", pWARN) << "Quitting the current event generation thread";
 
     event->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
 
@@ -139,8 +137,8 @@ void AGCharm2019::ProcessEventRecord(GHepRecord * event) const
     // handle gammas, and leptons that might come from internal pythia decays
     // mark them as final state particles
     bool not_hadron = ( pdgc == kPdgGamma ||
-			pdg::IsNeutralLepton(pdgc) ||
-			pdg::IsChargedLepton(pdgc) ) ;
+                        pdg::IsNeutralLepton(pdgc) ||
+                        pdg::IsChargedLepton(pdgc) ) ;
 
     if(not_hadron)  { ist = kIStStableFinalState; }
     particle -> SetStatus( ist ) ;
@@ -169,7 +167,7 @@ void AGCharm2019::ProcessEventRecord(GHepRecord * event) const
 
 }
 //____________________________________________________________________________
-TClonesArray * AGCharm2019::Hadronize(
+TClonesArray * AGCharmPythiaBaseHadro2023::Hadronize(
                                         const Interaction * interaction) const
 {
   LOG("CharmHad", pNOTICE) << "** Running CHARM hadronizer";
@@ -405,7 +403,7 @@ TClonesArray * AGCharm2019::Hadronize(
 
     // insert the generated particles
     new ((*particle_list)[0]) GHepParticle (ch_pdg,kIStStableFinalState,
-	     -1,-1,-1,-1, p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(), 0,0,0,0);
+             -1,-1,-1,-1, p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(), 0,0,0,0);
     new ((*particle_list)[1]) GHepParticle (kPdgHadronicBlob,kIStStableFinalState,
              -1,-1,-1,-1, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(), 0,0,0,0);
 
@@ -424,7 +422,7 @@ TClonesArray * AGCharm2019::Hadronize(
 
     // insert the generated particles
     new ((*particle_list)[0]) GHepParticle (ch_pdg,kIStStableFinalState,
-	    -1,-1,-1,-1, p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(), 0,0,0,0);
+            -1,-1,-1,-1, p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(), 0,0,0,0);
     new ((*particle_list)[1]) GHepParticle (kPdgHadronicBlob,kIStNucleonTarget,
             -1,-1,2,2, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(), 0,0,0,0);
     new ((*particle_list)[2]) GHepParticle (fs_nucleon_pdg,kIStStableFinalState,
@@ -451,7 +449,7 @@ TClonesArray * AGCharm2019::Hadronize(
   new ((*particle_list)[1]) GHepParticle (kPdgHadronicBlob,kIStNucleonTarget,
           -1,-1,2,3, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(), 0,0,0,0);
 
-  unsigned int rpos =2; // offset in event record
+  unsigned int rpos = 2; // offset in event record
 
   bool use_pythia = (WR>1.5);
 
@@ -567,75 +565,13 @@ TClonesArray * AGCharm2019::Hadronize(
          return 0;
      }
 
-     //
-     // Run PYTHIA for the hadronization of remnant system
-     //
-     fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),              1,0); // don't decay pi0
-     fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaM),  1,1); // decay Delta+
-     fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_Delta0),  1,1); // decay Delta++
-     fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaP),  1,1); // decay Delta++
-     fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaPP), 1,1); // decay Delta++
-//   fPythia->SetMDCY(fPythia->Pycomp(kPdgDeltaP),  1,1); // decay Delta+
-//   fPythia->SetMDCY(fPythia->Pycomp(kPdgDeltaPP), 1,1); // decay Delta++
+     bool remnant_hadronized = this->HadronizeRemnant(qrkSyst1,qrkSyst2,WR,p4R,rpos,particle_list);
 
-     int ip = 0;
-     py2ent_(&ip, &qrkSyst1, &qrkSyst2, &WR); // hadronize
-
-     fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),1,1); // restore
-
-     //-- Get PYTHIA's LUJETS event record
-     TClonesArray * pythia_remnants = 0;
-     fPythia->GetPrimaries();
-     pythia_remnants = dynamic_cast<TClonesArray *>(fPythia->ImportParticles("All"));
-     if(!pythia_remnants) {
+     if(!remnant_hadronized) {
          LOG("CharmHad", pWARN) << "Couldn't hadronize (non-charm) remnants!";
          return 0;
       }
 
-     int np = pythia_remnants->GetEntries();
-     assert(np>0);
-
-      // PYTHIA performs the hadronization at the *remnant hadrons* centre of mass
-      // frame  (not the hadronic centre of mass frame).
-      // Boost all hadronic blob fragments to the HCM', fix their mother/daughter
-      // assignments and add them to the fragmentation record.
-
-      TVector3 rmnbeta = +1 * p4R.BoostVector(); // boost velocity
-
-      TMCParticle * pythia_remn  = 0; // remnant
-      GHepParticle * bremn = 0; // boosted remnant
-      TIter remn_iter(pythia_remnants);
-      while( (pythia_remn = (TMCParticle *) remn_iter.Next()) ) {
-
-         // insert and get a pointer to inserted object for mods
-	bremn = new ((*particle_list)[rpos++]) GHepParticle ( pythia_remn->GetKF(),                // pdg
-							      GHepStatus_t(pythia_remn->GetKS()),  // status
-							      pythia_remn->GetParent(),            // first parent
-							      -1,                                  // second parent
-							      pythia_remn->GetFirstChild(),        // first daughter
-							      pythia_remn->GetLastChild(),         // second daughter
-							      pythia_remn -> GetPx(),              // px
-							      pythia_remn -> GetPy(),              // py
-							      pythia_remn -> GetPz(),              // pz
-							      pythia_remn -> GetEnergy(),          // e
-							      pythia_remn->GetVx(),                // x
-							      pythia_remn->GetVy(),                // y
-							      pythia_remn->GetVz(),                // z
-							      pythia_remn->GetTime()               // t
-							      );
-
-	// boost
-	bremn -> P4() -> Boost( rmnbeta ) ;
-
-         // handle insertion of charmed hadron
-         int jp  = bremn->FirstMother();
-	 int ifc = bremn->FirstDaughter();
-	 int ilc = bremn->LastDaughter();
-
-         bremn -> SetFirstMother( (jp  == 0 ?  1 : jp +1) );
-	 bremn -> SetFirstDaughter ( (ifc == 0 ? -1 : ifc+1) );
-	 bremn -> SetLastDaughter  ( (ilc == 0 ? -1 : ilc+1) );
-      }
   } // use_pythia
 
   // ....................................................................
@@ -741,7 +677,7 @@ TClonesArray * AGCharm2019::Hadronize(
   return particle_list;
 }
 //____________________________________________________________________________
-int AGCharm2019::GenerateCharmHadron(int nu_pdg, double EvLab) const
+int AGCharmPythiaBaseHadro2023::GenerateCharmHadron(int nu_pdg, double EvLab) const
 {
   // generate a charmed hadron pdg code using a charm fraction table
 
@@ -776,25 +712,25 @@ int AGCharm2019::GenerateCharmHadron(int nu_pdg, double EvLab) const
   return 0;
 }
 //____________________________________________________________________________
-double AGCharm2019::Weight(void) const
+double AGCharmPythiaBaseHadro2023::Weight(void) const
 {
   return 1. ;
 }
 
 //____________________________________________________________________________
-void AGCharm2019::Configure(const Registry & config)
+void AGCharmPythiaBaseHadro2023::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void AGCharm2019::Configure(string config)
+void AGCharmPythiaBaseHadro2023::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void AGCharm2019::LoadConfig(void)
+void AGCharmPythiaBaseHadro2023::LoadConfig(void)
 {
 
   bool hadronize_remnants ;
@@ -832,9 +768,9 @@ void AGCharm2019::LoadConfig(void)
 
   // check the size
   if ( d0frac.size() != ec.size() ) {
-    LOG("AGCharm2019", pFATAL) << "E entries don't match D0 fraction entries";
-    LOG("AGCharm2019", pFATAL) << "E:  " << ec.size() ;
-    LOG("AGCharm2019", pFATAL) << "D0: " << d0frac.size() ;
+    LOG("AGCharm2023", pFATAL) << "E entries don't match D0 fraction entries";
+    LOG("AGCharm2023", pFATAL) << "E:  " << ec.size() ;
+    LOG("AGCharm2023", pFATAL) << "D0: " << d0frac.size() ;
     invalid_configuration = true ;
   }
 
@@ -843,9 +779,9 @@ void AGCharm2019::LoadConfig(void)
 
   // check the size
   if ( dpfrac.size() != ec.size() ) {
-    LOG("AGCharm2019", pFATAL) << "E entries don't match D+ fraction entries";
-    LOG("AGCharm2019", pFATAL) << "E:  " << ec.size() ;
-    LOG("AGCharm2019", pFATAL) << "D+: " << dpfrac.size() ;
+    LOG("AGCharm2023", pFATAL) << "E entries don't match D+ fraction entries";
+    LOG("AGCharm2023", pFATAL) << "E:  " << ec.size() ;
+    LOG("AGCharm2023", pFATAL) << "D+: " << dpfrac.size() ;
     invalid_configuration = true ;
   }
 
@@ -854,9 +790,9 @@ void AGCharm2019::LoadConfig(void)
 
   // check the size
   if ( dsfrac.size() != ec.size() ) {
-    LOG("AGCharm2019", pFATAL) << "E entries don't match Ds fraction entries";
-    LOG("AGCharm2019", pFATAL) << "E:  " << ec.size() ;
-    LOG("AGCharm2019", pFATAL) << "Ds: " << dsfrac.size() ;
+    LOG("AGCharm2023", pFATAL) << "E entries don't match Ds fraction entries";
+    LOG("AGCharm2023", pFATAL) << "E:  " << ec.size() ;
+    LOG("AGCharm2023", pFATAL) << "Ds: " << dsfrac.size() ;
     invalid_configuration = true ;
   }
 
@@ -871,7 +807,7 @@ void AGCharm2019::LoadConfig(void)
 
   if ( invalid_configuration ) {
 
-    LOG("AGCharm2019", pFATAL)
+    LOG("AGCharm2023", pFATAL)
       << "Invalid configuration: Exiting" ;
 
     // From the FreeBSD Library Functions Manual

@@ -19,7 +19,10 @@
 #ifndef _PHOTON_RES_GENERATOR_H_
 #define _PHOTON_RES_GENERATOR_H_
 
+#include "Framework/Conventions/GBuild.h"
+#ifdef __GENIE_PYTHIA6_ENABLED__
 #include <TPythia6.h>
+#endif
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Physics/HELepton/XSection/Born.h"
@@ -47,7 +50,9 @@ private:
 
   void LoadConfig(void);
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
   mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
+#endif
 
   double fQ2PDFmin;
 
