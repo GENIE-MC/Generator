@@ -22,8 +22,8 @@
 \created  August 17, 2004
 
 \cpright  Copyright (c) 2003-2024, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
-o*/
+          For the full text of the license visit http://copyright.genie-mc.org
+*/
 //____________________________________________________________________________
 
 #ifndef _CHARM_HADRONIZATION_H_
