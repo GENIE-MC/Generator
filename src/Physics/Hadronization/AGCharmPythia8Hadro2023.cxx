@@ -79,6 +79,25 @@ void AGCharmPythia8Hadro2023::Initialize(void) const
     << "PYTHIA8 seed = " << gPythia->settings.mode("Random:seed");
   gPythia->init();
 
+  fOriDecayFlag_pi0       = false;
+  fOriDecayFlag_K0        = false;
+  fOriDecayFlag_K0b       = false;
+  fOriDecayFlag_L0        = false;
+  fOriDecayFlag_L0b       = false;
+  fOriDecayFlag_Dm        = false;
+  fOriDecayFlag_D0        = false;
+  fOriDecayFlag_Dp        = false;
+  fOriDecayFlag_Dpp       = false;
+  fReqDecayFlag_pi0       = false;
+  fReqDecayFlag_K0        = false;
+  fReqDecayFlag_K0b       = false;
+  fReqDecayFlag_L0        = false;
+  fReqDecayFlag_L0b       = false;
+  fReqDecayFlag_Dm        = false;
+  fReqDecayFlag_D0        = false;
+  fReqDecayFlag_Dp        = false;
+  fReqDecayFlag_Dpp       = false;
+
 #else
   LOG("AGCharmPythia8Hadro2023", pFATAL)
     << "calling GENIE/PYTHIA8 charm hadronization without enabling PYTHIA8";
@@ -86,6 +105,21 @@ void AGCharmPythia8Hadro2023::Initialize(void) const
   std::exit(1);
 #endif
 
+}
+//____________________________________________________________________________
+void AGCharmPythia8Hadro2023::LoadConfig(void)
+{
+  AGCharmPythiaBaseHadro2023::LoadConfig();
+  // Set required PYTHIA decay flags
+  fReqDecayFlag_pi0       = false; // don't decay pi0
+  fReqDecayFlag_K0        = false; // don't decay K0
+  fReqDecayFlag_K0b       = false; // don't decay \bar{K0}
+  fReqDecayFlag_L0        = false; // don't decay Lambda0
+  fReqDecayFlag_L0b       = false; // don't decay \bar{Lambda0}
+  fReqDecayFlag_Dm        = true;  // decay Delta-
+  fReqDecayFlag_D0        = true;  // decay Delta0
+  fReqDecayFlag_Dp        = true;  // decay Delta+
+  fReqDecayFlag_Dpp       = true;  // decay Delta++
 }
 //____________________________________________________________________________
 
@@ -96,33 +130,8 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
 #ifdef __GENIE_PYTHIA8_ENABLED__
   Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
 
-  /*
-  //
-  // Run PYTHIA6 for the hadronization of remnant system
-  //
-  gPythia->SetMDCY(gPythia->Pycomp(kPdgPi0),              1,0); // don't decay pi0
-  gPythia->SetMDCY(gPythia->Pycomp(kPdgP33m1232_DeltaM),  1,1); // decay Delta+
-  gPythia->SetMDCY(gPythia->Pycomp(kPdgP33m1232_Delta0),  1,1); // decay Delta++
-  gPythia->SetMDCY(gPythia->Pycomp(kPdgP33m1232_DeltaP),  1,1); // decay Delta++
-  gPythia->SetMDCY(gPythia->Pycomp(kPdgP33m1232_DeltaPP), 1,1); // decay Delta++
-  //   gPythia->SetMDCY(gPythia->Pycomp(kPdgDeltaP),  1,1); // decay Delta+
-  //   gPythia->SetMDCY(gPythia->Pycomp(kPdgDeltaPP), 1,1); // decay Delta++
-  int ip = 0;
-  py2ent_(&ip, &qrkSyst1, &qrkSyst2, &WR); // hadronize
-
-  gPythia->SetMDCY(gPythia->Pycomp(kPdgPi0),1,1); // restore
-
-  //-- Get PYTHIA's LUJETS event record
-  TClonesArray * pythia_remnants = 0;
-  gPythia->GetPrimaries();
-  pythia_remnants = dynamic_cast<TClonesArray *>(gPythia->ImportParticles("All"));
-  return pythia_remnants;
-  */
-  gPythia->particleData.mayDecay(kPdgPi0,false); // don't decay pi0
-  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaM,true); // decay Delta+
-  gPythia->particleData.mayDecay(kPdgP33m1232_Delta0,true); // decay Delta++
-  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaP,true); // decay Delta++
-  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaPP,true); // decay Delta++
+  CopyOriginalDecayFlags();
+  SetDesiredDecayFlags();
 
   gPythia->event.reset();
 
@@ -151,6 +160,8 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
   gPythia->event.append(qrkSyst2,23,  0,101,0.,0.,pz2cm,e2,m2);
   //gPythia->event.list();
 
+  LOG("AGCharmPythia8Hadro2023", pDEBUG)
+    << "Generating next PYTHIA8 event";
   // Generating next pythia8 event
   gPythia->next();
 
@@ -208,7 +219,6 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
       p3.RotateUz(unitvq);
       TLorentzVector p4(p3,p4o.Energy());
 
-
       //!!!!
       istfin = GHepStatus_t(1);
 
@@ -254,7 +264,7 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
     } // if (copy)
   } // loop over particles in pythia event record
 
-  gPythia->particleData.mayDecay(kPdgPi0,true); // restore
+  RestoreOriginalDecayFlags();
 
   return true;
 
@@ -267,6 +277,73 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
 #endif
 
 
+}
+
+//____________________________________________________________________________
+void AGCharmPythia8Hadro2023::CopyOriginalDecayFlags(void) const
+{
+#ifdef __GENIE_PYTHIA8_ENABLED__
+  Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
+
+  fOriDecayFlag_pi0 = gPythia->particleData.canDecay(kPdgPi0);
+  fOriDecayFlag_K0  = gPythia->particleData.canDecay(kPdgK0);
+  fOriDecayFlag_K0b = gPythia->particleData.canDecay(kPdgAntiK0);
+  fOriDecayFlag_L0  = gPythia->particleData.canDecay(kPdgLambda);
+  fOriDecayFlag_L0b = gPythia->particleData.canDecay(kPdgAntiLambda);
+  fOriDecayFlag_Dm  = gPythia->particleData.canDecay(kPdgP33m1232_DeltaM);
+  fOriDecayFlag_D0  = gPythia->particleData.canDecay(kPdgP33m1232_Delta0);
+  fOriDecayFlag_Dp  = gPythia->particleData.canDecay(kPdgP33m1232_DeltaP);
+  fOriDecayFlag_Dpp = gPythia->particleData.canDecay(kPdgP33m1232_DeltaPP);
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+    LOG("Pythia8Had", pDEBUG)
+       << "Original PYTHIA6 decay flags:"
+       << "\n  pi0           =  " << fOriDecayFlag_pi0
+       << "\n  K0            =  " << fOriDecayFlag_K0
+       << "\n  \bar{K0}      =  " << fOriDecayFlag_K0b
+       << "\n  Lambda        =  " << fOriDecayFlag_L0
+       << "\n  \bar{Lambda0} =  " << fOriDecayFlag_L0b
+       << "\n  D-            =  " << fOriDecayFlag_Dm
+       << "\n  D0            =  " << fOriDecayFlag_D0
+       << "\n  D+            =  " << fOriDecayFlag_Dp
+       << "\n  D++           =  " << fOriDecayFlag_Dpp;
+#endif
+
+#endif
+}
+//____________________________________________________________________________
+void AGCharmPythia8Hadro2023::SetDesiredDecayFlags(void) const
+{
+#ifdef __GENIE_PYTHIA8_ENABLED__
+  Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
+
+  gPythia->particleData.mayDecay(kPdgPi0,              fReqDecayFlag_pi0 );
+  gPythia->particleData.mayDecay(kPdgK0,               fReqDecayFlag_K0  );
+  gPythia->particleData.mayDecay(kPdgAntiK0,           fReqDecayFlag_K0b );
+  gPythia->particleData.mayDecay(kPdgLambda,           fReqDecayFlag_L0  );
+  gPythia->particleData.mayDecay(kPdgAntiLambda,       fReqDecayFlag_L0b );
+  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaM,  fReqDecayFlag_Dm  );
+  gPythia->particleData.mayDecay(kPdgP33m1232_Delta0,  fReqDecayFlag_D0  );
+  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaP,  fReqDecayFlag_Dp  );
+  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaPP, fReqDecayFlag_Dpp );
+#endif
+}
+//____________________________________________________________________________
+void AGCharmPythia8Hadro2023::RestoreOriginalDecayFlags(void) const
+{
+#ifdef __GENIE_PYTHIA8_ENABLED__
+  Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
+
+  gPythia->particleData.mayDecay(kPdgPi0,              fOriDecayFlag_pi0 );
+  gPythia->particleData.mayDecay(kPdgK0,               fOriDecayFlag_K0  );
+  gPythia->particleData.mayDecay(kPdgAntiK0,           fOriDecayFlag_K0b );
+  gPythia->particleData.mayDecay(kPdgLambda,           fOriDecayFlag_L0  );
+  gPythia->particleData.mayDecay(kPdgAntiLambda,       fOriDecayFlag_L0b );
+  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaM,  fOriDecayFlag_Dm  );
+  gPythia->particleData.mayDecay(kPdgP33m1232_Delta0,  fOriDecayFlag_D0  );
+  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaP,  fOriDecayFlag_Dp  );
+  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaPP, fOriDecayFlag_Dpp );
+#endif
 }
 
 //____________________________________________________________________________

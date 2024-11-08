@@ -53,6 +53,33 @@ private:
   bool           HadronizeRemnant(int qrkSyst1, int qrkSyst2, double WR, TLorentzVector p4R,
                                   unsigned int& rpos, TClonesArray * particle_list) const;
 
+  void LoadConfig (void);
+
+  void CopyOriginalDecayFlags     (void) const;
+  void SetDesiredDecayFlags       (void) const;
+  void RestoreOriginalDecayFlags  (void) const;
+
+  // Original PYTHIA decay flags (stored so as to be restored after hadronization)
+  mutable bool fOriDecayFlag_pi0; // pi^0
+  mutable bool fOriDecayFlag_K0;  // K^0
+  mutable bool fOriDecayFlag_K0b; // \bar{K^0}
+  mutable bool fOriDecayFlag_L0;  // \Lambda^0
+  mutable bool fOriDecayFlag_L0b; // \bar{\Lambda^0}
+  mutable bool fOriDecayFlag_Dm;  // \Delta^-
+  mutable bool fOriDecayFlag_D0;  // \Delta^0
+  mutable bool fOriDecayFlag_Dp;  // \Delta^+
+  mutable bool fOriDecayFlag_Dpp; // \Delta^++
+  // Required PYTHIA decay flags set via Configure() [fixed]
+  mutable bool fReqDecayFlag_pi0;         // pi^0
+  mutable bool fReqDecayFlag_K0;          // K^0
+  mutable bool fReqDecayFlag_K0b;         // \bar{K^0}
+  mutable bool fReqDecayFlag_L0;          // \Lambda^0
+  mutable bool fReqDecayFlag_L0b;         // \bar{\Lambda^0}
+  mutable bool fReqDecayFlag_Dm;          // \Delta^-
+  mutable bool fReqDecayFlag_D0;          // \Delta^0
+  mutable bool fReqDecayFlag_Dp;          // \Delta^+
+  mutable bool fReqDecayFlag_Dpp;         // \Delta^++
+
 };
 
 }         // genie namespace
