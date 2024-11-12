@@ -158,17 +158,6 @@ bool LocalFGM::GenerateNucleon(const Target & target,
     }
   } // while (doThrow)
 
-  static bool doneSave = false;
-  if (!doneSave)
-  {
-    TFile outf(Form("/tmp/local-FGM-probs-%d-%.2f.root", target.A(), p), "recreate");
-    outf.cd();
-    prob->Write();
-    outf.Close();
-
-    doneSave = true;
-  }
-
   delete prob;
 
   return true;
