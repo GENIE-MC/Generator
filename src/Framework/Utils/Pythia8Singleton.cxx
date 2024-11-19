@@ -26,15 +26,19 @@ Pythia8Singleton * Pythia8Singleton::fInstance = 0;
 Pythia8Singleton::Pythia8Singleton()
 {
   fInstance = 0;
+#ifdef __GENIE_PYTHIA8_ENABLED__
   fPythia   = 0;
+#endif
 
 }
 //____________________________________________________________________________
 Pythia8Singleton::~Pythia8Singleton()
 {
+#ifdef __GENIE_PYTHIA8_ENABLED__
   if (fPythia) {
     delete fPythia;
   }
+#endif
   fInstance = 0;
 }
 //____________________________________________________________________________
@@ -46,8 +50,10 @@ Pythia8Singleton * Pythia8Singleton::Instance()
 
     fInstance = new Pythia8Singleton;
 
+#ifdef __GENIE_PYTHIA8_ENABLED__
     // actually create the one to be held
     fInstance->fPythia = new Pythia8::Pythia();
+#endif
   }
   return fInstance;
 }
