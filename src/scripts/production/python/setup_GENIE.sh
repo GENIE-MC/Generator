@@ -75,7 +75,7 @@ fi
 
 conf_string="--enable-gsl --enable-rwght --with-optimiz-level=O2 "
 conf_string+="${conf_string} --with-log4cpp-inc=${LOG4CPP_INC} --with-log4cpp-lib=${LOG4CPP_LIB} --with-libxml2-inc=${LIBXML2_INC} --with-libxml2-lib=${LIBXML2_LIB} "
-conf_string+="${conf_string} --with-lhapdf6-lib=${LHAPDF_LIB}  --with-lhapdf6-inc=${LHAPDF_INC} --with-pythia6-lib=${PYTHIA_LIB} --disable-lhapdf5  --enable-lhapdf6"
+conf_string+="${conf_string} --with-lhapdf6-lib=${LHAPDF_LIB}  --with-lhapdf6-inc=${LHAPDF_INC} --with-pythia6-lib=${PYTHIA_LIB} --disable-lhapdf5  --enable-lhapdf6 --disable-pythia8 --enable-pythia6 "
 
 if [ "$6" == "true" ] ; then
     conf_string+="${conf_string} --enable-hepmc3 "
