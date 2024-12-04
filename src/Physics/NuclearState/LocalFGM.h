@@ -25,6 +25,7 @@
 
 #include <TH1D.h>
 
+#include "Framework/Conventions/Units.h"
 #include "Physics/NuclearState/NuclearModelI.h"
 
 using std::map;
@@ -72,6 +73,9 @@ public:
 private:
   TH1D * ProbDistro (const Target & t, double r) const;
 
+  /// Throw a value from the Maxwell-Boltzmann distribution with the configured parameters
+  double MaxwellBoltzmannRemovalE(const Target & t, double Ermv_min=0, double Ermv_max=1.0*genie::units::GeV) const;
+
   map<int, double> fNucRmvE;
 
   double fPMax;
@@ -81,6 +85,8 @@ private:
   // options related to SRC pairs
   double fSRC_Fraction;
   double fPCutOff;
+  double fSRC_Ermv_C;      ///< center of Maxwell-Boltmann distribution used for SRC removal energy distribution, GeV/c
+  double fSRC_Ermv_sigma;  ///< sigma of Maxwell-Boltmann distribution used for SRC removal energy distribution,  GeV/c
 
 };
 
