@@ -189,8 +189,6 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
 	     << ", Nucleon Radius = " << r;
   LOG("LocalFGM", pNOTICE)
              << ", P(max) = " << fPMax;
-  std::cout << "SRC-Fraction is: " << fSRC_Fraction << "\n";
-
 
   assert(target.HitNucIsSet());
 
