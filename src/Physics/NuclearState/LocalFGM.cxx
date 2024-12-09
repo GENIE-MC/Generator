@@ -18,6 +18,7 @@
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/NuclearState/LocalFGM.h"
@@ -83,8 +84,7 @@ bool LocalFGM::GenerateNucleon(const Target & target,
 
   double p;
 
-  bool doThrow = 1;
-
+  bool doThrow = true;
   while(doThrow){
     p = prob->GetRandom();
     
@@ -123,21 +123,43 @@ bool LocalFGM::GenerateNucleon(const Target & target,
 
       
     }
-    else {
-      //else, use already existing treatment, i.e. set removal energy to RFG value from table or use 
-      //Wapstra's semi-empirical formula
-      if(it != fNucRmvE.end()) fCurrRemovalEnergy = it->second;
+    else
+    {
+      //else, use already existing treatment, i.e. set removal energy to RFG value from table or use
+      //Wapstra's semi-empirical formula.
+      if(!fMomDepErmv && it != fNucRmvE.end()) fCurrRemovalEnergy = it->second;
       else fCurrRemovalEnergy = nuclear::BindEnergyPerNucleon(target);
     }
-    
-    //decide whether to rethrow event if removal energy is negative
 
-    if (fForcePositiveErmv){
-      if(fCurrRemovalEnergy<0) doThrow=true;
-      else doThrow = false;
+    // we keep the event unless otherwise specified
+    doThrow = false;
+
+    if (fCurrRemovalEnergy < 0)
+    {
+      if (fForcePositiveErmv)
+      {
+        LOG("LocalFGM", pINFO)
+            << "  ^-- sampled nucleon resulte in negative LFG removal energy and was rejected.  Resampling...";
+        doThrow = true;
+      }
+      else
+      {
+        // Spectral function fits to electron scattering nuclear data typically use Maxwell-Boltzmann removal energies.
+        // The approach here was inspired by conversations with Artur Ankowski.
+        // However, if the binding energy is too large, the off-shell nucleon's mass can wind up negative,
+        // which is completely unphysical and causes NaNs when trying to boost into its reference frame (in, e.g., QELEventGenerator).
+        // We thus have to truncate the MB distribution below where SF models typically max out in Emiss.
+        // This max binding energy comes from insisting that the mass
+        // (which is computed from the on-shell masses of the struck nucleus and nucleon, and the Fermi momentum) be positive.
+        const double maxBindE = sqrt(target.Mass()*target.Mass() - 2*target.Mass()*p) - (target.Mass() - target.HitNucMass());
+        LOG("LocalFGM", pDEBUG) << "    using max removalE = " << maxBindE;
+        fCurrRemovalEnergy = MaxwellBoltzmannRemovalE(target, 0, maxBindE);
+
+        LOG("LocalFGM", pINFO) << "  ^-- note: sampled nucleon resulted in negative LFG removal energy, "
+                               << "so its removal energy was resampled from an SRC-like Maxwell-Boltzmann distribution: Ermv = " << fCurrRemovalEnergy;
+      }
     }
-    else doThrow=false;
-  }
+  } // while (doThrow)
 
   delete prob;
 
@@ -233,6 +255,36 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
 
   return prob;
 }
+
+//____________________________________________________________________________
+double LocalFGM::MaxwellBoltzmannRemovalE(const Target&, double Ermv_min, double Ermv_max) const
+{
+  // the target is currently unused,
+  // but the fSRC_Ermv_C and fSRC_Ermv_sigma could (should?)
+  // in principle be a function of nucleus
+
+  const double normFactor = 4 / sqrt(M_PI) / fSRC_Ermv_sigma;
+
+  RandomGen * rnd = RandomGen::Instance();
+
+  // rejection sample --- draw until success
+  double x;
+  while (true)
+  {
+    x = rnd->RndGen().Uniform( Ermv_min, Ermv_max );
+
+    const double arg = (x - fSRC_Ermv_C + fSRC_Ermv_sigma) / fSRC_Ermv_sigma;
+    const double arg2 = arg * arg;
+
+    const double MB = normFactor * arg2 * exp(-arg2);
+
+    if (MB >= rnd->RndGen().Uniform())
+      break;
+  }
+
+  return x;
+}
+
 //____________________________________________________________________________
 double LocalFGM::LocalFermiMomentum( const Target & t, int nucleon_pdg, double radius ) const {
 
@@ -271,6 +323,8 @@ void LocalFGM::LoadConfig(void)
   assert(fPMax > 0);
 
   this->GetParamDef("SRC-Fraction", fSRC_Fraction, 0.0);
+  this->GetParamDef("SRC-Ermv-C", fSRC_Ermv_C, 0.120);   ///< Default value from work by A. Ankowski (private communication to J. Wolcott, Nov. 27 2024)
+  this->GetParamDef("SRC-Ermv-sigma", fSRC_Ermv_sigma, 0.100);  ///< Default value from work by A. Ankowski (private communication to J. Wolcott, Nov. 27 2024)
   this->GetParam("LFG-MomentumCutOff", fPCutOff);
   this->GetParam("LFG-MomentumDependentErmv", fMomDepErmv);
   this->GetParam("LFG-ForcePositiveErmv", fForcePositiveErmv);
@@ -280,6 +334,11 @@ void LocalFGM::LoadConfig(void)
         exit(78);
   }
 
+  if (fSRC_Fraction > 0 && fSRC_Ermv_sigma <= 0)
+  {
+    LOG("LocalFGM", pFATAL) << "Configured SRC Maxwell-Boltzmann sigma (" << fSRC_Ermv_sigma  << ") invalid: must be nonnegative";
+    exit(78);
+  }
 
   // Load removal energy for specific nuclei from either the algorithm's
   // configuration file or the UserPhysicsOptions file.
