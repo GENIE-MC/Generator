@@ -28,6 +28,11 @@
 #include <TPythia6.h>
 #endif
 
+#ifdef __GENIE_PYTHIA8_ENABLED__
+#include "Framework/Utils/Pythia8Singleton.h"
+#endif
+
+
 using namespace genie::utils::math;
 
 namespace genie {
@@ -59,6 +64,20 @@ private:
 #ifdef __GENIE_PYTHIA6_ENABLED__
   mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
 #endif
+
+#ifdef __GENIE_PYTHIA8_ENABLED__
+  mutable Pythia8::Pythia * fPythia;         ///< PYTHIA6 wrapper class
+  int    getMeson(int,int,double)  const;    ///< create meson
+  int    getBaryon(int,int,double) const;    ///< create baryon
+  double getRandomZ(double,double) const;    ///< fragmentation
+  double Afrag;                                                ///< fragmentation parameter
+  double Bfrag;                                                ///< fragmentation parameter
+  double mesonRateSum[3];                                      ///<meson parameter
+  double CGOct[6] = { 0.75, 0.5, 0., 0.1667, 0.0833, 0.1667};  ///<baryon parameter
+  double CGDec[6] = { 0.00, 0.0, 1., 0.3333, 0.6667, 0.3333};  ///<baryon parameter
+  double CGSum[6];                                             ///< baryon parameter
+#endif
+
 
   //-- configuration parameters
   int    fMaxIterHad;         // Maxmium number of iterations to look for a combination of hadrons

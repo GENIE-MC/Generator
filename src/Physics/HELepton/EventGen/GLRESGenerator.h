@@ -27,6 +27,10 @@
 #include <TPythia6.h>
 #endif
 
+#ifdef __GENIE_PYTHIA8_ENABLED__
+#include "Pythia8/Pythia.h"
+#endif
+
 namespace genie {
 
 class GLRESGenerator : public EventRecordVisitorI {
@@ -37,6 +41,7 @@ public :
  ~GLRESGenerator();
 
   // implement the EventRecordVisitorI interface
+  void Initialize         (void)               const;
   void ProcessEventRecord (GHepRecord * event) const;
 
   // overload the Algorithm::Configure() methods to load private data
@@ -50,6 +55,10 @@ private:
 
 #ifdef __GENIE_PYTHIA6_ENABLED__
   mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
+#endif
+
+#ifdef __GENIE_PYTHIA8_ENABLED__
+  mutable Pythia8::Pythia * fPythia;
 #endif
 
   Born * born;
