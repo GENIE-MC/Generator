@@ -39,6 +39,8 @@
 #ifndef _SMITH_MONITZ_QELCC_CROSS_SECTION_H_
 #define _SMITH_MONITZ_QELCC_CROSS_SECTION_H_
 
+#include <array>
+
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
 #include "Physics/QuasiElastic/XSection/SmithMonizUtils.h"
@@ -60,6 +62,7 @@ public:
   double XSec            (const Interaction * i, KinePhaseSpace_t kps) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
+  const  TVector3 & FinalLeptonPolarization (const Interaction* i) const;
 
   // Override the Algorithm::Configure methods to load configuration
   // data to private data members
@@ -73,12 +76,18 @@ private:
   double d3sQES_dQ2dvdkF_SM (const Interaction * interaction) const;
   double dsQES_dQ2_SM(const Interaction * interaction) const;
   double d2sQES_dQ2dv_SM(const Interaction * i) const;
+  void InitGaussIntArrays(void);
 
   double                       fXSecScale;        ///< external xsec scaling factor
   mutable QELFormFactors       fFormFactors;
   const QELFormFactorsModelI * fFormFactorsModel;
   const XSecIntegratorI *      fXSecIntegrator;
   double                       fVud2;             ///< |Vud|^2(square of magnitude ud-element of CKM-matrix)
+  
+  std::array<double,48> fW;
+  std::array<double,48> fR;
+  
+  
 
 
 };

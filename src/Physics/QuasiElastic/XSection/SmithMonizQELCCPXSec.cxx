@@ -55,18 +55,18 @@ using std::ostringstream;
 SmithMonizQELCCPXSec::SmithMonizQELCCPXSec() :
 XSecAlgorithmI("genie::SmithMonizQELCCPXSec")
 {
-
+    InitGaussIntArrays();
 }
 //____________________________________________________________________________
 SmithMonizQELCCPXSec::SmithMonizQELCCPXSec(string config) :
 XSecAlgorithmI("genie::SmithMonizQELCCPXSec", config)
 {
-
+    InitGaussIntArrays();
 }
 //____________________________________________________________________________
 SmithMonizQELCCPXSec::~SmithMonizQELCCPXSec()
 {
-
+    InitGaussIntArrays();
 }
 //____________________________________________________________________________
 double SmithMonizQELCCPXSec::XSec(
@@ -174,6 +174,9 @@ void SmithMonizQELCCPXSec::LoadConfig(void)
 
   // Cross section scaling factor
   GetParamDef( "QEL-CC-XSecScale", fXSecScale, 1. ) ;
+  
+  // Do precise calculation of lepton polarization
+  GetParamDef( "PreciseLeptonPol", fIsPreciseLeptonPolarization, false ) ;
 
   double Vud;
   GetParam( "CKM-Vud", Vud ) ;
@@ -210,16 +213,11 @@ double SmithMonizQELCCPXSec::d3sQES_dQ2dvdkF_SM(const Interaction * interaction)
   double v       = kinematics.GetKV(kKVv);
   double kF      = kinematics.GetKV(kKVPn);
   double kkF     = kF*kF;
-  int nucl_pdg_ini = target.HitNucPdg();
-  int nucl_pdg_fin = genie::pdg::SwitchProtonNeutron(nucl_pdg_ini);
   
-  PDGLibrary * pdglib = PDGLibrary::Instance();
-  TParticlePDG * nucl_fin = pdglib->Find( nucl_pdg_fin );
-
   double E_BIN   = sm_utils->GetBindingEnergy();
   double m_ini   = target.HitNucMass();
   double mm_ini  = m_ini*m_ini;
-  double m_fin   = nucl_fin -> Mass();                         //  Mass of final hadron or hadron system (GeV)
+  double m_fin   = interaction->RecoilNucleon()->Mass();      //  Mass of final hadron or hadron system (GeV)
   double mm_fin  = m_fin*m_fin;
   double m_tar   = target.Mass();                              //  Mass of target nucleus (GeV)
   double mm_tar  = m_tar*m_tar;
@@ -238,7 +236,7 @@ double SmithMonizQELCCPXSec::d3sQES_dQ2dvdkF_SM(const Interaction * interaction)
      return 0.0;
   }
   
-  double pF      = TMath::Sqrt(kkF+(2*kF*qv)*cosT_p+qqv);
+  double pF      = TMath::Sqrt(kkF + 2*kF*qv*cosT_p + qqv);
   
   double E_lep   = E_nu-v;
   double m_lep = interaction->FSPrimLepton()->Mass();
@@ -247,35 +245,35 @@ double SmithMonizQELCCPXSec::d3sQES_dQ2dvdkF_SM(const Interaction * interaction)
   {
     return 0.0;
   }
-  double P_lep   = TMath::Sqrt(E_lep*E_lep-mm_lep);
-  double k6 = (Q2+mm_lep)/(2*E_nu);
-  double cosT_lep= (E_lep-k6)/P_lep;
+  double P_lep   = TMath::Sqrt(E_lep*E_lep - mm_lep);
+  double k6 = (Q2 + mm_lep)/(2*E_nu);
+  double cosT_lep= (E_lep - k6)/P_lep;
   if (cosT_lep < -1.0 || cosT_lep > 1.0 ) return 0.0;
   
-  double cosT_k  = (v+k6)/qv;
+  double cosT_k  = (v + k6)/qv;
   if (cosT_k < -1.0 || cosT_k > 1.0 ) return 0.0;
 
-  double b2_flux = (E_p-kF*cosT_k*cosT_p)*(E_p-kF*cosT_k*cosT_p);
-  double c2_flux = kkF*(1-cosT_p*cosT_p)*(1-cosT_k*cosT_k);
-  
-  double k1 = fVud2*kNucleonMass2*kPi;
+  double b2_flux = TMath::Sq(E_p - kF*cosT_k*cosT_p);
+  double c2_flux = kkF*(1 - cosT_p*cosT_p)*(1 - cosT_k*cosT_k);
+    
+  double k1 = fVud2*mm_ini*kPi;
   double k2 = mm_lep/(2*mm_tar);
   double k7 = P_lep*cosT_lep;
 
   double P_Fermi = sm_utils->GetFermiMomentum();
-  double FV_SM   = 4.0*TMath::Pi()/3*TMath::Power(P_Fermi, 3);
+  double FV_SM   = 4.0*kPi/3*TMath::Power(P_Fermi, 3);
   double factor  = k1*(m_tar*kF/(FV_SM*qv*TMath::Sqrt(b2_flux-c2_flux)))*SmithMonizUtils::rho(P_Fermi, 0.0, kF)*(1-SmithMonizUtils::rho(P_Fermi, 0.01, pF));
 
-  double a2      = kkF/kNucleonMass2;
+  double a2      = kkF/mm_ini;
   double a3      = a2*cosT_p*cosT_p;
-  double a6      = kF*cosT_p/kNucleonMass;
-  double a7      = E_p/kNucleonMass;
+  double a6      = kF*cosT_p/m_ini;
+  double a7      = E_p/m_ini;
   double a4      = a7*a7;
   double a5      = 2*a7*a6;
 
   double k3      = v/qv;
   double k4      = (3*a3-a2)/qqv;
-  double k5      = (a7-a6*k3)*m_tar/kNucleonMass;
+  double k5      = (a7-a6*k3)*m_tar/m_ini;
   
   // Calculate the QEL form factors
   fFormFactors.Calculate(interaction);
@@ -287,17 +285,17 @@ double SmithMonizQELCCPXSec::d3sQES_dQ2dvdkF_SM(const Interaction * interaction)
   double FF_M  = F_M*F_M;
   double FF_A  = F_A*F_A;
 
-  double t       = Q2/(4*kNucleonMass2);
+  double t       = Q2/(4*mm_ini);
   double W_1     = FF_A*(1+t)+t*(F_V+F_M)*(F_V+F_M);                     //Ref.[1], \tilde{T}_1
   double W_2     = FF_A+FF_V+t*FF_M;                                     //Ref.[1], \tilde{T}_2
   double W_3     =-2*F_A*(F_V+F_M);                                      //Ref.[1], \tilde{T}_8
   double W_4     =-0.5*F_V*F_M-F_A*F_P+t*F_P*F_P-0.25*(1-t)*FF_M;        //Ref.[1], \tilde{T}_\alpha
-  double W_5     = FF_V+t*FF_M+FF_A;
-
+  double W_5     = W_2;
+  
   double T_1     = 1.0*W_1+(a2-a3)*0.5*W_2;                              //Ref.[1], W_1
   double T_2     = ((a2-a3)*Q2/(2*qqv)+a4-k3*(a5-k3*a3))*W_2;            //Ref.[1], W_2
   double T_3     = k5*W_3;                                               //Ref.[1], W_8
-  double T_4     = mm_tar*(0.5*W_2*k4+1.0*W_4/kNucleonMass2+a6*W_5/(kNucleonMass*qv));    //Ref.[1], W_\alpha
+  double T_4     = mm_tar*(0.5*W_2*k4+1.0*W_4/mm_ini+a6*W_5/(m_ini*qv)); //Ref.[1], W_\alpha
   double T_5     = k5*W_5+m_tar*(a5/qv-v*k4)*W_2;
 
   double xsec    = kGF2*factor*((E_lep-k7)*(T_1+k2*T_4)/m_tar+(E_lep+k7)*T_2/(2*m_tar)
@@ -326,68 +324,16 @@ double SmithMonizQELCCPXSec::d2sQES_dQ2dv_SM(const Interaction * interaction) co
 
   const Target & target = init_state.Tgt();
   
-
-
-//  Gaussian quadratures integrate over Fermi momentum
-  double R[48]= { 0.16276744849602969579e-1,0.48812985136049731112e-1,
-                  0.81297495464425558994e-1,1.13695850110665920911e-1,
-                  1.45973714654896941989e-1,1.78096882367618602759e-1,
-                  2.10031310460567203603e-1,2.41743156163840012328e-1,
-                  2.73198812591049141487e-1,3.04364944354496353024e-1,
-                  3.35208522892625422616e-1,3.65696861472313635031e-1,
-                  3.95797649828908603285e-1,4.25478988407300545365e-1,
-                  4.54709422167743008636e-1,4.83457973920596359768e-1,
-                  5.11694177154667673586e-1,5.39388108324357436227e-1,
-                  5.66510418561397168404e-1,5.93032364777572080684e-1,
-                  6.18925840125468570386e-1,6.44163403784967106798e-1,
-                  6.68718310043916153953e-1,6.92564536642171561344e-1,
-                  7.15676812348967626225e-1,7.38030643744400132851e-1,
-                  7.59602341176647498703e-1,7.80369043867433217604e-1,
-                  8.00308744139140817229e-1,8.19400310737931675539e-1,
-                  8.37623511228187121494e-1,8.54959033434601455463e-1,
-                  8.71388505909296502874e-1,8.86894517402420416057e-1,
-                  9.01460635315852341319e-1,9.15071423120898074206e-1,
-                  9.27712456722308690965e-1,9.39370339752755216932e-1,
-                  9.50032717784437635756e-1,9.59688291448742539300e-1,
-                  9.68326828463264212174e-1,9.75939174585136466453e-1,
-                  9.82517263563014677447e-1,9.88054126329623799481e-1,
-                  9.92543900323762624572e-1,9.95981842987209290650e-1,
-                  9.98364375863181677724e-1,9.99689503883230766828e-1};
-
-  double W[48]= { 0.00796792065552012429e-1,0.01853960788946921732e-1,
-                  0.02910731817934946408e-1,0.03964554338444686674e-1,
-                  0.05014202742927517693e-1,0.06058545504235961683e-1,
-                  0.07096470791153865269e-1,0.08126876925698759217e-1,
-                  0.09148671230783386633e-1,0.10160770535008415758e-1,
-                  0.11162102099838498591e-1,0.12151604671088319635e-1,
-                  0.13128229566961572637e-1,0.14090941772314860916e-1,
-                  0.15038721026994938006e-1,0.15970562902562291381e-1,
-                  0.16885479864245172450e-1,0.17782502316045260838e-1,
-                  0.18660679627411467395e-1,0.19519081140145022410e-1,
-                  0.20356797154333324595e-1,0.21172939892191298988e-1,
-                  0.21966644438744349195e-1,0.22737069658329374001e-1,
-                  0.23483399085926219842e-1,0.24204841792364691282e-1,
-                  0.24900633222483610288e-1,0.25570036005349361499e-1,
-                  0.26212340735672413913e-1,0.26826866725591762198e-1,
-                  0.27412962726029242823e-1,0.27970007616848334440e-1,
-                  0.28497411065085385646e-1,0.28994614150555236543e-1,
-                  0.29461089958167905970e-1,0.29896344136328385984e-1,
-                  0.30299915420827593794e-1,0.30671376123669149014e-1,
-                  0.31010332586313837423e-1,0.31316425596861355813e-1,
-                  0.31589330770727168558e-1,0.31828758894411006535e-1,
-                  0.32034456231992663218e-1,0.32206204794030250669e-1,
-                  0.32343822568575928429e-1,0.32447163714064269364e-1,
-                  0.32516118713868835987e-1,0.32550614492363166242e-1};
-
+  int d = fR.size();
   double Sum = 0;
-  for(int i = 0;i<48;i++)
+  for(int i = 0; i < d ;i++)
   {
-    double kF = 0.5*(-R[i]*(rkF.max-rkF.min)+rkF.min+rkF.max);
+    double kF = 0.5*(-fR[i]*(rkF.max-rkF.min)+rkF.min+rkF.max);
     kinematics->SetKV(kKVPn, kF);
-    Sum+=d3sQES_dQ2dvdkF_SM(interaction)*W[47-i];
-    kF = 0.5*(R[i]*(rkF.max-rkF.min)+rkF.min+rkF.max);
+    Sum+=d3sQES_dQ2dvdkF_SM(interaction)*fW[d - 1 - i];
+    kF = 0.5*(fR[i]*(rkF.max-rkF.min)+rkF.min+rkF.max);
     kinematics->SetKV(kKVPn, kF);
-    Sum+=d3sQES_dQ2dvdkF_SM(interaction)*W[47-i];
+    Sum+=d3sQES_dQ2dvdkF_SM(interaction)*fW[d - 1 - i];
   }
 
   double xsec = 0.5*Sum*(rkF.max-rkF.min);
@@ -482,7 +428,6 @@ double SmithMonizQELCCPXSec::dsQES_dQ2_SM(const Interaction * interaction) const
     const double mp2 = kProtonMass2;
     const double mn2 = kNeutronMass2;
     const double Ee  = E + ( (q2 - mn2 + mp2) / 2.0 / mp );
-    assert(Ee > 0.0); // must be non-zero and positive
     rc  = 6.0 + (1.5 * TMath::Log(kProtonMass / 2.0 / Ee));
     rc += 1.2 * TMath::Power((kElectronMass / Ee), 1.5);
     rc *= kAem / kPi;
@@ -492,3 +437,247 @@ double SmithMonizQELCCPXSec::dsQES_dQ2_SM(const Interaction * interaction) const
   xsec *= rc;
   return xsec;
 }
+//____________________________________________________________________________
+ void SmithMonizQELCCPXSec::InitGaussIntArrays(void)
+ {
+    //  Gaussian quadratures integrate over Fermi momentum
+    fR =        { 0.16276744849602969579e-1,0.48812985136049731112e-1,
+                  0.81297495464425558994e-1,1.13695850110665920911e-1,
+                  1.45973714654896941989e-1,1.78096882367618602759e-1,
+                  2.10031310460567203603e-1,2.41743156163840012328e-1,
+                  2.73198812591049141487e-1,3.04364944354496353024e-1,
+                  3.35208522892625422616e-1,3.65696861472313635031e-1,
+                  3.95797649828908603285e-1,4.25478988407300545365e-1,
+                  4.54709422167743008636e-1,4.83457973920596359768e-1,
+                  5.11694177154667673586e-1,5.39388108324357436227e-1,
+                  5.66510418561397168404e-1,5.93032364777572080684e-1,
+                  6.18925840125468570386e-1,6.44163403784967106798e-1,
+                  6.68718310043916153953e-1,6.92564536642171561344e-1,
+                  7.15676812348967626225e-1,7.38030643744400132851e-1,
+                  7.59602341176647498703e-1,7.80369043867433217604e-1,
+                  8.00308744139140817229e-1,8.19400310737931675539e-1,
+                  8.37623511228187121494e-1,8.54959033434601455463e-1,
+                  8.71388505909296502874e-1,8.86894517402420416057e-1,
+                  9.01460635315852341319e-1,9.15071423120898074206e-1,
+                  9.27712456722308690965e-1,9.39370339752755216932e-1,
+                  9.50032717784437635756e-1,9.59688291448742539300e-1,
+                  9.68326828463264212174e-1,9.75939174585136466453e-1,
+                  9.82517263563014677447e-1,9.88054126329623799481e-1,
+                  9.92543900323762624572e-1,9.95981842987209290650e-1,
+                  9.98364375863181677724e-1,9.99689503883230766828e-1};
+
+    fW    = { 0.00796792065552012429e-1,0.01853960788946921732e-1,
+                  0.02910731817934946408e-1,0.03964554338444686674e-1,
+                  0.05014202742927517693e-1,0.06058545504235961683e-1,
+                  0.07096470791153865269e-1,0.08126876925698759217e-1,
+                  0.09148671230783386633e-1,0.10160770535008415758e-1,
+                  0.11162102099838498591e-1,0.12151604671088319635e-1,
+                  0.13128229566961572637e-1,0.14090941772314860916e-1,
+                  0.15038721026994938006e-1,0.15970562902562291381e-1,
+                  0.16885479864245172450e-1,0.17782502316045260838e-1,
+                  0.18660679627411467395e-1,0.19519081140145022410e-1,
+                  0.20356797154333324595e-1,0.21172939892191298988e-1,
+                  0.21966644438744349195e-1,0.22737069658329374001e-1,
+                  0.23483399085926219842e-1,0.24204841792364691282e-1,
+                  0.24900633222483610288e-1,0.25570036005349361499e-1,
+                  0.26212340735672413913e-1,0.26826866725591762198e-1,
+                  0.27412962726029242823e-1,0.27970007616848334440e-1,
+                  0.28497411065085385646e-1,0.28994614150555236543e-1,
+                  0.29461089958167905970e-1,0.29896344136328385984e-1,
+                  0.30299915420827593794e-1,0.30671376123669149014e-1,
+                  0.31010332586313837423e-1,0.31316425596861355813e-1,
+                  0.31589330770727168558e-1,0.31828758894411006535e-1,
+                  0.32034456231992663218e-1,0.32206204794030250669e-1,
+                  0.32343822568575928429e-1,0.32447163714064269364e-1,
+                  0.32516118713868835987e-1,0.32550614492363166242e-1};
+ }
+//____________________________________________________________________________
+const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interaction* interaction) const
+{
+  if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  // Assuming that variables Enu, Q2, \nu and kF are within allowable kinematic region
+  // which are specified in methods: genie::utils::gsl::d2Xsec_dQ2dv::DoEval and QELEventGeneratorSM::ProcessEventRecord
+  // Get kinematics & init-state parameters
+  const Kinematics &  kinematics = interaction -> Kine();
+  sm_utils->SetInteraction(interaction);
+  const InitialState & init_state = interaction -> InitState();
+  const Target & target = init_state.Tgt();
+  double Enu     = init_state.ProbeE(kRfLab);
+  double Q2      = kinematics.Q2(true);
+  double v       = kinematics.GetKV(kKVv);
+  Range1D_t rkF  = sm_utils->kFQES_SM_lim(Q2,v);
+  
+  
+  double E_BIN   = sm_utils->GetBindingEnergy();
+  double m_ini   = target.HitNucMass();
+  double mm_ini  = m_ini*m_ini;
+  double m_fin   = interaction->RecoilNucleon()->Mass();      //  Mass of final hadron or hadron system (GeV)
+  double mm_fin  = m_fin*m_fin;
+  double m_tar   = target.Mass();                             //  Mass of target nucleus (GeV)
+  
+  //|\vec{q}|
+  double qqv     = v*v + Q2;
+  double qv      = TMath::Sqrt(qqv);
+  
+  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
+  int sign = (is_neutrino) ? +1 : -1;
+  
+  double El   = Enu - v;
+  double ml = interaction->FSPrimLepton()->Mass();
+  double ml2 = ml*ml;
+  if (El < ml) 
+  {
+     fFinalLeptonPolarization = TVector3(0, 0, 0);
+     return fFinalLeptonPolarization;
+  }
+  double Pl = TMath::Sqrt(El*El - ml2);
+  double k6 = (Q2 + ml2)/(2*Enu);
+  double cos_theta = (El - k6)/Pl;
+  if (cos_theta < -1.0 || cos_theta > 1.0 ) 
+  {
+     LOG("SmithMoniz", pWARN) << "Can't calculate final lepton polarization. Set it to zero.";
+     fFinalLeptonPolarization = TVector3(0, 0, 0);
+     return fFinalLeptonPolarization;
+  }
+  double sin_theta = TMath::Sqrt(1 - cos_theta*cos_theta);
+  // cos^2(theta/2)
+  double cs2th = (1 + cos_theta)/2;
+  // sin^2(theta/2)
+  double sn2th = (1 - cos_theta)/2;
+  
+  double cosT_k  = (v + k6)/qv;
+  if (cosT_k < -1.0 || cosT_k > 1.0 )
+  {
+     LOG("SmithMoniz", pWARN) << "Can't calculate final lepton polarization. Set it to zero.";
+     fFinalLeptonPolarization = TVector3(0, 0, 0);
+     return fFinalLeptonPolarization;
+  }
+  
+  double P_Fermi = sm_utils->GetFermiMomentum();
+  
+  int d = fR.size();
+  double a1(0), a2(0), a3(0), a4(0), a5(0), a6(0), a7(0);
+  double Tf(0.01);
+  if (rkF.max > 0)
+  {
+    for(int i = 0; i < d ;i++)
+    {
+        double kF = 0.5*(-fR[i]*(rkF.max - rkF.min) + rkF.min + rkF.max);
+        double kkF     = kF*kF;
+        double E_p     = TMath::Sqrt(mm_ini + kkF) - E_BIN;
+        double cosT_p  = ((v - E_BIN)*(2*E_p + v + E_BIN) - qqv + mm_ini - mm_fin)/(2*kF*qv);           //\cos\theta_p
+        if (cosT_p < -1.0 || cosT_p > 1.0 ) 
+        {
+           LOG("SmithMoniz", pWARN) << "Can't calculate final lepton polarization. Set it to zero.";
+           fFinalLeptonPolarization = TVector3(0, 0, 0);
+           return fFinalLeptonPolarization;
+        }
+        double pF      = TMath::Sqrt(kkF + 2*kF*qv*cosT_p + qqv);
+        double b2_flux = TMath::Sq(E_p - kF*cosT_k*cosT_p);
+        double c2_flux = kkF*(1 - cosT_p*cosT_p)*(1 - cosT_k*cosT_k);
+        // factor fVud2*mm_ini*kPi*m_tar/qv/FV_SM will be cancelled when dividing by R
+        double factor  = kF/TMath::Sqrt(b2_flux - c2_flux)*SmithMonizUtils::rho(P_Fermi, 0, kF)*(1 - SmithMonizUtils::rho(P_Fermi, Tf, pF))*fW[d - 1 - i];
+        a1  += factor;
+        a2  += factor*kkF/mm_ini;
+        a3  += factor*kkF*cosT_p*cosT_p/mm_ini;
+        a4  += factor*E_p*E_p/mm_ini;
+        a5  += factor*2*E_p*kF*cosT_p/mm_ini;
+        a6  += factor*kF*cosT_p/m_ini;
+        a7  += factor*E_p/m_ini;
+        
+        kF = 0.5*(fR[i]*(rkF.max - rkF.min) + rkF.min + rkF.max);
+        kkF     = kF*kF;
+        E_p     = TMath::Sqrt(mm_ini + kkF)-E_BIN;
+        cosT_p  = ((v - E_BIN)*(2*E_p + v + E_BIN) - qqv + mm_ini - mm_fin)/(2*kF*qv);           //\cos\theta_p
+        if (cosT_p < -1.0 || cosT_p > 1.0 ) 
+        {
+           LOG("SmithMoniz", pWARN) << "Can't calculate final lepton polarization. Set it to zero.";
+           fFinalLeptonPolarization = TVector3(0, 0, 0);
+           return fFinalLeptonPolarization;
+        }
+        pF      = TMath::Sqrt(kkF + 2*kF*qv*cosT_p + qqv);
+        b2_flux = TMath::Sq(E_p - kF*cosT_k*cosT_p);
+        c2_flux = kkF*(1 - cosT_p*cosT_p)*(1 - cosT_k*cosT_k);
+        // factor fVud2*mm_ini*kPi*m_tar/qv/FV_SM will be cancelled when dividing by R
+        factor  = kF/TMath::Sqrt(b2_flux - c2_flux)*SmithMonizUtils::rho(P_Fermi, 0, kF)*(1 - SmithMonizUtils::rho(P_Fermi, Tf, pF))*fW[d - 1 - i];
+        a1  += factor;
+        a2  += factor*kkF/mm_ini;
+        a3  += factor*kkF*cosT_p*cosT_p/mm_ini;
+        a4  += factor*E_p*E_p/mm_ini;
+        a5  += factor*2*E_p*kF*cosT_p/mm_ini;
+        a6  += factor*kF*cosT_p/m_ini;
+        a7  += factor*E_p/m_ini;
+    }
+    a1 *= 0.5*(rkF.max - rkF.min);
+    a2 *= 0.5*(rkF.max - rkF.min);
+    a3 *= 0.5*(rkF.max - rkF.min);
+    a4 *= 0.5*(rkF.max - rkF.min);
+    a5 *= 0.5*(rkF.max - rkF.min);
+    a6 *= 0.5*(rkF.max - rkF.min);
+    a7 *= 0.5*(rkF.max - rkF.min);
+  }
+  else
+  {
+      m_tar = m_ini;
+      a1 = a4 = a7 = 1;
+  }
+  double mm_tar  = m_tar*m_tar;
+  double k3      = v/qv;
+  double k4      = (3*a3 - a2)/qqv;
+  double k5      = (a7 - a6*k3)*m_tar/m_ini;
+  
+  interaction->KinePtr()->SetQ2(Q2);
+  // Calculate the QEL form factors
+  fFormFactors.Calculate(interaction);
+  
+  double F_V   = fFormFactors.F1V();
+  double F_M   = fFormFactors.xiF2V();
+  double F_A   = fFormFactors.FA();
+  double F_P   = fFormFactors.Fp();
+  double FF_V  = F_V*F_V;
+  double FF_M  = F_M*F_M;
+  double FF_A  = F_A*F_A;
+
+  double t      = Q2/(4*mm_ini);
+  double W1     = FF_A*(1+t)+t*(F_V+F_M)*(F_V+F_M);                     //Ref.[1], \tilde{T}_1
+  double W2     = FF_A+FF_V+t*FF_M;                                     //Ref.[1], \tilde{T}_2
+  double W3     =-2*F_A*(F_V+F_M);                                      //Ref.[1], \tilde{T}_8
+  double W4     =-0.5*F_V*F_M-F_A*F_P+t*F_P*F_P-0.25*(1-t)*FF_M;        //Ref.[1], \tilde{T}_\alpha
+  double W5     = W2;
+  
+  double T1     = a1*W1 + 0.5*(a2 - a3)*W2;                              //Ref.[1], W_1
+  double T2     = ((a2 - a3)*Q2/(2*qqv) + a4 - k3*(a5 - k3*a3))*W2;      //Ref.[1], W_2
+  double T3     = k5*W3;                                                 //Ref.[1], W_8
+  double T4     = mm_tar*(0.5*k4*W2 + a1*W4/mm_ini + a6*W5/m_ini/qv);    //Ref.[1], W_\alpha
+  double T5     = m_tar*(a5/qv - v*k4)*W2 + k5*W5;
+
+  double kappa = ml2/2/mm_tar;
+  double R =    (El - Pl*cos_theta)/m_tar*(T1 + kappa*T4) + (El + Pl*cos_theta)/2/m_tar*T2 
+                + sign*((Enu + El)*(El - Pl*cos_theta)/2/mm_tar - kappa)*T3 - kappa*T5;  //sign toghether with sign of FA ("-") will give correct total sign
+                  
+  // In the frame, where lepton momentum is in z direction, x - axis is in production plane and orthogonal to z
+  // PL || z, PP || x, PT || y = 0 in Standard Model, because T6 = 0  
+  double PP    = -sign*ml*sin_theta/2/m_tar/R*(T1*2 - T2 + T3*sign*Enu/m_tar - T4*ml2/mm_tar + T5*El/m_tar);
+  double PL    = -sign*(1 - ml2/mm_tar/R*((T1*2*m_tar/(El + Pl) + T3*sign*(Enu - Pl)/(El + Pl))*cs2th +
+                                     (T2*m_tar/(El + Pl) + T4*(El + Pl)/m_tar - T5)*sn2th));
+                                                                                 
+  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector neutrinoMom = *tempNeutrino;
+  delete tempNeutrino;
+  const TLorentzVector leptonMom = kinematics.FSLeptonP4();
+  TVector3 neutrinoMom3 = neutrinoMom.Vect();  
+  TVector3 leptonMom3 = leptonMom.Vect();
+  TVector3 Pz = leptonMom3.Unit();
+  TVector3 Px = neutrinoMom3.Cross(leptonMom3).Unit();
+  TVector3 Py = Pz.Cross(Px);
+  TVector3 pol = PP*Py + PL*Pz;
+  fFinalLeptonPolarization = PP*Py + PL*Pz;
+  
+  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+  std::cout << fFinalLeptonPolarization.Mag() << "\n";
+  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
+  
+  return fFinalLeptonPolarization;
+  
+}
+//____________________________________________________________________________

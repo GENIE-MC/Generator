@@ -23,8 +23,7 @@
 #pragma link C++ class genie::LwlynSmithFFCC;
 #pragma link C++ class genie::LwlynSmithFFNC;
 #pragma link C++ class genie::LwlynSmithFF;
-#pragma link C++ class genie::MKFFEM;
-#pragma link C++ class genie::MKFFCC;
+#pragma link C++ class genie::LwlynSmithIsoFFCC;
 #pragma link C++ class genie::GalsterELFormFactorsModel;
 #pragma link C++ class genie::LwlynSmithFFDeltaS;
 #pragma link C++ class genie::AxialFormFactorModelI;

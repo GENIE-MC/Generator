@@ -12,6 +12,8 @@ Name               Type     Optional   Comment                          Default
 FormFactorsAlg     alg      No         QEL form factors algorithm
 XSec-Integrator    alg      No         Integrator
 CKM-Vud            double   No         Vud element of CKM-matrix        CommonParam[CKM]
+PreciseLeptonPol   bool     Yes        Do precise calculation of        No
+                                       lepton polarization
 QEL-CC-XSecScale   double   yes        XSec Scaling factor              1. 
 -->
 
@@ -23,6 +25,7 @@ QEL-CC-XSecScale   double   yes        XSec Scaling factor              1.
      <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Default       </param>
      <param type="alg"  name="XSec-Integrator"> genie::SmithMonizQELCCXSec/Default  </param>
+     <param type="bool"  name="PreciseLeptonPol"> true  </param>
     
   </param_set>
 

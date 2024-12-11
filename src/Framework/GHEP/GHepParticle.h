@@ -116,10 +116,10 @@ public :
 
   // Get the polarization. Most likely it is only the f/s primary lepton
   // for which this is usefull and might be set during event generation
-  double PolzPolarAngle   (void) const { return fPolzTheta; }
-  double PolzAzimuthAngle (void) const { return fPolzPhi; }
-  bool   PolzIsSet        (void) const;
-  void   GetPolarization  (TVector3 & polz);
+  double PolzPolarAngle   (void) const { return fPolarization.Mag()>0?fPolarization.Theta():0; }
+  double PolzAzimuthAngle (void) const { return fPolarization.Mag()>0?fPolarization.Phi():0; }
+  bool   PolzIsSet        (void) const { return fPolarization.Mag()>0;}
+  const TVector3 & GetPolarization (void) const {return fPolarization;}
 
   // Set pdg code and status codes
   void SetPdgCode  (int c);
@@ -144,9 +144,7 @@ public :
   void SetPy       (double py);
   void SetPz       (double pz);
 
-  // Set the polarization angles
-  void SetPolarization(double theta, double phi);
-  void SetPolarization(const TVector3 & polz);
+  void SetPolarization(const TVector3 & polz) { fPolarization = polz;}
 
   // Set the bould flag & removal energy (bound flag set automatically
   // if a positive removal energy is set)
@@ -180,12 +178,11 @@ private:
   int              fLastDaughter;   ///< last daughter idx
   TLorentzVector * fP4;             ///< momentum 4-vector (GeV)
   TLorentzVector * fX4;             ///< position 4-vector (in the target nucleus coordinate system / x,y,z in fm / t from the moment of the primary interaction in ys(yocto second = 10^-24 s)
-  double           fPolzTheta;      ///< polar polarization angle (rad)
-  double           fPolzPhi;        ///< azimuthal polarization angle (rad)
+  TVector3         fPolarization;   ///< polarization vector of final lepton
   double           fRemovalEnergy;  ///< removal energy for bound nucleons (GeV)
   bool             fIsBound;        ///< 'is it a bound particle?' flag
 
-ClassDef(GHepParticle, 2)
+ClassDef(GHepParticle, 3)
 
 };
 

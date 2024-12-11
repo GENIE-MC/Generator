@@ -31,6 +31,8 @@
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
 
+#include <complex>
+
 namespace genie {
 
 class QELFormFactorsModelI;
@@ -48,6 +50,9 @@ public:
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
   bool   ValidKinematics (const Interaction * i) const;
+  const  TVector3 & FinalLeptonPolarization (const Interaction* i) const;
+  int e(int a, int b, int c, int d) const;
+  int g(int a, int b) const;
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members

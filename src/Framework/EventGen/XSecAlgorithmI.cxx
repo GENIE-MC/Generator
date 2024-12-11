@@ -10,6 +10,7 @@
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGUtils.h"
 
 using namespace genie;
 
@@ -17,19 +18,22 @@ using namespace genie;
 XSecAlgorithmI::XSecAlgorithmI() :
 Algorithm()
 {
-
+    fFinalLeptonPolarization = TVector3(0, 0, 0);
+    fIsPreciseLeptonPolarization = false;
 }
 //___________________________________________________________________________
 XSecAlgorithmI::XSecAlgorithmI(string name) :
 Algorithm(name)
 {
-
+    fFinalLeptonPolarization = TVector3(0, 0, 0);
+    fIsPreciseLeptonPolarization = false;
 }
 //___________________________________________________________________________
 XSecAlgorithmI::XSecAlgorithmI(string name, string config) :
 Algorithm(name, config)
 {
-
+    fFinalLeptonPolarization = TVector3(0, 0, 0);
+    fIsPreciseLeptonPolarization = false;
 }
 //___________________________________________________________________________
 XSecAlgorithmI::~XSecAlgorithmI()
@@ -55,5 +59,19 @@ bool XSecAlgorithmI::ValidKinematics(const Interaction* interaction) const
      return false;
   }
   return true;
+}
+//___________________________________________________________________________
+const TVector3 & XSecAlgorithmI::FinalLeptonPolarization (const Interaction* i) const
+{
+    int pdg = i->FSPrimLeptonPdg();
+    if ( pdg::IsNeutrino(pdg) || pdg::IsElectron(pdg) || pdg::IsMuon(pdg) || pdg::IsTau(pdg) )
+    {
+        fFinalLeptonPolarization = TVector3(0, 0, -1);
+    }
+    else
+    {
+        fFinalLeptonPolarization = TVector3(0, 0, 1);
+    }
+    return fFinalLeptonPolarization;
 }
 //___________________________________________________________________________

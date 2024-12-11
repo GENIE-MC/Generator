@@ -13,7 +13,6 @@
 #include <TLorentzVector.h>
 #include <Math/IFunction.h>
 #include <Math/Integrator.h>
-#include <complex>
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
@@ -48,6 +47,7 @@ using namespace genie;
 using namespace genie::constants;
 using namespace genie::controls;
 using namespace genie::utils;
+using namespace std::complex_literals;
 
 //____________________________________________________________________________
 NievesQELCCPXSec::NievesQELCCPXSec() :
@@ -403,6 +403,9 @@ void NievesQELCCPXSec::LoadConfig(void)
   double thc;
   GetParam( "CabibboAngle", thc ) ;
   fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
+  
+  // Do precise calculation of lepton polarization
+  GetParamDef( "PreciseLeptonPol", fIsPreciseLeptonPolarization, false ) ;
 
   // Cross section scaling factor
   GetParam( "QEL-CC-XSecScale", fXSecCCScale ) ;
@@ -797,18 +800,17 @@ std::complex<double> NievesQELCCPXSec::deltaLindhard(double q0,
       TMath::Power(qcmp,3)/srotp*(m+TMath::Sqrt(m2+TMath::Power(qcmp,2)))/mpi2;
   }
   //}//End if statement
-  const std::complex<double> iNum(0,1.0);
 
   std::complex<double> z(md/(q_mod*k_fermi)*(q_zero-q_mod2/(2.0*md)
-                         -wr +iNum*gamma/2.0));
+                         -wr +1i*gamma/2.0));
   std::complex<double> zp(md/(q_mod*k_fermi)*(-q_zero-q_mod2/(2.0*md)
-                          -wr +iNum*gammap/2.0));
+                          -wr +1i*gammap/2.0));
 
   std::complex<double> pzeta(0.0);
   if(abs(z) > 50.0){
     pzeta = 2.0/(3.0*z)+2.0/(15.0*z*z*z);
   }else if(abs(z) < TMath::Power(10.0,-2)){
-    pzeta = 2.0*z-2.0/3.0*z*z*z-iNum*kPi/2.0*(1.0-z*z);
+    pzeta = 2.0*z-2.0/3.0*z*z*z-1i*kPi/2.0*(1.0-z*z);
   }else{
     pzeta = z + (1.0-z*z) * log((z+1.0)/(z-1.0))/2.0;
   }
@@ -817,7 +819,7 @@ std::complex<double> NievesQELCCPXSec::deltaLindhard(double q0,
   if(abs(zp) > 50.0){
     pzetap = 2.0/(3.0*zp)+2.0/(15.0*zp*zp*zp);
   }else if(abs(zp) < TMath::Power(10.0,-2)){
-    pzetap = 2.0*zp-2.0/3.0*zp*zp*zp-iNum*kPi/2.0*(1.0-zp*zp);
+    pzetap = 2.0*zp-2.0/3.0*zp*zp*zp-1i*kPi/2.0*(1.0-zp*zp);
   }else{
     pzetap = zp+ (1.0-zp*zp) * log((zp+1.0)/(zp-1.0))/2.0;
   }
@@ -888,35 +890,9 @@ double NievesQELCCPXSec::vcr(const Target * target, double Rcurr) const{
   }
 }
 //____________________________________________________________________________
-int NievesQELCCPXSec::leviCivita(int input[]) const{
-  int copy[4] = {input[0],input[1],input[2],input[3]};
-  int permutations = 0;
-  int temp;
-
-  for(int i=0;i<4;i++){
-    for(int j=i+1;j<4;j++){
-      //If any two elements are equal return 0
-      if(input[i] == input[j])
-        return 0;
-      //If a larger number is before a smaller one, use permutations
-      //(exchanges of two adjacent elements) to move the smaller element
-      //so it is before the larger element, eg 2341->2314->2134->1234
-      if(copy[i]>copy[j]){
-        temp = copy[j];
-        for(int k=j;k>i;k--){
-          copy[k] = copy[k-1];
-          permutations++;
-        }
-        copy[i] = temp;
-      }
-    }
-  }
-
-  if(permutations % 2 == 0){
-    return 1;
-  }else{
-    return -1;
-  }
+int NievesQELCCPXSec::leviCivita(int input[]) const
+{
+  return e(input[0], input[1], input[2], input[3]);
 }
 //____________________________________________________________________________
 // Calculates the constraction of the leptonic and hadronic tensors. The
@@ -964,7 +940,6 @@ const Target& target, bool assumeFreeNucleon) const
   // Calculate auxiliary parameters
   double M2      = TMath::Power(M,     2);
   double FA2     = TMath::Power(FA,    2);
-  double Fp2     = TMath::Power(Fp,    2);
   double F1V2    = TMath::Power(F1V,   2);
   double xiF2V2  = TMath::Power(xiF2V, 2);
   double q02     = TMath::Power(q[0],  2);
@@ -979,7 +954,8 @@ const Target& target, bool assumeFreeNucleon) const
 
   if ( imU > kASmallNum )
     return 0.;
-
+  
+  
   if ( !fRPA || assumeFreeNucleon ) {
     CN = 1.0;
     CT = 1.0;
@@ -1035,7 +1011,6 @@ const Target& target, bool assumeFreeNucleon) const
 
   //Additional constants and variables
   const int g[4][4] = {{1,0,0,0},{0,-1,0,0},{0,0,-1,0},{0,0,0,-1}};
-  const std::complex<double> iNum(0,1);
   int leviCivitaIndexArray[4];
   double imaginaryPart = 0;
 
@@ -1071,25 +1046,22 @@ const Target& target, bool assumeFreeNucleon) const
         }
         //real(Lmunu) is symmetric, and imag(Lmunu) is antisymmetric
         //std::complex<double> num(g[mu][mu]*kPrime[mu]*g[nu][nu]*k[nu]+g[nu][nu]*kPrime[nu]*g[mu][mu]*k[mu],imaginaryPart);
-        Lmunu = g[mu][mu]*kPrime[mu]*g[nu][nu]*k[nu]+g[nu][nu]*kPrime[nu]*g[mu][mu]*k[mu] + iNum*imaginaryPart;
-        Lnumu = g[nu][nu]*kPrime[nu]*g[mu][mu]*k[mu]+g[mu][mu]*kPrime[mu]*g[nu][nu]*k[nu ]- iNum*imaginaryPart;
+        Lmunu = g[mu][mu]*kPrime[mu]*g[nu][nu]*k[nu]+g[nu][nu]*kPrime[nu]*g[mu][mu]*k[mu] + 1i*imaginaryPart;
+        Lnumu = g[nu][nu]*kPrime[nu]*g[mu][mu]*k[mu]+g[mu][mu]*kPrime[mu]*g[nu][nu]*k[nu ]- 1i*imaginaryPart;
       } // End Lmunu calculation
-
+      double aux1 = 2*CL*Fp*(Fp*q2 + 4*FA*M);
       if(mu ==0 && nu == 0){
         Amunu = 16.0*F1V2*(2.0*rulin[0][0]*CN+2.0*q[0]*tulin[0]+q2/2.0)+
           2.0*q2*xiF2V2*
           (4.0-4.0*rulin[0][0]/M2-4.0*q[0]*tulin[0]/M2-q02*(4.0/q2+1.0/M2)) +
           4.0*FA2*(2.0*rulin[0][0]+2.0*q[0]*tulin[0]+(q2/2.0-2.0*M2))-
-          (2.0*CL*Fp2*q2+8.0*FA*Fp*CL*M)*q02-16.0*F1V*xiF2V*(-q2+q02)*CN;
+          aux1*q02-16.0*F1V*xiF2V*(-q2+q02)*CN;
         a00 = real(Amunu); // TESTING CODE
         sum += Lmunu*Amunu;
       }else if(mu == 0 && nu == 3){
         Amunu = 16.0*F1V2*((2.0*rulin[0][3]+tulin[0]*dq)*CN+tulin[3]*q[0])+
-          2.0*q2*xiF2V2*
-          (-4.0*rulin[0][3]/M2-2.0*(dq*tulin[0]+q[0]*tulin[3])/M2-dq*q[0]*(4.0/q2+1.0/M2))+
-          4.0*FA2*((2.0*rulin[0][3]+dq*tulin[0])*CL+q[0]*tulin[3])-
-          (2.0*CL*Fp2*q2+8.0*FA*Fp*CL*M)*dq*q[0]-
-          16.0*F1V*xiF2V*dq*q[0];
+          -4.0*q2*xiF2V2*(2.0*rulin[0][3]/M2+(dq*tulin[0]+q[0]*tulin[3])/M2+dq*q[0]*(2.0/q2+0.5/M2))+
+          4.0*FA2*((2.0*rulin[0][3]+dq*tulin[0])*CL+q[0]*tulin[3])-dq*q[0]*(aux1+16.0*F1V*xiF2V);
         a0z= real(Amunu); // TESTING CODE
         Anumu = Amunu;
         sum += Lmunu*Anumu + Lnumu*Amunu;
@@ -1097,8 +1069,7 @@ const Target& target, bool assumeFreeNucleon) const
         Amunu = 16.0*F1V2*(2.0*rulin[3][3]+2.0*dq*tulin[3]-q2/2.0)+
           2.0*q2*xiF2V2*(-4.0-4.0*rulin[3][3]/M2-4.0*dq*tulin[3]/M2-dq2*(4.0/q2+1.0/M2))+
           4.0*FA2*(2.0*rulin[3][3]+2.0*dq*tulin[3]-(q2/2.0-2.0*CL*M2))-
-          (2.0*CL*Fp2*q2+8.0*FA*Fp*CL*M)*dq2-
-          16.0*F1V*xiF2V*(q2+dq2);
+          aux1*dq2-16.0*F1V*xiF2V*q02;
         azz = real(Amunu); // TESTING CODE
         sum += Lmunu*Amunu;
       }else if(mu ==1 && nu == 1){
@@ -1117,7 +1088,7 @@ const Target& target, bool assumeFreeNucleon) const
           16.0*F1V*xiF2V*CT*q2;
         sum += Lmunu*Amunu;
       }else if(mu ==1 && nu == 2){
-        Amunu = sign*16.0*iNum*FA*(xiF2V+F1V)*(-dq*tulin[0]*CT + q[0]*tulin[3]);
+        Amunu = sign*16.0*1i*FA*(xiF2V+F1V)*(-dq*tulin[0]*CT + q[0]*tulin[3]);
         Anumu = -Amunu; // Im(A) is antisymmetric
         axy = imag(Amunu); // TESTING CODE
         sum += Lmunu*Anumu+Lnumu*Amunu;
@@ -1326,4 +1297,484 @@ void NievesQELCCPXSec::CompareNievesTensors(const Interaction* in)
   }
   return;
 } // END TESTING CODE
+//____________________________________________________________________________
+const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* interaction) const
+{
+  
+  if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  
+  // Get kinematics and init-state parameters
+  const Kinematics &   kinematics = interaction -> Kine();
+  const InitialState & init_state = interaction -> InitState();
+  const Target & target = init_state.Tgt();
+
+  // HitNucMass() looks up the PDGLibrary (on-shell) value for the initial
+  // struck nucleon
+  double Mi_onshell = target.HitNucMass();
+  
+  // On-shell mass of final nucleon (from PDGLibrary)
+  double Mf = interaction->RecoilNucleon()->Mass();
+
+  // Isoscalar mass of nucleon
+  double M = (Mi_onshell + Mf)/2;
+  
+  // Note that GetProbeP4 defaults to returning the probe 4-momentum in the
+  // struck nucleon rest frame, so we have to explicitly ask for the lab frame
+  // here
+  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector neutrinoMom = *tempNeutrino;
+  delete tempNeutrino;
+  TLorentzVector inNucleonMom(*init_state.TgtPtr()->HitNucP4Ptr());
+  TLorentzVector inNucleonMomOnShell(inNucleonMom);
+
+  TLorentzVector leptonMom = kinematics.FSLeptonP4();
+  TLorentzVector outNucleonMom = kinematics.HadSystP4();
+  
+  // Apply Pauli blocking if enabled
+  if ( fDoPauliBlocking && target.IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) ) {
+    int final_nucleon_pdg = interaction->RecoilNucleonPdg();
+    double kF = fPauliBlocker->GetFermiMomentum(target, final_nucleon_pdg, target.HitNucPosition());
+    double pNf = outNucleonMom.P();
+    if ( pNf < kF ) 
+    {
+        LOG("Nieves", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
+        fFinalLeptonPolarization = TVector3(0, 0, 0);
+        return fFinalLeptonPolarization;
+    }
+  }
+
+  double outNucleonEnergy = outNucleonMom.E();
+  double inNucleonOnShellEnergy  = TMath::Hypot(M,  inNucleonMomOnShell.P() );
+  outNucleonEnergy = TMath::Hypot(M, outNucleonMom.P() );
+  inNucleonMomOnShell.SetE(inNucleonOnShellEnergy);
+
+  // Calculate Coulomb corrections
+  double ml = interaction->FSPrimLepton()->Mass();
+  double ml2 = ml*ml;
+  double plLocal = leptonMom.P();
+
+  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
+  int sign = is_neutrino ? 1 : -1;
+  double r = target.HitNucPosition();
+  if ( fCoulomb ) 
+  {
+    // Coulomb potential
+    double Vc = vcr(& target, r);
+
+    // Outgoing lepton energy and momentum including Coulomb potential
+    double El = leptonMom.E();
+    double ElLocal = El - sign*Vc;
+
+    if ( ElLocal - ml <= 0. ) 
+    {
+        LOG("Nieves", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
+        fFinalLeptonPolarization = TVector3(0, 0, 0);
+        return fFinalLeptonPolarization;
+    }
+
+    // The Coulomb correction factor blows up as pl -> 0. To guard against
+    // unphysically huge corrections here, require that the lepton kinetic energy
+    // (at infinity) is larger than the magnitude of the Coulomb potential
+    // (should be around a few MeV)
+    double KEl = El - ml;
+    if ( KEl <= TMath::Abs(Vc) ) 
+    {
+        LOG("Nieves", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
+        fFinalLeptonPolarization = TVector3(0, 0, 0);
+        return fFinalLeptonPolarization;
+    }
+
+    // Local value of the lepton 3-momentum magnitude for the Coulomb correction
+    plLocal = TMath::Sqrt(ElLocal*ElLocal - ml2);
+
+  }
+
+  // When computing the contraction of the leptonic and hadronic tensors,
+  // we need to use an effective value of the 4-momentum transfer q.
+  // The energy transfer (q0) needs to be modified to account for the binding
+  // energy of the struck nucleon, while the 3-momentum transfer needs to
+  // be corrected for Coulomb effects.
+  //
+  // See the original Valencia model paper:
+  // https://journals.aps.org/prc/abstract/10.1103/PhysRevC.70.055503
+  double q0Tilde = outNucleonEnergy - inNucleonMomOnShell.E();
+
+  // Shift the q0Tilde if required:
+  if( fQvalueShifter ) q0Tilde *= (1 + fQvalueShifter->Shift(*interaction) ) ;
+
+  // If binding energy effects pull us into an unphysical region, return
+  // zero for the differential cross section
+  if ( q0Tilde <= 0 && target.IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) ) 
+  {
+      LOG("Nieves", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
+      fFinalLeptonPolarization = TVector3(0, 0, 0);
+      return fFinalLeptonPolarization;
+  }
+
+  // Note that we're working in the lab frame (i.e., the rest frame
+  // of the target nucleus). We can therefore use Nieves' explicit
+  // form of the Amunu tensor if we rotate the 3-momenta so that
+  // qTilde is in the +z direction
+  TVector3 neutrinoMom3 = neutrinoMom.Vect();
+  TVector3 leptonMom3 = leptonMom.Vect();
+  TVector3 inNucleonMom3 = inNucleonMom.Vect();
+  TVector3 outNucleonMom3 = outNucleonMom.Vect();
+
+  // If Coulomb corrections are being used, adjust the lepton 3-momentum used
+  // to get q3VecTilde so that its magnitude matches the local
+  // Coulomb-corrected value calculated earlier. Note that, although the
+  // treatment of Coulomb corrections by Nieves et al. doesn't change the
+  // direction of the lepton 3-momentum, it *does* change the direction of the
+  // 3-momentum transfer, and so the correction should be applied *before*
+  // rotating coordinates into a frame where q3VecTilde lies along the positive
+  // z axis.
+  TVector3 leptonMomCoulomb3 = !fCoulomb ? leptonMom3: plLocal*leptonMom3*(1/leptonMom3.Mag());
+  TVector3 q3VecTilde = neutrinoMom3 - leptonMomCoulomb3;
+
+  // Find the rotation angle needed to put q3VecTilde along z
+  TVector3 zvec(0, 0, 1);
+  TVector3 rot = ( q3VecTilde.Cross(zvec) ).Unit(); // Vector to rotate about
+  // Angle between the z direction and q
+  double angle = zvec.Angle( q3VecTilde );
+
+  // Handle the edge case where q3VecTilde is along -z, so the
+  // cross product above vanishes
+  if ( q3VecTilde.Perp() == 0. && q3VecTilde.Z() < 0. ) 
+  {
+    rot = TVector3(0., 1., 0.);
+    angle = kPi;
+  }
+
+  // Rotate if the rotation vector is not 0
+  if ( rot.Mag() > 0 ) 
+  {
+    neutrinoMom3.Rotate(angle,rot);
+    neutrinoMom.SetVect(neutrinoMom3);
+    leptonMom3.Rotate(angle,rot);
+    leptonMom.SetVect(leptonMom3);
+    inNucleonMom3.Rotate(angle,rot);
+    inNucleonMom.SetVect(inNucleonMom3);
+    inNucleonMomOnShell.SetVect(inNucleonMom3);
+    outNucleonMom3.Rotate(angle,rot);
+    outNucleonMom.SetVect(outNucleonMom3);
+  }
+
+  // Calculate q and qTilde
+  TLorentzVector qP4 = neutrinoMom - leptonMom;
+  TLorentzVector qTildeP4(0., 0., q3VecTilde.Mag(), q0Tilde);
+
+  double Q2      = -qP4.Mag2();
+  double Q2tilde = -qTildeP4.Mag2();
+  
+  // Check that Q2tilde > 0 (accounting for rounding errors)
+  if (Q2tilde < 0) 
+  {
+      LOG("Nieves", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
+      fFinalLeptonPolarization = TVector3(0, 0, 0);
+      return fFinalLeptonPolarization;
+  }
+
+  // Store Q2tilde in the kinematic variable representing Q2.
+  // This will ensure that the form factors are calculated correctly
+  // using the de Forest prescription (Q2tilde instead of Q2).
+  interaction->KinePtr()->SetQ2(Q2tilde);
+  // Calculate form factors
+  fFormFactors.Calculate( interaction );
+  // Now that the form factors have been calculated, store Q2
+  // in the event instead of Q2tilde
+  interaction->KinePtr()->SetQ2(Q2);
+
+  bool tgtIsNucleus = target.IsNucleus();
+  int tgt_pdgc = target.Pdg();
+  int A = target.A();
+  int Z = target.Z();
+  int N = target.N();
+  bool hitNucIsProton = pdg::IsProton( target.HitNucPdg() );
+
+
+  // Get the QEL form factors (were calculated before this method was called)
+  double F1V   = 0.5*fFormFactors.F1V();
+  double xiF2V = 0.5*fFormFactors.xiF2V();
+  double FA    = fFormFactors.FA();
+  // According to Nieves' paper, Fp = 2.0*M*FA/(kPionMass2-q2), but Llewelyn-
+  // Smith uses Fp = 2.0*M^2*FA/(kPionMass2-q2), so I divide by M
+  // This gives units of GeV^-1
+  double Fp = fFormFactors.Fp()/M;
+
+  
+  double t0,r00;
+  double CN(1), CT(1), CL(1), imU(0);
+  CNCTCLimUcalc(qTildeP4, M, r, is_neutrino, tgtIsNucleus,
+    tgt_pdgc, A, Z, N, hitNucIsProton, CN, CT, CL, imU,
+    t0, r00, interaction->TestBit( kIAssumeFreeNucleon ));
+
+  if ( imU > 0 )
+  {
+        LOG("Nieves", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
+        fFinalLeptonPolarization = TVector3(0, 0, 0);
+        return fFinalLeptonPolarization;
+    }
+  
+  if ( !fRPA || interaction->TestBit( kIAssumeFreeNucleon ) ) {
+    CN = 1.0;
+    CT = 1.0;
+    CL = 1.0;
+  }
+  
+  // Calculate auxiliary parameters
+  // Off shell mass of initial nucleon
+  double M2      = M*M;
+  double FA2     = FA*FA;
+  double F1V2    = F1V*F1V;
+  double xiF2V2  = xiF2V*xiF2V;
+//  const double q[4] = {qTildeP4.E(),qTildeP4.Px(),qTildeP4.Py(),qTildeP4.Pz()};
+  double q[4] = {qTildeP4.E(),qTildeP4.Px(),qTildeP4.Py(),qTildeP4.Pz()};
+  double q0      = q[0];
+  double dq      = TMath::Sqrt(q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
+  double q02     = q0*q0;
+  double dq2     = dq*dq;
+  double q2      = q02 - dq2;
+
+  double tulin[4], k[4], l[4], s[4], eskl[4];
+  double rulin[4][4];
+  std::complex<double> jp[4], jm[4];
+
+  // For normal code execulation, tulin is the initial nucleon momentum
+  tulin[0] = inNucleonMomOnShell.E();
+  tulin[1] = inNucleonMomOnShell.Px();
+  tulin[2] = inNucleonMomOnShell.Py();
+  tulin[3] = inNucleonMomOnShell.Pz();
+
+  
+  k[0] = neutrinoMom.E();
+  k[1] = -neutrinoMom.Px();
+  k[2] = -neutrinoMom.Py();
+  k[3] = -neutrinoMom.Pz();
+  
+  l[0] = leptonMom.E();
+  l[1] = -leptonMom.Px();
+  l[2] = -leptonMom.Py();
+  l[3] = -leptonMom.Pz();
+  
+  s[0] = leptonMom.P()/ml;
+  s[1] = -leptonMom.Vect().Unit().X()*leptonMom.E()/ml;
+  s[2] = -leptonMom.Vect().Unit().Y()*leptonMom.E()/ml;
+  s[3] = -leptonMom.Vect().Unit().Z()*leptonMom.E()/ml;
+  
+  for (int a = 0; a < 4; a++)
+  {
+    eskl[a] = 0;
+    for (int b = 0; b < 4; b++)
+        {
+            if (b == a) continue;
+            for (int g = 0; g < 4; g++)
+            {
+                if (g == b || g == a) continue;
+                for (int d = 0; d < 4; d++)
+                {
+                    if (d == g || d == b || d == a) continue;
+                    double sb = s[b]*(b == 0?1:-1);
+                    double kg = k[g]*(g == 0?1:-1);
+                    double ld = l[d]*(d == 0?1:-1);
+                    eskl[a] += e(a,b,g,d)*sb*kg*ld;
+                }
+            }
+        }
+  }
+    
+  double kl = neutrinoMom*leptonMom;
+  double ks = k[0]*s[0] - k[1]*s[1] - k[2]*s[2] - k[3]*s[3];
+  
+  for(int i = 0; i < 4; i++)
+      for(int j = i; j < 4; j++)
+        rulin[i][j] = rulin[j][i] = tulin[i]*tulin[j];
+        
+  for (int a = 0; a < 4; a++)
+  {
+     if (is_neutrino)
+     {
+        jp[a] =  (l[a]*ks - s[a]*kl - 1i*eskl[a] + ml*k[a])/sqrt(kl + ml*ks);   //jp_\alpha
+        jm[a] = (-l[a]*ks + s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(kl - ml*ks);   //jm_\alpha
+     }
+     else
+     {
+        jp[a] =  (l[a]*ks - s[a]*kl + 1i*eskl[a] - ml*k[a])/sqrt(kl - ml*ks);   //jp_\alpha
+        jm[a] =  (l[a]*ks - s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(kl + ml*ks);   //jm_\alpha
+     }
+  }
+  
+  //Additional constants and variables
+  std::complex<double> Amunu, Anumu, LWpp(0, 0), LWpm(0, 0), LWmp(0, 0), LWmm(0, 0);
+  double aux1 = 2*CL*Fp*(Fp*q2 + 4*FA*M);
+  double aux2 = 8*(FA2 + 4*F1V2 - xiF2V2*q2/M2);
+  for(int mu = 0; mu < 4; mu++)
+  {
+     for(int nu = mu;nu < 4; nu++)
+     {
+        if (mu == 0 && nu == 0)
+        {
+            Amunu = 32*F1V2*(rulin[0][0]*CN + q[0]*tulin[0] + q2/4)+
+                    8*q2*xiF2V2*(1 - rulin[0][0]/M2 - q[0]*tulin[0]/M2 - q02*(1/q2 + 1/4./M2)) +
+                    8*FA2*(rulin[0][0] + q[0]*tulin[0] + q2/4 - M2)-aux1*q02-16*F1V*xiF2V*(q02 - q2)*CN;
+            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
+            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
+            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
+            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
+        }
+        if (mu == 1 && nu == 1)
+        {
+            Amunu = 32*F1V2*(rulin[1][1] - q2/4)-
+                    8*q2*xiF2V2*(CT + rulin[1][1]/M2) +
+                    8*FA2*(rulin[1][1] + CT*M2 - q2/4)-
+                    16*F1V*xiF2V*CT*q2;
+            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
+            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
+            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
+            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
+        }
+        if (mu == 2 && nu == 2)
+        {
+            Amunu = 32*F1V2*(rulin[2][2] - q2/4)-
+                    8*q2*xiF2V2*(CT + rulin[2][2]/M2) +
+                    8*FA2*(rulin[2][2] + CT*M2 - q2/4)-
+                    16*F1V*xiF2V*CT*q2;
+            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
+            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
+            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
+            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
+        }
+        if (mu == 3 && nu == 3)
+        {
+            Amunu = 32*F1V2*(rulin[3][3] + dq*tulin[3] - q2/4)-
+                    8*q2*xiF2V2*(1 + rulin[3][3]/M2 + dq*tulin[3]/M2 + dq2*(1/q2 + 1/4./M2))+
+                    8*FA2*(rulin[3][3] + dq*tulin[3] + CL*M2 - q2/4) - aux1*dq2 - 16*F1V*xiF2V*q02;
+            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
+            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
+            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
+            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
+        }
+        if (mu == 0 && nu == 1)
+        {
+            Amunu = aux2*(rulin[0][1] + tulin[1]*q[0]/2) - 1i*16.*FA*(F1V + xiF2V)*tulin[2]*dq;
+            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
+            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
+            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
+            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
+            
+            Anumu = aux2*(rulin[0][1] + tulin[1]*q[0]/2) + 1i*16.*FA*(F1V + xiF2V)*tulin[2]*dq;
+            LWpp += jp[nu]*std::conj(jp[mu])*Anumu;
+            LWpm += jp[nu]*std::conj(jm[mu])*Anumu;
+            LWmp += jm[nu]*std::conj(jp[mu])*Anumu;
+            LWmm += jm[nu]*std::conj(jm[mu])*Anumu;
+        }
+        if (mu == 0 && nu == 2)
+        {
+            Amunu = aux2*(rulin[0][2] + tulin[2]*q[0]/2) + 1i*16.*FA*(F1V + xiF2V)*tulin[1]*dq;
+            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
+            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
+            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
+            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
+            
+            Anumu = aux2*(rulin[0][2] + tulin[2]*q[0]/2) - 1i*16.*FA*(F1V + xiF2V)*tulin[1]*dq;
+            LWpp += jp[nu]*std::conj(jp[mu])*Anumu;
+            LWpm += jp[nu]*std::conj(jm[mu])*Anumu;
+            LWmp += jm[nu]*std::conj(jp[mu])*Anumu;
+            LWmm += jm[nu]*std::conj(jm[mu])*Anumu;
+        }
+        if (mu == 0 && nu == 3)
+        {
+            Amunu = 16*F1V2*((2*rulin[0][3] + tulin[0]*dq)*CN + tulin[3]*q[0])+
+                    -4*q2*xiF2V2*(2*rulin[0][3]/M2 + (dq*tulin[0] + q[0]*tulin[3])/M2 + dq*q[0]*(2/q2 + 0.5/M2))+
+                    4*FA2*((2*rulin[0][3] + dq*tulin[0])*CL + q[0]*tulin[3]) - dq*q[0]*(aux1 + 16*F1V*xiF2V);
+            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
+            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
+            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
+            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
+            
+            Anumu = Amunu;
+            LWpp += jp[nu]*std::conj(jp[mu])*Anumu;
+            LWpm += jp[nu]*std::conj(jm[mu])*Anumu;
+            LWmp += jm[nu]*std::conj(jp[mu])*Anumu;
+            LWmm += jm[nu]*std::conj(jm[mu])*Anumu;
+        }
+        if (mu == 1 && nu == 2)
+        {
+            Amunu = -1i*16.*FA*(xiF2V+F1V)*(q[0]*tulin[3] - dq*tulin[0]*CT) + 8.*rulin[1][2]*(FA2 + 4*F1V2 - xiF2V2*q2/M2);
+            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
+            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
+            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
+            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
+            
+            Anumu = 1i*16.*FA*(xiF2V+F1V)*(q[0]*tulin[3] - dq*tulin[0]*CT) + 8.*rulin[1][2]*(FA2 + 4*F1V2 - xiF2V2*q2/M2);
+            LWpp += jp[nu]*std::conj(jp[mu])*Anumu;
+            LWpm += jp[nu]*std::conj(jm[mu])*Anumu;
+            LWmp += jm[nu]*std::conj(jp[mu])*Anumu;
+            LWmm += jm[nu]*std::conj(jm[mu])*Anumu;
+        }
+        if (mu == 1 && nu == 3)
+        {
+            Amunu = aux2*(rulin[1][3] + tulin[1]*dq/2) + 1i*16.*FA*(F1V + xiF2V)*tulin[2]*q[0];
+            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
+            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
+            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
+            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
+            
+            Anumu = aux2*(rulin[1][3] + tulin[1]*dq/2) - 1i*16.*FA*(F1V + xiF2V)*tulin[2]*q[0];
+            LWpp += jp[nu]*std::conj(jp[mu])*Anumu;
+            LWpm += jp[nu]*std::conj(jm[mu])*Anumu;
+            LWmp += jm[nu]*std::conj(jp[mu])*Anumu;
+            LWmm += jm[nu]*std::conj(jm[mu])*Anumu;
+        }
+        
+        if (mu == 2 && nu == 3)
+        {
+            Amunu = aux2*(rulin[2][3] + tulin[2]*dq/2) - 1i*16.*FA*(F1V + xiF2V)*tulin[1]*q[0];
+            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
+            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
+            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
+            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
+            
+            Anumu = aux2*(rulin[2][3] + tulin[2]*dq/2) + 1i*16.*FA*(F1V + xiF2V)*tulin[1]*q[0];
+            LWpp += jp[nu]*std::conj(jp[mu])*Anumu;
+            LWpm += jp[nu]*std::conj(jm[mu])*Anumu;
+            LWmp += jm[nu]*std::conj(jp[mu])*Anumu;
+            LWmm += jm[nu]*std::conj(jm[mu])*Anumu;
+        }
+     }
+  }
+  
+  std::complex<double> LWppmm = LWpp + LWmm;
+  std::complex<double> rhopp = LWpp/LWppmm;
+  std::complex<double> rhopm = LWpm/LWppmm;
+  std::complex<double> rhomp = LWmp/LWppmm;
+  std::complex<double> rhomm = LWmm/LWppmm;
+  double PL = std::real(rhopp - rhomm);
+  double PP = std::real(rhopm + rhomp);
+  double PT = std::imag(rhomp - rhopm);
+  
+  neutrinoMom3 = neutrinoMom.Vect();                                          
+  leptonMom3 = leptonMom.Vect();
+  TVector3 Pz = leptonMom3.Unit();
+  TVector3 Px = neutrinoMom3.Cross(leptonMom3).Unit();
+  TVector3 Py = Pz.Cross(Px);
+  TVector3 pol = PT*Px + PP*Py + PL*Pz;
+  fFinalLeptonPolarization = pol;
+  
+  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+  std::cout << "PL = " << PL << ", PT = " << PT << ", PP = " << PP << "\n";
+  std::cout << fFinalLeptonPolarization.Mag() << "\n";
+  std::cout << "NV@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
+ 
+  return fFinalLeptonPolarization;
+}
+//____________________________________________________________________________
+inline int NievesQELCCPXSec::g(int a, int b) const
+{
+    return (a==b)*(2*(a==0) - 1);
+}
+//____________________________________________________________________________
+inline int NievesQELCCPXSec::e(int a, int b, int c, int d) const
+{
+    return (b - a)*(c - a)*(d - a)*(c - b)*(d - b)*(d - c)/12;
+}
 //____________________________________________________________________________

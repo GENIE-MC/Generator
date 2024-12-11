@@ -138,8 +138,7 @@
    <config alg="genie::ZExpAxialFormFactorModel">                ZExpAxialFormFactorModel.xml                </config>
    <config alg="genie::MArunAxialFormFactorModel">               MArunAxialFormFactorModel.xml               </config>
    <config alg="genie::LwlynSmithFFCC">                          LwlynSmithFFCC.xml                          </config>
-   <config alg="genie::MKFFEM">                                  MKFFEM.xml                                  </config>
-   <config alg="genie::MKFFCC">                                  MKFFCC.xml                                  </config>
+   <config alg="genie::LwlynSmithIsoFFCC">                       LwlynSmithIsoFFCC.xml                       </config>
    <config alg="genie::LwlynSmithFFDeltaS">                      LwlynSmithFFDeltaS.xml                      </config>
    <config alg="genie::TransverseEnhancementFFModel">            TransverseEnhancementFFModel.xml            </config>
    <config alg="genie::LwlynSmithFFNC">                          LwlynSmithFFNC.xml                          </config>
@@ -217,7 +216,7 @@
    <config alg="genie::ReinSehgalRESXSec">                  ReinSehgalRESXSec.xml                  </config>
    <config alg="genie::ReinSehgalSPPXSec">                  ReinSehgalSPPXSec.xml                  </config>
    <config alg="genie::MKSPPPXSec2020">                     MKSPPPXSec2020.xml                     </config>
-   <config alg="genie::SPPXSec">                          SPPXSec.xml                          </config>
+   <config alg="genie::SPPXSec">                            SPPXSec.xml                            </config>
    <config alg="genie::H3AMNuGammaPXSec">                   H3AMNuGammaPXSec.xml                   </config>
    <config alg="genie::EmpiricalMECPXSec2015">              EmpiricalMECPXSec2015.xml              </config>
    <config alg="genie::NievesSimoVacasMECPXSec2016">        NievesSimoVacasMECPXSec2016.xml        </config>

@@ -14,6 +14,8 @@ XSec-Integrator    alg      No
 CabibboAngle       double   No         Cabibbo angle                    CommonParam[CKM]
 QEL-CC-XSecScale   double   yes        XSec Scaling factor for CC       1. 
 QEL-NC-XSecScale   double   yes        XSec Scaling factor for NC       1. 
+PreciseLeptonPol   bool     Yes        Do precise calculation of        No
+                                       lepton polarization
 
 .....................................................................................................
 Parameters needed when Integrating with this model to generate splines:
@@ -40,7 +42,7 @@ IntegralNuclearInfluenceCutoffEnergy double   No
 
      <param type="alg" name = "PauliBlockerAlg"> genie::PauliBlocker/Default </param>
      <param type="bool" name = "DoPauliBlocking"> true </param>
-
+     <param type="bool" name="PreciseLeptonPol"> true  </param>
   </param_set>
 
   <param_set name="Dipole"> 

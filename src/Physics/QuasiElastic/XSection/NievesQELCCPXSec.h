@@ -7,7 +7,7 @@
           with RPA corrections
           Is a concrete implementation of the XSecAlgorithmI interface. \n
 
-\ref      Physical Review C 70, 055503 (2004)
+\ref      1. Physical Review C 70, 055503 (2004)
 
 \author   Joe Johnston, University of Pittsburgh
           Steven Dytman, University of Pittsburgh
@@ -56,6 +56,7 @@ public:
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
+  const  TVector3 & FinalLeptonPolarization (const Interaction* i) const;
 
   // Override the Algorithm::Configure methods to load configuration
   // data to private data members
@@ -144,6 +145,8 @@ private:
   //-1 if input is an odd permutation of 0123, and 0 if any two elements
   //are equal
   int leviCivita(int input[]) const;
+  int e(int a, int b, int c, int d) const;
+  int g(int a, int b) const;
 
   double LmunuAnumu(const TLorentzVector neutrinoMom,
     const TLorentzVector inNucleonMom, const TLorentzVector leptonMom,
