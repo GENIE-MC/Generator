@@ -20,9 +20,15 @@
 #define _PHOTON_COH_GENERATOR_H_
 
 #include "Framework/Conventions/GBuild.h"
+
 #ifdef __GENIE_PYTHIA6_ENABLED__
 #include <TPythia6.h>
 #endif
+
+#ifdef __GENIE_PYTHIA8_ENABLED__
+#include "Framework/Utils/Pythia8Singleton.h"
+#endif
+
 #include <TComplex.h>
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
@@ -53,6 +59,11 @@ private:
 #ifdef __GENIE_PYTHIA6_ENABLED__
   mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
 #endif
+
+#ifdef __GENIE_PYTHIA8_ENABLED__
+  mutable Pythia8::Pythia * fPythia;         ///< PYTHIA6 wrapper class
+#endif
+
 
 };
 

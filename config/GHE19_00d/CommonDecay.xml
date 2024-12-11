@@ -23,10 +23,6 @@ University of Liverpool
 
   <param_set name="DecayFlags"> 
 
-     <param type="bool" name="InhibitDecay/Particle=24,Channel=2"> true </param>
-     <param type="bool" name="InhibitDecay/Particle=24,Channel=6"> true </param>
-     <param type="bool" name="InhibitDecay/Particle=24,Channel=10"> true </param>
-
   <!-- Not decay anything with lifetime higher than pi0 -->
 
      <param type="bool" name="DecayParticleWithCode=15">     false </param>  <!--  tau^{-}           -->

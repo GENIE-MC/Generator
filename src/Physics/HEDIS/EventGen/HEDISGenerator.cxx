@@ -21,15 +21,6 @@
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Conventions/Constants.h"
 
-#include <RVersion.h>
-#ifdef __GENIE_PYTHIA6_ENABLED__
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
-#endif
-
 using namespace genie;
 using namespace genie::utils::math;
 

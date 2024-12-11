@@ -20,12 +20,16 @@
 #define _PHOTON_RES_GENERATOR_H_
 
 #include "Framework/Conventions/GBuild.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Physics/HELepton/XSection/Born.h"
+
 #ifdef __GENIE_PYTHIA6_ENABLED__
 #include <TPythia6.h>
 #endif
 
-#include "Framework/EventGen/EventRecordVisitorI.h"
-#include "Physics/HELepton/XSection/Born.h"
+#ifdef __GENIE_PYTHIA8_ENABLED__
+#include "Pythia8/Pythia.h"
+#endif
 
 namespace genie {
 
@@ -52,6 +56,12 @@ private:
 
 #ifdef __GENIE_PYTHIA6_ENABLED__
   mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
+#endif
+
+#ifdef __GENIE_PYTHIA8_ENABLED__
+  // we need to classes because we have to simulate anue+e->W- (N) and nue+e+>W+ (P) decays
+  mutable Pythia8::Pythia * fPythiaP;
+  mutable Pythia8::Pythia * fPythiaN;
 #endif
 
   double fQ2PDFmin;
