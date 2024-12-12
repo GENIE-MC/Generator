@@ -599,12 +599,10 @@ const TVector3 & LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interactio
 
   // Off shell mass of initial nucleon
   double Mi  = inNucleonMom.M();
-  double Mi2 = inNucleonMom.M2();
   double M   = (Mi + Mf)/2;
   double M2  = M*M;
   double r   = (Mi - Mf)/2/M;
   double r2  = r*r;
-  double mr2 = Mi2/M2;
 
   double tau =  Q2/4/M2;
   double w01 = (1 + tau)*FFAT + tau*FFVM;
@@ -621,11 +619,11 @@ const TVector3 & LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interactio
   double w25 = w22 - FP*FT;
   
   // common factor 2M^2V^2 will be cancelled in the calculation of rho
-  double W1 =  (w01 +       + w21*r2);
-  double W2 =  (w02 + w12*r + w22*r2)*mr2;
-  double W3 =  (w03                 )*mr2;
-  double W4 =  (w04 + w14*r + w24*r2)*mr2;
-  double W5 =  (w05 + w15*r + w25*r2)*mr2;
+  double W1 =  w01 +       + w21*r2;
+  double W2 =  w02 + w12*r + w22*r2;
+  double W3 =  w03                 ;
+  double W4 =  w04 + w14*r + w24*r2;
+  double W5 =  w05 + w15*r + w25*r2;
     
   double p[4], q[4], epq[4][4], k[4], l[4], s[4], eskl[4];
   std::complex<double> jp[4], jm[4];
@@ -720,8 +718,8 @@ const TVector3 & LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interactio
   {
      for(int nu = mu;nu < 4; nu++)
      {
-        double Wreal = -g(mu,nu)*W1 + p[mu]*p[nu]*W2/Mi2 + q[mu]*q[nu]*W4/Mi2 + (p[mu]*q[nu] + q[mu]*p[nu])*W5/2/Mi2;
-        double Wimag = epq[mu][nu]*W3/2/Mi2;
+        double Wreal = -g(mu,nu)*W1 + p[mu]*p[nu]*W2/M2 + q[mu]*q[nu]*W4/M2 + (p[mu]*q[nu] + q[mu]*p[nu])*W5/2/M2;
+        double Wimag = epq[mu][nu]*W3/2/M2;
         Wmunu = Wreal - 1i*Wimag;  // W^\mu\nu
         LWpp += jp[mu]*std::conj(jp[nu])*Wmunu; // Lpp_\mu\nu*W^\mu\nu
         LWpm += jp[mu]*std::conj(jm[nu])*Wmunu; // Lpm_\mu\nu*W^\mu\nu
