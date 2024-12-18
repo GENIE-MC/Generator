@@ -10,6 +10,7 @@
 
 #include "Framework/EventGen/HybridXSecAlgorithm.h"
 #include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
 
 using namespace genie;
 
@@ -80,17 +81,19 @@ double HybridXSecAlgorithm::XSec(const Interaction* interaction,
   const XSecAlgorithmI* alg_to_use = this->ChooseXSecAlg( *interaction );
 
   if ( !alg_to_use ) return 0.;
-  // Ad hoc solution of problem with inappropriate kinematic phase space
-  // reported by Julia so she can continue working.
-  // (The reason of problem: it is intended for LlewelynSmith, 
-  // BUT also used by Rosenbluth)
-  // A more thoughtful solutions could be
-  // 1. Specify in the configuration file the phase space appropriate 
-  // for each algorithm
-  // 2. Implement in RosenbluthPXSec the analog of method 
-  // LwlynSmithQELCCPXSec::FullDifferentialXSec - Igor Kakorin
-  if (alg_to_use == fDefaultXSecAlg) return alg_to_use->XSec( interaction, kps );
-  return alg_to_use->XSec( interaction, kPSQ2fE );
+  // Special case, when the process is EM scattering on free nucleon.
+  // In this case genie::RosenbluthPXSec is used to calculate cross-section.
+  // However, input kps is equal to either kPSTlctl for SuSAv2 
+  // or kPSQELEvGen for LwlynSmithQELCCPXSec (2d phase spaces), 
+  // while RosenbluthPXSec uses kPSQ2fE (1d phase space)
+  // and there is no way to transform 1d to 2d phase space.
+  if ( interaction->ProcInfo().IsEM() && 
+      (interaction->InitState().Tgt().Pdg() == kPdgTgtFreeP || 
+       interaction->InitState().Tgt().Pdg() == kPdgTgtFreeN) 
+     )
+        return alg_to_use->XSec( interaction, kPSQ2fE );
+  return alg_to_use->XSec( interaction, kps );
+  
 }
 //_________________________________________________________________________
 double HybridXSecAlgorithm::Integral(const Interaction* interaction) const
@@ -138,3 +141,13 @@ void HybridXSecAlgorithm::LoadConfig(void)
     assert( fDefaultXSecAlg );
   }
 }
+//____________________________________________________________________________
+const TVector3 & HybridXSecAlgorithm::FinalLeptonPolarization (const Interaction* interaction) const
+{
+  const XSecAlgorithmI* alg_to_use = this->ChooseXSecAlg( *interaction );
+
+  if ( !alg_to_use ) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  
+  return alg_to_use->FinalLeptonPolarization( interaction );
+}
+//____________________________________________________________________________

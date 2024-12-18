@@ -28,6 +28,8 @@
 #ifndef _SUSAV2_QE_PXSEC_H_
 #define _SUSAV2_QE_PXSEC_H_
 
+#include <complex>
+
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/HadronTensors/HadronTensorI.h"
 #include "Physics/HadronTensors/HadronTensorModelI.h"
@@ -49,6 +51,7 @@ public:
   double XSec(const Interaction* i, KinePhaseSpace_t k) const;
   double Integral(const Interaction* i) const;
   bool   ValidProcess(const Interaction* i) const;
+  const  TVector3 & FinalLeptonPolarization (const Interaction* i) const;
 
   // override the Algorithm::Configure methods to load configuration
   // data to private data members
@@ -63,7 +66,9 @@ private:
   // Apply scaling of the first kind to the xsec
   // (A-scaling with tuning based on Fermi momentum)
   double XSecScaling(double xsec, const Interaction* i, int target_pdg, int tensor_pdg, bool need_to_scale) const;
-
+    
+  int e(int a, int b, int c, int d) const;
+  int g(int a, int b) const;
 
   /// External scaling factor for this cross section
   double fXSecCCScale;

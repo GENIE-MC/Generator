@@ -57,7 +57,6 @@ double RosenbluthPXSec::XSec(
   const InitialState & init_state = interaction -> InitState();
   const Kinematics &   kinematics = interaction -> Kine();
   const Target &       target     = init_state.Tgt();
-  const ProcessInfo & proc_info = interaction->ProcInfo();
 
   int nucpdgc = target.HitNucPdg();
   double E  = init_state.ProbeE(kRfHitNucRest);
@@ -203,3 +202,9 @@ void RosenbluthPXSec::LoadConfig(void)
   assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
+const TVector3 & RosenbluthPXSec::FinalLeptonPolarization (const Interaction* interaction) const
+{    
+     LOG("Rosenbluth", pWARN) << "For EM processes doesn't work yet. Set it to zero.";
+     fFinalLeptonPolarization = TVector3(0, 0, 0);
+     return fFinalLeptonPolarization;
+}

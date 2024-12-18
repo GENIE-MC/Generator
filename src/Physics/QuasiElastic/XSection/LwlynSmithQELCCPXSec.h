@@ -48,8 +48,6 @@ public:
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
   const  TVector3 & FinalLeptonPolarization (const Interaction* i) const;
-  int e(int a, int b, int c, int d) const;
-  int g(int a, int b) const;
 
   // Override the Algorithm::Configure methods to load configuration
   // data to private data members
@@ -60,6 +58,9 @@ private:
   double FullDifferentialXSec(const Interaction * i) const;
 
   void LoadConfig (void);
+  
+  int e(int a, int b, int c, int d) const;
+  int g(int a, int b) const;
 
   mutable QELFormFactors       fFormFactors;      ///<
   const QELFormFactorsModelI * fFormFactorsModel; ///<

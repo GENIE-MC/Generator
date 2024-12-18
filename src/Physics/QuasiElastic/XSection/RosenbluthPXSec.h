@@ -40,6 +40,7 @@ public:
   double XSec         (const Interaction * i, KinePhaseSpace_t k) const;
   double Integral     (const Interaction * i) const;
   bool   ValidProcess (const Interaction * i) const;
+  const  TVector3 & FinalLeptonPolarization (const Interaction* i) const;
 
   // override the Algorithm::Configure methods to load configuration
   // data to private data members
