@@ -7,7 +7,9 @@ Configuration sets for GLRESGenerator EventRecordVisitorI
 -->
 
   <param_set name="Default"> 
-   <param type="string" name="CommonParam"> HEDIS-PYTHIA </param>
+   <param type="string" name="CommonDecay">                   DecayFlags </param>
+   <param type="string" name="CommonParam">                 HEDIS-PYTHIA </param>
+   <param type="alg"    name="WDecayer">  genie::GLRESWdecPythia6/Default </param>
   </param_set>
 
 </alg_conf>

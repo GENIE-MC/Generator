@@ -3,89 +3,115 @@
  Copyright (c) 2003-2024, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Alfonso Garcia <alfonsog \at nikhef.nl>
- NIKHEF (Amsterdam)
+ Alfonso Garcia <aagarciasoto \at km3net.de>
+ IFIC (Valencia)
 */
 //____________________________________________________________________________
 
-#include <RVersion.h>
-#include <TClonesArray.h>
-#include <TMath.h>
+#include "Physics/Hadronization/LeptoHadPythia8.h"
 
-#include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/Conventions/Constants.h"
-#include "Framework/Conventions/GBuild.h"
-#include "Framework/GHEP/GHepStatus.h"
-#include "Framework/GHEP/GHepParticle.h"
-#include "Framework/GHEP/GHepRecord.h"
-#include "Framework/GHEP/GHepFlags.h"
-#include "Framework/EventGen/EVGThreadException.h"
-#include "Physics/Hadronization/LeptoHadronization.h"
-#include "Framework/Messenger/Messenger.h"
-#include "Framework/Numerical/RandomGen.h"
-#include "Framework/ParticleData/PDGLibrary.h"
-#include "Framework/ParticleData/PDGCodes.h"
-#include "Framework/ParticleData/PDGUtils.h"
-
-#ifdef __GENIE_PYTHIA6_ENABLED__
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
-#endif // __GENIE_PYTHIA6_ENABLED__
-
-using namespace genie;
-using namespace genie::constants;
-
-#ifdef __GENIE_PYTHIA6_ENABLED__
-// the actual PYTHIA call
-extern "C" {
-  double pyangl_( double *,  double * );
-  void   pykfdi_( int *,  int *, int *, int * );
-  void   pyzdis_( int *,  int *, double *, double * );
-  void   pyrobo_( int *,  int *, double *, double *, double *, double *, double * );
-  void   pydecy_( int * );
-  void   py2ent_( int *,  int *, int *, double * );
+int LeptoHadPythia8::getMeson(int q, int qb, double rnd) const {
+    // options: q -> d=1 / u=1
+    // options: qb -> sb=-3 / cb=-4 / bb=-5
+    int aqb = abs(qb); 
+    int MultipletCode = ( mesonRateSum[aqb-3]*rnd>1 ) ? 1: 3;
+    int idMeson = 100*aqb + 10*q + MultipletCode;
+    if (qb==-4) return -1*idMeson;
+    else        return    idMeson;
 }
-#endif
+
+int LeptoHadPythia8::getBaryon(int qq, int q, double rnd) const {
+    // options: qq -> dd1=1103 / ud0=2101 / ud1=2103 / uu1=2203 
+    // options: q -> d=1 / u=2 / s=3 / c=4 / b=5
+    int id1 = qq / 1000;
+    int id2 = (qq / 100) % 10;
+    int id3 = qq % 10;
+    int spin = id3 - 1;
+    if (spin==2 && id1!=id2) spin = 4;
+    if (q!=id1 && q!=id2) spin++;
+    int o1 = TMath::Max( q, TMath::Max( id1, id2) );
+    int o3 = TMath::Min( q, TMath::Min( id1, id2) );
+    int o2 = q + id1 + id2 - o1 - o3;
+    int spinBar = ( CGSum[spin]*rnd<CGOct[spin] ) ? 2 : 4;
+    if ( spinBar==2 && o1>o2 && o2>o3 && id3==1 ) return 1000*o1 + 100*o3 + 10*o2 + spinBar; //lambdas
+    else                                          return 1000*o1 + 100*o2 + 10*o3 + spinBar;
+}
+
+double LeptoHadPythia8::getRandomZ( double a, double b) const {
+  // fragmentation function f(x) = ((1-x)^a*exp(-b/x))/x
+  // not optimal if a->0 or a->1
+  double zpeak = (b+1.-sqrt(pow(b-1.,2)+4.*a*b))/(1.-a)/2.;
+  if ( zpeak>0.9999 && b>100. ) zpeak = TMath::Min(zpeak, 1.-a/b);
+
+  bool closeto0 = ( zpeak<0.1);
+  bool closeto1 = ( zpeak>0.85 && b>1. );
+
+  double flw = 1.;
+  double fup = 1.;
+  double frn = 2.;
+  double wdt = 0.5;
+
+  if ( closeto0 ) {
+    wdt = 2.75*zpeak;
+    flw = wdt;
+    fup = -wdt*log(wdt);
+    frn = flw+fup;
+  } 
+  else if ( closeto1 ) {
+    double rcb = sqrt(4.+pow(1./b,2));
+    wdt = rcb - 1./zpeak - (1./b)*log(zpeak*(rcb+1./b)/2. );
+    wdt += (a/b)*log(1.-zpeak);
+    wdt = TMath::Min(zpeak,TMath::Max(0.,wdt));
+    flw = 1./b;
+    fup = 1.-wdt;
+    frn = flw+fup;
+  }
+
+  RandomGen * rnd = RandomGen::Instance();
+
+  double z,prel,val;  
+  while(1){
+    z = rnd->RndHadro().Rndm();
+    prel = 1.;
+    if (closeto0) {
+      if ( frn*rnd->RndHadro().Rndm()<flw ) z = wdt*z;
+      else { z = pow(wdt,z); prel = wdt/z; }
+    } else if (closeto1) {
+      if ( frn*rnd->RndHadro().Rndm()<flw) { z = wdt+log(z)/b; prel = exp(b*(z-wdt)); } 
+      else z = wdt+(1.-wdt)*z;
+    }
+    if ( z>0 && z<1 ) {
+      double pw = b*(1./zpeak-1./z)+ log(zpeak/z) + a*log((1.-z)/(1.-zpeak));
+      val = exp(TMath::Max(-50.,TMath::Min(50.,pw)));
+    } 
+    else val = 0.;
+    if ( val >= rnd->RndHadro().Rndm() * prel) break;
+  }
+
+  return z;
+}
+
 
 //____________________________________________________________________________
-LeptoHadronization::LeptoHadronization() :
-EventRecordVisitorI("genie::LeptoHadronization")
+LeptoHadPythia8::LeptoHadPythia8() :
+EventRecordVisitorI("genie::LeptoHadPythia8")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-LeptoHadronization::LeptoHadronization(string config) :
-EventRecordVisitorI("genie::LeptoHadronization", config)
+LeptoHadPythia8::LeptoHadPythia8(string config) :
+EventRecordVisitorI("genie::LeptoHadPythia8", config)
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-LeptoHadronization::~LeptoHadronization()
+LeptoHadPythia8::~LeptoHadPythia8()
 {
 
 }
 //____________________________________________________________________________
-void LeptoHadronization::Initialize(void) const
+void LeptoHadPythia8::ProcessEventRecord(GHepRecord * event) const
 {
-#ifdef __GENIE_PYTHIA6_ENABLED__
-  fPythia = TPythia6::Instance();
-
-  // sync GENIE/PYTHIA6 seed number
-  RandomGen::Instance();
-#endif
-}
-//____________________________________________________________________________
-void LeptoHadronization::ProcessEventRecord(GHepRecord *
-  #ifdef __GENIE_PYTHIA6_ENABLED__
-    event // avoid unused variable warning if PYTHIA6 is not enabled
-  #endif
-) const
-{
-
-#ifdef __GENIE_PYTHIA6_ENABLED__
 
   if(!this->Hadronize(event)) {
     LOG("LeptoHad", pWARN) << "Hadronization failed!";
@@ -97,23 +123,16 @@ void LeptoHadronization::ProcessEventRecord(GHepRecord *
     return;
   }
 
-#else
-  LOG("LeptoHad", pFATAL)
-    << "Calling GENIE/PYTHIA6 without enabling PYTHIA6";
-  gAbortingInErr = true;
-  std::exit(1);
-#endif
-
 }
-//____________________________________________________________________________
-bool LeptoHadronization::Hadronize(GHepRecord *
-#ifdef __GENIE_PYTHIA6_ENABLED__
-  event // avoid unused variable warning if PYTHIA6 is not enabled
+//___________________________________________________________________________
+bool LeptoHadPythia8::Hadronize(GHepRecord * 
+#ifdef __GENIE_PYTHIA8_ENABLED__
+  event // avoid unused variable warning if PYTHIA8 is not enabled
 #endif
 ) const
 {
 
-#ifdef __GENIE_PYTHIA6_ENABLED__
+#ifdef __GENIE_PYTHIA8_ENABLED__
   // Compute kinematics of hadronic system with energy/momentum conservation
   LongLorentzVector p4v( * event->Probe()->P4()                   );
   LongLorentzVector p4N( * event->HitNucleon()->P4()              );
@@ -137,7 +156,7 @@ bool LeptoHadronization::Hadronize(GHepRecord *
   double W = interaction->Kine().W();
   if(W < fWmin) {
     LOG("LeptoHad", pWARN) << "Low invariant mass, W = " << W << " GeV!!";
-    return 0;
+    return false;
   }
 
   const XclsTag &      xclstag    = interaction->ExclTag();
@@ -157,13 +176,7 @@ bool LeptoHadronization::Hadronize(GHepRecord *
   //
   // Generate the hadron combination to input PYTHIA
   //
-
-  double pmas1_W = fPythia->GetPMAS(24,1);
-  double pmas2_W = fPythia->GetPMAS(24,2);
-  double pmas2_t = fPythia->GetPMAS(6,2);
-  fPythia->SetPMAS(24,1,kMw); //mass of the W boson (pythia=80.450 // genie=80.385)
-  fPythia->SetPMAS(24,2,0.);  //set to 0 the width of the W boson to avoid problems with energy conservation
-  fPythia->SetPMAS(6,2,0.);  //set to 0 the width of the top to avoid problems with energy conservation
+  fPythia->event.reset();
 
   //If the hit quark is a d we have these options:
   /* uud(->q)     => uu + q */
@@ -185,13 +198,11 @@ bool LeptoHadronization::Hadronize(GHepRecord *
       return 0;
     }
     // Input the two particles to PYTHIA back to back in the CM frame
-    // If a top quark is produced we decay it because it does not hadronize
-    fPythia->Py1ent( -1, frag_quark, (W*W - m_diquark*m_diquark + m_frag*m_frag)/2./W, 0., 0. ); //k(1,2) = 2
-    if ( pdg::IsTQuark(frag_quark) ) {
-      int ip = 1;
-      pydecy_(&ip);
-    }
-    fPythia->Py1ent( fPythia->GetN()+1,    diquark,  (W*W + m_diquark*m_diquark - m_frag*m_frag)/2./W, fPythia->GetPARU(1), 0. ); //k(2,2) = 1
+    double e_frag    = (W*W - m_diquark*m_diquark + m_frag*m_frag)/2./W;
+    double e_diquark = (W*W + m_diquark*m_diquark - m_frag*m_frag)/2./W;
+    double pz_cm = Pythia8::sqrtpos( e_frag*e_frag - m_frag*m_frag );
+    fPythia->event.append(frag_quark, 23, 101, 0, 0., 0.,  pz_cm, e_frag, m_frag);
+    fPythia->event.append(diquark,    23, 0, 101, 0., 0., -pz_cm, e_diquark, m_diquark);
   }
 
   //If the hit quark is a u we have these options:
@@ -214,17 +225,21 @@ bool LeptoHadronization::Hadronize(GHepRecord *
       return 0;
     }
     // Input the two particles to PYTHIA back to back in the CM frame
-    fPythia->Py1ent( -1, frag_quark, (W*W - m_diquark*m_diquark + m_frag*m_frag)/2./W, 0., 0. ); //k(1,2) = 2
-    fPythia->Py1ent( fPythia->GetN()+1,    diquark,  (W*W + m_diquark*m_diquark - m_frag*m_frag)/2./W, fPythia->GetPARU(1), 0. ); //k(2,2) = 1
+    double e_frag    = (W*W - m_diquark*m_diquark + m_frag*m_frag)/2./W;
+    double e_diquark = (W*W + m_diquark*m_diquark - m_frag*m_frag)/2./W;
+    double pz_cm = Pythia8::sqrtpos( e_frag*e_frag - m_frag*m_frag );
+    fPythia->event.append(frag_quark, 23, 101, 0, 0., 0.,  pz_cm, e_frag, m_frag);
+    fPythia->event.append(diquark,    23, 0, 101, 0., 0., -pz_cm, e_diquark, m_diquark);
   }
-  else {
 
-    // If the hit quark is not u or d then is more complicated.
-    // We are using the same procedure use in LEPTO (see lqev.F)
-    // Our initial systemt will look like this          ->  qqq + hit_q(->frag_q) + rema_q
-    // And we have to input PYTHIA something like this  ->  frag_q + rema  + hadron
-    // These are the posible combinations               ->  frag_q[q] + meson [qqb]  + diquark [qq]
-    //                                                  ->  frag_q[qb] + baryon [qqq] + quark [q]
+
+  // If the hit quark is not u or d then is more complicated.
+  // We are using the same procedure use in LEPTO (see lqev.F)
+  // Our initial systemt will look like this          ->  qqq + hit_q(->frag_q) + rema_q
+  // And we have to input PYTHIA something like this  ->  frag_q + rema  + hadron
+  // These are the posible combinations               ->  frag_q[q] + meson [qqb]  + diquark [qq]
+  //                                                  ->  frag_q[qb] + baryon [qqq] + quark [q]
+  else {
 
     // Remnant of the hit quark (which is from the sea) will be of opposite charge
     int rema_hit_quark = -hit_quark;
@@ -262,13 +277,12 @@ bool LeptoHadronization::Hadronize(GHepRecord *
         else                   diquark = 1000*ntwoq+100*ntwoq+3;
 
         // Choose flavours using PYTHIA tool
-        int idum;
         if ( rema_hit_quark>0 ) { //create a baryon (qqq)
-          pykfdi_(&diquark,&rema_hit_quark,&idum,&hadron);
+          hadron = getBaryon(diquark,rema_hit_quark,rnd->RndHadro().Rndm());
           rema = valquark;
         }
         else {                    //create a meson (qqbar)
-          pykfdi_(&valquark,&rema_hit_quark,&idum,&hadron);
+          hadron = getMeson(valquark,rema_hit_quark,rnd->RndHadro().Rndm());
           rema = diquark;
         }
       }
@@ -280,14 +294,11 @@ bool LeptoHadronization::Hadronize(GHepRecord *
       double pT  = fRemnantPT * TMath::Sqrt( -1*TMath::Log( rnd->RndHadro().Rndm() ) );
       double pT2 = TMath::Power(pT,2);
       double pr  = TMath::Power(m_hadron,2)+pT2;
-      int kfl1 = 1;
-      int kfl3 = 0;
-      double z;
       //to generate the longitudinal scaling variable z in jet fragmentation using PYTHIA function
       // Split energy-momentum of remnant using PYTHIA function
       // z=E-pz fraction for rema forming jet-system with frag_q
       // 1-z=E-pz fraction for hadron
-      pyzdis_(&kfl1,&kfl3,&pr,&z);
+      double z = getRandomZ(Afrag,Bfrag*pr);
 
       // Energy of trasnfered to the hadron
       double tm_hadron = pr / z / W;
@@ -305,40 +316,40 @@ bool LeptoHadronization::Hadronize(GHepRecord *
         double E_frag    = 0.5 * ( WT + ( TMath::Power(m_frag,2) - tm_rema)/WT ); //E_frag + E_rema = WT
         double E_rema    = 0.5 * ( WT + (-TMath::Power(m_frag,2) + tm_rema)/WT );
         double x_rema    = -1 * TMath::Sqrt( TMath::Power(E_rema,2) - tm_rema );
-        double theta_rema = pyangl_(&x_rema,&pT);
+        double theta_rema;
+        theta_rema = TMath::ATan2(pT,x_rema);
 
         // Select a phi angle between between particles randomly
         double phi = 2*kPi*rnd->RndHadro().Rndm();
 
+        double dbez = (E_pz-(1-z)*W)/(E_pz+(1-z)*W);
+        double pz_hadron  = -0.5 * ( z*W - tm_hadron );
+
         // Input the three particles to PYTHIA in the CM frame
         // If a top quark is produced we decay it because it does not hadronize
-        fPythia->Py1ent( -1, frag_quark, E_frag, 0.,         0. );           //k(1,2) = 2
-        if (TMath::Abs(frag_quark) > 5 ) {
-          int ip = 1;
-          pydecy_(&ip);
-        }
-        fPythia->Py1ent( fPythia->GetN()+1, rema, E_rema, theta_rema, phi ); //k(2,2) = 1
+        fPythia->event.append(frag_quark, 23, 101, 0, 0., 0., sqrt(E_frag*E_frag-m_frag*m_frag), E_frag, m_frag);
 
-        int imin     = 0;
-        int imax     = 0;
-        double the  = 0.; double ph   = 0.;
-        double dbex = 0.; double dbey = 0.; double dbez = (E_pz-(1-z)*W)/(E_pz+(1-z)*W);
-        pyrobo_( &imin , &imax, &the, &ph, &dbex, &dbey , &dbez );
+        double p_rema  = sqrt(E_rema*E_rema-m_rema*m_rema);
+        fPythia->event.append(rema, 23, 0, 101, p_rema*sin(theta_rema)*sin(phi), p_rema*sin(theta_rema)*cos(phi), p_rema*cos(theta_rema), E_rema, m_rema);
 
-        double pz_hadron  = -0.5 * ( z*W - tm_hadron );
-        double theta_hadron = pyangl_(&pz_hadron,&pT);
-        fPythia->SetMSTU( 10, 1 ); //keep the mass value stored in P(I,5), whatever it is.
-        fPythia->SetP( fPythia->GetN()+1, 5, m_hadron );
-        fPythia->Py1ent( fPythia->GetN()+1, hadron, E_hadron, theta_hadron, phi + kPi );
-        fPythia->SetMSTU( 10, 2 ); //find masses according to mass tables as usual.
+        fPythia->event.bst(0,0,dbez);
+
+        double theta_hadron = TMath::ATan2(pT,pz_hadron);
+
+        double p_hadron = sqrt(E_hadron*E_hadron-m_hadron*m_hadron);
+        fPythia->event.append(hadron, 23, 0, 0, p_hadron*sin(theta_hadron)*sin(phi+kPi), p_hadron*sin(theta_hadron)*cos(phi+kPi), p_hadron*cos(theta_hadron), E_hadron, m_hadron);
 
         // Target remnants required to go backwards in hadronic cms
-        if ( fPythia->GetP(fPythia->GetN()-1,3)<0 && fPythia->GetP(fPythia->GetN(),3)<0 ) break; //quit the while from line 368
+        int nsize = fPythia->event.size();
+        if ( fPythia->event[nsize-1].pz()<0 && fPythia->event[nsize-2].pz()<0 ) break; //quit the while( counter<fMaxIterHad )
+
+        // break;
 
         LOG("LeptoHad", pINFO) << "Not backward hadron or rema";
-        LOG("LeptoHad", pINFO) << "hadron     = " << hadron     << " -> Pz = " << fPythia->GetP(fPythia->GetN(),3) ;
-        LOG("LeptoHad", pINFO) << "rema = " << rema << " -> Pz = " << fPythia->GetP(fPythia->GetN()-1,3) ;
-
+        LOG("LeptoHad", pINFO) << "hadron     = " << hadron     << " -> Pz = " << fPythia->event[nsize-1].pz() ;
+        LOG("LeptoHad", pINFO) << "rema = " << rema << " -> Pz = " << fPythia->event[nsize-2].pz() ;
+        fPythia->event.reset();
+        
       }
       else {
         LOG("LeptoHad", pINFO) << "Low WT value ... ";
@@ -360,36 +371,22 @@ bool LeptoHadronization::Hadronize(GHepRecord *
   double pT  = fPrimordialKT * TMath::Sqrt( -1*TMath::Log( rnd->RndHadro().Rndm() ) );
   double phi   = -2*kPi*rnd->RndHadro().Rndm();
   double theta = 0.;
-  int imin     = 0;
-  int imax     = 0;
-  double dbex = 0.; double dbey = 0.; double dbez = 0;
-  pyrobo_( &imin , &imax, &theta, &phi, &dbex, &dbey , &dbez );
+
+  fPythia->event.rot(theta,phi);
   phi   = -1 * phi;
   theta = TMath::ATan(2.*pT/W);
-  pyrobo_( &imin , &imax, &theta, &phi, &dbex, &dbey , &dbez );
+  fPythia->event.rot(theta,phi);
 
+  fPythia->event.list();
+  fPythia->stat();
 
   // Run PYTHIA with the input particles
-  fPythia->Pyexec();
-
-  fPythia->SetPMAS(24,1,pmas1_W);
-  fPythia->SetPMAS(24,2,pmas2_W);
-  fPythia->SetPMAS(6,2,pmas2_t);
-
-  // Use for debugging purposes
-  //fPythia->Pylist(3);
-
-  // get LUJETS record
-  fPythia->GetPrimaries();
-  TClonesArray * pythia_particles = (TClonesArray *) fPythia->ImportParticles("All");
-
-  // copy PYTHIA container to a new TClonesArray so as to transfer ownership
-  // of the container and of its elements to the calling method
-
-  int np = pythia_particles->GetEntries();
+  fPythia->next();
+  fPythia->event.list();
+  fPythia->stat();
+  Pythia8::Event &fEvent = fPythia->event;
+  int np = fEvent.size();
   assert(np>0);
-  TClonesArray * particle_list = new TClonesArray("genie::GHepParticle", np);
-  particle_list->SetOwner(true);
 
   // Boost velocity HCM -> LAB
   long double beta = p4Hadlong.P()/p4Hadlong.E();
@@ -402,15 +399,15 @@ bool LeptoHadronization::Hadronize(GHepRecord *
   int mom = event->FinalStateHadronicSystemPosition();
   assert(mom!=-1);
 
-  TMCParticle * p = 0;
-  TIter particle_iter(pythia_particles);
-  while( (p = (TMCParticle *) particle_iter.Next()) ) {
+  for (int i = 1; i < np; i++) { // ignore first entry -> (system) pseudoparticle
 
-    int pdgc = p->GetKF();
-    int ks   = p->GetKS();
+    int pdgc = fEvent[i].id();
+    if (!PDGLibrary::Instance()->Find(pdgc)) continue; // some intermediate particles not part of genie tables
+
+    int ks   = fEvent[i].status();
 
     // Final state particles can not be quarks or diquarks but colorless
-    if(ks == 1) {
+    if(ks > 0) {
       if( pdg::IsQuark(pdgc) || pdg::IsDiQuark(pdgc) ) {
         LOG("LeptoHad", pERROR) << "Hadronization failed! Bare quark/di-quarks appear in final state!";
         return false;
@@ -425,17 +422,15 @@ bool LeptoHadronization::Hadronize(GHepRecord *
 
     // fix numbering scheme used for mother/daughter assignments
     if ( isTop ) {
-      (p->GetParent()==0) ? p->SetParent(p->GetParent() - 1) : p->SetParent(p->GetParent() - 2);
-      p->SetFirstChild (p->GetFirstChild() - 2);
-      p->SetLastChild  (p->GetLastChild()  - 2);
+      (fEvent[i].mother1()==0) ? fEvent[i].mothers(fEvent[i].mother1()-1,fEvent[i].mother2()) : fEvent[i].mothers(fEvent[i].mother1()-2,fEvent[i].mother2());
+      fEvent[i].daughters(fEvent[i].daughter1()-2,fEvent[i].daughter2()-2);
     }
     else  {
-      p->SetParent(p->GetParent() - 1);
-      p->SetFirstChild (p->GetFirstChild() - 1);
-      p->SetLastChild  (p->GetLastChild()  - 1);
+      fEvent[i].mothers(fEvent[i].mother1()-1,fEvent[i].mother2());
+      fEvent[i].daughters(fEvent[i].daughter1()-1,fEvent[i].daughter2()-1);
     }
 
-    LongLorentzVector p4long( p->GetPx(), p->GetPy(), p->GetPz(), p->GetEnergy()  );
+    LongLorentzVector p4long( fEvent[i].px(), fEvent[i].py(), fEvent[i].pz(), fEvent[i].e()  );
     p4long.BoostZ(beta);
     p4long.Rotate(p4Hadlong);
 
@@ -445,7 +440,7 @@ bool LeptoHadronization::Hadronize(GHepRecord *
     // Somtimes PYTHIA output particles with E smaller than its mass. This is wrong,
     // so we assume that the are at rest.
     double massPDG = PDGLibrary::Instance()->Find(pdgc)->Mass();
-    if ( (ks==1 || ks==4) && p4.E() < massPDG ) {
+    if ( ks>0 && p4.E()<massPDG ) {
       LOG("LeptoHad", pINFO) << "Putting at rest one stable particle generated by PYTHIA because E < m";
       LOG("LeptoHad", pINFO) << "PDG = " << pdgc << " // State = " << ks;
       LOG("LeptoHad", pINFO) << "E = " << p4.E() << " // |p| = " << p4.P();
@@ -455,45 +450,45 @@ bool LeptoHadronization::Hadronize(GHepRecord *
     }
 
     // copy final state particles to the event record
-    GHepStatus_t ist = (ks==1 || ks==4) ? kIStStableFinalState : kIStDISPreFragmHadronicState;
+    GHepStatus_t ist = (ks>0) ? kIStStableFinalState : kIStDISPreFragmHadronicState;
 
-    int im  = mom + 1 + p->GetParent();
-    int ifc = (p->GetFirstChild() <= -1) ? -1 : mom + 1 + p->GetFirstChild();
-    int ilc = (p->GetLastChild()  <= -1) ? -1 : mom + 1 + p->GetLastChild();
+    int im  = mom + 1 + fEvent[i].mother1();
+    int ifc = (fEvent[i].daughter1() <= -1) ? -1 : mom + 1 + fEvent[i].daughter1();
+    int ilc = (fEvent[i].daughter2()  <= -1) ? -1 : mom + 1 + fEvent[i].daughter2();
 
-    double vx = vtx.X() + p->GetVx()*1e12; //pythia gives position in [mm] while genie uses [fm]
-    double vy = vtx.Y() + p->GetVy()*1e12;
-    double vz = vtx.Z() + p->GetVz()*1e12;
-    double vt = vtx.T() + p->GetTime()*(units::millimeter/units::second);
+    double vx = vtx.X() + fEvent[i].xProd()*1e12; //pythia gives position in [mm] while genie uses [fm]
+    double vy = vtx.Y() + fEvent[i].yProd()*1e12;
+    double vz = vtx.Z() + fEvent[i].zProd()*1e12;
+    double vt = vtx.T() + fEvent[i].tProd()*(units::millimeter/units::second);
     TLorentzVector pos( vx, vy, vz, vt );
 
     event->AddParticle( pdgc, ist, im,-1, ifc, ilc, p4, pos );
 
   }
-  return true;
 
+  return true;
 #else
   return false;
-#endif // __GENIE_PYTHIA6_ENABLED__
+#endif
 
 }
 //____________________________________________________________________________
-void LeptoHadronization::Configure(const Registry & config)
+void LeptoHadPythia8::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void LeptoHadronization::Configure(string config)
+void LeptoHadPythia8::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void LeptoHadronization::LoadConfig(void)
+void LeptoHadPythia8::LoadConfig(void)
 {
 
-
+#ifdef __GENIE_PYTHIA8_ENABLED__
   GetParam("MaxIter-Had", fMaxIterHad ) ;
 
   // Width of Gaussian distribution for transverse momentums
@@ -504,22 +499,75 @@ void LeptoHadronization::LoadConfig(void)
   // It is, with quark masses added, used to define the minimum allowable energy of a colour-singlet parton system.
   GetParam( "Energy-Singlet", fMinESinglet ) ;
 
-#ifdef __GENIE_PYTHIA6_ENABLED__
-  // PYTHIA parameters only valid for HEDIS
   GetParam( "Xsec-Wmin", fWmin ) ;
-  fPythia->SetPARP(2,  fWmin); //(D = 10. GeV) lowest c.m. energy for the event as a whole that the program will accept to simulate. (bellow 2GeV pythia crashes)
 
-  int warnings;       GetParam( "Warnings",      warnings ) ;
-  int errors;         GetParam( "Errors",        errors ) ;
-  int qrk_mass;       GetParam( "QuarkMass",     qrk_mass ) ;
+  GetParam( "SSBarSuppression",       fSSBarSuppression       );
+  GetParam( "GaussianPt2",            fGaussianPt2            );
+  GetParam( "NonGaussianPt2Tail",     fNonGaussianPt2Tail     );
+  GetParam( "RemainingEnergyCutoff",  fRemainingECutoff       );
+  GetParam( "DiQuarkSuppression",     fDiQuarkSuppression     );
+  GetParam( "LightVMesonSuppression", fLightVMesonSuppression );
+  GetParam( "SVMesonSuppression",     fSVMesonSuppression     );
+  GetParam( "Lunda",                  fLunda                  );
+  GetParam( "Lundb",                  fLundb                  );
+  GetParam( "LundaDiq",               fLundaDiq               );
 
-  fPythia->SetMSTU(26, warnings);     // (Default=10) maximum number of warnings that are printed
-  fPythia->SetMSTU(22, errors);       // (Default=10) maximum number of errors that are printed
-  fPythia->SetMSTJ(93, qrk_mass);     // light (d, u, s, c, b) quark masses are taken from PARF(101) - PARF(105) rather than PMAS(1,1) - PMAS(5,1). Diquark masses are given as sum of quark masses, without spin splitting term.
+  fPythia->settings.parm("StringFlav:probStoUD",         fSSBarSuppression);
+  fPythia->settings.parm("Diffraction:primKTwidth",      fGaussianPt2);
+  fPythia->settings.parm("StringPT:enhancedFraction",    fNonGaussianPt2Tail);
+  fPythia->settings.parm("StringFragmentation:stopMass", fRemainingECutoff);
+  fPythia->settings.parm("StringFlav:probQQtoQ",         fDiQuarkSuppression);
+  fPythia->settings.parm("StringFlav:mesonUDvector",     fLightVMesonSuppression);
+  fPythia->settings.parm("StringFlav:mesonSvector",      fSVMesonSuppression);
+  fPythia->settings.parm("StringZ:aLund",                fLunda);
+  fPythia->settings.parm("StringZ:bLund",                fLundb);
+  fPythia->settings.parm("StringZ:aExtraDiquark",        fLundaDiq);
 
-  fPythia->SetPMAS(24,1,kMw);  //mass of the W boson (pythia=80.450 // genie=80.385)
-  fPythia->SetPMAS(24,2,0.);   //set to 0 the width of the W boson to avoid problems with energy conservation
-  fPythia->SetPMAS(6,2,0.);    //set to 0 the width of the top to avoid problems with energy conservation
+  // Same default mass of the W boson in pythia8 and genie, so no need to change in pythia8
+  // No problem with energy conservation W and top decays, so no need to set the width to 0
+
+  Afrag = fPythia->settings.parm("StringZ:aLund");
+  Bfrag = fPythia->settings.parm("StringZ:bLund");
+
+  bool isAvalid = true;
+  if (Afrag<0.02 || abs(Afrag-1)==0.01 ) isAvalid = false;
+  if (!isAvalid) {
+    LOG("LeptoHad", pFATAL) << "Invalid A factor for fragmenation function" ;
+    LOG("LeptoHad", pFATAL) << "A must be (>0.02 & <0.99) | >1.01" ;
+    exit(1);
+  }
+
+  mesonRateSum[0] = 1. + fPythia->settings.parm("StringFlav:mesonSvector"); //0.55 
+  mesonRateSum[1] = 1. + fPythia->settings.parm("StringFlav:mesonCvector"); //0.88 
+  mesonRateSum[2] = 1. + fPythia->settings.parm("StringFlav:mesonBvector"); //2.20 
+
+  double decupletSup = fPythia->settings.parm("StringFlav:decupletSup");;
+  for (int i = 0; i < 6; ++i) CGSum[i] = CGOct[i] + decupletSup*CGDec[i];
+
+  LOG("LeptoHad", pINFO) << "Initialising PYTHIA..." ;
+  fPythia->init(); 
 #endif
 
 }
+//____________________________________________________________________________
+void LeptoHadPythia8::Initialize(void) const
+{
+
+#ifdef __GENIE_PYTHIA8_ENABLED__
+  fPythia = Pythia8Singleton::Instance()->Pythia8();
+
+  fPythia->readString("Print:quiet = on");
+
+  // sync GENIE and PYTHIA8 seeds
+  RandomGen * rnd = RandomGen::Instance();
+  long int seed = rnd->GetSeed();
+  fPythia->readString("Random:setSeed = on");
+  fPythia->settings.mode("Random:seed", seed);
+  LOG("LeptoHad", pINFO) << "PYTHIA8  seed = " << fPythia->settings.mode("Random:seed");
+
+  //needed to only do hadronization
+  fPythia->readString("ProcessLevel:all = off");
+#endif
+
+}
+
