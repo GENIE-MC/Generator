@@ -115,7 +115,8 @@
    <config alg="genie::Pythia6Hadro2019">        Pythia6Hadro2019.xml        </config>
    <config alg="genie::Pythia8Hadro2019">        Pythia8Hadro2019.xml        </config>
    <config alg="genie::AGCharmPythiaBaseHadro2023"> AGCharm2023.xml             </config>
-   <config alg="genie::LeptoHadronization">      LeptoHadronization.xml      </config>
+   <config alg="genie::LeptoHadPythia6">            HEDISGenerator.xml      </config>
+   <config alg="genie::LeptoHadPythia8">            HEDISGenerator.xml      </config>
 
    <!-- ****** CONFIGURATION FOR PARTON DENSITY FUNCTION ALGORITHMS ****** -->
    <config alg="genie::GRV98LO">                     GRV98LO.xml                     </config>
@@ -276,4 +277,13 @@
    <config alg="genie::NormGenerator">                       NormGenerator.xml                  </config>
    <config alg="genie::NormXSec">                            NormXSec.xml                       </config>
    <config alg="genie::NormInteractionListGenerator">        NormInteractionListGenerator.xml   </config>
+
+   <!-- ****** CONFIGURATION FOR HELEPTON W DECAY ALGORITHMS ****** -->
+   <config alg="genie::GLRESWdecPythia6">         GLRESGenerator.xml          </config>
+   <config alg="genie::GLRESWdecPythia8">         GLRESGenerator.xml          </config>
+   <config alg="genie::PhotonCOHWdecPythia6">     PhotonCOHGenerator.xml      </config>
+   <config alg="genie::PhotonCOHWdecPythia8">     PhotonCOHGenerator.xml      </config>
+   <config alg="genie::PhotonRESWdecPythia6">     PhotonRESGenerator.xml      </config>
+   <config alg="genie::PhotonRESWdecPythia8">     PhotonRESGenerator.xml      </config>
+
 </genie_config>

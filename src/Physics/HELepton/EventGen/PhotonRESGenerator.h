@@ -19,17 +19,9 @@
 #ifndef _PHOTON_RES_GENERATOR_H_
 #define _PHOTON_RES_GENERATOR_H_
 
-#include "Framework/Conventions/GBuild.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
-#include "Physics/HELepton/XSection/Born.h"
 
-#ifdef __GENIE_PYTHIA6_ENABLED__
-#include <TPythia6.h>
-#endif
-
-#ifdef __GENIE_PYTHIA8_ENABLED__
-#include "Pythia8/Pythia.h"
-#endif
+using namespace genie;
 
 namespace genie {
 
@@ -41,32 +33,18 @@ public :
  ~PhotonRESGenerator();
 
   // implement the EventRecordVisitorI interface
-  void Initialize         (void)               const;
-  void ProcessEventRecord (GHepRecord * evrec) const;
+  void ProcessEventRecord (GHepRecord * event) const;
 
-  // overload the Algorithm::Configure() methods to load private data
+  // Overload the Algorithm::Configure() methods to load private data
   // members from configuration options
-  void Configure(const Registry & config);
-
-  void Configure(string config);
+  virtual void Configure(const Registry & config);
+  virtual void Configure(string config);
 
 private:
 
-  void LoadConfig(void);
+  void LoadConfig         (void);
 
-#ifdef __GENIE_PYTHIA6_ENABLED__
-  mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
-#endif
-
-#ifdef __GENIE_PYTHIA8_ENABLED__
-  // we need to classes because we have to simulate anue+e->W- (N) and nue+e+>W+ (P) decays
-  mutable Pythia8::Pythia * fPythiaP;
-  mutable Pythia8::Pythia * fPythiaN;
-#endif
-
-  double fQ2PDFmin;
-
-  Born * born;
+  const EventRecordVisitorI * fWDecayer; ///< PYTHIA W decayer
 
 };
 

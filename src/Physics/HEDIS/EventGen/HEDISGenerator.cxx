@@ -13,7 +13,6 @@
 //____________________________________________________________________________
 
 #include "Physics/HEDIS/EventGen/HEDISGenerator.h"
-#include "Physics/Hadronization/LeptoHadronization.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/Messenger/Messenger.h"
