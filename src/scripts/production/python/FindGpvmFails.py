@@ -10,7 +10,7 @@ import os
         Alon Sportes (Tel Aviv University) 
         Julia Tena Vidal (Tel Aviv University) 
 Copyright:
-   Copyright (c) 2003-2024, The GENIE Collaboration
+   Copyright (c) 2003-2025, The GENIE Collaboration
    For the full text of the license visit http://copyright.genie-mc.org
 """
 

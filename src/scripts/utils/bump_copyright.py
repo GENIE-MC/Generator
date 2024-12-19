@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 """
 Walk the directory tree and replace the '20XX' copyright dates in lines with
-'Copyright 2003-20XX' with '2016'. Usage:
+'Copyright 2003-20XX' with '2025'. Usage:
 
     ./bump_copyright.py          # use "." as the start directory
     ./bump_copyright.py dirname  # use dirname as the start directory
+
+NOTE: This script has not been updated for python3 yet.
 """
 
 from __future__ import print_function
@@ -14,7 +16,7 @@ import sys
 
 
 search_string = r'Copyright \(c\) 2003-20\d\d'
-replace_string = r'Copyright (c) 2003-2020'
+replace_string = r'Copyright (c) 2003-2025'
 
 
 def has_hidden_dirs(dirpath):
