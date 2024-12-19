@@ -3,10 +3,10 @@
 
 \class    genie::LocalFGM
 
-\brief    local Fermi gas model. Implements the NuclearModelI 
+\brief    local Fermi gas model. Implements the NuclearModelI
           interface.
 
-\ref      
+\ref
 
 \author   Joe Johnston, Steven Dytman
 
@@ -14,7 +14,7 @@
 
 \cpright  Copyright (c) 2003-2024, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          
+
 */
 //____________________________________________________________________________
 
@@ -25,7 +25,6 @@
 
 #include <TH1D.h>
 
-#include "Framework/Conventions/Units.h"
 #include "Physics/NuclearState/NuclearModelI.h"
 
 using std::map;
@@ -54,9 +53,9 @@ public:
   double Prob (double p, double w, const Target & t) const {
     return Prob(p,w,t,0.0);
   }
-  NuclearModel_t ModelType       (const Target &) const 
-  { 
-    return kNucmLocalFermiGas; 
+  NuclearModel_t ModelType       (const Target &) const
+  {
+    return kNucmLocalFermiGas;
   }
 
   virtual double LocalFermiMomentum( const Target & t, int nucleon_pdg, double radius ) const ;
@@ -73,21 +72,29 @@ public:
 private:
   TH1D * ProbDistro (const Target & t, double r) const;
 
-  /// Throw a value from the Maxwell-Boltzmann distribution with the configured parameters
-  double MaxwellBoltzmannRemovalE(const Target & t, double Ermv_min=0, double Ermv_max=1.0*genie::units::GeV) const;
+  /// Throw a value from the Maxwell-Boltzmann distribution with the configured
+  /// parameters
+  double MaxwellBoltzmannRemovalE(const Target & t, double Ermv_min,
+    double Ermv_max) const;
 
   map<int, double> fNucRmvE;
 
   double fPMax;
   bool fMomDepErmv;
   bool fForcePositiveErmv;
+  bool fUseMBDist;
 
   // options related to SRC pairs
   double fSRC_Fraction;
   double fPCutOff;
-  double fSRC_Ermv_C;      ///< center of Maxwell-Boltmann distribution used for SRC removal energy distribution, GeV/c
-  double fSRC_Ermv_sigma;  ///< sigma of Maxwell-Boltmann distribution used for SRC removal energy distribution,  GeV/c
 
+  /// Center of Maxwell-Boltmann distribution used for SRC removal energy
+  /// distribution, GeV
+  double fSRC_Ermv_C;
+
+  /// Sigma of Maxwell-Boltmann distribution used for SRC removal energy
+  /// distribution, GeV
+  double fSRC_Ermv_sigma;
 };
 
 }         // genie namespace
