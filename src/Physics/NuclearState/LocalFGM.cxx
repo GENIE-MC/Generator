@@ -2,7 +2,7 @@
 /*
  Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- 
+
 
  Author: Joe Johnston, University of Pittsburgh (Advisor Steven Dytman)
 
@@ -87,7 +87,7 @@ bool LocalFGM::GenerateNucleon(const Target & target,
   bool doThrow = true;
   while(doThrow){
     p = prob->GetRandom();
-    
+
     LOG("LocalFGM", pINFO) << "|p,nucleon| = " << p;
 
     px = p*sintheta*cosfi;
@@ -98,15 +98,15 @@ bool LocalFGM::GenerateNucleon(const Target & target,
 
     if (fMomDepErmv) {
       // hit nucleon mass
-      double nucl_mass = target.HitNucMass(); 
+      double nucl_mass = target.HitNucMass();
       // get the local Fermi momentum
-      double KF = LocalFermiMomentum( target, target.HitNucPdg(), hitNucleonRadius); 
-      
+      double KF = LocalFermiMomentum( target, target.HitNucPdg(), hitNucleonRadius);
+
       //initial nucleon kinetic energy at the Fermi surface
       double T_F = TMath::Sqrt(TMath::Power(nucl_mass,2)+TMath::Power(KF,2)) - nucl_mass;
-      
-      //the minimum removal energy to keep nucleons bound is equal to 
-      //the nucleon kinetic energy at the Fermi surface 
+
+      //the minimum removal energy to keep nucleons bound is equal to
+      //the nucleon kinetic energy at the Fermi surface
       double localEb = T_F;
 
       //initial state nucleon kinetic energy (already present and contributing to its escape from the nucleus)
@@ -116,18 +116,17 @@ bool LocalFGM::GenerateNucleon(const Target & target,
       double q_val_offset;
       if(it != fNucRmvE.end()) q_val_offset = it->second;
       else q_val_offset = nuclear::BindEnergyPerNucleon(target);
-      
-      //set the removal energy to be the sum of the removal energy at the Fermi surface 
+
+      //set the removal energy to be the sum of the removal energy at the Fermi surface
       //and the Q value offset, minus the nucleon kinetic energy
       fCurrRemovalEnergy = localEb + q_val_offset - T_nucl;
 
-      
+
     }
-    else
-    {
+    else {
       //else, use already existing treatment, i.e. set removal energy to RFG value from table or use
       //Wapstra's semi-empirical formula.
-      if(!fMomDepErmv && it != fNucRmvE.end()) fCurrRemovalEnergy = it->second;
+      if(it != fNucRmvE.end()) fCurrRemovalEnergy = it->second;
       else fCurrRemovalEnergy = nuclear::BindEnergyPerNucleon(target);
     }
 
@@ -138,25 +137,33 @@ bool LocalFGM::GenerateNucleon(const Target & target,
     {
       if (fForcePositiveErmv)
       {
-        LOG("LocalFGM", pINFO)
-            << "  ^-- sampled nucleon resulte in negative LFG removal energy and was rejected.  Resampling...";
+        LOG("LocalFGM", pDEBUG)
+            << "  ^-- sampled nucleon resulted in negative LFG removal"
+            << " energy and was rejected. Resampling ...";
         doThrow = true;
       }
-      else
+      else if ( fUseMBDist )
       {
-        // Spectral function fits to electron scattering nuclear data typically use Maxwell-Boltzmann removal energies.
-        // The approach here was inspired by conversations with Artur Ankowski.
-        // However, if the binding energy is too large, the off-shell nucleon's mass can wind up negative,
-        // which is completely unphysical and causes NaNs when trying to boost into its reference frame (in, e.g., QELEventGenerator).
-        // We thus have to truncate the MB distribution below where SF models typically max out in Emiss.
-        // This max binding energy comes from insisting that the mass
-        // (which is computed from the on-shell masses of the struck nucleus and nucleon, and the Fermi momentum) be positive.
-        const double maxBindE = sqrt(target.Mass()*target.Mass() - 2*target.Mass()*p) - (target.Mass() - target.HitNucMass());
+        // Spectral function fits to electron scattering nuclear data typically
+        // use Maxwell-Boltzmann removal energies. The approach here was
+        // inspired by conversations with Artur Ankowski. However, if the
+        // binding energy is too large, the off-shell nucleon's mass can wind
+        // up negative, which is completely unphysical and causes NaNs when
+        // trying to boost into its reference frame (in, e.g.,
+        // QELEventGenerator). We thus have to truncate the MB distribution
+        // below where SF models typically max out in Emiss. This max binding
+        // energy comes from insisting that the mass (which is computed from
+        // the on-shell masses of the struck nucleus and nucleon, and the Fermi
+        // momentum) be positive.
+        const double maxBindE = std::sqrt( target.Mass()*target.Mass()
+          - 2*target.Mass()*p ) - ( target.Mass() - target.HitNucMass() );
         LOG("LocalFGM", pDEBUG) << "    using max removalE = " << maxBindE;
-        fCurrRemovalEnergy = MaxwellBoltzmannRemovalE(target, 0, maxBindE);
+        fCurrRemovalEnergy = MaxwellBoltzmannRemovalE( target, 0, maxBindE );
 
-        LOG("LocalFGM", pINFO) << "  ^-- note: sampled nucleon resulted in negative LFG removal energy, "
-                               << "so its removal energy was resampled from an SRC-like Maxwell-Boltzmann distribution: Ermv = " << fCurrRemovalEnergy;
+        LOG("LocalFGM", pDEBUG) << "  ^-- note: sampled nucleon resulted"
+          << " in negative LFG removal energy, so its removal energy was"
+          << " resampled from an SRC-like Maxwell-Boltzmann distribution:"
+          << " Ermv = " << fCurrRemovalEnergy;
       }
     }
   } // while (doThrow)
@@ -200,7 +207,7 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
   // double numNuc = (is_p) ? (double)target.Z():(double)target.N();
 
   // Calculate Fermi Momentum using Local FG equations
-  double KF = LocalFermiMomentum( target, nucleon_pdgc, r ) ; 
+  double KF = LocalFermiMomentum( target, nucleon_pdgc, r ) ;
 
   LOG("LocalFGM",pNOTICE) << "KF = " << KF;
 
@@ -229,7 +236,7 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
      double p  = i * dp;
      double p2 = TMath::Power(p,2);
 
-     // use expression with fSRC_Fraction to allow the possibility of 
+     // use expression with fSRC_Fraction to allow the possibility of
      // using the Correlated Fermi Gas Model with a high momentum tail
 
      // calculate |phi(p)|^2
@@ -249,7 +256,7 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
   }
 
   double normfactor = prob->Integral("width");
-  
+
   //-- normalize the probability distribution
   if (normfactor > 0) prob->Scale(1/normfactor);
 
@@ -294,9 +301,9 @@ double LocalFGM::LocalFermiMomentum( const Target & t, int nucleon_pdg, double r
   double numNuc = (double) ( (is_p) ? t.Z() : t.N() );
 
   //  double hbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
-  
+
   double kF = TMath::Power( 3*kPi2*numNuc*genie::utils::nuclear::Density( radius, t.A() ),
-			   1.0/3.0 ) 
+			   1.0/3.0 )
     / genie::units::fermi ;
 
   return kF ;
@@ -323,11 +330,19 @@ void LocalFGM::LoadConfig(void)
   assert(fPMax > 0);
 
   this->GetParamDef("SRC-Fraction", fSRC_Fraction, 0.0);
-  this->GetParamDef("SRC-Ermv-C", fSRC_Ermv_C, 0.120);   ///< Default value from work by A. Ankowski (private communication to J. Wolcott, Nov. 27 2024)
-  this->GetParamDef("SRC-Ermv-sigma", fSRC_Ermv_sigma, 0.100);  ///< Default value from work by A. Ankowski (private communication to J. Wolcott, Nov. 27 2024)
+
+  // Default value from work by A. Ankowski (private communication to J.
+  // Wolcott, Nov. 27 2024)
+  this->GetParamDef("SRC-Ermv-C", fSRC_Ermv_C, 0.120);
+
+  // Default value from work by A. Ankowski (private communication to J.
+  // Wolcott, Nov. 27 2024)
+  this->GetParamDef("SRC-Ermv-sigma", fSRC_Ermv_sigma, 0.100);
+
   this->GetParam("LFG-MomentumCutOff", fPCutOff);
   this->GetParam("LFG-MomentumDependentErmv", fMomDepErmv);
   this->GetParam("LFG-ForcePositiveErmv", fForcePositiveErmv);
+  this->GetParamDef( "LFG-UseMBDistForNegativeErmv", fUseMBDist, false );
 
   if (fPCutOff > fPMax) {
         LOG("LocalFGM", pFATAL) << "Momentum CutOff greater than Momentum Max";
