@@ -36,12 +36,12 @@
 *                                                             Copyright (c) 2003-2024, The GENIE Collaboration  *
 *                                                                                                               *
 *                                                                                                               *
-* Luis Alvarez-Ruso [6], Costas Andreopoulos [9], Adi Ashkenazi [13], Joshua Barrow (10,13), Steve Dytman [12], * 
-*      Hugh Gallagher [14], Alfonso Andres Garcia Soto [5,6], Steven Gardiner [4], Matan Goldenberg [13],       * 
-*  Robert Hatcher [4], Or Hen [10], Igor Kakorin [8], Konstantin Kuzmin [7,8], Weijun Li [11], Xianguo Lu [15], *
+* Luis Alvarez-Ruso [6], Costas Andreopoulos [9], Adi Ashkenazi [14], Joshua Barrow [11], Steve Dytman [13], * 
+*      Hugh Gallagher [15], Alfonso Andres Garcia Soto [5,6], Steven Gardiner [4], Matan Goldenberg [14],       * 
+*  Robert Hatcher [4], Or Hen [10], Igor Kakorin [8], Konstantin Kuzmin [7,8], Weijun Li [11], Xianguo Lu [16], *
 *          Anselmo Meregaglia [2], Vadim Naumov [8], Afroditi Papadopoulou [1], Gabriel Perdue [3],             *
-*   Komninos-John Plows [11], Marco Roda [9], Alon Sportes [13], Noah Steinberg [4], Vladyslav Syrotenko [14],  *
-*                         Júlia Tena Vidal [13], Jeremy Wolcott [14], and Qiyu Yan [3,15]                       *
+*   Komninos-John Plows [11], Marco Roda [9], Alon Sportes [14], Noah Steinberg [4], Vladyslav Syrotenko [15],  *
+*                         Júlia Tena Vidal [14], Jeremy Wolcott [15], and Qiyu Yan [3,16]                       *
 *                                                                                                               *
 *                                            (The GENIE Collaboration)                                          *
 *                                                                                                               *
@@ -55,11 +55,12 @@
 *                                  [8] Joint Institute for Nuclear Research (JINR)                              *
 *                                   [9] University of Liverpool, Dept. of Physics                               *
 *                         [10] Massachusetts Institute of Technology (MIT), Dept. of Physics                    *
-*                                    [11] University of Oxford, Dept. of Physics                                *
-*                            [12] University of Pittsburgh, Dept. of Physics and Astronomy                      *
-*                              [13] Tel Aviv University, School of Physics and Astronomy                        *
-*                                [14] Tufts University, Dept. of Physics and Astronomy                          *
-*                                     [15] Warwick University, Dept. of Physics                                 *
+*                            [11] University of Minnesota, Dept. of Physics and Astronomy                       *
+*                                    [12] University of Oxford, Dept. of Physics                                *
+*                            [13] University of Pittsburgh, Dept. of Physics and Astronomy                      *
+*                              [14] Tel Aviv University, School of Physics and Astronomy                        *
+*                                [15] Tufts University, Dept. of Physics and Astronomy                          *
+*                                     [16] Warwick University, Dept. of Physics                                 *
 *                                                                                                               *
 *  Corresponding Author:                                                                                        *
 *  -                                                                                                            *
