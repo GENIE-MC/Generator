@@ -87,10 +87,7 @@ double HybridXSecAlgorithm::XSec(const Interaction* interaction,
   // or kPSQELEvGen for LwlynSmithQELCCPXSec (2d phase spaces), 
   // while RosenbluthPXSec uses kPSQ2fE (1d phase space)
   // and there is no way to transform 1d to 2d phase space.
-  if ( interaction->ProcInfo().IsEM() && 
-      (interaction->InitState().Tgt().Pdg() == kPdgTgtFreeP || 
-       interaction->InitState().Tgt().Pdg() == kPdgTgtFreeN) 
-     )
+  if ( alg_to_use->Id().Name() == "genie::RosenbluthPXSec")
         return alg_to_use->XSec( interaction, kPSQ2fE );
   return alg_to_use->XSec( interaction, kps );
   

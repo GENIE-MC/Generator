@@ -680,6 +680,8 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
     const Kinematics&   kinematics = interaction -> Kine();
     const InitialState& init_state = interaction -> InitState();
     const Target& tgt = init_state.Tgt();
+    int target_pdg = tgt.Pdg();
+    int probe_pdg = interaction->InitState().ProbePdg();
   
     bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
   
@@ -743,16 +745,12 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
     // ******************************
     // Now choose which tesor to use
     // ******************************
-
-    // Get the hadron tensor for the selected nuclide. Check the probe PDG code
-    // to use the tensor for CC neutrino scattering
-    int target_pdg = interaction->InitState().Tgt().Pdg();
-    int probe_pdg = interaction->InitState().ProbePdg();
-
     int tensor_pdg_susa = target_pdg;
     int tensor_pdg_crpa = target_pdg;
     int A_request = pdg::IonPdgCodeToA(target_pdg);
     int Z_request = pdg::IonPdgCodeToZ(target_pdg);
+    bool need_to_scale_susa = false;
+    bool need_to_scale_crpa = false;
 
     // This gets a bit messy as the different models have different
     // targets available and currently only SuSA does EM
@@ -925,11 +923,14 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         Eb_ten_susa = fEbC;
         Eb_ten_crpa = fEbO;
     }
+    
+    if (tensor_pdg_susa != target_pdg) need_to_scale_susa = true;
+    if (tensor_pdg_crpa != target_pdg) need_to_scale_crpa = true;
 
-	// Finally we can now get the tensors we need
-	const LabFrameHadronTensorI* tensor_susa;
-	const LabFrameHadronTensorI* tensor_crpa;
-	const LabFrameHadronTensorI* tensor_blen;
+    // Finally we can now get the tensors we need
+    const LabFrameHadronTensorI* tensor_susa;
+    const LabFrameHadronTensorI* tensor_crpa;
+    const LabFrameHadronTensorI* tensor_blen;
 
     if( modelConfig == kMd_SuSAv2 )
     {
@@ -1073,6 +1074,12 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         W4_susa = tensor_susa->W4(Q0 - Delta_Q_value_susa, Q3, M);
         W5_susa = tensor_susa->W5(Q0 - Delta_Q_value_susa, Q3, M);
 //        W6_susa = tensor_susa->W6(Q0 - Delta_Q_value_susa, Q3, M);
+        double fact_susa = XSecScaling(1.0, interaction, target_pdg, tensor_pdg_susa, need_to_scale_susa);
+        W1_susa *= fact_susa;
+        W2_susa *= fact_susa;
+        W3_susa *= fact_susa;
+        W4_susa *= fact_susa;
+        W5_susa *= fact_susa;
     }
     if ( modelConfig == kMd_CRPASuSAv2Hybrid   || modelConfig == kMd_HFSuSAv2Hybrid ||
          modelConfig == kMd_CRPAPWSuSAv2Hybrid || modelConfig == kMd_HFPWSuSAv2Hybrid ||
@@ -1084,6 +1091,20 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         W4_blen = tensor_blen->W4(Q0 - Delta_Q_value_blen, Q3, M);
         W5_blen = tensor_blen->W5(Q0 - Delta_Q_value_blen, Q3, M);
 //        W6_blen = tensor_blen->W6(Q0 - Delta_Q_value_blen, Q3, M);
+        // The blended SuSAv2 calculation already gives the xsec per atom
+        // For the A-scaling below to make sense we need to transform them to per active nucleon
+        int A_tensor = pdg::IonPdgCodeToA(tensor_pdg_crpa);
+        int Z_tensor = pdg::IonPdgCodeToZ(tensor_pdg_crpa);
+        int N_tensor = A_tensor-Z_tensor;
+        double fact_blen = 1.0;
+        if ( pdg::IsNeutrino(probe_pdg) ) fact_blen *= 1.0/N_tensor;
+        else if ( pdg::IsAntiNeutrino(probe_pdg) ) fact_blen *= 1.0/Z_tensor;
+        fact_blen = XSecScaling(fact_blen, interaction, target_pdg, tensor_pdg_crpa, need_to_scale_crpa);
+        W1_blen *= fact_blen;
+        W2_blen *= fact_blen;
+        W3_blen *= fact_blen;
+        W4_blen *= fact_blen;
+        W5_blen *= fact_blen;
     }
     if( modelConfig != kMd_SuSAv2 && modelConfig != kMd_SuSAv2Blend)
     {
@@ -1093,6 +1114,20 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         W4_crpa = tensor_crpa->W4(Q0 - Delta_Q_value_crpa, Q3, M);
         W5_crpa = tensor_crpa->W5(Q0 - Delta_Q_value_crpa, Q3, M);
 //        W6_crpa = tensor_crpa->W6(Q0 - Delta_Q_value_crpa, Q3, M);
+        // The CRPA calculation already gives the xsec per atom
+        // For the A-scaling below to make sense we need to transform them to per active nucleon
+        int A_tensor = pdg::IonPdgCodeToA(tensor_pdg_crpa);
+        int Z_tensor = pdg::IonPdgCodeToZ(tensor_pdg_crpa);
+        int N_tensor = A_tensor-Z_tensor;
+        double fact_crpa = 1.0;
+        if ( pdg::IsNeutrino(probe_pdg) ) fact_crpa *= 1.0/N_tensor;
+        else if ( pdg::IsAntiNeutrino(probe_pdg) ) fact_crpa *= 1.0/Z_tensor;
+        fact_crpa = XSecScaling(fact_crpa, interaction, target_pdg, tensor_pdg_crpa, need_to_scale_crpa);
+        W1_crpa *= fact_crpa;
+        W2_crpa *= fact_crpa;
+        W3_crpa *= fact_crpa;
+        W4_crpa *= fact_crpa;
+        W5_crpa *= fact_crpa;
     }
     
     // Apply blending if needed

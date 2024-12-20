@@ -49,7 +49,6 @@
 using namespace genie;
 using namespace genie::constants;
 using namespace genie::utils;
-using std::ostringstream;
 
 //____________________________________________________________________________
 SmithMonizQELCCPXSec::SmithMonizQELCCPXSec() :
@@ -136,6 +135,8 @@ bool SmithMonizQELCCPXSec::ValidProcess(const Interaction * interaction) const
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
   if(!proc_info.IsQuasiElastic()) return false;
+  
+  if ( !init_state.Tgt().IsNucleus() ) return false;
 
   int  nuc = init_state.Tgt().HitNucPdg();
   int  nu  = init_state.ProbePdg();
@@ -145,7 +146,7 @@ bool SmithMonizQELCCPXSec::ValidProcess(const Interaction * interaction) const
   bool isnu  = pdg::IsNeutrino(nu);
   bool isnub = pdg::IsAntiNeutrino(nu);
 
-  bool prcok = proc_info.IsWeakCC() && ((isP&&isnub) || (isN&&isnu));
+  bool prcok = proc_info.IsWeakCC() && ((isP && isnub) || (isN && isnu));
   if(!prcok) return false;
 
   return true;
@@ -560,6 +561,7 @@ const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interactio
   double Tf(0.01);
   if (rkF.max > 0)
   {
+    // nuclear target
     for(int i = 0; i < d ;i++)
     {
         double kF = 0.5*(-fR[i]*(rkF.max - rkF.min) + rkF.min + rkF.max);
@@ -618,6 +620,7 @@ const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interactio
   }
   else
   {
+      // nucleon target
       m_tar = m_ini;
       a1 = a4 = a7 = 1;
   }
@@ -675,7 +678,7 @@ const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interactio
   
   std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
   std::cout << fFinalLeptonPolarization.Mag() << "\n";
-  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
+  std::cout << "SM@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
   
   return fFinalLeptonPolarization;
   

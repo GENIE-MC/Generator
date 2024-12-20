@@ -73,9 +73,9 @@ private:
   mutable SmithMonizUtils * sm_utils;
 
   void   LoadConfig (void);
-  double d3sQES_dQ2dvdkF_SM (const Interaction * interaction) const;
   double dsQES_dQ2_SM(const Interaction * interaction) const;
-  double d2sQES_dQ2dv_SM(const Interaction * i) const;
+  double d2sQES_dQ2dv_SM(const Interaction * interaction) const;
+  double d3sQES_dQ2dvdkF_SM (const Interaction * interaction) const;
   void InitGaussIntArrays(void);
 
   double                       fXSecScale;        ///< external xsec scaling factor
@@ -87,9 +87,6 @@ private:
   std::array<double,48> fW;
   std::array<double,48> fR;
   
-  
-
-
 };
 
 
