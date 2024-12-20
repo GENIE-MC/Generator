@@ -30,7 +30,7 @@ ifeq ($(strip $(GOPT_ENABLE_PYTHIA6)),YES)
   ROOT_DICT_GEN_INCLUDES += $(PYTHIA6_INCLUDES)
   EXTRA_EXT_LIBS         += $(PYTHIA6_LIBRARIES)
 else
-  $(info $(PACKAGE) not build against Pythia6 )
+  $(info $(PACKAGE) not built against Pythia6 )
 endif
 
 ifeq ($(strip $(GOPT_ENABLE_PYTHIA8)),YES)
@@ -38,7 +38,7 @@ ifeq ($(strip $(GOPT_ENABLE_PYTHIA8)),YES)
   ROOT_DICT_GEN_INCLUDES += $(PYTHIA8_INCLUDES)
   EXTRA_EXT_LIBS         += $(PYTHIA8_LIBRARIES)
 else
-  $(info $(PACKAGE) not build against Pythia8 )
+  $(info $(PACKAGE) not built against Pythia8 )
 endif
 
 FORCE:

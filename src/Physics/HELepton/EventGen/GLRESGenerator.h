@@ -19,13 +19,9 @@
 #ifndef _GLASHOW_RESONANCE_GENERATOR_H_
 #define _GLASHOW_RESONANCE_GENERATOR_H_
 
-#include "Framework/Conventions/GBuild.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
-#include "Physics/HELepton/XSection/Born.h"
 
-#ifdef __GENIE_PYTHIA6_ENABLED__
-#include <TPythia6.h>
-#endif
+using namespace genie;
 
 namespace genie {
 
@@ -39,20 +35,16 @@ public :
   // implement the EventRecordVisitorI interface
   void ProcessEventRecord (GHepRecord * event) const;
 
-  // overload the Algorithm::Configure() methods to load private data
+  // Overload the Algorithm::Configure() methods to load private data
   // members from configuration options
-  void Configure(const Registry & config);
-  void Configure(string config);
+  virtual void Configure(const Registry & config);
+  virtual void Configure(string config);
 
 private:
 
-  void LoadConfig(void);
+  void LoadConfig         (void);
 
-#ifdef __GENIE_PYTHIA6_ENABLED__
-  mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
-#endif
-
-  Born * born;
+  const EventRecordVisitorI * fWDecayer; ///< PYTHIA W decayer
 
 };
 

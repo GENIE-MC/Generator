@@ -19,13 +19,9 @@
 #ifndef _PHOTON_COH_GENERATOR_H_
 #define _PHOTON_COH_GENERATOR_H_
 
-#include "Framework/Conventions/GBuild.h"
-#ifdef __GENIE_PYTHIA6_ENABLED__
-#include <TPythia6.h>
-#endif
-#include <TComplex.h>
-
 #include "Framework/EventGen/EventRecordVisitorI.h"
+
+using namespace genie;
 
 namespace genie {
 
@@ -37,22 +33,18 @@ public :
  ~PhotonCOHGenerator();
 
   // implement the EventRecordVisitorI interface
-  void Initialize         (void)               const;
-  void ProcessEventRecord (GHepRecord * evrec) const;
+  void ProcessEventRecord (GHepRecord * event) const;
 
-  // overload the Algorithm::Configure() methods to load private data
+  // Overload the Algorithm::Configure() methods to load private data
   // members from configuration options
-  void Configure(const Registry & config);
-
-  void Configure(string config);
+  virtual void Configure(const Registry & config);
+  virtual void Configure(string config);
 
 private:
 
-  void LoadConfig(void);
+  void LoadConfig         (void);
 
-#ifdef __GENIE_PYTHIA6_ENABLED__
-  mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
-#endif
+  const EventRecordVisitorI * fWDecayer; ///< PYTHIA W decayer
 
 };
 
