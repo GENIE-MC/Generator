@@ -64,6 +64,7 @@ For more information, visit http://www.genie-mc.org
 - Igor Kakorin (*JINR*)
 - Konstantin Kuzmin (*ITEP and JINR*)
 - Weijun Li (*Oxford*)
+- Liang Liu (*Fermilab*)
 - Xianguo Lu (*Warwick*)
 - Anselmo Meregaglia (*Bordeaux, CNRS/IN2P3*)
 - Vadim Naumov (*JINR*)
