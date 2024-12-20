@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the local Fermi gas model in the N24 tune
+
+Configurable Parameters:
+...................................................................................................................
+Name                      Type    Optional   Comment                                           Default
+...................................................................................................................
+FermiMomentumTable        string   No        Table of Fermi momentum (kF) constants            CommonParam[FermiGas]                                                                                     
+LFG-MomentumMax           double   Yes       max p in prob distribution                        1 GeV
+LFG-MomentumCutOff        double   No        momentum cut off value                            
+LFG-MomentumDependentErmv bool     No        whether to calculate removal energy = f(momentum) false
+LFG-ForcePositiveErmv     bool     No        Whether to rethrow events with negative Ermv      false
+SRC-Fraction              double   Yes       Fraction of high energy tail distribution         0. (Local Fermi Gas)     
+                                             dominated by Short Range Correlated Pairs   
+NucRemovalE@Pdg=?         int      Yes       nuclear removal energy for specfic nuclei         from FermiGas CommonParam
+-->
+
+  <param_set name="Default"> 
+    <param type="string" name="CommonParam"> FermiGas </param>
+    <!-- CutOff known from electron scattering experiments
+     Short range correlations and the isospin dependence of nuclear correlation functions (arXiv:1710.07966)-->
+    <param type="double" name = "LFG-MomentumCutOff">      0.7   </param>
+    <param type="bool" name = "LFG-MomentumDependentErmv"> false </param>
+    <param type="bool" name = "LFG-ForcePositiveErmv">     false   </param>
+  </param_set>
+
+  <param_set name="SpectralFunctionLikeWithCorrelation">
+
+    <param type="double" name = "SRC-Fraction">    0.2   </param>
+
+    <param type="bool" name = "LFG-MomentumDependentErmv"> true   </param>
+    <param type="bool" name = "LFG-ForcePositiveErmv">     false   </param>
+    <param type="bool" name = "LFG-UseMBDistForNegativeErmv"> true </param>
+
+    <!-- When using a momentum dependent removal energy, the meaning of the removal energy changes.
+      Specifically, that becomes a Q2 shift which is "tuned" so that the lowest removal energy of the spectrum correspnds 
+      to the binding energy of the p-shell of the nucleus. 
+      For this reason, the removal energy are overriden here, in order to pick up the correct values, while allowing the rest of the code
+      to function properly using the values from CommonParam.xml 
+      Of the current values, only Argon has been carefully selected. The carbon one is also similar, so for the first implementation, 
+      all the values are set to the Argon one. -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000020040">  0.0100 </param> <!-- He4    -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000030060">  0.0100 </param> <!-- Li6    -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000060120">  0.0100 </param> <!-- C12    -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000080160">  0.0100 </param> <!-- O16    -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000120240">  0.0100 </param> <!-- Mg24   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000180400">  0.0100 </param> <!-- Ar40   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000200400">  0.0100 </param> <!-- Ca40   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000260560">  0.0100 </param> <!-- Fe56   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000280580">  0.0100 </param> <!-- Ni58   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000501190">  0.0100 </param> <!-- Sn119  -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000791970">  0.0100 </param> <!-- Au197  -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000822080">  0.0100 </param> <!-- Pb208  -->
+    <param type="bool"   name="RFG-UseParametrization">          false  </param>
+  </param_set>
+
+
+</alg_conf>
+
