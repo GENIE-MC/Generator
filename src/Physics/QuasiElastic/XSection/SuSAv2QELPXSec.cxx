@@ -7,7 +7,6 @@
    For the class documentation see the corresponding header file.
    */
 //_________________________________________________________________________
-
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
@@ -23,6 +22,7 @@
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Framework/Conventions/Constants.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 
 #include <TMath.h>
 
@@ -667,6 +667,7 @@ void SuSAv2QELPXSec::LoadConfig(void)
 	}
 
 }
+//_________________________________________________________________________
 const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* interaction) const
 {    
     const ProcessInfo& proc_info = interaction->ProcInfo();
@@ -684,17 +685,8 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
     int probe_pdg = interaction->InitState().ProbePdg();
   
     bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
-  
-    // HitNucMass() looks up the PDGLibrary (on-shell) value for the initial
-    // struck nucleon
-    double Mi_onshell = tgt.HitNucMass();
-  
-    // On-shell mass of final nucleon (from PDGLibrary)
-    double Mf = interaction->RecoilNucleon()->Mass();
-
-    // Isoscalar mass of nucleon
-    double M = (Mi_onshell + Mf)/2;
-    double M2 = M*M;
+    
+    const double M = 1;  // the polarization doesn't depend on mass of target in target rest frame
     
     // Check that the input kinematical point is within the range
     // in which hadron tensors are known (for chosen target)
@@ -709,6 +701,8 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
 
     // *** Enforce the global Q^2 cut ***
     double Q2min = genie::controls::kMinQ2Limit; // CC limit
+    //if ( interaction->ProcInfo().IsEM() ) 
+        //Q2min = genie::utils::kinematics::electromagnetic::kMinQ2Limit; // EM limit
 
     // Neglect shift due to binding energy. The cut is on the actual
     // value of Q^2, not the effective one to use in the tensor contraction.
@@ -720,28 +714,7 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         return fFinalLeptonPolarization;
     }
     
-    // Note that GetProbeP4 defaults to returning the probe 4-momentum in the
-    // struck nucleon rest frame, so we have to explicitly ask for the lab frame
-    // here
-    TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
-    TLorentzVector neutrinoMom = *tempNeutrino;
-    delete tempNeutrino;
-    TLorentzVector inNucleonMom(*init_state.TgtPtr()->HitNucP4Ptr());
-    TLorentzVector inNucleonMomOnShell(inNucleonMom);
 
-    const TLorentzVector leptonMom = kinematics.FSLeptonP4();
-    const TLorentzVector outNucleonMom = kinematics.HadSystP4();
-    TLorentzVector outNucleonMomOnShell(outNucleonMom);
-    
-    double inNucleonOnShellEnergy  = TMath::Hypot(M,  inNucleonMomOnShell.P() );
-    inNucleonMomOnShell.SetE(inNucleonOnShellEnergy);
-    double outNucleonOnShellEnergy = TMath::Hypot(M, outNucleonMomOnShell.P() );
-    outNucleonMomOnShell.SetE(outNucleonOnShellEnergy);
-    
-    // Effective 4-momentum transfer (according to the deForest prescription) for
-    // use in computing the hadronic tensor
-    TLorentzVector qTildeP4 = outNucleonMomOnShell - inNucleonMomOnShell;
-    
     // ******************************
     // Now choose which tesor to use
     // ******************************
@@ -831,9 +804,24 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
             else tensor_type_crpa = kHT_QE_HFPW_anu_High;
         }
     }
+    //else 
+    //{
+        //if ( pdg::IsProton(hit_nuc_pdg) ) 
+        //{
+            //tensor_type_susa = kHT_QE_EM_proton;
+        //}
+        //else if( pdg::IsNeutron(hit_nuc_pdg) )
+        //{
+            //tensor_type_susa = kHT_QE_EM_neutron;
+        //}
+        //else 
+        //{
+            //tensor_type_susa = kHT_QE_EM;  	// default
+        //}
+    //}
     else 
     {
-        LOG("SuSAv2QE", pWARN) << "For EM processes doesn't work yet. Set it to zero.";
+        LOG("SuSAv2QE", pWARN) << "Doesn't work for processes other than weak ones. Set it to zero.";
         fFinalLeptonPolarization = TVector3(0, 0, 0);
         return fFinalLeptonPolarization;
     }
@@ -1062,18 +1050,18 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         }
     }
 
-    double W1_susa(0), W2_susa(0), W3_susa(0), W4_susa(0), W5_susa(0)/*, W6_susa(0)*/;
-    double W1_crpa(0), W2_crpa(0), W3_crpa(0), W4_crpa(0), W5_crpa(0)/*, W6_crpa(0)*/;
-    double W1_blen(0), W2_blen(0), W3_blen(0), W4_blen(0), W5_blen(0)/*, W6_blen(0)*/;
+    double W1_susa(0), W2_susa(0), W3_susa(0), W4_susa(0), W5_susa(0);
+    double W1_crpa(0), W2_crpa(0), W3_crpa(0), W4_crpa(0), W5_crpa(0);
+    double W1_blen(0), W2_blen(0), W3_blen(0), W4_blen(0), W5_blen(0);
     
     if ( modelConfig == kMd_SuSAv2 )
     {
         W1_susa = tensor_susa->W1(Q0 - Delta_Q_value_susa, Q3, M);
         W2_susa = tensor_susa->W2(Q0 - Delta_Q_value_susa, Q3, M);
-        W3_susa = tensor_susa->W3(Q0 - Delta_Q_value_susa, Q3, M);
+        W3_susa = -tensor_susa->W3(Q0 - Delta_Q_value_susa, Q3, M);   // note invert sign
         W4_susa = tensor_susa->W4(Q0 - Delta_Q_value_susa, Q3, M);
         W5_susa = tensor_susa->W5(Q0 - Delta_Q_value_susa, Q3, M);
-//        W6_susa = tensor_susa->W6(Q0 - Delta_Q_value_susa, Q3, M);
+
         double fact_susa = XSecScaling(1.0, interaction, target_pdg, tensor_pdg_susa, need_to_scale_susa);
         W1_susa *= fact_susa;
         W2_susa *= fact_susa;
@@ -1087,10 +1075,10 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
     {
         W1_blen = tensor_blen->W1(Q0 - Delta_Q_value_blen, Q3, M);
         W2_blen = tensor_blen->W2(Q0 - Delta_Q_value_blen, Q3, M);
-        W3_blen = tensor_blen->W3(Q0 - Delta_Q_value_blen, Q3, M);
+        W3_blen = -tensor_blen->W3(Q0 - Delta_Q_value_blen, Q3, M);      // note invert sign
         W4_blen = tensor_blen->W4(Q0 - Delta_Q_value_blen, Q3, M);
         W5_blen = tensor_blen->W5(Q0 - Delta_Q_value_blen, Q3, M);
-//        W6_blen = tensor_blen->W6(Q0 - Delta_Q_value_blen, Q3, M);
+
         // The blended SuSAv2 calculation already gives the xsec per atom
         // For the A-scaling below to make sense we need to transform them to per active nucleon
         int A_tensor = pdg::IonPdgCodeToA(tensor_pdg_crpa);
@@ -1110,10 +1098,10 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
     {
         W1_crpa = tensor_crpa->W1(Q0 - Delta_Q_value_crpa, Q3, M);
         W2_crpa = tensor_crpa->W2(Q0 - Delta_Q_value_crpa, Q3, M);
-        W3_crpa = tensor_crpa->W3(Q0 - Delta_Q_value_crpa, Q3, M);
+        W3_crpa = -tensor_crpa->W3(Q0 - Delta_Q_value_crpa, Q3, M);      // note invert sign
         W4_crpa = tensor_crpa->W4(Q0 - Delta_Q_value_crpa, Q3, M);
         W5_crpa = tensor_crpa->W5(Q0 - Delta_Q_value_crpa, Q3, M);
-//        W6_crpa = tensor_crpa->W6(Q0 - Delta_Q_value_crpa, Q3, M);
+
         // The CRPA calculation already gives the xsec per atom
         // For the A-scaling below to make sense we need to transform them to per active nucleon
         int A_tensor = pdg::IonPdgCodeToA(tensor_pdg_crpa);
@@ -1131,7 +1119,7 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
     }
     
     // Apply blending if needed
-    double W1(0), W2(0), W3(0), W4(0), W5(0)/*, W6(0)*/;
+    double W1(0), W2(0), W3(0), W4(0), W5(0);
 
     if ( modelConfig == kMd_SuSAv2 )
     {      
@@ -1140,7 +1128,6 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         W3 = W3_susa;
         W4 = W4_susa;
         W5 = W5_susa;
-//        W6 = W6_susa;
         
     }
     if ( modelConfig == kMd_SuSAv2Blend )
@@ -1150,7 +1137,6 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         W3 = W3_blen;
         W4 = W4_blen;
         W5 = W5_blen;
-//        W6 = W6_blen;
     }
     if( modelConfig == kMd_CRPA   || modelConfig == kMd_HF ||
         modelConfig == kMd_CRPAPW || modelConfig == kMd_HFPW )
@@ -1160,7 +1146,6 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         W3 = W3_crpa;
         W4 = W4_crpa;
         W5 = W5_crpa;
-//        W6 = W6_crpa;
     }
     else if( modelConfig == kMd_CRPASuSAv2Hybrid   ||
              modelConfig == kMd_HFSuSAv2Hybrid     ||
@@ -1176,7 +1161,6 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
                 W3 = W3_crpa;
                 W4 = W4_crpa;
                 W5 = W5_crpa;
-//                W6 = W6_crpa;
             }
             else if (Q0 > q0BlendEnd)
             {
@@ -1185,7 +1169,6 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
                 W3 = W3_blen;
                 W4 = W4_blen;
                 W5 = W5_blen;
-//                W6 = W6_blen;
             }
             else
             {
@@ -1196,7 +1179,6 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
                 W3 = SuSAFrac*W3_blen + CRPAFrac*W3_crpa;
                 W4 = SuSAFrac*W4_blen + CRPAFrac*W4_crpa;
                 W5 = SuSAFrac*W5_blen + CRPAFrac*W5_crpa;
-//                W6 = SuSAFrac*W6_blen + CRPAFrac*W6_crpa;
             }
         else if(blendMode == 2)
         { // Exp blending in q (from Alexis)
@@ -1208,152 +1190,24 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
             W3 = sn2*W3_blen + cn2*W3_crpa;
             W4 = sn2*W4_blen + cn2*W4_crpa;
             W5 = sn2*W5_blen + cn2*W5_crpa;
-//            W6 = sn2*W6_blen + cn2*W6_crpa;
         }
     }
+    
+    TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+    TLorentzVector neutrinoMom = *tempNeutrino;
+    delete tempNeutrino;
+    const TLorentzVector leptonMom = kinematics.FSLeptonP4();
+    genie::utils::CalculatePolarizationVectorInTargetRestFrame(
+                                            fFinalLeptonPolarization, 
+                                            neutrinoMom, 
+                                            leptonMom,
+                                            is_neutrino, 
+                                            M, W1,W2,W3,W4,W5,0);
 
-    double p[4], q[4], epq[4][4], k[4], l[4], s[4], eskl[4];
-    std::complex<double> jp[4], jm[4];
-    
-    p[0] = inNucleonMomOnShell.E();
-    p[1] = inNucleonMomOnShell.Px();
-    p[2] = inNucleonMomOnShell.Py();
-    p[3] = inNucleonMomOnShell.Pz();
-  
-    q[0] = qTildeP4.E();
-    q[1] = qTildeP4.Px();
-    q[2] = qTildeP4.Py();
-    q[3] = qTildeP4.Pz();
-  
-    k[0] = neutrinoMom.E();
-    k[1] = -neutrinoMom.Px();
-    k[2] = -neutrinoMom.Py();
-    k[3] = -neutrinoMom.Pz();
-  
-    l[0] = leptonMom.E();
-    l[1] = -leptonMom.Px();
-    l[2] = -leptonMom.Py();
-    l[3] = -leptonMom.Pz();
-  
-    s[0] = leptonMom.P()/ml;
-    s[1] = -leptonMom.Vect().Unit().X()*leptonMom.E()/ml;
-    s[2] = -leptonMom.Vect().Unit().Y()*leptonMom.E()/ml;
-    s[3] = -leptonMom.Vect().Unit().Z()*leptonMom.E()/ml;
-  
-    // epsilon^\alpha\beta\gamma\delta p_\gamma q_\delta
-    for (int a = 0; a < 4; a++)
-    {
-        for (int b = 0; b < 4; b++)
-        {
-            epq[a][b] = 0;
-            if (b == a) continue;
-            for (int g = 0; g < 4; g++)
-            {
-                if (g == b || g == a) continue;
-                for (int d = 0; d < 4; d++)
-                {
-                    if (d == g || d == b || d == a) continue;
-                    epq[a][b] += e(a,b,g,d)*(a == 0?1:-1)*(b == 0?1:-1)*p[g]*q[d];
-                }
-            }
-        }
-    }
-    
-    // epsilon_\alpha\beta\gamma\delta s^\beta k^\gamma l^\delta
-    for (int a = 0; a < 4; a++)
-    {
-        eskl[a] = 0;
-        for (int b = 0; b < 4; b++)
-        {
-            if (b == a) continue;
-            for (int g = 0; g < 4; g++)
-            {
-                if (g == b || g == a) continue;
-                for (int d = 0; d < 4; d++)
-                {
-                    if (d == g || d == b || d == a) continue;
-                    double sb = s[b]*(b == 0?1:-1);
-                    double kg = k[g]*(g == 0?1:-1);
-                    double ld = l[d]*(d == 0?1:-1);
-                    eskl[a] += e(a,b,g,d)*sb*kg*ld;
-                }
-            }
-        }
-    }
-        
-    double kl = k[0]*l[0] - k[1]*l[1] - k[2]*l[2] - k[3]*l[3];
-    double ks = k[0]*s[0] - k[1]*s[1] - k[2]*s[2] - k[3]*s[3];
-            
-    for (int a = 0; a < 4; a++)
-    {
-        if (is_neutrino)
-        {
-            jp[a] =  (l[a]*ks - s[a]*kl - 1i*eskl[a] + ml*k[a])/sqrt(kl + ml*ks);   //jp_\alpha
-            jm[a] = (-l[a]*ks + s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(kl - ml*ks);   //jm_\alpha
-        }
-        else
-        {
-            jp[a] =  (l[a]*ks - s[a]*kl + 1i*eskl[a] - ml*k[a])/sqrt(kl - ml*ks);   //jp_\alpha
-            jm[a] =  (l[a]*ks - s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(kl + ml*ks);   //jm_\alpha
-        }
-    }
-    
-    
-    //Additional constants and variables
-    std::complex<double> Wmunu, Wnumu, LWpp(0, 0), LWpm(0, 0), LWmp(0, 0), LWmm(0, 0);
-    for(int mu = 0; mu < 4; mu++)
-    {
-        for(int nu = mu;nu < 4; nu++)
-        {
-            double Wreal = -g(mu,nu)*W1 + p[mu]*p[nu]*W2/M2 + q[mu]*q[nu]*W4/M2 + (p[mu]*q[nu] + q[mu]*p[nu])*W5/2/M2;
-            double Wimag = epq[mu][nu]*W3/2/M2;
-            Wmunu = Wreal - 1i*Wimag;  // W^\mu\nu
-            LWpp += jp[mu]*std::conj(jp[nu])*Wmunu; // Lpp_\mu\nu*W^\mu\nu
-            LWpm += jp[mu]*std::conj(jm[nu])*Wmunu; // Lpm_\mu\nu*W^\mu\nu
-            LWmp += jm[mu]*std::conj(jp[nu])*Wmunu; // Lmp_\mu\nu*W^\mu\nu
-            LWmm += jm[mu]*std::conj(jm[nu])*Wmunu; // Lmm_\mu\nu*W^\mu\nu
-            if (mu != nu)
-            {
-                Wnumu = Wreal + 1i*Wimag;
-                LWpp += jp[nu]*std::conj(jp[mu])*Wnumu; // Lpp_\mu\nu*W^\mu\nu
-                LWpm += jp[nu]*std::conj(jm[mu])*Wnumu; // Lpm_\mu\nu*W^\mu\nu
-                LWmp += jm[nu]*std::conj(jp[mu])*Wnumu; // Lmp_\mu\nu*W^\mu\nu
-                LWmm += jm[nu]*std::conj(jm[mu])*Wnumu; // Lmm_\mu\nu*W^\mu\nu
-            }
-        }
-    }
-    std::complex<double> LWppmm = LWpp + LWmm;
-    std::complex<double> rhopp = LWpp/LWppmm;
-    std::complex<double> rhopm = LWpm/LWppmm;
-    std::complex<double> rhomp = LWmp/LWppmm;
-    std::complex<double> rhomm = LWmm/LWppmm;
-    double PL = std::real(rhopp - rhomm);
-    double PP = std::real(rhopm + rhomp);
-    double PT = std::imag(rhomp - rhopm);
-    
-    TVector3 neutrinoMom3 = neutrinoMom.Vect();                                          
-    TVector3 leptonMom3 = leptonMom.Vect();
-    TVector3 Pz = leptonMom3.Unit();
-    TVector3 Px = neutrinoMom3.Cross(leptonMom3).Unit();
-    TVector3 Py = Pz.Cross(Px);
-    TVector3 pol = PT*Px + PP*Py + PL*Pz;
-    fFinalLeptonPolarization = pol;
-    
+ 
     std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-    std::cout << "PL = " << PL << ", PT = " << PT << ", PP = " << PP << "\n";
     std::cout << fFinalLeptonPolarization.Mag() << "\n";
     std::cout << "SU@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
     
     return fFinalLeptonPolarization;
 }
-//____________________________________________________________________________
-inline int SuSAv2QELPXSec::g(int a, int b) const
-{
-    return (a==b)*(2*(a==0) - 1);
-}
-//____________________________________________________________________________
-inline int SuSAv2QELPXSec::e(int a, int b, int c, int d) const
-{
-    return (b - a)*(c - a)*(d - a)*(c - b)*(d - b)*(d - c)/12;
-}
-//____________________________________________________________________________

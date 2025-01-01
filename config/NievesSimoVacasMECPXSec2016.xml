@@ -14,6 +14,8 @@ MEC-CC-XSecScale      double   Yes        XSec Scaling factor              GPL v
 MECScaleAlg           alg      Yes        XSecScale algorithm used         The cross section is not scaled
                                           to scale the cross section
 QvalueShifterAlg      algo     yes        Possible Qshift algo             none
+PreciseLeptonPol      bool     Yes        Do precise calculation of        No
+                                          lepton polarization
 -->
   <param_set name="Default"> 
       <param type="alg"  name="NumericalIntegrationAlg"> genie::MECXSec/Default </param>
@@ -22,6 +24,9 @@ QvalueShifterAlg      algo     yes        Possible Qshift algo             none
 
       <param type="double" name="MEC-CC-XSecScale"> 1.000 </param>
       <param type="double" name="MEC-NC-XSecScale"> 1.000 </param>
+      
+      <param type="bool" name="PreciseLeptonPol"> true  </param>
+
 
   </param_set>
 

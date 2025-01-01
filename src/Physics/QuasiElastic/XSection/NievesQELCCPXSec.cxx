@@ -38,6 +38,7 @@
 #include "Physics/NuclearState/NuclearUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/Numerical/GSLUtils.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 
 #include <iostream> // Used for testing code
 #include <fstream> // Used for testing code
@@ -890,9 +891,35 @@ double NievesQELCCPXSec::vcr(const Target * target, double Rcurr) const{
   }
 }
 //____________________________________________________________________________
-int NievesQELCCPXSec::leviCivita(int input[]) const
-{
-  return e(input[0], input[1], input[2], input[3]);
+int NievesQELCCPXSec::leviCivita(int input[]) const{
+  int copy[4] = {input[0],input[1],input[2],input[3]};
+  int permutations = 0;
+  int temp;
+
+  for(int i=0;i<4;i++){
+    for(int j=i+1;j<4;j++){
+      //If any two elements are equal return 0
+      if(input[i] == input[j])
+        return 0;
+      //If a larger number is before a smaller one, use permutations
+      //(exchanges of two adjacent elements) to move the smaller element
+      //so it is before the larger element, eg 2341->2314->2134->1234
+      if(copy[i]>copy[j]){
+        temp = copy[j];
+        for(int k=j;k>i;k--){
+          copy[k] = copy[k-1];
+          permutations++;
+        }
+        copy[i] = temp;
+      }
+    }
+  }
+
+  if(permutations % 2 == 0){
+    return 1;
+  }else{
+    return -1;
+  }
 }
 //____________________________________________________________________________
 // Calculates the constraction of the leptonic and hadronic tensors. The
@@ -1460,10 +1487,9 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   }
 
   // Calculate q and qTilde
-  TLorentzVector qP4 = neutrinoMom - leptonMom;
   TLorentzVector qTildeP4(0., 0., q3VecTilde.Mag(), q0Tilde);
-
-  double Q2      = -qP4.Mag2();
+  
+  double Q2      = interaction->KinePtr()->Q2(true);
   double Q2tilde = -qTildeP4.Mag2();
   
   // Check that Q2tilde > 0 (accounting for rounding errors)
@@ -1527,84 +1553,30 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   double FA2     = FA*FA;
   double F1V2    = F1V*F1V;
   double xiF2V2  = xiF2V*xiF2V;
-//  const double q[4] = {qTildeP4.E(),qTildeP4.Px(),qTildeP4.Py(),qTildeP4.Pz()};
-  double q[4] = {qTildeP4.E(),qTildeP4.Px(),qTildeP4.Py(),qTildeP4.Pz()};
+  const double q[4] = {qTildeP4.E(),qTildeP4.Px(),qTildeP4.Py(),qTildeP4.Pz()};
   double q0      = q[0];
   double dq      = TMath::Sqrt(q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
   double q02     = q0*q0;
   double dq2     = dq*dq;
   double q2      = q02 - dq2;
 
-  double tulin[4], k[4], l[4], s[4], eskl[4];
+  double tulin[4];
   double rulin[4][4];
-  std::complex<double> jp[4], jm[4];
 
   // For normal code execulation, tulin is the initial nucleon momentum
   tulin[0] = inNucleonMomOnShell.E();
   tulin[1] = inNucleonMomOnShell.Px();
   tulin[2] = inNucleonMomOnShell.Py();
   tulin[3] = inNucleonMomOnShell.Pz();
-
-  
-  k[0] = neutrinoMom.E();
-  k[1] = -neutrinoMom.Px();
-  k[2] = -neutrinoMom.Py();
-  k[3] = -neutrinoMom.Pz();
-  
-  l[0] = leptonMom.E();
-  l[1] = -leptonMom.Px();
-  l[2] = -leptonMom.Py();
-  l[3] = -leptonMom.Pz();
-  
-  s[0] = leptonMom.P()/ml;
-  s[1] = -leptonMom.Vect().Unit().X()*leptonMom.E()/ml;
-  s[2] = -leptonMom.Vect().Unit().Y()*leptonMom.E()/ml;
-  s[3] = -leptonMom.Vect().Unit().Z()*leptonMom.E()/ml;
-  
-  for (int a = 0; a < 4; a++)
-  {
-    eskl[a] = 0;
-    for (int b = 0; b < 4; b++)
-        {
-            if (b == a) continue;
-            for (int g = 0; g < 4; g++)
-            {
-                if (g == b || g == a) continue;
-                for (int d = 0; d < 4; d++)
-                {
-                    if (d == g || d == b || d == a) continue;
-                    double sb = s[b]*(b == 0?1:-1);
-                    double kg = k[g]*(g == 0?1:-1);
-                    double ld = l[d]*(d == 0?1:-1);
-                    eskl[a] += e(a,b,g,d)*sb*kg*ld;
-                }
-            }
-        }
-  }
-    
-  double kl = neutrinoMom*leptonMom;
-  double ks = k[0]*s[0] - k[1]*s[1] - k[2]*s[2] - k[3]*s[3];
   
   for(int i = 0; i < 4; i++)
-      for(int j = i; j < 4; j++)
+    for(int j = i; j < 4; j++)
         rulin[i][j] = rulin[j][i] = tulin[i]*tulin[j];
-        
-  for (int a = 0; a < 4; a++)
-  {
-     if (is_neutrino)
-     {
-        jp[a] =  (l[a]*ks - s[a]*kl - 1i*eskl[a] + ml*k[a])/sqrt(kl + ml*ks);   //jp_\alpha
-        jm[a] = (-l[a]*ks + s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(kl - ml*ks);   //jm_\alpha
-     }
-     else
-     {
-        jp[a] =  (l[a]*ks - s[a]*kl + 1i*eskl[a] - ml*k[a])/sqrt(kl - ml*ks);   //jp_\alpha
-        jm[a] =  (l[a]*ks - s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(kl + ml*ks);   //jm_\alpha
-     }
-  }
+
+  std::complex<double> Amunu, Anumu;
   
-  //Additional constants and variables
-  std::complex<double> Amunu, Anumu, LWpp(0, 0), LWpm(0, 0), LWmp(0, 0), LWmm(0, 0);
+  HermitianMatrix NuclearTensor(4);
+  
   double aux1 = 2*CL*Fp*(Fp*q2 + 4*FA*M);
   double aux2 = 8*(FA2 + 4*F1V2 - xiF2V2*q2/M2);
   for(int mu = 0; mu < 4; mu++)
@@ -1616,10 +1588,7 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
             Amunu = 32*F1V2*(rulin[0][0]*CN + q[0]*tulin[0] + q2/4)+
                     8*q2*xiF2V2*(1 - rulin[0][0]/M2 - q[0]*tulin[0]/M2 - q02*(1/q2 + 1/4./M2)) +
                     8*FA2*(rulin[0][0] + q[0]*tulin[0] + q2/4 - M2)-aux1*q02-16*F1V*xiF2V*(q02 - q2)*CN;
-            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
-            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
-            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
-            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
+            NuclearTensor.set(mu, nu, Amunu);
         }
         if (mu == 1 && nu == 1)
         {
@@ -1627,10 +1596,7 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
                     8*q2*xiF2V2*(CT + rulin[1][1]/M2) +
                     8*FA2*(rulin[1][1] + CT*M2 - q2/4)-
                     16*F1V*xiF2V*CT*q2;
-            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
-            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
-            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
-            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
+            NuclearTensor.set(mu, nu, Amunu);
         }
         if (mu == 2 && nu == 2)
         {
@@ -1638,143 +1604,75 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
                     8*q2*xiF2V2*(CT + rulin[2][2]/M2) +
                     8*FA2*(rulin[2][2] + CT*M2 - q2/4)-
                     16*F1V*xiF2V*CT*q2;
-            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
-            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
-            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
-            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
+            NuclearTensor.set(mu, nu, Amunu);
         }
         if (mu == 3 && nu == 3)
         {
             Amunu = 32*F1V2*(rulin[3][3] + dq*tulin[3] - q2/4)-
                     8*q2*xiF2V2*(1 + rulin[3][3]/M2 + dq*tulin[3]/M2 + dq2*(1/q2 + 1/4./M2))+
                     8*FA2*(rulin[3][3] + dq*tulin[3] + CL*M2 - q2/4) - aux1*dq2 - 16*F1V*xiF2V*q02;
-            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
-            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
-            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
-            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
+            NuclearTensor.set(mu, nu, Amunu);
         }
         if (mu == 0 && nu == 1)
         {
             Amunu = aux2*(rulin[0][1] + tulin[1]*q[0]/2) - 1i*16.*FA*(F1V + xiF2V)*tulin[2]*dq;
-            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
-            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
-            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
-            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
-            
+            NuclearTensor.set(mu, nu, Amunu);
+
             Anumu = aux2*(rulin[0][1] + tulin[1]*q[0]/2) + 1i*16.*FA*(F1V + xiF2V)*tulin[2]*dq;
-            LWpp += jp[nu]*std::conj(jp[mu])*Anumu;
-            LWpm += jp[nu]*std::conj(jm[mu])*Anumu;
-            LWmp += jm[nu]*std::conj(jp[mu])*Anumu;
-            LWmm += jm[nu]*std::conj(jm[mu])*Anumu;
+            NuclearTensor.set(nu, mu, Anumu);
         }
         if (mu == 0 && nu == 2)
         {
             Amunu = aux2*(rulin[0][2] + tulin[2]*q[0]/2) + 1i*16.*FA*(F1V + xiF2V)*tulin[1]*dq;
-            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
-            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
-            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
-            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
-            
+            NuclearTensor.set(mu, nu, Amunu);
+
             Anumu = aux2*(rulin[0][2] + tulin[2]*q[0]/2) - 1i*16.*FA*(F1V + xiF2V)*tulin[1]*dq;
-            LWpp += jp[nu]*std::conj(jp[mu])*Anumu;
-            LWpm += jp[nu]*std::conj(jm[mu])*Anumu;
-            LWmp += jm[nu]*std::conj(jp[mu])*Anumu;
-            LWmm += jm[nu]*std::conj(jm[mu])*Anumu;
+            NuclearTensor.set(nu, mu, Anumu);
         }
         if (mu == 0 && nu == 3)
         {
             Amunu = 16*F1V2*((2*rulin[0][3] + tulin[0]*dq)*CN + tulin[3]*q[0])+
                     -4*q2*xiF2V2*(2*rulin[0][3]/M2 + (dq*tulin[0] + q[0]*tulin[3])/M2 + dq*q[0]*(2/q2 + 0.5/M2))+
                     4*FA2*((2*rulin[0][3] + dq*tulin[0])*CL + q[0]*tulin[3]) - dq*q[0]*(aux1 + 16*F1V*xiF2V);
-            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
-            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
-            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
-            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
-            
-            Anumu = Amunu;
-            LWpp += jp[nu]*std::conj(jp[mu])*Anumu;
-            LWpm += jp[nu]*std::conj(jm[mu])*Anumu;
-            LWmp += jm[nu]*std::conj(jp[mu])*Anumu;
-            LWmm += jm[nu]*std::conj(jm[mu])*Anumu;
+            NuclearTensor.set(mu, nu, Amunu);
+            NuclearTensor.set(nu, mu, Amunu);
         }
         if (mu == 1 && nu == 2)
         {
             Amunu = -1i*16.*FA*(xiF2V+F1V)*(q[0]*tulin[3] - dq*tulin[0]*CT) + 8.*rulin[1][2]*(FA2 + 4*F1V2 - xiF2V2*q2/M2);
-            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
-            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
-            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
-            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
-            
-            Anumu = 1i*16.*FA*(xiF2V+F1V)*(q[0]*tulin[3] - dq*tulin[0]*CT) + 8.*rulin[1][2]*(FA2 + 4*F1V2 - xiF2V2*q2/M2);
-            LWpp += jp[nu]*std::conj(jp[mu])*Anumu;
-            LWpm += jp[nu]*std::conj(jm[mu])*Anumu;
-            LWmp += jm[nu]*std::conj(jp[mu])*Anumu;
-            LWmm += jm[nu]*std::conj(jm[mu])*Anumu;
+            NuclearTensor.set(mu, nu, Amunu);
+            NuclearTensor.set(nu, mu, std::conj(Amunu));
+
         }
         if (mu == 1 && nu == 3)
         {
             Amunu = aux2*(rulin[1][3] + tulin[1]*dq/2) + 1i*16.*FA*(F1V + xiF2V)*tulin[2]*q[0];
-            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
-            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
-            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
-            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
-            
-            Anumu = aux2*(rulin[1][3] + tulin[1]*dq/2) - 1i*16.*FA*(F1V + xiF2V)*tulin[2]*q[0];
-            LWpp += jp[nu]*std::conj(jp[mu])*Anumu;
-            LWpm += jp[nu]*std::conj(jm[mu])*Anumu;
-            LWmp += jm[nu]*std::conj(jp[mu])*Anumu;
-            LWmm += jm[nu]*std::conj(jm[mu])*Anumu;
+            NuclearTensor.set(mu, nu, Amunu);
+            NuclearTensor.set(nu, mu, std::conj(Amunu));
         }
         
         if (mu == 2 && nu == 3)
         {
             Amunu = aux2*(rulin[2][3] + tulin[2]*dq/2) - 1i*16.*FA*(F1V + xiF2V)*tulin[1]*q[0];
-            LWpp += jp[mu]*std::conj(jp[nu])*Amunu;
-            LWpm += jp[mu]*std::conj(jm[nu])*Amunu;
-            LWmp += jm[mu]*std::conj(jp[nu])*Amunu;
-            LWmm += jm[mu]*std::conj(jm[nu])*Amunu;
-            
-            Anumu = aux2*(rulin[2][3] + tulin[2]*dq/2) + 1i*16.*FA*(F1V + xiF2V)*tulin[1]*q[0];
-            LWpp += jp[nu]*std::conj(jp[mu])*Anumu;
-            LWpm += jp[nu]*std::conj(jm[mu])*Anumu;
-            LWmp += jm[nu]*std::conj(jp[mu])*Anumu;
-            LWmm += jm[nu]*std::conj(jm[mu])*Anumu;
+            NuclearTensor.set(mu, nu, Amunu);
+            NuclearTensor.set(nu, mu, std::conj(Amunu));
         }
      }
   }
   
-  std::complex<double> LWppmm = LWpp + LWmm;
-  std::complex<double> rhopp = LWpp/LWppmm;
-  std::complex<double> rhopm = LWpm/LWppmm;
-  std::complex<double> rhomp = LWmp/LWppmm;
-  std::complex<double> rhomm = LWmm/LWppmm;
-  double PL = std::real(rhopp - rhomm);
-  double PP = std::real(rhopm + rhomp);
-  double PT = std::imag(rhomp - rhopm);
-  
-  neutrinoMom3 = neutrinoMom.Vect();                                          
-  leptonMom3 = leptonMom.Vect();
-  TVector3 Pz = leptonMom3.Unit();
-  TVector3 Px = neutrinoMom3.Cross(leptonMom3).Unit();
-  TVector3 Py = Pz.Cross(Px);
-  TVector3 pol = PT*Px + PP*Py + PL*Pz;
-  fFinalLeptonPolarization = pol;
+  CalculatePolarizationVectorWithNuclearTensor(
+                        fFinalLeptonPolarization, 
+                        neutrinoMom, 
+                        leptonMom, 
+                        is_neutrino, 
+                        NuclearTensor);
+                        
+
+
   
   std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-  std::cout << "PL = " << PL << ", PT = " << PT << ", PP = " << PP << "\n";
   std::cout << fFinalLeptonPolarization.Mag() << "\n";
   std::cout << "NV@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
  
   return fFinalLeptonPolarization;
 }
-//____________________________________________________________________________
-inline int NievesQELCCPXSec::g(int a, int b) const
-{
-    return (a==b)*(2*(a==0) - 1);
-}
-//____________________________________________________________________________
-inline int NievesQELCCPXSec::e(int a, int b, int c, int d) const
-{
-    return (b - a)*(c - a)*(d - a)*(c - b)*(d - b)*(d - c)/12;
-}
-//____________________________________________________________________________

@@ -21,6 +21,7 @@
 #include "Physics/Multinucleon/XSection/NievesSimoVacasMECPXSec2016.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -166,10 +167,10 @@ double NievesSimoVacasMECPXSec2016::XSec(
 
   // Check that the input kinematical point is within the range
   // in which hadron tensors are known (for chosen target)
-  double Ev    = interaction->InitState().ProbeE(kRfLab);
-  double Tl    = interaction->Kine().GetKV(kKVTl);
-  double costl = interaction->Kine().GetKV(kKVctl);
-  double ml    = interaction->FSPrimLepton()->Mass();
+  //double Ev    = interaction->InitState().ProbeE(kRfLab);
+  //double Tl    = interaction->Kine().GetKV(kKVTl);
+  //double costl = interaction->Kine().GetKV(kKVctl);
+  //double ml    = interaction->FSPrimLepton()->Mass();
   double Q0    = interaction->Kine().GetKV(kKVQ0);
   double Q3    = interaction->Kine().GetKV(kKVQ3);
 
@@ -370,6 +371,9 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
   // Cross section scaling factor
   GetParam( "MEC-CC-XSecScale", fXSecCCScale ) ;
   GetParam( "MEC-NC-XSecScale", fXSecNCScale ) ;
+  
+  // Do precise calculation of lepton polarization
+  GetParamDef( "PreciseLeptonPol", fIsPreciseLeptonPolarization, false ) ;
 
   fHadronTensorModel = dynamic_cast<const HadronTensorModelI *> ( this->SubAlg("HadronTensorAlg") );
   if( !fHadronTensorModel ) {
@@ -408,4 +412,376 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
     exit(78) ;
   }
 
+}
+//_________________________________________________________________________
+const TVector3 & NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Interaction* interaction) const
+{ 
+    if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+    
+    const Kinematics&   kinematics = interaction -> Kine();
+    const InitialState& init_state = interaction -> InitState();
+    const Target& tgt = init_state.Tgt();
+    // If {W,Q2} have been supplied instead, compute {Tl, ctl}
+    // NOTE: The expressions used here neglect Fermi motion and
+    // should eventually be revisited. See the "important note"
+    // in src/Framework/Utils/KineUtils.cxx about the
+    // Jacobian for transforming {W,Q2} --> {Tl, ctl}.
+    // - S. Gardiner, 29 July 2020
+    if (kinematics.GetKV( kKVQ2 ) != -99999 && kinematics.GetKV( kKVW ) != -99999)
+    {
+        double Q2 = interaction->Kine().GetKV( kKVQ2 );
+        double W = interaction->Kine().GetKV( kKVW );
+    
+        // Probe properties (mass, energy, momentum)
+        double mv = init_state.Probe()->Mass();
+        double Ev = init_state.ProbeE( kRfLab );
+        double pv = std::sqrt( std::max(0., Ev*Ev - mv*mv) );
+    
+        // Invariant mass of the initial hit nucleon
+        const TLorentzVector& hit_nuc_P4 = init_state.Tgt().HitNucP4();
+        double M = hit_nuc_P4.M();
+    
+        // Get the outgoing lepton kinetic energy
+        double ml = interaction->FSPrimLepton()->Mass();
+        double Tl = Ev - ml - ( (W*W + Q2 - M*M) / (2.*M) );
+    
+        // Get the outgoing lepton scattering cosine
+        double El = Tl + ml;
+        double pl = std::sqrt( std::max(0., El*El - ml*ml) );
+        double ctl = ( 2.*Ev*El - Q2 - mv*mv - ml*ml ) / ( 2. * pv * pl );
+    
+        // Set Tl, ctl in the interaction
+        interaction->KinePtr()->SetKV( kKVTl, Tl );
+        interaction->KinePtr()->SetKV( kKVctl, ctl );
+  }
+  const double M = 1;  // the polarization doesn't depend on mass of target in target rest frame
+  // This function returns d2sigma/(dTmu dcos_mu) in GeV^(-3)
+  int target_pdg = tgt.Pdg();
+  
+  int A_request = pdg::IonPdgCodeToA(target_pdg);
+  int Z_request = pdg::IonPdgCodeToZ(target_pdg);
+
+  // To generate cross-sections for nuclei other than those with hadron
+  // tensors we need to pull both the full cross-section and
+  // the pn initial state fraction.
+  // Non-isoscalar nuclei are beyond the original published Valencia model
+  // and scale with A according to the number of pp, pn, or nn pairs
+  // the probe is expected to find.
+  // There is some by-hand optimization here, skipping the delta part when
+  // only the total cross-section is requested.
+  // Possible future models without a Delta had tensor would also use that
+  // flag to call this without computing the Delta part.
+
+  // Try to look up a hadron tensor in the pool that is an exact match for
+  // the target nucleus. If an exact match cannot be found, decide upon a
+  // suitable substitute based on the mass number A and proton number Z.
+
+  int tensor_pdg = target_pdg;
+
+  /// \todo Replace these hard-coded replacements with an equivalent XML
+  /// configuration
+  if ( ! fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_FullAll) )
+  {
+
+    if ( A_request == 4 && Z_request == 2 ) 
+    {
+      tensor_pdg = kPdgTgtC12;
+      // This is for helium 4, but use carbon tensor
+      // the use of nuclear density parameterization is suspicious
+      // but some users (MINERvA) need something not nothing.
+      // The pn will be exactly 1/3, but pp and nn will be ~1/4
+      // Because the combinatorics are different.
+      // Could do lithium beryllium boron which you don't need
+    }
+    else if (A_request < 9) 
+    {
+        // refuse to do D, T, He3, Li, and some Be, B
+        // actually it would work technically, maybe except D, T
+        MAXLOG("NievesSimoVacasMEC", pWARN, 10)
+            << "Asked to scale to deuterium through boron "
+            << target_pdg << " nope, lets not do that.";
+        fFinalLeptonPolarization = TVector3(0, 0, 0);
+        return fFinalLeptonPolarization;
+    }
+    else if (A_request >= 9 && A_request < 15) 
+    {
+      tensor_pdg = kPdgTgtC12;
+      //}
+      // could explicitly put in nitrogen for air
+      //else if ( A_request >= 14 && A < 15) { // AND CHANGE <=14 to <14.
+      //  tensor_pdg = kPdgTgtN14;
+    }
+    else if (A_request >= 15 && A_request < 22) 
+    {
+      tensor_pdg = kPdgTgtO16;
+    }
+    else if (A_request >= 22 && A_request < 33) 
+    {
+      // of special interest, this gets Al27 and Si28
+      tensor_pdg = 1000140280;
+    }
+    else if (A_request >= 33 && A_request < 50) 
+    {
+      // of special interest, this gets Ar40 and Ti48
+      tensor_pdg = kPdgTgtCa40;
+    }
+    else if (A_request >= 50 && A_request < 90) 
+    {
+      // pseudoFe56, also covers many other ferrometals and Ge
+      tensor_pdg = 1000280560;
+    }
+    else if (A_request >= 90 && A_request < 160) 
+    {
+      // use Ba112 = PseudoCd.  Row5 of Periodic table useless. Ag, Xe?
+      tensor_pdg = 1000561120;
+    }
+    else if (A_request >= 160) 
+    {
+      // use Rf208 = pseudoPb
+      tensor_pdg = 1001042080;
+    }
+    else 
+    {
+        MAXLOG("NievesSimoVacasMEC", pWARN, 10) << "Can't calculate final lepton polarization. Set it to zero.";
+        fFinalLeptonPolarization = TVector3(0, 0, 0);
+        return fFinalLeptonPolarization;
+    }
+  }
+
+  // Check that the input kinematical point is within the range
+  // in which hadron tensors are known (for chosen target)
+  double Q0    = interaction->Kine().GetKV(kKVQ0);
+  double Q3    = interaction->Kine().GetKV(kKVQ3);
+
+  const LabFrameHadronTensorI* tensor
+    = dynamic_cast<const LabFrameHadronTensorI*>(
+    fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_FullAll) );
+
+  // If retrieving the tensor failed, complain and return zero
+  if ( !tensor ) 
+  {
+    LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a"
+    " hadronic tensor for the nuclide " << tensor_pdg;
+    fFinalLeptonPolarization = TVector3(0, 0, 0);
+    return fFinalLeptonPolarization;
+  }
+
+  // Assume for now that the range of validity for the "FullAll" hadron
+  // tensor is the same as for the partial hadron tensors
+  /// \todo Revisit this assumption, and perhaps implement something
+  /// more robust
+  double Q0min = tensor->q0Min();
+  double Q0max = tensor->q0Max();
+  double Q3min = tensor->qMagMin();
+  double Q3max = tensor->qMagMax();
+  if (Q0 < Q0min || Q0 > Q0max || Q3 < Q3min || Q3 > Q3max) 
+  {
+    fFinalLeptonPolarization = TVector3(0, 0, 0);
+    return fFinalLeptonPolarization;
+  }
+
+  // Get the Q-value needed to calculate the cross sections using the
+  // hadron tensor.
+  /// \todo Shouldn't we get this from the nuclear model?
+  int nu_pdg = interaction->InitState().ProbePdg();
+  double Q_value = genie::utils::mec::Qvalue(target_pdg, nu_pdg);
+
+  // Apply Qvalue relative shift if needed:
+  if( fQvalueShifter ) Q_value += Q_value * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
+
+  // By default, we will compute the full cross-section. If a resonance is
+  // set, we will calculate the part of the cross-section with an internal
+  // Delta line without a final state pion (usually called PPD for pioness
+  // Delta decay). If a {p,n} hit dinucleon was set we will calculate the
+  // cross-section for that component only (either full or PDD cross-section)
+  bool delta = interaction->ExclTag().KnownResonance();
+  bool pn    = (tgt.HitNucPdg() == kPdgClusterNP);
+
+  double W1_all(0), W2_all(0), W3_all(0), W4_all(0), W5_all(0);
+  double W1_pn(0), W2_pn(0), W3_pn(0), W4_pn(0), W5_pn(0);
+  double W1(0), W2(0), W3(0), W4(0), W5(0);
+  
+  if ( delta ) 
+  {
+    const LabFrameHadronTensorI* tensor_delta_all
+      = dynamic_cast<const LabFrameHadronTensorI*>(
+      fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_DeltaAll) );
+
+    if ( !tensor_delta_all ) 
+    {
+       LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a \"DeltaAll\""
+           << " hadronic tensor for nuclide " << tensor_pdg;
+       fFinalLeptonPolarization = TVector3(0, 0, 0);
+       return fFinalLeptonPolarization;
+    }
+
+    const LabFrameHadronTensorI* tensor_delta_pn
+      = dynamic_cast<const LabFrameHadronTensorI*>(
+      fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_Deltapn) );
+
+    if ( !tensor_delta_pn ) 
+    {
+       LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a \"Deltapn\""
+           << " hadronic tensor for nuclide " << tensor_pdg;
+       fFinalLeptonPolarization = TVector3(0, 0, 0);
+       return fFinalLeptonPolarization;
+    }
+    
+    W1_all = tensor_delta_all->W1(Q0 -  Q_value, Q3, M);
+    W2_all = tensor_delta_all->W2(Q0 -  Q_value, Q3, M);
+    W3_all = -tensor_delta_all->W3(Q0 - Q_value, Q3, M);
+    W4_all = tensor_delta_all->W4(Q0 -  Q_value, Q3, M);
+    W5_all = tensor_delta_all->W5(Q0 -  Q_value, Q3, M);
+    W1_pn  = tensor_delta_pn->W1(Q0 -   Q_value, Q3, M);
+    W2_pn  = tensor_delta_pn->W2(Q0 -   Q_value, Q3, M);
+    W3_pn  = -tensor_delta_pn->W3(Q0 -  Q_value, Q3, M);
+    W4_pn  = tensor_delta_pn->W4(Q0 -   Q_value, Q3, M);
+    W5_pn  = tensor_delta_pn->W5(Q0 -   Q_value, Q3, M);
+  }
+  else 
+  {
+    const LabFrameHadronTensorI* tensor_full_all
+      = dynamic_cast<const LabFrameHadronTensorI*>(
+      fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_FullAll) );
+
+    if ( !tensor_full_all ) 
+    {
+        LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a \"FullAll\""
+            << " hadronic tensor for nuclide " << tensor_pdg;
+        fFinalLeptonPolarization = TVector3(0, 0, 0);
+        return fFinalLeptonPolarization;
+    }
+
+    const LabFrameHadronTensorI* tensor_full_pn
+      = dynamic_cast<const LabFrameHadronTensorI*>(
+      fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_Fullpn) );
+
+    if ( !tensor_full_pn ) 
+    {
+        LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a \"Fullpn\""
+            << " hadronic tensor for nuclide " << tensor_pdg;
+        fFinalLeptonPolarization = TVector3(0, 0, 0);
+        return fFinalLeptonPolarization;
+    }
+    
+    W1_all = tensor_full_all->W1(Q0 - Q_value,  Q3, M);
+    W2_all = tensor_full_all->W2(Q0 - Q_value,  Q3, M);
+    W3_all = -tensor_full_all->W3(Q0 - Q_value, Q3, M);
+    W4_all = tensor_full_all->W4(Q0 - Q_value,  Q3, M);
+    W5_all = tensor_full_all->W5(Q0 - Q_value,  Q3, M);
+    W1_pn  = tensor_full_pn->W1(Q0 - Q_value,   Q3, M);
+    W2_pn  = tensor_full_pn->W2(Q0 - Q_value,   Q3, M);
+    W3_pn  = -tensor_full_pn->W3(Q0 - Q_value,  Q3, M);
+    W4_pn  = tensor_full_pn->W4(Q0 - Q_value,   Q3, M);
+    W5_pn  = tensor_full_pn->W5(Q0 - Q_value,   Q3, M);
+  }
+
+  // We need to scale the cross section appropriately if
+  // we are using a hadronic tensor for a nuclide that is different
+  // from the actual target
+  bool need_to_scale = (target_pdg != tensor_pdg);
+
+  // would need to trap and treat He3, T, D special here.
+  if ( need_to_scale ) 
+  {
+
+    double PP = Z_request;
+    double NN = A_request - PP;
+    double P  = pdg::IonPdgCodeToZ(tensor_pdg);
+    double N  = pdg::IonPdgCodeToA(tensor_pdg) - P;
+
+    double scale_pn = TMath::Sqrt( (PP*NN)/(P*N) );
+    double scale_pp = TMath::Sqrt( (PP * (PP - 1.)) / (P * (P - 1.)) );
+    double scale_nn = TMath::Sqrt( (NN * (NN - 1.)) / (N * (N - 1.)) );
+
+    LOG("NievesSimoVacasMEC", pDEBUG)
+        << "Scale pn pp nn for (" << target_pdg << ", " << tensor_pdg << ")"
+        << " : " << scale_pn << " " << scale_pp << " " << scale_nn;
+
+    // This is an approximation in at least three senses:
+    // 1. We are scaling from an isoscalar nucleus using p and n counting
+    // 2. We are not using the right qvalue in the had tensor
+    // 3. We are not scaling the Delta faster than the non-Delta.
+    // The guess is that these are good approximations.
+    // A test we could document is to scale from O16 to N14 or C12 using this
+    // algorithm and see how many percent deviation we see from the full
+    // calculation.
+    double temp1_all = W1_all;
+    double temp1_pn  = W1_pn * scale_pn;
+    double temp2_all = W2_all;
+    double temp2_pn  = W2_pn * scale_pn;
+    double temp3_all = W3_all;
+    double temp3_pn  = W3_pn * scale_pn;
+    double temp4_all = W4_all;
+    double temp4_pn  = W4_pn * scale_pn;
+    double temp5_all = W5_all;
+    double temp5_pn  = W5_pn * scale_pn;
+    if (nu_pdg > 0) 
+    {
+      // matter neutrinos
+      temp1_all = W1_pn * scale_pn + (W1_all - W1_pn) * scale_nn;
+      temp2_all = W2_pn * scale_pn + (W2_all - W2_pn) * scale_nn;
+      temp3_all = W3_pn * scale_pn + (W3_all - W3_pn) * scale_nn;
+      temp4_all = W4_pn * scale_pn + (W4_all - W4_pn) * scale_nn;
+      temp5_all = W5_pn * scale_pn + (W5_all - W5_pn) * scale_nn;
+    }
+    else 
+    {
+      // antineutrinos
+      temp1_all = W1_pn * scale_pn + (W1_all - W1_pn) * scale_pp;
+      temp2_all = W2_pn * scale_pn + (W2_all - W2_pn) * scale_pp;
+      temp3_all = W3_pn * scale_pn + (W3_all - W3_pn) * scale_pp;
+      temp4_all = W4_pn * scale_pn + (W4_all - W4_pn) * scale_pp;
+      temp5_all = W5_pn * scale_pn + (W5_all - W5_pn) * scale_pp;
+    }
+
+    W1_all = temp1_all;
+    W1_pn  = temp1_pn;
+    W2_all = temp2_all;
+    W2_pn  = temp2_pn;
+    W3_all = temp3_all;
+    W3_pn  = temp3_pn;
+    W4_all = temp4_all;
+    W4_pn  = temp4_pn;
+    W5_all = temp5_all;
+    W5_pn  = temp5_pn;
+  }
+  
+  // Choose the right kind of cross section ("all" or "pn") to return
+  // based on whether a {p, n} dinucleon was hit
+  if (pn)
+  {
+      W1 = W1_pn;
+      W2 = W2_pn;
+      W3 = W3_pn;
+      W4 = W4_pn;
+      W5 = W5_pn;
+  }
+  else
+  {
+      W1 = W1_all;
+      W2 = W2_all;
+      W3 = W3_all;
+      W4 = W4_all;
+      W5 = W5_all;
+  }
+  
+  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
+  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector neutrinoMom = *tempNeutrino;
+  delete tempNeutrino;
+  const TLorentzVector leptonMom = kinematics.FSLeptonP4();
+  genie::utils::CalculatePolarizationVectorInTargetRestFrame(
+                                            fFinalLeptonPolarization, 
+                                            neutrinoMom, 
+                                            leptonMom,
+                                            is_neutrino, 
+                                            M, W1,W2,W3,W4,W5,0);
+
+ 
+  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+  std::cout << fFinalLeptonPolarization.Mag() << "\n";
+  std::cout << "NVMEC@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
+
+  return fFinalLeptonPolarization;
 }

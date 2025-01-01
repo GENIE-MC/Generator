@@ -32,11 +32,11 @@
 #include "Framework/Utils/KineUtils.h"
 #include "Physics/NuclearState/NuclearUtils.h"
 #include "Physics/QuasiElastic/XSection/QELUtils.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
 using namespace genie::utils;
-using namespace std::complex_literals;
 
 //____________________________________________________________________________
 LwlynSmithQELCCPXSec::LwlynSmithQELCCPXSec() :
@@ -488,8 +488,7 @@ const TVector3 & LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interactio
   bool isosymmetry = true;
   if (qel_ff_mod_name == "genie::LwlynSmithFFCC") isosymmetry = false;
   if (qel_ff_mod_name == "genie::LwlynSmithIsoFFCC") isosymmetry = true;
-    
-  double ml = interaction->FSPrimLepton()->Mass();
+
   // First we need access to all of the particles in the interaction
   // The particles were stored in the lab frame
   const Kinematics&   kinematics = interaction -> Kine();
@@ -624,149 +623,19 @@ const TVector3 & LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interactio
   double W3 =  w03                 ;
   double W4 =  w04 + w14*r + w24*r2;
   double W5 =  w05 + w15*r + w25*r2;
-    
-  double p[4], q[4], epq[4][4], k[4], l[4], s[4], eskl[4];
-  std::complex<double> jp[4], jm[4];
-    
-  p[0] = inNucleonMom.E();
-  p[1] = inNucleonMom.Px();
-  p[2] = inNucleonMom.Py();
-  p[3] = inNucleonMom.Pz();
-  
-  q[0] = qP4.E();
-  q[1] = qP4.Px();
-  q[2] = qP4.Py();
-  q[3] = qP4.Pz();
-  
-  k[0] = neutrinoMom.E();
-  k[1] = -neutrinoMom.Px();
-  k[2] = -neutrinoMom.Py();
-  k[3] = -neutrinoMom.Pz();
-  
-  l[0] = leptonMom.E();
-  l[1] = -leptonMom.Px();
-  l[2] = -leptonMom.Py();
-  l[3] = -leptonMom.Pz();
-  
-  s[0] = leptonMom.P()/ml;
-  s[1] = -leptonMom.Vect().Unit().X()*leptonMom.E()/ml;
-  s[2] = -leptonMom.Vect().Unit().Y()*leptonMom.E()/ml;
-  s[3] = -leptonMom.Vect().Unit().Z()*leptonMom.E()/ml;
-  
-  // epsilon^\alpha\beta\gamma\delta p_\gamma q_\delta
-  for (int a = 0; a < 4; a++)
-  {
-    for (int b = 0; b < 4; b++)
-    {
-        epq[a][b] = 0;
-        if (b == a) continue;
-        for (int g = 0; g < 4; g++)
-        {
-            if (g == b || g == a) continue;
-            for (int d = 0; d < 4; d++)
-            {
-                if (d == g || d == b || d == a) continue;
-                epq[a][b] += e(a,b,g,d)*(a == 0?1:-1)*(b == 0?1:-1)*p[g]*q[d];
-            }
-        }
-    }
-  }
-  
-  // epsilon_\alpha\beta\gamma\delta s^\beta k^\gamma l^\delta
-  for (int a = 0; a < 4; a++)
-  {
-    eskl[a] = 0;
-    for (int b = 0; b < 4; b++)
-    {
-        if (b == a) continue;
-        for (int g = 0; g < 4; g++)
-        {
-            if (g == b || g == a) continue;
-            for (int d = 0; d < 4; d++)
-            {
-                if (d == g || d == b || d == a) continue;
-                double sb = s[b]*(b == 0?1:-1);
-                double kg = k[g]*(g == 0?1:-1);
-                double ld = l[d]*(d == 0?1:-1);
-                eskl[a] += e(a,b,g,d)*sb*kg*ld;
-            }
-        }
-    }
-  }
-    
-  double kl = k[0]*l[0] - k[1]*l[1] - k[2]*l[2] - k[3]*l[3];
-  double ks = k[0]*s[0] - k[1]*s[1] - k[2]*s[2] - k[3]*s[3];
-        
-  for (int a = 0; a < 4; a++)
-  {
-     if (is_neutrino)
-     {
-        jp[a] =  (l[a]*ks - s[a]*kl - 1i*eskl[a] + ml*k[a])/sqrt(kl + ml*ks);   //jp_\alpha
-        jm[a] = (-l[a]*ks + s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(kl - ml*ks);   //jm_\alpha
-     }
-     else
-     {
-        jp[a] =  (l[a]*ks - s[a]*kl + 1i*eskl[a] - ml*k[a])/sqrt(kl - ml*ks);   //jp_\alpha
-        jm[a] =  (l[a]*ks - s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(kl + ml*ks);   //jm_\alpha
-     }
-  }
 
-
-  //Additional constants and variables
-  std::complex<double> Wmunu, Wnumu, LWpp(0, 0), LWpm(0, 0), LWmp(0, 0), LWmm(0, 0);
-  for(int mu = 0; mu < 4; mu++)
-  {
-     for(int nu = mu;nu < 4; nu++)
-     {
-        double Wreal = -g(mu,nu)*W1 + p[mu]*p[nu]*W2/M2 + q[mu]*q[nu]*W4/M2 + (p[mu]*q[nu] + q[mu]*p[nu])*W5/2/M2;
-        double Wimag = epq[mu][nu]*W3/2/M2;
-        Wmunu = Wreal - 1i*Wimag;  // W^\mu\nu
-        LWpp += jp[mu]*std::conj(jp[nu])*Wmunu; // Lpp_\mu\nu*W^\mu\nu
-        LWpm += jp[mu]*std::conj(jm[nu])*Wmunu; // Lpm_\mu\nu*W^\mu\nu
-        LWmp += jm[mu]*std::conj(jp[nu])*Wmunu; // Lmp_\mu\nu*W^\mu\nu
-        LWmm += jm[mu]*std::conj(jm[nu])*Wmunu; // Lmm_\mu\nu*W^\mu\nu
-        if (mu != nu)
-        {
-            Wnumu = Wreal + 1i*Wimag;
-            LWpp += jp[nu]*std::conj(jp[mu])*Wnumu; // Lpp_\mu\nu*W^\mu\nu
-            LWpm += jp[nu]*std::conj(jm[mu])*Wnumu; // Lpm_\mu\nu*W^\mu\nu
-            LWmp += jm[nu]*std::conj(jp[mu])*Wnumu; // Lmp_\mu\nu*W^\mu\nu
-            LWmm += jm[nu]*std::conj(jm[mu])*Wnumu; // Lmm_\mu\nu*W^\mu\nu
-        }
-    }
-  }
-  std::complex<double> LWppmm = LWpp + LWmm;
-  std::complex<double> rhopp = LWpp/LWppmm;
-  std::complex<double> rhopm = LWpm/LWppmm;
-  std::complex<double> rhomp = LWmp/LWppmm;
-  std::complex<double> rhomm = LWmm/LWppmm;
-  double PL = std::real(rhopp - rhomm);
-  double PP = std::real(rhopm + rhomp);
-  double PT = std::imag(rhomp - rhopm);
-  
-  TVector3 neutrinoMom3 = neutrinoMom.Vect();                                          
-  TVector3 leptonMom3 = leptonMom.Vect();
-  TVector3 Pz = leptonMom3.Unit();
-  TVector3 Px = neutrinoMom3.Cross(leptonMom3).Unit();
-  TVector3 Py = Pz.Cross(Px);
-  TVector3 pol = PT*Px + PP*Py + PL*Pz;
-  fFinalLeptonPolarization = pol;
-  
+  CalculatePolarizationVectorWithStructureFunctions(
+                fFinalLeptonPolarization, 
+                neutrinoMom, 
+                leptonMom, 
+                inNucleonMom, 
+                qP4, 
+                is_neutrino, 
+                M, W1,W2,W3,W4,W5,0);
+   
   std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-  std::cout << "PL = " << PL << ", PT = " << PT << ", PP = " << PP << "\n";
   std::cout << fFinalLeptonPolarization.Mag() << "\n";
   std::cout << "LW@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
   
   return fFinalLeptonPolarization;
 }
-//____________________________________________________________________________
-inline int LwlynSmithQELCCPXSec::g(int a, int b) const
-{
-    return (a==b)*(2*(a==0) - 1);
-}
-//____________________________________________________________________________
-inline int LwlynSmithQELCCPXSec::e(int a, int b, int c, int d) const
-{
-    return (b - a)*(c - a)*(d - a)*(c - b)*(d - b)*(d - c)/12;
-}
-//____________________________________________________________________________

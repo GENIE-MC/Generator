@@ -45,6 +45,7 @@
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/Range1.h"
 #include "Physics/QuasiElastic/XSection/SmithMonizUtils.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -521,7 +522,6 @@ const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interactio
   double qv      = TMath::Sqrt(qqv);
   
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
-  int sign = (is_neutrino) ? +1 : -1;
   
   double El   = Enu - v;
   double ml = interaction->FSPrimLepton()->Mass();
@@ -540,12 +540,7 @@ const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interactio
      fFinalLeptonPolarization = TVector3(0, 0, 0);
      return fFinalLeptonPolarization;
   }
-  double sin_theta = TMath::Sqrt(1 - cos_theta*cos_theta);
-  // cos^2(theta/2)
-  double cs2th = (1 + cos_theta)/2;
-  // sin^2(theta/2)
-  double sn2th = (1 - cos_theta)/2;
-  
+
   double cosT_k  = (v + k6)/qv;
   if (cosT_k < -1.0 || cosT_k > 1.0 )
   {
@@ -653,34 +648,23 @@ const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interactio
   double T3     = k5*W3;                                                 //Ref.[1], W_8
   double T4     = mm_tar*(0.5*k4*W2 + a1*W4/mm_ini + a6*W5/m_ini/qv);    //Ref.[1], W_\alpha
   double T5     = m_tar*(a5/qv - v*k4)*W2 + k5*W5;
-
-  double kappa = ml2/2/mm_tar;
-  double R =    (El - Pl*cos_theta)/m_tar*(T1 + kappa*T4) + (El + Pl*cos_theta)/2/m_tar*T2 
-                + sign*((Enu + El)*(El - Pl*cos_theta)/2/mm_tar - kappa)*T3 - kappa*T5;  //sign toghether with sign of FA ("-") will give correct total sign
-                  
-  // In the frame, where lepton momentum is in z direction, x - axis is in production plane and orthogonal to z
-  // PL || z, PP || x, PT || y = 0 in Standard Model, because T6 = 0  
-  double PP    = -sign*ml*sin_theta/2/m_tar/R*(T1*2 - T2 + T3*sign*Enu/m_tar - T4*ml2/mm_tar + T5*El/m_tar);
-  double PL    = -sign*(1 - ml2/mm_tar/R*((T1*2*m_tar/(El + Pl) + T3*sign*(Enu - Pl)/(El + Pl))*cs2th +
-                                     (T2*m_tar/(El + Pl) + T4*(El + Pl)/m_tar - T5)*sn2th));
-                                                                                 
+  
   TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
-  TLorentzVector neutrinoMom = *tempNeutrino;
+  TLorentzVector   neutrinoMom  = *tempNeutrino;
   delete tempNeutrino;
   const TLorentzVector leptonMom = kinematics.FSLeptonP4();
-  TVector3 neutrinoMom3 = neutrinoMom.Vect();  
-  TVector3 leptonMom3 = leptonMom.Vect();
-  TVector3 Pz = leptonMom3.Unit();
-  TVector3 Px = neutrinoMom3.Cross(leptonMom3).Unit();
-  TVector3 Py = Pz.Cross(Px);
-  TVector3 pol = PP*Py + PL*Pz;
-  fFinalLeptonPolarization = PP*Py + PL*Pz;
+  CalculatePolarizationVectorInTargetRestFrame(
+                        fFinalLeptonPolarization, 
+                        neutrinoMom, 
+                        leptonMom,
+                        is_neutrino, 
+                        m_tar, T1,T2,T3,T4,T5,0);
   
+ 
   std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
   std::cout << fFinalLeptonPolarization.Mag() << "\n";
   std::cout << "SM@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
-  
+
   return fFinalLeptonPolarization;
-  
 }
 //____________________________________________________________________________

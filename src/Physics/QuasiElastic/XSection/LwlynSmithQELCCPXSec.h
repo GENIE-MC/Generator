@@ -23,7 +23,6 @@
 #ifndef _LLEWELLYN_SMITH_QELCC_CROSS_SECTION_H_
 #define _LLEWELLYN_SMITH_QELCC_CROSS_SECTION_H_
 
-#include <complex>
 
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/EventGen/XSecAlgorithmI.h"
@@ -58,9 +57,6 @@ private:
   double FullDifferentialXSec(const Interaction * i) const;
 
   void LoadConfig (void);
-  
-  int e(int a, int b, int c, int d) const;
-  int g(int a, int b) const;
 
   mutable QELFormFactors       fFormFactors;      ///<
   const QELFormFactorsModelI * fFormFactorsModel; ///<

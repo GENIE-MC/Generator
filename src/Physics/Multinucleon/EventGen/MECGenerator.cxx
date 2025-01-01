@@ -92,6 +92,8 @@ void MECGenerator::ProcessEventRecord(GHepRecord * event) const
       // copy of an earlier version of the `DecayNucleonCluster` method here - but, watch
       // for this...
       this -> DecayNucleonCluster(event);
+      // Set the final-state lepton polarization
+      utils::SetPrimaryLeptonPolarization( event );
   }  else if (fXSecModel->Id().Name() == "genie::SuSAv2MECPXSec") {
       event->Print();
       this -> SelectSuSALeptonKinematics(event);
@@ -110,7 +112,7 @@ void MECGenerator::ProcessEventRecord(GHepRecord * event) const
           "ProcessEventRecord >> Cannot calculate kinematics for " <<
           fXSecModel->Id().Name();
   }
-
+  
 
 }
 //___________________________________________________________________________
@@ -849,9 +851,6 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
   // -- Lepton
   event->AddParticle( pdgc, kIStStableFinalState, momidx, -1, -1, -1, p4l, v4);
 
-  // Set the final-state lepton polarization
-  utils::SetPrimaryLeptonPolarization( event );
-
   LOG("MEC",pDEBUG) << "~~~ LEPTON DONE ~~~";
 }
 //___________________________________________________________________________
@@ -1321,6 +1320,7 @@ void MECGenerator::GenerateNSVInitialHadrons(GHepRecord * event) const
 
     event->AddParticle(p1);
 
+    interaction->InitStatePtr()->TgtPtr()->SetHitNucP4(p4initial_cluster);
     interaction->KinePtr()->SetHadSystP4(p4final_cluster);
 }
 //___________________________________________________________________________
