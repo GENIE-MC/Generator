@@ -241,7 +241,7 @@ else
 endif
 
 lib-professor2-build: FORCE
-ifeq ($(strip $(GOPT_WITH_PROFESSOR2)),YES)
+ifeq ($(strip $(GOPT_ENABLE_PROFESSOR2)),YES)
 	@echo " "
 	@echo "** Building Professor2..."
 	cd ${GENIE}/src/ExternalLibs/professor && \
@@ -254,7 +254,7 @@ else
 endif
 
 lib-professor2-install: FORCE
-ifeq ($(strip $(GOPT_WITH_PROFESSOR2)),YES)
+ifeq ($(strip $(GOPT_ENABLE_PROFESSOR2)),YES)
 	@echo " "
 	@echo "** Building Professor2..."
 	cp ${GENIE}/src/ExternalLibs/professor/lib/libProfessor2.so ${GENIE_LIB_INSTALLATION_PATH}
