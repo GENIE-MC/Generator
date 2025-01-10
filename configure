@@ -1002,6 +1002,7 @@ print MKCONF "GOPT_ENABLE_PROFILER=$gopt_enable_profiler\n";
 print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n";
 print MKCONF "GOPT_ENABLE_GFORTRAN=$gopt_enable_gfortran\n";
 print MKCONF "GOPT_ENABLE_G2C=$gopt_enable_g2c\n";
+print MKCONF "GOPT_ENABLE_PROFESSOR2=$gopt_enable_professor2\n";
 print MKCONF "GOPT_WITH_COMPILER=$gopt_with_compiler\n";
 print MKCONF "GOPT_WITH_CXX_DEBUG_FLAG=$gopt_with_cxx_debug_flag\n";
 print MKCONF "GOPT_WITH_CXX_OPTIMIZ_FLAG=-$gopt_with_cxx_optimiz_flag\n";
@@ -1028,7 +1029,6 @@ print MKCONF "GOPT_WITH_GEANT4_INC=$gopt_with_geant4_inc\n";
 print MKCONF "GOPT_WITH_GEANT4_LIB=$gopt_with_geant4_lib\n";
 print MKCONF "GOPT_WITH_GFORTRAN_LIB=$gopt_with_gfortran_lib\n";
 print MKCONF "GOPT_WITH_G2C_LIB=$gopt_with_g2c_lib\n";
-print MKCONF "GOPT_WITH_PROFESSOR2=$gopt_enable_professor2\n";
 close(MKCONF);
 
 print "\nYour input configuration options were: @ARGV";
