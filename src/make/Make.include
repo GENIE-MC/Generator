@@ -269,8 +269,13 @@ endif
 # Professor2
 #-------------------------------------------------------------------
 
+PROFESSOR2_INCLUDES =
+PROFESSOR2_LIBRARIES =
+
+ifeq ($(strip $(GOPT_ENABLE_PROFESSOR2)),YES)
 PROFESSOR2_INCLUDES = -I$(GENIE)/src/ExternalLibs/professor/include
 PROFESSOR2_LIBRARIES = -L$(GENIE)/src/ExternalLibs/professor/lib -lProfessor2
+endif
 
 #-------------------------------------------------------------------
 # ROOT

@@ -143,6 +143,13 @@ if(@nret>0)
       { print GBLD   "#define __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__\n"; }
 
+# professor2 enabled?
+#
+@nret = `grep 'GOPT_ENABLE_PROFESSOR2=YES' $GCONF_FILE`;
+if(@nret>0)
+      { print GBLD   "#define __GENIE_PROFESSOR2_ENABLED__\n"; }
+else  { print GBLD "//#define __GENIE_PROFESSOR2_ENABLED__\n"; }
+
 # grab libxml2 version information
 #
 $libxml2_inc = "";
