@@ -271,17 +271,23 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   double Q2 = -1. * qP4.Mag2();
   double Q2tilde = -1. * qTildeP4.Mag2();
 
+  // Check that Q2tilde > 0 (accounting for rounding errors)
+  if ( Q2tilde <= kASmallNum ) {
+    LOG("Nieves", pWARN) << "Q2tilde <= 0, returning xsec = 0.0";
+    return 0.0;
+  }
+
   // Store Q2tilde in the interaction so that we get the correct
   // values of the form factors (according to the de Forest prescription)
   interaction->KinePtr()->SetQ2(Q2tilde);
 
   double q2 = -Q2tilde;
 
-  // Check that q2 < 0 (accounting for rounding errors)
-  if ( q2 >= kASmallNum ) {
-    LOG("Nieves", pWARN) << "q2 >= 0, returning xsec = 0.0";
-    return 0.0;
-  }
+  //// Check that q2 < 0 (accounting for rounding errors)
+  //if ( q2 >= kASmallNum ) {
+  //  LOG("Nieves", pWARN) << "q2 >= 0, returning xsec = 0.0";
+  //  return 0.0;
+  //}
 
   // Calculate form factors
   fFormFactors.Calculate( interaction );

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration sets for NucDeExcitationSim EventRecordVisitorI
+
+Configurable Parameters:
+............................................................................................
+Name                    Type     Optional   Comment                     Default
+............................................................................................
+
+-->
+
+  <param_set name="Default"> 
+    <param type="bool" name="DoCarbon"> true </param>
+    <param type="bool" name="DoArgon">  true </param>
+  </param_set>
+
+</alg_conf>
