@@ -283,12 +283,6 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
 
   double q2 = -Q2tilde;
 
-  //// Check that q2 < 0 (accounting for rounding errors)
-  //if ( q2 >= kASmallNum ) {
-  //  LOG("Nieves", pWARN) << "q2 >= 0, returning xsec = 0.0";
-  //  return 0.0;
-  //}
-
   // Calculate form factors
   fFormFactors.Calculate( interaction );
 
