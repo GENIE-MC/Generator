@@ -282,7 +282,7 @@ void  genie::utils::CalculatePolarizationVectorInTargetRestFrame(
   TVector3 Py = Pz.Cross(Px);
   polarization = PT*Px + PP*Py + PL*Pz;
   std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-  std::cout << "PL = " << PL  << ", PP = " << PP << ", PT = " << PT << ", R =" << R << "\n";
+  std::cout << "PL = " << PL  << ", PP = " << PP << ", PT = " << PT << ", R = " << R << "\n";
   std::cout << "UT@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
 }
 //____________________________________________________________________________

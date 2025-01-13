@@ -57,6 +57,7 @@ public:
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
   const  TVector3 & FinalLeptonPolarization (const Interaction* i) const;
+  double IntegratedAmunuOverMomentum (const Interaction* interaction, double r, int mu, int nu) const;
 
   // Override the Algorithm::Configure methods to load configuration
   // data to private data members
@@ -140,6 +141,8 @@ private:
 
   // Potential for coulomb correction
   double vcr(const Target * target, double r) const;
+  
+  double MaximalRadius(const Target * target) const;
 
   //input must be length 4. Returns 1 if input is an even permutation of 0123,
   //-1 if input is an odd permutation of 0123, and 0 if any two elements
@@ -150,6 +153,10 @@ private:
     const TLorentzVector inNucleonMom, const TLorentzVector leptonMom,
     const TLorentzVector outNucleonMom, double M, bool is_neutrino,
     const Target& target, bool assumeFreeNucleon) const;
+    
+  void FinalLeptonPolarizationOnFreeNucleon (const Interaction* interaction, 
+                                             double & A00, double & Axx, double & Azz, 
+                                             double & A0z, double & Axy) const;
 
   // NOTE: THE FOLLOWING CODE IS FOR TESTING PURPOSES ONLY
   // Used to print tensor elements and various inputs for comparison to Nieves'
@@ -194,6 +201,22 @@ namespace genie {
        double fRcurr;
        double fA;
        double fZ;
+    };
+    
+    class NievesQELSmithMonizIntegrand : public ROOT::Math::IBaseFunctionOneDim
+    {
+     public:
+      NievesQELSmithMonizIntegrand(const NievesQELCCPXSec* alg_, const Interaction* interaction_, int mu_, int nu_);
+      ~NievesQELSmithMonizIntegrand();
+       // ROOT::Math::IBaseFunctionOneDim interface
+       unsigned int                      NDim   (void)       const;
+       double                            DoEval (double rin) const;
+       ROOT::Math::IBaseFunctionOneDim * Clone  (void)       const;
+     private:
+        const NievesQELCCPXSec* alg;
+        const Interaction* interaction;
+        int mu;
+        int nu;
     };
 
    } // wrap namespace

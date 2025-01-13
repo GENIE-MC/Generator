@@ -31,8 +31,8 @@
 #include "Physics/QuasiElastic/XSection/NievesQELCCPXSec.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
-#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Physics/NuclearState/NuclearUtils.h"
@@ -832,43 +832,19 @@ std::complex<double> NievesQELCCPXSec::deltaLindhard(double q0,
 
 //____________________________________________________________________________
 // Gives coulomb potential in units of GeV
-double NievesQELCCPXSec::vcr(const Target * target, double Rcurr) const{
-  if(target->IsNucleus()){
-    int A = target->A();
-    int Z = target->Z();
-    double Rmax = 0.;
-
-    if ( fCoulombRmaxMode == kMatchNieves ) {
-      // Rmax calculated using formula from Nieves' fortran code and default
-      // charge and neutron matter density parameters from NuclearUtils.cxx
-      if (A > 20) {
-        double c = TMath::Power(A,0.35), z = 0.54;
-        Rmax = c + 9.25*z;
-      }
-      else {
-        // c = 1.75 for A <= 20
-        Rmax = TMath::Sqrt(20.0)*1.75;
-      }
-    }
-    else if ( fCoulombRmaxMode == kMatchVertexGeneratorRmax ) {
-      // TODO: This solution is fragile. If the formula used by VertexGenerator
-      // changes, then this one will need to change too. Switch to using
-      // a common function to get Rmax for both.
-      Rmax = 3. * fR0 * std::pow(A, 1./3.);
-    }
-    else {
-      LOG("Nieves", pFATAL) << "Unrecognized setting for fCoulombRmaxMode encountered"
-        << " in NievesQELCCPXSec::vcr()";
-      gAbortingInErr = true;
-      std::exit(1);
-    }
-
-    if(Rcurr >= Rmax){
+double NievesQELCCPXSec::vcr(const Target * target, double Rcurr) const
+{
+    double Rmax = MaximalRadius(target);
+    if (Rmax == 0) return 0;
+    if(Rcurr >= Rmax)
+    {
       LOG("Nieves",pNOTICE) << "Radius greater than maximum radius for coulomb corrections."
                           << " Integrating to max radius.";
       Rcurr = Rmax;
     }
-
+    
+    int A = target->A();
+    int Z = target->Z();
     ROOT::Math::IBaseFunctionOneDim * func = new
       utils::gsl::wrap::NievesQELvcrIntegrand(Rcurr,A,Z);
     ROOT::Math::IntegrationOneDim::Type ig_type =
@@ -885,7 +861,51 @@ double NievesQELCCPXSec::vcr(const Target * target, double Rcurr) const{
     // Multiply by hbarc to put result in GeV instead of fm
     // Multiply by an extra configurable scaling factor that defaults to unity
     return -kAem*4*kPi*result*fhbarc*fCoulombScale;
-  }else{
+
+}
+//____________________________________________________________________________
+double NievesQELCCPXSec::MaximalRadius(const Target * target) const
+{
+  if(target->IsNucleus())
+  {
+    int A = target->A();
+    double Rmax = 0.;
+
+    if ( fCoulombRmaxMode == kMatchNieves ) 
+    {
+      // Rmax calculated using formula from Nieves' fortran code and default
+      // charge and neutron matter density parameters from NuclearUtils.cxx
+      if (A > 20) 
+      {
+        double c = TMath::Power(A,0.35), z = 0.54;
+        Rmax = c + 9.25*z;
+      }
+      else 
+      {
+        // c = 1.75 for A <= 20
+        Rmax = TMath::Sqrt(20.0)*1.75;
+      }
+    }
+    else if ( fCoulombRmaxMode == kMatchVertexGeneratorRmax ) 
+    {
+      // TODO: This solution is fragile. If the formula used by VertexGenerator
+      // changes, then this one will need to change too. Switch to using
+      // a common function to get Rmax for both.
+      Rmax = 3. * fR0 * std::pow(A, 1./3.);
+    }
+    else 
+    {
+      LOG("Nieves", pFATAL) << "Unrecognized setting for fCoulombRmaxMode encountered"
+        << " in NievesQELCCPXSec::vcr()";
+      gAbortingInErr = true;
+      std::exit(1);
+    }
+    
+    return Rmax;
+
+  }
+  else
+  {
     // If target is not a nucleus the potential will be 0
     return 0.0;
   }
@@ -1205,6 +1225,39 @@ ROOT::Math::IBaseFunctionOneDim *
 {
   return new utils::gsl::wrap::NievesQELvcrIntegrand(fRcurr,fA,fZ);
 }
+
+//____________________________________________________________________________
+utils::gsl::wrap::NievesQELSmithMonizIntegrand::NievesQELSmithMonizIntegrand(
+              const NievesQELCCPXSec* alg_, const Interaction* interaction_, int mu_, int nu_):
+ROOT::Math::IBaseFunctionOneDim(),
+alg(alg_),
+interaction(interaction_), 
+mu(mu_),
+nu(nu_)
+{
+
+}
+//____________________________________________________________________________
+utils::gsl::wrap::NievesQELSmithMonizIntegrand::~NievesQELSmithMonizIntegrand()
+{
+
+}
+//____________________________________________________________________________
+unsigned int utils::gsl::wrap::NievesQELSmithMonizIntegrand::NDim(void) const
+{
+  return 1;
+}
+//____________________________________________________________________________
+double utils::gsl::wrap::NievesQELSmithMonizIntegrand::DoEval(double rin) const
+{
+   return alg->IntegratedAmunuOverMomentum(interaction, rin, mu, nu); 
+}
+//____________________________________________________________________________
+ROOT::Math::IBaseFunctionOneDim *
+  utils::gsl::wrap::NievesQELSmithMonizIntegrand::Clone(void) const
+{
+  return new utils::gsl::wrap::NievesQELSmithMonizIntegrand(alg, interaction, mu, nu);
+}
 //____________________________________________________________________________
 
 //____________________________________________________________________________
@@ -1327,9 +1380,101 @@ void NievesQELCCPXSec::CompareNievesTensors(const Interaction* in)
 //____________________________________________________________________________
 const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* interaction) const
 {
-  
   if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
   
+  // Get kinematics and init-state parameters
+  const Kinematics &   kinematics = interaction -> Kine();
+  const InitialState & init_state = interaction -> InitState();
+  const Target & target = init_state.Tgt();
+  
+  const double M = 1; // polarization doesn't depend on M
+  // common factor will be reduced
+  //double factor  = fCos8c2*M*Omega/pl/El/kPi/4;
+  double Rmax = MaximalRadius(&target);
+  double W00, Wxx, Wzz, ReW0z, ImWxy;
+  if (!target.IsNucleus() || Rmax <= 0)
+  {
+      FinalLeptonPolarizationOnFreeNucleon (interaction, W00, Wxx, Wzz, ReW0z, ImWxy);
+  }
+  else
+  {
+    ROOT::Math::IntegrationOneDim::Type ig_type = utils::gsl::Integration1DimTypeFromString("adaptive");
+    double reltol = 1E-4;
+    int nmaxeval = 100000;
+    
+    ROOT::Math::IBaseFunctionOneDim * func = new utils::gsl::wrap::NievesQELSmithMonizIntegrand(this, interaction, 0, 0);
+    ROOT::Math::Integrator ig(*func,ig_type,0,reltol,nmaxeval);
+    W00 = ig.Integral(0, Rmax);
+    delete func;
+    
+    func = new utils::gsl::wrap::NievesQELSmithMonizIntegrand(this, interaction, 1, 1);
+    ig.SetFunction(*func);
+    Wxx = ig.Integral(0, Rmax);
+    delete func;
+    
+    func = new utils::gsl::wrap::NievesQELSmithMonizIntegrand(this, interaction, 3, 3);
+    ig.SetFunction(*func);
+    Wzz = ig.Integral(0, Rmax);
+    delete func;
+    
+    func = new utils::gsl::wrap::NievesQELSmithMonizIntegrand(this, interaction, 0, 3);
+    ig.SetFunction(*func);
+    ReW0z = ig.Integral(0, Rmax);
+    delete func;
+    
+    func = new utils::gsl::wrap::NievesQELSmithMonizIntegrand(this, interaction, 1, 2);
+    ig.SetFunction(*func);
+    ImWxy= ig.Integral(0, Rmax);
+    delete func;
+  }
+    
+  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
+  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector   neutrinoMom  = *tempNeutrino;
+  delete tempNeutrino;
+  const TLorentzVector leptonMom = kinematics.FSLeptonP4();
+  
+  TLorentzVector q4 = neutrinoMom - leptonMom;
+  
+  double q0  = q4.E();
+  double q   = q4.Vect().Mag();
+  double q02 = q0*q0;
+  double q2  = q*q;
+  
+  double T1 = Wxx/2/M;
+  double T2 = (W00 + Wxx + q02/q2*(Wzz - Wxx) - 2*q0/q*ReW0z)/2/M;
+  double T3 = -ImWxy/q;
+  double T4 = M/2/q2*(Wzz - Wxx);
+  double T5 = (ReW0z - q0/q*(Wzz - Wxx))/q;
+  
+  
+  if (T1 != 0 || T2!=0 || T3!=0 || T4!=0 || T5!=0)
+  {  
+    CalculatePolarizationVectorInTargetRestFrame(
+                        fFinalLeptonPolarization, 
+                        neutrinoMom, 
+                        leptonMom,
+                        is_neutrino, 
+                        M, T1,T2,T3,T4,T5,0);
+  }
+  else
+  {
+    LOG("Nieves", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
+    fFinalLeptonPolarization = TVector3(0, 0, 0);
+  }
+  
+  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+  std::cout << fFinalLeptonPolarization.Mag() << "\n";
+  std::cout << "NV@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
+  
+  return fFinalLeptonPolarization;
+
+}
+//___________________________________________________________________________________
+void NievesQELCCPXSec::FinalLeptonPolarizationOnFreeNucleon (const Interaction* interaction, double & A00, double & Axx, double & Azz, double & A0z, double & Axy) const
+{
+  
+  A00 = Axx = Azz = A0z = Axy = 0;
   // Get kinematics and init-state parameters
   const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
@@ -1337,13 +1482,13 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
 
   // HitNucMass() looks up the PDGLibrary (on-shell) value for the initial
   // struck nucleon
-  double Mi_onshell = target.HitNucMass();
+  double Mi = target.HitNucMass();
   
   // On-shell mass of final nucleon (from PDGLibrary)
   double Mf = interaction->RecoilNucleon()->Mass();
 
   // Isoscalar mass of nucleon
-  double M = (Mi_onshell + Mf)/2;
+  double M = (Mi + Mf)/2;
   
   // Note that GetProbeP4 defaults to returning the probe 4-momentum in the
   // struck nucleon rest frame, so we have to explicitly ask for the lab frame
@@ -1352,91 +1497,14 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   TLorentzVector neutrinoMom = *tempNeutrino;
   delete tempNeutrino;
   TLorentzVector inNucleonMom(*init_state.TgtPtr()->HitNucP4Ptr());
-  TLorentzVector inNucleonMomOnShell(inNucleonMom);
 
   TLorentzVector leptonMom = kinematics.FSLeptonP4();
   TLorentzVector outNucleonMom = kinematics.HadSystP4();
   
-  // Apply Pauli blocking if enabled
-  if ( fDoPauliBlocking && target.IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) ) {
-    int final_nucleon_pdg = interaction->RecoilNucleonPdg();
-    double kF = fPauliBlocker->GetFermiMomentum(target, final_nucleon_pdg, target.HitNucPosition());
-    double pNf = outNucleonMom.P();
-    if ( pNf < kF ) 
-    {
-        LOG("Nieves", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
-        fFinalLeptonPolarization = TVector3(0, 0, 0);
-        return fFinalLeptonPolarization;
-    }
-  }
 
-  double outNucleonEnergy = outNucleonMom.E();
-  double inNucleonOnShellEnergy  = TMath::Hypot(M,  inNucleonMomOnShell.P() );
-  outNucleonEnergy = TMath::Hypot(M, outNucleonMom.P() );
-  inNucleonMomOnShell.SetE(inNucleonOnShellEnergy);
-
-  // Calculate Coulomb corrections
-  double ml = interaction->FSPrimLepton()->Mass();
-  double ml2 = ml*ml;
-  double plLocal = leptonMom.P();
-
-  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
-  int sign = is_neutrino ? 1 : -1;
-  double r = target.HitNucPosition();
-  if ( fCoulomb ) 
-  {
-    // Coulomb potential
-    double Vc = vcr(& target, r);
-
-    // Outgoing lepton energy and momentum including Coulomb potential
-    double El = leptonMom.E();
-    double ElLocal = El - sign*Vc;
-
-    if ( ElLocal - ml <= 0. ) 
-    {
-        LOG("Nieves", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
-        fFinalLeptonPolarization = TVector3(0, 0, 0);
-        return fFinalLeptonPolarization;
-    }
-
-    // The Coulomb correction factor blows up as pl -> 0. To guard against
-    // unphysically huge corrections here, require that the lepton kinetic energy
-    // (at infinity) is larger than the magnitude of the Coulomb potential
-    // (should be around a few MeV)
-    double KEl = El - ml;
-    if ( KEl <= TMath::Abs(Vc) ) 
-    {
-        LOG("Nieves", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
-        fFinalLeptonPolarization = TVector3(0, 0, 0);
-        return fFinalLeptonPolarization;
-    }
-
-    // Local value of the lepton 3-momentum magnitude for the Coulomb correction
-    plLocal = TMath::Sqrt(ElLocal*ElLocal - ml2);
-
-  }
-
-  // When computing the contraction of the leptonic and hadronic tensors,
-  // we need to use an effective value of the 4-momentum transfer q.
-  // The energy transfer (q0) needs to be modified to account for the binding
-  // energy of the struck nucleon, while the 3-momentum transfer needs to
-  // be corrected for Coulomb effects.
-  //
-  // See the original Valencia model paper:
-  // https://journals.aps.org/prc/abstract/10.1103/PhysRevC.70.055503
-  double q0Tilde = outNucleonEnergy - inNucleonMomOnShell.E();
-
-  // Shift the q0Tilde if required:
-  if( fQvalueShifter ) q0Tilde *= (1 + fQvalueShifter->Shift(*interaction) ) ;
-
-  // If binding energy effects pull us into an unphysical region, return
-  // zero for the differential cross section
-  if ( q0Tilde <= 0 && target.IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) ) 
-  {
-      LOG("Nieves", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
-      fFinalLeptonPolarization = TVector3(0, 0, 0);
-      return fFinalLeptonPolarization;
-  }
+  double outNucleonEnergy = TMath::Hypot(M, outNucleonMom.P() );
+  
+  double q0Tilde = outNucleonEnergy - M;
 
   // Note that we're working in the lab frame (i.e., the rest frame
   // of the target nucleus). We can therefore use Nieves' explicit
@@ -1444,8 +1512,6 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   // qTilde is in the +z direction
   TVector3 neutrinoMom3 = neutrinoMom.Vect();
   TVector3 leptonMom3 = leptonMom.Vect();
-  TVector3 inNucleonMom3 = inNucleonMom.Vect();
-  TVector3 outNucleonMom3 = outNucleonMom.Vect();
 
   // If Coulomb corrections are being used, adjust the lepton 3-momentum used
   // to get q3VecTilde so that its magnitude matches the local
@@ -1455,8 +1521,7 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   // 3-momentum transfer, and so the correction should be applied *before*
   // rotating coordinates into a frame where q3VecTilde lies along the positive
   // z axis.
-  TVector3 leptonMomCoulomb3 = !fCoulomb ? leptonMom3: plLocal*leptonMom3*(1/leptonMom3.Mag());
-  TVector3 q3VecTilde = neutrinoMom3 - leptonMomCoulomb3;
+  TVector3 q3VecTilde = neutrinoMom3 - leptonMom3;
 
   // Find the rotation angle needed to put q3VecTilde along z
   TVector3 zvec(0, 0, 1);
@@ -1479,14 +1544,9 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
     neutrinoMom.SetVect(neutrinoMom3);
     leptonMom3.Rotate(angle,rot);
     leptonMom.SetVect(leptonMom3);
-    inNucleonMom3.Rotate(angle,rot);
-    inNucleonMom.SetVect(inNucleonMom3);
-    inNucleonMomOnShell.SetVect(inNucleonMom3);
-    outNucleonMom3.Rotate(angle,rot);
-    outNucleonMom.SetVect(outNucleonMom3);
   }
 
-  // Calculate q and qTilde
+  // Calculate qTilde
   TLorentzVector qTildeP4(0., 0., q3VecTilde.Mag(), q0Tilde);
   
   double Q2      = interaction->KinePtr()->Q2(true);
@@ -1495,9 +1555,7 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   // Check that Q2tilde > 0 (accounting for rounding errors)
   if (Q2tilde < 0) 
   {
-      LOG("Nieves", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
-      fFinalLeptonPolarization = TVector3(0, 0, 0);
-      return fFinalLeptonPolarization;
+      return;
   }
 
   // Store Q2tilde in the kinematic variable representing Q2.
@@ -1510,12 +1568,218 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   // in the event instead of Q2tilde
   interaction->KinePtr()->SetQ2(Q2);
 
+
+  // Get the QEL form factors (were calculated before this method was called)
+  double F1V   = 0.5*fFormFactors.F1V();
+  double xiF2V = 0.5*fFormFactors.xiF2V();
+  double FA    = fFormFactors.FA();
+  // According to Nieves' paper, Fp = 2.0*M*FA/(kPionMass2-q2), but Llewelyn-
+  // Smith uses Fp = 2.0*M^2*FA/(kPionMass2-q2), so I divide by M
+  // This gives units of GeV^-1
+  double Fp = fFormFactors.Fp()/M;
+
+  // Calculate auxiliary parameters
+  // Off shell mass of initial nucleon
+  double M2      = M*M;
+  double FA2     = FA*FA;
+  double F1V2    = F1V*F1V;
+  double xiF2V2  = xiF2V*xiF2V;
+  double q0      = qTildeP4.E();
+  double dq      = qTildeP4.Pz();
+  double q02     = q0*q0;
+  double dq2     = dq*dq;
+  double q2      = q02 - dq2;
+
+  double aux1 = 2*Fp*(Fp*q2 + 4*FA*M);
+  A00 = 32*F1V2*(M2 + q0*M + q2/4) + 8*q2*xiF2V2*(-q0/M - q02*(1/q2 + 1/M2/4)) +
+                           8*FA2*(q0*M + q2/4) - aux1*q02 - 16*F1V*xiF2V*dq2;
+  Axx = 8*(FA2*M2 - q2*( (F1V+xiF2V)*(F1V+xiF2V) + FA2/4 ) );
+  Azz =  -8*F1V2*q2 - 8*q2*xiF2V2*(1 + dq2*(1/q2 + 1/M2/4))+
+          8*FA2*(M2 - q2/4) - aux1*dq2 - 16*F1V*xiF2V*q02;
+  A0z = 16*F1V2*M*dq - 4*q2*xiF2V2*(dq/M + dq*q0*(2/q2 + 1/M2/2)) 
+          + 4*FA2*M*dq - dq*q0*(aux1 + 16*F1V*xiF2V);
+  Axy = 16*FA*(xiF2V+F1V)*dq*M;
+  
+  return;
+}
+//___________________________________________________________________________________
+double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interaction, double r, int mu, int nu) const
+{
+  // Get kinematics and init-state parameters
+  const Kinematics &   kinematics = interaction -> Kine();
+  const InitialState & init_state = interaction -> InitState();
+  const Target & target = init_state.Tgt();
+
+  // HitNucMass() looks up the PDGLibrary (on-shell) value for the initial
+  // struck nucleon
+  double Mi_onshell = target.HitNucMass();
+  
+  // On-shell mass of final nucleon (from PDGLibrary)
+  double Mf = interaction->RecoilNucleon()->Mass();
+
+  // Isoscalar mass of nucleon
+  double M = (Mi_onshell + Mf)/2;
+  
+  // Note that GetProbeP4 defaults to returning the probe 4-momentum in the
+  // struck nucleon rest frame, so we have to explicitly ask for the lab frame
+  // here
+  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector neutrinoMom = *tempNeutrino;
+  delete tempNeutrino;
+  TLorentzVector inNucleonMom(*init_state.TgtPtr()->HitNucP4Ptr());
+
+  TLorentzVector leptonMom = kinematics.FSLeptonP4();
+  TLorentzVector outNucleonMom = kinematics.HadSystP4();
+  
+  double outNucleonEnergy        = TMath::Hypot(M, outNucleonMom.P() );
+  double inNucleonOnShellEnergy  = TMath::Hypot(M, inNucleonMom.P() );
+  
+  TLorentzVector inNucleonMomOnShell(inNucleonMom);
+  inNucleonMomOnShell.SetE(inNucleonOnShellEnergy);
+
+  // Calculate Coulomb corrections
+  double ml = interaction->FSPrimLepton()->Mass();
+  double ml2 = ml*ml;
+  double plLocal = leptonMom.P();
+
+  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
+  int sign = is_neutrino ? 1 : -1;
+  
+  double ElLocal = leptonMom.E();
+  if ( fCoulomb ) 
+  {
+    // Coulomb potential
+    double Vc = vcr(&target, r);
+
+    // Outgoing lepton energy and momentum including Coulomb potential
+    double El      = ElLocal;
+    ElLocal = El - sign*Vc;
+
+    if ( ElLocal - ml <= 0. ) 
+    {
+        return 0;
+    }
+
+    // The Coulomb correction factor blows up as pl -> 0. To guard against
+    // unphysically huge corrections here, require that the lepton kinetic energy
+    // (at infinity) is larger than the magnitude of the Coulomb potential
+    // (should be around a few MeV)
+    double KEl = El - ml;
+    if ( KEl <= TMath::Abs(Vc) ) 
+    {
+        return 0;
+    }
+
+    // Local value of the lepton 3-momentum magnitude for the Coulomb correction
+    plLocal = TMath::Sqrt(ElLocal*ElLocal - ml2);
+
+  }
+
+  // When computing the contraction of the leptonic and hadronic tensors,
+  // we need to use an effective value of the 4-momentum transfer q.
+  // The energy transfer (q0) needs to be modified to account for the binding
+  // energy of the struck nucleon, while the 3-momentum transfer needs to
+  // be corrected for Coulomb effects.
+  //
+  // See the original Valencia model paper:
+  // https://journals.aps.org/prc/abstract/10.1103/PhysRevC.70.055503
+  double q0Tilde = outNucleonEnergy - inNucleonOnShellEnergy;
+  
+  int nucl_pdg_ini = target.HitNucPdg();
+  
+  double kFi     = fPauliBlocker->GetFermiMomentum(target, nucl_pdg_ini, r);
+  double kFf     = fPauliBlocker->GetFermiMomentum(target, interaction->RecoilNucleonPdg(), r);
+  double EFi     = TMath::Hypot(M, kFi);
+  double EFf     = TMath::Hypot(M, kFf);
+  
   bool tgtIsNucleus = target.IsNucleus();
   int tgt_pdgc = target.Pdg();
   int A = target.A();
   int Z = target.Z();
   int N = target.N();
-  bool hitNucIsProton = pdg::IsProton( target.HitNucPdg() );
+  bool hitNucIsProton = pdg::IsProton( nucl_pdg_ini );
+  
+  // This part of the code is strictly in accordance with the original Nieves' paper
+  double Mi = target.Mass();
+  int Zf = (hitNucIsProton) ? Z - 1 : Z + 1;
+  PDGLibrary * pdglib = PDGLibrary::Instance();
+  TParticlePDG * nucl_f = pdglib->Find( pdg::IonPdgCode(A, Zf) );
+  double Q = 0;
+  if(nucl_f) Q = nucl_f -> Mass() - Mi;
+  double Q_LFG   = EFf - EFi;
+  q0Tilde -= (Q - Q_LFG);
+  
+  // Shift the q0Tilde if required:
+  if( fQvalueShifter ) q0Tilde += q0Tilde * fQvalueShifter->Shift(*interaction) ;
+
+  // If binding energy effects pull us into an unphysical region, return
+  // zero for the differential cross section
+  if ( q0Tilde <= 0 && tgtIsNucleus && !interaction->TestBit(kIAssumeFreeNucleon) ) 
+  {
+      return 0;
+  }
+
+  // Note that we're working in the lab frame (i.e., the rest frame
+  // of the target nucleus). We can therefore use Nieves' explicit
+  // form of the Amunu tensor if we rotate the 3-momenta so that
+  // qTilde is in the +z direction
+  TVector3 neutrinoMom3 = neutrinoMom.Vect();
+  TVector3 leptonMom3 = leptonMom.Vect();
+
+  // If Coulomb corrections are being used, adjust the lepton 3-momentum used
+  // to get q3VecTilde so that its magnitude matches the local
+  // Coulomb-corrected value calculated earlier. Note that, although the
+  // treatment of Coulomb corrections by Nieves et al. doesn't change the
+  // direction of the lepton 3-momentum, it *does* change the direction of the
+  // 3-momentum transfer, and so the correction should be applied *before*
+  // rotating coordinates into a frame where q3VecTilde lies along the positive
+  // z axis.
+  TVector3 leptonMomCoulomb3 = !fCoulomb ? leptonMom3: plLocal*leptonMom3*(1/leptonMom3.Mag());
+  TVector3 q3VecTilde = neutrinoMom3 - leptonMomCoulomb3;
+  // Calculate qTilde
+  TLorentzVector qTildeP4(0., 0., q3VecTilde.Mag(), q0Tilde);
+
+  // Find the rotation angle needed to put q3VecTilde along z
+  TVector3 zvec(0, 0, 1);
+  TVector3 rot = ( q3VecTilde.Cross(zvec) ).Unit(); // Vector to rotate about
+  // Angle between the z direction and q
+  double angle = zvec.Angle( q3VecTilde );
+
+  // Handle the edge case where q3VecTilde is along -z, so the
+  // cross product above vanishes
+  if ( q3VecTilde.Perp() == 0. && q3VecTilde.Z() < 0. ) 
+  {
+    rot = TVector3(0., 1., 0.);
+    angle = kPi;
+  }
+
+  // Rotate if the rotation vector is not 0
+  if ( rot.Mag() > 0 ) 
+  {
+    neutrinoMom3.Rotate(angle,rot);
+    neutrinoMom.SetVect(neutrinoMom3);
+    leptonMom3.Rotate(angle,rot);
+    leptonMom.SetVect(leptonMom3);
+  }
+
+  double Q2      = interaction->KinePtr()->Q2(true);
+  double Q2tilde = -qTildeP4.Mag2();
+  
+  // Check that Q2tilde > 0 (accounting for rounding errors)
+  if (Q2tilde < 0) 
+  {
+    return 0;
+  }
+
+  // Store Q2tilde in the kinematic variable representing Q2.
+  // This will ensure that the form factors are calculated correctly
+  // using the de Forest prescription (Q2tilde instead of Q2).
+  interaction->KinePtr()->SetQ2(Q2tilde);
+  // Calculate form factors
+  fFormFactors.Calculate( interaction );
+  // Now that the form factors have been calculated, store Q2
+  // in the event instead of Q2tilde
+  interaction->KinePtr()->SetQ2(Q2);
 
 
   // Get the QEL form factors (were calculated before this method was called)
@@ -1533,15 +1797,15 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   CNCTCLimUcalc(qTildeP4, M, r, is_neutrino, tgtIsNucleus,
     tgt_pdgc, A, Z, N, hitNucIsProton, CN, CT, CL, imU,
     t0, r00, interaction->TestBit( kIAssumeFreeNucleon ));
+    
 
   if ( imU > 0 )
   {
-        LOG("Nieves", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
-        fFinalLeptonPolarization = TVector3(0, 0, 0);
-        return fFinalLeptonPolarization;
-    }
+    return 0;
+  }
   
-  if ( !fRPA || interaction->TestBit( kIAssumeFreeNucleon ) ) {
+  if ( !fRPA || interaction->TestBit( kIAssumeFreeNucleon ) ) 
+  {
     CN = 1.0;
     CT = 1.0;
     CL = 1.0;
@@ -1553,126 +1817,82 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   double FA2     = FA*FA;
   double F1V2    = F1V*F1V;
   double xiF2V2  = xiF2V*xiF2V;
-  const double q[4] = {qTildeP4.E(),qTildeP4.Px(),qTildeP4.Py(),qTildeP4.Pz()};
-  double q0      = q[0];
-  double dq      = TMath::Sqrt(q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
-  double q02     = q0*q0;
+  double q0      = qTildeP4.E();
+  double dq      = qTildeP4.Pz();
   double dq2     = dq*dq;
+  double q02     = q0*q0;
   double q2      = q02 - dq2;
 
-  double tulin[4];
-  double rulin[4][4];
 
-  // For normal code execulation, tulin is the initial nucleon momentum
-  tulin[0] = inNucleonMomOnShell.E();
-  tulin[1] = inNucleonMomOnShell.Px();
-  tulin[2] = inNucleonMomOnShell.Py();
-  tulin[3] = inNucleonMomOnShell.Pz();
-  
-  for(int i = 0; i < 4; i++)
-    for(int j = i; j < 4; j++)
-        rulin[i][j] = rulin[j][i] = tulin[i]*tulin[j];
+  double factor  = plLocal*ElLocal*r*r/dq;
 
-  std::complex<double> Amunu, Anumu;
+  double c       = q0/dq;
+  double d       = q2/2/M/dq;
   
-  HermitianMatrix NuclearTensor(4);
+  double Elow    = TMath::Max( EFf - q0, M*(c*d + TMath::Sqrt(1- c*c + d*d))/(1 - c*c) );
+  double Eup     = EFi;
   
-  double aux1 = 2*CL*Fp*(Fp*q2 + 4*FA*M);
-  double aux2 = 8*(FA2 + 4*F1V2 - xiF2V2*q2/M2);
-  for(int mu = 0; mu < 4; mu++)
+  if (Elow >= Eup) 
   {
-     for(int nu = mu;nu < 4; nu++)
-     {
-        if (mu == 0 && nu == 0)
-        {
-            Amunu = 32*F1V2*(rulin[0][0]*CN + q[0]*tulin[0] + q2/4)+
-                    8*q2*xiF2V2*(1 - rulin[0][0]/M2 - q[0]*tulin[0]/M2 - q02*(1/q2 + 1/4./M2)) +
-                    8*FA2*(rulin[0][0] + q[0]*tulin[0] + q2/4 - M2)-aux1*q02-16*F1V*xiF2V*(q02 - q2)*CN;
-            NuclearTensor.set(mu, nu, Amunu);
-        }
-        if (mu == 1 && nu == 1)
-        {
-            Amunu = 32*F1V2*(rulin[1][1] - q2/4)-
-                    8*q2*xiF2V2*(CT + rulin[1][1]/M2) +
-                    8*FA2*(rulin[1][1] + CT*M2 - q2/4)-
-                    16*F1V*xiF2V*CT*q2;
-            NuclearTensor.set(mu, nu, Amunu);
-        }
-        if (mu == 2 && nu == 2)
-        {
-            Amunu = 32*F1V2*(rulin[2][2] - q2/4)-
-                    8*q2*xiF2V2*(CT + rulin[2][2]/M2) +
-                    8*FA2*(rulin[2][2] + CT*M2 - q2/4)-
-                    16*F1V*xiF2V*CT*q2;
-            NuclearTensor.set(mu, nu, Amunu);
-        }
-        if (mu == 3 && nu == 3)
-        {
-            Amunu = 32*F1V2*(rulin[3][3] + dq*tulin[3] - q2/4)-
-                    8*q2*xiF2V2*(1 + rulin[3][3]/M2 + dq*tulin[3]/M2 + dq2*(1/q2 + 1/4./M2))+
-                    8*FA2*(rulin[3][3] + dq*tulin[3] + CL*M2 - q2/4) - aux1*dq2 - 16*F1V*xiF2V*q02;
-            NuclearTensor.set(mu, nu, Amunu);
-        }
-        if (mu == 0 && nu == 1)
-        {
-            Amunu = aux2*(rulin[0][1] + tulin[1]*q[0]/2) - 1i*16.*FA*(F1V + xiF2V)*tulin[2]*dq;
-            NuclearTensor.set(mu, nu, Amunu);
-
-            Anumu = aux2*(rulin[0][1] + tulin[1]*q[0]/2) + 1i*16.*FA*(F1V + xiF2V)*tulin[2]*dq;
-            NuclearTensor.set(nu, mu, Anumu);
-        }
-        if (mu == 0 && nu == 2)
-        {
-            Amunu = aux2*(rulin[0][2] + tulin[2]*q[0]/2) + 1i*16.*FA*(F1V + xiF2V)*tulin[1]*dq;
-            NuclearTensor.set(mu, nu, Amunu);
-
-            Anumu = aux2*(rulin[0][2] + tulin[2]*q[0]/2) - 1i*16.*FA*(F1V + xiF2V)*tulin[1]*dq;
-            NuclearTensor.set(nu, mu, Anumu);
-        }
-        if (mu == 0 && nu == 3)
-        {
-            Amunu = 16*F1V2*((2*rulin[0][3] + tulin[0]*dq)*CN + tulin[3]*q[0])+
-                    -4*q2*xiF2V2*(2*rulin[0][3]/M2 + (dq*tulin[0] + q[0]*tulin[3])/M2 + dq*q[0]*(2/q2 + 0.5/M2))+
-                    4*FA2*((2*rulin[0][3] + dq*tulin[0])*CL + q[0]*tulin[3]) - dq*q[0]*(aux1 + 16*F1V*xiF2V);
-            NuclearTensor.set(mu, nu, Amunu);
-            NuclearTensor.set(nu, mu, Amunu);
-        }
-        if (mu == 1 && nu == 2)
-        {
-            Amunu = -1i*16.*FA*(xiF2V+F1V)*(q[0]*tulin[3] - dq*tulin[0]*CT) + 8.*rulin[1][2]*(FA2 + 4*F1V2 - xiF2V2*q2/M2);
-            NuclearTensor.set(mu, nu, Amunu);
-            NuclearTensor.set(nu, mu, std::conj(Amunu));
-
-        }
-        if (mu == 1 && nu == 3)
-        {
-            Amunu = aux2*(rulin[1][3] + tulin[1]*dq/2) + 1i*16.*FA*(F1V + xiF2V)*tulin[2]*q[0];
-            NuclearTensor.set(mu, nu, Amunu);
-            NuclearTensor.set(nu, mu, std::conj(Amunu));
-        }
-        
-        if (mu == 2 && nu == 3)
-        {
-            Amunu = aux2*(rulin[2][3] + tulin[2]*dq/2) - 1i*16.*FA*(F1V + xiF2V)*tulin[1]*q[0];
-            NuclearTensor.set(mu, nu, Amunu);
-            NuclearTensor.set(nu, mu, std::conj(Amunu));
-        }
-     }
+      return 0;
   }
   
-  CalculatePolarizationVectorWithNuclearTensor(
-                        fFinalLeptonPolarization, 
-                        neutrinoMom, 
-                        leptonMom, 
-                        is_neutrino, 
-                        NuclearTensor);
-                        
-
-
+  double Elow2   = Elow*Elow;
+  double Elow3   = Elow*Elow2;
+  double Eup2    = Eup*Eup;
+  double Eup3    = Eup*Eup2;
   
-  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-  std::cout << fFinalLeptonPolarization.Mag() << "\n";
-  std::cout << "NV@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
- 
-  return fFinalLeptonPolarization;
+  double b0      = factor*(Eup - Elow);
+  double b1      = factor/M/2*(Eup2 - Elow2);
+  double b2      = factor/M2/3*(Eup3 - Elow3);
+  
+  double a1      = b0;
+  double a2      = b2 - b0;
+  double a3      = c*c*b2 + 2*c*d*b1 + d*d*b0;
+  double a4      = b2;
+  double a5      = c*b2 + d*b1;
+  double a6      = c*b1 + d*b0;
+  double a7      = b1;
+  
+  
+  double Ep   = M*a7;
+  double Ep2  = M2*a4;
+  double px2  = 0.5*M2*(a2 - a3); //py2=px2
+  double pz   = M*a6;
+  double Eppz = M2*a5;
+  double pz2  = M2*a3;
+  
+  double aux1 = 2*CL*Fp*(Fp*q2 + 4*FA*M);
+
+  if (mu == 0 && nu == 0)
+  {
+      return  32*F1V2*(Ep2*CN + Ep*q0 + a1*q2/4)+
+              8*q2*xiF2V2*(a1*(1 - q02*(1/q2 + 1/M2/4)) - Ep2/M2 - Ep*q0/M2) +
+              8*FA2*(Ep2 + Ep*q0 + a1*(q2/4 - M2)) - a1*(aux1*q02 + 16*F1V*xiF2V*(q02 - q2)*CN);
+  }
+  if ( (mu == 1 && nu == 1) || (mu == 2 && nu == 2) )
+  {
+      return  32*F1V2*(px2 - a1*q2/4)-
+              8*q2*xiF2V2*(a1*CT + px2/M2) +
+              8*FA2*(px2 + a1*(CT*M2 - q2/4))-
+              16*a1*F1V*xiF2V*CT*q2;
+  }
+  if (mu == 3 && nu == 3)
+  {
+      return  32*F1V2*(pz2 + pz*dq - a1*q2/4)-
+              8*q2*xiF2V2*(a1 + pz2/M2 + pz*dq/M2 + a1*dq2*(1/q2 + 1/M2/4))+
+              8*FA2*(pz2 + pz*dq + a1*(CL*M2 - q2/4)) - a1*(aux1*dq2 + 16*F1V*xiF2V*q02);
+  }
+  if (mu == 0 && nu == 3)
+  {
+      return  16*F1V2*((2*Eppz + Ep*dq)*CN + pz*q0)
+              -4*q2*xiF2V2*(2*Eppz/M2 + (Ep*dq + pz*q0)/M2 + a1*dq*q0*(2/q2 + 1/M2/2))+
+              4*FA2*((2*Eppz + Ep*dq)*CL + pz*q0) - a1*dq*q0*(aux1 + 16*F1V*xiF2V);
+  }
+  if (mu == 1 && nu == 2) // should be multiplied by i
+  {
+      return -16*FA*(xiF2V+F1V)*(pz*q0 - Ep*dq*CT);
+  }
+  return 0;
 }
+//___________________________________________________________________________________
