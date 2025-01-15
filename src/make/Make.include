@@ -500,7 +500,7 @@ RANLIB       := ranlib
 SOCMD         = $(LD)
 OutPutOpt     = -o
 SOMINF        =
-EXTRALIBS     = -lnsl
+EXTRALIBS     =
 endif
 
 # LINUX / 64-bit x86 / with gcc
@@ -533,12 +533,12 @@ RANLIB       := ranlib
 SOCMD         = $(LD)
 OutPutOpt     = -o
 SOMINF        =
-EXTRALIBS     = -lnsl
+EXTRALIBS     =
 endif
 
 # LINUX / 64-bit arm / linuxarm64
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-ifeq ($(strip $(ARCH)),linuxarm64) 
+ifeq ($(strip $(ARCH)),linuxarm64)
 ARCH_OK       = YES
 CXXFLAGS      = -W -Wall -fPIC -Wshadow \
     $(ROOT_FLAGS) \
@@ -566,7 +566,7 @@ RANLIB       := ranlib
 SOCMD         = $(LD)
 OutPutOpt     = -o
 SOMINF        =
-EXTRALIBS     = -lnsl
+EXTRALIBS     =
 endif
 
 #-------------------------------------------------------------------
