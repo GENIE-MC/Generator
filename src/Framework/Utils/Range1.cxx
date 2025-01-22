@@ -45,6 +45,13 @@ void Range1F_t::Copy(const Range1F_t & r)
   max = r.max;
 }
 //____________________________________________________________________________
+Range1F_t & Range1F_t::operator=(const Range1F_t &r)
+{
+     min = r.min;
+     max = r.max;
+     return *this;
+}
+//____________________________________________________________________________
 Range1D_t::Range1D_t(void) :
 min(0.),
 max(0.)
@@ -77,6 +84,13 @@ void Range1D_t::Copy(const Range1D_t & r)
   max = r.max;
 }
 //____________________________________________________________________________
+Range1D_t & Range1D_t::operator=(const Range1D_t &r)
+{
+     min = r.min;
+     max = r.max;
+     return *this;
+}
+//____________________________________________________________________________
 Range1I_t::Range1I_t(void) :
 min(0),
 max(0)
@@ -107,5 +121,12 @@ void Range1I_t::Copy(const Range1I_t & r)
 {
   min = r.min;
   max = r.max;
+}
+//____________________________________________________________________________
+Range1I_t & Range1I_t::operator=(const Range1I_t &r)
+{
+     min = r.min;
+     max = r.max;
+     return *this;
 }
 //____________________________________________________________________________
