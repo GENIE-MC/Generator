@@ -482,10 +482,11 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction) cons
        kinematics->SetKV(kKVQ2, Q2);
        Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
        const double logvmin = TMath::Log(TMath::Max(rv.min, eps));
-       const double logvmax = TMath::Log(TMath::Max(rv.max, TMath::Max(rv.min, eps)));
+       const double logvmax = TMath::Max(TMath::Log(rv.max), logvmin);
        for (int v_n=0; v_n <= N_v; v_n++)
        {
           // Scan around v
+          // for not heavy nucleus gives nan, but it doesn't matter for latter calculations
           double v = TMath::Exp(v_n*(logvmax-logvmin)/N_v + logvmin);
           kinematics->SetKV(kKVv, v);
           kinematics->SetKV(kKVPn, pFmax);
@@ -566,10 +567,11 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction, cons
         kinematics->SetKV(kKVQ2, Q2);
         Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
         const double logvmin = TMath::Log(TMath::Max(rv.min, eps));
-        const double logvmax = TMath::Log(TMath::Max(rv.max, TMath::Max(rv.min, eps)));
+        const double logvmax = TMath::Max(TMath::Log(rv.max), logvmin);
         for (int v_n=0; v_n <= N_v; v_n++)
         {
            // Scan around v
+           // for not heavy nucleus gives nan, but it doesn't matter for latter calculations
            double v = TMath::Exp(v_n*(logvmax-logvmin)/N_v + logvmin);
            kinematics->SetKV(kKVv, v);
            kinematics->SetKV(kKVPn, pFmax);
