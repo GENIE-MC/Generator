@@ -664,6 +664,9 @@ d3XSecSM_dQ2dvdkF_E::d3XSecSM_dQ2dvdkF_E(
                                                       fInteraction(i),
                                                       fpF(pF)
 {
+  AlgFactory * algf = AlgFactory::Instance();
+  sm_utils = const_cast<genie::SmithMonizUtils *>(dynamic_cast<const genie::SmithMonizUtils *>(algf->GetAlgorithm("genie::SmithMonizUtils","Default")));
+  sm_utils->SetInteraction(fInteraction);
 }
 d3XSecSM_dQ2dvdkF_E::~d3XSecSM_dQ2dvdkF_E()
 {
@@ -677,6 +680,8 @@ double d3XSecSM_dQ2dvdkF_E::DoEval(const double * xin) const
 // outputs:
 //   differential cross section
 //
+  Range1D_t rv  = sm_utils->vQES_SM_lim(xin[0]);
+  if (xin[1] < rv.min || xin[1] > rv.max) return 0;
   fInteraction->KinePtr()->SetKV(kKVQ2, xin[0]);
   fInteraction->KinePtr()->SetKV(kKVv,  xin[1]);
   fInteraction->KinePtr()->SetKV(kKVPn, fpF);
