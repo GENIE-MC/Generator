@@ -28,7 +28,7 @@ gsl-relative-tolerance-2D    double   Yes        GSL max evaluations for 2D inte
     <param type="int"    name = "gsl-rule">                              3  </param>
     <param type="string" name = "gsl-integration-type-2D">        adaptive  </param>
     <param type="int"    name = "gsl-max-eval">                 1000000000  </param>
-    <param type="double" name = "gsl-relative-tolerance-2D">          1e-7  </param>
+    <param type="double" name = "gsl-relative-tolerance-2D">          1e-4  </param>
   </param_set>
   
 
