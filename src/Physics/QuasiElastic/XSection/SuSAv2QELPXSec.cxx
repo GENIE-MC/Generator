@@ -688,15 +688,20 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
     
     const double M = 1;  // the polarization doesn't depend on mass of target in target rest frame
     
-    // Check that the input kinematical point is within the range
-    // in which hadron tensors are known (for chosen target)
-    double Ev    = init_state.ProbeE(kRfLab);
-    double Tl    = kinematics.GetKV(kKVTl);
-    double costl = kinematics.GetKV(kKVctl);
-    double ml    = interaction->FSPrimLepton()->Mass();
+    TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+    TLorentzVector neutrinoMom    = *tempNeutrino;
+    delete tempNeutrino;
+    const TLorentzVector leptonMom = kinematics.FSLeptonP4();
+    
+    double Ev             = neutrinoMom.E();
+    double El             = leptonMom.E();
+    double ml             = leptonMom.M();
+    double Tl             = El - ml;
+    TVector3 neutrinoMom3 = neutrinoMom.Vect();
+    TVector3 leptonMom3   = leptonMom.Vect();
+    double costl      = neutrinoMom3.Dot(leptonMom3)/neutrinoMom3.Mag()/leptonMom3.Mag();
     double Q0    = 0.;
     double Q3    = 0.;
-
     genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
 
     // *** Enforce the global Q^2 cut ***
@@ -1193,10 +1198,6 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         }
     }
     
-    TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
-    TLorentzVector neutrinoMom = *tempNeutrino;
-    delete tempNeutrino;
-    const TLorentzVector leptonMom = kinematics.FSLeptonP4();
     genie::utils::CalculatePolarizationVectorInTargetRestFrame(
                                             fFinalLeptonPolarization, 
                                             neutrinoMom, 

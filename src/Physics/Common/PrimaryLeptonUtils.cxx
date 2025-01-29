@@ -269,7 +269,12 @@ void  genie::utils::CalculatePolarizationVectorInTargetRestFrame(
   double aux1p = (Pl + El*cost)/2/M;
   double aux1  = ml2/2/M2;
   double aux2  = (Ev + El)/M;
-  double R     = 2*auxm*(W1 + aux1*W4) + auxp*W2 - sign*(aux2*auxm - aux1)*W3 - aux1*W5;  
+  double R     = 2*auxm*(W1 + aux1*W4) + auxp*W2 - sign*(aux2*auxm - aux1)*W3 - aux1*W5;
+  if (R == 0)
+  {
+      polarization = TVector3(0, 0, 0);
+      return;
+  }
   double PL    = sign*(2*aux1m*(W1 - aux1*W4) + aux1p*W2 - sign*(aux2*aux1m + aux1*cost)*W3 - aux1*cost*W5)/R;
   double PP    = sign*ml*sint*(2*W1 - W2 -sign*Ev*W3/M - ml2*W4/M2 + El*W5/M)/2/M/R;
   double PT    = - ml*Pl*sint*W6/2/M2/R;

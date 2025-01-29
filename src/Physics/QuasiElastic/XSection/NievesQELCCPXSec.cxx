@@ -522,15 +522,16 @@ void NievesQELCCPXSec::LoadConfig(void)
 //___________________________________________________________________________
 void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
   double M, double r, bool is_neutrino, bool tgtIsNucleus, int tgt_pdgc,
-  int A, int Z, int N, bool hitNucIsProton, double & CN, double & CT, double & CL,
+  int A, int Z, int N, double & CN, double & CT, double & CL,
   double & imaginaryU, double & t0, double & r00, bool assumeFreeNucleon) const
 {
-  if ( tgtIsNucleus && !assumeFreeNucleon ) {
-    double dq = qTildeP4.Vect().Mag();
-    double dq2 = TMath::Power(dq,2);
-    double q2 = 1 * qTildeP4.Mag2();
+  if ( tgtIsNucleus && !assumeFreeNucleon ) 
+  {
+    double dq  = qTildeP4.Vect().Mag();
+    double dq2 = TMath::Sq(dq);
+    double q2  = qTildeP4.Mag2();
     //Terms for polarization coefficients CN,CT, and CL
-    double hbarc2 = TMath::Power(fhbarc,2);
+    double hbarc2 = TMath::Sq(fhbarc);
     double c0 = 0.380/fhbarc;//Constant for CN in natural units
 
     //Density gives the nuclear density, normalized to 1
@@ -540,41 +541,33 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
     double rho = rhop + rhon;
     double rho0 = A*nuclear::Density(0,A);
 
-    double fPrime = (0.33*rho/rho0+0.45*(1-rho/rho0))*c0;
+    double fPrime = (0.33*rho/rho0 + 0.45*(1 - rho/rho0))*c0;
 
     // Get Fermi momenta
-    double kF1, kF2;
-    if(fLFG){
-      if(hitNucIsProton){
-        kF1 = TMath::Power(3*kPi2*rhop, 1.0/3.0) *fhbarc;
-        kF2 = TMath::Power(3*kPi2*rhon, 1.0/3.0) *fhbarc;
-      }else{
-        kF1 = TMath::Power(3*kPi2*rhon, 1.0/3.0) *fhbarc;
-        kF2 = TMath::Power(3*kPi2*rhop, 1.0/3.0) *fhbarc;
-      }
-    }else{
-      if(hitNucIsProton){
-        kF1 = fKFTable->FindClosestKF(tgt_pdgc, kPdgProton);
-        kF2 = fKFTable->FindClosestKF(tgt_pdgc, kPdgNeutron);
-      }else{
-        kF1 = fKFTable->FindClosestKF(tgt_pdgc, kPdgNeutron);
-        kF2 = fKFTable->FindClosestKF(tgt_pdgc, kPdgProton);
-      }
+    double kFn, kFp;
+    if(fLFG)
+    {
+        kFn = TMath::Power(3*kPi2*rhon, 1.0/3.0) *fhbarc;
+        kFp = TMath::Power(3*kPi2*rhop, 1.0/3.0) *fhbarc;
+    }
+    else
+    {
+        kFn = fKFTable->FindClosestKF(tgt_pdgc, kPdgNeutron);
+        kFp = fKFTable->FindClosestKF(tgt_pdgc, kPdgProton);
     }
 
-    double kF = TMath::Power(1.5*kPi2*rho, 1.0/3.0) *fhbarc;
+    double kF = TMath::Power(1.5*kPi2*rho, 1./3.)*fhbarc;
 
-    std::complex<double> imU(relLindhardIm(qTildeP4.E(),dq,kF1,kF2,
-                                           M,is_neutrino,t0,r00));
+    imaginaryU = relLindhardIm(qTildeP4.E(),dq,kFn,kFp,
+                               M,is_neutrino,t0,r00);
 
-    imaginaryU = imag(imU);
-
-    std::complex<double> relLin(0,0),udel(0,0);
+    std::complex<double> relLin(0, 0), udel(0, 0);
 
     // By comparison with Nieves' fortran code
-    if(imaginaryU < 0.){
-      relLin = relLindhard(qTildeP4.E(),dq,kF,M,is_neutrino,imU);
-      udel = deltaLindhard(qTildeP4.E(),dq,rho,kF);
+    if(imaginaryU < 0)
+    {
+      relLin = relLindhard(qTildeP4.E(), dq, kF, M, imaginaryU);
+      udel = deltaLindhard(qTildeP4.E(), dq, rho, kF);
     }
     std::complex<double> relLinTot(relLin + udel);
 
@@ -582,18 +575,17 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
      DeltaRho = 2500 MeV, (2.5 GeV)^2 = 6.25 GeV^2
      mRho = 770 MeV, (0.770 GeV)^2 = 0.5929 GeV^2
      g' = 0.63 */
-    double Vt = 0.08*4*kPi/kPionMass2 *
-      (2* TMath::Power((6.25-0.5929)/(6.25-q2),2)*dq2/(q2-0.5929) + 0.63);
+    double Vt = 0.08*4*kPi/kPionMass2*
+      (2*TMath::Sq( (6.25 - 0.5929)/(6.25 - q2) )*dq2/(q2 - 0.5929) + 0.63);
   /* f^2/4/Pi = 0.08
      DeltaSubPi = 1200 MeV, (1.2 GeV)^2 = 1.44 GeV^2
      g' = 0.63 */
-    double Vl = 0.08*4*kPi/kPionMass2 *
-      (TMath::Power((1.44-kPionMass2)/(1.44-q2),2)*dq2/(q2-kPionMass2)+0.63);
+    double Vl = 0.08*4*kPi/kPionMass2*
+      (TMath::Sq( (1.44 - kPionMass2)/(1.44 - q2) )*dq2/(q2 - kPionMass2) + 0.63);
 
-    CN = 1.0/TMath::Power(abs(1.0-fPrime*relLin/hbarc2),2);
-
-    CT = 1.0/TMath::Power(abs(1.0-relLinTot*Vt),2);
-    CL = 1.0/TMath::Power(abs(1.0-relLinTot*Vl),2);
+    CN = 1/TMath::Sq(abs(1. - fPrime*relLin/hbarc2));
+    CT = 1/TMath::Sq(abs(1. - relLinTot*Vt));
+    CL = 1/TMath::Sq(abs(1. - relLinTot*Vl));
   }
   else {
     //Polarization Coefficients: all equal to 1.0 for free nucleon
@@ -606,41 +598,32 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
 //____________________________________________________________________________
 // Gives the imaginary part of the relativistic lindhard function in GeV^2
 // and sets the values of t0 and r00
-std::complex<double> NievesQELCCPXSec::relLindhardIm(double q0, double dq,
+double NievesQELCCPXSec::relLindhardIm(double q0, double dq,
                                                      double kFn, double kFp,
                                                      double M,
                                                      bool isNeutrino,
                                                      double & t0,
                                                      double & r00) const
 {
-  double M2 = TMath::Power(M,2);
+  double M2 = TMath::Sq(M);
   double EF1,EF2;
   if(isNeutrino){
-    EF1 = TMath::Sqrt(M2+TMath::Power(kFn,2)); //EFn
-    EF2 = TMath::Sqrt(M2+TMath::Power(kFp,2)); //EFp
+    EF1 = TMath::Sqrt(M2 + TMath::Sq(kFn)); //EFn
+    EF2 = TMath::Sqrt(M2 + TMath::Sq(kFp)); //EFp
   }else{
-    EF1 = TMath::Sqrt(M2+TMath::Power(kFp,2)); //EFp
-    EF2 = TMath::Sqrt(M2+TMath::Power(kFn,2)); //EFn
+    EF1 = TMath::Sqrt(M2 + TMath::Sq(kFp)); //EFp
+    EF2 = TMath::Sqrt(M2 + TMath::Sq(kFn)); //EFn
   }
 
-  double q2 = TMath::Power(q0,2) - TMath::Power(dq,2);
-  double a = (-q0+dq*TMath::Sqrt(1-4.0*M2/q2))/2.0;
-  double epsRP = TMath::Max(TMath::Max(M,EF2-q0),a);
-
-  // Other theta functions for q are handled by nuclear suppression
-  // That is, q0>0 and -q2>0 are always handled, and q0>EF2-EF1 is
-  // handled if pauli blocking is on, because otherwise the final
-  // nucleon would be below the fermi sea
-  //if(fNievesSuppression && !interaction->TestBit(kIAssumeFreeNucleon )
-  //&& !EF1-epsRP<0){
-  //LOG("Nieves", pINFO) << "Average value of E(p) above Fermi sea";
-  //return 0;
-  //}else{
-  t0 = 0.5*(EF1+epsRP);
-  r00 = (TMath::Power(EF1,2)+TMath::Power(epsRP,2)+EF1*epsRP)/3.0;
-  std::complex<double> result(0.0,-M2/2.0/kPi/dq*(EF1-epsRP));
-  return result;
-  //}
+  double q2 = TMath::Sq(q0) - TMath::Sq(dq);
+  double a = (-q0 + dq*TMath::Sqrt(1 - 4*M2/q2))/2;
+  double epsRP = TMath::Max(TMath::Max(M,EF2 - q0),a);
+  //int factor = (EF1 - EF2 + q0 >= 0)*(EF1 - epsRP >= 0);
+  int factor = 1;
+  // theta functions q0>0 and -q2>0 are always handled
+  t0  = factor*(EF1 + epsRP)/2;
+  r00 = factor*(TMath::Sq(EF1) + TMath::Sq(epsRP) + EF1*epsRP)/3;
+  return -factor*M2/2/kPi/dq*(EF1 - epsRP);
 }
 //____________________________________________________________________________
 //Following obtained from fortran code by J Nieves, which contained the following comment:
@@ -665,60 +648,49 @@ std::complex<double> NievesQELCCPXSec::relLindhardIm(double q0, double dq,
 //Takes inputs in GeV (with imU in GeV^2), and gives output in GeV^2
 std::complex<double> NievesQELCCPXSec::relLindhard(double q0gev,
                         double dqgev, double kFgev, double M,
-                        bool isNeutrino,
-                        std::complex<double> /* relLindIm */) const
+                        double relLindIm) const
 {
   double q0 = q0gev/fhbarc;
   double qm = dqgev/fhbarc;
   double kf = kFgev/fhbarc;
   double m = M/fhbarc;
 
-  if(q0>qm){
-    LOG("Nieves", pWARN) << "relLindhard() failed";
-    return 0.0;
-  }
-
-  std::complex<double> RealLinRel(ruLinRelX(q0,qm,kf,m)+ruLinRelX(-q0,qm,kf,m));
-  double t0,r00;
-  std::complex<double> ImLinRel(relLindhardIm(q0gev,dqgev,kFgev,kFgev,M,isNeutrino,t0,r00));
   //Units of GeV^2
-  return(RealLinRel*TMath::Power(fhbarc,2) + 2.0*ImLinRel);
+  std::complex<double> relLind(TMath::Sq(fhbarc)*(ruLinRelX(q0,qm,kf,m) + ruLinRelX(-q0,qm,kf,m)), 2*relLindIm);
+  
+  return relLind;
 }
 //____________________________________________________________________________
 //Inputs assumed to be in natural units
-std::complex<double> NievesQELCCPXSec::ruLinRelX(double q0, double qm,
-                                                 double kf, double m) const
+double NievesQELCCPXSec::ruLinRelX(double q0, double qm,
+                                   double kf, double m) const
 {
-  double q02 = TMath::Power(q0, 2);
-  double qm2 = TMath::Power(qm, 2);
-  double kf2 = TMath::Power(kf, 2);
-  double m2  = TMath::Power(m,  2);
-  double m4  = TMath::Power(m,  4);
+  double q02 = TMath::Sq(q0);
+  double qm2 = TMath::Sq(qm);
+  double kf2 = TMath::Sq(kf);
+  double m2  = TMath::Sq(m);
+  double m4  = TMath::Sq(m2);
 
-  double ef = TMath::Sqrt(m2+kf2);
-  double q2 = q02-qm2;
-  double q4 = TMath::Power(q2,2);
-  double ds = TMath::Sqrt(1.0-4.0*m2/q2);
-  double L1 = log((kf+ef)/m);
-  std::complex<double> uL2(
-       TMath::Log(TMath::Abs(
-                    (ef + q0 - TMath::Sqrt(m2+TMath::Power(kf-qm,2)))/
-                    (ef + q0 - TMath::Sqrt(m2 + TMath::Power(kf + qm,2))))) +
-       TMath::Log(TMath::Abs(
-                    (ef + q0 + TMath::Sqrt(m2 + TMath::Power(kf - qm,2)))/
-                    (ef + q0 + TMath::Sqrt(m2 + TMath::Power(kf + qm,2))))));
+  double ef = TMath::Sqrt(m2 + kf2);
+  double q2 = q02 - qm2;
+  double q4 = TMath::Sq(q2);
+  double ds = TMath::Sqrt(1 - 4*m2/q2);
+  double L1 = TMath::Log((kf + ef)/m);
+  
+  double aux1 = TMath::Sq(ef + q0);
+  double aux2 = TMath::Sq(kf - qm)/aux1;
+  double aux3 = TMath::Sq(kf + qm)/aux1;
+  double L2 = TMath::Log(TMath::Abs((1 - aux2)/(1 - aux3)));
+  
+  double aux5 = TMath::Sq(2*kf + q0*ds)/qm2;
+  double aux6 = TMath::Sq(2*kf - q0*ds)/qm2;
+  double aux7 = 4*m4*qm2/q4;
+  double aux8 = TMath::Sq(kf - ef*ds)/aux7;
+  double aux9 = TMath::Sq(kf + ef*ds)/aux7;
+  double L3 = TMath::Log(TMath::Abs((aux5 - 1)/(aux6 - 1)*
+                                    (aux8 - 1)/(aux9 - 1)));
 
-  std::complex<double> uL3(
-       TMath::Log(TMath::Abs((TMath::Power(2*kf + q0*ds,2)-qm2)/
-                             (TMath::Power(2*kf - q0*ds,2)-qm2))) +
-       TMath::Log(TMath::Abs((TMath::Power(kf-ef*ds,2) - (4*m4*qm2)/q4)/
-                             (TMath::Power(kf+ef*ds,2) - (4*m4*qm2)/q4))));
-
-  std::complex<double> RlinrelX(-L1/(16.0*kPi2)+
-                                uL2*(2.0*ef+q0)/(32.0*kPi2*qm)-
-                                uL3*ds/(64.0*kPi2));
-
-  return RlinrelX*16.0*m2;
+  return m2*(-L1 + L2*(2*ef + q0)/2/qm - L3*ds/4)/kPi2;
 }
 //____________________________________________________________________________
 //Following obtained from fortran code by J Nieves, which contained the following comment:
@@ -746,88 +718,97 @@ std::complex<double> NievesQELCCPXSec::ruLinRelX(double q0, double qm,
  Therefore this subroutine provides two different functions
  depending on whether q_zero is real or not!!!!!!!!!!!
 */
-std::complex<double> NievesQELCCPXSec::deltaLindhard(double q0,
-                                double dq, double rho, double kF) const
+std::complex<double> NievesQELCCPXSec::deltaLindhard(double q0, double dq, 
+                                                     double rho, double kF) const
 {
-  double q_zero = q0/fhbarc;
-  double q_mod = dq/fhbarc;
+  double q_zero  = q0/fhbarc;
+  double q_mod   = dq/fhbarc;
   double k_fermi = kF/fhbarc;
   //Divide by hbarc in order to use natural units (rho is already in the correct units)
 
   //m = 939/197.3, md = 1232/197.3, mpi = 139/197.3
-  double m = 4.7592;
-  double md = 6.2433;
+  double m   = 4.7592;
+  double md  = 6.2433;
   double mpi = 0.7045;
 
-  double fdel_f = 2.13;
-  double wr = md-m;
+  double fdel_f2 = 0.45;
+//  double fdel2   = 4*0.36*kPi;
+  double fdel2   = fdel_f2;
+  double wr = md - m;
   double gamma = 0;
   double gammap = 0;
 
-  double q_zero2 =  TMath::Power(q_zero,  2);
-  double q_mod2 =   TMath::Power(q_mod,   2);
-  double k_fermi2 = TMath::Power(k_fermi, 2);
+  double q_zero2 =  TMath::Sq(q_zero);
+  double q_mod2  =  TMath::Sq(q_mod);
+  double k_fermi2 = TMath::Sq(k_fermi);
 
-  double m2 =       TMath::Power(m,       2);
-  double m4 =       TMath::Power(m,       4);
-  double mpi2 =     TMath::Power(mpi,     2);
-  double mpi4 =     TMath::Power(mpi,     4);
+  double m2 =       TMath::Sq(m);
+  double m4 =       TMath::Sq(m2);
+  double mpi2 =     TMath::Sq(mpi);
+  double mpi4 =     TMath::Sq(mpi2);
 
-  double fdel_f2 =  TMath::Power(fdel_f,  2);
 
   //For the current code q_zero is always real
   //If q_zero can have an imaginary part then only the real part is used
   //until z and zp are calculated
-
-  double s = m2+q_zero2-q_mod2+
-    2.0*q_zero *TMath::Sqrt(m2+3.0/5.0*k_fermi2);
-
-  if(s>TMath::Power(m+mpi,2)){
+  double aux1 = m2 + q_zero2 - q_mod2;
+  double aux2 = 2*q_zero*TMath::Sqrt(m2 + 3*k_fermi2/5);
+  double aux3 = TMath::Sq(m + mpi);
+  double s    = aux1 + aux2;
+  double sp   = aux1 - aux2;
+  
+  if(s > aux3)
+  {
     double srot = TMath::Sqrt(s);
-    double qcm = TMath::Sqrt(TMath::Power(s,2)+mpi4+m4-2.0*(s*mpi2+s*m2+
-                mpi2*m2)) /(2.0*srot);
-    gamma = 1.0/3.0 * 1.0/(4.0*kPi) * fdel_f2*
-     TMath::Power(qcm,3)/srot*(m+TMath::Sqrt(m2+TMath::Power(qcm,2)))/mpi2;
+    double qcm = TMath::Sqrt(TMath::Sq(s) + mpi4 + m4 - 2*(s*mpi2 + s*m2 + mpi2*m2))/2/srot;
+    gamma = fdel2*TMath::Power(qcm,3)*(m + TMath::Sqrt(m2 + TMath::Sq(qcm)))/mpi2/12/kPi/srot;
   }
-  double sp = m2+q_zero2-q_mod2-
-    2.0*q_zero *TMath::Sqrt(m2+3.0/5.0*k_fermi2);
-
-
-  if(sp > TMath::Power(m+mpi,2)){
+  
+  if(sp > aux3)
+  {
     double srotp = TMath::Sqrt(sp);
-    double qcmp = TMath::Sqrt(TMath::Power(sp,2)+mpi4+m4-2.0*(sp*mpi2+sp*m2+
-                 mpi2*m2))/(2.0*srotp);
-    gammap = 1.0/3.0 * 1.0/(4.0*kPi) * fdel_f2*
-      TMath::Power(qcmp,3)/srotp*(m+TMath::Sqrt(m2+TMath::Power(qcmp,2)))/mpi2;
-  }
-  //}//End if statement
-
-  std::complex<double> z(md/(q_mod*k_fermi)*(q_zero-q_mod2/(2.0*md)
-                         -wr +1i*gamma/2.0));
-  std::complex<double> zp(md/(q_mod*k_fermi)*(-q_zero-q_mod2/(2.0*md)
-                          -wr +1i*gammap/2.0));
-
-  std::complex<double> pzeta(0.0);
-  if(abs(z) > 50.0){
-    pzeta = 2.0/(3.0*z)+2.0/(15.0*z*z*z);
-  }else if(abs(z) < TMath::Power(10.0,-2)){
-    pzeta = 2.0*z-2.0/3.0*z*z*z-1i*kPi/2.0*(1.0-z*z);
-  }else{
-    pzeta = z + (1.0-z*z) * log((z+1.0)/(z-1.0))/2.0;
+    double qcmp  = TMath::Sqrt(TMath::Sq(sp) + mpi4 + m4 - 2*(sp*mpi2 + sp*m2 + mpi2*m2))/2/srotp;
+    gammap = fdel2*TMath::Power(qcmp,3)*(m + TMath::Sqrt(m2 + TMath::Sq(qcmp)))/mpi2/12/kPi/srotp;
   }
 
-  std::complex<double> pzetap(0);
-  if(abs(zp) > 50.0){
-    pzetap = 2.0/(3.0*zp)+2.0/(15.0*zp*zp*zp);
-  }else if(abs(zp) < TMath::Power(10.0,-2)){
-    pzetap = 2.0*zp-2.0/3.0*zp*zp*zp-1i*kPi/2.0*(1.0-zp*zp);
-  }else{
-    pzetap = zp+ (1.0-zp*zp) * log((zp+1.0)/(zp-1.0))/2.0;
+  std::complex<double> z (md/q_mod/k_fermi*( q_zero - q_mod2/2./md - wr + 1i*gamma/2.));
+  std::complex<double> zp(md/q_mod/k_fermi*(-q_zero - q_mod2/2./md - wr + 1i*gammap/2.));
+  
+  std::complex<double> pzeta(0, 0);
+  double one_sqrt10 = 1/TMath::Sq(10);
+  std::complex<double> z2(z*z);
+  double abs_z = abs(z);
+  if(abs_z > 50)
+  {
+    pzeta = 2.*(1. + 1./5./z2)/3./z;
+  }
+  else if(abs_z < one_sqrt10)
+  {
+    pzeta = 2.*z*(1. - z2/3.) - 1i*kPi*(1. - z2)/2.;
+  }
+  else
+  {
+    pzeta = z + (1. - z2)*log((z + 1.)/(z - 1.))/2.;
+  }
+
+  std::complex<double> pzetap(0,0);
+  std::complex<double> zp2(zp*zp);
+  double abs_zp = abs(zp);
+  if(abs_zp > 50)
+  {
+    pzetap = 2.*(1. + 1./5./zp2)/3./zp;
+  }
+  else if(abs_zp < one_sqrt10)
+  {
+    pzetap = 2.*zp*(1. - zp2/3.) - 1i*kPi*(1. - zp2)/2.;
+  }
+  else
+  {
+    pzetap = zp + (1. - zp2)*log((zp + 1.)/(zp - 1.))/2.;
   }
 
   //Multiply by hbarc^2 to give answer in units of GeV^2
-  return 2.0/3.0 * rho * md/(q_mod*k_fermi) * (pzeta +pzetap) * fdel_f2 *
-    TMath::Power(fhbarc,2);
+  return 2.*rho*md*(pzeta + pzetap)*fdel_f2*TMath::Sq(fhbarc)/q_mod/k_fermi/3.;
 }
 
 //____________________________________________________________________________
@@ -956,8 +937,7 @@ const Target& target, bool assumeFreeNucleon) const
   int A = target.A();
   int Z = target.Z();
   int N = target.N();
-  bool hitNucIsProton = pdg::IsProton( target.HitNucPdg() );
-
+  
   const double k[4] = {neutrinoMom.E(),neutrinoMom.Px(),neutrinoMom.Py(),neutrinoMom.Pz()};
   const double kPrime[4] = {leptonMom.E(),leptonMom.Px(),
                             leptonMom.Py(),leptonMom.Pz()};
@@ -996,7 +976,7 @@ const Target& target, bool assumeFreeNucleon) const
   double t0,r00;
   double CN=1.,CT=1.,CL=1.,imU=0;
   CNCTCLimUcalc(qTildeP4, M, r, is_neutrino, tgtIsNucleus,
-    tgt_pdgc, A, Z, N, hitNucIsProton, CN, CT, CL, imU,
+    tgt_pdgc, A, Z, N, CN, CT, CL, imU,
     t0, r00, assumeFreeNucleon);
 
   if ( imU > kASmallNum )
@@ -1447,21 +1427,14 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   double T4 = M/2/q2*(Wzz - Wxx);
   double T5 = (ReW0z - q0/q*(Wzz - Wxx))/q;
   
-  
-  if (T1 != 0 || T2!=0 || T3!=0 || T4!=0 || T5!=0)
-  {  
-    CalculatePolarizationVectorInTargetRestFrame(
+  CalculatePolarizationVectorInTargetRestFrame(
                         fFinalLeptonPolarization, 
                         neutrinoMom, 
                         leptonMom,
                         is_neutrino, 
                         M, T1,T2,T3,T4,T5,0);
-  }
-  else
-  {
-    LOG("Nieves", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
-    fFinalLeptonPolarization = TVector3(0, 0, 0);
-  }
+  
+
   
   std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
   std::cout << fFinalLeptonPolarization.Mag() << "\n";
@@ -1626,17 +1599,8 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
   TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
   TLorentzVector neutrinoMom = *tempNeutrino;
   delete tempNeutrino;
-  TLorentzVector inNucleonMom(*init_state.TgtPtr()->HitNucP4Ptr());
-
   TLorentzVector leptonMom = kinematics.FSLeptonP4();
-  TLorentzVector outNucleonMom = kinematics.HadSystP4();
-  
-  double outNucleonEnergy        = TMath::Hypot(M, outNucleonMom.P() );
-  double inNucleonOnShellEnergy  = TMath::Hypot(M, inNucleonMom.P() );
-  
-  TLorentzVector inNucleonMomOnShell(inNucleonMom);
-  inNucleonMomOnShell.SetE(inNucleonOnShellEnergy);
-
+ 
   // Calculate Coulomb corrections
   double ml = interaction->FSPrimLepton()->Mass();
   double ml2 = ml*ml;
@@ -1655,35 +1619,21 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
     double El      = ElLocal;
     ElLocal = El - sign*Vc;
 
-    if ( ElLocal - ml <= 0. ) 
-    {
-        return 0;
-    }
+    if ( ElLocal - ml <= 0 ) return 0;
 
     // The Coulomb correction factor blows up as pl -> 0. To guard against
     // unphysically huge corrections here, require that the lepton kinetic energy
     // (at infinity) is larger than the magnitude of the Coulomb potential
     // (should be around a few MeV)
     double KEl = El - ml;
-    if ( KEl <= TMath::Abs(Vc) ) 
-    {
-        return 0;
-    }
+    if ( KEl <= TMath::Abs(Vc) ) return 0;
 
     // Local value of the lepton 3-momentum magnitude for the Coulomb correction
     plLocal = TMath::Sqrt(ElLocal*ElLocal - ml2);
 
   }
 
-  // When computing the contraction of the leptonic and hadronic tensors,
-  // we need to use an effective value of the 4-momentum transfer q.
-  // The energy transfer (q0) needs to be modified to account for the binding
-  // energy of the struck nucleon, while the 3-momentum transfer needs to
-  // be corrected for Coulomb effects.
-  //
-  // See the original Valencia model paper:
-  // https://journals.aps.org/prc/abstract/10.1103/PhysRevC.70.055503
-  double q0Tilde = outNucleonEnergy - inNucleonOnShellEnergy;
+  double q0Tilde = neutrinoMom.E() - leptonMom.E();
   
   int nucl_pdg_ini = target.HitNucPdg();
   
@@ -1713,11 +1663,8 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
   if( fQvalueShifter ) q0Tilde += q0Tilde * fQvalueShifter->Shift(*interaction) ;
 
   // If binding energy effects pull us into an unphysical region, return
-  // zero for the differential cross section
-  if ( q0Tilde <= 0 && tgtIsNucleus && !interaction->TestBit(kIAssumeFreeNucleon) ) 
-  {
-      return 0;
-  }
+  // zero
+  if ( q0Tilde <= 0 && tgtIsNucleus && !interaction->TestBit(kIAssumeFreeNucleon) ) return 0;
 
   // Note that we're working in the lab frame (i.e., the rest frame
   // of the target nucleus). We can therefore use Nieves' explicit
@@ -1766,10 +1713,7 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
   double Q2tilde = -qTildeP4.Mag2();
   
   // Check that Q2tilde > 0 (accounting for rounding errors)
-  if (Q2tilde < 0) 
-  {
-    return 0;
-  }
+  if (Q2tilde < 0) return 0;
 
   // Store Q2tilde in the kinematic variable representing Q2.
   // This will ensure that the form factors are calculated correctly
@@ -1795,14 +1739,11 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
   double t0,r00;
   double CN(1), CT(1), CL(1), imU(0);
   CNCTCLimUcalc(qTildeP4, M, r, is_neutrino, tgtIsNucleus,
-    tgt_pdgc, A, Z, N, hitNucIsProton, CN, CT, CL, imU,
+    tgt_pdgc, A, Z, N, CN, CT, CL, imU,
     t0, r00, interaction->TestBit( kIAssumeFreeNucleon ));
     
 
-  if ( imU > 0 )
-  {
-    return 0;
-  }
+  if ( imU > 0 ) return 0;
   
   if ( !fRPA || interaction->TestBit( kIAssumeFreeNucleon ) ) 
   {
@@ -1832,10 +1773,7 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
   double Elow    = TMath::Max( EFf - q0, M*(c*d + TMath::Sqrt(1- c*c + d*d))/(1 - c*c) );
   double Eup     = EFi;
   
-  if (Elow >= Eup) 
-  {
-      return 0;
-  }
+  if (Elow >= Eup) return 0;
   
   double Elow2   = Elow*Elow;
   double Elow3   = Elow*Elow2;

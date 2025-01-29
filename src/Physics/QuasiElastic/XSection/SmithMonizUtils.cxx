@@ -620,7 +620,8 @@ double SmithMonizUtils::rho(double P_Fermi, double T_Fermi, double p)
   else
   {
       //Fermi-Dirac distribution
-      return 1.0/(1.0 + TMath::Exp(-(P_Fermi-p)/T_Fermi));
+      double aux = TMath::Exp((P_Fermi-p)/T_Fermi);
+      return aux/(1 + aux);
   }
 
 

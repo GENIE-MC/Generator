@@ -416,44 +416,28 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
 //_________________________________________________________________________
 const TVector3 & NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Interaction* interaction) const
 { 
-    if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
-    
-    const Kinematics&   kinematics = interaction -> Kine();
-    const InitialState& init_state = interaction -> InitState();
-    const Target& tgt = init_state.Tgt();
-    // If {W,Q2} have been supplied instead, compute {Tl, ctl}
-    // NOTE: The expressions used here neglect Fermi motion and
-    // should eventually be revisited. See the "important note"
-    // in src/Framework/Utils/KineUtils.cxx about the
-    // Jacobian for transforming {W,Q2} --> {Tl, ctl}.
-    // - S. Gardiner, 29 July 2020
-    if (kinematics.GetKV( kKVQ2 ) != -99999 && kinematics.GetKV( kKVW ) != -99999)
-    {
-        double Q2 = interaction->Kine().GetKV( kKVQ2 );
-        double W = interaction->Kine().GetKV( kKVW );
-    
-        // Probe properties (mass, energy, momentum)
-        double mv = init_state.Probe()->Mass();
-        double Ev = init_state.ProbeE( kRfLab );
-        double pv = std::sqrt( std::max(0., Ev*Ev - mv*mv) );
-    
-        // Invariant mass of the initial hit nucleon
-        const TLorentzVector& hit_nuc_P4 = init_state.Tgt().HitNucP4();
-        double M = hit_nuc_P4.M();
-    
-        // Get the outgoing lepton kinetic energy
-        double ml = interaction->FSPrimLepton()->Mass();
-        double Tl = Ev - ml - ( (W*W + Q2 - M*M) / (2.*M) );
-    
-        // Get the outgoing lepton scattering cosine
-        double El = Tl + ml;
-        double pl = std::sqrt( std::max(0., El*El - ml*ml) );
-        double ctl = ( 2.*Ev*El - Q2 - mv*mv - ml*ml ) / ( 2. * pv * pl );
-    
-        // Set Tl, ctl in the interaction
-        interaction->KinePtr()->SetKV( kKVTl, Tl );
-        interaction->KinePtr()->SetKV( kKVctl, ctl );
-  }
+  if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  
+  const Kinematics&   kinematics = interaction -> Kine();
+  const InitialState& init_state = interaction -> InitState();
+  const Target& tgt = init_state.Tgt();
+  
+  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector neutrinoMom    = *tempNeutrino;
+  delete tempNeutrino;
+  const TLorentzVector leptonMom = kinematics.FSLeptonP4();
+  
+  double Ev             = neutrinoMom.E();
+  double El             = leptonMom.E();
+  double ml             = interaction->FSPrimLepton()->Mass();
+  double Tl             = El - ml;
+  TVector3 neutrinoMom3 = neutrinoMom.Vect();
+  TVector3 leptonMom3   = leptonMom.Vect();
+  double costl      = neutrinoMom3.Dot(leptonMom3)/neutrinoMom3.Mag()/leptonMom3.Mag();
+  double Q0    = 0.;
+  double Q3    = 0.;
+  genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
+  
   const double M = 1;  // the polarization doesn't depend on mass of target in target rest frame
   // This function returns d2sigma/(dTmu dcos_mu) in GeV^(-3)
   int target_pdg = tgt.Pdg();
@@ -547,11 +531,6 @@ const TVector3 & NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Int
         return fFinalLeptonPolarization;
     }
   }
-
-  // Check that the input kinematical point is within the range
-  // in which hadron tensors are known (for chosen target)
-  double Q0    = interaction->Kine().GetKV(kKVQ0);
-  double Q3    = interaction->Kine().GetKV(kKVQ3);
 
   const LabFrameHadronTensorI* tensor
     = dynamic_cast<const LabFrameHadronTensorI*>(
@@ -767,10 +746,6 @@ const TVector3 & NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Int
   }
   
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
-  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
-  TLorentzVector neutrinoMom = *tempNeutrino;
-  delete tempNeutrino;
-  const TLorentzVector leptonMom = kinematics.FSLeptonP4();
   genie::utils::CalculatePolarizationVectorInTargetRestFrame(
                                             fFinalLeptonPolarization, 
                                             neutrinoMom, 

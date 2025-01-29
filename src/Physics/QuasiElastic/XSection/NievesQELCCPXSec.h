@@ -122,20 +122,19 @@ private:
   // r must be in units of fm.
   void CNCTCLimUcalc(TLorentzVector qTildeP4, double M, double r,
     bool is_neutrino, bool tgtIsNucleus, int tgt_pdgc, int A, int Z, int N,
-    bool hitNucIsProton, double & CN, double & CT, double & CL, double & imU,
+    double & CN, double & CT, double & CL, double & imU,
     double & t0, double & r00, bool assumeFreeNucleon) const;
 
   //Equations to calculate the relativistic Lindhard function for Amunu
-  std::complex<double> relLindhardIm(double q0gev, double dqgev,
-				     double kFngev, double kFpgev,
-				     double M, bool isNeutrino,
-				     double & t0, double & r00) const;
+  double relLindhardIm(double q0gev, double dqgev,
+                     double kFngev, double kFpgev,
+                     double M, bool isNeutrino,
+                     double & t0, double & r00) const;
   std::complex<double> relLindhard(double q0gev, double dqgev,
-				   double kFgev, double M,
-				   bool isNeutrino,
-				   std::complex<double> relLindIm) const;
-  std::complex<double> ruLinRelX(double q0, double qm,
-				 double kf, double m) const;
+                                   double kFgev, double M,
+                                   double ImU) const;
+  double ruLinRelX(double q0, double qm,
+                   double kf, double m) const;
   std::complex<double> deltaLindhard(double q0gev, double dqgev,
 				     double rho, double kFgev) const;
 

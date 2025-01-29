@@ -504,44 +504,35 @@ const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interactio
   sm_utils->SetInteraction(interaction);
   const InitialState & init_state = interaction -> InitState();
   const Target & target = init_state.Tgt();
-  double Enu     = init_state.ProbeE(kRfLab);
-  double Q2      = kinematics.Q2(true);
-  double v       = kinematics.GetKV(kKVv);
+  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector   neutrinoMom  = *tempNeutrino;
+  delete tempNeutrino;
+  const TLorentzVector leptonMom = kinematics.FSLeptonP4();
+  double Enu            = neutrinoMom.E();
+  double El             = leptonMom.E();
+  double ml2            = leptonMom.M2();
+  double Pl             = leptonMom.P();
+  double v              = Enu - El;
+  TVector3 neutrinoMom3 = neutrinoMom.Vect();
+  TVector3 leptonMom3   = leptonMom.Vect();
+  double cos_theta      = neutrinoMom3.Dot(leptonMom3)/neutrinoMom3.Mag()/leptonMom3.Mag();
+  double aux1           = El - Pl*cos_theta;
+  double Q2             = 2*Enu*aux1 - ml2;
+  
   Range1D_t rkF  = sm_utils->kFQES_SM_lim(Q2,v);
   
+  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
   
+  //|\vec{q}|
+  double qqv     = v*v + Q2;
+  double qv      = TMath::Sqrt(qqv);
   double E_BIN   = sm_utils->GetBindingEnergy();
   double m_ini   = target.HitNucMass();
   double mm_ini  = m_ini*m_ini;
   double m_fin   = interaction->RecoilNucleon()->Mass();      //  Mass of final hadron or hadron system (GeV)
   double mm_fin  = m_fin*m_fin;
   double m_tar   = target.Mass();                             //  Mass of target nucleus (GeV)
-  
-  //|\vec{q}|
-  double qqv     = v*v + Q2;
-  double qv      = TMath::Sqrt(qqv);
-  
-  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
-  
-  double El   = Enu - v;
-  double ml = interaction->FSPrimLepton()->Mass();
-  double ml2 = ml*ml;
-  if (El < ml) 
-  {
-     fFinalLeptonPolarization = TVector3(0, 0, 0);
-     return fFinalLeptonPolarization;
-  }
-  double Pl = TMath::Sqrt(El*El - ml2);
-  double k6 = (Q2 + ml2)/(2*Enu);
-  double cos_theta = (El - k6)/Pl;
-  if (cos_theta < -1.0 || cos_theta > 1.0 ) 
-  {
-     LOG("SmithMoniz", pWARN) << "Can't calculate final lepton polarization. Set it to zero.";
-     fFinalLeptonPolarization = TVector3(0, 0, 0);
-     return fFinalLeptonPolarization;
-  }
-
-  double cosT_k  = (v + k6)/qv;
+  double cosT_k  = (v + aux1)/qv;
   if (cosT_k < -1.0 || cosT_k > 1.0 )
   {
      LOG("SmithMoniz", pWARN) << "Can't calculate final lepton polarization. Set it to zero.";
@@ -649,10 +640,6 @@ const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interactio
   double T4     = mm_tar*(0.5*k4*W2 + a1*W4/mm_ini + a6*W5/m_ini/qv);    //Ref.[1], W_\alpha
   double T5     = m_tar*(a5/qv - v*k4)*W2 + k5*W5;
   
-  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
-  TLorentzVector   neutrinoMom  = *tempNeutrino;
-  delete tempNeutrino;
-  const TLorentzVector leptonMom = kinematics.FSLeptonP4();
   CalculatePolarizationVectorInTargetRestFrame(
                         fFinalLeptonPolarization, 
                         neutrinoMom, 
