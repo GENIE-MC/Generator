@@ -137,32 +137,6 @@ private:
   std::complex<double> deltaLindhard(double q0gev, double dqgev,
                                      double rho, double kFgev) const;
                      
-///////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////
-  // Calculates values of CN, CT, CL, and imU, and stores them in the provided
-  // variables. If target is not a nucleus, then CN, CN, and CL are all 1.0.
-  // r must be in units of fm.
-  void CNCTCLimUcalcttt(TLorentzVector qTildeP4, double M, double r,
-    bool is_neutrino, bool tgtIsNucleus, int tgt_pdgc, int A, int Z, int N,
-    bool hitNucIsProton, double & CN, double & CT, double & CL, double & imU,
-    double & t0, double & r00, bool assumeFreeNucleon) const;
-
-  //Equations to calculate the relativistic Lindhard function for Amunu
-  std::complex<double> relLindhardImttt(double q0gev, double dqgev,
-				     double kFngev, double kFpgev,
-				     double M, bool isNeutrino,
-				     double & t0, double & r00) const;
-  std::complex<double> relLindhardttt(double q0gev, double dqgev,
-				   double kFgev, double M,
-				   bool isNeutrino,
-				   std::complex<double> relLindIm) const;
-  std::complex<double> ruLinRelXttt(double q0, double qm,
-				 double kf, double m) const;
-  std::complex<double> deltaLindhardttt(double q0gev, double dqgev,
-				     double rho, double kFgev) const;
-////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////
-
   // Potential for coulomb correction
   double vcr(const Target * target, double r) const;
   
