@@ -1435,9 +1435,9 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   
 
   
-  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-  std::cout << fFinalLeptonPolarization.Mag() << "\n";
-  std::cout << "NV@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
+//  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+//  std::cout << fFinalLeptonPolarization.Mag() << "\n";
+//  std::cout << "NV@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
   
   return fFinalLeptonPolarization;
 

@@ -166,9 +166,9 @@ void genie::utils::CalculatePolarizationVectorWithNuclearTensor(
   TVector3 Px = neutrinoMom3.Cross(leptonMom3).Unit();
   TVector3 Py = Pz.Cross(Px);
   polarization = PT*Px + PP*Py + PL*Pz;
-  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-  std::cout << "PL = " << PL << ", PP = " << PP << ", PT = " << PT << "\n";
-  std::cout << "UT@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
+//  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+//  std::cout << "PL = " << PL << ", PP = " << PP << ", PT = " << PT << "\n";
+//  std::cout << "UT@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
 }
 //____________________________________________________________________________
 void  genie::utils::CalculatePolarizationVectorWithStructureFunctions(
@@ -286,9 +286,9 @@ void  genie::utils::CalculatePolarizationVectorInTargetRestFrame(
   TVector3 Px = neutrinoMomTRF3.Cross(leptonMomTRF3).Unit();
   TVector3 Py = Pz.Cross(Px);
   polarization = PT*Px + PP*Py + PL*Pz;
-  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-  std::cout << "PL = " << PL  << ", PP = " << PP << ", PT = " << PT << ", R = " << R << "\n";
-  std::cout << "UT@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
+//  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+//  std::cout << "PL = " << PL  << ", PP = " << PP << ", PT = " << PT << ", R = " << R << "\n";
+//  std::cout << "UT@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
 }
 //____________________________________________________________________________
 
