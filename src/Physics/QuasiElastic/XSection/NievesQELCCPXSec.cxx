@@ -619,11 +619,15 @@ double NievesQELCCPXSec::relLindhardIm(double q0, double dq,
   double q2 = TMath::Sq(q0) - TMath::Sq(dq);
   double a = (-q0 + dq*TMath::Sqrt(1 - 4*M2/q2))/2;
   double epsRP = TMath::Max(TMath::Max(M,EF2 - q0),a);
-  int factor = (EF1 - EF2 + q0 >= 0)*(EF1 - epsRP >= 0);
   // theta functions q0>0 and -q2>0 are always handled
-  t0  = factor*(EF1 + epsRP)/2;
-  r00 = factor*(TMath::Sq(EF1) + TMath::Sq(epsRP) + EF1*epsRP)/3;
-  return -factor*M2/2/kPi/dq*(EF1 - epsRP);
+  int theta = (EF1 - EF2 + q0 >= 0)*(EF1 - epsRP >= 0);
+
+  if(fCompareNievesTensors)
+  {
+    t0  = theta*(EF1 + epsRP)/2;
+    r00 = theta*(TMath::Sq(EF1) + TMath::Sq(epsRP) + EF1*epsRP)/3;
+  }
+  return -theta*M2/2/kPi/dq*(EF1 - epsRP);
 }
 //____________________________________________________________________________
 //Following obtained from fortran code by J Nieves, which contained the following comment:
@@ -657,7 +661,7 @@ std::complex<double> NievesQELCCPXSec::relLindhard(double q0gev,
   double dummy;
   double relLindIm = relLindhardIm(q0gev, dqgev, kFgev, kFgev, M, true, dummy, dummy);
   //Units of GeV^2
-  std::complex<double> relLind(TMath::Sq(fhbarc)*(ruLinRelX(q0,qm,kf,m) + ruLinRelX(-q0,qm,kf,m)), relLindIm);
+  std::complex<double> relLind(TMath::Sq(fhbarc)*(ruLinRelX(q0,qm,kf,m) + ruLinRelX(-q0,qm,kf,m)), 2*relLindIm);
   return relLind;
 }
 //____________________________________________________________________________
@@ -1735,11 +1739,11 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
   double Fp = fFormFactors.Fp()/M;
 
   
-  double t0,r00;
+  double dummy;
   double CN(1), CT(1), CL(1), imU(0);
   CNCTCLimUcalc(qTildeP4, M, r, is_neutrino, tgtIsNucleus,
     tgt_pdgc, A, Z, N, CN, CT, CL, imU,
-    t0, r00, interaction->TestBit( kIAssumeFreeNucleon ));
+    dummy, dummy, interaction->TestBit( kIAssumeFreeNucleon ));
     
   if ( imU > 0 ) return 0;
   
