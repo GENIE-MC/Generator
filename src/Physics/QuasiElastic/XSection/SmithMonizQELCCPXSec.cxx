@@ -497,8 +497,6 @@ double SmithMonizQELCCPXSec::dsQES_dQ2_SM(const Interaction * interaction) const
 const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interaction* interaction) const
 {
   if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
-  // Assuming that variables Enu, Q2, \nu and kF are within allowable kinematic region
-  // which are specified in methods: genie::utils::gsl::d2Xsec_dQ2dv::DoEval and QELEventGeneratorSM::ProcessEventRecord
   // Get kinematics & init-state parameters
   const Kinematics &  kinematics = interaction -> Kine();
   sm_utils->SetInteraction(interaction);
@@ -515,7 +513,9 @@ const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interactio
   double v              = Enu - El;
   TVector3 neutrinoMom3 = neutrinoMom.Vect();
   TVector3 leptonMom3   = leptonMom.Vect();
-  double cos_theta      = neutrinoMom3.Dot(leptonMom3)/neutrinoMom3.Mag()/leptonMom3.Mag();
+  double pv             = neutrinoMom3.Mag();
+  double pl             = leptonMom3.Mag();
+  double cos_theta      = pl*pv != 0 ? neutrinoMom3.Dot(leptonMom3)/pl/pv : 0;
   double aux1           = El - Pl*cos_theta;
   double Q2             = 2*Enu*aux1 - ml2;
   

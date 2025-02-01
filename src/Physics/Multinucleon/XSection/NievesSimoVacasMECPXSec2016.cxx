@@ -433,9 +433,11 @@ const TVector3 & NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Int
   double Tl             = El - ml;
   TVector3 neutrinoMom3 = neutrinoMom.Vect();
   TVector3 leptonMom3   = leptonMom.Vect();
-  double costl      = neutrinoMom3.Dot(leptonMom3)/neutrinoMom3.Mag()/leptonMom3.Mag();
-  double Q0    = 0.;
-  double Q3    = 0.;
+  double pv             = neutrinoMom3.Mag();
+  double pl             = leptonMom3.Mag();
+  double costl          = pl*pv != 0 ? neutrinoMom3.Dot(leptonMom3)/pl/pv : 0;
+  double Q0             = 0.;
+  double Q3             = 0.;
   genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
   
   const double M = 1;  // the polarization doesn't depend on mass of target in target rest frame

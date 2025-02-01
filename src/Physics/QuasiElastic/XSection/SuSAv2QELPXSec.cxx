@@ -699,9 +699,11 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
     double Tl             = El - ml;
     TVector3 neutrinoMom3 = neutrinoMom.Vect();
     TVector3 leptonMom3   = leptonMom.Vect();
-    double costl      = neutrinoMom3.Dot(leptonMom3)/neutrinoMom3.Mag()/leptonMom3.Mag();
-    double Q0    = 0.;
-    double Q3    = 0.;
+    double pv             = neutrinoMom3.Mag();
+    double pl             = leptonMom3.Mag();
+    double costl          = pl*pv != 0 ? neutrinoMom3.Dot(leptonMom3)/pl/pv : 0;
+    double Q0             = 0;
+    double Q3             = 0;
     genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
 
     // *** Enforce the global Q^2 cut ***

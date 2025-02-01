@@ -493,7 +493,7 @@ const TVector3 & SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* int
   const Kinematics&   kinematics = interaction -> Kine();
   const InitialState& init_state = interaction -> InitState();
   int probe_pdg = interaction->InitState().ProbePdg();
-  
+
   HadronTensorType_t tensor_type = kHT_Undefined;
   if ( pdg::IsNeutrino(probe_pdg) || pdg::IsAntiNeutrino(probe_pdg) ) 
   {
@@ -541,9 +541,11 @@ const TVector3 & SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* int
   double Tl             = El - ml;
   TVector3 neutrinoMom3 = neutrinoMom.Vect();
   TVector3 leptonMom3   = leptonMom.Vect();
-  double costl      = neutrinoMom3.Dot(leptonMom3)/neutrinoMom3.Mag()/leptonMom3.Mag();
-  double Q0    = 0.;
-  double Q3    = 0.;
+  double pv             = neutrinoMom3.Mag();
+  double pl             = leptonMom3.Mag();
+  double costl          = pl*pv != 0 ? neutrinoMom3.Dot(leptonMom3)/pl/pv : 0;
+  double Q0             = 0;
+  double Q3             = 0;
 
   // The Q-Value essentially corrects q0 to account for nuclear
   // binding energy in the Valencia model but this effect is already

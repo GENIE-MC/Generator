@@ -1472,15 +1472,10 @@ void NievesQELCCPXSec::FinalLeptonPolarizationOnFreeNucleon (const Interaction* 
   TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
   TLorentzVector neutrinoMom = *tempNeutrino;
   delete tempNeutrino;
-  TLorentzVector inNucleonMom(*init_state.TgtPtr()->HitNucP4Ptr());
 
   TLorentzVector leptonMom = kinematics.FSLeptonP4();
-  TLorentzVector outNucleonMom = kinematics.HadSystP4();
   
-
-  double outNucleonEnergy = TMath::Hypot(M, outNucleonMom.P() );
-  
-  double q0Tilde = outNucleonEnergy - M;
+  double q0Tilde = neutrinoMom.E() - leptonMom.E();
 
   // Note that we're working in the lab frame (i.e., the rest frame
   // of the target nucleus). We can therefore use Nieves' explicit
