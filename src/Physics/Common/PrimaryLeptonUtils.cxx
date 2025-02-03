@@ -120,15 +120,17 @@ void genie::utils::CalculatePolarizationVectorWithNuclearTensor(
         
   for (int a = 0; a < 4; a++)
   {
+     double aux_plus  = kl + ml*ks;
+     double aux_minus = kl - ml*ks;
      if (isLeftPolarized)
      {
-        jp[a] =  (l[a]*ks - s[a]*kl - 1i*eskl[a] + ml*k[a])/sqrt(kl + ml*ks);   //jp_\alpha
-        jm[a] = (-l[a]*ks + s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(kl - ml*ks);   //jm_\alpha
+        jp[a] = aux_plus  !=0 ? (l[a]*ks - s[a]*kl - 1i*eskl[a] + ml*k[a])/sqrt(aux_plus)   : 0;   //jp_\alpha
+        jm[a] = aux_minus !=0 ? (-l[a]*ks + s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(aux_minus) : 0;   //jm_\alpha
      }
      else
      {
-        jp[a] =  (l[a]*ks - s[a]*kl + 1i*eskl[a] - ml*k[a])/sqrt(kl - ml*ks);   //jp_\alpha
-        jm[a] =  (l[a]*ks - s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(kl + ml*ks);   //jm_\alpha
+        jp[a] =  aux_minus !=0 ? (l[a]*ks - s[a]*kl + 1i*eskl[a] - ml*k[a])/sqrt(aux_minus) : 0;   //jp_\alpha
+        jm[a] =  aux_plus  !=0 ? (l[a]*ks - s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(aux_plus)  : 0;   //jm_\alpha
      }
   }
 
