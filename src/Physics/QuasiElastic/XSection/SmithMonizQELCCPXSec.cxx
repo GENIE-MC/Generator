@@ -554,47 +554,40 @@ const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interactio
         double kkF     = kF*kF;
         double E_p     = TMath::Sqrt(mm_ini + kkF) - E_BIN;
         double cosT_p  = ((v - E_BIN)*(2*E_p + v + E_BIN) - qqv + mm_ini - mm_fin)/(2*kF*qv);           //\cos\theta_p
-        if (cosT_p < -1.0 || cosT_p > 1.0 ) 
+        if (cosT_p >= -1.0 && cosT_p <= 1.0 )
         {
-           LOG("SmithMoniz", pWARN) << "Can't calculate final lepton polarization. Set it to zero.";
-           fFinalLeptonPolarization = TVector3(0, 0, 0);
-           return fFinalLeptonPolarization;
+           double pF      = TMath::Sqrt(kkF + 2*kF*qv*cosT_p + qqv);
+           double b2_flux = TMath::Sq(E_p - kF*cosT_k*cosT_p);
+           double c2_flux = kkF*(1 - cosT_p*cosT_p)*(1 - cosT_k*cosT_k);
+           // factor fVud2*mm_ini*kPi*m_tar/qv/FV_SM will be cancelled when dividing by R
+           double factor  = kF/TMath::Sqrt(b2_flux - c2_flux)*SmithMonizUtils::rho(P_Fermi, 0, kF)*(1 - SmithMonizUtils::rho(P_Fermi, Tf, pF))*fW[d - 1 - i];
+           a1  += factor;
+           a2  += factor*kkF/mm_ini;
+           a3  += factor*kkF*cosT_p*cosT_p/mm_ini;
+           a4  += factor*E_p*E_p/mm_ini;
+           a5  += factor*2*E_p*kF*cosT_p/mm_ini;
+           a6  += factor*kF*cosT_p/m_ini;
+           a7  += factor*E_p/m_ini;
         }
-        double pF      = TMath::Sqrt(kkF + 2*kF*qv*cosT_p + qqv);
-        double b2_flux = TMath::Sq(E_p - kF*cosT_k*cosT_p);
-        double c2_flux = kkF*(1 - cosT_p*cosT_p)*(1 - cosT_k*cosT_k);
-        // factor fVud2*mm_ini*kPi*m_tar/qv/FV_SM will be cancelled when dividing by R
-        double factor  = kF/TMath::Sqrt(b2_flux - c2_flux)*SmithMonizUtils::rho(P_Fermi, 0, kF)*(1 - SmithMonizUtils::rho(P_Fermi, Tf, pF))*fW[d - 1 - i];
-        a1  += factor;
-        a2  += factor*kkF/mm_ini;
-        a3  += factor*kkF*cosT_p*cosT_p/mm_ini;
-        a4  += factor*E_p*E_p/mm_ini;
-        a5  += factor*2*E_p*kF*cosT_p/mm_ini;
-        a6  += factor*kF*cosT_p/m_ini;
-        a7  += factor*E_p/m_ini;
         
         kF = 0.5*(fR[i]*(rkF.max - rkF.min) + rkF.min + rkF.max);
         kkF     = kF*kF;
         E_p     = TMath::Sqrt(mm_ini + kkF)-E_BIN;
-        cosT_p  = ((v - E_BIN)*(2*E_p + v + E_BIN) - qqv + mm_ini - mm_fin)/(2*kF*qv);           //\cos\theta_p
-        if (cosT_p < -1.0 || cosT_p > 1.0 ) 
+        cosT_p  = ((v - E_BIN)*(2*E_p + v + E_BIN) - qqv + mm_ini - mm_fin)/(2*kF*qv);
+        if (cosT_p >= -1.0 && cosT_p <= 1.0 )
         {
-           LOG("SmithMoniz", pWARN) << "Can't calculate final lepton polarization. Set it to zero.";
-           fFinalLeptonPolarization = TVector3(0, 0, 0);
-           return fFinalLeptonPolarization;
+           double pF      = TMath::Sqrt(kkF + 2*kF*qv*cosT_p + qqv);
+           double b2_flux = TMath::Sq(E_p - kF*cosT_k*cosT_p);
+           double c2_flux = kkF*(1 - cosT_p*cosT_p)*(1 - cosT_k*cosT_k);
+           double factor  = kF/TMath::Sqrt(b2_flux - c2_flux)*SmithMonizUtils::rho(P_Fermi, 0, kF)*(1 - SmithMonizUtils::rho(P_Fermi, Tf, pF))*fW[d - 1 - i];
+           a1  += factor;
+           a2  += factor*kkF/mm_ini;
+           a3  += factor*kkF*cosT_p*cosT_p/mm_ini;
+           a4  += factor*E_p*E_p/mm_ini;
+           a5  += factor*2*E_p*kF*cosT_p/mm_ini;
+           a6  += factor*kF*cosT_p/m_ini;
+           a7  += factor*E_p/m_ini;
         }
-        pF      = TMath::Sqrt(kkF + 2*kF*qv*cosT_p + qqv);
-        b2_flux = TMath::Sq(E_p - kF*cosT_k*cosT_p);
-        c2_flux = kkF*(1 - cosT_p*cosT_p)*(1 - cosT_k*cosT_k);
-        // factor fVud2*mm_ini*kPi*m_tar/qv/FV_SM will be cancelled when dividing by R
-        factor  = kF/TMath::Sqrt(b2_flux - c2_flux)*SmithMonizUtils::rho(P_Fermi, 0, kF)*(1 - SmithMonizUtils::rho(P_Fermi, Tf, pF))*fW[d - 1 - i];
-        a1  += factor;
-        a2  += factor*kkF/mm_ini;
-        a3  += factor*kkF*cosT_p*cosT_p/mm_ini;
-        a4  += factor*E_p*E_p/mm_ini;
-        a5  += factor*2*E_p*kF*cosT_p/mm_ini;
-        a6  += factor*kF*cosT_p/m_ini;
-        a7  += factor*E_p/m_ini;
     }
     a1 *= 0.5*(rkF.max - rkF.min);
     a2 *= 0.5*(rkF.max - rkF.min);
