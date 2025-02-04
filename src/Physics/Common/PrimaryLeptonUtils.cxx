@@ -154,6 +154,11 @@ void genie::utils::CalculatePolarizationVectorWithNuclearTensor(
   }
   
   std::complex<double> LWppmm = LWpp + LWmm;
+  if (abs(LWppmm) == 0)
+  {
+     polarization = TVector3(0, 0, 0);
+     return;
+  } 
   std::complex<double> rhopp = LWpp/LWppmm;
   std::complex<double> rhopm = LWpm/LWppmm;
   std::complex<double> rhomp = LWmp/LWppmm;
