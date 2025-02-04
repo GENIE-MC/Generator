@@ -124,13 +124,13 @@ void genie::utils::CalculatePolarizationVectorWithNuclearTensor(
      double aux_minus = kl - ml*ks;
      if (isLeftPolarized)
      {
-        jp[a] = aux_plus  !=0 ? (l[a]*ks - s[a]*kl - 1i*eskl[a] + ml*k[a])/sqrt(aux_plus)   : 0;   //jp_\alpha
-        jm[a] = aux_minus !=0 ? (-l[a]*ks + s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(aux_minus) : 0;   //jm_\alpha
+        jp[a] = aux_plus  > 0 ? (l[a]*ks - s[a]*kl - 1i*eskl[a] + ml*k[a])/sqrt(aux_plus)   : 0;   //jp_\alpha
+        jm[a] = aux_minus > 0 ? (-l[a]*ks + s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(aux_minus) : 0;   //jm_\alpha
      }
      else
      {
-        jp[a] =  aux_minus !=0 ? (l[a]*ks - s[a]*kl + 1i*eskl[a] - ml*k[a])/sqrt(aux_minus) : 0;   //jp_\alpha
-        jm[a] =  aux_plus  !=0 ? (l[a]*ks - s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(aux_plus)  : 0;   //jm_\alpha
+        jp[a] =  aux_minus > 0 ? (l[a]*ks - s[a]*kl + 1i*eskl[a] - ml*k[a])/sqrt(aux_minus) : 0;   //jp_\alpha
+        jm[a] =  aux_plus  > 0 ? (l[a]*ks - s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(aux_plus)  : 0;   //jm_\alpha
      }
   }
 
@@ -221,15 +221,12 @@ void  genie::utils::CalculatePolarizationVectorWithStructureFunctions(
   HermitianMatrix NucleonTensor(4);
   for(int mu = 0; mu < 4; mu++)
   {
-     for(int nu = mu;nu < 4; nu++)
+     for(int nu = mu; nu < 4; nu++)
      {
         double Wreal = -g(mu,nu)*W1 + p[mu]*p[nu]*W2/M2 + q[mu]*q[nu]*W4/M2 + (p[mu]*q[nu] + q[mu]*p[nu])*W5/2/M2;
         double Wimag = epq[mu][nu]*W3/2/M2 + (q[mu]*p[nu] - p[mu]*q[nu])*W6/2/M2;
-        NucleonTensor.set(mu,nu,Wreal - 1i*Wimag);  // W^\mu\nu
-        if (mu != nu)
-        {
-            NucleonTensor.set(nu,mu,Wreal + 1i*Wimag);
-        }
+        NucleonTensor.set(mu, nu, Wreal - 1i*Wimag);  // W^\mu\nu
+        if (mu != nu) NucleonTensor.set(nu, mu, Wreal + 1i*Wimag);
     }
   }
   
