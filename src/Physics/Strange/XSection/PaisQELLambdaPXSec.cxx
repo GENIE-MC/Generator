@@ -308,9 +308,9 @@ const TVector3 & PaisQELLambdaPXSec::FinalLeptonPolarization (const Interaction*
                 M, W1,W2,W3,0,0,0);
   
   
-  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-  std::cout << fFinalLeptonPolarization.Mag() << "\n";
-  std::cout << "PL@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
+//  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+//  std::cout << fFinalLeptonPolarization.Mag() << "\n";
+//  std::cout << "PL@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
   
   return fFinalLeptonPolarization;
 }
