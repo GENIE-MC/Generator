@@ -515,7 +515,7 @@ const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interactio
   TVector3 leptonMom3   = leptonMom.Vect();
   double pv             = neutrinoMom3.Mag();
   double pl             = leptonMom3.Mag();
-  double cos_theta      = pl*pv != 0 ? neutrinoMom3.Dot(leptonMom3)/pl/pv : 1;
+  double cos_theta      = pl*pv != 0 ? neutrinoMom3.Dot(leptonMom3)/pl/pv : 0;
   double aux1           = El - Pl*cos_theta;
   double Q2             = 2*Enu*aux1 - ml2;
   

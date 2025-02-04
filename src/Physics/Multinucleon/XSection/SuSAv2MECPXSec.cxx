@@ -543,7 +543,7 @@ const TVector3 & SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* int
   TVector3 leptonMom3   = leptonMom.Vect();
   double pv             = neutrinoMom3.Mag();
   double pl             = leptonMom3.Mag();
-  double costl          = pl*pv != 0 ? neutrinoMom3.Dot(leptonMom3)/pl/pv : 1;
+  double costl          = pl*pv != 0 ? neutrinoMom3.Dot(leptonMom3)/pl/pv : 0;
   double Q0             = 0;
   double Q3             = 0;
 
