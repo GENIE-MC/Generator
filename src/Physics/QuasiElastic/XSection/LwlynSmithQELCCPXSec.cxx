@@ -591,10 +591,6 @@ const TVector3 & LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interactio
   double FFAT  = (FA + FT)*(FA + FT);
   double FFMS  = (FM - FS)*(FM - FS);
   double FFTP  = (FT - FP)*(FT - FP);
-  
-  // Restore Q2 in the interaction's kinematic variables
-  // now that the form factors have been computed
-  interaction->KinePtr()->SetQ2(Q2);
 
   // Off shell mass of initial nucleon
   double Mi  = inNucleonMom.M();

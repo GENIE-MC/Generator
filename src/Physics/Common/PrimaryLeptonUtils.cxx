@@ -154,7 +154,7 @@ void genie::utils::CalculatePolarizationVectorWithNuclearTensor(
   }
   
   std::complex<double> LWppmm = LWpp + LWmm;
-  if (abs(LWppmm) == 0)
+  if (LWppmm.real() == 0 && LWppmm.imag() == 0)
   {
      polarization = TVector3(0, 0, 0);
      return;

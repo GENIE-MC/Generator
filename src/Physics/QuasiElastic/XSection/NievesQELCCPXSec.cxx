@@ -1520,7 +1520,6 @@ void NievesQELCCPXSec::FinalLeptonPolarizationOnFreeNucleon (const Interaction* 
   // Calculate qTilde
   TLorentzVector qTildeP4(0., 0., q3VecTilde.Mag(), q0Tilde);
   
-  double Q2      = interaction->KinePtr()->Q2(true);
   double Q2tilde = -qTildeP4.Mag2();
   
   // Check that Q2tilde > 0 (accounting for rounding errors)
@@ -1535,9 +1534,7 @@ void NievesQELCCPXSec::FinalLeptonPolarizationOnFreeNucleon (const Interaction* 
   interaction->KinePtr()->SetQ2(Q2tilde);
   // Calculate form factors
   fFormFactors.Calculate( interaction );
-  // Now that the form factors have been calculated, store Q2
-  // in the event instead of Q2tilde
-  interaction->KinePtr()->SetQ2(Q2);
+
 
 
   // Get the QEL form factors (were calculated before this method was called)
@@ -1707,7 +1704,6 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
     leptonMom.SetVect(leptonMom3);
   }
 
-  double Q2      = interaction->KinePtr()->Q2(true);
   double Q2tilde = -qTildeP4.Mag2();
   
   // Check that Q2tilde > 0 (accounting for rounding errors)
@@ -1719,9 +1715,7 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
   interaction->KinePtr()->SetQ2(Q2tilde);
   // Calculate form factors
   fFormFactors.Calculate( interaction );
-  // Now that the form factors have been calculated, store Q2
-  // in the event instead of Q2tilde
-  interaction->KinePtr()->SetQ2(Q2);
+
 
 
   // Get the QEL form factors (were calculated before this method was called)
