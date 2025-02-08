@@ -532,7 +532,7 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
     double q2  = qTildeP4.Mag2();
     //Terms for polarization coefficients CN,CT, and CL
     double hbarc2 = TMath::Sq(fhbarc);
-    double c0 = 0.380/fhbarc;//Constant for CN in natural units
+    double c0 = 0.380/fhbarc/hbarc2; //Constant for CN in natural units
 
     //Density gives the nuclear density, normalized to 1
     //Input radius r must be in fm
@@ -565,7 +565,8 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
     std::complex<double> relLin(0, 0), udel(0, 0);
 
     // By comparison with Nieves' fortran code
-    if(imaginaryU < 0)
+    if (imaginaryU > 0) std::cerr << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   " << imaginaryU << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";   
+    if (TMath::Abs(imaginaryU) > kASmallNum)//if(imaginaryU < 0)
     {
       relLin = relLindhard(qTildeP4.E(), dq, kF, M);
       udel = deltaLindhard(qTildeP4.E(), dq, rho, kF);
@@ -583,9 +584,9 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
     double Vl = 0.08*4*kPi/kPionMass2*
       (TMath::Sq( (1.44 - kPionMass2)/(1.44 - q2) )*dq2/(q2 - kPionMass2) + 0.63);
 
-    CN = 1/TMath::Sq(abs(1. - fPrime*relLin/hbarc2));
-    CT = 1/TMath::Sq(abs(1. - relLinTot*Vt));
-    CL = 1/TMath::Sq(abs(1. - relLinTot*Vl));
+    CN = 1/std::norm(1. - fPrime*relLin);
+    CT = 1/std::norm(1. - relLinTot*Vt);
+    CL = 1/std::norm(1. - relLinTot*Vl);
   }
   else 
   {
@@ -618,16 +619,20 @@ double NievesQELCCPXSec::relLindhardIm(double q0, double dq,
 
   double q2 = TMath::Sq(q0) - TMath::Sq(dq);
   double a = (-q0 + dq*TMath::Sqrt(1 - 4*M2/q2))/2;
-  double epsRP = TMath::Max(TMath::Max(M,EF2 - q0),a);
+  double epsRP = TMath::Max(TMath::Max(a,EF2 - q0),M);
   // theta functions q0>0 and -q2>0 are always handled
-  int theta = (EF1 - EF2 + q0 >= 0)*(EF1 - epsRP >= 0);
+  if ( (EF2 - q0 > EF1) || (a > EF1) )
+  {
+      t0 = r00 = 0;
+      return 0;
+  }
 
   if(fCompareNievesTensors)
   {
-    t0  = theta*(EF1 + epsRP)/2;
-    r00 = theta*(TMath::Sq(EF1) + TMath::Sq(epsRP) + EF1*epsRP)/3;
+    t0  = (EF1 + epsRP)/2;
+    r00 = (TMath::Sq(EF1) + TMath::Sq(epsRP) + EF1*epsRP)/3;
   }
-  return -theta*M2/2/kPi/dq*(EF1 - epsRP);
+  return -M2/2/kPi/dq*(EF1 - epsRP);
 }
 //____________________________________________________________________________
 //Following obtained from fortran code by J Nieves, which contained the following comment:
@@ -735,8 +740,7 @@ std::complex<double> NievesQELCCPXSec::deltaLindhard(double q0, double dq,
   double md  = 6.2433;
   double mpi = 0.7045;
 
-  double fdel_f2 = 0.45;
-  double fdel2   = 4*0.36*kPi;
+  double fdel_f2 = 4.5;
   double wr = md - m;
   double gamma = 0;
   double gammap = 0;
@@ -764,28 +768,27 @@ std::complex<double> NievesQELCCPXSec::deltaLindhard(double q0, double dq,
   {
     double srot = TMath::Sqrt(s);
     double qcm = TMath::Sqrt(TMath::Sq(s) + mpi4 + m4 - 2*(s*mpi2 + s*m2 + mpi2*m2))/2/srot;
-    gamma = fdel2*TMath::Power(qcm,3)*(m + TMath::Sqrt(m2 + TMath::Sq(qcm)))/mpi2/12/kPi/srot;
+    gamma = fdel_f2*TMath::Power(qcm,3)*(m + TMath::Sqrt(m2 + TMath::Sq(qcm)))/mpi2/12/kPi/srot;
   }
   
   if(sp > aux3)
   {
     double srotp = TMath::Sqrt(sp);
     double qcmp  = TMath::Sqrt(TMath::Sq(sp) + mpi4 + m4 - 2*(sp*mpi2 + sp*m2 + mpi2*m2))/2/srotp;
-    gammap = fdel2*TMath::Power(qcmp,3)*(m + TMath::Sqrt(m2 + TMath::Sq(qcmp)))/mpi2/12/kPi/srotp;
+    gammap = fdel_f2*TMath::Power(qcmp,3)*(m + TMath::Sqrt(m2 + TMath::Sq(qcmp)))/mpi2/12/kPi/srotp;
   }
   
   std::complex<double> z (md/q_mod/k_fermi*( q_zero - q_mod2/2./md - wr + 1i*gamma/2.));
   std::complex<double> zp(md/q_mod/k_fermi*(-q_zero - q_mod2/2./md - wr + 1i*gammap/2.));
   
   std::complex<double> pzeta(0, 0);
-  double one_sqrt10 = 1/TMath::Sq(10);
   std::complex<double> z2(z*z);
   double abs_z = abs(z);
   if(abs_z > 50)
   {
     pzeta = 2.*(1. + 1./5./z2)/3./z;
   }
-  else if(abs_z < one_sqrt10)
+  else if(abs_z < 1e-2)
   {
     pzeta = 2.*z*(1. - z2/3.) - 1i*kPi*(1. - z2)/2.;
   }
@@ -801,7 +804,7 @@ std::complex<double> NievesQELCCPXSec::deltaLindhard(double q0, double dq,
   {
     pzetap = 2.*(1. + 1./5./zp2)/3./zp;
   }
-  else if(abs_zp < one_sqrt10)
+  else if(abs_zp < 1e-2)
   {
     pzetap = 2.*zp*(1. - zp2/3.) - 1i*kPi*(1. - zp2)/2.;
   }
@@ -1734,7 +1737,7 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
     tgt_pdgc, A, Z, N, CN, CT, CL, imU,
     dummy, dummy, interaction->TestBit( kIAssumeFreeNucleon ));
     
-  if ( imU > 0 ) return 0;
+  if (TMath::Abs(imU) < kASmallNum) return 0;//if ( imU > 0 ) return 0;
   
   if ( !fRPA || interaction->TestBit( kIAssumeFreeNucleon ) ) 
   {
