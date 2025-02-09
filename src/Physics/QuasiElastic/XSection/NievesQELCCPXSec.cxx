@@ -565,8 +565,7 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
     std::complex<double> relLin(0, 0), udel(0, 0);
 
     // By comparison with Nieves' fortran code
-    if (imaginaryU > 0) std::cerr << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   " << imaginaryU << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";   
-    if (TMath::Abs(imaginaryU) > kASmallNum)//if(imaginaryU < 0)
+    if(imaginaryU < 0)
     {
       relLin = relLindhard(qTildeP4.E(), dq, kF, M);
       udel = deltaLindhard(qTildeP4.E(), dq, rho, kF);
@@ -621,7 +620,7 @@ double NievesQELCCPXSec::relLindhardIm(double q0, double dq,
   double a = (-q0 + dq*TMath::Sqrt(1 - 4*M2/q2))/2;
   double epsRP = TMath::Max(TMath::Max(a,EF2 - q0),M);
   // theta functions q0>0 and -q2>0 are always handled
-  if ( (EF2 - q0 > EF1) || (a > EF1) )
+  if ( (EF2 - q0 >= EF1) || (a >= EF1) )
   {
       t0 = r00 = 0;
       return 0;
@@ -1737,7 +1736,7 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
     tgt_pdgc, A, Z, N, CN, CT, CL, imU,
     dummy, dummy, interaction->TestBit( kIAssumeFreeNucleon ));
     
-  if (TMath::Abs(imU) < kASmallNum) return 0;//if ( imU > 0 ) return 0;
+  if ( imU >= 0 ) return 0;
   
   if ( !fRPA || interaction->TestBit( kIAssumeFreeNucleon ) ) 
   {
