@@ -560,10 +560,13 @@ double NievesQELCCPXSec::relLindhardIm(double q0, double dq,
 {
   double M2 = TMath::Sq(M);
   double EF1,EF2;
-  if(isNeutrino){
+  if(isNeutrino)
+  {
     EF1 = TMath::Sqrt(M2 + TMath::Sq(kFn)); //EFn
     EF2 = TMath::Sqrt(M2 + TMath::Sq(kFp)); //EFp
-  }else{
+  }
+  else
+  {
     EF1 = TMath::Sqrt(M2 + TMath::Sq(kFp)); //EFp
     EF2 = TMath::Sqrt(M2 + TMath::Sq(kFn)); //EFn
   }
