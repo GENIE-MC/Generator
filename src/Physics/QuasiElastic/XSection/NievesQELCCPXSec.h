@@ -120,16 +120,14 @@ private:
   // Calculates values of CN, CT, CL, and imU, and stores them in the provided
   // variables. If target is not a nucleus, then CN, CN, and CL are all 1.0.
   // r must be in units of fm.
-  void CNCTCLimUcalc(TLorentzVector qTildeP4, double M, double r,
-    bool is_neutrino, bool tgtIsNucleus, int tgt_pdgc, int A, int Z, int N,
-    double & CN, double & CT, double & CL, double & imU,
-    double & t0, double & r00, bool assumeFreeNucleon) const;
+  void CNCTCLimUcalc(TLorentzVector qTildeP4, double M, double r, 
+    bool tgtIsNucleus, int A, int Z, int N, double & CN, double & CT, 
+    double & CL, bool assumeFreeNucleon) const;
 
   //Equations to calculate the relativistic Lindhard function for Amunu
   double relLindhardIm(double q0gev, double dqgev,
                      double kFngev, double kFpgev,
-                     double M, bool isNeutrino,
-                     double & t0, double & r00) const;
+                     double M, bool isNeutrino) const;
   std::complex<double> relLindhard(double q0gev, double dqgev,
                                    double kFgev, double M) const;
   double ruLinRelX(double q0, double qm,
@@ -156,14 +154,6 @@ private:
                                              double & A00, double & Axx, double & Azz, 
                                              double & A0z, double & Axy) const;
 
-  // NOTE: THE FOLLOWING CODE IS FOR TESTING PURPOSES ONLY
-  // Used to print tensor elements and various inputs for comparison to Nieves'
-  // fortran code
-  mutable bool                 fCompareNievesTensors;     ///< print tensors
-  mutable TString              fTensorsOutFile;   ///< file to print tensors to
-  mutable double               fVc,fCoulombFactor;
-  void CompareNievesTensors(const Interaction* i) const;
-  // END TESTING CODE
 };
 }       // genie namespace
 
