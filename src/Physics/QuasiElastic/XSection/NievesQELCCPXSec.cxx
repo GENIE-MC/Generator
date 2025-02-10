@@ -506,6 +506,7 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
 {
   if ( tgtIsNucleus && !assumeFreeNucleon ) 
   {
+    double q0  = qTildeP4.E();
     double dq  = qTildeP4.Vect().Mag();
     double dq2 = TMath::Sq(dq);
     double q2  = qTildeP4.Mag2();
@@ -524,19 +525,18 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
 
     double kF = TMath::Power(1.5*kPi2*rho, 1./3.)*fhbarc;
 
-    std::complex<double> relLin(relLindhard(qTildeP4.E(), dq, kF, M)), udel(deltaLindhard(qTildeP4.E(), dq, rho, kF));
+    std::complex<double> relLin(relLindhard(q0, dq, kF, M)), udel(deltaLindhard(q0, dq, rho, kF));
     std::complex<double> relLinTot(relLin + udel);
   /* CRho = 2
      DeltaRho = 2500 MeV, (2.5 GeV)^2 = 6.25 GeV^2
      mRho = 770 MeV, (0.770 GeV)^2 = 0.5929 GeV^2
      g' = 0.63 */
-    double Vt = 0.08*4*kPi/kPionMass2*
-      (2*TMath::Sq( (6.25 - 0.5929)/(6.25 - q2) )*dq2/(q2 - 0.5929) + 0.63);
+    double aux = 0.08*4*kPi/kPionMass2;
+    double Vt = aux*(2*TMath::Sq( (6.25 - 0.5929)/(6.25 - q2) )*dq2/(q2 - 0.5929) + 0.63);
   /* f^2/4/Pi = 0.08
      DeltaSubPi = 1200 MeV, (1.2 GeV)^2 = 1.44 GeV^2
      g' = 0.63 */
-    double Vl = 0.08*4*kPi/kPionMass2*
-      (TMath::Sq( (1.44 - kPionMass2)/(1.44 - q2) )*dq2/(q2 - kPionMass2) + 0.63);
+    double Vl = aux*(TMath::Sq( (1.44 - kPionMass2)/(1.44 - q2) )*dq2/(q2 - kPionMass2) + 0.63);
 
     CN = 1/std::norm(1. - fPrime*relLin);
     CT = 1/std::norm(1. - relLinTot*Vt);
