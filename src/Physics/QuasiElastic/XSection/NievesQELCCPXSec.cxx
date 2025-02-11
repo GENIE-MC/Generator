@@ -525,7 +525,7 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
 
     double kF = TMath::Power(1.5*kPi2*rho, 1./3.)*fhbarc;
 
-    std::complex<double> relLin(relLindhard(q0, dq, kF, M)), udel(deltaLindhard(q0, dq, rho, kF));
+    std::complex<double> relLin(relLindhard(q0, dq, kF, M)), udel(deltaLindhard(q0, dq, rho*hbarc2*fhbarc, kF, M));
     std::complex<double> relLinTot(relLin + udel);
   /* CRho = 2
      DeltaRho = 2500 MeV, (2.5 GeV)^2 = 6.25 GeV^2
@@ -653,77 +653,64 @@ double NievesQELCCPXSec::ruLinRelX(double q0, double qm,
                     E.Oset et al Phys. Rept. 188:79, 1990
                     formula A.4
 
-   input variables:
-     q_zero [fm^-1] : Energy
-     q_mod  [fm^-1] : Momentum
-     rho    [fm^3]  : Nuclear density
-     k_fermi[fm^-1] : Fermi momentum
-
-   All variables are real*8
-
-   output variable:
-     delta_lind [fm^-2]
-
             ATTENTION!!!
- Only works properly for real q_zero,
- if q_zero has an imaginary part calculates the L. function
+ Only works properly for real q0,
+ if q0 has an imaginary part calculates the L. function
  assuming Gamma= 0.
  Therefore this subroutine provides two different functions
- depending on whether q_zero is real or not!!!!!!!!!!!
+ depending on whether q0 is real or not!!!!!!!!!!!
 */
 std::complex<double> NievesQELCCPXSec::deltaLindhard(double q0, double dq, 
-                                                     double rho, double kF) const
+                                                     double rho, double kF, double M) const
 {
-  double q_zero  = q0/fhbarc;
-  double q_mod   = dq/fhbarc;
-  double k_fermi = kF/fhbarc;
-  //Divide by hbarc in order to use natural units (rho is already in the correct units)
-
-  //m = 939/197.3, md = 1232/197.3, mpi = 139/197.3
-  double m   = 4.7592;
-  double md  = 6.2433;
-  double mpi = 0.7045;
-
-  double fdel_f2 = 4.5;
-  double wr = md - m;
-  double gamma = 0;
+  
+  double MD = 1.232;
+  double mpi = kPionMass;
+  
+  double fs2_f2 = 4.5;
+  double wr = MD - M;
+  double gamma  = 0;
   double gammap = 0;
 
-  double q_zero2 =  TMath::Sq(q_zero);
-  double q_mod2  =  TMath::Sq(q_mod);
-  double k_fermi2 = TMath::Sq(k_fermi);
+  double q02  = q0*q0;
+  double dq2  = dq*dq;
+  double kF2  = kF*kF;
 
-  double m2 =       TMath::Sq(m);
-  double m4 =       TMath::Sq(m2);
-  double mpi2 =     TMath::Sq(mpi);
-  double mpi4 =     TMath::Sq(mpi2);
+  double M2 =       M*M;
+  double M4 =       M2*M2;
+  double mpi2 =     mpi*mpi;
+  double mpi4 =     mpi2*mpi2;
 
 
-  //For the current code q_zero is always real
-  //If q_zero can have an imaginary part then only the real part is used
+  //For the current code q0 is always real
+  //If q0 can have an imaginary part then only the real part is used
   //until z and zp are calculated
-  double aux1 = m2 + q_zero2 - q_mod2;
-  double aux2 = 2*q_zero*TMath::Sqrt(m2 + 3*k_fermi2/5);
-  double aux3 = TMath::Sq(m + mpi);
+  double aux1 = M2 + q02 - dq2;
+  double aux2 = 2*q0*TMath::Sqrt(M2 + 3*kF2/5);
+  double aux3 = TMath::Sq(M + mpi);
   double s    = aux1 + aux2;
   double sp   = aux1 - aux2;
   
   if(s > aux3)
   {
     double srot = TMath::Sqrt(s);
-    double qcm = TMath::Sqrt(TMath::Sq(s) + mpi4 + m4 - 2*(s*mpi2 + s*m2 + mpi2*m2))/2/srot;
-    gamma = fdel_f2*TMath::Power(qcm,3)*(m + TMath::Sqrt(m2 + TMath::Sq(qcm)))/mpi2/12/kPi/srot;
+    double qcm = TMath::Sqrt(s*s + mpi4 + M4 - 2*(s*mpi2 + s*M2 + mpi2*M2))/2/srot;
+    double qcm2 = qcm*qcm;
+    gamma = fs2_f2*qcm*qcm2*(M + TMath::Sqrt(M2 + qcm2))/mpi2/12/kPi/srot;
   }
   
   if(sp > aux3)
   {
     double srotp = TMath::Sqrt(sp);
-    double qcmp  = TMath::Sqrt(TMath::Sq(sp) + mpi4 + m4 - 2*(sp*mpi2 + sp*m2 + mpi2*m2))/2/srotp;
-    gammap = fdel_f2*TMath::Power(qcmp,3)*(m + TMath::Sqrt(m2 + TMath::Sq(qcmp)))/mpi2/12/kPi/srotp;
+    double qcmp  = TMath::Sqrt(sp*sp + mpi4 + M4 - 2*(sp*mpi2 + sp*M2 + mpi2*M2))/2/srotp;
+    double qcmp2 = qcmp*qcmp;
+    gammap = fs2_f2*qcmp*qcmp2*(M + TMath::Sqrt(M2 + qcmp2))/mpi2/12/kPi/srotp;
   }
   
-  std::complex<double> z (md/q_mod/k_fermi*( q_zero - q_mod2/2./md - wr + 1i*gamma/2.));
-  std::complex<double> zp(md/q_mod/k_fermi*(-q_zero - q_mod2/2./md - wr + 1i*gammap/2.));
+  std::complex<double> z ( q0 - dq2/2./MD - wr, gamma/2. );
+  std::complex<double> zp(-q0 - dq2/2./MD - wr, gammap/2.);
+  z  *= MD/dq/kF;
+  zp *= MD/dq/kF;
   
   std::complex<double> pzeta(0, 0);
   std::complex<double> z2(z*z);
@@ -758,7 +745,7 @@ std::complex<double> NievesQELCCPXSec::deltaLindhard(double q0, double dq,
   }
 
   //Multiply by hbarc^2 to give answer in units of GeV^2
-  return 2.*rho*md*(pzeta + pzetap)*fdel_f2*TMath::Sq(fhbarc)/q_mod/k_fermi/3.;
+  return 2.*rho*MD*(pzeta + pzetap)*fs2_f2/dq/kF/3.;
 }
 
 //____________________________________________________________________________
@@ -822,7 +809,7 @@ double NievesQELCCPXSec::MaximalRadius(const Target * target) const
       // TODO: This solution is fragile. If the formula used by VertexGenerator
       // changes, then this one will need to change too. Switch to using
       // a common function to get Rmax for both.
-      Rmax = 3. * fR0 * std::pow(A, 1./3.);
+      Rmax = fR0 * std::pow(A, 1./3.);
     }
     else 
     {

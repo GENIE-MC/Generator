@@ -133,7 +133,7 @@ private:
   double ruLinRelX(double q0, double qm,
                    double kf, double m) const;
   std::complex<double> deltaLindhard(double q0gev, double dqgev,
-                                     double rho, double kFgev) const;
+                                     double rho, double kFgev, double Mgev) const;
                      
   // Potential for coulomb correction
   double vcr(const Target * target, double r) const;
