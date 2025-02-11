@@ -275,4 +275,7 @@
    <config alg="genie::NormGenerator">                       NormGenerator.xml                  </config>
    <config alg="genie::NormXSec">                            NormXSec.xml                       </config>
    <config alg="genie::NormInteractionListGenerator">        NormInteractionListGenerator.xml   </config>
+   <config alg="genie::NucleusGenerator">                    NucleusGenerator.xml                      </config>
+   <config alg="genie::NucleusGenINCL">                      NucleusGenINCL.xml                        </config>
+   <config alg="genie::NucleusGenTraditional">               NucleusGenTraditional.xml                 </config>
 </genie_config>

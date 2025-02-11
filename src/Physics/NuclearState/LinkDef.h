@@ -21,6 +21,9 @@
 #pragma link C++ class genie::FermiMomentumTablePool;
 #pragma link C++ class genie::EffectiveSF;
 #pragma link C++ class genie::FermiMover;
+#pragma link C++ class genie::NucleusGenerator;
+#pragma link C++ class genie::NucleusGenINCL;
+#pragma link C++ class genie::NucleusGenTraditional;
 #pragma link C++ class genie::PauliBlocker;
 #pragma link C++ class genie::SRCNuclearRecoil;
 #pragma link C++ class genie::SecondNucleonEmissionI;
