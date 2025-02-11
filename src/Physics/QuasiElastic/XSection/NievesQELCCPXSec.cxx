@@ -668,7 +668,7 @@ std::complex<double> NievesQELCCPXSec::deltaLindhard(double q0, double dq,
   double mpi = kPionMass;
   
   double fs2_f2 = 4.5;
-  double wr = MD - M;
+  double wR = MD - M;
   double gamma  = 0;
   double gammap = 0;
 
@@ -707,8 +707,8 @@ std::complex<double> NievesQELCCPXSec::deltaLindhard(double q0, double dq,
     gammap = fs2_f2*qcmp*qcmp2*(M + TMath::Sqrt(M2 + qcmp2))/mpi2/12/kPi/srotp;
   }
   
-  std::complex<double> z ( q0 - dq2/2./MD - wr, gamma/2. );
-  std::complex<double> zp(-q0 - dq2/2./MD - wr, gammap/2.);
+  std::complex<double> z ( q0 - dq2/2./MD - wR, gamma/2. );
+  std::complex<double> zp(-q0 - dq2/2./MD - wR, gammap/2.);
   z  *= MD/dq/kF;
   zp *= MD/dq/kF;
   
