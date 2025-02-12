@@ -793,7 +793,7 @@ double NievesQELCCPXSec::MaximalRadius(const Target * target) const
       // TODO: This solution is fragile. If the formula used by VertexGenerator
       // changes, then this one will need to change too. Switch to using
       // a common function to get Rmax for both.
-      Rmax = fR0 * std::pow(A, 1./3.);
+      Rmax = 3*fR0*std::pow(A, 1./3);
     }
     else 
     {
