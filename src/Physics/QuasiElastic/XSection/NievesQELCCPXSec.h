@@ -125,15 +125,15 @@ private:
     double & CL, bool assumeFreeNucleon) const;
 
   //Equations to calculate the relativistic Lindhard function for Amunu
-  double relLindhardIm(double q0gev, double dqgev,
-                     double kFngev, double kFpgev,
+  double relLindhardIm(double q0, double dq,
+                     double kFn, double kFp,
                      double M, bool isNeutrino) const;
-  std::complex<double> relLindhard(double q0gev, double dqgev,
-                                   double kFgev, double M) const;
+  std::complex<double> relLindhard(double q0, double dq,
+                                   double kF, double M) const;
   double ruLinRelX(double q0, double qm,
                    double kf, double m) const;
-  std::complex<double> deltaLindhard(double q0gev, double dqgev,
-                                     double rho, double kFgev, double Mgev) const;
+  std::complex<double> deltaLindhard(double q0, double dq,
+                                     double rho, double kF, double M) const;
                      
   // Potential for coulomb correction
   double vcr(const Target * target, double r) const;

@@ -589,61 +589,46 @@ double NievesQELCCPXSec::relLindhardIm(double q0, double dq,
  Eq. 61
 
  Im. part: Juan.
-
- INPUT: Real*8
-  q0:Energy   [fm]
-  qm: modulus 3mom [fm]
-  kf: Fermi mom [fm]
-
- OUTPUT: Complex*16 [fm]
-
- USES: ruLinRelX, relLindhardIm
  */
-//Takes inputs in GeV (with imU in GeV^2), and gives output in GeV^2
-std::complex<double> NievesQELCCPXSec::relLindhard(double q0gev,
-                        double dqgev, double kFgev, double M) const
+//Takes inputs in GeV and gives output in GeV^2
+std::complex<double> NievesQELCCPXSec::relLindhard(double q0,
+                        double dq, double kF, double M) const
 {
-  double q0 = q0gev/fhbarc;
-  double qm = dqgev/fhbarc;
-  double kf = kFgev/fhbarc;
-  double m = M/fhbarc;
-
-  double relLindIm = relLindhardIm(q0gev, dqgev, kFgev, kFgev, M, true);
-  //Units of GeV^2
-  std::complex<double> relLind(TMath::Sq(fhbarc)*(ruLinRelX(q0,qm,kf,m) + ruLinRelX(-q0,qm,kf,m)), 2*relLindIm);
+  double relLindIm = relLindhardIm(q0, dq, kF, kF, M, true);
+  std::complex<double> relLind(ruLinRelX(q0,dq,kF,M) + ruLinRelX(-q0,dq,kF,M), 2*relLindIm);
   return relLind;
 }
 //____________________________________________________________________________
 //Inputs assumed to be in natural units
-double NievesQELCCPXSec::ruLinRelX(double q0, double qm,
-                                   double kf, double m) const
+double NievesQELCCPXSec::ruLinRelX(double q0, double dq,
+                                   double kF, double M) const
 {
-  double q02 = TMath::Sq(q0);
-  double qm2 = TMath::Sq(qm);
-  double kf2 = TMath::Sq(kf);
-  double m2  = TMath::Sq(m);
-  double m4  = TMath::Sq(m2);
+  double q02 = q0*q0;
+  double dq2 = dq*dq;
+  double kF2 = kF*kF;
+  double M2  = M*M;
+  double M4  = M2*M2;
 
-  double ef = TMath::Sqrt(m2 + kf2);
-  double q2 = q02 - qm2;
-  double q4 = TMath::Sq(q2);
-  double ds = TMath::Sqrt(1 - 4*m2/q2);
-  double L1 = TMath::Log((kf + ef)/m);
+  double EF = TMath::Sqrt(M2 + kF2);
+  double q2 = q02 - dq2;
+  double q4 = q2*q2;
+  double ds = TMath::Sqrt(1 - 4*M2/q2);
+  double L1 = TMath::Log((kF + EF)/M);
   
-  double aux1 = TMath::Sq(ef + q0);
-  double aux2 = (m2 + TMath::Sq(kf - qm))/aux1;
-  double aux3 = (m2 + TMath::Sq(kf + qm))/aux1;
+  double aux1 = TMath::Sq(EF + q0);
+  double aux2 = (M2 + TMath::Sq(kF - dq))/aux1;
+  double aux3 = (M2 + TMath::Sq(kF + dq))/aux1;
   double L2 = TMath::Log(TMath::Abs((1 - aux2)/(1 - aux3)));
   
-  double aux5 = TMath::Sq(2*kf + q0*ds)/qm2;
-  double aux6 = TMath::Sq(2*kf - q0*ds)/qm2;
-  double aux7 = 4*m4*qm2/q4;
-  double aux8 = TMath::Sq(kf - ef*ds)/aux7;
-  double aux9 = TMath::Sq(kf + ef*ds)/aux7;
+  double aux5 = TMath::Sq(2*kF + q0*ds)/dq2;
+  double aux6 = TMath::Sq(2*kF - q0*ds)/dq2;
+  double aux7 = 4*M4*dq2/q4;
+  double aux8 = TMath::Sq(kF - EF*ds)/aux7;
+  double aux9 = TMath::Sq(kF + EF*ds)/aux7;
   double L3 = TMath::Log(TMath::Abs((aux5 - 1)/(aux6 - 1)*
                                     (aux8 - 1)/(aux9 - 1)));
 
-  return m2*(-L1 + L2*(2*ef + q0)/2/qm - L3*ds/4)/kPi2;
+  return M2*(-L1 + L2*(2*EF + q0)/2/dq - L3*ds/4)/kPi2;
 }
 //____________________________________________________________________________
 //Following obtained from fortran code by J Nieves, which contained the following comment:
@@ -744,7 +729,6 @@ std::complex<double> NievesQELCCPXSec::deltaLindhard(double q0, double dq,
     pzetap = zp + (1. - zp2)*log((zp + 1.)/(zp - 1.))/2.;
   }
 
-  //Multiply by hbarc^2 to give answer in units of GeV^2
   return 2.*rho*MD*(pzeta + pzetap)*fs2_f2/dq/kF/3.;
 }
 
