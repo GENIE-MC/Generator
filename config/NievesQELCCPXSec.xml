@@ -46,7 +46,6 @@ RmaxMode                             string   Yes        Method to use to comput
 
     <param type="bool" name="RPA">             true                          </param>
     <param type="bool" name="Coulomb">         true                         </param>
-    <param type="bool" name="PrintDebugData">  false                          </param>
 
     <param type="alg" name = "PauliBlockerAlg"> genie::PauliBlocker/Default </param>
     <param type="bool" name = "DoPauliBlocking"> true </param>
