@@ -85,7 +85,7 @@ namespace intranuke2018
 
   bool ThreeBodyKinematics(
     GHepRecord* ev, GHepParticle* p, int tcode, GHepParticle* s1, GHepParticle* s2, GHepParticle* s3,
-    bool DoFermi=false, double FermiFac=0, double FermiMomentum=0, const NuclearModelI* Nuclmodel=(const NuclearModelI*)0);
+    bool DoFermi=false, double FermiFac=0, double FermiMomentum=0, const NuclearModelI* Nuclmodel=(const NuclearModelI*)0, double bias=6);
 
   bool PionProduction(
     GHepRecord* ev, GHepParticle* p, GHepParticle* s1, GHepParticle* s2, GHepParticle* s3, int &RemnA, int &RemnZ,
