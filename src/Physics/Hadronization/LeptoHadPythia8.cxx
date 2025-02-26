@@ -382,8 +382,8 @@ bool LeptoHadPythia8::Hadronize(GHepRecord *
 
   // Run PYTHIA with the input particles
   fPythia->next();
-  fPythia->event.list();
-  fPythia->stat();
+  // fPythia->event.list();
+  // fPythia->stat();
   Pythia8::Event &fEvent = fPythia->event;
   int np = fEvent.size();
   assert(np>0);
