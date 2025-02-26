@@ -131,8 +131,8 @@ bool PhotonCOHWdecPythia8::Wdecay(GHepRecord *
 
   fPythia->next();
 
-  fPythia->event.list();
-  fPythia->stat();
+  // fPythia->event.list();
+  // fPythia->stat();
 
   Pythia8::Event &fEvent = fPythia->event;
   int np = fEvent.size();
