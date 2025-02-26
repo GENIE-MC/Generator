@@ -377,8 +377,8 @@ bool LeptoHadPythia8::Hadronize(GHepRecord *
   theta = TMath::ATan(2.*pT/W);
   fPythia->event.rot(theta,phi);
 
-  fPythia->event.list();
-  fPythia->stat();
+  // fPythia->event.list();
+  // fPythia->stat();
 
   // Run PYTHIA with the input particles
   fPythia->next();
