@@ -1048,7 +1048,7 @@ void GHepRecord::Print(ostream & stream) const
                << p->P4()->M() << " ";
 
      if (p->PolzIsSet()) {
-       polarization = p->GetPolarization();
+       p->GetPolarization(polarization);
        stream << "P = (" << polarization.x() << "," << polarization.y()
               << "," << polarization.z() << ")";
      }

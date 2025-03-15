@@ -119,7 +119,7 @@ public :
   double PolzPolarAngle   (void) const { return fPolarization.Mag()>0?fPolarization.Theta():0; }
   double PolzAzimuthAngle (void) const { return fPolarization.Mag()>0?fPolarization.Phi():0; }
   bool   PolzIsSet        (void) const { return fPolarization.Mag()>0;}
-  const TVector3 & GetPolarization (void) const {return fPolarization;}
+  void   GetPolarization  (TVector3 & polz) const {polz = fPolarization;}
 
   // Set pdg code and status codes
   void SetPdgCode  (int c);
