@@ -7,12 +7,18 @@
           with RPA corrections
           Is a concrete implementation of the XSecAlgorithmI interface. \n
 
-\ref      1. Physical Review C 70, 055503 (2004)
+\ref      1. PRC70(2004)055503
+          2. EPJA25(2005)299-318
+          3. Phys.Rept.188(1990)79
+          4. CJP46(1996)0673-0720
 
 \author   Joe Johnston, University of Pittsburgh
           Steven Dytman, University of Pittsburgh
+          Igor Kakorin, JINR
 
 \created  April 2016
+
+\updated  March 2025
 
 \cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
@@ -89,6 +95,7 @@ private:
   bool                         fLFG;
   const FermiMomentumTable *   fKFTable;
   string                       fKFTableName;
+  string                       fLindhardFunction;
 
   /// Enum specifying the method to use when calculating the binding energy of
   /// the initial hit nucleon during spline generation
@@ -124,16 +131,14 @@ private:
     bool tgtIsNucleus, int A, int Z, int N, double & CN, double & CT, 
     double & CL, bool assumeFreeNucleon) const;
 
-  //Equations to calculate the relativistic Lindhard function for Amunu
-  double relLindhardIm(double q0, double dq,
-                     double kFn, double kFp,
-                     double M, bool isNeutrino) const;
-  std::complex<double> relLindhard(double q0, double dq,
-                                   double kF, double M) const;
-  double ruLinRelX(double q0, double qm,
-                   double kf, double m) const;
-  std::complex<double> deltaLindhard(double q0, double dq,
-                                     double rho, double kF, double M) const;
+  //Relativistic Lindhard function as is in Fortran code provided by j.Nieves
+  // Ref.1, Eq.B2
+  double relLindhardIm(double q0, double dq, double kFn, double kFp, double M, bool isNeutrino) const;
+  // Ref.2, Eq.61
+  double ruLinRelX(double q0, double qm, double kf, double m) const;
+   
+  std::complex<double> LindhardNuclear(double q0, double dq, double kF, double M) const;
+  std::complex<double> LindhardDelta  (double q0, double dq, double kF, double M, double rho) const;
                      
   // Potential for coulomb correction
   double vcr(const Target * target, double r) const;

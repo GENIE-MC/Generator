@@ -446,6 +446,8 @@ void NievesQELCCPXSec::LoadConfig(void)
 
   std::string temp_mode;
   GetParamDef( "RmaxMode", temp_mode, std::string("VertexGenerator") ) ;
+  
+  GetParamDef( "LindhardFunction", fLindhardFunction, std::string("OriginalByNieves") ) ;
 
   // Translate the string setting the Rmax mode to the appropriate
   // enum value, or complain if one couldn't be found
@@ -525,22 +527,19 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
 
     double kF = TMath::Power(1.5*kPi2*rho, 1./3.)*fhbarc;
 
-    std::complex<double> relLin(relLindhard(q0, dq, kF, M)), udel(deltaLindhard(q0, dq, rho*hbarc2*fhbarc, kF, M));
-    std::complex<double> relLinTot(relLin + udel);
-  /* CRho = 2
-     DeltaRho = 2500 MeV, (2.5 GeV)^2 = 6.25 GeV^2
-     mRho = 770 MeV, (0.770 GeV)^2 = 0.5929 GeV^2
-     g' = 0.63 */
+    std::complex<double> Unuc( LindhardNuclear(q0, dq, kF, M) );
+    std::complex<double> Udel( LindhardDelta(q0, dq, kF, M, rho) );
+    std::complex<double> Utot = Unuc + Udel;
+ 
+// CRho = 2, DeltaRho = 2500 MeV, (2.5 GeV)^2 = 6.25 GeV^2, mRho = 770 MeV, (0.770 GeV)^2 = 0.5929 GeV^2, g' = 0.63 
     double aux = 0.08*4*kPi/kPionMass2;
     double Vt = aux*(2*TMath::Sq( (6.25 - 0.5929)/(6.25 - q2) )*dq2/(q2 - 0.5929) + 0.63);
-  /* f^2/4/Pi = 0.08
-     DeltaSubPi = 1200 MeV, (1.2 GeV)^2 = 1.44 GeV^2
-     g' = 0.63 */
+// f^2/4/Pi = 0.08, DeltaSubPi = 1200 MeV, (1.2 GeV)^2 = 1.44 GeV^2, g' = 0.63 
     double Vl = aux*(TMath::Sq( (1.44 - kPionMass2)/(1.44 - q2) )*dq2/(q2 - kPionMass2) + 0.63);
 
-    CN = 1/std::norm(1. - fPrime*relLin);
-    CT = 1/std::norm(1. - relLinTot*Vt);
-    CL = 1/std::norm(1. - relLinTot*Vl);
+    CN = 1/std::norm(1. - c0*fPrime*Unuc);
+    CT = 1/std::norm(1. - Vt*Utot);
+    CL = 1/std::norm(1. - Vl*Utot);
   }
   else 
   {
@@ -551,12 +550,10 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
   }
 }
 //____________________________________________________________________________
-// Gives the imaginary part of the relativistic lindhard function in GeV^2
-// and sets the values of t0 and r00
+// Gives the imaginary part of the relativistic lindhard function in GeV^2, Ref.1, Eq.B2
 double NievesQELCCPXSec::relLindhardIm(double q0, double dq,
-                                                     double kFn, double kFp,
-                                                     double M,
-                                                     bool isNeutrino) const
+                                       double kFn, double kFp,
+                                       double M, bool isNeutrino) const
 {
   double M2 = TMath::Sq(M);
   double EF1,EF2;
@@ -580,26 +577,7 @@ double NievesQELCCPXSec::relLindhardIm(double q0, double dq,
   return -M2/2/kPi/dq*(EF1 - epsRP);
 }
 //____________________________________________________________________________
-//Following obtained from fortran code by J Nieves, which contained the following comment:
-/*
- NUCLEON relativistic Lindhard Function
- Same normalization as ULIN
- Real part
- taken from Eur.Phys.J.A25:299-318,2005 (Barbaro et al)
- Eq. 61
-
- Im. part: Juan.
- */
-//Takes inputs in GeV and gives output in GeV^2
-std::complex<double> NievesQELCCPXSec::relLindhard(double q0,
-                        double dq, double kF, double M) const
-{
-  double relLindIm = relLindhardIm(q0, dq, kF, kF, M, true);
-  std::complex<double> relLind(ruLinRelX(q0,dq,kF,M) + ruLinRelX(-q0,dq,kF,M), 2*relLindIm);
-  return relLind;
-}
-//____________________________________________________________________________
-//Inputs assumed to be in natural units
+//Inputs assumed to be in natural units, Ref.2, Eq.61
 double NievesQELCCPXSec::ruLinRelX(double q0, double dq,
                                    double kF, double M) const
 {
@@ -630,108 +608,193 @@ double NievesQELCCPXSec::ruLinRelX(double q0, double dq,
 
   return M2*(-L1 + L2*(2*EF + q0)/2/dq - L3*ds/4)/kPi2;
 }
-//____________________________________________________________________________
-//Following obtained from fortran code by J Nieves, which contained the following comment:
-/*
-   complex Lindhard function for symmetric nuclear matter:
-                    from Appendix of
-                    E.Oset et al Phys. Rept. 188:79, 1990
-                    formula A.4
-
-            ATTENTION!!!
- Only works properly for real q0,
- if q0 has an imaginary part calculates the L. function
- assuming Gamma= 0.
- Therefore this subroutine provides two different functions
- depending on whether q0 is real or not!!!!!!!!!!!
-*/
-std::complex<double> NievesQELCCPXSec::deltaLindhard(double q0, double dq, 
-                                                     double rho, double kF, double M) const
+//____________________________________________________________________________  
+//Takes inputs in GeV and gives output in GeV^2
+std::complex<double> NievesQELCCPXSec::LindhardNuclear(double q0, double dq, double kF, double M) const
 {
-  
-  double MD = 1.232;
-  double mpi = kPionMass;
-  
-  double fs2_f2 = 4.5;
-  double wR = MD - M;
-  double gamma  = 0;
-  double gammap = 0;
-
-  double q02  = q0*q0;
-  double dq2  = dq*dq;
-  double kF2  = kF*kF;
-
-  double M2 =       M*M;
-  double M4 =       M2*M2;
-  double mpi2 =     mpi*mpi;
-  double mpi4 =     mpi2*mpi2;
-
-
-  //For the current code q0 is always real
-  //If q0 can have an imaginary part then only the real part is used
-  //until z and zp are calculated
-  double aux1 = M2 + q02 - dq2;
-  double aux2 = 2*q0*TMath::Sqrt(M2 + 3*kF2/5);
-  double aux3 = TMath::Sq(M + mpi);
-  double s    = aux1 + aux2;
-  double sp   = aux1 - aux2;
-  
-  if(s > aux3)
-  {
-    double srot = TMath::Sqrt(s);
-    double qcm = TMath::Sqrt(s*s + mpi4 + M4 - 2*(s*mpi2 + s*M2 + mpi2*M2))/2/srot;
-    double qcm2 = qcm*qcm;
-    gamma = fs2_f2*qcm*qcm2*(M + TMath::Sqrt(M2 + qcm2))/mpi2/12/kPi/srot;
-  }
-  
-  if(sp > aux3)
-  {
-    double srotp = TMath::Sqrt(sp);
-    double qcmp  = TMath::Sqrt(sp*sp + mpi4 + M4 - 2*(sp*mpi2 + sp*M2 + mpi2*M2))/2/srotp;
-    double qcmp2 = qcmp*qcmp;
-    gammap = fs2_f2*qcmp*qcmp2*(M + TMath::Sqrt(M2 + qcmp2))/mpi2/12/kPi/srotp;
-  }
-  
-  std::complex<double> z ( q0 - dq2/2./MD - wR, gamma/2. );
-  std::complex<double> zp(-q0 - dq2/2./MD - wR, gammap/2.);
-  z  *= MD/dq/kF;
-  zp *= MD/dq/kF;
-  
-  std::complex<double> pzeta(0, 0);
-  std::complex<double> z2(z*z);
-  double abs_z = abs(z);
-  if(abs_z > 50)
-  {
-    pzeta = 2.*(1. + 1./5./z2)/3./z;
-  }
-  else if(abs_z < 1e-2)
-  {
-    pzeta = 2.*z*(1. - z2/3.) - 1i*kPi*(1. - z2)/2.;
-  }
-  else
-  {
-    pzeta = z + (1. - z2)*log((z + 1.)/(z - 1.))/2.;
-  }
-
-  std::complex<double> pzetap(0,0);
-  std::complex<double> zp2(zp*zp);
-  double abs_zp = abs(zp);
-  if(abs_zp > 50)
-  {
-    pzetap = 2.*(1. + 1./5./zp2)/3./zp;
-  }
-  else if(abs_zp < 1e-2)
-  {
-    pzetap = 2.*zp*(1. - zp2/3.) - 1i*kPi*(1. - zp2)/2.;
-  }
-  else
-  {
-    pzetap = zp + (1. - zp2)*log((zp + 1.)/(zp - 1.))/2.;
-  }
-
-  return 2.*rho*MD*(pzeta + pzetap)*fs2_f2/dq/kF/3.;
+    if (fLindhardFunction == "CJP46")
+    {
+        // Ref.4, Eqs.27-29 
+        double v = q0*M/kF/kF;
+        double q = dq/kF;
+        double q2 = q*q;
+        double auxm = v/q - q/2;
+        double auxp = v/q + q/2;
+        double auxm2 = auxm*auxm;
+        double auxp2 = auxp*auxp;
+        double ReUnuc =  M*kF/kPi2*(-1 + ( (1 - auxm2)*TMath::Log( TMath::Abs( (auxm + 1)/(auxm - 1) ) ) -
+                                        (1 - auxp2)*TMath::Log( TMath::Abs( (auxp + 1)/(auxp - 1) ) )  )/2/q);
+        
+        double uplim  = q + q2/2;
+        double lowlim = q - q2/2;                                   
+        double ImUnuc = 0;
+        if ((q > 2 && uplim >= v && v >= -lowlim ) || (q < 2 && uplim >= v && v >= lowlim) ) 
+            ImUnuc = -M*kF*(1 - auxm2 )/2/kPi/q;
+        else if (q < 2 && 0 <= v && v <= lowlim)
+            ImUnuc = -M*kF*v/kPi/q; 
+        
+        return std::complex(ReUnuc, ImUnuc);
+    }
+    
+    //Following obtained from fortran code by J Nieves, which contained the following comment:
+    // NUCLEON relativistic Lindhard Function
+    // Same normalization as ULIN
+    // Real part
+    // taken from Eur.Phys.J.A25:299-318,2005 (Barbaro et al)
+    // Eq. 61
+    // Im. part: Juan.
+    double relLindIm = relLindhardIm(q0, dq, kF, kF, M, true);
+    std::complex<double> relLind(ruLinRelX(q0,dq,kF,M) + ruLinRelX(-q0,dq,kF,M), 2*relLindIm);
+    return relLind;
 }
+//____________________________________________________________________________
+std::complex<double> NievesQELCCPXSec::LindhardDelta(double q0, double dq, double kF, double M, double rho) const
+{
+    double MD = 1.232;
+    double mpi = kPionMass;
+    
+    double fs2_f2 = 4.5;
+    double wR = MD - M;
+    double gamma  = 0;
+    double gammap = 0;
+    
+    double q02  = q0*q0;
+    double dq2  = dq*dq;
+    double kF2  = kF*kF;
+    
+    double M2 =       M*M;
+    double M4 =       M2*M2;
+    double mpi2 =     mpi*mpi;
+    double mpi4 =     mpi2*mpi2;
+    //For the current code q0 is always real
+    //If q0 can have an imaginary part then only the real part is used
+    double aux1 = M2 + q02 - dq2;
+    double aux2 = 2*q0*TMath::Sqrt(M2 + 3*kF2/5);
+    double aux3 = TMath::Sq(M + mpi);
+    double s    = aux1 + aux2;
+    double sp   = aux1 - aux2;
+    
+    if (fLindhardFunction == "CJP46")
+    {
+        // Ref.4, Eq.30-31
+        const double fs2 = 4*kPi*0.36;
+        if(s > aux3)
+        {
+            double srot = TMath::Sqrt(s);
+            double qcm  = TMath::Sqrt(TMath::Sq(s) + mpi4 + M4 - 2*(s*mpi2 + s*M2 + mpi2*M2))/2/srot;
+            double qcm3 = qcm*qcm*qcm;
+            gamma       = fs2*M*qcm3/mpi2/12/kPi/srot;
+        }
+        
+        if(sp > aux3)
+        {
+            double srotp = TMath::Sqrt(sp);
+            double qcmp  = TMath::Sqrt(TMath::Sq(sp) + mpi4 + M4 - 2*(sp*mpi2 + sp*M2 + mpi2*M2))/2/srotp;
+            double qcmp3 = qcmp*qcmp*qcmp;
+            gammap       = fs2*M*qcmp3/mpi2/12/kPi/srotp;
+        }
+        
+        double b = dq/MD;
+        double b3 = b*b*b;  
+        std::complex<double> a ( q0 - dq2/2/MD - wR, gamma );
+        std::complex<double> ap(-q0 - dq2/2/MD - wR, gammap);
+        a  /= kF;
+        ap /= kF;
+        
+        std::complex<double> a_plus_b   = a + b;
+        std::complex<double> a_minus_b  = a - b;
+        std::complex<double> ap_plus_b  = ap + b;
+        std::complex<double> ap_minus_b = ap - b;
+        
+        std::complex<double> L, Lp;
+        
+        if (gamma <= 0)
+            L = log(abs(a_plus_b/a_minus_b));
+        else
+            L = log(a_plus_b/a_minus_b);
+            
+        if (gammap <= 0)
+            Lp = log(abs(ap_plus_b/ap_minus_b));
+        else
+            Lp = log(ap_plus_b/ap_minus_b);
+            
+        double factor = 4*kF2*fs2_f2/9/kPi2;
+        return factor*(b*(a + ap) - (a_plus_b*a_minus_b*L + ap_plus_b*ap_minus_b*Lp)/2.)/b3;
+    }
+    
+    //   Following obtained from fortran code by J Nieves, which contained the following comment:
+    //   complex Lindhard function for symmetric nuclear matter:
+    //                    from Appendix of
+    //                    E.Oset et al Phys. Rept. 188:79, 1990
+    //                    formula A.4
+    //
+    //            ATTENTION!!!
+    // Only works properly for real q0,
+    // if q0 has an imaginary part calculates the L. function
+    // assuming Gamma= 0.
+    // Therefore this subroutine provides two different functions
+    // depending on whether q0 is real or not!!!!!!!!!!!
+    // For the current code q0 is always real
+    // If q0 can have an imaginary part then only the real part is used
+    // until z and zp are calculated
 
+    // Ref.3, Eq. A4
+    if(s > aux3)
+    {
+        double srot = TMath::Sqrt(s);
+        double qcm = TMath::Sqrt(s*s + mpi4 + M4 - 2*(s*mpi2 + s*M2 + mpi2*M2))/2/srot;
+        double qcm2 = qcm*qcm;
+        gamma = fs2_f2*qcm*qcm2*(M + TMath::Sqrt(M2 + qcm2))/mpi2/12/kPi/srot;
+    }
+    
+    if(sp > aux3)
+    {
+        double srotp = TMath::Sqrt(sp);
+        double qcmp  = TMath::Sqrt(sp*sp + mpi4 + M4 - 2*(sp*mpi2 + sp*M2 + mpi2*M2))/2/srotp;
+        double qcmp2 = qcmp*qcmp;
+        gammap = fs2_f2*qcmp*qcmp2*(M + TMath::Sqrt(M2 + qcmp2))/mpi2/12/kPi/srotp;
+    }
+    
+    std::complex<double> z ( q0 - dq2/2./MD - wR, gamma/2. );
+    std::complex<double> zp(-q0 - dq2/2./MD - wR, gammap/2.);
+    z  *= MD/dq/kF;
+    zp *= MD/dq/kF;
+    
+    std::complex<double> pzeta(0, 0);
+    std::complex<double> z2(z*z);
+    double abs_z = abs(z);
+    if(abs_z > 50)
+    {
+        pzeta = 2.*(1. + 1./5./z2)/3./z;
+    }
+    else if(abs_z < 1e-2)
+    {
+        pzeta = 2.*z*(1. - z2/3.) - 1i*kPi*(1. - z2)/2.;
+    }
+    else
+    {
+        pzeta = z + (1. - z2)*log((z + 1.)/(z - 1.))/2.;
+    }
+    
+    std::complex<double> pzetap(0,0);
+    std::complex<double> zp2(zp*zp);
+    double abs_zp = abs(zp);
+    if(abs_zp > 50)
+    {
+        pzetap = 2.*(1. + 1./5./zp2)/3./zp;
+    }
+    else if(abs_zp < 1e-2)
+    {
+        pzetap = 2.*zp*(1. - zp2/3.) - 1i*kPi*(1. - zp2)/2.;
+    }
+    else
+    {
+        pzetap = zp + (1. - zp2)*log((zp + 1.)/(zp - 1.))/2.;
+    }
+    
+    return 2.*rho*MD*(pzeta + pzetap)*fs2_f2/dq/kF/3.;
+
+}
 //____________________________________________________________________________
 // Gives coulomb potential in units of GeV
 double NievesQELCCPXSec::vcr(const Target * target, double Rcurr) const
@@ -1132,12 +1195,8 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
                         is_neutrino, 
                         M, T1,T2,T3,T4,T5,0);
   
-
-  
-//  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-//  std::cout << fFinalLeptonPolarization.Mag() << "\n";
-//  std::cout << "NV@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
-  
+  if (fFinalLeptonPolarization.Mag2()>1) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+    
   return fFinalLeptonPolarization;
 
 }

@@ -6,18 +6,18 @@
 Configuration for the Nieves QEL CCP xsec algorithm.
 
 Configurable Parameters:
-.....................................................................................................
-Name               Type     Optional   Comment                          Default
-.....................................................................................................
-FormFactorsAlg     alg      No         QEL form factors algorithm
-XSec-Integrator    alg      No
-CabibboAngle       double   No         Cabibbo angle                    CommonParam[CKM]
-RPA                bool     Yes        Turn RPA effects on or off       true
-Coulomb            bool     Yes        Turn coulomb effects on or off   true
-QEL-CC-XSecScale   double   Yes        Scaling factor for CC            GPL value
-QEL-NC-XSecScale   double   Yes        Scaling factor for NC            GPL value
-PreciseLeptonPol   bool     Yes        Do precise calculation of        No
-                                       lepton polarization
+...................................................................................................................
+Name               Type     Optional   Comment                                               Default
+...................................................................................................................
+FormFactorsAlg     alg      No         QEL form factors algorithm                            
+XSec-Integrator    alg      No                                                               
+CabibboAngle       double   No         Cabibbo angle                                         CommonParam[CKM]
+RPA                bool     Yes        Turn RPA effects on or off                            true
+Coulomb            bool     Yes        Turn coulomb effects on or off                        true
+QEL-CC-XSecScale   double   Yes        Scaling factor for CC                                 GPL value
+QEL-NC-XSecScale   double   Yes        Scaling factor for NC                                 GPL value
+PreciseLeptonPol   bool     Yes        Do precise calculation of lepton polarization         No
+LindhardFunction   string   Yes        Which Lindhard functions to use?                      OriginalByNieves                               
 
 .....................................................................................................
 Parameters needed when Integrating with this model to generate splines:
@@ -44,7 +44,7 @@ RmaxMode                             string   Yes        Method to use to comput
     <param type="string" name="IntegralNucleonBindingMode"> UseNuclearModel </param>
     <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy"> 10.0 </param>
 
-    <param type="bool" name="RPA">             true                          </param>
+    <param type="bool" name="RPA">             true                         </param>
     <param type="bool" name="Coulomb">         true                         </param>
 
     <param type="alg" name = "PauliBlockerAlg"> genie::PauliBlocker/Default </param>
