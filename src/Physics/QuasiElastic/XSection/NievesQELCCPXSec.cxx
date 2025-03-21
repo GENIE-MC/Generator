@@ -523,12 +523,12 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
     double rho = rhop + rhon;
     double rho0 = A*nuclear::Density(0,A);
 
-    double fPrime = (0.33*rho/rho0 + 0.45*(1 - rho/rho0))*c0;
+    double fPrime = (0.33*rho/rho0 + 0.45*(1 - rho/rho0));
 
     double kF = TMath::Power(1.5*kPi2*rho, 1./3.)*fhbarc;
 
     std::complex<double> Unuc( LindhardNuclear(q0, dq, kF, M) );
-    std::complex<double> Udel( LindhardDelta(q0, dq, kF, M, rho) );
+    std::complex<double> Udel( LindhardDelta(q0, dq, kF, M, rho*hbarc2*fhbarc) );
     std::complex<double> Utot = Unuc + Udel;
  
 // CRho = 2, DeltaRho = 2500 MeV, (2.5 GeV)^2 = 6.25 GeV^2, mRho = 770 MeV, (0.770 GeV)^2 = 0.5929 GeV^2, g' = 0.63 
