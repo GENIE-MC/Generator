@@ -265,7 +265,7 @@ void  genie::utils::CalculatePolarizationVectorInTargetRestFrame(
   double El = leptonMomTRF.E();
   double Pl = leptonMomTRF.P();
   double cost = TMath::Cos( neutrinoMomTRF.Angle(leptonMomTRF.Vect()) );
-  double sint = TMath::Sin( neutrinoMomTRF.Angle(leptonMomTRF.Vect()) );
+  double sint = TMath::Sqrt(1 - cost*cost);
   int sign = isLeftPolarized?-1:1;
   double auxm  = (El - Pl*cost)/2/M;
   double auxp  = (El + Pl*cost)/2/M;

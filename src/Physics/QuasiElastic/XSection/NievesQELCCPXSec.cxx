@@ -29,6 +29,7 @@
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Physics/QuasiElastic/XSection/NievesQELCCPXSec.h"
+#include "Physics/QuasiElastic/XSection/NievesQELCCXSec.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
@@ -146,10 +147,10 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
     double Vc = vcr(& target, r);
 
     // Outgoing lepton energy and momentum including Coulomb potential
-    int sign = is_neutrino ? 1 : -1;
+    int sign = is_neutrino ? -1 : 1;
     double El = leptonMom.E();
     double pl = leptonMom.P();
-    double ElLocal = El - sign*Vc;
+    double ElLocal = El + sign*Vc;
 
     if ( ElLocal - ml <= 0. ) {
       LOG("Nieves", pDEBUG) << "Event should be rejected. Coulomb effects"
@@ -337,12 +338,16 @@ double NievesQELCCPXSec::Integral(const Interaction * in) const
   // let the cross section integrator do all of the work. It's smart
   // enough to handle free nucleon vs. nuclear targets, different
   // nuclear models (including the local Fermi gas model), etc.
-  if ( fXSecIntegrator->Id().Name() == "genie::NewQELXSec" ) {
+  if ( fXSecIntegrator->Id().Name() == "genie::NievesQELCCXSec" ) 
+  {
+    Target * tgt = in->InitStatePtr()->TgtPtr();
+    tgt->SetHitNucPosition(MaximalRadius(tgt) );
     return fXSecIntegrator->Integrate(this, in);
   }
-  else {
+  else 
+  {
     LOG("Nieves", pFATAL) << "Splines for the Nieves CCQE model must be"
-      << " generated using genie::NewQELXSec";
+      << " generated using genie::NievesQELCCPXSec";
     std::exit(1);
   }
 }
@@ -355,6 +360,10 @@ bool NievesQELCCPXSec::ValidProcess(const Interaction * interaction) const
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
   if(!proc_info.IsQuasiElastic()) return false;
+  
+  // The calculation is only appropriate for complex nuclear targets,
+  // not free nucleons.
+  if ( !init_state.Tgt().IsNucleus() ) return false;
 
   int  nuc = init_state.Tgt().HitNucPdg();
   int  nu  = init_state.ProbePdg();
@@ -810,16 +819,14 @@ double NievesQELCCPXSec::vcr(const Target * target, double Rcurr) const
     
     int A = target->A();
     int Z = target->Z();
-    ROOT::Math::IBaseFunctionOneDim * func = new
-      utils::gsl::wrap::NievesQELvcrIntegrand(Rcurr,A,Z);
-    ROOT::Math::IntegrationOneDim::Type ig_type =
-      utils::gsl::Integration1DimTypeFromString("adaptive");
-
-    double abstol = 1; // We mostly care about relative tolerance;
-    double reltol = 1E-4;
-    int nmaxeval = 100000;
-    ROOT::Math::Integrator ig(*func,ig_type,abstol,reltol,nmaxeval);
-    double result = ig.Integral(0,Rmax);
+    
+    ROOT::Math::IBaseFunctionOneDim * func = new utils::gsl::wrap::NievesQELvcrIntegrand(Rcurr,A,Z);
+    const NievesQELCCXSec * integrator = dynamic_cast<const NievesQELCCXSec*>(fXSecIntegrator);
+    ROOT::Math::IntegrationOneDim::Type ig_type = utils::gsl::Integration1DimTypeFromString( integrator->Get1DimIntgType() );
+    double reltol = integrator->Get1DimRelTol();
+    unsigned int nmaxeval = integrator->Get1DimMaxEval();
+    ROOT::Math::Integrator ig(*func, ig_type, 0, reltol, nmaxeval);
+    double result = ig.Integral(0, Rmax);
     delete func;
 
     // Multiply by Z to normalize densities to number of protons
@@ -874,11 +881,6 @@ double NievesQELCCPXSec::MaximalRadius(const Target * target) const
     // If target is not a nucleus the potential will be 0
     return 0.0;
   }
-}
-//____________________________________________________________________________
-int NievesQELCCPXSec::leviCivita(int input[]) const
-{
-   return (input[1] - input[0])*(input[2] - input[0])*(input[3] - input[0])*(input[2] - input[1])*(input[3] - input[1])*(input[3] - input[2])/12;
 }
 //____________________________________________________________________________
 // Calculates the constraction of the leptonic and hadronic tensors. The
@@ -956,8 +958,6 @@ const Target& target, bool assumeFreeNucleon) const
 
 
   //Additional constants and variables
-  const int g[4][4] = {{1,0,0,0},{0,-1,0,0},{0,0,-1,0},{0,0,0,-1}};
-  int leviCivitaIndexArray[4];
   double imaginaryPart = 0;
 
   std::complex<double> sum(0.0,0.0);
@@ -975,23 +975,19 @@ const Target& target, bool assumeFreeNucleon) const
       imaginaryPart = 0;
       if(mu == nu){
         //if mu==nu then levi-civita = 0, so imaginary part = 0
-        Lmunu = g[mu][mu]*kPrime[mu]*g[nu][nu]*k[nu]+g[nu][nu]*kPrime[nu]*g[mu][mu]*k[mu]-g[mu][nu]*kPrimek;
+        Lmunu = g(mu, mu)*kPrime[mu]*g(nu, nu)*k[nu]+g(nu, nu)*kPrime[nu]*g(mu, mu)*k[mu]-g(mu, nu)*kPrimek;
       }else{
         //if mu!=nu, then g[mu][nu] = 0
         //This same leviCivitaIndex array can be used in the else portion when
         //calculating Anumu
-        leviCivitaIndexArray[0] = mu;
-        leviCivitaIndexArray[1] = nu;
         for(int a=0;a<4;a++){
           for(int b=0;b<4;b++){
-            leviCivitaIndexArray[2] = a;
-            leviCivitaIndexArray[3] = b;
-            imaginaryPart += - leviCivita(leviCivitaIndexArray)*kPrime[a]*k[b];
+            imaginaryPart -= e(mu, nu,a, b)*kPrime[a]*k[b];
           }
         }
         //real(Lmunu) is symmetric, and imag(Lmunu) is antisymmetric
-        Lmunu = g[mu][mu]*kPrime[mu]*g[nu][nu]*k[nu]+g[nu][nu]*kPrime[nu]*g[mu][mu]*k[mu] + 1i*imaginaryPart;
-        Lnumu = g[nu][nu]*kPrime[nu]*g[mu][mu]*k[mu]+g[mu][mu]*kPrime[mu]*g[nu][nu]*k[nu ]- 1i*imaginaryPart;
+        Lmunu = g(mu, mu)*kPrime[mu]*g(nu, nu)*k[nu]+g(nu, nu)*kPrime[nu]*g(mu, mu)*k[mu] + 1i*imaginaryPart;
+        Lnumu = g(nu, nu)*kPrime[nu]*g(mu, mu)*k[mu]+g(mu, mu)*kPrime[mu]*g(nu, nu)*k[nu] - 1i*imaginaryPart;
       } // End Lmunu calculation
       double aux1 = 2*CL*Fp*(Fp*q2 + 4*FA*M);
       if(mu ==0 && nu == 0){
@@ -1088,12 +1084,11 @@ ROOT::Math::IBaseFunctionOneDim *
 
 //____________________________________________________________________________
 utils::gsl::wrap::NievesQELSmithMonizIntegrand::NievesQELSmithMonizIntegrand(
-              const NievesQELCCPXSec* alg_, const Interaction* interaction_, int mu_, int nu_):
+              const NievesQELCCPXSec* alg_, const Interaction* interaction_, int mod_):
 ROOT::Math::IBaseFunctionOneDim(),
 alg(alg_),
 interaction(interaction_), 
-mu(mu_),
-nu(nu_)
+mod(mod_)
 {
 
 }
@@ -1110,13 +1105,13 @@ unsigned int utils::gsl::wrap::NievesQELSmithMonizIntegrand::NDim(void) const
 //____________________________________________________________________________
 double utils::gsl::wrap::NievesQELSmithMonizIntegrand::DoEval(double rin) const
 {
-   return alg->IntegratedAmunuOverMomentum(interaction, rin, mu, nu); 
+   return alg->IntegratedOverMomentum(interaction, rin, mod); 
 }
 //____________________________________________________________________________
 ROOT::Math::IBaseFunctionOneDim *
   utils::gsl::wrap::NievesQELSmithMonizIntegrand::Clone(void) const
 {
-  return new utils::gsl::wrap::NievesQELSmithMonizIntegrand(alg, interaction, mu, nu);
+  return new utils::gsl::wrap::NievesQELSmithMonizIntegrand(alg, interaction, mod);
 }
 //____________________________________________________________________________
 const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* interaction) const
@@ -1128,72 +1123,48 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   const InitialState & init_state = interaction -> InitState();
   const Target & target = init_state.Tgt();
   
-  const double M = 1; // polarization doesn't depend on M
-  // common factor will be reduced
-  //double factor  = fCos8c2*M*Omega/pl/El/kPi/4;
   double Rmax = MaximalRadius(&target);
-  double W00, Wxx, Wzz, ReW0z, ImWxy;
-  if (!target.IsNucleus() || Rmax <= 0)
+  if (Rmax <= 0) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+
+  const NievesQELCCXSec * integrator = dynamic_cast<const NievesQELCCXSec*>(fXSecIntegrator);
+  ROOT::Math::IntegrationOneDim::Type ig_type = utils::gsl::Integration1DimTypeFromString( integrator->Get1DimIntgType() );
+  double reltol = integrator->Get1DimRelTol();
+  unsigned int nmaxeval = integrator->Get1DimMaxEval();
+  
+  ROOT::Math::IBaseFunctionOneDim * func = new utils::gsl::wrap::NievesQELSmithMonizIntegrand(this, interaction, 1);
+  ROOT::Math::Integrator ig(*func, ig_type, 0, reltol, nmaxeval);
+  double R = ig.Integral(0, Rmax);
+  delete func;
+  if (R == 0)
   {
-      FinalLeptonPolarizationOnFreeNucleon (interaction, W00, Wxx, Wzz, ReW0z, ImWxy);
-  }
-  else
-  {
-    ROOT::Math::IntegrationOneDim::Type ig_type = utils::gsl::Integration1DimTypeFromString("adaptive");
-    double reltol = 1E-4;
-    int nmaxeval = 100000;
-    
-    ROOT::Math::IBaseFunctionOneDim * func = new utils::gsl::wrap::NievesQELSmithMonizIntegrand(this, interaction, 0, 0);
-    ROOT::Math::Integrator ig(*func,ig_type,0,reltol,nmaxeval);
-    W00 = ig.Integral(0, Rmax);
-    delete func;
-    
-    func = new utils::gsl::wrap::NievesQELSmithMonizIntegrand(this, interaction, 1, 1);
-    ig.SetFunction(*func);
-    Wxx = ig.Integral(0, Rmax);
-    delete func;
-    
-    func = new utils::gsl::wrap::NievesQELSmithMonizIntegrand(this, interaction, 3, 3);
-    ig.SetFunction(*func);
-    Wzz = ig.Integral(0, Rmax);
-    delete func;
-    
-    func = new utils::gsl::wrap::NievesQELSmithMonizIntegrand(this, interaction, 0, 3);
-    ig.SetFunction(*func);
-    ReW0z = ig.Integral(0, Rmax);
-    delete func;
-    
-    func = new utils::gsl::wrap::NievesQELSmithMonizIntegrand(this, interaction, 1, 2);
-    ig.SetFunction(*func);
-    ImWxy= ig.Integral(0, Rmax);
-    delete func;
+      fFinalLeptonPolarization = TVector3(0, 0, 0);
+      return fFinalLeptonPolarization;
   }
     
-  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
+  func = new utils::gsl::wrap::NievesQELSmithMonizIntegrand(this, interaction, 2);
+  ig.SetFunction(*func);
+  double PLR = ig.Integral(0, Rmax);
+  delete func;
+  
+  func = new utils::gsl::wrap::NievesQELSmithMonizIntegrand(this, interaction, 3);
+  ig.SetFunction(*func);
+  double PPR = ig.Integral(0, Rmax);
+  delete func;
+  
+  double PL = PLR/R;
+  double PP = PPR/R;
+    
   TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
   TLorentzVector   neutrinoMom  = *tempNeutrino;
   delete tempNeutrino;
   const TLorentzVector leptonMom = kinematics.FSLeptonP4();
   
-  TLorentzVector q4 = neutrinoMom - leptonMom;
-  
-  double q0  = q4.E();
-  double q   = q4.Vect().Mag();
-  double q02 = q0*q0;
-  double q2  = q*q;
-  
-  double T1 = Wxx/2/M;
-  double T2 = (W00 + Wxx + q02/q2*(Wzz - Wxx) - 2*q0/q*ReW0z)/2/M;
-  double T3 = -ImWxy/q;
-  double T4 = M/2/q2*(Wzz - Wxx);
-  double T5 = (ReW0z - q0/q*(Wzz - Wxx))/q;
-  
-  CalculatePolarizationVectorInTargetRestFrame(
-                        fFinalLeptonPolarization, 
-                        neutrinoMom, 
-                        leptonMom,
-                        is_neutrino, 
-                        M, T1,T2,T3,T4,T5,0);
+  TVector3 neutrinoMom3 = neutrinoMom.Vect();                                          
+  TVector3 leptonMom3   = leptonMom.Vect();
+  TVector3 Pz = leptonMom3.Unit();
+  TVector3 Px = neutrinoMom3.Cross(leptonMom3).Unit();
+  TVector3 Py = Pz.Cross(Px);
+  fFinalLeptonPolarization = PP*Py + PL*Pz;
   
   if (fFinalLeptonPolarization.Mag2()>1) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
     
@@ -1201,131 +1172,7 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
 
 }
 //___________________________________________________________________________________
-void NievesQELCCPXSec::FinalLeptonPolarizationOnFreeNucleon (const Interaction* interaction, double & A00, double & Axx, double & Azz, double & A0z, double & Axy) const
-{
-  
-  A00 = Axx = Azz = A0z = Axy = 0;
-  // Get kinematics and init-state parameters
-  const Kinematics &   kinematics = interaction -> Kine();
-  const InitialState & init_state = interaction -> InitState();
-  const Target & target = init_state.Tgt();
-
-  // HitNucMass() looks up the PDGLibrary (on-shell) value for the initial
-  // struck nucleon
-  double Mi = target.HitNucMass();
-  
-  // On-shell mass of final nucleon (from PDGLibrary)
-  double Mf = interaction->RecoilNucleon()->Mass();
-
-  // Isoscalar mass of nucleon
-  double M = (Mi + Mf)/2;
-  
-  // Note that GetProbeP4 defaults to returning the probe 4-momentum in the
-  // struck nucleon rest frame, so we have to explicitly ask for the lab frame
-  // here
-  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
-  TLorentzVector neutrinoMom = *tempNeutrino;
-  delete tempNeutrino;
-
-  TLorentzVector leptonMom = kinematics.FSLeptonP4();
-  
-  double q0Tilde = neutrinoMom.E() - leptonMom.E();
-
-  // Note that we're working in the lab frame (i.e., the rest frame
-  // of the target nucleus). We can therefore use Nieves' explicit
-  // form of the Amunu tensor if we rotate the 3-momenta so that
-  // qTilde is in the +z direction
-  TVector3 neutrinoMom3 = neutrinoMom.Vect();
-  TVector3 leptonMom3 = leptonMom.Vect();
-
-  // If Coulomb corrections are being used, adjust the lepton 3-momentum used
-  // to get q3VecTilde so that its magnitude matches the local
-  // Coulomb-corrected value calculated earlier. Note that, although the
-  // treatment of Coulomb corrections by Nieves et al. doesn't change the
-  // direction of the lepton 3-momentum, it *does* change the direction of the
-  // 3-momentum transfer, and so the correction should be applied *before*
-  // rotating coordinates into a frame where q3VecTilde lies along the positive
-  // z axis.
-  TVector3 q3VecTilde = neutrinoMom3 - leptonMom3;
-
-  // Find the rotation angle needed to put q3VecTilde along z
-  TVector3 zvec(0, 0, 1);
-  TVector3 rot = ( q3VecTilde.Cross(zvec) ).Unit(); // Vector to rotate about
-  // Angle between the z direction and q
-  double angle = zvec.Angle( q3VecTilde );
-
-  // Handle the edge case where q3VecTilde is along -z, so the
-  // cross product above vanishes
-  if ( q3VecTilde.Perp() == 0. && q3VecTilde.Z() < 0. ) 
-  {
-    rot = TVector3(0., 1., 0.);
-    angle = kPi;
-  }
-
-  // Rotate if the rotation vector is not 0
-  if ( rot.Mag() > 0 ) 
-  {
-    neutrinoMom3.Rotate(angle,rot);
-    neutrinoMom.SetVect(neutrinoMom3);
-    leptonMom3.Rotate(angle,rot);
-    leptonMom.SetVect(leptonMom3);
-  }
-
-  // Calculate qTilde
-  TLorentzVector qTildeP4(0., 0., q3VecTilde.Mag(), q0Tilde);
-  
-  double Q2tilde = -qTildeP4.Mag2();
-  
-  // Check that Q2tilde > 0 (accounting for rounding errors)
-  if (Q2tilde < 0) 
-  {
-      return;
-  }
-
-  // Store Q2tilde in the kinematic variable representing Q2.
-  // This will ensure that the form factors are calculated correctly
-  // using the de Forest prescription (Q2tilde instead of Q2).
-  interaction->KinePtr()->SetQ2(Q2tilde);
-  // Calculate form factors
-  fFormFactors.Calculate( interaction );
-
-
-
-  // Get the QEL form factors (were calculated before this method was called)
-  double F1V   = 0.5*fFormFactors.F1V();
-  double xiF2V = 0.5*fFormFactors.xiF2V();
-  double FA    = fFormFactors.FA();
-  // According to Nieves' paper, Fp = 2.0*M*FA/(kPionMass2-q2), but Llewelyn-
-  // Smith uses Fp = 2.0*M^2*FA/(kPionMass2-q2), so I divide by M
-  // This gives units of GeV^-1
-  double Fp = fFormFactors.Fp()/M;
-
-  // Calculate auxiliary parameters
-  // Off shell mass of initial nucleon
-  double M2      = M*M;
-  double FA2     = FA*FA;
-  double F1V2    = F1V*F1V;
-  double xiF2V2  = xiF2V*xiF2V;
-  double q0      = qTildeP4.E();
-  double dq      = qTildeP4.Pz();
-  double q02     = q0*q0;
-  double dq2     = dq*dq;
-  double q2      = q02 - dq2;
-
-  double aux1 = 2*Fp*(Fp*q2 + 4*FA*M);
-  A00 = 32*F1V2*(M2 + q0*M + q2/4) + 8*q2*xiF2V2*(-q0/M - q02*(1/q2 + 1/M2/4)) +
-                           8*FA2*(q0*M + q2/4) - aux1*q02 - 16*F1V*xiF2V*dq2;
-  Axx = 8*(FA2*M2 - q2*( (F1V+xiF2V)*(F1V+xiF2V) + FA2/4 ) );
-  Azz =  -8*F1V2*q2 - 8*q2*xiF2V2*(1 + dq2*(1/q2 + 1/M2/4))+
-          8*FA2*(M2 - q2/4) - aux1*dq2 - 16*F1V*xiF2V*q02;
-  A0z = 16*F1V2*M*dq - 4*q2*xiF2V2*(dq/M + dq*q0*(2/q2 + 1/M2/2)) 
-          + 4*FA2*M*dq - dq*q0*(aux1 + 16*F1V*xiF2V);
-  Axy = 16*FA*(xiF2V+F1V)*dq*M;
-  
-  return;
-}
-//___________________________________________________________________________________
-double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interaction, double r, int mu, int nu) const
+double NievesQELCCPXSec::IntegratedOverMomentum (const Interaction* interaction, double r, int mod) const
 {
   // Get kinematics and init-state parameters
   const Kinematics &   kinematics = interaction -> Kine();
@@ -1353,10 +1200,10 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
   // Calculate Coulomb corrections
   double ml = interaction->FSPrimLepton()->Mass();
   double ml2 = ml*ml;
-  double plLocal = leptonMom.P();
+  double PlLocal = leptonMom.P();
 
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
-  int sign = is_neutrino ? 1 : -1;
+  int sign = is_neutrino ? -1 : 1;
   
   double ElLocal = leptonMom.E();
   if ( fCoulomb ) 
@@ -1366,7 +1213,7 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
 
     // Outgoing lepton energy and momentum including Coulomb potential
     double El      = ElLocal;
-    ElLocal = El - sign*Vc;
+    ElLocal = El + sign*Vc;
 
     if ( ElLocal - ml <= 0 ) return 0;
 
@@ -1378,7 +1225,7 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
     if ( KEl <= TMath::Abs(Vc) ) return 0;
 
     // Local value of the lepton 3-momentum magnitude for the Coulomb correction
-    plLocal = TMath::Sqrt(ElLocal*ElLocal - ml2);
+    PlLocal = TMath::Sqrt(ElLocal*ElLocal - ml2);
 
   }
 
@@ -1412,7 +1259,7 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
 
   // If binding energy effects pull us into an unphysical region, return
   // zero
-  if ( q0Tilde <= 0 && tgtIsNucleus && !interaction->TestBit(kIAssumeFreeNucleon) ) return 0;
+  if ( q0Tilde <= 0 ) return 0;
 
   // Note that we're working in the lab frame (i.e., the rest frame
   // of the target nucleus). We can therefore use Nieves' explicit
@@ -1429,34 +1276,10 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
   // 3-momentum transfer, and so the correction should be applied *before*
   // rotating coordinates into a frame where q3VecTilde lies along the positive
   // z axis.
-  TVector3 leptonMomCoulomb3 = !fCoulomb ? leptonMom3: plLocal*leptonMom3*(1/leptonMom3.Mag());
+  TVector3 leptonMomCoulomb3 = !fCoulomb ? leptonMom3: PlLocal*leptonMom3*(1/leptonMom3.Mag());
   TVector3 q3VecTilde = neutrinoMom3 - leptonMomCoulomb3;
   // Calculate qTilde
   TLorentzVector qTildeP4(0., 0., q3VecTilde.Mag(), q0Tilde);
-
-  // Find the rotation angle needed to put q3VecTilde along z
-  TVector3 zvec(0, 0, 1);
-  TVector3 rot = ( q3VecTilde.Cross(zvec) ).Unit(); // Vector to rotate about
-  // Angle between the z direction and q
-  double angle = zvec.Angle( q3VecTilde );
-
-  // Handle the edge case where q3VecTilde is along -z, so the
-  // cross product above vanishes
-  if ( q3VecTilde.Perp() == 0. && q3VecTilde.Z() < 0. ) 
-  {
-    rot = TVector3(0., 1., 0.);
-    angle = kPi;
-  }
-
-  // Rotate if the rotation vector is not 0
-  if ( rot.Mag() > 0 ) 
-  {
-    neutrinoMom3.Rotate(angle,rot);
-    neutrinoMom.SetVect(neutrinoMom3);
-    leptonMom3.Rotate(angle,rot);
-    leptonMom.SetVect(leptonMom3);
-  }
-
   double Q2tilde = -qTildeP4.Mag2();
   
   // Check that Q2tilde > 0 (accounting for rounding errors)
@@ -1468,8 +1291,6 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
   interaction->KinePtr()->SetQ2(Q2tilde);
   // Calculate form factors
   fFormFactors.Calculate( interaction );
-
-
 
   // Get the QEL form factors (were calculated before this method was called)
   double F1V   = 0.5*fFormFactors.F1V();
@@ -1499,8 +1320,7 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
   double q02     = q0*q0;
   double q2      = q02 - dq2;
 
-
-  double factor  = plLocal*ElLocal*r*r/dq;
+  double factor  = PlLocal*ElLocal*r*r/dq;
 
   double c       = q0/dq;
   double d       = q2/2/M/dq;
@@ -1527,45 +1347,71 @@ double NievesQELCCPXSec::IntegratedAmunuOverMomentum (const Interaction* interac
   double a6      = c*b1 + d*b0;
   double a7      = b1;
   
+  double Ep      = M*a7;
+  double Ep2     = M2*a4;
+  double px2     = 0.5*M2*(a2 - a3); //py2=px2
+  double pz      = M*a6;
+  double Eppz    = M2*a5;
+  double pz2     = M2*a3;
   
-  double Ep   = M*a7;
-  double Ep2  = M2*a4;
-  double px2  = 0.5*M2*(a2 - a3); //py2=px2
-  double pz   = M*a6;
-  double Eppz = M2*a5;
-  double pz2  = M2*a3;
+  double aux  = 2*CL*Fp*(Fp*q2 + 4*FA*M);
+  double W00   = 32*F1V2*(Ep2*CN + Ep*q0 + a1*q2/4)+
+                 8*q2*xiF2V2*(a1*(1 - q02*(1/q2 + 1/M2/4)) - Ep2/M2 - Ep*q0/M2) +
+                 8*FA2*(Ep2 + Ep*q0 + a1*(q2/4 - M2)) - a1*(aux*q02 + 16*F1V*xiF2V*(q02 - q2)*CN);
+  double Wxx   = 32*F1V2*(px2 - a1*q2/4) - 8*q2*xiF2V2*(a1*CT + px2/M2) +
+                 8*FA2*(px2 + a1*(CT*M2 - q2/4)) - 16*a1*F1V*xiF2V*CT*q2;
+  double Wzz   = 32*F1V2*(pz2 + pz*dq - a1*q2/4)-
+                 8*q2*xiF2V2*(a1 + pz2/M2 + pz*dq/M2 + a1*dq2*(1/q2 + 1/M2/4))+
+                 8*FA2*(pz2 + pz*dq + a1*(CL*M2 - q2/4)) - a1*(aux*dq2 + 16*F1V*xiF2V*q02);
+  double ReW0z = 16*F1V2*((2*Eppz + Ep*dq)*CN + pz*q0)
+                -4*q2*xiF2V2*(2*Eppz/M2 + (Ep*dq + pz*q0)/M2 + a1*dq*q0*(2/q2 + 1/M2/2))+
+                 4*FA2*((2*Eppz + Ep*dq)*CL + pz*q0) - a1*dq*q0*(aux + 16*F1V*xiF2V);
+  double ImWxy = -16*FA*(xiF2V+F1V)*(pz*q0 - Ep*dq*CT);
   
-  double aux1 = 2*CL*Fp*(Fp*q2 + 4*FA*M);
+  
+  TLorentzVector q4 = neutrinoMom - leptonMom;
+  double v  = q4.E();
+  double v2 = v*v;
+  double qv2 = q4.Vect().Mag2();
+  double qv  = TMath::Sqrt(q2);
+  
+  double W1 = Wxx/2/M;
+  double W2 = (W00 + Wxx + v2/qv2*(Wzz - Wxx) - 2*v/qv*ReW0z)/2/M;
+  double W3 = -ImWxy/qv;
+  double W4 = M/2/qv2*(Wzz - Wxx);
+  double W5 = (ReW0z - v/qv*(Wzz - Wxx))/qv;
 
-  if (mu == 0 && nu == 0)
-  {
-      return  32*F1V2*(Ep2*CN + Ep*q0 + a1*q2/4)+
-              8*q2*xiF2V2*(a1*(1 - q02*(1/q2 + 1/M2/4)) - Ep2/M2 - Ep*q0/M2) +
-              8*FA2*(Ep2 + Ep*q0 + a1*(q2/4 - M2)) - a1*(aux1*q02 + 16*F1V*xiF2V*(q02 - q2)*CN);
-  }
-  if ( (mu == 1 && nu == 1) || (mu == 2 && nu == 2) )
-  {
-      return  32*F1V2*(px2 - a1*q2/4)-
-              8*q2*xiF2V2*(a1*CT + px2/M2) +
-              8*FA2*(px2 + a1*(CT*M2 - q2/4))-
-              16*a1*F1V*xiF2V*CT*q2;
-  }
-  if (mu == 3 && nu == 3)
-  {
-      return  32*F1V2*(pz2 + pz*dq - a1*q2/4)-
-              8*q2*xiF2V2*(a1 + pz2/M2 + pz*dq/M2 + a1*dq2*(1/q2 + 1/M2/4))+
-              8*FA2*(pz2 + pz*dq + a1*(CL*M2 - q2/4)) - a1*(aux1*dq2 + 16*F1V*xiF2V*q02);
-  }
-  if (mu == 0 && nu == 3)
-  {
-      return  16*F1V2*((2*Eppz + Ep*dq)*CN + pz*q0)
-              -4*q2*xiF2V2*(2*Eppz/M2 + (Ep*dq + pz*q0)/M2 + a1*dq*q0*(2/q2 + 1/M2/2))+
-              4*FA2*((2*Eppz + Ep*dq)*CL + pz*q0) - a1*dq*q0*(aux1 + 16*F1V*xiF2V);
-  }
-  if (mu == 1 && nu == 2) // should be multiplied by i
-  {
-      return -16*FA*(xiF2V+F1V)*(pz*q0 - Ep*dq*CT);
-  }
-  return 0;
+  double Ev = neutrinoMom.E();
+  double El = leptonMom.E();
+  double Pl = leptonMom.P();
+  double cost = TMath::Cos( neutrinoMom.Angle(leptonMom.Vect()) );
+  double sint = TMath::Sqrt(1 - cost*cost);
+  
+  double auxm  = (El - Pl*cost)/2/M;
+  double auxp  = (El + Pl*cost)/2/M;
+  double aux1m = (Pl - El*cost)/2/M;
+  double aux1p = (Pl + El*cost)/2/M;
+  double aux1  = ml2/2/M2;
+  double aux2  = (Ev + El)/M;
+  
+  if (mod == 2) return sign*(2*aux1m*(W1 - aux1*W4) + aux1p*W2 - sign*(aux2*aux1m + aux1*cost)*W3 - aux1*cost*W5); //PL*R
+  if (mod == 3) return sign*ml*sint*(2*W1 - W2 -sign*Ev*W3/M - ml2*W4/M2 + El*W5/M)/2/M;  //PP*R
+  double R = 2*auxm*(W1 + aux1*W4) + auxp*W2 - sign*(aux2*auxm - aux1)*W3 - aux1*W5;
+  if (mod == 1) return R;
+  
+  double extrafactor  = kGF2*fCos8c2*TMath::Sq(kMw2/(kMw2 - q4.Mag2() ) )/El;
+  
+  // Calculate xsec
+  double xsec = extrafactor*R;
+  xsec *= fXSecCCScale ;
+
+  // Number of scattering centers in the target
+  int nucpdgc = target.HitNucPdg();
+  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
+
+  xsec *= NNucl; // nuclear xsec
+
+  return xsec;
+  
 }
 //___________________________________________________________________________________

@@ -15,7 +15,6 @@ CabibboAngle       double   No         Cabibbo angle                            
 RPA                bool     Yes        Turn RPA effects on or off                            true
 Coulomb            bool     Yes        Turn coulomb effects on or off                        true
 QEL-CC-XSecScale   double   Yes        Scaling factor for CC                                 GPL value
-QEL-NC-XSecScale   double   Yes        Scaling factor for NC                                 GPL value
 PreciseLeptonPol   bool     Yes        Do precise calculation of lepton polarization         No
 LindhardFunction   string   Yes        Which Lindhard functions to use?                      OriginalByNieves                               
 
@@ -37,9 +36,8 @@ RmaxMode                             string   Yes        Method to use to comput
     <param type="string"  name="CommonParam"> CKM,FermiGas,NUCL </param>
 
     <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
-    <param type="double" name="QEL-NC-XSecScale"> 1.000 </param>
 
-    <param type="alg"  name="XSec-Integrator"> genie::NewQELXSec/Default </param>
+    <param type="alg"  name="XSec-Integrator"> genie::NievesQELCCXSec/Default </param>
     <param type="alg"  name="IntegralNuclearModel"> genie::NuclearModelMap/Default </param>
     <param type="string" name="IntegralNucleonBindingMode"> UseNuclearModel </param>
     <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy"> 10.0 </param>
@@ -54,6 +52,7 @@ RmaxMode                             string   Yes        Method to use to comput
     <param type="string" name = "RmaxMode"> VertexGenerator </param>
     
     <param type="bool" name="PreciseLeptonPol"> true  </param>
+    <param type="string" name = "LindhardFunction"> CJP46 </param>
 
     <!-- Use the same Rmax as in Nieves' original paper
       <param type="string" name = "RmaxMode"> Nieves </param>

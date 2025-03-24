@@ -32,6 +32,7 @@
 #pragma link C++ class genie::ZExpAxialFormFactorModel;
 #pragma link C++ class genie::MArunAxialFormFactorModel;
 #pragma link C++ class genie::NievesQELCCPXSec;
+#pragma link C++ class genie::NievesQELCCXSec;
 #pragma link C++ class genie::SuSAv2QELPXSec;
 #pragma link C++ class genie::SmithMonizQELCCPXSec;
 #pragma link C++ class genie::SmithMonizQELCCXSec;
@@ -46,5 +47,6 @@
 
 // Wrappers for GSL/MathMore lib
 #pragma link C++ class genie::utils::gsl::d2Xsec_dQ2dv;
+#pragma link C++ class genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E;
 
 #endif

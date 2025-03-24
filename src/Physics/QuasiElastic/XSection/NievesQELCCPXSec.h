@@ -63,7 +63,7 @@ public:
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
   const  TVector3 & FinalLeptonPolarization (const Interaction* i) const;
-  double IntegratedAmunuOverMomentum (const Interaction* interaction, double r, int mu, int nu) const;
+  double IntegratedOverMomentum (const Interaction* i, double r, int mod) const;
 
   // Override the Algorithm::Configure methods to load configuration
   // data to private data members
@@ -86,7 +86,7 @@ private:
   double                       fhbarc;            ///< hbar*c in GeV*fm
 
   // mutable for testing purposes only!
-  mutable bool                         fRPA;              ///< use RPA corrections
+  mutable bool                 fRPA;              ///< use RPA corrections
   bool                         fCoulomb;          ///< use Coulomb corrections
 
   const NuclearModelI*         fNuclModel;        ///< Nuclear Model for integration
@@ -144,20 +144,21 @@ private:
   double vcr(const Target * target, double r) const;
   
   double MaximalRadius(const Target * target) const;
-
-  //input must be length 4. Returns 1 if input is an even permutation of 0123,
-  //-1 if input is an odd permutation of 0123, and 0 if any two elements
-  //are equal
-  int leviCivita(int input[]) const;
+  
+  inline int g(int a, int b) const///< metric g^{ab}=g_{ab}=diag(1,-1,-1,1)
+  {
+      return (a==b)*(2*(a==0) - 1);
+  }
+  inline int e(int a, int b, int c, int d) const ///< Levi-Chevita symbol, where e_{0123}=+1
+  {
+      return (b - a)*(c - a)*(d - a)*(c - b)*(d - b)*(d - c)/12;
+  }
 
   double LmunuAnumu(const TLorentzVector neutrinoMom,
     const TLorentzVector inNucleonMom, const TLorentzVector leptonMom,
     const TLorentzVector outNucleonMom, double M, bool is_neutrino,
     const Target& target, bool assumeFreeNucleon) const;
     
-  void FinalLeptonPolarizationOnFreeNucleon (const Interaction* interaction, 
-                                             double & A00, double & Axx, double & Azz, 
-                                             double & A0z, double & Axy) const;
 
 };
 }       // genie namespace
@@ -199,7 +200,7 @@ namespace genie {
     class NievesQELSmithMonizIntegrand : public ROOT::Math::IBaseFunctionOneDim
     {
      public:
-      NievesQELSmithMonizIntegrand(const NievesQELCCPXSec* alg_, const Interaction* interaction_, int mu_, int nu_);
+      NievesQELSmithMonizIntegrand(const NievesQELCCPXSec* alg_, const Interaction* interaction_, int mod_);
       ~NievesQELSmithMonizIntegrand();
        // ROOT::Math::IBaseFunctionOneDim interface
        unsigned int                      NDim   (void)       const;
@@ -208,8 +209,7 @@ namespace genie {
      private:
         const NievesQELCCPXSec* alg;
         const Interaction* interaction;
-        int mu;
-        int nu;
+        int mod;
     };
 
    } // wrap namespace
