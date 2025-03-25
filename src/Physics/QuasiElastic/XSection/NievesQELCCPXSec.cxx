@@ -1372,7 +1372,7 @@ double NievesQELCCPXSec::IntegratedOverMomentum (const Interaction* interaction,
   double v  = q4.E();
   double v2 = v*v;
   double qv2 = q4.Vect().Mag2();
-  double qv  = TMath::Sqrt(q2);
+  double qv  = TMath::Sqrt(qv2);
   
   double W1 = Wxx/2/M;
   double W2 = (W00 + Wxx + v2/qv2*(Wzz - Wxx) - 2*v/qv*ReW0z)/2/M;
