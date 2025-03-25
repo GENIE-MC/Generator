@@ -86,8 +86,8 @@ void NievesQELCCXSec::LoadConfig(void)
   GetParamDef( "gsl-min-eval", min, 7500 ) ;
   fGSLMinEval  = static_cast<unsigned int>( min );
   
-  GetParamDef( "gsl-1dim-integration-type", fGSLIntgType, std::string("adaptive") );
-  GetParamDef( "gsl-1dim-relative-tolerance", fGSLRelTol, 1e-5 );
+  GetParamDef( "gsl-1dim-integration-type", fGSL1DimIntgType, std::string("adaptive") );
+  GetParamDef( "gsl-1dim-relative-tolerance", fGSL1DimRelTol, 1e-5 );
   GetParamDef( "gsl-1dim-max-eval", max, 100000 );
   fGSL1DimMaxEval  = static_cast<unsigned int>( max );
 }

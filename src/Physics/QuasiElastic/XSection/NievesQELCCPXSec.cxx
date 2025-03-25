@@ -402,8 +402,7 @@ void NievesQELCCPXSec::LoadConfig(void)
   GetParamDef( "PreciseLeptonPol", fIsPreciseLeptonPolarization, false ) ;
 
   // Cross section scaling factor
-  GetParam( "QEL-CC-XSecScale", fXSecCCScale ) ;
-  GetParam( "QEL-NC-XSecScale", fXSecNCScale ) ;
+  GetParam( "QEL-CC-XSecScale", fXSecCCScale );
 
   // hbarc for unit conversion, GeV*fm
   fhbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
