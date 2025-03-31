@@ -146,7 +146,7 @@ void SmithMonizUtils::SetInteraction(const Interaction * interaction)
   // RFG is not applied for A<4
   if (target.A()<4)
   {
-    E_BIN = P_Fermi = m_rnu = mm_rnu = 0;
+    E_BIN = kFi = m_rnu = mm_rnu = 0;
     return;
   }
 
@@ -170,26 +170,32 @@ void SmithMonizUtils::SetInteraction(const Interaction * interaction)
   int Z = target.Z();
   int A = target.A();
   int N = A-Z;
-
-
-  // maximum value of Fermi momentum of target nucleon (GeV)
+  
   if (A < 6 || !fUseParametrization)
   {
      // look up the Fermi momentum for this Target
      FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
      const FermiMomentumTable * kft = kftp->GetTable(fKFTable);
-     P_Fermi = kft->FindClosestKF(pdg::IonPdgCode(A, Z), nucl_pdg_ini);
+     kFi = kft->FindClosestKF(pdg::IonPdgCode(A, Z), nucl_pdg_ini);
+     kFf = kft->FindClosestKF(pdg::IonPdgCode(A, Z), nucl_pdg_fin);
   }
   else
   {
     // define the Fermi momentum for this Target
-    //
-    P_Fermi = utils::nuclear::FermiMomentumForIsoscalarNucleonParametrization(target);
+    double P_Fermi = utils::nuclear::FermiMomentumForIsoscalarNucleonParametrization(target);
     // correct the Fermi momentum for the struck nucleon
-    if(is_p) P_Fermi *= TMath::Power( 2.*Z/A, 1./3);
+    if(is_p) 
+    {
+        kFi = P_Fermi*TMath::Power( 2.*Z/A, 1./3);
+        kFf = P_Fermi*TMath::Power( 2.*N/A, 1./3);
+    }
     else
-           P_Fermi *= TMath::Power( 2.*N/A, 1./3);
+    {
+        kFf = P_Fermi*TMath::Power( 2.*Z/A, 1./3);
+        kFi = P_Fermi*TMath::Power( 2.*N/A, 1./3);
+    }
   }
+
 
   // neutrino binding energy (GeV)
   if (target.A() < 6 || !fUseParametrization)
@@ -221,7 +227,7 @@ double SmithMonizUtils::E_nu_thr_SM(void) const
   double E_min = ((m_lep + m_rnu + m_fin)*(m_lep + m_rnu + m_fin) - mm_tar)/2/m_tar;
   
   // Energy threshold of scattering on bound nucleon (Eq. (2) of Ref. 3)
-  double E_min2 = ((m_lep + m_fin)*(m_lep + m_fin)-mm_ini-E_BIN*E_BIN+2*E_BIN*TMath::Sqrt(mm_ini+P_Fermi*P_Fermi))/2/(TMath::Sqrt(mm_ini+P_Fermi*P_Fermi)-E_BIN+P_Fermi);
+  double E_min2 = ((m_lep + m_fin)*(m_lep + m_fin)-mm_ini-E_BIN*E_BIN+2*E_BIN*TMath::Sqrt(mm_ini+kFi*kFi))/2/(TMath::Sqrt(mm_ini+kFi*kFi)-E_BIN+kFi);
   
   E_min = TMath::Max(E_min, E_min2);
   
@@ -275,11 +281,11 @@ double SmithMonizUtils::Q2lim1_SM(double Q2, double Enu) const
   // maximal energy transfer (see Eq. (9) of Ref.3) 
   double nu_max = Enu*Q2/(Q2+mm_lep)-(Q2+mm_lep)/4/Enu;
   
-  double E = sqrt(P_Fermi*P_Fermi+mm_ini);
-  double b = (E-E_BIN)*(E-E_BIN)-P_Fermi*P_Fermi;
+  double E = TMath::Sqrt(kFi*kFi+mm_ini);
+  double b = (E-E_BIN)*(E-E_BIN)-kFi*kFi;
   double a = 0.5*(Q2+mm_fin-b);
   // minimal energy transfer for bound nucleon (see Eqs. (11) of Ref. 3), 
-  double nu_1 = (a*(E-E_BIN)-P_Fermi*TMath::Sqrt(a*a+Q2*b))/b;
+  double nu_1 = (a*(E-E_BIN)-kFi*TMath::Sqrt(a*a+Q2*b))/b;
   return nu_1-nu_max;
 
 }
@@ -290,11 +296,11 @@ double SmithMonizUtils::Q2lim2_SM(double Q2) const
   // minimal energy transfer for scattering on nucleus (see Eq. (7) of Ref.3)
   double nu_min = ((m_rnu+m_fin)*(m_rnu+m_fin)+Q2-mm_tar)/(2*m_tar);
   
-  double E = sqrt(P_Fermi*P_Fermi+mm_ini);
-  double b = (E-E_BIN)*(E-E_BIN)-P_Fermi*P_Fermi;
+  double E = TMath::Sqrt(kFi*kFi+mm_ini);
+  double b = (E-E_BIN)*(E-E_BIN)-kFi*kFi;
   double a = (Q2+mm_fin-b)*0.5;
   // maximal energy transfer for bound nucleon (see Eqs. (11) of Ref. 3)
-  double nu_2  = (a*(E-E_BIN)+P_Fermi*TMath::Sqrt(a*a+Q2*b))/b;
+  double nu_2  = (a*(E-E_BIN)+kFi*TMath::Sqrt(a*a+Q2*b))/b;
   return nu_min-nu_2;
 
 }
@@ -323,7 +329,7 @@ Range1D_t SmithMonizUtils::Q2QES_SM_lim(void) const
   const double EPSREL = 1.0e-08;
   const double Precision = std::numeric_limits<double>::epsilon();
   // if the nucleus mass is less than 4 then this is a special case
-  if (E_BIN == 0 && P_Fermi == 0)
+  if (E_BIN == 0 && kFi == 0)
   {
     double s = 2*E_nu*m_ini+mm_ini;
     // minimal W2 for scattering on nucleus (see Eq. (6) of Ref.3)
@@ -427,18 +433,18 @@ Range1D_t SmithMonizUtils::vQES_SM_lim(double Q2) const
   double nu_min= ((m_rnu+m_fin)*(m_rnu+m_fin)+Q2-mm_tar)/2/m_tar;
   
   // if the target is nucleon then nu_min=nu_max=(m_fin^2+Q^2-m_ini^2)/(2*m_ini)
-  if (E_BIN == 0 && P_Fermi == 0)
+  if (E_BIN == 0 && kFi == 0)
     return Range1D_t(nu_min, nu_min);
   
   // maximal energy transfer (see Eq. (9) of Ref.3)
   double nu_max = E_nu*Q2/(Q2+mm_lep)-(Q2+mm_lep)/4/E_nu;
   
   // now we find limits for bound nucleon
-  double E = TMath::Sqrt(P_Fermi*P_Fermi+mm_ini);
-  double b = (E-E_BIN)*(E-E_BIN)-P_Fermi*P_Fermi;
+  double E = TMath::Sqrt(kFi*kFi+mm_ini);
+  double b = (E-E_BIN)*(E-E_BIN)-kFi*kFi;
   double a = (Q2+mm_fin-b)*0.5;
   double tmp1 = a*(E-E_BIN);
-  double tmp2  = P_Fermi*TMath::Sqrt(a*a+Q2*b);
+  double tmp2  = kFi*TMath::Sqrt(a*a+Q2*b);
   // minimal and maximal energy transfer for bound nucleon (see Eqs. (11) of Ref. 3)
   double nu_1 = (tmp1-tmp2)/b;
   double nu_2 = (tmp1+tmp2)/b;
@@ -462,7 +468,7 @@ double SmithMonizUtils::vQES_SM_min(double Q2_min, double Q2_max) const
   const double EPS  = 1.0e-08;
   const double Delta= 1.0e-14;
    
-  if (E_BIN == 0 && P_Fermi == 0)
+  if (E_BIN == 0 && kFi == 0)
     return vQES_SM_lim(Q2_min).min;
   
   double F_MIN, Q2_0;
@@ -482,7 +488,7 @@ double SmithMonizUtils::vQES_SM_max(double Q2_min, double Q2_max) const
   const double EPS  = 1.0e-08;
   const double Delta= 1.0e-14;
      
-  if (E_BIN == 0 && P_Fermi == 0)
+  if (E_BIN == 0 && kFi == 0)
     return vQES_SM_lim(Q2_max).min;
   
   double F_MIN, Q2_0;
@@ -501,11 +507,11 @@ double SmithMonizUtils::vlim1_SM(double Q2) const
   // minimal energy transfer for scattering on nucleus (see Eq. (7) of Ref.3)
   double nu_min = ((m_rnu+m_fin)*(m_rnu+m_fin)+Q2-mm_tar)/(2*m_tar);
   
-  double E = sqrt(P_Fermi*P_Fermi+mm_ini);
-  double b = (E-E_BIN)*(E-E_BIN)-P_Fermi*P_Fermi;
+  double E = TMath::Sqrt(kFi*kFi+mm_ini);
+  double b = (E-E_BIN)*(E-E_BIN)-kFi*kFi;
   double a = (Q2+mm_fin-b)*0.5;
   // minimal energy transfer for bound nucleon (see Eqs. (11) of Ref. 3)
-  double nu_1  = (a*(E-E_BIN)-P_Fermi*TMath::Sqrt(a*a+Q2*b))/b;
+  double nu_1  = (a*(E-E_BIN)-kFi*TMath::Sqrt(a*a+Q2*b))/b;
   nu_min= TMath::Max(nu_min,nu_1);
   return nu_min;
 }
@@ -516,11 +522,11 @@ double SmithMonizUtils::vlim2_SM(double Q2) const
   // maximal energy transfer (see Eq. (9) of Ref.3) 
   double nu_max = E_nu*Q2/(Q2+mm_lep)-(Q2+mm_lep)/4/E_nu;
   
-  double E = sqrt(P_Fermi*P_Fermi+mm_ini);
-  double b = (E-E_BIN)*(E-E_BIN)-P_Fermi*P_Fermi;
+  double E = TMath::Sqrt(kFi*kFi+mm_ini);
+  double b = (E-E_BIN)*(E-E_BIN)-kFi*kFi;
   double a = 0.5*(Q2+mm_fin-b);
   // maximal energy transfer for bound nucleon (see Eqs. (11) of Ref. 3)
-  double nu_2 = (a*(E-E_BIN)+P_Fermi*TMath::Sqrt(a*a+Q2*b))/b;
+  double nu_2 = (a*(E-E_BIN)+kFi*TMath::Sqrt(a*a+Q2*b))/b;
   nu_max= TMath::Min(nu_max,nu_2);
   return -nu_max;
 }
@@ -532,9 +538,9 @@ Range1D_t SmithMonizUtils::kFQES_SM_lim(double Q2, double nu) const
   double c_f = (nu-E_BIN)/qv;
   double d_f = (E_BIN*E_BIN-2*nu*E_BIN-Q2+mm_ini-mm_fin)/(2*qv*m_ini);
   // minimal energy of initial nucleon (see Eq. (13) of Ref.3)
-  double Ef_min= TMath::Max(m_ini*(c_f*d_f+TMath::Sqrt(1.0-c_f*c_f+d_f*d_f))/(1.0-c_f*c_f), TMath::Sqrt(P_Fermi*P_Fermi+mm_ini)-nu);
-  double kF_min= P_Fermi!=0?TMath::Sqrt(TMath::Max(Ef_min*Ef_min-mm_ini,0.0)):0.;
-  double kF_max= P_Fermi;
+  double Ef_min= TMath::Max(m_ini*(c_f*d_f+TMath::Sqrt(1.0-c_f*c_f+d_f*d_f))/(1.0-c_f*c_f), TMath::Sqrt(kFi*kFi+mm_ini)-nu);
+  double kF_min= kFi!=0?TMath::Sqrt(TMath::Max(Ef_min*Ef_min-mm_ini,0.0)):0.;
+  double kF_max= kFi;
   Range1D_t R;
   if (kF_min<=kF_max)
     R = Range1D_t(kF_min,kF_max);
@@ -632,9 +638,29 @@ double SmithMonizUtils::GetBindingEnergy(void) const
   return E_BIN;
 }
 //____________________________________________________________________________
-double SmithMonizUtils::GetFermiMomentum(void) const
+double SmithMonizUtils::GetInitialFermiMomentum(void) const
 {
-  return P_Fermi;
+  return kFi;
+}
+//____________________________________________________________________________
+double SmithMonizUtils::GetFinalFermiMomentum(void) const
+{
+  return kFf;
+}
+//____________________________________________________________________________
+void SmithMonizUtils::SetBindingEnergy(double val)
+{
+    E_BIN = val;
+}
+//____________________________________________________________________________
+void SmithMonizUtils::SetInitialFermiMomentum(double val)
+{
+    kFi = val;
+}
+//____________________________________________________________________________
+void SmithMonizUtils::SetFinalFermiMomentum(double val)
+{
+    kFf = val;
 }
 //____________________________________________________________________________
 double SmithMonizUtils::GetTheta_k(double v, double qv) const

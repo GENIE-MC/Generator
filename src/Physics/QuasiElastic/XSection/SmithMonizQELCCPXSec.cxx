@@ -221,8 +221,6 @@ double SmithMonizQELCCPXSec::d3sQES_dQ2dvdkF_SM(const Interaction * interaction)
   double mm_ini  = m_ini*m_ini;
   double m_fin   = interaction->RecoilNucleon()->Mass();      //  Mass of final hadron or hadron system (GeV)
   double mm_fin  = m_fin*m_fin;
-  double m_tar   = target.Mass();                              //  Mass of target nucleus (GeV)
-  double mm_tar  = m_tar*m_tar;
   
   // One of the xsec terms changes sign for antineutrinos
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
@@ -259,12 +257,12 @@ double SmithMonizQELCCPXSec::d3sQES_dQ2dvdkF_SM(const Interaction * interaction)
   double c2_flux = kkF*(1 - cosT_p*cosT_p)*(1 - cosT_k*cosT_k);
     
   double k1 = fVud2*mm_ini*kPi;
-  double k2 = mm_lep/(2*mm_tar);
+  double k2 = mm_lep/2;
   double k7 = P_lep*cosT_lep;
 
-  double P_Fermi = sm_utils->GetFermiMomentum();
+  double P_Fermi = sm_utils->GetInitialFermiMomentum();
   double FV_SM   = 4.0*kPi/3*TMath::Power(P_Fermi, 3);
-  double factor  = k1*(m_tar*kF/(FV_SM*qv*TMath::Sqrt(b2_flux-c2_flux)))*SmithMonizUtils::rho(P_Fermi, 0.0, kF)*(1-SmithMonizUtils::rho(P_Fermi, 0.01, pF));
+  double factor  = k1*kF/(FV_SM*qv*TMath::Sqrt(b2_flux-c2_flux))*SmithMonizUtils::rho(P_Fermi, 0.0, kF)*(1-SmithMonizUtils::rho(P_Fermi, 0.01, pF));
 
   double a2      = kkF/mm_ini;
   double a3      = a2*cosT_p*cosT_p;
@@ -275,7 +273,7 @@ double SmithMonizQELCCPXSec::d3sQES_dQ2dvdkF_SM(const Interaction * interaction)
 
   double k3      = v/qv;
   double k4      = (3*a3-a2)/qqv;
-  double k5      = (a7-a6*k3)*m_tar/m_ini;
+  double k5      = (a7-a6*k3)/m_ini;
   
   // Calculate the QEL form factors
   fFormFactors.Calculate(interaction);
@@ -297,11 +295,11 @@ double SmithMonizQELCCPXSec::d3sQES_dQ2dvdkF_SM(const Interaction * interaction)
   double T_1     = 1.0*W_1+(a2-a3)*0.5*W_2;                              //Ref.[1], W_1
   double T_2     = ((a2-a3)*Q2/(2*qqv)+a4-k3*(a5-k3*a3))*W_2;            //Ref.[1], W_2
   double T_3     = k5*W_3;                                               //Ref.[1], W_8
-  double T_4     = mm_tar*(0.5*W_2*k4+1.0*W_4/mm_ini+a6*W_5/(m_ini*qv)); //Ref.[1], W_\alpha
-  double T_5     = k5*W_5+m_tar*(a5/qv-v*k4)*W_2;
+  double T_4     = 0.5*W_2*k4+1.0*W_4/mm_ini+a6*W_5/(m_ini*qv); //Ref.[1], W_\alpha
+  double T_5     = k5*W_5+(a5/qv-v*k4)*W_2;
 
-  double xsec    = kGF2*factor*((E_lep-k7)*(T_1+k2*T_4)/m_tar+(E_lep+k7)*T_2/(2*m_tar)
-                   +n_NT*T_3*((E_nu+E_lep)*(E_lep-k7)/(2*mm_tar)-k2)-k2*T_5)
+  double xsec    = kGF2*factor*((E_lep-k7)*(T_1+k2*T_4)+(E_lep+k7)*T_2/2
+                   +n_NT*T_3*((E_nu+E_lep)*(E_lep-k7)/2-k2)-k2*T_5)
                    *(kMw2/(kMw2+Q2))*(kMw2/(kMw2+Q2))/E_nu/kPi;
   return xsec;
 
@@ -540,7 +538,7 @@ const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interactio
      return fFinalLeptonPolarization;
   }
   
-  double P_Fermi = sm_utils->GetFermiMomentum();
+  double P_Fermi = sm_utils->GetInitialFermiMomentum();
   
   int d = fR.size();
   double a1(0), a2(0), a3(0), a4(0), a5(0), a6(0), a7(0);

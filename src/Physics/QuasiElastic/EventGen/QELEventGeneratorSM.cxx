@@ -179,7 +179,7 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
      
      Range1D_t rkF = sm_utils->kFQES_SM_lim(Q2, v);
      // rkF.max = Fermi momentum
-     kF = rnd->RndKine().Rndm()*sm_utils->GetFermiMomentum();
+     kF = rnd->RndKine().Rndm()*sm_utils->GetInitialFermiMomentum();
      if (kF < rkF.min)
      {
         continue;
@@ -473,7 +473,7 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction) cons
     const double logQ2min = TMath::Log(TMath::Max(rQ2.min, eps));
     const double logQ2max = TMath::Log(TMath::Min(rQ2.max, fQ2Min));
     Kinematics * kinematics = interaction->KinePtr();
-    const double pFmax = sm_utils->GetFermiMomentum();
+    const double pFmax = sm_utils->GetInitialFermiMomentum();
     // Now scan through kinematical variables Q2,v,kF
     for (int Q2_n=0; Q2_n <= N_Q2; Q2_n++)
     {
@@ -558,7 +558,7 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction, cons
      const double logQ2min = TMath::Log(fQ2Min);
      const double logQ2max = TMath::Log(rQ2.max);
      Kinematics * kinematics = interaction->KinePtr();
-     const double pFmax = sm_utils->GetFermiMomentum();
+     const double pFmax = sm_utils->GetInitialFermiMomentum();
      // Now scan through kinematical variables Q2,v,kF
      for (int Q2_n=0; Q2_n <= N_Q2; Q2_n++)
      {

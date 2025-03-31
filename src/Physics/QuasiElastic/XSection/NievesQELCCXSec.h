@@ -21,6 +21,8 @@
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Physics/QuasiElastic/XSection/QELUtils.h"
+#include "Physics/QuasiElastic/XSection/SmithMonizUtils.h"
+#include "Physics/QuasiElastic/XSection/NievesQELCCPXSec.h"
 
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
@@ -94,11 +96,14 @@ public:
 
 private:
   const XSecAlgorithmI * fModel;
+  const NievesQELCCPXSec * fXsec_model;
   const Interaction *    fInteraction;
+  mutable SmithMonizUtils * sm_utils;
+  Kinematics * fKinematics;
   double fRmax;
   double fEnu;
   double fml;
-  
+  double fml2;
 };
 
 } // gsl   namespace

@@ -24,7 +24,6 @@
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/Range1.h"
 #include "Framework/Numerical/GSLUtils.h"
-#include "Physics/QuasiElastic/XSection/NievesQELCCPXSec.h"
 
 
 using namespace genie;
@@ -98,13 +97,19 @@ genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E::d3XSec_dElepdCosThetalepdR_E(
        const XSecAlgorithmI * m, const Interaction * interaction, double  Rmax) :
   ROOT::Math::IBaseFunctionMultiDim(),
   fModel(m),
+  fXsec_model( dynamic_cast<const NievesQELCCPXSec*>(fModel) ),
   fInteraction(interaction),
   fRmax(Rmax)
 {  
   // Get kinematical parameters
+  AlgFactory * algf = AlgFactory::Instance();
+  sm_utils = const_cast<genie::SmithMonizUtils *>(dynamic_cast<const genie::SmithMonizUtils *>(algf->GetAlgorithm("genie::SmithMonizUtils","Default")));
   const InitialState & init_state = interaction -> InitState();
   fEnu = init_state.ProbeE(kRfHitNucRest);
   fml = interaction->FSPrimLepton()->Mass();
+  fml2 = fml*fml;
+  sm_utils->SetInteraction(interaction);
+  fKinematics = fInteraction->KinePtr();
 }
 genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E::~d3XSec_dElepdCosThetalepdR_E()
 {
@@ -116,23 +121,37 @@ unsigned int genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E::NDim(void) const
 }
 double genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E::DoEval(const double * xin) const
 {
+  // inputs:
+  //    normalized Q2 from 0 to 1
+  //    normalized v  from 0 to 1
+  //    normalized R  from 0 to 1
   // outputs:
-  //   differential cross section [1/GeV^3] for Resonance single pion production production
+  //   differential cross section [10^-38 cm^2]
   //
-  double El   = fml + (fEnu - fml)*xin[0];
-  double cost = -1 + 2*xin[1];
-  double R    = fRmax*xin[2];
+  double R = fRmax*xin[2];
+  double kFi, kFf;
+  fXsec_model->ModelNuclParams(fInteraction, R, kFi, kFf);
+  sm_utils->SetBindingEnergy(0);
+  sm_utils->SetInitialFermiMomentum(kFi);
+  sm_utils->SetFinalFermiMomentum(kFf);
   
-  double Pl   = TMath::Sqrt(El*El - fml*fml);
-  double sint = TMath::Sqrt(1 - cost*cost);
+  Range1D_t rQ2 = sm_utils->Q2QES_SM_lim();
+  double Q2     = (rQ2.max - rQ2.min)*xin[0] + rQ2.min;
+  Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
+  double v      = (rv.max - rv.min)*xin[1] + rv.min;
   
-  Kinematics * kinematics = fInteraction->KinePtr();
-  kinematics->SetFSLeptonP4(Pl*sint, 0, Pl*cost, El);
+  double El    = fEnu - v;
+  if (El < fml) return 0.0;
+  double Pl    = TMath::Sqrt(El*El - fml2);
+  double cosTl = (El - (Q2 + fml2)/2/fEnu)/Pl;
+  if (cosTl < -1.0 || cosTl > 1.0 ) return 0.0;
+  double sinTl = TMath::Sqrt(1 - cosTl*cosTl);
+  fKinematics->SetFSLeptonP4(Pl*sinTl, 0, Pl*cosTl, El);
   
-  const NievesQELCCPXSec * xsec_model = dynamic_cast<const NievesQELCCPXSec*>(fModel);
-  double xsec = xsec_model->IntegratedOverMomentum(fInteraction, R, 0);
+  double xsec = fXsec_model->IntegratedOverMomentum(fInteraction, R, 0);
   
-  double J = (fEnu - fml)*2*fRmax;
+  // Jacobian for transformation d/dEldcosT->d/dQ2dv
+  double J      = (rQ2.max - rQ2.min)*(rv.max - rv.min)*fRmax/2/fEnu/Pl; 
   
   return xsec*J/(1E-38 * units::cm2);
 }

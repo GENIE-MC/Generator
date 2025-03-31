@@ -64,7 +64,7 @@ public:
   bool   ValidProcess    (const Interaction * i) const;
   const  TVector3 & FinalLeptonPolarization (const Interaction* i) const;
   double IntegratedOverMomentum (const Interaction* i, double r, int mod) const;
-
+  void ModelNuclParams(const Interaction* interaction, double r, double & kFi, double & kFf) const;
   // Override the Algorithm::Configure methods to load configuration
   // data to private data members
   void Configure (const Registry & config);

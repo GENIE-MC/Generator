@@ -338,7 +338,11 @@ double NievesQELCCPXSec::Integral(const Interaction * in) const
   // let the cross section integrator do all of the work. It's smart
   // enough to handle free nucleon vs. nuclear targets, different
   // nuclear models (including the local Fermi gas model), etc.
-  if ( fXSecIntegrator->Id().Name() == "genie::NievesQELCCXSec" ) 
+  if ( fXSecIntegrator->Id().Name() == "genie::NewQELXSec" ) 
+  {
+    return fXSecIntegrator->Integrate(this, in);
+  }
+  else if ( fXSecIntegrator->Id().Name() == "genie::NievesQELCCXSec" ) 
   {
     Target * tgt = in->InitStatePtr()->TgtPtr();
     tgt->SetHitNucPosition(MaximalRadius(tgt) );
@@ -1195,10 +1199,11 @@ double NievesQELCCPXSec::IntegratedOverMomentum (const Interaction* interaction,
   TLorentzVector neutrinoMom = *tempNeutrino;
   delete tempNeutrino;
   TLorentzVector leptonMom = kinematics.FSLeptonP4();
- 
-  // Calculate Coulomb corrections
   double ml = interaction->FSPrimLepton()->Mass();
   double ml2 = ml*ml;
+
+ 
+  // Calculate Coulomb corrections
   double PlLocal = leptonMom.P();
 
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
@@ -1230,18 +1235,21 @@ double NievesQELCCPXSec::IntegratedOverMomentum (const Interaction* interaction,
 
   double q0Tilde = neutrinoMom.E() - leptonMom.E();
   
-  int nucl_pdg_ini = target.HitNucPdg();
   
-  double kFi     = fPauliBlocker->GetFermiMomentum(target, nucl_pdg_ini, r);
-  double kFf     = fPauliBlocker->GetFermiMomentum(target, interaction->RecoilNucleonPdg(), r);
+  double kFi, kFf;
+  ModelNuclParams(interaction, r, kFi, kFf);
+  
+  
   double EFi     = TMath::Hypot(M, kFi);
   double EFf     = TMath::Hypot(M, kFf);
   
+  int nucl_pdg_ini = target.HitNucPdg();
   bool tgtIsNucleus = target.IsNucleus();
   int A = target.A();
   int Z = target.Z();
   int N = target.N();
   bool hitNucIsProton = pdg::IsProton( nucl_pdg_ini );
+  
   
   // This part of the code is strictly in accordance with the original Nieves' paper
   double Mi = target.Mass();
@@ -1374,11 +1382,12 @@ double NievesQELCCPXSec::IntegratedOverMomentum (const Interaction* interaction,
   double qv2 = q4.Vect().Mag2();
   double qv  = TMath::Sqrt(qv2);
   
-  double W1 = Wxx/2/M;
-  double W2 = (W00 + Wxx + v2/qv2*(Wzz - Wxx) - 2*v/qv*ReW0z)/2/M;
-  double W3 = -ImWxy/qv;
-  double W4 = M/2/qv2*(Wzz - Wxx);
-  double W5 = (ReW0z - v/qv*(Wzz - Wxx))/qv;
+  // Naumov definitions
+  double W1 = Wxx;
+  double W2 = W00 + Wxx + v2/qv2*(Wzz - Wxx) - 2*v/qv*ReW0z;
+  double W3 = -2*ImWxy/qv;
+  double W4 = (Wzz - Wxx)/qv2;
+  double W5 = 2*(ReW0z - v/qv*(Wzz - Wxx))/qv;
 
   double Ev = neutrinoMom.E();
   double El = leptonMom.E();
@@ -1386,19 +1395,19 @@ double NievesQELCCPXSec::IntegratedOverMomentum (const Interaction* interaction,
   double cost = TMath::Cos( neutrinoMom.Angle(leptonMom.Vect()) );
   double sint = TMath::Sqrt(1 - cost*cost);
   
-  double auxm  = (El - Pl*cost)/2/M;
-  double auxp  = (El + Pl*cost)/2/M;
-  double aux1m = (Pl - El*cost)/2/M;
-  double aux1p = (Pl + El*cost)/2/M;
-  double aux1  = ml2/2/M2;
-  double aux2  = (Ev + El)/M;
+  double auxm  = (El - Pl*cost)/2;
+  double auxp  = (El + Pl*cost)/2;
+  double aux1m = (Pl - El*cost)/2;
+  double aux1p = (Pl + El*cost)/2;
+  double aux1  = ml2/2;
+  double aux2  = (Ev + El);
   
   if (mod == 2) return sign*(2*aux1m*(W1 - aux1*W4) + aux1p*W2 - sign*(aux2*aux1m + aux1*cost)*W3 - aux1*cost*W5); //PL*R
-  if (mod == 3) return sign*ml*sint*(2*W1 - W2 -sign*Ev*W3/M - ml2*W4/M2 + El*W5/M)/2/M;  //PP*R
+  if (mod == 3) return sign*ml*sint*(2*W1 - W2 -sign*Ev*W3 - ml2*W4 + El*W5)/2;  //PP*R
   double R = 2*auxm*(W1 + aux1*W4) + auxp*W2 - sign*(aux2*auxm - aux1)*W3 - aux1*W5;
   if (mod == 1) return R;
   
-  double extrafactor  = kGF2*fCos8c2*TMath::Sq(kMw2/(kMw2 - q4.Mag2() ) )/El;
+  double extrafactor  = kGF2*fCos8c2*TMath::Sq(kMw2/(kMw2 - q4.Mag2() ) )/El/4/kPi2;
   
   // Calculate xsec
   double xsec = extrafactor*R;
@@ -1414,3 +1423,11 @@ double NievesQELCCPXSec::IntegratedOverMomentum (const Interaction* interaction,
   
 }
 //___________________________________________________________________________________
+void NievesQELCCPXSec::ModelNuclParams(const Interaction* interaction, double r, double & kFi, double & kFf) const
+{
+  const InitialState & init_state = interaction -> InitState();
+  const Target & target = init_state.Tgt();
+  int nucl_pdg_ini = target.HitNucPdg();
+  kFi     = fPauliBlocker->GetFermiMomentum(target, nucl_pdg_ini, r);
+  kFf     = fPauliBlocker->GetFermiMomentum(target, interaction->RecoilNucleonPdg(), r);
+}
