@@ -29,7 +29,7 @@ gsl-relative-tolerance-2D    double   Yes        required relative tolerance (er
     <param type="int"    name = "gsl-rule">                              3  </param>
     <param type="string" name = "gsl-integration-type-2D">        adaptive  </param>
     <param type="int"    name = "gsl-max-eval">                     100000  </param>
-    <param type="int"    name = "gsl-min-eval">                        7500 </param>
+    <param type="int"    name = "gsl-min-eval">                       7500  </param>
     <param type="double" name = "gsl-relative-tolerance-2D">          1e-5  </param>
   </param_set>
   
