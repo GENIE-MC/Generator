@@ -398,9 +398,10 @@ void NievesQELCCPXSec::Configure(string config)
 void NievesQELCCPXSec::LoadConfig(void)
 {
   bool good_config = true ;
-  double thc;
-  GetParam( "CabibboAngle", thc ) ;
-  fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
+
+  double Vud;
+  GetParam( "CKM-Vud", Vud ) ;
+  fCos8c2 = TMath::Power( Vud, 2 );
   
   // Do precise calculation of lepton polarization
   GetParamDef( "PreciseLeptonPol", fIsPreciseLeptonPolarization, false ) ;

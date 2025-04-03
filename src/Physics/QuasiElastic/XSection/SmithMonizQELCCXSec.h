@@ -33,6 +33,7 @@
 #define _SMITH_MONIZ_QEL_XSEC_H_
 
 #include <Math/IFunction.h>
+#include <Math/AdaptiveIntegratorMultiDim.h>
 
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Physics/QuasiElastic/XSection/SmithMonizUtils.h"

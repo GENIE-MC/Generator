@@ -92,7 +92,7 @@ double SmithMonizQELCCXSec::Integrate(
   {
      Interaction * interaction = new Interaction(*in);
      sm_utils->SetInteraction(in);
-     if (interaction->InitState().ProbeE(kRfLab)<sm_utils->E_nu_thr_SM()) 
+     if (interaction->InitState().ProbeE(kRfLab) < sm_utils->E_nu_thr_SM()) 
      {
         return 0;
      }
@@ -100,18 +100,22 @@ double SmithMonizQELCCXSec::Integrate(
      interaction->SetBit(kISkipKinematicChk);
      double xsec = 0;
 
+     utils::gsl::d2Xsec_dQ2dv func(model, interaction);
+     ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType2D);
+     ROOT::Math::IntegratorMultiDim ig(ig_type, 0, fGSLRelTol2D, fGSLMaxEval);
+     if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) 
+     {
+       ROOT::Math::AdaptiveIntegratorMultiDim * cast = dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim*>( ig.GetIntegrator() );
+       assert(cast);
+       cast->SetMinPts(fGSLMinEval);
+     }
+     ig.SetFunction(func);
 
-     ROOT::Math::IBaseFunctionMultiDim * func = new utils::gsl::d2Xsec_dQ2dv(model, interaction);
      double kine_min[2] = { 0, 0};
      double kine_max[2] = { 1, 1};
 
-     ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType2D);
+     xsec = ig.Integral(kine_min, kine_max)*(1E-38 * units::cm2);
 
-     double abstol = 0; //We mostly care about relative tolerance.
-     ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol2D, fGSLMaxEval);
-
-     xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
-     delete func;
      delete interaction;
 
      return xsec;
@@ -143,7 +147,7 @@ void SmithMonizQELCCXSec::LoadConfig(void)
 
   // Get GSL integration type & relative tolerance
   GetParamDef( "gsl-integration-type", fGSLIntgType, string("gauss") );
-  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 1e-3 );
+  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 1e-5 );
   int max_size_of_subintervals;
   GetParamDef( "gsl-max-size-of-subintervals", max_size_of_subintervals, 40000);
   fGSLMaxSizeOfSubintervals = (unsigned int) max_size_of_subintervals;
@@ -152,8 +156,11 @@ void SmithMonizQELCCXSec::LoadConfig(void)
   fGSLRule = (unsigned int) rule;
   if (fGSLRule>6) fGSLRule=3;
   GetParamDef( "gsl-integration-type-2D", fGSLIntgType2D, string("adaptive") );
-  GetParamDef( "gsl-relative-tolerance-2D", fGSLRelTol2D, 1e-7);
-  GetParamDef( "gsl-max-eval", fGSLMaxEval, 1000000000);
+  GetParamDef( "gsl-relative-tolerance-2D", fGSLRelTol2D, 1e-5);
+  GetParamDef( "gsl-max-eval", fGSLMaxEval, 100000);
+  int min;
+  GetParamDef( "gsl-min-eval", min, 7500 ) ;
+  fGSLMinEval  = static_cast<unsigned int>( min );
 
   sm_utils = const_cast<genie::SmithMonizUtils *>(
                dynamic_cast<const genie::SmithMonizUtils *>(

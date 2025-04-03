@@ -77,8 +77,6 @@ public:
         //! to build the fragmentation function from configuration data
         void Configure(const Registry & config);
         void Configure(string config);
-        
-double QEL_EnuMin_SM(double E_nu) const;
 
 private:
         class Functor1D
@@ -115,7 +113,7 @@ private:
         };
 
         void   LoadConfig (void);
- //       double QEL_EnuMin_SM(double E_nu) const;
+        double QEL_EnuMin_SM(double E_nu) const;
         double Q2lim1_SM(double Q2, double Enu) const;
         double Q2lim2_SM(double Q2) const;
         void DMINFC(Functor1D &F, double A,double B, double EPS, double DELTA, double &X, double &Y, bool &LLM) const;

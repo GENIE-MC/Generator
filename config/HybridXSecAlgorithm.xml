@@ -271,7 +271,6 @@ XSecAlg@Interaction=XX alg      Yes        Algorithm to use to handle interactio
   </param_set>
   
   <param_set name="SmithMoniz-QEL">
-    <!-- Use the SuSAv2 CCQE model for complex nuclear targets (default) -->
     <param type="alg" name="DefaultXSecAlg"> genie::SmithMonizQELCCPXSec/Dipole </param>
     <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
     <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
@@ -289,7 +288,6 @@ XSecAlg@Interaction=XX alg      Yes        Algorithm to use to handle interactio
   </param_set>
   
   <param_set name="SmithMonizRunningMA-QEL">
-    <!-- Use the SuSAv2 CCQE model for complex nuclear targets (default) -->
     <param type="alg" name="DefaultXSecAlg"> genie::SmithMonizQELCCPXSec/RunningMA </param>
     <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
     <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
