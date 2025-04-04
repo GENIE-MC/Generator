@@ -1408,6 +1408,7 @@ double NievesQELCCPXSec::IntegratedOverMomentum (const Interaction* interaction,
   double R = 2*auxm*(W1 + aux1*W4) + auxp*W2 - sign*(aux2*auxm - aux1)*W3 - aux1*W5;
   if (mod == 1) return R;
   
+  // factor kPi2 comes from above definition of b; coloumb corrections factor also is taken into account
   double extrafactor  = kGF2*fCos8c2*TMath::Sq(kMw2/(kMw2 - q4.Mag2() ) )/El/4/kPi2;
   
   // Calculate xsec
