@@ -77,6 +77,10 @@ private:
   const QELFormFactorsModelI * fFormFactorsModel; ///<
   const XSecIntegratorI *      fXSecIntegrator;   ///<
   double                       fCos8c2;           ///< cos^2(cabibbo angle)
+  
+  string                       f1DimIntgType;      ///< Type of 1D integrator from NievesQELCCXSec config
+  double                       f1DimRelTol;        ///< Relative tolerance for 1D integrator from NievesQELCCXSec config
+  unsigned int                 f1DimMaxEval;       ///< Number of max evaluations for 1D integrator from NievesQELCCXSec config              
 
   double                       fXSecCCScale;        ///< external xsec scaling factor for CC
   double                       fXSecNCScale;        ///< external xsec scaling factor for NC

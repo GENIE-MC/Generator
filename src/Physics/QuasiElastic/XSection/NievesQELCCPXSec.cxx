@@ -513,6 +513,14 @@ void NievesQELCCPXSec::LoadConfig(void)
 
   // Scaling factor for the Coulomb potential
   GetParamDef( "CoulombScale", fCoulombScale, 1.0 );
+  
+
+  AlgFactory * algf = AlgFactory::Instance();
+  NievesQELCCXSec* nvi = dynamic_cast<genie::NievesQELCCXSec*>(algf->AdoptAlgorithm("genie::NievesQELCCXSec", "Default"));
+  f1DimIntgType = nvi->Get1DimIntgType();
+  f1DimRelTol = nvi->Get1DimRelTol();
+  f1DimMaxEval = nvi->Get1DimMaxEval();
+  
 }
 //___________________________________________________________________________
 void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
@@ -825,11 +833,8 @@ double NievesQELCCPXSec::vcr(const Target * target, double Rcurr) const
     int Z = target->Z();
     
     ROOT::Math::IBaseFunctionOneDim * func = new utils::gsl::wrap::NievesQELvcrIntegrand(Rcurr,A,Z);
-    const NievesQELCCXSec * integrator = dynamic_cast<const NievesQELCCXSec*>(fXSecIntegrator);
-    ROOT::Math::IntegrationOneDim::Type ig_type = utils::gsl::Integration1DimTypeFromString( integrator->Get1DimIntgType() );
-    double reltol = integrator->Get1DimRelTol();
-    unsigned int nmaxeval = integrator->Get1DimMaxEval();
-    ROOT::Math::Integrator ig(*func, ig_type, 0, reltol, nmaxeval);
+    ROOT::Math::IntegrationOneDim::Type ig_type = utils::gsl::Integration1DimTypeFromString( f1DimIntgType );
+    ROOT::Math::Integrator ig(*func, ig_type, 0, f1DimRelTol, f1DimMaxEval);
     double result = ig.Integral(0, Rmax);
     delete func;
 
