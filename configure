@@ -96,11 +96,12 @@ if(-e $BANNER_FILE) {
   close(BANNER);
 }
 
-# Check that $ROOTSYS is set
+# Check that ROOT can be seen
 #
-$ROOTSYS = $ENV{'ROOTSYS'};
-die ("*** Error *** The ROOTSYS environmental variable is not defined. Is ROOT installed?")
-unless defined $ROOTSYS;
+`hash root-config`;
+$HAVE_ROOT_CONFIG = $?;
+die ("*** Error *** Cannot find root-config. Is ROOT installed?")
+unless $HAVE_ROOT_CONFIG == 0;
 
 # Check whether ROOT itself was build with GSL enabled
 # (GENIE uses GSL via ROOT's MathMore library.)
