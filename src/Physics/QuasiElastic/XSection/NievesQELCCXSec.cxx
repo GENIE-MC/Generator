@@ -43,6 +43,8 @@ NievesQELCCXSec::NievesQELCCXSec(std::string config) : XSecIntegratorI("genie::N
 //____________________________________________________________________________
 double NievesQELCCXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in) const
 {
+    if(! model->ValidProcess(in)) return 0;
+    
     Target * tgt = in->InitStatePtr()->TgtPtr();
     double Rmax =  tgt->HitNucPosition();
     utils::gsl::d3XSec_dElepdCosThetalepdR_E func(model, in, Rmax ) ; 
@@ -134,6 +136,8 @@ double genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E::DoEval(const double * xi
   sm_utils->SetBindingEnergy(0);
   sm_utils->SetInitialFermiMomentum(kFi);
   sm_utils->SetFinalFermiMomentum(kFf);
+  
+  if (fEnu < sm_utils->E_nu_thr_SM()) return 0;
   
   Range1D_t rQ2 = sm_utils->Q2QES_SM_lim();
   double Q2     = (rQ2.max - rQ2.min)*xin[0] + rQ2.min;
