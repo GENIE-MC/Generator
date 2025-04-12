@@ -636,24 +636,27 @@ std::complex<double> NievesQELCCPXSec::LindhardNuclear(double q0, double dq, dou
     if (fLindhardFunction == "CJP46")
     {
         // Ref.4, Eqs.27-29 
-        double v = q0*M/kF/kF;
-        double q = dq/kF;
-        double q2 = q*q;
-        double auxm = v/q - q/2;
-        double auxp = v/q + q/2;
-        double auxm2 = auxm*auxm;
-        double auxp2 = auxp*auxp;
-        double ReUnuc =  M*kF/kPi2*(-1 + ( (1 - auxm2)*TMath::Log( TMath::Abs( (auxm + 1)/(auxm - 1) ) ) -
-                                        (1 - auxp2)*TMath::Log( TMath::Abs( (auxp + 1)/(auxp - 1) ) )  )/2/q);
-        
-        double uplim  = q + q2/2;
-        double lowlim = q - q2/2;                                   
+        double ReUnuc = 0;
         double ImUnuc = 0;
-        if ((q > 2 && uplim >= v && v >= -lowlim ) || (q < 2 && uplim >= v && v >= lowlim) ) 
-            ImUnuc = -M*kF*(1 - auxm2 )/2/kPi/q;
-        else if (q < 2 && 0 <= v && v <= lowlim)
-            ImUnuc = -M*kF*v/kPi/q; 
+        if (kF != 0)
+        {
+          double v = q0*M/kF/kF;
+          double q = dq/kF;
+          double q2 = q*q;
+          double auxm = v/q - q/2;
+          double auxp = v/q + q/2;
+          double auxm2 = auxm*auxm;
+          double auxp2 = auxp*auxp;
+          ReUnuc =  M*kF/kPi2*(-1 + ( (1 - auxm2)*TMath::Log( TMath::Abs( (auxm + 1)/(auxm - 1) ) ) -
+                                      (1 - auxp2)*TMath::Log( TMath::Abs( (auxp + 1)/(auxp - 1) ) )  )/2/q);
         
+          double uplim  = q + q2/2;
+          double lowlim = q - q2/2;
+          if ((q > 2 && uplim >= v && v >= -lowlim ) || (q < 2 && uplim >= v && v >= lowlim) )
+              ImUnuc = -M*kF*(1 - auxm2 )/2/kPi/q;
+          else if (q < 2 && 0 <= v && v <= lowlim)
+              ImUnuc = -M*kF*v/kPi/q;
+        }
         return std::complex(ReUnuc, ImUnuc);
     }
     
@@ -697,6 +700,7 @@ std::complex<double> NievesQELCCPXSec::LindhardDelta(double q0, double dq, doubl
     
     if (fLindhardFunction == "CJP46")
     {
+        if (kF == 0) return 0.*1i;
         // Ref.4, Eq.30-31
         const double fs2 = 4*kPi*0.36;
         if(s > aux3)
@@ -1419,12 +1423,6 @@ double NievesQELCCPXSec::IntegratedOverMomentum (const Interaction* interaction,
   // Calculate xsec
   double xsec = extrafactor*R;
   xsec *= fXSecCCScale ;
-
-  // Number of scattering centers in the target
-  int nucpdgc = target.HitNucPdg();
-  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
-
-  xsec *= NNucl; // nuclear xsec
 
   return xsec;
   

@@ -60,6 +60,7 @@ double NievesQELCCXSec::Integrate(const XSecAlgorithmI* model, const Interaction
     double kine_min[3] = { 0., 0., 0.};
     double kine_max[3] = { 1., 1., 1.};
     double xsec = ig.Integral(kine_min, kine_max)*(1E-38 * units::cm2);
+    if (ig.Status() != 0) std::cout << "Status = " << ig.Status() << "\n";
     return xsec;
 }
 //____________________________________________________________________________
@@ -157,7 +158,7 @@ double genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E::DoEval(const double * xi
   // Jacobian for transformation d/dEldcosT->d/dQ2dv
   double J      = (rQ2.max - rQ2.min)*(rv.max - rv.min)*fRmax/2/fEnu/Pl; 
   
-  return xsec*J/(1E-38 * units::cm2);
+  return xsec*J*units::fm3/(1E-38 * units::cm2);
 }
 ROOT::Math::IBaseFunctionMultiDim *
 genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E::Clone() const

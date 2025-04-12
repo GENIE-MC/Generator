@@ -23,13 +23,13 @@ gsl-1dim-relative-tolerance   double    Yes       relative tolerance of integrat
 
   <param_set name="Default"> 
     <param type="string" name = "gsl-integration-type"> adaptive </param>
-    <param type="double" name = "gsl-relative-tolerance"> 1e-5 </param>
+    <param type="double" name = "gsl-relative-tolerance"> 1e-4 </param>
     <param type="int"    name = "gsl-min-eval"> 7500 </param>
-    <param type="int"    name = "gsl-max-eval"> 100000 </param>
+    <param type="int"    name = "gsl-max-eval"> 1000000 </param>
     
     <param type="string" name = "gsl-1dim-integration-type"> adaptive </param>
-    <param type="double" name = "gsl-1dim-relative-tolerance"> 1e-5 </param>
-    <param type="int"    name = "gsl-1dim-max-eval"> 100000 </param>
+    <param type="double" name = "gsl-1dim-relative-tolerance"> 1e-4 </param>
+    <param type="int"    name = "gsl-1dim-max-eval"> 1000000 </param>
     
   </param_set>
 
