@@ -52,7 +52,7 @@ RmaxMode                             string   Yes        Method to use to comput
     <param type="string" name = "RmaxMode"> VertexGenerator </param>
     
     <param type="bool" name="PreciseLeptonPol"> true  </param>
-    <param type="string" name = "LindhardFunction"> CJP46 </param>
+    <param type="string" name = "LindhardFunction"> OriginalByNieves </param>
 
     <!-- Use the same Rmax as in Nieves' original paper
       <param type="string" name = "RmaxMode"> Nieves </param>

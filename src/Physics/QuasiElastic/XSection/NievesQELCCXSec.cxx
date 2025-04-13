@@ -60,7 +60,6 @@ double NievesQELCCXSec::Integrate(const XSecAlgorithmI* model, const Interaction
     double kine_min[3] = { 0., 0., 0.};
     double kine_max[3] = { 1., 1., 1.};
     double xsec = ig.Integral(kine_min, kine_max)*(1E-38 * units::cm2);
-    if (ig.Status() != 0) std::cout << "Status = " << ig.Status() << "\n";
     return xsec;
 }
 //____________________________________________________________________________
@@ -80,17 +79,17 @@ void NievesQELCCXSec::LoadConfig(void)
 {
   // Get GSL integration type & relative tolerance
   GetParamDef( "gsl-integration-type", fGSLIntgType, std::string("adaptive") );
-  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 1e-5 );
+  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 1e-4 );
   int max;
-  GetParamDef( "gsl-max-eval", max, 100000 );
+  GetParamDef( "gsl-max-eval", max, 1000000 );
   fGSLMaxEval  = static_cast<unsigned int>( max );
   int min;
   GetParamDef( "gsl-min-eval", min, 7500 ) ;
   fGSLMinEval  = static_cast<unsigned int>( min );
   
   GetParamDef( "gsl-1dim-integration-type", fGSL1DimIntgType, std::string("adaptive") );
-  GetParamDef( "gsl-1dim-relative-tolerance", fGSL1DimRelTol, 1e-5 );
-  GetParamDef( "gsl-1dim-max-eval", max, 100000 );
+  GetParamDef( "gsl-1dim-relative-tolerance", fGSL1DimRelTol, 1e-4 );
+  GetParamDef( "gsl-1dim-max-eval", max, 1000000 );
   fGSL1DimMaxEval  = static_cast<unsigned int>( max );
 }
 //____________________________________________________________________________
