@@ -1138,14 +1138,10 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   
   double Rmax = MaximalRadius(&target);
   if (Rmax <= 0) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
-
-  const NievesQELCCXSec * integrator = dynamic_cast<const NievesQELCCXSec*>(fXSecIntegrator);
-  ROOT::Math::IntegrationOneDim::Type ig_type = utils::gsl::Integration1DimTypeFromString( integrator->Get1DimIntgType() );
-  double reltol = integrator->Get1DimRelTol();
-  unsigned int nmaxeval = integrator->Get1DimMaxEval();
   
+  ROOT::Math::IntegrationOneDim::Type ig_type = utils::gsl::Integration1DimTypeFromString( f1DimIntgType );
   ROOT::Math::IBaseFunctionOneDim * func = new utils::gsl::wrap::NievesQELSmithMonizIntegrand(this, interaction, 1);
-  ROOT::Math::Integrator ig(*func, ig_type, 0, reltol, nmaxeval);
+  ROOT::Math::Integrator ig(*func, ig_type, 0, f1DimRelTol, f1DimMaxEval);
   double R = ig.Integral(0, Rmax);
   delete func;
   if (R == 0)
