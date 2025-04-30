@@ -191,6 +191,7 @@ Range1D_t genie::utils::gsl::dXSec_dEDNu_E::IntegrationRange() const
   const double D = sqrt(B*B - A*C);
   // Range1D_t DNuEnergy((B - D)/A, (B + D)/A);
   // 12_04_2025 applying an upper bound on Ttarget at 1 GeV^2/2M --> lower bound on the integration range
+  //            Otherwise the integral does funny things. 
   const double Tmax = std::min(E - ((B - D) / A), (1. / (2 * M)));
   Range1D_t DNuEnergy(E - Tmax, (B + D) / A);
   return DNuEnergy;
