@@ -410,9 +410,9 @@ SOMINF        =
 EXTRALIBS     =
 endif
 
-# MAC OS X with gcc or clang, 64-bit mode
+# MAC OS X with gcc or clang, 64-bit mode, including arm
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-ifeq ($(strip $(ARCH)),macosx64)
+ifneq (,$(filter $(strip $(ARCH)),macosx64 macosxarm64))
 OSX_VERSION = $(shell sw_vers | grep 'ProductVersion:' | grep -o '[0-9]*\.[0-9]*\.[0-9]*')
 OSXVRS_MAJ  = $(shell awk 'BEGIN {\
 		str="$(OSX_VERSION)"; split(str, tk, "."); print tk[1]}')
