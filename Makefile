@@ -74,11 +74,11 @@ framework: FORCE
 	@echo " "
 	@echo "** Building GENIE framework..."
 	cd ${GENIE}/src/Framework && \
+	cd Messenger       &&  $(MAKE) && cd .. && \
 	cd Algorithm       &&  $(MAKE) && cd .. && \
 	cd EventGen        &&  $(MAKE) && cd .. && \
 	cd GHEP            &&  $(MAKE) && cd .. && \
 	cd Interaction     &&  $(MAKE) && cd .. && \
-	cd Messenger       &&  $(MAKE) && cd .. && \
 	cd Ntuple          &&  $(MAKE) && cd .. && \
 	cd Numerical       &&  $(MAKE) && cd .. && \
 	cd ParticleData    &&  $(MAKE) && cd .. && \
