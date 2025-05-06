@@ -12,6 +12,7 @@ DISModel                    alg     no    It must be QPMDISPXSec
 
 UseCache                    bool    Yes   Cache suppression factors?          true
 Wcut                        double  no                                        CommonParam[NonResBackground]
+Wcutmin                     double  Yes                                       0
 -->
 
 <alg_conf>
@@ -20,9 +21,10 @@ Wcut                        double  no                                        Co
 
     <param type="string" name="CommonParam"> NonResBackground </param>
 
-    <param type="alg" name="DISModel">   genie::QPMDISPXSec/Default      </param>
+    <param type="alg" name="DISModel">   genie::QPMDISPXSec/Default  </param>
     <param type="alg" name="Hadronizer"> genie::AGKYLowW2019/Default </param>
     <param type="double" name="NRB-EM-XSecScale"> 1. </param>
+    <param type="double" name="Wcutmin"> 0. </param>
   </param_set>
 
 </alg_conf>
