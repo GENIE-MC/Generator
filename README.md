@@ -53,10 +53,10 @@ For more information, visit http://www.genie-mc.org
 - Luis Alvarez-Ruso (*IFIC*)
 - Costas Andreopoulos (+) (*Liverpool*)
 - Adi Ashkenazi (*Tel Aviv*)
-- Joshua Barrow (*Tel Aviv; MIT*)
+- Joshua Barrow (*Minnesota*)
 - Steve Dytman (*Pittsburgh*)
 - Hugh Gallagher (*Tufts*)
-- Alfonso Andres Garcia Soto (*Harvard and IFIC*)
+- Alfonso Andres Garcia Soto (*IFIC*)
 - Steven Gardiner (*Fermilab*)
 - Matan Goldenberg (*Tel Aviv*)
 - Robert Hatcher (*Fermilab*)
@@ -72,10 +72,7 @@ For more information, visit http://www.genie-mc.org
 - Gabriel Perdue (*Fermilab*)
 - Komninos-John Plows (*Oxford*)
 - Marco Roda (*Liverpool*)
-- Beth Slater (*Liverpool*)
 - Alon Sportes (*Tel Aviv*)
-- Noah Steinberg (*Fermilab*)
-- Vladyslav Syrotenko (*Tufts*)
 - Júlia Tena Vidal (*Tel Aviv*)
 - Jeremy Wolcott (*Tufts*)
 - Qiyu Yan (*UCAS and Warwick*)
@@ -98,6 +95,9 @@ Past authors:
 - Libo Jiang (*Pittsburgh*)
 - Rhiannon Jones (*Liverpool*)
 - Donna Naples (*Pittsburgh*)
+- Beth Slater (*Liverpool*)
+- Noah Steinberg (*Fermilab*)
+- Vladyslav Syrotenko (*Tufts*)
 - Julia Yarba (*Fermilab*) 
 
 
@@ -236,6 +236,24 @@ Finally, if you used any of the new model configurations and tunes provided in t
     number = "11",
     pages = "112001",
     year = "2022"
+}
+</pre>
+
+<pre>
+@article{GENIE:2024ufm,
+    author = "Li, Weijun and others",
+    collaboration = "GENIE",
+    title = "{First combined tuning on transverse kinematic imbalance data with and without pion production constraints}",
+    eprint = "2404.08510",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ex",
+    reportNumber = "FERMILAB-PUB-24-0122-CSAID-PPD",
+    doi = "10.1103/PhysRevD.110.072016",
+    journal = "Phys. Rev. D",
+    volume = "110",
+    number = "7",
+    pages = "072016",
+    year = "2024"
 }
 </pre>
 
