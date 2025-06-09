@@ -1,17 +1,12 @@
 # The GENIE Event Generator
 
-The GENIE Generator product is an advanced physics simulation used by nearly all modern neutrino experiments and 
-it plays a key role in the exploitation of neutrino data. This product implements a modern software framework for 
-MC event generators and includes state-of-the-art physics modules for neutrino or charged-lepton interactions 
-with nucleons or nuclei, and for the simulation of nucleon decay, n-bar oscillation and boosted dark matter. 
-It captures the latest results of the GENIE global analysis of neutrino scattering data and includes several tunes 
-that were produced using the proprietary Comparisons and Tuning products.
-The GENIE physics model is universal and comprehensive:  It handles all neutrinos and targets, and all processes 
-relevant from MeV to PeV energy scales. The Generator includes several tools (flux drivers, detector geometry 
-navigation drivers, specialized event generation apps, event reweighting engines) to simulate complex experimental 
-setups in full detail and to support generator-related analysis tasks. 
+The GENIE Generator is a leading simulation tool used by nearly all modern neutrino experiments. 
+It features a modular framework with state-of-the-art physics for neutrino and charged-lepton interactions, 
+and several BSM channels. It incorporates results from GENIE’s global data analysis and includes multiple tuned models. 
+GENIE supports all neutrino types, targets, and energy scales from MeV to PeV, 
+and provides tools for flux handling, geometry, event generation, and reweighting.
 
-For more information, visit http://www.genie-mc.org
+For more information, visit [http://www.genie-mc.org](http://www.genie-mc.org) | [https://genie-mc.github.io](https://genie-mc.github.io).
 
 <pre>
                                                    .oooooo.    oooooooooooo ooooo      ooo ooooo oooooooooooo  
@@ -48,213 +43,44 @@ For more information, visit http://www.genie-mc.org
                            NmddhyyyssssyyyhdmmNNNmhhhyyyyhhddmN                                                
 </pre>
 
-## Current authors:
+## Authors:
 
-- Luis Alvarez-Ruso (*IFIC*)
-- Costas Andreopoulos (+) (*Liverpool*)
-- Adi Ashkenazi (*Tel Aviv*)
-- Joshua Barrow (*Minnesota*)
-- Steve Dytman (*Pittsburgh*)
-- Hugh Gallagher (*Tufts*)
-- Alfonso Andres Garcia Soto (*IFIC*)
-- Steven Gardiner (*Fermilab*)
-- Matan Goldenberg (*Tel Aviv*)
-- Robert Hatcher (*Fermilab*)
-- Or Hen (*MIT*)
-- Igor Kakorin (*JINR*)
-- Konstantin Kuzmin (*ITEP and JINR*)
-- Weijun Li (*Oxford*)
-- Liang Liu (*Fermilab*)
-- Xianguo Lu (*Warwick*)
-- Anselmo Meregaglia (*Bordeaux, CNRS/IN2P3*)
-- Vadim Naumov (*JINR*)
-- Afroditi Papadopoulou (*Argonne*)
-- Gabriel Perdue (*Fermilab*)
-- Komninos-John Plows (*Oxford*)
-- Marco Roda (*Liverpool*)
-- Alon Sportes (*Tel Aviv*)
-- Júlia Tena Vidal (*Tel Aviv*)
-- Jeremy Wolcott (*Tufts*)
-- Qiyu Yan (*UCAS and Warwick*)
+Luis Alvarez-Ruso (*IFIC*), Costas Andreopoulos (*Liverpool*), Adi Ashkenazi (*Tel Aviv*), Joshua Barrow (*Minnesota*), Steve Dytman (*Pittsburgh*), Hugh Gallagher (*Tufts*), Alfonso Andres Garcia Soto (*IFIC*), Steven Gardiner (*Fermilab*), Matan Goldenberg (*Tel Aviv*), Robert Hatcher (*Fermilab*), Or Hen (*MIT*), Igor Kakorin (*JINR*), Konstantin Kuzmin (*ITEP and JINR*), Liang Liu (*Fermilab*), Xianguo Lu (*Warwick*), Anselmo Meregaglia (*Bordeaux, CNRS/IN2P3*), Vadim Naumov (*JINR*), Afroditi Papadopoulou (*Argonne*), Gabriel Perdue (*Fermilab*), Komninos-John Plows (*Oxford*), Marco Roda (*Liverpool*), Alon Sportes (*Tel Aviv*), Júlia Tena Vidal (*Tel Aviv*), Jeremy Wolcott (*Tufts*), Qiyu Yan (*UCAS and Warwick*)
 
----
-(+) Corresponding Author:
+**Past authors:** Christopher Barry (*Liverpool*), Steve Dennis (*Liverpool*), Walter Giele (*Fermilab*), Timothy Hobbs (*Fermilab*), Libo Jiang (*Pittsburgh*), Rhiannon Jones (*Liverpool*), Weijun Li (*Oxford*), Donna Naples (*Pittsburgh*), Beth Slater (*Liverpool*), Noah Steinberg (*Fermilab*), Vladyslav Syrotenko (*Tufts*), Julia Yarba (*Fermilab*) 
 
-**Prof. Costas Andreopoulos < c.andreopoulos \at cern.ch >**
-
-University of Liverpool, Department of Physics, Oliver Lodge Lab 316,  Liverpool L69 7ZE, UK  
-
- 
-## Past authors and other key contributors
-
-Past authors: 
-- Christopher Barry (*Liverpool*)
-- Steve Dennis (*Liverpool*)
-- Walter Giele (*Fermilab*)
-- Timothy Hobbs (*Fermilab*)
-- Libo Jiang (*Pittsburgh*)
-- Rhiannon Jones (*Liverpool*)
-- Donna Naples (*Pittsburgh*)
-- Beth Slater (*Liverpool*)
-- Noah Steinberg (*Fermilab*)
-- Vladyslav Syrotenko (*Tufts*)
-- Julia Yarba (*Fermilab*) 
-
+For more details on the GENIE collaboration please visit [this page](https://genie-mc.github.io/collaboration.html).
 
 ## Copyright
 
-Copyright (c) 2003-2024, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org
+Copyright (c) 2003-2025, The GENIE Collaboration. For information, visit [this page](https://genie-mc.github.io/copyright.html).
 
+## Citing GENIE
+
+If you use GENIE, please cite it properly. [Click here for citation guidelines](https://genie-mc.github.io/citing.html).
 
 ## Physics & User manual
 
 For installation and usage information, as well as information on the GENIE framework, event generator modules and tuning, 
-see the GENIE Physics & User Manual in the public section of the GENIE Document Database:
-https://genie-docdb.pp.rl.ac.uk/cgi-bin/ShowDocument?docid=2
-
+see the [latest version of the GENIE Physics & User Manual](https://www.overleaf.com/read/rqmbqzzvsvmb#5ab475), originally published as arXiv:1510.05494.
 
 ## Public releases and physics tunes
 
-For a list of public releases and a summary information, see http://releases.genie-mc.org
+For a list of public releases and a summary information, see [this page](https://genie-mc.github.io/releases.html).
+A list of model configurations and tunes supported in each release is maintained [here](https://genie-mc.github.io/tunes.html).
+Details on the naming conventions for releases, model configurations and tunes can be found [here](https://genie-mc.github.io/naming_conventions.html).
 
-For a list of model configurations and tunes supported in each release, see http://tunes.genie-mc.org
-
-The naming conventions for releases, model configurations and tunes are outlined in the GENIE web page and in the Physics & User manual.
-
+[Recent publications and talks](https://genie-mc.github.io/pub.html) 
+by GENIE authors highlight key modeling advances and results from our global analysis of scattering data.
 
 ## Contribution guidelines
 
-GENIE welcomes community contributions through its Incubator. An Incubator Project is the unique route for any physics or software development into any of the GENIE suite products (Generator, Comparisons, Tuning). Details on the Incubator Project Phases (Launch, Research and Development, Graduation, Integration and Deployment) can be found in the GENIE Bylaws in the public section of the GENIE Document Database: https://genie-docdb.pp.rl.ac.uk/cgi-bin/ShowDocument?docid=1
+**GENIE welcomes community contributions through its Incubator**. This is the designated space where all development work exceeding a certain complexity threshold is carried out. It is structured as a collection of focused incubator projects. Incubator projects are internal or community-led development efforts, overseen by the GENIE scientific and technical leadership. They represent the exclusive pathway for integrating physics or software developments into official GENIE product releases. For details, please visit [this page](https://genie-mc.github.io/incubator.html).
 
+# Contact
 
-## Citing GENIE
-
-If you use GENIE, please **always** cite the following reference: 
-
-<pre>
-@article{Andreopoulos:2009rq,
-      author         = "Andreopoulos, C. and others",
-      title          = "{The GENIE Neutrino Monte Carlo Generator}",
-      journal        = "Nucl. Instrum. Meth.",
-      volume         = "A614",
-      year           = "2010",
-      pages          = "87-104",
-      doi            = "10.1016/j.nima.2009.12.009",
-      eprint         = "0905.2517",
-      archivePrefix  = "arXiv",
-      primaryClass   = "hep-ph",
-      reportNumber   = "FERMILAB-PUB-09-418-CD",
-      SLACcitation   = "%%CITATION = ARXIV:0905.2517;%%"
-}
-</pre>
-
-If you used any of the standard GENIE applications, built-in flux and geometry drivers, or if you used any of its event reweightng and error propagation tools, please **add the following reference**:
-<pre>
-@article{Andreopoulos:2015wxa,
-      author         = "Andreopoulos, Costas and Barry, Christopher and Dytman,
-                        Steve and Gallagher, Hugh and Golan, Tomasz and Hatcher,
-                        Robert and Perdue, Gabriel and Yarba, Julia",
-      title          = "{The GENIE Neutrino Monte Carlo Generator: Physics and
-                        User Manual}",
-      year           = "2015",
-      eprint         = "1510.05494",
-      archivePrefix  = "arXiv",
-      primaryClass   = "hep-ph",
-      reportNumber   = "FERMILAB-FN-1004-CD",
-      SLACcitation   = "%%CITATION = ARXIV:1510.05494;%%"
-}
-</pre>
-
-Finally, if you used any of the new model configurations and tunes provided in the GENIE v3* series, please consider adding any of the following references is relevant:
-
-<pre>
-@article{GENIE:2021npt,
-    author = "Alvarez-Ruso, Luis and others",
-    collaboration = "GENIE",
-    title = "{Recent highlights from GENIE v3}",
-    eprint = "2106.09381",
-    archivePrefix = "arXiv",
-    primaryClass = "hep-ph",
-    reportNumber = "FERMILAB-PUB-21-266-SCD-T",
-    doi = "10.1140/epjs/s11734-021-00295-7",
-    journal = "Eur. Phys. J. ST",
-    volume = "230",
-    number = "24",
-    pages = "4449--4467",
-    year = "2021"
-}
-</pre>
-
-<pre>
-@article{GENIE:2021zuu,
-    author = "Tena-Vidal, J\'ulia and others",
-    collaboration = "GENIE",
-    title = "{Neutrino-nucleon cross-section model tuning in GENIE v3}",
-    eprint = "2104.09179",
-    archivePrefix = "arXiv",
-    primaryClass = "hep-ph",
-    reportNumber = "FERMILAB-PUB-20-531-SCD-T",
-    doi = "10.1103/PhysRevD.104.072009",
-    journal = "Phys. Rev. D",
-    volume = "104",
-    number = "7",
-    pages = "072009",
-    year = "2021"
-}
-</pre>
-
-<pre>
-@article{GENIE:2021wox,
-    author = "Tena-Vidal, J\'ulia and others",
-    collaboration = "GENIE",
-    title = "{Hadronization model tuning in genie v3}",
-    eprint = "2106.05884",
-    archivePrefix = "arXiv",
-    primaryClass = "hep-ph",
-    reportNumber = "FERMILAB-PUB-21-024-QIS-SCD-T",
-    doi = "10.1103/PhysRevD.105.012009",
-    journal = "Phys. Rev. D",
-    volume = "105",
-    number = "1",
-    pages = "012009",
-    year = "2022"
-}
-</pre>
-
-<pre>
-@article{GENIE:2022qrc,
-    author = "Tena-Vidal, Julia and others",
-    collaboration = "GENIE",
-    title = "{Neutrino-nucleus CC0$\pi$ cross-section tuning in GENIE v3}",
-    eprint = "2206.11050",
-    archivePrefix = "arXiv",
-    primaryClass = "hep-ph",
-    reportNumber = "FERMILAB-PUB-22-296-ND-QIS-SCD",
-    doi = "10.1103/PhysRevD.106.112001",
-    journal = "Phys. Rev. D",
-    volume = "106",
-    number = "11",
-    pages = "112001",
-    year = "2022"
-}
-</pre>
-
-<pre>
-@article{GENIE:2024ufm,
-    author = "Li, Weijun and others",
-    collaboration = "GENIE",
-    title = "{First combined tuning on transverse kinematic imbalance data with and without pion production constraints}",
-    eprint = "2404.08510",
-    archivePrefix = "arXiv",
-    primaryClass = "hep-ex",
-    reportNumber = "FERMILAB-PUB-24-0122-CSAID-PPD",
-    doi = "10.1103/PhysRevD.110.072016",
-    journal = "Phys. Rev. D",
-    volume = "110",
-    number = "7",
-    pages = "072016",
-    year = "2024"
-}
-</pre>
-
-Please notice that the GENIE authors endorse the **MCNET guidelines for fair academic use** which can be found in http://www.montecarlonet.org/GUIDELINES. We invite users to consider which GENIE components are important for a particular analysis and cite them, in addition to the main references. A list of such references in maintained in the official GENIE web page.
+For all enquiries, please contact: <br />
+**Prof. Costas Andreopoulos** <br />
+University of Liverpool, Department of Physics, Oliver Lodge Lab 316,  Liverpool L69 7ZE, UK  <br />
+E-Mail: < c.andreopoulos \at cern.ch > <br />
+Telephone: +44 151 794 3201 (Office) | +44 754 084 7333 (Mobile)
