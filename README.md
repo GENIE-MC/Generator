@@ -1,47 +1,27 @@
 # The GENIE Event Generator
 
-The GENIE Generator is a leading simulation tool used by nearly all modern neutrino experiments. 
-It features a modular framework with state-of-the-art physics for neutrino and charged-lepton interactions, 
-and several BSM channels. It incorporates results from GENIE’s global data analysis and includes multiple tuned models. 
-GENIE supports all neutrino types, targets, and energy scales from MeV to PeV, 
-and provides tools for flux handling, geometry, event generation, and reweighting.
 
-For more information, visit [http://www.genie-mc.org](http://www.genie-mc.org) | [https://genie-mc.github.io](https://genie-mc.github.io).
-
-<pre>
-                                                   .oooooo.    oooooooooooo ooooo      ooo ooooo oooooooooooo  
-                                                  d8P'  `Y8b   `888'     `8 `888b.     `8' `888' `888'     `8  
-                                                 888            888          8 `88b.    8   888   888           
-                        Ndyooym          dN      888            888oooo8     8   `88b.  8   888   888oooo8     
-                     Nds//+sdmoy       d+m       888     ooooo  888    "     8     `88b.8   888   888    "      
-                   Nh+//ohN  m+s      N//syyN    `88.    .88'   888       o  8       `888   888   888       o  
-                 Ny+//od   Nh+oN       o///+      `Y8bood8P'   o888ooooood8 o8o        `8  o888o o888ooooood8  
-               Nh+//om   Nh+/yN       o///s                                                                    
-              d+//+d   my+/smmyhN    m///h                                         MONTE CARLO EVENT GENERATOR    
-            Ns///yN NdyoshNNs///d   h////yN                                                                    
-           mo//om        ms///+m   d///////oyhmN                                                               
-          N+//yN       ms////+N    h////////////oym                                                         
-          s//h       ho/+///sN     N///////////////od                                                          
-         N+/h     my++yh+//y       s/////////////////oN                                                        
-         Ns/m Nmy++ymNh//+d        s//////////////////+m                                                       
-          NhssoshN  Ny//sN         m///////////////////+                                                       
-                  Nmo/+ohdmN        mo//////////////////h            NmmN                                      
-              ms/+s//o/-----:+sdN     mhso+ooys/////////o      mhs+/------/ohN                                 
-    Nhd     N+-/o+/o+------------/shN     Ndy+//////////+ mhs+:---------------om                               
-  mo/sN    m:/oo/oo:-----------------:://////////////////-----------------------y                              
-  y//d    Noo++o+:----------:------------:://///////////:-------:/+osyso/:-------h                             
-  Nyo+syysooo+/--------------::--------------:://///////:----::////+ossyso/------:                             
-     NNNNNs--------------------:/::-------------:://///:-:://////////oosyo+:------                             
-          y---------------------:////:::-----------:////////////////+o++++/:-----/                             
-          m-----------------------://////////////////////////////+so/--:---------y                             
-           +------------------------://////////////////////////+yy:---+oh/--:y+-/N                             
-           N/-------------------------://////////////////////ohy/-------yy--os-/m                              
-            No--------------------------://///////////////+shs/---------/d++/-oN                               
-              mo--------------------------:////////////+shyo:------------sy/sm                                 
-                Ny+:------------------------::://///oyhyo:--------------/sd                                    
-                    mhso+/:------------------:/+oyhyo/----------:/+syhm                                        
-                           NmddhyyyssssyyyhdmmNNNmhhhyyyyhhddmN                                                
-</pre>
+<table style="border-collapse: collapse; border: none;">
+  <tr>
+    <td style="border: none; padding-right: 12px; vertical-align: top;">
+      <img src="./data/logo/genie_logo.png" alt="GENIE logo" width="300px">
+    </td>
+    <td style="border: none; padding: 0;">
+      <p>
+        The GENIE Generator is a <b>leading simulation tool used by nearly all modern neutrino experiments</b>. 
+        It features a <b>modular framework</b> with <b>state-of-the-art physics</b> for neutrino and charged-lepton interactions, 
+        and several BSM channels. It incorporates results from GENIE’s global data analysis and includes multiple tuned models. 
+        GENIE supports all neutrino types, targets, and energy scales from MeV to PeV, 
+        and provides tools for flux handling, geometry, event generation, and reweighting.
+      </p>
+      <p>
+        For more information, visit 
+        <a href="http://www.genie-mc.org" target="_blank">http://genie-mc.org</a> |
+        <a href="https://genie-mc.github.io" target="_blank">https://genie-mc.github.io</a>.
+      </p>
+    </td>
+  </tr>
+</table>
 
 ## Authors:
 
@@ -77,7 +57,7 @@ by GENIE authors highlight key modeling advances and results from our global ana
 
 **GENIE welcomes community contributions through its Incubator**. This is the designated space where all development work exceeding a certain complexity threshold is carried out. It is structured as a collection of focused incubator projects. Incubator projects are internal or community-led development efforts, overseen by the GENIE scientific and technical leadership. They represent the exclusive pathway for integrating physics or software developments into official GENIE product releases. For details, please visit [this page](https://genie-mc.github.io/incubator.html).
 
-# Contact
+## Contact
 
 For all enquiries, please contact: <br />
 **Prof. Costas Andreopoulos** <br />
