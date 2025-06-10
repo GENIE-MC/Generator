@@ -288,7 +288,6 @@ const TVector3 & PaisQELLambdaPXSec::FinalLeptonPolarization (const Interaction*
   double Mm    = Mf - Mi;
   double Mm2   = Mm*Mm;
   double Mp2   = Mp*Mp;
-  double M     = 0.5*Mp;
   
   //Powers of Form Factors
   double FA2   = FA*FA;
@@ -305,7 +304,7 @@ const TVector3 & PaisQELLambdaPXSec::FinalLeptonPolarization (const Interaction*
                 inNucleonMom, 
                 qP4, 
                 is_neutrino, 
-                M, W1,W2,W3,0,0,0);
+                W1,W2,W3,0,0,0);
   
   
 //  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";

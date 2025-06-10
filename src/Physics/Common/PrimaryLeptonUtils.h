@@ -49,7 +49,6 @@ namespace utils {
                         const TLorentzVector & inNucleonMom,
                         const TLorentzVector & q4,
                         bool isLeftPolarized,
-                        double M,
                         double W1,
                         double W2,
                         double W3,

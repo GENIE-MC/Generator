@@ -73,19 +73,19 @@ void genie::utils::CalculatePolarizationVectorWithNuclearTensor(
 {
   double k[4], l[4], s[4], eskl[4];
   std::complex<double> jp[4], jm[4];
-    
+  // k_\mu  
   k[0] = neutrinoMom.E();
   k[1] = -neutrinoMom.Px();
   k[2] = -neutrinoMom.Py();
   k[3] = -neutrinoMom.Pz();
-  
+  // l_\mu  
   l[0] = leptonMom.E();
   l[1] = -leptonMom.Px();
   l[2] = -leptonMom.Py();
   l[3] = -leptonMom.Pz();
   
   double ml = leptonMom.M();
-  
+  // s_\mu  
   s[0] = leptonMom.P()/ml;
   s[1] = -leptonMom.Vect().Unit().X()*leptonMom.E()/ml;
   s[2] = -leptonMom.Vect().Unit().Y()*leptonMom.E()/ml;
@@ -173,9 +173,9 @@ void genie::utils::CalculatePolarizationVectorWithNuclearTensor(
   TVector3 Px = neutrinoMom3.Cross(leptonMom3).Unit();
   TVector3 Py = Pz.Cross(Px);
   polarization = PT*Px + PP*Py + PL*Pz;
-//  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-//  std::cout << "PL = " << PL << ", PP = " << PP << ", PT = " << PT << "\n";
-//  std::cout << "UT@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
+  //std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+  //std::cout << "PL = " << PL << ", PP = " << PP << ", PT = " << PT << "\n";
+  //std::cout << "UT@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
 }
 //____________________________________________________________________________
 void  genie::utils::CalculatePolarizationVectorWithStructureFunctions(
@@ -185,7 +185,6 @@ void  genie::utils::CalculatePolarizationVectorWithStructureFunctions(
                                 const TLorentzVector & inNucleonMom,
                                 const TLorentzVector & q4,
                                 bool isLeftPolarized,
-                                double M,
                                 double W1,
                                 double W2,
                                 double W3,
@@ -194,7 +193,7 @@ void  genie::utils::CalculatePolarizationVectorWithStructureFunctions(
                                 double W6
 )
 {
-  double M2 = M*M;
+  double M2 = inNucleonMom.M2();
   double p[4], q[4], epq[4][4];
   p[0] = inNucleonMom.E();
   p[1] = inNucleonMom.Px();
@@ -290,9 +289,9 @@ void  genie::utils::CalculatePolarizationVectorInTargetRestFrame(
   TVector3 Px = neutrinoMomTRF3.Cross(leptonMomTRF3).Unit();
   TVector3 Py = Pz.Cross(Px);
   polarization = PT*Px + PP*Py + PL*Pz;
-//  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-//  std::cout << "PL = " << PL  << ", PP = " << PP << ", PT = " << PT << ", R = " << R << "\n";
-//  std::cout << "UT@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
+  //std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+  //std::cout << "PL = " << PL  << ", PP = " << PP << ", PT = " << PT << ", R = " << R << "\n";
+  //std::cout << "UT@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
 }
 //____________________________________________________________________________
 

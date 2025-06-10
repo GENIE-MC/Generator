@@ -627,9 +627,10 @@ const TVector3 & LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interactio
                 inNucleonMom, 
                 qP4, 
                 is_neutrino, 
-                M, W1,W2,W3,W4,W5,0);
+                W1,W2,W3,W4,W5,0);
    
 //  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+//  fFinalLeptonPolarization.Print();
 //  std::cout << fFinalLeptonPolarization.Mag() << "\n";
 //  std::cout << "LW@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
   
