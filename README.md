@@ -39,6 +39,17 @@ Copyright (c) 2003-2025, The GENIE Collaboration. For information, visit [this p
 
 If you use GENIE, please cite it properly. [Click here for citation guidelines](https://genie-mc.github.io/citing.html).
 
+DOIs for recent releases of the GENIE Event Generator are listed below:
+- v3.06.00 [![DOI](https://zenodo.org/badge/150272240.svg)](https://doi.org/10.5281/zenodo.15635509)
+- v3.04.02 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15635784.svg)](https://doi.org/10.5281/zenodo.15635784)
+- v3.04.00 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15635782.svg)](https://doi.org/10.5281/zenodo.15635782)
+- v3.02.02 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15635778.svg)](https://doi.org/10.5281/zenodo.15635778)
+- v3.02.00 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15635770.svg)](https://doi.org/10.5281/zenodo.15635770)
+- v3.00.06 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15635764.svg)](https://doi.org/10.5281/zenodo.15635764)
+- v3.00.04 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15635763.svg)](https://doi.org/10.5281/zenodo.15635763)
+- v3.00.02 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15635758.svg)](https://doi.org/10.5281/zenodo.15635758)
+- v3.00.00 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15635751.svg)](https://doi.org/10.5281/zenodo.15635751)
+
 ## Physics & User manual
 
 For installation and usage information, as well as information on the GENIE framework, event generator modules and tuning, 
