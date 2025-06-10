@@ -48,6 +48,10 @@ IntegralNuclearInfluenceCutoffEnergy double   No
   <param_set name="Dipole"> 
      <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithFFCC/Dipole </param>
   </param_set>
+  
+  <param_set name="IsoscalarDipole"> 
+     <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithIsoFFCC/Dipole </param>
+  </param_set>
 
   <!-- Legacy configuration for use with the historic default tunes (G00_X) -->
   <param_set name="DipoleAndOldIntegrator">
@@ -58,12 +62,15 @@ IntegralNuclearInfluenceCutoffEnergy double   No
 
   <param_set name="ZExp"> 
      <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithFFCC/ZExp </param>
- 
+  </param_set>
+  
+  <param_set name="IsoscalarZExp"> 
+     <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithIsoFFCC/ZExp </param>
   </param_set>
 
+  <!-- This configuration is suitable only for nuclear targets -->
   <param_set name="RunningMA"> 
      <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithFFCC/RunningMA </param>
-
   </param_set>
 
 </alg_conf>

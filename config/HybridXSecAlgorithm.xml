@@ -270,7 +270,7 @@ XSecAlg@Interaction=XX alg      Yes        Algorithm to use to handle interactio
       genie::RosenbluthPXSec/Default </param>
   </param_set>
   
-  <param_set name="SmithMoniz-QEL">
+  <param_set name="SmithMonizDipole-QEL">
     <param type="alg" name="DefaultXSecAlg"> genie::SmithMonizQELCCPXSec/Dipole </param>
     <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
     <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
@@ -287,7 +287,24 @@ XSecAlg@Interaction=XX alg      Yes        Algorithm to use to handle interactio
       genie::LwlynSmithQELCCPXSec/Dipole </param>
   </param_set>
   
-  <param_set name="SmithMonizRunningMA-QEL">
+  <param_set name="SmithMonizZExp-QEL">
+    <param type="alg" name="DefaultXSecAlg"> genie::SmithMonizQELCCPXSec/ZExp </param>
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+  </param_set>
+  
+  <param_set name="SmithMonizRunningMADipole-QEL">
     <param type="alg" name="DefaultXSecAlg"> genie::SmithMonizQELCCPXSec/RunningMA </param>
     <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
     <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
@@ -303,6 +320,195 @@ XSecAlg@Interaction=XX alg      Yes        Algorithm to use to handle interactio
     <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
       genie::LwlynSmithQELCCPXSec/Dipole </param>
   </param_set>
+  
+  <param_set name="SmithMonizRunningMAZExp-QEL">
+    <param type="alg" name="DefaultXSecAlg"> genie::SmithMonizQELCCPXSec/RunningMA </param>
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+  </param_set>
+  
+  <param_set name="NievesIsoscalarDipole-QEL">
+    <param type="alg" name="DefaultXSecAlg"> genie::NievesQELCCPXSec/IsoscalarDipole </param>
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+  </param_set>
+  
+  <param_set name="NievesIsoscalarDipoleNoRPA-QEL">
+    <param type="alg" name="DefaultXSecAlg"> genie::NievesQELCCPXSec/IsoscalarDipoleNoRPA </param>
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+  </param_set>
+  
+  <param_set name="NievesIsoscalarDipoleNoCoulomb-QEL">
+    <param type="alg" name="DefaultXSecAlg"> genie::NievesQELCCPXSec/IsoscalarDipoleNoCoulomb </param>
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+  </param_set>
+  
+  <param_set name="NievesIsoscalarDipoleNoPauli-QEL">
+    <param type="alg" name="DefaultXSecAlg"> genie::NievesQELCCPXSec/IsoscalarDipoleNoPauli </param>
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarDipole </param>
+  </param_set>
+  
+  <param_set name="NievesIsoscalarIsoscalarZExp-QEL">
+    <param type="alg" name="DefaultXSecAlg"> genie::NievesQELCCPXSec/IsoscalarIsoscalarZExp </param>
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/IsoscalarZExp </param>
+  </param_set>
+  
+  <param_set name="NievesDipole-QEL">
+    <param type="alg" name="DefaultXSecAlg"> genie::NievesQELCCPXSec/Dipole </param>
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+  </param_set>
+  
+  <param_set name="NievesDipoleNoRPA-QEL">
+    <param type="alg" name="DefaultXSecAlg"> genie::NievesQELCCPXSec/DipoleNoRPA </param>
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+  </param_set>
+  
+  <param_set name="NievesDipoleNoCoulomb-QEL">
+    <param type="alg" name="DefaultXSecAlg"> genie::NievesQELCCPXSec/DipoleNoCoulomb </param>
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+  </param_set>
+  
+  <param_set name="NievesDipoleNoPauli-QEL">
+    <param type="alg" name="DefaultXSecAlg"> genie::NievesQELCCPXSec/DipoleNoPauli </param>
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/Dipole </param>
+  </param_set>
+  
+  <param_set name="NievesZExp-QEL">
+    <param type="alg" name="DefaultXSecAlg"> genie::NievesQELCCPXSec/ZExp </param>
+    <!-- Delegate handling of CCQE scattering on a free nucleon to the Llewellyn-Smith model -->
+    <param type="alg" name="XSecAlg@Interaction=nu:12;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-12;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:14;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-14;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:16;tgt:1000000010;N:2112;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+    <param type="alg" name="XSecAlg@Interaction=nu:-16;tgt:1000010010;N:2212;proc:Weak[CC],QES;">
+      genie::LwlynSmithQELCCPXSec/ZExp </param>
+  </param_set>
+  
+
 
 
 </alg_conf>

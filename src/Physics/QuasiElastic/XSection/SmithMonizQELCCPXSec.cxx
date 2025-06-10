@@ -95,11 +95,42 @@ double SmithMonizQELCCPXSec::XSec(
 
   if(kpsdim == 2) 
   {
+    if(!interaction->TestBit(kISkipProcessChk))
+    {
+       sm_utils->SetInteraction(interaction);
+       const InitialState & init_state = interaction->InitState();
+       double E_nu    = init_state.ProbeE(kRfLab);
+       if ( E_nu < sm_utils->E_nu_thr_SM() ) return 0.;
+       const Kinematics &  kinematics = interaction -> Kine();
+       double Q2      = kinematics.GetKV(kKVQ2);
+       Range1D_t rQ2 = sm_utils->Q2QES_SM_lim();
+       if (Q2 < rQ2.min || Q2 > rQ2.max) return 0.;
+       Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
+       double v       = kinematics.GetKV(kKVv);
+       if (v < rv.min || v > rv.max) return 0.;
+    }
     xsec = this->d2sQES_dQ2dv_SM(interaction);
   }
   
   if(kpsdim == 3) 
   {
+    if(!interaction->TestBit(kISkipProcessChk))
+    {
+       sm_utils->SetInteraction(interaction);
+       const InitialState & init_state = interaction->InitState();
+       double E_nu    = init_state.ProbeE(kRfLab);
+       if ( E_nu < sm_utils->E_nu_thr_SM() ) return 0.;
+       const Kinematics &  kinematics = interaction -> Kine();
+       double Q2      = kinematics.GetKV(kKVQ2);
+       Range1D_t rQ2 = sm_utils->Q2QES_SM_lim();
+       if (Q2 < rQ2.min || Q2 > rQ2.max) return 0.;
+       Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
+       double v       = kinematics.GetKV(kKVv);
+       if (v < rv.min || v > rv.max) return 0.;
+       Range1D_t rkF  = sm_utils->kFQES_SM_lim(Q2, v);
+       double kF      = kinematics.GetKV(kKVPn);
+       if (kF < rkF.min || kF > rkF.max) return 0.;
+    }
     xsec = this->d3sQES_dQ2dvdkF_SM(interaction);
   }
 
