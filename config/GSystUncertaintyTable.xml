@@ -217,6 +217,31 @@ values for each Reweight tweak dial. All of these have default values of zero.
    <param type="double" name="FrPiProd_N@PlusOneSigma"> 0.20 </param>
    <param type="double" name="FrPiProd_N@MinusOneSigma"> 0.20 </param>
 
+   <param type="double" name="FrG4_N@PlusOneSigma"> 1.0 </param>
+   <param type="double" name="FrG4_N@MinusOneSigma"> 1.0 </param>
+   <param type="double" name="FrINCL_N@PlusOneSigma"> 1.0 </param>
+   <param type="double" name="FrINCL_N@MinusOneSigma"> 1.0 </param>
+
+   <param type="double" name="FrG4LoE_N@PlusOneSigma"> 1.0 </param>
+   <param type="double" name="FrG4LoE_N@MinusOneSigma"> 1.0 </param>
+   <param type="double" name="FrINCLLoE_N@PlusOneSigma"> 1.0 </param>
+   <param type="double" name="FrINCLLoE_N@MinusOneSigma"> 1.0 </param>
+
+   <param type="double" name="FrG4M1E_N@PlusOneSigma"> 1.0 </param>
+   <param type="double" name="FrG4M1E_N@MinusOneSigma"> 1.0 </param>
+   <param type="double" name="FrINCLM1E_N@PlusOneSigma"> 1.0 </param>
+   <param type="double" name="FrINCLM1E_N@MinusOneSigma"> 1.0 </param>
+
+   <param type="double" name="FrG4M2E_N@PlusOneSigma"> 1.0 </param>
+   <param type="double" name="FrG4M2E_N@MinusOneSigma"> 1.0 </param>
+   <param type="double" name="FrINCLM2E_N@PlusOneSigma"> 1.0 </param>
+   <param type="double" name="FrINCLM2E_N@MinusOneSigma"> 1.0 </param>
+
+   <param type="double" name="FrG4HiE_N@PlusOneSigma"> 1.0 </param>
+   <param type="double" name="FrG4HiE_N@MinusOneSigma"> 1.0 </param>
+   <param type="double" name="FrINCLHiE_N@PlusOneSigma"> 1.0 </param>
+   <param type="double" name="FrINCLHiE_N@MinusOneSigma"> 1.0 </param>
+
    <param type="double" name="RDecBR1gamma@PlusOneSigma"> 0.50 </param>
    <param type="double" name="RDecBR1gamma@MinusOneSigma"> 0.50 </param>
 
