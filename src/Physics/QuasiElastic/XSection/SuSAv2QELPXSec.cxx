@@ -684,7 +684,8 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
     int target_pdg = tgt.Pdg();
     int probe_pdg = interaction->InitState().ProbePdg();
   
-    bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
+    bool is_neutrino     = pdg::IsNeutrino(probe_pdg);
+    bool is_antineutrino = pdg::IsAntiNeutrino(probe_pdg);
     
     const double M = 1;  // the polarization doesn't depend on mass of target in target rest frame
     
@@ -738,7 +739,7 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
     HadronTensorType_t tensor_type_crpa = kHT_Undefined;
     HadronTensorType_t tensor_type_blen = kHT_Undefined;
 
-    if ( pdg::IsNeutrino(probe_pdg) ) 
+    if ( is_neutrino ) 
     {
         tensor_type_susa = kHT_QE_Full;
         tensor_type_blen = kHT_QE_SuSABlend;
@@ -771,7 +772,7 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
             else tensor_type_crpa = kHT_QE_HFPW_High;
         }
     }
-    else if ( pdg::IsAntiNeutrino(probe_pdg) )
+    else if ( is_antineutrino )
     {
         // SuSA implementation doesn't accoutn for asymmetry between protons
         // and neutrons. In general this is a small effect.
