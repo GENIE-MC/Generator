@@ -166,7 +166,8 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      interaction->KinePtr()->SetQ2(gQ2);
 
      //-- Computing cross section for the current kinematics
-     xsec = fXSecModel->XSec(interaction, kPSWQD2fE);
+     const EKinePhaseSpace acceptKps = kPSWQD2fE;
+     xsec = fXSecModel->XSec(interaction, acceptKps);
 
      //-- Decide whether to accept the current kinematics
      if(!fGenerateUniformly) 
@@ -196,12 +197,12 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy);
 
         // set the cross section for the selected kinematics
-        evrec->SetDiffXSec(xsec,kPSWQ2fE);
+        evrec->SetDiffXSec(xsec,acceptKps);
 
         // for uniform kinematics, compute an event weight as
         // wght = (phase space volume)*(differential xsec)/(event total xsec)
         if(fGenerateUniformly) {
-          double vol     = kinematics::PhaseSpaceVolume(interaction,kPSWQ2fE);
+          double vol     = kinematics::PhaseSpaceVolume(interaction,acceptKps);
           double totxsec = evrec->XSec();
           double wght    = (vol/totxsec)*xsec;
           LOG("RESKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
