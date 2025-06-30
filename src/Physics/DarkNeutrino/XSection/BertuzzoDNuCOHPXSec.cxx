@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
-  Copyright (c) 2003-2024, The GENIE Collaboration
+  Copyright (c) 2003-2025, The GENIE Collaboration
   For the full text of the license visit http://copyright.genie-mc.org
 
   Author: Iker de Icaza <i.de-icaza-astiz \at sussex.ac.uk>
