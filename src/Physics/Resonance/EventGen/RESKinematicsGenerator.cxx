@@ -196,8 +196,12 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         double M = init_state.Tgt().HitNucP4().M();
         kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy);
 
-        // set the cross section for the selected kinematics
-        evrec->SetDiffXSec(xsec,acceptKps);
+        // set the cross section for the selected kinematics.
+        // note that we're saving to the evt record in the more familiar "W*Q2" space
+        // rather than the "W*Q2D" (precomputed dipole) space that's used above
+        // for generation efficiency in the accept-reject loop
+        double J = kinematics::Jacobian(interaction, kPSWQD2fE, kPSWQ2fE);
+        evrec->SetDiffXSec(J * xsec, kPSWQ2fE);
 
         // for uniform kinematics, compute an event weight as
         // wght = (phase space volume)*(differential xsec)/(event total xsec)
