@@ -32,6 +32,8 @@
 #include "Physics/PartonDistributions/PDFModelI.h"
 #include "Framework/Numerical/Interpolator2D.h"
 
+#include <memory>
+
 namespace genie {
 
 class GRV98LO: public PDFModelI {
@@ -84,12 +86,12 @@ private:
   //
   // arrays for the interpolation routine
   //
-  Interpolator2D * fXUVF; // = f(logx,logQ2)
-  Interpolator2D * fXDVF;
-  Interpolator2D * fXDEF;
-  Interpolator2D * fXUDF;
-  Interpolator2D * fXSF;
-  Interpolator2D * fXGF;
+  std::unique_ptr<Interpolator2D> fXUVF; // = f(logx,logQ2)
+  std::unique_ptr<Interpolator2D> fXDVF;
+  std::unique_ptr<Interpolator2D> fXDEF;
+  std::unique_ptr<Interpolator2D> fXUDF;
+  std::unique_ptr<Interpolator2D> fXSF;
+  std::unique_ptr<Interpolator2D> fXGF;
 };
 
 }         // genie namespace
