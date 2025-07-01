@@ -25,7 +25,7 @@
              -- to skip scanning over a coefficient, put max < min for that coefficient
              note that Kmax in UserPhysicsOptions should match the number of scanned coeffs
 
-\cpright Copyright (c) 2003-2024, The GENIE Collaboration
+\cpright Copyright (c) 2003-2025, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          
 */
