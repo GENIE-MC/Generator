@@ -98,7 +98,7 @@ if(-e $BANNER_FILE) {
 
 # Check that ROOT can be seen
 #
-`hash root-config`;
+`root-config --version 2> /dev/null`;
 $HAVE_ROOT_CONFIG = $?;
 die ("*** Error *** Cannot find root-config. Is ROOT installed?")
 unless $HAVE_ROOT_CONFIG == 0;
@@ -969,7 +969,7 @@ if ($gopt_enable_professor2 eq "YES") {
   #run git submodule update src/ExternalLibs/professor
   print "Checking out Professor2 submodule...\n";
   system("git submodule update --init src/ExternalLibs/professor");
-  print "Done.\n"; 
+  print "Done.\n";
 }
 
 # Save config options
