@@ -41,8 +41,8 @@
 # 10302Mxxx      | e-    + He4      | 27.6     | EM            | monoenergetic
 # 10702Mxxx      | e-    + N14      | 27.6     | EM            | monoenergetic
 # 11002Mxxx      | e-    + Ne20     | 27.6     | EM            | monoenergetic
-# 13602Mxxx      | e-    + Kr83     | 27.6     | EM            | monoenergetic
-# 15402Mxxx      | e-    + Xe131    | 27.6     | EM            | monoenergetic
+# 13602Mxxx      | e-    + Kr84     | 27.6     | EM            | monoenergetic
+# 15402Mxxx      | e-    + Xe132    | 27.6     | EM            | monoenergetic
 #
 #
 # Author:
@@ -116,8 +116,8 @@ $nev_per_subrun = 50000;
   '10302' =>   '1000020040',
   '10702' =>   '1000070140',
   '11002' =>   '1000100200',
-  '13602' =>   '1000360830',
-  '15402' =>   '1000541310'
+  '13602' =>   '1000360840',
+  '15402' =>   '1000541320'
 );
 %evg_energy_hash = ( 
   '10202' =>   '27.6',
