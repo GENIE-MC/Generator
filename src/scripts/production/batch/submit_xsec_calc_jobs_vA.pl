@@ -24,7 +24,7 @@
 #
 # Examples:
 #   % perl submit_xsec_calc_jobs_vA.pl --gen-version v3.06.00 \
-#                  --tune G18_10a_02_11b --spline-list ./xsec_splines/t2k.list 
+#                  --tune G18_10a_02_11b --spline-list ./spline_lists/t2k.list 
 #
 # Author:
 #   Costas Andreopoulos <c.andreopoulos \st cern.ch>
