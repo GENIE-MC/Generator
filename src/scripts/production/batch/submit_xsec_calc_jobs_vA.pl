@@ -73,8 +73,7 @@ $queue             = "compute"                               unless defined $que
 $time_limit        = "10:00:00"                              unless defined $time_limit;
 $softw_topdir      = "/user/costasa/projects/GENIE/softw/"   unless defined $softw_topdir;
 $jobs_topdir       = "/scratch/costasa/GENIE/"               unless defined $jobs_topdir;
-$input_splines     = "$softw_topdir/data/job_inputs/xspl/$gen_version/$tune-freenuc.xml" 
-                                                             unless defined $input_splines;
+$input_splines     = ""                                      unless defined $input_splines;
 $gen_setup_script  = "$softw_topdir/generator/builds/$arch/$gen_version-setup.sh";
 $splines_name      = basename($spline_list,".list");
 $jobs_dir          = "$jobs_topdir/$gen_version-$tune-$production\_$cycle-xsec\_vA\_$splines_name";
@@ -142,7 +141,9 @@ foreach(@targets)
     $filename_basepath = "$jobs_dir/$jobname";
 
     $grep_pipe  = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
-    $gmkspl_opt = "-p $nu_codes -t $_ -n $nknots -e $emax --tune $tune --input-cross-sections $input_splines --output-cross-sections gxspl_$tgt_code.xml";
+    $gmkspl_opt = "-p $nu_codes -t $_ -n $nknots -e $emax --tune $tune";
+    $gmkspl_opt = "gmkspl_opt --output-cross-sections gxspl_$tgt_code.xml";
+    $gmkspl_opt = "gmkspl_opt --input-cross-sections $input_splines" if -e $input_splines;
    #$gmkspl_cmd = "gmkspl $gmkspl_opt | $grep_pipe &> $filename_basepath.mkspl.log";
     $gmkspl_cmd = "gmkspl $gmkspl_opt &> $filename_basepath.mkspl.log";
 
