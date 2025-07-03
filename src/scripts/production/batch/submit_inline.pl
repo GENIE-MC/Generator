@@ -3,7 +3,7 @@
 # avoiding the need to manually create a separate batch script for one-off or ad hoc tasks.
 #
 # Syntax:
-#    % perl submit.pl <options>
+#    % perl submit_inline.pl <options>
 #
 # Options:
 #    --cmd               : Command(s) to execute
@@ -19,7 +19,7 @@
 #   [--job-topdir]       : top level dir for job files, default: /opt/ppd/t2k/softw/scratch/GENIE/
 #
 # Example:
-#   % perl submit.pl 
+#   % perl submit_inline.pl 
 #     --cmd 'gevgen -p 14 -t 1000260560 -e 1 --cross-sections /some/path/xsec.xml \
 #     --seed 1989298 --r 100; mv gntp.100.ghep.root /some/other/path/' \
 #     --gen-version v3.6.0 \
