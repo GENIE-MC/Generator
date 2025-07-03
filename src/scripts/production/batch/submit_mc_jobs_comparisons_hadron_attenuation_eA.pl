@@ -6,22 +6,23 @@
 # the CLAS and HERMES nuclear attenuation data.
 #
 # Syntax:
-#   perl submit-vld_hadroatten.pl <options>
+#   perl submit_mc_jobs_comparisons_hadron_attenuation_eA.pl <options>
 #
 # Options:
-#    --version        : GENIE version number
+#    --gen-version    : GENIE version number
+#    --tune           : GENIE physics tune
 #    --run            : runs to submit (eg --run 101102 / --run 101102,154002 / -run all)
 #   [--model-enum]    : physics model enumeration, default: 0
 #   [--nsubruns]      : number of subruns per run, default: 1
 #   [--offset]        : subrun offset (for augmenting existing sample), default: 0
-#   [--arch]          : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default: SL6.x86_64
+#   [--arch]          : <el7.x86_64, ...>, default: el7.x86_64
 #   [--production]    : production name, default: <version>
 #   [--cycle]         : cycle in current production, default: 01
 #   [--use-valgrind]  : default: off
-#   [--batch-system]  : <PBS, LSF, slurm, none>, default: PBS
-#   [--queue]         : default: prod
-#   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
-#   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/softw/scratch/GENIE/
+#   [--batch-system]  : <Slurm, PBS, LSF, none>, default: Slurm
+#   [--queue]         : default: compute
+#   [--softw-topdir]  : top level dir for softw installations, default: /user/costasa/projects/GENIE/softw/
+#   [--jobs-topdir]   : top level dir for job files, default: /scratch/costasa/GENIE/
 #
 # EVENT SAMPLES:
 #
@@ -36,7 +37,6 @@
 # run number     |  init state      | energy   | event gen.    | flux
 #                |                  | (GeV)    | list          |
 #...................................................................................
-#
 # 10202Mxxx      | e-    + D2       | 27.6     | EM            | monoenergetic
 # 10302Mxxx      | e-    + He4      | 27.6     | EM            | monoenergetic
 # 10702Mxxx      | e-    + N14      | 27.6     | EM            | monoenergetic
@@ -44,7 +44,6 @@
 # 13602Mxxx      | e-    + Kr83     | 27.6     | EM            | monoenergetic
 # 15402Mxxx      | e-    + Xe131    | 27.6     | EM            | monoenergetic
 #
-#...................................................................................
 #
 # Author:
 #   Costas Andreopoulos <c.andreopoulos \st cern.ch>
@@ -62,7 +61,8 @@ use File::Path;
 #
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
+  if($_ eq '--gen-version')   { $gen_version   = $ARGV[$iarg+1]; }
+  if($_ eq '--tune')          { $tune          = $ARGV[$iarg+1]; }
   if($_ eq '--run')           { $runnu         = $ARGV[$iarg+1]; }
   if($_ eq '--model-enum')    { $model_enum    = $ARGV[$iarg+1]; }
   if($_ eq '--nsubruns')      { $nsubruns      = $ARGV[$iarg+1]; }
@@ -77,27 +77,29 @@ foreach (@ARGV) {
   if($_ eq '--jobs-topdir')   { $jobs_topdir   = $ARGV[$iarg+1]; }
   $iarg++;
 }
-die("** Aborting [Undefined GENIE version. Use the --version option]")
-unless defined $genie_version;
+die("** Aborting [Undefined GENIE Generator version. Use the --gen-version option]")
+unless defined $gen_version;
+die("** Aborting [Undefined GENIE physics tune. Use the --tune option]")
+unless defined $tune;
 die("** Aborting [You need to specify which runs to submit. Use the --run option]")
 unless defined $runnu;
 
-$model_enum     = "0"                           unless defined $model_enum;
-$nsubruns       = 1                             unless defined $nsubruns;
-$offset         = 0                             unless defined $offset;
-$use_valgrind   = 0                             unless defined $use_valgrind;
-$arch           = "SL5_64bit"                   unless defined $arch;
-$production     = "$genie_version"              unless defined $production;
-$cycle          = "01"                          unless defined $cycle;
-$batch_system   = "PBS"                         unless defined $batch_system;
-$queue          = "prod"                        unless defined $queue;
-$softw_topdir   = "/opt/ppd/t2k/softw/GENIE"    unless defined $softw_topdir;
-$jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
-$time_limit     = "60:00:00";
-$genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$jobs_topdir/vld\_hadroatten-$production\_$cycle";
-$xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-eA-$genie_version.xml";
-$mcseed         = 210921029;
+$model_enum       = "0"                                   unless defined $model_enum;
+$nsubruns         = 1                                     unless defined $nsubruns;
+$offset           = 0                                     unless defined $offset;
+$use_valgrind     = 0                                     unless defined $use_valgrind;
+$arch             = "el7.x86_64"                          unless defined $arch;
+$production       = "prod"                                unless defined $production;
+$cycle            = "01"                                  unless defined $cycle;
+$batch_system     = "Slurm"                               unless defined $batch_system;
+$queue            = "compute"                             unless defined $queue;
+$softw_topdir     = "/user/costasa/projects/GENIE/softw/" unless defined $softw_topdir;
+$jobs_topdir      = "/scratch/costasa/GENIE/"             unless defined $jobs_topdir;
+$time_limit       = "10:00:00";
+$gen_setup_script = "$softw_topdir/generator/builds/$arch/$gen_version-setup.sh";
+$jobs_dir         = "$jobs_topdir/$gen_version-$tune-$production\_$cycle-hadroatten\_e";
+$xspl_file        = "$softw_topdir/data/job_inputs/xspl/gxspl-eA-$genie_version.xml";
+$mcseed           = 210921029;
 $nev_per_subrun = 50000;
 
 # inputs for event generation jobs
@@ -158,45 +160,70 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
 
     print "** submitting event generation run: $curr_runnu \n";
 
-    #
-    # get runnu-dependent info
-    #
+    # Get info that depends on the run number 
+    # -------------------------------------------------------------
+
     $probe   = $evg_pdg_hash     {$curr_runnu};
     $tgt     = $evg_tgtpdg_hash  {$curr_runnu};
     $en      = $evg_energy_hash  {$curr_runnu};
     $gevgl   = $evg_gevgl_hash   {$curr_runnu};
     $fluxopt = $evg_fluxopt_hash {$curr_runnu};
 
-    # submit subruns
+    # loop over subruns
     for($isubrun = 0; $isubrun < $nsubruns; $isubrun++) {
 
+       # Get info that depends on the run and subrun numbers
+       # -------------------------------------------------------------
        # Run number key: ITTJJMxxx
-       $curr_subrunnu = 10000 * $curr_runnu + 1000 * $model_enum + $isubrun + $offset;
-       $curr_seed     = $mcseed + $isubrun + $offset;
-       $fntemplate    = "$jobs_dir/hadroatten-$curr_subrunnu";
+       $curr_subrunnu     = 10000 * $curr_runnu + 1000 * $model_enum + $isubrun + $offset;
+       $curr_seed         = $mcseed + $isubrun + $offset;
+       $job_name          = "hadroatten\_e-$curr_subrunnu"; 
+       $filename_basepath = "$jobs_dir/$job_name";
+
+       # Form commands to run
+       # -------------------------------------------------------------
 #      $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
        $grep_pipe     = "grep -B 20 -A 30 -i fatal";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $evgen_opt     = "-n $nev_per_subrun -e $en -p $probe -t $tgt $fluxopt -r $curr_subrunnu --seed $curr_seed --cross-sections $xspl_file --event-generator-list $gevgl";
+       $evgen_opt     = "-n $nev_per_subrun -e $en -p $probe -t $tgt $fluxopt --tune $tune -r $curr_subrunnu --seed $curr_seed --cross-sections $xspl_file --event-generator-list $gevgl";
        $evgen_cmd     = "gevgen $evgen_opt | $grep_pipe &> $fntemplate.evgen.log";
        $conv_cmd      = "gntpc -f gst -i gntp.$curr_subrunnu.ghep.root";
 
        print "@@ exec: $evgen_cmd \n";
 
-       #
-       # submit
-       #
+       # Submit jobs
+       # -------------------------------------------------------------
+
+       # Slurm case
+       if($batch_system eq 'slurm') {
+           $batch_script  = "$filename_basepath.sh";
+           open(SLURM, ">$batch_script") or die("Can not create the slurm batch script");
+           print SLURM "#!/bin/bash \n";
+           print SLURM "#SBATCH-p $queue \n";
+           print SLURM "#SBATCH-J $job_name \n";
+           print SLURM "#SBATCH-N 1 \n";
+           print SLURM "#SBATCH-c 1 \n";
+           print SLURM "#SBATCH-o $filename_basepath.slurmout.log \n";
+           print SLURM "#SBATCH-e $filename_basepath.slurmerr.log \n";
+           print SLURM "#SBATCH-t $time_limit \n";
+           print SLURM "source $gen_setup_script \n";
+           print SLURM "cd $jobs_dir \n";
+           print SLURM "$evgen_cmd \n";
+           print SLURM "$conv_cmd \n";
+           close(SLURM);
+           `sbatch $batch_script`;
+       } #Slurm
 
        # PBS case
        if($batch_system eq 'PBS') {
-           $batch_script  = "$fntemplate.pbs";
+           $batch_script  = "$filename_basepath.pbs";
            open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
            print PBS "#!/bin/bash \n";
-           print PBS "#PBS -N hadroatten-$curr_subrunnu \n";
+           print PBS "#PBS -N $job_name \n";
            print PBS "#PBS -l cput=$time_limit \n";
-           print PBS "#PBS -o $fntemplate.pbsout.log \n";
-           print PBS "#PBS -e $fntemplate.pbserr.log \n";
-           print PBS "source $genie_setup \n"; 
+           print PBS "#PBS -o $filename_basepath.pbsout.log \n";
+           print PBS "#PBS -e $filename_basepath.pbserr.log \n";
+           print PBS "source $gen_setup_script \n"; 
            print PBS "cd $jobs_dir \n";
            print PBS "$evgen_cmd \n";
            print PBS "$conv_cmd \n";
@@ -206,15 +233,15 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
 
        # LSF case
        if($batch_system eq 'LSF') {
-           $batch_script  = "$fntemplate.sh";
+           $batch_script  = "$filename_basepath.sh";
            open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
            print LSF "#!/bin/bash \n";
-           print LSF "#BSUB-j hadroatten-$curr_subrunnu \n";
+           print LSF "#BSUB-j $job_name \n";
            print LSF "#BSUB-q $queue \n";
            print LSF "#BSUB-c $time_limit \n";
-           print LSF "#BSUB-o $fntemplate.lsfout.log \n";
-           print LSF "#BSUB-e $fntemplate.lsferr.log \n";
-           print LSF "source $genie_setup \n"; 
+           print LSF "#BSUB-o $filename_basepath.lsfout.log \n";
+           print LSF "#BSUB-e $filename_basepath.lsferr.log \n";
+           print LSF "source $gen_setup_script \n"; 
            print LSF "cd $jobs_dir \n";
            print LSF "$evgen_cmd \n";
            print LSF "$conv_cmd \n";
@@ -222,31 +249,9 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            `qsub < $batch_script`;
        } #LSF
 
-       # slurm case
-       if($batch_system eq 'slurm') {
-           my $time_lim = `sinfo -h -p batch -o %l`;
-           my ($days, $hours, $remainder) = $time_lim =~ /([0]+)-([0-9]+):(.*)/;
-           my $newhours = $days * 24 + $hours;
-           my $new_time_lim = "$newhours:$remainder";
-           $time_limit = $new_time_lim lt $time_limit ? $new_time_lim : $time_limit;
-           $batch_script  = "$fntemplate.sh";
-           open(SLURM, ">$batch_script") or die("Can not create the slurm batch script");
-           print SLURM "#!/bin/bash \n";
-           print SLURM "#SBATCH-p $queue \n";
-           print SLURM "#SBATCH-o $fntemplate.lsfout.log \n";
-           print SLURM "#SBATCH-e $fntemplate.lsferr.log \n";
-           print SLURM "#SBATCH-t $time_limit \n";
-           print SLURM "source $genie_setup \n"; 
-           print SLURM "cd $jobs_dir \n";
-           print SLURM "$evgen_cmd \n";
-           print SLURM "$conv_cmd \n";
-           close(SLURM);
-           `sbatch --job-name=hadroatten-$curr_subrunnu $batch_script`;
-       } #slurm
-
        # no batch system, run jobs interactively
        if($batch_system eq 'none') {
-          system("source $genie_setup; cd $jobs_dir; $evgen_cmd; $conv_cmd");
+          system("source $gen_setup_script; cd $jobs_dir; $evgen_cmd; $conv_cmd");
        } # interactive mode
 
 
