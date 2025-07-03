@@ -1071,7 +1071,7 @@ bool genie::utils::intranuke2018::TwoBodyKinematics(
 //___________________________________________________________________________
 bool genie::utils::intranuke2018::ThreeBodyKinematics(
   GHepRecord* ev, GHepParticle* p, int tcode, GHepParticle* s1, GHepParticle* s2, GHepParticle* s3,
-  bool DoFermi, double FermiFac, double FermiMomentum, const NuclearModelI* Nuclmodel)
+  bool DoFermi, double FermiFac, double FermiMomentum, const NuclearModelI* Nuclmodel, double bias)
 {
 
   // Aaron Meyer (7/15/10)
@@ -1093,7 +1093,7 @@ bool genie::utils::intranuke2018::ThreeBodyKinematics(
   double P3zL, P4zL, P4tL, P5zL, P5tL;
   double Et, M, theta1, theta2;
   double P1zL, P2zL;
-  double theta3, theta4, phi3, phi4, theta5;
+  double costheta3, costheta4, phi3, phi4, theta5;
   TVector3 tP2L, tP1L, tPtot, tbeta, tbetadir, tTrans, tP4L, tP5L;
   TVector3 tP1zCM, tP2zCM, tP3L, tPiL, tbeta2, tbetadir2, tVect, tTrans2;
 
@@ -1154,105 +1154,132 @@ bool genie::utils::intranuke2018::ThreeBodyKinematics(
   E2CM = gm*E2L - gm*beta*P2zL;
   tP2zCM = gm*P2zL*tbetadir - gm*tbeta*E2L;
   Et = E1CM + E2CM;
-  M = (rnd->RndFsi().Rndm()*(Et - M3 - M4 - M5)) + (M4 + M5);
-  E3CM = (Et*Et + M3*M3 - M*M)/(2*Et);
-  EiCM = Et - E3CM;
-  if(E3CM*E3CM - M3*M3<0)
-  {
-    LOG("INukeUtils",pNOTICE)
-      << "PionProduction P3 has non-real momentum - retry kinematics";
-    LOG("INukeUtils",pNOTICE) << "Energy, masses of 3 fs particales:"
-      << E3CM << "  " << M3 << "  " << "  " << M4 << "  " << M5;
-    exceptions::INukeException exception;
-    exception.SetReason("PionProduction particle 3 has non-real momentum");
-    throw exception;
-    return false;
-  }
-  P3CM = TMath::Sqrt(E3CM*E3CM - M3*M3);
 
-  theta3 =   kPi * rnd->RndFsi().Rndm();
-  theta4 =   kPi * rnd->RndFsi().Rndm();
-  phi3   = 2*kPi * rnd->RndFsi().Rndm();
-  phi4   = 2*kPi * rnd->RndFsi().Rndm();
+  // G.P. 2/20/2025
+  // Sample uniformly in lorentz invariany phase space
+  //
+  // Just because you sample uniformly does not mean you are 
+  // uniformly sampling Lorentz invariant phase space.
+  // 
+  // D-LIPS taken from PDG: https://pdg.lbl.gov/2018/reviews/rpp2018-rev-kinematics.pdf
+  // Algorithm is morally similar to Raubdo-Lynch method, hard-coded to 3 bodies
 
-  P3zL = gm*beta*E3CM + gm*P3CM*TMath::Cos(theta3);
-  P3tL =  P3CM*TMath::Sin(theta3);
-  PizL = gm*beta*EiCM - gm*P3CM*TMath::Cos(theta3);
-  PitL = -P3CM*TMath::Sin(theta3);
+  // compute naive max-weight
+  double E3CM_max = (Et*Et + M3*M3 - (M4+M5)*(M4+M5))/(2*Et);
+  double P3CM_max = TMath::Sqrt(E3CM_max*E3CM_max - M3*M3);
+  double E4CM2_max = ((Et-M3)*(Et-M3) + M4*M4 - M5*M5) / (2*(Et-M3));
+  double P4CM2_max = TMath::Sqrt(E4CM2_max*E4CM2_max - M4*M4);
+  double max_weight = P3CM_max * P4CM2_max;
+  double weight = 0.;
 
-  P3L = TMath::Sqrt(P3zL*P3zL + P3tL*P3tL);
-  PiL = TMath::Sqrt(PizL*PizL + PitL*PitL);
-  E3L = TMath::Sqrt(P3L*P3L + M3*M3);
-  EiL = TMath::Sqrt(PiL*PiL + M*M);
-
-  // handle very low momentum particles
-  if(!(TMath::Finite(P3L)) || P3L < .001)
+  do {
+    M = (rnd->RndFsi().Rndm()*(Et - M3 - M4 - M5)) + (M4 + M5);
+    E3CM = (Et*Et + M3*M3 - M*M)/(2*Et);
+    EiCM = Et - E3CM;
+    if(E3CM*E3CM - M3*M3<0)
     {
-      LOG("INukeUtils",pINFO)
-        << "Particle 3 " << M3 << " momentum small or non-finite: " << P3L
-        << "\n" << "--> Assigning .001 as new momentum";
-      P3tL = 0;
-      P3zL = .001;
-      P3L = .001;
-      E3L = TMath::Sqrt(P3L*P3L + M3*M3);
+      LOG("INukeUtils",pNOTICE)
+        << "PionProduction P3 has non-real momentum - retry kinematics";
+      LOG("INukeUtils",pNOTICE) << "Energy, masses of 3 fs particales:"
+        << E3CM << "  " << M3 << "  " << "  " << M4 << "  " << M5;
+      exceptions::INukeException exception;
+      exception.SetReason("PionProduction particle 3 has non-real momentum");
+      throw exception;
+      return false;
     }
+    P3CM = TMath::Sqrt(E3CM*E3CM - M3*M3);
 
-  tP3L = P3zL*tbetadir + P3tL*tTrans;
-  tPiL = PizL*tbetadir + PitL*tTrans;
-  tP3L.Rotate(phi3,tbetadir);
-  tPiL.Rotate(phi3,tbetadir);
+    costheta3 = 2*rnd->RndFsi().Rndm()-1;
+    costheta4 = 2*rnd->RndFsi().Rndm()-1;
+    double sintheta3 = TMath::Sqrt(1 - costheta3*costheta3);
+    double sintheta4 = TMath::Sqrt(1 - costheta4*costheta4);
+    phi3   = 2*kPi * rnd->RndFsi().Rndm();
+    phi4   = 2*kPi * rnd->RndFsi().Rndm();
 
-  // second sequence, handle formally composite particles 4 and 5
-  tbeta2 = tPiL * (1.0 / EiL);
-  tbetadir2 = tbeta2.Unit();
-  beta2 = tbeta2.Mag();
-  gm2 = 1.0 / TMath::Sqrt(1.0 - beta2*beta2);
+    P3zL = gm*beta*E3CM + gm*P3CM*costheta3;
+    P3tL = P3CM*sintheta3;
+    PizL = gm*beta*EiCM - gm*P3CM*costheta3;
+    PitL = -P3CM*sintheta3;
 
-  E4CM2 = (M*M + M4*M4 - M5*M5) / (2*M);
-  E5CM2 = M - E4CM2;
-  P4CM2 = TMath::Sqrt(E4CM2*E4CM2 - M4*M4);
+    P3L = TMath::Sqrt(P3zL*P3zL + P3tL*P3tL);
+    PiL = TMath::Sqrt(PizL*PizL + PitL*PitL);
+    E3L = TMath::Sqrt(P3L*P3L + M3*M3);
+    EiL = TMath::Sqrt(PiL*PiL + M*M);
 
-  tVect.SetXYZ(1,0,0);
-  if(TMath::Abs((tVect - tbetadir2).Mag())<.01) tVect.SetXYZ(0,1,0);
-  theta5 = tVect.Angle(tbetadir2);
-  tTrans2 = (tVect - TMath::Cos(theta5)*tbetadir2).Unit();
+    // handle very low momentum particles
+    if(!(TMath::Finite(P3L)) || P3L < .001)
+      {
+        LOG("INukeUtils",pINFO)
+          << "Particle 3 " << M3 << " momentum small or non-finite: " << P3L
+          << "\n" << "--> Assigning .001 as new momentum";
+        P3tL = 0;
+        P3zL = .001;
+        P3L = .001;
+        E3L = TMath::Sqrt(P3L*P3L + M3*M3);
+      }
 
-  P4zL = gm2*beta2*E4CM2 + gm2*P4CM2*TMath::Cos(theta4);
-  P4tL = P4CM2*TMath::Sin(theta4);
-  P5zL = gm2*beta2*E5CM2 - gm2*P4CM2*TMath::Cos(theta4);
-  P5tL = - P4tL;
+    tP3L = P3zL*tbetadir + P3tL*tTrans;
+    tPiL = PizL*tbetadir + PitL*tTrans;
+    tP3L.Rotate(phi3,tbetadir);
+    tPiL.Rotate(phi3,tbetadir);
 
-  P4L = TMath::Sqrt(P4zL*P4zL + P4tL*P4tL);
-  P5L = TMath::Sqrt(P5zL*P5zL + P5tL*P5tL);
-  E4L = TMath::Sqrt(P4L*P4L + M4*M4);
-  E5L = TMath::Sqrt(P5L*P5L + M5*M5);
+    // second sequence, handle formally composite particles 4 and 5
+    tbeta2 = tPiL * (1.0 / EiL);
+    tbetadir2 = tbeta2.Unit();
+    beta2 = tbeta2.Mag();
+    gm2 = 1.0 / TMath::Sqrt(1.0 - beta2*beta2);
 
-  // handle very low momentum particles
-  if(!(TMath::Finite(P4L)) || P4L < .001)
-    {
-      LOG("INukeUtils",pINFO)
-        << "Particle 4 " << M4 << " momentum small or non-finite: " << P4L
-        << "\n" << "--> Assigning .001 as new momentum";
-      P4tL = 0;
-      P4zL = .001;
-      P4L = .001;
-      E4L = TMath::Sqrt(P4L*P4L + M4*M4);
-    }
-  if(!(TMath::Finite(P5L)) || P5L < .001)
-    {
-      LOG("INukeUtils",pINFO)
-        << "Particle 5 " << M5 << " momentum small or non-finite: " << P5L
-        << "\n" << "--> Assigning .001 as new momentum";
-      P5tL = 0;
-      P5zL = .001;
-      P5L = .001;
-      E5L = TMath::Sqrt(P5L*P5L + M5*M5);
-    }
+    E4CM2 = (M*M + M4*M4 - M5*M5) / (2*M);
+    E5CM2 = M - E4CM2;
+    P4CM2 = TMath::Sqrt(E4CM2*E4CM2 - M4*M4);
 
-  tP4L = P4zL*tbetadir2 + P4tL*tTrans2;
-  tP5L = P5zL*tbetadir2 + P5tL*tTrans2;
-  tP4L.Rotate(phi4,tbetadir2);
-  tP5L.Rotate(phi4,tbetadir2);
+    tVect.SetXYZ(1,0,0);
+    if(TMath::Abs((tVect - tbetadir2).Mag())<.01) tVect.SetXYZ(0,1,0);
+    theta5 = tVect.Angle(tbetadir2);
+    tTrans2 = (tVect - TMath::Cos(theta5)*tbetadir2).Unit();
+
+    P4zL = gm2*beta2*E4CM2 + gm2*P4CM2*costheta4;
+    P4tL = P4CM2*sintheta4;
+    P5zL = gm2*beta2*E5CM2 - gm2*P4CM2*costheta4;
+    P5tL = - P4tL;
+
+    P4L = TMath::Sqrt(P4zL*P4zL + P4tL*P4tL);
+    P5L = TMath::Sqrt(P5zL*P5zL + P5tL*P5tL);
+    E4L = TMath::Sqrt(P4L*P4L + M4*M4);
+    E5L = TMath::Sqrt(P5L*P5L + M5*M5);
+
+    // handle very low momentum particles
+    if(!(TMath::Finite(P4L)) || P4L < .001)
+      {
+        LOG("INukeUtils",pINFO)
+          << "Particle 4 " << M4 << " momentum small or non-finite: " << P4L
+          << "\n" << "--> Assigning .001 as new momentum";
+        P4tL = 0;
+        P4zL = .001;
+        P4L = .001;
+        E4L = TMath::Sqrt(P4L*P4L + M4*M4);
+      }
+    if(!(TMath::Finite(P5L)) || P5L < .001)
+      {
+        LOG("INukeUtils",pINFO)
+          << "Particle 5 " << M5 << " momentum small or non-finite: " << P5L
+          << "\n" << "--> Assigning .001 as new momentum";
+        P5tL = 0;
+        P5zL = .001;
+        P5L = .001;
+        E5L = TMath::Sqrt(P5L*P5L + M5*M5);
+      }
+
+    tP4L = P4zL*tbetadir2 + P4tL*tTrans2;
+    tP5L = P5zL*tbetadir2 + P5tL*tTrans2;
+    tP4L.Rotate(phi4,tbetadir2);
+    tP5L.Rotate(phi4,tbetadir2);
+
+    weight = P3CM*P4CM2;
+
+    if (bias != 0) weight *= TMath::Exp(bias*(TLorentzVector(tP3L,E3L) - *p->P4()).M2());
+
+  } while (rnd->RndFsi().Rndm() > weight/max_weight);
 
   // pauli blocking
   if(P3L < FermiMomentum || ( pdg::IsNeutronOrProton(s2->Pdg()) && P4L < FermiMomentum ) )
