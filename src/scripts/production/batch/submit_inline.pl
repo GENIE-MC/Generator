@@ -10,7 +10,7 @@
 #    --gen-version       : GENIE generator version number
 #   [--job-name]         : default: tmp-(random_number)
 #   [--arch]             : <el7.x86_64, ...>, default: el7.x86_64
-#   [--production]       : default: routine_validation
+#   [--production]       : default: prod
 #   [--cycle]            : default: 01
 #   [--batch-system]     : <Slurm, PBS, LSF>, default: Slurm
 #   [--queue]            : default: compute
@@ -61,7 +61,7 @@ unless defined $gen_version;
 $random_num = int (rand(999999999));
 
 $arch              = "el7.x86_64"                            unless defined $arch;
-$production        = "routine_validation"                    unless defined $production;
+$production        = "prod"                                  unless defined $production;
 $cycle             = "01"                                    unless defined $cycle;
 $batch_system      = "Slurm"                                 unless defined $batch_system;
 $queue             = "compute"                               unless defined $queue;
@@ -69,7 +69,7 @@ $time_limit        = "10:00:00"                              unless defined $tim
 $softw_topdir      = "/user/costasa/projects/GENIE/softw/"   unless defined $softw_topdir;
 $job_topdir        = "/scratch/costasa/GENIE/"               unless defined $job_topdir;
 $job_name          = "tmp-$random_num"                       unless defined $job_name;
-$job_dir           = "$job_topdir/$gen_version-$production\_$cycle-$job_name";
+$job_dir           = "$job_topdir/$production\_$cycle-$gen_version-$job_name";
 $gen_setup_script  = "$softw_topdir/generator/builds/$arch/$gen_version-setup.sh";
 $filename_basepath = "$job_dir/$jobname";
 

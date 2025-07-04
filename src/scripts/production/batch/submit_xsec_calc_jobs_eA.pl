@@ -13,7 +13,7 @@
 #    --spline-list       : Text file listing the nuclear cross-section splines to be generated.
 #   [--input-splines]    : Input free-nucleon splines that can speed-up the calculation of nuclear splines
 #   [--arch]             : <el7.x86_64, ...>, default: el7.x86_64
-#   [--production]       : default: routine_validation
+#   [--production]       : default: prod
 #   [--cycle]            : default: 01
 #   [--use-valgrind]     : default: off
 #   [--batch-system]     : <Slurm, PBS, LSF, none>, default: Slurm
@@ -66,7 +66,7 @@ unless defined $tune;
 
 $use_valgrind      = 0                                       unless defined $use_valgrind;
 $arch              = "el7.x86_64"                            unless defined $arch;
-$production        = "routine_validation"                    unless defined $production;
+$production        = "prod"                                  unless defined $production;
 $cycle             = "01"                                    unless defined $cycle;
 $batch_system      = "Slurm"                                 unless defined $batch_system;
 $queue             = "compute"                               unless defined $queue;
@@ -76,7 +76,7 @@ $jobs_topdir       = "/scratch/costasa/GENIE/"               unless defined $job
 $input_splines     = ""                                      unless defined $input_splines;
 $gen_setup_script  = "$softw_topdir/generator/builds/$arch/$gen_version-setup.sh";
 $splines_name      = basename($spline_list,".list");
-$jobs_dir          = "$jobs_topdir/$gen_version-$tune-$production\_$cycle-xsec\_eA\_$splines_name";
+$jobs_dir          = "$jobs_topdir/$production\_$cycle-$gen_version-$tune-xsec\_eA\_$splines_name";
 
 $nknots  =  0;
 $emax    =  0;
@@ -136,8 +136,8 @@ foreach(@targets)
 {
     s/ //g;  # rm empty spaces from $_
     $tgt_code = $_;
-    $jobname  = "eAxscalc-$tgt_code";
-    $filename_basepath = "$jobs_dir/$jobname";
+    $job_name  = "XSeA-$tgt_code";
+    $filename_basepath = "$jobs_dir/$job_name";
 
     $grep_pipe   = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
     $gmkspl_opt  = "-p $probe_codes -t $_ -n $nknots -e $emax --tune $tune --event-generator-list EM";
@@ -162,7 +162,7 @@ foreach(@targets)
 	open(SLURM, ">$batch_script") or die("Can not create the SLURM batch script");
 	print SLURM "#!/bin/bash \n";
         print SLURM "#SBATCH-p $queue \n";
-        print SLURM "#SBATCH-J $jobname \n";
+        print SLURM "#SBATCH-J $job_name \n";
         print SLURM "#SBATCH-N 1 \n";   
         print SLURM "#SBATCH-c 1 \n";   
         print SLURM "#SBATCH-o $filename_basepath.slurmout.log \n";
@@ -172,7 +172,7 @@ foreach(@targets)
 	print SLURM "cd $jobs_dir \n";
 	print SLURM "$gmkspl_cmd \n";
         close(SLURM);
-	`sbatch --job-name=$jobname $batch_script`;
+	`sbatch --job-name=$job_name $batch_script`;
     } #slurm
 
     # PBS case
@@ -180,7 +180,7 @@ foreach(@targets)
 	$batch_script = "$filename_basepath.pbs";
 	open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
 	print PBS "#!/bin/bash \n";
-        print PBS "#PBS -N $jobname \n";
+        print PBS "#PBS -N $job_name \n";
         print PBS "#PBS -o $filename_basepath.pbsout.log \n";
         print PBS "#PBS -e $filename_basepath.pbserr.log \n";
 	print PBS "source $gen_setup_script \n";
@@ -196,7 +196,7 @@ foreach(@targets)
 	$batch_script = "$filename_basepath.sh";
 	open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
 	print LSF "#!/bin/bash \n";
-        print LSF "#BSUB-j $jobname \n";
+        print LSF "#BSUB-j $job_name \n";
         print LSF "#BSUB-o $filename_basepath.lsfout.log \n";
         print LSF "#BSUB-e $filename_basepath.lsferr.log \n";
 	print LSF "source $gen_setup_script \n";

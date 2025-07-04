@@ -9,14 +9,14 @@
 #   perl submit_mc_jobs_comparisons_hadron_attenuation_eA.pl <options>
 #
 # Options:
+#    --run            : runs to submit (eg --run 101102 / --run 101102,154002 / -run all)
 #    --gen-version    : GENIE version number
 #    --tune           : GENIE physics tune
-#    --run            : runs to submit (eg --run 101102 / --run 101102,154002 / -run all)
-#   [--model-enum]    : physics model enumeration, default: 0
+#    --cross-sections : GENIE cross-sections file
 #   [--nsubruns]      : number of subruns per run, default: 1
 #   [--offset]        : subrun offset (for augmenting existing sample), default: 0
 #   [--arch]          : <el7.x86_64, ...>, default: el7.x86_64
-#   [--production]    : production name, default: <version>
+#   [--production]    : production name, default: prod
 #   [--cycle]         : cycle in current production, default: 01
 #   [--use-valgrind]  : default: off
 #   [--batch-system]  : <Slurm, PBS, LSF, none>, default: Slurm
@@ -26,23 +26,22 @@
 #
 # EVENT SAMPLES:
 #
-# Run number key: ITTJJMxxx
+# Run number key: ITTJJxxx
 # I   :  probe (1:e-, 2:e+)
 # TT  :  nuclear target (01:H1, 02:D2, 03:He4, 06:C12, 07:N14, 08:O16, 10:Ne20, 26:Fe56, 36:Kr83, 54:Xe131)
 # JJ  :  flux setting (01: 12.0 GeV [HERMES], 02: 27.6 GeV [HERMES])
-# M   :  model enumeration
-# xxx :  sub-run ID, 000-999, 50k events each
+# xxx :  sub-run ID, 000-999, 100k events each
 #
 #...................................................................................
-# run number     |  init state      | energy   | event gen.    | flux
-#                |                  | (GeV)    | list          |
+# run number    |  init state      | energy   | event gen.    | flux
+#               |                  | (GeV)    | list          |
 #...................................................................................
-# 10202Mxxx      | e-    + D2       | 27.6     | EM            | monoenergetic
-# 10302Mxxx      | e-    + He4      | 27.6     | EM            | monoenergetic
-# 10702Mxxx      | e-    + N14      | 27.6     | EM            | monoenergetic
-# 11002Mxxx      | e-    + Ne20     | 27.6     | EM            | monoenergetic
-# 13602Mxxx      | e-    + Kr84     | 27.6     | EM            | monoenergetic
-# 15402Mxxx      | e-    + Xe132    | 27.6     | EM            | monoenergetic
+# 10202xxx      | e-    + D2       | 27.6     | EM            | monoenergetic
+# 10302xxx      | e-    + He4      | 27.6     | EM            | monoenergetic
+# 10702xxx      | e-    + N14      | 27.6     | EM            | monoenergetic
+# 11002xxx      | e-    + Ne20     | 27.6     | EM            | monoenergetic
+# 13602xxx      | e-    + Kr84     | 27.6     | EM            | monoenergetic
+# 15402xxx      | e-    + Xe132    | 27.6     | EM            | monoenergetic
 #
 #
 # Author:
@@ -61,30 +60,34 @@ use File::Path;
 #
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--gen-version')   { $gen_version   = $ARGV[$iarg+1]; }
-  if($_ eq '--tune')          { $tune          = $ARGV[$iarg+1]; }
-  if($_ eq '--run')           { $runnu         = $ARGV[$iarg+1]; }
-  if($_ eq '--model-enum')    { $model_enum    = $ARGV[$iarg+1]; }
-  if($_ eq '--nsubruns')      { $nsubruns      = $ARGV[$iarg+1]; }
-  if($_ eq '--offset')        { $offset        = $ARGV[$iarg+1]; }
-  if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
-  if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
-  if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
-  if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
-  if($_ eq '--batch-system')  { $batch_system  = $ARGV[$iarg+1]; }
-  if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
-  if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }  
-  if($_ eq '--jobs-topdir')   { $jobs_topdir   = $ARGV[$iarg+1]; }
+  if($_ eq '--run')            { $runnu          = $ARGV[$iarg+1]; }
+  if($_ eq '--gen-version')    { $gen_version    = $ARGV[$iarg+1]; }
+  if($_ eq '--tune')           { $tune           = $ARGV[$iarg+1]; }
+  if($_ eq '--cross-sections') { $cross_sections = $ARGV[$iarg+1]; }
+  if($_ eq '--model-enum')     { $model_enum     = $ARGV[$iarg+1]; }
+  if($_ eq '--nsubruns')       { $nsubruns       = $ARGV[$iarg+1]; }
+  if($_ eq '--offset')         { $offset         = $ARGV[$iarg+1]; }
+  if($_ eq '--arch')           { $arch           = $ARGV[$iarg+1]; }
+  if($_ eq '--production')     { $production     = $ARGV[$iarg+1]; }
+  if($_ eq '--cycle')          { $cycle          = $ARGV[$iarg+1]; }
+  if($_ eq '--use-valgrind')   { $use_valgrind   = $ARGV[$iarg+1]; }
+  if($_ eq '--batch-system')   { $batch_system   = $ARGV[$iarg+1]; }
+  if($_ eq '--queue')          { $queue          = $ARGV[$iarg+1]; }
+  if($_ eq '--softw-topdir')   { $softw_topdir   = $ARGV[$iarg+1]; }  
+  if($_ eq '--jobs-topdir')    { $jobs_topdir    = $ARGV[$iarg+1]; }
   $iarg++;
 }
+die("** Aborting [You need to specify which runs to submit. Use the --run option]")
+unless defined $runnu;
 die("** Aborting [Undefined GENIE Generator version. Use the --gen-version option]")
 unless defined $gen_version;
 die("** Aborting [Undefined GENIE physics tune. Use the --tune option]")
 unless defined $tune;
-die("** Aborting [You need to specify which runs to submit. Use the --run option]")
-unless defined $runnu;
+die("** Aborting [Undefined GENIE cross-sections file. Use the --cross-section option]")
+unless defined $cross_sections;
+die("** Aborting [GENIE cross-sections file can not be found at $cross_sections]")
+unless -e $cross_sections;
 
-$model_enum       = "0"                                   unless defined $model_enum;
 $nsubruns         = 1                                     unless defined $nsubruns;
 $offset           = 0                                     unless defined $offset;
 $use_valgrind     = 0                                     unless defined $use_valgrind;
@@ -97,10 +100,9 @@ $softw_topdir     = "/user/costasa/projects/GENIE/softw/" unless defined $softw_
 $jobs_topdir      = "/scratch/costasa/GENIE/"             unless defined $jobs_topdir;
 $time_limit       = "10:00:00";
 $gen_setup_script = "$softw_topdir/generator/builds/$arch/$gen_version-setup.sh";
-$jobs_dir         = "$jobs_topdir/$gen_version-$tune-$production\_$cycle-hadroatten\_e";
-$xspl_file        = "$softw_topdir/data/job_inputs/xspl/gxspl-eA-$genie_version.xml";
+$jobs_dir         = "$jobs_topdir/$production\_$cycle-$gen_version-$tune-hadroatten\_e";
 $mcseed           = 210921029;
-$nev_per_subrun = 50000;
+$nev_per_subrun   = 100000;
 
 # inputs for event generation jobs
 %evg_pdg_hash = ( 
@@ -174,8 +176,8 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
 
        # Get info that depends on the run and subrun numbers
        # -------------------------------------------------------------
-       # Run number key: ITTJJMxxx
-       $curr_subrunnu     = 10000 * $curr_runnu + 1000 * $model_enum + $isubrun + $offset;
+       # Run number key: ITTJJxxx
+       $curr_subrunnu     = 1000 * $curr_runnu + $isubrun + $offset;
        $curr_seed         = $mcseed + $isubrun + $offset;
        $job_name          = "hadroatten\_e-$curr_subrunnu"; 
        $filename_basepath = "$jobs_dir/$job_name";
@@ -185,7 +187,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
 #      $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
        $grep_pipe     = "grep -B 20 -A 30 -i fatal";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $evgen_opt     = "-n $nev_per_subrun -e $en -p $probe -t $tgt $fluxopt --tune $tune -r $curr_subrunnu --seed $curr_seed --cross-sections $xspl_file --event-generator-list $gevgl";
+       $evgen_opt     = "-n $nev_per_subrun -e $en -p $probe -t $tgt $fluxopt --tune $tune -r $curr_subrunnu --seed $curr_seed --cross-sections $cross_sections --event-generator-list $gevgl";
        $evgen_cmd     = "gevgen $evgen_opt | $grep_pipe &> $fntemplate.evgen.log";
        $conv_cmd      = "gntpc -f gst -i gntp.$curr_subrunnu.ghep.root";
 

@@ -13,7 +13,7 @@
 #    --spline-list       : Text file listing the nuclear cross-section splines to be generated.
 #   [--input-splines]    : Input free-nucleon splines that can speed-up the calculation of nuclear splines
 #   [--arch]             : <el7.x86_64, ...>, default: el7.x86_64
-#   [--production]       : default: routine_validation
+#   [--production]       : default: prod
 #   [--cycle]            : default: 01
 #   [--use-valgrind]     : default: off
 #   [--batch-system]     : <Slurm, PBS, LSF, none>, default: Slurm
@@ -66,22 +66,25 @@ unless defined $tune;
 
 $use_valgrind      = 0                                       unless defined $use_valgrind;
 $arch              = "el7.x86_64"                            unless defined $arch;
-$production        = "routine_validation"                    unless defined $production;
+$production        = "prod"                                  unless defined $production;
 $cycle             = "01"                                    unless defined $cycle;
 $batch_system      = "Slurm"                                 unless defined $batch_system;
 $queue             = "compute"                               unless defined $queue;
-$time_limit        = "10:00:00"                              unless defined $time_limit;
+$time_limit        = "24:00:00"                              unless defined $time_limit;
 $softw_topdir      = "/user/costasa/projects/GENIE/softw/"   unless defined $softw_topdir;
 $jobs_topdir       = "/scratch/costasa/GENIE/"               unless defined $jobs_topdir;
 $input_splines     = ""                                      unless defined $input_splines;
 $gen_setup_script  = "$softw_topdir/generator/builds/$arch/$gen_version-setup.sh";
 $splines_name      = basename($spline_list,".list");
-$jobs_dir          = "$jobs_topdir/$gen_version-$tune-$production\_$cycle-xsec\_vA\_$splines_name";
+$jobs_dir          = "$jobs_topdir/$production\_$cycle-$gen_version-$tune-xsec\_vA\_$splines_name";
 
 $nknots    =  0;
 $emax      =  0;
 @neutrinos = ();
 @targets   = ();
+
+@processes = ("CC","NC","NuE"); # Can split for finely to fit within time limits
+#@processes = ("all"); # This disables job splitting based on process type
 
 open (REQUIRED_SPLINES, $spline_list);
 $i=0;
@@ -92,7 +95,6 @@ while(<REQUIRED_SPLINES>)
    if( substr($_,0,1) ne '#' && m/[0-9]/ ) 
    { 
       s/ //g;  # rm empty spaces from $_
-      #print "line = $_\n" ;
       $value = "";
       $idx = index($_,"#");
       if($idx == -1) { $value = $_; }
@@ -116,34 +118,32 @@ while(<REQUIRED_SPLINES>)
 }
 close(REQUIRED_SPLINES);
 
+print "Probes: @neutrinos\n";
+print "Targets: @targets\n";
+print "Processes: @processes\n";
+
 # make the jobs directory
 #
 mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 
-$nu_codes = "";
-$i=0;
-foreach (@neutrinos) 
-{
-    s/ //g;  # rm empty spaces from $_
-    if($i == 0) { $nu_codes = $_; }
-    else        { $nu_codes = $nu_codes . ",$_"; }
-    $i++;
-}
-
 #
-# loop over nuclear targets & submit jobs
+# Loop over neutrinos and nuclear targets & submit a separate job for each combination.
+# For each initial state, can subdivide jobs further based on the process type
 #
-foreach(@targets) 
-{
-    s/ //g;  # rm empty spaces from $_
-    $tgt_code = $_;
-    $jobname  = "vAxscalc-$tgt_code";
-    $filename_basepath = "$jobs_dir/$jobname";
+foreach my $nu_code (@neutrinos) 
+{ 
+ foreach my $tgt_code (@targets) 
+ {
+  foreach my $proc_type (@processes) 
+  {
+    $job_name  = "XSvA_$nu_code\_$tgt_code\_$proc_type";
+    $filename_basepath = "$jobs_dir/$job_name";
 
     $grep_pipe  = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
-    $gmkspl_opt = "-p $nu_codes -t $_ -n $nknots -e $emax --tune $tune";
-    $gmkspl_opt = "gmkspl_opt --output-cross-sections gxspl_$tgt_code.xml";
-    $gmkspl_opt = "gmkspl_opt --input-cross-sections $input_splines" if -e $input_splines;
+    $gmkspl_opt = "-p $nu_code -t $tgt_code -n $nknots -e $emax --tune $tune";
+    $gmkspl_opt = "$gmkspl_opt --event-generator-list $proc_type" if $proc_type ne "all";
+    $gmkspl_opt = "$gmkspl_opt --output-cross-sections gxspl_$tgt_code.xml";
+    $gmkspl_opt = "$gmkspl_opt --input-cross-sections $input_splines" if -e $input_splines;
    #$gmkspl_cmd = "gmkspl $gmkspl_opt | $grep_pipe &> $filename_basepath.mkspl.log";
     $gmkspl_cmd = "gmkspl $gmkspl_opt &> $filename_basepath.mkspl.log";
 
@@ -163,7 +163,7 @@ foreach(@targets)
 	open(SLURM, ">$batch_script") or die("Can not create the SLURM batch script");
 	print SLURM "#!/bin/bash \n";
         print SLURM "#SBATCH-p $queue \n";
-        print SLURM "#SBATCH-J $jobname \n";
+        print SLURM "#SBATCH-J $job_name \n";
         print SLURM "#SBATCH-N 1 \n";   
         print SLURM "#SBATCH-c 1 \n";   
         print SLURM "#SBATCH-o $filename_basepath.slurmout.log \n";
@@ -173,15 +173,15 @@ foreach(@targets)
 	print SLURM "cd $jobs_dir \n";
 	print SLURM "$gmkspl_cmd \n";
         close(SLURM);
-	`sbatch --job-name=$jobname $batch_script`;
-    } #slurm
+	`sbatch $batch_script`;
+    } #Slurm
 
     # PBS case
     if($batch_system eq 'PBS') {
 	$batch_script = "$filename_basepath.pbs";
 	open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
 	print PBS "#!/bin/bash \n";
-        print PBS "#PBS -N $jobname \n";
+        print PBS "#PBS -N $job_name \n";
         print PBS "#PBS -o $filename_basepath.pbsout.log \n";
         print PBS "#PBS -e $filename_basepath.pbserr.log \n";
 	print PBS "source $gen_setup_script \n";
@@ -197,7 +197,7 @@ foreach(@targets)
 	$batch_script = "$filename_basepath.sh";
 	open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
 	print LSF "#!/bin/bash \n";
-        print LSF "#BSUB-j $jobname \n";
+        print LSF "#BSUB-j $job_name \n";
         print LSF "#BSUB-o $filename_basepath.lsfout.log \n";
         print LSF "#BSUB-e $filename_basepath.lsferr.log \n";
 	print LSF "source $gen_setup_script \n";
@@ -211,5 +211,8 @@ foreach(@targets)
     if($batch_system eq 'none') {
         system("source $gen_setup_script; cd $jobs_dir; $gmkspl_cmd");
     }
-}
+
+  } # process
+ } # targets
+} # neutrinos
 

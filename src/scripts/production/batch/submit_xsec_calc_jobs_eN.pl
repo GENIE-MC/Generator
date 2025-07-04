@@ -13,7 +13,7 @@
 #    --tune            : GENIE physics tune
 #    --xsec-spline-set : set of cross-section splines to generate
 #   [--arch]           : <el7.x86_64, ...>, default: el7.x86_64
-#   [--production]     : default: routine_validation
+#   [--production]     : default: prod
 #   [--cycle]          : default: 01
 #   [--use-valgrind]   : default: off
 #   [--batch-system]   : <Slurm, PBS, LSF, none>, default: Slurm
@@ -63,7 +63,7 @@ unless defined $tune;
 
 $use_valgrind     = 0                                       unless defined $use_valgrind;
 $arch             = "el7.x86_64"                            unless defined $arch;
-$production       = "routine_validation"                    unless defined $production;
+$production       = "prod"                                  unless defined $production;
 $cycle            = "01"                                    unless defined $cycle;
 $batch_system     = "Slurm"                                 unless defined $batch_system;
 $queue            = "compute"                               unless defined $queue;
@@ -71,7 +71,7 @@ $time_limit       = "10:00:00"                              unless defined $time
 $softw_topdir     = "/user/costasa/projects/GENIE/softw/"   unless defined $softw_topdir;
 $jobs_topdir      = "/scratch/costasa/GENIE/"               unless defined $jobs_topdir;
 $gen_setup_script = "$softw_topdir/generator/builds/$arch/$gen-version-setup.sh";
-$jobs_dir         = "$jobs_topdir/$gen_version-$tune-$production\_$cycle-xsec\_eN/";
+$jobs_dir         = "$jobs_topdir/$production\_$cycle-$gen_version-$tune-XSeN/";
 $time_limit       = "10:00:00";
 
 $nkots = 100;
@@ -153,8 +153,8 @@ for my $curr_xsplset (keys %OUTXML)  {
     $gevgl  = $GEVGL   {$curr_xsplset};
     $outxml = $OUTXML  {$curr_xsplset};
 
-    $jobname = "eNxscalc-$curr_xsplset"; 
-    $filename_basepath = "$jobs_dir/$jobname"; 
+    $job_name = "XSeN-$curr_xsplset"; 
+    $filename_basepath = "$jobs_dir/$job_name"; 
 
     $grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
     $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
@@ -172,7 +172,7 @@ for my $curr_xsplset (keys %OUTXML)  {
         open(SLURM, ">$batch_script") or die("Can not create the Slurm batch script");
         print SLURM "#!/bin/bash \n";
         print SLURM "#SBATCH-p $queue \n";
-        print SLURM "#SBATCH-J $jobname \n";
+        print SLURM "#SBATCH-J $job_name \n";
         print SLURM "#SBATCH-N 1 \n";
         print SLURM "#SBATCH-c 1 \n";
         print SLURM "#SBATCH-o $filename_basepath.slurmout.log \n";
@@ -190,7 +190,7 @@ for my $curr_xsplset (keys %OUTXML)  {
         $batch_script = "$filename_basepath.pbs";
         open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
         print PBS "#!/bin/bash \n";
-        print PBS "#PBS -N $jobname \n";
+        print PBS "#PBS -N $job_name \n";
         print PBS "#PBS -o $filename_basepath.pbsout.log \n";
         print PBS "#PBS -e $filename_basepath.pbserr.log \n";
         print PBS "source $gen_setup_script \n";
@@ -206,7 +206,7 @@ for my $curr_xsplset (keys %OUTXML)  {
         $batch_script = "$filename_basepath.sh";
         open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
         print LSF "#!/bin/bash \n";
-        print PBS "#BSUB-j $jobname \n";
+        print PBS "#BSUB-j $job_name \n";
         print LSF "#BSUB-q $queue \n";
         print LSF "#BSUB-o $filename_basepath.lsfout.log \n";
         print LSF "#BSUB-e $filename_basepath.lsferr.log \n";
