@@ -60,6 +60,7 @@ public:
 
   // XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  double d2sigma_dQ2dv   (const Interaction * i) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
   const  TVector3 & FinalLeptonPolarization (const Interaction* i) const;

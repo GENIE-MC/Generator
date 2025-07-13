@@ -1424,6 +1424,22 @@ double NievesQELCCPXSec::IntegratedOverMomentum (const Interaction* interaction,
   
 }
 //___________________________________________________________________________________
+double NievesQELCCPXSec::d2sigma_dQ2dv(const Interaction* interaction) const
+{
+  const InitialState & init_state = interaction -> InitState();
+  const Target & target = init_state.Tgt();
+  
+  double Rmax = MaximalRadius(&target);
+  if (Rmax <= 0) return 0;
+  
+  ROOT::Math::IntegrationOneDim::Type ig_type = utils::gsl::Integration1DimTypeFromString( f1DimIntgType );
+  ROOT::Math::IBaseFunctionOneDim * func = new utils::gsl::wrap::NievesQELSmithMonizIntegrand(this, interaction, 0);
+  ROOT::Math::Integrator ig(*func, ig_type, 0, f1DimRelTol, f1DimMaxEval);
+  double xsec = ig.Integral(0, Rmax);
+  delete func;
+  return xsec;
+}
+//___________________________________________________________________________________
 void NievesQELCCPXSec::ModelNuclParams(const Interaction* interaction, double r, double & kFi, double & kFf) const
 {
   const InitialState & init_state = interaction -> InitState();
