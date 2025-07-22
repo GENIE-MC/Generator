@@ -201,6 +201,15 @@ values for each Reweight tweak dial. All of these have default values of zero.
    <param type="double" name="FrPiProd_pi@PlusOneSigma"> 0.20 </param>
    <param type="double" name="FrPiProd_pi@MinusOneSigma"> 0.20 </param>
 
+   <param type="double" name="FrKin_PiProFix_N"> 1 </param>
+   <param type="double" name="FrKin_PiProBiaswFix_N@PlusOneSigma">6</param>
+   <param type="double" name="FrKin_PiProBiaswFix_N@MinusOneSigma">6</param>
+   <param type="double" name="FrKin_PiProBias_N@PlusOneSigma">6</param>
+   <param type="double" name="FrKin_PiProBias_N@MinusOneSigma">6</param>
+
+   <param type="double" name="FrKin_NP_N"> 1 </param>
+   <param type="double" name="FrKin_PP_N"> 1 </param>
+
    <param type="double" name="FrCEx_N@PlusOneSigma"> 0.50 </param>
    <param type="double" name="FrCEx_N@MinusOneSigma"> 0.50 </param>
 
