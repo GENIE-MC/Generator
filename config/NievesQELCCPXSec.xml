@@ -42,7 +42,7 @@ RmaxMode                             string   Yes        Method to use to comput
     <param type="string" name="IntegralNucleonBindingMode"> UseNuclearModel </param>
     <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy"> 10.0 </param>
 
-    <param type="bool" name="RPA">             true                          </param>
+    <param type="bool" name="RPA">             false                          </param>
     <param type="bool" name="Coulomb">         true                         </param>
     <param type="bool" name="PrintDebugData">  false                          </param>
 
