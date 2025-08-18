@@ -311,6 +311,7 @@ bool KPhaseSpace::IsAboveThreshold(void) const
      pi.IsDarkMatterDeepInelastic() ||
      pi.IsDiffractive()             ||
      pi.IsSingleKaon()              ||
+     pi.IsSinglePion()              ||
      pi.IsAMNuGamma())
   {
       E = init_state.ProbeE(kRfHitNucRest);
