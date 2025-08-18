@@ -3,8 +3,8 @@
  Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <c.andreopoulos \at cern.ch>
- University of Liverpool
+ Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+ University of Liverpool & STFC Rutherford Appleton Laboratory
 
  Changes required to implement the GENIE Boosted Dark Matter module
  were installed by Josh Berger (Univ. of Wisconsin)
@@ -311,6 +311,7 @@ bool KPhaseSpace::IsAboveThreshold(void) const
      pi.IsDarkMatterDeepInelastic() ||
      pi.IsDiffractive()             ||
      pi.IsSingleKaon()              ||
+     pi.IsSinglePion()              ||
      pi.IsAMNuGamma())
   {
       E = init_state.ProbeE(kRfHitNucRest);
