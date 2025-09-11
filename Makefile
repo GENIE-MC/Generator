@@ -99,7 +99,6 @@ physics-neutrino-scattering-modes: FORCE
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/Diffractive/XSection             &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/Diffractive/EventGen             &&  $(MAKE) &&   \
-	cd ${GENIE}/src/Physics/Fortran/XSection		 &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/HELepton/XSection                &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/HELepton/EventGen                &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/InverseBetaDecay/XSection        &&  $(MAKE) &&   \
@@ -420,7 +419,6 @@ endif
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Diffractive
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Diffractive/XSection
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Diffractive/EventGen
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Fortran/XSection
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/HELepton
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/HELepton/XSection
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/HELepton/EventGen
@@ -493,7 +491,6 @@ copy-install-files: FORCE
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Diffractive/XSection             &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Diffractive/EventGen             &&  $(MAKE) install && \
-	cd ${GENIE}/src/Physics/Fortran/XSection		 &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/HELepton/XSection                &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/HELepton/EventGen                &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Hadronization                    &&  $(MAKE) install && \
@@ -556,7 +553,6 @@ purge: FORCE
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Diffractive/XSection             &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Diffractive/EventGen             &&  $(MAKE) purge && \
-	cd ${GENIE}/src/Physics/Fortran/XSection		 &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/HELepton/XSection                &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/HELepton/EventGen                &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Hadronization                    &&  $(MAKE) purge && \
@@ -620,7 +616,6 @@ clean-files: FORCE
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Diffractive/XSection             &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Diffractive/EventGen             &&  $(MAKE) clean && \
-	cd ${GENIE}/src/Physics/Fortran/XSection	 	 &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/HELepton/XSection                &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/HELepton/EventGen                &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Hadronization                    &&  $(MAKE) clean && \
@@ -709,7 +704,6 @@ endif
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Diffractive/XSection             &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Diffractive/EventGen             &&  $(MAKE) distclean && \
-	cd ${GENIE}/src/Physics/Fortran/XSection		 &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/HELepton/XSection                &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/HELepton/EventGen                &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Hadronization                    &&  $(MAKE) distclean && \

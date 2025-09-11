@@ -237,7 +237,6 @@ Or changing the name of this parameter set
 	Elastic form factors used for QEL CC cross section calculation.
 	Options are:
 	- genie::DipoleELFormFactorsModel
-	- genie::KellyELFormFactorsModel, J.J. Kelly, Phys.Rev.C 70 (2004) 068202
 	- genie::BBA03ELFormFactorsModel, H.Budd, NuINT-02 proceedings
 	- genie::BBA05ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and J.Arrington, hep-ex/0602017
 	- genie::BBA07ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and S.Avvakumov, Euro.Phys.J.C53 (2008);[arXiv:0708.1946 [hep-ex]]
