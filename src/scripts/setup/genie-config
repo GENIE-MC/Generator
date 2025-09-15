@@ -77,9 +77,6 @@ if test "$GOPT_ENABLE_MASTERCLASS" = "YES"; then
 fi
 
 # More features
-if test "$GOPT_ENABLE_PYTHIA6" = "YES"; then
-  features="$features pythia6"
-fi
 if test "$GOPT_ENABLE_PYTHIA8" = "YES"; then
   features="$features pythia8"
 fi
