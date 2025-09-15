@@ -4,7 +4,7 @@
  For the full text of the license visit http://copyright.genie-mc.org
 
  Steven Gardiner <gardiner \at fnal.gov>
- Fermi National Accelerator Laboratory 
+ Fermi National Accelerator Laboratory
 */
 //____________________________________________________________________________
 
@@ -196,7 +196,10 @@ void NewQELXSec::LoadConfig(void)
 
   GetParamDef( "NumNucleonThrows", fNumNucleonThrows, 5000 );
 
-  GetParamDef( "SF_MinAngleEM", fMinAngleEM, 0.);
+  // TODO: This is a parameter that may also be specified in the XML
+  // configuration for QELEventGenerator. Avoid duplication here to ensure
+  // consistency.
+  GetParamDef( "SF-MinAngleEMscattering", fMinAngleEM, 0. ) ;
 
   // If true, then the integration of the total cross section will include an
   // MC integration over the initial state nuclear model
