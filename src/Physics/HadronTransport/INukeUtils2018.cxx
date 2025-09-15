@@ -1158,9 +1158,9 @@ bool genie::utils::intranuke2018::ThreeBodyKinematics(
   // G.P. 2/20/2025
   // Sample uniformly in lorentz invariany phase space
   //
-  // Just because you sample uniformly does not mean you are 
+  // Just because you sample uniformly does not mean you are
   // uniformly sampling Lorentz invariant phase space.
-  // 
+  //
   // D-LIPS taken from PDG: https://pdg.lbl.gov/2018/reviews/rpp2018-rev-kinematics.pdf
   // Algorithm is morally similar to Raubdo-Lynch method, hard-coded to 3 bodies
 
@@ -1327,7 +1327,8 @@ bool genie::utils::intranuke2018::ThreeBodyKinematics(
 //___________________________________________________________________________
 bool genie::utils::intranuke2018::PionProduction(
   GHepRecord* ev, GHepParticle* p, GHepParticle* s1, GHepParticle* s2, GHepParticle* s3, int &RemnA, int &RemnZ,
-  TLorentzVector &RemnP4, bool DoFermi, double FermiFac, double FermiMomentum, const NuclearModelI* Nuclmodel)
+  TLorentzVector &RemnP4, bool DoFermi, double FermiFac, double FermiMomentum, const NuclearModelI* Nuclmodel,
+  double bias)
 {
   // Aaron Meyer (7/15/2010)
   //
@@ -1647,7 +1648,7 @@ bool genie::utils::intranuke2018::PionProduction(
    s3->SetPdgCode(p5code);
 
    if(genie::utils::intranuke2018::ThreeBodyKinematics(
-        ev,p,(ptarg?kPdgProton:kPdgNeutron),s1,s2,s3,DoFermi,FermiFac,FermiMomentum,Nuclmodel))
+        ev,p,(ptarg?kPdgProton:kPdgNeutron),s1,s2,s3,DoFermi,FermiFac,FermiMomentum,Nuclmodel,bias))
      {
        // okay, handle remnants and return true
        // assumes first particle is always the nucleon,
