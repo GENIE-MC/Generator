@@ -2,7 +2,7 @@
 /*
  Copyright (c) 2003-2024, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- 
+
 
  Author: Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
          Aaron Meyer <asm58@pitt.edu>, Pittsburgh Univ.
@@ -781,7 +781,7 @@ void HAIntranuke2018::Inelastic(
       GHepParticle s3(*p);
 
       bool success = utils::intranuke2018::PionProduction(
-         ev,p,&s1,&s2,&s3,fRemnA,fRemnZ,fRemnP4, fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel);
+         ev,p,&s1,&s2,&s3,fRemnA,fRemnZ,fRemnP4, fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel,fPiProdThreeBodyBias);
 
       if (success){
         LOG ("HAIntranuke2018",pINFO) << " successful pion production fate";
@@ -1562,6 +1562,8 @@ void HAIntranuke2018::LoadConfig(void)
   GetParamDef( "FSI-Nucleon-FracAbsScale",       fNucleonFracAbsScale,    1.0 ) ;
   GetParamDef( "FSI-Nucleon-FracPiProdScale",    fNucleonFracPiProdScale, 1.0 ) ;
 
+  GetParamDef( "FSI-PiProd-ThreeBodyBias", fPiProdThreeBodyBias, 0.0 ) ;
+
   // report
   LOG("HAIntranuke2018", pINFO) << "Settings for INTRANUKE mode: " << INukeMode::AsString(kIMdHA);
   LOG("HAIntranuke2018", pINFO) << "R0          = " << fR0 << " fermi";
@@ -1577,6 +1579,7 @@ void HAIntranuke2018::LoadConfig(void)
   LOG("HAIntranuke2018", pINFO) << "DoFermi?    = " << ((fDoFermi)?(true):(false));
   LOG("HAIntranuke2018", pINFO) << "DoCmpndNuc? = " << ((fDoCompoundNucleus)?(true):(false));
   LOG("HAIntranuke2018", pINFO) << "XsecNNCorr? = " << ((fXsecNNCorr)?(true):(false));
+  LOG("HAIntranuke2018", pINFO) << "PiProdBias  = " << fPiProdThreeBodyBias;
 }
 //___________________________________________________________________________
 /*
