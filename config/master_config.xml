@@ -267,14 +267,11 @@
    <config alg="genie::SuSAv2QELHadronTensorModel">     SuSAv2QELHadronTensorModel.xml   </config>
    <config alg="genie::SuSAv2MECHadronTensorModel">     SuSAv2MECHadronTensorModel.xml   </config>
 
-   <!-- ****** CONFIGURATION FOR REWEIGHT ALGORITHMS ****** -->
-   <config alg="genie::rew::GSystUncertaintyTable">     GSystUncertaintyTable.xml        </config>
-
  <!-- ****** EvtLib / EventLibraryInterface ****** -->
    <config alg="genie::evtlib::EventLibraryInterface">          EventLibraryInterface.xml          </config>
    <config alg="genie::evtlib::EvtLibInteractionListGenerator"> EvtLibInteractionListGenerator.xml </config>
    <config alg="genie::evtlib::EvtLibPXSec">                    EvtLibPXSec.xml                    </config>
-   
+
    <config alg="genie::NormGenerator">                       NormGenerator.xml                  </config>
    <config alg="genie::NormXSec">                            NormXSec.xml                       </config>
    <config alg="genie::NormInteractionListGenerator">        NormInteractionListGenerator.xml   </config>
