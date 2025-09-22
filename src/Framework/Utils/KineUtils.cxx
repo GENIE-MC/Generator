@@ -460,6 +460,17 @@ double genie::utils::kinematics::Jacobian(
       delete ki4;
   }
   
+  else if ( TransformMatched(fromps,tops, kPSTlctl, kPSQ2vfE, forward) )
+  {
+      TLorentzVector* ki4 = i->InitStatePtr()->GetProbeP4(genie::kRfLab);
+      TLorentzVector kf4(i->KinePtr()->FSLeptonP4());
+      double Ev     = ki4->Energy();
+      double l      = kf4.Vect().Mag();
+      J = TMath::Abs(2*Ev*l);
+      
+      delete ki4;
+  }
+  
   else if ( TransformMatched(fromps,tops, kPSxyfE, kPSWQ2fE, forward) )
   {
       const InitialState & init_state = i->InitState();
