@@ -321,116 +321,7 @@ double genie::utils::kinematics::Jacobian(
     // (it will be inverted below for the inverse transformation)
     J = W / ( 2. * pv * pl * M );
   }
-  
-  else if ( TransformMatched(fromps,tops, kPSyphi0fEx, kPSQELEvGen, forward) )
-  {
-      TLorentzVector* ki4 = i->InitStatePtr()->GetProbeP4(genie::kRfLab);
-      TLorentzVector* pi4 = i->InitStatePtr()->TgtPtr()->HitNucP4Ptr();
-      TLorentzVector totMom = *ki4 + *pi4;
-      TVector3 beta = totMom.BoostVector();
-      TLorentzVector kf4(i->KinePtr()->FSLeptonP4());
-      kf4.Boost(-beta);
-      
-      TVector3 zvec(0., 0., 1.);
-      TVector3 rot = ( zvec.Cross(beta) ).Unit();
-      double angle = beta.Angle( zvec );
-      // Handle the edge case where beta is along z, so the
-      // cross product above vanishes
-      if ( beta.Perp() == 0. && beta.Z() < 0. ) 
-      {
-         rot = TVector3(0., 1., 0.);
-         angle = genie::constants::kPi;
-      }
- 
-      if ( rot.Mag() > 0 ) 
-      {
-         kf4.Rotate(angle, -rot);
-      }
-      
-      double kf4_mag    = kf4.Vect().Mag();
-      double theta_star = kf4.Theta();
-      double phi_star   = kf4.Phi();
-      
-      TLorentzVector kf4_dtheta(kf4_mag*TMath::Cos(phi_star)*TMath::Cos(theta_star), kf4_mag*TMath::Sin(phi_star)*TMath::Cos(theta_star), -kf4_mag*TMath::Sin(theta_star), 0);
-      TLorentzVector kf4_dphi( -kf4_mag*TMath::Sin(phi_star)*TMath::Sin(theta_star), kf4_mag*TMath::Cos(phi_star)*TMath::Sin(theta_star), 0, 0);
-      if ( theta_star <= 0 || theta_star >= genie::constants::kPi)
-      {
-          kf4_dphi = TLorentzVector( -kf4_mag*TMath::Sin(phi_star), kf4_mag*TMath::Cos(phi_star), 0, 0 );
-      }
-      // to LAB frame
-      if ( rot.Mag() > 0 ) 
-      {
-          kf4_dtheta.Rotate(angle, rot);
-          kf4_dphi.Rotate(angle, rot);
-      }
-      kf4_dtheta.Boost(beta);
-      kf4_dphi.Boost(beta);
-      kf4 = i->KinePtr()->FSLeptonP4();
-      
-      double dQ2dtheta = 2*((*ki4)*kf4_dtheta);
-      double dQ2dphi   = 2*((*ki4)*kf4_dphi);
-      
-      // to hit nucleon rest frame
-      TVector3 beta1 = pi4->BoostVector();
-      kf4_dtheta.Boost(-beta1);
-      kf4_dphi.Boost(-beta1);
-      kf4.Boost(-beta1);
-      
-      ki4->Boost(-beta1);
-      TVector3 ki3 = ki4->Vect();
-      TVector3 rot1 = ( ki3.Cross(zvec) ).Unit();
-      double angle1 = zvec.Angle( ki3 );
-      // Handle the edge case where beta is along z, so the
-      // cross product above vanishes
-      if ( ki3.Perp() == 0. && ki3.Z() < 0. ) 
-      {
-         rot1 = TVector3(0., 1., 0.);
-         angle1 = genie::constants::kPi;
-      }
-      if ( rot1.Mag() > 0 ) 
-      {
-         kf4_dtheta.Rotate(angle1, rot1);
-         kf4_dphi.Rotate(angle1, rot1);
-         kf4.Rotate(angle1, rot1);
-      }
-      double t = 1/( kf4.Px()*kf4.Px() + kf4.Py()*kf4.Py() );
-      double dphi0dtheta = t*(kf4_dtheta.Py()*kf4.Px() - kf4_dtheta.Px()*kf4.Py());
-      double dphi0dphi   = t*(kf4_dphi.Py()*kf4.Px() - kf4_dphi.Px()*kf4.Py());
-      
-      double Q2 = i->Kine().GetKV( kKVQ2 );
-      // mass of initial nucleon
-      double Mi = i->InitStatePtr()->TgtPtr()->HitNucMass();
-      // Look up the (on-shell) mass of the final nucleon
-      TDatabasePDG *tb = TDatabasePDG::Instance();
-      double Mf = tb->GetParticle( i->RecoilNucleonPdg() )->Mass();
-      // Mandelstam s for the probe/hit nucleon system
-      double s = TMath::Sq( i->InitState().CMEnergy() );
-      double dydQ2 = (s - Mi*Mi)/TMath::Sq(s - Mf*Mf - Q2);
-      if ( theta_star <= 0 || theta_star >= genie::constants::kPi)
-         J = 1;
-      else
-         J = 1/TMath::Sin(theta_star);
-      
-      // It is not entirely correct to divide by 2 pi, but solely to simplify the code it is better to do it here (Igor Kakorin)
-      J = TMath::Abs(J*dydQ2*(dQ2dtheta*dphi0dphi - dQ2dphi*dphi0dtheta)/2/genie::constants::kPi);
-                
-      delete ki4;
-  }
-  
-  else if ( TransformMatched(fromps,tops, kPSyphi0fEx, kPSQ2fE, forward) )
-  {
-      double Q2 = i->Kine().GetKV( kKVQ2 );
-      // mass of initial nucleon
-      double Mi = i->InitStatePtr()->TgtPtr()->HitNucMass();
-      // Look up the (on-shell) mass of the final nucleon
-      TDatabasePDG *tb = TDatabasePDG::Instance();
-      double Mf = tb->GetParticle( i->RecoilNucleonPdg() )->Mass();
-      // Mandelstam s for the probe/hit nucleon system
-      double s = TMath::Sq( i->InitState().CMEnergy() );
-      double dydQ2 = (s - Mi*Mi)/TMath::Sq(s - Mf*Mf - Q2);
-      J = dydQ2;
-  }
-  
+    
   else if ( TransformMatched(fromps,tops, kPSxyfE, kPSTlctl, forward) )
   {
       TLorentzVector* ki4 = i->InitStatePtr()->GetProbeP4();
@@ -460,7 +351,7 @@ double genie::utils::kinematics::Jacobian(
       delete ki4;
   }
   
-  else if ( TransformMatched(fromps,tops, kPSTlctl, kPSQ2vfE, forward) )
+  else if ( TransformMatched(fromps,tops, kPSQ2vfE, kPSTlctl, forward) )
   {
       TLorentzVector* ki4 = i->InitStatePtr()->GetProbeP4(genie::kRfLab);
       TLorentzVector kf4(i->KinePtr()->FSLeptonP4());
