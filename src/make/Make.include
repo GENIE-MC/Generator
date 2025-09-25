@@ -157,13 +157,13 @@ endif
 #                             APFEL
 #-------------------------------------------------------------------
 
-APFEL_LIBRARIES = 
+APFEL_LIBRARIES =
 APFEL_INCLUDES  =
 
-ifeq ($(strip $(GOPT_ENABLE_APFEL)),YES) 
+ifeq ($(strip $(GOPT_ENABLE_APFEL)),YES)
 
 APFEL_INCLUDES  = -I$(GOPT_WITH_APFEL_INC)
-APFEL_LIBRARIES = -L$(GOPT_WITH_APFEL_LIB) -lAPFEL 
+APFEL_LIBRARIES = -L$(GOPT_WITH_APFEL_LIB) -lAPFEL
 
 endif
 
@@ -228,29 +228,6 @@ ifneq ($(G4INCBASE),"")
  endif
 
 GEANT4_LIBRARIES := $(shell $(GOPT_WITH_GEANT4_LIB)/../bin/geant4-config --libs-without-gui )
-endif
-
-#-------------------------------------------------------------------
-# PYTHIA6
-#-------------------------------------------------------------------
-
-PYTHIA6_LIBRARIES =
-PY6ROOT_LIBRARY   =
-
-ifeq ($(strip $(GOPT_ENABLE_PYTHIA6)),YES)
-
-PYTHIA6_DIR = $(GOPT_WITH_PYTHIA6_LIB)
-PYTHIA6_O   = $(wildcard $(PYTHIA6_DIR)/pythia*.o) # match all vrs
-
-PYTHIA6_LIBRARIES = -L$(PYTHIA6_DIR) -lPythia6 $(PYTHIA6_O)
-
-ifeq ($(strip $(ARCH)),macosx)
-PYTHIA6_LIBRARIES  = -L$(PYTHIA6_DIR) -lPythia6
-endif
-
-PY6ROOT_LIBRARY = -lEGPythia6
-else
-  $(info GOPT_ENABLE_PYTHIA6 is NO)
 endif
 
 #-------------------------------------------------------------------
