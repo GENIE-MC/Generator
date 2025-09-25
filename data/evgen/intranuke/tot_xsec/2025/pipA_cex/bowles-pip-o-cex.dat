@@ -1,0 +1,5 @@
+# pi+ Be single charge exchange cross section
+# source: T.J. Bowles, et al, Phys Rev C23, 439 1981 (table)
+# data point at 50 MeV omitted, but used to determine data in various-pip-c-cex.dat
+# KE(MeV) CEx(mb) Err(mb)
+100.   66.   10.
