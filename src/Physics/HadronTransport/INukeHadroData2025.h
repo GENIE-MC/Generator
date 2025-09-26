@@ -30,7 +30,7 @@
 
 \cpright  Copyright (c) 2003-2024, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
- \created on  september,2025 by Mohamed Ismail <msi10@pitt.edu>
+ \modified on  september,2025 by Mohamed Ismail <msi10@pitt.edu>
  For hA2025, we rely now on total cross sections TGraph2d not the fractions TGraph2d.            
 
 */
