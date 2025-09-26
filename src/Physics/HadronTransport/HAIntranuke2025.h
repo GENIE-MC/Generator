@@ -24,9 +24,8 @@
 \cpright  Copyright (c) 2003-2024, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 
-\changes made on  september 20,2025 by Mohamed Ismail <msi10@pitt.edu>
-
-          
+\created on  september,2025 by Mohamed Ismail <msi10@pitt.edu>
+no changes from the 2018 class version, major changed made in INukeHadroData2025          
 */
 //____________________________________________________________________________
 
