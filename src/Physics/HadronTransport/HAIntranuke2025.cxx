@@ -42,6 +42,9 @@
    Added 2014 version of INTRANUKE codes (new class) for independent development.
  @ Aug 30, 2016 - SD
    Fix memory leaks - Igor.
+ @  sep 2025  - Mohamed Ismail
+  new class for hA2025
+ 
 */
 //____________________________________________________________________________
 
