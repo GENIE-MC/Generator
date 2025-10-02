@@ -403,14 +403,12 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::Qvalue(const Interaction & int
     // Oxygen tensor has some issues - xsec @ 50 GeV = 45.2835 x 1E-38 cm^2
     // This is ~ 24 times higher than C
     // I think it's just a missing scale factor but I need to check.
-    //before Eb_tgt=fEbO; Eb_ten=fEbC;
     Eb_tgt=fEbO; Eb_ten=fEbO;
   }
   else if(A_request >= 22 && A_request < 40) {
     Eb_tgt=fEbMg; Eb_ten=fEbC;
   }
   else if(A_request >= 40 && A_request < 56) {
-    //before Eb_tgt=fEbAr; Eb_ten=fEbC;
     Eb_tgt=fEbAr; Eb_ten=fEbCa;
   }
   else if(A_request >= 56 && A_request < 119) {
