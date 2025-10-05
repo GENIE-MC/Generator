@@ -61,23 +61,23 @@ bool XSecAlgorithmI::ValidKinematics(const Interaction* interaction) const
   return true;
 }
 //___________________________________________________________________________
-const TVector3 & XSecAlgorithmI::FinalLeptonPolarization (const Interaction* i) const
+const TVector3 & XSecAlgorithmI::FinalLeptonPolarization (const Interaction* interaction) const
 {
-    if ( i->ProcInfo().IsEM() ) 
+    if ( interaction->ProcInfo().IsEM() ) 
     {
         LOG("XSecBase", pWARN) << "For EM processes doesn't work yet. Set it to zero.";
         fFinalLeptonPolarization = TVector3(0, 0, 0);
         return fFinalLeptonPolarization;
     }
-    int pdg = i->FSPrimLeptonPdg();
+    const Kinematics &   kinematics = interaction -> Kine();
+    TLorentzVector leptonMom = kinematics.FSLeptonP4();
+    int pdg = interaction->FSPrimLeptonPdg();
+    fFinalLeptonPolarization = TVector3(leptonMom.Px(), leptonMom.Py(), leptonMom.Pz());
     if ( pdg::IsNeutrino(pdg) || pdg::IsElectron(pdg) || pdg::IsMuon(pdg) || pdg::IsTau(pdg) )
     {
-        fFinalLeptonPolarization = TVector3(0, 0, -1);
+        fFinalLeptonPolarization = -1.*fFinalLeptonPolarization;
     }
-    else
-    {
-        fFinalLeptonPolarization = TVector3(0, 0, 1);
-    }
+
     return fFinalLeptonPolarization;
 }
 //___________________________________________________________________________
