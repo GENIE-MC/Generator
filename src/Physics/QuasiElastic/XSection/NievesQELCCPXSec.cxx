@@ -1416,7 +1416,7 @@ double NievesQELCCPXSec::IntegratedOverMomentum (const Interaction* interaction,
   // factor kPi2 comes from above definition of b; coloumb corrections factor also is taken into account
   double extrafactor  = kGF2*fCos8c2*TMath::Sq(kMw2/(kMw2 - q4.Mag2() ) )/El/4/kPi2;
   
-  // Calculate xsec
+  // Calculate d3XSec/dEldCosThetadR
   double xsec = extrafactor*R;
   xsec *= fXSecCCScale ;
 
@@ -1424,7 +1424,7 @@ double NievesQELCCPXSec::IntegratedOverMomentum (const Interaction* interaction,
   
 }
 //___________________________________________________________________________________
-double NievesQELCCPXSec::d2sigma_dQ2dv(const Interaction* interaction) const
+double NievesQELCCPXSec::d2XSec_dEldCosTheta(const Interaction* interaction) const
 {
   const InitialState & init_state = interaction -> InitState();
   const Target & target = init_state.Tgt();

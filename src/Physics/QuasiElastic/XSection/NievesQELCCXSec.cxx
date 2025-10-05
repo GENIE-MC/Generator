@@ -2,8 +2,6 @@
 /*
  Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
-
- Igor Kakorin JINR
 */
 //____________________________________________________________________________
 
@@ -47,7 +45,7 @@ double NievesQELCCXSec::Integrate(const XSecAlgorithmI* model, const Interaction
     
     Target * tgt = in->InitStatePtr()->TgtPtr();
     double Rmax =  tgt->HitNucPosition();
-    utils::gsl::d3XSec_dElepdCosThetalepdR_E func(model, in, Rmax ) ; 
+    utils::gsl::d3XSec_dQ2dvdR_E func(model, in, Rmax ) ; 
     ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
     ROOT::Math::IntegratorMultiDim ig(ig_type, 0, fGSLRelTol, fGSLMaxEval);
     if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) 
@@ -95,7 +93,7 @@ void NievesQELCCXSec::LoadConfig(void)
 //____________________________________________________________________________
 // GSL wrappers
 //____________________________________________________________________________
-genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E::d3XSec_dElepdCosThetalepdR_E(
+genie::utils::gsl::d3XSec_dQ2dvdR_E::d3XSec_dQ2dvdR_E(
        const XSecAlgorithmI * m, const Interaction * interaction, double  Rmax) :
   ROOT::Math::IBaseFunctionMultiDim(),
   fModel(m),
@@ -113,15 +111,15 @@ genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E::d3XSec_dElepdCosThetalepdR_E(
   sm_utils->SetInteraction(interaction);
   fKinematics = fInteraction->KinePtr();
 }
-genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E::~d3XSec_dElepdCosThetalepdR_E()
+genie::utils::gsl::d3XSec_dQ2dvdR_E::~d3XSec_dQ2dvdR_E()
 {
 
 }
-unsigned int genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E::NDim(void) const
+unsigned int genie::utils::gsl::d3XSec_dQ2dvdR_E::NDim(void) const
 {
   return 3;
 }
-double genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E::DoEval(const double * xin) const
+double genie::utils::gsl::d3XSec_dQ2dvdR_E::DoEval(const double * xin) const
 {
   // inputs:
   //    normalized Q2 from 0 to 1
@@ -160,8 +158,8 @@ double genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E::DoEval(const double * xi
   return xsec*J*units::fm3/(1E-38 * units::cm2);
 }
 ROOT::Math::IBaseFunctionMultiDim *
-genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E::Clone() const
+genie::utils::gsl::d3XSec_dQ2dvdR_E::Clone() const
 {
   return
-    new genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E(fModel,fInteraction,fRmax);
+    new genie::utils::gsl::d3XSec_dQ2dvdR_E(fModel,fInteraction,fRmax);
 }

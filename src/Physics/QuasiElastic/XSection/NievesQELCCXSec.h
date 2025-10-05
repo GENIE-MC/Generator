@@ -83,11 +83,11 @@ namespace gsl   {
 //
 // A 3-D cross section function: d3xsec/dEldCosThetadR = f(El,CosTheta, R)|(fixed E)
 //
-class d3XSec_dElepdCosThetalepdR_E: public ROOT::Math::IBaseFunctionMultiDim
+class d3XSec_dQ2dvdR_E: public ROOT::Math::IBaseFunctionMultiDim
 {
 public:
-  d3XSec_dElepdCosThetalepdR_E(const XSecAlgorithmI * m, const Interaction * i, double Rmax);
- ~d3XSec_dElepdCosThetalepdR_E();
+  d3XSec_dQ2dvdR_E(const XSecAlgorithmI * m, const Interaction * i, double Rmax);
+ ~d3XSec_dQ2dvdR_E();
 
   // ROOT::Math::IBaseFunctionMultiDim interface
   unsigned int                        NDim   (void)               const;

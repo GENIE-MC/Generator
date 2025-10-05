@@ -47,6 +47,6 @@
 
 // Wrappers for GSL/MathMore lib
 #pragma link C++ class genie::utils::gsl::d2Xsec_dQ2dv;
-#pragma link C++ class genie::utils::gsl::d3XSec_dElepdCosThetalepdR_E;
+#pragma link C++ class genie::utils::gsl::d3XSec_dQ2dvdR_E;
 
 #endif
