@@ -4,7 +4,7 @@
  For the full text of the license visit http://copyright.genie-mc.org
 
  Steven Gardiner <gardiner \at fnal.gov>
- Fermi National Accelerator Laboratory 
+ Fermi National Accelerator Laboratory
 */
 //____________________________________________________________________________
 

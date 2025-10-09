@@ -103,6 +103,12 @@ double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
       hitNucleonBindingMode);
   }
 
+  // A very high-momentum bound nucleon (which is far off the mass shell)
+  // can have a momentum greater than its total energy. This leads to numerical
+  // issues (NaNs) since the invariant mass of the nucleon becomes imaginary.
+  // In such cases, just return zero to avoid trouble.
+  if ( interaction->InitState().Tgt().HitNucP4().M() <= 0. ) return 0.;
+
   // Mass of the outgoing lepton
   double lepMass = interaction->FSPrimLepton()->Mass();
 
@@ -166,9 +172,12 @@ double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
   lepton.Boost(beta);
   outNucleon.Boost(beta);
 
-  // Check if event is at a low angle - if so return 0 and stop wasting time
-  if (180 * lepton.Theta() / genie::constants::kPi < min_angle_EM && interaction->ProcInfo().IsEM()) {
-    return 0;
+  // For electromagnetic interactions, check if the event has a lepton
+  // scattering angle below the cutoff. If it does, just return zero.
+  if ( interaction->ProcInfo().IsEM() ) {
+    if ( 180. * lepton.Theta() / genie::constants::kPi < min_angle_EM ) {
+      return 0;
+    }
   }
 
   TLorentzVector * nuP4 = interaction->InitState().GetProbeP4( genie::kRfLab );
@@ -293,12 +302,21 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
     // model, then it implies a certain value for the final
     // nucleus mass
     if ( hitNucleonBindingMode == genie::kUseNuclearModel ) {
-      Eb = nucl_model.RemovalEnergy();
-      // This equation is the definition that we assume
-      // here for the "removal energy" (Eb) returned by the
-      // nuclear model. It matches GENIE's convention for
-      // the Bodek/Ritchie Fermi gas model.
-      Mf = Mi + Eb - mNi;
+      if ( nucl_model.ModelType(*tgt) != kNucmSpectralFunc ) {
+        Eb = nucl_model.RemovalEnergy();
+        // For all nuclear models except SpectralFunc, this equation is the
+        // definition that we assume for the "removal energy" (Eb). It matches
+        // GENIE's convention for the Bodek/Ritchie Fermi gas model.
+        Mf = Mi + Eb - mNi;
+      }
+      else {
+        // The SpectralFunc nuclear model returns a removal energy
+        // which includes the kinetic energy of the final-state nucleus.
+        // We account for this difference here.
+        double E = nucl_model.RemovalEnergy();
+        Mf = std::sqrt( std::max(0., std::pow(Mi + E - mNi, 2) - p3Ni.Mag2()) );
+        Eb = Mf + mNi - Mi;
+      }
     }
     // We can also assume that the final nucleus is in its
     // ground state. In this case, we can just look up its
