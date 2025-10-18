@@ -204,7 +204,7 @@ void RosenbluthPXSec::LoadConfig(void)
 //____________________________________________________________________________
 const TVector3 & RosenbluthPXSec::FinalLeptonPolarization (const Interaction* interaction) const
 {    
-     LOG("Rosenbluth", pWARN) << "For EM processes doesn't work yet. Set it to zero.";
-     fFinalLeptonPolarization = TVector3(0, 0, 0);
+     LOG("Rosenbluth", pWARN) << "For EM processes doesn't work yet.";
+     fFinalLeptonPolarization.SetBit(kPolarizationUndef);
      return fFinalLeptonPolarization;
 }

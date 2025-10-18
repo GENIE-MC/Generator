@@ -25,6 +25,7 @@
 #include "Framework/Interaction/Interaction.h"
 
 namespace genie {
+    const UInt_t kPolarizationUndef      = 1<<14; ///< if set, the lepton polarization is undefined
 
 class XSecAlgorithmI : public Algorithm {
 

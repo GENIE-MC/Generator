@@ -242,6 +242,7 @@ void PaisQELLambdaPXSec::LoadConfig(void)
 const TVector3 & PaisQELLambdaPXSec::FinalLeptonPolarization (const Interaction* interaction) const
 {
   if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  fFinalLeptonPolarization.ResetBit(kPolarizationUndef);
   // First we need access to all of the particles in the interaction
   // The particles were stored in the lab frame
   //----- get kinematics & init state - compute auxiliary vars

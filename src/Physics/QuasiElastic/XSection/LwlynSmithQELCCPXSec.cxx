@@ -482,6 +482,7 @@ void LwlynSmithQELCCPXSec::LoadConfig(void)
 const TVector3 & LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interaction* interaction) const
 {
   if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  fFinalLeptonPolarization.ResetBit(kPolarizationUndef);
   const QELFormFactorsModelI* qel_ff_mod = dynamic_cast<const QELFormFactorsModelI *> (this->SubAlg("FormFactorsAlg"));
   const AlgId & qel_ff_mod_id = qel_ff_mod->Id();
   std::string qel_ff_mod_name = qel_ff_mod_id.Name();
@@ -527,8 +528,8 @@ const TVector3 & LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interactio
     double pNf = outNucleonMom.P();
     if ( pNf < kF ) 
     {
-        LOG("LwlynSmith", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
-        fFinalLeptonPolarization = TVector3(0, 0, 0);
+        LOG("LwlynSmith", pWARN) << "Can't calculate final lepton polarization.";
+        fFinalLeptonPolarization.SetBit(kPolarizationUndef);
         return fFinalLeptonPolarization;
     }
   }
@@ -557,15 +558,15 @@ const TVector3 & LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interactio
   // of q0Tilde or Q2tilde, just return 0.
   if ( qTildeP4.E() < 0 && init_state.Tgt().IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) )
   {
-     LOG("LwlynSmith", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
-     fFinalLeptonPolarization = TVector3(0, 0, 0);
+     LOG("LwlynSmith", pWARN) << "Can't calculate final lepton polarization.";
+     fFinalLeptonPolarization.SetBit(kPolarizationUndef);
      return fFinalLeptonPolarization;
   }
   double Q2tilde = -qTildeP4.Mag2();
   if ( Q2tilde < 0 )
   {
-     LOG("LwlynSmith", pWARN) << "Can't calculate final lepton polarization. Set it to zero";
-     fFinalLeptonPolarization = TVector3(0, 0, 0);
+     LOG("LwlynSmith", pWARN) << "Can't calculate final lepton polarization.";
+     fFinalLeptonPolarization.SetBit(kPolarizationUndef);
      return fFinalLeptonPolarization;
   }
 

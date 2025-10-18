@@ -526,6 +526,7 @@ double SmithMonizQELCCPXSec::dsQES_dQ2_SM(const Interaction * interaction) const
 const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interaction* interaction) const
 {
   if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  fFinalLeptonPolarization.ResetBit(kPolarizationUndef);
   // Get kinematics & init-state parameters
   const Kinematics &  kinematics = interaction -> Kine();
   sm_utils->SetInteraction(interaction);
@@ -564,8 +565,8 @@ const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interactio
   double cosT_k  = (v + aux1)/qv;
   if (cosT_k < -1.0 || cosT_k > 1.0 )
   {
-     LOG("SmithMoniz", pWARN) << "Can't calculate final lepton polarization. Set it to zero.";
-     fFinalLeptonPolarization = TVector3(0, 0, 0);
+     LOG("SmithMoniz", pWARN) << "Can't calculate final lepton polarization.";
+     fFinalLeptonPolarization.SetBit(kPolarizationUndef);
      return fFinalLeptonPolarization;
   }
   

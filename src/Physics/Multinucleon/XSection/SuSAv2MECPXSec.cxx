@@ -481,11 +481,12 @@ const TVector3 & SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* int
   const ProcessInfo& proc_info = interaction->ProcInfo();
   if ( proc_info.IsEM() ) 
   {
-      LOG("SuSAv2MECPXSec", pWARN) << "For EM processes doesn't work yet. Set it to zero.";
-      fFinalLeptonPolarization = TVector3(0, 0, 0);
+      LOG("SuSAv2MECPXSec", pWARN) << "For EM processes doesn't work yet.";
+      fFinalLeptonPolarization.SetBit(kPolarizationUndef);
       return fFinalLeptonPolarization;
   }
   if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  fFinalLeptonPolarization.ResetBit(kPolarizationUndef);
   // Get the hadron tensor for the selected nuclide. Check the probe PDG code
   // to know whether to use the tensor for CC neutrino scattering or for
   // electron scattering
@@ -501,8 +502,8 @@ const TVector3 & SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* int
   }
   else 
   {
-    LOG("SuSAv2MECPXSec", pWARN) << "Doesn't work for processes other than weak ones. Set it to zero.";
-    fFinalLeptonPolarization = TVector3(0, 0, 0);
+    LOG("SuSAv2MECPXSec", pWARN) << "Doesn't work for processes other than weak ones.";
+    fFinalLeptonPolarization.SetBit(kPolarizationUndef);
     return fFinalLeptonPolarization;
   }
   //else 
@@ -525,8 +526,8 @@ const TVector3 & SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* int
   // If retrieving the tensor failed, complain and return zero
   if ( !tensor ) 
   {
-    LOG("SuSAv2MEC", pWARN) << "Can't calculate final lepton polarization. Set it to zero.";
-    fFinalLeptonPolarization = TVector3(0, 0, 0);
+    LOG("SuSAv2MEC", pWARN) << "Can't calculate final lepton polarization.";
+    fFinalLeptonPolarization.SetBit(kPolarizationUndef);
     return fFinalLeptonPolarization;
   }
 
@@ -561,7 +562,7 @@ const TVector3 & SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* int
   double Q3max = tensor->qMagMax();
   if (Q0-Delta_Q_value < Q0min || Q0-Delta_Q_value > Q0max || Q3 < Q3min || Q3 > Q3max) 
   {
-    fFinalLeptonPolarization = TVector3(0, 0, 0);
+    fFinalLeptonPolarization.SetBit(kPolarizationUndef);
     return fFinalLeptonPolarization;
   }
 
@@ -578,7 +579,7 @@ const TVector3 & SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* int
   double Q2 = Q3*Q3 - Q0*Q0;
   if ( Q2 < Q2min )
   {
-    fFinalLeptonPolarization = TVector3(0, 0, 0);
+    fFinalLeptonPolarization.SetBit(kPolarizationUndef);
     return fFinalLeptonPolarization;
   }
 

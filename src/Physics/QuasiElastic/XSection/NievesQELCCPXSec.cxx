@@ -1130,7 +1130,7 @@ ROOT::Math::IBaseFunctionOneDim *
 const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* interaction) const
 {
   if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
-  
+  fFinalLeptonPolarization.ResetBit(kPolarizationUndef);
   // Get kinematics and init-state parameters
   const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
@@ -1146,7 +1146,7 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   delete func;
   if (R == 0)
   {
-      fFinalLeptonPolarization = TVector3(0, 0, 0);
+      fFinalLeptonPolarization.SetBit(kPolarizationUndef);
       return fFinalLeptonPolarization;
   }
     
@@ -1175,7 +1175,7 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   TVector3 Py = Pz.Cross(Px);
   fFinalLeptonPolarization = PP*Py + PL*Pz;
   
-  if (fFinalLeptonPolarization.Mag2()>1) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  //if (fFinalLeptonPolarization.Mag2()>1) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
     
   return fFinalLeptonPolarization;
 

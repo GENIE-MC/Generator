@@ -156,7 +156,7 @@ void genie::utils::CalculatePolarizationVectorWithNuclearTensor(
   std::complex<double> LWppmm = LWpp + LWmm;
   if (LWppmm.real() == 0 && LWppmm.imag() == 0)
   {
-     polarization = TVector3(0, 0, 0);
+     polarization.SetBit(kPolarizationUndef);
      return;
   } 
   std::complex<double> rhopp = LWpp/LWppmm;
@@ -275,7 +275,7 @@ void  genie::utils::CalculatePolarizationVectorInTargetRestFrame(
   double R     = 2*auxm*(W1 + aux1*W4) + auxp*W2 - sign*(aux2*auxm - aux1)*W3 - aux1*W5;
   if (R == 0)
   {
-      polarization = TVector3(0, 0, 0);
+      polarization.SetBit(kPolarizationUndef);
       return;
   }
   double PL    = sign*(2*aux1m*(W1 - aux1*W4) + aux1p*W2 - sign*(aux2*aux1m + aux1*cost)*W3 - aux1*cost*W5)/R;

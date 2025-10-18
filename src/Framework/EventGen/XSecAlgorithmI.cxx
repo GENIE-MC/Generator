@@ -65,14 +65,15 @@ const TVector3 & XSecAlgorithmI::FinalLeptonPolarization (const Interaction* int
 {
     if ( interaction->ProcInfo().IsEM() ) 
     {
-        LOG("XSecBase", pWARN) << "For EM processes doesn't work yet. Set it to zero.";
-        fFinalLeptonPolarization = TVector3(0, 0, 0);
+        LOG("XSecBase", pWARN) << "For EM processes doesn't work yet.";
+        fFinalLeptonPolarization.SetBit(kPolarizationUndef);
         return fFinalLeptonPolarization;
     }
+    fFinalLeptonPolarization.ResetBit(kPolarizationUndef);
     const Kinematics &   kinematics = interaction -> Kine();
     TLorentzVector leptonMom = kinematics.FSLeptonP4();
     int pdg = interaction->FSPrimLeptonPdg();
-    fFinalLeptonPolarization = TVector3(leptonMom.Px(), leptonMom.Py(), leptonMom.Pz());
+    fFinalLeptonPolarization = leptonMom.Vect().Unit();
     if ( pdg::IsNeutrino(pdg) || pdg::IsElectron(pdg) || pdg::IsMuon(pdg) || pdg::IsTau(pdg) )
     {
         fFinalLeptonPolarization = -1.*fFinalLeptonPolarization;
