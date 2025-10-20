@@ -150,4 +150,56 @@ template<class T>
     return v.size() ;    		            
 }
 
- 
+//add the the template specification as in Registry for RegistryItemI?
+
+template<class T>
+  int genie::Algorithm::GetParamMat( const std::string & comm_name, TMatrixT<T> & mat,
+                                         bool is_top_call ) const {
+
+    mat.Clear() ;
+
+    int n_row = 0, n_col = 0;
+    std::string row_name = Algorithm::BuildParamMatRowSizeKey( comm_name ) ;
+    std::string col_name = Algorithm::BuildParamMatColSizeKey( comm_name ) ;
+    bool found = GetParam( row_name, n_row, is_top_call ) && GetParam( col_name, n_col, is_top_call ) ;
+    if ( ! found ) return 0  ;
+
+    mat.ResizeTo( n_row, n_col ) ;
+
+    for ( int i = 0; i < n_row; ++i ) {
+      for ( int j = 0; j < n_col; ++j ) {
+  	RgKey temp_key = Algorithm::BuildParamMatKey( comm_name, i,  j ) ;
+  	found = GetParam( temp_key, mat[i][j], is_top_call ) ;
+      }
+    }
+
+    return n_row*n_col;
+}
+
+template<class T>
+  int genie::Algorithm::GetParamMatSym( const std::string & comm_name, TMatrixTSym<T> & mat,
+                                         bool is_top_call ) const {
+
+    mat.Clear() ;
+
+    int n_row = 0, n_col = 0;
+    std::string row_name = Algorithm::BuildParamMatRowSizeKey( comm_name ) ;
+    std::string col_name = Algorithm::BuildParamMatColSizeKey( comm_name ) ;
+    bool found = GetParam( row_name, n_row, is_top_call ) && GetParam( col_name, n_col, is_top_call ) ;
+    if ( ! found ) return 0  ;
+    if (n_row != n_col) return 0;
+
+    // only using n_row to set the symmetry matrix
+
+    mat.ResizeTo( n_row, n_row ) ;
+
+    for ( int i = 0; i < n_row; ++i ) {
+      for ( int j = 0; j < n_row; ++j ) {
+  	RgKey temp_key = Algorithm::BuildParamMatKey( comm_name, i,  j ) ;
+  	found = GetParam( temp_key, mat[i][j], is_top_call ) ;
+      }
+    }
+
+    return n_row*n_row;
+}
+

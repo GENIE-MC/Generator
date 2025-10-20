@@ -1,17 +1,19 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 */
 //____________________________________________________________________________
 
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <fstream>
 
 #include "libxml/xmlmemory.h"
 #include "libxml/parser.h"
@@ -99,14 +101,23 @@ bool AlgConfigPool::LoadAlgConfig(void)
         << "AlgConfigPool late initialization: Loading all XML config. files";
 
   //-- read the global parameter lists
-  if(!this->LoadGlobalParamLists()) return false;
+  if(!this->LoadGlobalParamLists()) 
+  {
+    SLOG("AlgConfigPool", pERROR)
+      << "Global parameter lists not available "
+      "This can be normal if you are running "
+      "Comparisons/Reweight in some cases";
+  }
 
   //-- read the MASTER_CONFIG XML file
-  if(!this->LoadMasterConfig()) return false;
+  if(!this->LoadMasterConfigs()) 
+  {
+    SLOG("AlgConfigPool", pERROR)
+      << "Master config file not available";
+  }
 
   //-- read Tune Generator List for the tune, if available
   if( ! LoadTuneGeneratorList() ) {
-
     SLOG( "AlgConfigPool", pWARN ) << "Tune generator List not available" ;
   }
 
@@ -135,13 +146,14 @@ bool AlgConfigPool::LoadAlgConfig(void)
   return true;
 };
 //____________________________________________________________________________
-bool AlgConfigPool::LoadMasterConfig(void)
+bool AlgConfigPool::LoadMasterConfig(std::string configname)
 {
 // Loads the master config XML file: the file that specifies which XML config
 // file to load for each algorithm
 
   //-- get the master config XML file using GXMLPATH + default locations
-  fMasterConfig = utils::xml::GetXMLFilePath("master_config.xml");
+  // fMasterConfig = utils::xml::GetXMLFilePath("master_config.xml");
+  fMasterConfig = utils::xml::GetXMLFilePath(configname);
 
   bool is_accessible = ! (gSystem->AccessPathName( fMasterConfig.c_str() ));
   if (!is_accessible) {
@@ -181,7 +193,7 @@ bool AlgConfigPool::LoadMasterConfig(void)
 
        string alg_name  = utils::str::TrimSpaces(
                      utils::xml::GetAttribute(xml_ac, "alg"));
-       string config_file = utils::xml::TrimSpaces(
+       string config_file = utils::xml::TrimSpacesClean(
                 xmlNodeListGetString(xml_doc, xml_ac->xmlChildrenNode, 1));
 
        pair<string, string> alg_conf(alg_name, config_file);
@@ -192,6 +204,15 @@ bool AlgConfigPool::LoadMasterConfig(void)
   xmlFreeNode(xml_ac);
   xmlFreeDoc(xml_doc);
   return true;
+}
+
+bool AlgConfigPool::LoadMasterConfigs(void) {
+  auto main = LoadMasterConfig("master_config.xml");
+  if (std::getenv("GENIE_REWEIGHT")) {
+    auto rew_main = LoadMasterConfig("reweight_master_config.xml");
+    return main && rew_main;
+  } else
+    return main;
 }
 //____________________________________________________________________________
 bool AlgConfigPool::LoadGlobalParamLists(void)
@@ -330,7 +351,7 @@ bool AlgConfigPool::LoadRegistries(
                    utils::str::TrimSpaces(
                        utils::xml::GetAttribute(xml_param, "name"));
             string param_value =
-                    utils::xml::TrimSpaces(
+                    utils::xml::TrimSpacesClean(
                                xmlNodeListGetString(
                                  xml_doc, xml_param->xmlChildrenNode, 1));
 
@@ -343,6 +364,19 @@ bool AlgConfigPool::LoadRegistries(
 
 	      this -> AddParameterVector( config, param_type, param_name, param_value, delim ) ;
 	    }
+            else if (param_type.find( "mat-" ) == 0) {
+              param_type = param_type.substr( 4 ) ;
+              LOG("AlgConfigPool", pNOTICE) << "Liang Liu" << param_type ;
+                string importfile = utils::str::TrimSpaces( utils::xml::GetAttribute(xml_param, "importfile"));
+                if(!importfile.compare("false")){
+                  string rowdelim = utils::str::TrimSpaces( utils::xml::GetAttribute(xml_param, "rowdelim"));
+                  string coldelim = utils::str::TrimSpaces( utils::xml::GetAttribute(xml_param, "coldelim"));
+                  this -> AddParameterMatrix(config, param_type, param_name, param_value, rowdelim, coldelim);
+                }
+                else if(!importfile.compare("true")){
+                  this -> AddParameterMatrix(config, param_type, param_name, param_value );
+                }
+            }
 	    else this->AddConfigParameter( config,
 					   param_type, param_name,
 					   param_value);
@@ -402,6 +436,126 @@ int  AlgConfigPool::AddParameterVector  (Registry * r, string pt, string pn, str
   return bits.size() ;
 
 }
+
+//____________________________________________________________________________
+int  AlgConfigPool::AddParameterMatrix  (Registry * r, string pt, string pn, string pv,
+					 const string & rowdelim, const string & coldelim ) {
+
+  // Adds a configuration parameter matrix
+  // It is simply add a number of entries in the Registy
+  // The name scheme starts from the name and it goes like
+  // 'Nrow'+pn+'s' for the size of rows and 
+  // 'Ncol'+pn+'s' for the size of columns
+  // that will be an integer with the number of entries.
+  // Each entry will be named pn+"-i"+"-j" where i and j are 
+  // index of row and column and replaced by the number
+
+  if(!rowdelim.compare(coldelim) || rowdelim.empty() || coldelim.empty()) {
+    LOG("AlgConfigPool", pFATAL) << "row and column have wrong delims: " << rowdelim << "  " << coldelim ;
+    exit(1);
+  }
+  SLOG("AlgConfigPool", pDEBUG)
+    << "Adding Parameter Matrix [" << pt << "]: Key = "
+    << pn << " -> Value = " << pv;
+
+  vector<string> mat_row = utils::str::Split( pv, rowdelim ) ;
+
+  string r_name = Algorithm::BuildParamMatRowSizeKey( pn ) ;
+
+
+  unsigned int n_row = 0, n_col = 0;
+  std::stringstream r_value ;
+  r_value << mat_row.size() ;
+  n_row = mat_row.size() ;
+
+  this->AddConfigParameter(r, "int", r_name, r_value.str() );
+
+  for ( unsigned int i = 0 ; i < mat_row.size() ; ++i ) {
+    vector<string> bits = utils::str::Split( mat_row[i], coldelim ) ;
+    if(i == 0){
+      string c_name = Algorithm::BuildParamMatColSizeKey( pn ) ;
+      std::stringstream c_value ;
+      c_value << bits.size();
+      n_col = bits.size();
+      this->AddConfigParameter(r, "int", c_name, c_value.str() );
+    }
+    else{
+      if(n_col != bits.size()){
+        LOG("AlgConfigPool", pFATAL) << "wrong size of matrix in row: " << i;
+        exit(1);
+      }
+    }
+
+    for ( unsigned int j = 0 ; j < bits.size() ; ++j ) {
+
+      std::string name = Algorithm::BuildParamMatKey( pn, i, j ) ;
+
+      this -> AddConfigParameter( r, pt, name, utils::str::TrimSpaces( bits[j] ) );
+
+    }
+  }
+  return n_row * n_col;
+
+}
+//____________________________________________________________________________
+int  AlgConfigPool::AddParameterMatrix  (Registry * r, string pt, string pn, string pv ) {
+
+  // Adds a configuration parameter matrix
+  // It is simply add a number of entries in the Registy
+  // The name scheme starts from the name and it goes like
+  // 'Nrow'+pn+'s' for the size of rows and 
+  // 'Ncol'+pn+'s' for the size of columns
+  // that will be an integer with the number of entries.
+  // Each entry will be named pn+"-i"+"-j" where i and j are 
+  // index of row and column and replaced by the number
+
+  char * GENIE_PATH = std::getenv("GENIE");
+  string filepath = std::string(GENIE_PATH) + "/" + pv;
+  std::ifstream file(filepath);
+  if (!file.is_open()) {
+    throw std::runtime_error("Could not open file");
+  }
+
+  std::string line;
+  int n_row = 0, n_col = 0;
+  int i_row = 0;
+  while (getline(file, line)) {
+    size_t start = line.find_first_not_of(" \t");
+    std::string trimmedLine = (start == std::string::npos) ? "" : line.substr(start);
+    if(trimmedLine.empty()) continue;
+    if(!trimmedLine.empty() && trimmedLine[0] == '%') continue;
+
+    std::istringstream iss(line);
+    double value;
+    int i_col = 0;
+    while (iss >> value) {
+      std::string name = Algorithm::BuildParamMatKey( pn, i_row, i_col ) ;
+      this -> AddConfigParameter( r, pt, name, utils::str::TrimSpaces( std::to_string(value) ) );
+      i_col++;
+    }
+    if(i_row == 0)
+      n_col = i_col;
+    else{
+      if(n_col != i_col){
+         LOG("AlgConfigPool", pFATAL) << "wrong size of matrix in row: " << i_row;
+         exit(1);
+      }
+    }
+    i_row++;
+  }
+  n_row = i_row;
+  std::stringstream r_value ;
+  r_value << n_row ;
+  string r_name = Algorithm::BuildParamMatRowSizeKey( pn ) ;
+  this->AddConfigParameter(r, "int", r_name, r_value.str() );
+  std::stringstream c_value ;
+  c_value << n_col ;
+  string c_name = Algorithm::BuildParamMatColSizeKey( pn ) ;
+  this->AddConfigParameter(r, "int", c_name, c_value.str() );
+  return n_row*n_col;
+}
+
+
 
 //____________________________________________________________________________
 void AlgConfigPool::AddConfigParameter( Registry * r,

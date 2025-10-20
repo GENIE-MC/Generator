@@ -32,12 +32,12 @@
          3. Print out the event 178 from /data/sample.ghep.root 
             shell$ gevdump -f /data/sample.ghep.root -n 178
 
-\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+\author  Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 
 \created September 02, 2005
 
-\cpright Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright Copyright (c) 2003-2025, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          
 */

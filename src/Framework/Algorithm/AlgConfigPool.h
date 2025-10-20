@@ -6,12 +6,12 @@
 \brief    A singleton class holding all configuration registries built while
           parsing all loaded XML configuration files.
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
@@ -66,13 +66,16 @@ private:
   string BuildConfigKey      (string alg_name, string param_set) const;
   string BuildConfigKey      (const Algorithm * algorithm) const;
   bool   LoadAlgConfig       (void);
-  bool   LoadMasterConfig    (void);
+  bool   LoadMasterConfig    (std::string configname);
+  bool   LoadMasterConfigs   (void);
   bool   LoadGlobalParamLists(void);
   bool   LoadCommonLists( const string & file_id );
   bool   LoadTuneGeneratorList(void);
   bool   LoadSingleAlgConfig (string alg_name, string file_name);
   bool   LoadRegistries      (string key_base, string file_name, string root);
   int    AddParameterVector  (Registry * r, string pt, string pn, string pv, const string & delim = ";" );
+  int    AddParameterMatrix  (Registry * r, string pt, string pn, string pv, const string & rowdelim, const string & coldelim );
+  int    AddParameterMatrix  (Registry * r, string pt, string pn, string pv);
   void   AddConfigParameter  (Registry * r, string pt, string pn, string pv);
   void   AddBasicParameter   (Registry * r, string pt, string pn, string pv);
   void   AddRootObjParameter (Registry * r, string pt, string pn, string pv);

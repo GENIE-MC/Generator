@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 
  Shivesh Mandalia <s.p.mandalia@qmul.ac.uk>
  Queen Mary University of London
@@ -55,9 +55,7 @@ PythiaBaseHadro2019("genie::Pythia8Hadro2019", config)
 //____________________________________________________________________________
 Pythia8Hadro2019::~Pythia8Hadro2019()
 {
-#ifdef __GENIE_PYTHIA8_ENABLED__
-  delete fPythia;
-#endif
+
 }
 //____________________________________________________________________________
 void Pythia8Hadro2019::ProcessEventRecord(GHepRecord *
@@ -85,6 +83,8 @@ bool Pythia8Hadro2019::Hadronize(GHepRecord *
 #ifdef __GENIE_PYTHIA8_ENABLED__
   LOG("Pythia8Had", pNOTICE) << "Running PYTHIA8 hadronizer";
 
+  Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
+
   const Interaction * interaction = event->Summary();
   const Kinematics & kinematics = interaction->Kine();
   double W = kinematics.W();
@@ -97,11 +97,11 @@ bool Pythia8Hadro2019::Hadronize(GHepRecord *
   // Hadronize
 
   LOG("Pythia8Had", pDEBUG) << "Reseting PYTHIA8 event";
-  fPythia->event.reset();
+  gPythia->event.reset();
 
   // Get quark/diquark masses
-  double mA = fPythia->particleData.m0(fLeadingQuark);
-  double mB = fPythia->particleData.m0(fRemnantDiquark);
+  double mA = gPythia->particleData.m0(fLeadingQuark);
+  double mB = gPythia->particleData.m0(fRemnantDiquark);
 
   LOG("Pythia8Had", pINFO)
     << "Leading quark mass = " << mA
@@ -121,20 +121,20 @@ bool Pythia8Hadro2019::Hadronize(GHepRecord *
   // Pythia8 status code for outgoing particles of the hardest subprocesses is 23
   // anti/colour tags for these 2 particles must complement each other
   LOG("Pythia8Had", pDEBUG) << "Appending quark/diquark into the PYTHIA8 event";
-  fPythia->event.append(fLeadingQuark,   23, 101, 0, 0., 0., pzAcm, eA, mA);
-  fPythia->event.append(fRemnantDiquark, 23, 0, 101, 0., 0., pzBcm, eB, mB);
-  fPythia->event.list();
+  gPythia->event.append(fLeadingQuark,   23, 101, 0, 0., 0., pzAcm, eA, mA);
+  gPythia->event.append(fRemnantDiquark, 23, 0, 101, 0., 0., pzBcm, eB, mB);
+  gPythia->event.list();
 
   LOG("Pythia8Had", pDEBUG) << "Generating next PYTHIA8 event";
-  fPythia->next();
+  gPythia->next();
 
   // List the event information
-  fPythia->event.list();
-  fPythia->stat();
+  //gPythia->event.list();
+  //gPythia->stat();
 
   // Get LUJETS record
   LOG("Pythia8Had", pDEBUG) << "Copying PYTHIA8 event record into GENIE's";
-  Pythia8::Event &fEvent = fPythia->event;
+  Pythia8::Event &fEvent = gPythia->event;
   int np = fEvent.size();
   assert(np>0);
 
@@ -260,15 +260,17 @@ bool Pythia8Hadro2019::Hadronize(GHepRecord *
 void Pythia8Hadro2019::CopyOriginalDecayFlags(void) const
 {
 #ifdef __GENIE_PYTHIA8_ENABLED__
-  fOriDecayFlag_pi0 = fPythia->particleData.canDecay(kPdgPi0);
-  fOriDecayFlag_K0  = fPythia->particleData.canDecay(kPdgK0);
-  fOriDecayFlag_K0b = fPythia->particleData.canDecay(kPdgAntiK0);
-  fOriDecayFlag_L0  = fPythia->particleData.canDecay(kPdgLambda);
-  fOriDecayFlag_L0b = fPythia->particleData.canDecay(kPdgAntiLambda);
-  fOriDecayFlag_Dm  = fPythia->particleData.canDecay(kPdgP33m1232_DeltaM);
-  fOriDecayFlag_D0  = fPythia->particleData.canDecay(kPdgP33m1232_Delta0);
-  fOriDecayFlag_Dp  = fPythia->particleData.canDecay(kPdgP33m1232_DeltaP);
-  fOriDecayFlag_Dpp = fPythia->particleData.canDecay(kPdgP33m1232_DeltaPP);
+  Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
+
+  fOriDecayFlag_pi0 = gPythia->particleData.canDecay(kPdgPi0);
+  fOriDecayFlag_K0  = gPythia->particleData.canDecay(kPdgK0);
+  fOriDecayFlag_K0b = gPythia->particleData.canDecay(kPdgAntiK0);
+  fOriDecayFlag_L0  = gPythia->particleData.canDecay(kPdgLambda);
+  fOriDecayFlag_L0b = gPythia->particleData.canDecay(kPdgAntiLambda);
+  fOriDecayFlag_Dm  = gPythia->particleData.canDecay(kPdgP33m1232_DeltaM);
+  fOriDecayFlag_D0  = gPythia->particleData.canDecay(kPdgP33m1232_Delta0);
+  fOriDecayFlag_Dp  = gPythia->particleData.canDecay(kPdgP33m1232_DeltaP);
+  fOriDecayFlag_Dpp = gPythia->particleData.canDecay(kPdgP33m1232_DeltaPP);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Pythia8Had", pDEBUG)
@@ -290,30 +292,34 @@ void Pythia8Hadro2019::CopyOriginalDecayFlags(void) const
 void Pythia8Hadro2019::SetDesiredDecayFlags(void) const
 {
 #ifdef __GENIE_PYTHIA8_ENABLED__
-  fPythia->particleData.mayDecay(kPdgPi0,              fReqDecayFlag_pi0 );
-  fPythia->particleData.mayDecay(kPdgK0,               fReqDecayFlag_K0  );
-  fPythia->particleData.mayDecay(kPdgAntiK0,           fReqDecayFlag_K0b );
-  fPythia->particleData.mayDecay(kPdgLambda,           fReqDecayFlag_L0  );
-  fPythia->particleData.mayDecay(kPdgAntiLambda,       fReqDecayFlag_L0b );
-  fPythia->particleData.mayDecay(kPdgP33m1232_DeltaM,  fReqDecayFlag_Dm  );
-  fPythia->particleData.mayDecay(kPdgP33m1232_Delta0,  fReqDecayFlag_D0  );
-  fPythia->particleData.mayDecay(kPdgP33m1232_DeltaP,  fReqDecayFlag_Dp  );
-  fPythia->particleData.mayDecay(kPdgP33m1232_DeltaPP, fReqDecayFlag_Dpp );
+  Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
+
+  gPythia->particleData.mayDecay(kPdgPi0,              fReqDecayFlag_pi0 );
+  gPythia->particleData.mayDecay(kPdgK0,               fReqDecayFlag_K0  );
+  gPythia->particleData.mayDecay(kPdgAntiK0,           fReqDecayFlag_K0b );
+  gPythia->particleData.mayDecay(kPdgLambda,           fReqDecayFlag_L0  );
+  gPythia->particleData.mayDecay(kPdgAntiLambda,       fReqDecayFlag_L0b );
+  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaM,  fReqDecayFlag_Dm  );
+  gPythia->particleData.mayDecay(kPdgP33m1232_Delta0,  fReqDecayFlag_D0  );
+  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaP,  fReqDecayFlag_Dp  );
+  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaPP, fReqDecayFlag_Dpp );
 #endif
 }
 //____________________________________________________________________________
 void Pythia8Hadro2019::RestoreOriginalDecayFlags(void) const
 {
 #ifdef __GENIE_PYTHIA8_ENABLED__
-  fPythia->particleData.mayDecay(kPdgPi0,              fOriDecayFlag_pi0 );
-  fPythia->particleData.mayDecay(kPdgK0,               fOriDecayFlag_K0  );
-  fPythia->particleData.mayDecay(kPdgAntiK0,           fOriDecayFlag_K0b );
-  fPythia->particleData.mayDecay(kPdgLambda,           fOriDecayFlag_L0  );
-  fPythia->particleData.mayDecay(kPdgAntiLambda,       fOriDecayFlag_L0b );
-  fPythia->particleData.mayDecay(kPdgP33m1232_DeltaM,  fOriDecayFlag_Dm  );
-  fPythia->particleData.mayDecay(kPdgP33m1232_Delta0,  fOriDecayFlag_D0  );
-  fPythia->particleData.mayDecay(kPdgP33m1232_DeltaP,  fOriDecayFlag_Dp  );
-  fPythia->particleData.mayDecay(kPdgP33m1232_DeltaPP, fOriDecayFlag_Dpp );
+  Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
+
+  gPythia->particleData.mayDecay(kPdgPi0,              fOriDecayFlag_pi0 );
+  gPythia->particleData.mayDecay(kPdgK0,               fOriDecayFlag_K0  );
+  gPythia->particleData.mayDecay(kPdgAntiK0,           fOriDecayFlag_K0b );
+  gPythia->particleData.mayDecay(kPdgLambda,           fOriDecayFlag_L0  );
+  gPythia->particleData.mayDecay(kPdgAntiLambda,       fOriDecayFlag_L0b );
+  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaM,  fOriDecayFlag_Dm  );
+  gPythia->particleData.mayDecay(kPdgP33m1232_Delta0,  fOriDecayFlag_D0  );
+  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaP,  fOriDecayFlag_Dp  );
+  gPythia->particleData.mayDecay(kPdgP33m1232_DeltaPP, fOriDecayFlag_Dpp );
 #endif
 }
 //____________________________________________________________________________
@@ -334,18 +340,20 @@ void Pythia8Hadro2019::LoadConfig(void)
   PythiaBaseHadro2019::LoadConfig();
 
 #ifdef __GENIE_PYTHIA8_ENABLED__
-  fPythia->settings.parm("StringFlav:probStoUD",         fSSBarSuppression);
-  fPythia->settings.parm("Diffraction:primKTwidth",      fGaussianPt2);
-  fPythia->settings.parm("StringPT:enhancedFraction",    fNonGaussianPt2Tail);
-  fPythia->settings.parm("StringFragmentation:stopMass", fRemainingECutoff);
-  fPythia->settings.parm("StringFlav:probQQtoQ",         fDiQuarkSuppression);
-  fPythia->settings.parm("StringFlav:mesonUDvector",     fLightVMesonSuppression);
-  fPythia->settings.parm("StringFlav:mesonSvector",      fSVMesonSuppression);
-  fPythia->settings.parm("StringZ:aLund",                fLunda);
-  fPythia->settings.parm("StringZ:bLund",                fLundb);
-  fPythia->settings.parm("StringZ:aExtraDiquark",        fLundaDiq);
+  Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
 
-  fPythia->init(); // needed again to read the above?
+  gPythia->settings.parm("StringFlav:probStoUD",         fSSBarSuppression);
+  gPythia->settings.parm("Diffraction:primKTwidth",      fGaussianPt2);
+  gPythia->settings.parm("StringPT:enhancedFraction",    fNonGaussianPt2Tail);
+  gPythia->settings.parm("StringFragmentation:stopMass", fRemainingECutoff);
+  gPythia->settings.parm("StringFlav:probQQtoQ",         fDiQuarkSuppression);
+  gPythia->settings.parm("StringFlav:mesonUDvector",     fLightVMesonSuppression);
+  gPythia->settings.parm("StringFlav:mesonSvector",      fSVMesonSuppression);
+  gPythia->settings.parm("StringZ:aLund",                fLunda);
+  gPythia->settings.parm("StringZ:bLund",                fLundb);
+  gPythia->settings.parm("StringZ:aExtraDiquark",        fLundaDiq);
+
+  gPythia->init(); // needed again to read the above?
 
 #endif
 
@@ -355,20 +363,20 @@ void Pythia8Hadro2019::LoadConfig(void)
 void Pythia8Hadro2019::Initialize(void)
 {
 #ifdef __GENIE_PYTHIA8_ENABLED__
-  fPythia = new Pythia8::Pythia();
+  Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
 
-  fPythia->readString("ProcessLevel:all = off");
-  fPythia->readString("Print:quiet      = on");
+  gPythia->readString("ProcessLevel:all = off");
+  gPythia->readString("Print:quiet      = on");
 
   // sync GENIE and PYTHIA8 seeds
   RandomGen * rnd = RandomGen::Instance();
   long int seed = rnd->GetSeed();
-  fPythia->readString("Random:setSeed = on");
-  fPythia->settings.mode("Random:seed", seed);
+  gPythia->readString("Random:setSeed = on");
+  gPythia->settings.mode("Random:seed", seed);
   LOG("Pythia8Had", pINFO)
-    << "PYTHIA8  seed = " << fPythia->settings.mode("Random:seed");
+    << "PYTHIA8  seed = " << gPythia->settings.mode("Random:seed");
 
-  fPythia->init();
+  gPythia->init();
 
 #endif
 }

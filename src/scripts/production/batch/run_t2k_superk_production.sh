@@ -13,7 +13,7 @@
 # - Using standard SK statistics: 500 numu, 250 numubar, 500 nue, 250 nuebar, 250 nuesig files (2k events each, see submit_t2k_superk_fhst_mc_jobs.pl)
 # - Remember to switch on the 'decay' flag for all charmed hadrons in UserPhysicsOptions.xml
 #
-# C.Andreopoulos <constantinos.andreopoulos \at cern.ch>
+# C.Andreopoulos <c.andreopoulos \at cern.ch>
 #
 
 #!/bin/bash

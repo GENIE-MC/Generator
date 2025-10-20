@@ -11,12 +11,12 @@
           All 'named' lists are managed by the GHepVirtualListFolder singleton
           and get cleared after the generation of each event is completed.
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
 \created  July 16, 2005
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org        
 */
 //____________________________________________________________________________

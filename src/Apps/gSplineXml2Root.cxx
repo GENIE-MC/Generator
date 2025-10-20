@@ -69,12 +69,12 @@
 
            See the User Manual for more details.
 
-\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+\author  Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 
 \created December 15, 2005
 
-\cpright Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright Copyright (c) 2003-2025, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -598,7 +598,11 @@ void SaveGraphsToRootFile(void)
 
     if      (proc.IsQuasiElastic()     ) { title << "qel";   }
     else if (proc.IsMEC()              ) { title << "mec";   }
-    else if (proc.IsResonant()         ) { title << "res";   }
+    else if (proc.IsResonant()         ) { 
+      title << "res";   
+      if ( ! xcls.KnownResonance() ) 
+	title << "_single_pion" ;
+    }
     else if (proc.IsDeepInelastic()    ) { title << "dis";   }
     else if (proc.IsDiffractive()      ) { title << "dfr";   }
     else if (proc.IsCoherentProduction() ) {
@@ -667,37 +671,57 @@ void SaveGraphsToRootFile(void)
       }
     }
     if(proc.IsResonant()) {
-       Resonance_t res = xcls.Resonance();
-       string resname = res::AsString(res);
-       resname = str::FilterString(")", resname);
-       resname = str::FilterString("(", resname);
-       title << "_" << resname.substr(3,4) << resname.substr(0,3);
-    }
+      if ( xcls.KnownResonance() ) {
+	Resonance_t res = xcls.Resonance();
+	string resname = res::AsString(res);
+	resname = str::FilterString(")", resname);
+	resname = str::FilterString("(", resname);
+	title << "_" << resname.substr(3,4) << resname.substr(0,3);
+      }
+      else if ( xcls.NPions() == 1 ) {
+	// we are in the case of the single pion production
+	// since the hiht nucleon is known and we also know if 
+	// it is CC or NC, the only missing information to identify the channel
+	// is only the flavour of the pion
+	string channel ;
+	if ( xcls.NPiPlus() == 1 ) {
+	  channel = "pip" ;
+	}
+	else if ( xcls.NPiMinus() == 1 ) {
+	  channel = "pim" ;
+	}
+	else if ( xcls.NPi0() == 1 ) {
+	  channel = "pi0" ;
+	}
+	
+	title << '_' << channel ;
+      }  // single resonsance or single pion
+    }  // resonance case
 
     if(xcls.IsStrangeEvent()) {
-            title << "_strange";
-            if(!xcls.IsInclusiveStrange()) { title << xcls.StrangeHadronPdg(); }
+      title << "_strange";
+      if(!xcls.IsInclusiveStrange()) { title << xcls.StrangeHadronPdg(); }
     }
-
+    
     if(xcls.IsCharmEvent()) {
-        title << "_charm";
-        if(!xcls.IsInclusiveCharm()) { title << xcls.CharmHadronPdg(); }
+      title << "_charm";
+      if(!xcls.IsInclusiveCharm()) { title << xcls.CharmHadronPdg(); }
     }
-
+    
     if(xcls.IsFinalQuarkEvent()) {
-        int  qrkpdg = xcls.FinalQuarkPdg();
-        if      ( pdg::IsUQuark(qrkpdg)     ) { title << "_u";    }
-        else if ( pdg::IsDQuark(qrkpdg)     ) { title << "_d";    }
-        else if ( pdg::IsSQuark(qrkpdg)     ) { title << "_s";    }
-        else if ( pdg::IsCQuark(qrkpdg)     ) { title << "_c";    }
-        else if ( pdg::IsBQuark(qrkpdg)     ) { title << "_b";    }
-        else if ( pdg::IsTQuark(qrkpdg)     ) { title << "_t";    }
-        else if ( pdg::IsAntiUQuark(qrkpdg) ) { title << "_ubar"; }
-        else if ( pdg::IsAntiDQuark(qrkpdg) ) { title << "_dbar"; }
-        else if ( pdg::IsAntiSQuark(qrkpdg) ) { title << "_sbar"; }
-        else if ( pdg::IsAntiCQuark(qrkpdg) ) { title << "_cbar"; }
-        else if ( pdg::IsAntiBQuark(qrkpdg) ) { title << "_bbar"; }
-        else if ( pdg::IsAntiTQuark(qrkpdg) ) { title << "_tbar"; }
+      int  qrkpdg = xcls.FinalQuarkPdg();
+      if      ( pdg::IsUQuark(qrkpdg)     ) { title << "_u";    }
+      else if ( pdg::IsDQuark(qrkpdg)     ) { title << "_d";    }
+      else if ( pdg::IsSQuark(qrkpdg)     ) { title << "_s";    }
+      else if ( pdg::IsCQuark(qrkpdg)     ) { title << "_c";    }
+      else if ( pdg::IsBQuark(qrkpdg)     ) { title << "_b";    }
+      else if ( pdg::IsTQuark(qrkpdg)     ) { title << "_t";    }
+      else if ( pdg::IsAntiUQuark(qrkpdg) ) { title << "_ubar"; }
+      else if ( pdg::IsAntiDQuark(qrkpdg) ) { title << "_dbar"; }
+      else if ( pdg::IsAntiSQuark(qrkpdg) ) { title << "_sbar"; }
+      else if ( pdg::IsAntiCQuark(qrkpdg) ) { title << "_cbar"; }
+      else if ( pdg::IsAntiBQuark(qrkpdg) ) { title << "_bbar"; }
+      else if ( pdg::IsAntiTQuark(qrkpdg) ) { title << "_tbar"; }
     }
     if(xcls.IsFinalLeptonEvent()) {
         int  leppdg = TMath::Abs(xcls.FinalLeptonPdg());

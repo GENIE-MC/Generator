@@ -38,7 +38,7 @@
 \author  Alfonso Garcia <alfonsog \at nikhef.nl>
          NIKHEF (Amsterdam)
 \created May 26, 2021
-\cpright Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright Copyright (c) 2003-2025, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */

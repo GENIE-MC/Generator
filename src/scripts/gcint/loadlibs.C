@@ -16,6 +16,26 @@ Long_t add_single_lpath(const char * lpath, bool verbose = false)
    return 0;
 }
 
+Long_t has_feature(const char * feature_name, bool verbose = true)
+{
+  // take a feature name, e.g. "pythia6" and
+  // Returns 1 if enabled, 0 if not
+  Long_t status = 0;
+  TString command = TString("genie-config --has-") + feature_name;
+  FILE * f = gSystem->OpenPipe(command,"r");
+  TString line;
+  line.Gets(f);
+  if (verbose) {
+    std::cout << "command: " << command.Data() << " result: " << line.Data() << std::endl;
+  }
+  if (line == "yes") status = 1;
+  if (verbose) {
+    std::cout << "return " << status << std::endl;
+  }
+  gSystem->ClosePipe(f);
+  return status;
+}
+
 Long_t load_libs_from_command(const char * list_libs_command, bool verbose = false)
 { // Takes a linker-style list of libs (eg "-lmygreatlib -lmylessgoodlib" )
   // and loads each using gSystem::Load()
@@ -95,13 +115,15 @@ int loadlibs()
     "/usr/local/lib/:/usr/lib/:/lib:/opt/lib:/opt/local/lib";
   gSystem->SetDynamicPath(libs.Data());
 
+  bool has_pythia6 = has_feature("pythia6");
+
   // PYTHIA 6 lib
-  gSystem->Load("libPythia6");
+  if (has_pythia6) gSystem->Load("libPythia6");
 
   // extra ROOT libs
   gSystem->Load("libPhysics");
   gSystem->Load("libEG");
-  gSystem->Load("libEGPythia6");
+  if (has_pythia6) gSystem->Load("libEGPythia6");
   gSystem->Load("libGeom");
   gSystem->Load("libTree");
   gSystem->Load("libMathMore");

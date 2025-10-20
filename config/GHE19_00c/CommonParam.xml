@@ -36,11 +36,30 @@
     <param type="int"    name="Warnings">                        100000 </param>
     <param type="int"    name="Errors">                          100000 </param>
     <param type="int"    name="QuarkMass">                            1 </param>
+    <param type="double" name="SSBarSuppression">                  0.30 </param>
+    <param type="double" name="GaussianPt2">                       0.36 </param>
+    <param type="double" name="NonGaussianPt2Tail">                0.01 </param>
+    <param type="double" name="RemainingEnergyCutoff">             0.80 </param>
+    <param type="double" name="DiQuarkSuppression">                0.10 </param>
+    <param type="double" name="LightVMesonSuppression">            0.50 </param>
+    <param type="double" name="SVMesonSuppression">                0.60 </param>
+    <param type="double" name="Lunda">                             0.30 </param>
+    <param type="double" name="Lundb">                             0.58 </param>
+    <param type="double" name="LundaDiq">                          0.50 </param>
   </param_set>
 
   <param_set name="NUCL">
     <param type="double" name="NUCL-R0">             1.4 </param>
   </param_set>
+  
+   <param_set name="PDG">
+    <!-- when using the PDG table provideed by genie,
+         that are contained in $GENIE/data/evgen/catalogues/pdg
+         this string specifies the file to be used.
+         Please be aware that changing the PDG table might invalidated the selected tune -->
+    <param type="string" name="PDG-TableName"> genie_pdg_table.txt </param>
+   </param_set>
+
 
 
   <param_set name="PDG">

@@ -5,12 +5,12 @@
 
 \brief    Enumeration of kinematical phase spaces
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -38,7 +38,6 @@ typedef enum EKinePhaseSpace {
   kPSlogyfEx,
   kPSxyfE,
   kPSlogxlogyfE,
-  kPSxQ2fE,
   kPSQ2fE,
   kPSQD2fE,
   kPSlogQ2fE,
@@ -69,10 +68,13 @@ typedef enum EKinePhaseSpace {
   kPSTAfE,
   kPSEgTlOgfE,
   kPSDMELEvGen, // Equivalent to kPSQELEvGen for Dark Matter scattering  
+  kPSxQ2fE,
   kPSlog10xlog10Q2fE,
   kPSEDNufE, // Used for Dark Neutrinos, two body final state
   kPSn1n2fE,
   kPSn1n2n3fE,
+  kPSWQ2ctpphipfE,
+  kPSWQ2ctpfE,
   kPSQ2vpfE
 } KinePhaseSpace_t;
 
@@ -86,7 +88,6 @@ public:
 
       case(kPSNull) :
         return "** Undefined kinematic phase space **"; break;
-
       case(kPSfE)         : return "<|E>";            break;
       case(kPSxfE)        : return "<{x}|E>";         break;
       case(kPSlogxfE)     : return "<{logx}|E>";      break;
@@ -134,6 +135,8 @@ public:
       case(kPSEDNufE)     : return "<{EDNu}|E>"; break;
       case(kPSn1n2fE)     : return "<{n1,n2}|E>"; break;
       case(kPSn1n2n3fE)   : return "<{n1,n2,n3}|E>"; break;
+      case(kPSWQ2ctpphipfE): return "<{W, Q2, cost(theta_pion), phi_pion}|E>"; break;
+      case(kPSWQ2ctpfE)    : return "<{W, Q2, cost(theta_pion)}|E>"; break;
     }
     return "** Undefined kinematic phase space **";
   }

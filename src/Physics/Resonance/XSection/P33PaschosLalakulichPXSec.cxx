@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 
  based on code written by the model authors (Olga Lalakulich, 17.02.2005).
 */
@@ -237,7 +237,7 @@ double P33PaschosLalakulichPXSec::XSec(
                + W4 * Mmu2*(Q2+Mmu2)/2.
                - W5 * 2*Mmu2*pk;
 
-  double xsec = kGF2/4./kPi*fCos28c/MN2/E2*W*MR*Gamma_R/kPi/Breit_Wigner*pauli*s1;
+  double xsec = fFermiConstant2/4./kPi*fCos28c/MN2/E2*W*MR*Gamma_R/kPi/Breit_Wigner*pauli*s1;
 
   //-- The algorithm computes d^2xsec/dWdQ2
   //   Check whether variable tranformation is needed
@@ -286,6 +286,10 @@ void P33PaschosLalakulichPXSec::Configure(string config)
 //____________________________________________________________________________
 void P33PaschosLalakulichPXSec::LoadConfig(void)
 {
+  double fermi_constant ;
+  GetParam( "FermiConstant", fermi_constant ) ;
+  fFermiConstant2 = fermi_constant * fermi_constant ;
+
   GetParam( "RES-Ma", fMa ) ;
   GetParam( "RES-Mv", fMv ) ;
 

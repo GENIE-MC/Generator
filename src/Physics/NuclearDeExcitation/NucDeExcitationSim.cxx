@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 */
 //____________________________________________________________________________
 
@@ -410,7 +410,7 @@ void NucDeExcitationSim::CarbonTargetSim(GHepRecord * evrec) const
     //>
     double p32Elv = 0.0020;
     //>
-    int ns12 = 8;
+    const int ns12 = 8;
     double s12Elv[ns12] = {0.0005, 0.0007, 0.0017, 0.0021, 0.0033, 0.0035, 0.0047, 0.0063};
     //double s12Plv[ns12] = {0.21, 0.295, 0.14, 0.26, 0.14, 0.2, 0.03, 0.03};
     // the above multiply by 0.2

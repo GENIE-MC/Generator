@@ -1,6 +1,6 @@
 #########################################################
 # Makefile for the GENIE Event Server
-# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+# Costas Andreopoulos <c.andreopoulos \at cern.ch>
 #########################################################
 
 SHELL = /bin/sh

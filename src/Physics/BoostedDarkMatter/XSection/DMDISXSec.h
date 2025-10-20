@@ -9,12 +9,12 @@
 \author   Joshua Berger <jberger \at physics.wisc.edu>
           University of Wisconsin-Madison
 
-          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+          Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
 \created  September 4, 2017
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           
 */

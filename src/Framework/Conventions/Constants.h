@@ -5,12 +5,12 @@
 
 \brief     Basic constants
 
-\author    Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-           University of Liverpool & STFC Rutherford Appleton Laboratory
+\author    Costas Andreopoulos <c.andreopoulos \at cern.ch>
+           University of Liverpool
 
 \created   May 03, 2004
 
-\cpright   Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright   Copyright (c) 2003-2025, The GENIE Collaboration
            For the full text of the license visit http://copyright.genie-mc.org     
 */
 //____________________________________________________________________________
@@ -51,9 +51,9 @@ static const double kLe    = 3.8616E-11 *units::cm;
 static const double kLe2   = TMath::Power(kLe,2);
 
 //
-// Coupling constants
+// Coupling constants  -> Deprecated, please use the values from CommonParam[WeakInt]
 //
-static const double kAem   = 1./137.03599976;       // EM coupling const, dimensionless
+static const double kAem   = 1./137.03599976;       // EM coupling const, dimensionless  
 static const double kAem2  = TMath::Power(kAem,2);
 static const double kGF    = 1.16639E-5;            // Fermi const from b-decay, in GeV^-2
 static const double kGF2   = TMath::Power(kGF,2);
@@ -112,76 +112,76 @@ static const double kREarth = 6371 * units::km;
 //
 // Sqrts frequently encountered in helicity amplitude calculations
 //
-static const double kSqrt2     =  1.4142136;
-static const double kSqrt3     =  1.7320508;
-static const double kSqrt4     =  2.0;
-static const double kSqrt5     =  2.236068;
-static const double kSqrt6     =  2.4494897;
-static const double kSqrt7     =  2.6457513;
-static const double kSqrt8     =  2.8284271;
-static const double kSqrt9     =  3.0;
-static const double kSqrt10    =  3.1622777;
-static const double kSqrt12    =  3.4641016;
-static const double kSqrt15    =  3.8729833;
-static const double kSqrt18    =  4.2426407;
-static const double kSqrt20    =  4.472136;
-static const double kSqrt24    =  4.8989795;
-static const double kSqrt27    =  5.1961524;
-static const double kSqrt30    =  5.4772256;
-static const double kSqrt35    =  5.9160798;
-static const double kSqrt40    =  6.3245553;
-static const double kSqrt60    =  7.7459667;
-static const double kSqrt120   = 10.954451;
-static const double k1_Sqrt2   =  0.70710678;
-static const double k1_Sqrt3   =  0.57735027;
-static const double k1_Sqrt5   =  0.44721360;
-static const double k1_Sqrt6   =  0.40824829;
-static const double k1_Sqrt7   =  0.37796447;
-static const double k1_Sqrt10  =  0.31622777;
-static const double k1_Sqrt15  =  0.25819889;
-static const double k1_Sqrt24  =  0.20412415;
-static const double k1_Sqrt30  =  0.18257419;
-static const double k1_Sqrt35  =  0.16903085;
-static const double k1_Sqrt60  =  0.12909944;
-static const double k1_Sqrt120 =  0.091287093;
-static const double k2_Sqrt3   =  1.1547005;
-static const double k2_Sqrt5   =  0.89442719;
-static const double k2_Sqrt15  =  0.51639778;
-static const double k2_Sqrt35  =  0.3380617;
-static const double k3_Sqrt2   =  2.1213203;
-static const double k3_Sqrt5   =  1.3416408;
-static const double k3_Sqrt10  =  0.9486833;
-static const double k3_Sqrt20  =  0.67082039;
-static const double k3_Sqrt40  =  0.47434165;
-static const double kSqrt2_3   =  0.81649658;
-static const double kSqrt2_5   =  0.63245553;
-static const double kSqrt2_6   =  0.57735027;
-static const double kSqrt2_7   =  0.53452248;
-static const double kSqrt2_15  =  0.36514837;
-static const double kSqrt3_2   =  1.2247449;
-static const double kSqrt3_4   =  0.8660254;
-static const double kSqrt3_5   =  0.77459667;
-static const double kSqrt3_8   =  0.61237244;
-static const double kSqrt3_10  =  0.54772256;
-static const double kSqrt3_18  =  0.40824829;
-static const double kSqrt3_20  =  0.38729833;
-static const double kSqrt3_35  =  0.29277002;
-static const double kSqrt3_40  =  0.27386128;
-static const double kSqrt4_15  =  0.51639778;
-static const double kSqrt5_2   =  1.5811388;
-static const double kSqrt5_3   =  1.2909944;
-static const double kSqrt5_8   =  0.79056942;
-static const double kSqrt5_12  =  0.64549722;
-static const double kSqrt6_5   =  1.0954451;
-static const double kSqrt6_35  =  0.41403934;
-static const double kSqrt9_10  =  0.9486833;
-static const double kSqrt9_40  =  0.47434165;
-static const double kSqrt18_5  =  1.8973666;
-static const double kSqrt18_20 =  0.9486833;
-static const double kSqrt18_35 =  0.71713717;
-static const double kSqrt24_35 =  0.82807867;
-static const double kSqrt27_10 =  1.6431677;
-static const double kSqrt27_40 =  0.82158384;
+static const double kSqrt2 = TMath::Sqrt2();              //static const double kSqrt2     =  1.4142136;
+static const double kSqrt3 = TMath::Sqrt(3);              //static const double kSqrt3     =  1.7320508;
+static const double kSqrt4 = TMath::Sqrt(4);              //static const double kSqrt4     =  2.0;
+static const double kSqrt5 = TMath::Sqrt(5);              //static const double kSqrt5     =  2.236068;
+static const double kSqrt6 = TMath::Sqrt(6);              //static const double kSqrt6     =  2.4494897;
+static const double kSqrt7 = TMath::Sqrt(7);              //static const double kSqrt7     =  2.6457513;
+static const double kSqrt8 = TMath::Sqrt(8);              //static const double kSqrt8     =  2.8284271;
+static const double kSqrt9 = TMath::Sqrt(9);              //static const double kSqrt9     =  3.0;
+static const double kSqrt10 = TMath::Sqrt(10);            //static const double kSqrt10    =  3.1622777;
+static const double kSqrt12 = TMath::Sqrt(12);            //static const double kSqrt12    =  3.4641016;
+static const double kSqrt15 = TMath::Sqrt(15);            //static const double kSqrt15    =  3.8729833;
+static const double kSqrt18 = TMath::Sqrt(18);            //static const double kSqrt18    =  4.2426407;
+static const double kSqrt20 = TMath::Sqrt(20);            //static const double kSqrt20    =  4.472136;
+static const double kSqrt24 = TMath::Sqrt(24);            //static const double kSqrt24    =  4.8989795;
+static const double kSqrt27 = TMath::Sqrt(27);            //static const double kSqrt27    =  5.1961524;
+static const double kSqrt30 = TMath::Sqrt(30);            //static const double kSqrt30    =  5.4772256;
+static const double kSqrt35 = TMath::Sqrt(35);            //static const double kSqrt35    =  5.9160798;
+static const double kSqrt40 = TMath::Sqrt(40);            //static const double kSqrt40    =  6.3245553;
+static const double kSqrt60 = TMath::Sqrt(60);            //static const double kSqrt60    =  7.7459667;
+static const double kSqrt120 = TMath::Sqrt(120);          //static const double kSqrt120   = 10.954451;
+static const double k1_Sqrt2 = 1/TMath::Sqrt2();          //static const double k1_Sqrt2   =  0.70710678;
+static const double k1_Sqrt3 = 1/TMath::Sqrt(3);          //static const double k1_Sqrt3   =  0.57735027;
+static const double k1_Sqrt5 = 1/TMath::Sqrt(5);          //static const double k1_Sqrt5   =  0.44721360;
+static const double k1_Sqrt6 = 1/TMath::Sqrt(6);          //static const double k1_Sqrt6   =  0.40824829;
+static const double k1_Sqrt7 = 1/TMath::Sqrt(7);          //static const double k1_Sqrt7   =  0.37796447;
+static const double k1_Sqrt10 = 1/TMath::Sqrt(10);        //static const double k1_Sqrt10  =  0.31622777;
+static const double k1_Sqrt15 = 1/TMath::Sqrt(15);        //static const double k1_Sqrt15  =  0.25819889;
+static const double k1_Sqrt24 = 1/TMath::Sqrt(24);        //static const double k1_Sqrt24  =  0.20412415;
+static const double k1_Sqrt30 = 1/TMath::Sqrt(30);        //static const double k1_Sqrt30  =  0.18257419;
+static const double k1_Sqrt35 = 1/TMath::Sqrt(35);        //static const double k1_Sqrt35  =  0.16903085;
+static const double k1_Sqrt60 = 1/TMath::Sqrt(60);        //static const double k1_Sqrt60  =  0.12909944;
+static const double k1_Sqrt120 = 1/TMath::Sqrt(120);      //static const double k1_Sqrt120 =  0.091287093;
+static const double k2_Sqrt3 = 2/TMath::Sqrt(3);          //static const double k2_Sqrt3   =  1.1547005;
+static const double k2_Sqrt5 = 2/TMath::Sqrt(5);          //static const double k2_Sqrt5   =  0.89442719;
+static const double k2_Sqrt15 = 2/TMath::Sqrt(15);        //static const double k2_Sqrt15  =  0.51639778;
+static const double k2_Sqrt35 = 2/TMath::Sqrt(35);        //static const double k2_Sqrt35  =  0.3380617;
+static const double k3_Sqrt2 = 3/TMath::Sqrt2();          //static const double k3_Sqrt2   =  2.1213203;
+static const double k3_Sqrt5 = 3/TMath::Sqrt(5);          //static const double k3_Sqrt5   =  1.3416408;
+static const double k3_Sqrt10 = 3/TMath::Sqrt(10);        //static const double k3_Sqrt10  =  0.9486833;
+static const double k3_Sqrt20 = 3/TMath::Sqrt(20);        //static const double k3_Sqrt20  =  0.67082039;
+static const double k3_Sqrt40 = 3/TMath::Sqrt(40);        //static const double k3_Sqrt40  =  0.47434165;
+static const double kSqrt2_3 = TMath::Sqrt(2.0/3);        //static const double kSqrt2_3   =  0.81649658;
+static const double kSqrt2_5 = TMath::Sqrt(2.0/5);        //static const double kSqrt2_5   =  0.63245553;
+static const double kSqrt2_6 = TMath::Sqrt(2.0/6);        //static const double kSqrt2_6   =  0.57735027;
+static const double kSqrt2_7 = TMath::Sqrt(2.0/7);        //static const double kSqrt2_7   =  0.53452248;
+static const double kSqrt2_15 = TMath::Sqrt(2.0/15);      //static const double kSqrt2_15  =  0.36514837;
+static const double kSqrt3_2 = TMath::Sqrt(3.0/2);        //static const double kSqrt3_2   =  1.2247449;
+static const double kSqrt3_4 = TMath::Sqrt(3.0/4);        //static const double kSqrt3_4   =  0.8660254;
+static const double kSqrt3_5 = TMath::Sqrt(3.0/5);        //static const double kSqrt3_5   =  0.77459667;
+static const double kSqrt3_8 = TMath::Sqrt(3.0/8);        //static const double kSqrt3_8   =  0.61237244;
+static const double kSqrt3_10 = TMath::Sqrt(3.0/10);      //static const double kSqrt3_10  =  0.54772256;
+static const double kSqrt3_18 = TMath::Sqrt(3.0/18);      //static const double kSqrt3_18  =  0.40824829;
+static const double kSqrt3_20 = TMath::Sqrt(3.0/20);      //static const double kSqrt3_20  =  0.38729833;
+static const double kSqrt3_35 = TMath::Sqrt(3.0/35);      //static const double kSqrt3_35  =  0.29277002;
+static const double kSqrt3_40 = TMath::Sqrt(3.0/40);      //static const double kSqrt3_40  =  0.27386128;
+static const double kSqrt4_15 = TMath::Sqrt(4.0/15);      //static const double kSqrt4_15  =  0.51639778;
+static const double kSqrt5_2 = TMath::Sqrt(5.0/2);        //static const double kSqrt5_2   =  1.5811388;
+static const double kSqrt5_3 = TMath::Sqrt(5.0/3);        //static const double kSqrt5_3   =  1.2909944;
+static const double kSqrt5_8 = TMath::Sqrt(5.0/8);        //static const double kSqrt5_8   =  0.79056942;
+static const double kSqrt5_12 = TMath::Sqrt(5.0/12);      //static const double kSqrt5_12  =  0.64549722;
+static const double kSqrt6_5 = TMath::Sqrt(6.0/5);        //static const double kSqrt6_5   =  1.0954451;
+static const double kSqrt6_35 = TMath::Sqrt(6.0/35);      //static const double kSqrt6_35  =  0.41403934;
+static const double kSqrt9_10 = TMath::Sqrt(9.0/10);      //static const double kSqrt9_10  =  0.9486833;
+static const double kSqrt9_40 = TMath::Sqrt(9.0/40);      //static const double kSqrt9_40  =  0.47434165;
+static const double kSqrt18_5 = TMath::Sqrt(18.0/5);      //static const double kSqrt18_5  =  1.8973666;
+static const double kSqrt18_20 = TMath::Sqrt(18.0/20);    //static const double kSqrt18_20 =  0.9486833;
+static const double kSqrt18_35 = TMath::Sqrt(18.0/35);    //static const double kSqrt18_35 =  0.71713717;
+static const double kSqrt24_35 = TMath::Sqrt(24.0/35);    //static const double kSqrt24_35 =  0.82807867;
+static const double kSqrt27_10 = TMath::Sqrt(27.0/10);    //static const double kSqrt27_10 =  1.6431677;
+static const double kSqrt27_40 = TMath::Sqrt(27.0/40);    //static const double kSqrt27_40 =  0.82158384;
 
 } // namespace constants
 } // namespace genie

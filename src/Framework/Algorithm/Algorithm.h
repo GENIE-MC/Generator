@@ -5,15 +5,15 @@
 
 \brief    Algorithm abstract base class.
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
           Marco Roda <mroda \at liverpool.ac.uk>
           University of Liverpool
 
 \created  May 02, 2004
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
@@ -34,6 +34,7 @@
 #include "Framework/Registry/Registry.h"
 #include "Framework/Registry/RegistryItemTypeDef.h"
 #include "Framework/Messenger/Messenger.h"
+#include "TMatrixT.h"
 
 using std::string;
 using std::ostream;
@@ -138,6 +139,11 @@ public:
   static string BuildParamVectKey( const std::string & comm_name, unsigned int i ) ;
   static string BuildParamVectSizeKey( const std::string & comm_name ) ;
 
+  static string BuildParamMatKey( const std::string & comm_name, unsigned int i, unsigned int j) ;
+  static string BuildParamMatRowSizeKey( const std::string & comm_name ) ;
+  static string BuildParamMatColSizeKey( const std::string & comm_name ) ;
+
+
 protected:
   Algorithm();
   Algorithm(string name);
@@ -187,6 +193,18 @@ protected:
 
   int GetParamVectKeys( const std::string & comm_name, std::vector<RgKey> & k,
 			bool is_top_call = true ) const ;
+
+  //! Handle to load matrix of parameters
+  template<class T>
+    int GetParamMat( const std::string & comm_name, TMatrixT<T> & mat,
+		      bool is_top_call = true ) const ;
+  template<class T>
+    int GetParamMatSym( const std::string & comm_name, TMatrixTSym<T> & mat,
+		      bool is_top_call = true ) const ;
+
+  int GetParamMatKeys( const std::string & comm_name, std::vector<RgKey> & k,
+			bool is_top_call = true ) const ;
+
 
   int   AddTopRegistry( Registry * rp, bool owns = true );  ///< add registry with top priority, also update ownership
   int   AddLowRegistry( Registry * rp, bool owns = true );  ///< add registry with lowest priority, also update ownership

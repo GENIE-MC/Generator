@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory 
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool 
 
  For documentation see the corresponding header file.
 
@@ -75,13 +75,13 @@ double genie::utils::nuclear::BindEnergy(int nucA, int nucZ)
 // formula from Wapstra (Handbuch der Physik, XXXVIII/1)
 
   if (nucA<=0 || nucZ<=0) return 0;
-  // see http://www.worldscientificnews.com/wp-content/uploads/2019/09/WSN-136-2019-148-158.pdf
+  
   if (nucZ == 2)
   {
    if (nucA == 3)
-     return 7.718e-3;
+     return 7.5e-3;
    if (nucA == 4)
-     return 28.296e-3;
+     return 28.4e-3;
    return 0.;
   }
 

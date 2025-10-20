@@ -5,12 +5,12 @@
 
 \brief    Enumeration of kinematic variables
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org      
 */
 //____________________________________________________________________________
@@ -51,7 +51,8 @@ typedef enum EKineVar {
   kKVSelRad,
   kKVPn,
   kKVv,
-  kKVSelPn,
+  kKVphip,
+  kKVctp,
   kKVSelv,
   kKVQ0,
   kKVQ3,
@@ -60,6 +61,8 @@ typedef enum EKineVar {
   kKVn1,
   kKVn2,
   kKVn3,
+  kKVSelphip,
+  kKVSelctp,
   // put all new enum names right before this line
   // do not change any previous ordering (neither insert nor delete)
   kNumOfKineVar
@@ -98,16 +101,18 @@ public:
       case(kKVSelRad)  : return "*Selected* Struck particle position";   break;
       case(kKVPn)      : return " *Running* Hit nucleon momentum";       break;
       case(kKVv)       : return " *Running* Energy transfer";            break;
-      case(kKVSelPn)   : return "*Selected* Hit nucleon momentum";       break;
+      case(kKVphip)    : return " *Running* SPP final pion phi";          break;
+      case(kKVctp)     : return " *Running* SPP cosine final pion theta"; break;
       case(kKVSelv)    : return "*Selected* Energy transfer";            break;
       case(kKVQ0)      : return " *Running* Energy transfer (Q0)" ;      break;
       case(kKVQ3)      : return " *Running* three momentum transfer" ;   break;
       case(kKVSelQ0)   : return "*Selected* energy transfer (Q0) " ;     break;
       case(kKVSelQ3)   : return "*Selected* three momentum transfer" ;   break;
-      case(kKVn1)     : return " *Running* Normalized variable n1"  ;   break;
-      case(kKVn2)     : return " *Running* Normalized variable n2"  ;   break;
-      case(kKVn3)     : return " *Running* Normalized variable n3"  ;   break;
-
+      case(kKVn1)      : return " *Running* Normalized variable n1"  ;   break;
+      case(kKVn2)      : return " *Running* Normalized variable n2"  ;   break;
+      case(kKVn3)      : return " *Running* Normalized variable n3"  ;   break;
+      case(kKVSelphip) : return "*Selected* SPP final pion phi";          break;
+      case(kKVSelctp)  : return "*Selected* SPP cosine final pion theta"; break;
       default          : return "** Unknown kinematic variable **";      break;
     }
     return "** Unknown kinematic variable **";

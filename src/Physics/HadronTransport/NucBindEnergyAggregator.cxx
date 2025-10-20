@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory - November 19, 2004
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool - November 19, 2004
 
  For the class documentation see the corresponding header file.
 
@@ -88,7 +88,6 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * evrec) const
 
      LOG("Nuclear", pINFO)  << "Kinetic energy before subtraction = " << KE;
      KE -= bindE;
-     KE = TMath::Max(0.,KE);
 
      LOG("Nuclear", pINFO) << "Kinetic energy after subtraction = " << KE;
 
@@ -114,6 +113,7 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * evrec) const
           p->SetPx     ( pxn );
           p->SetPy     ( pyn );
           p->SetPz     ( pzn );
+          p->SetRemovalEnergy(0);
 
           //-- and add a GHEP entry to record this in the event record and
           //   conserve energy/momentum
@@ -128,38 +128,50 @@ void NucBindEnergyAggregator::ProcessEventRecord(GHepRecord * evrec) const
           LOG("Nuclear", pNOTICE)
                << "Recombining remnant nucleus + f/s nucleon";
 
-          LOG("Nuclear", pERROR)
-               << "*** This functionality is temporarily disabled";
-/*
-          LOG("Nuclear", pNOTICE) << *evrec;
 
-          // find the remnant nucleus
+          // find the remnant nucleus if corresponding cascade modules provide it
           int rnucpos = evrec->RemnantNucleusPosition();
-          assert(rnucpos);
 
-          GHepParticle * rnucl = evrec->Particle(rnucpos);
+          if (rnucpos != -1)
+          {
+            GHepParticle * rnucl = evrec->Particle(rnucpos);
 
-          // mark both the remnant nucleus and the final state nucleon as 
-          // intermediate states
-          rnucl -> SetStatus(kIStIntermediateState);
-          p     -> SetStatus(kIStIntermediateState);
+            // mark both the remnant nucleus and the final state nucleon as 
+            // intermediate states
+            rnucl -> SetStatus(kIStIntermediateState);
+            p     -> SetStatus(kIStIntermediateState);
 
-          // figure out the recombined nucleus PDG code
-          int Z = rnucl->Z();
-          int A = rnucl->A();
-          if(pdg::IsProton(p->Pdg())) Z++;
-          A++;
-          int ipdgc = pdg::IonPdgCode(A,Z);
+            // figure out the recombined nucleus PDG code
+            int Z = rnucl->Z();
+            int A = rnucl->A();
+            if(pdg::IsProton(p->Pdg())) Z++;
+            A++;
+            int ipdgc = pdg::IonPdgCode(A,Z);
 
-          // add-up their 4-momenta
-          double pxnuc = rnucl->Px() + p->Px();
-          double pynuc = rnucl->Py() + p->Py();
-          double pznuc = rnucl->Pz() + p->Pz();
-          double Enuc  = rnucl->E()  + p->E();
+            // add-up their 4-momenta
+            double pxnuc = rnucl->Px() + p->Px();
+            double pynuc = rnucl->Py() + p->Py();
+            double pznuc = rnucl->Pz() + p->Pz();
+            double Enuc  = rnucl->E()  + p->E();
 
-          evrec->AddParticle(ipdgc, kIStStableFinalState,
-                       rnucpos,-1,-1,-1, pxnuc,pynuc,pznuc,Enuc, 0,0,0,0);
-*/
+            evrec->AddParticle(ipdgc, kIStStableFinalState,
+                        rnucpos,-1,-1,-1, pxnuc,pynuc,pznuc,Enuc, 0,0,0,0);
+          }
+          else
+          {
+              // Find hadronic blob which is provided by Intranuke models
+              GHepParticle *hblob = evrec->FindParticle(kPdgHadronicBlob  , kIStFinalStateNuclearRemnant, 0);
+              // If there is no hadronic blob do nothing
+              if (hblob == nullptr) return;
+              p     -> SetStatus(kIStIntermediateState);
+              
+              // add-up their 4-momenta
+              double pxhblob = hblob->Px() + p->Px();
+              double pyhblob = hblob->Py() + p->Py();
+              double pzhblob = hblob->Pz() + p->Pz();
+              double Ehblob  = hblob->E()  + p->E();
+              hblob->SetMomentum(pxhblob, pyhblob, pzhblob, Ehblob);
+          }
      }
   }
 }

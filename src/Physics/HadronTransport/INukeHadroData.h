@@ -21,14 +21,14 @@
           data and extrapolations, and INC model results from Mashnik et al.
           for h+Fe56.
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>, Rutherford Lab.
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>, Rutherford Lab.
           Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
 	  Aaron Meyer <asm58@pitt.edu>, Pittsburgh Univ.
 	  Alex Bell, Pittsburgh Univ.
 
 \created  February 01, 2007
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           
 

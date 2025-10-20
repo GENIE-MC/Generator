@@ -1,15 +1,17 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 */
 //____________________________________________________________________________
 
 #include <fenv.h>  //provides: int feenableexcept(int excepts);
 #include <cmath>   //provides: std::isnan()
+
+#include <chrono>
 
 #include <fstream>
 #include <cstdlib>
@@ -35,6 +37,8 @@ using std::ofstream;
 using std::endl;
 
 namespace genie {
+
+  using namespace std::chrono ;
 
 //____________________________________________________________________________
 ostream & operator << (ostream & stream, const XSecSplineList & list)
@@ -166,8 +170,6 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
   // rwh -- uncomment to catch NaN
   // feenableexcept(FE_DIVBYZERO|FE_INVALID|FE_OVERFLOW);
 
-  double xsec[nknots];
-  double E   [nknots];
 
   SLOG("XSecSplLst", pNOTICE)
      << "Creating cross section spline using the algorithm: " << *alg;
@@ -181,6 +183,9 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
   if (e_max   < 0.) e_max = this->Emax();
   if (nknots <= 2) nknots = this->NKnots();
   assert( e_min < e_max );
+
+  std::vector<double> xsec( nknots, 0. ) ;
+  std::vector<double> E( nknots, 0. ) ;
 
   // Distribute the knots in the energy range (e_min,e_max) :
   // - Will use 5 knots linearly spaced below the energy thresholds so that the
@@ -239,10 +244,18 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
       p4.SetPz(pz);
     }
     interaction->InitStatePtr()->SetProbeP4(p4);
+
+    steady_clock::time_point start = steady_clock::now();
+
     xsec[i] = alg->Integral(interaction);
+
+    steady_clock::time_point end = steady_clock::now();
+
+    duration<double> time_span = duration_cast<duration<double>>(end - start);
+
     SLOG("XSecSplLst", pNOTICE)
                        << "xsec(E = " << E[i] << ") =  "
-                       << (1E+38/units::cm2)*xsec[i] << " x 1E-38 cm^2";
+                       << (1E+38/units::cm2)*xsec[i] << " x 1E-38 cm^2, evaluated in " << time_span.count() << " s";
     if ( std::isnan(xsec[i]) ) {
       // this sometimes happens near threshold, warn and move on
       SLOG("XSecSplLst", pWARN)
@@ -267,7 +280,7 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
 
   // Build
   //
-  Spline * spline = new Spline(nknots, E, xsec);
+  Spline * spline = new Spline(nknots, E.data(), xsec.data());
 
   // Save
   //

@@ -36,7 +36,7 @@ WeinbergAngle              double  No                                           
 
 <alg_conf>
 
-  <param_set name="Default"> 
+    <param_set name="Default"> 
     <param type="string" name="CommonParam"> CKM,Masses,WeakInt </param>
 
      <param type="alg" name="PDF-Set"> genie::BYPDF/Default </param>
@@ -63,7 +63,21 @@ WeinbergAngle              double  No                                           
      <param type="bool"   name="Use2016Corrections"> false </param>
      <param type="double" name="LowQ2CutoffF1F2">    0.8   </param>
      
+    </param_set>
+    
+  <param_set name="GRV982010"> 
+
+     <param type="double" name="BY-A">     0.621   </param>
+     <param type="double" name="BY-B">     0.380   </param>
+     <param type="double" name="BY-CsU">   0.369   </param>
+     <param type="double" name="BY-CsD">   0.561   </param>
+     <param type="double" name="BY-Cv1U">  0.417   </param>
+     <param type="double" name="BY-Cv2U">  0.264   </param>
+     <param type="double" name="BY-Cv1D">  0.341   </param>
+     <param type="double" name="BY-Cv2D">  0.323   </param>
+     
   </param_set>
+
 
 </alg_conf>
 
