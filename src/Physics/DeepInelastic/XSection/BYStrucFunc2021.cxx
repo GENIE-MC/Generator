@@ -69,11 +69,12 @@ void BYStrucFunc2021::ReadBYParams(void)
   GetParam( "BY-B", fB ) ;
   GetParam( "BY-CsU", fCsU ) ;
   GetParam( "BY-CsD", fCsD ) ;
+  GetParam( "BY-CsS", fCsD ) ;
   GetParam( "BY-Cv1U", fCv1U ) ;
   GetParam( "BY-Cv2U", fCv2U ) ;
   GetParam( "BY-Cv1D", fCv1D ) ;
   GetParam( "BY-Cv2D", fCv2D ) ;
-
+  GetParam( "BY-CsS" , fCsS  ) ;
 }
 //____________________________________________________________________________
 void BYStrucFunc2021::Init(void)
@@ -82,10 +83,12 @@ void BYStrucFunc2021::Init(void)
   fB    = 0;
   fCsU  = 0;
   fCsD  = 0;
+  fCvLW = 0;
   fCv1U = 0;
   fCv2U = 0;
   fCv1D = 0;
   fCv2D = 0;
+  fCsS  = 0;
 }
 //____________________________________________________________________________
 double BYStrucFunc2021::ScalingVar(const Interaction * interaction) const
@@ -104,18 +107,23 @@ double BYStrucFunc2021::ScalingVar(const Interaction * interaction) const
 }
 //____________________________________________________________________________
 void BYStrucFunc2021::KFactors(const Interaction * interaction,
-   double & kuv, double & kdv, double & kus, double & kds) const
+   double & kuv, double & kdv, double & kus, double & kds, double & kss ) const
 {
 // Overrides QPMDISStrucFuncBase::KFactors() to compute the BY K factors for
-// u(valence), d(valence), u(sea), d(sea);
+// u(valence), d(valence), u(sea), d(sea), s(sea);
 
   double myQ2  = this->Q2(interaction);
   double GD  = 1. / TMath::Power(1.+myQ2/0.71, 2); // p elastic form factor
   double GD2 = TMath::Power(GD,2);
-
-  kuv = (1.-GD2)*(myQ2+fCv2U)/(myQ2+fCv1U); // K - u(valence)
-  kdv = (1.-GD2)*(myQ2+fCv2D)/(myQ2+fCv1D); // K - d(valence)
+	// double Ev    = init_state.ProbeE(kRfHitNucRest);	
+  double q0 = 0;
+  double q02 = TMath::Power(q0,2);
+  double KLW = q02 / ( q02 + fCvLW );
+  
+  kuv = KLW * (1.-GD2)*(myQ2+fCv2U)/(myQ2+fCv1U); // K - u(valence)
+  kdv = KLW * (1.-GD2)*(myQ2+fCv2D)/(myQ2+fCv1D); // K - d(valence)
   kus = myQ2/(myQ2+fCsU);                   // K - u(sea)
   kds = myQ2/(myQ2+fCsD);                   // K - d(sea)
+  double kss = myQ2/(myQ2+fCsS);            // K - s(sea)	
 }
 //____________________________________________________________________________

@@ -47,7 +47,7 @@ protected:
   // to compute all the corrections applied by the Bodek-Yang model.
   double ScalingVar (const Interaction * i) const;
   void   KFactors   (const Interaction * i, double & kuv,
-                         double & kdv, double & kus, double & kds) const;
+                         double & kdv, double & kus, double & kds, double & kss ) const;
 
   // Bodek-Yang model-specific parameters
 

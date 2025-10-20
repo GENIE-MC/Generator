@@ -100,7 +100,7 @@ double BYStrucFunc::ScalingVar(const Interaction * interaction) const
 }
 //____________________________________________________________________________
 void BYStrucFunc::KFactors(const Interaction * interaction,
-	         double & kuv, double & kdv, double & kus, double & kds) const
+	         double & kuv, double & kdv, double & kus, double & kds, double & kss ) const
 {
 // Overrides QPMDISStrucFuncBase::KFactors() to compute the BY K factors for
 // u(valence), d(valence), u(sea), d(sea);

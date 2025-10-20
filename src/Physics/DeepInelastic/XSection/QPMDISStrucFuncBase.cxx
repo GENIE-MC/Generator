@@ -432,7 +432,7 @@ double QPMDISStrucFuncBase::ScalingVar(const Interaction* interaction) const
 }
 //____________________________________________________________________________
 void QPMDISStrucFuncBase::KFactors(const Interaction *,
-                 double & kuv, double & kdv, double & kus, double & kds) const
+                 double & kuv, double & kdv, double & kus, double & kds, double & kds ) const
 {
 // This is an abstract class: no model-specific correction
 // The PDF scaling variables are set to 1
@@ -442,6 +442,7 @@ void QPMDISStrucFuncBase::KFactors(const Interaction *,
   kdv = 1.;
   kus = 1.;
   kds = 1.;
+  kss = 1.;
 }
 //____________________________________________________________________________
 double QPMDISStrucFuncBase::NuclMod(const Interaction * interaction) const

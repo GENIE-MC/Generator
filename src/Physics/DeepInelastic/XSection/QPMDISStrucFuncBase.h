@@ -68,7 +68,7 @@ protected:
   virtual double NuclMod    (const Interaction * i) const;
   virtual double R          (const Interaction * i) const;
   virtual void   KFactors   (const Interaction * i, double & kuv,
-                                     double & kdv, double & kus, double & kds) const;
+                                     double & kdv, double & kus, double & kds, double & kss ) const;
   // configuration
   //
   double fQ2min;             ///< min Q^2 allowed for PDFs: PDF(Q2<Q2min):=PDF(Q2min)
