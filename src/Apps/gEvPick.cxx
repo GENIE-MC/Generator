@@ -107,7 +107,7 @@
 
               .................................................................................
 
-                <can add more / please send request to constantinos.andreopoulos \at cern.ch>
+                <can add more / please send request to c.andreopoulos \at cern.ch>
 
            -o 
               Specify output filename.
@@ -128,12 +128,12 @@
                 numu NC 1pi0 events. All cherry-picked events will be saved in the 
                 output file gntp.numu_nc_1pi0.ghep.root (default name).
 
-\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+\author  Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 
 \created August 09, 2010
 
-\cpright Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright Copyright (c) 2003-2025, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          
 */

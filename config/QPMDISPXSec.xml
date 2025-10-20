@@ -26,4 +26,7 @@ WeinbergAngle               double  No                                          
      <param type="double" name="DIS-EM-XSecScale">    1. </param>
   </param_set>
 
+  <param_set name="GRV982010">
+    <param type="alg" name="SFAlg"> genie::BYStrucFunc/GRV982010 </param>
+  </param_set>
 </alg_conf>

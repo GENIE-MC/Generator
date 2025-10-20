@@ -1,7 +1,7 @@
 
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
@@ -9,7 +9,7 @@
          Aaron Meyer <asm58@pitt.edu>, Pittsburgh Univ.
 	 Alex Bell, Pittsburgh Univ.
          Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts Univ.
-         Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>, Rutherford Lab.
+         Costas Andreopoulos <c.andreopoulos \at cern.ch>, Rutherford Lab.
          September 20, 2005
 
  For the class documentation see the corresponding header file.
@@ -720,7 +720,7 @@ void HNIntranuke2018::ElasHN(
   t->SetPdgCode(tcode);
   double Mt = t->Mass();
   //t->SetMomentum(TLorentzVector(0,0,0,Mt));
-
+  t->SetRemovalEnergy(0);
   // handle fermi momentum 
   if(fDoFermi)
     {
@@ -773,6 +773,9 @@ void HNIntranuke2018::InelasticHN(GHepRecord* ev, GHepParticle* p) const
   GHepParticle s1(*p);  
   GHepParticle s2(*p);
   GHepParticle s3(*p);
+  s2.SetRemovalEnergy(0);
+  s3.SetRemovalEnergy(0);
+  
   
   
   if (utils::intranuke2018::PionProduction(ev,p,&s1,&s2,&s3,fRemnA,fRemnZ,fRemnP4,fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel))

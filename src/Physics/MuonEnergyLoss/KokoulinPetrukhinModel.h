@@ -10,12 +10,12 @@
 \ref      W.Lohmann, R.Kopp and R.Voss,
           Energy Loss of Muons in the Energy Range 1-10000 GeV, CERN 85-03
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
 \created  December 10, 2003
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
@@ -66,8 +66,8 @@ public:
 \brief    Auxiliary scalar function for the internal integration in Kokulin
           Petrukhin model
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
 \created  December 10, 2003
 */

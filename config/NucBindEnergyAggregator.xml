@@ -18,7 +18,6 @@ AllowNuclRecombination  bool     Yes        See [1]                     true
 -->
 
   <param_set name="Default"> 
-     <param type="bool" name="AllowNuclRecombination"> false </param>
   </param_set>
 
 </alg_conf>

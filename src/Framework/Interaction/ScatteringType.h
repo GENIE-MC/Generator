@@ -5,15 +5,15 @@
 
 \brief    Enumeration of scattering types
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
           Changes required to implement the GENIE Boosted Dark Matter module
           were installed by Josh Berger (Univ. of Wisconsin)
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -52,6 +52,7 @@ typedef enum EScatteringType {
   kScIMDAnnihilation,
   kScPhotonCoherent,
   kScPhotonResonance,
+  kScSinglePion,
   kScDarkMatterElastic = 101,
   kScDarkMatterDeepInelastic,
   kScDarkMatterElectron,
@@ -84,6 +85,7 @@ public:
       case(kScNorm) :                    return "Norm";      break;
       case(kScPhotonCoherent) :          return "PhotonCOH"; break;
       case(kScPhotonResonance) :         return "PhotonRES"; break;
+      case(kScSinglePion) :              return "1Pion";     break;
       case(kScDarkMatterElastic) :       return "DMEL";      break;
       case(kScDarkMatterDeepInelastic) : return "DMDIS";     break;
       case(kScDarkMatterElectron) :      return "DME";       break;

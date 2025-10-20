@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory 
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool 
 */
 //____________________________________________________________________________
 
@@ -170,7 +170,7 @@ bool Messenger::SetPrioritiesFromXmlFile(string filenames)
          string msgstream = utils::str::TrimSpaces(
                   utils::xml::GetAttribute(xml_msgp, "msgstream"));
          string priority =
-                utils::xml::TrimSpaces( xmlNodeListGetString(
+                utils::xml::TrimSpacesClean( xmlNodeListGetString(
                                xml_doc, xml_msgp->xmlChildrenNode, 1));
          log4cpp::Priority::Value pv = this->PriorityFromString(priority);
          this->SetPriorityLevel(msgstream.c_str(), pv);

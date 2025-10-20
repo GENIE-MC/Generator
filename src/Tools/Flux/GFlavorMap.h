@@ -34,7 +34,7 @@
 
 \created 2010-10-31
 
-\cpright Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright Copyright (c) 2003-2025, The GENIE Collaboration
          for the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________

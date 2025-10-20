@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Igor Kakorin <kakorin@jinr.ru>
@@ -20,8 +20,8 @@
 
  based on code of:
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch> \n
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch> \n
+ University of Liverpool
 */
 //____________________________________________________________________________
 

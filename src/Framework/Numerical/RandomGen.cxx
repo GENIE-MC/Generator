@@ -1,21 +1,24 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 */
 //____________________________________________________________________________
 
 #include <cstdlib>
 
 #include <TSystem.h>
-#include <TPythia6.h>
 
 #include "Framework/Conventions/Controls.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
+
+#ifdef __GENIE_PYTHIA6_ENABLED__
+#include <TPythia6.h>
+#endif
 
 using namespace genie::controls;
 
@@ -104,9 +107,11 @@ void RandomGen::SetSeed(long int seed)
   // Set the seed number for ROOT's gRandom
   gRandom ->SetSeed (seed);
 
+#ifdef __GENIE_PYTHIA6_ENABLED__
   // Set the PYTHIA6 seed number
   TPythia6 * pythia6 = TPythia6::Instance();
   pythia6->SetMRPY(1, seed);
+#endif
 
   LOG("Rndm", pINFO) << "RndKine  seed = " << this->RndKine ().GetSeed();
   LOG("Rndm", pINFO) << "RndHadro seed = " << this->RndHadro().GetSeed();
@@ -120,7 +125,9 @@ void RandomGen::SetSeed(long int seed)
   LOG("Rndm", pINFO) << "RndNum   seed = " << this->RndNum  ().GetSeed();
   LOG("Rndm", pINFO) << "RndGen   seed = " << this->RndGen  ().GetSeed();
   LOG("Rndm", pINFO) << "gRandom  seed = " << gRandom->GetSeed();
+#ifdef __GENIE_PYTHIA6_ENABLED__
   LOG("Rndm", pINFO) << "PYTHIA6  seed = " << pythia6->GetMRPY(1);
+#endif
 }
 //____________________________________________________________________________
 void RandomGen::InitRandomGenerators(long int seed)

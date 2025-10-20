@@ -8,8 +8,8 @@ This is file is read from the AlgConfigPool and the parameters set are expected 
 algorithms to configure these common parameters.
 
 Author:
-Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-STFC, Rutherford Appleton Laboratory
+Costas Andreopoulos <c.andreopoulos \at cern.ch>
+University of Liverpool
 
 and
 Marco Roda <marco.roda \at liverpool.ac.uk>
@@ -22,10 +22,6 @@ University of Liverpool
 <common_Decay_list>
 
   <param_set name="DecayFlags"> 
-
-     <param type="bool" name="InhibitDecay/Particle=24,Channel=2"> true </param>
-     <param type="bool" name="InhibitDecay/Particle=24,Channel=6"> true </param>
-     <param type="bool" name="InhibitDecay/Particle=24,Channel=10"> true </param>
 
   <!-- Not decay anything with lifetime higher than pi0 -->
 

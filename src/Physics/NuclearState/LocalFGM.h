@@ -3,18 +3,18 @@
 
 \class    genie::LocalFGM
 
-\brief    local Fermi gas model. Implements the NuclearModelI 
+\brief    local Fermi gas model. Implements the NuclearModelI
           interface.
 
-\ref      
+\ref
 
 \author   Joe Johnston, Steven Dytman
 
 \created  December 2015
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          
+
 */
 //____________________________________________________________________________
 
@@ -53,9 +53,9 @@ public:
   double Prob (double p, double w, const Target & t) const {
     return Prob(p,w,t,0.0);
   }
-  NuclearModel_t ModelType       (const Target &) const 
-  { 
-    return kNucmLocalFermiGas; 
+  NuclearModel_t ModelType       (const Target &) const
+  {
+    return kNucmLocalFermiGas;
   }
 
   virtual double LocalFermiMomentum( const Target & t, int nucleon_pdg, double radius ) const ;
@@ -72,16 +72,29 @@ public:
 private:
   TH1D * ProbDistro (const Target & t, double r) const;
 
+  /// Throw a value from the Maxwell-Boltzmann distribution with the configured
+  /// parameters
+  double MaxwellBoltzmannRemovalE(const Target & t, double Ermv_min,
+    double Ermv_max) const;
+
   map<int, double> fNucRmvE;
 
   double fPMax;
   bool fMomDepErmv;
   bool fForcePositiveErmv;
+  bool fUseMBDist;
 
   // options related to SRC pairs
   double fSRC_Fraction;
   double fPCutOff;
 
+  /// Center of Maxwell-Boltmann distribution used for SRC removal energy
+  /// distribution, GeV
+  double fSRC_Ermv_C;
+
+  /// Sigma of Maxwell-Boltmann distribution used for SRC removal energy
+  /// distribution, GeV
+  double fSRC_Ermv_sigma;
 };
 
 }         // genie namespace

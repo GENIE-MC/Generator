@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
-  Copyright (c) 2003-2023, The GENIE Collaboration
+  Copyright (c) 2003-2025, The GENIE Collaboration
   For the full text of the license visit http://copyright.genie-mc.org
   or see $GENIE/LICENSE
 
-  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-  University of Liverpool & STFC Rutherford Appleton Lab
+  Author: Costas Andreopoulos <c.andreopoulos \at cern.ch>
+  University of Liverpool
   Igor Kakorin <kakorin@jinr.ru> (latest updates)
   Joint Institute for Nuclear Research 
 
@@ -712,131 +712,3 @@ int genie::utils::res::Dsgn(Resonance_t res)
   }
   return 0;
 }
-/*
-//  Not used in the latest version
-//____________________________________________________________________________
-//phases between resonances and nonresonant helicity amplitudes for MK model
-double genie::utils::res::AxialPhase(Resonance_t res)
-{
-   
-switch(res) {
-case kP33_1232:  return   2.97; break;
-case kS11_1535:  return   0.93; break;
-case kD13_1520:  return   0.00; break;
-case kS11_1650:  return   0.00; break;
-case kD13_1700:  return   0.00; break;
-case kD15_1675:  return   0.00; break;
-case kS31_1620:  return   0.00; break;
-case kD33_1700:  return   0.00; break;
-case kP11_1440:  return   0.64; break;
-case kP33_1600:  return   0.00; break;
-case kP13_1720:  return   0.00; break;
-case kF15_1680:  return   0.00; break;
-case kP31_1910:  return   0.00; break;
-case kP33_1920:  return   0.00; break;
-case kF35_1905:  return   0.00; break;
-case kF37_1950:  return   0.00; break;
-case kP11_1710:  return   0.00; break;
-case kF17_1970:  return   0.00; break;
-default:
-// should not be here - meaningless to return anything
-gAbortingInErr = true;
-LOG("BaryonResUtils", pFATAL) << "Unknown resonance " << res;
-exit(1);
-}
-}
-//____________________________________________________________________________
-//phases between resonances and nonresonant helicity amplitudes for MK model
-double genie::utils::res::VectorPhase(Resonance_t res)
-{
-   
-switch(res) {
-case kP33_1232:  return  -2.860; break;
-case kS11_1535:  return   0.000; break;
-case kD13_1520:  return   2.498; break;
-case kS11_1650:  return   kPi;   break;
-case kD13_1700:  return   0.000; break;
-case kD15_1675:  return   0.000; break;
-case kS31_1620:  return   0.000; break;
-case kD33_1700:  return   0.000; break;
-case kP11_1440:  return   0.000; break;
-case kP33_1600:  return   0.000; break;
-case kP13_1720:  return   0.000; break;
-case kF15_1680:  return   0.000; break;
-case kP31_1910:  return   0.000; break;
-case kP33_1920:  return   0.000; break;
-case kF35_1905:  return   0.000; break;
-case kF37_1950:  return   0.000; break;
-case kP11_1710:  return   0.000; break;
-case kF17_1970:  return   0.000; break;
-default:
-// should not be here - meaningless to return anything
-gAbortingInErr = true;
-LOG("BaryonResUtils", pFATAL) << "Unknown resonance " << res;
-exit(1);
-}
-}
-//____________________________________________________________________________
-//Vector form factors parameter for MK model
-double genie::utils::res::CV40(Resonance_t res)
-{
-   
-switch(res) {
-case kP33_1232:  return   1.12; break;
-case kS11_1535:  return   1.00; break;
-case kD13_1520:  return   1.00; break;
-case kS11_1650:  return   1.00; break;
-case kD13_1700:  return   1.00; break;
-case kD15_1675:  return   1.00; break;
-case kS31_1620:  return   1.00; break;
-case kD33_1700:  return   1.00; break;
-case kP11_1440:  return   1.00; break;
-case kP33_1600:  return   1.00; break;
-case kP13_1720:  return   1.00; break;
-case kF15_1680:  return   1.00; break;
-case kP31_1910:  return   1.00; break;
-case kP33_1920:  return   1.00; break;
-case kF35_1905:  return   1.00; break;
-case kF37_1950:  return   1.00; break;
-case kP11_1710:  return   1.00; break;
-case kF17_1970:  return   1.00; break;
-default:
-// should not be here - meaningless to return anything
-gAbortingInErr = true;
-LOG("BaryonResUtils", pFATAL) << "Unknown resonance " << res;
-exit(1);
-}
-}
-//____________________________________________________________________________
-//Axial form factors parameter for MK model
-double genie::utils::res::CA50(Resonance_t res)
-{
-   
-switch(res) {
-case kP33_1232:  return   1.02; break;
-case kS11_1535:  return   1.53; break;
-case kD13_1520:  return   0.50; break;
-case kS11_1650:  return   1.00; break;
-case kD13_1700:  return   1.00; break;
-case kD15_1675:  return   0.60; break;
-case kS31_1620:  return   1.00; break;
-case kD33_1700:  return   1.00; break;
-case kP11_1440:  return   1.00; break;
-case kP33_1600:  return   1.00; break;
-case kP13_1720:  return   1.10; break;
-case kF15_1680:  return   1.30; break;
-case kP31_1910:  return   0.60; break;
-case kP33_1920:  return   0.60; break;
-case kF35_1905:  return   0.60; break;
-case kF37_1950:  return   1.40; break;
-case kP11_1710:  return   1.20; break;
-case kF17_1970:  return   1.00; break;
-default:
-// should not be here - meaningless to return anything
-gAbortingInErr = true;
-LOG("BaryonResUtils", pFATAL) << "Unknown resonance " << res;
-exit(1);
-}
-}
-//____________________________________________________________________________
-*/

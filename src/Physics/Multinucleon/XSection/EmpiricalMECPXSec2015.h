@@ -6,15 +6,15 @@
 \brief    Computes the MEC differential cross section.
           Is a concrete implementation of the XSecAlgorithmI interface. \n
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
           Steve Dytman <dytman+ \at pitt.edu>
           Pittsburgh University
 
 \created  May 05, 2009
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________

@@ -5,12 +5,12 @@
 
 \brief      XML utilities
 
-\author     Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-            University of Liverpool & STFC Rutherford Appleton Laboratory
+\author     Costas Andreopoulos <c.andreopoulos \at cern.ch>
+            University of Liverpool
 
 \created    May 04, 2004
  
-\cpright    Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright    Copyright (c) 2003-2025, The GENIE Collaboration
             For the full text of the license visit http://copyright.genie-mc.org
             
 */
@@ -52,6 +52,7 @@ namespace xml   {
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 
   string TrimSpaces(xmlChar * xmls) ;
+  string TrimSpacesClean(xmlChar * xmls) ;
   // trim the leading/trailing spaces from an parsed xml string like in:
   //
   // "      I am a string with lots of spaces      " ---->

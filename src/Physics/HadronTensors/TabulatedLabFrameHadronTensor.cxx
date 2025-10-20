@@ -433,14 +433,14 @@ double genie::TabulatedLabFrameHadronTensor::dSigma_dT_dCosTheta_rosenbluth(int 
     //   genie::constants::kAem / (2. * E_probe * s2_half), 2) * c2_half;
     // the previous expression was an approximation in the case of ml-->0 (UR limit).
     // To be more accurate, SIGMA_MOTT SHOULD BE EXPRESSED AS:
-    double mott = std::pow(2.*El*genie::constants::kAem / q2, 2) * c2_half;
+    double mott = std::pow(2.*El*genie::constants::kAem / q2, 2);
     // ALTHOUGH THE DIFFERENCES SHOULD BE VERY SMALL OR NEGLIGIBLE
 
     // Longitudinal part
-    double l_part = std::pow(q2 / q_mag2, 2) * entry.W00;
+    double l_part = std::pow(q2 / q_mag2, 2) * entry.W00 * c2_half;
 
     // Transverse part
-    double t_part = ( (2.*s2_half / c2_half) - (q2 / q_mag2) ) * entry.Wxx;
+    double t_part = ( 2.*s2_half - (q2*c2_half / q_mag2) ) * entry.Wxx;
 
     // This is the double diff cross section dsigma/dOmega/domega==dsigma/dOmega/dEl
 

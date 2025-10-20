@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Walk the directory tree and replace the '20XX' copyright dates in lines with
 'Copyright 2003-20XX' with '2016'. Usage:
@@ -14,7 +14,7 @@ import sys
 
 
 search_string = r'Copyright \(c\) 2003-20\d\d'
-replace_string = r'Copyright (c) 2003-2020'
+replace_string = r'Copyright (c) 2003-2025'
 
 
 def has_hidden_dirs(dirpath):
@@ -52,7 +52,7 @@ def do_the_subs(path_collection, search, replace):
     Look for the copyright string and sub the date
     """
     for path in path_collection:
-        with open(path, 'r+') as p:
+        with open(path, 'r+', encoding='latin-1') as p:
             contents = p.read()
             pattern = re.compile(search)
             contents = pattern.sub(replace, contents)

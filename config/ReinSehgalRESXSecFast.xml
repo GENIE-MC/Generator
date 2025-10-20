@@ -51,6 +51,26 @@ ESplineMax                  double  Yes  Emax in RES splines, xsec(E>Emax)=xsec(
   
   </param_set>
 
+  <param_set name="EM-WithPauliBlock"> 
+  <!--   
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Account for Pauli blocking in Berger-Sehgal, Kuzmin-Lyubushkin-Naumov and Rein-Sehgal models?
+   If this option is true, when caching for free nucleons is disabled.
+  -->   
+    <param type="bool"   name="UsePauliBlockingForRES">  true  </param>
+    <param type="int"    name ="gsl-max-eval">        10000000 </param>
+  </param_set>
+  
+  <param_set name="EM-NoPauliBlock"> 
+   <!--   
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Account for Pauli blocking in Berger-Sehgal, Kuzmin-Lyubushkin-Naumov and Rein-Sehgal models?
+   If this option is true, when caching for free nucleons is disabled.
+  -->  
+    <param type="bool"   name="UsePauliBlockingForRES">  false  </param>
+    <param type="int"    name ="gsl-max-eval">         10000000 </param>
+  </param_set>
+
 </alg_conf>
 
 

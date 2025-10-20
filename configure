@@ -4,8 +4,8 @@
 #
 # For help, type ./configure --help
 #
-# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-# University of Liverpool & STFC Rutherford Appleton Laboratory
+# Costas Andreopoulos <c.andreopoulos \at cern.ch>
+# University of Liverpool
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # print out info & exit if any of the command-line arguments was --help
@@ -17,9 +17,10 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    FLAG                 DESCRIPTION                                                 DEFAULT\n\n";
   print "    --prefix             Installation location (for 'make install')                  /usr/local/\n";
   print "\n enable/disable options with either --enable- or --disable- (eg --enable-lhapdf5 --disable-flux-drivers)\n\n";
+  print "    pythia6              Use the PYTHIA6 MC generator, assumed to be incl. w/ ROOT   default: enabled  \n";
   print "    pythia8              Use the PYTHIA8 MC generator                                default: disabled \n";
   print "    incl                 Interface with INCL++ for nuclear transport                 default: disabled \n";
-  print "    geant4               Interface with Geant4 for nuclear transport                 default: disabled \n";  
+  print "    geant4               Interface with Geant4 for nuclear transport                 default: disabled \n";
   print "    lhapdf5              Use the LHAPDF5 parton density function library             default: enabled  \n";
   print "    lhapdf6              Use the LHAPDF6 parton density function library             default: disabled \n";
   print "    apfel                Use APFEL to compute NLO structure functions                default: disabled \n";
@@ -46,6 +47,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    doxygen-doc          Generate doxygen documentation at build time                default: disabled \n";
   print "    gfortran             Link against external libraries built with gfortran         default: disabled \n";
   print "    g2c                  Link against external libraries built with g77              default: disabled \n";
+  print "    professor2           Build bundled professor2 libraries                          default: disabled \n";
   print "\n options for 3rd party software, prefix with --with- (eg --with-lhapdf5-lib=/some/path/)\n\n";
   print "    compiler          Compiler to use (any of clang,gcc)                          default: gcc \n";
   print "    optimiz-level     Compiler optimization        any of O,O2,O3,OO,Os / default: O2 \n";
@@ -94,19 +96,20 @@ if(-e $BANNER_FILE) {
   close(BANNER);
 }
 
-# Check that $ROOTSYS is set
+# Check that ROOT can be seen
 #
-$ROOTSYS = $ENV{'ROOTSYS'};
-die ("*** Error *** The ROOTSYS environmental variable is not defined. Is ROOT installed?")
-unless defined $ROOTSYS;
+`root-config --version 2> /dev/null`;
+$HAVE_ROOT_CONFIG = $?;
+die ("*** Error *** Cannot find root-config. Is ROOT installed?")
+unless $HAVE_ROOT_CONFIG == 0;
 
 # Check whether ROOT itself was build with GSL enabled
 # (GENIE uses GSL via ROOT's MathMore library.)
 #
 {
-  $mathmore_lib = "$ROOTSYS/lib/libMathMore.so";
-  if( ! -f $mathmore_lib ) {
-     die ("*** Error *** ROOT needs to be built with GSL/MathMore enabled.");
+  chomp($has_mathmore = `root-config --has-mathmore`);
+  if ( $has_mathmore ne 'yes' ) {
+    die ("*** Error *** ROOT needs to be built with GSL/MathMore enabled.");
   }
 }
 
@@ -149,6 +152,7 @@ print MKCONF "GENIE_INSTALLATION_PATH=$prefix\n";
 
 # Default --enable/--disable config options (for a minimal genie build)
 #
+my $gopt_enable_pythia6              = "YES";
 my $gopt_enable_pythia8              = "NO";
 my $gopt_enable_lhapdf5              = "YES";
 my $gopt_enable_lhapdf6              = "NO";
@@ -176,16 +180,21 @@ my $gopt_enable_profiler             = "NO";
 my $gopt_enable_doxygen_doc          = "NO";
 my $gopt_enable_gfortran             = "NO";
 my $gopt_enable_g2c                  = "NO";
+my $gopt_enable_professor2           = "NO";
 
 # Check configure's command line arguments for non-default values
 #
+if(($match = grep(/--enable-pythia6/i,              @ARGV)) > 0) { $gopt_enable_pythia6              = "YES";  }
+if(($match = grep(/--disable-pythia6/i,             @ARGV)) > 0) { $gopt_enable_pythia6              = "NO";  }
 if(($match = grep(/--enable-pythia8/i,              @ARGV)) > 0) { $gopt_enable_pythia8              = "YES"; }
+if(($match = grep(/--disable-pythia8/i,             @ARGV)) > 0) { $gopt_enable_pythia8              = "NO"; }
 if(($match = grep(/--enable-lhapdf5/i,              @ARGV)) > 0) { $gopt_enable_lhapdf5              = "YES"; }
 if(($match = grep(/--disable-lhapdf5/i,             @ARGV)) > 0) { $gopt_enable_lhapdf5              = "NO";  }
 if(($match = grep(/--enable-lhapdf6/i,              @ARGV)) > 0) { $gopt_enable_lhapdf6              = "YES"; }
 if(($match = grep(/--disable-lhapdf6/i,             @ARGV)) > 0) { $gopt_enable_lhapdf6              = "NO";  }
 if(($match = grep(/--enable-apfel/i,                @ARGV)) > 0) { $gopt_enable_apfel                = "YES"; }
 if(($match = grep(/--disable-apfel/i,               @ARGV)) > 0) { $gopt_enable_apfel                = "NO";  }
+
 if(($match = grep(/--disable-flux-drivers/i,        @ARGV)) > 0) { $gopt_enable_flux_drivers         = "NO";  }
 if(($match = grep(/--disable-geom-drivers/i,        @ARGV)) > 0) { $gopt_enable_geom_drivers         = "NO";  }
 if(($match = grep(/--enable-t2k/i,                  @ARGV)) > 0) { $gopt_enable_t2k                  = "YES"; }
@@ -209,6 +218,7 @@ if(($match = grep(/--enable-profiler/i,             @ARGV)) > 0) { $gopt_enable_
 if(($match = grep(/--enable-doxygen-doc/i,          @ARGV)) > 0) { $gopt_enable_doxygen_doc          = "YES"; }
 if(($match = grep(/--enable-gfortran/i,             @ARGV)) > 0) { $gopt_enable_gfortran             = "YES"; }
 if(($match = grep(/--enable-g2c/i,                  @ARGV)) > 0) { $gopt_enable_g2c                  = "YES"; }
+if(($match = grep(/--enable-professor2/i,           @ARGV)) > 0) { $gopt_enable_professor2           = "YES"; }
 
 # LHAPDF6 and LHAPDF5 are mutually exlusive
 if ($gopt_enable_lhapdf6 eq "YES" && $gopt_enable_lhapdf5 eq "YES") {
@@ -287,35 +297,38 @@ if($gopt_enable_doxygen_doc eq "YES") {
 
 # Get pythia6 library path
 #
-my $gopt_with_pythia6_lib = "";
 if($options=~m/--with-pythia6=\S*/i) {
     print "*** Error *** Note that the option --with-pythia6 has been renamed to --with-pythia6-lib \n";
     print "*** Error *** Please see './configure --help' for all config option updates \n\n";
     exit 1;
 }
-if($options=~m/--with-pythia6-lib=(\S*)/i) {
-  $gopt_with_pythia6_lib = $1;
-} else {
-  print "\n*** Warning *** You didn't specify the PYTHIA6 path \n";
-}
-# if it was not set, try to pick it up from the environment
-if(! -d $gopt_with_pythia6_lib && defined $ENV{'PYTHIA6'}) {
-  $gopt_with_pythia6_lib = $ENV{'PYTHIA6'};
-  print "The \$PYTHIA6 env var is defined. I will pick that and set --with-pythia6-lib=$gopt_with_pythia6_lib\n";
-}
-# if it still not set, try autodetecting it
-if(! -d $gopt_with_pythia6_lib && $auto_detect)
-{
-  print "Auto-detecting the PYTHIA6 path...\n";
-  $matched = auto_detect("libPythia6*");
-  if( $matched=~m/(\S*)\/libPythia6\S*/i ) {
-     $gopt_with_pythia6_lib = $1;
+
+my $gopt_with_pythia6_lib = "";
+if($gopt_enable_pythia6 eq "YES") {
+  if($options=~m/--with-pythia6-lib=(\S*)/i) {
+    $gopt_with_pythia6_lib = $1;
+  } else {
+    print "\n*** Warning *** You didn't specify the PYTHIA6 path \n";
   }
-  print "Setting --with-pythia6-lib=$gopt_with_pythia6_lib\n";
-}
-if(! -d $gopt_with_pythia6_lib) {
+  # if it was not set, try to pick it up from the environment
+  if(! -d $gopt_with_pythia6_lib && defined $ENV{'PYTHIA6'}) {
+    $gopt_with_pythia6_lib = $ENV{'PYTHIA6'};
+    print "The \$PYTHIA6 env var is defined. I will pick that and set --with-pythia6-lib=$gopt_with_pythia6_lib\n";
+  }
+  # if it still not set, try autodetecting it
+  if(! -d $gopt_with_pythia6_lib && $auto_detect)
+  {
+    print "Auto-detecting the PYTHIA6 path...\n";
+    $matched = auto_detect("libPythia6*");
+    if( $matched=~m/(\S*)\/libPythia6\S*/i ) {
+      $gopt_with_pythia6_lib = $1;
+    }
+    print "Setting --with-pythia6-lib=$gopt_with_pythia6_lib\n";
+  }
+  if(! -d $gopt_with_pythia6_lib) {
     print "*** Error *** Could not locate the PYTHIA6 library path. Please specify it using --with-pythia6=/some/path/\n\n";
     exit 1;
+  }
 }
 
 # ------------------------------------------------
@@ -949,9 +962,19 @@ if($gopt_enable_g2c eq "YES") {
   }
 }
 
+# ------------------------------------------------
+# Professor2 submode checkout
+# ------------------------------------------------
+if ($gopt_enable_professor2 eq "YES") {
+  #run git submodule update src/ExternalLibs/professor
+  print "Checking out Professor2 submodule...\n";
+  system("git submodule update --init src/ExternalLibs/professor");
+  print "Done.\n";
+}
 
 # Save config options
 #
+print MKCONF "GOPT_ENABLE_PYTHIA6=$gopt_enable_pythia6\n";
 print MKCONF "GOPT_ENABLE_PYTHIA8=$gopt_enable_pythia8\n";
 print MKCONF "GOPT_ENABLE_INCL=$gopt_enable_incl\n";
 print MKCONF "GOPT_ENABLE_GEANT4_INTERFACE=$gopt_enable_geant4_interface\n";
@@ -980,6 +1003,7 @@ print MKCONF "GOPT_ENABLE_PROFILER=$gopt_enable_profiler\n";
 print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n";
 print MKCONF "GOPT_ENABLE_GFORTRAN=$gopt_enable_gfortran\n";
 print MKCONF "GOPT_ENABLE_G2C=$gopt_enable_g2c\n";
+print MKCONF "GOPT_ENABLE_PROFESSOR2=$gopt_enable_professor2\n";
 print MKCONF "GOPT_WITH_COMPILER=$gopt_with_compiler\n";
 print MKCONF "GOPT_WITH_CXX_DEBUG_FLAG=$gopt_with_cxx_debug_flag\n";
 print MKCONF "GOPT_WITH_CXX_OPTIMIZ_FLAG=-$gopt_with_cxx_optimiz_flag\n";

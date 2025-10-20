@@ -23,7 +23,7 @@
 
 \created May 11, 2016
 
-\cpright Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright Copyright (c) 2003-2025, The GENIE Collaboration
          All rights reserved.
          For the licensing terms see $GENIE/USER_LICENSE.
 */

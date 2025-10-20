@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 
  Changes required to implement the GENIE Boosted Dark Matter module
  were installed by Josh Berger (Univ. of Wisconsin)
@@ -189,10 +189,12 @@ Range1D_t genie::utils::gsl::dXSec_dEDNu_E::IntegrationRange() const
   const double B = (M+E) * (E*M + 0.5*fDNuMass2);
   const double C = E*E *(M2 + fDNuMass2) + E*M*fDNuMass2 + 0.25*fDNuMass2*fDNuMass2;
   const double D = sqrt(B*B - A*C);
-
-  Range1D_t DNuEnergy((B - D)/A, (B + D)/A);
+  // Range1D_t DNuEnergy((B - D)/A, (B + D)/A);
+  // 12_04_2025 applying an upper bound on Ttarget at 1 GeV^2/2M --> lower bound on the integration range
+  //            Otherwise the integral does funny things. 
+  const double Tmax = std::min(E - ((B - D) / A), (1. / (2 * M)));
+  Range1D_t DNuEnergy(E - Tmax, (B + D) / A);
   return DNuEnergy;
-
 }
 //____________________________________________________________________________
 genie::utils::gsl::d2XSec_dxdy_E::d2XSec_dxdy_E(

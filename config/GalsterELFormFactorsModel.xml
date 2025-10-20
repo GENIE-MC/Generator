@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the Galster elastic form factors model	
+
+Configurable Parameters:
+.........................................................................................
+Name               Type    Optional   Comment                      Default
+.........................................................................................
+EL-Mv              double  No         Vector Mass                  
+AnomMagnMoment-P   double  No         p Anomalous Magn Moment      CommonParam[MagnMoments]
+AnomMagnMoment-N   double  No         n Anomalous Magn Moment      CommonParam[MagnMoments]
+Galster-Gen-p      double  No         parameter for Gen             
+isIsoscalarNucleon bool    Yes        Is nucleon isoscalar?        false
+-->
+
+  <param_set name="Default"> 
+
+    <param type="string" name="CommonParam"> MagnMoments  </param> 
+
+    <param type="double" name="EL-Mv">         0.71       </param> 
+    
+    <!-- parameter for Galster model, 
+         see ref. S.Galster et al., Nuclear Physics B32 (1971) 221-237
+    -->
+    
+    <param type="double" name="Galster-Gen-p"> 5.6        </param>
+     
+  </param_set>
+  
+  <param_set name="MK">
+     <param type="double" name="EL-Mv">              0.84      </param>
+     <param type="bool" name="isIsoscalarNucleon">   true      </param> 
+  </param_set> 
+
+</alg_conf>
+

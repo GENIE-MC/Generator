@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the SPP xsec algorithm.
+This algorithm offers precomputes and caches free nucleon neutrino resonance SPP  cross sections. 
+
+
+Algorithm Configurable Parameters:
+...........................................................................................................
+Name                        Type    Opt  Comment                                               Default
+...........................................................................................................
+UsePauliBlockingForRES      bool    No   Use Pauli blocking for resonance model?               
+gsl-integration-type        string  Yes  name of GSL numerical integrator                      adaptive
+                                         (adaptive, vegas, miser, plain)                   
+gsl-max-eval                int     Yes  GSL maximal number of function calls                  1000000
+gsl-min-eval                int     Yes  GSL minimal number of function calls                  7500
+gsl-relative-tolerance      double  Yes  relative tolerance of integration                     1e-5
+Wcut                        double  Yes  cut of W, if negative use kinematically allowed Wmax  -1.
+ESplineMax                  double  Yes  This integrator can cache splines for free nulceons;  250.
+                                         these splines have plateauing so for simplicity we 
+                                         set the maximum to be used here. After that value
+                                         we simply use the xsec(E=Emax); value are in GeV                            
+-->
+
+
+  <param_set name="Default">     
+  </param_set>
+
+  <param_set name="WithPauliBlock"> 
+  <!--   
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Account for Pauli blocking in the model?
+   If this option is true, when caching for free nucleons is disabled.
+  -->   
+    <param type="bool"   name="UsePauliBlockingForRES">  true  </param>
+  
+  </param_set>
+  
+  <param_set name="NoPauliBlock"> 
+   <!--   
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Account for Pauli blocking in the model?
+   If this option is true, when caching for free nucleons is disabled.
+  -->  
+    <param type="bool"   name="UsePauliBlockingForRES">  false  </param>
+  
+  </param_set>
+
+</alg_conf>
+
+

@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory 
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool 
 */
 //____________________________________________________________________________
 
@@ -112,7 +112,7 @@ double ReinSehgalSPPXSec::Integrate(
      double rxsec = (Ev<fEMax-1) ? cbranch(Ev) : cbranch(fEMax-1);
 
      //-- Get the BR for the (resonance) -> (exclusive final state)
-     double br = SppChannel::BranchingRatio(spp_channel, res);
+     double br = SppChannel::BranchingRatio(/*spp_channel,*/ res);
 
      //-- Get the Isospin Clebsch-Gordon coefficient for the given resonance
      //   and exclusive final state
