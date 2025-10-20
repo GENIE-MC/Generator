@@ -69,7 +69,7 @@ void BYStrucFunc2021::ReadBYParams(void)
   GetParam( "BY-B", fB ) ;
   GetParam( "BY-CsU", fCsU ) ;
   GetParam( "BY-CsD", fCsD ) ;
-  GetParam( "BY-CsS", fCsD ) ;
+  GetParam( "BY-CvLW", fCvLW ) ;
   GetParam( "BY-Cv1U", fCv1U ) ;
   GetParam( "BY-Cv2U", fCv2U ) ;
   GetParam( "BY-Cv1D", fCv1D ) ;
