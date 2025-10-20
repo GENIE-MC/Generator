@@ -122,8 +122,8 @@ void BYStrucFunc2021::KFactors(const Interaction * interaction,
   
   kuv = KLW * (1.-GD2)*(myQ2+fCv2U)/(myQ2+fCv1U); // K - u(valence)
   kdv = KLW * (1.-GD2)*(myQ2+fCv2D)/(myQ2+fCv1D); // K - d(valence)
-  kus = myQ2/(myQ2+fCsU);                   // K - u(sea)
-  kds = myQ2/(myQ2+fCsD);                   // K - d(sea)
-  double kss = myQ2/(myQ2+fCsS);            // K - s(sea)	
+  kus = myQ2/(myQ2+fCsU);    // K - u(sea)
+  kds = myQ2/(myQ2+fCsD);    // K - d(sea)
+  kss = myQ2/(myQ2+fCsS);    // K - s(sea)	
 }
 //____________________________________________________________________________
