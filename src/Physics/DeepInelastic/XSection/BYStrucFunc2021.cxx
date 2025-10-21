@@ -115,8 +115,8 @@ void BYStrucFunc2021::KFactors(const Interaction * interaction,
   double myQ2  = this->Q2(interaction);
   double GD  = 1. / TMath::Power(1.+myQ2/0.71, 2); // p elastic form factor
   double GD2 = TMath::Power(GD,2);
-	// double Ev    = init_state.ProbeE(kRfHitNucRest);	
-  double q0 = 0;
+
+  double q0 = this->q0(interaction);
   double q02 = TMath::Power(q0,2);
   double KLW = q02 / ( q02 + fCvLW );
   

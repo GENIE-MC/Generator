@@ -63,6 +63,7 @@ protected:
   virtual void   LoadConfig (void);
   virtual void   InitPDF    (void);
   virtual double Q2         (const Interaction * i) const;
+  virtual double q0         (const Interaction * i) const;
   virtual double ScalingVar (const Interaction * i) const;
   virtual void   CalcPDFs   (const Interaction * i) const;
   virtual double NuclMod    (const Interaction * i) const;

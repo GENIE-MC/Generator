@@ -423,6 +423,24 @@ double QPMDISStrucFuncBase::Q2(const Interaction * interaction) const
   return 0;
 }
 //____________________________________________________________________________
+double QPMDISStrucFuncBase::q0(const Interaction * interaction) const
+{
+  const Kinematics & kinematics = interaction->Kine();
+
+  // Compute from Q2 and x
+  if (kinematics.KVSet(kKVQ2) || kinematics.KVSet(kKVq2)) {
+    const Kinematics & kinematics = interaction->Kine();
+    const InitialState & init_state = interaction->InitState();
+    double Mn = init_state.Tgt().HitNucP4Ptr()->M(); // could be off-shell
+    double Q2val = kinematics.Q2();
+    double x     = kinematics.x();
+    double q0 = Q2val / ( 2 * Mn * x ) ;
+    return q0;
+  }
+  LOG("DISSF", pERROR) << "Could not compute Q2!";
+  return 0;
+}
+//____________________________________________________________________________
 double QPMDISStrucFuncBase::ScalingVar(const Interaction* interaction) const
 {
 // The scaling variable is set to the normal Bjorken x.
@@ -432,7 +450,7 @@ double QPMDISStrucFuncBase::ScalingVar(const Interaction* interaction) const
 }
 //____________________________________________________________________________
 void QPMDISStrucFuncBase::KFactors(const Interaction *,
-                 double & kuv, double & kdv, double & kus, double & kds, double & kds ) const
+                 double & kuv, double & kdv, double & kus, double & kds, double & kss ) const
 {
 // This is an abstract class: no model-specific correction
 // The PDF scaling variables are set to 1
@@ -551,8 +569,9 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
   double kval_d = 1.;
   double ksea_u = 1.;
   double ksea_d = 1.;
-
-  this->KFactors(interaction, kval_u, kval_d, ksea_u, ksea_d);
+  double ksea_s = 1.;
+  
+  this->KFactors(interaction, kval_u, kval_d, ksea_u, ksea_d, ksea_s);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "K-Factors:";
@@ -571,7 +590,7 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
   fPDF->ScaleDownValence (kval_d);
   fPDF->ScaleUpSea       (ksea_u);
   fPDF->ScaleDownSea     (ksea_d);
-  fPDF->ScaleStrange     (ksea_d);
+  fPDF->ScaleStrange     (ksea_s);
   fPDF->ScaleCharm       (ksea_u);
   if(above_charm) {
      fPDFc->ScaleUpValence   (kval_u);
