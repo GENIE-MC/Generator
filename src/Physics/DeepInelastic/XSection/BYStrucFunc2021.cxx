@@ -153,3 +153,54 @@ double BYStrucFunc2021::R(const Interaction * interaction) const {
   
   return R1998 ; 
 }
+//____________________________________________________________________________
+double BYStrucFunc2021::NuclMod(const Interaction * interaction) const {
+// Nuclear modification to Fi
+// The scaling variable can be overwritten to include corrections
+
+  if( interaction->TestBit(kIAssumeFreeNucleon)   ) return 1.0;
+  if( interaction->TestBit(kINoNuclearCorrection) ) return 1.0;
+
+  double f = 1.;
+  if(fIncludeNuclMod) {
+    const Target & tgt  = interaction->InitState().Tgt();
+     const Kinematics & kinematics = interaction->Kine();
+     double x = kinematics.x();
+     int    A = tgt.A();
+
+     double xv     = TMath::Min(0.75, TMath::Max(0.05, x));
+     double xv2    = xv  * xv;
+     double xv3    = xv2 * xv;
+     double xv4    = xv3 * xv;
+     double xv5    = xv4 * xv;
+
+     double f = 1.;
+     
+     // first factor goes from free nucleons to deuterium
+     if(A >= 2) {
+       f= 0.985*(1.+0.422*xv - 2.745*xv2 + 7.570*xv3 - 10.335*xv4 + 5.422*xv5);
+     }
+
+     double chiTM = this->ScalingVar(interaction);
+     // 2nd factor goes from deuterium to iso-scalar iron
+     if(A > 2) {
+       f *= (1.096 - 0.38*chiTM - 0.3 * TMath::Exp(-23*chiTM) + 8 * pow(chiTM,15) ) ;
+     }
+
+     if( A == 79 || A == 82 ) { // Gold nd Lead F2(Au,Pb)/F2(Fe)
+       f *= (0.932 + 2.461 * chiTM - 24.23*pow(chiTM,2) + 101.03*pow(chiTM,3) - 203.47*pow(chiTM,4) + 193.85*pow(chiTM,5) - 69.82*pow(chiTM,6)); 
+     }
+
+     if( A == 12 ) { // F2(Fe)/F2(C)
+       f /= ( 0.919 + 1.844*chiTM - 12.73*pow(chiTM,2) + 36.89*pow(chiTM,3) - 46.77*pow(chiTM,4) + 21.22*pow(chiTM,5));
+     }
+     
+  return f;
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+     LOG("DISSF", pDEBUG) << "Nuclear factor for x of " << x << "  = " << f;
+#endif
+  }
+
+  return f;  
+}

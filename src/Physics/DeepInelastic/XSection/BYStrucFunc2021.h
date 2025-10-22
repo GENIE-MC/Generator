@@ -53,7 +53,7 @@ protected:
                          double & kdv, double & kus, double & kds, double & kss ) const;
   double R(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
   double H(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
-
+  double NuclMod(const Interaction * interaction) const;
   // Bodek-Yang model-specific parameters
 
   double fA;     ///< better scaling var parameter A
