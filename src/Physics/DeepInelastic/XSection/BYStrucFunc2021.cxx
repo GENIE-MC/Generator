@@ -224,6 +224,8 @@ double BYStrucFunc2021::NuclMod(const Interaction * interaction) const {
      double chiTM = this->ScalingVar(interaction);
      // 2nd factor goes from deuterium to iso-scalar iron
      if(A > 2) {
+       // Fermi motion is already accounted for at high chiTM. To avoid double-counting, we limit the chiTM range:
+       if(! interaction->TestBit(kIAssumeFreeNucleon) && chiTM > 0.65 ) chiTM = 0.65;
        f *= (1.096 - 0.38*chiTM - 0.3 * TMath::Exp(-23*chiTM) + 8 * pow(chiTM,15) ) ;
      }
 
