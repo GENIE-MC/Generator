@@ -69,6 +69,8 @@ protected:
   double fPsA;   ///< P-axial sea parameter
   double fPvA;   ///< P-axial valance paramter
   double fCsA;   ///< C-axial sea parameter
+  double fCaLW_nubar; ///< C-axial neutrino LW parameter
+  double fCaLW_nu; ///< C-axial anti-neutrino LW parameter
   double fH0;
   double fH1;
   double fH2;

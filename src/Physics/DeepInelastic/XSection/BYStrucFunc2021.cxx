@@ -19,6 +19,7 @@
 #include "Physics/DeepInelastic/XSection/BYStrucFunc2021.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -78,6 +79,8 @@ void BYStrucFunc2021::ReadBYParams(void)
   GetParam( "BY-PsA" , fPsA  ) ;
   GetParam( "BY-PvA" , fPvA  ) ;
   GetParam( "BY-CsA" , fCsA  ) ;
+  GetParam( "BY-CaLW-nubar" , fCaLW_nu  ) ;
+  GetParam( "BY-CaLW-nubar" , fCaLW_nubar  ) ;
   GetParam( "BY-H0" , fH0  ) ;
   GetParam( "BY-H1" , fH1  ) ;
   GetParam( "BY-H2" , fH2  ) ;
@@ -99,6 +102,8 @@ void BYStrucFunc2021::Init(void)
   fPsA  = 0;
   fPvA  = 0;
   fCsA  = 0;
+  fCaLW_nu = 0;
+  fCaLW_nubar = 0;
   fH0   = 0;
   fH1   = 0;
   fH2   = 0;
@@ -141,11 +146,28 @@ void BYStrucFunc2021::KFactors(const Interaction * interaction,
   kss = myQ2/(myQ2+fCsS);    // K - s(sea)	
 }
 //____________________________________________________________________________
-void BYStrucFunc2021::KAxialFactors (const Interaction * i, double & ksea, double & kvalance ) const {
+void BYStrucFunc2021::KAxialFactors (const Interaction * interaction, double & ksea, double & kvalance ) const {
   // https://arxiv.org/pdf/2108.09240 Sec 11.2 
   double myQ2  = this->Q2(interaction);
-  ksea = ( myQ2 + kPsA*kCsA ) / ( myQ2 + kCsA ) ;
-  kvalance = ( myQ2 + kPvA * 0.18 ) / ( myQ2 + 0.18 ) ; 
+  ksea = ( myQ2 + fPsA*fCsA ) / ( myQ2 + fCsA ) ;
+  kvalance = ( myQ2 + fPvA * 0.18 ) / ( myQ2 + 0.18 ) ; 
+
+  // Compute Low-q0 modificaion factor for neutrinos and anti-neutrinos
+  double q0 = this->q0(interaction);
+  double q02 = TMath::Power(q0,2);
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
+  const InitialState & init_state = interaction->InitState();
+  int  probe_pdgc  = init_state.ProbePdg();
+  bool is_nu       = pdg::IsNeutrino     ( probe_pdgc  );
+  bool is_nubar    = pdg::IsAntiNeutrino ( probe_pdgc  );
+  double KLW = 1; 
+  if( is_nu ) {
+    KLW = ( q02 + fCaLW_nu ) / q02 ;
+  } else if( is_nubar ) {
+    KLW = ( q02 + fCaLW_nubar ) / q02 ;
+  }
+  // double check it only affects valance factors:
+  kvalance *= KLW ; 
 }
 //____________________________________________________________________________
 double BYStrucFunc2021::H(const Interaction * interaction) const {
