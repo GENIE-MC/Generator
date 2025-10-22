@@ -75,6 +75,10 @@ void BYStrucFunc2021::ReadBYParams(void)
   GetParam( "BY-Cv1D", fCv1D ) ;
   GetParam( "BY-Cv2D", fCv2D ) ;
   GetParam( "BY-CsS" , fCsS  ) ;
+  GetParam( "BY-H0" , fH0  ) ;
+  GetParam( "BY-H1" , fH1  ) ;
+  GetParam( "BY-H2" , fH2  ) ;
+  GetParam( "BY-H3" , fH3  ) ;
 }
 //____________________________________________________________________________
 void BYStrucFunc2021::Init(void)
@@ -127,3 +131,11 @@ void BYStrucFunc2021::KFactors(const Interaction * interaction,
   kss = myQ2/(myQ2+fCsS);    // K - s(sea)	
 }
 //____________________________________________________________________________
+double BYStrucFunc2021::H(const Interaction * interaction) const {
+  // Overrides QPMDISStrucFuncBase::H() function to compute the correction of the BY 2021 update
+  // The correction is given by Eq. 34 of https://arxiv.org/pdf/2108.09240
+  const Kinematics & kinematics = interaction->Kine();
+  double bjx = kinematics.x();
+  return fH0 + fH1 * bjx + fH2 * pow(bjx,2) + fH3 * pow(bjx,3);
+}
+

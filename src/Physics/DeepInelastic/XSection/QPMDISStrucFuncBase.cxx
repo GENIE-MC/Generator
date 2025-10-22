@@ -107,6 +107,9 @@ void QPMDISStrucFuncBase::LoadConfig(void)
   //-- include R (~FL)?
   GetParam( "IncludeR", fIncludeR ) ;
 
+  //-- include H?
+  GetParam( "IncludeH", fIncludeH, false ) ;
+
   //-- include nuclear factor (shadowing / anti-shadowing / ...)
   GetParam( "IncludeNuclMod", fIncludeNuclMod ) ;
 
@@ -350,10 +353,12 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   double x     = this->ScalingVar(interaction);
   double f     = this->NuclMod   (interaction); // nuclear modification
   double r     = this->R         (interaction); // R ~ FL
-
+  double H     = fIncludeH ? this->H(interaction) : 1;
+    
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "Nucl. mod   = " << f;
   LOG("DISSF", pDEBUG) << "R(=FL/2xF1) = " << r;
+  LOG("DISSF", pDEBUG) << "H = " << H;
 #endif
 
   if(fUse2016Corrections) {
@@ -389,6 +394,9 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     fF4 = 0.;              // Nucl.Phys.B 84, 467 (1975)
   }
 
+  // Apply H(x,Q2) factor for xF3:
+  fF3 *= H;
+  
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG)
      << "F1-F5 = "
@@ -509,6 +517,10 @@ double QPMDISStrucFuncBase::R(const Interaction * interaction) const
     return Rval;
   }
   return 0;
+}
+//____________________________________________________________________________
+double QPMDISStrucFuncBase::H(const Interaction * interaction) const {
+  return 1 ; 
 }
 //____________________________________________________________________________
 void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const

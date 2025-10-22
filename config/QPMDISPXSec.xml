@@ -27,6 +27,8 @@ WeinbergAngle               double  No                                          
   </param_set>
 
   <param_set name="GRV982010">
-    <param type="alg" name="SFAlg"> genie::BYStrucFunc/GRV982010 </param>
+    <param type="string" name="CommonParam"> WeakInt  </param>
+    <param type="double" name="DIS-EM-XSecScale">    1. </param>
+    <param type="alg" name="SFAlg"> genie::BYStrucFunc2021/Default </param>
   </param_set>
 </alg_conf>

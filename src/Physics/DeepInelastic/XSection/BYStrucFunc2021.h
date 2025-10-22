@@ -51,6 +51,7 @@ protected:
   double ScalingVar (const Interaction * i) const;
   void   KFactors   (const Interaction * i, double & kuv,
                          double & kdv, double & kus, double & kds, double & kss ) const;
+  double H(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
 
   // Bodek-Yang model-specific parameters
 
@@ -64,6 +65,10 @@ protected:
   double fCv2U;  ///< U-val K factor parameter
   double fCv1D;  ///< D-val K factor parameter
   double fCv2D;  ///< D-val K factor parameter
+  double fH0;
+  double fH1;
+  double fH2;
+  double fH3;
 };
 
 }         // genie namespace

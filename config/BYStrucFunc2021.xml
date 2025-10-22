@@ -15,6 +15,10 @@ BY-Cv1U                    double  No    Bodek-Yang u val K factor param
 BY-Cv2U                    double  No    Bodek-Yang u val K factor param        
 BY-Cv1D                    double  No    Bodek-Yang d val K factor param        
 BY-Cv2D                    double  No    Bodek-Yang d val K factor param        
+BY-H0                      double  No    Bodek-Yang high order QCD parameter
+BY-H1                      double  No    Bodek-Yang high order QCD parameter
+BY-H2                      double  No    Bodek-Yang high order QCD parameter
+BY-H3                      double  No    Bodek-Yang high order QCD parameter
 
 +++ This model inherits from QPMDISStrucFunc and calls its configure
 +++ The following parameters have to be the same as in QPMDISStrucFunc.xml
@@ -51,7 +55,10 @@ WeinbergAngle              double  No                                           
      <param type="double" name="BY-Cv1D">  0.341   </param>
      <param type="double" name="BY-Cv2D">  0.323   </param>
      <param type="double" name="BY-CsS">   0.561   </param>
-
+     <param type="double" name="BY-H0">    0.914   </param>
+     <param type="double" name="BY-H1">    0.296   </param>
+     <param type="double" name="BY-H2">    -0.374   </param>
+     <param type="double" name="BY-H3">    0.165   </param>
      <!-- 
 	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	  Switches controlling the DIS structure function calculation. Those switches specify whether to:
@@ -61,6 +68,7 @@ WeinbergAngle              double  No                                           
 	  - Select value for Q2 cutoff in relation between 2xF1 and F2
      -->
      <param type="bool"   name="IncludeR">           true  </param>
+     <param type="bool"   name="IncludeH">           true  </param>
      <param type="bool"   name="IncludeNuclMod">     true  </param>
      <param type="bool"   name="Use2016Corrections"> false </param>
      <param type="double" name="LowQ2CutoffF1F2">    0.8   </param>
