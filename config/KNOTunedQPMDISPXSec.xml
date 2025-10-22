@@ -24,4 +24,8 @@ Wcut                        double  no                                        Co
     <param type="double" name="NRB-EM-XSecScale"> 1. </param>
   </param_set>
 
+  <param_set name="GRV982010">
+    <param type="alg" name="DISModel">   genie::QPMDISPXSec/GRV982010      </param>
+  </param_set>
+
 </alg_conf>
